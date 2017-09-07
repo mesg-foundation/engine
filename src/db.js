@@ -10,19 +10,19 @@ const mutationEvent = require('./queries/mutationEvent')
 const headers = {
   Authorization: [
     'Bearer',
-    'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE0OTk1OTA0OTEsImNsaWVudElkIjoiY2o0bnB3dW9mb3FzZDAxMThjcG1zaDdwMSIsInByb2plY3RJZCI6ImNqNG5wd3VvZm9xc2MwMTE4b2VsczdsaW8iLCJwZXJtYW5lbnRBdXRoVG9rZW5JZCI6ImNqNHdoZ2s4dmV0MzEwMTMxeGdla3FsNzcifQ.VXyiJ0ZNLiZDdF0cjGvx0zIYksCtDBZz-u2kLHHIbkQ'
+    process.env.AUTH_TOKEN
   ].join(' ')
 }
 
 const client = new ApolloClient({
   networkInterface: addGraphQLSubscriptions(
     createNetworkInterface({
-      uri: 'https://api.graph.cool/simple/v1/eth-hook',
+      uri: process.env.GRAPHQL_HTTP_ENDPOINT,
       opts: {
         headers,
       }
     }),
-    new SubscriptionClient('wss://subscriptions.graph.cool/v1/eth-hook', {
+    new SubscriptionClient(process.env.GRAPHQL_WS_ENDPOINT, {
       reconnect: true,
       connectionParams: headers,
     }, ws)
