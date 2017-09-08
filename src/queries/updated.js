@@ -1,10 +1,15 @@
 const gql = require('graphql-tag')
 
 module.exports = gql`
-  subscription {
+  subscription($chain: CHAIN!) {
     Trigger(
       filter: {
-        mutation_in: [CREATED, UPDATED]
+        mutation_in: [CREATED, UPDATED],
+        node: {
+          contract: {
+            chain: $chain
+          }
+        }
       }
     ) {
       node {
