@@ -14,12 +14,10 @@ module.exports = web3 => {
 
   const add = (trigger, onEvent) => {
     const contract = utils.getContract(web3, trigger)
-    if (!utils.isValidEvent(contract, trigger.eventName)) { return }  
+    if (!utils.isValidEvent(contract, trigger.eventName)) { return }
     remove(trigger.id)
     store[trigger.id] = utils
       .createListenerForEvent(contract, trigger.eventName)
-
-    store[trigger.id]
       .watch((err, event) => onEvent(err, {
         event,
         trigger

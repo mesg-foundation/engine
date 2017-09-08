@@ -18,13 +18,13 @@ const client = new ApolloClient({
     createNetworkInterface({
       uri: process.env.GRAPHQL_HTTP_ENDPOINT,
       opts: {
-        headers,
+        headers
       }
     }),
     new SubscriptionClient(process.env.GRAPHQL_WS_ENDPOINT, {
       reconnect: true,
       timeout: 30000,
-      connectionParams: headers,
+      connectionParams: headers
     }, ws)
   )
 })
