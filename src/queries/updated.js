@@ -4,7 +4,7 @@ module.exports = gql`
   subscription {
     Trigger(
       filter: {
-        mutation_in: [UPDATED]
+        mutation_in: [CREATED, UPDATED]
       }
     ) {
       node {
@@ -13,6 +13,7 @@ module.exports = gql`
           address
         }
         id
+        enable
         eventName
       }
     }
