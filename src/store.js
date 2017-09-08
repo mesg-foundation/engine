@@ -18,8 +18,6 @@ module.exports = web3 => {
     remove(trigger.id)
     store[trigger.id] = utils
       .createListenerForEvent(contract, trigger.eventName)
-
-    store[trigger.id]
       .watch((err, event) => onEvent(err, {
         event,
         trigger
