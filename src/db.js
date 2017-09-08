@@ -2,7 +2,6 @@ const ws = require('ws')
 const { ApolloClient, createNetworkInterface } = require('apollo-client')
 const { SubscriptionClient, addGraphQLSubscriptions } = require('subscriptions-transport-ws')
 const queryFetchAll = require('./queries/fetchAll')
-const queryCreated = require('./queries/created')
 const queryUpdated = require('./queries/updated')
 const queryDeleted = require('./queries/deleted')
 const mutationEvent = require('./queries/mutationEvent')
@@ -24,6 +23,7 @@ const client = new ApolloClient({
     }),
     new SubscriptionClient(process.env.GRAPHQL_WS_ENDPOINT, {
       reconnect: true,
+      timeout: 30000,
       connectionParams: headers,
     }, ws)
   )
@@ -32,13 +32,6 @@ const client = new ApolloClient({
 const fetchAll = () => client
   .query({ query: queryFetchAll })
   .then(x => x.data.allTriggers)
-
-const onDataCreated = callback => client
-  .subscribe({ query: queryCreated })
-  .subscribe({
-    next: value => callback(null, value.Trigger.node),
-    error: error => callback(error, null)
-  })
 
 const onDataUpdated = callback => client
   .subscribe({ query: queryUpdated })
@@ -67,7 +60,6 @@ const writeEvent = (event, trigger) => client
 
 module.exports = {
   fetchAll,
-  onDataCreated,
   onDataUpdated,
   onDataDeleted,
   writeEvent

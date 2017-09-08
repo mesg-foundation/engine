@@ -15,6 +15,8 @@ DB.fetchAll()
     .map(trigger => Store.add(trigger, handleEvent))
   )
 
-DB.onDataCreated((err, trigger) => Store.add(trigger, handleEvent))
-DB.onDataUpdated((err, trigger) => Store.add(trigger, handleEvent))
+DB.onDataUpdated((err, trigger) => trigger.enable
+  ? Store.add(trigger, handleEvent)
+  : Store.remove(trigger.id))
+
 DB.onDataDeleted((err, triggerId) => Store.remove(triggerId))
