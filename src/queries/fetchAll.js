@@ -1,9 +1,12 @@
 const gql = require('graphql-tag')
 
 module.exports = gql`
-  query {
+  query($chain: CHAIN!) {
     allTriggers(filter: {
-      enable: true
+      enable: true,
+      contract: {
+        chain: $chain
+      }
     }) {
       contract {
         abi

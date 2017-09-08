@@ -29,19 +29,23 @@ const client = new ApolloClient({
   )
 })
 
+const variables = {
+  chain: process.env.CHAIN
+}
+
 const fetchAll = () => client
-  .query({ query: queryFetchAll })
+  .query({ query: queryFetchAll, variables })
   .then(x => x.data.allTriggers)
 
 const onDataUpdated = callback => client
-  .subscribe({ query: queryUpdated })
+  .subscribe({ query: queryUpdated, variables })
   .subscribe({
     next: value => callback(null, value.Trigger.node),
     error: error => callback(error, null)
   })
 
 const onDataDeleted = callback => client
-  .subscribe({ query: queryDeleted })
+  .subscribe({ query: queryDeleted, variables })
   .subscribe({
     next: value => callback(null, value.Trigger.previousValues.id),
     error: error => callback(error, null)
