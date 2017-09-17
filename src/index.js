@@ -17,6 +17,7 @@ const handleEvent = ({ event, trigger }) => DB.writeEvent(event, trigger)
 const executeIfNoError = callback => (err, data) => {
   if (err) {
     bugsnag.notify(new Error(err))
+    console.error(err)
   } else {
     callback(data)
   }
