@@ -1,3 +1,6 @@
 node_modules
 .env
 newrelic_agent.log
+parity/chains
+parity/keys
+parity/network

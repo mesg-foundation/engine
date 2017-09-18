@@ -1,0 +1,15 @@
+version: '3'
+services:
+  parity:
+    image: parity/parity:stable
+    restart: always
+    volumes:
+      - ./parity:/root/parity
+    command: '--base-path /root/parity --config /root/parity/config.toml'
+  listener:
+    build: ./
+    restart: always
+    depends_on:
+      - parity
+    command: './start-listener.sh'
+    env_file: .env
