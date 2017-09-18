@@ -2,13 +2,9 @@ require('dotenv').config()
 require('isomorphic-fetch')
 require('newrelic')
 const bugsnag = require('bugsnag')
-const Web3 = require('web3')
-
 bugsnag.register(process.env.BUGSNAG_KEY)
 
-const web3 = new Web3(new Web3.providers.HttpProvider(process.env.NODE_ADDRESS))
-
-const Store = require('./store')(web3)
+const Store = require('./store')
 const DB = require('./db')
 
 const handleEvent = ({ event, trigger }) => DB.writeEvent(event, trigger)
