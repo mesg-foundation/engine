@@ -1,15 +1,14 @@
-# This config should be placed in following path: /root/parity/config.toml
-
 [parity]
-# chain = "ropsten"
+# chain = "homestead"
 
 [ui]
 disable = true
 
 [rpc]
 interface = "0.0.0.0"
-#cors = %RPC_CORS%
+cors = "null"
 apis = ["rpc"]
+hosts = ["all"]
 
 [ipc]
 disable = true
@@ -17,17 +16,8 @@ disable = true
 [dapps]
 disable = true
 
-[footprint]
-#pruning_history = 1201
-cache_size = 8
-pruning_memory = 33
-
-#[ws]
-#interface = "0.0.0.0"
-#apis = ["rpc"]
-
 [secretstore]
 disable = true
 
 [ipfs]
-#disable = true
+enable = false
