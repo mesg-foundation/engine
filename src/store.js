@@ -1,31 +1,26 @@
-const utils = require('./utils')
+const createListener = require('./listeners')
 const store = {}
 
-module.exports = web3 => {
-  const remove = triggerId => {
-    const listener = store[triggerId]
-    if (listener) {
-      try {
-        listener.stopWatching()
-      } catch (e) { }
-    }
-    delete store[triggerId]
+const remove = triggerId => {
+  const listener = store[triggerId]
+  if (listener) {
+    try {
+      listener.stopWatching()
+    } catch (e) { }
   }
-
-  const add = (trigger, onEvent) => {
-    const contract = utils.getContract(web3, trigger)
-    if (!utils.isValidEvent(contract, trigger.eventName)) { return }
-    remove(trigger.id)
-    store[trigger.id] = utils
-      .createListenerForEvent(contract, trigger.eventName)
-      .watch((err, event) => onEvent(err, {
-        event,
-        trigger
-      }))
-  }
-
-  return {
-    add,
-    remove
-  }
+  delete store[triggerId]
 }
+
+const add = (trigger, onEvent) => {
+  remove(trigger.id)
+  store[trigger.id] = createListener(trigger)
+    .watch((err, event) => onEvent(err, {
+      event,
+      trigger
+    }))
+}
+
+module.exports = ({
+  add,
+  remove
+})
