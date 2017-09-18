@@ -7,7 +7,6 @@ disable = true
 [rpc]
 interface = "0.0.0.0"
 cors = "null"
-apis = ["rpc"]
 hosts = ["all"]
 
 [ipc]

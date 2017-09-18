@@ -8,4 +8,4 @@ RUN yarn
 
 COPY . .
 
-CMD ["npm", "start"]
+CMD ["./start-listener.sh"]
