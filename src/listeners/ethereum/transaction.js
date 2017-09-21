@@ -1,17 +1,15 @@
 const EthereumConnector = require('../../connectors/ethereum')
 
-const match = trigger => trigger.contract && trigger.eventName
+const match = trigger => false // TODO trigger.contract && trigger.eventName
 
 const createListener = trigger => {
   const connector = EthereumConnector(trigger.contract.chain)
-  const onEvent = connector
-    .contract(trigger.contract.abi)
-    .at(trigger.contract.address)[trigger.eventName]
-  if (!onEvent) { return null }
-  const listener = onEvent(null, {
-    fromBlock: 'latest',
-    toBlock: 'latest'
-  })
+  const listener = connector
+    .filter({
+      fromBlock: 'latest',
+      toBlock: 'latest',
+      address: [trigger.contract.address]
+    })
   return {
     watch: callback => listener.watch((error, data) => error
       ? callback(error)
