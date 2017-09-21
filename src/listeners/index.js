@@ -1,10 +1,18 @@
-const ethereum = {
-  contractEvent: require('./ethereum/contractEvent')
-}
-
-const isEthereumContractEvent = x => x.contract && x.eventName
+const listeners = [
+  require('./ethereum/contractEvent'),
+  require('./ethereum/transaction')
+]
 
 module.exports = trigger => {
-  if (isEthereumContractEvent(trigger)) { return ethereum.contractEvent(trigger) }
-  throw new Error(`${trigger.id} does not have any valid listener`)
+  const matchingListeners = listeners
+    .filter(x => x.match(trigger))
+    .map(x => x.createListener(trigger))
+  if (!matchingListeners.length) throw new Error(`${trigger.id} does not have any valid listener`)
+
+  return matchingListeners.length === 1
+    ? matchingListeners[0]
+    : {
+      watch: callback => matchingListeners.forEach(x => x.watch(callback)),
+      stopWatching: () => matchingListeners.forEach(x => x.stopWatching())
+    }
 }
