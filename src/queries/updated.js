@@ -6,20 +6,29 @@ module.exports = gql`
       filter: {
         mutation_in: [CREATED, UPDATED],
         node: {
-          contract: {
-            chain: $chain
+          connector: {
+            ethereumContract: {
+              contract: {
+                chain: $chain
+              }
+            }
           }
         }
       }
     ) {
       node {
-        contract {
-          abi
-          address
-        }
         id
         enable
-        eventName
+        connector {
+          connectorType
+          ethereumContract {
+            eventName
+            contract {
+              abi
+              address
+            }
+          }
+        }
       }
     }
   }`

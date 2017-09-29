@@ -6,8 +6,12 @@ module.exports = gql`
       filter: {
         mutation_in: [DELETED]
         node: {
-          contract: {
-            chain: $chain
+          connector: {
+            ethereumContract: {
+              contract: {
+                chain: $chain
+              }
+            }
           }
         }
       }

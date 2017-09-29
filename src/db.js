@@ -55,8 +55,7 @@ const writeEvent = (event, trigger) => client
   .mutate({
     mutation: mutationEvent,
     variables: {
-      payload: event.args,
-      transactionId: event.transactionHash,
+      ...event,
       triggerId: trigger.id
     }
   })
