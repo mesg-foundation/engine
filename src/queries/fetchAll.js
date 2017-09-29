@@ -4,16 +4,25 @@ module.exports = gql`
   query($chain: CHAIN!) {
     allTriggers(filter: {
       enable: true,
-      contract: {
-        chain: $chain
+      connector: {
+        ethereumContract: {
+          contract: {
+            chain: $chain
+          }
+        }
       }
     }) {
-      contract {
-        abi
-        address
-      }
       id
       enable
-      eventName
+      connector {
+        connectorType
+        ethereumContract {
+          eventName
+          contract {
+            abi
+            address
+          }
+        }
+      }
     }
   }`
