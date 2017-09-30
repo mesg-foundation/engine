@@ -1,27 +1,18 @@
 const EthereumConnector = require('../../connectors/ethereum')
 
-const match = trigger => false // TODO trigger.contract && trigger.eventName
+const match = trigger => trigger.connector.connectorType === 'ETHEREUM_TRANSACTION'
 
 const createListener = trigger => {
-  const connector = EthereumConnector(trigger.contract.chain)
-  const listener = connector
+  const { address, chain } = trigger.connector.ethereumTransaction
+  const ethConnector = EthereumConnector(chain)
+  const listener = ethConnector
     .filter({
       fromBlock: 'latest',
       toBlock: 'latest',
-      address: [trigger.contract.address]
+      address: [address]
     })
   return {
-    watch: callback => listener.watch((error, data) => error
-      ? callback(error)
-      : Promise.all([
-        Promise.resolve(data),
-        connector.getTransactionReceiptPromise(data.transactionHash),
-        connector.getTransactionPromise(data.transactionHash)
-      ])
-        .then(results => results.reduce((acc, value) => Object.assign(acc, value), {}))
-        .then(data => callback(null, data))
-        .catch(error => callback(error))
-    ),
+    watch: callback => listener.watch(ethConnector.handleEvent(callback)),
     stopWatching: listener.stopWatching
   }
 }
