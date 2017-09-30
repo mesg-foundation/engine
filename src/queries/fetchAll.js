@@ -1,15 +1,24 @@
 const gql = require('graphql-tag')
 
 module.exports = gql`
-  query($chain: CHAIN!) {
+  query($chain: ETHEREUM_BLOCKCHAIN!) {
     allTriggers(filter: {
       enable: true,
       connector: {
-        ethereumContract: {
-          contract: {
-            chain: $chain
+        OR: [
+          {
+            ethereumContract: {
+              contract: {
+                chain: $chain
+              }
+            }
+          },
+          {
+            ethereumTransaction: {
+              chain: $chain
+            }
           }
-        }
+        ]
       }
     }) {
       id
@@ -22,6 +31,10 @@ module.exports = gql`
             abi
             address
           }
+        }
+        ethereumTransaction {
+          address
+          chain
         }
       }
     }
