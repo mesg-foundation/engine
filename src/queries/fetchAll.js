@@ -1,25 +1,9 @@
 const gql = require('graphql-tag')
 
 module.exports = gql`
-  query($chain: ETHEREUM_BLOCKCHAIN!) {
+  query {
     allTriggers(filter: {
-      enable: true,
-      connector: {
-        OR: [
-          {
-            ethereumContract: {
-              contract: {
-                chain: $chain
-              }
-            }
-          },
-          {
-            ethereumTransaction: {
-              chain: $chain
-            }
-          }
-        ]
-      }
+      enable: true
     }) {
       id
       enable
