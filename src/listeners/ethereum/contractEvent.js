@@ -1,20 +1,21 @@
-const EthereumConnector = require('../../connectors/ethereum')
+const { InvalidEventError } = require('../../errors')
+const createClient = require('./client')
 
 const match = trigger => trigger.connector.connectorType === 'ETHEREUM_CONTRACT'
 
-const createListener = trigger => {
+const createListener = async trigger => {
   const { contract, eventName } = trigger.connector.ethereumContract
-  const ethConnector = EthereumConnector(contract.chain)
-  const onEvent = ethConnector
+  const client = await createClient(contract.chain)
+  const onEvent = client
     .contract(contract.abi)
     .at(contract.address)[eventName]
-  if (!onEvent) { return null }
+  if (!onEvent) { throw new InvalidEventError(eventName) }
   const listener = onEvent(null, {
     fromBlock: 'latest',
     toBlock: 'latest'
   })
   return {
-    watch: callback => listener.watch(ethConnector.handleEvent(callback)),
+    watch: callback => listener.watch(client.handleEvent(callback)),
     stopWatching: listener.stopWatching
   }
 }

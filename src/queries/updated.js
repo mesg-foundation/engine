@@ -1,28 +1,10 @@
 const gql = require('graphql-tag')
 
 module.exports = gql`
-  subscription($chain: ETHEREUM_BLOCKCHAIN!) {
+  subscription {
     Trigger(
       filter: {
-        mutation_in: [CREATED, UPDATED],
-        node: {
-          connector: {
-            OR: [
-              {
-                ethereumContract: {
-                  contract: {
-                    chain: $chain
-                  }
-                }
-              },
-              {
-                ethereumTransaction: {
-                  chain: $chain
-                }
-              }
-            ]
-          }
-        }
+        mutation_in: [CREATED, UPDATED]
       }
     ) {
       node {
@@ -35,6 +17,7 @@ module.exports = gql`
             contract {
               abi
               address
+              chain
             }
           },
           ethereumTransaction {

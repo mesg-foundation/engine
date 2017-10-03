@@ -1,3 +1,5 @@
+const { InvalidBlockchainError } = require('../../errors')
+const { testConnection } = require('../../utils')
 const Web3 = require('web3')
 
 const connectors = {}
@@ -32,9 +34,17 @@ const handleEvent = web3Client => callback => (error, data) => error
     .then(data => callback(null, data))
     .catch(error => callback(error))
 
-module.exports = chain => {
+const nodeEndpoint = chain => {
+  const endpoint = process.env[`ETHEREUM_${chain}`]
+  if (!endpoint) throw new InvalidBlockchainError(chain)
+  return endpoint
+}
+
+module.exports = async chain => {
   if (!connectors[chain]) {
-    const web3Client = new Web3(new Web3.providers.HttpProvider(process.env.NODE_ADDRESS))
+    const endpoint = nodeEndpoint(chain)
+    const web3Client = new Web3(new Web3.providers.HttpProvider(endpoint))
+    await testConnection(() => web3Client.isConnected(), endpoint)
     web3Client.eth.handleEvent = handleEvent(web3Client)
     connectors[chain] = web3Client.eth
   }
