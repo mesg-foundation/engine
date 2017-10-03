@@ -1,4 +1,5 @@
 const { InvalidBlockchainError } = require('../../errors')
+const { testConnection } = require('../../utils')
 const Web3 = require('web3')
 
 const connectors = {}
@@ -41,7 +42,9 @@ const nodeEndpoint = chain => {
 
 module.exports = async chain => {
   if (!connectors[chain]) {
-    const web3Client = new Web3(new Web3.providers.HttpProvider(nodeEndpoint(chain)))
+    const endpoint = nodeEndpoint(chain)
+    const web3Client = new Web3(new Web3.providers.HttpProvider(endpoint))
+    await testConnection(() => web3Client.isConnected(), endpoint)
     web3Client.eth.handleEvent = handleEvent(web3Client)
     connectors[chain] = web3Client.eth
   }

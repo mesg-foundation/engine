@@ -4,3 +4,4 @@ newrelic_agent.log
 parity/chains
 parity/keys
 parity/network
+.node-xmlhttprequest*
