@@ -1,6 +1,6 @@
 const { notify } = require('bugsnag')
 
-const JsonRPCConnectionError = message => {
+function JsonRPCConnectionError (message) {
   this.name = 'JsonRPCConnectionError'
   this.message = (message || '')
   notify(this.name, this.message)

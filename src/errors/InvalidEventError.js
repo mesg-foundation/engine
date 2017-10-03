@@ -1,6 +1,6 @@
 const { notify } = require('bugsnag')
 
-const InvalidEventError = message => {
+function InvalidEventError (message) {
   this.name = 'InvalidEventError'
   this.message = (message || '')
   notify(this.name, this.message)
