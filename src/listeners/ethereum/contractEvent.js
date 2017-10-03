@@ -1,14 +1,15 @@
+const { InvalidEventError } = require('../../errors')
 const createClient = require('./client')
 
 const match = trigger => trigger.connector.connectorType === 'ETHEREUM_CONTRACT'
 
-const createListener = trigger => {
+const createListener = async trigger => {
   const { contract, eventName } = trigger.connector.ethereumContract
-  const client = createClient(contract.chain)
+  const client = await createClient(contract.chain)
   const onEvent = client
     .contract(contract.abi)
     .at(contract.address)[eventName]
-  if (!onEvent) { return null }
+  if (!onEvent) { throw new InvalidEventError(eventName) }
   const listener = onEvent(null, {
     fromBlock: 'latest',
     toBlock: 'latest'

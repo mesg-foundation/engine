@@ -1,18 +1,21 @@
-const listeners = [
+const { NoListenersError } = require('../errors')
+const listenersModules = [
   require('./ethereum/contractEvent'),
   require('./ethereum/transaction')
 ]
 
-module.exports = trigger => {
-  const matchingListeners = listeners
+module.exports = async trigger => {
+  const matchingListenersPromises = listenersModules
     .filter(x => x.match(trigger))
     .map(x => x.createListener(trigger))
-  if (!matchingListeners.length) throw new Error(`${trigger.id} does not have any valid listener`)
+  
+  if (!matchingListenersPromises.length) {
+    throw new NoListenersError(trigger.id)
+  }
 
-  return matchingListeners.length === 1
-    ? matchingListeners[0]
-    : {
-      watch: callback => matchingListeners.forEach(x => x.watch(callback)),
-      stopWatching: () => matchingListeners.forEach(x => x.stopWatching())
-    }
+  const listeners = await Promise.all(matchingListenersPromises)
+  return {
+    watch: callback => listeners.map(x => x.watch(callback)),
+    stopWatching: () => listeners.map(x => x.stopWatching())
+  }
 }
