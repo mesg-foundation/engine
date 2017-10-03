@@ -11,7 +11,7 @@ const createListener = async trigger => {
       toBlock: 'latest',
       address: [address]
     })
-    return {
+  return {
     watch: callback => listener.watch(client.handleEvent(callback)),
     stopWatching: listener.stopWatching
   }

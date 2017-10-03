@@ -8,7 +8,7 @@ module.exports = async trigger => {
   const matchingListenersPromises = listenersModules
     .filter(x => x.match(trigger))
     .map(x => x.createListener(trigger))
-  
+
   if (!matchingListenersPromises.length) {
     throw new NoListenersError(trigger.id)
   }
