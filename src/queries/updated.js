@@ -17,6 +17,7 @@ module.exports = gql`
             contract {
               abi
               address
+              chain
             }
           },
           ethereumTransaction {
