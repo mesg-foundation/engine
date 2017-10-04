@@ -29,8 +29,8 @@ const checkAddressBalance = (client, transaction, chain, address) => {
   const newBalance = client.eth.getBalance(address)
   if (newBalance.equals(balance)) { return }
   listeners[chain].addresses[address].balance = newBalance
-  callbacks.forEach(callback => {
-    client.handleEvent(callback)(null, {
+  callbacks.forEach(callback => client
+    .handleEvent(callback)(null, {
       ...transaction,
       args: {
         balance: {
@@ -39,17 +39,17 @@ const checkAddressBalance = (client, transaction, chain, address) => {
         }
       }
     })
-  })
+  )
 }
 
 const startListener = async (chain, client) => {
   if (listeners[chain].listener) { return }
   listeners[chain].listener = client.eth.filter({
     fromBlock: 'latest',
-    toBlock: 'latest',
+    toBlock: 'latest'
   })
   listeners[chain].listener.watch((error, transaction) => {
-    if (error) { throw new Error("TODO") }
+    if (error) { throw new Error('TODO') }
     Object.keys(listeners[chain].addresses)
       .forEach(address => checkAddressBalance(client, transaction, chain, address))
   })
