@@ -1,84 +1,70 @@
 const createClient = require('./client')
 
-const listeners = {
-  // chain: {
-  //   listener: ...,
-  //   addresses: {
-  //     '0x...': {
-  //       address: '0x...',
-  //       balance: xxx,
-  //       callbacks: [
-  //         callback1,
-  //         callback2
-  //       ]
-  //     }
-  //   }
-  // }
+let subscribers = [
+  // { address: 'xxx', balance: 'xxx', chain: 'xxx', callback: Function, id: 'xx' }
+]
+
+let listeners = {
+  // KOVAN: xxx, MAINNET: xxx
 }
 
-const ensureChain = chain => {
+const onNewTransaction = (client, chain) => (error, transaction) => {
+  if (error) { throw new Error('TODO') }
+  subscribers
+    .filter(x => x.chain === chain)
+    .filter(updateBalance(client))
+    .forEach(notify(client, transaction))
+}
+
+const startListener = async (chain, client, onEvent) => {
   if (listeners[chain]) { return }
-  listeners[chain] = {
-    client: null,
-    addresses: {}
-  }
-}
-
-const checkAddressBalance = (client, transaction, chain, address) => {
-  const { balance, callbacks } = listeners[chain].addresses[address]
-  const newBalance = client.eth.getBalance(address)
-  if (newBalance.equals(balance)) { return }
-  listeners[chain].addresses[address].balance = newBalance
-  callbacks.forEach(callback => client
-    .handleEvent(callback)(null, {
-      ...transaction,
-      args: {
-        balance: {
-          wei: newBalance,
-          ether: client.fromWei(newBalance, 'ether')
-        }
-      }
-    })
-  )
-}
-
-const startListener = async (chain, client) => {
-  if (listeners[chain].listener) { return }
-  listeners[chain].listener = client.eth.filter({
+  listeners[chain] = client.eth.filter({
     fromBlock: 'latest',
     toBlock: 'latest'
   })
-  listeners[chain].listener.watch((error, transaction) => {
-    if (error) { throw new Error('TODO') }
-    Object.keys(listeners[chain].addresses)
-      .forEach(address => checkAddressBalance(client, transaction, chain, address))
+  listeners[chain].watch(onNewTransaction(client, chain))
+}
+
+const updateBalance = client => subscriber => {
+  const balance = client.eth.getBalance(subscriber.address)
+  if (subscriber.balance.equals(balance)) { return false }
+  Object.assign(subscriber, { balance }) // Object.assign(subscriber... like that it edits directly the value 
+  return true
+}
+
+const notify = (client, transaction) => subscriber => {
+  client.handleEvent(subscriber.callback)(null, {
+    ...transaction,
+    args: {
+      balance: {
+        wei: subscriber.balance,
+        ether: client.fromWei(subscriber.balance, 'ether')
+      }
+    }
   })
 }
 
-const subscribeToBalanceChange = (address, chain) => async callback => {
+const subscribeToBalanceChange = (address, chain, id) => async callback => {
   const client = await createClient(chain)
-  ensureChain(chain)
-  if (!listeners[chain].addresses[address]) {
-    listeners[chain].addresses[address] = {
-      address,
-      balance: client.eth.getBalance(address),
-      callbacks: []
-    }
-  }
-  listeners[chain].addresses[address].callbacks.push(callback)
+  subscribers.push({
+    id,
+    address,
+    chain,
+    callback,
+    balance: client.eth.getBalance(address)
+  })
   await startListener(chain, client)
 }
 
-const unsubscribeToBalanceChange = (address, chain) => {
-  // TODO
+const unsubscribeToBalanceChange = (address, chain, id) => () => {
+  subscribers = subscribers.filter(x => x.id !== id)
 }
 
 const createListener = async trigger => {
   const { address, chain } = trigger.connector.ethereumTransaction
-
   return {
-    watch: subscribeToBalanceChange(address, chain),
-    stopWatching: unsubscribeToBalanceChange(address, chain)
+    watch: subscribeToBalanceChange(address, chain, trigger.id),
+    stopWatching: unsubscribeToBalanceChange(address, chain, trigger.id)
   }
 }
 
