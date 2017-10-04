@@ -6,7 +6,7 @@ const match = trigger => trigger.connector.connectorType === 'ETHEREUM_CONTRACT'
 const createListener = async trigger => {
   const { contract, eventName } = trigger.connector.ethereumContract
   const client = await createClient(contract.chain)
-  const onEvent = client
+  const onEvent = client.eth
     .contract(contract.abi)
     .at(contract.address)[eventName]
   if (!onEvent) { throw new InvalidEventError(eventName) }
