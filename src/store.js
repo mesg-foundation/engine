@@ -14,12 +14,13 @@ const remove = triggerId => {
 const add = (trigger, onEvent) => {
   remove(trigger.id)
   return createListener(trigger)
-  .then(listener => (store[trigger.id] = listener
-    .watch((err, event) => onEvent(err, {
-      event,
-      trigger
-    }))
-  ))
+    .then(listener => {
+      store[trigger.id] = listener
+      store[trigger.id].watch((err, event) => onEvent(err, {
+        event,
+        trigger
+      }))
+    })
 }
 
 module.exports = ({

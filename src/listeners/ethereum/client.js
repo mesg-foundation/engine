@@ -45,8 +45,8 @@ module.exports = async chain => {
     const endpoint = nodeEndpoint(chain)
     const web3Client = new Web3(new Web3.providers.HttpProvider(endpoint))
     await testConnection(() => web3Client.isConnected(), endpoint)
-    web3Client.eth.handleEvent = handleEvent(web3Client)
-    connectors[chain] = web3Client.eth
+    web3Client.handleEvent = handleEvent(web3Client)
+    connectors[chain] = web3Client
   }
   return connectors[chain]
 }
