@@ -1,29 +1,20 @@
-const createListener = require('./listeners')
-const store = {}
+const store = []
 
 const remove = triggerId => {
-  const listener = store[triggerId]
-  if (listener) {
-    try {
-      listener.stopWatching()
-    } catch (e) { }
-  }
-  delete store[triggerId]
+  const i = store.findIndex(x => x.id === triggerId)
+  if (i >= 0) store.slice(i, 1)
 }
 
-const add = (trigger, onEvent) => {
-  remove(trigger.id)
-  return createListener(trigger)
-    .then(listener => {
-      store[trigger.id] = listener
-      store[trigger.id].watch((err, event) => onEvent(err, {
-        event,
-        trigger
-      }))
-    })
+const add = trigger => {
+  const i = store.findIndex(x => x.id === trigger.id)
+  i >= 0 ? store[i] = trigger : store.push(trigger)
+  return trigger
 }
+
+const update = trigger => trigger.enable ? add(trigger) : remove(trigger.id)
 
 module.exports = ({
   add,
-  remove
+  remove,
+  update
 })
