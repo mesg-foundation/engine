@@ -1,21 +1,18 @@
-const { NoListenersError } = require('../errors')
-const listenersModules = [
-  require('./ethereum/contractEvent'),
-  require('./ethereum/transaction')
+const blockchainClients = async () => [
+  await require('./blockchainClients/ethereum')('KOVAN')
 ]
 
-module.exports = async trigger => {
-  const matchingListenersPromises = listenersModules
-    .filter(x => x.match(trigger))
-    .map(x => x.createListener(trigger))
+const start = async () => {
+  console.debug('initializing all blockchains connections')
+  const clients = await blockchainClients()
+  console.debug('listening for transactions')
+  clients.forEach(({ type, network, onTransaction }) => {
+    onTransaction((transaction, block) => {
+      console.log(transaction.from)
+    })
+  })
+}
 
-  if (!matchingListenersPromises.length) {
-    throw new NoListenersError(trigger.id)
-  }
-
-  const listeners = await Promise.all(matchingListenersPromises)
-  return {
-    watch: callback => listeners.map(x => x.watch(callback)),
-    stopWatching: () => listeners.map(x => x.stopWatching())
-  }
+module.exports = {
+  start
 }
