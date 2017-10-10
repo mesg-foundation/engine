@@ -1,3 +1,5 @@
+const triggerFactory = require('./triggers')
+
 const store = []
 
 const remove = triggerId => {
@@ -7,7 +9,7 @@ const remove = triggerId => {
 
 const add = trigger => {
   const i = store.findIndex(x => x.id === trigger.id)
-  i >= 0 ? store[i] = trigger : store.push(trigger)
+  i >= 0 ? store[i] = triggerFactory(trigger) : store.push(triggerFactory(trigger))
   return trigger
 }
 
