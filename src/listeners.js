@@ -1,8 +1,9 @@
 const Store = require('./store')
+const Db = require('./db')
 
 const blockchainClients = async () => [
-  await require('./blockchains/ethereum')('KOVAN'),
-  await require('./blockchains/ethereum')('MAINNET')
+  // await require('./blockchains/ethereum')('MAINNET'),
+  await require('./blockchains/ethereum')('KOVAN')
 ]
 
 const start = async () => {
@@ -11,10 +12,13 @@ const start = async () => {
   console.debug('listening for transactions')
   clients.forEach(({ type, network, onTransaction }) => {
     onTransaction((transaction, block) => {
-      console.log(`transaction ${network}`)
       Store
         .matchingTriggers({ type, network, transaction, block })
-        .forEach(trigger => trigger.emitEvent(transaction, block))
+        .map(trigger => ({
+          trigger,
+          event: trigger.normalizeEvent({ transaction, block })
+        }))
+        .forEach(({ trigger, event }) => Db.writeEvent(trigger, event))
     })
   })
 }

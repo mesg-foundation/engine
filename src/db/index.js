@@ -25,7 +25,7 @@ const onDataDeleted = callback => client
     error: error => callback(error, null)
   })
 
-const writeEvent = (event, trigger) => client
+const writeEvent = (trigger, event) => client
   .mutate({
     mutation: queries.createEvent,
     variables: {
