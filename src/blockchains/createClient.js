@@ -1,4 +1,4 @@
-const { testConnection } = require('../../utils')
+const { testConnection } = require('../utils')
 
 module.exports = async ({
   type,

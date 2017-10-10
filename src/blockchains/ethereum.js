@@ -1,5 +1,5 @@
 const Web3 = require('web3')
-const { InvalidBlockchainError } = require('../../errors')
+const { InvalidBlockchainError } = require('../errors')
 const createClient = require('./createClient')
 
 const onTransaction = client => callback => {
