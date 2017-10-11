@@ -16,7 +16,7 @@ const handleTransaction = (type, network) => (transaction, block) => Store
     ? result.event.map(event => Db.writeEvent(result.trigger, event))
     : Db.writeEvent(result.trigger, result.event))
 
-const connectClientToTransactions = ({ type, network, onTransaction }) => 
+const connectClientToTransactions = ({ type, network, onTransaction }) =>
   onTransaction(handleTransaction(type, network))
 
 const start = async () => {

@@ -20,8 +20,8 @@ module.exports = async chain => {
   if (!endpoint) throw new InvalidBlockchainError(chain)
 
   const client = new Web3(new Web3.providers.HttpProvider(endpoint))
-  
-  return await createClient({
+
+  return createClient({
     type: 'ETHEREUM',
     network: chain.toUpperCase(),
     isConnected: () => client.isConnected(),

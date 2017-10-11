@@ -39,12 +39,12 @@ const init = async () => {
   console.debug('Fetching triggers...')
   const triggers = await fetchAll()
   triggers.map(Store.add)
-  
+
   console.debug('Connecting to trigger update...')
   onDataUpdated((err, trigger) => err
   ? console.error(err)
   : Store.update(trigger))
-  
+
   console.debug('Connecting to trigger delete...')
   onDataDeleted((err, triggerId) => err
     ? console.error(err)
