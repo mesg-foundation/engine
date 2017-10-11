@@ -8,7 +8,10 @@ const onTransaction = client => callback => {
     if (error) throw new Error('Error on watcher', error)
     const block = client.eth.getBlock(result, true)
     block.transactions
-      .forEach(transaction => callback(transaction, block))
+      .forEach(transaction => {
+        const receipt = client.eth.getTransactionReceipt(transaction.hash)
+        callback(Object.assign({}, transaction, receipt), block)
+      })
   })
 }
 
