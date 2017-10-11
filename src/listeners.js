@@ -2,7 +2,7 @@ const Store = require('./store')
 const Db = require('./db')
 
 const blockchainClients = async () => [
-  // await require('./blockchains/ethereum')('MAINNET'),
+  // await require('./blockchains/ethereum')('MAINNET')
   await require('./blockchains/ethereum')('KOVAN')
 ]
 
@@ -18,7 +18,9 @@ const start = async () => {
           trigger,
           event: trigger.normalizeEvent({ transaction, block })
         }))
-        .forEach(({ trigger, event }) => Db.writeEvent(trigger, event))
+        .forEach(result => Array.isArray(result.event)
+          ? result.event.map(event => Db.writeEvent(result.trigger, event))
+          : Db.writeEvent(result.trigger, result.event))
     })
   })
 }
