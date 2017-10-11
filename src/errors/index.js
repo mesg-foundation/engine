@@ -1,11 +1,11 @@
-const NoListenersError = require('./NoListenersError')
 const InvalidBlockchainError = require('./InvalidBlockchainError')
-const InvalidEventError = require('./InvalidEventError')
-const JsonRPCConnectionError = require('./JsonRPCConnectionError')
+const InvalidClientError = require('./InvalidClientError')
+const InvalidTriggerError = require('./InvalidTriggerError')
+const ConnectionError = require('./ConnectionError')
 
 module.exports = {
-  NoListenersError,
   InvalidBlockchainError,
-  InvalidEventError,
-  JsonRPCConnectionError
+  InvalidClientError,
+  InvalidTriggerError,
+  ConnectionError
 }

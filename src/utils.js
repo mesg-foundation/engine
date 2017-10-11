@@ -1,4 +1,4 @@
-const { JsonRPCConnectionError } = require('./errors')
+const { ConnectionError } = require('./errors')
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
@@ -8,7 +8,7 @@ const testConnection = async (check, endpoint) => {
   const time = new Date()
   while (!check()) {
     if (retry <= 0) {
-      throw new JsonRPCConnectionError(endpoint)
+      throw new ConnectionError(endpoint)
     }
     await sleep(delay)
     console.log(`Connection to ${endpoint} invalid... retrying in ${delay}ms`)

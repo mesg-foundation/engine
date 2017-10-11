@@ -1,3 +1,4 @@
+const { InvalidClientError } = require('../errors')
 const { testConnection } = require('../utils')
 
 module.exports = async ({
@@ -6,10 +7,10 @@ module.exports = async ({
   onTransaction,
   isConnected
 }) => {
-  if (!type) throw new Error('type is missing')
-  if (!network) throw new Error('network is missing')
-  if (!onTransaction) throw new Error('onTransaction is missing')
-  if (!isConnected) throw new Error('isConnected is missing')
+  if (!type) throw new InvalidClientError('type is missing')
+  if (!network) throw new InvalidClientError('network is missing')
+  if (!onTransaction) throw new InvalidClientError('onTransaction is missing')
+  if (!isConnected) throw new InvalidClientError('isConnected is missing')
 
   await testConnection(isConnected, `${type}/${network}`)
 
