@@ -2,7 +2,7 @@ const Store = require('./store')
 const Db = require('./db')
 
 const blockchainClients = async () => [
-  // await require('./blockchains/ethereum')('MAINNET')
+  await require('./blockchains/ethereum')('MAINNET'),
   await require('./blockchains/ethereum')('KOVAN')
 ]
 
