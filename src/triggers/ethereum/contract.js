@@ -1,4 +1,5 @@
 const SolidityEvent = require('web3/lib/web3/event')
+const normalizeEvent = require('./normalizeEvent')
 
 const matchLogFromTopics = topics => log => (log.topics || [])
   .some(topic => topics.indexOf(topic) >= 0)
@@ -22,18 +23,11 @@ module.exports = trigger => {
 
       return transaction.logs.some(matchLog)
     },
-    normalizeEvent: ({ transaction, block }) => {
-      const normalizedTransaction = {
-        blockId: block.number.toString(),
-        fees: transaction.gasUsed.toString(),
-        from: transaction.from,
-        to: transaction.to,
-        transactionId: transaction.hash,
-        value: transaction.value
-      }
-      return transaction.logs
+    normalizeEvent: event => {
+      const normalizedEvent = normalizeEvent(event)
+      return event.transaction.logs
         .filter(matchLog)
-        .map(log => Object.assign({}, normalizedTransaction, {
+        .map(log => Object.assign({}, normalizedEvent, {
           payload: solidityEvent.decode(log).args
         }))
     }
