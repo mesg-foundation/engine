@@ -1,3 +1,4 @@
+const Logger = require('./logger')
 const Store = require('./store')
 const Db = require('./db')
 
@@ -20,9 +21,9 @@ const connectClientToTransactions = ({ type, network, onTransaction }) =>
   onTransaction(handleTransaction(type, network))
 
 const start = async () => {
-  console.debug('initializing all blockchains connections')
+  Logger.info('initializing all blockchains connections')
   const clients = await blockchainClients()
-  console.debug('listening for transactions')
+  Logger.info('listening for transactions')
   clients.forEach(connectClientToTransactions)
 }
 

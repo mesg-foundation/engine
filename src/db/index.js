@@ -1,5 +1,6 @@
-const client = require('./client')
+const Logger = require('../logger')
 const Store = require('../store')
+const client = require('./client')
 const queries = {
   fetchAll: require('./queries/fetchAll'),
   onUpdate: require('./queries/updated'),
@@ -36,18 +37,18 @@ const writeEvent = (trigger, event) => client
   .then(x => x.data.createEvent)
 
 const init = async () => {
-  console.debug('Fetching triggers...')
+  Logger.info('Fetching triggers...')
   const triggers = await fetchAll()
   triggers.map(Store.add)
 
-  console.debug('Connecting to trigger update...')
+  Logger.info('Connecting to trigger update...')
   onDataUpdated((err, trigger) => err
-  ? console.error(err)
+  ? Logger.error(err)
   : Store.update(trigger))
 
-  console.debug('Connecting to trigger delete...')
+  Logger.info('Connecting to trigger delete...')
   onDataDeleted((err, triggerId) => err
-    ? console.error(err)
+    ? Logger.error(err)
     : Store.remove(triggerId))
 }
 
