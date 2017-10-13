@@ -8,7 +8,9 @@
       "type": "node",
       "request": "launch",
       "name": "Launch Program",
-      "program": "${workspaceRoot}/src/index.js"
+      "program": "${workspaceRoot}/src/index.js",
+      "console": "internalConsole",
+      "outputCapture": "std"
     }
   ]
 }
