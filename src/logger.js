@@ -11,10 +11,10 @@ if (process.env.NODE_ENV !== 'production') {
   })
 }
 
-if (process.env.LOGGY_TOKEN) {
+if (process.env.LOGGLY_TOKEN) {
   logger.add(winston.transports.Loggly, {
-    token: process.env.LOGGY_TOKEN,
-    subdomain: process.env.LOGGY_DOMAIN,
+    token: process.env.LOGGLY_TOKEN,
+    subdomain: process.env.LOGGLY_DOMAIN,
     json: true
   })
 }
