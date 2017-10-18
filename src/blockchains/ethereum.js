@@ -1,4 +1,5 @@
 const Web3 = require('web3')
+const Logger = require('../logger')
 const { InvalidBlockchainError } = require('../errors')
 const createClient = require('./createClient')
 
@@ -6,7 +7,7 @@ const onTransaction = (client, chain) => callback => client.eth
   .filter('latest', (error, result) => {
     if (error) throw new Error('Error on watcher', error)
     const block = client.eth.getBlock(result, true)
-    console.debug(`==> [ETHEREUM ${chain}] BLOCK ${block.number} (${block.transactions.length} tx)`)
+    Logger.debug(`==> [ETHEREUM ${chain}] BLOCK ${block.number} (${block.transactions.length} tx)`)
     const receiptsBatch = client.createBatch()
     Promise.all(block.transactions
       .map((transaction, i) => new Promise((resolve, reject) => {

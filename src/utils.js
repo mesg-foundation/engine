@@ -1,3 +1,4 @@
+const Logger = require('./logger')
 const { ConnectionError } = require('./errors')
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
@@ -11,7 +12,7 @@ const testConnection = async (check, endpoint) => {
       throw new ConnectionError(endpoint)
     }
     await sleep(delay)
-    console.log(`Connection to ${endpoint} invalid... retrying in ${delay}ms`)
+    Logger.warn(`Connection to ${endpoint} invalid... retrying in ${delay}ms`)
     retry = retry - 1
   }
   return Promise.resolve({
