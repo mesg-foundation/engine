@@ -6,8 +6,7 @@
   "scripts": {
     "start": "node src/index.js",
     "lint": "standard",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "commit": "git-cz"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Anthony Estebe <contact@anthonyestebe.com> (http://microblog.anthonyestebe.com/)",
   "license": "ISC",
@@ -25,13 +24,6 @@
     "ws": "^3.1.0"
   },
   "devDependencies": {
-    "commitizen": "^2.9.6",
-    "cz-conventional-changelog": "^2.0.0",
     "standard": "^10.0.3"
-  },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
   }
 }
