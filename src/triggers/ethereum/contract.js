@@ -16,9 +16,9 @@ module.exports = trigger => {
   const matchLog = matchLogFromTopics(solidityEvent.encode().topics)
 
   return {
-    match: ({ type, network, transaction, block }) => {
+    match: ({ type, blockchain, transaction, block }) => {
       if (type !== 'ETHEREUM') { return false }
-      if (network !== chain) { return false }
+      if (blockchain !== chain) { return false }
       if (address.toLowerCase() !== (transaction.to || '').toLowerCase()) { return false }
 
       return transaction.logs.some(matchLog)
