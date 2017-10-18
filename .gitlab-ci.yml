@@ -1,14 +1,8 @@
 image: node:latest
 
-services:
-  - docker:dind
-
 stages:
   - test
   - build
-
-before_script:
-  - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
 
 cache:
   paths:
@@ -26,11 +20,18 @@ test:
     - npm install
     - npm run test
 
-build-master:
-  image: docker:latest
-  stage: build
+build-docker-image:
+  image: docker:git
+  services:
+    - docker:dind
+  variables:
+    DOCKER_DRIVER: overlay2
   script:
-    - docker build --pull -t "$CI_REGISTRY_IMAGE" .
-    - docker push "$CI_REGISTRY_IMAGE"
+    - setup_docker
+    - build
+  script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - docker build --pull -t "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG" .
+    - docker push "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG"
   # only:
   #   - master
