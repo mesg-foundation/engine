@@ -1,0 +1,36 @@
+image: node:latest
+
+services:
+  - docker:dind
+
+stages:
+  - test
+  - build
+
+before_script:
+  - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+
+cache:
+  paths:
+    - node_modules/
+
+lint:
+  stage: test
+  script:
+    - npm install
+    - npm run lint
+
+test:
+  stage: test
+  script:
+    - npm install
+    - npm run test
+
+build-master:
+  image: docker:latest
+  stage: build
+  script:
+    - docker build --pull -t "$CI_REGISTRY_IMAGE" .
+    - docker push "$CI_REGISTRY_IMAGE"
+  # only:
+  #   - master
