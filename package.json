@@ -6,7 +6,9 @@
   "scripts": {
     "start": "node src/index.js",
     "lint": "standard",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docker-dev": "docker-compose -f docker-compose.dev.yml up",
+    "dev": "nodemon --watch ./src --inspect-brk=0.0.0.0:5858 --nolazy ./src/index.js"
   },
   "author": "Anthony Estebe <contact@anthonyestebe.com> (http://microblog.anthonyestebe.com/)",
   "license": "ISC",
@@ -17,6 +19,7 @@
     "graphql-tag": "^2.4.2",
     "isomorphic-fetch": "^2.2.1",
     "newrelic": "^2.2.1",
+    "nodemon": "^1.12.1",
     "subscriptions-transport-ws": "^0.8.2",
     "web3": "^0.20.0",
     "winston": "^2.4.0",

@@ -7,7 +7,21 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch Program",
+      "name": "Launch in Docker",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [ "run", "docker-dev" ],
+      "port": 5858,
+      "restart": true,
+      "timeout": 60000,
+      "localRoot": "${workspaceRoot}",
+      "remoteRoot": "/usr/src/app",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Local execution",
       "program": "${workspaceRoot}/src/index.js",
       "console": "internalConsole",
       "outputCapture": "std"

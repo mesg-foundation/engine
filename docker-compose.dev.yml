@@ -1,0 +1,10 @@
+version: "2"
+services:
+  listener:
+    build: ./
+    env_file: .env
+    volumes:
+      - ./:/usr/src/app
+    ports:
+      - 5858:5858
+    command: npm run dev
