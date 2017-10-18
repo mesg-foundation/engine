@@ -24,6 +24,11 @@ const onTransaction = (client, chain) => callback => client.eth
   })
 
 module.exports = async chain => {
+  if (process.env[`ETHEREUM_${chain.toUpperCase()}`] === undefined) {
+    // We disable this blockchain throw the env variables but
+    // if the env variable is present but empty this is an error
+    return null
+  }
   const endpoint = process.env[`ETHEREUM_${chain.toUpperCase()}`]
   if (!endpoint) throw new InvalidBlockchainError(chain)
 
