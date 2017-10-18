@@ -9,11 +9,12 @@ const DB = require('./db')
 const Store = require('./store')
 const initializeBlockchains = require('./blockchains')
 
-const handleTransaction = ({ type, blockchain, transaction, block }) => Store
-  .matchingTriggers({ type, blockchain, transaction, block })
+const handleRawTransaction = transactionArgs => Store
+  .all()
+  .filter(trigger => trigger.match(transactionArgs))
   .map(trigger => ({
     trigger,
-    event: trigger.normalizeEvent({ transaction, block })
+    event: trigger.normalizeEvent(transactionArgs)
   }))
   .forEach(result => Array.isArray(result.event)
     ? result.event.map(event => Db.writeEvent(result.trigger, event))
@@ -21,7 +22,7 @@ const handleTransaction = ({ type, blockchain, transaction, block }) => Store
 
 const startApp = async () => {
   eventEmitter.create()
-  eventEmitter.on('RAW_TRANSACTION', handleTransaction)
+  eventEmitter.on('RAW_TRANSACTION', handleRawTransaction)
 
   Logger.info('init database')
   await DB.init()
