@@ -4,7 +4,7 @@ const Db = require('./db')
 
 const blockchainClients = async () => [
   // await require('./blockchains/ethereum')('MAINNET'),
-  await require('./blockchains/ethereum')('KOVAN'),
+  await require('./blockchains/ethereum')('KOVAN')
 ]
 
 const handleTransaction = (type, network) => (transaction, block) => Store
