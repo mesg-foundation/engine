@@ -1,11 +1,7 @@
 const Logger = require('./logger')
 const Store = require('./store')
 const Db = require('./db')
-
-const blockchainClients = async () => [
-  await require('./blockchains/ethereum')('MAINNET'),
-  await require('./blockchains/ethereum')('KOVAN')
-]
+const blockchainClients = require('./blockchains')
 
 const handleTransaction = (type, network) => (transaction, block) => Store
   .matchingTriggers({ type, network, transaction, block })
