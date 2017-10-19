@@ -15,12 +15,11 @@ const add = trigger => {
 
 const update = trigger => trigger.enable ? add(trigger) : remove(trigger.id)
 
-const matchingTriggers = args => store
-  .filter(x => x.match(args))
+const all = () => store
 
 module.exports = ({
   add,
   remove,
   update,
-  matchingTriggers
+  all
 })

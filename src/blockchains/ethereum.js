@@ -1,13 +1,27 @@
 const Web3 = require('web3')
-const Logger = require('../logger')
 const { InvalidBlockchainError } = require('../errors')
-const createClient = require('./createClient')
+const { testConnection } = require('../utils')
+const { emitRawBlock, emitRawTransaction } = require('../eventEmitter')
 
-const onTransaction = (client, chain) => callback => client.eth
-  .filter('latest', (error, result) => {
+const type = 'ETHEREUM'
+const endpoint = blockchain => process.env[`${type}_${blockchain.toUpperCase()}`]
+
+module.exports = async ({ blockchain }) => {
+  if (endpoint(blockchain) === undefined) {
+    // We disable this blockchain throw the env variables but
+    // if the env variable is present but empty this is an error
+    return null
+  }
+  if (!endpoint(blockchain)) throw new InvalidBlockchainError(blockchain)
+
+  const client = new Web3(new Web3.providers.HttpProvider(endpoint(blockchain)))
+
+  await testConnection(() => client.isConnected(), `${type}/${blockchain}`)
+
+  client.eth.filter('latest', (error, result) => {
     if (error) throw new Error('Error on watcher', error)
     const block = client.eth.getBlock(result, true)
-    Logger.debug(`==> [ETHEREUM ${chain}] BLOCK ${block.number} (${block.transactions.length} tx)`)
+    emitRawBlock({ type, blockchain, block })
     const receiptsBatch = client.createBatch()
     Promise.all(block.transactions
       .map((transaction, i) => new Promise((resolve, reject) => {
@@ -18,26 +32,8 @@ const onTransaction = (client, chain) => callback => client.eth
       })
     ))
       .then(transactions => transactions.forEach(transaction => {
-        callback(transaction, block)
+        emitRawTransaction({ type, blockchain, block, transaction })
       }))
     receiptsBatch.execute()
-  })
-
-module.exports = async chain => {
-  if (process.env[`ETHEREUM_${chain.toUpperCase()}`] === undefined) {
-    // We disable this blockchain throw the env variables but
-    // if the env variable is present but empty this is an error
-    return null
-  }
-  const endpoint = process.env[`ETHEREUM_${chain.toUpperCase()}`]
-  if (!endpoint) throw new InvalidBlockchainError(chain)
-
-  const client = new Web3(new Web3.providers.HttpProvider(endpoint))
-
-  return createClient({
-    type: 'ETHEREUM',
-    network: chain.toUpperCase(),
-    isConnected: () => client.isConnected(),
-    onTransaction: onTransaction(client, chain)
   })
 }
