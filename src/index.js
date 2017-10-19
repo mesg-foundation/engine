@@ -33,7 +33,7 @@ const handleRawTransaction = transactionArgs => {
 const startApp = async () => {
   eventEmitter.create()
   eventEmitter.on('RAW_TRANSACTION', handleRawTransaction)
-  eventEmitter.on('RAW_BLOCK', ({ type, chain, block }) => Logger.info(`Block ${type}/${chain} ${block.number}`))
+  eventEmitter.on('RAW_BLOCK', ({ type, blockchain, block }) => Logger.info(`Block ${type}/${blockchain} ${block.number}`))
 
   Logger.info('init database')
   await DB.init()
