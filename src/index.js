@@ -24,12 +24,16 @@ const handleRawTransaction = transactionArgs => {
           : [result]
       ]
     }, [])
+  if (events.length > 0) {
+    Logger.info(`Submit ${events.length} events`)
+  }
   events.forEach(event => DB.writeEvent(event))
 }
 
 const startApp = async () => {
   eventEmitter.create()
   eventEmitter.on('RAW_TRANSACTION', handleRawTransaction)
+  eventEmitter.on('RAW_BLOCK', ({ type, chain, block }) => Logger.info(`Block ${type}/${chain} ${block.number}`))
 
   Logger.info('init database')
   await DB.init()
