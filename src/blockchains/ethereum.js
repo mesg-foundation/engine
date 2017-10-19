@@ -1,5 +1,4 @@
 const Web3 = require('web3')
-const Logger = require('../logger')
 const { InvalidBlockchainError } = require('../errors')
 const { testConnection } = require('../utils')
 const { emitRawBlock, emitRawTransaction } = require('../eventEmitter')
@@ -16,7 +15,7 @@ module.exports = async ({ blockchain }) => {
   if (!endpoint(blockchain)) throw new InvalidBlockchainError(blockchain)
 
   const client = new Web3(new Web3.providers.HttpProvider(endpoint(blockchain)))
-  
+
   await testConnection(() => client.isConnected(), `${type}/${blockchain}`)
 
   client.eth.filter('latest', (error, result) => {

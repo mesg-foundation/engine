@@ -33,7 +33,7 @@ const startApp = async () => {
 
   Logger.info('init database')
   await DB.init()
-  
+
   Logger.info('initializing all blockchains connections')
   await initializeBlockchains()
 }

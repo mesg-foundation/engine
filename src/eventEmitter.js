@@ -4,7 +4,7 @@ let eventEmitter = null
 
 const create = () => eventEmitter
   ? null
-  : eventEmitter = new EventEmitter()
+  : (eventEmitter = new EventEmitter())
 
 const emit = (event, data) => {
   if (!eventEmitter) { throw new Error('need to initialize the event emitter with the `create` function') }
@@ -23,7 +23,7 @@ module.exports = {
   emitRawBlock,
   emitRawTransaction,
   on: (event, callback) => {
-    if (!eventEmitter) { throw new Error('need to initialize the event emitter with the `create` function') }  
+    if (!eventEmitter) { throw new Error('need to initialize the event emitter with the `create` function') }
     eventEmitter.on(event, callback)
   }
 }
