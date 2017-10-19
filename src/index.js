@@ -17,7 +17,7 @@ const handleRawTransaction = transactionArgs => Store
     event: trigger.normalizeEvent(transactionArgs)
   }))
   .forEach(result => Array.isArray(result.event)
-    ? result.event.map(event => Db.writeEvent(result.trigger, event))
+    ? result.event.map(event => DB.writeEvent(result.trigger, event))
     : DB.writeEvent(result.trigger, result.event))
 
 const startApp = async () => {
