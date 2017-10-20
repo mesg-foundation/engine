@@ -1,4 +1,5 @@
 const SolidityEvent = require('web3/lib/web3/event')
+const Logger = require('../../logger')
 const normalizeEvent = require('./normalizeEvent')
 
 const matchLogFromTopics = topics => log => (log.topics || [])
@@ -21,7 +22,10 @@ module.exports = trigger => {
       if (blockchain !== chain) { return false }
       if (address.toLowerCase() !== (transaction.to || '').toLowerCase()) { return false }
 
-      return transaction.logs.some(matchLog)
+      if (!transaction.logs) {
+        Logger.error(`transaction log not valid ${transaction.hash}`)
+      }
+      return (transaction.logs || []).some(matchLog)
     },
     normalizeEvent: event => {
       const normalizedEvent = normalizeEvent(event)
