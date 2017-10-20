@@ -6,7 +6,7 @@ const matchLogFromTopics = topics => log => (log.topics || [])
   .some(topic => topics.indexOf(topic) >= 0)
 
 module.exports = trigger => {
-  const { eventName, contract } = trigger.connector.ethereumContract
+  const { eventName, contract } = trigger.connector.ethereumContract || trigger.connector.ethereumToken
   const { chain, address } = contract
 
   const eventAbi = contract.abi
