@@ -20,6 +20,14 @@ module.exports = gql`
               chain
             }
           },
+          ethereumToken {
+            eventName
+            contract {
+              abi
+              address
+              chain
+            }
+          },
           ethereumTransaction {
             chain
             address
