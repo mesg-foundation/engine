@@ -1,4 +1,9 @@
-module.exports = ({ transaction, block }) => ({
+module.exports = ({ type, blockchain, block, transaction }) => ({
+  keys: [
+    type,
+    blockchain,
+    transaction.hash
+  ],
   blockId: block.number.toString(),
   fees: transaction.gasUsed.toString(),
   from: transaction.from,
