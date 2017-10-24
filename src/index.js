@@ -27,7 +27,7 @@ const handleRawTransaction = transactionArgs => {
   if (events.length > 0) {
     Logger.info(`Submit ${events.length} events`)
   }
-  events.forEach(event => DB.writeEvent(event))
+  events.forEach(event => DB.createEvent(event))
 }
 
 const startApp = async () => {
