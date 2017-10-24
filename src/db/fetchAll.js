@@ -3,8 +3,16 @@ const Store = require('../store')
 const client = require('./client')
 const gql = require('graphql-tag')
 
-const query = gql`query {
-  allTriggers(filter: {
+const queryCount = gql`query {
+  _allTriggersMeta(filter: {
+    enable: true
+  }) {
+    count
+  }
+}`
+
+const query = gql`query($skip: Int, $first: Int) {
+  allTriggers(skip: $skip, first: $first, filter: {
     enable: true
   }) {
     id
@@ -36,7 +44,21 @@ const query = gql`query {
 }`
 
 module.exports = async () => {
-  Logger.info('Fetching triggers...')
-  const { data } = await client.query({ query })
-  data.allTriggers.map(Store.add)
+  const { count } = (await client.query({ query: queryCount })).data._allTriggersMeta
+  const pagination = parseInt(process.env.PAGINATION, 10) || 500
+  const pageCount = Math.ceil(count / pagination)
+  Logger.info(`Fetching triggers... ${pageCount} pages (${pagination} triggers / page)`)
+  const paginationPromise = i => client.query({
+    query,
+    variables: {
+      first: pagination,
+      skip: i * pagination
+    }
+  })
+    .then(({ data }) => data.allTriggers.map(Store.add))
+  await Promise.all(
+    new Array(pageCount)
+      .fill()
+      .map((_, i) => paginationPromise(i))
+  )
 }
