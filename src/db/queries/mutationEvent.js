@@ -9,7 +9,8 @@ module.exports = gql`
     $to: String!
     $transactionId: String!
     $value: String!,
-    $triggerId: ID!
+    $executedAt: DateTime!,
+    $triggerId: ID!,
   ) {
     createEvent(
       blockId: $blockId,
@@ -19,6 +20,7 @@ module.exports = gql`
       to: $to,
       transactionId: $transactionId,
       value: $value,
+      executedAt: $executedAt,
       triggerId: $triggerId,
     ) {
       id

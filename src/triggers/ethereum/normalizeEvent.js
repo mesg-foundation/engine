@@ -5,5 +5,6 @@ module.exports = ({ transaction, block }) => ({
   payload: {},
   to: transaction.to,
   transactionId: transaction.hash,
-  value: transaction.value
+  value: transaction.value,
+  executedAt: new Date(block.timestamp * 1000)
 })
