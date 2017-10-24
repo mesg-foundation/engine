@@ -3,7 +3,7 @@ const triggerFactory = require('./triggers')
 
 let _store = []
 
-const setStore = store => _store = store
+const setStore = store => (_store = store)
 const store = () => _store
 
 const remove = triggerId => {
