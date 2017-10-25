@@ -1,4 +1,4 @@
-const Logger = require('./Logger')
+const Logger = require('./logger')
 const triggerFactory = require('./triggers')
 
 let _store = []
