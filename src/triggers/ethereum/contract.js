@@ -31,8 +31,13 @@ module.exports = trigger => {
       const normalizedEvent = normalizeEvent(event)
       return event.transaction.logs
         .filter(matchLog)
-        .map(log => Object.assign({}, normalizedEvent, {
-          payload: solidityEvent.decode(log).args
+        .map(log => ({
+          ...normalizedEvent,
+          // we need to copy the log because web3 modify it directly and remove the topic field
+          // needed to know if the contract match the event so if 2+ triggers listen the same contract
+          // event then only the first one would be notified if we don't pass a copy to the decode
+          // function of web3
+          payload: solidityEvent.decode({ ...log }).args
         }))
     }
   }
