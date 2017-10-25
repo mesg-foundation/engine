@@ -27,7 +27,9 @@ module.exports = async ({ blockchain }) => {
       .map((transaction, i) => new Promise((resolve, reject) => {
         receiptsBatch.add(client.eth.getTransactionReceipt.request(
           transaction.hash,
-          (err, receipt) => err ? reject(err) : resolve(Object.assign({}, transaction, receipt))
+          (err, receipt) => err
+            ? reject(err)
+            : resolve({ ...transaction, ...receipt })
         ))
       })
     ))
