@@ -1,20 +1,16 @@
-const SolidityEvent = require('web3/lib/web3/event')
+const Abi = require('web3-eth-abi')
 const Logger = require('../../logger')
 const normalizeEvent = require('./normalizeEvent')
-
-const matchLogFromTopics = topics => log => (log.topics || [])
-  .some(topic => topics.indexOf(topic) >= 0)
 
 module.exports = trigger => {
   const { eventName, contract } = trigger.connector.ethereumContract || trigger.connector.ethereumToken
   const { chain, address } = contract
-
   const eventAbi = contract.abi
     .filter(x => x.type === 'event')
     .filter(x => x.name === eventName)[0]
 
-  const solidityEvent = new SolidityEvent(null, eventAbi, address)
-  const matchLog = matchLogFromTopics(solidityEvent.encode().topics)
+  const encodedEvent = Abi.encodeEventSignature(eventAbi)
+  const matchLog = log => (log.topics || []).some(topic => topic === encodedEvent)
 
   return {
     match: ({ type, blockchain, transaction, block }) => {
@@ -31,14 +27,18 @@ module.exports = trigger => {
       const normalizedEvent = normalizeEvent(event)
       return event.transaction.logs
         .filter(matchLog)
-        .map(log => ({
-          ...normalizedEvent,
-          // we need to copy the log because web3 modify it directly and remove the topic field
-          // needed to know if the contract match the event so if 2+ triggers listen the same contract
-          // event then only the first one would be notified if we don't pass a copy to the decode
-          // function of web3
-          payload: solidityEvent.decode({ ...log }).args
-        }))
+        .map(log => {
+          const data = Abi.decodeLog(eventAbi.inputs, log.data, log.topics)
+          return {
+            ...normalizedEvent,
+            payload: eventAbi.inputs
+              .map(x => x.name)
+              .reduce((acc, name) => ({
+                ...acc,
+                [name]: data[name]
+              }), {})
+          }
+        })
     }
   }
 }
