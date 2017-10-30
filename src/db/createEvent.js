@@ -1,3 +1,4 @@
+const Logger = require('../logger')
 const client = require('./client')
 const gql = require('graphql-tag')
 
@@ -36,3 +37,8 @@ module.exports = ({ trigger, event }) => client
     }
   })
   .then(x => x.data.createEvent)
+  .catch(e => {
+    Logger.error(e)
+    throw new Error('Event creation fails')
+  })
+  

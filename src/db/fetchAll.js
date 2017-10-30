@@ -56,6 +56,10 @@ module.exports = async () => {
     }
   })
     .then(({ data }) => data.allTriggers.map(Store.add))
+    .catch(e => {
+      Logger.error(e)
+      throw new Error('Pagination fails')
+    })
   await Promise.all(
     new Array(pageCount)
       .fill()

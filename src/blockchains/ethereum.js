@@ -1,4 +1,5 @@
 const Web3 = require('web3')
+const Logger = require('../logger')
 const { InvalidBlockchainError } = require('../errors')
 const { testConnection } = require('../utils')
 const { emitRawBlock, emitRawTransaction } = require('../eventEmitter')
@@ -36,6 +37,10 @@ module.exports = async ({ blockchain }) => {
       .then(transactions => transactions.forEach(transaction => {
         emitRawTransaction({ type, blockchain, block, transaction })
       }))
+      .catch(e => {
+        Logger.error(e)
+        throw new Error('Receipt transaction fetching failed')
+      })
     receiptsBatch.execute()
   })
 }
