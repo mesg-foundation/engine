@@ -1,7 +1,6 @@
 const Web3 = require('web3')
 const Logger = require('../logger')
 const { InvalidBlockchainError } = require('../errors')
-const { testConnection } = require('../utils')
 const { emitRawBlock, emitRawTransaction } = require('../eventEmitter')
 
 const type = 'ETHEREUM'
@@ -42,7 +41,7 @@ module.exports = async ({ blockchain }) => {
   if (!endpoint(blockchain)) throw new InvalidBlockchainError(blockchain)
 
   const client = new Web3(endpoint(blockchain))
-  
+
   // client.eth.defaultBlock = 'latest'
   const subscription = await client.eth.subscribe('newBlockHeaders')
   subscription
