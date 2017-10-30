@@ -7,7 +7,7 @@
     "start": "node src/index.js",
     "lint": "standard",
     "test": "echo \"Error: no test specified\" && exit 0",
-    "docker-dev": "docker-compose -f docker-compose.dev.yml up",
+    "docker-dev": "docker-compose -f docker-compose.yml -f docker-compose.dev.yml up",
     "dev": "nodemon --watch ./src --inspect-brk=0.0.0.0:5858 --nolazy ./src/index.js"
   },
   "author": "Anthony Estebe <contact@anthonyestebe.com> (http://microblog.anthonyestebe.com/)",
