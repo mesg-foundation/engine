@@ -16,7 +16,7 @@ module.exports = async ({ blockchain }) => {
   if (!endpoint(blockchain)) throw new InvalidBlockchainError(blockchain)
 
   const client = new Web3(new Web3.providers.HttpProvider(endpoint(blockchain)))
-  
+
   await testConnection(() => client.isConnected(), `${type}/${blockchain}`)
   setInterval(() => {
     if (!client.isConnected()) {
