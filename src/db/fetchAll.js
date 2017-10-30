@@ -44,21 +44,30 @@ const query = gql`query($skip: Int, $first: Int) {
 }`
 
 module.exports = async () => {
-  const { count } = (await client.query({ query: queryCount })).data._allTriggersMeta
-  const pagination = parseInt(process.env.PAGINATION, 10) || 500
-  const pageCount = Math.ceil(count / pagination)
-  Logger.info(`Fetching triggers... ${pageCount} pages (${pagination} triggers / page)`)
-  const paginationPromise = i => client.query({
-    query,
-    variables: {
-      first: pagination,
-      skip: i * pagination
-    }
-  })
-    .then(({ data }) => data.allTriggers.map(Store.add))
-  await Promise.all(
-    new Array(pageCount)
-      .fill()
-      .map((_, i) => paginationPromise(i))
-  )
+  try {
+    const { count } = (await client.query({ query: queryCount })).data._allTriggersMeta
+    const pagination = parseInt(process.env.PAGINATION, 10) || 500
+    const pageCount = Math.ceil(count / pagination)
+    Logger.info(`Fetching triggers... ${pageCount} pages (${pagination} triggers / page)`)
+    const paginationPromise = i => client.query({
+      query,
+      variables: {
+        first: pagination,
+        skip: i * pagination
+      }
+    })
+      .then(({ data }) => data.allTriggers.map(Store.add))
+      .catch(e => {
+        Logger.error(e)
+        throw new Error('Pagination fails')
+      })
+    await Promise.all(
+      new Array(pageCount)
+        .fill()
+        .map((_, i) => paginationPromise(i))
+    )
+  } catch (e) {
+    Logger.error(e)
+    throw new Error('cannot fetch triggers')
+  }
 }
