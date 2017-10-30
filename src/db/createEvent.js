@@ -41,4 +41,3 @@ module.exports = ({ trigger, event }) => client
     Logger.error(e)
     throw new Error('Event creation fails')
   })
-  
