@@ -31,15 +31,20 @@ const handleRawTransaction = transactionArgs => {
 }
 
 const startApp = async () => {
-  eventEmitter.create()
-  eventEmitter.on('RAW_TRANSACTION', handleRawTransaction)
-  eventEmitter.on('RAW_BLOCK', ({ type, blockchain, block }) => Logger.info(`Block ${type}/${blockchain} ${block.number}`))
-
-  Logger.info('init database')
-  await DB.init()
-
-  Logger.info('initializing all blockchains connections')
-  await initializeBlockchains()
+  try {
+    eventEmitter.create()
+    eventEmitter.on('RAW_TRANSACTION', handleRawTransaction)
+    eventEmitter.on('RAW_BLOCK', ({ type, blockchain, block }) => Logger.info(`Block ${type}/${blockchain} ${block.number}`))
+  
+    Logger.info('init database')
+    await DB.init()
+  
+    Logger.info('initializing all blockchains connections')
+    await initializeBlockchains()
+  } catch(e) {
+    Logger.error(e)
+    process.exit(-1)
+  }
 }
 
 startApp()
