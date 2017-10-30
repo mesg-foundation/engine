@@ -40,7 +40,7 @@ module.exports = async ({ blockchain }) => {
   }
   if (!endpoint(blockchain)) throw new InvalidBlockchainError(blockchain)
 
-  const client = new Web3(endpoint(blockchain))
+  const client = new Web3(new Web3.providers.WebsocketProvider(endpoint(blockchain)))
 
   // client.eth.defaultBlock = 'latest'
   const subscription = await client.eth.subscribe('newBlockHeaders', (err, result) => {
