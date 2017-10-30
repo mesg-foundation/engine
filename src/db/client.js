@@ -1,5 +1,5 @@
 const ws = require('ws')
-const { ApolloClient, createNetworkInterface } = require('apollo-client')
+const { ApolloClient, createBatchingNetworkInterface } = require('apollo-client')
 const { SubscriptionClient, addGraphQLSubscriptions } = require('subscriptions-transport-ws')
 
 const headers = {
@@ -10,8 +10,9 @@ const headers = {
 }
 
 module.exports = new ApolloClient({
+  queryDeduplication: true,
   networkInterface: addGraphQLSubscriptions(
-    createNetworkInterface({
+    createBatchingNetworkInterface({
       uri: process.env.GRAPHQL_HTTP_ENDPOINT,
       opts: {
         headers
