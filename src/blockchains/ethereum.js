@@ -43,7 +43,9 @@ module.exports = async ({ blockchain }) => {
   const client = new Web3(endpoint(blockchain))
 
   // client.eth.defaultBlock = 'latest'
-  const subscription = await client.eth.subscribe('newBlockHeaders')
+  const subscription = await client.eth.subscribe('newBlockHeaders', (err, result) => {
+    if (err) { Logger.error(err) }
+  })
   subscription
     .on('changed', () => Logger.info(`Websocket ${blockchain} changed`))
     .on('error', error => Logger.error(`error ${error}`))
