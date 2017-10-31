@@ -58,8 +58,8 @@ module.exports = async () => {
     })
       .then(({ data }) => data.allTriggers.map(Store.add))
       .catch(e => {
-        Logger.error(e)
-        throw new Error('Pagination fails')
+        Logger.error(`Pagination fails ${i}`)
+        throw e
       })
     await Promise.all(
       new Array(pageCount)
@@ -67,7 +67,7 @@ module.exports = async () => {
         .map((_, i) => paginationPromise(i))
     )
   } catch (e) {
-    Logger.error(e)
-    throw new Error('cannot fetch triggers')
+    Logger.error(`cannot fetch triggers`)
+    throw e
   }
 }

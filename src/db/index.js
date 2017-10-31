@@ -10,8 +10,8 @@ const init = async () => {
     subscribeToDeletion()
     await fetchAll()
   } catch (e) {
-    Logger.error(e)
-    throw new Error('Cannot initialize database')
+    Logger.error('Cannot initialize database')
+    throw e
   }
 }
 

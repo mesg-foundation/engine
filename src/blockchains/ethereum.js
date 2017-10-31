@@ -7,28 +7,33 @@ const type = 'ETHEREUM'
 const endpoint = blockchain => process.env[`${type}_${blockchain.toUpperCase()}`]
 
 const handlerNewBlock = (client, blockchain) => async result => {
-  const block = await client.eth.getBlock(result.number, true)
-  emitRawBlock({ type, blockchain, block })
-  if (block.transactions.length > 0) {
-    const receiptsBatch = new client.BatchRequest()
-    Promise.all(block.transactions
-      .map((transaction, i) => new Promise((resolve, reject) => {
-        receiptsBatch.add(client.eth.getTransactionReceipt.request(
-          transaction.hash,
-          (err, receipt) => err
-            ? reject(err)
-            : resolve({ ...transaction, ...receipt })
-        ))
-      })
-    ))
-      .then(transactions => transactions.forEach(transaction => {
-        emitRawTransaction({ type, blockchain, block, transaction })
-      }))
-      .catch(e => {
-        Logger.error(e)
-        throw new Error('Receipt transaction fetching failed')
-      })
-    receiptsBatch.execute()
+  try {
+    const block = await client.eth.getBlock(result.number, true)
+    emitRawBlock({ type, blockchain, block })
+    if (block.transactions.length > 0) {
+      const receiptsBatch = new client.BatchRequest()
+      Promise.all(block.transactions
+        .map((transaction, i) => new Promise((resolve, reject) => {
+          receiptsBatch.add(client.eth.getTransactionReceipt.request(
+            transaction.hash,
+            (err, receipt) => err
+              ? reject(err)
+              : resolve({ ...transaction, ...receipt })
+          ))
+        })
+      ))
+        .then(transactions => transactions.forEach(transaction => {
+          emitRawTransaction({ type, blockchain, block, transaction })
+        }))
+        .catch(e => {
+          Logger.error(`Receipt transaction fetching failed`)
+          throw e
+        })
+      receiptsBatch.execute()
+    }
+  } catch (e) {
+    Logger.error(`error fetching the block ${JSON.stringify(result)}`)
+    throw e
   }
 }
 
