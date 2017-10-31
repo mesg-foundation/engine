@@ -45,6 +45,6 @@ module.exports = () => {
     .subscribe({ query })
     .subscribe({
       next: value => Store.update(value.Trigger.node),
-      error: Logger.error
+      error: error => Logger.error('Graphcool update/create subscription error', { error })
     })
 }

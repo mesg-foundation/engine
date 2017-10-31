@@ -38,6 +38,6 @@ module.exports = ({ trigger, event }) => client
   })
   .then(x => x.data.createEvent)
   .catch(e => {
-    Logger.error(`Event creation fails, ${JSON.stringify(event)}`)
+    Logger.error('Event creation fails', { event, trigger })
     throw e
   })

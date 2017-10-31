@@ -7,12 +7,12 @@ const setStore = store => (_store = store)
 const store = () => _store
 
 const remove = triggerId => {
-  Logger.info(`Trigger ${triggerId} removed`)
+  Logger.info(`Trigger removed`, { triggerId })
   setStore(store().filter(x => x.id !== triggerId))
 }
 
 const add = trigger => {
-  Logger.info(`Trigger ${trigger.id} added/replaced`)
+  Logger.info(`Trigger added/replaced`, { triggerId: trigger.id })
   setStore([
     ...store().filter(x => x.id !== trigger.id),
     triggerFactory(trigger)

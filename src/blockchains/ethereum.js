@@ -26,13 +26,13 @@ const handlerNewBlock = (client, blockchain) => async result => {
           emitRawTransaction({ type, blockchain, block, transaction })
         }))
         .catch(e => {
-          Logger.error(`Receipt transaction fetching failed`)
+          Logger.error('Receipt transaction fetching failed', { block: result })
           throw e
         })
       receiptsBatch.execute()
     }
   } catch (e) {
-    Logger.error(`error fetching the block ${JSON.stringify(result)}`)
+    Logger.error('error fetching the block', { block: result })
     throw e
   }
 }
@@ -49,10 +49,10 @@ module.exports = async ({ blockchain }) => {
 
   // client.eth.defaultBlock = 'latest'
   const subscription = await client.eth.subscribe('newBlockHeaders', (err, result) => {
-    if (err) { Logger.error(err) }
+    if (err) { Logger.error('Error on subscribe', { blockchain, err }) }
   })
   subscription
     .on('changed', () => Logger.info(`Websocket ${blockchain} changed`))
-    .on('error', error => Logger.error(`error ${error}`))
+    .on('error', error => Logger.error('error on ethereum subscription', { blockchain, error }))
     .on('data', handlerNewBlock(client, blockchain))
 }

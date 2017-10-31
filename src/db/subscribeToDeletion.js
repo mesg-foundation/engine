@@ -21,6 +21,6 @@ module.exports = () => {
     .subscribe({ query })
     .subscribe({
       next: value => Store.remove(value.Trigger.previousValues.id),
-      error: Logger.error
+      error: error => Logger.error('Graphcool delete subscription error', { error })
     })
 }

@@ -19,7 +19,7 @@ module.exports = trigger => {
       if (address.toLowerCase() !== (transaction.to || '').toLowerCase()) { return false }
 
       if (!transaction.logs) {
-        Logger.error(`transaction log not valid ${transaction.hash}`)
+        Logger.error('transaction log not valid', { type, blockchain, transaction, block })
       }
       return (transaction.logs || []).some(matchLog)
     },

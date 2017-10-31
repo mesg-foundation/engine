@@ -48,7 +48,7 @@ module.exports = async () => {
     const { count } = (await client.query({ query: queryCount })).data._allTriggersMeta
     const pagination = parseInt(process.env.PAGINATION, 10) || 500
     const pageCount = Math.ceil(count / pagination)
-    Logger.info(`Fetching triggers... ${pageCount} pages (${pagination} triggers / page)`)
+    Logger.info(`Fetching triggers...`, { pageCount, pagination })
     const paginationPromise = i => client.query({
       query,
       variables: {
@@ -58,7 +58,7 @@ module.exports = async () => {
     })
       .then(({ data }) => data.allTriggers.map(Store.add))
       .catch(e => {
-        Logger.error(`Pagination fails ${i}`)
+        Logger.error('Pagination fails', { page: i })
         throw e
       })
     await Promise.all(
@@ -67,7 +67,7 @@ module.exports = async () => {
         .map((_, i) => paginationPromise(i))
     )
   } catch (e) {
-    Logger.error(`cannot fetch triggers`)
+    Logger.error('cannot fetch triggers')
     throw e
   }
 }
