@@ -10,7 +10,7 @@ const receiptBatcher = (client, batch) => transaction => new Promise((resolve, r
 })
 
 module.exports = async (client, transactions) => {
-  if (transactions.length <= 0) { Promise.resolve([]) }
+  if (transactions.length <= 0) { return Promise.resolve([]) }
   try {
     const batch = new client.BatchRequest()
     const addFetchToBatch = receiptBatcher(client, batch)
