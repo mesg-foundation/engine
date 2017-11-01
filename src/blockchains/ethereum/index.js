@@ -11,7 +11,7 @@ module.exports = async ({ blockchain }) => {
   if (client) {
     const processBlock = blockProcessor(client, blockchain)
     await syncBlocks({ type, blockchain }, () => fetchCurrentBlock(client), processBlock)
-  
+
     // client.eth.defaultBlock = 'latest'
     const subscription = await client.eth.subscribe('newBlockHeaders', (err, result) => {
       if (err) { Logger.error('Error on subscribe', { blockchain, err }) }
