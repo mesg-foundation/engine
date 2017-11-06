@@ -1,4 +1,4 @@
-const Logger = require('../../Logger')
+const Logger = require('../../logger')
 
 const receiptBatcher = (client, batch) => transaction => new Promise((resolve, reject) => {
   batch.add(client.eth.getTransactionReceipt.request(
