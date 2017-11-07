@@ -7,14 +7,12 @@ const processed = (key, block) => new Promise((resolve, reject) => client
     ? reject(err)
     : resolve(data)
   ))
-  .then(x => { console.log(`processed ${x}`); return x })
 
 const last = key => new Promise((resolve, reject) => client
   .get(id(key), (err, data) => err
     ? reject(err)
     : resolve(parseInt(data, 10) || null)
   ))
-  .then(x => { console.log(`last ${x}`); return x })
 
 module.exports = {
   processed,
