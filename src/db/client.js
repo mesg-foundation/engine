@@ -1,6 +1,7 @@
 const ws = require('ws')
 const { ApolloClient, createBatchingNetworkInterface } = require('apollo-client')
 const { SubscriptionClient, addGraphQLSubscriptions } = require('subscriptions-transport-ws')
+const Logger = require('../logger')
 
 const headers = {
   Authorization: [
@@ -9,7 +10,7 @@ const headers = {
   ].join(' ')
 }
 
-module.exports = new ApolloClient({
+const client = new ApolloClient({
   queryDeduplication: true,
   networkInterface: addGraphQLSubscriptions(
     createBatchingNetworkInterface({
@@ -25,3 +26,23 @@ module.exports = new ApolloClient({
     }, ws)
   )
 })
+
+const createSubscription = (query, next) => {
+  Logger.info('(re)subscribe')
+  const subscription = client
+    .subscribe({ query })
+    .subscribe({
+      next,
+      error: error => {
+        Logger.error('Subscription error', { error })
+        subscription.unsubscribe()
+        createSubscription(query, next)
+      }
+    })
+  return subscription
+}
+
+module.exports = {
+  client,
+  createSubscription
+}

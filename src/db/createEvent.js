@@ -1,5 +1,5 @@
 const Logger = require('../logger')
-const client = require('./client')
+const { client } = require('./client')
 const gql = require('graphql-tag')
 
 const mutation = gql`mutation(
