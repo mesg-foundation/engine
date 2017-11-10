@@ -1,6 +1,6 @@
 const Logger = require('../logger')
 const Store = require('../store')
-const client = require('./client')
+const { createSubscription } = require('./client')
 const gql = require('graphql-tag')
 
 const query = gql`subscription {
@@ -41,10 +41,5 @@ const query = gql`subscription {
 
 module.exports = () => {
   Logger.info('Connecting to trigger update...')
-  client
-    .subscribe({ query })
-    .subscribe({
-      next: value => Store.update(value.Trigger.node),
-      error: error => Logger.error('Graphcool update/create subscription error', { error })
-    })
+  createSubscription(query, value => Store.update(value.Trigger.node))
 }

@@ -1,6 +1,6 @@
 const Logger = require('../logger')
 const Store = require('../store')
-const client = require('./client')
+const { client } = require('./client')
 const gql = require('graphql-tag')
 
 const queryCount = gql`query {

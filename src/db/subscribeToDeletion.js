@@ -1,6 +1,6 @@
 const Logger = require('../logger')
 const Store = require('../store')
-const client = require('./client')
+const { createSubscription } = require('./client')
 const gql = require('graphql-tag')
 
 const query = gql`subscription {
@@ -17,10 +17,5 @@ const query = gql`subscription {
 
 module.exports = () => {
   Logger.info('Connecting to trigger delete...')
-  client
-    .subscribe({ query })
-    .subscribe({
-      next: value => Store.remove(value.Trigger.previousValues.id),
-      error: error => Logger.error('Graphcool delete subscription error', { error })
-    })
+  createSubscription(query, value => Store.remove(value.Trigger.previousValues.id))
 }
