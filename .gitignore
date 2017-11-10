@@ -1,4 +1,5 @@
 node_modules
+data
 .env
 newrelic_agent.log
 .node-xmlhttprequest*

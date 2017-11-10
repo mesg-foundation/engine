@@ -3,3 +3,10 @@ services:
   listener:
     build: ./
     env_file: .env
+    depends_on: 
+      - redis
+  redis:
+    image: redis
+    command: redis-server --appendonly yes
+    volumes: 
+      - ./data:/data
