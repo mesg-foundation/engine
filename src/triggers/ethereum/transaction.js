@@ -8,8 +8,7 @@ module.exports = trigger => {
     FROM: tx => addr === (tx.from || '').toLowerCase(),
     TO: tx => addr === (tx.to || '').toLowerCase()
   }[matchType || 'ANY']
-  console.log(matchFn)
-  
+
   return {
     match: ({ type, blockchain, transaction, block }) => {
       if (type !== 'ETHEREUM') { return false }
