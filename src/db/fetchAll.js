@@ -38,6 +38,7 @@ const query = gql`query($skip: Int, $first: Int) {
       ethereumTransaction {
         address
         chain
+        matchType
       }
     }
   }
