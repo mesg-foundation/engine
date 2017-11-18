@@ -33,6 +33,7 @@ const query = gql`subscription {
         ethereumTransaction {
           chain
           address
+          matchType
         }
       }
     }
