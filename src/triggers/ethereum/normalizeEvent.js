@@ -1,7 +1,7 @@
-const generateKey = require('./generateKey');
+const generateKey = require('./generateKey')
 
 module.exports = event => {
-  const { type, blockchain, block, transaction } = event
+  const { block, transaction } = event
   return {
     key: generateKey(event),
     blockId: block.number.toString(),

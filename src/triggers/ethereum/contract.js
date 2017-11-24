@@ -1,7 +1,7 @@
 const Abi = require('web3-eth-abi')
 const Logger = require('../../logger')
 const normalizeEvent = require('./normalizeEvent')
-const generateKey = require('./generateKey');
+const generateKey = require('./generateKey')
 
 module.exports = trigger => {
   const { eventName, contract } = trigger.connector.ethereumContract || trigger.connector.ethereumToken
