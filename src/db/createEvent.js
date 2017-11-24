@@ -1,5 +1,6 @@
 const Logger = require('../logger')
 const { client } = require('./client')
+const { KEY_SEPARATOR } = require('../uniqueKeyGenerator')
 const gql = require('graphql-tag')
 
 const mutation = gql`mutation(
@@ -12,8 +13,10 @@ const mutation = gql`mutation(
   $value: String!,
   $executedAt: DateTime!,
   $triggerId: ID!,
+  $key: String!
 ) {
   createEvent(
+    key: $key,
     blockId: $blockId,
     fees: $fees,
     from: $from,
@@ -33,6 +36,7 @@ module.exports = ({ trigger, event }) => client
     mutation,
     variables: {
       ...event,
+      key: [trigger.id, event.key].join(KEY_SEPARATOR),
       triggerId: trigger.id
     }
   })
@@ -41,3 +45,4 @@ module.exports = ({ trigger, event }) => client
     Logger.error('Event creation fails', { event, trigger })
     throw e
   })
+  
