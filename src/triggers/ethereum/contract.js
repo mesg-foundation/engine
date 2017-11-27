@@ -1,6 +1,7 @@
 const Abi = require('web3-eth-abi')
 const Logger = require('../../logger')
 const normalizeEvent = require('./normalizeEvent')
+const generateKey = require('./generateKey')
 
 module.exports = trigger => {
   const { eventName, contract } = trigger.connector.ethereumContract || trigger.connector.ethereumToken
@@ -31,6 +32,10 @@ module.exports = trigger => {
           const data = Abi.decodeLog(eventAbi.inputs, log.data, log.topics)
           return {
             ...normalizedEvent,
+            key: generateKey({
+              ...event,
+              log
+            }),
             payload: eventAbi.inputs
               .map(x => x.name)
               .reduce((acc, name) => ({
