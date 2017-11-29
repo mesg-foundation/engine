@@ -1,7 +1,8 @@
 const create = {
   ETHEREUM_TRANSACTION: require('./ethereum/transaction'),
   ETHEREUM_CONTRACT: require('./ethereum/contract'),
-  ETHEREUM_TOKEN: require('./ethereum/contract')
+  ETHEREUM_TOKEN: require('./ethereum/contract'),
+  WEBHOOK: require('./webhook')
 }
 
 module.exports = trigger => {
