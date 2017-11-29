@@ -3,3 +3,4 @@ data
 .env
 newrelic_agent.log
 .node-xmlhttprequest*
+dump.rdb
