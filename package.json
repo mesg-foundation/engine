@@ -18,6 +18,8 @@
     "bugsnag": "^2.0.1",
     "dotenv": "^4.0.0",
     "express": "^4.16.2",
+    "express-redis-rate-limit": "^1.1.0",
+    "express-request-id": "^1.4.0",
     "graphql-tag": "^2.4.2",
     "isomorphic-fetch": "^2.2.1",
     "newrelic": "^2.3.1",
