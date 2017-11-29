@@ -35,6 +35,9 @@ const query = gql`subscription {
           address
           matchType
         }
+        webhook {
+          key
+        }
       }
     }
   }
