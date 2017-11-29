@@ -7,7 +7,6 @@ const { emitRawTransaction } = require('../../eventEmitter')
 const Logger = require('../../logger')
 
 const handleRequest = app => (req, res) => {
-  const body = req.body
   emitRawTransaction({ type: 'HTTP', request: req, app })
   res.json({
     body: req.body,
@@ -25,7 +24,7 @@ module.exports = async () => {
   }))
   app.use(bodyParser.json())
   app.use(bodyParser.urlencoded({ extended: true }))
-  
+
   app.post('/triggers/:key', handleRequest(app))
   return new Promise((resolve, reject) => app
     .listen(3000, (err, server) => err
