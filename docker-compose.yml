@@ -3,6 +3,8 @@ services:
   listener:
     build: ./
     env_file: .env
+    ports: 
+      - 80:3000
     depends_on: 
       - redis
   redis:

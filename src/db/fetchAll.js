@@ -40,6 +40,9 @@ const query = gql`query($skip: Int, $first: Int) {
         chain
         matchType
       }
+      webhook {
+        key
+      }
     }
   }
 }`
