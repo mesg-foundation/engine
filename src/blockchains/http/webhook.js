@@ -8,11 +8,7 @@ const Logger = require('../../logger')
 
 const handleRequest = app => (req, res) => {
   emitRawTransaction({ type: 'HTTP', request: req, app })
-  res.json({
-    body: req.body,
-    params: req.params,
-    data: req.data
-  })
+  res.json(req.body)
 }
 
 module.exports = async () => {
