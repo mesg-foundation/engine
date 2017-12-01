@@ -17,5 +17,5 @@ module.exports = ({ type, blockchain, block, transaction, log }) => uniqueKeyGen
   blockchain,
   block.number,
   transaction.transactionIndex,
-  log ? log.index : null
+  log ? log.logIndex : null
 ])
