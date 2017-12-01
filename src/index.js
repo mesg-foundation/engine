@@ -27,7 +27,9 @@ const handleRawTransaction = transactionArgs => {
   if (events.length > 0) {
     Logger.info('Submit events', { events })
   }
-  events.forEach(event => DB.createEvent(event))
+  events
+    .sort((a, b) => a.event.key.localeCompare(b.event.key))
+    .map(DB.createEvent)
 }
 
 const startApp = async () => {
