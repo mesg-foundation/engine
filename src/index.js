@@ -1,7 +1,8 @@
 require('dotenv').config()
 require('isomorphic-fetch')
 require('newrelic')
-require('bugsnag').register(process.env.BUGSNAG_KEY)
+const Bugsnag = require('bugsnag')
+Bugsnag.register(process.env.BUGSNAG_KEY)
 
 const eventEmitter = require('./eventEmitter')
 const Logger = require('./logger')
@@ -37,13 +38,15 @@ const startApp = async () => {
     eventEmitter.create()
     eventEmitter.on('RAW_TRANSACTION', handleRawTransaction)
     eventEmitter.on('RAW_BLOCK', ({ type, blockchain, block }) => Logger.info('New block', { type, blockchain, block: block.number }))
-
+    
     Logger.info('init database')
     await DB.init()
-
+    
     Logger.info('initializing all blockchains connections')
     await initializeBlockchains()
   } catch (e) {
+    Bugsnag.notify(e)
+    console.log(e)
     Logger.error(e)
     process.exit(-1)
   }
