@@ -1,10 +1,12 @@
 const { emitRawBlock, emitRawTransaction } = require('../../eventEmitter')
 const Block = require('../../db/block')
+const Logger = require('../../logger')
+const syncBlocks = require('../syncBlocks')
 const type = require('./name')
 const fetchBlock = require('./fetchBlock')
 const transactionsWithReceiptBatch = require('./transactionsWithReceiptBatch')
 
-module.exports = (client, blockchain) => async blockNumber => {
+const processBlock = (client, blockchain) => async blockNumber => {
   const block = await fetchBlock(client, blockNumber)
   emitRawBlock({ type, blockchain, block })
   const transactions = await transactionsWithReceiptBatch(client, block.transactions)
@@ -13,3 +15,9 @@ module.exports = (client, blockchain) => async blockNumber => {
   })
   await Block.processed({ type, blockchain }, blockNumber)
 }
+
+module.exports = (client, blockchain) => async blockNumber => syncBlocks(
+  { type, blockchain },
+  () => blockNumber,
+  processBlock(client, blockchain)
+)
