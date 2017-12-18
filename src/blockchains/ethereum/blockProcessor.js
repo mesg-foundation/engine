@@ -1,6 +1,5 @@
 const { emitRawBlock, emitRawTransaction } = require('../../eventEmitter')
 const Block = require('../../db/block')
-const Logger = require('../../logger')
 const syncBlocks = require('../syncBlocks')
 const type = require('./name')
 const fetchBlock = require('./fetchBlock')
