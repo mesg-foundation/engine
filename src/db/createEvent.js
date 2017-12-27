@@ -43,7 +43,7 @@ module.exports = ({ trigger, event }) => client
   .then(x => x.data.createEvent)
   .catch(e => {
     if (e.graphQLErrors.every(x => x.code === 3010)) { // duplicate event
-      return;
+      return
     }
     console.log(e)
     Logger.error('Event creation fails', { event, trigger })
