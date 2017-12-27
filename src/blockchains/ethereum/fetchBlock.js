@@ -5,7 +5,7 @@ module.exports = async (client, number) => {
     let block = null
     let retry = 5
     while (!block && retry > 0) {
-      block = client.eth.getBlock(number, true)
+      block = await client.eth.getBlock(number, true)
       retry = retry - 1
     }
     if (!block) { throw new Error('Max retry') }
