@@ -1,9 +1,0 @@
-version: "2"
-services:
-  listener:
-    # volumes:
-    #   - ./:/usr/src/app
-    ports:
-      - 5858:5858
-      - 80:3000
-    command: npm run dev
