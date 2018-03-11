@@ -4,7 +4,8 @@ Stop a service
 
 ### Synopsis
 
-Stop a service
+By stoping a service, your node will not process any other actions from this service.
+/!\ This action will slash your stake if you didn't respect the duration
 
 ```
 mesg service stop [flags]
@@ -19,7 +20,8 @@ mesg-cli service stop ethereum
 ### Options
 
 ```
-  -h, --help   help for stop
+  -c, --confirm   Confirm
+  -h, --help      help for stop
 ```
 
 ### SEE ALSO

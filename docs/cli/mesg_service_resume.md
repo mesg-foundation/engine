@@ -19,7 +19,8 @@ mesg-cli service resume ethereum
 ### Options
 
 ```
-  -h, --help   help for resume
+  -c, --confirm   Confirm
+  -h, --help      help for resume
 ```
 
 ### SEE ALSO

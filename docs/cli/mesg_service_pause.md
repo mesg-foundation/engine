@@ -19,7 +19,8 @@ mesg-cli service pause ethereum
 ### Options
 
 ```
-  -h, --help   help for pause
+  -c, --confirm   Confirm
+  -h, --help      help for pause
 ```
 
 ### SEE ALSO

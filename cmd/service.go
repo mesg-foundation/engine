@@ -18,61 +18,95 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	survey "gopkg.in/AlecAivazis/survey.v1"
 )
 
+func confirm(cmd *cobra.Command, message string) bool {
+	confirm := cmd.Flag("confirm").Value.String() == "true"
+	if !confirm {
+		survey.AskOne(&survey.Confirm{Message: message}, &confirm, nil)
+	}
+	return confirm
+}
+
 func startCmd() *cobra.Command {
-	var cmd = &cobra.Command{
+	var stake float64
+	var duration int
+	cmd := &cobra.Command{
 		Use:     "start",
 		Short:   "Start a service",
 		Args:    cobra.MinimumNArgs(1),
 		Example: "mesg-cli service start --stake 100 --duration 10 ethereum",
 		Run: func(cmd *cobra.Command, args []string) {
-			stake := cmd.Flag("stake").Value
-			duration := cmd.Flag("duration").Value
+			if stake == 0 {
+				survey.AskOne(&survey.Input{Message: "How much do you want to stake (MESG) ?"}, &stake, nil)
+			}
+			if duration == 0 {
+				survey.AskOne(&survey.Input{Message: "How long will you run this service (hours) ?"}, &duration, nil)
+			}
+			if !confirm(cmd, "Are you sure to run this service and stake your tokens ?") {
+				return
+			}
 			fmt.Println("service start called", args, stake, duration)
 		},
 	}
-	cmd.Flags().Float64P("stake", "s", 0, "The number of MESG to put on stake")
-	cmd.Flags().IntP("duration", "d", 0, "The amount of time you will be running this service for (in hours)")
-	cmd.MarkFlagRequired("stake")
-	cmd.MarkFlagRequired("duration")
+	cmd.Flags().BoolP("confirm", "c", false, "Confirm")
+	cmd.Flags().Float64VarP(&stake, "stake", "s", 0, "The number of MESG to put on stake")
+	cmd.Flags().IntVarP(&duration, "duration", "d", 0, "The amount of time you will be running this/those service(s) for (in hours)")
 	return cmd
 }
 
 func stopCmd() *cobra.Command {
-	return &cobra.Command{
-		Use:     "stop",
-		Short:   "Stop a service",
+	cmd := &cobra.Command{
+		Use:   "stop",
+		Short: "Stop a service",
+		Long: `By stoping a service, your node will not process any other actions from this service.
+/!\ This action will slash your stake if you didn't respect the duration`,
 		Args:    cobra.MinimumNArgs(1),
 		Example: "mesg-cli service stop ethereum",
 		Run: func(cmd *cobra.Command, args []string) {
+			if !confirm(cmd, "Are you sure ? Your stake may be slashed !") {
+				return
+			}
 			fmt.Println("service stop called", args)
 		},
 	}
+	cmd.Flags().BoolP("confirm", "c", false, "Confirm")
+	return cmd
 }
 
 func pauseCmd() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:     "pause",
 		Short:   "Pause a service",
 		Args:    cobra.MinimumNArgs(1),
 		Example: "mesg-cli service pause ethereum",
 		Run: func(cmd *cobra.Command, args []string) {
+			if !confirm(cmd, "Are you sure ?") {
+				return
+			}
 			fmt.Println("service pause called", args)
 		},
 	}
+	cmd.Flags().BoolP("confirm", "c", false, "Confirm")
+	return cmd
 }
 
 func resumeCmd() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:     "resume",
 		Short:   "Resume a service",
 		Args:    cobra.MinimumNArgs(1),
 		Example: "mesg-cli service resume ethereum",
 		Run: func(cmd *cobra.Command, args []string) {
+			if !confirm(cmd, "Are you sure ?") {
+				return
+			}
 			fmt.Println("service resume called", args)
 		},
 	}
+	cmd.Flags().BoolP("confirm", "c", false, "Confirm")
+	return cmd
 }
 
 func init() {
