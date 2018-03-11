@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/spf13/cobra"
 	survey "gopkg.in/AlecAivazis/survey.v1"
@@ -34,10 +35,14 @@ func createAccountCmd() *cobra.Command {
 				fmt.Println("Password confirmation invalid")
 				return
 			}
-			fmt.Println("Generating secure key")
+			s := startSpinner(spinnerOptions{text: "Generating secure key..."})
+			time.Sleep(time.Second)
+			s.Stop()
 			survey.AskOne(&survey.Input{Message: "Repeat your private seed"}, &privateSeed, nil)
 			// TODO add real account creation
-			fmt.Println("creating account", password)
+			s = startSpinner(spinnerOptions{text: "processing..."})
+			time.Sleep(2 * time.Second)
+			s.Stop()
 		},
 	}
 }
