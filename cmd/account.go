@@ -67,10 +67,12 @@ func deleteAccountCmd() *cobra.Command {
 				account = args[0]
 			}
 			if account == "" {
+				// TODO add real list
+				accounts := []string{"0x0000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000001"}
 				survey.AskOne(&survey.Select{
 					Message: "Choose the account you want to delete",
-					// TODO add real list
-					Options: []string{"0x0000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000001"},
+					Default: accounts[0],
+					Options: accounts,
 				}, &account, nil)
 			}
 			survey.AskOne(&survey.Confirm{Message: "Are you sure ? You can always re-import an account with your private seed"}, &confirm, nil)

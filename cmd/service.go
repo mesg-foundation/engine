@@ -39,10 +39,18 @@ func startServiceCmd() *cobra.Command {
 		Example: "mesg-cli service start --stake 100 --duration 10 ethereum",
 		Run: func(cmd *cobra.Command, args []string) {
 			if stake == 0 {
-				survey.AskOne(&survey.Input{Message: "How much do you want to stake (MESG) ?"}, &stake, nil)
+				survey.AskOne(&survey.Input{
+					Message: "How much do you want to stake (MESG) ?",
+					Help:    "More details on the stake here",
+					Default: "0",
+				}, &stake, nil)
 			}
 			if duration == 0 {
-				survey.AskOne(&survey.Input{Message: "How long will you run this service (hours) ?"}, &duration, nil)
+				survey.AskOne(&survey.Input{
+					Message: "How long will you run this service (hours) ?",
+					Help:    "More details on the duration here",
+					Default: "0",
+				}, &duration, nil)
 			}
 			if !confirm(cmd, "Are you sure to run this service and stake your tokens ?") {
 				return
