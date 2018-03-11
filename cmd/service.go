@@ -84,5 +84,5 @@ func init() {
 	serviceCmd.AddCommand(stopCmd())
 	serviceCmd.AddCommand(pauseCmd())
 	serviceCmd.AddCommand(resumeCmd())
-	rootCmd.AddCommand(serviceCmd)
+	RootCmd.AddCommand(serviceCmd)
 }
