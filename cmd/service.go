@@ -29,7 +29,7 @@ func confirm(cmd *cobra.Command, message string) bool {
 	return confirm
 }
 
-func startCmd() *cobra.Command {
+func startServiceCmd() *cobra.Command {
 	var stake float64
 	var duration int
 	cmd := &cobra.Command{
@@ -47,6 +47,7 @@ func startCmd() *cobra.Command {
 			if !confirm(cmd, "Are you sure to run this service and stake your tokens ?") {
 				return
 			}
+			// TODO stake && start service
 			fmt.Println("service start called", args, stake, duration)
 		},
 	}
@@ -56,7 +57,7 @@ func startCmd() *cobra.Command {
 	return cmd
 }
 
-func stopCmd() *cobra.Command {
+func stopServiceCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "stop",
 		Short: "Stop a service",
@@ -68,6 +69,8 @@ func stopCmd() *cobra.Command {
 			if !confirm(cmd, "Are you sure ? Your stake may be slashed !") {
 				return
 			}
+			// TODO take stake && stop service
+			// Is it really usefull to take the stake, the node will be offline anyway and we cannot trust the client
 			fmt.Println("service stop called", args)
 		},
 	}
@@ -75,7 +78,7 @@ func stopCmd() *cobra.Command {
 	return cmd
 }
 
-func pauseCmd() *cobra.Command {
+func pauseServiceCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "pause",
 		Short:   "Pause a service",
@@ -85,6 +88,7 @@ func pauseCmd() *cobra.Command {
 			if !confirm(cmd, "Are you sure ?") {
 				return
 			}
+			// TODO pause (onchain) and then stop the service
 			fmt.Println("service pause called", args)
 		},
 	}
@@ -92,7 +96,7 @@ func pauseCmd() *cobra.Command {
 	return cmd
 }
 
-func resumeCmd() *cobra.Command {
+func resumeServiceCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "resume",
 		Short:   "Resume a service",
@@ -102,6 +106,7 @@ func resumeCmd() *cobra.Command {
 			if !confirm(cmd, "Are you sure ?") {
 				return
 			}
+			// TODO start and when ready resume (onchain) the service
 			fmt.Println("service resume called", args)
 		},
 	}
@@ -114,9 +119,9 @@ func init() {
 		Use:   "service",
 		Short: "Manage the services you are running",
 	}
-	serviceCmd.AddCommand(startCmd())
-	serviceCmd.AddCommand(stopCmd())
-	serviceCmd.AddCommand(pauseCmd())
-	serviceCmd.AddCommand(resumeCmd())
+	serviceCmd.AddCommand(startServiceCmd())
+	serviceCmd.AddCommand(stopServiceCmd())
+	serviceCmd.AddCommand(pauseServiceCmd())
+	serviceCmd.AddCommand(resumeServiceCmd())
 	RootCmd.AddCommand(serviceCmd)
 }
