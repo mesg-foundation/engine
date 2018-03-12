@@ -7,7 +7,7 @@ Delete an account
 Delete an account
 
 ```
-mesg-cli account delete [flags]
+mesg-cli account delete ACCOUNT [flags]
 ```
 
 ### Examples

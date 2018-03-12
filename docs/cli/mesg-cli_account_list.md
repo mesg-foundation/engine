@@ -1,10 +1,10 @@
 ## mesg-cli account list
 
-List all the accounts on this computer
+List all accounts created on this computer
 
 ### Synopsis
 
-List all the accounts on this computer
+List all accounts created on this computer
 
 ```
 mesg-cli account list [flags]
