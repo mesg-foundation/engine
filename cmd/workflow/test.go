@@ -38,4 +38,5 @@ func testHandler(cmd *cobra.Command, args []string) {
 func init() {
 	Test.Flags().BoolP("live", "l", false, "Use live events")
 	Test.Flags().StringP("event", "e", "", "Path to the event file")
+	Test.Flags().BoolP("keep-alive", "k", false, "Keep the services alive (re-run without the option to shut it down)")
 }
