@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/fatih/color"
+	"github.com/mesg-foundation/application/account"
 	"github.com/mesg-foundation/application/cmd/utils"
-	"github.com/mesg-foundation/application/types"
 	survey "gopkg.in/AlecAivazis/survey.v1"
 
 	"github.com/spf13/cobra"
@@ -24,26 +24,26 @@ var Create = &cobra.Command{
 }
 
 func createHandler(cmd *cobra.Command, args []string) {
-	account := &types.Account{
+	account := &account.Account{
 		Password: cmd.Flag("password").Value.String(),
 		Name:     cmd.Flag("name").Value.String(),
 	}
 	if err := checkPassword(account); err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	if err := checkName(account); err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	if err := generateAccount(account); err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	displayResume(account)
 }
 
-func checkPassword(account *types.Account) error {
+func checkPassword(account *account.Account) error {
 	if account.Password != "" {
 		return nil
 	}
@@ -56,7 +56,7 @@ func checkPassword(account *types.Account) error {
 	return nil
 }
 
-func checkName(account *types.Account) error {
+func checkName(account *account.Account) error {
 	if account.Name != "" {
 		return nil
 	}
@@ -64,18 +64,15 @@ func checkName(account *types.Account) error {
 	return nil
 }
 
-func generateAccount(account *types.Account) error {
+func generateAccount(account *account.Account) error {
 	s := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Generating secure key..."})
 	time.Sleep(time.Second)
 	s.Stop()
 
-	// TODO add real account creation
-	account.Address = "0x0000000000000000000000000000000000000000"
-	account.Seed = "this is my long secure seed that help me regenerate my account keys"
-	return nil
+	return account.Generate()
 }
 
-func displayResume(account *types.Account) {
+func displayResume(account *account.Account) {
 	success := color.New(color.FgGreen, color.Bold).SprintFunc()
 	warning := color.New(color.FgYellow, color.Bold).SprintFunc()
 	fmt.Println("Here is all the details of your account:")

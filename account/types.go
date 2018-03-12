@@ -1,4 +1,4 @@
-package types
+package account
 
 // Account is a structure that contains all informations about an account
 type Account struct {

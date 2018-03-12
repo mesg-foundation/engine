@@ -3,8 +3,8 @@ package cmdAccount
 import (
 	"fmt"
 
+	"github.com/mesg-foundation/application/account"
 	"github.com/mesg-foundation/application/cmd/utils"
-	"github.com/mesg-foundation/application/types"
 	"github.com/spf13/cobra"
 	survey "gopkg.in/AlecAivazis/survey.v1"
 )
@@ -21,7 +21,7 @@ mesg-cli service delete`,
 }
 
 func deleteHandler(cmd *cobra.Command, args []string) {
-	var account *types.Account
+	var account *account.Account
 	if len(args) > 0 {
 		account = detectAccount(args[0])
 	}
@@ -34,8 +34,8 @@ func deleteHandler(cmd *cobra.Command, args []string) {
 	}
 }
 
-func detectAccount(accountValue string) *types.Account {
-	accounts := accountList()
+func detectAccount(accountValue string) *account.Account {
+	accounts := account.List()
 	for _, account := range accounts {
 		if account.Name == accountValue || account.Address == accountValue || account.String() == accountValue {
 			return account
@@ -44,8 +44,8 @@ func detectAccount(accountValue string) *types.Account {
 	return nil
 }
 
-func askAccount() *types.Account {
-	accounts := accountList()
+func askAccount() *account.Account {
+	accounts := account.List()
 	var selectedAccount string
 	survey.AskOne(&survey.Select{
 		Message: "Choose the account you want to delete",
@@ -54,15 +54,7 @@ func askAccount() *types.Account {
 	return detectAccount(selectedAccount)
 }
 
-func accountList() []*types.Account {
-	// TODO add real list
-	return []*types.Account{
-		&types.Account{Name: "Test1", Address: "0x0000000000000000000000000000000000000000"},
-		&types.Account{Name: "Test2", Address: "0x0000000000000000000000000000000000000001"},
-	}
-}
-
-func accountOptions(accounts []*types.Account) []string {
+func accountOptions(accounts []*account.Account) []string {
 	res := make([]string, len(accounts))
 	for i := 0; i < len(accounts); i++ {
 		res[i] = accounts[i].String()
