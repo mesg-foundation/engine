@@ -4,7 +4,7 @@ Create a new account
 
 ### Synopsis
 
-Create a new account
+Create a new account composed of a name and a generated address
 
 ```
 mesg-cli account create [flags]

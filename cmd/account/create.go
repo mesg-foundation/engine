@@ -1,6 +1,7 @@
 package cmdAccount
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -16,6 +17,7 @@ import (
 var Create = &cobra.Command{
 	Use:               "create",
 	Short:             "Create a new account",
+	Long:              "Create a new account composed of a name and a generated address",
 	Example:           "mesg-cli account create",
 	Run:               createHandler,
 	DisableAutoGenTag: true,
@@ -26,29 +28,51 @@ func createHandler(cmd *cobra.Command, args []string) {
 		Password: cmd.Flag("password").Value.String(),
 		Name:     cmd.Flag("name").Value.String(),
 	}
-	if account.Password == "" {
-		var passwordConfirmation string
-		survey.AskOne(&survey.Password{Message: "Please set a password ?"}, &account.Password, nil)
-		survey.AskOne(&survey.Password{Message: "Repeat your password ?"}, &passwordConfirmation, nil)
-		if account.Password != passwordConfirmation {
-			fmt.Println("Password confirmation invalid")
-			return
-		}
+	if err := checkPassword(account); err != nil {
+		fmt.Println(err)
 	}
 
-	if account.Name == "" {
-		survey.AskOne(&survey.Input{Message: "Choose a name for this account"}, &account.Name, nil)
+	if err := checkName(account); err != nil {
+		fmt.Println(err)
 	}
 
+	if err := generateAccount(account); err != nil {
+		fmt.Println(err)
+	}
+
+	displayResume(account)
+}
+
+func checkPassword(account *types.Account) error {
+	if account.Password != "" {
+		return nil
+	}
+	var passwordConfirmation string
+	survey.AskOne(&survey.Password{Message: "Please set a password ?"}, &account.Password, nil)
+	survey.AskOne(&survey.Password{Message: "Repeat your password ?"}, &passwordConfirmation, nil)
+	if account.Password != passwordConfirmation {
+		return errors.New("Password confirmation invalid")
+	}
+	return nil
+}
+
+func checkName(account *types.Account) error {
+	if account.Name != "" {
+		return nil
+	}
+	survey.AskOne(&survey.Input{Message: "Choose a name for this account"}, &account.Name, nil)
+	return nil
+}
+
+func generateAccount(account *types.Account) error {
 	s := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Generating secure key..."})
 	time.Sleep(time.Second)
 	s.Stop()
 
+	// TODO add real account creation
 	account.Address = "0x0000000000000000000000000000000000000000"
 	account.Seed = "this is my long secure seed that help me regenerate my account keys"
-
-	// TODO add real account creation
-	displayResume(account)
+	return nil
 }
 
 func displayResume(account *types.Account) {
