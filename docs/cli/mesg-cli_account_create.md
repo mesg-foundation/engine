@@ -19,7 +19,9 @@ mesg-cli account create
 ### Options
 
 ```
-  -h, --help   help for create
+  -h, --help              help for create
+  -n, --name string       Name of the account
+  -p, --password string   Password for the account
 ```
 
 ### SEE ALSO
