@@ -8,8 +8,9 @@ import (
 
 // Service is the root command related to services
 var Service = &cobra.Command{
-	Use:   "service",
-	Short: "Manage the services you are running",
+	Use:               "service",
+	Short:             "Manage the services you are running",
+	DisableAutoGenTag: true,
 }
 
 func init() {

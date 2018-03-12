@@ -14,11 +14,12 @@ var duration int
 
 // Start run the start command for a service
 var Start = &cobra.Command{
-	Use:     "start",
-	Short:   "Start a service",
-	Args:    cobra.MinimumNArgs(1),
-	Example: "mesg-cli service start --stake 100 --duration 10 ethereum",
-	Run:     startHandler,
+	Use:               "start",
+	Short:             "Start a service",
+	Args:              cobra.MinimumNArgs(1),
+	Example:           "mesg-cli service start --stake 100 --duration 10 ethereum",
+	Run:               startHandler,
+	DisableAutoGenTag: true,
 }
 
 func startHandler(cmd *cobra.Command, args []string) {

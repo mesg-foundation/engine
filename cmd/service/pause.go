@@ -10,11 +10,12 @@ import (
 
 // Pause run the pause command for a service
 var Pause = &cobra.Command{
-	Use:     "pause",
-	Short:   "Pause a service",
-	Args:    cobra.MinimumNArgs(1),
-	Example: "mesg-cli service pause ethereum",
-	Run:     pauseHandler,
+	Use:               "pause",
+	Short:             "Pause a service",
+	Args:              cobra.MinimumNArgs(1),
+	Example:           "mesg-cli service pause ethereum",
+	Run:               pauseHandler,
+	DisableAutoGenTag: true,
 }
 
 func pauseHandler(cmd *cobra.Command, args []string) {

@@ -12,11 +12,12 @@ import (
 
 // Test run the test command for a workflow
 var Test = &cobra.Command{
-	Use:     "test",
-	Short:   "Test a workflow",
-	Args:    cobra.MinimumNArgs(1),
-	Example: "mesg-cli workflow test workflow.yml",
-	Run:     testHandler,
+	Use:               "test",
+	Short:             "Test a workflow",
+	Args:              cobra.MinimumNArgs(1),
+	Example:           "mesg-cli workflow test workflow.yml",
+	Run:               testHandler,
+	DisableAutoGenTag: true,
 }
 
 func testHandler(cmd *cobra.Command, args []string) {

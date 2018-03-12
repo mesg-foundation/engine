@@ -12,10 +12,11 @@ import (
 
 // Create run the create command for an account
 var Create = &cobra.Command{
-	Use:     "create",
-	Short:   "Create a new account",
-	Example: "mesg-cli account create",
-	Run:     createHandler,
+	Use:               "create",
+	Short:             "Create a new account",
+	Example:           "mesg-cli account create",
+	Run:               createHandler,
+	DisableAutoGenTag: true,
 }
 
 func createHandler(cmd *cobra.Command, args []string) {

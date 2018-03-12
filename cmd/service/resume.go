@@ -10,11 +10,12 @@ import (
 
 // Resume run the resume command for a service
 var Resume = &cobra.Command{
-	Use:     "resume",
-	Short:   "Resume a service",
-	Args:    cobra.MinimumNArgs(1),
-	Example: "mesg-cli service resume ethereum",
-	Run:     resumeHandler,
+	Use:               "resume",
+	Short:             "Resume a service",
+	Args:              cobra.MinimumNArgs(1),
+	Example:           "mesg-cli service resume ethereum",
+	Run:               resumeHandler,
+	DisableAutoGenTag: true,
 }
 
 func resumeHandler(cmd *cobra.Command, args []string) {

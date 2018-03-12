@@ -14,9 +14,10 @@ var Stop = &cobra.Command{
 	Short: "Stop a service",
 	Long: `By stoping a service, your node will not process any other actions from this service.
 /!\ This action will slash your stake if you didn't respect the duration`,
-	Args:    cobra.MinimumNArgs(1),
-	Example: "mesg-cli service stop ethereum",
-	Run:     stopHandler,
+	Args:              cobra.MinimumNArgs(1),
+	Example:           "mesg-cli service stop ethereum",
+	Run:               stopHandler,
+	DisableAutoGenTag: true,
 }
 
 func stopHandler(cmd *cobra.Command, args []string) {

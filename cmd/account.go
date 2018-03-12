@@ -7,8 +7,9 @@ import (
 
 // Account is the command to manage all account activity
 var Account = &cobra.Command{
-	Use:   "account",
-	Short: "Manage your MESG accounts",
+	Use:               "account",
+	Short:             "Manage your MESG accounts",
+	DisableAutoGenTag: true,
 }
 
 func init() {

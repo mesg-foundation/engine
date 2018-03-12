@@ -12,11 +12,12 @@ import (
 
 // Validate run the validate command for a workflow
 var Validate = &cobra.Command{
-	Use:     "validate",
-	Short:   "Validate a workflow",
-	Args:    cobra.MinimumNArgs(1),
-	Example: "mesg-cli workflow validate workflow.yml",
-	Run:     validateHandler,
+	Use:               "validate",
+	Short:             "Validate a workflow",
+	Args:              cobra.MinimumNArgs(1),
+	Example:           "mesg-cli workflow validate workflow.yml",
+	Run:               validateHandler,
+	DisableAutoGenTag: true,
 }
 
 func validateHandler(cmd *cobra.Command, args []string) {

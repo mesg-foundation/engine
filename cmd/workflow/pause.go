@@ -11,10 +11,11 @@ import (
 
 // Pause run the pause command for a workflow
 var Pause = &cobra.Command{
-	Use:     "pause",
-	Short:   "Pause a workflow",
-	Example: "mesg-cli workflow pause xxx",
-	Run:     pauseHandler,
+	Use:               "pause",
+	Short:             "Pause a workflow",
+	Example:           "mesg-cli workflow pause xxx",
+	Run:               pauseHandler,
+	DisableAutoGenTag: true,
 }
 
 func pauseHandler(cmd *cobra.Command, args []string) {

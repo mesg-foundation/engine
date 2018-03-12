@@ -11,10 +11,11 @@ import (
 
 // Resume run the resume command for a workflow
 var Resume = &cobra.Command{
-	Use:     "resume",
-	Short:   "Resume a workflow",
-	Example: "mesg-cli workflow resume xxx",
-	Run:     resumeHandler,
+	Use:               "resume",
+	Short:             "Resume a workflow",
+	Example:           "mesg-cli workflow resume xxx",
+	Run:               resumeHandler,
+	DisableAutoGenTag: true,
 }
 
 func resumeHandler(cmd *cobra.Command, args []string) {

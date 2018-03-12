@@ -9,10 +9,11 @@ import (
 
 // Delete a specific accounts
 var Delete = &cobra.Command{
-	Use:     "delete",
-	Short:   "Delete an account",
-	Example: "mesg-cli service delete 0x0000000000000000000000000000000000000000",
-	Run:     deleteHandler,
+	Use:               "delete",
+	Short:             "Delete an account",
+	Example:           "mesg-cli service delete 0x0000000000000000000000000000000000000000",
+	Run:               deleteHandler,
+	DisableAutoGenTag: true,
 }
 
 func deleteHandler(cmd *cobra.Command, args []string) {

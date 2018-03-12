@@ -11,11 +11,12 @@ import (
 
 // Deploy run the deploy command for a workflow
 var Deploy = &cobra.Command{
-	Use:     "deploy",
-	Short:   "Deploy a new workflow",
-	Args:    cobra.MinimumNArgs(1),
-	Example: "mesg-cli workflow deploy workflow.yml",
-	Run:     deployHandler,
+	Use:               "deploy",
+	Short:             "Deploy a new workflow",
+	Args:              cobra.MinimumNArgs(1),
+	Example:           "mesg-cli workflow deploy workflow.yml",
+	Run:               deployHandler,
+	DisableAutoGenTag: true,
 }
 
 func deployHandler(cmd *cobra.Command, args []string) {

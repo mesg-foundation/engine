@@ -11,11 +11,12 @@ import (
 
 // Deploy run the deploy command for a service
 var Deploy = &cobra.Command{
-	Use:     "deploy",
-	Short:   "Deploy a new service",
-	Args:    cobra.MinimumNArgs(1),
-	Example: "mesg-cli service deploy service.yml",
-	Run:     deployHandler,
+	Use:               "deploy",
+	Short:             "Deploy a new service",
+	Args:              cobra.MinimumNArgs(1),
+	Example:           "mesg-cli service deploy service.yml",
+	Run:               deployHandler,
+	DisableAutoGenTag: true,
 }
 
 func deployHandler(cmd *cobra.Command, args []string) {
