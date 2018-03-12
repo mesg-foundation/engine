@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/application/account"
 	"github.com/mesg-foundation/application/cmd/utils"
 	survey "gopkg.in/AlecAivazis/survey.v1"
@@ -74,11 +75,11 @@ func generateAccount(account *account.Account) error {
 func displayResume(account *account.Account) {
 	fmt.Println("Here is all the details of your account:")
 	fmt.Println()
-	fmt.Printf("Account name: %s\n", cmdUtils.SuccessColor(account.Name))
-	fmt.Printf("Account address: %s\n", cmdUtils.SuccessColor(account.Address))
-	fmt.Printf("Seed: %s\n", cmdUtils.SuccessColor(account.Seed))
+	fmt.Printf("Account name: %s\n", aurora.Green(account.Name).Bold())
+	fmt.Printf("Account address: %s\n", aurora.Green(account.Address).Bold())
+	fmt.Printf("Seed: %s\n", aurora.Green(account.Seed).Bold())
 	fmt.Println()
-	fmt.Printf("%s", cmdUtils.WarningColor("Please make sure that you save those informations and especially the following seed that might be needed to regenerate this address"))
+	fmt.Printf("%s", aurora.Brown("Please make sure that you save those informations and especially the following seed that might be needed to regenerate this address").Bold())
 	fmt.Println()
 }
 

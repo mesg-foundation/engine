@@ -3,6 +3,7 @@ package cmdAccount
 import (
 	"fmt"
 
+	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/application/cmd/utils"
 
 	"github.com/mesg-foundation/application/account"
@@ -31,7 +32,7 @@ func exportHandler(cmd *cobra.Command, args []string) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Account exported: %s\n", cmdUtils.SuccessColor(path))
+	fmt.Printf("Account exported: %s\n", aurora.Green(path).Bold())
 }
 
 func init() {

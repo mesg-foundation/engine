@@ -3,8 +3,7 @@ package cmdAccount
 import (
 	"fmt"
 
-	"github.com/mesg-foundation/application/cmd/utils"
-
+	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/application/account"
 
 	"github.com/spf13/cobra"
@@ -24,7 +23,7 @@ func importHandler(cmd *cobra.Command, args []string) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Account imported: %s\n", cmdUtils.SuccessColor(account))
+	fmt.Printf("Account imported: %s\n", aurora.Green(account).Bold())
 }
 
 func init() {
