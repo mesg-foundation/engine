@@ -1,4 +1,4 @@
-## mesg service resume
+## mesg-cli service resume
 
 Resume a service
 
@@ -7,7 +7,7 @@ Resume a service
 Resume a service
 
 ```
-mesg service resume [flags]
+mesg-cli service resume [flags]
 ```
 
 ### Examples
@@ -25,5 +25,5 @@ mesg-cli service resume ethereum
 
 ### SEE ALSO
 
-* [mesg service](mesg_service.md)	 - Manage the services you are running
+* [mesg-cli service](mesg-cli_service.md)	 - Manage the services you are running
 

@@ -1,4 +1,4 @@
-## mesg workflow deploy
+## mesg-cli workflow deploy
 
 Deploy a new workflow
 
@@ -7,7 +7,7 @@ Deploy a new workflow
 Deploy a new workflow
 
 ```
-mesg workflow deploy [flags]
+mesg-cli workflow deploy [flags]
 ```
 
 ### Examples
@@ -25,5 +25,5 @@ mesg-cli workflow deploy workflow.yml
 
 ### SEE ALSO
 
-* [mesg workflow](mesg_workflow.md)	 - Manage the workflow you create
+* [mesg-cli workflow](mesg-cli_workflow.md)	 - Manage the workflow you create
 

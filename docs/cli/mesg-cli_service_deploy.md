@@ -1,4 +1,4 @@
-## mesg service deploy
+## mesg-cli service deploy
 
 Deploy a new service
 
@@ -7,7 +7,7 @@ Deploy a new service
 Deploy a new service
 
 ```
-mesg service deploy [flags]
+mesg-cli service deploy [flags]
 ```
 
 ### Examples
@@ -25,5 +25,5 @@ mesg-cli service deploy service.yml
 
 ### SEE ALSO
 
-* [mesg service](mesg_service.md)	 - Manage the services you are running
+* [mesg-cli service](mesg-cli_service.md)	 - Manage the services you are running
 

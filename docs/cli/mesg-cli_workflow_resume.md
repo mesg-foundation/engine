@@ -1,4 +1,4 @@
-## mesg workflow resume
+## mesg-cli workflow resume
 
 Resume a workflow
 
@@ -7,7 +7,7 @@ Resume a workflow
 Resume a workflow
 
 ```
-mesg workflow resume [flags]
+mesg-cli workflow resume [flags]
 ```
 
 ### Examples
@@ -25,5 +25,5 @@ mesg-cli workflow resume xxx
 
 ### SEE ALSO
 
-* [mesg workflow](mesg_workflow.md)	 - Manage the workflow you create
+* [mesg-cli workflow](mesg-cli_workflow.md)	 - Manage the workflow you create
 

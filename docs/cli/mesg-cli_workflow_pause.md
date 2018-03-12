@@ -1,4 +1,4 @@
-## mesg workflow pause
+## mesg-cli workflow pause
 
 Pause a workflow
 
@@ -7,7 +7,7 @@ Pause a workflow
 Pause a workflow
 
 ```
-mesg workflow pause [flags]
+mesg-cli workflow pause [flags]
 ```
 
 ### Examples
@@ -25,5 +25,5 @@ mesg-cli workflow pause xxx
 
 ### SEE ALSO
 
-* [mesg workflow](mesg_workflow.md)	 - Manage the workflow you create
+* [mesg-cli workflow](mesg-cli_workflow.md)	 - Manage the workflow you create
 

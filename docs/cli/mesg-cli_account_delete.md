@@ -1,4 +1,4 @@
-## mesg account delete
+## mesg-cli account delete
 
 Delete an account
 
@@ -7,7 +7,7 @@ Delete an account
 Delete an account
 
 ```
-mesg account delete [flags]
+mesg-cli account delete [flags]
 ```
 
 ### Examples
@@ -24,5 +24,5 @@ mesg-cli service delete 0x0000000000000000000000000000000000000000
 
 ### SEE ALSO
 
-* [mesg account](mesg_account.md)	 - Manage your MESG accounts
+* [mesg-cli account](mesg-cli_account.md)	 - Manage your MESG accounts
 

@@ -1,4 +1,4 @@
-## mesg workflow validate
+## mesg-cli workflow validate
 
 Validate a workflow
 
@@ -7,7 +7,7 @@ Validate a workflow
 Validate a workflow
 
 ```
-mesg workflow validate [flags]
+mesg-cli workflow validate [flags]
 ```
 
 ### Examples
@@ -24,5 +24,5 @@ mesg-cli workflow validate workflow.yml
 
 ### SEE ALSO
 
-* [mesg workflow](mesg_workflow.md)	 - Manage the workflow you create
+* [mesg-cli workflow](mesg-cli_workflow.md)	 - Manage the workflow you create
 

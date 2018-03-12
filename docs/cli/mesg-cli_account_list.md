@@ -1,4 +1,4 @@
-## mesg account list
+## mesg-cli account list
 
 List all the accounts on this computer
 
@@ -7,7 +7,7 @@ List all the accounts on this computer
 List all the accounts on this computer
 
 ```
-mesg account list [flags]
+mesg-cli account list [flags]
 ```
 
 ### Examples
@@ -24,5 +24,5 @@ mesg-cli account list
 
 ### SEE ALSO
 
-* [mesg account](mesg_account.md)	 - Manage your MESG accounts
+* [mesg-cli account](mesg-cli_account.md)	 - Manage your MESG accounts
 

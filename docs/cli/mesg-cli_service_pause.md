@@ -1,4 +1,4 @@
-## mesg service pause
+## mesg-cli service pause
 
 Pause a service
 
@@ -7,7 +7,7 @@ Pause a service
 Pause a service
 
 ```
-mesg service pause [flags]
+mesg-cli service pause [flags]
 ```
 
 ### Examples
@@ -25,5 +25,5 @@ mesg-cli service pause ethereum
 
 ### SEE ALSO
 
-* [mesg service](mesg_service.md)	 - Manage the services you are running
+* [mesg-cli service](mesg-cli_service.md)	 - Manage the services you are running
 

@@ -1,4 +1,4 @@
-## mesg service start
+## mesg-cli service start
 
 Start a service
 
@@ -7,7 +7,7 @@ Start a service
 Start a service
 
 ```
-mesg service start [flags]
+mesg-cli service start [flags]
 ```
 
 ### Examples
@@ -27,5 +27,5 @@ mesg-cli service start --stake 100 --duration 10 ethereum
 
 ### SEE ALSO
 
-* [mesg service](mesg_service.md)	 - Manage the services you are running
+* [mesg-cli service](mesg-cli_service.md)	 - Manage the services you are running
 
