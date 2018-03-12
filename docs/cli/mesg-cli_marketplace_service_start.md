@@ -1,4 +1,4 @@
-## mesg-cli service start
+## mesg-cli marketplace service start
 
 Start a service
 
@@ -7,13 +7,13 @@ Start a service
 Start a service
 
 ```
-mesg-cli service start [flags]
+mesg-cli marketplace service start [flags]
 ```
 
 ### Examples
 
 ```
-mesg-cli service start --stake 100 --duration 10 ethereum
+mesg-cli marketplace service start --stake 100 --duration 10 ethereum
 ```
 
 ### Options
@@ -27,5 +27,5 @@ mesg-cli service start --stake 100 --duration 10 ethereum
 
 ### SEE ALSO
 
-* [mesg-cli service](mesg-cli_service.md)	 - Manage the services you are running
+* [mesg-cli marketplace service](mesg-cli_marketplace_service.md)	 - Manage services from the marketplace
 

@@ -1,4 +1,4 @@
-## mesg-cli service stop
+## mesg-cli marketplace service stop
 
 Stop a service
 
@@ -8,13 +8,13 @@ By stoping a service, your node will not process any other actions from this ser
 /!\ This action will slash your stake if you didn't respect the duration
 
 ```
-mesg-cli service stop [flags]
+mesg-cli marketplace service stop [flags]
 ```
 
 ### Examples
 
 ```
-mesg-cli service stop ethereum
+mesg-cli marketplace service stop ethereum
 ```
 
 ### Options
@@ -26,5 +26,5 @@ mesg-cli service stop ethereum
 
 ### SEE ALSO
 
-* [mesg-cli service](mesg-cli_service.md)	 - Manage the services you are running
+* [mesg-cli marketplace service](mesg-cli_marketplace_service.md)	 - Manage services from the marketplace
 

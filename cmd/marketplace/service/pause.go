@@ -1,4 +1,4 @@
-package cmdService
+package cmdServiceMarketPlace
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ var Pause = &cobra.Command{
 	Use:               "pause",
 	Short:             "Pause a service",
 	Args:              cobra.MinimumNArgs(1),
-	Example:           "mesg-cli service pause ethereum",
+	Example:           "mesg-cli marketplace service pause ethereum",
 	Run:               pauseHandler,
 	DisableAutoGenTag: true,
 }

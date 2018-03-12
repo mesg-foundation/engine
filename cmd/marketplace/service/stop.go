@@ -1,4 +1,4 @@
-package cmdService
+package cmdServiceMarketPlace
 
 import (
 	"fmt"
@@ -15,7 +15,7 @@ var Stop = &cobra.Command{
 	Long: `By stoping a service, your node will not process any other actions from this service.
 /!\ This action will slash your stake if you didn't respect the duration`,
 	Args:              cobra.MinimumNArgs(1),
-	Example:           "mesg-cli service stop ethereum",
+	Example:           "mesg-cli marketplace service stop ethereum",
 	Run:               stopHandler,
 	DisableAutoGenTag: true,
 }

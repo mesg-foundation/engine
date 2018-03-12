@@ -1,4 +1,4 @@
-package cmdService
+package cmdServiceMarketPlace
 
 import (
 	"fmt"
@@ -17,7 +17,7 @@ var Start = &cobra.Command{
 	Use:               "start",
 	Short:             "Start a service",
 	Args:              cobra.MinimumNArgs(1),
-	Example:           "mesg-cli service start --stake 100 --duration 10 ethereum",
+	Example:           "mesg-cli marketplace service start --stake 100 --duration 10 ethereum",
 	Run:               startHandler,
 	DisableAutoGenTag: true,
 }

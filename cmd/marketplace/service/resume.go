@@ -1,4 +1,4 @@
-package cmdService
+package cmdServiceMarketPlace
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ var Resume = &cobra.Command{
 	Use:               "resume",
 	Short:             "Resume a service",
 	Args:              cobra.MinimumNArgs(1),
-	Example:           "mesg-cli service resume ethereum",
+	Example:           "mesg-cli marketplace service resume ethereum",
 	Run:               resumeHandler,
 	DisableAutoGenTag: true,
 }

@@ -14,11 +14,6 @@ var Service = &cobra.Command{
 }
 
 func init() {
-
-	Service.AddCommand(cmdService.Start)
-	Service.AddCommand(cmdService.Stop)
-	Service.AddCommand(cmdService.Pause)
-	Service.AddCommand(cmdService.Resume)
 	Service.AddCommand(cmdService.Deploy)
 
 	RootCmd.AddCommand(Service)
