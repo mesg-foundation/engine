@@ -13,13 +13,16 @@ mesg-cli account delete [flags]
 ### Examples
 
 ```
+mesg-cli service delete accountX
 mesg-cli service delete 0x0000000000000000000000000000000000000000
+mesg-cli service delete
 ```
 
 ### Options
 
 ```
-  -h, --help   help for delete
+  -c, --confirm   Confirm
+  -h, --help      help for delete
 ```
 
 ### SEE ALSO

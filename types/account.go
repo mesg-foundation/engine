@@ -7,3 +7,7 @@ type Account struct {
 	Password string
 	Seed     string
 }
+
+func (account *Account) String() string {
+	return account.Name + " " + account.Address
+}
