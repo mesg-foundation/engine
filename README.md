@@ -21,3 +21,14 @@ go get
 ```bash
 go run main.go
 ```
+
+## Install debugger
+
+```bash
+xcode-select --install
+go get -u github.com/derekparker/delve/cmd/dlv
+cd $GOPATH/src/github.com/derekparker/delve
+make install
+```
+
+[Source](https://github.com/derekparker/delve/blob/master/Documentation/installation/osx/install.md)
