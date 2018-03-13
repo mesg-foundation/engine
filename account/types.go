@@ -1,6 +1,6 @@
 package account
 
-// Account is a structure that contains all informations about an account
+// Account is a structure that contains all information about an account
 type Account struct {
 	Name     string
 	Address  string
