@@ -32,6 +32,8 @@ func init() {
 	MarketPlaceService.AddCommand(cmdServiceMarketPlace.Stop)
 	MarketPlaceService.AddCommand(cmdServiceMarketPlace.Pause)
 	MarketPlaceService.AddCommand(cmdServiceMarketPlace.Resume)
+	MarketPlaceService.AddCommand(cmdServiceMarketPlace.Detail)
+	MarketPlaceService.AddCommand(cmdServiceMarketPlace.List)
 
 	MarketPlaceWorkflow.AddCommand(cmdWorkflowMarketPlace.Detail)
 	MarketPlaceWorkflow.AddCommand(cmdWorkflowMarketPlace.List)

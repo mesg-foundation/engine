@@ -10,10 +10,9 @@ import (
 
 // Stop run the stop command for a service
 var Stop = &cobra.Command{
-	Use:   "stop",
-	Short: "Stop a service",
-	Long: `By stoping a service, your node will not process any other actions from this service.
-/!\ This action will slash your stake if you didn't respect the duration`,
+	Use:               "stop SERVICE",
+	Short:             "Stop a service",
+	Long:              "Stop a service. The user will get its stake back if the stake duration is reached. Otherwise, it will only get a ratio of it.",
 	Args:              cobra.MinimumNArgs(1),
 	Example:           "mesg-cli marketplace service stop ethereum",
 	Run:               stopHandler,
@@ -21,14 +20,16 @@ var Stop = &cobra.Command{
 }
 
 func stopHandler(cmd *cobra.Command, args []string) {
+	account := cmdUtils.AccountFromFlagOrAsk(cmd, "Select an account")
 	if !cmdUtils.Confirm(cmd, "Are you sure ? Your stake may be slashed !") {
 		return
 	}
 	// TODO take stake && stop service
 	// Is it really usefull to take the stake, the node will be offline anyway and we cannot trust the client
-	fmt.Println("service stop called", args)
+	fmt.Println("service stop called", args, account)
 }
 
 func init() {
-	Stop.Flags().BoolP("confirm", "c", false, "Confirm")
+	cmdUtils.Confirmable(Stop)
+	cmdUtils.Accountable(Stop)
 }

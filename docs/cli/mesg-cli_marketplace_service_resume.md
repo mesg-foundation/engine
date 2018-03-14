@@ -4,10 +4,10 @@ Resume a service
 
 ### Synopsis
 
-Resume a service
+Resume a service that have been paused.
 
 ```
-mesg-cli marketplace service resume [flags]
+mesg-cli marketplace service resume SERVICE [flags]
 ```
 
 ### Examples
@@ -19,8 +19,9 @@ mesg-cli marketplace service resume ethereum
 ### Options
 
 ```
-  -c, --confirm   Confirm
-  -h, --help      help for resume
+  -a, --account string   Account you want to use
+  -c, --confirm          Confirm
+  -h, --help             help for resume
 ```
 
 ### SEE ALSO

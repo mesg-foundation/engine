@@ -1,13 +1,13 @@
 ## mesg-cli workflow pause
 
-Pause a workflow
+Temporary pause the workflow, the amount of MESG on the workflow will stay
 
 ### Synopsis
 
-Pause a workflow
+Temporary pause the workflow, the amount of MESG on the workflow will stay
 
 ```
-mesg-cli workflow pause [flags]
+mesg-cli workflow pause ID [flags]
 ```
 
 ### Examples
@@ -19,8 +19,9 @@ mesg-cli workflow pause xxx
 ### Options
 
 ```
-  -c, --confirm   Confirm
-  -h, --help      help for pause
+  -a, --account string   Account you want to use
+  -c, --confirm          Confirm
+  -h, --help             help for pause
 ```
 
 ### SEE ALSO

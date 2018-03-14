@@ -12,7 +12,7 @@ import (
 
 // Validate run the validate command for a workflow
 var Validate = &cobra.Command{
-	Use:               "validate",
+	Use:               "validate FILE",
 	Short:             "Validate a workflow",
 	Args:              cobra.MinimumNArgs(1),
 	Example:           "mesg-cli workflow validate workflow.yml",

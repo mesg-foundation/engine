@@ -1,10 +1,10 @@
 ## mesg-cli marketplace workflow detail
 
-Details of a workflow
+List all details of a workflow
 
 ### Synopsis
 
-Details of a workflow
+List all details of a workflow
 
 ```
 mesg-cli marketplace workflow detail ID [flags]

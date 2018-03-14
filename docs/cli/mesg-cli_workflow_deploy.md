@@ -7,7 +7,7 @@ Deploy a new workflow
 Deploy a new workflow
 
 ```
-mesg-cli workflow deploy [flags]
+mesg-cli workflow deploy FILE [flags]
 ```
 
 ### Examples
@@ -19,8 +19,9 @@ mesg-cli workflow deploy workflow.yml
 ### Options
 
 ```
-  -c, --confirm   Confirm
-  -h, --help      help for deploy
+  -a, --account string   Account you want to use
+  -c, --confirm          Confirm
+  -h, --help             help for deploy
 ```
 
 ### SEE ALSO

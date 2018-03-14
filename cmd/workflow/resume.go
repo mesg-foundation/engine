@@ -11,14 +11,15 @@ import (
 
 // Resume run the resume command for a workflow
 var Resume = &cobra.Command{
-	Use:               "resume",
-	Short:             "Resume a workflow",
+	Use:               "resume ID",
+	Short:             "Resume a paused workflow",
 	Example:           "mesg-cli workflow resume xxx",
 	Run:               resumeHandler,
 	DisableAutoGenTag: true,
 }
 
 func resumeHandler(cmd *cobra.Command, args []string) {
+	account := cmdUtils.AccountFromFlagOrAsk(cmd, "Select an account")
 	var workflow = ""
 	if len(args) > 0 {
 		workflow = args[0]
@@ -36,9 +37,10 @@ func resumeHandler(cmd *cobra.Command, args []string) {
 		return
 	}
 	// TODO resume the workflow
-	fmt.Println("workflow resume called", args)
+	fmt.Println("workflow resume called", args, account)
 }
 
 func init() {
-	Resume.Flags().BoolP("confirm", "c", false, "Confirm")
+	cmdUtils.Confirmable(Resume)
+	cmdUtils.Accountable(Resume)
 }

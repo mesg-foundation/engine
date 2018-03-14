@@ -4,11 +4,10 @@ Stop a service
 
 ### Synopsis
 
-By stoping a service, your node will not process any other actions from this service.
-/!\ This action will slash your stake if you didn't respect the duration
+Stop a service. The user will get its stake back if the stake duration is reached. Otherwise, it will only get a ratio of it.
 
 ```
-mesg-cli marketplace service stop [flags]
+mesg-cli marketplace service stop SERVICE [flags]
 ```
 
 ### Examples
@@ -20,8 +19,9 @@ mesg-cli marketplace service stop ethereum
 ### Options
 
 ```
-  -c, --confirm   Confirm
-  -h, --help      help for stop
+  -a, --account string   Account you want to use
+  -c, --confirm          Confirm
+  -h, --help             help for stop
 ```
 
 ### SEE ALSO

@@ -14,7 +14,7 @@ var cfgFile string
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:               "mesg-cli",
-	Short:             "MESG is a super top CLI",
+	Short:             "MESG CLI",
 	DisableAutoGenTag: true,
 }
 

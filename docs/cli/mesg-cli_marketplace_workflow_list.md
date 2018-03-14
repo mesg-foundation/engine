@@ -19,7 +19,8 @@ mesg-cli marketplace service list
 ### Options
 
 ```
-  -h, --help   help for list
+  -a, --account string   Filter workflows based on the account address
+  -h, --help             help for list
 ```
 
 ### SEE ALSO

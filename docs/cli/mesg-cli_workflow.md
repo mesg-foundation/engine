@@ -14,10 +14,12 @@ Manage the workflow you create
 
 ### SEE ALSO
 
-* [mesg-cli](mesg-cli.md)	 - MESG is a super top CLI
+* [mesg-cli](mesg-cli.md)	 - MESG CLI
 * [mesg-cli workflow deploy](mesg-cli_workflow_deploy.md)	 - Deploy a new workflow
-* [mesg-cli workflow pause](mesg-cli_workflow_pause.md)	 - Pause a workflow
-* [mesg-cli workflow resume](mesg-cli_workflow_resume.md)	 - Resume a workflow
+* [mesg-cli workflow kill](mesg-cli_workflow_kill.md)	 - Kill a workflow and return the amount of money in this workflow
+* [mesg-cli workflow list](mesg-cli_workflow_list.md)	 - List of workflows that an account already deployed on the Network
+* [mesg-cli workflow pause](mesg-cli_workflow_pause.md)	 - Temporary pause the workflow, the amount of MESG on the workflow will stay
+* [mesg-cli workflow resume](mesg-cli_workflow_resume.md)	 - Resume a paused workflow
 * [mesg-cli workflow test](mesg-cli_workflow_test.md)	 - Test a workflow
 * [mesg-cli workflow validate](mesg-cli_workflow_validate.md)	 - Validate a workflow
 

@@ -1,13 +1,13 @@
 ## mesg-cli workflow resume
 
-Resume a workflow
+Resume a paused workflow
 
 ### Synopsis
 
-Resume a workflow
+Resume a paused workflow
 
 ```
-mesg-cli workflow resume [flags]
+mesg-cli workflow resume ID [flags]
 ```
 
 ### Examples
@@ -19,8 +19,9 @@ mesg-cli workflow resume xxx
 ### Options
 
 ```
-  -c, --confirm   Confirm
-  -h, --help      help for resume
+  -a, --account string   Account you want to use
+  -c, --confirm          Confirm
+  -h, --help             help for resume
 ```
 
 ### SEE ALSO

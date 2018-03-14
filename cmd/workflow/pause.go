@@ -11,14 +11,15 @@ import (
 
 // Pause run the pause command for a workflow
 var Pause = &cobra.Command{
-	Use:               "pause",
-	Short:             "Pause a workflow",
+	Use:               "pause ID",
+	Short:             "Temporary pause the workflow, the amount of MESG on the workflow will stay",
 	Example:           "mesg-cli workflow pause xxx",
 	Run:               pauseHandler,
 	DisableAutoGenTag: true,
 }
 
 func pauseHandler(cmd *cobra.Command, args []string) {
+	account := cmdUtils.AccountFromFlagOrAsk(cmd, "Select an account")
 	var workflow = ""
 	if len(args) > 0 {
 		workflow = args[0]
@@ -36,9 +37,10 @@ func pauseHandler(cmd *cobra.Command, args []string) {
 		return
 	}
 	// TODO pause the workflow onchain
-	fmt.Println("workflow pause called", args)
+	fmt.Println("workflow pause called", args, account)
 }
 
 func init() {
-	Pause.Flags().BoolP("confirm", "c", false, "Confirm")
+	cmdUtils.Confirmable(Pause)
+	cmdUtils.Accountable(Pause)
 }

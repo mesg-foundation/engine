@@ -12,7 +12,7 @@ var duration int
 // Detail of the workflow
 var Detail = &cobra.Command{
 	Use:               "detail ID",
-	Short:             "Details of a workflow",
+	Short:             "List all details of a workflow",
 	Args:              cobra.MinimumNArgs(1),
 	Example:           "mesg-cli marketplace workflow detail XX",
 	Run:               detailHandler,

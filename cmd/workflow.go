@@ -20,6 +20,8 @@ func init() {
 	Workflow.AddCommand(cmdWorkflow.Deploy)
 	Workflow.AddCommand(cmdWorkflow.Test)
 	Workflow.AddCommand(cmdWorkflow.Validate)
+	Workflow.AddCommand(cmdWorkflow.List)
+	Workflow.AddCommand(cmdWorkflow.Kill)
 
 	RootCmd.AddCommand(Workflow)
 }

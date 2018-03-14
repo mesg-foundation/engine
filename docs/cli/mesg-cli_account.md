@@ -14,7 +14,7 @@ Manage your MESG accounts
 
 ### SEE ALSO
 
-* [mesg-cli](mesg-cli.md)	 - MESG is a super top CLI
+* [mesg-cli](mesg-cli.md)	 - MESG CLI
 * [mesg-cli account create](mesg-cli_account_create.md)	 - Create a new account
 * [mesg-cli account delete](mesg-cli_account_delete.md)	 - Delete an account
 * [mesg-cli account export](mesg-cli_account_export.md)	 - Export account details in order to be able to re-import it with the import command

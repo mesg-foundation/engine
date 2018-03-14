@@ -12,7 +12,7 @@ import (
 
 // Test run the test command for a workflow
 var Test = &cobra.Command{
-	Use:               "test",
+	Use:               "test FILE",
 	Short:             "Test a workflow",
 	Args:              cobra.MinimumNArgs(1),
 	Example:           "mesg-cli workflow test workflow.yml",

@@ -11,7 +11,7 @@ import (
 
 // Deploy run the deploy command for a workflow
 var Deploy = &cobra.Command{
-	Use:               "deploy",
+	Use:               "deploy FILE",
 	Short:             "Deploy a new workflow",
 	Args:              cobra.MinimumNArgs(1),
 	Example:           "mesg-cli workflow deploy workflow.yml",
@@ -20,6 +20,7 @@ var Deploy = &cobra.Command{
 }
 
 func deployHandler(cmd *cobra.Command, args []string) {
+	account := cmdUtils.AccountFromFlagOrAsk(cmd, "Select an account for deployment")
 	if !cmdUtils.Confirm(cmd, "Are you sure ?") {
 		return
 	}
@@ -27,9 +28,10 @@ func deployHandler(cmd *cobra.Command, args []string) {
 	time.Sleep(2 * time.Second)
 	s.Stop()
 	// TODO deploy the workflow
-	fmt.Println("workflow deployed", args)
+	fmt.Println("workflow deployed", args, account)
 }
 
 func init() {
-	Deploy.Flags().BoolP("confirm", "c", false, "Confirm")
+	cmdUtils.Confirmable(Deploy)
+	cmdUtils.Accountable(Deploy)
 }

@@ -14,8 +14,9 @@ var duration int
 
 // Start run the start command for a service
 var Start = &cobra.Command{
-	Use:               "start",
+	Use:               "start SERVICE",
 	Short:             "Start a service",
+	Long:              "Start a service from the publicly available services. The user have to provide a stake value and duration.",
 	Args:              cobra.MinimumNArgs(1),
 	Example:           "mesg-cli marketplace service start --stake 100 --duration 10 ethereum",
 	Run:               startHandler,
@@ -23,6 +24,7 @@ var Start = &cobra.Command{
 }
 
 func startHandler(cmd *cobra.Command, args []string) {
+	account := cmdUtils.AccountFromFlagOrAsk(cmd, "Select an account")
 	if stake == 0 {
 		survey.AskOne(&survey.Input{
 			Message: "How much do you want to stake (MESG) ?",
@@ -41,11 +43,12 @@ func startHandler(cmd *cobra.Command, args []string) {
 		return
 	}
 	// TODO stake && start service
-	fmt.Println("service start called", args, stake, duration)
+	fmt.Println("service start called", args, stake, duration, account)
 }
 
 func init() {
-	Start.Flags().BoolP("confirm", "c", false, "Confirm")
+	cmdUtils.Confirmable(Start)
+	cmdUtils.Accountable(Start)
 	Start.Flags().Float64VarP(&stake, "stake", "s", 0, "The number of MESG to put on stake")
 	Start.Flags().IntVarP(&duration, "duration", "d", 0, "The amount of time you will be running this/those service(s) for (in hours)")
 }

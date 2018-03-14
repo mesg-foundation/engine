@@ -14,7 +14,7 @@ Manage all things from the marketplace
 
 ### SEE ALSO
 
-* [mesg-cli](mesg-cli.md)	 - MESG is a super top CLI
+* [mesg-cli](mesg-cli.md)	 - MESG CLI
 * [mesg-cli marketplace service](mesg-cli_marketplace_service.md)	 - Manage services from the marketplace
 * [mesg-cli marketplace workflow](mesg-cli_marketplace_workflow.md)	 - Manage workflows from the marketplace
 

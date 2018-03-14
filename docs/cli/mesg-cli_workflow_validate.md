@@ -7,7 +7,7 @@ Validate a workflow
 Validate a workflow
 
 ```
-mesg-cli workflow validate [flags]
+mesg-cli workflow validate FILE [flags]
 ```
 
 ### Examples

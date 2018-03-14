@@ -18,5 +18,5 @@ mesg-cli monitor [flags]
 
 ### SEE ALSO
 
-* [mesg-cli](mesg-cli.md)	 - MESG is a super top CLI
+* [mesg-cli](mesg-cli.md)	 - MESG CLI
 

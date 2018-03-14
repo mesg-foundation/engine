@@ -7,7 +7,7 @@ Test a workflow
 Test a workflow
 
 ```
-mesg-cli workflow test [flags]
+mesg-cli workflow test FILE [flags]
 ```
 
 ### Examples
