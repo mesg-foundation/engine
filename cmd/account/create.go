@@ -40,7 +40,7 @@ func createHandler(cmd *cobra.Command, args []string) {
 		panic(err)
 	}
 
-	displayResume(account)
+	displaySummary(account)
 }
 
 func checkPassword(account *account.Account) error {
@@ -72,14 +72,14 @@ func generateAccount(account *account.Account) error {
 	return account.Generate()
 }
 
-func displayResume(account *account.Account) {
+func displaySummary(account *account.Account) {
 	fmt.Println("Here is all the details of your account:")
 	fmt.Println()
 	fmt.Printf("Account name: %s\n", aurora.Green(account.Name).Bold())
 	fmt.Printf("Account address: %s\n", aurora.Green(account.Address).Bold())
 	fmt.Printf("Seed: %s\n", aurora.Green(account.Seed).Bold())
 	fmt.Println()
-	fmt.Printf("%s", aurora.Brown("Please make sure that you save those informations and especially the following seed that might be needed to regenerate this address").Bold())
+	fmt.Printf("%s", aurora.Brown("Please make sure that you save those information and especially the following seed that might be needed to regenerate this address").Bold())
 	fmt.Println()
 }
 

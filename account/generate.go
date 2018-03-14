@@ -1,7 +1,7 @@
 package account
 
 // TODO add real account creation
-func generate(password string, name string) (address string, seed string, error error) {
+func generate(password string, name string) (string, string, error) {
 	return "0x0000000000000000000000000000000000000000", "this is my long secure seed that help me regenerate my account keys", nil
 }
 
