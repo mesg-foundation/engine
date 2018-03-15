@@ -22,7 +22,7 @@ go get
 go run main.go
 ```
 
-## Install debugger
+## Install debugger on OS X
 
 ```bash
 xcode-select --install
