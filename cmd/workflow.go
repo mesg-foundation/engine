@@ -22,6 +22,7 @@ func init() {
 	Workflow.AddCommand(cmdWorkflow.Validate)
 	Workflow.AddCommand(cmdWorkflow.List)
 	Workflow.AddCommand(cmdWorkflow.Kill)
+	Workflow.AddCommand(cmdWorkflow.Topup)
 
 	RootCmd.AddCommand(Workflow)
 }

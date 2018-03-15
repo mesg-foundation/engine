@@ -21,5 +21,6 @@ Manage the workflow you create
 * [mesg-cli workflow pause](mesg-cli_workflow_pause.md)	 - Temporary pause the workflow, the amount of MESG on the workflow will stay
 * [mesg-cli workflow resume](mesg-cli_workflow_resume.md)	 - Resume a paused workflow
 * [mesg-cli workflow test](mesg-cli_workflow_test.md)	 - Test a workflow
+* [mesg-cli workflow topup](mesg-cli_workflow_topup.md)	 - Top-up a workflow
 * [mesg-cli workflow validate](mesg-cli_workflow_validate.md)	 - Validate a workflow
 
