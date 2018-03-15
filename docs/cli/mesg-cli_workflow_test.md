@@ -23,6 +23,7 @@ mesg-cli workflow test workflow.yml
   -h, --help           help for test
   -k, --keep-alive     Keep the services alive (re-run without the option to shut it down)
   -l, --live           Use live events
+  -t, --task string    Run the test on a specific task of the workflow
 ```
 
 ### SEE ALSO
