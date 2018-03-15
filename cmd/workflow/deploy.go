@@ -21,6 +21,7 @@ var Deploy = &cobra.Command{
 
 func deployHandler(cmd *cobra.Command, args []string) {
 	account := cmdUtils.AccountFromFlagOrAsk(cmd, "Select an account for deployment")
+	amount := cmdUtils.GetOrAskAmount(cmd, "How much do you want to deposit in your workflow ?")
 	if !cmdUtils.Confirm(cmd, "Are you sure ?") {
 		return
 	}
@@ -28,10 +29,11 @@ func deployHandler(cmd *cobra.Command, args []string) {
 	time.Sleep(2 * time.Second)
 	s.Stop()
 	// TODO deploy the workflow
-	fmt.Println("workflow deployed", args, account)
+	fmt.Println("workflow deployed", args, account, amount)
 }
 
 func init() {
 	cmdUtils.Confirmable(Deploy)
 	cmdUtils.Accountable(Deploy)
+	cmdUtils.Payable(Deploy)
 }

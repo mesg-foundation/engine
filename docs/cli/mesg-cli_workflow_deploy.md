@@ -20,6 +20,7 @@ mesg-cli workflow deploy workflow.yml
 
 ```
   -a, --account string   Account you want to use
+      --amount string    The amount of MESG
   -c, --confirm          Confirm
   -h, --help             help for deploy
 ```
