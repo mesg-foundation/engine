@@ -20,7 +20,10 @@ var Topup = &cobra.Command{
 
 func topupHandler(cmd *cobra.Command, args []string) {
 	account := cmdUtils.AccountFromFlagOrAsk(cmd, "Select an account")
-	amount := cmdUtils.GetOrAskAmount(cmd, "How much do you want to deposit in your workflow ?")
+	amount, err := cmdUtils.GetOrAskAmount(cmd, "How much do you want to deposit in your workflow ?")
+	if err != nil {
+		panic(err)
+	}
 	var workflow = ""
 	if len(args) > 0 {
 		workflow = args[0]

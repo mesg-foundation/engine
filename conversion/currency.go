@@ -2,6 +2,7 @@ package conversion
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -27,6 +28,18 @@ var regex *regexp.Regexp
 // Amount struct
 type Amount struct {
 	Value uint
+}
+
+func stringFromCurrency(currency Currency) (value string) {
+	for key := range stringToCurrency {
+		fmt.Println("currency", currency)
+		fmt.Println("key", key)
+		fmt.Println("value", stringToCurrency[key])
+		if key != "" && stringToCurrency[key] == currency {
+			return key
+		}
+	}
+	return ""
 }
 
 func init() {
@@ -59,15 +72,13 @@ func toBase(numberString string, currencyString string) (base float64, err error
 }
 
 // FromString converts a string containing a value and an currency unit into the base value
-func FromString(value string) (amount *Amount, err error) {
+func (amount *Amount) FromString(value string) (err error) {
 	numberString, currencyString, err := extractFromString(value)
 	if err != nil {
 		return
 	}
 	base, _ := toBase(numberString, currencyString)
-	amount = &Amount{
-		Value: uint(base),
-	}
+	amount.Value = uint(base)
 	if float64(amount.Value) != base {
 		err = errors.New("The number lost some precision. Check your value and unit")
 	}
@@ -77,5 +88,18 @@ func FromString(value string) (amount *Amount, err error) {
 // Convert converts an Amount struct to a specific Currency
 func (amount *Amount) Convert(currency Currency) (value float64) {
 	value = float64(amount.Value) / float64(currency)
+	return
+}
+
+// Format returns a nice human readable amount using a given currency
+func (amount *Amount) Format(currency Currency) (desc string) {
+	currencyStr := stringFromCurrency(currency)
+	desc = strconv.FormatFloat(amount.Convert(currency), 'f', -1, 64) + " " + currencyStr
+	return
+}
+
+// String displays the amount using the MESG currency
+func (amount *Amount) String() (desc string) {
+	desc = amount.Format(MESG)
 	return
 }

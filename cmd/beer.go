@@ -19,7 +19,10 @@ var Beer = &cobra.Command{
 
 func beerHandler(cmd *cobra.Command, args []string) {
 	account := cmdUtils.AccountFromFlagOrAsk(cmd, "Select your account")
-	amount := cmdUtils.GetOrAskAmount(cmd, "Select the amount of MESG you want to kindly send")
+	amount, err := cmdUtils.GetOrAskAmount(cmd, "Select the amount of MESG you want to kindly send")
+	if err != nil {
+		panic(err)
+	}
 	if cmdUtils.Confirm(cmd, "Are you sure ?") {
 		fmt.Println(emoji.Sprint("Thanks you, we will have a nice :beer:"), account, amount)
 	}
