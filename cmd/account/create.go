@@ -43,33 +43,35 @@ func createHandler(cmd *cobra.Command, args []string) {
 	displaySummary(account)
 }
 
-func checkPassword(account *account.Account) error {
+func checkPassword(account *account.Account) (err error) {
 	if account.Password != "" {
-		return nil
+		return
 	}
 	var passwordConfirmation string
 	survey.AskOne(&survey.Password{Message: "Please set a password ?"}, &account.Password, nil)
 	survey.AskOne(&survey.Password{Message: "Repeat your password ?"}, &passwordConfirmation, nil)
 	if account.Password != passwordConfirmation {
-		return errors.New("Password confirmation invalid")
+		err = errors.New("Password confirmation invalid")
+		return
 	}
-	return nil
+	return
 }
 
-func checkName(account *account.Account) error {
+func checkName(account *account.Account) (err error) {
 	if account.Name != "" {
-		return nil
+		return
 	}
 	survey.AskOne(&survey.Input{Message: "Choose a name for this account"}, &account.Name, nil)
-	return nil
+	return
 }
 
-func generateAccount(account *account.Account) error {
+func generateAccount(account *account.Account) (err error) {
 	s := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Generating secure key..."})
 	time.Sleep(time.Second)
 	s.Stop()
 
-	return account.Generate()
+	err = account.Generate()
+	return
 }
 
 func displaySummary(account *account.Account) {

@@ -8,6 +8,6 @@ type Account struct {
 	Seed     string
 }
 
-func (account *Account) String() string {
+func (account *Account) String() (desc string) {
 	return account.Name + " " + account.Address
 }
