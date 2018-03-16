@@ -32,10 +32,11 @@ type Amount struct {
 func stringFromCurrency(currency Currency) (value string) {
 	for key := range stringToCurrency {
 		if key != "" && stringToCurrency[key] == currency {
-			return key
+			value = key
+			break
 		}
 	}
-	return ""
+	return
 }
 
 func init() {

@@ -6,63 +6,97 @@ import (
 	"github.com/stvp/assert"
 )
 
-func TestFromStringInvalidFormat(t *testing.T) {
-	_, err := FromString("42.3dw2 MESG")
+func TestAmountFromStringInvalidFormat(t *testing.T) {
+	amount := &Amount{}
+	err := amount.FromString("42.3dw2 MESG")
 	assert.NotNil(t, err, "The error should not be nil")
 }
 
-func TestFromStringInvalidCurrency(t *testing.T) {
-	_, err := FromString("42.32 ME3feSG")
+func TestAmountFromStringInvalidCurrency(t *testing.T) {
+	amount := &Amount{}
+	err := amount.FromString("42.32 ME3feSG")
 	assert.NotNil(t, err, "The error should not be nil")
 }
 
-func TestFromStringUnitMESG(t *testing.T) {
-	amount, err := FromString("42.32 MESG")
+func TestAmountFromStringUnitMESG(t *testing.T) {
+	amount := &Amount{}
+	err := amount.FromString("42.32 MESG")
 	assert.Nil(t, err, "The error should be nil")
 	assert.Equal(t, amount.Value, uint(42.32*float64(MESG)))
 }
 
-func TestFromStringUnitBASE(t *testing.T) {
-	amount, err := FromString("32 BASE")
+func TestAmountFromStringUnitBASE(t *testing.T) {
+	amount := &Amount{}
+	err := amount.FromString("32 BASE")
 	assert.Nil(t, err, "The error should be nil")
 	assert.Equal(t, amount.Value, uint(32))
 }
 
-func TestFromStringNoUnit(t *testing.T) {
-	amount, err := FromString("42.32")
+func TestAmountFromStringNoUnit(t *testing.T) {
+	amount := &Amount{}
+	err := amount.FromString("42.32")
 	assert.Nil(t, err, "The error should be nil")
 	assert.Equal(t, amount.Value, uint(42.32*float64(MESG)))
 }
 
-func TestConvertFromMESGToMESG(t *testing.T) {
-	amount, err := FromString("42.32 MESG")
+func TestAmountConvertFromMESGToMESG(t *testing.T) {
+	amount := &Amount{}
+	err := amount.FromString("42.32 MESG")
 	value := amount.Convert(MESG)
 	assert.Nil(t, err, "The error should be nil")
 	assert.Equal(t, value, 42.32)
 }
 
-func TestConvertFromMESGToBASE(t *testing.T) {
-	amount, err := FromString("42.32 MESG")
+func TestAmountConvertFromMESGToBASE(t *testing.T) {
+	amount := &Amount{}
+	err := amount.FromString("42.32 MESG")
 	value := amount.Convert(BASE)
 	assert.Nil(t, err, "The error should be nil")
 	assert.Equal(t, value, 42.32*float64(MESG))
 }
 
-func TestFromStringInvalidNumberWithUnitBASE(t *testing.T) {
-	_, err := FromString("42.32 BASE")
+func TestAmountFromStringInvalidNumberWithUnitBASE(t *testing.T) {
+	amount := &Amount{}
+	err := amount.FromString("42.32 BASE")
 	assert.NotNil(t, err, "The error should be nil")
 }
 
-func TestConvertFromBASEToBASE(t *testing.T) {
-	amount, err := FromString("42 BASE")
+func TestAmountConvertFromBASEToBASE(t *testing.T) {
+	amount := &Amount{}
+	err := amount.FromString("42 BASE")
 	value := amount.Convert(BASE)
 	assert.Nil(t, err, "The error should be nil")
 	assert.Equal(t, value, float64(42))
 }
 
-func TestConvertFromBASEToMESG(t *testing.T) {
-	amount, err := FromString("42 BASE")
+func TestAmountConvertFromBASEToMESG(t *testing.T) {
+	amount := &Amount{}
+	err := amount.FromString("42 BASE")
 	value := amount.Convert(MESG)
 	assert.Nil(t, err, "The error should be nil")
 	assert.Equal(t, value, float64(42)/float64(MESG))
+}
+
+func TestAmountFormatWithBase(t *testing.T) {
+	amount := &Amount{}
+	err := amount.FromString("42.44 MESG")
+	assert.Nil(t, err, "The error should be nil")
+	formattedString := amount.Format(BASE)
+	assert.Equal(t, formattedString, "42440000000 BASE")
+}
+
+func TestAmountFormatWithMESG(t *testing.T) {
+	amount := &Amount{}
+	err := amount.FromString("42 BASE")
+	assert.Nil(t, err, "The error should be nil")
+	formattedString := amount.Format(MESG)
+	assert.Equal(t, formattedString, "0.000000042 MESG")
+}
+
+func TestAmountString(t *testing.T) {
+	amount := &Amount{}
+	err := amount.FromString("42 BASE")
+	assert.Nil(t, err, "The error should be nil")
+	formattedString := amount.String()
+	assert.Equal(t, formattedString, "0.000000042 MESG")
 }
