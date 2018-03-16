@@ -2,7 +2,6 @@ package conversion
 
 import (
 	"errors"
-	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -32,9 +31,6 @@ type Amount struct {
 
 func stringFromCurrency(currency Currency) (value string) {
 	for key := range stringToCurrency {
-		fmt.Println("currency", currency)
-		fmt.Println("key", key)
-		fmt.Println("value", stringToCurrency[key])
 		if key != "" && stringToCurrency[key] == currency {
 			return key
 		}
