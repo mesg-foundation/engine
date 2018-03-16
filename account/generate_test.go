@@ -32,3 +32,21 @@ func TestGeneratePasswordIsMissing(t *testing.T) {
 	assert.NotNil(t, err, "The error should not be nil")
 	assert.Equal(t, err.Error(), "Password is missing")
 }
+
+func TestGenerateFromAccount(t *testing.T) {
+	account := Account{
+		Name:     "Testx",
+		Password: "xxxxx",
+	}
+	account.Generate()
+	assert.NotEqual(t, account.Address, "")
+	assert.NotEqual(t, account.Seed, "")
+}
+
+func TestGenerateFromAccountWithNoPassword(t *testing.T) {
+	account := Account{
+		Name: "Testx",
+	}
+	err := account.Generate()
+	assert.NotNil(t, err)
+}
