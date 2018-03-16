@@ -9,10 +9,10 @@ import (
 // FindAccount returns an account if it matches either the address or the name
 func FindAccount(accountValue string) (account *accountPkg.Account) {
 	accounts := accountPkg.List()
-	for _, a := range accounts {
-		if a.Name == accountValue || a.Address == accountValue || a.String() == accountValue {
-			account = a
-			return
+	for _, acc := range accounts {
+		if acc.Name == accountValue || acc.Address == accountValue || acc.String() == accountValue {
+			account = acc
+			break
 		}
 	}
 	return
