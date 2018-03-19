@@ -1,7 +1,7 @@
 package service
 
 import (
-	"fmt"
+	"context"
 	"strconv"
 	"strings"
 
@@ -13,7 +13,6 @@ func extractPorts(dependency *Dependency) (ports []swarm.PortConfig) {
 	ports = make([]swarm.PortConfig, len(dependency.Ports))
 	for i, p := range dependency.Ports {
 		split := strings.Split(p, ":")
-		fmt.Println(split)
 		from, _ := strconv.ParseUint(split[0], 10, 64)
 		to := from
 		if len(split) > 1 {
@@ -53,6 +52,26 @@ func (dependency *Dependency) Start(serviceName string, namespace string) (err e
 				Ports: extractPorts(dependency),
 			},
 		},
+	})
+	return
+}
+
+// Stop a dependency
+func (dependency *Dependency) Stop(serviceName string, namespace string) (err error) {
+	ctx := context.Background()
+	dockerServices, err := dockerCli.ListServices(docker.ListServicesOptions{
+		Filters: map[string][]string{
+			"name": []string{strings.Join([]string{namespace, serviceName}, "_")},
+		},
+		Context: ctx,
+	})
+	if err != nil {
+		return
+	}
+	dockerService := dockerServices[0]
+	err = dockerCli.RemoveService(docker.RemoveServiceOptions{
+		ID:      dockerService.ID,
+		Context: ctx,
 	})
 	return
 }
