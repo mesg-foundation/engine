@@ -29,6 +29,19 @@ func TestExtractPorts(t *testing.T) {
 	assert.Equal(t, ports[1].PublishedPort, uint32(3000))
 }
 
+func TestGetDockerService(t *testing.T) {
+	namespace := strings.Join([]string{NAMESPACE, "TestGetDockerService"}, "_")
+	name := "test"
+	dependency := Dependency{Image: "nginx"}
+	dependency.Start(name, namespace)
+	res, err := dependency.getDockerService(name, namespace)
+	assert.Nil(t, err)
+	assert.NotEqual(t, res.ID, "")
+	res, err = dependency.getDockerService("textx", namespace)
+	assert.Nil(t, err)
+	assert.Equal(t, res.ID, "")
+}
+
 func TestDockerServiceMatch(t *testing.T) {
 	namespace := strings.Join([]string{NAMESPACE, "TestDockerServiceMatch"}, "_")
 	dockerServices := []swarm.Service{

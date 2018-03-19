@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 
+	"github.com/docker/docker/api/types/swarm"
 	docker "github.com/fsouza/go-dockerclient"
 )
 
@@ -17,6 +18,16 @@ const (
 	PARTIAL StatusType = 2
 )
 
+func dockerServiceMatch(dockerServices []swarm.Service, namespace string, name string) (dockerService swarm.Service) {
+	for _, service := range dockerServices {
+		if service.Spec.Annotations.Name == strings.Join([]string{namespace, name}, "_") {
+			dockerService = service
+			break
+		}
+	}
+	return
+}
+
 func dependencyStatus(dependency *Dependency, namespace string, dependencyName string) (status StatusType) {
 	ctx := context.Background()
 	dockerServices, err := dockerCli.ListServices(docker.ListServicesOptions{
@@ -25,8 +36,9 @@ func dependencyStatus(dependency *Dependency, namespace string, dependencyName s
 		},
 		Context: ctx,
 	})
+	dockerService := dockerServiceMatch(dockerServices, namespace, dependencyName)
 	status = STOPPED
-	if err == nil && len(dockerServices) > 0 {
+	if err == nil && dockerService.ID != "" {
 		status = RUNNING
 	}
 	return
