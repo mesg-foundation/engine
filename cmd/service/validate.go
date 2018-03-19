@@ -3,6 +3,9 @@ package cmdService
 import (
 	"fmt"
 
+	"github.com/logrusorgru/aurora"
+	"github.com/mesg-foundation/application/service"
+
 	"github.com/spf13/cobra"
 )
 
@@ -17,6 +20,11 @@ var Validate = &cobra.Command{
 }
 
 func validateHandler(cmd *cobra.Command, args []string) {
+	service, err := service.ImportFromFile(args[0])
+	if err != nil {
+		fmt.Println(aurora.Red(err))
+		return
+	}
 	// TODO validate the service
-	fmt.Println("service valid")
+	fmt.Println(aurora.Green("Service " + service.Name + " valid"))
 }

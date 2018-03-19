@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/application/cmd/utils"
+	"github.com/mesg-foundation/application/service"
 
 	"github.com/spf13/cobra"
 )
@@ -25,11 +27,16 @@ func deployHandler(cmd *cobra.Command, args []string) {
 	if !cmdUtils.Confirm(cmd, "Are you sure ?") {
 		return
 	}
-	s := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Deployment in progress..."})
+	service, err := service.ImportFromFile(args[0])
+	if err != nil {
+		fmt.Println(aurora.Red(err))
+		return
+	}
+	s := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Deployment of " + service.Name + " in progress..."})
 	time.Sleep(2 * time.Second)
 	s.Stop()
 	// TODO deploy the service
-	fmt.Println("service deployed", args, account)
+	fmt.Println("service deployed with", account)
 }
 
 func init() {
