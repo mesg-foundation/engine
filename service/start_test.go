@@ -8,7 +8,7 @@ import (
 
 func TestStartService(t *testing.T) {
 	service := &Service{
-		Name: "test",
+		Name: "TestStartService",
 		Dependencies: map[string]*Dependency{
 			"test": &Dependency{
 				Image: "nginx",
@@ -17,4 +17,5 @@ func TestStartService(t *testing.T) {
 	}
 	err := service.Start()
 	assert.Nil(t, err)
+	service.Stop()
 }
