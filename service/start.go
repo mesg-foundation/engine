@@ -10,7 +10,7 @@ func (service *Service) Start() (err error) {
 		service.Stop()
 	}
 	for name, dependency := range service.Dependencies {
-		err = dependency.Start(name, service.namespace())
+		_, err = dependency.Start(service.namespace(), name)
 		if err != nil {
 			break
 		}

@@ -6,7 +6,7 @@ func (service *Service) Stop() (err error) {
 		return
 	}
 	for name, dependency := range service.Dependencies {
-		err = dependency.Stop(name, service.namespace())
+		err = dependency.Stop(service.namespace(), name)
 		if err != nil {
 			break
 		}

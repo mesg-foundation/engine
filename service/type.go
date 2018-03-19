@@ -1,7 +1,5 @@
 package service
 
-import "github.com/docker/docker/api/types/swarm"
-
 // Visibility is the tags to set is the service is visible for whom
 type Visibility string
 
@@ -100,11 +98,10 @@ type Parameters []*Parameter
 
 // Dependency is the docker informations about the Dependency
 type Dependency struct {
-	Image        string   `yaml:"image"`
-	Volumes      []string `yaml:"volumes"`
-	Ports        []string `yaml:"ports"`
-	Command      string   `yaml:"command"`
-	SwarmService *swarm.Service
+	Image   string   `yaml:"image"`
+	Volumes []string `yaml:"volumes"`
+	Ports   []string `yaml:"ports"`
+	Command string   `yaml:"command"`
 }
 
 // Dependencies is a list of Dependencies
