@@ -43,7 +43,7 @@ type Service struct {
 	Publication  Publication  `yaml:"publication"`
 	Tasks        Tasks        `yaml:"tasks"`
 	Events       Events       `yaml:"events"`
-	Dependencies Dependencies `yaml:"services"`
+	Dependencies Dependencies `yaml:"dependencies"`
 }
 
 // Requirements is a list of requirements to run the service
@@ -94,7 +94,7 @@ type Parameter struct {
 }
 
 // Parameters is a list of Parameters
-type Parameters []Parameter
+type Parameters map[string]Parameter
 
 // Dependency is the docker informations about the Dependency
 type Dependency struct {
