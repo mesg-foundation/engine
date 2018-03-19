@@ -50,7 +50,7 @@ func TestPartiallyRunningService(t *testing.T) {
 		},
 	}
 	service.Start()
-	service.Dependencies["test"].Stop("test", service.namespace())
+	service.Dependencies["test"].Stop(service.namespace(), "test")
 	assert.Equal(t, service.IsPartiallyRunning(), true)
 	err := service.Start()
 	assert.Nil(t, err)

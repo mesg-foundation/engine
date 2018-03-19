@@ -28,7 +28,7 @@ func extractPorts(dependency *Dependency) (ports []swarm.PortConfig) {
 	return
 }
 
-func (dependency *Dependency) getDockerService(dependencyName string, namespace string) (dockerService swarm.Service, err error) {
+func (dependency *Dependency) getDockerService(namespace string, dependencyName string) (dockerService swarm.Service, err error) {
 	ctx := context.Background()
 	dockerServices, err := dockerCli.ListServices(docker.ListServicesOptions{
 		Filters: map[string][]string{
@@ -44,8 +44,8 @@ func (dependency *Dependency) getDockerService(dependencyName string, namespace 
 }
 
 // Start will start a dependency container
-func (dependency *Dependency) Start(serviceName string, namespace string) (err error) {
-	dependency.SwarmService, err = dockerCli.CreateService(docker.CreateServiceOptions{
+func (dependency *Dependency) Start(namespace string, serviceName string) (dockerService *swarm.Service, err error) {
+	return dockerCli.CreateService(docker.CreateServiceOptions{
 		ServiceSpec: swarm.ServiceSpec{
 			Annotations: swarm.Annotations{
 				Name: strings.Join([]string{namespace, serviceName}, "_"),
@@ -68,16 +68,15 @@ func (dependency *Dependency) Start(serviceName string, namespace string) (err e
 			},
 		},
 	})
-	return
 }
 
 // Stop a dependency
-func (dependency *Dependency) Stop(dependencyName string, namespace string) (err error) {
+func (dependency *Dependency) Stop(namespace string, dependencyName string) (err error) {
 	ctx := context.Background()
 	if !dependency.IsRunning(namespace, dependencyName) {
 		return
 	}
-	dockerService, err := dependency.getDockerService(dependencyName, namespace)
+	dockerService, err := dependency.getDockerService(namespace, dependencyName)
 	if err == nil && dockerService.ID != "" {
 		err = dockerCli.RemoveService(docker.RemoveServiceOptions{
 			ID:      dockerService.ID,
