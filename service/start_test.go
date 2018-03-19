@@ -17,5 +17,43 @@ func TestStartService(t *testing.T) {
 	}
 	err := service.Start()
 	assert.Nil(t, err)
+	assert.Equal(t, service.IsRunning(), true)
+	service.Stop()
+}
+
+func TestStartAgainService(t *testing.T) {
+	service := &Service{
+		Name: "TestStartAgainService",
+		Dependencies: map[string]*Dependency{
+			"test": &Dependency{
+				Image: "nginx",
+			},
+		},
+	}
+	service.Start()
+	err := service.Start()
+	assert.Nil(t, err)
+	assert.Equal(t, service.IsRunning(), true)
+	service.Stop()
+}
+
+func TestPartiallyRunningService(t *testing.T) {
+	service := &Service{
+		Name: "TestPartiallyRunningService",
+		Dependencies: map[string]*Dependency{
+			"test": &Dependency{
+				Image: "nginx",
+			},
+			"test2": &Dependency{
+				Image: "nginx",
+			},
+		},
+	}
+	service.Start()
+	service.Dependencies["test"].Stop("test", service.namespace())
+	assert.Equal(t, service.IsPartiallyRunning(), true)
+	err := service.Start()
+	assert.Nil(t, err)
+	assert.Equal(t, service.IsRunning(), true)
 	service.Stop()
 }
