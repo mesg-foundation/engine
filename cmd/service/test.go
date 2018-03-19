@@ -3,6 +3,9 @@ package cmdService
 import (
 	"fmt"
 
+	"github.com/logrusorgru/aurora"
+
+	"github.com/mesg-foundation/application/service"
 	"github.com/spf13/cobra"
 )
 
@@ -18,6 +21,18 @@ var Test = &cobra.Command{
 }
 
 func testHandler(cmd *cobra.Command, args []string) {
+	service, err := service.ImportFromFile(args[0])
+	if err != nil {
+		fmt.Println(aurora.Red(err))
+		return
+	}
+	_, err = service.Start()
+	if err != nil {
+		fmt.Println(aurora.Red(err))
+		return
+	}
+	fmt.Println(aurora.Green("Service started"))
+
 	if cmd.Flag("event").Value.String() == "" {
 		fmt.Println("Logging all events")
 	} else {
@@ -27,8 +42,10 @@ func testHandler(cmd *cobra.Command, args []string) {
 	if cmd.Flag("task").Value.String() != "" {
 		fmt.Println("Calling task ", cmd.Flag("task").Value.String(), " with data ", cmd.Flag("data").Value.String())
 	}
-	// TODO add real testing
-	fmt.Println("Test complete, keep alive option: ", cmd.Flag("keep-alive").Value.String())
+
+	if cmd.Flag("keep-alive").Value.String() != "true" {
+		service.Stop()
+	}
 }
 
 func init() {
