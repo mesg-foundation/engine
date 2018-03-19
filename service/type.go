@@ -73,7 +73,7 @@ type Fees struct {
 }
 
 // Tasks is a list of Tasks
-type Tasks map[string]*Task
+type Tasks map[string]Task
 
 // Event is the definition of an event emitted from a service
 type Event struct {
@@ -83,7 +83,7 @@ type Event struct {
 }
 
 // Events is a list of Events
-type Events map[string]*Event
+type Events map[string]Event
 
 // Parameter is the definition of a parameter for a Task
 type Parameter struct {
@@ -94,7 +94,7 @@ type Parameter struct {
 }
 
 // Parameters is a list of Parameters
-type Parameters []*Parameter
+type Parameters []Parameter
 
 // Dependency is the docker informations about the Dependency
 type Dependency struct {
@@ -105,4 +105,4 @@ type Dependency struct {
 }
 
 // Dependencies is a list of Dependencies
-type Dependencies map[string]*Dependency
+type Dependencies map[string]Dependency
