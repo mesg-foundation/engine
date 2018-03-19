@@ -15,8 +15,9 @@ func TestStartService(t *testing.T) {
 			},
 		},
 	}
-	err := service.Start()
+	dockerServices, err := service.Start()
 	assert.Nil(t, err)
+	assert.Equal(t, len(dockerServices), len(service.Dependencies))
 	assert.Equal(t, service.IsRunning(), true)
 	service.Stop()
 }
@@ -31,8 +32,9 @@ func TestStartAgainService(t *testing.T) {
 		},
 	}
 	service.Start()
-	err := service.Start()
+	dockerServices, err := service.Start()
 	assert.Nil(t, err)
+	assert.Equal(t, len(dockerServices), 0) // 0 because already started so no new one to start
 	assert.Equal(t, service.IsRunning(), true)
 	service.Stop()
 }
@@ -52,8 +54,9 @@ func TestPartiallyRunningService(t *testing.T) {
 	service.Start()
 	service.Dependencies["test"].Stop(service.namespace(), "test")
 	assert.Equal(t, service.IsPartiallyRunning(), true)
-	err := service.Start()
+	dockerServices, err := service.Start()
 	assert.Nil(t, err)
+	assert.Equal(t, len(dockerServices), len(service.Dependencies))
 	assert.Equal(t, service.IsRunning(), true)
 	service.Stop()
 }

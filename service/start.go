@@ -1,7 +1,9 @@
 package service
 
+import "github.com/docker/docker/api/types/swarm"
+
 // Start a service
-func (service *Service) Start() (err error) {
+func (service *Service) Start() (dockerServices []*swarm.Service, err error) {
 	if service.IsRunning() {
 		return
 	}
@@ -9,8 +11,11 @@ func (service *Service) Start() (err error) {
 	if service.IsPartiallyRunning() {
 		service.Stop()
 	}
+	dockerServices = make([]*swarm.Service, len(service.Dependencies))
+	i := 0
 	for name, dependency := range service.Dependencies {
-		_, err = dependency.Start(service.namespace(), name)
+		dockerServices[i], err = dependency.Start(service.namespace(), name)
+		i++
 		if err != nil {
 			break
 		}
