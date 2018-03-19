@@ -9,8 +9,8 @@ import (
 func TestStatusRunning(t *testing.T) {
 	service := &Service{
 		Name: "TestStatusRunning",
-		Dependencies: map[string]*Dependency{
-			"test": &Dependency{
+		Dependencies: map[string]Dependency{
+			"test": Dependency{
 				Image: "nginx",
 			},
 		},
@@ -26,8 +26,8 @@ func TestStatusRunning(t *testing.T) {
 func TestStatusStoped(t *testing.T) {
 	service := &Service{
 		Name: "TestStatusStoped",
-		Dependencies: map[string]*Dependency{
-			"test": &Dependency{
+		Dependencies: map[string]Dependency{
+			"test": Dependency{
 				Image: "nginx",
 			},
 		},

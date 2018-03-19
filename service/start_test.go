@@ -9,8 +9,8 @@ import (
 func TestStartService(t *testing.T) {
 	service := &Service{
 		Name: "TestStartService",
-		Dependencies: map[string]*Dependency{
-			"test": &Dependency{
+		Dependencies: map[string]Dependency{
+			"test": Dependency{
 				Image: "nginx",
 			},
 		},
@@ -25,8 +25,8 @@ func TestStartService(t *testing.T) {
 func TestStartAgainService(t *testing.T) {
 	service := &Service{
 		Name: "TestStartAgainService",
-		Dependencies: map[string]*Dependency{
-			"test": &Dependency{
+		Dependencies: map[string]Dependency{
+			"test": Dependency{
 				Image: "nginx",
 			},
 		},
@@ -42,11 +42,11 @@ func TestStartAgainService(t *testing.T) {
 func TestPartiallyRunningService(t *testing.T) {
 	service := &Service{
 		Name: "TestPartiallyRunningService",
-		Dependencies: map[string]*Dependency{
-			"test": &Dependency{
+		Dependencies: map[string]Dependency{
+			"test": Dependency{
 				Image: "nginx",
 			},
-			"test2": &Dependency{
+			"test2": Dependency{
 				Image: "nginx",
 			},
 		},

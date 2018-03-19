@@ -9,7 +9,7 @@ import (
 	docker "github.com/fsouza/go-dockerclient"
 )
 
-func extractPorts(dependency *Dependency) (ports []swarm.PortConfig) {
+func extractPorts(dependency Dependency) (ports []swarm.PortConfig) {
 	ports = make([]swarm.PortConfig, len(dependency.Ports))
 	for i, p := range dependency.Ports {
 		split := strings.Split(p, ":")
@@ -28,7 +28,7 @@ func extractPorts(dependency *Dependency) (ports []swarm.PortConfig) {
 	return
 }
 
-func (dependency *Dependency) getDockerService(namespace string, dependencyName string) (dockerService swarm.Service, err error) {
+func (dependency Dependency) getDockerService(namespace string, dependencyName string) (dockerService swarm.Service, err error) {
 	ctx := context.Background()
 	dockerServices, err := dockerCli.ListServices(docker.ListServicesOptions{
 		Filters: map[string][]string{
@@ -44,7 +44,7 @@ func (dependency *Dependency) getDockerService(namespace string, dependencyName 
 }
 
 // Start will start a dependency container
-func (dependency *Dependency) Start(namespace string, serviceName string) (dockerService *swarm.Service, err error) {
+func (dependency Dependency) Start(namespace string, serviceName string) (dockerService *swarm.Service, err error) {
 	return dockerCli.CreateService(docker.CreateServiceOptions{
 		ServiceSpec: swarm.ServiceSpec{
 			Annotations: swarm.Annotations{
@@ -71,7 +71,7 @@ func (dependency *Dependency) Start(namespace string, serviceName string) (docke
 }
 
 // Stop a dependency
-func (dependency *Dependency) Stop(namespace string, dependencyName string) (err error) {
+func (dependency Dependency) Stop(namespace string, dependencyName string) (err error) {
 	ctx := context.Background()
 	if !dependency.IsRunning(namespace, dependencyName) {
 		return
