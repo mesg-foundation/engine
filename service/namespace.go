@@ -6,5 +6,8 @@ import "strings"
 const NAMESPACE string = "MESG"
 
 func (service *Service) namespace() string {
-	return strings.Join([]string{NAMESPACE, service.Name}, "-")
+	return strings.Join([]string{
+		NAMESPACE,
+		strings.Replace(service.Name, " ", "-", -1),
+	}, "-")
 }
