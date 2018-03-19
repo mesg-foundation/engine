@@ -28,13 +28,18 @@ func extractPorts(dependency *Dependency) (ports []swarm.PortConfig) {
 	return
 }
 
-func dockerServiceMatch(dockerServices []swarm.Service, namespace string, name string) (dockerService swarm.Service) {
-	for _, service := range dockerServices {
-		if service.Spec.Annotations.Name == strings.Join([]string{namespace, name}, "_") {
-			dockerService = service
-			break
-		}
+func (dependency *Dependency) getDockerService(dependencyName string, namespace string) (dockerService swarm.Service, err error) {
+	ctx := context.Background()
+	dockerServices, err := dockerCli.ListServices(docker.ListServicesOptions{
+		Filters: map[string][]string{
+			"name": []string{strings.Join([]string{namespace, dependencyName}, "_")},
+		},
+		Context: ctx,
+	})
+	if err != nil {
+		return
 	}
+	dockerService = dockerServiceMatch(dockerServices, namespace, dependencyName)
 	return
 }
 
@@ -67,19 +72,13 @@ func (dependency *Dependency) Start(serviceName string, namespace string) (err e
 }
 
 // Stop a dependency
-func (dependency *Dependency) Stop(serviceName string, namespace string) (err error) {
+func (dependency *Dependency) Stop(dependencyName string, namespace string) (err error) {
 	ctx := context.Background()
-	dockerServices, err := dockerCli.ListServices(docker.ListServicesOptions{
-		Filters: map[string][]string{
-			"name": []string{strings.Join([]string{namespace, serviceName}, "_")},
-		},
-		Context: ctx,
-	})
-	if err != nil {
+	if !dependency.IsRunning(namespace, dependencyName) {
 		return
 	}
-	dockerService := dockerServiceMatch(dockerServices, namespace, serviceName)
-	if dockerService.ID != "" {
+	dockerService, err := dependency.getDockerService(dependencyName, namespace)
+	if err == nil && dockerService.ID != "" {
 		err = dockerCli.RemoveService(docker.RemoveServiceOptions{
 			ID:      dockerService.ID,
 			Context: ctx,
