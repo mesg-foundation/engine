@@ -28,6 +28,16 @@ func extractPorts(dependency *Dependency) (ports []swarm.PortConfig) {
 	return
 }
 
+func dockerServiceMatch(dockerServices []swarm.Service, namespace string, name string) (dockerService swarm.Service) {
+	for _, service := range dockerServices {
+		if service.Spec.Annotations.Name == strings.Join([]string{namespace, name}, "_") {
+			dockerService = service
+			break
+		}
+	}
+	return
+}
+
 // Start will start a dependency container
 func (dependency *Dependency) Start(serviceName string, namespace string) (err error) {
 	dependency.SwarmService, err = dockerCli.CreateService(docker.CreateServiceOptions{
@@ -68,10 +78,12 @@ func (dependency *Dependency) Stop(serviceName string, namespace string) (err er
 	if err != nil {
 		return
 	}
-	dockerService := dockerServices[0]
-	err = dockerCli.RemoveService(docker.RemoveServiceOptions{
-		ID:      dockerService.ID,
-		Context: ctx,
-	})
+	dockerService := dockerServiceMatch(dockerServices, namespace, serviceName)
+	if dockerService.ID != "" {
+		err = dockerCli.RemoveService(docker.RemoveServiceOptions{
+			ID:      dockerService.ID,
+			Context: ctx,
+		})
+	}
 	return
 }
