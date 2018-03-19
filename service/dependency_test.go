@@ -40,6 +40,7 @@ func TestGetDockerService(t *testing.T) {
 	res, err = dependency.getDockerService(namespace, "textx")
 	assert.Nil(t, err)
 	assert.Equal(t, res.ID, "")
+	dependency.Stop(namespace, name)
 }
 
 func TestDockerServiceMatch(t *testing.T) {
