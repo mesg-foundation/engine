@@ -39,8 +39,8 @@ func (dependency Dependency) Start(namespace string, serviceName string) (docker
 			Annotations: swarm.Annotations{
 				Name: strings.Join([]string{namespace, serviceName}, "_"),
 				Labels: map[string]string{
-					"labelImage":     dependency.Image,
-					"labelNamespace": namespace,
+					"com.docker.stack.image":     dependency.Image,
+					"com.docker.stack.namespace": namespace,
 				},
 			},
 			TaskTemplate: swarm.TaskSpec{
@@ -48,7 +48,7 @@ func (dependency Dependency) Start(namespace string, serviceName string) (docker
 					Image: dependency.Image,
 					Args:  strings.Fields(dependency.Command),
 					Labels: map[string]string{
-						"labelNamespace": namespace,
+						"com.docker.stack.namespace": namespace,
 					},
 				},
 			},
