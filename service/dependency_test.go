@@ -34,10 +34,10 @@ func TestGetDockerService(t *testing.T) {
 	name := "test"
 	dependency := Dependency{Image: "nginx"}
 	dependency.Start(namespace, name)
-	res, err := dependency.getDockerService(namespace, name)
+	res, err := getDockerService(namespace, name)
 	assert.Nil(t, err)
 	assert.NotEqual(t, res.ID, "")
-	res, err = dependency.getDockerService(namespace, "textx")
+	res, err = getDockerService(namespace, "textx")
 	assert.Nil(t, err)
 	assert.Equal(t, res.ID, "")
 	dependency.Stop(namespace, name)
@@ -67,27 +67,4 @@ func TestDockerServiceMatch(t *testing.T) {
 	assert.Equal(t, res2, dockerServices[0])
 	res3 := dockerServiceMatch(dockerServices, namespace, "test2")
 	assert.Equal(t, res3, dockerServices[1])
-}
-
-func TestStartDependency(t *testing.T) {
-	namespace := strings.Join([]string{NAMESPACE, "TestStartDependency"}, "_")
-	name := "test"
-	dependency := Dependency{Image: "nginx"}
-	dockerService, err := dependency.Start(namespace, name)
-	assert.Nil(t, err)
-	assert.NotNil(t, dockerService)
-	assert.Equal(t, dependency.IsRunning(namespace, name), true)
-	assert.Equal(t, dependency.IsStopped(namespace, name), false)
-	dependency.Stop(namespace, name)
-}
-
-func TestStopDependency(t *testing.T) {
-	namespace := strings.Join([]string{NAMESPACE, "TestStopDependency"}, "_")
-	name := "test"
-	dependency := Dependency{Image: "nginx"}
-	dependency.Start(namespace, name)
-	err := dependency.Stop(namespace, name)
-	assert.Nil(t, err)
-	assert.Equal(t, dependency.IsStopped(namespace, name), true)
-	assert.Equal(t, dependency.IsRunning(namespace, name), false)
 }

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stvp/assert"
@@ -33,4 +34,15 @@ func TestStopNonRunningService(t *testing.T) {
 	err := service.Stop()
 	assert.Nil(t, err)
 	assert.Equal(t, service.IsStopped(), true)
+}
+
+func TestStopDependency(t *testing.T) {
+	namespace := strings.Join([]string{NAMESPACE, "TestStopDependency"}, "_")
+	name := "test"
+	dependency := Dependency{Image: "nginx"}
+	dependency.Start(namespace, name)
+	err := dependency.Stop(namespace, name)
+	assert.Nil(t, err)
+	assert.Equal(t, dependency.IsStopped(namespace, name), true)
+	assert.Equal(t, dependency.IsRunning(namespace, name), false)
 }

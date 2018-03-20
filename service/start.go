@@ -1,6 +1,11 @@
 package service
 
-import "github.com/docker/docker/api/types/swarm"
+import (
+	"strings"
+
+	"github.com/docker/docker/api/types/swarm"
+	docker "github.com/fsouza/go-dockerclient"
+)
 
 // Start a service
 func (service *Service) Start() (dockerServices []*swarm.Service, err error) {
@@ -25,4 +30,31 @@ func (service *Service) Start() (dockerServices []*swarm.Service, err error) {
 		service.Stop()
 	}
 	return
+}
+
+// Start will start a dependency container
+func (dependency Dependency) Start(namespace string, serviceName string) (dockerService *swarm.Service, err error) {
+	return dockerCli.CreateService(docker.CreateServiceOptions{
+		ServiceSpec: swarm.ServiceSpec{
+			Annotations: swarm.Annotations{
+				Name: strings.Join([]string{namespace, serviceName}, "_"),
+				Labels: map[string]string{
+					"labelImage":     dependency.Image,
+					"labelNamespace": namespace,
+				},
+			},
+			TaskTemplate: swarm.TaskSpec{
+				ContainerSpec: &swarm.ContainerSpec{
+					Image: dependency.Image,
+					Args:  strings.Fields(dependency.Command),
+					Labels: map[string]string{
+						"labelNamespace": namespace,
+					},
+				},
+			},
+			EndpointSpec: &swarm.EndpointSpec{
+				Ports: extractPorts(dependency),
+			},
+		},
+	})
 }
