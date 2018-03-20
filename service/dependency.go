@@ -28,7 +28,7 @@ func extractPorts(dependency Dependency) (ports []swarm.PortConfig) {
 	return
 }
 
-func (dependency Dependency) getDockerService(namespace string, dependencyName string) (dockerService swarm.Service, err error) {
+func getDockerService(namespace string, dependencyName string) (dockerService swarm.Service, err error) {
 	ctx := context.Background()
 	dockerServices, err := dockerCli.ListServices(docker.ListServicesOptions{
 		Filters: map[string][]string{
@@ -43,45 +43,18 @@ func (dependency Dependency) getDockerService(namespace string, dependencyName s
 	return
 }
 
-// Start will start a dependency container
-func (dependency Dependency) Start(namespace string, serviceName string) (dockerService *swarm.Service, err error) {
-	return dockerCli.CreateService(docker.CreateServiceOptions{
-		ServiceSpec: swarm.ServiceSpec{
-			Annotations: swarm.Annotations{
-				Name: strings.Join([]string{namespace, serviceName}, "_"),
-				Labels: map[string]string{
-					"labelImage":     dependency.Image,
-					"labelNamespace": namespace,
-				},
-			},
-			TaskTemplate: swarm.TaskSpec{
-				ContainerSpec: &swarm.ContainerSpec{
-					Image: dependency.Image,
-					Args:  strings.Fields(dependency.Command),
-					Labels: map[string]string{
-						"labelNamespace": namespace,
-					},
-				},
-			},
-			EndpointSpec: &swarm.EndpointSpec{
-				Ports: extractPorts(dependency),
-			},
-		},
-	})
-}
-
-// Stop a dependency
-func (dependency Dependency) Stop(namespace string, dependencyName string) (err error) {
+func dependencyStatus(namespace string, dependencyName string) (status StatusType) {
 	ctx := context.Background()
-	if !dependency.IsRunning(namespace, dependencyName) {
-		return
-	}
-	dockerService, err := dependency.getDockerService(namespace, dependencyName)
+	dockerServices, err := dockerCli.ListServices(docker.ListServicesOptions{
+		Filters: map[string][]string{
+			"name": []string{strings.Join([]string{namespace, dependencyName}, "_")},
+		},
+		Context: ctx,
+	})
+	dockerService := dockerServiceMatch(dockerServices, namespace, dependencyName)
+	status = STOPPED
 	if err == nil && dockerService.ID != "" {
-		err = dockerCli.RemoveService(docker.RemoveServiceOptions{
-			ID:      dockerService.ID,
-			Context: ctx,
-		})
+		status = RUNNING
 	}
 	return
 }

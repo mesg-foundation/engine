@@ -1,6 +1,7 @@
 package service
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stvp/assert"
@@ -59,4 +60,16 @@ func TestPartiallyRunningService(t *testing.T) {
 	assert.Equal(t, len(dockerServices), len(service.Dependencies))
 	assert.Equal(t, service.IsRunning(), true)
 	service.Stop()
+}
+
+func TestStartDependency(t *testing.T) {
+	namespace := strings.Join([]string{NAMESPACE, "TestStartDependency"}, "_")
+	name := "test"
+	dependency := Dependency{Image: "nginx"}
+	dockerService, err := dependency.Start(namespace, name)
+	assert.Nil(t, err)
+	assert.NotNil(t, dockerService)
+	assert.Equal(t, dependency.IsRunning(namespace, name), true)
+	assert.Equal(t, dependency.IsStopped(namespace, name), false)
+	dependency.Stop(namespace, name)
 }

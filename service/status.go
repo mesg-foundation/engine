@@ -1,11 +1,9 @@
 package service
 
 import (
-	"context"
 	"strings"
 
 	"github.com/docker/docker/api/types/swarm"
-	docker "github.com/fsouza/go-dockerclient"
 )
 
 // StatusType of the service
@@ -28,22 +26,6 @@ func dockerServiceMatch(dockerServices []swarm.Service, namespace string, name s
 	return
 }
 
-func dependencyStatus(dependency Dependency, namespace string, dependencyName string) (status StatusType) {
-	ctx := context.Background()
-	dockerServices, err := dockerCli.ListServices(docker.ListServicesOptions{
-		Filters: map[string][]string{
-			"name": []string{strings.Join([]string{namespace, dependencyName}, "_")},
-		},
-		Context: ctx,
-	})
-	dockerService := dockerServiceMatch(dockerServices, namespace, dependencyName)
-	status = STOPPED
-	if err == nil && dockerService.ID != "" {
-		status = RUNNING
-	}
-	return
-}
-
 func serviceStatus(service *Service) (status StatusType) {
 	status = STOPPED
 	allRunning := true
@@ -62,35 +44,30 @@ func serviceStatus(service *Service) (status StatusType) {
 
 // IsRunning returns true if the service is running, false otherwise
 func (service *Service) IsRunning() (running bool) {
-	status := serviceStatus(service)
-	running = status == RUNNING
+	running = serviceStatus(service) == RUNNING
 	return
 }
 
 // IsPartiallyRunning returns true if the service is running, false otherwise
 func (service *Service) IsPartiallyRunning() (running bool) {
-	status := serviceStatus(service)
-	running = status == PARTIAL
+	running = serviceStatus(service) == PARTIAL
 	return
 }
 
 // IsStopped returns true if the service is stopped, false otherwise
 func (service *Service) IsStopped() (running bool) {
-	status := serviceStatus(service)
-	running = status == STOPPED
+	running = serviceStatus(service) == STOPPED
 	return
 }
 
 // IsRunning returns true if the dependency is running, false otherwise
 func (dependency Dependency) IsRunning(namespace string, name string) (running bool) {
-	status := dependencyStatus(dependency, namespace, name)
-	running = status == RUNNING
+	running = dependencyStatus(namespace, name) == RUNNING
 	return
 }
 
 // IsStopped returns true if the dependency is stopped, false otherwise
 func (dependency Dependency) IsStopped(namespace string, name string) (running bool) {
-	status := dependencyStatus(dependency, namespace, name)
-	running = status == STOPPED
+	running = dependencyStatus(namespace, name) == STOPPED
 	return
 }

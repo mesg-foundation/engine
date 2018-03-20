@@ -17,9 +17,5 @@ func ImportFromFile(filename string) (service *Service, err error) {
 	if err != nil {
 		return
 	}
-	// TODO add validation
-	// if !service.IsValid() {
-	// 	err = errors.New("Invalid service")
-	// }
 	return
 }
