@@ -15,6 +15,7 @@ jobs:
 
     working_directory: /go/src/github.com/mesg-foundation/application
     steps:
+      - setup_remote_docker
       - checkout
 
       # specify any bash command here prefixed with `run: `
