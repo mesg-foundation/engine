@@ -1,4 +1,4 @@
-## mesg-cli marketplace service start
+## mesg-cli service start
 
 Start a service
 
@@ -7,7 +7,7 @@ Start a service
 Start a service from the publicly available services. The user have to provide a stake value and duration.
 
 ```
-mesg-cli marketplace service start SERVICE [flags]
+mesg-cli service start SERVICE [flags]
 ```
 
 ### Examples
@@ -28,5 +28,5 @@ mesg-cli marketplace service start --stake 100 --duration 10 ethereum
 
 ### SEE ALSO
 
-* [mesg-cli marketplace service](mesg-cli_marketplace_service.md)	 - Manage services from the marketplace
+* [mesg-cli service](mesg-cli_service.md)	 - Manage the services you created
 

@@ -1,4 +1,4 @@
-## mesg-cli marketplace service pause
+## mesg-cli service pause
 
 Pause a service
 
@@ -7,7 +7,7 @@ Pause a service
 Pause a service. The user will not get its stake back but it will also not lost it. Should always pause services before quitting the CLI, otherwise the user may loss its stake.
 
 ```
-mesg-cli marketplace service pause SERVICE [flags]
+mesg-cli service pause SERVICE [flags]
 ```
 
 ### Examples
@@ -26,5 +26,5 @@ mesg-cli marketplace service pause ethereum
 
 ### SEE ALSO
 
-* [mesg-cli marketplace service](mesg-cli_marketplace_service.md)	 - Manage services from the marketplace
+* [mesg-cli service](mesg-cli_service.md)	 - Manage the services you created
 

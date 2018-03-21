@@ -1,4 +1,4 @@
-package cmdServiceMarketPlace
+package cmdService
 
 import (
 	"fmt"
