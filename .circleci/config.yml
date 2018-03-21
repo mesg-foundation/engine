@@ -17,9 +17,6 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      # - run: ls -l /var/run/docker.sock
-      # - run: sudo chmod 777 /var/run/docker.sock # TODO find another way to access the socket
-      # - run: docker ps
       # specify any ecbash command here prefixed with `run: `
       - run: go get -v -t -d ./...
-      - run: go test -v ./...
+      - run: CI=true go test -v ./...
