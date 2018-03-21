@@ -1,4 +1,4 @@
-## mesg-cli marketplace service stop
+## mesg-cli service stop
 
 Stop a service
 
@@ -7,7 +7,7 @@ Stop a service
 Stop a service. The user will get its stake back if the stake duration is reached. Otherwise, it will only get a ratio of it.
 
 ```
-mesg-cli marketplace service stop SERVICE [flags]
+mesg-cli service stop SERVICE [flags]
 ```
 
 ### Examples
@@ -26,5 +26,5 @@ mesg-cli marketplace service stop ethereum
 
 ### SEE ALSO
 
-* [mesg-cli marketplace service](mesg-cli_marketplace_service.md)	 - Manage services from the marketplace
+* [mesg-cli service](mesg-cli_service.md)	 - Manage the services you created
 
