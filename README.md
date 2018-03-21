@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/mesg-foundation/application.svg?style=svg&circle-token=04b7b880e5f42bd26f46a3b11445cb98830e8d92)](https://circleci.com/gh/mesg-foundation/application)
+
 # Application
 
 ## Build from source
