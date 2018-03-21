@@ -15,8 +15,9 @@ jobs:
 
     working_directory: /go/src/github.com/mesg-foundation/application
     steps:
-      - setup_remote_docker
       - checkout
+      - setup_remote_docker
+      - run: sudo chmod 777 /var/run/docker.sock # TODO find another way to access the socket
 
       # specify any bash command here prefixed with `run: `
       - run: go get -v -t -d ./...
