@@ -1,4 +1,4 @@
-## mesg-cli marketplace service detail
+## mesg-cli service detail
 
 Show details of a service
 
@@ -7,7 +7,7 @@ Show details of a service
 Provide details about a service like number of nodes running it, average revenue, etc..
 
 ```
-mesg-cli marketplace service detail SERVICE [flags]
+mesg-cli service detail SERVICE [flags]
 ```
 
 ### Examples
@@ -24,5 +24,5 @@ mesg-cli marketplace service detail ethereum
 
 ### SEE ALSO
 
-* [mesg-cli marketplace service](mesg-cli_marketplace_service.md)	 - Manage services from the marketplace
+* [mesg-cli service](mesg-cli_service.md)	 - Manage the services you created
 
