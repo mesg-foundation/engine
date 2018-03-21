@@ -1,8 +1,6 @@
 package service
 
 import (
-	"os"
-
 	docker "github.com/fsouza/go-dockerclient"
 )
 
@@ -17,9 +15,6 @@ func createDockerCli(endpoint string) (client *docker.Client, err error) {
 
 func init() {
 	var err error
-	if os.Getenv("DOCKER_HOST") != "" {
-		DockerEndpoint = os.Getenv("DOCKER_HOST")
-	}
 	dockerCli, err = createDockerCli(DockerEndpoint)
 	if err != nil {
 		panic(err)
