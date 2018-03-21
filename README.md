@@ -19,7 +19,7 @@ go get
 ### Run
 
 ```bash
-go run main.go
+go run ./main.go
 ```
 
 ## Install debugger on OS X
@@ -32,3 +32,9 @@ make install
 ```
 
 [Source](https://github.com/derekparker/delve/blob/master/Documentation/installation/osx/install.md)
+
+## Run all test with code coverage
+
+```bash
+go test -cover ./...
+```
