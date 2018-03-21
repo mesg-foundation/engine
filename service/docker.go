@@ -18,12 +18,12 @@ var dockerCli *docker.Client
 
 func createDockerCli(endpoint string) (client *docker.Client, err error) {
 	client, err = docker.NewClient(endpoint)
-	info, err := client.Info()
-	if info.Swarm.NodeID != "" {
-		return
-	}
 	// TODO remove and make CI works
 	if os.Getenv("CI") == "true" {
+		return
+	}
+	info, err := client.Info()
+	if info.Swarm.NodeID != "" {
 		return
 	}
 	res, err := client.InitSwarm(docker.InitSwarmOptions{
