@@ -17,6 +17,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
+      - run: ls -l /var/run/docker.sock
       - run: sudo chmod 777 /var/run/docker.sock # TODO find another way to access the socket
 
       # specify any bash command here prefixed with `run: `
