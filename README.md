@@ -15,7 +15,13 @@ git clone https://github.com/mesg-foundation/application.git ./
 ### Install dependencies
 
 ```bash
-go get
+go get -v -t ./...
+```
+
+## Run all tests with code coverage
+
+```bash
+go test -cover -v ./...
 ```
 
 ### Run
@@ -35,8 +41,3 @@ make install
 
 [Source](https://github.com/derekparker/delve/blob/master/Documentation/installation/osx/install.md)
 
-## Run all test with code coverage
-
-```bash
-go test -cover ./...
-```
