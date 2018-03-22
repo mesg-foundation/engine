@@ -23,6 +23,7 @@ var Export = &cobra.Command{
 
 func exportHandler(cmd *cobra.Command, args []string) {
 	var account *account.Account
+	// USE accountable.AccountFromFlagOrAsk
 	if name := cmd.Flag("name").Value.String(); name != "" {
 		account = cmdUtils.FindAccount(name)
 		if account == nil {

@@ -15,12 +15,19 @@ import (
 
 // Create run the create command for an account
 var Create = &cobra.Command{
-	Use:               "create",
-	Short:             "Create a new account",
-	Long:              "Create a new account composed of a name and a generated address",
-	Example:           "mesg-cli account create",
+	Use:   "create",
+	Short: "Create a new account",
+	Long: `This method creates a new account secured by your password. We strongly advise to use long randomized password.
+Warning: Backup your password in a safe place. You will not be able to use the account if you lost the password.
+You should also export your account to a safe place to prevent losing access to your workflows, services and tokens. See account export method.`,
+	Example:           "mesg-cli account create --name ACCOUNT_NAME --password ACCOUNT_PASSWORD",
 	Run:               createHandler,
 	DisableAutoGenTag: true,
+}
+
+func init() {
+	Create.Flags().StringP("name", "n", "", "Name of the account")
+	Create.Flags().StringP("password", "p", "", "Password for the account")
 }
 
 func createHandler(cmd *cobra.Command, args []string) {
@@ -83,9 +90,4 @@ func displaySummary(account *account.Account) {
 	fmt.Println()
 	fmt.Printf("%s", aurora.Brown("Please make sure that you save those information and especially the following seed that might be needed to regenerate this address").Bold())
 	fmt.Println()
-}
-
-func init() {
-	Create.Flags().StringP("name", "n", "", "Name of the account")
-	Create.Flags().StringP("password", "p", "", "Password for the account")
 }
