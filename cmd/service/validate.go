@@ -25,6 +25,13 @@ func validateHandler(cmd *cobra.Command, args []string) {
 		fmt.Println(aurora.Red(err))
 		return
 	}
-	// TODO validate the service
-	fmt.Println(aurora.Green("Service " + service.Name + " valid"))
+	valid, errs := service.IsValid()
+	if valid == true {
+		fmt.Println(aurora.Green("Service " + service.Name + " is valid"))
+	} else {
+		fmt.Println(aurora.Red("Service " + service.Name + " contains errors"))
+		if errs != nil {
+			fmt.Println(errs)
+		}
+	}
 }
