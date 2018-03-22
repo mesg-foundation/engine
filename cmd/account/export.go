@@ -1,6 +1,7 @@
 package cmdAccount
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/logrusorgru/aurora"
@@ -13,17 +14,20 @@ import (
 
 // Export an account into a json file
 var Export = &cobra.Command{
-	Use:               "export ACCOUNT",
-	Short:             "Export account details in order to be able to re-import it with the import command",
-	Example:           "mesg-cli account export AccountX",
+	Use:               "export",
+	Short:             "Export accounts in order to be able to re-import it with the import command",
+	Example:           "mesg-cli account export",
 	Run:               exportHandler,
 	DisableAutoGenTag: true,
 }
 
 func exportHandler(cmd *cobra.Command, args []string) {
 	var account *account.Account
-	if len(args) > 0 {
-		account = cmdUtils.FindAccount(args[0])
+	if name := cmd.Flag("name").Value.String(); name != "" {
+		account = cmdUtils.FindAccount(name)
+		if account == nil {
+			panic(errors.New("Account '" + name + "' does not exist"))
+		}
 	}
 	if account == nil {
 		account = cmdUtils.AskAccount("Choose the account you want to export")

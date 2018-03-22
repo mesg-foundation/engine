@@ -1,19 +1,19 @@
 ## mesg-cli account export
 
-Export account details in order to be able to re-import it with the import command
+Export accounts in order to be able to re-import it with the import command
 
 ### Synopsis
 
-Export account details in order to be able to re-import it with the import command
+Export accounts in order to be able to re-import it with the import command
 
 ```
-mesg-cli account export ACCOUNT [flags]
+mesg-cli account export [flags]
 ```
 
 ### Examples
 
 ```
-mesg-cli account export AccountX
+mesg-cli account export
 ```
 
 ### Options
