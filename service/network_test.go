@@ -8,6 +8,7 @@ import (
 )
 
 func TestCreateNetwork(t *testing.T) {
+	// TODO remove and make CI works
 	if os.Getenv("CI") == "true" {
 		return
 	}
@@ -18,6 +19,7 @@ func TestCreateNetwork(t *testing.T) {
 }
 
 func TestFindNetwork(t *testing.T) {
+	// TODO remove and make CI works
 	if os.Getenv("CI") == "true" {
 		return
 	}
@@ -29,6 +31,7 @@ func TestFindNetwork(t *testing.T) {
 }
 
 func TestFindMissingNetwork(t *testing.T) {
+	// TODO remove and make CI works
 	if os.Getenv("CI") == "true" {
 		return
 	}
@@ -38,6 +41,7 @@ func TestFindMissingNetwork(t *testing.T) {
 }
 
 func TestDeleteNetwork(t *testing.T) {
+	// TODO remove and make CI works
 	if os.Getenv("CI") == "true" {
 		return
 	}
