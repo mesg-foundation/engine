@@ -27,7 +27,7 @@ func findNetwork(namespace string) (network *docker.Network, err error) {
 
 func createNetwork(namespace string) (network *docker.Network, err error) {
 	network, err = findNetwork(namespace)
-	if network != nil {
+	if network != nil || err != nil {
 		return
 	}
 	network, err = dockerCli.CreateNetwork(docker.CreateNetworkOptions{
