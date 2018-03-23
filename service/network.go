@@ -6,6 +6,14 @@ import (
 	"github.com/fsouza/go-dockerclient"
 )
 
+func deleteNetwork(namespace string) (err error) {
+	network, err := findNetwork(namespace)
+	if err != nil {
+		return
+	}
+	return dockerCli.RemoveNetwork(network.ID)
+}
+
 func findNetwork(namespace string) (network *docker.Network, err error) {
 	networks, err := dockerCli.FilteredListNetworks(docker.NetworkFilterOpts{
 		"scope": {"swarm": true},
