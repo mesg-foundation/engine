@@ -16,8 +16,9 @@ Manage the workflow you create
 
 * [mesg-cli](mesg-cli.md)	 - MESG CLI
 * [mesg-cli workflow deploy](mesg-cli_workflow_deploy.md)	 - Deploy a new workflow
+* [mesg-cli workflow detail](mesg-cli_workflow_detail.md)	 - List all details of a workflow
 * [mesg-cli workflow kill](mesg-cli_workflow_kill.md)	 - Kill a workflow and return the amount of money in this workflow
-* [mesg-cli workflow list](mesg-cli_workflow_list.md)	 - List of workflows that an account already deployed on the Network
+* [mesg-cli workflow list](mesg-cli_workflow_list.md)	 - List all workflows of the marketplace
 * [mesg-cli workflow log](mesg-cli_workflow_log.md)	 - Log details of a workflow
 * [mesg-cli workflow pause](mesg-cli_workflow_pause.md)	 - Temporary pause the workflow, the amount of MESG on the workflow will stay
 * [mesg-cli workflow resume](mesg-cli_workflow_resume.md)	 - Resume a paused workflow

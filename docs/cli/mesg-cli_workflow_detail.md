@@ -1,4 +1,4 @@
-## mesg-cli marketplace workflow detail
+## mesg-cli workflow detail
 
 List all details of a workflow
 
@@ -7,7 +7,7 @@ List all details of a workflow
 List all details of a workflow
 
 ```
-mesg-cli marketplace workflow detail ID [flags]
+mesg-cli workflow detail ID [flags]
 ```
 
 ### Examples
@@ -24,5 +24,5 @@ mesg-cli marketplace workflow detail XX
 
 ### SEE ALSO
 
-* [mesg-cli marketplace workflow](mesg-cli_marketplace_workflow.md)	 - Manage workflows from the marketplace
+* [mesg-cli workflow](mesg-cli_workflow.md)	 - Manage the workflow you create
 
