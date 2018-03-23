@@ -10,7 +10,7 @@ import (
 func FindAccount(accountValue string) (account *accountPkg.Account) {
 	accounts := accountPkg.List()
 	for _, acc := range accounts {
-		if acc.Name == accountValue || acc.Address == accountValue || acc.String() == accountValue {
+		if acc.Name == accountValue || acc.Address.String() == accountValue || acc.String() == accountValue {
 			account = acc
 			break
 		}
