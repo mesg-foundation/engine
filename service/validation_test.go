@@ -76,75 +76,104 @@ func mergeServices(services ...Service) (service Service) {
 	return
 }
 
+func TestValidFile(t *testing.T) {
+	_, err := ValidServiceFile("./tests/minimal-valid.yml")
+	assert.NotNil(t, err)
+}
+
+func TestNonExistingFile(t *testing.T) {
+	_, err := ValidServiceFile("./tests/non-existing-file.yml")
+	assert.NotNil(t, err)
+}
+
+func TestMalFormattedFile(t *testing.T) {
+	res, err := ValidServiceFile("./tests/mal-formatted.yml")
+	assert.Nil(t, err)
+	assert.Equal(t, res.Valid(), false)
+	assert.Equal(t, len(res.Errors()), 1)
+}
+
+func TestInvalidFile(t *testing.T) {
+	_, err := ValidServiceFile("./tests/non-valid.yml")
+	assert.NotNil(t, err)
+}
+
 func TestInvalidService(t *testing.T) {
 	var service *Service
-	valid, errs := service.IsValid()
-	assert.Equal(t, valid, false)
-	assert.Equal(t, len(errs), 1)
+	res, err := service.IsValid()
+	assert.Nil(t, err)
+	assert.Equal(t, res.Valid(), false)
+	assert.Equal(t, len(res.Errors()), 1)
 }
 
 func TestMissingName(t *testing.T) {
 	service := mergeServices(dependencyValid)
-	valid, errs := service.IsValid()
-	assert.Equal(t, valid, false)
-	assert.Equal(t, len(errs), 1)
+	res, err := service.IsValid()
+	assert.Nil(t, err)
+	assert.Equal(t, res.Valid(), false)
+	assert.Equal(t, len(res.Errors()), 1)
 }
 
 func TestMissingDependency(t *testing.T) {
 	service := mergeServices(nameValid)
-	valid, errs := service.IsValid()
-	assert.Equal(t, valid, false)
-	assert.Equal(t, len(errs), 1)
+	res, err := service.IsValid()
+	assert.Nil(t, err)
+	assert.Equal(t, res.Valid(), false)
+	assert.Equal(t, len(res.Errors()), 1)
 }
 
 func TestInvalidVisibility(t *testing.T) {
 	service := mergeServices(nameValid, dependencyValid, visibilityInalid)
-	valid, errs := service.IsValid()
-	assert.Equal(t, valid, false)
-	assert.Equal(t, len(errs), 1)
+	res, err := service.IsValid()
+	assert.Nil(t, err)
+	assert.Equal(t, res.Valid(), false)
+	assert.Equal(t, len(res.Errors()), 1)
 }
 
 func TestValidVisibility(t *testing.T) {
 	service := mergeServices(nameValid, dependencyValid, visibilityValid)
-	valid, _ := service.IsValid()
-	assert.Equal(t, valid, true)
+	res, _ := service.IsValid()
+	assert.Equal(t, res.Valid(), true)
 }
 
 func TestInvalidPublish(t *testing.T) {
 	service := mergeServices(nameValid, dependencyValid, publishInvalid)
-	valid, errs := service.IsValid()
-	assert.Equal(t, valid, false)
-	assert.Equal(t, len(errs), 1)
+	res, err := service.IsValid()
+	assert.Nil(t, err)
+	assert.Equal(t, res.Valid(), false)
+	assert.Equal(t, len(res.Errors()), 1)
 }
 
 func TestValidPublish(t *testing.T) {
 	service := mergeServices(nameValid, dependencyValid, publishValid)
-	valid, _ := service.IsValid()
-	assert.Equal(t, valid, true)
+	res, _ := service.IsValid()
+	assert.Equal(t, res.Valid(), true)
 }
 
 func TestInvalidEvent(t *testing.T) {
 	service := mergeServices(nameValid, dependencyValid, eventInvalid)
-	valid, errs := service.IsValid()
-	assert.Equal(t, valid, false)
-	assert.True(t, len(errs) > 0)
+	res, err := service.IsValid()
+	assert.Nil(t, err)
+	assert.Equal(t, res.Valid(), false)
+	assert.True(t, len(res.Errors()) > 0)
 }
 
 func TestValidEvent(t *testing.T) {
 	service := mergeServices(nameValid, dependencyValid, eventValid)
-	valid, _ := service.IsValid()
-	assert.Equal(t, valid, true)
+	res, _ := service.IsValid()
+	assert.Equal(t, res.Valid(), true)
 }
 
 func TestInvalidTask(t *testing.T) {
 	service := mergeServices(nameValid, dependencyValid, taskInvalid)
-	valid, errs := service.IsValid()
-	assert.Equal(t, valid, false)
-	assert.True(t, len(errs) > 0)
+	res, err := service.IsValid()
+	assert.Nil(t, err)
+	assert.Equal(t, res.Valid(), false)
+	assert.True(t, len(res.Errors()) > 0)
 }
 
 func TestValidTask(t *testing.T) {
 	service := mergeServices(nameValid, dependencyValid, taskValid)
-	valid, _ := service.IsValid()
-	assert.Equal(t, valid, true)
+	res, _ := service.IsValid()
+	assert.Equal(t, res.Valid(), true)
 }

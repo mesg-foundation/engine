@@ -20,18 +20,16 @@ var Validate = &cobra.Command{
 }
 
 func validateHandler(cmd *cobra.Command, args []string) {
-	service, err := service.ImportFromFile(args[0])
+	res, err := service.ValidServiceFile(args[0])
 	if err != nil {
-		fmt.Println(aurora.Red(err))
-		return
+		panic(err)
 	}
-	valid, errs := service.IsValid()
-	if valid == true {
-		fmt.Println(aurora.Green("Service " + service.Name + " is valid"))
+	if res.Valid() {
+		fmt.Println(aurora.Green("Service is valid"))
 	} else {
-		fmt.Println(aurora.Red("Service " + service.Name + " contains errors"))
-		if errs != nil {
-			fmt.Println(errs)
+		fmt.Println(aurora.Red("Service contains errors"))
+		for _, err := range res.Errors() {
+			fmt.Println(err)
 		}
 	}
 }
