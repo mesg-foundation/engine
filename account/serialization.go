@@ -1,5 +1,9 @@
 package account
 
+import (
+	"github.com/ethereum/go-ethereum/common"
+)
+
 // Import a file and return a Account object
 func Import(filePath string, name string) (account *Account, err error) {
 	if name == "" {
@@ -7,7 +11,7 @@ func Import(filePath string, name string) (account *Account, err error) {
 	}
 	// TODO add import
 	account = &Account{
-		Address: "0x0000000000000000000000000000000000000000",
+		Address: common.Address{0},
 		Name:    name,
 	}
 	return
