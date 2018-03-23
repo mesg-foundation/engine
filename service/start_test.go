@@ -90,4 +90,24 @@ func TestStartDependency(t *testing.T) {
 	assert.Equal(t, dependency.IsRunning(namespace, name), true)
 	assert.Equal(t, dependency.IsStopped(namespace, name), false)
 	dependency.Stop(namespace, name)
+	deleteNetwork(namespace)
+}
+
+func TestNetworkCreated(t *testing.T) {
+	if os.Getenv("CI") == "true" {
+		return
+	}
+	service := &Service{
+		Name: "TestNetworkCreated",
+		Dependencies: map[string]Dependency{
+			"test": Dependency{
+				Image: "nginx",
+			},
+		},
+	}
+	service.Start()
+	network, err := findNetwork(service.namespace())
+	assert.Nil(t, err)
+	assert.NotNil(t, network)
+	service.Stop()
 }
