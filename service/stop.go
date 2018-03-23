@@ -17,6 +17,9 @@ func (service *Service) Stop() (err error) {
 			break
 		}
 	}
+	if err == nil { // didnt exit the loop
+		err = deleteNetwork(service.namespace())
+	}
 	return
 }
 
