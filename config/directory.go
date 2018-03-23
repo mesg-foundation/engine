@@ -12,22 +12,44 @@ var ConfigDirectory string
 // AccountDirectory is the directory where all accounts are stored
 var AccountDirectory string
 
+func detectHomePath() (path string, err error) {
+	user, err := user.Current()
+	if err != nil {
+		return
+	}
+	path = user.HomeDir
+	return
+}
+
 func getHomeDirectory() (directory string, err error) {
 	directory = os.Getenv("HOME")
 	if directory != "" {
 		return
 	}
-	if user, err := user.Current(); err == nil {
-		directory = user.HomeDir
-	}
+	directory, err = detectHomePath()
 	return
 }
 
-func init() {
+func getConfigDirectory() (directory string, err error) {
 	homeDirectory, err := getHomeDirectory()
 	if err != nil {
 		panic(err)
 	}
-	ConfigDirectory = filepath.Join(homeDirectory, ".mesg")
-	AccountDirectory = filepath.Join(ConfigDirectory, "accounts")
+	directory = filepath.Join(homeDirectory, ".mesg")
+	return
+}
+
+func getAccountDirectory() (directory string, err error) {
+	configDirectory, err := getConfigDirectory()
+	directory = filepath.Join(configDirectory, "accounts")
+	return
+}
+
+func init() {
+	var err error
+	ConfigDirectory, err = getConfigDirectory()
+	AccountDirectory, err = getAccountDirectory()
+	if err != nil {
+		panic(err)
+	}
 }
