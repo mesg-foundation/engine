@@ -7,7 +7,6 @@ type Account struct {
 	Name     string
 	Address  common.Address
 	Password string
-	Seed     string
 }
 
 func (account *Account) String() (desc string) {
