@@ -1,13 +1,10 @@
-package cmdWorkflowMarketPlace
+package cmdWorkflow
 
 import (
 	"fmt"
 
 	"github.com/spf13/cobra"
 )
-
-var stake float64
-var duration int
 
 // Detail of the workflow
 var Detail = &cobra.Command{
