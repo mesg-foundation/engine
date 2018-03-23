@@ -3,7 +3,6 @@ package cmdAccount
 import (
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/application/account"
@@ -36,9 +35,11 @@ func createHandler(cmd *cobra.Command, args []string) {
 		panic(err)
 	}
 
-	if err := generateAccount(account); err != nil {
+	s := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Generating secure key..."})
+	if err := account.Generate(); err != nil {
 		panic(err)
 	}
+	s.Stop()
 
 	displaySummary(account)
 }
@@ -65,23 +66,13 @@ func checkName(account *account.Account) (err error) {
 	return
 }
 
-func generateAccount(account *account.Account) (err error) {
-	s := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Generating secure key..."})
-	time.Sleep(time.Second)
-	s.Stop()
-
-	err = account.Generate()
-	return
-}
-
 func displaySummary(account *account.Account) {
 	fmt.Println("Here is all the details of your account:")
 	fmt.Println()
 	fmt.Printf("Account name: %s\n", aurora.Green(account.Name).Bold())
-	fmt.Printf("Account address: %s\n", aurora.Green(account.Address).Bold())
-	fmt.Printf("Seed: %s\n", aurora.Green(account.Seed).Bold())
+	fmt.Printf("Account address: %s\n", aurora.Green(account.Address.String()).Bold())
 	fmt.Println()
-	fmt.Printf("%s", aurora.Brown("Please make sure that you save those information and especially the following seed that might be needed to regenerate this address").Bold())
+	fmt.Printf("%s", aurora.Brown("Please make sure that you save those information").Bold())
 	fmt.Println()
 }
 
