@@ -7,29 +7,23 @@ import (
 )
 
 func TestGenerate(t *testing.T) {
-	addr, seed, err := generate("password", "name")
+	addr, err := generate("password", "name")
 
-	// err
-	assert.Nil(t, err, "The error should be nil")
-
-	// addr
-	assert.NotNil(t, addr, "The address should not be nil")
-	assert.True(t, addr != "", "The address should not be empty")
-
-	// seed
-	assert.NotNil(t, seed, "The seed should not be nil")
-	assert.True(t, seed != "", "The seed should not be empty")
+	assert.Nil(t, err)
+	assert.NotNil(t, addr)
+	assert.NotEqual(t, addr.String(), "")
+	assert.Equal(t, len(addr.String()), 42)
 }
 
 func TestGenerateNameIsMissing(t *testing.T) {
-	_, _, err := generate("password", "")
-	assert.NotNil(t, err, "The error should not be nil")
+	_, err := generate("password", "")
+	assert.NotNil(t, err)
 	assert.Equal(t, err.Error(), "Name is missing")
 }
 
 func TestGeneratePasswordIsMissing(t *testing.T) {
-	_, _, err := generate("", "name")
-	assert.NotNil(t, err, "The error should not be nil")
+	_, err := generate("", "name")
+	assert.NotNil(t, err)
 	assert.Equal(t, err.Error(), "Password is missing")
 }
 
@@ -40,7 +34,6 @@ func TestGenerateFromAccount(t *testing.T) {
 	}
 	account.Generate()
 	assert.NotEqual(t, account.Address, "")
-	assert.NotEqual(t, account.Seed, "")
 }
 
 func TestGenerateFromAccountWithNoPassword(t *testing.T) {
