@@ -166,19 +166,19 @@
       "properties": {
         "emitters": {
           "type": "string",
-          "pattern": "^([0-9]MESG)?$"
+          "pattern": "^([0-9]*[.]?[0-9]+)( (MESG))?$"
         },
         "developer": {
           "type": "string",
-          "pattern": "^([0-9]MESG)?$"
+          "pattern": "^([0-9]*[.]?[0-9]+)( (MESG))?$"
         },
         "executor": {
           "type": "string",
-          "pattern": "^([0-9]MESG)?$"
+          "pattern": "^([0-9]*[.]?[0-9]+)( (MESG))?$"
         },
         "validator": {
           "type": "string",
-          "pattern": "^([0-9]MESG)?$"
+          "pattern": "^([0-9]*[.]?[0-9]+)( (MESG))?$"
         }
       }
     },
