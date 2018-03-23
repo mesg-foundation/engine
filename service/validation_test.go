@@ -77,8 +77,10 @@ func mergeServices(services ...Service) (service Service) {
 }
 
 func TestValidFile(t *testing.T) {
-	_, err := ValidServiceFile("./tests/minimal-valid.yml")
-	assert.NotNil(t, err)
+	res, err := ValidServiceFile("./tests/minimal-valid.yml")
+	assert.Nil(t, err)
+	assert.Equal(t, res.Valid(), true)
+	assert.Equal(t, len(res.Errors()), 0)
 }
 
 func TestNonExistingFile(t *testing.T) {
@@ -94,8 +96,10 @@ func TestMalFormattedFile(t *testing.T) {
 }
 
 func TestInvalidFile(t *testing.T) {
-	_, err := ValidServiceFile("./tests/non-valid.yml")
-	assert.NotNil(t, err)
+	res, err := ValidServiceFile("./tests/non-valid.yml")
+	assert.Nil(t, err)
+	assert.Equal(t, res.Valid(), false)
+	assert.Equal(t, len(res.Errors()), 1)
 }
 
 func TestInvalidService(t *testing.T) {
