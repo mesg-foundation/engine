@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/docker/docker/api/types/swarm"
@@ -42,7 +43,10 @@ func (dependency Dependency) Start(namespace string, serviceName string, network
 	if err != nil {
 		return
 	}
-	return dockerCli.CreateService(docker.CreateServiceOptions{
+	if network == nil {
+		panic(errors.New("Network should never be null"))
+	}
+	return cli.CreateService(docker.CreateServiceOptions{
 		ServiceSpec: swarm.ServiceSpec{
 			Annotations: swarm.Annotations{
 				Name: strings.Join([]string{namespace, serviceName}, "_"),
