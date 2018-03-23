@@ -16,10 +16,14 @@ func (service *Service) Start() (dockerServices []*swarm.Service, err error) {
 	if service.IsPartiallyRunning() {
 		service.Stop()
 	}
+	network, err := createNetwork(service.namespace())
+	if err != nil {
+		return
+	}
 	dockerServices = make([]*swarm.Service, len(service.Dependencies))
 	i := 0
 	for name, dependency := range service.Dependencies {
-		dockerServices[i], err = dependency.Start(service.namespace(), name)
+		dockerServices[i], err = dependency.Start(service.namespace(), name, network)
 		i++
 		if err != nil {
 			break
@@ -33,12 +37,12 @@ func (service *Service) Start() (dockerServices []*swarm.Service, err error) {
 }
 
 // Start will start a dependency container
-func (dependency Dependency) Start(namespace string, serviceName string) (dockerService *swarm.Service, err error) {
+func (dependency Dependency) Start(namespace string, serviceName string, network *docker.Network) (dockerService *swarm.Service, err error) {
 	cli, err := dockerCli()
 	if err != nil {
 		return
 	}
-	return cli.CreateService(docker.CreateServiceOptions{
+	return dockerCli.CreateService(docker.CreateServiceOptions{
 		ServiceSpec: swarm.ServiceSpec{
 			Annotations: swarm.Annotations{
 				Name: strings.Join([]string{namespace, serviceName}, "_"),
@@ -58,6 +62,11 @@ func (dependency Dependency) Start(namespace string, serviceName string) (docker
 			},
 			EndpointSpec: &swarm.EndpointSpec{
 				Ports: extractPorts(dependency),
+			},
+			Networks: []swarm.NetworkAttachmentConfig{
+				swarm.NetworkAttachmentConfig{
+					Target: network.ID,
+				},
 			},
 		},
 	})
