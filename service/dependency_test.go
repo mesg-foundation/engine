@@ -47,6 +47,7 @@ func TestGetDockerService(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, res.ID, "")
 	dependency.Stop(namespace, name)
+	deleteNetwork(namespace)
 }
 
 func TestDockerServiceMatch(t *testing.T) {

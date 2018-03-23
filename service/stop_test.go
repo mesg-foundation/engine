@@ -56,4 +56,21 @@ func TestStopDependency(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, dependency.IsStopped(namespace, name), true)
 	assert.Equal(t, dependency.IsRunning(namespace, name), false)
+	deleteNetwork(namespace)
+}
+
+func TestNetworkDeleted(t *testing.T) {
+	service := &Service{
+		Name: "TestNetworkDeleted",
+		Dependencies: map[string]Dependency{
+			"test": Dependency{
+				Image: "nginx",
+			},
+		},
+	}
+	service.Start()
+	service.Stop()
+	network, err := findNetwork(service.namespace())
+	assert.Nil(t, err)
+	assert.Nil(t, network)
 }
