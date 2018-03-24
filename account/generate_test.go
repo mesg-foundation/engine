@@ -14,6 +14,7 @@ func TestGenerate(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotEqual(t, acc, accounts.Account{})
 	assert.NotEqual(t, acc.Address.String(), "")
+	Destroy(acc)
 }
 
 func TestGeneratePasswordIsMissing(t *testing.T) {
