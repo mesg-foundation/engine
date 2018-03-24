@@ -7,7 +7,8 @@ import (
 )
 
 func TestList(t *testing.T) {
-	Generate("xxx")
+	acc, _ := Generate("xxx")
 	accounts := List()
 	assert.NotEqual(t, len(accounts), 0)
+	Destroy(acc)
 }
