@@ -6,9 +6,10 @@ import "github.com/ethereum/go-ethereum/common"
 type Account struct {
 	Name     string
 	Address  common.Address
+	URL      string
 	Password string
 }
 
 func (account *Account) String() (desc string) {
-	return account.Name + " " + account.Address.String()
+	return account.Name + " " + account.Address.String() + " " + account.URL
 }
