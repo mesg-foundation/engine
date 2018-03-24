@@ -7,22 +7,22 @@ Delete an account
 Delete an account
 
 ```
-mesg-cli account delete ACCOUNT [flags]
+mesg-cli account delete [flags]
 ```
 
 ### Examples
 
 ```
-mesg-cli service delete accountX
-mesg-cli service delete 0x0000000000000000000000000000000000000000
+mesg-cli service delete --account 0x0000000000000000000000000000000000000000
 mesg-cli service delete
 ```
 
 ### Options
 
 ```
-  -c, --confirm   Confirm
-  -h, --help      help for delete
+  -a, --account string   Account you want to use
+  -c, --confirm          Confirm
+  -h, --help             help for delete
 ```
 
 ### SEE ALSO
