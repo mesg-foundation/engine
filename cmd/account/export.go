@@ -1,9 +1,12 @@
 package cmdAccount
 
 import (
-	"fmt"
+	"errors"
+
+	"github.com/mesg-foundation/application/account"
 
 	"github.com/mesg-foundation/application/cmd/utils"
+	survey "gopkg.in/AlecAivazis/survey.v1"
 
 	"github.com/spf13/cobra"
 )
@@ -18,16 +21,31 @@ var Export = &cobra.Command{
 }
 
 func exportHandler(cmd *cobra.Command, args []string) {
-	account := cmdUtils.AccountFromFlagOrAsk(cmd, "Choose the account you want to export")
-	fmt.Println("account exported : " + account.Address.String())
-	// TODO
-	// path, err := account.Export()
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// fmt.Printf("Account exported: %s\n", aurora.Green(path).Bold())
+	path := cmd.Flag("path").Value.String()
+	acc := cmdUtils.AccountFromFlagOrAsk(cmd, "Choose the account you want to export")
+	password := cmd.Flag("password").Value.String()
+	if password == "" {
+		survey.AskOne(&survey.Password{Message: "Type the current password ?"}, &password, nil)
+	}
+	newPassword := cmd.Flag("new-password").Value.String()
+	if newPassword == "" {
+		var passwordConfirmation string
+		survey.AskOne(&survey.Password{Message: "Type the new password for your account ?"}, &newPassword, nil)
+		survey.AskOne(&survey.Password{Message: "Repeat your password ?"}, &passwordConfirmation, nil)
+		if password != passwordConfirmation {
+			panic(errors.New("Password confirmation invalid"))
+		}
+	}
+
+	err := account.Export(acc, password, newPassword, path)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func init() {
 	cmdUtils.Accountable(Export)
+	Export.Flags().StringP("password", "", "", "Current password for the account you export")
+	Export.Flags().StringP("new-password", "", "", "New password for the account you export")
+	Export.Flags().StringP("path", "p", "./export", "Path of the file where your account will be exported")
 }

@@ -19,8 +19,11 @@ mesg-cli account export --account AccountX
 ### Options
 
 ```
-  -a, --account string   Account you want to use
-  -h, --help             help for export
+  -a, --account string        Account you want to use
+  -h, --help                  help for export
+      --new-password string   New password for the account you export
+      --password string       Current password for the account you export
+  -p, --path string           Path of the file where your account will be exported (default "./export")
 ```
 
 ### SEE ALSO
