@@ -1,17 +1,18 @@
 package cmdUtils
 
 import (
-	accountPkg "github.com/mesg-foundation/application/account"
+	"github.com/ethereum/go-ethereum/accounts"
+	"github.com/mesg-foundation/application/account"
 	"github.com/spf13/cobra"
 	survey "gopkg.in/AlecAivazis/survey.v1"
 )
 
 // FindAccount returns an account if it matches either the address or the name
-func FindAccount(accountValue string) (account *accountPkg.Account) {
-	accounts := accountPkg.List()
-	for _, acc := range accounts {
-		if acc.Name == accountValue || acc.Address.String() == accountValue || acc.String() == accountValue {
-			account = acc
+func FindAccount(accountValue string) (acc accounts.Account) {
+	accounts := account.List()
+	for _, a := range accounts {
+		if a.Address.String() == accountValue {
+			acc = a
 			break
 		}
 	}
@@ -19,36 +20,36 @@ func FindAccount(accountValue string) (account *accountPkg.Account) {
 }
 
 // AskAccount asks to the user to select an account
-func AskAccount(message string) (account *accountPkg.Account) {
-	accounts := accountPkg.List()
+func AskAccount(message string) (acc accounts.Account) {
+	accounts := account.List()
 	var selectedAccount string
 	survey.AskOne(&survey.Select{
 		Message: message,
 		Options: accountOptions(accounts),
 	}, &selectedAccount, nil)
-	account = FindAccount(selectedAccount)
+	acc = FindAccount(selectedAccount)
 	return
 }
 
 // AccountFromFlag returns the account based on the flag
-func AccountFromFlag(cmd *cobra.Command) (account *accountPkg.Account) {
-	account = FindAccount(cmd.Flag("account").Value.String())
+func AccountFromFlag(cmd *cobra.Command) (acc accounts.Account) {
+	acc = FindAccount(cmd.Flag("account").Value.String())
 	return
 }
 
 // AccountFromFlagOrAsk return the selected account either by reading the flag value or by asking to the user
-func AccountFromFlagOrAsk(cmd *cobra.Command, message string) (account *accountPkg.Account) {
-	account = AccountFromFlag(cmd)
-	if account == nil {
-		account = AskAccount(message)
+func AccountFromFlagOrAsk(cmd *cobra.Command, message string) (acc accounts.Account) {
+	acc = AccountFromFlag(cmd)
+	if acc == (accounts.Account{}) {
+		acc = AskAccount(message)
 	}
 	return
 }
 
-func accountOptions(accounts []*accountPkg.Account) (options []string) {
+func accountOptions(accounts []accounts.Account) (options []string) {
 	options = make([]string, len(accounts))
 	for i := 0; i < len(accounts); i++ {
-		options[i] = accounts[i].String()
+		options[i] = accounts[i].Address.String()
 	}
 	return
 }
