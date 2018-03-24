@@ -13,6 +13,7 @@ func TestImport(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotEqual(t, account.Address.String(), "")
 	Destroy(acc)
+	Destroy(account)
 }
 
 func TestImportWrongPassword(t *testing.T) {
