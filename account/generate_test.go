@@ -3,43 +3,20 @@ package account
 import (
 	"testing"
 
+	"github.com/ethereum/go-ethereum/accounts"
+
 	"github.com/stvp/assert"
 )
 
 func TestGenerate(t *testing.T) {
-	addr, err := generate("password", "name")
+	acc, err := Generate("password")
 
 	assert.Nil(t, err)
-	assert.NotNil(t, addr)
-	assert.NotEqual(t, addr.String(), "")
-	assert.Equal(t, len(addr.String()), 42)
-}
-
-func TestGenerateNameIsMissing(t *testing.T) {
-	_, err := generate("password", "")
-	assert.NotNil(t, err)
-	assert.Equal(t, err.Error(), "Name is missing")
+	assert.NotEqual(t, acc, accounts.Account{})
+	assert.NotEqual(t, acc.Address.String(), "")
 }
 
 func TestGeneratePasswordIsMissing(t *testing.T) {
-	_, err := generate("", "name")
-	assert.NotNil(t, err)
-	assert.Equal(t, err.Error(), "Password is missing")
-}
-
-func TestGenerateFromAccount(t *testing.T) {
-	account := Account{
-		Name:     "Testx",
-		Password: "xxxxx",
-	}
-	account.Generate()
-	assert.NotEqual(t, account.Address, "")
-}
-
-func TestGenerateFromAccountWithNoPassword(t *testing.T) {
-	account := Account{
-		Name: "Testx",
-	}
-	err := account.Generate()
+	_, err := Generate("")
 	assert.NotNil(t, err)
 }
