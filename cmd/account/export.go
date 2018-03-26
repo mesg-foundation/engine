@@ -32,7 +32,7 @@ func exportHandler(cmd *cobra.Command, args []string) {
 		var passwordConfirmation string
 		survey.AskOne(&survey.Password{Message: "Type the new password for your account ?"}, &newPassword, nil)
 		survey.AskOne(&survey.Password{Message: "Repeat your password ?"}, &passwordConfirmation, nil)
-		if password != passwordConfirmation {
+		if newPassword != passwordConfirmation {
 			panic(errors.New("Password confirmation invalid"))
 		}
 	}
