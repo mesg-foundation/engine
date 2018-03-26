@@ -1,10 +1,10 @@
 ## mesg-cli workflow list
 
-List of workflows that an account already deployed on the Network
+List all workflows of the marketplace
 
 ### Synopsis
 
-List of workflows that an account already deployed on the Network
+List all workflows of the marketplace
 
 ```
 mesg-cli workflow list [flags]
@@ -13,13 +13,13 @@ mesg-cli workflow list [flags]
 ### Examples
 
 ```
-mesg-cli workflow list
+mesg-cli marketplace service list
 ```
 
 ### Options
 
 ```
-  -a, --account string   Account you want to use
+  -a, --account string   Filter workflows based on the account address
   -h, --help             help for list
 ```
 

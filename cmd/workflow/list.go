@@ -3,28 +3,26 @@ package cmdWorkflow
 import (
 	"fmt"
 
-	"github.com/mesg-foundation/application/cmd/utils"
-
 	"github.com/spf13/cobra"
 )
 
-// List all the workflows
+// List workflows
 var List = &cobra.Command{
 	Use:               "list",
-	Short:             "List of workflows that an account already deployed on the Network",
-	Example:           "mesg-cli workflow list",
+	Short:             "List all workflows of the marketplace",
+	Example:           "mesg-cli marketplace service list",
 	Run:               listHandler,
 	DisableAutoGenTag: true,
 }
 
 func listHandler(cmd *cobra.Command, args []string) {
-	// TODO Fetch details and display
-	fmt.Println(cmdUtils.AccountFromFlagOrAsk(cmd, "Select an account"))
-	fmt.Println("- workflow1")
-	fmt.Println("- workflow2")
-	fmt.Println("- workflow3")
+	// TODO list
+	fmt.Println("filter : ", cmd.Flag("account").Value.String())
+	fmt.Println("- Workflow 1")
+	fmt.Println("- Workflow 2")
+	fmt.Println("- Workflow 3")
 }
 
 func init() {
-	cmdUtils.Accountable(List)
+	List.Flags().StringP("account", "a", "", "Filter workflows based on the account address")
 }
