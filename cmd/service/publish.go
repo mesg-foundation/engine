@@ -2,6 +2,7 @@ package cmdService
 
 import (
 	"fmt"
+	"path/filepath"
 	"time"
 
 	"github.com/logrusorgru/aurora"
@@ -23,13 +24,25 @@ var Publish = &cobra.Command{
 }
 
 func deployHandler(cmd *cobra.Command, args []string) {
-	account := cmdUtils.AccountFromFlagOrAsk(cmd, "Select an account")
-	if !cmdUtils.Confirm(cmd, "Are you sure ?") {
-		return
-	}
-	service, err := service.ImportFromFile(args[0])
+	valid, warnings, err := service.ValidService(args[0])
 	if err != nil {
 		fmt.Println(aurora.Red(err))
+		return
+	}
+	if !valid {
+		for _, warning := range warnings {
+			fmt.Println(aurora.Brown(warning))
+		}
+		return
+	}
+	serviceFile := filepath.Join(args[0], "mesg.yml")
+	service, err := service.ImportFromFile(serviceFile)
+	if err != nil {
+		fmt.Println(aurora.Red(err))
+		return
+	}
+	account := cmdUtils.AccountFromFlagOrAsk(cmd, "Select an account")
+	if !cmdUtils.Confirm(cmd, "Are you sure ?") {
 		return
 	}
 	s := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Deployment of " + service.Name + " in progress..."})
