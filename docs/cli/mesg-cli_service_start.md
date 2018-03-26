@@ -4,16 +4,17 @@ Start a service
 
 ### Synopsis
 
-Start a service from the publicly available services. The user have to provide a stake value and duration.
+Start a service from the published available services. You have to provide a stake value and duration.
 
 ```
-mesg-cli service start SERVICE [flags]
+mesg-cli service start SERVICE_ID [flags]
 ```
 
 ### Examples
 
 ```
-mesg-cli marketplace service start --stake 100 --duration 10 ethereum
+mesg-cli service start SERVICE_ID
+mesg-cli service start SERVICE_ID --stake 100 MESG --duration 10 days  --account ACCOUNT --confirm
 ```
 
 ### Options
@@ -21,12 +22,12 @@ mesg-cli marketplace service start --stake 100 --duration 10 ethereum
 ```
   -a, --account string   Account you want to use
   -c, --confirm          Confirm
-  -d, --duration int     The amount of time you will be running this/those service(s) for (in hours)
+  -d, --duration int     The duration you will be running this service
   -h, --help             help for start
-  -s, --stake float      The number of MESG to put on stake
+  -s, --stake float      The amount to stake
 ```
 
 ### SEE ALSO
 
-* [mesg-cli service](mesg-cli_service.md)	 - Manage the services you created
+* [mesg-cli service](mesg-cli_service.md)	 - Manage your services
 

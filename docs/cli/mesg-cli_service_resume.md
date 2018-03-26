@@ -4,16 +4,16 @@ Resume a service
 
 ### Synopsis
 
-Resume a service that have been paused.
+Resume a previously paused service.
 
 ```
-mesg-cli service resume SERVICE [flags]
+mesg-cli service resume SERVICE_ID [flags]
 ```
 
 ### Examples
 
 ```
-mesg-cli marketplace service resume ethereum
+mesg-cli service resume SERVICE_ID --account ACCOUNT --confirm
 ```
 
 ### Options
@@ -26,5 +26,5 @@ mesg-cli marketplace service resume ethereum
 
 ### SEE ALSO
 
-* [mesg-cli service](mesg-cli_service.md)	 - Manage the services you created
+* [mesg-cli service](mesg-cli_service.md)	 - Manage your services
 

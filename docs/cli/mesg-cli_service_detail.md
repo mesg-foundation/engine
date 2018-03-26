@@ -1,19 +1,19 @@
 ## mesg-cli service detail
 
-Show details of a service
+Show details of a published service
 
 ### Synopsis
 
-Provide details about a service like number of nodes running it, average revenue, etc..
+Show details of a published service
 
 ```
-mesg-cli service detail SERVICE [flags]
+mesg-cli service detail SERVICE_ID [flags]
 ```
 
 ### Examples
 
 ```
-mesg-cli marketplace service detail ethereum
+mesg-cli service detail SERVICE_ID
 ```
 
 ### Options
@@ -24,5 +24,5 @@ mesg-cli marketplace service detail ethereum
 
 ### SEE ALSO
 
-* [mesg-cli service](mesg-cli_service.md)	 - Manage the services you created
+* [mesg-cli service](mesg-cli_service.md)	 - Manage your services
 

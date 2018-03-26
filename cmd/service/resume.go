@@ -10,22 +10,22 @@ import (
 
 // Resume run the resume command for a service
 var Resume = &cobra.Command{
-	Use:               "resume SERVICE",
+	Use:               "resume SERVICE_ID",
 	Short:             "Resume a service",
-	Long:              "Resume a service that have been paused.",
+	Long:              "Resume a previously paused service.",
 	Args:              cobra.MinimumNArgs(1),
-	Example:           "mesg-cli marketplace service resume ethereum",
+	Example:           "mesg-cli service resume SERVICE_ID --account ACCOUNT --confirm",
 	Run:               resumeHandler,
 	DisableAutoGenTag: true,
 }
 
 func resumeHandler(cmd *cobra.Command, args []string) {
-	account := cmdUtils.AccountFromFlagOrAsk(cmd, "Select the account you want to use")
-	if !cmdUtils.Confirm(cmd, "Are you sure ?") {
+	account := cmdUtils.AccountFromFlagOrAsk(cmd, "Select an account:")
+	if !cmdUtils.Confirm(cmd, "Are you sure?") {
 		return
 	}
 	// TODO start and when ready resume (onchan) the service
-	fmt.Println("service resume called", args, account)
+	fmt.Println("Service resumed with success", args, account)
 }
 
 func init() {

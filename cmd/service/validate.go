@@ -11,10 +11,14 @@ import (
 
 // Validate a service
 var Validate = &cobra.Command{
-	Use:               "validate SERVICE_FILE",
-	Short:             "Validate a service file. Check the yml format and rules.",
-	Args:              cobra.MinimumNArgs(1),
-	Example:           "mesg-cli service validate service.yml",
+	Use:   "validate",
+	Short: "Validate a service file",
+	Long: `Validate a service file. Check the yml format and rules.
+
+All the definitions of the service file can be found in the page [Service File from the documentation](https://docs.mesg.tech/service/develop/service-file.html).`,
+	Args: cobra.MinimumNArgs(1),
+	Example: `mesg-cli service validate
+mesg-cli service validate ./SERVICE_FOLDER`,
 	Run:               validateHandler,
 	DisableAutoGenTag: true,
 }
