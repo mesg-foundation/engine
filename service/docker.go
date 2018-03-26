@@ -18,11 +18,17 @@ var dockerCli *docker.Client
 
 func createDockerCli(endpoint string) (client *docker.Client, err error) {
 	client, err = docker.NewClient(endpoint)
+	if err != nil {
+		return
+	}
 	// TODO remove and make CI works
 	if os.Getenv("CI") == "true" {
 		return
 	}
 	info, err := client.Info()
+	if err != nil {
+		return
+	}
 	if info.Swarm.NodeID != "" {
 		return
 	}
@@ -32,6 +38,9 @@ func createDockerCli(endpoint string) (client *docker.Client, err error) {
 			ListenAddr: "0.0.0.0:2377", // https://docs.docker.com/engine/reference/commandline/swarm_init/#usage
 		},
 	})
+	if err != nil {
+		return
+	}
 	fmt.Println(aurora.Green("Docker swarm node created"), res)
 	return
 }
