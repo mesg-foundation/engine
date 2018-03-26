@@ -11,8 +11,8 @@ import (
 
 // Validate a service
 var Validate = &cobra.Command{
-	Use:               "validate SERVICE_FILE",
-	Short:             "Validate a service file. Check the yml format and rules.",
+	Use:               "validate SERVICE_PATH",
+	Short:             "Validate a service. Check the mesg.yml file for format and rules and do some additional tests about the directory",
 	Args:              cobra.MinimumNArgs(1),
 	Example:           "mesg-cli service validate service.yml",
 	Run:               validateHandler,
@@ -20,15 +20,16 @@ var Validate = &cobra.Command{
 }
 
 func validateHandler(cmd *cobra.Command, args []string) {
-	res, err := service.ValidServiceFile(args[0])
+
+	valid, warnings, err := service.ValidService(args[0])
 	if err != nil {
 		panic(err)
 	}
-	if res.Valid() {
+	if valid {
 		fmt.Println(aurora.Green("Service is valid"))
 	} else {
 		fmt.Println(aurora.Red("Service contains errors"))
-		for _, err := range res.Errors() {
+		for _, err := range warnings {
 			fmt.Println(err)
 		}
 	}
