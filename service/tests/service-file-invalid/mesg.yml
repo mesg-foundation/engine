@@ -1,0 +1,5 @@
+name: "non-valid"
+dwdw: "dwdwwd"
+dependencies:
+  app:
+    image: nginx
