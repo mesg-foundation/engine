@@ -19,8 +19,9 @@ mesg-cli account import file.json
 ### Options
 
 ```
-  -h, --help          help for import
-  -n, --name string   Name of the account
+  -h, --help                  help for import
+      --new-password string   New password for the account you import
+      --password string       Current password for the account you import
 ```
 
 ### SEE ALSO

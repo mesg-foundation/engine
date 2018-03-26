@@ -19,6 +19,6 @@ var List = &cobra.Command{
 
 func listHandler(cmd *cobra.Command, args []string) {
 	for _, account := range account.List() {
-		fmt.Println(account)
+		fmt.Println(account.Address.String())
 	}
 }
