@@ -30,7 +30,11 @@ func extractPorts(dependency Dependency) (ports []swarm.PortConfig) {
 
 func getDockerService(namespace string, dependencyName string) (dockerService swarm.Service, err error) {
 	ctx := context.Background()
-	dockerServices, err := dockerCli.ListServices(docker.ListServicesOptions{
+	cli, err := dockerCli()
+	if err != nil {
+		return
+	}
+	dockerServices, err := cli.ListServices(docker.ListServicesOptions{
 		Filters: map[string][]string{
 			"name": []string{strings.Join([]string{namespace, dependencyName}, "_")},
 		},
@@ -45,7 +49,11 @@ func getDockerService(namespace string, dependencyName string) (dockerService sw
 
 func dependencyStatus(namespace string, dependencyName string) (status StatusType) {
 	ctx := context.Background()
-	dockerServices, err := dockerCli.ListServices(docker.ListServicesOptions{
+	cli, err := dockerCli()
+	if err != nil {
+		return
+	}
+	dockerServices, err := cli.ListServices(docker.ListServicesOptions{
 		Filters: map[string][]string{
 			"name": []string{strings.Join([]string{namespace, dependencyName}, "_")},
 		},
