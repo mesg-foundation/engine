@@ -1,6 +1,8 @@
 package cmdUtils
 
 import (
+	"os"
+
 	"github.com/spf13/cobra"
 	survey "gopkg.in/AlecAivazis/survey.v1"
 )
@@ -8,8 +10,8 @@ import (
 // Confirm checks that the flag "confirm" is set and otherwise ask a confirmation in the command line
 func Confirm(cmd *cobra.Command, message string) (confirmed bool) {
 	confirmed = cmd.Flag("confirm").Value.String() == "true"
-	if !confirmed {
-		survey.AskOne(&survey.Confirm{Message: message}, &confirmed, nil)
+	if !confirmed && survey.AskOne(&survey.Confirm{Message: message}, &confirmed, nil) != nil {
+		os.Exit(0)
 	}
 	return
 }
