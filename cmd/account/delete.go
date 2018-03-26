@@ -10,29 +10,25 @@ import (
 
 // Delete a specific accounts
 var Delete = &cobra.Command{
-	Use:   "delete ACCOUNT",
+	Use:   "delete",
 	Short: "Delete an account",
-	Example: `mesg-cli service delete accountX
-mesg-cli service delete 0x0000000000000000000000000000000000000000
+	Example: `mesg-cli service delete --account 0x0000000000000000000000000000000000000000
 mesg-cli service delete`,
 	Run:               deleteHandler,
 	DisableAutoGenTag: true,
 }
 
 func deleteHandler(cmd *cobra.Command, args []string) {
-	var account *account.Account
-	if len(args) > 0 {
-		account = cmdUtils.FindAccount(args[0])
-	}
-	if account == nil {
-		account = cmdUtils.AskAccount("Choose the account you want to delete")
-	}
-	if cmdUtils.Confirm(cmd, "The account "+account.Name+" will be deleted. Are you sure ?") {
-		// TODO add real deletion
-		fmt.Println("account deleted", account)
+	acc := cmdUtils.AccountFromFlagOrAsk(cmd, "Choose the account you want to delete")
+	if cmdUtils.Confirm(cmd, "The account "+acc.Address.String()+" will be deleted. Are you sure ?") {
+		if err := account.Destroy(acc); err != nil {
+			panic(err)
+		}
+		fmt.Println("Account deleted")
 	}
 }
 
 func init() {
 	cmdUtils.Confirmable(Delete)
+	cmdUtils.Accountable(Delete)
 }

@@ -1,40 +1,51 @@
 package cmdAccount
 
 import (
-	"fmt"
-
-	"github.com/logrusorgru/aurora"
-	"github.com/mesg-foundation/application/cmd/utils"
+	"errors"
 
 	"github.com/mesg-foundation/application/account"
+
+	"github.com/mesg-foundation/application/cmd/utils"
+	survey "gopkg.in/AlecAivazis/survey.v1"
 
 	"github.com/spf13/cobra"
 )
 
 // Export an account into a json file
 var Export = &cobra.Command{
-	Use:               "export ACCOUNT",
+	Use:               "export",
 	Short:             "Export account details in order to be able to re-import it with the import command",
-	Example:           "mesg-cli account export AccountX",
+	Example:           "mesg-cli account export --account AccountX",
 	Run:               exportHandler,
 	DisableAutoGenTag: true,
 }
 
 func exportHandler(cmd *cobra.Command, args []string) {
-	var account *account.Account
-	if len(args) > 0 {
-		account = cmdUtils.FindAccount(args[0])
+	path := cmd.Flag("path").Value.String()
+	acc := cmdUtils.AccountFromFlagOrAsk(cmd, "Choose the account you want to export")
+	password := cmd.Flag("password").Value.String()
+	if password == "" {
+		survey.AskOne(&survey.Password{Message: "Type the current password ?"}, &password, nil)
 	}
-	if account == nil {
-		account = cmdUtils.AskAccount("Choose the account you want to export")
+	newPassword := cmd.Flag("new-password").Value.String()
+	if newPassword == "" {
+		var passwordConfirmation string
+		survey.AskOne(&survey.Password{Message: "Type the new password for your account ?"}, &newPassword, nil)
+		survey.AskOne(&survey.Password{Message: "Repeat your password ?"}, &passwordConfirmation, nil)
+		if newPassword != passwordConfirmation {
+			panic(errors.New("Password confirmation invalid"))
+		}
 	}
-	path, err := account.Export()
+
+	err := account.Export(acc, password, newPassword, path)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Account exported: %s\n", aurora.Green(path).Bold())
 }
 
 func init() {
-	Export.Flags().StringP("name", "n", "", "Name of the account")
+	cmdUtils.Accountable(Export)
+	Export.Flags().StringP("password", "", "", "Current password for the account you export")
+	Export.Flags().StringP("new-password", "", "", "New password for the account you export")
+	Export.Flags().StringP("path", "p", "./export", "Path of the file where your account will be exported")
 }
