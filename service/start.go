@@ -34,7 +34,11 @@ func (service *Service) Start() (dockerServices []*swarm.Service, err error) {
 
 // Start will start a dependency container
 func (dependency Dependency) Start(namespace string, serviceName string) (dockerService *swarm.Service, err error) {
-	return dockerCli.CreateService(docker.CreateServiceOptions{
+	cli, err := dockerCli()
+	if err != nil {
+		return
+	}
+	return cli.CreateService(docker.CreateServiceOptions{
 		ServiceSpec: swarm.ServiceSpec{
 			Annotations: swarm.Annotations{
 				Name: strings.Join([]string{namespace, serviceName}, "_"),
