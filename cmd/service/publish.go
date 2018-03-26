@@ -2,41 +2,30 @@ package cmdService
 
 import (
 	"fmt"
-	"path/filepath"
 	"time"
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/application/cmd/utils"
-	"github.com/mesg-foundation/application/service"
 
 	"github.com/spf13/cobra"
 )
 
 // Publish a service to the marketplace
 var Publish = &cobra.Command{
-	Use:               "publish SERVICE_FILE",
+	Use:               "publish SERVICE_PATH",
 	Short:             "Publish a new service",
-	Long:              "Deploy a service to the Network from a given service file. Validate it first. The user will need to provide an account and the password of the account.",
+	Long:              "Deploy a service to the Network from a given service. Validate it first. The user will need to provide an account and the password of the account.",
 	Args:              cobra.MinimumNArgs(1),
-	Example:           "mesg-cli service publish service.yml",
+	Example:           "mesg-cli service publish /path/to/the/service/folder",
 	Run:               deployHandler,
 	DisableAutoGenTag: true,
 }
 
 func deployHandler(cmd *cobra.Command, args []string) {
-	valid, warnings, err := service.ValidService(args[0])
-	if err != nil {
-		fmt.Println(aurora.Red(err))
+	if !validateServicePath(args[0]) {
 		return
 	}
-	if !valid {
-		for _, warning := range warnings {
-			fmt.Println(aurora.Brown(warning))
-		}
-		return
-	}
-	serviceFile := filepath.Join(args[0], "mesg.yml")
-	service, err := service.ImportFromFile(serviceFile)
+	service, err := importService(args[0])
 	if err != nil {
 		fmt.Println(aurora.Red(err))
 		return
