@@ -5,23 +5,25 @@ import (
 
 	"github.com/logrusorgru/aurora"
 
-	"github.com/mesg-foundation/application/service"
 	"github.com/spf13/cobra"
 )
 
 // Test a service
 var Test = &cobra.Command{
-	Use:               "test SERVICE_FILE",
+	Use:               "test SERVICE_PATH",
 	Short:             "Start and test the service",
 	Long:              "Test the interactions with the service, listening to events and calling tasks.",
 	Args:              cobra.MinimumNArgs(1),
-	Example:           "mesg-cli service test service.yml",
+	Example:           "mesg-cli service test /path/to/the/service/folder",
 	Run:               testHandler,
 	DisableAutoGenTag: true,
 }
 
 func testHandler(cmd *cobra.Command, args []string) {
-	service, err := service.ImportFromFile(args[0])
+	if !validateServicePath(args[0]) {
+		return
+	}
+	service, err := importService(args[0])
 	if err != nil {
 		fmt.Println(aurora.Red(err))
 		return
