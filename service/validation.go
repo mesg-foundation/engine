@@ -2,7 +2,9 @@ package service
 
 import (
 	"io/ioutil"
+	"os"
 	"path"
+	"path/filepath"
 	"runtime"
 
 	"github.com/xeipuuv/gojsonschema"
@@ -30,7 +32,7 @@ func convert(i interface{}) interface{} {
 	return i
 }
 
-// ValidServiceData returns true if the file is a valid service, false otherwise
+// ValidServiceData returns true if the file is a valid service, a list of warnings otherwise
 // The all validation can be found in https://github.com/mesg-foundation/application/tree/dev/service/schema.json
 func ValidServiceData(body interface{}) (valid bool, warnings []gojsonschema.ResultError, err error) {
 	schema := gojsonschema.NewReferenceLoader("file://" + schemaFilePath())
@@ -41,7 +43,7 @@ func ValidServiceData(body interface{}) (valid bool, warnings []gojsonschema.Res
 	return
 }
 
-// ValidServiceFile returns true is the file is a valid service, false otherwise
+// ValidServiceFile returns true is the file is a valid service, a list of warnings otherwise
 func ValidServiceFile(filepath string) (valid bool, warnings []gojsonschema.ResultError, err error) {
 	file, err := ioutil.ReadFile(filepath)
 	if err != nil {
@@ -54,5 +56,18 @@ func ValidServiceFile(filepath string) (valid bool, warnings []gojsonschema.Resu
 
 	body = convert(body)
 	valid, warnings, err = ValidServiceData(body)
+	return
+}
+
+// ValidService return true if the service at this path is valid, a list of warning otherwise
+func ValidService(path string) (valid bool, warnings []gojsonschema.ResultError, err error) {
+	serviceFile := filepath.Join(path, "mesg.yml")
+	valid, warnings, err = ValidServiceFile(serviceFile)
+	if err != nil {
+		return
+	}
+	dockerFile := filepath.Join(path, "Dockerfile")
+	file, err := os.Open(dockerFile)
+	defer file.Close()
 	return
 }
