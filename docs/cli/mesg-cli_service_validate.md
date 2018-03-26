@@ -1,13 +1,13 @@
 ## mesg-cli service validate
 
-Validate a service file. Check the yml format and rules.
+Validate a service. Check the mesg.yml file for format and rules and do some additional tests about the directory
 
 ### Synopsis
 
-Validate a service file. Check the yml format and rules.
+Validate a service. Check the mesg.yml file for format and rules and do some additional tests about the directory
 
 ```
-mesg-cli service validate SERVICE_FILE [flags]
+mesg-cli service validate SERVICE_PATH [flags]
 ```
 
 ### Examples
