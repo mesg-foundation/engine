@@ -13,6 +13,7 @@ var List = &cobra.Command{
 	Use:   "list",
 	Short: "List all published services",
 	Long: `This command returns all published services with basic information.
+Optionally, you can filter the services published by a specific developer:
 To have more details, see the [detail command](detail.md).`,
 	Example: `mesg-cli service list
 mesg-cli service list --account ACCOUNT`,
