@@ -56,10 +56,3 @@ func ValidServiceFile(filepath string) (valid bool, warnings []gojsonschema.Resu
 	valid, warnings, err = ValidServiceData(body)
 	return
 }
-
-// IsValid returns true if the service is valid, false otherwise
-// The all validation can be found in https://github.com/mesg-foundation/application/tree/dev/service/schema.json
-func (service *Service) IsValid() (valid bool, warnings []gojsonschema.ResultError, err error) {
-	valid, warnings, err = ValidServiceData(service)
-	return
-}
