@@ -32,15 +32,17 @@ func convert(i interface{}) interface{} {
 
 // ValidServiceData returns true if the file is a valid service, false otherwise
 // The all validation can be found in https://github.com/mesg-foundation/application/tree/dev/service/schema.json
-func ValidServiceData(body interface{}) (result *gojsonschema.Result, err error) {
+func ValidServiceData(body interface{}) (valid bool, warnings []gojsonschema.ResultError, err error) {
 	schema := gojsonschema.NewReferenceLoader("file://" + schemaFilePath())
 	data := gojsonschema.NewGoLoader(body)
-	result, err = gojsonschema.Validate(schema, data)
+	result, err := gojsonschema.Validate(schema, data)
+	valid = result.Valid()
+	warnings = result.Errors()
 	return
 }
 
 // ValidServiceFile returns true is the file is a valid service, false otherwise
-func ValidServiceFile(filepath string) (result *gojsonschema.Result, err error) {
+func ValidServiceFile(filepath string) (valid bool, warnings []gojsonschema.ResultError, err error) {
 	file, err := ioutil.ReadFile(filepath)
 	if err != nil {
 		return
@@ -51,13 +53,13 @@ func ValidServiceFile(filepath string) (result *gojsonschema.Result, err error) 
 	}
 
 	body = convert(body)
-	result, err = ValidServiceData(body)
+	valid, warnings, err = ValidServiceData(body)
 	return
 }
 
 // IsValid returns true if the service is valid, false otherwise
 // The all validation can be found in https://github.com/mesg-foundation/application/tree/dev/service/schema.json
-func (service *Service) IsValid() (result *gojsonschema.Result, err error) {
-	result, err = ValidServiceData(service)
+func (service *Service) IsValid() (valid bool, warnings []gojsonschema.ResultError, err error) {
+	valid, warnings, err = ValidServiceData(service)
 	return
 }
