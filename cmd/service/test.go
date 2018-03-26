@@ -13,17 +13,20 @@ var Test = &cobra.Command{
 	Use:               "test SERVICE_PATH",
 	Short:             "Start and test the service",
 	Long:              "Test the interactions with the service, listening to events and calling tasks.",
-	Args:              cobra.MinimumNArgs(1),
 	Example:           "mesg-cli service test /path/to/the/service/folder",
 	Run:               testHandler,
 	DisableAutoGenTag: true,
 }
 
 func testHandler(cmd *cobra.Command, args []string) {
-	if !validateServicePath(args[0]) {
+	path := "./"
+	if len(args) > 0 {
+		path = args[0]
+	}
+	if !validateServicePath(path) {
 		return
 	}
-	service, err := importService(args[0])
+	service, err := importService(path)
 	if err != nil {
 		fmt.Println(aurora.Red(err))
 		return
