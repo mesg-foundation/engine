@@ -1,6 +1,8 @@
 package cmdUtils
 
 import (
+	"errors"
+
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/mesg-foundation/application/account"
 	"github.com/spf13/cobra"
@@ -22,6 +24,9 @@ func FindAccount(accountValue string) (acc accounts.Account) {
 // AskAccount asks to the user to select an account
 func AskAccount(message string) (acc accounts.Account) {
 	accounts := account.List()
+	if len(accounts) == 0 {
+		panic(errors.New("Create an account first"))
+	}
 	var selectedAccount string
 	survey.AskOne(&survey.Select{
 		Message: message,
