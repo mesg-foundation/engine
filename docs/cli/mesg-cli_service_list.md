@@ -1,10 +1,11 @@
 ## mesg-cli service list
 
-List of services that a account already deployed on the Network
+List all published services
 
 ### Synopsis
 
-List of services that a account already deployed on the Network
+This command returns all published services with basic information.
+To have more details, see the [detail command](detail.md).
 
 ```
 mesg-cli service list [flags]
@@ -14,6 +15,7 @@ mesg-cli service list [flags]
 
 ```
 mesg-cli service list
+mesg-cli service list --account ACCOUNT
 ```
 
 ### Options
@@ -25,5 +27,5 @@ mesg-cli service list
 
 ### SEE ALSO
 
-* [mesg-cli service](mesg-cli_service.md)	 - Manage the services you created
+* [mesg-cli service](mesg-cli_service.md)	 - Manage your services
 

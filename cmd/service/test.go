@@ -11,11 +11,14 @@ import (
 
 // Test a service
 var Test = &cobra.Command{
-	Use:               "test SERVICE_FILE",
-	Short:             "Start and test the service",
-	Long:              "Test the interactions with the service, listening to events and calling tasks.",
-	Args:              cobra.MinimumNArgs(1),
-	Example:           "mesg-cli service test service.yml",
+	Use:   "test",
+	Short: "Test a service",
+	Long: `Test a service by listening to events and calling tasks.
+
+See more detail on the [Test page from the documentation](https://docs.mesg.tech/service/develop/test.html)`,
+	Args: cobra.MinimumNArgs(1),
+	Example: `mesg-cli service test
+mesg-cli service test ./SERVICE_FOLDER`,
 	Run:               testHandler,
 	DisableAutoGenTag: true,
 }
@@ -49,8 +52,8 @@ func testHandler(cmd *cobra.Command, args []string) {
 }
 
 func init() {
-	Test.Flags().StringP("event", "e", "", "Event filter, will only log those events")
-	Test.Flags().StringP("task", "t", "", "Run a specific task")
-	Test.Flags().StringP("data", "d", "", "File with the data required to run a specific task")
-	Test.Flags().BoolP("keep-alive", "", false, "Let the service run event after the end of the test")
+	Test.Flags().StringP("event", "e", "", "Only log a specific event")
+	Test.Flags().StringP("task", "t", "", "Run a task")
+	Test.Flags().StringP("data", "d", "", "Path to the file containing the data required to run the task")
+	Test.Flags().BoolP("keep-alive", "", false, "Leave the service runs after the end of the test")
 }

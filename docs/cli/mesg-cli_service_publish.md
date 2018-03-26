@@ -1,19 +1,22 @@
 ## mesg-cli service publish
 
-Publish a new service
+Publish a service
 
 ### Synopsis
 
-Deploy a service to the Network from a given service file. Validate it first. The user will need to provide an account and the password of the account.
+Publish a service on the Network.
+
+To get more information, see the [publish page from the documentation](https://docs.mesg.tech/service/develop/publish.html)
 
 ```
-mesg-cli service publish SERVICE_FILE [flags]
+mesg-cli service publish [flags]
 ```
 
 ### Examples
 
 ```
-mesg-cli service publish service.yml
+mesg-cli service publish
+mesg-cli service publish ./SERVICE_FOLDER --account ACCOUNT --confirm
 ```
 
 ### Options
@@ -26,5 +29,5 @@ mesg-cli service publish service.yml
 
 ### SEE ALSO
 
-* [mesg-cli service](mesg-cli_service.md)	 - Manage the services you created
+* [mesg-cli service](mesg-cli_service.md)	 - Manage your services
 

@@ -14,7 +14,7 @@ func Confirm(cmd *cobra.Command, message string) (confirmed bool) {
 	return
 }
 
-// Confirmable mark a command as confirmable so will have the --confirm flag
+// Confirmable marks a command as confirmable so will have the --confirm flag
 func Confirmable(cmd *cobra.Command) {
 	cmd.Flags().BoolP("confirm", "c", false, "Confirm")
 }
