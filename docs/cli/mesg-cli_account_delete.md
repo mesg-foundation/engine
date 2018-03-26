@@ -4,7 +4,9 @@ Delete an account
 
 ### Synopsis
 
-Delete an account
+This method deletes an account.
+
+**Warning:** If you didn't previously [export this account](account/export.md), you will lost it **forever.**
 
 ```
 mesg-cli account delete [flags]
@@ -13,8 +15,8 @@ mesg-cli account delete [flags]
 ### Examples
 
 ```
-mesg-cli service delete --account 0x0000000000000000000000000000000000000000
 mesg-cli service delete
+mesg-cli service delete --account 0x0000000000000000000000000000000000000000 --confirm
 ```
 
 ### Options
@@ -27,5 +29,5 @@ mesg-cli service delete
 
 ### SEE ALSO
 
-* [mesg-cli account](mesg-cli_account.md)	 - Manage your MESG accounts
+* [mesg-cli account](mesg-cli_account.md)	 - Manage your accounts
 
