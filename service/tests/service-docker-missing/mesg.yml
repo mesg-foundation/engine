@@ -1,0 +1,27 @@
+name: "Test service"
+events:
+  eventX:
+    name: "EventX"
+    data:
+      foo:
+        type: String
+      bar:
+        type: String
+tasks:
+  taskX:
+    name: "TaskX"
+    inputs:
+      argA:
+        type: String
+      argB:
+        type: String
+    outputs:
+      outputX:
+        data:
+          resX:
+            type: String
+          resY:
+            type: String
+dependencies:
+  app:
+    image: my-docker-image
