@@ -1,6 +1,8 @@
 package cmdUtils
 
 import (
+	"os"
+
 	"github.com/mesg-foundation/application/conversion"
 	"github.com/spf13/cobra"
 	survey "gopkg.in/AlecAivazis/survey.v1"
@@ -9,8 +11,8 @@ import (
 // GetOrAskAmount return the amount in MESG based on the flag or the user input
 func GetOrAskAmount(cmd *cobra.Command, message string) (amount *conversion.Amount, err error) {
 	value := cmd.Flag("amount").Value.String()
-	if value == "" {
-		survey.AskOne(&survey.Input{Message: message}, &value, nil)
+	if value == "" && survey.AskOne(&survey.Input{Message: message}, &value, nil) != nil {
+		os.Exit(0)
 	}
 	amount = &conversion.Amount{}
 	err = amount.FromString(value)

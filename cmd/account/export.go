@@ -2,6 +2,7 @@ package cmdAccount
 
 import (
 	"errors"
+	"os"
 
 	"github.com/mesg-foundation/application/account"
 	"github.com/mesg-foundation/application/cmd/utils"
@@ -29,14 +30,18 @@ func exportHandler(cmd *cobra.Command, args []string) {
 	path := cmd.Flag("path").Value.String()
 	acc := cmdUtils.AccountFromFlagOrAsk(cmd, "Choose the account to export:")
 	password := cmd.Flag("password").Value.String()
-	if password == "" {
-		survey.AskOne(&survey.Password{Message: "Type current password:"}, &password, nil)
+	if password == "" && survey.AskOne(&survey.Password{Message: "Type current password:"}, &password, nil) != nil {
+		os.Exit(0)
 	}
 	newPassword := cmd.Flag("new-password").Value.String()
 	if newPassword == "" {
 		var passwordConfirmation string
-		survey.AskOne(&survey.Password{Message: "Type new password for exportation:"}, &newPassword, nil)
-		survey.AskOne(&survey.Password{Message: "Repeat password for exportation:"}, &passwordConfirmation, nil)
+		if survey.AskOne(&survey.Password{Message: "Type new password for exportation:"}, &newPassword, nil) != nil {
+			os.Exit(0)
+		}
+		if survey.AskOne(&survey.Password{Message: "Repeat password for exportation:"}, &passwordConfirmation, nil) != nil {
+			os.Exit(0)
+		}
 		if newPassword != passwordConfirmation {
 			panic(errors.New("Passwords are different"))
 		}
