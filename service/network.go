@@ -7,15 +7,23 @@ import (
 )
 
 func deleteNetwork(namespace string) (err error) {
+	cli, err := dockerCli()
+	if err != nil {
+		return
+	}
 	network, err := findNetwork(namespace)
 	if err != nil {
 		return
 	}
-	return dockerCli.RemoveNetwork(network.ID)
+	return cli.RemoveNetwork(network.ID)
 }
 
 func findNetwork(namespace string) (network *docker.Network, err error) {
-	networks, err := dockerCli.FilteredListNetworks(docker.NetworkFilterOpts{
+	cli, err := dockerCli()
+	if err != nil {
+		return
+	}
+	networks, err := cli.FilteredListNetworks(docker.NetworkFilterOpts{
 		"scope": {"swarm": true},
 		"label": {"com.docker.stack.namespace=" + namespace: true},
 	})
@@ -26,11 +34,15 @@ func findNetwork(namespace string) (network *docker.Network, err error) {
 }
 
 func createNetwork(namespace string) (network *docker.Network, err error) {
+	cli, err := dockerCli()
+	if err != nil {
+		return
+	}
 	network, err = findNetwork(namespace)
 	if network != nil || err != nil {
 		return
 	}
-	network, err = dockerCli.CreateNetwork(docker.CreateNetworkOptions{
+	network, err = cli.CreateNetwork(docker.CreateNetworkOptions{
 		Name:   strings.Join([]string{namespace, "Network"}, "-"),
 		Driver: "overlay",
 		Labels: map[string]string{
