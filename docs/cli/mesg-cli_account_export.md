@@ -9,7 +9,7 @@ The private key of your account is encrypted with the password you choose.
 
 **Warning:** This method does **NOT** export your password. You have to manage your password yourself.
 
-You can import the backup file on any other MESG Application with the [import method](account/import.md).
+You can import the backup file on any other MESG Application with the [import method](mesg-cli_account_import.md).
 
 ```
 mesg-cli account export [flags]
@@ -25,7 +25,7 @@ mesg-cli account export --account 0x000000000 --password QWERTY --new-password Q
 ### Options
 
 ```
-  -a, --account string        Account you want to use
+  -a, --account string        Account to use
   -h, --help                  help for export
       --new-password string   New password of the exported account
       --password string       Current password of the account to export

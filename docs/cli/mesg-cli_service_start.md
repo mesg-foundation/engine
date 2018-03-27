@@ -14,13 +14,13 @@ mesg-cli service start SERVICE_ID [flags]
 
 ```
 mesg-cli service start SERVICE_ID
-mesg-cli service start SERVICE_ID --stake 100 MESG --duration 10 days  --account ACCOUNT --confirm
+mesg-cli service start SERVICE_ID --stake STAKE --duration DURATION  --account ACCOUNT --confirm
 ```
 
 ### Options
 
 ```
-  -a, --account string   Account you want to use
+  -a, --account string   Account to use
   -c, --confirm          Confirm
   -d, --duration int     The duration you will be running this service
   -h, --help             help for start

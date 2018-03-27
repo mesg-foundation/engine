@@ -15,7 +15,7 @@ var Validate = &cobra.Command{
 	Short: "Validate a service file",
 	Long: `Validate a service file. Check the yml format and rules.
 
-All the definitions of the service file can be found in the page [Service File from the documentation](https://docs.mesg.tech/service/develop/service-file.html).`,
+All the definitions of the service file can be found in the page [Service File from the documentation](https://docs.mesg.tech/service/service-file.html).`,
 	Args: cobra.MinimumNArgs(1),
 	Example: `mesg-cli service validate
 mesg-cli service validate ./SERVICE_FOLDER`,

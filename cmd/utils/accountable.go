@@ -56,5 +56,5 @@ func accountOptions(accounts []accounts.Account) (options []string) {
 
 // Accountable mark a command as Accountable so will have the --account flag
 func Accountable(cmd *cobra.Command) {
-	cmd.Flags().StringP("account", "a", "", "Account you want to use")
+	cmd.Flags().StringP("account", "a", "", "Account to use")
 }

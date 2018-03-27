@@ -5,7 +5,8 @@ List all published services
 ### Synopsis
 
 This command returns all published services with basic information.
-To have more details, see the [detail command](detail.md).
+Optionally, you can filter the services published by a specific developer:
+To have more details, see the [detail command](mesg-cli_service_detail.md).
 
 ```
 mesg-cli service list [flags]
@@ -21,7 +22,7 @@ mesg-cli service list --account ACCOUNT
 ### Options
 
 ```
-  -a, --account string   Account you want to use
+  -a, --account string   Account to use
   -h, --help             help for list
 ```
 
