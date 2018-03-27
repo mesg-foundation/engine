@@ -13,8 +13,8 @@ mesg-cli beer [flags]
 ### Options
 
 ```
-  -a, --account string   Account you want to use
-      --amount string    The amount of MESG
+  -a, --account string   Account to use
+      --amount string    Amount of MESG
   -c, --confirm          Confirm
   -h, --help             help for beer
 ```

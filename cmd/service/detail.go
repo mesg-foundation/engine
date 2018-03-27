@@ -8,11 +8,10 @@ import (
 
 // Detail returns all the details of a service
 var Detail = &cobra.Command{
-	Use:               "detail SERVICE",
-	Short:             "Show details of a service",
-	Long:              "Provide details about a service like number of nodes running it, average revenue, etc..",
+	Use:               "detail SERVICE_ID",
+	Short:             "Show details of a published service",
 	Args:              cobra.MinimumNArgs(1),
-	Example:           "mesg-cli marketplace service detail ethereum",
+	Example:           "mesg-cli service detail SERVICE_ID",
 	Run:               detailHandler,
 	DisableAutoGenTag: true,
 }

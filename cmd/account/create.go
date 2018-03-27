@@ -9,17 +9,21 @@ import (
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/application/account"
 	"github.com/mesg-foundation/application/cmd/utils"
-	survey "gopkg.in/AlecAivazis/survey.v1"
-
 	"github.com/spf13/cobra"
+	survey "gopkg.in/AlecAivazis/survey.v1"
 )
 
-// Create run the create command for an account
+// Create a new account
 var Create = &cobra.Command{
-	Use:               "create",
-	Short:             "Create a new account",
-	Long:              "Create a new account composed of a name and a generated address",
-	Example:           "mesg-cli account create",
+	Use:   "create",
+	Short: "Create a new account",
+	Long: `This method creates a new account secured by a password. We strongly advise to use long randomized password.
+
+**Warning:** Backup your password in a safe place. You will not be able to use the account if you lost the password.
+
+You should also [export your account](mesg-cli_account_export.md) to a safe place to prevent losing access to your workflows, services and tokens.`,
+	Example: `mesg-cli account create
+mesg-cli account create --password PASSWORD`,
 	Run:               createHandler,
 	DisableAutoGenTag: true,
 }
@@ -27,37 +31,35 @@ var Create = &cobra.Command{
 func createHandler(cmd *cobra.Command, args []string) {
 	password := cmd.Flag("password").Value.String()
 	if password == "" {
+		fmt.Printf("%s\n", aurora.Red("WARNING: Backup your password in a safe place. You will not be able to use the account if you lost the password.").Bold())
 		var passwordConfirmation string
-		if survey.AskOne(&survey.Password{Message: "Please set a password ?"}, &password, nil) != nil {
+		if survey.AskOne(&survey.Password{Message: "Set a password:"}, &password, nil) != nil {
 			os.Exit(0)
 		}
-		if survey.AskOne(&survey.Password{Message: "Repeat your password ?"}, &passwordConfirmation, nil) != nil {
+		if survey.AskOne(&survey.Password{Message: "Repeat password:"}, &passwordConfirmation, nil) != nil {
 			os.Exit(0)
 		}
 		if password != passwordConfirmation {
-			panic(errors.New("Password confirmation invalid"))
+			panic(errors.New("Passwords are different"))
 		}
 	}
 
-	s := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Generating secure key..."})
+	s := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Generating account..."})
 	acc, err := account.Generate(password)
 	if err != nil {
 		panic(err)
 	}
 	s.Stop()
+	fmt.Printf("%s\n", aurora.Green("Account created with success").Bold())
 
 	displaySummary(acc)
 }
 
 func displaySummary(acc accounts.Account) {
-	fmt.Println("Here is all the details of your account:")
-	fmt.Println()
-	fmt.Printf("Account address: %s\n", aurora.Green(acc.Address.String()).Bold())
-	fmt.Println()
-	fmt.Printf("%s", aurora.Brown("Please make sure that you save those information").Bold())
-	fmt.Println()
+	fmt.Println("Here is the detail of your account:")
+	fmt.Printf("Account public address: %s\n", aurora.Green(acc.Address.String()).Bold())
 }
 
 func init() {
-	Create.Flags().StringP("password", "p", "", "Password for the account")
+	Create.Flags().StringP("password", "p", "", "Password of the account")
 }
