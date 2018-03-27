@@ -8,9 +8,15 @@ import (
 
 // List workflows
 var List = &cobra.Command{
-	Use:               "list",
-	Short:             "List all workflows of the marketplace",
-	Example:           "mesg-cli marketplace service list",
+	Use:   "list",
+	Short: "List all deployed workflows",
+	Long: `List all workflows deployed on the Network.
+
+Optionally, you can filter the workflows deployed by a specific account.
+
+This command will return basic information. To have more details, see the [detail command](mesg-cli_workflow_detail.md).`,
+	Example: `mesg-cli workflow list
+mesg-cli workflow list --account ACCOUNT`,
 	Run:               listHandler,
 	DisableAutoGenTag: true,
 }
@@ -24,5 +30,5 @@ func listHandler(cmd *cobra.Command, args []string) {
 }
 
 func init() {
-	List.Flags().StringP("account", "a", "", "Filter workflows based on the account address")
+	List.Flags().StringP("account", "a", "", "Filter workflows by a specific account")
 }

@@ -1,32 +1,38 @@
 ## mesg-cli service test
 
-Start and test the service
+Test a service
 
 ### Synopsis
 
-Test the interactions with the service, listening to events and calling tasks.
+Test a service by listening to events or calling tasks.
+
+See more detail on the [Test page from the documentation](https://docs.mesg.tech/service/test.html)
 
 ```
-mesg-cli service test SERVICE_FILE [flags]
+mesg-cli service test [flags]
 ```
 
 ### Examples
 
 ```
-mesg-cli service test service.yml
+mesg-cli service test
+mesg-cli service test ./SERVICE_FOLDER
+mesg-cli service test --event EVENT_NAME
+mesg-cli service test --task TASK_NAME --data ./PATH_TO_DATA_FILE.yml
+mesg-cli service test --keep-alive
 ```
 
 ### Options
 
 ```
-  -d, --data string    File with the data required to run a specific task
-  -e, --event string   Event filter, will only log those events
+  -d, --data string    Path to the file containing the data required to run the task
+  -e, --event string   Only log a specific event
   -h, --help           help for test
-      --keep-alive     Let the service run event after the end of the test
+      --keep-alive     Leave the service runs after the end of the test
   -t, --task string    Run a specific task
 ```
 
 ### SEE ALSO
 
-* [mesg-cli service](mesg-cli_service.md)	 - Manage the services you created
+* [mesg-cli service](mesg-cli_service.md)	 - Manage your services
 

@@ -8,7 +8,7 @@ import (
 // Service is the root command related to services
 var Service = &cobra.Command{
 	Use:               "service",
-	Short:             "Manage the services you created",
+	Short:             "Manage your services",
 	DisableAutoGenTag: true,
 }
 

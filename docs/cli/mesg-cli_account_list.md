@@ -1,10 +1,10 @@
 ## mesg-cli account list
 
-List all accounts created on this computer
+List your local accounts
 
 ### Synopsis
 
-List all accounts created on this computer
+List your local accounts
 
 ```
 mesg-cli account list [flags]
@@ -24,5 +24,5 @@ mesg-cli account list
 
 ### SEE ALSO
 
-* [mesg-cli account](mesg-cli_account.md)	 - Manage your MESG accounts
+* [mesg-cli account](mesg-cli_account.md)	 - Manage your accounts
 
