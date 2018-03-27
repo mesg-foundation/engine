@@ -8,7 +8,7 @@ This method creates a new account secured by a password. We strongly advise to u
 
 **Warning:** Backup your password in a safe place. You will not be able to use the account if you lost the password.
 
-You should also [export your account](account/export.md) to a safe place to prevent losing access to your workflows, services and tokens.
+You should also [export your account](mesg-cli_account_export.md) to a safe place to prevent losing access to your workflows, services and tokens.
 
 ```
 mesg-cli account create [flags]

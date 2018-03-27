@@ -12,10 +12,13 @@ import (
 
 // Validate run the validate command for a workflow
 var Validate = &cobra.Command{
-	Use:               "validate FILE",
-	Short:             "Validate a workflow",
+	Use:   "validate ./PATH_TO_WORKFLOW_FILE",
+	Short: "Validate a workflow",
+	Long: `Validate a workflow.
+
+To get more information, see the [deploy page from the documentation](https://docs.mesg.tech/workflow/validate.html)`,
 	Args:              cobra.MinimumNArgs(1),
-	Example:           "mesg-cli workflow validate workflow.yml",
+	Example:           "mesg-cli workflow validate ./PATH_TO_WORKFLOW_FILE.yml",
 	Run:               validateHandler,
 	DisableAutoGenTag: true,
 }

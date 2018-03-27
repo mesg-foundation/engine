@@ -19,7 +19,7 @@ var Start = &cobra.Command{
 	Long:  "Start a service from the published available services. You have to provide a stake value and duration.",
 	Args:  cobra.MinimumNArgs(1),
 	Example: `mesg-cli service start SERVICE_ID
-mesg-cli service start SERVICE_ID --stake 100 MESG --duration 10 days  --account ACCOUNT --confirm`,
+mesg-cli service start SERVICE_ID --stake STAKE --duration DURATION  --account ACCOUNT --confirm`,
 	Run:               startHandler,
 	DisableAutoGenTag: true,
 }

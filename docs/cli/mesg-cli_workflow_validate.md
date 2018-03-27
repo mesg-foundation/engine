@@ -4,16 +4,18 @@ Validate a workflow
 
 ### Synopsis
 
-Validate a workflow
+Validate a workflow.
+
+To get more information, see the [deploy page from the documentation](https://docs.mesg.tech/workflow/validate.html)
 
 ```
-mesg-cli workflow validate FILE [flags]
+mesg-cli workflow validate ./PATH_TO_WORKFLOW_FILE [flags]
 ```
 
 ### Examples
 
 ```
-mesg-cli workflow validate workflow.yml
+mesg-cli workflow validate ./PATH_TO_WORKFLOW_FILE.yml
 ```
 
 ### Options
@@ -24,5 +26,5 @@ mesg-cli workflow validate workflow.yml
 
 ### SEE ALSO
 
-* [mesg-cli workflow](mesg-cli_workflow.md)	 - Manage the workflow you create
+* [mesg-cli workflow](mesg-cli_workflow.md)	 - Manage your workflows
 

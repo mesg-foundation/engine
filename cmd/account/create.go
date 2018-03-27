@@ -20,7 +20,7 @@ var Create = &cobra.Command{
 
 **Warning:** Backup your password in a safe place. You will not be able to use the account if you lost the password.
 
-You should also [export your account](account/export.md) to a safe place to prevent losing access to your workflows, services and tokens.`,
+You should also [export your account](mesg-cli_account_export.md) to a safe place to prevent losing access to your workflows, services and tokens.`,
 	Example: `mesg-cli account create
 mesg-cli account create --password QWERTY`,
 	Run:               createHandler,

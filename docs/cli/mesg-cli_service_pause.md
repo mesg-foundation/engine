@@ -26,7 +26,7 @@ mesg-cli service pause SERVICE_ID --account ACCOUNT --confirm
 ### Options
 
 ```
-  -a, --account string   Account you want to use
+  -a, --account string   Account to use
   -c, --confirm          Confirm
   -h, --help             help for pause
 ```

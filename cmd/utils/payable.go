@@ -19,5 +19,5 @@ func GetOrAskAmount(cmd *cobra.Command, message string) (amount *conversion.Amou
 
 // Payable mark a command as payable
 func Payable(cmd *cobra.Command) {
-	cmd.Flags().StringP("amount", "", "", "The amount of MESG")
+	cmd.Flags().StringP("amount", "", "", "Amount of MESG")
 }

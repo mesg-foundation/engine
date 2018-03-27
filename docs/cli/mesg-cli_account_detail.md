@@ -19,7 +19,7 @@ mesg-cli detail
 ### Options
 
 ```
-  -a, --account string   Account you want to use
+  -a, --account string   Account to use
   -h, --help             help for detail
 ```
 

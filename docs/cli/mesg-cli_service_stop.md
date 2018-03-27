@@ -8,8 +8,7 @@ Stop a service.
 
 **WARNING:** If you stop a service with your stake duration still ongoing, you may lost your stake.
 You will **NOT** get your stake back immediately. You will get your remaining stake only after a delay.
-To have more explanation, see the page [stake explanation from the documentation](https://docs.mesg.tech/service/run/).
-	
+To have more explanation, see the page [stake explanation from the documentation]().
 
 ```
 mesg-cli service stop SERVICE_ID [flags]
@@ -25,7 +24,7 @@ mesg-cli service stop SERVICE_ID --account ACCOUNT --confirm
 ### Options
 
 ```
-  -a, --account string   Account you want to use
+  -a, --account string   Account to use
   -c, --confirm          Confirm
   -h, --help             help for stop
 ```

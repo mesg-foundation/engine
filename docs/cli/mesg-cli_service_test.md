@@ -4,9 +4,9 @@ Test a service
 
 ### Synopsis
 
-Test a service by listening to events and calling tasks.
+Test a service by listening to events or calling tasks.
 
-See more detail on the [Test page from the documentation](https://docs.mesg.tech/service/develop/test.html)
+See more detail on the [Test page from the documentation](https://docs.mesg.tech/service/test.html)
 
 ```
 mesg-cli service test [flags]
@@ -17,6 +17,9 @@ mesg-cli service test [flags]
 ```
 mesg-cli service test
 mesg-cli service test ./SERVICE_FOLDER
+mesg-cli service test --event EVENT_NAME
+mesg-cli service test --task TASK_NAME --data ./PATH_TO_DATA_FILE.yml
+mesg-cli service test --keep-alive
 ```
 
 ### Options
@@ -26,7 +29,7 @@ mesg-cli service test ./SERVICE_FOLDER
   -e, --event string   Only log a specific event
   -h, --help           help for test
       --keep-alive     Leave the service runs after the end of the test
-  -t, --task string    Run a task
+  -t, --task string    Run a specific task
 ```
 
 ### SEE ALSO

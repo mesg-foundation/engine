@@ -13,12 +13,15 @@ import (
 var Test = &cobra.Command{
 	Use:   "test",
 	Short: "Test a service",
-	Long: `Test a service by listening to events and calling tasks.
+	Long: `Test a service by listening to events or calling tasks.
 
-See more detail on the [Test page from the documentation](https://docs.mesg.tech/service/develop/test.html)`,
+See more detail on the [Test page from the documentation](https://docs.mesg.tech/service/test.html)`,
 	Args: cobra.MinimumNArgs(1),
 	Example: `mesg-cli service test
-mesg-cli service test ./SERVICE_FOLDER`,
+mesg-cli service test ./SERVICE_FOLDER
+mesg-cli service test --event EVENT_NAME
+mesg-cli service test --task TASK_NAME --data ./PATH_TO_DATA_FILE.yml
+mesg-cli service test --keep-alive`,
 	Run:               testHandler,
 	DisableAutoGenTag: true,
 }
@@ -53,7 +56,7 @@ func testHandler(cmd *cobra.Command, args []string) {
 
 func init() {
 	Test.Flags().StringP("event", "e", "", "Only log a specific event")
-	Test.Flags().StringP("task", "t", "", "Run a task")
+	Test.Flags().StringP("task", "t", "", "Run a specific task")
 	Test.Flags().StringP("data", "d", "", "Path to the file containing the data required to run the task")
 	Test.Flags().BoolP("keep-alive", "", false, "Leave the service runs after the end of the test")
 }

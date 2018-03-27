@@ -16,8 +16,7 @@ var Stop = &cobra.Command{
 
 **WARNING:** If you stop a service with your stake duration still ongoing, you may lost your stake.
 You will **NOT** get your stake back immediately. You will get your remaining stake only after a delay.
-To have more explanation, see the page [stake explanation from the documentation](https://docs.mesg.tech/service/run/).
-	`,
+To have more explanation, see the page [stake explanation from the documentation]().`, // TODO: add link
 	Args: cobra.MinimumNArgs(1),
 	Example: `mesg-cli service stop SERVICE_ID
 mesg-cli service stop SERVICE_ID --account ACCOUNT --confirm`,
@@ -30,7 +29,7 @@ func stopHandler(cmd *cobra.Command, args []string) {
 	if !cmdUtils.Confirm(cmd, "Are you sure? Your stake may be slashed!") {
 		return
 	}
-	// TODO take stake && stop service
+	// TODO: take stake && stop service
 	// Is it really usefull to take the stake, the node will be offline anyway and we cannot trust the client
 	fmt.Println("Service stopped with success", args, account)
 }

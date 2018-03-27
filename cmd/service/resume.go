@@ -10,9 +10,11 @@ import (
 
 // Resume run the resume command for a service
 var Resume = &cobra.Command{
-	Use:               "resume SERVICE_ID",
-	Short:             "Resume a service",
-	Long:              "Resume a previously paused service.",
+	Use:   "resume SERVICE_ID",
+	Short: "Resume a service",
+	Long: `Resume a previously paused service.
+
+To pause a service, see the [pause command](mesg-cli_service_pause.md)`,
 	Args:              cobra.MinimumNArgs(1),
 	Example:           "mesg-cli service resume SERVICE_ID --account ACCOUNT --confirm",
 	Run:               resumeHandler,

@@ -6,6 +6,8 @@ Resume a service
 
 Resume a previously paused service.
 
+To pause a service, see the [pause command](mesg-cli_service_pause.md)
+
 ```
 mesg-cli service resume SERVICE_ID [flags]
 ```
@@ -19,7 +21,7 @@ mesg-cli service resume SERVICE_ID --account ACCOUNT --confirm
 ### Options
 
 ```
-  -a, --account string   Account you want to use
+  -a, --account string   Account to use
   -c, --confirm          Confirm
   -h, --help             help for resume
 ```
