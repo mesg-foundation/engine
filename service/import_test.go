@@ -12,7 +12,7 @@ func TestImportWrongFile(t *testing.T) {
 }
 
 func TestImportMalFormattedFile(t *testing.T) {
-	_, err := ImportFromFile("./tests/service-mal-formatted/mesg..yml")
+	_, err := ImportFromFile("./tests/service-mal-formatted/mesg.yml")
 	assert.NotNil(t, err)
 }
 
