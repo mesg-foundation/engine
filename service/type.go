@@ -5,21 +5,10 @@ type Visibility string
 
 // List of visibilities flags
 const (
-	vALL     Visibility = "ALL"
-	vUSERS   Visibility = "USERS"
-	vWORKERS Visibility = "WORKERS"
-	vNONE    Visibility = "NONE"
-)
-
-// FeeActor is a type to get the different actors in the fee system
-type FeeActor string
-
-// List of the different actors in the fees
-const (
-	Developer FeeActor = "developer"
-	Emitters  FeeActor = "emitters"
-	Validator FeeActor = "validator"
-	Executor  FeeActor = "executor"
+	VisibilityAll     Visibility = "ALL"
+	VisibilityUsers   Visibility = "USERS"
+	VisibilityWorkers Visibility = "WORKERS"
+	VisibilityNone    Visibility = "NONE"
 )
 
 // Publish let you configure the part of your service you want to publish
@@ -35,7 +24,6 @@ const (
 
 // Service is a definition for a service to run
 type Service struct {
-	Version      string       `yaml:"version" json:"version"`
 	Name         string       `yaml:"name" json:"name"`
 	Description  string       `yaml:"description" json:"description"`
 	Visibility   Visibility   `yaml:"visibility" json:"visibility"`
@@ -58,10 +46,10 @@ type Task struct {
 
 // Fees is the different fees to apply
 type Fees struct {
-	Developer FeeActor `yaml:"developer" json:"developer"`
-	Validator FeeActor `yaml:"validator" json:"validator"`
-	Executor  FeeActor `yaml:"executor" json:"executor"`
-	Emitters  FeeActor `yaml:"emitters" json:"emitters"`
+	Developer string `yaml:"developer" json:"developer"`
+	Validator string `yaml:"validator" json:"validator"`
+	Executor  string `yaml:"executor" json:"executor"`
+	Emitters  string `yaml:"emitters" json:"emitters"`
 }
 
 // Tasks is a list of Tasks
