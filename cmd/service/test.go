@@ -4,8 +4,6 @@ import (
 	"fmt"
 
 	"github.com/logrusorgru/aurora"
-
-	"github.com/mesg-foundation/application/service"
 	"github.com/spf13/cobra"
 )
 
@@ -16,7 +14,6 @@ var Test = &cobra.Command{
 	Long: `Test a service by listening to events or calling tasks.
 
 See more detail on the [Test page from the documentation](https://docs.mesg.tech/service/test.html)`,
-	Args: cobra.MinimumNArgs(1),
 	Example: `mesg-cli service test
 mesg-cli service test ./SERVICE_FOLDER
 mesg-cli service test --event EVENT_NAME
@@ -27,7 +24,14 @@ mesg-cli service test --keep-alive`,
 }
 
 func testHandler(cmd *cobra.Command, args []string) {
-	service, err := service.ImportFromFile(args[0])
+	path := "./"
+	if len(args) > 0 {
+		path = args[0]
+	}
+	if !validateServicePath(path) {
+		return
+	}
+	service, err := importService(path)
 	if err != nil {
 		fmt.Println(aurora.Red(err))
 		return
