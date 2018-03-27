@@ -38,7 +38,8 @@ func TestGetDockerService(t *testing.T) {
 	namespace := strings.Join([]string{NAMESPACE, "TestGetDockerService"}, "_")
 	name := "test"
 	dependency := Dependency{Image: "nginx"}
-	dependency.Start(namespace, name)
+	network, err := createNetwork(namespace)
+	dependency.Start(namespace, name, network)
 	res, err := getDockerService(namespace, name)
 	assert.Nil(t, err)
 	assert.NotEqual(t, res.ID, "")
@@ -46,6 +47,7 @@ func TestGetDockerService(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, res.ID, "")
 	dependency.Stop(namespace, name)
+	deleteNetwork(namespace)
 }
 
 func TestDockerServiceMatch(t *testing.T) {

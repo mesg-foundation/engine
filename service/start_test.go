@@ -83,10 +83,32 @@ func TestStartDependency(t *testing.T) {
 	namespace := strings.Join([]string{NAMESPACE, "TestStartDependency"}, "_")
 	name := "test"
 	dependency := Dependency{Image: "nginx"}
-	dockerService, err := dependency.Start(namespace, name)
+	network, err := createNetwork(namespace)
+	dockerService, err := dependency.Start(namespace, name, network)
 	assert.Nil(t, err)
 	assert.NotNil(t, dockerService)
 	assert.Equal(t, dependency.IsRunning(namespace, name), true)
 	assert.Equal(t, dependency.IsStopped(namespace, name), false)
 	dependency.Stop(namespace, name)
+	deleteNetwork(namespace)
+}
+
+func TestNetworkCreated(t *testing.T) {
+	// TODO remove and make CI works
+	if os.Getenv("CI") == "true" {
+		return
+	}
+	service := &Service{
+		Name: "TestNetworkCreated",
+		Dependencies: map[string]Dependency{
+			"test": Dependency{
+				Image: "nginx",
+			},
+		},
+	}
+	service.Start()
+	network, err := findNetwork(service.namespace())
+	assert.Nil(t, err)
+	assert.NotNil(t, network)
+	service.Stop()
 }
