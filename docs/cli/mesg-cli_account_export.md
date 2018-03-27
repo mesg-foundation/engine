@@ -19,7 +19,7 @@ mesg-cli account export [flags]
 
 ```
 mesg-cli account export
-mesg-cli account export --account 0x000000000 --password QWERTY --new-password QWERTY --path ./account-export
+mesg-cli account export --account ACCOUNT --password PASSWORD --new-password PASSWORD --path ./PATH_TO_BACKUP_FILE
 ```
 
 ### Options

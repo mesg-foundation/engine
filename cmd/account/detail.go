@@ -10,10 +10,11 @@ import (
 
 // Detail one account
 var Detail = &cobra.Command{
-	Use:               "detail",
-	Short:             "Show detailed information of an account",
-	Long:              `To show the balance, previous transactions and some other information of an account`,
-	Example:           "mesg-cli detail",
+	Use:   "detail",
+	Short: "Show detailed information of an account",
+	Long:  `To show the balance, previous transactions and some other information of an account`,
+	Example: `mesg-cli account detail
+mesg-cli account detail --account ACCOUNT`,
 	Run:               detailHandler,
 	DisableAutoGenTag: true,
 }

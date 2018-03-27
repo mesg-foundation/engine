@@ -13,7 +13,8 @@ mesg-cli account detail [flags]
 ### Examples
 
 ```
-mesg-cli detail
+mesg-cli account detail
+mesg-cli account detail --account ACCOUNT
 ```
 
 ### Options

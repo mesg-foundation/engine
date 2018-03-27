@@ -16,7 +16,7 @@ mesg-cli account delete [flags]
 
 ```
 mesg-cli service delete
-mesg-cli service delete --account 0x0000000000000000000000000000000000000000 --confirm
+mesg-cli service delete --account ACCOUNT --confirm
 ```
 
 ### Options
