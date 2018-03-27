@@ -2,6 +2,7 @@ package cmdWorkflow
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/mesg-foundation/application/cmd/utils"
 	survey "gopkg.in/AlecAivazis/survey.v1"
@@ -28,11 +29,13 @@ func pauseHandler(cmd *cobra.Command, args []string) {
 	if workflow == "" {
 		// TODO add real list
 		workflows := []string{"Workflow #1", "Workflow #2"}
-		survey.AskOne(&survey.Select{
+		if survey.AskOne(&survey.Select{
 			Message: "Choose the workflow to pause:",
 			Default: workflows[0],
 			Options: workflows,
-		}, &workflow, nil)
+		}, &workflow, nil) != nil {
+			os.Exit(0)
+		}
 	}
 	if !cmdUtils.Confirm(cmd, "Are you sure?") {
 		return

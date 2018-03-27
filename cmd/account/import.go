@@ -3,6 +3,7 @@ package cmdAccount
 import (
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/application/account"
@@ -25,14 +26,18 @@ mesg-cli account import ./PATH_TO_BACKUP_FILE --password PASSWORD --new-password
 
 func importHandler(cmd *cobra.Command, args []string) {
 	password := cmd.Flag("password").Value.String()
-	if password == "" {
-		survey.AskOne(&survey.Password{Message: "Type current password:"}, &password, nil)
+	if password == "" && survey.AskOne(&survey.Password{Message: "Type current password:"}, &password, nil) != nil {
+		os.Exit(0)
 	}
 	newPassword := cmd.Flag("new-password").Value.String()
 	if newPassword == "" {
 		var passwordConfirmation string
-		survey.AskOne(&survey.Password{Message: "Type new password:"}, &newPassword, nil)
-		survey.AskOne(&survey.Password{Message: "Repeat password:"}, &passwordConfirmation, nil)
+		if survey.AskOne(&survey.Password{Message: "Type new password:"}, &newPassword, nil) != nil {
+			os.Exit(0)
+		}
+		if survey.AskOne(&survey.Password{Message: "Repeat password:"}, &passwordConfirmation, nil) != nil {
+			os.Exit(0)
+		}
 		if newPassword != passwordConfirmation {
 			panic(errors.New("Passwords are different"))
 		}

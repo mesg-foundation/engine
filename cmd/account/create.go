@@ -3,6 +3,7 @@ package cmdAccount
 import (
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/logrusorgru/aurora"
@@ -32,8 +33,12 @@ func createHandler(cmd *cobra.Command, args []string) {
 	if password == "" {
 		fmt.Printf("%s\n", aurora.Red("WARNING: Backup your password in a safe place. You will not be able to use the account if you lost the password.").Bold())
 		var passwordConfirmation string
-		survey.AskOne(&survey.Password{Message: "Set a password:"}, &password, nil)
-		survey.AskOne(&survey.Password{Message: "Repeat password:"}, &passwordConfirmation, nil)
+		if survey.AskOne(&survey.Password{Message: "Set a password:"}, &password, nil) != nil {
+			os.Exit(0)
+		}
+		if survey.AskOne(&survey.Password{Message: "Repeat password:"}, &passwordConfirmation, nil) != nil {
+			os.Exit(0)
+		}
 		if password != passwordConfirmation {
 			panic(errors.New("Passwords are different"))
 		}

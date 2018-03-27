@@ -2,6 +2,7 @@ package cmdService
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/mesg-foundation/application/cmd/utils"
 
@@ -26,19 +27,19 @@ mesg-cli service start SERVICE_ID --stake STAKE --duration DURATION  --account A
 
 func startHandler(cmd *cobra.Command, args []string) {
 	account := cmdUtils.AccountFromFlagOrAsk(cmd, "Select an account:")
-	if stake == 0 {
-		survey.AskOne(&survey.Input{
-			Message: "How much do you want to stake?",
-			Help:    "More details on the stake here",
-			Default: "0",
-		}, &stake, nil)
+	if stake == 0 && survey.AskOne(&survey.Input{
+		Message: "How much do you want to stake?",
+		Help:    "More details on the stake here",
+		Default: "0",
+	}, &stake, nil) != nil {
+		os.Exit(0)
 	}
-	if duration == 0 {
-		survey.AskOne(&survey.Input{
-			Message: "How long will you run this service?",
-			Help:    "More details on the duration here",
-			Default: "0",
-		}, &duration, nil)
+	if duration == 0 && survey.AskOne(&survey.Input{
+		Message: "How long will you run this service?",
+		Help:    "More details on the duration here",
+		Default: "0",
+	}, &duration, nil) != nil {
+		os.Exit(0)
 	}
 	if !cmdUtils.Confirm(cmd, "Are you sure to run this service and stake your tokens?") {
 		return
