@@ -32,9 +32,9 @@ func convert(i interface{}) interface{} {
 	return i
 }
 
-// ValidServiceData returns true if the file is a valid service, a list of warnings otherwise
+// validServiceData returns true if the file is a valid service, a list of warnings otherwise
 // The all validation can be found in https://github.com/mesg-foundation/application/tree/dev/service/schema.json
-func ValidServiceData(body interface{}) (valid bool, warnings []gojsonschema.ResultError, err error) {
+func validServiceData(body interface{}) (valid bool, warnings []gojsonschema.ResultError, err error) {
 	schema := gojsonschema.NewReferenceLoader("file://" + schemaFilePath())
 	data := gojsonschema.NewGoLoader(body)
 	result, err := gojsonschema.Validate(schema, data)
@@ -55,7 +55,7 @@ func validServiceFile(filepath string) (valid bool, warnings []gojsonschema.Resu
 	}
 
 	body = convert(body)
-	valid, warnings, err = ValidServiceData(body)
+	valid, warnings, err = validServiceData(body)
 	return
 }
 
