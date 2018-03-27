@@ -2,6 +2,7 @@ package cmdUtils
 
 import (
 	"errors"
+	"os"
 
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/mesg-foundation/application/account"
@@ -28,10 +29,12 @@ func AskAccount(message string) (acc accounts.Account) {
 		panic(errors.New("Create an account first"))
 	}
 	var selectedAccount string
-	survey.AskOne(&survey.Select{
+	if survey.AskOne(&survey.Select{
 		Message: message,
 		Options: accountOptions(accounts),
-	}, &selectedAccount, nil)
+	}, &selectedAccount, nil) != nil {
+		os.Exit(0)
+	}
 	acc = FindAccount(selectedAccount)
 	return
 }

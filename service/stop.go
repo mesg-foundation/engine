@@ -23,12 +23,16 @@ func (service *Service) Stop() (err error) {
 // Stop a dependency
 func (dependency Dependency) Stop(namespace string, dependencyName string) (err error) {
 	ctx := context.Background()
+	cli, err := dockerCli()
+	if err != nil {
+		return
+	}
 	if !dependency.IsRunning(namespace, dependencyName) {
 		return
 	}
 	dockerService, err := getDockerService(namespace, dependencyName)
 	if err == nil && dockerService.ID != "" {
-		err = dockerCli.RemoveService(docker.RemoveServiceOptions{
+		err = cli.RemoveService(docker.RemoveServiceOptions{
 			ID:      dockerService.ID,
 			Context: ctx,
 		})

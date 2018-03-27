@@ -3,6 +3,7 @@ package cmdAccount
 import (
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/application/account"
@@ -23,14 +24,18 @@ var Import = &cobra.Command{
 
 func importHandler(cmd *cobra.Command, args []string) {
 	password := cmd.Flag("password").Value.String()
-	if password == "" {
-		survey.AskOne(&survey.Password{Message: "Type the current password ?"}, &password, nil)
+	if password == "" && survey.AskOne(&survey.Password{Message: "Type the current password ?"}, &password, nil) != nil {
+		os.Exit(0)
 	}
 	newPassword := cmd.Flag("new-password").Value.String()
 	if newPassword == "" {
 		var passwordConfirmation string
-		survey.AskOne(&survey.Password{Message: "Type the new password for your account ?"}, &newPassword, nil)
-		survey.AskOne(&survey.Password{Message: "Repeat your password ?"}, &passwordConfirmation, nil)
+		if survey.AskOne(&survey.Password{Message: "Type the new password for your account ?"}, &newPassword, nil) != nil {
+			os.Exit(0)
+		}
+		if survey.AskOne(&survey.Password{Message: "Repeat your password ?"}, &passwordConfirmation, nil) != nil {
+			os.Exit(0)
+		}
 		if newPassword != passwordConfirmation {
 			panic(errors.New("Password confirmation invalid"))
 		}
