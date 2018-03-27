@@ -12,16 +12,19 @@ import (
 
 // Topup a workflow
 var Topup = &cobra.Command{
-	Use:               "topup ID",
-	Short:             "Top-up a workflow",
-	Example:           "mesg-cli workflow topup xxx --amount XX",
+	Use:   "topup WORKFLOW_ID",
+	Short: "Top-up a workflow",
+	Long: `Top-up a workflow.
+Add more token to a existing workflow.`,
+	Example: `mesg-cli workflow topup WORKFLOW_ID
+mesg-cli workflow topup WORKFLOW_ID --amount AMOUNT --account ACCOUNT_ID --confirm`,
 	Run:               topupHandler,
 	DisableAutoGenTag: true,
 }
 
 func topupHandler(cmd *cobra.Command, args []string) {
-	account := cmdUtils.AccountFromFlagOrAsk(cmd, "Select an account")
-	amount, err := cmdUtils.GetOrAskAmount(cmd, "How much do you want to deposit in your workflow ?")
+	account := cmdUtils.AccountFromFlagOrAsk(cmd, "Select an account:")
+	amount, err := cmdUtils.GetOrAskAmount(cmd, "How much do you want to deposit in your workflow?")
 	if err != nil {
 		panic(err)
 	}

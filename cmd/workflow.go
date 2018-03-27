@@ -9,7 +9,7 @@ import (
 // Workflow is the root command related to workflows
 var Workflow = &cobra.Command{
 	Use:               "workflow",
-	Short:             "Manage the workflow you create",
+	Short:             "Manage your workflows",
 	DisableAutoGenTag: true,
 }
 
