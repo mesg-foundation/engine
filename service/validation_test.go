@@ -7,33 +7,33 @@ import (
 )
 
 func TestMinimalValidFile(t *testing.T) {
-	valid, warnings, err := ValidServiceFile("./tests/minimal-valid.yml")
+	valid, warnings, err := ValidService("./tests/service-minimal-valid")
 	assert.Nil(t, err)
 	assert.Equal(t, valid, true)
 	assert.Equal(t, len(warnings), 0)
 }
 
 func TestValidFile(t *testing.T) {
-	valid, warnings, err := ValidServiceFile("./tests/valid.yml")
+	valid, warnings, err := ValidService("./tests/service-valid")
 	assert.Nil(t, err)
 	assert.Equal(t, valid, true)
 	assert.Equal(t, len(warnings), 0)
 }
 
-func TestNonExistingFile(t *testing.T) {
-	_, _, err := ValidServiceFile("./tests/non-existing-file.yml")
+func TestNonExistingPath(t *testing.T) {
+	_, _, err := ValidService("./tests/service-non-existing")
 	assert.NotNil(t, err)
 }
 
 func TestMalFormattedFile(t *testing.T) {
-	valid, warnings, err := ValidServiceFile("./tests/mal-formatted.yml")
+	valid, warnings, err := ValidService("./tests/service-file-mal-formatted")
 	assert.Nil(t, err)
 	assert.Equal(t, valid, false)
 	assert.Equal(t, len(warnings), 1)
 }
 
 func TestInvalidFile(t *testing.T) {
-	valid, warnings, err := ValidServiceFile("./tests/non-valid.yml")
+	valid, warnings, err := ValidService("./tests/service-file-invalid")
 	assert.Nil(t, err)
 	assert.Equal(t, valid, false)
 	assert.Equal(t, len(warnings), 1)

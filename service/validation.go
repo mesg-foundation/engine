@@ -43,8 +43,8 @@ func ValidServiceData(body interface{}) (valid bool, warnings []gojsonschema.Res
 	return
 }
 
-// ValidServiceFile returns true is the file is a valid service, a list of warnings otherwise
-func ValidServiceFile(filepath string) (valid bool, warnings []gojsonschema.ResultError, err error) {
+// validServiceFile returns true is the file is a valid service, a list of warnings otherwise
+func validServiceFile(filepath string) (valid bool, warnings []gojsonschema.ResultError, err error) {
 	file, err := ioutil.ReadFile(filepath)
 	if err != nil {
 		return
@@ -62,7 +62,7 @@ func ValidServiceFile(filepath string) (valid bool, warnings []gojsonschema.Resu
 // ValidService return true if the service at this path is valid, a list of warning otherwise
 func ValidService(path string) (valid bool, warnings []gojsonschema.ResultError, err error) {
 	serviceFile := filepath.Join(path, "mesg.yml")
-	valid, warnings, err = ValidServiceFile(serviceFile)
+	valid, warnings, err = validServiceFile(serviceFile)
 	if err != nil {
 		return
 	}
