@@ -5,10 +5,10 @@ type Visibility string
 
 // List of visibilities flags
 const (
-	vALL     Visibility = "ALL"
-	vUSERS   Visibility = "USERS"
-	vWORKERS Visibility = "WORKERS"
-	vNONE    Visibility = "NONE"
+	VisibilityAll     Visibility = "ALL"
+	VisibilityUsers   Visibility = "USERS"
+	VisibilityWorkers Visibility = "WORKERS"
+	VisibilityNone    Visibility = "NONE"
 )
 
 // FeeActor is a type to get the different actors in the fee system
@@ -35,7 +35,6 @@ const (
 
 // Service is a definition for a service to run
 type Service struct {
-	Version      string       `yaml:"version" json:"version"`
 	Name         string       `yaml:"name" json:"name"`
 	Description  string       `yaml:"description" json:"description"`
 	Visibility   Visibility   `yaml:"visibility" json:"visibility"`
