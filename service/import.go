@@ -13,7 +13,7 @@ func ImportFromFile(filename string) (service *Service, err error) {
 		return
 	}
 	service = &Service{}
-	err = yaml.Unmarshal(file, service)
+	err = yaml.UnmarshalStrict(file, service)
 	if err != nil {
 		return
 	}
