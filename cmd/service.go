@@ -22,6 +22,7 @@ func init() {
 	Service.AddCommand(cmdService.Resume)
 	Service.AddCommand(cmdService.Detail)
 	Service.AddCommand(cmdService.List)
+	Service.AddCommand(cmdService.Status)
 
 	RootCmd.AddCommand(Service)
 }
