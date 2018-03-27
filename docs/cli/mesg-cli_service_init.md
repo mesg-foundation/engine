@@ -7,23 +7,24 @@ Initialize a service
 Initialize a service
 
 ```
-mesg-cli service init NAME [flags]
+mesg-cli service init [flags]
 ```
 
 ### Examples
 
 ```
 mesg-cli service init
+mesg-cli service init --name NAME --description DESCRIPTION --visibility ALL --publish ALL
 ```
 
 ### Options
 
 ```
-  -d, --description string   Description of the service
+  -d, --description string   Description
   -h, --help                 help for init
-  -n, --name string          Name of the service
-  -p, --publish string       Publish details of the service
-  -v, --visibility string    Visibility of the service
+  -n, --name string          Name
+  -p, --publish string       Publish
+  -v, --visibility string    Visibility
 ```
 
 ### SEE ALSO
