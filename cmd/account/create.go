@@ -3,6 +3,7 @@ package cmdAccount
 import (
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/logrusorgru/aurora"
@@ -27,8 +28,12 @@ func createHandler(cmd *cobra.Command, args []string) {
 	password := cmd.Flag("password").Value.String()
 	if password == "" {
 		var passwordConfirmation string
-		survey.AskOne(&survey.Password{Message: "Please set a password ?"}, &password, nil)
-		survey.AskOne(&survey.Password{Message: "Repeat your password ?"}, &passwordConfirmation, nil)
+		if survey.AskOne(&survey.Password{Message: "Please set a password ?"}, &password, nil) != nil {
+			os.Exit(0)
+		}
+		if survey.AskOne(&survey.Password{Message: "Repeat your password ?"}, &passwordConfirmation, nil) != nil {
+			os.Exit(0)
+		}
 		if password != passwordConfirmation {
 			panic(errors.New("Password confirmation invalid"))
 		}

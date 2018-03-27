@@ -1,6 +1,8 @@
 package cmdUtils
 
 import (
+	"os"
+
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/mesg-foundation/application/account"
 	"github.com/spf13/cobra"
@@ -23,10 +25,12 @@ func FindAccount(accountValue string) (acc accounts.Account) {
 func AskAccount(message string) (acc accounts.Account) {
 	accounts := account.List()
 	var selectedAccount string
-	survey.AskOne(&survey.Select{
+	if survey.AskOne(&survey.Select{
 		Message: message,
 		Options: accountOptions(accounts),
-	}, &selectedAccount, nil)
+	}, &selectedAccount, nil) != nil {
+		os.Exit(0)
+	}
 	acc = FindAccount(selectedAccount)
 	return
 }
