@@ -23,5 +23,5 @@ Manage the services you created
 * [mesg-cli service start](mesg-cli_service_start.md)	 - Start a service
 * [mesg-cli service stop](mesg-cli_service_stop.md)	 - Stop a service
 * [mesg-cli service test](mesg-cli_service_test.md)	 - Start and test the service
-* [mesg-cli service validate](mesg-cli_service_validate.md)	 - Validate a service file. Check the yml format and rules.
+* [mesg-cli service validate](mesg-cli_service_validate.md)	 - Validate a service. Check the mesg.yml file for format and rules and do some additional tests about the directory
 
