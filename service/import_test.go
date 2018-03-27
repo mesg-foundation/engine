@@ -16,6 +16,11 @@ func TestImportMalFormattedFile(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
+func TestImportNonValidFile(t *testing.T) {
+	_, err := ImportFromFile("./tests/service-file-invalid/mesg.yml")
+	assert.NotNil(t, err)
+}
+
 func TestImportValidFile(t *testing.T) {
 	service, err := ImportFromFile("./tests/service-minimal-valid/mesg.yml")
 	assert.Nil(t, err)

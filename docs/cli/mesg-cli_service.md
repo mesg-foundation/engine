@@ -15,9 +15,9 @@ Manage your services
 ### SEE ALSO
 
 * [mesg-cli](mesg-cli.md)	 - MESG CLI
-* [mesg-cli service detail](mesg-cli_service_detail.md)	 - Show details of a service
+* [mesg-cli service detail](mesg-cli_service_detail.md)	 - Show details of a published service
 * [mesg-cli service init](mesg-cli_service_init.md)	 - Initialize a service
-* [mesg-cli service list](mesg-cli_service_list.md)	 - List of services that a account already deployed on the Network
+* [mesg-cli service list](mesg-cli_service_list.md)	 - List all published services
 * [mesg-cli service pause](mesg-cli_service_pause.md)	 - Pause a service
 * [mesg-cli service publish](mesg-cli_service_publish.md)	 - Publish a service
 * [mesg-cli service resume](mesg-cli_service_resume.md)	 - Resume a service
