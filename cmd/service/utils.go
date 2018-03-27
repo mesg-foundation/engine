@@ -8,7 +8,8 @@ import (
 	"github.com/mesg-foundation/application/service"
 )
 
-func validateServicePath(path string) (valid bool) {
+// validate a service
+func validateService(path string) (valid bool) {
 	valid, warnings, err := service.ValidService(path)
 	if err != nil {
 		fmt.Println(aurora.Red(err))
