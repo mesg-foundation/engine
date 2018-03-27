@@ -22,7 +22,7 @@ var Create = &cobra.Command{
 
 You should also [export your account](mesg-cli_account_export.md) to a safe place to prevent losing access to your workflows, services and tokens.`,
 	Example: `mesg-cli account create
-mesg-cli account create --password QWERTY`,
+mesg-cli account create --password PASSWORD`,
 	Run:               createHandler,
 	DisableAutoGenTag: true,
 }

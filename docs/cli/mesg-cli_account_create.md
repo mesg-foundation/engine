@@ -18,7 +18,7 @@ mesg-cli account create [flags]
 
 ```
 mesg-cli account create
-mesg-cli account create --password QWERTY
+mesg-cli account create --password PASSWORD
 ```
 
 ### Options

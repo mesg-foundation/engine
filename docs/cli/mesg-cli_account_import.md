@@ -7,13 +7,14 @@ Import an account from a backup file
 This method imports a previously exported backup file of your account created with the [export method](mesg-cli_account_export.md).
 
 ```
-mesg-cli account import FILE [flags]
+mesg-cli account import ./PATH_TO_BACKUP_FILE [flags]
 ```
 
 ### Examples
 
 ```
-mesg-cli account import ./export
+mesg-cli account import ./PATH_TO_BACKUP_FILE
+mesg-cli account import ./PATH_TO_BACKUP_FILE --password PASSWORD --new-password PASSWORD
 ```
 
 ### Options

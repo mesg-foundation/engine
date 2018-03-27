@@ -13,10 +13,11 @@ import (
 
 // Import an account from an exported file
 var Import = &cobra.Command{
-	Use:               "import FILE",
-	Short:             "Import an account from a backup file",
-	Long:              `This method imports a previously exported backup file of your account created with the [export method](mesg-cli_account_export.md).`,
-	Example:           "mesg-cli account import ./export",
+	Use:   "import ./PATH_TO_BACKUP_FILE",
+	Short: "Import an account from a backup file",
+	Long:  `This method imports a previously exported backup file of your account created with the [export method](mesg-cli_account_export.md).`,
+	Example: `mesg-cli account import ./PATH_TO_BACKUP_FILE
+mesg-cli account import ./PATH_TO_BACKUP_FILE --password PASSWORD --new-password PASSWORD`,
 	Args:              cobra.MinimumNArgs(1),
 	Run:               importHandler,
 	DisableAutoGenTag: true,
