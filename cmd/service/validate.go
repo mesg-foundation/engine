@@ -26,7 +26,7 @@ func validateHandler(cmd *cobra.Command, args []string) {
 	if len(args) > 0 {
 		path = args[0]
 	}
-	if validateServicePath(path) {
+	if validateService(path) {
 		fmt.Println(aurora.Green("Service is valid"))
 	}
 }
