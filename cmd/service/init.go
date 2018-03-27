@@ -82,7 +82,7 @@ func initHandler(cmd *cobra.Command, args []string) {
 	fmt.Println()
 	fmt.Println(string(out))
 	ok := false
-	if survey.AskOne(&survey.Confirm{Message: "Is this ok ?"}, &ok, nil) != nil {
+	if survey.AskOne(&survey.Confirm{Message: "Is this ok ?", Default: true}, &ok, nil) != nil {
 		os.Exit(0)
 	}
 	if !ok {
