@@ -24,5 +24,5 @@ mesg-cli service status
 
 ### SEE ALSO
 
-* [mesg-cli service](mesg-cli_service.md)	 - Manage the services you created
+* [mesg-cli service](mesg-cli_service.md)	 - Manage your services
 

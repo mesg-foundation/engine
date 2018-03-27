@@ -4,7 +4,9 @@ Initialize a service
 
 ### Synopsis
 
-Initialize a service
+Initialize a service by creating a mesg.yml and Dockerfile in a dedicated folder.
+	
+To get more information, see the page [service file from the documentation](https://docs.mesg.tech/service/service-file.html)
 
 ```
 mesg-cli service init [flags]
@@ -29,5 +31,5 @@ mesg-cli service init --name NAME --description DESCRIPTION --visibility ALL --p
 
 ### SEE ALSO
 
-* [mesg-cli service](mesg-cli_service.md)	 - Manage the services you created
+* [mesg-cli service](mesg-cli_service.md)	 - Manage your services
 

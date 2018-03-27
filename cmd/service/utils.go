@@ -12,15 +12,25 @@ import (
 func validateService(path string) (valid bool) {
 	valid, warnings, err := service.ValidService(path)
 	if err != nil {
-		fmt.Println(aurora.Red(err))
+		fmt.Println(aurora.Red("Service error").Bold())
+		fmt.Println(err)
 	}
 	for _, warning := range warnings {
-		fmt.Println(aurora.Brown(warning))
+		fmt.Println(aurora.Red("The service file contains errors:").Bold())
+		fmt.Println(warning)
 	}
 	return
 }
 
-func importService(path string) (instance *service.Service, err error) {
-	instance, err = service.ImportFromFile(filepath.Join(path, "mesg.yml"))
+// Validate and import the service
+func importService(path string) (instance *service.Service) {
+	if !validateService(path) {
+		return
+	}
+	instance, err := service.ImportFromFile(filepath.Join(path, "mesg.yml"))
+	if err != nil {
+		fmt.Println(aurora.Red(err))
+		return
+	}
 	return
 }
