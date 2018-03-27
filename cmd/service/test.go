@@ -28,15 +28,11 @@ func testHandler(cmd *cobra.Command, args []string) {
 	if len(args) > 0 {
 		path = args[0]
 	}
-	if !validateServicePath(path) {
+	service := importService(path)
+	if service == nil {
 		return
 	}
-	service, err := importService(path)
-	if err != nil {
-		fmt.Println(aurora.Red(err))
-		return
-	}
-	_, err = service.Start()
+	_, err := service.Start()
 	if err != nil {
 		fmt.Println(aurora.Red(err))
 		return

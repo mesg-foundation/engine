@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/application/cmd/utils"
 	"github.com/spf13/cobra"
 )
@@ -27,12 +26,8 @@ func deployHandler(cmd *cobra.Command, args []string) {
 	if len(args) > 0 {
 		path = args[0]
 	}
-	if !validateServicePath(path) {
-		return
-	}
-	service, err := importService(path)
-	if err != nil {
-		fmt.Println(aurora.Red(err))
+	service := importService(path)
+	if service == nil {
 		return
 	}
 	account := cmdUtils.AccountFromFlagOrAsk(cmd, "Select an account:")
