@@ -8,10 +8,10 @@ import (
 
 // Detail of the workflow
 var Detail = &cobra.Command{
-	Use:               "detail ID",
-	Short:             "List all details of a workflow",
+	Use:               "detail WORKFLOW_ID",
+	Short:             "List details of a workflow",
 	Args:              cobra.MinimumNArgs(1),
-	Example:           "mesg-cli marketplace workflow detail XX",
+	Example:           "mesg-cli workflow detail WORKFLOW_ID",
 	Run:               detailHandler,
 	DisableAutoGenTag: true,
 }
