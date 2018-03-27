@@ -6,7 +6,6 @@ import (
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/application/cmd/utils"
-	"github.com/mesg-foundation/application/service"
 	"github.com/spf13/cobra"
 )
 
@@ -17,7 +16,6 @@ var Publish = &cobra.Command{
 	Long: `Publish a service on the Network.
 
 To get more information, see the [publish page from the documentation](https://docs.mesg.tech/service/develop/publish.html)`,
-	Args: cobra.MinimumNArgs(1),
 	Example: `mesg-cli service publish
 mesg-cli service publish ./SERVICE_FOLDER --account ACCOUNT --confirm`,
 	Run:               deployHandler,
@@ -25,13 +23,20 @@ mesg-cli service publish ./SERVICE_FOLDER --account ACCOUNT --confirm`,
 }
 
 func deployHandler(cmd *cobra.Command, args []string) {
-	account := cmdUtils.AccountFromFlagOrAsk(cmd, "Select an account:")
-	if !cmdUtils.Confirm(cmd, "Are you sure?") {
+	path := "./"
+	if len(args) > 0 {
+		path = args[0]
+	}
+	if !validateServicePath(path) {
 		return
 	}
-	service, err := service.ImportFromFile(args[0])
+	service, err := importService(path)
 	if err != nil {
 		fmt.Println(aurora.Red(err))
+		return
+	}
+	account := cmdUtils.AccountFromFlagOrAsk(cmd, "Select an account:")
+	if !cmdUtils.Confirm(cmd, "Are you sure?") {
 		return
 	}
 	s := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Deployment of " + service.Name + " in progress..."})
