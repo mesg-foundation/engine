@@ -11,17 +11,6 @@ const (
 	VisibilityNone    Visibility = "NONE"
 )
 
-// FeeActor is a type to get the different actors in the fee system
-type FeeActor string
-
-// List of the different actors in the fees
-const (
-	Developer FeeActor = "developer"
-	Emitters  FeeActor = "emitters"
-	Validator FeeActor = "validator"
-	Executor  FeeActor = "executor"
-)
-
 // Publish let you configure the part of your service you want to publish
 type Publish string
 
@@ -57,10 +46,10 @@ type Task struct {
 
 // Fees is the different fees to apply
 type Fees struct {
-	Developer FeeActor `yaml:"developer" json:"developer"`
-	Validator FeeActor `yaml:"validator" json:"validator"`
-	Executor  FeeActor `yaml:"executor" json:"executor"`
-	Emitters  FeeActor `yaml:"emitters" json:"emitters"`
+	Developer string `yaml:"developer" json:"developer"`
+	Validator string `yaml:"validator" json:"validator"`
+	Executor  string `yaml:"executor" json:"executor"`
+	Emitters  string `yaml:"emitters" json:"emitters"`
 }
 
 // Tasks is a list of Tasks
