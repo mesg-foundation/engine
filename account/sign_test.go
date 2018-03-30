@@ -13,7 +13,7 @@ func TestSign(t *testing.T) {
 	amount := big.NewInt(0)
 	gasPrice := big.NewInt(0)
 	tx := types.NewTransaction(0, account.Address, amount, 21000, gasPrice, []byte(""))
-	res, err := Sign(account, "TestSign", tx)
+	res, err := signTx(account, "TestSign", tx)
 	assert.Nil(t, err)
 	assert.NotNil(t, res)
 	Destroy(account)
