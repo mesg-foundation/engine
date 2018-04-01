@@ -1,9 +1,14 @@
 package cmdService
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
+
+	"github.com/streadway/amqp"
 
 	"github.com/logrusorgru/aurora"
+	"github.com/mesg-foundation/application/service"
 	"github.com/spf13/cobra"
 )
 
@@ -28,34 +33,44 @@ func testHandler(cmd *cobra.Command, args []string) {
 	if len(args) > 0 {
 		path = args[0]
 	}
-	service := importService(path)
-	if service == nil {
+	importedService := importService(path)
+	if importedService == nil {
 		return
 	}
-	_, err := service.Start()
+	_, err := importedService.Start()
 	if err != nil {
 		fmt.Println(aurora.Red(err))
 		return
 	}
 	fmt.Println(aurora.Green("Service started"))
 
-	if cmd.Flag("event").Value.String() == "" {
-		fmt.Println("Logging all events")
-	} else {
-		fmt.Println("Logging only events ", cmd.Flag("event").Value.String())
-	}
-
 	if cmd.Flag("task").Value.String() != "" {
 		fmt.Println("Calling task ", cmd.Flag("task").Value.String(), " with data ", cmd.Flag("data").Value.String())
 	}
 
+	err = service.ListenEvents(importedService, cmd.Flag("event").Value.String(), onEvent)
+	if err != nil {
+		panic(err)
+	}
+
 	if cmd.Flag("keep-alive").Value.String() != "true" {
-		service.Stop()
+		importedService.Stop()
 	}
 }
 
+func onEvent(event amqp.Delivery) {
+	var res interface{}
+	err := json.Unmarshal(event.Body, &res)
+
+	if err != nil {
+		log.Panic(err)
+	}
+
+	log.Printf("%v(%v) : %v", event.Exchange, event.RoutingKey, res)
+}
+
 func init() {
-	Test.Flags().StringP("event", "e", "", "Only log a specific event")
+	Test.Flags().StringP("event", "e", "*", "Only log a specific event")
 	Test.Flags().StringP("task", "t", "", "Run a specific task")
 	Test.Flags().StringP("data", "d", "", "Path to the file containing the data required to run the task")
 	Test.Flags().BoolP("keep-alive", "", false, "Leave the service runs after the end of the test")
