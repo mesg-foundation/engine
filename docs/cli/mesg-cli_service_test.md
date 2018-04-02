@@ -26,7 +26,7 @@ mesg-cli service test --keep-alive
 
 ```
   -d, --data string    Path to the file containing the data required to run the task
-  -e, --event string   Only log a specific event
+  -e, --event string   Only log a specific event (default "*")
   -h, --help           help for test
       --keep-alive     Leave the service runs after the end of the test
   -t, --task string    Run a specific task
