@@ -75,7 +75,7 @@ func TestNetworkDeleted(t *testing.T) {
 	}
 	service.Start()
 	service.Stop()
-	network, err := findNetwork(service.namespace())
+	network, err := findNetwork(service.Namespace())
 	assert.Nil(t, err)
 	assert.Nil(t, network)
 }

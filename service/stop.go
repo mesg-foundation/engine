@@ -12,13 +12,13 @@ func (service *Service) Stop() (err error) {
 		return
 	}
 	for name, dependency := range service.Dependencies {
-		err = dependency.Stop(service.namespace(), name)
+		err = dependency.Stop(service.Namespace(), name)
 		if err != nil {
 			break
 		}
 	}
 	if err == nil { // didnt exit the loop
-		err = deleteNetwork(service.namespace())
+		err = deleteNetwork(service.Namespace())
 	}
 	return
 }

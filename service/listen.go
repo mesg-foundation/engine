@@ -33,7 +33,7 @@ func ListenEvents(service *Service, eventFilter string, onEvent func(event amqp.
 	}
 	defer ch.Close()
 
-	err = ch.ExchangeDeclare(service.namespace(), channelType, true, false, false, false, nil)
+	err = ch.ExchangeDeclare(service.Namespace(), channelType, true, false, false, false, nil)
 	if err != nil {
 		return
 	}
@@ -43,8 +43,8 @@ func ListenEvents(service *Service, eventFilter string, onEvent func(event amqp.
 		return
 	}
 
-	ch.QueueBind(q.Name, "event."+eventFilter, service.namespace(), false, nil)
-	ch.QueueBind(q.Name, "system.*", service.namespace(), false, nil)
+	ch.QueueBind(q.Name, "event."+eventFilter, service.Namespace(), false, nil)
+	ch.QueueBind(q.Name, "system.*", service.Namespace(), false, nil)
 
 	msgs, err := ch.Consume(q.Name, "", true, false, false, false, nil)
 	if err != nil {
