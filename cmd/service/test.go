@@ -1,14 +1,11 @@
 package cmdService
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 
-	"github.com/streadway/amqp"
-
 	"github.com/logrusorgru/aurora"
-	"github.com/mesg-foundation/application/service"
+	"github.com/mesg-foundation/application/queue"
 	"github.com/spf13/cobra"
 )
 
@@ -43,12 +40,25 @@ func testHandler(cmd *cobra.Command, args []string) {
 		return
 	}
 	fmt.Println(aurora.Green("Service started"))
+	q := queue.Queue{URL: "amqp://guest:guest@127.0.0.1:5672/"}
 
 	if cmd.Flag("task").Value.String() != "" {
 		fmt.Println("Calling task ", cmd.Flag("task").Value.String(), " with data ", cmd.Flag("data").Value.String())
+		q.Publish(importedService.Namespace(), []queue.Channel{
+			queue.Channel{
+				Kind: queue.Tasks,
+				Name: cmd.Flag("task").Value.String(),
+			},
+		}, cmd.Flag("data").Value.String())
 	}
 
-	err = service.ListenEvents(importedService, cmd.Flag("event").Value.String(), onEvent)
+	err = q.Listen(importedService.Namespace(), []queue.Channel{
+		queue.Channel{
+			Kind: queue.Events,
+			Name: cmd.Flag("event").Value.String(),
+		},
+	}, onEvent)
+
 	if err != nil {
 		panic(err)
 	}
@@ -58,15 +68,8 @@ func testHandler(cmd *cobra.Command, args []string) {
 	}
 }
 
-func onEvent(event amqp.Delivery) {
-	var res interface{}
-	err := json.Unmarshal(event.Body, &res)
-
-	if err != nil {
-		log.Panic(err)
-	}
-
-	log.Printf("%v(%v) : %v", event.Exchange, event.RoutingKey, res)
+func onEvent(event interface{}) {
+	log.Println(event)
 }
 
 func init() {
