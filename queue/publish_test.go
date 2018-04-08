@@ -8,6 +8,9 @@ import (
 )
 
 func TestCreateInternalChannel(t *testing.T) {
+	if os.Getenv("CI") == "true" {
+		return
+	}
 	q := Queue{URL: "amqp://guest:guest@127.0.0.1:5672/"}
 
 	channel := Channel{
