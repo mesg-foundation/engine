@@ -44,14 +44,18 @@ func testHandler(cmd *cobra.Command, args []string) {
 
 	if cmd.Flag("task").Value.String() != "" {
 		fmt.Println("Calling task ", cmd.Flag("task").Value.String(), " with data ", cmd.Flag("data").Value.String())
-		q.Publish(importedService.Namespace(), []queue.Channel{
+		err := q.Publish(importedService.Namespace(), []queue.Channel{
 			queue.Channel{
 				Kind: queue.Tasks,
 				Name: cmd.Flag("task").Value.String(),
 			},
 		}, cmd.Flag("data").Value.String())
+		if err != nil {
+			panic(err)
+		}
 	}
 
+	fmt.Println("listening events...")
 	err = q.Listen(importedService.Namespace(), []queue.Channel{
 		queue.Channel{
 			Kind: queue.Events,

@@ -4,7 +4,7 @@ package queue
 func (queue *Queue) Close() (err error) {
 	for _, ch := range queue.channels {
 		err = ch.Close()
-		if err == nil {
+		if err != nil {
 			break
 		}
 	}

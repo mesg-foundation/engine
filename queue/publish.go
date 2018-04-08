@@ -18,12 +18,6 @@ func (queue *Queue) Publish(namespace string, channels []Channel, data interface
 }
 
 func (queue *Queue) publish(namespace string, channel Channel, data interface{}) (err error) {
-	if queue.conn == nil {
-		err = queue.connect()
-	}
-	if err != nil {
-		return
-	}
 	ch := queue.channels[namespace]
 	if ch == nil {
 		ch, err = queue.createInternalChannel(channel)
@@ -43,6 +37,12 @@ func (queue *Queue) publish(namespace string, channel Channel, data interface{})
 }
 
 func (queue *Queue) createInternalChannel(channel Channel) (ch *amqp.Channel, err error) {
+	if queue.conn == nil {
+		err = queue.connect()
+	}
+	if err != nil {
+		return
+	}
 	ch, err = queue.conn.Channel()
 	if err != nil {
 		return

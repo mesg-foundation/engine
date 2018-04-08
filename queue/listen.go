@@ -3,6 +3,8 @@ package queue
 import (
 	"encoding/json"
 	"strings"
+
+	"github.com/streadway/amqp"
 )
 
 // Listen see "./interface.go"
@@ -42,17 +44,19 @@ func (queue *Queue) Listen(namespace string, channels []Channel, onEvent func(da
 	}
 
 	isTerminated := make(chan bool)
-	go func() {
-		for d := range msgs {
-			var res interface{}
-			err := json.Unmarshal(d.Body, &res)
-			if err != nil {
-				panic(err)
-			}
-			onEvent(res)
-		}
-	}()
-	<-isTerminated
+	go onMessage(msgs, onEvent, isTerminated)
 
+	<-isTerminated
 	return
+}
+
+func onMessage(msgs <-chan amqp.Delivery, onEvent func(data interface{}), isTerminated chan bool) {
+	for d := range msgs {
+		var res interface{}
+		err := json.Unmarshal(d.Body, &res)
+		if err != nil {
+			panic(err)
+		}
+		onEvent(res)
+	}
 }
