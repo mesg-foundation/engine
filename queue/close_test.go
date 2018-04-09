@@ -12,8 +12,11 @@ func TestCloseEmptyQueue(t *testing.T) {
 		return
 	}
 	queue := Queue{URL: "amqp://guest:guest@127.0.0.1:5672/"}
-	queue.connect()
-	err := queue.Close()
+
+	err := queue.connect()
+	assert.Nil(t, err)
+
+	err = queue.Close()
 	assert.Nil(t, err)
 }
 
@@ -22,9 +25,13 @@ func TestColseMultipleChannel(t *testing.T) {
 		return
 	}
 	queue := Queue{URL: "amqp://guest:guest@127.0.0.1:5672/"}
-	queue.connect()
-	queue.createInternalChannel(Channel{Kind: Events, Name: "*"})
-	err := queue.Close()
+	err := queue.connect()
+	assert.Nil(t, err)
+
+	_, err = queue.createInternalChannel(Channel{Kind: Events, Name: "*"})
+	assert.Nil(t, err)
+
+	err = queue.Close()
 	assert.Nil(t, err)
 }
 
@@ -33,9 +40,15 @@ func TestColseMultipleChannelDisconnect(t *testing.T) {
 		return
 	}
 	queue := Queue{URL: "amqp://guest:guest@127.0.0.1:5672/"}
-	queue.connect()
-	queue.createInternalChannel(Channel{Kind: Events, Name: "*"})
-	queue.disconnect()
-	err := queue.Close()
+	err := queue.connect()
+	assert.Nil(t, err)
+
+	_, err = queue.createInternalChannel(Channel{Kind: Events, Name: "*"})
+	assert.Nil(t, err)
+
+	err = queue.disconnect()
+	assert.Nil(t, err)
+
+	err = queue.Close()
 	assert.NotNil(t, err)
 }
