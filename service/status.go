@@ -30,7 +30,7 @@ func serviceStatus(service *Service) (status StatusType) {
 	status = STOPPED
 	allRunning := true
 	for name, dependency := range service.Dependencies {
-		if dependency.IsRunning(service.namespace(), name) {
+		if dependency.IsRunning(service.Namespace(), name) {
 			status = RUNNING
 		} else {
 			allRunning = false

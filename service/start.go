@@ -17,14 +17,14 @@ func (service *Service) Start() (dockerServices []*swarm.Service, err error) {
 	if service.IsPartiallyRunning() {
 		service.Stop()
 	}
-	network, err := createNetwork(service.namespace())
+	network, err := createNetwork(service.Namespace())
 	if err != nil {
 		return
 	}
 	dockerServices = make([]*swarm.Service, len(service.Dependencies))
 	i := 0
 	for name, dependency := range service.Dependencies {
-		dockerServices[i], err = dependency.Start(service.namespace(), name, network)
+		dockerServices[i], err = dependency.Start(service.Namespace(), name, network)
 		i++
 		if err != nil {
 			break

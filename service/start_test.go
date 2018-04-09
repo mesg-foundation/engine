@@ -66,7 +66,7 @@ func TestPartiallyRunningService(t *testing.T) {
 		},
 	}
 	service.Start()
-	service.Dependencies["test"].Stop(service.namespace(), "test")
+	service.Dependencies["test"].Stop(service.Namespace(), "test")
 	assert.Equal(t, service.IsPartiallyRunning(), true)
 	dockerServices, err := service.Start()
 	assert.Nil(t, err)
@@ -107,7 +107,7 @@ func TestNetworkCreated(t *testing.T) {
 		},
 	}
 	service.Start()
-	network, err := findNetwork(service.namespace())
+	network, err := findNetwork(service.Namespace())
 	assert.Nil(t, err)
 	assert.NotNil(t, network)
 	service.Stop()
