@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/logrusorgru/aurora"
+	"github.com/mesg-foundation/application/service"
 
 	"github.com/spf13/cobra"
 )
@@ -26,7 +27,18 @@ func validateHandler(cmd *cobra.Command, args []string) {
 	if len(args) > 0 {
 		path = args[0]
 	}
-	if validateService(path) {
+
+	warnings, err := service.ValidService(path)
+	if err != nil {
+		fmt.Println(aurora.Red("Service error").Bold())
+		fmt.Println(err)
+
+		for _, warning := range warnings {
+			fmt.Println(aurora.Red("The service file contains errors:").Bold())
+			fmt.Println(warning)
+		}
+	}
+	if err == nil {
 		fmt.Println(aurora.Green("Service is valid"))
 	}
 }
