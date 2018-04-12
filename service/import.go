@@ -2,20 +2,34 @@ package service
 
 import (
 	"io/ioutil"
+	"path/filepath"
 
 	yaml "gopkg.in/yaml.v2"
 )
 
-// ImportFromFile will return a service associated to the file given in parameter
-func ImportFromFile(filename string) (service *Service, err error) {
-	file, err := ioutil.ReadFile(filename)
+func readFromPath(path string) (data []byte, err error) {
+	file := filepath.Join(path, "mesg.yml")
+	data, err = ioutil.ReadFile(file)
+	return
+}
+
+// ImportFromPath returns the service of the given path
+func ImportFromPath(path string) (service *Service, err error) {
+	_, err = ValidService(path)
 	if err != nil {
 		return
 	}
+
+	data, err := readFromPath(path)
+	if err != nil {
+		return
+	}
+
 	service = &Service{}
-	err = yaml.UnmarshalStrict(file, service)
+	err = yaml.UnmarshalStrict(data, service)
 	if err != nil {
 		return
 	}
+
 	return
 }
