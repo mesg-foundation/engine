@@ -33,11 +33,15 @@ func testHandler(cmd *cobra.Command, args []string) {
 	if len(args) > 0 {
 		path = args[0]
 	}
-	importedService := importService(path)
-	if importedService == nil {
+
+	importedService, err := service.ImportFromPath(path)
+	if err != nil {
+		fmt.Println(aurora.Red(err))
+		fmt.Println("Run the command 'service validate' to get detailed errors")
 		return
 	}
-	_, err := importedService.Start()
+
+	_, err = importedService.Start()
 	if err != nil {
 		fmt.Println(aurora.Red(err))
 		return
