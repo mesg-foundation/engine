@@ -23,12 +23,7 @@ mesg-cli service validate ./SERVICE_FOLDER`,
 }
 
 func validateHandler(cmd *cobra.Command, args []string) {
-	path := "./"
-	if len(args) > 0 {
-		path = args[0]
-	}
-
-	warnings, err := service.ValidService(path)
+	warnings, err := service.ValidService(defaultPath(args))
 	if err == nil {
 		fmt.Println(aurora.Green("Service is valid"))
 		return
