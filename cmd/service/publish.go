@@ -24,12 +24,7 @@ mesg-cli service publish ./SERVICE_FOLDER --account ACCOUNT --confirm`,
 }
 
 func deployHandler(cmd *cobra.Command, args []string) {
-	path := "./"
-	if len(args) > 0 {
-		path = args[0]
-	}
-
-	service, err := service.ImportFromPath(path)
+	service, err := service.ImportFromPath(defaultPath(args))
 	if err != nil {
 		fmt.Println(aurora.Red(err))
 		fmt.Println("Run the command 'service validate' to get detailed errors")
