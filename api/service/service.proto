@@ -1,0 +1,48 @@
+// To generate the go file, run:
+// protoc -I ./ *.proto --go_out=plugins=grpc:./
+// OR from project root folder:
+// protoc -I api/ **/*.proto --go_out=plugins=grpc:api/
+
+syntax = "proto3";
+
+package api;
+
+// The greeting service definition.
+service Service {
+  // Sends a greeting
+  rpc Emit (EmitRequest) returns (EmitReply) {}
+  rpc Subscribe (SubscribeRequest) returns (stream SubscribeReply) {}
+}
+
+// Emit Request
+message EmitRequest {
+  enum Type {
+    SYSTEM = 0;
+    EVENT = 1;
+    TASK_OUTPUT = 2;
+  }
+  Type type = 1;
+  string id = 2;
+  string data = 3;
+}
+
+// Emit Reply
+message EmitReply {
+  bool success = 1;
+  string error = 2;
+}
+
+// Subscribe Request
+message SubscribeRequest {
+}
+
+// Subscribe Reply
+message SubscribeReply {
+  enum Type {
+    SYSTEM = 0;
+    TASK = 1;
+  }
+  Type type = 1;
+  string id = 2;
+  string data = 3;
+}
