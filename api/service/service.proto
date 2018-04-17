@@ -5,7 +5,7 @@
 
 syntax = "proto3";
 
-package api;
+package service;
 
 // The greeting service definition.
 service Service {
