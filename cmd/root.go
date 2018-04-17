@@ -53,7 +53,8 @@ func initConfig() {
 
 func rootHandler(cmd *cobra.Command, args []string) {
 	log.Println("Starting MESG daemon")
-	err := api.StartServer()
+	server := api.Server{}
+	err := server.Start()
 	if err != nil {
 		log.Panicln(err)
 	}

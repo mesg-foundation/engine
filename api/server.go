@@ -5,39 +5,59 @@ import (
 
 	"github.com/mesg-foundation/application/api/service"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
-const (
-	port = ":50052"
-)
+// Server is the main struct that contain the server config
+type Server struct {
+	instance *grpc.Server
+	Network  string
+	Address  string
+}
 
-var server *grpc.Server
+// network returns the Server's network or a default
+func (s *Server) network() (network string) {
+	network = s.Network
+	if network == "" {
+		network = "tcp"
+	}
+	return
+}
 
-// StartServer starts the server
-func StartServer() (err error) {
-	listener, err := net.Listen("tcp", port)
+// address returns the Server's address or a default
+func (s *Server) address() (address string) {
+	address = s.Address
+	if address == "" {
+		address = ":50052"
+	}
+	return
+}
+
+// Start starts the server
+func (s *Server) Start() (err error) {
+	listener, err := net.Listen(s.network(), s.address())
 	if err != nil {
 		return
 	}
-	server = grpc.NewServer()
-	register(server)
-	// Register reflection service on gRPC server.
-	// reflection.Register(s)
-	err = server.Serve(listener)
+	s.instance = grpc.NewServer()
+	s.register()
+	reflection.Register(s.instance)
+	err = s.instance.Serve(listener)
 	if err != nil {
 		return
 	}
 	return
 }
 
-// StopServer stops the server (if exist)
-func StopServer() {
-	if server != nil {
-		server.Stop()
-		server = nil
+// Stop stops the server (if exist)
+func (s *Server) Stop() {
+	if s.instance != nil {
+		s.instance.Stop()
+		s.instance = nil
 	}
 }
 
-func register(server *grpc.Server) {
-	apiService.Register(server)
+// register all server
+func (s *Server) register() {
+	service.RegisterServiceServer(s.instance, &service.Server{})
 }
