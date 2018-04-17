@@ -8,6 +8,6 @@ import (
 
 func (s *Server) Emit(ctx context.Context, request *EmitRequest) (reply *EmitReply, err error) {
 	log.Println("receive emit", request)
-	reply = &EmitReply{Success: true}
+	reply = &EmitReply{}
 	return
 }
