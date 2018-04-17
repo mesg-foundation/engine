@@ -13,7 +13,7 @@ It has these top-level messages:
 	SubscribeRequest
 	SubscribeReply
 */
-package apiService
+package service
 
 import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
