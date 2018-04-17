@@ -4,6 +4,7 @@ import (
 	"net"
 
 	"github.com/mesg-foundation/application/api/service"
+	"github.com/mesg-foundation/application/config"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -19,7 +20,7 @@ type Server struct {
 func (s *Server) network() (network string) {
 	network = s.Network
 	if network == "" {
-		network = "tcp"
+		network = config.Api.Server.Network()
 	}
 	return
 }
@@ -28,7 +29,7 @@ func (s *Server) network() (network string) {
 func (s *Server) address() (address string) {
 	address = s.Address
 	if address == "" {
-		address = ":50052"
+		address = config.Api.Server.Address()
 	}
 	return
 }

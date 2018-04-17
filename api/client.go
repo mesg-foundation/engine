@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/mesg-foundation/application/api/service"
+	"github.com/mesg-foundation/application/config"
 	"google.golang.org/grpc"
 )
 
@@ -15,7 +16,7 @@ type Client struct {
 func (c *Client) target() (target string) {
 	target = c.Target
 	if target == "" {
-		target = "localhost:50052"
+		target = config.Api.Client.Target()
 	}
 	return
 }
