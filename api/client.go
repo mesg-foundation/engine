@@ -2,39 +2,47 @@ package api
 
 import (
 	"github.com/mesg-foundation/application/api/service"
-	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
 
-const (
-	address = "localhost:50052"
-)
+// Server is the main struct that contain the server config
+type Client struct {
+	connection *grpc.ClientConn
+	Target     string
+}
 
-var connectionInstance *grpc.ClientConn
-
-func getConnection() (connection *grpc.ClientConn, err error) {
-	if connectionInstance == nil {
-		connectionInstance, err = grpc.Dial(address, grpc.WithInsecure())
+// target returns the Client's target or a default
+func (c *Client) target() (target string) {
+	target = c.Target
+	if target == "" {
+		target = "localhost:50052"
 	}
-	connection = connectionInstance
 	return
 }
 
-// CloseClient closes the connection (if exist)
-func CloseClient() {
-	if connectionInstance != nil {
-		connectionInstance.Close()
-		connectionInstance = nil
+// conn creates a connection if needed an return it
+func (c *Client) conn() (conn *grpc.ClientConn, err error) {
+	if c.connection == nil {
+		c.connection, err = grpc.Dial(c.target(), grpc.WithInsecure())
+	}
+	conn = c.connection
+	return
+}
+
+// Close closes the connection (if exist)
+func (c *Client) Close() {
+	if c.connection != nil {
+		c.connection.Close()
+		c.connection = nil
 	}
 }
 
-// ServiceClient returns a Service Client
-func ServiceClient() (client apiService.ServiceClient, ctx context.Context, err error) {
-	conn, err := getConnection()
+// Service returns a Service Client
+func (c *Client) ServiceClient() (client service.ServiceClient, err error) {
+	conn, err := c.conn()
 	if err != nil {
 		return
 	}
-	client = apiService.NewServiceClient(conn)
-	ctx = context.Background()
+	client = service.NewServiceClient(conn)
 	return
 }
