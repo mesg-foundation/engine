@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package task;
+
+service Service {
+  rpc Execute (ExecuteRequest) returns (ExecuteReply) {}
+}
+
+message ExecuteRequest {
+
+}
+
+message ExecuteReply {
+  
+}

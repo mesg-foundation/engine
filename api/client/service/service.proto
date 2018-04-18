@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package service;
+
+service Service {
+  rpc Start (StartRequest) returns (StartReply) {}
+  rpc Stop (StopRequest) returns (StopReply) {}
+}
+
+message StartRequest {
+  
+}
+
+message StartReply {
+
+}
+
+message StopRequest {
+
+}
+
+message StopReply {
+
+}
