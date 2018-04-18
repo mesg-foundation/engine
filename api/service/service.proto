@@ -7,11 +7,30 @@ syntax = "proto3";
 
 package service;
 
-// The greeting service definition.
+// The service definition
 service Service {
-  // Sends a greeting
+  rpc Start (StartRequest) returns (StartReply) {}
+  rpc Stop (StopRequest) returns (StopReply) {}
   rpc Emit (EmitRequest) returns (EmitReply) {}
   rpc Subscribe (SubscribeRequest) returns (stream SubscribeReply) {}
+}
+
+// Start Request
+message StartRequest {
+}
+
+// Start Reply
+message StartReply {
+  string error = 1;
+}
+
+// Stop Request
+message StopRequest {
+}
+
+// Stop Reply
+message StopReply {
+  string error = 1;
 }
 
 // Emit Request
@@ -28,8 +47,7 @@ message EmitRequest {
 
 // Emit Reply
 message EmitReply {
-  bool success = 1;
-  string error = 2;
+  string error = 1;
 }
 
 // Subscribe Request

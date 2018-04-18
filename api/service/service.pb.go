@@ -2,12 +2,16 @@
 // source: service/service.proto
 
 /*
-Package api is a generated protocol buffer package.
+Package service is a generated protocol buffer package.
 
 It is generated from these files:
 	service/service.proto
 
 It has these top-level messages:
+	StartRequest
+	StartReply
+	StopRequest
+	StopReply
 	EmitRequest
 	EmitReply
 	SubscribeRequest
@@ -57,7 +61,7 @@ var EmitRequest_Type_value = map[string]int32{
 func (x EmitRequest_Type) String() string {
 	return proto.EnumName(EmitRequest_Type_name, int32(x))
 }
-func (EmitRequest_Type) EnumDescriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 0} }
+func (EmitRequest_Type) EnumDescriptor() ([]byte, []int) { return fileDescriptor0, []int{4, 0} }
 
 type SubscribeReply_Type int32
 
@@ -78,11 +82,63 @@ var SubscribeReply_Type_value = map[string]int32{
 func (x SubscribeReply_Type) String() string {
 	return proto.EnumName(SubscribeReply_Type_name, int32(x))
 }
-func (SubscribeReply_Type) EnumDescriptor() ([]byte, []int) { return fileDescriptor0, []int{3, 0} }
+func (SubscribeReply_Type) EnumDescriptor() ([]byte, []int) { return fileDescriptor0, []int{7, 0} }
+
+// Start Request
+type StartRequest struct {
+}
+
+func (m *StartRequest) Reset()                    { *m = StartRequest{} }
+func (m *StartRequest) String() string            { return proto.CompactTextString(m) }
+func (*StartRequest) ProtoMessage()               {}
+func (*StartRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
+
+// Start Reply
+type StartReply struct {
+	Error string `protobuf:"bytes,1,opt,name=error" json:"error,omitempty"`
+}
+
+func (m *StartReply) Reset()                    { *m = StartReply{} }
+func (m *StartReply) String() string            { return proto.CompactTextString(m) }
+func (*StartReply) ProtoMessage()               {}
+func (*StartReply) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
+
+func (m *StartReply) GetError() string {
+	if m != nil {
+		return m.Error
+	}
+	return ""
+}
+
+// Stop Request
+type StopRequest struct {
+}
+
+func (m *StopRequest) Reset()                    { *m = StopRequest{} }
+func (m *StopRequest) String() string            { return proto.CompactTextString(m) }
+func (*StopRequest) ProtoMessage()               {}
+func (*StopRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
+
+// Stop Reply
+type StopReply struct {
+	Error string `protobuf:"bytes,1,opt,name=error" json:"error,omitempty"`
+}
+
+func (m *StopReply) Reset()                    { *m = StopReply{} }
+func (m *StopReply) String() string            { return proto.CompactTextString(m) }
+func (*StopReply) ProtoMessage()               {}
+func (*StopReply) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
+
+func (m *StopReply) GetError() string {
+	if m != nil {
+		return m.Error
+	}
+	return ""
+}
 
 // Emit Request
 type EmitRequest struct {
-	Type EmitRequest_Type `protobuf:"varint,1,opt,name=type,enum=api.EmitRequest_Type" json:"type,omitempty"`
+	Type EmitRequest_Type `protobuf:"varint,1,opt,name=type,enum=service.EmitRequest_Type" json:"type,omitempty"`
 	Id   string           `protobuf:"bytes,2,opt,name=id" json:"id,omitempty"`
 	Data string           `protobuf:"bytes,3,opt,name=data" json:"data,omitempty"`
 }
@@ -90,7 +146,7 @@ type EmitRequest struct {
 func (m *EmitRequest) Reset()                    { *m = EmitRequest{} }
 func (m *EmitRequest) String() string            { return proto.CompactTextString(m) }
 func (*EmitRequest) ProtoMessage()               {}
-func (*EmitRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
+func (*EmitRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
 
 func (m *EmitRequest) GetType() EmitRequest_Type {
 	if m != nil {
@@ -115,21 +171,13 @@ func (m *EmitRequest) GetData() string {
 
 // Emit Reply
 type EmitReply struct {
-	Success bool   `protobuf:"varint,1,opt,name=success" json:"success,omitempty"`
-	Error   string `protobuf:"bytes,2,opt,name=error" json:"error,omitempty"`
+	Error string `protobuf:"bytes,1,opt,name=error" json:"error,omitempty"`
 }
 
 func (m *EmitReply) Reset()                    { *m = EmitReply{} }
 func (m *EmitReply) String() string            { return proto.CompactTextString(m) }
 func (*EmitReply) ProtoMessage()               {}
-func (*EmitReply) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
-
-func (m *EmitReply) GetSuccess() bool {
-	if m != nil {
-		return m.Success
-	}
-	return false
-}
+func (*EmitReply) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{5} }
 
 func (m *EmitReply) GetError() string {
 	if m != nil {
@@ -145,11 +193,11 @@ type SubscribeRequest struct {
 func (m *SubscribeRequest) Reset()                    { *m = SubscribeRequest{} }
 func (m *SubscribeRequest) String() string            { return proto.CompactTextString(m) }
 func (*SubscribeRequest) ProtoMessage()               {}
-func (*SubscribeRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
+func (*SubscribeRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{6} }
 
 // Subscribe Reply
 type SubscribeReply struct {
-	Type SubscribeReply_Type `protobuf:"varint,1,opt,name=type,enum=api.SubscribeReply_Type" json:"type,omitempty"`
+	Type SubscribeReply_Type `protobuf:"varint,1,opt,name=type,enum=service.SubscribeReply_Type" json:"type,omitempty"`
 	Id   string              `protobuf:"bytes,2,opt,name=id" json:"id,omitempty"`
 	Data string              `protobuf:"bytes,3,opt,name=data" json:"data,omitempty"`
 }
@@ -157,7 +205,7 @@ type SubscribeReply struct {
 func (m *SubscribeReply) Reset()                    { *m = SubscribeReply{} }
 func (m *SubscribeReply) String() string            { return proto.CompactTextString(m) }
 func (*SubscribeReply) ProtoMessage()               {}
-func (*SubscribeReply) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
+func (*SubscribeReply) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{7} }
 
 func (m *SubscribeReply) GetType() SubscribeReply_Type {
 	if m != nil {
@@ -181,12 +229,16 @@ func (m *SubscribeReply) GetData() string {
 }
 
 func init() {
-	proto.RegisterType((*EmitRequest)(nil), "api.EmitRequest")
-	proto.RegisterType((*EmitReply)(nil), "api.EmitReply")
-	proto.RegisterType((*SubscribeRequest)(nil), "api.SubscribeRequest")
-	proto.RegisterType((*SubscribeReply)(nil), "api.SubscribeReply")
-	proto.RegisterEnum("api.EmitRequest_Type", EmitRequest_Type_name, EmitRequest_Type_value)
-	proto.RegisterEnum("api.SubscribeReply_Type", SubscribeReply_Type_name, SubscribeReply_Type_value)
+	proto.RegisterType((*StartRequest)(nil), "service.StartRequest")
+	proto.RegisterType((*StartReply)(nil), "service.StartReply")
+	proto.RegisterType((*StopRequest)(nil), "service.StopRequest")
+	proto.RegisterType((*StopReply)(nil), "service.StopReply")
+	proto.RegisterType((*EmitRequest)(nil), "service.EmitRequest")
+	proto.RegisterType((*EmitReply)(nil), "service.EmitReply")
+	proto.RegisterType((*SubscribeRequest)(nil), "service.SubscribeRequest")
+	proto.RegisterType((*SubscribeReply)(nil), "service.SubscribeReply")
+	proto.RegisterEnum("service.EmitRequest_Type", EmitRequest_Type_name, EmitRequest_Type_value)
+	proto.RegisterEnum("service.SubscribeReply_Type", SubscribeReply_Type_name, SubscribeReply_Type_value)
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -200,7 +252,8 @@ const _ = grpc.SupportPackageIsVersion4
 // Client API for Service service
 
 type ServiceClient interface {
-	// Sends a greeting
+	Start(ctx context.Context, in *StartRequest, opts ...grpc.CallOption) (*StartReply, error)
+	Stop(ctx context.Context, in *StopRequest, opts ...grpc.CallOption) (*StopReply, error)
 	Emit(ctx context.Context, in *EmitRequest, opts ...grpc.CallOption) (*EmitReply, error)
 	Subscribe(ctx context.Context, in *SubscribeRequest, opts ...grpc.CallOption) (Service_SubscribeClient, error)
 }
@@ -213,9 +266,27 @@ func NewServiceClient(cc *grpc.ClientConn) ServiceClient {
 	return &serviceClient{cc}
 }
 
+func (c *serviceClient) Start(ctx context.Context, in *StartRequest, opts ...grpc.CallOption) (*StartReply, error) {
+	out := new(StartReply)
+	err := grpc.Invoke(ctx, "/service.Service/Start", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) Stop(ctx context.Context, in *StopRequest, opts ...grpc.CallOption) (*StopReply, error) {
+	out := new(StopReply)
+	err := grpc.Invoke(ctx, "/service.Service/Stop", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *serviceClient) Emit(ctx context.Context, in *EmitRequest, opts ...grpc.CallOption) (*EmitReply, error) {
 	out := new(EmitReply)
-	err := grpc.Invoke(ctx, "/api.Service/Emit", in, out, c.cc, opts...)
+	err := grpc.Invoke(ctx, "/service.Service/Emit", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -223,7 +294,7 @@ func (c *serviceClient) Emit(ctx context.Context, in *EmitRequest, opts ...grpc.
 }
 
 func (c *serviceClient) Subscribe(ctx context.Context, in *SubscribeRequest, opts ...grpc.CallOption) (Service_SubscribeClient, error) {
-	stream, err := grpc.NewClientStream(ctx, &_Service_serviceDesc.Streams[0], c.cc, "/api.Service/Subscribe", opts...)
+	stream, err := grpc.NewClientStream(ctx, &_Service_serviceDesc.Streams[0], c.cc, "/service.Service/Subscribe", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -257,13 +328,50 @@ func (x *serviceSubscribeClient) Recv() (*SubscribeReply, error) {
 // Server API for Service service
 
 type ServiceServer interface {
-	// Sends a greeting
+	Start(context.Context, *StartRequest) (*StartReply, error)
+	Stop(context.Context, *StopRequest) (*StopReply, error)
 	Emit(context.Context, *EmitRequest) (*EmitReply, error)
 	Subscribe(*SubscribeRequest, Service_SubscribeServer) error
 }
 
 func RegisterServiceServer(s *grpc.Server, srv ServiceServer) {
 	s.RegisterService(&_Service_serviceDesc, srv)
+}
+
+func _Service_Start_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StartRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).Start(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/service.Service/Start",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).Start(ctx, req.(*StartRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_Stop_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StopRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).Stop(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/service.Service/Stop",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).Stop(ctx, req.(*StopRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Service_Emit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -276,7 +384,7 @@ func _Service_Emit_Handler(srv interface{}, ctx context.Context, dec func(interf
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api.Service/Emit",
+		FullMethod: "/service.Service/Emit",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ServiceServer).Emit(ctx, req.(*EmitRequest))
@@ -306,9 +414,17 @@ func (x *serviceSubscribeServer) Send(m *SubscribeReply) error {
 }
 
 var _Service_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "api.Service",
+	ServiceName: "service.Service",
 	HandlerType: (*ServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Start",
+			Handler:    _Service_Start_Handler,
+		},
+		{
+			MethodName: "Stop",
+			Handler:    _Service_Stop_Handler,
+		},
 		{
 			MethodName: "Emit",
 			Handler:    _Service_Emit_Handler,
@@ -327,24 +443,27 @@ var _Service_serviceDesc = grpc.ServiceDesc{
 func init() { proto.RegisterFile("service/service.proto", fileDescriptor0) }
 
 var fileDescriptor0 = []byte{
-	// 301 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x91, 0x3d, 0x4f, 0xf3, 0x30,
-	0x10, 0xc7, 0xeb, 0x34, 0x7d, 0xc9, 0x55, 0xca, 0x63, 0xdd, 0x43, 0xa5, 0x08, 0x31, 0x54, 0x9e,
-	0x0a, 0x42, 0x01, 0x95, 0xb1, 0x13, 0x43, 0x26, 0xc4, 0x8b, 0x12, 0x17, 0x89, 0x09, 0xa5, 0x89,
-	0x07, 0x4b, 0x45, 0x31, 0x76, 0x82, 0x94, 0x8d, 0x0f, 0xc0, 0x87, 0x46, 0x71, 0x02, 0x4a, 0xab,
-	0x2e, 0x4c, 0xf6, 0xfd, 0x7d, 0xe7, 0xfb, 0xff, 0xee, 0x60, 0x6e, 0x84, 0xfe, 0x90, 0x99, 0xb8,
-	0xea, 0xce, 0x50, 0xe9, 0xa2, 0x2c, 0x70, 0x98, 0x2a, 0xc9, 0xbe, 0x08, 0xcc, 0xa2, 0x37, 0x59,
-	0xc6, 0xe2, 0xbd, 0x12, 0xa6, 0xc4, 0x73, 0x70, 0xcb, 0x5a, 0x89, 0x80, 0x2c, 0xc8, 0xd2, 0x5f,
-	0xcd, 0xc3, 0x54, 0xc9, 0xb0, 0xf7, 0x1e, 0xf2, 0x5a, 0x89, 0xd8, 0xa6, 0xa0, 0x0f, 0x8e, 0xcc,
-	0x03, 0x67, 0x41, 0x96, 0x5e, 0xec, 0xc8, 0x1c, 0x11, 0xdc, 0x3c, 0x2d, 0xd3, 0x60, 0x68, 0x15,
-	0x7b, 0x67, 0x21, 0xb8, 0x4d, 0x05, 0x02, 0x8c, 0x93, 0x97, 0x84, 0x47, 0xf7, 0x74, 0x80, 0x1e,
-	0x8c, 0xa2, 0xe7, 0xe8, 0x81, 0x53, 0x82, 0xff, 0x60, 0xc6, 0x6f, 0x93, 0xbb, 0xd7, 0xc7, 0x0d,
-	0x7f, 0xda, 0x70, 0xea, 0xb0, 0x35, 0x78, 0x6d, 0x37, 0xb5, 0xab, 0x31, 0x80, 0x89, 0xa9, 0xb2,
-	0x4c, 0x18, 0x63, 0xed, 0x4c, 0xe3, 0x9f, 0x10, 0x4f, 0x60, 0x24, 0xb4, 0x2e, 0x74, 0xd7, 0xbd,
-	0x0d, 0x18, 0x02, 0x4d, 0xaa, 0xad, 0xc9, 0xb4, 0xdc, 0x8a, 0xce, 0x2f, 0xfb, 0x24, 0xe0, 0xf7,
-	0xc4, 0xe6, 0xdb, 0xcb, 0x3d, 0xc4, 0xc0, 0x22, 0xee, 0xa7, 0xfc, 0x95, 0xf2, 0xec, 0x08, 0xe5,
-	0x14, 0xdc, 0x06, 0x8d, 0x92, 0x95, 0x86, 0x49, 0xd2, 0x0e, 0x1e, 0x2f, 0xc0, 0x6d, 0xf0, 0x90,
-	0x1e, 0xce, 0xf5, 0xd4, 0xef, 0x29, 0x6a, 0x57, 0xb3, 0x01, 0xae, 0xc1, 0xfb, 0x75, 0x85, 0xf3,
-	0x43, 0x97, 0x6d, 0xd5, 0xff, 0x23, 0xe6, 0xd9, 0xe0, 0x9a, 0x6c, 0xc7, 0x76, 0xc5, 0x37, 0xdf,
-	0x01, 0x00, 0x00, 0xff, 0xff, 0xd7, 0x44, 0x8a, 0xa5, 0xfb, 0x01, 0x00, 0x00,
+	// 343 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x52, 0xcd, 0x4e, 0xf3, 0x30,
+	0x10, 0x8c, 0xf3, 0xa5, 0xed, 0x97, 0x2d, 0x84, 0x68, 0x69, 0x45, 0x5b, 0xf5, 0x00, 0x3e, 0x71,
+	0x21, 0x54, 0x45, 0x3c, 0x00, 0x42, 0x39, 0x21, 0x7e, 0x54, 0xa7, 0x48, 0x9c, 0x50, 0x7f, 0x7c,
+	0x88, 0x54, 0x14, 0xe3, 0xba, 0x48, 0xb9, 0xf3, 0x00, 0xbc, 0x28, 0xef, 0x80, 0xec, 0x34, 0xc1,
+	0xad, 0xda, 0x03, 0xa7, 0x64, 0xd7, 0x3b, 0x9e, 0x9d, 0x19, 0x43, 0x7b, 0xc9, 0xe5, 0x47, 0x3a,
+	0xe3, 0x97, 0xeb, 0x6f, 0x24, 0x64, 0xa6, 0x32, 0x6c, 0xac, 0x4b, 0x1a, 0xc0, 0x01, 0x53, 0x13,
+	0xa9, 0x46, 0xfc, 0x7d, 0xc5, 0x97, 0x8a, 0x52, 0x80, 0x75, 0x2d, 0x16, 0x39, 0xb6, 0xa0, 0xc6,
+	0xa5, 0xcc, 0x64, 0x87, 0x9c, 0x92, 0x73, 0x7f, 0x54, 0x14, 0xf4, 0x10, 0x9a, 0x4c, 0x65, 0xa2,
+	0x84, 0x9c, 0x81, 0x5f, 0x94, 0xfb, 0x11, 0x5f, 0x04, 0x9a, 0xf1, 0x5b, 0x5a, 0xb2, 0xe0, 0x05,
+	0x78, 0x2a, 0x17, 0xdc, 0x0c, 0x05, 0xc3, 0x6e, 0x54, 0x2e, 0x67, 0xcd, 0x44, 0x49, 0x2e, 0xf8,
+	0xc8, 0x8c, 0x61, 0x00, 0x6e, 0x3a, 0xef, 0xb8, 0xe6, 0x46, 0x37, 0x9d, 0x23, 0x82, 0x37, 0x9f,
+	0xa8, 0x49, 0xe7, 0x9f, 0xe9, 0x98, 0x7f, 0x1a, 0x81, 0xa7, 0x11, 0x08, 0x50, 0x67, 0x2f, 0x2c,
+	0x89, 0xef, 0x43, 0x07, 0x7d, 0xa8, 0xc5, 0xcf, 0xf1, 0x43, 0x12, 0x12, 0x3c, 0x82, 0x66, 0x72,
+	0xc3, 0xee, 0x5e, 0x1f, 0xc7, 0xc9, 0xd3, 0x38, 0x09, 0x5d, 0xbd, 0x75, 0xc1, 0xb6, 0x7f, 0x6b,
+	0x84, 0x90, 0xad, 0xa6, 0xcb, 0x99, 0x4c, 0xa7, 0xbc, 0x14, 0xfb, 0x49, 0x20, 0xb0, 0x9a, 0x1a,
+	0x3c, 0xd8, 0x10, 0xd3, 0xaf, 0xc4, 0x6c, 0x8e, 0xfd, 0x55, 0x4f, 0x7f, 0x87, 0x9e, 0xff, 0xe0,
+	0x69, 0x11, 0x21, 0x19, 0x7e, 0x13, 0x68, 0xb0, 0x82, 0x07, 0xaf, 0xa1, 0x66, 0x22, 0xc3, 0xf6,
+	0x2f, 0xb5, 0x15, 0x69, 0xef, 0x78, 0xbb, 0x2d, 0x16, 0x39, 0x75, 0x70, 0x08, 0x9e, 0x8e, 0x0d,
+	0x5b, 0xd6, 0x71, 0x15, 0x6a, 0x0f, 0xb7, 0xba, 0x15, 0x46, 0x9b, 0x66, 0x61, 0xac, 0xc4, 0x2c,
+	0x4c, 0xe5, 0x2c, 0x75, 0xf0, 0x16, 0xfc, 0xca, 0x09, 0xec, 0xee, 0x72, 0xa7, 0x40, 0x9f, 0xec,
+	0x31, 0x8e, 0x3a, 0x03, 0x32, 0xad, 0x9b, 0x67, 0x7b, 0xf5, 0x13, 0x00, 0x00, 0xff, 0xff, 0x49,
+	0xf6, 0x33, 0x82, 0xcf, 0x02, 0x00, 0x00,
 }
