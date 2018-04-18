@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package task;
 
-service Service {
+service Task {
   rpc Execute (ExecuteRequest) returns (ExecuteReply) {}
 }
 
@@ -11,5 +11,5 @@ message ExecuteRequest {
 }
 
 message ExecuteReply {
-  
+
 }

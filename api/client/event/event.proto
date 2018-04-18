@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package event;
 
-service Service {
+service Event {
   rpc Listen (ListenRequest) returns (stream Event) {}
 }
 
