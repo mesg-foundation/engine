@@ -9,28 +9,8 @@ package service;
 
 // The service definition
 service Service {
-  rpc Start (StartRequest) returns (StartReply) {}
-  rpc Stop (StopRequest) returns (StopReply) {}
   rpc Emit (EmitRequest) returns (EmitReply) {}
   rpc Subscribe (SubscribeRequest) returns (stream SubscribeReply) {}
-}
-
-// Start Request
-message StartRequest {
-}
-
-// Start Reply
-message StartReply {
-  string error = 1;
-}
-
-// Stop Request
-message StopRequest {
-}
-
-// Stop Reply
-message StopReply {
-  string error = 1;
 }
 
 // Emit Request
