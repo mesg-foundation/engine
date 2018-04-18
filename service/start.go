@@ -21,9 +21,9 @@ func (service *Service) Start() (dockerServices []*swarm.Service, err error) {
 	if err != nil {
 		return
 	}
-	dockerServices = make([]*swarm.Service, len(service.Dependencies))
+	dockerServices = make([]*swarm.Service, len(service.GetDependencies()))
 	i := 0
-	for name, dependency := range service.Dependencies {
+	for name, dependency := range service.GetDependencies() {
 		dockerServices[i], err = dependency.Start(service.namespace(), name, network)
 		i++
 		if err != nil {
@@ -58,7 +58,7 @@ func (dependency Dependency) Start(namespace string, serviceName string, network
 			TaskTemplate: swarm.TaskSpec{
 				ContainerSpec: &swarm.ContainerSpec{
 					Image: dependency.Image,
-					Args:  strings.Fields(dependency.Command),
+					Args:  strings.Fields(dependency.GetCommand()),
 					Labels: map[string]string{
 						"com.docker.stack.namespace": namespace,
 					},

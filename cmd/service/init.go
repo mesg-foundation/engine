@@ -38,7 +38,7 @@ func initHandler(cmd *cobra.Command, args []string) {
 	if res.Name == "" && survey.AskOne(&survey.Input{Message: "Name:"}, &res.Name, nil) != nil {
 		os.Exit(0)
 	}
-	key := strings.Replace(strings.ToLower(res.Name), " ", "-", -1)
+	key := strings.Replace(strings.ToLower(res.GetName()), " ", "-", -1)
 
 	res.Description = cmd.Flag("description").Value.String()
 	if res.Description == "" && survey.AskOne(&survey.Input{Message: "Description:"}, &res.Description, nil) != nil {
