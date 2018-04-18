@@ -34,15 +34,17 @@ func (s *Server) address() (address string) {
 	return
 }
 
-// Start starts the server
-func (s *Server) Start() (err error) {
+// Serve starts the server and listen for client connections
+func (s *Server) Serve() (err error) {
 	listener, err := net.Listen(s.network(), s.address())
 	if err != nil {
 		return
 	}
+
 	s.instance = grpc.NewServer()
 	s.register()
-	reflection.Register(s.instance)
+
+	// TODO: check if server still on after a connection throw an error. otherwise, add a for around serve
 	err = s.instance.Serve(listener)
 	if err != nil {
 		return
@@ -61,4 +63,6 @@ func (s *Server) Stop() {
 // register all server
 func (s *Server) register() {
 	service.RegisterServiceServer(s.instance, &service.Server{})
+
+	reflection.Register(s.instance)
 }
