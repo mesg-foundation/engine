@@ -10,8 +10,8 @@ import (
 )
 
 func extractPorts(dependency Dependency) (ports []swarm.PortConfig) {
-	ports = make([]swarm.PortConfig, len(dependency.Ports))
-	for i, p := range dependency.Ports {
+	ports = make([]swarm.PortConfig, len(dependency.GetPorts()))
+	for i, p := range dependency.GetPorts() {
 		split := strings.Split(p, ":")
 		from, _ := strconv.ParseUint(split[0], 10, 64)
 		to := from
