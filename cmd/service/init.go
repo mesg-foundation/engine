@@ -29,8 +29,8 @@ mesg-cli service init --name NAME --description DESCRIPTION --visibility ALL --p
 
 func initHandler(cmd *cobra.Command, args []string) {
 	res := service.Service{}
-	res.Publish = service.PublishAll
-	res.Visibility = service.VisibilityAll
+	res.Publish = service.Publish_PUBLISH_ALL
+	res.Visibility = service.Visibility_VISIBILITY_ALL
 
 	fmt.Printf("%s\n", aurora.Bold("Initialization of a new service"))
 
@@ -49,32 +49,32 @@ func initHandler(cmd *cobra.Command, args []string) {
 	if publishStr == "" && survey.AskOne(&survey.Select{
 		Message: "Publish (ALL):",
 		Options: []string{
-			string(service.PublishAll),
-			string(service.PublishSource),
-			string(service.PublishContainer),
-			string(service.PublishNone),
+			"ALL",
+			"SOURCE",
+			"CONTAINER",
+			"NONE",
 		},
 	}, &publishStr, nil) != nil {
 		os.Exit(0)
 	}
-	res.Publish = service.Publish(publishStr)
+	res.Publish = service.Publish(service.Publish_value["PUBLISH_"+publishStr])
 
 	visibilityStr := cmd.Flag("visibility").Value.String()
 	if visibilityStr == "" && survey.AskOne(&survey.Select{
 		Message: "Visibility (ALL):",
 		Options: []string{
-			string(service.VisibilityAll),
-			string(service.VisibilityUsers),
-			string(service.VisibilityWorkers),
-			string(service.VisibilityNone),
+			"ALL",
+			"USERS",
+			"WORKERS",
+			"NONE",
 		},
 	}, &visibilityStr, nil) != nil {
 		os.Exit(0)
 	}
-	res.Visibility = service.Visibility(visibilityStr)
+	res.Visibility = service.Visibility(service.Visibility_value["VISIBILITY_"+visibilityStr])
 
-	res.Dependencies = service.Dependencies{
-		key: service.Dependency{
+	res.Dependencies = map[string]*service.Dependency{
+		key: &service.Dependency{
 			Image: strings.Join([]string{"mesg", key}, "/"),
 		},
 	}
