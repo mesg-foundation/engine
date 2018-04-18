@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package event;
+
+service Service {
+  rpc Listen (ListenRequest) returns (stream Event) {}
+}
+
+message ListenRequest {
+
+}
+
+message Event {
+
+}
