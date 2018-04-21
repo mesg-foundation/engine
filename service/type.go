@@ -16,7 +16,7 @@ const (
 // Publish let you configure the part of your service you want to publish
 type Publish string
 
-// List of all publishs flags
+// List of all publishes flags
 const (
 	PublishAll       Publish = "ALL"
 	PublishSource    Publish = "SOURCE"
@@ -39,7 +39,7 @@ type Event types.ProtoEvent
 // Parameter is the definition of a parameter for a Task
 type Parameter types.ProtoParameter
 
-// Dependency is the docker informations about the Dependency
+// Dependency is the docker information about the Dependency
 type Dependency types.ProtoDependency
 
 // GetDependencies returns the dependencies according to the service types
