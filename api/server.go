@@ -1,6 +1,7 @@
 package api
 
 import (
+	"log"
 	"net"
 
 	"github.com/mesg-foundation/application/api/event"
@@ -45,6 +46,8 @@ func (s *Server) Serve() (err error) {
 
 	s.instance = grpc.NewServer()
 	s.register()
+
+	log.Println("Server listens on", listener.Addr())
 
 	// TODO: check if server still on after a connection throw an error. otherwise, add a for around serve
 	err = s.instance.Serve(listener)
