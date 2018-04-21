@@ -4,6 +4,7 @@ import (
 	"net"
 
 	"github.com/mesg-foundation/application/api/service"
+	"github.com/mesg-foundation/application/api/task"
 	"github.com/mesg-foundation/application/config"
 	types "github.com/mesg-foundation/application/types"
 	"google.golang.org/grpc"
@@ -66,6 +67,7 @@ func (s *Server) register() {
 
 	types.RegisterServiceServer(s.instance, &service.Server{})
 	// s.instance.RegisterService(&service.Descriptions, service.ServerInstance)
+	types.RegisterTaskServer(s.instance, &task.Server{})
 
 	reflection.Register(s.instance)
 }
