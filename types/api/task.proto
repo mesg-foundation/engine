@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package types;
+
+import "types/service.proto";
+
+service Task {
+  rpc Execute (ExecuteTaskRequest) returns (TaskReply) {}
+  rpc Listen (ListenTaskRequest) returns (stream TaskReply) {}
+}
+
+message ExecuteTaskRequest {
+  ProtoService service = 1;
+  string task = 2;
+  string data = 3;
+}
+
+message ListenTaskRequest {
+  ProtoService service = 1;
+}
+
+message TaskReply {
+  string task = 1;
+  string data = 2;
+}

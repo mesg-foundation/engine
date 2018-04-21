@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package types;
+
+message ProtoService {
+  string name = 1;
+  string description = 2;
+  string visibility = 3;
+  string publish = 4;
+  map<string, ProtoTask> tasks = 5;
+  map<string, ProtoEvent> events = 6;
+  map<string, ProtoDependency> dependencies = 7;
+}
+
+message ProtoTask {
+  string name = 1;
+  string description = 2;
+  bool verifiable = 3;
+  bool payable = 4;
+  ProtoFee fees = 5;
+  map<string, ProtoParameter> inputs = 6;
+  map<string, ProtoParameter> outputs = 7;
+}
+
+message ProtoFee {
+  string developer = 1;
+  string validator = 2;
+  string executor = 3;
+  string emittors = 4;
+}
+
+message ProtoEvent {
+  string name = 1;
+  string description = 2;
+  map<string, ProtoParameter> data = 3;
+}
+
+message ProtoParameter {
+  string name = 1;
+  string description = 2;
+  string type = 3;
+  bool optional = 4;
+}
+
+message ProtoDependency {
+  string key = 1;
+  string image = 2;
+  repeated string volumes = 3;
+  repeated string ports = 4;
+  string command = 5;
+}
