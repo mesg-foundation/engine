@@ -1,12 +1,14 @@
 package api
 
 import (
+	"log"
 	"net"
 
+	"github.com/mesg-foundation/application/api/event"
 	"github.com/mesg-foundation/application/api/service"
 	"github.com/mesg-foundation/application/api/task"
 	"github.com/mesg-foundation/application/config"
-	types "github.com/mesg-foundation/application/types"
+	"github.com/mesg-foundation/application/types"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -46,6 +48,8 @@ func (s *Server) Serve() (err error) {
 	s.instance = grpc.NewServer()
 	s.register()
 
+	log.Println("Server listens on", listener.Addr())
+
 	// TODO: check if server still on after a connection throw an error. otherwise, add a for around serve
 	err = s.instance.Serve(listener)
 	if err != nil {
@@ -66,6 +70,7 @@ func (s *Server) Stop() {
 func (s *Server) register() {
 
 	types.RegisterServiceServer(s.instance, &service.Server{})
+	types.RegisterEventServer(s.instance, &event.Server{})
 	// s.instance.RegisterService(&service.Descriptions, service.ServerInstance)
 	types.RegisterTaskServer(s.instance, &task.Server{})
 
