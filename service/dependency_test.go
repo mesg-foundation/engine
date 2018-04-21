@@ -10,12 +10,12 @@ import (
 )
 
 func TestExtractPortEmpty(t *testing.T) {
-	ports := extractPorts(Dependency{})
+	ports := extractPorts(&Dependency{})
 	assert.Equal(t, len(ports), 0)
 }
 
 func TestExtractPorts(t *testing.T) {
-	ports := extractPorts(Dependency{
+	ports := extractPorts(&Dependency{
 		Ports: []string{
 			"80",
 			"3000:8080",

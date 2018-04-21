@@ -11,7 +11,7 @@ func (service *Service) Stop() (err error) {
 	if service.IsStopped() {
 		return
 	}
-	for name, dependency := range service.Dependencies {
+	for name, dependency := range service.GetDependencies() {
 		err = dependency.Stop(service.namespace(), name)
 		if err != nil {
 			break
@@ -24,7 +24,7 @@ func (service *Service) Stop() (err error) {
 }
 
 // Stop a dependency
-func (dependency Dependency) Stop(namespace string, dependencyName string) (err error) {
+func (dependency *Dependency) Stop(namespace string, dependencyName string) (err error) {
 	ctx := context.Background()
 	cli, err := dockerCli()
 	if err != nil {

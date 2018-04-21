@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/mesg-foundation/application/types"
 	"github.com/stvp/assert"
 )
 
@@ -14,8 +15,8 @@ func TestStopRunningService(t *testing.T) {
 	}
 	service := &Service{
 		Name: "TestStopRunningService",
-		Dependencies: map[string]Dependency{
-			"test": Dependency{
+		Dependencies: map[string]*types.ProtoDependency{
+			"test": &types.ProtoDependency{
 				Image: "nginx",
 			},
 		},
@@ -32,8 +33,8 @@ func TestStopNonRunningService(t *testing.T) {
 	}
 	service := &Service{
 		Name: "TestStopNonRunningService",
-		Dependencies: map[string]Dependency{
-			"test": Dependency{
+		Dependencies: map[string]*types.ProtoDependency{
+			"test": &types.ProtoDependency{
 				Image: "nginx",
 			},
 		},
@@ -67,8 +68,8 @@ func TestNetworkDeleted(t *testing.T) {
 	}
 	service := &Service{
 		Name: "TestNetworkDeleted",
-		Dependencies: map[string]Dependency{
-			"test": Dependency{
+		Dependencies: map[string]*types.ProtoDependency{
+			"test": &types.ProtoDependency{
 				Image: "nginx",
 			},
 		},

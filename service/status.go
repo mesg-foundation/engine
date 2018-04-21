@@ -29,7 +29,7 @@ func dockerServiceMatch(dockerServices []swarm.Service, namespace string, name s
 func serviceStatus(service *Service) (status StatusType) {
 	status = STOPPED
 	allRunning := true
-	for name, dependency := range service.Dependencies {
+	for name, dependency := range service.GetDependencies() {
 		if dependency.IsRunning(service.namespace(), name) {
 			status = RUNNING
 		} else {
@@ -61,13 +61,13 @@ func (service *Service) IsStopped() (running bool) {
 }
 
 // IsRunning returns true if the dependency is running, false otherwise
-func (dependency Dependency) IsRunning(namespace string, name string) (running bool) {
+func (dependency *Dependency) IsRunning(namespace string, name string) (running bool) {
 	running = dependencyStatus(namespace, name) == RUNNING
 	return
 }
 
 // IsStopped returns true if the dependency is stopped, false otherwise
-func (dependency Dependency) IsStopped(namespace string, name string) (running bool) {
+func (dependency *Dependency) IsStopped(namespace string, name string) (running bool) {
 	running = dependencyStatus(namespace, name) == STOPPED
 	return
 }
