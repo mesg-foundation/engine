@@ -3,9 +3,10 @@ package api
 import (
 	"net"
 
+	"github.com/mesg-foundation/application/api/event"
 	"github.com/mesg-foundation/application/api/service"
 	"github.com/mesg-foundation/application/config"
-	types "github.com/mesg-foundation/application/types"
+	"github.com/mesg-foundation/application/types"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -65,6 +66,7 @@ func (s *Server) Stop() {
 func (s *Server) register() {
 
 	types.RegisterServiceServer(s.instance, &service.Server{})
+	types.RegisterEventServer(s.instance, &event.Server{})
 	// s.instance.RegisterService(&service.Descriptions, service.ServerInstance)
 
 	reflection.Register(s.instance)
