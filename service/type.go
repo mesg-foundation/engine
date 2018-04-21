@@ -42,6 +42,19 @@ type Parameter types.ProtoParameter
 // Dependency is the docker informations about the Dependency
 type Dependency types.ProtoDependency
 
+// New returns a new service based on the proto type
+func New(service *types.ProtoService) (res *Service) {
+	res = new(Service)
+	res.Name = service.Name
+	res.Description = service.Description
+	res.Publish = service.Publish
+	res.Visibility = service.Visibility
+	res.Events = service.Events
+	res.Tasks = service.Tasks
+	res.Dependencies = service.Dependencies
+	return
+}
+
 // GetDependencies returns the dependencies according to the service types
 func (service *Service) GetDependencies() (dependencies map[string]*Dependency) {
 	dependencies = make(map[string]*Dependency)
