@@ -35,7 +35,7 @@ func deployHandler(cmd *cobra.Command, args []string) {
 	if !cmdUtils.Confirm(cmd, "Are you sure?") {
 		return
 	}
-	s := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Deployment of " + service.GetName() + " in progress..."})
+	s := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Deployment of " + service.Name + " in progress..."})
 	time.Sleep(2 * time.Second)
 	s.Stop()
 	// TODO deploy the service

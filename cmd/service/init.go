@@ -29,8 +29,8 @@ mesg-cli service init --name NAME --description DESCRIPTION --visibility ALL --p
 
 func initHandler(cmd *cobra.Command, args []string) {
 	res := service.Service{}
-	res.Publish = service.Publish_PUBLISH_ALL
-	res.Visibility = service.Visibility_VISIBILITY_ALL
+	res.Publish = service.PublishAll
+	res.Visibility = service.VisibilityAll
 
 	fmt.Printf("%s\n", aurora.Bold("Initialization of a new service"))
 
@@ -38,7 +38,7 @@ func initHandler(cmd *cobra.Command, args []string) {
 	if res.Name == "" && survey.AskOne(&survey.Input{Message: "Name:"}, &res.Name, nil) != nil {
 		os.Exit(0)
 	}
-	key := strings.Replace(strings.ToLower(res.GetName()), " ", "-", -1)
+	key := strings.Replace(strings.ToLower(res.Name), " ", "-", -1)
 
 	res.Description = cmd.Flag("description").Value.String()
 	if res.Description == "" && survey.AskOne(&survey.Input{Message: "Description:"}, &res.Description, nil) != nil {
@@ -49,32 +49,32 @@ func initHandler(cmd *cobra.Command, args []string) {
 	if publishStr == "" && survey.AskOne(&survey.Select{
 		Message: "Publish (ALL):",
 		Options: []string{
-			"ALL",
-			"SOURCE",
-			"CONTAINER",
-			"NONE",
+			string(service.PublishAll),
+			string(service.PublishSource),
+			string(service.PublishContainer),
+			string(service.PublishNone),
 		},
 	}, &publishStr, nil) != nil {
 		os.Exit(0)
 	}
-	res.Publish = service.Publish(service.Publish_value["PUBLISH_"+publishStr])
+	res.Publish = service.Publish(publishStr)
 
 	visibilityStr := cmd.Flag("visibility").Value.String()
 	if visibilityStr == "" && survey.AskOne(&survey.Select{
 		Message: "Visibility (ALL):",
 		Options: []string{
-			"ALL",
-			"USERS",
-			"WORKERS",
-			"NONE",
+			string(service.VisibilityAll),
+			string(service.VisibilityUsers),
+			string(service.VisibilityWorkers),
+			string(service.VisibilityNone),
 		},
 	}, &visibilityStr, nil) != nil {
 		os.Exit(0)
 	}
-	res.Visibility = service.Visibility(service.Visibility_value["VISIBILITY_"+visibilityStr])
+	res.Visibility = service.Visibility(visibilityStr)
 
-	res.Dependencies = map[string]*service.Dependency{
-		key: &service.Dependency{
+	res.Dependencies = map[string]service.Dependency{
+		key: service.Dependency{
 			Image: strings.Join([]string{"mesg", key}, "/"),
 		},
 	}
