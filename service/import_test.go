@@ -25,5 +25,5 @@ func TestImportValidFile(t *testing.T) {
 	service, err := ImportFromPath("./tests/service-minimal-valid")
 	assert.Nil(t, err)
 	assert.NotNil(t, service)
-	assert.Equal(t, service.GetName(), "minimal-valid")
+	assert.Equal(t, service.Name, "minimal-valid")
 }
