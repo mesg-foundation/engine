@@ -12,11 +12,11 @@ func (s *Server) Execute(ctx context.Context, request *types.ExecuteTaskRequest)
 	service := service.New(request.Service)
 
 	reply = &types.TaskReply{
-		Data: request.Data,
 		Task: request.Task,
+		Data: request.Data,
 	}
 
-	go pubsub.Publish(service.TaskSubscriptionKey(), reply)
+	go pubsub.Publish(service.TaskSubscriptionChannel(), reply)
 
 	return
 }
