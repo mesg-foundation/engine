@@ -9,6 +9,7 @@ import (
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/application/service"
+	"github.com/mesg-foundation/application/types"
 	"github.com/spf13/cobra"
 	"gopkg.in/AlecAivazis/survey.v1"
 	"gopkg.in/yaml.v2"
@@ -29,8 +30,8 @@ mesg-cli service init --name NAME --description DESCRIPTION --visibility ALL --p
 
 func initHandler(cmd *cobra.Command, args []string) {
 	res := service.Service{}
-	res.Publish = service.PublishAll
-	res.Visibility = service.VisibilityAll
+	res.Publish = string(service.PublishAll)
+	res.Visibility = string(service.VisibilityAll)
 
 	fmt.Printf("%s\n", aurora.Bold("Initialization of a new service"))
 
@@ -57,7 +58,7 @@ func initHandler(cmd *cobra.Command, args []string) {
 	}, &publishStr, nil) != nil {
 		os.Exit(0)
 	}
-	res.Publish = service.Publish(publishStr)
+	res.Publish = publishStr
 
 	visibilityStr := cmd.Flag("visibility").Value.String()
 	if visibilityStr == "" && survey.AskOne(&survey.Select{
@@ -71,10 +72,10 @@ func initHandler(cmd *cobra.Command, args []string) {
 	}, &visibilityStr, nil) != nil {
 		os.Exit(0)
 	}
-	res.Visibility = service.Visibility(visibilityStr)
+	res.Visibility = visibilityStr
 
-	res.Dependencies = service.Dependencies{
-		key: service.Dependency{
+	res.Dependencies = map[string]*types.ProtoDependency{
+		key: &types.ProtoDependency{
 			Image: strings.Join([]string{"mesg", key}, "/"),
 		},
 	}

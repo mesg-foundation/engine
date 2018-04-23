@@ -6,6 +6,10 @@ MESG CLI
 
 MESG CLI
 
+```
+mesg-cli [flags]
+```
+
 ### Options
 
 ```

@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/mesg-foundation/application/types"
 	"github.com/stvp/assert"
 )
 
@@ -15,15 +16,15 @@ func TestStartService(t *testing.T) {
 	}
 	service := &Service{
 		Name: "TestStartService",
-		Dependencies: map[string]Dependency{
-			"test": Dependency{
+		Dependencies: map[string]*types.ProtoDependency{
+			"test": &types.ProtoDependency{
 				Image: "nginx",
 			},
 		},
 	}
 	dockerServices, err := service.Start()
 	assert.Nil(t, err)
-	assert.Equal(t, len(dockerServices), len(service.Dependencies))
+	assert.Equal(t, len(dockerServices), len(service.GetDependencies()))
 	assert.Equal(t, service.IsRunning(), true)
 	service.Stop()
 }
@@ -35,8 +36,8 @@ func TestStartAgainService(t *testing.T) {
 	}
 	service := &Service{
 		Name: "TestStartAgainService",
-		Dependencies: map[string]Dependency{
-			"test": Dependency{
+		Dependencies: map[string]*types.ProtoDependency{
+			"test": &types.ProtoDependency{
 				Image: "nginx",
 			},
 		},
@@ -56,21 +57,21 @@ func TestPartiallyRunningService(t *testing.T) {
 	}
 	service := &Service{
 		Name: "TestPartiallyRunningService",
-		Dependencies: map[string]Dependency{
-			"test": Dependency{
+		Dependencies: map[string]*types.ProtoDependency{
+			"test": &types.ProtoDependency{
 				Image: "nginx",
 			},
-			"test2": Dependency{
+			"test2": &types.ProtoDependency{
 				Image: "nginx",
 			},
 		},
 	}
 	service.Start()
-	service.Dependencies["test"].Stop(service.namespace(), "test")
+	service.GetDependencies()["test"].Stop(service.namespace(), "test")
 	assert.Equal(t, service.IsPartiallyRunning(), true)
 	dockerServices, err := service.Start()
 	assert.Nil(t, err)
-	assert.Equal(t, len(dockerServices), len(service.Dependencies))
+	assert.Equal(t, len(dockerServices), len(service.GetDependencies()))
 	assert.Equal(t, service.IsRunning(), true)
 	service.Stop()
 }
@@ -100,8 +101,8 @@ func TestNetworkCreated(t *testing.T) {
 	}
 	service := &Service{
 		Name: "TestNetworkCreated",
-		Dependencies: map[string]Dependency{
-			"test": Dependency{
+		Dependencies: map[string]*types.ProtoDependency{
+			"test": &types.ProtoDependency{
 				Image: "nginx",
 			},
 		},

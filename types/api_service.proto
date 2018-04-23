@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package types;
+
+import "service.proto";
+
+service Service {
+  rpc Start (StartServiceRequest) returns (ServiceReply) {}
+  rpc Stop (StopServiceRequest) returns (ServiceReply) {}
+}
+
+message StartServiceRequest {
+  ProtoService service = 1;
+}
+
+message StopServiceRequest {
+  ProtoService service = 1;
+}
+
+message ServiceReply {
+  string error = 1;
+}

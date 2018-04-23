@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package types;
+
+import "service.proto";
+
+service Event {
+  rpc Emit (EmitEventRequest) returns (EventReply) {}
+  rpc Listen (ListenEventRequest) returns (stream EventReply) {}
+}
+
+message EmitEventRequest {
+  ProtoService service = 1;
+  string event = 2;
+  string data = 3;
+}
+
+message ListenEventRequest {
+  ProtoService service = 1;
+}
+
+message EventReply {
+  string error = 1;
+  string event = 2;
+  string data = 3;
+}

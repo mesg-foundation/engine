@@ -9,7 +9,7 @@ import (
 	docker "github.com/fsouza/go-dockerclient"
 )
 
-func extractPorts(dependency Dependency) (ports []swarm.PortConfig) {
+func extractPorts(dependency *Dependency) (ports []swarm.PortConfig) {
 	ports = make([]swarm.PortConfig, len(dependency.Ports))
 	for i, p := range dependency.Ports {
 		split := strings.Split(p, ":")
