@@ -8,8 +8,8 @@ import (
 
 // NAMESPACE is the namespace used for the docker services
 const NAMESPACE string = "MESG"
-const eventKey string = "Event"
-const taskKey string = "Task"
+const eventChannel string = "Event"
+const taskChannel string = "Task"
 
 func (service *Service) namespace() string {
 	return strings.Join([]string{
@@ -18,18 +18,18 @@ func (service *Service) namespace() string {
 	}, "-")
 }
 
-// EventSubscriptionKey returns the key to listen for some events from this service
-func (service *Service) EventSubscriptionKey() string {
+// EventSubscriptionChannel returns the channel to listen for events from this service
+func (service *Service) EventSubscriptionChannel() string {
 	return hash.Calculate([]string{
 		service.namespace(),
-		eventKey,
+		eventChannel,
 	})
 }
 
-// TaskSubscriptionKey returns the key to listen for some tasks from this service
-func (service *Service) TaskSubscriptionKey() string {
+// TaskSubscriptionChannel returns the channel to listen for tasks from this service
+func (service *Service) TaskSubscriptionChannel() string {
 	return hash.Calculate([]string{
 		service.namespace(),
-		taskKey,
+		taskChannel,
 	})
 }

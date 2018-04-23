@@ -1,12 +1,12 @@
 package pubsub
 
-// Publish a specific event associated to a service
-func Publish(key string, data Message) {
+// Publish a message on a channel
+func Publish(channel string, data Message) {
 	mu.Lock()
 	defer mu.Unlock()
-	for _, event := range listeners[key] {
-		if event != nil {
-			event <- data
+	for _, listener := range listeners[channel] {
+		if listener != nil {
+			listener <- data
 		}
 	}
 }

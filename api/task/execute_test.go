@@ -23,7 +23,7 @@ func TestExecute(t *testing.T) {
 	}
 	service := service.New(&protoService)
 
-	subscription := pubsub.Subscribe(service.TaskSubscriptionKey())
+	subscription := pubsub.Subscribe(service.TaskSubscriptionChannel())
 
 	go serverexecute.Execute(context.Background(), &types.ExecuteTaskRequest{
 		Service: &protoService,

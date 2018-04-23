@@ -9,7 +9,7 @@ import (
 func getSubscription(request *types.ListenTaskRequest) (subscription chan pubsub.Message) {
 	service := service.New(request.Service)
 
-	subscription = pubsub.Subscribe(service.TaskSubscriptionKey())
+	subscription = pubsub.Subscribe(service.TaskSubscriptionChannel())
 	return
 }
 
