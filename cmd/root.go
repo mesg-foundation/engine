@@ -2,8 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 
+	"github.com/mesg-foundation/application/api"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -15,6 +17,7 @@ var cfgFile string
 var RootCmd = &cobra.Command{
 	Use:               "mesg-cli",
 	Short:             "MESG CLI",
+	Run:               rootHandler,
 	DisableAutoGenTag: true,
 }
 
@@ -43,7 +46,22 @@ func initConfig() {
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
+	err := viper.ReadInConfig()
+	if err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
+}
+
+func rootHandler(cmd *cobra.Command, args []string) {
+	log.Println("Starting MESG daemon")
+	done := make(chan bool)
+	server := api.Server{}
+	go func() {
+		err := server.Serve()
+		if err != nil {
+			log.Panicln(err)
+		}
+		done <- true
+	}()
+	<-done
 }

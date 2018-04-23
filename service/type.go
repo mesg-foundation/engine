@@ -1,5 +1,7 @@
 package service
 
+import "github.com/mesg-foundation/application/types"
+
 // Visibility is the tags to set is the service is visible for whom
 type Visibility string
 
@@ -14,7 +16,7 @@ const (
 // Publish let you configure the part of your service you want to publish
 type Publish string
 
-// List of all publishs flags
+// List of all publishes flags
 const (
 	PublishAll       Publish = "ALL"
 	PublishSource    Publish = "SOURCE"
@@ -23,66 +25,46 @@ const (
 )
 
 // Service is a definition for a service to run
-type Service struct {
-	Name         string       `yaml:"name" json:"name"`
-	Description  string       `yaml:"description" json:"description"`
-	Visibility   Visibility   `yaml:"visibility" json:"visibility"`
-	Publish      Publish      `yaml:"publish" json:"publish"`
-	Tasks        Tasks        `yaml:"tasks" json:"tasks"`
-	Events       Events       `yaml:"events" json:"events"`
-	Dependencies Dependencies `yaml:"dependencies" json:"dependencies"`
-}
+type Service types.ProtoService
 
 // Task is a definition of a Task from a service
-type Task struct {
-	Name        string     `yaml:"name" json:"name"`
-	Description string     `yaml:"description" json:"description"`
-	Verifiable  bool       `yaml:"verifiable" json:"verifiable"`
-	Payable     bool       `yaml:"payable" json:"payable"`
-	Fees        Fees       `yaml:"fees" json:"fees"`
-	Inputs      Parameters `yaml:"inputs" json:"inputs"`
-	Outputs     Events     `yaml:"outputs" json:"outputs"`
-}
+type Task types.ProtoTask
 
-// Fees is the different fees to apply
-type Fees struct {
-	Developer string `yaml:"developer" json:"developer"`
-	Validator string `yaml:"validator" json:"validator"`
-	Executor  string `yaml:"executor" json:"executor"`
-	Emitters  string `yaml:"emitters" json:"emitters"`
-}
-
-// Tasks is a list of Tasks
-type Tasks map[string]Task
+// Fee is the different fees to apply
+type Fee types.ProtoFee
 
 // Event is the definition of an event emitted from a service
-type Event struct {
-	Name        string     `yaml:"name" json:"name"`
-	Description string     `yaml:"description" json:"description"`
-	Data        Parameters `yaml:"data" json:"data"`
-}
-
-// Events is a list of Events
-type Events map[string]Event
+type Event types.ProtoEvent
 
 // Parameter is the definition of a parameter for a Task
-type Parameter struct {
-	Name        string `yaml:"name" json:"name"`
-	Description string `yaml:"description" json:"description"`
-	Type        string `yaml:"type" json:"type"`
-	Optional    bool   `yaml:"optional" json:"optional"`
+type Parameter types.ProtoParameter
+
+// Dependency is the docker information about the Dependency
+type Dependency types.ProtoDependency
+
+// New returns a new service based on the proto type
+func New(service *types.ProtoService) (res *Service) {
+	res = new(Service)
+	res.Name = service.Name
+	res.Description = service.Description
+	res.Publish = service.Publish
+	res.Visibility = service.Visibility
+	res.Events = service.Events
+	res.Tasks = service.Tasks
+	res.Dependencies = service.Dependencies
+	return
 }
 
-// Parameters is a list of Parameters
-type Parameters map[string]Parameter
-
-// Dependency is the docker informations about the Dependency
-type Dependency struct {
-	Image   string   `yaml:"image" json:"image"`
-	Volumes []string `yaml:"volumes" json:"volumes"`
-	Ports   []string `yaml:"ports" json:"ports"`
-	Command string   `yaml:"command" json:"command"`
+// GetDependencies returns the dependencies according to the service types
+func (service *Service) GetDependencies() (dependencies map[string]*Dependency) {
+	dependencies = make(map[string]*Dependency)
+	for name, dependency := range service.Dependencies {
+		dependencies[name] = &Dependency{
+			Image:   dependency.Image,
+			Ports:   dependency.Ports,
+			Command: dependency.Command,
+			Volumes: dependency.Volumes,
+		}
+	}
+	return
 }
-
-// Dependencies is a list of Dependencies
-type Dependencies map[string]Dependency

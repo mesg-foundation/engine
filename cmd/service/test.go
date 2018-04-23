@@ -1,11 +1,7 @@
 package cmdService
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
-
-	"github.com/streadway/amqp"
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/application/service"
@@ -47,25 +43,11 @@ func testHandler(cmd *cobra.Command, args []string) {
 		fmt.Println("Calling task ", cmd.Flag("task").Value.String(), " with data ", cmd.Flag("data").Value.String())
 	}
 
-	err = service.ListenEvents(importedService, cmd.Flag("event").Value.String(), onEvent)
-	if err != nil {
-		panic(err)
-	}
+	// TODO: add listening
 
 	if cmd.Flag("keep-alive").Value.String() != "true" {
 		importedService.Stop()
 	}
-}
-
-func onEvent(event amqp.Delivery) {
-	var res interface{}
-	err := json.Unmarshal(event.Body, &res)
-
-	if err != nil {
-		log.Panic(err)
-	}
-
-	log.Printf("%v(%v) : %v", event.Exchange, event.RoutingKey, res)
 }
 
 func init() {
