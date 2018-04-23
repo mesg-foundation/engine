@@ -23,7 +23,7 @@ func TestEmit(t *testing.T) {
 	}
 	service := service.New(&protoService)
 
-	subscription := pubsub.Subscribe(service.EventSubscriptionKey())
+	subscription := pubsub.Subscribe(service.EventSubscriptionChannel())
 
 	go serveremit.Emit(context.Background(), &types.EmitEventRequest{
 		Service: &protoService,
