@@ -20,6 +20,7 @@ message ListenTaskRequest {
 }
 
 message TaskReply {
-  string task = 1;
-  string data = 2;
+  string error = 1;
+  string task = 2;
+  string data = 3;
 }
