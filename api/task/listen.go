@@ -9,10 +9,10 @@ import (
 func (s *Server) Listen(request *types.ListenTaskRequest, stream types.Task_ListenServer) (err error) {
 	service := service.New(request.Service)
 
-	onMessage := register(service)
+	subscription := subscribe(service)
 
-	for x := range onMessage {
-		stream.Send(x)
+	for data := range subscription {
+		stream.Send(data)
 	}
 
 	return

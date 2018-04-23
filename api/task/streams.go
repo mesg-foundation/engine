@@ -10,7 +10,7 @@ import (
 var listeners map[string][]chan *types.TaskReply
 var mu sync.Mutex
 
-func register(service *service.Service) (res chan *types.TaskReply) {
+func subscribe(service *service.Service) (res chan *types.TaskReply) {
 	res = make(chan *types.TaskReply)
 	mu.Lock()
 	defer mu.Unlock()
@@ -21,7 +21,7 @@ func register(service *service.Service) (res chan *types.TaskReply) {
 	return
 }
 
-func emit(service *service.Service, data *types.TaskReply) {
+func publish(service *service.Service, data *types.TaskReply) {
 	mu.Lock()
 	defer mu.Unlock()
 	for _, event := range listeners[service.Name] {
