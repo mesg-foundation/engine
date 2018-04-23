@@ -15,7 +15,7 @@ func (s *Server) Execute(ctx context.Context, request *types.ExecuteTaskRequest)
 		Task: request.Task,
 	}
 
-	go write(service, reply)
+	go emit(service, reply)
 
 	return
 }
