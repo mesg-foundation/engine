@@ -18,5 +18,5 @@ message StopServiceRequest {
 }
 
 message ServiceReply {
-
+  string error = 1;
 }
