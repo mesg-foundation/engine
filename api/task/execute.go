@@ -4,7 +4,6 @@ import (
 	"github.com/mesg-foundation/application/pubsub"
 	"github.com/mesg-foundation/application/service"
 	"github.com/mesg-foundation/application/types"
-	"github.com/mesg-foundation/application/utils/hash"
 	"golang.org/x/net/context"
 )
 
@@ -17,10 +16,7 @@ func (s *Server) Execute(ctx context.Context, request *types.ExecuteTaskRequest)
 		Task: request.Task,
 	}
 
-	go pubsub.Publish(hash.Calculate([]string{
-		service.Name,
-		"Task",
-	}), reply)
+	go pubsub.Publish(service.TaskSubscriptionKey(), reply)
 
 	return
 }
