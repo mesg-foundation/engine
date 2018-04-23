@@ -6,16 +6,18 @@ import (
 	"github.com/mesg-foundation/application/types"
 )
 
-// Listen for tasks
-func (s *Server) Listen(request *types.ListenTaskRequest, stream types.Task_ListenServer) (err error) {
+func getSubscription(request *types.ListenTaskRequest) (subscription chan pubsub.Message) {
 	service := service.New(request.Service)
 
-	subscription := pubsub.Subscribe(service.TaskSubscriptionKey())
+	subscription = pubsub.Subscribe(service.TaskSubscriptionKey())
+	return
+}
 
+// Listen for tasks
+func (s *Server) Listen(request *types.ListenTaskRequest, stream types.Task_ListenServer) (err error) {
+	subscription := getSubscription(request)
 	for data := range subscription {
-		taskReply := data.(*types.TaskReply)
-		stream.Send(taskReply)
+		stream.Send(data.(*types.TaskReply))
 	}
-
 	return
 }
