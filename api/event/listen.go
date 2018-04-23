@@ -1,15 +1,25 @@
 package event
 
 import (
-	"fmt"
+	"log"
 
+	"github.com/mesg-foundation/application/pubsub"
+	"github.com/mesg-foundation/application/service"
 	"github.com/mesg-foundation/application/types"
 )
 
 // Listen
 func (s *Server) Listen(request *types.ListenEventRequest, stream types.Event_ListenServer) (err error) {
-	// service := service.New(request.Service)
-	// stream.Send()
-	fmt.Println("receive listen request")
+	log.Println("Receive listen request", request)
+
+	service := service.New(request.Service)
+
+	subscription := pubsub.Subscribe(service.EventSubscriptionChannel())
+
+	for data := range subscription {
+		reply := data.(*types.EventReply)
+		stream.Send(reply)
+	}
+
 	return
 }
