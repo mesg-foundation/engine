@@ -24,6 +24,7 @@ It has these top-level messages:
 	ProtoTask
 	ProtoFee
 	ProtoEvent
+	ProtoOutput
 	ProtoParameter
 	ProtoDependency
 */
