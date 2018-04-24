@@ -2,7 +2,6 @@ package cmdService
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/service"
@@ -20,13 +19,6 @@ var Start = &cobra.Command{
 	Example:           `mesg-cli service start SERVICE_FOLDER`,
 	Run:               startHandler,
 	DisableAutoGenTag: true,
-}
-
-func handleError(err error) {
-	if err != nil {
-		fmt.Println(aurora.Red(err))
-		os.Exit(0)
-	}
 }
 
 func startHandler(cmd *cobra.Command, args []string) {
