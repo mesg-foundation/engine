@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"github.com/mesg-foundation/core/cmd/workflow"
-
 	"github.com/spf13/cobra"
 )
 
@@ -13,18 +11,19 @@ var Workflow = &cobra.Command{
 	DisableAutoGenTag: true,
 }
 
+// TODO this command is disabled for now waiting for the Workflow feature to be implemented
 func init() {
 
-	Workflow.AddCommand(cmdWorkflow.Pause)
-	Workflow.AddCommand(cmdWorkflow.Resume)
-	Workflow.AddCommand(cmdWorkflow.Deploy)
-	Workflow.AddCommand(cmdWorkflow.Test)
-	Workflow.AddCommand(cmdWorkflow.Validate)
-	Workflow.AddCommand(cmdWorkflow.List)
-	Workflow.AddCommand(cmdWorkflow.Kill)
-	Workflow.AddCommand(cmdWorkflow.Topup)
-	Workflow.AddCommand(cmdWorkflow.Log)
-	Workflow.AddCommand(cmdWorkflow.Detail)
+	// Workflow.AddCommand(cmdWorkflow.Pause)
+	// Workflow.AddCommand(cmdWorkflow.Resume)
+	// Workflow.AddCommand(cmdWorkflow.Deploy)
+	// Workflow.AddCommand(cmdWorkflow.Test)
+	// Workflow.AddCommand(cmdWorkflow.Validate)
+	// Workflow.AddCommand(cmdWorkflow.List)
+	// Workflow.AddCommand(cmdWorkflow.Kill)
+	// Workflow.AddCommand(cmdWorkflow.Topup)
+	// Workflow.AddCommand(cmdWorkflow.Log)
+	// Workflow.AddCommand(cmdWorkflow.Detail)
 
-	RootCmd.AddCommand(Workflow)
+	// RootCmd.AddCommand(Workflow)
 }
