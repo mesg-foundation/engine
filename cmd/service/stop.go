@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/logrusorgru/aurora"
-	"github.com/mesg-foundation/core/service"
 	"github.com/spf13/cobra"
 )
 
@@ -23,9 +22,8 @@ To have more explanation, see the page [stake explanation from the documentation
 }
 
 func stopHandler(cmd *cobra.Command, args []string) {
-	loadedService, err := service.ImportFromPath(defaultPath(args))
+	service := loadService(defaultPath(args))
+	err := service.Stop()
 	handleError(err)
-	err = loadedService.Stop()
-	handleError(err)
-	fmt.Println(aurora.Green("Service " + loadedService.Name + " stopped"))
+	fmt.Println(aurora.Green("Service " + service.Name + " stopped"))
 }

@@ -1,10 +1,6 @@
 package cmdService
 
 import (
-	"fmt"
-
-	"github.com/logrusorgru/aurora"
-	"github.com/mesg-foundation/core/service"
 	"github.com/spf13/cobra"
 )
 
@@ -22,13 +18,6 @@ var Start = &cobra.Command{
 }
 
 func startHandler(cmd *cobra.Command, args []string) {
-	loadedService, err := service.ImportFromPath(defaultPath(args))
-	handleError(err)
-	if loadedService.IsRunning() {
-		fmt.Println(aurora.Green("Service " + loadedService.Name + " is already running"))
-		return
-	}
-	_, err = loadedService.Start()
-	handleError(err)
-	fmt.Println(aurora.Green("Service " + loadedService.Name + " started"))
+	service := loadService(defaultPath(args))
+	startService(service)
 }

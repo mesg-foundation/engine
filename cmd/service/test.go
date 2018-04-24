@@ -1,11 +1,8 @@
 package cmdService
 
 import (
-	"fmt"
 	"log"
-	"os"
 
-	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/pubsub"
 	"github.com/mesg-foundation/core/service"
 	"github.com/spf13/cobra"
@@ -25,25 +22,6 @@ mesg-cli service test --task TASK_NAME --data ./PATH_TO_DATA_FILE.yml
 mesg-cli service test --keep-alive`,
 	Run:               testHandler,
 	DisableAutoGenTag: true,
-}
-
-func loadService(path string) (importedService *service.Service) {
-	importedService, err := service.ImportFromPath(path)
-	if err != nil {
-		fmt.Println(aurora.Red(err))
-		fmt.Println("Run the command 'service validate' to get detailed errors")
-		os.Exit(0)
-	}
-	return
-}
-
-func startService(service *service.Service) {
-	_, err := service.Start()
-	if err != nil {
-		fmt.Println(aurora.Red(err))
-		os.Exit(0)
-	}
-	fmt.Println(aurora.Green("Service started"))
 }
 
 func listenEvents(service *service.Service) (finished chan bool) {

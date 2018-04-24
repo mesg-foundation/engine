@@ -7,13 +7,13 @@ Show details of a published service
 Show details of a published service
 
 ```
-mesg-cli service detail SERVICE_ID [flags]
+mesg-cli service detail SERVICE_FOLDER [flags]
 ```
 
 ### Examples
 
 ```
-mesg-cli service detail SERVICE_ID
+mesg-cli service detail SERVICE_FOLDER
 ```
 
 ### Options
