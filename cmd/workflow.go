@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/mesg-foundation/application/cmd/workflow"
+	"github.com/mesg-foundation/core/cmd/workflow"
 
 	"github.com/spf13/cobra"
 )

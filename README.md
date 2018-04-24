@@ -7,9 +7,9 @@
 ### Download source
 
 ```bash
-mkdir -p $GOPATH/src/github.com/mesg-foundation/application
-cd $GOPATH/src/github.com/mesg-foundation/application
-git clone https://github.com/mesg-foundation/application.git ./
+mkdir -p $GOPATH/src/github.com/mesg-foundation/core
+cd $GOPATH/src/github.com/mesg-foundation/core
+git clone https://github.com/mesg-foundation/core.git ./
 ```
 
 ### Install dependencies

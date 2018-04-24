@@ -4,11 +4,11 @@ import (
 	"log"
 	"net"
 
-	"github.com/mesg-foundation/application/api/event"
-	"github.com/mesg-foundation/application/api/service"
-	"github.com/mesg-foundation/application/api/task"
-	"github.com/mesg-foundation/application/config"
-	"github.com/mesg-foundation/application/types"
+	"github.com/mesg-foundation/core/api/event"
+	"github.com/mesg-foundation/core/api/service"
+	"github.com/mesg-foundation/core/api/task"
+	"github.com/mesg-foundation/core/config"
+	"github.com/mesg-foundation/core/types"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )

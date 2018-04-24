@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/ethereum/go-ethereum/accounts"
-	"github.com/mesg-foundation/application/account"
+	"github.com/mesg-foundation/core/account"
 	"github.com/spf13/cobra"
 	survey "gopkg.in/AlecAivazis/survey.v1"
 )

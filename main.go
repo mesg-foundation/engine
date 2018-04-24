@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/mesg-foundation/application/cmd"
+	"github.com/mesg-foundation/core/cmd"
 	"github.com/spf13/cobra/doc"
 )
 
