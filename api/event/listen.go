@@ -3,9 +3,9 @@ package event
 import (
 	"log"
 
-	"github.com/mesg-foundation/application/pubsub"
-	"github.com/mesg-foundation/application/service"
-	"github.com/mesg-foundation/application/types"
+	"github.com/mesg-foundation/core/pubsub"
+	"github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/core/types"
 )
 
 func getSubscription(request *types.ListenEventRequest) (subscription chan pubsub.Message) {

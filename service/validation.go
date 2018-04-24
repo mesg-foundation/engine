@@ -33,7 +33,7 @@ func convert(i interface{}) interface{} {
 }
 
 // validServiceFileData returns a list of warnings (empty if no warning)
-// The all validation can be found in https://github.com/mesg-foundation/application/tree/dev/service/schema.json
+// The all validation can be found in https://github.com/mesg-foundation/core/tree/dev/service/schema.json
 func validServiceData(data []byte) (warnings []gojsonschema.ResultError, err error) {
 	var body interface{}
 	if err = yaml.Unmarshal(data, &body); err != nil {

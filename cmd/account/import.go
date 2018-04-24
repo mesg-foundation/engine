@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/logrusorgru/aurora"
-	"github.com/mesg-foundation/application/account"
+	"github.com/mesg-foundation/core/account"
 	survey "gopkg.in/AlecAivazis/survey.v1"
 
 	"github.com/spf13/cobra"

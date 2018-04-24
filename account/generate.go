@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/ethereum/go-ethereum/accounts"
-	"github.com/mesg-foundation/application/config"
+	"github.com/mesg-foundation/core/config"
 )
 
 // Generate create a new account based on a password

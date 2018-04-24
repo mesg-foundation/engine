@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/mesg-foundation/application/cmd/account"
+	"github.com/mesg-foundation/core/cmd/account"
 	"github.com/spf13/cobra"
 )
 

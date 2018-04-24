@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mesg-foundation/application/types"
+	"github.com/mesg-foundation/core/types"
 	"github.com/stvp/assert"
 )
 

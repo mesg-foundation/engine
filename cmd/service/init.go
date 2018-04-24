@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"github.com/logrusorgru/aurora"
-	"github.com/mesg-foundation/application/service"
-	"github.com/mesg-foundation/application/types"
+	"github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/core/types"
 	"github.com/spf13/cobra"
 	"gopkg.in/AlecAivazis/survey.v1"
 	"gopkg.in/yaml.v2"

@@ -3,7 +3,7 @@ package cmdUtils
 import (
 	"os"
 
-	"github.com/mesg-foundation/application/conversion"
+	"github.com/mesg-foundation/core/conversion"
 	"github.com/spf13/cobra"
 	survey "gopkg.in/AlecAivazis/survey.v1"
 )

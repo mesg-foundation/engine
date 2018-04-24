@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/mesg-foundation/application/api"
+	"github.com/mesg-foundation/core/api"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

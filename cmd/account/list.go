@@ -3,7 +3,7 @@ package cmdAccount
 import (
 	"fmt"
 
-	"github.com/mesg-foundation/application/account"
+	"github.com/mesg-foundation/core/account"
 	"github.com/spf13/cobra"
 )
 
