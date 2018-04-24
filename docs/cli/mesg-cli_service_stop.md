@@ -11,22 +11,19 @@ You will **NOT** get your stake back immediately. You will get your remaining st
 To have more explanation, see the page [stake explanation from the documentation]().
 
 ```
-mesg-cli service stop SERVICE_ID [flags]
+mesg-cli service stop SERVICE_FOLDER [flags]
 ```
 
 ### Examples
 
 ```
-mesg-cli service stop SERVICE_ID
-mesg-cli service stop SERVICE_ID --account ACCOUNT --confirm
+mesg-cli service stop SERVICE_FOLDER
 ```
 
 ### Options
 
 ```
-  -a, --account string   Account to use
-  -c, --confirm          Confirm
-  -h, --help             help for stop
+  -h, --help   help for stop
 ```
 
 ### SEE ALSO
