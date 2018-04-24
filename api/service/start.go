@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/mesg-foundation/application/service"
-	"github.com/mesg-foundation/application/types"
+	"github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/core/types"
 	"golang.org/x/net/context"
 )
 

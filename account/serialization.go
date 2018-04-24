@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/ethereum/go-ethereum/accounts"
-	"github.com/mesg-foundation/application/config"
+	"github.com/mesg-foundation/core/config"
 )
 
 // Import a file and return a Account object

@@ -3,7 +3,7 @@ package cmdWorkflow
 import (
 	"fmt"
 
-	"github.com/mesg-foundation/application/cmd/utils"
+	"github.com/mesg-foundation/core/cmd/utils"
 
 	"github.com/spf13/cobra"
 )

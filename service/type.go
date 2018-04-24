@@ -1,6 +1,6 @@
 package service
 
-import "github.com/mesg-foundation/application/types"
+import "github.com/mesg-foundation/core/types"
 
 // Visibility is the tags to set is the service is visible for whom
 type Visibility string
