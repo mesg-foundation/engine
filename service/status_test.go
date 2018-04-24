@@ -46,3 +46,21 @@ func TestStatusStoped(t *testing.T) {
 	assert.Equal(t, service.IsRunning(), false)
 	assert.Equal(t, service.IsStopped(), true)
 }
+
+func TestList(t *testing.T) {
+	if os.Getenv("CI") == "true" {
+		return
+	}
+	service := &Service{
+		Name: "TestStatusStoped",
+		Dependencies: map[string]*types.ProtoDependency{
+			"test": &types.ProtoDependency{
+				Image: "nginx",
+			},
+		},
+	}
+	list, err := List()
+	assert.Nil(t, err)
+	assert.Equal(t, len(list), 1)
+	assert.Equal(t, list[0], service.Name)
+}
