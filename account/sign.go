@@ -3,7 +3,7 @@ package account
 import (
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/mesg-foundation/application/config"
+	"github.com/mesg-foundation/core/config"
 )
 
 // sign some data based on an account

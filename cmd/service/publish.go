@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/logrusorgru/aurora"
-	"github.com/mesg-foundation/application/cmd/utils"
-	"github.com/mesg-foundation/application/service"
+	"github.com/mesg-foundation/core/cmd/utils"
+	"github.com/mesg-foundation/core/service"
 	"github.com/spf13/cobra"
 )
 

@@ -3,7 +3,7 @@ package service
 import (
 	"strings"
 
-	"github.com/mesg-foundation/application/utils/hash"
+	"github.com/mesg-foundation/core/utils/hash"
 )
 
 // NAMESPACE is the namespace used for the docker services

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mesg-foundation/application/cmd/utils"
+	"github.com/mesg-foundation/core/cmd/utils"
 
 	"github.com/spf13/cobra"
 	survey "gopkg.in/AlecAivazis/survey.v1"
