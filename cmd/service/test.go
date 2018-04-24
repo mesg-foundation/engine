@@ -2,8 +2,11 @@ package cmdService
 
 import (
 	"fmt"
+	"log"
+	"os"
 
 	"github.com/logrusorgru/aurora"
+	"github.com/mesg-foundation/core/pubsub"
 	"github.com/mesg-foundation/core/service"
 	"github.com/spf13/cobra"
 )
@@ -24,35 +27,55 @@ mesg-cli service test --keep-alive`,
 	DisableAutoGenTag: true,
 }
 
-func testHandler(cmd *cobra.Command, args []string) {
-	importedService, err := service.ImportFromPath(defaultPath(args))
+func loadService(path string) (importedService *service.Service) {
+	importedService, err := service.ImportFromPath(path)
 	if err != nil {
 		fmt.Println(aurora.Red(err))
 		fmt.Println("Run the command 'service validate' to get detailed errors")
-		return
+		os.Exit(0)
 	}
+	return
+}
 
-	_, err = importedService.Start()
+func startService(service *service.Service) {
+	_, err := service.Start()
 	if err != nil {
 		fmt.Println(aurora.Red(err))
-		return
+		os.Exit(0)
 	}
 	fmt.Println(aurora.Green("Service started"))
+}
 
-	if cmd.Flag("task").Value.String() != "" {
-		fmt.Println("Calling task ", cmd.Flag("task").Value.String(), " with data ", cmd.Flag("data").Value.String())
-	}
+func listenEvents(service *service.Service) (finished chan bool) {
+	listener := pubsub.Subscribe(service.EventSubscriptionChannel())
+	finished = make(chan bool)
+	go func() {
+		for event := range listener {
+			log.Println(event)
+		}
+	}()
+	return
+}
 
-	// TODO: add listening
+func testHandler(cmd *cobra.Command, args []string) {
+	service := loadService(defaultPath(args))
+	finished := listenEvents(service)
 
-	if cmd.Flag("keep-alive").Value.String() != "true" {
-		importedService.Stop()
-	}
+	startService(service)
+	<-finished
+
+	// if cmd.Flag("task").Value.String() != "" {
+	// 	fmt.Println("Calling task ", cmd.Flag("task").Value.String(), " with data ", cmd.Flag("data").Value.String())
+	// }
+
+	// if cmd.Flag("keep-alive").Value.String() != "true" {
+	// 	service.Stop()
+	// }
 }
 
 func init() {
 	Test.Flags().StringP("event", "e", "*", "Only log a specific event")
-	Test.Flags().StringP("task", "t", "", "Run a specific task")
-	Test.Flags().StringP("data", "d", "", "Path to the file containing the data required to run the task")
-	Test.Flags().BoolP("keep-alive", "", false, "Leave the service runs after the end of the test")
+	// Test.Flags().StringP("task", "t", "", "Run a specific task")
+	// Test.Flags().StringP("data", "d", "", "Path to the file containing the data required to run the task")
+	// Test.Flags().BoolP("keep-alive", "", false, "Leave the service runs after the end of the test")
 }
