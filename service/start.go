@@ -24,7 +24,11 @@ func (service *Service) Start() (dockerServices []*swarm.Service, err error) {
 	dockerServices = make([]*swarm.Service, len(service.GetDependencies()))
 	i := 0
 	for name, dependency := range service.GetDependencies() {
-		dockerServices[i], err = dependency.Start(service.namespace(), name, network)
+		dockerServices[i], err = dependency.Start(dependencyDetails{
+			namespace:      service.namespace(),
+			dependencyName: name,
+			serviceName:    service.Name,
+		}, network)
 		i++
 		if err != nil {
 			break
@@ -37,8 +41,14 @@ func (service *Service) Start() (dockerServices []*swarm.Service, err error) {
 	return
 }
 
+type dependencyDetails struct {
+	namespace      string
+	dependencyName string
+	serviceName    string
+}
+
 // Start will start a dependency container
-func (dependency *Dependency) Start(namespace string, serviceName string, network *docker.Network) (dockerService *swarm.Service, err error) {
+func (dependency *Dependency) Start(details dependencyDetails, network *docker.Network) (dockerService *swarm.Service, err error) {
 	cli, err := dockerCli()
 	if err != nil {
 		return
@@ -49,10 +59,11 @@ func (dependency *Dependency) Start(namespace string, serviceName string, networ
 	return cli.CreateService(docker.CreateServiceOptions{
 		ServiceSpec: swarm.ServiceSpec{
 			Annotations: swarm.Annotations{
-				Name: strings.Join([]string{namespace, serviceName}, "_"),
+				Name: strings.Join([]string{details.namespace, details.dependencyName}, "_"),
 				Labels: map[string]string{
 					"com.docker.stack.image":     dependency.Image,
-					"com.docker.stack.namespace": namespace,
+					"com.docker.stack.namespace": details.namespace,
+					"mesg.service":               details.serviceName,
 				},
 			},
 			TaskTemplate: swarm.TaskSpec{
@@ -60,7 +71,7 @@ func (dependency *Dependency) Start(namespace string, serviceName string, networ
 					Image: dependency.Image,
 					Args:  strings.Fields(dependency.Command),
 					Labels: map[string]string{
-						"com.docker.stack.namespace": namespace,
+						"com.docker.stack.namespace": details.namespace,
 					},
 				},
 			},

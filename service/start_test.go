@@ -85,7 +85,11 @@ func TestStartDependency(t *testing.T) {
 	name := "test"
 	dependency := Dependency{Image: "nginx"}
 	network, err := createNetwork(namespace)
-	dockerService, err := dependency.Start(namespace, name, network)
+	dockerService, err := dependency.Start(dependencyDetails{
+		namespace:      namespace,
+		dependencyName: name,
+		serviceName:    "TestStartDependency",
+	}, network)
 	assert.Nil(t, err)
 	assert.NotNil(t, dockerService)
 	assert.Equal(t, dependency.IsRunning(namespace, name), true)
