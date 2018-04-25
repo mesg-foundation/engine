@@ -5,7 +5,10 @@ package types;
 import "service.proto";
 
 service Task {
+  // Core
   rpc Execute (ExecuteTaskRequest) returns (TaskReply) {}
+  
+  // Service
   rpc Listen (ListenTaskRequest) returns (stream TaskReply) {}
 }
 
@@ -17,6 +20,13 @@ message ExecuteTaskRequest {
 
 message ListenTaskRequest {
   ProtoService service = 1;
+}
+
+message SubmitTaskRequest {
+  ProtoService service = 1;
+  string task = 2;
+  string output = 3;
+  string data = 4;
 }
 
 message TaskReply {
