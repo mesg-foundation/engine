@@ -24,7 +24,7 @@ type StartServiceRequest struct {
 func (m *StartServiceRequest) Reset()                    { *m = StartServiceRequest{} }
 func (m *StartServiceRequest) String() string            { return proto.CompactTextString(m) }
 func (*StartServiceRequest) ProtoMessage()               {}
-func (*StartServiceRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{0} }
+func (*StartServiceRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{0} }
 
 func (m *StartServiceRequest) GetService() *ProtoService {
 	if m != nil {
@@ -40,7 +40,7 @@ type StopServiceRequest struct {
 func (m *StopServiceRequest) Reset()                    { *m = StopServiceRequest{} }
 func (m *StopServiceRequest) String() string            { return proto.CompactTextString(m) }
 func (*StopServiceRequest) ProtoMessage()               {}
-func (*StopServiceRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{1} }
+func (*StopServiceRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{1} }
 
 func (m *StopServiceRequest) GetService() *ProtoService {
 	if m != nil {
@@ -56,7 +56,7 @@ type ServiceReply struct {
 func (m *ServiceReply) Reset()                    { *m = ServiceReply{} }
 func (m *ServiceReply) String() string            { return proto.CompactTextString(m) }
 func (*ServiceReply) ProtoMessage()               {}
-func (*ServiceReply) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{2} }
+func (*ServiceReply) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{2} }
 
 func (m *ServiceReply) GetError() string {
 	if m != nil {
@@ -82,6 +82,7 @@ const _ = grpc.SupportPackageIsVersion4
 // Client API for Service service
 
 type ServiceClient interface {
+	// Application
 	Start(ctx context.Context, in *StartServiceRequest, opts ...grpc.CallOption) (*ServiceReply, error)
 	Stop(ctx context.Context, in *StopServiceRequest, opts ...grpc.CallOption) (*ServiceReply, error)
 }
@@ -115,6 +116,7 @@ func (c *serviceClient) Stop(ctx context.Context, in *StopServiceRequest, opts .
 // Server API for Service service
 
 type ServiceServer interface {
+	// Application
 	Start(context.Context, *StartServiceRequest) (*ServiceReply, error)
 	Stop(context.Context, *StopServiceRequest) (*ServiceReply, error)
 }
@@ -176,9 +178,9 @@ var _Service_serviceDesc = grpc.ServiceDesc{
 	Metadata: "api_service.proto",
 }
 
-func init() { proto.RegisterFile("api_service.proto", fileDescriptor1) }
+func init() { proto.RegisterFile("api_service.proto", fileDescriptor2) }
 
-var fileDescriptor1 = []byte{
+var fileDescriptor2 = []byte{
 	// 178 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x12, 0x4c, 0x2c, 0xc8, 0x8c,
 	0x2f, 0x4e, 0x2d, 0x2a, 0xcb, 0x4c, 0x4e, 0xd5, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x2d,
