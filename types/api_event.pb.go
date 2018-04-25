@@ -6,6 +6,7 @@ Package types is a generated protocol buffer package.
 
 It is generated from these files:
 	api_event.proto
+	api_result.proto
 	api_service.proto
 	api_task.proto
 	service.proto
@@ -14,6 +15,9 @@ It has these top-level messages:
 	EmitEventRequest
 	ListenEventRequest
 	EventReply
+	SubmitResultRequest
+	ListenResultRequest
+	ResultReply
 	StartServiceRequest
 	StopServiceRequest
 	ServiceReply
@@ -147,7 +151,9 @@ const _ = grpc.SupportPackageIsVersion4
 // Client API for Event service
 
 type EventClient interface {
+	// Service
 	Emit(ctx context.Context, in *EmitEventRequest, opts ...grpc.CallOption) (*EventReply, error)
+	// Application
 	Listen(ctx context.Context, in *ListenEventRequest, opts ...grpc.CallOption) (Event_ListenClient, error)
 }
 
@@ -203,7 +209,9 @@ func (x *eventListenClient) Recv() (*EventReply, error) {
 // Server API for Event service
 
 type EventServer interface {
+	// Service
 	Emit(context.Context, *EmitEventRequest) (*EventReply, error)
+	// Application
 	Listen(*ListenEventRequest, Event_ListenServer) error
 }
 
