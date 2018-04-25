@@ -3,8 +3,13 @@ package cmdService
 import (
 	"log"
 
+	"github.com/mesg-foundation/core/cmd/utils"
+
+	"github.com/logrusorgru/aurora"
+	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/pubsub"
 	"github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/core/types"
 	"github.com/spf13/cobra"
 )
 
@@ -24,23 +29,39 @@ mesg-cli service test --keep-alive`,
 	DisableAutoGenTag: true,
 }
 
-func listenEvents(service *service.Service) (finished chan bool) {
+func listenEvents(service *service.Service, callback func(event *types.EventReply)) {
 	listener := pubsub.Subscribe(service.EventSubscriptionChannel())
-	finished = make(chan bool)
 	go func() {
 		for event := range listener {
-			log.Println(event)
+			callback(event.(*types.EventReply))
 		}
 	}()
 	return
 }
 
+func startServer() {
+	server := api.Server{}
+	err := server.Serve()
+	defer server.Stop()
+	if err != nil {
+		log.Panicln(err)
+	}
+}
+
 func testHandler(cmd *cobra.Command, args []string) {
 	service := loadService(defaultPath(args))
-	finished := listenEvents(service)
 
-	startService(service)
-	<-finished
+	go startServer()
+	go listenEvents(service, func(event *types.EventReply) {
+		filter := cmd.Flag("event").Value.String()
+		if filter == "*" || filter == event.Event {
+			log.Println("Receive event", aurora.Green(event.Event), ":", aurora.Bold(event.Data))
+		}
+	})
+	go startService(service)
+	defer service.Stop()
+
+	<-cmdUtils.WaitForCancel()
 
 	// if cmd.Flag("task").Value.String() != "" {
 	// 	fmt.Println("Calling task ", cmd.Flag("task").Value.String(), " with data ", cmd.Flag("data").Value.String())
