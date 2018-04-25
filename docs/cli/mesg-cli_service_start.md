@@ -7,24 +7,19 @@ Start a service
 Start a service from the published available services. You have to provide a stake value and duration.
 
 ```
-mesg-cli service start SERVICE_ID [flags]
+mesg-cli service start SERVICE_FOLDER [flags]
 ```
 
 ### Examples
 
 ```
-mesg-cli service start SERVICE_ID
-mesg-cli service start SERVICE_ID --stake STAKE --duration DURATION  --account ACCOUNT --confirm
+mesg-cli service start SERVICE_FOLDER
 ```
 
 ### Options
 
 ```
-  -a, --account string   Account to use
-  -c, --confirm          Confirm
-  -d, --duration int     The duration you will be running this service
-  -h, --help             help for start
-  -s, --stake float      The amount to stake
+  -h, --help   help for start
 ```
 
 ### SEE ALSO

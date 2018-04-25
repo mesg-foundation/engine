@@ -1,9 +1,11 @@
 package service
 
 import (
+	"context"
 	"strings"
 
 	"github.com/docker/docker/api/types/swarm"
+	docker "github.com/fsouza/go-dockerclient"
 )
 
 // StatusType of the service
@@ -69,5 +71,23 @@ func (dependency *Dependency) IsRunning(namespace string, name string) (running 
 // IsStopped returns true if the dependency is stopped, false otherwise
 func (dependency *Dependency) IsStopped(namespace string, name string) (running bool) {
 	running = dependencyStatus(namespace, name) == STOPPED
+	return
+}
+
+// List all the running services
+func List() (res []string, err error) {
+	cli, err := dockerCli()
+	services, err := cli.ListServices(docker.ListServicesOptions{
+		Context: context.Background(),
+	})
+	mapRes := make(map[string]uint)
+	for _, service := range services {
+		serviceName := service.Spec.Annotations.Labels["mesg.service"]
+		mapRes[serviceName]++
+	}
+	res = make([]string, 0, len(mapRes))
+	for k := range mapRes {
+		res = append(res, k)
+	}
 	return
 }
