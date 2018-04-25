@@ -1,10 +1,10 @@
 ## mesg-cli service status
 
-List started and paused services
+List started services
 
 ### Synopsis
 
-List started and paused services
+List started services
 
 ```
 mesg-cli service status [flags]

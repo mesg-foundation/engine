@@ -53,7 +53,11 @@ func TestStopDependency(t *testing.T) {
 	name := "test"
 	dependency := Dependency{Image: "nginx"}
 	network, err := createNetwork(namespace)
-	dependency.Start(namespace, name, network)
+	dependency.Start(dependencyDetails{
+		namespace:      namespace,
+		dependencyName: name,
+		serviceName:    "TestStopDependency",
+	}, network)
 	err = dependency.Stop(namespace, name)
 	assert.Nil(t, err)
 	assert.Equal(t, dependency.IsStopped(namespace, name), true)

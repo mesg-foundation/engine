@@ -28,9 +28,10 @@ func beerHandler(cmd *cobra.Command, args []string) {
 	}
 }
 
+// TODO this command is disabled for now waiting for the transfer feature to be implemented
 func init() {
-	RootCmd.AddCommand(Beer)
-	cmdUtils.Accountable(Beer)
-	cmdUtils.Payable(Beer)
-	cmdUtils.Confirmable(Beer)
+	// RootCmd.AddCommand(Beer)
+	// cmdUtils.Accountable(Beer)
+	// cmdUtils.Payable(Beer)
+	// cmdUtils.Confirmable(Beer)
 }

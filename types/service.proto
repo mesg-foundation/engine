@@ -19,7 +19,7 @@ message ProtoTask {
   bool payable = 4;
   ProtoFee fees = 5;
   map<string, ProtoParameter> inputs = 6;
-  map<string, ProtoParameter> outputs = 7;
+  map<string, ProtoOutput> outputs = 7;
 }
 
 message ProtoFee {
@@ -30,6 +30,12 @@ message ProtoFee {
 }
 
 message ProtoEvent {
+  string name = 1;
+  string description = 2;
+  map<string, ProtoParameter> data = 3;
+}
+
+message ProtoOutput {
   string name = 1;
   string description = 2;
   map<string, ProtoParameter> data = 3;
