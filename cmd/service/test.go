@@ -1,9 +1,13 @@
 package cmdService
 
 import (
+	"context"
+	"io/ioutil"
 	"log"
 
 	"github.com/mesg-foundation/core/cmd/utils"
+	"github.com/mesg-foundation/core/config"
+	"google.golang.org/grpc"
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/api"
@@ -48,6 +52,29 @@ func startServer() {
 	}
 }
 
+func executeTask(service *service.Service, task string, dataPath string) (reply *types.TaskReply, err error) {
+	connection, err := grpc.Dial(config.Api.Client.Target(), grpc.WithInsecure())
+	if err != nil {
+		return
+	}
+
+	data, err := ioutil.ReadFile(dataPath)
+	if err != nil {
+		return
+	}
+
+	cli := types.NewTaskClient(connection)
+	reply, err = cli.Execute(context.Background(), &types.ExecuteTaskRequest{
+		Service: &types.ProtoService{
+			Name: service.Name,
+		},
+		Task: task,
+		Data: string(data),
+	})
+	log.Println("Execute task", task, "with data", string(data))
+	return
+}
+
 func testHandler(cmd *cobra.Command, args []string) {
 	service := loadService(defaultPath(args))
 
@@ -58,23 +85,22 @@ func testHandler(cmd *cobra.Command, args []string) {
 			log.Println("Receive event", aurora.Green(event.Event), ":", aurora.Bold(event.Data))
 		}
 	})
-	go startService(service)
+	startService(service)
+	log.Println(aurora.Green("Service started"))
 	defer service.Stop()
+	task := cmd.Flag("task").Value.String()
+	if task != "" {
+		_, err := executeTask(service, task, cmd.Flag("data").Value.String())
+		if err != nil {
+			log.Println(aurora.Red(err))
+		}
+	}
 
 	<-cmdUtils.WaitForCancel()
-
-	// if cmd.Flag("task").Value.String() != "" {
-	// 	fmt.Println("Calling task ", cmd.Flag("task").Value.String(), " with data ", cmd.Flag("data").Value.String())
-	// }
-
-	// if cmd.Flag("keep-alive").Value.String() != "true" {
-	// 	service.Stop()
-	// }
 }
 
 func init() {
 	Test.Flags().StringP("event", "e", "*", "Only log a specific event")
-	// Test.Flags().StringP("task", "t", "", "Run a specific task")
-	// Test.Flags().StringP("data", "d", "", "Path to the file containing the data required to run the task")
-	// Test.Flags().BoolP("keep-alive", "", false, "Leave the service runs after the end of the test")
+	Test.Flags().StringP("task", "t", "", "Run a specific task")
+	Test.Flags().StringP("data", "d", "", "Path to the file containing the data required to run the task")
 }
