@@ -5,6 +5,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/mesg-foundation/core/cmd/utils"
+
 	"github.com/mesg-foundation/core/api"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
@@ -54,14 +56,13 @@ func initConfig() {
 
 func rootHandler(cmd *cobra.Command, args []string) {
 	log.Println("Starting MESG daemon")
-	done := make(chan bool)
 	server := api.Server{}
 	go func() {
 		err := server.Serve()
+		defer server.Stop()
 		if err != nil {
 			log.Panicln(err)
 		}
-		done <- true
 	}()
-	<-done
+	<-cmdUtils.WaitForCancel()
 }
