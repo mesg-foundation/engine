@@ -39,5 +39,4 @@ func startService(service *service.Service) {
 		fmt.Println(aurora.Red(err))
 		os.Exit(0)
 	}
-	fmt.Println(aurora.Green("Service started"))
 }
