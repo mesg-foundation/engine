@@ -5,6 +5,7 @@ import (
 	"net"
 
 	"github.com/mesg-foundation/core/api/event"
+	"github.com/mesg-foundation/core/api/result"
 	"github.com/mesg-foundation/core/api/service"
 	"github.com/mesg-foundation/core/api/task"
 	"github.com/mesg-foundation/core/config"
@@ -71,8 +72,8 @@ func (s *Server) register() {
 
 	types.RegisterServiceServer(s.instance, &service.Server{})
 	types.RegisterEventServer(s.instance, &event.Server{})
-	// s.instance.RegisterService(&service.Descriptions, service.ServerInstance)
 	types.RegisterTaskServer(s.instance, &task.Server{})
+	types.RegisterResultServer(s.instance, &result.Server{})
 
 	reflection.Register(s.instance)
 }

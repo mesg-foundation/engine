@@ -26,7 +26,7 @@ type ExecuteTaskRequest struct {
 func (m *ExecuteTaskRequest) Reset()                    { *m = ExecuteTaskRequest{} }
 func (m *ExecuteTaskRequest) String() string            { return proto.CompactTextString(m) }
 func (*ExecuteTaskRequest) ProtoMessage()               {}
-func (*ExecuteTaskRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{0} }
+func (*ExecuteTaskRequest) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0} }
 
 func (m *ExecuteTaskRequest) GetService() *ProtoService {
 	if m != nil {
@@ -56,7 +56,7 @@ type ListenTaskRequest struct {
 func (m *ListenTaskRequest) Reset()                    { *m = ListenTaskRequest{} }
 func (m *ListenTaskRequest) String() string            { return proto.CompactTextString(m) }
 func (*ListenTaskRequest) ProtoMessage()               {}
-func (*ListenTaskRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{1} }
+func (*ListenTaskRequest) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{1} }
 
 func (m *ListenTaskRequest) GetService() *ProtoService {
 	if m != nil {
@@ -74,7 +74,7 @@ type TaskReply struct {
 func (m *TaskReply) Reset()                    { *m = TaskReply{} }
 func (m *TaskReply) String() string            { return proto.CompactTextString(m) }
 func (*TaskReply) ProtoMessage()               {}
-func (*TaskReply) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{2} }
+func (*TaskReply) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{2} }
 
 func (m *TaskReply) GetError() string {
 	if m != nil {
@@ -114,8 +114,10 @@ const _ = grpc.SupportPackageIsVersion4
 // Client API for Task service
 
 type TaskClient interface {
-	Execute(ctx context.Context, in *ExecuteTaskRequest, opts ...grpc.CallOption) (*TaskReply, error)
+	// Service
 	Listen(ctx context.Context, in *ListenTaskRequest, opts ...grpc.CallOption) (Task_ListenClient, error)
+	// Application
+	Execute(ctx context.Context, in *ExecuteTaskRequest, opts ...grpc.CallOption) (*TaskReply, error)
 }
 
 type taskClient struct {
@@ -124,15 +126,6 @@ type taskClient struct {
 
 func NewTaskClient(cc *grpc.ClientConn) TaskClient {
 	return &taskClient{cc}
-}
-
-func (c *taskClient) Execute(ctx context.Context, in *ExecuteTaskRequest, opts ...grpc.CallOption) (*TaskReply, error) {
-	out := new(TaskReply)
-	err := grpc.Invoke(ctx, "/types.Task/Execute", in, out, c.cc, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *taskClient) Listen(ctx context.Context, in *ListenTaskRequest, opts ...grpc.CallOption) (Task_ListenClient, error) {
@@ -167,33 +160,26 @@ func (x *taskListenClient) Recv() (*TaskReply, error) {
 	return m, nil
 }
 
+func (c *taskClient) Execute(ctx context.Context, in *ExecuteTaskRequest, opts ...grpc.CallOption) (*TaskReply, error) {
+	out := new(TaskReply)
+	err := grpc.Invoke(ctx, "/types.Task/Execute", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for Task service
 
 type TaskServer interface {
-	Execute(context.Context, *ExecuteTaskRequest) (*TaskReply, error)
+	// Service
 	Listen(*ListenTaskRequest, Task_ListenServer) error
+	// Application
+	Execute(context.Context, *ExecuteTaskRequest) (*TaskReply, error)
 }
 
 func RegisterTaskServer(s *grpc.Server, srv TaskServer) {
 	s.RegisterService(&_Task_serviceDesc, srv)
-}
-
-func _Task_Execute_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ExecuteTaskRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TaskServer).Execute(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/types.Task/Execute",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TaskServer).Execute(ctx, req.(*ExecuteTaskRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _Task_Listen_Handler(srv interface{}, stream grpc.ServerStream) error {
@@ -217,6 +203,24 @@ func (x *taskListenServer) Send(m *TaskReply) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _Task_Execute_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExecuteTaskRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TaskServer).Execute(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/types.Task/Execute",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TaskServer).Execute(ctx, req.(*ExecuteTaskRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Task_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "types.Task",
 	HandlerType: (*TaskServer)(nil),
@@ -236,9 +240,9 @@ var _Task_serviceDesc = grpc.ServiceDesc{
 	Metadata: "api_task.proto",
 }
 
-func init() { proto.RegisterFile("api_task.proto", fileDescriptor2) }
+func init() { proto.RegisterFile("api_task.proto", fileDescriptor3) }
 
-var fileDescriptor2 = []byte{
+var fileDescriptor3 = []byte{
 	// 221 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x4b, 0x2c, 0xc8, 0x8c,
 	0x2f, 0x49, 0x2c, 0xce, 0xd6, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x2d, 0xa9, 0x2c, 0x48,
@@ -250,8 +254,8 @@ var fileDescriptor2 = []byte{
 	0x92, 0x44, 0x09, 0x66, 0x88, 0x18, 0x88, 0xad, 0xe4, 0xc4, 0x25, 0xe8, 0x93, 0x59, 0x5c, 0x92,
 	0x9a, 0x47, 0xbe, 0x5d, 0x4a, 0x9e, 0x5c, 0x9c, 0x10, 0xdd, 0x05, 0x39, 0x95, 0x42, 0x22, 0x5c,
 	0xac, 0xa9, 0x45, 0x45, 0xf9, 0x45, 0x60, 0x9d, 0x9c, 0x41, 0x10, 0x0e, 0xb1, 0xce, 0x31, 0xaa,
-	0xe2, 0x62, 0x01, 0x19, 0x25, 0x64, 0xc1, 0xc5, 0x0e, 0x0d, 0x03, 0x21, 0x49, 0xa8, 0xdd, 0x98,
-	0x61, 0x22, 0x25, 0x00, 0x95, 0x82, 0xdb, 0xae, 0xc4, 0x20, 0x64, 0xc1, 0xc5, 0x06, 0xf1, 0x90,
-	0x90, 0x04, 0x54, 0x16, 0xc3, 0x7f, 0xd8, 0xf4, 0x19, 0x30, 0x26, 0xb1, 0x81, 0x83, 0xdf, 0x18,
-	0x10, 0x00, 0x00, 0xff, 0xff, 0xed, 0xf7, 0x0c, 0x60, 0xa6, 0x01, 0x00, 0x00,
+	0xe2, 0x62, 0x01, 0x19, 0x25, 0x64, 0xc1, 0xc5, 0x06, 0x71, 0x96, 0x90, 0x04, 0xd4, 0x6a, 0x0c,
+	0x57, 0x4a, 0x09, 0x40, 0x65, 0xe0, 0x76, 0x2b, 0x31, 0x18, 0x30, 0x0a, 0x59, 0x70, 0xb1, 0x43,
+	0x43, 0x4f, 0x48, 0x12, 0xaa, 0x00, 0x33, 0x34, 0xb1, 0xe9, 0x4d, 0x62, 0x03, 0x07, 0xbf, 0x31,
+	0x20, 0x00, 0x00, 0xff, 0xff, 0xbc, 0xd0, 0x35, 0x34, 0xa6, 0x01, 0x00, 0x00,
 }

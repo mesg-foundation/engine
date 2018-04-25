@@ -5,7 +5,7 @@ package types;
 import "service.proto";
 
 service Service {
-  // Core
+  // Application
   rpc Start (StartServiceRequest) returns (ServiceReply) {}
   rpc Stop (StopServiceRequest) returns (ServiceReply) {}
 }
