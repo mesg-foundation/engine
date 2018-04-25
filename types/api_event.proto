@@ -8,7 +8,7 @@ service Event {
   // Service
   rpc Emit (EmitEventRequest) returns (EventReply) {}
 
-  // Core
+  // Application
   rpc Listen (ListenEventRequest) returns (stream EventReply) {}
 }
 

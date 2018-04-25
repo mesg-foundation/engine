@@ -10,6 +10,7 @@ import (
 const NAMESPACE string = "MESG"
 const eventChannel string = "Event"
 const taskChannel string = "Task"
+const resultChannel string = "Result"
 
 func (service *Service) namespace() string {
 	return strings.Join([]string{
@@ -31,5 +32,13 @@ func (service *Service) TaskSubscriptionChannel() string {
 	return hash.Calculate([]string{
 		service.namespace(),
 		taskChannel,
+	})
+}
+
+// ResultSubscriptionChannel returns the channel to listen for tasks from this service
+func (service *Service) ResultSubscriptionChannel() string {
+	return hash.Calculate([]string{
+		service.namespace(),
+		resultChannel,
 	})
 }
