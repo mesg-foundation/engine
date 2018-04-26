@@ -3,6 +3,7 @@ package service
 import (
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/docker/docker/api/types/swarm"
 	"github.com/stvp/assert"
@@ -34,6 +35,10 @@ func TestGetDockerService(t *testing.T) {
 	name := "test"
 	dependency := Dependency{Image: "nginx"}
 	network, err := createNetwork(namespace)
+	// TODO: remove, this is just for testing
+	assert.Nil(t, err)
+	assert.NotNil(t, network)
+	time.Sleep(1 * time.Second)
 	dependency.Start(dependencyDetails{
 		namespace:      namespace,
 		dependencyName: name,
