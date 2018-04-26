@@ -1,10 +1,21 @@
 package cmdService
 
 import (
+	"context"
+	"io/ioutil"
 	"log"
+	"math/rand"
+	"strconv"
+	"time"
 
+	"github.com/mesg-foundation/core/cmd/utils"
+	"google.golang.org/grpc"
+
+	"github.com/logrusorgru/aurora"
+	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/pubsub"
 	"github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/core/types"
 	"github.com/spf13/cobra"
 )
 
@@ -24,36 +35,80 @@ mesg-cli service test --keep-alive`,
 	DisableAutoGenTag: true,
 }
 
-func listenEvents(service *service.Service) (finished chan bool) {
+var random = rand.New(rand.NewSource(time.Now().UnixNano()))
+var serverPort = ":" + strconv.FormatInt(50000+random.Int63n(100)+100, 10) // Random between 50100 and 50199
+var serverAddress = "localhost" + serverPort
+
+func listenEvents(service *service.Service, callback func(event *types.EventReply)) {
 	listener := pubsub.Subscribe(service.EventSubscriptionChannel())
-	finished = make(chan bool)
 	go func() {
 		for event := range listener {
-			log.Println(event)
+			callback(event.(*types.EventReply))
 		}
 	}()
 	return
 }
 
+func startServer() {
+	server := api.Server{
+		Address: serverPort,
+	}
+	err := server.Serve()
+	defer server.Stop()
+	if err != nil {
+		log.Panicln(err)
+	}
+}
+
+func executeTask(service *service.Service, task string, dataPath string) (reply *types.TaskReply, err error) {
+	connection, err := grpc.Dial(serverAddress, grpc.WithInsecure())
+	if err != nil {
+		return
+	}
+
+	data, err := ioutil.ReadFile(dataPath)
+	if err != nil {
+		return
+	}
+
+	cli := types.NewTaskClient(connection)
+	reply, err = cli.Execute(context.Background(), &types.ExecuteTaskRequest{
+		Service: &types.ProtoService{
+			Name: service.Name,
+		},
+		Task: task,
+		Data: string(data),
+	})
+	log.Println("Execute task", task, "with data", string(data))
+	return
+}
+
 func testHandler(cmd *cobra.Command, args []string) {
 	service := loadService(defaultPath(args))
-	finished := listenEvents(service)
 
+	go startServer()
+	go listenEvents(service, func(event *types.EventReply) {
+		filter := cmd.Flag("event").Value.String()
+		if filter == "*" || filter == event.Event {
+			log.Println("Receive event", aurora.Green(event.Event), ":", aurora.Bold(event.Data))
+		}
+	})
 	startService(service)
-	<-finished
+	log.Println(aurora.Green("Service started"))
+	defer service.Stop()
+	task := cmd.Flag("task").Value.String()
+	if task != "" {
+		_, err := executeTask(service, task, cmd.Flag("data").Value.String())
+		if err != nil {
+			log.Println(aurora.Red(err))
+		}
+	}
 
-	// if cmd.Flag("task").Value.String() != "" {
-	// 	fmt.Println("Calling task ", cmd.Flag("task").Value.String(), " with data ", cmd.Flag("data").Value.String())
-	// }
-
-	// if cmd.Flag("keep-alive").Value.String() != "true" {
-	// 	service.Stop()
-	// }
+	<-cmdUtils.WaitForCancel()
 }
 
 func init() {
 	Test.Flags().StringP("event", "e", "*", "Only log a specific event")
-	// Test.Flags().StringP("task", "t", "", "Run a specific task")
-	// Test.Flags().StringP("data", "d", "", "Path to the file containing the data required to run the task")
-	// Test.Flags().BoolP("keep-alive", "", false, "Leave the service runs after the end of the test")
+	Test.Flags().StringP("task", "t", "", "Run a specific task")
+	Test.Flags().StringP("data", "d", "", "Path to the file containing the data required to run the task")
 }

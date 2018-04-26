@@ -9,14 +9,14 @@ import (
 
 // Execute a task
 func (s *Server) Execute(ctx context.Context, request *types.ExecuteTaskRequest) (reply *types.TaskReply, err error) {
-	service := service.New(request.Service)
+	channel := service.New(request.Service).TaskSubscriptionChannel()
 
 	reply = &types.TaskReply{
 		Task: request.Task,
 		Data: request.Data,
 	}
 
-	go pubsub.Publish(service.TaskSubscriptionChannel(), reply)
+	go pubsub.Publish(channel, reply)
 
 	return
 }
