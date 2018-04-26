@@ -9,6 +9,13 @@ import (
 	"github.com/stvp/assert"
 )
 
+// TODO: this shouldn't be necessary
+func TestMain(m *testing.M) {
+	// This is to initialize the swarm if needed
+	dockerCli()
+	time.Sleep(1 * time.Second)
+}
+
 func TestExtractPortEmpty(t *testing.T) {
 	ports := extractPorts(&Dependency{})
 	assert.Equal(t, len(ports), 0)
@@ -35,10 +42,6 @@ func TestGetDockerService(t *testing.T) {
 	name := "test"
 	dependency := Dependency{Image: "nginx"}
 	network, err := createNetwork(namespace)
-	// TODO: remove, this is just for testing
-	assert.Nil(t, err)
-	assert.NotNil(t, network)
-	time.Sleep(1 * time.Second)
 	dependency.Start(dependencyDetails{
 		namespace:      namespace,
 		dependencyName: name,
