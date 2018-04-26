@@ -14,10 +14,11 @@ jobs:
       # - image: circleci/postgres:9.4
 
     working_directory: /go/src/github.com/mesg-foundation/core
+
     steps:
       - checkout
       - setup_remote_docker
       # specify any ecbash command here prefixed with `run: `
       - run: go get -v -t -d ./...
       - run: go test -coverprofile=coverage.txt -v ./...
-      # - run: bash <(curl -s https://codecov.io/bash)
+      - run: bash <(curl -s https://codecov.io/bash)
