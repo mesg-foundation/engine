@@ -3,15 +3,11 @@ package service
 import (
 	"context"
 	"fmt"
-	"os"
 
 	"github.com/docker/docker/api/types/swarm"
 	docker "github.com/fsouza/go-dockerclient"
 	"github.com/logrusorgru/aurora"
 )
-
-// DockerEndpoint is the endpoint to reach docker socket
-var DockerEndpoint = "unix:///var/run/docker.sock"
 
 var dockerCliInstance *docker.Client
 
@@ -20,7 +16,7 @@ func dockerCli() (client *docker.Client, err error) {
 		client = dockerCliInstance
 		return
 	}
-	client, err = createDockerCli(DockerEndpoint)
+	client, err = createDockerCli()
 	if err != nil {
 		return nil, err
 	}
@@ -28,15 +24,11 @@ func dockerCli() (client *docker.Client, err error) {
 	return
 }
 
-func createDockerCli(endpoint string) (client *docker.Client, err error) {
-	if os.Getenv("CI") == "true" {
-		return
-	}
-	client, err = docker.NewClient(endpoint)
+func createDockerCli() (client *docker.Client, err error) {
+	client, err = docker.NewClientFromEnv()
 	if err != nil {
 		return
 	}
-	// TODO remove and make CI works
 	info, err := client.Info()
 	if err != nil || info.Swarm.NodeID != "" {
 		return

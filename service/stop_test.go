@@ -1,7 +1,6 @@
 package service
 
 import (
-	"os"
 	"strings"
 	"testing"
 
@@ -10,9 +9,6 @@ import (
 )
 
 func TestStopRunningService(t *testing.T) {
-	if os.Getenv("CI") == "true" {
-		return
-	}
 	service := &Service{
 		Name: "TestStopRunningService",
 		Dependencies: map[string]*types.ProtoDependency{
@@ -28,9 +24,6 @@ func TestStopRunningService(t *testing.T) {
 }
 
 func TestStopNonRunningService(t *testing.T) {
-	if os.Getenv("CI") == "true" {
-		return
-	}
 	service := &Service{
 		Name: "TestStopNonRunningService",
 		Dependencies: map[string]*types.ProtoDependency{
@@ -45,10 +38,6 @@ func TestStopNonRunningService(t *testing.T) {
 }
 
 func TestStopDependency(t *testing.T) {
-	// TODO remove and make CI works
-	if os.Getenv("CI") == "true" {
-		return
-	}
 	namespace := strings.Join([]string{NAMESPACE, "TestStopDependency"}, "_")
 	name := "test"
 	dependency := Dependency{Image: "nginx"}
@@ -66,10 +55,6 @@ func TestStopDependency(t *testing.T) {
 }
 
 func TestNetworkDeleted(t *testing.T) {
-	// TODO remove and make CI works
-	if os.Getenv("CI") == "true" {
-		return
-	}
 	service := &Service{
 		Name: "TestNetworkDeleted",
 		Dependencies: map[string]*types.ProtoDependency{
