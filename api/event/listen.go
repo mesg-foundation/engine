@@ -1,8 +1,6 @@
 package event
 
 import (
-	"log"
-
 	"github.com/mesg-foundation/core/pubsub"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/types"
@@ -17,7 +15,6 @@ func getSubscription(request *types.ListenEventRequest) (subscription chan pubsu
 
 // Listen for event from the services
 func (s *Server) Listen(request *types.ListenEventRequest, stream types.Event_ListenServer) (err error) {
-	log.Println("Receive listen request", request)
 	subscription := getSubscription(request)
 	for data := range subscription {
 		stream.Send(data.(*types.EventReply))

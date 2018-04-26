@@ -1,6 +1,9 @@
 package cmdService
 
 import (
+	"fmt"
+
+	"github.com/logrusorgru/aurora"
 	"github.com/spf13/cobra"
 )
 
@@ -20,4 +23,5 @@ var Start = &cobra.Command{
 func startHandler(cmd *cobra.Command, args []string) {
 	service := loadService(defaultPath(args))
 	startService(service)
+	fmt.Println(aurora.Green("Service started"))
 }

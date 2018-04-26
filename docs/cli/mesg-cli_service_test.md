@@ -25,8 +25,10 @@ mesg-cli service test --keep-alive
 ### Options
 
 ```
+  -d, --data string    Path to the file containing the data required to run the task
   -e, --event string   Only log a specific event (default "*")
   -h, --help           help for test
+  -t, --task string    Run a specific task
 ```
 
 ### SEE ALSO
