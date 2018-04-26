@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -10,10 +11,10 @@ import (
 )
 
 func TestStartService(t *testing.T) {
-	// TODO remove and make CI works
-	if os.Getenv("CI") == "true" {
-		return
-	}
+	// // TODO remove and make CI works
+	// if os.Getenv("CI") == "true" {
+	// 	return
+	// }
 	service := &Service{
 		Name: "TestStartService",
 		Dependencies: map[string]*types.ProtoDependency{
@@ -23,6 +24,7 @@ func TestStartService(t *testing.T) {
 		},
 	}
 	dockerServices, err := service.Start()
+	fmt.Println(err)
 	assert.Nil(t, err)
 	assert.Equal(t, len(dockerServices), len(service.GetDependencies()))
 	assert.Equal(t, service.IsRunning(), true)

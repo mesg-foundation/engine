@@ -10,17 +10,23 @@ import (
 	"github.com/logrusorgru/aurora"
 )
 
-// DockerEndpoint is the endpoint to reach docker socket
-var DockerEndpoint = "unix:///var/run/docker.sock"
+var defaultEndpoint = "unix:///var/run/docker.sock"
 
 var dockerCliInstance *docker.Client
+
+func endpoint() string {
+	if os.Getenv("DOCKER_HOST") != "" {
+		return os.Getenv("DOCKER_HOST")
+	}
+	return defaultEndpoint
+}
 
 func dockerCli() (client *docker.Client, err error) {
 	if dockerCliInstance != nil {
 		client = dockerCliInstance
 		return
 	}
-	client, err = createDockerCli(DockerEndpoint)
+	client, err = createDockerCli(endpoint())
 	if err != nil {
 		return nil, err
 	}
@@ -29,9 +35,6 @@ func dockerCli() (client *docker.Client, err error) {
 }
 
 func createDockerCli(endpoint string) (client *docker.Client, err error) {
-	if os.Getenv("CI") == "true" {
-		return
-	}
 	client, err = docker.NewClient(endpoint)
 	if err != nil {
 		return
