@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"os"
 	"testing"
 
 	"github.com/mesg-foundation/core/service"
@@ -13,10 +12,6 @@ import (
 var serverstart = new(Server)
 
 func TestStartService(t *testing.T) {
-	// TODO remove and make CI works
-	if os.Getenv("CI") == "true" {
-		return
-	}
 	protoService := types.ProtoService{
 		Name: "TestStartService",
 		Dependencies: map[string]*types.ProtoDependency{
