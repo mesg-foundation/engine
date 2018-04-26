@@ -14,3 +14,5 @@
 .vscode
 debug
 .DS_Store
+
+.bin
