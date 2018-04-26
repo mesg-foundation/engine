@@ -23,7 +23,7 @@ func TestCreateDockerCli(t *testing.T) {
 	if os.Getenv("CI") == "true" {
 		return
 	}
-	_, err := createDockerCli("unix:///var/run/docker.sock")
+	_, err := createDockerCli()
 	assert.Nil(t, err)
 }
 
@@ -37,7 +37,7 @@ func TestCreateDockerCliWithSwarm(t *testing.T) {
 		Force:   true,
 	})
 	dockerCliInstance = nil
-	_, err := createDockerCli("unix:///var/run/docker.sock")
+	_, err := createDockerCli()
 	assert.Nil(t, err)
 }
 
