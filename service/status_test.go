@@ -1,7 +1,6 @@
 package service
 
 import (
-	"os"
 	"testing"
 
 	"github.com/mesg-foundation/core/types"
@@ -9,10 +8,6 @@ import (
 )
 
 func TestStatusRunning(t *testing.T) {
-	// TODO remove and make CI works
-	if os.Getenv("CI") == "true" {
-		return
-	}
 	service := &Service{
 		Name: "TestStatusRunning",
 		Dependencies: map[string]*types.ProtoDependency{
@@ -30,9 +25,6 @@ func TestStatusRunning(t *testing.T) {
 }
 
 func TestStatusStoped(t *testing.T) {
-	if os.Getenv("CI") == "true" {
-		return
-	}
 	service := &Service{
 		Name: "TestStatusStoped",
 		Dependencies: map[string]*types.ProtoDependency{
@@ -48,9 +40,6 @@ func TestStatusStoped(t *testing.T) {
 }
 
 func TestList(t *testing.T) {
-	if os.Getenv("CI") == "true" {
-		return
-	}
 	service := &Service{
 		Name: "TestList",
 		Dependencies: map[string]*types.ProtoDependency{
@@ -68,9 +57,6 @@ func TestList(t *testing.T) {
 }
 
 func TestListMultipleDependencies(t *testing.T) {
-	if os.Getenv("CI") == "true" {
-		return
-	}
 	service := &Service{
 		Name: "TestListMultipleDependencies",
 		Dependencies: map[string]*types.ProtoDependency{

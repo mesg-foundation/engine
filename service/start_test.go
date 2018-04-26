@@ -2,7 +2,6 @@ package service
 
 import (
 	"fmt"
-	"os"
 	"strings"
 	"testing"
 
@@ -11,10 +10,6 @@ import (
 )
 
 func TestStartService(t *testing.T) {
-	// // TODO remove and make CI works
-	// if os.Getenv("CI") == "true" {
-	// 	return
-	// }
 	service := &Service{
 		Name: "TestStartService",
 		Dependencies: map[string]*types.ProtoDependency{
@@ -32,10 +27,6 @@ func TestStartService(t *testing.T) {
 }
 
 func TestStartAgainService(t *testing.T) {
-	// TODO remove and make CI works
-	if os.Getenv("CI") == "true" {
-		return
-	}
 	service := &Service{
 		Name: "TestStartAgainService",
 		Dependencies: map[string]*types.ProtoDependency{
@@ -53,10 +44,6 @@ func TestStartAgainService(t *testing.T) {
 }
 
 func TestPartiallyRunningService(t *testing.T) {
-	// TODO remove and make CI works
-	if os.Getenv("CI") == "true" {
-		return
-	}
 	service := &Service{
 		Name: "TestPartiallyRunningService",
 		Dependencies: map[string]*types.ProtoDependency{
@@ -79,10 +66,6 @@ func TestPartiallyRunningService(t *testing.T) {
 }
 
 func TestStartDependency(t *testing.T) {
-	// TODO remove and make CI works
-	if os.Getenv("CI") == "true" {
-		return
-	}
 	namespace := strings.Join([]string{NAMESPACE, "TestStartDependency"}, "_")
 	name := "test"
 	dependency := Dependency{Image: "nginx"}
@@ -101,10 +84,6 @@ func TestStartDependency(t *testing.T) {
 }
 
 func TestNetworkCreated(t *testing.T) {
-	// TODO remove and make CI works
-	if os.Getenv("CI") == "true" {
-		return
-	}
 	service := &Service{
 		Name: "TestNetworkCreated",
 		Dependencies: map[string]*types.ProtoDependency{
