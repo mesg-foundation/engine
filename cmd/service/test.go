@@ -4,11 +4,9 @@ import (
 	"context"
 	"io/ioutil"
 	"log"
-	"math/rand"
-	"strconv"
-	"time"
 
 	"github.com/mesg-foundation/core/cmd/utils"
+	"github.com/mesg-foundation/core/config"
 	"google.golang.org/grpc"
 
 	"github.com/logrusorgru/aurora"
@@ -35,10 +33,6 @@ mesg-cli service test --keep-alive`,
 	DisableAutoGenTag: true,
 }
 
-var random = rand.New(rand.NewSource(time.Now().UnixNano()))
-var serverPort = ":" + strconv.FormatInt(50000+random.Int63n(100)+100, 10) // Random between 50100 and 50199
-var serverAddress = "localhost" + serverPort
-
 func listenEvents(service *service.Service, callback func(event *types.EventReply)) {
 	listener := pubsub.Subscribe(service.EventSubscriptionChannel())
 	go func() {
@@ -50,9 +44,7 @@ func listenEvents(service *service.Service, callback func(event *types.EventRepl
 }
 
 func startServer() {
-	server := api.Server{
-		Address: serverPort,
-	}
+	server := api.Server{}
 	err := server.Serve()
 	defer server.Stop()
 	if err != nil {
@@ -61,7 +53,7 @@ func startServer() {
 }
 
 func executeTask(service *service.Service, task string, dataPath string) (reply *types.TaskReply, err error) {
-	connection, err := grpc.Dial(serverAddress, grpc.WithInsecure())
+	connection, err := grpc.Dial(config.Api.Client.Target(), grpc.WithInsecure())
 	if err != nil {
 		return
 	}
