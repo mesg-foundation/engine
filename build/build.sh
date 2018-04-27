@@ -5,7 +5,11 @@
 mkdir -p bin
 cd bin
 
+ls ./
+
 go build ../cli
+
+ls ./
 
 # xgo \
 #  -x -v \
