@@ -28,7 +28,6 @@ jobs:
     steps:
       - checkout
       - run: go get -v github.com/karalabe/xgo
-      - run: mkdir bin; cd bin
-      - run: xgo --targets=darwin/386,darwin/amd64,linux/386,linux/amd64,windows/386,windows/amd64 ../cli
+      - run: mkdir bin; cd bin; xgo --targets=darwin/386,darwin/amd64,linux/386,linux/amd64,windows/386,windows/amd64 ../cli
       - store_artifacts:
           path: ./bin
