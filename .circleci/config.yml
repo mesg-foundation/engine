@@ -22,3 +22,5 @@ jobs:
       - run: go test -coverprofile=coverage.txt -v ./...
       - run: bash <(curl -s https://codecov.io/bash)
       - run: ./build/build.sh
+      - store_artifacts:
+          path: ./bin
