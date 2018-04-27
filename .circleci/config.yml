@@ -24,9 +24,10 @@ jobs:
 
   build:
     machine: true
-    # working_directory: ~/.go_workspace/src/github.com/mesg-foundation/core
+    working_directory: ~/go_workspace/src/github.com/mesg-foundation/core
     steps:
       - checkout
+      - run: go get -v -t ./...
       - run: go get -v github.com/karalabe/xgo
       - run: mkdir bin; cd bin; xgo --targets=darwin/386,darwin/amd64,linux/386,linux/amd64,windows/386,windows/amd64 ../cli
       - store_artifacts:
