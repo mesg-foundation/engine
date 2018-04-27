@@ -18,13 +18,13 @@ jobs:
       - checkout
       - setup_remote_docker
       # specify any ecbash command here prefixed with `run: `
-      - restore_cache:
-          key: v1-mesg-core
+      # - restore_cache:
+      #     key: v1-mesg-core
       - run: go get -v -t ./...
-      - save_cache:
-          key: v1-mesg-core
-          paths:
-            - /go
+      # - save_cache:
+      #     key: v1-mesg-core
+      #     paths:
+      #       - /go
       - run: go test -coverprofile=coverage.txt -v ./...
       - run: bash <(curl -s https://codecov.io/bash)
 
@@ -34,14 +34,14 @@ jobs:
     working_directory: ~/.go_workspace/src/github.com/mesg-foundation/core
     steps:
       - checkout
-      - restore_cache:
-          key: v1-mesg-core
+      # - restore_cache:
+      #     key: v1-mesg-core
       - run: go get -v -t ./...
       - run: go get -v github.com/karalabe/xgo
-      - save_cache:
-          key: v1-mesg-core
-          paths:
-            - /go
+      # - save_cache:
+      #     key: v1-mesg-core
+      #     paths:
+      #       - /go
       - run: mkdir bin; cd bin; xgo --targets=darwin/386,darwin/amd64,linux/386,linux/amd64,windows/386,windows/amd64 ../cli
       - store_artifacts:
           path: ./bin
@@ -63,7 +63,7 @@ workflows:
     #           only:
     #             - dev
     jobs:
-      - test
+      # - test
       - build
       # - deploy-prod:
       #     requires:
