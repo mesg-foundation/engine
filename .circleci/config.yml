@@ -24,9 +24,9 @@ jobs:
 
   build:
     machine: true
-    working_directory: ~/go_workspace/src/github.com/mesg-foundation/core
+    working_directory: ~/.go_workspace/src/github.com/mesg-foundation/core
     steps:
-      - echo $GOPATH
+      - run: echo $GOPATH
       - checkout
       - run: go get -v -t ./...
       - run: go get -v github.com/karalabe/xgo
