@@ -24,7 +24,7 @@ jobs:
 
   build:
     machine: true
-    working_directory: ~/go_workspace/src/github.com/mesg-foundation/core
+    working_directory: /go/src/github.com/mesg-foundation/core
     steps:
       - checkout
       - run: go get -v -t ./...
