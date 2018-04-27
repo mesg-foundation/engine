@@ -19,10 +19,10 @@ jobs:
       - setup_remote_docker
       # specify any ecbash command here prefixed with `run: `
       # - restore_cache:
-      #     key: v1-mesg-core
+      #     key: v1-mesg-core-test
       - run: go get -v -t ./...
       # - save_cache:
-      #     key: v1-mesg-core
+      #     key: v1-mesg-core-test
       #     paths:
       #       - /go
       - run: go test -coverprofile=coverage.txt -v ./...
@@ -35,16 +35,21 @@ jobs:
     steps:
       - checkout
       # - restore_cache:
-      #     key: v1-mesg-core
+      #     key: v1-mesg-core-build
       - run: go get -v -t ./...
       - run: go get -v github.com/karalabe/xgo
       # - save_cache:
-      #     key: v1-mesg-core
+      #     key: v1-mesg-core-build
       #     paths:
       #       - /go
-      - run: mkdir bin; cd bin; xgo --targets=darwin/386,darwin/amd64,linux/386,linux/amd64,windows/386,windows/amd64 ../cli
+      - run: mkdir bin
+      - run: cd bin
+      - run: xgo --targets=darwin/386,darwin/amd64,linux/386,linux/amd64,windows/386,windows/amd64 ../cli
+      - run: chmod +x ./*
       - store_artifacts:
           path: ./bin
+      - run: go get -u github.com/tcnksm/ghr
+      - run: ghr -u mesg-foundation -r core -delete nightly ./
     # filters:
     #   branches:
     #     only: dev
