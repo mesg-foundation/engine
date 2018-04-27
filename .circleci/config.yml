@@ -4,28 +4,26 @@
 version: 2
 jobs:
   build:
-    docker:
-      # specify the version
-      - image: circleci/golang:1.10
+    machine: true
+    # docker:
+    #   # specify the version
+    #   - image: circleci/golang:1.10
       
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
       # documented at https://circleci.com/docs/2.0/circleci-images/
       # - image: circleci/postgres:9.4
 
-    working_directory: /go/src/github.com/mesg-foundation/core
+    working_directory: ~/.go_workspace/src/github.com/mesg-foundation/core
     steps:
       - checkout
-      - setup_remote_docker
+      # - setup_remote_docker
       # specify any ecbash command here prefixed with `run: `
-      - run: go get -v -t ./...
+      # - run: go get -v -t ./...
       # - run: go test -coverprofile=coverage.txt -v ./...
       # - run: bash <(curl -s https://codecov.io/bash)
       # - run: ./build/build.sh
-      - run: |
-            go get -v github.com/karalabe/xgo
-            xgo \
-                --targets=darwin/386,darwin/amd64,linux/386,linux/amd64,windows/386,windows/amd64 \
-                ./cli
+      - run: go get -v github.com/karalabe/xgo
+      - run: xgo --targets=darwin/386,darwin/amd64,linux/386,linux/amd64,windows/386,windows/amd64 ./cli
       - store_artifacts:
           path: ./bin
