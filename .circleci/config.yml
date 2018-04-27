@@ -44,7 +44,7 @@ jobs:
       #       - /go
       - run: mkdir bin
       - run: cd bin; xgo --targets=darwin/386,darwin/amd64,linux/386,linux/amd64,windows/386,windows/amd64 ../cli
-      - run: chmod +x ./bin/*
+      - run: sudo chmod +x ./bin/*
       - store_artifacts:
           path: ./bin
       - run: go get -u github.com/tcnksm/ghr
