@@ -48,7 +48,7 @@ jobs:
       - store_artifacts:
           path: ./bin
       - run: go get -u github.com/tcnksm/ghr
-      - run: ghr -u mesg-foundation -r core -delete nightly ./bin
+      - run: ghr -u mesg-foundation -r core -delete dev ./bin
     # filters:
     #   branches:
     #     only: dev
