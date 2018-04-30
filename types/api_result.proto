@@ -13,7 +13,7 @@ service Result {
 }
 
 message SubmitResultRequest {
-  ProtoService service = 1;
+  string executionID = 1;
   string task = 2;
   string output = 3;
   string data = 4;
