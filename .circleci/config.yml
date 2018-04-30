@@ -57,7 +57,10 @@ workflows:
   version: 2
   test:
     jobs:
-      - test
+      - test:
+          filters:
+            branches:
+              ignore: dev
   build_deploy:
     jobs:
       - test:
