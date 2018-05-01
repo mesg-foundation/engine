@@ -6,6 +6,7 @@ import (
 
 	"github.com/docker/docker/api/types/swarm"
 	docker "github.com/fsouza/go-dockerclient"
+	"github.com/mesg-foundation/core/config"
 )
 
 // Start a service
@@ -70,6 +71,9 @@ func (dependency *Dependency) Start(details dependencyDetails, network *docker.N
 				ContainerSpec: &swarm.ContainerSpec{
 					Image: dependency.Image,
 					Args:  strings.Fields(dependency.Command),
+					Env: []string{
+						"MESG_ENDPOINT=" + config.Api.Client.Target(),
+					},
 					Labels: map[string]string{
 						"com.docker.stack.namespace": details.namespace,
 					},
