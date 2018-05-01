@@ -44,7 +44,10 @@ func listenEvents(service *service.Service, callback func(event *types.EventRepl
 }
 
 func startServer() {
-	server := api.Server{}
+	server := api.Server{
+		Network: config.Api.Server.Network(),
+		Address: config.Api.Server.Address(),
+	}
 	err := server.Serve()
 	defer server.Stop()
 	if err != nil {
