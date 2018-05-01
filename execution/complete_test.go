@@ -23,6 +23,7 @@ func TestComplete(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, execution.Output, "output")
 	assert.Equal(t, execution.OutputData, outputs)
+	assert.True(t, execution.ExecutionDuration > 0)
 }
 
 func TestCompleteNotProcessed(t *testing.T) {
