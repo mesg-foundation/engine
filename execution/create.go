@@ -9,6 +9,7 @@ import (
 	"github.com/mesg-foundation/core/utils/hash"
 )
 
+// Create an execution with a unique ID and put it in the pending list
 func Create(service *service.Service, task string, inputs interface{}) (execution *Execution, err error) {
 	if !taskExists(service, task) {
 		err = errors.New("Task " + task + " doesn't exists in service " + service.Name)
