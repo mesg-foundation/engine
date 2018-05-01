@@ -4,33 +4,48 @@ import (
 	"context"
 	"testing"
 
-	"github.com/mesg-foundation/core/pubsub"
-	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/types"
 	"github.com/stvp/assert"
 )
 
 var serverexecute = new(Server)
 
+var testService = types.ProtoService{
+	Name: "TestService",
+	Tasks: map[string]*types.ProtoTask{
+		"test": &types.ProtoTask{},
+	},
+}
+
 func TestExecute(t *testing.T) {
-	protoService := types.ProtoService{
-		Name: "TestExecute",
-		Dependencies: map[string]*types.ProtoDependency{
-			"test": &types.ProtoDependency{
-				Image: "nginx",
-			},
-		},
-	}
-	service := service.New(&protoService)
+	reply, err := serverexecute.Execute(context.Background(), &types.ExecuteTaskRequest{
+		Service: &testService,
+		Task:    "test",
+		Data:    "{}",
+	})
 
-	subscription := pubsub.Subscribe(service.TaskSubscriptionChannel())
+	assert.Nil(t, err)
+	assert.NotNil(t, reply)
+}
 
-	go serverexecute.Execute(context.Background(), &types.ExecuteTaskRequest{
-		Service: &protoService,
-		Task:    "Test",
+func TestExecuteWithInvalidJSON(t *testing.T) {
+	_, err := serverexecute.Execute(context.Background(), &types.ExecuteTaskRequest{
+		Service: &testService,
+		Task:    "test",
 		Data:    "",
 	})
 
-	res := <-subscription
-	assert.NotNil(t, res)
+	assert.NotNil(t, err)
+	assert.Equal(t, err.Error(), "unexpected end of JSON input")
+}
+
+func TestExecuteWithInvalidTask(t *testing.T) {
+	_, err := serverexecute.Execute(context.Background(), &types.ExecuteTaskRequest{
+		Service: &testService,
+		Task:    "error",
+		Data:    "{}",
+	})
+
+	assert.NotNil(t, err)
+	assert.Equal(t, err.Error(), "Task error doesn't exists in service TestService")
 }
