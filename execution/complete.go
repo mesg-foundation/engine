@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// Complete mark an execution as complete and put it in the list of processed tasks
 func (execution *Execution) Complete(output string, data interface{}) (err error) {
 	err = execution.moveFromInProgressToProcessed()
 	if err != nil {

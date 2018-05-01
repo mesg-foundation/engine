@@ -6,6 +6,7 @@ import (
 	"github.com/mesg-foundation/core/service"
 )
 
+// Execution is a type that store all informations about executions
 type Execution struct {
 	ID                string
 	Service           *service.Service
