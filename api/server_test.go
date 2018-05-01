@@ -15,7 +15,7 @@ const (
 func TestServerServe(t *testing.T) {
 	s := Server{
 		Network: config.Api.Server.Network(),
-		Address: config.Api.Server.Address(),
+		Address: "TestServerServe.sock",
 	}
 	go func() {
 		time.Sleep(waitForServe)
@@ -38,7 +38,7 @@ func TestServerServeNoAddress(t *testing.T) {
 func TestServerServeAlreadyListening(t *testing.T) {
 	s := Server{
 		Network: config.Api.Server.Network(),
-		Address: config.Api.Server.Address(),
+		Address: "TestServerServeAlreadyListening.sock",
 	}
 	go s.Serve()
 	time.Sleep(waitForServe)

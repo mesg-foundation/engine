@@ -1,6 +1,7 @@
 package api
 
 import (
+	"errors"
 	"log"
 	"net"
 	"os"
@@ -16,14 +17,19 @@ import (
 // Server is the main struct that contain the server config
 type Server struct {
 	instance *grpc.Server
+	listener net.Listener
 	Network  string
 	Address  string
 }
 
 // Serve starts the server and listen for client connections
 func (s *Server) Serve() (err error) {
+	if s.listener != nil {
+		err = errors.New("Server already running")
+		return
+	}
 	os.Remove(s.Address)
-	listener, err := net.Listen(s.Network, s.Address)
+	s.listener, err = net.Listen(s.Network, s.Address)
 	if err != nil {
 		return
 	}
@@ -31,10 +37,10 @@ func (s *Server) Serve() (err error) {
 	s.instance = grpc.NewServer()
 	s.register()
 
-	log.Println("Server listens on", listener.Addr())
+	log.Println("Server listens on", s.listener.Addr())
 
 	// TODO: check if server still on after a connection throw an error. otherwise, add a for around serve
-	err = s.instance.Serve(listener)
+	err = s.instance.Serve(s.listener)
 	if err != nil {
 		return
 	}
