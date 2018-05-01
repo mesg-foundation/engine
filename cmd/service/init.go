@@ -101,17 +101,28 @@ func initHandler(cmd *cobra.Command, args []string) {
 	if !ok {
 		return
 	}
-	err = os.Mkdir(key, os.ModePerm)
-	if err != nil {
-		panic(err)
-	}
-	err = ioutil.WriteFile(filepath.Join(key, "mesg.yml"), out, os.ModePerm)
-	if err != nil {
-		panic(err)
-	}
-	err = ioutil.WriteFile(filepath.Join(key, "Dockerfile"), []byte(""), os.ModePerm)
-	if err != nil {
-		panic(err)
+	if cmd.Flag("current").Value.String() == "true" {
+		err = ioutil.WriteFile("mesg.yml", out, os.ModePerm)
+		if err != nil {
+			panic(err)
+		}
+		err = ioutil.WriteFile("Dockerfile", []byte(""), os.ModePerm)
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		err = os.Mkdir(key, os.ModePerm)
+		if err != nil {
+			panic(err)
+		}
+		err = ioutil.WriteFile(filepath.Join(key, "mesg.yml"), out, os.ModePerm)
+		if err != nil {
+			panic(err)
+		}
+		err = ioutil.WriteFile(filepath.Join(key, "Dockerfile"), []byte(""), os.ModePerm)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	fmt.Printf("%s\n", aurora.Green("Service created with success").Bold())
@@ -122,4 +133,5 @@ func init() {
 	Init.Flags().StringP("description", "d", "", "Description")
 	Init.Flags().StringP("visibility", "v", "", "Visibility")
 	Init.Flags().StringP("publish", "p", "", "Publish")
+	Init.Flags().BoolP("current", "c", false, "Create the service in the current path")
 }
