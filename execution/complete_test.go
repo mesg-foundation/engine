@@ -19,8 +19,10 @@ func TestComplete(t *testing.T) {
 	execution, _ := Create(&s, "test", inputs)
 	execution.Execute()
 	var outputs interface{}
-	err := execution.Complete("output", outputs)
+	reply, err := execution.Complete("output", outputs)
 	assert.Nil(t, err)
+	assert.NotNil(t, reply)
+	assert.Equal(t, reply.Output, "output")
 	assert.Equal(t, execution.Output, "output")
 	assert.Equal(t, execution.OutputData, outputs)
 	assert.True(t, execution.ExecutionDuration > 0)
@@ -36,6 +38,6 @@ func TestCompleteNotProcessed(t *testing.T) {
 	var inputs interface{}
 	execution, _ := Create(&s, "test", inputs)
 	var outputs interface{}
-	err := execution.Complete("output", outputs)
+	_, err := execution.Complete("output", outputs)
 	assert.NotNil(t, err)
 }
