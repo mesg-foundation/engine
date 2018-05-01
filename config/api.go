@@ -26,8 +26,8 @@ func (c *ClientType) Target() string {
 }
 
 func init() {
-	viper.SetDefault("Api.Server.Network", "tcp")
-	viper.SetDefault("Api.Server.Address", ":50052")
+	viper.SetDefault("Api.Server.Network", "unix")
+	viper.SetDefault("Api.Server.Address", "server.sock")
 
 	viper.SetDefault("Api.Client.Target", "localhost:50052")
 
