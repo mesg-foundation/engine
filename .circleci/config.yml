@@ -7,15 +7,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      - restore_cache:
-          key: v1-mesg-core-test
-      - run: go get -v -u -t ./...
-      - save_cache:
-          key: v1-mesg-core-test
-          paths:
-            - /go/bin
-            - /go/pkg
-            - /go/src
+      - run: go get -v -t ./...
       - run: go test -coverprofile=coverage.txt -v ./...
       - run: bash <(curl -s https://codecov.io/bash)
 
@@ -25,16 +17,8 @@ jobs:
     working_directory: ~/.go_workspace/src/github.com/mesg-foundation/core
     steps:
       - checkout
-      - restore_cache:
-          key: v1-mesg-core-build-deploy
-      - run: go get -v -u -t ./...
-      - run: go get -v -u github.com/karalabe/xgo
-      - save_cache:
-          key: v1-mesg-core-build-deploy
-          paths:
-            - ~/.go_workspace/bin
-            - ~/.go_workspace/pkg
-            - ~/.go_workspace/src
+      - run: go get -v -t ./...
+      - run: go get -v github.com/karalabe/xgo
       - run: mkdir bin
       - run: cd bin; xgo --targets=darwin/386,darwin/amd64,linux/386,linux/amd64,windows/386,windows/amd64 ../cli
       - run: sudo chmod +x ./bin/*
