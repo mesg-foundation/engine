@@ -4,34 +4,60 @@ import (
 	"context"
 	"testing"
 
-	"github.com/mesg-foundation/core/pubsub"
+	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/service"
+
 	"github.com/mesg-foundation/core/types"
 	"github.com/stvp/assert"
 )
 
 var serversubmit = new(Server)
 
-func TestEmit(t *testing.T) {
-	protoService := types.ProtoService{
-		Name: "TestEmit",
-		Dependencies: map[string]*types.ProtoDependency{
-			"test": &types.ProtoDependency{
-				Image: "nginx",
-			},
+func execute(name string) (reply *types.TaskReply) {
+	var inputs interface{}
+	execution, _ := execution.Create(&service.Service{
+		Name: name,
+		Tasks: map[string]*types.ProtoTask{
+			"test": &types.ProtoTask{},
 		},
-	}
-	service := service.New(&protoService)
+	}, "test", inputs)
+	reply, _ = execution.Execute()
+	return
+}
 
-	subscription := pubsub.Subscribe(service.ResultSubscriptionChannel())
-
-	go serversubmit.Submit(context.Background(), &types.SubmitResultRequest{
-		Service: &protoService,
-		Output:  "test",
-		Task:    "task test",
-		Data:    "",
+func TestSubmit(t *testing.T) {
+	execution := execute("TestSubmit")
+	reply, err := serversubmit.Submit(context.Background(), &types.SubmitResultRequest{
+		ExecutionID: execution.ExecutionID,
+		Output:      "output",
+		Task:        execution.Task,
+		Data:        "{}",
 	})
 
-	res := <-subscription
-	assert.NotNil(t, res)
+	assert.Nil(t, err)
+	assert.NotNil(t, reply)
+}
+
+func TestSubmitWithInvalidJSON(t *testing.T) {
+	execution := execute("TestSubmitWithInvalidJSON")
+	_, err := serversubmit.Submit(context.Background(), &types.SubmitResultRequest{
+		ExecutionID: execution.ExecutionID,
+		Output:      "output",
+		Task:        execution.Task,
+		Data:        "",
+	})
+
+	assert.NotNil(t, err)
+}
+
+func TestSubmitWithInvalidID(t *testing.T) {
+	execution := execute("TestSubmitWithInvalidID")
+	_, err := serversubmit.Submit(context.Background(), &types.SubmitResultRequest{
+		ExecutionID: "xxxx",
+		Output:      "output",
+		Task:        execution.Task,
+		Data:        "",
+	})
+
+	assert.NotNil(t, err)
 }
