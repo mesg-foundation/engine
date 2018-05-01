@@ -9,6 +9,7 @@ import (
 	"github.com/mesg-foundation/core/types"
 )
 
+// Execute moves an exection from the pending to the in progress queue and publish the job for processing
 func (execution *Execution) Execute() (reply *types.TaskReply, err error) {
 	err = execution.moveFromPendingToInProgress()
 	if err != nil {
