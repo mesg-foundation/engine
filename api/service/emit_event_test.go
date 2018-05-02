@@ -1,4 +1,4 @@
-package event
+package service
 
 import (
 	"context"
@@ -6,28 +6,27 @@ import (
 
 	"github.com/mesg-foundation/core/pubsub"
 	"github.com/mesg-foundation/core/service"
-	"github.com/mesg-foundation/core/types"
 	"github.com/stvp/assert"
 )
 
 var serveremit = new(Server)
 
 func TestEmit(t *testing.T) {
-	protoService := types.ProtoService{
+	service := service.Service{
 		Name: "TestEmit",
-		Dependencies: map[string]*types.ProtoDependency{
-			"test": &types.ProtoDependency{
+		Dependencies: map[string]*service.Dependency{
+			"test": &service.Dependency{
 				Image: "nginx",
 			},
 		},
 	}
-	service := service.New(&protoService)
 
 	subscription := pubsub.Subscribe(service.EventSubscriptionChannel())
 
-	go serveremit.Emit(context.Background(), &types.EmitEventRequest{
-		Service: &protoService,
-		Data:    "",
+	go serveremit.EmitEvent(context.Background(), &EmitEventRequest{
+		Service:   &service,
+		EventKey:  "test",
+		EventData: "",
 	})
 
 	res := <-subscription

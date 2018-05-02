@@ -1,3 +1,3 @@
-package event
+package client
 
 type Server struct{}
