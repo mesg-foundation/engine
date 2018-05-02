@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package api;
+option go_package = "service";
+
+import "service/service.proto";
+
+service Service {
+  rpc EmitEvent (EmitEventRequest) returns (ErrorReply) {}
+  rpc ListenTask (ServiceRequest) returns (stream TaskData) {}
+  rpc SubmitResult (SubmitResultRequest) returns (ResultReply) {}
+}
+
+message ServiceRequest {
+  service.Service service = 1;
+}
+
+message ErrorReply {
+  string error = 1;
+}
+
+message EmitEventRequest {
+  service.Service service = 1;
+  string eventKey = 2;
+  string eventData = 3;
+}
+
+message SubmitResultRequest {
+  string executionID = 1;
+  string outputKey = 2;
+  string outputData = 3;
+}
+
+message ResultReply {
+  string error = 1;
+  string taskKey = 2;
+  string outputKey = 3;
+  string outputData = 4;
+}
+
+message TaskData {
+  string executionID = 1;
+  string error = 2;
+  string taskKey = 3;
+  string inputData = 4;
+}
