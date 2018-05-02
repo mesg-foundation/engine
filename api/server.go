@@ -28,7 +28,9 @@ func (s *Server) Serve() (err error) {
 		err = errors.New("Server already running")
 		return
 	}
-	os.Remove(s.Address)
+	if s.Network == "unix" {
+		os.Remove(s.Address)
+	}
 	s.listener, err = net.Listen(s.Network, s.Address)
 	if err != nil {
 		return
