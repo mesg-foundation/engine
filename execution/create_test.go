@@ -1,6 +1,7 @@
 package execution
 
 import (
+	"encoding/json"
 	"testing"
 	"time"
 
@@ -11,16 +12,22 @@ import (
 )
 
 func TestGenerateID(t *testing.T) {
+	inputs := "{}"
+	var i interface{}
+	json.Unmarshal([]byte(inputs), &i)
 	execution := Execution{
 		CreatedAt: time.Now(),
 		Service:   &service.Service{Name: "TestGenerateID"},
 		Task:      "test",
+		Inputs:    i,
 	}
-	id := generateID(&execution)
+	id, err := generateID(&execution)
+	assert.Nil(t, err)
 	assert.Equal(t, id, hash.Calculate([]string{
 		execution.CreatedAt.UTC().String(),
 		execution.Service.Name,
 		execution.Task,
+		inputs,
 	}))
 }
 
