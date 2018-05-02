@@ -17,11 +17,12 @@ const (
 
 func init() {
 	configDir, _ := getConfigDirectory()
+
 	viper.SetDefault(APIServerNetwork, "unix")
 	viper.SetDefault(APIServerAddress, filepath.Join(configDir, "server.sock"))
 
 	viper.SetDefault(APIClientTarget, filepath.Join(configDir, "server.sock"))
 
 	viper.SetDefault(APIServiceSocketPath, "/mesg/server.sock")
-	viper.SetDefault(APIServiceTarget, filepath.Join("unix://", viper.GetString(APIServiceSocketPath)))
+	viper.SetDefault(APIServiceTarget, "unix://"+viper.GetString(APIServiceSocketPath))
 }
