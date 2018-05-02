@@ -1,5 +1,14 @@
 #!/bin/bash
 
-# protoc --go_out=plugins=grpc:./ --proto_path=./types/api types/api/api_service.proto
+cd $GOPATH/src
 
-protoc --go_out=./ service/service.proto
+PROJECT=github.com/mesg-foundation/core
+
+protoc --go_out=./ $PROJECT/service/service.proto
+
+for x in $PROJECT/api/*/; do
+  protoc \
+    --go_out=plugins=grpc:./ \
+    --proto_path=./ \
+    $x*.proto
+done

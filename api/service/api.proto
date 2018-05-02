@@ -3,7 +3,7 @@ syntax = "proto3";
 package api;
 option go_package = "service";
 
-import "service/service.proto";
+import "github.com/mesg-foundation/core/service/service.proto";
 
 service Service {
   rpc EmitEvent (EmitEventRequest) returns (ErrorReply) {}
