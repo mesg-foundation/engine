@@ -3,7 +3,7 @@ syntax = "proto3";
 package api;
 option go_package = "client";
 
-import "service/service.proto";
+import "github.com/mesg-foundation/core/service/service.proto";
 
 service Client {
   rpc ListenEvent (ServiceRequest) returns (stream EventData) {}
