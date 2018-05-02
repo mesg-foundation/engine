@@ -65,7 +65,7 @@ func executeTask(service *service.Service, task string, dataPath string) (reply 
 
 	cli := types.NewTaskClient(connection)
 	reply, err = cli.Execute(context.Background(), &types.ExecuteTaskRequest{
-		Service: &types.ProtoService{
+		Service: &service.Service{
 			Name: service.Name,
 		},
 		Task: task,
