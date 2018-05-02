@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"log"
 
+	"github.com/spf13/viper"
+
 	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/mesg-foundation/core/config"
 	"google.golang.org/grpc"
@@ -45,8 +47,8 @@ func listenEvents(service *service.Service, callback func(event *types.EventRepl
 
 func startServer() {
 	server := api.Server{
-		Network: config.Api.Server.Network(),
-		Address: config.Api.Server.Address(),
+		Network: viper.GetString(config.APIServerNetwork),
+		Address: viper.GetString(config.APIServerAddress),
 	}
 	err := server.Serve()
 	defer server.Stop()
@@ -56,7 +58,7 @@ func startServer() {
 }
 
 func executeTask(service *service.Service, task string, dataPath string) (reply *types.TaskReply, err error) {
-	connection, err := grpc.Dial(config.Api.Client.Target(), grpc.WithInsecure())
+	connection, err := grpc.Dial(viper.GetString(config.APIClientTarget), grpc.WithInsecure())
 	if err != nil {
 		return
 	}

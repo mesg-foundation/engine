@@ -58,8 +58,8 @@ func initConfig() {
 func rootHandler(cmd *cobra.Command, args []string) {
 	log.Println("Starting MESG daemon")
 	server := api.Server{
-		Network: config.Api.Server.Network(),
-		Address: config.Api.Server.Address(),
+		Network: viper.GetString(config.APIServerNetwork),
+		Address: viper.GetString(config.APIServerAddress),
 	}
 	go func() {
 		err := server.Serve()
