@@ -4,15 +4,14 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/service"
-	"github.com/mesg-foundation/core/types"
 	"github.com/stvp/assert"
 )
 
 func TestMoveFromPendingToInProgress(t *testing.T) {
 	s := service.Service{
 		Name: "TestMoveFromPendingToInProgress",
-		Tasks: map[string]*types.ProtoTask{
-			"test": &types.ProtoTask{},
+		Tasks: map[string]*service.Task{
+			"test": &service.Task{},
 		},
 	}
 	var inputs interface{}
@@ -33,8 +32,8 @@ func TestMoveFromPendingToInProgressNonExistingTask(t *testing.T) {
 func TestMoveFromInProgressToCompleted(t *testing.T) {
 	s := service.Service{
 		Name: "TestMoveFromInProgressToCompleted",
-		Tasks: map[string]*types.ProtoTask{
-			"test": &types.ProtoTask{},
+		Tasks: map[string]*service.Task{
+			"test": &service.Task{},
 		},
 	}
 	var inputs interface{}
@@ -49,8 +48,8 @@ func TestMoveFromInProgressToCompleted(t *testing.T) {
 func TestMoveFromInProgressToCompletedNonExistingTask(t *testing.T) {
 	s := service.Service{
 		Name: "TestMoveFromInProgressToCompletedNonExistingTask",
-		Tasks: map[string]*types.ProtoTask{
-			"test": &types.ProtoTask{},
+		Tasks: map[string]*service.Task{
+			"test": &service.Task{},
 		},
 	}
 	var inputs interface{}
