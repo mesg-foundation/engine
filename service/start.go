@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/swarm"
 	docker "github.com/fsouza/go-dockerclient"
 	"github.com/mesg-foundation/core/config"
@@ -77,6 +78,12 @@ func (dependency *Dependency) Start(details dependencyDetails, network *docker.N
 					},
 					Labels: map[string]string{
 						"com.docker.stack.namespace": details.namespace,
+					},
+					Mounts: []mount.Mount{
+						mount.Mount{
+							Source: viper.GetString(config.APIServerAddress),
+							Target: viper.GetString(config.APIServiceSocketPath),
+						},
 					},
 				},
 			},
