@@ -1,6 +1,7 @@
 package execution
 
 import (
+	"encoding/json"
 	"errors"
 	"log"
 	"time"
@@ -21,7 +22,10 @@ func Create(service *service.Service, task string, inputs interface{}) (executio
 		Task:      task,
 		CreatedAt: time.Now(),
 	}
-	execution.ID = generateID(execution)
+	execution.ID, err = generateID(execution)
+	if err != nil {
+		return
+	}
 	mu.Lock()
 	defer mu.Unlock()
 	pendingExecutions[execution.ID] = execution
@@ -40,10 +44,16 @@ func taskExists(service *service.Service, name string) (exists bool) {
 	return
 }
 
-func generateID(execution *Execution) (id string) {
-	return hash.Calculate([]string{
+func generateID(execution *Execution) (id string, err error) {
+	inputs, err := json.Marshal(execution.Inputs)
+	if err != nil {
+		return
+	}
+	id = hash.Calculate([]string{
 		execution.CreatedAt.UTC().String(),
 		execution.Service.Name,
 		execution.Task,
+		string(inputs),
 	})
+	return
 }
