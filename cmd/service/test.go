@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"log"
 
+	"github.com/mesg-foundation/core/api/client"
+
 	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/mesg-foundation/core/config"
 	"google.golang.org/grpc"
@@ -13,7 +15,6 @@ import (
 	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/pubsub"
 	"github.com/mesg-foundation/core/service"
-	"github.com/mesg-foundation/core/types"
 	"github.com/spf13/cobra"
 )
 
@@ -33,11 +34,11 @@ mesg-cli service test --keep-alive`,
 	DisableAutoGenTag: true,
 }
 
-func listenEvents(service *service.Service, callback func(event *types.EventReply)) {
+func listenEvents(service *service.Service, callback func(event *client.EventData)) {
 	listener := pubsub.Subscribe(service.EventSubscriptionChannel())
 	go func() {
 		for event := range listener {
-			callback(event.(*types.EventReply))
+			callback(event.(*client.EventData))
 		}
 	}()
 	return
@@ -52,7 +53,7 @@ func startServer() {
 	}
 }
 
-func executeTask(service *service.Service, task string, dataPath string) (reply *types.TaskReply, err error) {
+func executeTask(service *service.Service, task string, dataPath string) (execution *client.TaskReply, err error) {
 	connection, err := grpc.Dial(config.Api.Client.Target(), grpc.WithInsecure())
 	if err != nil {
 		return
@@ -63,13 +64,11 @@ func executeTask(service *service.Service, task string, dataPath string) (reply 
 		return
 	}
 
-	cli := types.NewTaskClient(connection)
-	reply, err = cli.Execute(context.Background(), &types.ExecuteTaskRequest{
-		Service: &service.Service{
-			Name: service.Name,
-		},
-		Task: task,
-		Data: string(data),
+	cli := client.NewClientClient(connection)
+	execution, err = cli.ExecuteTask(context.Background(), &client.ExecuteTaskRequest{
+		Service:  service,
+		TaskKey:  task,
+		TaskData: string(data),
 	})
 	log.Println("Execute task", task, "with data", string(data))
 	return
@@ -79,10 +78,10 @@ func testHandler(cmd *cobra.Command, args []string) {
 	service := loadService(defaultPath(args))
 
 	go startServer()
-	go listenEvents(service, func(event *types.EventReply) {
+	go listenEvents(service, func(event *client.EventData) {
 		filter := cmd.Flag("event").Value.String()
-		if filter == "*" || filter == event.Event {
-			log.Println("Receive event", aurora.Green(event.Event), ":", aurora.Bold(event.Data))
+		if filter == "*" || filter == event.EventKey {
+			log.Println("Receive event", aurora.Green(event.EventKey), ":", aurora.Bold(event.EventData))
 		}
 	})
 	startService(service)
