@@ -4,8 +4,11 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/swarm"
 	docker "github.com/fsouza/go-dockerclient"
+	"github.com/mesg-foundation/core/config"
+	"github.com/spf13/viper"
 )
 
 // Start a service
@@ -70,8 +73,17 @@ func (dependency *Dependency) Start(details dependencyDetails, network *docker.N
 				ContainerSpec: &swarm.ContainerSpec{
 					Image: dependency.Image,
 					Args:  strings.Fields(dependency.Command),
+					Env: []string{
+						"MESG_ENDPOINT=" + viper.GetString(config.APIServiceTarget),
+					},
 					Labels: map[string]string{
 						"com.docker.stack.namespace": details.namespace,
+					},
+					Mounts: []mount.Mount{
+						mount.Mount{
+							Source: viper.GetString(config.APIServerAddress),
+							Target: viper.GetString(config.APIServiceSocketPath),
+						},
 					},
 				},
 			},

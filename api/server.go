@@ -1,14 +1,15 @@
 package api
 
 import (
+	"errors"
 	"log"
 	"net"
+	"os"
 
 	"github.com/mesg-foundation/core/api/event"
 	"github.com/mesg-foundation/core/api/result"
 	"github.com/mesg-foundation/core/api/service"
 	"github.com/mesg-foundation/core/api/task"
-	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/types"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -17,31 +18,21 @@ import (
 // Server is the main struct that contain the server config
 type Server struct {
 	instance *grpc.Server
+	listener net.Listener
 	Network  string
 	Address  string
 }
 
-// network returns the Server's network or a default
-func (s *Server) network() (network string) {
-	network = s.Network
-	if network == "" {
-		network = config.Api.Server.Network()
-	}
-	return
-}
-
-// address returns the Server's address or a default
-func (s *Server) address() (address string) {
-	address = s.Address
-	if address == "" {
-		address = config.Api.Server.Address()
-	}
-	return
-}
-
 // Serve starts the server and listen for client connections
 func (s *Server) Serve() (err error) {
-	listener, err := net.Listen(s.network(), s.address())
+	if s.listener != nil {
+		err = errors.New("Server already running")
+		return
+	}
+	if s.Network == "unix" {
+		os.Remove(s.Address)
+	}
+	s.listener, err = net.Listen(s.Network, s.Address)
 	if err != nil {
 		return
 	}
@@ -49,10 +40,10 @@ func (s *Server) Serve() (err error) {
 	s.instance = grpc.NewServer()
 	s.register()
 
-	log.Println("Server listens on", listener.Addr())
+	log.Println("Server listens on", s.listener.Addr())
 
 	// TODO: check if server still on after a connection throw an error. otherwise, add a for around serve
-	err = s.instance.Serve(listener)
+	err = s.instance.Serve(s.listener)
 	if err != nil {
 		return
 	}
