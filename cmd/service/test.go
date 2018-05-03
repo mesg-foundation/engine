@@ -14,6 +14,7 @@ import (
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/service"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // Test a service
@@ -89,7 +90,7 @@ func executeTask(cli client.ClientClient, service *service.Service, task string,
 func testHandler(cmd *cobra.Command, args []string) {
 	service := loadService(defaultPath(args))
 
-	connection, err := grpc.Dial(config.Api.Client.Target(), grpc.WithInsecure())
+	connection, err := grpc.Dial(viper.GetString(config.APIClientTarget), grpc.WithInsecure())
 	handleError(err)
 	cli := client.NewClientClient(connection)
 

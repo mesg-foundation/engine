@@ -4,10 +4,10 @@ import (
 	"errors"
 	"log"
 	"net"
+	"os"
 
 	"github.com/mesg-foundation/core/api/client"
 	"github.com/mesg-foundation/core/api/service"
-	"github.com/mesg-foundation/core/config"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -20,24 +20,6 @@ type Server struct {
 	Address  string
 }
 
-// network returns the Server's network or a default
-func (s *Server) network() (network string) {
-	network = s.Network
-	if network == "" {
-		network = config.Api.Server.Network()
-	}
-	return
-}
-
-// address returns the Server's address or a default
-func (s *Server) address() (address string) {
-	address = s.Address
-	if address == "" {
-		address = config.Api.Server.Address()
-	}
-	return
-}
-
 // Serve starts the server and listen for client connections
 func (s *Server) Serve() (err error) {
 	if s.listener != nil {
@@ -45,7 +27,10 @@ func (s *Server) Serve() (err error) {
 		return
 	}
 
-	s.listener, err = net.Listen(s.network(), s.address())
+	if s.Network == "unix" {
+		os.Remove(s.Address)
+	}
+	s.listener, err = net.Listen(s.Network, s.Address)
 	if err != nil {
 		return
 	}
