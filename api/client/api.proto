@@ -48,9 +48,10 @@ message ExecuteTaskReply {
 
 message ResultData {
   string error = 1;
-  string taskKey = 2;
-  string outputKey = 3;
-  string outputData = 4;
+  string executionID = 2;
+  string taskKey = 3;
+  string outputKey = 4;
+  string outputData = 5;
 }
 
 message StartServiceReply {
