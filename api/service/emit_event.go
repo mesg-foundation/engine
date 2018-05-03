@@ -2,17 +2,23 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 
-	"github.com/mesg-foundation/core/pubsub"
+	"github.com/mesg-foundation/core/event"
 )
 
-// EmitEvent a new event
 func (s *Server) EmitEvent(context context.Context, request *EmitEventRequest) (reply *EmitEventReply, err error) {
-	channel := request.Service.EventSubscriptionChannel()
-
+	service := request.Service
+	var data interface{}
+	err = json.Unmarshal([]byte(request.EventData), &data)
+	if err != nil {
+		return
+	}
+	event, err := event.Create(service, request.EventKey, data)
+	if err != nil {
+		return
+	}
+	event.Publish()
 	reply = &EmitEventReply{}
-
-	go pubsub.Publish(channel, reply)
-
 	return
 }
