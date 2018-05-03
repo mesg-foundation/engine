@@ -1,7 +1,9 @@
 package task
 
 import (
-	"github.com/mesg-foundation/core/pubsub"
+	"encoding/json"
+
+	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/types"
 	"golang.org/x/net/context"
@@ -9,14 +11,16 @@ import (
 
 // Execute a task
 func (s *Server) Execute(ctx context.Context, request *types.ExecuteTaskRequest) (reply *types.TaskReply, err error) {
-	channel := service.New(request.Service).TaskSubscriptionChannel()
-
-	reply = &types.TaskReply{
-		Task: request.Task,
-		Data: request.Data,
+	service := service.New(request.Service)
+	var inputs interface{}
+	err = json.Unmarshal([]byte(request.Data), &inputs)
+	if err != nil {
+		return
 	}
-
-	go pubsub.Publish(channel, reply)
-
+	execution, err := execution.Create(service, request.Task, inputs)
+	if err != nil {
+		return
+	}
+	reply, err = execution.Execute()
 	return
 }

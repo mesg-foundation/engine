@@ -5,8 +5,11 @@ package types;
 import "service.proto";
 
 service Task {
-  rpc Execute (ExecuteTaskRequest) returns (TaskReply) {}
+  // Service
   rpc Listen (ListenTaskRequest) returns (stream TaskReply) {}
+  
+  // Application
+  rpc Execute (ExecuteTaskRequest) returns (TaskReply) {}
 }
 
 message ExecuteTaskRequest {
@@ -20,7 +23,8 @@ message ListenTaskRequest {
 }
 
 message TaskReply {
-  string error = 1;
-  string task = 2;
-  string data = 3;
+  string executionID = 1;
+  string error = 2;
+  string task = 3;
+  string data = 4;
 }
