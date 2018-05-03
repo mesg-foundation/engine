@@ -25,7 +25,7 @@ type ProtoService struct {
 func (m *ProtoService) Reset()                    { *m = ProtoService{} }
 func (m *ProtoService) String() string            { return proto.CompactTextString(m) }
 func (*ProtoService) ProtoMessage()               {}
-func (*ProtoService) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0} }
+func (*ProtoService) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{0} }
 
 func (m *ProtoService) GetName() string {
 	if m != nil {
@@ -89,7 +89,7 @@ type ProtoTask struct {
 func (m *ProtoTask) Reset()                    { *m = ProtoTask{} }
 func (m *ProtoTask) String() string            { return proto.CompactTextString(m) }
 func (*ProtoTask) ProtoMessage()               {}
-func (*ProtoTask) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{1} }
+func (*ProtoTask) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{1} }
 
 func (m *ProtoTask) GetName() string {
 	if m != nil {
@@ -150,7 +150,7 @@ type ProtoFee struct {
 func (m *ProtoFee) Reset()                    { *m = ProtoFee{} }
 func (m *ProtoFee) String() string            { return proto.CompactTextString(m) }
 func (*ProtoFee) ProtoMessage()               {}
-func (*ProtoFee) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{2} }
+func (*ProtoFee) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{2} }
 
 func (m *ProtoFee) GetDeveloper() string {
 	if m != nil {
@@ -189,7 +189,7 @@ type ProtoEvent struct {
 func (m *ProtoEvent) Reset()                    { *m = ProtoEvent{} }
 func (m *ProtoEvent) String() string            { return proto.CompactTextString(m) }
 func (*ProtoEvent) ProtoMessage()               {}
-func (*ProtoEvent) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{3} }
+func (*ProtoEvent) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{3} }
 
 func (m *ProtoEvent) GetName() string {
 	if m != nil {
@@ -221,7 +221,7 @@ type ProtoOutput struct {
 func (m *ProtoOutput) Reset()                    { *m = ProtoOutput{} }
 func (m *ProtoOutput) String() string            { return proto.CompactTextString(m) }
 func (*ProtoOutput) ProtoMessage()               {}
-func (*ProtoOutput) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{4} }
+func (*ProtoOutput) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{4} }
 
 func (m *ProtoOutput) GetName() string {
 	if m != nil {
@@ -254,7 +254,7 @@ type ProtoParameter struct {
 func (m *ProtoParameter) Reset()                    { *m = ProtoParameter{} }
 func (m *ProtoParameter) String() string            { return proto.CompactTextString(m) }
 func (*ProtoParameter) ProtoMessage()               {}
-func (*ProtoParameter) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{5} }
+func (*ProtoParameter) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{5} }
 
 func (m *ProtoParameter) GetName() string {
 	if m != nil {
@@ -294,7 +294,7 @@ type ProtoDependency struct {
 func (m *ProtoDependency) Reset()                    { *m = ProtoDependency{} }
 func (m *ProtoDependency) String() string            { return proto.CompactTextString(m) }
 func (*ProtoDependency) ProtoMessage()               {}
-func (*ProtoDependency) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{6} }
+func (*ProtoDependency) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{6} }
 
 func (m *ProtoDependency) GetImage() string {
 	if m != nil {
@@ -334,9 +334,9 @@ func init() {
 	proto.RegisterType((*ProtoDependency)(nil), "types.ProtoDependency")
 }
 
-func init() { proto.RegisterFile("service.proto", fileDescriptor3) }
+func init() { proto.RegisterFile("service.proto", fileDescriptor4) }
 
-var fileDescriptor3 = []byte{
+var fileDescriptor4 = []byte{
 	// 616 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x55, 0x4f, 0x6f, 0xd3, 0x4e,
 	0x10, 0x55, 0x1a, 0x27, 0x6d, 0x26, 0xfd, 0xfd, 0xda, 0xae, 0x00, 0x59, 0xa1, 0x94, 0x28, 0x08,

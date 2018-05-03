@@ -5,7 +5,10 @@ package types;
 import "service.proto";
 
 service Event {
+  // Service
   rpc Emit (EmitEventRequest) returns (EventReply) {}
+
+  // Application
   rpc Listen (ListenEventRequest) returns (stream EventReply) {}
 }
 
