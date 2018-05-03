@@ -53,7 +53,7 @@ func startServer() {
 	}
 }
 
-func executeTask(service *service.Service, task string, dataPath string) (execution *client.TaskReply, err error) {
+func executeTask(service *service.Service, task string, dataPath string) (execution *client.ExecuteTaskReply, err error) {
 	connection, err := grpc.Dial(config.Api.Client.Target(), grpc.WithInsecure())
 	if err != nil {
 		return

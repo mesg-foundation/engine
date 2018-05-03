@@ -8,12 +8,12 @@ It is generated from these files:
 	github.com/mesg-foundation/core/api/service/api.proto
 
 It has these top-level messages:
-	ServiceRequest
-	ErrorReply
 	EmitEventRequest
+	ListenTaskRequest
 	SubmitResultRequest
-	ResultReply
+	EmitEventReply
 	TaskData
+	SubmitResultReply
 */
 package service
 
@@ -38,38 +38,6 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-type ServiceRequest struct {
-	Service *service1.Service `protobuf:"bytes,1,opt,name=service" json:"service,omitempty"`
-}
-
-func (m *ServiceRequest) Reset()                    { *m = ServiceRequest{} }
-func (m *ServiceRequest) String() string            { return proto.CompactTextString(m) }
-func (*ServiceRequest) ProtoMessage()               {}
-func (*ServiceRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
-
-func (m *ServiceRequest) GetService() *service1.Service {
-	if m != nil {
-		return m.Service
-	}
-	return nil
-}
-
-type ErrorReply struct {
-	Error string `protobuf:"bytes,1,opt,name=error" json:"error,omitempty"`
-}
-
-func (m *ErrorReply) Reset()                    { *m = ErrorReply{} }
-func (m *ErrorReply) String() string            { return proto.CompactTextString(m) }
-func (*ErrorReply) ProtoMessage()               {}
-func (*ErrorReply) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
-
-func (m *ErrorReply) GetError() string {
-	if m != nil {
-		return m.Error
-	}
-	return ""
-}
-
 type EmitEventRequest struct {
 	Service   *service1.Service `protobuf:"bytes,1,opt,name=service" json:"service,omitempty"`
 	EventKey  string            `protobuf:"bytes,2,opt,name=eventKey" json:"eventKey,omitempty"`
@@ -79,7 +47,7 @@ type EmitEventRequest struct {
 func (m *EmitEventRequest) Reset()                    { *m = EmitEventRequest{} }
 func (m *EmitEventRequest) String() string            { return proto.CompactTextString(m) }
 func (*EmitEventRequest) ProtoMessage()               {}
-func (*EmitEventRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
+func (*EmitEventRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
 
 func (m *EmitEventRequest) GetService() *service1.Service {
 	if m != nil {
@@ -102,6 +70,22 @@ func (m *EmitEventRequest) GetEventData() string {
 	return ""
 }
 
+type ListenTaskRequest struct {
+	Service *service1.Service `protobuf:"bytes,1,opt,name=service" json:"service,omitempty"`
+}
+
+func (m *ListenTaskRequest) Reset()                    { *m = ListenTaskRequest{} }
+func (m *ListenTaskRequest) String() string            { return proto.CompactTextString(m) }
+func (*ListenTaskRequest) ProtoMessage()               {}
+func (*ListenTaskRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
+
+func (m *ListenTaskRequest) GetService() *service1.Service {
+	if m != nil {
+		return m.Service
+	}
+	return nil
+}
+
 type SubmitResultRequest struct {
 	ExecutionID string `protobuf:"bytes,1,opt,name=executionID" json:"executionID,omitempty"`
 	OutputKey   string `protobuf:"bytes,2,opt,name=outputKey" json:"outputKey,omitempty"`
@@ -111,7 +95,7 @@ type SubmitResultRequest struct {
 func (m *SubmitResultRequest) Reset()                    { *m = SubmitResultRequest{} }
 func (m *SubmitResultRequest) String() string            { return proto.CompactTextString(m) }
 func (*SubmitResultRequest) ProtoMessage()               {}
-func (*SubmitResultRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
+func (*SubmitResultRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
 
 func (m *SubmitResultRequest) GetExecutionID() string {
 	if m != nil {
@@ -134,42 +118,18 @@ func (m *SubmitResultRequest) GetOutputData() string {
 	return ""
 }
 
-type ResultReply struct {
-	Error      string `protobuf:"bytes,1,opt,name=error" json:"error,omitempty"`
-	TaskKey    string `protobuf:"bytes,2,opt,name=taskKey" json:"taskKey,omitempty"`
-	OutputKey  string `protobuf:"bytes,3,opt,name=outputKey" json:"outputKey,omitempty"`
-	OutputData string `protobuf:"bytes,4,opt,name=outputData" json:"outputData,omitempty"`
+type EmitEventReply struct {
+	Error string `protobuf:"bytes,1,opt,name=error" json:"error,omitempty"`
 }
 
-func (m *ResultReply) Reset()                    { *m = ResultReply{} }
-func (m *ResultReply) String() string            { return proto.CompactTextString(m) }
-func (*ResultReply) ProtoMessage()               {}
-func (*ResultReply) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
+func (m *EmitEventReply) Reset()                    { *m = EmitEventReply{} }
+func (m *EmitEventReply) String() string            { return proto.CompactTextString(m) }
+func (*EmitEventReply) ProtoMessage()               {}
+func (*EmitEventReply) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
 
-func (m *ResultReply) GetError() string {
+func (m *EmitEventReply) GetError() string {
 	if m != nil {
 		return m.Error
-	}
-	return ""
-}
-
-func (m *ResultReply) GetTaskKey() string {
-	if m != nil {
-		return m.TaskKey
-	}
-	return ""
-}
-
-func (m *ResultReply) GetOutputKey() string {
-	if m != nil {
-		return m.OutputKey
-	}
-	return ""
-}
-
-func (m *ResultReply) GetOutputData() string {
-	if m != nil {
-		return m.OutputData
 	}
 	return ""
 }
@@ -184,7 +144,7 @@ type TaskData struct {
 func (m *TaskData) Reset()                    { *m = TaskData{} }
 func (m *TaskData) String() string            { return proto.CompactTextString(m) }
 func (*TaskData) ProtoMessage()               {}
-func (*TaskData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{5} }
+func (*TaskData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
 
 func (m *TaskData) GetExecutionID() string {
 	if m != nil {
@@ -214,13 +174,53 @@ func (m *TaskData) GetInputData() string {
 	return ""
 }
 
+type SubmitResultReply struct {
+	Error      string `protobuf:"bytes,1,opt,name=error" json:"error,omitempty"`
+	TaskKey    string `protobuf:"bytes,2,opt,name=taskKey" json:"taskKey,omitempty"`
+	OutputKey  string `protobuf:"bytes,3,opt,name=outputKey" json:"outputKey,omitempty"`
+	OutputData string `protobuf:"bytes,4,opt,name=outputData" json:"outputData,omitempty"`
+}
+
+func (m *SubmitResultReply) Reset()                    { *m = SubmitResultReply{} }
+func (m *SubmitResultReply) String() string            { return proto.CompactTextString(m) }
+func (*SubmitResultReply) ProtoMessage()               {}
+func (*SubmitResultReply) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{5} }
+
+func (m *SubmitResultReply) GetError() string {
+	if m != nil {
+		return m.Error
+	}
+	return ""
+}
+
+func (m *SubmitResultReply) GetTaskKey() string {
+	if m != nil {
+		return m.TaskKey
+	}
+	return ""
+}
+
+func (m *SubmitResultReply) GetOutputKey() string {
+	if m != nil {
+		return m.OutputKey
+	}
+	return ""
+}
+
+func (m *SubmitResultReply) GetOutputData() string {
+	if m != nil {
+		return m.OutputData
+	}
+	return ""
+}
+
 func init() {
-	proto.RegisterType((*ServiceRequest)(nil), "api.ServiceRequest")
-	proto.RegisterType((*ErrorReply)(nil), "api.ErrorReply")
 	proto.RegisterType((*EmitEventRequest)(nil), "api.EmitEventRequest")
+	proto.RegisterType((*ListenTaskRequest)(nil), "api.ListenTaskRequest")
 	proto.RegisterType((*SubmitResultRequest)(nil), "api.SubmitResultRequest")
-	proto.RegisterType((*ResultReply)(nil), "api.ResultReply")
+	proto.RegisterType((*EmitEventReply)(nil), "api.EmitEventReply")
 	proto.RegisterType((*TaskData)(nil), "api.TaskData")
+	proto.RegisterType((*SubmitResultReply)(nil), "api.SubmitResultReply")
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -234,9 +234,9 @@ const _ = grpc.SupportPackageIsVersion4
 // Client API for Service service
 
 type ServiceClient interface {
-	EmitEvent(ctx context.Context, in *EmitEventRequest, opts ...grpc.CallOption) (*ErrorReply, error)
-	ListenTask(ctx context.Context, in *ServiceRequest, opts ...grpc.CallOption) (Service_ListenTaskClient, error)
-	SubmitResult(ctx context.Context, in *SubmitResultRequest, opts ...grpc.CallOption) (*ResultReply, error)
+	EmitEvent(ctx context.Context, in *EmitEventRequest, opts ...grpc.CallOption) (*EmitEventReply, error)
+	ListenTask(ctx context.Context, in *ListenTaskRequest, opts ...grpc.CallOption) (Service_ListenTaskClient, error)
+	SubmitResult(ctx context.Context, in *SubmitResultRequest, opts ...grpc.CallOption) (*SubmitResultReply, error)
 }
 
 type serviceClient struct {
@@ -247,8 +247,8 @@ func NewServiceClient(cc *grpc.ClientConn) ServiceClient {
 	return &serviceClient{cc}
 }
 
-func (c *serviceClient) EmitEvent(ctx context.Context, in *EmitEventRequest, opts ...grpc.CallOption) (*ErrorReply, error) {
-	out := new(ErrorReply)
+func (c *serviceClient) EmitEvent(ctx context.Context, in *EmitEventRequest, opts ...grpc.CallOption) (*EmitEventReply, error) {
+	out := new(EmitEventReply)
 	err := grpc.Invoke(ctx, "/api.Service/EmitEvent", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
@@ -256,7 +256,7 @@ func (c *serviceClient) EmitEvent(ctx context.Context, in *EmitEventRequest, opt
 	return out, nil
 }
 
-func (c *serviceClient) ListenTask(ctx context.Context, in *ServiceRequest, opts ...grpc.CallOption) (Service_ListenTaskClient, error) {
+func (c *serviceClient) ListenTask(ctx context.Context, in *ListenTaskRequest, opts ...grpc.CallOption) (Service_ListenTaskClient, error) {
 	stream, err := grpc.NewClientStream(ctx, &_Service_serviceDesc.Streams[0], c.cc, "/api.Service/ListenTask", opts...)
 	if err != nil {
 		return nil, err
@@ -288,8 +288,8 @@ func (x *serviceListenTaskClient) Recv() (*TaskData, error) {
 	return m, nil
 }
 
-func (c *serviceClient) SubmitResult(ctx context.Context, in *SubmitResultRequest, opts ...grpc.CallOption) (*ResultReply, error) {
-	out := new(ResultReply)
+func (c *serviceClient) SubmitResult(ctx context.Context, in *SubmitResultRequest, opts ...grpc.CallOption) (*SubmitResultReply, error) {
+	out := new(SubmitResultReply)
 	err := grpc.Invoke(ctx, "/api.Service/SubmitResult", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
@@ -300,9 +300,9 @@ func (c *serviceClient) SubmitResult(ctx context.Context, in *SubmitResultReques
 // Server API for Service service
 
 type ServiceServer interface {
-	EmitEvent(context.Context, *EmitEventRequest) (*ErrorReply, error)
-	ListenTask(*ServiceRequest, Service_ListenTaskServer) error
-	SubmitResult(context.Context, *SubmitResultRequest) (*ResultReply, error)
+	EmitEvent(context.Context, *EmitEventRequest) (*EmitEventReply, error)
+	ListenTask(*ListenTaskRequest, Service_ListenTaskServer) error
+	SubmitResult(context.Context, *SubmitResultRequest) (*SubmitResultReply, error)
 }
 
 func RegisterServiceServer(s *grpc.Server, srv ServiceServer) {
@@ -328,7 +328,7 @@ func _Service_EmitEvent_Handler(srv interface{}, ctx context.Context, dec func(i
 }
 
 func _Service_ListenTask_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(ServiceRequest)
+	m := new(ListenTaskRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
@@ -394,29 +394,31 @@ func init() {
 }
 
 var fileDescriptor0 = []byte{
-	// 381 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x53, 0x4d, 0x4f, 0xc2, 0x40,
-	0x10, 0xa5, 0x54, 0x85, 0x0e, 0x7e, 0x90, 0x45, 0x93, 0xa6, 0x31, 0x86, 0xec, 0xc9, 0x98, 0xd8,
-	0x1a, 0x94, 0x1b, 0x27, 0x03, 0x07, 0xa3, 0xa7, 0xe2, 0xc9, 0x5b, 0xa9, 0x2b, 0x6e, 0xa0, 0xdd,
-	0xda, 0xee, 0x12, 0xd0, 0xbf, 0xe5, 0x0f, 0x34, 0xdd, 0x76, 0xdb, 0x22, 0x41, 0x8d, 0xa7, 0xce,
-	0xbc, 0x9d, 0xb7, 0x6f, 0x66, 0xe7, 0x15, 0xfa, 0x53, 0xca, 0x5f, 0xc5, 0xc4, 0xf6, 0x59, 0xe0,
-	0x04, 0x24, 0x99, 0x5e, 0xbe, 0x30, 0x11, 0x3e, 0x7b, 0x9c, 0xb2, 0xd0, 0xf1, 0x59, 0x4c, 0x1c,
-	0x2f, 0xa2, 0x4e, 0x42, 0xe2, 0x05, 0xf5, 0x65, 0x6c, 0x47, 0x31, 0xe3, 0x0c, 0xe9, 0x5e, 0x44,
-	0xad, 0x5f, 0xb9, 0x8a, 0x97, 0x7f, 0x33, 0x2e, 0x1e, 0xc0, 0xe1, 0x38, 0x03, 0x5c, 0xf2, 0x26,
-	0x48, 0xc2, 0xd1, 0x05, 0x34, 0xf2, 0x12, 0x53, 0xeb, 0x6a, 0xe7, 0xad, 0x5e, 0xdb, 0x56, 0x14,
-	0x55, 0xa9, 0x0a, 0x30, 0x06, 0x18, 0xc5, 0x31, 0x8b, 0x5d, 0x12, 0xcd, 0x57, 0xe8, 0x18, 0x76,
-	0x49, 0x9a, 0x49, 0x9e, 0xe1, 0x66, 0x09, 0x5e, 0x42, 0x7b, 0x14, 0x50, 0x3e, 0x5a, 0x90, 0x90,
-	0xff, 0x43, 0x03, 0x59, 0xd0, 0x24, 0x29, 0xf7, 0x9e, 0xac, 0xcc, 0xba, 0xbc, 0xb8, 0xc8, 0xd1,
-	0x29, 0x18, 0x32, 0x1e, 0x7a, 0xdc, 0x33, 0x75, 0x79, 0x58, 0x02, 0x58, 0x40, 0x67, 0x2c, 0x26,
-	0x01, 0xe5, 0x2e, 0x49, 0xc4, 0xbc, 0x10, 0xef, 0x42, 0x8b, 0x2c, 0x89, 0x2f, 0xd2, 0xa7, 0xb9,
-	0x1b, 0xe6, 0xcd, 0x56, 0xa1, 0xf4, 0x5a, 0x26, 0x78, 0x24, 0x2a, 0x9a, 0x25, 0x80, 0xce, 0x00,
-	0xb2, 0xa4, 0xa2, 0x5a, 0x41, 0xf0, 0x07, 0xb4, 0x94, 0xe0, 0xd6, 0x57, 0x41, 0x26, 0x34, 0xb8,
-	0x97, 0xcc, 0x4a, 0x01, 0x95, 0xae, 0x8b, 0xeb, 0x3f, 0x8b, 0xef, 0x6c, 0x88, 0xbf, 0x43, 0xf3,
-	0xd1, 0x4b, 0x66, 0x69, 0xfc, 0x87, 0x41, 0x8b, 0xde, 0xea, 0x5b, 0x7a, 0xd3, 0x37, 0x7a, 0xa3,
-	0xe1, 0xba, 0x78, 0x09, 0xf4, 0x3e, 0x35, 0x68, 0xe4, 0xeb, 0x43, 0x7d, 0x30, 0x8a, 0xad, 0xa3,
-	0x13, 0x3b, 0x35, 0xeb, 0x77, 0x17, 0x58, 0x47, 0x19, 0x5c, 0x18, 0x08, 0xd7, 0xd0, 0x0d, 0xc0,
-	0x03, 0x4d, 0x38, 0x09, 0xd3, 0x21, 0x50, 0x47, 0x16, 0xac, 0xfb, 0xd3, 0x3a, 0x90, 0xa0, 0x1a,
-	0x12, 0xd7, 0xae, 0x34, 0x34, 0x80, 0xfd, 0xea, 0xa2, 0x91, 0x99, 0xf1, 0x36, 0x77, 0x6f, 0xb5,
-	0xe5, 0x49, 0x65, 0x3d, 0xb8, 0x76, 0x6b, 0x3c, 0x29, 0xaf, 0x4d, 0xf6, 0xe4, 0x4f, 0x71, 0xfd,
-	0x15, 0x00, 0x00, 0xff, 0xff, 0x79, 0x1b, 0x76, 0x6e, 0x89, 0x03, 0x00, 0x00,
+	// 402 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x53, 0x4d, 0x6f, 0xda, 0x30,
+	0x18, 0x26, 0xc0, 0x06, 0x79, 0xd9, 0x26, 0x30, 0x1b, 0x8a, 0xa2, 0x69, 0x42, 0x3e, 0x4c, 0x68,
+	0xd2, 0x92, 0x89, 0x69, 0x9a, 0x76, 0x9a, 0x84, 0xe0, 0x50, 0xb5, 0xa7, 0xd0, 0x53, 0x6f, 0x21,
+	0x75, 0xa9, 0x05, 0x89, 0xd3, 0xc4, 0x46, 0xd0, 0x5b, 0x7f, 0x5a, 0xff, 0x59, 0x65, 0xe7, 0xcb,
+	0x05, 0xfa, 0xa1, 0x9e, 0xec, 0xf7, 0xf1, 0xfb, 0xf1, 0xbc, 0x4f, 0x9e, 0xc0, 0x9f, 0x25, 0xe5,
+	0xd7, 0x62, 0xe1, 0x04, 0x2c, 0x74, 0x43, 0x92, 0x2e, 0x7f, 0x5e, 0x31, 0x11, 0x5d, 0xfa, 0x9c,
+	0xb2, 0xc8, 0x0d, 0x58, 0x42, 0x5c, 0x3f, 0xa6, 0x6e, 0x4a, 0x92, 0x0d, 0x0d, 0xd4, 0xdd, 0x89,
+	0x13, 0xc6, 0x19, 0x6a, 0xf8, 0x31, 0xb5, 0x5f, 0xac, 0x2d, 0xea, 0xf2, 0x33, 0xab, 0xc5, 0x5b,
+	0xe8, 0xce, 0x42, 0xca, 0x67, 0x1b, 0x12, 0x71, 0x8f, 0xdc, 0x08, 0x92, 0x72, 0xf4, 0x03, 0x5a,
+	0x79, 0x92, 0x65, 0x0c, 0x8d, 0x51, 0x67, 0xdc, 0x75, 0x8a, 0xa2, 0x79, 0x76, 0x7a, 0x45, 0x02,
+	0xb2, 0xa1, 0x4d, 0x64, 0xed, 0x29, 0xd9, 0x59, 0xf5, 0xa1, 0x31, 0x32, 0xbd, 0x32, 0x46, 0x5f,
+	0xc1, 0x54, 0xf7, 0xa9, 0xcf, 0x7d, 0xab, 0xa1, 0x1e, 0x2b, 0x00, 0xff, 0x87, 0xde, 0x19, 0x4d,
+	0x39, 0x89, 0xce, 0xfd, 0x74, 0xf5, 0x86, 0xd1, 0x58, 0x40, 0x7f, 0x2e, 0x16, 0x21, 0xe5, 0x1e,
+	0x49, 0xc5, 0xba, 0x64, 0x3f, 0x84, 0x0e, 0xd9, 0x92, 0x40, 0xc8, 0xcd, 0x4f, 0xa6, 0xaa, 0x8d,
+	0xe9, 0xe9, 0x90, 0xe4, 0xc5, 0x04, 0x8f, 0x85, 0x46, 0xba, 0x02, 0xd0, 0x37, 0x80, 0x2c, 0xd0,
+	0x68, 0x6b, 0x08, 0xfe, 0x0e, 0x9f, 0x34, 0xc5, 0xe2, 0xf5, 0x0e, 0x7d, 0x86, 0x77, 0x24, 0x49,
+	0x58, 0x92, 0xcf, 0xca, 0x02, 0x7c, 0x0b, 0x6d, 0xb9, 0x99, 0xac, 0x79, 0x05, 0xa7, 0xb2, 0x47,
+	0x5d, 0xeb, 0x81, 0x2c, 0x68, 0x71, 0x3f, 0x5d, 0x49, 0x9e, 0x19, 0x91, 0x22, 0x94, 0x3b, 0xd0,
+	0xa8, 0x20, 0xd9, 0xcc, 0x76, 0x28, 0x01, 0x7c, 0x67, 0x40, 0xef, 0xb1, 0x36, 0x4f, 0xf2, 0xd4,
+	0x67, 0xd4, 0x0f, 0x66, 0x54, 0x3a, 0x35, 0x9e, 0xd7, 0xa9, 0xb9, 0xaf, 0xd3, 0xf8, 0xde, 0x80,
+	0x56, 0xfe, 0xcd, 0xd0, 0x3f, 0x30, 0x4b, 0xcd, 0xd0, 0x17, 0x47, 0x5a, 0x77, 0xdf, 0x75, 0x76,
+	0x7f, 0x1f, 0x8e, 0xd7, 0x3b, 0x5c, 0x43, 0x7f, 0x01, 0x2a, 0x9b, 0xa0, 0x81, 0x4a, 0x3a, 0xf0,
+	0x8d, 0xfd, 0x51, 0xe1, 0x85, 0xde, 0xb8, 0xf6, 0xcb, 0x40, 0x13, 0xf8, 0xa0, 0x4b, 0x80, 0x2c,
+	0x95, 0x72, 0xc4, 0x31, 0xf6, 0xe0, 0xc8, 0x8b, 0x1a, 0x3e, 0x31, 0x2f, 0x0a, 0xb7, 0x2d, 0xde,
+	0xab, 0xff, 0xe5, 0xf7, 0x43, 0x00, 0x00, 0x00, 0xff, 0xff, 0x82, 0xb7, 0xe4, 0xa6, 0xa4, 0x03,
+	0x00, 0x00,
 }

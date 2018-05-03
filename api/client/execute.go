@@ -8,7 +8,7 @@ import (
 )
 
 // Execute a task
-func (s *Server) ExecuteTask(ctx context.Context, request *ExecuteTaskRequest) (reply *TaskReply, err error) {
+func (s *Server) ExecuteTask(ctx context.Context, request *ExecuteTaskRequest) (reply *ExecuteTaskReply, err error) {
 	service := request.Service
 	var inputs interface{}
 	err = json.Unmarshal([]byte(request.TaskData), &inputs)
@@ -20,7 +20,7 @@ func (s *Server) ExecuteTask(ctx context.Context, request *ExecuteTaskRequest) (
 		return
 	}
 	err = execution.Execute()
-	reply = &TaskReply{
+	reply = &ExecuteTaskReply{
 		ExecutionID: execution.ID,
 	}
 	return
