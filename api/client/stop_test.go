@@ -1,29 +1,27 @@
-package service
+package client
 
 import (
 	"context"
 	"testing"
 
 	"github.com/mesg-foundation/core/service"
-	"github.com/mesg-foundation/core/types"
 	"github.com/stvp/assert"
 )
 
 var serverstop = new(Server)
 
 func TestStopService(t *testing.T) {
-	protoService := types.ProtoService{
+	service := service.Service{
 		Name: "TestStopService",
-		Dependencies: map[string]*types.ProtoDependency{
-			"test": &types.ProtoDependency{
+		Dependencies: map[string]*service.Dependency{
+			"test": &service.Dependency{
 				Image: "nginx",
 			},
 		},
 	}
-	service := service.New(&protoService)
 	service.Start()
-	reply, err := serverstop.Stop(context.Background(), &types.StopServiceRequest{
-		Service: &protoService,
+	reply, err := serverstop.StopService(context.Background(), &StopServiceRequest{
+		Service: &service,
 	})
 	assert.Equal(t, service.IsRunning(), false)
 	assert.Nil(t, err)

@@ -1,16 +1,14 @@
 package execution
 
 import (
-	"encoding/json"
 	"log"
 	"time"
 
 	"github.com/mesg-foundation/core/pubsub"
-	"github.com/mesg-foundation/core/types"
 )
 
 // Execute moves an exection from the pending to the in progress queue and publish the job for processing
-func (execution *Execution) Execute() (reply *types.TaskReply, err error) {
+func (execution *Execution) Execute() (err error) {
 	err = execution.moveFromPendingToInProgress()
 	if err != nil {
 		return
@@ -20,17 +18,6 @@ func (execution *Execution) Execute() (reply *types.TaskReply, err error) {
 
 	channel := execution.Service.TaskSubscriptionChannel()
 
-	data, err := json.Marshal(execution.Inputs)
-	if err != nil {
-		return
-	}
-
-	reply = &types.TaskReply{
-		ExecutionID: execution.ID,
-		Task:        execution.Task,
-		Data:        string(data),
-	}
-
-	go pubsub.Publish(channel, reply)
+	go pubsub.Publish(channel, execution)
 	return
 }

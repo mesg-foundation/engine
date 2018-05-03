@@ -3,15 +3,14 @@ package service
 import (
 	"testing"
 
-	"github.com/mesg-foundation/core/types"
 	"github.com/stvp/assert"
 )
 
 func TestStatusRunning(t *testing.T) {
 	service := &Service{
 		Name: "TestStatusRunning",
-		Dependencies: map[string]*types.ProtoDependency{
-			"test": &types.ProtoDependency{
+		Dependencies: map[string]*Dependency{
+			"test": &Dependency{
 				Image: "nginx",
 			},
 		},
@@ -27,8 +26,8 @@ func TestStatusRunning(t *testing.T) {
 func TestStatusStoped(t *testing.T) {
 	service := &Service{
 		Name: "TestStatusStoped",
-		Dependencies: map[string]*types.ProtoDependency{
-			"test": &types.ProtoDependency{
+		Dependencies: map[string]*Dependency{
+			"test": &Dependency{
 				Image: "nginx",
 			},
 		},
@@ -42,8 +41,8 @@ func TestStatusStoped(t *testing.T) {
 func TestList(t *testing.T) {
 	service := &Service{
 		Name: "TestList",
-		Dependencies: map[string]*types.ProtoDependency{
-			"test": &types.ProtoDependency{
+		Dependencies: map[string]*Dependency{
+			"test": &Dependency{
 				Image: "nginx",
 			},
 		},
@@ -59,11 +58,11 @@ func TestList(t *testing.T) {
 func TestListMultipleDependencies(t *testing.T) {
 	service := &Service{
 		Name: "TestListMultipleDependencies",
-		Dependencies: map[string]*types.ProtoDependency{
-			"test": &types.ProtoDependency{
+		Dependencies: map[string]*Dependency{
+			"test": &Dependency{
 				Image: "nginx",
 			},
-			"test2": &types.ProtoDependency{
+			"test2": &Dependency{
 				Image: "nginx",
 			},
 		},

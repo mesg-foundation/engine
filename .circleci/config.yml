@@ -8,7 +8,11 @@ jobs:
       - checkout
       - setup_remote_docker
       - run: go get -v -t ./...
-      - run: go test -coverprofile=coverage.txt -v ./...
+      # - save_cache:
+      #     key: v1-mesg-core-test
+      #     paths:
+      #       - /go
+      - run: go test -timeout 30s -coverprofile=coverage.txt -v ./...
       - run: bash <(curl -s https://codecov.io/bash)
 
   build_deploy:
