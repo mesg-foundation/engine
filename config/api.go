@@ -21,7 +21,7 @@ func init() {
 	viper.SetDefault(APIServerNetwork, "unix")
 	viper.SetDefault(APIServerAddress, filepath.Join(configDir, "server.sock"))
 
-	viper.SetDefault(APIClientTarget, filepath.Join(configDir, "server.sock"))
+	viper.SetDefault(APIClientTarget, "unix://"+viper.GetString(APIServerAddress))
 
 	viper.SetDefault(APIServiceSocketPath, "/mesg/server.sock")
 	viper.SetDefault(APIServiceTarget, "unix://"+viper.GetString(APIServiceSocketPath))
