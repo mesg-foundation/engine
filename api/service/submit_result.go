@@ -24,15 +24,9 @@ func (s *Server) SubmitResult(context context.Context, request *SubmitResultRequ
 	if err != nil {
 		return
 	}
-	outputData, err := json.Marshal(execution.OutputData)
-	if err != nil {
-		return
-	}
 	reply = &SubmitResultReply{
-		Error:      "",
-		TaskKey:    execution.Task,
-		OutputKey:  execution.Output,
-		OutputData: string(outputData),
+		Error:       "",
+		ExecutionID: execution.ID,
 	}
 	return
 }
