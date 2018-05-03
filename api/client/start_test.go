@@ -28,8 +28,8 @@ func TestStartService(t *testing.T) {
 	// the test and the docker api. On a local machine it works fine but maybe the CI
 	// have some delay when starting docker
 	time.Sleep(2 * time.Second)
-	assert.True(t, service.IsRunning())
 	assert.Nil(t, err)
+	assert.True(t, service.IsRunning())
 	assert.NotNil(t, reply)
 	service.Stop()
 }
