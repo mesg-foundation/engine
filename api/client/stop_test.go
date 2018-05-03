@@ -20,7 +20,7 @@ func TestStopService(t *testing.T) {
 		},
 	}
 	service.Start()
-	reply, err := serverstop.StopService(context.Background(), &ServiceRequest{
+	reply, err := serverstop.StopService(context.Background(), &StopServiceRequest{
 		Service: &service,
 	})
 	assert.Equal(t, service.IsRunning(), false)

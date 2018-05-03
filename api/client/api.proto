@@ -6,25 +6,15 @@ option go_package = "client";
 import "github.com/mesg-foundation/core/service/service.proto";
 
 service Client {
-  rpc ListenEvent (ServiceRequest) returns (stream EventData) {}
-  rpc ExecuteTask (ExecuteTaskRequest) returns (TaskReply) {}  
-  rpc ListenResult (ServiceRequest) returns (stream ResultData) {}
-  rpc StartService (ServiceRequest) returns (ErrorReply) {}
-  rpc StopService (ServiceRequest) returns (ErrorReply) {}
+  rpc ListenEvent (ListenEventRequest) returns (stream EventData) {}
+  rpc ExecuteTask (ExecuteTaskRequest) returns (ExecuteTaskReply) {}  
+  rpc ListenResult (ListenResultRequest) returns (stream ResultData) {}
+  rpc StartService (StartServiceRequest) returns (StartServiceReply) {}
+  rpc StopService (StopServiceRequest) returns (StopServiceReply) {}
 }
 
-message ServiceRequest {
+message ListenEventRequest {
   service.Service service = 1;
-}
-
-message ErrorReply {
-  string error = 1;
-}
-
-message EventData {
-  string error = 1;
-  string eventKey = 2;
-  string eventData = 3;
 }
 
 message ExecuteTaskRequest {
@@ -33,7 +23,25 @@ message ExecuteTaskRequest {
   string taskData = 3;
 }
 
-message TaskReply {
+message ListenResultRequest {
+  service.Service service = 1;
+}
+
+message StartServiceRequest {
+  service.Service service = 1;
+}
+
+message StopServiceRequest {
+  service.Service service = 1;
+}
+
+message EventData {
+  string error = 1;
+  string eventKey = 2;
+  string eventData = 3;
+}
+
+message ExecuteTaskReply {
   string executionID = 1;
   string error = 2;
 }
@@ -43,4 +51,12 @@ message ResultData {
   string taskKey = 2;
   string outputKey = 3;
   string outputData = 4;
+}
+
+message StartServiceReply {
+  string error = 1;
+}
+
+message StopServiceReply {
+  string error = 1;
 }

@@ -6,17 +6,9 @@ option go_package = "service";
 import "github.com/mesg-foundation/core/service/service.proto";
 
 service Service {
-  rpc EmitEvent (EmitEventRequest) returns (ErrorReply) {}
-  rpc ListenTask (ServiceRequest) returns (stream TaskData) {}
-  rpc SubmitResult (SubmitResultRequest) returns (ResultReply) {}
-}
-
-message ServiceRequest {
-  service.Service service = 1;
-}
-
-message ErrorReply {
-  string error = 1;
+  rpc EmitEvent (EmitEventRequest) returns (EmitEventReply) {}
+  rpc ListenTask (ListenTaskRequest) returns (stream TaskData) {}
+  rpc SubmitResult (SubmitResultRequest) returns (SubmitResultReply) {}
 }
 
 message EmitEventRequest {
@@ -25,17 +17,18 @@ message EmitEventRequest {
   string eventData = 3;
 }
 
+message ListenTaskRequest {
+  service.Service service = 1;
+}
+
 message SubmitResultRequest {
   string executionID = 1;
   string outputKey = 2;
   string outputData = 3;
 }
 
-message ResultReply {
+message EmitEventReply {
   string error = 1;
-  string taskKey = 2;
-  string outputKey = 3;
-  string outputData = 4;
 }
 
 message TaskData {
@@ -43,4 +36,11 @@ message TaskData {
   string error = 2;
   string taskKey = 3;
   string inputData = 4;
+}
+
+message SubmitResultReply {
+  string error = 1;
+  string taskKey = 2;
+  string outputKey = 3;
+  string outputData = 4;
 }

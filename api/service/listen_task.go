@@ -4,7 +4,7 @@ import (
 	"github.com/mesg-foundation/core/pubsub"
 )
 
-func getSubscription(request *ServiceRequest) (subscription chan pubsub.Message) {
+func getSubscription(request *ListenTaskRequest) (subscription chan pubsub.Message) {
 	service := request.Service
 
 	subscription = pubsub.Subscribe(service.TaskSubscriptionChannel())
@@ -12,7 +12,7 @@ func getSubscription(request *ServiceRequest) (subscription chan pubsub.Message)
 }
 
 // Listen for tasks
-func (s *Server) ListenTask(request *ServiceRequest, stream Service_ListenTaskServer) (err error) {
+func (s *Server) ListenTask(request *ListenTaskRequest, stream Service_ListenTaskServer) (err error) {
 	subscription := getSubscription(request)
 	for data := range subscription {
 		stream.Send(data.(*TaskData))

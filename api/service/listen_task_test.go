@@ -19,7 +19,7 @@ func TestGetSubscription(t *testing.T) {
 		},
 	}
 
-	subscription := getSubscription(&ServiceRequest{
+	subscription := getSubscription(&ListenTaskRequest{
 		Service: &service,
 	})
 

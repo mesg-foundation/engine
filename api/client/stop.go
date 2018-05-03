@@ -5,9 +5,9 @@ import (
 )
 
 // Stop a service
-func (s *Server) StopService(ctx context.Context, request *ServiceRequest) (reply *ErrorReply, err error) {
+func (s *Server) StopService(ctx context.Context, request *StopServiceRequest) (reply *StopServiceReply, err error) {
 	service := request.Service
 	err = service.Stop()
-	reply = &ErrorReply{}
+	reply = &StopServiceReply{}
 	return
 }

@@ -5,9 +5,9 @@ import (
 )
 
 // Start a service
-func (s *Server) StartService(ctx context.Context, request *ServiceRequest) (reply *ErrorReply, err error) {
+func (s *Server) StartService(ctx context.Context, request *StartServiceRequest) (reply *StartServiceReply, err error) {
 	service := request.Service
 	_, err = service.Start()
-	reply = &ErrorReply{}
+	reply = &StartServiceReply{}
 	return
 }

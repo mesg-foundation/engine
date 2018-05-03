@@ -7,10 +7,10 @@ import (
 )
 
 // EmitEvent a new event
-func (s *Server) EmitEvent(context context.Context, request *EmitEventRequest) (reply *ErrorReply, err error) {
+func (s *Server) EmitEvent(context context.Context, request *EmitEventRequest) (reply *EmitEventReply, err error) {
 	channel := request.Service.EventSubscriptionChannel()
 
-	reply = &ErrorReply{}
+	reply = &EmitEventReply{}
 
 	go pubsub.Publish(channel, reply)
 

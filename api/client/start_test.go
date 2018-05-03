@@ -19,7 +19,7 @@ func TestStartService(t *testing.T) {
 			},
 		},
 	}
-	reply, err := serverstart.StartService(context.Background(), &ServiceRequest{
+	reply, err := serverstart.StartService(context.Background(), &StartServiceRequest{
 		Service: &service,
 	})
 	assert.True(t, service.IsRunning())
