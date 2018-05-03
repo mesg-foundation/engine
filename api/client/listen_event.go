@@ -1,6 +1,9 @@
 package client
 
 import (
+	"encoding/json"
+
+	"github.com/mesg-foundation/core/event"
 	"github.com/mesg-foundation/core/pubsub"
 )
 
@@ -8,7 +11,12 @@ import (
 func (s *Server) ListenEvent(request *ListenEventRequest, stream Client_ListenEventServer) (err error) {
 	subscription := pubsub.Subscribe(request.Service.EventSubscriptionChannel())
 	for data := range subscription {
-		stream.Send(data.(*EventData))
+		event := data.(*event.Event)
+		eventData, _ := json.Marshal(event.Data)
+		stream.Send(&EventData{
+			EventKey:  event.Key,
+			EventData: string(eventData),
+		})
 	}
 	return
 }
