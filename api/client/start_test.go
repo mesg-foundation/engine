@@ -22,7 +22,7 @@ func TestStartService(t *testing.T) {
 	reply, err := serverstart.StartService(context.Background(), &ServiceRequest{
 		Service: &service,
 	})
-	assert.Equal(t, service.IsRunning(), true)
+	assert.True(t, service.IsRunning())
 	assert.Nil(t, err)
 	assert.NotNil(t, reply)
 	service.Stop()
