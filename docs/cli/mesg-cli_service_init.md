@@ -22,6 +22,7 @@ mesg-cli service init --name NAME --description DESCRIPTION --visibility ALL --p
 ### Options
 
 ```
+  -c, --current              Create the service in the current path
   -d, --description string   Description
   -h, --help                 help for init
   -n, --name string          Name
