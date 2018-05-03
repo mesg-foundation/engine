@@ -12,8 +12,6 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/logrusorgru/aurora"
-	"github.com/mesg-foundation/core/api"
-	"github.com/mesg-foundation/core/pubsub"
 	"github.com/mesg-foundation/core/service"
 	"github.com/spf13/cobra"
 )
@@ -34,66 +32,75 @@ mesg-cli service test --keep-alive`,
 	DisableAutoGenTag: true,
 }
 
-func listenEvents(service *service.Service, callback func(event *client.EventData)) {
-	listener := pubsub.Subscribe(service.EventSubscriptionChannel())
-	go func() {
-		for event := range listener {
-			callback(event.(*client.EventData))
+func startServiceFromCli(cli client.ClientClient, service *service.Service) {
+	_, err := cli.StartService(context.Background(), &client.StartServiceRequest{
+		Service: service,
+	})
+	handleError(err)
+	log.Println("Service", service.Name, "started")
+}
+
+func listenEvents(cli client.ClientClient, service *service.Service, filter string) {
+	stream, err := cli.ListenEvent(context.Background(), &client.ListenEventRequest{
+		Service: service,
+	})
+	handleError(err)
+	for {
+		event, err := stream.Recv()
+		handleError(err)
+		if filter == "*" || filter == event.EventKey {
+			log.Println("Receive event", aurora.Green(event.EventKey), ":", aurora.Bold(event.EventData))
 		}
-	}()
-	return
-}
-
-func startServer() {
-	server := api.Server{}
-	err := server.Serve()
-	defer server.Stop()
-	if err != nil {
-		log.Panicln(err)
 	}
 }
 
-func executeTask(service *service.Service, task string, dataPath string) (execution *client.ExecuteTaskReply, err error) {
-	connection, err := grpc.Dial(config.Api.Client.Target(), grpc.WithInsecure())
-	if err != nil {
+func listenResults(cli client.ClientClient, service *service.Service) {
+	stream, err := cli.ListenResult(context.Background(), &client.ListenResultRequest{
+		Service: service,
+	})
+	handleError(err)
+	for {
+		result, err := stream.Recv()
+		handleError(err)
+		log.Println("Receive result", aurora.Green(result.TaskKey), aurora.Green(result.OutputKey), ":", aurora.Bold(result.OutputData))
+	}
+}
+
+func executeTask(cli client.ClientClient, service *service.Service, task string, dataPath string) (execution *client.ExecuteTaskReply, err error) {
+	if task == "" {
 		return
 	}
-
-	data, err := ioutil.ReadFile(dataPath)
-	if err != nil {
-		return
+	var data = []byte("{}")
+	if dataPath != "" {
+		data, err = ioutil.ReadFile(dataPath)
+		handleError(err)
 	}
 
-	cli := client.NewClientClient(connection)
 	execution, err = cli.ExecuteTask(context.Background(), &client.ExecuteTaskRequest{
 		Service:  service,
 		TaskKey:  task,
 		TaskData: string(data),
 	})
-	log.Println("Execute task", task, "with data", string(data))
+	handleError(err)
+	log.Println("Execute task", aurora.Green(task), "with data", aurora.Bold(string(data)))
 	return
 }
 
 func testHandler(cmd *cobra.Command, args []string) {
 	service := loadService(defaultPath(args))
 
-	go startServer()
-	go listenEvents(service, func(event *client.EventData) {
-		filter := cmd.Flag("event").Value.String()
-		if filter == "*" || filter == event.EventKey {
-			log.Println("Receive event", aurora.Green(event.EventKey), ":", aurora.Bold(event.EventData))
-		}
-	})
-	startService(service)
-	log.Println(aurora.Green("Service started"))
+	connection, err := grpc.Dial(config.Api.Client.Target(), grpc.WithInsecure())
+	handleError(err)
+	cli := client.NewClientClient(connection)
+
+	startServiceFromCli(cli, service)
 	defer service.Stop()
-	task := cmd.Flag("task").Value.String()
-	if task != "" {
-		_, err := executeTask(service, task, cmd.Flag("data").Value.String())
-		if err != nil {
-			log.Println(aurora.Red(err))
-		}
-	}
+
+	go listenEvents(cli, service, cmd.Flag("event").Value.String())
+
+	go listenResults(cli, service)
+
+	executeTask(cli, service, cmd.Flag("task").Value.String(), cmd.Flag("data").Value.String())
 
 	<-cmdUtils.WaitForCancel()
 }
