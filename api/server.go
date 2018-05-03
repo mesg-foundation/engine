@@ -4,12 +4,9 @@ import (
 	"log"
 	"net"
 
-	"github.com/mesg-foundation/core/api/event"
-	"github.com/mesg-foundation/core/api/result"
+	"github.com/mesg-foundation/core/api/client"
 	"github.com/mesg-foundation/core/api/service"
-	"github.com/mesg-foundation/core/api/task"
 	"github.com/mesg-foundation/core/config"
-	"github.com/mesg-foundation/core/types"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -69,11 +66,8 @@ func (s *Server) Stop() {
 
 // register all server
 func (s *Server) register() {
-
-	types.RegisterServiceServer(s.instance, &service.Server{})
-	types.RegisterEventServer(s.instance, &event.Server{})
-	types.RegisterTaskServer(s.instance, &task.Server{})
-	types.RegisterResultServer(s.instance, &result.Server{})
+	service.RegisterServiceServer(s.instance, &service.Server{})
+	client.RegisterClientServer(s.instance, &client.Server{})
 
 	reflection.Register(s.instance)
 }

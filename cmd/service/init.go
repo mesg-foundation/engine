@@ -9,7 +9,6 @@ import (
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/service"
-	"github.com/mesg-foundation/core/types"
 	"github.com/spf13/cobra"
 	"gopkg.in/AlecAivazis/survey.v1"
 	"gopkg.in/yaml.v2"
@@ -74,8 +73,8 @@ func initHandler(cmd *cobra.Command, args []string) {
 	}
 	res.Visibility = visibilityStr
 
-	res.Dependencies = map[string]*types.ProtoDependency{
-		key: &types.ProtoDependency{
+	res.Dependencies = map[string]*service.Dependency{
+		key: &service.Dependency{
 			Image: strings.Join([]string{"mesg", key}, "/"),
 		},
 	}

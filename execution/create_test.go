@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/mesg-foundation/core/service"
-	"github.com/mesg-foundation/core/types"
 	"github.com/mesg-foundation/core/utils/hash"
 	"github.com/stvp/assert"
 )
@@ -33,8 +32,8 @@ func TestGenerateID(t *testing.T) {
 
 func TestTaskExists(t *testing.T) {
 	s := service.Service{
-		Tasks: map[string]*types.ProtoTask{
-			"test": &types.ProtoTask{},
+		Tasks: map[string]*service.Task{
+			"test": &service.Task{},
 		},
 	}
 	exisits := taskExists(&s, "test")
@@ -43,8 +42,8 @@ func TestTaskExists(t *testing.T) {
 
 func TestTaskNotExists(t *testing.T) {
 	s := service.Service{
-		Tasks: map[string]*types.ProtoTask{
-			"test": &types.ProtoTask{},
+		Tasks: map[string]*service.Task{
+			"test": &service.Task{},
 		},
 	}
 	exisits := taskExists(&s, "testnotexists")
@@ -53,9 +52,9 @@ func TestTaskNotExists(t *testing.T) {
 
 func TestTaskExistsOnOtherKey(t *testing.T) {
 	s := service.Service{
-		Tasks: map[string]*types.ProtoTask{
-			"test":  &types.ProtoTask{},
-			"test2": &types.ProtoTask{},
+		Tasks: map[string]*service.Task{
+			"test":  &service.Task{},
+			"test2": &service.Task{},
 		},
 	}
 	exisits := taskExists(&s, "test2")
@@ -65,8 +64,8 @@ func TestTaskExistsOnOtherKey(t *testing.T) {
 func TestCreate(t *testing.T) {
 	s := service.Service{
 		Name: "TestCreate",
-		Tasks: map[string]*types.ProtoTask{
-			"test": &types.ProtoTask{},
+		Tasks: map[string]*service.Task{
+			"test": &service.Task{},
 		},
 	}
 	var inputs interface{}
@@ -81,8 +80,8 @@ func TestCreate(t *testing.T) {
 func TestCreateInvalidTask(t *testing.T) {
 	s := service.Service{
 		Name: "TestCreateInvalidTask",
-		Tasks: map[string]*types.ProtoTask{
-			"test": &types.ProtoTask{},
+		Tasks: map[string]*service.Task{
+			"test": &service.Task{},
 		},
 	}
 	var inputs interface{}
