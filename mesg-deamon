@@ -9,5 +9,5 @@ if [ -z "$mesgcontainer" ]; then
     -p 50052:50052 \
     -e API.SERVICE.SOCKETPATH=$HOME/.mesg/server.sock \
     --name=mesg-core \
-    mesg-core $@
+    $@ mesg-core
 fi
