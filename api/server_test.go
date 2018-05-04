@@ -4,9 +4,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/spf13/viper"
-
-	"github.com/mesg-foundation/core/config"
 	"github.com/stvp/assert"
 )
 
@@ -16,7 +13,7 @@ const (
 
 func TestServerServe(t *testing.T) {
 	s := Server{
-		Network: viper.GetString(config.APIServerNetwork),
+		Network: "unix",
 		Address: "TestServerServe.sock",
 	}
 	go func() {
@@ -39,7 +36,7 @@ func TestServerServeNoAddress(t *testing.T) {
 
 func TestServerServeAlreadyListening(t *testing.T) {
 	s := Server{
-		Network: viper.GetString(config.APIServerNetwork),
+		Network: "unix",
 		Address: "TestServerServeAlreadyListening.sock",
 	}
 	go s.Serve()
