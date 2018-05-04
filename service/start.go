@@ -74,12 +74,12 @@ func (dependency *Dependency) Start(details dependencyDetails, network *docker.N
 					Image: dependency.Image,
 					Args:  strings.Fields(dependency.Command),
 					Env: []string{
-						"MESG_ENDPOINT=" + viper.GetString(config.APIServiceTarget),
+						"MESG_ENDPOINT=" + viper.GetString(config.APIServiceTargetSocket),
 					},
 					Mounts: []mount.Mount{
 						mount.Mount{
-							Source: viper.GetString(config.APIServerAddress),
-							Target: viper.GetString(config.APIServiceSocketPath),
+							Source: viper.GetString(config.APIServiceSocketPath),
+							Target: viper.GetString(config.APIServiceTargetPath),
 						},
 					},
 					Labels: map[string]string{
