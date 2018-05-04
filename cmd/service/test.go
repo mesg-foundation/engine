@@ -4,6 +4,7 @@ import (
 	"context"
 	"io/ioutil"
 	"log"
+	"time"
 
 	"github.com/mesg-foundation/core/api/client"
 
@@ -100,6 +101,8 @@ func testHandler(cmd *cobra.Command, args []string) {
 	go listenEvents(cli, service, cmd.Flag("event").Value.String())
 
 	go listenResults(cli, service)
+
+	time.Sleep(10 * time.Second)
 
 	executeTask(cli, service, cmd.Flag("task").Value.String(), cmd.Flag("data").Value.String())
 
