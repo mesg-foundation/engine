@@ -1,35 +1,32 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	"os"
+	"path/filepath"
 
-var Api *api
+	"github.com/spf13/viper"
+)
 
-type api struct {
-	Server ServerType
-	Client ClientType
-}
-
-type ServerType struct{}
-
-func (s *ServerType) Network() string {
-	return viper.GetString("Api.Server.Network")
-}
-
-func (s *ServerType) Address() string {
-	return viper.GetString("Api.Server.Address")
-}
-
-type ClientType struct{}
-
-func (c *ClientType) Target() string {
-	return viper.GetString("Api.Client.Target")
-}
+// All the configuration keys
+const (
+	APIServerAddress       = "Api.Server.Address"
+	APIServerSocket        = "Api.Server.Socket"
+	APIClientTarget        = "Api.Client.Target"
+	APIServiceTargetPath   = "Api.Service.TargetPath"
+	APIServiceTargetSocket = "Api.Service.TargetSocket"
+	APIServiceSocketPath   = "Api.Service.SocketPath"
+)
 
 func init() {
-	viper.SetDefault("Api.Server.Network", "tcp")
-	viper.SetDefault("Api.Server.Address", ":50052")
+	configDir, _ := getConfigDirectory()
 
-	viper.SetDefault("Api.Client.Target", "localhost:50052")
+	viper.SetDefault(APIServerAddress, ":50052")
+	viper.SetDefault(APIServerSocket, "/mesg/server.sock")
+	os.MkdirAll("/mesg", os.ModePerm)
 
-	Api = new(api)
+	viper.SetDefault(APIClientTarget, viper.GetString(APIServerAddress))
+
+	viper.SetDefault(APIServiceSocketPath, filepath.Join(configDir, "server.sock"))
+	viper.SetDefault(APIServiceTargetPath, "/mesg/server.sock")
+	viper.SetDefault(APIServiceTargetSocket, "unix://"+viper.GetString(APIServiceTargetPath))
 }

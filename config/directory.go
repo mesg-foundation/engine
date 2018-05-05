@@ -49,6 +49,8 @@ func init() {
 	var err error
 	ConfigDirectory, err = getConfigDirectory()
 	AccountDirectory, err = getAccountDirectory()
+	os.Mkdir(ConfigDirectory, os.ModePerm)
+	os.Mkdir(AccountDirectory, os.ModePerm)
 	if err != nil {
 		panic(err)
 	}
