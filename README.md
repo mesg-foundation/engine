@@ -24,10 +24,16 @@ go get -v -t ./...
 go test -cover -v ./...
 ```
 
-### Run
+## Build docker image
 
 ```bash
-go run ./main.go
+docker build -t mesg-core .
+```
+
+### Run daemon
+
+```bash
+sh mesg-daemon
 ```
 
 ## Install debugger on OS X

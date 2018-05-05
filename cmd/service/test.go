@@ -4,6 +4,7 @@ import (
 	"context"
 	"io/ioutil"
 	"log"
+	"time"
 
 	"github.com/mesg-foundation/core/api/client"
 
@@ -14,6 +15,7 @@ import (
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/service"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // Test a service
@@ -89,7 +91,7 @@ func executeTask(cli client.ClientClient, service *service.Service, task string,
 func testHandler(cmd *cobra.Command, args []string) {
 	service := loadService(defaultPath(args))
 
-	connection, err := grpc.Dial(config.Api.Client.Target(), grpc.WithInsecure())
+	connection, err := grpc.Dial(viper.GetString(config.APIClientTarget), grpc.WithInsecure())
 	handleError(err)
 	cli := client.NewClientClient(connection)
 
@@ -99,6 +101,8 @@ func testHandler(cmd *cobra.Command, args []string) {
 	go listenEvents(cli, service, cmd.Flag("event").Value.String())
 
 	go listenResults(cli, service)
+
+	time.Sleep(10 * time.Second)
 
 	executeTask(cli, service, cmd.Flag("task").Value.String(), cmd.Flag("data").Value.String())
 

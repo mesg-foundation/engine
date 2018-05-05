@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/mesg-foundation/core/cmd/utils"
+	"github.com/mesg-foundation/core/config"
 
 	"github.com/mesg-foundation/core/api"
 	homedir "github.com/mitchellh/go-homedir"
@@ -56,10 +57,24 @@ func initConfig() {
 
 func rootHandler(cmd *cobra.Command, args []string) {
 	log.Println("Starting MESG daemon")
-	server := api.Server{}
+	serverTCP := api.Server{
+		Network: "tcp",
+		Address: viper.GetString(config.APIServerAddress),
+	}
+	serverSocket := api.Server{
+		Network: "unix",
+		Address: viper.GetString(config.APIServerSocket),
+	}
 	go func() {
-		err := server.Serve()
-		defer server.Stop()
+		err := serverTCP.Serve()
+		defer serverTCP.Stop()
+		if err != nil {
+			log.Panicln(err)
+		}
+	}()
+	go func() {
+		err := serverSocket.Serve()
+		defer serverSocket.Stop()
 		if err != nil {
 			log.Panicln(err)
 		}
