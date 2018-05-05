@@ -42,7 +42,7 @@ func TestGetDockerService(t *testing.T) {
 	name := "test"
 	dependency := Dependency{Image: "nginx"}
 	network, err := createNetwork(namespace)
-	dependency.Start(dependencyDetails{
+	dependency.Start(&Service{}, dependencyDetails{
 		namespace:      namespace,
 		dependencyName: name,
 		serviceName:    "TestGetDockerService",
