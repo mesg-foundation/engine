@@ -81,6 +81,18 @@
                 }
               ]
             },
+            "volumesfrom": {
+              "oneOf": [
+                { "type": "null" },
+                {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
             "ports": {
               "oneOf": [
                 { "type": "null" },

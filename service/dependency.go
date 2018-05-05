@@ -32,7 +32,7 @@ func extractPorts(dependency *Dependency) (ports []swarm.PortConfig) {
 	return
 }
 
-func extractVolumes(dependency *Dependency, details dependencyDetails) (volumes []mount.Mount) {
+func extractVolumes(service *Service, dependency *Dependency, details dependencyDetails) (volumes []mount.Mount) {
 	volumes = make([]mount.Mount, 0)
 	for _, volume := range dependency.Volumes {
 		source := filepath.Join(config.ConfigDirectory, "services", details.namespace, details.dependencyName, volume)
@@ -41,6 +41,15 @@ func extractVolumes(dependency *Dependency, details dependencyDetails) (volumes 
 			Target: volume,
 		})
 		os.MkdirAll(source, os.ModePerm)
+	}
+	for _, dep := range dependency.Volumesfrom {
+		for _, volume := range service.Dependencies[dep].Volumes {
+			source := filepath.Join(config.ConfigDirectory, "services", details.namespace, dep, volume)
+			volumes = append(volumes, mount.Mount{
+				Source: source,
+				Target: volume,
+			})
+		}
 	}
 	return
 }
