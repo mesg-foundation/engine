@@ -2,11 +2,15 @@ package service
 
 import (
 	"context"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
+	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/swarm"
 	docker "github.com/fsouza/go-dockerclient"
+	"github.com/mesg-foundation/core/config"
 )
 
 func extractPorts(dependency *Dependency) (ports []swarm.PortConfig) {
@@ -23,6 +27,28 @@ func extractPorts(dependency *Dependency) (ports []swarm.PortConfig) {
 			PublishMode:   swarm.PortConfigPublishModeIngress,
 			TargetPort:    uint32(to),
 			PublishedPort: uint32(from),
+		}
+	}
+	return
+}
+
+func extractVolumes(service *Service, dependency *Dependency, details dependencyDetails) (volumes []mount.Mount) {
+	volumes = make([]mount.Mount, 0)
+	for _, volume := range dependency.Volumes {
+		source := filepath.Join(config.ConfigDirectory, "services", details.namespace, details.dependencyName, volume)
+		volumes = append(volumes, mount.Mount{
+			Source: source,
+			Target: volume,
+		})
+		os.MkdirAll(source, os.ModePerm)
+	}
+	for _, dep := range dependency.Volumesfrom {
+		for _, volume := range service.Dependencies[dep].Volumes {
+			source := filepath.Join(config.ConfigDirectory, "services", details.namespace, dep, volume)
+			volumes = append(volumes, mount.Mount{
+				Source: source,
+				Target: volume,
+			})
 		}
 	}
 	return
