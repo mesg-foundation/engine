@@ -1,14 +1,14 @@
 #!/bin/bash
 
-mesgcontainer=$(docker ps -f name=mesg-core -q)
+mesgcontainer=$(docker ps -f name=mesg-daemon -q)
 if [ -z "$mesgcontainer" ]; then
-  docker build -t mesg-core .
+  docker build -t mesg-daemon .
   docker run \
     --rm \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v ~/.mesg:/mesg \
     -p 50052:50052 \
     -e MESG.PATH=$HOME/.mesg \
-    --name=mesg-core \
-    $@ mesg-core
+    --name=mesg-daemon \
+    $@ mesg-daemon
 fi
