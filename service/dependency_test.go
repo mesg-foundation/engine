@@ -3,18 +3,10 @@ package service
 import (
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/docker/docker/api/types/swarm"
 	"github.com/stvp/assert"
 )
-
-// TODO: this shouldn't be necessary
-func TestMain(m *testing.M) {
-	// This is to initialize the swarm if needed
-	dockerCli()
-	time.Sleep(1 * time.Second)
-}
 
 func TestExtractPortEmpty(t *testing.T) {
 	ports := extractPorts(&Dependency{})
