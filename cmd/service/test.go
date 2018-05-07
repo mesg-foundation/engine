@@ -49,7 +49,10 @@ func listenEvents(cli client.ClientClient, service *service.Service, filter stri
 	handleError(err)
 	for {
 		event, err := stream.Recv()
-		handleError(err)
+		if err != nil {
+			log.Println(aurora.Red(err))
+			return
+		}
 		if filter == "*" || filter == event.EventKey {
 			log.Println("Receive event", aurora.Green(event.EventKey), ":", aurora.Bold(event.EventData))
 		}
@@ -63,7 +66,10 @@ func listenResults(cli client.ClientClient, service *service.Service) {
 	handleError(err)
 	for {
 		result, err := stream.Recv()
-		handleError(err)
+		if err != nil {
+			log.Println(aurora.Red(err))
+			return
+		}
 		log.Println("Receive result", aurora.Green(result.TaskKey), aurora.Green(result.OutputKey), ":", aurora.Bold(result.OutputData))
 	}
 }
