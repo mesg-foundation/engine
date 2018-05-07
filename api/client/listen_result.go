@@ -8,7 +8,7 @@ import (
 )
 
 // Listen for results from the services
-func (s *Server) ListenResult(request *ListenResultRequest, stream Client_ListenResultServer) (err error) {
+func (s *Server) ListenResult(request *ListenResultRequest, stream Core_ListenResultServer) (err error) {
 	subscription := pubsub.Subscribe(request.Service.ResultSubscriptionChannel())
 	for data := range subscription {
 		execution := data.(*execution.Execution)

@@ -5,7 +5,7 @@ option go_package = "client";
 
 import "github.com/mesg-foundation/core/service/service.proto";
 
-service Client {
+service Core {
   rpc ListenEvent (ListenEventRequest) returns (stream EventData) {}
   rpc ExecuteTask (ExecuteTaskRequest) returns (ExecuteTaskReply) {}  
   rpc ListenResult (ListenResultRequest) returns (stream ResultData) {}

@@ -34,7 +34,7 @@ mesg-cli service test --keep-alive`,
 	DisableAutoGenTag: true,
 }
 
-func startServiceFromCli(cli client.ClientClient, service *service.Service) {
+func startServiceFromCli(cli client.CoreClient, service *service.Service) {
 	_, err := cli.StartService(context.Background(), &client.StartServiceRequest{
 		Service: service,
 	})
@@ -42,7 +42,7 @@ func startServiceFromCli(cli client.ClientClient, service *service.Service) {
 	log.Println("Service", service.Name, "started")
 }
 
-func listenEvents(cli client.ClientClient, service *service.Service, filter string) {
+func listenEvents(cli client.CoreClient, service *service.Service, filter string) {
 	stream, err := cli.ListenEvent(context.Background(), &client.ListenEventRequest{
 		Service: service,
 	})
@@ -59,7 +59,7 @@ func listenEvents(cli client.ClientClient, service *service.Service, filter stri
 	}
 }
 
-func listenResults(cli client.ClientClient, service *service.Service) {
+func listenResults(cli client.CoreClient, service *service.Service) {
 	stream, err := cli.ListenResult(context.Background(), &client.ListenResultRequest{
 		Service: service,
 	})
@@ -74,7 +74,7 @@ func listenResults(cli client.ClientClient, service *service.Service) {
 	}
 }
 
-func executeTask(cli client.ClientClient, service *service.Service, task string, dataPath string) (execution *client.ExecuteTaskReply, err error) {
+func executeTask(cli client.CoreClient, service *service.Service, task string, dataPath string) (execution *client.ExecuteTaskReply, err error) {
 	if task == "" {
 		return
 	}
@@ -99,7 +99,7 @@ func testHandler(cmd *cobra.Command, args []string) {
 
 	connection, err := grpc.Dial(viper.GetString(config.APIClientTarget), grpc.WithInsecure())
 	handleError(err)
-	cli := client.NewClientClient(connection)
+	cli := client.NewCoreClient(connection)
 
 	startServiceFromCli(cli, service)
 	defer service.Stop()
