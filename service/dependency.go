@@ -11,6 +11,7 @@ import (
 	"github.com/docker/docker/api/types/swarm"
 	docker "github.com/fsouza/go-dockerclient"
 	"github.com/mesg-foundation/core/config"
+	"github.com/spf13/viper"
 )
 
 func extractPorts(dependency *Dependency) (ports []swarm.PortConfig) {
@@ -35,20 +36,23 @@ func extractPorts(dependency *Dependency) (ports []swarm.PortConfig) {
 func extractVolumes(service *Service, dependency *Dependency, details dependencyDetails) (volumes []mount.Mount) {
 	volumes = make([]mount.Mount, 0)
 	for _, volume := range dependency.Volumes {
-		source := filepath.Join(config.ConfigDirectory, "services", details.namespace, details.dependencyName, volume)
+		path := filepath.Join(details.namespace, details.dependencyName, volume)
+		source := filepath.Join(viper.GetString(config.ServicePathHost), path)
 		volumes = append(volumes, mount.Mount{
 			Source: source,
 			Target: volume,
 		})
-		os.MkdirAll(source, os.ModePerm)
+		os.MkdirAll(filepath.Join(viper.GetString(config.ServicePathDocker), path), os.ModePerm)
 	}
 	for _, dep := range dependency.Volumesfrom {
 		for _, volume := range service.Dependencies[dep].Volumes {
-			source := filepath.Join(config.ConfigDirectory, "services", details.namespace, dep, volume)
+			path := filepath.Join(details.namespace, dep, volume)
+			source := filepath.Join(viper.GetString(config.ServicePathHost), path)
 			volumes = append(volumes, mount.Mount{
 				Source: source,
 				Target: volume,
 			})
+			os.MkdirAll(filepath.Join(viper.GetString(config.ServicePathDocker), path), os.ModePerm)
 		}
 	}
 	return
