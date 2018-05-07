@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"sync"
 
 	"github.com/docker/docker/api/types/swarm"
 	docker "github.com/fsouza/go-dockerclient"
@@ -10,12 +11,15 @@ import (
 )
 
 var dockerCliInstance *docker.Client
+var mu sync.Mutex
 
 func dockerCli() (client *docker.Client, err error) {
 	if dockerCliInstance != nil {
 		client = dockerCliInstance
 		return
 	}
+	mu.Lock()
+	defer mu.Unlock()
 	client, err = createDockerCli()
 	if err != nil {
 		return nil, err
