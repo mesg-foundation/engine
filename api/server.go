@@ -59,7 +59,7 @@ func (s *Server) Stop() {
 // register all server
 func (s *Server) register() {
 	service.RegisterServiceServer(s.instance, &service.Server{})
-	client.RegisterClientServer(s.instance, &client.Server{})
+	client.RegisterCoreServer(s.instance, &client.Server{})
 
 	reflection.Register(s.instance)
 }
