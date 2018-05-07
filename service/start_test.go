@@ -97,3 +97,22 @@ func TestNetworkCreated(t *testing.T) {
 	assert.NotNil(t, network)
 	service.Stop()
 }
+
+// Test for https://github.com/mesg-foundation/core/issues/88
+func TestStartStopStart(t *testing.T) {
+	service := &Service{
+		Name: "TestStartStopStart",
+		Dependencies: map[string]*Dependency{
+			"test": &Dependency{
+				Image: "nginx",
+			},
+		},
+	}
+	service.Start()
+	service.Stop()
+	dockerServices, err := service.Start()
+	assert.Nil(t, err)
+	assert.Equal(t, len(dockerServices), 1)
+	assert.Equal(t, service.IsRunning(), true)
+	service.Stop()
+}
