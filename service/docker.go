@@ -18,8 +18,8 @@ func dockerCli() (client *docker.Client, err error) {
 		client = dockerCliInstance
 		return
 	}
-	// mu.Lock()
-	// defer mu.Unlock()
+	mu.Lock()
+	defer mu.Unlock()
 	client, err = createDockerCli()
 	if err != nil {
 		return nil, err
