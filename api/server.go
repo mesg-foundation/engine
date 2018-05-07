@@ -42,9 +42,6 @@ func (s *Server) Serve() (err error) {
 
 	// TODO: check if server still on after a connection throw an error. otherwise, add a for around serve
 	err = s.instance.Serve(s.listener)
-	if err != nil {
-		return
-	}
 	return
 }
 

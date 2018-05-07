@@ -21,5 +21,5 @@ RUN go get github.com/xeipuuv/gojsonschema && \
 ADD . src/github.com/mesg-foundation/core
 WORKDIR src/github.com/mesg-foundation/core
 RUN go get -v -t ./...
-RUN go build -o mesg-core cli/main.go
-CMD ["./mesg-core"]
+RUN go build -o mesg-daemon daemon/main.go
+CMD ["./mesg-daemon"]
