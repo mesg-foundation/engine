@@ -13,11 +13,11 @@ var Log = &cobra.Command{
 	Use:   "log WORKFLOW_ID",
 	Short: "Log executions of a workflow",
 	Args:  cobra.MinimumNArgs(1),
-	Example: `mesg-cli workflow log WORKFLOW_ID
-	mesg-cli workflow log WORKFLOW_ID --account ACCOUNT_ID
-mesg-cli workflow log WORKFLOW_ID --execution EXECUTION_ID
-mesg-cli workflow log WORKFLOW_ID --task TASK_ID
-mesg-cli workflow log WORKFLOW_ID --from DATE --to DATE`,
+	Example: `mesg-core workflow log WORKFLOW_ID
+	mesg-core workflow log WORKFLOW_ID --account ACCOUNT_ID
+mesg-core workflow log WORKFLOW_ID --execution EXECUTION_ID
+mesg-core workflow log WORKFLOW_ID --task TASK_ID
+mesg-core workflow log WORKFLOW_ID --from DATE --to DATE`,
 	Run:               logHandler,
 	DisableAutoGenTag: true,
 }

@@ -19,9 +19,9 @@ The private key of your account is encrypted with the password you choose.
 
 **Warning:** This method does **NOT** export your password. You have to manage your password yourself.
 
-You can import the backup file on any other MESG Application with the [import method](mesg-cli_account_import.md).`,
-	Example: `mesg-cli account export
-mesg-cli account export --account ACCOUNT --password PASSWORD --new-password PASSWORD --path ./PATH_TO_BACKUP_FILE`,
+You can import the backup file on any other MESG Application with the [import method](mesg-core_account_import.md).`,
+	Example: `mesg-core account export
+mesg-core account export --account ACCOUNT --password PASSWORD --new-password PASSWORD --path ./PATH_TO_BACKUP_FILE`,
 	Run:               exportHandler,
 	DisableAutoGenTag: true,
 }

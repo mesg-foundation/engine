@@ -17,8 +17,8 @@ var Deploy = &cobra.Command{
 
 To get more information, see the [deploy page from the documentation](https://docs.mesg.tech/workflow/deploy.html)`,
 	Args: cobra.MinimumNArgs(1),
-	Example: `mesg-cli workflow deploy ./PATH_TO_WORKFLOW_FILE.yml
-mesg-cli workflow deploy ./PATH_TO_WORKFLOW_FILE.yml --account ACCOUNT --amount AMOUNT --confirm`,
+	Example: `mesg-core workflow deploy ./PATH_TO_WORKFLOW_FILE.yml
+mesg-core workflow deploy ./PATH_TO_WORKFLOW_FILE.yml --account ACCOUNT --amount AMOUNT --confirm`,
 	Run:               deployHandler,
 	DisableAutoGenTag: true,
 }

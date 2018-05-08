@@ -1,4 +1,4 @@
-## mesg-cli service status
+## mesg-core service status
 
 List started services
 
@@ -7,13 +7,13 @@ List started services
 List started services
 
 ```
-mesg-cli service status [flags]
+mesg-core service status [flags]
 ```
 
 ### Examples
 
 ```
-mesg-cli service status
+mesg-core service status
 ```
 
 ### Options
@@ -24,5 +24,5 @@ mesg-cli service status
 
 ### SEE ALSO
 
-* [mesg-cli service](mesg-cli_service.md)	 - Manage your services
+* [mesg-core service](mesg-core_service.md)	 - Manage your services
 
