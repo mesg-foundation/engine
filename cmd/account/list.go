@@ -11,7 +11,7 @@ import (
 var List = &cobra.Command{
 	Use:               "list",
 	Short:             "List your local accounts",
-	Example:           "mesg-cli account list",
+	Example:           "mesg-core account list",
 	Run:               listHandler,
 	DisableAutoGenTag: true,
 }

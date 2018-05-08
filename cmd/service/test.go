@@ -25,11 +25,11 @@ var Test = &cobra.Command{
 	Long: `Test a service by listening to events or calling tasks.
 
 See more detail on the [Test page from the documentation](https://docs.mesg.tech/service/test.html)`,
-	Example: `mesg-cli service test
-mesg-cli service test ./SERVICE_FOLDER
-mesg-cli service test --event EVENT_NAME
-mesg-cli service test --task TASK_NAME --data ./PATH_TO_DATA_FILE.yml
-mesg-cli service test --keep-alive`,
+	Example: `mesg-core service test
+mesg-core service test ./SERVICE_FOLDER
+mesg-core service test --event EVENT_NAME
+mesg-core service test --task TASK_NAME --data ./PATH_TO_DATA_FILE.yml
+mesg-core service test --keep-alive`,
 	Run:               testHandler,
 	DisableAutoGenTag: true,
 }
