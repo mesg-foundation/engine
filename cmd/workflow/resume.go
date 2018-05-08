@@ -16,9 +16,9 @@ var Resume = &cobra.Command{
 	Short: "Resume a previously paused workflow",
 	Long: `Resume a previously paused workflow.
 
-To pause a workflow, see the [pause command](mesg-cli_workflow_pause.md)`,
-	Example: `mesg-cli workflow resume WORKFLOW_ID
-mesg-cli workflow resume WORKFLOW_ID --account ACCOUNT_ID --confirm`,
+To pause a workflow, see the [pause command](mesg-core_workflow_pause.md)`,
+	Example: `mesg-core workflow resume WORKFLOW_ID
+mesg-core workflow resume WORKFLOW_ID --account ACCOUNT_ID --confirm`,
 	Run:               resumeHandler,
 	DisableAutoGenTag: true,
 }

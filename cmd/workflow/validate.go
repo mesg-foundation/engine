@@ -18,7 +18,7 @@ var Validate = &cobra.Command{
 
 To get more information, see the [deploy page from the documentation](https://docs.mesg.tech/workflow/validate.html)`,
 	Args:              cobra.MinimumNArgs(1),
-	Example:           "mesg-cli workflow validate ./PATH_TO_WORKFLOW_FILE.yml",
+	Example:           "mesg-core workflow validate ./PATH_TO_WORKFLOW_FILE.yml",
 	Run:               validateHandler,
 	DisableAutoGenTag: true,
 }

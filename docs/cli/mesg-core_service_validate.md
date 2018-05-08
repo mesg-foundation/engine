@@ -1,4 +1,4 @@
-## mesg-cli service validate
+## mesg-core service validate
 
 Validate a service file
 
@@ -9,14 +9,14 @@ Validate a service file. Check the yml format and rules.
 All the definitions of the service file can be found in the page [Service File from the documentation](https://docs.mesg.tech/service/service-file.html).
 
 ```
-mesg-cli service validate [flags]
+mesg-core service validate [flags]
 ```
 
 ### Examples
 
 ```
-mesg-cli service validate
-mesg-cli service validate ./SERVICE_FOLDER
+mesg-core service validate
+mesg-core service validate ./SERVICE_FOLDER
 ```
 
 ### Options
@@ -27,5 +27,5 @@ mesg-cli service validate ./SERVICE_FOLDER
 
 ### SEE ALSO
 
-* [mesg-cli service](mesg-cli_service.md)	 - Manage your services
+* [mesg-core service](mesg-core_service.md)	 - Manage your services
 

@@ -13,8 +13,8 @@ import (
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
-	Use:               "mesg-cli",
-	Short:             "MESG CLI",
+	Use:               "mesg-core",
+	Short:             "MESG CORE",
 	Run:               rootHandler,
 	DisableAutoGenTag: true,
 }

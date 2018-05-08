@@ -14,8 +14,8 @@ var Kill = &cobra.Command{
 	Use:   "kill WORKFLOW_ID",
 	Short: "Kill a workflow from the Network and get back its token",
 	Args:  cobra.MinimumNArgs(1),
-	Example: `mesg-cli workflow kill WORKFLOW_ID
-mesg-cli workflow kill WORKFLOW_ID --account ACCOUNT --confirm`,
+	Example: `mesg-core workflow kill WORKFLOW_ID
+mesg-core workflow kill WORKFLOW_ID --account ACCOUNT --confirm`,
 	Run:               killHandler,
 	DisableAutoGenTag: true,
 }

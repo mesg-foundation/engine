@@ -16,8 +16,8 @@ var Validate = &cobra.Command{
 	Long: `Validate a service file. Check the yml format and rules.
 
 All the definitions of the service file can be found in the page [Service File from the documentation](https://docs.mesg.tech/service/service-file.html).`,
-	Example: `mesg-cli service validate
-mesg-cli service validate ./SERVICE_FOLDER`,
+	Example: `mesg-core service validate
+mesg-core service validate ./SERVICE_FOLDER`,
 	Run:               validateHandler,
 	DisableAutoGenTag: true,
 }

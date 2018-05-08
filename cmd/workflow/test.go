@@ -18,11 +18,11 @@ var Test = &cobra.Command{
 
 To get more information, see the [test page from the documentation](https://docs.mesg.tech/workflow/test.html)`,
 	Args: cobra.MinimumNArgs(1),
-	Example: `mesg-cli workflow test ./PATH_TO_WORKFLOW_FILE.yml
-mesg-cli workflow test ./PATH_TO_WORKFLOW_FILE.yml --live
-mesg-cli workflow test ./PATH_TO_WORKFLOW_FILE.yml --task TASK_ID --live
-mesg-cli workflow test ./PATH_TO_WORKFLOW_FILE.yml --task TASK_ID --event ./PATH_TO_EVENT_DATA_FILE.yml
-mesg-cli workflow test ./PATH_TO_WORKFLOW_FILE.yml --live --keep-alive`,
+	Example: `mesg-core workflow test ./PATH_TO_WORKFLOW_FILE.yml
+mesg-core workflow test ./PATH_TO_WORKFLOW_FILE.yml --live
+mesg-core workflow test ./PATH_TO_WORKFLOW_FILE.yml --task TASK_ID --live
+mesg-core workflow test ./PATH_TO_WORKFLOW_FILE.yml --task TASK_ID --event ./PATH_TO_EVENT_DATA_FILE.yml
+mesg-core workflow test ./PATH_TO_WORKFLOW_FILE.yml --live --keep-alive`,
 	Run:               testHandler,
 	DisableAutoGenTag: true,
 }
