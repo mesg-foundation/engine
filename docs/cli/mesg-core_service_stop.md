@@ -1,4 +1,4 @@
-## mesg-cli service stop
+## mesg-core service stop
 
 Stop a service
 
@@ -11,13 +11,13 @@ You will **NOT** get your stake back immediately. You will get your remaining st
 To have more explanation, see the page [stake explanation from the documentation]().
 
 ```
-mesg-cli service stop SERVICE_FOLDER [flags]
+mesg-core service stop SERVICE_FOLDER [flags]
 ```
 
 ### Examples
 
 ```
-mesg-cli service stop SERVICE_FOLDER
+mesg-core service stop SERVICE_FOLDER
 ```
 
 ### Options
@@ -28,5 +28,5 @@ mesg-cli service stop SERVICE_FOLDER
 
 ### SEE ALSO
 
-* [mesg-cli service](mesg-cli_service.md)	 - Manage your services
+* [mesg-core service](mesg-core_service.md)	 - Manage your services
 

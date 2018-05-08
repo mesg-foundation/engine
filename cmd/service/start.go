@@ -15,7 +15,7 @@ var Start = &cobra.Command{
 	Use:               "start SERVICE_FOLDER",
 	Short:             "Start a service",
 	Long:              "Start a service from the published available services. You have to provide a stake value and duration.",
-	Example:           `mesg-cli service start SERVICE_FOLDER`,
+	Example:           `mesg-core service start SERVICE_FOLDER`,
 	Run:               startHandler,
 	DisableAutoGenTag: true,
 }

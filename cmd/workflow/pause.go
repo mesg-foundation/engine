@@ -14,8 +14,8 @@ import (
 var Pause = &cobra.Command{
 	Use:   "pause WORKFLOW_ID",
 	Short: "Stop a workflow without killing it",
-	Example: `mesg-cli workflow pause WORKFLOW_ID
-mesg-cli workflow pause WORKFLOW_ID --account ACCOUNT_ID --confirm`,
+	Example: `mesg-core workflow pause WORKFLOW_ID
+mesg-core workflow pause WORKFLOW_ID --account ACCOUNT_ID --confirm`,
 	Run:               pauseHandler,
 	DisableAutoGenTag: true,
 }
