@@ -23,7 +23,6 @@ To have more explanation, see the page [stake explanation from the documentation
 
 func stopHandler(cmd *cobra.Command, args []string) {
 	service := loadService(defaultPath(args))
-	err := service.Stop()
-	handleError(err)
+	stopService(service)
 	fmt.Println(aurora.Green("Service " + service.Name + " stopped"))
 }
