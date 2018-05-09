@@ -1,4 +1,4 @@
-package client
+package core
 
 import (
 	"golang.org/x/net/context"
