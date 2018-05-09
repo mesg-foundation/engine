@@ -1,3 +1,3 @@
-package client
+package core
 
 type Server struct{}
