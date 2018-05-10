@@ -1,6 +1,6 @@
-[![CircleCI](https://circleci.com/gh/mesg-foundation/application.svg?style=svg&circle-token=04b7b880e5f42bd26f46a3b11445cb98830e8d92)](https://circleci.com/gh/mesg-foundation/application)
+[![CircleCI](https://circleci.com/gh/mesg-foundation/core.svg?style=svg&circle-token=04b7b880e5f42bd26f46a3b11445cb98830e8d92)](https://circleci.com/gh/mesg-foundation/core)
 
-# Application
+# Core
 
 ## Build from source
 
@@ -18,25 +18,19 @@ git clone https://github.com/mesg-foundation/core.git ./
 go get -v -t ./...
 ```
 
-## Run all tests with code coverage
+### Run all tests with code coverage
 
 ```bash
 go test -cover -v ./...
 ```
 
-## Build docker image
+### Build docker image
 
 ```bash
-docker build -t mesg-core .
+docker build -t mesg-daemon .
 ```
 
-### Run daemon
-
-```bash
-sh mesg-daemon
-```
-
-## Install debugger on OS X
+### Install debugger on OS X
 
 ```bash
 xcode-select --install
