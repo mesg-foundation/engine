@@ -6,7 +6,7 @@ import (
 	"net"
 	"os"
 
-	"github.com/mesg-foundation/core/api/client"
+	"github.com/mesg-foundation/core/api/core"
 	"github.com/mesg-foundation/core/api/service"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -56,7 +56,7 @@ func (s *Server) Stop() {
 // register all server
 func (s *Server) register() {
 	service.RegisterServiceServer(s.instance, &service.Server{})
-	client.RegisterClientServer(s.instance, &client.Server{})
+	core.RegisterCoreServer(s.instance, &core.Server{})
 
 	reflection.Register(s.instance)
 }
