@@ -8,7 +8,7 @@ import (
 // Daemon is the root command related to the daemon
 var Daemon = &cobra.Command{
 	Use:               "daemon",
-	Short:             "Manage your MESG daemon",
+	Short:             "Manage the MESG daemon",
 	DisableAutoGenTag: true,
 }
 
@@ -16,6 +16,7 @@ func init() {
 	Daemon.AddCommand(daemon.Start)
 	Daemon.AddCommand(daemon.Stop)
 	Daemon.AddCommand(daemon.Status)
+	Daemon.AddCommand(daemon.Logs)
 
 	RootCmd.AddCommand(Daemon)
 }
