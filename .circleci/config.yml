@@ -7,36 +7,46 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      - run: go get -v -t ./...
-      # - save_cache:
-      #     key: v1-mesg-core-test
-      #     paths:
-      #       - /go
+      - run: go get -t ./...
       - run: go test -timeout 30s -coverprofile=coverage.txt -v ./...
       - run: bash <(curl -s https://codecov.io/bash)
 
-  build_deploy:
+  cli_build_deploy:
     machine:
       docker_layer_caching: true
     working_directory: ~/.go_workspace/src/github.com/mesg-foundation/core
     steps:
       - checkout
-      - run: go get -v -t ./...
-      - run: go get -v github.com/karalabe/xgo
+      - run: go get ./...
+      - run: go get github.com/karalabe/xgo
       - run: mkdir bin
-      - run: cd bin; xgo --targets=darwin/386,darwin/amd64,linux/386,linux/amd64,windows/386,windows/amd64 ../cli
+      - run: cd bin; xgo --targets=darwin/386,darwin/amd64,linux/386,linux/amd64,windows/386,windows/amd64 -out mesg-core ../cli
       - run: sudo chmod +x ./bin/*
-      - store_artifacts:
-          path: ./bin
       - run: go get -u github.com/tcnksm/ghr
-      - run: ghr -u mesg-foundation -r core -delete dev ./bin
+      - run: ghr -u mesg-foundation -r core -delete release-dev ./bin
+
+  docker_build_deploy:
+    machine:
+      docker_layer_caching: true
+    working_directory: ~/.go_workspace/src/github.com/mesg-foundation/core
+    steps:
+      - checkout
+      - run: docker build -t mesg/daemon .
+      - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
+      - run: docker push mesg/daemon
 
 workflows:
   version: 2
   test_build_deploy:
     jobs:
       - test
-      - build_deploy:
+      - docker_build_deploy:
+          requires:
+            - test
+          filters:
+            branches:
+              only: dev
+      - cli_build_deploy:
           requires:
             - test
           filters:
