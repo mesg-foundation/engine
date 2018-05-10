@@ -35,5 +35,5 @@ func stopHandler(cmd *cobra.Command, args []string) {
 			fmt.Println(aurora.Red(err))
 		}
 	}
-	fmt.Println(aurora.Green("Daemon stoped"))
+	fmt.Println(aurora.Green("Daemon stopped"))
 }
