@@ -33,7 +33,7 @@ jobs:
     working_directory: ~/.go_workspace/src/github.com/mesg-foundation/core
     steps:
       - checkout
-      - run: docker build -t mesg-daemon .
+      - run: docker build -t mesg/daemon .
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
       - run: docker push mesg/daemon
 
@@ -49,8 +49,8 @@ workflows:
           #   branches:
           #     only: dev
       - cli_build_deploy
-          # requires:
-          #   - test
-          # filters:
-          #   branches:
-          #     only: dev
+          requires:
+            - test
+          filters:
+            branches:
+              only: dev
