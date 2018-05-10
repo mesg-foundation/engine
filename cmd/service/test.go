@@ -9,13 +9,10 @@ import (
 	"github.com/mesg-foundation/core/api/core"
 
 	"github.com/mesg-foundation/core/cmd/utils"
-	"github.com/mesg-foundation/core/config"
-	"google.golang.org/grpc"
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/service"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 // Test a service
@@ -34,15 +31,7 @@ mesg-core service test --keep-alive`,
 	DisableAutoGenTag: true,
 }
 
-func startServiceFromCli(cli core.CoreClient, service *service.Service) {
-	_, err := cli.StartService(context.Background(), &core.StartServiceRequest{
-		Service: service,
-	})
-	handleError(err)
-	log.Println("Service", service.Name, "started")
-}
-
-func listenEvents(cli core.CoreClient, service *service.Service, filter string) {
+func listenEvents(service *service.Service, filter string) {
 	stream, err := cli.ListenEvent(context.Background(), &core.ListenEventRequest{
 		Service: service,
 	})
@@ -59,7 +48,7 @@ func listenEvents(cli core.CoreClient, service *service.Service, filter string) 
 	}
 }
 
-func listenResults(cli core.CoreClient, service *service.Service) {
+func listenResults(service *service.Service) {
 	stream, err := cli.ListenResult(context.Background(), &core.ListenResultRequest{
 		Service: service,
 	})
@@ -74,7 +63,7 @@ func listenResults(cli core.CoreClient, service *service.Service) {
 	}
 }
 
-func executeTask(cli core.CoreClient, service *service.Service, task string, dataPath string) (execution *core.ExecuteTaskReply, err error) {
+func executeTask(service *service.Service, task string, dataPath string) (execution *core.ExecuteTaskReply, err error) {
 	if task == "" {
 		return
 	}
@@ -97,20 +86,16 @@ func executeTask(cli core.CoreClient, service *service.Service, task string, dat
 func testHandler(cmd *cobra.Command, args []string) {
 	service := loadService(defaultPath(args))
 
-	connection, err := grpc.Dial(viper.GetString(config.APIClientTarget), grpc.WithInsecure())
-	handleError(err)
-	cli := core.NewCoreClient(connection)
+	startService(service)
+	defer stopService(service)
 
-	startServiceFromCli(cli, service)
-	defer service.Stop()
+	go listenEvents(service, cmd.Flag("event").Value.String())
 
-	go listenEvents(cli, service, cmd.Flag("event").Value.String())
-
-	go listenResults(cli, service)
+	go listenResults(service)
 
 	time.Sleep(10 * time.Second)
 
-	executeTask(cli, service, cmd.Flag("task").Value.String(), cmd.Flag("data").Value.String())
+	executeTask(service, cmd.Flag("task").Value.String(), cmd.Flag("data").Value.String())
 
 	<-cmdUtils.WaitForCancel()
 }
