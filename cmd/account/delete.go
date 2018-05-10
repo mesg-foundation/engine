@@ -15,9 +15,9 @@ var Delete = &cobra.Command{
 	Short: "Delete an account",
 	Long: `This method deletes an account.
 
-**Warning:** If you didn't previously [export this account](mesg-cli_account_export.md), you will lost it **forever.**`,
-	Example: `mesg-cli service delete
-mesg-cli service delete --account ACCOUNT --confirm`,
+**Warning:** If you didn't previously [export this account](mesg-core_account_export.md), you will lost it **forever.**`,
+	Example: `mesg-core service delete
+mesg-core service delete --account ACCOUNT --confirm`,
 	Run:               deleteHandler,
 	DisableAutoGenTag: true,
 }

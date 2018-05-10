@@ -11,7 +11,7 @@ var Detail = &cobra.Command{
 	Use:               "detail WORKFLOW_ID",
 	Short:             "List details of a workflow",
 	Args:              cobra.MinimumNArgs(1),
-	Example:           "mesg-cli workflow detail WORKFLOW_ID",
+	Example:           "mesg-core workflow detail WORKFLOW_ID",
 	Run:               detailHandler,
 	DisableAutoGenTag: true,
 }

@@ -14,9 +14,9 @@ var List = &cobra.Command{
 
 Optionally, you can filter the workflows deployed by a specific account.
 
-This command will return basic information. To have more details, see the [detail command](mesg-cli_workflow_detail.md).`,
-	Example: `mesg-cli workflow list
-mesg-cli workflow list --account ACCOUNT`,
+This command will return basic information. To have more details, see the [detail command](mesg-core_workflow_detail.md).`,
+	Example: `mesg-core workflow list
+mesg-core workflow list --account ACCOUNT`,
 	Run:               listHandler,
 	DisableAutoGenTag: true,
 }

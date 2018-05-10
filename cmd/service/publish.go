@@ -17,8 +17,8 @@ var Publish = &cobra.Command{
 	Long: `Publish a service on the Network.
 
 To get more information, see the [publish page from the documentation](https://docs.mesg.tech/service/develop/publish.html)`,
-	Example: `mesg-cli service publish
-mesg-cli service publish ./SERVICE_FOLDER --account ACCOUNT --confirm`,
+	Example: `mesg-core service publish
+mesg-core service publish ./SERVICE_FOLDER --account ACCOUNT --confirm`,
 	Run:               deployHandler,
 	DisableAutoGenTag: true,
 }

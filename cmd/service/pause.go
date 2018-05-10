@@ -20,8 +20,8 @@ You will **NOT** get your stake back with this command. The goal of this command
 
 When a service is paused, the stake duration count is also paused.`,
 	Args: cobra.MinimumNArgs(1),
-	Example: `mesg-cli service pause SERVICE_ID
-mesg-cli service pause SERVICE_ID --account ACCOUNT --confirm`,
+	Example: `mesg-core service pause SERVICE_ID
+mesg-core service pause SERVICE_ID --account ACCOUNT --confirm`,
 	Run:               pauseHandler,
 	DisableAutoGenTag: true,
 }
