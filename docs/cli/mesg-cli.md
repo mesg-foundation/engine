@@ -6,10 +6,6 @@ MESG CLI
 
 MESG CLI
 
-```
-mesg-cli [flags]
-```
-
 ### Options
 
 ```
@@ -18,5 +14,6 @@ mesg-cli [flags]
 
 ### SEE ALSO
 
+* [mesg-cli daemon](mesg-cli_daemon.md)	 - Manage your MESG daemon
 * [mesg-cli service](mesg-cli_service.md)	 - Manage your services
 

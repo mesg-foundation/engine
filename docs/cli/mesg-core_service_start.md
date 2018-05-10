@@ -1,4 +1,4 @@
-## mesg-cli service start
+## mesg-core service start
 
 Start a service
 
@@ -7,13 +7,13 @@ Start a service
 Start a service from the published available services. You have to provide a stake value and duration.
 
 ```
-mesg-cli service start SERVICE_FOLDER [flags]
+mesg-core service start SERVICE_FOLDER [flags]
 ```
 
 ### Examples
 
 ```
-mesg-cli service start SERVICE_FOLDER
+mesg-core service start SERVICE_FOLDER
 ```
 
 ### Options
@@ -24,5 +24,5 @@ mesg-cli service start SERVICE_FOLDER
 
 ### SEE ALSO
 
-* [mesg-cli service](mesg-cli_service.md)	 - Manage your services
+* [mesg-core service](mesg-core_service.md)	 - Manage your services
 

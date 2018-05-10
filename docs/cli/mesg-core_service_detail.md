@@ -1,4 +1,4 @@
-## mesg-cli service detail
+## mesg-core service detail
 
 Show details of a published service
 
@@ -7,13 +7,13 @@ Show details of a published service
 Show details of a published service
 
 ```
-mesg-cli service detail SERVICE_FOLDER [flags]
+mesg-core service detail SERVICE_FOLDER [flags]
 ```
 
 ### Examples
 
 ```
-mesg-cli service detail SERVICE_FOLDER
+mesg-core service detail SERVICE_FOLDER
 ```
 
 ### Options
@@ -24,5 +24,5 @@ mesg-cli service detail SERVICE_FOLDER
 
 ### SEE ALSO
 
-* [mesg-cli service](mesg-cli_service.md)	 - Manage your services
+* [mesg-core service](mesg-core_service.md)	 - Manage your services
 

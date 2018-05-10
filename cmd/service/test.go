@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/mesg-foundation/core/api/client"
+	"github.com/mesg-foundation/core/api/core"
 
 	"github.com/mesg-foundation/core/cmd/utils"
 
@@ -22,11 +22,11 @@ var Test = &cobra.Command{
 	Long: `Test a service by listening to events or calling tasks.
 
 See more detail on the [Test page from the documentation](https://docs.mesg.tech/service/test.html)`,
-	Example: `mesg-cli service test
-mesg-cli service test ./SERVICE_FOLDER
-mesg-cli service test --event EVENT_NAME
-mesg-cli service test --task TASK_NAME --data ./PATH_TO_DATA_FILE.yml
-mesg-cli service test --keep-alive`,
+	Example: `mesg-core service test
+mesg-core service test ./SERVICE_FOLDER
+mesg-core service test --event EVENT_NAME
+mesg-core service test --task TASK_NAME --data ./PATH_TO_DATA_FILE.yml
+mesg-core service test --keep-alive`,
 	Run:               testHandler,
 	DisableAutoGenTag: true,
 }
@@ -73,7 +73,7 @@ func executeTask(service *service.Service, task string, dataPath string) (execut
 		handleError(err)
 	}
 
-	execution, err = cli.ExecuteTask(context.Background(), &client.ExecuteTaskRequest{
+	execution, err = cli.ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
 		Service:  service,
 		TaskKey:  task,
 		TaskData: string(data),

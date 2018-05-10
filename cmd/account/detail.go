@@ -13,8 +13,8 @@ var Detail = &cobra.Command{
 	Use:   "detail",
 	Short: "Show detailed information of an account",
 	Long:  `To show the balance, previous transactions and some other information of an account`,
-	Example: `mesg-cli account detail
-mesg-cli account detail --account ACCOUNT`,
+	Example: `mesg-core account detail
+mesg-core account detail --account ACCOUNT`,
 	Run:               detailHandler,
 	DisableAutoGenTag: true,
 }
