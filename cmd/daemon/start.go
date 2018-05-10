@@ -1,7 +1,9 @@
 package daemon
 
 import (
+	"bytes"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/mesg-foundation/core/cmd/utils"
@@ -35,6 +37,33 @@ func startHandler(cmd *cobra.Command, args []string) {
 		if err != nil {
 			fmt.Println(aurora.Red(err))
 			return
+		}
+
+		fmt.Println("Download docker image")
+		var stream bytes.Buffer
+		go func() {
+			err = client.PullImage(docker.PullImageOptions{
+				OutputStream:  &stream,
+				RawJSONStream: false,
+				Repository:    image,
+			}, docker.AuthConfiguration{})
+			if err != nil {
+				fmt.Println(aurora.Red(err))
+				os.Exit(1)
+			}
+		}()
+		buf := make([]byte, 1024)
+		for {
+			n, err := stream.Read(buf)
+			if err != nil {
+				fmt.Println(aurora.Red(err))
+				// os.Exit(1)
+				// break
+			}
+			if n != 0 {
+				fmt.Print(string(buf[:n]))
+			}
+			time.Sleep(500 * time.Millisecond)
 		}
 
 		_, err = client.CreateService(serviceConfig())
