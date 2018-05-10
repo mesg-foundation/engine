@@ -16,8 +16,8 @@ var Topup = &cobra.Command{
 	Short: "Top-up a workflow",
 	Long: `Top-up a workflow.
 Add more token to a existing workflow.`,
-	Example: `mesg-cli workflow topup WORKFLOW_ID
-mesg-cli workflow topup WORKFLOW_ID --amount AMOUNT --account ACCOUNT_ID --confirm`,
+	Example: `mesg-core workflow topup WORKFLOW_ID
+mesg-core workflow topup WORKFLOW_ID --amount AMOUNT --account ACCOUNT_ID --confirm`,
 	Run:               topupHandler,
 	DisableAutoGenTag: true,
 }
