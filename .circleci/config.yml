@@ -48,7 +48,7 @@ workflows:
           # filters:
           #   branches:
           #     only: dev
-      - cli_build_deploy
+      - cli_build_deploy:
           requires:
             - test
           filters:
