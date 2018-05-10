@@ -32,7 +32,7 @@ mesg-core service test --keep-alive`,
 }
 
 func listenEvents(service *service.Service, filter string) {
-	stream, err := cli.ListenEvent(context.Background(), &client.ListenEventRequest{
+	stream, err := cli.ListenEvent(context.Background(), &core.ListenEventRequest{
 		Service: service,
 	})
 	handleError(err)
@@ -49,7 +49,7 @@ func listenEvents(service *service.Service, filter string) {
 }
 
 func listenResults(service *service.Service) {
-	stream, err := cli.ListenResult(context.Background(), &client.ListenResultRequest{
+	stream, err := cli.ListenResult(context.Background(), &core.ListenResultRequest{
 		Service: service,
 	})
 	handleError(err)
@@ -63,7 +63,7 @@ func listenResults(service *service.Service) {
 	}
 }
 
-func executeTask(service *service.Service, task string, dataPath string) (execution *client.ExecuteTaskReply, err error) {
+func executeTask(service *service.Service, task string, dataPath string) (execution *core.ExecuteTaskReply, err error) {
 	if task == "" {
 		return
 	}
