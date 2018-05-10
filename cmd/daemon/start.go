@@ -28,11 +28,13 @@ func startHandler(cmd *cobra.Command, args []string) {
 	running, err := isRunning()
 	if err != nil {
 		fmt.Println(aurora.Red(err))
+		return
 	}
 	if !running {
 		client, err := docker.NewClientFromEnv()
 		if err != nil {
 			fmt.Println(aurora.Red(err))
+			return
 		}
 
 		_, err = client.CreateService(serviceConfig())

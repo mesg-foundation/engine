@@ -24,11 +24,13 @@ func logsHandler(cmd *cobra.Command, args []string) {
 	service, err := service()
 	if err != nil {
 		fmt.Println(aurora.Red(err))
+		return
 	}
 	if service != nil {
 		client, err := docker.NewClientFromEnv()
 		if err != nil {
 			fmt.Println(aurora.Red(err))
+			return
 		}
 
 		var stream bytes.Buffer
