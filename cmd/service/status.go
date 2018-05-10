@@ -14,7 +14,7 @@ import (
 var Status = &cobra.Command{
 	Use:               "status",
 	Short:             "List started services",
-	Example:           "mesg-cli service status",
+	Example:           "mesg-core service status",
 	Run:               statusHandler,
 	DisableAutoGenTag: true,
 }

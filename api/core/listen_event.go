@@ -1,4 +1,4 @@
-package client
+package core
 
 import (
 	"encoding/json"
@@ -8,7 +8,7 @@ import (
 )
 
 // Listen for event from the services
-func (s *Server) ListenEvent(request *ListenEventRequest, stream Client_ListenEventServer) (err error) {
+func (s *Server) ListenEvent(request *ListenEventRequest, stream Core_ListenEventServer) (err error) {
 	subscription := pubsub.Subscribe(request.Service.EventSubscriptionChannel())
 	for data := range subscription {
 		event := data.(*event.Event)

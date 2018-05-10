@@ -14,7 +14,7 @@ var Detail = &cobra.Command{
 	Use:               "detail SERVICE_FOLDER",
 	Short:             "Show details of a published service",
 	Args:              cobra.MinimumNArgs(1),
-	Example:           "mesg-cli service detail SERVICE_FOLDER",
+	Example:           "mesg-core service detail SERVICE_FOLDER",
 	Run:               detailHandler,
 	DisableAutoGenTag: true,
 }
