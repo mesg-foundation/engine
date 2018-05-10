@@ -17,9 +17,10 @@ RUN go get github.com/xeipuuv/gojsonschema && \
     go get github.com/ethereum/go-ethereum/core/types && \
     go get github.com/golang/protobuf/proto && \
     go get golang.org/x/net/context && \
-    go get google.golang.org/grpc
+    go get google.golang.org/grpc && \
+    go get github.com/cpuguy83/go-md2man
 ADD . src/github.com/mesg-foundation/core
 WORKDIR src/github.com/mesg-foundation/core
-RUN go get -v -t ./...
+RUN go get ./...
 RUN go build -o mesg-daemon daemon/main.go
 CMD ["./mesg-daemon"]
