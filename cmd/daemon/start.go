@@ -41,7 +41,7 @@ func startHandler(cmd *cobra.Command, args []string) {
 			return
 		}
 
-		spinner := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{})
+		spinner := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Starting the daemon"})
 		for {
 			time.Sleep(500 * time.Millisecond)
 			container, _ := container()
@@ -52,7 +52,7 @@ func startHandler(cmd *cobra.Command, args []string) {
 		spinner.Stop()
 	}
 
-	fmt.Println(aurora.Green("Daemon running"))
+	fmt.Println(aurora.Green("Daemon is running"))
 }
 
 func serviceConfig() docker.CreateServiceOptions {
