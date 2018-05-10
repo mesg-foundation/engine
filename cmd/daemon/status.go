@@ -19,6 +19,7 @@ func statusHandler(cmd *cobra.Command, args []string) {
 	running, err := isRunning()
 	if err != nil {
 		fmt.Println(aurora.Red(err))
+		return
 	}
 	if running {
 		fmt.Println(aurora.Green("Daemon is running"))
