@@ -1,7 +1,7 @@
 package daemon
 
 const (
-	name       = "mesg-daemon-test"
+	name       = "mesg-daemon"
 	image      = "mesg-daemon"
 	socketPath = "/var/run/docker.sock"
 )
