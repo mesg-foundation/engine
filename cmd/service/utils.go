@@ -6,14 +6,14 @@ import (
 	"os"
 
 	"github.com/logrusorgru/aurora"
-	"github.com/mesg-foundation/core/api/client"
+	"github.com/mesg-foundation/core/api/core"
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/service"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )
 
-var cli client.ClientClient
+var cli core.CoreClient
 
 // Set the default path if needed
 func defaultPath(args []string) string {
@@ -41,14 +41,14 @@ func loadService(path string) (importedService *service.Service) {
 }
 
 func startService(service *service.Service) {
-	_, err := cli.StartService(context.Background(), &client.StartServiceRequest{
+	_, err := cli.StartService(context.Background(), &core.StartServiceRequest{
 		Service: service,
 	})
 	handleError(err)
 }
 
 func stopService(service *service.Service) {
-	_, err := cli.StopService(context.Background(), &client.StopServiceRequest{
+	_, err := cli.StopService(context.Background(), &core.StopServiceRequest{
 		Service: service,
 	})
 	handleError(err)
@@ -57,5 +57,5 @@ func stopService(service *service.Service) {
 func init() {
 	connection, err := grpc.Dial(viper.GetString(config.APIClientTarget), grpc.WithInsecure())
 	handleError(err)
-	cli = client.NewClientClient(connection)
+	cli = core.NewCoreClient(connection)
 }
