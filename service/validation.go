@@ -3,22 +3,11 @@ package service
 import (
 	"errors"
 	"os"
-	"path"
 	"path/filepath"
-	"runtime"
 
 	"github.com/xeipuuv/gojsonschema"
 	yaml "gopkg.in/yaml.v2"
 )
-
-func schemaFilePath() (filepath string) {
-	_, filename, _, ok := runtime.Caller(0)
-	if !ok {
-		panic("Cannot retrieve the path for the JSON schema")
-	}
-	filepath = path.Join(path.Dir(filename), "./schema.json")
-	return
-}
 
 func convert(i interface{}) interface{} {
 	switch x := i.(type) {
@@ -40,7 +29,11 @@ func validServiceData(data []byte) (warnings []gojsonschema.ResultError, err err
 		return
 	}
 	body = convert(body)
-	schema := gojsonschema.NewReferenceLoader("file://" + schemaFilePath())
+	schemaData, err := Asset("service/schema.json")
+	if err != nil {
+		return
+	}
+	schema := gojsonschema.NewBytesLoader(schemaData)
 	loaded := gojsonschema.NewGoLoader(body)
 	result, err := gojsonschema.Validate(schema, loaded)
 	if err != nil {
