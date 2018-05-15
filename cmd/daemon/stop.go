@@ -18,21 +18,35 @@ var Stop = &cobra.Command{
 }
 
 func stopHandler(cmd *cobra.Command, args []string) {
+	client, err := docker.NewClientFromEnv()
+	if err != nil {
+		fmt.Println(aurora.Red(err))
+		return
+	}
+
 	service, err := service()
 	if err != nil {
 		fmt.Println(aurora.Red(err))
 		return
 	}
 	if service != nil {
-		client, err := docker.NewClientFromEnv()
-		if err != nil {
-			fmt.Println(aurora.Red(err))
-			return
-		}
 		err = client.RemoveService(docker.RemoveServiceOptions{
 			Context: context.Background(),
 			ID:      service.ID,
 		})
+		if err != nil {
+			fmt.Println(aurora.Red(err))
+			return
+		}
+	}
+
+	network, err := network()
+	if err != nil {
+		fmt.Println(aurora.Red(err))
+		return
+	}
+	if network != nil {
+		err = client.RemoveNetwork(network.ID)
 		if err != nil {
 			fmt.Println(aurora.Red(err))
 			return

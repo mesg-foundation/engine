@@ -1,7 +1,8 @@
 package daemon
 
 const (
-	name       = "mesg-daemon"
-	image      = "mesg/daemon"
-	socketPath = "/var/run/docker.sock"
+	name          = "mesg-daemon"
+	sharedNetwork = "mesg-shared-network"
+	image         = "mesg/daemon"
+	socketPath    = "/var/run/docker.sock"
 )

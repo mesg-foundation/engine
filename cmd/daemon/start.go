@@ -37,7 +37,18 @@ func startHandler(cmd *cobra.Command, args []string) {
 			return
 		}
 
-		_, err = client.CreateService(serviceConfig())
+		network, err := network()
+		if network == nil {
+			fmt.Println("Create docker network")
+			network, err = client.CreateNetwork(networkConfig())
+			if err != nil {
+				fmt.Println(aurora.Red(err))
+				return
+			}
+		}
+
+		fmt.Println("Create docker service")
+		_, err = client.CreateService(serviceConfig("")) //network.ID))
 		if err != nil {
 			fmt.Println(aurora.Red(err))
 			return
@@ -46,7 +57,7 @@ func startHandler(cmd *cobra.Command, args []string) {
 		spinner := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Starting the daemon"})
 		for {
 			time.Sleep(500 * time.Millisecond)
-			container, _ := container()
+			container, _ := Container()
 			if container != nil {
 				break
 			}
@@ -57,11 +68,25 @@ func startHandler(cmd *cobra.Command, args []string) {
 	fmt.Println(aurora.Green("Daemon is running"))
 }
 
-func serviceConfig() docker.CreateServiceOptions {
+func networkConfig() docker.CreateNetworkOptions {
+	return docker.CreateNetworkOptions{
+		Name:           sharedNetwork,
+		CheckDuplicate: true, // Cannot have 2 network with the same name
+		Driver:         "overlay",
+		Labels: map[string]string{
+			"com.docker.stack.namespace": sharedNetwork,
+		},
+	}
+}
+
+func serviceConfig(networkID string) docker.CreateServiceOptions {
 	return docker.CreateServiceOptions{
 		ServiceSpec: swarm.ServiceSpec{
 			Annotations: swarm.Annotations{
 				Name: name,
+				Labels: map[string]string{
+					"com.docker.stack.namespace": name,
+				},
 			},
 			TaskTemplate: swarm.TaskSpec{
 				ContainerSpec: &swarm.ContainerSpec{
@@ -79,6 +104,14 @@ func serviceConfig() docker.CreateServiceOptions {
 							Target: "/mesg",
 						},
 					},
+					Labels: map[string]string{
+						"com.docker.stack.namespace": name,
+					},
+				},
+			},
+			Networks: []swarm.NetworkAttachmentConfig{
+				swarm.NetworkAttachmentConfig{
+					Target: sharedNetwork,
 				},
 			},
 			EndpointSpec: &swarm.EndpointSpec{
