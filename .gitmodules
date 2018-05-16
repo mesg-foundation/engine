@@ -1,0 +1,9 @@
+[submodule "examples/services/js-function"]
+	path = examples/services/js-function
+	url = https://github.com/mesg-foundation/service-js-function.git
+[submodule "examples/services/slack"]
+	path = examples/services/slack
+	url = https://github.com/mesg-foundation/service-slack.git
+[submodule "examples/services/ethereum"]
+	path = examples/services/ethereum
+	url = https://github.com/mesg-foundation/service-ethereum.git
