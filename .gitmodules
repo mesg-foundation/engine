@@ -1,15 +1,20 @@
-[submodule "examples/services/js-function"]
-	path = examples/services/js-function
-	url = https://github.com/mesg-foundation/service-js-function.git
 [submodule "examples/services/slack"]
 	path = examples/services/slack
 	url = https://github.com/mesg-foundation/service-slack.git
+	branch = master
+[submodule "examples/services/js-function"]
+	path = examples/services/js-function
+	url = https://github.com/mesg-foundation/service-js-function.git
+	branch = master
 [submodule "examples/services/ethereum"]
 	path = examples/services/ethereum
 	url = https://github.com/mesg-foundation/service-ethereum.git
+	branch = master
 [submodule "examples/services/devcon-update"]
 	path = examples/services/devcon-update
-	url = https://github.com/mesg-foundation/service-devcon-update.git
-[submodule "examples/applications/devcon-update-on-slack"]
-	path = examples/applications/devcon-update-on-slack
+	url = https://github.com/mesg-foundation/service-devcon-updated.git
+	branch = master
+[submodule "examples/applications/applications/devcon-update-on-slack"]
+	path = examples/applications/applications/devcon-update-on-slack
 	url = https://github.com/mesg-foundation/application-devcon-update-on-slack.git
+	branch = master
