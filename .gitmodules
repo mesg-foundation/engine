@@ -12,7 +12,7 @@
 	branch = master
 [submodule "examples/services/devcon-update"]
 	path = examples/services/devcon-update
-	url = https://github.com/mesg-foundation/service-devcon-updated.git
+	url = https://github.com/mesg-foundation/service-devcon-update.git
 	branch = master
 [submodule "examples/applications/applications/devcon-update-on-slack"]
 	path = examples/applications/applications/devcon-update-on-slack
