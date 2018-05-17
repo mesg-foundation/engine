@@ -2,7 +2,6 @@ package daemon
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/docker/docker/api/types/swarm"
 	"github.com/fsouza/go-dockerclient"
