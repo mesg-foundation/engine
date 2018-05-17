@@ -10,6 +10,11 @@ import (
 
 var serverstop = new(Server)
 
+var (
+	testDaemonIP      = "localhost" // TODO: should be remove when a better implementation is up
+	testSharedNetwork = "ingress"   // TODO: should be remove when a better implementation is up
+)
+
 func TestStopService(t *testing.T) {
 	service := service.Service{
 		Name: "TestStopService",
@@ -19,7 +24,7 @@ func TestStopService(t *testing.T) {
 			},
 		},
 	}
-	service.Start()
+	service.Start(testDaemonIP, testSharedNetwork)
 	reply, err := serverstop.StopService(context.Background(), &StopServiceRequest{
 		Service: &service,
 	})

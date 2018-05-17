@@ -15,7 +15,7 @@ func TestStatusRunning(t *testing.T) {
 			},
 		},
 	}
-	dockerServices, err := service.Start()
+	dockerServices, err := service.Start(testDaemonIP, testSharedNetwork)
 	assert.Nil(t, err)
 	assert.Equal(t, len(dockerServices), len(service.GetDependencies()))
 	assert.Equal(t, service.IsRunning(), true)
@@ -47,7 +47,7 @@ func TestList(t *testing.T) {
 			},
 		},
 	}
-	service.Start()
+	service.Start(testDaemonIP, testSharedNetwork)
 	list, err := List()
 	assert.Nil(t, err)
 	assert.Equal(t, len(list), 1)
@@ -67,7 +67,7 @@ func TestListMultipleDependencies(t *testing.T) {
 			},
 		},
 	}
-	service.Start()
+	service.Start(testDaemonIP, testSharedNetwork)
 	list, err := List()
 	assert.Nil(t, err)
 	assert.Equal(t, len(list), 1)

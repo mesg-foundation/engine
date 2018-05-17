@@ -1,19 +1,17 @@
 package service
 
 import (
-	"errors"
 	"strings"
 
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/swarm"
 	docker "github.com/fsouza/go-dockerclient"
-	"github.com/mesg-foundation/core/cmd/daemon"
 	"github.com/mesg-foundation/core/config"
 	"github.com/spf13/viper"
 )
 
 // Start a service
-func (service *Service) Start() (dockerServices []*swarm.Service, err error) {
+func (service *Service) Start(daemonIP string, sharedNetwork string) (dockerServices []*swarm.Service, err error) {
 	if service.IsRunning() {
 		return
 	}
@@ -28,7 +26,7 @@ func (service *Service) Start() (dockerServices []*swarm.Service, err error) {
 			namespace:      service.namespace(),
 			dependencyName: name,
 			serviceName:    service.Name,
-		})
+		}, daemonIP, sharedNetwork)
 		i++
 		if err != nil {
 			break
@@ -48,21 +46,11 @@ type dependencyDetails struct {
 }
 
 // Start will start a dependency container
-func (dependency *Dependency) Start(service *Service, details dependencyDetails) (dockerService *swarm.Service, err error) {
+func (dependency *Dependency) Start(service *Service, details dependencyDetails, daemonIP string, sharedNetwork string) (dockerService *swarm.Service, err error) {
 	cli, err := dockerCli()
 	if err != nil {
 		return
 	}
-	daemonContainer, err := daemon.Container()
-	if err != nil {
-		return
-	}
-	networkContainer := daemonContainer.Networks.Networks["mesg-shared-network"]
-	if networkContainer.IPAddress == "" {
-		err = errors.New("Network 'mesg-shared-network' not found")
-		return
-	}
-
 	return cli.CreateService(docker.CreateServiceOptions{
 		ServiceSpec: swarm.ServiceSpec{
 			Annotations: swarm.Annotations{
@@ -79,7 +67,7 @@ func (dependency *Dependency) Start(service *Service, details dependencyDetails)
 					Args:  strings.Fields(dependency.Command),
 					Env: []string{
 						"MESG_ENDPOINT=" + viper.GetString(config.APIServiceTargetSocket),
-						"MESG_ENDPOINT_TCP=" + networkContainer.IPAddress + "" + viper.GetString(config.APIClientTarget),
+						"MESG_ENDPOINT_TCP=" + daemonIP + "" + viper.GetString(config.APIClientTarget),
 					},
 					Mounts: append(extractVolumes(service, dependency, details), mount.Mount{
 						Source: viper.GetString(config.APIServiceSocketPath),
@@ -95,7 +83,7 @@ func (dependency *Dependency) Start(service *Service, details dependencyDetails)
 			},
 			Networks: []swarm.NetworkAttachmentConfig{
 				swarm.NetworkAttachmentConfig{
-					Target: "mesg-shared-network", // TODO: to set a the same constant as daemon package
+					Target: sharedNetwork,
 				},
 			},
 		},
