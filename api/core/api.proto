@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package api;
-option go_package = "client";
+option go_package = "core";
 
 import "github.com/mesg-foundation/core/service/service.proto";
 
@@ -11,28 +11,29 @@ service Core {
   rpc ListenResult (ListenResultRequest) returns (stream ResultData) {}
   rpc StartService (StartServiceRequest) returns (StartServiceReply) {}
   rpc StopService (StopServiceRequest) returns (StopServiceReply) {}
+  rpc DeployService (DeployServiceRequest) returns (DeployServiceReply) {}
 }
 
 message ListenEventRequest {
-  service.Service service = 1;
+  string serviceID = 1;
 }
 
 message ExecuteTaskRequest {
-  service.Service service = 1;
+  string serviceID = 1;
   string taskKey = 2;
   string taskData = 3;
 }
 
 message ListenResultRequest {
-  service.Service service = 1;
+  string serviceID = 1;
 }
 
 message StartServiceRequest {
-  service.Service service = 1;
+  string serviceID = 1;
 }
 
 message StopServiceRequest {
-  service.Service service = 1;
+  string serviceID = 1;
 }
 
 message EventData {
@@ -60,4 +61,12 @@ message StartServiceReply {
 
 message StopServiceReply {
   string error = 1;
+}
+
+message DeployServiceRequest {
+  service.Service service = 1;
+}
+
+message DeployServiceReply {
+  string serviceID = 1;
 }
