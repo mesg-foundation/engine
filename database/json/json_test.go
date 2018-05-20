@@ -91,6 +91,7 @@ func TestFind(t *testing.T) {
 	err := Db.Find(collection, key, &data)
 	assert.Nil(t, err)
 	assert.NotNil(t, data)
+	assert.NotEqual(t, data.key, "")
 	assert.NotEqual(t, data.Bar, "")
 	assert.NotEqual(t, data.Foo, "")
 }
@@ -117,6 +118,7 @@ func TestAll(t *testing.T) {
 	for i, record := range data {
 		typedData[i] = *record.(*testRecord)
 		assert.NotNil(t, typedData[i])
+		assert.NotEqual(t, typedData[i].key, "")
 		assert.NotEqual(t, typedData[i].Foo, "")
 		assert.NotEqual(t, typedData[i].Bar, "")
 	}
@@ -124,6 +126,7 @@ func TestAll(t *testing.T) {
 	assert.NotNil(t, typedData)
 	assert.Equal(t, len(typedData), 2)
 	assert.Equal(t, len(typedData), len(data))
+	assert.NotEqual(t, typedData[0].key, typedData[1].key)
 	assert.NotEqual(t, typedData[0].Bar, typedData[1].Bar)
 	assert.NotEqual(t, typedData[0].Foo, typedData[1].Foo)
 }
