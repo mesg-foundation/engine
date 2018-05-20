@@ -42,7 +42,11 @@ func (db *Database) Find(collection string, key string, data interface{}) (err e
 	return
 }
 
-func (db *Database) All(collection string) (data []string, err error) {
-	data, err = driver.ReadAll(collection)
+func (db *Database) All(collection string) (data [][]byte, err error) {
+	strings, err := driver.ReadAll(collection)
+	data = make([][]byte, len(strings))
+	for i, element := range strings {
+		data[i] = []byte(element)
+	}
 	return
 }
