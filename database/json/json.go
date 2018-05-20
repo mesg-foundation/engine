@@ -4,6 +4,7 @@ import (
 	"path/filepath"
 
 	"github.com/mesg-foundation/core/config"
+	"github.com/mesg-foundation/core/database"
 	"github.com/nanobox-io/golang-scribble"
 )
 
@@ -27,8 +28,8 @@ func (db *Database) Close() (err error) {
 	return
 }
 
-func (db *Database) Insert(collection string, key string, data interface{}) (err error) {
-	err = driver.Write(collection, key, data)
+func (db *Database) Insert(collection string, key string, record database.Record) (err error) {
+	err = driver.Write(collection, key, record)
 	return
 }
 
@@ -37,16 +38,20 @@ func (db *Database) Delete(collection string, key string) (err error) {
 	return
 }
 
-func (db *Database) Find(collection string, key string, data interface{}) (err error) {
-	err = driver.Read(collection, key, &data)
+func (db *Database) Find(collection string, key string, record database.Record) (err error) {
+	err = driver.Read(collection, key, &record)
 	return
 }
 
-func (db *Database) All(collection string) (data [][]byte, err error) {
+func (db *Database) All(collection string, new func() database.Record) (records []database.Record, err error) {
 	strings, err := driver.ReadAll(collection)
-	data = make([][]byte, len(strings))
+	records = make([]database.Record, len(strings))
 	for i, element := range strings {
-		data[i] = []byte(element)
+		records[i] = new()
+		err = records[i].Decode([]byte(element))
+		if err != nil {
+			return
+		}
 	}
 	return
 }

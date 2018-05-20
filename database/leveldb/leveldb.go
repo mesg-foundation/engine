@@ -1,10 +1,10 @@
 package leveldb
 
 import (
-	"encoding/json"
 	"path/filepath"
 
 	"github.com/mesg-foundation/core/config"
+	"github.com/mesg-foundation/core/database"
 	goleveldb "github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/util"
 )
@@ -33,9 +33,12 @@ func (db *Database) Close() (err error) {
 	return
 }
 
-func (db *Database) Insert(collection string, key string, data interface{}) (err error) {
-	bin, err := json.Marshal(data)
-	err = driver.Put(makeKey(collection, key), bin, nil)
+func (db *Database) Insert(collection string, key string, record database.Record) (err error) {
+	bytes, err := record.Encode()
+	if err != nil {
+		return
+	}
+	err = driver.Put(makeKey(collection, key), bytes, nil)
 	return
 }
 
@@ -44,22 +47,24 @@ func (db *Database) Delete(collection string, key string) (err error) {
 	return
 }
 
-func (db *Database) Find(collection string, key string, data interface{}) (err error) {
-	bin, err := driver.Get(makeKey(collection, key), nil)
+func (db *Database) Find(collection string, key string, record database.Record) (err error) {
+	bytes, err := driver.Get(makeKey(collection, key), nil)
 	if err != nil {
 		return
 	}
-	err = json.Unmarshal(bin, &data)
+	err = record.Decode(bytes)
 	return
 }
 
-func (db *Database) All(collection string) (data [][]byte, err error) {
+func (db *Database) All(collection string, new func() database.Record) (records []database.Record, err error) {
 	iter := driver.NewIterator(util.BytesPrefix([]byte(collection)), nil)
 	for iter.Next() {
-		value := iter.Value()
-		dest := make([]byte, len(value))
-		copy(dest, value)
-		data = append(data, dest)
+		record := new()
+		err = record.Decode(iter.Value())
+		if err != nil {
+			return
+		}
+		records = append(records, record)
 	}
 	iter.Release()
 	err = iter.Error()
