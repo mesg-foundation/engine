@@ -6,12 +6,28 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/mesg-foundation/core/database"
 	"github.com/stvp/assert"
 )
 
-type testData struct {
+type testRecord struct {
+	key string
 	Foo string
 	Bar string
+}
+
+func (record *testRecord) Key() string {
+	return record.key
+}
+
+func (record *testRecord) Encode() (bytes []byte, err error) {
+	bytes, err = json.Marshal(record)
+	return
+}
+
+func (record *testRecord) Decode(bytes []byte) (err error) {
+	err = json.Unmarshal(bytes, &record)
+	return
 }
 
 const collection = "test"
@@ -24,11 +40,12 @@ func insertOne() (key string, err error) {
 	keyCounter++
 	keyString := strconv.Itoa(keyCounter)
 	key = "id_" + keyString
-	data := testData{
+	data := testRecord{
+		key: key,
 		Foo: "hello " + keyString,
 		Bar: "bye " + keyString,
 	}
-	err = Db.Insert(collection, key, data)
+	err = Db.Insert(collection, key, &data)
 	return
 }
 
@@ -70,7 +87,7 @@ func TestFind(t *testing.T) {
 	defer Db.Close()
 	key, _ := insertOne()
 	defer delete(key)
-	data := testData{}
+	data := testRecord{}
 	err := Db.Find(collection, key, &data)
 	assert.Nil(t, err)
 	assert.NotNil(t, data)
@@ -87,21 +104,21 @@ func TestAll(t *testing.T) {
 	key2, _ := insertOne()
 	defer delete(key2)
 
-	data, err := Db.All(collection)
+	new := func() database.Record {
+		return new(testRecord)
+	}
+	data, err := Db.All(collection, new)
+	fmt.Println("data", data)
 	assert.Nil(t, err)
 	assert.NotNil(t, data)
 	assert.Equal(t, len(data), 2)
 
-	typedData := make([]testData, len(data))
+	typedData := make([]testRecord, len(data))
 	for i, record := range data {
-		var recordTyped testData
-		err = json.Unmarshal(record, &recordTyped)
-		assert.Nil(t, err)
-		typedData[i] = recordTyped
-		fmt.Println("recordTyped", recordTyped)
-		assert.NotNil(t, recordTyped)
-		assert.NotEqual(t, recordTyped.Foo, "")
-		assert.NotEqual(t, recordTyped.Bar, "")
+		typedData[i] = *record.(*testRecord)
+		assert.NotNil(t, typedData[i])
+		assert.NotEqual(t, typedData[i].Foo, "")
+		assert.NotEqual(t, typedData[i].Bar, "")
 	}
 	fmt.Println("typedData", typedData)
 	assert.NotNil(t, typedData)
