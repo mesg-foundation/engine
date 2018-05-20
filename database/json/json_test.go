@@ -2,6 +2,7 @@ package json
 
 import (
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"testing"
 
@@ -23,7 +24,7 @@ func insertOne() (key string, err error) {
 	keyCounter++
 	keyString := strconv.Itoa(keyCounter)
 	key = "id_" + keyString
-	data := &testData{
+	data := testData{
 		Foo: "hello " + keyString,
 		Bar: "bye " + keyString,
 	}
@@ -94,14 +95,18 @@ func TestAll(t *testing.T) {
 	typedData := make([]testData, len(data))
 	for i, record := range data {
 		var recordTyped testData
-		err = json.Unmarshal([]byte(record), &recordTyped)
+		err = json.Unmarshal(record, &recordTyped)
 		assert.Nil(t, err)
 		typedData[i] = recordTyped
+		fmt.Println("recordTyped", recordTyped)
 		assert.NotNil(t, recordTyped)
 		assert.NotEqual(t, recordTyped.Foo, "")
 		assert.NotEqual(t, recordTyped.Bar, "")
 	}
+	fmt.Println("typedData", typedData)
 	assert.NotNil(t, typedData)
 	assert.Equal(t, len(typedData), 2)
 	assert.Equal(t, len(typedData), len(data))
+	assert.NotEqual(t, typedData[0].Bar, typedData[1].Bar)
+	assert.NotEqual(t, typedData[0].Foo, typedData[1].Foo)
 }

@@ -8,7 +8,7 @@ type Database interface {
 	Insert(collection string, key string, data interface{}) (err error)
 	Delete(collection string, key string) (err error)
 	Find(collection string, key string, data interface{}) (err error)
-	All(collection string) (data []string, err error)
+	All(collection string) (data [][]byte, err error)
 }
 
 var Db Database
