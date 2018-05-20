@@ -9,7 +9,6 @@ import (
 
 type Database struct{}
 
-// The
 var driver *scribble.Driver
 
 var storagePath string
@@ -23,17 +22,23 @@ func (db *Database) Open() (err error) {
 	return
 }
 
-func (db *Database) Insert(table string, key string, data interface{}) (err error) {
-	err = driver.Write(table, key, data)
-	return
-}
-
-func (db *Database) Find(table string, key string, data interface{}) (err error) {
-	err = driver.Read(table, key, &data)
-	return
-}
-
 func (db *Database) Close() (err error) {
+	driver = nil
+	return
+}
+
+func (db *Database) Insert(collection string, key string, data interface{}) (err error) {
+	err = driver.Write(collection, key, data)
+	return
+}
+
+func (db *Database) Delete(collection string, key string) (err error) {
+	err = driver.Delete(collection, key)
+	return
+}
+
+func (db *Database) Find(collection string, key string, data interface{}) (err error) {
+	err = driver.Read(collection, key, &data)
 	return
 }
 
