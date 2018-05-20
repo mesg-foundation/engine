@@ -3,13 +3,19 @@ package core
 import (
 	"encoding/json"
 
+	"github.com/mesg-foundation/core/database/services"
+
 	"github.com/mesg-foundation/core/event"
 	"github.com/mesg-foundation/core/pubsub"
 )
 
-// Listen for event from the services
+// ListenEvent for listen event from a specific service services
 func (s *Server) ListenEvent(request *ListenEventRequest, stream Core_ListenEventServer) (err error) {
-	subscription := pubsub.Subscribe(request.Service.EventSubscriptionChannel())
+	service, err := services.Get(request.ServiceID)
+	if err != nil {
+		return
+	}
+	subscription := pubsub.Subscribe(service.EventSubscriptionChannel())
 	for data := range subscription {
 		event := data.(*event.Event)
 		eventData, _ := json.Marshal(event.Data)
