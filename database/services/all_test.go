@@ -20,5 +20,5 @@ func TestAfterSave(t *testing.T) {
 	services, err := All()
 	assert.Nil(t, err)
 	assert.Equal(t, len(services), 1)
-	delete(hash)
+	Delete(hash)
 }
