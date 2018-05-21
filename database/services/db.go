@@ -5,11 +5,13 @@ import (
 	"path/filepath"
 	"sync"
 
+	"github.com/spf13/viper"
+
 	"github.com/mesg-foundation/core/config"
 	"github.com/syndtr/goleveldb/leveldb"
 )
 
-var storagePath = filepath.Join(config.ConfigDirectory, "database", "services")
+var storagePath = filepath.Join(viper.GetString(config.MESGPath), "database", "services")
 var _instance *leveldb.DB
 var mu sync.Mutex
 
