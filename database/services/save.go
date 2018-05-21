@@ -15,8 +15,11 @@ func Save(service *service.Service) (hash string, err error) {
 	if err != nil {
 		return
 	}
-	db := open()
+	db, err := open()
 	defer close()
+	if err != nil {
+		return
+	}
 	err = db.Put([]byte(hash), bytes, nil)
 	return
 }
