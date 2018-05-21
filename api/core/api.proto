@@ -12,6 +12,7 @@ service Core {
   rpc StartService (StartServiceRequest) returns (StartServiceReply) {}
   rpc StopService (StopServiceRequest) returns (StopServiceReply) {}
   rpc DeployService (DeployServiceRequest) returns (DeployServiceReply) {}
+  rpc DeleteService (DeleteServiceRequest) returns (DeleteServiceReply) {}
 }
 
 message ListenEventRequest {
@@ -69,4 +70,11 @@ message DeployServiceRequest {
 
 message DeployServiceReply {
   string serviceID = 1;
+}
+
+message DeleteServiceRequest {
+  string serviceID = 1;
+}
+
+message DeleteServiceReply {
 }
