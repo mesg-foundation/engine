@@ -7,7 +7,8 @@ import (
 )
 
 func TestDb(t *testing.T) {
-	db := open()
+	db, err := open()
+	assert.Nil(t, err)
 	assert.NotNil(t, db)
 	close()
 }
