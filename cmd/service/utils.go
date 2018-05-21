@@ -1,7 +1,6 @@
 package cmdService
 
 import (
-	"context"
 	"fmt"
 	"os"
 
@@ -38,20 +37,6 @@ func loadService(path string) (importedService *service.Service) {
 		os.Exit(0)
 	}
 	return
-}
-
-func startService(service *service.Service) {
-	_, err := cli.StartService(context.Background(), &core.StartServiceRequest{
-		Service: service,
-	})
-	handleError(err)
-}
-
-func stopService(service *service.Service) {
-	_, err := cli.StopService(context.Background(), &core.StopServiceRequest{
-		Service: service,
-	})
-	handleError(err)
 }
 
 func init() {
