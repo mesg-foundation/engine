@@ -4,6 +4,7 @@ import (
 	"context"
 	"io/ioutil"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 
@@ -87,12 +88,13 @@ func testHandler(cmd *cobra.Command, args []string) {
 	service := loadService(defaultPath(args))
 	service.Name = strings.Join([]string{
 		"TEST",
-		time.Now().String(),
+		strconv.Itoa(int(time.Now().Unix())),
 		service.Name,
 	}, "-")
 	deployment, err := cli.DeployService(context.Background(), &core.DeployServiceRequest{
 		Service: service,
 	})
+	handleError(err)
 
 	_, err = cli.StartService(context.Background(), &core.StartServiceRequest{
 		ServiceID: deployment.ServiceID,
