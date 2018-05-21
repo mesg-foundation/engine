@@ -14,5 +14,5 @@ func TestGet(t *testing.T) {
 	service, err := Get(hash)
 	assert.Nil(t, err)
 	assert.Equal(t, service.Name, "TestGet")
-	delete(hash)
+	Delete(hash)
 }
