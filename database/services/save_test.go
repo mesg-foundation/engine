@@ -36,7 +36,7 @@ func TestSaveReturningHash(t *testing.T) {
 	hash, err := Save(service)
 	assert.Nil(t, err)
 	assert.Equal(t, hash, calculatedHash)
-	delete(hash)
+	Delete(hash)
 }
 
 func TestSaveAndPresentInDB(t *testing.T) {
@@ -45,5 +45,5 @@ func TestSaveAndPresentInDB(t *testing.T) {
 	})
 	service, _ := Get(hash)
 	assert.Equal(t, service.Name, "TestSaveAndPresentInDB")
-	delete(hash)
+	Delete(hash)
 }
