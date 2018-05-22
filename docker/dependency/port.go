@@ -8,7 +8,7 @@ import (
 )
 
 // Ports extract ports from a Dependency and transform them to a swarm.PortConfig
-func Ports(dependency dependency) (ports []swarm.PortConfig) {
+func Ports(dependency Dependency) (ports []swarm.PortConfig) {
 	ports = make([]swarm.PortConfig, len(dependency.GetPorts()))
 	for i, p := range dependency.GetPorts() {
 		split := strings.Split(p, ":")

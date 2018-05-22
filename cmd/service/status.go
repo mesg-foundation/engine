@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/logrusorgru/aurora"
-	"github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/core/docker"
 
 	"github.com/spf13/cobra"
 )
@@ -20,7 +20,7 @@ var Status = &cobra.Command{
 }
 
 func statusHandler(cmd *cobra.Command, args []string) {
-	services, err := service.List()
+	services, err := docker.List()
 	if err != nil {
 		fmt.Println(aurora.Red(err))
 		os.Exit(0)

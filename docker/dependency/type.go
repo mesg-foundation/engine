@@ -1,21 +1,11 @@
 package dependency
 
-type dependency interface {
+type Dependency interface {
 	GetPorts() []string
 	GetVolumes() []string
 	GetVolumesfrom() []string
 }
-type service interface {
+type Service interface {
 	Namespace() string
-	GetDependencies() map[string]dependency
+	GetDependency(name string) Dependency
 }
-
-// StatusType of the service
-type StatusType uint
-
-// status for services
-const (
-	STOPPED StatusType = 0
-	RUNNING StatusType = 1
-	PARTIAL StatusType = 2
-)

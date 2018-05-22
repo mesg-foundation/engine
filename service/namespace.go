@@ -12,7 +12,7 @@ const eventChannel string = "Event"
 const taskChannel string = "Task"
 const resultChannel string = "Result"
 
-func (service *Service) namespace() string {
+func (service *Service) Namespace() string {
 	return strings.Join([]string{
 		NAMESPACE,
 		strings.Replace(service.Name, " ", "-", -1),
@@ -22,7 +22,7 @@ func (service *Service) namespace() string {
 // EventSubscriptionChannel returns the channel to listen for events from this service
 func (service *Service) EventSubscriptionChannel() string {
 	return hash.Calculate([]string{
-		service.namespace(),
+		service.Namespace(),
 		eventChannel,
 	})
 }
@@ -30,7 +30,7 @@ func (service *Service) EventSubscriptionChannel() string {
 // TaskSubscriptionChannel returns the channel to listen for tasks from this service
 func (service *Service) TaskSubscriptionChannel() string {
 	return hash.Calculate([]string{
-		service.namespace(),
+		service.Namespace(),
 		taskChannel,
 	})
 }
@@ -38,7 +38,7 @@ func (service *Service) TaskSubscriptionChannel() string {
 // ResultSubscriptionChannel returns the channel to listen for tasks from this service
 func (service *Service) ResultSubscriptionChannel() string {
 	return hash.Calculate([]string{
-		service.namespace(),
+		service.Namespace(),
 		resultChannel,
 	})
 }

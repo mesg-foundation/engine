@@ -5,25 +5,28 @@ import (
 
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/swarm"
-	docker "github.com/fsouza/go-dockerclient"
+	godocker "github.com/fsouza/go-dockerclient"
 	"github.com/mesg-foundation/core/config"
+	"github.com/mesg-foundation/core/docker"
+	dockerDependency "github.com/mesg-foundation/core/docker/dependency"
+	dockerService "github.com/mesg-foundation/core/docker/service"
 	"github.com/spf13/viper"
 )
 
 // Start a service
 func (service *Service) Start(daemonIP string, sharedNetwork string) (dockerServices []*swarm.Service, err error) {
-	if service.IsRunning() {
+	if dockerService.IsRunning(service) {
 		return
 	}
 	// If there is one but not all services running stop to restart all
-	if service.IsPartiallyRunning() {
+	if dockerService.IsPartiallyRunning(service) {
 		service.Stop()
 	}
 	dockerServices = make([]*swarm.Service, len(service.GetDependencies()))
 	i := 0
 	for name, dependency := range service.GetDependencies() {
 		dockerServices[i], err = dependency.Start(service, dependencyDetails{
-			namespace:      service.namespace(),
+			namespace:      service.Namespace(),
 			dependencyName: name,
 			serviceName:    service.Name,
 		}, daemonIP, sharedNetwork)
@@ -47,11 +50,11 @@ type dependencyDetails struct {
 
 // Start will start a dependency container
 func (dependency *Dependency) Start(service *Service, details dependencyDetails, daemonIP string, sharedNetwork string) (dockerService *swarm.Service, err error) {
-	cli, err := dockerCli()
+	client, err := docker.Client()
 	if err != nil {
 		return
 	}
-	return cli.CreateService(docker.CreateServiceOptions{
+	return client.CreateService(godocker.CreateServiceOptions{
 		ServiceSpec: swarm.ServiceSpec{
 			Annotations: swarm.Annotations{
 				Name: strings.Join([]string{details.namespace, details.dependencyName}, "_"),
@@ -69,7 +72,7 @@ func (dependency *Dependency) Start(service *Service, details dependencyDetails,
 						"MESG_ENDPOINT=" + viper.GetString(config.APIServiceTargetSocket),
 						"MESG_ENDPOINT_TCP=" + daemonIP + "" + viper.GetString(config.APIClientTarget),
 					},
-					Mounts: append(extractVolumes(service, dependency, details), mount.Mount{
+					Mounts: append(dockerDependency.Volumes(service, dependency, details.dependencyName), mount.Mount{
 						Source: viper.GetString(config.APIServiceSocketPath),
 						Target: viper.GetString(config.APIServiceTargetPath),
 					}),
@@ -79,7 +82,7 @@ func (dependency *Dependency) Start(service *Service, details dependencyDetails,
 				},
 			},
 			EndpointSpec: &swarm.EndpointSpec{
-				Ports: extractPorts(dependency),
+				Ports: dockerDependency.Ports(dependency),
 			},
 			Networks: []swarm.NetworkAttachmentConfig{
 				swarm.NetworkAttachmentConfig{

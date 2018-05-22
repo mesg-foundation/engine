@@ -1,4 +1,4 @@
-package dependency
+package docker
 
 import (
 	"context"
@@ -6,13 +6,12 @@ import (
 
 	"github.com/docker/docker/api/types/swarm"
 	godocker "github.com/fsouza/go-dockerclient"
-	"github.com/mesg-foundation/core/docker"
 )
 
 // Service returns the Docker Service
 func Service(namespace string, name string) (dockerService swarm.Service, err error) {
 	ctx := context.Background()
-	client, err := docker.Client()
+	client, err := Client()
 	if err != nil {
 		return
 	}

@@ -1,5 +1,9 @@
 package service
 
+import (
+	dockerDependency "github.com/mesg-foundation/core/docker/dependency"
+)
+
 // Visibility is the tags to set is the service is visible for whom
 type Visibility string
 
@@ -21,3 +25,15 @@ const (
 	PublishContainer Publish = "CONTAINER"
 	PublishNone      Publish = "NONE"
 )
+
+func (service *Service) GetDependency(name string) dockerDependency.Dependency {
+	return dockerDependency.Dependency(service.Dependencies[name])
+}
+
+func (service *Service) GetDependenciesKeys() (keys []string) {
+	keys = make([]string, len(service.Dependencies))
+	for k := range service.Dependencies {
+		keys = append(keys, k)
+	}
+	return
+}
