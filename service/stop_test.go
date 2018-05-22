@@ -1,7 +1,6 @@
 package service
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/mesg-foundation/core/docker"
@@ -17,7 +16,7 @@ func TestStopRunningService(t *testing.T) {
 			},
 		},
 	}
-	service.Start(testDaemonIP, testSharedNetwork)
+	service.Start()
 	err := service.Stop()
 	assert.Nil(t, err)
 	assert.Equal(t, service.IsStopped(), true)
@@ -38,18 +37,21 @@ func TestStopNonRunningService(t *testing.T) {
 }
 
 func TestStopDependency(t *testing.T) {
-	namespace := strings.Join([]string{NAMESPACE, "TestStopDependency"}, "_")
-	name := "test"
-	dependency := Dependency{Image: "nginx"}
-	dependency.Start(&Service{}, dependencyDetails{
-		namespace:      namespace,
-		dependencyName: name,
-		serviceName:    "TestStopDependency",
-	}, testDaemonIP, testSharedNetwork)
-	err := docker.Stop(namespace, name)
+	c := dockerConfig{
+		service: &Service{
+			Name: "TestStopDependency",
+		},
+		dependency: &Dependency{
+			Image: "nginx",
+		},
+		name: "test",
+	}
+	namespaces := []string{c.service.Name, c.name}
+	dockerStart(c)
+	err := docker.Stop(namespaces)
 	assert.Nil(t, err)
-	assert.Equal(t, docker.IsStopped(namespace, name), true)
-	assert.Equal(t, docker.IsRunning(namespace, name), false)
+	assert.Equal(t, docker.IsStopped(namespaces), true)
+	assert.Equal(t, docker.IsRunning(namespaces), false)
 }
 
 func TestNetworkDeleted(t *testing.T) {
@@ -61,9 +63,9 @@ func TestNetworkDeleted(t *testing.T) {
 			},
 		},
 	}
-	service.Start(testDaemonIP, testSharedNetwork)
+	service.Start()
 	service.Stop()
-	network, err := docker.FindNetwork(service.Namespace())
+	network, err := docker.FindNetwork(service.Name)
 	assert.Nil(t, err)
 	assert.Nil(t, network)
 }

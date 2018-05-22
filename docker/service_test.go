@@ -1,7 +1,6 @@
 package docker
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/docker/docker/api/types/swarm"
@@ -9,27 +8,27 @@ import (
 )
 
 func TestDockerServiceMatch(t *testing.T) {
-	namespace := strings.Join([]string{"MESG", "TestDockerServiceMatch"}, "_")
+	namespace := "TestDockerServiceMatch"
 	dockerServices := []swarm.Service{
 		swarm.Service{
 			Spec: swarm.ServiceSpec{
 				Annotations: swarm.Annotations{
-					Name: strings.Join([]string{namespace, "test1"}, "_"),
+					Name: Namespace([]string{namespace, "test1"}),
 				},
 			},
 		},
 		swarm.Service{
 			Spec: swarm.ServiceSpec{
 				Annotations: swarm.Annotations{
-					Name: strings.Join([]string{namespace, "test2"}, "_"),
+					Name: Namespace([]string{namespace, "test2"}),
 				},
 			},
 		},
 	}
-	res1 := serviceMatch(dockerServices, namespace, "test")
+	res1 := serviceMatch(dockerServices, []string{namespace, "test"})
 	assert.Equal(t, res1, swarm.Service{})
-	res2 := serviceMatch(dockerServices, namespace, "test1")
+	res2 := serviceMatch(dockerServices, []string{namespace, "test1"})
 	assert.Equal(t, res2, dockerServices[0])
-	res3 := serviceMatch(dockerServices, namespace, "test2")
+	res3 := serviceMatch(dockerServices, []string{namespace, "test2"})
 	assert.Equal(t, res3, dockerServices[1])
 }

@@ -11,23 +11,23 @@ const (
 )
 
 // Status return the status of the Docker Swarm Servicer
-func Status(namespace string, name string) (status StatusType) {
-	dockerService, err := Service(namespace, name)
+func Status(name []string) (status StatusType) {
+	dockerService, err := FindService(name)
 	status = STOPPED
-	if err == nil && dockerService.ID != "" {
+	if err == nil && dockerService != nil && dockerService.ID != "" {
 		status = RUNNING
 	}
 	return
 }
 
 // IsRunning returns true if the dependency is running, false otherwise
-func IsRunning(namespace string, name string) (running bool) {
-	running = Status(namespace, name) == RUNNING
+func IsRunning(name []string) (running bool) {
+	running = Status(name) == RUNNING
 	return
 }
 
 // IsStopped returns true if the dependency is stopped, false otherwise
-func IsStopped(namespace string, name string) (running bool) {
-	running = Status(namespace, name) == STOPPED
+func IsStopped(name []string) (running bool) {
+	running = Status(name) == STOPPED
 	return
 }

@@ -2,16 +2,10 @@ package service
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/mesg-foundation/core/docker"
 	"github.com/stvp/assert"
-)
-
-var (
-	testDaemonIP      = "localhost" // TODO: should be remove when a better implementation is up
-	testSharedNetwork = "ingress"   // TODO: should be remove when a better implementation is up
 )
 
 func TestStartService(t *testing.T) {
@@ -23,7 +17,7 @@ func TestStartService(t *testing.T) {
 			},
 		},
 	}
-	dockerServices, err := service.Start(testDaemonIP, testSharedNetwork)
+	dockerServices, err := service.Start()
 	fmt.Println(err)
 	assert.Nil(t, err)
 	assert.Equal(t, len(dockerServices), len(service.GetDependencies()))
@@ -40,8 +34,8 @@ func TestStartAgainService(t *testing.T) {
 			},
 		},
 	}
-	service.Start(testDaemonIP, testSharedNetwork)
-	dockerServices, err := service.Start(testDaemonIP, testSharedNetwork)
+	service.Start()
+	dockerServices, err := service.Start()
 	assert.Nil(t, err)
 	assert.Equal(t, len(dockerServices), 0) // 0 because already started so no new one to start
 	assert.Equal(t, service.IsRunning(), true)
@@ -60,10 +54,10 @@ func TestPartiallyRunningService(t *testing.T) {
 			},
 		},
 	}
-	service.Start(testDaemonIP, testSharedNetwork)
-	docker.Stop(service.Namespace(), "test")
+	service.Start()
+	docker.Stop([]string{service.Name, "test"})
 	assert.Equal(t, service.IsPartiallyRunning(), true)
-	dockerServices, err := service.Start(testDaemonIP, testSharedNetwork)
+	dockerServices, err := service.Start()
 	assert.Nil(t, err)
 	assert.Equal(t, len(dockerServices), len(service.GetDependencies()))
 	assert.Equal(t, service.IsRunning(), true)
@@ -71,19 +65,22 @@ func TestPartiallyRunningService(t *testing.T) {
 }
 
 func TestStartDependency(t *testing.T) {
-	namespace := strings.Join([]string{NAMESPACE, "TestStartDependency"}, "_")
-	name := "test"
-	dependency := Dependency{Image: "nginx"}
-	dockerService, err := dependency.Start(&Service{}, dependencyDetails{
-		namespace:      namespace,
-		dependencyName: name,
-		serviceName:    "TestStartDependency",
-	}, testDaemonIP, testSharedNetwork)
+	c := dockerConfig{
+		service: &Service{
+			Name: "TestStartDependency",
+		},
+		dependency: &Dependency{
+			Image: "nginx",
+		},
+		name: "test",
+	}
+	namespaces := []string{c.service.Name, c.name}
+	dockerService, err := dockerStart(c)
 	assert.Nil(t, err)
 	assert.NotNil(t, dockerService)
-	assert.Equal(t, docker.IsRunning(namespace, name), true)
-	assert.Equal(t, docker.IsStopped(namespace, name), false)
-	docker.Stop(namespace, name)
+	assert.Equal(t, docker.IsRunning(namespaces), true)
+	assert.Equal(t, docker.IsStopped(namespaces), false)
+	docker.Stop(namespaces)
 }
 
 // func TestNetworkCreated(t *testing.T) {
@@ -112,9 +109,9 @@ func TestStartStopStart(t *testing.T) {
 			},
 		},
 	}
-	service.Start(testDaemonIP, testSharedNetwork)
+	service.Start()
 	service.Stop()
-	dockerServices, err := service.Start(testDaemonIP, testSharedNetwork)
+	dockerServices, err := service.Start()
 	assert.Nil(t, err)
 	assert.Equal(t, len(dockerServices), 1)
 	assert.Equal(t, service.IsRunning(), true)

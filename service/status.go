@@ -8,8 +8,8 @@ import (
 func Status(service *Service) (status docker.StatusType) {
 	status = docker.STOPPED
 	allRunning := true
-	for name := range service.GetDependencies() {
-		if docker.IsRunning(service.Namespace(), name) {
+	for dependency := range service.GetDependencies() {
+		if docker.IsRunning([]string{service.Name, dependency}) {
 			status = docker.RUNNING
 		} else {
 			allRunning = false

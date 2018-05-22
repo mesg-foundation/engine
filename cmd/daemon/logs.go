@@ -7,8 +7,10 @@ import (
 	"os"
 	"time"
 
-	docker "github.com/fsouza/go-dockerclient"
+	godocker "github.com/fsouza/go-dockerclient"
 	"github.com/logrusorgru/aurora"
+	"github.com/mesg-foundation/core/daemon"
+	"github.com/mesg-foundation/core/docker"
 	"github.com/spf13/cobra"
 )
 
@@ -21,13 +23,13 @@ var Logs = &cobra.Command{
 }
 
 func logsHandler(cmd *cobra.Command, args []string) {
-	service, err := service()
+	service, err := daemon.Service()
 	if err != nil {
 		fmt.Println(aurora.Red(err))
 		return
 	}
 	if service != nil {
-		client, err := docker.NewClientFromEnv()
+		client, err := docker.Client()
 		if err != nil {
 			fmt.Println(aurora.Red(err))
 			return
@@ -35,7 +37,7 @@ func logsHandler(cmd *cobra.Command, args []string) {
 
 		var stream bytes.Buffer
 		go func() {
-			err = client.GetServiceLogs(docker.LogsServiceOptions{
+			err = client.GetServiceLogs(godocker.LogsServiceOptions{
 				Context:      context.Background(),
 				Service:      service.ID,
 				Follow:       true,

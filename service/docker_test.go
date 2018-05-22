@@ -8,17 +8,23 @@ import (
 )
 
 func TestPortsEmpty(t *testing.T) {
-	ports := DockerPorts(&Dependency{})
+	c := dockerConfig{
+		dependency: &Dependency{},
+	}
+	ports := c.dockerPorts()
 	assert.Equal(t, len(ports), 0)
 }
 
 func TestPorts(t *testing.T) {
-	ports := DockerPorts(&Dependency{
-		Ports: []string{
-			"80",
-			"3000:8080",
+	c := dockerConfig{
+		dependency: &Dependency{
+			Ports: []string{
+				"80",
+				"3000:8080",
+			},
 		},
-	})
+	}
+	ports := c.dockerPorts()
 	assert.Equal(t, len(ports), 2)
 	assert.Equal(t, ports[0].PublishMode, swarm.PortConfigPublishModeIngress)
 	assert.Equal(t, ports[0].Protocol, swarm.PortConfigProtocolTCP)

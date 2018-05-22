@@ -1,23 +1,28 @@
 package docker
 
 import (
-	"strings"
-
 	godocker "github.com/fsouza/go-dockerclient"
 )
 
+const networkNamespacePrefix string = "network"
+
+func networkNamespace(name string) string {
+	return Namespace([]string{networkNamespacePrefix, name})
+}
+
 // CreateNetwork creates a Docker Network with a namespace
-func CreateNetwork(namespace string) (network *godocker.Network, err error) {
+func CreateNetwork(name string) (network *godocker.Network, err error) {
 	client, err := Client()
 	if err != nil {
 		return
 	}
-	network, err = FindNetwork(namespace)
+	network, err = FindNetwork(name)
 	if network != nil || err != nil {
 		return
 	}
+	namespace := networkNamespace(name)
 	network, err = client.CreateNetwork(godocker.CreateNetworkOptions{
-		Name:   strings.Join([]string{namespace, "Network"}, "-"),
+		Name:   namespace,
 		Driver: "overlay",
 		Labels: map[string]string{
 			"com.docker.stack.namespace": namespace,
@@ -27,12 +32,12 @@ func CreateNetwork(namespace string) (network *godocker.Network, err error) {
 }
 
 // DeleteNetwork deletes a Docker Network associated with a namespace
-func DeleteNetwork(namespace string) (err error) {
+func DeleteNetwork(name string) (err error) {
 	client, err := Client()
 	if err != nil {
 		return
 	}
-	network, err := FindNetwork(namespace)
+	network, err := FindNetwork(name)
 	if err != nil {
 		return
 	}
@@ -40,11 +45,12 @@ func DeleteNetwork(namespace string) (err error) {
 }
 
 // FindNetwork finds a Docker Network by a namespace
-func FindNetwork(namespace string) (network *godocker.Network, err error) {
+func FindNetwork(name string) (network *godocker.Network, err error) {
 	client, err := Client()
 	if err != nil {
 		return
 	}
+	namespace := networkNamespace(name)
 	networks, err := client.FilteredListNetworks(godocker.NetworkFilterOpts{
 		"scope": {"swarm": true},
 		"label": {"com.docker.stack.namespace=" + namespace: true},

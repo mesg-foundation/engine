@@ -7,20 +7,19 @@ import (
 )
 
 // Stop a docker service
-func Stop(namespace string, dependencyName string) (err error) {
-	ctx := context.Background()
+func Stop(name []string) (err error) {
 	client, err := Client()
 	if err != nil {
 		return
 	}
-	if !IsRunning(namespace, dependencyName) {
+	if !IsRunning(name) {
 		return
 	}
-	dockerService, err := Service(namespace, dependencyName)
+	dockerService, err := FindService(name)
 	if err == nil && dockerService.ID != "" {
 		err = client.RemoveService(godocker.RemoveServiceOptions{
 			ID:      dockerService.ID,
-			Context: ctx,
+			Context: context.Background(),
 		})
 	}
 	return
