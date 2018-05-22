@@ -20,7 +20,7 @@ func open() (db *leveldb.DB, err error) {
 	if _instance == nil {
 		_instance, err = leveldb.OpenFile(storagePath, nil)
 		if err != nil {
-			return
+			panic(err)
 		}
 	}
 	db = _instance
