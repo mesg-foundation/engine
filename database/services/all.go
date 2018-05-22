@@ -7,8 +7,11 @@ import (
 
 // All returns all deployed services
 func All() (services []*service.Service, err error) {
-	db := open()
+	db, err := open()
 	defer close()
+	if err != nil {
+		return
+	}
 	iter := db.NewIterator(nil, nil)
 	for iter.Next() {
 		var service service.Service

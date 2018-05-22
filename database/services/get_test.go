@@ -14,5 +14,12 @@ func TestGet(t *testing.T) {
 	service, err := Get(hash)
 	assert.Nil(t, err)
 	assert.Equal(t, service.Name, "TestGet")
-	delete(hash)
+	Delete(hash)
+}
+
+func TestGetMissing(t *testing.T) {
+	emptyService := service.Service{}
+	service, err := Get("hash_that_doesnt_exists")
+	assert.Equal(t, err.Error(), "leveldb: not found")
+	assert.Equal(t, service, emptyService)
 }
