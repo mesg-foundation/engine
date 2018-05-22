@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/mesg-foundation/core/docker"
 	"github.com/stvp/assert"
 )
 
@@ -60,7 +61,7 @@ func TestPartiallyRunningService(t *testing.T) {
 		},
 	}
 	service.Start(testDaemonIP, testSharedNetwork)
-	service.GetDependencies()["test"].Stop(service.namespace(), "test")
+	docker.Stop(service.Namespace(), "test")
 	assert.Equal(t, service.IsPartiallyRunning(), true)
 	dockerServices, err := service.Start(testDaemonIP, testSharedNetwork)
 	assert.Nil(t, err)
@@ -80,9 +81,9 @@ func TestStartDependency(t *testing.T) {
 	}, testDaemonIP, testSharedNetwork)
 	assert.Nil(t, err)
 	assert.NotNil(t, dockerService)
-	assert.Equal(t, dependency.IsRunning(namespace, name), true)
-	assert.Equal(t, dependency.IsStopped(namespace, name), false)
-	dependency.Stop(namespace, name)
+	assert.Equal(t, docker.IsRunning(namespace, name), true)
+	assert.Equal(t, docker.IsStopped(namespace, name), false)
+	docker.Stop(namespace, name)
 }
 
 // func TestNetworkCreated(t *testing.T) {

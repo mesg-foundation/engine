@@ -4,6 +4,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/mesg-foundation/core/docker"
+	"github.com/mesg-foundation/core/docker/network"
 	"github.com/stvp/assert"
 )
 
@@ -45,10 +47,10 @@ func TestStopDependency(t *testing.T) {
 		dependencyName: name,
 		serviceName:    "TestStopDependency",
 	}, testDaemonIP, testSharedNetwork)
-	err := dependency.Stop(namespace, name)
+	err := docker.Stop(namespace, name)
 	assert.Nil(t, err)
-	assert.Equal(t, dependency.IsStopped(namespace, name), true)
-	assert.Equal(t, dependency.IsRunning(namespace, name), false)
+	assert.Equal(t, docker.IsStopped(namespace, name), true)
+	assert.Equal(t, docker.IsRunning(namespace, name), false)
 }
 
 func TestNetworkDeleted(t *testing.T) {
@@ -62,7 +64,7 @@ func TestNetworkDeleted(t *testing.T) {
 	}
 	service.Start(testDaemonIP, testSharedNetwork)
 	service.Stop()
-	network, err := findNetwork(service.namespace())
+	network, err := network.Find(service.Namespace())
 	assert.Nil(t, err)
 	assert.Nil(t, network)
 }

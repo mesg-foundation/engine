@@ -2,15 +2,14 @@ package service
 
 import (
 	"github.com/mesg-foundation/core/docker"
-	dockerService "github.com/mesg-foundation/core/docker/service"
 )
 
 // Stop a service
 func (service *Service) Stop() (err error) {
-	if dockerService.IsStopped(service) {
+	if service.IsStopped() {
 		return
 	}
-	for _, name := range service.GetDependenciesKeys() {
+	for name := range service.Dependencies {
 		err = docker.Stop(service.Namespace(), name)
 		if err != nil {
 			break

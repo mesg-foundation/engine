@@ -1,4 +1,4 @@
-package dependency
+package service
 
 import (
 	"strconv"
@@ -7,8 +7,8 @@ import (
 	"github.com/docker/docker/api/types/swarm"
 )
 
-// Ports extract ports from a Dependency and transform them to a swarm.PortConfig
-func Ports(dependency Dependency) (ports []swarm.PortConfig) {
+// DockerPorts extract ports from a Dependency and transform them to a swarm.PortConfig
+func DockerPorts(dependency *Dependency) (ports []swarm.PortConfig) {
 	ports = make([]swarm.PortConfig, len(dependency.GetPorts()))
 	for i, p := range dependency.GetPorts() {
 		split := strings.Split(p, ":")

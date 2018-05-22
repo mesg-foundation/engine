@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/mesg-foundation/core/docker"
 	"github.com/stvp/assert"
 )
 
@@ -16,11 +17,11 @@ func TestGetDockerService(t *testing.T) {
 		dependencyName: name,
 		serviceName:    "TestGetDockerService",
 	}, testDaemonIP, testSharedNetwork)
-	res, err := getDockerService(namespace, name)
+	res, err := docker.Service(namespace, name)
 	assert.Nil(t, err)
 	assert.NotEqual(t, res.ID, "")
-	res, err = getDockerService(namespace, "textx")
+	res, err = docker.Service(namespace, "textx")
 	assert.Nil(t, err)
 	assert.Equal(t, res.ID, "")
-	dependency.Stop(namespace, name)
+	docker.Stop(namespace, name)
 }

@@ -8,18 +8,16 @@ import (
 	godocker "github.com/fsouza/go-dockerclient"
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/docker"
-	dockerDependency "github.com/mesg-foundation/core/docker/dependency"
-	dockerService "github.com/mesg-foundation/core/docker/service"
 	"github.com/spf13/viper"
 )
 
 // Start a service
 func (service *Service) Start(daemonIP string, sharedNetwork string) (dockerServices []*swarm.Service, err error) {
-	if dockerService.IsRunning(service) {
+	if service.IsRunning() {
 		return
 	}
 	// If there is one but not all services running stop to restart all
-	if dockerService.IsPartiallyRunning(service) {
+	if service.IsPartiallyRunning() {
 		service.Stop()
 	}
 	dockerServices = make([]*swarm.Service, len(service.GetDependencies()))
@@ -72,7 +70,7 @@ func (dependency *Dependency) Start(service *Service, details dependencyDetails,
 						"MESG_ENDPOINT=" + viper.GetString(config.APIServiceTargetSocket),
 						"MESG_ENDPOINT_TCP=" + daemonIP + "" + viper.GetString(config.APIClientTarget),
 					},
-					Mounts: append(dockerDependency.Volumes(service, dependency, details.dependencyName), mount.Mount{
+					Mounts: append(DockerVolumes(service, dependency, details.dependencyName), mount.Mount{
 						Source: viper.GetString(config.APIServiceSocketPath),
 						Target: viper.GetString(config.APIServiceTargetPath),
 					}),
@@ -82,7 +80,7 @@ func (dependency *Dependency) Start(service *Service, details dependencyDetails,
 				},
 			},
 			EndpointSpec: &swarm.EndpointSpec{
-				Ports: dockerDependency.Ports(dependency),
+				Ports: DockerPorts(dependency),
 			},
 			Networks: []swarm.NetworkAttachmentConfig{
 				swarm.NetworkAttachmentConfig{

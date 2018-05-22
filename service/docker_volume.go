@@ -1,4 +1,4 @@
-package dependency
+package service
 
 import (
 	"os"
@@ -9,8 +9,8 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Volumes extract volumes from a Dependency and transform them to a Docker Mount
-func Volumes(service Service, dependency Dependency, name string) (volumes []mount.Mount) {
+// DockerVolumes extract volumes from a Dependency and transform them to a Docker Mount
+func DockerVolumes(service *Service, dependency *Dependency, name string) (volumes []mount.Mount) {
 	volumes = make([]mount.Mount, 0)
 	for _, volume := range dependency.GetVolumes() {
 		path := filepath.Join(service.Namespace(), name, volume)
@@ -21,11 +21,8 @@ func Volumes(service Service, dependency Dependency, name string) (volumes []mou
 		})
 		os.MkdirAll(filepath.Join(viper.GetString(config.ServicePathDocker), path), os.ModePerm)
 	}
-	volumesForm := dependency.GetVolumesfrom()
-	for _, depString := range volumesForm {
-		dep := service.GetDependency(depString)
-		depVolumes := dep.GetVolumes()
-		for _, volume := range depVolumes {
+	for _, depString := range dependency.Volumesfrom {
+		for _, volume := range service.Dependencies[depString].Volumes {
 			path := filepath.Join(service.Namespace(), depString, volume)
 			source := filepath.Join(viper.GetString(config.ServicePathHost), path)
 			volumes = append(volumes, mount.Mount{

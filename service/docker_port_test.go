@@ -1,4 +1,4 @@
-package dependency
+package service
 
 import (
 	"testing"
@@ -8,12 +8,12 @@ import (
 )
 
 func TestPortsEmpty(t *testing.T) {
-	ports := Ports(&testDependency{})
+	ports := DockerPorts(&Dependency{})
 	assert.Equal(t, len(ports), 0)
 }
 
 func TestPorts(t *testing.T) {
-	ports := Ports(&testDependency{
+	ports := DockerPorts(&Dependency{
 		Ports: []string{
 			"80",
 			"3000:8080",

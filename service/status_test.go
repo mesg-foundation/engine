@@ -3,6 +3,7 @@ package service
 import (
 	"testing"
 
+	"github.com/mesg-foundation/core/docker"
 	"github.com/stvp/assert"
 )
 
@@ -48,7 +49,7 @@ func TestList(t *testing.T) {
 		},
 	}
 	service.Start(testDaemonIP, testSharedNetwork)
-	list, err := List()
+	list, err := docker.List()
 	assert.Nil(t, err)
 	assert.Equal(t, len(list), 1)
 	assert.Equal(t, list[0], service.Name)
@@ -68,7 +69,7 @@ func TestListMultipleDependencies(t *testing.T) {
 		},
 	}
 	service.Start(testDaemonIP, testSharedNetwork)
-	list, err := List()
+	list, err := docker.List()
 	assert.Nil(t, err)
 	assert.Equal(t, len(list), 1)
 	assert.Equal(t, list[0], service.Name)
