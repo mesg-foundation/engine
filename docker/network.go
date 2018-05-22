@@ -6,13 +6,13 @@ import (
 	godocker "github.com/fsouza/go-dockerclient"
 )
 
-// Create creates a Docker Network with a namespace
-func NetworkCreate(namespace string) (network *godocker.Network, err error) {
+// CreateNetwork creates a Docker Network with a namespace
+func CreateNetwork(namespace string) (network *godocker.Network, err error) {
 	client, err := Client()
 	if err != nil {
 		return
 	}
-	network, err = NetworkFind(namespace)
+	network, err = FindNetwork(namespace)
 	if network != nil || err != nil {
 		return
 	}
@@ -26,21 +26,21 @@ func NetworkCreate(namespace string) (network *godocker.Network, err error) {
 	return
 }
 
-// Delete deletes a Docker Network associated with a namespace
-func NetworkDelete(namespace string) (err error) {
+// DeleteNetwork deletes a Docker Network associated with a namespace
+func DeleteNetwork(namespace string) (err error) {
 	client, err := Client()
 	if err != nil {
 		return
 	}
-	network, err := NetworkFind(namespace)
+	network, err := FindNetwork(namespace)
 	if err != nil {
 		return
 	}
 	return client.RemoveNetwork(network.ID)
 }
 
-// Find finds a Docker Network by a namespace
-func NetworkFind(namespace string) (network *godocker.Network, err error) {
+// FindNetwork finds a Docker Network by a namespace
+func FindNetwork(namespace string) (network *godocker.Network, err error) {
 	client, err := Client()
 	if err != nil {
 		return

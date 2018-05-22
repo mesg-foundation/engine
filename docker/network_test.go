@@ -7,31 +7,31 @@ import (
 )
 
 func TestCreateNetwork(t *testing.T) {
-	network, err := NetworkCreate("TestCreateNetwork")
+	network, err := CreateNetwork("TestCreateNetwork")
 	assert.Nil(t, err)
 	assert.NotNil(t, network)
-	NetworkDelete("TestCreateNetwork")
+	DeleteNetwork("TestCreateNetwork")
 }
 
 func TestDeleteNetwork(t *testing.T) {
-	NetworkCreate("TestDeleteNetwork")
-	err := NetworkDelete("TestDeleteNetwork")
+	CreateNetwork("TestDeleteNetwork")
+	err := DeleteNetwork("TestDeleteNetwork")
 	assert.Nil(t, err)
-	network, err := NetworkFind("TestFindNetwork")
+	network, err := FindNetwork("TestFindNetwork")
 	assert.Nil(t, err)
 	assert.Nil(t, network)
 }
 
 func TestFindNetwork(t *testing.T) {
-	NetworkCreate("TestFindNetwork")
-	network, err := NetworkFind("TestFindNetwork")
+	CreateNetwork("TestFindNetwork")
+	network, err := FindNetwork("TestFindNetwork")
 	assert.Nil(t, err)
 	assert.NotNil(t, network)
-	NetworkDelete("TestFindNetwork")
+	DeleteNetwork("TestFindNetwork")
 }
 
 func TestFindMissingNetwork(t *testing.T) {
-	network, err := NetworkFind("TestFindMissingNetwork")
+	network, err := FindNetwork("TestFindMissingNetwork")
 	assert.Nil(t, err)
 	assert.Nil(t, network)
 }

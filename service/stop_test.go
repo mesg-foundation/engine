@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/docker"
-	"github.com/mesg-foundation/core/docker/network"
 	"github.com/stvp/assert"
 )
 
@@ -64,7 +63,7 @@ func TestNetworkDeleted(t *testing.T) {
 	}
 	service.Start(testDaemonIP, testSharedNetwork)
 	service.Stop()
-	network, err := network.Find(service.Namespace())
+	network, err := docker.FindNetwork(service.Namespace())
 	assert.Nil(t, err)
 	assert.Nil(t, network)
 }
