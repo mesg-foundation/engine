@@ -26,7 +26,7 @@ func TestCreateDockerCliWithSwarm(t *testing.T) {
 		Context: context.Background(),
 		Force:   true,
 	})
-	dockerCliInstance = nil
+	resetCliInstance()
 	_, err := createDockerCli()
 	assert.Nil(t, err)
 }

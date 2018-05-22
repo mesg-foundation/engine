@@ -1,7 +1,6 @@
 package services
 
 import (
-	"github.com/cnf/structhash"
 	"github.com/golang/protobuf/proto"
 	"github.com/mesg-foundation/core/service"
 )
@@ -12,17 +11,15 @@ func Save(service *service.Service) (hash string, err error) {
 	if err != nil {
 		return
 	}
-	hash, err = calculateHash(service)
+	hash, err = service.Hash()
 	if err != nil {
 		return
 	}
-	db := open()
+	db, err := open()
 	defer close()
+	if err != nil {
+		return
+	}
 	err = db.Put([]byte(hash), bytes, nil)
-	return
-}
-
-func calculateHash(service *service.Service) (hash string, err error) {
-	hash, err = structhash.Hash(service, 1)
 	return
 }

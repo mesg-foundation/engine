@@ -3,8 +3,8 @@ package cmdService
 import (
 	"fmt"
 
-	"github.com/mesg-foundation/core/cmd/utils"
-
+	"github.com/logrusorgru/aurora"
+	"github.com/mesg-foundation/core/database/services"
 	"github.com/spf13/cobra"
 )
 
@@ -15,20 +15,16 @@ var List = &cobra.Command{
 	Long: `This command returns all published services with basic information.
 Optionally, you can filter the services published by a specific developer:
 To have more details, see the [detail command](mesg-core_service_detail.md).`,
-	Example: `mesg-core service list
-mesg-core service list --account ACCOUNT`,
+	Example:           `mesg-core service list`,
 	Run:               listHandler,
 	DisableAutoGenTag: true,
 }
 
 func listHandler(cmd *cobra.Command, args []string) {
-	// TODO Fetch details and display
-	fmt.Println(cmdUtils.AccountFromFlagOrAsk(cmd, "Select an account:"))
-	fmt.Println("- service1")
-	fmt.Println("- service2")
-	fmt.Println("- service3")
-}
-
-func init() {
-	cmdUtils.Accountable(List)
+	services, err := services.All()
+	handleError(err)
+	for _, service := range services {
+		hash, _ := service.Hash()
+		fmt.Println("-", aurora.Bold(hash), "-", service.Name)
+	}
 }

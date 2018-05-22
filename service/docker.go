@@ -14,18 +14,24 @@ var dockerCliInstance *docker.Client
 var mu sync.Mutex
 
 func dockerCli() (client *docker.Client, err error) {
+	mu.Lock()
+	defer mu.Unlock()
 	if dockerCliInstance != nil {
 		client = dockerCliInstance
 		return
 	}
-	mu.Lock()
-	defer mu.Unlock()
 	client, err = createDockerCli()
 	if err != nil {
 		return nil, err
 	}
 	dockerCliInstance = client
 	return
+}
+
+func resetCliInstance() {
+	mu.Lock()
+	defer mu.Unlock()
+	dockerCliInstance = nil
 }
 
 func createDockerCli() (client *docker.Client, err error) {
