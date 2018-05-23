@@ -7,7 +7,7 @@ import (
 
 // IP returns the IP of the daemon in the shared network
 func IP() (daemonIP string, err error) {
-	return docker.FindIP(sharedNetwork, name)
+	return docker.FindServiceIP(sharedNetwork, name)
 }
 
 // SharedNetwork returns the shared network
