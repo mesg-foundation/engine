@@ -6,9 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/swarm"
-	godocker "github.com/fsouza/go-dockerclient"
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/daemon"
 	"github.com/mesg-foundation/core/docker"
@@ -56,31 +54,53 @@ func startDocker(c dockerConfig) (dockerService *swarm.Service, err error) {
 	if err != nil {
 		return
 	}
-	sharedNetworkID, err := daemon.SharedNetworkID()
-	if err != nil {
+	sharedNetwork, err := daemon.SharedNetwork()
+	if sharedNetwork == nil || err != nil {
 		return
 	}
-	return docker.StartService(godocker.CreateServiceOptions{
-		ServiceSpec: swarm.ServiceSpec{
-			Annotations: c.dockerAnnotations(),
-			TaskTemplate: swarm.TaskSpec{
-				ContainerSpec: c.dockerContainerSpec(daemonIP),
-			},
-			EndpointSpec: &swarm.EndpointSpec{
-				Ports: c.dockerPorts(),
-			},
-			Networks: []swarm.NetworkAttachmentConfig{
-				swarm.NetworkAttachmentConfig{
-					Target: sharedNetworkID,
-				},
-			},
+	return docker.StartService(&docker.ServiceOptions{
+		Image:     c.dependency.Image,
+		Namespace: []string{c.service.Name, c.name},
+		Labels: map[string]string{
+			"mesg.service": c.service.Name,
 		},
+		Ports: c.dockerPorts(),
+		Mounts: append(c.dockerVolumes(), docker.Mount{
+			Source: viper.GetString(config.APIServiceSocketPath),
+			Target: viper.GetString(config.APIServiceTargetPath),
+		}),
+		Env: []string{
+			"MESG_ENDPOINT=" + viper.GetString(config.APIServiceTargetSocket),
+			"MESG_ENDPOINT_TCP=" + daemonIP + "" + viper.GetString(config.APIClientTarget),
+		},
+		Args:       strings.Fields(c.dependency.Command),
+		NetworksID: []string{sharedNetwork.ID},
+		// CreateServiceOptions: &godocker.CreateServiceOptions{
+		// 	ServiceSpec: swarm.ServiceSpec{
+		// 		Annotations: swarm.Annotations{
+		// 			Labels: map[string]string{
+		// 				"mesg.service": c.service.Name,
+		// 			},
+		// 		},
+		// TaskTemplate: swarm.TaskSpec{
+		// ContainerSpec: c.dockerContainerSpec(daemonIP),
+		// },
+		// EndpointSpec: &swarm.EndpointSpec{
+		// Ports: c.dockerPorts(),
+		// },
+		// Networks: []swarm.NetworkAttachmentConfig{
+		// 	swarm.NetworkAttachmentConfig{
+		// 		Target: sharedNetworkID,
+		// 	},
+		// },
+		// },
+		// },
 	})
 }
 
 // dockerPorts extract ports from a Dependency and transform them to a swarm.PortConfig
-func (c *dockerConfig) dockerPorts() (ports []swarm.PortConfig) {
-	ports = make([]swarm.PortConfig, len(c.dependency.Ports))
+func (c *dockerConfig) dockerPorts() (ports []docker.Port) {
+	ports = make([]docker.Port, len(c.dependency.Ports))
 	for i, p := range c.dependency.Ports {
 		split := strings.Split(p, ":")
 		published, _ := strconv.ParseUint(split[0], 10, 64)
@@ -88,23 +108,21 @@ func (c *dockerConfig) dockerPorts() (ports []swarm.PortConfig) {
 		if len(split) > 1 {
 			target, _ = strconv.ParseUint(split[1], 10, 64)
 		}
-		ports[i] = swarm.PortConfig{
-			Protocol:      swarm.PortConfigProtocolTCP,
-			PublishMode:   swarm.PortConfigPublishModeIngress,
-			TargetPort:    uint32(target),
-			PublishedPort: uint32(published),
+		ports[i] = docker.Port{
+			Target:    uint32(target),
+			Published: uint32(published),
 		}
 	}
 	return
 }
 
 // dockerVolumes extract volumes from a Dependency and transform them to a Docker Mount
-func (c *dockerConfig) dockerVolumes() (volumes []mount.Mount) {
-	volumes = make([]mount.Mount, 0)
+func (c *dockerConfig) dockerVolumes() (mounts []docker.Mount) {
+	mounts = make([]docker.Mount, 0)
 	for _, volume := range c.dependency.Volumes {
 		path := filepath.Join(docker.Namespace([]string{c.service.Name, c.name}), volume)
 		source := filepath.Join(viper.GetString(config.ServicePathHost), path)
-		volumes = append(volumes, mount.Mount{
+		mounts = append(mounts, docker.Mount{
 			Source: source,
 			Target: volume,
 		})
@@ -114,7 +132,7 @@ func (c *dockerConfig) dockerVolumes() (volumes []mount.Mount) {
 		for _, volume := range c.service.Dependencies[depString].Volumes {
 			path := filepath.Join(docker.Namespace([]string{c.service.Name, depString}), volume)
 			source := filepath.Join(viper.GetString(config.ServicePathHost), path)
-			volumes = append(volumes, mount.Mount{
+			mounts = append(mounts, docker.Mount{
 				Source: source,
 				Target: volume,
 			})
@@ -124,33 +142,33 @@ func (c *dockerConfig) dockerVolumes() (volumes []mount.Mount) {
 	return
 }
 
-func (c *dockerConfig) dockerAnnotations() swarm.Annotations {
-	namespace := docker.Namespace([]string{c.service.Name, c.name})
-	return swarm.Annotations{
-		Name: namespace,
-		Labels: map[string]string{
-			"com.docker.stack.image":     c.dependency.Image,
-			"com.docker.stack.namespace": namespace,
-			"mesg.service":               c.service.Name,
-		},
-	}
-}
+// func (c *dockerConfig) dockerAnnotations() swarm.Annotations {
+// 	// namespace := docker.Namespace([]string{c.service.Name, c.name})
+// 	return swarm.Annotations{
+// 		// Name: namespace,
+// 		Labels: map[string]string{
+// 			// "com.docker.stack.image": c.dependency.Image,
+// 			// "com.docker.stack.namespace": namespace,
+// 			"mesg.service": c.service.Name,
+// 		},
+// 	}
+// }
 
-func (c *dockerConfig) dockerContainerSpec(daemonIP string) *swarm.ContainerSpec {
-	namespace := docker.Namespace([]string{c.service.Name, c.name})
-	return &swarm.ContainerSpec{
-		Image: c.dependency.Image,
-		Args:  strings.Fields(c.dependency.Command),
-		Env: []string{
-			"MESG_ENDPOINT=" + viper.GetString(config.APIServiceTargetSocket),
-			"MESG_ENDPOINT_TCP=" + daemonIP + "" + viper.GetString(config.APIClientTarget),
-		},
-		Mounts: append(c.dockerVolumes(), mount.Mount{
-			Source: viper.GetString(config.APIServiceSocketPath),
-			Target: viper.GetString(config.APIServiceTargetPath),
-		}),
-		Labels: map[string]string{
-			"com.docker.stack.namespace": namespace,
-		},
-	}
-}
+// func (c *dockerConfig) dockerContainerSpec(daemonIP string) *swarm.ContainerSpec {
+// namespace := docker.Namespace([]string{c.service.Name, c.name})
+// return &swarm.ContainerSpec{
+// Image: c.dependency.Image,
+// Args: strings.Fields(c.dependency.Command),
+// Env: []string{
+// 	"MESG_ENDPOINT=" + viper.GetString(config.APIServiceTargetSocket),
+// 	"MESG_ENDPOINT_TCP=" + daemonIP + "" + viper.GetString(config.APIClientTarget),
+// },
+// Mounts: append(c.dockerVolumes(), mount.Mount{
+// 	Source: viper.GetString(config.APIServiceSocketPath),
+// 	Target: viper.GetString(config.APIServiceTargetPath),
+// }),
+// Labels: map[string]string{
+// "com.docker.stack.namespace": namespace,
+// },
+// }
+// }

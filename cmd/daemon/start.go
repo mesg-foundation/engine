@@ -25,7 +25,7 @@ func startHandler(cmd *cobra.Command, args []string) {
 		return
 	}
 	if !running {
-		err = daemon.Start()
+		_, err = daemon.Start()
 		if err != nil {
 			fmt.Println(aurora.Red(err))
 			return

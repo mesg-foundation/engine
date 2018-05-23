@@ -7,7 +7,7 @@ import (
 )
 
 // FindContainer returns a running docker container if exist
-func FindContainer(image string) (*godocker.APIContainers, error) {
+func FindContainer(name string) (*godocker.APIContainers, error) {
 	client, err := Client()
 	if err != nil {
 		return nil, nil
@@ -16,7 +16,7 @@ func FindContainer(image string) (*godocker.APIContainers, error) {
 		Context: context.Background(),
 		Limit:   1,
 		Filters: map[string][]string{
-			"ancestor": []string{image},
+			"ancestor": []string{name},
 			"status":   []string{"running"},
 		},
 	})
