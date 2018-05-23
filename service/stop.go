@@ -12,7 +12,7 @@ func (service *Service) Stop() (err error) {
 	for dependency := range service.Dependencies {
 		err = docker.StopService([]string{service.Name, dependency})
 		if err != nil {
-			break
+			return
 		}
 	}
 	// TODO: docker shared network: remove the specific docker network for this docker service

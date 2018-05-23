@@ -65,7 +65,7 @@ func TestNetworkDeleted(t *testing.T) {
 	}
 	service.Start()
 	service.Stop()
-	network, err := docker.FindNetwork(service.Name)
+	network, err := docker.FindNetwork([]string{service.Name})
 	assert.Nil(t, err)
 	assert.Nil(t, network)
 }

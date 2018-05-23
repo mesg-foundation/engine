@@ -4,6 +4,7 @@ import (
 	"github.com/mesg-foundation/core/docker"
 )
 
+// Stop the daemon docker
 func Stop() (err error) {
 	service, err := docker.FindService([]string{name})
 	if err != nil {
@@ -16,12 +17,12 @@ func Stop() (err error) {
 		}
 	}
 
-	network, err := docker.FindNetwork(sharedNetwork)
+	network, err := docker.FindNetwork([]string{sharedNetwork})
 	if err != nil {
 		return
 	}
 	if network != nil {
-		err = docker.DeleteNetwork(sharedNetwork)
+		err = docker.DeleteNetwork([]string{sharedNetwork})
 		if err != nil {
 			return
 		}

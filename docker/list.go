@@ -6,6 +6,7 @@ import (
 	godocker "github.com/fsouza/go-dockerclient"
 )
 
+// TODO: to update. make it more useful
 // List all the running docker services
 func List() (res []string, err error) {
 	client, err := Client()

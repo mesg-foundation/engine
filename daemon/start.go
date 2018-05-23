@@ -9,7 +9,7 @@ import (
 
 // Start the docker daemon
 func Start() (service *swarm.Service, err error) {
-	network, err := docker.CreateNetwork(sharedNetwork)
+	network, err := docker.CreateNetwork([]string{sharedNetwork})
 	if err != nil {
 		return
 	}

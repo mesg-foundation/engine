@@ -16,12 +16,12 @@ func removeIPSuffix(IP string) string {
 }
 
 // FindServiceIP returns the IP of a docker service in a specific network
-func FindServiceIP(networkName string, serviceName string) (IP string, err error) {
-	network, err := FindNetwork(networkName)
+func FindServiceIP(networkNamespace []string, serviceNamespace []string) (IP string, err error) {
+	network, err := FindNetwork(networkNamespace)
 	if network == nil || err != nil {
 		return
 	}
-	service, err := FindService([]string{serviceName})
+	service, err := FindService(serviceNamespace)
 	if err != nil {
 		return
 	}
@@ -35,8 +35,8 @@ func FindServiceIP(networkName string, serviceName string) (IP string, err error
 }
 
 // FindContainerIP returns the ipv4 of a docker container in a specific network
-func FindContainerIP(networkName string, containerName string) (IP string, err error) {
-	endpoint, err := findContainerEndpoint(networkName, containerName)
+func FindContainerIP(networkNamespace []string, containerNamespace []string) (IP string, err error) {
+	endpoint, err := findContainerEndpoint(networkNamespace, containerNamespace)
 	if endpoint == nil || err != nil {
 		return
 	}
@@ -45,12 +45,12 @@ func FindContainerIP(networkName string, containerName string) (IP string, err e
 }
 
 // findContainerEndpoint returns the endpoint of a docker container in a specific network
-func findContainerEndpoint(networkName string, containerName string) (endpoint *godocker.Endpoint, err error) {
-	network, err := FindNetwork(networkName)
+func findContainerEndpoint(networkNamespace []string, containerNamespace []string) (endpoint *godocker.Endpoint, err error) {
+	network, err := FindNetwork(networkNamespace)
 	if network == nil || err != nil {
 		return
 	}
-	namespace := Namespace([]string{containerName})
+	namespace := Namespace(containerNamespace)
 	for _, e := range network.Containers {
 		if strings.Contains(e.Name, namespace) {
 			endpoint = &e

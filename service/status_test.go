@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/mesg-foundation/core/docker"
@@ -50,10 +51,11 @@ func TestList(t *testing.T) {
 	}
 	service.Start()
 	list, err := docker.List()
+	fmt.Println("list", list)
 	assert.Nil(t, err)
 	assert.Equal(t, len(list), 1)
 	assert.Equal(t, list[0], service.Name)
-	service.Stop()
+	// service.Stop()
 }
 
 func TestListMultipleDependencies(t *testing.T) {

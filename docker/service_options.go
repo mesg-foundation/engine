@@ -6,6 +6,31 @@ import (
 	godocker "github.com/fsouza/go-dockerclient"
 )
 
+// ServiceOptions is a simplify version of godocker.CreateServiceOptions that can be merge to it
+type ServiceOptions struct {
+	Image                string
+	Namespace            []string
+	Ports                []Port
+	Mounts               []Mount
+	Env                  []string
+	Args                 []string
+	NetworksID           []string
+	Labels               map[string]string
+	CreateServiceOptions *godocker.CreateServiceOptions
+}
+
+// Port is a simplify version of swarm.PortConfig
+type Port struct {
+	Target    uint32
+	Published uint32
+}
+
+// Mount is a simplify version of mount.Mount
+type Mount struct {
+	Source string
+	Target string
+}
+
 func (options *ServiceOptions) merge() {
 	if options.CreateServiceOptions == nil {
 		options.CreateServiceOptions = &godocker.CreateServiceOptions{}
