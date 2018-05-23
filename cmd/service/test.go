@@ -4,12 +4,10 @@ import (
 	"context"
 	"io/ioutil"
 	"log"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/mesg-foundation/core/api/core"
-
 	"github.com/mesg-foundation/core/cmd/utils"
 
 	"github.com/logrusorgru/aurora"
@@ -86,9 +84,10 @@ func executeTask(serviceID string, task string, dataPath string) (execution *cor
 
 func testHandler(cmd *cobra.Command, args []string) {
 	service := loadService(defaultPath(args))
+	hash, err := buildDockerImage(defaultPath(args), service.Name)
 	service.Name = strings.Join([]string{
 		"TEST",
-		strconv.Itoa(int(time.Now().Unix())),
+		hash,
 		service.Name,
 	}, "-")
 	deployment, err := cli.DeployService(context.Background(), &core.DeployServiceRequest{
