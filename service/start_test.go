@@ -4,9 +4,37 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/docker/docker/api/types/swarm"
 	"github.com/mesg-foundation/core/docker"
 	"github.com/stvp/assert"
 )
+
+func TestPortsEmpty(t *testing.T) {
+	c := dockerConfig{
+		dependency: &Dependency{},
+	}
+	ports := c.dockerPorts()
+	assert.Equal(t, len(ports), 0)
+}
+
+func TestPorts(t *testing.T) {
+	c := dockerConfig{
+		dependency: &Dependency{
+			Ports: []string{
+				"80",
+				"3000:8080",
+			},
+		},
+	}
+	ports := c.dockerPorts()
+	assert.Equal(t, len(ports), 2)
+	assert.Equal(t, ports[0].PublishMode, swarm.PortConfigPublishModeIngress)
+	assert.Equal(t, ports[0].Protocol, swarm.PortConfigProtocolTCP)
+	assert.Equal(t, ports[0].TargetPort, uint32(80))
+	assert.Equal(t, ports[0].PublishedPort, uint32(80))
+	assert.Equal(t, ports[1].TargetPort, uint32(8080))
+	assert.Equal(t, ports[1].PublishedPort, uint32(3000))
+}
 
 func TestStartService(t *testing.T) {
 	service := &Service{
@@ -75,7 +103,7 @@ func TestStartDependency(t *testing.T) {
 		name: "test",
 	}
 	namespaces := []string{c.service.Name, c.name}
-	dockerService, err := dockerStart(c)
+	dockerService, err := startDocker(c)
 	assert.Nil(t, err)
 	assert.NotNil(t, dockerService)
 	assert.Equal(t, docker.IsServiceRunning(namespaces), true)

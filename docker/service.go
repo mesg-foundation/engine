@@ -37,14 +37,13 @@ func FindService(name []string) (dockerService *swarm.Service, err error) {
 	return
 }
 
-func serviceMatch(dockerServices []swarm.Service, name []string) (dockerService *swarm.Service) {
+func serviceMatch(dockerServices []swarm.Service, name []string) *swarm.Service {
 	for _, service := range dockerServices {
 		if service.Spec.Annotations.Name == Namespace(name) {
-			dockerService = &service
-			break
+			return &service
 		}
 	}
-	return
+	return nil
 }
 
 // StartService starts a docker service

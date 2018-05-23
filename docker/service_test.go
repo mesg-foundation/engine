@@ -7,7 +7,7 @@ import (
 	"github.com/stvp/assert"
 )
 
-func TestDockerServiceMatch(t *testing.T) {
+func TestServiceMatch(t *testing.T) {
 	namespace := "TestDockerServiceMatch"
 	dockerServices := []swarm.Service{
 		swarm.Service{
@@ -26,9 +26,9 @@ func TestDockerServiceMatch(t *testing.T) {
 		},
 	}
 	res1 := serviceMatch(dockerServices, []string{namespace, "test"})
-	assert.Equal(t, res1, swarm.Service{})
+	assert.Nil(t, res1)
 	res2 := serviceMatch(dockerServices, []string{namespace, "test1"})
-	assert.Equal(t, res2, dockerServices[0])
+	assert.Equal(t, res2, &dockerServices[0])
 	res3 := serviceMatch(dockerServices, []string{namespace, "test2"})
-	assert.Equal(t, res3, dockerServices[1])
+	assert.Equal(t, res3, &dockerServices[1])
 }

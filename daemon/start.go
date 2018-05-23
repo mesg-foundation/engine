@@ -1,8 +1,6 @@
 package daemon
 
 import (
-	"fmt"
-
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/swarm"
 	godocker "github.com/fsouza/go-dockerclient"
@@ -11,24 +9,20 @@ import (
 	"github.com/spf13/viper"
 )
 
-func networkConfig() godocker.CreateNetworkOptions {
-	return godocker.CreateNetworkOptions{
-		Name:           sharedNetwork,
-		CheckDuplicate: true, // Cannot have 2 network with the same name
-		Driver:         "overlay",
-		Labels: map[string]string{
-			"com.docker.stack.namespace": sharedNetwork,
-		},
+// Start the docker daemon
+func Start() (service *swarm.Service, err error) {
+	_, err = docker.CreateNetwork(sharedNetwork)
+	if err != nil {
+		return
 	}
-}
-
-func serviceConfig(networkID string) godocker.CreateServiceOptions {
-	return godocker.CreateServiceOptions{
+	namespace := docker.Namespace([]string{name})
+	return docker.StartService(godocker.CreateServiceOptions{
 		ServiceSpec: swarm.ServiceSpec{
 			Annotations: swarm.Annotations{
-				Name: name,
+				Name: namespace,
 				Labels: map[string]string{
-					"com.docker.stack.namespace": name,
+					"com.docker.stack.image":     image,
+					"com.docker.stack.namespace": namespace,
 				},
 			},
 			TaskTemplate: swarm.TaskSpec{
@@ -39,8 +33,8 @@ func serviceConfig(networkID string) godocker.CreateServiceOptions {
 					},
 					Mounts: []mount.Mount{
 						mount.Mount{
-							Source: socketPath,
-							Target: socketPath,
+							Source: dockerSocket,
+							Target: dockerSocket,
 						},
 						mount.Mount{
 							Source: viper.GetString(config.MESGPath),
@@ -48,7 +42,7 @@ func serviceConfig(networkID string) godocker.CreateServiceOptions {
 						},
 					},
 					Labels: map[string]string{
-						"com.docker.stack.namespace": name,
+						"com.docker.stack.namespace": namespace,
 					},
 				},
 			},
@@ -68,29 +62,5 @@ func serviceConfig(networkID string) godocker.CreateServiceOptions {
 				},
 			},
 		},
-	}
-}
-
-func Start() (err error) {
-	client, err := docker.Client()
-	if err != nil {
-		return
-	}
-
-	network, err := docker.FindNetwork(sharedNetwork)
-	if network == nil {
-		fmt.Println("Create docker network")
-		network, err = client.CreateNetwork(networkConfig())
-		if err != nil {
-			return
-		}
-	}
-
-	fmt.Println("Create docker service")
-	_, err = client.CreateService(serviceConfig("")) //network.ID))
-	if err != nil {
-		return
-	}
-
-	return
+	})
 }

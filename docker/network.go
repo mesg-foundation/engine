@@ -23,6 +23,7 @@ func CreateNetwork(name string) (network *godocker.Network, err error) {
 	namespace := networkNamespace(name)
 	network, err = client.CreateNetwork(godocker.CreateNetworkOptions{
 		Name:   namespace,
+		CheckDuplicate: true, // Cannot have 2 network with the same name
 		Driver: "overlay",
 		Labels: map[string]string{
 			"com.docker.stack.namespace": namespace,
