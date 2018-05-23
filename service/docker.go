@@ -104,11 +104,11 @@ func dockerStart(c dockerConfig) (dockerService *swarm.Service, err error) {
 	if err != nil {
 		return
 	}
-	sharedNetwork, err := daemon.Network()
+	sharedNetworkID, err := daemon.SharedNetworkID()
 	if err != nil {
 		return
 	}
-	return docker.Start(godocker.CreateServiceOptions{
+	return docker.StartService(godocker.CreateServiceOptions{
 		ServiceSpec: swarm.ServiceSpec{
 			Annotations: c.dockerAnnotations(),
 			TaskTemplate: swarm.TaskSpec{
@@ -119,7 +119,7 @@ func dockerStart(c dockerConfig) (dockerService *swarm.Service, err error) {
 			},
 			Networks: []swarm.NetworkAttachmentConfig{
 				swarm.NetworkAttachmentConfig{
-					Target: sharedNetwork.ID,
+					Target: sharedNetworkID,
 				},
 			},
 		},

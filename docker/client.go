@@ -15,12 +15,12 @@ var mu sync.Mutex
 
 // Client create a docker client ready to use
 func Client() (client *godocker.Client, err error) {
+	mu.Lock()
+	defer mu.Unlock()
 	if dockerCliInstance != nil {
 		client = dockerCliInstance
 		return
 	}
-	mu.Lock()
-	defer mu.Unlock()
 	client, err = createClient()
 	if err != nil {
 		return nil, err

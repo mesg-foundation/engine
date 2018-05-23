@@ -10,7 +10,7 @@ func (service *Service) Stop() (err error) {
 		return
 	}
 	for dependency := range service.Dependencies {
-		err = docker.Stop([]string{service.Name, dependency})
+		err = docker.StopService([]string{service.Name, dependency})
 		if err != nil {
 			break
 		}

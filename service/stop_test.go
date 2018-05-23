@@ -48,10 +48,10 @@ func TestStopDependency(t *testing.T) {
 	}
 	namespaces := []string{c.service.Name, c.name}
 	dockerStart(c)
-	err := docker.Stop(namespaces)
+	err := docker.StopService(namespaces)
 	assert.Nil(t, err)
-	assert.Equal(t, docker.IsStopped(namespaces), true)
-	assert.Equal(t, docker.IsRunning(namespaces), false)
+	assert.Equal(t, docker.IsServiceStopped(namespaces), true)
+	assert.Equal(t, docker.IsServiceRunning(namespaces), false)
 }
 
 func TestNetworkDeleted(t *testing.T) {

@@ -5,18 +5,18 @@ import (
 )
 
 func Stop() (err error) {
-	service, err := Service()
+	service, err := docker.FindService([]string{name})
 	if err != nil {
 		return
 	}
 	if service != nil {
-		err = docker.Stop([]string{name})
+		err = docker.StopService([]string{name})
 		if err != nil {
 			return
 		}
 	}
 
-	network, err := Network()
+	network, err := docker.FindNetwork(sharedNetwork)
 	if err != nil {
 		return
 	}

@@ -23,5 +23,5 @@ package service
 // 	res, err = docker.Service(namespace, "textx")
 // 	assert.Nil(t, err)
 // 	assert.Equal(t, res.ID, "")
-// 	docker.Stop(namespace, name)
+// 	docker.StopService(namespace, name)
 // }

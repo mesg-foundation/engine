@@ -77,7 +77,7 @@ func Start() (err error) {
 		return
 	}
 
-	network, err := Network()
+	network, err := docker.FindNetwork(sharedNetwork)
 	if network == nil {
 		fmt.Println("Create docker network")
 		network, err = client.CreateNetwork(networkConfig())

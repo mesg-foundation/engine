@@ -1,16 +1,16 @@
 package daemon
 
 import (
-	"bytes"
-	"context"
-	"fmt"
-	"os"
-	"time"
+	// "bytes"
+	// "context"
+	// "fmt"
+	// "os"
+	// "time"
 
-	godocker "github.com/fsouza/go-dockerclient"
-	"github.com/logrusorgru/aurora"
-	"github.com/mesg-foundation/core/daemon"
-	"github.com/mesg-foundation/core/docker"
+	// godocker "github.com/fsouza/go-dockerclient"
+	// "github.com/logrusorgru/aurora"
+	// "github.com/mesg-foundation/core/daemon"
+	// "github.com/mesg-foundation/core/docker"
 	"github.com/spf13/cobra"
 )
 
@@ -23,43 +23,43 @@ var Logs = &cobra.Command{
 }
 
 func logsHandler(cmd *cobra.Command, args []string) {
-	service, err := daemon.Service()
-	if err != nil {
-		fmt.Println(aurora.Red(err))
-		return
-	}
-	if service != nil {
-		client, err := docker.Client()
-		if err != nil {
-			fmt.Println(aurora.Red(err))
-			return
-		}
+	// isRunning, err := daemon.IsRunning()
+	// if err != nil {
+	// 	fmt.Println(aurora.Red(err))
+	// 	return
+	// }
+	// if isRunning {
+	// 	client, err := docker.Client()
+	// 	if err != nil {
+	// 		fmt.Println(aurora.Red(err))
+	// 		return
+	// 	}
 
-		var stream bytes.Buffer
-		go func() {
-			err = client.GetServiceLogs(godocker.LogsServiceOptions{
-				Context:      context.Background(),
-				Service:      service.ID,
-				Follow:       true,
-				Stdout:       true,
-				Stderr:       true,
-				Timestamps:   false,
-				OutputStream: &stream,
-				ErrorStream:  &stream,
-			})
-			if err != nil {
-				fmt.Println(aurora.Red(err))
-				os.Exit(1)
-			}
-		}()
+	// 	var stream bytes.Buffer
+	// 	go func() {
+	// 		err = client.GetServiceLogs(godocker.LogsServiceOptions{
+	// 			Context:      context.Background(),
+	// 			Service:      service.ID,
+	// 			Follow:       true,
+	// 			Stdout:       true,
+	// 			Stderr:       true,
+	// 			Timestamps:   false,
+	// 			OutputStream: &stream,
+	// 			ErrorStream:  &stream,
+	// 		})
+	// 		if err != nil {
+	// 			fmt.Println(aurora.Red(err))
+	// 			os.Exit(1)
+	// 		}
+	// 	}()
 
-		buf := make([]byte, 1024)
-		for {
-			n, _ := stream.Read(buf)
-			if n != 0 {
-				fmt.Print(string(buf[:n]))
-			}
-			time.Sleep(500 * time.Millisecond)
-		}
-	}
+	// 	buf := make([]byte, 1024)
+	// 	for {
+	// 		n, _ := stream.Read(buf)
+	// 		if n != 0 {
+	// 			fmt.Print(string(buf[:n]))
+	// 		}
+	// 		time.Sleep(500 * time.Millisecond)
+	// 	}
+	// }
 }
