@@ -9,8 +9,5 @@ func IsRunning() (running bool, err error) {
 		return
 	}
 	running = container != nil
-
-	IP() //TODO: to delete
-
 	return
 }
