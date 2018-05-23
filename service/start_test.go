@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/docker/docker/api/types/swarm"
+	"github.com/mesg-foundation/core/daemon"
 	"github.com/mesg-foundation/core/docker"
 	"github.com/stvp/assert"
 )
@@ -28,15 +28,21 @@ func TestPorts(t *testing.T) {
 	}
 	ports := c.dockerPorts()
 	assert.Equal(t, len(ports), 2)
-	assert.Equal(t, ports[0].PublishMode, swarm.PortConfigPublishModeIngress)
-	assert.Equal(t, ports[0].Protocol, swarm.PortConfigProtocolTCP)
-	assert.Equal(t, ports[0].TargetPort, uint32(80))
-	assert.Equal(t, ports[0].PublishedPort, uint32(80))
-	assert.Equal(t, ports[1].TargetPort, uint32(8080))
-	assert.Equal(t, ports[1].PublishedPort, uint32(3000))
+	assert.Equal(t, ports[0].Target, uint32(80))
+	assert.Equal(t, ports[0].Published, uint32(80))
+	assert.Equal(t, ports[1].Target, uint32(8080))
+	assert.Equal(t, ports[1].Published, uint32(3000))
+}
+
+func startDaemon() {
+	isRunning, _ := daemon.IsRunning()
+	if isRunning == false {
+		daemon.Start()
+	}
 }
 
 func TestStartService(t *testing.T) {
+	startDaemon()
 	service := &Service{
 		Name: "TestStartService",
 		Dependencies: map[string]*Dependency{
@@ -54,6 +60,7 @@ func TestStartService(t *testing.T) {
 }
 
 func TestStartAgainService(t *testing.T) {
+	startDaemon()
 	service := &Service{
 		Name: "TestStartAgainService",
 		Dependencies: map[string]*Dependency{
@@ -71,6 +78,7 @@ func TestStartAgainService(t *testing.T) {
 }
 
 func TestPartiallyRunningService(t *testing.T) {
+	startDaemon()
 	service := &Service{
 		Name: "TestPartiallyRunningService",
 		Dependencies: map[string]*Dependency{
@@ -93,6 +101,7 @@ func TestPartiallyRunningService(t *testing.T) {
 }
 
 func TestStartDependency(t *testing.T) {
+	startDaemon()
 	c := dockerConfig{
 		service: &Service{
 			Name: "TestStartDependency",
@@ -129,6 +138,7 @@ func TestStartDependency(t *testing.T) {
 
 // Test for https://github.com/mesg-foundation/core/issues/88
 func TestStartStopStart(t *testing.T) {
+	startDaemon()
 	service := &Service{
 		Name: "TestStartStopStart",
 		Dependencies: map[string]*Dependency{

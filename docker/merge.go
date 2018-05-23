@@ -7,10 +7,10 @@ import (
 )
 
 func (options *ServiceOptions) merge() {
-	service := options.CreateServiceOptions
-	if service == nil {
-		service = &godocker.CreateServiceOptions{}
+	if options.CreateServiceOptions == nil {
+		options.CreateServiceOptions = &godocker.CreateServiceOptions{}
 	}
+	service := options.CreateServiceOptions
 	if service.TaskTemplate.ContainerSpec == nil {
 		service.TaskTemplate.ContainerSpec = &swarm.ContainerSpec{}
 	}

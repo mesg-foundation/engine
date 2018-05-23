@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -55,7 +56,11 @@ func startDocker(c dockerConfig) (dockerService *swarm.Service, err error) {
 		return
 	}
 	sharedNetwork, err := daemon.SharedNetwork()
-	if sharedNetwork == nil || err != nil {
+	if err != nil {
+		return
+	}
+	if sharedNetwork == nil {
+		err = errors.New("Daemon shared network not found")
 		return
 	}
 	return docker.StartService(&docker.ServiceOptions{

@@ -52,5 +52,13 @@ func FindNetwork(name string) (network *godocker.Network, err error) {
 		return
 	}
 	namespace := networkNamespace(name)
-	return client.NetworkInfo(namespace)
+	network, err = client.NetworkInfo(namespace)
+	if err != nil {
+		switch err.(type) {
+		case *godocker.NoSuchNetwork:
+			err = nil
+		default:
+		}
+	}
+	return
 }
