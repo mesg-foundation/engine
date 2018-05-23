@@ -6,6 +6,8 @@ import (
 	godocker "github.com/fsouza/go-dockerclient"
 )
 
+// TODO: test if we can find the IP of the service and use it instead of the container ip
+
 // FindEndpoint returns the endoint of a docker container in a specific network
 func FindEndpoint(networkName string, containerName string) (endpoint *godocker.Endpoint, err error) {
 	network, err := FindNetwork(networkName)
