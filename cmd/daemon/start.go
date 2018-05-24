@@ -2,7 +2,6 @@ package daemon
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/cmd/utils"
@@ -32,14 +31,13 @@ func startHandler(cmd *cobra.Command, args []string) {
 		}
 
 		spinner := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Starting the daemon"})
-		for {
-			time.Sleep(500 * time.Millisecond)
-			running, _ := daemon.IsRunning()
-			if running {
-				break
-			}
-		}
+		wait := daemon.WaitForRunning()
+		err = <-wait
 		spinner.Stop()
+		if err != nil {
+			fmt.Println(aurora.Red(err))
+			return
+		}
 	}
 
 	fmt.Println(aurora.Green("Daemon is running"))
