@@ -7,7 +7,6 @@ import (
 	"github.com/mesg-foundation/core/api/core"
 
 	"github.com/logrusorgru/aurora"
-	"github.com/mesg-foundation/core/service"
 	"github.com/spf13/cobra"
 )
 
@@ -24,8 +23,10 @@ To get more information, see the [publish page from the documentation](https://d
 }
 
 func deployHandler(cmd *cobra.Command, args []string) {
-	service, err := service.ImportFromPath(defaultPath(args))
-	handleError(err)
+	service := loadService(defaultPath(args))
+
+	buildDockerImage(defaultPath(args), service.Name)
+
 	reply, err := cli.DeployService(context.Background(), &core.DeployServiceRequest{
 		Service: service,
 	})
