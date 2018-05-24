@@ -1,11 +1,18 @@
 package cmdService
 
 import (
+	"bytes"
+	"context"
 	"fmt"
 	"os"
+	"strings"
+	"time"
+
+	"github.com/fsouza/go-dockerclient"
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/api/core"
+	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/service"
 	"github.com/spf13/viper"
@@ -35,6 +42,45 @@ func loadService(path string) (importedService *service.Service) {
 		fmt.Println(aurora.Red(err))
 		fmt.Println("Run the command 'service validate' to get detailed errors")
 		os.Exit(0)
+	}
+	return
+}
+
+func buildDockerImage(path string, dockerImage string) (imageHash string, err error) {
+	s := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Building image..."})
+	defer s.Stop()
+	cli, err := docker.NewClientFromEnv()
+	var stream bytes.Buffer
+	go func() {
+		err = cli.BuildImage(docker.BuildImageOptions{
+			Context: context.Background(),
+			Name: strings.Join([]string{
+				"mesg",
+				strings.Replace(strings.ToLower(dockerImage), " ", "-", -1),
+			}, "/"),
+			RmTmpContainer:      true,
+			ForceRmTmpContainer: true,
+			ContextDir:          path,
+			OutputStream:        &stream,
+			SuppressOutput:      true,
+		})
+		if err != nil {
+			fmt.Println(aurora.Red(err))
+			os.Exit(1)
+		}
+	}()
+
+	buf := make([]byte, 1024)
+	for {
+		n, _ := stream.Read(buf)
+		imageHash = strings.Join([]string{
+			imageHash,
+			string(buf[:n]),
+		}, "")
+		if len(imageHash) > 0 {
+			break
+		}
+		time.Sleep(500 * time.Millisecond)
 	}
 	return
 }
