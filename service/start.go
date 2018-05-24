@@ -70,13 +70,15 @@ func startDocker(c dockerConfig) (dockerService *swarm.Service, err error) {
 		Image:     c.dependency.Image,
 		Namespace: []string{c.service.Name, c.name},
 		Labels: map[string]string{
-			"mesg.service": c.service.Name,
+			dockerLabelServiceKey: c.service.Name,
 		},
-		Ports: c.dockerPorts(),
-		Mounts: append(c.dockerVolumes(), docker.Mount{
-			Source: viper.GetString(config.APIServiceSocketPath),
-			Target: viper.GetString(config.APIServiceTargetPath),
-		}),
+		Ports:  c.dockerPorts(),
+		Mounts: c.dockerVolumes(),
+		// TODO: fix the APIServiceSocketPath
+		// Mounts: append(c.dockerVolumes(), docker.Mount{
+		// 	Source: viper.GetString(config.APIServiceSocketPath),
+		// 	Target: viper.GetString(config.APIServiceTargetPath),
+		// }),
 		Env: []string{
 			"MESG_ENDPOINT=" + viper.GetString(config.APIServiceTargetSocket),
 			"MESG_ENDPOINT_TCP=" + daemonIP + "" + viper.GetString(config.APIClientTarget),
@@ -90,18 +92,18 @@ func startDocker(c dockerConfig) (dockerService *swarm.Service, err error) {
 		// 				"mesg.service": c.service.Name,
 		// 			},
 		// 		},
-		// TaskTemplate: swarm.TaskSpec{
-		// ContainerSpec: c.dockerContainerSpec(daemonIP),
-		// },
-		// EndpointSpec: &swarm.EndpointSpec{
-		// Ports: c.dockerPorts(),
-		// },
-		// Networks: []swarm.NetworkAttachmentConfig{
-		// 	swarm.NetworkAttachmentConfig{
-		// 		Target: sharedNetworkID,
+		// 		TaskTemplate: swarm.TaskSpec{
+		// 			ContainerSpec: c.dockerContainerSpec(daemonIP),
+		// 		},
+		// 		EndpointSpec: &swarm.EndpointSpec{
+		// 			Ports: c.dockerPorts(),
+		// 		},
+		// 		Networks: []swarm.NetworkAttachmentConfig{
+		// 			swarm.NetworkAttachmentConfig{
+		// 				Target: sharedNetworkID,
+		// 			},
+		// 		},
 		// 	},
-		// },
-		// },
 		// },
 	})
 }

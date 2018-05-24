@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/logrusorgru/aurora"
-	"github.com/mesg-foundation/core/docker"
+	"github.com/mesg-foundation/core/service"
 
 	"github.com/spf13/cobra"
 )
@@ -20,14 +20,14 @@ var Status = &cobra.Command{
 }
 
 func statusHandler(cmd *cobra.Command, args []string) {
-	services, err := docker.List()
+	services, err := service.List()
 	if err != nil {
 		fmt.Println(aurora.Red(err))
 		os.Exit(0)
 	}
-	fmt.Println("Services running :")
+	fmt.Println("Services running:")
 	for _, service := range services {
-		fmt.Println(aurora.Bold(" - " + service))
+		fmt.Println(aurora.Bold(" - " + service.Spec.Name))
 	}
 	if len(services) == 0 {
 		fmt.Println("No services running")

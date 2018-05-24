@@ -21,3 +21,5 @@ const (
 	PublishContainer Publish = "CONTAINER"
 	PublishNone      Publish = "NONE"
 )
+
+const dockerLabelServiceKey = "mesg.service"
