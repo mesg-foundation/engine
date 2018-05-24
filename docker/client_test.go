@@ -31,7 +31,7 @@ func TestClientNotIsTheSame(t *testing.T) {
 	assert.NotEqual(t, client, client2)
 }
 
-// TODO: this test braks other tests on my machine
+// TODO: this tests break other tests on my machine
 func TestCreateSwarm(t *testing.T) {
 	leaveSwarm()
 	dockerClient, _ := godocker.NewClientFromEnv()

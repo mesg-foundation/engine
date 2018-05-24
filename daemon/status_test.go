@@ -7,6 +7,7 @@ import (
 )
 
 func TestIsNotRunning(t *testing.T) {
+	Stop()
 	runs, err := IsRunning()
 	assert.Nil(t, err)
 	assert.Equal(t, false, runs)
