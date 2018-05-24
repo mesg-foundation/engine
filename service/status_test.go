@@ -1,10 +1,8 @@
 package service
 
 import (
-	"fmt"
 	"testing"
 
-	"github.com/mesg-foundation/core/docker"
 	"github.com/stvp/assert"
 )
 
@@ -38,42 +36,4 @@ func TestStatusStoped(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, service.IsRunning(), false)
 	assert.Equal(t, service.IsStopped(), true)
-}
-
-func TestList(t *testing.T) {
-	service := &Service{
-		Name: "TestList",
-		Dependencies: map[string]*Dependency{
-			"test": &Dependency{
-				Image: "nginx",
-			},
-		},
-	}
-	service.Start()
-	list, err := docker.List()
-	fmt.Println("list", list)
-	assert.Nil(t, err)
-	assert.Equal(t, len(list), 1)
-	assert.Equal(t, list[0], service.Name)
-	// service.Stop()
-}
-
-func TestListMultipleDependencies(t *testing.T) {
-	service := &Service{
-		Name: "TestListMultipleDependencies",
-		Dependencies: map[string]*Dependency{
-			"test": &Dependency{
-				Image: "nginx",
-			},
-			"test2": &Dependency{
-				Image: "nginx",
-			},
-		},
-	}
-	service.Start()
-	list, err := docker.List()
-	assert.Nil(t, err)
-	assert.Equal(t, len(list), 1)
-	assert.Equal(t, list[0], service.Name)
-	service.Stop()
 }

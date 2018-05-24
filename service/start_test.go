@@ -4,10 +4,33 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/docker/docker/api/types/swarm"
 	"github.com/mesg-foundation/core/daemon"
 	"github.com/mesg-foundation/core/docker"
 	"github.com/stvp/assert"
 )
+
+// TODO: start the daemon in test is not convenient at all
+func startDaemon() {
+	isRunning, _ := daemon.IsRunning()
+	if isRunning == false {
+		daemon.Start()
+	}
+}
+
+func startTestService(name string, dependency string) (service *Service, swarmService []*swarm.Service, err error) {
+	startDaemon()
+	service = &Service{
+		Name: name,
+		Dependencies: map[string]*Dependency{
+			dependency: &Dependency{
+				Image: "nginx",
+			},
+		},
+	}
+	swarmService, err = service.Start()
+	return
+}
 
 func TestPortsEmpty(t *testing.T) {
 	c := dockerConfig{
@@ -32,13 +55,6 @@ func TestPorts(t *testing.T) {
 	assert.Equal(t, ports[0].Published, uint32(80))
 	assert.Equal(t, ports[1].Target, uint32(8080))
 	assert.Equal(t, ports[1].Published, uint32(3000))
-}
-
-func startDaemon() {
-	isRunning, _ := daemon.IsRunning()
-	if isRunning == false {
-		daemon.Start()
-	}
 }
 
 func TestStartService(t *testing.T) {
