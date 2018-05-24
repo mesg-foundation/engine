@@ -40,8 +40,11 @@ func FindService(namespace []string) (dockerService *swarm.Service, err error) {
 	if err != nil {
 		return
 	}
-	if len(dockerServices) == 1 {
-		dockerService = &dockerServices[0]
+	for _, service := range dockerServices {
+		if service.Spec.Name == Namespace(namespace) {
+			dockerService = &service
+			return
+		}
 	}
 	return
 }
@@ -66,7 +69,7 @@ func StopService(namespace []string) (err error) {
 		return
 	}
 	dockerService, err := FindService(namespace)
-	if err == nil && dockerService.ID != "" {
+	if err == nil && dockerService != nil && dockerService.ID != "" {
 		err = client.RemoveService(godocker.RemoveServiceOptions{
 			ID:      dockerService.ID,
 			Context: context.Background(),
@@ -86,13 +89,11 @@ func ServiceStatus(namespace []string) (status StatusType) {
 }
 
 // IsServiceRunning returns true if the service is running, false otherwise
-func IsServiceRunning(namespace []string) (running bool) {
-	running = ServiceStatus(namespace) == RUNNING
-	return
+func IsServiceRunning(namespace []string) bool {
+	return ServiceStatus(namespace) == RUNNING
 }
 
 // IsServiceStopped returns true if the service is stopped, false otherwise
-func IsServiceStopped(namespace []string) (running bool) {
-	running = ServiceStatus(namespace) == STOPPED
-	return
+func IsServiceStopped(namespace []string) bool {
+	return ServiceStatus(namespace) == STOPPED
 }

@@ -79,6 +79,18 @@ func TestFindService(t *testing.T) {
 	assert.NotNil(t, service)
 }
 
+func TestFindServiceCloseName(t *testing.T) {
+	namespace := []string{"TestFindServiceCloseName", "name"}
+	namespace1 := []string{"TestFindServiceCloseName", "name2"}
+	startTestService(namespace)
+	defer StopService(namespace)
+	startTestService(namespace1)
+	defer StopService(namespace1)
+	service, err := FindService(namespace)
+	assert.Nil(t, err)
+	assert.NotNil(t, service)
+}
+
 func TestFindServiceStopped(t *testing.T) {
 	namespace := []string{"TestFindServiceStopped"}
 	startTestService(namespace)
