@@ -16,7 +16,7 @@ func TestStop(t *testing.T) {
 func TestStoptNetwork(t *testing.T) {
 	Start()
 	Stop()
-	network, err := docker.FindNetwork([]string{sharedNetwork})
+	network, err := docker.FindNetwork(NamespaceNetwork())
 	assert.Nil(t, err)
 	assert.Nil(t, network)
 }

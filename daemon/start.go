@@ -9,13 +9,13 @@ import (
 
 // Start the docker daemon
 func Start() (service *swarm.Service, err error) {
-	network, err := docker.CreateNetwork([]string{sharedNetwork})
+	network, err := docker.CreateNetwork(NamespaceNetwork())
 	if err != nil {
 		return
 	}
 	return docker.StartService(&docker.ServiceOptions{
 		Image:     image,
-		Namespace: []string{name},
+		Namespace: Namespace(),
 		Ports: []docker.Port{
 			docker.Port{
 				Target:    50052,

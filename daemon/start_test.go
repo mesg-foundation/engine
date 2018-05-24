@@ -17,7 +17,7 @@ func TestStart(t *testing.T) {
 func TestStartNetwork(t *testing.T) {
 	Start()
 	defer Stop()
-	network, err := docker.FindNetwork([]string{sharedNetwork})
+	network, err := docker.FindNetwork(NamespaceNetwork())
 	assert.Nil(t, err)
 	assert.NotNil(t, network)
 }
