@@ -2,25 +2,28 @@ package daemon
 
 import (
 	"testing"
-	"time"
 
 	"github.com/mesg-foundation/core/docker"
 	"github.com/stvp/assert"
 )
 
 func TestStop(t *testing.T) {
-	Start()
+	<-WaitForFullyStop()
+	_, err := Start()
+	assert.Nil(t, err)
 	<-WaitForRunning()
-	err := Stop()
+	err = Stop()
 	assert.Nil(t, err)
 }
 
 func TestStoptNetwork(t *testing.T) {
-	Start()
+	<-WaitForFullyStop()
+	_, err := Start()
+	assert.Nil(t, err)
 	<-WaitForRunning()
-	Stop()
-	<-WaitForStopped()
-	time.Sleep(3 * time.Second) //TODO: that's very ugly
+	err = Stop()
+	assert.Nil(t, err)
+	<-WaitForFullyStop()
 	network, err := docker.FindNetwork(NamespaceNetwork())
 	assert.Nil(t, err)
 	assert.Nil(t, network)

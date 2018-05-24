@@ -8,7 +8,6 @@ import (
 )
 
 func TestStart(t *testing.T) {
-	Stop()
 	service, err := Start()
 	defer Stop()
 	assert.Nil(t, err)
