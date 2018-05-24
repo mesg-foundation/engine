@@ -2,6 +2,7 @@ package docker
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stvp/assert"
 )
@@ -17,8 +18,10 @@ func TestFindContainer(t *testing.T) {
 	namespace := []string{"TestFindContainer"}
 	startTestService(namespace)
 	defer StopService(namespace)
-	err := WaitForContainer(namespace)
-	assert.Nil(t, err)
+
+	wait := WaitForContainer(namespace, time.Minute)
+	<-wait
+
 	container, err := FindContainer(namespace)
 	assert.Nil(t, err)
 	assert.NotNil(t, container)
@@ -44,8 +47,10 @@ func TestContainerStatusRunning(t *testing.T) {
 	namespace := []string{"TestContainerStatusRunning"}
 	startTestService(namespace)
 	defer StopService(namespace)
-	err := WaitForContainer(namespace)
-	assert.Nil(t, err)
+
+	wait := WaitForContainer(namespace, time.Minute)
+	<-wait
+
 	status, err := ContainerStatus(namespace)
 	assert.Nil(t, err)
 	assert.Equal(t, status, RUNNING)
@@ -58,4 +63,14 @@ func TestContainerStatusStopped(t *testing.T) {
 	status, err := ContainerStatus(namespace)
 	assert.Nil(t, err)
 	assert.Equal(t, status, STOPPED)
+}
+
+func TestWaitForContainer(t *testing.T) {
+	namespace := []string{"TestWaitForContainer"}
+	startTestService(namespace)
+	defer StopService(namespace)
+
+	wait := WaitForContainer(namespace, time.Minute)
+	err := <-wait
+	assert.Nil(t, err)
 }

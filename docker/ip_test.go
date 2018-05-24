@@ -2,6 +2,7 @@ package docker
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stvp/assert"
 )
@@ -85,8 +86,8 @@ func TestFindContainerIP(t *testing.T) {
 	})
 	defer StopService(serviceName)
 
-	err := WaitForContainer(serviceName)
-	assert.Nil(t, err)
+	wait := WaitForContainer(serviceName, time.Minute)
+	<-wait
 
 	IP, err := FindContainerIP(networkName, serviceName)
 	assert.Nil(t, err)

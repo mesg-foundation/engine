@@ -46,25 +46,27 @@ func ContainerStatus(namespace []string) (status StatusType, err error) {
 }
 
 // WaitForContainer wait for the container to run until it reach the timeout
-func WaitForContainer(namespace []string) (err error) {
-	maxWait := 20 * time.Second
+func WaitForContainer(namespace []string, timeout time.Duration) (wait chan error) {
 	start := time.Now()
-	var status StatusType
-	for {
-		status, err = ContainerStatus(namespace)
-		if err != nil {
-			return
+	wait = make(chan error, 1)
+	go func() {
+		for {
+			status, err := ContainerStatus(namespace)
+			if err != nil {
+				wait <- err
+				return
+			}
+			if status == RUNNING {
+				close(wait)
+				return
+			}
+			diff := time.Now().Sub(start)
+			if diff.Nanoseconds() >= int64(timeout) {
+				wait <- errors.New("Wait too long for the container, timeout reached")
+				return
+			}
+			time.Sleep(500 * time.Millisecond)
 		}
-		if status == RUNNING {
-			return
-		}
-
-		diff := time.Now().Sub(start)
-		if diff.Nanoseconds() >= int64(maxWait) {
-			err = errors.New("Wait too long for the container, timeout reached")
-			return
-		}
-
-		time.Sleep(500 * time.Millisecond)
-	}
+	}()
+	return
 }
