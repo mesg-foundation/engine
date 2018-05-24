@@ -85,10 +85,7 @@ func TestFindContainerIP(t *testing.T) {
 		NetworksID: []string{network.ID},
 	})
 	defer StopService(serviceName)
-
-	wait := WaitForContainer(serviceName, time.Minute)
-	<-wait
-
+	<-WaitContainerStatus(serviceName, RUNNING, time.Minute)
 	IP, err := FindContainerIP(networkName, serviceName)
 	assert.Nil(t, err)
 	assert.NotEqual(t, "", IP)

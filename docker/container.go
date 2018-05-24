@@ -45,18 +45,18 @@ func ContainerStatus(namespace []string) (status StatusType, err error) {
 	return
 }
 
-// WaitForContainer wait for the container to run until it reach the timeout
-func WaitForContainer(namespace []string, timeout time.Duration) (wait chan error) {
+// WaitContainerStatus wait for the container to have the provided status until it reach the timeout
+func WaitContainerStatus(namespace []string, status StatusType, timeout time.Duration) (wait chan error) {
 	start := time.Now()
 	wait = make(chan error, 1)
 	go func() {
 		for {
-			status, err := ContainerStatus(namespace)
+			currentStatus, err := ContainerStatus(namespace)
 			if err != nil {
 				wait <- err
 				return
 			}
-			if status == RUNNING {
+			if currentStatus == status {
 				close(wait)
 				return
 			}
