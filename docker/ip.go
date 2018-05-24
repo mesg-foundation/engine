@@ -32,28 +32,17 @@ func FindServiceIP(networkNamespace []string, serviceNamespace []string) (IP str
 	return
 }
 
-// // FindContainerIP returns the ipv4 of a docker container in a specific network
-// func FindContainerIP(networkNamespace []string, containerNamespace []string) (IP string, err error) {
-// 	endpoint, err := findContainerEndpoint(networkNamespace, containerNamespace)
-// 	if endpoint == nil || err != nil {
-// 		return
-// 	}
-// 	IP = removeIPSuffix(endpoint.IPv4Address)
-// 	return
-// }
-
-// // findContainerEndpoint returns the endpoint of a docker container in a specific network
-// func findContainerEndpoint(networkNamespace []string, containerNamespace []string) (endpoint *godocker.Endpoint, err error) {
-// 	network, err := FindNetwork(networkNamespace)
-// 	if network == nil || err != nil {
-// 		return
-// 	}
-// 	namespace := Namespace(containerNamespace)
-// 	for _, e := range network.Containers {
-// 		if strings.Contains(e.Name, namespace) {
-// 			endpoint = &e
-// 			break
-// 		}
-// 	}
-// 	return
-// }
+// FindContainerIP returns the ipv4 of a docker container in a specific network
+func FindContainerIP(networkNamespace []string, containerNamespace []string) (IP string, err error) {
+	network, err := FindNetwork(networkNamespace)
+	if network == nil || err != nil {
+		return
+	}
+	for _, endpoint := range network.Containers {
+		if strings.Contains(endpoint.Name, Namespace(containerNamespace)) {
+			IP = removeIPSuffix(endpoint.IPv4Address)
+			break
+		}
+	}
+	return
+}

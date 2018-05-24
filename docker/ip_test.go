@@ -73,22 +73,22 @@ func TestFindServiceIPWrongNetwork(t *testing.T) {
 	assert.Equal(t, "", IP)
 }
 
-// func TestFindContainerIP(t *testing.T) {
-// 	serviceName := []string{"TestFindContainerIP"}
-// 	networkName := []string{"TestFindContainerIP"}
-// 	network, _ := CreateNetwork(networkName)
-// 	defer DeleteNetwork(networkName)
-// 	StartService(&ServiceOptions{
-// 		Namespace:  serviceName,
-// 		Image:      "nginx",
-// 		NetworksID: []string{network.ID},
-// 	})
-// 	defer StopService(serviceName)
+func TestFindContainerIP(t *testing.T) {
+	serviceName := []string{"TestFindContainerIP"}
+	networkName := []string{"TestFindContainerIP"}
+	network, _ := CreateNetwork(networkName)
+	defer DeleteNetwork(networkName)
+	StartService(&ServiceOptions{
+		Namespace:  serviceName,
+		Image:      "nginx",
+		NetworksID: []string{network.ID},
+	})
+	defer StopService(serviceName)
 
-// 	// TODO: find a better solution to wait for the container to be running
-// 	time.Sleep(10 * time.Second)
+	err := WaitForContainer(serviceName)
+	assert.Nil(t, err)
 
-// 	IP, err := FindContainerIP(networkName, serviceName)
-// 	assert.Nil(t, err)
-// 	assert.NotEqual(t, "", IP)
-// }
+	IP, err := FindContainerIP(networkName, serviceName)
+	assert.Nil(t, err)
+	assert.NotEqual(t, "", IP)
+}
