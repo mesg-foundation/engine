@@ -1,6 +1,9 @@
 package docker
 
 import (
+	"errors"
+	"time"
+
 	godocker "github.com/fsouza/go-dockerclient"
 )
 
@@ -59,5 +62,31 @@ func FindNetwork(namespace []string) (network *godocker.Network, err error) {
 		default:
 		}
 	}
+	return
+}
+
+// WaitNetworkDeletion wait a network to be delete
+func WaitNetworkDeletion(namespace []string, timeout time.Duration) (wait chan error) {
+	start := time.Now()
+	wait = make(chan error, 1)
+	go func() {
+		for {
+			network, err := FindNetwork(namespace)
+			if err != nil {
+				wait <- err
+				return
+			}
+			if network == nil {
+				close(wait)
+				return
+			}
+			diff := time.Now().Sub(start)
+			if diff.Nanoseconds() >= int64(timeout) {
+				wait <- errors.New("Wait too long for the network to get removed, timeout reached")
+				return
+			}
+			time.Sleep(500 * time.Millisecond)
+		}
+	}()
 	return
 }

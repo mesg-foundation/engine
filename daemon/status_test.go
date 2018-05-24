@@ -26,10 +26,10 @@ func TestIsRunning(t *testing.T) {
 
 func TestIsNotRunningAfterStop(t *testing.T) {
 	Start()
+	<-WaitForRunning()
 	Stop()
 	err := <-WaitForFullyStop()
 	assert.Nil(t, err)
-
 	runs, err := IsRunning()
 	assert.Nil(t, err)
 	assert.Equal(t, false, runs)

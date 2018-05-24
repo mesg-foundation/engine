@@ -30,22 +30,15 @@ func WaitForStopped() (wait chan error) {
 func WaitForFullyStop() (wait chan error) {
 	wait = make(chan error, 1)
 	go func() {
-		stopErr := <-WaitForStopped()
-		if stopErr != nil {
-			wait <- stopErr
+		err := <-WaitForStopped()
+		if err != nil {
+			wait <- err
 		}
-		for {
-			network, err := SharedNetwork()
-			if err != nil {
-				wait <- err
-				return
-			}
-			if network == nil {
-				close(wait)
-				return
-			}
-			time.Sleep(500 * time.Millisecond)
+		err = <-docker.WaitNetworkDeletion(NamespaceNetwork(), time.Minute)
+		if err != nil {
+			wait <- err
 		}
+		close(wait)
 	}()
 	return
 }
