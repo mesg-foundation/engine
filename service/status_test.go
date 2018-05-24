@@ -7,6 +7,7 @@ import (
 )
 
 func TestStatusRunning(t *testing.T) {
+	testStartDaemon()
 	service := &Service{
 		Name: "TestStatusRunning",
 		Dependencies: map[string]*Dependency{
@@ -18,14 +19,15 @@ func TestStatusRunning(t *testing.T) {
 	dockerServices, err := service.Start()
 	assert.Nil(t, err)
 	assert.Equal(t, len(dockerServices), len(service.GetDependencies()))
-	assert.Equal(t, service.IsRunning(), true)
-	assert.Equal(t, service.IsStopped(), false)
+	assert.Equal(t, true, service.IsRunning())
+	assert.Equal(t, false, service.IsStopped())
 	service.Stop()
 }
 
-func TestStatusStoped(t *testing.T) {
+func TestStatusStopped(t *testing.T) {
+	testStartDaemon()
 	service := &Service{
-		Name: "TestStatusStoped",
+		Name: "TestStatusStopped",
 		Dependencies: map[string]*Dependency{
 			"test": &Dependency{
 				Image: "nginx",

@@ -44,10 +44,7 @@ func (service *Service) Start() (dockerServices []*swarm.Service, err error) {
 	}
 	// Disgrasfully close the service because there is an error
 	if err != nil {
-		err = service.Stop()
-		if err != nil {
-			return
-		}
+		service.Stop()
 	}
 	return
 }

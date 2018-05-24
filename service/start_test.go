@@ -11,7 +11,7 @@ import (
 )
 
 // TODO: start the daemon in test is not convenient at all
-func startDaemon() {
+func testStartDaemon() {
 	isRunning, _ := daemon.IsRunning()
 	if isRunning == false {
 		daemon.Start()
@@ -19,7 +19,7 @@ func startDaemon() {
 }
 
 func startTestService(name string, dependency string) (service *Service, swarmService []*swarm.Service, err error) {
-	startDaemon()
+	testStartDaemon()
 	service = &Service{
 		Name: name,
 		Dependencies: map[string]*Dependency{
@@ -58,7 +58,7 @@ func TestPorts(t *testing.T) {
 }
 
 func TestStartService(t *testing.T) {
-	startDaemon()
+	testStartDaemon()
 	service := &Service{
 		Name: "TestStartService",
 		Dependencies: map[string]*Dependency{
@@ -76,7 +76,7 @@ func TestStartService(t *testing.T) {
 }
 
 func TestStartAgainService(t *testing.T) {
-	startDaemon()
+	testStartDaemon()
 	service := &Service{
 		Name: "TestStartAgainService",
 		Dependencies: map[string]*Dependency{
@@ -94,7 +94,7 @@ func TestStartAgainService(t *testing.T) {
 }
 
 func TestPartiallyRunningService(t *testing.T) {
-	startDaemon()
+	testStartDaemon()
 	service := &Service{
 		Name: "TestPartiallyRunningService",
 		Dependencies: map[string]*Dependency{
@@ -117,7 +117,7 @@ func TestPartiallyRunningService(t *testing.T) {
 }
 
 func TestStartDependency(t *testing.T) {
-	startDaemon()
+	testStartDaemon()
 	c := dockerConfig{
 		service: &Service{
 			Name: "TestStartDependency",
@@ -154,7 +154,7 @@ func TestStartDependency(t *testing.T) {
 
 // Test for https://github.com/mesg-foundation/core/issues/88
 func TestStartStopStart(t *testing.T) {
-	startDaemon()
+	testStartDaemon()
 	service := &Service{
 		Name: "TestStartStopStart",
 		Dependencies: map[string]*Dependency{
