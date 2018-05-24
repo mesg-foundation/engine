@@ -8,35 +8,49 @@ import (
 	"github.com/stvp/assert"
 )
 
-func TestDockerCliSingleton(t *testing.T) {
-	cli, err := Client()
+func TestClient(t *testing.T) {
+	client, err := Client()
 	assert.Nil(t, err)
-	assert.NotNil(t, cli)
+	assert.NotNil(t, client)
 }
 
-func TestCreateDockerCli(t *testing.T) {
-	_, err := createClient()
+func TestClientIsTheSame(t *testing.T) {
+	client, _ := Client()
+	client2, err := Client()
 	assert.Nil(t, err)
+	assert.NotNil(t, client2)
+	assert.Equal(t, client, client2)
 }
 
-func TestCreateDockerCliWithSwarm(t *testing.T) {
-	cli, _ := Client()
-	cli.LeaveSwarm(godocker.LeaveSwarmOptions{
-		Context: context.Background(),
-		Force:   true,
-	})
+func TestClientNotIsTheSame(t *testing.T) {
+	client, _ := Client()
 	dockerCliInstance = nil
-	_, err := createClient()
+	client2, err := Client()
 	assert.Nil(t, err)
+	assert.NotNil(t, client2)
+	assert.NotEqual(t, client, client2)
 }
 
+// TODO: this test braks other tests on my machine
 func TestCreateSwarm(t *testing.T) {
-	cli, _ := Client()
-	cli.LeaveSwarm(godocker.LeaveSwarmOptions{
-		Context: context.Background(),
-		Force:   true,
-	})
-	ID, err := createSwarm(cli)
+	leaveSwarm()
+	dockerClient, _ := godocker.NewClientFromEnv()
+	ID, err := createSwarm(dockerClient)
 	assert.Nil(t, err)
 	assert.NotEqual(t, ID, "")
+}
+
+func TestClientWithCreateSwarm(t *testing.T) {
+	leaveSwarm()
+	client, err := Client()
+	assert.Nil(t, err)
+	assert.NotNil(t, client)
+}
+
+func leaveSwarm() {
+	dockerClient, _ := godocker.NewClientFromEnv()
+	dockerClient.LeaveSwarm(godocker.LeaveSwarmOptions{
+		Context: context.Background(),
+		Force:   true,
+	})
 }

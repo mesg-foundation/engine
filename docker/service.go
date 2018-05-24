@@ -14,12 +14,32 @@ type StatusType uint
 const (
 	STOPPED StatusType = 0
 	RUNNING StatusType = 1
-	PARTIAL StatusType = 2
 )
+
+// ListServices returns existing docker services matching a specific label name
+func ListServices(label string, value string) (dockerServices []swarm.Service, err error) {
+	client, err := Client()
+	if err != nil {
+		return
+	}
+	allServices, err := client.ListServices(godocker.ListServicesOptions{
+		Context: context.Background(),
+	})
+	if err != nil {
+		return
+	}
+	for _, service := range allServices {
+		if service.Spec.Labels[label] != "" {
+			if value == "" || (value != "" && service.Spec.Labels[label] == value) {
+				dockerServices = append(dockerServices, service)
+			}
+		}
+	}
+	return
+}
 
 //  FindService returns the Docker Service
 func FindService(namespace []string) (dockerService *swarm.Service, err error) {
-	ctx := context.Background()
 	client, err := Client()
 	if err != nil {
 		return
@@ -28,7 +48,7 @@ func FindService(namespace []string) (dockerService *swarm.Service, err error) {
 		Filters: map[string][]string{
 			"name": []string{Namespace(namespace)},
 		},
-		Context: ctx,
+		Context: context.Background(),
 	})
 	if err != nil {
 		return

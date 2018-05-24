@@ -2,12 +2,10 @@ package docker
 
 import (
 	"context"
-	"fmt"
 	"sync"
 
 	"github.com/docker/docker/api/types/swarm"
 	godocker "github.com/fsouza/go-dockerclient"
-	"github.com/logrusorgru/aurora"
 )
 
 var dockerCliInstance *godocker.Client
@@ -23,7 +21,7 @@ func Client() (client *godocker.Client, err error) {
 	}
 	client, err = createClient()
 	if err != nil {
-		return nil, err
+		return
 	}
 	dockerCliInstance = client
 	return
@@ -38,10 +36,7 @@ func createClient() (client *godocker.Client, err error) {
 	if err != nil || info.Swarm.NodeID != "" {
 		return
 	}
-	ID, err := createSwarm(client)
-	if err == nil {
-		fmt.Println(aurora.Green("Docker swarm node created"), ID)
-	}
+	_, err = createSwarm(client)
 	return
 }
 
