@@ -18,7 +18,7 @@ func IsRunning() (running bool, err error) {
 
 // WaitForRunning wait for the Daemon container to run
 func WaitForRunning() (wait chan error) {
-	return docker.WaitContainerStatus(Namespace(), docker.RUNNING, time.Minute)
+	return docker.WaitContainerStatus(Namespace(), docker.RUNNING, 5*time.Minute)
 }
 
 // WaitForStopped wait for the Daemon container to stop
