@@ -1,12 +1,12 @@
 package cmdService
 
 import (
+	"context"
 	"fmt"
-	"time"
+
+	"github.com/mesg-foundation/core/api/core"
 
 	"github.com/logrusorgru/aurora"
-	"github.com/mesg-foundation/core/cmd/utils"
-	"github.com/mesg-foundation/core/service"
 	"github.com/spf13/cobra"
 )
 
@@ -17,32 +17,19 @@ var Publish = &cobra.Command{
 	Long: `Publish a service on the Network.
 
 To get more information, see the [publish page from the documentation](https://docs.mesg.tech/service/develop/publish.html)`,
-	Example: `mesg-core service publish
-mesg-core service publish ./SERVICE_FOLDER --account ACCOUNT --confirm`,
+	Example:           `mesg-core service publish`,
 	Run:               deployHandler,
 	DisableAutoGenTag: true,
 }
 
 func deployHandler(cmd *cobra.Command, args []string) {
-	service, err := service.ImportFromPath(defaultPath(args))
-	if err != nil {
-		fmt.Println(aurora.Red(err))
-		fmt.Println("Run the command 'service validate' to get detailed errors")
-		return
-	}
+	service := loadService(defaultPath(args))
 
-	account := cmdUtils.AccountFromFlagOrAsk(cmd, "Select an account:")
-	if !cmdUtils.Confirm(cmd, "Are you sure?") {
-		return
-	}
-	s := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Deployment of " + service.Name + " in progress..."})
-	time.Sleep(2 * time.Second)
-	s.Stop()
-	// TODO deploy the service
-	fmt.Println("Service deployed with success with account: ", account)
-}
+	buildDockerImage(defaultPath(args), service.Name)
 
-func init() {
-	cmdUtils.Confirmable(Publish)
-	cmdUtils.Accountable(Publish)
+	reply, err := cli.DeployService(context.Background(), &core.DeployServiceRequest{
+		Service: service,
+	})
+	handleError(err)
+	fmt.Println("Service deployed with ID:", aurora.Green(reply.ServiceID))
 }

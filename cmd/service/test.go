@@ -4,14 +4,13 @@ import (
 	"context"
 	"io/ioutil"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/mesg-foundation/core/api/core"
-
 	"github.com/mesg-foundation/core/cmd/utils"
 
 	"github.com/logrusorgru/aurora"
-	"github.com/mesg-foundation/core/service"
 	"github.com/spf13/cobra"
 )
 
@@ -31,9 +30,9 @@ mesg-core service test --keep-alive`,
 	DisableAutoGenTag: true,
 }
 
-func listenEvents(service *service.Service, filter string) {
+func listenEvents(serviceID string, filter string) {
 	stream, err := cli.ListenEvent(context.Background(), &core.ListenEventRequest{
-		Service: service,
+		ServiceID: serviceID,
 	})
 	handleError(err)
 	for {
@@ -48,9 +47,9 @@ func listenEvents(service *service.Service, filter string) {
 	}
 }
 
-func listenResults(service *service.Service) {
+func listenResults(serviceID string) {
 	stream, err := cli.ListenResult(context.Background(), &core.ListenResultRequest{
-		Service: service,
+		ServiceID: serviceID,
 	})
 	handleError(err)
 	for {
@@ -63,7 +62,7 @@ func listenResults(service *service.Service) {
 	}
 }
 
-func executeTask(service *service.Service, task string, dataPath string) (execution *core.ExecuteTaskReply, err error) {
+func executeTask(serviceID string, task string, dataPath string) (execution *core.ExecuteTaskReply, err error) {
 	if task == "" {
 		return
 	}
@@ -74,9 +73,9 @@ func executeTask(service *service.Service, task string, dataPath string) (execut
 	}
 
 	execution, err = cli.ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
-		Service:  service,
-		TaskKey:  task,
-		TaskData: string(data),
+		ServiceID: serviceID,
+		TaskKey:   task,
+		TaskData:  string(data),
 	})
 	handleError(err)
 	log.Println("Execute task", aurora.Green(task), "with data", aurora.Bold(string(data)))
@@ -85,17 +84,34 @@ func executeTask(service *service.Service, task string, dataPath string) (execut
 
 func testHandler(cmd *cobra.Command, args []string) {
 	service := loadService(defaultPath(args))
+	hash, err := buildDockerImage(defaultPath(args), service.Name)
+	service.Name = strings.Join([]string{
+		"TEST",
+		hash,
+		service.Name,
+	}, "-")
+	deployment, err := cli.DeployService(context.Background(), &core.DeployServiceRequest{
+		Service: service,
+	})
+	handleError(err)
 
-	startService(service)
-	defer stopService(service)
+	_, err = cli.StartService(context.Background(), &core.StartServiceRequest{
+		ServiceID: deployment.ServiceID,
+	})
+	handleError(err)
+	defer func() {
+		cli.StopService(context.Background(), &core.StopServiceRequest{
+			ServiceID: deployment.ServiceID,
+		})
+	}()
 
-	go listenEvents(service, cmd.Flag("event").Value.String())
+	go listenEvents(deployment.ServiceID, cmd.Flag("event").Value.String())
 
-	go listenResults(service)
+	go listenResults(deployment.ServiceID)
 
 	time.Sleep(10 * time.Second)
 
-	executeTask(service, cmd.Flag("task").Value.String(), cmd.Flag("data").Value.String())
+	executeTask(deployment.ServiceID, cmd.Flag("task").Value.String(), cmd.Flag("data").Value.String())
 
 	<-cmdUtils.WaitForCancel()
 }

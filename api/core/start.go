@@ -1,12 +1,16 @@
 package core
 
 import (
+	"github.com/mesg-foundation/core/database/services"
 	"golang.org/x/net/context"
 )
 
-// Start a service
+// StartService fetch a service in the db and starts it
 func (s *Server) StartService(ctx context.Context, request *StartServiceRequest) (reply *StartServiceReply, err error) {
-	service := request.Service
+	service, err := services.Get(request.ServiceID)
+	if err != nil {
+		return
+	}
 	_, err = service.Start()
 	reply = &StartServiceReply{}
 	return

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/mesg-foundation/core/database/services"
+
 	"github.com/logrusorgru/aurora"
 
 	"github.com/spf13/cobra"
@@ -11,16 +13,17 @@ import (
 
 // Detail returns all the details of a service
 var Detail = &cobra.Command{
-	Use:               "detail SERVICE_FOLDER",
+	Use:               "detail SERVICE_ID",
 	Short:             "Show details of a published service",
 	Args:              cobra.MinimumNArgs(1),
-	Example:           "mesg-core service detail SERVICE_FOLDER",
+	Example:           "mesg-core service detail SERVICE_ID",
 	Run:               detailHandler,
 	DisableAutoGenTag: true,
 }
 
 func detailHandler(cmd *cobra.Command, args []string) {
-	service := loadService(defaultPath(args))
+	service, err := services.Get(args[0])
+	handleError(err)
 	fmt.Println("name: ", aurora.Bold(service.Name))
 	fmt.Println("events: ")
 	for name, event := range service.Events {
