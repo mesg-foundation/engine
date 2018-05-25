@@ -8,15 +8,14 @@ import (
 )
 
 func TestStart(t *testing.T) {
+	<-testForceAndWaitForFullStop()
 	service, err := Start()
-	defer Stop()
 	assert.Nil(t, err)
 	assert.NotNil(t, service)
 }
 
 func TestStartNetwork(t *testing.T) {
 	Start()
-	defer Stop()
 	network, err := docker.FindNetwork(NamespaceNetwork())
 	assert.Nil(t, err)
 	assert.NotNil(t, network)

@@ -6,6 +6,10 @@ import (
 
 // Stop the daemon docker
 func Stop() (err error) {
+	stopped, err := IsStopped()
+	if err != nil || stopped == true {
+		return
+	}
 	err = docker.StopService(Namespace())
 	if err != nil {
 		return

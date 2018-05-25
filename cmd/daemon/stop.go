@@ -25,8 +25,7 @@ func stopHandler(cmd *cobra.Command, args []string) {
 	}
 
 	spinner := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Stopping the daemon"})
-	wait := daemon.WaitForStopped()
-	err = <-wait
+	err = <-daemon.WaitForContainerToStop()
 	spinner.Stop()
 	if err != nil {
 		fmt.Println(aurora.Red(err))

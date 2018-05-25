@@ -8,29 +8,29 @@ import (
 
 // IsRunning returns true if the daemon container is running
 func IsRunning() (running bool, err error) {
-	status, err := docker.ContainerStatus(Namespace())
-	if err != nil {
-		return
-	}
-	running = status == docker.RUNNING
-	return
+	return docker.IsServiceRunning(Namespace())
 }
 
-// WaitForRunning wait for the Daemon container to run
-func WaitForRunning() (wait chan error) {
+// IsStopped returns true if the daemon container is stopped
+func IsStopped() (stopped bool, err error) {
+	return docker.IsServiceStopped(Namespace())
+}
+
+// WaitForContainerToRun wait for the Daemon container to run
+func WaitForContainerToRun() (wait chan error) {
 	return docker.WaitContainerStatus(Namespace(), docker.RUNNING, 5*time.Minute)
 }
 
-// WaitForStopped wait for the Daemon container to stop
-func WaitForStopped() (wait chan error) {
+// WaitForContainerToStop wait for the Daemon container to stop
+func WaitForContainerToStop() (wait chan error) {
 	return docker.WaitContainerStatus(Namespace(), docker.STOPPED, time.Minute)
 }
 
-// WaitForFullyStop wait for the daemon container and its shared network to stop
-func WaitForFullyStop() (wait chan error) {
+// WaitForFullStop wait for the daemon container and its shared network to stop
+func WaitForFullStop() (wait chan error) {
 	wait = make(chan error, 1)
 	go func() {
-		err := <-WaitForStopped()
+		err := <-WaitForContainerToStop()
 		if err != nil {
 			wait <- err
 		}
