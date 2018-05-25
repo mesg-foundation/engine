@@ -8,7 +8,19 @@ import (
 	godocker "github.com/fsouza/go-dockerclient"
 )
 
-// FindContainer returns a running docker container if exist
+// FindContainerStrict returns a docker container if exist. Return error if not found.
+func FindContainerStrict(namespace []string) (container *godocker.APIContainers, err error) {
+	container, err = FindContainer(namespace)
+	if err != nil {
+		return
+	}
+	if container == nil {
+		err = errors.New("Container " + Namespace(namespace) + " not found")
+	}
+	return
+}
+
+// FindContainer returns a docker container if exist
 func FindContainer(namespace []string) (container *godocker.APIContainers, err error) {
 	client, err := Client()
 	if err != nil {

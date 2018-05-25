@@ -14,6 +14,13 @@ func TestFindContainerNotExisting(t *testing.T) {
 	assert.Nil(t, container)
 }
 
+func TestFindContainerStrictNotExisting(t *testing.T) {
+	namespace := []string{"TestFindContainerStrictNotExisting"}
+	container, err := FindContainerStrict(namespace)
+	assert.NotNil(t, err)
+	assert.Nil(t, container)
+}
+
 func TestFindContainer(t *testing.T) {
 	namespace := []string{"TestFindContainer"}
 	startTestService(namespace)
