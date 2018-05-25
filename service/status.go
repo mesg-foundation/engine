@@ -15,11 +15,15 @@ const (
 )
 
 // Status return the status of the docker service for this service
-func Status(service *Service) (status StatusType) {
+func (service *Service) Status() (status StatusType, err error) {
 	status = STOPPED
 	allRunning := true
 	for dependency := range service.GetDependencies() {
-		if docker.IsServiceRunning([]string{service.Name, dependency}) {
+		running, err := docker.IsServiceRunning([]string{service.Name, dependency})
+		if err != nil {
+			return status, err
+		}
+		if running == true {
 			status = RUNNING
 		} else {
 			allRunning = false
@@ -32,19 +36,31 @@ func Status(service *Service) (status StatusType) {
 }
 
 // IsRunning returns true if the service is running, false otherwise
-func (service *Service) IsRunning() (running bool) {
-	running = Status(service) == RUNNING
+func (service *Service) IsRunning() (result bool, err error) {
+	status, err := service.Status()
+	if err != nil {
+		return
+	}
+	result = status == RUNNING
 	return
 }
 
 // IsPartiallyRunning returns true if the service is running, false otherwise
-func (service *Service) IsPartiallyRunning() (running bool) {
-	running = Status(service) == PARTIAL
+func (service *Service) IsPartiallyRunning() (result bool, err error) {
+	status, err := service.Status()
+	if err != nil {
+		return
+	}
+	result = status == PARTIAL
 	return
 }
 
 // IsStopped returns true if the service is stopped, false otherwise
-func (service *Service) IsStopped() (running bool) {
-	running = Status(service) == STOPPED
+func (service *Service) IsStopped() (result bool, err error) {
+	status, err := service.Status()
+	if err != nil {
+		return
+	}
+	result = status == STOPPED
 	return
 }

@@ -9,7 +9,8 @@ jobs:
       - setup_remote_docker
       - run: go get -t ./...
       - run: docker swarm init
-      - run: go test -coverprofile=coverage.txt ./...
+      - run: docker pull mesg/daemon
+      - run: go test -p 1 -v -coverprofile=coverage.txt ./...
       - run: bash <(curl -s https://codecov.io/bash)
 
   cli_build_deploy:

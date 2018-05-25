@@ -31,8 +31,7 @@ func startHandler(cmd *cobra.Command, args []string) {
 		}
 
 		spinner := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Starting the daemon"})
-		wait := daemon.WaitForRunning()
-		err = <-wait
+		err = <-daemon.WaitForContainerToRun()
 		spinner.Stop()
 		if err != nil {
 			fmt.Println(aurora.Red(err))

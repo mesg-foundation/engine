@@ -67,10 +67,16 @@ func TestWaitForContainerRunning(t *testing.T) {
 	namespace := []string{"TestWaitForContainerRunning"}
 	startTestService(namespace)
 	defer StopService(namespace)
-
-	wait := WaitContainerStatus(namespace, RUNNING, time.Minute)
-	err := <-wait
+	err := <-WaitContainerStatus(namespace, RUNNING, time.Minute)
 	assert.Nil(t, err)
+}
+
+func TestWaitForContainerTimeout(t *testing.T) {
+	namespace := []string{"TestWaitForContainerTimeout"}
+	startTestService(namespace)
+	defer StopService(namespace)
+	err := <-WaitContainerStatus(namespace, RUNNING, time.Nanosecond)
+	assert.NotNil(t, err)
 }
 
 func TestWaitForContainerStopped(t *testing.T) {
@@ -79,7 +85,6 @@ func TestWaitForContainerStopped(t *testing.T) {
 	<-WaitContainerStatus(namespace, RUNNING, time.Minute)
 
 	StopService(namespace)
-	wait := WaitContainerStatus(namespace, STOPPED, time.Minute)
-	err := <-wait
+	err := <-WaitContainerStatus(namespace, STOPPED, time.Minute)
 	assert.Nil(t, err)
 }

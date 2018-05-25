@@ -6,7 +6,8 @@ import (
 
 // Stop a service
 func (service *Service) Stop() (err error) {
-	if service.IsStopped() {
+	stopped, err := service.IsStopped()
+	if err != nil || stopped == true {
 		return
 	}
 	for dependency := range service.Dependencies {

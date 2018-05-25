@@ -2,6 +2,7 @@ package docker
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stvp/assert"
 )
@@ -55,4 +56,20 @@ func TestFindNotExistingNetwork(t *testing.T) {
 	network, err := FindNetwork([]string{"TestFindNotExistingNetwork"})
 	assert.Nil(t, err)
 	assert.Nil(t, network)
+}
+
+func TestWaitNetworkDeletion(t *testing.T) {
+	namespace := []string{"TestWaitNetworkDeletion"}
+	CreateNetwork(namespace)
+	DeleteNetwork(namespace)
+	err := <-WaitNetworkDeletion(namespace, 10*time.Second)
+	assert.Nil(t, err)
+}
+
+func TestWaitNetworkDeletionTimeout(t *testing.T) {
+	namespace := []string{"TestWaitNetworkDeletionTimeout"}
+	CreateNetwork(namespace)
+	defer DeleteNetwork(namespace)
+	err := <-WaitNetworkDeletion(namespace, time.Second)
+	assert.NotNil(t, err)
 }

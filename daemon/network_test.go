@@ -8,8 +8,6 @@ import (
 
 func TestIP(t *testing.T) {
 	Start()
-	defer Stop()
-
 	daemonIP, err := IP()
 	assert.Nil(t, err)
 	assert.NotEqual(t, "", daemonIP)
@@ -17,8 +15,6 @@ func TestIP(t *testing.T) {
 
 func TestSharedNetwork(t *testing.T) {
 	Start()
-	defer Stop()
-
 	network, err := SharedNetwork()
 	assert.Nil(t, err)
 	assert.NotNil(t, network)

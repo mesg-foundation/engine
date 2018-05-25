@@ -15,7 +15,10 @@ func TestStop(t *testing.T) {
 
 func TestStoptNetwork(t *testing.T) {
 	Start()
-	Stop()
+	err := Stop()
+	assert.Nil(t, err)
+	err = <-WaitForFullStop()
+	assert.Nil(t, err)
 	network, err := docker.FindNetwork(NamespaceNetwork())
 	assert.Nil(t, err)
 	assert.Nil(t, network)
