@@ -8,22 +8,22 @@ import (
 
 // IsRunning returns true if the daemon container is running
 func IsRunning() (running bool, err error) {
-	return docker.IsServiceRunning(Namespace())
+	return docker.IsServiceRunning(namespace())
 }
 
 // IsStopped returns true if the daemon container is stopped
 func IsStopped() (stopped bool, err error) {
-	return docker.IsServiceStopped(Namespace())
+	return docker.IsServiceStopped(namespace())
 }
 
 // WaitForContainerToRun wait for the Daemon container to run
 func WaitForContainerToRun() (wait chan error) {
-	return docker.WaitContainerStatus(Namespace(), docker.RUNNING, 5*time.Minute)
+	return docker.WaitContainerStatus(namespace(), docker.RUNNING, 5*time.Minute)
 }
 
 // WaitForContainerToStop wait for the Daemon container to stop
 func WaitForContainerToStop() (wait chan error) {
-	return docker.WaitContainerStatus(Namespace(), docker.STOPPED, time.Minute)
+	return docker.WaitContainerStatus(namespace(), docker.STOPPED, time.Minute)
 }
 
 // WaitForFullStop wait for the daemon container and its shared network to stop
@@ -34,7 +34,7 @@ func WaitForFullStop() (wait chan error) {
 		if err != nil {
 			wait <- err
 		}
-		err = <-docker.WaitNetworkDeletion(NamespaceNetwork(), time.Minute)
+		err = <-docker.WaitNetworkDeletion(namespaceNetwork(), time.Minute)
 		if err != nil {
 			wait <- err
 		}

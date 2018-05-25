@@ -9,11 +9,11 @@ const (
 )
 
 // Namespace returns the namespace of the daemon
-func Namespace() []string {
+func namespace() []string {
 	return []string{name}
 }
 
 // NamespaceNetwork returns the namespace of the daemon shared network
-func NamespaceNetwork() []string {
+func namespaceNetwork() []string {
 	return []string{sharedNetwork}
 }

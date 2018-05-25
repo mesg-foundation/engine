@@ -13,13 +13,13 @@ func Start() (service *swarm.Service, err error) {
 	if err != nil || running == true {
 		return
 	}
-	network, err := docker.CreateNetwork(NamespaceNetwork(), networkDriver)
+	network, err := docker.CreateNetwork(namespaceNetwork(), networkDriver)
 	if err != nil {
 		return
 	}
 	return docker.StartService(&docker.ServiceOptions{
 		Image:     image,
-		Namespace: Namespace(),
+		Namespace: namespace(),
 		Ports: []docker.Port{
 			docker.Port{
 				Target:    50052,
