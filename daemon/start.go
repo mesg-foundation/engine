@@ -36,56 +36,6 @@ func Start() (service *swarm.Service, err error) {
 				Target: "/mesg",
 			},
 		},
-		// Env: []string{
-		// "MESG.PATH=" + viper.GetString(config.MESGPath), //TODO: is it really useful?
-		// },
 		NetworksID: []string{network.ID},
-		// Service: &godocker.CreateServiceOptions{
-		// ServiceSpec: swarm.ServiceSpec{
-		// Annotations: swarm.Annotations{
-		// Name: namespace,
-		// Labels: map[string]string{
-		// "com.docker.stack.image": image,
-		// "com.docker.stack.namespace": namespace,
-		// },
-		// },
-		// TaskTemplate: swarm.TaskSpec{
-		// 	ContainerSpec: &swarm.ContainerSpec{
-		// Image: image,
-		// Env: []string{
-		// 	"MESG.PATH=" + viper.GetString(config.MESGPath),
-		// },
-		// Mounts: []mount.Mount{
-		// 	mount.Mount{
-		// 		Source: dockerSocket,
-		// 		Target: dockerSocket,
-		// 	},
-		// 	mount.Mount{
-		// 		Source: viper.GetString(config.MESGPath),
-		// 		Target: "/mesg",
-		// 	},
-		// },
-		// Labels: map[string]string{
-		// "com.docker.stack.namespace": namespace,
-		// },
-		// 	},
-		// },
-		// Networks: []swarm.NetworkAttachmentConfig{
-		// 	swarm.NetworkAttachmentConfig{
-		// 		Target: sharedNetwork,
-		// 	},
-		// },
-		// EndpointSpec: &swarm.EndpointSpec{
-		// 	Ports: []swarm.PortConfig{
-		// 		swarm.PortConfig{
-		// 			Protocol:      swarm.PortConfigProtocolTCP,
-		// 			PublishMode:   swarm.PortConfigPublishModeIngress,
-		// 			TargetPort:    50052,
-		// 			PublishedPort: 50052,
-		// 		},
-		// 	},
-		// },
-		// },
-		// },
 	})
 }

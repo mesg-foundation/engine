@@ -83,26 +83,6 @@ func startDocker(c dockerConfig) (dockerService *swarm.Service, err error) {
 		},
 		Args:       strings.Fields(c.dependency.Command),
 		NetworksID: []string{sharedNetwork.ID},
-		// CreateServiceOptions: &godocker.CreateServiceOptions{
-		// 	ServiceSpec: swarm.ServiceSpec{
-		// 		Annotations: swarm.Annotations{
-		// 			Labels: map[string]string{
-		// 				"mesg.service": c.service.Name,
-		// 			},
-		// 		},
-		// 		TaskTemplate: swarm.TaskSpec{
-		// 			ContainerSpec: c.dockerContainerSpec(daemonIP),
-		// 		},
-		// 		EndpointSpec: &swarm.EndpointSpec{
-		// 			Ports: c.dockerPorts(),
-		// 		},
-		// 		Networks: []swarm.NetworkAttachmentConfig{
-		// 			swarm.NetworkAttachmentConfig{
-		// 				Target: sharedNetworkID,
-		// 			},
-		// 		},
-		// 	},
-		// },
 	})
 }
 
