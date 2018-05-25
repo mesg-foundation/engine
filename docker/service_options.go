@@ -134,12 +134,8 @@ func (options *ServiceOptions) mergeArgs() {
 func (options *ServiceOptions) mergeNetworks() {
 	service := options.CreateServiceOptions
 	for _, networkID := range options.NetworksID {
-		//TODO: check if it still working
 		service.TaskTemplate.Networks = append(service.TaskTemplate.Networks, swarm.NetworkAttachmentConfig{
 			Target: networkID,
 		})
-		// service.Networks = append(service.Networks, swarm.NetworkAttachmentConfig{
-		// Target: networkID,
-		// })
 	}
 }

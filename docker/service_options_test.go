@@ -239,7 +239,7 @@ func TestServiceOptionMergeNetworks(t *testing.T) {
 	}
 	options.merge()
 
-	networks := options.CreateServiceOptions.Networks
+	networks := options.CreateServiceOptions.TaskTemplate.Networks
 	assert.Equal(t, 2, len(networks))
 	assert.Equal(t, "network1", networks[0].Target)
 	assert.Equal(t, "network2", networks[1].Target)
@@ -250,12 +250,14 @@ func TestServiceOptionMergeNetworksWithExisting(t *testing.T) {
 		NetworksID: []string{"network1", "network2"},
 		CreateServiceOptions: &godocker.CreateServiceOptions{
 			ServiceSpec: swarm.ServiceSpec{
-				Networks: []swarm.NetworkAttachmentConfig{
-					swarm.NetworkAttachmentConfig{
-						Target: "network3",
-					},
-					swarm.NetworkAttachmentConfig{
-						Target: "network4",
+				TaskTemplate: swarm.TaskSpec{
+					Networks: []swarm.NetworkAttachmentConfig{
+						swarm.NetworkAttachmentConfig{
+							Target: "network3",
+						},
+						swarm.NetworkAttachmentConfig{
+							Target: "network4",
+						},
 					},
 				},
 			},
@@ -263,7 +265,7 @@ func TestServiceOptionMergeNetworksWithExisting(t *testing.T) {
 	}
 	options.merge()
 
-	networks := options.CreateServiceOptions.Networks
+	networks := options.CreateServiceOptions.TaskTemplate.Networks
 	assert.Equal(t, 4, len(networks))
 	assert.Equal(t, "network3", networks[0].Target)
 	assert.Equal(t, "network4", networks[1].Target)
