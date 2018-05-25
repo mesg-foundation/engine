@@ -75,7 +75,7 @@ func TestWaitForContainerTimeout(t *testing.T) {
 	namespace := []string{"TestWaitForContainerTimeout"}
 	startTestService(namespace)
 	defer StopService(namespace)
-	err := <-WaitContainerStatus(namespace, RUNNING, time.Second)
+	err := <-WaitContainerStatus(namespace, RUNNING, time.Nanosecond)
 	assert.NotNil(t, err)
 }
 
