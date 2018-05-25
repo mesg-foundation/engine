@@ -12,7 +12,6 @@ import (
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/api/core"
-	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/service"
 	"github.com/spf13/viper"
