@@ -13,7 +13,7 @@ func Start() (service *swarm.Service, err error) {
 	if err != nil || running == true {
 		return
 	}
-	network, err := docker.CreateNetwork(NamespaceNetwork())
+	network, err := docker.CreateNetwork(NamespaceNetwork(), networkDriver)
 	if err != nil {
 		return
 	}

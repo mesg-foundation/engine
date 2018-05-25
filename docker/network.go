@@ -14,7 +14,7 @@ func networkNamespace(namespace []string) string {
 }
 
 // CreateNetwork creates a Docker Network with a namespace
-func CreateNetwork(namespace []string) (network *godocker.Network, err error) {
+func CreateNetwork(namespace []string, driver string) (network *godocker.Network, err error) {
 	network, err = FindNetwork(namespace)
 	if network != nil || err != nil {
 		return
@@ -27,7 +27,7 @@ func CreateNetwork(namespace []string) (network *godocker.Network, err error) {
 	network, err = client.CreateNetwork(godocker.CreateNetworkOptions{
 		Name:           namespaceFlat,
 		CheckDuplicate: true, // Cannot have 2 network with the same name
-		Driver:         "overlay",
+		Driver:         driver,
 		Labels: map[string]string{
 			"com.docker.stack.namespace": namespaceFlat,
 		},
@@ -48,13 +48,19 @@ func DeleteNetwork(namespace []string) (err error) {
 	return client.RemoveNetwork(network.ID)
 }
 
-// FindNetwork finds a Docker Network by a namespace
-func FindNetwork(namespace []string) (network *godocker.Network, err error) {
+// FindNetworkStrict finds a Docker Network by a namespace. If no network if found, an error is returned.
+func FindNetworkStrict(namespace []string) (network *godocker.Network, err error) {
 	client, err := Client()
 	if err != nil {
 		return
 	}
 	network, err = client.NetworkInfo(networkNamespace(namespace))
+	return
+}
+
+// FindNetwork finds a Docker Network by a namespace. If no network if found, NO error is returned.
+func FindNetwork(namespace []string) (network *godocker.Network, err error) {
+	network, err = FindNetworkStrict(namespace)
 	if err != nil {
 		switch err.(type) {
 		case *godocker.NoSuchNetwork:
@@ -90,3 +96,56 @@ func WaitNetworkDeletion(namespace []string, timeout time.Duration) (wait chan e
 	}()
 	return
 }
+
+// AttachNetworkToContainer attaches a network to a container. The network cannot be of driver "overlay".
+func AttachNetworkToContainer(network string, container string) (err error) {
+	client, err := Client()
+	if err != nil {
+		return
+	}
+	err = client.ConnectNetwork(network, godocker.NetworkConnectionOptions{
+		Container: container,
+	})
+	if err != nil {
+		return
+	}
+	return
+}
+
+// func AttachNetworkToService(network *godocker.Network) (err error) {
+// client, err := Client()
+// if err != nil {
+// return
+// }
+// options := &ServiceOptions{
+// 	Image:     "mesg/daemon",
+// 	Namespace: []string{"daemon"},
+// 	Ports: []Port{
+// 		Port{
+// 			Target:    50052,
+// 			Published: 50052,
+// 		},
+// 	},
+// 	Mounts: []Mount{
+// 		Mount{
+// 			Source: "/var/run/docker.sock",
+// 			Target: "/var/run/docker.sock",
+// 		},
+// 		Mount{
+// 			Source: viper.GetString(config.MESGPath),
+// 			Target: "/mesg",
+// 		},
+// 	},
+// 	NetworksID: []string{network.ID},
+// }
+// options.merge()
+
+// err = client.UpdateService("ub1mkic25wi90fuiwxkono71u", godocker.UpdateServiceOptions{
+// 	Version:     4839,
+// 	ServiceSpec: options.CreateServiceOptions.ServiceSpec,
+// })
+// 	if err != nil {
+// 		return
+// 	}
+// 	return
+// }

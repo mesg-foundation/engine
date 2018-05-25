@@ -16,7 +16,7 @@ type ServiceOptions struct {
 	Args                 []string
 	NetworksID           []string
 	Labels               map[string]string
-	CreateServiceOptions *godocker.CreateServiceOptions
+	CreateServiceOptions *godocker.CreateServiceOptions //TODO: should transform to ServiceSpec
 }
 
 // Port is a simplify version of swarm.PortConfig
@@ -134,8 +134,12 @@ func (options *ServiceOptions) mergeArgs() {
 func (options *ServiceOptions) mergeNetworks() {
 	service := options.CreateServiceOptions
 	for _, networkID := range options.NetworksID {
-		service.Networks = append(service.Networks, swarm.NetworkAttachmentConfig{
+		//TODO: check if it still working
+		service.TaskTemplate.Networks = append(service.TaskTemplate.Networks, swarm.NetworkAttachmentConfig{
 			Target: networkID,
 		})
+		// service.Networks = append(service.Networks, swarm.NetworkAttachmentConfig{
+		// Target: networkID,
+		// })
 	}
 }
