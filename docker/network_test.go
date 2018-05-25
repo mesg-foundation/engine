@@ -7,11 +7,6 @@ import (
 	"github.com/stvp/assert"
 )
 
-func TestNetworkNamespace(t *testing.T) {
-	namespace := networkNamespace([]string{"test"})
-	assert.Equal(t, namespace, Namespace([]string{networkNamespacePrefix, "test"}))
-}
-
 func TestCreateNetworkOverlay(t *testing.T) {
 	network, err := CreateNetwork([]string{"TestCreateNetworkOverlay"}, "overlay")
 	assert.Nil(t, err)
@@ -90,14 +85,15 @@ func TestWaitNetworkDeletionTimeout(t *testing.T) {
 func TestAttachNetworkToContainer(t *testing.T) {
 	namespace := []string{"TestAttachNetworkToContainer"}
 	startTestService(namespace)
-	defer StopService(namespace)
 	<-WaitContainerStatus(namespace, RUNNING, time.Minute)
-	container, _ := FindContainer(namespace)
-	network, _ := CreateNetwork(namespace, "bridge")
-	defer DeleteNetwork(namespace)
-	err := AttachNetworkToContainer(network.ID, container.ID)
+	CreateNetwork(namespace, "bridge")
+	err := AttachNetworkToContainer(namespace, namespace)
 	assert.Nil(t, err)
 	IP, err := FindContainerIP(namespace, namespace)
 	assert.Nil(t, err)
 	assert.NotEqual(t, "", IP)
+	StopService(namespace)
+	<-WaitContainerStatus(namespace, STOPPED, time.Minute)
+	err = DeleteNetwork(namespace)
+	assert.Nil(t, err)
 }

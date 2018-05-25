@@ -7,19 +7,13 @@ import (
 	godocker "github.com/fsouza/go-dockerclient"
 )
 
-const networkNamespacePrefix string = "network"
-
-func networkNamespace(namespace []string) string {
-	return Namespace(append([]string{networkNamespacePrefix}, namespace...))
-}
-
 // CreateNetwork creates a Docker Network with a namespace
 func CreateNetwork(namespace []string, driver string) (network *godocker.Network, err error) {
 	network, err = FindNetwork(namespace)
 	if network != nil || err != nil {
 		return
 	}
-	namespaceFlat := networkNamespace(namespace)
+	namespaceFlat := Namespace(namespace)
 	client, err := Client()
 	if err != nil {
 		return
@@ -54,7 +48,7 @@ func FindNetworkStrict(namespace []string) (network *godocker.Network, err error
 	if err != nil {
 		return
 	}
-	network, err = client.NetworkInfo(networkNamespace(namespace))
+	network, err = client.NetworkInfo(Namespace(namespace))
 	return
 }
 
@@ -98,13 +92,28 @@ func WaitNetworkDeletion(namespace []string, timeout time.Duration) (wait chan e
 }
 
 // AttachNetworkToContainer attaches a network to a container. The network cannot be of driver "overlay".
-func AttachNetworkToContainer(network string, container string) (err error) {
+func AttachNetworkToContainer(networkNamespace []string, containerNamespace []string) (err error) {
 	client, err := Client()
 	if err != nil {
 		return
 	}
-	err = client.ConnectNetwork(network, godocker.NetworkConnectionOptions{
-		Container: container,
+	network, err := FindNetwork(networkNamespace)
+	if err != nil {
+		return
+	}
+	container, err := FindContainerStrict(containerNamespace)
+	if err != nil {
+		return
+	}
+	ip, err := FindContainerIP(networkNamespace, containerNamespace)
+	if err != nil {
+		return
+	}
+	if ip != "" {
+		return
+	}
+	err = client.ConnectNetwork(network.ID, godocker.NetworkConnectionOptions{
+		Container: container.ID,
 	})
 	if err != nil {
 		return
