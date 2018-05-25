@@ -3,11 +3,13 @@ package service
 import (
 	"testing"
 
+	"github.com/mesg-foundation/core/daemon"
 	"github.com/mesg-foundation/core/docker"
 	"github.com/stvp/assert"
 )
 
 func TestStopRunningService(t *testing.T) {
+	daemon.Start()
 	service := &Service{
 		Name: "TestStopRunningService",
 		Dependencies: map[string]*Dependency{
@@ -19,7 +21,9 @@ func TestStopRunningService(t *testing.T) {
 	service.Start()
 	err := service.Stop()
 	assert.Nil(t, err)
-	assert.Equal(t, service.IsStopped(), true)
+	stopped, err := service.IsStopped()
+	assert.Nil(t, err)
+	assert.Equal(t, true, stopped)
 }
 
 func TestStopNonRunningService(t *testing.T) {
@@ -33,10 +37,13 @@ func TestStopNonRunningService(t *testing.T) {
 	}
 	err := service.Stop()
 	assert.Nil(t, err)
-	assert.Equal(t, service.IsStopped(), true)
+	stopped, err := service.IsStopped()
+	assert.Nil(t, err)
+	assert.Equal(t, true, stopped)
 }
 
 func TestStopDependency(t *testing.T) {
+	daemon.Start()
 	c := dockerConfig{
 		service: &Service{
 			Name: "TestStopDependency",
@@ -50,11 +57,13 @@ func TestStopDependency(t *testing.T) {
 	startDocker(c)
 	err := docker.StopService(namespaces)
 	assert.Nil(t, err)
-	assert.Equal(t, docker.IsServiceStopped(namespaces), true)
-	assert.Equal(t, docker.IsServiceRunning(namespaces), false)
+	stopped, err := docker.IsServiceStopped(namespaces)
+	assert.Nil(t, err)
+	assert.Equal(t, true, stopped)
 }
 
 func TestNetworkDeleted(t *testing.T) {
+	daemon.Start()
 	service := &Service{
 		Name: "TestNetworkDeleted",
 		Dependencies: map[string]*Dependency{

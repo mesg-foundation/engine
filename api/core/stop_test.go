@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/mesg-foundation/core/daemon"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stvp/assert"
 )
@@ -11,6 +12,7 @@ import (
 var serverstop = new(Server)
 
 func TestStopService(t *testing.T) {
+	daemon.Start()
 	service := service.Service{
 		Name: "TestStopService",
 		Dependencies: map[string]*service.Dependency{
@@ -23,7 +25,9 @@ func TestStopService(t *testing.T) {
 	reply, err := serverstop.StopService(context.Background(), &StopServiceRequest{
 		Service: &service,
 	})
-	assert.Equal(t, service.IsRunning(), false)
 	assert.Nil(t, err)
 	assert.NotNil(t, reply)
+	stopped, err := service.IsStopped()
+	assert.Nil(t, err)
+	assert.Equal(t, true, stopped)
 }

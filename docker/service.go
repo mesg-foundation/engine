@@ -65,7 +65,8 @@ func StopService(namespace []string) (err error) {
 	if err != nil {
 		return
 	}
-	if !IsServiceRunning(namespace) {
+	stopped, err := IsServiceStopped(namespace)
+	if err != nil || stopped == true {
 		return
 	}
 	dockerService, err := FindService(namespace)
@@ -79,8 +80,11 @@ func StopService(namespace []string) (err error) {
 }
 
 // ServiceStatus return the status of the Docker Swarm Servicer
-func ServiceStatus(namespace []string) (status StatusType) {
+func ServiceStatus(namespace []string) (status StatusType, err error) {
 	dockerService, err := FindService(namespace)
+	if err != nil {
+		return
+	}
 	status = STOPPED
 	if err == nil && dockerService != nil && dockerService.ID != "" {
 		status = RUNNING
@@ -89,11 +93,21 @@ func ServiceStatus(namespace []string) (status StatusType) {
 }
 
 // IsServiceRunning returns true if the service is running, false otherwise
-func IsServiceRunning(namespace []string) bool {
-	return ServiceStatus(namespace) == RUNNING
+func IsServiceRunning(namespace []string) (result bool, err error) {
+	status, err := ServiceStatus(namespace)
+	if err != nil {
+		return
+	}
+	result = status == RUNNING
+	return
 }
 
 // IsServiceStopped returns true if the service is stopped, false otherwise
-func IsServiceStopped(namespace []string) bool {
-	return ServiceStatus(namespace) == STOPPED
+func IsServiceStopped(namespace []string) (result bool, err error) {
+	status, err := ServiceStatus(namespace)
+	if err != nil {
+		return
+	}
+	result = status == STOPPED
+	return
 }

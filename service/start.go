@@ -22,11 +22,12 @@ type dockerConfig struct {
 
 // Start a service
 func (service *Service) Start() (dockerServices []*swarm.Service, err error) {
-	if service.IsRunning() {
+	status, err := service.Status()
+	if err != nil || status == RUNNING {
 		return
 	}
 	// If there is one but not all services running stop to restart all
-	if service.IsPartiallyRunning() {
+	if status == PARTIAL {
 		service.Stop()
 	}
 	dockerServices = make([]*swarm.Service, len(service.Dependencies))

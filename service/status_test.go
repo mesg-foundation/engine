@@ -3,11 +3,12 @@ package service
 import (
 	"testing"
 
+	"github.com/mesg-foundation/core/daemon"
 	"github.com/stvp/assert"
 )
 
 func TestStatusRunning(t *testing.T) {
-	testStartDaemon()
+	daemon.Start()
 	service := &Service{
 		Name: "TestStatusRunning",
 		Dependencies: map[string]*Dependency{
@@ -19,13 +20,23 @@ func TestStatusRunning(t *testing.T) {
 	dockerServices, err := service.Start()
 	assert.Nil(t, err)
 	assert.Equal(t, len(dockerServices), len(service.GetDependencies()))
-	assert.Equal(t, true, service.IsRunning())
-	assert.Equal(t, false, service.IsStopped())
+	status, err := service.Status()
+	assert.Nil(t, err)
+	assert.Equal(t, RUNNING, status)
+	running, err := service.IsRunning()
+	assert.Nil(t, err)
+	assert.Equal(t, true, running)
+	partial, err := service.IsPartiallyRunning()
+	assert.Nil(t, err)
+	assert.Equal(t, false, partial)
+	stopped, err := service.IsStopped()
+	assert.Nil(t, err)
+	assert.Equal(t, false, stopped)
 	service.Stop()
 }
 
 func TestStatusStopped(t *testing.T) {
-	testStartDaemon()
+	daemon.Start()
 	service := &Service{
 		Name: "TestStatusStopped",
 		Dependencies: map[string]*Dependency{
@@ -36,6 +47,16 @@ func TestStatusStopped(t *testing.T) {
 	}
 	err := service.Stop()
 	assert.Nil(t, err)
-	assert.Equal(t, service.IsRunning(), false)
-	assert.Equal(t, service.IsStopped(), true)
+	status, err := service.Status()
+	assert.Nil(t, err)
+	assert.Equal(t, STOPPED, status)
+	running, err := service.IsRunning()
+	assert.Nil(t, err)
+	assert.Equal(t, false, running)
+	partial, err := service.IsPartiallyRunning()
+	assert.Nil(t, err)
+	assert.Equal(t, false, partial)
+	stopped, err := service.IsStopped()
+	assert.Nil(t, err)
+	assert.Equal(t, true, stopped)
 }

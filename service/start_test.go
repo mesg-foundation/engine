@@ -10,16 +10,8 @@ import (
 	"github.com/stvp/assert"
 )
 
-// TODO: start the daemon in test is not convenient at all
-func testStartDaemon() {
-	isRunning, _ := daemon.IsRunning()
-	if isRunning == false {
-		daemon.Start()
-	}
-}
-
 func startTestService(name string, dependency string) (service *Service, swarmService []*swarm.Service, err error) {
-	testStartDaemon()
+	daemon.Start()
 	service = &Service{
 		Name: name,
 		Dependencies: map[string]*Dependency{
@@ -58,7 +50,7 @@ func TestPorts(t *testing.T) {
 }
 
 func TestStartService(t *testing.T) {
-	testStartDaemon()
+	daemon.Start()
 	service := &Service{
 		Name: "TestStartService",
 		Dependencies: map[string]*Dependency{
@@ -71,12 +63,14 @@ func TestStartService(t *testing.T) {
 	fmt.Println(err)
 	assert.Nil(t, err)
 	assert.Equal(t, len(dockerServices), len(service.GetDependencies()))
-	assert.Equal(t, service.IsRunning(), true)
+	running, err := service.IsRunning()
+	assert.Nil(t, err)
+	assert.Equal(t, running, true)
 	service.Stop()
 }
 
 func TestStartAgainService(t *testing.T) {
-	testStartDaemon()
+	daemon.Start()
 	service := &Service{
 		Name: "TestStartAgainService",
 		Dependencies: map[string]*Dependency{
@@ -89,12 +83,14 @@ func TestStartAgainService(t *testing.T) {
 	dockerServices, err := service.Start()
 	assert.Nil(t, err)
 	assert.Equal(t, len(dockerServices), 0) // 0 because already started so no new one to start
-	assert.Equal(t, service.IsRunning(), true)
+	running, err := service.IsRunning()
+	assert.Nil(t, err)
+	assert.Equal(t, running, true)
 	service.Stop()
 }
 
 func TestPartiallyRunningService(t *testing.T) {
-	testStartDaemon()
+	daemon.Start()
 	service := &Service{
 		Name: "TestPartiallyRunningService",
 		Dependencies: map[string]*Dependency{
@@ -108,16 +104,20 @@ func TestPartiallyRunningService(t *testing.T) {
 	}
 	service.Start()
 	docker.StopService([]string{service.Name, "test"})
-	assert.Equal(t, service.IsPartiallyRunning(), true)
+	partial, err := service.IsPartiallyRunning()
+	assert.Nil(t, err)
+	assert.Equal(t, partial, true)
 	dockerServices, err := service.Start()
 	assert.Nil(t, err)
 	assert.Equal(t, len(dockerServices), len(service.GetDependencies()))
-	assert.Equal(t, service.IsRunning(), true)
+	running, err := service.IsRunning()
+	assert.Nil(t, err)
+	assert.Equal(t, running, true)
 	service.Stop()
 }
 
 func TestStartDependency(t *testing.T) {
-	testStartDaemon()
+	daemon.Start()
 	c := dockerConfig{
 		service: &Service{
 			Name: "TestStartDependency",
@@ -131,8 +131,12 @@ func TestStartDependency(t *testing.T) {
 	dockerService, err := startDocker(c)
 	assert.Nil(t, err)
 	assert.NotNil(t, dockerService)
-	assert.Equal(t, docker.IsServiceRunning(namespaces), true)
-	assert.Equal(t, docker.IsServiceStopped(namespaces), false)
+	running, err := docker.IsServiceRunning(namespaces)
+	assert.Nil(t, err)
+	assert.Equal(t, running, true)
+	stopped, err := docker.IsServiceStopped(namespaces)
+	assert.Nil(t, err)
+	assert.Equal(t, stopped, false)
 	docker.StopService(namespaces)
 }
 
@@ -154,7 +158,7 @@ func TestStartDependency(t *testing.T) {
 
 // Test for https://github.com/mesg-foundation/core/issues/88
 func TestStartStopStart(t *testing.T) {
-	testStartDaemon()
+	daemon.Start()
 	service := &Service{
 		Name: "TestStartStopStart",
 		Dependencies: map[string]*Dependency{
@@ -168,6 +172,8 @@ func TestStartStopStart(t *testing.T) {
 	dockerServices, err := service.Start()
 	assert.Nil(t, err)
 	assert.Equal(t, len(dockerServices), 1)
-	assert.Equal(t, service.IsRunning(), true)
+	running, err := service.IsRunning()
+	assert.Nil(t, err)
+	assert.Equal(t, running, true)
 	service.Stop()
 }

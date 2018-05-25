@@ -8,22 +8,17 @@ import (
 )
 
 func TestStop(t *testing.T) {
-	<-WaitForFullyStop()
-	_, err := Start()
-	assert.Nil(t, err)
-	<-WaitForRunning()
-	err = Stop()
+	Start()
+	err := Stop()
 	assert.Nil(t, err)
 }
 
 func TestStoptNetwork(t *testing.T) {
-	<-WaitForFullyStop()
-	_, err := Start()
+	Start()
+	err := Stop()
 	assert.Nil(t, err)
-	<-WaitForRunning()
-	err = Stop()
+	err = <-WaitForFullStop()
 	assert.Nil(t, err)
-	<-WaitForFullyStop()
 	network, err := docker.FindNetwork(NamespaceNetwork())
 	assert.Nil(t, err)
 	assert.Nil(t, network)
