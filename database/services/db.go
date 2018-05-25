@@ -12,15 +12,18 @@ import (
 
 var storagePath = filepath.Join(viper.GetString(config.MESGPath), "database", "services")
 var _instance *leveldb.DB
-var mu sync.Mutex
+var instanceMutex sync.Mutex
+var databaseLock sync.WaitGroup
 
 func open() (db *leveldb.DB, err error) {
-	mu.Lock()
-	defer mu.Unlock()
+	instanceMutex.Lock()
+	defer instanceMutex.Unlock()
+	databaseLock.Wait()
+	databaseLock.Add(1)
 	if _instance == nil {
 		_instance, err = leveldb.OpenFile(storagePath, nil)
 		if err != nil {
-			return
+			panic(err)
 		}
 	}
 	db = _instance
@@ -28,8 +31,9 @@ func open() (db *leveldb.DB, err error) {
 }
 
 func close() (err error) {
-	mu.Lock()
-	defer mu.Unlock()
+	instanceMutex.Lock()
+	defer instanceMutex.Unlock()
+	defer databaseLock.Done()
 	if _instance != nil {
 		err = _instance.Close()
 		_instance = nil
