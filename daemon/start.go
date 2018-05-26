@@ -26,6 +26,9 @@ func Start() (service *swarm.Service, err error) {
 				Published: 50052,
 			},
 		},
+		Env: []string{
+			"MESG.PATH=/mesg",
+		},
 		Mounts: []docker.Mount{
 			docker.Mount{
 				Source: dockerSocket,
