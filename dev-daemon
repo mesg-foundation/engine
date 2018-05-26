@@ -1,0 +1,8 @@
+#!/bin/bash
+
+image=mesg-daemon-dev
+echo "building image $image..."
+docker build -t $image .
+env DAEMON.IMAGE=$image go run cli/main.go daemon start
+env DAEMON.IMAGE=$image go run cli/main.go daemon logs
+env DAEMON.IMAGE=$image go run cli/main.go daemon stop
