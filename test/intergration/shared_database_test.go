@@ -1,4 +1,4 @@
-package intergration_test
+package main
 
 import (
 	"context"
@@ -21,6 +21,7 @@ func TestSharedDatabse(t *testing.T) {
 	defer daemon.Stop()
 	time.Sleep(1 * time.Second)
 	connection, err := grpc.Dial(viper.GetString(config.APIClientTarget), grpc.WithInsecure())
+	assert.NotNil(t, err)
 	cli := core.NewCoreClient(connection)
 	reply, err := cli.DeployService(context.Background(), &core.DeployServiceRequest{
 		Service: &service.Service{
@@ -32,6 +33,7 @@ func TestSharedDatabse(t *testing.T) {
 			},
 		},
 	})
+	assert.NotNil(t, err)
 	service, err := services.Get(reply.ServiceID)
 	defer services.Delete(reply.ServiceID)
 	assert.Nil(t, err)
