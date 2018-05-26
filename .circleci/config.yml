@@ -9,6 +9,7 @@ jobs:
       - setup_remote_docker
       - run: go get -t ./...
       - run: docker swarm init
+      - run: docker pull mesg/daemon
       - run: build/test-daemon.sh
       - run: env DAEMON.IMAGE=mesg-daemon-test go test -p 1 -v -coverprofile=coverage.txt ./...
       - run: bash <(curl -s https://codecov.io/bash)
