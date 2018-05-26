@@ -3,7 +3,6 @@ package intergration_test
 import (
 	"context"
 	"testing"
-	"time"
 
 	"github.com/mesg-foundation/core/daemon"
 	"github.com/mesg-foundation/core/database/services"
@@ -19,9 +18,10 @@ import (
 func TestSharedDatabse(t *testing.T) {
 	daemon.Start()
 	defer daemon.Stop()
-	time.Sleep(1 * time.Second)
+	err := <-daemon.WaitForContainerToRun()
+	assert.Nil(t, err)
 	connection, err := grpc.Dial(viper.GetString(config.APIClientTarget), grpc.WithInsecure())
-	assert.NotNil(t, err)
+	assert.Nil(t, err)
 	cli := core.NewCoreClient(connection)
 	reply, err := cli.DeployService(context.Background(), &core.DeployServiceRequest{
 		Service: &service.Service{
@@ -33,7 +33,7 @@ func TestSharedDatabse(t *testing.T) {
 			},
 		},
 	})
-	assert.NotNil(t, err)
+	assert.Nil(t, err)
 	service, err := services.Get(reply.ServiceID)
 	defer services.Delete(reply.ServiceID)
 	assert.Nil(t, err)
