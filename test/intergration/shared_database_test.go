@@ -2,7 +2,6 @@ package intergration_test
 
 import (
 	"context"
-	"fmt"
 	"testing"
 	"time"
 
@@ -33,7 +32,6 @@ func TestSharedDatabse(t *testing.T) {
 			},
 		},
 	})
-	fmt.Println(err)
 	service, err := services.Get(reply.ServiceID)
 	defer services.Delete(reply.ServiceID)
 	assert.Nil(t, err)
