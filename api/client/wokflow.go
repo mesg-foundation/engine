@@ -16,18 +16,12 @@ func (wf *Workflow) Then(task *Task) *Workflow {
 
 // Start is the function to start the workflow
 func (wf *Workflow) Start() {
-	var err error
-	client := getClient()
-	for _, service := range wf.getServices() {
-		_, err = client.StartService(context.Background(), &core.StartServiceRequest{
-			ServiceID: service,
-		})
-		if err != nil {
-			panic(err)
-		}
+	err := wf.startServices()
+	if err != nil {
+		panic(err)
 	}
 
-	stream, err := client.ListenEvent(context.Background(), &core.ListenEventRequest{
+	stream, err := getClient().ListenEvent(context.Background(), &core.ListenEventRequest{
 		ServiceID: wf.Event.Service,
 	})
 	if err != nil {
@@ -37,34 +31,41 @@ func (wf *Workflow) Start() {
 	for {
 		var data *core.EventData
 		data, err = stream.Recv()
-		log.Println("Event received", data)
 		if err != nil {
 			panic(err)
 		}
-		if strings.Compare(data.EventKey, wf.Event.Name) == 0 {
-			wf.processTasks(client, data)
+		log.Println("Event received", data)
+		if wf.validEvent(data) {
+			wf.processTasks(getClient(), data)
 		}
 	}
+}
+
+func (wf *Workflow) startServices() (err error) {
+	return wf.iterateService(func(service string) (interface{}, error) {
+		return getClient().StartService(context.Background(), &core.StartServiceRequest{
+			ServiceID: service,
+		})
+	})
 }
 
 // Stop will stop all the services in your workflow
 func (wf *Workflow) Stop() {
-	client := getClient()
-	for _, service := range wf.getServices() {
-		client.StopService(context.Background(), &core.StopServiceRequest{
+	wf.iterateService(func(service string) (interface{}, error) {
+		return getClient().StopService(context.Background(), &core.StopServiceRequest{
 			ServiceID: service,
 		})
-	}
+	})
+}
+
+func (wf *Workflow) validEvent(data *core.EventData) bool {
+	return strings.Compare(data.EventKey, wf.Event.Name) == 0
 }
 
 func (wf *Workflow) processTasks(client core.CoreClient, data *core.EventData) (err error) {
-	for _, task := range wf.Tasks {
-		err = task.processEvent(client, data)
-		if err != nil {
-			break
-		}
-	}
-	return
+	return wf.iterateTask(func(task *Task) error {
+		return task.processEvent(client, data)
+	})
 }
 
 func (wf *Workflow) getServices() (services []string) {
@@ -78,6 +79,26 @@ func (wf *Workflow) getServices() (services []string) {
 		if !addedServices[t.Service] {
 			addedServices[t.Service] = true
 			services = append(services, t.Service)
+		}
+	}
+	return
+}
+
+func (wf *Workflow) iterateTask(process func(task *Task) error) (err error) {
+	for _, task := range wf.Tasks {
+		err = process(task)
+		if err != nil {
+			break
+		}
+	}
+	return
+}
+
+func (wf *Workflow) iterateService(process func(service string) (interface{}, error)) (err error) {
+	for _, service := range wf.getServices() {
+		_, err = process(service)
+		if err != nil {
+			break
 		}
 	}
 	return

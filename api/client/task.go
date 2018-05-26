@@ -16,10 +16,7 @@ func (task *Task) processEvent(client core.CoreClient, data *core.EventData) (er
 	}
 	taskData := task.Inputs(d)
 	var taskDataJSON []byte
-	taskDataJSON, err = json.Marshal(taskData)
-	if err != nil {
-		return
-	}
+	taskDataJSON, _ = json.Marshal(taskData)
 	log.Println("Trigger task", task.Name)
 	client.ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
 		ServiceID: task.Service,

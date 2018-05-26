@@ -19,10 +19,7 @@ func API() core.CoreClient {
 
 func getClient() core.CoreClient {
 	once.Do(func() {
-		connection, err := grpc.Dial(viper.GetString(config.APIServerAddress), grpc.WithInsecure())
-		if err != nil {
-			return
-		}
+		connection, _ := grpc.Dial(viper.GetString(config.APIServerAddress), grpc.WithInsecure())
 		_client = core.NewCoreClient(connection)
 	})
 	return _client
