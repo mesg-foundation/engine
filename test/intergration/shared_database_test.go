@@ -1,4 +1,4 @@
-package main
+package intergration_test
 
 import (
 	"context"
