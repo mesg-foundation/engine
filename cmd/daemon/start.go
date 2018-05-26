@@ -3,6 +3,7 @@ package daemon
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	godocker "github.com/fsouza/go-dockerclient"
@@ -42,6 +43,7 @@ func startHandler(cmd *cobra.Command, args []string) {
 				})
 				for _, c := range containers {
 					fmt.Println("id:", c.ID, "image:", c.Image, "name:", c.Names, "state", c.State, "status", c.Status)
+					log.Println("id:", c.ID, "image:", c.Image, "name:", c.Names, "state", c.State, "status", c.Status)
 				}
 				time.Sleep(1 * time.Second)
 			}
