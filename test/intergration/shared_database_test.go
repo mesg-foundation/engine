@@ -20,7 +20,6 @@ import (
 func TestSharedDatabse(t *testing.T) {
 	daemon.Start()
 	defer daemon.Stop()
-	<-daemon.WaitForContainerToRun()
 	time.Sleep(1 * time.Second)
 	connection, err := grpc.Dial(viper.GetString(config.APIClientTarget), grpc.WithInsecure())
 	cli := core.NewCoreClient(connection)
