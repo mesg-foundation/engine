@@ -1,6 +1,7 @@
 package docker
 
 import (
+	"bytes"
 	"context"
 
 	"github.com/docker/docker/api/types/swarm"
@@ -109,5 +110,29 @@ func IsServiceStopped(namespace []string) (result bool, err error) {
 		return
 	}
 	result = status == STOPPED
+	return
+}
+
+// ServiceLogs returns the logs of a service
+func ServiceLogs(namespace []string, stream *bytes.Buffer) (err error) {
+	client, err := Client()
+	if err != nil {
+		return
+	}
+	go func() {
+		err = client.GetServiceLogs(godocker.LogsServiceOptions{
+			Context:      context.Background(),
+			Service:      Namespace(namespace),
+			Follow:       true,
+			Stdout:       true,
+			Stderr:       true,
+			Timestamps:   false,
+			OutputStream: stream,
+			ErrorStream:  stream,
+		})
+		if err != nil {
+			return
+		}
+	}()
 	return
 }

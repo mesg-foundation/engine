@@ -1,6 +1,7 @@
 package docker
 
 import (
+	"bytes"
 	"testing"
 
 	"github.com/docker/docker/api/types/swarm"
@@ -138,4 +139,14 @@ func TestListServices(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(services))
 	assert.Equal(t, Namespace(namespace), services[0].Spec.Name)
+}
+
+func TestServiceLogs(t *testing.T) {
+	namespace := []string{"ServiceLogs"}
+	startTestService(namespace)
+	defer StopService(namespace)
+	var stream bytes.Buffer
+	err := ServiceLogs(namespace, &stream)
+	assert.Nil(t, err)
+	assert.NotNil(t, stream)
 }
