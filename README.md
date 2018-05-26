@@ -27,7 +27,7 @@ DAEMON.IMAGE=mesg-daemon-test go test -cover -v ./...
 
 If you use Visual code you can add the following settings (Preference > Settings)
 ```json
-"go.testEnvFile": "${workspaceRoot}/env.test"
+"go.testEnvFile": "${workspaceRoot}/testenv"
 ```
 
 ### Build docker image
