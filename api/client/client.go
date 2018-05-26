@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-var client core.CoreClient
+var _client core.CoreClient
 var once sync.Once
 
 // API returns the client necessary to access the API
@@ -23,7 +23,7 @@ func getClient() core.CoreClient {
 		if err != nil {
 			return
 		}
-		client = core.NewCoreClient(connection)
+		_client = core.NewCoreClient(connection)
 	})
-	return client
+	return _client
 }
