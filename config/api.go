@@ -19,6 +19,7 @@ const (
 	ServicePathHost        = "Service.Path.Host"
 	ServicePathDocker      = "Service.Path.Docker"
 	MESGPath               = "MESG.Path"
+	DaemonImage            = "Daemon.Image"
 )
 
 func init() {
@@ -49,4 +50,6 @@ func init() {
 	viper.SetDefault(ServicePathHost, filepath.Join(viper.GetString(MESGPath), "services"))
 	viper.SetDefault(ServicePathDocker, filepath.Join("/mesg", "services"))
 	os.MkdirAll(viper.GetString(ServicePathDocker), os.ModePerm)
+
+	viper.SetDefault(DaemonImage, "mesg/daemon")
 }

@@ -18,7 +18,7 @@ func Start() (service *swarm.Service, err error) {
 		return
 	}
 	return docker.StartService(&docker.ServiceOptions{
-		Image:     image,
+		Image:     viper.GetString(config.DaemonImage),
 		Namespace: namespace(),
 		Ports: []docker.Port{
 			docker.Port{

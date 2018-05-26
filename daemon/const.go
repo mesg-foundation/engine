@@ -4,7 +4,6 @@ const (
 	name          = "daemon"
 	sharedNetwork = "shared"
 	networkDriver = "overlay"
-	image         = "mesg/daemon"
 	dockerSocket  = "/var/run/docker.sock"
 )
 
