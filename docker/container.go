@@ -3,6 +3,7 @@ package docker
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	godocker "github.com/fsouza/go-dockerclient"
@@ -38,6 +39,7 @@ func FindContainer(namespace []string) (container *godocker.APIContainers, err e
 	if err != nil {
 		return
 	}
+	fmt.Println("containers", containers)
 	if len(containers) == 1 {
 		container = &containers[0]
 	}
@@ -51,6 +53,11 @@ func ContainerStatus(namespace []string) (status StatusType, err error) {
 		return
 	}
 	status = STOPPED
+	if container != nil {
+		fmt.Println("container.State", container.State)
+	} else {
+		fmt.Println("container is nil")
+	}
 	if container != nil && container.State == "running" {
 		status = RUNNING
 	}
