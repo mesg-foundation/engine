@@ -14,7 +14,8 @@ func TestListTasks(t *testing.T) {
 	tasks, err := ListTasks(namespace)
 	assert.Nil(t, err)
 	assert.NotNil(t, tasks)
-	fmt.Println("number of", len(tasks))
+	assert.Equal(t, 1, len(tasks))
+	fmt.Println("number of tasks", len(tasks))
 	for _, task := range tasks {
 		fmt.Println("task", task.ID, task.Status, task.ServiceID)
 	}

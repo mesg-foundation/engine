@@ -39,7 +39,6 @@ func FindContainer(namespace []string) (container *godocker.APIContainers, err e
 	if err != nil {
 		return
 	}
-	fmt.Println("containers", containers)
 	if len(containers) == 1 {
 		container = &containers[0]
 	}
