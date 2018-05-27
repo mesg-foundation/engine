@@ -58,7 +58,11 @@ func testForceAndWaitForDaemonToStart() (wait chan error) {
 }
 
 func TestSharedDatabase(t *testing.T) {
-	err := <-testForceAndWaitForDaemonToStart()
+	err := daemon.Stop()
+	assert.Nil(t, err)
+	err = <-daemon.WaitForFullStop()
+	assert.Nil(t, err)
+	err = <-testForceAndWaitForDaemonToStart()
 	assert.Nil(t, err)
 	time.Sleep(2 * time.Second)
 	connection, err := grpc.Dial(viper.GetString(config.APIClientTarget), grpc.WithInsecure())
