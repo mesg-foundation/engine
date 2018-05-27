@@ -2,11 +2,13 @@ package intergration_test
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
 	"github.com/mesg-foundation/core/daemon"
 	"github.com/mesg-foundation/core/database/services"
+	"github.com/mesg-foundation/core/docker"
 	"github.com/stvp/assert"
 
 	"github.com/mesg-foundation/core/api/core"
@@ -16,9 +18,39 @@ import (
 	"google.golang.org/grpc"
 )
 
+func testForceAndWaitForDaemonToStart() (wait chan error) {
+	start := time.Now()
+	timeout := time.Minute
+	wait = make(chan error, 1)
+	go func() {
+		for {
+			_, err := daemon.Start()
+			if err != nil {
+				wait <- err
+				return
+			}
+			status, err := daemon.ContainerStatus()
+			if err != nil {
+				wait <- err
+				return
+			}
+			if status == docker.RUNNING {
+				close(wait)
+				return
+			}
+			diff := time.Now().Sub(start)
+			if diff.Nanoseconds() >= int64(timeout) {
+				wait <- errors.New("Wait too long for the daemon to runs, timeout reached")
+				return
+			}
+			time.Sleep(500 * time.Millisecond)
+		}
+	}()
+	return
+}
+
 func TestSharedDatabase(t *testing.T) {
-	daemon.Start()
-	err := <-daemon.WaitForContainerToRun()
+	err := <-testForceAndWaitForDaemonToStart()
 	assert.Nil(t, err)
 	time.Sleep(2 * time.Second)
 	connection, err := grpc.Dial(viper.GetString(config.APIClientTarget), grpc.WithInsecure())

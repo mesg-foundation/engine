@@ -6,14 +6,19 @@ import (
 	"github.com/mesg-foundation/core/docker"
 )
 
-// IsRunning returns true if the daemon container is running
+// IsRunning returns true if the daemon service is running
 func IsRunning() (running bool, err error) {
 	return docker.IsServiceRunning(namespace())
 }
 
-// IsStopped returns true if the daemon container is stopped
+// IsStopped returns true if the daemon service is stopped
 func IsStopped() (stopped bool, err error) {
 	return docker.IsServiceStopped(namespace())
+}
+
+// ContainerStatus returns true if the daemon container is running
+func ContainerStatus() (status docker.StatusType, err error) {
+	return docker.ContainerStatus(namespace())
 }
 
 // WaitForContainerToRun wait for the Daemon container to run

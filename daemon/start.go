@@ -9,10 +9,10 @@ import (
 
 // Start the docker daemon
 func Start() (service *swarm.Service, err error) {
-	running, err := IsRunning()
-	if err != nil || running == true {
-		return
-	}
+	// running, err := IsRunning()
+	// if err != nil || running == true {
+	// 	return
+	// }
 	network, err := docker.CreateNetwork(namespaceNetwork(), networkDriver)
 	if err != nil {
 		return
