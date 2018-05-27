@@ -25,13 +25,13 @@ func testForceAndWaitForDaemonToStart() (wait chan error) {
 	wait = make(chan error, 1)
 	go func() {
 		for {
-			tasks, err := docker.ListTasks([]string{"daemon"})
+			taskErrors, err := docker.TasksError([]string{"daemon"})
 			if err != nil {
 				wait <- err
 				return
 			}
-			for _, task := range tasks {
-				fmt.Println("task", task.ID, task.Status)
+			if taskErrors != nil {
+				fmt.Println("taskErrors", taskErrors)
 			}
 			isRunning, err := daemon.IsRunning()
 			if err != nil {

@@ -24,3 +24,17 @@ func ListTasks(namespace []string) (tasks []swarm.Task, err error) {
 	}
 	return
 }
+
+// TasksError returns the error of matching tasks
+func TasksError(namespace []string) (errors []string, err error) {
+	tasks, err := ListTasks(namespace)
+	if err != nil {
+		return
+	}
+	for _, task := range tasks {
+		if task.Status.Err != "" {
+			errors = append(errors, task.Status.Err)
+		}
+	}
+	return
+}
