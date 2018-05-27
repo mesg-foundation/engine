@@ -26,7 +26,7 @@ WORKDIR src/github.com/mesg-foundation/core
 RUN go get ./...
 RUN go build -o mesg-daemon daemon/main.go
 
-FROM alpine
+FROM ubuntu
 WORKDIR /app
 COPY --from=build /go/src/github.com/mesg-foundation/core/mesg-daemon .
 CMD ["./mesg-daemon"]
