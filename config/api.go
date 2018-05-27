@@ -58,21 +58,4 @@ func init() {
 	viper.SetDefault(ServicePathDocker, filepath.Join("/mesg", "services"))
 
 	viper.SetDefault(DaemonImage, "mesg/daemon")
-
-	// test folders
-	fmt.Println("will check folder exist:", viper.GetString(MESGPath))
-	if _, err := os.Stat(viper.GetString(MESGPath)); os.IsNotExist(err) {
-		// path/to/whatever does not exist
-		fmt.Println("path do not exist")
-	} else {
-		fmt.Println("path exist")
-	}
-
-	fmt.Println("will check folder exist:", "/var/run/docker.sock")
-	if _, err := os.Stat("/var/run/docker.sock"); os.IsNotExist(err) {
-		// path/to/whatever does not exist
-		fmt.Println("path do not exist")
-	} else {
-		fmt.Println("path exist")
-	}
 }

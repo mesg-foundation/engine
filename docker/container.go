@@ -3,7 +3,6 @@ package docker
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	godocker "github.com/fsouza/go-dockerclient"
@@ -52,11 +51,6 @@ func ContainerStatus(namespace []string) (status StatusType, err error) {
 		return
 	}
 	status = STOPPED
-	if container != nil {
-		fmt.Println("container.State", container.State)
-	} else {
-		fmt.Println("container is nil")
-	}
 	if container != nil && container.State == "running" {
 		status = RUNNING
 	}
