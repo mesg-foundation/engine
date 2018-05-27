@@ -65,7 +65,7 @@ func serviceConfig() docker.CreateServiceOptions {
 			},
 			TaskTemplate: swarm.TaskSpec{
 				ContainerSpec: &swarm.ContainerSpec{
-					Image: image,
+					Image: viper.GetString(config.DaemonImage),
 					Env: []string{
 						"MESG.PATH=" + viper.GetString(config.MESGPath),
 					},
