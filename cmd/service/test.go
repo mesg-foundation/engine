@@ -84,10 +84,9 @@ func executeTask(serviceID string, task string, dataPath string) (execution *cor
 
 func testHandler(cmd *cobra.Command, args []string) {
 	service := loadService(defaultPath(args))
-	hash, err := buildDockerImage(defaultPath(args), service.Name)
+	_, err := buildDockerImage(defaultPath(args), service.Name)
 	service.Name = strings.Join([]string{
 		"TEST",
-		hash,
 		service.Name,
 	}, "-")
 	deployment, err := cli.DeployService(context.Background(), &core.DeployServiceRequest{
