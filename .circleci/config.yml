@@ -6,7 +6,7 @@ jobs:
     working_directory: /go/src/github.com/mesg-foundation/core
     steps:
       - checkout
-      - setup_remote_docker
+      # - setup_remote_docker
       - run: go get -t ./...
       - run: docker swarm init
       - run: docker pull mesg/daemon
