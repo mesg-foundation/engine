@@ -36,10 +36,10 @@ func init() {
 	}
 
 	viper.SetDefault(MESGPath, configDir)
+	os.MkdirAll(MESGPath, os.ModePerm)
 
 	viper.SetDefault(APIServerAddress, ":50052")
 	viper.SetDefault(APIServerSocket, "/mesg/server.sock")
-	os.MkdirAll("/mesg", os.ModePerm)
 
 	viper.SetDefault(APIClientTarget, viper.GetString(APIServerAddress))
 
