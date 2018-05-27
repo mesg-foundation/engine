@@ -1,3 +1,5 @@
 Dockerfile
 .circleci
 .vscode
+/examples
+/test
