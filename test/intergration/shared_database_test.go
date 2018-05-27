@@ -3,6 +3,7 @@ package intergration_test
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -24,7 +25,13 @@ func testForceAndWaitForDaemonToStart() (wait chan error) {
 	wait = make(chan error, 1)
 	go func() {
 		for {
-			_, err := daemon.Start()
+			isRunning, err := daemon.IsRunning()
+			if err != nil {
+				wait <- err
+				return
+			}
+			fmt.Println("IsRunning", isRunning)
+			_, err = daemon.Start()
 			if err != nil {
 				wait <- err
 				return
@@ -34,6 +41,7 @@ func testForceAndWaitForDaemonToStart() (wait chan error) {
 				wait <- err
 				return
 			}
+			fmt.Println("status", status)
 			if status == docker.RUNNING {
 				close(wait)
 				return
