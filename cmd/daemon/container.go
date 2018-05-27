@@ -3,6 +3,9 @@ package daemon
 import (
 	"context"
 
+	"github.com/mesg-foundation/core/config"
+	"github.com/spf13/viper"
+
 	"github.com/docker/docker/api/types/swarm"
 	"github.com/fsouza/go-dockerclient"
 )
@@ -16,7 +19,7 @@ func container() (*docker.APIContainers, error) {
 		Context: context.Background(),
 		Limit:   1,
 		Filters: map[string][]string{
-			"ancestor": []string{image},
+			"ancestor": []string{viper.GetString(config.DaemonImage)},
 			"status":   []string{"running"},
 		},
 	})

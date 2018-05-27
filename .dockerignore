@@ -3,3 +3,5 @@ Dockerfile
 .vscode
 /examples
 /test
+dev-daemon
+dev-cli 
