@@ -30,10 +30,10 @@ func Start() (service *swarm.Service, err error) {
 			"MESG.PATH=/mesg",
 		},
 		Mounts: []docker.Mount{
-			// docker.Mount{
-			// 	Source: dockerSocket,
-			// 	Target: dockerSocket,
-			// },
+			docker.Mount{
+				Source: dockerSocket,
+				Target: dockerSocket,
+			},
 			docker.Mount{
 				Source: viper.GetString(config.MESGPath),
 				Target: "/mesg",

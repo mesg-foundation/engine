@@ -38,7 +38,7 @@ func init() {
 	viper.SetDefault(MESGPath, configDir)
 	err = os.MkdirAll(viper.GetString(MESGPath), os.ModePerm)
 	if err != nil {
-		fmt.Println("mkdir of MESGPath failed", viper.GetString(MESGPath), err)
+		panic(err)
 	}
 
 	viper.SetDefault(APIServerAddress, ":50052")
@@ -53,7 +53,7 @@ func init() {
 	viper.SetDefault(ServicePathHost, filepath.Join(viper.GetString(MESGPath), "services"))
 	err = os.MkdirAll(viper.GetString(ServicePathHost), os.ModePerm)
 	if err != nil {
-		fmt.Println("mkdir of ServicePathHost failed", viper.GetString(ServicePathHost), err)
+		panic(err)
 	}
 	viper.SetDefault(ServicePathDocker, filepath.Join("/mesg", "services"))
 
