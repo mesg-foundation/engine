@@ -25,6 +25,14 @@ func testForceAndWaitForDaemonToStart() (wait chan error) {
 	wait = make(chan error, 1)
 	go func() {
 		for {
+			tasks, err := docker.ListTasks([]string{"daemon"})
+			if err != nil {
+				wait <- err
+				return
+			}
+			for _, task := range tasks {
+				fmt.Println("task", task.ID, task.Status)
+			}
 			isRunning, err := daemon.IsRunning()
 			if err != nil {
 				wait <- err
@@ -58,11 +66,11 @@ func testForceAndWaitForDaemonToStart() (wait chan error) {
 }
 
 func TestSharedDatabase(t *testing.T) {
-	err := daemon.Stop()
-	assert.Nil(t, err)
-	err = <-daemon.WaitForFullStop()
-	assert.Nil(t, err)
-	err = <-testForceAndWaitForDaemonToStart()
+	// err := daemon.Stop()
+	// assert.Nil(t, err)
+	// err = <-daemon.WaitForFullStop()
+	// assert.Nil(t, err)
+	err := <-testForceAndWaitForDaemonToStart()
 	assert.Nil(t, err)
 	time.Sleep(2 * time.Second)
 	connection, err := grpc.Dial(viper.GetString(config.APIClientTarget), grpc.WithInsecure())
