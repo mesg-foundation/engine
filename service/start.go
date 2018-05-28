@@ -59,6 +59,19 @@ func (dependency *Dependency) Start(service *Service, details dependencyDetails,
 	if network == nil {
 		panic(errors.New("Network should never be null"))
 	}
+
+	networks, err := cli.FilteredListNetworks(docker.NetworkFilterOpts{
+		"name": {"daemon-network": true},
+	})
+	if err != nil {
+		return
+	}
+	if len(networks) == 0 {
+		err = errors.New("Cannot find the appropriate docker network")
+		return
+	}
+	daemonNetwork := &networks[0]
+
 	return cli.CreateService(docker.CreateServiceOptions{
 		ServiceSpec: swarm.ServiceSpec{
 			Annotations: swarm.Annotations{
@@ -91,6 +104,9 @@ func (dependency *Dependency) Start(service *Service, details dependencyDetails,
 			Networks: []swarm.NetworkAttachmentConfig{
 				swarm.NetworkAttachmentConfig{
 					Target: network.ID,
+				},
+				swarm.NetworkAttachmentConfig{
+					Target: daemonNetwork.ID,
 				},
 			},
 		},
