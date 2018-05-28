@@ -32,38 +32,7 @@ type Mount struct {
 }
 
 func (options *ServiceOptions) merge() {
-	if options.CreateServiceOptions == nil {
-		options.CreateServiceOptions = &godocker.CreateServiceOptions{}
-	}
-	service := options.CreateServiceOptions
-	if service.TaskTemplate.ContainerSpec == nil {
-		service.TaskTemplate.ContainerSpec = &swarm.ContainerSpec{}
-	}
-	if service.EndpointSpec == nil {
-		service.EndpointSpec = &swarm.EndpointSpec{}
-	}
-	if service.Annotations.Labels == nil {
-		service.Annotations.Labels = make(map[string]string)
-	}
-	if service.TaskTemplate.ContainerSpec.Labels == nil {
-		service.TaskTemplate.ContainerSpec.Labels = make(map[string]string)
-	}
-	if service.EndpointSpec.Ports == nil {
-		service.EndpointSpec.Ports = make([]swarm.PortConfig, 0)
-	}
-	if service.TaskTemplate.ContainerSpec.Mounts == nil {
-		service.TaskTemplate.ContainerSpec.Mounts = make([]mount.Mount, 0)
-	}
-	if service.TaskTemplate.ContainerSpec.Env == nil {
-		service.TaskTemplate.ContainerSpec.Env = make([]string, 0)
-	}
-	if service.TaskTemplate.ContainerSpec.Args == nil {
-		service.TaskTemplate.ContainerSpec.Args = make([]string, 0)
-	}
-	if service.Networks == nil {
-		service.Networks = make([]swarm.NetworkAttachmentConfig, 0)
-	}
-
+	options.initCreateServiceOptions()
 	options.mergeNamespace()
 	options.mergeImage()
 	options.mergeLabels()
@@ -72,6 +41,40 @@ func (options *ServiceOptions) merge() {
 	options.mergeEnv()
 	options.mergeArgs()
 	options.mergeNetworks()
+}
+
+func (options *ServiceOptions) initCreateServiceOptions() {
+	if options.CreateServiceOptions == nil {
+		options.CreateServiceOptions = &godocker.CreateServiceOptions{}
+	}
+	service := options.CreateServiceOptions
+	if service.Annotations.Labels == nil {
+		service.Annotations.Labels = make(map[string]string)
+	}
+	if service.EndpointSpec == nil {
+		service.EndpointSpec = &swarm.EndpointSpec{}
+	}
+	if service.EndpointSpec.Ports == nil {
+		service.EndpointSpec.Ports = make([]swarm.PortConfig, 0)
+	}
+	if service.TaskTemplate.ContainerSpec == nil {
+		service.TaskTemplate.ContainerSpec = &swarm.ContainerSpec{}
+	}
+	if service.TaskTemplate.Networks == nil {
+		service.TaskTemplate.Networks = make([]swarm.NetworkAttachmentConfig, 0)
+	}
+	if service.TaskTemplate.ContainerSpec.Args == nil {
+		service.TaskTemplate.ContainerSpec.Args = make([]string, 0)
+	}
+	if service.TaskTemplate.ContainerSpec.Env == nil {
+		service.TaskTemplate.ContainerSpec.Env = make([]string, 0)
+	}
+	if service.TaskTemplate.ContainerSpec.Mounts == nil {
+		service.TaskTemplate.ContainerSpec.Mounts = make([]mount.Mount, 0)
+	}
+	if service.TaskTemplate.ContainerSpec.Labels == nil {
+		service.TaskTemplate.ContainerSpec.Labels = make(map[string]string)
+	}
 }
 
 func (options *ServiceOptions) mergeNamespace() {
