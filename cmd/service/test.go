@@ -2,9 +2,9 @@ package cmdService
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"log"
-	"strings"
 	"time"
 
 	"github.com/mesg-foundation/core/api/core"
@@ -85,10 +85,7 @@ func executeTask(serviceID string, task string, dataPath string) (execution *cor
 func testHandler(cmd *cobra.Command, args []string) {
 	service := loadService(defaultPath(args))
 	_, err := buildDockerImage(defaultPath(args), service.Name)
-	service.Name = strings.Join([]string{
-		"TEST",
-		service.Name,
-	}, "-")
+	handleError(err)
 	deployment, err := cli.DeployService(context.Background(), &core.DeployServiceRequest{
 		Service: service,
 	})
@@ -98,11 +95,6 @@ func testHandler(cmd *cobra.Command, args []string) {
 		ServiceID: deployment.ServiceID,
 	})
 	handleError(err)
-	defer func() {
-		cli.StopService(context.Background(), &core.StopServiceRequest{
-			ServiceID: deployment.ServiceID,
-		})
-	}()
 
 	go listenEvents(deployment.ServiceID, cmd.Flag("event").Value.String())
 
@@ -113,6 +105,11 @@ func testHandler(cmd *cobra.Command, args []string) {
 	executeTask(deployment.ServiceID, cmd.Flag("task").Value.String(), cmd.Flag("data").Value.String())
 
 	<-cmdUtils.WaitForCancel()
+
+	_, err = cli.StopService(context.Background(), &core.StopServiceRequest{
+		ServiceID: deployment.ServiceID,
+	})
+	fmt.Println(err)
 }
 
 func init() {

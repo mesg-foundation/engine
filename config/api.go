@@ -56,6 +56,7 @@ func init() {
 		panic(err)
 	}
 	viper.SetDefault(ServicePathDocker, filepath.Join("/mesg", "services"))
+	os.MkdirAll(viper.GetString(ServicePathDocker), os.ModePerm)
 
-	viper.SetDefault(DaemonImage, "mesg/daemon")
+	viper.SetDefault(DaemonImage, "mesg/daemon:latest")
 }
