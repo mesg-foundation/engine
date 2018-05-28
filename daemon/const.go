@@ -8,7 +8,7 @@ const (
 )
 
 // Namespace returns the namespace of the daemon
-func namespace() []string {
+func Namespace() []string {
 	return []string{name}
 }
 

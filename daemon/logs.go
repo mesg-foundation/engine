@@ -8,5 +8,5 @@ import (
 
 // Logs return the daemon's docker service logs
 func Logs(stream *bytes.Buffer) (err error) {
-	return docker.ServiceLogs(namespace(), stream)
+	return docker.ServiceLogs(Namespace(), stream)
 }

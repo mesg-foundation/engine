@@ -14,7 +14,7 @@ func Start() (service *swarm.Service, err error) {
 		return
 	}
 	if running == true {
-		service, err = docker.FindService(namespace())
+		service, err = docker.FindService(Namespace())
 		return
 	}
 	network, err := docker.CreateNetwork(namespaceNetwork(), networkDriver)
@@ -23,7 +23,7 @@ func Start() (service *swarm.Service, err error) {
 	}
 	return docker.StartService(&docker.ServiceOptions{
 		Image:     viper.GetString(config.DaemonImage),
-		Namespace: namespace(),
+		Namespace: Namespace(),
 		Ports: []docker.Port{
 			docker.Port{
 				Target:    50052,

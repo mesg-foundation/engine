@@ -10,7 +10,7 @@ func Stop() (err error) {
 	if err != nil || stopped == true {
 		return
 	}
-	err = docker.StopService(namespace())
+	err = docker.StopService(Namespace())
 	if err != nil {
 		return
 	}
