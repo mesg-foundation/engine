@@ -49,10 +49,10 @@ func loadService(path string) (importedService *service.Service) {
 func buildDockerImage(path string, dockerImage string) (imageHash string, err error) {
 	s := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Building image..."})
 	defer s.Stop()
-	cli, err := docker.NewClientFromEnv()
+	dockerclient, err := docker.NewClientFromEnv()
 	var stream bytes.Buffer
 	go func() {
-		err = cli.BuildImage(docker.BuildImageOptions{
+		err = dockerclient.BuildImage(docker.BuildImageOptions{
 			Context: context.Background(),
 			Name: strings.Join([]string{
 				"mesg",
