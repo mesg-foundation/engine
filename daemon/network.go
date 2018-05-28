@@ -5,11 +5,6 @@ import (
 	"github.com/mesg-foundation/core/docker"
 )
 
-// IP returns the IP of the daemon in the shared network
-func IP() (daemonIP string, err error) {
-	return docker.FindServiceIP(namespaceNetwork(), namespace())
-}
-
 // SharedNetwork returns the shared network
 func SharedNetwork() (network *godocker.Network, err error) {
 	return docker.FindNetwork(namespaceNetwork())

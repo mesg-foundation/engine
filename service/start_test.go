@@ -138,21 +138,22 @@ func TestStartDependency(t *testing.T) {
 	docker.StopService(namespaces)
 }
 
-// func TestNetworkCreated(t *testing.T) {
-// 	service := &Service{
-// 		Name: "TestNetworkCreated",
-// 		Dependencies: map[string]*Dependency{
-// 			"test": &Dependency{
-// 				Image: "nginx",
-// 			},
-// 		},
-// 	}
-// 	service.Start(testDaemonIP, testSharedNetwork)
-// 	network, err := findNetwork(service.namespace())
-// 	assert.Nil(t, err)
-// 	assert.NotNil(t, network)
-// 	service.Stop()
-// }
+func TestNetworkCreated(t *testing.T) {
+	daemon.Start()
+	service := &Service{
+		Name: "TestNetworkCreated",
+		Dependencies: map[string]*Dependency{
+			"test": &Dependency{
+				Image: "nginx",
+			},
+		},
+	}
+	service.Start()
+	network, err := docker.FindNetwork([]string{service.Name})
+	assert.Nil(t, err)
+	assert.NotNil(t, network)
+	service.Stop()
+}
 
 // Test for https://github.com/mesg-foundation/core/issues/88
 func TestStartStopStart(t *testing.T) {

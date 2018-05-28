@@ -16,9 +16,9 @@ func (service *Service) Stop() (err error) {
 			return
 		}
 	}
-	// TODO: docker shared network: remove the specific docker network for this docker service
-	// if err == nil { // didnt exit the loop
-	// 	err = deleteNetwork(service.namespace())
-	// }
+	err = docker.DeleteNetwork([]string{service.Name})
+	if err != nil {
+		return
+	}
 	return
 }
