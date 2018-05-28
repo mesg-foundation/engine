@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/docker/docker/api/types/swarm"
 	"github.com/mesg-foundation/core/config"
@@ -30,6 +31,7 @@ func (service *Service) Start() (dockerServices []*swarm.Service, err error) {
 	// If there is one but not all services running stop to restart all
 	if status == PARTIAL {
 		service.Stop()
+		<-service.WaitStatus(STOPPED, 2*time.Second)
 	}
 	network, err := docker.CreateNetwork([]string{service.Name}, "overlay")
 	if err != nil {
@@ -72,11 +74,13 @@ func startDocker(c dockerConfig) (dockerService *swarm.Service, err error) {
 		Labels: map[string]string{
 			dockerLabelServiceKey: c.service.Name,
 		},
-		Ports: c.dockerPorts(),
-		Mounts: append(c.dockerVolumes(), docker.Mount{
-			Source: viper.GetString(config.APIServiceSocketPath),
-			Target: viper.GetString(config.APIServiceTargetPath),
-		}),
+		Ports:  c.dockerPorts(),
+		Mounts: c.dockerVolumes(),
+		// TODO: fix the APIServiceSocketPath
+		// Mounts: append(c.dockerVolumes(), docker.Mount{
+		// 	Source: viper.GetString(config.APIServiceSocketPath),
+		// 	Target: viper.GetString(config.APIServiceTargetPath),
+		// }),
 		Env: []string{
 			"MESG_ENDPOINT=" + viper.GetString(config.APIServiceTargetSocket),
 			"MESG_ENDPOINT_TCP=" + docker.Namespace(daemon.Namespace()) + viper.GetString(config.APIClientTarget),
