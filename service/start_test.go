@@ -100,7 +100,8 @@ func TestPartiallyRunningService(t *testing.T) {
 			},
 		},
 	}
-	service.Start()
+	_, err := service.Start()
+	assert.Nil(t, err)
 	docker.StopService([]string{service.Name, "test"})
 	partial, err := service.IsPartiallyRunning()
 	assert.Nil(t, err)
@@ -123,7 +124,8 @@ func TestStartDependency(t *testing.T) {
 		dependency: &Dependency{
 			Image: "nginx",
 		},
-		name: "test",
+		name:      "test",
+		networkID: "host",
 	}
 	namespaces := []string{c.service.Name, c.name}
 	dockerService, err := startDocker(c)

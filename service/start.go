@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/docker/docker/api/types/swarm"
 	"github.com/mesg-foundation/core/config"
@@ -30,6 +31,7 @@ func (service *Service) Start() (dockerServices []*swarm.Service, err error) {
 	// If there is one but not all services running stop to restart all
 	if status == PARTIAL {
 		service.Stop()
+		<-service.WaitStatus(STOPPED, 2*time.Second)
 	}
 	network, err := docker.CreateNetwork([]string{service.Name}, "overlay")
 	if err != nil {
