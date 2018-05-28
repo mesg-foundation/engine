@@ -25,9 +25,9 @@ func statusHandler(cmd *cobra.Command, args []string) {
 		fmt.Println(aurora.Red(err))
 		os.Exit(0)
 	}
-	fmt.Println("Services running :")
+	fmt.Println("Services running:")
 	for _, service := range services {
-		fmt.Println(aurora.Bold(" - " + service))
+		fmt.Println(aurora.Bold(" - " + service.Spec.Name))
 	}
 	if len(services) == 0 {
 		fmt.Println("No services running")

@@ -2,17 +2,10 @@ package daemon
 
 import (
 	"fmt"
-	"time"
 
-	"github.com/mesg-foundation/core/cmd/utils"
-
-	"github.com/docker/docker/api/types/mount"
-	"github.com/docker/docker/api/types/swarm"
-	"github.com/mesg-foundation/core/config"
-	"github.com/spf13/viper"
-
-	docker "github.com/fsouza/go-dockerclient"
 	"github.com/logrusorgru/aurora"
+	"github.com/mesg-foundation/core/cmd/utils"
+	"github.com/mesg-foundation/core/daemon"
 	"github.com/spf13/cobra"
 )
 
@@ -25,72 +18,26 @@ var Start = &cobra.Command{
 }
 
 func startHandler(cmd *cobra.Command, args []string) {
-	running, err := isRunning()
+	running, err := daemon.IsRunning()
 	if err != nil {
 		fmt.Println(aurora.Red(err))
 		return
 	}
 	if !running {
-		client, err := docker.NewClientFromEnv()
-		if err != nil {
-			fmt.Println(aurora.Red(err))
-			return
-		}
-
-		_, err = client.CreateService(serviceConfig())
+		_, err = daemon.Start()
 		if err != nil {
 			fmt.Println(aurora.Red(err))
 			return
 		}
 
 		spinner := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Starting the daemon"})
-		for {
-			time.Sleep(500 * time.Millisecond)
-			container, _ := container()
-			if container != nil {
-				break
-			}
-		}
+		err = <-daemon.WaitForContainerToRun()
 		spinner.Stop()
+		if err != nil {
+			fmt.Println(aurora.Red(err))
+			return
+		}
 	}
 
 	fmt.Println(aurora.Green("Daemon is running"))
-}
-
-func serviceConfig() docker.CreateServiceOptions {
-	return docker.CreateServiceOptions{
-		ServiceSpec: swarm.ServiceSpec{
-			Annotations: swarm.Annotations{
-				Name: name,
-			},
-			TaskTemplate: swarm.TaskSpec{
-				ContainerSpec: &swarm.ContainerSpec{
-					Image: viper.GetString(config.DaemonImage),
-					Env: []string{
-						"MESG.PATH=" + viper.GetString(config.MESGPath),
-					},
-					Mounts: []mount.Mount{
-						mount.Mount{
-							Source: socketPath,
-							Target: socketPath,
-						},
-						mount.Mount{
-							Source: viper.GetString(config.MESGPath),
-							Target: "/mesg",
-						},
-					},
-				},
-			},
-			EndpointSpec: &swarm.EndpointSpec{
-				Ports: []swarm.PortConfig{
-					swarm.PortConfig{
-						Protocol:      swarm.PortConfigProtocolTCP,
-						PublishMode:   swarm.PortConfigPublishModeIngress,
-						TargetPort:    50052,
-						PublishedPort: 50052,
-					},
-				},
-			},
-		},
-	}
 }

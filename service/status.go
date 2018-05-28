@@ -1,11 +1,10 @@
 package service
 
 import (
-	"context"
-	"strings"
+	"errors"
+	"time"
 
-	"github.com/docker/docker/api/types/swarm"
-	docker "github.com/fsouza/go-dockerclient"
+	"github.com/mesg-foundation/core/docker"
 )
 
 // StatusType of the service
@@ -13,26 +12,21 @@ type StatusType uint
 
 // status for services
 const (
-	STOPPED StatusType = 0
-	RUNNING StatusType = 1
-	PARTIAL StatusType = 2
+	STOPPED StatusType = 1
+	RUNNING StatusType = 2
+	PARTIAL StatusType = 3
 )
 
-func dockerServiceMatch(dockerServices []swarm.Service, namespace string, name string) (dockerService swarm.Service) {
-	for _, service := range dockerServices {
-		if service.Spec.Annotations.Name == strings.Join([]string{namespace, name}, "_") {
-			dockerService = service
-			break
-		}
-	}
-	return
-}
-
-func serviceStatus(service *Service) (status StatusType) {
+// Status return the status of the docker service for this service
+func (service *Service) Status() (status StatusType, err error) {
 	status = STOPPED
 	allRunning := true
-	for name, dependency := range service.GetDependencies() {
-		if dependency.IsRunning(service.namespace(), name) {
+	for dependency := range service.GetDependencies() {
+		running, err := docker.IsServiceRunning([]string{service.Name, dependency})
+		if err != nil {
+			return status, err
+		}
+		if running == true {
 			status = RUNNING
 		} else {
 			allRunning = false
@@ -45,49 +39,57 @@ func serviceStatus(service *Service) (status StatusType) {
 }
 
 // IsRunning returns true if the service is running, false otherwise
-func (service *Service) IsRunning() (running bool) {
-	running = serviceStatus(service) == RUNNING
+func (service *Service) IsRunning() (result bool, err error) {
+	status, err := service.Status()
+	if err != nil {
+		return
+	}
+	result = status == RUNNING
 	return
 }
 
 // IsPartiallyRunning returns true if the service is running, false otherwise
-func (service *Service) IsPartiallyRunning() (running bool) {
-	running = serviceStatus(service) == PARTIAL
+func (service *Service) IsPartiallyRunning() (result bool, err error) {
+	status, err := service.Status()
+	if err != nil {
+		return
+	}
+	result = status == PARTIAL
 	return
 }
 
 // IsStopped returns true if the service is stopped, false otherwise
-func (service *Service) IsStopped() (running bool) {
-	running = serviceStatus(service) == STOPPED
-	return
-}
-
-// IsRunning returns true if the dependency is running, false otherwise
-func (dependency *Dependency) IsRunning(namespace string, name string) (running bool) {
-	running = dependencyStatus(namespace, name) == RUNNING
-	return
-}
-
-// IsStopped returns true if the dependency is stopped, false otherwise
-func (dependency *Dependency) IsStopped(namespace string, name string) (running bool) {
-	running = dependencyStatus(namespace, name) == STOPPED
-	return
-}
-
-// List all the running services
-func List() (res []string, err error) {
-	cli, err := dockerCli()
-	services, err := cli.ListServices(docker.ListServicesOptions{
-		Context: context.Background(),
-	})
-	mapRes := make(map[string]uint)
-	for _, service := range services {
-		serviceName := service.Spec.Annotations.Labels["mesg.service"]
-		mapRes[serviceName]++
+func (service *Service) IsStopped() (result bool, err error) {
+	status, err := service.Status()
+	if err != nil {
+		return
 	}
-	res = make([]string, 0, len(mapRes))
-	for k := range mapRes {
-		res = append(res, k)
-	}
+	result = status == STOPPED
+	return
+}
+
+// WaitStatus waits until the service to have the given status until it reach the timeout
+func (service *Service) WaitStatus(status StatusType, timeout time.Duration) (wait chan error) {
+	start := time.Now()
+	wait = make(chan error, 1)
+	go func() {
+		for {
+			currentStatus, err := service.Status()
+			if err != nil {
+				wait <- err
+				return
+			}
+			if currentStatus == status {
+				close(wait)
+				return
+			}
+			diff := time.Now().Sub(start)
+			if diff.Nanoseconds() >= int64(timeout) {
+				wait <- errors.New("Wait too long for the service, timeout reached")
+				return
+			}
+			time.Sleep(500 * time.Millisecond)
+		}
+	}()
 	return
 }

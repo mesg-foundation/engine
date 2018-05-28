@@ -2,36 +2,55 @@ package service
 
 import (
 	"errors"
+	"os"
+	"path/filepath"
+	"strconv"
 	"strings"
+	"time"
 
-	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/swarm"
-	docker "github.com/fsouza/go-dockerclient"
 	"github.com/mesg-foundation/core/config"
+	"github.com/mesg-foundation/core/daemon"
+	"github.com/mesg-foundation/core/docker"
 	"github.com/spf13/viper"
 )
 
+type dockerConfig struct {
+	service    *Service
+	dependency *Dependency
+	name       string
+	networkID  string
+}
+
 // Start a service
 func (service *Service) Start() (dockerServices []*swarm.Service, err error) {
-	if service.IsRunning() {
+	status, err := service.Status()
+	if err != nil || status == RUNNING {
 		return
 	}
 	// If there is one but not all services running stop to restart all
-	if service.IsPartiallyRunning() {
-		service.Stop()
+	if status == PARTIAL {
+		for dependency := range service.Dependencies {
+			err = docker.StopService([]string{service.Name, dependency})
+			if err != nil {
+				return
+			}
+		}
+		<-service.WaitStatus(STOPPED, 30*time.Second)
 	}
-	network, err := createNetwork(service.namespace())
+	network, err := docker.CreateNetwork([]string{service.Name}, "overlay")
 	if err != nil {
 		return
 	}
-	dockerServices = make([]*swarm.Service, len(service.GetDependencies()))
+	dockerServices = make([]*swarm.Service, len(service.Dependencies))
 	i := 0
-	for name, dependency := range service.GetDependencies() {
-		dockerServices[i], err = dependency.Start(service, dependencyDetails{
-			namespace:      service.namespace(),
-			dependencyName: name,
-			serviceName:    service.Name,
-		}, network)
+	for name, dependency := range service.Dependencies {
+		dockerServices[i], err = startDocker(dockerConfig{
+			service:    service,
+			dependency: dependency,
+			name:       name,
+			networkID:  network.ID,
+		})
 		i++
 		if err != nil {
 			break
@@ -44,55 +63,76 @@ func (service *Service) Start() (dockerServices []*swarm.Service, err error) {
 	return
 }
 
-type dependencyDetails struct {
-	namespace      string
-	dependencyName string
-	serviceName    string
-}
-
-// Start will start a dependency container
-func (dependency *Dependency) Start(service *Service, details dependencyDetails, network *docker.Network) (dockerService *swarm.Service, err error) {
-	cli, err := dockerCli()
+// start will start a dependency container
+func startDocker(c dockerConfig) (dockerService *swarm.Service, err error) {
+	sharedNetwork, err := daemon.SharedNetwork()
 	if err != nil {
 		return
 	}
-	if network == nil {
-		panic(errors.New("Network should never be null"))
+	if sharedNetwork == nil {
+		err = errors.New("Daemon shared network not found")
+		return
 	}
-	return cli.CreateService(docker.CreateServiceOptions{
-		ServiceSpec: swarm.ServiceSpec{
-			Annotations: swarm.Annotations{
-				Name: strings.Join([]string{details.namespace, details.dependencyName}, "_"),
-				Labels: map[string]string{
-					"com.docker.stack.image":     dependency.Image,
-					"com.docker.stack.namespace": details.namespace,
-					"mesg.service":               details.serviceName,
-				},
-			},
-			TaskTemplate: swarm.TaskSpec{
-				ContainerSpec: &swarm.ContainerSpec{
-					Image: dependency.Image,
-					Args:  strings.Fields(dependency.Command),
-					Env: []string{
-						"MESG_ENDPOINT=" + viper.GetString(config.APIServiceTargetSocket),
-					},
-					Mounts: append(extractVolumes(service, dependency, details), mount.Mount{
-						Source: viper.GetString(config.APIServiceSocketPath),
-						Target: viper.GetString(config.APIServiceTargetPath),
-					}),
-					Labels: map[string]string{
-						"com.docker.stack.namespace": details.namespace,
-					},
-				},
-			},
-			EndpointSpec: &swarm.EndpointSpec{
-				Ports: extractPorts(dependency),
-			},
-			Networks: []swarm.NetworkAttachmentConfig{
-				swarm.NetworkAttachmentConfig{
-					Target: network.ID,
-				},
-			},
+	return docker.StartService(&docker.ServiceOptions{
+		Image:     c.dependency.Image,
+		Namespace: []string{c.service.Name, c.name},
+		Labels: map[string]string{
+			dockerLabelServiceKey: c.service.Name,
 		},
+		Ports: c.ports(),
+		Mounts: append(c.volumes(), docker.Mount{
+			Source: viper.GetString(config.APIServiceSocketPath),
+			Target: viper.GetString(config.APIServiceTargetPath),
+		}),
+		Env: []string{
+			"MESG_ENDPOINT=" + viper.GetString(config.APIServiceTargetSocket),
+			"MESG_ENDPOINT_TCP=" + docker.Namespace(daemon.Namespace()) + viper.GetString(config.APIClientTarget),
+		},
+		Args:       strings.Fields(c.dependency.Command),
+		NetworksID: []string{c.networkID, sharedNetwork.ID},
 	})
+}
+
+// ports extract ports from a Dependency and transform them to a swarm.PortConfig
+func (c *dockerConfig) ports() (ports []docker.Port) {
+	ports = make([]docker.Port, len(c.dependency.Ports))
+	for i, p := range c.dependency.Ports {
+		split := strings.Split(p, ":")
+		published, _ := strconv.ParseUint(split[0], 10, 64)
+		target := published
+		if len(split) > 1 {
+			target, _ = strconv.ParseUint(split[1], 10, 64)
+		}
+		ports[i] = docker.Port{
+			Target:    uint32(target),
+			Published: uint32(published),
+		}
+	}
+	return
+}
+
+// volumes extract volumes from a Dependency and transform them to a Docker Mount
+func (c *dockerConfig) volumes() (mounts []docker.Mount) {
+	mounts = make([]docker.Mount, 0)
+	for _, volume := range c.dependency.Volumes {
+		path := filepath.Join(docker.Namespace([]string{c.service.Name, c.name}), volume)
+		source := filepath.Join(viper.GetString(config.ServicePathHost), path)
+		mounts = append(mounts, docker.Mount{
+			Source: source,
+			Target: volume,
+		})
+		os.MkdirAll(filepath.Join(viper.GetString(config.ServicePathDocker), path), os.ModePerm)
+	}
+	for _, depString := range c.dependency.Volumesfrom {
+		for _, volume := range c.service.Dependencies[depString].Volumes {
+			path := filepath.Join(docker.Namespace([]string{c.service.Name, depString}), volume)
+			source := filepath.Join(viper.GetString(config.ServicePathHost), path)
+			mounts = append(mounts, docker.Mount{
+				Source: source,
+				Target: volume,
+			})
+			os.MkdirAll(filepath.Join(viper.GetString(config.ServicePathDocker), path), os.ModePerm)
+		}
+	}
+	return
 }

@@ -4,4 +4,4 @@ Dockerfile
 /examples
 /test
 dev-daemon
-dev-cli 
+dev-cli

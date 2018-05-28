@@ -36,10 +36,13 @@ func init() {
 	}
 
 	viper.SetDefault(MESGPath, configDir)
+	err = os.MkdirAll(viper.GetString(MESGPath), os.ModePerm)
+	if err != nil {
+		panic(err)
+	}
 
 	viper.SetDefault(APIServerAddress, ":50052")
 	viper.SetDefault(APIServerSocket, "/mesg/server.sock")
-	os.MkdirAll("/mesg", os.ModePerm)
 
 	viper.SetDefault(APIClientTarget, viper.GetString(APIServerAddress))
 
@@ -48,6 +51,10 @@ func init() {
 	viper.SetDefault(APIServiceTargetSocket, "unix://"+viper.GetString(APIServiceTargetPath))
 
 	viper.SetDefault(ServicePathHost, filepath.Join(viper.GetString(MESGPath), "services"))
+	err = os.MkdirAll(viper.GetString(ServicePathHost), os.ModePerm)
+	if err != nil {
+		panic(err)
+	}
 	viper.SetDefault(ServicePathDocker, filepath.Join("/mesg", "services"))
 	os.MkdirAll(viper.GetString(ServicePathDocker), os.ModePerm)
 

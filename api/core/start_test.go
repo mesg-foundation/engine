@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/mesg-foundation/core/daemon"
 	"github.com/mesg-foundation/core/database/services"
-
 	"github.com/mesg-foundation/core/service"
 	"github.com/stvp/assert"
 )
@@ -13,6 +13,7 @@ import (
 var serverstart = new(Server)
 
 func TestStartService(t *testing.T) {
+	daemon.Start()
 	deployment, _ := serverstart.DeployService(context.Background(), &DeployServiceRequest{
 		Service: &service.Service{
 			Name: "TestStartService",
@@ -28,8 +29,10 @@ func TestStartService(t *testing.T) {
 		ServiceID: deployment.ServiceID,
 	})
 	assert.Nil(t, err)
-	assert.True(t, service.IsRunning())
 	assert.NotNil(t, reply)
+	running, err := service.IsRunning()
+	assert.Nil(t, err)
+	assert.Equal(t, true, running)
 	service.Stop()
 	services.Delete(deployment.ServiceID)
 }

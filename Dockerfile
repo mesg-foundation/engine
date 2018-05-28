@@ -21,10 +21,10 @@ RUN go get github.com/xeipuuv/gojsonschema && \
     go get github.com/cpuguy83/go-md2man && \
     go get github.com/syndtr/goleveldb/leveldb && \
     go get github.com/cnf/structhash
-ADD . src/github.com/mesg-foundation/core
 WORKDIR src/github.com/mesg-foundation/core
+ADD . .
 RUN go get ./...
-RUN go build -o mesg-daemon daemon/main.go
+RUN go build -o mesg-daemon daemon/start/main.go
 
 FROM ubuntu
 WORKDIR /app

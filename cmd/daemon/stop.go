@@ -1,11 +1,11 @@
 package daemon
 
 import (
-	"context"
 	"fmt"
 
-	docker "github.com/fsouza/go-dockerclient"
 	"github.com/logrusorgru/aurora"
+	"github.com/mesg-foundation/core/cmd/utils"
+	"github.com/mesg-foundation/core/daemon"
 	"github.com/spf13/cobra"
 )
 
@@ -18,25 +18,19 @@ var Stop = &cobra.Command{
 }
 
 func stopHandler(cmd *cobra.Command, args []string) {
-	service, err := service()
+	err := daemon.Stop()
 	if err != nil {
 		fmt.Println(aurora.Red(err))
 		return
 	}
-	if service != nil {
-		client, err := docker.NewClientFromEnv()
-		if err != nil {
-			fmt.Println(aurora.Red(err))
-			return
-		}
-		err = client.RemoveService(docker.RemoveServiceOptions{
-			Context: context.Background(),
-			ID:      service.ID,
-		})
-		if err != nil {
-			fmt.Println(aurora.Red(err))
-			return
-		}
+
+	spinner := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Stopping the daemon"})
+	err = <-daemon.WaitForContainerToStop()
+	spinner.Stop()
+	if err != nil {
+		fmt.Println(aurora.Red(err))
+		return
 	}
+
 	fmt.Println(aurora.Green("Daemon stopped"))
 }
