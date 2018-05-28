@@ -32,6 +32,7 @@ func (service *Service) Start() (dockerServices []*swarm.Service, err error) {
 	if status == PARTIAL {
 		service.Stop()
 		<-service.WaitStatus(STOPPED, 2*time.Second)
+		time.Sleep(2 * time.Second)
 	}
 	network, err := docker.CreateNetwork([]string{service.Name}, "overlay")
 	if err != nil {
