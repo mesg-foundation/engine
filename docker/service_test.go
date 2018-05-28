@@ -142,7 +142,7 @@ func TestListServices(t *testing.T) {
 }
 
 func TestServiceLogs(t *testing.T) {
-	namespace := []string{"ServiceLogs"}
+	namespace := []string{"TestServiceLogs"}
 	startTestService(namespace)
 	defer StopService(namespace)
 	var stream bytes.Buffer

@@ -1,17 +1,6 @@
 package daemon
 
 import (
-	// "bytes"
-	// "context"
-	// "fmt"
-	// "os"
-	// "time"
-
-	// godocker "github.com/fsouza/go-dockerclient"
-	// "github.com/logrusorgru/aurora"
-	// "github.com/mesg-foundation/core/daemon"
-	// "github.com/mesg-foundation/core/docker"
-
 	"bytes"
 	"fmt"
 	"time"
