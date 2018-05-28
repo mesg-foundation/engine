@@ -7,10 +7,10 @@ import (
 	"log"
 	"time"
 
+	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/api/core"
 	"github.com/mesg-foundation/core/cmd/utils"
-
-	"github.com/logrusorgru/aurora"
+	servicePackage "github.com/mesg-foundation/core/service"
 	"github.com/spf13/cobra"
 )
 
@@ -72,7 +72,9 @@ func executeTask(serviceID string, task string, dataPath string) (execution *cor
 		handleError(err)
 	}
 
-	execution, err = cli.ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	execution, err = cli.ExecuteTask(ctx, &core.ExecuteTaskRequest{
 		ServiceID: serviceID,
 		TaskKey:   task,
 		TaskData:  string(data),
@@ -86,12 +88,17 @@ func testHandler(cmd *cobra.Command, args []string) {
 	service := loadService(defaultPath(args))
 	_, err := buildDockerImage(defaultPath(args), service.Name)
 	handleError(err)
-	deployment, err := cli.DeployService(context.Background(), &core.DeployServiceRequest{
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	deployment, err := cli.DeployService(ctx, &core.DeployServiceRequest{
 		Service: service,
 	})
 	handleError(err)
 
-	_, err = cli.StartService(context.Background(), &core.StartServiceRequest{
+	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	_, err = cli.StartService(ctx, &core.StartServiceRequest{
 		ServiceID: deployment.ServiceID,
 	})
 	handleError(err)
@@ -100,13 +107,17 @@ func testHandler(cmd *cobra.Command, args []string) {
 
 	go listenResults(deployment.ServiceID)
 
-	time.Sleep(10 * time.Second)
+	s := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Wait service to run..."})
+	<-service.WaitStatus(servicePackage.RUNNING, 1*time.Minute)
+	s.Stop()
 
 	executeTask(deployment.ServiceID, cmd.Flag("task").Value.String(), cmd.Flag("data").Value.String())
 
 	<-cmdUtils.WaitForCancel()
 
-	_, err = cli.StopService(context.Background(), &core.StopServiceRequest{
+	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	_, err = cli.StopService(ctx, &core.StopServiceRequest{
 		ServiceID: deployment.ServiceID,
 	})
 	fmt.Println(err)

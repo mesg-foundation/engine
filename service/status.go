@@ -1,6 +1,9 @@
 package service
 
 import (
+	"errors"
+	"time"
+
 	"github.com/mesg-foundation/core/docker"
 )
 
@@ -62,5 +65,31 @@ func (service *Service) IsStopped() (result bool, err error) {
 		return
 	}
 	result = status == STOPPED
+	return
+}
+
+// WaitStatus waits until the service to have the given status until it reach the timeout
+func (service *Service) WaitStatus(status StatusType, timeout time.Duration) (wait chan error) {
+	start := time.Now()
+	wait = make(chan error, 1)
+	go func() {
+		for {
+			currentStatus, err := service.Status()
+			if err != nil {
+				wait <- err
+				return
+			}
+			if currentStatus == status {
+				close(wait)
+				return
+			}
+			diff := time.Now().Sub(start)
+			if diff.Nanoseconds() >= int64(timeout) {
+				wait <- errors.New("Wait too long for the service, timeout reached")
+				return
+			}
+			time.Sleep(500 * time.Millisecond)
+		}
+	}()
 	return
 }
