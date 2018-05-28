@@ -11,7 +11,7 @@ jobs:
       - run: docker swarm init
       - run: docker pull mesg/daemon
       - run: build/test-daemon.sh
-      - run: env DAEMON.IMAGE=mesg/daemon:local go test -timeout 30s -p 1 -coverprofile=coverage.txt ./...
+      - run: env DAEMON.IMAGE=mesg/daemon:local go test -timeout 120s -p 1 -coverprofile=coverage.txt ./...
       - run: bash <(curl -s https://codecov.io/bash)
 
   cli_build_deploy:
