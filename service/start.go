@@ -30,9 +30,13 @@ func (service *Service) Start() (dockerServices []*swarm.Service, err error) {
 	}
 	// If there is one but not all services running stop to restart all
 	if status == PARTIAL {
-		service.Stop()
-		<-service.WaitStatus(STOPPED, 2*time.Second)
-		time.Sleep(2 * time.Second)
+		for dependency := range service.Dependencies {
+			err = docker.StopService([]string{service.Name, dependency})
+			if err != nil {
+				return
+			}
+		}
+		<-service.WaitStatus(STOPPED, 30*time.Second)
 	}
 	network, err := docker.CreateNetwork([]string{service.Name}, "overlay")
 	if err != nil {

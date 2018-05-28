@@ -2,6 +2,7 @@ package service
 
 import (
 	"testing"
+	"time"
 
 	"github.com/mesg-foundation/core/daemon"
 	"github.com/mesg-foundation/core/docker"
@@ -74,6 +75,7 @@ func TestNetworkDeleted(t *testing.T) {
 	}
 	service.Start()
 	service.Stop()
+	<-service.WaitStatus(STOPPED, 30*time.Second)
 	network, err := docker.FindNetwork([]string{service.Name})
 	assert.Nil(t, err)
 	assert.Nil(t, network)
