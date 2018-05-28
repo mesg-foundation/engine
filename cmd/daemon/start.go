@@ -1,6 +1,7 @@
 package daemon
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -37,7 +38,28 @@ func startHandler(cmd *cobra.Command, args []string) {
 			return
 		}
 
-		_, err = client.CreateService(serviceConfig())
+		network, err := client.CreateNetwork(docker.CreateNetworkOptions{
+			Context:        context.Background(),
+			CheckDuplicate: true,
+			Name:           "daemon-network",
+			Driver:         "overlay",
+		})
+		if err != nil {
+			networks, err := client.FilteredListNetworks(docker.NetworkFilterOpts{
+				"name": {"daemon-network": true},
+			})
+			if err != nil {
+				fmt.Println(aurora.Red(err))
+				return
+			}
+			if len(networks) == 0 {
+				fmt.Println(aurora.Red("Cannot find the appropriate docker network"))
+				return
+			}
+			network = &networks[0]
+		}
+
+		_, err = client.CreateService(serviceConfig(network))
 		if err != nil {
 			fmt.Println(aurora.Red(err))
 			return
@@ -57,7 +79,7 @@ func startHandler(cmd *cobra.Command, args []string) {
 	fmt.Println(aurora.Green("Daemon is running"))
 }
 
-func serviceConfig() docker.CreateServiceOptions {
+func serviceConfig(network *docker.Network) docker.CreateServiceOptions {
 	return docker.CreateServiceOptions{
 		ServiceSpec: swarm.ServiceSpec{
 			Annotations: swarm.Annotations{
@@ -89,6 +111,11 @@ func serviceConfig() docker.CreateServiceOptions {
 						TargetPort:    50052,
 						PublishedPort: 50052,
 					},
+				},
+			},
+			Networks: []swarm.NetworkAttachmentConfig{
+				swarm.NetworkAttachmentConfig{
+					Target: network.ID,
 				},
 			},
 		},
