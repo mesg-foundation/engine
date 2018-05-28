@@ -79,13 +79,11 @@ func startDocker(c dockerConfig) (dockerService *swarm.Service, err error) {
 		Labels: map[string]string{
 			dockerLabelServiceKey: c.service.Name,
 		},
-		Ports:  c.dockerPorts(),
-		Mounts: c.dockerVolumes(),
-		// TODO: fix the APIServiceSocketPath
-		// Mounts: append(c.dockerVolumes(), docker.Mount{
-		// 	Source: viper.GetString(config.APIServiceSocketPath),
-		// 	Target: viper.GetString(config.APIServiceTargetPath),
-		// }),
+		Ports: c.ports(),
+		Mounts: append(c.volumes(), docker.Mount{
+			Source: viper.GetString(config.APIServiceSocketPath),
+			Target: viper.GetString(config.APIServiceTargetPath),
+		}),
 		Env: []string{
 			"MESG_ENDPOINT=" + viper.GetString(config.APIServiceTargetSocket),
 			"MESG_ENDPOINT_TCP=" + docker.Namespace(daemon.Namespace()) + viper.GetString(config.APIClientTarget),
@@ -95,8 +93,8 @@ func startDocker(c dockerConfig) (dockerService *swarm.Service, err error) {
 	})
 }
 
-// dockerPorts extract ports from a Dependency and transform them to a swarm.PortConfig
-func (c *dockerConfig) dockerPorts() (ports []docker.Port) {
+// ports extract ports from a Dependency and transform them to a swarm.PortConfig
+func (c *dockerConfig) ports() (ports []docker.Port) {
 	ports = make([]docker.Port, len(c.dependency.Ports))
 	for i, p := range c.dependency.Ports {
 		split := strings.Split(p, ":")
@@ -113,8 +111,8 @@ func (c *dockerConfig) dockerPorts() (ports []docker.Port) {
 	return
 }
 
-// dockerVolumes extract volumes from a Dependency and transform them to a Docker Mount
-func (c *dockerConfig) dockerVolumes() (mounts []docker.Mount) {
+// volumes extract volumes from a Dependency and transform them to a Docker Mount
+func (c *dockerConfig) volumes() (mounts []docker.Mount) {
 	mounts = make([]docker.Mount, 0)
 	for _, volume := range c.dependency.Volumes {
 		path := filepath.Join(docker.Namespace([]string{c.service.Name, c.name}), volume)
