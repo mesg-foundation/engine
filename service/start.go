@@ -72,13 +72,11 @@ func startDocker(c dockerConfig) (dockerService *swarm.Service, err error) {
 		Labels: map[string]string{
 			dockerLabelServiceKey: c.service.Name,
 		},
-		Ports:  c.dockerPorts(),
-		Mounts: c.dockerVolumes(),
-		// TODO: fix the APIServiceSocketPath
-		// Mounts: append(c.dockerVolumes(), docker.Mount{
-		// 	Source: viper.GetString(config.APIServiceSocketPath),
-		// 	Target: viper.GetString(config.APIServiceTargetPath),
-		// }),
+		Ports: c.dockerPorts(),
+		Mounts: append(c.dockerVolumes(), docker.Mount{
+			Source: viper.GetString(config.APIServiceSocketPath),
+			Target: viper.GetString(config.APIServiceTargetPath),
+		}),
 		Env: []string{
 			"MESG_ENDPOINT=" + viper.GetString(config.APIServiceTargetSocket),
 			"MESG_ENDPOINT_TCP=" + docker.Namespace(daemon.Namespace()) + viper.GetString(config.APIClientTarget),
