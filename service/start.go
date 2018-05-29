@@ -2,7 +2,10 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/swarm"
@@ -24,23 +27,30 @@ func (service *Service) Start() (dockerServices []*swarm.Service, err error) {
 	if err != nil {
 		return
 	}
+	var wg sync.WaitGroup
 	dockerServices = make([]*swarm.Service, len(service.GetDependencies()))
 	i := 0
 	for name, dependency := range service.GetDependencies() {
-		dockerServices[i], err = dependency.Start(service, dependencyDetails{
-			namespace:      service.namespace(),
-			dependencyName: name,
-			serviceName:    service.Name,
-		}, network)
+		wg.Add(1)
+		go func(index int, name string, dependency *Dependency) {
+			fmt.Println(index)
+			dockerServices[index], err = dependency.Start(service, dependencyDetails{
+				namespace:      service.namespace(),
+				dependencyName: name,
+				serviceName:    service.Name,
+			}, network, &wg)
+			if err != nil {
+				wg.Done()
+			}
+		}(i, name, dependency)
 		i++
-		if err != nil {
-			break
-		}
 	}
+	wg.Wait()
 	// Disgrasfully close the service because there is an error
 	if err != nil {
 		service.Stop()
 	}
+
 	return
 }
 
@@ -51,7 +61,7 @@ type dependencyDetails struct {
 }
 
 // Start will start a dependency container
-func (dependency *Dependency) Start(service *Service, details dependencyDetails, network *docker.Network) (dockerService *swarm.Service, err error) {
+func (dependency *Dependency) Start(service *Service, details dependencyDetails, network *docker.Network, wg *sync.WaitGroup) (dockerService *swarm.Service, err error) {
 	cli, err := dockerCli()
 	if err != nil {
 		return
@@ -65,7 +75,7 @@ func (dependency *Dependency) Start(service *Service, details dependencyDetails,
 		return
 	}
 
-	return cli.CreateService(docker.CreateServiceOptions{
+	dockerService, err = cli.CreateService(docker.CreateServiceOptions{
 		ServiceSpec: swarm.ServiceSpec{
 			Annotations: swarm.Annotations{
 				Name: strings.Join([]string{details.namespace, details.dependencyName}, "_"),
@@ -105,4 +115,17 @@ func (dependency *Dependency) Start(service *Service, details dependencyDetails,
 			},
 		},
 	})
+	if err != nil {
+		return
+	}
+	go func() {
+		for {
+			if dependency.IsRunning(details.namespace, details.dependencyName) {
+				wg.Done()
+				break
+			}
+			time.Sleep(500 * time.Millisecond)
+		}
+	}()
+	return
 }

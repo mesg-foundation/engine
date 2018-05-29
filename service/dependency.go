@@ -78,20 +78,22 @@ func getDockerService(namespace string, dependencyName string) (dockerService sw
 }
 
 func dependencyStatus(namespace string, dependencyName string) (status StatusType) {
-	ctx := context.Background()
 	cli, err := dockerCli()
 	if err != nil {
 		return
 	}
-	dockerServices, err := cli.ListServices(docker.ListServicesOptions{
+	containers, err := cli.ListContainers(docker.ListContainersOptions{
+		Context: context.Background(),
+		Limit:   1,
 		Filters: map[string][]string{
 			"name": []string{strings.Join([]string{namespace, dependencyName}, "_")},
+			"label": []string{
+				"com.docker.stack.namespace=" + namespace,
+			},
 		},
-		Context: ctx,
 	})
-	dockerService := dockerServiceMatch(dockerServices, namespace, dependencyName)
 	status = STOPPED
-	if err == nil && dockerService.ID != "" {
+	if err == nil && len(containers) == 1 {
 		status = RUNNING
 	}
 	return
