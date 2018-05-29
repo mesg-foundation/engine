@@ -68,7 +68,7 @@ func startHandler(cmd *cobra.Command, args []string) {
 		spinner := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Starting the daemon"})
 		for {
 			time.Sleep(500 * time.Millisecond)
-			container, _ := container()
+			container, _ := getContainer()
 			if container != nil {
 				break
 			}
