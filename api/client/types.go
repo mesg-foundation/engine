@@ -5,8 +5,9 @@ package client
 // triggers one or multiple tasks. The workflow is what
 // is created on the **when**
 type Workflow struct {
-	OnEvent *Event
-	Execute *Task
+	OnEvent  *Event
+	OnResult *Result
+	Execute  *Task
 }
 
 // Task is a struct that contains the details of a task
@@ -24,4 +25,13 @@ type Task struct {
 type Event struct {
 	Service string
 	Name    string
+}
+
+// Result is a struct that contains all the informations
+// to start a workflow. This is the **when** in the
+// workflow
+type Result struct {
+	Service string
+	Name    string
+	Output  string
 }
