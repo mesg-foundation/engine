@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/mesg-foundation/core/cmd/utils"
+	"github.com/mesg-foundation/core/service"
 
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/swarm"
@@ -31,13 +32,19 @@ func startHandler(cmd *cobra.Command, args []string) {
 		return
 	}
 	if !running {
-		client, err := docker.NewClientFromEnv()
+		client, err := service.DockerClient()
 		if err != nil {
 			fmt.Println(aurora.Red(err))
 			return
 		}
 
-		_, err = client.CreateService(serviceConfig())
+		network, err := service.SharedNetwork(client)
+		if err != nil {
+			fmt.Println(aurora.Red(err))
+			return
+		}
+
+		_, err = client.CreateService(serviceConfig(&network))
 		if err != nil {
 			fmt.Println(aurora.Red(err))
 			return
@@ -46,7 +53,7 @@ func startHandler(cmd *cobra.Command, args []string) {
 		spinner := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Starting the daemon"})
 		for {
 			time.Sleep(500 * time.Millisecond)
-			container, _ := container()
+			container, _ := getContainer()
 			if container != nil {
 				break
 			}
@@ -57,7 +64,7 @@ func startHandler(cmd *cobra.Command, args []string) {
 	fmt.Println(aurora.Green("Daemon is running"))
 }
 
-func serviceConfig() docker.CreateServiceOptions {
+func serviceConfig(network *docker.Network) docker.CreateServiceOptions {
 	return docker.CreateServiceOptions{
 		ServiceSpec: swarm.ServiceSpec{
 			Annotations: swarm.Annotations{
@@ -89,6 +96,11 @@ func serviceConfig() docker.CreateServiceOptions {
 						TargetPort:    50052,
 						PublishedPort: 50052,
 					},
+				},
+			},
+			Networks: []swarm.NetworkAttachmentConfig{
+				swarm.NetworkAttachmentConfig{
+					Target: network.ID,
 				},
 			},
 		},
