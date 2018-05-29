@@ -10,14 +10,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Publish a service to the marketplace
-var Publish = &cobra.Command{
-	Use:   "publish",
-	Short: "Publish a service",
-	Long: `Publish a service on the Network.
+// Deploy a service to the marketplace
+var Deploy = &cobra.Command{
+	Use:     "deploy",
+	Aliases: []string{"publish"},
+	Short:   "Deploy a service",
+	Long: `Deploy a service on the Network.
 
-To get more information, see the [publish page from the documentation](https://docs.mesg.tech/service/develop/publish.html)`,
-	Example:           `mesg-core service publish`,
+To get more information, see the [deploy page from the documentation](https://docs.mesg.tech/service/publish-a-service)`,
+	Example:           `mesg-core sevice deploy`,
 	Run:               deployHandler,
 	DisableAutoGenTag: true,
 }
