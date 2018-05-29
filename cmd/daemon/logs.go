@@ -2,13 +2,11 @@ package daemon
 
 import (
 	"bytes"
-	"context"
 	"fmt"
-	"os"
 	"time"
 
-	docker "github.com/fsouza/go-dockerclient"
 	"github.com/logrusorgru/aurora"
+	"github.com/mesg-foundation/core/container"
 	"github.com/spf13/cobra"
 )
 
@@ -27,30 +25,12 @@ func logsHandler(cmd *cobra.Command, args []string) {
 		return
 	}
 	if service != nil {
-		client, err := docker.NewClientFromEnv()
+		var stream bytes.Buffer
+		err = container.ServiceLogs([]string{name}, &stream)
 		if err != nil {
 			fmt.Println(aurora.Red(err))
 			return
 		}
-
-		var stream bytes.Buffer
-		go func() {
-			err = client.GetServiceLogs(docker.LogsServiceOptions{
-				Context:      context.Background(),
-				Service:      service.ID,
-				Follow:       true,
-				Stdout:       true,
-				Stderr:       true,
-				Timestamps:   false,
-				OutputStream: &stream,
-				ErrorStream:  &stream,
-			})
-			if err != nil {
-				fmt.Println(aurora.Red(err))
-				os.Exit(1)
-			}
-		}()
-
 		buf := make([]byte, 1024)
 		for {
 			n, _ := stream.Read(buf)
