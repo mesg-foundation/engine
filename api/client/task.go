@@ -14,7 +14,20 @@ func (task *Task) processEvent(data *core.EventData) (err error) {
 	if err != nil {
 		return
 	}
-	taskData := task.Inputs(d)
+	return task.process(d)
+}
+
+func (task *Task) processResult(data *core.ResultData) (err error) {
+	var d interface{}
+	err = json.Unmarshal([]byte(data.OutputData), &d)
+	if err != nil {
+		return
+	}
+	return task.process(d)
+}
+
+func (task *Task) process(data interface{}) (err error) {
+	taskData := task.Inputs(data)
 	var taskDataJSON []byte
 	taskDataJSON, _ = json.Marshal(taskData)
 	log.Println("Trigger task", task.Name)

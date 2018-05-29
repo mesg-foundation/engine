@@ -7,12 +7,22 @@ import (
 )
 
 func startServices(wf *Workflow) {
-	startService(wf.OnEvent.Service)
+	if wf.OnEvent != nil {
+		startService(wf.OnEvent.Service)
+	}
+	if wf.OnResult != nil {
+		startService(wf.OnResult.Service)
+	}
 	startService(wf.Execute.Service)
 }
 
 func stopServices(wf *Workflow) {
-	stopService(wf.OnEvent.Service)
+	if wf.OnEvent != nil {
+		stopService(wf.OnEvent.Service)
+	}
+	if wf.OnResult != nil {
+		stopService(wf.OnResult.Service)
+	}
 	stopService(wf.Execute.Service)
 }
 
