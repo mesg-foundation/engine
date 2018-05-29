@@ -1,11 +1,7 @@
 package service
 
 import (
-	"context"
-	"strings"
-
-	"github.com/docker/docker/api/types/swarm"
-	docker "github.com/fsouza/go-dockerclient"
+	"github.com/mesg-foundation/core/container"
 )
 
 // StatusType of the service
@@ -17,16 +13,6 @@ const (
 	RUNNING StatusType = 1
 	PARTIAL StatusType = 2
 )
-
-func dockerServiceMatch(dockerServices []swarm.Service, namespace string, name string) (dockerService swarm.Service) {
-	for _, service := range dockerServices {
-		if service.Spec.Annotations.Name == strings.Join([]string{namespace, name}, "_") {
-			dockerService = service
-			break
-		}
-	}
-	return
-}
 
 func serviceStatus(service *Service) (status StatusType) {
 	status = STOPPED
@@ -76,10 +62,7 @@ func (dependency *Dependency) IsStopped(namespace string, name string) (running 
 
 // List all the running services
 func List() (res []string, err error) {
-	cli, err := dockerCli()
-	services, err := cli.ListServices(docker.ListServicesOptions{
-		Context: context.Background(),
-	})
+	services, err := container.ListServices("mesg.service")
 	mapRes := make(map[string]uint)
 	for _, service := range services {
 		serviceName := service.Spec.Annotations.Labels["mesg.service"]

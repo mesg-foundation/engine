@@ -1,9 +1,9 @@
 package service
 
 import (
-	"strings"
 	"testing"
 
+	"github.com/mesg-foundation/core/container"
 	"github.com/stvp/assert"
 )
 
@@ -37,10 +37,11 @@ func TestStopNonRunningService(t *testing.T) {
 }
 
 func TestStopDependency(t *testing.T) {
-	namespace := strings.Join([]string{NAMESPACE, "TestStopDependency"}, "_")
+	namespace := container.Namespace([]string{"TestStopDependency"})
 	name := "test"
 	dependency := Dependency{Image: "nginx"}
-	network, err := createNetwork(namespace)
+
+	network, err := container.CreateNetwork([]string{namespace})
 	dependency.Start(&Service{}, dependencyDetails{
 		namespace:      namespace,
 		dependencyName: name,
@@ -50,7 +51,7 @@ func TestStopDependency(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, dependency.IsStopped(namespace, name), true)
 	assert.Equal(t, dependency.IsRunning(namespace, name), false)
-	deleteNetwork(namespace)
+	container.DeleteNetwork([]string{namespace})
 }
 
 func TestNetworkDeleted(t *testing.T) {
@@ -64,7 +65,7 @@ func TestNetworkDeleted(t *testing.T) {
 	}
 	service.Start()
 	service.Stop()
-	network, err := findNetwork(service.namespace())
+	network, err := container.FindNetwork([]string{service.namespace()})
 	assert.Nil(t, err)
 	assert.Nil(t, network)
 }
