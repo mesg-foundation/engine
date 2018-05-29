@@ -7,14 +7,12 @@ import (
 )
 
 // NAMESPACE is the namespace used for the docker services
-const NAMESPACE string = "MESG"
 const eventChannel string = "Event"
 const taskChannel string = "Task"
 const resultChannel string = "Result"
 
 func (service *Service) namespace() string {
 	return strings.Join([]string{
-		NAMESPACE,
 		strings.Replace(service.Name, " ", "-", -1),
 	}, "-")
 }

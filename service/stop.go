@@ -1,9 +1,7 @@
 package service
 
 import (
-	"context"
-
-	docker "github.com/fsouza/go-dockerclient"
+	"github.com/mesg-foundation/core/container"
 )
 
 // Stop a service
@@ -18,27 +16,16 @@ func (service *Service) Stop() (err error) {
 		}
 	}
 	if err == nil { // didnt exit the loop
-		err = deleteNetwork(service.namespace())
+		err = container.DeleteNetwork([]string{service.namespace()})
 	}
 	return
 }
 
 // Stop a dependency
 func (dependency *Dependency) Stop(namespace string, dependencyName string) (err error) {
-	ctx := context.Background()
-	cli, err := dockerCli()
-	if err != nil {
-		return
-	}
 	if !dependency.IsRunning(namespace, dependencyName) {
 		return
 	}
-	dockerService, err := getDockerService(namespace, dependencyName)
-	if err == nil && dockerService.ID != "" {
-		err = cli.RemoveService(docker.RemoveServiceOptions{
-			ID:      dockerService.ID,
-			Context: ctx,
-		})
-	}
+	err = container.StopService([]string{namespace, dependencyName})
 	return
 }

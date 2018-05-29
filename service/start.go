@@ -8,6 +8,7 @@ import (
 	"github.com/docker/docker/api/types/swarm"
 	docker "github.com/fsouza/go-dockerclient"
 	"github.com/mesg-foundation/core/config"
+	"github.com/mesg-foundation/core/container"
 	"github.com/spf13/viper"
 )
 
@@ -20,7 +21,7 @@ func (service *Service) Start() (dockerServices []*swarm.Service, err error) {
 	if service.IsPartiallyRunning() {
 		service.Stop()
 	}
-	network, err := createNetwork(service.namespace())
+	network, err := container.CreateNetwork([]string{service.namespace()})
 	if err != nil {
 		return
 	}
@@ -52,23 +53,17 @@ type dependencyDetails struct {
 
 // Start will start a dependency container
 func (dependency *Dependency) Start(service *Service, details dependencyDetails, network *docker.Network) (dockerService *swarm.Service, err error) {
-	cli, err := dockerCli()
-	if err != nil {
-		return
-	}
 	if network == nil {
 		panic(errors.New("Network should never be null"))
 	}
-
-	daemonNetwork, err := SharedNetwork(cli)
+	sharedNetworkID, err := container.SharedNetworkID()
 	if err != nil {
 		return
 	}
-
-	return cli.CreateService(docker.CreateServiceOptions{
+	return container.StartService(docker.CreateServiceOptions{
 		ServiceSpec: swarm.ServiceSpec{
 			Annotations: swarm.Annotations{
-				Name: strings.Join([]string{details.namespace, details.dependencyName}, "_"),
+				Name: container.Namespace([]string{details.namespace, details.dependencyName}),
 				Labels: map[string]string{
 					"com.docker.stack.image":     dependency.Image,
 					"com.docker.stack.namespace": details.namespace,
@@ -100,7 +95,7 @@ func (dependency *Dependency) Start(service *Service, details dependencyDetails,
 					Target: network.ID,
 				},
 				swarm.NetworkAttachmentConfig{
-					Target: daemonNetwork.ID,
+					Target: sharedNetworkID,
 				},
 			},
 		},
