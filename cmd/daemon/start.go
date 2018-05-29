@@ -1,11 +1,11 @@
 package daemon
 
 import (
-	"context"
 	"fmt"
 	"time"
 
 	"github.com/mesg-foundation/core/cmd/utils"
+	"github.com/mesg-foundation/core/service"
 
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/swarm"
@@ -32,34 +32,19 @@ func startHandler(cmd *cobra.Command, args []string) {
 		return
 	}
 	if !running {
-		client, err := docker.NewClientFromEnv()
+		client, err := service.DockerClient()
 		if err != nil {
 			fmt.Println(aurora.Red(err))
 			return
 		}
 
-		network, err := client.CreateNetwork(docker.CreateNetworkOptions{
-			Context:        context.Background(),
-			CheckDuplicate: true,
-			Name:           "daemon-network",
-			Driver:         "overlay",
-		})
+		network, err := service.SharedNetwork(client)
 		if err != nil {
-			networks, err := client.FilteredListNetworks(docker.NetworkFilterOpts{
-				"name": {"daemon-network": true},
-			})
-			if err != nil {
-				fmt.Println(aurora.Red(err))
-				return
-			}
-			if len(networks) == 0 {
-				fmt.Println(aurora.Red("Cannot find the appropriate docker network"))
-				return
-			}
-			network = &networks[0]
+			fmt.Println(aurora.Red(err))
+			return
 		}
 
-		_, err = client.CreateService(serviceConfig(network))
+		_, err = client.CreateService(serviceConfig(&network))
 		if err != nil {
 			fmt.Println(aurora.Red(err))
 			return
