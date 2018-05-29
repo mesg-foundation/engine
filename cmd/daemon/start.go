@@ -74,7 +74,7 @@ func serviceConfig(network *docker.Network) docker.CreateServiceOptions {
 				ContainerSpec: &swarm.ContainerSpec{
 					Image: viper.GetString(config.DaemonImage),
 					Env: []string{
-						"MESG.PATH=" + viper.GetString(config.MESGPath),
+						"MESG.PATH=/mesg",
 					},
 					Mounts: []mount.Mount{
 						mount.Mount{
