@@ -1,6 +1,8 @@
 package container
 
 import (
+	"errors"
+
 	docker "github.com/fsouza/go-dockerclient"
 )
 
@@ -39,6 +41,10 @@ func SharedNetworkID() (networkID string, err error) {
 	}
 	network, err := sharedNetwork(client)
 	if err != nil {
+		return
+	}
+	if network == nil {
+		err = errors.New("Shared network not found")
 		return
 	}
 	networkID = network.ID
