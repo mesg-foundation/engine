@@ -29,7 +29,7 @@ func statusHandler(cmd *cobra.Command, args []string) {
 }
 
 func isRunning() (running bool, err error) {
-	container, err := container()
+	container, err := getContainer()
 	if err != nil {
 		return
 	}

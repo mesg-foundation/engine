@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 
@@ -18,7 +17,6 @@ func TestStartService(t *testing.T) {
 		},
 	}
 	dockerServices, err := service.Start()
-	fmt.Println(err)
 	assert.Nil(t, err)
 	assert.Equal(t, len(dockerServices), len(service.GetDependencies()))
 	assert.Equal(t, service.IsRunning(), true)

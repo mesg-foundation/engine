@@ -18,7 +18,7 @@ var Stop = &cobra.Command{
 }
 
 func stopHandler(cmd *cobra.Command, args []string) {
-	service, err := service()
+	service, err := getService()
 	if err != nil {
 		fmt.Println(aurora.Red(err))
 		return

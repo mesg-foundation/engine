@@ -59,6 +59,12 @@ func (dependency *Dependency) Start(service *Service, details dependencyDetails,
 	if network == nil {
 		panic(errors.New("Network should never be null"))
 	}
+
+	daemonNetwork, err := SharedNetwork(cli)
+	if err != nil {
+		return
+	}
+
 	return cli.CreateService(docker.CreateServiceOptions{
 		ServiceSpec: swarm.ServiceSpec{
 			Annotations: swarm.Annotations{
@@ -75,6 +81,7 @@ func (dependency *Dependency) Start(service *Service, details dependencyDetails,
 					Args:  strings.Fields(dependency.Command),
 					Env: []string{
 						"MESG_ENDPOINT=" + viper.GetString(config.APIServiceTargetSocket),
+						"MESG_ENDPOINT_TCP=mesg-daemon:50052",
 					},
 					Mounts: append(extractVolumes(service, dependency, details), mount.Mount{
 						Source: viper.GetString(config.APIServiceSocketPath),
@@ -91,6 +98,9 @@ func (dependency *Dependency) Start(service *Service, details dependencyDetails,
 			Networks: []swarm.NetworkAttachmentConfig{
 				swarm.NetworkAttachmentConfig{
 					Target: network.ID,
+				},
+				swarm.NetworkAttachmentConfig{
+					Target: daemonNetwork.ID,
 				},
 			},
 		},
