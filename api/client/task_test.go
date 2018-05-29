@@ -16,8 +16,7 @@ func TestProcessEventWithInvalidEventData(t *testing.T) {
 		EventKey:  "EventX",
 		EventData: "",
 	}
-	var client core.CoreClient
-	err := task.processEvent(client, data)
+	err := task.processEvent(data)
 	assert.Equal(t, err.Error(), "unexpected end of JSON input")
 }
 
@@ -33,7 +32,6 @@ func TestProcessEvent(t *testing.T) {
 		EventKey:  "EventX",
 		EventData: "{}",
 	}
-	client := getClient()
-	err := task.processEvent(client, data)
+	err := task.processEvent(data)
 	assert.Nil(t, err)
 }
