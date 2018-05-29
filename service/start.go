@@ -19,7 +19,15 @@ func (service *Service) Start() (dockerServices []*swarm.Service, err error) {
 	}
 	// If there is one but not all services running stop to restart all
 	if service.IsPartiallyRunning() {
-		service.Stop()
+		for name, dependency := range service.GetDependencies() {
+			err = dependency.Stop(service.namespace(), name)
+			if err != nil {
+				break
+			}
+		}
+	}
+	if err != nil {
+		return
 	}
 	network, err := container.CreateNetwork([]string{service.namespace()})
 	if err != nil {

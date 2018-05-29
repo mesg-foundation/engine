@@ -45,10 +45,10 @@ func TestPartiallyRunningService(t *testing.T) {
 		Name: "TestPartiallyRunningService",
 		Dependencies: map[string]*Dependency{
 			"test": &Dependency{
-				Image: "awdawdaw",
+				Image: "nginx",
 			},
 			"test2": &Dependency{
-				Image: "awdawdawwadaw",
+				Image: "nginx",
 			},
 		},
 	}
