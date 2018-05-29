@@ -2,6 +2,7 @@ package service
 
 import (
 	"testing"
+	"time"
 
 	"github.com/mesg-foundation/core/container"
 	"github.com/stvp/assert"
@@ -65,6 +66,7 @@ func TestNetworkDeleted(t *testing.T) {
 	}
 	service.Start()
 	service.Stop()
+	time.Sleep(5 * time.Second)
 	network, err := container.FindNetwork([]string{service.namespace()})
 	assert.Nil(t, err)
 	assert.Nil(t, network)
