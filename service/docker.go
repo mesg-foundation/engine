@@ -57,5 +57,15 @@ func createSwarm(client *docker.Client) (ID string, err error) {
 			ListenAddr: "0.0.0.0:2377", // https://docs.docker.com/engine/reference/commandline/swarm_init/#usage
 		},
 	})
+	if err != nil {
+		return
+	}
+	// Create the new network needed to run containers
+	_, err = client.CreateNetwork(docker.CreateNetworkOptions{
+		Context:        context.Background(),
+		CheckDuplicate: true,
+		Name:           "daemon-network",
+		Driver:         "overlay",
+	})
 	return
 }

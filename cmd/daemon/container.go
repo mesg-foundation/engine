@@ -10,7 +10,7 @@ import (
 	"github.com/fsouza/go-dockerclient"
 )
 
-func container() (*docker.APIContainers, error) {
+func getContainer() (*docker.APIContainers, error) {
 	client, err := docker.NewClientFromEnv()
 	if err != nil {
 		return nil, nil
@@ -32,7 +32,7 @@ func container() (*docker.APIContainers, error) {
 	return &res[0], nil
 }
 
-func service() (*swarm.Service, error) {
+func getService() (*swarm.Service, error) {
 	client, err := docker.NewClientFromEnv()
 	if err != nil {
 		return nil, nil
