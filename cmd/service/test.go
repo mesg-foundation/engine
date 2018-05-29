@@ -100,9 +100,12 @@ func testHandler(cmd *cobra.Command, args []string) {
 
 	go listenResults(deployment.ServiceID)
 
-	time.Sleep(10 * time.Second)
-
-	executeTask(deployment.ServiceID, cmd.Flag("task").Value.String(), cmd.Flag("data").Value.String())
+	go func() {
+		for {
+			executeTask(deployment.ServiceID, cmd.Flag("task").Value.String(), cmd.Flag("data").Value.String())
+			time.Sleep(5 * time.Second)
+		}
+	}()
 
 	<-cmdUtils.WaitForCancel()
 
