@@ -2,6 +2,7 @@ package daemon
 
 import (
 	"fmt"
+	"path/filepath"
 	"time"
 
 	"github.com/mesg-foundation/core/cmd/utils"
@@ -74,7 +75,8 @@ func serviceConfig(networkID string) docker.CreateServiceOptions {
 				ContainerSpec: &swarm.ContainerSpec{
 					Image: viper.GetString(config.DaemonImage),
 					Env: []string{
-						"MESG.PATH=" + viper.GetString(config.MESGPath),
+						"MESG.PATH=/mesg",
+						"API.SERVICE.SOCKETPATH=" + filepath.Join(viper.GetString(config.MESGPath), "server.sock"),
 					},
 					Mounts: []mount.Mount{
 						mount.Mount{
