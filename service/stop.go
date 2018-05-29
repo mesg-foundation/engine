@@ -15,8 +15,12 @@ func (service *Service) Stop() (err error) {
 			break
 		}
 	}
-	if err == nil { // didnt exit the loop
-		err = container.DeleteNetwork([]string{service.namespace()})
+	if err != nil {
+		return
+	}
+	err = container.DeleteNetwork([]string{service.namespace()})
+	if err != nil {
+		return
 	}
 	return
 }
