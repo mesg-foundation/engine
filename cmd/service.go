@@ -13,7 +13,7 @@ var Service = &cobra.Command{
 }
 
 func init() {
-	Service.AddCommand(cmdService.Publish)
+	Service.AddCommand(cmdService.Deploy)
 	Service.AddCommand(cmdService.Validate)
 	Service.AddCommand(cmdService.Test)
 	Service.AddCommand(cmdService.Start)
