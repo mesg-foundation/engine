@@ -3,12 +3,10 @@ package service
 import (
 	"context"
 	"errors"
-	"fmt"
 	"sync"
 
 	"github.com/docker/docker/api/types/swarm"
 	docker "github.com/fsouza/go-dockerclient"
-	"github.com/logrusorgru/aurora"
 )
 
 var dockerCliInstance *docker.Client
@@ -51,10 +49,8 @@ func createDockerCli() (client *docker.Client, err error) {
 		err = createNetworkIfNeeded(client)
 		return
 	}
-	ID, errSwarm := createSwarm(client)
-	if errSwarm == nil {
-		fmt.Println(aurora.Green("Docker swarm node created"), ID)
-	} else {
+	_, err = createSwarm(client)
+	if err != nil {
 		return
 	}
 
