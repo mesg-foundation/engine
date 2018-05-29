@@ -45,41 +45,21 @@ func createDockerCli() (client *docker.Client, err error) {
 	if err != nil {
 		return
 	}
-	var wg sync.WaitGroup
-	wg.Add(2)
 
-	// Swarm check
-	go func() {
-		defer wg.Done()
-		info, err := client.Info()
-		if err != nil || info.Swarm.NodeID != "" {
-			return
-		}
-		ID, err := createSwarm(client)
-		if err == nil {
-			fmt.Println(aurora.Green("Docker swarm node created"), ID)
-		} else {
-			return
-		}
-	}()
+	info, errSwarm := client.Info()
+	if errSwarm != nil || info.Swarm.NodeID != "" {
+		err = createNetworkIfNeeded(client)
+		return
+	}
+	ID, errSwarm := createSwarm(client)
+	if errSwarm == nil {
+		fmt.Println(aurora.Green("Docker swarm node created"), ID)
+	} else {
+		return
+	}
 
-	// Network check
-	go func() {
-		defer wg.Done()
-		network, e := SharedNetwork(client)
-		if e == nil && network.ID != "" {
-			return
-		}
-		// Create the new network needed to run containers
-		_, err = client.CreateNetwork(docker.CreateNetworkOptions{
-			Context:        context.Background(),
-			CheckDuplicate: true,
-			Name:           "daemon-network",
-			Driver:         "overlay",
-		})
-	}()
+	err = createNetworkIfNeeded(client)
 
-	wg.Wait()
 	return
 }
 
@@ -90,6 +70,20 @@ func createSwarm(client *docker.Client) (ID string, err error) {
 			ListenAddr: "0.0.0.0:2377", // https://docs.docker.com/engine/reference/commandline/swarm_init/#usage
 		},
 	})
+	return
+}
+
+func createNetworkIfNeeded(client *docker.Client) (err error) {
+	_, findError := SharedNetwork(client)
+	if findError != nil {
+		// Create the new network needed to run containers
+		_, err = client.CreateNetwork(docker.CreateNetworkOptions{
+			Context:        context.Background(),
+			CheckDuplicate: true,
+			Name:           "daemon-network",
+			Driver:         "overlay",
+		})
+	}
 	return
 }
 
