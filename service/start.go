@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 	"sync"
 	"time"
@@ -33,7 +32,6 @@ func (service *Service) Start() (dockerServices []*swarm.Service, err error) {
 	for name, dependency := range service.GetDependencies() {
 		wg.Add(1)
 		go func(index int, name string, dependency *Dependency) {
-			fmt.Println(index)
 			dockerServices[index], err = dependency.Start(service, dependencyDetails{
 				namespace:      service.namespace(),
 				dependencyName: name,
