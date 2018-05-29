@@ -58,17 +58,3 @@ func TestIsRunning(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, false, stopped)
 }
-
-// func TestIsNotRunningAfterStop(t *testing.T) {
-// 	err := <-forceAndWaitForFullyStop()
-// 	assert.Nil(t, err)
-
-// 	Start()
-// 	<-WaitForRunning()
-// 	Stop()
-// 	err = <-WaitForFullyStop()
-// 	assert.Nil(t, err)
-// 	runs, err := IsRunning()
-// 	assert.Nil(t, err)
-// 	assert.Equal(t, false, runs)
-// }
