@@ -1,103 +1,86 @@
 package container
 
 import (
-	"bytes"
 	"context"
+	"fmt"
+	"io"
 
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
-	godocker "github.com/fsouza/go-dockerclient"
+	docker "github.com/docker/docker/client"
 )
 
 // ListServices returns existing docker services matching a specific label name
-func ListServices(label string) (dockerServices []swarm.Service, err error) {
+func ListServices(label string) (services []swarm.Service, err error) {
 	client, err := Client()
 	if err != nil {
 		return
 	}
-	dockerServices, err = client.ListServices(godocker.ListServicesOptions{
-		Context: context.Background(),
-		Filters: map[string][]string{
-			"label": []string{label},
-		},
+	services, err = client.ServiceList(context.Background(), types.ServiceListOptions{
+		Filters: filters.NewArgs(filters.KeyValuePair{
+			Key:   "label",
+			Value: label,
+		}),
 	})
-	if err != nil {
-		return
-	}
 	return
 }
 
-//  FindService returns the Docker Service
-func FindService(namespace []string) (dockerService *swarm.Service, err error) {
+// FindService returns the Docker Service. Return error if not found.
+func FindService(namespace []string) (service swarm.Service, err error) {
 	client, err := Client()
 	if err != nil {
 		return
 	}
-	dockerServices, err := client.ListServices(godocker.ListServicesOptions{
-		Filters: map[string][]string{
-			"name": []string{Namespace(namespace)},
-		},
-		Context: context.Background(),
-	})
-	if err != nil {
-		return
-	}
-	for _, service := range dockerServices {
-		if service.Spec.Name == Namespace(namespace) {
-			dockerService = &service
-			return
-		}
-	}
+	service, _, err = client.ServiceInspectWithRaw(context.Background(), Namespace(namespace), types.ServiceInspectOptions{})
+	fmt.Println("FindService err", err)
 	return
 }
 
 // StartService starts a docker service
-func StartService(options godocker.CreateServiceOptions) (dockerService *swarm.Service, err error) {
+func StartService(spec swarm.ServiceSpec) (serviceID string, err error) {
 	client, err := Client()
 	if err != nil {
 		return
 	}
-	return client.CreateService(options)
+	response, err := client.ServiceCreate(context.Background(), spec, types.ServiceCreateOptions{})
+	if err != nil {
+		return
+	}
+	serviceID = response.ID
+	return
 }
 
 // StopService stops a docker service
 func StopService(namespace []string) (err error) {
-	client, err := Client()
-	if err != nil {
-		return
-	}
 	stopped, err := IsServiceStopped(namespace)
 	if err != nil || stopped == true {
 		return
 	}
-	dockerService, err := FindService(namespace)
-	if err == nil && dockerService != nil && dockerService.ID != "" {
-		err = client.RemoveService(godocker.RemoveServiceOptions{
-			ID:      dockerService.ID,
-			Context: context.Background(),
-		})
+	client, err := Client()
+	if err != nil {
+		return
 	}
+	err = client.ServiceRemove(context.Background(), Namespace(namespace))
 	return
 }
 
 // ServiceStatus return the status of the Docker Swarm Servicer
 func ServiceStatus(namespace []string) (status StatusType, err error) {
-	dockerService, err := FindService(namespace)
-	if err != nil {
+	status = STOPPED
+	_, err = FindService(namespace)
+	fmt.Println("ServiceStatus err", err)
+	if docker.IsErrNotFound(err) {
+		err = nil
 		return
 	}
-	status = STOPPED
-	if err == nil && dockerService != nil && dockerService.ID != "" {
-		status = RUNNING
-	}
+	status = RUNNING
 	return
 }
 
 // IsServiceRunning returns true if the service is running, false otherwise
 func IsServiceRunning(namespace []string) (result bool, err error) {
 	status, err := ServiceStatus(namespace)
-	if err != nil {
-		return
-	}
 	result = status == RUNNING
 	return
 }
@@ -105,33 +88,21 @@ func IsServiceRunning(namespace []string) (result bool, err error) {
 // IsServiceStopped returns true if the service is stopped, false otherwise
 func IsServiceStopped(namespace []string) (result bool, err error) {
 	status, err := ServiceStatus(namespace)
-	if err != nil {
-		return
-	}
 	result = status == STOPPED
 	return
 }
 
 // ServiceLogs returns the logs of a service
-func ServiceLogs(namespace []string, stream *bytes.Buffer) (err error) {
+func ServiceLogs(namespace []string) (reader io.ReadCloser, err error) {
 	client, err := Client()
 	if err != nil {
 		return
 	}
-	go func() {
-		err = client.GetServiceLogs(godocker.LogsServiceOptions{
-			Context:      context.Background(),
-			Service:      Namespace(namespace),
-			Follow:       true,
-			Stdout:       true,
-			Stderr:       true,
-			Timestamps:   false,
-			OutputStream: stream,
-			ErrorStream:  stream,
-		})
-		if err != nil {
-			return
-		}
-	}()
+	reader, err = client.ServiceLogs(context.Background(), Namespace(namespace), types.ContainerLogsOptions{
+		ShowStdout: true,
+		ShowStderr: true,
+		Timestamps: false,
+		Follow:     true,
+	})
 	return
 }
