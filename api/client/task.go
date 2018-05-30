@@ -29,9 +29,12 @@ func (task *Task) processResult(data *core.ResultData) (err error) {
 func (task *Task) process(data interface{}) (err error) {
 	taskData := task.Inputs(data)
 	var taskDataJSON []byte
-	taskDataJSON, _ = json.Marshal(taskData)
+	taskDataJSON, err = json.Marshal(taskData)
+	if err != nil {
+		return
+	}
 	log.Println("Trigger task", task.Name)
-	getClient().ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
+	_, err = getClient().ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
 		ServiceID: task.Service,
 		TaskKey:   task.Name,
 		TaskData:  string(taskDataJSON),
