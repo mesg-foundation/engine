@@ -8,6 +8,7 @@ import (
 	"github.com/docker/docker/api/types/swarm"
 	docker "github.com/fsouza/go-dockerclient"
 	"github.com/mesg-foundation/core/config"
+	"github.com/mesg-foundation/core/container"
 	"github.com/spf13/viper"
 )
 
@@ -18,9 +19,12 @@ func (service *Service) Start() (dockerServices []*swarm.Service, err error) {
 	}
 	// If there is one but not all services running stop to restart all
 	if service.IsPartiallyRunning() {
-		service.Stop()
+		err = service.StopDependencies()
+		if err != nil {
+			return
+		}
 	}
-	network, err := createNetwork(service.namespace())
+	network, err := container.CreateNetwork([]string{service.namespace()})
 	if err != nil {
 		return
 	}
@@ -52,17 +56,17 @@ type dependencyDetails struct {
 
 // Start will start a dependency container
 func (dependency *Dependency) Start(service *Service, details dependencyDetails, network *docker.Network) (dockerService *swarm.Service, err error) {
-	cli, err := dockerCli()
-	if err != nil {
-		return
-	}
 	if network == nil {
 		panic(errors.New("Network should never be null"))
 	}
-	return cli.CreateService(docker.CreateServiceOptions{
+	sharedNetworkID, err := container.SharedNetworkID()
+	if err != nil {
+		return
+	}
+	return container.StartService(docker.CreateServiceOptions{
 		ServiceSpec: swarm.ServiceSpec{
 			Annotations: swarm.Annotations{
-				Name: strings.Join([]string{details.namespace, details.dependencyName}, "_"),
+				Name: container.Namespace([]string{details.namespace, details.dependencyName}),
 				Labels: map[string]string{
 					"com.docker.stack.image":     dependency.Image,
 					"com.docker.stack.namespace": details.namespace,
@@ -75,6 +79,7 @@ func (dependency *Dependency) Start(service *Service, details dependencyDetails,
 					Args:  strings.Fields(dependency.Command),
 					Env: []string{
 						"MESG_ENDPOINT=" + viper.GetString(config.APIServiceTargetSocket),
+						"MESG_ENDPOINT_TCP=MESG-daemon:50052",
 					},
 					Mounts: append(extractVolumes(service, dependency, details), mount.Mount{
 						Source: viper.GetString(config.APIServiceSocketPath),
@@ -91,6 +96,9 @@ func (dependency *Dependency) Start(service *Service, details dependencyDetails,
 			Networks: []swarm.NetworkAttachmentConfig{
 				swarm.NetworkAttachmentConfig{
 					Target: network.ID,
+				},
+				swarm.NetworkAttachmentConfig{
+					Target: sharedNetworkID,
 				},
 			},
 		},

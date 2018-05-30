@@ -1,3 +1,7 @@
 Dockerfile
 .circleci
 .vscode
+/examples
+/test
+dev-daemon
+dev-cli 

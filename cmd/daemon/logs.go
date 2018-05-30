@@ -2,13 +2,11 @@ package daemon
 
 import (
 	"bytes"
-	"context"
 	"fmt"
-	"os"
 	"time"
 
-	docker "github.com/fsouza/go-dockerclient"
 	"github.com/logrusorgru/aurora"
+	"github.com/mesg-foundation/core/daemon"
 	"github.com/spf13/cobra"
 )
 
@@ -21,36 +19,18 @@ var Logs = &cobra.Command{
 }
 
 func logsHandler(cmd *cobra.Command, args []string) {
-	service, err := service()
+	isRunning, err := daemon.IsRunning()
 	if err != nil {
 		fmt.Println(aurora.Red(err))
 		return
 	}
-	if service != nil {
-		client, err := docker.NewClientFromEnv()
+	if isRunning {
+		var stream bytes.Buffer
+		err = daemon.Logs(&stream)
 		if err != nil {
 			fmt.Println(aurora.Red(err))
 			return
 		}
-
-		var stream bytes.Buffer
-		go func() {
-			err = client.GetServiceLogs(docker.LogsServiceOptions{
-				Context:      context.Background(),
-				Service:      service.ID,
-				Follow:       true,
-				Stdout:       true,
-				Stderr:       true,
-				Timestamps:   false,
-				OutputStream: &stream,
-				ErrorStream:  &stream,
-			})
-			if err != nil {
-				fmt.Println(aurora.Red(err))
-				os.Exit(1)
-			}
-		}()
-
 		buf := make([]byte, 1024)
 		for {
 			n, _ := stream.Read(buf)
@@ -59,5 +39,7 @@ func logsHandler(cmd *cobra.Command, args []string) {
 			}
 			time.Sleep(500 * time.Millisecond)
 		}
+	} else {
+		fmt.Println(aurora.Brown("Daemon is stopped"))
 	}
 }

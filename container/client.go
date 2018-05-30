@@ -1,51 +1,58 @@
-package service
+package container
 
 import (
 	"context"
-	"fmt"
 	"sync"
 
 	"github.com/docker/docker/api/types/swarm"
 	docker "github.com/fsouza/go-dockerclient"
-	"github.com/logrusorgru/aurora"
 )
+
+var sharedNetworkNamespace = []string{"shared"}
 
 var dockerCliInstance *docker.Client
 var mu sync.Mutex
 
-func dockerCli() (client *docker.Client, err error) {
+// Client create a docker client ready to use
+func Client() (client *docker.Client, err error) {
 	mu.Lock()
 	defer mu.Unlock()
 	if dockerCliInstance != nil {
 		client = dockerCliInstance
 		return
 	}
-	client, err = createDockerCli()
+	client, err = createClient()
 	if err != nil {
-		return nil, err
+		return
 	}
 	dockerCliInstance = client
 	return
 }
 
-func resetCliInstance() {
+func resetClient() {
 	mu.Lock()
 	defer mu.Unlock()
 	dockerCliInstance = nil
 }
 
-func createDockerCli() (client *docker.Client, err error) {
+func createClient() (client *docker.Client, err error) {
 	client, err = docker.NewClientFromEnv()
 	if err != nil {
 		return
 	}
 	info, err := client.Info()
-	if err != nil || info.Swarm.NodeID != "" {
+	if err != nil {
 		return
 	}
-	ID, err := createSwarm(client)
-	if err == nil {
-		fmt.Println(aurora.Green("Docker swarm node created"), ID)
+	if info.Swarm.NodeID == "" {
+		_, err = createSwarm(client)
+		if err != nil {
+			return
+		}
+	}
+	err = createSharedNetworkIfNeeded(client)
+	if err != nil {
+		return
 	}
 	return
 }
