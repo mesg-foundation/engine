@@ -9,18 +9,24 @@ func (service *Service) Stop() (err error) {
 	if service.IsStopped() {
 		return
 	}
-	for name, dependency := range service.GetDependencies() {
-		err = dependency.Stop(service.namespace(), name)
-		if err != nil {
-			break
-		}
-	}
+	err = service.StopDependencies()
 	if err != nil {
 		return
 	}
 	err = container.DeleteNetwork([]string{service.namespace()})
 	if err != nil {
 		return
+	}
+	return
+}
+
+// StopDependencies stops all dependencies
+func (service *Service) StopDependencies() (err error) {
+	for name, dependency := range service.GetDependencies() {
+		err = dependency.Stop(service.namespace(), name)
+		if err != nil {
+			return
+		}
 	}
 	return
 }
