@@ -1,6 +1,7 @@
 package daemon
 
 import (
+	"path/filepath"
 	"testing"
 
 	"github.com/docker/docker/api/types/swarm"
@@ -67,6 +68,7 @@ func TestStartConfig(t *testing.T) {
 	assert.NotNil(t, service)
 	// Make sure that the config directory is passed in parameter to write on the same folder
 	assert.Equal(t, service.ServiceSpec.TaskTemplate.ContainerSpec.Env[0], "MESG.PATH=/mesg")
+	assert.Equal(t, service.ServiceSpec.TaskTemplate.ContainerSpec.Env[1], "API.SERVICE.SOCKETPATH="+filepath.Join(viper.GetString(config.MESGPath), "server.sock"))
 	// Ensure that the port is shared
 	assert.Equal(t, service.ServiceSpec.EndpointSpec.Ports[0].PublishedPort, uint32(50052))
 	assert.Equal(t, service.ServiceSpec.EndpointSpec.Ports[0].TargetPort, uint32(50052))
