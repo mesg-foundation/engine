@@ -45,12 +45,18 @@ func listenEvents(wf *Workflow) {
 		var data *core.EventData
 		data, err = stream.Recv()
 		if err != nil {
-			panic(err)
+			break
 		}
 		log.Println("Event received", data)
 		if strings.Compare(data.EventKey, wf.OnEvent.Name) == 0 || wf.OnEvent.Name == "*" {
-			wf.Execute.processEvent(data)
+			err = wf.Execute.processEvent(data)
+			if err != nil {
+				break
+			}
 		}
+	}
+	if err != nil {
+		panic(err)
 	}
 }
 
@@ -70,12 +76,18 @@ func listenResults(wf *Workflow) {
 		var data *core.ResultData
 		data, err = stream.Recv()
 		if err != nil {
-			panic(err)
+			break
 		}
 		log.Println("Result received", data)
 		if (strings.Compare(data.TaskKey, wf.OnResult.Name) == 0 || wf.OnResult.Name == "*") &&
 			(strings.Compare(data.OutputKey, wf.OnResult.Output) == 0 || wf.OnResult.Output == "*") {
-			wf.Execute.processResult(data)
+			err = wf.Execute.processResult(data)
+			if err != nil {
+				break
+			}
 		}
+	}
+	if err != nil {
+		panic(err)
 	}
 }
