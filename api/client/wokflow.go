@@ -34,7 +34,7 @@ func listenEvents(wf *Workflow) {
 		panic("Event's Name should be defined (you can use * to react to any event)")
 	}
 	stream, err := getClient().ListenEvent(context.Background(), &core.ListenEventRequest{
-		ServiceID: wf.OnEvent.Service,
+		ServiceID: wf.OnEvent.ServiceID,
 	})
 	if err != nil {
 		panic(err)
@@ -65,7 +65,7 @@ func listenResults(wf *Workflow) {
 		panic("Result's Name and Output should be defined (you can use * to react to any result)")
 	}
 	stream, err := getClient().ListenResult(context.Background(), &core.ListenResultRequest{
-		ServiceID: wf.OnResult.Service,
+		ServiceID: wf.OnResult.ServiceID,
 	})
 	if err != nil {
 		panic(err)

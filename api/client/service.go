@@ -8,22 +8,22 @@ import (
 
 func startServices(wf *Workflow) {
 	if wf.OnEvent != nil {
-		startService(wf.OnEvent.Service)
+		startService(wf.OnEvent.ServiceID)
 	}
 	if wf.OnResult != nil {
-		startService(wf.OnResult.Service)
+		startService(wf.OnResult.ServiceID)
 	}
-	startService(wf.Execute.Service)
+	startService(wf.Execute.ServiceID)
 }
 
 func stopServices(wf *Workflow) {
 	if wf.OnEvent != nil {
-		stopService(wf.OnEvent.Service)
+		stopService(wf.OnEvent.ServiceID)
 	}
 	if wf.OnResult != nil {
-		stopService(wf.OnResult.Service)
+		stopService(wf.OnResult.ServiceID)
 	}
-	stopService(wf.Execute.Service)
+	stopService(wf.Execute.ServiceID)
 }
 
 func startService(ID string) {

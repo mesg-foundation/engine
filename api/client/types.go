@@ -14,24 +14,24 @@ type Workflow struct {
 // a task should be associated to a workflow.
 // A task is corresponding to the **then** in a workflow
 type Task struct {
-	Service string
-	Name    string
-	Inputs  func(interface{}) interface{}
+	ServiceID string
+	Name      string
+	Inputs    func(interface{}) interface{}
 }
 
 // Event is a struct that contains all the informations
 // to start a workflow. This is the **when** in the
 // workflow
 type Event struct {
-	Service string
-	Name    string
+	ServiceID string
+	Name      string
 }
 
 // Result is a struct that contains all the informations
 // to start a workflow. This is the **when** in the
 // workflow
 type Result struct {
-	Service string
-	Name    string
-	Output  string
+	ServiceID string
+	Name      string
+	Output    string
 }
