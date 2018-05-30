@@ -35,7 +35,7 @@ func (task *Task) process(data interface{}) (err error) {
 	}
 	log.Println("Trigger task", task.Name)
 	_, err = getClient().ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
-		ServiceID: task.Service,
+		ServiceID: task.ServiceID,
 		TaskKey:   task.Name,
 		TaskData:  string(taskDataJSON),
 	})
