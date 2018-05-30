@@ -13,7 +13,9 @@ func TestClient(t *testing.T) {
 }
 
 func TestClientIsTheSame(t *testing.T) {
-	client, _ := Client()
+	client, err := Client()
+	assert.Nil(t, err)
+	assert.NotNil(t, client)
 	client2, err := Client()
 	assert.Nil(t, err)
 	assert.NotNil(t, client2)
@@ -21,7 +23,9 @@ func TestClientIsTheSame(t *testing.T) {
 }
 
 func TestClientNotIsTheSame(t *testing.T) {
-	client, _ := Client()
+	client, err := Client()
+	assert.Nil(t, err)
+	assert.NotNil(t, client)
 	resetClient()
 	client2, err := Client()
 	assert.Nil(t, err)

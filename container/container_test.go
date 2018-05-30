@@ -2,6 +2,7 @@ package container
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -9,17 +10,8 @@ import (
 )
 
 func TestFindContainerNotExisting(t *testing.T) {
-	namespace := []string{"TestFindContainerNotExisting"}
-	container, err := FindContainer(namespace)
-	assert.Nil(t, err)
-	assert.Nil(t, container)
-}
-
-func TestFindContainerStrictNotExisting(t *testing.T) {
-	namespace := []string{"TestFindContainerStrictNotExisting"}
-	container, err := FindContainerStrict(namespace)
+	_, err := FindContainer([]string{"TestFindContainerNotExisting"})
 	assert.NotNil(t, err)
-	assert.Nil(t, container)
 }
 
 func TestFindContainer(t *testing.T) {
@@ -36,9 +28,8 @@ func TestFindContainerStopped(t *testing.T) {
 	namespace := []string{"TestFindContainerStopped"}
 	startTestService(namespace)
 	StopService(namespace)
-	container, err := FindContainer(namespace)
-	assert.Nil(t, err)
-	assert.Nil(t, container)
+	_, err := FindContainer(namespace)
+	assert.NotNil(t, err)
 }
 
 func TestContainerStatusNeverStarted(t *testing.T) {
@@ -62,9 +53,13 @@ func TestContainerStatusStopped(t *testing.T) {
 	namespace := []string{"TestContainerStatusStopped"}
 	startTestService(namespace)
 	<-WaitContainerStatus(namespace, RUNNING, time.Minute)
+	fmt.Println("wait for running")
+	// WaitContainer(namespace, containerTypes.WaitConditionNextExit, 15*time.Second)
 
 	StopService(namespace)
 	<-WaitContainerStatus(namespace, STOPPED, time.Minute)
+	fmt.Println("wait for stop")
+	// WaitContainer(namespace, containerTypes.WaitConditionNotRunning, 15*time.Second)
 
 	status, err := ContainerStatus(namespace)
 	assert.Nil(t, err)
