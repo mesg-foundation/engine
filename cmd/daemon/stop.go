@@ -1,11 +1,10 @@
 package daemon
 
 import (
-	"context"
 	"fmt"
 
-	docker "github.com/fsouza/go-dockerclient"
 	"github.com/logrusorgru/aurora"
+	"github.com/mesg-foundation/core/container"
 	"github.com/spf13/cobra"
 )
 
@@ -24,15 +23,7 @@ func stopHandler(cmd *cobra.Command, args []string) {
 		return
 	}
 	if service != nil {
-		client, err := docker.NewClientFromEnv()
-		if err != nil {
-			fmt.Println(aurora.Red(err))
-			return
-		}
-		err = client.RemoveService(docker.RemoveServiceOptions{
-			Context: context.Background(),
-			ID:      service.ID,
-		})
+		err = container.StopService([]string{name})
 		if err != nil {
 			fmt.Println(aurora.Red(err))
 			return

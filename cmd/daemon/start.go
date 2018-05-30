@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/mesg-foundation/core/cmd/utils"
-	"github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/core/container"
 
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/swarm"
@@ -33,19 +33,14 @@ func startHandler(cmd *cobra.Command, args []string) {
 		return
 	}
 	if !running {
-		client, err := service.DockerClient()
+		networkID, err := container.SharedNetworkID()
 		if err != nil {
 			fmt.Println(aurora.Red(err))
 			return
 		}
 
-		network, err := service.SharedNetwork(client)
-		if err != nil {
-			fmt.Println(aurora.Red(err))
-			return
-		}
-
-		_, err = client.CreateService(serviceConfig(&network))
+		config := serviceConfig(networkID)
+		_, err = container.StartService(config)
 		if err != nil {
 			fmt.Println(aurora.Red(err))
 			return
@@ -65,11 +60,16 @@ func startHandler(cmd *cobra.Command, args []string) {
 	fmt.Println(aurora.Green("Daemon is running"))
 }
 
-func serviceConfig(network *docker.Network) docker.CreateServiceOptions {
+func serviceConfig(networkID string) docker.CreateServiceOptions {
+	namespace := container.Namespace([]string{name})
 	return docker.CreateServiceOptions{
 		ServiceSpec: swarm.ServiceSpec{
 			Annotations: swarm.Annotations{
-				Name: name,
+				Name: namespace,
+				Labels: map[string]string{
+					"com.docker.stack.image":     viper.GetString(config.DaemonImage),
+					"com.docker.stack.namespace": namespace,
+				},
 			},
 			TaskTemplate: swarm.TaskSpec{
 				ContainerSpec: &swarm.ContainerSpec{
@@ -88,6 +88,9 @@ func serviceConfig(network *docker.Network) docker.CreateServiceOptions {
 							Target: "/mesg",
 						},
 					},
+					Labels: map[string]string{
+						"com.docker.stack.namespace": namespace,
+					},
 				},
 			},
 			EndpointSpec: &swarm.EndpointSpec{
@@ -102,7 +105,7 @@ func serviceConfig(network *docker.Network) docker.CreateServiceOptions {
 			},
 			Networks: []swarm.NetworkAttachmentConfig{
 				swarm.NetworkAttachmentConfig{
-					Target: network.ID,
+					Target: networkID,
 				},
 			},
 		},
