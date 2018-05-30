@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -9,8 +8,8 @@ import (
 
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/swarm"
-	docker "github.com/fsouza/go-dockerclient"
 	"github.com/mesg-foundation/core/config"
+	"github.com/mesg-foundation/core/container"
 	"github.com/spf13/viper"
 )
 
@@ -58,40 +57,13 @@ func extractVolumes(service *Service, dependency *Dependency, details dependency
 	return
 }
 
-func getDockerService(namespace string, dependencyName string) (dockerService swarm.Service, err error) {
-	ctx := context.Background()
-	cli, err := dockerCli()
-	if err != nil {
-		return
-	}
-	dockerServices, err := cli.ListServices(docker.ListServicesOptions{
-		Filters: map[string][]string{
-			"name": []string{strings.Join([]string{namespace, dependencyName}, "_")},
-		},
-		Context: ctx,
-	})
-	if err != nil {
-		return
-	}
-	dockerService = dockerServiceMatch(dockerServices, namespace, dependencyName)
-	return
-}
-
 func dependencyStatus(namespace string, dependencyName string) (status StatusType) {
-	ctx := context.Background()
-	cli, err := dockerCli()
+	dockerStatus, err := container.ServiceStatus([]string{namespace, dependencyName})
 	if err != nil {
-		return
+		panic(err)
 	}
-	dockerServices, err := cli.ListServices(docker.ListServicesOptions{
-		Filters: map[string][]string{
-			"name": []string{strings.Join([]string{namespace, dependencyName}, "_")},
-		},
-		Context: ctx,
-	})
-	dockerService := dockerServiceMatch(dockerServices, namespace, dependencyName)
 	status = STOPPED
-	if err == nil && dockerService.ID != "" {
+	if dockerStatus == container.RUNNING {
 		status = RUNNING
 	}
 	return
