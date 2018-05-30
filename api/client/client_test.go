@@ -7,12 +7,14 @@ import (
 )
 
 func TestAPI(t *testing.T) {
-	api := API()
+	api, err := API()
+	assert.Nil(t, err)
 	assert.NotNil(t, api)
 }
 
 func TestGetClient(t *testing.T) {
-	c := getClient()
+	c, err := getClient()
+	assert.Nil(t, err)
 	assert.NotNil(t, c)
 	assert.NotNil(t, _client)
 }

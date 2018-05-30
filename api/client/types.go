@@ -1,5 +1,7 @@
 package client
 
+import "github.com/mesg-foundation/core/api/core"
+
 // Workflow is a struct that contains all the details of
 // a workflow. A workflow contains an event source and
 // triggers one or multiple tasks. The workflow is what
@@ -8,6 +10,7 @@ type Workflow struct {
 	OnEvent  *Event
 	OnResult *Result
 	Execute  *Task
+	client   core.CoreClient
 }
 
 // Task is a struct that contains the details of a task
