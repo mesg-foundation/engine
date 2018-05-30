@@ -1,6 +1,8 @@
 package daemon
 
 import (
+	"path/filepath"
+
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/swarm"
 	godocker "github.com/fsouza/go-dockerclient"
@@ -41,6 +43,7 @@ func serviceConfig(networkID string) godocker.CreateServiceOptions {
 					Image: viper.GetString(config.DaemonImage),
 					Env: []string{
 						"MESG.PATH=/mesg",
+						"API.SERVICE.SOCKETPATH=" + filepath.Join(viper.GetString(config.MESGPath), "server.sock"),
 					},
 					Mounts: []mount.Mount{
 						mount.Mount{
