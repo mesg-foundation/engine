@@ -1,10 +1,9 @@
 package service
 
 import (
-	"fmt"
-	"strings"
 	"testing"
 
+	"github.com/mesg-foundation/core/container"
 	"github.com/stvp/assert"
 )
 
@@ -18,7 +17,6 @@ func TestStartService(t *testing.T) {
 		},
 	}
 	dockerServices, err := service.Start()
-	fmt.Println(err)
 	assert.Nil(t, err)
 	assert.Equal(t, len(dockerServices), len(service.GetDependencies()))
 	assert.Equal(t, service.IsRunning(), true)
@@ -65,10 +63,10 @@ func TestPartiallyRunningService(t *testing.T) {
 }
 
 func TestStartDependency(t *testing.T) {
-	namespace := strings.Join([]string{NAMESPACE, "TestStartDependency"}, "_")
+	namespace := container.Namespace([]string{"TestStartDependency"})
 	name := "test"
 	dependency := Dependency{Image: "nginx"}
-	network, err := createNetwork(namespace)
+	network, err := container.CreateNetwork([]string{namespace})
 	dockerService, err := dependency.Start(&Service{}, dependencyDetails{
 		namespace:      namespace,
 		dependencyName: name,
@@ -79,7 +77,7 @@ func TestStartDependency(t *testing.T) {
 	assert.Equal(t, dependency.IsRunning(namespace, name), true)
 	assert.Equal(t, dependency.IsStopped(namespace, name), false)
 	dependency.Stop(namespace, name)
-	deleteNetwork(namespace)
+	container.DeleteNetwork([]string{namespace})
 }
 
 func TestNetworkCreated(t *testing.T) {
@@ -92,7 +90,7 @@ func TestNetworkCreated(t *testing.T) {
 		},
 	}
 	service.Start()
-	network, err := findNetwork(service.namespace())
+	network, err := container.FindNetwork([]string{service.namespace()})
 	assert.Nil(t, err)
 	assert.NotNil(t, network)
 	service.Stop()

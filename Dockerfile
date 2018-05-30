@@ -1,4 +1,4 @@
-FROM golang
+FROM golang AS build
 RUN mkdir -p src/github.com/mesg-foundation/core
 RUN go get github.com/xeipuuv/gojsonschema && \
     go get gopkg.in/yaml.v2 && \
@@ -18,9 +18,15 @@ RUN go get github.com/xeipuuv/gojsonschema && \
     go get github.com/golang/protobuf/proto && \
     go get golang.org/x/net/context && \
     go get google.golang.org/grpc && \
-    go get github.com/cpuguy83/go-md2man
+    go get github.com/cpuguy83/go-md2man && \
+    go get github.com/syndtr/goleveldb/leveldb && \
+    go get github.com/cnf/structhash
 ADD . src/github.com/mesg-foundation/core
 WORKDIR src/github.com/mesg-foundation/core
 RUN go get ./...
-RUN go build -o mesg-daemon daemon/main.go
+RUN go build -o mesg-daemon daemon/start/main.go
+
+FROM ubuntu
+WORKDIR /app
+COPY --from=build /go/src/github.com/mesg-foundation/core/mesg-daemon .
 CMD ["./mesg-daemon"]

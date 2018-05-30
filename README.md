@@ -22,7 +22,12 @@ go get -v -t ./...
 ### Run all tests with code coverage
 
 ```bash
-go test -cover -v ./...
+env DAEMON.IMAGE=mesg/daemon:local go test -cover -v ./...
+```
+
+If you use Visual code you can add the following settings (Preference > Settings)
+```json
+"go.testEnvFile": "${workspaceRoot}/testenv"
 ```
 
 ### Build docker image
