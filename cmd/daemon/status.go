@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/logrusorgru/aurora"
+	"github.com/mesg-foundation/core/daemon"
 	"github.com/spf13/cobra"
 )
 
@@ -16,7 +17,7 @@ var Status = &cobra.Command{
 }
 
 func statusHandler(cmd *cobra.Command, args []string) {
-	running, err := isRunning()
+	running, err := daemon.IsRunning()
 	if err != nil {
 		fmt.Println(aurora.Red(err))
 		return
@@ -26,13 +27,4 @@ func statusHandler(cmd *cobra.Command, args []string) {
 	} else {
 		fmt.Println(aurora.Brown("Daemon is stopped"))
 	}
-}
-
-func isRunning() (running bool, err error) {
-	container, err := getContainer()
-	if err != nil {
-		return
-	}
-	running = container != nil
-	return
 }
