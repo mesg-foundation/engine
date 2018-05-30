@@ -2,6 +2,7 @@ package service
 
 import (
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/docker/docker/api/types/swarm"
@@ -34,11 +35,14 @@ func TestGetDockerService(t *testing.T) {
 	name := "test"
 	dependency := Dependency{Image: "nginx"}
 	network, err := createNetwork(namespace)
+	var wg sync.WaitGroup
+	wg.Add(1)
 	dependency.Start(&Service{}, dependencyDetails{
 		namespace:      namespace,
 		dependencyName: name,
 		serviceName:    "TestGetDockerService",
-	}, network)
+	}, network, &wg)
+	wg.Wait()
 	res, err := getDockerService(namespace, name)
 	assert.Nil(t, err)
 	assert.NotEqual(t, res.ID, "")

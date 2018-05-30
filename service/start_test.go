@@ -2,6 +2,7 @@ package service
 
 import (
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/stvp/assert"
@@ -67,11 +68,14 @@ func TestStartDependency(t *testing.T) {
 	name := "test"
 	dependency := Dependency{Image: "nginx"}
 	network, err := createNetwork(namespace)
+	var wg sync.WaitGroup
+	wg.Add(1)
 	dockerService, err := dependency.Start(&Service{}, dependencyDetails{
 		namespace:      namespace,
 		dependencyName: name,
 		serviceName:    "TestStartDependency",
-	}, network)
+	}, network, &wg)
+	wg.Wait()
 	assert.Nil(t, err)
 	assert.NotNil(t, dockerService)
 	assert.Equal(t, dependency.IsRunning(namespace, name), true)
