@@ -13,17 +13,19 @@ var _client core.CoreClient
 var once sync.Once
 
 // API returns the client necessary to access the API
-func API() core.CoreClient {
+func API() (core.CoreClient, error) {
 	return getClient()
 }
 
-func getClient() core.CoreClient {
+func getClient() (cli core.CoreClient, err error) {
 	once.Do(func() {
-		connection, err := grpc.Dial(viper.GetString(config.APIServerAddress), grpc.WithInsecure())
+		var connection *grpc.ClientConn
+		connection, err = grpc.Dial(viper.GetString(config.APIServerAddress), grpc.WithInsecure())
 		if err != nil {
-			panic(err)
+			return
 		}
 		_client = core.NewCoreClient(connection)
 	})
-	return _client
+	cli = _client
+	return
 }

@@ -2,44 +2,55 @@ package client
 
 import (
 	"context"
-	"log"
+	"errors"
 	"strings"
 
 	"github.com/mesg-foundation/core/api/core"
 )
 
 // Start is the function to start the workflow
-func (wf *Workflow) Start() {
+func (wf *Workflow) Start() (err error) {
 	if wf.Execute == nil {
-		panic("A workflow needs a taks")
+		err = errors.New("A workflow needs a task")
+		return
 	}
 	if wf.OnEvent == nil && wf.OnResult == nil {
-		panic("A workflow needs an event OnEvent or OnResult")
+		err = errors.New("A workflow needs an event OnEvent or OnResult")
+		return
 	}
-	startServices(wf)
+	wf.client, err = getClient()
+	if err != nil {
+		return
+	}
+	err = startServices(wf)
+	if err != nil {
+		return
+	}
 	if wf.OnEvent != nil {
-		listenEvents(wf)
+		err = listenEvents(wf)
 	} else {
-		listenResults(wf)
+		err = listenResults(wf)
 	}
+	return
 }
 
 // Stop will stop all the services in your workflow
-func (wf *Workflow) Stop() {
-	stopServices(wf)
+func (wf *Workflow) Stop() (err error) {
+	err = stopServices(wf)
+	return
 }
 
-func listenEvents(wf *Workflow) {
+func listenEvents(wf *Workflow) (err error) {
 	if wf.OnEvent.Name == "" {
-		panic("Event's Name should be defined (you can use * to react to any event)")
+		err = errors.New("Event's Name should be defined (you can use * to react to any event)")
+		return
 	}
-	stream, err := getClient().ListenEvent(context.Background(), &core.ListenEventRequest{
+	stream, err := wf.client.ListenEvent(context.Background(), &core.ListenEventRequest{
 		ServiceID: wf.OnEvent.ServiceID,
 	})
 	if err != nil {
-		panic(err)
+		return
 	}
-	log.Println("Listening events from", wf.OnEvent.Name, "...")
 
 	for {
 		var data *core.EventData
@@ -47,30 +58,34 @@ func listenEvents(wf *Workflow) {
 		if err != nil {
 			break
 		}
-		log.Println("Event received", data)
-		if strings.Compare(data.EventKey, wf.OnEvent.Name) == 0 || wf.OnEvent.Name == "*" {
-			err = wf.Execute.processEvent(data)
+		if wf.validEvent(data) {
+			err = wf.Execute.processEvent(wf, data)
 			if err != nil {
 				break
 			}
 		}
 	}
-	if err != nil {
-		panic(err)
-	}
+	return
 }
 
-func listenResults(wf *Workflow) {
-	if wf.OnResult.Name == "" || wf.OnResult.Output == "" {
-		panic("Result's Name and Output should be defined (you can use * to react to any result)")
+func (wf *Workflow) validEvent(data *core.EventData) bool {
+	if strings.Compare(wf.OnEvent.Name, "*") == 0 {
+		return true
 	}
-	stream, err := getClient().ListenResult(context.Background(), &core.ListenResultRequest{
+	return strings.Compare(wf.OnEvent.Name, data.EventKey) == 0
+}
+
+func listenResults(wf *Workflow) (err error) {
+	if wf.OnResult.Name == "" || wf.OnResult.Output == "" {
+		err = errors.New("Result's Name and Output should be defined (you can use * to react to any result)")
+		return
+	}
+	stream, err := wf.client.ListenResult(context.Background(), &core.ListenResultRequest{
 		ServiceID: wf.OnResult.ServiceID,
 	})
 	if err != nil {
-		panic(err)
+		return
 	}
-	log.Println("Listening results from", wf.OnResult.Name, wf.OnResult.Output, "...")
 
 	for {
 		var data *core.ResultData
@@ -78,16 +93,24 @@ func listenResults(wf *Workflow) {
 		if err != nil {
 			break
 		}
-		log.Println("Result received", data)
-		if (strings.Compare(data.TaskKey, wf.OnResult.Name) == 0 || wf.OnResult.Name == "*") &&
-			(strings.Compare(data.OutputKey, wf.OnResult.Output) == 0 || wf.OnResult.Output == "*") {
-			err = wf.Execute.processResult(data)
+		if wf.validResult(data) {
+			err = wf.Execute.processResult(wf, data)
 			if err != nil {
 				break
 			}
 		}
 	}
-	if err != nil {
-		panic(err)
+	return
+}
+
+func (wf *Workflow) validResult(data *core.ResultData) bool {
+	validName := strings.Compare(wf.OnResult.Name, "*") == 0
+	if !validName {
+		validName = strings.Compare(wf.OnResult.Name, data.TaskKey) == 0
 	}
+	validOutput := strings.Compare(wf.OnResult.Output, "*") == 0
+	if !validOutput {
+		validOutput = strings.Compare(wf.OnResult.Output, data.OutputKey) == 0
+	}
+	return validName && validOutput
 }
