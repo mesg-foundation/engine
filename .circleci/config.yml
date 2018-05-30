@@ -62,18 +62,18 @@ workflows:
     jobs:
       - build_docker
       - test:
-        requires:
-          - build_docker
+          requires:
+            - build_docker
       - publish_docker_version:
           requires:
             - test
           filters:
             tag: /v.*/
       - publish_docker_latest:
-        requires:
-            - publish_docker_version
-          filters:
-            tag: /v.*/
+          requires:
+              - publish_docker_version
+            filters:
+              tag: /v.*/
       - release_cli:
           requires:
             - test
