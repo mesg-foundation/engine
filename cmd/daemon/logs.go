@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/logrusorgru/aurora"
-	"github.com/mesg-foundation/core/container"
+	"github.com/mesg-foundation/core/daemon"
 	"github.com/spf13/cobra"
 )
 
@@ -19,14 +19,14 @@ var Logs = &cobra.Command{
 }
 
 func logsHandler(cmd *cobra.Command, args []string) {
-	service, err := getService()
+	isRunning, err := daemon.IsRunning()
 	if err != nil {
 		fmt.Println(aurora.Red(err))
 		return
 	}
-	if service != nil {
+	if isRunning {
 		var stream bytes.Buffer
-		err = container.ServiceLogs([]string{name}, &stream)
+		err = daemon.Logs(&stream)
 		if err != nil {
 			fmt.Println(aurora.Red(err))
 			return
@@ -39,5 +39,7 @@ func logsHandler(cmd *cobra.Command, args []string) {
 			}
 			time.Sleep(500 * time.Millisecond)
 		}
+	} else {
+		fmt.Println(aurora.Brown("Daemon is stopped"))
 	}
 }
