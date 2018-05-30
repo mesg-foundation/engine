@@ -1,7 +1,6 @@
 package daemon
 
 import (
-	"bytes"
 	"testing"
 
 	"github.com/stvp/assert"
@@ -9,8 +8,7 @@ import (
 
 func TestLogs(t *testing.T) {
 	startForTest()
-	var stream bytes.Buffer
-	err := Logs(&stream)
+	reader, err := Logs()
 	assert.Nil(t, err)
-	assert.NotNil(t, stream)
+	assert.NotNil(t, reader)
 }
