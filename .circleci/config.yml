@@ -4,6 +4,8 @@ onlyTag: &onlyTag
   filters:
     tags:
       only: /^v.*/
+    branches:
+      ignore: /.*/
 
 runOnMachine: &runOnMachine
   machine:
