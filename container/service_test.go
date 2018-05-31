@@ -29,10 +29,19 @@ func startTestService(name []string) (serviceID string, err error) {
 
 func TestStartService(t *testing.T) {
 	namespace := []string{"TestStartService"}
-	service, err := startTestService(namespace)
+	serviceID, err := startTestService(namespace)
 	defer StopService(namespace)
 	assert.Nil(t, err)
-	assert.NotNil(t, service)
+	assert.NotEqual(t, "", serviceID)
+}
+
+func TestStartService2Times(t *testing.T) {
+	namespace := []string{"TestStartService2Times"}
+	startTestService(namespace)
+	defer StopService(namespace)
+	serviceID, err := startTestService(namespace)
+	assert.NotNil(t, err)
+	assert.Equal(t, "", serviceID)
 }
 
 func TestStopService(t *testing.T) {
