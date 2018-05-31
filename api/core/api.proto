@@ -17,6 +17,7 @@ service Core {
 
 message ListenEventRequest {
   string serviceID = 1;
+  string eventKey = 2;
 }
 
 message ExecuteTaskRequest {

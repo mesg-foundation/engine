@@ -32,6 +32,7 @@ mesg-core service test --keep-alive`,
 func listenEvents(serviceID string, filter string) {
 	stream, err := cli.ListenEvent(context.Background(), &core.ListenEventRequest{
 		ServiceID: serviceID,
+		EventKey:  filter,
 	})
 	handleError(err)
 	for {
@@ -40,9 +41,7 @@ func listenEvents(serviceID string, filter string) {
 			log.Println(aurora.Red(err))
 			return
 		}
-		if filter == "*" || filter == event.EventKey {
-			log.Println("Receive event", aurora.Green(event.EventKey), ":", aurora.Bold(event.EventData))
-		}
+		log.Println("Receive event", aurora.Green(event.EventKey), ":", aurora.Bold(event.EventData))
 	}
 }
 
