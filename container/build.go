@@ -7,7 +7,7 @@ import (
 	"github.com/docker/docker/pkg/archive"
 )
 
-// Build an docker image
+// Build a docker image
 func Build(path string, namespace []string) (tag string, err error) {
 	buildContext, err := archive.Tar(path, archive.Gzip)
 	if err != nil {
