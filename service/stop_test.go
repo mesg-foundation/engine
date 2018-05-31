@@ -67,7 +67,6 @@ func TestNetworkDeleted(t *testing.T) {
 	service.Start()
 	service.Stop()
 	time.Sleep(5 * time.Second)
-	network, err := container.FindNetwork([]string{service.namespace()})
-	assert.Nil(t, err)
-	assert.Nil(t, network)
+	_, err := container.FindNetwork([]string{service.namespace()})
+	assert.NotNil(t, err)
 }
