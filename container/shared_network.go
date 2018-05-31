@@ -8,14 +8,14 @@ import (
 )
 
 func createSharedNetworkIfNeeded(client *docker.Client) (err error) {
-	networkID, err := sharedNetwork(client)
+	network, err := sharedNetwork(client)
 	if docker.IsErrNotFound(err) {
 		err = nil
 	}
 	if err != nil {
 		return
 	}
-	if networkID.ID != "" {
+	if network.ID != "" {
 		return
 	}
 	// Create the new network needed to run containers
