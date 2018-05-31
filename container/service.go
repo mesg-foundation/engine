@@ -36,12 +36,13 @@ func FindService(namespace []string) (service swarm.Service, err error) {
 }
 
 // StartService starts a docker service
-func StartService(spec swarm.ServiceSpec) (serviceID string, err error) {
+func StartService(options ServiceOptions) (serviceID string, err error) {
 	client, err := Client()
 	if err != nil {
 		return
 	}
-	response, err := client.ServiceCreate(context.Background(), spec, types.ServiceCreateOptions{})
+	options.merge()
+	response, err := client.ServiceCreate(context.Background(), options.ServiceSpec, types.ServiceCreateOptions{})
 	if err != nil {
 		return
 	}

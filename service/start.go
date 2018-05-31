@@ -4,8 +4,6 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/docker/docker/api/types/mount"
-	"github.com/docker/docker/api/types/swarm"
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
 	"github.com/spf13/viper"
@@ -62,42 +60,22 @@ func (dependency *Dependency) Start(service *Service, details dependencyDetails,
 	if err != nil {
 		return
 	}
-	return container.StartService(swarm.ServiceSpec{
-		Annotations: swarm.Annotations{
-			Name: container.Namespace([]string{details.namespace, details.dependencyName}),
-			Labels: map[string]string{
-				"com.docker.stack.image":     dependency.Image,
-				"com.docker.stack.namespace": details.namespace,
-				"mesg.service":               details.serviceName,
-			},
+	return container.StartService(container.ServiceOptions{
+		Namespace: []string{details.namespace, details.dependencyName},
+		Labels: map[string]string{
+			"mesg.service": details.serviceName,
 		},
-		TaskTemplate: swarm.TaskSpec{
-			ContainerSpec: &swarm.ContainerSpec{
-				Image: dependency.Image,
-				Args:  strings.Fields(dependency.Command),
-				Env: []string{
-					"MESG_ENDPOINT=" + viper.GetString(config.APIServiceTargetSocket),
-					"MESG_ENDPOINT_TCP=mesg-daemon:50052",
-				},
-				Mounts: append(extractVolumes(service, dependency, details), mount.Mount{
-					Source: viper.GetString(config.APIServiceSocketPath),
-					Target: viper.GetString(config.APIServiceTargetPath),
-				}),
-				Labels: map[string]string{
-					"com.docker.stack.namespace": details.namespace,
-				},
-			},
+		Image: dependency.Image,
+		Args:  strings.Fields(dependency.Command),
+		Env: []string{
+			"MESG_ENDPOINT=" + viper.GetString(config.APIServiceTargetSocket),
+			"MESG_ENDPOINT_TCP=mesg-daemon:50052",
 		},
-		EndpointSpec: &swarm.EndpointSpec{
-			Ports: extractPorts(dependency),
-		},
-		Networks: []swarm.NetworkAttachmentConfig{
-			swarm.NetworkAttachmentConfig{
-				Target: networkID,
-			},
-			swarm.NetworkAttachmentConfig{
-				Target: sharedNetworkID,
-			},
-		},
+		Mounts: append(extractVolumes(service, dependency, details), container.Mount{
+			Source: viper.GetString(config.APIServiceSocketPath),
+			Target: viper.GetString(config.APIServiceTargetPath),
+		}),
+		Ports:      extractPorts(dependency),
+		NetworksID: []string{networkID, sharedNetworkID},
 	})
 }
