@@ -44,6 +44,7 @@ func serviceConfig(networkID string) godocker.CreateServiceOptions {
 					Env: []string{
 						"MESG.PATH=/mesg",
 						"API.SERVICE.SOCKETPATH=" + filepath.Join(viper.GetString(config.MESGPath), "server.sock"),
+						"SERVICE.PATH.HOST=" + filepath.Join(viper.GetString(config.MESGPath), "services"),
 					},
 					Mounts: []mount.Mount{
 						mount.Mount{
