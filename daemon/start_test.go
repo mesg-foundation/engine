@@ -4,7 +4,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/docker/docker/api/types/swarm"
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
 	"github.com/spf13/viper"
@@ -24,28 +23,10 @@ func startForTest() {
 	if err != nil {
 		panic(err)
 	}
-	namespace := container.Namespace([]string{name})
-	_, err = container.StartService(swarm.ServiceSpec{
-		Annotations: swarm.Annotations{
-			Name: namespace,
-			Labels: map[string]string{
-				"com.docker.stack.image":     viper.GetString(config.DaemonImage),
-				"com.docker.stack.namespace": namespace,
-			},
-		},
-		TaskTemplate: swarm.TaskSpec{
-			ContainerSpec: &swarm.ContainerSpec{
-				Image: "nginx",
-				Labels: map[string]string{
-					"com.docker.stack.namespace": namespace,
-				},
-			},
-		},
-		Networks: []swarm.NetworkAttachmentConfig{
-			swarm.NetworkAttachmentConfig{
-				Target: sharedNetworkID,
-			},
-		},
+	_, err = container.StartService(container.ServiceOptions{
+		Namespace:  []string{name},
+		Image:      "nginx",
+		NetworksID: []string{sharedNetworkID},
 	})
 	if err != nil {
 		panic(err)
