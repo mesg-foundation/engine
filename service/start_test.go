@@ -2,6 +2,7 @@ package service
 
 import (
 	"testing"
+	"time"
 
 	"github.com/mesg-foundation/core/container"
 	"github.com/stvp/assert"
@@ -108,6 +109,7 @@ func TestStartStopStart(t *testing.T) {
 	}
 	service.Start()
 	service.Stop()
+	time.Sleep(10 * time.Second)
 	dockerServices, err := service.Start()
 	assert.Nil(t, err)
 	assert.Equal(t, len(dockerServices), 1)
