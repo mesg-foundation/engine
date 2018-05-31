@@ -48,23 +48,3 @@ func ContainerStatus(namespace []string) (status StatusType, err error) {
 	}
 	return
 }
-
-// func WaitContainer(namespace []string, waitCondition containerTypes.WaitCondition, timeout time.Duration) {
-// 	client, err := Client()
-// 	if err != nil {
-// 		return
-// 	}
-// 	container, err := FindContainer(namespace)
-// 	if err != nil {
-// 		return
-// 	}
-// 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-// 	defer cancel()
-// 	ok, errC := client.ContainerWait(ctx, container.ID, waitCondition)
-// 	select {
-// 	case <-ok:
-// 		return
-// 	case err = <-errC:
-// 		return
-// 	}
-// }

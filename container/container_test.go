@@ -54,13 +54,9 @@ func TestContainerStatusStopped(t *testing.T) {
 	startTestService(namespace)
 	<-WaitContainerStatus(namespace, RUNNING, time.Minute)
 	fmt.Println("wait for running")
-	// WaitContainer(namespace, containerTypes.WaitConditionNextExit, 15*time.Second)
-
 	StopService(namespace)
 	<-WaitContainerStatus(namespace, STOPPED, time.Minute)
 	fmt.Println("wait for stop")
-	// WaitContainer(namespace, containerTypes.WaitConditionNotRunning, 15*time.Second)
-
 	status, err := ContainerStatus(namespace)
 	assert.Nil(t, err)
 	assert.Equal(t, status, STOPPED)
