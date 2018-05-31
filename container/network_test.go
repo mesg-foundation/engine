@@ -9,15 +9,15 @@ import (
 func TestCreateNetwork(t *testing.T) {
 	networkID, err := CreateNetwork([]string{"TestCreateNetwork"})
 	assert.Nil(t, err)
-	assert.NotNil(t, networkID)
+	assert.NotEqual(t, "", networkID)
 	DeleteNetwork([]string{"TestCreateNetwork"})
 }
 
 func TestCreateAlreadyExistingNetwork(t *testing.T) {
 	CreateNetwork([]string{"TestCreateAlreadyExistingNetwork"})
-	network, err := CreateNetwork([]string{"TestCreateAlreadyExistingNetwork"})
+	networkID, err := CreateNetwork([]string{"TestCreateAlreadyExistingNetwork"})
 	assert.Nil(t, err)
-	assert.NotNil(t, network)
+	assert.NotEqual(t, "", networkID)
 	DeleteNetwork([]string{"TestCreateAlreadyExistingNetwork"})
 }
 
