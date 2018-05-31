@@ -25,10 +25,12 @@ mesg-core service test --keep-alive
 ### Options
 
 ```
-  -d, --data string    Path to the file containing the data required to run the task
-  -e, --event string   Only log a specific event (default "*")
-  -h, --help           help for test
-  -t, --task string    Run a specific task
+  -d, --data string      Path to the file containing the data required to run the task
+  -e, --event string     Only log a specific event (default "*")
+  -h, --help             help for test
+      --keep-alive       Do not stop the service
+  -s, --service string   Debug a deployed service
+  -t, --task string      Run a specific task
 ```
 
 ### SEE ALSO

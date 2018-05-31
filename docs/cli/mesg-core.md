@@ -6,10 +6,6 @@ MESG CORE
 
 MESG CORE
 
-```
-mesg-core [flags]
-```
-
 ### Options
 
 ```
@@ -18,5 +14,6 @@ mesg-core [flags]
 
 ### SEE ALSO
 
+* [mesg-core daemon](mesg-core_daemon.md)	 - Manage the MESG daemon
 * [mesg-core service](mesg-core_service.md)	 - Manage your services
 
