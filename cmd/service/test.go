@@ -2,7 +2,6 @@ package cmdService
 
 import (
 	"context"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"time"
@@ -83,37 +82,44 @@ func executeTask(serviceID string, task string, dataPath string) (execution *cor
 }
 
 func testHandler(cmd *cobra.Command, args []string) {
-	service := loadService(defaultPath(args))
-	_, err := buildDockerImage(defaultPath(args), service.Name)
-	handleError(err)
-	deployment, err := cli.DeployService(context.Background(), &core.DeployServiceRequest{
-		Service: service,
+	serviceID := cmd.Flag("service").Value.String()
+	if serviceID == "" {
+		service := loadService(defaultPath(args))
+		_, err := buildDockerImage(defaultPath(args), service.Name)
+		handleError(err)
+		deployment, err := cli.DeployService(context.Background(), &core.DeployServiceRequest{
+			Service: service,
+		})
+		handleError(err)
+		serviceID = deployment.ServiceID
+	}
+
+	_, err := cli.StartService(context.Background(), &core.StartServiceRequest{
+		ServiceID: serviceID,
 	})
 	handleError(err)
 
-	_, err = cli.StartService(context.Background(), &core.StartServiceRequest{
-		ServiceID: deployment.ServiceID,
-	})
-	handleError(err)
+	go listenEvents(serviceID, cmd.Flag("event").Value.String())
 
-	go listenEvents(deployment.ServiceID, cmd.Flag("event").Value.String())
-
-	go listenResults(deployment.ServiceID)
+	go listenResults(serviceID)
 
 	time.Sleep(10 * time.Second)
 
-	executeTask(deployment.ServiceID, cmd.Flag("task").Value.String(), cmd.Flag("data").Value.String())
+	executeTask(serviceID, cmd.Flag("task").Value.String(), cmd.Flag("data").Value.String())
 
 	<-cmdUtils.WaitForCancel()
 
-	_, err = cli.StopService(context.Background(), &core.StopServiceRequest{
-		ServiceID: deployment.ServiceID,
-	})
-	fmt.Println(err)
+	if cmd.Flag("keep-alive").Value.String() != "true" {
+		_, err = cli.StopService(context.Background(), &core.StopServiceRequest{
+			ServiceID: serviceID,
+		})
+	}
 }
 
 func init() {
 	Test.Flags().StringP("event", "e", "*", "Only log a specific event")
 	Test.Flags().StringP("task", "t", "", "Run a specific task")
+	Test.Flags().StringP("service", "s", "", "Debug a deployed service")
+	Test.Flags().BoolP("keep-alive", "", false, "Do not stop the service")
 	Test.Flags().StringP("data", "d", "", "Path to the file containing the data required to run the task")
 }
