@@ -25,6 +25,14 @@ func Client() (client *docker.Client, err error) {
 	if err != nil {
 		return
 	}
+	err = createSwarmIfNeeded(client)
+	if err != nil {
+		return
+	}
+	err = createSharedNetworkIfNeeded(client)
+	if err != nil {
+		return
+	}
 	clientInstance = client
 	return
 }
@@ -41,25 +49,18 @@ func createClient() (client *docker.Client, err error) {
 		return
 	}
 	client.NegotiateAPIVersion(context.Background())
+	return
+}
+
+func createSwarmIfNeeded(client *docker.Client) (err error) {
 	info, err := client.Info(context.Background())
 	if err != nil {
 		return
 	}
-	if info.Swarm.NodeID == "" {
-		_, err = createSwarm(client)
-		if err != nil {
-			return
-		}
-	}
-	err = createSharedNetworkIfNeeded(client)
-	if err != nil {
+	if info.Swarm.NodeID != "" {
 		return
 	}
-	return
-}
-
-func createSwarm(client *docker.Client) (ID string, err error) {
-	ID, err = client.SwarmInit(context.Background(), swarm.InitRequest{
+	_, err = client.SwarmInit(context.Background(), swarm.InitRequest{
 		ListenAddr: "0.0.0.0:2377", // https://docs.docker.com/engine/reference/commandline/swarm_init/#usage
 	})
 	return
