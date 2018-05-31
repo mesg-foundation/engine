@@ -1,6 +1,26 @@
 version: 2
+
+onlyTag: &onlyTag
+  filters:
+    tags:
+      only: /^v.*/
+    branches:
+      ignore: /.*/
+
+runOnMachine: &runOnMachine
+  machine:
+    docker_layer_caching: true
+  working_directory: ~/.go_workspace/src/github.com/mesg-foundation/core
+
 jobs:
-  test:
+  "build_docker":
+    <<: *runOnMachine
+    steps:
+      - checkout
+      - run: docker pull mesg/daemon:latest
+      - run: docker build -t mesg/daemon:$CIRCLE_SHA1 .
+
+  "test":
     docker:
       - image: circleci/golang:1.10
     working_directory: /go/src/github.com/mesg-foundation/core
@@ -9,13 +29,29 @@ jobs:
       - setup_remote_docker
       - run: go get -t ./...
       - run: docker swarm init
-      - run: env DAEMON.IMAGE=mesg/daemon:local go test -timeout 60s -p 1 -coverprofile=coverage.txt ./...
+      - run: env DAEMON.IMAGE=mesg/daemon:$CIRCLE_SHA1 go test -timeout 60s -p 1 -coverprofile=coverage.txt ./...
       - run: bash <(curl -s https://codecov.io/bash)
 
-  cli_build_deploy:
-    machine:
-      docker_layer_caching: true
-    working_directory: ~/.go_workspace/src/github.com/mesg-foundation/core
+  "publish_docker_version":
+    <<: *runOnMachine
+    steps:
+      - checkout
+      - run: docker pull mesg/daemon:latest
+      - run: docker build -t mesg/daemon:$CIRCLE_TAG .
+      - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
+      - run: docker push mesg/daemon:$CIRCLE_TAG
+  
+  "publish_docker_latest":
+    <<: *runOnMachine
+    steps:
+      - checkout
+      - run: docker pull mesg/daemon:latest
+      - run: docker build -t mesg/daemon:latest .
+      - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
+      - run: docker push mesg/daemon:latest
+
+  "release_cli":
+    <<: *runOnMachine
     steps:
       - checkout
       - run: go get ./...
@@ -24,32 +60,25 @@ jobs:
       - run: cd bin; xgo --targets=darwin/386,darwin/amd64,linux/386,linux/amd64,windows/386,windows/amd64 -out mesg-core ../cli
       - run: sudo chmod +x ./bin/*
       - run: go get -u github.com/tcnksm/ghr
-      - run: ghr -u mesg-foundation -r core -delete release-dev ./bin
-
-  docker_build_deploy:
-    machine:
-      docker_layer_caching: true
-    working_directory: ~/.go_workspace/src/github.com/mesg-foundation/core
-    steps:
-      - checkout
-      - run: docker build -t mesg/daemon .
-      - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
-      - run: docker push mesg/daemon
+      - run: ghr -u mesg-foundation -r core -delete $CIRCLE_TAG ./bin
 
 workflows:
   version: 2
-  test_build_deploy:
+  build_n_deploy:
     jobs:
-      - test
-      - docker_build_deploy:
+      - "build_docker"
+      - "test":
           requires:
-            - test
-          filters:
-            branches:
-              only: dev
-      - cli_build_deploy:
+            - "build_docker"
+      - "publish_docker_version":
+          <<: *onlyTag
           requires:
-            - test
-          filters:
-            branches:
-              only: dev
+            - "test"
+      - "publish_docker_latest":
+          <<: *onlyTag
+          requires:
+            - "test"
+      - "release_cli":
+          <<: *onlyTag
+          requires:
+            - "publish_docker_latest"
