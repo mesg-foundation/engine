@@ -43,17 +43,16 @@ func startForTest() {
 
 func TestStartConfig(t *testing.T) {
 	spec := serviceSpec("networkID")
-	assert.NotNil(t, spec)
 	// Make sure that the config directory is passed in parameter to write on the same folder
-	assert.Equal(t, spec.ServiceSpec.TaskTemplate.ContainerSpec.Env[0], "MESG.PATH=/mesg")
-	assert.Equal(t, spec.ServiceSpec.TaskTemplate.ContainerSpec.Env[1], "API.SERVICE.SOCKETPATH="+filepath.Join(viper.GetString(config.MESGPath), "server.sock"))
+	assert.Equal(t, spec.Env[0], "MESG.PATH=/mesg")
+	assert.Equal(t, spec.Env[1], "API.SERVICE.SOCKETPATH="+filepath.Join(viper.GetString(config.MESGPath), "server.sock"))
 	// Ensure that the port is shared
-	assert.Equal(t, spec.ServiceSpec.EndpointSpec.Ports[0].PublishedPort, uint32(50052))
-	assert.Equal(t, spec.ServiceSpec.EndpointSpec.Ports[0].TargetPort, uint32(50052))
+	assert.Equal(t, spec.Ports[0].Published, uint32(50052))
+	assert.Equal(t, spec.Ports[0].Target, uint32(50052))
 	// Ensure that the docker socket is shared in the daemon
-	assert.Equal(t, spec.ServiceSpec.TaskTemplate.ContainerSpec.Mounts[0].Source, "/var/run/docker.sock")
-	assert.Equal(t, spec.ServiceSpec.TaskTemplate.ContainerSpec.Mounts[0].Target, "/var/run/docker.sock")
+	assert.Equal(t, spec.Mounts[0].Source, "/var/run/docker.sock")
+	assert.Equal(t, spec.Mounts[0].Target, "/var/run/docker.sock")
 	// Ensure that the host users folder is sync with the daemon
-	assert.Equal(t, spec.ServiceSpec.TaskTemplate.ContainerSpec.Mounts[1].Source, viper.GetString(config.MESGPath))
-	assert.Equal(t, spec.ServiceSpec.TaskTemplate.ContainerSpec.Mounts[1].Target, "/mesg")
+	assert.Equal(t, spec.Mounts[1].Source, viper.GetString(config.MESGPath))
+	assert.Equal(t, spec.Mounts[1].Target, "/mesg")
 }
