@@ -33,6 +33,12 @@ func TestClientNotIsTheSame(t *testing.T) {
 	assert.NotEqual(t, client, client2)
 }
 
+func TestCreateSwarmIfNeeded(t *testing.T) {
+	client, _ := createClient()
+	err := createSwarmIfNeeded(client)
+	assert.Nil(t, err)
+}
+
 // TODO: this tests break other tests on my machine
 // func TestCreateSwarm(t *testing.T) {
 // 	leaveSwarm()
