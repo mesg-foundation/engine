@@ -36,7 +36,7 @@ func TestFindNetwork(t *testing.T) {
 	CreateNetwork([]string{"TestFindNetwork"})
 	network, err := FindNetwork([]string{"TestFindNetwork"})
 	assert.Nil(t, err)
-	assert.NotNil(t, network)
+	assert.NotEqual(t, "", network.ID)
 	DeleteNetwork([]string{"TestFindNetwork"})
 }
 

@@ -21,7 +21,7 @@ func TestFindContainer(t *testing.T) {
 	<-WaitContainerStatus(namespace, RUNNING, time.Minute)
 	container, err := FindContainer(namespace)
 	assert.Nil(t, err)
-	assert.NotNil(t, container)
+	assert.NotEqual(t, "", container.ID)
 }
 
 func TestFindContainerStopped(t *testing.T) {
