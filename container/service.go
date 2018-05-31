@@ -2,7 +2,6 @@ package container
 
 import (
 	"context"
-	"fmt"
 	"io"
 
 	"github.com/docker/docker/api/types"
@@ -33,7 +32,6 @@ func FindService(namespace []string) (service swarm.Service, err error) {
 		return
 	}
 	service, _, err = client.ServiceInspectWithRaw(context.Background(), Namespace(namespace), types.ServiceInspectOptions{})
-	fmt.Println("FindService err", err)
 	return
 }
 
@@ -69,7 +67,6 @@ func StopService(namespace []string) (err error) {
 func ServiceStatus(namespace []string) (status StatusType, err error) {
 	status = STOPPED
 	_, err = FindService(namespace)
-	fmt.Println("ServiceStatus err", err)
 	if docker.IsErrNotFound(err) {
 		err = nil
 		return

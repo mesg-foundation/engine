@@ -60,7 +60,7 @@ func extractVolumes(service *Service, dependency *Dependency, details dependency
 func dependencyStatus(namespace string, dependencyName string) (status StatusType) {
 	dockerStatus, err := container.ServiceStatus([]string{namespace, dependencyName})
 	if err != nil {
-		panic(err)
+		panic(err) //TODO: that's ugly
 	}
 	status = STOPPED
 	if dockerStatus == container.RUNNING {
