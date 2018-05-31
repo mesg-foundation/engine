@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/mesg-foundation/core/database/services"
+	service "github.com/mesg-foundation/core/service"
 
 	"github.com/mesg-foundation/core/event"
 	"github.com/mesg-foundation/core/pubsub"
@@ -16,12 +17,8 @@ func (s *Server) ListenEvent(request *ListenEventRequest, stream Core_ListenEven
 	if err != nil {
 		return
 	}
-	if request.EventKey != "" && request.EventKey != "*" {
-		_, ok := service.Events[request.EventKey]
-		if !ok {
-			err = errors.New("Invalid eventKey: " + request.EventKey)
-			return
-		}
+	if err = validateEventKey(&service, request.EventKey); err != nil {
+		return
 	}
 	subscription := pubsub.Subscribe(service.EventSubscriptionChannel())
 	for data := range subscription {
@@ -34,6 +31,21 @@ func (s *Server) ListenEvent(request *ListenEventRequest, stream Core_ListenEven
 			})
 		}
 	}
+	return
+}
+
+func validateEventKey(service *service.Service, eventKey string) (err error) {
+	if eventKey == "" {
+		return
+	}
+	if eventKey == "*" {
+		return
+	}
+	_, ok := service.Events[eventKey]
+	if ok {
+		return
+	}
+	err = errors.New("Invalid eventKey: " + eventKey)
 	return
 }
 
