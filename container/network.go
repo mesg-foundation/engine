@@ -17,6 +17,7 @@ func CreateNetwork(namespace []string) (networkID string, err error) {
 		return
 	}
 	if network.ID != "" {
+		networkID = network.ID
 		return
 	}
 	namespaceFlat := Namespace(namespace)
