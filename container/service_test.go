@@ -111,7 +111,7 @@ func TestFindService(t *testing.T) {
 	defer StopService(namespace)
 	service, err := FindService(namespace)
 	assert.Nil(t, err)
-	assert.NotNil(t, service.ID)
+	assert.NotEqual(t, "", service.ID)
 }
 
 func TestFindServiceCloseName(t *testing.T) {
@@ -123,7 +123,7 @@ func TestFindServiceCloseName(t *testing.T) {
 	defer StopService(namespace1)
 	service, err := FindService(namespace)
 	assert.Nil(t, err)
-	assert.NotNil(t, service)
+	assert.NotEqual(t, "", service.ID)
 }
 
 func TestFindServiceStopped(t *testing.T) {
