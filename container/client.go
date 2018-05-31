@@ -40,6 +40,7 @@ func createClient() (client *docker.Client, err error) {
 	if err != nil {
 		return
 	}
+	client.NegotiateAPIVersion(context.Background())
 	info, err := client.Info(context.Background())
 	if err != nil {
 		return
