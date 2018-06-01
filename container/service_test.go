@@ -3,27 +3,13 @@ package container
 import (
 	"testing"
 
-	"github.com/docker/docker/api/types/swarm"
 	"github.com/stvp/assert"
 )
 
 func startTestService(name []string) (serviceID string, err error) {
-	namespace := Namespace(name)
-	return StartService(swarm.ServiceSpec{
-		Annotations: swarm.Annotations{
-			Name: namespace,
-			Labels: map[string]string{
-				"com.docker.stack.namespace": namespace,
-			},
-		},
-		TaskTemplate: swarm.TaskSpec{
-			ContainerSpec: &swarm.ContainerSpec{
-				Image: "nginx",
-				Labels: map[string]string{
-					"com.docker.stack.namespace": namespace,
-				},
-			},
-		},
+	return StartService(ServiceOptions{
+		Image:     "nginx",
+		Namespace: name,
 	})
 }
 
@@ -135,40 +121,18 @@ func TestFindServiceStopped(t *testing.T) {
 }
 
 func TestListServices(t *testing.T) {
-	namespace := Namespace([]string{"TestListServices"})
-	namespace2 := Namespace([]string{"TestListServiceswithValue2"})
-	StartService(swarm.ServiceSpec{
-		Annotations: swarm.Annotations{
-			Name: namespace,
-			Labels: map[string]string{
-				"com.docker.stack.namespace": namespace,
-				"label_name":                 "value_1",
-			},
-		},
-		TaskTemplate: swarm.TaskSpec{
-			ContainerSpec: &swarm.ContainerSpec{
-				Image: "nginx",
-				Labels: map[string]string{
-					"com.docker.stack.namespace": namespace,
-				},
-			},
+	StartService(ServiceOptions{
+		Image:     "nginx",
+		Namespace: []string{"TestListServices"},
+		Labels: map[string]string{
+			"label_name": "value_1",
 		},
 	})
-	StartService(swarm.ServiceSpec{
-		Annotations: swarm.Annotations{
-			Name: namespace2,
-			Labels: map[string]string{
-				"com.docker.stack.namespace": namespace2,
-				"label_name_2":               "value_2",
-			},
-		},
-		TaskTemplate: swarm.TaskSpec{
-			ContainerSpec: &swarm.ContainerSpec{
-				Image: "nginx",
-				Labels: map[string]string{
-					"com.docker.stack.namespace": namespace2,
-				},
-			},
+	StartService(ServiceOptions{
+		Image:     "nginx",
+		Namespace: []string{"TestListServiceswithValue2"},
+		Labels: map[string]string{
+			"label_name_2": "value_2",
 		},
 	})
 	defer StopService([]string{"TestListServices"})
