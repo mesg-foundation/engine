@@ -2,6 +2,7 @@ package daemon
 
 import (
 	"path/filepath"
+	"time"
 
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
@@ -21,12 +22,17 @@ func Start() (serviceID string, err error) {
 	if err != nil {
 		return
 	}
-	return container.StartService(serviceSpec(sharedNetworkID))
+	serviceID, err = container.StartService(serviceSpec(sharedNetworkID))
+	if err != nil {
+		return
+	}
+	err = container.WaitForContainerStatus(Namespace(), container.RUNNING, time.Minute)
+	return
 }
 
 func serviceSpec(networkID string) container.ServiceOptions {
 	return container.ServiceOptions{
-		Namespace: []string{name},
+		Namespace: Namespace(),
 		Image:     viper.GetString(config.DaemonImage),
 		Env: []string{
 			"MESG.PATH=/mesg",

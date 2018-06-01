@@ -24,7 +24,7 @@ func startForTest() {
 		panic(err)
 	}
 	_, err = container.StartService(container.ServiceOptions{
-		Namespace:  []string{name},
+		Namespace:  Namespace(),
 		Image:      "nginx",
 		NetworksID: []string{sharedNetworkID},
 	})
