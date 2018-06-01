@@ -45,9 +45,11 @@ func listenEvents(serviceID string, filter string) {
 	}
 }
 
-func listenResults(serviceID string) {
+func listenResults(serviceID string, result string, output string) {
 	stream, err := cli.ListenResult(context.Background(), &core.ListenResultRequest{
 		ServiceID: serviceID,
+		TaskKey:   result,
+		OutputKey: output,
 	})
 	handleError(err)
 	for {
@@ -100,7 +102,7 @@ func testHandler(cmd *cobra.Command, args []string) {
 
 	go listenEvents(serviceID, cmd.Flag("event").Value.String())
 
-	go listenResults(serviceID)
+	go listenResults(serviceID, cmd.Flag("result").Value.String(), cmd.Flag("output").Value.String())
 
 	time.Sleep(10 * time.Second)
 
@@ -118,7 +120,9 @@ func testHandler(cmd *cobra.Command, args []string) {
 func init() {
 	Test.Flags().StringP("event", "e", "*", "Only log a specific event")
 	Test.Flags().StringP("task", "t", "", "Run a specific task")
+	Test.Flags().StringP("data", "d", "", "Path to the file containing the data required to run the task")
+	Test.Flags().StringP("result", "r", "", "Filter the result of a specific task")
+	Test.Flags().StringP("output", "o", "", "Filter output of a task")
 	Test.Flags().StringP("service", "s", "", "Debug a deployed service")
 	Test.Flags().BoolP("keep-alive", "", false, "Do not stop the service")
-	Test.Flags().StringP("data", "d", "", "Path to the file containing the data required to run the task")
 }
