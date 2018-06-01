@@ -19,7 +19,7 @@ func TestStartService(t *testing.T) {
 	}
 	dockerServices, err := service.Start()
 	assert.Nil(t, err)
-	assert.Equal(t, len(dockerServices), len(service.GetDependencies()))
+	assert.Equal(t, len(service.GetDependencies()), len(dockerServices))
 	assert.Equal(t, service.IsRunning(), true)
 	service.Stop()
 }
