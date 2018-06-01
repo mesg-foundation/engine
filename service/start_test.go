@@ -68,13 +68,13 @@ func TestStartDependency(t *testing.T) {
 	name := "test"
 	dependency := Dependency{Image: "nginx"}
 	network, err := container.CreateNetwork([]string{namespace})
-	dockerService, err := dependency.Start(&Service{}, dependencyDetails{
+	serviceID, err := dependency.Start(&Service{}, dependencyDetails{
 		namespace:      namespace,
 		dependencyName: name,
 		serviceName:    "TestStartDependency",
 	}, network)
 	assert.Nil(t, err)
-	assert.NotNil(t, dockerService)
+	assert.NotEqual(t, "", serviceID)
 	assert.Equal(t, dependency.IsRunning(namespace, name), true)
 	assert.Equal(t, dependency.IsStopped(namespace, name), false)
 	dependency.Stop(namespace, name)
@@ -93,7 +93,7 @@ func TestNetworkCreated(t *testing.T) {
 	service.Start()
 	network, err := container.FindNetwork([]string{service.namespace()})
 	assert.Nil(t, err)
-	assert.NotNil(t, network)
+	assert.NotEqual(t, "", network.ID)
 	service.Stop()
 }
 

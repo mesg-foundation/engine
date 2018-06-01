@@ -1,12 +1,12 @@
 package daemon
 
 import (
-	"bytes"
+	"io"
 
 	"github.com/mesg-foundation/core/container"
 )
 
 // Logs return the daemon's docker service logs
-func Logs(stream *bytes.Buffer) (err error) {
-	return container.ServiceLogs(Namespace(), stream)
+func Logs() (reader io.ReadCloser, err error) {
+	return container.ServiceLogs(Namespace())
 }
