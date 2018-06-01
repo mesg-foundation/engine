@@ -26,3 +26,8 @@ func TestServiceTagReplaceSpace(t *testing.T) {
 	tag := ServiceTag([]string{"test foo"})
 	assert.Equal(t, tag, serviceTagPrefix+strings.Join([]string{"test-foo"}, namespaceSeparator))
 }
+
+func TestServiceTagLowercase(t *testing.T) {
+	tag := ServiceTag([]string{"TEST"})
+	assert.Equal(t, tag, serviceTagPrefix+strings.Join([]string{"test"}, namespaceSeparator))
+}

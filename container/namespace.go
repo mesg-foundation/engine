@@ -22,5 +22,5 @@ func Namespace(ss []string) string {
 func ServiceTag(ss []string) string {
 	namespace := strings.Join(ss, namespaceSeparator)
 	namespace = strings.Replace(namespace, " ", namespaceSeparator, -1)
-	return serviceTagPrefix + namespace
+	return strings.ToLower(serviceTagPrefix + namespace)
 }
