@@ -1,7 +1,6 @@
 package container
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -52,10 +51,8 @@ func TestContainerStatusStopped(t *testing.T) {
 	namespace := []string{"TestContainerStatusStopped"}
 	startTestService(namespace)
 	WaitForContainerStatus(namespace, RUNNING, time.Minute)
-	fmt.Println("wait for running")
 	StopService(namespace)
 	WaitForContainerStatus(namespace, STOPPED, time.Minute)
-	fmt.Println("wait for stop")
 	status, err := ContainerStatus(namespace)
 	assert.Nil(t, err)
 	assert.Equal(t, status, STOPPED)
