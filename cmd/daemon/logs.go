@@ -1,9 +1,9 @@
 package daemon
 
 import (
-	"bytes"
 	"fmt"
-	"time"
+	"io"
+	"os"
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/daemon"
@@ -25,19 +25,14 @@ func logsHandler(cmd *cobra.Command, args []string) {
 		return
 	}
 	if isRunning {
-		var stream bytes.Buffer
-		err = daemon.Logs(&stream)
+		reader, err := daemon.Logs()
 		if err != nil {
 			fmt.Println(aurora.Red(err))
 			return
 		}
-		buf := make([]byte, 1024)
-		for {
-			n, _ := stream.Read(buf)
-			if n != 0 {
-				fmt.Print(string(buf[:n]))
-			}
-			time.Sleep(500 * time.Millisecond)
+		_, err = io.Copy(os.Stdout, reader)
+		if err != nil && err != io.EOF {
+			fmt.Println(aurora.Red(err))
 		}
 	} else {
 		fmt.Println(aurora.Brown("Daemon is stopped"))

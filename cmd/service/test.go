@@ -86,8 +86,7 @@ func testHandler(cmd *cobra.Command, args []string) {
 	serviceID := cmd.Flag("service").Value.String()
 	if serviceID == "" {
 		service := loadService(defaultPath(args))
-		_, err := buildDockerImage(defaultPath(args), service.Name)
-		handleError(err)
+		buildDockerImage(defaultPath(args), service.Name)
 		deployment, err := cli.DeployService(context.Background(), &core.DeployServiceRequest{
 			Service: service,
 		})

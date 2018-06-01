@@ -6,15 +6,13 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/docker/docker/api/types/mount"
-	"github.com/docker/docker/api/types/swarm"
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
 	"github.com/spf13/viper"
 )
 
-func extractPorts(dependency *Dependency) (ports []swarm.PortConfig) {
-	ports = make([]swarm.PortConfig, len(dependency.Ports))
+func extractPorts(dependency *Dependency) (ports []container.Port) {
+	ports = make([]container.Port, len(dependency.Ports))
 	for i, p := range dependency.Ports {
 		split := strings.Split(p, ":")
 		from, _ := strconv.ParseUint(split[0], 10, 64)
@@ -22,22 +20,20 @@ func extractPorts(dependency *Dependency) (ports []swarm.PortConfig) {
 		if len(split) > 1 {
 			to, _ = strconv.ParseUint(split[1], 10, 64)
 		}
-		ports[i] = swarm.PortConfig{
-			Protocol:      swarm.PortConfigProtocolTCP,
-			PublishMode:   swarm.PortConfigPublishModeIngress,
-			TargetPort:    uint32(to),
-			PublishedPort: uint32(from),
+		ports[i] = container.Port{
+			Target:    uint32(to),
+			Published: uint32(from),
 		}
 	}
 	return
 }
 
-func extractVolumes(service *Service, dependency *Dependency, details dependencyDetails) (volumes []mount.Mount) {
-	volumes = make([]mount.Mount, 0)
+func extractVolumes(service *Service, dependency *Dependency, details dependencyDetails) (volumes []container.Mount) {
+	volumes = make([]container.Mount, 0)
 	for _, volume := range dependency.Volumes {
 		path := filepath.Join(details.namespace, details.dependencyName, volume)
 		source := filepath.Join(viper.GetString(config.ServicePathHost), path)
-		volumes = append(volumes, mount.Mount{
+		volumes = append(volumes, container.Mount{
 			Source: source,
 			Target: volume,
 		})
@@ -47,7 +43,7 @@ func extractVolumes(service *Service, dependency *Dependency, details dependency
 		for _, volume := range service.Dependencies[dep].Volumes {
 			path := filepath.Join(details.namespace, dep, volume)
 			source := filepath.Join(viper.GetString(config.ServicePathHost), path)
-			volumes = append(volumes, mount.Mount{
+			volumes = append(volumes, container.Mount{
 				Source: source,
 				Target: volume,
 			})
@@ -60,7 +56,7 @@ func extractVolumes(service *Service, dependency *Dependency, details dependency
 func dependencyStatus(namespace string, dependencyName string) (status StatusType) {
 	dockerStatus, err := container.ServiceStatus([]string{namespace, dependencyName})
 	if err != nil {
-		panic(err)
+		panic(err) //TODO: that's ugly
 	}
 	status = STOPPED
 	if dockerStatus == container.RUNNING {
