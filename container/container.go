@@ -2,55 +2,48 @@ package container
 
 import (
 	"context"
-	"errors"
 
-	godocker "github.com/fsouza/go-dockerclient"
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/filters"
+	docker "github.com/docker/docker/client"
 )
 
-// FindContainerStrict returns a docker container if exist. Return error if not found.
-func FindContainerStrict(namespace []string) (container *godocker.APIContainers, err error) {
-	container, err = FindContainer(namespace)
-	if err != nil {
-		return
-	}
-	if container == nil {
-		err = errors.New("Container " + Namespace(namespace) + " not found")
-	}
-	return
-}
-
 // FindContainer returns a docker container if exist
-func FindContainer(namespace []string) (container *godocker.APIContainers, err error) {
+func FindContainer(namespace []string) (container types.ContainerJSON, err error) {
 	client, err := Client()
 	if err != nil {
 		return
 	}
-	containers, err := client.ListContainers(godocker.ListContainersOptions{
-		Context: context.Background(),
-		Limit:   1,
-		Filters: map[string][]string{
-			"label": []string{
-				"com.docker.stack.namespace=" + Namespace(namespace),
-			},
-		},
+	containers, err := client.ContainerList(context.Background(), types.ContainerListOptions{
+		Filters: filters.NewArgs(filters.KeyValuePair{
+			Key:   "label",
+			Value: "com.docker.stack.namespace=" + Namespace(namespace),
+		}),
+		Limit: 1,
 	})
 	if err != nil {
 		return
 	}
+	containerID := ""
 	if len(containers) == 1 {
-		container = &containers[0]
+		containerID = containers[0].ID
 	}
+	container, err = client.ContainerInspect(context.Background(), containerID)
 	return
 }
 
 // ContainerStatus returns the status of a docker container
 func ContainerStatus(namespace []string) (status StatusType, err error) {
+	status = STOPPED
 	container, err := FindContainer(namespace)
+	if docker.IsErrNotFound(err) {
+		err = nil
+		return
+	}
 	if err != nil {
 		return
 	}
-	status = STOPPED
-	if container != nil && container.State == "running" {
+	if container.State.Running {
 		status = RUNNING
 	}
 	return

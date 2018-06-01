@@ -4,7 +4,6 @@ RUN go get github.com/xeipuuv/gojsonschema && \
     go get gopkg.in/yaml.v2 && \
     go get github.com/stvp/assert && \
     go get github.com/logrusorgru/aurora && \
-    go get github.com/fsouza/go-dockerclient && \
     go get github.com/docker/docker/api/types/swarm && \
     go get github.com/docker/docker/api/types/mount && \
     go get github.com/spf13/viper && \
@@ -20,7 +19,8 @@ RUN go get github.com/xeipuuv/gojsonschema && \
     go get google.golang.org/grpc && \
     go get github.com/cpuguy83/go-md2man && \
     go get github.com/syndtr/goleveldb/leveldb && \
-    go get github.com/cnf/structhash
+    go get github.com/cnf/structhash && \
+    go get github.com/docker/docker/client
 ADD . src/github.com/mesg-foundation/core
 WORKDIR src/github.com/mesg-foundation/core
 RUN go get ./...
