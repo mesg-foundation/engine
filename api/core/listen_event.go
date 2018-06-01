@@ -6,6 +6,7 @@ import (
 
 	"github.com/mesg-foundation/core/database/services"
 	service "github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/core/utils/array"
 
 	"github.com/mesg-foundation/core/event"
 	"github.com/mesg-foundation/core/pubsub"
@@ -50,10 +51,5 @@ func validateEventKey(service *service.Service, eventFilter string) (err error) 
 }
 
 func isSubscribedEvent(request *ListenEventRequest, e *event.Event) bool {
-	if request.EventFilter != "" && request.EventFilter != "*" && request.EventFilter != e.Key {
-		return false
-	}
-	// Possibility to add more filters here like filters on data, awlays return the
-	// falsy value and go until the end to have the truth value
-	return true
+	return array.IncludedIn([]string{"", "*", e.Key}, request.EventFilter)
 }

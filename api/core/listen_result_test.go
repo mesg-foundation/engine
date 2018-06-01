@@ -40,17 +40,6 @@ func TestValidateOutputKey(t *testing.T) {
 	assert.NotNil(t, validateOutputKey(s, "xxx", "xxx"))
 }
 
-func TestIncludedIn(t *testing.T) {
-	assert.False(t, includedIn([]string{}, ""))
-	assert.True(t, includedIn([]string{""}, ""))
-	assert.False(t, includedIn([]string{"a"}, ""))
-	assert.True(t, includedIn([]string{"a"}, "a"))
-	assert.False(t, includedIn([]string{""}, "a"))
-	assert.True(t, includedIn([]string{"a", "b"}, "a"))
-	assert.True(t, includedIn([]string{"a", "b"}, "b"))
-	assert.False(t, includedIn([]string{"a", "b"}, "c"))
-}
-
 func TestIsSubscribedTask(t *testing.T) {
 	x := &execution.Execution{Task: "task"}
 	r := &ListenResultRequest{}
