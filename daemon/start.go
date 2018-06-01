@@ -3,16 +3,13 @@ package daemon
 import (
 	"path/filepath"
 
-	"github.com/docker/docker/api/types/mount"
-	"github.com/docker/docker/api/types/swarm"
-	godocker "github.com/fsouza/go-dockerclient"
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
 	"github.com/spf13/viper"
 )
 
 // Start the docker daemon
-func Start() (service *swarm.Service, err error) {
+func Start() (serviceID string, err error) {
 	running, err := IsRunning()
 	if err != nil {
 		return
@@ -24,58 +21,34 @@ func Start() (service *swarm.Service, err error) {
 	if err != nil {
 		return
 	}
-	return container.StartService(serviceConfig(sharedNetworkID))
+	return container.StartService(serviceSpec(sharedNetworkID))
 }
 
-func serviceConfig(networkID string) godocker.CreateServiceOptions {
-	namespace := container.Namespace([]string{name})
-	return godocker.CreateServiceOptions{
-		ServiceSpec: swarm.ServiceSpec{
-			Annotations: swarm.Annotations{
-				Name: namespace,
-				Labels: map[string]string{
-					"com.docker.stack.image":     viper.GetString(config.DaemonImage),
-					"com.docker.stack.namespace": namespace,
-				},
+func serviceSpec(networkID string) container.ServiceOptions {
+	return container.ServiceOptions{
+		Namespace: []string{name},
+		Image:     viper.GetString(config.DaemonImage),
+		Env: []string{
+			"MESG.PATH=/mesg",
+			"API.SERVICE.SOCKETPATH=" + filepath.Join(viper.GetString(config.MESGPath), "server.sock"),
+			"SERVICE.PATH.HOST=" + filepath.Join(viper.GetString(config.MESGPath), "services"),
+		},
+		Mounts: []container.Mount{
+			container.Mount{
+				Source: dockerSocket,
+				Target: dockerSocket,
 			},
-			TaskTemplate: swarm.TaskSpec{
-				ContainerSpec: &swarm.ContainerSpec{
-					Image: viper.GetString(config.DaemonImage),
-					Env: []string{
-						"MESG.PATH=/mesg",
-						"API.SERVICE.SOCKETPATH=" + filepath.Join(viper.GetString(config.MESGPath), "server.sock"),
-						"SERVICE.PATH.HOST=" + filepath.Join(viper.GetString(config.MESGPath), "services"),
-					},
-					Mounts: []mount.Mount{
-						mount.Mount{
-							Source: dockerSocket,
-							Target: dockerSocket,
-						},
-						mount.Mount{
-							Source: viper.GetString(config.MESGPath),
-							Target: "/mesg",
-						},
-					},
-					Labels: map[string]string{
-						"com.docker.stack.namespace": namespace,
-					},
-				},
-			},
-			EndpointSpec: &swarm.EndpointSpec{
-				Ports: []swarm.PortConfig{
-					swarm.PortConfig{
-						Protocol:      swarm.PortConfigProtocolTCP,
-						PublishMode:   swarm.PortConfigPublishModeIngress,
-						TargetPort:    50052,
-						PublishedPort: 50052,
-					},
-				},
-			},
-			Networks: []swarm.NetworkAttachmentConfig{
-				swarm.NetworkAttachmentConfig{
-					Target: networkID,
-				},
+			container.Mount{
+				Source: viper.GetString(config.MESGPath),
+				Target: "/mesg",
 			},
 		},
+		Ports: []container.Port{
+			container.Port{
+				Target:    50052,
+				Published: 50052,
+			},
+		},
+		NetworksID: []string{networkID},
 	}
 }

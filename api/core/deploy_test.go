@@ -24,6 +24,7 @@ func TestDeployService(t *testing.T) {
 		Service: &service,
 	})
 	assert.Nil(t, err)
-	assert.NotNil(t, deployment.ServiceID)
+	assert.NotNil(t, deployment)
+	assert.NotEqual(t, "", deployment.ServiceID)
 	services.Delete(deployment.ServiceID)
 }

@@ -13,7 +13,9 @@ func TestClient(t *testing.T) {
 }
 
 func TestClientIsTheSame(t *testing.T) {
-	client, _ := Client()
+	client, err := Client()
+	assert.Nil(t, err)
+	assert.NotNil(t, client)
 	client2, err := Client()
 	assert.Nil(t, err)
 	assert.NotNil(t, client2)
@@ -21,12 +23,20 @@ func TestClientIsTheSame(t *testing.T) {
 }
 
 func TestClientNotIsTheSame(t *testing.T) {
-	client, _ := Client()
+	client, err := Client()
+	assert.Nil(t, err)
+	assert.NotNil(t, client)
 	resetClient()
 	client2, err := Client()
 	assert.Nil(t, err)
 	assert.NotNil(t, client2)
 	assert.NotEqual(t, client, client2)
+}
+
+func TestCreateSwarmIfNeeded(t *testing.T) {
+	client, _ := createClient()
+	err := createSwarmIfNeeded(client)
+	assert.Nil(t, err)
 }
 
 // TODO: this tests break other tests on my machine

@@ -1,42 +1,33 @@
 package container
 
 import (
-	"bytes"
 	"testing"
 
-	"github.com/docker/docker/api/types/swarm"
-	docker "github.com/fsouza/go-dockerclient"
 	"github.com/stvp/assert"
 )
 
-func startTestService(name []string) (dockerService *swarm.Service, err error) {
-	namespace := Namespace(name)
-	return StartService(docker.CreateServiceOptions{
-		ServiceSpec: swarm.ServiceSpec{
-			Annotations: swarm.Annotations{
-				Name: namespace,
-				Labels: map[string]string{
-					"com.docker.stack.namespace": namespace,
-				},
-			},
-			TaskTemplate: swarm.TaskSpec{
-				ContainerSpec: &swarm.ContainerSpec{
-					Image: "nginx",
-					Labels: map[string]string{
-						"com.docker.stack.namespace": namespace,
-					},
-				},
-			},
-		},
+func startTestService(name []string) (serviceID string, err error) {
+	return StartService(ServiceOptions{
+		Image:     "nginx",
+		Namespace: name,
 	})
 }
 
 func TestStartService(t *testing.T) {
 	namespace := []string{"TestStartService"}
-	service, err := startTestService(namespace)
+	serviceID, err := startTestService(namespace)
 	defer StopService(namespace)
 	assert.Nil(t, err)
-	assert.NotNil(t, service)
+	assert.NotEqual(t, "", serviceID)
+}
+
+func TestStartService2Times(t *testing.T) {
+	namespace := []string{"TestStartService2Times"}
+	startTestService(namespace)
+	defer StopService(namespace)
+	serviceID, err := startTestService(namespace)
+	assert.NotNil(t, err)
+	assert.Equal(t, "", serviceID)
 }
 
 func TestStopService(t *testing.T) {
@@ -46,8 +37,8 @@ func TestStopService(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestStopServiceAlreadyStopped(t *testing.T) {
-	namespace := []string{"TestStopServiceAlreadyStopped"}
+func TestStopNotExistingService(t *testing.T) {
+	namespace := []string{"TestStopNotExistingService"}
 	err := StopService(namespace)
 	assert.Nil(t, err)
 }
@@ -96,10 +87,8 @@ func TestServiceStatusStopped(t *testing.T) {
 }
 
 func TestFindServiceNotExisting(t *testing.T) {
-	namespace := []string{"TestFindServiceNotExisting"}
-	service, err := FindService(namespace)
-	assert.Nil(t, err)
-	assert.Nil(t, service)
+	_, err := FindService([]string{"TestFindServiceNotExisting"})
+	assert.NotNil(t, err)
 }
 
 func TestFindService(t *testing.T) {
@@ -108,7 +97,7 @@ func TestFindService(t *testing.T) {
 	defer StopService(namespace)
 	service, err := FindService(namespace)
 	assert.Nil(t, err)
-	assert.NotNil(t, service)
+	assert.NotEqual(t, "", service.ID)
 }
 
 func TestFindServiceCloseName(t *testing.T) {
@@ -120,57 +109,30 @@ func TestFindServiceCloseName(t *testing.T) {
 	defer StopService(namespace1)
 	service, err := FindService(namespace)
 	assert.Nil(t, err)
-	assert.NotNil(t, service)
+	assert.NotEqual(t, "", service.ID)
 }
 
 func TestFindServiceStopped(t *testing.T) {
 	namespace := []string{"TestFindServiceStopped"}
 	startTestService(namespace)
 	StopService(namespace)
-	service, err := FindService(namespace)
-	assert.Nil(t, err)
-	assert.Nil(t, service)
+	_, err := FindService(namespace)
+	assert.NotNil(t, err)
 }
 
 func TestListServices(t *testing.T) {
-	namespace := Namespace([]string{"TestListServices"})
-	namespace2 := Namespace([]string{"TestListServiceswithValue2"})
-	StartService(docker.CreateServiceOptions{
-		ServiceSpec: swarm.ServiceSpec{
-			Annotations: swarm.Annotations{
-				Name: namespace,
-				Labels: map[string]string{
-					"com.docker.stack.namespace": namespace,
-					"label_name":                 "value_1",
-				},
-			},
-			TaskTemplate: swarm.TaskSpec{
-				ContainerSpec: &swarm.ContainerSpec{
-					Image: "nginx",
-					Labels: map[string]string{
-						"com.docker.stack.namespace": namespace,
-					},
-				},
-			},
+	StartService(ServiceOptions{
+		Image:     "nginx",
+		Namespace: []string{"TestListServices"},
+		Labels: map[string]string{
+			"label_name": "value_1",
 		},
 	})
-	StartService(docker.CreateServiceOptions{
-		ServiceSpec: swarm.ServiceSpec{
-			Annotations: swarm.Annotations{
-				Name: namespace2,
-				Labels: map[string]string{
-					"com.docker.stack.namespace": namespace2,
-					"label_name_2":               "value_2",
-				},
-			},
-			TaskTemplate: swarm.TaskSpec{
-				ContainerSpec: &swarm.ContainerSpec{
-					Image: "nginx",
-					Labels: map[string]string{
-						"com.docker.stack.namespace": namespace2,
-					},
-				},
-			},
+	StartService(ServiceOptions{
+		Image:     "nginx",
+		Namespace: []string{"TestListServiceswithValue2"},
+		Labels: map[string]string{
+			"label_name_2": "value_2",
 		},
 	})
 	defer StopService([]string{"TestListServices"})
@@ -185,8 +147,7 @@ func TestServiceLogs(t *testing.T) {
 	namespace := []string{"TestServiceLogs"}
 	startTestService(namespace)
 	defer StopService(namespace)
-	var stream bytes.Buffer
-	err := ServiceLogs(namespace, &stream)
+	reader, err := ServiceLogs(namespace)
 	assert.Nil(t, err)
-	assert.NotNil(t, stream)
+	assert.NotNil(t, reader)
 }

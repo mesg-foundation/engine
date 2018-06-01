@@ -4,8 +4,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/docker/docker/api/types/swarm"
-	godocker "github.com/fsouza/go-dockerclient"
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
 	"github.com/spf13/viper"
@@ -25,30 +23,10 @@ func startForTest() {
 	if err != nil {
 		panic(err)
 	}
-	namespace := container.Namespace([]string{name})
-	_, err = container.StartService(godocker.CreateServiceOptions{
-		ServiceSpec: swarm.ServiceSpec{
-			Annotations: swarm.Annotations{
-				Name: namespace,
-				Labels: map[string]string{
-					"com.docker.stack.image":     viper.GetString(config.DaemonImage),
-					"com.docker.stack.namespace": namespace,
-				},
-			},
-			TaskTemplate: swarm.TaskSpec{
-				ContainerSpec: &swarm.ContainerSpec{
-					Image: "nginx",
-					Labels: map[string]string{
-						"com.docker.stack.namespace": namespace,
-					},
-				},
-			},
-			Networks: []swarm.NetworkAttachmentConfig{
-				swarm.NetworkAttachmentConfig{
-					Target: sharedNetworkID,
-				},
-			},
-		},
+	_, err = container.StartService(container.ServiceOptions{
+		Namespace:  []string{name},
+		Image:      "nginx",
+		NetworksID: []string{sharedNetworkID},
 	})
 	if err != nil {
 		panic(err)
@@ -64,19 +42,18 @@ func startForTest() {
 // }
 
 func TestStartConfig(t *testing.T) {
-	service := serviceConfig("networkID")
-	assert.NotNil(t, service)
+	spec := serviceSpec("networkID")
 	// Make sure that the config directory is passed in parameter to write on the same folder
-	assert.Equal(t, service.ServiceSpec.TaskTemplate.ContainerSpec.Env[0], "MESG.PATH=/mesg")
-	assert.Equal(t, service.ServiceSpec.TaskTemplate.ContainerSpec.Env[1], "API.SERVICE.SOCKETPATH="+filepath.Join(viper.GetString(config.MESGPath), "server.sock"))
-	assert.Equal(t, service.ServiceSpec.TaskTemplate.ContainerSpec.Env[2], "SERVICE.PATH.HOST="+filepath.Join(viper.GetString(config.MESGPath), "services"))
+	assert.Equal(t, spec.Env[0], "MESG.PATH=/mesg")
+	assert.Equal(t, spec.Env[1], "API.SERVICE.SOCKETPATH="+filepath.Join(viper.GetString(config.MESGPath), "server.sock"))
+	assert.Equal(t, spec.Env[2], "SERVICE.PATH.HOST="+filepath.Join(viper.GetString(config.MESGPath), "services"))
 	// Ensure that the port is shared
-	assert.Equal(t, service.ServiceSpec.EndpointSpec.Ports[0].PublishedPort, uint32(50052))
-	assert.Equal(t, service.ServiceSpec.EndpointSpec.Ports[0].TargetPort, uint32(50052))
+	assert.Equal(t, spec.Ports[0].Published, uint32(50052))
+	assert.Equal(t, spec.Ports[0].Target, uint32(50052))
 	// Ensure that the docker socket is shared in the daemon
-	assert.Equal(t, service.ServiceSpec.TaskTemplate.ContainerSpec.Mounts[0].Source, "/var/run/docker.sock")
-	assert.Equal(t, service.ServiceSpec.TaskTemplate.ContainerSpec.Mounts[0].Target, "/var/run/docker.sock")
+	assert.Equal(t, spec.Mounts[0].Source, "/var/run/docker.sock")
+	assert.Equal(t, spec.Mounts[0].Target, "/var/run/docker.sock")
 	// Ensure that the host users folder is sync with the daemon
-	assert.Equal(t, service.ServiceSpec.TaskTemplate.ContainerSpec.Mounts[1].Source, viper.GetString(config.MESGPath))
-	assert.Equal(t, service.ServiceSpec.TaskTemplate.ContainerSpec.Mounts[1].Target, "/mesg")
+	assert.Equal(t, spec.Mounts[1].Source, viper.GetString(config.MESGPath))
+	assert.Equal(t, spec.Mounts[1].Target, "/mesg")
 }

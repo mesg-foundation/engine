@@ -1,35 +1,38 @@
 package container
 
 import (
-	"errors"
+	"context"
 
-	docker "github.com/fsouza/go-dockerclient"
+	"github.com/docker/docker/api/types"
+	docker "github.com/docker/docker/client"
 )
 
 func createSharedNetworkIfNeeded(client *docker.Client) (err error) {
-	_, err = sharedNetwork(client)
-	if err != nil {
-		switch err.(type) {
-		case *docker.NoSuchNetwork:
-			namespace := Namespace(sharedNetworkNamespace)
-			// Create the new network needed to run containers
-			_, err = client.CreateNetwork(docker.CreateNetworkOptions{
-				Name:           namespace,
-				CheckDuplicate: true,
-				Driver:         "overlay",
-				Labels: map[string]string{
-					"com.docker.stack.namespace": namespace,
-				},
-			})
-		default:
-		}
+	network, err := sharedNetwork(client)
+	if docker.IsErrNotFound(err) {
+		err = nil
 	}
+	if err != nil {
+		return
+	}
+	if network.ID != "" {
+		return
+	}
+	// Create the new network needed to run containers
+	namespace := Namespace(sharedNetworkNamespace)
+	_, err = client.NetworkCreate(context.Background(), namespace, types.NetworkCreate{
+		CheckDuplicate: true,
+		Driver:         "overlay",
+		Labels: map[string]string{
+			"com.docker.stack.namespace": namespace,
+		},
+	})
 	return
 }
 
 // sharedNetwork returns the shared network created to connect services and daemon
-func sharedNetwork(client *docker.Client) (network *docker.Network, err error) {
-	network, err = client.NetworkInfo(Namespace(sharedNetworkNamespace))
+func sharedNetwork(client *docker.Client) (network types.NetworkResource, err error) {
+	network, err = client.NetworkInspect(context.Background(), Namespace(sharedNetworkNamespace), types.NetworkInspectOptions{})
 	return
 }
 
@@ -41,10 +44,6 @@ func SharedNetworkID() (networkID string, err error) {
 	}
 	network, err := sharedNetwork(client)
 	if err != nil {
-		return
-	}
-	if network == nil {
-		err = errors.New("Shared network not found")
 		return
 	}
 	networkID = network.ID
