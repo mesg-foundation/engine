@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/logrusorgru/aurora"
+	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/mesg-foundation/core/daemon"
 	"github.com/spf13/cobra"
 )
@@ -26,10 +27,12 @@ func startHandler(cmd *cobra.Command, args []string) {
 		fmt.Println(aurora.Green("Daemon is running"))
 		return
 	}
+	s := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Daemon is starting..."})
 	_, err = daemon.Start()
+	s.Stop()
 	if err != nil {
 		fmt.Println(aurora.Red(err))
 		return
 	}
-	fmt.Println(aurora.Green("Daemon is starting"))
+	fmt.Println(aurora.Green("Daemon is running"))
 }
