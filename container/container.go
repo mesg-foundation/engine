@@ -2,6 +2,7 @@ package container
 
 import (
 	"context"
+	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
@@ -47,4 +48,26 @@ func ContainerStatus(namespace []string) (status StatusType, err error) {
 		status = RUNNING
 	}
 	return
+}
+
+// WaitForContainerStatus wait for the container to have the provided status until it reach the timeout
+func WaitForContainerStatus(namespace []string, status StatusType, timeout time.Duration) (err error) {
+	start := time.Now()
+	for {
+		currentStatus, err := ContainerStatus(namespace)
+		if err != nil {
+			return err
+		}
+		if currentStatus == status {
+			return nil
+		}
+		diff := time.Now().Sub(start)
+		if diff.Nanoseconds() >= int64(timeout) {
+			return &TimeoutError{
+				duration: timeout,
+				name:     Namespace(namespace),
+			}
+		}
+		time.Sleep(500 * time.Millisecond)
+	}
 }
