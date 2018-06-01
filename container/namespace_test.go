@@ -18,11 +18,11 @@ func TestNamespaceReplaceSpace(t *testing.T) {
 }
 
 func TestServiceTag(t *testing.T) {
-	tag := ServiceTag([]string{"test"})
-	assert.Equal(t, tag, strings.Join([]string{serviceTagPrefix, "test"}, namespaceSeparator))
+	tag := ServiceTag([]string{"foo", "test"})
+	assert.Equal(t, tag, serviceTagPrefix+strings.Join([]string{"foo", "test"}, namespaceSeparator))
 }
 
 func TestServiceTagReplaceSpace(t *testing.T) {
 	tag := ServiceTag([]string{"test foo"})
-	assert.Equal(t, tag, strings.Join([]string{serviceTagPrefix, "test-foo"}, namespaceSeparator))
+	assert.Equal(t, tag, serviceTagPrefix+strings.Join([]string{"test-foo"}, namespaceSeparator))
 }
