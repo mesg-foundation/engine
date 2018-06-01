@@ -29,6 +29,7 @@ jobs:
       - setup_remote_docker
       - run: go get -t ./...
       - run: docker swarm init
+      - run: docker pull nginx
       - run: env DAEMON.IMAGE=mesg/daemon:$CIRCLE_SHA1 go test -timeout 180s -p 1 -coverprofile=coverage.txt ./...
       - run: bash <(curl -s https://codecov.io/bash)
 
