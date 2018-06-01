@@ -6,6 +6,7 @@ import (
 
 	"github.com/mesg-foundation/core/database/services"
 	service "github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/core/utils/array"
 
 	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/pubsub"
@@ -75,23 +76,9 @@ func validateOutputKey(service *service.Service, taskKey string, outputFilter st
 }
 
 func isSubscribedTask(request *ListenResultRequest, e *execution.Execution) bool {
-	return includedIn([]string{"", "*", e.Task}, request.TaskFilter)
+	return array.IncludedIn([]string{"", "*", e.Task}, request.TaskFilter)
 }
 
 func isSubscribedOutput(request *ListenResultRequest, e *execution.Execution) bool {
-	return includedIn([]string{"", "*", e.Output}, request.OutputFilter)
-}
-
-func includedIn(arr []string, value string) bool {
-	if len(arr) == 0 {
-		return false
-	}
-	i := 0
-	for _, item := range arr {
-		if item == value {
-			break
-		}
-		i++
-	}
-	return i != len(arr)
+	return array.IncludedIn([]string{"", "*", e.Output}, request.OutputFilter)
 }
