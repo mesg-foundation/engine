@@ -56,58 +56,15 @@
       "additionalProperties": false,
       "patternProperties": {
         "^[a-zA-Z_-]+$": {
-          "type": "object",
-          "additionalProperties": false,
+          "$ref": "#/definitions/dependency",
           "required": [
             "image"
-          ],
-          "properties": {
-            "image": {
-              "type": "string",
-              "minLength": 1
-            },
-            "command": {
-              "type": "string"
-            },
-            "volumes": {
-              "oneOf": [
-                { "type": "null" },
-                {
-                  "type": "array",
-                  "uniqueItems": true,
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              ]
-            },
-            "volumesfrom": {
-              "oneOf": [
-                { "type": "null" },
-                {
-                  "type": "array",
-                  "uniqueItems": true,
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              ]
-            },
-            "ports": {
-              "oneOf": [
-                { "type": "null" },
-                {
-                  "type": "array",
-                  "uniqueItems": true,
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              ]
-            }
-          }
+          ]
         }
       }
+    },
+    "configuration": {
+      "$ref": "#/definitions/dependency"
     }
   },
   "definitions": {
@@ -272,6 +229,55 @@
         },
         "data": {
           "$ref": "#/definitions/parameters"
+        }
+      }
+    },
+    "dependency": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "image": {
+          "type": "string",
+          "minLength": 1
+        },
+        "command": {
+          "type": "string"
+        },
+        "volumes": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "volumesfrom": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "ports": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
         }
       }
     }
