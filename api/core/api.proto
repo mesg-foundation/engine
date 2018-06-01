@@ -28,6 +28,8 @@ message ExecuteTaskRequest {
 
 message ListenResultRequest {
   string serviceID = 1;
+  string taskKey = 2;
+  string outputKey = 3;
 }
 
 message StartServiceRequest {
