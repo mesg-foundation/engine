@@ -1,6 +1,9 @@
 package container
 
 import (
+	"os"
+	"strconv"
+
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/swarm"
 )
@@ -72,6 +75,11 @@ func (options *ServiceOptions) swarmPorts() (ports []swarm.PortConfig) {
 }
 
 func (options *ServiceOptions) swarmMounts() (mounts []mount.Mount) {
+	// hack for preventing mount when in CircleCI
+	circleCI, errCircle := strconv.ParseBool(os.Getenv("CIRCLECI"))
+	if errCircle == nil && circleCI {
+		return
+	}
 	mounts = make([]mount.Mount, len(options.Mounts))
 	for i, m := range options.Mounts {
 		mounts[i] = mount.Mount{
