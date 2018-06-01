@@ -41,8 +41,8 @@ func StartService(options ServiceOptions) (serviceID string, err error) {
 	if err != nil {
 		return
 	}
-	options.merge()
-	response, err := client.ServiceCreate(context.Background(), options.ServiceSpec, types.ServiceCreateOptions{})
+	service := options.toSwarmServiceSpec()
+	response, err := client.ServiceCreate(context.Background(), service, types.ServiceCreateOptions{})
 	if err != nil {
 		return
 	}

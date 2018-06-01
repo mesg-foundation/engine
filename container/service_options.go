@@ -5,17 +5,16 @@ import (
 	"github.com/docker/docker/api/types/swarm"
 )
 
-// ServiceOptions is a simplify version of swarm.ServiceSpec that can be merge to it
+// ServiceOptions is a simplify version of swarm.ServiceSpec that can be created it.
 type ServiceOptions struct {
-	Image       string
-	Namespace   []string
-	Ports       []Port
-	Mounts      []Mount
-	Env         []string
-	Args        []string
-	NetworksID  []string
-	Labels      map[string]string
-	ServiceSpec swarm.ServiceSpec
+	Image      string
+	Namespace  []string
+	Ports      []Port
+	Mounts     []Mount
+	Env        []string
+	Args       []string
+	NetworksID []string
+	Labels     map[string]string
 }
 
 // Port is a simplify version of swarm.PortConfig
@@ -30,68 +29,37 @@ type Mount struct {
 	Target string
 }
 
-func (options *ServiceOptions) merge() {
-	options.initCreateServiceOptions()
-	options.mergeNamespace()
-	options.mergeImage()
-	options.mergeLabels()
-	options.mergePorts()
-	options.mergeMounts()
-	options.mergeEnv()
-	options.mergeArgs()
-	options.mergeNetworks()
-}
-
-func (options *ServiceOptions) initCreateServiceOptions() {
-	if options.ServiceSpec.Annotations.Labels == nil {
-		options.ServiceSpec.Annotations.Labels = make(map[string]string)
-	}
-	if options.ServiceSpec.EndpointSpec == nil {
-		options.ServiceSpec.EndpointSpec = &swarm.EndpointSpec{}
-	}
-	if options.ServiceSpec.EndpointSpec.Ports == nil {
-		options.ServiceSpec.EndpointSpec.Ports = make([]swarm.PortConfig, 0)
-	}
-	if options.ServiceSpec.TaskTemplate.ContainerSpec == nil {
-		options.ServiceSpec.TaskTemplate.ContainerSpec = &swarm.ContainerSpec{}
-	}
-	if options.ServiceSpec.TaskTemplate.Networks == nil {
-		options.ServiceSpec.TaskTemplate.Networks = make([]swarm.NetworkAttachmentConfig, 0)
-	}
-	if options.ServiceSpec.TaskTemplate.ContainerSpec.Args == nil {
-		options.ServiceSpec.TaskTemplate.ContainerSpec.Args = make([]string, 0)
-	}
-	if options.ServiceSpec.TaskTemplate.ContainerSpec.Env == nil {
-		options.ServiceSpec.TaskTemplate.ContainerSpec.Env = make([]string, 0)
-	}
-	if options.ServiceSpec.TaskTemplate.ContainerSpec.Mounts == nil {
-		options.ServiceSpec.TaskTemplate.ContainerSpec.Mounts = make([]mount.Mount, 0)
-	}
-	if options.ServiceSpec.TaskTemplate.ContainerSpec.Labels == nil {
-		options.ServiceSpec.TaskTemplate.ContainerSpec.Labels = make(map[string]string)
-	}
-}
-
-func (options *ServiceOptions) mergeNamespace() {
+func (options *ServiceOptions) toSwarmServiceSpec() (service swarm.ServiceSpec) {
 	namespace := Namespace(options.Namespace)
-	options.ServiceSpec.Annotations.Name = namespace
-	options.ServiceSpec.Annotations.Labels["com.docker.stack.namespace"] = namespace
-	options.ServiceSpec.TaskTemplate.ContainerSpec.Labels["com.docker.stack.namespace"] = namespace
-}
-
-func (options *ServiceOptions) mergeImage() {
-	options.ServiceSpec.Annotations.Labels["com.docker.stack.image"] = options.Image
-	options.ServiceSpec.TaskTemplate.ContainerSpec.Image = options.Image
-}
-
-func (options *ServiceOptions) mergeLabels() {
-	for k, v := range options.Labels {
-		options.ServiceSpec.Annotations.Labels[k] = v
+	service = swarm.ServiceSpec{
+		Annotations: swarm.Annotations{
+			Name: namespace,
+			Labels: mergeLabels(options.Labels, map[string]string{
+				"com.docker.stack.namespace": namespace,
+				"com.docker.stack.image":     options.Image,
+			}),
+		},
+		TaskTemplate: swarm.TaskSpec{
+			ContainerSpec: &swarm.ContainerSpec{
+				Image: options.Image,
+				Labels: map[string]string{
+					"com.docker.stack.namespace": namespace,
+				},
+				Env:    options.Env,
+				Args:   options.Args,
+				Mounts: options.swarmMounts(),
+			},
+			Networks: options.swarmNetworks(),
+		},
+		EndpointSpec: &swarm.EndpointSpec{
+			Ports: options.swarmPorts(),
+		},
 	}
+	return
 }
 
-func (options *ServiceOptions) mergePorts() {
-	ports := make([]swarm.PortConfig, len(options.Ports))
+func (options *ServiceOptions) swarmPorts() (ports []swarm.PortConfig) {
+	ports = make([]swarm.PortConfig, len(options.Ports))
 	for i, p := range options.Ports {
 		ports[i] = swarm.PortConfig{
 			Protocol:      swarm.PortConfigProtocolTCP,
@@ -100,32 +68,36 @@ func (options *ServiceOptions) mergePorts() {
 			PublishedPort: p.Published,
 		}
 	}
-	options.ServiceSpec.EndpointSpec.Ports = append(options.ServiceSpec.EndpointSpec.Ports, ports...)
+	return
 }
 
-func (options *ServiceOptions) mergeMounts() {
-	mounts := make([]mount.Mount, len(options.Mounts))
+func (options *ServiceOptions) swarmMounts() (mounts []mount.Mount) {
+	mounts = make([]mount.Mount, len(options.Mounts))
 	for i, m := range options.Mounts {
 		mounts[i] = mount.Mount{
 			Source: m.Source,
 			Target: m.Target,
 		}
 	}
-	options.ServiceSpec.TaskTemplate.ContainerSpec.Mounts = append(options.ServiceSpec.TaskTemplate.ContainerSpec.Mounts, mounts...)
+	return
 }
 
-func (options *ServiceOptions) mergeEnv() {
-	options.ServiceSpec.TaskTemplate.ContainerSpec.Env = append(options.ServiceSpec.TaskTemplate.ContainerSpec.Env, options.Env...)
-}
-
-func (options *ServiceOptions) mergeArgs() {
-	options.ServiceSpec.TaskTemplate.ContainerSpec.Args = append(options.ServiceSpec.TaskTemplate.ContainerSpec.Args, options.Args...)
-}
-
-func (options *ServiceOptions) mergeNetworks() {
-	for _, networkID := range options.NetworksID {
-		options.ServiceSpec.TaskTemplate.Networks = append(options.ServiceSpec.TaskTemplate.Networks, swarm.NetworkAttachmentConfig{
+func (options *ServiceOptions) swarmNetworks() (networks []swarm.NetworkAttachmentConfig) {
+	networks = make([]swarm.NetworkAttachmentConfig, len(options.NetworksID))
+	for i, networkID := range options.NetworksID {
+		networks[i] = swarm.NetworkAttachmentConfig{
 			Target: networkID,
-		})
+		}
 	}
+	return
+}
+
+func mergeLabels(l1 map[string]string, l2 map[string]string) map[string]string {
+	if l1 == nil {
+		l1 = make(map[string]string)
+	}
+	for k, v := range l2 {
+		l1[k] = v
+	}
+	return l1
 }
