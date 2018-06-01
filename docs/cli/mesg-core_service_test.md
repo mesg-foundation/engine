@@ -29,6 +29,8 @@ mesg-core service test --keep-alive
   -e, --event string     Only log a specific event (default "*")
   -h, --help             help for test
       --keep-alive       Do not stop the service
+  -o, --output string    Filter output of a task
+  -r, --result string    Filter the result of a specific task
   -s, --service string   Debug a deployed service
   -t, --task string      Run a specific task
 ```
