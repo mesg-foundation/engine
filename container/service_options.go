@@ -50,7 +50,7 @@ func (options *ServiceOptions) toSwarmServiceSpec() (service swarm.ServiceSpec) 
 				},
 				Env:    options.Env,
 				Args:   options.Args,
-				Mounts: options.swarmMounts(),
+				Mounts: options.swarmMounts(true),
 			},
 			Networks: options.swarmNetworks(),
 		},
@@ -74,10 +74,10 @@ func (options *ServiceOptions) swarmPorts() (ports []swarm.PortConfig) {
 	return
 }
 
-func (options *ServiceOptions) swarmMounts() (mounts []mount.Mount) {
+func (options *ServiceOptions) swarmMounts(force bool) (mounts []mount.Mount) {
 	// hack for preventing mount when in CircleCI
 	circleCI, errCircle := strconv.ParseBool(os.Getenv("CIRCLECI"))
-	if errCircle == nil && circleCI {
+	if force == false && errCircle == nil && circleCI {
 		return
 	}
 	mounts = make([]mount.Mount, len(options.Mounts))
