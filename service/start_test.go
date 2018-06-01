@@ -24,6 +24,24 @@ func TestStartService(t *testing.T) {
 	service.Stop()
 }
 
+func TestStartWith2Dependencies(t *testing.T) {
+	service := &Service{
+		Name: "TestStartWith2Dependencies",
+		Dependencies: map[string]*Dependency{
+			"test": &Dependency{
+				Image: "nginx",
+			},
+			"test2": &Dependency{
+				Image: "nginx",
+			},
+		},
+	}
+	servicesID, err := service.Start()
+	assert.Nil(t, err)
+	assert.Equal(t, 2, len(servicesID))
+	service.Stop()
+}
+
 func TestStartAgainService(t *testing.T) {
 	service := &Service{
 		Name: "TestStartAgainService",
