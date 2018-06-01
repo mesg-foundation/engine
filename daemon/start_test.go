@@ -46,6 +46,7 @@ func TestStartConfig(t *testing.T) {
 	// Make sure that the config directory is passed in parameter to write on the same folder
 	assert.Equal(t, spec.Env[0], "MESG.PATH=/mesg")
 	assert.Equal(t, spec.Env[1], "API.SERVICE.SOCKETPATH="+filepath.Join(viper.GetString(config.MESGPath), "server.sock"))
+	assert.Equal(t, spec.Env[2], "SERVICE.PATH.HOST="+filepath.Join(viper.GetString(config.MESGPath), "services"))
 	// Ensure that the port is shared
 	assert.Equal(t, spec.Ports[0].Published, uint32(50052))
 	assert.Equal(t, spec.Ports[0].Target, uint32(50052))
