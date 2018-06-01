@@ -7,7 +7,7 @@ import (
 const (
 	namespacePrefix    string = "mesg"
 	namespaceSeparator string = "-"
-	serviceTagPrefix   string = "mesg/service"
+	serviceTagPrefix   string = "mesg/"
 )
 
 // Namespace creates a namespace from a list of string
@@ -20,8 +20,7 @@ func Namespace(ss []string) string {
 
 // ServiceTag returns the tag for a docker image for a service
 func ServiceTag(ss []string) string {
-	ssWithPrefix := append([]string{serviceTagPrefix}, ss...)
-	namespace := strings.Join(ssWithPrefix, namespaceSeparator)
+	namespace := strings.Join(ss, namespaceSeparator)
 	namespace = strings.Replace(namespace, " ", namespaceSeparator, -1)
-	return namespace
+	return strings.ToLower(serviceTagPrefix + namespace)
 }
