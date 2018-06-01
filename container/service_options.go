@@ -50,7 +50,7 @@ func (options *ServiceOptions) toSwarmServiceSpec() (service swarm.ServiceSpec) 
 				},
 				Env:    options.Env,
 				Args:   options.Args,
-				Mounts: options.swarmMounts(true),
+				Mounts: options.swarmMounts(false),
 			},
 			Networks: options.swarmNetworks(),
 		},
