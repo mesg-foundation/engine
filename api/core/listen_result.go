@@ -17,10 +17,10 @@ func (s *Server) ListenResult(request *ListenResultRequest, stream Core_ListenRe
 	if err != nil {
 		return
 	}
-	if err = validateTaskKey(&service, request.TaskKey); err != nil {
+	if err = validateTaskKey(&service, request.TaskFilter); err != nil {
 		return
 	}
-	if err = validateOutputKey(&service, request.TaskKey, request.OutputKey); err != nil {
+	if err = validateOutputKey(&service, request.TaskFilter, request.OutputFilter); err != nil {
 		return
 	}
 	subscription := pubsub.Subscribe(service.ResultSubscriptionChannel())
@@ -39,26 +39,26 @@ func (s *Server) ListenResult(request *ListenResultRequest, stream Core_ListenRe
 	return
 }
 
-func validateTaskKey(service *service.Service, taskKey string) (err error) {
-	if taskKey == "" {
+func validateTaskKey(service *service.Service, taskFilter string) (err error) {
+	if taskFilter == "" {
 		return
 	}
-	if taskKey == "*" {
+	if taskFilter == "*" {
 		return
 	}
-	_, ok := service.Tasks[taskKey]
+	_, ok := service.Tasks[taskFilter]
 	if ok {
 		return
 	}
-	err = errors.New("Invalid taskKey: " + taskKey)
+	err = errors.New("Invalid taskFilter: " + taskFilter)
 	return
 }
 
-func validateOutputKey(service *service.Service, taskKey string, outputKey string) (err error) {
-	if outputKey == "" {
+func validateOutputKey(service *service.Service, taskKey string, outputFilter string) (err error) {
+	if outputFilter == "" {
 		return
 	}
-	if outputKey == "*" {
+	if outputFilter == "*" {
 		return
 	}
 	task, ok := service.Tasks[taskKey]
@@ -66,20 +66,20 @@ func validateOutputKey(service *service.Service, taskKey string, outputKey strin
 		err = errors.New("Invalid taskKey: " + taskKey)
 		return
 	}
-	_, ok = task.Outputs[outputKey]
+	_, ok = task.Outputs[outputFilter]
 	if ok {
 		return
 	}
-	err = errors.New("Invalid outputKey: " + outputKey)
+	err = errors.New("Invalid outputFilter: " + outputFilter)
 	return
 }
 
 func isSubscribedTask(request *ListenResultRequest, e *execution.Execution) bool {
-	return includedIn([]string{"", "*", e.Task}, request.TaskKey)
+	return includedIn([]string{"", "*", e.Task}, request.TaskFilter)
 }
 
 func isSubscribedOutput(request *ListenResultRequest, e *execution.Execution) bool {
-	return includedIn([]string{"", "*", e.Output}, request.OutputKey)
+	return includedIn([]string{"", "*", e.Output}, request.OutputFilter)
 }
 
 func includedIn(arr []string, value string) bool {
