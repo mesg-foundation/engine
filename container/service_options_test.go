@@ -6,7 +6,7 @@ import (
 	"github.com/stvp/assert"
 )
 
-func TestServiceOptionMergeNamespace(t *testing.T) {
+func TestServiceOptionNamespace(t *testing.T) {
 	namespace := []string{"name1", "name2"}
 	options := &ServiceOptions{
 		Namespace: namespace,
@@ -18,7 +18,7 @@ func TestServiceOptionMergeNamespace(t *testing.T) {
 	assert.Equal(t, expectedNamespace, service.TaskTemplate.ContainerSpec.Labels["com.docker.stack.namespace"])
 }
 
-func TestServiceOptionMergeImage(t *testing.T) {
+func TestServiceOptionImage(t *testing.T) {
 	image := "nginx"
 	options := &ServiceOptions{
 		Image: image,
@@ -29,6 +29,23 @@ func TestServiceOptionMergeImage(t *testing.T) {
 }
 
 func TestServiceOptionMergeLabels(t *testing.T) {
+	l1 := map[string]string{
+		"label1": "foo",
+		"label2": "bar",
+	}
+	l2 := map[string]string{
+		"label2": "foo",
+		"label3": "foo",
+		"label4": "bar",
+	}
+	labels := mergeLabels(l1, l2)
+	assert.Equal(t, "foo", labels["label1"])
+	assert.Equal(t, "foo", labels["label2"])
+	assert.Equal(t, "foo", labels["label3"])
+	assert.Equal(t, "bar", labels["label4"])
+}
+
+func TestServiceOptionLabels(t *testing.T) {
 	options := &ServiceOptions{
 		Labels: map[string]string{
 			"label1": "foo",
@@ -40,7 +57,7 @@ func TestServiceOptionMergeLabels(t *testing.T) {
 	assert.Equal(t, "bar", service.Annotations.Labels["label2"])
 }
 
-func TestServiceOptionMergePorts(t *testing.T) {
+func TestServiceOptionPorts(t *testing.T) {
 	options := &ServiceOptions{
 		Ports: []Port{
 			Port{
@@ -53,8 +70,7 @@ func TestServiceOptionMergePorts(t *testing.T) {
 			},
 		},
 	}
-	service := options.toSwarmServiceSpec()
-	ports := service.EndpointSpec.Ports
+	ports := options.swarmPorts()
 	assert.Equal(t, 2, len(ports))
 	assert.Equal(t, uint32(50503), ports[0].PublishedPort)
 	assert.Equal(t, uint32(50501), ports[0].TargetPort)
@@ -62,7 +78,7 @@ func TestServiceOptionMergePorts(t *testing.T) {
 	assert.Equal(t, uint32(30501), ports[1].TargetPort)
 }
 
-func TestServiceOptionMergeMounts(t *testing.T) {
+func TestServiceOptionMounts(t *testing.T) {
 	options := &ServiceOptions{
 		Mounts: []Mount{
 			Mount{
@@ -71,14 +87,13 @@ func TestServiceOptionMergeMounts(t *testing.T) {
 			},
 		},
 	}
-	service := options.toSwarmServiceSpec()
-	mounts := service.TaskTemplate.ContainerSpec.Mounts
+	mounts := options.swarmMounts()
 	assert.Equal(t, 1, len(mounts))
 	assert.Equal(t, "source/file", mounts[0].Source)
 	assert.Equal(t, "target/file", mounts[0].Target)
 }
 
-func TestServiceOptionMergeEnv(t *testing.T) {
+func TestServiceOptionEnv(t *testing.T) {
 	options := &ServiceOptions{
 		Env: []string{"env1", "env2"},
 	}
@@ -89,12 +104,11 @@ func TestServiceOptionMergeEnv(t *testing.T) {
 	assert.Equal(t, "env2", env[1])
 }
 
-func TestServiceOptionMergeNetworks(t *testing.T) {
+func TestServiceOptionNetworks(t *testing.T) {
 	options := &ServiceOptions{
 		NetworksID: []string{"network1", "network2"},
 	}
-	service := options.toSwarmServiceSpec()
-	networks := service.TaskTemplate.Networks
+	networks := options.swarmNetworks()
 	assert.Equal(t, 2, len(networks))
 	assert.Equal(t, "network1", networks[0].Target)
 	assert.Equal(t, "network2", networks[1].Target)
