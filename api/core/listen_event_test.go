@@ -25,15 +25,15 @@ func TestIsSubscribedEvent(t *testing.T) {
 	r := &ListenEventRequest{}
 	assert.True(t, isSubscribedEvent(r, e))
 
-	r = &ListenEventRequest{EventKey: ""}
+	r = &ListenEventRequest{EventFilter: ""}
 	assert.True(t, isSubscribedEvent(r, e))
 
-	r = &ListenEventRequest{EventKey: "*"}
+	r = &ListenEventRequest{EventFilter: "*"}
 	assert.True(t, isSubscribedEvent(r, e))
 
-	r = &ListenEventRequest{EventKey: "test"}
+	r = &ListenEventRequest{EventFilter: "test"}
 	assert.True(t, isSubscribedEvent(r, e))
 
-	r = &ListenEventRequest{EventKey: "xxx"}
+	r = &ListenEventRequest{EventFilter: "xxx"}
 	assert.False(t, isSubscribedEvent(r, e))
 }

@@ -56,16 +56,16 @@ func TestIsSubscribedTask(t *testing.T) {
 	r := &ListenResultRequest{}
 	assert.True(t, isSubscribedTask(r, x))
 
-	r = &ListenResultRequest{TaskKey: ""}
+	r = &ListenResultRequest{TaskFilter: ""}
 	assert.True(t, isSubscribedTask(r, x))
 
-	r = &ListenResultRequest{TaskKey: "*"}
+	r = &ListenResultRequest{TaskFilter: "*"}
 	assert.True(t, isSubscribedTask(r, x))
 
-	r = &ListenResultRequest{TaskKey: "task"}
+	r = &ListenResultRequest{TaskFilter: "task"}
 	assert.True(t, isSubscribedTask(r, x))
 
-	r = &ListenResultRequest{TaskKey: "xxx"}
+	r = &ListenResultRequest{TaskFilter: "xxx"}
 	assert.False(t, isSubscribedTask(r, x))
 }
 
@@ -74,15 +74,15 @@ func TestIsSubscribedOutput(t *testing.T) {
 	r := &ListenResultRequest{}
 	assert.True(t, isSubscribedOutput(r, x))
 
-	r = &ListenResultRequest{OutputKey: ""}
+	r = &ListenResultRequest{OutputFilter: ""}
 	assert.True(t, isSubscribedOutput(r, x))
 
-	r = &ListenResultRequest{OutputKey: "*"}
+	r = &ListenResultRequest{OutputFilter: "*"}
 	assert.True(t, isSubscribedOutput(r, x))
 
-	r = &ListenResultRequest{OutputKey: "output"}
+	r = &ListenResultRequest{OutputFilter: "output"}
 	assert.True(t, isSubscribedOutput(r, x))
 
-	r = &ListenResultRequest{OutputKey: "xxx"}
+	r = &ListenResultRequest{OutputFilter: "xxx"}
 	assert.False(t, isSubscribedOutput(r, x))
 }

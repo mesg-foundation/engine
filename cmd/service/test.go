@@ -31,8 +31,8 @@ mesg-core service test --keep-alive`,
 
 func listenEvents(serviceID string, filter string) {
 	stream, err := cli.ListenEvent(context.Background(), &core.ListenEventRequest{
-		ServiceID: serviceID,
-		EventKey:  filter,
+		ServiceID:   serviceID,
+		EventFilter: filter,
 	})
 	handleError(err)
 	for {
@@ -47,9 +47,9 @@ func listenEvents(serviceID string, filter string) {
 
 func listenResults(serviceID string, result string, output string) {
 	stream, err := cli.ListenResult(context.Background(), &core.ListenResultRequest{
-		ServiceID: serviceID,
-		TaskKey:   result,
-		OutputKey: output,
+		ServiceID:    serviceID,
+		TaskFilter:   result,
+		OutputFilter: output,
 	})
 	handleError(err)
 	for {

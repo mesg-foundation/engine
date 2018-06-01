@@ -17,7 +17,7 @@ func (s *Server) ListenEvent(request *ListenEventRequest, stream Core_ListenEven
 	if err != nil {
 		return
 	}
-	if err = validateEventKey(&service, request.EventKey); err != nil {
+	if err = validateEventKey(&service, request.EventFilter); err != nil {
 		return
 	}
 	subscription := pubsub.Subscribe(service.EventSubscriptionChannel())
@@ -34,23 +34,23 @@ func (s *Server) ListenEvent(request *ListenEventRequest, stream Core_ListenEven
 	return
 }
 
-func validateEventKey(service *service.Service, eventKey string) (err error) {
-	if eventKey == "" {
+func validateEventKey(service *service.Service, eventFilter string) (err error) {
+	if eventFilter == "" {
 		return
 	}
-	if eventKey == "*" {
+	if eventFilter == "*" {
 		return
 	}
-	_, ok := service.Events[eventKey]
+	_, ok := service.Events[eventFilter]
 	if ok {
 		return
 	}
-	err = errors.New("Invalid eventKey: " + eventKey)
+	err = errors.New("Invalid eventFilter: " + eventFilter)
 	return
 }
 
 func isSubscribedEvent(request *ListenEventRequest, e *event.Event) bool {
-	if request.EventKey != "" && request.EventKey != "*" && request.EventKey != e.Key {
+	if request.EventFilter != "" && request.EventFilter != "*" && request.EventFilter != e.Key {
 		return false
 	}
 	// Possibility to add more filters here like filters on data, awlays return the
