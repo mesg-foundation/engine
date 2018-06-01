@@ -2,8 +2,6 @@ package service
 
 import (
 	"errors"
-	"os"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -76,42 +74,24 @@ func (dependency *Dependency) Start(service *Service, details dependencyDetails,
 		return
 	}
 	namespace := []string{details.namespace, details.dependencyName} //TODO: refacto namespace
-	circleCI, errCircle := strconv.ParseBool(os.Getenv("CIRCLECI"))
-	if errCircle == nil && circleCI {
-		serviceID, err = container.StartService(container.ServiceOptions{
-			Namespace: namespace,
-			Labels: map[string]string{
-				"mesg.service": details.serviceName,
-			},
-			Image: dependency.Image,
-			Args:  strings.Fields(dependency.Command),
-			Env: []string{
-				"MESG_ENDPOINT=" + viper.GetString(config.APIServiceTargetSocket),
-				"MESG_ENDPOINT_TCP=mesg-daemon:50052",
-			},
-			Ports:      extractPorts(dependency),
-			NetworksID: []string{networkID, sharedNetworkID},
-		})
-	} else {
-		serviceID, err = container.StartService(container.ServiceOptions{
-			Namespace: namespace,
-			Labels: map[string]string{
-				"mesg.service": details.serviceName,
-			},
-			Image: dependency.Image,
-			Args:  strings.Fields(dependency.Command),
-			Env: []string{
-				"MESG_ENDPOINT=" + viper.GetString(config.APIServiceTargetSocket),
-				"MESG_ENDPOINT_TCP=mesg-daemon:50052",
-			},
-			Mounts: append(extractVolumes(service, dependency, details), container.Mount{
-				Source: viper.GetString(config.APIServiceSocketPath),
-				Target: viper.GetString(config.APIServiceTargetPath),
-			}),
-			Ports:      extractPorts(dependency),
-			NetworksID: []string{networkID, sharedNetworkID},
-		})
-	}
+	serviceID, err = container.StartService(container.ServiceOptions{
+		Namespace: namespace,
+		Labels: map[string]string{
+			"mesg.service": details.serviceName,
+		},
+		Image: dependency.Image,
+		Args:  strings.Fields(dependency.Command),
+		Env: []string{
+			"MESG_ENDPOINT=" + viper.GetString(config.APIServiceTargetSocket),
+			"MESG_ENDPOINT_TCP=mesg-daemon:50052",
+		},
+		Mounts: append(extractVolumes(service, dependency, details), container.Mount{
+			Source: viper.GetString(config.APIServiceSocketPath),
+			Target: viper.GetString(config.APIServiceTargetPath),
+		}),
+		Ports:      extractPorts(dependency),
+		NetworksID: []string{networkID, sharedNetworkID},
+	})
 	if err != nil {
 		return
 	}
