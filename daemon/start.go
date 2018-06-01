@@ -42,6 +42,7 @@ func serviceSpec(networkID string) swarm.ServiceSpec {
 				Env: []string{
 					"MESG.PATH=/mesg",
 					"API.SERVICE.SOCKETPATH=" + filepath.Join(viper.GetString(config.MESGPath), "server.sock"),
+					"SERVICE.PATH.HOST=" + filepath.Join(viper.GetString(config.MESGPath), "services"),
 				},
 				Mounts: []mount.Mount{
 					mount.Mount{
