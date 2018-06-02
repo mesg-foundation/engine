@@ -7,7 +7,7 @@ import (
 )
 
 func TestBuild(t *testing.T) {
-	tag, err := Build("test/", []string{"testbuild"})
+	tag, err := Build("test/")
 	assert.Nil(t, err)
 	assert.NotEqual(t, "", tag)
 }

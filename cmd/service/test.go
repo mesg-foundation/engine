@@ -84,7 +84,9 @@ func executeTask(serviceID string, task string, dataPath string) (execution *cor
 
 func testHandler(cmd *cobra.Command, args []string) {
 	service := loadService(defaultPath(args))
-	buildDockerImage(defaultPath(args), service.Name)
+	tag := buildDockerImage(defaultPath(args))
+	tagService(service, tag)
+
 	deployment, err := cli.DeployService(context.Background(), &core.DeployServiceRequest{
 		Service: service,
 	})
