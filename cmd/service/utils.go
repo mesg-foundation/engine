@@ -43,8 +43,8 @@ func loadService(path string) (importedService *service.Service) {
 
 func buildDockerImage(path string) (imageHash string) {
 	s := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Building image..."})
+	defer s.Stop()
 	imageHash, err := container.Build(path)
-	s.Stop()
 	if err != nil {
 		handleError(err)
 		return
