@@ -32,8 +32,8 @@ func FindContainer(namespace []string) (container types.ContainerJSON, err error
 	return
 }
 
-// ContainerStatus returns the status of a docker container
-func ContainerStatus(namespace []string) (status StatusType, err error) {
+// Status returns the status of a docker container
+func Status(namespace []string) (status StatusType, err error) {
 	status = STOPPED
 	container, err := FindContainer(namespace)
 	if docker.IsErrNotFound(err) {
