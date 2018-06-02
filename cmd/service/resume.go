@@ -1,8 +1,6 @@
 package cmdService
 
 import (
-	"fmt"
-
 	"github.com/mesg-foundation/core/cmd/utils"
 
 	"github.com/spf13/cobra"
@@ -22,12 +20,12 @@ To pause a service, see the [pause command](mesg-core_service_pause.md)`,
 }
 
 func resumeHandler(cmd *cobra.Command, args []string) {
-	account := cmdUtils.AccountFromFlagOrAsk(cmd, "Select an account:")
-	if !cmdUtils.Confirm(cmd, "Are you sure?") {
-		return
-	}
-	// TODO start and when ready resume (onchan) the service
-	fmt.Println("Service resumed with success", args, account)
+	// account := cmdUtils.AccountFromFlagOrAsk(cmd, "Select an account:")
+	// if !cmdUtils.Confirm(cmd, "Are you sure?") {
+	// 	return
+	// }
+	// // TODO start and when ready resume (onchan) the service
+	// fmt.Println("Service resumed with success", args, account)
 }
 
 func init() {
