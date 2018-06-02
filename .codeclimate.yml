@@ -1,0 +1,12 @@
+exclude_patterns:
+  - "**/*_test.go"
+  - "**/*.d.ts"
+  - "**/*.pb.go"
+  - "**/service/schema.go"
+plugins:
+  gofmt:
+    enabled: true
+  golint:
+    enabled: true
+  govet:
+    enabled: true
