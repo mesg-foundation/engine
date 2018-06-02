@@ -34,7 +34,7 @@ func TestFindContainerStopped(t *testing.T) {
 
 func TestContainerStatusNeverStarted(t *testing.T) {
 	namespace := []string{"TestContainerStatusNeverStarted"}
-	status, err := ContainerStatus(namespace)
+	status, err := Status(namespace)
 	assert.Nil(t, err)
 	assert.Equal(t, status, STOPPED)
 }
@@ -44,7 +44,7 @@ func TestContainerStatusRunning(t *testing.T) {
 	startTestService(namespace)
 	defer StopService(namespace)
 	<-WaitContainerStatus(namespace, RUNNING, time.Minute)
-	status, err := ContainerStatus(namespace)
+	status, err := Status(namespace)
 	assert.Nil(t, err)
 	assert.Equal(t, status, RUNNING)
 }
@@ -57,7 +57,7 @@ func TestContainerStatusStopped(t *testing.T) {
 	StopService(namespace)
 	<-WaitContainerStatus(namespace, STOPPED, time.Minute)
 	fmt.Println("wait for stop")
-	status, err := ContainerStatus(namespace)
+	status, err := Status(namespace)
 	assert.Nil(t, err)
 	assert.Equal(t, status, STOPPED)
 }
@@ -94,7 +94,7 @@ func WaitContainerStatus(namespace []string, status StatusType, timeout time.Dur
 	wait = make(chan error, 1)
 	go func() {
 		for {
-			currentStatus, err := ContainerStatus(namespace)
+			currentStatus, err := Status(namespace)
 			if err != nil {
 				wait <- err
 				return
