@@ -56,10 +56,7 @@ func validateTaskKey(service *service.Service, taskFilter string) (err error) {
 }
 
 func validateOutputKey(service *service.Service, taskKey string, outputFilter string) (err error) {
-	if outputFilter == "" {
-		return
-	}
-	if outputFilter == "*" {
+	if outputFilter == "" || outputFilter == "*" {
 		return
 	}
 	task, ok := service.Tasks[taskKey]
