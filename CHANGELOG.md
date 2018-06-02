@@ -13,3 +13,4 @@
 #### Removed
 
 #### Fixed
+- (#185) Fix logs with extra characters when `mesg-core daemon logs`
