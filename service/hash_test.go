@@ -12,7 +12,7 @@ func TestGenerateId(t *testing.T) {
 	}
 	hash, err := service.Hash()
 	assert.Nil(t, err)
-	assert.Equal(t, string(hash), "v1_1096bf901b57b1a7e647a85da0b50ad2")
+	assert.Equal(t, string(hash), "v1_47973fb28987630b939bb69be6cc9311")
 }
 
 func TestNoCollision(t *testing.T) {
