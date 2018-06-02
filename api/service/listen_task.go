@@ -7,7 +7,7 @@ import (
 	"github.com/mesg-foundation/core/pubsub"
 )
 
-// Listen for tasks
+// ListenTask create a stream that will send data for every task to execute
 func (s *Server) ListenTask(request *ListenTaskRequest, stream Service_ListenTaskServer) (err error) {
 	subscription := pubsub.Subscribe(request.Service.TaskSubscriptionChannel())
 	for data := range subscription {
