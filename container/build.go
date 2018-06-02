@@ -25,7 +25,6 @@ func Build(path string) (tag string, err error) {
 		return
 	}
 	response, err := client.ImageBuild(context.Background(), buildContext, types.ImageBuildOptions{
-		Tags:           []string{tag},
 		Remove:         true,
 		ForceRemove:    true,
 		SuppressOutput: true,
