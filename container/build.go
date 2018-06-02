@@ -10,6 +10,11 @@ import (
 	"github.com/docker/docker/pkg/archive"
 )
 
+// Build response is the object that is returned by the docker api in json
+type BuildResponse struct {
+	Stream string `json:"stream"`
+}
+
 // Build a docker image
 func Build(path string) (tag string, err error) {
 	buildContext, err := archive.Tar(path, archive.Gzip)
@@ -17,9 +22,6 @@ func Build(path string) (tag string, err error) {
 		return
 	}
 	defer buildContext.Close()
-	if err != nil {
-		return
-	}
 	client, err := Client()
 	if err != nil {
 		return
@@ -37,9 +39,6 @@ func Build(path string) (tag string, err error) {
 	r, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return
-	}
-	type BuildResponse struct {
-		Stream string `json:"stream"`
 	}
 	var buildResponse BuildResponse
 	err = json.Unmarshal(r, &buildResponse)
