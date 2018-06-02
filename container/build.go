@@ -34,6 +34,11 @@ func Build(path string) (tag string, err error) {
 	if err != nil {
 		return
 	}
+	tag, err = parseBuildResponse(response)
+	return
+}
+
+func parseBuildResponse(response types.ImageBuildResponse) (tag string, err error) {
 	defer response.Body.Close()
 
 	r, err := ioutil.ReadAll(response.Body)
