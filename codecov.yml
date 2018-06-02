@@ -1,6 +1,7 @@
 ignore:
   - "**/*.pb.go"  # ignore all protobuff generated files
-  = "**/*.md" # ignore all markdown files
+  - "**/*.md" # ignore all markdown files
+  - "**/*.yml" # ignore all yml files
   - "Dockerfile"
   - ".dockerignore"
   - ".circleci/config.yml"
