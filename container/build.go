@@ -10,7 +10,7 @@ import (
 	"github.com/docker/docker/pkg/archive"
 )
 
-// Build response is the object that is returned by the docker api in json
+// BuildResponse is the object that is returned by the docker api in json
 type BuildResponse struct {
 	Stream string `json:"stream"`
 }
