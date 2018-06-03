@@ -25,6 +25,10 @@ func (service *Service) Start() (serviceIDs []string, err error) {
 	if err != nil {
 		return
 	}
+	hash, err := service.Hash()
+	if err != nil {
+		return
+	}
 	serviceIDs = make([]string, len(service.GetDependencies()))
 	i := 0
 	for name, dependency := range service.GetDependencies() {
@@ -32,6 +36,7 @@ func (service *Service) Start() (serviceIDs []string, err error) {
 			namespace:      service.namespace(),
 			dependencyName: name,
 			serviceName:    service.Name,
+			serviceHash:    hash,
 		}, networkID)
 		i++
 		if err != nil {
@@ -49,6 +54,7 @@ type dependencyDetails struct {
 	namespace      string
 	dependencyName string
 	serviceName    string
+	serviceHash    string
 }
 
 // Start will start a dependency container
@@ -64,6 +70,7 @@ func (dependency *Dependency) Start(service *Service, details dependencyDetails,
 		Namespace: []string{details.namespace, details.dependencyName},
 		Labels: map[string]string{
 			"mesg.service": details.serviceName,
+			"mesg.hash":    details.serviceHash,
 		},
 		Image: dependency.Image,
 		Args:  strings.Fields(dependency.Command),
