@@ -25,10 +25,6 @@ func (service *Service) Start() (serviceIDs []string, err error) {
 	if err != nil {
 		return
 	}
-	hash, err := service.Hash()
-	if err != nil {
-		return
-	}
 	serviceIDs = make([]string, len(service.GetDependencies()))
 	i := 0
 	for name, dependency := range service.GetDependencies() {
@@ -36,7 +32,7 @@ func (service *Service) Start() (serviceIDs []string, err error) {
 			namespace:      service.namespace(),
 			dependencyName: name,
 			serviceName:    service.Name,
-			serviceHash:    hash,
+			serviceHash:    service.Hash(),
 		}, networkID)
 		i++
 		if err != nil {

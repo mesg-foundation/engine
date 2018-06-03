@@ -47,7 +47,7 @@ func TestList(t *testing.T) {
 			},
 		},
 	}
-	hash, _ := service.Hash()
+	hash := service.Hash()
 	service.Start()
 	list, err := List()
 	assert.Nil(t, err)
@@ -68,7 +68,7 @@ func TestListMultipleDependencies(t *testing.T) {
 			},
 		},
 	}
-	hash, _ := service.Hash()
+	hash := service.Hash()
 	service.Start()
 	list, err := List()
 	assert.Nil(t, err)
