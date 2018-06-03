@@ -9,6 +9,7 @@
 
 #### Added
 - (#174) Add CHANGELOG.md file
+- (#187) Stop all services when the daemon stops
 
 #### Removed
 
