@@ -41,11 +41,11 @@ func (service *Service) Start() (serviceIDs []string, err error) {
 		go func(service *Service, d dependencyDetails, name string, i int) {
 			serviceID, errStart := dependency.Start(service, d, networkID)
 			mutex.Lock()
+			defer mutex.Unlock()
 			serviceIDs[i] = serviceID
 			if errStart != nil && err == nil {
 				err = errStart
 			}
-			mutex.Unlock()
 			wg.Done()
 		}(service, d, name, i)
 		i++
