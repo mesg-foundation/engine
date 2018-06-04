@@ -32,10 +32,10 @@ func (service *Service) StopDependencies() (err error) {
 		go func(d *Dependency, name string, dependencyName string) {
 			errStop := d.Stop(name, dependencyName)
 			mutex.Lock()
+			defer mutex.Unlock()
 			if errStop != nil && err == nil {
 				err = errStop
 			}
-			mutex.Unlock()
 			wg.Done()
 		}(dependency, service.namespace(), name)
 	}
