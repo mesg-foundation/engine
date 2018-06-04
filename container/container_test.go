@@ -32,7 +32,7 @@ func TestFindContainerStopped(t *testing.T) {
 
 func TestContainerStatusNeverStarted(t *testing.T) {
 	namespace := []string{"TestContainerStatusNeverStarted"}
-	status, err := ContainerStatus(namespace)
+	status, err := Status(namespace)
 	assert.Nil(t, err)
 	assert.Equal(t, status, STOPPED)
 }
@@ -42,7 +42,7 @@ func TestContainerStatusRunning(t *testing.T) {
 	startTestService(namespace)
 	defer StopService(namespace)
 	WaitForContainerStatus(namespace, RUNNING, time.Minute)
-	status, err := ContainerStatus(namespace)
+	status, err := Status(namespace)
 	assert.Nil(t, err)
 	assert.Equal(t, status, RUNNING)
 }
@@ -53,7 +53,7 @@ func TestContainerStatusStopped(t *testing.T) {
 	WaitForContainerStatus(namespace, RUNNING, time.Minute)
 	StopService(namespace)
 	WaitForContainerStatus(namespace, STOPPED, time.Minute)
-	status, err := ContainerStatus(namespace)
+	status, err := Status(namespace)
 	assert.Nil(t, err)
 	assert.Equal(t, status, STOPPED)
 }
