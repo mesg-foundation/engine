@@ -22,13 +22,13 @@ var Status = &cobra.Command{
 func statusHandler(cmd *cobra.Command, args []string) {
 	hashes, err := service.List()
 	handleError(err)
-	fmt.Println("Services running :")
+	fmt.Println("Running services:")
 	for _, hash := range hashes {
 		service, err := services.Get(hash)
 		handleError(err)
 		fmt.Println(aurora.Bold(" - " + hash + " - " + service.Name))
 	}
 	if len(hashes) == 0 {
-		fmt.Println("No services running")
+		fmt.Println("No service are running")
 	}
 }
