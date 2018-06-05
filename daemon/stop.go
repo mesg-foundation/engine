@@ -1,6 +1,8 @@
 package daemon
 
-import "github.com/mesg-foundation/core/container"
+import (
+	"github.com/mesg-foundation/core/container"
+)
 
 // Stop the daemon docker
 func Stop() (err error) {
@@ -12,5 +14,6 @@ func Stop() (err error) {
 	if err != nil {
 		return
 	}
+	err = container.WaitForContainerStatus(Namespace(), container.STOPPED)
 	return
 }

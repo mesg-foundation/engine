@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"strings"
+	"sync"
 
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
@@ -26,18 +27,30 @@ func (service *Service) Start() (serviceIDs []string, err error) {
 		return
 	}
 	serviceIDs = make([]string, len(service.GetDependencies()))
+	var mutex sync.Mutex
 	i := 0
+	var wg sync.WaitGroup
 	for name, dependency := range service.GetDependencies() {
-		serviceIDs[i], err = dependency.Start(service, dependencyDetails{
+		d := dependencyDetails{
 			namespace:      service.namespace(),
 			dependencyName: name,
 			serviceName:    service.Name,
-		}, networkID)
-		i++
-		if err != nil {
-			break
+			serviceHash:    service.Hash(),
 		}
+		wg.Add(1)
+		go func(service *Service, d dependencyDetails, name string, i int) {
+			defer wg.Done()
+			serviceID, errStart := dependency.Start(service, d, networkID)
+			mutex.Lock()
+			defer mutex.Unlock()
+			serviceIDs[i] = serviceID
+			if errStart != nil && err == nil {
+				err = errStart
+			}
+		}(service, d, name, i)
+		i++
 	}
+	wg.Wait()
 	// Disgrasfully close the service because there is an error
 	if err != nil {
 		service.Stop()
@@ -49,6 +62,7 @@ type dependencyDetails struct {
 	namespace      string
 	dependencyName string
 	serviceName    string
+	serviceHash    string
 }
 
 // Start will start a dependency container
@@ -60,10 +74,12 @@ func (dependency *Dependency) Start(service *Service, details dependencyDetails,
 	if err != nil {
 		return
 	}
-	return container.StartService(container.ServiceOptions{
-		Namespace: []string{details.namespace, details.dependencyName},
+	namespace := []string{details.namespace, details.dependencyName} //TODO: refacto namespace
+	serviceID, err = container.StartService(container.ServiceOptions{
+		Namespace: namespace,
 		Labels: map[string]string{
 			"mesg.service": details.serviceName,
+			"mesg.hash":    details.serviceHash,
 		},
 		Image: dependency.Image,
 		Args:  strings.Fields(dependency.Command),
@@ -78,4 +94,9 @@ func (dependency *Dependency) Start(service *Service, details dependencyDetails,
 		Ports:      extractPorts(dependency),
 		NetworksID: []string{networkID, sharedNetworkID},
 	})
+	if err != nil {
+		return
+	}
+	err = container.WaitForContainerStatus(namespace, container.RUNNING)
+	return
 }

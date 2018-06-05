@@ -2,9 +2,9 @@ package cmdService
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/logrusorgru/aurora"
+	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/service"
 
 	"github.com/spf13/cobra"
@@ -20,16 +20,15 @@ var Status = &cobra.Command{
 }
 
 func statusHandler(cmd *cobra.Command, args []string) {
-	services, err := service.List()
-	if err != nil {
-		fmt.Println(aurora.Red(err))
-		os.Exit(0)
+	hashes, err := service.List()
+	handleError(err)
+	fmt.Println("Running services:")
+	for _, hash := range hashes {
+		service, err := services.Get(hash)
+		handleError(err)
+		fmt.Println(aurora.Bold(" - " + hash + " - " + service.Name))
 	}
-	fmt.Println("Services running :")
-	for _, service := range services {
-		fmt.Println(aurora.Bold(" - " + service))
-	}
-	if len(services) == 0 {
-		fmt.Println("No services running")
+	if len(hashes) == 0 {
+		fmt.Println("No service are running")
 	}
 }
