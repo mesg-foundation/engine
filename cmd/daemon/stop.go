@@ -3,6 +3,7 @@ package daemon
 import (
 	"context"
 	"fmt"
+	"sync"
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/api/core"
@@ -57,14 +58,22 @@ func stopServices() (err error) {
 	if err != nil {
 		return
 	}
+	var mutex sync.Mutex
+	var wg sync.WaitGroup
 	for _, hash := range hashes {
-		// TODO: this function should be execute in a go routine. StopService is blocking
-		_, err := cli.StopService(context.Background(), &core.StopServiceRequest{
-			ServiceID: hash,
-		})
-		if err != nil {
-			break
-		}
+		wg.Add(1)
+		go func(serviceID string) {
+			defer wg.Done()
+			_, errStop := cli.StopService(context.Background(), &core.StopServiceRequest{
+				ServiceID: serviceID,
+			})
+			mutex.Lock()
+			defer mutex.Unlock()
+			if errStop != nil && err == nil {
+				err = errStop
+			}
+		}(hash)
 	}
+	wg.Wait()
 	return
 }
