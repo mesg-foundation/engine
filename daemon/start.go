@@ -11,22 +11,28 @@ import (
 // Start the docker daemon
 func Start() (serviceID string, err error) {
 	running, err := IsRunning()
+	if err != nil || running == true {
+		return
+	}
+	spec, err := serviceSpec()
 	if err != nil {
 		return
 	}
-	if running == true {
+	serviceID, err = container.StartService(spec)
+	if err != nil {
 		return
 	}
+	err = container.WaitForContainerStatus(Namespace(), container.RUNNING)
+	return
+}
+
+func serviceSpec() (spec container.ServiceOptions, err error) {
 	sharedNetworkID, err := container.SharedNetworkID()
 	if err != nil {
 		return
 	}
-	return container.StartService(serviceSpec(sharedNetworkID))
-}
-
-func serviceSpec(networkID string) container.ServiceOptions {
-	return container.ServiceOptions{
-		Namespace: []string{name},
+	spec = container.ServiceOptions{
+		Namespace: Namespace(),
 		Image:     viper.GetString(config.DaemonImage),
 		Env: []string{
 			"MESG.PATH=/mesg",
@@ -49,6 +55,7 @@ func serviceSpec(networkID string) container.ServiceOptions {
 				Published: 50052,
 			},
 		},
-		NetworksID: []string{networkID},
+		NetworksID: []string{sharedNetworkID},
 	}
+	return
 }

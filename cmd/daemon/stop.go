@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/logrusorgru/aurora"
+	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/mesg-foundation/core/daemon"
 	"github.com/spf13/cobra"
 )
@@ -17,10 +18,13 @@ var Stop = &cobra.Command{
 }
 
 func stopHandler(cmd *cobra.Command, args []string) {
-	err := daemon.Stop()
+	var err error
+	cmdUtils.ShowSpinnerForFunc(cmdUtils.SpinnerOptions{Text: "Stopping daemon..."}, func() {
+		err = daemon.Stop()
+	})
 	if err != nil {
 		fmt.Println(aurora.Red(err))
 		return
 	}
-	fmt.Println(aurora.Green("Daemon is stopping"))
+	fmt.Println(aurora.Green("Daemon stopped"))
 }

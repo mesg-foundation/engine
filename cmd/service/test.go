@@ -90,25 +90,28 @@ func testHandler(cmd *cobra.Command, args []string) {
 	})
 	handleError(err)
 
-	_, err = cli.StartService(context.Background(), &core.StartServiceRequest{
-		ServiceID: deployment.ServiceID,
+	cmdUtils.ShowSpinnerForFunc(cmdUtils.SpinnerOptions{Text: "Starting service..."}, func() {
+		_, err = cli.StartService(context.Background(), &core.StartServiceRequest{
+			ServiceID: deployment.ServiceID,
+		})
 	})
 	handleError(err)
+	fmt.Println(aurora.Green("Service started"))
 
 	go listenEvents(deployment.ServiceID, cmd.Flag("event").Value.String())
-
 	go listenResults(deployment.ServiceID)
 
-	time.Sleep(10 * time.Second)
-
+	time.Sleep(time.Second)
 	executeTask(deployment.ServiceID, cmd.Flag("task").Value.String(), cmd.Flag("data").Value.String())
-
 	<-cmdUtils.WaitForCancel()
 
-	_, err = cli.StopService(context.Background(), &core.StopServiceRequest{
-		ServiceID: deployment.ServiceID,
+	cmdUtils.ShowSpinnerForFunc(cmdUtils.SpinnerOptions{Text: "Stopping service..."}, func() {
+		_, err = cli.StopService(context.Background(), &core.StopServiceRequest{
+			ServiceID: deployment.ServiceID,
+		})
 	})
-	fmt.Println(err)
+	handleError(err)
+	fmt.Println(aurora.Green("Service stopped"))
 }
 
 func init() {
