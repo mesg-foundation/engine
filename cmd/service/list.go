@@ -21,7 +21,7 @@ To have more details, see the [detail command](mesg-core_service_detail.md).`,
 }
 
 func listHandler(cmd *cobra.Command, args []string) {
-	services, err := services.All()
+	services, err := services.All() // TODO: this should use the API
 	handleError(err)
 	for _, service := range services {
 		hash, _ := service.Hash()

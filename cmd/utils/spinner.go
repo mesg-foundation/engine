@@ -24,3 +24,11 @@ func StartSpinner(opts SpinnerOptions) (spinner *spinnerPkg.Spinner) {
 	}
 	return
 }
+
+// ShowSpinnerForFunc shows a spinner during the execution of the function
+func ShowSpinnerForFunc(opts SpinnerOptions, function func()) {
+	s := StartSpinner(opts)
+	defer s.Stop()
+	function()
+	return
+}
