@@ -9,6 +9,7 @@
 
 #### Added
 - (#174) Add CHANGELOG.md file
+- (#190) Possibility to `test` or `deploy` a service from a git or GitHub url
 
 #### Removed
 
