@@ -42,7 +42,8 @@ func startForTest() {
 // }
 
 func TestStartConfig(t *testing.T) {
-	spec := serviceSpec("networkID")
+	spec, err := serviceSpec()
+	assert.Nil(t, err)
 	// Make sure that the config directory is passed in parameter to write on the same folder
 	assert.Equal(t, spec.Env[0], "MESG.PATH=/mesg")
 	assert.Equal(t, spec.Env[1], "API.SERVICE.SOCKETPATH="+filepath.Join(viper.GetString(config.MESGPath), "server.sock"))
