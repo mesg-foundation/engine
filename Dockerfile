@@ -20,7 +20,8 @@ RUN go get github.com/xeipuuv/gojsonschema && \
     go get github.com/cpuguy83/go-md2man && \
     go get github.com/syndtr/goleveldb/leveldb && \
     go get github.com/cnf/structhash && \
-    go get github.com/docker/docker/client
+    go get github.com/docker/docker/client && \
+    go get gopkg.in/src-d/go-git.v4/...
 ADD . src/github.com/mesg-foundation/core
 WORKDIR src/github.com/mesg-foundation/core
 RUN go get ./...
