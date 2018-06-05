@@ -1,4 +1,4 @@
-## mesg-cli daemon stop
+## mesg-core daemon stop
 
 Stop the daemon
 
@@ -7,7 +7,7 @@ Stop the daemon
 Stop the daemon
 
 ```
-mesg-cli daemon stop [flags]
+mesg-core daemon stop [flags]
 ```
 
 ### Options
@@ -18,5 +18,5 @@ mesg-cli daemon stop [flags]
 
 ### SEE ALSO
 
-* [mesg-cli daemon](mesg-cli_daemon.md)	 - Manage your MESG daemon
+* [mesg-core daemon](mesg-core_daemon.md)	 - Manage the MESG daemon
 

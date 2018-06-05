@@ -17,6 +17,7 @@ service Core {
 
 message ListenEventRequest {
   string serviceID = 1;
+  string eventFilter = 2;
 }
 
 message ExecuteTaskRequest {
@@ -27,6 +28,8 @@ message ExecuteTaskRequest {
 
 message ListenResultRequest {
   string serviceID = 1;
+  string taskFilter = 2;
+  string outputFilter = 3;
 }
 
 message StartServiceRequest {

@@ -1,4 +1,4 @@
-## mesg-cli daemon status
+## mesg-core daemon status
 
 Status of the daemon
 
@@ -7,7 +7,7 @@ Status of the daemon
 Status of the daemon
 
 ```
-mesg-cli daemon status [flags]
+mesg-core daemon status [flags]
 ```
 
 ### Options
@@ -18,5 +18,5 @@ mesg-cli daemon status [flags]
 
 ### SEE ALSO
 
-* [mesg-cli daemon](mesg-cli_daemon.md)	 - Manage your MESG daemon
+* [mesg-core daemon](mesg-core_daemon.md)	 - Manage the MESG daemon
 
