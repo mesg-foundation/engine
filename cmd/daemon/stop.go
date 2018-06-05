@@ -6,6 +6,7 @@ import (
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/api/core"
+	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/daemon"
 	"github.com/mesg-foundation/core/service"
@@ -23,17 +24,19 @@ var Stop = &cobra.Command{
 }
 
 func stopHandler(cmd *cobra.Command, args []string) {
-	err := stopServices()
+	var err error
+	cmdUtils.ShowSpinnerForFunc(cmdUtils.SpinnerOptions{Text: "Stopping daemon..."}, func() {
+		err = stopServices()
+		if err != nil {
+			return
+		}
+		err = daemon.Stop()
+	})
 	if err != nil {
 		fmt.Println(aurora.Red(err))
 		return
 	}
-	err = daemon.Stop()
-	if err != nil {
-		fmt.Println(aurora.Red(err))
-		return
-	}
-	fmt.Println(aurora.Green("Daemon is stopping"))
+	fmt.Println(aurora.Green("Daemon stopped"))
 }
 
 func getCli() (cli core.CoreClient, err error) {
@@ -55,6 +58,7 @@ func stopServices() (err error) {
 		return
 	}
 	for _, hash := range hashes {
+		// TODO: this function should be execute in a go routine. StopService is blocking
 		_, err := cli.StopService(context.Background(), &core.StopServiceRequest{
 			ServiceID: hash,
 		})
