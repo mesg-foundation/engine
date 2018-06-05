@@ -107,8 +107,8 @@ func testHandler(cmd *cobra.Command, args []string) {
 		fmt.Println(aurora.Green("Service started"))
 	}
 
-	go listenEvents(serviceID, cmd.Flag("event").Value.String())
-	go listenResults(serviceID, cmd.Flag("result").Value.String(), cmd.Flag("output").Value.String())
+	go listenEvents(serviceID, cmd.Flag("event-filter").Value.String())
+	go listenResults(serviceID, cmd.Flag("task-filter").Value.String(), cmd.Flag("output-filter").Value.String())
 
 	time.Sleep(time.Second)
 	executeTask(serviceID, cmd.Flag("task").Value.String(), cmd.Flag("data").Value.String())
@@ -126,11 +126,11 @@ func testHandler(cmd *cobra.Command, args []string) {
 }
 
 func init() {
-	Test.Flags().StringP("event", "e", "*", "Only log the data of the given event")
+	Test.Flags().StringP("event-filter", "e", "*", "Only log the data of the given event")
 	Test.Flags().StringP("task", "t", "", "Run the given task")
 	Test.Flags().StringP("data", "d", "", "Path to the file containing the data required to run the task")
-	Test.Flags().StringP("result", "r", "", "Only log the result of the given task")
-	Test.Flags().StringP("output", "o", "", "Only log the data of the given output of a task result. If set, you also need to set the task in --result")
+	Test.Flags().StringP("task-filter", "r", "", "Only log the result of the given task")
+	Test.Flags().StringP("output-filter", "o", "", "Only log the data of the given output of a task result. If set, you also need to set the task in --result")
 	Test.Flags().StringP("serviceID", "s", "", "ID of a previously deployed service")
 	Test.Flags().BoolP("keep-alive", "", false, "Do not stop the service at the end of this command")
 }
