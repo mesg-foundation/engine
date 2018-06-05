@@ -11,7 +11,7 @@ func TestSaveReturningHash(t *testing.T) {
 	service := &service.Service{
 		Name: "TestSaveReturningHash",
 	}
-	calculatedHash, _ := service.Hash()
+	calculatedHash := service.Hash()
 	hash, err := Save(service)
 	assert.Nil(t, err)
 	assert.Equal(t, hash, calculatedHash)

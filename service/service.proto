@@ -10,6 +10,7 @@ message Service {
   map<string, Task> tasks = 5;
   map<string, Event> events = 6;
   map<string, Dependency> dependencies = 7;
+  Dependency configuration = 8;  
 }
 
 message Task {
