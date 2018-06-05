@@ -19,8 +19,26 @@ func TestStartService(t *testing.T) {
 	}
 	dockerServices, err := service.Start()
 	assert.Nil(t, err)
-	assert.Equal(t, len(dockerServices), len(service.GetDependencies()))
+	assert.Equal(t, len(service.GetDependencies()), len(dockerServices))
 	assert.Equal(t, service.IsRunning(), true)
+	service.Stop()
+}
+
+func TestStartWith2Dependencies(t *testing.T) {
+	service := &Service{
+		Name: "TestStartWith2Dependencies",
+		Dependencies: map[string]*Dependency{
+			"test": &Dependency{
+				Image: "nginx",
+			},
+			"test2": &Dependency{
+				Image: "nginx",
+			},
+		},
+	}
+	servicesID, err := service.Start()
+	assert.Nil(t, err)
+	assert.Equal(t, 2, len(servicesID))
 	service.Stop()
 }
 
