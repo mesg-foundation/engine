@@ -11,13 +11,13 @@ You will **NOT** get your stake back immediately. You will get your remaining st
 To have more explanation, see the page [stake explanation from the documentation]().
 
 ```
-mesg-core service stop SERVICE_FOLDER [flags]
+mesg-core service stop SERVICE_ID [flags]
 ```
 
 ### Examples
 
 ```
-mesg-core service stop SERVICE_FOLDER
+mesg-core service stop SERVICE_ID
 ```
 
 ### Options
