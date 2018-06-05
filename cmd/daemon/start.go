@@ -27,9 +27,9 @@ func startHandler(cmd *cobra.Command, args []string) {
 		fmt.Println(aurora.Green("Daemon is running"))
 		return
 	}
-	s := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Daemon is starting..."})
-	_, err = daemon.Start()
-	s.Stop()
+	cmdUtils.ShowSpinnerForFunc(cmdUtils.SpinnerOptions{Text: "Starting daemon..."}, func() {
+		_, err = daemon.Start()
+	})
 	if err != nil {
 		fmt.Println(aurora.Red(err))
 		return

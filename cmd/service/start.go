@@ -26,11 +26,12 @@ var Start = &cobra.Command{
 }
 
 func startHandler(cmd *cobra.Command, args []string) {
-	s := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Starting service..."})
-	_, err := cli.StartService(context.Background(), &core.StartServiceRequest{
-		ServiceID: args[0],
+	var err error
+	cmdUtils.ShowSpinnerForFunc(cmdUtils.SpinnerOptions{Text: "Starting service..."}, func() {
+		_, err = cli.StartService(context.Background(), &core.StartServiceRequest{
+			ServiceID: args[0],
+		})
 	})
-	s.Stop()
 	handleError(err)
 	fmt.Println(aurora.Green("Service is running"))
 }

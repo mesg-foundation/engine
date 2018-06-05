@@ -18,9 +18,10 @@ var Stop = &cobra.Command{
 }
 
 func stopHandler(cmd *cobra.Command, args []string) {
-	s := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Stopping daemon..."})
-	err := daemon.Stop()
-	s.Stop()
+	var err error
+	cmdUtils.ShowSpinnerForFunc(cmdUtils.SpinnerOptions{Text: "Stopping daemon..."}, func() {
+		err = daemon.Stop()
+	})
 	if err != nil {
 		fmt.Println(aurora.Red(err))
 		return
