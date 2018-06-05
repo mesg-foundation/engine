@@ -18,25 +18,25 @@ func TestLoadService(t *testing.T) {
 	assert.NotNil(t, s)
 }
 
-func TestTagService(t *testing.T) {
+func TestInjectConfigurationInDependencies(t *testing.T) {
 	s := &service.Service{}
-	tagService(s, "TestTagService")
-	assert.Equal(t, s.Dependencies["service"].Image, "TestTagService")
+	injectConfigurationInDependencies(s, "TestInjectConfigurationInDependencies")
+	assert.Equal(t, s.Dependencies["service"].Image, "TestInjectConfigurationInDependencies")
 }
 
-func TestTagServiceWithConfig(t *testing.T) {
+func TestInjectConfigurationInDependenciesWithConfig(t *testing.T) {
 	s := &service.Service{
 		Configuration: &service.Dependency{
 			Command: "xxx",
 			Image:   "yyy",
 		},
 	}
-	tagService(s, "TestTagServiceWithConfig")
-	assert.Equal(t, s.Dependencies["service"].Image, "TestTagServiceWithConfig")
+	injectConfigurationInDependencies(s, "TestInjectConfigurationInDependenciesWithConfig")
+	assert.Equal(t, s.Dependencies["service"].Image, "TestInjectConfigurationInDependenciesWithConfig")
 	assert.Equal(t, s.Dependencies["service"].Command, "xxx")
 }
 
-func TestTagServiceWithDependency(t *testing.T) {
+func TestInjectConfigurationInDependenciesWithDependency(t *testing.T) {
 	s := &service.Service{
 		Dependencies: map[string]*service.Dependency{
 			"test": &service.Dependency{
@@ -44,12 +44,12 @@ func TestTagServiceWithDependency(t *testing.T) {
 			},
 		},
 	}
-	tagService(s, "TestTagServiceWithDependency")
-	assert.Equal(t, s.Dependencies["service"].Image, "TestTagServiceWithDependency")
+	injectConfigurationInDependencies(s, "TestInjectConfigurationInDependenciesWithDependency")
+	assert.Equal(t, s.Dependencies["service"].Image, "TestInjectConfigurationInDependenciesWithDependency")
 	assert.Equal(t, s.Dependencies["test"].Image, "xxx")
 }
 
-func TestTagServiceWithDependencyOverride(t *testing.T) {
+func TestInjectConfigurationInDependenciesWithDependencyOverride(t *testing.T) {
 	s := &service.Service{
 		Dependencies: map[string]*service.Dependency{
 			"service": &service.Dependency{
@@ -57,6 +57,6 @@ func TestTagServiceWithDependencyOverride(t *testing.T) {
 			},
 		},
 	}
-	tagService(s, "TestTagServiceWithDependencyOverride")
-	assert.Equal(t, s.Dependencies["service"].Image, "TestTagServiceWithDependencyOverride")
+	injectConfigurationInDependencies(s, "TestInjectConfigurationInDependenciesWithDependencyOverride")
+	assert.Equal(t, s.Dependencies["service"].Image, "TestInjectConfigurationInDependenciesWithDependencyOverride")
 }

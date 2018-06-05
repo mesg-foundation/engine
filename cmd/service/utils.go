@@ -42,18 +42,16 @@ func loadService(path string) (importedService *service.Service) {
 }
 
 func buildDockerImage(path string) (imageHash string) {
-	s := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Building image..."})
-	defer s.Stop()
-	imageHash, err := container.Build(path)
-	if err != nil {
-		handleError(err)
-		return
-	}
-	fmt.Println(aurora.Green("Image built with success. Tagged: " + imageHash))
+	var err error
+	cmdUtils.ShowSpinnerForFunc(cmdUtils.SpinnerOptions{Text: "Building image..."}, func() {
+		imageHash, err = container.Build(path)
+	})
+	handleError(err)
+	fmt.Println(aurora.Green("Image built with success. Hash:\n" + imageHash))
 	return
 }
 
-func tagService(s *service.Service, tag string) {
+func injectConfigurationInDependencies(s *service.Service, imageHash string) {
 	config := s.Configuration
 	if config == nil {
 		config = &service.Dependency{}
@@ -63,7 +61,7 @@ func tagService(s *service.Service, tag string) {
 		Ports:       config.Ports,
 		Volumes:     config.Volumes,
 		Volumesfrom: config.Volumesfrom,
-		Image:       tag,
+		Image:       imageHash,
 	}
 	if s.Dependencies == nil {
 		s.Dependencies = make(map[string]*service.Dependency)
