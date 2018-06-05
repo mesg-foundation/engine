@@ -12,7 +12,7 @@ import (
 	"github.com/mesg-foundation/core/pubsub"
 )
 
-// ListenResult will listne for results from a services
+// ListenResult will listen for results from a services
 func (s *Server) ListenResult(request *ListenResultRequest, stream Core_ListenResultServer) (err error) {
 	service, err := services.Get(request.ServiceID)
 	if err != nil {
@@ -40,18 +40,15 @@ func (s *Server) ListenResult(request *ListenResultRequest, stream Core_ListenRe
 	return
 }
 
-func validateTaskKey(service *service.Service, taskFilter string) (err error) {
-	if taskFilter == "" {
+func validateTaskKey(service *service.Service, taskKey string) (err error) {
+	if taskKey == "" || taskKey == "*" {
 		return
 	}
-	if taskFilter == "*" {
-		return
-	}
-	_, ok := service.Tasks[taskFilter]
+	_, ok := service.Tasks[taskKey]
 	if ok {
 		return
 	}
-	err = errors.New("Invalid taskFilter: " + taskFilter)
+	err = errors.New("Task '" + taskKey + "' doesn't exist in this service")
 	return
 }
 
@@ -59,16 +56,20 @@ func validateOutputKey(service *service.Service, taskKey string, outputFilter st
 	if outputFilter == "" || outputFilter == "*" {
 		return
 	}
+	if taskKey == "" {
+		err = errors.New("Cannot filter output without specifying a task")
+		return
+	}
 	task, ok := service.Tasks[taskKey]
 	if !ok {
-		err = errors.New("Invalid taskKey: " + taskKey)
+		err = errors.New("Task '" + taskKey + "' doesn't exist in this service")
 		return
 	}
 	_, ok = task.Outputs[outputFilter]
 	if ok {
 		return
 	}
-	err = errors.New("Invalid outputFilter: " + outputFilter)
+	err = errors.New("Output '" + outputFilter + "' doesn't exist in the task '" + taskKey + "' of this service")
 	return
 }
 
