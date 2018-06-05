@@ -73,15 +73,18 @@ npm init && npm install --save mesg
 Now create an `index.js` file and add this the following code:
 ```javascript
 const MESG = require('mesg/application')
-const webhook = process.env.MESG_SERVICE_WEBOOK
+
+​const webhook = process.env.MESG_SERVICE_WEBOOK
 const invitation = process.env.MESG_SERVICE_INVITE_DISCORD
 
-MESG
-  .when({ serviceID: webhook, event: 'request' })
-  .then({ serviceID: invitation, task: 'invite', inputs: {
-    email: '__YOUR_EMAIL_HERE__'
-  }})
-  .start()
+const email = '__YOUR_EMAIL_HERE__'
+
+MESG.ListenEvent({ serviceID: webhook, eventFilter: 'request' })
+  .on('data', data => MESG.ExecuteTask({
+    serviceID: invitation,
+    taskKey: 'invite',
+    taskData: JSON.stringify({ email })
+  }, console.log))
 ```
 
 And just replace the `__YOUR_EMAIL_HERE__` by your email
@@ -105,7 +108,7 @@ Your service needs to implement two types of communication:
 
 Task are designed to receive informations from the MESG core and the Application that you run. Tasks can have multiple parameters as inputs and muliple outputs with multiple data. See a task as a simple function that can return any kind of object.
 
-You could have a task that take as input a name and as output `success` return the genre of this name with the probability like `{ "genre": "female", "proabiliy": 92.34% }` but could also have an error output with the type of error `{ "message": "This doesn't looks like a name" }`.
+You could have a task that take as input a name and as output `success` return the genre of this name with the probability like `{ "genre": "female", "proabiliy": 92.34% }` but could also have an `error` output with the type of error `{ "message": "This doesn't looks like a name" }`.
 
 More info how to create your [tasks in the documentation](https://docs.mesg.tech/service/listen-for-tasks).
 
