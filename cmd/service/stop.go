@@ -6,6 +6,7 @@ import (
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/api/core"
+	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -24,8 +25,11 @@ To have more explanation, see the page [stake explanation from the documentation
 }
 
 func stopHandler(cmd *cobra.Command, args []string) {
-	_, err := cli.StopService(context.Background(), &core.StopServiceRequest{
-		ServiceID: args[0],
+	var err error
+	cmdUtils.ShowSpinnerForFunc(cmdUtils.SpinnerOptions{Text: "Stopping service..."}, func() {
+		_, err = cli.StopService(context.Background(), &core.StopServiceRequest{
+			ServiceID: args[0],
+		})
 	})
 	handleError(err)
 	fmt.Println(aurora.Green("Service stopped"))
