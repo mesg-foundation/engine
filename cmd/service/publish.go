@@ -26,7 +26,8 @@ To get more information, see the [deploy page from the documentation](https://do
 func deployHandler(cmd *cobra.Command, args []string) {
 	service := loadService(defaultPath(args))
 
-	buildDockerImage(defaultPath(args), service.Name)
+	imageHash := buildDockerImage(defaultPath(args))
+	injectConfigurationInDependencies(service, imageHash)
 
 	reply, err := cli.DeployService(context.Background(), &core.DeployServiceRequest{
 		Service: service,

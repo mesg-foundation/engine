@@ -2,6 +2,7 @@ package cmdService
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"time"
@@ -83,36 +84,44 @@ func executeTask(serviceID string, task string, dataPath string) (execution *cor
 }
 
 func testHandler(cmd *cobra.Command, args []string) {
+	var err error
 	serviceID := cmd.Flag("service").Value.String()
 	if serviceID == "" {
 		service := loadService(defaultPath(args))
-		buildDockerImage(defaultPath(args), service.Name)
+		imageHash := buildDockerImage(defaultPath(args))
+		injectConfigurationInDependencies(service, imageHash)
+
 		deployment, err := cli.DeployService(context.Background(), &core.DeployServiceRequest{
 			Service: service,
 		})
 		handleError(err)
 		serviceID = deployment.ServiceID
+		fmt.Println("Service deployed with success with service ID:", serviceID)
+
+		cmdUtils.ShowSpinnerForFunc(cmdUtils.SpinnerOptions{Text: "Starting service..."}, func() {
+			_, err = cli.StartService(context.Background(), &core.StartServiceRequest{
+				ServiceID: serviceID,
+			})
+		})
+		handleError(err)
+		fmt.Println(aurora.Green("Service started"))
 	}
 
-	_, err := cli.StartService(context.Background(), &core.StartServiceRequest{
-		ServiceID: serviceID,
-	})
-	handleError(err)
-
 	go listenEvents(serviceID, cmd.Flag("event").Value.String())
-
 	go listenResults(serviceID, cmd.Flag("result").Value.String(), cmd.Flag("output").Value.String())
 
-	time.Sleep(10 * time.Second)
-
+	time.Sleep(time.Second)
 	executeTask(serviceID, cmd.Flag("task").Value.String(), cmd.Flag("data").Value.String())
-
 	<-cmdUtils.WaitForCancel()
 
 	if cmd.Flag("keep-alive").Value.String() != "true" {
-		_, err = cli.StopService(context.Background(), &core.StopServiceRequest{
-			ServiceID: serviceID,
+		cmdUtils.ShowSpinnerForFunc(cmdUtils.SpinnerOptions{Text: "Stopping service..."}, func() {
+			_, err = cli.StopService(context.Background(), &core.StopServiceRequest{
+				ServiceID: serviceID,
+			})
 		})
+		handleError(err)
+		fmt.Println(aurora.Green("Service stopped"))
 	}
 }
 
