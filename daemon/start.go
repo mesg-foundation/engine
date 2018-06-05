@@ -2,7 +2,6 @@ package daemon
 
 import (
 	"path/filepath"
-	"time"
 
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
@@ -26,7 +25,7 @@ func Start() (serviceID string, err error) {
 	if err != nil {
 		return
 	}
-	err = container.WaitForContainerStatus(Namespace(), container.RUNNING, time.Minute)
+	err = container.WaitForContainerStatus(Namespace(), container.RUNNING)
 	return
 }
 

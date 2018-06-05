@@ -51,8 +51,7 @@ func Status(namespace []string) (status StatusType, err error) {
 }
 
 // WaitForContainerStatus wait for the container to have the provided status until it reach the timeout
-func WaitForContainerStatus(namespace []string, status StatusType, timeout time.Duration) (err error) {
-	start := time.Now()
+func WaitForContainerStatus(namespace []string, status StatusType) (err error) {
 	for {
 		currentStatus, err := Status(namespace)
 		if err != nil {
@@ -60,13 +59,6 @@ func WaitForContainerStatus(namespace []string, status StatusType, timeout time.
 		}
 		if currentStatus == status {
 			return nil
-		}
-		diff := time.Now().Sub(start)
-		if diff.Nanoseconds() >= int64(timeout) {
-			return &TimeoutError{
-				duration: timeout,
-				name:     Namespace(namespace),
-			}
 		}
 		time.Sleep(500 * time.Millisecond)
 	}

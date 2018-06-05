@@ -4,7 +4,6 @@ import (
 	"errors"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
@@ -95,6 +94,6 @@ func (dependency *Dependency) Start(service *Service, details dependencyDetails,
 	if err != nil {
 		return
 	}
-	err = container.WaitForContainerStatus(namespace, container.RUNNING, time.Minute) //TODO: be careful with timeout
+	err = container.WaitForContainerStatus(namespace, container.RUNNING)
 	return
 }
