@@ -35,18 +35,15 @@ func (s *Server) ListenEvent(request *ListenEventRequest, stream Core_ListenEven
 	return
 }
 
-func validateEventKey(service *service.Service, eventFilter string) (err error) {
-	if eventFilter == "" {
+func validateEventKey(service *service.Service, eventKey string) (err error) {
+	if eventKey == "" || eventKey == "*" {
 		return
 	}
-	if eventFilter == "*" {
-		return
-	}
-	_, ok := service.Events[eventFilter]
+	_, ok := service.Events[eventKey]
 	if ok {
 		return
 	}
-	err = errors.New("Invalid eventFilter: " + eventFilter)
+	err = errors.New("Event '" + eventKey + "' doesn't exist in this service")
 	return
 }
 
