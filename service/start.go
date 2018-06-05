@@ -39,6 +39,7 @@ func (service *Service) Start() (serviceIDs []string, err error) {
 		}
 		wg.Add(1)
 		go func(service *Service, d dependencyDetails, name string, i int) {
+			defer wg.Done()
 			serviceID, errStart := dependency.Start(service, d, networkID)
 			mutex.Lock()
 			defer mutex.Unlock()
@@ -46,7 +47,6 @@ func (service *Service) Start() (serviceIDs []string, err error) {
 			if errStart != nil && err == nil {
 				err = errStart
 			}
-			wg.Done()
 		}(service, d, name, i)
 		i++
 	}

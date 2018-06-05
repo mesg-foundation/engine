@@ -30,13 +30,13 @@ func (service *Service) StopDependencies() (err error) {
 	for name, dependency := range service.GetDependencies() {
 		wg.Add(1)
 		go func(d *Dependency, name string, dependencyName string) {
+			defer wg.Done()
 			errStop := d.Stop(name, dependencyName)
 			mutex.Lock()
 			defer mutex.Unlock()
 			if errStop != nil && err == nil {
 				err = errStop
 			}
-			wg.Done()
 		}(dependency, service.namespace(), name)
 	}
 	wg.Wait()
