@@ -53,13 +53,15 @@ func Status(namespace []string) (status StatusType, err error) {
 // WaitForContainerStatus wait for the container to have the provided status until it reach the timeout
 func WaitForContainerStatus(namespace []string, status StatusType) (err error) {
 	for {
-		currentStatus, err := Status(namespace)
+		var currentStatus StatusType
+		currentStatus, err = Status(namespace)
 		if err != nil {
-			return err
+			break
 		}
 		if currentStatus == status {
-			return nil
+			break
 		}
 		time.Sleep(500 * time.Millisecond)
 	}
+	return
 }
