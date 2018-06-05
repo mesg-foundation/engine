@@ -28,56 +28,9 @@ mesg-core service init --name NAME --description DESCRIPTION --visibility ALL --
 }
 
 func initHandler(cmd *cobra.Command, args []string) {
-	res := service.Service{}
-	res.Publish = string(service.PublishAll)
-	res.Visibility = string(service.VisibilityAll)
-
 	fmt.Printf("%s\n", aurora.Bold("Initialization of a new service"))
 
-	res.Name = cmd.Flag("name").Value.String()
-	if res.Name == "" && survey.AskOne(&survey.Input{Message: "Name:"}, &res.Name, nil) != nil {
-		os.Exit(0)
-	}
-	key := strings.Replace(strings.ToLower(res.Name), " ", "-", -1)
-
-	res.Description = cmd.Flag("description").Value.String()
-	if res.Description == "" && survey.AskOne(&survey.Input{Message: "Description:"}, &res.Description, nil) != nil {
-		os.Exit(0)
-	}
-
-	publishStr := cmd.Flag("publish").Value.String()
-	if publishStr == "" && survey.AskOne(&survey.Select{
-		Message: "Publish (ALL):",
-		Options: []string{
-			string(service.PublishAll),
-			string(service.PublishSource),
-			string(service.PublishContainer),
-			string(service.PublishNone),
-		},
-	}, &publishStr, nil) != nil {
-		os.Exit(0)
-	}
-	res.Publish = publishStr
-
-	visibilityStr := cmd.Flag("visibility").Value.String()
-	if visibilityStr == "" && survey.AskOne(&survey.Select{
-		Message: "Visibility (ALL):",
-		Options: []string{
-			string(service.VisibilityAll),
-			string(service.VisibilityUsers),
-			string(service.VisibilityWorkers),
-			string(service.VisibilityNone),
-		},
-	}, &visibilityStr, nil) != nil {
-		os.Exit(0)
-	}
-	res.Visibility = visibilityStr
-
-	res.Dependencies = map[string]*service.Dependency{
-		key: &service.Dependency{
-			Image: strings.Join([]string{"mesg", key}, "/"),
-		},
-	}
+	res := buildService(cmd)
 
 	out, err := yaml.Marshal(res)
 	if err != nil {
@@ -86,12 +39,6 @@ func initHandler(cmd *cobra.Command, args []string) {
 	fmt.Println()
 	fmt.Printf("%s\n", aurora.Brown("Summary:").Bold())
 	fmt.Printf("%s\n", string(out))
-	// fmt.Print(string(out))
-	dir, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("%s %s\n", aurora.Bold("Service will be created in:"), aurora.Brown(filepath.Join(dir, key)))
 
 	ok := false
 	if survey.AskOne(&survey.Confirm{Message: "Is this correct?", Default: true}, &ok, nil) != nil {
@@ -100,31 +47,79 @@ func initHandler(cmd *cobra.Command, args []string) {
 	if !ok {
 		return
 	}
+
 	if cmd.Flag("current").Value.String() == "true" {
-		err = ioutil.WriteFile("mesg.yml", out, os.ModePerm)
-		if err != nil {
-			panic(err)
-		}
-		err = ioutil.WriteFile("Dockerfile", []byte(""), os.ModePerm)
-		if err != nil {
-			panic(err)
-		}
+		err = writeInCurrentFolder(out)
 	} else {
-		err = os.Mkdir(key, os.ModePerm)
-		if err != nil {
-			panic(err)
-		}
-		err = ioutil.WriteFile(filepath.Join(key, "mesg.yml"), out, os.ModePerm)
-		if err != nil {
-			panic(err)
-		}
-		err = ioutil.WriteFile(filepath.Join(key, "Dockerfile"), []byte(""), os.ModePerm)
+		err = writeInFolder(strings.Replace(strings.ToLower(res.Name), " ", "-", -1), out)
+	}
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("%s\n", aurora.Green("Service created with success").Bold())
+}
+
+func askOpts(label string, value string, opts []string) string {
+	if value == "" && survey.AskOne(&survey.Select{
+		Message: label,
+		Options: opts,
+	}, &value, nil) != nil {
+		os.Exit(0)
+	}
+	return value
+}
+
+func ask(label string, value string) string {
+	if value != "" {
+		return value
+	}
+	if survey.AskOne(&survey.Input{Message: label}, &value, nil) != nil {
+		os.Exit(0)
+	}
+	return value
+}
+
+func buildService(cmd *cobra.Command) (res service.Service) {
+	res.Name = ask("Name:", cmd.Flag("name").Value.String())
+	res.Publish = string(service.PublishAll)
+	res.Visibility = string(service.VisibilityAll)
+	res.Description = ask("Description:", cmd.Flag("description").Value.String())
+	res.Visibility = askOpts("Visibility (ALL):", cmd.Flag("visibility").Value.String(), []string{
+		string(service.VisibilityAll),
+		string(service.VisibilityUsers),
+		string(service.VisibilityWorkers),
+		string(service.VisibilityNone),
+	})
+	res.Publish = askOpts("Publish (ALL):", cmd.Flag("publish").Value.String(), []string{
+		string(service.PublishAll),
+		string(service.PublishSource),
+		string(service.PublishContainer),
+		string(service.PublishNone),
+	})
+	return
+}
+
+func writeInCurrentFolder(content []byte) (err error) {
+	return writeInFolder("./", content)
+}
+
+func writeInFolder(folder string, content []byte) (err error) {
+	if folder != "./" {
+		err = os.Mkdir(folder, os.ModePerm)
 		if err != nil {
 			panic(err)
 		}
 	}
-
-	fmt.Printf("%s\n", aurora.Green("Service created with success").Bold())
+	err = ioutil.WriteFile(filepath.Join(folder, "mesg.yml"), content, os.ModePerm)
+	if err != nil {
+		panic(err)
+	}
+	err = ioutil.WriteFile(filepath.Join(folder, "Dockerfile"), []byte(""), os.ModePerm)
+	if err != nil {
+		panic(err)
+	}
+	return
 }
 
 func init() {
