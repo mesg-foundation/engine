@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"net/url"
 	"os"
-	"time"
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/api/core"
@@ -36,12 +35,7 @@ func handleError(err error) {
 }
 
 func gitClone(url string) (path string, err error) {
-	tmpFile := "/tmp/mesg-templates"
-	err = os.MkdirAll(tmpFile, os.ModePerm)
-	if err != nil {
-		return
-	}
-	path, err = ioutil.TempDir(tmpFile, string(time.Now().UnixNano()))
+	path, err = ioutil.TempDir("", "")
 	if err != nil {
 		return
 	}
@@ -53,7 +47,7 @@ func gitClone(url string) (path string, err error) {
 	return
 }
 
-func loadService(path string) (importedService *service.Service) {
+func loadService(path string) (importedService *service.Service, servicePath string) {
 	var err error
 	if _, err = url.ParseRequestURI(path); err == nil {
 		path, err = gitClone(path)
@@ -62,10 +56,10 @@ func loadService(path string) (importedService *service.Service) {
 
 	importedService, err = service.ImportFromPath(path)
 	if err != nil {
-		fmt.Println(aurora.Red(err))
 		fmt.Println("Run the command 'service validate' to get detailed errors")
-		os.Exit(0)
+		handleError(err)
 	}
+	servicePath = path
 	return
 }
 

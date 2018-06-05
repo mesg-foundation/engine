@@ -14,8 +14,9 @@ func TestDefaultPath(t *testing.T) {
 }
 
 func TestLoadService(t *testing.T) {
-	s := loadService("./service/tests/service-valid")
+	s, path := loadService("./service/tests/service-valid")
 	assert.NotNil(t, s)
+	assert.Equal(t, path, "./service/tests/service-valid")
 }
 
 func TestInjectConfigurationInDependencies(t *testing.T) {
