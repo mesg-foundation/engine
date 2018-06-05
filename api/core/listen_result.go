@@ -66,10 +66,9 @@ func validateOutputKey(service *service.Service, taskKey string, outputFilter st
 		return
 	}
 	_, ok = task.Outputs[outputFilter]
-	if ok {
-		return
+	if !ok {
+		err = errors.New("Output '" + outputFilter + "' doesn't exist in the task '" + taskKey + "' of this service")
 	}
-	err = errors.New("Output '" + outputFilter + "' doesn't exist in the task '" + taskKey + "' of this service")
 	return
 }
 
