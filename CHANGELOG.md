@@ -12,6 +12,7 @@
 #### Added
 - (#174) Add CHANGELOG.md file
 - (#183) Add a `configuration` attribute in the `mesg.yml` file to accept docker configuration for your service
+- (#187) Stop all services when the daemon stops
 
 #### Removed
 

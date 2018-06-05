@@ -47,11 +47,12 @@ func TestList(t *testing.T) {
 			},
 		},
 	}
+	hash := service.Hash()
 	service.Start()
 	list, err := List()
 	assert.Nil(t, err)
 	assert.Equal(t, len(list), 1)
-	assert.Equal(t, list[0], service.Name)
+	assert.Equal(t, list[0], hash)
 	service.Stop()
 }
 
@@ -67,10 +68,11 @@ func TestListMultipleDependencies(t *testing.T) {
 			},
 		},
 	}
+	hash := service.Hash()
 	service.Start()
 	list, err := List()
 	assert.Nil(t, err)
 	assert.Equal(t, len(list), 1)
-	assert.Equal(t, list[0], service.Name)
+	assert.Equal(t, list[0], hash)
 	service.Stop()
 }

@@ -24,7 +24,6 @@ func listHandler(cmd *cobra.Command, args []string) {
 	services, err := services.All() // TODO: this should use the API
 	handleError(err)
 	for _, service := range services {
-		hash, _ := service.Hash()
-		fmt.Println("-", aurora.Bold(hash), "-", service.Name)
+		fmt.Println("-", aurora.Bold(service.Hash()), "-", service.Name)
 	}
 }
