@@ -59,7 +59,7 @@ func listenResults(serviceID string, result string, output string) {
 			log.Println(aurora.Red(err))
 			return
 		}
-		log.Println("Receive result", aurora.Green(result.TaskKey), aurora.Green(result.OutputKey), ":", aurora.Bold(result.OutputData))
+		log.Println("Receive result", aurora.Green(result.TaskKey), aurora.Cyan(result.OutputKey), ":", aurora.Bold(result.OutputData))
 	}
 }
 
@@ -85,7 +85,7 @@ func executeTask(serviceID string, task string, dataPath string) (execution *cor
 
 func testHandler(cmd *cobra.Command, args []string) {
 	var err error
-	serviceID := cmd.Flag("service").Value.String()
+	serviceID := cmd.Flag("serviceID").Value.String()
 	if serviceID == "" {
 		service := loadService(defaultPath(args))
 		imageHash := buildDockerImage(defaultPath(args))
@@ -126,11 +126,11 @@ func testHandler(cmd *cobra.Command, args []string) {
 }
 
 func init() {
-	Test.Flags().StringP("event", "e", "*", "Only log a specific event")
-	Test.Flags().StringP("task", "t", "", "Run a specific task")
+	Test.Flags().StringP("event", "e", "*", "Only log the data of the given event")
+	Test.Flags().StringP("task", "t", "", "Run the given task")
 	Test.Flags().StringP("data", "d", "", "Path to the file containing the data required to run the task")
-	Test.Flags().StringP("result", "r", "", "Filter the result of a specific task")
-	Test.Flags().StringP("output", "o", "", "Filter output of a task")
-	Test.Flags().StringP("service", "s", "", "Debug a deployed service")
-	Test.Flags().BoolP("keep-alive", "", false, "Do not stop the service")
+	Test.Flags().StringP("result", "r", "", "Only log the result of the given task")
+	Test.Flags().StringP("output", "o", "", "Only log the data of the given output of a task result. If set, you also need to set the task in --result")
+	Test.Flags().StringP("serviceID", "s", "", "ID of a previously deployed service")
+	Test.Flags().BoolP("keep-alive", "", false, "Do not stop the service at the end of this command")
 }
