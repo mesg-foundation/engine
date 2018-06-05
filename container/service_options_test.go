@@ -87,7 +87,7 @@ func TestServiceOptionMounts(t *testing.T) {
 			},
 		},
 	}
-	mounts := options.swarmMounts()
+	mounts := options.swarmMounts(true)
 	assert.Equal(t, 1, len(mounts))
 	assert.Equal(t, "source/file", mounts[0].Source)
 	assert.Equal(t, "target/file", mounts[0].Target)

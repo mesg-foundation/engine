@@ -32,7 +32,8 @@ mesg-core service test --keep-alive`,
 
 func listenEvents(serviceID string, filter string) {
 	stream, err := cli.ListenEvent(context.Background(), &core.ListenEventRequest{
-		ServiceID: serviceID,
+		ServiceID:   serviceID,
+		EventFilter: filter,
 	})
 	handleError(err)
 	for {
@@ -41,15 +42,15 @@ func listenEvents(serviceID string, filter string) {
 			log.Println(aurora.Red(err))
 			return
 		}
-		if filter == "*" || filter == event.EventKey {
-			log.Println("Receive event", aurora.Green(event.EventKey), ":", aurora.Bold(event.EventData))
-		}
+		log.Println("Receive event", aurora.Green(event.EventKey), ":", aurora.Bold(event.EventData))
 	}
 }
 
-func listenResults(serviceID string) {
+func listenResults(serviceID string, result string, output string) {
 	stream, err := cli.ListenResult(context.Background(), &core.ListenResultRequest{
-		ServiceID: serviceID,
+		ServiceID:    serviceID,
+		TaskFilter:   result,
+		OutputFilter: output,
 	})
 	handleError(err)
 	for {
@@ -58,7 +59,7 @@ func listenResults(serviceID string) {
 			log.Println(aurora.Red(err))
 			return
 		}
-		log.Println("Receive result", aurora.Green(result.TaskKey), aurora.Green(result.OutputKey), ":", aurora.Bold(result.OutputData))
+		log.Println("Receive result", aurora.Green(result.TaskKey), aurora.Cyan(result.OutputKey), ":", aurora.Bold(result.OutputData))
 	}
 }
 
@@ -83,36 +84,53 @@ func executeTask(serviceID string, task string, dataPath string) (execution *cor
 }
 
 func testHandler(cmd *cobra.Command, args []string) {
-	service := loadService(defaultPath(args))
-	buildDockerImage(defaultPath(args), service.Name)
-	deployment, err := cli.DeployService(context.Background(), &core.DeployServiceRequest{
-		Service: service,
-	})
-	handleError(err)
+	var err error
+	serviceID := cmd.Flag("serviceID").Value.String()
+	if serviceID == "" {
+		service := loadService(defaultPath(args))
+		imageHash := buildDockerImage(defaultPath(args))
+		injectConfigurationInDependencies(service, imageHash)
 
-	_, err = cli.StartService(context.Background(), &core.StartServiceRequest{
-		ServiceID: deployment.ServiceID,
-	})
-	handleError(err)
+		deployment, err := cli.DeployService(context.Background(), &core.DeployServiceRequest{
+			Service: service,
+		})
+		handleError(err)
+		serviceID = deployment.ServiceID
+		fmt.Println("Service deployed with success with service ID:", serviceID)
 
-	go listenEvents(deployment.ServiceID, cmd.Flag("event").Value.String())
+		cmdUtils.ShowSpinnerForFunc(cmdUtils.SpinnerOptions{Text: "Starting service..."}, func() {
+			_, err = cli.StartService(context.Background(), &core.StartServiceRequest{
+				ServiceID: serviceID,
+			})
+		})
+		handleError(err)
+		fmt.Println(aurora.Green("Service started"))
+	}
 
-	go listenResults(deployment.ServiceID)
+	go listenEvents(serviceID, cmd.Flag("event-filter").Value.String())
+	go listenResults(serviceID, cmd.Flag("task-filter").Value.String(), cmd.Flag("output-filter").Value.String())
 
-	time.Sleep(10 * time.Second)
-
-	executeTask(deployment.ServiceID, cmd.Flag("task").Value.String(), cmd.Flag("data").Value.String())
-
+	time.Sleep(time.Second)
+	executeTask(serviceID, cmd.Flag("task").Value.String(), cmd.Flag("data").Value.String())
 	<-cmdUtils.WaitForCancel()
 
-	_, err = cli.StopService(context.Background(), &core.StopServiceRequest{
-		ServiceID: deployment.ServiceID,
-	})
-	fmt.Println(err)
+	if cmd.Flag("keep-alive").Value.String() != "true" {
+		cmdUtils.ShowSpinnerForFunc(cmdUtils.SpinnerOptions{Text: "Stopping service..."}, func() {
+			_, err = cli.StopService(context.Background(), &core.StopServiceRequest{
+				ServiceID: serviceID,
+			})
+		})
+		handleError(err)
+		fmt.Println(aurora.Green("Service stopped"))
+	}
 }
 
 func init() {
-	Test.Flags().StringP("event", "e", "*", "Only log a specific event")
-	Test.Flags().StringP("task", "t", "", "Run a specific task")
+	Test.Flags().StringP("task", "t", "", "Run the given task")
 	Test.Flags().StringP("data", "d", "", "Path to the file containing the data required to run the task")
+	Test.Flags().StringP("serviceID", "s", "", "ID of a previously deployed service")
+	Test.Flags().BoolP("keep-alive", "", false, "Do not stop the service at the end of this command")
+	Test.Flags().StringP("event-filter", "e", "*", "Only log the data of the given event")
+	Test.Flags().StringP("task-filter", "r", "", "Only log the result of the given task")
+	Test.Flags().StringP("output-filter", "o", "", "Only log the data of the given output of a task result. If set, you also need to set the task in --task-filter")
 }

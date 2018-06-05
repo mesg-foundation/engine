@@ -1,6 +1,9 @@
 package container
 
 import (
+	"os"
+	"strconv"
+
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/swarm"
 )
@@ -47,7 +50,7 @@ func (options *ServiceOptions) toSwarmServiceSpec() (service swarm.ServiceSpec) 
 				},
 				Env:    options.Env,
 				Args:   options.Args,
-				Mounts: options.swarmMounts(),
+				Mounts: options.swarmMounts(false),
 			},
 			Networks: options.swarmNetworks(),
 		},
@@ -71,7 +74,12 @@ func (options *ServiceOptions) swarmPorts() (ports []swarm.PortConfig) {
 	return
 }
 
-func (options *ServiceOptions) swarmMounts() (mounts []mount.Mount) {
+func (options *ServiceOptions) swarmMounts(force bool) (mounts []mount.Mount) {
+	// TOFIX: hack to prevent mount when in CircleCI (Mount in CircleCI doesn't work). Should use CircleCi with machine to fix this.
+	circleCI, errCircle := strconv.ParseBool(os.Getenv("CIRCLECI"))
+	if force == false && errCircle == nil && circleCI {
+		return
+	}
 	mounts = make([]mount.Mount, len(options.Mounts))
 	for i, m := range options.Mounts {
 		mounts[i] = mount.Mount{

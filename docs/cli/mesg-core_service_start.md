@@ -7,13 +7,13 @@ Start a service
 Start a service from the published available services. You have to provide a stake value and duration.
 
 ```
-mesg-core service start SERVICE_FOLDER [flags]
+mesg-core service start SERVICE_ID [flags]
 ```
 
 ### Examples
 
 ```
-mesg-core service start SERVICE_FOLDER
+mesg-core service start SERVICE_ID
 ```
 
 ### Options

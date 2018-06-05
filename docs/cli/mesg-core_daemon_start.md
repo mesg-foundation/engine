@@ -1,4 +1,4 @@
-## mesg-cli daemon start
+## mesg-core daemon start
 
 Start the daemon
 
@@ -7,7 +7,7 @@ Start the daemon
 Start the daemon
 
 ```
-mesg-cli daemon start [flags]
+mesg-core daemon start [flags]
 ```
 
 ### Options
@@ -18,5 +18,5 @@ mesg-cli daemon start [flags]
 
 ### SEE ALSO
 
-* [mesg-cli daemon](mesg-cli_daemon.md)	 - Manage your MESG daemon
+* [mesg-core daemon](mesg-core_daemon.md)	 - Manage the MESG daemon
 
