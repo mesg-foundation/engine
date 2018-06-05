@@ -35,6 +35,7 @@ func (service *Service) Start() (serviceIDs []string, err error) {
 			namespace:      service.namespace(),
 			dependencyName: name,
 			serviceName:    service.Name,
+			serviceHash:    service.Hash(),
 		}
 		wg.Add(1)
 		go func(service *Service, d dependencyDetails, name string, i int) {
@@ -61,6 +62,7 @@ type dependencyDetails struct {
 	namespace      string
 	dependencyName string
 	serviceName    string
+	serviceHash    string
 }
 
 // Start will start a dependency container
@@ -77,6 +79,7 @@ func (dependency *Dependency) Start(service *Service, details dependencyDetails,
 		Namespace: namespace,
 		Labels: map[string]string{
 			"mesg.service": details.serviceName,
+			"mesg.hash":    details.serviceHash,
 		},
 		Image: dependency.Image,
 		Args:  strings.Fields(dependency.Command),
