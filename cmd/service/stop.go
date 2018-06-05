@@ -25,11 +25,12 @@ To have more explanation, see the page [stake explanation from the documentation
 }
 
 func stopHandler(cmd *cobra.Command, args []string) {
-	s := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Stopping service..."})
-	_, err := cli.StopService(context.Background(), &core.StopServiceRequest{
-		ServiceID: args[0],
+	var err error
+	cmdUtils.ShowSpinnerForFunc(cmdUtils.SpinnerOptions{Text: "Stopping service..."}, func() {
+		_, err = cli.StopService(context.Background(), &core.StopServiceRequest{
+			ServiceID: args[0],
+		})
 	})
-	s.Stop()
 	handleError(err)
 	fmt.Println(aurora.Green("Service stopped"))
 }
