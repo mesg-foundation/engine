@@ -5,3 +5,6 @@ Dockerfile
 /test
 dev-daemon
 dev-cli 
+.git
+**/*.test
+**/debug
