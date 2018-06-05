@@ -1,5 +1,3 @@
-<center>
-
 ![MESG core](https://cdn.rawgit.com/mesg-foundation/core/6be15cc30831d4299d3c3044cb6ad5b5b22c3d86/logo.svg)
 
 # [Website](https://mesg.tech/) - [Docs](https://docs.mesg.tech/) - [Chat](https://discordapp.com/invite/5tVTHJC)
@@ -8,7 +6,6 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/mesg/daemon.svg)](https://hub.docker.com/r/mesg/daemon/)
 [![Maintainability](https://api.codeclimate.com/v1/badges/86ad77f7c13cde40807e/maintainability)](https://codeclimate.com/github/mesg-foundation/core/maintainability)
 [![codecov](https://codecov.io/gh/mesg-foundation/core/branch/dev/graph/badge.svg)](https://codecov.io/gh/mesg-foundation/core)
-</center>
 
 ## Build from source
 
