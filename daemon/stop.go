@@ -1,8 +1,6 @@
 package daemon
 
 import (
-	"time"
-
 	"github.com/mesg-foundation/core/container"
 )
 
@@ -16,6 +14,6 @@ func Stop() (err error) {
 	if err != nil {
 		return
 	}
-	err = container.WaitForContainerStatus(Namespace(), container.STOPPED, time.Minute)
+	err = container.WaitForContainerStatus(Namespace(), container.STOPPED)
 	return
 }

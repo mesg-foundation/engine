@@ -2,7 +2,6 @@ package service
 
 import (
 	"sync"
-	"time"
 
 	"github.com/mesg-foundation/core/container"
 )
@@ -53,6 +52,6 @@ func (dependency *Dependency) Stop(name string, dependencyName string) (err erro
 	if err != nil {
 		return
 	}
-	err = container.WaitForContainerStatus(namespace, container.STOPPED, time.Minute) //TODO: be careful with timeout
+	err = container.WaitForContainerStatus(namespace, container.STOPPED)
 	return
 }
