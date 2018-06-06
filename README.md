@@ -15,15 +15,19 @@
   <a href="https://codecov.io/gh/mesg-foundation/core"><img src="https://codecov.io/gh/mesg-foundation/core/branch/dev/graph/badge.svg" alt="codecov"></a>
 </p>
 
-**MESG is a platform to help you create efficient and easy to maintain applications that connects any technologie**. You can create your application that listen to an event on a Blockchain and execute a task on a web server. The technology doesn't matter, as long as it can send and/or receive some data.
+MESG is a platform for the creation of efficient and easy-to-maintain applications that connect any and all technologies.
 
-# Issue
+# Issues
 
-TO DO
+For issues concerning application or service development, please read the [docs](https://docs.mesg.tech/) or ask us directly on [Discord](https://discordapp.com/invite/5tVTHJC) channels #application or #service.
+For a question or suggestion of a new feature concerning the Core, please contact us on [Discord](https://discordapp.com/invite/5tVTHJC) channel #core.
+To report a bug, please [check for existing issues and create a new issue on this repository](https://github.com/mesg-foundation/core/issues).
 
 # Contribution
 
-TO DO
+For Services and Applications contribution, we have an [curated list of awesome Services and Applications](https://github.com/mesg-foundation/awesome) that you should participate in.
+
+For Core contribution, please contact us on [Discord](https://discordapp.com/invite/5tVTHJC) channel #core. We would love to include you in the development process.
 
 # Build from source
 
