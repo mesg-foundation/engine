@@ -3,9 +3,9 @@ package cmdService
 import (
 	"fmt"
 	"io/ioutil"
-	"net/url"
 	"os"
 
+	"github.com/asaskevich/govalidator"
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/api/core"
 	"github.com/mesg-foundation/core/cmd/utils"
@@ -49,9 +49,9 @@ func gitClone(url string) (path string, err error) {
 
 func loadService(path string) (importedService *service.Service, servicePath string) {
 	var err error
-	if _, err = url.ParseRequestURI(path); err == nil {
 		path, err = gitClone(path)
 		handleError(err)
+	if govalidator.IsURL(path) {
 	}
 
 	importedService, err = service.ImportFromPath(path)
