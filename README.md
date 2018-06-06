@@ -20,7 +20,9 @@ MESG is a platform for the creation of efficient and easy-to-maintain applicatio
 # Issues
 
 For issues concerning application or service development, please read the [docs](https://docs.mesg.tech/) or ask us directly on [Discord](https://discordapp.com/invite/5tVTHJC) channels #application or #service.
+
 For a question or suggestion of a new feature concerning the Core, please contact us on [Discord](https://discordapp.com/invite/5tVTHJC) channel #core.
+
 To report a bug, please [check for existing issues and create a new issue on this repository](https://github.com/mesg-foundation/core/issues).
 
 # Contribution
