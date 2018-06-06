@@ -13,9 +13,54 @@ func TestDefaultPath(t *testing.T) {
 	assert.Equal(t, defaultPath([]string{"foo", "bar"}), "foo")
 }
 
-func TestLoadService(t *testing.T) {
-	s := loadService("./service/tests/service-valid")
-	assert.NotNil(t, s)
+func TestBuildDockerImagePathDoNotExist(t *testing.T) {
+	_, err := buildDockerImage("/doNotExist")
+	assert.NotNil(t, err)
+}
+
+func TestGitCloneRepositoryDoNotExist(t *testing.T) {
+	path, _ := createTempFolder()
+	defer removeTempFolder(path, true)
+	err := gitClone("/doNotExist", path)
+	assert.NotNil(t, err)
+}
+
+func TestDownloadServiceIfNeededAbsolutePath(t *testing.T) {
+	path := "/users/paul/service-js-function"
+	newPath, didDownload, err := downloadServiceIfNeeded(path)
+	assert.Nil(t, err)
+	assert.Equal(t, path, newPath)
+	assert.Equal(t, false, didDownload)
+}
+
+func TestDownloadServiceIfNeededRelativePath(t *testing.T) {
+	path := "./service-js-function"
+	newPath, didDownload, err := downloadServiceIfNeeded(path)
+	assert.Nil(t, err)
+	assert.Equal(t, path, newPath)
+	assert.Equal(t, false, didDownload)
+}
+
+func TestDownloadServiceIfNeededUrl(t *testing.T) {
+	path := "https://github.com/mesg-foundation/awesome.git"
+	newPath, didDownload, err := downloadServiceIfNeeded(path)
+	defer removeTempFolder(newPath, true)
+	assert.Nil(t, err)
+	assert.NotEqual(t, path, newPath)
+	assert.Equal(t, true, didDownload)
+}
+
+func TestCreateTempFolder(t *testing.T) {
+	path, err := createTempFolder()
+	defer removeTempFolder(path, true)
+	assert.Nil(t, err)
+	assert.NotEqual(t, "", path)
+}
+
+func TestRemoveTempFolder(t *testing.T) {
+	path, _ := createTempFolder()
+	err := removeTempFolder(path, true)
+	assert.Nil(t, err)
 }
 
 func TestInjectConfigurationInDependencies(t *testing.T) {
