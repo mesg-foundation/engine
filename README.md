@@ -1,6 +1,5 @@
 <p align="center">
-  <img src="https://cdn.rawgit.com/mesg-foundation/core/149-update-readme/logo.svg" alt="MESG Core"
-       height="120"><br/>
+  <img src="https://cdn.rawgit.com/mesg-foundation/core/149-update-readme/logo.svg" alt="MESG Core" height="120">
 </p>
 <h2 align="center">
   <a href="https://mesg.tech/">Website</a> - 
@@ -10,10 +9,10 @@
 </h2>
 
 <p align="center">
-[![CircleCI](https://img.shields.io/circleci/project/github/mesg-foundation/core.svg)](https://github.com/mesg-foundation/core)
-[![Docker Pulls](https://img.shields.io/docker/pulls/mesg/daemon.svg)](https://hub.docker.com/r/mesg/daemon/)
-[![Maintainability](https://api.codeclimate.com/v1/badges/86ad77f7c13cde40807e/maintainability)](https://codeclimate.com/github/mesg-foundation/core/maintainability)
-[![codecov](https://codecov.io/gh/mesg-foundation/core/branch/dev/graph/badge.svg)](https://codecov.io/gh/mesg-foundation/core)
+  <a href="https://github.com/mesg-foundation/core"><img src="https://img.shields.io/circleci/project/github/mesg-foundation/core.svg" alt="CircleCI"></a>
+  <a href="https://hub.docker.com/r/mesg/daemon/"><img src="https://img.shields.io/docker/pulls/mesg/daemon.svg" alt="Docker Pulls"></a>
+  <a href="https://codeclimate.com/github/mesg-foundation/core/maintainability"><img src="https://api.codeclimate.com/v1/badges/86ad77f7c13cde40807e/maintainability" alt="Maintainability"></a>
+  <a href="https://codecov.io/gh/mesg-foundation/core"><img src="https://codecov.io/gh/mesg-foundation/core/branch/dev/graph/badge.svg" alt="codecov"></a>
 </p>
 
 **MESG is a platform to help you create efficient and easy to maintain applications that connects any technologie**. You can create your application that listen to an event on a Blockchain and execute a task on a web server. The technology doesn't matter, as long as it can send and/or receive some data.
