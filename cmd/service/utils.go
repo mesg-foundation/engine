@@ -34,42 +34,67 @@ func handleError(err error) {
 	}
 }
 
-func gitClone(url string) (path string, err error) {
-	path, err = ioutil.TempDir("", "")
-	if err != nil {
-		return
+// prepareService downloads if needed, create the service, build it and inject configuration
+func prepareService(path string) (importedService *service.Service) {
+	path, didDownload, err := downloadServiceIfNeeded(path)
+	handleError(err)
+	if didDownload {
+		fmt.Println(aurora.Green("Service downloaded with success"))
+		fmt.Println("Temp folder: " + path)
 	}
-	s := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Fetching service..."})
-	defer s.Stop()
-	_, err = git.PlainClone(path, false, &git.CloneOptions{
-		URL: url,
-	})
-	return
-}
-
-func loadService(path string) (importedService *service.Service, servicePath string) {
-	var err error
-		path, err = gitClone(path)
-		handleError(err)
-	if govalidator.IsURL(path) {
-	}
-
+	defer removeTempFolder(path, didDownload)
 	importedService, err = service.ImportFromPath(path)
 	if err != nil {
 		fmt.Println("Run the command 'service validate' to get detailed errors")
 		handleError(err)
 	}
-	servicePath = path
+	imageHash, err := buildDockerImage(path)
+	handleError(err)
+	fmt.Println(aurora.Green("Image built with success"))
+	fmt.Println("Image hash:", imageHash)
+	injectConfigurationInDependencies(importedService, imageHash)
 	return
 }
 
-func buildDockerImage(path string) (imageHash string) {
-	var err error
+func downloadServiceIfNeeded(path string) (newPath string, didDownload bool, err error) {
+	didDownload = false
+	newPath = path
+	if govalidator.IsURL(path) {
+		newPath, err = createTempFolder()
+		if err != nil {
+			return
+		}
+		err = gitClone(path, newPath)
+		didDownload = true
+	}
+	return
+}
+
+func gitClone(url string, path string) (err error) {
+	cmdUtils.ShowSpinnerForFunc(cmdUtils.SpinnerOptions{Text: "Downloading service..."}, func() {
+		_, err = git.PlainClone(path, false, &git.CloneOptions{
+			URL: url,
+		})
+	})
+	return
+}
+
+func createTempFolder() (path string, err error) {
+	path, err = ioutil.TempDir("", "mesg-")
+	return
+}
+
+func removeTempFolder(path string, didDownload bool) (err error) {
+	if didDownload {
+		err = os.RemoveAll(path)
+	}
+	return
+}
+
+func buildDockerImage(path string) (imageHash string, err error) {
 	cmdUtils.ShowSpinnerForFunc(cmdUtils.SpinnerOptions{Text: "Building image..."}, func() {
 		imageHash, err = container.Build(path)
 	})
-	handleError(err)
-	fmt.Println(aurora.Green("Image built with success. Hash:\n" + imageHash))
 	return
 }
 
