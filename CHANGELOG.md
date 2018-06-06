@@ -17,6 +17,7 @@
   - [API] Add `outputFilter` on `ListenResult` API to get notification when a result returns a specific output
 - (#183) Add a `configuration` attribute in the `mesg.yml` file to accept docker configuration for your service
 - (#187) Stop all services when the daemon stops
+- (#190) Possibility to `test` or `deploy` a service from a git or GitHub url
 
 #### Removed
 
