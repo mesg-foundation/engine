@@ -11,9 +11,9 @@
 
 
 
-**MESG is a platform to help you create efficient and easy to maintain applications that connects any technologie**. You can create your application that listend for an event on a Blockchain and execute a task on a web server. The technology doesn't matter, as long as it can send and/or receive some data.
+**MESG is a platform to help you create efficient and easy to maintain applications that connects any technologie**. You can create your application that listen to an event on a Blockchain and execute a task on a web server. The technology doesn't matter, as long as it can send and/or receive some data.
 
-All the idea with MESG is to create different services that each of them connects to a specific technology and/or a specific feature and expose different 2 different things:
+The idea with MESG is to create different services that connects to a specific technology and/or a specific feature and expose 2 different things:
 - Events
 - Tasks
 
@@ -43,41 +43,42 @@ One this is done open a new terminal and type `mesg-core` and you should have so
 
 ### 2 - Run the MESG Daemon
 
-MESG needs to have a daemon running to process all the different commands that you might need to executer. In order to start the daemon you can run:
+MESG needs to have a daemon running to process all the different commands that you might need to execute. In order to start the daemon you can run:
 ```
 mesg-core daemon start
 ```
 
 ### 3 - Deploy a service
 
-Next step is to deploy the service that your application will need. You can [create your own service](https://docs.mesg.tech/service/what-is-a-service) but for now let's just use an existing one and deploy it on our computer.
+Next step is to deploy the service that your application will need. You can [create your own service](https://docs.mesg.tech/service/what-is-a-service) but for now let's just use an existing one and deploy it.
 
 ```
 mesg-core deploy https://github.com/mesg-foundation/service-webhook
 ```
 
-We can also deploy another one
+Let's deploy another one.
 
 ```
 mesg-core deploy https://github.com/mesg-foundation/service-invite-discord
 ```
 
+Every time you deploy, the console will display you the ID for the service you've just deployed.
+
 ### 4 - Connect the services
 
-Now let's connect these services and create our application that will send an email you an invitation to the discord every time you call the webhook.
+Now let's connect these services and create our application that will send you an email with an invitation to the MESG Discord every time you call the webhook.
 
 ```
 npm init && npm install --save mesg
 ```
 
-Now create an `index.js` file and add this the following code:
+Now create an `index.js` file and add the following code:
 ```javascript
 const MESG = require('mesg/application')
 
-​const webhook = process.env.MESG_SERVICE_WEBOOK
-const invitation = process.env.MESG_SERVICE_INVITE_DISCORD
-
-const email = '__YOUR_EMAIL_HERE__'
+const webhook    = '__ID_SERVICE_WEBHOOK__'
+const invitation = '__ID_SERVICE_INVITATION_DISCORD__'
+const email      = '__YOUR_EMAIL_HERE__'
 
 MESG.ListenEvent({ serviceID: webhook, eventFilter: 'request' })
   .on('data', data => MESG.ExecuteTask({
@@ -87,7 +88,7 @@ MESG.ListenEvent({ serviceID: webhook, eventFilter: 'request' })
   }, console.log))
 ```
 
-And just replace the `__YOUR_EMAIL_HERE__` by your email
+Don't forget to replace the values `__ID_SERVICE_WEBHOOK__`, `__ID_SERVICE_INVITATION_DISCORD__` and `__YOUR_EMAIL_HERE__`.
 
 ### 5 - Start the application
 
@@ -96,25 +97,31 @@ Start now your application like any node application:
 npm start
 ```
 
-Let few seconds time for the email to arrive and the different services to starts and you should receive an email in your mailbox.
+### 6 - Test the application
+
+Now we need to call the webhook in order to trigger the email so let's do that with a curl command.
+```
+curl -XPOST http://localhost:3000/webhook
+```
+You should now have an email in your inbox with you precious invitation to our Discord.
 
 # Service
 
-MESG rely heavily on services. These services are automatically build and run inside Docker. You can connect anything you want as long as it can run inside Docker (so as long as it can run in a computer). If you need more details about how to connect dependencies to your service [checkout the documentation](https://docs.mesg.tech/service/dockerize-the-service).
+MESG depends heavily on services. These services are automatically build and run inside Docker. You can connect anything you want as long as it can run inside Docker (so as long as it can run in a computer). If you need more details about how to connect dependencies to your service [checkout the documentation](https://docs.mesg.tech/service/dockerize-the-service).
 
-Your service needs to implement two types of communication:
+Your service needs to implement two types of communications:
 
 ## Receiving Task
 
-Task are designed to receive informations from the MESG core and the Application that you run. Tasks can have multiple parameters as inputs and muliple outputs with multiple data. See a task as a simple function that can return any kind of object.
+Task are designed to receive informations from the MESG core and the Application that you run. Tasks can have multiple parameters as inputs and muliple outputs with multiple data. Visualize a task as a simple function that can return any kind of object.
 
-You could have a task that take as input a name and as output `success` return the genre of this name with the probability like `{ "genre": "female", "proabiliy": 92.34% }` but could also have an `error` output with the type of error `{ "message": "This doesn't looks like a name" }`.
+You could have a task that take as input a name and as output `success` and this task the genre of this name with the probability like `{ "genre": "female", "proabiliy": 92.34% }` but could also have an `error` output with the type of error `{ "message": "This doesn't looks like a name" }`.
 
 More info how to create your [tasks in the documentation](https://docs.mesg.tech/service/listen-for-tasks).
 
 ## Submitting Event
 
-Events are data that your service will emit. Let's say you are doing a webserver. One event could be when there is a request with the data in the payload or different events for the different routes of your api or in a blockchain world when a smart contract emits an event.
+Events are data that your service will emit in real time. Let's say you are doing a webserver. One event could be when there is a request with the data in the payload or different events for the different routes of your api or in a blockchain world when a smart contract emits an event.
 
 More info how to create your [events in the documentation](https://docs.mesg.tech/service/emit-an-event)
 
@@ -124,7 +131,7 @@ More info how to create your [events in the documentation](https://docs.mesg.tec
 
 # Examples
 
-You can find a list of different example and services that you can reuse [here](https://github.com/mesg-foundation/awesome)
+You can find a list of different examples and services that you can re-use [here](https://github.com/mesg-foundation/awesome)
 
 # Roadmap
 
