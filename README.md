@@ -21,7 +21,7 @@ MESG is a platform for the creation of efficient and easy-to-maintain applicatio
 
 ### **1. Download the CLI**
 
-First, download the CLI so you're able to interact with Core. You can either download the binaries directly from the [release page](https://github.com/mesg-foundation/core/releases/latest) then rename it to `mesg-core` and install it your path, or you can follow the installation process for your system:
+First, download the CLI so you're able to interact with Core. You can either download the binaries directly from the [release page](https://github.com/mesg-foundation/core/releases/latest) then rename it to `mesg-core` and install it your path, or you can follow the installation process for your system in the [documentation] (https://docs.mesg.tech/start-here/installing-the-cli)
 
 ### **2. Run MESG Core**
 
