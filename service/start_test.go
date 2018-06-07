@@ -29,16 +29,20 @@ func TestStartWith2Dependencies(t *testing.T) {
 		Name: "TestStartWith2Dependencies",
 		Dependencies: map[string]*Dependency{
 			"test": &Dependency{
-				Image: "nginx",
+				Image: "nginx:latest",
 			},
 			"test2": &Dependency{
-				Image: "nginx",
+				Image: "alpine:latest",
 			},
 		},
 	}
 	servicesID, err := service.Start()
 	assert.Nil(t, err)
 	assert.Equal(t, 2, len(servicesID))
+	container1, _ := container.FindContainer([]string{"TestStartWith2Dependencies", "test"})
+	container2, _ := container.FindContainer([]string{"TestStartWith2Dependencies", "test2"})
+	assert.Equal(t, "nginx:latest", container1.Config.Image)
+	assert.Equal(t, "alpine:latest", container2.Config.Image)
 	service.Stop()
 }
 
