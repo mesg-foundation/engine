@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="https://github.com/mesg-foundation/core"><img src="https://img.shields.io/circleci/project/github/mesg-foundation/core.svg" alt="CircleCI"></a>
-  <a href="https://hub.docker.com/r/mesg/daemon/"><img src="https://img.shields.io/docker/pulls/mesg/daemon.svg" alt="Docker Pulls"></a>
+  <a href="https://hub.docker.com/r/mesg/core/"><img src="https://img.shields.io/docker/pulls/mesg/core.svg" alt="Docker Pulls"></a>
   <a href="https://codeclimate.com/github/mesg-foundation/core/maintainability"><img src="https://api.codeclimate.com/v1/badges/86ad77f7c13cde40807e/maintainability" alt="Maintainability"></a>
   <a href="https://codecov.io/gh/mesg-foundation/core"><img src="https://codecov.io/gh/mesg-foundation/core/branch/dev/graph/badge.svg" alt="codecov"></a>
 </p>
@@ -50,7 +50,7 @@ go get -v -t -u ./...
 ## Run all tests with code coverage
 
 ```bash
-env DAEMON.IMAGE=mesg/daemon:local go test -cover -v ./...
+env DAEMON.IMAGE=mesg/core:local go test -cover -v ./...
 ```
 
 If you use Visual code you can add the following settings (Preference > Settings)

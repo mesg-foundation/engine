@@ -1,1 +1,1 @@
-DAEMON.IMAGE=mesg/daemon:local
+DAEMON.IMAGE=mesg/core:local
