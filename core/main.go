@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	log.Println("Starting MESG daemon")
+	log.Println("Starting MESG Core")
 	go startServer(&api.Server{
 		Network: "tcp",
 		Address: viper.GetString(config.APIServerAddress),

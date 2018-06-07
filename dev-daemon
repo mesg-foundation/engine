@@ -1,6 +1,0 @@
-#!/bin/bash
-
-scripts/build-test-daemon.sh
-env DAEMON.IMAGE=mesg/core:local go run cli/main.go daemon start
-env DAEMON.IMAGE=mesg/core:local go run cli/main.go daemon logs
-env DAEMON.IMAGE=mesg/core:local go run cli/main.go daemon stop 

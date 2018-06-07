@@ -1,4 +1,4 @@
 #!/bin/bash
 
 image=mesg/core:local
-env DAEMON.IMAGE=$image go run cli/main.go $@ 
+env CORE.IMAGE=$image go run cli/main.go $@ 

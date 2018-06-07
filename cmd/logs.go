@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Logs the daemon
+// Logs of the core
 var Logs = &cobra.Command{
 	Use:               "logs",
 	Short:             "Show the core's logs",
