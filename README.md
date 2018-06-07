@@ -17,7 +17,7 @@
 
 MESG is a platform for the creation of efficient and easy-to-maintain applications that connect any and all technologies.
 
-# Issues
+# ISSUES
 
 For issues concerning application or service development, please read the [docs](https://docs.mesg.tech/) or ask us directly on [Discord](https://discordapp.com/invite/5tVTHJC) channels #application or #service.
 
