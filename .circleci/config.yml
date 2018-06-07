@@ -17,8 +17,8 @@ jobs:
     <<: *runOnMachine
     steps:
       - checkout
-      - run: docker pull mesg/daemon:latest
-      - run: docker build -t mesg/daemon:$CIRCLE_SHA1 .
+      - run: docker pull mesg/core:latest
+      - run: docker build -t mesg/core:$CIRCLE_SHA1 .
 
   "test":
     docker:
@@ -30,26 +30,26 @@ jobs:
       - run: go get -t ./...
       - run: docker swarm init
       - run: docker pull nginx
-      - run: env DAEMON.IMAGE=mesg/daemon:$CIRCLE_SHA1 go test -timeout 180s -p 1 -coverprofile=coverage.txt ./...
+      - run: env DAEMON.IMAGE=mesg/core:$CIRCLE_SHA1 go test -timeout 180s -p 1 -coverprofile=coverage.txt ./...
       - run: bash <(curl -s https://codecov.io/bash)
 
   "publish_docker_version":
     <<: *runOnMachine
     steps:
       - checkout
-      - run: docker pull mesg/daemon:latest
-      - run: docker build -t mesg/daemon:$CIRCLE_TAG .
+      - run: docker pull mesg/core:latest
+      - run: docker build -t mesg/core:$CIRCLE_TAG .
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
-      - run: docker push mesg/daemon:$CIRCLE_TAG
+      - run: docker push mesg/core:$CIRCLE_TAG
   
   "publish_docker_latest":
     <<: *runOnMachine
     steps:
       - checkout
-      - run: docker pull mesg/daemon:latest
-      - run: docker build -t mesg/daemon:latest .
+      - run: docker pull mesg/core:latest
+      - run: docker build -t mesg/core:latest .
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
-      - run: docker push mesg/daemon:latest
+      - run: docker push mesg/core:latest
 
   "release_cli":
     <<: *runOnMachine
