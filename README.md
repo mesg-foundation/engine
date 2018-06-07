@@ -15,7 +15,11 @@
   <a href="https://codecov.io/gh/mesg-foundation/core"><img src="https://codecov.io/gh/mesg-foundation/core/branch/dev/graph/badge.svg" alt="codecov"></a>
 </p>
 
-MESG is a platform for the creation of efficient and easy-to-maintain applications that connect any and all technologies.
+MESG is a platform for the creation of efficient and easy-to-maintain applications that connect any and all technologies. 
+
+Core is MESG's ultra-powerful communication and connection manager which manages the interaction of all connected services and applications so that applications can remain lightweight, yet feature packed.
+
+To build an application, follow the Quick Start Guide, or if you'd like to help us build and maintain Core, refer to the Build From Source section below. 
 
 # Quick Start Guide
 
@@ -93,6 +97,7 @@ curl -XPOST http://localhost:3000/webhook
 You should now have an email in your inbox with your precious invitation to our Discord.
 
 
+
 # Build from source
 
 ## Download source
@@ -146,6 +151,36 @@ make install
 
 [Source](https://github.com/derekparker/delve/blob/master/Documentation/installation/osx/install.md)
 
+
+## Services
+
+MESG depends heavily on services. These services are automatically built and ran inside Docker. You can connect anything you want, as long as it can run inside Docker \(as long as it can run on a computer\). If you need more details about how to connect dependencies to your service [check out the documentation](https://docs.mesg.tech/service/dockerize-the-service).
+
+A service needs to implement two types of communications:receiving tasks and submitting events.
+
+#### Receiving Tasks
+
+Tasks are designed to receive information both from Core and the Application that you run. Tasks can have multiple parameters as inputs and multiple outputs with varying data. You can visualize a task as a simple function that can return any kind of object.
+
+You could have a task that receives a name as an input, and shows `success` as an output. This task factors the type of name with its probability like `{ "type": "female", "proabiliy": 92.34% }` but could also have an `error` output with a type of error like this: `{ "message": "This doesn't looks like a name" }`.
+
+Check out the documentation for more information on how info how to create [tasks](https://docs.mesg.tech/service/listen-for-tasks).
+
+#### Submitting Events
+
+Let's say you are working with a webserver. An event could be when there is a request with data in the payload, or it could be different events for each of the different routes of your API, or in a blockchain context, it could be when a smart contract emits an event.
+
+For more info how to create your events, visit the [Emit an Event](https://docs.mesg.tech/service/emit-an-event) page.
+
+
+## Architecture
+
+\[\[ TODO: Add a nice graphic with the Application, the core and the services with the communication \]\]
+
+## Examples
+
+You can find a list of different examples and services that you can re-use [here](https://github.com/mesg-foundation/awesome)
+
 # Issues
 
 For issues concerning application or service development, please read the [docs](https://docs.mesg.tech/) or ask us directly on the [Discord](https://discordapp.com/invite/5tVTHJC) channels #application or #service.
@@ -160,32 +195,20 @@ For Services and Applications contribution, we have an [curated list of Awesome 
 
 For contribution to MESG's Core, please contact us on [Discord](https://discordapp.com/invite/5tVTHJC) channel #core. We would love to include you in the development process.
 
-## Service
-
-MESG depends heavily on services. These services are automatically built and ran inside Docker. You can connect anything you want, as long as it can run inside Docker \(as long as it can run on a computer\). If you need more details about how to connect dependencies to your service [check out the documentation](https://docs.mesg.tech/service/dockerize-the-service).
-
-A service needs to implement two types of communications:receiving tasks and submitting events.
-
-#### Receiving Tasks
-
-Tasks are designed to receive information from Core and the Application that you run. Tasks can have multiple parameters as inputs and multiple outputs with varying data. You can visualize a task as a simple function that can return any kind of object.
-
-You could have a task that takes a name as an input, and shows `success` as an output. This task factors the type of name with its probability like `{ "type": "female", "proabiliy": 92.34% }` but could also have an `error` output with a type of error like this `{ "message": "This doesn't looks like a name" }`.
-
-Check out the documentation for more information on how info how to create [tasks](https://docs.mesg.tech/service/listen-for-tasks).
-
-#### Submitting Events
-
-Let's say you are working with a webserver. An event could be when there is a request with data in the payload, or it could be different events for each of the different routes of your API, or, in a blockchain context, it could be when a smart contract emits an event.
-
-For more info how to create your events, visit the [Emit an Event](https://docs.mesg.tech/service/emit-an-event) page.
-
-## Architecture
-
-\[\[ TODO: Add a nice graphic with the Application, the core and the services with the communication \]\]
-
-## Examples
-
-You can find a list of different examples and services that you can re-use [here](https://github.com/mesg-foundation/awesome)
-
 ## Roadmap
+
+June 2018
+Core V1.0 Launched
+Create your services and connect them together with your application through a single connection to Core, allowing Core to handle all communications and interoperability with any technology.
+
+Q3 2018
+Rapid Deployment
+No need to code your application anymore, just send a list of events with corresponding tasks within a simple configuration file to Core which will then execute tasks on your application’s behalf.
+
+Q4 2018
+Beta Network
+The decentralized beta Network means no coding or servers are necessary to run your applications. We will also launch an economy based on your participation in the Network.
+
+Q3 2019
+Main Network
+MESG launches its own blockchain Network providing for full scalability and a cheaper and faster user experience.
