@@ -21,7 +21,7 @@ MESG is a platform for the creation of efficient and easy-to-maintain applicatio
 
 ### **1. Download the CLI**
 
-First, download the CLI so you're able to interact with the MESG Core. You can either download the binaries directly from the [release page](https://github.com/mesg-foundation/core/releases/latest) then rename it to `mesg-core` and install it your path, or you can follow the installation process for your system:
+First, download the CLI so you're able to interact with Core. You can either download the binaries directly from the [release page](https://github.com/mesg-foundation/core/releases/latest) then rename it to `mesg-core` and install it your path, or you can follow the installation process for your system:
 
 ### **2. Run MESG Core**
 
@@ -159,3 +159,33 @@ To report a bug, please [check for existing issues, then create a new issue on t
 For Services and Applications contribution, we have an [curated list of Awesome Services and Applications](https://github.com/mesg-foundation/awesome) that you should participate in.
 
 For contribution to MESG's Core, please contact us on [Discord](https://discordapp.com/invite/5tVTHJC) channel #core. We would love to include you in the development process.
+
+## Service
+
+MESG depends heavily on services. These services are automatically built and ran inside Docker. You can connect anything you want, as long as it can run inside Docker \(as long as it can run on a computer\). If you need more details about how to connect dependencies to your service [check out the documentation](https://docs.mesg.tech/service/dockerize-the-service).
+
+A service needs to implement two types of communications:receiving tasks and submitting events.
+
+#### Receiving Tasks
+
+Tasks are designed to receive information from Core and the Application that you run. Tasks can have multiple parameters as inputs and multiple outputs with varying data. You can visualize a task as a simple function that can return any kind of object.
+
+You could have a task that takes a name as an input, and shows `success` as an output. This task factors the type of name with its probability like `{ "type": "female", "proabiliy": 92.34% }` but could also have an `error` output with a type of error like this `{ "message": "This doesn't looks like a name" }`.
+
+Check out the documentation for more information on how info how to create [tasks](https://docs.mesg.tech/service/listen-for-tasks).
+
+#### Submitting Events
+
+Let's say you are working with a webserver. An event could be when there is a request with data in the payload, or it could be different events for each of the different routes of your API, or, in a blockchain context, it could be when a smart contract emits an event.
+
+For more info how to create your events, visit the [Emit an Event](https://docs.mesg.tech/service/emit-an-event) page.
+
+## Architecture
+
+\[\[ TODO: Add a nice graphic with the Application, the core and the services with the communication \]\]
+
+## Examples
+
+You can find a list of different examples and services that you can re-use [here](https://github.com/mesg-foundation/awesome)
+
+## Roadmap
