@@ -36,8 +36,8 @@ func serviceSpec() (spec container.ServiceOptions, err error) {
 		Image:     viper.GetString(config.CoreImage),
 		Env: []string{
 			"MESG.PATH=/mesg",
-			"API.SERVICE.SOCKETPATH=" + filepath.Join(viper.GetString(config.MESGPath), "server.sock"), // TODO: this one seems useless because MESGPath is already set.
-			"SERVICE.PATH.HOST=" + filepath.Join(viper.GetString(config.MESGPath), "services"),         // TODO: this one seems useless because MESGPath is already set.
+			"API.SERVICE.SOCKETPATH=" + filepath.Join(viper.GetString(config.MESGPath), "server.sock"),
+			"SERVICE.PATH.HOST=" + filepath.Join(viper.GetString(config.MESGPath), "services"),
 		},
 		Mounts: []container.Mount{
 			container.Mount{
