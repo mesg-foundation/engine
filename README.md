@@ -17,20 +17,6 @@
 
 MESG is a platform for the creation of efficient and easy-to-maintain applications that connect any and all technologies.
 
-# Issues
-
-For issues concerning application or service development, please read the [docs](https://docs.mesg.tech/) or ask us directly on [Discord](https://discordapp.com/invite/5tVTHJC) channels #application or #service.
-
-For a question or suggestion of a new feature concerning the Core, please contact us on [Discord](https://discordapp.com/invite/5tVTHJC) channel #core.
-
-To report a bug, please [check for existing issues and create a new issue on this repository](https://github.com/mesg-foundation/core/issues).
-
-# Contribution
-
-For Services and Applications contribution, we have an [curated list of awesome Services and Applications](https://github.com/mesg-foundation/awesome) that you should participate in.
-
-For MESG Core contribution, please contact us on [Discord](https://discordapp.com/invite/5tVTHJC) channel #core. We would love to include you in the development process.
-
 # Quick Start Guide
 
 ### **1. Download the CLI**
@@ -160,3 +146,16 @@ make install
 
 [Source](https://github.com/derekparker/delve/blob/master/Documentation/installation/osx/install.md)
 
+# Issues
+
+For issues concerning application or service development, please read the [docs](https://docs.mesg.tech/) or ask us directly on the [Discord](https://discordapp.com/invite/5tVTHJC) channels #application or #service.
+
+For questions or suggestions regarding a new feature of Core, please contact us on [Discord](https://discordapp.com/invite/5tVTHJC) channel #core.
+
+To report a bug, please [check for existing issues, then create a new issue on this repository](https://github.com/mesg-foundation/core/issues).
+
+# Contribution
+
+For Services and Applications contribution, we have an [curated list of Awesome Services and Applications](https://github.com/mesg-foundation/awesome) that you should participate in.
+
+For contribution to MESG's Core, please contact us on [Discord](https://discordapp.com/invite/5tVTHJC) channel #core. We would love to include you in the development process.
