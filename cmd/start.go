@@ -1,4 +1,4 @@
-package daemon
+package cmd
 
 import (
 	"fmt"
@@ -12,9 +12,13 @@ import (
 // Start the daemon
 var Start = &cobra.Command{
 	Use:               "start",
-	Short:             "Start the daemon",
+	Short:             "Start the core",
 	Run:               startHandler,
 	DisableAutoGenTag: true,
+}
+
+func init() {
+	RootCmd.AddCommand(Start)
 }
 
 func startHandler(cmd *cobra.Command, args []string) {
@@ -24,15 +28,15 @@ func startHandler(cmd *cobra.Command, args []string) {
 		return
 	}
 	if running {
-		fmt.Println(aurora.Green("Daemon is running"))
+		fmt.Println(aurora.Green("Core is running"))
 		return
 	}
-	cmdUtils.ShowSpinnerForFunc(cmdUtils.SpinnerOptions{Text: "Starting daemon..."}, func() {
+	cmdUtils.ShowSpinnerForFunc(cmdUtils.SpinnerOptions{Text: "Starting core..."}, func() {
 		_, err = daemon.Start()
 	})
 	if err != nil {
 		fmt.Println(aurora.Red(err))
 		return
 	}
-	fmt.Println(aurora.Green("Daemon is running"))
+	fmt.Println(aurora.Green("Core is running"))
 }
