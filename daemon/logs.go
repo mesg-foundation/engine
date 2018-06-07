@@ -6,7 +6,7 @@ import (
 	"github.com/mesg-foundation/core/container"
 )
 
-// Logs return the daemon's docker service logs
+// Logs return the core's docker service logs
 func Logs() (reader io.ReadCloser, err error) {
 	return container.ServiceLogs(Namespace())
 }

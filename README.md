@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="https://github.com/mesg-foundation/core"><img src="https://img.shields.io/circleci/project/github/mesg-foundation/core.svg" alt="CircleCI"></a>
-  <a href="https://hub.docker.com/r/mesg/daemon/"><img src="https://img.shields.io/docker/pulls/mesg/daemon.svg" alt="Docker Pulls"></a>
+  <a href="https://hub.docker.com/r/mesg/core/"><img src="https://img.shields.io/docker/pulls/mesg/core.svg" alt="Docker Pulls"></a>
   <a href="https://codeclimate.com/github/mesg-foundation/core/maintainability"><img src="https://api.codeclimate.com/v1/badges/86ad77f7c13cde40807e/maintainability" alt="Maintainability"></a>
   <a href="https://codecov.io/gh/mesg-foundation/core"><img src="https://codecov.io/gh/mesg-foundation/core/branch/dev/graph/badge.svg" alt="codecov"></a>
 </p>
@@ -29,7 +29,7 @@ To report a bug, please [check for existing issues and create a new issue on thi
 
 For Services and Applications contribution, we have an [curated list of awesome Services and Applications](https://github.com/mesg-foundation/awesome) that you should participate in.
 
-For Core contribution, please contact us on [Discord](https://discordapp.com/invite/5tVTHJC) channel #core. We would love to include you in the development process.
+For MESG Core contribution, please contact us on [Discord](https://discordapp.com/invite/5tVTHJC) channel #core. We would love to include you in the development process.
 
 # Build from source
 
@@ -50,7 +50,7 @@ go get -v -t -u ./...
 ## Run all tests with code coverage
 
 ```bash
-env DAEMON.IMAGE=mesg/daemon:local go test -cover -v ./...
+env CORE.IMAGE=mesg/core:local go test -cover -v ./...
 ```
 
 If you use Visual code you can add the following settings (Preference > Settings)
@@ -58,10 +58,10 @@ If you use Visual code you can add the following settings (Preference > Settings
 "go.testEnvFile": "${workspaceRoot}/testenv"
 ```
 
-## Build daemon and start it
+## Build MESG Core and start it
 
 ```bash
-./dev-daemon
+./dev-core
 ```
 
 ## Build CLI and start it

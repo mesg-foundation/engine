@@ -10,7 +10,7 @@ import (
 	"github.com/stvp/assert"
 )
 
-// startForTest starts a dummy daemon service
+// startForTest starts a dummy MESG Core service
 func startForTest() {
 	running, err := IsRunning()
 	if err != nil {
@@ -51,10 +51,10 @@ func TestStartConfig(t *testing.T) {
 	// Ensure that the port is shared
 	assert.Equal(t, spec.Ports[0].Published, uint32(50052))
 	assert.Equal(t, spec.Ports[0].Target, uint32(50052))
-	// Ensure that the docker socket is shared in the daemon
+	// Ensure that the docker socket is shared in the core
 	assert.Equal(t, spec.Mounts[0].Source, "/var/run/docker.sock")
 	assert.Equal(t, spec.Mounts[0].Target, "/var/run/docker.sock")
-	// Ensure that the host users folder is sync with the daemon
+	// Ensure that the host users folder is sync with the core
 	assert.Equal(t, spec.Mounts[1].Source, viper.GetString(config.MESGPath))
 	assert.Equal(t, spec.Mounts[1].Target, "/mesg")
 }

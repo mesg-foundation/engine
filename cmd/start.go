@@ -1,4 +1,4 @@
-package daemon
+package cmd
 
 import (
 	"fmt"
@@ -9,12 +9,16 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Start the daemon
+// Start the MESG Core
 var Start = &cobra.Command{
 	Use:               "start",
-	Short:             "Start the daemon",
+	Short:             "Start the MESG Core",
 	Run:               startHandler,
 	DisableAutoGenTag: true,
+}
+
+func init() {
+	RootCmd.AddCommand(Start)
 }
 
 func startHandler(cmd *cobra.Command, args []string) {
@@ -24,15 +28,15 @@ func startHandler(cmd *cobra.Command, args []string) {
 		return
 	}
 	if running {
-		fmt.Println(aurora.Green("Daemon is running"))
+		fmt.Println(aurora.Green("MESG Core is running"))
 		return
 	}
-	cmdUtils.ShowSpinnerForFunc(cmdUtils.SpinnerOptions{Text: "Starting daemon..."}, func() {
+	cmdUtils.ShowSpinnerForFunc(cmdUtils.SpinnerOptions{Text: "Starting MESG Core..."}, func() {
 		_, err = daemon.Start()
 	})
 	if err != nil {
 		fmt.Println(aurora.Red(err))
 		return
 	}
-	fmt.Println(aurora.Green("Daemon is running"))
+	fmt.Println(aurora.Green("MESG Core is running"))
 }

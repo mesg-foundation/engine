@@ -1,11 +1,11 @@
 package daemon
 
 const (
-	name         = "daemon"
+	name         = "core"
 	dockerSocket = "/var/run/docker.sock"
 )
 
-// Namespace returns the namespace of the daemon
+// Namespace returns the namespace of the MESG Core
 func Namespace() []string {
 	return []string{name}
 }

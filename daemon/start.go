@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Start the docker daemon
+// Start the docker core
 func Start() (serviceID string, err error) {
 	running, err := IsRunning()
 	if err != nil || running == true {
@@ -33,7 +33,7 @@ func serviceSpec() (spec container.ServiceOptions, err error) {
 	}
 	spec = container.ServiceOptions{
 		Namespace: Namespace(),
-		Image:     viper.GetString(config.DaemonImage),
+		Image:     viper.GetString(config.CoreImage),
 		Env: []string{
 			"MESG.PATH=/mesg",
 			"API.SERVICE.SOCKETPATH=" + filepath.Join(viper.GetString(config.MESGPath), "server.sock"),
