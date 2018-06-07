@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Start the daemon
+// Start the core
 var Start = &cobra.Command{
 	Use:               "start",
 	Short:             "Start the core",

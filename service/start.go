@@ -85,7 +85,7 @@ func (dependency *Dependency) Start(service *Service, details dependencyDetails,
 		Args:  strings.Fields(dependency.Command),
 		Env: []string{
 			"MESG_ENDPOINT=" + viper.GetString(config.APIServiceTargetSocket),
-			"MESG_ENDPOINT_TCP=mesg-daemon:50052",
+			"MESG_ENDPOINT_TCP=mesg-core:50052", // TODO: should get this from daemon namespace and config
 		},
 		Mounts: append(extractVolumes(service, dependency, details), container.Mount{
 			Source: viper.GetString(config.APIServiceSocketPath),

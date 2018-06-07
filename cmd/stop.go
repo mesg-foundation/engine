@@ -16,7 +16,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-// Stop the daemon
+// Stop the core
 var Stop = &cobra.Command{
 	Use:               "stop",
 	Short:             "Stop the core",

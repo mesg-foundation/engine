@@ -50,7 +50,7 @@ go get -v -t -u ./...
 ## Run all tests with code coverage
 
 ```bash
-env DAEMON.IMAGE=mesg/core:local go test -cover -v ./...
+env CORE.IMAGE=mesg/core:local go test -cover -v ./...
 ```
 
 If you use Visual code you can add the following settings (Preference > Settings)
@@ -58,10 +58,10 @@ If you use Visual code you can add the following settings (Preference > Settings
 "go.testEnvFile": "${workspaceRoot}/testenv"
 ```
 
-## Build daemon and start it
+## Build core and start it
 
 ```bash
-./dev-daemon
+./dev-core
 ```
 
 ## Build CLI and start it
