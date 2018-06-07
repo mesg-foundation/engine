@@ -4,7 +4,7 @@ import (
 	"github.com/mesg-foundation/core/container"
 )
 
-// Stop the daemon docker
+// Stop the MESG Core docker container
 func Stop() (err error) {
 	stopped, err := IsStopped()
 	if err != nil || stopped == true {

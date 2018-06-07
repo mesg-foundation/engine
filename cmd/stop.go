@@ -1,4 +1,4 @@
-package daemon
+package cmd
 
 import (
 	"context"
@@ -16,17 +16,21 @@ import (
 	"google.golang.org/grpc"
 )
 
-// Stop the daemon
+// Stop the MESG Core
 var Stop = &cobra.Command{
 	Use:               "stop",
-	Short:             "Stop the daemon",
+	Short:             "Stop the MESG Core",
 	Run:               stopHandler,
 	DisableAutoGenTag: true,
 }
 
+func init() {
+	RootCmd.AddCommand(Stop)
+}
+
 func stopHandler(cmd *cobra.Command, args []string) {
 	var err error
-	cmdUtils.ShowSpinnerForFunc(cmdUtils.SpinnerOptions{Text: "Stopping daemon..."}, func() {
+	cmdUtils.ShowSpinnerForFunc(cmdUtils.SpinnerOptions{Text: "Stopping MESG Core..."}, func() {
 		err = stopServices()
 		if err != nil {
 			return
@@ -37,7 +41,7 @@ func stopHandler(cmd *cobra.Command, args []string) {
 		fmt.Println(aurora.Red(err))
 		return
 	}
-	fmt.Println(aurora.Green("Daemon stopped"))
+	fmt.Println(aurora.Green("MESG Core stopped"))
 }
 
 func getCli() (cli core.CoreClient, err error) {

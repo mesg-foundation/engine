@@ -30,7 +30,7 @@ func createSharedNetworkIfNeeded(client *docker.Client) (err error) {
 	return
 }
 
-// sharedNetwork returns the shared network created to connect services and daemon
+// sharedNetwork returns the shared network created to connect services and MESG Core
 func sharedNetwork(client *docker.Client) (network types.NetworkResource, err error) {
 	network, err = client.NetworkInspect(context.Background(), Namespace(sharedNetworkNamespace), types.NetworkInspectOptions{})
 	return

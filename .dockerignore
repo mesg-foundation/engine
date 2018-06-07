@@ -3,7 +3,7 @@ Dockerfile
 .vscode
 /examples
 /test
-dev-daemon
+dev-core
 dev-cli 
 .git
 **/*.test
