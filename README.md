@@ -29,7 +29,7 @@ To report a bug, please [check for existing issues and create a new issue on thi
 
 For Services and Applications contribution, we have an [curated list of awesome Services and Applications](https://github.com/mesg-foundation/awesome) that you should participate in.
 
-For Core contribution, please contact us on [Discord](https://discordapp.com/invite/5tVTHJC) channel #core. We would love to include you in the development process.
+For MESG Core contribution, please contact us on [Discord](https://discordapp.com/invite/5tVTHJC) channel #core. We would love to include you in the development process.
 
 # Build from source
 
@@ -58,7 +58,7 @@ If you use Visual code you can add the following settings (Preference > Settings
 "go.testEnvFile": "${workspaceRoot}/testenv"
 ```
 
-## Build core and start it
+## Build MESG Core and start it
 
 ```bash
 ./dev-core
