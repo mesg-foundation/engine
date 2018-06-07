@@ -38,16 +38,16 @@ func (service *Service) Start() (serviceIDs []string, err error) {
 			serviceHash:    service.Hash(),
 		}
 		wg.Add(1)
-		go func(service *Service, d dependencyDetails, name string, i int) {
+		go func(service *Service, dep *Dependency, d dependencyDetails, name string, i int) {
 			defer wg.Done()
-			serviceID, errStart := dependency.Start(service, d, networkID)
+			serviceID, errStart := dep.Start(service, d, networkID)
 			mutex.Lock()
 			defer mutex.Unlock()
 			serviceIDs[i] = serviceID
 			if errStart != nil && err == nil {
 				err = errStart
 			}
-		}(service, d, name, i)
+		}(service, dependency, d, name, i)
 		i++
 	}
 	wg.Wait()
