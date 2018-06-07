@@ -1,4 +1,4 @@
-package daemon
+package cmd
 
 import (
 	"fmt"
@@ -13,9 +13,13 @@ import (
 // Logs the daemon
 var Logs = &cobra.Command{
 	Use:               "logs",
-	Short:             "Show the daemon's logs",
+	Short:             "Show the core's logs",
 	Run:               logsHandler,
 	DisableAutoGenTag: true,
+}
+
+func init() {
+	RootCmd.AddCommand(Logs)
 }
 
 func logsHandler(cmd *cobra.Command, args []string) {
@@ -25,7 +29,7 @@ func logsHandler(cmd *cobra.Command, args []string) {
 		return
 	}
 	if !isRunning {
-		fmt.Println(aurora.Brown("Daemon is stopped"))
+		fmt.Println(aurora.Brown("Core is stopped"))
 		return
 	}
 	reader, err := daemon.Logs()

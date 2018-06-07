@@ -1,4 +1,4 @@
-package daemon
+package cmd
 
 import (
 	"fmt"
@@ -11,9 +11,13 @@ import (
 // Status command returns started services
 var Status = &cobra.Command{
 	Use:               "status",
-	Short:             "Status of the daemon",
+	Short:             "Status of the core",
 	Run:               statusHandler,
 	DisableAutoGenTag: true,
+}
+
+func init() {
+	RootCmd.AddCommand(Status)
 }
 
 func statusHandler(cmd *cobra.Command, args []string) {
@@ -23,8 +27,8 @@ func statusHandler(cmd *cobra.Command, args []string) {
 		return
 	}
 	if running {
-		fmt.Println(aurora.Green("Daemon is running"))
+		fmt.Println(aurora.Green("Core is running"))
 	} else {
-		fmt.Println(aurora.Brown("Daemon is stopped"))
+		fmt.Println(aurora.Brown("Core is stopped"))
 	}
 }
