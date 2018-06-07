@@ -6,6 +6,10 @@ onlyTag: &onlyTag
       only: /^v.*/
     branches:
       ignore: /.*/
+transient: &transient
+  filters:
+    tags:
+      only: /.*/
 
 runOnMachine: &runOnMachine
   machine:
@@ -67,8 +71,10 @@ workflows:
   version: 2
   build_n_deploy:
     jobs:
-      - "build_docker"
+      - "build_docker":
+          <<: *transient
       - "test":
+          <<: *transient
           requires:
             - "build_docker"
       - "publish_docker_version":
