@@ -10,7 +10,7 @@ import (
 	"github.com/stvp/assert"
 )
 
-// startForTest starts a dummy core service
+// startForTest starts a dummy MESG Core service
 func startForTest() {
 	running, err := IsRunning()
 	if err != nil {

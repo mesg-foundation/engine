@@ -30,7 +30,7 @@ func testForceAndWaitForFullStop() (wait chan error) {
 			}
 			diff := time.Now().Sub(start)
 			if diff.Nanoseconds() >= int64(timeout) {
-				wait <- errors.New("Wait too long for the core to fully stop, timeout reached")
+				wait <- errors.New("Wait too long for the MESG Core to fully stop, timeout reached")
 				return
 			}
 			time.Sleep(500 * time.Millisecond)

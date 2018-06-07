@@ -11,7 +11,7 @@ import (
 // Status command returns started services
 var Status = &cobra.Command{
 	Use:               "status",
-	Short:             "Status of the core",
+	Short:             "Status of the MESG Core",
 	Run:               statusHandler,
 	DisableAutoGenTag: true,
 }
@@ -27,8 +27,8 @@ func statusHandler(cmd *cobra.Command, args []string) {
 		return
 	}
 	if running {
-		fmt.Println(aurora.Green("Core is running"))
+		fmt.Println(aurora.Green("MESG Core is running"))
 	} else {
-		fmt.Println(aurora.Brown("Core is stopped"))
+		fmt.Println(aurora.Brown("MESG Core is stopped"))
 	}
 }

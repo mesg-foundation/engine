@@ -16,10 +16,10 @@ import (
 	"google.golang.org/grpc"
 )
 
-// Stop the core
+// Stop the MESG Core
 var Stop = &cobra.Command{
 	Use:               "stop",
-	Short:             "Stop the core",
+	Short:             "Stop the MESG Core",
 	Run:               stopHandler,
 	DisableAutoGenTag: true,
 }
@@ -30,7 +30,7 @@ func init() {
 
 func stopHandler(cmd *cobra.Command, args []string) {
 	var err error
-	cmdUtils.ShowSpinnerForFunc(cmdUtils.SpinnerOptions{Text: "Stopping core..."}, func() {
+	cmdUtils.ShowSpinnerForFunc(cmdUtils.SpinnerOptions{Text: "Stopping MESG Core..."}, func() {
 		err = stopServices()
 		if err != nil {
 			return
@@ -41,7 +41,7 @@ func stopHandler(cmd *cobra.Command, args []string) {
 		fmt.Println(aurora.Red(err))
 		return
 	}
-	fmt.Println(aurora.Green("Core stopped"))
+	fmt.Println(aurora.Green("MESG Core stopped"))
 }
 
 func getCli() (cli core.CoreClient, err error) {
