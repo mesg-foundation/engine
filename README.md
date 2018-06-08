@@ -25,14 +25,14 @@ To build an application, follow the Quick Start Guide, or if you'd like to help 
 
 ### **1. Download the CLI**
 
-First, download the CLI so you're able to interact with Core. You can either download the binaries directly from the [release page](https://github.com/mesg-foundation/core/releases/latest) then rename it to `mesg-core` and install it your path, or you can follow the installation process for your system in the [documentation] (https://docs.mesg.tech/start-here/installing-the-cli)
+First, download the CLI so you're able to interact with Core. You can either download the binaries directly from the [release page](https://github.com/mesg-foundation/core/releases/latest) then rename it to `mesg-core` and install it your path, or you can follow the installation process for your system in the [documentation](https://docs.mesg.tech/start-here/installing-the-cli)
 
 ### **2. Run MESG Core**
 
 MESG needs to have a daemon running to process all the different commands that you might need to execute. In order to start the daemon you can run:
 
 ```text
-mesg-core daemon start
+mesg-core start
 ```
 
 ### **3. Deploy a service**
