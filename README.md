@@ -124,10 +124,6 @@ curl -XPOST http://localhost:3000/webhook
 
 # Services
 
-```
-To integrate: Next step is to deploy the service that your application will need. You can [create your own service](https://docs.mesg.tech/service/what-is-a-service), but for now, let's just use an existing one and deploy it.
-```
-
 Services are build and [share by the community](https://github.com/mesg-foundation/awesome). They are small and reusable pieces of code that grouped together allow developers to build incredible application with ease.
 
 You can develop a service for anything you want, as long as it can run inside Docker. Check the [documentation to create your own services](https://docs.mesg.tech/service).
