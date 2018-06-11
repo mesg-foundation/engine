@@ -165,6 +165,8 @@ For more info how to create your events, visit the [Emit an Event](https://docs.
 
 We have a common place to register all community developed Services and Applications. Check out the [curated list of Awesome Services and Applications](https://github.com/mesg-foundation/awesome) that you could also participate in.
 
+You can also checkout [https://mesg.tech/marketplace](https://mesg.tech/marketplace).
+
 # Roadmap
 
 #### June 2018 - Core V1.0 Launched
