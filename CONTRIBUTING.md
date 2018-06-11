@@ -14,4 +14,4 @@ For contribution to MESG's Core, please contact us on [Discord](https://discorda
 
 # Start the development
 
-You can find all resources in our [wiki](https://github.com/mesg-foundation/core/wiki) that will help you from pulling the project to building and testing it and submit your different work.
+You can find all resources in our [wiki](https://github.com/mesg-foundation/core/wiki). It will guide you from pulling the project, to building and testing it, and submit your work to the community.
