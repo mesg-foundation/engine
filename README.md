@@ -13,22 +13,22 @@ MESG is a platform for the creation of efficient and easy-to-maintain applicatio
 
 Core is MESG's ultra-powerful communication and connection manager which manages the interaction of all connected services and applications so that applications can remain lightweight, yet feature packed.
 
-To build an application, follow the Quick Start Guide, or if you'd like to help us build and maintain Core, refer to the Build From Source section below. 
+To build an application, follow the Quickstart Guide, or if you'd like to help us build and maintain Core, refer to the Build From Source section below. 
 
 # Contents
 
 - [Quickstart](quickstart)
 - [Service](service)
-  - [Receiving Task](receiving-task)
-  - [Submitting Event](submitting-event)
+  - [Receiving Tasks](receiving-tasks)
+  - [Submitting Events](submitting-events)
 - [Architecture](architecture)
 - [Examples](examples)
 - [Roadmap](roadmap)
 - [Community](community)
-- [Contributing](contributing)
+- [Contribute](contribute)
 
 
-# Quick Start Guide
+# Quickstart Guide
 
 ### 1. Download the CLI
 
@@ -152,12 +152,12 @@ You can find us and other MESG users on Discord
 
 [https://discordapp.com/invite/SaZ5HcE](https://discordapp.com/invite/SaZ5HcE)
 
-Make sure to join and don't forget to introduce yourself and your project if you have one, also feel free to share good articles in the #neesfeed channel that might help other users and don't forget to stay nice and polite.
+Be sure to join, and don't forget to introduce yourself and your project if you have one. Please feel free to share good articles in the #neesfeed channel that might help other users, and always remember to be nice and polite.
 
-Don't forget also to check the [blog](https://medium.com/mesg), you might find interesting articles.
+Also, be sure to check out the [blog](https://medium.com/mesg) to stay up-to-date with our interesting content.
 
-# Contributing
+# Contribute
 
-Contributions are more than welcome, in order to contribute please check at the [contribution guide](/blob/dev/CONTRIBUTING.md)
+Contributions are more than welcome. For more details on how to contribute, please check out the [contribution guide](/blob/dev/CONTRIBUTING.md)
 
-If you have any questions about it please reach out to us directly on [Discord](https://discordapp.com/invite/SaZ5HcE)
+If you have any questions, please reach out to us directly on [Discord](https://discordapp.com/invite/SaZ5HcE)
