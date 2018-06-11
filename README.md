@@ -128,7 +128,7 @@ curl -XPOST http://localhost:3000/webhook
 To integrate: Next step is to deploy the service that your application will need. You can [create your own service](https://docs.mesg.tech/service/what-is-a-service), but for now, let's just use an existing one and deploy it.
 ```
 
-Services are build and [share by the community](https://github.com/mesg-foundation/awesome). They are small and reusable piece of code that grouped together allow developers to build incredible application with ease.
+Services are build and [share by the community](https://github.com/mesg-foundation/awesome). They are small and reusable pieces of code that grouped together allow developers to build incredible application with ease.
 
 You can develop a service for anything you want, as long as it can run inside Docker. Check the [documentation to create your own services](https://docs.mesg.tech/service).
 
@@ -156,7 +156,7 @@ Check out the documentation for more information on [how to create tasks](https:
 
 Services can also submit event to MESG Core. It's allow a two way communication with MESG Core and Applications.
 
-Let's say the service is a HTTP webserver. An event could be submit when the webserver receive a request with the request's payload as event's data. The service could also submit a specific event for every route of your API.
+Let's say the service is a HTTP webserver. An event could be submitted when the webserver receives a request with the request's payload as the event's data. The service could also submit a specific event for every route of your API.
 
 For more info how to create your events, visit the [Emit an Event](https://docs.mesg.tech/service/emit-an-event) page.
 
