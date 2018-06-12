@@ -10,5 +10,5 @@ import (
 func TestNamespace(t *testing.T) {
 	service := &Service{Name: "test"}
 	namespace := service.namespace()
-	assert.Equal(t, namespace, strings.Join([]string{"test"}, "-"))
+	assert.Equal(t, namespace, strings.Join([]string{service.Hash()}, "-"))
 }
