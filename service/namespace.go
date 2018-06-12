@@ -13,7 +13,7 @@ const resultChannel string = "Result"
 
 func (service *Service) namespace() string {
 	return strings.Join([]string{
-		strings.Replace(service.Name, " ", "-", -1),
+		service.Hash(),
 	}, "-")
 }
 

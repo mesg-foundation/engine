@@ -27,9 +27,9 @@ func TestEmit(t *testing.T) {
 	subscription := pubsub.Subscribe(service.EventSubscriptionChannel())
 
 	go serveremit.EmitEvent(context.Background(), &EmitEventRequest{
-		Service:   &service,
-		EventKey:  "test",
-		EventData: "{}",
+		ServiceHash: service.Hash(),
+		EventKey:    "test",
+		EventData:   "{}",
 	})
 
 	res := <-subscription
@@ -37,27 +37,30 @@ func TestEmit(t *testing.T) {
 }
 
 func TestEmitNoData(t *testing.T) {
+	service := service.Service{}
 	_, err := serveremit.EmitEvent(context.Background(), &EmitEventRequest{
-		Service:  &service.Service{},
-		EventKey: "test",
+		ServiceHash: service.Hash(),
+		EventKey:    "test",
 	})
 	assert.Equal(t, err.Error(), "unexpected end of JSON input")
 }
 
 func TestEmitWrongData(t *testing.T) {
+	service := service.Service{}
 	_, err := serveremit.EmitEvent(context.Background(), &EmitEventRequest{
-		Service:   &service.Service{},
-		EventKey:  "test",
-		EventData: "",
+		ServiceHash: service.Hash(),
+		EventKey:    "test",
+		EventData:   "",
 	})
 	assert.Equal(t, err.Error(), "unexpected end of JSON input")
 }
 
 func TestEmitWrongEvent(t *testing.T) {
+	service := service.Service{Name: "TestEmitWrongEvent"}
 	_, err := serveremit.EmitEvent(context.Background(), &EmitEventRequest{
-		Service:   &service.Service{Name: "TestEmitWrongEvent"},
-		EventKey:  "test",
-		EventData: "{}",
+		ServiceHash: service.Hash(),
+		EventKey:    "test",
+		EventData:   "{}",
 	})
 	assert.Equal(t, err.Error(), "Event test doesn't exists in service TestEmitWrongEvent")
 }

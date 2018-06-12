@@ -3,8 +3,6 @@ syntax = "proto3";
 package api;
 option go_package = "service";
 
-import "github.com/mesg-foundation/core/service/service.proto";
-
 service Service {
   rpc EmitEvent (EmitEventRequest) returns (EmitEventReply) {}
   rpc ListenTask (ListenTaskRequest) returns (stream TaskData) {}
@@ -12,13 +10,13 @@ service Service {
 }
 
 message EmitEventRequest {
-  service.Service service = 1;
+  string serviceHash = 1;
   string eventKey = 2;
   string eventData = 3;
 }
 
 message ListenTaskRequest {
-  service.Service service = 1;
+  string serviceHash = 1;
 }
 
 message SubmitResultRequest {
