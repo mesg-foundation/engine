@@ -18,7 +18,7 @@ MESG Core is a communication and connection layer which manages the interaction 
 
 To build an application, follow the [Quickstart Guide](#quickstart-guide)
 
-If you'd like to build Services and share it with the community, go to the [Services](#services) section.
+If you'd like to build Services and share them with the community, go to the [Services](#services) section.
 
 To help us build and maintain MESG Core, refer to the [Contribute](#contribute) section below.
 
@@ -35,11 +35,11 @@ To help us build and maintain MESG Core, refer to the [Contribute](#contribute) 
 
 # Quickstart Guide
 
-This guide will show you steps by steps how to create an application that send Discord invitation email when a webhook is called.
+This guide will show you steps-by-step how to create an application that sends a Discord invitation email when a webhook is called.
 
 ### 1. Installation
 
-First, download the MESG Core. You can download the binary directly from the [release page](https://github.com/mesg-foundation/core/releases/latest) or you can follow the installation process for your system in the [installation documentation](https://docs.mesg.tech/start-here/installing-the-cli).
+First, download MESG Core. You can download the binary directly from the [release page](https://github.com/mesg-foundation/core/releases/latest) or you can follow the installation process for your system in the [installation documentation](https://docs.mesg.tech/start-here/installing-the-cli).
 
 You also need to install [Docker CE](https://www.docker.com/community-edition) to run the MESG Core and the services.
 
@@ -112,7 +112,7 @@ npm start
 
 ### 6. Test the application
 
-Now let's give a try to this super small application.
+Now let's give this super small application a try.
 
 Let's trigger the webhook with the following command:
 
@@ -124,33 +124,33 @@ curl -XPOST http://localhost:3000/webhook
 
 # Services
 
-Services are build and [share by the community](https://github.com/mesg-foundation/awesome). They are small and reusable pieces of code that grouped together allow developers to build incredible application with ease.
+Services are build and [shared by the community](https://github.com/mesg-foundation/awesome). They are small and reusable pieces of code that, when grouped together, allow developers to build incredible applications with ease.
 
-You can develop a service for anything you want, as long as it can run inside Docker. Check the [documentation to create your own services](https://docs.mesg.tech/service).
+You can develop a service for absolutely anything you want, as long as it can run inside Docker. Check the [documentation to create your own services](https://docs.mesg.tech/service).
 
-Services implement two types of communications: executing tasks and submitting events.
+Services implement two types of communication: executing tasks and submitting events.
 
 ### Executing Tasks
 
 Tasks have multiple input parameters and multiple outputs with varying data. A task is like a function with inputs and outputs.
 
-Let's take an example of a task that send a email:
+Let's take an example of a task that sends a email:
 
 The task accepts as inputs: `receiver`, `subject` and `body`.
 
-The task could returns 2 different outputs.
+The task could return 2 different outputs.
 
 The first possible output is `success` with an empty object `{}` as data, meaning that the email has been sent with success
 
 The second possible output is `error` with for eg, `{ "reason": "email invalid" }` as data.
 
-This way, the application can easily check the type of output and react properly.
+This way, the application can easily check the type of output and react appropriately.
 
 Check out the documentation for more information on [how to create tasks](https://docs.mesg.tech/service/listen-for-tasks).
 
 ### Submitting Events
 
-Services can also submit event to MESG Core. It's allow a two way communication with MESG Core and Applications.
+Services can also submit events to MESG Core. They allow two-way communication with MESG Core and Applications.
 
 Let's say the service is a HTTP webserver. An event could be submitted when the webserver receives a request with the request's payload as the event's data. The service could also submit a specific event for every route of your API.
 
@@ -159,24 +159,24 @@ For more info how to create your events, visit the [Emit an Event](https://docs.
 
 # Architecture
 
-\[\[ TODO: Add a nice graphic with the Application, the core and the services with the communication \]\]
+\[\[ TODO: Add a nice graphic with the Application, the core and the services with their communication \]\]
 
 # Marketplace
 
-We have a common place to register all community developed Services and Applications. Check out the [curated list of Awesome Services and Applications](https://github.com/mesg-foundation/awesome) that you could also participate in.
+We have a common place to post all community-developed Services and Applications. Check out the [curated list of Awesome Services and Applications](https://github.com/mesg-foundation/awesome) to participate.
 
-You can also checkout [https://mesg.tech/marketplace](https://mesg.tech/marketplace).
+Alternatively, you can also check out [https://mesg.tech/marketplace](https://mesg.tech/marketplace).
 
 # Roadmap
 
 #### June 2018 - Core V1.0 Launched
-Create your services and connect them together with your application through a single connection to Core, allowing Core to handle all communications and interoperability with any technology.
+Create your services and connect them together with your application through a single connection to Core, allowing Core to handle all communications and interoperability with any technology. Services and applications can be shared with others in our Marketplace.
 
 #### Q3 2018 - Rapid Deployment
 No need to code your application anymore, just send a list of events with corresponding tasks within a simple configuration file to Core which will then execute tasks on your application’s behalf.
 
 #### Q4 2018 - Beta Network
-The decentralized beta Network means no need to run your applications and their services on your own computer, just deploy them on the Network. We will also launch an token economy based on your participation in the Network.
+The decentralized beta Network means no need to run your applications and their services on your own computer, just deploy them on the Network. 
 
 #### Q3 2019 - Main Network
 MESG launches its own blockchain Network providing for full scalability and a cheaper and faster user experience.
