@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/mesg-foundation/core/database/services"
+
 	"github.com/mesg-foundation/core/pubsub"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stvp/assert"
@@ -23,6 +25,8 @@ func TestEmit(t *testing.T) {
 			},
 		},
 	}
+	hash, _ := services.Save(&service)
+	defer services.Delete(hash)
 
 	subscription := pubsub.Subscribe(service.EventSubscriptionChannel())
 
@@ -38,6 +42,8 @@ func TestEmit(t *testing.T) {
 
 func TestEmitNoData(t *testing.T) {
 	service := service.Service{}
+	hash, _ := services.Save(&service)
+	defer services.Delete(hash)
 	_, err := serveremit.EmitEvent(context.Background(), &EmitEventRequest{
 		ServiceHash: service.Hash(),
 		EventKey:    "test",
@@ -47,6 +53,8 @@ func TestEmitNoData(t *testing.T) {
 
 func TestEmitWrongData(t *testing.T) {
 	service := service.Service{}
+	hash, _ := services.Save(&service)
+	defer services.Delete(hash)
 	_, err := serveremit.EmitEvent(context.Background(), &EmitEventRequest{
 		ServiceHash: service.Hash(),
 		EventKey:    "test",
@@ -57,10 +65,22 @@ func TestEmitWrongData(t *testing.T) {
 
 func TestEmitWrongEvent(t *testing.T) {
 	service := service.Service{Name: "TestEmitWrongEvent"}
+	hash, _ := services.Save(&service)
+	defer services.Delete(hash)
 	_, err := serveremit.EmitEvent(context.Background(), &EmitEventRequest{
 		ServiceHash: service.Hash(),
 		EventKey:    "test",
 		EventData:   "{}",
 	})
 	assert.Equal(t, err.Error(), "Event test doesn't exists in service TestEmitWrongEvent")
+}
+
+func TestServiceNotExists(t *testing.T) {
+	service := service.Service{Name: "TestServiceNotExists"}
+	_, err := serveremit.EmitEvent(context.Background(), &EmitEventRequest{
+		ServiceHash: service.Hash(),
+		EventKey:    "test",
+		EventData:   "{}",
+	})
+	assert.NotNil(t, err)
 }
