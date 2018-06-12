@@ -193,6 +193,6 @@ Also, be sure to check out the [blog](https://medium.com/mesg) to stay up-to-dat
 
 # Contribute
 
-Contributions are more than welcome. For more details on how to contribute, please check out the [contribution guide](/blob/dev/CONTRIBUTING.md).
+Contributions are more than welcome. For more details on how to contribute, please check out the [contribution guide](/CONTRIBUTING.md).
 
 If you have any questions, please reach out to us directly on [Discord](https://discordapp.com/invite/SaZ5HcE).
