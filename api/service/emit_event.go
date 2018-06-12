@@ -10,7 +10,7 @@ import (
 
 // EmitEvent permits to send and event to anyone who subscribed to it
 func (s *Server) EmitEvent(context context.Context, request *EmitEventRequest) (reply *EmitEventReply, err error) {
-	service, err := services.Get(request.ServiceHash)
+	service, err := services.Get(request.Token)
 	if err != nil {
 		return
 	}

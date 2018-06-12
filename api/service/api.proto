@@ -10,13 +10,13 @@ service Service {
 }
 
 message EmitEventRequest {
-  string serviceHash = 1;
+  string token = 1;
   string eventKey = 2;
   string eventData = 3;
 }
 
 message ListenTaskRequest {
-  string serviceHash = 1;
+  string token = 1;
 }
 
 message SubmitResultRequest {
