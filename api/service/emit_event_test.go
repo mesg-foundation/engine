@@ -31,9 +31,9 @@ func TestEmit(t *testing.T) {
 	subscription := pubsub.Subscribe(service.EventSubscriptionChannel())
 
 	go serveremit.EmitEvent(context.Background(), &EmitEventRequest{
-		ServiceHash: service.Hash(),
-		EventKey:    "test",
-		EventData:   "{}",
+		Token:     service.Hash(),
+		EventKey:  "test",
+		EventData: "{}",
 	})
 
 	res := <-subscription
@@ -45,8 +45,8 @@ func TestEmitNoData(t *testing.T) {
 	hash, _ := services.Save(&service)
 	defer services.Delete(hash)
 	_, err := serveremit.EmitEvent(context.Background(), &EmitEventRequest{
-		ServiceHash: service.Hash(),
-		EventKey:    "test",
+		Token:    service.Hash(),
+		EventKey: "test",
 	})
 	assert.Equal(t, err.Error(), "unexpected end of JSON input")
 }
@@ -56,9 +56,9 @@ func TestEmitWrongData(t *testing.T) {
 	hash, _ := services.Save(&service)
 	defer services.Delete(hash)
 	_, err := serveremit.EmitEvent(context.Background(), &EmitEventRequest{
-		ServiceHash: service.Hash(),
-		EventKey:    "test",
-		EventData:   "",
+		Token:     service.Hash(),
+		EventKey:  "test",
+		EventData: "",
 	})
 	assert.Equal(t, err.Error(), "unexpected end of JSON input")
 }
@@ -68,9 +68,9 @@ func TestEmitWrongEvent(t *testing.T) {
 	hash, _ := services.Save(&service)
 	defer services.Delete(hash)
 	_, err := serveremit.EmitEvent(context.Background(), &EmitEventRequest{
-		ServiceHash: service.Hash(),
-		EventKey:    "test",
-		EventData:   "{}",
+		Token:     service.Hash(),
+		EventKey:  "test",
+		EventData: "{}",
 	})
 	assert.Equal(t, err.Error(), "Event test doesn't exists in service TestEmitWrongEvent")
 }
@@ -78,9 +78,9 @@ func TestEmitWrongEvent(t *testing.T) {
 func TestServiceNotExists(t *testing.T) {
 	service := service.Service{Name: "TestServiceNotExists"}
 	_, err := serveremit.EmitEvent(context.Background(), &EmitEventRequest{
-		ServiceHash: service.Hash(),
-		EventKey:    "test",
-		EventData:   "{}",
+		Token:     service.Hash(),
+		EventKey:  "test",
+		EventData: "{}",
 	})
 	assert.NotNil(t, err)
 }

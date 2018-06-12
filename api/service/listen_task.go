@@ -10,7 +10,7 @@ import (
 
 // ListenTask create a stream that will send data for every task to execute
 func (s *Server) ListenTask(request *ListenTaskRequest, stream Service_ListenTaskServer) (err error) {
-	service, err := services.Get(request.ServiceHash)
+	service, err := services.Get(request.Token)
 	if err != nil {
 		return
 	}
