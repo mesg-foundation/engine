@@ -39,13 +39,13 @@ This guide will show you steps-by-step how to create an application that sends a
 
 ### 1. Installation
 
-Run the following command in a console:
+Run the following command in a console to install MESG Core:
 
 ```bash
 bash <(curl -fsSL https://mesg.com/install)
 ```
 
-You can also download the binary manually from the [release page](https://github.com/mesg-foundation/core/releases).
+You can also install it manually by following [this guide](https://docs.mesg.tech/start-here/installation#manual-installation).
 
 ### 2. Run MESG Core
 
@@ -64,13 +64,13 @@ In this guide, the application is using 2 services.
 Let's start by deploying the [webhook service](https://github.com/mesg-foundation/service-webhook):
 
 ```bash
-mesg-core deploy https://github.com/mesg-foundation/service-webhook
+mesg-core service deploy https://github.com/mesg-foundation/service-webhook
 ```
 
-Now let's deploy the [invite discord service](https://github.com/mesg-foundation/service-invite-discord):
+Now let's deploy the [invite discord service](https://github.com/mesg-foundation/service-discord-invitation):
 
 ```bash
-mesg-core deploy https://github.com/mesg-foundation/service-invite-discord
+mesg-core service deploy https://github.com/mesg-foundation/service-discord-invitation
 ```
 
 Once the service is deployed, the console displays its Service ID. The Service ID is the unique way for the application to connect to the right service through MESG Core. You'll need to use them inside the application.
@@ -90,18 +90,16 @@ npm init && npm install --save mesg-js
 Now, let's create an `index.js` file and with the following code:
 
 ```javascript
-const MESG = require('mesg-js/application')
+const MESG = require('mesg-js').application()
 
 const webhook    = '__ID_SERVICE_WEBHOOK__' // To replace by the Service ID of the Webhook service
 const invitation = '__ID_SERVICE_INVITATION_DISCORD__' // To replace by the Service ID of the Invite Discord service
 const email      = '__YOUR_EMAIL_HERE__' // To replace by your email
 
-MESG.ListenEvent({ serviceID: webhook, eventFilter: 'request' })
-  .on('data', data => MESG.ExecuteTask({
-    serviceID: invitation,
-    taskKey: 'invite',
-    taskData: JSON.stringify({ email })
-  }, console.log))
+MESG.whenEvent(
+  { serviceID: webhook, filter: 'request' },
+  { serviceID: invitation, taskKey: 'send', inputs: { email } },
+)
 ```
 
 Don't forget to replace the values `__ID_SERVICE_WEBHOOK__`, `__ID_SERVICE_INVITATION_DISCORD__` and `__YOUR_EMAIL_HERE__`.
@@ -111,7 +109,7 @@ Don't forget to replace the values `__ID_SERVICE_WEBHOOK__`, `__ID_SERVICE_INVIT
 Start your application like any node application:
 
 ```bash
-npm start
+node index.js
 ```
 
 ### 6. Test the application
