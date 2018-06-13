@@ -16,7 +16,7 @@ MESG is a platform for the creation of efficient and easy-to-maintain applicatio
 
 MESG Core is a communication and connection layer which manages the interaction of all connected services and applications so they can remain lightweight, yet feature packed.
 
-To build an application, follow the [Quickstart Guide](#quickstart-guide)
+To build an application, follow the [Quick Start Guide](#quick-start-guide)
 
 If you'd like to build Services and share them with the community, go to the [Services](#services) section.
 
@@ -24,7 +24,7 @@ To help us build and maintain MESG Core, refer to the [Contribute](#contribute) 
 
 # Contents
 
-- [Quickstart Guide](#quickstart-guide)
+- [Quick Start Guide](#quick-start-guide)
 - [Services](#services)
 - [Architecture](#architecture)
 - [Marketplace](#marketplace)
@@ -33,7 +33,7 @@ To help us build and maintain MESG Core, refer to the [Contribute](#contribute) 
 - [Contribute](#contribute)
 
 
-# Quickstart Guide
+# Quick Start Guide
 
 This guide will show you steps-by-step how to create an application that sends a Discord invitation email when a webhook is called.
 
