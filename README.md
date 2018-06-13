@@ -39,9 +39,13 @@ This guide will show you steps-by-step how to create an application that sends a
 
 ### 1. Installation
 
-First, download MESG Core. You can download the binary directly from the [release page](https://github.com/mesg-foundation/core/releases/latest) or you can follow the installation process for your system in the [installation documentation](https://docs.mesg.tech/start-here/installing-the-cli).
+Run the following command in a console:
 
-You also need to install [Docker CE](https://www.docker.com/community-edition) to run the MESG Core and the services.
+```bash
+bash <(curl -fsSL https://mesg.com/install)
+```
+
+You can also download the binary manually from the [release page](https://github.com/mesg-foundation/core/releases).
 
 ### 2. Run MESG Core
 
