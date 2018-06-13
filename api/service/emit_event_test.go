@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/mesg-foundation/core/database/services"
+
 	"github.com/mesg-foundation/core/pubsub"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stvp/assert"
@@ -23,11 +25,13 @@ func TestEmit(t *testing.T) {
 			},
 		},
 	}
+	hash, _ := services.Save(&service)
+	defer services.Delete(hash)
 
 	subscription := pubsub.Subscribe(service.EventSubscriptionChannel())
 
 	go serveremit.EmitEvent(context.Background(), &EmitEventRequest{
-		Service:   &service,
+		Token:     service.Hash(),
 		EventKey:  "test",
 		EventData: "{}",
 	})
@@ -37,16 +41,22 @@ func TestEmit(t *testing.T) {
 }
 
 func TestEmitNoData(t *testing.T) {
+	service := service.Service{}
+	hash, _ := services.Save(&service)
+	defer services.Delete(hash)
 	_, err := serveremit.EmitEvent(context.Background(), &EmitEventRequest{
-		Service:  &service.Service{},
+		Token:    service.Hash(),
 		EventKey: "test",
 	})
 	assert.Equal(t, err.Error(), "unexpected end of JSON input")
 }
 
 func TestEmitWrongData(t *testing.T) {
+	service := service.Service{}
+	hash, _ := services.Save(&service)
+	defer services.Delete(hash)
 	_, err := serveremit.EmitEvent(context.Background(), &EmitEventRequest{
-		Service:   &service.Service{},
+		Token:     service.Hash(),
 		EventKey:  "test",
 		EventData: "",
 	})
@@ -54,10 +64,23 @@ func TestEmitWrongData(t *testing.T) {
 }
 
 func TestEmitWrongEvent(t *testing.T) {
+	service := service.Service{Name: "TestEmitWrongEvent"}
+	hash, _ := services.Save(&service)
+	defer services.Delete(hash)
 	_, err := serveremit.EmitEvent(context.Background(), &EmitEventRequest{
-		Service:   &service.Service{Name: "TestEmitWrongEvent"},
+		Token:     service.Hash(),
 		EventKey:  "test",
 		EventData: "{}",
 	})
 	assert.Equal(t, err.Error(), "Event test doesn't exists in service TestEmitWrongEvent")
+}
+
+func TestServiceNotExists(t *testing.T) {
+	service := service.Service{Name: "TestServiceNotExists"}
+	_, err := serveremit.EmitEvent(context.Background(), &EmitEventRequest{
+		Token:     service.Hash(),
+		EventKey:  "test",
+		EventData: "{}",
+	})
+	assert.NotNil(t, err)
 }
