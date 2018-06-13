@@ -130,7 +130,7 @@ curl -XPOST http://localhost:3000/webhook
 
 Services are build and [shared by the community](https://github.com/mesg-foundation/awesome). They are small and reusable pieces of code that, when grouped together, allow developers to build incredible applications with ease.
 
-You can develop a service for absolutely anything you want, as long as it can run inside Docker. Check the [documentation to create your own services](https://docs.mesg.tech/service).
+You can develop a service for absolutely anything you want, as long as it can run inside Docker. Check the [documentation to create your own services](https://docs.mesg.com/service).
 
 Services implement two types of communication: executing tasks and submitting events.
 
@@ -150,7 +150,7 @@ The second possible output is `error` with for eg, `{ "reason": "email invalid" 
 
 This way, the application can easily check the type of output and react appropriately.
 
-Check out the documentation for more information on [how to create tasks](https://docs.mesg.tech/service/listen-for-tasks).
+Check out the documentation for more information on [how to create tasks](https://docs.mesg.com/service/listen-for-tasks).
 
 ### Submitting Events
 
@@ -158,7 +158,7 @@ Services can also submit events to MESG Core. They allow two-way communication w
 
 Let's say the service is a HTTP webserver. An event could be submitted when the webserver receives a request with the request's payload as the event's data. The service could also submit a specific event for every route of your API.
 
-For more info how to create your events, visit the [Emit an Event](https://docs.mesg.tech/service/emit-an-event) page.
+For more info how to create your events, visit the [Emit an Event](https://docs.mesg.com/service/emit-an-event) page.
 
 
 # Architecture
@@ -169,7 +169,7 @@ For more info how to create your events, visit the [Emit an Event](https://docs.
 
 We have a common place to post all community-developed Services and Applications. Check out the [curated list of Awesome Services and Applications](https://github.com/mesg-foundation/awesome) to participate.
 
-Alternatively, you can also check out [https://mesg.tech/marketplace](https://mesg.tech/marketplace).
+Alternatively, you can also check out the [https://mesg.com/marketplace](Marketplace).
 
 # Roadmap
 
@@ -187,7 +187,7 @@ MESG launches its own blockchain Network providing for full scalability and a ch
 
 # Community
 
-You can find us and other MESG users on [Discord(https://discordapp.com/invite/SaZ5HcE).
+You can find us and other MESG users on [Discord](https://discordapp.com/invite/SaZ5HcE).
 
 Be sure to join, and don't forget to introduce yourself and your project if you have one.
 
