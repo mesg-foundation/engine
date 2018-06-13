@@ -95,14 +95,15 @@ const MESG = require('mesg-js').application()
 const webhook    = '__ID_SERVICE_WEBHOOK__' // To replace by the Service ID of the Webhook service
 const invitation = '__ID_SERVICE_INVITATION_DISCORD__' // To replace by the Service ID of the Invite Discord service
 const email      = '__YOUR_EMAIL_HERE__' // To replace by your email
+const sendgridAPIKey = '__SENDGRID_API_KEY__' // To replace by your SendGrid API key. See https://app.sendgrid.com/settings/api_keys
 
 MESG.whenEvent(
   { serviceID: webhook, filter: 'request' },
-  { serviceID: invitation, taskKey: 'send', inputs: { email } },
+  { serviceID: invitation, taskKey: 'send', inputs: { email, sendgridAPIKey } },
 )
 ```
 
-Don't forget to replace the values `__ID_SERVICE_WEBHOOK__`, `__ID_SERVICE_INVITATION_DISCORD__` and `__YOUR_EMAIL_HERE__`.
+Don't forget to replace the values `__ID_SERVICE_WEBHOOK__`, `__ID_SERVICE_INVITATION_DISCORD__`, `__YOUR_EMAIL_HERE__` and `__SENDGRID_API_KEY__`.
 
 ### 5. Start the application
 
