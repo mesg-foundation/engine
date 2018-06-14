@@ -8,6 +8,27 @@ import (
 	"github.com/stvp/assert"
 )
 
+func TestExtractPortEmpty(t *testing.T) {
+	dep := Dependency{}
+	ports := dep.extractPorts()
+	assert.Equal(t, len(ports), 0)
+}
+
+func TestExtractPorts(t *testing.T) {
+	dep := &Dependency{
+		Ports: []string{
+			"80",
+			"3000:8080",
+		},
+	}
+	ports := dep.extractPorts()
+	assert.Equal(t, len(ports), 2)
+	assert.Equal(t, ports[0].Target, uint32(80))
+	assert.Equal(t, ports[0].Published, uint32(80))
+	assert.Equal(t, ports[1].Target, uint32(8080))
+	assert.Equal(t, ports[1].Published, uint32(3000))
+}
+
 func TestStartService(t *testing.T) {
 	service := &Service{
 		Name: "TestStartService",
@@ -39,8 +60,8 @@ func TestStartWith2Dependencies(t *testing.T) {
 	servicesID, err := service.Start()
 	assert.Nil(t, err)
 	assert.Equal(t, 2, len(servicesID))
-	container1, _ := container.FindContainer([]string{service.Hash(), "test"})
-	container2, _ := container.FindContainer([]string{service.Hash(), "test2"})
+	container1, _ := container.FindContainer([]string{service.namespace(), "test"})
+	container2, _ := container.FindContainer([]string{service.namespace(), "test2"})
 	assert.Equal(t, "nginx:latest", container1.Config.Image)
 	assert.Equal(t, "alpine:latest", container2.Config.Image)
 	service.Stop()
@@ -76,7 +97,8 @@ func TestPartiallyRunningService(t *testing.T) {
 		},
 	}
 	service.Start()
-	service.GetDependencies()["test"].Stop(service.namespace(), "test")
+	service.DependenciesFromService()[0].Stop()
+	// service.GetDependencies()["test"].Stop(service.namespace(), "test")
 	assert.Equal(t, service.IsPartiallyRunning(), true)
 	dockerServices, err := service.Start()
 	assert.Nil(t, err)
@@ -86,21 +108,23 @@ func TestPartiallyRunningService(t *testing.T) {
 }
 
 func TestStartDependency(t *testing.T) {
-	namespace := container.Namespace([]string{"TestStartDependency"})
-	name := "test"
-	dependency := Dependency{Image: "nginx"}
-	network, err := container.CreateNetwork([]string{namespace})
-	serviceID, err := dependency.Start(&Service{}, dependencyDetails{
-		namespace:      namespace,
-		dependencyName: name,
-		serviceName:    "TestStartDependency",
-	}, network)
+	service := &Service{
+		Name: "TestStartDependency",
+		Dependencies: map[string]*Dependency{
+			"test": &Dependency{
+				Image: "nginx",
+			},
+		},
+	}
+	networkID, err := container.CreateNetwork([]string{service.namespace()})
+	dep := service.DependenciesFromService()[0]
+	serviceID, err := dep.Start(networkID)
 	assert.Nil(t, err)
 	assert.NotEqual(t, "", serviceID)
-	assert.Equal(t, dependency.IsRunning(namespace, name), true)
-	assert.Equal(t, dependency.IsStopped(namespace, name), false)
-	dependency.Stop(namespace, name)
-	container.DeleteNetwork([]string{namespace})
+	assert.Equal(t, dep.IsRunning(), true)
+	assert.Equal(t, dep.IsStopped(), false)
+	dep.Stop()
+	container.DeleteNetwork([]string{service.namespace()})
 }
 
 func TestNetworkCreated(t *testing.T) {
