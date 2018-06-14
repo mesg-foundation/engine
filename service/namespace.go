@@ -1,8 +1,6 @@
 package service
 
 import (
-	"strings"
-
 	"github.com/mesg-foundation/core/utils/hash"
 )
 
@@ -12,37 +10,35 @@ const taskChannel string = "Task"
 const resultChannel string = "Result"
 
 // namespace returns the namespace of the service
-func (service *Service) namespace() string { // TODO: namespace should return []string
-	return strings.Join([]string{
-		service.Hash(),
-	}, "-")
+func (service *Service) namespace() []string {
+	return []string{service.Hash()}
 }
 
 // namespace return the namespace of a depedency
 func (dep *DependencyFromService) namespace() []string {
-	return []string{dep.Service.namespace(), dep.Name}
+	return append(dep.Service.namespace(), dep.Name)
 }
 
 // EventSubscriptionChannel returns the channel to listen for events from this service
 func (service *Service) EventSubscriptionChannel() string {
-	return hash.Calculate([]string{
+	return hash.Calculate(append(
 		service.namespace(),
 		eventChannel,
-	})
+	))
 }
 
 // TaskSubscriptionChannel returns the channel to listen for tasks from this service
 func (service *Service) TaskSubscriptionChannel() string {
-	return hash.Calculate([]string{
+	return hash.Calculate(append(
 		service.namespace(),
 		taskChannel,
-	})
+	))
 }
 
 // ResultSubscriptionChannel returns the channel to listen for tasks from this service
 func (service *Service) ResultSubscriptionChannel() string {
-	return hash.Calculate([]string{
+	return hash.Calculate(append(
 		service.namespace(),
 		resultChannel,
-	})
+	))
 }
