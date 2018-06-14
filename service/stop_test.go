@@ -46,14 +46,14 @@ func TestStopDependency(t *testing.T) {
 			},
 		},
 	}
-	networkID, err := container.CreateNetwork([]string{service.namespace()})
+	networkID, err := container.CreateNetwork(service.namespace())
 	dep := service.DependenciesFromService()[0]
 	dep.Start(networkID)
 	err = dep.Stop()
 	assert.Nil(t, err)
 	assert.Equal(t, dep.IsStopped(), true)
 	assert.Equal(t, dep.IsRunning(), false)
-	container.DeleteNetwork([]string{service.namespace()})
+	container.DeleteNetwork(service.namespace())
 }
 
 func TestNetworkDeleted(t *testing.T) {
@@ -68,6 +68,6 @@ func TestNetworkDeleted(t *testing.T) {
 	service.Start()
 	service.Stop()
 	time.Sleep(5 * time.Second)
-	_, err := container.FindNetwork([]string{service.namespace()})
+	_, err := container.FindNetwork(service.namespace())
 	assert.NotNil(t, err)
 }
