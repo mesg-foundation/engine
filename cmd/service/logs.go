@@ -17,7 +17,7 @@ var Logs = &cobra.Command{
 	Use:   "logs",
 	Short: "Show the logs of a service",
 	Example: `mesg-core service logs SERVICE_ID
-	mesg-core service logs SERVICE_ID --dependency DEPENDENCY_NAME`,
+mesg-core service logs SERVICE_ID --dependency DEPENDENCY_NAME`,
 	Run:               logsHandler,
 	Args:              cobra.MinimumNArgs(1),
 	DisableAutoGenTag: true,
