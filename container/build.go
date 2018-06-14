@@ -41,20 +41,8 @@ func Build(path string) (tag string, err error) {
 }
 
 func parseBuildResponse(response types.ImageBuildResponse) (tag string, err error) {
-	defer response.Body.Close()
-	r, err := ioutil.ReadAll(response.Body)
+	lastOutput, err := extractLastOutputFromBuildResponse(response)
 	if err != nil {
-		return
-	}
-	rs := strings.Split(string(r), "\n")
-	var lastOutput string
-	if len(rs) == 1 {
-		lastOutput = rs[0]
-	} else if len(rs) > 1 {
-		lastOutput = rs[len(rs)-2] //the last line is always empty
-	}
-	if lastOutput == "" {
-		err = errors.New("Could not parse container build response")
 		return
 	}
 	var buildResponse BuildResponse
@@ -68,5 +56,24 @@ func parseBuildResponse(response types.ImageBuildResponse) (tag string, err erro
 		return
 	}
 	tag = strings.TrimSuffix(buildResponse.Stream, "\n")
+	return
+}
+
+func extractLastOutputFromBuildResponse(response types.ImageBuildResponse) (lastOutput string, err error) {
+	defer response.Body.Close()
+	r, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return
+	}
+	rs := strings.Split(string(r), "\n")
+	if len(rs) == 1 {
+		lastOutput = rs[0]
+	} else if len(rs) > 1 {
+		lastOutput = rs[len(rs)-2] //the last line is always empty
+	}
+	if lastOutput == "" {
+		err = errors.New("Could not parse container build response")
+		return
+	}
 	return
 }
