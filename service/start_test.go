@@ -98,7 +98,6 @@ func TestPartiallyRunningService(t *testing.T) {
 	}
 	service.Start()
 	service.DependenciesFromService()[0].Stop()
-	// service.GetDependencies()["test"].Stop(service.namespace(), "test")
 	assert.Equal(t, service.IsPartiallyRunning(), true)
 	dockerServices, err := service.Start()
 	assert.Nil(t, err)
