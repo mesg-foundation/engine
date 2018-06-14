@@ -11,10 +11,16 @@ const eventChannel string = "Event"
 const taskChannel string = "Task"
 const resultChannel string = "Result"
 
-func (service *Service) namespace() string {
+// namespace returns the namespace of the service
+func (service *Service) namespace() string { // TODO: namespace should return []string
 	return strings.Join([]string{
 		service.Hash(),
 	}, "-")
+}
+
+// namespace return the namespace of a depedency
+func (dep *DependencyFromService) namespace() []string {
+	return []string{dep.Service.namespace(), dep.Name}
 }
 
 // EventSubscriptionChannel returns the channel to listen for events from this service
