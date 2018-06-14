@@ -25,7 +25,7 @@ func (service *Service) Start() (serviceIDs []string, err error) {
 			return
 		}
 	}
-	networkID, err := container.CreateNetwork([]string{service.namespace()})
+	networkID, err := container.CreateNetwork(service.namespace())
 	if err != nil {
 		return
 	}
@@ -107,25 +107,29 @@ func (dependency *Dependency) extractPorts() (ports []container.Port) {
 	return
 }
 
+// TODO: add test and hack for MkDir in CircleCI
 func (dependency *DependencyFromService) extractVolumes() (volumes []container.Mount) {
+	servicePath := strings.Join(dependency.Service.namespace(), "-")
 	volumes = make([]container.Mount, 0)
 	for _, volume := range dependency.Volumes {
-		path := filepath.Join(dependency.Service.namespace(), dependency.Name, volume)
+		path := filepath.Join(servicePath, dependency.Name, volume)
 		source := filepath.Join(viper.GetString(config.ServicePathHost), path)
 		volumes = append(volumes, container.Mount{
 			Source: source,
 			Target: volume,
 		})
+		// TODO: move mkdir in container package
 		os.MkdirAll(filepath.Join(viper.GetString(config.ServicePathDocker), path), os.ModePerm)
 	}
 	for _, dep := range dependency.Volumesfrom {
 		for _, volume := range dependency.Service.Dependencies[dep].Volumes {
-			path := filepath.Join(dependency.Service.namespace(), dep, volume)
+			path := filepath.Join(servicePath, dep, volume)
 			source := filepath.Join(viper.GetString(config.ServicePathHost), path)
 			volumes = append(volumes, container.Mount{
 				Source: source,
 				Target: volume,
 			})
+			// TODO: move mkdir in container package
 			os.MkdirAll(filepath.Join(viper.GetString(config.ServicePathDocker), path), os.ModePerm)
 		}
 	}
