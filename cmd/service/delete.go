@@ -6,6 +6,7 @@ import (
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/api/core"
+	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/mesg-foundation/core/database/services"
 	"github.com/spf13/cobra"
 	survey "gopkg.in/AlecAivazis/survey.v1"
@@ -49,8 +50,11 @@ func deleteHandler(cmd *cobra.Command, args []string) {
 		fmt.Println(aurora.Red("No provided service ID. See help with flag --help"))
 	}
 	for _, arg := range args {
-		_, err := cli.DeleteService(context.Background(), &core.DeleteServiceRequest{
-			ServiceID: arg,
+		var err error
+		cmdUtils.ShowSpinnerForFunc(cmdUtils.SpinnerOptions{Text: "Deleting service " + arg + "..."}, func() {
+			_, err = cli.DeleteService(context.Background(), &core.DeleteServiceRequest{
+				ServiceID: arg,
+			})
 		})
 		handleError(err)
 		fmt.Println("Service", arg, "deleted")
