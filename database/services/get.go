@@ -13,6 +13,7 @@ func Get(hash string) (service service.Service, err error) {
 		return
 	}
 	bytes, err := db.Get([]byte(hash), nil)
+	err = handleErrorNotFound(err, hash)
 	if err != nil {
 		return
 	}
