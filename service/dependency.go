@@ -26,6 +26,11 @@ func extractPorts(dependency *Dependency) (ports []container.Port) {
 		}
 	}
 	return
+// DependencyFromService represents a Dependency, with a pointer to its service and its name
+type DependencyFromService struct {
+	*Dependency
+	Service *Service
+	Name    string
 }
 
 func extractVolumes(service *Service, dependency *Dependency, details dependencyDetails) (volumes []container.Mount) {
@@ -36,6 +41,13 @@ func extractVolumes(service *Service, dependency *Dependency, details dependency
 		volumes = append(volumes, container.Mount{
 			Source: source,
 			Target: volume,
+// DependenciesFromService returns the an array of DependencyFromService
+func (s *Service) DependenciesFromService() (d []*DependencyFromService) {
+	for name, dependency := range s.GetDependencies() {
+		d = append(d, &DependencyFromService{
+			Dependency: dependency,
+			Service:    s,
+			Name:       name,
 		})
 		os.MkdirAll(filepath.Join(viper.GetString(config.ServicePathDocker), path), os.ModePerm)
 	}
