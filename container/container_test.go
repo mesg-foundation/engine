@@ -56,21 +56,3 @@ func TestContainerStatusStopped(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, status, STOPPED)
 }
-
-func TestWaitForContainerRunning(t *testing.T) {
-	namespace := []string{"TestWaitForContainerRunning"}
-	startTestService(namespace)
-	defer StopService(namespace)
-	err := WaitForContainerStatus(namespace, RUNNING)
-	assert.Nil(t, err)
-}
-
-func TestWaitForContainerStopped(t *testing.T) {
-	namespace := []string{"TestWaitForContainerStopped"}
-	startTestService(namespace)
-	WaitForContainerStatus(namespace, RUNNING)
-
-	StopService(namespace)
-	err := WaitForContainerStatus(namespace, STOPPED)
-	assert.Nil(t, err)
-}
