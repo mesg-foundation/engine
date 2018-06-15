@@ -24,8 +24,6 @@ func (s *Server) SubmitResult(context context.Context, request *SubmitResultRequ
 	if err != nil {
 		return
 	}
-	reply = &SubmitResultReply{
-		ExecutionID: execution.ID,
-	}
+	reply = &SubmitResultReply{}
 	return
 }
