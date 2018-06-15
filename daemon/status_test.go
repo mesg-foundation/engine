@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/mesg-foundation/core/container"
 	"github.com/stvp/assert"
 )
 
@@ -19,12 +20,12 @@ func testForceAndWaitForFullStop() (wait chan error) {
 				wait <- err
 				return
 			}
-			stopped, err := IsStopped()
+			status, err := Status()
 			if err != nil {
 				wait <- err
 				return
 			}
-			if stopped == true {
+			if status == container.STOPPED {
 				close(wait)
 				return
 			}
@@ -41,20 +42,14 @@ func testForceAndWaitForFullStop() (wait chan error) {
 
 func TestIsNotRunning(t *testing.T) {
 	<-testForceAndWaitForFullStop()
-	runs, err := IsRunning()
+	status, err := Status()
 	assert.Nil(t, err)
-	assert.Equal(t, false, runs)
-	stopped, err := IsStopped()
-	assert.Nil(t, err)
-	assert.Equal(t, true, stopped)
+	assert.Equal(t, container.STOPPED, status)
 }
 
 func TestIsRunning(t *testing.T) {
 	startForTest()
-	runs, err := IsRunning()
+	status, err := Status()
 	assert.Nil(t, err)
-	assert.Equal(t, true, runs)
-	stopped, err := IsStopped()
-	assert.Nil(t, err)
-	assert.Equal(t, false, stopped)
+	assert.Equal(t, container.RUNNING, status)
 }

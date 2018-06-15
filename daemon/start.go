@@ -10,8 +10,8 @@ import (
 
 // Start the docker core
 func Start() (serviceID string, err error) {
-	running, err := IsRunning()
-	if err != nil || running == true {
+	status, err := Status()
+	if err != nil || status == container.RUNNING {
 		return
 	}
 	spec, err := serviceSpec()

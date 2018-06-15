@@ -6,6 +6,7 @@ import (
 
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/logrusorgru/aurora"
+	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/daemon"
 	"github.com/spf13/cobra"
 )
@@ -23,12 +24,12 @@ func init() {
 }
 
 func logsHandler(cmd *cobra.Command, args []string) {
-	isRunning, err := daemon.IsRunning()
+	status, err := daemon.Status()
 	if err != nil {
 		fmt.Println(aurora.Red(err))
 		return
 	}
-	if !isRunning {
+	if status == container.STOPPED {
 		fmt.Println(aurora.Brown("MESG Core is stopped"))
 		return
 	}
