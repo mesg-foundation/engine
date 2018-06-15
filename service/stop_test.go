@@ -20,7 +20,8 @@ func TestStopRunningService(t *testing.T) {
 	service.Start()
 	err := service.Stop()
 	assert.Nil(t, err)
-	assert.Equal(t, service.IsStopped(), true)
+	status, _ := service.Status()
+	assert.Equal(t, STOPPED, status)
 }
 
 func TestStopNonRunningService(t *testing.T) {
@@ -34,7 +35,8 @@ func TestStopNonRunningService(t *testing.T) {
 	}
 	err := service.Stop()
 	assert.Nil(t, err)
-	assert.Equal(t, service.IsStopped(), true)
+	status, _ := service.Status()
+	assert.Equal(t, STOPPED, status)
 }
 
 func TestStopDependency(t *testing.T) {
@@ -51,8 +53,8 @@ func TestStopDependency(t *testing.T) {
 	dep.Start(networkID)
 	err = dep.Stop()
 	assert.Nil(t, err)
-	assert.Equal(t, dep.IsStopped(), true)
-	assert.Equal(t, dep.IsRunning(), false)
+	status, _ := dep.Status()
+	assert.Equal(t, container.STOPPED, status)
 	container.DeleteNetwork(service.namespace())
 }
 

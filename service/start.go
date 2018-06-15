@@ -15,11 +15,12 @@ import (
 
 // Start a service
 func (service *Service) Start() (serviceIDs []string, err error) {
-	if service.IsRunning() {
-		return
+	status, err := service.Status()
+	if err != nil || status == RUNNING {
+		return //TODO: if the service is already running, serviceIDs will be returned.
 	}
 	// If there is one but not all services running stop to restart all
-	if service.IsPartiallyRunning() {
+	if status == PARTIAL {
 		err = service.StopDependencies()
 		if err != nil {
 			return

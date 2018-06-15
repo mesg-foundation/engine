@@ -5,6 +5,7 @@ import (
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/cmd/utils"
+	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/daemon"
 	"github.com/spf13/cobra"
 )
@@ -22,12 +23,12 @@ func init() {
 }
 
 func startHandler(cmd *cobra.Command, args []string) {
-	running, err := daemon.IsRunning()
+	status, err := daemon.Status()
 	if err != nil {
 		fmt.Println(aurora.Red(err))
 		return
 	}
-	if running {
+	if status == container.RUNNING {
 		fmt.Println(aurora.Green("MESG Core is running"))
 		return
 	}
