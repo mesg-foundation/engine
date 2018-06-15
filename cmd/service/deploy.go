@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/mesg-foundation/core/api/core"
-
 	"github.com/logrusorgru/aurora"
+	"github.com/mesg-foundation/core/api/core"
+	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -28,6 +28,6 @@ func deployHandler(cmd *cobra.Command, args []string) {
 	reply, err := cli.DeployService(context.Background(), &core.DeployServiceRequest{
 		Service: service,
 	})
-	handleError(err)
+	cmdUtils.HandleError(err)
 	fmt.Println("Service deployed with ID:", aurora.Green(reply.ServiceID))
 }

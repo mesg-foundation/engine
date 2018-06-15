@@ -30,7 +30,7 @@ func defaultPath(args []string) string {
 // prepareService downloads if needed, create the service, build it and inject configuration
 func prepareService(path string) (importedService *service.Service) {
 	path, didDownload, err := downloadServiceIfNeeded(path)
-	handleError(err)
+	cmdUtils.HandleError(err)
 	if didDownload {
 		fmt.Println(aurora.Green("Service downloaded with success"))
 		fmt.Println("Temp folder: " + path)
@@ -39,10 +39,10 @@ func prepareService(path string) (importedService *service.Service) {
 	importedService, err = service.ImportFromPath(path)
 	if err != nil {
 		fmt.Println("Run the command 'service validate' to get detailed errors")
-		handleError(err)
+		cmdUtils.HandleError(err)
 	}
 	imageHash, err := buildDockerImage(path)
-	handleError(err)
+	cmdUtils.HandleError(err)
 	fmt.Println(aurora.Green("Image built with success"))
 	fmt.Println("Image hash:", imageHash)
 	injectConfigurationInDependencies(importedService, imageHash)
@@ -111,6 +111,6 @@ func injectConfigurationInDependencies(s *service.Service, imageHash string) {
 
 func init() {
 	connection, err := grpc.Dial(viper.GetString(config.APIClientTarget), grpc.WithInsecure())
-	handleError(err)
+	cmdUtils.HandleError(err)
 	cli = core.NewCoreClient(connection)
 }
