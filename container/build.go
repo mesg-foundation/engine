@@ -66,10 +66,10 @@ func extractLastOutputFromBuildResponse(response types.ImageBuildResponse) (last
 		return
 	}
 	rs := strings.Split(string(r), "\n")
-	if len(rs) == 1 {
-		lastOutput = rs[0]
-	} else if len(rs) > 1 {
-		lastOutput = rs[len(rs)-2] //the last line is always empty
+	i := len(rs) - 1
+	for lastOutput == "" && i >= 0 {
+		lastOutput = rs[i]
+		i--
 	}
 	if lastOutput == "" {
 		err = errors.New("Could not parse container build response")
