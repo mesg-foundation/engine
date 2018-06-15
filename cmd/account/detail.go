@@ -1,9 +1,7 @@
-package cmdAccount
+package account
 
 import (
 	"fmt"
-
-	"github.com/mesg-foundation/core/cmd/utils"
 
 	"github.com/spf13/cobra"
 )
@@ -20,12 +18,12 @@ mesg-core account detail --account ACCOUNT`,
 }
 
 func detailHandler(cmd *cobra.Command, args []string) {
-	acc := cmdUtils.AccountFromFlagOrAsk(cmd, "Choose account:")
+	acc := utils.AccountFromFlagOrAsk(cmd, "Choose account:")
 
 	// TODO: can facto with a displaySummary function like in create.go
 	fmt.Println(acc.Address.String())
 }
 
 func init() {
-	cmdUtils.Accountable(Detail)
+	utils.Accountable(Detail)
 }

@@ -1,11 +1,10 @@
-package cmdAccount
+package account
 
 import (
 	"fmt"
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/account"
-	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -23,8 +22,8 @@ mesg-core service delete --account ACCOUNT --confirm`,
 }
 
 func deleteHandler(cmd *cobra.Command, args []string) {
-	acc := cmdUtils.AccountFromFlagOrAsk(cmd, "Choose the account to delete:")
-	if cmdUtils.Confirm(cmd, "The account "+acc.Address.String()+" will be deleted. Are you sure?") {
+	acc := utils.AccountFromFlagOrAsk(cmd, "Choose the account to delete:")
+	if utils.Confirm(cmd, "The account "+acc.Address.String()+" will be deleted. Are you sure?") {
 		if err := account.Destroy(acc); err != nil {
 			panic(err)
 		}
@@ -33,6 +32,6 @@ func deleteHandler(cmd *cobra.Command, args []string) {
 }
 
 func init() {
-	cmdUtils.Confirmable(Delete)
-	cmdUtils.Accountable(Delete)
+	utils.Confirmable(Delete)
+	utils.Accountable(Delete)
 }

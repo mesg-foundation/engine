@@ -23,14 +23,14 @@ func init() {
 
 func startHandler(cmd *cobra.Command, args []string) {
 	running, err := daemon.IsRunning()
-	cmdUtils.HandleError(err)
+	utils.HandleError(err)
 	if running {
 		fmt.Println(aurora.Green("MESG Core is running"))
 		return
 	}
-	cmdUtils.ShowSpinnerForFunc(cmdUtils.SpinnerOptions{Text: "Starting MESG Core..."}, func() {
+	utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: "Starting MESG Core..."}, func() {
 		_, err = daemon.Start()
 	})
-	cmdUtils.HandleError(err)
+	utils.HandleError(err)
 	fmt.Println(aurora.Green("MESG Core is running"))
 }

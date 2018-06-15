@@ -25,13 +25,13 @@ func init() {
 
 func logsHandler(cmd *cobra.Command, args []string) {
 	isRunning, err := daemon.IsRunning()
-	cmdUtils.HandleError(err)
+	utils.HandleError(err)
 	if !isRunning {
 		fmt.Println(aurora.Brown("MESG Core is stopped"))
 		return
 	}
 	reader, err := daemon.Logs()
 	defer reader.Close()
-	cmdUtils.HandleError(err)
+	utils.HandleError(err)
 	stdcopy.StdCopy(os.Stdout, os.Stderr, reader)
 }

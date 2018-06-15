@@ -1,4 +1,4 @@
-package cmdAccount
+package account
 
 import (
 	"errors"
@@ -8,7 +8,6 @@ import (
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/account"
-	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/spf13/cobra"
 	survey "gopkg.in/AlecAivazis/survey.v1"
 )
@@ -44,7 +43,7 @@ func createHandler(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	s := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Generating account..."})
+	s := utils.StartSpinner(utils.SpinnerOptions{Text: "Generating account..."})
 	acc, err := account.Generate(password)
 	if err != nil {
 		panic(err)

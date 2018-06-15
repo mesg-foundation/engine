@@ -1,4 +1,4 @@
-package cmdService
+package service
 
 import (
 	"context"
@@ -28,6 +28,6 @@ func deployHandler(cmd *cobra.Command, args []string) {
 	reply, err := cli.DeployService(context.Background(), &core.DeployServiceRequest{
 		Service: service,
 	})
-	cmdUtils.HandleError(err)
+	utils.HandleError(err)
 	fmt.Println("Service deployed with ID:", aurora.Green(reply.ServiceID))
 }

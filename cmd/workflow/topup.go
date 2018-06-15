@@ -1,10 +1,9 @@
-package cmdWorkflow
+package workflow
 
 import (
 	"fmt"
 	"os"
 
-	"github.com/mesg-foundation/core/cmd/utils"
 	survey "gopkg.in/AlecAivazis/survey.v1"
 
 	"github.com/spf13/cobra"
@@ -23,8 +22,8 @@ mesg-core workflow topup WORKFLOW_ID --amount AMOUNT --account ACCOUNT_ID --conf
 }
 
 func topupHandler(cmd *cobra.Command, args []string) {
-	account := cmdUtils.AccountFromFlagOrAsk(cmd, "Select an account:")
-	amount, err := cmdUtils.GetOrAskAmount(cmd, "How much do you want to deposit in your workflow?")
+	account := utils.AccountFromFlagOrAsk(cmd, "Select an account:")
+	amount, err := utils.GetOrAskAmount(cmd, "How much do you want to deposit in your workflow?")
 	if err != nil {
 		panic(err)
 	}
@@ -43,7 +42,7 @@ func topupHandler(cmd *cobra.Command, args []string) {
 			os.Exit(0)
 		}
 	}
-	if !cmdUtils.Confirm(cmd, "Are you sure ?") {
+	if !utils.Confirm(cmd, "Are you sure ?") {
 		return
 	}
 	// TODO topup the workflow onchain
@@ -51,7 +50,7 @@ func topupHandler(cmd *cobra.Command, args []string) {
 }
 
 func init() {
-	cmdUtils.Confirmable(Topup)
-	cmdUtils.Accountable(Topup)
-	cmdUtils.Payable(Topup)
+	utils.Confirmable(Topup)
+	utils.Accountable(Topup)
+	utils.Payable(Topup)
 }

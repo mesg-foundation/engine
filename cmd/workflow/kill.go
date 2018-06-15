@@ -1,10 +1,8 @@
-package cmdWorkflow
+package workflow
 
 import (
 	"fmt"
 	"time"
-
-	"github.com/mesg-foundation/core/cmd/utils"
 
 	"github.com/spf13/cobra"
 )
@@ -21,11 +19,11 @@ mesg-core workflow kill WORKFLOW_ID --account ACCOUNT --confirm`,
 }
 
 func killHandler(cmd *cobra.Command, args []string) {
-	account := cmdUtils.AccountFromFlagOrAsk(cmd, "Select an account:")
-	if !cmdUtils.Confirm(cmd, "Are you sure?") {
+	account := utils.AccountFromFlagOrAsk(cmd, "Select an account:")
+	if !utils.Confirm(cmd, "Are you sure?") {
 		return
 	}
-	s := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Killing in progress..."})
+	s := utils.StartSpinner(utils.SpinnerOptions{Text: "Killing in progress..."})
 	time.Sleep(2 * time.Second)
 	s.Stop()
 	// TODO kill the workflow
@@ -33,6 +31,6 @@ func killHandler(cmd *cobra.Command, args []string) {
 }
 
 func init() {
-	cmdUtils.Confirmable(Kill)
-	cmdUtils.Accountable(Kill)
+	utils.Confirmable(Kill)
+	utils.Accountable(Kill)
 }

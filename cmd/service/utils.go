@@ -1,4 +1,4 @@
-package cmdService
+package service
 
 import (
 	"fmt"
@@ -30,7 +30,7 @@ func defaultPath(args []string) string {
 // prepareService downloads if needed, create the service, build it and inject configuration
 func prepareService(path string) (importedService *service.Service) {
 	path, didDownload, err := downloadServiceIfNeeded(path)
-	cmdUtils.HandleError(err)
+	utils.HandleError(err)
 	if didDownload {
 		fmt.Println(aurora.Green("Service downloaded with success"))
 		fmt.Println("Temp folder: " + path)
@@ -39,10 +39,10 @@ func prepareService(path string) (importedService *service.Service) {
 	importedService, err = service.ImportFromPath(path)
 	if err != nil {
 		fmt.Println("Run the command 'service validate' to get detailed errors")
-		cmdUtils.HandleError(err)
+		utils.HandleError(err)
 	}
 	imageHash, err := buildDockerImage(path)
-	cmdUtils.HandleError(err)
+	utils.HandleError(err)
 	fmt.Println(aurora.Green("Image built with success"))
 	fmt.Println("Image hash:", imageHash)
 	injectConfigurationInDependencies(importedService, imageHash)
@@ -64,7 +64,7 @@ func downloadServiceIfNeeded(path string) (newPath string, didDownload bool, err
 }
 
 func gitClone(url string, path string) (err error) {
-	cmdUtils.ShowSpinnerForFunc(cmdUtils.SpinnerOptions{Text: "Downloading service..."}, func() {
+	utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: "Downloading service..."}, func() {
 		_, err = git.PlainClone(path, false, &git.CloneOptions{
 			URL: url,
 		})
@@ -85,7 +85,7 @@ func removeTempFolder(path string, didDownload bool) (err error) {
 }
 
 func buildDockerImage(path string) (imageHash string, err error) {
-	cmdUtils.ShowSpinnerForFunc(cmdUtils.SpinnerOptions{Text: "Building image..."}, func() {
+	utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: "Building image..."}, func() {
 		imageHash, err = container.Build(path)
 	})
 	return
@@ -111,6 +111,6 @@ func injectConfigurationInDependencies(s *service.Service, imageHash string) {
 
 func init() {
 	connection, err := grpc.Dial(viper.GetString(config.APIClientTarget), grpc.WithInsecure())
-	cmdUtils.HandleError(err)
+	utils.HandleError(err)
 	cli = core.NewCoreClient(connection)
 }

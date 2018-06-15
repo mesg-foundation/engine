@@ -1,4 +1,4 @@
-package cmdService
+package service
 
 import (
 	"context"
@@ -23,7 +23,7 @@ func deleteHandler(cmd *cobra.Command, args []string) {
 		_, err := cli.DeleteService(context.Background(), &core.DeleteServiceRequest{
 			ServiceID: arg,
 		})
-		cmdUtils.HandleError(err)
+		utils.HandleError(err)
 		fmt.Println("Service", arg, "deleted")
 	}
 }
