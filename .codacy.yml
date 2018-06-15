@@ -4,3 +4,5 @@ exclude_patterns:
   - "**/*.d.ts"
   - "**/*.pb.go"
   - "**/service/schema.go"
+  - "**/Dockerfile"
+  
