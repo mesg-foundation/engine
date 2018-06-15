@@ -14,6 +14,6 @@ func Stop() (err error) {
 	if err != nil {
 		return
 	}
-	err = container.WaitForContainerStatus(Namespace(), container.STOPPED)
+	err = container.WaitForStatus(Namespace(), container.STOPPED)
 	return
 }
