@@ -58,7 +58,8 @@ func (service *Service) Start() (serviceIDs []string, err error) {
 // Start will start a dependency container
 func (dependency *DependencyFromService) Start(networkID string) (containerServiceID string, err error) {
 	if networkID == "" {
-		panic(errors.New("Network ID should never be null"))
+		err = errors.New("Network ID should never be null")
+		return
 	}
 	sharedNetworkID, err := container.SharedNetworkID()
 	if err != nil {
