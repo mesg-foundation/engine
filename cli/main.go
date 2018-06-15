@@ -7,7 +7,7 @@ import (
 )
 
 // version of this release. Will be replaced automatically when compiling in CI
-var version = "v1.0.0-beta"
+var version = "vX.X.X"
 
 func init() {
 	cmd.RootCmd.Version = version
