@@ -3,6 +3,7 @@ package workflow
 import (
 	"fmt"
 
+	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/spf13/cobra"
 )
 

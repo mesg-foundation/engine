@@ -5,6 +5,7 @@ import (
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/account"
+	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/spf13/cobra"
 )
 
