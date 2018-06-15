@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/mesg-foundation/core/account"
+	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/spf13/cobra"
 	survey "gopkg.in/AlecAivazis/survey.v1"
 )

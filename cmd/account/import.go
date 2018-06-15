@@ -7,9 +7,8 @@ import (
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/account"
-	survey "gopkg.in/AlecAivazis/survey.v1"
-
 	"github.com/spf13/cobra"
+	survey "gopkg.in/AlecAivazis/survey.v1"
 )
 
 // Import an account from an exported file

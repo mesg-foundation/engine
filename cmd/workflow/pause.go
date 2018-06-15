@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	survey "gopkg.in/AlecAivazis/survey.v1"
-
+	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/spf13/cobra"
+	survey "gopkg.in/AlecAivazis/survey.v1"
 )
 
 // Pause run the pause command for a workflow

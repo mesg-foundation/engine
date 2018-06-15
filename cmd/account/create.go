@@ -8,6 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/account"
+	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/spf13/cobra"
 	survey "gopkg.in/AlecAivazis/survey.v1"
 )
