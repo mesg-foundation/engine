@@ -23,6 +23,10 @@ To have more details, see the [detail command](mesg-core_service_detail.md).`,
 func listHandler(cmd *cobra.Command, args []string) {
 	services, err := services.All() // TODO: this should use the API
 	handleError(err)
+	if len(services) == 0 {
+		fmt.Println("No services")
+		return
+	}
 	for _, service := range services {
 		fmt.Println("-", aurora.Bold(service.Hash()), "-", service.Name)
 	}
