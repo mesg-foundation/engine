@@ -6,21 +6,21 @@ import (
 	"github.com/stvp/assert"
 )
 
-func TestExtractPortEmpty(t *testing.T) {
-	ports := extractPorts(&Dependency{})
-	assert.Equal(t, len(ports), 0)
-}
-
-func TestExtractPorts(t *testing.T) {
-	ports := extractPorts(&Dependency{
-		Ports: []string{
-			"80",
-			"3000:8080",
+func TestDependenciesFromService(t *testing.T) {
+	service := &Service{
+		Name: "TestPartiallyRunningService",
+		Dependencies: map[string]*Dependency{
+			"test": &Dependency{
+				Image: "nginx",
+			},
+			"test2": &Dependency{
+				Image: "nginx",
+			},
 		},
-	})
-	assert.Equal(t, len(ports), 2)
-	assert.Equal(t, ports[0].Target, uint32(80))
-	assert.Equal(t, ports[0].Published, uint32(80))
-	assert.Equal(t, ports[1].Target, uint32(8080))
-	assert.Equal(t, ports[1].Published, uint32(3000))
+	}
+	deps := service.DependenciesFromService()
+	assert.Equal(t, 2, len(deps))
+	assert.Equal(t, "test", deps[0].Name)
+	assert.Equal(t, "TestPartiallyRunningService", deps[0].Service.Name)
+	assert.Equal(t, "test2", deps[1].Name)
 }

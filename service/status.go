@@ -17,8 +17,8 @@ const (
 func serviceStatus(service *Service) (status StatusType) {
 	status = STOPPED
 	allRunning := true
-	for name, dependency := range service.GetDependencies() {
-		if dependency.IsRunning(service.namespace(), name) {
+	for _, dependency := range service.DependenciesFromService() {
+		if dependency.IsRunning() {
 			status = RUNNING
 		} else {
 			allRunning = false
@@ -49,19 +49,32 @@ func (service *Service) IsStopped() (running bool) {
 }
 
 // IsRunning returns true if the dependency is running, false otherwise
-func (dependency *Dependency) IsRunning(namespace string, name string) (running bool) {
-	running = dependencyStatus(namespace, name) == RUNNING
+func (dependency *DependencyFromService) IsRunning() (running bool) {
+	running = dependency.Status() == RUNNING
 	return
 }
 
 // IsStopped returns true if the dependency is stopped, false otherwise
-func (dependency *Dependency) IsStopped(namespace string, name string) (running bool) {
-	running = dependencyStatus(namespace, name) == STOPPED
+func (dependency *DependencyFromService) IsStopped() (running bool) {
+	running = dependency.Status() == STOPPED
 	return
 }
 
-//TODO: should move to its own file
+// Status returns the status of this dependency's container
+func (dependency *DependencyFromService) Status() (status StatusType) {
+	dockerStatus, err := container.ServiceStatus(dependency.namespace())
+	if err != nil {
+		panic(err) //TODO: that's VERY ugly
+	}
+	status = STOPPED
+	if dockerStatus == container.RUNNING {
+		status = RUNNING
+	}
+	return
+}
+
 // ListRunning all the running services
+// TODO: should move to another file
 func ListRunning() (res []string, err error) {
 	services, err := container.ListServices("mesg.hash")
 	mapRes := make(map[string]uint)
