@@ -27,13 +27,6 @@ func defaultPath(args []string) string {
 	return "./"
 }
 
-func handleError(err error) {
-	if err != nil {
-		fmt.Println(aurora.Red(err))
-		os.Exit(0)
-	}
-}
-
 // prepareService downloads if needed, create the service, build it and inject configuration
 func prepareService(path string) (importedService *service.Service) {
 	path, didDownload, err := downloadServiceIfNeeded(path)
