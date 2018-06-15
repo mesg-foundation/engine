@@ -1,4 +1,4 @@
-package cmdService
+package service
 
 import (
 	"fmt"
@@ -23,7 +23,7 @@ To have more details, see the [detail command](mesg-core_service_detail.md).`,
 
 func listHandler(cmd *cobra.Command, args []string) {
 	services, err := services.All() // TODO: this should use the API
-	cmdUtils.HandleError(err)
+	utils.HandleError(err)
 	for _, service := range services {
 		fmt.Println("-", aurora.Bold(service.Hash()), "-", service.Name)
 	}

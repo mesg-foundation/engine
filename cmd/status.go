@@ -23,7 +23,7 @@ func init() {
 
 func statusHandler(cmd *cobra.Command, args []string) {
 	running, err := daemon.IsRunning()
-	cmdUtils.HandleError(err)
+	utils.HandleError(err)
 	if running {
 		fmt.Println(aurora.Green("MESG Core is running"))
 	} else {

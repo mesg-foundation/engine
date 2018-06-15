@@ -1,4 +1,4 @@
-package cmdWorkflow
+package workflow
 
 import (
 	"fmt"

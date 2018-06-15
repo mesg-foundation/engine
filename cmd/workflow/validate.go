@@ -1,11 +1,10 @@
-package cmdWorkflow
+package workflow
 
 import (
 	"fmt"
 	"time"
 
 	"github.com/kyokomi/emoji"
-	"github.com/mesg-foundation/core/cmd/utils"
 
 	"github.com/spf13/cobra"
 )
@@ -24,7 +23,7 @@ To get more information, see the [deploy page from the documentation](https://do
 }
 
 func validateHandler(cmd *cobra.Command, args []string) {
-	s := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Validation..."})
+	s := utils.StartSpinner(utils.SpinnerOptions{Text: "Validation..."})
 	time.Sleep(time.Second)
 	s.Stop()
 	fmt.Println(emoji.Sprint(":white_check_mark: Workflow valid"))

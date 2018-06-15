@@ -1,10 +1,9 @@
-package cmdWorkflow
+package workflow
 
 import (
 	"fmt"
 	"os"
 
-	"github.com/mesg-foundation/core/cmd/utils"
 	survey "gopkg.in/AlecAivazis/survey.v1"
 
 	"github.com/spf13/cobra"
@@ -21,7 +20,7 @@ mesg-core workflow pause WORKFLOW_ID --account ACCOUNT_ID --confirm`,
 }
 
 func pauseHandler(cmd *cobra.Command, args []string) {
-	account := cmdUtils.AccountFromFlagOrAsk(cmd, "Select an account:")
+	account := utils.AccountFromFlagOrAsk(cmd, "Select an account:")
 	var workflow = ""
 	if len(args) > 0 {
 		workflow = args[0]
@@ -37,7 +36,7 @@ func pauseHandler(cmd *cobra.Command, args []string) {
 			os.Exit(0)
 		}
 	}
-	if !cmdUtils.Confirm(cmd, "Are you sure?") {
+	if !utils.Confirm(cmd, "Are you sure?") {
 		return
 	}
 	// TODO pause the workflow onchain
@@ -45,6 +44,6 @@ func pauseHandler(cmd *cobra.Command, args []string) {
 }
 
 func init() {
-	cmdUtils.Confirmable(Pause)
-	cmdUtils.Accountable(Pause)
+	utils.Confirmable(Pause)
+	utils.Accountable(Pause)
 }
