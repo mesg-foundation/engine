@@ -7,10 +7,9 @@ import (
 	"log"
 	"time"
 
+	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/api/core"
 	"github.com/mesg-foundation/core/cmd/utils"
-
-	"github.com/logrusorgru/aurora"
 	"github.com/spf13/cobra"
 )
 
@@ -46,7 +45,7 @@ func listenEvents(serviceID string, filter string) {
 		ServiceID:   serviceID,
 		EventFilter: filter,
 	})
-	handleError(err)
+	cmdUtils.HandleError(err)
 	fmt.Println(aurora.Cyan("Listening for events from the service..."))
 	for {
 		event, err := stream.Recv()
@@ -64,7 +63,7 @@ func listenResults(serviceID string, result string, output string) {
 		TaskFilter:   result,
 		OutputFilter: output,
 	})
-	handleError(err)
+	cmdUtils.HandleError(err)
 	fmt.Println(aurora.Cyan("Listening for results from the service..."))
 	for {
 		result, err := stream.Recv()
@@ -83,7 +82,7 @@ func executeTask(serviceID string, task string, dataPath string) (execution *cor
 	var data = []byte("{}")
 	if dataPath != "" {
 		data, err = ioutil.ReadFile(dataPath)
-		handleError(err)
+		cmdUtils.HandleError(err)
 	}
 
 	execution, err = cli.ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
@@ -91,7 +90,7 @@ func executeTask(serviceID string, task string, dataPath string) (execution *cor
 		TaskKey:   task,
 		TaskData:  string(data),
 	})
-	handleError(err)
+	cmdUtils.HandleError(err)
 	log.Println("Execute task", aurora.Green(task), "with data", aurora.Bold(string(data)))
 	return
 }
@@ -104,7 +103,7 @@ func testHandler(cmd *cobra.Command, args []string) {
 		deployment, err := cli.DeployService(context.Background(), &core.DeployServiceRequest{
 			Service: service,
 		})
-		handleError(err)
+		cmdUtils.HandleError(err)
 		serviceID = deployment.ServiceID
 		fmt.Println(aurora.Green("Service deployed with success"))
 		fmt.Println("Service ID:", serviceID)
@@ -114,7 +113,7 @@ func testHandler(cmd *cobra.Command, args []string) {
 				ServiceID: serviceID,
 			})
 		})
-		handleError(err)
+		cmdUtils.HandleError(err)
 		fmt.Println(aurora.Green("Service started"))
 	}
 
@@ -131,7 +130,7 @@ func testHandler(cmd *cobra.Command, args []string) {
 				ServiceID: serviceID,
 			})
 		})
-		handleError(err)
+		cmdUtils.HandleError(err)
 		fmt.Println(aurora.Green("Service stopped"))
 	}
 }

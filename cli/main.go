@@ -1,13 +1,11 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/mesg-foundation/core/cmd"
+	"github.com/mesg-foundation/core/cmd/utils"
 )
 
 func main() {
-	if err := cmd.RootCmd.Execute(); err != nil {
-		fmt.Println(err)
-	}
+	err := cmd.RootCmd.Execute()
+	cmdUtils.HandleError(err)
 }

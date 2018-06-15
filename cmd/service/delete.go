@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/mesg-foundation/core/api/core"
-
+	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -23,7 +23,7 @@ func deleteHandler(cmd *cobra.Command, args []string) {
 		_, err := cli.DeleteService(context.Background(), &core.DeleteServiceRequest{
 			ServiceID: arg,
 		})
-		handleError(err)
+		cmdUtils.HandleError(err)
 		fmt.Println("Service", arg, "deleted")
 	}
 }

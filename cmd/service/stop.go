@@ -31,6 +31,6 @@ func stopHandler(cmd *cobra.Command, args []string) {
 			ServiceID: args[0],
 		})
 	})
-	handleError(err)
+	cmdUtils.HandleError(err)
 	fmt.Println(aurora.Green("Service stopped"))
 }
