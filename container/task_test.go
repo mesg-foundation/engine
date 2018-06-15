@@ -27,10 +27,7 @@ func TestTasksError(t *testing.T) {
 	var err error
 	for {
 		errors, err = TasksError(namespace)
-		if err != nil {
-			break
-		}
-		if len(errors) > 0 {
+		if err != nil || len(errors) > 0 {
 			break
 		}
 		time.Sleep(500 * time.Millisecond)

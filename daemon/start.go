@@ -22,7 +22,7 @@ func Start() (serviceID string, err error) {
 	if err != nil {
 		return
 	}
-	err = container.WaitForContainerStatus(Namespace(), container.RUNNING)
+	err = container.WaitForStatus(Namespace(), container.RUNNING)
 	return
 }
 

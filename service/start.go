@@ -98,6 +98,6 @@ func (dependency *Dependency) Start(service *Service, details dependencyDetails,
 	if err != nil {
 		return
 	}
-	err = container.WaitForContainerStatus(namespace, container.RUNNING)
+	err = container.WaitForStatus(namespace, container.RUNNING)
 	return
 }

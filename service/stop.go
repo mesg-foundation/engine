@@ -52,6 +52,6 @@ func (dependency *Dependency) Stop(name string, dependencyName string) (err erro
 	if err != nil {
 		return
 	}
-	err = container.WaitForContainerStatus(namespace, container.STOPPED)
+	err = container.WaitForStatus(namespace, container.STOPPED)
 	return
 }
