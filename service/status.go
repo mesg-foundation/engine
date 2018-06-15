@@ -60,8 +60,8 @@ func (dependency *Dependency) IsStopped(namespace string, name string) (running 
 	return
 }
 
-// List all the running services hashes
-func List() (res []string, err error) {
+// ListRunning all the running services
+func ListRunning() (res []string, err error) {
 	services, err := container.ListServices("mesg.hash")
 	mapRes := make(map[string]uint)
 	for _, service := range services {

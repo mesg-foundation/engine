@@ -1,6 +1,7 @@
 #!/bin/bash
 
 scripts/build-test-core.sh
+env CORE.IMAGE=mesg/core:local go run cli/main.go stop
 env CORE.IMAGE=mesg/core:local go run cli/main.go start
 env CORE.IMAGE=mesg/core:local go run cli/main.go logs
-env CORE.IMAGE=mesg/core:local go run cli/main.go stop 
+env CORE.IMAGE=mesg/core:local go run cli/main.go stop
