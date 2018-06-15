@@ -26,17 +26,14 @@ message SubmitResultRequest {
 }
 
 message EmitEventReply {
-  string error = 1;
 }
 
 message TaskData {
   string executionID = 1;
-  string error = 2;
-  string taskKey = 3;
-  string inputData = 4;
+  string taskKey = 2;
+  string inputData = 3;
 }
 
 message SubmitResultReply {
-  string error = 1;
-  string executionID = 2;
+  string executionID = 1;
 }
