@@ -9,16 +9,22 @@ type StatusType uint
 
 // status for services
 const (
-	STOPPED StatusType = 0
-	RUNNING StatusType = 1
-	PARTIAL StatusType = 2
+	STOPPED StatusType = 1
+	RUNNING StatusType = 2
+	PARTIAL StatusType = 3
 )
 
-func serviceStatus(service *Service) (status StatusType) {
+// Status returns the StatusType of all dependency of this service
+func (service *Service) Status() (status StatusType, err error) {
 	status = STOPPED
 	allRunning := true
 	for _, dependency := range service.DependenciesFromService() {
-		if dependency.IsRunning() {
+		var depStatus container.StatusType
+		depStatus, err = dependency.Status()
+		if err != nil {
+			return
+		}
+		if depStatus == container.RUNNING {
 			status = RUNNING
 		} else {
 			allRunning = false
@@ -30,46 +36,9 @@ func serviceStatus(service *Service) (status StatusType) {
 	return
 }
 
-// IsRunning returns true if the service is running, false otherwise
-func (service *Service) IsRunning() (running bool) {
-	running = serviceStatus(service) == RUNNING
-	return
-}
-
-// IsPartiallyRunning returns true if the service is running, false otherwise
-func (service *Service) IsPartiallyRunning() (running bool) {
-	running = serviceStatus(service) == PARTIAL
-	return
-}
-
-// IsStopped returns true if the service is stopped, false otherwise
-func (service *Service) IsStopped() (running bool) {
-	running = serviceStatus(service) == STOPPED
-	return
-}
-
-// IsRunning returns true if the dependency is running, false otherwise
-func (dependency *DependencyFromService) IsRunning() (running bool) {
-	running = dependency.Status() == RUNNING
-	return
-}
-
-// IsStopped returns true if the dependency is stopped, false otherwise
-func (dependency *DependencyFromService) IsStopped() (running bool) {
-	running = dependency.Status() == STOPPED
-	return
-}
-
-// Status returns the status of this dependency's container
-func (dependency *DependencyFromService) Status() (status StatusType) {
-	dockerStatus, err := container.ServiceStatus(dependency.namespace())
-	if err != nil {
-		panic(err) //TODO: that's VERY ugly
-	}
-	status = STOPPED
-	if dockerStatus == container.RUNNING {
-		status = RUNNING
-	}
+// Status returns the StatusType of this dependency's container
+func (dependency *DependencyFromService) Status() (status container.StatusType, err error) {
+	status, err = container.ServiceStatus(dependency.namespace())
 	return
 }
 
