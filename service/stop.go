@@ -15,7 +15,7 @@ func (service *Service) Stop() (err error) {
 	if err != nil {
 		return
 	}
-	err = container.DeleteNetwork([]string{service.namespace()})
+	err = container.DeleteNetwork(service.namespace())
 	if err != nil {
 		return
 	}
@@ -26,32 +26,27 @@ func (service *Service) Stop() (err error) {
 func (service *Service) StopDependencies() (err error) {
 	var mutex sync.Mutex
 	var wg sync.WaitGroup
-	for name, dependency := range service.GetDependencies() {
+	for _, dependency := range service.DependenciesFromService() {
 		wg.Add(1)
-		go func(d *Dependency, name string, dependencyName string) {
+		go func(d *DependencyFromService) {
 			defer wg.Done()
-			errStop := d.Stop(name, dependencyName)
+			errStop := d.Stop()
 			mutex.Lock()
 			defer mutex.Unlock()
 			if errStop != nil && err == nil {
 				err = errStop
 			}
-		}(dependency, service.namespace(), name)
+		}(dependency)
 	}
 	wg.Wait()
 	return
 }
 
 // Stop a dependency
-func (dependency *Dependency) Stop(name string, dependencyName string) (err error) {
-	if !dependency.IsRunning(name, dependencyName) {
+func (dependency *DependencyFromService) Stop() (err error) {
+	if !dependency.IsRunning() {
 		return
 	}
-	namespace := []string{name, dependencyName} //TODO: refacto namespace
-	err = container.StopService(namespace)
-	if err != nil {
-		return
-	}
-	err = container.WaitForContainerStatus(namespace, container.STOPPED)
+	err = container.StopService(dependency.namespace())
 	return
 }

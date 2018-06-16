@@ -51,7 +51,7 @@ func Status(namespace []string) (status StatusType, err error) {
 }
 
 // WaitForContainerStatus wait for the container to have the provided status until it reach the timeout
-func WaitForContainerStatus(namespace []string, status StatusType) (err error) {
+func waitForContainerStatus(namespace []string, status StatusType) (err error) {
 	for {
 		var currentStatus StatusType
 		currentStatus, err = Status(namespace)
