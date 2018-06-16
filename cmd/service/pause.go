@@ -1,4 +1,4 @@
-package cmdService
+package service
 
 // // Pause run the pause command for a service
 // var Pause = &cobra.Command{
@@ -19,8 +19,8 @@ package cmdService
 // }
 
 // func pauseHandler(cmd *cobra.Command, args []string) {
-// 	account := cmdUtils.AccountFromFlagOrAsk(cmd, "Select the account to use:")
-// 	if !cmdUtils.Confirm(cmd, "Are you sure?") {
+// 	account := utils.AccountFromFlagOrAsk(cmd, "Select the account to use:")
+// 	if !utils.Confirm(cmd, "Are you sure?") {
 // 		return
 // 	}
 // 	// TODO pause (onchain) and then stop the service
@@ -28,6 +28,6 @@ package cmdService
 // }
 
 // func init() {
-// 	cmdUtils.Confirmable(Pause)
-// 	cmdUtils.Accountable(Pause)
+// 	utils.Confirmable(Pause)
+// 	utils.Accountable(Pause)
 // }

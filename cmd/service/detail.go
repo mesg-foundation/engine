@@ -1,4 +1,4 @@
-package cmdService
+package service
 
 import (
 	"fmt"
@@ -22,7 +22,7 @@ var Detail = &cobra.Command{
 
 func detailHandler(cmd *cobra.Command, args []string) {
 	service, err := services.Get(args[0])
-	cmdUtils.HandleError(err)
+	utils.HandleError(err)
 	fmt.Println("name: ", aurora.Bold(service.Name))
 	fmt.Println("events: ")
 	for name, event := range service.Events {

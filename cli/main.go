@@ -15,5 +15,5 @@ func init() {
 
 func main() {
 	err := cmd.RootCmd.Execute()
-	cmdUtils.HandleError(err)
+	utils.HandleError(err)
 }

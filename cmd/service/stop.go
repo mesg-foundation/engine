@@ -1,4 +1,4 @@
-package cmdService
+package service
 
 import (
 	"context"
@@ -26,11 +26,11 @@ To have more explanation, see the page [stake explanation from the documentation
 
 func stopHandler(cmd *cobra.Command, args []string) {
 	var err error
-	cmdUtils.ShowSpinnerForFunc(cmdUtils.SpinnerOptions{Text: "Stopping service..."}, func() {
+	utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: "Stopping service..."}, func() {
 		_, err = cli.StopService(context.Background(), &core.StopServiceRequest{
 			ServiceID: args[0],
 		})
 	})
-	cmdUtils.HandleError(err)
+	utils.HandleError(err)
 	fmt.Println(aurora.Green("Service stopped"))
 }
