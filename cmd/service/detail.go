@@ -1,13 +1,12 @@
-package cmdService
+package service
 
 import (
 	"fmt"
 	"strings"
 
-	"github.com/mesg-foundation/core/database/services"
-
 	"github.com/logrusorgru/aurora"
-
+	"github.com/mesg-foundation/core/cmd/utils"
+	"github.com/mesg-foundation/core/database/services"
 	"github.com/spf13/cobra"
 )
 
@@ -23,7 +22,7 @@ var Detail = &cobra.Command{
 
 func detailHandler(cmd *cobra.Command, args []string) {
 	service, err := services.Get(args[0])
-	handleError(err)
+	utils.HandleError(err)
 	fmt.Println("name: ", aurora.Bold(service.Name))
 	fmt.Println("events: ")
 	for name, event := range service.Events {

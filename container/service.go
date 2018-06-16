@@ -47,6 +47,7 @@ func StartService(options ServiceOptions) (serviceID string, err error) {
 		return
 	}
 	serviceID = response.ID
+	err = waitForStatus(options.Namespace, RUNNING)
 	return
 }
 
@@ -61,6 +62,10 @@ func StopService(namespace []string) (err error) {
 		return
 	}
 	err = client.ServiceRemove(context.Background(), Namespace(namespace))
+	if err != nil {
+		return
+	}
+	err = waitForStatus(namespace, STOPPED)
 	return
 }
 

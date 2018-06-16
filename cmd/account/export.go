@@ -1,4 +1,4 @@
-package cmdAccount
+package account
 
 import (
 	"errors"
@@ -28,7 +28,7 @@ mesg-core account export --account ACCOUNT --password PASSWORD --new-password PA
 
 func exportHandler(cmd *cobra.Command, args []string) {
 	path := cmd.Flag("path").Value.String()
-	acc := cmdUtils.AccountFromFlagOrAsk(cmd, "Choose the account to export:")
+	acc := utils.AccountFromFlagOrAsk(cmd, "Choose the account to export:")
 	password := cmd.Flag("password").Value.String()
 	if password == "" && survey.AskOne(&survey.Password{Message: "Type current password:"}, &password, nil) != nil {
 		os.Exit(0)
@@ -56,7 +56,7 @@ func exportHandler(cmd *cobra.Command, args []string) {
 }
 
 func init() {
-	cmdUtils.Accountable(Export)
+	utils.Accountable(Export)
 	Export.Flags().StringP("password", "", "", "Current password of the account to export")
 	Export.Flags().StringP("new-password", "", "", "New password of the exported account")
 	Export.Flags().StringP("path", "p", "./export", "Path of the file your account will be exported in")
