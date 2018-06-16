@@ -48,9 +48,5 @@ func (dependency *DependencyFromService) Stop() (err error) {
 		return
 	}
 	err = container.StopService(dependency.namespace())
-	if err != nil {
-		return
-	}
-	err = container.WaitForContainerStatus(dependency.namespace(), container.STOPPED)
 	return
 }
