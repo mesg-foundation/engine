@@ -1,10 +1,9 @@
-package cmdWorkflow
+package workflow
 
 import (
 	"fmt"
 
 	"github.com/mesg-foundation/core/cmd/utils"
-
 	"github.com/spf13/cobra"
 )
 
@@ -23,7 +22,7 @@ mesg-core workflow log WORKFLOW_ID --from DATE --to DATE`,
 }
 
 func logHandler(cmd *cobra.Command, args []string) {
-	account := cmdUtils.AccountFromFlagOrAsk(cmd, "Select an account:")
+	account := utils.AccountFromFlagOrAsk(cmd, "Select an account:")
 
 	execution := cmd.Flag("execution").Value.String()
 	task := cmd.Flag("task").Value.String()
@@ -38,5 +37,5 @@ func init() {
 	Log.Flags().StringP("task", "t", "", "Log a specific task")
 	Log.Flags().StringP("from", "", "", "Log from date")
 	Log.Flags().StringP("to", "", "", "Log to date")
-	cmdUtils.Accountable(Log)
+	utils.Accountable(Log)
 }

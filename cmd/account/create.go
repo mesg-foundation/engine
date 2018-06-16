@@ -1,4 +1,4 @@
-package cmdAccount
+package account
 
 import (
 	"errors"
@@ -44,7 +44,7 @@ func createHandler(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	s := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Generating account..."})
+	s := utils.StartSpinner(utils.SpinnerOptions{Text: "Generating account..."})
 	acc, err := account.Generate(password)
 	if err != nil {
 		panic(err)

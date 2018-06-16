@@ -1,4 +1,4 @@
-package cmdAccount
+package account
 
 import (
 	"fmt"

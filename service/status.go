@@ -73,9 +73,9 @@ func (dependency *DependencyFromService) Status() (status StatusType) {
 	return
 }
 
-// TODO: should move to another file
-// List all the running services hashes
-func List() (res []string, err error) {
+// ListRunning all the running services
+// TODO: should move to its own file
+func ListRunning() (res []string, err error) {
 	services, err := container.ListServices("mesg.hash")
 	mapRes := make(map[string]uint)
 	for _, service := range services {
