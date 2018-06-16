@@ -1,10 +1,11 @@
-package cmdService
+package service
 
 import (
 	"fmt"
 
 	"github.com/logrusorgru/aurora"
-	dbServices "github.com/mesg-foundation/core/database/services"
+	"github.com/mesg-foundation/core/cmd/utils"
+	"github.com/mesg-foundation/core/database/services"
 	"github.com/spf13/cobra"
 )
 
@@ -21,12 +22,8 @@ To have more details, see the [detail command](mesg-core_service_detail.md).`,
 }
 
 func listHandler(cmd *cobra.Command, args []string) {
-	services, err := dbServices.All() // TODO: this should use the API
-	handleError(err)
-	if len(services) == 0 {
-		fmt.Println("No services")
-		return
-	}
+	services, err := services.All() // TODO: this should use the API
+	utils.HandleError(err)
 	for _, service := range services {
 		fmt.Println("-", aurora.Bold(service.Hash()), "-", service.Name)
 	}

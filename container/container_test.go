@@ -15,7 +15,7 @@ func TestFindContainer(t *testing.T) {
 	namespace := []string{"TestFindContainer"}
 	startTestService(namespace)
 	defer StopService(namespace)
-	WaitForContainerStatus(namespace, RUNNING)
+	waitForStatus(namespace, RUNNING)
 	container, err := FindContainer(namespace)
 	assert.Nil(t, err)
 	assert.NotEqual(t, "", container.ID)
@@ -40,7 +40,7 @@ func TestContainerStatusRunning(t *testing.T) {
 	namespace := []string{"TestContainerStatusRunning"}
 	startTestService(namespace)
 	defer StopService(namespace)
-	WaitForContainerStatus(namespace, RUNNING)
+	waitForStatus(namespace, RUNNING)
 	status, err := Status(namespace)
 	assert.Nil(t, err)
 	assert.Equal(t, status, RUNNING)
@@ -49,28 +49,10 @@ func TestContainerStatusRunning(t *testing.T) {
 func TestContainerStatusStopped(t *testing.T) {
 	namespace := []string{"TestContainerStatusStopped"}
 	startTestService(namespace)
-	WaitForContainerStatus(namespace, RUNNING)
+	waitForStatus(namespace, RUNNING)
 	StopService(namespace)
-	WaitForContainerStatus(namespace, STOPPED)
+	waitForStatus(namespace, STOPPED)
 	status, err := Status(namespace)
 	assert.Nil(t, err)
 	assert.Equal(t, status, STOPPED)
-}
-
-func TestWaitForContainerRunning(t *testing.T) {
-	namespace := []string{"TestWaitForContainerRunning"}
-	startTestService(namespace)
-	defer StopService(namespace)
-	err := WaitForContainerStatus(namespace, RUNNING)
-	assert.Nil(t, err)
-}
-
-func TestWaitForContainerStopped(t *testing.T) {
-	namespace := []string{"TestWaitForContainerStopped"}
-	startTestService(namespace)
-	WaitForContainerStatus(namespace, RUNNING)
-
-	StopService(namespace)
-	err := WaitForContainerStatus(namespace, STOPPED)
-	assert.Nil(t, err)
 }

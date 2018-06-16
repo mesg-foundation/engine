@@ -1,0 +1,40 @@
+package container
+
+import (
+	"testing"
+	"time"
+
+	"github.com/stvp/assert"
+)
+
+func TestListTasks(t *testing.T) {
+	namespace := []string{"TestListTasks"}
+	startTestService(namespace)
+	tasks, err := ListTasks(namespace)
+	assert.Nil(t, err)
+	assert.NotNil(t, tasks)
+	assert.Equal(t, 1, len(tasks))
+	StopService(namespace)
+}
+
+func TestTasksError(t *testing.T) {
+	namespace := []string{"TestTasksError"}
+	StartService(ServiceOptions{
+		Image:     "fiifioewifewiewfifewijopwjeokpfeo",
+		Namespace: namespace,
+	})
+	var errors []string
+	var err error
+	for {
+		errors, err = TasksError(namespace)
+		if err != nil || len(errors) > 0 {
+			break
+		}
+		time.Sleep(500 * time.Millisecond)
+	}
+	assert.Nil(t, err)
+	assert.NotNil(t, errors)
+	assert.Equal(t, 1, len(errors))
+	assert.Equal(t, "No such image: fiifioewifewiewfifewijopwjeokpfeo:latest", errors[0])
+	StopService(namespace)
+}
