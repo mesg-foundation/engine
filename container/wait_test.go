@@ -9,7 +9,7 @@ import (
 func TestWaitForStatusRunning(t *testing.T) {
 	namespace := []string{"TestWaitForStatusRunning"}
 	startTestService(namespace)
-	err := WaitForStatus(namespace, RUNNING)
+	err := waitForStatus(namespace, RUNNING)
 	assert.Nil(t, err)
 	StopService(namespace)
 }
@@ -17,9 +17,9 @@ func TestWaitForStatusRunning(t *testing.T) {
 func TestWaitForStatusStopped(t *testing.T) {
 	namespace := []string{"TestWaitForStatusStopped"}
 	startTestService(namespace)
-	WaitForStatus(namespace, RUNNING)
+	waitForStatus(namespace, RUNNING)
 	StopService(namespace)
-	err := WaitForStatus(namespace, STOPPED)
+	err := waitForStatus(namespace, STOPPED)
 	assert.Nil(t, err)
 }
 
@@ -29,7 +29,7 @@ func TestWaitForStatusTaskError(t *testing.T) {
 		Image:     "awgdaywudaywudwa",
 		Namespace: namespace,
 	})
-	err := WaitForStatus(namespace, RUNNING)
+	err := waitForStatus(namespace, RUNNING)
 	assert.NotNil(t, err)
 	assert.Equal(t, "No such image: awgdaywudaywudwa:latest", err.Error())
 	StopService(namespace)

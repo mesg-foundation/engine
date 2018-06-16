@@ -6,8 +6,8 @@ import (
 	"time"
 )
 
-// WaitForStatus wait for the container to have the provided status. Returns error as soon as possible
-func WaitForStatus(namespace []string, status StatusType) (err error) {
+// waitForStatus wait for the container to have the provided status. Returns error as soon as possible
+func waitForStatus(namespace []string, status StatusType) (err error) {
 	var tasksErrors []string
 	var currentStatus StatusType
 	for {
