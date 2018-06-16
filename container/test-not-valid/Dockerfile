@@ -1,0 +1,2 @@
+FROM notExistingImage
+ENTRYPOINT [ "ls" ]

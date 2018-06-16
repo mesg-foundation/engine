@@ -14,16 +14,16 @@ var Workflow = &cobra.Command{
 // TODO this command is disabled for now waiting for the Workflow feature to be implemented
 func init() {
 
-	// Workflow.AddCommand(cmdWorkflow.Pause)
-	// Workflow.AddCommand(cmdWorkflow.Resume)
-	// Workflow.AddCommand(cmdWorkflow.Deploy)
-	// Workflow.AddCommand(cmdWorkflow.Test)
-	// Workflow.AddCommand(cmdWorkflow.Validate)
-	// Workflow.AddCommand(cmdWorkflow.List)
-	// Workflow.AddCommand(cmdWorkflow.Kill)
-	// Workflow.AddCommand(cmdWorkflow.Topup)
-	// Workflow.AddCommand(cmdWorkflow.Log)
-	// Workflow.AddCommand(cmdWorkflow.Detail)
+	// Workflow.AddCommand(workflow.Pause)
+	// Workflow.AddCommand(workflow.Resume)
+	// Workflow.AddCommand(workflow.Deploy)
+	// Workflow.AddCommand(workflow.Test)
+	// Workflow.AddCommand(workflow.Validate)
+	// Workflow.AddCommand(workflow.List)
+	// Workflow.AddCommand(workflow.Kill)
+	// Workflow.AddCommand(workflow.Topup)
+	// Workflow.AddCommand(workflow.Log)
+	// Workflow.AddCommand(workflow.Detail)
 
 	// RootCmd.AddCommand(Workflow)
 }

@@ -1,4 +1,4 @@
-package cmdService
+package service
 
 // // Resume run the resume command for a service
 // var Resume = &cobra.Command{
@@ -14,8 +14,8 @@ package cmdService
 // }
 
 // func resumeHandler(cmd *cobra.Command, args []string) {
-// 	account := cmdUtils.AccountFromFlagOrAsk(cmd, "Select an account:")
-// 	if !cmdUtils.Confirm(cmd, "Are you sure?") {
+// 	account := utils.AccountFromFlagOrAsk(cmd, "Select an account:")
+// 	if !utils.Confirm(cmd, "Are you sure?") {
 // 		return
 // 	}
 // 	// TODO start and when ready resume (onchan) the service
@@ -23,6 +23,6 @@ package cmdService
 // }
 
 // func init() {
-// 	cmdUtils.Confirmable(Resume)
-// 	cmdUtils.Accountable(Resume)
+// 	utils.Confirmable(Resume)
+// 	utils.Accountable(Resume)
 // }

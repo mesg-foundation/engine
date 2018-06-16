@@ -15,6 +15,12 @@ func TestBuild(t *testing.T) {
 	assert.NotEqual(t, "", tag)
 }
 
+func TestBuildNotWorking(t *testing.T) {
+	tag, err := Build("test-not-valid/")
+	assert.NotNil(t, err)
+	assert.Equal(t, "", tag)
+}
+
 func TestBuildWrongPath(t *testing.T) {
 	_, err := Build("testss/")
 	assert.NotNil(t, err)

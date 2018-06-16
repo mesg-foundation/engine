@@ -63,7 +63,7 @@ jobs:
       - run: go get ./...
       - run: go get github.com/karalabe/xgo
       - run: mkdir bin
-      - run: cd bin; xgo --targets=darwin/386,darwin/amd64,linux/386,linux/amd64,windows/386,windows/amd64 -out mesg-core ../cli
+      - run: cd bin; xgo --targets=darwin/386,darwin/amd64,linux/386,linux/amd64,windows/386,windows/amd64 -ldflags='-X main.version=$CIRCLE_TAG' -out mesg-core ../cli
       - run: sudo chmod +x ./bin/*
       - run: go get -u github.com/tcnksm/ghr
       - run: ghr -u mesg-foundation -r core -delete $CIRCLE_TAG ./bin

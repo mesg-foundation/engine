@@ -1,11 +1,10 @@
-package cmdWorkflow
+package workflow
 
 import (
 	"fmt"
 	"time"
 
 	"github.com/mesg-foundation/core/cmd/utils"
-
 	"github.com/spf13/cobra"
 )
 
@@ -24,15 +23,15 @@ mesg-core workflow deploy ./PATH_TO_WORKFLOW_FILE.yml --account ACCOUNT --amount
 }
 
 func deployHandler(cmd *cobra.Command, args []string) {
-	account := cmdUtils.AccountFromFlagOrAsk(cmd, "Select an account:")
-	amount, err := cmdUtils.GetOrAskAmount(cmd, "How much do you want to deposit in your workflow?")
+	account := utils.AccountFromFlagOrAsk(cmd, "Select an account:")
+	amount, err := utils.GetOrAskAmount(cmd, "How much do you want to deposit in your workflow?")
 	if err != nil {
 		panic(err)
 	}
-	if !cmdUtils.Confirm(cmd, "Are you sure?") {
+	if !utils.Confirm(cmd, "Are you sure?") {
 		return
 	}
-	s := cmdUtils.StartSpinner(cmdUtils.SpinnerOptions{Text: "Deployment in progress..."})
+	s := utils.StartSpinner(utils.SpinnerOptions{Text: "Deployment in progress..."})
 	time.Sleep(2 * time.Second)
 	s.Stop()
 	// TODO deploy the workflow
@@ -40,7 +39,7 @@ func deployHandler(cmd *cobra.Command, args []string) {
 }
 
 func init() {
-	cmdUtils.Confirmable(Deploy)
-	cmdUtils.Accountable(Deploy)
-	cmdUtils.Payable(Deploy)
+	utils.Confirmable(Deploy)
+	utils.Accountable(Deploy)
+	utils.Payable(Deploy)
 }
