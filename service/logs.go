@@ -10,7 +10,7 @@ import (
 func (service *Service) Logs(onlyForDependency string) (readers []io.ReadCloser, err error) {
 	for depName := range service.GetDependencies() {
 		if onlyForDependency == "" || onlyForDependency == "*" || onlyForDependency == depName {
-			namespace := []string{service.namespace(), depName} //TODO: refacto namespace
+			namespace := append(service.namespace(), depName)
 			var reader io.ReadCloser
 			reader, err = container.ServiceLogs(namespace)
 			if err != nil {
