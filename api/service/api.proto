@@ -35,5 +35,4 @@ message TaskData {
 }
 
 message SubmitResultReply {
-  string executionID = 1;
 }
