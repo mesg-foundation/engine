@@ -14,6 +14,7 @@ func Get(hash string) (service service.Service, err error) {
 	}
 	bytes, err := db.Get([]byte(hash), nil)
 	if err != nil {
+		err = handleErrorNotFound(err, hash)
 		return
 	}
 	err = proto.Unmarshal(bytes, &service)
