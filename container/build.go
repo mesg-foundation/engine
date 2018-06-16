@@ -3,6 +3,7 @@ package container
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"strings"
 
@@ -13,6 +14,7 @@ import (
 // BuildResponse is the object that is returned by the docker api in json
 type BuildResponse struct {
 	Stream string `json:"stream"`
+	Error  string `json:"error"`
 }
 
 // Build a docker image
@@ -39,17 +41,39 @@ func Build(path string) (tag string, err error) {
 }
 
 func parseBuildResponse(response types.ImageBuildResponse) (tag string, err error) {
-	defer response.Body.Close()
-
-	r, err := ioutil.ReadAll(response.Body)
+	lastOutput, err := extractLastOutputFromBuildResponse(response)
 	if err != nil {
 		return
 	}
 	var buildResponse BuildResponse
-	err = json.Unmarshal(r, &buildResponse)
+	err = json.Unmarshal([]byte(lastOutput), &buildResponse)
 	if err != nil {
+		err = errors.New("Could not parse container build response. " + err.Error())
+		return
+	}
+	if buildResponse.Error != "" {
+		err = errors.New("Image build failed. " + buildResponse.Error)
 		return
 	}
 	tag = strings.TrimSuffix(buildResponse.Stream, "\n")
+	return
+}
+
+func extractLastOutputFromBuildResponse(response types.ImageBuildResponse) (lastOutput string, err error) {
+	defer response.Body.Close()
+	r, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return
+	}
+	rs := strings.Split(string(r), "\n")
+	i := len(rs) - 1
+	for lastOutput == "" && i >= 0 {
+		lastOutput = rs[i]
+		i--
+	}
+	if lastOutput == "" {
+		err = errors.New("Could not parse container build response")
+		return
+	}
 	return
 }

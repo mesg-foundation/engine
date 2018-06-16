@@ -58,7 +58,7 @@ func stopServices() (err error) {
 	if err != nil {
 		return
 	}
-	hashes, err := service.List()
+	hashes, err := service.ListRunning()
 	if err != nil {
 		return
 	}
