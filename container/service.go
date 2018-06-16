@@ -47,7 +47,7 @@ func StartService(options ServiceOptions) (serviceID string, err error) {
 		return
 	}
 	serviceID = response.ID
-	err = WaitForContainerStatus(options.Namespace, RUNNING)
+	err = waitForContainerStatus(options.Namespace, RUNNING)
 	return
 }
 
@@ -65,7 +65,7 @@ func StopService(namespace []string) (err error) {
 	if err != nil {
 		return
 	}
-	err = WaitForContainerStatus(namespace, STOPPED)
+	err = waitForContainerStatus(namespace, STOPPED)
 	return
 }
 
