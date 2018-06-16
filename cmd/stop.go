@@ -37,10 +37,7 @@ func stopHandler(cmd *cobra.Command, args []string) {
 		}
 		err = daemon.Stop()
 	})
-	if err != nil {
-		fmt.Println(aurora.Red(err))
-		return
-	}
+	cmdUtils.HandleError(err)
 	fmt.Println(aurora.Green("MESG Core stopped"))
 }
 

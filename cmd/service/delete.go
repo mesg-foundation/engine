@@ -37,7 +37,7 @@ func deleteHandler(cmd *cobra.Command, args []string) {
 		}
 		fmt.Println("Deleting all services...")
 		services, err := services.All() // TODO: this should use the API
-		handleError(err)
+		cmdUtils.HandleError(err)
 		if len(services) == 0 {
 			fmt.Println("All services are already deleted")
 			return
@@ -56,7 +56,7 @@ func deleteHandler(cmd *cobra.Command, args []string) {
 				ServiceID: arg,
 			})
 		})
-		handleError(err)
+		cmdUtils.HandleError(err)
 		fmt.Println("Service", arg, "deleted")
 	}
 }
