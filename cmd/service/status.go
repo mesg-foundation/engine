@@ -21,7 +21,7 @@ var Status = &cobra.Command{
 
 func statusHandler(cmd *cobra.Command, args []string) {
 	hashes, err := service.ListRunning() // TODO: should use the API
-	cmdUtils.HandleError(err)
+	utils.HandleError(err)
 	fmt.Println("Running services:")
 	for _, hash := range hashes {
 		service, err := services.Get(hash)
