@@ -60,8 +60,8 @@ func (dependency *Dependency) IsStopped(namespace string, name string) (running 
 	return
 }
 
-//TODO: should move to its own file
 // ListRunning all the running services
+// TODO: should move to its own file
 func ListRunning() (res []string, err error) {
 	services, err := container.ListServices("mesg.hash")
 	mapRes := make(map[string]uint)
