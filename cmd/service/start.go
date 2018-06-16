@@ -4,9 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/mesg-foundation/core/api/core"
-
 	"github.com/logrusorgru/aurora"
+	"github.com/mesg-foundation/core/api/core"
 	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/spf13/cobra"
 )
@@ -32,6 +31,6 @@ func startHandler(cmd *cobra.Command, args []string) {
 			ServiceID: args[0],
 		})
 	})
-	handleError(err)
+	cmdUtils.HandleError(err)
 	fmt.Println(aurora.Green("Service is running"))
 }
