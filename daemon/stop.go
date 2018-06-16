@@ -11,9 +11,5 @@ func Stop() (err error) {
 		return
 	}
 	err = container.StopService(Namespace())
-	if err != nil {
-		return
-	}
-	err = container.WaitForStatus(Namespace(), container.STOPPED)
 	return
 }

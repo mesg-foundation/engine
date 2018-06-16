@@ -1,12 +1,12 @@
-package cmdService
+package service
 
 import (
 	"fmt"
 
 	"github.com/logrusorgru/aurora"
+	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/service"
-
 	"github.com/spf13/cobra"
 )
 
@@ -20,12 +20,12 @@ var Status = &cobra.Command{
 }
 
 func statusHandler(cmd *cobra.Command, args []string) {
-	hashes, err := service.List()
-	handleError(err)
+	hashes, err := service.ListRunning() // TODO: should use the API
+	utils.HandleError(err)
 	fmt.Println("Running services:")
 	for _, hash := range hashes {
 		service, err := services.Get(hash)
-		handleError(err)
+		utils.HandleError(err)
 		fmt.Println(aurora.Bold(" - " + hash + " - " + service.Name))
 	}
 	if len(hashes) == 0 {

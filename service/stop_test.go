@@ -38,21 +38,22 @@ func TestStopNonRunningService(t *testing.T) {
 }
 
 func TestStopDependency(t *testing.T) {
-	namespace := container.Namespace([]string{"TestStopDependency"})
-	name := "test"
-	dependency := Dependency{Image: "nginx"}
-
-	network, err := container.CreateNetwork([]string{namespace})
-	dependency.Start(&Service{}, dependencyDetails{
-		namespace:      namespace,
-		dependencyName: name,
-		serviceName:    "TestStopDependency",
-	}, network)
-	err = dependency.Stop(namespace, name)
+	service := &Service{
+		Name: "TestStartDependency",
+		Dependencies: map[string]*Dependency{
+			"test": &Dependency{
+				Image: "nginx",
+			},
+		},
+	}
+	networkID, err := container.CreateNetwork(service.namespace())
+	dep := service.DependenciesFromService()[0]
+	dep.Start(networkID)
+	err = dep.Stop()
 	assert.Nil(t, err)
-	assert.Equal(t, dependency.IsStopped(namespace, name), true)
-	assert.Equal(t, dependency.IsRunning(namespace, name), false)
-	container.DeleteNetwork([]string{namespace})
+	assert.Equal(t, dep.IsStopped(), true)
+	assert.Equal(t, dep.IsRunning(), false)
+	container.DeleteNetwork(service.namespace())
 }
 
 func TestNetworkDeleted(t *testing.T) {
@@ -67,6 +68,6 @@ func TestNetworkDeleted(t *testing.T) {
 	service.Start()
 	service.Stop()
 	time.Sleep(5 * time.Second)
-	_, err := container.FindNetwork([]string{service.namespace()})
+	_, err := container.FindNetwork(service.namespace())
 	assert.NotNil(t, err)
 }

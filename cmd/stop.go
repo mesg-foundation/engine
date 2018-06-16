@@ -30,17 +30,14 @@ func init() {
 
 func stopHandler(cmd *cobra.Command, args []string) {
 	var err error
-	cmdUtils.ShowSpinnerForFunc(cmdUtils.SpinnerOptions{Text: "Stopping MESG Core..."}, func() {
+	utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: "Stopping MESG Core..."}, func() {
 		err = stopServices()
 		if err != nil {
 			return
 		}
 		err = daemon.Stop()
 	})
-	if err != nil {
-		fmt.Println(aurora.Red(err))
-		return
-	}
+	utils.HandleError(err)
 	fmt.Println(aurora.Green("MESG Core stopped"))
 }
 
@@ -58,7 +55,7 @@ func stopServices() (err error) {
 	if err != nil {
 		return
 	}
-	hashes, err := service.List()
+	hashes, err := service.ListRunning()
 	if err != nil {
 		return
 	}

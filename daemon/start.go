@@ -19,10 +19,6 @@ func Start() (serviceID string, err error) {
 		return
 	}
 	serviceID, err = container.StartService(spec)
-	if err != nil {
-		return
-	}
-	err = container.WaitForStatus(Namespace(), container.RUNNING)
 	return
 }
 
