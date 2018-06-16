@@ -1,4 +1,4 @@
-package cmdService
+package service
 
 import (
 	"context"
@@ -26,11 +26,11 @@ var Start = &cobra.Command{
 
 func startHandler(cmd *cobra.Command, args []string) {
 	var err error
-	cmdUtils.ShowSpinnerForFunc(cmdUtils.SpinnerOptions{Text: "Starting service..."}, func() {
+	utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: "Starting service..."}, func() {
 		_, err = cli.StartService(context.Background(), &core.StartServiceRequest{
 			ServiceID: args[0],
 		})
 	})
-	cmdUtils.HandleError(err)
+	utils.HandleError(err)
 	fmt.Println(aurora.Green("Service is running"))
 }

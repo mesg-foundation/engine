@@ -1,4 +1,4 @@
-package cmdService
+package service
 
 import (
 	"context"
@@ -37,7 +37,7 @@ func deleteHandler(cmd *cobra.Command, args []string) {
 		}
 		fmt.Println("Deleting all services...")
 		services, err := services.All() // TODO: this should use the API
-		cmdUtils.HandleError(err)
+		utils.HandleError(err)
 		if len(services) == 0 {
 			fmt.Println("All services are already deleted")
 			return
@@ -51,12 +51,12 @@ func deleteHandler(cmd *cobra.Command, args []string) {
 	}
 	for _, arg := range args {
 		var err error
-		cmdUtils.ShowSpinnerForFunc(cmdUtils.SpinnerOptions{Text: "Deleting service " + arg + "..."}, func() {
+		utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: "Deleting service " + arg + "..."}, func() {
 			_, err = cli.DeleteService(context.Background(), &core.DeleteServiceRequest{
 				ServiceID: arg,
 			})
 		})
-		cmdUtils.HandleError(err)
+		utils.HandleError(err)
 		fmt.Println("Service", arg, "deleted")
 	}
 }

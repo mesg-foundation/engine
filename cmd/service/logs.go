@@ -1,13 +1,12 @@
-package cmdService
+package service
 
 import (
 	"fmt"
 	"os"
 
-	"github.com/mesg-foundation/core/cmd/utils"
-
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/logrusorgru/aurora"
+	"github.com/mesg-foundation/core/cmd/utils"
 	serviceDB "github.com/mesg-foundation/core/database/services"
 	"github.com/spf13/cobra"
 )
@@ -43,5 +42,5 @@ func logsHandler(cmd *cobra.Command, args []string) {
 		defer reader.Close()
 		go stdcopy.StdCopy(os.Stdout, os.Stderr, reader)
 	}
-	<-cmdUtils.WaitForCancel()
+	<-utils.WaitForCancel()
 }

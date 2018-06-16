@@ -13,12 +13,12 @@ var Account = &cobra.Command{
 
 // TODO this command is disabled for now waiting to have needs for account
 func init() {
-	// Account.AddCommand(cmdAccount.Create)
-	// Account.AddCommand(cmdAccount.List)
-	// Account.AddCommand(cmdAccount.Detail)
-	// Account.AddCommand(cmdAccount.Delete)
-	// Account.AddCommand(cmdAccount.Export)
-	// Account.AddCommand(cmdAccount.Import)
+	// Account.AddCommand(account.Create)
+	// Account.AddCommand(account.List)
+	// Account.AddCommand(account.Detail)
+	// Account.AddCommand(account.Delete)
+	// Account.AddCommand(account.Export)
+	// Account.AddCommand(account.Import)
 
 	// RootCmd.AddCommand(Account)
 }

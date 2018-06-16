@@ -12,5 +12,5 @@ func main() {
 	cliDoc := "./docs/cli"
 	os.Mkdir(cliDoc, os.ModePerm)
 	err := doc.GenMarkdownTree(cmd.RootCmd, cliDoc)
-	cmdUtils.HandleError(err)
+	utils.HandleError(err)
 }

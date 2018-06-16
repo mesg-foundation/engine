@@ -18,12 +18,12 @@ var Beer = &cobra.Command{
 }
 
 func beerHandler(cmd *cobra.Command, args []string) {
-	account := cmdUtils.AccountFromFlagOrAsk(cmd, "Select your account")
-	amount, err := cmdUtils.GetOrAskAmount(cmd, "Select the amount of MESG you want to kindly send")
+	account := utils.AccountFromFlagOrAsk(cmd, "Select your account")
+	amount, err := utils.GetOrAskAmount(cmd, "Select the amount of MESG you want to kindly send")
 	if err != nil {
 		panic(err)
 	}
-	if cmdUtils.Confirm(cmd, "Are you sure ?") {
+	if utils.Confirm(cmd, "Are you sure ?") {
 		fmt.Println(emoji.Sprint("Thanks you, we will have a nice :beer:"), account, amount)
 	}
 }
@@ -31,7 +31,7 @@ func beerHandler(cmd *cobra.Command, args []string) {
 // TODO this command is disabled for now waiting for the transfer feature to be implemented
 func init() {
 	// RootCmd.AddCommand(Beer)
-	// cmdUtils.Accountable(Beer)
-	// cmdUtils.Payable(Beer)
-	// cmdUtils.Confirmable(Beer)
+	// utils.Accountable(Beer)
+	// utils.Payable(Beer)
+	// utils.Confirmable(Beer)
 }

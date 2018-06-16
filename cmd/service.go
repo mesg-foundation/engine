@@ -13,19 +13,18 @@ var Service = &cobra.Command{
 }
 
 func init() {
-	Service.AddCommand(cmdService.Deploy)
-	Service.AddCommand(cmdService.Validate)
-	Service.AddCommand(cmdService.Test)
-	Service.AddCommand(cmdService.Start)
-	Service.AddCommand(cmdService.Stop)
-	// Service.AddCommand(cmdService.Pause)
-	// Service.AddCommand(cmdService.Resume)
-	Service.AddCommand(cmdService.Detail)
-	Service.AddCommand(cmdService.List)
-	Service.AddCommand(cmdService.Status)
-	Service.AddCommand(cmdService.Init)
-	Service.AddCommand(cmdService.Delete)
-	Service.AddCommand(cmdService.Logs)
+	Service.AddCommand(service.Deploy)
+	Service.AddCommand(service.Validate)
+	Service.AddCommand(service.Test)
+	Service.AddCommand(service.Start)
+	Service.AddCommand(service.Stop)
+	// Service.AddCommand(service.Pause)
+	// Service.AddCommand(service.Resume)
+	Service.AddCommand(service.Detail)
+	Service.AddCommand(service.List)
+	Service.AddCommand(service.Status)
+	Service.AddCommand(service.Init)
+	Service.AddCommand(service.Delete)
 
 	RootCmd.AddCommand(Service)
 }
