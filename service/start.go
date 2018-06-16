@@ -92,10 +92,6 @@ func (dependency *DependencyFromService) Start(networkID string) (containerServi
 		Ports:      dependency.extractPorts(),
 		NetworksID: []string{networkID, sharedNetworkID},
 	})
-	if err != nil {
-		return
-	}
-	err = container.WaitForContainerStatus(dependency.namespace(), container.RUNNING)
 	return
 }
 
