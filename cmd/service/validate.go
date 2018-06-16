@@ -1,11 +1,10 @@
-package cmdService
+package service
 
 import (
 	"fmt"
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/service"
-
 	"github.com/spf13/cobra"
 )
 
@@ -28,7 +27,6 @@ func validateHandler(cmd *cobra.Command, args []string) {
 		fmt.Println(aurora.Green("Service is valid"))
 		return
 	}
-
 	fmt.Println(aurora.Red("Service error").Bold())
 	fmt.Println(err)
 	for _, warning := range warnings {

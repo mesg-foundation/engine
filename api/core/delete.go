@@ -5,8 +5,16 @@ import (
 	"golang.org/x/net/context"
 )
 
-// DeleteService delete a service in the database
+// DeleteService delete a service in the database and eventually stop the docker of this service
 func (s *Server) DeleteService(ctx context.Context, request *DeleteServiceRequest) (reply *DeleteServiceReply, err error) {
+	service, err := services.Get(request.ServiceID)
+	if err != nil {
+		return
+	}
+	err = service.Stop()
+	if err != nil {
+		return
+	}
 	err = services.Delete(request.ServiceID)
 	if err != nil {
 		return
