@@ -1,10 +1,10 @@
 ## mesg-core service delete
 
-Delete a service
+Delete one or many services
 
 ### Synopsis
 
-Delete a service
+Delete one or many services
 
 ```
 mesg-core service delete [flags]
@@ -13,12 +13,14 @@ mesg-core service delete [flags]
 ### Examples
 
 ```
-mesg-core service delete
+mesg-core service delete SERVICE_ID
+mesg-core service delete SERVICE_ID_1 SERVICE_ID_2
 ```
 
 ### Options
 
 ```
+      --all    Delete all services
   -h, --help   help for delete
 ```
 
