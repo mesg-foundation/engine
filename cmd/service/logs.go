@@ -26,7 +26,7 @@ func init() {
 }
 
 func logsHandler(cmd *cobra.Command, args []string) {
-	reply, err := cli.Service(context.Background(), &core.ServiceRequest{
+	reply, err := cli.GetService(context.Background(), &core.GetServiceRequest{
 		ServiceID: args[0],
 	})
 	utils.HandleError(err)

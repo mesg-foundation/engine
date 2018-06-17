@@ -6,8 +6,8 @@ import (
 
 // Stop the MESG Core docker container
 func Stop() (err error) {
-	stopped, err := IsStopped()
-	if err != nil || stopped == true {
+	status, err := Status()
+	if err != nil || status == container.STOPPED {
 		return
 	}
 	err = container.StopService(Namespace())
