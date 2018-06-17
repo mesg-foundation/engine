@@ -97,7 +97,6 @@ func executeTask(serviceID string, task string, dataPath string) (execution *cor
 }
 
 func testHandler(cmd *cobra.Command, args []string) {
-	var err error
 	serviceID := cmd.Flag("serviceID").Value.String()
 	if serviceID == "" {
 		service := prepareService(defaultPath(args))
@@ -124,7 +123,8 @@ func testHandler(cmd *cobra.Command, args []string) {
 	if cmd.Flag("logs-all").Value.String() == "true" {
 		logs = "*"
 	}
-	go showLogs(serviceID, logs)
+	closeReaders := showLogs(serviceID, logs)
+	defer closeReaders()
 
 	time.Sleep(time.Second)
 	executeTask(serviceID, cmd.Flag("task").Value.String(), cmd.Flag("data").Value.String())
@@ -132,11 +132,10 @@ func testHandler(cmd *cobra.Command, args []string) {
 
 	if cmd.Flag("keep-alive").Value.String() != "true" {
 		utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: "Stopping service..."}, func() {
-			_, err = cli.StopService(context.Background(), &core.StopServiceRequest{
+			cli.StopService(context.Background(), &core.StopServiceRequest{
 				ServiceID: serviceID,
 			})
 		})
-		utils.HandleError(err)
 		fmt.Println(aurora.Green("Service stopped"))
 	}
 }
