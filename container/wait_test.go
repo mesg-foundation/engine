@@ -9,9 +9,9 @@ import (
 func TestWaitForStatusRunning(t *testing.T) {
 	namespace := []string{"TestWaitForStatusRunning"}
 	startTestService(namespace)
+	defer StopService(namespace)
 	err := waitForStatus(namespace, RUNNING)
 	assert.Nil(t, err)
-	StopService(namespace)
 }
 
 func TestWaitForStatusStopped(t *testing.T) {
@@ -29,8 +29,8 @@ func TestWaitForStatusTaskError(t *testing.T) {
 		Image:     "awgdaywudaywudwa",
 		Namespace: namespace,
 	})
+	defer StopService(namespace)
 	err := waitForStatus(namespace, RUNNING)
 	assert.NotNil(t, err)
 	assert.Equal(t, "No such image: awgdaywudaywudwa:latest", err.Error())
-	StopService(namespace)
 }

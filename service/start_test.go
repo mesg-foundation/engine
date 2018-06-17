@@ -39,10 +39,10 @@ func TestStartService(t *testing.T) {
 		},
 	}
 	dockerServices, err := service.Start()
+	defer service.Stop()
 	assert.Nil(t, err)
 	assert.Equal(t, len(service.GetDependencies()), len(dockerServices))
 	assert.Equal(t, service.IsRunning(), true)
-	service.Stop()
 }
 
 func TestStartWith2Dependencies(t *testing.T) {
@@ -58,6 +58,7 @@ func TestStartWith2Dependencies(t *testing.T) {
 		},
 	}
 	servicesID, err := service.Start()
+	defer service.Stop()
 	assert.Nil(t, err)
 	assert.Equal(t, 2, len(servicesID))
 	deps := service.DependenciesFromService()
@@ -69,7 +70,6 @@ func TestStartWith2Dependencies(t *testing.T) {
 		assert.Equal(t, "alpine:latest", container1.Config.Image)
 		assert.Equal(t, "nginx:latest", container2.Config.Image)
 	}
-	service.Stop()
 }
 
 func TestStartAgainService(t *testing.T) {
@@ -82,11 +82,11 @@ func TestStartAgainService(t *testing.T) {
 		},
 	}
 	service.Start()
+	defer service.Stop()
 	dockerServices, err := service.Start()
 	assert.Nil(t, err)
 	assert.Equal(t, len(dockerServices), 0) // 0 because already started so no new one to start
 	assert.Equal(t, service.IsRunning(), true)
-	service.Stop()
 }
 
 func TestPartiallyRunningService(t *testing.T) {
@@ -102,13 +102,13 @@ func TestPartiallyRunningService(t *testing.T) {
 		},
 	}
 	service.Start()
+	defer service.Stop()
 	service.DependenciesFromService()[0].Stop()
 	assert.Equal(t, service.IsPartiallyRunning(), true)
 	dockerServices, err := service.Start()
 	assert.Nil(t, err)
 	assert.Equal(t, len(dockerServices), len(service.GetDependencies()))
 	assert.Equal(t, service.IsRunning(), true)
-	service.Stop()
 }
 
 func TestStartDependency(t *testing.T) {
@@ -121,14 +121,14 @@ func TestStartDependency(t *testing.T) {
 		},
 	}
 	networkID, err := container.CreateNetwork(service.namespace())
+	defer container.DeleteNetwork(service.namespace())
 	dep := service.DependenciesFromService()[0]
 	serviceID, err := dep.Start(networkID)
+	defer dep.Stop()
 	assert.Nil(t, err)
 	assert.NotEqual(t, "", serviceID)
 	assert.Equal(t, dep.IsRunning(), true)
 	assert.Equal(t, dep.IsStopped(), false)
-	dep.Stop()
-	container.DeleteNetwork(service.namespace())
 }
 
 func TestNetworkCreated(t *testing.T) {
@@ -141,10 +141,10 @@ func TestNetworkCreated(t *testing.T) {
 		},
 	}
 	service.Start()
+	defer service.Stop()
 	network, err := container.FindNetwork(service.namespace())
 	assert.Nil(t, err)
 	assert.NotEqual(t, "", network.ID)
-	service.Stop()
 }
 
 // Test for https://github.com/mesg-foundation/core/issues/88
@@ -161,8 +161,8 @@ func TestStartStopStart(t *testing.T) {
 	service.Stop()
 	time.Sleep(10 * time.Second)
 	dockerServices, err := service.Start()
+	defer service.Stop()
 	assert.Nil(t, err)
 	assert.Equal(t, len(dockerServices), 1)
 	assert.Equal(t, service.IsRunning(), true)
-	service.Stop()
 }

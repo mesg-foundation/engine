@@ -11,10 +11,10 @@ func TestGet(t *testing.T) {
 	hash, _ := Save(&service.Service{
 		Name: "TestGet",
 	})
+	defer Delete(hash)
 	service, err := Get(hash)
 	assert.Nil(t, err)
 	assert.Equal(t, service.Name, "TestGet")
-	Delete(hash)
 }
 
 func TestGetMissing(t *testing.T) {
