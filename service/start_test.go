@@ -63,8 +63,12 @@ func TestStartWith2Dependencies(t *testing.T) {
 	deps := service.DependenciesFromService()
 	container1, _ := container.FindContainer(deps[0].namespace())
 	container2, _ := container.FindContainer(deps[1].namespace())
-	assert.Equal(t, "nginx:latest", container1.Config.Image)
-	assert.Equal(t, "alpine:latest", container2.Config.Image)
+	if container1.Config.Image == "nginx:latest" {
+		assert.Equal(t, "alpine:latest", container2.Config.Image)
+	} else {
+		assert.Equal(t, "alpine:latest", container1.Config.Image)
+		assert.Equal(t, "nginx:latest", container2.Config.Image)
+	}
 	service.Stop()
 }
 
