@@ -19,6 +19,7 @@
 - (#183) Add a `configuration` attribute in the `mesg.yml` file to accept docker configuration for your service
 - (#187) Stop all services when the MESG Core stops
 - (#190) Possibility to `test` or `deploy` a service from a git or GitHub url
+- (#233) Add logs in the `service test` command with service logs by default and all dependencies logs with the `--full-logs` flag
 
 #### Removed
 
