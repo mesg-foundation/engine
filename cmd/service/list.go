@@ -1,13 +1,14 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"sort"
 	"strings"
 
 	"github.com/logrusorgru/aurora"
+	"github.com/mesg-foundation/core/api/core"
 	"github.com/mesg-foundation/core/cmd/utils"
-	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/service"
 	"github.com/spf13/cobra"
 )
@@ -50,9 +51,9 @@ To have more details, see the [detail command](mesg-core_service_detail.md).`,
 }
 
 func listHandler(cmd *cobra.Command, args []string) {
-	services, err := services.All() // TODO: this should use the API
+	reply, err := cli.ListServices(context.Background(), &core.ListServicesRequest{})
 	utils.HandleError(err)
-	status, err := servicesWithStatus(services)
+	status, err := servicesWithStatus(reply.Services)
 	utils.HandleError(err)
 	sort.Sort(byStatus(status))
 	for _, serviceStatus := range status {
