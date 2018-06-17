@@ -23,12 +23,13 @@ func TestStopService(t *testing.T) {
 			},
 		},
 	})
-	service, _ := services.Get(deployment.ServiceID)
-	service.Start()
+	s, _ := services.Get(deployment.ServiceID)
+	s.Start()
 	reply, err := serverstop.StopService(context.Background(), &StopServiceRequest{
 		ServiceID: deployment.ServiceID,
 	})
-	assert.Equal(t, service.IsRunning(), false)
+	status, _ := s.Status()
+	assert.Equal(t, service.STOPPED, status)
 	assert.Nil(t, err)
 	assert.NotNil(t, reply)
 	services.Delete(deployment.ServiceID)

@@ -12,11 +12,11 @@ import (
 
 // startForTest starts a dummy MESG Core service
 func startForTest() {
-	running, err := IsRunning()
+	status, err := Status()
 	if err != nil {
 		panic(err)
 	}
-	if running == true {
+	if status == container.RUNNING {
 		return
 	}
 	sharedNetworkID, err := container.SharedNetworkID()

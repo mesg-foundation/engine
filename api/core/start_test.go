@@ -23,13 +23,14 @@ func TestStartService(t *testing.T) {
 			},
 		},
 	})
-	service, _ := services.Get(deployment.ServiceID)
+	s, _ := services.Get(deployment.ServiceID)
 	reply, err := serverstart.StartService(context.Background(), &StartServiceRequest{
 		ServiceID: deployment.ServiceID,
 	})
 	assert.Nil(t, err)
-	assert.True(t, service.IsRunning())
+	status, _ := s.Status()
+	assert.Equal(t, service.RUNNING, status)
 	assert.NotNil(t, reply)
-	service.Stop()
+	s.Stop()
 	services.Delete(deployment.ServiceID)
 }

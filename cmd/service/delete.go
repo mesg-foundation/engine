@@ -7,7 +7,6 @@ import (
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/api/core"
 	"github.com/mesg-foundation/core/cmd/utils"
-	"github.com/mesg-foundation/core/database/services"
 	"github.com/spf13/cobra"
 	survey "gopkg.in/AlecAivazis/survey.v1"
 )
@@ -36,13 +35,13 @@ func deleteHandler(cmd *cobra.Command, args []string) {
 			return
 		}
 		fmt.Println("Deleting all services...")
-		services, err := services.All() // TODO: this should use the API
+		reply, err := cli.ListServices(context.Background(), &core.ListServicesRequest{})
 		utils.HandleError(err)
-		if len(services) == 0 {
+		if len(reply.Services) == 0 {
 			fmt.Println("All services are already deleted")
 			return
 		}
-		for _, service := range services {
+		for _, service := range reply.Services {
 			args = append(args, service.Hash())
 		}
 	}
