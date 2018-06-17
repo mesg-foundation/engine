@@ -11,9 +11,9 @@ import (
 
 func TestDb(t *testing.T) {
 	db, err := open()
+	defer close()
 	assert.Nil(t, err)
 	assert.NotNil(t, db)
-	close()
 }
 
 // Test to stress the database with concurrency access
@@ -24,6 +24,7 @@ func TestConcurrency(t *testing.T) {
 		Name: "TestConcurrency",
 	}
 	hash, _ := Save(service)
+	defer Delete(hash)
 	for i := 0; i < 5; i++ {
 		wg.Add(1)
 		go func() {
@@ -34,5 +35,4 @@ func TestConcurrency(t *testing.T) {
 		}()
 	}
 	wg.Wait()
-	Delete(hash)
 }

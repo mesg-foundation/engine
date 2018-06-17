@@ -16,11 +16,11 @@ func TestStatusRunning(t *testing.T) {
 		},
 	}
 	dockerServices, err := service.Start()
+	defer service.Stop()
 	assert.Nil(t, err)
 	assert.Equal(t, len(dockerServices), len(service.GetDependencies()))
 	assert.Equal(t, service.IsRunning(), true)
 	assert.Equal(t, service.IsStopped(), false)
-	service.Stop()
 }
 
 func TestStatusStoped(t *testing.T) {
@@ -49,11 +49,11 @@ func TestList(t *testing.T) {
 	}
 	hash := service.Hash()
 	service.Start()
+	defer service.Stop()
 	list, err := ListRunning()
 	assert.Nil(t, err)
 	assert.Equal(t, len(list), 1)
 	assert.Equal(t, list[0], hash)
-	service.Stop()
 }
 
 func TestListMultipleDependencies(t *testing.T) {
@@ -70,9 +70,9 @@ func TestListMultipleDependencies(t *testing.T) {
 	}
 	hash := service.Hash()
 	service.Start()
+	defer service.Stop()
 	list, err := ListRunning()
 	assert.Nil(t, err)
 	assert.Equal(t, len(list), 1)
 	assert.Equal(t, list[0], hash)
-	service.Stop()
 }
