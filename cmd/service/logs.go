@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"io"
 	"os"
 
 	"github.com/docker/docker/pkg/stdcopy"
@@ -38,8 +39,10 @@ func showLogs(serviceID string, dependency string) (err error) {
 	readers, err := reply.Service.Logs(dependency)
 	utils.HandleError(err)
 	for _, reader := range readers {
-		defer reader.Close()
-		stdcopy.StdCopy(os.Stdout, os.Stderr, reader)
+		go func(r io.ReadCloser) {
+			defer r.Close()
+			stdcopy.StdCopy(os.Stdout, os.Stderr, r)
+		}(reader)
 	}
 	return
 }
