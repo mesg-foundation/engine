@@ -17,22 +17,24 @@ mesg-core service test [flags]
 ```
 mesg-core service test
 mesg-core service test ./SERVICE_FOLDER
-mesg-core service test --event EVENT_NAME
-mesg-core service test --task TASK_NAME --data ./PATH_TO_DATA_FILE.yml
-mesg-core service test --keep-alive
+mesg-core service test --event-filter EVENT_NAME
+mesg-core service test --task TASK_NAME --data ./PATH_TO_DATA_FILE.json
+mesg-core service test --task-filter TASK_NAME --output-filter OUTPUT_NAME
+mesg-core service test --serviceID SERVICE_ID --keep-alive
 ```
 
 ### Options
 
 ```
-  -d, --data string      Path to the file containing the data required to run the task
-  -e, --event string     Only log a specific event (default "*")
-  -h, --help             help for test
-      --keep-alive       Do not stop the service
-  -o, --output string    Filter output of a task
-  -r, --result string    Filter the result of a specific task
-  -s, --service string   Debug a deployed service
-  -t, --task string      Run a specific task
+  -d, --data string            Path to the file containing the data required to run the task
+  -e, --event-filter string    Only log the data of the given event (default "*")
+  -f, --full-logs              Display logs from service and its dependencies
+  -h, --help                   help for test
+      --keep-alive             Do not stop the service at the end of this command
+  -o, --output-filter string   Only log the data of the given output of a task result. If set, you also need to set the task in --task-filter
+  -s, --serviceID string       ID of a previously deployed service
+  -t, --task string            Run the given task
+  -r, --task-filter string     Only log the result of the given task
 ```
 
 ### SEE ALSO
