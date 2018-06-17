@@ -8,7 +8,8 @@ import (
 
 // Stop a service
 func (service *Service) Stop() (err error) {
-	if service.IsStopped() {
+	status, err := service.Status()
+	if err != nil || status == STOPPED {
 		return
 	}
 	err = service.StopDependencies()
@@ -44,7 +45,8 @@ func (service *Service) StopDependencies() (err error) {
 
 // Stop a dependency
 func (dependency *DependencyFromService) Stop() (err error) {
-	if !dependency.IsRunning() {
+	status, err := dependency.Status()
+	if err != nil || status == container.STOPPED {
 		return
 	}
 	err = container.StopService(dependency.namespace())

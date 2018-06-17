@@ -47,13 +47,8 @@ func TestServiceStatusNeverStarted(t *testing.T) {
 	namespace := []string{"TestServiceStatusNeverStarted"}
 	status, err := ServiceStatus(namespace)
 	assert.Nil(t, err)
-	assert.Equal(t, status, STOPPED)
-	running, err := IsServiceRunning(namespace)
-	assert.Nil(t, err)
-	assert.Equal(t, running, false)
-	stopped, err := IsServiceStopped(namespace)
-	assert.Nil(t, err)
-	assert.Equal(t, stopped, true)
+	assert.NotEqual(t, RUNNING, status)
+	assert.Equal(t, STOPPED, status)
 }
 
 func TestServiceStatusRunning(t *testing.T) {
@@ -63,12 +58,7 @@ func TestServiceStatusRunning(t *testing.T) {
 	status, err := ServiceStatus(namespace)
 	assert.Nil(t, err)
 	assert.Equal(t, status, RUNNING)
-	running, err := IsServiceRunning(namespace)
-	assert.Nil(t, err)
-	assert.Equal(t, running, true)
-	stopped, err := IsServiceStopped(namespace)
-	assert.Nil(t, err)
-	assert.Equal(t, stopped, false)
+	assert.NotEqual(t, status, STOPPED)
 }
 
 func TestServiceStatusStopped(t *testing.T) {
@@ -78,12 +68,7 @@ func TestServiceStatusStopped(t *testing.T) {
 	status, err := ServiceStatus(namespace)
 	assert.Nil(t, err)
 	assert.Equal(t, status, STOPPED)
-	running, err := IsServiceRunning(namespace)
-	assert.Nil(t, err)
-	assert.Equal(t, running, false)
-	stopped, err := IsServiceStopped(namespace)
-	assert.Nil(t, err)
-	assert.Equal(t, stopped, true)
+	assert.NotEqual(t, status, RUNNING)
 }
 
 func TestFindServiceNotExisting(t *testing.T) {
