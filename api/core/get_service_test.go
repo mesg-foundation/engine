@@ -10,17 +10,17 @@ import (
 	"github.com/stvp/assert"
 )
 
-var serverservice = new(Server)
+var servergetservice = new(Server)
 
-func TestService(t *testing.T) {
+func TestGetService(t *testing.T) {
 	hash, _ := services.Save(&service.Service{
-		Name: "TestService",
+		Name: "TestGetService",
 	})
 	defer services.Delete(hash)
-	reply, err := serverservice.GetService(context.Background(), &GetServiceRequest{
+	reply, err := servergetservice.GetService(context.Background(), &GetServiceRequest{
 		ServiceID: hash,
 	})
 	assert.Nil(t, err)
 	assert.NotNil(t, reply)
-	assert.Equal(t, reply.Service.Name, "TestService")
+	assert.Equal(t, reply.Service.Name, "TestGetService")
 }
