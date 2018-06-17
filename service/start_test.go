@@ -42,7 +42,8 @@ func TestStartService(t *testing.T) {
 	defer service.Stop()
 	assert.Nil(t, err)
 	assert.Equal(t, len(service.GetDependencies()), len(dockerServices))
-	assert.Equal(t, service.IsRunning(), true)
+	status, _ := service.Status()
+	assert.Equal(t, RUNNING, status)
 }
 
 func TestStartWith2Dependencies(t *testing.T) {
@@ -86,7 +87,8 @@ func TestStartAgainService(t *testing.T) {
 	dockerServices, err := service.Start()
 	assert.Nil(t, err)
 	assert.Equal(t, len(dockerServices), 0) // 0 because already started so no new one to start
-	assert.Equal(t, service.IsRunning(), true)
+	status, _ := service.Status()
+	assert.Equal(t, RUNNING, status)
 }
 
 func TestPartiallyRunningService(t *testing.T) {
@@ -104,11 +106,13 @@ func TestPartiallyRunningService(t *testing.T) {
 	service.Start()
 	defer service.Stop()
 	service.DependenciesFromService()[0].Stop()
-	assert.Equal(t, service.IsPartiallyRunning(), true)
+	status, _ := service.Status()
+	assert.Equal(t, PARTIAL, status)
 	dockerServices, err := service.Start()
 	assert.Nil(t, err)
 	assert.Equal(t, len(dockerServices), len(service.GetDependencies()))
-	assert.Equal(t, service.IsRunning(), true)
+	status, _ = service.Status()
+	assert.Equal(t, RUNNING, status)
 }
 
 func TestStartDependency(t *testing.T) {
@@ -127,8 +131,8 @@ func TestStartDependency(t *testing.T) {
 	defer dep.Stop()
 	assert.Nil(t, err)
 	assert.NotEqual(t, "", serviceID)
-	assert.Equal(t, dep.IsRunning(), true)
-	assert.Equal(t, dep.IsStopped(), false)
+	status, _ := dep.Status()
+	assert.Equal(t, container.RUNNING, status)
 }
 
 func TestNetworkCreated(t *testing.T) {
@@ -164,5 +168,6 @@ func TestStartStopStart(t *testing.T) {
 	defer service.Stop()
 	assert.Nil(t, err)
 	assert.Equal(t, len(dockerServices), 1)
-	assert.Equal(t, service.IsRunning(), true)
+	status, _ := service.Status()
+	assert.Equal(t, RUNNING, status)
 }
