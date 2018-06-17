@@ -10,11 +10,11 @@ import (
 func TestListTasks(t *testing.T) {
 	namespace := []string{"TestListTasks"}
 	startTestService(namespace)
+	defer StopService(namespace)
 	tasks, err := ListTasks(namespace)
 	assert.Nil(t, err)
 	assert.NotNil(t, tasks)
 	assert.Equal(t, 1, len(tasks))
-	StopService(namespace)
 }
 
 func TestTasksError(t *testing.T) {
@@ -23,6 +23,7 @@ func TestTasksError(t *testing.T) {
 		Image:     "fiifioewifewiewfifewijopwjeokpfeo",
 		Namespace: namespace,
 	})
+	defer StopService(namespace)
 	var errors []string
 	var err error
 	for {
@@ -36,5 +37,4 @@ func TestTasksError(t *testing.T) {
 	assert.NotNil(t, errors)
 	assert.Equal(t, 1, len(errors))
 	assert.Equal(t, "No such image: fiifioewifewiewfifewijopwjeokpfeo:latest", errors[0])
-	StopService(namespace)
 }

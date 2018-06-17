@@ -49,13 +49,13 @@ func TestStopDependency(t *testing.T) {
 		},
 	}
 	networkID, err := container.CreateNetwork(service.namespace())
+	defer container.DeleteNetwork(service.namespace())
 	dep := service.DependenciesFromService()[0]
 	dep.Start(networkID)
 	err = dep.Stop()
 	assert.Nil(t, err)
 	status, _ := dep.Status()
 	assert.Equal(t, container.STOPPED, status)
-	container.DeleteNetwork(service.namespace())
 }
 
 func TestNetworkDeleted(t *testing.T) {

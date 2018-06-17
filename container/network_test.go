@@ -8,17 +8,17 @@ import (
 
 func TestCreateNetwork(t *testing.T) {
 	networkID, err := CreateNetwork([]string{"TestCreateNetwork"})
+	defer DeleteNetwork([]string{"TestCreateNetwork"})
 	assert.Nil(t, err)
 	assert.NotEqual(t, "", networkID)
-	DeleteNetwork([]string{"TestCreateNetwork"})
 }
 
 func TestCreateAlreadyExistingNetwork(t *testing.T) {
 	CreateNetwork([]string{"TestCreateAlreadyExistingNetwork"})
 	networkID, err := CreateNetwork([]string{"TestCreateAlreadyExistingNetwork"})
+	defer DeleteNetwork([]string{"TestCreateAlreadyExistingNetwork"})
 	assert.Nil(t, err)
 	assert.NotEqual(t, "", networkID)
-	DeleteNetwork([]string{"TestCreateAlreadyExistingNetwork"})
 }
 
 func TestDeleteNetwork(t *testing.T) {
@@ -34,10 +34,10 @@ func TestDeleteNotExistingNetwork(t *testing.T) {
 
 func TestFindNetwork(t *testing.T) {
 	CreateNetwork([]string{"TestFindNetwork"})
+	defer DeleteNetwork([]string{"TestFindNetwork"})
 	network, err := FindNetwork([]string{"TestFindNetwork"})
 	assert.Nil(t, err)
 	assert.NotEqual(t, "", network.ID)
-	DeleteNetwork([]string{"TestFindNetwork"})
 }
 
 func TestFindNotExistingNetwork(t *testing.T) {
