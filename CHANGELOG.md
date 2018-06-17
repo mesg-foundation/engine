@@ -9,6 +9,7 @@
 - (#181) MESG Core and Service start and stop functions wait for the docker container to actually run or stop.
 - (#183) **BREAKING** Docker image is automatically injected in the `mesg.yml` file for your service. Now `dependencies` attribute is for extra dependencies so for most of service this is not necessary anymore.
 - (#212) **BREAKING** Communication from services to core is now done through a token provided by the core
+- (#) CLI only use the API
 
 #### Added
 - (#174) Add CHANGELOG.md file
