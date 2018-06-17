@@ -14,6 +14,7 @@ service Core {
   rpc DeployService (DeployServiceRequest) returns (DeployServiceReply) {}
   rpc DeleteService (DeleteServiceRequest) returns (DeleteServiceReply) {}
   rpc ListServices (ListServicesRequest) returns (ListServicesReply) {}
+  rpc Service (ServiceRequest) returns (ServiceReply) {}
 }
 
 message ListenEventRequest {
@@ -83,4 +84,12 @@ message ListServicesRequest {
 
 message ListServicesReply {
   repeated service.Service services = 1;
+}
+
+message ServiceRequest {
+  string serviceID = 1;
+}
+
+message ServiceReply {
+  service.Service service = 1;
 }
