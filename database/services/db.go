@@ -21,7 +21,7 @@ func open() (db *leveldb.DB, err error) {
 	if _instance == nil {
 		_instance, err = leveldb.OpenFile(storagePath, nil)
 		if err != nil {
-			panic(err)
+			panic(err) // TODO: this should just be returned?
 		}
 	}
 	instances++
