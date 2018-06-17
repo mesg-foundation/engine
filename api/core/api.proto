@@ -13,6 +13,7 @@ service Core {
   rpc StopService (StopServiceRequest) returns (StopServiceReply) {}
   rpc DeployService (DeployServiceRequest) returns (DeployServiceReply) {}
   rpc DeleteService (DeleteServiceRequest) returns (DeleteServiceReply) {}
+  rpc ListServices (ListServicesRequest) returns (ListServicesReply) {}
 }
 
 message ListenEventRequest {
@@ -75,4 +76,11 @@ message DeleteServiceRequest {
 }
 
 message DeleteServiceReply {
+}
+
+message ListServicesRequest {
+}
+
+message ListServicesReply {
+  repeated service.Service services = 1;
 }
