@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"io"
 	"os"
 
 	"github.com/docker/docker/pkg/stdcopy"
@@ -27,11 +26,12 @@ func init() {
 }
 
 func logsHandler(cmd *cobra.Command, args []string) {
-	go showLogs(args[0], cmd.Flag("dependency").Value.String())
+	closeReaders := showLogs(args[0], cmd.Flag("dependency").Value.String())
+	defer closeReaders()
 	<-utils.WaitForCancel()
 }
 
-func showLogs(serviceID string, dependency string) (err error) {
+func showLogs(serviceID string, dependency string) func() {
 	reply, err := cli.GetService(context.Background(), &core.GetServiceRequest{
 		ServiceID: serviceID,
 	})
@@ -39,10 +39,11 @@ func showLogs(serviceID string, dependency string) (err error) {
 	readers, err := reply.Service.Logs(dependency)
 	utils.HandleError(err)
 	for _, reader := range readers {
-		go func(r io.ReadCloser) {
-			defer r.Close()
-			stdcopy.StdCopy(os.Stdout, os.Stderr, r)
-		}(reader)
+		go stdcopy.StdCopy(os.Stdout, os.Stderr, reader)
 	}
-	return
+	return func() {
+		for _, reader := range readers {
+			reader.Close()
+		}
+	}
 }
