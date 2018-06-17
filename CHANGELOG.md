@@ -19,7 +19,7 @@
 - (#183) Add a `configuration` attribute in the `mesg.yml` file to accept docker configuration for your service
 - (#187) Stop all services when the MESG Core stops
 - (#190) Possibility to `test` or `deploy` a service from a git or GitHub url
-- (#235) Add `ListServices` and `Service` APIs
+- (#235) Add `ListServices` and `GetService` APIs
 
 #### Removed
 

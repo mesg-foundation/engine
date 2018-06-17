@@ -17,7 +17,7 @@ func TestService(t *testing.T) {
 		Name: "TestService",
 	})
 	defer services.Delete(hash)
-	reply, err := serverservice.Service(context.Background(), &ServiceRequest{
+	reply, err := serverservice.GetService(context.Background(), &GetServiceRequest{
 		ServiceID: hash,
 	})
 	assert.Nil(t, err)
