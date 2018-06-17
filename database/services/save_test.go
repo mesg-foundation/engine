@@ -13,16 +13,16 @@ func TestSaveReturningHash(t *testing.T) {
 	}
 	calculatedHash := service.Hash()
 	hash, err := Save(service)
+	defer Delete(hash)
 	assert.Nil(t, err)
 	assert.Equal(t, hash, calculatedHash)
-	Delete(hash)
 }
 
 func TestSaveAndPresentInDB(t *testing.T) {
 	hash, _ := Save(&service.Service{
 		Name: "TestSaveAndPresentInDB",
 	})
+	defer Delete(hash)
 	service, _ := Get(hash)
 	assert.Equal(t, service.Name, "TestSaveAndPresentInDB")
-	Delete(hash)
 }

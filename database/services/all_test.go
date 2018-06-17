@@ -9,6 +9,7 @@ import (
 
 func TestAll(t *testing.T) {
 	hash, _ := Save(&service.Service{Name: "Service1"})
+	defer Delete(hash)
 	services, err := All()
 	founded := false
 	for _, s := range services {
@@ -19,5 +20,4 @@ func TestAll(t *testing.T) {
 	}
 	assert.Nil(t, err)
 	assert.True(t, founded)
-	Delete(hash)
 }

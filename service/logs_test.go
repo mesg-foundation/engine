@@ -19,10 +19,10 @@ func TestLogs(t *testing.T) {
 		},
 	}
 	service.Start()
+	defer service.Stop()
 	readers, err := service.Logs("*")
 	assert.Nil(t, err)
 	assert.Equal(t, 2, len(readers))
-	defer service.Stop()
 }
 
 func TestLogsOnlyOneDependency(t *testing.T) {
@@ -38,8 +38,8 @@ func TestLogsOnlyOneDependency(t *testing.T) {
 		},
 	}
 	service.Start()
+	defer service.Stop()
 	readers, err := service.Logs("test2")
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(readers))
-	defer service.Stop()
 }
