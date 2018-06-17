@@ -10,8 +10,8 @@ type StatusType uint
 // status for services
 const (
 	STOPPED StatusType = 1
-	RUNNING StatusType = 2
-	PARTIAL StatusType = 3
+	PARTIAL StatusType = 2
+	RUNNING StatusType = 3
 )
 
 // Status returns the StatusType of all dependency of this service
