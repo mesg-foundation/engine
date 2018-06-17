@@ -9,6 +9,8 @@
 - (#181) MESG Core and Service start and stop functions wait for the docker container to actually run or stop.
 - (#183) **BREAKING** Docker image is automatically injected in the `mesg.yml` file for your service. Now `dependencies` attribute is for extra dependencies so for most of service this is not necessary anymore.
 - (#212) **BREAKING** Communication from services to core is now done through a token provided by the core
+- (#) CLI only use the API
+- (#234) `service list` command now includes the status for every services
 
 #### Added
 - (#174) Add CHANGELOG.md file
@@ -20,8 +22,10 @@
 - (#187) Stop all services when the MESG Core stops
 - (#190) Possibility to `test` or `deploy` a service from a git or GitHub url
 - (#233) Add logs in the `service test` command with service logs by default and all dependencies logs with the `--full-logs` flag
+- (#235) Add `ListServices` and `GetService` APIs
 
 #### Removed
+- (#234) Remove command `service status` in favor of `service list` command that includes status
 
 #### Fixed
 - (#179) [Doc] Outdated documentation for the CLI

@@ -4,12 +4,7 @@ import (
 	"github.com/mesg-foundation/core/container"
 )
 
-// IsRunning returns true if the MESG Core docker service is running
-func IsRunning() (running bool, err error) {
-	return container.IsServiceRunning(Namespace())
-}
-
-// IsStopped returns true if the MESG Core docker service is stopped
-func IsStopped() (stopped bool, err error) {
-	return container.IsServiceStopped(Namespace())
+// Status returns the Status of the docker service of the daemon
+func Status() (status container.StatusType, err error) {
+	return container.ServiceStatus(Namespace()) //TODO: should it be containerStatus?
 }

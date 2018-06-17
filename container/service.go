@@ -53,8 +53,8 @@ func StartService(options ServiceOptions) (serviceID string, err error) {
 
 // StopService stops a docker service
 func StopService(namespace []string) (err error) {
-	stopped, err := IsServiceStopped(namespace)
-	if err != nil || stopped == true {
+	status, err := ServiceStatus(namespace)
+	if err != nil || status == STOPPED {
 		return
 	}
 	client, err := Client()
@@ -78,20 +78,6 @@ func ServiceStatus(namespace []string) (status StatusType, err error) {
 		return
 	}
 	status = RUNNING
-	return
-}
-
-// IsServiceRunning returns true if the service is running, false otherwise
-func IsServiceRunning(namespace []string) (result bool, err error) {
-	status, err := ServiceStatus(namespace)
-	result = status == RUNNING
-	return
-}
-
-// IsServiceStopped returns true if the service is stopped, false otherwise
-func IsServiceStopped(namespace []string) (result bool, err error) {
-	status, err := ServiceStatus(namespace)
-	result = status == STOPPED
 	return
 }
 
