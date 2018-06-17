@@ -38,6 +38,7 @@ func init() {
 	Test.Flags().StringP("event-filter", "e", "*", "Only log the data of the given event")
 	Test.Flags().StringP("task-filter", "r", "", "Only log the result of the given task")
 	Test.Flags().StringP("output-filter", "o", "", "Only log the data of the given output of a task result. If set, you also need to set the task in --task-filter")
+	Test.Flags().BoolP("full-logs", "f", false, "Display logs from service and its dependencies")
 }
 
 func listenEvents(serviceID string, filter string) {
@@ -119,6 +120,11 @@ func testHandler(cmd *cobra.Command, args []string) {
 
 	go listenEvents(serviceID, cmd.Flag("event-filter").Value.String())
 	go listenResults(serviceID, cmd.Flag("task-filter").Value.String(), cmd.Flag("output-filter").Value.String())
+	logs := "service"
+	if cmd.Flag("full-logs").Value.String() == "true" {
+		logs = "*"
+	}
+	go showLogs(serviceID, logs)
 
 	time.Sleep(time.Second)
 	executeTask(serviceID, cmd.Flag("task").Value.String(), cmd.Flag("data").Value.String())

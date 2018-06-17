@@ -1,11 +1,9 @@
 package service
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/docker/docker/pkg/stdcopy"
-	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/cmd/utils"
 	serviceDB "github.com/mesg-foundation/core/database/services"
 	"github.com/spf13/cobra"
@@ -27,20 +25,18 @@ func init() {
 }
 
 func logsHandler(cmd *cobra.Command, args []string) {
-	serviceID := args[0]
+	go showLogs(args[0], cmd.Flag("dependency").Value.String())
+	<-utils.WaitForCancel()
+}
+
+func showLogs(serviceID string, dependency string) (err error) {
 	service, err := serviceDB.Get(serviceID)
-	if err != nil {
-		return
-	}
-	dependency := cmd.Flag("dependency").Value.String()
+	utils.HandleError(err)
 	readers, err := service.Logs(dependency)
-	if err != nil {
-		fmt.Println(aurora.Red(err))
-		return
-	}
+	utils.HandleError(err)
 	for _, reader := range readers {
 		defer reader.Close()
-		go stdcopy.StdCopy(os.Stdout, os.Stderr, reader)
+		stdcopy.StdCopy(os.Stdout, os.Stderr, reader)
 	}
-	<-utils.WaitForCancel()
+	return
 }
