@@ -26,15 +26,24 @@ func init() {
 }
 
 func logsHandler(cmd *cobra.Command, args []string) {
+	closeReaders := showLogs(args[0], cmd.Flag("dependency").Value.String())
+	defer closeReaders()
+	<-utils.WaitForCancel()
+}
+
+func showLogs(serviceID string, dependency string) func() {
 	reply, err := cli.GetService(context.Background(), &core.GetServiceRequest{
-		ServiceID: args[0],
+		ServiceID: serviceID,
 	})
 	utils.HandleError(err)
-	readers, err := reply.Service.Logs(cmd.Flag("dependency").Value.String())
+	readers, err := reply.Service.Logs(dependency)
 	utils.HandleError(err)
 	for _, reader := range readers {
-		defer reader.Close()
 		go stdcopy.StdCopy(os.Stdout, os.Stderr, reader)
 	}
-	<-utils.WaitForCancel()
+	return func() {
+		for _, reader := range readers {
+			reader.Close()
+		}
+	}
 }

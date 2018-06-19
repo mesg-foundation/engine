@@ -22,6 +22,7 @@ var Test = &cobra.Command{
 See more detail on the [Test page from the documentation](https://docs.mesg.tech/service/test.html)`,
 	Example: `mesg-core service test
 mesg-core service test ./SERVICE_FOLDER
+mesg-core service test --logs-all
 mesg-core service test --event-filter EVENT_NAME
 mesg-core service test --task TASK_NAME --data ./PATH_TO_DATA_FILE.json
 mesg-core service test --task-filter TASK_NAME --output-filter OUTPUT_NAME
@@ -38,6 +39,7 @@ func init() {
 	Test.Flags().StringP("event-filter", "e", "*", "Only log the data of the given event")
 	Test.Flags().StringP("task-filter", "r", "", "Only log the result of the given task")
 	Test.Flags().StringP("output-filter", "o", "", "Only log the data of the given output of a task result. If set, you also need to set the task in --task-filter")
+	Test.Flags().BoolP("logs-all", "a", false, "Display logs from service and its dependencies")
 }
 
 func listenEvents(serviceID string, filter string) {
@@ -96,7 +98,6 @@ func executeTask(serviceID string, task string, dataPath string) (execution *cor
 }
 
 func testHandler(cmd *cobra.Command, args []string) {
-	var err error
 	serviceID := cmd.Flag("serviceID").Value.String()
 	if serviceID == "" {
 		service := prepareService(defaultPath(args))
@@ -119,6 +120,12 @@ func testHandler(cmd *cobra.Command, args []string) {
 
 	go listenEvents(serviceID, cmd.Flag("event-filter").Value.String())
 	go listenResults(serviceID, cmd.Flag("task-filter").Value.String(), cmd.Flag("output-filter").Value.String())
+	logs := "service"
+	if cmd.Flag("logs-all").Value.String() == "true" {
+		logs = "*"
+	}
+	closeReaders := showLogs(serviceID, logs)
+	defer closeReaders()
 
 	time.Sleep(time.Second)
 	executeTask(serviceID, cmd.Flag("task").Value.String(), cmd.Flag("data").Value.String())
@@ -126,11 +133,10 @@ func testHandler(cmd *cobra.Command, args []string) {
 
 	if cmd.Flag("keep-alive").Value.String() != "true" {
 		utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: "Stopping service..."}, func() {
-			_, err = cli.StopService(context.Background(), &core.StopServiceRequest{
+			cli.StopService(context.Background(), &core.StopServiceRequest{
 				ServiceID: serviceID,
 			})
 		})
-		utils.HandleError(err)
 		fmt.Println(aurora.Green("Service stopped"))
 	}
 }

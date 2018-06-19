@@ -4,9 +4,9 @@ Deploy a service
 
 ### Synopsis
 
-Deploy a service on the Network.
+Deploy a service.
 
-To get more information, see the [deploy page from the documentation](https://docs.mesg.tech/service/publish-a-service)
+To get more information, see the [deploy page from the documentation](https://docs.mesg.com/service/deploy-a-service)
 
 ```
 mesg-core service deploy [flags]
@@ -15,7 +15,7 @@ mesg-core service deploy [flags]
 ### Examples
 
 ```
-mesg-core sevice deploy
+mesg-core service deploy PATH_TO_SERVICE
 ```
 
 ### Options
