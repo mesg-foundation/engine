@@ -22,6 +22,7 @@ var Test = &cobra.Command{
 See more detail on the [Test page from the documentation](https://docs.mesg.tech/service/test.html)`,
 	Example: `mesg-core service test
 mesg-core service test ./SERVICE_FOLDER
+mesg-core service test --logs-all
 mesg-core service test --event-filter EVENT_NAME
 mesg-core service test --task TASK_NAME --data ./PATH_TO_DATA_FILE.json
 mesg-core service test --task-filter TASK_NAME --output-filter OUTPUT_NAME
