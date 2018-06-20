@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [v1.0.0-beta]
 
 #### Changed
 - (#174) Update CI to build version based on tags
@@ -30,3 +30,5 @@
 #### Fixed
 - (#179) [Doc] Outdated documentation for the CLI
 - (#185) Fix logs with extra characters when `mesg-core logs`
+
+## [Unreleased]
