@@ -65,13 +65,17 @@ jobs:
     <<: *runOnMachine
     steps:
       - checkout
-      - run: scripts/release-cli.sh $CIRCLE_TAG -prerelease -b "Warning - this is a developer release, use it only if you know what are doing.\nYou have to set the env variable `CORE.IMAGE`\n```bash\nexport CORE.IMAGE=mesg/core:dev```"
+      - run: scripts/build-cli.sh dev
+      - run: go get -u github.com/tcnksm/ghr
+      - run: ghr -u mesg-foundation -r core -delete -prerelease -b "Warning - this is a developer release, use it only if you know what are doing.\nYou have to set the env variable \`CORE.IMAGE\`\n\`\`\`bash\nexport CORE.IMAGE=mesg/core:dev\`\`\`" release-dev ./bin
 
   "release_cli_prod":
     <<: *runOnMachine
     steps:
       - checkout
-      - run: scripts/release-cli.sh $CIRCLE_TAG
+      - run: scripts/build-cli.sh $CIRCLE_TAG
+      - run: go get -u github.com/tcnksm/ghr
+      - run: ghr -u mesg-foundation -r core -delete $CIRCLE_TAG ./bin
 
 workflows:
   version: 2
