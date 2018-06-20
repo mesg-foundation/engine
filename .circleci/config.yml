@@ -65,7 +65,7 @@ jobs:
     <<: *runOnMachine
     steps:
       - checkout
-      - run: scripts/release-cli.sh $CIRCLE_TAG -prerelease -b "Warning - this is a developer release, use it only if you know what are doing."
+      - run: "scripts/release-cli.sh $CIRCLE_TAG -prerelease -b \"Warning - this is a developer release, use it only if you know what are doing.\nYou have to set the env variable 'CORE.IMAGE': export CORE.IMAGE=mesg/core:dev\""
 
   "release_cli_prod":
     <<: *runOnMachine
