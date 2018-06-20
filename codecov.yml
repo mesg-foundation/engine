@@ -1,3 +1,4 @@
+comment: off
 ignore:
   - "**/*.pb.go"  # ignore all protobuff generated files
   - "**/*.md" # ignore all markdown files
