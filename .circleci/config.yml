@@ -65,25 +65,13 @@ jobs:
     <<: *runOnMachine
     steps:
       - checkout
-      - run: go get ./...
-      - run: go get github.com/karalabe/xgo
-      - run: mkdir bin
-      - run: cd bin; xgo --targets=darwin/386,darwin/amd64,linux/386,linux/amd64,windows/386,windows/amd64 -ldflags='-X main.version=dev' -out mesg-core ../cli
-      - run: sudo chmod +x ./bin/*
-      - run: go get -u github.com/tcnksm/ghr
-      - run: ghr -u mesg-foundation -r core -delete release-dev ./bin
+      - run: scripts/release-cli.sh $CIRCLE_TAG -prerelease -b "Warning - this is a developer release, use it only if you know what are doing."
 
   "release_cli_prod":
     <<: *runOnMachine
     steps:
       - checkout
-      - run: go get ./...
-      - run: go get github.com/karalabe/xgo
-      - run: mkdir bin
-      - run: cd bin; xgo --targets=darwin/386,darwin/amd64,linux/386,linux/amd64,windows/386,windows/amd64 -ldflags='-X main.version=$CIRCLE_TAG' -out mesg-core ../cli
-      - run: sudo chmod +x ./bin/*
-      - run: go get -u github.com/tcnksm/ghr
-      - run: ghr -u mesg-foundation -r core -delete $CIRCLE_TAG ./bin
+      - run: scripts/release-cli.sh $CIRCLE_TAG
 
 workflows:
   version: 2
