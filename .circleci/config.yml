@@ -1,16 +1,20 @@
 version: 2
 
-onlyTag: &onlyTag
+onlyTagProd: &onlyTagProd
   filters:
     tags:
       only: /^v.*/
     branches:
       ignore: /.*/
+onlyBranchDev: &onlyBranchDev
+  filters:
+    branches:
+      only:
+        - 237-circleci-dev-release
 transient: &transient
   filters:
     tags:
       only: /.*/
-
 runOnMachine: &runOnMachine
   machine:
     docker_layer_caching: true
@@ -38,16 +42,16 @@ jobs:
       - run: env CORE.IMAGE=mesg/core:$CIRCLE_SHA1 go test -timeout 180s -p 1 -coverprofile=coverage.txt ./...
       - run: bash <(curl -s https://codecov.io/bash)
 
-  "publish_docker_version":
+  "publish_docker_dev":
     <<: *runOnMachine
     steps:
       - checkout
-      - run: docker pull mesg/core:latest
-      - run: docker build -t mesg/core:$CIRCLE_TAG .
+      - run: docker pull mesg/core:dev
+      - run: docker build -t mesg/core:dev .
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
-      - run: docker push mesg/core:$CIRCLE_TAG
-  
-  "publish_docker_latest":
+      - run: docker push mesg/core:dev
+
+  "publish_docker_prod":
     <<: *runOnMachine
     steps:
       - checkout
@@ -57,7 +61,19 @@ jobs:
       - run: docker push mesg/core:$CIRCLE_TAG
       - run: docker push mesg/core:latest
 
-  "release_cli":
+  "release_cli_dev":
+    <<: *runOnMachine
+    steps:
+      - checkout
+      - run: go get ./...
+      - run: go get github.com/karalabe/xgo
+      - run: mkdir bin
+      - run: cd bin; xgo --targets=darwin/386,darwin/amd64,linux/386,linux/amd64,windows/386,windows/amd64 -ldflags='-X main.version=dev' -out mesg-core ../cli
+      - run: sudo chmod +x ./bin/*
+      - run: go get -u github.com/tcnksm/ghr
+      - run: ghr -u mesg-foundation -r core -delete release-dev ./bin
+
+  "release_cli_prod":
     <<: *runOnMachine
     steps:
       - checkout
@@ -79,15 +95,19 @@ workflows:
           <<: *transient
           requires:
             - "build_docker"
-      - "publish_docker_version":
-          <<: *onlyTag
+      - "publish_docker_dev":
+          <<: *onlyBranchDev
           requires:
             - "test"
-      - "publish_docker_latest":
-          <<: *onlyTag
+      - "release_cli_dev":
+          <<: *onlyBranchDev
+          requires:
+            - "publish_docker_dev"
+      - "publish_docker_prod":
+          <<: *onlyTagProd
           requires:
             - "test"
-      - "release_cli":
-          <<: *onlyTag
+      - "release_cli_prod":
+          <<: *onlyTagProd
           requires:
-            - "publish_docker_latest"
+            - "publish_docker_prod"
