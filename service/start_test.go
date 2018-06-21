@@ -50,10 +50,10 @@ func TestStartWith2Dependencies(t *testing.T) {
 	service := &Service{
 		Name: "TestStartWith2Dependencies",
 		Dependencies: map[string]*Dependency{
-			"test": &Dependency{
+			"testa": &Dependency{
 				Image: "nginx:latest",
 			},
-			"test2": &Dependency{
+			"testb": &Dependency{
 				Image: "alpine:latest",
 			},
 		},
@@ -65,12 +65,8 @@ func TestStartWith2Dependencies(t *testing.T) {
 	deps := service.DependenciesFromService()
 	container1, _ := container.FindContainer(deps[0].namespace())
 	container2, _ := container.FindContainer(deps[1].namespace())
-	if container1.Config.Image == "nginx:latest" {
-		assert.Equal(t, "alpine:latest", container2.Config.Image)
-	} else {
-		assert.Equal(t, "alpine:latest", container1.Config.Image)
-		assert.Equal(t, "nginx:latest", container2.Config.Image)
-	}
+	assert.Equal(t, "nginx:latest", container1.Config.Image)
+	assert.Equal(t, "alpine:latest", container2.Config.Image)
 }
 
 func TestStartAgainService(t *testing.T) {
@@ -95,10 +91,10 @@ func TestPartiallyRunningService(t *testing.T) {
 	service := &Service{
 		Name: "TestPartiallyRunningService",
 		Dependencies: map[string]*Dependency{
-			"test": &Dependency{
+			"testa": &Dependency{
 				Image: "nginx",
 			},
-			"test2": &Dependency{
+			"testb": &Dependency{
 				Image: "nginx",
 			},
 		},
