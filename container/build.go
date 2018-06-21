@@ -20,10 +20,7 @@ type BuildResponse struct {
 
 // Build a docker image
 func Build(path string) (tag string, err error) {
-	excludeFilesBytes, err := ioutil.ReadFile(filepath.Join(path, ".mesgignore"))
-	if err != nil {
-		return
-	}
+	excludeFilesBytes, _ := ioutil.ReadFile(filepath.Join(path, ".mesgignore"))
 	excludeFiles := strings.Fields(string(excludeFilesBytes))
 	buildContext, err := archive.TarWithOptions(path, &archive.TarOptions{
 		Compression:     archive.Gzip,
