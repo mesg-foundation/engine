@@ -1,5 +1,17 @@
 # Changelog
 
+## [Unreleased]
+
+#### Changed
+
+#### Added
+- (#246) Add .mesgignore to excluding file from the Docker build
+
+#### Removed
+
+#### Fixed
+- (#246) Ignore files during Docker build
+
 ## [v1.0.0-beta]
 
 #### Changed
@@ -9,7 +21,7 @@
 - (#181) MESG Core and Service start and stop functions wait for the docker container to actually run or stop.
 - (#183) **BREAKING** Docker image is automatically injected in the `mesg.yml` file for your service. Now `dependencies` attribute is for extra dependencies so for most of service this is not necessary anymore.
 - (#212) **BREAKING** Communication from services to core is now done through a token provided by the core
-- (#) CLI only use the API
+- (#236) CLI only use the API
 - (#234) `service list` command now includes the status for every services
 
 #### Added
@@ -31,6 +43,3 @@
 #### Fixed
 - (#179) [Doc] Outdated documentation for the CLI
 - (#185) Fix logs with extra characters when `mesg-core logs`
-- (#) Ignore files during Docker build
-
-## [Unreleased]
