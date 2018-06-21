@@ -35,7 +35,6 @@
 - (#190) Possibility to `test` or `deploy` a service from a git or GitHub url
 - (#233) Add logs in the `service test` command with service logs by default and all dependencies logs with the `--full-logs` flag
 - (#235) Add `ListServices` and `GetService` APIs
-- (#) Add .mesgignore to excluding file from the Docker build
 
 #### Removed
 - (#234) Remove command `service status` in favor of `service list` command that includes status
