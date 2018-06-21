@@ -10,7 +10,7 @@ onlyBranchDev: &onlyBranchDev
   filters:
     branches:
       only:
-        - 237-circleci-dev-release
+        - dev
 transient: &transient
   filters:
     tags:
