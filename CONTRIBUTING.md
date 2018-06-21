@@ -12,6 +12,8 @@ For Services and Applications contribution, we have an [curated list of Awesome 
 
 For contribution to MESG's Core, please contact us on [Discord](https://discordapp.com/invite/5tVTHJC) channel #core. We would love to include you in the development process.
 
+If you add a new feature or fix a bug then don't forget to update the CHANGELOG.md following this format https://keepachangelog.com/
+
 # Start the development
 
 You can find all resources in our [wiki](https://github.com/mesg-foundation/core/wiki). It will guide you from pulling the project, to building and testing it, and submit your work to the community.
