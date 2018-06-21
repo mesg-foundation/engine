@@ -35,6 +35,6 @@ func TestTasksError(t *testing.T) {
 	}
 	assert.Nil(t, err)
 	assert.NotNil(t, errors)
-	assert.Equal(t, 1, len(errors))
+	assert.True(t, len(errors) > 0)
 	assert.Equal(t, "No such image: fiifioewifewiewfifewijopwjeokpfeo:latest", errors[0])
 }
