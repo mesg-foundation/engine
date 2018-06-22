@@ -70,13 +70,13 @@ func initHandler(cmd *cobra.Command, args []string) {
 		return
 	}
 
+	folder := strings.Replace(strings.ToLower(res.Name), " ", "-", -1)
 	if cmd.Flag("current").Value.String() == "true" {
-		err = writeInCurrentFolder(mesgFile)
-	} else {
-		err = writeInFolder(strings.Replace(strings.ToLower(res.Name), " ", "-", -1), mesgFile)
+		folder = "./"
 	}
+	err = writeInFolder(folder, mesgFile)
 	utils.HandleError(err)
-	fmt.Printf("%s\n", aurora.Green("Service created with success").Bold())
+	fmt.Printf("%s\n", aurora.Green("Service created with success in folder '"+folder+"'").Bold())
 }
 
 func generateMesgFile(service *service.Service) (res []byte, err error) {
@@ -105,10 +105,6 @@ func buildService(cmd *cobra.Command) (res *service.Service) {
 	res.Name = ask("Name:", cmd.Flag("name").Value.String())
 	res.Description = ask("Description:", cmd.Flag("description").Value.String())
 	return
-}
-
-func writeInCurrentFolder(content []byte) (err error) {
-	return writeInFolder("./", content)
 }
 
 func writeInFolder(folder string, content []byte) (err error) {
