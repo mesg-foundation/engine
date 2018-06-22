@@ -100,6 +100,7 @@ func ask(label string, value string) string {
 }
 
 func buildService(cmd *cobra.Command) (res *service.Service) {
+	res = &service.Service{}
 	res.Name = ask("Name:", cmd.Flag("name").Value.String())
 	res.Description = ask("Description:", cmd.Flag("description").Value.String())
 	return
