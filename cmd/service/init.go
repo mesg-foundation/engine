@@ -90,11 +90,11 @@ func generateMesgFile(service *service.Service) (res []byte, err error) {
 	return
 }
 
-func ask(label string, value string) string {
+func ask(label string, value string, validator survey.Validator) string {
 	if value != "" {
 		return value
 	}
-	if survey.AskOne(&survey.Input{Message: label}, &value, nil) != nil {
+	if survey.AskOne(&survey.Input{Message: label}, &value, validator) != nil {
 		os.Exit(0)
 	}
 	return value
@@ -102,8 +102,8 @@ func ask(label string, value string) string {
 
 func buildService(cmd *cobra.Command) (res *service.Service) {
 	res = &service.Service{}
-	res.Name = ask("Name:", cmd.Flag("name").Value.String())
-	res.Description = ask("Description:", cmd.Flag("description").Value.String())
+	res.Name = ask("Name:", cmd.Flag("name").Value.String(), survey.Required)
+	res.Description = ask("Description:", cmd.Flag("description").Value.String(), nil)
 	return
 }
 
