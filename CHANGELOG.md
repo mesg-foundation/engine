@@ -3,9 +3,14 @@
 ## [Unreleased]
 
 #### Changed
+
 #### Added
+- (#246) Add .mesgignore to excluding file from the Docker build
+
 #### Removed
+
 #### Fixed
+- (#246) Ignore files during Docker build
 
 ## [v1.0.0-beta]
 
