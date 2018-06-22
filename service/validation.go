@@ -42,7 +42,7 @@ func validServiceData(data []byte) (warnings []gojsonschema.ResultError, err err
 
 	if !result.Valid() {
 		warnings = result.Errors()
-		err = errors.New("Service data are not valid")
+		err = errors.New("File 'mesg.yml' is not valid")
 	}
 	return
 }
