@@ -1,18 +1,42 @@
 package service
 
 import (
+	"bytes"
 	"fmt"
+	"html/template"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/logrusorgru/aurora"
+	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/mesg-foundation/core/service"
 	"github.com/spf13/cobra"
 	"gopkg.in/AlecAivazis/survey.v1"
-	"gopkg.in/yaml.v2"
 )
+
+const templateText = `name: "{{.Name}}"
+description: "{{.Description}}"
+tasks:
+  foo:
+    name: "Foo"
+    inputs:
+      inputA:
+        type: String
+      inputB:
+        type: Number
+    outputs:
+      outputX:
+        data:
+          resultX:
+            type: String
+events:
+  eventX:
+    data:
+      dataA:
+        type: String
+`
 
 // Init run the Init command for a service
 var Init = &cobra.Command{
@@ -32,15 +56,12 @@ func initHandler(cmd *cobra.Command, args []string) {
 
 	res := buildService(cmd)
 
-	out, err := yaml.Marshal(res)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println()
-	fmt.Printf("%s\n", aurora.Brown("Summary:").Bold())
-	fmt.Printf("%s\n", string(out))
+	mesgFile, err := generateMesgFile(res)
+	utils.HandleError(err)
 
 	ok := false
+	fmt.Println()
+	fmt.Println(string(mesgFile))
 	if survey.AskOne(&survey.Confirm{Message: "Is this correct?", Default: true}, &ok, nil) != nil {
 		os.Exit(0)
 	}
@@ -49,25 +70,23 @@ func initHandler(cmd *cobra.Command, args []string) {
 	}
 
 	if cmd.Flag("current").Value.String() == "true" {
-		err = writeInCurrentFolder(out)
+		err = writeInCurrentFolder(mesgFile)
 	} else {
-		err = writeInFolder(strings.Replace(strings.ToLower(res.Name), " ", "-", -1), out)
+		err = writeInFolder(strings.Replace(strings.ToLower(res.Name), " ", "-", -1), mesgFile)
 	}
-	if err != nil {
-		panic(err)
-	}
-
+	utils.HandleError(err)
 	fmt.Printf("%s\n", aurora.Green("Service created with success").Bold())
 }
 
-func askOpts(label string, value string, opts []string) string {
-	if value == "" && survey.AskOne(&survey.Select{
-		Message: label,
-		Options: opts,
-	}, &value, nil) != nil {
-		os.Exit(0)
+func generateMesgFile(service *service.Service) (res []byte, err error) {
+	var doc bytes.Buffer
+	tmpl, err := template.New("service-init").Parse(templateText)
+	if err != nil {
+		return
 	}
-	return value
+	err = tmpl.Execute(&doc, service)
+	res = doc.Bytes()
+	return
 }
 
 func ask(label string, value string) string {
@@ -80,23 +99,9 @@ func ask(label string, value string) string {
 	return value
 }
 
-func buildService(cmd *cobra.Command) (res service.Service) {
+func buildService(cmd *cobra.Command) (res *service.Service) {
 	res.Name = ask("Name:", cmd.Flag("name").Value.String())
-	res.Publish = string(service.PublishAll)
-	res.Visibility = string(service.VisibilityAll)
 	res.Description = ask("Description:", cmd.Flag("description").Value.String())
-	res.Visibility = askOpts("Visibility (ALL):", cmd.Flag("visibility").Value.String(), []string{
-		string(service.VisibilityAll),
-		string(service.VisibilityUsers),
-		string(service.VisibilityWorkers),
-		string(service.VisibilityNone),
-	})
-	res.Publish = askOpts("Publish (ALL):", cmd.Flag("publish").Value.String(), []string{
-		string(service.PublishAll),
-		string(service.PublishSource),
-		string(service.PublishContainer),
-		string(service.PublishNone),
-	})
 	return
 }
 
@@ -108,16 +113,16 @@ func writeInFolder(folder string, content []byte) (err error) {
 	if folder != "./" {
 		err = os.Mkdir(folder, os.ModePerm)
 		if err != nil {
-			panic(err)
+			return
 		}
 	}
 	err = ioutil.WriteFile(filepath.Join(folder, "mesg.yml"), content, os.ModePerm)
 	if err != nil {
-		panic(err)
+		return
 	}
 	err = ioutil.WriteFile(filepath.Join(folder, "Dockerfile"), []byte(""), os.ModePerm)
 	if err != nil {
-		panic(err)
+		return
 	}
 	return
 }
@@ -125,7 +130,5 @@ func writeInFolder(folder string, content []byte) (err error) {
 func init() {
 	Init.Flags().StringP("name", "n", "", "Name")
 	Init.Flags().StringP("description", "d", "", "Description")
-	Init.Flags().StringP("visibility", "v", "", "Visibility")
-	Init.Flags().StringP("publish", "p", "", "Publish")
 	Init.Flags().BoolP("current", "c", false, "Create the service in the current path")
 }
