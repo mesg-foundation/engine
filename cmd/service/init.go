@@ -57,7 +57,7 @@ func initHandler(cmd *cobra.Command, args []string) {
 
 	res := buildService(cmd)
 
-	mesgFile, err := generateMesgFile(res)
+	mesgFile, err := generateMesgFile(&res)
 	utils.HandleError(err)
 
 	ok := false
@@ -100,8 +100,7 @@ func ask(label string, value string, validator survey.Validator) string {
 	return value
 }
 
-func buildService(cmd *cobra.Command) (res *service.Service) {
-	res = &service.Service{}
+func buildService(cmd *cobra.Command) (res service.Service) {
 	res.Name = ask("Name:", cmd.Flag("name").Value.String(), survey.Required)
 	res.Description = ask("Description:", cmd.Flag("description").Value.String(), nil)
 	return
