@@ -1,18 +1,42 @@
 package service
 
 import (
+	"bytes"
 	"fmt"
+	"html/template"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/logrusorgru/aurora"
+	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/mesg-foundation/core/service"
 	"github.com/spf13/cobra"
 	"gopkg.in/AlecAivazis/survey.v1"
-	"gopkg.in/yaml.v2"
 )
+
+const templateText = `name: "{{.Name}}"
+description: "{{.Description}}"
+tasks:
+  foo:
+    name: "Foo"
+    inputs:
+      inputA:
+        type: String
+      inputB:
+        type: Number
+    outputs:
+      outputX:
+        data:
+          resultX:
+            type: String
+events:
+  eventX:
+    data:
+      dataA:
+        type: String
+`
 
 // Init run the Init command for a service
 var Init = &cobra.Command{
@@ -20,9 +44,10 @@ var Init = &cobra.Command{
 	Short: "Initialize a service",
 	Long: `Initialize a service by creating a mesg.yml and Dockerfile in a dedicated folder.
 	
-To get more information, see the page [service file from the documentation](https://docs.mesg.tech/service/service-file.html)`,
+To get more information, see the page [service file from the documentation](https://docs.mesg.com/service/service-file.html)`,
 	Example: `mesg-core service init
-mesg-core service init --name NAME --description DESCRIPTION --visibility ALL --publish ALL`,
+mesg-core service init --name NAME --description DESCRIPTION
+mesg-core service init --current`,
 	Run:               initHandler,
 	DisableAutoGenTag: true,
 }
@@ -32,15 +57,12 @@ func initHandler(cmd *cobra.Command, args []string) {
 
 	res := buildService(cmd)
 
-	out, err := yaml.Marshal(res)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println()
-	fmt.Printf("%s\n", aurora.Brown("Summary:").Bold())
-	fmt.Printf("%s\n", string(out))
+	mesgFile, err := generateMesgFile(&res)
+	utils.HandleError(err)
 
 	ok := false
+	fmt.Println()
+	fmt.Println(string(mesgFile))
 	if survey.AskOne(&survey.Confirm{Message: "Is this correct?", Default: true}, &ok, nil) != nil {
 		os.Exit(0)
 	}
@@ -48,76 +70,56 @@ func initHandler(cmd *cobra.Command, args []string) {
 		return
 	}
 
+	folder := strings.Replace(strings.ToLower(res.Name), " ", "-", -1)
 	if cmd.Flag("current").Value.String() == "true" {
-		err = writeInCurrentFolder(out)
-	} else {
-		err = writeInFolder(strings.Replace(strings.ToLower(res.Name), " ", "-", -1), out)
+		folder = "./"
 	}
+	err = writeInFolder(folder, mesgFile)
+	utils.HandleError(err)
+	fmt.Printf("%s\n", aurora.Green("Service created with success in folder '"+folder+"'").Bold())
+}
+
+func generateMesgFile(service *service.Service) (res []byte, err error) {
+	var doc bytes.Buffer
+	tmpl, err := template.New("service-init").Parse(templateText)
 	if err != nil {
-		panic(err)
+		return
 	}
-
-	fmt.Printf("%s\n", aurora.Green("Service created with success").Bold())
+	err = tmpl.Execute(&doc, service)
+	res = doc.Bytes()
+	return
 }
 
-func askOpts(label string, value string, opts []string) string {
-	if value == "" && survey.AskOne(&survey.Select{
-		Message: label,
-		Options: opts,
-	}, &value, nil) != nil {
-		os.Exit(0)
-	}
-	return value
-}
-
-func ask(label string, value string) string {
+func ask(label string, value string, validator survey.Validator) string {
 	if value != "" {
 		return value
 	}
-	if survey.AskOne(&survey.Input{Message: label}, &value, nil) != nil {
+	if survey.AskOne(&survey.Input{Message: label}, &value, validator) != nil {
 		os.Exit(0)
 	}
 	return value
 }
 
 func buildService(cmd *cobra.Command) (res service.Service) {
-	res.Name = ask("Name:", cmd.Flag("name").Value.String())
-	res.Publish = string(service.PublishAll)
-	res.Visibility = string(service.VisibilityAll)
-	res.Description = ask("Description:", cmd.Flag("description").Value.String())
-	res.Visibility = askOpts("Visibility (ALL):", cmd.Flag("visibility").Value.String(), []string{
-		string(service.VisibilityAll),
-		string(service.VisibilityUsers),
-		string(service.VisibilityWorkers),
-		string(service.VisibilityNone),
-	})
-	res.Publish = askOpts("Publish (ALL):", cmd.Flag("publish").Value.String(), []string{
-		string(service.PublishAll),
-		string(service.PublishSource),
-		string(service.PublishContainer),
-		string(service.PublishNone),
-	})
+	res.Name = ask("Name:", cmd.Flag("name").Value.String(), survey.Required)
+	res.Description = ask("Description:", cmd.Flag("description").Value.String(), nil)
 	return
-}
-
-func writeInCurrentFolder(content []byte) (err error) {
-	return writeInFolder("./", content)
 }
 
 func writeInFolder(folder string, content []byte) (err error) {
 	if folder != "./" {
 		err = os.Mkdir(folder, os.ModePerm)
 		if err != nil {
-			panic(err)
+			return
 		}
 	}
 	err = ioutil.WriteFile(filepath.Join(folder, "mesg.yml"), content, os.ModePerm)
 	if err != nil {
-		panic(err)
+		return
 	}
 	err = ioutil.WriteFile(filepath.Join(folder, "Dockerfile"), []byte(""), os.ModePerm)
 	if err != nil {
-		panic(err)
+		return
 	}
 	return
 }
@@ -125,7 +127,5 @@ func writeInFolder(folder string, content []byte) (err error) {
 func init() {
 	Init.Flags().StringP("name", "n", "", "Name")
 	Init.Flags().StringP("description", "d", "", "Description")
-	Init.Flags().StringP("visibility", "v", "", "Visibility")
-	Init.Flags().StringP("publish", "p", "", "Publish")
 	Init.Flags().BoolP("current", "c", false, "Create the service in the current path")
 }
