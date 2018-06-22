@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 #### Changed
+- (#247) Update the `service init` command to have initial tasks and events
 
 #### Added
 - (#246) Add .mesgignore to excluding file from the Docker build
