@@ -24,7 +24,6 @@ jobs:
   "build_docker":
     <<: *runOnMachine
     steps:
-      - echo $CIRCLE_SHA1
       - checkout
       - run: docker pull mesg/core:latest
       - run: docker build -t mesg/core:$CIRCLE_SHA1 .
@@ -66,7 +65,7 @@ jobs:
     <<: *runOnMachine
     steps:
       - checkout
-      - run: scripts/build-cli.sh dev
+      - run: scripts/build-cli.sh "dev build #`echo $CIRCLE_SHA1 | cut -c1-7`"
       - run: go get -u github.com/tcnksm/ghr
       - run: ghr -u mesg-foundation -r core -delete -prerelease -b "Warning - this is a developer release, use it only if you know what are doing. You have to set the env variable \`export CORE.IMAGE=mesg/core:dev\`" release-dev ./bin
 
