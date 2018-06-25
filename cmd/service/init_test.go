@@ -24,10 +24,11 @@ func TestTemplatesToOption(t *testing.T) {
 		&template{Name: "yyy", URL: "https://..."},
 	}
 	options := templatesToOption(templates)
-	assert.Equal(t, len(options), len(templates)+1)
+	assert.Equal(t, len(options), len(templates)+2)
 	assert.Equal(t, options[0], "xxx (https://...)")
 	assert.Equal(t, options[1], "yyy (https://...)")
-	assert.Equal(t, options[2], addMyOwn)
+	assert.Equal(t, options[2], custom)
+	assert.Equal(t, options[3], addMyOwn)
 }
 
 func TestGetTemplateResultAddMyOwn(t *testing.T) {
