@@ -24,6 +24,7 @@ jobs:
   "build_docker":
     <<: *runOnMachine
     steps:
+      - echo $CIRCLE_SHA1
       - checkout
       - run: docker pull mesg/core:latest
       - run: docker build -t mesg/core:$CIRCLE_SHA1 .
