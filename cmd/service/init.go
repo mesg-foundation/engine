@@ -18,6 +18,7 @@ import (
 
 const templatesURL = "https://raw.githubusercontent.com/mesg-foundation/awesome/master/templates.json"
 const addMyOwn = "Add my own"
+const custom = "Enter template URL"
 
 type template struct {
 	Name string
@@ -42,7 +43,7 @@ func init() {
 	Init.Flags().StringP("name", "n", "", "Name")
 	Init.Flags().StringP("description", "d", "", "Description")
 	Init.Flags().BoolP("current", "c", false, "Create the service in the current path")
-	Init.Flags().StringP("template", "t", "", "Specify a template to download for your application")
+	Init.Flags().StringP("template", "t", "", "Specify the template URL to use")
 }
 
 func initHandler(cmd *cobra.Command, args []string) {
@@ -97,7 +98,7 @@ func getTemplates(url string) (templates []*template, err error) {
 func selectTemplate(templates []*template) (tmpl *template, err error) {
 	var result string
 	if survey.AskOne(&survey.Select{
-		Message: "Select your template",
+		Message: "Select a template to use",
 		Options: templatesToOption(templates),
 	}, &result, nil) != nil {
 		os.Exit(0)
@@ -111,14 +112,25 @@ func templatesToOption(templates []*template) (options []string) {
 	for _, template := range templates {
 		options = append(options, template.Name+" ("+template.URL+")")
 	}
+	options = append(options, custom)
 	options = append(options, addMyOwn)
 	return
 }
 
 func getTemplateResult(result string, templates []*template) (tmpl *template) {
 	if result == addMyOwn {
-		fmt.Println(aurora.Green("Go to https://github.com/mesg-foundation/awesome/blob/master/templates.json"))
+		fmt.Println(aurora.Green("You can create and add your own template to this list. Go to the Awesome Github to see how: https://github.com/mesg-foundation/awesome"))
 		return
+	}
+	if result == custom {
+		var url string
+		if survey.AskOne(&survey.Input{Message: "Enter template URL"}, &url, nil) != nil {
+			os.Exit(0)
+		}
+		tmpl = &template{
+			URL:  url,
+			Name: url,
+		}
 	}
 	for _, template := range templates {
 		if template.Name+" ("+template.URL+")" == result {
@@ -134,7 +146,7 @@ func downloadTemplate(tmpl *template) (path string, err error) {
 	if err != nil {
 		return
 	}
-	err = gitClone(tmpl.URL, path, "Download template "+tmpl.Name+"...")
+	err = gitClone(tmpl.URL, path, "Downloading template "+tmpl.Name+"...")
 	return
 }
 
