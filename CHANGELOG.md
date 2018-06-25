@@ -4,7 +4,7 @@
 
 #### Changed
 - (#247) Update the `service init` command to have initial tasks and events
-- (#257) Update the `service init` command to fetch for template based on the https://github.com/mesg-foundation/awesome/blob/master/templates.json file
+- (#257) Update the `service init` command to fetch for template based on the https://github.com/mesg-foundation/awesome/blob/master/templates.json file but also custom templates by giving the address of the template
 
 #### Added
 - (#246) Add .mesgignore to excluding file from the Docker build
