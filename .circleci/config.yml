@@ -10,7 +10,7 @@ onlyBranchDev: &onlyBranchDev
   filters:
     branches:
       only:
-        - "origin/revert-254-251-add-date-to-version-of-the-release-dev-cli"
+        - "revert-254-251-add-date-to-version-of-the-release-dev-cli"
 transient: &transient
   filters:
     tags:
