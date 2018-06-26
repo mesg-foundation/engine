@@ -32,10 +32,10 @@ func prepareService(path string) (importedService *service.Service) {
 	path, didDownload, err := downloadServiceIfNeeded(path)
 	utils.HandleError(err)
 	if didDownload {
+		defer os.RemoveAll(path)
 		fmt.Println(aurora.Green("Service downloaded with success"))
 		fmt.Println("Temp folder: " + path)
 	}
-	defer removeTempFolder(path, didDownload)
 	importedService, err = service.ImportFromPath(path)
 	if err != nil {
 		fmt.Println("Run the command 'service validate' to get detailed errors")
@@ -57,14 +57,14 @@ func downloadServiceIfNeeded(path string) (newPath string, didDownload bool, err
 		if err != nil {
 			return
 		}
-		err = gitClone(path, newPath)
+		err = gitClone(path, newPath, "Downloading service...")
 		didDownload = true
 	}
 	return
 }
 
-func gitClone(url string, path string) (err error) {
-	utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: "Downloading service..."}, func() {
+func gitClone(url string, path string, message string) (err error) {
+	utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: message}, func() {
 		_, err = git.PlainClone(path, false, &git.CloneOptions{
 			URL: url,
 		})
@@ -74,13 +74,6 @@ func gitClone(url string, path string) (err error) {
 
 func createTempFolder() (path string, err error) {
 	path, err = ioutil.TempDir("", "mesg-")
-	return
-}
-
-func removeTempFolder(path string, didDownload bool) (err error) {
-	if didDownload {
-		err = os.RemoveAll(path)
-	}
 	return
 }
 

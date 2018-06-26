@@ -1,42 +1,29 @@
 package service
 
 import (
-	"bytes"
+	"encoding/json"
 	"fmt"
-	"html/template"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"gopkg.in/AlecAivazis/survey.v1"
+
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/cmd/utils"
-	"github.com/mesg-foundation/core/service"
 	"github.com/spf13/cobra"
-	"gopkg.in/AlecAivazis/survey.v1"
 )
 
-const templateText = `name: "{{.Name}}"
-description: "{{.Description}}"
-tasks:
-  foo:
-    name: "Foo"
-    inputs:
-      inputA:
-        type: String
-      inputB:
-        type: Number
-    outputs:
-      outputX:
-        data:
-          resultX:
-            type: String
-events:
-  eventX:
-    data:
-      dataA:
-        type: String
-`
+const templatesURL = "https://raw.githubusercontent.com/mesg-foundation/awesome/master/templates.json"
+const addMyOwn = "Add my own"
+const custom = "Enter template URL"
+
+type template struct {
+	Name string
+	URL  string
+}
 
 // Init run the Init command for a service
 var Init = &cobra.Command{
@@ -52,41 +39,114 @@ mesg-core service init --current`,
 	DisableAutoGenTag: true,
 }
 
+func init() {
+	Init.Flags().StringP("name", "n", "", "Name")
+	Init.Flags().StringP("description", "d", "", "Description")
+	Init.Flags().BoolP("current", "c", false, "Create the service in the current path")
+	Init.Flags().StringP("template", "t", "", "Specify the template URL to use")
+}
+
 func initHandler(cmd *cobra.Command, args []string) {
 	fmt.Printf("%s\n", aurora.Bold("Initialization of a new service"))
 
-	res := buildService(cmd)
-
-	mesgFile, err := generateMesgFile(&res)
+	tmpl := &template{
+		URL:  cmd.Flag("template").Value.String(),
+		Name: cmd.Flag("template").Value.String(),
+	}
+	if tmpl.URL == "" {
+		templates, err := getTemplates(templatesURL)
+		utils.HandleError(err)
+		tmpl, err = selectTemplate(templates)
+		utils.HandleError(err)
+		if tmpl == nil {
+			os.Exit(0)
+		}
+	}
+	path, err := downloadTemplate(tmpl)
 	utils.HandleError(err)
-
-	ok := false
-	fmt.Println()
-	fmt.Println(string(mesgFile))
-	if survey.AskOne(&survey.Confirm{Message: "Is this correct?", Default: true}, &ok, nil) != nil {
-		os.Exit(0)
-	}
-	if !ok {
-		return
-	}
-
-	folder := strings.Replace(strings.ToLower(res.Name), " ", "-", -1)
+	defer os.RemoveAll(path)
+	replacements := askReplacements(cmd)
+	folder := strings.Replace(strings.ToLower(replacements["name"]), " ", "-", -1)
 	if cmd.Flag("current").Value.String() == "true" {
 		folder = "./"
 	}
-	err = writeInFolder(folder, mesgFile)
+	err = copyDir(path+"/template", folder, replacements)
 	utils.HandleError(err)
-	fmt.Printf("%s\n", aurora.Green("Service created with success in folder '"+folder+"'").Bold())
+	fmt.Println(aurora.Green("Service created in folder: " + folder))
 }
 
-func generateMesgFile(service *service.Service) (res []byte, err error) {
-	var doc bytes.Buffer
-	tmpl, err := template.New("service-init").Parse(templateText)
+func getTemplates(url string) (templates []*template, err error) {
+	client := http.Client{}
+
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return
 	}
-	err = tmpl.Execute(&doc, service)
-	res = doc.Bytes()
+	res, err := client.Do(req)
+	if err != nil {
+		return
+	}
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return
+	}
+
+	err = json.Unmarshal(body, &templates)
+	return
+}
+
+func selectTemplate(templates []*template) (tmpl *template, err error) {
+	var result string
+	if survey.AskOne(&survey.Select{
+		Message: "Select a template to use",
+		Options: templatesToOption(templates),
+	}, &result, nil) != nil {
+		os.Exit(0)
+	}
+	tmpl = getTemplateResult(result, templates)
+	return
+}
+
+func templatesToOption(templates []*template) (options []string) {
+	options = []string{}
+	for _, template := range templates {
+		options = append(options, template.Name+" ("+template.URL+")")
+	}
+	options = append(options, custom)
+	options = append(options, addMyOwn)
+	return
+}
+
+func getTemplateResult(result string, templates []*template) (tmpl *template) {
+	if result == addMyOwn {
+		fmt.Println(aurora.Green("You can create and add your own template to this list. Go to the Awesome Github to see how: https://github.com/mesg-foundation/awesome"))
+		return
+	}
+	if result == custom {
+		var url string
+		if survey.AskOne(&survey.Input{Message: "Enter template URL"}, &url, nil) != nil {
+			os.Exit(0)
+		}
+		tmpl = &template{
+			URL:  url,
+			Name: url,
+		}
+	}
+	for _, template := range templates {
+		if template.Name+" ("+template.URL+")" == result {
+			tmpl = template
+			break
+		}
+	}
+	return
+}
+
+func downloadTemplate(tmpl *template) (path string, err error) {
+	path, err = createTempFolder()
+	if err != nil {
+		return
+	}
+	err = gitClone(tmpl.URL, path, "Downloading template "+tmpl.Name+"...")
 	return
 }
 
@@ -100,32 +160,79 @@ func ask(label string, value string, validator survey.Validator) string {
 	return value
 }
 
-func buildService(cmd *cobra.Command) (res service.Service) {
-	res.Name = ask("Name:", cmd.Flag("name").Value.String(), survey.Required)
-	res.Description = ask("Description:", cmd.Flag("description").Value.String(), nil)
+func askReplacements(cmd *cobra.Command) (replacement map[string]string) {
+	replacement = make(map[string]string)
+	replacement["name"] = ask("Name:", cmd.Flag("name").Value.String(), survey.Required)
+	replacement["description"] = ask("Description:", cmd.Flag("description").Value.String(), nil)
 	return
 }
 
-func writeInFolder(folder string, content []byte) (err error) {
-	if folder != "./" {
-		err = os.Mkdir(folder, os.ModePerm)
-		if err != nil {
-			return
+func copyDir(src string, dst string, replacement map[string]string) (err error) {
+	src = filepath.Clean(src)
+	dst = filepath.Clean(dst)
+	err = os.MkdirAll(dst, os.ModePerm)
+	if err != nil {
+		return
+	}
+
+	entries, err := ioutil.ReadDir(src)
+	if err != nil {
+		return
+	}
+
+	for _, entry := range entries {
+		srcPath := filepath.Join(src, entry.Name())
+		dstPath := filepath.Join(dst, entry.Name())
+
+		if entry.IsDir() {
+			err = copyDir(srcPath, dstPath, replacement)
+			if err != nil {
+				break
+			}
+		} else {
+			// Skip symlinks.
+			if entry.Mode()&os.ModeSymlink != 0 {
+				continue
+			}
+
+			err = copyFile(srcPath, dstPath, replacement)
+			if err != nil {
+				break
+			}
 		}
 	}
-	err = ioutil.WriteFile(filepath.Join(folder, "mesg.yml"), content, os.ModePerm)
+
+	return
+
+}
+
+func copyFile(src, dst string, replacement map[string]string) (err error) {
+	in, err := os.Open(src)
 	if err != nil {
 		return
 	}
-	err = ioutil.WriteFile(filepath.Join(folder, "Dockerfile"), []byte(""), os.ModePerm)
+	defer in.Close()
+
+	out, err := os.Create(dst)
 	if err != nil {
 		return
 	}
+	defer out.Close()
+
+	err = transform(dst, src, replacement)
 	return
 }
 
-func init() {
-	Init.Flags().StringP("name", "n", "", "Name")
-	Init.Flags().StringP("description", "d", "", "Description")
-	Init.Flags().BoolP("current", "c", false, "Create the service in the current path")
+func transform(dest string, source string, replacement map[string]string) (err error) {
+	body, err := ioutil.ReadFile(source)
+	if err != nil {
+		return
+	}
+	res := string(body)
+	for key, value := range replacement {
+		res = strings.Replace(res, "{{"+key+"}}", value, -1)
+	}
+	si, err := os.Stat(source)
+	ioutil.WriteFile(dest, []byte(res), si.Mode())
+	return
 }
