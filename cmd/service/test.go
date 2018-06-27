@@ -90,7 +90,7 @@ func executeTask(serviceID string, task string, dataPath string) (execution *cor
 	execution, err = cli.ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
 		ServiceID: serviceID,
 		TaskKey:   task,
-		TaskData:  string(data),
+		InputData: string(data),
 	})
 	utils.HandleError(err)
 	log.Println("Execute task", aurora.Green(task), "with data", aurora.Bold(string(data)))
