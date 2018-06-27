@@ -26,25 +26,25 @@ func (task *Task) processResult(wf *Workflow, data *core.ResultData) (err error)
 }
 
 func (task *Task) process(wf *Workflow, data interface{}) (err error) {
-	taskData, err := task.convertData(data)
+	inputData, err := task.convertData(data)
 	if err != nil {
 		return
 	}
 	_, err = wf.client.ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
 		ServiceID: task.ServiceID,
 		TaskKey:   task.Name,
-		TaskData:  taskData,
+		InputData:  inputData,
 	})
 	return
 }
 
 func (task *Task) convertData(data interface{}) (res string, err error) {
-	taskData := task.Inputs(data)
-	var taskDataJSON []byte
-	taskDataJSON, err = json.Marshal(taskData)
+	inputData := task.Inputs(data)
+	var inputDataJSON []byte
+	inputDataJSON, err = json.Marshal(inputData)
 	if err != nil {
 		return
 	}
-	res = string(taskDataJSON)
+	res = string(inputDataJSON)
 	return
 }
