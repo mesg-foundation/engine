@@ -33,7 +33,7 @@ func (task *Task) process(wf *Workflow, data interface{}) (err error) {
 	_, err = wf.client.ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
 		ServiceID: task.ServiceID,
 		TaskKey:   task.Name,
-		InputData:  inputData,
+		InputData: inputData,
 	})
 	return
 }

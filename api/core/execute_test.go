@@ -23,7 +23,7 @@ func TestExecute(t *testing.T) {
 	reply, err := serverexecute.ExecuteTask(context.Background(), &ExecuteTaskRequest{
 		ServiceID: deployment.ServiceID,
 		TaskKey:   "test",
-		InputData:  "{}",
+		InputData: "{}",
 	})
 
 	assert.Nil(t, err)
@@ -43,7 +43,7 @@ func TestExecuteWithInvalidJSON(t *testing.T) {
 	_, err := serverexecute.ExecuteTask(context.Background(), &ExecuteTaskRequest{
 		ServiceID: deployment.ServiceID,
 		TaskKey:   "test",
-		InputData:  "",
+		InputData: "",
 	})
 
 	assert.NotNil(t, err)
@@ -63,7 +63,7 @@ func TestExecuteWithInvalidTask(t *testing.T) {
 	_, err := serverexecute.ExecuteTask(context.Background(), &ExecuteTaskRequest{
 		ServiceID: deployment.ServiceID,
 		TaskKey:   "error",
-		InputData:  "{}",
+		InputData: "{}",
 	})
 
 	assert.NotNil(t, err)
