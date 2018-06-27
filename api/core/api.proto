@@ -25,7 +25,7 @@ message ListenEventRequest {
 message ExecuteTaskRequest {
   string serviceID = 1;
   string taskKey = 2;
-  string taskData = 3;
+  string inputData = 3;
 }
 
 message ListenResultRequest {
