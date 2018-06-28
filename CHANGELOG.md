@@ -1,5 +1,27 @@
 # Changelog
 
+## [Unreleased]
+
+#### Changed
+#### Added
+#### Removed
+#### Fixed
+
+## [v1.0.0-beta2]
+
+#### Changed
+- (#247) Update the `service init` command to have initial tasks and events
+- (#257) Update the `service init` command to fetch for template based on the https://github.com/mesg-foundation/awesome/blob/master/templates.json file but also custom templates by giving the address of the template
+- (#261) **BREAKING** More consistancy between the APIs, rename `taskData` into `inputData` for the `executeTask` API
+
+#### Added
+- (#246) Add .mesgignore to excluding file from the Docker build
+
+#### Removed
+
+#### Fixed
+- (#246) Ignore files during Docker build
+
 ## [v1.0.0-beta]
 
 #### Changed
@@ -9,7 +31,7 @@
 - (#181) MESG Core and Service start and stop functions wait for the docker container to actually run or stop.
 - (#183) **BREAKING** Docker image is automatically injected in the `mesg.yml` file for your service. Now `dependencies` attribute is for extra dependencies so for most of service this is not necessary anymore.
 - (#212) **BREAKING** Communication from services to core is now done through a token provided by the core
-- (#) CLI only use the API
+- (#236) CLI only use the API
 - (#234) `service list` command now includes the status for every services
 
 #### Added
@@ -30,5 +52,3 @@
 #### Fixed
 - (#179) [Doc] Outdated documentation for the CLI
 - (#185) Fix logs with extra characters when `mesg-core logs`
-
-## [Unreleased]

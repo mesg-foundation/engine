@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
+	"path/filepath"
 	"strings"
 
 	"github.com/docker/docker/api/types"
@@ -19,7 +20,12 @@ type BuildResponse struct {
 
 // Build a docker image
 func Build(path string) (tag string, err error) {
-	buildContext, err := archive.Tar(path, archive.Gzip)
+	excludeFilesBytes, _ := ioutil.ReadFile(filepath.Join(path, ".mesgignore"))
+	excludeFiles := strings.Fields(string(excludeFilesBytes))
+	buildContext, err := archive.TarWithOptions(path, &archive.TarOptions{
+		Compression:     archive.Gzip,
+		ExcludePatterns: excludeFiles,
+	})
 	if err != nil {
 		return
 	}

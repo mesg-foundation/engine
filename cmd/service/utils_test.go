@@ -1,6 +1,7 @@
 package service
 
 import (
+	"os"
 	"testing"
 
 	"github.com/mesg-foundation/core/service"
@@ -20,8 +21,8 @@ func TestBuildDockerImagePathDoNotExist(t *testing.T) {
 
 func TestGitCloneRepositoryDoNotExist(t *testing.T) {
 	path, _ := createTempFolder()
-	defer removeTempFolder(path, true)
-	err := gitClone("/doNotExist", path)
+	defer os.RemoveAll(path)
+	err := gitClone("/doNotExist", path, "testing...")
 	assert.NotNil(t, err)
 }
 
@@ -44,7 +45,7 @@ func TestDownloadServiceIfNeededRelativePath(t *testing.T) {
 func TestDownloadServiceIfNeededUrl(t *testing.T) {
 	path := "https://github.com/mesg-foundation/awesome.git"
 	newPath, didDownload, err := downloadServiceIfNeeded(path)
-	defer removeTempFolder(newPath, true)
+	defer os.RemoveAll(newPath)
 	assert.Nil(t, err)
 	assert.NotEqual(t, path, newPath)
 	assert.Equal(t, true, didDownload)
@@ -52,14 +53,14 @@ func TestDownloadServiceIfNeededUrl(t *testing.T) {
 
 func TestCreateTempFolder(t *testing.T) {
 	path, err := createTempFolder()
-	defer removeTempFolder(path, true)
+	defer os.RemoveAll(path)
 	assert.Nil(t, err)
 	assert.NotEqual(t, "", path)
 }
 
 func TestRemoveTempFolder(t *testing.T) {
 	path, _ := createTempFolder()
-	err := removeTempFolder(path, true)
+	err := os.RemoveAll(path)
 	assert.Nil(t, err)
 }
 
