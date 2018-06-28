@@ -22,7 +22,6 @@ Manage your services
 * [mesg-core service list](mesg-core_service_list.md)	 - List all published services
 * [mesg-core service logs](mesg-core_service_logs.md)	 - Show the logs of a service
 * [mesg-core service start](mesg-core_service_start.md)	 - Start a service
-* [mesg-core service status](mesg-core_service_status.md)	 - List started services
 * [mesg-core service stop](mesg-core_service_stop.md)	 - Stop a service
 * [mesg-core service test](mesg-core_service_test.md)	 - Test a service
 * [mesg-core service validate](mesg-core_service_validate.md)	 - Validate a service file
