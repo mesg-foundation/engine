@@ -30,7 +30,6 @@ func validateHandler(cmd *cobra.Command, args []string) {
 	fmt.Println(aurora.Red("Service error").Bold())
 	fmt.Println(err)
 	for _, warning := range warnings {
-		fmt.Println(aurora.Red("The service file contains errors:").Bold())
 		fmt.Println(warning)
 	}
 }
