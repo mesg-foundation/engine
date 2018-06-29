@@ -4,6 +4,9 @@
 
 #### Changed
 #### Added
+
+- (#267) Add Command `service gen-doc` that generate a `README.md` in the service based on the informations of the `mesg.yml`
+
 #### Removed
 #### Fixed
 
