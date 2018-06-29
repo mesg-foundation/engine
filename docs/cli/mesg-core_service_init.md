@@ -6,7 +6,7 @@ Initialize a service
 
 Initialize a service by creating a mesg.yml and Dockerfile in a dedicated folder.
 	
-To get more information, see the page [service file from the documentation](https://docs.mesg.tech/service/service-file.html)
+To get more information, see the page [service file from the documentation](https://docs.mesg.com/service/service-file.html)
 
 ```
 mesg-core service init [flags]
@@ -16,7 +16,8 @@ mesg-core service init [flags]
 
 ```
 mesg-core service init
-mesg-core service init --name NAME --description DESCRIPTION --visibility ALL --publish ALL
+mesg-core service init --name NAME --description DESCRIPTION
+mesg-core service init --current
 ```
 
 ### Options
@@ -26,8 +27,7 @@ mesg-core service init --name NAME --description DESCRIPTION --visibility ALL --
   -d, --description string   Description
   -h, --help                 help for init
   -n, --name string          Name
-  -p, --publish string       Publish
-  -v, --visibility string    Visibility
+  -t, --template string      Specify the template URL to use
 ```
 
 ### SEE ALSO
