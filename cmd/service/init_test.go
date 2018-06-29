@@ -19,9 +19,9 @@ func TestGetTemplateBadURL(t *testing.T) {
 }
 
 func TestTemplatesToOption(t *testing.T) {
-	templates := []*template{
-		&template{Name: "xxx", URL: "https://..."},
-		&template{Name: "yyy", URL: "https://..."},
+	templates := []*templateStruct{
+		&templateStruct{Name: "xxx", URL: "https://..."},
+		&templateStruct{Name: "yyy", URL: "https://..."},
 	}
 	options := templatesToOption(templates)
 	assert.Equal(t, len(options), len(templates)+2)
@@ -32,13 +32,13 @@ func TestTemplatesToOption(t *testing.T) {
 }
 
 func TestGetTemplateResultAddMyOwn(t *testing.T) {
-	assert.Nil(t, getTemplateResult(addMyOwn, []*template{}))
+	assert.Nil(t, getTemplateResult(addMyOwn, []*templateStruct{}))
 }
 
 func TestGetTemplateResultAdd(t *testing.T) {
-	templates := []*template{
-		&template{Name: "xxx", URL: "https://..."},
-		&template{Name: "yyy", URL: "https://..."},
+	templates := []*templateStruct{
+		&templateStruct{Name: "xxx", URL: "https://..."},
+		&templateStruct{Name: "yyy", URL: "https://..."},
 	}
 	result := "yyy (https://...)"
 	tmpl := getTemplateResult(result, templates)
@@ -47,7 +47,7 @@ func TestGetTemplateResultAdd(t *testing.T) {
 }
 
 func TestDownloadTemplate(t *testing.T) {
-	tmpl := &template{
+	tmpl := &templateStruct{
 		URL: "https://github.com/mesg-foundation/template-service-javascript",
 	}
 	path, err := downloadTemplate(tmpl)
