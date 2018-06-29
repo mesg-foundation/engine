@@ -11,36 +11,41 @@ mesg-core service deploy __REPLACE_BY_YOUR_REPOSITORY__
 {{range $key, $event := .Events}}
 ### {{$key}}
 
+Event key: **{{$key}}**
+
 {{$event.Description}}
 
-{{if $event.Data}}| name | type | description |
+{{if $event.Data}}| **key** | **type** | **description** |
 | --- | --- | --- |
-{{range $dataKey, $data := $event.Data}}| {{$dataKey}} | `{{$data.Type}}` | {{$data.Description}} |
+{{range $dataKey, $data := $event.Data}}| **{{$dataKey}}** | `{{$data.Type}}` | {{$data.Description}} |
 {{end}}{{end}}{{end}}{{end}}
 {{if .Tasks}}
 ## Tasks
 {{range $key, $task := .Tasks}}
 ### {{$key}}
 
-{{$task.Description}}
+Task key: **{{$key}}**
 
+{{$task.Description}}
 
 {{if $task.Inputs}}#### Inputs
 
-| name | type | description |
+| **key** | **type** | **description** |
 | --- | --- | --- |
-{{range $inputKey, $input := $task.Inputs}}| {{$inputKey}} | {{$input.Type}} | {{$input.Description}} |
+{{range $inputKey, $input := $task.Inputs}}| **{{$inputKey}}** | `{{$input.Type}}` | {{$input.Description}} |
 {{end}}{{end}}
 
 {{if $task.Outputs}}#### Outputs
 
 {{range $outputKey, $output := $task.Outputs}}##### {{$outputKey}}
 
+Output key: **{{$outputKey}}**
+
 {{$output.Description}}
 
-| name | type | description |
+| **key** | **type** | **description** |
 | --- | --- | --- |
-{{range $outputKey, $output := $output.Data}}| {{$outputKey}} | `{{$output.Type}}` | {{$output.Description}} |
+{{range $outputKey, $output := $output.Data}}| **{{$outputKey}}** | `{{$output.Type}}` | {{$output.Description}} |
 {{end}}
 {{end}}{{end}}
 
