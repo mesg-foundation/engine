@@ -2,9 +2,9 @@
 
 {{.Description}}
 
-```bash
-mesg-core service deploy __REPLACE_BY_YOUR_REPOSITORY__
-```
+{{if .Repository}}```bash
+mesg-core service deploy {{.Repository}}
+```{{end}}
 
 {{if .Events}}
 ## Events
