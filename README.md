@@ -162,7 +162,7 @@ For more info how to create your events, visit the [Emit an Event](https://docs.
 
 # Architecture
 
-\[\[ TODO: Add a nice graphic with the Application, the core and the services with their communication \]\]
+![MESG Architecture](https://i.imgur.com/qIyh3Jw.jpg)
 
 # Marketplace
 
