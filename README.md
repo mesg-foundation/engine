@@ -162,7 +162,7 @@ For more info how to create your events, visit the [Emit an Event](https://docs.
 
 # Architecture
 
-![MESG Architecture](https://i.imgur.com/qIyh3Jw.jpg)
+![MESG Architecture](https://mesg.com/_nuxt/img/schema1.68d2fc8.svg)
 
 # Marketplace
 
