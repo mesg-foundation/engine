@@ -162,7 +162,7 @@ For more info how to create your events, visit the [Emit an Event](https://docs.
 
 # Architecture
 
-![MESG Architecture](https://cdn.rawgit.com/mesg-foundation/core/dev/schema1.svg)
+[![MESG Architecture](https://cdn.rawgit.com/mesg-foundation/core/dev/schema1.svg)](https://docs.mesg.com)
 
 # Marketplace
 
