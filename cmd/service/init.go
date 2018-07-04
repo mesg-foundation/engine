@@ -20,7 +20,7 @@ const templatesURL = "https://raw.githubusercontent.com/mesg-foundation/awesome/
 const addMyOwn = "Add my own"
 const custom = "Enter template URL"
 
-type template struct {
+type templateStruct struct {
 	Name string
 	URL  string
 }
@@ -49,7 +49,7 @@ func init() {
 func initHandler(cmd *cobra.Command, args []string) {
 	fmt.Printf("%s\n", aurora.Bold("Initialization of a new service"))
 
-	tmpl := &template{
+	tmpl := &templateStruct{
 		URL:  cmd.Flag("template").Value.String(),
 		Name: cmd.Flag("template").Value.String(),
 	}
@@ -75,7 +75,7 @@ func initHandler(cmd *cobra.Command, args []string) {
 	fmt.Println(aurora.Green("Service created in folder: " + folder))
 }
 
-func getTemplates(url string) (templates []*template, err error) {
+func getTemplates(url string) (templates []*templateStruct, err error) {
 	client := http.Client{}
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
@@ -95,7 +95,7 @@ func getTemplates(url string) (templates []*template, err error) {
 	return
 }
 
-func selectTemplate(templates []*template) (tmpl *template, err error) {
+func selectTemplate(templates []*templateStruct) (tmpl *templateStruct, err error) {
 	var result string
 	if survey.AskOne(&survey.Select{
 		Message: "Select a template to use",
@@ -107,7 +107,7 @@ func selectTemplate(templates []*template) (tmpl *template, err error) {
 	return
 }
 
-func templatesToOption(templates []*template) (options []string) {
+func templatesToOption(templates []*templateStruct) (options []string) {
 	options = []string{}
 	for _, template := range templates {
 		options = append(options, template.Name+" ("+template.URL+")")
@@ -117,7 +117,7 @@ func templatesToOption(templates []*template) (options []string) {
 	return
 }
 
-func getTemplateResult(result string, templates []*template) (tmpl *template) {
+func getTemplateResult(result string, templates []*templateStruct) (tmpl *templateStruct) {
 	if result == addMyOwn {
 		fmt.Println(aurora.Green("You can create and add your own template to this list. Go to the Awesome Github to see how: https://github.com/mesg-foundation/awesome"))
 		return
@@ -127,7 +127,7 @@ func getTemplateResult(result string, templates []*template) (tmpl *template) {
 		if survey.AskOne(&survey.Input{Message: "Enter template URL"}, &url, nil) != nil {
 			os.Exit(0)
 		}
-		tmpl = &template{
+		tmpl = &templateStruct{
 			URL:  url,
 			Name: url,
 		}
@@ -141,7 +141,7 @@ func getTemplateResult(result string, templates []*template) (tmpl *template) {
 	return
 }
 
-func downloadTemplate(tmpl *template) (path string, err error) {
+func downloadTemplate(tmpl *templateStruct) (path string, err error) {
 	path, err = createTempFolder()
 	if err != nil {
 		return

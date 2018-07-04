@@ -14,6 +14,6 @@ For contribution to MESG's Core, please contact us on [Discord](https://discorda
 
 If you add a new feature or fix a bug then don't forget to update the CHANGELOG.md following this format https://keepachangelog.com/
 
-# Start the development
+# Start developing the Core
 
 You can find all resources in our [wiki](https://github.com/mesg-foundation/core/wiki). It will guide you from pulling the project, to building and testing it, and submit your work to the community.

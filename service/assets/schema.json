@@ -22,6 +22,9 @@
     "publish": {
       "$ref": "#/definitions/publish"
     },
+    "repository": {
+      "type": "string"
+    },
     "events": {
       "oneOf": [
         { "type": "null" },
