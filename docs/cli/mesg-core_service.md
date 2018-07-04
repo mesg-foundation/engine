@@ -18,6 +18,7 @@ Manage your services
 * [mesg-core service delete](mesg-core_service_delete.md)	 - Delete one or many services
 * [mesg-core service deploy](mesg-core_service_deploy.md)	 - Deploy a service
 * [mesg-core service detail](mesg-core_service_detail.md)	 - Show details of a published service
+* [mesg-core service gen-doc](mesg-core_service_gen-doc.md)	 - Generate the documentation for the service in a README.md file
 * [mesg-core service init](mesg-core_service_init.md)	 - Initialize a service
 * [mesg-core service list](mesg-core_service_list.md)	 - List all published services
 * [mesg-core service logs](mesg-core_service_logs.md)	 - Show the logs of a service
