@@ -1,49 +1,48 @@
 # {{.Name}}
 
 {{.Description}}
-
-{{if .Repository}}```bash
+{{if .Repository}}
+```bash
 mesg-core service deploy {{.Repository}}
-```{{end}}
-
-{{if .Events}}
-## Events
+```
+{{end}}
+{{if .Events}}# Events
 {{range $key, $event := .Events}}
-### {{$key}}
+## {{$key}}
 
-Event key: **{{$key}}**
+Event key: `{{$key}}`
 
 {{$event.Description}}
 
-{{if $event.Data}}| **key** | **type** | **description** |
+{{if $event.Data}}| **Key** | **Type** | **Description** |
 | --- | --- | --- |
 {{range $dataKey, $data := $event.Data}}| **{{$dataKey}}** | `{{$data.Type}}` | {{$data.Description}} |
 {{end}}{{end}}{{end}}{{end}}
 {{if .Tasks}}
-## Tasks
+# Tasks
 {{range $key, $task := .Tasks}}
-### {{$key}}
+## {{$key}}
 
-Task key: **{{$key}}**
+Task key: `{{$key}}`
 
 {{$task.Description}}
 
-{{if $task.Inputs}}#### Inputs
+{{if $task.Inputs}}### Inputs
 
-| **key** | **type** | **description** |
+| **Key** | **Type** | **Description** |
 | --- | --- | --- |
 {{range $inputKey, $input := $task.Inputs}}| **{{$inputKey}}** | `{{$input.Type}}` | {{$input.Description}} |
 {{end}}{{end}}
 
-{{if $task.Outputs}}#### Outputs
+{{if $task.Outputs}}### Outputs
 
 {{range $outputKey, $output := $task.Outputs}}##### {{$outputKey}}
 
-Output key: **{{$outputKey}}**
+Output key: `{{$outputKey}}`
 
 {{$output.Description}}
 
-| **key** | **type** | **description** |
+| **Key** | **Type** | **Description** |
 | --- | --- | --- |
 {{range $outputKey, $output := $output.Data}}| **{{$outputKey}}** | `{{$output.Type}}` | {{$output.Description}} |
 {{end}}
