@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/mesg-foundation/core/service/assets"
 	"github.com/xeipuuv/gojsonschema"
 	yaml "gopkg.in/yaml.v2"
 )
@@ -29,7 +30,7 @@ func validServiceData(data []byte) (warnings []gojsonschema.ResultError, err err
 		return
 	}
 	body = convert(body)
-	schemaData, err := Asset("service/schema.json")
+	schemaData, err := assets.Asset("service/assets/schema.json")
 	if err != nil {
 		return
 	}
