@@ -40,7 +40,7 @@ func genDocHandler(cmd *cobra.Command, args []string) {
 	service, err := s.ImportFromPath(path)
 	utils.HandleError(err)
 
-	f, err := os.OpenFile(readmePath, os.O_WRONLY, os.ModePerm)
+	f, err := os.OpenFile(readmePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, os.ModePerm)
 	defer f.Close()
 
 	readmeTemplate, err := assets.Asset("cmd/service/assets/readmeTemplate.md")
