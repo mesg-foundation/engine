@@ -4,11 +4,24 @@
 
 #### Changed
 #### Added
-
-- (#267) Add Command `service gen-doc` that generate a `README.md` in the service based on the informations of the `mesg.yml`
-
 #### Removed
 #### Fixed
+
+## [v1.0.0]
+
+#### Changed
+- (#247) Update the `service init` command to have initial tasks and events
+- (#257) Update the `service init` command to fetch for template based on the https://github.com/mesg-foundation/awesome/blob/master/templates.json file but also custom templates by giving the address of the template
+- (#261) **BREAKING** More consistancy between the APIs, rename `taskData` into `inputData` for the `executeTask` API
+
+#### Added
+- (#267) Add Command `service gen-doc` that generate a `README.md` in the service based on the informations of the `mesg.yml`
+- (#246) Add .mesgignore to excluding file from the Docker build
+
+#### Removed
+
+#### Fixed
+- (#246) Ignore files during Docker build
 
 ## [v1.0.0-beta2]
 
