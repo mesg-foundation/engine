@@ -173,16 +173,16 @@ Alternatively, you can also check out the [https://mesg.com/marketplace](Marketp
 # Roadmap
 
 #### June 2018 - Core V1.0 Launched
-Create your services and connect them together with your application through a single connection to Core, allowing Core to handle all communications and interoperability with any technology. Services and applications can be shared with others in our Marketplace.
+Create your services and connect them together with your application through a single connection to Core, allowing Core to handle all communications and interoperability with any technology.
 
 #### Q3 2018 - Rapid Deployment
 No need to code your application anymore, just send a list of events with corresponding tasks within a simple configuration file to Core which will then execute tasks on your application’s behalf.
 
 #### Q4 2018 - Beta Network
-The decentralized beta Network means no need to run your applications and their services on your own computer, just deploy them on the Network. 
+The beta decentralized Network means no coding or servers are necessary to run your applications. Connect thousands of services or applications from our shared repository. 
 
 #### Q3 2019 - Main Network
-MESG launches its own blockchain Network providing for full scalability and a cheaper and faster user experience.
+MESG launches its own blockchain Network providing for full scalability and a cheaper and faster user experience. The main network will host the full functionality of the value-driven open market for the sharing of services.
 
 # Community
 
