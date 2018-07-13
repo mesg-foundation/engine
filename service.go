@@ -1,5 +1,5 @@
 // Package mesg is a service and application client for mesg-core.
-// For more information please visit [mesg.com](https://mesg.com).
+// For more information please visit https://mesg.com.
 package mesg
 
 import (
@@ -34,7 +34,7 @@ type Service struct {
 	// this needed because we can't mock grpc.ClientConn since it isn't an interface.
 	// we're also not able to create our own interface for grpc.ClientConn because it has
 	// methods that accepts paramaters from it's `internal` package. We're not able to access
-	// from pacakges named as internal from outside of their root directory.
+	// packages named as internal from outside of their root directory.
 	testing bool
 
 	callTimeout time.Duration

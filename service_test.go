@@ -88,6 +88,60 @@ func TestListenTasksAndReply(t *testing.T) {
 	wg.Wait()
 }
 
+func TestListenMultipleTasks(t *testing.T) {
+	taskKey := "task"
+	taskKey1 := "task2"
+	executionID := "executionID"
+	inputData := requestData{Message: "inputData"}
+	inputDataBytes, err := json.Marshal(inputData)
+	assert.Nil(t, err)
+	inputDataStr := string(inputDataBytes)
+
+	srv, err := NewService(
+		ServiceTokenOption(token),
+		ServiceEndpointOption(endpoint),
+	)
+	assert.Nil(t, err)
+	assert.NotNil(t, srv)
+
+	taskC := make(chan *service.TaskData, 0)
+	srv.serviceClient = &testClient{
+		stream: &taskDataStream{taskC: taskC},
+	}
+
+	var wg sync.WaitGroup
+	wg.Add(3)
+
+	go func() {
+		err = srv.ListenTasks(
+			NewTask(taskKey, func(req *Request) {
+				assert.NotNil(t, req)
+				wg.Done()
+			}),
+			NewTask(taskKey1, func(req *Request) {
+				assert.NotNil(t, req)
+				wg.Done()
+			}),
+		)
+		assert.Equal(t, errClosedConn, err)
+		wg.Done()
+	}()
+
+	taskC <- &service.TaskData{
+		ExecutionID: executionID,
+		TaskKey:     taskKey,
+		InputData:   inputDataStr,
+	}
+	taskC <- &service.TaskData{
+		ExecutionID: executionID,
+		TaskKey:     taskKey1,
+		InputData:   inputDataStr,
+	}
+	close(taskC)
+
+	wg.Wait()
+}
+
 type eventData struct {
 	Message string `json:"message"`
 }
