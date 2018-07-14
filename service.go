@@ -27,8 +27,9 @@ type Service struct {
 	endpoint string
 	token    string
 
-	serviceClient service.ServiceClient
-	conn          *grpc.ClientConn
+	// Client is the gRPC service client of MESG.
+	Client service.ServiceClient
+	conn   *grpc.ClientConn
 
 	// testing is used to know if we're in the `go test` mode to disable grpc conn operations.
 	// this needed because we can't mock grpc.ClientConn since it isn't an interface.
@@ -113,7 +114,7 @@ func (s *Service) setupServiceClient() error {
 	if err != nil {
 		return err
 	}
-	s.serviceClient = service.NewServiceClient(s.conn)
+	s.Client = service.NewServiceClient(s.conn)
 	return nil
 }
 
@@ -138,7 +139,7 @@ func (s *Service) ListenTasks(task Task, tasks ...Task) error {
 func (s *Service) validateTasks() error { return nil }
 
 func (s *Service) listenTasks() error {
-	stream, err := s.serviceClient.ListenTask(context.Background(), &service.ListenTaskRequest{
+	stream, err := s.Client.ListenTask(context.Background(), &service.ListenTaskRequest{
 		Token: s.token,
 	})
 	if err != nil {
@@ -177,7 +178,7 @@ func (s *Service) EmitEvent(name string, data interface{}) error {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), s.callTimeout)
 	defer cancel()
-	_, err = s.serviceClient.EmitEvent(ctx, &service.EmitEventRequest{
+	_, err = s.Client.EmitEvent(ctx, &service.EmitEventRequest{
 		Token:     s.token,
 		EventKey:  name,
 		EventData: string(dataBytes),

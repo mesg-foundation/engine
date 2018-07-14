@@ -41,7 +41,7 @@ func (t *Request) Reply(key string, data interface{}) error {
 	if err != nil {
 		return err
 	}
-	_, err = t.service.serviceClient.SubmitResult(context.Background(), &service.SubmitResultRequest{
+	_, err = t.service.Client.SubmitResult(context.Background(), &service.SubmitResultRequest{
 		ExecutionID: t.executionID,
 		OutputKey:   key,
 		OutputData:  string(dataBytes),
