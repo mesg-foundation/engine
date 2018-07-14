@@ -47,7 +47,7 @@ func TestListenTasksAndReply(t *testing.T) {
 
 	taskC := make(chan *service.TaskData, 0)
 	submitC := make(chan *service.SubmitResultRequest, 0)
-	srv.serviceClient = &testClient{
+	srv.Client = &testClient{
 		stream:  &taskDataStream{taskC: taskC},
 		submitC: submitC,
 	}
@@ -105,7 +105,7 @@ func TestListenMultipleTasks(t *testing.T) {
 	assert.NotNil(t, srv)
 
 	taskC := make(chan *service.TaskData, 0)
-	srv.serviceClient = &testClient{
+	srv.Client = &testClient{
 		stream: &taskDataStream{taskC: taskC},
 	}
 
@@ -161,7 +161,7 @@ func TestEmitEvent(t *testing.T) {
 	assert.NotNil(t, srv)
 
 	emitC := make(chan *service.EmitEventRequest, 0)
-	srv.serviceClient = &testClient{
+	srv.Client = &testClient{
 		emitC: emitC,
 	}
 
