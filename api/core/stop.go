@@ -1,8 +1,8 @@
 package core
 
 import (
-	"github.com/mesg-foundation/core/database/services"
 	"context"
+	"github.com/mesg-foundation/core/database/services"
 )
 
 // StopService fetch a service in db and stop it

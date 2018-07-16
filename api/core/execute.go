@@ -5,8 +5,8 @@ import (
 
 	"github.com/mesg-foundation/core/database/services"
 
-	"github.com/mesg-foundation/core/execution"
 	"context"
+	"github.com/mesg-foundation/core/execution"
 )
 
 // ExecuteTask will execute a task for a given service

@@ -1,8 +1,8 @@
 package core
 
 import (
-	"github.com/mesg-foundation/core/database/services"
 	"context"
+	"github.com/mesg-foundation/core/database/services"
 )
 
 // DeployService save a service in the database and return the hash of this service

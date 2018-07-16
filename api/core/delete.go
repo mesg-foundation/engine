@@ -1,8 +1,9 @@
 package core
 
 import (
-	"github.com/mesg-foundation/core/database/services"
 	"context"
+
+	"github.com/mesg-foundation/core/database/services"
 )
 
 // DeleteService delete a service in the database and eventually stop the docker of this service
