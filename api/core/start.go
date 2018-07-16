@@ -2,7 +2,7 @@ package core
 
 import (
 	"github.com/mesg-foundation/core/database/services"
-	"golang.org/x/net/context"
+	"context"
 )
 
 // StartService fetch a service in the db and starts it

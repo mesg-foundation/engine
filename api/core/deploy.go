@@ -2,7 +2,7 @@ package core
 
 import (
 	"github.com/mesg-foundation/core/database/services"
-	"golang.org/x/net/context"
+	"context"
 )
 
 // DeployService save a service in the database and return the hash of this service

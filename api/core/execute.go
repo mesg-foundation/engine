@@ -6,7 +6,7 @@ import (
 	"github.com/mesg-foundation/core/database/services"
 
 	"github.com/mesg-foundation/core/execution"
-	"golang.org/x/net/context"
+	"context"
 )
 
 // ExecuteTask will execute a task for a given service
