@@ -73,16 +73,14 @@ func gitClone(repoURL string, path string, message string) (err error) {
 	if u.Scheme == "" {
 		u.Scheme = "https"
 	}
-	ref := plumbing.Master
+	options := &git.CloneOptions{}
 	if u.Fragment != "" {
-		ref = plumbing.ReferenceName("refs/heads/" + u.Fragment)
+		options.ReferenceName = plumbing.ReferenceName("refs/heads/" + u.Fragment)
 		u.Fragment = ""
 	}
+	options.URL = u.String()
 	utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: message}, func() {
-		_, err = git.PlainClone(path, false, &git.CloneOptions{
-			URL:           u.String(),
-			ReferenceName: ref,
-		})
+		_, err = git.PlainClone(path, false, options)
 	})
 	return
 }
