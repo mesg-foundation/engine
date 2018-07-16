@@ -1,4 +1,4 @@
-FROM golang AS build
+FROM golang:1.10.3-stretch AS build
 RUN mkdir -p src/github.com/mesg-foundation/core
 RUN go get github.com/xeipuuv/gojsonschema && \
     go get gopkg.in/yaml.v2 && \
@@ -15,7 +15,6 @@ RUN go get github.com/xeipuuv/gojsonschema && \
     go get github.com/ethereum/go-ethereum/accounts && \
     go get github.com/ethereum/go-ethereum/core/types && \
     go get github.com/golang/protobuf/proto && \
-    go get golang.org/x/net/context && \
     go get google.golang.org/grpc && \
     go get github.com/cpuguy83/go-md2man && \
     go get github.com/syndtr/goleveldb/leveldb && \
@@ -28,7 +27,7 @@ WORKDIR src/github.com/mesg-foundation/core
 RUN go get ./...
 RUN go build -o mesg-core core/main.go
 
-FROM ubuntu
+FROM ubuntu:18.04
 WORKDIR /app
 COPY --from=build /go/src/github.com/mesg-foundation/core/mesg-core .
 CMD ["./mesg-core"]
