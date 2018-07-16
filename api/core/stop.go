@@ -2,7 +2,7 @@ package core
 
 import (
 	"github.com/mesg-foundation/core/database/services"
-	"golang.org/x/net/context"
+	"context"
 )
 
 // StopService fetch a service in db and stop it
