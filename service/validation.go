@@ -1,7 +1,6 @@
 package service
 
 import (
-	"errors"
 	"os"
 	"path/filepath"
 
@@ -9,6 +8,34 @@ import (
 	"github.com/xeipuuv/gojsonschema"
 	yaml "gopkg.in/yaml.v2"
 )
+
+// ValidationResult contains the result of the validation of a service
+type ValidationResult struct {
+	FileWarnings    []string
+	DockerfileExist bool
+}
+
+// IsValid returns true if all the validation result is valid
+func (v *ValidationResult) IsValid() bool {
+	if len(v.FileWarnings) == 0 && v.DockerfileExist {
+		return true
+	}
+	return false
+}
+
+// ValidateService validates a service at a given path
+func ValidateService(path string) (validation ValidationResult, err error) {
+	data, err := readFromPath(path)
+	if err != nil {
+		return
+	}
+	validation.FileWarnings, err = validateServiceFile(data)
+	if err != nil {
+		return
+	}
+	validation.DockerfileExist, err = validateDockerfile(path)
+	return
+}
 
 func convert(i interface{}) interface{} {
 	switch x := i.(type) {
@@ -22,9 +49,9 @@ func convert(i interface{}) interface{} {
 	return i
 }
 
-// validServiceFileData returns a list of warnings (empty if no warning)
+// validateServiceFile returns a list of warnings (empty if no warning)
 // The all validation can be found in https://github.com/mesg-foundation/core/tree/dev/service/schema.json
-func validServiceData(data []byte) (warnings []gojsonschema.ResultError, err error) {
+func validateServiceFile(data []byte) (warnings []string, err error) {
 	var body interface{}
 	if err = yaml.Unmarshal(data, &body); err != nil {
 		return
@@ -40,28 +67,23 @@ func validServiceData(data []byte) (warnings []gojsonschema.ResultError, err err
 	if err != nil {
 		return
 	}
-
-	if !result.Valid() {
-		warnings = result.Errors()
-		err = errors.New("File 'mesg.yml' is not valid")
+	if result.Valid() == false {
+		for _, warning := range result.Errors() {
+			warnings = append(warnings, warning.String())
+		}
 	}
 	return
 }
 
-// ValidService validates a service at a given path
-func ValidService(path string) (warnings []gojsonschema.ResultError, err error) {
-	data, err := readFromPath(path)
-	if err != nil {
-		return
-	}
-
-	warnings, err = validServiceData(data)
-	if err != nil {
-		return
-	}
-
+func validateDockerfile(path string) (exist bool, err error) {
 	dockerFile := filepath.Join(path, "Dockerfile")
 	file, err := os.Open(dockerFile)
 	defer file.Close()
+	if os.IsNotExist(err) {
+		err = nil
+		exist = false
+		return
+	}
+	exist = true
 	return
 }
