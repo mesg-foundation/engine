@@ -40,10 +40,7 @@ func prepareService(path string) (importedService *service.Service) {
 		fmt.Println("Temp folder: " + path)
 	}
 	importedService, err = service.ImportFromPath(path)
-	if err != nil {
-		fmt.Println("Run the command 'service validate' to get detailed errors")
-		utils.HandleError(err)
-	}
+	utils.HandleError(err)
 	imageHash, err := buildDockerImage(path)
 	utils.HandleError(err)
 	fmt.Println(aurora.Green("Image built with success"))
