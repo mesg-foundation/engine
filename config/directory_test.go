@@ -25,10 +25,3 @@ func TestConfigDirectory(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, dir, filepath.Join(home, ".mesg"))
 }
-
-func TestAccountDirectory(t *testing.T) {
-	config, _ := getConfigDirectory()
-	dir, err := getAccountDirectory()
-	assert.Nil(t, err)
-	assert.Equal(t, dir, filepath.Join(config, "accounts"))
-}
