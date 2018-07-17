@@ -5,10 +5,9 @@
 #### Changed
 #### Added
 #### Removed
-
-- (#203) Remove useless packages
-
 #### Fixed
+
+- (#242) Improve output of the command `mesg-core service validate`
 
 ## [v1.0.0]
 
