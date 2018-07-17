@@ -18,8 +18,6 @@ func init() {
 	Service.AddCommand(service.Test)
 	Service.AddCommand(service.Start)
 	Service.AddCommand(service.Stop)
-	// Service.AddCommand(service.Pause)
-	// Service.AddCommand(service.Resume)
 	Service.AddCommand(service.Detail)
 	Service.AddCommand(service.List)
 	Service.AddCommand(service.Init)
