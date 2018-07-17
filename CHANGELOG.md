@@ -5,6 +5,9 @@
 #### Changed
 #### Added
 #### Removed
+
+- (#203) Remove useless packages
+
 #### Fixed
 
 ## [v1.0.0]
