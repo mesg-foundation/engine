@@ -39,16 +39,9 @@ func getConfigDirectory() (directory string, err error) {
 	return
 }
 
-func getAccountDirectory() (directory string, err error) {
-	configDirectory, err := getConfigDirectory()
-	directory = filepath.Join(configDirectory, "accounts")
-	return
-}
-
 func init() {
 	var err error
 	ConfigDirectory, err = getConfigDirectory()
-	AccountDirectory, err = getAccountDirectory()
 	os.Mkdir(ConfigDirectory, os.ModePerm)
 	os.Mkdir(AccountDirectory, os.ModePerm)
 	if err != nil {
