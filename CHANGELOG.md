@@ -6,10 +6,10 @@
 - (#282) Branch support added. You can now specify your branches with a `#branch` fragment at the end of your git url. E.g.: https://github.com/mesg-foundation/service-ethereum-erc20#websocket
 
 #### Added
+- (#242) Add more details in command `mesg-core service validate`
+
 #### Removed
 #### Fixed
-
-- (#242) Improve output of the command `mesg-core service validate`
 
 ## [v1.0.0]
 
