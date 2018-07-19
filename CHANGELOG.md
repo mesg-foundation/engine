@@ -4,10 +4,10 @@
 
 #### Changed
 #### Added
+- (#242) Add more details in command `mesg-core service validate`
+
 #### Removed
 #### Fixed
-
-- (#242) Improve output of the command `mesg-core service validate`
 
 ## [v1.0.0]
 
