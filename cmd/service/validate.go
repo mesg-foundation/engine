@@ -5,7 +5,7 @@ import (
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/cmd/utils"
-	serviceSerialize "github.com/mesg-foundation/core/service/serialize"
+	"github.com/mesg-foundation/core/service/importer"
 	"github.com/spf13/cobra"
 )
 
@@ -23,7 +23,7 @@ mesg-core service validate ./SERVICE_FOLDER`,
 }
 
 func validateHandler(cmd *cobra.Command, args []string) {
-	validation, err := serviceSerialize.ValidateFromPath(defaultPath(args))
+	validation, err := importer.Validate(defaultPath(args))
 	utils.HandleError(err)
 
 	validateServiceFile(validation)
@@ -31,7 +31,7 @@ func validateHandler(cmd *cobra.Command, args []string) {
 	validateSummary(validation)
 }
 
-func validateServiceFile(validation *serviceSerialize.ValidationResult) {
+func validateServiceFile(validation *importer.ValidationResult) {
 	if validation.ServiceFileExist == false {
 		fmt.Printf("%s File 'mesg.yml' does not exist\n", aurora.Red("⨯"))
 		return
@@ -47,7 +47,7 @@ func validateServiceFile(validation *serviceSerialize.ValidationResult) {
 	}
 }
 
-func validateDockerfile(validation *serviceSerialize.ValidationResult) {
+func validateDockerfile(validation *importer.ValidationResult) {
 	if validation.DockerfileExist {
 		fmt.Printf("%s Dockerfile exists\n", aurora.Green("✔"))
 	} else {
@@ -55,7 +55,7 @@ func validateDockerfile(validation *serviceSerialize.ValidationResult) {
 	}
 }
 
-func validateSummary(validation *serviceSerialize.ValidationResult) {
+func validateSummary(validation *importer.ValidationResult) {
 	if validation.IsValid() {
 		fmt.Println(aurora.Green("Service is valid"))
 	} else {

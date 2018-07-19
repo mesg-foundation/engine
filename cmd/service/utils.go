@@ -15,7 +15,7 @@ import (
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/service"
-	serviceSerialize "github.com/mesg-foundation/core/service/serialize"
+	"github.com/mesg-foundation/core/service/importer"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	git "gopkg.in/src-d/go-git.v4"
@@ -32,7 +32,7 @@ func defaultPath(args []string) string {
 }
 
 func handleValidationError(err error) {
-	if _, ok := err.(*serviceSerialize.ValidationError); ok {
+	if _, ok := err.(*importer.ValidationError); ok {
 		fmt.Println(aurora.Red(err))
 		fmt.Println("Run the command 'service validate' for more details")
 		os.Exit(0)
@@ -48,7 +48,7 @@ func prepareService(path string) (importedService *service.Service) {
 		fmt.Println(aurora.Green("Service downloaded with success"))
 		fmt.Println("Temp folder: " + path)
 	}
-	importedService, err = serviceSerialize.FromPath(path)
+	importedService, err = importer.From(path)
 	handleValidationError(err)
 	utils.HandleError(err)
 	imageHash, err := buildDockerImage(path)
