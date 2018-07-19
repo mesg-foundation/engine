@@ -9,7 +9,7 @@ import (
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/cmd/service/assets"
 	"github.com/mesg-foundation/core/cmd/utils"
-	serviceSerialize "github.com/mesg-foundation/core/service/serialize"
+	"github.com/mesg-foundation/core/service/importer"
 	"github.com/spf13/cobra"
 	survey "gopkg.in/AlecAivazis/survey.v1"
 )
@@ -37,7 +37,7 @@ func genDocHandler(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	service, err := serviceSerialize.FromPath(path)
+	service, err := importer.From(path)
 	handleValidationError(err)
 	utils.HandleError(err)
 
