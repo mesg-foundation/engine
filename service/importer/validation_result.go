@@ -1,4 +1,4 @@
-package serialize
+package importer
 
 // ValidationResult contains the result of the validation of a service
 type ValidationResult struct {
