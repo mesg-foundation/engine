@@ -3,7 +3,10 @@ package service
 import (
 	"fmt"
 	"io/ioutil"
+	"net/url"
 	"os"
+
+	"gopkg.in/src-d/go-git.v4/plumbing"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/logrusorgru/aurora"
@@ -50,7 +53,6 @@ func prepareService(path string) (importedService *service.Service) {
 }
 
 func downloadServiceIfNeeded(path string) (newPath string, didDownload bool, err error) {
-	didDownload = false
 	newPath = path
 	if govalidator.IsURL(path) {
 		newPath, err = createTempFolder()
@@ -58,16 +60,27 @@ func downloadServiceIfNeeded(path string) (newPath string, didDownload bool, err
 			return
 		}
 		err = gitClone(path, newPath, "Downloading service...")
-		didDownload = true
+		didDownload = err == nil
 	}
 	return
 }
 
-func gitClone(url string, path string, message string) (err error) {
+func gitClone(repoURL string, path string, message string) (err error) {
+	u, err := url.Parse(repoURL)
+	if err != nil {
+		return err
+	}
+	if u.Scheme == "" {
+		u.Scheme = "https"
+	}
+	options := &git.CloneOptions{}
+	if u.Fragment != "" {
+		options.ReferenceName = plumbing.ReferenceName("refs/heads/" + u.Fragment)
+		u.Fragment = ""
+	}
+	options.URL = u.String()
 	utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: message}, func() {
-		_, err = git.PlainClone(path, false, &git.CloneOptions{
-			URL: url,
-		})
+		_, err = git.PlainClone(path, false, options)
 	})
 	return
 }

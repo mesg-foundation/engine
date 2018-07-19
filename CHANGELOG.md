@@ -3,6 +3,8 @@
 ## [Unreleased]
 
 #### Changed
+- (#282) Branch support added. You can now specify your branches with a `#branch` fragment at the end of your git url. E.g.: https://github.com/mesg-foundation/service-ethereum-erc20#websocket
+
 #### Added
 #### Removed
 
