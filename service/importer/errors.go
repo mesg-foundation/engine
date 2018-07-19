@@ -1,4 +1,4 @@
-package serialize
+package importer
 
 // ValidationError is the error type for the Validation of service
 type ValidationError struct{}

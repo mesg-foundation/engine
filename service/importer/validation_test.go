@@ -1,4 +1,4 @@
-package serialize
+package importer
 
 import (
 	"testing"
@@ -6,10 +6,10 @@ import (
 	"github.com/stvp/assert"
 )
 
-// Test ValidateFromPath function
+// Test Validate function
 
-func TestValidateFromPath(t *testing.T) {
-	validation, err := ValidateFromPath("./tests/service-valid")
+func TestValidate(t *testing.T) {
+	validation, err := Validate("./tests/service-valid")
 	assert.Nil(t, err)
 	assert.True(t, validation.IsValid())
 	assert.True(t, validation.ServiceFileExist)
@@ -17,8 +17,8 @@ func TestValidateFromPath(t *testing.T) {
 	assert.True(t, validation.DockerfileExist)
 }
 
-func TestValidateFromPathDockerfileIsMissing(t *testing.T) {
-	validation, err := ValidateFromPath("./tests/service-docker-missing")
+func TestValidateDockerfileIsMissing(t *testing.T) {
+	validation, err := Validate("./tests/service-docker-missing")
 	assert.Nil(t, err)
 	assert.False(t, validation.IsValid())
 	assert.True(t, validation.ServiceFileExist)
@@ -27,7 +27,7 @@ func TestValidateFromPathDockerfileIsMissing(t *testing.T) {
 }
 
 func TestValidateFromMissingServiceFile(t *testing.T) {
-	validation, err := ValidateFromPath("./tests/service-file-missing")
+	validation, err := Validate("./tests/service-file-missing")
 	assert.Nil(t, err)
 	assert.False(t, validation.IsValid())
 	assert.False(t, validation.ServiceFileExist)
@@ -36,7 +36,7 @@ func TestValidateFromMissingServiceFile(t *testing.T) {
 }
 
 func TestValidateFromNonExistingPath(t *testing.T) {
-	validation, err := ValidateFromPath("./tests/service-non-existing")
+	validation, err := Validate("./tests/service-non-existing")
 	assert.Nil(t, err)
 	assert.False(t, validation.IsValid())
 	assert.False(t, validation.ServiceFileExist)
@@ -45,12 +45,12 @@ func TestValidateFromNonExistingPath(t *testing.T) {
 }
 
 func TestValidateFromMalFormattedServiceFile(t *testing.T) {
-	_, err := ValidateFromPath("./tests/service-file-mal-formatted")
+	_, err := Validate("./tests/service-file-mal-formatted")
 	assert.NotNil(t, err)
 }
 
 func TestValidateFromInvalidServiceFile(t *testing.T) {
-	validation, err := ValidateFromPath("./tests/service-file-invalid")
+	validation, err := Validate("./tests/service-file-invalid")
 	assert.Nil(t, err)
 	assert.False(t, validation.IsValid())
 	assert.True(t, validation.ServiceFileExist)
@@ -58,15 +58,15 @@ func TestValidateFromInvalidServiceFile(t *testing.T) {
 	assert.True(t, validation.DockerfileExist)
 }
 
-// Test IsValidFromPath function
+// Test IsValid function
 
-func TestIsValidFromPath(t *testing.T) {
-	isValid, err := IsValidFromPath("./tests/service-valid")
+func TestIsValid(t *testing.T) {
+	isValid, err := IsValid("./tests/service-valid")
 	assert.Nil(t, err)
 	assert.True(t, isValid)
 }
 
-func TestIsValidFromPathMalFormattedServiceFile(t *testing.T) {
-	_, err := IsValidFromPath("./tests/service-file-mal-formatted")
+func TestIsValidMalFormattedServiceFile(t *testing.T) {
+	_, err := IsValid("./tests/service-file-mal-formatted")
 	assert.NotNil(t, err)
 }
