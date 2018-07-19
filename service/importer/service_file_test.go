@@ -1,4 +1,4 @@
-package serialize
+package importer
 
 import (
 	"testing"
@@ -28,7 +28,7 @@ func TestValidateServiceFileSchema(t *testing.T) {
 	var body interface{}
 	_ = yaml.Unmarshal(data, &body)
 	body = convert(body)
-	result, err := validateServiceFileSchema(body, "service/serialize/assets/schema.json")
+	result, err := validateServiceFileSchema(body, "service/importer/assets/schema.json")
 	assert.Nil(t, err)
 	assert.True(t, result.Valid())
 }

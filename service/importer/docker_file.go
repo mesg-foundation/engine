@@ -1,4 +1,4 @@
-package serialize
+package importer
 
 import (
 	"io/ioutil"

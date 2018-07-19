@@ -1,11 +1,11 @@
-package serialize
+package importer
 
 import (
 	"errors"
 	"io/ioutil"
 	"path/filepath"
 
-	"github.com/mesg-foundation/core/service/serialize/assets"
+	"github.com/mesg-foundation/core/service/importer/assets"
 	"github.com/xeipuuv/gojsonschema"
 	yaml "gopkg.in/yaml.v2"
 )
@@ -25,7 +25,7 @@ func validateServiceFile(data []byte) (warnings []string, err error) {
 		return
 	}
 	body = convert(body)
-	result, err := validateServiceFileSchema(body, "service/serialize/assets/schema.json")
+	result, err := validateServiceFileSchema(body, "service/importer/assets/schema.json")
 	if err != nil {
 		return
 	}
