@@ -14,7 +14,7 @@ func (s *Server) EmitEvent(context context.Context, request *EmitEventRequest) (
 	if err != nil {
 		return
 	}
-	var data interface{}
+	var data map[string]interface{}
 	err = json.Unmarshal([]byte(request.EventData), &data)
 	if err != nil {
 		return

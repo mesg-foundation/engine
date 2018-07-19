@@ -8,9 +8,18 @@ import (
 )
 
 // Create an event
-func Create(service *service.Service, eventKey string, data interface{}) (event *Event, err error) {
-	if !eventExists(service, eventKey) {
+func Create(service *service.Service, eventKey string, data map[string]interface{}) (event *Event, err error) {
+	if !exists(service, eventKey) {
 		err = errors.New("Event " + eventKey + " doesn't exists in service " + service.Name)
+		return
+	}
+	parameters := service.Events[eventKey].Data
+	if !validParameters(parameters, data) {
+		errorString := "Invalid parameters: "
+		for _, warning := range parametersWarnings(parameters, data) {
+			errorString = errorString + " " + warning.String()
+		}
+		err = errors.New(errorString)
 		return
 	}
 	event = &Event{
@@ -18,17 +27,6 @@ func Create(service *service.Service, eventKey string, data interface{}) (event 
 		Key:       eventKey,
 		Data:      data,
 		CreatedAt: time.Now(),
-	}
-	return
-}
-
-func eventExists(service *service.Service, name string) (exists bool) {
-	exists = false
-	for eventName := range service.Events {
-		if eventName == name {
-			exists = true
-			break
-		}
 	}
 	return
 }
