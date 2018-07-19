@@ -5,7 +5,7 @@ import (
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/cmd/utils"
-	"github.com/mesg-foundation/core/service"
+	serviceSerialize "github.com/mesg-foundation/core/service/serialize"
 	"github.com/spf13/cobra"
 )
 
@@ -23,34 +23,39 @@ mesg-core service validate ./SERVICE_FOLDER`,
 }
 
 func validateHandler(cmd *cobra.Command, args []string) {
-	validation, err := service.ValidateService(defaultPath(args))
+	validation, err := serviceSerialize.ValidateFromPath(defaultPath(args))
 	utils.HandleError(err)
 
-	validateFileWarnings(validation)
+	validateServiceFile(validation)
 	validateDockerfile(validation)
-	validateService(validation)
+	validateSummary(validation)
 }
 
-func validateFileWarnings(validation service.ValidationResult) {
-	if len(validation.FileWarnings) > 0 {
-		fmt.Printf("%s File mesg.yml is not valid. See documentation: %s\n", aurora.Red("⨯"), "https://docs.mesg.com/service/service-file")
-		for _, warning := range validation.FileWarnings {
+func validateServiceFile(validation *serviceSerialize.ValidationResult) {
+	if validation.ServiceFileExist == false {
+		fmt.Printf("%s File 'mesg.yml' does not exist\n", aurora.Red("⨯"))
+		return
+	}
+
+	if len(validation.ServiceFileWarnings) > 0 {
+		fmt.Printf("%s File 'mesg.yml' is not valid. See documentation: %s\n", aurora.Red("⨯"), "https://docs.mesg.com/service/service-file")
+		for _, warning := range validation.ServiceFileWarnings {
 			fmt.Printf("  - %s\n", warning)
 		}
 	} else {
-		fmt.Printf("%s File mesg.yml is valid\n", aurora.Green("✔"))
+		fmt.Printf("%s File 'mesg.yml' is valid\n", aurora.Green("✔"))
 	}
 }
 
-func validateDockerfile(validation service.ValidationResult) {
+func validateDockerfile(validation *serviceSerialize.ValidationResult) {
 	if validation.DockerfileExist {
 		fmt.Printf("%s Dockerfile exists\n", aurora.Green("✔"))
 	} else {
-		fmt.Printf("%s Dockerfile does no exist\n", aurora.Red("⨯"))
+		fmt.Printf("%s Dockerfile does not exist\n", aurora.Red("⨯"))
 	}
 }
 
-func validateService(validation service.ValidationResult) {
+func validateSummary(validation *serviceSerialize.ValidationResult) {
 	if validation.IsValid() {
 		fmt.Println(aurora.Green("Service is valid"))
 	} else {
