@@ -2,7 +2,7 @@ exclude_patterns:
   - "**/*_test.go"
   - "**/*.d.ts"
   - "**/*.pb.go"
-  - "**/service/assets/*.go"
+  - "**/service/serialize/assets/*.go"
   - "**/cmd/service/assets/*.go"
 plugins:
   gofmt:
