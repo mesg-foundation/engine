@@ -6,5 +6,5 @@ ignore:
   - "Dockerfile"
   - ".dockerignore"
   - ".circleci/config.yml"
-  - "service/assets/*.go"
+  - "service/importer/assets/*.go"
   - "cmd/service/assets/*.go"
