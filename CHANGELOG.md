@@ -3,13 +3,13 @@
 ## [Unreleased]
 
 #### Changed
+- (#282) Branch support added. You can now specify your branches with a `#branch` fragment at the end of your git url. E.g.: https://github.com/mesg-foundation/service-ethereum-erc20#websocket
+
 #### Added
+- (#242) Add more details in command `mesg-core service validate`
 - (#295) Added more validation on the API for the data of `executeTask`, `submitResult` and `emitEvent`. Now if data doesn't match the service file, the API returns an error
 
 #### Removed
-
-- (#203) Remove useless packages
-
 #### Fixed
 
 ## [v1.0.0]
