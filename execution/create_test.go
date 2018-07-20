@@ -30,37 +30,6 @@ func TestGenerateID(t *testing.T) {
 	}))
 }
 
-// func TestTaskExists(t *testing.T) {
-// 	s := service.Service{
-// 		Tasks: map[string]*service.Task{
-// 			"test": &service.Task{},
-// 		},
-// 	}
-// 	exisits := taskExists(&s, "test")
-// 	assert.True(t, exisits)
-// }
-
-// func TestTaskNotExists(t *testing.T) {
-// 	s := service.Service{
-// 		Tasks: map[string]*service.Task{
-// 			"test": &service.Task{},
-// 		},
-// 	}
-// 	exisits := taskExists(&s, "testnotexists")
-// 	assert.False(t, exisits)
-// }
-
-// func TestTaskExistsOnOtherKey(t *testing.T) {
-// 	s := service.Service{
-// 		Tasks: map[string]*service.Task{
-// 			"test":  &service.Task{},
-// 			"test2": &service.Task{},
-// 		},
-// 	}
-// 	exisits := taskExists(&s, "test2")
-// 	assert.True(t, exisits)
-// }
-
 func TestCreate(t *testing.T) {
 	s := service.Service{
 		Name: "TestCreate",
