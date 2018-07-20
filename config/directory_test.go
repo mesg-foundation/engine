@@ -4,24 +4,18 @@ import (
 	"path/filepath"
 	"testing"
 
+	homedir "github.com/mitchellh/go-homedir"
 	"github.com/stvp/assert"
 )
 
-func TestHomeDirectory(t *testing.T) {
-	dir, err := getHomeDirectory()
-	assert.NotEqual(t, dir, "")
-	assert.Nil(t, err)
-}
-
-func TestDetectHomeDirectory(t *testing.T) {
-	dir, err := detectHomePath()
-	assert.NotEqual(t, dir, "")
+func TestCreateConfigDirectory(t *testing.T) {
+	err := createConfigDirectory()
 	assert.Nil(t, err)
 }
 
 func TestConfigDirectory(t *testing.T) {
-	home, _ := getHomeDirectory()
+	homeDirectory, _ := homedir.Dir()
 	dir, err := getConfigDirectory()
 	assert.Nil(t, err)
-	assert.Equal(t, dir, filepath.Join(home, ".mesg"))
+	assert.Equal(t, dir, filepath.Join(homeDirectory, configDirectory))
 }
