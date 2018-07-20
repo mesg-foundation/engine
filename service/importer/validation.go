@@ -5,42 +5,42 @@ import (
 )
 
 // IsValid validates a service at a source
-func IsValid(source string) (isValid bool, err error) {
+func IsValid(source string) (bool, error) {
 	validation, err := Validate(source)
 	if err != nil {
-		return
+		return false, err
 	}
-	isValid = validation.IsValid()
-	return
+	return validation.IsValid(), nil
 }
 
 // Validate validates a service at a source
-func Validate(source string) (validation *ValidationResult, err error) {
+func Validate(source string) (*ValidationResult, error) {
 	return validateFromPath(source)
 }
 
 // validateFromPath validates a service at a given path
-func validateFromPath(path string) (validation *ValidationResult, err error) {
+func validateFromPath(path string) (*ValidationResult, error) {
 	// Service file
-	validation = &ValidationResult{}
-	data, errServicefile := readServiceFile(path)
-	validation.ServiceFileExist = errServicefile == nil || os.IsNotExist(errServicefile) == false
-	if errServicefile != nil && os.IsNotExist(errServicefile) == false {
-		err = errServicefile
-		return
+	data, err := readServiceFile(path)
+	serviceFileExist := err == nil || os.IsNotExist(err) == false
+	if err != nil && os.IsNotExist(err) == false {
+		return nil, err
 	}
-	validation.ServiceFileWarnings, err = validateServiceFile(data)
+	serviceFileWarnings, err := validateServiceFile(data)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	// Dockerfile
-	_, errDockerfile := readDockerfile(path)
-	validation.DockerfileExist = errDockerfile == nil || os.IsNotExist(errDockerfile) == false
-	if errDockerfile != nil && os.IsNotExist(errDockerfile) == false {
-		err = errDockerfile
-		return
+	_, err = readDockerfile(path)
+	dockerfileExist := err == nil || os.IsNotExist(err) == false
+	if err != nil && os.IsNotExist(err) == false {
+		return nil, err
 	}
 
-	return
+	return &ValidationResult{
+		ServiceFileExist:    serviceFileExist,
+		ServiceFileWarnings: serviceFileWarnings,
+		DockerfileExist:     dockerfileExist,
+	}, nil
 }
