@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -24,17 +23,6 @@ const (
 
 func init() {
 	configDir, _ := getConfigDirectory()
-
-	viper.AddConfigPath(configDir)
-	viper.SetConfigName(".mesg")
-
-	viper.AutomaticEnv()
-
-	err := viper.ReadInConfig()
-	if err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
-	}
-
 	viper.SetDefault(MESGPath, configDir)
 
 	viper.SetDefault(APIServerAddress, ":50052")
