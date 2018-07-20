@@ -84,11 +84,11 @@ func (dependency *DependencyFromService) Start(networkID string) (containerServi
 		Args:  strings.Fields(dependency.Command),
 		Env: []string{
 			"MESG_TOKEN=" + service.Hash(),
-			"MESG_ENDPOINT=" + viper.GetString(config.APIServiceTargetSocket),
+			"MESG_ENDPOINT=" + viper.GetString(config.APIServiceTargetSocket) + viper.GetString(config.APIServiceTargetPath),
 			"MESG_ENDPOINT_TCP=mesg-core:50052", // TODO: should get this from daemon namespace and config
 		},
 		Mounts: append(mounts, container.Mount{
-			Source: viper.GetString(config.APIServiceSocketPath),
+			Source: filepath.Join(viper.GetString(config.MESGPath), viper.GetString(config.APIServiceSocketPath)),
 			Target: viper.GetString(config.APIServiceTargetPath),
 		}),
 		Ports:      dependency.extractPorts(),
@@ -125,7 +125,7 @@ func (dependency *DependencyFromService) extractVolumes() (volumes []container.M
 	volumes = make([]container.Mount, 0)
 	for _, volume := range dependency.Volumes {
 		path := filepath.Join(servicePath, dependency.Name, volume)
-		source := filepath.Join(viper.GetString(config.ServicePathHost), path)
+		source := filepath.Join(viper.GetString(config.MESGPath), viper.GetString(config.ServicePathHost), path)
 		volumes = append(volumes, container.Mount{
 			Source: source,
 			Target: volume,
@@ -141,7 +141,7 @@ func (dependency *DependencyFromService) extractVolumes() (volumes []container.M
 		}
 		for _, volume := range dep.Volumes {
 			path := filepath.Join(servicePath, depName, volume)
-			source := filepath.Join(viper.GetString(config.ServicePathHost), path)
+			source := filepath.Join(viper.GetString(config.MESGPath), viper.GetString(config.ServicePathHost), path)
 			volumes = append(volumes, container.Mount{
 				Source: source,
 				Target: volume,
