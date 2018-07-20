@@ -18,8 +18,8 @@ func initViperEnv() {
 
 func initConfigFile() {
 	viper.SetConfigName(configFileName)
-	dir, _ := getConfigDirectory()
-	viper.AddConfigPath(dir)
+	path, _ := getConfigPath()
+	viper.AddConfigPath(path)
 	if viper.ReadInConfig() == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
