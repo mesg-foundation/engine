@@ -26,9 +26,6 @@ func (s *Server) ExecuteTask(ctx context.Context, request *ExecuteTaskRequest) (
 		return nil, err
 	}
 	err = execution.Execute()
-	if err != nil {
-		return nil, err
-	}
 	return &ExecuteTaskReply{
 		ExecutionID: execution.ID,
 	}, err
