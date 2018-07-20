@@ -12,15 +12,15 @@ func validParameters(parameters map[string]*Parameter, data map[string]interface
 	return len(validateParameters(parameters, data)) == 0
 }
 
-func validateParameters(parameters map[string]*Parameter, data map[string]interface{}) (warnings []*ParameterWarning) {
-	warnings = make([]*ParameterWarning, 0)
+func validateParameters(parameters map[string]*Parameter, data map[string]interface{}) []*ParameterWarning {
+	warnings := make([]*ParameterWarning, 0)
 	for key, param := range parameters {
 		warning := param.Validate(data[key])
 		if warning != nil {
 			warnings = append(warnings, warning)
 		}
 	}
-	return
+	return warnings
 }
 
 func (p *ParameterWarning) String() string {
@@ -33,26 +33,25 @@ func (e *Event) IsValid(data map[string]interface{}) bool {
 }
 
 // Validate data for a specific event
-func (e *Event) Validate(data map[string]interface{}) (warnings []*ParameterWarning) {
+func (e *Event) Validate(data map[string]interface{}) []*ParameterWarning {
 	return validateParameters(e.Data, data)
 }
 
 // Validate returns a warning based on the match of the data given in parameter and the parameter
-func (p *Parameter) Validate(data interface{}) (warning *ParameterWarning) {
+func (p *Parameter) Validate(data interface{}) *ParameterWarning {
 	if data == nil {
 		if p.Optional {
-			return
+			return nil
 		}
-		warning = &ParameterWarning{parameter: p, warning: "required"}
-		return
+		return &ParameterWarning{parameter: p, warning: "required"}
 	}
 	value := data
+	var warning *ParameterWarning
 	switch p.Type {
 	case "String":
 		_, ok := value.(string)
 		if !ok {
 			warning = &ParameterWarning{parameter: p, warning: "not a string"}
-			return
 		}
 	case "Number":
 		_, okFloat64 := value.(float64)
@@ -60,23 +59,20 @@ func (p *Parameter) Validate(data interface{}) (warning *ParameterWarning) {
 		_, okInt := value.(int)
 		if !okInt && !okFloat64 && !okFloat32 {
 			warning = &ParameterWarning{parameter: p, warning: "not a number"}
-			return
 		}
 	case "Boolean":
 		_, ok := value.(bool)
 		if !ok {
 			warning = &ParameterWarning{parameter: p, warning: "not a boolean"}
-			return
 		}
 	case "Object":
 		_, okObj := value.(map[string]interface{})
 		_, okArr := value.([]interface{})
 		if !okObj && !okArr {
 			warning = &ParameterWarning{parameter: p, warning: "not an object/array"}
-			return
 		}
 	default:
 		warning = &ParameterWarning{parameter: p, warning: "invalid type"}
 	}
-	return
+	return warning
 }

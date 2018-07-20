@@ -8,25 +8,22 @@ import (
 )
 
 // Create an event
-func Create(serviceForEvent *service.Service, eventKey string, data map[string]interface{}) (event *Event, err error) {
+func Create(serviceForEvent *service.Service, eventKey string, data map[string]interface{}) (*Event, error) {
 	serviceEvent, evenFound := serviceForEvent.Events[eventKey]
 	if !evenFound {
-		err = errors.New("Event " + eventKey + " doesn't exists in service " + serviceForEvent.Name)
-		return
+		return nil, errors.New("Event " + eventKey + " doesn't exists in service " + serviceForEvent.Name)
 	}
 	if serviceEvent.IsValid(data) {
 		errorString := "Invalid parameters: "
 		for _, warning := range serviceEvent.Validate(data) {
 			errorString = errorString + " " + warning.String()
 		}
-		err = errors.New(errorString)
-		return
+		return nil, errors.New(errorString)
 	}
-	event = &Event{
+	return &Event{
 		Service:   serviceForEvent,
 		Key:       eventKey,
 		Data:      data,
 		CreatedAt: time.Now(),
-	}
-	return
+	}, nil
 }
