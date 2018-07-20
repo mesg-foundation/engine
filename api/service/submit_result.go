@@ -9,21 +9,19 @@ import (
 )
 
 // SubmitResult of an execution
-func (s *Server) SubmitResult(context context.Context, request *SubmitResultRequest) (reply *SubmitResultReply, err error) {
+func (s *Server) SubmitResult(context context.Context, request *SubmitResultRequest) (*SubmitResultReply, error) {
 	execution := execution.InProgress(request.ExecutionID)
 	if execution == nil {
-		err = errors.New("No task in progress with the ID " + request.ExecutionID)
-		return
+		return nil, errors.New("No task in progress with the ID " + request.ExecutionID)
 	}
-	var data interface{}
-	err = json.Unmarshal([]byte(request.OutputData), &data)
+	var data map[string]interface{}
+	err := json.Unmarshal([]byte(request.OutputData), &data)
 	if err != nil {
-		return
+		return nil, err
 	}
 	err = execution.Complete(request.OutputKey, data)
 	if err != nil {
-		return
+		return nil, err
 	}
-	reply = &SubmitResultReply{}
-	return
+	return &SubmitResultReply{}, nil
 }

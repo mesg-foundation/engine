@@ -58,3 +58,10 @@ func TestMoveFromInProgressToCompletedNonExistingTask(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Nil(t, inProgressExecutions[exec.ID])
 }
+
+func TestInProgress(t *testing.T) {
+	inProgressExecutions["foo"] = &Execution{ID: "TestInProgress"}
+	assert.NotNil(t, InProgress("foo"))
+	assert.Equal(t, "TestInProgress", InProgress("foo").ID)
+	assert.Nil(t, InProgress("bar"))
+}
