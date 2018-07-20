@@ -10,7 +10,6 @@ import (
 	"github.com/syndtr/goleveldb/leveldb"
 )
 
-var storagePath = filepath.Join(viper.GetString(config.MESGPath), "database", "services")
 var _instance *leveldb.DB
 var instances = 0
 var instanceMutex sync.Mutex
@@ -19,6 +18,7 @@ func open() (db *leveldb.DB, err error) {
 	instanceMutex.Lock()
 	defer instanceMutex.Unlock()
 	if _instance == nil {
+		storagePath := filepath.Join(viper.GetString(config.MESGPath), "database", "services")
 		_instance, err = leveldb.OpenFile(storagePath, nil)
 		if err != nil {
 			panic(err) // TODO: this should just be returned?
