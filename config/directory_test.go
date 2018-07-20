@@ -8,14 +8,14 @@ import (
 	"github.com/stvp/assert"
 )
 
-func TestCreateConfigDirectory(t *testing.T) {
-	err := createConfigDirectory()
+func TestCreateConfigPath(t *testing.T) {
+	err := createConfigPath()
 	assert.Nil(t, err)
 }
 
-func TestConfigDirectory(t *testing.T) {
-	homeDirectory, _ := homedir.Dir()
-	dir, err := getConfigDirectory()
+func TestConfigPath(t *testing.T) {
+	homePath, _ := homedir.Dir()
+	dir, err := getConfigPath()
 	assert.Nil(t, err)
-	assert.Equal(t, dir, filepath.Join(homeDirectory, configDirectory))
+	assert.Equal(t, dir, filepath.Join(homePath, configDirectory))
 }
