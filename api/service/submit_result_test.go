@@ -13,7 +13,7 @@ import (
 var serversubmit = new(Server)
 
 func execute(name string) (e *execution.Execution) {
-	var inputs interface{}
+	var inputs map[string]interface{}
 	e, _ = execution.Create(&service.Service{
 		Name: name,
 		Tasks: map[string]*service.Task{

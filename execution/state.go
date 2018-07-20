@@ -1,7 +1,6 @@
 package execution
 
 import (
-	"errors"
 	"sync"
 )
 
@@ -16,28 +15,32 @@ func InProgress(ID string) (execution *Execution) {
 	return
 }
 
-func (execution *Execution) moveFromPendingToInProgress() (err error) {
+func (execution *Execution) moveFromPendingToInProgress() error {
 	mu.Lock()
 	defer mu.Unlock()
 	e, ok := pendingExecutions[execution.ID]
 	if !ok {
-		err = errors.New("Execution " + execution.ID + " not in the pending")
-		return
+		return &NotInQueueError{
+			ID:    execution.ID,
+			Queue: "pending",
+		}
 	}
 	inProgressExecutions[execution.ID] = e
 	delete(pendingExecutions, execution.ID)
-	return
+	return nil
 }
 
-func (execution *Execution) moveFromInProgressToProcessed() (err error) {
+func (execution *Execution) moveFromInProgressToProcessed() error {
 	mu.Lock()
 	defer mu.Unlock()
 	e, ok := inProgressExecutions[execution.ID]
 	if !ok {
-		err = errors.New("Execution " + execution.ID + " not in progress")
-		return
+		return &NotInQueueError{
+			ID:    execution.ID,
+			Queue: "inProgress",
+		}
 	}
 	processedExecutions[execution.ID] = e
 	delete(inProgressExecutions, execution.ID)
-	return
+	return nil
 }
