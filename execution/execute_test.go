@@ -14,7 +14,7 @@ func TestExecute(t *testing.T) {
 			"test": &service.Task{},
 		},
 	}
-	var inputs interface{}
+	var inputs map[string]interface{}
 	execution, _ := Create(&s, "test", inputs)
 	err := execution.Execute()
 	assert.Nil(t, err)

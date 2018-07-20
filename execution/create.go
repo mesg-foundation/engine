@@ -11,13 +11,21 @@ import (
 )
 
 // Create an execution with a unique ID and put it in the pending list
-func Create(service *service.Service, task string, inputs interface{}) (execution *Execution, err error) {
-	if !taskExists(service, task) {
-		err = errors.New("Task " + task + " doesn't exists in service " + service.Name)
+func Create(serviceForExecution *service.Service, task string, inputs map[string]interface{}) (execution *Execution, err error) {
+	serviceTask, taskFound := serviceForExecution.Tasks[task]
+	if !taskFound {
+		err = errors.New("Task " + task + " doesn't exists in service " + serviceForExecution.Name)
 		return
 	}
+	if !serviceTask.IsValid(inputs) {
+		errorString := "Invalid inputs: "
+		for _, warning := range serviceTask.Validate(inputs) {
+			errorString = errorString + " " + warning.String()
+		}
+		return nil, errors.New(errorString)
+	}
 	execution = &Execution{
-		Service:   service,
+		Service:   serviceForExecution,
 		Inputs:    inputs,
 		Task:      task,
 		CreatedAt: time.Now(),
@@ -30,17 +38,6 @@ func Create(service *service.Service, task string, inputs interface{}) (executio
 	defer mu.Unlock()
 	pendingExecutions[execution.ID] = execution
 	log.Println("[PENDING]", task)
-	return
-}
-
-func taskExists(service *service.Service, name string) (exists bool) {
-	exists = false
-	for taskName := range service.Tasks {
-		if taskName == name {
-			exists = true
-			break
-		}
-	}
 	return
 }
 

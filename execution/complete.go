@@ -8,7 +8,7 @@ import (
 )
 
 // Complete mark an execution as complete and put it in the list of processed tasks
-func (execution *Execution) Complete(output string, data interface{}) (err error) {
+func (execution *Execution) Complete(output string, data map[string]interface{}) (err error) {
 	err = execution.moveFromInProgressToProcessed()
 	if err != nil {
 		return
