@@ -3,7 +3,10 @@ package service
 import (
 	"fmt"
 	"io/ioutil"
+	"net/url"
 	"os"
+
+	"gopkg.in/src-d/go-git.v4/plumbing"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/logrusorgru/aurora"
@@ -12,6 +15,7 @@ import (
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/core/service/importer"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	git "gopkg.in/src-d/go-git.v4"
@@ -27,6 +31,14 @@ func defaultPath(args []string) string {
 	return "./"
 }
 
+func handleValidationError(err error) {
+	if _, ok := err.(*importer.ValidationError); ok {
+		fmt.Println(aurora.Red(err))
+		fmt.Println("Run the command 'service validate' for more details")
+		os.Exit(0)
+	}
+}
+
 // prepareService downloads if needed, create the service, build it and inject configuration
 func prepareService(path string) (importedService *service.Service) {
 	path, didDownload, err := downloadServiceIfNeeded(path)
@@ -36,11 +48,9 @@ func prepareService(path string) (importedService *service.Service) {
 		fmt.Println(aurora.Green("Service downloaded with success"))
 		fmt.Println("Temp folder: " + path)
 	}
-	importedService, err = service.ImportFromPath(path)
-	if err != nil {
-		fmt.Println("Run the command 'service validate' to get detailed errors")
-		utils.HandleError(err)
-	}
+	importedService, err = importer.From(path)
+	handleValidationError(err)
+	utils.HandleError(err)
 	imageHash, err := buildDockerImage(path)
 	utils.HandleError(err)
 	fmt.Println(aurora.Green("Image built with success"))
@@ -50,7 +60,6 @@ func prepareService(path string) (importedService *service.Service) {
 }
 
 func downloadServiceIfNeeded(path string) (newPath string, didDownload bool, err error) {
-	didDownload = false
 	newPath = path
 	if govalidator.IsURL(path) {
 		newPath, err = createTempFolder()
@@ -58,16 +67,27 @@ func downloadServiceIfNeeded(path string) (newPath string, didDownload bool, err
 			return
 		}
 		err = gitClone(path, newPath, "Downloading service...")
-		didDownload = true
+		didDownload = err == nil
 	}
 	return
 }
 
-func gitClone(url string, path string, message string) (err error) {
+func gitClone(repoURL string, path string, message string) (err error) {
+	u, err := url.Parse(repoURL)
+	if err != nil {
+		return err
+	}
+	if u.Scheme == "" {
+		u.Scheme = "https"
+	}
+	options := &git.CloneOptions{}
+	if u.Fragment != "" {
+		options.ReferenceName = plumbing.ReferenceName("refs/heads/" + u.Fragment)
+		u.Fragment = ""
+	}
+	options.URL = u.String()
 	utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: message}, func() {
-		_, err = git.PlainClone(path, false, &git.CloneOptions{
-			URL: url,
-		})
+		_, err = git.PlainClone(path, false, options)
 	})
 	return
 }
