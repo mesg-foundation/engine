@@ -16,31 +16,24 @@ func InProgress(ID string) (execution *Execution) {
 }
 
 func (execution *Execution) moveFromPendingToInProgress() error {
-	mu.Lock()
-	defer mu.Unlock()
-	e, ok := pendingExecutions[execution.ID]
-	if !ok {
-		return &NotInQueueError{
-			ID:    execution.ID,
-			Queue: "pending",
-		}
-	}
-	inProgressExecutions[execution.ID] = e
-	delete(pendingExecutions, execution.ID)
-	return nil
+	return execution.move("pending", pendingExecutions, inProgressExecutions)
 }
 
 func (execution *Execution) moveFromInProgressToProcessed() error {
+	return execution.move("inProgress", inProgressExecutions, processedExecutions)
+}
+
+func (execution *Execution) move(queue string, from, to map[string]*Execution) error {
 	mu.Lock()
 	defer mu.Unlock()
-	e, ok := inProgressExecutions[execution.ID]
+	e, ok := from[execution.ID]
 	if !ok {
 		return &NotInQueueError{
 			ID:    execution.ID,
-			Queue: "inProgress",
+			Queue: queue,
 		}
 	}
-	processedExecutions[execution.ID] = e
-	delete(inProgressExecutions, execution.ID)
+	to[execution.ID] = e
+	delete(from, execution.ID)
 	return nil
 }
