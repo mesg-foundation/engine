@@ -4,6 +4,8 @@
 
 #### Changed
 #### Added
+- (#295) Added more validation on the API for the data of `executeTask`, `submitResult` and `emitEvent`. Now if data doesn't match the service file, the API returns an error
+
 #### Removed
 
 - (#203) Remove useless packages
