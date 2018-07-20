@@ -16,7 +16,7 @@ func (s *Server) ExecuteTask(ctx context.Context, request *ExecuteTaskRequest) (
 	if err != nil {
 		return nil, err
 	}
-	var inputs interface{}
+	var inputs map[string]interface{}
 	err = json.Unmarshal([]byte(request.InputData), &inputs)
 	if err != nil {
 		return nil, err

@@ -14,10 +14,10 @@ func TestComplete(t *testing.T) {
 			"test": &service.Task{},
 		},
 	}
-	var inputs interface{}
+	var inputs map[string]interface{}
 	execution, _ := Create(&s, "test", inputs)
 	execution.Execute()
-	var outputs interface{}
+	var outputs map[string]interface{}
 	err := execution.Complete("output", outputs)
 	assert.Nil(t, err)
 	assert.Equal(t, execution.Output, "output")
@@ -32,9 +32,9 @@ func TestCompleteNotProcessed(t *testing.T) {
 			"test": &service.Task{},
 		},
 	}
-	var inputs interface{}
+	var inputs map[string]interface{}
 	execution, _ := Create(&s, "test", inputs)
-	var outputs interface{}
+	var outputs map[string]interface{}
 	err := execution.Complete("output", outputs)
 	assert.NotNil(t, err)
 }

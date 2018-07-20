@@ -37,6 +37,16 @@ func (e *Event) Validate(data map[string]interface{}) []*ParameterWarning {
 	return validateParameters(e.Data, data)
 }
 
+// IsValid returns true if the inputs are valid for a specific task
+func (t *Task) IsValid(data map[string]interface{}) bool {
+	return validParameters(t.Inputs, data)
+}
+
+// Validate inputs for a specific task
+func (t *Task) Validate(data map[string]interface{}) []*ParameterWarning {
+	return validateParameters(t.Inputs, data)
+}
+
 // Validate returns a warning based on the match of the data given in parameter and the parameter
 func (p *Parameter) Validate(data interface{}) *ParameterWarning {
 	if data == nil {

@@ -12,7 +12,7 @@ import (
 
 func TestGenerateID(t *testing.T) {
 	inputs := "{}"
-	var i interface{}
+	var i map[string]interface{}
 	json.Unmarshal([]byte(inputs), &i)
 	execution := Execution{
 		CreatedAt: time.Now(),
@@ -30,36 +30,36 @@ func TestGenerateID(t *testing.T) {
 	}))
 }
 
-func TestTaskExists(t *testing.T) {
-	s := service.Service{
-		Tasks: map[string]*service.Task{
-			"test": &service.Task{},
-		},
-	}
-	exisits := taskExists(&s, "test")
-	assert.True(t, exisits)
-}
+// func TestTaskExists(t *testing.T) {
+// 	s := service.Service{
+// 		Tasks: map[string]*service.Task{
+// 			"test": &service.Task{},
+// 		},
+// 	}
+// 	exisits := taskExists(&s, "test")
+// 	assert.True(t, exisits)
+// }
 
-func TestTaskNotExists(t *testing.T) {
-	s := service.Service{
-		Tasks: map[string]*service.Task{
-			"test": &service.Task{},
-		},
-	}
-	exisits := taskExists(&s, "testnotexists")
-	assert.False(t, exisits)
-}
+// func TestTaskNotExists(t *testing.T) {
+// 	s := service.Service{
+// 		Tasks: map[string]*service.Task{
+// 			"test": &service.Task{},
+// 		},
+// 	}
+// 	exisits := taskExists(&s, "testnotexists")
+// 	assert.False(t, exisits)
+// }
 
-func TestTaskExistsOnOtherKey(t *testing.T) {
-	s := service.Service{
-		Tasks: map[string]*service.Task{
-			"test":  &service.Task{},
-			"test2": &service.Task{},
-		},
-	}
-	exisits := taskExists(&s, "test2")
-	assert.True(t, exisits)
-}
+// func TestTaskExistsOnOtherKey(t *testing.T) {
+// 	s := service.Service{
+// 		Tasks: map[string]*service.Task{
+// 			"test":  &service.Task{},
+// 			"test2": &service.Task{},
+// 		},
+// 	}
+// 	exisits := taskExists(&s, "test2")
+// 	assert.True(t, exisits)
+// }
 
 func TestCreate(t *testing.T) {
 	s := service.Service{
@@ -68,7 +68,7 @@ func TestCreate(t *testing.T) {
 			"test": &service.Task{},
 		},
 	}
-	var inputs interface{}
+	var inputs map[string]interface{}
 	exec, err := Create(&s, "test", inputs)
 	assert.Nil(t, err)
 	assert.Equal(t, exec.Service, &s)
@@ -84,7 +84,26 @@ func TestCreateInvalidTask(t *testing.T) {
 			"test": &service.Task{},
 		},
 	}
-	var inputs interface{}
+	var inputs map[string]interface{}
 	_, err := Create(&s, "testinvalid", inputs)
+	assert.NotNil(t, err)
+}
+
+func TestCreateInvalidInputs(t *testing.T) {
+	s := service.Service{
+		Name: "TestCreateInvalidInputs",
+		Tasks: map[string]*service.Task{
+			"test": &service.Task{
+				Inputs: map[string]*service.Parameter{
+					"foo": &service.Parameter{
+						Type: "String",
+					},
+				},
+			},
+		},
+	}
+	var inputs map[string]interface{}
+	_, err := Create(&s, "test", inputs)
+	assert.Contains(t, "Invalid inputs", err.Error())
 	assert.NotNil(t, err)
 }
