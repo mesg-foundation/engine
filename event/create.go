@@ -13,7 +13,7 @@ func Create(serviceForEvent *service.Service, eventKey string, data map[string]i
 	if !evenFound {
 		return nil, errors.New("Event " + eventKey + " doesn't exists in service " + serviceForEvent.Name)
 	}
-	if serviceEvent.IsValid(data) {
+	if !serviceEvent.IsValid(data) {
 		errorString := "Invalid parameters: "
 		for _, warning := range serviceEvent.Validate(data) {
 			errorString = errorString + " " + warning.String()
