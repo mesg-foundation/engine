@@ -9,20 +9,20 @@ import (
 
 const configDirectory = ".mesg"
 
-func getConfigDirectory() (string, error) {
-	homeDirectory, err := homedir.Dir()
+func getConfigPath() (string, error) {
+	homePath, err := homedir.Dir()
 	if err != nil {
 		return "", nil
 	}
-	return filepath.Join(homeDirectory, configDirectory), nil
+	return filepath.Join(homePath, configDirectory), nil
 }
 
-func createConfigDirectory() error {
-	configDirectory, err := getConfigDirectory()
+func createConfigPath() error {
+	configPath, err := getConfigPath()
 	if err != nil {
 		return err
 	}
-	err = os.Mkdir(configDirectory, os.ModePerm)
+	err = os.Mkdir(configPath, os.ModePerm)
 	if os.IsExist(err) == false {
 		return err
 	}
@@ -30,7 +30,7 @@ func createConfigDirectory() error {
 }
 
 func init() {
-	err := createConfigDirectory()
+	err := createConfigPath()
 	if err != nil {
 		panic(err)
 	}
