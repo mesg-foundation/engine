@@ -10,8 +10,8 @@ import (
 
 // SubmitResult of an execution
 func (s *Server) SubmitResult(context context.Context, request *SubmitResultRequest) (reply *SubmitResultReply, err error) {
-	execution := execution.InProgress(request.ExecutionID)
-	if execution == nil {
+	exec := execution.InProgress(request.ExecutionID)
+	if exec == nil {
 		err = errors.New("No task in progress with the ID " + request.ExecutionID)
 		return
 	}
@@ -20,7 +20,7 @@ func (s *Server) SubmitResult(context context.Context, request *SubmitResultRequ
 	if err != nil {
 		return
 	}
-	err = execution.Complete(request.OutputKey, data)
+	err = exec.Complete(request.OutputKey, data)
 	if err != nil {
 		return
 	}

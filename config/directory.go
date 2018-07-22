@@ -13,19 +13,19 @@ var ConfigDirectory string
 var AccountDirectory string
 
 func detectHomePath() (path string, err error) {
-	user, err := user.Current()
+	u, err := user.Current()
 	if err != nil {
 		return
 	}
-	path = user.HomeDir
+	path = u.HomeDir
 	return
 }
 
 func getHomeDirectory() (directory string, err error) {
-	directory = os.Getenv("HOME")
+	/*directory = os.Getenv("HOME")
 	if directory != "" {
 		return
-	}
+	}*/
 	directory, err = detectHomePath()
 	return
 }

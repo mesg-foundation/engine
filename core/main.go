@@ -17,10 +17,10 @@ func main() {
 		Network: "tcp",
 		Address: viper.GetString(config.APIServerAddress),
 	})
-	go startServer(&api.Server{
+	/*go startServer(&api.Server{
 		Network: "unix",
 		Address: viper.GetString(config.APIServerSocket),
-	})
+	})*/
 	abort := make(chan os.Signal, 1)
 	signal.Notify(abort, syscall.SIGINT, syscall.SIGTERM)
 	<-abort

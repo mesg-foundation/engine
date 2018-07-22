@@ -2,7 +2,7 @@ package service
 
 import (
 	"errors"
-	"os"
+	"runtime"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -70,10 +70,10 @@ func (dependency *DependencyFromService) Start(networkID string) (containerServi
 	if err != nil {
 		return
 	}
-	mounts, err := dependency.extractVolumes()
+	/*mounts, err := dependency.extractVolumes()
 	if err != nil {
 		return
-	}
+	}*/
 	containerServiceID, err = container.StartService(container.ServiceOptions{
 		Namespace: dependency.namespace(),
 		Labels: map[string]string{
@@ -84,13 +84,13 @@ func (dependency *DependencyFromService) Start(networkID string) (containerServi
 		Args:  strings.Fields(dependency.Command),
 		Env: []string{
 			"MESG_TOKEN=" + service.Hash(),
-			"MESG_ENDPOINT=" + viper.GetString(config.APIServiceTargetSocket),
-			"MESG_ENDPOINT_TCP=mesg-core:50052", // TODO: should get this from daemon namespace and config
+			"MESG_ENDPOINT=localhost:50052",
+			//"MESG_ENDPOINT_TCP=mesg-core:50052", // TODO: should get this from daemon namespace and config
 		},
-		Mounts: append(mounts, container.Mount{
+		/*Mounts: append(mounts, container.Mount{
 			Source: viper.GetString(config.APIServiceSocketPath),
 			Target: viper.GetString(config.APIServiceTargetPath),
-		}),
+		}),*/
 		Ports:      dependency.extractPorts(),
 		NetworksID: []string{networkID, sharedNetworkID},
 	})
@@ -126,12 +126,18 @@ func (dependency *DependencyFromService) extractVolumes() (volumes []container.M
 	for _, volume := range dependency.Volumes {
 		path := filepath.Join(servicePath, dependency.Name, volume)
 		source := filepath.Join(viper.GetString(config.ServicePathHost), path)
+
+		//windows hack - TODO: Put into utility package
+		if runtime.GOOS == "windows" {
+			source = "/c" + filepath.ToSlash(source[2:])
+		}
+
 		volumes = append(volumes, container.Mount{
 			Source: source,
 			Target: volume,
 		})
 		// TODO: move mkdir in container package
-		os.MkdirAll(filepath.Join(viper.GetString(config.ServicePathDocker), path), os.ModePerm)
+		//os.MkdirAll(filepath.Join(viper.GetString(config.ServicePathDocker), path), os.ModePerm)
 	}
 	for _, depName := range dependency.Volumesfrom {
 		dep := service.Dependencies[depName]
@@ -142,12 +148,18 @@ func (dependency *DependencyFromService) extractVolumes() (volumes []container.M
 		for _, volume := range dep.Volumes {
 			path := filepath.Join(servicePath, depName, volume)
 			source := filepath.Join(viper.GetString(config.ServicePathHost), path)
+
+			//windows hack - TODO: Put into utility package
+			if runtime.GOOS == "windows" {
+				source = "/c" + filepath.ToSlash(source[2:])
+			}
+
 			volumes = append(volumes, container.Mount{
 				Source: source,
 				Target: volume,
 			})
 			// TODO: move mkdir in container package
-			os.MkdirAll(filepath.Join(viper.GetString(config.ServicePathDocker), path), os.ModePerm)
+			//os.MkdirAll(filepath.Join(viper.GetString(config.ServicePathDocker), path), os.ModePerm)
 		}
 	}
 	return
