@@ -76,13 +76,13 @@ func cmdServiceAssetsReadmetemplateMdBytes() ([]byte, error) {
 }
 
 func cmdServiceAssetsReadmetemplateMd() (*asset, error) {
-	bytes, err := cmdServiceAssetsReadmetemplateMdBytes()
+	readmeBytes, err := cmdServiceAssetsReadmetemplateMdBytes()
 	if err != nil {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "cmd/service/assets/readmeTemplate.md", size: 1140, mode: os.FileMode(420), modTime: time.Unix(1531285359, 0)}
-	a := &asset{bytes: bytes, info: info}
+	info := bindataFileInfo{name: "cmd/service/assets/readmeTemplate.md", size: 1140, mode: os.FileMode(420), modTime: time.Unix(1530694737, 0)}
+	a := &asset{bytes: readmeBytes, info: info}
 	return a, nil
 }
 
@@ -181,10 +181,10 @@ type bintree struct {
 	Children map[string]*bintree
 }
 var _bintree = &bintree{nil, map[string]*bintree{
-	"cmd": &bintree{nil, map[string]*bintree{
-		"service": &bintree{nil, map[string]*bintree{
-			"assets": &bintree{nil, map[string]*bintree{
-				"readmeTemplate.md": &bintree{cmdServiceAssetsReadmetemplateMd, map[string]*bintree{}},
+	"cmd": {nil, map[string]*bintree{
+		"service": {nil, map[string]*bintree{
+			"assets": {nil, map[string]*bintree{
+				"readmeTemplate.md": {cmdServiceAssetsReadmetemplateMd, map[string]*bintree{}},
 			}},
 		}},
 	}},

@@ -19,11 +19,11 @@ func (s *Server) EmitEvent(context context.Context, request *EmitEventRequest) (
 	if err != nil {
 		return
 	}
-	event, err := event.Create(&service, request.EventKey, data)
+	evt, err := event.Create(&service, request.EventKey, data)
 	if err != nil {
 		return
 	}
-	event.Publish()
+	evt.Publish()
 	reply = &EmitEventReply{}
 	return
 }

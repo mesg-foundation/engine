@@ -14,25 +14,25 @@ import (
 
 // ListenResult will listen for results from a services
 func (s *Server) ListenResult(request *ListenResultRequest, stream Core_ListenResultServer) (err error) {
-	service, err := services.Get(request.ServiceID)
+	svc, err := services.Get(request.ServiceID)
 	if err != nil {
 		return
 	}
-	if err = validateTaskKey(&service, request.TaskFilter); err != nil {
+	if err = validateTaskKey(&svc, request.TaskFilter); err != nil {
 		return
 	}
-	if err = validateOutputKey(&service, request.TaskFilter, request.OutputFilter); err != nil {
+	if err = validateOutputKey(&svc, request.TaskFilter, request.OutputFilter); err != nil {
 		return
 	}
-	subscription := pubsub.Subscribe(service.ResultSubscriptionChannel())
+	subscription := pubsub.Subscribe(svc.ResultSubscriptionChannel())
 	for data := range subscription {
-		execution := data.(*execution.Execution)
-		if isSubscribedTask(request, execution) && isSubscribedOutput(request, execution) {
-			outputs, _ := json.Marshal(execution.OutputData)
+		exec := data.(*execution.Execution)
+		if isSubscribedTask(request, exec) && isSubscribedOutput(request, exec) {
+			outputs, _ := json.Marshal(exec.OutputData)
 			stream.Send(&ResultData{
-				ExecutionID: execution.ID,
-				TaskKey:     execution.Task,
-				OutputKey:   execution.Output,
+				ExecutionID: exec.ID,
+				TaskKey:     exec.Task,
+				OutputKey:   exec.Output,
 				OutputData:  string(outputs),
 			})
 		}

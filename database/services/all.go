@@ -14,12 +14,12 @@ func All() (services []*service.Service, err error) {
 	}
 	iter := db.NewIterator(nil, nil)
 	for iter.Next() {
-		var service service.Service
-		err = proto.Unmarshal(iter.Value(), &service)
+		var svc service.Service
+		err = proto.Unmarshal(iter.Value(), &svc)
 		if err != nil {
 			return
 		}
-		services = append(services, &service)
+		services = append(services, &svc)
 	}
 	iter.Release()
 	err = iter.Error()

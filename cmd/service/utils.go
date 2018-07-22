@@ -105,15 +105,15 @@ func buildDockerImage(path string) (imageHash string, err error) {
 }
 
 func injectConfigurationInDependencies(s *service.Service, imageHash string) {
-	config := s.Configuration
-	if config == nil {
-		config = &service.Dependency{}
+	conf := s.Configuration
+	if conf == nil {
+		conf = &service.Dependency{}
 	}
 	dependency := &service.Dependency{
-		Command:     config.Command,
-		Ports:       config.Ports,
-		Volumes:     config.Volumes,
-		Volumesfrom: config.Volumesfrom,
+		Command:     conf.Command,
+		Ports:       conf.Ports,
+		Volumes:     conf.Volumes,
+		Volumesfrom: conf.Volumesfrom,
 		Image:       imageHash,
 	}
 	if s.Dependencies == nil {

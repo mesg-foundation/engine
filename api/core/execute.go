@@ -2,10 +2,9 @@ package core
 
 import (
 	"encoding/json"
+	"context"
 
 	"github.com/mesg-foundation/core/database/services"
-
-	"context"
 	"github.com/mesg-foundation/core/execution"
 )
 
@@ -20,13 +19,13 @@ func (s *Server) ExecuteTask(ctx context.Context, request *ExecuteTaskRequest) (
 	if err != nil {
 		return
 	}
-	execution, err := execution.Create(&service, request.TaskKey, inputs)
+	exec, err := execution.Create(&service, request.TaskKey, inputs)
 	if err != nil {
 		return
 	}
-	err = execution.Execute()
+	err = exec.Execute()
 	reply = &ExecuteTaskReply{
-		ExecutionID: execution.ID,
+		ExecutionID: exec.ID,
 	}
 	return
 }

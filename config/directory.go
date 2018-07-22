@@ -13,11 +13,11 @@ var ConfigDirectory string
 var AccountDirectory string
 
 func detectHomePath() (path string, err error) {
-	user, err := user.Current()
+	u, err := user.Current()
 	if err != nil {
 		return
 	}
-	path = user.HomeDir
+	path = u.HomeDir
 	return
 }
 

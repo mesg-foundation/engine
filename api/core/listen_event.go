@@ -14,20 +14,20 @@ import (
 
 // ListenEvent for listen event from a specific service services
 func (s *Server) ListenEvent(request *ListenEventRequest, stream Core_ListenEventServer) (err error) {
-	service, err := services.Get(request.ServiceID)
+	svc, err := services.Get(request.ServiceID)
 	if err != nil {
 		return
 	}
-	if err = validateEventKey(&service, request.EventFilter); err != nil {
+	if err = validateEventKey(&svc, request.EventFilter); err != nil {
 		return
 	}
-	subscription := pubsub.Subscribe(service.EventSubscriptionChannel())
+	subscription := pubsub.Subscribe(svc.EventSubscriptionChannel())
 	for data := range subscription {
-		event := data.(*event.Event)
-		if isSubscribedEvent(request, event) {
-			eventData, _ := json.Marshal(event.Data)
+		evt := data.(*event.Event)
+		if isSubscribedEvent(request, evt) {
+			eventData, _ := json.Marshal(evt.Data)
 			stream.Send(&EventData{
-				EventKey:  event.Key,
+				EventKey:  evt.Key,
 				EventData: string(eventData),
 			})
 		}
