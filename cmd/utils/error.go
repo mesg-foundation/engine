@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/docker/docker/client"
 	"github.com/logrusorgru/aurora"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -20,7 +21,15 @@ func HandleError(err error) {
 func errorMessage(err error) string {
 	switch {
 	case coreConnectionError(err):
-		return aurora.Sprintf("%s\nPlease start the core by running: mesg-core start", aurora.Red("Cannot reach the Core."))
+		return aurora.Sprintf("%s\n%s",
+			aurora.Red("Cannot reach the Core."),
+			"Please start the core by running: mesg-core start",
+		)
+	case dockerDaemonError(err):
+		return aurora.Sprintf("%s\n%s",
+			aurora.Red("Please make sure Docker is running"),
+			"If Docker is not installed on your machine you can install it here https://store.docker.com/search?type=edition&offering=community",
+		)
 	default:
 		return aurora.Red(err.Error()).String()
 	}
@@ -29,4 +38,8 @@ func errorMessage(err error) string {
 func coreConnectionError(err error) bool {
 	s := status.Convert(err)
 	return s.Code() == codes.Unavailable
+}
+
+func dockerDaemonError(err error) bool {
+	return client.IsErrConnectionFailed(err)
 }
