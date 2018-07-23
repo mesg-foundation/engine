@@ -16,11 +16,11 @@ func (s *Server) ListenTask(request *ListenTaskRequest, stream Service_ListenTas
 	}
 	subscription := pubsub.Subscribe(service.TaskSubscriptionChannel())
 	for data := range subscription {
-		execution := data.(*execution.Execution)
-		inputs, _ := json.Marshal(execution.Inputs)
+		exec := data.(*execution.Execution)
+		inputs, _ := json.Marshal(exec.Inputs)
 		stream.Send(&TaskData{
-			ExecutionID: execution.ID,
-			TaskKey:     execution.Task,
+			ExecutionID: exec.ID,
+			TaskKey:     exec.Task,
 			InputData:   string(inputs),
 		})
 	}
