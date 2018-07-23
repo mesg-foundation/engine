@@ -9,16 +9,16 @@ import (
 
 // All the configuration keys
 const (
-	APIServerAddress       = "Api.Server.Address"
+	APIServerAddress = "Api.Server.Address"
 	//APIServerSocket        = "Api.Server.Socket"
-	APIClientTarget        = "Api.Client.Target"
+	APIClientTarget = "Api.Client.Target"
 	//APIServiceTargetPath   = "Api.Service.TargetPath"
 	//APIServiceTargetSocket = "Api.Service.TargetSocket"
 	//APIServiceSocketPath   = "Api.Service.SocketPath"
-	ServicePathHost        = "Service.Path.Host"
+	ServicePathHost = "Service.Path.Host"
 	//ServicePathDocker      = "Service.Path.Docker"
-	MESGPath               = "MESG.Path"
-	CoreImage              = "Core.Image"
+	MESGPath  = "MESG.Path"
+	CoreImage = "Core.Image"
 )
 
 func init() {

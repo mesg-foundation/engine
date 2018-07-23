@@ -1,8 +1,8 @@
 package daemon
 
 import (
-	"runtime"
 	"path/filepath"
+	"runtime"
 
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"

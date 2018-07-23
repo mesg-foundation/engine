@@ -1,8 +1,8 @@
 package core
 
 import (
-	"encoding/json"
 	"context"
+	"encoding/json"
 
 	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/execution"
