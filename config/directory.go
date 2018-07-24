@@ -28,10 +28,3 @@ func createConfigPath() error {
 	}
 	return nil
 }
-
-func init() {
-	err := createConfigPath()
-	if err != nil {
-		panic(err)
-	}
-}
