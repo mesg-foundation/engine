@@ -109,3 +109,12 @@ func mergeLabels(l1 map[string]string, l2 map[string]string) map[string]string {
 	}
 	return l1
 }
+
+// MapToEnv transform a map of key value to a array of env string
+func MapToEnv(data map[string]string) []string {
+	var env []string
+	for key, value := range data {
+		env = append(env, key+"="+value)
+	}
+	return env
+}

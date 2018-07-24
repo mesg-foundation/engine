@@ -17,7 +17,7 @@ import (
 func (service *Service) Start() (serviceIDs []string, err error) {
 	status, err := service.Status()
 	if err != nil || status == RUNNING {
-		return //TODO: if the service is already running, serviceIDs will be returned.
+		return //TODO: if the service is already running, serviceIDs should be returned.
 	}
 	// If there is one but not all services running stop to restart all
 	if status == PARTIAL {
@@ -82,11 +82,11 @@ func (dependency *DependencyFromService) Start(networkID string) (containerServi
 		},
 		Image: dependency.Image,
 		Args:  strings.Fields(dependency.Command),
-		Env: []string{
-			"MESG_TOKEN=" + service.Hash(),
-			"MESG_ENDPOINT=" + viper.GetString(config.APIServiceTargetSocket) + viper.GetString(config.APIServiceTargetPath),
-			"MESG_ENDPOINT_TCP=mesg-core:50052", // TODO: should get this from daemon namespace and config
-		},
+		Env: container.MapToEnv(map[string]string{
+			"MESG_TOKEN":        service.Hash(),
+			"MESG_ENDPOINT":     viper.GetString(config.APIServiceTargetSocket) + viper.GetString(config.APIServiceTargetPath),
+			"MESG_ENDPOINT_TCP": "mesg-core:50052", // TODO: should get this from daemon namespace and config
+		}),
 		Mounts: append(mounts, container.Mount{
 			Source: filepath.Join(viper.GetString(config.MESGPath), viper.GetString(config.APIServiceSocketPath)),
 			Target: viper.GetString(config.APIServiceTargetPath),
