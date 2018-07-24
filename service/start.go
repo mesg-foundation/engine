@@ -84,11 +84,11 @@ func (dependency *DependencyFromService) Start(networkID string) (containerServi
 		Args:  strings.Fields(dependency.Command),
 		Env: container.MapToEnv(map[string]string{
 			"MESG_TOKEN":        service.Hash(),
-			"MESG_ENDPOINT":     viper.GetString(config.APIServiceTargetSocket) + viper.GetString(config.APIServiceTargetPath),
+			"MESG_ENDPOINT":     viper.GetString(config.APIServiceTargetSocket),
 			"MESG_ENDPOINT_TCP": "mesg-core:50052", // TODO: should get this from daemon namespace and config
 		}),
 		Mounts: append(mounts, container.Mount{
-			Source: filepath.Join(viper.GetString(config.MESGPath), viper.GetString(config.APIServiceSocketPath)),
+			Source: viper.GetString(config.APIServiceSocketPath),
 			Target: viper.GetString(config.APIServiceTargetPath),
 		}),
 		Ports:      dependency.extractPorts(),
