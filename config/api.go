@@ -21,21 +21,22 @@ const (
 	CoreImage              = "Core.Image"
 )
 
-func init() {
+func setApiDefault() {
 	configPath, _ := getConfigPath()
+
 	viper.SetDefault(MESGPath, configPath)
 
 	viper.SetDefault(APIServerAddress, ":50052")
 	viper.SetDefault(APIServerSocket, "/mesg/server.sock")
 	os.MkdirAll("/mesg", os.ModePerm)
 
-	viper.SetDefault(APIClientTarget, ":50052")
+	viper.SetDefault(APIClientTarget, viper.GetString(APIServerAddress))
 
-	viper.SetDefault(APIServiceSocketPath, "server.sock")
+	viper.SetDefault(APIServiceSocketPath, filepath.Join(viper.GetString(MESGPath), "server.sock"))
 	viper.SetDefault(APIServiceTargetPath, "/mesg/server.sock")
-	viper.SetDefault(APIServiceTargetSocket, "unix://")
+	viper.SetDefault(APIServiceTargetSocket, "unix://"+viper.GetString(APIServiceTargetPath))
 
-	viper.SetDefault(ServicePathHost, "services")
+	viper.SetDefault(ServicePathHost, filepath.Join(viper.GetString(MESGPath), "services"))
 	viper.SetDefault(ServicePathDocker, filepath.Join("/mesg", "services"))
 	os.MkdirAll(viper.GetString(ServicePathDocker), os.ModePerm)
 
