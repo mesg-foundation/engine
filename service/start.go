@@ -48,7 +48,7 @@ func (service *Service) Start() (serviceIDs []string, err error) {
 		}(dependency, i)
 	}
 	wg.Wait()
-	// Disgrasfully close the service because there is an error
+	// Grasfully stop the service because there is an error
 	if err != nil {
 		service.Stop()
 	}
@@ -125,7 +125,7 @@ func (dependency *DependencyFromService) extractVolumes() (volumes []container.M
 	volumes = make([]container.Mount, 0)
 	for _, volume := range dependency.Volumes {
 		path := filepath.Join(servicePath, dependency.Name, volume)
-		source := filepath.Join(viper.GetString(config.MESGPath), viper.GetString(config.ServicePathHost), path)
+		source := filepath.Join(viper.GetString(config.ServicePathHost), path)
 		volumes = append(volumes, container.Mount{
 			Source: source,
 			Target: volume,
@@ -141,7 +141,7 @@ func (dependency *DependencyFromService) extractVolumes() (volumes []container.M
 		}
 		for _, volume := range dep.Volumes {
 			path := filepath.Join(servicePath, depName, volume)
-			source := filepath.Join(viper.GetString(config.MESGPath), viper.GetString(config.ServicePathHost), path)
+			source := filepath.Join(viper.GetString(config.ServicePathHost), path)
 			volumes = append(volumes, container.Mount{
 				Source: source,
 				Target: volume,
