@@ -14,7 +14,7 @@ type ServiceOptions struct {
 	Namespace  []string
 	Ports      []Port
 	Mounts     []Mount
-	Env        []string
+	Env        []string // TODO: should be transform to  map[string]string and use the func mapToEnv
 	Args       []string
 	NetworksID []string
 	Labels     map[string]string
