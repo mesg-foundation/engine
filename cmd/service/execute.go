@@ -35,7 +35,7 @@ func executeHandler(cmd *cobra.Command, args []string) {
 	taskData, err := getJSON(cmd.Flag("json").Value.String())
 	utils.HandleError(err)
 
-	stream, err := cli.ListenResult(context.Background(), &core.ListenResultRequest{
+	stream, err := cli().ListenResult(context.Background(), &core.ListenResultRequest{
 		ServiceID:  serviceID,
 		TaskFilter: taskKey,
 	})
@@ -65,7 +65,7 @@ func getJSON(path string) (string, error) {
 }
 
 func executeTask(serviceID string, task string, data string) (execution *core.ExecuteTaskReply, err error) {
-	return cli.ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
+	return cli().ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
 		ServiceID: serviceID,
 		TaskKey:   task,
 		InputData: data,
