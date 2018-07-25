@@ -43,7 +43,7 @@ func init() {
 }
 
 func listenEvents(serviceID string, filter string) {
-	stream, err := cli.ListenEvent(context.Background(), &core.ListenEventRequest{
+	stream, err := cli().ListenEvent(context.Background(), &core.ListenEventRequest{
 		ServiceID:   serviceID,
 		EventFilter: filter,
 	})
@@ -60,7 +60,7 @@ func listenEvents(serviceID string, filter string) {
 }
 
 func listenResults(serviceID string, result string, output string) {
-	stream, err := cli.ListenResult(context.Background(), &core.ListenResultRequest{
+	stream, err := cli().ListenResult(context.Background(), &core.ListenResultRequest{
 		ServiceID:    serviceID,
 		TaskFilter:   result,
 		OutputFilter: output,
@@ -87,7 +87,7 @@ func executeTask(serviceID string, task string, dataPath string) (execution *cor
 		utils.HandleError(err)
 	}
 
-	execution, err = cli.ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
+	execution, err = cli().ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
 		ServiceID: serviceID,
 		TaskKey:   task,
 		InputData: string(data),
@@ -101,7 +101,7 @@ func testHandler(cmd *cobra.Command, args []string) {
 	serviceID := cmd.Flag("serviceID").Value.String()
 	if serviceID == "" {
 		service := prepareService(defaultPath(args))
-		deployment, err := cli.DeployService(context.Background(), &core.DeployServiceRequest{
+		deployment, err := cli().DeployService(context.Background(), &core.DeployServiceRequest{
 			Service: service,
 		})
 		utils.HandleError(err)
@@ -110,7 +110,7 @@ func testHandler(cmd *cobra.Command, args []string) {
 		fmt.Println("Service ID:", serviceID)
 
 		utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: "Starting service..."}, func() {
-			_, err = cli.StartService(context.Background(), &core.StartServiceRequest{
+			_, err = cli().StartService(context.Background(), &core.StartServiceRequest{
 				ServiceID: serviceID,
 			})
 		})
@@ -133,7 +133,7 @@ func testHandler(cmd *cobra.Command, args []string) {
 
 	if cmd.Flag("keep-alive").Value.String() != "true" {
 		utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: "Stopping service..."}, func() {
-			cli.StopService(context.Background(), &core.StopServiceRequest{
+			cli().StopService(context.Background(), &core.StopServiceRequest{
 				ServiceID: serviceID,
 			})
 		})

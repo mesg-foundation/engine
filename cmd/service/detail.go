@@ -22,7 +22,7 @@ var Detail = &cobra.Command{
 }
 
 func detailHandler(cmd *cobra.Command, args []string) {
-	serviceReply, err := cli.GetService(context.Background(), &core.GetServiceRequest{
+	serviceReply, err := cli().GetService(context.Background(), &core.GetServiceRequest{
 		ServiceID: args[0],
 	})
 	utils.HandleError(err)
