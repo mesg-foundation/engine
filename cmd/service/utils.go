@@ -45,16 +45,14 @@ func prepareService(path string) (importedService *service.Service) {
 	utils.HandleError(err)
 	if didDownload {
 		defer os.RemoveAll(path)
-		fmt.Println(aurora.Green("Service downloaded with success"))
-		fmt.Println("Temp folder: " + path)
+		fmt.Printf("%s Service downloaded with success\n", aurora.Green("✔"))
 	}
 	importedService, err = importer.From(path)
 	handleValidationError(err)
 	utils.HandleError(err)
 	imageHash, err := buildDockerImage(path)
 	utils.HandleError(err)
-	fmt.Println(aurora.Green("Image built with success"))
-	fmt.Println("Image hash:", imageHash)
+	fmt.Printf("%s Image built with success\n", aurora.Green("✔"))
 	injectConfigurationInDependencies(importedService, imageHash)
 	return
 }
