@@ -11,10 +11,10 @@ import (
 )
 
 const (
-	cannotReachTheCore = "Cannot reach the Core."
+	cannotReachTheCore = "Cannot reach the Core"
 	startCore          = "Please start the core by running: mesg-core start"
-	cannotReachDocker  = "Please make sure Docker is running"
-	installDocker      = "If Docker is not installed on your machine you can install it here https://store.docker.com/search?type=edition&offering=community"
+	cannotReachDocker  = "Cannot reach Docker"
+	installDocker      = "Please make sure Docker is running.\nIf Docker is not installed on your machine you can install it here: https://store.docker.com/search?type=edition&offering=community"
 )
 
 // HandleError display the error and stop the process if error exist
