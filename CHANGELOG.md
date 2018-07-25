@@ -4,10 +4,10 @@
 
 #### Changed
 - (#282) Branch support added. You can now specify your branches with a `#branch` fragment at the end of your git url. E.g.: https://github.com/mesg-foundation/service-ethereum-erc20#websocket
-- (#302) **BREAKING** Move config file from ~/.mesg/.mesg.yml to ~/.mesg/config.yml
 
 #### Added
 - (#242) Add more details in command `mesg-core service validate`
+- (#302) Possibility to use a config file in ~/.mesg/config.yml
 
 #### Removed
 #### Fixed
