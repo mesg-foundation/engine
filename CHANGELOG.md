@@ -7,8 +7,12 @@
 
 #### Added
 - (#242) Add more details in command `mesg-core service validate`
+- (#) Add command `service dev` that build and run the service with the logs
+- (#) Add command `service execute` that execute a task on a service
 
 #### Removed
+- (#) Deprecate command `service test` in favor of `service dev` and `service execute`
+
 #### Fixed
 
 ## [v1.0.0]
