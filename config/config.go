@@ -44,5 +44,5 @@ func init() {
 		panic(err)
 	}
 
-	setApiDefault()
+	setAPIDefault()
 }

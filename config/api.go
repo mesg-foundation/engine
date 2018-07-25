@@ -21,7 +21,7 @@ const (
 	CoreImage              = "Core.Image"
 )
 
-func setApiDefault() {
+func setAPIDefault() {
 	configPath, _ := getConfigPath()
 
 	viper.SetDefault(MESGPath, configPath)
