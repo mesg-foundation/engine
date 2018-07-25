@@ -9,6 +9,7 @@
 #### Added
 - (#242) Add more details in command `mesg-core service validate`
 - (#295) Added more validation on the API for the data of `executeTask`, `submitResult` and `emitEvent`. Now if data doesn't match the service file, the API returns an error
+- (#302) Possibility to use a config file in ~/.mesg/config.yml
 
 #### Removed
 #### Fixed

@@ -27,7 +27,7 @@ var Start = &cobra.Command{
 func startHandler(cmd *cobra.Command, args []string) {
 	var err error
 	utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: "Starting service..."}, func() {
-		_, err = cli.StartService(context.Background(), &core.StartServiceRequest{
+		_, err = cli().StartService(context.Background(), &core.StartServiceRequest{
 			ServiceID: args[0],
 		})
 	})
