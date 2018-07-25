@@ -10,8 +10,6 @@ func (p *ParameterWarning) String() string {
 	return p.warning
 }
 
-// TODO: Rename this file into validation
-
 func validParameters(parameters map[string]*Parameter, data map[string]interface{}) bool {
 	return len(validateParameters(parameters, data)) == 0
 }
