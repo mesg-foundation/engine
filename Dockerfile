@@ -17,7 +17,8 @@ RUN go get github.com/xeipuuv/gojsonschema && \
     go get github.com/cnf/structhash && \
     go get gopkg.in/src-d/go-git.v4/... && \
     go get github.com/asaskevich/govalidator && \
-    go get github.com/cpuguy83/go-md2man
+    go get github.com/cpuguy83/go-md2man && \
+    go get github.com/mitchellh/go-homedir
 ADD . src/github.com/mesg-foundation/core
 WORKDIR src/github.com/mesg-foundation/core
 RUN go get ./...

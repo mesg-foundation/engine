@@ -14,7 +14,7 @@ type ServiceOptions struct {
 	Namespace  []string
 	Ports      []Port
 	Mounts     []Mount
-	Env        []string
+	Env        []string // TODO: should be transform to  map[string]string and use the func mapToEnv
 	Args       []string
 	NetworksID []string
 	Labels     map[string]string
@@ -108,4 +108,13 @@ func mergeLabels(l1 map[string]string, l2 map[string]string) map[string]string {
 		l1[k] = v
 	}
 	return l1
+}
+
+// MapToEnv transform a map of key value to a array of env string
+func MapToEnv(data map[string]string) []string {
+	var env []string
+	for key, value := range data {
+		env = append(env, key+"="+value)
+	}
+	return env
 }

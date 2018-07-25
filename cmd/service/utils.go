@@ -21,7 +21,11 @@ import (
 	git "gopkg.in/src-d/go-git.v4"
 )
 
-var cli core.CoreClient
+func cli() core.CoreClient {
+	connection, err := grpc.Dial(viper.GetString(config.APIClientTarget), grpc.WithInsecure())
+	utils.HandleError(err)
+	return core.NewCoreClient(connection)
+}
 
 // Set the default path if needed
 func defaultPath(args []string) string {
@@ -120,10 +124,4 @@ func injectConfigurationInDependencies(s *service.Service, imageHash string) {
 		s.Dependencies = make(map[string]*service.Dependency)
 	}
 	s.Dependencies["service"] = dependency
-}
-
-func init() {
-	connection, err := grpc.Dial(viper.GetString(config.APIClientTarget), grpc.WithInsecure())
-	utils.HandleError(err)
-	cli = core.NewCoreClient(connection)
 }

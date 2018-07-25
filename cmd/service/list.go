@@ -51,7 +51,7 @@ To have more details, see the [detail command](mesg-core_service_detail.md).`,
 }
 
 func listHandler(cmd *cobra.Command, args []string) {
-	reply, err := cli.ListServices(context.Background(), &core.ListServicesRequest{})
+	reply, err := cli().ListServices(context.Background(), &core.ListServicesRequest{})
 	utils.HandleError(err)
 	status, err := servicesWithStatus(reply.Services)
 	utils.HandleError(err)
