@@ -42,7 +42,7 @@ func devHandler(cmd *cobra.Command, args []string) {
 	<-utils.WaitForCancel()
 
 	utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: "Stopping service..."}, func() {
-		cli.StopService(context.Background(), &core.StopServiceRequest{
+		cli().StopService(context.Background(), &core.StopServiceRequest{
 			ServiceID: serviceID,
 		})
 	})
@@ -50,14 +50,14 @@ func devHandler(cmd *cobra.Command, args []string) {
 
 func createService(path string) (string, error) {
 	service := prepareService(path)
-	deployment, err := cli.DeployService(context.Background(), &core.DeployServiceRequest{
+	deployment, err := cli().DeployService(context.Background(), &core.DeployServiceRequest{
 		Service: service,
 	})
 	if err != nil {
 		return "", err
 	}
 	utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: "Starting service..."}, func() {
-		_, err = cli.StartService(context.Background(), &core.StartServiceRequest{
+		_, err = cli().StartService(context.Background(), &core.StartServiceRequest{
 			ServiceID: deployment.ServiceID,
 		})
 	})
@@ -65,7 +65,7 @@ func createService(path string) (string, error) {
 }
 
 func listenEvents(serviceID string, filter string) {
-	stream, err := cli.ListenEvent(context.Background(), &core.ListenEventRequest{
+	stream, err := cli().ListenEvent(context.Background(), &core.ListenEventRequest{
 		ServiceID:   serviceID,
 		EventFilter: filter,
 	})
@@ -82,7 +82,7 @@ func listenEvents(serviceID string, filter string) {
 }
 
 func listenResults(serviceID string, result string, output string) {
-	stream, err := cli.ListenResult(context.Background(), &core.ListenResultRequest{
+	stream, err := cli().ListenResult(context.Background(), &core.ListenResultRequest{
 		ServiceID:    serviceID,
 		TaskFilter:   result,
 		OutputFilter: output,
