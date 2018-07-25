@@ -8,6 +8,7 @@
 
 #### Added
 - (#242) Add more details in command `mesg-core service validate`
+- (#302) Possibility to use a config file in ~/.mesg/config.yml
 
 #### Removed
 #### Fixed
