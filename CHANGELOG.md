@@ -8,6 +8,7 @@
 
 #### Added
 - (#242) Add more details in command `mesg-core service validate`
+- (#302) Possibility to use a config file in ~/.mesg/config.yml
 - (#) Add command `service dev` that build and run the service with the logs
 - (#) Add command `service execute` that execute a task on a service
 
