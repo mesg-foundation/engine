@@ -56,6 +56,8 @@ func TestCreateInvalidTask(t *testing.T) {
 	var inputs map[string]interface{}
 	_, err := Create(&s, "testinvalid", inputs)
 	assert.NotNil(t, err)
+	_, notFound := err.(*service.TaskNotFoundError)
+	assert.True(t, notFound)
 }
 
 func TestCreateInvalidInputs(t *testing.T) {
@@ -73,6 +75,7 @@ func TestCreateInvalidInputs(t *testing.T) {
 	}
 	var inputs map[string]interface{}
 	_, err := Create(&s, "test", inputs)
-	assert.Contains(t, "Invalid inputs", err.Error())
 	assert.NotNil(t, err)
+	_, invalid := err.(*service.InvalidTaskInputError)
+	assert.True(t, invalid)
 }

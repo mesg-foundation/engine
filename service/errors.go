@@ -33,3 +33,33 @@ func (e *InvalidEventDataError) Error() string {
 	}
 	return errorString
 }
+
+// TaskNotFoundError is an error when we cannot find an task in a service
+type TaskNotFoundError struct {
+	Service *Service
+	TaskKey string
+}
+
+func (e *TaskNotFoundError) Error() string {
+	return strings.Join([]string{
+		"Task",
+		e.TaskKey,
+		"not found in service",
+		e.Service.Name,
+	}, " ")
+}
+
+// InvalidTaskInputError is an error when the inputs of a task are not valid
+type InvalidTaskInputError struct {
+	Task   *Task
+	Key    string
+	Inputs map[string]interface{}
+}
+
+func (e *InvalidTaskInputError) Error() string {
+	errorString := "Input " + e.Key + " is"
+	for _, warning := range e.Task.Validate(e.Inputs) {
+		errorString = errorString + " " + warning.String()
+	}
+	return errorString
+}

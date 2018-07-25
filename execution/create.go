@@ -2,7 +2,6 @@ package execution
 
 import (
 	"encoding/json"
-	"errors"
 	"log"
 	"time"
 
@@ -14,14 +13,17 @@ import (
 func Create(serviceForExecution *service.Service, task string, inputs map[string]interface{}) (*Execution, error) {
 	serviceTask, taskFound := serviceForExecution.Tasks[task]
 	if !taskFound {
-		return nil, errors.New("Task " + task + " doesn't exists in service " + serviceForExecution.Name)
+		return nil, &service.TaskNotFoundError{
+			Service: serviceForExecution,
+			TaskKey: task,
+		}
 	}
 	if !serviceTask.IsValid(inputs) {
-		errorString := "Invalid inputs: "
-		for _, warning := range serviceTask.Validate(inputs) {
-			errorString = errorString + " " + warning.String()
+		return nil, &service.InvalidTaskInputError{
+			Task:   serviceTask,
+			Key:    task,
+			Inputs: inputs,
 		}
-		return nil, errors.New(errorString)
 	}
 	execution := &Execution{
 		Service:   serviceForExecution,
