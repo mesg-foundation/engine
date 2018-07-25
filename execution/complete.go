@@ -8,7 +8,7 @@ import (
 )
 
 // Complete mark an execution as complete and put it in the list of processed tasks
-func (execution *Execution) Complete(output string, data map[string]interface{}) (err error) {
+func (execution *Execution) Complete(output string, data map[string]interface{}) error {
 	serviceOutput, outputFound := execution.Service.Tasks[execution.Task].Outputs[output]
 	if !outputFound {
 		return &MissingOutputError{
@@ -22,7 +22,7 @@ func (execution *Execution) Complete(output string, data map[string]interface{})
 			Warnings: serviceOutput.Validate(data),
 		}
 	}
-	err = execution.moveFromInProgressToProcessed()
+	err := execution.moveFromInProgressToProcessed()
 	if err != nil {
 		return err
 	}
