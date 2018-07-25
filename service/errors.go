@@ -22,11 +22,12 @@ func (e *EventNotFoundError) Error() string {
 // InvalidEventDataError is an error when the data of an event are not valid
 type InvalidEventDataError struct {
 	Event *Event
+	Key   string
 	Data  map[string]interface{}
 }
 
 func (e *InvalidEventDataError) Error() string {
-	errorString := "Invalid event parameters: "
+	errorString := "Parameter " + e.Key + " is"
 	for _, warning := range e.Event.Validate(e.Data) {
 		errorString = errorString + " " + warning.String()
 	}
