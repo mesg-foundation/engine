@@ -5,21 +5,23 @@ import (
 	"time"
 
 	"github.com/mesg-foundation/core/pubsub"
+	"github.com/mesg-foundation/core/service"
 )
 
 // Complete mark an execution as complete and put it in the list of processed tasks
 func (execution *Execution) Complete(output string, data map[string]interface{}) error {
 	serviceOutput, outputFound := execution.Service.Tasks[execution.Task].Outputs[output]
 	if !outputFound {
-		return &MissingOutputError{
-			Service: execution.Service,
-			Output:  output,
+		return &service.OutputNotFoundError{
+			Service:   execution.Service,
+			OutputKey: output,
 		}
 	}
 	if !serviceOutput.IsValid(data) {
-		return &InvalidOutputError{
-			Service:  execution.Service,
-			Warnings: serviceOutput.Validate(data),
+		return &service.InvalidOutputDataError{
+			Output: serviceOutput,
+			Key:    output,
+			Data:   data,
 		}
 	}
 	err := execution.moveFromInProgressToProcessed()
