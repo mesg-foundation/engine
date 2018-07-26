@@ -52,5 +52,14 @@ themeConfig:
           - /guide/service/test
           - /guide/service/deploy-a-service
           - /guide/service/run-the-service
+    /tutorials/:
+      - /
+      - title: Applications
+        children:
+          - /tutorials/applications/receive-email-when-there-is-an-erc20-transfer
+      - title: Services
+        children:
+          - /tutorials/services/send-emails-with-sendgrid
+          - /tutorials/services/listen-for-transfers-of-an-ethereum-erc20-token
     /:
       - ''
