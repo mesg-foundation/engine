@@ -42,7 +42,7 @@ func TestCompleteNotFound(t *testing.T) {
 	var outputs map[string]interface{}
 	err := execution.Complete("output", outputs)
 	assert.NotNil(t, err)
-	x, missingOutputError := err.(*MissingOutputError)
+	x, missingOutputError := err.(*OutputNotFoundError)
 	assert.True(t, missingOutputError)
 	assert.Equal(t, "output", x.Output)
 }
@@ -68,9 +68,9 @@ func TestCompleteInvalidOutputs(t *testing.T) {
 	var outputs map[string]interface{}
 	err := execution.Complete("output", outputs)
 	assert.NotNil(t, err)
-	x, invalidOutputError := err.(*InvalidOutputError)
+	x, invalidOutputError := err.(*service.InvalidOutputDataError)
 	assert.True(t, invalidOutputError)
-	assert.True(t, len(x.Warnings) > 0)
+	assert.Equal(t, "output", x.Key)
 }
 
 func TestCompleteNotProcessed(t *testing.T) {

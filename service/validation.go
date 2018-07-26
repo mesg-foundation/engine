@@ -3,11 +3,12 @@ package service
 // ParameterWarning is a struct that contains a specific warning related to a parameter
 type ParameterWarning struct {
 	warning   string
+	key       string
 	parameter *Parameter
 }
 
 func (p *ParameterWarning) String() string {
-	return p.warning
+	return "Value of '" + p.key + "' is " + p.warning
 }
 
 func validParameters(parameters map[string]*Parameter, data map[string]interface{}) bool {
@@ -19,6 +20,7 @@ func validateParameters(parameters map[string]*Parameter, data map[string]interf
 	for key, param := range parameters {
 		warning := param.Validate(data[key])
 		if warning != nil {
+			warning.key = key
 			warnings = append(warnings, warning)
 		}
 	}
@@ -87,10 +89,10 @@ func (p *Parameter) Validate(data interface{}) *ParameterWarning {
 		_, okObj := value.(map[string]interface{})
 		_, okArr := value.([]interface{})
 		if !okObj && !okArr {
-			warning = &ParameterWarning{parameter: p, warning: "not an object/array"}
+			warning = &ParameterWarning{parameter: p, warning: "not an object or array"}
 		}
 	default:
-		warning = &ParameterWarning{parameter: p, warning: "invalid type"}
+		warning = &ParameterWarning{parameter: p, warning: "an invalid type"}
 	}
 	return warning
 }
