@@ -11,7 +11,7 @@ func TestGenerateId(t *testing.T) {
 		Name: "TestGenerateId",
 	}
 	hash := service.Hash()
-	assert.Equal(t, string(hash), "v1_c5cbd753f3d7f4f567fcd3c7d5576208")
+	assert.Equal(t, string(hash), "v1_b3664cde5d7fcb2d37fe2ebb45acdd27")
 }
 
 func TestNoCollision(t *testing.T) {
