@@ -42,9 +42,9 @@ func TestCompleteNotFound(t *testing.T) {
 	var outputs map[string]interface{}
 	err := execution.Complete("output", outputs)
 	assert.NotNil(t, err)
-	x, missingOutputError := err.(*OutputNotFoundError)
+	x, missingOutputError := err.(*service.OutputNotFoundError)
 	assert.True(t, missingOutputError)
-	assert.Equal(t, "output", x.Output)
+	assert.Equal(t, "output", x.OutputKey)
 }
 
 func TestCompleteInvalidOutputs(t *testing.T) {
