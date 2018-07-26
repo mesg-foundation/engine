@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"io/ioutil"
 	"sync"
 	"testing"
 
@@ -33,8 +34,9 @@ func TestListenSuccess(t *testing.T) {
 	s, server := newServiceAndServer(t)
 	go server.Start()
 
-	l := New(s)
+	l := New(s, LogOutputOption(ioutil.Discard))
 	go l.Start()
+
 	_, execution, err := server.Execute("log", data)
 	assert.Nil(t, err)
 	assert.Equal(t, "success", execution.Key())
