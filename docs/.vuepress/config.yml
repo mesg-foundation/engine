@@ -1,2 +1,56 @@
-title: 'MESG CLI'
-description: 'Create applications connected to anything'
+title: MESG
+description: Create applications connected to anything
+themeConfig:
+  lastUpdated: true
+  repo: mesg-foundation/awesome
+  repoLabel: Contribute!
+  docsRepo: mesg-foundation/core
+  docsDir: docs
+  docsBranch: dev
+  editLinks: true
+  editLinkText: Help us improve this page!
+  serviceWorker:
+    updatePopup: true
+  nav:
+    - text: Home
+      link: /
+    - text: Guide
+      link: /guide/
+    - text: Tutorials
+      link: /tutorials/
+    - text: CLI
+      link: /cli/mesg-core
+    - text: Changelog
+      link: https://github.com/mesg-foundation/core/blob/master/CHANGELOG.md
+  sidebar:
+    /guide/:
+      - /
+      - /guide/
+      - title: Start here
+        children:
+          - /guide/start-here/what-is-mesg
+          - /guide/start-here/core
+          - /guide/start-here/mesg-infrastructure
+          - /guide/start-here/quick-start-guide
+          - /guide/start-here/installation
+          - /guide/start-here/join-us
+      - title: Application
+        children:
+          - /guide/application/what-is-an-application
+          - /guide/application/use-cases
+          - /guide/application/create-your-application
+          - /guide/application/listen-for-events
+          - /guide/application/execute-a-task
+      - title: Service
+        children:
+          - /guide/service/what-is-a-service
+          - /guide/service/service-file
+          - /guide/service/emit-an-event
+          - /guide/service/listen-for-tasks
+          - /guide/service/dockerize-the-service
+          - /guide/service/validate
+          - /guide/service/test
+          - /guide/service/deploy-a-service
+          - /guide/service/run-the-service
+    /:
+      - ''
