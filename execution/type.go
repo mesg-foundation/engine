@@ -14,7 +14,7 @@ type Execution struct {
 	CreatedAt         time.Time
 	ExecutedAt        time.Time
 	ExecutionDuration time.Duration
-	Inputs            interface{}
+	Inputs            map[string]interface{}
 	Output            string
-	OutputData        interface{}
+	OutputData        map[string]interface{}
 }
