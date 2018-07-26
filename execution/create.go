@@ -2,7 +2,6 @@ package execution
 
 import (
 	"encoding/json"
-	"errors"
 	"log"
 	"time"
 
@@ -11,37 +10,37 @@ import (
 )
 
 // Create an execution with a unique ID and put it in the pending list
-func Create(service *service.Service, task string, inputs interface{}) (execution *Execution, err error) {
-	if !taskExists(service, task) {
-		err = errors.New("Task " + task + " doesn't exists in service " + service.Name)
-		return
+func Create(serviceForExecution *service.Service, task string, inputs map[string]interface{}) (*Execution, error) {
+	serviceTask, taskFound := serviceForExecution.Tasks[task]
+	if !taskFound {
+		return nil, &service.TaskNotFoundError{
+			Service: serviceForExecution,
+			TaskKey: task,
+		}
 	}
-	execution = &Execution{
-		Service:   service,
+	if !serviceTask.IsValid(inputs) {
+		return nil, &service.InvalidTaskInputError{
+			Task:   serviceTask,
+			Key:    task,
+			Inputs: inputs,
+		}
+	}
+	execution := &Execution{
+		Service:   serviceForExecution,
 		Inputs:    inputs,
 		Task:      task,
 		CreatedAt: time.Now(),
 	}
+	var err error
 	execution.ID, err = generateID(execution)
 	if err != nil {
-		return
+		return nil, err
 	}
 	mu.Lock()
 	defer mu.Unlock()
 	pendingExecutions[execution.ID] = execution
 	log.Println("[PENDING]", task)
-	return
-}
-
-func taskExists(service *service.Service, name string) (exists bool) {
-	exists = false
-	for taskName := range service.Tasks {
-		if taskName == name {
-			exists = true
-			break
-		}
-	}
-	return
+	return execution, err
 }
 
 func generateID(execution *Execution) (id string, err error) {

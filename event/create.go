@@ -1,34 +1,31 @@
 package event
 
 import (
-	"errors"
 	"time"
 
 	"github.com/mesg-foundation/core/service"
 )
 
 // Create an event
-func Create(service *service.Service, eventKey string, data interface{}) (event *Event, err error) {
-	if !eventExists(service, eventKey) {
-		err = errors.New("Event " + eventKey + " doesn't exists in service " + service.Name)
-		return
+func Create(serviceForEvent *service.Service, eventKey string, data map[string]interface{}) (*Event, error) {
+	serviceEvent, eventFound := serviceForEvent.Events[eventKey]
+	if !eventFound {
+		return nil, &service.EventNotFoundError{
+			Service:  serviceForEvent,
+			EventKey: eventKey,
+		}
 	}
-	event = &Event{
-		Service:   service,
+	if !serviceEvent.IsValid(data) {
+		return nil, &service.InvalidEventDataError{
+			Event: serviceEvent,
+			Key:   eventKey,
+			Data:  data,
+		}
+	}
+	return &Event{
+		Service:   serviceForEvent,
 		Key:       eventKey,
 		Data:      data,
 		CreatedAt: time.Now(),
-	}
-	return
-}
-
-func eventExists(service *service.Service, name string) (exists bool) {
-	exists = false
-	for eventName := range service.Events {
-		if eventName == name {
-			exists = true
-			break
-		}
-	}
-	return
+	}, nil
 }
