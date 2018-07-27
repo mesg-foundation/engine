@@ -12,3 +12,21 @@ func (l *EventListen) ServiceID() string {
 func (l *EventListen) EventFilter() string {
 	return l.event
 }
+
+type ResultListen struct {
+	serviceID string
+	key       string
+	task      string
+}
+
+func (l *ResultListen) ServiceID() string {
+	return l.serviceID
+}
+
+func (l *ResultListen) KeyFilter() string {
+	return l.key
+}
+
+func (l *ResultListen) TaskFilter() string {
+	return l.task
+}
