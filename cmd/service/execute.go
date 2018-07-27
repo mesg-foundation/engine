@@ -43,6 +43,7 @@ func executeHandler(cmd *cobra.Command, args []string) {
 		ServiceID:  serviceID,
 		TaskFilter: taskKey,
 	})
+	utils.HandleError(err)
 
 	var execution *core.ResultData
 	utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: "Executing task " + aurora.Green(taskKey).String() + "..."}, func() {
