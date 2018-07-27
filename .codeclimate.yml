@@ -4,6 +4,7 @@ exclude_patterns:
   - "**/*.pb.go"
   - "**/service/importer/assets/*.go"
   - "**/cmd/service/assets/*.go"
+  - "**/cmd/service/tests"
 plugins:
   gofmt:
     enabled: true
