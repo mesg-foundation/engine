@@ -11,12 +11,20 @@ import (
 type Option func(*QuickStart)
 
 type QuickStart struct {
-	app       *application.Application
-	config    Config
+	// app is a MESG application
+	app *application.Application
+
+	config Config
+
+	// streams holds MESG's application streams
+	streams []*application.Stream
+	errC    chan error
+
 	log       *log.Logger
 	logOutput io.Writer
 }
 
+// Config holds the application configuration.
 type Config struct {
 	WebhookServiceID    string
 	DiscordInvServiceID string
@@ -25,10 +33,12 @@ type Config struct {
 	Email               string
 }
 
+// New creates a new QuickStart application.
 func New(app *application.Application, config Config, options ...Option) *QuickStart {
 	q := &QuickStart{
 		app:       app,
 		config:    config,
+		errC:      make(chan error, 0),
 		logOutput: os.Stdout,
 	}
 	for _, option := range options {
@@ -45,37 +55,48 @@ func LogOutputOption(out io.Writer) Option {
 	}
 }
 
+// Start starts quickstart application.
 func (q *QuickStart) Start() error {
 	defer q.app.Close()
 
-	requestStream, err := q.whenRequest()
+	q.monitor(q.whenRequest())
+	q.monitor(q.whenDiscordSend())
+
+	return q.wait()
+}
+
+func (q *QuickStart) monitor(stream *application.Stream, err error) {
 	if err != nil {
+		q.errC <- err
+		return
+	}
+	q.streams = append(q.streams, stream)
+}
+
+func (q *QuickStart) wait() error {
+	select {
+	case err := <-q.errC:
 		return err
+	default:
 	}
 
-	discordSendStream, err := q.whenDiscordSend()
-	if err != nil {
-		return err
+	errC := make(chan error, 0)
+
+	for _, stream := range q.streams {
+		go q.monitorStream(stream, errC)
 	}
 
+	return <-errC
+}
+
+func (q *QuickStart) monitorStream(stream *application.Stream, errC chan error) {
 	for {
 		select {
-		case err := <-requestStream.Err:
-			if err != nil {
-				return err
-			}
+		case err := <-stream.Err:
+			errC <- err
+			return
 
-		case err := <-discordSendStream.Err:
-			if err != nil {
-				return err
-			}
-
-		case execution := <-requestStream.Executions:
-			if execution.Err != nil {
-				q.log.Println(execution.Err)
-			}
-
-		case execution := <-discordSendStream.Executions:
+		case execution := <-stream.Executions:
 			if execution.Err != nil {
 				q.log.Println(execution.Err)
 			}
@@ -83,6 +104,7 @@ func (q *QuickStart) Start() error {
 	}
 }
 
+// Close gracefully closes quickstart application.
 func (q *QuickStart) Close() error {
 	return q.app.Close()
 }

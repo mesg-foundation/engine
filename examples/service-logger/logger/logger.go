@@ -12,15 +12,15 @@ type Option func(*Logger)
 
 // Logger is a logger service.
 type Logger struct {
-	s         *service.Service
+	service   *service.Service
 	log       *log.Logger
 	logOutput io.Writer
 }
 
 // New creates a new Logger runs over service s.
-func New(s *service.Service, options ...Option) *Logger {
+func New(service *service.Service, options ...Option) *Logger {
 	l := &Logger{
-		s:         s,
+		service:   service,
 		logOutput: os.Stdout,
 	}
 	for _, option := range options {
@@ -39,12 +39,12 @@ func LogOutputOption(out io.Writer) Option {
 
 // Start starts logger as a service.
 func (l *Logger) Start() error {
-	return l.s.Listen(
+	return l.service.Listen(
 		service.NewTask("log", l.handler),
 	)
 }
 
 // Close closes the service.
 func (l *Logger) Close() error {
-	return l.s.Close()
+	return l.service.Close()
 }

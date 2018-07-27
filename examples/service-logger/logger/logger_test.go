@@ -54,6 +54,7 @@ func TestListenError(t *testing.T) {
 
 	l := New(s)
 	go l.Start()
+
 	_, execution, err := server.Execute("log", data)
 	assert.Nil(t, err)
 	assert.Equal(t, "error", execution.Key())
