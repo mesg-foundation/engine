@@ -14,7 +14,7 @@ type Server struct {
 	socket *Socket
 }
 
-// NewServer a new test server.
+// NewServer creates a new test server.
 func NewServer() *Server {
 	return &Server{
 		core:   newCoreServer(),

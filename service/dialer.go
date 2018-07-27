@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// Dialer describes a dialer implementation for gRPC.
+// Dialer describes a dialer implementation for network.
 type Dialer interface {
 	Dial() (net.Conn, error)
 }
