@@ -8,9 +8,9 @@ The Service needs to receive a command sent by Core in order to execute any desi
 
 To implement tasks in your Service, you'll need to :
 
-* [ ] [Add the task definition](listen-for-tasks.md#create-your-task) in the Service's [`mesg.yml`](service-file.md) file
-* [ ] [Listen for task's execution](listen-for-tasks.md) from the [Core](../start-here/core.md)
-* [ ] [Submit the outputs](listen-for-tasks.md#submit-outputs-of-your-execution) of the task
+* [Add the task definition](#task-definitions) in the Service's [`mesg.yml`](service-file.md) file
+* [Listen for task's execution](#listen-for-task-executions) from the [Core](../start-here/core.md)
+* [Submit the outputs](#submit-outputs-of-task-executions) of the task
 
 ## Task definitions
 
@@ -194,8 +194,8 @@ Once the task execution is finished, the Service has to send the outputs of the 
 | **Name** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | **executionID** | `String` | required | The `executionID` received from the [listen](listen-for-tasks.md#listen-for-task-executions) stream. |
-| **outputKey** | `String` | required | The ID of the output as defined in the [output's declaration](listen-for-tasks.md#create-your-task). |
-| **outputData** | `String` | required | The output's data encoded in JSON. The data should match the one defined in the [output's declaration](listen-for-tasks.md#create-your-task). |
+| **outputKey** | `String` | required | The ID of the output as defined in the [output's declaration](#task-definitions). |
+| **outputData** | `String` | required | The output's data encoded in JSON. The data should match the one defined in the [output's declaration](#task-definitions). |
 
 ```javascript
 {

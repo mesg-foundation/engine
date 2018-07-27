@@ -6,9 +6,9 @@ Services run in Docker to provide a sandbox and a normalized environment to remo
 
 ## Steps to be compatible with Docker
 
-* [ ] [Create the Dockerfile](dockerize-the-service.md#create-your-dockerfile)
-* [ ] [Add a config](dockerize-the-service.md#add-dependencies) in your [`mesg.yml`](service-file.md) file, if needed
-* [ ] [Add dependencies](dockerize-the-service.md#add-dependencies) in your [`mesg.yml`](service-file.md) file, if needed
+* [Create the Dockerfile](#create-the-dockerfile)
+* [Add a config](#add-a-configuration-and-dependencies) in your [`mesg.yml`](service-file.md) file, if needed
+* [Add dependencies](#add-a-configuration-and-dependencies) in your [`mesg.yml`](service-file.md) file, if needed
 
 ## Create the Dockerfile
 
@@ -67,7 +67,7 @@ If the service requires dependencies to other Docker container, specify them in 
 | **image** | `String` | The docker image of the Service. Only available for dependencies. |
 | **volumes** | `array[string]` | A list of [volumes](https://docs.docker.com/storage/volumes/) that will be mounted in the Service. |
 | **ports** | `array[string]` | A list of ports that the Service needs to expose. |
-| **command** | `String` | The command to run when the Service starts if not defined in your [Dockerfile](dockerize-the-service.md#create-your-dockerfile). |
+| **command** | `String` | The command to run when the Service starts if not defined in your [Dockerfile](#create-the-dockerfile). |
 | **volumeFrom** | `array[string]` | List of dependencies' names to mount a volume from. |
 
 ### Example
