@@ -13,9 +13,9 @@ import (
 )
 
 var config = quickstart.Config{
-	WebhookServiceID:    "v1_3b56fdfc5bb5f50def11efaa6045046c",
-	DiscordInvServiceID: "v1_e4e8d488444bbd9389ad9eac150669be",
-	LogServiceID:        "v1_0df94b3537841789f1dbe8bc8690a4c6",
+	WebhookServiceID:    "v1_61a1850a786dc8c2d59e8d7d5aaaecce",
+	DiscordInvServiceID: "v1_a9ac300dcd1322205b6aa00a382f5775",
+	LogServiceID:        "v1_ea41381d7dbd9ad6869827a89aad2f25",
 	SendgridKey:         "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",
 	Email:               "ilkergoktugozturk@gmail.com",
 }

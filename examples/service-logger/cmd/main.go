@@ -11,10 +11,7 @@ import (
 )
 
 func main() {
-	s, err := service.New(
-		service.EndpointOption("endpoint"),
-		service.TokenOption("endpoint"),
-	)
+	s, err := service.New()
 	if err != nil {
 		log.Fatal(err)
 	}

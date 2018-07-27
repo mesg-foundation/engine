@@ -1,8 +1,9 @@
 package servicetest
 
 import (
+	"context"
+
 	"github.com/mesg-foundation/core/api/service"
-	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
 
