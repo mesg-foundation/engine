@@ -52,14 +52,19 @@ type ResultListener struct {
 	cancel context.CancelFunc
 }
 
+// ResultOption is the configuration func of ResultListener.
 type ResultOption func(*ResultListener)
 
+// TaskFilterOption returns a new option to filter results by task name.
+// Default is all(*).
 func TaskFilterOption(task string) ResultOption {
 	return func(l *ResultListener) {
 		l.resultTask = task
 	}
 }
 
+// OutputKeyFilterOption returns a new option to filter results by output key name.
+// Default is all(*).
 func OutputKeyFilterOption(key string) ResultOption {
 	return func(l *ResultListener) {
 		l.outputKey = key
@@ -80,21 +85,26 @@ func (a *Application) WhenResult(serviceID string, options ...ResultOption) *Res
 	return l
 }
 
+// FilterFunc expects the returned value to be true to do task execution.
 func (l *ResultListener) FilterFunc(fn func(*Result) bool) *ResultListener {
 	l.filterFunc = fn
 	return l
 }
 
+// Map sets data as the input data to task.
 func (l *ResultListener) Map(data Data) *ResultListener {
 	l.mapData = data
 	return l
 }
 
+// MapFunc sets the returned data as the input data of task.
+// You can dynamically produce input values for task over result data.
 func (l *ResultListener) MapFunc(fn func(*Result) Data) *ResultListener {
 	l.mapFunc = fn
 	return l
 }
 
+// Execute executes task on serviceID.
 func (l *ResultListener) Execute(serviceID, task string) (*Stream, error) {
 	l.taskServiceID = serviceID
 	l.task = task

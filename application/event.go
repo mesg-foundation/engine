@@ -47,8 +47,11 @@ type EventListener struct {
 	cancel context.CancelFunc
 }
 
+// EventOption is the configuration func of EventListener.
 type EventOption func(*EventListener)
 
+// EventFilterOption returns a new option to filter events by name.
+// Default is all(*).
 func EventFilterOption(event string) EventOption {
 	return func(l *EventListener) {
 		l.event = event
@@ -68,23 +71,29 @@ func (a *Application) WhenEvent(serviceID string, options ...EventOption) *Event
 	return l
 }
 
+// FilterFunc expects the returned value to be true to do task execution.
 func (l *EventListener) FilterFunc(fn func(*Event) bool) *EventListener {
 	l.filterFunc = fn
 	return l
 }
 
+// Data is piped as the input data to task.
 type Data interface{}
 
+// Map sets data as the input data to task.
 func (l *EventListener) Map(data Data) *EventListener {
 	l.mapData = data
 	return l
 }
 
+// MapFunc sets the returned data as the input data of task.
+// You can dynamically produce input values for task over event data.
 func (l *EventListener) MapFunc(fn func(*Event) Data) *EventListener {
 	l.mapFunc = fn
 	return l
 }
 
+// Execute executes task on serviceID.
 func (l *EventListener) Execute(serviceID, task string) (*Stream, error) {
 	l.taskServiceID = serviceID
 	l.task = task

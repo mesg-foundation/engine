@@ -8,6 +8,7 @@ import (
 	"google.golang.org/grpc/test/bufconn"
 )
 
+// Socket is an in-memory gRPC socket.
 type Socket struct {
 	ln *bufconn.Listener
 }
@@ -19,6 +20,7 @@ func newSocket() *Socket {
 	return s
 }
 
+// Dial returns the client side net conn.
 func (s *Socket) Dial() (net.Conn, error) {
 	return s.ln.Dial()
 }

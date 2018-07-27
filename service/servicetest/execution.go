@@ -2,7 +2,7 @@ package servicetest
 
 import "encoding/json"
 
-// Execution is a mock task execution result.
+// Execution is a testing task execution result.
 type Execution struct {
 	id   string
 	data string
