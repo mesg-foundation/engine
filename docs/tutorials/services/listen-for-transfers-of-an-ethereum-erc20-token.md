@@ -17,9 +17,9 @@ We will use the library [Web3.js](https://web3js.readthedocs.io/en/1.0/) to inte
 
 You can access the final version of the [source code on GitHub](https://github.com/mesg-foundation/tutorials/tree/master/services/listen-to-transfer-of-ethereum-erc20-token).
 
-{% hint style="info" %}
+::: tip
 MESG Core should already be installed on your computer. If it isn't yet, [install it here](https://docs.mesg.com/start-here/installation).
-{% endhint %}
+:::
 
 ## Create the MESG service
 
@@ -140,9 +140,9 @@ Let's try it!
 node index.js
 ```
 
-{% hint style="info" %}
-**Warning:** It might take a while to receive and display a transfer in the console. The events are received in real time, but if nobody is transferring this ERC20, you won't receive or see any events. You can go onto [Etherscan](https://etherscan.io/token/0xf230b790e05390fc8295f4d3f60332c93bed42e2) to see the transfers.
-{% endhint %}
+::: warning
+It might take a while to receive and display a transfer in the console. The events are received in real time, but if nobody is transferring this ERC20, you won't receive or see any events. You can go onto [Etherscan](https://etherscan.io/token/0xf230b790e05390fc8295f4d3f60332c93bed42e2) to see the transfers.
+:::
 
 Let's improve the output by showing only the useful information. Edit to match:
 
@@ -163,9 +163,9 @@ contract.events.Transfer({fromBlock: 'latest'})
 {% endcode-tabs-item %}
 {% endcode-tabs %}
 
-{% hint style="info" %}
+::: tip
 We have to `divide` value by `Math.pow(10, 6)` because of the number of decimals defined in this contract.
-{% endhint %}
+:::
 
 Let's run it again:
 
@@ -188,9 +188,9 @@ transfer { blockNumber: 5827612,
   value: 100 }
 ```
 
-{% hint style="success" %}
-Congratulations! You've built a Node app that listens in real-time to transfers of an ERC20 token!
-{% endhint %}
+::: tip Congratulation
+You've built a Node app that listens in real-time to transfers of an ERC20 token!
+:::
 
 ## Transform the node app to a MESG Service
 
@@ -321,9 +321,9 @@ And finally, after a few seconds:
 2018/06/21 18:40:15 Receive event transfer : {"blockNumber":5828174,"from":"0x5B47bbA2F60AFb4870c3909a5b249F01E6d11BAe","to":"0x819B2368fa8781C4866237A0EA5E61Ec51492A32","transactionHash":"0x524751269a73294fa1fddf8fd584e40d51f4174df2a4ee8e081ea9a94ce7cc90","value":79}
 ```
 
-{% hint style="success" %}
+::: tip Congratulation!
 Hooray!!! 🎉 You finished building a MESG Service that listens for transfer of an ERC20 token!
-{% endhint %}
+:::
 
 ### Deploy the Service
 

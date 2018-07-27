@@ -20,9 +20,9 @@ Those two services have tutorial on how to create them. Check them out:
 
 You can access the final version of the [source code on GitHub](https://github.com/mesg-foundation/tutorials/tree/master/applications/email-notification-one-erc20-transfer).
 
-{% hint style="info" %}
+::: tip
 MESG Core should already be installed on your computer. If it isn't yet, [install it here](https://docs.mesg.com/start-here/installation).
-{% endhint %}
+:::
 
 ## Setup
 
