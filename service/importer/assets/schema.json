@@ -16,12 +16,8 @@
     "description": {
       "type": "string"
     },
-    "visibility": {
-      "$ref": "#/definitions/visibility"
-    },
-    "publish": {
-      "$ref": "#/definitions/publish"
-    },
+    "visibility": {},
+    "publish": {},
     "repository": {
       "type": "string"
     },
@@ -70,28 +66,6 @@
     }
   },
   "definitions": {
-    "visibility": {
-      "type": "string",
-      "default": "ALL",
-      "enum": [
-        "",
-        "ALL",
-        "USERS",
-        "WORKERS",
-        "NONE"
-      ]
-    },
-    "publish": {
-      "type": "string",
-      "default": "ALL",
-      "enum": [
-        "",
-        "ALL",
-        "SOURCE",
-        "CONTAINER",
-        "NONE"
-      ]
-    },
     "parameters": {
       "oneOf": [
         { "type": "null" },
@@ -131,28 +105,6 @@
         }
       ]
     },
-    "fees": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "emitters": {
-          "type": "string",
-          "pattern": "^$|^([0-9]*[.]?[0-9]+)( (MESG))?$"
-        },
-        "developer": {
-          "type": "string",
-          "pattern": "^$|^([0-9]*[.]?[0-9]+)( (MESG))?$"
-        },
-        "executor": {
-          "type": "string",
-          "pattern": "^$|^([0-9]*[.]?[0-9]+)( (MESG))?$"
-        },
-        "validator": {
-          "type": "string",
-          "pattern": "^$|^([0-9]*[.]?[0-9]+)( (MESG))?$"
-        }
-      }
-    },
     "task": {
       "type": "object",
       "additionalProperties": false,
@@ -166,18 +118,9 @@
         "description": {
           "type": "string"
         },
-        "verifiable": {
-          "type": "boolean"
-        },
-        "payable": {
-          "type": "boolean"
-        },
-        "fees": {
-          "$ref": "#/definitions/fees",
-          "required": [
-            "executor"   
-          ]
-        },
+        "verifiable": {},
+        "payable": {},
+        "fees": {},
         "inputs": {
           "$ref": "#/definitions/parameters"
         },
@@ -223,12 +166,7 @@
         "description": {
           "type": "string"
         },
-        "fees": {
-          "$ref": "#/definitions/fees",
-          "required": [
-            "emitters"   
-          ]
-        },
+        "fees": {},
         "data": {
           "$ref": "#/definitions/parameters"
         }
