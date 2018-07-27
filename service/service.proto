@@ -5,8 +5,6 @@ package service;
 message Service {
   string name = 1;
   string description = 2;
-  string visibility = 3;
-  string publish = 4;
   map<string, Task> tasks = 5;
   map<string, Event> events = 6;
   map<string, Dependency> dependencies = 7;
@@ -17,18 +15,8 @@ message Service {
 message Task {
   string name = 1;
   string description = 2;
-  bool verifiable = 3;
-  bool payable = 4;
-  Fee fees = 5;
   map<string, Parameter> inputs = 6;
   map<string, Output> outputs = 7;
-}
-
-message Fee {
-  string developer = 1;
-  string validator = 2;
-  string executor = 3;
-  string emittors = 4;
 }
 
 message Event {

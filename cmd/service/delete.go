@@ -16,7 +16,8 @@ var Delete = &cobra.Command{
 	Use:   "delete",
 	Short: "Delete one or many services",
 	Example: `mesg-core service delete SERVICE_ID
-mesg-core service delete SERVICE_ID_1 SERVICE_ID_2`,
+mesg-core service delete SERVICE_ID_1 SERVICE_ID_2
+mesg-core service delete --all`,
 	Run:               deleteHandler,
 	DisableAutoGenTag: true,
 }
