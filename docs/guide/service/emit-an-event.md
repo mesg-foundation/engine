@@ -8,8 +8,8 @@ Events are emitted from a Service \(e.g.: a web server receiving a request, or a
 
 To emit events from your Service, you'll need to:
 
-* [ ] [Add the definition of the event](emit-an-event.md#create-your-event) in the Service's [`mesg.yml`](service-file.md) file
-* [ ] [Emit the event](emit-an-event.md#publish-your-event) when it happens on the Service
+* [Add the definition of the event](#event-definitions) in the Service's [`mesg.yml`](service-file.md) file
+* [Emit the event](#emit-an-event-2) when it happens on the Service
 
 ## Event definitions
 
