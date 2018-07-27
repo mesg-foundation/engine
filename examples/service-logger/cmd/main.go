@@ -6,8 +6,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/ilgooz/mesg-go/examples/service-logger/logger"
 	"github.com/ilgooz/mesg-go/service"
-	"github.com/ilgooz/service-logger/logger"
 )
 
 func main() {

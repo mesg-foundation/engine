@@ -28,6 +28,13 @@ func (s *Server) Socket() *Socket {
 	return s.socket
 }
 
+func (s *Server) LastServiceStart() *ServiceStart {
+	req := <-s.core.serviceStartC
+	return &ServiceStart{
+		serviceID: req.ServiceID,
+	}
+}
+
 func (s *Server) LastEventListen() *EventListen {
 	for {
 		select {
@@ -38,13 +45,6 @@ func (s *Server) LastEventListen() *EventListen {
 				event:     req.EventFilter,
 			}
 		}
-	}
-}
-
-func (s *Server) LastServiceStart() *ServiceStart {
-	req := <-s.core.serviceStartC
-	return &ServiceStart{
-		serviceID: req.ServiceID,
 	}
 }
 
@@ -72,8 +72,44 @@ func (s *Server) EmitEvent(serviceID, event string, data interface{}) error {
 	}
 }
 
-func (s *Server) EmitResult() {
+func (s *Server) LastResultListen() *ResultListen {
+	for {
+		select {
+		case <-s.core.serviceStartC:
+		case req := <-s.core.listenResultC:
+			return &ResultListen{
+				serviceID: req.ServiceID,
+				key:       req.OutputFilter,
+				task:      req.TaskFilter,
+			}
+		}
+	}
+}
 
+func (s *Server) EmitResult(serviceID, task, outputKey string, data interface{}) error {
+	bytes, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+	rd := &core.ResultData{
+		//eexecutionID
+		TaskKey:    task,
+		OutputKey:  outputKey,
+		OutputData: string(bytes),
+	}
+	s.core.em.Lock()
+	if s.core.resultC[serviceID] == nil {
+		s.core.resultC[serviceID] = make(chan *core.ResultData, 0)
+	}
+	s.core.em.Unlock()
+	for {
+		select {
+		case <-s.core.serviceStartC:
+		case <-s.core.listenResultC:
+		case s.core.resultC[serviceID] <- rd:
+			return nil
+		}
+	}
 }
 
 func (s *Server) LastExecute() *Execute {

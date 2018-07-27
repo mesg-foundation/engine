@@ -11,11 +11,13 @@ import (
 
 type coreServer struct {
 	listenEventC  chan *core.ListenEventRequest
+	listenResultC chan *core.ListenResultRequest
 	serviceStartC chan *core.StartServiceRequest
 	executeC      chan *core.ExecuteTaskRequest
 
-	eventC map[string]chan *core.EventData
-	em     sync.Mutex
+	eventC  map[string]chan *core.EventData
+	resultC map[string]chan *core.ResultData
+	em      sync.Mutex
 
 	closingC            map[string]chan struct{}
 	nonExistentServices []string
@@ -24,9 +26,11 @@ type coreServer struct {
 func newCoreServer() *coreServer {
 	return &coreServer{
 		listenEventC:  make(chan *core.ListenEventRequest, 0),
+		listenResultC: make(chan *core.ListenResultRequest, 0),
 		serviceStartC: make(chan *core.StartServiceRequest, 0),
 		executeC:      make(chan *core.ExecuteTaskRequest, 0),
 		eventC:        make(map[string]chan *core.EventData, 0),
+		resultC:       make(map[string]chan *core.ResultData, 0),
 		closingC:      make(map[string]chan struct{}, 0),
 	}
 }
@@ -85,7 +89,23 @@ func (s *coreServer) ListenEvent(request *core.ListenEventRequest,
 
 func (s *coreServer) ListenResult(request *core.ListenResultRequest,
 	stream core.Core_ListenResultServer) (err error) {
-	return nil
+	s.listenResultC <- request
+	s.em.Lock()
+	if s.resultC[request.ServiceID] == nil {
+		s.resultC[request.ServiceID] = make(chan *core.ResultData, 0)
+	}
+	s.em.Unlock()
+
+	for {
+		select {
+		case <-stream.Context().Done():
+			return nil
+		case result := <-s.resultC[request.ServiceID]:
+			if err := stream.Send(result); err != nil {
+				return err
+			}
+		}
+	}
 }
 
 func (s *coreServer) StartService(ctx context.Context,
