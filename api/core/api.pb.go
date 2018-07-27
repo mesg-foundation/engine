@@ -35,7 +35,7 @@ import math "math"
 import service "github.com/mesg-foundation/core/service"
 
 import (
-	context "context"
+	context "golang.org/x/net/context"
 	grpc "google.golang.org/grpc"
 )
 
