@@ -58,8 +58,6 @@ Also this Service's task will return two different outputs:
 
 To add this information into your Service, you can replace the `tasks: {}` in your `mesg.yml` file with the following:
 
-{% code-tabs %}
-{% code-tabs-item title="mesg.yml" %}
 ```yaml
 tasks: 
   send:
@@ -82,8 +80,6 @@ tasks:
           message:
             type: String
 ```
-{% endcode-tabs-item %}
-{% endcode-tabs %}
 
 ::: warning
 You might need to delete the **configuration: null** if it's present in your **mesg.yml** file
@@ -106,44 +102,30 @@ _Let's code !!!_
 
 First we include and initialize the library to build a MESG Service.
 
-{% code-tabs %}
-{% code-tabs-item title="index.js" %}
 ```javascript
 const MESG = require('mesg-js').service()
 ```
-{% endcode-tabs-item %}
-{% endcode-tabs %}
 
 Secondly we'll need to create the different tasks defined in the `mesg.yml` as functions.
 
-{% code-tabs %}
-{% code-tabs-item title="index.js" %}
 ```javascript
 const send = ({ from, to, subject, text }, { success, failure }) => { 
   // TODO later
 }
 ```
-{% endcode-tabs-item %}
-{% endcode-tabs %}
 
 For this task, the function will take all the inputs as a first parameter and all the outputs as a second parameter \(we are using [object destructuration](https://developer.mozilla.org/nl/docs/Web/JavaScript/Reference/Operatoren/Destructuring_assignment) here\).
 
 The last step is to start listening for tasks from **MESG Core,** then react to those events.
 
-{% code-tabs %}
-{% code-tabs-item title="index.js" %}
 ```javascript
 MESG.listenTask({ send })
 ```
-{% endcode-tabs-item %}
-{% endcode-tabs %}
 
 Here we say that when there is the event `send` coming from MESG Core, we will execute the method `send` defined earlier.
 
 The full file should look like this:
 
-{% code-tabs %}
-{% code-tabs-item title="index.js" %}
 ```javascript
 const MESG = require('mesg-js').service()​
 
@@ -153,8 +135,6 @@ const send = ({ from, to, subject, text }, { success, failure }) => {
 
 ​MESG.listenTask({ send })
 ```
-{% endcode-tabs-item %}
-{% endcode-tabs %}
 
 This is a basic skeleton for a Service, but now we need to actually code the emails with Sendgrid. For this, we will use the Sendgrid library.
 
@@ -164,18 +144,12 @@ npm install --save @sendgrid/mail
 
 Then require it in our file the same way we required it the `mesg-js` library.
 
-{% code-tabs %}
-{% code-tabs-item title="index.js" %}
 ```javascript
 const sendgrid = require('@sendgrid/mail')
 ```
-{% endcode-tabs-item %}
-{% endcode-tabs %}
 
 We had a `TODO` in our `send` task, let's code the business logic of this function using the Sendgrid library we just imported.
 
-{% code-tabs %}
-{% code-tabs-item title="index.js" %}
 ```javascript
 const send = ({ from, to, subject, text }, { success, failure }) => {
   sendgrid.setApiKey('__CHANGE_WITH_YOUR_SENDGRID_API_KEY__')
@@ -184,15 +158,11 @@ const send = ({ from, to, subject, text }, { success, failure }) => {
     .catch(e => failure({ message: e.toString() }))
 }
 ```
-{% endcode-tabs-item %}
-{% endcode-tabs %}
 
 This code is setting the API Key necessary to work with Sendgrid, then it sends an email with the parameters defined by our MESG Service. The result of this call is a promise that if successful, it will call the output `success` with the data `status` or if it fails, it will call the output `failure` with the `message` of the failure.
 
 Now your final Service code should look like this:
 
-{% code-tabs %}
-{% code-tabs-item title="index.js" %}
 ```javascript
 const MESG = require('mesg-js').service()
 const sendgrid = require('@sendgrid/mail')
@@ -206,8 +176,6 @@ const sendgrid = require('@sendgrid/mail')
 
 ​MESG.listenTask({ send })
 ```
-{% endcode-tabs-item %}
-{% endcode-tabs %}
 
 ::: warning
 Don't forget to change the `__CHANGE_WITH_YOUR_SENDGRID_API_KEY__` with your own private Sendgrid API key that you can create here: [https://app.sendgrid.com/settings/api\_keys](https://app.sendgrid.com/settings/api_keys)​.
@@ -219,8 +187,6 @@ Your Service is now ready for the second step.
 
 This step is quite short and may not be necessary in the future. We need to edit the `Dockerfile` to make your Service compatible with Docker. In the case of a Javascript Service, the file will look like this:
 
-{% code-tabs %}
-{% code-tabs-item title="Dockerfile" %}
 ```text
 FROM node
 WORKDIR /app
@@ -229,8 +195,6 @@ RUN npm install
 COPY . .
 CMD [ "node", "index.js" ]
 ```
-{% endcode-tabs-item %}
-{% endcode-tabs %}
 
 With this file, your Service can now run in Docker, but don't worry, MESG will manage all this for you.
 
@@ -246,8 +210,6 @@ Your should have a message with `Service is valid`, if not, check the previous s
 
 Now that your Service is valid, let's create a test file to test your task. Create a `test.json` file is with all the inputs needed for your task.
 
-{% code-tabs %}
-{% code-tabs-item title="test.json" %}
 ```javascript
 {
     "from": "sender@domain.tld",
@@ -256,8 +218,6 @@ Now that your Service is valid, let's create a test file to test your task. Crea
     "text": "Hello world from MESG Service"
 }
 ```
-{% endcode-tabs-item %}
-{% endcode-tabs %}
 
 ::: warning
 Replace the **\_\_YOUR\_EMAIL\_\_** with your own email to test it. Don't worry, this is only done locally. We will not collect it 😀

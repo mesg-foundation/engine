@@ -63,14 +63,10 @@ Then, create the `index.js` file in the Service folder.
 The first step is to load Web3 and initialize it with Infura.  
 Add the following code to the top of `index.js` :
 
-{% code-tabs %}
-{% code-tabs-item title="index.js" %}
 ```javascript
 const Web3 = require('web3')
 const web3 = new Web3('wss://mainnet.infura.io/_ws')
 ```
-{% endcode-tabs-item %}
-{% endcode-tabs %}
 
 We are using the new WebSocket endpoint of Infura to listen to transfers. This endpoint is public, but is not production ready yet and it may change in the future. If you aren't able to listen for transfers at the end of this tutorial, please let us know.
 
@@ -82,8 +78,6 @@ For the simplicity of this tutorial, we will use only a small part of the ABI th
 
 Create the file `erc20-abi.json` in the Service folder and copy/paste the following ABI:
 
-{% code-tabs %}
-{% code-tabs-item title="erc20-abi.json" %}
 ```javascript
 [{
   "anonymous": false,
@@ -104,18 +98,12 @@ Create the file `erc20-abi.json` in the Service folder and copy/paste the follow
   "type": "event"
 }]
 ```
-{% endcode-tabs-item %}
-{% endcode-tabs %}
 
 Now, let's come back to `index.js` and initialize the contract with the ABI and the address. Add:
 
-{% code-tabs %}
-{% code-tabs-item title="index.js" %}
 ```javascript
 const contract = new web3.eth.Contract(require('./erc20-abi.json'), "0xf230b790e05390fc8295f4d3f60332c93bed42e2")
 ```
-{% endcode-tabs-item %}
-{% endcode-tabs %}
 
 ### Listen for transfer events
 
@@ -123,16 +111,12 @@ We're finally ready to listen for transfers!
 
 Web3, thanks to the ABI, gives us access to the contract neatly. Let's add the following code to `index.js` :
 
-{% code-tabs %}
-{% code-tabs-item title="index.js" %}
 ```javascript
 contract.events.Transfer({fromBlock: 'latest'})
 .on('data', event => {
   console.log('transfer', event)
 })
 ```
-{% endcode-tabs-item %}
-{% endcode-tabs %}
 
 Let's try it!
 
@@ -146,8 +130,6 @@ It might take a while to receive and display a transfer in the console. The even
 
 Let's improve the output by showing only the useful information. Edit to match:
 
-{% code-tabs %}
-{% code-tabs-item title="index.js" %}
 ```javascript
 contract.events.Transfer({fromBlock: 'latest'})
 .on('data', event => {
@@ -160,8 +142,6 @@ contract.events.Transfer({fromBlock: 'latest'})
   })
 })
 ```
-{% endcode-tabs-item %}
-{% endcode-tabs %}
 
 ::: tip
 We have to `divide` value by `Math.pow(10, 6)` because of the number of decimals defined in this contract.
@@ -237,18 +217,12 @@ npm install --save mesg-js
 
 Let's transform the file `index.js` to use the lib. Add at the top of the file:
 
-{% code-tabs %}
-{% code-tabs-item title="index.js" %}
 ```javascript
 const MESG = require('mesg-js').service()
 ```
-{% endcode-tabs-item %}
-{% endcode-tabs %}
 
 Replace `console.log` by `MESG.emitEvent`, like so:
 
-{% code-tabs %}
-{% code-tabs-item title="index.js" %}
 ```javascript
 contract.events.Transfer({fromBlock: 'latest'})
 .on('data', event => {
@@ -261,15 +235,11 @@ contract.events.Transfer({fromBlock: 'latest'})
   })
 })
 ```
-{% endcode-tabs-item %}
-{% endcode-tabs %}
 
 ### Dockerize it
 
 Let's update the `Dockerfile` to make our Service compatible with Docker. Because it is a Node.JS app, it's pretty simple:
 
-{% code-tabs %}
-{% code-tabs-item title="Dockerfile" %}
 ```text
 FROM node:10.5
 WORKDIR /app
@@ -278,18 +248,12 @@ RUN npm install
 COPY . .
 CMD [ "node", "index.js" ]
 ```
-{% endcode-tabs-item %}
-{% endcode-tabs %}
 
 Let's also create a `.mesgignore` file to ignore the `node_modules` from the build of the Service.
 
-{% code-tabs %}
-{% code-tabs-item title=".mesgignore" %}
 ```text
 node_modules
 ```
-{% endcode-tabs-item %}
-{% endcode-tabs %}
 
 ### Test the Service
 
