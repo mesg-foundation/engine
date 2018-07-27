@@ -1,3 +1,5 @@
+// Package servicetest is a testing package for MESG service.
+// Use this package while unit testing your programs.
 package servicetest
 
 import (
@@ -8,13 +10,13 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-// Service is a test service.
+// Server is a test server.
 type Server struct {
 	service *serviceServer
 	socket  *Socket
 }
 
-// New creates a new test service.
+// NewServer creates a new test server.
 func NewServer() *Server {
 	return &Server{
 		service: newServiceServer(),
@@ -22,15 +24,17 @@ func NewServer() *Server {
 	}
 }
 
+// Start starts the test server.
 func (s *Server) Start() error {
 	return s.socket.listen(s.service)
 }
 
+// Socket returns a in-memory socket for client application.
 func (s *Server) Socket() *Socket {
 	return s.socket
 }
 
-// LastEmit returns last emitted event.
+// LastEmit returns the last emitted event.
 func (s *Server) LastEmit() *Event {
 	e := <-s.service.emitC
 	return &Event{
@@ -81,7 +85,7 @@ func (s *Server) ListenToken() string {
 	return s.service.token
 }
 
-// Close ends waiting for task requests.
+// Close closes test server.
 func (s *Server) Close() error {
 	return s.socket.close()
 }

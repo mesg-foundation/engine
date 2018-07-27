@@ -6,6 +6,7 @@ import (
 	"google.golang.org/grpc"
 )
 
+// serviceServer implements MESG's service server.
 type serviceServer struct {
 	taskC   chan *service.TaskData
 	emitC   chan *service.EmitEventRequest
@@ -70,7 +71,6 @@ func newTaskDataStream() *taskDataStream {
 	}
 }
 
-// Recv simulates receving a task data.
 func (s taskDataStream) Send(data *service.TaskData) error {
 	s.taskC <- data
 	return nil

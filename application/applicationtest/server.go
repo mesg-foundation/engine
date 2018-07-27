@@ -1,3 +1,5 @@
+// Package applicationtest is a testing package for MESG application.
+// Use this package while unit testing your programs.
 package applicationtest
 
 import (
@@ -6,13 +8,13 @@ import (
 	"github.com/mesg-foundation/core/api/core"
 )
 
-// Service is a test service.
+// Server is a test server.
 type Server struct {
 	core   *coreServer
 	socket *Socket
 }
 
-// New creates a new test service.
+// NewServer a new test server.
 func NewServer() *Server {
 	return &Server{
 		core:   newCoreServer(),
@@ -20,14 +22,17 @@ func NewServer() *Server {
 	}
 }
 
+// Start starts the test server.
 func (s *Server) Start() error {
 	return s.socket.listen(s.core)
 }
 
+// Socket returns a in-memory socket for client application.
 func (s *Server) Socket() *Socket {
 	return s.socket
 }
 
+// LastServiceStart returns the last service start request's info.
 func (s *Server) LastServiceStart() *ServiceStart {
 	req := <-s.core.serviceStartC
 	return &ServiceStart{
@@ -35,6 +40,7 @@ func (s *Server) LastServiceStart() *ServiceStart {
 	}
 }
 
+// LastEventListen returns the last event listen request's info.
 func (s *Server) LastEventListen() *EventListen {
 	for {
 		select {
@@ -48,6 +54,7 @@ func (s *Server) LastEventListen() *EventListen {
 	}
 }
 
+// EmitEvent emits a new event for serviceID with given data.
 func (s *Server) EmitEvent(serviceID, event string, data interface{}) error {
 	bytes, err := json.Marshal(data)
 	if err != nil {
@@ -72,6 +79,7 @@ func (s *Server) EmitEvent(serviceID, event string, data interface{}) error {
 	}
 }
 
+// LastEventListen returns the last result listen request's info.
 func (s *Server) LastResultListen() *ResultListen {
 	for {
 		select {
@@ -86,6 +94,7 @@ func (s *Server) LastResultListen() *ResultListen {
 	}
 }
 
+// EmitResult emits a new task result for serviceID with given outputKey and data.
 func (s *Server) EmitResult(serviceID, task, outputKey string, data interface{}) error {
 	bytes, err := json.Marshal(data)
 	if err != nil {
@@ -112,6 +121,7 @@ func (s *Server) EmitResult(serviceID, task, outputKey string, data interface{})
 	}
 }
 
+// LastExecute returns the last task execution's info.
 func (s *Server) LastExecute() *Execute {
 	for {
 		select {
@@ -127,11 +137,12 @@ func (s *Server) LastExecute() *Execute {
 	}
 }
 
+// MarkServiceAsNonExistent marks a service id as non-exists server.
 func (s *Server) MarkServiceAsNonExistent(id string) {
 	s.core.nonExistentServices = append(s.core.nonExistentServices, id)
 }
 
-// Close ends waiting for task requests.
+// Close closes test server.
 func (s *Server) Close() error {
 	return s.socket.close()
 }

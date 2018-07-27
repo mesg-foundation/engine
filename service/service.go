@@ -43,6 +43,7 @@ type Service struct {
 	// conn is underlying gRPC conn
 	conn *grpc.ClientConn
 
+	// dialOptions passed to grpc dial as options.
 	dialOptions []grpc.DialOption
 
 	// callTimeout used to timeout gRPC requests or dial.
@@ -113,7 +114,7 @@ func LogOutputOption(out io.Writer) Option {
 	}
 }
 
-// MockOption used to mock socket communication to make unit testing easier.
+// DialOption used to mock socket communication for unit testing.
 func DialOption(dialer Dialer) Option {
 	return func(s *Service) {
 		s.dialOptions = append(s.dialOptions, grpc.WithDialer(newGRPCDialer(dialer).Dial))

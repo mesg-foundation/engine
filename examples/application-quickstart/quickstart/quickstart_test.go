@@ -69,6 +69,7 @@ func TestWhenResult(t *testing.T) {
 	assert.Equal(t, config.DiscordInvServiceID, data.ServiceID)
 	assert.Equal(t, ldata.Info, data.Data.(map[string]interface{})["info"])
 }
+
 func TestClose(t *testing.T) {
 	app, server := newApplicationAndServer(t)
 	go server.Start()

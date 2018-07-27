@@ -2,7 +2,7 @@ package servicetest
 
 import "encoding/json"
 
-// Event is a mock event.
+// Event represents a testing event.
 type Event struct {
 	name  string
 	data  string

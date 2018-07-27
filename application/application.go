@@ -70,6 +70,7 @@ func LogOutputOption(out io.Writer) Option {
 	}
 }
 
+// DialOption used to mock socket communication for unit testing.
 func DialOption(dialer Dialer) Option {
 	return func(a *Application) {
 		a.dialOptions = append(a.dialOptions, grpc.WithDialer(newGRPCDialer(dialer).Dial))

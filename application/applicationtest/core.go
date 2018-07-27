@@ -9,6 +9,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+// coreServer implements MESG's core/application server.
 type coreServer struct {
 	listenEventC  chan *core.ListenEventRequest
 	listenResultC chan *core.ListenResultRequest
