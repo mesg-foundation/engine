@@ -6,4 +6,4 @@ exclude_patterns:
   - "**/service/importer/assets/*.go"
   - "**/cmd/service/assets/*.go"
   - "**/Dockerfile"
-  
+  - "**/docs
