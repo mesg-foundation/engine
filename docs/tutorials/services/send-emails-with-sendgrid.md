@@ -6,7 +6,7 @@ published_link: 'https://tutorials.mesg.com/services/send-email-with-sendgrid'
 
 # Send emails with Sendgrid
 
-## Introduction {#send-and-receive-email-with-sendgrid}
+## Introduction
 
 Today we will learn how to create and use our first service.
 
