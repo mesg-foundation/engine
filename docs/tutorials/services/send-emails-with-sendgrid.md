@@ -14,11 +14,11 @@ We'll start with the example of an email provider where we will send emails thro
 
 You can access the final version of the [source code on GitHub](https://github.com/mesg-foundation/tutorials/tree/master/services/send-email-with-sendgrid).
 
-{% hint style="info" %}
+::: tip
 If you haven't installed **MESG Core** yet, you can do so by running the command:
 
 `bash <(curl -fsSL https://mesg.com/install)`
-{% endhint %}
+:::
 
 MESG services are composed of two different parts:
 
@@ -85,9 +85,9 @@ tasks:
 {% endcode-tabs-item %}
 {% endcode-tabs %}
 
-{% hint style="warning" %}
+::: warning
 You might need to delete the **configuration: null** if it's present in your **mesg.yml** file
-{% endhint %}
+:::
 
 ### Code your task
 
@@ -209,9 +209,9 @@ const sendgrid = require('@sendgrid/mail')
 {% endcode-tabs-item %}
 {% endcode-tabs %}
 
-{% hint style="warning" %}
+::: warning
 Don't forget to change the `__CHANGE_WITH_YOUR_SENDGRID_API_KEY__` with your own private Sendgrid API key that you can create here: [https://app.sendgrid.com/settings/api\_keys](https://app.sendgrid.com/settings/api_keys)​.
-{% endhint %}
+:::
 
 Your Service is now ready for the second step.
 
@@ -259,9 +259,9 @@ Now that your Service is valid, let's create a test file to test your task. Crea
 {% endcode-tabs-item %}
 {% endcode-tabs %}
 
-{% hint style="info" %}
-Replace the **\_\_YOUR\_EMAIL\_\_** with your own email to test it. Don't worry ,this is only done locally. We will not collect it 😀
-{% endhint %}
+::: warning
+Replace the **\_\_YOUR\_EMAIL\_\_** with your own email to test it. Don't worry, this is only done locally. We will not collect it 😀
+:::
 
 Now time to test it. Simply run the following command:
 
