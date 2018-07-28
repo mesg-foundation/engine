@@ -22,6 +22,8 @@ themeConfig:
       link: /cli/mesg-core
     - text: Changelog
       link: https://github.com/mesg-foundation/core/blob/master/CHANGELOG.md
+    - text: Join
+      link: https://discord.gg/SaZ5HcE
   sidebar:
     /guide/:
       - /
