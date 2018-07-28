@@ -5,6 +5,7 @@ exclude_patterns:
   - "service/importer/assets/*.go"
   - "cmd/service/assets/*.go"
   - "cmd/service/tests/**/*"
+  - "docs/**/*"
 plugins:
   gofmt:
     enabled: true
