@@ -6,7 +6,7 @@ Deploy a service
 
 Deploy a service.
 
-To get more information, see the [deploy page from the documentation](https://docs.mesg.com/service/deploy-a-service)
+To get more information, see the [deploy page from the documentation](https://docs.mesg.com/guide/service/deploy-a-service.html)
 
 ```
 mesg-core service deploy [flags]
