@@ -163,19 +163,7 @@ This code is setting the API Key necessary to work with Sendgrid, then it sends 
 
 Now your final Service code should look like this:
 
-```javascript
-const MESG = require('mesg-js').service()
-const sendgrid = require('@sendgrid/mail')
-
-​const send = ({ from, to, subject, text }, { success, failure }) => {
-  sendgrid.setApiKey('__CHANGE_WITH_YOUR_SENDGRID_API_KEY__')
-  sendgrid.send({ from, to, subject, text })
-    .then(([response, _]) => success({ status: response.statusCode }))
-    .catch(e => failure({ message: e.toString() }))
-}
-
-​MESG.listenTask({ send })
-```
+<<< @/docs/tutorials/services/send-email-with-sendgrid/index.js
 
 ::: warning
 Don't forget to change the `__CHANGE_WITH_YOUR_SENDGRID_API_KEY__` with your own private Sendgrid API key that you can create here: [https://app.sendgrid.com/settings/api\_keys](https://app.sendgrid.com/settings/api_keys)​.
@@ -187,14 +175,7 @@ Your Service is now ready for the second step.
 
 This step is quite short and may not be necessary in the future. We need to edit the `Dockerfile` to make your Service compatible with Docker. In the case of a Javascript Service, the file will look like this:
 
-```text
-FROM node
-WORKDIR /app
-COPY ./package* ./
-RUN npm install
-COPY . .
-CMD [ "node", "index.js" ]
-```
+<<< @/docs/tutorials/services/send-email-with-sendgrid/Dockerfile
 
 With this file, your Service can now run in Docker, but don't worry, MESG will manage all this for you.
 
@@ -210,14 +191,7 @@ Your should have a message with `Service is valid`, if not, check the previous s
 
 Now that your Service is valid, let's create a test file to test your task. Create a `test.json` file is with all the inputs needed for your task.
 
-```javascript
-{
-    "from": "sender@domain.tld",
-    "to": "__YOUR_EMAIL__",
-    "subject": "Test email",
-    "text": "Hello world from MESG Service"
-}
-```
+<<< @/docs/tutorials/services/send-email-with-sendgrid/test.json
 
 ::: warning
 Replace the **\_\_YOUR\_EMAIL\_\_** with your own email to test it. Don't worry, this is only done locally. We will not collect it 😀

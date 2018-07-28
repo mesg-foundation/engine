@@ -78,26 +78,7 @@ For the simplicity of this tutorial, we will use only a small part of the ABI th
 
 Create the file `erc20-abi.json` in the Service folder and copy/paste the following ABI:
 
-```javascript
-[{
-  "anonymous": false,
-  "inputs": [{
-    "indexed": true,
-    "name": "from",
-    "type": "address"
-  }, {
-    "indexed": true,
-    "name": "to",
-    "type": "address"
-  }, {
-    "indexed": false,
-    "name": "value",
-    "type": "uint256"
-  }],
-  "name": "Transfer",
-  "type": "event"
-}]
-```
+<<< @/docs/tutorials/services/listen-to-transfer-of-ethereum-erc20-token/erc20-abi.json
 
 Now, let's come back to `index.js` and initialize the contract with the ABI and the address. Add:
 
@@ -182,14 +163,14 @@ Let's add the event we want to emit to MESG Core to the `mesg.yml` file.
 
 Now, clean the `mesg.yml` file, keeping only the keys: `name` and `description`. It should look like this:
 
-```text
+```yaml
 name: service-ethereum-erc20-tuto
 description: Listen to transfers of an ERC20
 ```
 
 Let's add the transfer event definition:
 
-```text
+```yaml
 events:
   transfer:
     data:
@@ -240,20 +221,11 @@ contract.events.Transfer({fromBlock: 'latest'})
 
 Let's update the `Dockerfile` to make our Service compatible with Docker. Because it is a Node.JS app, it's pretty simple:
 
-```text
-FROM node:10.5
-WORKDIR /app
-COPY ./package* ./
-RUN npm install
-COPY . .
-CMD [ "node", "index.js" ]
-```
+<<< @/docs/tutorials/services/listen-to-transfer-of-ethereum-erc20-token/Dockerfile
 
 Let's also create a `.mesgignore` file to ignore the `node_modules` from the build of the Service.
 
-```text
-node_modules
-```
+<<< @/docs/tutorials/services/listen-to-transfer-of-ethereum-erc20-token/.mesgignore
 
 ### Test the Service
 

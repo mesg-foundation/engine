@@ -1,6 +1,6 @@
 {
-  "from": "contact@mesg.com",
-  "to": "anthony.estebe@gmail.com",
+  "from": "sender@domain.tld",
+  "to": "__YOUR_EMAIL__",
   "subject": "Test email",
   "text": "Hello world from MESG Service"
 }
