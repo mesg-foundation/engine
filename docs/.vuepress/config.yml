@@ -30,7 +30,6 @@ themeConfig:
       link: https://discord.gg/SaZ5HcE
   sidebar:
     /guide/:
-      - /
       - /guide/
       - title: Start here
         children:
@@ -59,7 +58,6 @@ themeConfig:
           - /guide/service/deploy-a-service
           - /guide/service/run-the-service
     /tutorials/:
-      - /
       - title: Applications
         children:
           - /tutorials/applications/receive-email-when-there-is-an-erc20-transfer
@@ -68,7 +66,6 @@ themeConfig:
           - /tutorials/services/send-emails-with-sendgrid
           - /tutorials/services/listen-for-transfers-of-an-ethereum-erc20-token
     /cli/:
-      - /
       - /cli/mesg-core.md
       - title: Core
         children:
@@ -91,7 +88,6 @@ themeConfig:
           - /cli/mesg-core_service_validate.md
           - /cli/mesg-core_service_gen-doc.md
     /api/:
-      - /
       - /api/core
       - /api/service
       - /api/type
