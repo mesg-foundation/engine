@@ -1,5 +1,7 @@
 title: MESG
 description: Create applications connected to anything
+ga: UA-117583862-3
+serviceWorker: true
 themeConfig:
   lastUpdated: true
   repo: mesg-foundation/awesome
