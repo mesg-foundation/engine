@@ -3,7 +3,7 @@ title: Listen to transfer of Ethereum ERC20 token
 description: >-
   Tutorial: How to create a MESG Service that listens for the transfers of an
   Ethereum ERC20 token.
-published_link: 'https://tutorials.mesg.com/services/listen-to-transfer-of-ethereum-erc20-token'
+published_link: 'https://docs.mesg.com/tutorials/services/listen-for-transfers-of-an-ethereum-erc20-token.html'
 ---
 
 # Listen for transfers of an Ethereum ERC20 token

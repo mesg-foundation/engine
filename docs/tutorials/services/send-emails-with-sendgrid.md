@@ -1,7 +1,7 @@
 ---
 title: Send email with Sendgrid
 description: 'Tutorial: how to use MESG to send an email through the Sendgrid API'
-published_link: 'https://tutorials.mesg.com/services/send-email-with-sendgrid'
+published_link: 'https://docs.mesg.com/tutorials/services/send-emails-with-sendgrid.html'
 ---
 
 # Send emails with Sendgrid

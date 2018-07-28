@@ -3,7 +3,7 @@ title: Receive email when there is an ERC20 transfer
 description: >-
   Tutorial: How to create an application that sends an email every time there is
   a transfer on an ERC20 smart contract.
-published_link: 'https://tutorials.mesg.com/applications/email-notification-one-erc20-transfer'
+published_link: 'https://docs.mesg.com/tutorials/applications/receive-email-when-there-is-an-erc20-transfer.html'
 ---
 
 # Receive email when there is an ERC20 transfer
@@ -15,8 +15,8 @@ Today we'll learn how to create a JavaScript application that connects two MESG 
 
 Those two services have tutorial on how to create them. Check them out:
 
-* [Tutorial: Transfer notifications from an ERC20 transfer](https://tutorials.mesg.com/services/listen-to-transfer-of-ethereum-erc20-token)
-* [Tutorial: Sending emails through SendGrid](https://tutorials.mesg.com/services/send-email-with-sendgrid)
+* [Tutorial: Transfer notifications from an ERC20 transfer](https://docs.mesg.com/tutorials/services/listen-for-transfers-of-an-ethereum-erc20-token.html)
+* [Tutorial: Sending emails through SendGrid](https://docs.mesg.com/tutorials/services/send-emails-with-sendgrid.html)
 
 You can access the final version of the [source code on GitHub](https://github.com/mesg-foundation/tutorials/tree/master/applications/email-notification-one-erc20-transfer).
 
