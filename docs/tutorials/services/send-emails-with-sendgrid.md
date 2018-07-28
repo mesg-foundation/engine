@@ -247,5 +247,4 @@ Get some rest now, you've done a good job creating your first Service with MESG.
 
 ## Final version of the source code
 
-{% embed data="{\"url\":\"https://github.com/mesg-foundation/core/tree/master/docs/tutorials/services/send-email-with-sendgrid\",\"type\":\"link\",\"title\":\"mesg-foundation/tutorials\",\"description\":\"List of tutorials related to MESG\",\"icon\":{\"type\":\"icon\",\"url\":\"https://github.com/fluidicon.png\",\"aspectRatio\":0},\"thumbnail\":{\"type\":\"thumbnail\",\"url\":\"https://avatars3.githubusercontent.com/u/34158802?s=400&v=4\",\"width\":400,\"height\":400,\"aspectRatio\":1}}" %}
-
+<repository url="https://github.com/mesg-foundation/core/tree/master/docs/tutorials/services/send-email-with-sendgrid"></repository>
