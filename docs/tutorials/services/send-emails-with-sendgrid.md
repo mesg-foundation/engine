@@ -217,7 +217,7 @@ mesg-core service deploy
 
 This will return an ID for the Service that you'll be able to use to start the Service, stop it, show the logs etc... or connect different events to the tasks of this Service, but that's for the next tutorial.
 
-Get some rest now, you've done a good job creating your first Service with MESG. Of course you can always create more complicated Services. Make sure to check out the [documentation](https://docs.mesg.com) for more details.
+Get some rest now, you've done a good job creating your first Service with MESG. Of course you can always create more complicated Services. Make sure to check out the [documentation](/) for more details.
 
 ## Final version of the source code
 
