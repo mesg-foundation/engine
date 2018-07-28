@@ -15,7 +15,7 @@ var Validate = &cobra.Command{
 	Short: "Validate a service file",
 	Long: `Validate a service file. Check the yml format and rules.
 
-All the definitions of the service file can be found in the page [Service File from the documentation](https://docs.mesg.com/service/service-file).`,
+All the definitions of the service file can be found in the page [Service File from the documentation](https://docs.mesg.com/guide/service/service-file.html).`,
 	Example: `mesg-core service validate
 mesg-core service validate ./SERVICE_FOLDER`,
 	Run:               validateHandler,
@@ -38,7 +38,7 @@ func validateServiceFile(validation *importer.ValidationResult) {
 	}
 
 	if len(validation.ServiceFileWarnings) > 0 {
-		fmt.Printf("%s File 'mesg.yml' is not valid. See documentation: %s\n", aurora.Red("⨯"), "https://docs.mesg.com/service/service-file")
+		fmt.Printf("%s File 'mesg.yml' is not valid. See documentation: %s\n", aurora.Red("⨯"), "https://docs.mesg.com/guide/service/service-file.html")
 		for _, warning := range validation.ServiceFileWarnings {
 			fmt.Printf("  - %s\n", warning)
 		}
