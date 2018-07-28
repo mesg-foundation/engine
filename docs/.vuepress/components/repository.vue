@@ -1,5 +1,5 @@
 <template>
-  <a :href="getUrl">
+  <a :href="getUrl" target="_blank" rel="noopener noreferrer">
     <main>
       <h4>{{ getTitle }}</h4>
       <p>{{ getDescription }}</p>
