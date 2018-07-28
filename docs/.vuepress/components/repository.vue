@@ -40,6 +40,7 @@ export default {
 a {
   border: solid 1px #eaecef;
   display: flex;
+  justify-content: space-between;
   height: 150px;
   color: #2c3e50;
   box-shadow: 0 0 4px 0 #eaecef;
