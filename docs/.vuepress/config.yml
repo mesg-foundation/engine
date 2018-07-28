@@ -63,5 +63,28 @@ themeConfig:
         children:
           - /tutorials/services/send-emails-with-sendgrid
           - /tutorials/services/listen-for-transfers-of-an-ethereum-erc20-token
+    /cli/:
+      - /
+      - /cli/mesg-core.md
+      - title: Core
+        children:
+          - /cli/mesg-core_start.md
+          - /cli/mesg-core_stop.md
+          - /cli/mesg-core_status.md
+          - /cli/mesg-core_logs.md
+      - title: Service
+        children:
+          - /cli/mesg-core_service_init.md
+          - /cli/mesg-core_service_start.md
+          - /cli/mesg-core_service_stop.md
+          - /cli/mesg-core_service_logs.md
+          - /cli/mesg-core_service_list.md
+          - /cli/mesg-core_service_detail.md
+          - /cli/mesg-core_service_delete.md
+          - /cli/mesg-core_service_deploy.md
+          - /cli/mesg-core_service_dev.md
+          - /cli/mesg-core_service_execute.md
+          - /cli/mesg-core_service_validate.md
+          - /cli/mesg-core_service_gen-doc.md
     /:
       - ''
