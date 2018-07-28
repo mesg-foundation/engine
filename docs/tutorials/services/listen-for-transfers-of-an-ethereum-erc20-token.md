@@ -15,7 +15,7 @@ In this tutorial, we will cover how to create a MESG Service that listens for th
 This Service will be developed with JavaScript and [Node.js](https://nodejs.org).  
 We will use the library [Web3.js](https://web3js.readthedocs.io/en/1.0/) to interact with Ethereum through [Infura](https://infura.io/).
 
-You can access the final version of the [source code on GitHub](https://github.com/mesg-foundation/tutorials/tree/master/services/listen-to-transfer-of-ethereum-erc20-token).
+You can access the final version of the [source code on GitHub](https://github.com/mesg-foundation/core/tree/master/docs/tutorials/services/listen-to-transfer-of-ethereum-erc20-token).
 
 ::: tip
 MESG Core should already be installed on your computer. If it isn't yet, [install it here](https://docs.mesg.com/guide/start-here/installation.html).
@@ -301,5 +301,5 @@ This command returns the service's ID that will be required by your application.
 
 ## Final version of the source code
 
-{% embed data="{\"url\":\"https://github.com/mesg-foundation/tutorials/tree/master/services/listen-to-transfer-of-ethereum-erc20-token\",\"type\":\"link\",\"title\":\"mesg-foundation/tutorials\",\"description\":\"List of tutorials related to MESG\",\"icon\":{\"type\":\"icon\",\"url\":\"https://github.com/fluidicon.png\",\"aspectRatio\":0},\"thumbnail\":{\"type\":\"thumbnail\",\"url\":\"https://avatars3.githubusercontent.com/u/34158802?s=400&v=4\",\"width\":400,\"height\":400,\"aspectRatio\":1}}" %}
+{% embed data="{\"url\":\"https://github.com/mesg-foundation/core/tree/master/docs/tutorials/services/listen-to-transfer-of-ethereum-erc20-token\",\"type\":\"link\",\"title\":\"mesg-foundation/tutorials\",\"description\":\"List of tutorials related to MESG\",\"icon\":{\"type\":\"icon\",\"url\":\"https://github.com/fluidicon.png\",\"aspectRatio\":0},\"thumbnail\":{\"type\":\"thumbnail\",\"url\":\"https://avatars3.githubusercontent.com/u/34158802?s=400&v=4\",\"width\":400,\"height\":400,\"aspectRatio\":1}}" %}
 
