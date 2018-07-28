@@ -22,6 +22,8 @@ themeConfig:
       link: /tutorials/
     - text: CLI
       link: /cli/mesg-core
+    - text: API
+      link: /api/core.md
     - text: Changelog
       link: https://github.com/mesg-foundation/core/blob/master/CHANGELOG.md
     - text: Join
@@ -88,5 +90,10 @@ themeConfig:
           - /cli/mesg-core_service_execute.md
           - /cli/mesg-core_service_validate.md
           - /cli/mesg-core_service_gen-doc.md
+    /api/:
+      - /
+      - /api/core
+      - /api/service
+      - /api/type
     /:
       - ''
