@@ -1,6 +1,8 @@
 
 
 
+
+
 # Service API
 <!--
 DO NOT EDIT
@@ -8,41 +10,26 @@ This file is generated using the ./scripts/build-proto.sh scripts
 Please update the Service file
 -->
 
-## APIs
-
 API accessible from services.
 This API can and should only be accessible when you create a MESG Service.
 It provide all functions necessary to be able to execute tasks and submit specific events.
 
-| Method Name | Request Type | Response Type | Description |
-| ----------- | ------------ | ------------- | ------------|
-| EmitEvent | [EmitEventRequest](#EmitEventRequest) | [EmitEventReply](#EmitEventRequest) | Let you to emit an event to the [Core](/guide/start-here/core.html) based on the ones defined in your [mesg.yml](/guide/service/service-file.html). |
-| ListenTask | [ListenTaskRequest](#ListenTaskRequest) | [TaskData](#ListenTaskRequest) | Subscribe to the stream of tasks that will receive tasks from the [Core](/guide/start-here/core.html) |
-| SubmitResult | [SubmitResultRequest](#SubmitResultRequest) | [SubmitResultReply](#SubmitResultRequest) | Let you submit a result from a task to the [Core](/guide/start-here/core.html). The result should be an output of the tasks |
+[[toc]]
+
+
+## EmitEvent
+
+Let you to emit an event to the [Core](/guide/start-here/core.html) based on the ones defined in your [mesg.yml](/guide/service/service-file.html).
+
+<tabs>
+<tab title="Request">
 
 
 
 
-## Types
+### Request
 
-
-
-<a name="EmitEventReply"/>
-
-### EmitEventReply
-Response of the Core when receiving an event from the `EmitEvent` call
-
-**Example:**
-```json
-{}
-```
-
-
-
-
-<a name="EmitEventRequest"/>
-
-### EmitEventRequest
+#### EmitEventRequest
 Data sent while calling the `EmitEvent` API.
 
 **Example:**
@@ -64,9 +51,62 @@ Data sent while calling the `EmitEvent` API.
 
 
 
-<a name="ListenTaskRequest"/>
 
-### ListenTaskRequest
+
+
+
+
+
+
+
+
+</tab>
+
+<tab title="Response">
+
+
+### Response
+
+#### EmitEventReply
+Response of the Core when receiving an event from the `EmitEvent` call
+
+**Example:**
+```json
+{}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</tab>
+</tabs>
+
+## ListenTask
+
+Subscribe to the stream of tasks that will receive tasks from the [Core](/guide/start-here/core.html)
+
+<tabs>
+<tab title="Request">
+
+
+
+
+
+
+### Request
+
+#### ListenTaskRequest
 Data sent to connect to the `ListenTask` stream API.
 
 **Example:**
@@ -84,47 +124,31 @@ Data sent to connect to the `ListenTask` stream API.
 
 
 
-<a name="SubmitResultReply"/>
-
-### SubmitResultReply
-Response of the Core when receiving an result from the `SubmitResult` call
-
-**Example:**
-```json
-{}
-```
 
 
 
 
-<a name="SubmitResultRequest"/>
-
-### SubmitResultRequest
-Data sent while submitting a a result for a task.
-This result can only be called once inside a request from `ListenTask` because of its dependency with the `executionID``
-
-**Example:**
-```json
-{
-  "executionID": "xxxxxx",
-  "outputKey": "outputX"
-  "outputData": "{\"foo\":\"super result\",\"bar\":true}"
-}
-```
 
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| executionID | [string](#string) |  | The executionID received from the `listenTask` stream |
-| outputKey | [string](#string) |  | The output key defined in your [mesg.yml](/guide/service/service-file.html). |
-| outputData | [string](#string) |  | The data of your result encoded in JSON as defined in your [mesg.yml](/guide/service/service-file.html). |
+
+</tab>
+
+<tab title="Response">
 
 
 
 
-<a name="TaskData"/>
 
-### TaskData
+
+
+
+
+
+
+
+### Response
+
+#### TaskData
 Data sent through the stream from the `ListenTask` API
 These data can come as long as the stream stays open. They contains all necessary informations to process a task.
 The `executionID` needs to be kept and sent back with the `submitResult` API
@@ -149,6 +173,84 @@ The `executionID` needs to be kept and sent back with the `submitResult` API
 
 
 
- <!-- end enums -->
+</tab>
+</tabs>
+
+## SubmitResult
+
+Let you submit a result from a task to the [Core](/guide/start-here/core.html). The result should be an output of the tasks
+
+<tabs>
+<tab title="Request">
+
+
+
+
+
+
+
+
+
+
+### Request
+
+#### SubmitResultRequest
+Data sent while submitting a a result for a task.
+This result can only be called once inside a request from `ListenTask` because of its dependency with the `executionID``
+
+**Example:**
+```json
+{
+  "executionID": "xxxxxx",
+  "outputKey": "outputX",
+  "outputData": "{\"foo\":\"super result\",\"bar\":true}"
+}
+```
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| executionID | [string](#string) |  | The executionID received from the `listenTask` stream |
+| outputKey | [string](#string) |  | The output key defined in your [mesg.yml](/guide/service/service-file.html). |
+| outputData | [string](#string) |  | The data of your result encoded in JSON as defined in your [mesg.yml](/guide/service/service-file.html). |
+
+
+
+
+
+
+
+</tab>
+
+<tab title="Response">
+
+
+
+
+
+
+
+
+### Response
+
+#### SubmitResultReply
+Response of the Core when receiving an result from the `SubmitResult` call
+
+**Example:**
+```json
+{}
+```
+
+
+
+
+
+
+
+
+
+</tab>
+</tabs>
+
 
 
