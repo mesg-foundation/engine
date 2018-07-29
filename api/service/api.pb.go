@@ -110,7 +110,7 @@ func (m *ListenTaskRequest) GetToken() string {
 // ```json
 // {
 //   "executionID": "xxxxxx",
-//   "outputKey": "outputX"
+//   "outputKey": "outputX",
 //   "outputData": "{\"foo\":\"super result\",\"bar\":true}"
 // }
 // ```
