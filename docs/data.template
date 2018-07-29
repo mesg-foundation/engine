@@ -1,0 +1,36 @@
+{{define "message"}}
+## {{.LongName}}
+{{.Description}}
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+{{range .Fields -}}
+  | {{.Name}} | [{{.LongType}}](#{{.LongType}}) | {{.Label}} | {{nobr .Description}} |
+{{end}}
+{{end}}
+
+{{range .Files}}
+{{$file := .}}
+# Data {{.Package}}
+<!--
+DO NOT EDIT
+This file is generated using the ./scripts/build-proto.sh scripts
+Please update the {{.Name}} file
+-->
+
+{{.Description}}
+
+[[toc]]
+
+{{range $file.Messages}}
+{{if eq .LongName "Service"}}
+{{template "message" .}}
+{{end}}
+{{end}}
+
+{{range $file.Messages}}
+{{if ne .LongName "Service"}}
+{{template "message" .}}
+{{end}}
+{{end}}
+{{end}}

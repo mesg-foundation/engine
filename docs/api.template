@@ -1,5 +1,18 @@
+{{define "data"}}
+#### {{.LongName}}
+{{.Description}}
+
+{{if .HasFields}}
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+{{range .Fields -}}
+  | {{.Name}} | [{{.LongType}}](#{{.FullType}}) | {{.Label}} | {{nobr .Description}} |
+{{end}}
+{{end}}
+{{end}}
 
 {{range .Files}}
+{{$file := .}}
 {{range .Services}}
 # {{.Name}} API
 <!--
@@ -8,56 +21,35 @@ This file is generated using the ./scripts/build-proto.sh scripts
 Please update the {{.Name}} file
 -->
 
-## APIs
-
 {{.Description}}
 
-| Method Name | Request Type | Response Type | Description |
-| ----------- | ------------ | ------------- | ------------|
+[[toc]]
+
 {{range .Methods -}}
-  | {{.Name}} | [{{.RequestLongType}}](#{{.RequestLongType}}) | [{{.ResponseLongType}}](#{{.RequestLongType}}) | {{nobr .Description}} |
-{{end}}
-{{end}}
+{{$method := .}}
+## {{.Name}}
 
-{{if .HasServices}}
-## Types
-{{else}}
-# Service Data
-<!--
-DO NOT EDIT
-This file is generated using the ./scripts/build-proto.sh scripts
-Please update the {{.Name}} file
--->
-{{end}}
-
-{{range .Messages}}
-<a name="{{.Name}}"/>
-
-### {{.LongName}}
 {{.Description}}
 
-{{if .HasFields}}
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-{{range .Fields -}}
-  | {{.Name}} | [{{.LongType}}](#{{.FullType}}) | {{.Label}} | {{nobr .Description}}{{if .DefaultValue}} Default: {{.DefaultValue}}{{end}} |
+<tabs>
+<tab title="Request">
+{{range $file.Messages}}
+{{if eq .LongName $method.RequestLongType}}
+### Request
+{{template "data" .}}
 {{end}}
 {{end}}
+</tab>
 
+<tab title="Response">
+{{range $file.Messages}}
+{{if eq .LongName $method.ResponseLongType}}
+### Response
+{{template "data" .}}
 {{end}}
-
-{{range .Enums}}
-<a name="{{.Name}}"/>
-
-### {{.LongName}}
-{{.Description}}
-
-| Name | Number | Description |
-| ---- | ------ | ----------- |
-{{range .Values -}}
-  | {{.Name}} | {{.Number}} | {{nobr .Description}} |
 {{end}}
-
-{{end}} <!-- end enums -->
-
+</tab>
+</tabs>
+{{end}}
+{{end}}
 {{end}}
