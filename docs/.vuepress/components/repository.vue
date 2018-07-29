@@ -37,21 +37,22 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+@import '../override.styl';
 a {
-  border: solid 1px #eaecef;
+  border: solid 1px $borderColor;
   display: flex;
   justify-content: space-between;
   height: 150px;
-  color: #2c3e50;
-  box-shadow: 0 0 4px 0 #eaecef;
+  color: $textColor;
+  box-shadow: 0 0 4px 0 $borderColor;
 }
 a:hover {
-  border-color: #3eaf7c;
+  border-color: $accentColor;
   text-decoration: none!important;
-  box-shadow: 0 0 10px 0 #eaecef;
+  box-shadow: 0 0 10px 0 $borderColor;
 }
 a:hover h4 {
-  color: #3eaf7c;
+  color: $accentColor;
 }
 main {
   padding: 1em;
@@ -60,11 +61,16 @@ h4 {
   margin-top: 0;
 }
 p {
-  color: lighten(#2c3e50, 40);
+  color: lighten($textColor, 40);
   font-size: .9em;
 }
 img {
   height: 150px;
   width: 150px;
+}
+@media (max-width: $MQMobileNarrow) {
+  p {
+    display: none;
+  }
 }
 </style>
