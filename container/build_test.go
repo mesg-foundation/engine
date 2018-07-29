@@ -10,19 +10,25 @@ import (
 )
 
 func TestBuild(t *testing.T) {
-	tag, err := Build("test/")
+	c, err := New()
+	assert.Nil(t, err)
+	tag, err := c.Build("test/")
 	assert.Nil(t, err)
 	assert.NotEqual(t, "", tag)
 }
 
 func TestBuildNotWorking(t *testing.T) {
-	tag, err := Build("test-not-valid/")
+	c, err := New()
+	assert.Nil(t, err)
+	tag, err := c.Build("test-not-valid/")
 	assert.NotNil(t, err)
 	assert.Equal(t, "", tag)
 }
 
 func TestBuildWrongPath(t *testing.T) {
-	_, err := Build("testss/")
+	c, err := New()
+	assert.Nil(t, err)
+	_, err = c.Build("testss/")
 	assert.NotNil(t, err)
 }
 

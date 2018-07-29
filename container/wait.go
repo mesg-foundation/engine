@@ -7,16 +7,16 @@ import (
 )
 
 // waitForStatus waits for the container to have the provided status. Returns error as soon as possible.
-func waitForStatus(namespace []string, status StatusType) error {
+func (c *Container) waitForStatus(namespace []string, status StatusType) (err error) {
 	for {
-		tasksErrors, err := TasksError(namespace)
+		tasksErrors, err := c.TasksError(namespace)
 		if err != nil {
 			return err
 		}
 		if len(tasksErrors) > 0 {
 			return errors.New(strings.Join(tasksErrors, ", "))
 		}
-		currentStatus, err := Status(namespace)
+		currentStatus, err := c.Status(namespace)
 		if err != nil || currentStatus == status {
 			return err
 		}

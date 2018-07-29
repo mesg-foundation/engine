@@ -20,7 +20,7 @@ type BuildResponse struct {
 }
 
 // Build builds a docker image.
-func Build(path string) (tag string, err error) {
+func (c *Container) Build(path string) (tag string, err error) {
 	excludeFilesBytes, _ := ioutil.ReadFile(filepath.Join(path, ".mesgignore"))
 	excludeFiles := strings.Fields(string(excludeFilesBytes))
 	buildContext, err := archive.TarWithOptions(path, &archive.TarOptions{
@@ -31,11 +31,7 @@ func Build(path string) (tag string, err error) {
 		return "", err
 	}
 	defer buildContext.Close()
-	client, err := Client()
-	if err != nil {
-		return "", err
-	}
-	response, err := client.ImageBuild(context.Background(), buildContext, types.ImageBuildOptions{
+	response, err := c.client.ImageBuild(context.Background(), buildContext, types.ImageBuildOptions{
 		Remove:         true,
 		ForceRemove:    true,
 		SuppressOutput: true,
