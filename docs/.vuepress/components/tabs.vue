@@ -41,6 +41,7 @@ export default {
 </script>
 
 <style lang="styl" scoped>
+@import '../override.styl';
 .tabs {
   margin: 1em 0;
 }
@@ -52,7 +53,7 @@ nav {
   transform: translateY(1px);
 }
 a {
-  border: solid 1px #eaecef;
+  border: solid 1px $borderColor;
   z-index: 2;
   border-radius: 3px 3px 0 0;
   list-style: none;
@@ -67,7 +68,7 @@ a.active {
   background: white;
 }
 .tabs-content {
-  border: solid 1px #eaecef;
+  border: solid 1px $borderColor;
   padding: 1em;
   border-radius: 0 3px 3px 3px;
 }
