@@ -37,6 +37,16 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
+// Data sent while calling the `EmitEvent` API.
+//
+// **Example:**
+// ```json
+// {
+//   "token": "TOKEN_FROM_ENV",
+//   "eventKey": "eventX",
+//   "eventData": "{\"foo\":\"hello\",\"bar\":false}"
+// }
+// ```
 type EmitEventRequest struct {
 	Token     string `protobuf:"bytes,1,opt,name=token" json:"token,omitempty"`
 	EventKey  string `protobuf:"bytes,2,opt,name=eventKey" json:"eventKey,omitempty"`
@@ -69,6 +79,14 @@ func (m *EmitEventRequest) GetEventData() string {
 	return ""
 }
 
+// Data sent to connect to the `ListenTask` stream API.
+//
+// **Example:**
+// ```json
+// {
+//   "token": "TOKEN_FROM_ENV"
+// }
+// ```
 type ListenTaskRequest struct {
 	Token string `protobuf:"bytes,1,opt,name=token" json:"token,omitempty"`
 }
@@ -85,6 +103,17 @@ func (m *ListenTaskRequest) GetToken() string {
 	return ""
 }
 
+// Data sent while submitting a a result for a task.
+// This result can only be called once inside a request from `ListenTask` because of its dependency with the `executionID``
+//
+// **Example:**
+// ```json
+// {
+//   "executionID": "xxxxxx",
+//   "outputKey": "outputX"
+//   "outputData": "{\"foo\":\"super result\",\"bar\":true}"
+// }
+// ```
 type SubmitResultRequest struct {
 	ExecutionID string `protobuf:"bytes,1,opt,name=executionID" json:"executionID,omitempty"`
 	OutputKey   string `protobuf:"bytes,2,opt,name=outputKey" json:"outputKey,omitempty"`
@@ -117,6 +146,12 @@ func (m *SubmitResultRequest) GetOutputData() string {
 	return ""
 }
 
+// Response of the Core when receiving an event from the `EmitEvent` call
+//
+// **Example:**
+// ```json
+// {}
+// ```
 type EmitEventReply struct {
 }
 
@@ -125,6 +160,18 @@ func (m *EmitEventReply) String() string            { return proto.CompactTextSt
 func (*EmitEventReply) ProtoMessage()               {}
 func (*EmitEventReply) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
 
+// Data sent through the stream from the `ListenTask` API
+// These data can come as long as the stream stays open. They contains all necessary informations to process a task.
+// The `executionID` needs to be kept and sent back with the `submitResult` API
+//
+// **Example:**
+// ```json
+// {
+//   "executionID": "xxxxxx",
+//   "taskKey": "taskX",
+//   "inputData": "{\"inputX\":\"Hello world!\",\"inputY\":true}"
+// }
+// ```
 type TaskData struct {
 	ExecutionID string `protobuf:"bytes,1,opt,name=executionID" json:"executionID,omitempty"`
 	TaskKey     string `protobuf:"bytes,2,opt,name=taskKey" json:"taskKey,omitempty"`
@@ -157,6 +204,12 @@ func (m *TaskData) GetInputData() string {
 	return ""
 }
 
+// Response of the Core when receiving an result from the `SubmitResult` call
+//
+// **Example:**
+// ```json
+// {}
+// ```
 type SubmitResultReply struct {
 }
 
@@ -185,8 +238,11 @@ const _ = grpc.SupportPackageIsVersion4
 // Client API for Service service
 
 type ServiceClient interface {
+	// Let you to emit an event to the [Core](/guide/start-here/core.html) based on the ones defined in your [mesg.yml](/guide/service/service-file.html).
 	EmitEvent(ctx context.Context, in *EmitEventRequest, opts ...grpc.CallOption) (*EmitEventReply, error)
+	// Subscribe to the stream of tasks that will receive tasks from the [Core](/guide/start-here/core.html)
 	ListenTask(ctx context.Context, in *ListenTaskRequest, opts ...grpc.CallOption) (Service_ListenTaskClient, error)
+	// Let you submit a result from a task to the [Core](/guide/start-here/core.html). The result should be an output of the tasks
 	SubmitResult(ctx context.Context, in *SubmitResultRequest, opts ...grpc.CallOption) (*SubmitResultReply, error)
 }
 
@@ -251,8 +307,11 @@ func (c *serviceClient) SubmitResult(ctx context.Context, in *SubmitResultReques
 // Server API for Service service
 
 type ServiceServer interface {
+	// Let you to emit an event to the [Core](/guide/start-here/core.html) based on the ones defined in your [mesg.yml](/guide/service/service-file.html).
 	EmitEvent(context.Context, *EmitEventRequest) (*EmitEventReply, error)
+	// Subscribe to the stream of tasks that will receive tasks from the [Core](/guide/start-here/core.html)
 	ListenTask(*ListenTaskRequest, Service_ListenTaskServer) error
+	// Let you submit a result from a task to the [Core](/guide/start-here/core.html). The result should be an output of the tasks
 	SubmitResult(context.Context, *SubmitResultRequest) (*SubmitResultReply, error)
 }
 
