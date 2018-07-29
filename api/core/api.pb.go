@@ -50,6 +50,15 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
+// Data sent to connect to the `ListenEvent` stream API
+//
+// **Example**
+// ```json
+// {
+//   "serviceID": "xxxx",
+//   "eventFilter": "*"
+// }
+// ```
 type ListenEventRequest struct {
 	ServiceID   string `protobuf:"bytes,1,opt,name=serviceID" json:"serviceID,omitempty"`
 	EventFilter string `protobuf:"bytes,2,opt,name=eventFilter" json:"eventFilter,omitempty"`
@@ -74,6 +83,16 @@ func (m *ListenEventRequest) GetEventFilter() string {
 	return ""
 }
 
+// Payload sent when you want to execute a task of a service
+//
+// **Example**
+// ```json
+// {
+//   "serviceID": "xxxx",
+//   "taskKey": "myTaskX",
+//   "inputData": "{\"foo\":\"bar\"}"
+// }
+// ```
 type ExecuteTaskRequest struct {
 	ServiceID string `protobuf:"bytes,1,opt,name=serviceID" json:"serviceID,omitempty"`
 	TaskKey   string `protobuf:"bytes,2,opt,name=taskKey" json:"taskKey,omitempty"`
@@ -106,6 +125,16 @@ func (m *ExecuteTaskRequest) GetInputData() string {
 	return ""
 }
 
+// Data sent to connect to the `ListenResult` stream API
+//
+// **Example**
+// ```json
+// {
+//   "serviceID": "xxxx",
+//   "taskFilter": "*",
+//   "outputFilter": "*"
+// }
+// ```
 type ListenResultRequest struct {
 	ServiceID    string `protobuf:"bytes,1,opt,name=serviceID" json:"serviceID,omitempty"`
 	TaskFilter   string `protobuf:"bytes,2,opt,name=taskFilter" json:"taskFilter,omitempty"`
@@ -138,6 +167,14 @@ func (m *ListenResultRequest) GetOutputFilter() string {
 	return ""
 }
 
+// Payload necessary to start a service
+//
+// **Example**
+// ```json
+// {
+//   "serviceID": "xxxx"
+// }
+// ```
 type StartServiceRequest struct {
 	ServiceID string `protobuf:"bytes,1,opt,name=serviceID" json:"serviceID,omitempty"`
 }
@@ -154,6 +191,14 @@ func (m *StartServiceRequest) GetServiceID() string {
 	return ""
 }
 
+// Payload necessary to stop a service
+//
+// **Example**
+// ```json
+// {
+//   "serviceID": "xxxx"
+// }
+// ```
 type StopServiceRequest struct {
 	ServiceID string `protobuf:"bytes,1,opt,name=serviceID" json:"serviceID,omitempty"`
 }
@@ -170,6 +215,16 @@ func (m *StopServiceRequest) GetServiceID() string {
 	return ""
 }
 
+// Data sent through the stream from the `ListenEvent` API
+// These data can come as long as the stream stays open.
+//
+// **Example**
+// ```json
+// {
+//   "eventKey": "xxxx",
+//   "eventData": "{\"foo\":\"bar\"}"
+// }
+// ```
 type EventData struct {
 	EventKey  string `protobuf:"bytes,1,opt,name=eventKey" json:"eventKey,omitempty"`
 	EventData string `protobuf:"bytes,2,opt,name=eventData" json:"eventData,omitempty"`
@@ -194,6 +249,14 @@ func (m *EventData) GetEventData() string {
 	return ""
 }
 
+// Reply of the [Core](/guide/start-here/core.html) when calling the `ExecuteTask` API
+//
+// **Example**
+// ```json
+// {
+//   "executionID": "xxx"
+// }
+// ```
 type ExecuteTaskReply struct {
 	ExecutionID string `protobuf:"bytes,1,opt,name=executionID" json:"executionID,omitempty"`
 }
@@ -210,6 +273,17 @@ func (m *ExecuteTaskReply) GetExecutionID() string {
 	return ""
 }
 
+// Data sent to the `ListenResult` stream that contains all informations of a result execution
+//
+// **Example**
+// ```json
+// {
+//   "executionID": "xxx",
+//   "taskKey": "taskX",
+//   "outputKey": "outputX",
+//   "outputData": "{\"foo\":\"bar\"}"
+// }
+// ```
 type ResultData struct {
 	ExecutionID string `protobuf:"bytes,1,opt,name=executionID" json:"executionID,omitempty"`
 	TaskKey     string `protobuf:"bytes,2,opt,name=taskKey" json:"taskKey,omitempty"`
@@ -250,6 +324,12 @@ func (m *ResultData) GetOutputData() string {
 	return ""
 }
 
+// Reply of the [Core](/guide/start-here/core.html) whan starting a Service
+//
+// **Example**
+// ```json
+// {}
+// ```
 type StartServiceReply struct {
 }
 
@@ -258,6 +338,12 @@ func (m *StartServiceReply) String() string            { return proto.CompactTex
 func (*StartServiceReply) ProtoMessage()               {}
 func (*StartServiceReply) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{8} }
 
+// Reply of the [Core](/guide/start-here/core.html) whan stopping a Service
+//
+// **Example**
+// ```json
+// {}
+// ```
 type StopServiceReply struct {
 }
 
@@ -266,6 +352,37 @@ func (m *StopServiceReply) String() string            { return proto.CompactText
 func (*StopServiceReply) ProtoMessage()               {}
 func (*StopServiceReply) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{9} }
 
+// Data sent while deploying a new Service to the [Core](/guide/start-here/core.html)
+//
+// **Example**
+// ```json
+// {
+//   "service": {
+//     "name": "serviceX",
+//     "events": {
+//       "eventX": {
+//         "data": {
+//           "dataX": { "type": "String" }
+//         }
+//       }
+//     },
+//     "tasks": {
+//       "taskX": {
+//         "inputs": {
+//           "foo": { "type": "String" }
+//         },
+//         "outputs": {
+//           "outputX": {
+//             "data": {
+//               "resX": { "type": "String" }
+//             }
+//           }
+//         }
+//       }
+//     }
+//   }
+// }
+// ```
 type DeployServiceRequest struct {
 	Service *service.Service `protobuf:"bytes,1,opt,name=service" json:"service,omitempty"`
 }
@@ -282,6 +399,14 @@ func (m *DeployServiceRequest) GetService() *service.Service {
 	return nil
 }
 
+// Reply of the [Core](/guide/start-here/core.html) whan deploying a new Service
+//
+// **Example**
+// ```json
+// {
+//   "serviceID": "xxx"
+// }
+// ```
 type DeployServiceReply struct {
 	ServiceID string `protobuf:"bytes,1,opt,name=serviceID" json:"serviceID,omitempty"`
 }
@@ -298,6 +423,14 @@ func (m *DeployServiceReply) GetServiceID() string {
 	return ""
 }
 
+// Payload necessary to delete a service
+//
+// **Example**
+// ```json
+// {
+//   "serviceID": "xxxx"
+// }
+// ```
 type DeleteServiceRequest struct {
 	ServiceID string `protobuf:"bytes,1,opt,name=serviceID" json:"serviceID,omitempty"`
 }
@@ -314,6 +447,12 @@ func (m *DeleteServiceRequest) GetServiceID() string {
 	return ""
 }
 
+// Reply of the [Core](/guide/start-here/core.html) whan deleting a Service
+//
+// **Example**
+// ```json
+// {}
+// ```
 type DeleteServiceReply struct {
 }
 
@@ -322,6 +461,12 @@ func (m *DeleteServiceReply) String() string            { return proto.CompactTe
 func (*DeleteServiceReply) ProtoMessage()               {}
 func (*DeleteServiceReply) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{13} }
 
+// Payload necessary to list all the deployed services
+//
+// **Example**
+// ```json
+// {}
+// ```
 type ListServicesRequest struct {
 }
 
@@ -330,6 +475,37 @@ func (m *ListServicesRequest) String() string            { return proto.CompactT
 func (*ListServicesRequest) ProtoMessage()               {}
 func (*ListServicesRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{14} }
 
+// Result from the [Core](/guide/start-here/core.html) when calling the list of services deployed
+//
+// **Example**
+// ```json
+// [{
+//   "service": {
+//     "name": "serviceX",
+//     "events": {
+//       "eventX": {
+//         "data": {
+//           "dataX": { "type": "String" }
+//         }
+//       }
+//     },
+//     "tasks": {
+//       "taskX": {
+//         "inputs": {
+//           "foo": { "type": "String" }
+//         },
+//         "outputs": {
+//           "outputX": {
+//             "data": {
+//               "resX": { "type": "String" }
+//             }
+//           }
+//         }
+//       }
+//     }
+//   }
+// }]
+// ```
 type ListServicesReply struct {
 	Services []*service.Service `protobuf:"bytes,1,rep,name=services" json:"services,omitempty"`
 }
@@ -346,6 +522,14 @@ func (m *ListServicesReply) GetServices() []*service.Service {
 	return nil
 }
 
+// Payload necessary to get the details of deployed service
+//
+// **Example**
+// ```json
+// {
+//   "serviceID": "xxxx"
+// }
+// ```
 type GetServiceRequest struct {
 	ServiceID string `protobuf:"bytes,1,opt,name=serviceID" json:"serviceID,omitempty"`
 }
@@ -362,6 +546,37 @@ func (m *GetServiceRequest) GetServiceID() string {
 	return ""
 }
 
+// Result from the [Core](/guide/start-here/core.html) when calling the `GetService` API
+//
+// **Example**
+// ```json
+// {
+//   "service": {
+//     "name": "serviceX",
+//     "events": {
+//       "eventX": {
+//         "data": {
+//           "dataX": { "type": "String" }
+//         }
+//       }
+//     },
+//     "tasks": {
+//       "taskX": {
+//         "inputs": {
+//           "foo": { "type": "String" }
+//         },
+//         "outputs": {
+//           "outputX": {
+//             "data": {
+//               "resX": { "type": "String" }
+//             }
+//           }
+//         }
+//       }
+//     }
+//   }
+// }
+// ```
 type GetServiceReply struct {
 	Service *service.Service `protobuf:"bytes,1,opt,name=service" json:"service,omitempty"`
 }
@@ -410,14 +625,23 @@ const _ = grpc.SupportPackageIsVersion4
 // Client API for Core service
 
 type CoreClient interface {
+	// Subscribe to the stream that will receive events from a service
 	ListenEvent(ctx context.Context, in *ListenEventRequest, opts ...grpc.CallOption) (Core_ListenEventClient, error)
+	// Let you to execute a task of a service through the [Core](/guide/start-here/core.html)
 	ExecuteTask(ctx context.Context, in *ExecuteTaskRequest, opts ...grpc.CallOption) (*ExecuteTaskReply, error)
+	// Subscribe to the stream that will receive results of a task of a service
 	ListenResult(ctx context.Context, in *ListenResultRequest, opts ...grpc.CallOption) (Core_ListenResultClient, error)
+	// Start a service. This service needs to be deployed already in the [Core](/guide/start-here/core.html)
 	StartService(ctx context.Context, in *StartServiceRequest, opts ...grpc.CallOption) (*StartServiceReply, error)
+	// Stop a service. This service needs to be deployed already in the [Core](/guide/start-here/core.html)
 	StopService(ctx context.Context, in *StopServiceRequest, opts ...grpc.CallOption) (*StopServiceReply, error)
+	// Deploy a new service to the [Core](/guide/start-here/core.html). This will give you an unique identifier to use your service
 	DeployService(ctx context.Context, in *DeployServiceRequest, opts ...grpc.CallOption) (*DeployServiceReply, error)
+	// Delete a service. This function will only delete the service deployed in the [Core](/guide/start-here/core.html). If the service code is on your computer, this call will not delete your source code
 	DeleteService(ctx context.Context, in *DeleteServiceRequest, opts ...grpc.CallOption) (*DeleteServiceReply, error)
+	// List all the services already deployed in the [Core](/guide/start-here/core.html)
 	ListServices(ctx context.Context, in *ListServicesRequest, opts ...grpc.CallOption) (*ListServicesReply, error)
+	// Get an already deployed service based on its ID
 	GetService(ctx context.Context, in *GetServiceRequest, opts ...grpc.CallOption) (*GetServiceReply, error)
 }
 
@@ -559,14 +783,23 @@ func (c *coreClient) GetService(ctx context.Context, in *GetServiceRequest, opts
 // Server API for Core service
 
 type CoreServer interface {
+	// Subscribe to the stream that will receive events from a service
 	ListenEvent(*ListenEventRequest, Core_ListenEventServer) error
+	// Let you to execute a task of a service through the [Core](/guide/start-here/core.html)
 	ExecuteTask(context.Context, *ExecuteTaskRequest) (*ExecuteTaskReply, error)
+	// Subscribe to the stream that will receive results of a task of a service
 	ListenResult(*ListenResultRequest, Core_ListenResultServer) error
+	// Start a service. This service needs to be deployed already in the [Core](/guide/start-here/core.html)
 	StartService(context.Context, *StartServiceRequest) (*StartServiceReply, error)
+	// Stop a service. This service needs to be deployed already in the [Core](/guide/start-here/core.html)
 	StopService(context.Context, *StopServiceRequest) (*StopServiceReply, error)
+	// Deploy a new service to the [Core](/guide/start-here/core.html). This will give you an unique identifier to use your service
 	DeployService(context.Context, *DeployServiceRequest) (*DeployServiceReply, error)
+	// Delete a service. This function will only delete the service deployed in the [Core](/guide/start-here/core.html). If the service code is on your computer, this call will not delete your source code
 	DeleteService(context.Context, *DeleteServiceRequest) (*DeleteServiceReply, error)
+	// List all the services already deployed in the [Core](/guide/start-here/core.html)
 	ListServices(context.Context, *ListServicesRequest) (*ListServicesReply, error)
+	// Get an already deployed service based on its ID
 	GetService(context.Context, *GetServiceRequest) (*GetServiceReply, error)
 }
 
