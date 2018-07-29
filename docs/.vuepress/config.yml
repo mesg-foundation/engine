@@ -90,6 +90,6 @@ themeConfig:
     /api/:
       - /api/core
       - /api/service
-      - /api/type
+      - /api/service-type
     /:
       - ''
