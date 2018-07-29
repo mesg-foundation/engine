@@ -52,7 +52,7 @@ message ListenTaskRequest {
 // ```json
 // {
 //   "executionID": "xxxxxx",
-//   "outputKey": "outputX"
+//   "outputKey": "outputX",
 //   "outputData": "{\"foo\":\"super result\",\"bar\":true}"
 // }
 // ```
