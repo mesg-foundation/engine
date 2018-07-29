@@ -6,6 +6,8 @@ markdown:
   toc:
     includeLevel: [2]
 themeConfig:
+  search: false,
+  searchMaxSuggestions: 15
   lastUpdated: true
   repo: mesg-foundation/awesome
   repoLabel: Contribute!
