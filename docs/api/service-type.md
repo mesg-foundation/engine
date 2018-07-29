@@ -1,8 +1,14 @@
 
 
 
-## Types
 
+
+# Service Data
+<!--
+DO NOT EDIT
+This file is generated using the ./scripts/build-proto.sh scripts
+Please update the github.com/mesg-foundation/core/service/service.proto file
+-->
 
 
 
@@ -14,13 +20,11 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| image | [string](#string) |  |  |
-| volumes | [string](#string) | repeated |  |
-| volumesfrom | [string](#string) | repeated |  |
-| ports | [string](#string) | repeated |  |
-| command | [string](#string) |  |  |
-
-
+| image | [string](#string) |  | Docker image name or sha |
+| volumes | [string](#string) | repeated | List of Docker volumes |
+| volumesfrom | [string](#string) | repeated | List of volumes mounted from other dependencies |
+| ports | [string](#string) | repeated | List of ports that the container needs to expose |
+| command | [string](#string) |  | Command needed to run the container |
 
 
 
@@ -33,11 +37,9 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| name | [string](#string) |  |  |
-| description | [string](#string) |  |  |
-| data | [Event.DataEntry](#service.Event.DataEntry) | repeated |  |
-
-
+| name | [string](#string) |  | Name of the event |
+| description | [string](#string) |  | Description of the event |
+| data | [Event.DataEntry](#service.Event.DataEntry) | repeated | Map of data associated to this event |
 
 
 
@@ -56,8 +58,6 @@
 
 
 
-
-
 <a name="Output"/>
 
 ### Output
@@ -66,11 +66,9 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| name | [string](#string) |  |  |
-| description | [string](#string) |  |  |
-| data | [Output.DataEntry](#service.Output.DataEntry) | repeated |  |
-
-
+| name | [string](#string) |  | Name of the output |
+| description | [string](#string) |  | Description of the output |
+| data | [Output.DataEntry](#service.Output.DataEntry) | repeated | Map of data associated to this output |
 
 
 
@@ -89,8 +87,6 @@
 
 
 
-
-
 <a name="Parameter"/>
 
 ### Parameter
@@ -99,12 +95,10 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| name | [string](#string) |  |  |
-| description | [string](#string) |  |  |
-| type | [string](#string) |  |  |
-| optional | [bool](#bool) |  |  |
-
-
+| name | [string](#string) |  | Name of the parameter |
+| description | [string](#string) |  | Description of the parameter |
+| type | [string](#string) |  | Type of the parameter `String`, `Number`, `Boolean` or `Object` |
+| optional | [bool](#bool) |  | Mark this parameter as optional |
 
 
 
@@ -117,15 +111,13 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| name | [string](#string) |  |  |
-| description | [string](#string) |  |  |
-| tasks | [Service.TasksEntry](#service.Service.TasksEntry) | repeated |  |
-| events | [Service.EventsEntry](#service.Service.EventsEntry) | repeated |  |
-| dependencies | [Service.DependenciesEntry](#service.Service.DependenciesEntry) | repeated |  |
-| configuration | [Dependency](#service.Dependency) |  |  |
-| repository | [string](#string) |  |  |
-
-
+| name | [string](#string) |  | Name of the service |
+| description | [string](#string) |  | Description of the service |
+| tasks | [Service.TasksEntry](#service.Service.TasksEntry) | repeated | Map of tasks that the service can execute |
+| events | [Service.EventsEntry](#service.Service.EventsEntry) | repeated | Map of events that the service can emits |
+| dependencies | [Service.DependenciesEntry](#service.Service.DependenciesEntry) | repeated | Docker dependencies that the service requires |
+| configuration | [Dependency](#service.Dependency) |  | Docker configurations for the service |
+| repository | [string](#string) |  | Repository where the source code of this service is accessible |
 
 
 
@@ -144,8 +136,6 @@
 
 
 
-
-
 <a name="EventsEntry"/>
 
 ### Service.EventsEntry
@@ -156,8 +146,6 @@
 | ----- | ---- | ----- | ----------- |
 | key | [string](#string) |  |  |
 | value | [Event](#service.Event) |  |  |
-
-
 
 
 
@@ -176,8 +164,6 @@
 
 
 
-
-
 <a name="Task"/>
 
 ### Task
@@ -186,12 +172,10 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| name | [string](#string) |  |  |
-| description | [string](#string) |  |  |
-| inputs | [Task.InputsEntry](#service.Task.InputsEntry) | repeated |  |
-| outputs | [Task.OutputsEntry](#service.Task.OutputsEntry) | repeated |  |
-
-
+| name | [string](#string) |  | Name of the task |
+| description | [string](#string) |  | Description of the task |
+| inputs | [Task.InputsEntry](#service.Task.InputsEntry) | repeated | Map of inputs that can be given for this task |
+| outputs | [Task.OutputsEntry](#service.Task.OutputsEntry) | repeated | Map of outputs that the task can returns as result |
 
 
 
@@ -206,8 +190,6 @@
 | ----- | ---- | ----- | ----------- |
 | key | [string](#string) |  |  |
 | value | [Parameter](#service.Parameter) |  |  |
-
-
 
 
 
@@ -227,10 +209,6 @@
 
 
 
-
-
  <!-- end enums -->
-
- <!-- end HasExtensions -->
 
 
