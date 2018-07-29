@@ -8,26 +8,29 @@ import (
 )
 
 func TestListTasks(t *testing.T) {
+	c, err := New()
+	assert.Nil(t, err)
 	namespace := []string{"TestListTasks"}
 	startTestService(namespace)
-	defer StopService(namespace)
-	tasks, err := ListTasks(namespace)
+	defer c.StopService(namespace)
+	tasks, err := c.ListTasks(namespace)
 	assert.Nil(t, err)
 	assert.NotNil(t, tasks)
 	assert.Equal(t, 1, len(tasks))
 }
 
 func TestTasksError(t *testing.T) {
+	c, err := New()
+	assert.Nil(t, err)
 	namespace := []string{"TestTasksError"}
-	StartService(ServiceOptions{
+	c.StartService(ServiceOptions{
 		Image:     "fiifioewifewiewfifewijopwjeokpfeo",
 		Namespace: namespace,
 	})
-	defer StopService(namespace)
+	defer c.StopService(namespace)
 	var errors []string
-	var err error
 	for {
-		errors, err = TasksError(namespace)
+		errors, err = c.TasksError(namespace)
 		if err != nil || len(errors) > 0 {
 			break
 		}

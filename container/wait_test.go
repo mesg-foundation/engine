@@ -7,30 +7,36 @@ import (
 )
 
 func TestWaitForStatusRunning(t *testing.T) {
+	c, err := New()
+	assert.Nil(t, err)
 	namespace := []string{"TestWaitForStatusRunning"}
 	startTestService(namespace)
-	defer StopService(namespace)
-	err := waitForStatus(namespace, RUNNING)
+	defer c.StopService(namespace)
+	err = c.waitForStatus(namespace, RUNNING)
 	assert.Nil(t, err)
 }
 
 func TestWaitForStatusStopped(t *testing.T) {
+	c, err := New()
+	assert.Nil(t, err)
 	namespace := []string{"TestWaitForStatusStopped"}
 	startTestService(namespace)
-	waitForStatus(namespace, RUNNING)
-	StopService(namespace)
-	err := waitForStatus(namespace, STOPPED)
+	c.waitForStatus(namespace, RUNNING)
+	c.StopService(namespace)
+	err = c.waitForStatus(namespace, STOPPED)
 	assert.Nil(t, err)
 }
 
 func TestWaitForStatusTaskError(t *testing.T) {
+	c, err := New()
+	assert.Nil(t, err)
 	namespace := []string{"TestWaitForStatusTaskError"}
-	StartService(ServiceOptions{
+	c.StartService(ServiceOptions{
 		Image:     "awgdaywudaywudwa",
 		Namespace: namespace,
 	})
-	defer StopService(namespace)
-	err := waitForStatus(namespace, RUNNING)
+	defer c.StopService(namespace)
+	err = c.waitForStatus(namespace, RUNNING)
 	assert.NotNil(t, err)
 	assert.Equal(t, "No such image: awgdaywudaywudwa:latest", err.Error())
 }
