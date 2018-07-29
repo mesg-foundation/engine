@@ -2,6 +2,8 @@
 
 This is a step-by-step guide to create an application that sends a Discord invitation email when a webhook is called.
 
+[[toc]]
+
 ## 1. Installation
 
 Run the following command in a console to install MESG Core:
