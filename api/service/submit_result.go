@@ -7,7 +7,7 @@ import (
 	"github.com/mesg-foundation/core/execution"
 )
 
-// SubmitResult of an execution
+// SubmitResult subbmits results of an execution.
 func (s *Server) SubmitResult(context context.Context, request *SubmitResultRequest) (*SubmitResultReply, error) {
 	execution := execution.InProgress(request.ExecutionID)
 	if execution == nil {

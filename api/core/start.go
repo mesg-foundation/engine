@@ -6,7 +6,7 @@ import (
 	"github.com/mesg-foundation/core/database/services"
 )
 
-// StartService fetch a service in the db and starts it
+// StartService fetches a service from the database and starts it.
 func (s *Server) StartService(ctx context.Context, request *StartServiceRequest) (*StartServiceReply, error) {
 	service, err := services.Get(request.ServiceID)
 	if err != nil {

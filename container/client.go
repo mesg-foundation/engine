@@ -13,7 +13,7 @@ var sharedNetworkNamespace = []string{"shared"}
 var clientInstance *docker.Client
 var mu sync.Mutex
 
-// Client create a docker client ready to use
+// Client creates a ready to use docker client.
 func Client() (client *docker.Client, err error) {
 	mu.Lock()
 	defer mu.Unlock()

@@ -8,7 +8,7 @@ import (
 	"github.com/docker/docker/api/types/swarm"
 )
 
-// ListTasks returns all docker tasks
+// ListTasks returns all the docker tasks.
 func ListTasks(namespace []string) ([]swarm.Task, error) {
 	client, err := Client()
 	if err != nil {
@@ -22,7 +22,7 @@ func ListTasks(namespace []string) ([]swarm.Task, error) {
 	})
 }
 
-// TasksError returns the error of matching tasks
+// TasksError returns the error of matching tasks.
 func TasksError(namespace []string) ([]string, error) {
 	tasks, err := ListTasks(namespace)
 	if err != nil {

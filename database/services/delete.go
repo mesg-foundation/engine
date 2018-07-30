@@ -1,6 +1,6 @@
 package services
 
-// Delete a service based on its hash
+// Delete deletes a service from the database based on the hash.
 func Delete(hash string) error {
 	db, err := open()
 	defer close()

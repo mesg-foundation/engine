@@ -17,7 +17,7 @@ const (
 	installDocker      = "Please make sure Docker is running.\nIf Docker is not installed on your machine you can install it here: https://store.docker.com/search?type=edition&offering=community"
 )
 
-// HandleError display the error and stop the process if error exist
+// HandleError displays the error and stops the process if the error exists
 func HandleError(err error) {
 	if err != nil {
 		fmt.Println(errorMessage(err))

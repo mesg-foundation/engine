@@ -12,7 +12,7 @@ import (
 	"github.com/mesg-foundation/core/utils/array"
 )
 
-// ListenResult will listen for results from a services
+// ListenResult listens for results from a services.
 func (s *Server) ListenResult(request *ListenResultRequest, stream Core_ListenResultServer) error {
 	service, err := services.Get(request.ServiceID)
 	if err != nil {

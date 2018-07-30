@@ -4,22 +4,22 @@ import (
 	"github.com/mesg-foundation/core/utils/hash"
 )
 
-// NAMESPACE is the namespace used for the docker services
+// NAMESPACE is the namespace used for the docker services.
 const eventChannel string = "Event"
 const taskChannel string = "Task"
 const resultChannel string = "Result"
 
-// namespace returns the namespace of the service
+// namespace returns the namespace of the service.
 func (service *Service) namespace() []string {
 	return []string{service.Hash()}
 }
 
-// namespace return the namespace of a depedency
+// namespace returns the namespace of a dependency.
 func (dep *DependencyFromService) namespace() []string {
 	return append(dep.Service.namespace(), dep.Name)
 }
 
-// EventSubscriptionChannel returns the channel to listen for events from this service
+// EventSubscriptionChannel returns the channel to listen for events from this service.
 func (service *Service) EventSubscriptionChannel() string {
 	return hash.Calculate(append(
 		service.namespace(),
@@ -27,7 +27,7 @@ func (service *Service) EventSubscriptionChannel() string {
 	))
 }
 
-// TaskSubscriptionChannel returns the channel to listen for tasks from this service
+// TaskSubscriptionChannel returns the channel to listen for tasks from this service.
 func (service *Service) TaskSubscriptionChannel() string {
 	return hash.Calculate(append(
 		service.namespace(),
@@ -35,7 +35,7 @@ func (service *Service) TaskSubscriptionChannel() string {
 	))
 }
 
-// ResultSubscriptionChannel returns the channel to listen for tasks from this service
+// ResultSubscriptionChannel returns the channel to listen for tasks from this service.
 func (service *Service) ResultSubscriptionChannel() string {
 	return hash.Calculate(append(
 		service.namespace(),

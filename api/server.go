@@ -12,7 +12,7 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
-// Server is the main struct that contain the server config
+// Server contains the server config.
 type Server struct {
 	instance *grpc.Server
 	listener net.Listener
@@ -20,7 +20,7 @@ type Server struct {
 	Address  string
 }
 
-// Serve starts the server and listen for client connections
+// Serve starts the server and listens for client connections.
 func (s *Server) Serve() error {
 	if s.listener != nil {
 		return errors.New("Server already running")
@@ -44,7 +44,7 @@ func (s *Server) Serve() error {
 	return s.instance.Serve(s.listener)
 }
 
-// Stop stops the server (if exist)
+// Stop stops the server.
 func (s *Server) Stop() {
 	if s.instance != nil {
 		s.instance.Stop()

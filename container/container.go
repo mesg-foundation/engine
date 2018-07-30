@@ -8,7 +8,7 @@ import (
 	docker "github.com/docker/docker/client"
 )
 
-// FindContainer returns a docker container if exist
+// FindContainer returns a docker container.
 func FindContainer(namespace []string) (types.ContainerJSON, error) {
 	client, err := Client()
 	if err != nil {
@@ -31,7 +31,7 @@ func FindContainer(namespace []string) (types.ContainerJSON, error) {
 	return client.ContainerInspect(context.Background(), containerID)
 }
 
-// Status returns the status of a docker container
+// Status returns the status of a docker container.
 func Status(namespace []string) (StatusType, error) {
 	status := STOPPED
 	container, err := FindContainer(namespace)

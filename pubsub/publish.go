@@ -1,6 +1,6 @@
 package pubsub
 
-// Publish a message on a channel
+// Publish publishes a message to a channel.
 func Publish(channel string, data Message) {
 	mu.Lock()
 	defer mu.Unlock()

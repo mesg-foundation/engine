@@ -6,7 +6,7 @@ import (
 	"github.com/mesg-foundation/core/database/services"
 )
 
-// DeployService save a service in the database and return the hash of this service
+// DeployService saves a service in the database and returns the hash of this service.
 func (s *Server) DeployService(ctx context.Context, request *DeployServiceRequest) (*DeployServiceReply, error) {
 	service := request.Service
 	hash, err := services.Save(service)

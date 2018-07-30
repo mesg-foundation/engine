@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Start the docker core
+// Start starts the docker core.
 func Start() (string, error) {
 	status, err := Status()
 	if err != nil || status == container.RUNNING {

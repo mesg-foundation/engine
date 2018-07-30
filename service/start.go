@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Start a service
+// Start starts the service.
 func (service *Service) Start() ([]string, error) {
 	status, err := service.Status()
 	if err != nil || status == RUNNING {
@@ -57,7 +57,7 @@ func (service *Service) Start() ([]string, error) {
 	return serviceIDs, nil
 }
 
-// Start will start a dependency container
+// Start starts a dependency container.
 func (dependency *DependencyFromService) Start(networkID string) (string, error) {
 	if networkID == "" {
 		return "", errors.New("Network ID should never be null")
