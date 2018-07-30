@@ -106,7 +106,7 @@ func TestInjectConfigurationInDependenciesWithConfig(t *testing.T) {
 func TestInjectConfigurationInDependenciesWithDependency(t *testing.T) {
 	s := &service.Service{
 		Dependencies: map[string]*service.Dependency{
-			"test": &service.Dependency{
+			"test": {
 				Image: "xxx",
 			},
 		},
@@ -119,7 +119,7 @@ func TestInjectConfigurationInDependenciesWithDependency(t *testing.T) {
 func TestInjectConfigurationInDependenciesWithDependencyOverride(t *testing.T) {
 	s := &service.Service{
 		Dependencies: map[string]*service.Dependency{
-			"service": &service.Dependency{
+			"service": {
 				Image: "xxx",
 			},
 		},

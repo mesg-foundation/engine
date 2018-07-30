@@ -20,8 +20,8 @@ func TestGetTemplateBadURL(t *testing.T) {
 
 func TestTemplatesToOption(t *testing.T) {
 	templates := []*templateStruct{
-		&templateStruct{Name: "xxx", URL: "https://..."},
-		&templateStruct{Name: "yyy", URL: "https://..."},
+		{Name: "xxx", URL: "https://..."},
+		{Name: "yyy", URL: "https://..."},
 	}
 	options := templatesToOption(templates)
 	assert.Equal(t, len(options), len(templates)+2)
@@ -37,8 +37,8 @@ func TestGetTemplateResultAddMyOwn(t *testing.T) {
 
 func TestGetTemplateResultAdd(t *testing.T) {
 	templates := []*templateStruct{
-		&templateStruct{Name: "xxx", URL: "https://..."},
-		&templateStruct{Name: "yyy", URL: "https://..."},
+		{Name: "xxx", URL: "https://..."},
+		{Name: "yyy", URL: "https://..."},
 	}
 	result := "yyy (https://...)"
 	tmpl := getTemplateResult(result, templates)

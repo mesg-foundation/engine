@@ -17,7 +17,7 @@ func TestStartService(t *testing.T) {
 		Service: &service.Service{
 			Name: "TestStartService",
 			Dependencies: map[string]*service.Dependency{
-				"test": &service.Dependency{
+				"test": {
 					Image: "nginx",
 				},
 			},

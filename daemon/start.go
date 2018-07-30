@@ -36,17 +36,17 @@ func serviceSpec() (spec container.ServiceOptions, err error) {
 			config.ToEnv(config.ServicePathHost):      filepath.Join(viper.GetString(config.MESGPath), "services"),
 		}),
 		Mounts: []container.Mount{
-			container.Mount{
+			{
 				Source: dockerSocket,
 				Target: dockerSocket,
 			},
-			container.Mount{
+			{
 				Source: viper.GetString(config.MESGPath),
 				Target: "/mesg",
 			},
 		},
 		Ports: []container.Port{
-			container.Port{
+			{
 				Target:    50052,
 				Published: 50052,
 			},
