@@ -5,11 +5,10 @@ import (
 	"errors"
 
 	"github.com/mesg-foundation/core/database/services"
-	service "github.com/mesg-foundation/core/service"
-	"github.com/mesg-foundation/core/utils/array"
-
 	"github.com/mesg-foundation/core/event"
 	"github.com/mesg-foundation/core/pubsub"
+	service "github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/core/utils/array"
 )
 
 // ListenEvent for listen event from a specific service services

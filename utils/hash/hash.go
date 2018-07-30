@@ -1,6 +1,8 @@
 package hash
 
-import "strings"
+import (
+	"strings"
+)
 
 const separator = "."
 

@@ -1,6 +1,8 @@
 package client
 
-import "github.com/mesg-foundation/core/api/core"
+import (
+	"github.com/mesg-foundation/core/api/core"
+)
 
 // Workflow is a struct that contains all the details of
 // a workflow. A workflow contains an event source and

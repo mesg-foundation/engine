@@ -1,6 +1,8 @@
 package event
 
-import "github.com/mesg-foundation/core/pubsub"
+import (
+	"github.com/mesg-foundation/core/pubsub"
+)
 
 // Publish an event for everyone listening
 func (event *Event) Publish() {

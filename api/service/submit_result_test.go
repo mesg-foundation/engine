@@ -6,7 +6,6 @@ import (
 
 	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/service"
-
 	"github.com/stvp/assert"
 )
 

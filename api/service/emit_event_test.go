@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/database/services"
-
 	"github.com/mesg-foundation/core/pubsub"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stvp/assert"
