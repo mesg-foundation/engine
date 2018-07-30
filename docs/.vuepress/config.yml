@@ -9,8 +9,8 @@ themeConfig:
   search: false,
   searchMaxSuggestions: 15
   lastUpdated: true
-  repo: mesg-foundation/awesome
-  repoLabel: Contribute!
+  repo: mesg-foundation/
+  repoLabel: GitHub
   docsRepo: mesg-foundation/core
   docsDir: docs
   docsBranch: dev
@@ -31,7 +31,7 @@ themeConfig:
       link: /api/core.md
     - text: Changelog
       link: https://github.com/mesg-foundation/core/blob/master/CHANGELOG.md
-    - text: Join
+    - text: Discord
       link: https://discord.gg/SaZ5HcE
   sidebar:
     /guide/:
