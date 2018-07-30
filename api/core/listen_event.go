@@ -2,7 +2,7 @@ package core
 
 import (
 	"encoding/json"
-	fmt "fmt"
+	"fmt"
 
 	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/event"

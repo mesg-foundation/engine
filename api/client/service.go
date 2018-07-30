@@ -26,29 +26,22 @@ func (wf *Workflow) services() []string {
 	return services
 }
 
-func iterateService(wf *Workflow, action func(string) error) error {
+func startServices(wf *Workflow) error {
 	for _, ID := range wf.services() {
-		if err := action(ID); err != nil {
+		if _, err := wf.client.StartService(context.Background(),
+			&core.StartServiceRequest{ServiceID: ID}); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func startServices(wf *Workflow) error {
-	return iterateService(wf, func(ID string) error {
-		_, err := wf.client.StartService(context.Background(), &core.StartServiceRequest{
-			ServiceID: ID,
-		})
-		return err
-	})
-}
-
 func stopServices(wf *Workflow) error {
-	return iterateService(wf, func(ID string) error {
-		_, err := wf.client.StopService(context.Background(), &core.StopServiceRequest{
-			ServiceID: ID,
-		})
-		return err
-	})
+	for _, ID := range wf.services() {
+		if _, err := wf.client.StopService(context.Background(),
+			&core.StopServiceRequest{ServiceID: ID}); err != nil {
+			return err
+		}
+	}
+	return nil
 }

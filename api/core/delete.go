@@ -12,7 +12,7 @@ func (s *Server) DeleteService(ctx context.Context, request *DeleteServiceReques
 	if err != nil {
 		return nil, err
 	}
-	if err = service.Stop(); err != nil {
+	if err := service.Stop(); err != nil {
 		return nil, err
 	}
 	if err := services.Delete(request.ServiceID); err != nil {
