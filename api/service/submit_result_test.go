@@ -17,9 +17,9 @@ func execute(name string) (e *execution.Execution) {
 	e, _ = execution.Create(&service.Service{
 		Name: name,
 		Tasks: map[string]*service.Task{
-			"test": &service.Task{
+			"test": {
 				Outputs: map[string]*service.Output{
-					"output": &service.Output{},
+					"output": {},
 				},
 			},
 		},

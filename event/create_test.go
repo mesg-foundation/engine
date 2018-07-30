@@ -11,7 +11,7 @@ func TestCreate(t *testing.T) {
 	s := service.Service{
 		Name: "TestCreate",
 		Events: map[string]*service.Event{
-			"test": &service.Event{},
+			"test": {},
 		},
 	}
 	var data map[string]interface{}
@@ -27,7 +27,7 @@ func TestCreateNotPresentEvent(t *testing.T) {
 	s := service.Service{
 		Name: "TestCreateNotPresentEvent",
 		Events: map[string]*service.Event{
-			"test": &service.Event{},
+			"test": {},
 		},
 	}
 	var data map[string]interface{}
@@ -41,9 +41,9 @@ func TestCreateInvalidData(t *testing.T) {
 	s := service.Service{
 		Name: "TestCreateInvalidData",
 		Events: map[string]*service.Event{
-			"test": &service.Event{
+			"test": {
 				Data: map[string]*service.Parameter{
-					"xxx": &service.Parameter{},
+					"xxx": {},
 				},
 			},
 		},

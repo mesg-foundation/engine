@@ -17,10 +17,10 @@ func TestEmit(t *testing.T) {
 	service := service.Service{
 		Name: "TestEmit",
 		Events: map[string]*service.Event{
-			"test": &service.Event{},
+			"test": {},
 		},
 		Dependencies: map[string]*service.Dependency{
-			"test": &service.Dependency{
+			"test": {
 				Image: "nginx",
 			},
 		},

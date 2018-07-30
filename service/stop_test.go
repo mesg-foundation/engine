@@ -12,7 +12,7 @@ func TestStopRunningService(t *testing.T) {
 	service := &Service{
 		Name: "TestStopRunningService",
 		Dependencies: map[string]*Dependency{
-			"test": &Dependency{
+			"test": {
 				Image: "nginx",
 			},
 		},
@@ -28,7 +28,7 @@ func TestStopNonRunningService(t *testing.T) {
 	service := &Service{
 		Name: "TestStopNonRunningService",
 		Dependencies: map[string]*Dependency{
-			"test": &Dependency{
+			"test": {
 				Image: "nginx",
 			},
 		},
@@ -43,7 +43,7 @@ func TestStopDependency(t *testing.T) {
 	service := &Service{
 		Name: "TestStartDependency",
 		Dependencies: map[string]*Dependency{
-			"test": &Dependency{
+			"test": {
 				Image: "nginx",
 			},
 		},
@@ -62,7 +62,7 @@ func TestNetworkDeleted(t *testing.T) {
 	service := &Service{
 		Name: "TestNetworkDeleted",
 		Dependencies: map[string]*Dependency{
-			"test": &Dependency{
+			"test": {
 				Image: "nginx",
 			},
 		},

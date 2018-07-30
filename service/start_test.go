@@ -33,7 +33,7 @@ func TestStartService(t *testing.T) {
 	service := &Service{
 		Name: "TestStartService",
 		Dependencies: map[string]*Dependency{
-			"test": &Dependency{
+			"test": {
 				Image: "nginx",
 			},
 		},
@@ -50,10 +50,10 @@ func TestStartWith2Dependencies(t *testing.T) {
 	service := &Service{
 		Name: "TestStartWith2Dependencies",
 		Dependencies: map[string]*Dependency{
-			"testa": &Dependency{
+			"testa": {
 				Image: "nginx:latest",
 			},
-			"testb": &Dependency{
+			"testb": {
 				Image: "alpine:latest",
 			},
 		},
@@ -73,7 +73,7 @@ func TestStartAgainService(t *testing.T) {
 	service := &Service{
 		Name: "TestStartAgainService",
 		Dependencies: map[string]*Dependency{
-			"test": &Dependency{
+			"test": {
 				Image: "nginx",
 			},
 		},
@@ -91,10 +91,10 @@ func TestPartiallyRunningService(t *testing.T) {
 	service := &Service{
 		Name: "TestPartiallyRunningService",
 		Dependencies: map[string]*Dependency{
-			"testa": &Dependency{
+			"testa": {
 				Image: "nginx",
 			},
-			"testb": &Dependency{
+			"testb": {
 				Image: "nginx",
 			},
 		},
@@ -115,7 +115,7 @@ func TestStartDependency(t *testing.T) {
 	service := &Service{
 		Name: "TestStartDependency",
 		Dependencies: map[string]*Dependency{
-			"test": &Dependency{
+			"test": {
 				Image: "nginx",
 			},
 		},
@@ -135,7 +135,7 @@ func TestNetworkCreated(t *testing.T) {
 	service := &Service{
 		Name: "TestNetworkCreated",
 		Dependencies: map[string]*Dependency{
-			"test": &Dependency{
+			"test": {
 				Image: "nginx",
 			},
 		},
@@ -152,7 +152,7 @@ func TestStartStopStart(t *testing.T) {
 	service := &Service{
 		Name: "TestStartStopStart",
 		Dependencies: map[string]*Dependency{
-			"test": &Dependency{
+			"test": {
 				Image: "nginx",
 			},
 		},
