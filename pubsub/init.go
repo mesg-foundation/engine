@@ -1,6 +1,8 @@
 package pubsub
 
-import "sync"
+import (
+	"sync"
+)
 
 var listeners map[string][]chan Message
 var mu sync.Mutex

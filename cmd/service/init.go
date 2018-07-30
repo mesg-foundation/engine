@@ -9,11 +9,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"gopkg.in/AlecAivazis/survey.v1"
-
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/spf13/cobra"
+	"gopkg.in/AlecAivazis/survey.v1"
 )
 
 const templatesURL = "https://raw.githubusercontent.com/mesg-foundation/awesome/master/templates.json"

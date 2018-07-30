@@ -6,8 +6,6 @@ import (
 	"net/url"
 	"os"
 
-	"gopkg.in/src-d/go-git.v4/plumbing"
-
 	"github.com/asaskevich/govalidator"
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/api/core"
@@ -19,6 +17,7 @@ import (
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	git "gopkg.in/src-d/go-git.v4"
+	"gopkg.in/src-d/go-git.v4/plumbing"
 )
 
 func cli() core.CoreClient {

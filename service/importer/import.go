@@ -2,7 +2,6 @@ package importer
 
 import (
 	"github.com/mesg-foundation/core/service"
-
 	yaml "gopkg.in/yaml.v2"
 )
 
