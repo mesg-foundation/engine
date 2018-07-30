@@ -3,6 +3,7 @@ package core
 import (
 	"encoding/json"
 	"errors"
+	fmt "fmt"
 
 	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/execution"
@@ -12,16 +13,16 @@ import (
 )
 
 // ListenResult will listen for results from a services
-func (s *Server) ListenResult(request *ListenResultRequest, stream Core_ListenResultServer) (err error) {
+func (s *Server) ListenResult(request *ListenResultRequest, stream Core_ListenResultServer) error {
 	service, err := services.Get(request.ServiceID)
 	if err != nil {
-		return
+		return err
 	}
-	if err = validateTaskKey(&service, request.TaskFilter); err != nil {
-		return
+	if err := validateTaskKey(&service, request.TaskFilter); err != nil {
+		return err
 	}
-	if err = validateOutputKey(&service, request.TaskFilter, request.OutputFilter); err != nil {
-		return
+	if err := validateOutputKey(&service, request.TaskFilter, request.OutputFilter); err != nil {
+		return err
 	}
 	subscription := pubsub.Subscribe(service.ResultSubscriptionChannel())
 	for data := range subscription {
@@ -36,39 +37,35 @@ func (s *Server) ListenResult(request *ListenResultRequest, stream Core_ListenRe
 			})
 		}
 	}
-	return
+	return nil
 }
 
-func validateTaskKey(service *service.Service, taskKey string) (err error) {
+func validateTaskKey(service *service.Service, taskKey string) error {
 	if taskKey == "" || taskKey == "*" {
-		return
+		return nil
 	}
-	_, ok := service.Tasks[taskKey]
-	if ok {
-		return
+	if _, ok := service.Tasks[taskKey]; ok {
+		return nil
 	}
-	err = errors.New("Task '" + taskKey + "' doesn't exist in this service")
-	return
+	return fmt.Errorf("Task %q doesn't exist in this service", taskKey)
 }
 
-func validateOutputKey(service *service.Service, taskKey string, outputFilter string) (err error) {
+func validateOutputKey(service *service.Service, taskKey string, outputFilter string) error {
 	if outputFilter == "" || outputFilter == "*" {
-		return
+		return nil
 	}
 	if taskKey == "" {
-		err = errors.New("Cannot filter output without specifying a task")
-		return
+		return errors.New("Cannot filter output without specifying a task")
 	}
 	task, ok := service.Tasks[taskKey]
 	if !ok {
-		err = errors.New("Task '" + taskKey + "' doesn't exist in this service")
-		return
+		return fmt.Errorf("Task %q doesn't exist in this service", taskKey)
 	}
 	_, ok = task.Outputs[outputFilter]
 	if !ok {
-		err = errors.New("Output '" + outputFilter + "' doesn't exist in the task '" + taskKey + "' of this service")
+		return fmt.Errorf("Output %q doesn't exist in the task %q of this service", outputFilter, taskKey)
 	}
-	return
+	return nil
 }
 
 func isSubscribedTask(request *ListenResultRequest, e *execution.Execution) bool {

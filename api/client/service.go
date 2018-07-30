@@ -6,8 +6,11 @@ import (
 	"github.com/mesg-foundation/core/api/core"
 )
 
-func (wf *Workflow) services() (services []string) {
-	presence := make(map[string]bool)
+func (wf *Workflow) services() []string {
+	var (
+		services []string
+		presence = make(map[string]bool)
+	)
 	if wf.OnEvent != nil && !presence[wf.OnEvent.ServiceID] {
 		services = append(services, wf.OnEvent.ServiceID)
 		presence[wf.OnEvent.ServiceID] = true
@@ -20,33 +23,32 @@ func (wf *Workflow) services() (services []string) {
 		services = append(services, wf.Execute.ServiceID)
 		presence[wf.Execute.ServiceID] = true
 	}
-	return
+	return services
 }
 
-func iterateService(wf *Workflow, action func(string) error) (err error) {
+func iterateService(wf *Workflow, action func(string) error) error {
 	for _, ID := range wf.services() {
-		err = action(ID)
-		if err != nil {
-			break
+		if err := action(ID); err != nil {
+			return err
 		}
 	}
-	return
+	return nil
 }
 
 func startServices(wf *Workflow) error {
-	return iterateService(wf, func(ID string) (err error) {
-		_, err = wf.client.StartService(context.Background(), &core.StartServiceRequest{
+	return iterateService(wf, func(ID string) error {
+		_, err := wf.client.StartService(context.Background(), &core.StartServiceRequest{
 			ServiceID: ID,
 		})
-		return
+		return err
 	})
 }
 
 func stopServices(wf *Workflow) error {
-	return iterateService(wf, func(ID string) (err error) {
-		_, err = wf.client.StopService(context.Background(), &core.StopServiceRequest{
+	return iterateService(wf, func(ID string) error {
+		_, err := wf.client.StopService(context.Background(), &core.StopServiceRequest{
 			ServiceID: ID,
 		})
-		return
+		return err
 	})
 }

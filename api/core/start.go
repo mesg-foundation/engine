@@ -7,12 +7,13 @@ import (
 )
 
 // StartService fetch a service in the db and starts it
-func (s *Server) StartService(ctx context.Context, request *StartServiceRequest) (reply *StartServiceReply, err error) {
+func (s *Server) StartService(ctx context.Context, request *StartServiceRequest) (*StartServiceReply, error) {
 	service, err := services.Get(request.ServiceID)
 	if err != nil {
-		return
+		return nil, err
 	}
-	_, err = service.Start()
-	reply = &StartServiceReply{}
-	return
+	if _, err = service.Start(); err != nil {
+		return nil, err
+	}
+	return &StartServiceReply{}, nil
 }

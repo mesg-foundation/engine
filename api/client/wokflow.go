@@ -9,63 +9,58 @@ import (
 )
 
 // Start is the function to start the workflow
-func (wf *Workflow) Start() (err error) {
+func (wf *Workflow) Start() error {
 	if wf.Execute == nil {
-		err = errors.New("A workflow needs a task")
-		return
+		return errors.New("A workflow needs a task")
 	}
 	if wf.OnEvent == nil && wf.OnResult == nil {
-		err = errors.New("A workflow needs an event OnEvent or OnResult")
-		return
+		return errors.New("A workflow needs an event OnEvent or OnResult")
 	}
-	wf.client, err = getClient()
+
+	client, err := getClient()
 	if err != nil {
-		return
+		return err
 	}
-	err = startServices(wf)
-	if err != nil {
-		return
+	wf.client = client
+
+	if err := startServices(wf); err != nil {
+		return err
 	}
+
+	listen := listenResults
 	if wf.OnEvent != nil {
-		err = listenEvents(wf)
-	} else {
-		err = listenResults(wf)
+		listen = listenEvents
 	}
-	return
+	return listen(wf)
 }
 
 // Stop will stop all the services in your workflow
-func (wf *Workflow) Stop() (err error) {
-	err = stopServices(wf)
-	return
+func (wf *Workflow) Stop() error {
+	return stopServices(wf)
 }
 
-func listenEvents(wf *Workflow) (err error) {
+func listenEvents(wf *Workflow) error {
 	if wf.OnEvent.Name == "" {
-		err = errors.New("Event's Name should be defined (you can use * to react to any event)")
-		return
+		return errors.New("Event's Name should be defined (you can use * to react to any event)")
 	}
 	stream, err := wf.client.ListenEvent(context.Background(), &core.ListenEventRequest{
 		ServiceID: wf.OnEvent.ServiceID,
 	})
 	if err != nil {
-		return
+		return err
 	}
 
 	for {
-		var data *core.EventData
-		data, err = stream.Recv()
+		data, err := stream.Recv()
 		if err != nil {
-			break
+			return err
 		}
 		if wf.validEvent(data) {
-			err = wf.Execute.processEvent(wf, data)
-			if err != nil {
-				break
+			if err := wf.Execute.processEvent(wf, data); err != nil {
+				return err
 			}
 		}
 	}
-	return
 }
 
 func (wf *Workflow) validEvent(data *core.EventData) bool {
@@ -75,32 +70,28 @@ func (wf *Workflow) validEvent(data *core.EventData) bool {
 	return strings.Compare(wf.OnEvent.Name, data.EventKey) == 0
 }
 
-func listenResults(wf *Workflow) (err error) {
+func listenResults(wf *Workflow) error {
 	if wf.OnResult.Name == "" || wf.OnResult.Output == "" {
-		err = errors.New("Result's Name and Output should be defined (you can use * to react to any result)")
-		return
+		return errors.New("Result's Name and Output should be defined (you can use * to react to any result)")
 	}
 	stream, err := wf.client.ListenResult(context.Background(), &core.ListenResultRequest{
 		ServiceID: wf.OnResult.ServiceID,
 	})
 	if err != nil {
-		return
+		return err
 	}
 
 	for {
-		var data *core.ResultData
-		data, err = stream.Recv()
+		data, err := stream.Recv()
 		if err != nil {
-			break
+			return err
 		}
 		if wf.validResult(data) {
-			err = wf.Execute.processResult(wf, data)
-			if err != nil {
-				break
+			if err := wf.Execute.processResult(wf, data); err != nil {
+				return err
 			}
 		}
 	}
-	return
 }
 
 func (wf *Workflow) validResult(data *core.ResultData) bool {

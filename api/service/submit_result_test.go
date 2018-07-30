@@ -11,9 +11,9 @@ import (
 
 var serversubmit = new(Server)
 
-func execute(name string) (e *execution.Execution) {
+func execute(name string) *execution.Execution {
 	var inputs map[string]interface{}
-	e, _ = execution.Create(&service.Service{
+	e, _ := execution.Create(&service.Service{
 		Name: name,
 		Tasks: map[string]*service.Task{
 			"test": {
@@ -24,7 +24,7 @@ func execute(name string) (e *execution.Execution) {
 		},
 	}, "test", inputs)
 	e.Execute()
-	return
+	return e
 }
 
 func TestSubmit(t *testing.T) {

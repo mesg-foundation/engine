@@ -43,16 +43,15 @@ func Create(serviceForExecution *service.Service, task string, inputs map[string
 	return execution, err
 }
 
-func generateID(execution *Execution) (id string, err error) {
+func generateID(execution *Execution) (string, error) {
 	inputs, err := json.Marshal(execution.Inputs)
 	if err != nil {
-		return
+		return "", err
 	}
-	id = hash.Calculate([]string{
+	return hash.Calculate([]string{
 		execution.CreatedAt.UTC().String(),
 		execution.Service.Name,
 		execution.Task,
 		string(inputs),
-	})
-	return
+	}), nil
 }

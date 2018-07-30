@@ -15,14 +15,13 @@ const (
 )
 
 // Status returns the StatusType of all dependency of this service
-func (service *Service) Status() (status StatusType, err error) {
-	status = STOPPED
+func (service *Service) Status() (StatusType, error) {
+	status := STOPPED
 	allRunning := true
 	for _, dependency := range service.DependenciesFromService() {
-		var depStatus container.StatusType
-		depStatus, err = dependency.Status()
+		depStatus, err := dependency.Status()
 		if err != nil {
-			return
+			return status, err
 		}
 		if depStatus == container.RUNNING {
 			status = RUNNING
@@ -33,27 +32,29 @@ func (service *Service) Status() (status StatusType, err error) {
 	if status == RUNNING && !allRunning {
 		status = PARTIAL
 	}
-	return
+	return status, nil
 }
 
 // Status returns the StatusType of this dependency's container
-func (dependency *DependencyFromService) Status() (status container.StatusType, err error) {
-	status, err = container.ServiceStatus(dependency.namespace())
-	return
+func (dependency *DependencyFromService) Status() (container.StatusType, error) {
+	return container.ServiceStatus(dependency.namespace())
 }
 
 // ListRunning all the running services
 // TODO: should move to another file
-func ListRunning() (res []string, err error) {
+func ListRunning() ([]string, error) {
 	services, err := container.ListServices("mesg.hash")
+	if err != nil {
+		return nil, err
+	}
 	mapRes := make(map[string]uint)
 	for _, service := range services {
 		serviceName := service.Spec.Annotations.Labels["mesg.hash"]
 		mapRes[serviceName]++
 	}
-	res = make([]string, 0, len(mapRes))
+	res := make([]string, 0, len(mapRes))
 	for k := range mapRes {
 		res = append(res, k)
 	}
-	return
+	return res, nil
 }

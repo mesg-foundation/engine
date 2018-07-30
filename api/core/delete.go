@@ -7,19 +7,16 @@ import (
 )
 
 // DeleteService delete a service in the database and eventually stop the docker of this service
-func (s *Server) DeleteService(ctx context.Context, request *DeleteServiceRequest) (reply *DeleteServiceReply, err error) {
+func (s *Server) DeleteService(ctx context.Context, request *DeleteServiceRequest) (*DeleteServiceReply, error) {
 	service, err := services.Get(request.ServiceID)
 	if err != nil {
-		return
+		return nil, err
 	}
-	err = service.Stop()
-	if err != nil {
-		return
+	if err = service.Stop(); err != nil {
+		return nil, err
 	}
-	err = services.Delete(request.ServiceID)
-	if err != nil {
-		return
+	if err := services.Delete(request.ServiceID); err != nil {
+		return nil, err
 	}
-	reply = &DeleteServiceReply{}
-	return
+	return &DeleteServiceReply{}, nil
 }
