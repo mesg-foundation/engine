@@ -16,12 +16,10 @@ func (s *Server) SubmitResult(context context.Context, request *SubmitResultRequ
 		}
 	}
 	var data map[string]interface{}
-	err := json.Unmarshal([]byte(request.OutputData), &data)
-	if err != nil {
+	if err := json.Unmarshal([]byte(request.OutputData), &data); err != nil {
 		return nil, err
 	}
-	err = execution.Complete(request.OutputKey, data)
-	if err != nil {
+	if err := execution.Complete(request.OutputKey, data); err != nil {
 		return nil, err
 	}
 	return &SubmitResultReply{}, nil

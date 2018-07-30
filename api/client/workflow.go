@@ -95,13 +95,6 @@ func listenResults(wf *Workflow) error {
 }
 
 func (wf *Workflow) validResult(data *core.ResultData) bool {
-	validName := strings.Compare(wf.OnResult.Name, "*") == 0
-	if !validName {
-		validName = strings.Compare(wf.OnResult.Name, data.TaskKey) == 0
-	}
-	validOutput := strings.Compare(wf.OnResult.Output, "*") == 0
-	if !validOutput {
-		validOutput = strings.Compare(wf.OnResult.Output, data.OutputKey) == 0
-	}
-	return validName && validOutput
+	return (wf.OnResult.Name == "*" || wf.OnResult.Name == data.TaskKey) &&
+		(wf.OnResult.Output == "*" || wf.OnResult.Output == data.OutputKey)
 }

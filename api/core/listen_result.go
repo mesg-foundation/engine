@@ -3,7 +3,7 @@ package core
 import (
 	"encoding/json"
 	"errors"
-	fmt "fmt"
+	"fmt"
 
 	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/execution"
