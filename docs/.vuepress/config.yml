@@ -70,12 +70,10 @@ themeConfig:
           - /tutorials/services/listen-for-transfers-of-an-ethereum-erc20-token
     /cli/:
       - /cli/mesg-core.md
-      - title: Core
-        children:
-          - /cli/mesg-core_start.md
-          - /cli/mesg-core_stop.md
-          - /cli/mesg-core_status.md
-          - /cli/mesg-core_logs.md
+      - /cli/mesg-core_start.md
+      - /cli/mesg-core_stop.md
+      - /cli/mesg-core_status.md
+      - /cli/mesg-core_logs.md
       - title: Service
         children:
           - /cli/mesg-core_service.md
