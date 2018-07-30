@@ -1,6 +1,6 @@
 ---
 home: true
-heroImage: https://i.imgur.com/ZbIQZKG.png
+heroImage: ./logo.svg
 actionText: Get Started →
 actionLink: /guide/index
 features:
