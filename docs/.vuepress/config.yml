@@ -80,6 +80,7 @@ themeConfig:
           - /cli/mesg-core_logs.md
       - title: Service
         children:
+          - /cli/mesg-core_service.md
           - /cli/mesg-core_service_init.md
           - /cli/mesg-core_service_start.md
           - /cli/mesg-core_service_stop.md
