@@ -5,6 +5,6 @@ import (
 )
 
 // Status returns the Status of the docker service of the daemon
-func Status() (status container.StatusType, err error) {
+func Status() (container.StatusType, error) {
 	return container.ServiceStatus(Namespace()) //TODO: should it be containerStatus?
 }

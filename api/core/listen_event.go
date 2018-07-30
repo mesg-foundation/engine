@@ -2,7 +2,7 @@ package core
 
 import (
 	"encoding/json"
-	"errors"
+	fmt "fmt"
 
 	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/event"
@@ -12,13 +12,13 @@ import (
 )
 
 // ListenEvent for listen event from a specific service services
-func (s *Server) ListenEvent(request *ListenEventRequest, stream Core_ListenEventServer) (err error) {
+func (s *Server) ListenEvent(request *ListenEventRequest, stream Core_ListenEventServer) error {
 	service, err := services.Get(request.ServiceID)
 	if err != nil {
-		return
+		return err
 	}
-	if err = validateEventKey(&service, request.EventFilter); err != nil {
-		return
+	if err := validateEventKey(&service, request.EventFilter); err != nil {
+		return err
 	}
 	subscription := pubsub.Subscribe(service.EventSubscriptionChannel())
 	for data := range subscription {
@@ -31,19 +31,17 @@ func (s *Server) ListenEvent(request *ListenEventRequest, stream Core_ListenEven
 			})
 		}
 	}
-	return
+	return nil
 }
 
-func validateEventKey(service *service.Service, eventKey string) (err error) {
+func validateEventKey(service *service.Service, eventKey string) error {
 	if eventKey == "" || eventKey == "*" {
-		return
+		return nil
 	}
-	_, ok := service.Events[eventKey]
-	if ok {
-		return
+	if _, ok := service.Events[eventKey]; ok {
+		return nil
 	}
-	err = errors.New("Event '" + eventKey + "' doesn't exist in this service")
-	return
+	return fmt.Errorf("Event %q doesn't exist in this service", eventKey)
 }
 
 func isSubscribedEvent(request *ListenEventRequest, e *event.Event) bool {

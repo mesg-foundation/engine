@@ -7,13 +7,12 @@ import (
 )
 
 // ListServices return all services from the database
-func (s *Server) ListServices(ctx context.Context, request *ListServicesRequest) (reply *ListServicesReply, err error) {
+func (s *Server) ListServices(ctx context.Context, request *ListServicesRequest) (*ListServicesReply, error) {
 	services, err := services.All()
 	if err != nil {
-		return
+		return nil, err
 	}
-	reply = &ListServicesReply{
+	return &ListServicesReply{
 		Services: services,
-	}
-	return
+	}, nil
 }

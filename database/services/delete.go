@@ -1,12 +1,11 @@
 package services
 
 // Delete a service based on its hash
-func Delete(hash string) (err error) {
+func Delete(hash string) error {
 	db, err := open()
 	defer close()
 	if err != nil {
-		return
+		return err
 	}
-	err = db.Delete([]byte(hash), nil)
-	return
+	return db.Delete([]byte(hash), nil)
 }

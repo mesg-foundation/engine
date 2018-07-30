@@ -7,13 +7,12 @@ import (
 )
 
 // GetService fetch a service in the db and return ot
-func (s *Server) GetService(ctx context.Context, request *GetServiceRequest) (reply *GetServiceReply, err error) {
+func (s *Server) GetService(ctx context.Context, request *GetServiceRequest) (*GetServiceReply, error) {
 	service, err := services.Get(request.ServiceID)
 	if err != nil {
-		return
+		return nil, err
 	}
-	reply = &GetServiceReply{
+	return &GetServiceReply{
 		Service: &service,
-	}
-	return
+	}, nil
 }

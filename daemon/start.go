@@ -9,25 +9,24 @@ import (
 )
 
 // Start the docker core
-func Start() (serviceID string, err error) {
+func Start() (string, error) {
 	status, err := Status()
 	if err != nil || status == container.RUNNING {
-		return
+		return "", err
 	}
 	spec, err := serviceSpec()
 	if err != nil {
-		return
+		return "", err
 	}
-	serviceID, err = container.StartService(spec)
-	return
+	return container.StartService(spec)
 }
 
 func serviceSpec() (spec container.ServiceOptions, err error) {
 	sharedNetworkID, err := container.SharedNetworkID()
 	if err != nil {
-		return
+		return container.ServiceOptions{}, err
 	}
-	spec = container.ServiceOptions{
+	return container.ServiceOptions{
 		Namespace: Namespace(),
 		Image:     viper.GetString(config.CoreImage),
 		Env: container.MapToEnv(map[string]string{
@@ -52,6 +51,5 @@ func serviceSpec() (spec container.ServiceOptions, err error) {
 			},
 		},
 		NetworksID: []string{sharedNetworkID},
-	}
-	return
+	}, nil
 }

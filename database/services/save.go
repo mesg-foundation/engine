@@ -9,14 +9,12 @@ import (
 func Save(service *service.Service) (hash string, err error) {
 	bytes, err := proto.Marshal(service)
 	if err != nil {
-		return
+		return "", err
 	}
 	db, err := open()
 	defer close()
 	if err != nil {
-		return
+		return "", err
 	}
-	hash = service.Hash()
-	err = db.Put([]byte(hash), bytes, nil)
-	return
+	return service.Hash(), db.Put([]byte(hash), bytes, nil)
 }

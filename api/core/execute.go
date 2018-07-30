@@ -14,17 +14,17 @@ func (s *Server) ExecuteTask(ctx context.Context, request *ExecuteTaskRequest) (
 	if err != nil {
 		return nil, err
 	}
+
 	var inputs map[string]interface{}
-	err = json.Unmarshal([]byte(request.InputData), &inputs)
-	if err != nil {
+	if err = json.Unmarshal([]byte(request.InputData), &inputs); err != nil {
 		return nil, err
 	}
 	execution, err := execution.Create(&service, request.TaskKey, inputs)
 	if err != nil {
 		return nil, err
 	}
-	err = execution.Execute()
+
 	return &ExecuteTaskReply{
 		ExecutionID: execution.ID,
-	}, err
+	}, execution.Execute()
 }

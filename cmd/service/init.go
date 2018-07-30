@@ -74,27 +74,30 @@ func initHandler(cmd *cobra.Command, args []string) {
 	fmt.Println(aurora.Green("Service created in folder: " + folder))
 }
 
-func getTemplates(url string) (templates []*templateStruct, err error) {
+func getTemplates(url string) ([]*templateStruct, error) {
 	client := http.Client{}
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		return
+		return nil, err
 	}
 	res, err := client.Do(req)
 	if err != nil {
-		return
+		return nil, err
 	}
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return
+		return nil, err
 	}
 
-	err = json.Unmarshal(body, &templates)
-	return
+	var templates []*templateStruct
+	if err := json.Unmarshal(body, &templates); err != nil {
+		return nil, err
+	}
+	return templates, nil
 }
 
-func selectTemplate(templates []*templateStruct) (tmpl *templateStruct, err error) {
+func selectTemplate(templates []*templateStruct) (*templateStruct, error) {
 	var result string
 	if survey.AskOne(&survey.Select{
 		Message: "Select a template to use",
@@ -102,8 +105,7 @@ func selectTemplate(templates []*templateStruct) (tmpl *templateStruct, err erro
 	}, &result, nil) != nil {
 		os.Exit(0)
 	}
-	tmpl = getTemplateResult(result, templates)
-	return
+	return getTemplateResult(result, templates), nil
 }
 
 func templatesToOption(templates []*templateStruct) (options []string) {
@@ -140,13 +142,13 @@ func getTemplateResult(result string, templates []*templateStruct) (tmpl *templa
 	return
 }
 
-func downloadTemplate(tmpl *templateStruct) (path string, err error) {
-	path, err = createTempFolder()
+func downloadTemplate(tmpl *templateStruct) (string, error) {
+	path, err := createTempFolder()
 	if err != nil {
-		return
+		return "", err
 	}
-	err = gitClone(tmpl.URL, path, "Downloading template "+tmpl.Name+"...")
-	return
+
+	return path, gitClone(tmpl.URL, path, "Downloading template "+tmpl.Name+"...")
 }
 
 func ask(label string, value string, validator survey.Validator) string {
@@ -205,33 +207,35 @@ func copyDir(src string, dst string, replacement map[string]string) (err error) 
 
 }
 
-func copyFile(src, dst string, replacement map[string]string) (err error) {
+func copyFile(src, dst string, replacement map[string]string) error {
 	in, err := os.Open(src)
 	if err != nil {
-		return
+		return err
 	}
 	defer in.Close()
 
 	out, err := os.Create(dst)
 	if err != nil {
-		return
+		return err
 	}
 	defer out.Close()
 
-	err = transform(dst, src, replacement)
-	return
+	return transform(dst, src, replacement)
 }
 
-func transform(dest string, source string, replacement map[string]string) (err error) {
+func transform(dest string, source string, replacement map[string]string) error {
 	body, err := ioutil.ReadFile(source)
 	if err != nil {
-		return
+		return err
 	}
 	res := string(body)
 	for key, value := range replacement {
 		res = strings.Replace(res, "{{"+key+"}}", value, -1)
 	}
 	si, err := os.Stat(source)
-	ioutil.WriteFile(dest, []byte(res), si.Mode())
-	return
+	if err != nil {
+		return err
+	}
+
+	return ioutil.WriteFile(dest, []byte(res), si.Mode())
 }

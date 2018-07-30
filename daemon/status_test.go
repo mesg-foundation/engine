@@ -9,10 +9,10 @@ import (
 	"github.com/stvp/assert"
 )
 
-func testForceAndWaitForFullStop() (wait chan error) {
+func testForceAndWaitForFullStop() chan error {
 	start := time.Now()
 	timeout := time.Minute
-	wait = make(chan error, 1)
+	wait := make(chan error, 1)
 	go func() {
 		for {
 			err := Stop()
@@ -37,7 +37,7 @@ func testForceAndWaitForFullStop() (wait chan error) {
 			time.Sleep(500 * time.Millisecond)
 		}
 	}()
-	return
+	return wait
 }
 
 func TestIsNotRunning(t *testing.T) {

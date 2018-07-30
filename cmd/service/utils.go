@@ -43,34 +43,35 @@ func handleValidationError(err error) {
 }
 
 // prepareService downloads if needed, create the service, build it and inject configuration
-func prepareService(path string) (importedService *service.Service) {
+func prepareService(path string) *service.Service {
 	path, didDownload, err := downloadServiceIfNeeded(path)
 	utils.HandleError(err)
 	if didDownload {
 		defer os.RemoveAll(path)
 		fmt.Printf("%s Service downloaded with success\n", aurora.Green("✔"))
 	}
-	importedService, err = importer.From(path)
+	importedService, err := importer.From(path)
 	handleValidationError(err)
 	utils.HandleError(err)
 	imageHash, err := buildDockerImage(path)
 	utils.HandleError(err)
 	fmt.Printf("%s Image built with success\n", aurora.Green("✔"))
 	injectConfigurationInDependencies(importedService, imageHash)
-	return
+	return importedService
 }
 
-func downloadServiceIfNeeded(path string) (newPath string, didDownload bool, err error) {
-	newPath = path
-	if govalidator.IsURL(path) {
-		newPath, err = createTempFolder()
-		if err != nil {
-			return
-		}
-		err = gitClone(path, newPath, "Downloading service...")
-		didDownload = err == nil
+func downloadServiceIfNeeded(path string) (string, bool, error) {
+	if !govalidator.IsURL(path) {
+		return path, false, nil
 	}
-	return
+	newPath, err := createTempFolder()
+	if err != nil {
+		return "", false, err
+	}
+	if err := gitClone(path, newPath, "Downloading service..."); err != nil {
+		return "", false, err
+	}
+	return newPath, true, nil
 }
 
 func gitClone(repoURL string, path string, message string) (err error) {
@@ -90,12 +91,11 @@ func gitClone(repoURL string, path string, message string) (err error) {
 	utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: message}, func() {
 		_, err = git.PlainClone(path, false, options)
 	})
-	return
+	return err
 }
 
-func createTempFolder() (path string, err error) {
-	path, err = ioutil.TempDir("", "mesg-")
-	return
+func createTempFolder() (string, error) {
+	return ioutil.TempDir("", "mesg-")
 }
 
 func buildDockerImage(path string) (imageHash string, err error) {
