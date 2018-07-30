@@ -7,7 +7,7 @@ import (
 	"github.com/mesg-foundation/core/pubsub"
 )
 
-// Execute moves an exection from the pending to the in progress queue and publish the job for processing
+// Execute moves an execution from pending to in progress queue and publishes the job for processing.
 func (execution *Execution) Execute() error {
 	if err := execution.moveFromPendingToInProgress(); err != nil {
 		return err

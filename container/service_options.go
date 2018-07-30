@@ -8,7 +8,7 @@ import (
 	"github.com/docker/docker/api/types/swarm"
 )
 
-// ServiceOptions is a simplify version of swarm.ServiceSpec that can be created it.
+// ServiceOptions is a simplify version of swarm.ServiceSpec.
 type ServiceOptions struct {
 	Image      string
 	Namespace  []string
@@ -20,13 +20,13 @@ type ServiceOptions struct {
 	Labels     map[string]string
 }
 
-// Port is a simplify version of swarm.PortConfig
+// Port is a simplify version of swarm.PortConfig.
 type Port struct {
 	Target    uint32
 	Published uint32
 }
 
-// Mount is a simplify version of mount.Mount
+// Mount is a simplify version of mount.Mount.
 type Mount struct {
 	Source string
 	Target string

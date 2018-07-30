@@ -10,7 +10,7 @@ import (
 	docker "github.com/docker/docker/client"
 )
 
-// ListServices returns existing docker services matching a specific label name
+// ListServices returns existing docker services matching a specific label name.
 func ListServices(label string) ([]swarm.Service, error) {
 	client, err := Client()
 	if err != nil {
@@ -24,7 +24,7 @@ func ListServices(label string) ([]swarm.Service, error) {
 	})
 }
 
-// FindService returns the Docker Service. Return error if not found.
+// FindService returns the Docker Service or an error if not found.
 func FindService(namespace []string) (swarm.Service, error) {
 	client, err := Client()
 	if err != nil {
@@ -34,7 +34,7 @@ func FindService(namespace []string) (swarm.Service, error) {
 	return service, err
 }
 
-// StartService starts a docker service
+// StartService starts a docker service.
 func StartService(options ServiceOptions) (string, error) {
 	client, err := Client()
 	if err != nil {
@@ -48,7 +48,7 @@ func StartService(options ServiceOptions) (string, error) {
 	return response.ID, waitForStatus(options.Namespace, RUNNING)
 }
 
-// StopService stops a docker service
+// StopService stops a docker service.
 func StopService(namespace []string) error {
 	status, err := ServiceStatus(namespace)
 	if err != nil || status == STOPPED {
@@ -64,7 +64,7 @@ func StopService(namespace []string) error {
 	return waitForStatus(namespace, STOPPED)
 }
 
-// ServiceStatus return the status of the Docker Swarm Servicer
+// ServiceStatus returns the status of the Docker Swarm Servicer.
 func ServiceStatus(namespace []string) (StatusType, error) {
 	if _, err := FindService(namespace); !docker.IsErrNotFound(err) {
 		return STOPPED, err
@@ -72,7 +72,7 @@ func ServiceStatus(namespace []string) (StatusType, error) {
 	return RUNNING, nil
 }
 
-// ServiceLogs returns the logs of a service
+// ServiceLogs returns the logs of a service.
 func ServiceLogs(namespace []string) (io.ReadCloser, error) {
 	client, err := Client()
 	if err != nil {

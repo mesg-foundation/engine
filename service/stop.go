@@ -6,7 +6,7 @@ import (
 	"github.com/mesg-foundation/core/container"
 )
 
-// Stop a service
+// Stop stops a service.
 func (service *Service) Stop() error {
 	status, err := service.Status()
 	if err != nil || status == STOPPED {
@@ -19,7 +19,7 @@ func (service *Service) Stop() error {
 	return container.DeleteNetwork(service.namespace())
 }
 
-// StopDependencies stops all dependencies
+// StopDependencies stops all dependencies.
 func (service *Service) StopDependencies() error {
 	var mutex sync.Mutex
 	var wg sync.WaitGroup
@@ -40,7 +40,7 @@ func (service *Service) StopDependencies() error {
 	return err
 }
 
-// Stop a dependency
+// Stop stops a dependency.
 func (dependency *DependencyFromService) Stop() error {
 	status, err := dependency.Status()
 	if err != nil || status == container.STOPPED {

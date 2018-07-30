@@ -4,7 +4,7 @@ import (
 	"github.com/mesg-foundation/core/pubsub"
 )
 
-// Publish an event for everyone listening
+// Publish publishes an event for every listener.
 func (event *Event) Publish() {
 	channel := event.Service.EventSubscriptionChannel()
 

@@ -5,7 +5,7 @@ import (
 	"github.com/mesg-foundation/core/service"
 )
 
-// All returns all deployed services
+// All returns all deployed services.
 func All() ([]*service.Service, error) {
 	db, err := open()
 	defer close()

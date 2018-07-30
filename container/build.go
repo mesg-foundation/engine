@@ -19,7 +19,7 @@ type BuildResponse struct {
 	Error  string `json:"error"`
 }
 
-// Build a docker image
+// Build builds a docker image.
 func Build(path string) (string, error) {
 	excludeFilesBytes, _ := ioutil.ReadFile(filepath.Join(path, ".mesgignore"))
 	excludeFiles := strings.Fields(string(excludeFilesBytes))

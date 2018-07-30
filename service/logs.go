@@ -6,7 +6,7 @@ import (
 	"github.com/mesg-foundation/core/container"
 )
 
-// Logs return the service's docker service logs. Optionally only show the logs of a given dependency
+// Logs returns the service's docker service logs. Optionally only shows the logs of a given dependency.
 func (service *Service) Logs(onlyForDependency string) ([]io.ReadCloser, error) {
 	var readers []io.ReadCloser
 	for _, dep := range service.DependenciesFromService() {

@@ -15,7 +15,7 @@ func readServiceFile(path string) ([]byte, error) {
 	return ioutil.ReadFile(file)
 }
 
-// validateServiceFile returns a list of warnings (empty if no warning)
+// validateServiceFile returns a list of warnings.
 func validateServiceFile(data []byte) ([]string, error) {
 	var body interface{}
 	if err := yaml.Unmarshal(data, &body); err != nil {

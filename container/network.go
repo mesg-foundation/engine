@@ -7,7 +7,7 @@ import (
 	docker "github.com/docker/docker/client"
 )
 
-// CreateNetwork creates a Docker Network with a namespace
+// CreateNetwork creates a Docker Network with a namespace.
 func CreateNetwork(namespace []string) (string, error) {
 	network, err := FindNetwork(namespace)
 	if err != nil && !docker.IsErrNotFound(err) {
@@ -34,7 +34,7 @@ func CreateNetwork(namespace []string) (string, error) {
 	return response.ID, nil
 }
 
-// DeleteNetwork deletes a Docker Network associated with a namespace
+// DeleteNetwork deletes a Docker Network associated with a namespace.
 func DeleteNetwork(namespace []string) error {
 	network, err := FindNetwork(namespace)
 	if err != nil && !docker.IsErrNotFound(err) {
@@ -47,7 +47,7 @@ func DeleteNetwork(namespace []string) error {
 	return client.NetworkRemove(context.Background(), network.ID)
 }
 
-// FindNetwork finds a Docker Network by a namespace. If no network if found, an error is returned.
+// FindNetwork finds a Docker Network by a namespace. If no network is found, an error is returned.
 func FindNetwork(namespace []string) (types.NetworkResource, error) {
 	client, err := Client()
 	if err != nil {

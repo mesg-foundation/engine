@@ -8,7 +8,7 @@ import (
 	"github.com/mesg-foundation/core/api/core"
 )
 
-// Start is the function to start the workflow
+// Start starts the workflow.
 func (wf *Workflow) Start() error {
 	if wf.Execute == nil {
 		return errors.New("A workflow needs a task")
@@ -34,7 +34,7 @@ func (wf *Workflow) Start() error {
 	return listen(wf)
 }
 
-// Stop will stop all the services in your workflow
+// Stop stops all the services in the workflow.
 func (wf *Workflow) Stop() error {
 	return stopServices(wf)
 }

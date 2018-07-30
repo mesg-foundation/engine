@@ -8,7 +8,7 @@ import (
 	"github.com/mesg-foundation/core/pubsub"
 )
 
-// ListenTask create a stream that will send data for every task to execute
+// ListenTask creates a stream that will send data for every task to execute.
 func (s *Server) ListenTask(request *ListenTaskRequest, stream Service_ListenTaskServer) error {
 	service, err := services.Get(request.Token)
 	if err != nil {

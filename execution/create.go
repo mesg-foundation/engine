@@ -9,7 +9,7 @@ import (
 	"github.com/mesg-foundation/core/utils/hash"
 )
 
-// Create an execution with a unique ID and put it in the pending list
+// Create creates an execution with a unique ID and puts it in the pending list.
 func Create(serviceForExecution *service.Service, task string, inputs map[string]interface{}) (*Execution, error) {
 	serviceTask, taskFound := serviceForExecution.Tasks[task]
 	if !taskFound {

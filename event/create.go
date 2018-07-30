@@ -6,7 +6,7 @@ import (
 	"github.com/mesg-foundation/core/service"
 )
 
-// Create an event
+// Create creates an event.
 func Create(serviceForEvent *service.Service, eventKey string, data map[string]interface{}) (*Event, error) {
 	serviceEvent, eventFound := serviceForEvent.Events[eventKey]
 	if !eventFound {

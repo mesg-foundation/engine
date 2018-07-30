@@ -6,7 +6,7 @@ import (
 	"github.com/mesg-foundation/core/service"
 )
 
-// Event is a type that store all informations about Events
+// Event stores all informations about Events.
 type Event struct {
 	Service   *service.Service
 	Key       string

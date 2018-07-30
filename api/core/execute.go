@@ -8,7 +8,7 @@ import (
 	"github.com/mesg-foundation/core/execution"
 )
 
-// ExecuteTask will execute a task for a given service
+// ExecuteTask executes a task for a given service.
 func (s *Server) ExecuteTask(ctx context.Context, request *ExecuteTaskRequest) (*ExecuteTaskReply, error) {
 	service, err := services.Get(request.ServiceID)
 	if err != nil {

@@ -6,7 +6,7 @@ import (
 
 const separator = "."
 
-// Calculate will return a hash according to the data given
+// Calculate returns a hash according to the given data.
 func Calculate(data []string) string {
 	return strings.Join(data, separator)
 }

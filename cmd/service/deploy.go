@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Deploy a service to the marketplace
+// Deploy a service to the marketplace.
 var Deploy = &cobra.Command{
 	Use:     "deploy",
 	Aliases: []string{"publish"},

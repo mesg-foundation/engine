@@ -11,7 +11,7 @@ import (
 	"github.com/mesg-foundation/core/utils/array"
 )
 
-// ListenEvent for listen event from a specific service services
+// ListenEvent listens for an event from a specific service.
 func (s *Server) ListenEvent(request *ListenEventRequest, stream Core_ListenEventServer) error {
 	service, err := services.Get(request.ServiceID)
 	if err != nil {

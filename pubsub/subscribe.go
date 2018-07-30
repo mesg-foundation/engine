@@ -1,6 +1,6 @@
 package pubsub
 
-// Subscribe to a channel
+// Subscribe subscribes to the channel and returns listener for it.
 func Subscribe(channel string) chan Message {
 	listener := make(chan Message)
 	mu.Lock()

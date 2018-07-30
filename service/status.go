@@ -4,17 +4,17 @@ import (
 	"github.com/mesg-foundation/core/container"
 )
 
-// StatusType of the service
+// StatusType of the service.
 type StatusType uint
 
-// status for services
+// Possible statuses for service.
 const (
 	STOPPED StatusType = 0
 	PARTIAL StatusType = 1
 	RUNNING StatusType = 2
 )
 
-// Status returns the StatusType of all dependency of this service
+// Status returns StatusType of all dependency.
 func (service *Service) Status() (StatusType, error) {
 	status := STOPPED
 	allRunning := true
@@ -35,12 +35,12 @@ func (service *Service) Status() (StatusType, error) {
 	return status, nil
 }
 
-// Status returns the StatusType of this dependency's container
+// Status returns StatusType of dependency's container.
 func (dependency *DependencyFromService) Status() (container.StatusType, error) {
 	return container.ServiceStatus(dependency.namespace())
 }
 
-// ListRunning all the running services
+// ListRunning returns all the running services.2
 // TODO: should move to another file
 func ListRunning() ([]string, error) {
 	services, err := container.ListServices("mesg.hash")
