@@ -6,7 +6,7 @@ markdown:
   toc:
     includeLevel: [2]
 themeConfig:
-  search: false,
+  logo: /logo-light.svg
   searchMaxSuggestions: 15
   lastUpdated: true
   repo: mesg-foundation/
