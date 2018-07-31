@@ -1,10 +1,38 @@
+@import './override.styl'
 
-@media (max-width: 419px) {
-  .content div[class*="language-"] {
-    margin: auto;
-  }
-}
+img
+  max-width 100%
 
-img {
-  max-width: 100%;
-}
+header.navbar
+  background-color $backgroundColor
+  background-image url(/bg.svg)
+  background-blend-mode overlay
+  background-size cover
+
+  .logo
+    padding .5rem 0
+    height $navbarHeight - 1.4rem - 1rem
+  .site-name
+    display none
+  a
+    color #eee
+    &:hover, &.router-link-active
+      color white
+  .sidebar-button
+    color #eee
+    top 1.6rem
+
+.search-box
+  input
+    background-color lighten(desaturate($backgroundColor, 5), 5)
+    background-color $backgroundColor
+    border-color $backgroundColor
+    border-color #444
+    color white
+  .suggestions
+    top 2.5rem
+
+
+@media (max-width: $MQMobileNarrow)
+  .content div[class*="language-"]
+    margin auto
