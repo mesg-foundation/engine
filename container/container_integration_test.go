@@ -1,3 +1,5 @@
+// +build integration
+
 package container
 
 import (
@@ -6,27 +8,20 @@ import (
 	"github.com/stvp/assert"
 )
 
-func TestContainer(t *testing.T) {
+func TestIntegrationCreateSwarmIfNeeded(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
-	assert.NotNil(t, c)
+	assert.Nil(t, c.createSwarmIfNeeded())
 }
 
-func TestCreateSwarmIfNeeded(t *testing.T) {
-	c, err := New()
-	assert.Nil(t, err)
-	err = c.createSwarmIfNeeded()
-	assert.Nil(t, err)
-}
-
-func TestFindContainerNotExisting(t *testing.T) {
+func TestIntegrationFindContainerNotExisting(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	_, err = c.FindContainer([]string{"TestFindContainerNotExisting"})
 	assert.NotNil(t, err)
 }
 
-func TestFindContainer(t *testing.T) {
+func TestIntegrationFindContainer(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	namespace := []string{"TestFindContainer"}
@@ -38,7 +33,7 @@ func TestFindContainer(t *testing.T) {
 	assert.NotEqual(t, "", container.ID)
 }
 
-func TestFindContainerStopped(t *testing.T) {
+func TestIntegrationFindContainerStopped(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	namespace := []string{"TestFindContainerStopped"}
@@ -48,7 +43,7 @@ func TestFindContainerStopped(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func TestContainerStatusNeverStarted(t *testing.T) {
+func TestIntegrationContainerStatusNeverStarted(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	namespace := []string{"TestContainerStatusNeverStarted"}
@@ -57,7 +52,7 @@ func TestContainerStatusNeverStarted(t *testing.T) {
 	assert.Equal(t, status, STOPPED)
 }
 
-func TestContainerStatusRunning(t *testing.T) {
+func TestIntegrationContainerStatusRunning(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	namespace := []string{"TestContainerStatusRunning"}
@@ -69,7 +64,7 @@ func TestContainerStatusRunning(t *testing.T) {
 	assert.Equal(t, status, RUNNING)
 }
 
-func TestContainerStatusStopped(t *testing.T) {
+func TestIntegrationContainerStatusStopped(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	namespace := []string{"TestContainerStatusStopped"}

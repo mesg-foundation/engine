@@ -1,3 +1,5 @@
+// +build integration
+
 package container
 
 import (
@@ -7,7 +9,7 @@ import (
 	"github.com/stvp/assert"
 )
 
-func TestListTasks(t *testing.T) {
+func TestIntegrationListTasks(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	namespace := []string{"TestListTasks"}
@@ -19,7 +21,7 @@ func TestListTasks(t *testing.T) {
 	assert.Equal(t, 1, len(tasks))
 }
 
-func TestTasksError(t *testing.T) {
+func TestIntegrationTasksError(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	namespace := []string{"TestTasksError"}

@@ -1,3 +1,5 @@
+// +build integration
+
 package container
 
 import (
@@ -9,7 +11,7 @@ import (
 	"github.com/stvp/assert"
 )
 
-func TestBuild(t *testing.T) {
+func TestIntegrationBuild(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	tag, err := c.Build("test/")
@@ -17,7 +19,7 @@ func TestBuild(t *testing.T) {
 	assert.NotEqual(t, "", tag)
 }
 
-func TestBuildNotWorking(t *testing.T) {
+func TestIntegrationBuildNotWorking(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	tag, err := c.Build("test-not-valid/")
@@ -25,14 +27,14 @@ func TestBuildNotWorking(t *testing.T) {
 	assert.Equal(t, "", tag)
 }
 
-func TestBuildWrongPath(t *testing.T) {
+func TestIntegrationBuildWrongPath(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	_, err = c.Build("testss/")
 	assert.NotNil(t, err)
 }
 
-func TestParseBuildResponseInvalidJSON(t *testing.T) {
+func TestIntegrationParseBuildResponseInvalidJSON(t *testing.T) {
 	body := ioutil.NopCloser(strings.NewReader("invalidJSON"))
 	response := types.ImageBuildResponse{
 		Body: body,
@@ -41,7 +43,7 @@ func TestParseBuildResponseInvalidJSON(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func TestParseBuildResponse(t *testing.T) {
+func TestIntegrationParseBuildResponse(t *testing.T) {
 	body := ioutil.NopCloser(strings.NewReader("{\"stream\":\"ok\"}"))
 	response := types.ImageBuildResponse{
 		Body: body,
@@ -51,7 +53,7 @@ func TestParseBuildResponse(t *testing.T) {
 	assert.Equal(t, tag, "ok")
 }
 
-func TestParseBuildResponseWithNewLine(t *testing.T) {
+func TestIntegrationParseBuildResponseWithNewLine(t *testing.T) {
 	body := ioutil.NopCloser(strings.NewReader("{\"stream\":\"ok\\n\"}"))
 	response := types.ImageBuildResponse{
 		Body: body,

@@ -1,3 +1,5 @@
+// +build integration
+
 package container
 
 import (
@@ -6,7 +8,7 @@ import (
 	"github.com/stvp/assert"
 )
 
-func TestWaitForStatusRunning(t *testing.T) {
+func TestIntegrationWaitForStatusRunning(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	namespace := []string{"TestWaitForStatusRunning"}
@@ -16,7 +18,7 @@ func TestWaitForStatusRunning(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestWaitForStatusStopped(t *testing.T) {
+func TestIntegrationWaitForStatusStopped(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	namespace := []string{"TestWaitForStatusStopped"}
@@ -27,7 +29,7 @@ func TestWaitForStatusStopped(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestWaitForStatusTaskError(t *testing.T) {
+func TestIntegrationWaitForStatusTaskError(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	namespace := []string{"TestWaitForStatusTaskError"}
