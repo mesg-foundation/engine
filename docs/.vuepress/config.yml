@@ -61,6 +61,7 @@ themeConfig:
           - /guide/service/deploy-a-service
           - /guide/service/run-the-service
     /tutorials/:
+      - /tutorials/
       - title: Applications
         children:
           - /tutorials/applications/receive-email-when-there-is-an-erc20-transfer
