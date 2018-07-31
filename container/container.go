@@ -2,7 +2,6 @@ package container
 
 import (
 	"context"
-	"net/http"
 	"time"
 
 	"github.com/docker/docker/api/types"
@@ -14,8 +13,7 @@ import (
 // Container provides functionaliets for Docker containers for MESG.
 type Container struct {
 	// client is a Docker client.
-	client        *docker.Client
-	clientOptions []func(*docker.Client) error
+	client docker.CommonAPIClient
 
 	// callTimeout is the timeout value for Docker API calls.
 	callTimeout time.Duration
@@ -28,17 +26,16 @@ type Option func(*Container)
 func New(options ...Option) (*Container, error) {
 	c := &Container{
 		callTimeout: time.Second * 10,
-		clientOptions: []func(*docker.Client) error{
-			docker.FromEnv,
-		},
 	}
 	for _, option := range options {
 		option(c)
 	}
 	var err error
-	c.client, err = docker.NewClientWithOpts(c.clientOptions...)
-	if err != nil {
-		return c, err
+	if c.client == nil {
+		c.client, err = docker.NewClientWithOpts(docker.FromEnv)
+		if err != nil {
+			return c, err
+		}
 	}
 	c.negotiateAPIVersion()
 	if err := c.createSwarmIfNeeded(); err != nil {
@@ -47,10 +44,10 @@ func New(options ...Option) (*Container, error) {
 	return c, c.createSharedNetworkIfNeeded()
 }
 
-// HTTPClientOption creates a new Option with given client for Container.
-func HTTPClientOption(client *http.Client) Option {
+// ClientOption creates a new Option with given docker client for Container.
+func ClientOption(client docker.CommonAPIClient) Option {
 	return func(c *Container) {
-		c.clientOptions = append(c.clientOptions, docker.WithHTTPClient(client))
+		c.client = client
 	}
 }
 

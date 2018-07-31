@@ -1,3 +1,5 @@
+// +build integration
+
 package container
 
 import (
@@ -6,7 +8,7 @@ import (
 	"github.com/stvp/assert"
 )
 
-func TestCreateNetwork(t *testing.T) {
+func TestIntegrationCreateNetwork(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	networkID, err := c.CreateNetwork([]string{"TestCreateNetwork"})
@@ -15,7 +17,7 @@ func TestCreateNetwork(t *testing.T) {
 	assert.NotEqual(t, "", networkID)
 }
 
-func TestCreateAlreadyExistingNetwork(t *testing.T) {
+func TestIntegrationCreateAlreadyExistingNetwork(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	c.CreateNetwork([]string{"TestCreateAlreadyExistingNetwork"})
@@ -25,7 +27,7 @@ func TestCreateAlreadyExistingNetwork(t *testing.T) {
 	assert.NotEqual(t, "", networkID)
 }
 
-func TestDeleteNetwork(t *testing.T) {
+func TestIntegrationDeleteNetwork(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	c.CreateNetwork([]string{"TestDeleteNetwork"})
@@ -33,14 +35,14 @@ func TestDeleteNetwork(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestDeleteNotExistingNetwork(t *testing.T) {
+func TestIntegrationDeleteNotExistingNetwork(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	err = c.DeleteNetwork([]string{"TestDeleteNotExistingNetwork"})
 	assert.Nil(t, err)
 }
 
-func TestFindNetwork(t *testing.T) {
+func TestIntegrationFindNetwork(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	c.CreateNetwork([]string{"TestFindNetwork"})
@@ -50,14 +52,14 @@ func TestFindNetwork(t *testing.T) {
 	assert.NotEqual(t, "", network.ID)
 }
 
-func TestFindNotExistingNetwork(t *testing.T) {
+func TestIntegrationFindNotExistingNetwork(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	_, err = c.FindNetwork([]string{"TestFindNotExistingNetwork"})
 	assert.NotNil(t, err)
 }
 
-func TestFindDeletedNetwork(t *testing.T) {
+func TestIntegrationFindDeletedNetwork(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	c.CreateNetwork([]string{"TestFindDeletedNetwork"})

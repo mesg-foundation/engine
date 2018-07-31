@@ -1,3 +1,5 @@
+// +build integration
+
 package container
 
 import (
@@ -17,7 +19,7 @@ func startTestService(name []string) (string, error) {
 	})
 }
 
-func TestStartService(t *testing.T) {
+func TestIntegrationStartService(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	namespace := []string{"TestStartService"}
@@ -27,7 +29,7 @@ func TestStartService(t *testing.T) {
 	assert.NotEqual(t, "", serviceID)
 }
 
-func TestStartService2Times(t *testing.T) {
+func TestIntegrationStartService2Times(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	namespace := []string{"TestStartService2Times"}
@@ -38,7 +40,7 @@ func TestStartService2Times(t *testing.T) {
 	assert.Equal(t, "", serviceID)
 }
 
-func TestStopService(t *testing.T) {
+func TestIntegrationStopService(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	namespace := []string{"TestStopService"}
@@ -47,7 +49,7 @@ func TestStopService(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestStopNotExistingService(t *testing.T) {
+func TestIntegrationStopNotExistingService(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	namespace := []string{"TestStopNotExistingService"}
@@ -55,7 +57,7 @@ func TestStopNotExistingService(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestServiceStatusNeverStarted(t *testing.T) {
+func TestIntegrationServiceStatusNeverStarted(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	namespace := []string{"TestServiceStatusNeverStarted"}
@@ -65,7 +67,7 @@ func TestServiceStatusNeverStarted(t *testing.T) {
 	assert.Equal(t, STOPPED, status)
 }
 
-func TestServiceStatusRunning(t *testing.T) {
+func TestIntegrationServiceStatusRunning(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	namespace := []string{"TestServiceStatusRunning"}
@@ -77,7 +79,7 @@ func TestServiceStatusRunning(t *testing.T) {
 	assert.NotEqual(t, status, STOPPED)
 }
 
-func TestServiceStatusStopped(t *testing.T) {
+func TestIntegrationServiceStatusStopped(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	namespace := []string{"TestServiceStatusStopped"}
@@ -89,14 +91,14 @@ func TestServiceStatusStopped(t *testing.T) {
 	assert.NotEqual(t, status, RUNNING)
 }
 
-func TestFindServiceNotExisting(t *testing.T) {
+func TestIntegrationFindServiceNotExisting(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	_, err = c.FindService([]string{"TestFindServiceNotExisting"})
 	assert.NotNil(t, err)
 }
 
-func TestFindService(t *testing.T) {
+func TestIntegrationFindService(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	namespace := []string{"TestFindService"}
@@ -107,7 +109,7 @@ func TestFindService(t *testing.T) {
 	assert.NotEqual(t, "", service.ID)
 }
 
-func TestFindServiceCloseName(t *testing.T) {
+func TestIntegrationFindServiceCloseName(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	namespace := []string{"TestFindServiceCloseName", "name"}
@@ -121,7 +123,7 @@ func TestFindServiceCloseName(t *testing.T) {
 	assert.NotEqual(t, "", service.ID)
 }
 
-func TestFindServiceStopped(t *testing.T) {
+func TestIntegrationFindServiceStopped(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	namespace := []string{"TestFindServiceStopped"}
@@ -131,7 +133,7 @@ func TestFindServiceStopped(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func TestListServices(t *testing.T) {
+func TestIntegrationListServices(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	c.StartService(ServiceOptions{
@@ -156,7 +158,7 @@ func TestListServices(t *testing.T) {
 	assert.Equal(t, Namespace([]string{"TestListServices"}), services[0].Spec.Name)
 }
 
-func TestServiceLogs(t *testing.T) {
+func TestIntegrationServiceLogs(t *testing.T) {
 	c, err := New()
 	assert.Nil(t, err)
 	namespace := []string{"TestServiceLogs"}
