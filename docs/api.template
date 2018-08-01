@@ -3,10 +3,10 @@
 {{.Description}}
 
 {{if .HasFields}}
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
+| Field | Type | Description |
+| ----- | ---- | ----------- |
 {{range .Fields -}}
-  | {{.Name}} | [{{.LongType}}](#{{.FullType}}) | {{.Label}} | {{nobr .Description}} |
+  | {{.Name}} | [{{.LongType}}](#{{.FullType}}){{if eq .Label "repeated"}}[]{{end}} | {{nobr .Description}} |
 {{end}}
 {{end}}
 {{end}}
@@ -35,16 +35,14 @@ Please update the {{.Name}} file
 <tab title="Request">
 {{range $file.Messages}}
 {{if eq .LongName $method.RequestLongType}}
-### Request
 {{template "data" .}}
 {{end}}
 {{end}}
 </tab>
 
-<tab title="Response">
+<tab title="Reply">
 {{range $file.Messages}}
 {{if eq .LongName $method.ResponseLongType}}
-### Response
 {{template "data" .}}
 {{end}}
 {{end}}
