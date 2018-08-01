@@ -10,17 +10,17 @@ This file is generated using the ./scripts/build-proto.sh scripts
 Please update the Core file
 -->
 
-API accessible for anyone, it can be consumed either by an application or any tool that wishes to connect to MESG.
-It is actually used by the MESG CLI.
+Main API to interact with MESG Core functionalities. It can be consumed by any applications or any tools that wish to interact with MESG Core.
+It is actually used by the MESG CLI and MESG Application libraries.
 
-Services should not try to access this API
+Services should not use this API but use the [Service API]](/api/service.html).
 
 [[toc]]
 
 
 ## ListenEvent
 
-Subscribe to the stream that will receive events from a service
+Subscribe to a stream that listens for events from a service.
 
 <tabs>
 <tab title="Request">
@@ -51,21 +51,21 @@ Subscribe to the stream that will receive events from a service
 ### Request
 
 #### ListenEventRequest
-Data sent to connect to the `ListenEvent` stream API
+Request's data of the `ListenEvent` stream API.
 
 **Example**
 ```json
 {
-  "serviceID": "xxxx",
-  "eventFilter": "*"
+  "serviceID":   "__SERVICE_ID__",
+  "eventFilter": "__EVENT_KEY_TO_MATCH__"
 }
 ```
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| serviceID | [string](#string) |  | The ID that references your service. Generated while using the `DeployService` API. |
-| eventFilter | [string](#string) |  | The key of the event you want to filter from the service. The default `"*"` will listen everything. |
+| serviceID | [string](#string) |  | Service ID. Generated when using the `DeployService` API. |
+| eventFilter | [string](#string) |  | Optional.** Event's key to filter. The event have to match this key. The default is `*` and matches any event. |
 
 
 
@@ -99,13 +99,13 @@ Data sent to connect to the `ListenEvent` stream API
 ### Response
 
 #### EventData
-Data sent through the stream from the `ListenEvent` API
-These data can come as long as the stream stays open.
+Data receive from the stream of the `ListenEvent` API.
+Will be received over time as long as the stream is opened.
 
 **Example**
 ```json
 {
-  "eventKey": "xxxx",
+  "eventKey":  "__EVENT_KEY__",
   "eventData": "{\"foo\":\"bar\"}"
 }
 ```
@@ -113,140 +113,10 @@ These data can come as long as the stream stays open.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| eventKey | [string](#string) |  |  |
-| eventData | [string](#string) |  |  |
+| eventKey | [string](#string) |  | Event's key. |
+| eventData | [string](#string) |  | Event's data encoded in JSON. |
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</tab>
-</tabs>
-
-## ExecuteTask
-
-Let you to execute a task of a service through the [Core](/guide/start-here/core.html)
-
-<tabs>
-<tab title="Request">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### Request
-
-#### ExecuteTaskRequest
-Payload sent when you want to execute a task of a service
-
-**Example**
-```json
-{
-  "serviceID": "xxxx",
-  "taskKey": "myTaskX",
-  "inputData": "{\"foo\":\"bar\"}"
-}
-```
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| serviceID | [string](#string) |  | The ID that references your service. Generated while using the `DeployService` API. |
-| taskKey | [string](#string) |  | The key of the task you want to execute from the service. |
-| inputData | [string](#string) |  | The inputs for the tasks you want to execute encoded in JSON. |
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</tab>
-
-<tab title="Response">
-
-
-
-
-
-
-
-
-
-
-
-
-### Response
-
-#### ExecuteTaskReply
-Reply of the [Core](/guide/start-here/core.html) when calling the `ExecuteTask` API
-
-**Example**
-```json
-{
-  "executionID": "xxx"
-}
-```
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| executionID | [string](#string) |  | The unique identifier for this execution that let you track the result. |
 
 
 
@@ -281,7 +151,7 @@ Reply of the [Core](/guide/start-here/core.html) when calling the `ExecuteTask` 
 
 ## ListenResult
 
-Subscribe to the stream that will receive results of a task of a service
+Subscribe to the stream that listens for task's results of a service.
 
 <tabs>
 <tab title="Request">
@@ -314,23 +184,23 @@ Subscribe to the stream that will receive results of a task of a service
 ### Request
 
 #### ListenResultRequest
-Data sent to connect to the `ListenResult` stream API
+Request's data of the `ListenResult` stream API.
 
 **Example**
 ```json
 {
-  "serviceID": "xxxx",
-  "taskFilter": "*",
-  "outputFilter": "*"
+  "serviceID":     "__SERVICE_ID__",
+  "taskFilter":    "__TASK_KEY_TO_MATCH__",
+  "outputFilter":  "__OUTPUT_KEY_TO_MATCH__"
 }
 ```
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| serviceID | [string](#string) |  | The ID that references your service. Generated while using the `DeployService` API. |
-| taskFilter | [string](#string) |  | The key of the task you want to filter from the service. The default `"*"` will listen everything. |
-| outputFilter | [string](#string) |  | The key of the output you want to filter from the service. The default `"*"` will listen everything. |
+| serviceID | [string](#string) |  | Service ID. Generated when using the `DeployService` API. |
+| taskFilter | [string](#string) |  | Optional.** Task's key to filter. The task have to match this key. The default is `*` and matches any task. |
+| outputFilter | [string](#string) |  | Optional.** Output's key of the task to filter. The task have to return this output's key. The default is `*` and matches any output. |
 
 
 
@@ -380,25 +250,156 @@ Data sent to connect to the `ListenResult` stream API
 ### Response
 
 #### ResultData
-Data sent to the `ListenResult` stream that contains all informations of a result execution
+Data receive from the stream of the `ListenResult` API.
+Will be received over time as long as the stream is opened.
 
 **Example**
 ```json
 {
-  "executionID": "xxx",
-  "taskKey": "taskX",
-  "outputKey": "outputX",
-  "outputData": "{\"foo\":\"bar\"}"
+  "executionID": "__EXECUTION_ID__",
+  "taskKey":     "__TASK_KEY__",
+  "outputKey":   "__OUTPUT_KEY__",
+  "outputData":  "{\"foo\":\"bar\"}"
 }
 ```
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| executionID | [string](#string) |  | The unique identifier of your execution |
-| taskKey | [string](#string) |  | The key of the task executed |
-| outputKey | [string](#string) |  | The key of the output the task returned |
-| outputData | [string](#string) |  | The data of the output the task returned encoded in JSON |
+| executionID | [string](#string) |  | Unique identifier of the execution. |
+| taskKey | [string](#string) |  | Key of the executed task. |
+| outputKey | [string](#string) |  | Output's key the task returned. |
+| outputData | [string](#string) |  | Output's data the task returned encoded in JSON. |
+
+
+
+
+
+
+
+
+
+
+
+
+
+</tab>
+</tabs>
+
+## ExecuteTask
+
+Execute a task of a service through the [Core](/guide/start-here/core.html).
+
+<tabs>
+<tab title="Request">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Request
+
+#### ExecuteTaskRequest
+Request's data of the `ExecuteTask` API.
+
+**Example**
+```json
+{
+  "serviceID": "__SERVICE_ID__",
+  "taskKey":   "__TASK_KEY__",
+  "inputData": "{\"foo\":\"bar\"}"
+}
+```
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| serviceID | [string](#string) |  | Service ID. Generated when using the `DeployService` API. |
+| taskKey | [string](#string) |  | Task's key to execute. |
+| inputData | [string](#string) |  | Inputs of the task to execute encoded in JSON. |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</tab>
+
+<tab title="Response">
+
+
+
+
+
+
+
+
+
+
+
+
+### Response
+
+#### ExecuteTaskReply
+Reply's data of the `ExecuteTask` API.
+
+**Example**
+```json
+{
+  "executionID": "__EXECUTION_ID__"
+}
+```
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| executionID | [string](#string) |  | Unique identifier of the execution. |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -417,7 +418,7 @@ Data sent to the `ListenResult` stream that contains all informations of a resul
 
 ## StartService
 
-Start a service. This service needs to be deployed already in the [Core](/guide/start-here/core.html)
+Start a service. The service have to be already deployed on the [Core](/guide/start-here/core.html).
 
 <tabs>
 <tab title="Request">
@@ -456,19 +457,19 @@ Start a service. This service needs to be deployed already in the [Core](/guide/
 ### Request
 
 #### StartServiceRequest
-Payload necessary to start a service
+Request's data of the `StartService` API.
 
 **Example**
 ```json
 {
-  "serviceID": "xxxx"
+  "serviceID": "__SERVICE_ID__"
 }
 ```
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| serviceID | [string](#string) |  | The ID that references your service. Generated while using the `DeployService` API. |
+| serviceID | [string](#string) |  | Service ID. Generated when using the `DeployService` API. |
 
 
 
@@ -514,12 +515,7 @@ Payload necessary to start a service
 ### Response
 
 #### StartServiceReply
-Reply of the [Core](/guide/start-here/core.html) whan starting a Service
-
-**Example**
-```json
-{}
-```
+Reply's data of the `StartService` API.
 
 
 
@@ -536,7 +532,7 @@ Reply of the [Core](/guide/start-here/core.html) whan starting a Service
 
 ## StopService
 
-Stop a service. This service needs to be deployed already in the [Core](/guide/start-here/core.html)
+Stop a service. The service have to be already deployed on the [Core](/guide/start-here/core.html).
 
 <tabs>
 <tab title="Request">
@@ -579,19 +575,19 @@ Stop a service. This service needs to be deployed already in the [Core](/guide/s
 ### Request
 
 #### StopServiceRequest
-Payload necessary to stop a service
+Request's data of the `StopService` API.
 
 **Example**
 ```json
 {
-  "serviceID": "xxxx"
+  "serviceID": "__SERVICE_ID__"
 }
 ```
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| serviceID | [string](#string) |  | The ID that references your service. Generated while using the `DeployService` API. |
+| serviceID | [string](#string) |  | Service ID. Generated when using the `DeployService` API. |
 
 
 
@@ -637,12 +633,7 @@ Payload necessary to stop a service
 ### Response
 
 #### StopServiceReply
-Reply of the [Core](/guide/start-here/core.html) whan stopping a Service
-
-**Example**
-```json
-{}
-```
+Reply's data of the `StopService` API.
 
 
 
@@ -655,7 +646,7 @@ Reply of the [Core](/guide/start-here/core.html) whan stopping a Service
 
 ## DeployService
 
-Deploy a new service to the [Core](/guide/start-here/core.html). This will give you an unique identifier to use your service
+Deploy a service to the [Core](/guide/start-here/core.html). This will give you an unique identifier to use to interact with the service.
 
 <tabs>
 <tab title="Request">
@@ -670,7 +661,7 @@ Deploy a new service to the [Core](/guide/start-here/core.html). This will give 
 ### Request
 
 #### DeployServiceRequest
-Data sent while deploying a new Service to the [Core](/guide/start-here/core.html)
+Request's data of the `DeployService` API.
 
 **Example**
 ```json
@@ -705,7 +696,7 @@ Data sent while deploying a new Service to the [Core](/guide/start-here/core.htm
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| service | [service.Service](#service.Service) |  | Data of the service you want to deploy. [details here](/api/service-type.html) |
+| service | [service.Service](#service.Service) |  | Service's definition to deploy. [Details here](/api/service-type.html) |
 
 
 
@@ -751,19 +742,19 @@ Data sent while deploying a new Service to the [Core](/guide/start-here/core.htm
 ### Response
 
 #### DeployServiceReply
-Reply of the [Core](/guide/start-here/core.html) whan deploying a new Service
+Reply's data of the `DeployService` API.
 
 **Example**
 ```json
 {
-  "serviceID": "xxx"
+  "serviceID": "__SERVICE_ID__"
 }
 ```
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| serviceID | [string](#string) |  | The generated ID for your service. You can reuse this ID to access many others APIs |
+| serviceID | [string](#string) |  | The generated identifier of the deployed service. Use this ID with other APIs. |
 
 
 
@@ -804,7 +795,7 @@ Reply of the [Core](/guide/start-here/core.html) whan deploying a new Service
 
 ## DeleteService
 
-Delete a service. This function will only delete the service deployed in the [Core](/guide/start-here/core.html). If the service code is on your computer, this call will not delete your source code
+Delete a service from Core. This function only delete a deployed service in the [Core](/guide/start-here/core.html). If the service's code is on your computer, it will not delete its source code.
 
 <tabs>
 <tab title="Request">
@@ -815,19 +806,19 @@ Delete a service. This function will only delete the service deployed in the [Co
 ### Request
 
 #### DeleteServiceRequest
-Payload necessary to delete a service
+Request's data of the `DeleteService` API.
 
 **Example**
 ```json
 {
-  "serviceID": "xxxx"
+  "serviceID": "__SERVICE_ID__"
 }
 ```
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| serviceID | [string](#string) |  | The ID that references your service. Generated while using the `DeployService` API. |
+| serviceID | [string](#string) |  | Service ID. Generated when using the `DeployService` API. |
 
 
 
@@ -873,12 +864,7 @@ Payload necessary to delete a service
 ### Response
 
 #### DeleteServiceReply
-Reply of the [Core](/guide/start-here/core.html) whan deleting a Service
-
-**Example**
-```json
-{}
-```
+Reply's data  of the `DeleteService` API.
 
 
 
@@ -923,7 +909,7 @@ Reply of the [Core](/guide/start-here/core.html) whan deleting a Service
 
 ## ListServices
 
-List all the services already deployed in the [Core](/guide/start-here/core.html)
+List all services already deployed in the [Core](/guide/start-here/core.html).
 
 <tabs>
 <tab title="Request">
@@ -952,12 +938,7 @@ List all the services already deployed in the [Core](/guide/start-here/core.html
 ### Request
 
 #### ListServicesRequest
-Payload necessary to list all the deployed services
-
-**Example**
-```json
-{}
-```
+Request's data of the `ListServices` API.
 
 
 
@@ -1003,7 +984,7 @@ Payload necessary to list all the deployed services
 ### Response
 
 #### ListServicesReply
-Result from the [Core](/guide/start-here/core.html) when calling the list of services deployed
+Reply's data of the `ListServices` API.
 
 **Example**
 ```json
@@ -1038,7 +1019,7 @@ Result from the [Core](/guide/start-here/core.html) when calling the list of ser
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| services | [service.Service](#service.Service) | repeated | List of data of the deployed services. [details here](/api/service-type.html) |
+| services | [service.Service](#service.Service) | repeated | List of services' definition previously deployed. [Details here](/api/service-type.html) |
 
 
 
@@ -1065,7 +1046,7 @@ Result from the [Core](/guide/start-here/core.html) when calling the list of ser
 
 ## GetService
 
-Get an already deployed service based on its ID
+Get the definition of an already deployed service from its ID.
 
 <tabs>
 <tab title="Request">
@@ -1090,19 +1071,19 @@ Get an already deployed service based on its ID
 ### Request
 
 #### GetServiceRequest
-Payload necessary to get the details of deployed service
+Request's data of the `GetService` API.
 
 **Example**
 ```json
 {
-  "serviceID": "xxxx"
+  "serviceID": "__SERVICE_ID__"
 }
 ```
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| serviceID | [string](#string) |  | The ID that references your service. Generated while using the `DeployService` API. |
+| serviceID | [string](#string) |  | Service ID. Generated when using the `DeployService` API. |
 
 
 
@@ -1148,7 +1129,7 @@ Payload necessary to get the details of deployed service
 ### Response
 
 #### GetServiceReply
-Result from the [Core](/guide/start-here/core.html) when calling the `GetService` API
+Reply's data of the `GetService` API.
 
 **Example**
 ```json
@@ -1183,7 +1164,7 @@ Result from the [Core](/guide/start-here/core.html) when calling the `GetService
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| service | [service.Service](#service.Service) |  | Data of the service you requested. [details here](/api/service-type.html) |
+| service | [service.Service](#service.Service) |  | Service's definition. [Details here](/api/service-type.html) |
 
 
 
