@@ -68,11 +68,11 @@ A dependency is a configuration of an other Docker container that runs separatel
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| image | [string](#string) | Image's name of the Docker |
-| volumes | [string](#string)[] | List of volumes |
-| volumesfrom | [string](#string)[] | List of volumes mounted from other dependencies |
-| ports | [string](#string)[] | List of ports the container exposes |
-| command | [string](#string) | Command to run the container |
+| image | [string](#string) | Image's name of the Docker. |
+| volumes | [string](#string)[] | List of volumes. |
+| volumesfrom | [string](#string)[] | List of volumes mounted from other dependencies. |
+| ports | [string](#string)[] | List of ports the container exposes. |
+| command | [string](#string) | Command to run the container. |
 
 
 
