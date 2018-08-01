@@ -29,18 +29,18 @@ Please update the github.com/mesg-foundation/core/service/service.proto file
 
 
 #### Service
-
+This is the definition of a MESG Service.
 
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| name | [string](#string) | Name of the service |
-| description | [string](#string) | Description of the service |
-| tasks | [Service.TasksEntry](#service.Service.TasksEntry)[] | Map of tasks that the service can execute |
-| events | [Service.EventsEntry](#service.Service.EventsEntry)[] | Map of events that the service can emits |
-| dependencies | [Service.DependenciesEntry](#service.Service.DependenciesEntry)[] | Docker dependencies that the service requires |
-| configuration | [Dependency](#service.Dependency) | Docker configurations for the service |
-| repository | [string](#string) | Repository where the source code of this service is accessible |
+| name | [string](#string) | The service's name. |
+| description | [string](#string) | The service's description. |
+| tasks | [Service.TasksEntry](#service.Service.TasksEntry)[] | The list of tasks this service can execute. |
+| events | [Service.EventsEntry](#service.Service.EventsEntry)[] | The list of events this service can emit. |
+| dependencies | [Service.DependenciesEntry](#service.Service.DependenciesEntry)[] | The Docker dependencies this service requires. |
+| configuration | [Dependency](#service.Dependency) | The service's Docker configuration. |
+| repository | [string](#string) | The service's repository that contain its source code. |
 
 
 
@@ -63,16 +63,16 @@ Please update the github.com/mesg-foundation/core/service/service.proto file
 
 
 #### Dependency
-
+A dependency is a configuration of an other Docker container that runs separately from the service.
 
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| image | [string](#string) | Docker image name or sha |
-| volumes | [string](#string)[] | List of Docker volumes |
+| image | [string](#string) | Image's name of the Docker |
+| volumes | [string](#string)[] | List of volumes |
 | volumesfrom | [string](#string)[] | List of volumes mounted from other dependencies |
-| ports | [string](#string)[] | List of ports that the container needs to expose |
-| command | [string](#string) | Command needed to run the container |
+| ports | [string](#string)[] | List of ports the container exposes |
+| command | [string](#string) | Command to run the container |
 
 
 
@@ -81,14 +81,14 @@ Please update the github.com/mesg-foundation/core/service/service.proto file
 
 
 #### Event
-
+Events are emitted by the service whenever the service wants.
 
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| name | [string](#string) | Name of the event |
-| description | [string](#string) | Description of the event |
-| data | [Event.DataEntry](#service.Event.DataEntry)[] | Map of data associated to this event |
+| name | [string](#string) | The event's name. |
+| description | [string](#string) | The event's description. |
+| data | [Event.DataEntry](#service.Event.DataEntry)[] | The list of data of this event. |
 
 
 
@@ -112,14 +112,14 @@ Please update the github.com/mesg-foundation/core/service/service.proto file
 
 
 #### Output
-
+A output is the data a task must return.
 
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| name | [string](#string) | Name of the output |
-| description | [string](#string) | Description of the output |
-| data | [Output.DataEntry](#service.Output.DataEntry)[] | Map of data associated to this output |
+| name | [string](#string) | The output's name. |
+| description | [string](#string) | the output's description. |
+| data | [Output.DataEntry](#service.Output.DataEntry)[] | The list of data of this output. |
 
 
 
@@ -143,15 +143,15 @@ Please update the github.com/mesg-foundation/core/service/service.proto file
 
 
 #### Parameter
-
+A parameter is the definition of a specific value.
 
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| name | [string](#string) | Name of the parameter |
-| description | [string](#string) | Description of the parameter |
-| type | [string](#string) | Type of the parameter `String`, `Number`, `Boolean` or `Object` |
-| optional | [bool](#bool) | Mark this parameter as optional |
+| name | [string](#string) | The parameter's name. |
+| description | [string](#string) | The parameter's description. |
+| type | [string](#string) | The parameter's type: `String`, `Number`, `Boolean` or `Object`. |
+| optional | [bool](#bool) | Set the parameter as optional. |
 
 
 
@@ -207,15 +207,15 @@ Please update the github.com/mesg-foundation/core/service/service.proto file
 
 
 #### Task
-
+A task is a function that requires inputs and returns output.
 
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| name | [string](#string) | Name of the task |
-| description | [string](#string) | Description of the task |
-| inputs | [Task.InputsEntry](#service.Task.InputsEntry)[] | Map of inputs that can be given for this task |
-| outputs | [Task.OutputsEntry](#service.Task.OutputsEntry)[] | Map of outputs that the task can returns as result |
+| name | [string](#string) | The task's name. |
+| description | [string](#string) | The task's description. |
+| inputs | [Task.InputsEntry](#service.Task.InputsEntry)[] | The list inputs of this task. |
+| outputs | [Task.OutputsEntry](#service.Task.OutputsEntry)[] | The list of outputs this task can return. |
 
 
 
