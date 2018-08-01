@@ -2,7 +2,7 @@
 
 While developing you will want to listen the different events that your Service might emit and also axecute the different tasks that your service provides.
 
-## Run your service in dev mode and listen for events
+## Run your service in dev mode
 
 The dev mode is a command that let you start and monitor your service. It let you:
 - start your service
