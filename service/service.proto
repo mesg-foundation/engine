@@ -45,9 +45,9 @@ message Parameter {
 
 // A dependency is a configuration of an other Docker container that runs separately from the service.
 message Dependency {
-  string image = 1;                 // Image's name of the Docker
-  repeated string volumes = 2;      // List of volumes 
-  repeated string volumesfrom = 3;  // List of volumes mounted from other dependencies
-  repeated string ports = 4;        // List of ports the container exposes
-  string command = 5;               // Command to run the container
+  string image = 1;                 // Image's name of the Docker.
+  repeated string volumes = 2;      // List of volumes.
+  repeated string volumesfrom = 3;  // List of volumes mounted from other dependencies.
+  repeated string ports = 4;        // List of ports the container exposes.
+  string command = 5;               // Command to run the container.
 }

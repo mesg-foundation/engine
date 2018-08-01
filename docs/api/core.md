@@ -112,7 +112,7 @@ The data will be received over time as long as the stream is open.
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | eventKey | [string](#string) | The event's key. |
-| eventData | [string](#string) | The event's data encoded in JSON.t |
+| eventData | [string](#string) | The event's data encoded in JSON. |
 
 
 
@@ -685,7 +685,7 @@ The request's data for `DeployService` API.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| service | [service.Service](#service.Service) | The service's definition to deploy. [Details here](./service-type.md) |
+| service | [service.Service](#service.Service) | The service's definition to deploy. [Details here](./service-type.md). |
 
 
 
@@ -1003,7 +1003,7 @@ The reply's data of the `ListServices` API.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| services | [service.Service](#service.Service)[] | The list of previously-deployed services' definitions. [Details here](./service-type.md) |
+| services | [service.Service](#service.Service)[] | The list of previously-deployed services' definitions. [Details here](./service-type.md). |
 
 
 
@@ -1146,7 +1146,7 @@ The reply's data of the `GetService` API.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| service | [service.Service](#service.Service) | Service's definition. [Details here](./service-type.md) |
+| service | [service.Service](#service.Service) | Service's definition. [Details here](./service-type.md). |
 
 
 
