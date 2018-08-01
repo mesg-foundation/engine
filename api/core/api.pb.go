@@ -50,7 +50,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-// Request's data of the `ListenEvent` stream API.
+// The request's data from the `ListenEvent` stream's API.
 //
 // **Example**
 // ```json
@@ -83,8 +83,8 @@ func (m *ListenEventRequest) GetEventFilter() string {
 	return ""
 }
 
-// Data receive from the stream of the `ListenEvent` API.
-// Will be received over time as long as the stream is opened.
+// The data received from the stream of the `ListenEvent` API.
+// The data will be received over time as long as the stream is open.
 //
 // **Example**
 // ```json
@@ -117,7 +117,7 @@ func (m *EventData) GetEventData() string {
 	return ""
 }
 
-// Request's data of the `ListenResult` stream API.
+// The request's data from the `ListenResult` stream API.
 //
 // **Example**
 // ```json
@@ -159,8 +159,8 @@ func (m *ListenResultRequest) GetOutputFilter() string {
 	return ""
 }
 
-// Data receive from the stream of the `ListenResult` API.
-// Will be received over time as long as the stream is opened.
+// The data received from the stream of the `ListenResult` API.
+// The data will be received over time as long as the stream is open.
 //
 // **Example**
 // ```json
@@ -211,7 +211,7 @@ func (m *ResultData) GetOutputData() string {
 	return ""
 }
 
-// Request's data of the `ExecuteTask` API.
+// The request's data from the `ExecuteTask` API.
 //
 // **Example**
 // ```json
@@ -253,7 +253,7 @@ func (m *ExecuteTaskRequest) GetInputData() string {
 	return ""
 }
 
-// Reply's data of the `ExecuteTask` API.
+// The reply's data from the `ExecuteTask` API.
 //
 // **Example**
 // ```json
@@ -277,7 +277,7 @@ func (m *ExecuteTaskReply) GetExecutionID() string {
 	return ""
 }
 
-// Request's data of the `StartService` API.
+// The request's data from the `StartService` API.
 //
 // **Example**
 // ```json
@@ -301,7 +301,7 @@ func (m *StartServiceRequest) GetServiceID() string {
 	return ""
 }
 
-// Reply's data of the `StartService` API.
+// `StartService` API doesn't return any data.
 type StartServiceReply struct {
 }
 
@@ -310,7 +310,7 @@ func (m *StartServiceReply) String() string            { return proto.CompactTex
 func (*StartServiceReply) ProtoMessage()               {}
 func (*StartServiceReply) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{7} }
 
-// Request's data of the `StopService` API.
+// The request's data from the `StopService` API.
 //
 // **Example**
 // ```json
@@ -334,7 +334,7 @@ func (m *StopServiceRequest) GetServiceID() string {
 	return ""
 }
 
-// Reply's data of the `StopService` API.
+// `StopService` API doesn't return any data.
 type StopServiceReply struct {
 }
 
@@ -343,7 +343,7 @@ func (m *StopServiceReply) String() string            { return proto.CompactText
 func (*StopServiceReply) ProtoMessage()               {}
 func (*StopServiceReply) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{9} }
 
-// Request's data of the `DeployService` API.
+// The request's data from the `DeployService` API.
 //
 // **Example**
 // ```json
@@ -390,7 +390,7 @@ func (m *DeployServiceRequest) GetService() *service.Service {
 	return nil
 }
 
-// Reply's data of the `DeployService` API.
+// The reply's data from the `DeployService` API.
 //
 // **Example**
 // ```json
@@ -438,7 +438,7 @@ func (m *DeleteServiceRequest) GetServiceID() string {
 	return ""
 }
 
-// Reply's data  of the `DeleteService` API.
+// `DeleteService` API doesn't return any data.
 type DeleteServiceReply struct {
 }
 
@@ -447,7 +447,7 @@ func (m *DeleteServiceReply) String() string            { return proto.CompactTe
 func (*DeleteServiceReply) ProtoMessage()               {}
 func (*DeleteServiceReply) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{13} }
 
-// Request's data of the `ListServices` API.
+// `ListServices` API doesn't return any data.
 type ListServicesRequest struct {
 }
 
@@ -456,7 +456,7 @@ func (m *ListServicesRequest) String() string            { return proto.CompactT
 func (*ListServicesRequest) ProtoMessage()               {}
 func (*ListServicesRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{14} }
 
-// Reply's data of the `ListServices` API.
+// The reply's data from the `ListServices` API.
 //
 // **Example**
 // ```json
@@ -503,7 +503,7 @@ func (m *ListServicesReply) GetServices() []*service.Service {
 	return nil
 }
 
-// Request's data of the `GetService` API.
+// The request's data from the `GetService` API.
 //
 // **Example**
 // ```json
@@ -527,7 +527,7 @@ func (m *GetServiceRequest) GetServiceID() string {
 	return ""
 }
 
-// Reply's data of the `GetService` API.
+// The reply's data from the `GetService` API.
 //
 // **Example**
 // ```json
@@ -608,21 +608,21 @@ const _ = grpc.SupportPackageIsVersion4
 type CoreClient interface {
 	// Subscribe to a stream that listens for events from a service.
 	ListenEvent(ctx context.Context, in *ListenEventRequest, opts ...grpc.CallOption) (Core_ListenEventClient, error)
-	// Subscribe to the stream that listens for task's results of a service.
+	// Subscribe to a stream that listens for task's result from a service.
 	ListenResult(ctx context.Context, in *ListenResultRequest, opts ...grpc.CallOption) (Core_ListenResultClient, error)
-	// Execute a task of a service through the [Core](../guide/start-here/core.md).
+	// Execute a service's task through [Core](../guide/start-here/core.md).
 	ExecuteTask(ctx context.Context, in *ExecuteTaskRequest, opts ...grpc.CallOption) (*ExecuteTaskReply, error)
-	// Start a service. The service have to be already deployed on the [Core](../guide/start-here/core.md).
+	// Start a service. The service must be already deployed to [Core](../guide/start-here/core.md).
 	StartService(ctx context.Context, in *StartServiceRequest, opts ...grpc.CallOption) (*StartServiceReply, error)
-	// Stop a service. The service have to be already deployed on the [Core](../guide/start-here/core.md).
+	// Stop a service. The service must be already deployed to [Core](../guide/start-here/core.md).
 	StopService(ctx context.Context, in *StopServiceRequest, opts ...grpc.CallOption) (*StopServiceReply, error)
-	// Deploy a service to the [Core](../guide/start-here/core.md). This will give you an unique identifier to use to interact with the service.
+	// Deploy a service to [Core](../guide/start-here/core.md). This will give you an unique identifier which is used to interact with the service.
 	DeployService(ctx context.Context, in *DeployServiceRequest, opts ...grpc.CallOption) (*DeployServiceReply, error)
-	// Delete a service from Core. This function only delete a deployed service in the [Core](../guide/start-here/core.md). If the service's code is on your computer, it will not delete its source code.
+	// Delete a service from Core. This function only deletes a deployed service in [Core](../guide/start-here/core.md). If the service's code is on your computer, the source code will not be deleted.
 	DeleteService(ctx context.Context, in *DeleteServiceRequest, opts ...grpc.CallOption) (*DeleteServiceReply, error)
-	// List all services already deployed in the [Core](../guide/start-here/core.md).
+	// List all services already deployed in [Core](../guide/start-here/core.md).
 	ListServices(ctx context.Context, in *ListServicesRequest, opts ...grpc.CallOption) (*ListServicesReply, error)
-	// Get the definition of an already deployed service from its ID.
+	// Get the definition of an already-deployed service from its ID.
 	GetService(ctx context.Context, in *GetServiceRequest, opts ...grpc.CallOption) (*GetServiceReply, error)
 }
 
@@ -766,21 +766,21 @@ func (c *coreClient) GetService(ctx context.Context, in *GetServiceRequest, opts
 type CoreServer interface {
 	// Subscribe to a stream that listens for events from a service.
 	ListenEvent(*ListenEventRequest, Core_ListenEventServer) error
-	// Subscribe to the stream that listens for task's results of a service.
+	// Subscribe to a stream that listens for task's result from a service.
 	ListenResult(*ListenResultRequest, Core_ListenResultServer) error
-	// Execute a task of a service through the [Core](../guide/start-here/core.md).
+	// Execute a service's task through [Core](../guide/start-here/core.md).
 	ExecuteTask(context.Context, *ExecuteTaskRequest) (*ExecuteTaskReply, error)
-	// Start a service. The service have to be already deployed on the [Core](../guide/start-here/core.md).
+	// Start a service. The service must be already deployed to [Core](../guide/start-here/core.md).
 	StartService(context.Context, *StartServiceRequest) (*StartServiceReply, error)
-	// Stop a service. The service have to be already deployed on the [Core](../guide/start-here/core.md).
+	// Stop a service. The service must be already deployed to [Core](../guide/start-here/core.md).
 	StopService(context.Context, *StopServiceRequest) (*StopServiceReply, error)
-	// Deploy a service to the [Core](../guide/start-here/core.md). This will give you an unique identifier to use to interact with the service.
+	// Deploy a service to [Core](../guide/start-here/core.md). This will give you an unique identifier which is used to interact with the service.
 	DeployService(context.Context, *DeployServiceRequest) (*DeployServiceReply, error)
-	// Delete a service from Core. This function only delete a deployed service in the [Core](../guide/start-here/core.md). If the service's code is on your computer, it will not delete its source code.
+	// Delete a service from Core. This function only deletes a deployed service in [Core](../guide/start-here/core.md). If the service's code is on your computer, the source code will not be deleted.
 	DeleteService(context.Context, *DeleteServiceRequest) (*DeleteServiceReply, error)
-	// List all services already deployed in the [Core](../guide/start-here/core.md).
+	// List all services already deployed in [Core](../guide/start-here/core.md).
 	ListServices(context.Context, *ListServicesRequest) (*ListServicesReply, error)
-	// Get the definition of an already deployed service from its ID.
+	// Get the definition of an already-deployed service from its ID.
 	GetService(context.Context, *GetServiceRequest) (*GetServiceReply, error)
 }
 
