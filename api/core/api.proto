@@ -8,7 +8,7 @@ import "github.com/mesg-foundation/core/service/service.proto";
 // This is the primary API to interact with MESG Core functionalities. It can be consumed by any applications or tools that you'd like to interact with MESG Core.
 // It is actually used by the MESG CLI and MESG Application libraries.
 // 
-// Services should not use this API, but rather use the [Service API](/api/service.html).
+// Services should not use this API, but rather use the [Service API](./service.md).
 service Core {
   // Subscribe to a stream that listens for events from a service.
   rpc ListenEvent (ListenEventRequest) returns (stream EventData) {}
@@ -16,22 +16,22 @@ service Core {
   // Subscribe to a stream that listens for task's result from a service.
   rpc ListenResult (ListenResultRequest) returns (stream ResultData) {}
   
-  // Execute a service's task through [Core](/guide/start-here/core.html).
+  // Execute a service's task through [Core](../guide/start-here/core.md).
   rpc ExecuteTask (ExecuteTaskRequest) returns (ExecuteTaskReply) {}
 
-  // Start a service. The service must be already deployed to [Core](/guide/start-here/core.html).
+  // Start a service. The service must be already deployed to [Core](../guide/start-here/core.md).
   rpc StartService (StartServiceRequest) returns (StartServiceReply) {}
 
-  // Stop a service. The service must be already deployed to [Core](/guide/start-here/core.html).
+  // Stop a service. The service must be already deployed to [Core](../guide/start-here/core.md).
   rpc StopService (StopServiceRequest) returns (StopServiceReply) {}
   
-  // Deploy a service to [Core](/guide/start-here/core.html). This will give you an unique identifier which is used to interact with the service.
+  // Deploy a service to [Core](../guide/start-here/core.md). This will give you an unique identifier which is used to interact with the service.
   rpc DeployService (DeployServiceRequest) returns (DeployServiceReply) {}
   
-  // Delete a service from Core. This function only deletes a deployed service in [Core](/guide/start-here/core.html). If the service's code is on your computer, the source code will not be deleted.
+  // Delete a service from Core. This function only deletes a deployed service in [Core](../guide/start-here/core.md). If the service's code is on your computer, the source code will not be deleted.
   rpc DeleteService (DeleteServiceRequest) returns (DeleteServiceReply) {}
 
-  // List all services already deployed in [Core](/guide/start-here/core.html).
+  // List all services already deployed in [Core](../guide/start-here/core.md).
   rpc ListServices (ListServicesRequest) returns (ListServicesReply) {}
 
   // Get the definition of an already-deployed service from its ID.
@@ -49,7 +49,7 @@ service Core {
 // ```
 message ListenEventRequest {
   string serviceID = 1;   // Service ID. Generated when using the `DeployService` API.
-  string eventFilter = 2; // **Optional.** Event's key to filter. The event must match this key. The default is `*` which matches any event.
+  string eventFilter = 2; // __Optional.__ Event's key to filter. The event must match this key. The default is `*` which matches any event.
 }
 
 // The data received from the stream of the `ListenEvent` API.
@@ -79,8 +79,8 @@ message EventData {
 // ```
 message ListenResultRequest {
   string serviceID = 1;     // Service ID. Generated when using the `DeployService` API.
-  string taskFilter = 2;    // **Optional.**  The task's key to filter. The task must match this key. The default is `*` which matches any task.
-  string outputFilter = 3;  // **Optional.** The output's key from the task to filter. The task must return this output's key. The default is `*` which matches any output.
+  string taskFilter = 2;    // __Optional.__  The task's key to filter. The task must match this key. The default is `*` which matches any task.
+  string outputFilter = 3;  // __Optional.__ The output's key from the task to filter. The task must return this output's key. The default is `*` which matches any output.
 }
 
 // The data received from the stream of the `ListenResult` API.
@@ -142,7 +142,7 @@ message StartServiceRequest {
   string serviceID = 1; // Service ID. Generated when using the `DeployService` API.
 }
 
-// The reply's data from the `StartService` API.
+// `StartService` API doesn't return any data.
 message StartServiceReply {
 }
 
@@ -158,7 +158,7 @@ message StopServiceRequest {
   string serviceID = 1; // Service ID. Generated when using the `DeployService` API.
 }
 
-// The reply's data from the `StopService` API.
+// `StopService` API doesn't return any data.
 message StopServiceReply {
 }
 
@@ -194,7 +194,7 @@ message StopServiceReply {
 // }
 // ```
 message DeployServiceRequest {
-  service.Service service = 1; // The service's definition to deploy. [Details here](/api/service-type.html)
+  service.Service service = 1; // The service's definition to deploy. [Details here](./service-type.md)
 }
 
 // The reply's data from the `DeployService` API.
@@ -221,11 +221,11 @@ message DeleteServiceRequest {
   string serviceID = 1; // Service ID. Generated when using the `DeployService` API.
 }
 
-// The reply's data  from the `DeleteService` API.
+// `DeleteService` API doesn't return any data.
 message DeleteServiceReply {
 }
 
-// The request's data from the `ListServices` API.
+// `ListServices` API doesn't return any data.
 message ListServicesRequest {
 }
 
@@ -261,7 +261,7 @@ message ListServicesRequest {
 // }]
 // ```
 message ListServicesReply {
-  repeated service.Service services = 1; // The list of previously-deployed services' definitions. [Details here](/api/service-type.html)
+  repeated service.Service services = 1; // The list of previously-deployed services' definitions. [Details here](./service-type.md)
 }
 
 // The request's data from the `GetService` API.
@@ -308,5 +308,5 @@ message GetServiceRequest {
 // }
 // ```
 message GetServiceReply {
-  service.Service service = 1; // Service's definition. [Details here](/api/service-type.html)
+  service.Service service = 1; // Service's definition. [Details here](./service-type.md)
 }
