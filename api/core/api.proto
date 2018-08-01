@@ -5,173 +5,164 @@ option go_package = "core";
 
 import "github.com/mesg-foundation/core/service/service.proto";
 
-// API accessible for anyone, it can be consumed either by an application or any tool that wishes to connect to MESG.
-// It is actually used by the MESG CLI.
+// Main API to interact with MESG Core functionalities. It can be consumed by any applications or any tools that wish to interact with MESG Core.
+// It is actually used by the MESG CLI and MESG Application libraries.
 // 
-// Services should not try to access this API
+// Services should not use this API but use the [Service API]](/api/service.html).
 service Core {
-  // Subscribe to the stream that will receive events from a service
+  // Subscribe to a stream that listens for events from a service.
   rpc ListenEvent (ListenEventRequest) returns (stream EventData) {}
-  
-  // Let you to execute a task of a service through the [Core](/guide/start-here/core.html)
-  rpc ExecuteTask (ExecuteTaskRequest) returns (ExecuteTaskReply) {}  
 
-  // Subscribe to the stream that will receive results of a task of a service
+  // Subscribe to the stream that listens for task's results of a service.
   rpc ListenResult (ListenResultRequest) returns (stream ResultData) {}
+  
+  // Execute a task of a service through the [Core](/guide/start-here/core.html).
+  rpc ExecuteTask (ExecuteTaskRequest) returns (ExecuteTaskReply) {}
 
-  // Start a service. This service needs to be deployed already in the [Core](/guide/start-here/core.html)
+  // Start a service. The service have to be already deployed on the [Core](/guide/start-here/core.html).
   rpc StartService (StartServiceRequest) returns (StartServiceReply) {}
 
-  // Stop a service. This service needs to be deployed already in the [Core](/guide/start-here/core.html)
+  // Stop a service. The service have to be already deployed on the [Core](/guide/start-here/core.html).
   rpc StopService (StopServiceRequest) returns (StopServiceReply) {}
   
-  // Deploy a new service to the [Core](/guide/start-here/core.html). This will give you an unique identifier to use your service
+  // Deploy a service to the [Core](/guide/start-here/core.html). This will give you an unique identifier to use to interact with the service.
   rpc DeployService (DeployServiceRequest) returns (DeployServiceReply) {}
   
-  // Delete a service. This function will only delete the service deployed in the [Core](/guide/start-here/core.html). If the service code is on your computer, this call will not delete your source code
+  // Delete a service from Core. This function only delete a deployed service in the [Core](/guide/start-here/core.html). If the service's code is on your computer, it will not delete its source code.
   rpc DeleteService (DeleteServiceRequest) returns (DeleteServiceReply) {}
 
-  // List all the services already deployed in the [Core](/guide/start-here/core.html)
+  // List all services already deployed in the [Core](/guide/start-here/core.html).
   rpc ListServices (ListServicesRequest) returns (ListServicesReply) {}
 
-  // Get an already deployed service based on its ID
+  // Get the definition of an already deployed service from its ID.
   rpc GetService (GetServiceRequest) returns (GetServiceReply) {}
 }
 
-// Data sent to connect to the `ListenEvent` stream API
+// Request's data of the `ListenEvent` stream API.
 // 
 // **Example**
 // ```json
 // {
-//   "serviceID": "xxxx",
-//   "eventFilter": "*"
+//   "serviceID":   "__SERVICE_ID__",
+//   "eventFilter": "__EVENT_KEY_TO_MATCH__"
 // }
 // ```
 message ListenEventRequest {
-  string serviceID = 1;   // The ID that references your service. Generated while using the `DeployService` API.
-  string eventFilter = 2; // The key of the event you want to filter from the service. The default `"*"` will listen everything.
+  string serviceID = 1;   // Service ID. Generated when using the `DeployService` API.
+  string eventFilter = 2; // **Optional.** Event's key to filter. The event have to match this key. The default is `*` and matches any event.
 }
 
-// Payload sent when you want to execute a task of a service
+// Data receive from the stream of the `ListenEvent` API.
+// Will be received over time as long as the stream is opened.
 // 
 // **Example**
 // ```json
 // {
-//   "serviceID": "xxxx",
-//   "taskKey": "myTaskX",
-//   "inputData": "{\"foo\":\"bar\"}"
-// }
-// ```
-message ExecuteTaskRequest {
-  string serviceID = 1; // The ID that references your service. Generated while using the `DeployService` API.
-  string taskKey = 2;   // The key of the task you want to execute from the service.
-  string inputData = 3; // The inputs for the tasks you want to execute encoded in JSON.
-}
-
-// Data sent to connect to the `ListenResult` stream API
-// 
-// **Example**
-// ```json
-// {
-//   "serviceID": "xxxx",
-//   "taskFilter": "*",
-//   "outputFilter": "*"
-// }
-// ```
-message ListenResultRequest {
-  string serviceID = 1;     // The ID that references your service. Generated while using the `DeployService` API.
-  string taskFilter = 2;    // The key of the task you want to filter from the service. The default `"*"` will listen everything.
-  string outputFilter = 3;  // The key of the output you want to filter from the service. The default `"*"` will listen everything.
-}
-
-// Payload necessary to start a service
-// 
-// **Example**
-// ```json
-// {
-//   "serviceID": "xxxx"
-// }
-// ```
-message StartServiceRequest {
-  string serviceID = 1; // The ID that references your service. Generated while using the `DeployService` API.
-}
-
-// Payload necessary to stop a service
-// 
-// **Example**
-// ```json
-// {
-//   "serviceID": "xxxx"
-// }
-// ```
-message StopServiceRequest {
-  string serviceID = 1; // The ID that references your service. Generated while using the `DeployService` API.
-}
-
-// Data sent through the stream from the `ListenEvent` API
-// These data can come as long as the stream stays open.
-// 
-// **Example**
-// ```json
-// {
-//   "eventKey": "xxxx",
+//   "eventKey":  "__EVENT_KEY__",
 //   "eventData": "{\"foo\":\"bar\"}"
 // }
 // ```
 message EventData {
-  string eventKey = 1;
-  string eventData = 2;
+  string eventKey = 1;  // Event's key.
+  string eventData = 2; // Event's data encoded in JSON.
 }
 
-// Reply of the [Core](/guide/start-here/core.html) when calling the `ExecuteTask` API
+// Request's data of the `ListenResult` stream API.
 // 
 // **Example**
 // ```json
 // {
-//   "executionID": "xxx"
+//   "serviceID":     "__SERVICE_ID__",
+//   "taskFilter":    "__TASK_KEY_TO_MATCH__",
+//   "outputFilter":  "__OUTPUT_KEY_TO_MATCH__"
 // }
 // ```
-message ExecuteTaskReply {
-  string executionID = 1; // The unique identifier for this execution that let you track the result.
+message ListenResultRequest {
+  string serviceID = 1;     // Service ID. Generated when using the `DeployService` API.
+  string taskFilter = 2;    // **Optional.**  Task's key to filter. The task have to match this key. The default is `*` and matches any task.
+  string outputFilter = 3;  // **Optional.** Output's key of the task to filter. The task have to return this output's key. The default is `*` and matches any output.
 }
 
-// Data sent to the `ListenResult` stream that contains all informations of a result execution
+// Data receive from the stream of the `ListenResult` API.
+// Will be received over time as long as the stream is opened.
 // 
 // **Example**
 // ```json
 // {
-//   "executionID": "xxx",
-//   "taskKey": "taskX",
-//   "outputKey": "outputX",
-//   "outputData": "{\"foo\":\"bar\"}"
+//   "executionID": "__EXECUTION_ID__",
+//   "taskKey":     "__TASK_KEY__",
+//   "outputKey":   "__OUTPUT_KEY__",
+//   "outputData":  "{\"foo\":\"bar\"}"
 // }
 // ```
 message ResultData {
-  string executionID = 1; // The unique identifier of your execution
-  string taskKey = 2;     // The key of the task executed
-  string outputKey = 3;   // The key of the output the task returned
-  string outputData = 4;  // The data of the output the task returned encoded in JSON
+  string executionID = 1; // Unique identifier of the execution.
+  string taskKey = 2;     // Key of the executed task.
+  string outputKey = 3;   // Output's key the task returned.
+  string outputData = 4;  // Output's data the task returned encoded in JSON.
 }
 
-// Reply of the [Core](/guide/start-here/core.html) whan starting a Service
+// Request's data of the `ExecuteTask` API.
 // 
 // **Example**
 // ```json
-// {}
+// {
+//   "serviceID": "__SERVICE_ID__",
+//   "taskKey":   "__TASK_KEY__",
+//   "inputData": "{\"foo\":\"bar\"}"
+// }
 // ```
+message ExecuteTaskRequest {
+  string serviceID = 1; // Service ID. Generated when using the `DeployService` API.
+  string taskKey = 2;   // Task's key to execute.
+  string inputData = 3; // Inputs of the task to execute encoded in JSON.
+}
+
+// Reply's data of the `ExecuteTask` API.
+// 
+// **Example**
+// ```json
+// {
+//   "executionID": "__EXECUTION_ID__"
+// }
+// ```
+message ExecuteTaskReply {
+  string executionID = 1; // Unique identifier of the execution.
+}
+
+// Request's data of the `StartService` API.
+// 
+// **Example**
+// ```json
+// {
+//   "serviceID": "__SERVICE_ID__"
+// }
+// ```
+message StartServiceRequest {
+  string serviceID = 1; // Service ID. Generated when using the `DeployService` API.
+}
+
+// Reply's data of the `StartService` API.
 message StartServiceReply {
 }
 
-// Reply of the [Core](/guide/start-here/core.html) whan stopping a Service
+// Request's data of the `StopService` API.
 // 
 // **Example**
 // ```json
-// {}
+// {
+//   "serviceID": "__SERVICE_ID__"
+// }
 // ```
+message StopServiceRequest {
+  string serviceID = 1; // Service ID. Generated when using the `DeployService` API.
+}
+
+// Reply's data of the `StopService` API.
 message StopServiceReply {
 }
 
-// Data sent while deploying a new Service to the [Core](/guide/start-here/core.html)
+// Request's data of the `DeployService` API.
 // 
 // **Example**
 // ```json
@@ -203,52 +194,42 @@ message StopServiceReply {
 // }
 // ```
 message DeployServiceRequest {
-  service.Service service = 1;  // Data of the service you want to deploy. [details here](/api/service-type.html)
+  service.Service service = 1; // Service's definition to deploy. [Details here](/api/service-type.html)
 }
 
-// Reply of the [Core](/guide/start-here/core.html) whan deploying a new Service
+// Reply's data of the `DeployService` API.
 // 
 // **Example**
 // ```json
 // {
-//   "serviceID": "xxx"
+//   "serviceID": "__SERVICE_ID__"
 // }
 // ```
 message DeployServiceReply {
-  string serviceID = 1; // The generated ID for your service. You can reuse this ID to access many others APIs
+  string serviceID = 1; // The generated identifier of the deployed service. Use this ID with other APIs.
 }
 
-// Payload necessary to delete a service
+// Request's data of the `DeleteService` API.
 // 
 // **Example**
 // ```json
 // {
-//   "serviceID": "xxxx"
+//   "serviceID": "__SERVICE_ID__"
 // }
 // ```
 message DeleteServiceRequest {
-  string serviceID = 1; // The ID that references your service. Generated while using the `DeployService` API.
+  string serviceID = 1; // Service ID. Generated when using the `DeployService` API.
 }
 
-// Reply of the [Core](/guide/start-here/core.html) whan deleting a Service
-// 
-// **Example**
-// ```json
-// {}
-// ```
+// Reply's data  of the `DeleteService` API.
 message DeleteServiceReply {
 }
 
-// Payload necessary to list all the deployed services
-// 
-// **Example**
-// ```json
-// {}
-// ```
+// Request's data of the `ListServices` API.
 message ListServicesRequest {
 }
 
-// Result from the [Core](/guide/start-here/core.html) when calling the list of services deployed
+// Reply's data of the `ListServices` API.
 // 
 // **Example**
 // ```json
@@ -280,22 +261,22 @@ message ListServicesRequest {
 // }]
 // ```
 message ListServicesReply {
-  repeated service.Service services = 1;  // List of data of the deployed services. [details here](/api/service-type.html)
+  repeated service.Service services = 1; // List of services' definition previously deployed. [Details here](/api/service-type.html)
 }
 
-// Payload necessary to get the details of deployed service
+// Request's data of the `GetService` API.
 // 
 // **Example**
 // ```json
 // {
-//   "serviceID": "xxxx"
+//   "serviceID": "__SERVICE_ID__"
 // }
 // ```
 message GetServiceRequest {
-  string serviceID = 1; // The ID that references your service. Generated while using the `DeployService` API.
+  string serviceID = 1; // Service ID. Generated when using the `DeployService` API.
 }
 
-// Result from the [Core](/guide/start-here/core.html) when calling the `GetService` API
+// Reply's data of the `GetService` API.
 // 
 // **Example**
 // ```json
@@ -327,5 +308,5 @@ message GetServiceRequest {
 // }
 // ```
 message GetServiceReply {
-  service.Service service = 1;  // Data of the service you requested. [details here](/api/service-type.html)
+  service.Service service = 1; // Service's definition. [Details here](/api/service-type.html)
 }
