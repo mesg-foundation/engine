@@ -2,46 +2,52 @@ syntax = "proto3";
 
 package service;
 
+// This is the definition of a MESG Service.
 message Service {
-  string name = 1;                          // Name of the service
-  string description = 2;                   // Description of the service
-  map<string, Task> tasks = 5;              // Map of tasks that the service can execute
-  map<string, Event> events = 6;            // Map of events that the service can emits
-  map<string, Dependency> dependencies = 7; // Docker dependencies that the service requires
-  Dependency configuration = 8;             // Docker configurations for the service
-  string repository = 9;                    // Repository where the source code of this service is accessible
+  string name = 1;                          // The service's name.
+  string description = 2;                   // The service's description.
+  map<string, Task> tasks = 5;              // The list of tasks this service can execute.
+  map<string, Event> events = 6;            // The list of events this service can emit.
+  map<string, Dependency> dependencies = 7; // The Docker dependencies this service requires.
+  Dependency configuration = 8;             // The service's Docker configuration.
+  string repository = 9;                    // The service's repository that contain its source code.
 }
 
-message Task {
-  string name = 1;                    // Name of the task
-  string description = 2;             // Description of the task
-  map<string, Parameter> inputs = 6;  // Map of inputs that can be given for this task
-  map<string, Output> outputs = 7;    // Map of outputs that the task can returns as result
-}
-
+// Events are emitted by the service whenever the service wants.
 message Event {
-  string name = 1;                  // Name of the event
-  string description = 2;           // Description of the event
-  map<string, Parameter> data = 3;  // Map of data associated to this event
+  string name = 1;                  // The event's name.
+  string description = 2;           // The event's description.
+  map<string, Parameter> data = 3;  // The list of data of this event.
 }
 
+// A task is a function that requires inputs and returns output.
+message Task {
+  string name = 1;                    // The task's name.
+  string description = 2;             // The task's description.
+  map<string, Parameter> inputs = 6;  // The list inputs of this task.
+  map<string, Output> outputs = 7;    // The list of outputs this task can return.
+}
+
+// A output is the data a task must return.
 message Output {
-  string name = 1;                  // Name of the output
-  string description = 2;           // Description of the output
-  map<string, Parameter> data = 3;  // Map of data associated to this output
+  string name = 1;                  // The output's name.
+  string description = 2;           // the output's description.
+  map<string, Parameter> data = 3;  // The list of data of this output.
 }
 
+// A parameter is the definition of a specific value.
 message Parameter {
-  string name = 1;        // Name of the parameter
-  string description = 2; // Description of the parameter
-  string type = 3;        // Type of the parameter `String`, `Number`, `Boolean` or `Object`
-  bool optional = 4;      // Mark this parameter as optional
+  string name = 1;        // The parameter's name.
+  string description = 2; // The parameter's description.
+  string type = 3;        // The parameter's type: `String`, `Number`, `Boolean` or `Object`.
+  bool optional = 4;      // Set the parameter as optional.
 }
 
+// A dependency is a configuration of an other Docker container that runs separately from the service.
 message Dependency {
-  string image = 1;                 // Docker image name or sha
-  repeated string volumes = 2;      // List of Docker volumes 
+  string image = 1;                 // Image's name of the Docker
+  repeated string volumes = 2;      // List of volumes 
   repeated string volumesfrom = 3;  // List of volumes mounted from other dependencies
-  repeated string ports = 4;        // List of ports that the container needs to expose
-  string command = 5;               // Command needed to run the container
+  repeated string ports = 4;        // List of ports the container exposes
+  string command = 5;               // Command to run the container
 }
