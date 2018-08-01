@@ -50,7 +50,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-// The request's data from the `ListenEvent` stream's API.
+// The request's data for the `ListenEvent` stream's API.
 //
 // **Example**
 // ```json
@@ -117,7 +117,7 @@ func (m *EventData) GetEventData() string {
 	return ""
 }
 
-// The request's data from the `ListenResult` stream API.
+// The request's data for the `ListenResult` stream API.
 //
 // **Example**
 // ```json
@@ -211,7 +211,7 @@ func (m *ResultData) GetOutputData() string {
 	return ""
 }
 
-// The request's data from the `ExecuteTask` API.
+// The request's data for the `ExecuteTask` API.
 //
 // **Example**
 // ```json
@@ -253,7 +253,7 @@ func (m *ExecuteTaskRequest) GetInputData() string {
 	return ""
 }
 
-// The reply's data from the `ExecuteTask` API.
+// The reply's data of the `ExecuteTask` API.
 //
 // **Example**
 // ```json
@@ -277,7 +277,7 @@ func (m *ExecuteTaskReply) GetExecutionID() string {
 	return ""
 }
 
-// The request's data from the `StartService` API.
+// The request's data for the `StartService` API.
 //
 // **Example**
 // ```json
@@ -301,7 +301,7 @@ func (m *StartServiceRequest) GetServiceID() string {
 	return ""
 }
 
-// `StartService` API doesn't return any data.
+// Reply of `StartService` API doesn't contain any data.
 type StartServiceReply struct {
 }
 
@@ -310,7 +310,7 @@ func (m *StartServiceReply) String() string            { return proto.CompactTex
 func (*StartServiceReply) ProtoMessage()               {}
 func (*StartServiceReply) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{7} }
 
-// The request's data from the `StopService` API.
+// The request's data for the `StopService` API.
 //
 // **Example**
 // ```json
@@ -334,7 +334,7 @@ func (m *StopServiceRequest) GetServiceID() string {
 	return ""
 }
 
-// `StopService` API doesn't return any data.
+// Reply of `StopService` API doesn't contain any data.
 type StopServiceReply struct {
 }
 
@@ -343,7 +343,7 @@ func (m *StopServiceReply) String() string            { return proto.CompactText
 func (*StopServiceReply) ProtoMessage()               {}
 func (*StopServiceReply) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{9} }
 
-// The request's data from the `DeployService` API.
+// The request's data for `DeployService` API.
 //
 // **Example**
 // ```json
@@ -390,7 +390,7 @@ func (m *DeployServiceRequest) GetService() *service.Service {
 	return nil
 }
 
-// The reply's data from the `DeployService` API.
+// The reply's data of `DeployService` API.
 //
 // **Example**
 // ```json
@@ -438,7 +438,7 @@ func (m *DeleteServiceRequest) GetServiceID() string {
 	return ""
 }
 
-// `DeleteService` API doesn't return any data.
+// Reply of `DeleteService` API doesn't contain any data.
 type DeleteServiceReply struct {
 }
 
@@ -447,7 +447,7 @@ func (m *DeleteServiceReply) String() string            { return proto.CompactTe
 func (*DeleteServiceReply) ProtoMessage()               {}
 func (*DeleteServiceReply) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{13} }
 
-// `ListServices` API doesn't return any data.
+// Reply of `ListServices` API doesn't contain any data.
 type ListServicesRequest struct {
 }
 
@@ -456,7 +456,7 @@ func (m *ListServicesRequest) String() string            { return proto.CompactT
 func (*ListServicesRequest) ProtoMessage()               {}
 func (*ListServicesRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{14} }
 
-// The reply's data from the `ListServices` API.
+// The reply's data of the `ListServices` API.
 //
 // **Example**
 // ```json
@@ -503,7 +503,7 @@ func (m *ListServicesReply) GetServices() []*service.Service {
 	return nil
 }
 
-// The request's data from the `GetService` API.
+// The request's data for the `GetService` API.
 //
 // **Example**
 // ```json
@@ -527,7 +527,7 @@ func (m *GetServiceRequest) GetServiceID() string {
 	return ""
 }
 
-// The reply's data from the `GetService` API.
+// The reply's data of the `GetService` API.
 //
 // **Example**
 // ```json

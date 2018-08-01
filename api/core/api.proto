@@ -8,7 +8,7 @@ import "github.com/mesg-foundation/core/service/service.proto";
 // This is the primary API to interact with MESG Core functionalities. It can be consumed by any applications or tools that you'd like to interact with MESG Core.
 // It is actually used by the MESG CLI and MESG Application libraries.
 // 
-// Services should not use this API, but rather use the [Service API](./service.md).
+// Services must not use this API, but rather use the [Service API](./service.md).
 service Core {
   // Subscribe to a stream that listens for events from a service.
   rpc ListenEvent (ListenEventRequest) returns (stream EventData) {}
@@ -38,7 +38,7 @@ service Core {
   rpc GetService (GetServiceRequest) returns (GetServiceReply) {}
 }
 
-// The request's data from the `ListenEvent` stream's API.
+// The request's data for the `ListenEvent` stream's API.
 // 
 // **Example**
 // ```json
@@ -48,7 +48,7 @@ service Core {
 // }
 // ```
 message ListenEventRequest {
-  string serviceID = 1;   // Service ID. Generated when using the `DeployService` API.
+  string serviceID = 1;   // The Service ID. Generated when using the [`DeployService` API](#deployservice).
   string eventFilter = 2; // __Optional.__ Event's key to filter. The event must match this key. The default is `*` which matches any event.
 }
 
@@ -63,11 +63,11 @@ message ListenEventRequest {
 // }
 // ```
 message EventData {
-  string eventKey = 1;  // Event's key.
-  string eventData = 2; // Event's data encoded in JSON.
+  string eventKey = 1;  // The event's key.
+  string eventData = 2; // The event's data encoded in JSON.t
 }
 
-// The request's data from the `ListenResult` stream API.
+// The request's data for the `ListenResult` stream API.
 // 
 // **Example**
 // ```json
@@ -78,7 +78,7 @@ message EventData {
 // }
 // ```
 message ListenResultRequest {
-  string serviceID = 1;     // Service ID. Generated when using the `DeployService` API.
+  string serviceID = 1;     // The Service ID. Generated when using the [`DeployService` API](#deployservice).
   string taskFilter = 2;    // __Optional.__  The task's key to filter. The task must match this key. The default is `*` which matches any task.
   string outputFilter = 3;  // __Optional.__ The output's key from the task to filter. The task must return this output's key. The default is `*` which matches any output.
 }
@@ -102,7 +102,7 @@ message ResultData {
   string outputData = 4;  // The output's data from the returned task, encoded in JSON.
 }
 
-// The request's data from the `ExecuteTask` API.
+// The request's data for the `ExecuteTask` API.
 // 
 // **Example**
 // ```json
@@ -113,12 +113,12 @@ message ResultData {
 // }
 // ```
 message ExecuteTaskRequest {
-  string serviceID = 1; // Service ID. Generated when using the `DeployService` API.
+  string serviceID = 1; // The Service ID. Generated when using the [`DeployService` API](#deployservice).
   string taskKey = 2;   // The task's key to execute.
   string inputData = 3; // The inputs of the task to execute, encoded in JSON.
 }
 
-// The reply's data from the `ExecuteTask` API.
+// The reply's data of the `ExecuteTask` API.
 // 
 // **Example**
 // ```json
@@ -130,7 +130,7 @@ message ExecuteTaskReply {
   string executionID = 1; // The unique identifier of the execution.
 }
 
-// The request's data from the `StartService` API.
+// The request's data for the `StartService` API.
 // 
 // **Example**
 // ```json
@@ -139,14 +139,14 @@ message ExecuteTaskReply {
 // }
 // ```
 message StartServiceRequest {
-  string serviceID = 1; // Service ID. Generated when using the `DeployService` API.
+  string serviceID = 1; // The Service ID. Generated when using the [`DeployService` API](#deployservice).
 }
 
-// `StartService` API doesn't return any data.
+// Reply of `StartService` API doesn't contain any data.
 message StartServiceReply {
 }
 
-// The request's data from the `StopService` API.
+// The request's data for the `StopService` API.
 // 
 // **Example**
 // ```json
@@ -155,14 +155,14 @@ message StartServiceReply {
 // }
 // ```
 message StopServiceRequest {
-  string serviceID = 1; // Service ID. Generated when using the `DeployService` API.
+  string serviceID = 1; // The Service ID. Generated when using the [`DeployService` API](#deployservice).
 }
 
-// `StopService` API doesn't return any data.
+// Reply of `StopService` API doesn't contain any data.
 message StopServiceReply {
 }
 
-// The request's data from the `DeployService` API.
+// The request's data for `DeployService` API.
 // 
 // **Example**
 // ```json
@@ -197,7 +197,7 @@ message DeployServiceRequest {
   service.Service service = 1; // The service's definition to deploy. [Details here](./service-type.md)
 }
 
-// The reply's data from the `DeployService` API.
+// The reply's data of `DeployService` API.
 // 
 // **Example**
 // ```json
@@ -218,18 +218,18 @@ message DeployServiceReply {
 // }
 // ```
 message DeleteServiceRequest {
-  string serviceID = 1; // Service ID. Generated when using the `DeployService` API.
+  string serviceID = 1; // The Service ID. Generated when using the [`DeployService` API](#deployservice).
 }
 
-// `DeleteService` API doesn't return any data.
+// Reply of `DeleteService` API doesn't contain any data.
 message DeleteServiceReply {
 }
 
-// `ListServices` API doesn't return any data.
+// Reply of `ListServices` API doesn't contain any data.
 message ListServicesRequest {
 }
 
-// The reply's data from the `ListServices` API.
+// The reply's data of the `ListServices` API.
 // 
 // **Example**
 // ```json
@@ -264,7 +264,7 @@ message ListServicesReply {
   repeated service.Service services = 1; // The list of previously-deployed services' definitions. [Details here](./service-type.md)
 }
 
-// The request's data from the `GetService` API.
+// The request's data for the `GetService` API.
 // 
 // **Example**
 // ```json
@@ -273,10 +273,10 @@ message ListServicesReply {
 // }
 // ```
 message GetServiceRequest {
-  string serviceID = 1; // Service ID. Generated when using the `DeployService` API.
+  string serviceID = 1; // The Service ID. Generated when using the [`DeployService` API](#deployservice).
 }
 
-// The reply's data from the `GetService` API.
+// The reply's data of the `GetService` API.
 // 
 // **Example**
 // ```json

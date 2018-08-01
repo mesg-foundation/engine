@@ -13,7 +13,7 @@ Please update the Core file
 This is the primary API to interact with MESG Core functionalities. It can be consumed by any applications or tools that you'd like to interact with MESG Core.
 It is actually used by the MESG CLI and MESG Application libraries.
 
-Services should not use this API, but rather use the [Service API](./service.md).
+Services must not use this API, but rather use the [Service API](./service.md).
 
 [[toc]]
 
@@ -50,7 +50,7 @@ Subscribe to a stream that listens for events from a service.
 
 
 #### ListenEventRequest
-The request's data from the `ListenEvent` stream's API.
+The request's data for the `ListenEvent` stream's API.
 
 **Example**
 ```json
@@ -63,7 +63,7 @@ The request's data from the `ListenEvent` stream's API.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| serviceID | [string](#string) | Service ID. Generated when using the `DeployService` API. |
+| serviceID | [string](#string) | The Service ID. Generated when using the [`DeployService` API](#deployservice). |
 | eventFilter | [string](#string) | __Optional.__ Event's key to filter. The event must match this key. The default is `*` which matches any event. |
 
 
@@ -111,8 +111,8 @@ The data will be received over time as long as the stream is open.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| eventKey | [string](#string) | Event's key. |
-| eventData | [string](#string) | Event's data encoded in JSON. |
+| eventKey | [string](#string) | The event's key. |
+| eventData | [string](#string) | The event's data encoded in JSON.t |
 
 
 
@@ -181,7 +181,7 @@ Subscribe to a stream that listens for task's result from a service.
 
 
 #### ListenResultRequest
-The request's data from the `ListenResult` stream API.
+The request's data for the `ListenResult` stream API.
 
 **Example**
 ```json
@@ -195,7 +195,7 @@ The request's data from the `ListenResult` stream API.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| serviceID | [string](#string) | Service ID. Generated when using the `DeployService` API. |
+| serviceID | [string](#string) | The Service ID. Generated when using the [`DeployService` API](#deployservice). |
 | taskFilter | [string](#string) | __Optional.__  The task's key to filter. The task must match this key. The default is `*` which matches any task. |
 | outputFilter | [string](#string) | __Optional.__ The output's key from the task to filter. The task must return this output's key. The default is `*` which matches any output. |
 
@@ -304,7 +304,7 @@ Execute a service's task through [Core](../guide/start-here/core.md).
 
 
 #### ExecuteTaskRequest
-The request's data from the `ExecuteTask` API.
+The request's data for the `ExecuteTask` API.
 
 **Example**
 ```json
@@ -318,7 +318,7 @@ The request's data from the `ExecuteTask` API.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| serviceID | [string](#string) | Service ID. Generated when using the `DeployService` API. |
+| serviceID | [string](#string) | The Service ID. Generated when using the [`DeployService` API](#deployservice). |
 | taskKey | [string](#string) | The task's key to execute. |
 | inputData | [string](#string) | The inputs of the task to execute, encoded in JSON. |
 
@@ -365,7 +365,7 @@ The request's data from the `ExecuteTask` API.
 
 
 #### ExecuteTaskReply
-The reply's data from the `ExecuteTask` API.
+The reply's data of the `ExecuteTask` API.
 
 **Example**
 ```json
@@ -450,7 +450,7 @@ Start a service. The service must be already deployed to [Core](../guide/start-h
 
 
 #### StartServiceRequest
-The request's data from the `StartService` API.
+The request's data for the `StartService` API.
 
 **Example**
 ```json
@@ -462,7 +462,7 @@ The request's data from the `StartService` API.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| serviceID | [string](#string) | Service ID. Generated when using the `DeployService` API. |
+| serviceID | [string](#string) | The Service ID. Generated when using the [`DeployService` API](#deployservice). |
 
 
 
@@ -507,7 +507,7 @@ The request's data from the `StartService` API.
 
 
 #### StartServiceReply
-`StartService` API doesn't return any data.
+Reply of `StartService` API doesn't contain any data.
 
 
 
@@ -566,7 +566,7 @@ Stop a service. The service must be already deployed to [Core](../guide/start-he
 
 
 #### StopServiceRequest
-The request's data from the `StopService` API.
+The request's data for the `StopService` API.
 
 **Example**
 ```json
@@ -578,7 +578,7 @@ The request's data from the `StopService` API.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| serviceID | [string](#string) | Service ID. Generated when using the `DeployService` API. |
+| serviceID | [string](#string) | The Service ID. Generated when using the [`DeployService` API](#deployservice). |
 
 
 
@@ -623,7 +623,7 @@ The request's data from the `StopService` API.
 
 
 #### StopServiceReply
-`StopService` API doesn't return any data.
+Reply of `StopService` API doesn't contain any data.
 
 
 
@@ -650,7 +650,7 @@ Deploy a service to [Core](../guide/start-here/core.md). This will give you an u
 
 
 #### DeployServiceRequest
-The request's data from the `DeployService` API.
+The request's data for `DeployService` API.
 
 **Example**
 ```json
@@ -730,7 +730,7 @@ The request's data from the `DeployService` API.
 
 
 #### DeployServiceReply
-The reply's data from the `DeployService` API.
+The reply's data of `DeployService` API.
 
 **Example**
 ```json
@@ -805,7 +805,7 @@ Request's data of the `DeleteService` API.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| serviceID | [string](#string) | Service ID. Generated when using the `DeployService` API. |
+| serviceID | [string](#string) | The Service ID. Generated when using the [`DeployService` API](#deployservice). |
 
 
 
@@ -850,7 +850,7 @@ Request's data of the `DeleteService` API.
 
 
 #### DeleteServiceReply
-`DeleteService` API doesn't return any data.
+Reply of `DeleteService` API doesn't contain any data.
 
 
 
@@ -923,7 +923,7 @@ List all services already deployed in [Core](../guide/start-here/core.md).
 
 
 #### ListServicesRequest
-`ListServices` API doesn't return any data.
+Reply of `ListServices` API doesn't contain any data.
 
 
 
@@ -968,7 +968,7 @@ List all services already deployed in [Core](../guide/start-here/core.md).
 
 
 #### ListServicesReply
-The reply's data from the `ListServices` API.
+The reply's data of the `ListServices` API.
 
 **Example**
 ```json
@@ -1054,7 +1054,7 @@ Get the definition of an already-deployed service from its ID.
 
 
 #### GetServiceRequest
-The request's data from the `GetService` API.
+The request's data for the `GetService` API.
 
 **Example**
 ```json
@@ -1066,7 +1066,7 @@ The request's data from the `GetService` API.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| serviceID | [string](#string) | Service ID. Generated when using the `DeployService` API. |
+| serviceID | [string](#string) | The Service ID. Generated when using the [`DeployService` API](#deployservice). |
 
 
 
@@ -1111,7 +1111,7 @@ The request's data from the `GetService` API.
 
 
 #### GetServiceReply
-The reply's data from the `GetService` API.
+The reply's data of the `GetService` API.
 
 **Example**
 ```json

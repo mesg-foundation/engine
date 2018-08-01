@@ -10,16 +10,19 @@ This file is generated using the ./scripts/build-proto.sh scripts
 Please update the Service file
 -->
 
-API accessible from services.
-This API can and should only be accessible when you create a MESG Service.
-It provide all functions necessary to be able to execute tasks and submit specific events.
+This is the API for MESG Services to interact with MESG Core.
+It must be consumed only by MESG Services.
+It provides all necessary functions that MESG Services need to interact with MESG Core.
+
+Applications must not use this API, but rather use the [Core API](./core.md).
 
 [[toc]]
 
 
 ## EmitEvent
 
-Let you to emit an event to the [Core](../guide/start-here/core.md) based on the ones defined in your [mesg.yml](../guide/service/service-file.md).
+Emit an event to [Core](../guide/start-here/core.md).
+The event and its data must be defined in the [service's definition file](../guide/service/service-file.md).
 
 <tabs>
 <tab title="Request">
@@ -29,13 +32,13 @@ Let you to emit an event to the [Core](../guide/start-here/core.md) based on the
 
 
 #### EmitEventRequest
-Data sent while calling the `EmitEvent` API.
+The request's data for the `EmitEvent` API.
 
 **Example:**
 ```json
 {
-  "token": "TOKEN_FROM_ENV",
-  "eventKey": "eventX",
+  "token": "__SERVICE_TOKEN_FROM_ENV__",
+  "eventKey": "__EVENT_KEY__",
   "eventData": "{\"foo\":\"hello\",\"bar\":false}"
 }
 ```
@@ -43,9 +46,9 @@ Data sent while calling the `EmitEvent` API.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| token | [string](#string) | The token given by the Core as environment variable `MESG_TOKEN`. |
-| eventKey | [string](#string) | The event's key defined in the [service file](../guide/service/service-file.md). |
-| eventData | [string](#string) | The data of your event encoded in JSON as defined in your [mesg.yml](../guide/service/service-file.md). |
+| token | [string](#string) | The service's token given by the Core as the environment variable `MESG_TOKEN`. |
+| eventKey | [string](#string) | The event's key as defined in the [service file](../guide/service/service-file.md). |
+| eventData | [string](#string) | The event's data encoded in JSON as defined in the [service file](../guide/service/service-file.md). |
 
 
 
@@ -66,12 +69,7 @@ Data sent while calling the `EmitEvent` API.
 
 
 #### EmitEventReply
-Response of the Core when receiving an event from the `EmitEvent` call
-
-**Example:**
-```json
-{}
-```
+Reply of `EmitEvent` API doesn't contain any data.
 
 
 
@@ -92,7 +90,8 @@ Response of the Core when receiving an event from the `EmitEvent` call
 
 ## ListenTask
 
-Subscribe to the stream of tasks that will receive tasks from the [Core](../guide/start-here/core.md)
+Subscribe to the stream of tasks to execute.
+Every task received must be executed and its result must be submitted using the `SubmitResult` API.
 
 <tabs>
 <tab title="Request">
@@ -104,19 +103,19 @@ Subscribe to the stream of tasks that will receive tasks from the [Core](../guid
 
 
 #### ListenTaskRequest
-Data sent to connect to the `ListenTask` stream API.
+The request's data for the `ListenTask` stream API.
 
 **Example:**
 ```json
 {
-  "token": "TOKEN_FROM_ENV"
+  "token": "__SERVICE_TOKEN_FROM_ENV__"
 }
 ```
 
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| token | [string](#string) | The token given by the Core as environment variable `MESG_TOKEN`.` |
+| token | [string](#string) | The service's token given by the Core as the environment variable `MESG_TOKEN`. |
 
 
 
@@ -145,15 +144,15 @@ Data sent to connect to the `ListenTask` stream API.
 
 
 #### TaskData
-Data sent through the stream from the `ListenTask` API
-These data can come as long as the stream stays open. They contains all necessary informations to process a task.
-The `executionID` needs to be kept and sent back with the `submitResult` API
+The data received from the stream of the `ListenTask` API.
+The data will be received over time as long as the stream is open.
+The `executionID` value must be kept and sent with the result when calling the [`SubmitResult` API](#submitresult).
 
 **Example:**
 ```json
 {
-  "executionID": "xxxxxx",
-  "taskKey": "taskX",
+  "executionID": "__EXECUTION_ID__",
+  "taskKey": "__TASK_KEY__",
   "inputData": "{\"inputX\":\"Hello world!\",\"inputY\":true}"
 }
 ```
@@ -161,9 +160,9 @@ The `executionID` needs to be kept and sent back with the `submitResult` API
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| executionID | [string](#string) | An unique identifier for the execution you want to submit the result to. |
-| taskKey | [string](#string) | The task key defined in your [mesg.yml](../guide/service/service-file.md). |
-| inputData | [string](#string) | The inputs of your tasks encoded in JSON as defined in your [mesg.yml](../guide/service/service-file.md). |
+| executionID | [string](#string) | The unique identifier of the execution. Must be kept and sent with the result when calling the [`SubmitResult` API](#submitresult). |
+| taskKey | [string](#string) | The key of the task to execute as defined in the [service file](../guide/service/service-file.md). |
+| inputData | [string](#string) | The task's input encoded in JSON as defined in the [service file](../guide/service/service-file.md). |
 
 
 
@@ -174,7 +173,8 @@ The `executionID` needs to be kept and sent back with the `submitResult` API
 
 ## SubmitResult
 
-Let you submit a result from a task to the [Core](../guide/start-here/core.md). The result should be an output of the tasks
+Submit the result of a task's execution to [Core](../guide/start-here/core.md).
+The result must be defined as a task's output in the [service's definition file](../guide/service/service-file.md).
 
 <tabs>
 <tab title="Request">
@@ -190,14 +190,14 @@ Let you submit a result from a task to the [Core](../guide/start-here/core.md). 
 
 
 #### SubmitResultRequest
-Data sent while submitting a a result for a task.
-This result can only be called once inside a request from `ListenTask` because of its dependency with the `executionID``
+The request's data for the `SubmitResult` API.
+The data must contain the `executionID` of the executed task received from the stream of [`ListenTask` API](#listentask).
 
 **Example:**
 ```json
 {
-  "executionID": "xxxxxx",
-  "outputKey": "outputX",
+  "executionID": "__EXECUTION_ID__",
+  "outputKey": "__OUTPUT_KEY__",
   "outputData": "{\"foo\":\"super result\",\"bar\":true}"
 }
 ```
@@ -205,9 +205,9 @@ This result can only be called once inside a request from `ListenTask` because o
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| executionID | [string](#string) | The executionID received from the `listenTask` stream |
-| outputKey | [string](#string) | The output key defined in your [mesg.yml](../guide/service/service-file.md). |
-| outputData | [string](#string) | The data of your result encoded in JSON as defined in your [mesg.yml](../guide/service/service-file.md). |
+| executionID | [string](#string) | The `executionID` received from the [`ListenTask` stream](#listentask). |
+| outputKey | [string](#string) | The output's key defined as defined in the [service file](../guide/service/service-file.md). |
+| outputData | [string](#string) | The result's data encoded in JSON as defined in the [service file](../guide/service/service-file.md). |
 
 
 
@@ -228,12 +228,7 @@ This result can only be called once inside a request from `ListenTask` because o
 
 
 #### SubmitResultReply
-Response of the Core when receiving an result from the `SubmitResult` call
-
-**Example:**
-```json
-{}
-```
+Reply of `SubmitResult` API doesn't contain any data.
 
 
 
