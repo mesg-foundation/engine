@@ -4,8 +4,8 @@ package api;
 option go_package = "service";
 
 // This is the API for MESG Services to interact with MESG Core.
-// It must be consumed only by MESG Services.
-// It provides all necessary functions that MESG Services need to interact with MESG Core.
+// It is to be consumed only by MESG Services.
+// It provides all necessary functions that MESG Services need in order to interact with MESG Core.
 // 
 // Applications must not use this API, but rather use the [Core API](./core.md).
 service Service {
@@ -33,7 +33,7 @@ service Service {
 // }
 // ```
 message EmitEventRequest {
-  string token = 1;     // The service's token given by the Core as the environment variable `MESG_TOKEN`.
+  string token = 1;     // The service's token given by Core as the environmental variable `MESG_TOKEN`.
   string eventKey = 2;  // The event's key as defined in the [service file](../guide/service/service-file.md).
   string eventData = 3; // The event's data encoded in JSON as defined in the [service file](../guide/service/service-file.md).
 }
@@ -51,7 +51,7 @@ message EmitEventReply {
 // }
 // ```
 message ListenTaskRequest {
-  string token = 1; // The service's token given by the Core as the environment variable `MESG_TOKEN`.
+  string token = 1; // The service's token given by the Core as the environmental variable `MESG_TOKEN`.
 }
 
 // The data received from the stream of the `ListenTask` API.
@@ -68,7 +68,7 @@ message ListenTaskRequest {
 // ```
 message TaskData {
   string executionID = 1; // The unique identifier of the execution. Must be kept and sent with the result when calling the [`SubmitResult` API](#submitresult).
-  string taskKey = 2;     // The key of the task to execute as defined in the [service file](../guide/service/service-file.md).
+  string taskKey = 2;     // The key from the task to execute as defined in the [service file](../guide/service/service-file.md).
   string inputData = 3;   // The task's input encoded in JSON as defined in the [service file](../guide/service/service-file.md).
 }
 
@@ -85,7 +85,7 @@ message TaskData {
 // ```
 message SubmitResultRequest {
   string executionID = 1; // The `executionID` received from the [`ListenTask` stream](#listentask).
-  string outputKey = 2;   // The output's key defined as defined in the [service file](../guide/service/service-file.md).
+  string outputKey = 2;   // The output's key as defined in the [service file](../guide/service/service-file.md).
   string outputData = 3;  // The result's data encoded in JSON as defined in the [service file](../guide/service/service-file.md).
 }
 
