@@ -6,7 +6,7 @@
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 {{range .Fields -}}
-  | {{.Name}} | [{{.LongType}}](#{{.FullType}}){{if eq .Label "repeated"}}[]{{end}} | {{nobr .Description}} |
+  | {{.Name}} | [{{.LongType}}](#{{.FullType}}){{if eq .Label "repeated"}}[]{{end}} | {{.Description}} |
 {{end}}
 {{end}}
 {{end}}
