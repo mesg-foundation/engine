@@ -1,11 +1,13 @@
-{{define "message"}}
-## {{.LongName}}
+{{define "data"}}
+#### {{.LongName}}
 {{.Description}}
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
+{{if .HasFields}}
+| Field | Type | Description |
+| ----- | ---- | ----------- |
 {{range .Fields -}}
-  | {{.Name}} | [{{.LongType}}](#{{.LongType}}) | {{.Label}} | {{nobr .Description}} |
+  | {{.Name}} | [{{.LongType}}](#{{.FullType}}){{if eq .Label "repeated"}}[]{{end}} | {{nobr .Description}} |
+{{end}}
 {{end}}
 {{end}}
 
@@ -24,13 +26,13 @@ Please update the {{.Name}} file
 
 {{range $file.Messages}}
 {{if eq .LongName "Service"}}
-{{template "message" .}}
+{{template "data" .}}
 {{end}}
 {{end}}
 
 {{range $file.Messages}}
 {{if ne .LongName "Service"}}
-{{template "message" .}}
+{{template "data" .}}
 {{end}}
 {{end}}
 {{end}}
