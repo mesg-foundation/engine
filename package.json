@@ -8,6 +8,6 @@
   "author": "Anthony Estebe <anthony@mesg.com>",
   "license": "ISC",
   "dependencies": {
-    "vuepress": "^0.12.0"
+    "vuepress": "^0.13.0"
   }
 }
