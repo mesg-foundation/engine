@@ -8,7 +8,7 @@ import "github.com/mesg-foundation/core/service/service.proto";
 // Main API to interact with MESG Core functionalities. It can be consumed by any applications or any tools that wish to interact with MESG Core.
 // It is actually used by the MESG CLI and MESG Application libraries.
 // 
-// Services should not use this API but use the [Service API]](/api/service.html).
+// Services should not use this API but use the [Service API](/api/service.html).
 service Core {
   // Subscribe to a stream that listens for events from a service.
   rpc ListenEvent (ListenEventRequest) returns (stream EventData) {}
