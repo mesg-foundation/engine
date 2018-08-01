@@ -52,8 +52,8 @@ message ListenEventRequest {
   string eventFilter = 2; // **Optional.** Event's key to filter. The event must match this key. The default is `*` which matches any event.
 }
 
-// Data is received from the stream of the `ListenEvent` API.
-// It will be received over time as long as the stream is open.
+// The data received from the stream of the `ListenEvent` API.
+// The data will be received over time as long as the stream is open.
 // 
 // **Example**
 // ```json
@@ -83,8 +83,8 @@ message ListenResultRequest {
   string outputFilter = 3;  // **Optional.** The output's key from the task to filter. The task must return this output's key. The default is `*` which matches any output.
 }
 
-// Data is received from the stream of the `ListenResult` API.
-// It will be received over time as long as the stream is opened.
+// The data received from the stream of the `ListenResult` API.
+// The data will be received over time as long as the stream is open.
 // 
 // **Example**
 // ```json
