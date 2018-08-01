@@ -49,7 +49,7 @@ service Core {
 // ```
 message ListenEventRequest {
   string serviceID = 1;   // Service ID. Generated when using the `DeployService` API.
-  string eventFilter = 2; // **Optional.** Event's key to filter. The event have to match this key. The default is `*` and matches any event.
+  string eventFilter = 2; // __Optional.__ Event's key to filter. The event have to match this key. The default is `*` and matches any event.
 }
 
 // Data receive from the stream of the `ListenEvent` API.
@@ -79,8 +79,8 @@ message EventData {
 // ```
 message ListenResultRequest {
   string serviceID = 1;     // Service ID. Generated when using the `DeployService` API.
-  string taskFilter = 2;    // **Optional.**  Task's key to filter. The task have to match this key. The default is `*` and matches any task.
-  string outputFilter = 3;  // **Optional.** Output's key of the task to filter. The task have to return this output's key. The default is `*` and matches any output.
+  string taskFilter = 2;    // __Optional.__  Task's key to filter. The task have to match this key. The default is `*` and matches any task.
+  string outputFilter = 3;  // __Optional.__ Output's key of the task to filter. The task have to return this output's key. The default is `*` and matches any output.
 }
 
 // Data receive from the stream of the `ListenResult` API.
