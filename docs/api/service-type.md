@@ -28,19 +28,19 @@ Please update the github.com/mesg-foundation/core/service/service.proto file
 
 
 
-## Service
+#### Service
 
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| name | [string](#string) |  | Name of the service |
-| description | [string](#string) |  | Description of the service |
-| tasks | [Service.TasksEntry](#Service.TasksEntry) | repeated | Map of tasks that the service can execute |
-| events | [Service.EventsEntry](#Service.EventsEntry) | repeated | Map of events that the service can emits |
-| dependencies | [Service.DependenciesEntry](#Service.DependenciesEntry) | repeated | Docker dependencies that the service requires |
-| configuration | [Dependency](#Dependency) |  | Docker configurations for the service |
-| repository | [string](#string) |  | Repository where the source code of this service is accessible |
 
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| name | [string](#string) | Name of the service |
+| description | [string](#string) | Description of the service |
+| tasks | [Service.TasksEntry](#service.Service.TasksEntry)[] | Map of tasks that the service can execute |
+| events | [Service.EventsEntry](#service.Service.EventsEntry)[] | Map of events that the service can emits |
+| dependencies | [Service.DependenciesEntry](#service.Service.DependenciesEntry)[] | Docker dependencies that the service requires |
+| configuration | [Dependency](#service.Dependency) | Docker configurations for the service |
+| repository | [string](#string) | Repository where the source code of this service is accessible |
 
 
 
@@ -60,167 +60,193 @@ Please update the github.com/mesg-foundation/core/service/service.proto file
 
 
 
-## Dependency
 
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| image | [string](#string) |  | Docker image name or sha |
-| volumes | [string](#string) | repeated | List of Docker volumes |
-| volumesfrom | [string](#string) | repeated | List of volumes mounted from other dependencies |
-| ports | [string](#string) | repeated | List of ports that the container needs to expose |
-| command | [string](#string) |  | Command needed to run the container |
+#### Dependency
 
 
 
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| image | [string](#string) | Docker image name or sha |
+| volumes | [string](#string)[] | List of Docker volumes |
+| volumesfrom | [string](#string)[] | List of volumes mounted from other dependencies |
+| ports | [string](#string)[] | List of ports that the container needs to expose |
+| command | [string](#string) | Command needed to run the container |
 
 
 
-## Event
 
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| name | [string](#string) |  | Name of the event |
-| description | [string](#string) |  | Description of the event |
-| data | [Event.DataEntry](#Event.DataEntry) | repeated | Map of data associated to this event |
 
 
+#### Event
 
 
 
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| name | [string](#string) | Name of the event |
+| description | [string](#string) | Description of the event |
+| data | [Event.DataEntry](#service.Event.DataEntry)[] | Map of data associated to this event |
 
-## Event.DataEntry
 
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| key | [string](#string) |  |  |
-| value | [Parameter](#Parameter) |  |  |
 
 
 
 
+#### Event.DataEntry
 
 
-## Output
 
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| key | [string](#string) |  |
+| value | [Parameter](#service.Parameter) |  |
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| name | [string](#string) |  | Name of the output |
-| description | [string](#string) |  | Description of the output |
-| data | [Output.DataEntry](#Output.DataEntry) | repeated | Map of data associated to this output |
 
 
 
 
 
 
-## Output.DataEntry
+#### Output
 
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| key | [string](#string) |  |  |
-| value | [Parameter](#Parameter) |  |  |
 
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| name | [string](#string) | Name of the output |
+| description | [string](#string) | Description of the output |
+| data | [Output.DataEntry](#service.Output.DataEntry)[] | Map of data associated to this output |
 
 
 
 
 
-## Parameter
 
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| name | [string](#string) |  | Name of the parameter |
-| description | [string](#string) |  | Description of the parameter |
-| type | [string](#string) |  | Type of the parameter `String`, `Number`, `Boolean` or `Object` |
-| optional | [bool](#bool) |  | Mark this parameter as optional |
+#### Output.DataEntry
 
 
 
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| key | [string](#string) |  |
+| value | [Parameter](#service.Parameter) |  |
 
 
 
 
 
-## Service.DependenciesEntry
 
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| key | [string](#string) |  |  |
-| value | [Dependency](#Dependency) |  |  |
+#### Parameter
 
 
 
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| name | [string](#string) | Name of the parameter |
+| description | [string](#string) | Description of the parameter |
+| type | [string](#string) | Type of the parameter `String`, `Number`, `Boolean` or `Object` |
+| optional | [bool](#bool) | Mark this parameter as optional |
 
 
 
-## Service.EventsEntry
 
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| key | [string](#string) |  |  |
-| value | [Event](#Event) |  |  |
 
 
 
 
+#### Service.DependenciesEntry
 
 
-## Service.TasksEntry
 
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| key | [string](#string) |  |
+| value | [Dependency](#service.Dependency) |  |
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| key | [string](#string) |  |  |
-| value | [Task](#Task) |  |  |
 
 
 
 
 
 
-## Task
+#### Service.EventsEntry
 
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| name | [string](#string) |  | Name of the task |
-| description | [string](#string) |  | Description of the task |
-| inputs | [Task.InputsEntry](#Task.InputsEntry) | repeated | Map of inputs that can be given for this task |
-| outputs | [Task.OutputsEntry](#Task.OutputsEntry) | repeated | Map of outputs that the task can returns as result |
 
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| key | [string](#string) |  |
+| value | [Event](#service.Event) |  |
 
 
 
 
 
-## Task.InputsEntry
 
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| key | [string](#string) |  |  |
-| value | [Parameter](#Parameter) |  |  |
+#### Service.TasksEntry
 
 
 
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| key | [string](#string) |  |
+| value | [Task](#service.Task) |  |
 
 
 
-## Task.OutputsEntry
 
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| key | [string](#string) |  |  |
-| value | [Output](#Output) |  |  |
+
+
+#### Task
+
+
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| name | [string](#string) | Name of the task |
+| description | [string](#string) | Description of the task |
+| inputs | [Task.InputsEntry](#service.Task.InputsEntry)[] | Map of inputs that can be given for this task |
+| outputs | [Task.OutputsEntry](#service.Task.OutputsEntry)[] | Map of outputs that the task can returns as result |
+
+
+
+
+
+
+
+#### Task.InputsEntry
+
+
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| key | [string](#string) |  |
+| value | [Parameter](#service.Parameter) |  |
+
+
+
+
+
+
+
+#### Task.OutputsEntry
+
+
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| key | [string](#string) |  |
+| value | [Output](#service.Output) |  |
+
 
 
 

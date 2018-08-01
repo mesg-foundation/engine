@@ -27,7 +27,6 @@ Let you to emit an event to the [Core](/guide/start-here/core.html) based on the
 
 
 
-### Request
 
 #### EmitEventRequest
 Data sent while calling the `EmitEvent` API.
@@ -42,11 +41,11 @@ Data sent while calling the `EmitEvent` API.
 ```
 
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| token | [string](#string) |  | The token given by the Core as environment variable `MESG_TOKEN`. |
-| eventKey | [string](#string) |  | The event's key defined in the [service file](/guide/service/service-file.html). |
-| eventData | [string](#string) |  | The data of your event encoded in JSON as defined in your [mesg.yml](/guide/service/service-file.html). |
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| token | [string](#string) | The token given by the Core as environment variable `MESG_TOKEN`. |
+| eventKey | [string](#string) | The event's key defined in the [service file](/guide/service/service-file.html). |
+| eventData | [string](#string) | The data of your event encoded in JSON as defined in your [mesg.yml](/guide/service/service-file.html). |
 
 
 
@@ -62,10 +61,9 @@ Data sent while calling the `EmitEvent` API.
 
 </tab>
 
-<tab title="Response">
+<tab title="Reply">
 
 
-### Response
 
 #### EmitEventReply
 Response of the Core when receiving an event from the `EmitEvent` call
@@ -104,7 +102,6 @@ Subscribe to the stream of tasks that will receive tasks from the [Core](/guide/
 
 
 
-### Request
 
 #### ListenTaskRequest
 Data sent to connect to the `ListenTask` stream API.
@@ -117,9 +114,9 @@ Data sent to connect to the `ListenTask` stream API.
 ```
 
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| token | [string](#string) |  | The token given by the Core as environment variable `MESG_TOKEN`.` |
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| token | [string](#string) | The token given by the Core as environment variable `MESG_TOKEN`.` |
 
 
 
@@ -133,7 +130,7 @@ Data sent to connect to the `ListenTask` stream API.
 
 </tab>
 
-<tab title="Response">
+<tab title="Reply">
 
 
 
@@ -146,7 +143,6 @@ Data sent to connect to the `ListenTask` stream API.
 
 
 
-### Response
 
 #### TaskData
 Data sent through the stream from the `ListenTask` API
@@ -163,11 +159,11 @@ The `executionID` needs to be kept and sent back with the `submitResult` API
 ```
 
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| executionID | [string](#string) |  | An unique identifier for the execution you want to submit the result to. |
-| taskKey | [string](#string) |  | The task key defined in your [mesg.yml](/guide/service/service-file.html). |
-| inputData | [string](#string) |  | The inputs of your tasks encoded in JSON as defined in your [mesg.yml](/guide/service/service-file.html). |
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| executionID | [string](#string) | An unique identifier for the execution you want to submit the result to. |
+| taskKey | [string](#string) | The task key defined in your [mesg.yml](/guide/service/service-file.html). |
+| inputData | [string](#string) | The inputs of your tasks encoded in JSON as defined in your [mesg.yml](/guide/service/service-file.html). |
 
 
 
@@ -192,7 +188,6 @@ Let you submit a result from a task to the [Core](/guide/start-here/core.html). 
 
 
 
-### Request
 
 #### SubmitResultRequest
 Data sent while submitting a a result for a task.
@@ -208,11 +203,11 @@ This result can only be called once inside a request from `ListenTask` because o
 ```
 
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| executionID | [string](#string) |  | The executionID received from the `listenTask` stream |
-| outputKey | [string](#string) |  | The output key defined in your [mesg.yml](/guide/service/service-file.html). |
-| outputData | [string](#string) |  | The data of your result encoded in JSON as defined in your [mesg.yml](/guide/service/service-file.html). |
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| executionID | [string](#string) | The executionID received from the `listenTask` stream |
+| outputKey | [string](#string) | The output key defined in your [mesg.yml](/guide/service/service-file.html). |
+| outputData | [string](#string) | The data of your result encoded in JSON as defined in your [mesg.yml](/guide/service/service-file.html). |
 
 
 
@@ -222,7 +217,7 @@ This result can only be called once inside a request from `ListenTask` because o
 
 </tab>
 
-<tab title="Response">
+<tab title="Reply">
 
 
 
@@ -231,7 +226,6 @@ This result can only be called once inside a request from `ListenTask` because o
 
 
 
-### Response
 
 #### SubmitResultReply
 Response of the Core when receiving an result from the `SubmitResult` call

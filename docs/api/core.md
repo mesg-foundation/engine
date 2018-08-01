@@ -13,7 +13,7 @@ Please update the Core file
 Main API to interact with MESG Core functionalities. It can be consumed by any applications or any tools that wish to interact with MESG Core.
 It is actually used by the MESG CLI and MESG Application libraries.
 
-Services should not use this API but use the [Service API]](/api/service.html).
+Services should not use this API but use the [Service API](/api/service.html).
 
 [[toc]]
 
@@ -48,7 +48,6 @@ Subscribe to a stream that listens for events from a service.
 
 
 
-### Request
 
 #### ListenEventRequest
 Request's data of the `ListenEvent` stream API.
@@ -62,10 +61,10 @@ Request's data of the `ListenEvent` stream API.
 ```
 
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| serviceID | [string](#string) |  | Service ID. Generated when using the `DeployService` API. |
-| eventFilter | [string](#string) |  | Optional.** Event's key to filter. The event have to match this key. The default is `*` and matches any event. |
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| serviceID | [string](#string) | Service ID. Generated when using the `DeployService` API. |
+| eventFilter | [string](#string) | __Optional.__ Event's key to filter. The event have to match this key. The default is `*` and matches any event. |
 
 
 
@@ -85,7 +84,7 @@ Request's data of the `ListenEvent` stream API.
 
 </tab>
 
-<tab title="Response">
+<tab title="Reply">
 
 
 
@@ -96,7 +95,6 @@ Request's data of the `ListenEvent` stream API.
 
 
 
-### Response
 
 #### EventData
 Data receive from the stream of the `ListenEvent` API.
@@ -111,10 +109,10 @@ Will be received over time as long as the stream is opened.
 ```
 
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| eventKey | [string](#string) |  | Event's key. |
-| eventData | [string](#string) |  | Event's data encoded in JSON. |
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| eventKey | [string](#string) | Event's key. |
+| eventData | [string](#string) | Event's data encoded in JSON. |
 
 
 
@@ -181,7 +179,6 @@ Subscribe to the stream that listens for task's results of a service.
 
 
 
-### Request
 
 #### ListenResultRequest
 Request's data of the `ListenResult` stream API.
@@ -196,11 +193,11 @@ Request's data of the `ListenResult` stream API.
 ```
 
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| serviceID | [string](#string) |  | Service ID. Generated when using the `DeployService` API. |
-| taskFilter | [string](#string) |  | Optional.** Task's key to filter. The task have to match this key. The default is `*` and matches any task. |
-| outputFilter | [string](#string) |  | Optional.** Output's key of the task to filter. The task have to return this output's key. The default is `*` and matches any output. |
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| serviceID | [string](#string) | Service ID. Generated when using the `DeployService` API. |
+| taskFilter | [string](#string) | __Optional.__  Task's key to filter. The task have to match this key. The default is `*` and matches any task. |
+| outputFilter | [string](#string) | __Optional.__ Output's key of the task to filter. The task have to return this output's key. The default is `*` and matches any output. |
 
 
 
@@ -218,7 +215,7 @@ Request's data of the `ListenResult` stream API.
 
 </tab>
 
-<tab title="Response">
+<tab title="Reply">
 
 
 
@@ -247,7 +244,6 @@ Request's data of the `ListenResult` stream API.
 
 
 
-### Response
 
 #### ResultData
 Data receive from the stream of the `ListenResult` API.
@@ -264,12 +260,12 @@ Will be received over time as long as the stream is opened.
 ```
 
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| executionID | [string](#string) |  | Unique identifier of the execution. |
-| taskKey | [string](#string) |  | Key of the executed task. |
-| outputKey | [string](#string) |  | Output's key the task returned. |
-| outputData | [string](#string) |  | Output's data the task returned encoded in JSON. |
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| executionID | [string](#string) | Unique identifier of the execution. |
+| taskKey | [string](#string) | Key of the executed task. |
+| outputKey | [string](#string) | Output's key the task returned. |
+| outputData | [string](#string) | Output's data the task returned encoded in JSON. |
 
 
 
@@ -306,7 +302,6 @@ Execute a task of a service through the [Core](/guide/start-here/core.html).
 
 
 
-### Request
 
 #### ExecuteTaskRequest
 Request's data of the `ExecuteTask` API.
@@ -321,11 +316,11 @@ Request's data of the `ExecuteTask` API.
 ```
 
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| serviceID | [string](#string) |  | Service ID. Generated when using the `DeployService` API. |
-| taskKey | [string](#string) |  | Task's key to execute. |
-| inputData | [string](#string) |  | Inputs of the task to execute encoded in JSON. |
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| serviceID | [string](#string) | Service ID. Generated when using the `DeployService` API. |
+| taskKey | [string](#string) | Task's key to execute. |
+| inputData | [string](#string) | Inputs of the task to execute encoded in JSON. |
 
 
 
@@ -355,7 +350,7 @@ Request's data of the `ExecuteTask` API.
 
 </tab>
 
-<tab title="Response">
+<tab title="Reply">
 
 
 
@@ -368,7 +363,6 @@ Request's data of the `ExecuteTask` API.
 
 
 
-### Response
 
 #### ExecuteTaskReply
 Reply's data of the `ExecuteTask` API.
@@ -381,9 +375,9 @@ Reply's data of the `ExecuteTask` API.
 ```
 
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| executionID | [string](#string) |  | Unique identifier of the execution. |
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| executionID | [string](#string) | Unique identifier of the execution. |
 
 
 
@@ -454,7 +448,6 @@ Start a service. The service have to be already deployed on the [Core](/guide/st
 
 
 
-### Request
 
 #### StartServiceRequest
 Request's data of the `StartService` API.
@@ -467,9 +460,9 @@ Request's data of the `StartService` API.
 ```
 
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| serviceID | [string](#string) |  | Service ID. Generated when using the `DeployService` API. |
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| serviceID | [string](#string) | Service ID. Generated when using the `DeployService` API. |
 
 
 
@@ -481,7 +474,7 @@ Request's data of the `StartService` API.
 
 </tab>
 
-<tab title="Response">
+<tab title="Reply">
 
 
 
@@ -512,7 +505,6 @@ Request's data of the `StartService` API.
 
 
 
-### Response
 
 #### StartServiceReply
 Reply's data of the `StartService` API.
@@ -572,7 +564,6 @@ Stop a service. The service have to be already deployed on the [Core](/guide/sta
 
 
 
-### Request
 
 #### StopServiceRequest
 Request's data of the `StopService` API.
@@ -585,9 +576,9 @@ Request's data of the `StopService` API.
 ```
 
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| serviceID | [string](#string) |  | Service ID. Generated when using the `DeployService` API. |
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| serviceID | [string](#string) | Service ID. Generated when using the `DeployService` API. |
 
 
 
@@ -595,7 +586,7 @@ Request's data of the `StopService` API.
 
 </tab>
 
-<tab title="Response">
+<tab title="Reply">
 
 
 
@@ -630,7 +621,6 @@ Request's data of the `StopService` API.
 
 
 
-### Response
 
 #### StopServiceReply
 Reply's data of the `StopService` API.
@@ -658,7 +648,6 @@ Deploy a service to the [Core](/guide/start-here/core.html). This will give you 
 
 
 
-### Request
 
 #### DeployServiceRequest
 Request's data of the `DeployService` API.
@@ -694,9 +683,9 @@ Request's data of the `DeployService` API.
 ```
 
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| service | [service.Service](#service.Service) |  | Service's definition to deploy. [Details here](/api/service-type.html) |
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| service | [service.Service](#service.Service) | Service's definition to deploy. [Details here](/api/service-type.html) |
 
 
 
@@ -732,14 +721,13 @@ Request's data of the `DeployService` API.
 
 </tab>
 
-<tab title="Response">
+<tab title="Reply">
 
 
 
 
 
 
-### Response
 
 #### DeployServiceReply
 Reply's data of the `DeployService` API.
@@ -752,9 +740,9 @@ Reply's data of the `DeployService` API.
 ```
 
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| serviceID | [string](#string) |  | The generated identifier of the deployed service. Use this ID with other APIs. |
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| serviceID | [string](#string) | The generated identifier of the deployed service. Use this ID with other APIs. |
 
 
 
@@ -803,7 +791,6 @@ Delete a service from Core. This function only delete a deployed service in the 
 
 
 
-### Request
 
 #### DeleteServiceRequest
 Request's data of the `DeleteService` API.
@@ -816,9 +803,9 @@ Request's data of the `DeleteService` API.
 ```
 
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| serviceID | [string](#string) |  | Service ID. Generated when using the `DeployService` API. |
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| serviceID | [string](#string) | Service ID. Generated when using the `DeployService` API. |
 
 
 
@@ -858,10 +845,9 @@ Request's data of the `DeleteService` API.
 
 </tab>
 
-<tab title="Response">
+<tab title="Reply">
 
 
-### Response
 
 #### DeleteServiceReply
 Reply's data  of the `DeleteService` API.
@@ -935,7 +921,6 @@ List all services already deployed in the [Core](/guide/start-here/core.html).
 
 
 
-### Request
 
 #### ListServicesRequest
 Request's data of the `ListServices` API.
@@ -960,7 +945,7 @@ Request's data of the `ListServices` API.
 
 </tab>
 
-<tab title="Response">
+<tab title="Reply">
 
 
 
@@ -981,7 +966,6 @@ Request's data of the `ListServices` API.
 
 
 
-### Response
 
 #### ListServicesReply
 Reply's data of the `ListServices` API.
@@ -1017,9 +1001,9 @@ Reply's data of the `ListServices` API.
 ```
 
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| services | [service.Service](#service.Service) | repeated | List of services' definition previously deployed. [Details here](/api/service-type.html) |
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| services | [service.Service](#service.Service)[] | List of services' definition previously deployed. [Details here](/api/service-type.html) |
 
 
 
@@ -1068,7 +1052,6 @@ Get the definition of an already deployed service from its ID.
 
 
 
-### Request
 
 #### GetServiceRequest
 Request's data of the `GetService` API.
@@ -1081,9 +1064,9 @@ Request's data of the `GetService` API.
 ```
 
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| serviceID | [string](#string) |  | Service ID. Generated when using the `DeployService` API. |
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| serviceID | [string](#string) | Service ID. Generated when using the `DeployService` API. |
 
 
 
@@ -1109,7 +1092,7 @@ Request's data of the `GetService` API.
 
 </tab>
 
-<tab title="Response">
+<tab title="Reply">
 
 
 
@@ -1126,7 +1109,6 @@ Request's data of the `GetService` API.
 
 
 
-### Response
 
 #### GetServiceReply
 Reply's data of the `GetService` API.
@@ -1162,9 +1144,9 @@ Reply's data of the `GetService` API.
 ```
 
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| service | [service.Service](#service.Service) |  | Service's definition. [Details here](/api/service-type.html) |
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| service | [service.Service](#service.Service) | Service's definition. [Details here](/api/service-type.html) |
 
 
 
