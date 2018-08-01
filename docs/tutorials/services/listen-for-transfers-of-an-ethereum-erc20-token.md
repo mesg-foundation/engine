@@ -18,7 +18,7 @@ We will use the library [Web3.js](https://web3js.readthedocs.io/en/1.0/) to inte
 You can access the final version of the [source code on GitHub](https://github.com/mesg-foundation/core/tree/master/docs/tutorials/services/listen-to-transfer-of-ethereum-erc20-token).
 
 ::: tip
-MESG Core should already be installed on your computer. If it isn't yet, [install it here](/guide/start-here/installation.html).
+MESG Core should already be installed on your computer. If it isn't yet, [install it here](../../guide/start-here/installation.md).
 :::
 
 ## Create the MESG service
@@ -186,7 +186,7 @@ events:
         type: Number
 ```
 
-This definition matches the JavaScript object we want to emit to MESG Core. You can refer to the [documentation](/guide/service/service-file.html) for more information about the `mesg.yml` file.
+This definition matches the JavaScript object we want to emit to MESG Core. You can refer to the [documentation](../../guide/service/service-file.md) for more information about the `mesg.yml` file.
 
 ### Add mesg-js lib
 

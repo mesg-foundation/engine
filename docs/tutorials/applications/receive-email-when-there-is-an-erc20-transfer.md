@@ -15,13 +15,13 @@ Today we'll learn how to create a JavaScript application that connects two MESG 
 
 Those two services have tutorial on how to create them. Check them out:
 
-* [Tutorial: Transfer notifications from an ERC20 transfer](../services/listen-for-transfers-of-an-ethereum-erc20-token.html)
-* [Tutorial: Sending emails through SendGrid](../services/send-emails-with-sendgrid.html)
+* [Tutorial: Transfer notifications from an ERC20 transfer](../services/listen-for-transfers-of-an-ethereum-erc20-token.md)
+* [Tutorial: Sending emails through SendGrid](../services/send-emails-with-sendgrid.md)
 
 You can access the final version of the [source code on GitHub](https://github.com/mesg-foundation/core/tree/master/docs/tutorials/applications/email-notification-one-erc20-transfer).
 
 ::: tip
-MESG Core should already be installed on your computer. If it isn't yet, [install it here](/guide/start-here/installation.html).
+MESG Core should already be installed on your computer. If it isn't yet, [install it here](../../guide/start-here/installation.html).
 :::
 
 ## Setup
