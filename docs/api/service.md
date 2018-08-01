@@ -19,7 +19,7 @@ It provide all functions necessary to be able to execute tasks and submit specif
 
 ## EmitEvent
 
-Let you to emit an event to the [Core](/guide/start-here/core.html) based on the ones defined in your [mesg.yml](/guide/service/service-file.html).
+Let you to emit an event to the [Core](../guide/start-here/core.md) based on the ones defined in your [mesg.yml](../guide/service/service-file.md).
 
 <tabs>
 <tab title="Request">
@@ -44,8 +44,8 @@ Data sent while calling the `EmitEvent` API.
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | token | [string](#string) | The token given by the Core as environment variable `MESG_TOKEN`. |
-| eventKey | [string](#string) | The event's key defined in the [service file](/guide/service/service-file.html). |
-| eventData | [string](#string) | The data of your event encoded in JSON as defined in your [mesg.yml](/guide/service/service-file.html). |
+| eventKey | [string](#string) | The event's key defined in the [service file](../guide/service/service-file.md). |
+| eventData | [string](#string) | The data of your event encoded in JSON as defined in your [mesg.yml](../guide/service/service-file.md). |
 
 
 
@@ -92,7 +92,7 @@ Response of the Core when receiving an event from the `EmitEvent` call
 
 ## ListenTask
 
-Subscribe to the stream of tasks that will receive tasks from the [Core](/guide/start-here/core.html)
+Subscribe to the stream of tasks that will receive tasks from the [Core](../guide/start-here/core.md)
 
 <tabs>
 <tab title="Request">
@@ -162,8 +162,8 @@ The `executionID` needs to be kept and sent back with the `submitResult` API
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | executionID | [string](#string) | An unique identifier for the execution you want to submit the result to. |
-| taskKey | [string](#string) | The task key defined in your [mesg.yml](/guide/service/service-file.html). |
-| inputData | [string](#string) | The inputs of your tasks encoded in JSON as defined in your [mesg.yml](/guide/service/service-file.html). |
+| taskKey | [string](#string) | The task key defined in your [mesg.yml](../guide/service/service-file.md). |
+| inputData | [string](#string) | The inputs of your tasks encoded in JSON as defined in your [mesg.yml](../guide/service/service-file.md). |
 
 
 
@@ -174,7 +174,7 @@ The `executionID` needs to be kept and sent back with the `submitResult` API
 
 ## SubmitResult
 
-Let you submit a result from a task to the [Core](/guide/start-here/core.html). The result should be an output of the tasks
+Let you submit a result from a task to the [Core](../guide/start-here/core.md). The result should be an output of the tasks
 
 <tabs>
 <tab title="Request">
@@ -206,8 +206,8 @@ This result can only be called once inside a request from `ListenTask` because o
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | executionID | [string](#string) | The executionID received from the `listenTask` stream |
-| outputKey | [string](#string) | The output key defined in your [mesg.yml](/guide/service/service-file.html). |
-| outputData | [string](#string) | The data of your result encoded in JSON as defined in your [mesg.yml](/guide/service/service-file.html). |
+| outputKey | [string](#string) | The output key defined in your [mesg.yml](../guide/service/service-file.md). |
+| outputData | [string](#string) | The data of your result encoded in JSON as defined in your [mesg.yml](../guide/service/service-file.md). |
 
 
 
