@@ -238,11 +238,11 @@ const _ = grpc.SupportPackageIsVersion4
 // Client API for Service service
 
 type ServiceClient interface {
-	// Let you to emit an event to the [Core](/guide/start-here/core.html) based on the ones defined in your [mesg.yml](/guide/service/service-file.html).
+	// Let you to emit an event to the [Core](../guide/start-here/core.md) based on the ones defined in your [mesg.yml](../guide/service/service-file.md).
 	EmitEvent(ctx context.Context, in *EmitEventRequest, opts ...grpc.CallOption) (*EmitEventReply, error)
-	// Subscribe to the stream of tasks that will receive tasks from the [Core](/guide/start-here/core.html)
+	// Subscribe to the stream of tasks that will receive tasks from the [Core](../guide/start-here/core.md)
 	ListenTask(ctx context.Context, in *ListenTaskRequest, opts ...grpc.CallOption) (Service_ListenTaskClient, error)
-	// Let you submit a result from a task to the [Core](/guide/start-here/core.html). The result should be an output of the tasks
+	// Let you submit a result from a task to the [Core](../guide/start-here/core.md). The result should be an output of the tasks
 	SubmitResult(ctx context.Context, in *SubmitResultRequest, opts ...grpc.CallOption) (*SubmitResultReply, error)
 }
 
@@ -307,11 +307,11 @@ func (c *serviceClient) SubmitResult(ctx context.Context, in *SubmitResultReques
 // Server API for Service service
 
 type ServiceServer interface {
-	// Let you to emit an event to the [Core](/guide/start-here/core.html) based on the ones defined in your [mesg.yml](/guide/service/service-file.html).
+	// Let you to emit an event to the [Core](../guide/start-here/core.md) based on the ones defined in your [mesg.yml](../guide/service/service-file.md).
 	EmitEvent(context.Context, *EmitEventRequest) (*EmitEventReply, error)
-	// Subscribe to the stream of tasks that will receive tasks from the [Core](/guide/start-here/core.html)
+	// Subscribe to the stream of tasks that will receive tasks from the [Core](../guide/start-here/core.md)
 	ListenTask(*ListenTaskRequest, Service_ListenTaskServer) error
-	// Let you submit a result from a task to the [Core](/guide/start-here/core.html). The result should be an output of the tasks
+	// Let you submit a result from a task to the [Core](../guide/start-here/core.md). The result should be an output of the tasks
 	SubmitResult(context.Context, *SubmitResultRequest) (*SubmitResultReply, error)
 }
 

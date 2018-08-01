@@ -8,7 +8,7 @@ import "github.com/mesg-foundation/core/service/service.proto";
 // Main API to interact with MESG Core functionalities. It can be consumed by any applications or any tools that wish to interact with MESG Core.
 // It is actually used by the MESG CLI and MESG Application libraries.
 // 
-// Services should not use this API but use the [Service API](/api/service.html).
+// Services should not use this API but use the [Service API](./service.md).
 service Core {
   // Subscribe to a stream that listens for events from a service.
   rpc ListenEvent (ListenEventRequest) returns (stream EventData) {}
@@ -16,22 +16,22 @@ service Core {
   // Subscribe to the stream that listens for task's results of a service.
   rpc ListenResult (ListenResultRequest) returns (stream ResultData) {}
   
-  // Execute a task of a service through the [Core](/guide/start-here/core.html).
+  // Execute a task of a service through the [Core](../guide/start-here/core.md).
   rpc ExecuteTask (ExecuteTaskRequest) returns (ExecuteTaskReply) {}
 
-  // Start a service. The service have to be already deployed on the [Core](/guide/start-here/core.html).
+  // Start a service. The service have to be already deployed on the [Core](../guide/start-here/core.md).
   rpc StartService (StartServiceRequest) returns (StartServiceReply) {}
 
-  // Stop a service. The service have to be already deployed on the [Core](/guide/start-here/core.html).
+  // Stop a service. The service have to be already deployed on the [Core](../guide/start-here/core.md).
   rpc StopService (StopServiceRequest) returns (StopServiceReply) {}
   
-  // Deploy a service to the [Core](/guide/start-here/core.html). This will give you an unique identifier to use to interact with the service.
+  // Deploy a service to the [Core](../guide/start-here/core.md). This will give you an unique identifier to use to interact with the service.
   rpc DeployService (DeployServiceRequest) returns (DeployServiceReply) {}
   
-  // Delete a service from Core. This function only delete a deployed service in the [Core](/guide/start-here/core.html). If the service's code is on your computer, it will not delete its source code.
+  // Delete a service from Core. This function only delete a deployed service in the [Core](../guide/start-here/core.md). If the service's code is on your computer, it will not delete its source code.
   rpc DeleteService (DeleteServiceRequest) returns (DeleteServiceReply) {}
 
-  // List all services already deployed in the [Core](/guide/start-here/core.html).
+  // List all services already deployed in the [Core](../guide/start-here/core.md).
   rpc ListServices (ListServicesRequest) returns (ListServicesReply) {}
 
   // Get the definition of an already deployed service from its ID.
@@ -194,7 +194,7 @@ message StopServiceReply {
 // }
 // ```
 message DeployServiceRequest {
-  service.Service service = 1; // Service's definition to deploy. [Details here](/api/service-type.html)
+  service.Service service = 1; // Service's definition to deploy. [Details here](./service-type.html)
 }
 
 // Reply's data of the `DeployService` API.
@@ -261,7 +261,7 @@ message ListServicesRequest {
 // }]
 // ```
 message ListServicesReply {
-  repeated service.Service services = 1; // List of services' definition previously deployed. [Details here](/api/service-type.html)
+  repeated service.Service services = 1; // List of services' definition previously deployed. [Details here](./service-type.html)
 }
 
 // Request's data of the `GetService` API.
@@ -308,5 +308,5 @@ message GetServiceRequest {
 // }
 // ```
 message GetServiceReply {
-  service.Service service = 1; // Service's definition. [Details here](/api/service-type.html)
+  service.Service service = 1; // Service's definition. [Details here](./service-type.html)
 }

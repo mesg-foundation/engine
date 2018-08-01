@@ -13,7 +13,7 @@ Please update the Core file
 Main API to interact with MESG Core functionalities. It can be consumed by any applications or any tools that wish to interact with MESG Core.
 It is actually used by the MESG CLI and MESG Application libraries.
 
-Services should not use this API but use the [Service API](/api/service.html).
+Services should not use this API but use the [Service API](./service.md).
 
 [[toc]]
 
@@ -284,7 +284,7 @@ Will be received over time as long as the stream is opened.
 
 ## ExecuteTask
 
-Execute a task of a service through the [Core](/guide/start-here/core.html).
+Execute a task of a service through the [Core](../guide/start-here/core.md).
 
 <tabs>
 <tab title="Request">
@@ -412,7 +412,7 @@ Reply's data of the `ExecuteTask` API.
 
 ## StartService
 
-Start a service. The service have to be already deployed on the [Core](/guide/start-here/core.html).
+Start a service. The service have to be already deployed on the [Core](../guide/start-here/core.md).
 
 <tabs>
 <tab title="Request">
@@ -524,7 +524,7 @@ Reply's data of the `StartService` API.
 
 ## StopService
 
-Stop a service. The service have to be already deployed on the [Core](/guide/start-here/core.html).
+Stop a service. The service have to be already deployed on the [Core](../guide/start-here/core.md).
 
 <tabs>
 <tab title="Request">
@@ -636,7 +636,7 @@ Reply's data of the `StopService` API.
 
 ## DeployService
 
-Deploy a service to the [Core](/guide/start-here/core.html). This will give you an unique identifier to use to interact with the service.
+Deploy a service to the [Core](../guide/start-here/core.md). This will give you an unique identifier to use to interact with the service.
 
 <tabs>
 <tab title="Request">
@@ -685,7 +685,7 @@ Request's data of the `DeployService` API.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| service | [service.Service](#service.Service) | Service's definition to deploy. [Details here](/api/service-type.html) |
+| service | [service.Service](#service.Service) | Service's definition to deploy. [Details here](./service-type.html) |
 
 
 
@@ -783,7 +783,7 @@ Reply's data of the `DeployService` API.
 
 ## DeleteService
 
-Delete a service from Core. This function only delete a deployed service in the [Core](/guide/start-here/core.html). If the service's code is on your computer, it will not delete its source code.
+Delete a service from Core. This function only delete a deployed service in the [Core](../guide/start-here/core.md). If the service's code is on your computer, it will not delete its source code.
 
 <tabs>
 <tab title="Request">
@@ -895,7 +895,7 @@ Reply's data  of the `DeleteService` API.
 
 ## ListServices
 
-List all services already deployed in the [Core](/guide/start-here/core.html).
+List all services already deployed in the [Core](../guide/start-here/core.md).
 
 <tabs>
 <tab title="Request">
@@ -1003,7 +1003,7 @@ Reply's data of the `ListServices` API.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| services | [service.Service](#service.Service)[] | List of services' definition previously deployed. [Details here](/api/service-type.html) |
+| services | [service.Service](#service.Service)[] | List of services' definition previously deployed. [Details here](./service-type.html) |
 
 
 
@@ -1146,7 +1146,7 @@ Reply's data of the `GetService` API.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| service | [service.Service](#service.Service) | Service's definition. [Details here](/api/service-type.html) |
+| service | [service.Service](#service.Service) | Service's definition. [Details here](./service-type.html) |
 
 
 

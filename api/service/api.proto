@@ -7,13 +7,13 @@ option go_package = "service";
 // This API can and should only be accessible when you create a MESG Service.
 // It provide all functions necessary to be able to execute tasks and submit specific events.
 service Service {
-  // Let you to emit an event to the [Core](/guide/start-here/core.html) based on the ones defined in your [mesg.yml](/guide/service/service-file.html).
+  // Let you to emit an event to the [Core](../guide/start-here/core.md) based on the ones defined in your [mesg.yml](../guide/service/service-file.md).
   rpc EmitEvent (EmitEventRequest) returns (EmitEventReply) {}
 
-  // Subscribe to the stream of tasks that will receive tasks from the [Core](/guide/start-here/core.html)
+  // Subscribe to the stream of tasks that will receive tasks from the [Core](../guide/start-here/core.md)
   rpc ListenTask (ListenTaskRequest) returns (stream TaskData) {}
 
-  // Let you submit a result from a task to the [Core](/guide/start-here/core.html). The result should be an output of the tasks
+  // Let you submit a result from a task to the [Core](../guide/start-here/core.md). The result should be an output of the tasks
   rpc SubmitResult (SubmitResultRequest) returns (SubmitResultReply) {}
 }
 
@@ -29,8 +29,8 @@ service Service {
 // ```
 message EmitEventRequest {
   string token = 1;     // The token given by the Core as environment variable `MESG_TOKEN`.
-  string eventKey = 2;  // The event's key defined in the [service file](/guide/service/service-file.html).
-  string eventData = 3; // The data of your event encoded in JSON as defined in your [mesg.yml](/guide/service/service-file.html).
+  string eventKey = 2;  // The event's key defined in the [service file](../guide/service/service-file.md).
+  string eventData = 3; // The data of your event encoded in JSON as defined in your [mesg.yml](../guide/service/service-file.md).
 }
 
 // Data sent to connect to the `ListenTask` stream API.
@@ -58,8 +58,8 @@ message ListenTaskRequest {
 // ```
 message SubmitResultRequest {
   string executionID = 1; // The executionID received from the `listenTask` stream
-  string outputKey = 2;   // The output key defined in your [mesg.yml](/guide/service/service-file.html).
-  string outputData = 3;  // The data of your result encoded in JSON as defined in your [mesg.yml](/guide/service/service-file.html).
+  string outputKey = 2;   // The output key defined in your [mesg.yml](../guide/service/service-file.md).
+  string outputData = 3;  // The data of your result encoded in JSON as defined in your [mesg.yml](../guide/service/service-file.md).
 }
 
 // Response of the Core when receiving an event from the `EmitEvent` call
@@ -85,8 +85,8 @@ message EmitEventReply {
 // ```
 message TaskData {
   string executionID = 1; // An unique identifier for the execution you want to submit the result to.
-  string taskKey = 2;     // The task key defined in your [mesg.yml](/guide/service/service-file.html).
-  string inputData = 3;   // The inputs of your tasks encoded in JSON as defined in your [mesg.yml](/guide/service/service-file.html).
+  string taskKey = 2;     // The task key defined in your [mesg.yml](../guide/service/service-file.md).
+  string inputData = 3;   // The inputs of your tasks encoded in JSON as defined in your [mesg.yml](../guide/service/service-file.md).
 }
 
 // Response of the Core when receiving an result from the `SubmitResult` call
