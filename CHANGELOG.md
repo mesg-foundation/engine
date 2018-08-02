@@ -3,8 +3,19 @@
 ## [Unreleased]
 
 #### Changed
+- (#282) Branch support added. You can now specify your branches with a `#branch` fragment at the end of your git url. E.g.: https://github.com/mesg-foundation/service-ethereum-erc20#websocket
+- (#299) Add more user friendly errors when failing to connect to the Core or Docker
+
 #### Added
+- (#242) Add more details in command `mesg-core service validate`
+- (#295) Added more validation on the API for the data of `executeTask`, `submitResult` and `emitEvent`. Now if data doesn't match the service file, the API returns an error
+- (#302) Possibility to use a config file in ~/.mesg/config.yml
+- (#) Add command `service dev` that build and run the service with the logs
+- (#) Add command `service execute` that execute a task on a service
+
 #### Removed
+- (#) Deprecate command `service test` in favor of `service dev` and `service execute`
+
 #### Fixed
 
 ## [v1.0.0]

@@ -1,2 +1,98 @@
-title: 'MESG CLI'
-description: 'Create applications connected to anything'
+title: MESG
+description: Create applications connected to anything
+ga: UA-117583862-3
+# serviceWorker: true
+markdown:
+  toc:
+    includeLevel: [2]
+themeConfig:
+  logo: /logo-light.svg
+  searchMaxSuggestions: 15
+  lastUpdated: true
+  repo: mesg-foundation/
+  repoLabel: GitHub
+  docsRepo: mesg-foundation/core
+  docsDir: docs
+  docsBranch: dev
+  editLinks: true
+  editLinkText: Help us improve this page!
+  # serviceWorker:
+  #   updatePopup: true
+  nav:
+    - text: Home
+      link: /
+    - text: Guide
+      link: /guide/
+    - text: Tutorials
+      link: /tutorials/
+    - text: CLI
+      link: /cli/mesg-core
+    - text: API
+      link: /api/core.md
+    - text: Changelog
+      link: https://github.com/mesg-foundation/core/blob/master/CHANGELOG.md
+    - text: Discord
+      link: https://discord.gg/SaZ5HcE
+  sidebar:
+    /guide/:
+      - /guide/
+      - /guide/start-here/what-is-mesg
+      - /guide/start-here/core
+      - /guide/start-here/mesg-infrastructure
+      - /guide/start-here/quick-start-guide
+      - /guide/start-here/installation
+      - /guide/start-here/join-us
+      - title: Application
+        children:
+          - /guide/application/what-is-an-application
+          - /guide/application/use-cases
+          - /guide/application/create-your-application
+          - /guide/application/listen-for-events
+          - /guide/application/execute-a-task
+      - title: Service
+        children:
+          - /guide/service/what-is-a-service
+          - /guide/service/service-file
+          - /guide/service/emit-an-event
+          - /guide/service/listen-for-tasks
+          - /guide/service/dockerize-the-service
+          - /guide/service/validate
+          - /guide/service/test
+          - /guide/service/deploy-a-service
+          - /guide/service/run-the-service
+    /tutorials/:
+      - /tutorials/
+      - title: Applications
+        children:
+          - /tutorials/applications/receive-email-when-there-is-an-erc20-transfer
+      - title: Services
+        children:
+          - /tutorials/services/send-emails-with-sendgrid
+          - /tutorials/services/listen-for-transfers-of-an-ethereum-erc20-token
+    /cli/:
+      - /cli/mesg-core.md
+      - /cli/mesg-core_start.md
+      - /cli/mesg-core_stop.md
+      - /cli/mesg-core_status.md
+      - /cli/mesg-core_logs.md
+      - title: Service
+        children:
+          - /cli/mesg-core_service.md
+          - /cli/mesg-core_service_init.md
+          - /cli/mesg-core_service_start.md
+          - /cli/mesg-core_service_stop.md
+          - /cli/mesg-core_service_logs.md
+          - /cli/mesg-core_service_list.md
+          - /cli/mesg-core_service_detail.md
+          - /cli/mesg-core_service_delete.md
+          - /cli/mesg-core_service_deploy.md
+          - /cli/mesg-core_service_dev.md
+          - /cli/mesg-core_service_execute.md
+          - /cli/mesg-core_service_validate.md
+          - /cli/mesg-core_service_gen-doc.md
+    /api/:
+      - /api/core
+      - /api/service
+      - /api/service-type
+    /:
+      - ''

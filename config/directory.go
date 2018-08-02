@@ -2,56 +2,29 @@ package config
 
 import (
 	"os"
-	"os/user"
 	"path/filepath"
+
+	homedir "github.com/mitchellh/go-homedir"
 )
 
-// ConfigDirectory is the root directory where everything related to MESG is stored
-var ConfigDirectory string
+const configDirectory = ".mesg"
 
-// AccountDirectory is the directory where all accounts are stored
-var AccountDirectory string
-
-func detectHomePath() (path string, err error) {
-	user, err := user.Current()
+func getConfigPath() (string, error) {
+	homePath, err := homedir.Dir()
 	if err != nil {
-		return
+		return "", nil
 	}
-	path = user.HomeDir
-	return
+	return filepath.Join(homePath, configDirectory), nil
 }
 
-func getHomeDirectory() (directory string, err error) {
-	directory = os.Getenv("HOME")
-	if directory != "" {
-		return
-	}
-	directory, err = detectHomePath()
-	return
-}
-
-func getConfigDirectory() (directory string, err error) {
-	homeDirectory, err := getHomeDirectory()
+func createConfigPath() error {
+	configPath, err := getConfigPath()
 	if err != nil {
-		panic(err)
+		return err
 	}
-	directory = filepath.Join(homeDirectory, ".mesg")
-	return
-}
-
-func getAccountDirectory() (directory string, err error) {
-	configDirectory, err := getConfigDirectory()
-	directory = filepath.Join(configDirectory, "accounts")
-	return
-}
-
-func init() {
-	var err error
-	ConfigDirectory, err = getConfigDirectory()
-	AccountDirectory, err = getAccountDirectory()
-	os.Mkdir(ConfigDirectory, os.ModePerm)
-	os.Mkdir(AccountDirectory, os.ModePerm)
-	if err != nil {
-		panic(err)
+	err = os.Mkdir(configPath, os.ModePerm)
+	if os.IsExist(err) == false {
+		return err
 	}
+	return nil
 }

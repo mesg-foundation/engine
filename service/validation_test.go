@@ -6,44 +6,105 @@ import (
 	"github.com/stvp/assert"
 )
 
-func TestMinimalValidFile(t *testing.T) {
-	warnings, err := ValidService("./tests/service-minimal-valid")
-	assert.Nil(t, err)
-	assert.Equal(t, len(warnings), 0)
+var serviceTest = &Service{
+	Events: map[string]*Event{
+		"test": &Event{
+			Data: map[string]*Parameter{
+				"optional": &Parameter{
+					Type:     "String",
+					Optional: true,
+				},
+				"string": &Parameter{
+					Type: "String",
+				},
+				"number": &Parameter{
+					Type: "Number",
+				},
+				"boolean": &Parameter{
+					Type: "Boolean",
+				},
+				"object": &Parameter{
+					Type: "Object",
+				},
+			},
+		},
+	},
+}
+var event = serviceTest.Events["test"]
+
+func TestRequired(t *testing.T) {
+	assert.Nil(t, event.Data["optional"].Validate("presence"))
+	assert.Nil(t, event.Data["optional"].Validate(nil))
+	// this parameter is required
+	assert.NotNil(t, event.Data["string"].Validate(nil))
 }
 
-func TestValidFile(t *testing.T) {
-	warnings, err := ValidService("./tests/service-valid")
-	assert.Nil(t, err)
-	assert.Equal(t, len(warnings), 0)
+func TestString(t *testing.T) {
+	assert.Nil(t, event.Data["string"].Validate("valid"))
+	assert.NotNil(t, event.Data["string"].Validate(false))
 }
 
-func TestNonExistingPath(t *testing.T) {
-	warnings, err := ValidService("./tests/service-non-existing")
-	assert.NotNil(t, err)
-	assert.Equal(t, len(warnings), 0)
+func TestNumber(t *testing.T) {
+	assert.Nil(t, event.Data["number"].Validate(10.5))
+	assert.Nil(t, event.Data["number"].Validate(10))
+	assert.NotNil(t, event.Data["number"].Validate("not a number"))
 }
 
-func TestMalFormattedFile(t *testing.T) {
-	warnings, err := ValidService("./tests/service-file-mal-formatted")
-	assert.NotNil(t, err)
-	assert.Equal(t, len(warnings), 1)
+func TestBoolean(t *testing.T) {
+	assert.Nil(t, event.Data["boolean"].Validate(true))
+	assert.Nil(t, event.Data["boolean"].Validate(false))
+	assert.NotNil(t, event.Data["boolean"].Validate("not a boolean"))
 }
 
-func TestInvalidFile(t *testing.T) {
-	warnings, err := ValidService("./tests/service-file-invalid")
-	assert.NotNil(t, err)
-	assert.Equal(t, len(warnings), 1)
+func TestObject(t *testing.T) {
+	assert.Nil(t, event.Data["object"].Validate(map[string]interface{}{
+		"foo": "bar",
+	}))
+	assert.Nil(t, event.Data["object"].Validate([]interface{}{
+		"foo",
+		"bar",
+	}))
+	assert.NotNil(t, event.Data["object"].Validate(42))
 }
 
-func TestValidPathMissingYml(t *testing.T) {
-	warnings, err := ValidService("./tests/service-file-missing")
-	assert.NotNil(t, err)
-	assert.Equal(t, len(warnings), 0)
+func TestValidateParameters(t *testing.T) {
+	assert.Equal(t, 0, len(validateParameters(event.Data, map[string]interface{}{
+		"string":  "hello",
+		"number":  10,
+		"boolean": true,
+		"object": map[string]interface{}{
+			"foo": "bar",
+		},
+	})))
+	assert.Equal(t, 0, len(validateParameters(event.Data, map[string]interface{}{
+		"optional": "yeah",
+		"string":   "hello",
+		"number":   10,
+		"boolean":  true,
+		"object": map[string]interface{}{
+			"foo": "bar",
+		},
+	})))
+	// 4 errors
+	//  - not required string
+	//  - invalid number
+	//  - invalid boolean
+	//  - invalid object
+	assert.Equal(t, 4, len(validateParameters(event.Data, map[string]interface{}{
+		"number":  "string",
+		"boolean": 42,
+		"object":  false,
+	})))
 }
 
-func TestValidPathMissingDocker(t *testing.T) {
-	warnings, err := ValidService("./tests/service-docker-missing")
-	assert.NotNil(t, err)
-	assert.Equal(t, len(warnings), 0)
+func TestValidParameters(t *testing.T) {
+	assert.True(t, validParameters(event.Data, map[string]interface{}{
+		"string":  "hello",
+		"number":  10,
+		"boolean": true,
+		"object": map[string]interface{}{
+			"foo": "bar",
+		},
+	}))
+	assert.False(t, validParameters(event.Data, map[string]interface{}{}))
 }

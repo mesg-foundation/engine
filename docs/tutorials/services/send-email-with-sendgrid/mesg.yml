@@ -1,0 +1,38 @@
+name: sendgrid-email
+description: Send and receive email through Sendgrid API
+tasks: 
+  send:
+    inputs:
+      from:
+        name: "From"
+        description: "The account to send the email from"
+        type: String
+      to:
+        name: "To"
+        description: "The recipient of the email"
+        type: String
+      subject:
+        name: "Subject"
+        description: "The subject of the email"
+        type: String
+      text:
+        name: "Text"
+        description: "The text of the email"
+        type: String
+    outputs:
+      success:
+        name: "Success"
+        description: "When the email is successfully sent"
+        data:
+          status:
+            name: "Status"
+            description: "Status returned by the Sendgrid API"
+            type: Number
+      failure:
+        name: "Failure"
+        description: "when an error occurs when trying to send the email (this can be any kind of error, wrong email, Sendgrid API down...)"
+        data:
+          message:
+            name: "Message"
+            description: "Error message"
+            type: String

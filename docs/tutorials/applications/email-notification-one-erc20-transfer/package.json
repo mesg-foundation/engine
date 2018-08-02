@@ -1,0 +1,14 @@
+{
+  "name": "email-notification-one-erc20-transfer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Anthony Estebe <anthony@mesg.tech>",
+  "license": "ISC",
+  "dependencies": {
+    "mesg-js": "^1.2.2"
+  }
+}
