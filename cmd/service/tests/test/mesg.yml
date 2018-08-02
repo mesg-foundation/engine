@@ -1,0 +1,6 @@
+name: "test"
+events:
+  started:
+    data:
+      x:
+        type: Boolean

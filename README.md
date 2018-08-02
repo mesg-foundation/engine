@@ -129,7 +129,7 @@ curl -XPOST http://localhost:3000/webhook
 
 Services are build and [shared by the community](https://github.com/mesg-foundation/awesome). They are small and reusable pieces of code that, when grouped together, allow developers to build incredible applications with ease.
 
-You can develop a service for absolutely anything you want, as long as it can run inside Docker. Check the [documentation to create your own services](https://docs.mesg.com/service).
+You can develop a service for absolutely anything you want, as long as it can run inside Docker. Check the [documentation to create your own services](https://docs.mesg.com/guide/service/what-is-a-service.html).
 
 Services implement two types of communication: executing tasks and submitting events.
 
@@ -149,7 +149,7 @@ The second possible output is `error` with for eg, `{ "reason": "email invalid" 
 
 This way, the application can easily check the type of output and react appropriately.
 
-Check out the documentation for more information on [how to create tasks](https://docs.mesg.com/service/listen-for-tasks).
+Check out the documentation for more information on [how to create tasks](https://docs.mesg.com/guide/service/listen-for-tasks.html).
 
 ### Submitting Events
 
@@ -157,7 +157,7 @@ Services can also submit events to MESG Core. They allow two-way communication w
 
 Let's say the service is a HTTP webserver. An event could be submitted when the webserver receives a request with the request's payload as the event's data. The service could also submit a specific event for every route of your API.
 
-For more info how to create your events, visit the [Emit an Event](https://docs.mesg.com/service/emit-an-event) page.
+For more info how to create your events, visit the [Emit an Event](https://docs.mesg.com/guide/service/emit-an-event.html) page.
 
 
 # Architecture
@@ -173,16 +173,16 @@ Alternatively, you can also check out the [https://mesg.com/marketplace](Marketp
 # Roadmap
 
 #### June 2018 - Core V1.0 Launched
-Create your services and connect them together with your application through a single connection to Core, allowing Core to handle all communications and interoperability with any technology. Services and applications can be shared with others in our Marketplace.
+Create your services and connect them together with your application through a single connection to Core, allowing Core to handle all communications and interoperability with any technology.
 
 #### Q3 2018 - Rapid Deployment
 No need to code your application anymore, just send a list of events with corresponding tasks within a simple configuration file to Core which will then execute tasks on your application’s behalf.
 
 #### Q4 2018 - Beta Network
-The decentralized beta Network means no need to run your applications and their services on your own computer, just deploy them on the Network. 
+The beta decentralized Network means no coding or servers are necessary to run your applications. Connect thousands of services or applications from our shared repository. 
 
 #### Q3 2019 - Main Network
-MESG launches its own blockchain Network providing for full scalability and a cheaper and faster user experience.
+MESG launches its own blockchain Network providing for full scalability and a cheaper and faster user experience. The main network will host the full functionality of the value-driven open market for the sharing of services.
 
 # Community
 

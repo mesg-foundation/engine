@@ -1,9 +1,10 @@
 ---
-exclude_patterns:
+exclude_paths:
   - "**/*_test.go"
   - "**/*.d.ts"
   - "**/*.pb.go"
-  - "**/service/assets/*.go"
-  - "**/cmd/service/assets/*.go"
   - "**/Dockerfile"
-  
+  - "service/importer/assets/*.go"
+  - "cmd/service/assets/*.go"
+  - "cmd/service/tests/**/*"
+  - "docs/**"

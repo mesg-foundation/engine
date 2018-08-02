@@ -1,67 +1,98 @@
 package service
 
-import (
-	"errors"
-	"os"
-	"path/filepath"
+// ParameterWarning is a struct that contains a specific warning related to a parameter
+type ParameterWarning struct {
+	warning   string
+	key       string
+	parameter *Parameter
+}
 
-	"github.com/mesg-foundation/core/service/assets"
-	"github.com/xeipuuv/gojsonschema"
-	yaml "gopkg.in/yaml.v2"
-)
+func (p *ParameterWarning) String() string {
+	return "Value of '" + p.key + "' is " + p.warning
+}
 
-func convert(i interface{}) interface{} {
-	switch x := i.(type) {
-	case map[interface{}]interface{}:
-		m2 := map[string]interface{}{}
-		for k, v := range x {
-			m2[k.(string)] = convert(v)
+func validParameters(parameters map[string]*Parameter, data map[string]interface{}) bool {
+	return len(validateParameters(parameters, data)) == 0
+}
+
+func validateParameters(parameters map[string]*Parameter, data map[string]interface{}) []*ParameterWarning {
+	warnings := make([]*ParameterWarning, 0)
+	for key, param := range parameters {
+		warning := param.Validate(data[key])
+		if warning != nil {
+			warning.key = key
+			warnings = append(warnings, warning)
 		}
-		return m2
 	}
-	return i
+	return warnings
 }
 
-// validServiceFileData returns a list of warnings (empty if no warning)
-// The all validation can be found in https://github.com/mesg-foundation/core/tree/dev/service/schema.json
-func validServiceData(data []byte) (warnings []gojsonschema.ResultError, err error) {
-	var body interface{}
-	if err = yaml.Unmarshal(data, &body); err != nil {
-		return
-	}
-	body = convert(body)
-	schemaData, err := assets.Asset("service/assets/schema.json")
-	if err != nil {
-		return
-	}
-	schema := gojsonschema.NewBytesLoader(schemaData)
-	loaded := gojsonschema.NewGoLoader(body)
-	result, err := gojsonschema.Validate(schema, loaded)
-	if err != nil {
-		return
-	}
-
-	if !result.Valid() {
-		warnings = result.Errors()
-		err = errors.New("File 'mesg.yml' is not valid")
-	}
-	return
+// IsValid returns true if the data are valid for a specific event
+func (e *Event) IsValid(data map[string]interface{}) bool {
+	return validParameters(e.Data, data)
 }
 
-// ValidService validates a service at a given path
-func ValidService(path string) (warnings []gojsonschema.ResultError, err error) {
-	data, err := readFromPath(path)
-	if err != nil {
-		return
-	}
+// Validate data for a specific event
+func (e *Event) Validate(data map[string]interface{}) []*ParameterWarning {
+	return validateParameters(e.Data, data)
+}
 
-	warnings, err = validServiceData(data)
-	if err != nil {
-		return
-	}
+// IsValid returns true if the inputs are valid for a specific task
+func (t *Task) IsValid(data map[string]interface{}) bool {
+	return validParameters(t.Inputs, data)
+}
 
-	dockerFile := filepath.Join(path, "Dockerfile")
-	file, err := os.Open(dockerFile)
-	defer file.Close()
-	return
+// Validate inputs for a specific task
+func (t *Task) Validate(data map[string]interface{}) []*ParameterWarning {
+	return validateParameters(t.Inputs, data)
+}
+
+// IsValid returns true if the data are valid for a specific output
+func (o *Output) IsValid(data map[string]interface{}) bool {
+	return validParameters(o.Data, data)
+}
+
+// Validate data for a specific output
+func (o *Output) Validate(data map[string]interface{}) []*ParameterWarning {
+	return validateParameters(o.Data, data)
+}
+
+// Validate returns a warning based on the match of the data given in parameter and the parameter
+func (p *Parameter) Validate(data interface{}) *ParameterWarning {
+	if data == nil {
+		if p.Optional {
+			return nil
+		}
+		return &ParameterWarning{parameter: p, warning: "required"}
+	}
+	value := data
+	var warning *ParameterWarning
+	switch p.Type {
+	case "String":
+		_, ok := value.(string)
+		if !ok {
+			warning = &ParameterWarning{parameter: p, warning: "not a string"}
+		}
+	case "Number":
+		_, okFloat64 := value.(float64)
+		_, okFloat32 := value.(float32)
+		_, okInt := value.(int)
+		if !okInt && !okFloat64 && !okFloat32 {
+			warning = &ParameterWarning{parameter: p, warning: "not a number"}
+		}
+	case "Boolean":
+		_, ok := value.(bool)
+		if !ok {
+			warning = &ParameterWarning{parameter: p, warning: "not a boolean"}
+		}
+	case "Object":
+		_, okObj := value.(map[string]interface{})
+		_, okArr := value.([]interface{})
+		if !okObj && !okArr {
+			warning = &ParameterWarning{parameter: p, warning: "not an object or array"}
+		}
+	default:
+		warning = &ParameterWarning{parameter: p, warning: "an invalid type"}
+	}
+	return warning
 }

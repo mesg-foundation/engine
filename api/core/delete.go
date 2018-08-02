@@ -1,8 +1,9 @@
 package core
 
 import (
+	"context"
+
 	"github.com/mesg-foundation/core/database/services"
-	"golang.org/x/net/context"
 )
 
 // DeleteService delete a service in the database and eventually stop the docker of this service

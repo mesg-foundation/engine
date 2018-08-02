@@ -113,3 +113,21 @@ func TestServiceOptionNetworks(t *testing.T) {
 	assert.Equal(t, "network1", networks[0].Target)
 	assert.Equal(t, "network2", networks[1].Target)
 }
+
+func contains(list []string, item string) bool {
+	for _, itemInList := range list {
+		if itemInList == item {
+			return true
+		}
+	}
+	return false
+}
+
+func TestMapToEnv(t *testing.T) {
+	env := MapToEnv(map[string]string{
+		"first":  "first_value",
+		"second": "second_value",
+	})
+	assert.True(t, contains(env, "first=first_value"))
+	assert.True(t, contains(env, "second=second_value"))
+}

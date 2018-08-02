@@ -17,7 +17,7 @@ var Deploy = &cobra.Command{
 	Short:   "Deploy a service",
 	Long: `Deploy a service.
 
-To get more information, see the [deploy page from the documentation](https://docs.mesg.com/service/deploy-a-service)`,
+To get more information, see the [deploy page from the documentation](https://docs.mesg.com/guide/service/deploy-a-service.html)`,
 	Example:           `mesg-core service deploy PATH_TO_SERVICE`,
 	Run:               deployHandler,
 	DisableAutoGenTag: true,
@@ -25,7 +25,7 @@ To get more information, see the [deploy page from the documentation](https://do
 
 func deployHandler(cmd *cobra.Command, args []string) {
 	service := prepareService(defaultPath(args))
-	reply, err := cli.DeployService(context.Background(), &core.DeployServiceRequest{
+	reply, err := cli().DeployService(context.Background(), &core.DeployServiceRequest{
 		Service: service,
 	})
 	utils.HandleError(err)

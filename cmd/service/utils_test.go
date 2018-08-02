@@ -6,6 +6,7 @@ import (
 
 	"github.com/mesg-foundation/core/service"
 	"github.com/stvp/assert"
+	git "gopkg.in/src-d/go-git.v4"
 )
 
 func TestDefaultPath(t *testing.T) {
@@ -24,6 +25,26 @@ func TestGitCloneRepositoryDoNotExist(t *testing.T) {
 	defer os.RemoveAll(path)
 	err := gitClone("/doNotExist", path, "testing...")
 	assert.NotNil(t, err)
+}
+
+func TestGitCloneWithoutURLSchema(t *testing.T) {
+	path, _ := createTempFolder()
+	defer os.RemoveAll(path)
+	err := gitClone("github.com/mesg-foundation/awesome.git", path, "testing...")
+	assert.Nil(t, err)
+}
+
+func TestGitCloneCustomBranch(t *testing.T) {
+	branchName := "5-generic-service"
+	path, _ := createTempFolder()
+	defer os.RemoveAll(path)
+	err := gitClone("github.com/mesg-foundation/service-ethereum-erc20#"+branchName, path, "testing...")
+	assert.Nil(t, err)
+	repo, err := git.PlainOpen(path)
+	assert.Nil(t, err)
+	branch, err := repo.Branch(branchName)
+	assert.Nil(t, err)
+	assert.NotNil(t, branch)
 }
 
 func TestDownloadServiceIfNeededAbsolutePath(t *testing.T) {

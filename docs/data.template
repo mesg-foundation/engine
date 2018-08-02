@@ -1,0 +1,38 @@
+{{define "data"}}
+#### {{.LongName}}
+{{.Description}}
+
+{{if .HasFields}}
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+{{range .Fields -}}
+  | {{.Name}} | [{{.LongType}}](#{{.FullType}}){{if eq .Label "repeated"}}[]{{end}} | {{.Description}} |
+{{end}}
+{{end}}
+{{end}}
+
+{{range .Files}}
+{{$file := .}}
+# Data {{.Package}}
+<!--
+DO NOT EDIT
+This file is generated using the ./scripts/build-proto.sh scripts
+Please update the {{.Name}} file
+-->
+
+{{.Description}}
+
+[[toc]]
+
+{{range $file.Messages}}
+{{if eq .LongName "Service"}}
+{{template "data" .}}
+{{end}}
+{{end}}
+
+{{range $file.Messages}}
+{{if ne .LongName "Service"}}
+{{template "data" .}}
+{{end}}
+{{end}}
+{{end}}

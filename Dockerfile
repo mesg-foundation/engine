@@ -1,4 +1,4 @@
-FROM golang AS build
+FROM golang:1.10.3-stretch AS build
 RUN mkdir -p src/github.com/mesg-foundation/core
 RUN go get github.com/xeipuuv/gojsonschema && \
     go get gopkg.in/yaml.v2 && \
@@ -6,29 +6,25 @@ RUN go get github.com/xeipuuv/gojsonschema && \
     go get github.com/logrusorgru/aurora && \
     go get github.com/docker/docker/api/types/swarm && \
     go get github.com/docker/docker/api/types/mount && \
+    go get github.com/docker/docker/client && \
     go get github.com/spf13/viper && \
     go get github.com/spf13/cobra && \
-    go get github.com/mitchellh/go-homedir && \
     go get gopkg.in/AlecAivazis/survey.v1 && \
-    go get github.com/kyokomi/emoji && \
     go get github.com/briandowns/spinner && \
-    go get github.com/ethereum/go-ethereum/accounts && \
-    go get github.com/ethereum/go-ethereum/core/types && \
     go get github.com/golang/protobuf/proto && \
-    go get golang.org/x/net/context && \
     go get google.golang.org/grpc && \
-    go get github.com/cpuguy83/go-md2man && \
     go get github.com/syndtr/goleveldb/leveldb && \
     go get github.com/cnf/structhash && \
-    go get github.com/docker/docker/client && \
     go get gopkg.in/src-d/go-git.v4/... && \
-    go get gopkg.in/asaskevich/govalidator.v4
+    go get github.com/asaskevich/govalidator && \
+    go get github.com/cpuguy83/go-md2man && \
+    go get github.com/mitchellh/go-homedir
 ADD . src/github.com/mesg-foundation/core
 WORKDIR src/github.com/mesg-foundation/core
 RUN go get ./...
 RUN go build -o mesg-core core/main.go
 
-FROM ubuntu
+FROM ubuntu:18.04
 WORKDIR /app
 COPY --from=build /go/src/github.com/mesg-foundation/core/mesg-core .
 CMD ["./mesg-core"]

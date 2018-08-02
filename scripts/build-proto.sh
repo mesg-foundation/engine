@@ -2,10 +2,14 @@
 
 cd $GOPATH/src
 
+go get github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc
+
 PROJECT=github.com/mesg-foundation/core
+CORE=$(pwd)/$PROJECT
+API_DOCS="--doc_out=$CORE/docs/api/ --doc_opt=$CORE/docs/api.template"
+DATA_DOCS="--doc_out=$CORE/docs/api/ --doc_opt=$CORE/docs/data.template"
+GRPC="--go_out=plugins=grpc:./"
 
-protoc --go_out=./ $PROJECT/service/service.proto
-
-# build Proto API
-protoc --go_out=plugins=grpc:./ --proto_path=./ $PROJECT/api/core/api.proto
-protoc --go_out=plugins=grpc:./ --proto_path=./ $PROJECT/api/service/api.proto
+protoc $GRPC $DATA_DOCS,service-type.md --proto_path=./ $PROJECT/service/service.proto
+protoc $GRPC $API_DOCS,core.md          --proto_path=./ $PROJECT/api/core/api.proto
+protoc $GRPC $API_DOCS,service.md       --proto_path=./ $PROJECT/api/service/api.proto

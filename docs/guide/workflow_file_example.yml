@@ -1,0 +1,105 @@
+# REQUIRED
+# Title of your worflow, this will be easier for you or your team manage
+title: "My super workflow"
+
+# OPTIONAL (default: "")
+# Description of your worflow, this is not required but highly recommanded
+description: "Describe your super workflow"
+
+# REQUIRED
+# The source of your worflow. This will define the entry point of your workflow.
+# Every time the following event is triggered, your worflow will be executed
+source:
+  # REQUIRED
+  # Type of service to listen for events. The list of all available services 
+  # can be find in the MESG Wallet or on the MESG website https://mesg.tech/services
+  service: Ethereum
+
+  # REQUIRED
+  # Event that we want to connect. This event is related to the selected service. 
+  # To know what the available events for every services please refers to the 
+  # service's details in the MESG Wallet or on the MESG website 
+  # https://mesg.tech/services
+  event: onTransaction
+  
+  # OPTIONAL (default: [])
+  # List of authorised event emmiters from the MESG decentralised network. Only 
+  # the events from the given nodes (identified by their id) will eventually trigger 
+  # the worflow
+  whitelist:
+    - GNdKd5T3qffAzUe+1ortKGcopLVtKIopYhQyV2u04Yho2t3R68Sk/odqUnKnGkMPUCb9HC/DCyrxucxu
+    - xNjDlMJ9WnBZaDCJkyHJ5F8IOPCykrwVbjH5OyPqoa/O3+Gf85VKyIkI0AFdkEaNZOZwuZRFPqtv0TYJ
+
+  # OPTIONAL (default: [])
+  # List of unauthorised event emmiters from the MESG decentralised network. Events
+  # from the given nodes (identified by their id) will be ignored
+  blacklist:
+    - RT8t2bUMYKlNzMxnk8yEa0lZNsN5XSkkj5/TqnRS4/zZcHDrTNr3iTOyDXLCwyv3THeN+FKllGvntFRk
+
+# REQUIRED
+# List of tasks that needs to be run to complete your worflow
+tasks:
+  # REQUIRED
+  # Name of your task, this will be used in order to access the result from others
+  # tasks.
+  generateSlackTitle:
+    # REQUIRE
+    # Type of service to execute. The list of all available services 
+    # can be find in the MESG Wallet or on the MESG website https://mesg.tech/services
+    service: Function
+
+    # REQUIRED
+    # Task to execute. This task is related to the selected service. To know what
+    # are the available tasks for every services please refers to the service's 
+    # details in the MESG Wallet or on the MESG website https://mesg.tech/services
+    task: execute
+
+    # OPTIONAL (default: {})
+    # Parameters needed to execute the task please refers to the service's details 
+    # in the MESG Wallet or on the MESG website https://mesg.tech/services
+    parameters:
+      data:
+        amount: ${workflow:source.amount}
+        from: ${workflow:source.from}
+      function: |
+        export default ({ amount, from }) => 
+          `You received ${amount / 1000000000000000000} ETH from ${from}`
+    
+    # OPTIONAL (default: {})
+    # List of filters to apply before processing the task.
+    # The task will only be triggered if ALL the filters are valid
+    filters:
+      data:
+        from: 0x1341341973194938491371937311397314931971
+
+    # OPTIONAL (default: [])
+    # List of authorised event task executors from the MESG decentralised network. 
+    # Only the following nodes (identified by their id) will be able to process this 
+    # step of the workflow
+    whitelist:
+      - GNdKd5T3qffAzUe+1ortKGcopLVtKIopYhQyVYR2u04Yho2t3R68Sk/odqUnKnGkMPUCb9HC/DCyrxuc
+
+  # Name of the second task to execute
+  slackNotification:
+    # Service to execute
+    service: Slack
+    # Task to execute
+    task: notify
+    # Parameters for this task
+    parameters:
+      webhook: ${workflow:inputs.slackEndpoint}
+      title: ${workflow:generateSlackTitle.result}
+    
+    # OPTIONAL (default: [])
+    # List of unauthorised node from the MESG decentralised network. Events from the 
+    # given nodes (identified by their id) will never be selected to process this step
+    blacklist:
+      - RT8t2bUMYKlNzMxnk8yEa0lZNsN5XSkkjHa5/TRS4/zZcHDrTNr3iTOyDXLCwyv3THeN+FKllGvntFRk
+
+# OPTIONAL (default: {})
+# List of input that your tasks might need. This is not required and you can directly 
+# set the value from the definition of your task but it might be usefull to keep
+# your workflow clean
+inputs:
+  # Input for slack endpoint
+  slackEndpoint: https://hooks.slack.com/services/XXXXXXXXX/XXXXXXXXX/XXXXXXXXXXXXXXXXXXX

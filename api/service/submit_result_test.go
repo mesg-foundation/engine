@@ -13,11 +13,15 @@ import (
 var serversubmit = new(Server)
 
 func execute(name string) (e *execution.Execution) {
-	var inputs interface{}
+	var inputs map[string]interface{}
 	e, _ = execution.Create(&service.Service{
 		Name: name,
 		Tasks: map[string]*service.Task{
-			"test": &service.Task{},
+			"test": &service.Task{
+				Outputs: map[string]*service.Output{
+					"output": &service.Output{},
+				},
+			},
 		},
 	}, "test", inputs)
 	e.Execute()
@@ -53,6 +57,8 @@ func TestSubmitWithInvalidID(t *testing.T) {
 		OutputKey:   "output",
 		OutputData:  "",
 	})
-
 	assert.NotNil(t, err)
+	x, missingExecutionError := err.(*MissingExecutionError)
+	assert.True(t, missingExecutionError)
+	assert.Equal(t, "xxxx", x.ID)
 }
