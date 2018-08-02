@@ -1,0 +1,15 @@
+name: service-ethereum-erc20-tuto
+description: Listen to transfers of an ERC20
+events:
+  transfer:
+    data:
+      blockNumber:
+        type: Number
+      transactionHash:
+        type: String
+      from:
+        type: String
+      to:
+        type: String
+      value:
+        type: Number

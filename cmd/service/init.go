@@ -31,7 +31,7 @@ var Init = &cobra.Command{
 	Short: "Initialize a service",
 	Long: `Initialize a service by creating a mesg.yml and Dockerfile in a dedicated folder.
 	
-To get more information, see the page [service file from the documentation](https://docs.mesg.com/service/service-file.html)`,
+To get more information, see the page [service file from the documentation](https://docs.mesg.com/guide/service/service-file.html)`,
 	Example: `mesg-core service init
 mesg-core service init --name NAME --description DESCRIPTION
 mesg-core service init --current`,
