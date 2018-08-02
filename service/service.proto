@@ -2,46 +2,52 @@ syntax = "proto3";
 
 package service;
 
+// This is the definition of a MESG Service.
 message Service {
-  string name = 1;
-  string description = 2;
-  map<string, Task> tasks = 5;
-  map<string, Event> events = 6;
-  map<string, Dependency> dependencies = 7;
-  Dependency configuration = 8;  
-  string repository = 9;
+  string name = 1;                          // The service's name.
+  string description = 2;                   // The service's description.
+  map<string, Task> tasks = 5;              // The list of tasks this service can execute.
+  map<string, Event> events = 6;            // The list of events this service can emit.
+  map<string, Dependency> dependencies = 7; // The Docker dependencies this service requires.
+  Dependency configuration = 8;             // The service's Docker configuration.
+  string repository = 9;                    // The service's repository that contain its source code.
 }
 
-message Task {
-  string name = 1;
-  string description = 2;
-  map<string, Parameter> inputs = 6;
-  map<string, Output> outputs = 7;
-}
-
+// Events are emitted by the service whenever the service wants.
 message Event {
-  string name = 1;
-  string description = 2;
-  map<string, Parameter> data = 3;
+  string name = 1;                  // The event's name.
+  string description = 2;           // The event's description.
+  map<string, Parameter> data = 3;  // The list of data of this event.
 }
 
+// A task is a function that requires inputs and returns output.
+message Task {
+  string name = 1;                    // The task's name.
+  string description = 2;             // The task's description.
+  map<string, Parameter> inputs = 6;  // The list inputs of this task.
+  map<string, Output> outputs = 7;    // The list of outputs this task can return.
+}
+
+// A output is the data a task must return.
 message Output {
-  string name = 1;
-  string description = 2;
-  map<string, Parameter> data = 3;
+  string name = 1;                  // The output's name.
+  string description = 2;           // the output's description.
+  map<string, Parameter> data = 3;  // The list of data of this output.
 }
 
+// A parameter is the definition of a specific value.
 message Parameter {
-  string name = 1;
-  string description = 2;
-  string type = 3;
-  bool optional = 4;
+  string name = 1;        // The parameter's name.
+  string description = 2; // The parameter's description.
+  string type = 3;        // The parameter's type: `String`, `Number`, `Boolean` or `Object`.
+  bool optional = 4;      // Set the parameter as optional.
 }
 
+// A dependency is a configuration of an other Docker container that runs separately from the service.
 message Dependency {
-  string image = 1;
-  repeated string volumes = 2;
-  repeated string volumesfrom = 3;
-  repeated string ports = 4;
-  string command = 5;
+  string image = 1;                 // Image's name of the Docker.
+  repeated string volumes = 2;      // List of volumes.
+  repeated string volumesfrom = 3;  // List of volumes mounted from other dependencies.
+  repeated string ports = 4;        // List of ports the container exposes.
+  string command = 5;               // Command to run the container.
 }

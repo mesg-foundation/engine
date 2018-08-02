@@ -13,7 +13,8 @@ mesg-core service gen-doc [flags]
 ### Examples
 
 ```
-mesg-core service gen-doc PATH_TO_SERVICE
+mesg-core service gen-doc
+mesg-core service gen-doc ./PATH_TO_SERVICE
 ```
 
 ### Options

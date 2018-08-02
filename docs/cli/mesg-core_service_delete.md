@@ -15,6 +15,7 @@ mesg-core service delete [flags]
 ```
 mesg-core service delete SERVICE_ID
 mesg-core service delete SERVICE_ID_1 SERVICE_ID_2
+mesg-core service delete --all
 ```
 
 ### Options
