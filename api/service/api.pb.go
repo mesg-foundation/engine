@@ -42,8 +42,8 @@ const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 // **Example:**
 // ```json
 // {
-//   "token": "__SERVICE_TOKEN_FROM_ENV__",
-//   "eventKey": "__EVENT_KEY__",
+//   "token":     "__SERVICE_TOKEN_FROM_ENV__",
+//   "eventKey":  "__EVENT_KEY__",
 //   "eventData": "{\"foo\":\"hello\",\"bar\":false}"
 // }
 // ```
@@ -120,8 +120,8 @@ func (m *ListenTaskRequest) GetToken() string {
 // ```json
 // {
 //   "executionID": "__EXECUTION_ID__",
-//   "taskKey": "__TASK_KEY__",
-//   "inputData": "{\"inputX\":\"Hello world!\",\"inputY\":true}"
+//   "taskKey":     "__TASK_KEY__",
+//   "inputData":   "{\"inputX\":\"Hello world!\",\"inputY\":true}"
 // }
 // ```
 type TaskData struct {
@@ -163,8 +163,8 @@ func (m *TaskData) GetInputData() string {
 // ```json
 // {
 //   "executionID": "__EXECUTION_ID__",
-//   "outputKey": "__OUTPUT_KEY__",
-//   "outputData": "{\"foo\":\"super result\",\"bar\":true}"
+//   "outputKey":   "__OUTPUT_KEY__",
+//   "outputData":  "{\"foo\":\"super result\",\"bar\":true}"
 // }
 // ```
 type SubmitResultRequest struct {
