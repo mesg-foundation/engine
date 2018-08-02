@@ -33,7 +33,7 @@ service Service {
 // }
 // ```
 message EmitEventRequest {
-  string token = 1;     // The service's token given by Core as the environmental variable `MESG_TOKEN`.
+  string token = 1;     // The service's token given by Core as the environment variable `MESG_TOKEN`.
   string eventKey = 2;  // The event's key as defined in the [service file](../guide/service/service-file.md).
   string eventData = 3; // The event's data encoded in JSON as defined in the [service file](../guide/service/service-file.md).
 }
@@ -51,7 +51,7 @@ message EmitEventReply {
 // }
 // ```
 message ListenTaskRequest {
-  string token = 1; // The service's token given by the Core as the environmental variable `MESG_TOKEN`.
+  string token = 1; // The service's token given by the Core as the environment variable `MESG_TOKEN`.
 }
 
 // The data received from the stream of the `ListenTask` API.
