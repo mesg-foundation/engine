@@ -10,10 +10,15 @@ This file is generated using the ./scripts/build-proto.sh scripts
 Please update the Core file
 -->
 
-This is the primary API to interact with MESG Core functionalities. It can be consumed by any applications or tools that you'd like to interact with MESG Core.
+This is the primary API to interact with MESG Core functionalities.
+It can be consumed by any applications or tools that you'd like to interact with MESG Core.
 It is actually used by the MESG CLI and MESG Application libraries.
 
+This API is only accessible through [gRPC](https://grpc.io/).
+
 Services must not use this API, but rather use the [Service API](./service.md).
+
+The source file of this API is hosted on [GitHub](https://github.com/mesg-foundation/core/blob/master/api/core/api.proto).
 
 [[toc]]
 

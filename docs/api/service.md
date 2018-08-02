@@ -14,7 +14,11 @@ This is the API for MESG Services to interact with MESG Core.
 It is to be consumed only by MESG Services.
 It provides all necessary functions that MESG Services need in order to interact with MESG Core.
 
+This API is only accessible through [gRPC](https://grpc.io/).
+
 Applications must not use this API, but rather use the [Core API](./core.md).
+
+The source file of this API is hosted on [GitHub](https://github.com/mesg-foundation/core/blob/master/api/service/api.proto).
 
 [[toc]]
 
