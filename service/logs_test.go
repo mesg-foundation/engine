@@ -10,10 +10,10 @@ func TestLogs(t *testing.T) {
 	service := &Service{
 		Name: "TestLogs",
 		Dependencies: map[string]*Dependency{
-			"test": &Dependency{
+			"test": {
 				Image: "nginx",
 			},
-			"test2": &Dependency{
+			"test2": {
 				Image: "nginx",
 			},
 		},
@@ -29,10 +29,10 @@ func TestLogsOnlyOneDependency(t *testing.T) {
 	service := &Service{
 		Name: "TestLogsOnlyOneDependency",
 		Dependencies: map[string]*Dependency{
-			"test": &Dependency{
+			"test": {
 				Image: "nginx",
 			},
-			"test2": &Dependency{
+			"test2": {
 				Image: "nginx",
 			},
 		},

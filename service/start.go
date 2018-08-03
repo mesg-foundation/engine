@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -13,38 +14,39 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Start a service
-func (service *Service) Start() (serviceIDs []string, err error) {
+// Start starts the service.
+func (service *Service) Start() ([]string, error) {
 	status, err := service.Status()
 	if err != nil || status == RUNNING {
-		return //TODO: if the service is already running, serviceIDs should be returned.
+		return nil, err //TODO: if the service is already running, serviceIDs should be returned.
 	}
 	// If there is one but not all services running stop to restart all
 	if status == PARTIAL {
-		err = service.StopDependencies()
-		if err != nil {
-			return
+		if err = service.StopDependencies(); err != nil {
+			return nil, err
 		}
 	}
 	networkID, err := container.CreateNetwork(service.namespace())
 	if err != nil {
-		return
+		return nil, err
 	}
-	dependenciesFromService := service.DependenciesFromService()
-	serviceIDs = make([]string, len(dependenciesFromService))
-	var mutex sync.Mutex
-	var wg sync.WaitGroup
+	var (
+		mutex                   sync.Mutex
+		wg                      sync.WaitGroup
+		dependenciesFromService = service.DependenciesFromService()
+		serviceIDs              = make([]string, len(dependenciesFromService))
+	)
 	for i, dependency := range dependenciesFromService {
 		wg.Add(1)
 		go func(dep *DependencyFromService, i int) {
-			defer wg.Done()
 			serviceID, errStart := dep.Start(networkID)
 			mutex.Lock()
-			defer mutex.Unlock()
 			serviceIDs[i] = serviceID
 			if errStart != nil && err == nil {
 				err = errStart
 			}
+			mutex.Unlock()
+			wg.Done()
 		}(dependency, i)
 	}
 	wg.Wait()
@@ -52,29 +54,27 @@ func (service *Service) Start() (serviceIDs []string, err error) {
 	if err != nil {
 		service.Stop()
 	}
-	return
+	return serviceIDs, nil
 }
 
-// Start will start a dependency container
-func (dependency *DependencyFromService) Start(networkID string) (containerServiceID string, err error) {
+// Start starts a dependency container.
+func (dependency *DependencyFromService) Start(networkID string) (string, error) {
 	if networkID == "" {
-		err = errors.New("Network ID should never be null")
-		return
+		return "", errors.New("Network ID should never be null")
 	}
 	service := dependency.Service
 	if service == nil {
-		err = errors.New("Service is nil")
-		return
+		return "", errors.New("Service is nil")
 	}
 	sharedNetworkID, err := container.SharedNetworkID()
 	if err != nil {
-		return
+		return "", err
 	}
 	mounts, err := dependency.extractVolumes()
 	if err != nil {
-		return
+		return "", err
 	}
-	containerServiceID, err = container.StartService(container.ServiceOptions{
+	return container.StartService(container.ServiceOptions{
 		Namespace: dependency.namespace(),
 		Labels: map[string]string{
 			"mesg.service": service.Name,
@@ -94,11 +94,10 @@ func (dependency *DependencyFromService) Start(networkID string) (containerServi
 		Ports:      dependency.extractPorts(),
 		NetworksID: []string{networkID, sharedNetworkID},
 	})
-	return
 }
 
-func (dependency *Dependency) extractPorts() (ports []container.Port) {
-	ports = make([]container.Port, len(dependency.Ports))
+func (dependency *Dependency) extractPorts() []container.Port {
+	ports := make([]container.Port, len(dependency.Ports))
 	for i, p := range dependency.Ports {
 		split := strings.Split(p, ":")
 		from, _ := strconv.ParseUint(split[0], 10, 64)
@@ -111,18 +110,17 @@ func (dependency *Dependency) extractPorts() (ports []container.Port) {
 			Published: uint32(from),
 		}
 	}
-	return
+	return ports
 }
 
 // TODO: add test and hack for MkDir in CircleCI
-func (dependency *DependencyFromService) extractVolumes() (volumes []container.Mount, err error) {
+func (dependency *DependencyFromService) extractVolumes() ([]container.Mount, error) {
 	service := dependency.Service
 	if service == nil {
-		err = errors.New("Service is nil")
-		return
+		return nil, errors.New("Service is nil")
 	}
 	servicePath := strings.Join(service.namespace(), "-")
-	volumes = make([]container.Mount, 0)
+	volumes := make([]container.Mount, 0)
 	for _, volume := range dependency.Volumes {
 		path := filepath.Join(servicePath, dependency.Name, volume)
 		source := filepath.Join(viper.GetString(config.ServicePathHost), path)
@@ -136,8 +134,7 @@ func (dependency *DependencyFromService) extractVolumes() (volumes []container.M
 	for _, depName := range dependency.Volumesfrom {
 		dep := service.Dependencies[depName]
 		if dep == nil {
-			err = errors.New("Dependency " + depName + " do not exist")
-			return
+			return nil, fmt.Errorf("Dependency %s do not exist", depName)
 		}
 		for _, volume := range dep.Volumes {
 			path := filepath.Join(servicePath, depName, volume)
@@ -150,5 +147,5 @@ func (dependency *DependencyFromService) extractVolumes() (volumes []container.M
 			os.MkdirAll(filepath.Join(viper.GetString(config.ServicePathDocker), path), os.ModePerm)
 		}
 	}
-	return
+	return volumes, nil
 }

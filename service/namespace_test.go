@@ -17,7 +17,7 @@ func TestDependencyNamespace(t *testing.T) {
 	service := &Service{
 		Name: "TestDependencyNamespace",
 		Dependencies: map[string]*Dependency{
-			"test": &Dependency{
+			"test": {
 				Image: "nginx",
 			},
 		},
