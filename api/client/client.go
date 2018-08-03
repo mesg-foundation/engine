@@ -12,7 +12,7 @@ import (
 var _client core.CoreClient
 var once sync.Once
 
-// API returns the API client.
+// API returns the client necessary to access the API
 func API() (core.CoreClient, error) {
 	return getClient()
 }
