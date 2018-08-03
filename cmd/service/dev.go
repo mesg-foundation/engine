@@ -41,9 +41,8 @@ func devHandler(cmd *cobra.Command, args []string) {
 
 	<-utils.WaitForCancel()
 
-	// Delete service. This will automatically stop the service too
 	utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: "Deleting test service..."}, func() {
-		cli().DeleteService(context.Background(), &core.DeleteServiceRequest{
+		cli().DeleteService(context.Background(), &core.DeleteServiceRequest{ // Delete service. This will automatically stop the service too
 			ServiceID: serviceID,
 		})
 	})
