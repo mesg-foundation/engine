@@ -9,10 +9,7 @@ import (
 // GetService fetches a service from the database and returns it.
 func (s *Server) GetService(ctx context.Context, request *GetServiceRequest) (*GetServiceReply, error) {
 	service, err := services.Get(request.ServiceID)
-	if err != nil {
-		return nil, err
-	}
 	return &GetServiceReply{
 		Service: &service,
-	}, nil
+	}, err
 }
