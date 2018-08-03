@@ -3,6 +3,7 @@ package core
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/mesg-foundation/core/database/services"
 	service "github.com/mesg-foundation/core/service"
@@ -57,19 +58,19 @@ func validateOutputKey(service *service.Service, taskKey string, outputFilter st
 		return
 	}
 	if taskKey == "" {
-		err = errors.New("Cannot filter output without specifying a task")
-		return
+		return fmt.Errorf("Cannot filter output without specifying a task")
 	}
 	task, ok := service.Tasks[taskKey]
 	if !ok {
 		err = errors.New("Task '" + taskKey + "' doesn't exist in this service")
 		return
 	}
+
 	_, ok = task.Outputs[outputFilter]
 	if !ok {
-		err = errors.New("Output '" + outputFilter + "' doesn't exist in the task '" + taskKey + "' of this service")
+		err = fmt.Errorf("Output %q doesn't exist in the task %q of this service", outputFilter, taskKey)
 	}
-	return
+	return err
 }
 
 func isSubscribedTask(request *ListenResultRequest, e *execution.Execution) bool {
