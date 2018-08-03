@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Start the MESG Core
+// Start the MESG Core.
 var Start = &cobra.Command{
 	Use:               "start",
 	Short:             "Start the MESG Core",
