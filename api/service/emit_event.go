@@ -8,7 +8,7 @@ import (
 	"github.com/mesg-foundation/core/event"
 )
 
-// EmitEvent permits to send and event to anyone who subscribed to it
+// EmitEvent permits to send and event to anyone who subscribed to it.
 func (s *Server) EmitEvent(context context.Context, request *EmitEventRequest) (*EmitEventReply, error) {
 	service, err := services.Get(request.Token)
 	if err != nil {
