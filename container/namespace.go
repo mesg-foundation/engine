@@ -9,7 +9,7 @@ const (
 	namespaceSeparator string = "-"
 )
 
-// Namespace creates a namespace from a list of string
+// Namespace creates a namespace from a list of string.
 func Namespace(ss []string) string {
 	ssWithPrefix := append([]string{namespacePrefix}, ss...)
 	namespace := strings.Join(ssWithPrefix, namespaceSeparator)
