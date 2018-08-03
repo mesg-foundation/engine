@@ -2,16 +2,18 @@ package core
 
 import (
 	"context"
+
 	"github.com/mesg-foundation/core/database/services"
 )
 
-// StopService fetch a service in db and stop it
-func (s *Server) StopService(ctx context.Context, request *StopServiceRequest) (reply *StopServiceReply, err error) {
+// StopService fetches a service from the database and stops it.
+func (s *Server) StopService(ctx context.Context, request *StopServiceRequest) (*StopServiceReply, error) {
 	service, err := services.Get(request.ServiceID)
 	if err != nil {
-		return
+		return nil, err
 	}
-	err = service.Stop()
-	reply = &StopServiceReply{}
-	return
+	if err := service.Stop(); err != nil {
+		return nil, err
+	}
+	return &StopServiceReply{}, nil
 }
