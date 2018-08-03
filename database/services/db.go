@@ -4,9 +4,8 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/spf13/viper"
-
 	"github.com/mesg-foundation/core/config"
+	"github.com/spf13/viper"
 	"github.com/syndtr/goleveldb/leveldb"
 )
 
