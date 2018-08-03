@@ -10,11 +10,12 @@
 - (#242) Add more details in command `mesg-core service validate`
 - (#295) Added more validation on the API for the data of `executeTask`, `submitResult` and `emitEvent`. Now if data doesn't match the service file, the API returns an error
 - (#302) Possibility to use a config file in ~/.mesg/config.yml
-- (#) Add command `service dev` that build and run the service with the logs
-- (#) Add command `service execute` that execute a task on a service
+- (#303) Add command `service dev` that build and run the service with the logs
+- (#303) Add command `service execute` that execute a task on a service
+- (#316) Delete service when stoping the `service dev` command to avoid to keep all the versions of the services.
 
 #### Removed
-- (#) Deprecate command `service test` in favor of `service dev` and `service execute`
+- (#303) Deprecate command `service test` in favor of `service dev` and `service execute`
 
 #### Fixed
 
