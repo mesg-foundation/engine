@@ -8,22 +8,22 @@ import (
 
 var serviceTest = &Service{
 	Events: map[string]*Event{
-		"test": &Event{
+		"test": {
 			Data: map[string]*Parameter{
-				"optional": &Parameter{
+				"optional": {
 					Type:     "String",
 					Optional: true,
 				},
-				"string": &Parameter{
+				"string": {
 					Type: "String",
 				},
-				"number": &Parameter{
+				"number": {
 					Type: "Number",
 				},
-				"boolean": &Parameter{
+				"boolean": {
 					Type: "Boolean",
 				},
-				"object": &Parameter{
+				"object": {
 					Type: "Object",
 				},
 			},
