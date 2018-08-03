@@ -7,44 +7,40 @@ import (
 	"github.com/mesg-foundation/core/api/core"
 )
 
-func (task *Task) processEvent(wf *Workflow, data *core.EventData) (err error) {
+func (task *Task) processEvent(wf *Workflow, data *core.EventData) error {
 	var d interface{}
-	err = json.Unmarshal([]byte(data.EventData), &d)
-	if err != nil {
-		return
+	if err := json.Unmarshal([]byte(data.EventData), &d); err != nil {
+		return err
 	}
 	return task.process(wf, d)
 }
 
-func (task *Task) processResult(wf *Workflow, data *core.ResultData) (err error) {
+func (task *Task) processResult(wf *Workflow, data *core.ResultData) error {
 	var d interface{}
-	err = json.Unmarshal([]byte(data.OutputData), &d)
-	if err != nil {
-		return
+	if err := json.Unmarshal([]byte(data.OutputData), &d); err != nil {
+		return err
 	}
 	return task.process(wf, d)
 }
 
-func (task *Task) process(wf *Workflow, data interface{}) (err error) {
+func (task *Task) process(wf *Workflow, data interface{}) error {
 	inputData, err := task.convertData(data)
 	if err != nil {
-		return
+		return err
 	}
 	_, err = wf.client.ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
 		ServiceID: task.ServiceID,
 		TaskKey:   task.Name,
 		InputData: inputData,
 	})
-	return
+	return err
 }
 
-func (task *Task) convertData(data interface{}) (res string, err error) {
+func (task *Task) convertData(data interface{}) (string, error) {
 	inputData := task.Inputs(data)
-	var inputDataJSON []byte
-	inputDataJSON, err = json.Marshal(inputData)
+	inputDataJSON, err := json.Marshal(inputData)
 	if err != nil {
-		return
+		return "", err
 	}
-	res = string(inputDataJSON)
-	return
+	return string(inputDataJSON), nil
 }
