@@ -60,11 +60,11 @@ func TestServiceOptionLabels(t *testing.T) {
 func TestServiceOptionPorts(t *testing.T) {
 	options := &ServiceOptions{
 		Ports: []Port{
-			Port{
+			{
 				Published: 50503,
 				Target:    50501,
 			},
-			Port{
+			{
 				Published: 30503,
 				Target:    30501,
 			},
@@ -81,7 +81,7 @@ func TestServiceOptionPorts(t *testing.T) {
 func TestServiceOptionMounts(t *testing.T) {
 	options := &ServiceOptions{
 		Mounts: []Mount{
-			Mount{
+			{
 				Source: "source/file",
 				Target: "target/file",
 			},
