@@ -12,8 +12,5 @@ func (s *Server) StopService(ctx context.Context, request *StopServiceRequest) (
 	if err != nil {
 		return nil, err
 	}
-	if err := service.Stop(); err != nil {
-		return nil, err
-	}
-	return &StopServiceReply{}, nil
+	return &StopServiceReply{}, service.Stop()
 }

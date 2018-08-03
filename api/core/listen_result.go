@@ -2,7 +2,6 @@ package core
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 
 	"github.com/mesg-foundation/core/database/services"
@@ -55,7 +54,7 @@ func validateOutputKey(service *service.Service, taskKey string, outputFilter st
 		return nil
 	}
 	if taskKey == "" {
-		return errors.New("Cannot filter output without specifying a task")
+		return fmt.Errorf("Cannot filter output without specifying a task")
 	}
 	task, ok := service.Tasks[taskKey]
 	if !ok {
