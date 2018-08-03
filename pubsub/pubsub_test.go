@@ -6,9 +6,13 @@ import (
 	"github.com/stvp/assert"
 )
 
+type messageStructTest struct {
+	test string
+}
+
 func TestPublish(t *testing.T) {
 	key := "TestPublish"
-	data := struct{}{}
+	data := messageStructTest{test: "TestPublish"}
 
 	res := Subscribe(key)
 	go Publish(key, data)
@@ -18,7 +22,7 @@ func TestPublish(t *testing.T) {
 
 func TestPublishMultipleListeners(t *testing.T) {
 	key := "TestPublishMultipleListeners"
-	data := struct{}{}
+	data := messageStructTest{test: "TestPublishMultipleListeners"}
 	res1 := Subscribe(key)
 	res2 := Subscribe(key)
 	go Publish(key, data)
