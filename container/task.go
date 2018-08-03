@@ -8,31 +8,31 @@ import (
 	"github.com/docker/docker/api/types/swarm"
 )
 
-// ListTasks returns all the docker tasks.
-func ListTasks(namespace []string) ([]swarm.Task, error) {
+// ListTasks returns all docker tasks
+func ListTasks(namespace []string) (tasks []swarm.Task, err error) {
 	client, err := Client()
 	if err != nil {
-		return nil, err
+		return
 	}
-	return client.TaskList(context.Background(), types.TaskListOptions{
+	tasks, err = client.TaskList(context.Background(), types.TaskListOptions{
 		Filters: filters.NewArgs(filters.KeyValuePair{
 			Key:   "label",
 			Value: "com.docker.stack.namespace=" + Namespace(namespace),
 		}),
 	})
+	return
 }
 
-// TasksError returns the error of matching tasks.
-func TasksError(namespace []string) ([]string, error) {
+// TasksError returns the error of matching tasks
+func TasksError(namespace []string) (errors []string, err error) {
 	tasks, err := ListTasks(namespace)
 	if err != nil {
-		return nil, err
+		return
 	}
-	var errors []string
 	for _, task := range tasks {
 		if task.Status.Err != "" {
 			errors = append(errors, task.Status.Err)
 		}
 	}
-	return errors, nil
+	return
 }

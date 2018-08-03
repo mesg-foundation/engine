@@ -6,20 +6,24 @@ import (
 	"time"
 )
 
-// waitForStatus waits for the container to have the provided status. Returns error as soon as possible.
-func waitForStatus(namespace []string, status StatusType) error {
+// waitForStatus wait for the container to have the provided status. Returns error as soon as possible
+func waitForStatus(namespace []string, status StatusType) (err error) {
+	var tasksErrors []string
+	var currentStatus StatusType
 	for {
-		tasksErrors, err := TasksError(namespace)
+		tasksErrors, err = TasksError(namespace)
 		if err != nil {
-			return err
+			break
 		}
 		if len(tasksErrors) > 0 {
-			return errors.New(strings.Join(tasksErrors, ", "))
+			err = errors.New(strings.Join(tasksErrors, ", "))
+			break
 		}
-		currentStatus, err := Status(namespace)
+		currentStatus, err = Status(namespace)
 		if err != nil || currentStatus == status {
-			return err
+			break
 		}
 		time.Sleep(500 * time.Millisecond)
 	}
+	return
 }
