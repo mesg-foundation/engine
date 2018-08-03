@@ -8,7 +8,7 @@ import (
 )
 
 // CreateNetwork creates a Docker Network with a namespace.
-func CreateNetwork(namespace []string) (string, error) {
+func CreateNetwork(namespace []string) (id string, err error) {
 	network, err := FindNetwork(namespace)
 	if err != nil && !docker.IsErrNotFound(err) {
 		return "", err
