@@ -60,11 +60,11 @@ func prepareService(path string) *service.Service {
 	return importedService
 }
 
-func downloadServiceIfNeeded(path string) (string, bool, error) {
+func downloadServiceIfNeeded(path string) (newPath string, didDownload bool, err error) {
 	if !govalidator.IsURL(path) {
 		return path, false, nil
 	}
-	newPath, err := createTempFolder()
+	newPath, err = createTempFolder()
 	if err != nil {
 		return "", false, err
 	}
@@ -74,7 +74,7 @@ func downloadServiceIfNeeded(path string) (string, bool, error) {
 	return newPath, true, nil
 }
 
-func gitClone(repoURL string, path string, message string) (err error) {
+func gitClone(repoURL string, path string, message string) error {
 	u, err := url.Parse(repoURL)
 	if err != nil {
 		return err
@@ -94,7 +94,7 @@ func gitClone(repoURL string, path string, message string) (err error) {
 	return err
 }
 
-func createTempFolder() (string, error) {
+func createTempFolder() (path string, err error) {
 	return ioutil.TempDir("", "mesg-")
 }
 
