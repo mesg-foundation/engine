@@ -171,6 +171,6 @@ func TestCheckService(t *testing.T) {
 	}
 	srv.Start()
 	defer srv.Stop()
-	err = checkService(&srv)
+	err := checkService(&srv)
 	assert.Nil(t, err)
 }
