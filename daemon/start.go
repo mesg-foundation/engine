@@ -9,7 +9,7 @@ import (
 )
 
 // Start starts the docker core.
-func Start() (string, error) {
+func Start() (serviceID string, err error) {
 	status, err := Status()
 	if err != nil || status == container.RUNNING {
 		return "", err
