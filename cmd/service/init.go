@@ -142,8 +142,8 @@ func getTemplateResult(result string, templates []*templateStruct) (tmpl *templa
 	return
 }
 
-func downloadTemplate(tmpl *templateStruct) (string, error) {
-	path, err := createTempFolder()
+func downloadTemplate(tmpl *templateStruct) (path string, err error) {
+	path, err = createTempFolder()
 	if err != nil {
 		return "", err
 	}
