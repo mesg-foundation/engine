@@ -7,11 +7,10 @@ import (
 	"github.com/mesg-foundation/core/pubsub"
 )
 
-// Execute moves an exection from the pending to the in progress queue and publish the job for processing
-func (execution *Execution) Execute() (err error) {
-	err = execution.moveFromPendingToInProgress()
-	if err != nil {
-		return
+// Execute moves an execution from pending to in progress queue and publishes the job for processing.
+func (execution *Execution) Execute() error {
+	if err := execution.moveFromPendingToInProgress(); err != nil {
+		return err
 	}
 	execution.ExecutedAt = time.Now()
 	log.Println("[PROCESSING]", execution.Task)
@@ -19,5 +18,5 @@ func (execution *Execution) Execute() (err error) {
 	channel := execution.Service.TaskSubscriptionChannel()
 
 	go pubsub.Publish(channel, execution)
-	return
+	return nil
 }
