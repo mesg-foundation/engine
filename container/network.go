@@ -7,23 +7,19 @@ import (
 	docker "github.com/docker/docker/client"
 )
 
-// CreateNetwork creates a Docker Network with a namespace
-func CreateNetwork(namespace []string) (networkID string, err error) {
+// CreateNetwork creates a Docker Network with a namespace.
+func CreateNetwork(namespace []string) (id string, err error) {
 	network, err := FindNetwork(namespace)
-	if docker.IsErrNotFound(err) {
-		err = nil
-	}
-	if err != nil {
-		return
+	if err != nil && !docker.IsErrNotFound(err) {
+		return "", err
 	}
 	if network.ID != "" {
-		networkID = network.ID
-		return
+		return network.ID, nil
 	}
 	namespaceFlat := Namespace(namespace)
 	client, err := Client()
 	if err != nil {
-		return
+		return "", err
 	}
 	response, err := client.NetworkCreate(context.Background(), namespaceFlat, types.NetworkCreate{
 		CheckDuplicate: true, // Cannot have 2 network with the same name
@@ -33,36 +29,29 @@ func CreateNetwork(namespace []string) (networkID string, err error) {
 		},
 	})
 	if err != nil {
-		return
+		return "", err
 	}
-	networkID = response.ID
-	return
+	return response.ID, nil
 }
 
-// DeleteNetwork deletes a Docker Network associated with a namespace
-func DeleteNetwork(namespace []string) (err error) {
+// DeleteNetwork deletes a Docker Network associated with a namespace.
+func DeleteNetwork(namespace []string) error {
 	network, err := FindNetwork(namespace)
-	if docker.IsErrNotFound(err) {
-		err = nil
-		return
-	}
-	if err != nil {
-		return
+	if err != nil && !docker.IsErrNotFound(err) {
+		return err
 	}
 	client, err := Client()
 	if err != nil {
-		return
+		return err
 	}
-	err = client.NetworkRemove(context.Background(), network.ID)
-	return
+	return client.NetworkRemove(context.Background(), network.ID)
 }
 
-// FindNetwork finds a Docker Network by a namespace. If no network if found, an error is returned.
-func FindNetwork(namespace []string) (network types.NetworkResource, err error) {
+// FindNetwork finds a Docker Network by a namespace. If no network is found, an error is returned.
+func FindNetwork(namespace []string) (types.NetworkResource, error) {
 	client, err := Client()
 	if err != nil {
-		return
+		return types.NetworkResource{}, err
 	}
-	network, err = client.NetworkInspect(context.Background(), Namespace(namespace), types.NetworkInspectOptions{})
-	return
+	return client.NetworkInspect(context.Background(), Namespace(namespace), types.NetworkInspectOptions{})
 }
