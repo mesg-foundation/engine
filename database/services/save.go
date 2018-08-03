@@ -16,5 +16,6 @@ func Save(service *service.Service) (hash string, err error) {
 	if err != nil {
 		return "", err
 	}
-	return service.Hash(), db.Put([]byte(hash), bytes, nil)
+	hash = service.Hash()
+	return hash, db.Put([]byte(hash), bytes, nil)
 }
