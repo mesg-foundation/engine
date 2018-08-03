@@ -9,14 +9,16 @@ import (
 )
 
 func removeSharedNetworkIfExist(client *docker.Client) (err error) {
-
-	if _, err := sharedNetwork(client); err != nil {
-		if docker.IsErrNotFound(err) {
-			return nil
-		}
-		return err
+	_, err = sharedNetwork(client)
+	if docker.IsErrNotFound(err) {
+		err = nil
+		return
 	}
-	return client.NetworkRemove(context.Background(), Namespace(sharedNetworkNamespace))
+	if err != nil {
+		return
+	}
+	err = client.NetworkRemove(context.Background(), Namespace(sharedNetworkNamespace))
+	return
 }
 
 func TestCreateSharedNetworkIfNeeded(t *testing.T) {

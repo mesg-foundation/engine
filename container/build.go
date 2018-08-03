@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"path/filepath"
 	"strings"
@@ -19,7 +18,7 @@ type BuildResponse struct {
 	Error  string `json:"error"`
 }
 
-// Build builds a docker image.
+// Build a docker image
 func Build(path string) (tag string, err error) {
 	excludeFilesBytes, _ := ioutil.ReadFile(filepath.Join(path, ".mesgignore"))
 	excludeFiles := strings.Fields(string(excludeFilesBytes))
@@ -28,12 +27,12 @@ func Build(path string) (tag string, err error) {
 		ExcludePatterns: excludeFiles,
 	})
 	if err != nil {
-		return "", err
+		return
 	}
 	defer buildContext.Close()
 	client, err := Client()
 	if err != nil {
-		return "", err
+		return
 	}
 	response, err := client.ImageBuild(context.Background(), buildContext, types.ImageBuildOptions{
 		Remove:         true,
@@ -41,34 +40,37 @@ func Build(path string) (tag string, err error) {
 		SuppressOutput: true,
 	})
 	if err != nil {
-		return "", err
+		return
 	}
-	return parseBuildResponse(response)
+	tag, err = parseBuildResponse(response)
+	return
 }
 
-func parseBuildResponse(response types.ImageBuildResponse) (string, error) {
+func parseBuildResponse(response types.ImageBuildResponse) (tag string, err error) {
 	lastOutput, err := extractLastOutputFromBuildResponse(response)
 	if err != nil {
-		return "", err
+		return
 	}
 	var buildResponse BuildResponse
-
-	if err := json.Unmarshal([]byte(lastOutput), &buildResponse); err != nil {
-		return "", fmt.Errorf("Could not parse container build response. %s", err)
+	err = json.Unmarshal([]byte(lastOutput), &buildResponse)
+	if err != nil {
+		err = errors.New("Could not parse container build response. " + err.Error())
+		return
 	}
 	if buildResponse.Error != "" {
-		return "", fmt.Errorf("Image build failed. %s", buildResponse.Error)
+		err = errors.New("Image build failed. " + buildResponse.Error)
+		return
 	}
-	return strings.TrimSuffix(buildResponse.Stream, "\n"), nil
+	tag = strings.TrimSuffix(buildResponse.Stream, "\n")
+	return
 }
 
-func extractLastOutputFromBuildResponse(response types.ImageBuildResponse) (string, error) {
+func extractLastOutputFromBuildResponse(response types.ImageBuildResponse) (lastOutput string, err error) {
 	defer response.Body.Close()
 	r, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return "", err
+		return
 	}
-	lastOutput := ""
 	rs := strings.Split(string(r), "\n")
 	i := len(rs) - 1
 	for lastOutput == "" && i >= 0 {
@@ -76,7 +78,8 @@ func extractLastOutputFromBuildResponse(response types.ImageBuildResponse) (stri
 		i--
 	}
 	if lastOutput == "" {
-		return "", errors.New("Could not parse container build response")
+		err = errors.New("Could not parse container build response")
+		return
 	}
-	return lastOutput, nil
+	return
 }

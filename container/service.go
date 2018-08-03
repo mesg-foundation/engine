@@ -10,78 +10,88 @@ import (
 	docker "github.com/docker/docker/client"
 )
 
-// ListServices returns existing docker services matching a specific label name.
-func ListServices(label string) ([]swarm.Service, error) {
+// ListServices returns existing docker services matching a specific label name
+func ListServices(label string) (services []swarm.Service, err error) {
 	client, err := Client()
 	if err != nil {
-		return nil, err
+		return
 	}
-	return client.ServiceList(context.Background(), types.ServiceListOptions{
+	services, err = client.ServiceList(context.Background(), types.ServiceListOptions{
 		Filters: filters.NewArgs(filters.KeyValuePair{
 			Key:   "label",
 			Value: label,
 		}),
 	})
+	return
 }
 
-// FindService returns the Docker Service or an error if not found.
-func FindService(namespace []string) (swarm.Service, error) {
+// FindService returns the Docker Service. Return error if not found.
+func FindService(namespace []string) (service swarm.Service, err error) {
 	client, err := Client()
 	if err != nil {
-		return swarm.Service{}, err
+		return
 	}
-	service, _, err := client.ServiceInspectWithRaw(context.Background(), Namespace(namespace), types.ServiceInspectOptions{})
-	return service, err
+	service, _, err = client.ServiceInspectWithRaw(context.Background(), Namespace(namespace), types.ServiceInspectOptions{})
+	return
 }
 
-// StartService starts a docker service.
-func StartService(options ServiceOptions) (string, error) {
+// StartService starts a docker service
+func StartService(options ServiceOptions) (serviceID string, err error) {
 	client, err := Client()
 	if err != nil {
-		return "", err
+		return
 	}
 	service := options.toSwarmServiceSpec()
 	response, err := client.ServiceCreate(context.Background(), service, types.ServiceCreateOptions{})
 	if err != nil {
-		return "", err
+		return
 	}
-	return response.ID, waitForStatus(options.Namespace, RUNNING)
+	serviceID = response.ID
+	err = waitForStatus(options.Namespace, RUNNING)
+	return
 }
 
-// StopService stops a docker service.
-func StopService(namespace []string) error {
+// StopService stops a docker service
+func StopService(namespace []string) (err error) {
 	status, err := ServiceStatus(namespace)
 	if err != nil || status == STOPPED {
-		return err
+		return
 	}
 	client, err := Client()
 	if err != nil {
-		return err
+		return
 	}
-	if err := client.ServiceRemove(context.Background(), Namespace(namespace)); err != nil {
-		return err
+	err = client.ServiceRemove(context.Background(), Namespace(namespace))
+	if err != nil {
+		return
 	}
-	return waitForStatus(namespace, STOPPED)
+	err = waitForStatus(namespace, STOPPED)
+	return
 }
 
-// ServiceStatus returns the status of the Docker Swarm Servicer.
-func ServiceStatus(namespace []string) (StatusType, error) {
-	if _, err := FindService(namespace); !docker.IsErrNotFound(err) {
-		return STOPPED, err
+// ServiceStatus return the status of the Docker Swarm Servicer
+func ServiceStatus(namespace []string) (status StatusType, err error) {
+	status = STOPPED
+	_, err = FindService(namespace)
+	if docker.IsErrNotFound(err) {
+		err = nil
+		return
 	}
-	return RUNNING, nil
+	status = RUNNING
+	return
 }
 
-// ServiceLogs returns the logs of a service.
-func ServiceLogs(namespace []string) (io.ReadCloser, error) {
+// ServiceLogs returns the logs of a service
+func ServiceLogs(namespace []string) (reader io.ReadCloser, err error) {
 	client, err := Client()
 	if err != nil {
-		return nil, err
+		return
 	}
-	return client.ServiceLogs(context.Background(), Namespace(namespace), types.ContainerLogsOptions{
+	reader, err = client.ServiceLogs(context.Background(), Namespace(namespace), types.ContainerLogsOptions{
 		ShowStdout: true,
 		ShowStderr: true,
 		Timestamps: false,
 		Follow:     true,
 	})
+	return
 }

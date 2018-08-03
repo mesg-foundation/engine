@@ -7,13 +7,16 @@ import (
 	docker "github.com/docker/docker/client"
 )
 
-func createSharedNetworkIfNeeded(client *docker.Client) error {
+func createSharedNetworkIfNeeded(client *docker.Client) (err error) {
 	network, err := sharedNetwork(client)
-	if err != nil && !docker.IsErrNotFound(err) {
-		return err
+	if docker.IsErrNotFound(err) {
+		err = nil
+	}
+	if err != nil {
+		return
 	}
 	if network.ID != "" {
-		return nil
+		return
 	}
 	// Create the new network needed to run containers
 	namespace := Namespace(sharedNetworkNamespace)
@@ -24,23 +27,25 @@ func createSharedNetworkIfNeeded(client *docker.Client) error {
 			"com.docker.stack.namespace": namespace,
 		},
 	})
-	return nil
+	return
 }
 
-// sharedNetwork returns the shared network created to connect services and MESG Core.
-func sharedNetwork(client *docker.Client) (types.NetworkResource, error) {
-	return client.NetworkInspect(context.Background(), Namespace(sharedNetworkNamespace), types.NetworkInspectOptions{})
+// sharedNetwork returns the shared network created to connect services and MESG Core
+func sharedNetwork(client *docker.Client) (network types.NetworkResource, err error) {
+	network, err = client.NetworkInspect(context.Background(), Namespace(sharedNetworkNamespace), types.NetworkInspectOptions{})
+	return
 }
 
-// SharedNetworkID returns the ID of the shared network.
-func SharedNetworkID() (string, error) {
+// SharedNetworkID returns the id of the shared network
+func SharedNetworkID() (networkID string, err error) {
 	client, err := Client()
 	if err != nil {
-		return "", nil
+		return
 	}
 	network, err := sharedNetwork(client)
 	if err != nil {
-		return "", nil
+		return
 	}
-	return network.ID, nil
+	networkID = network.ID
+	return
 }
