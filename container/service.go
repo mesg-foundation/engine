@@ -66,7 +66,11 @@ func StopService(namespace []string) error {
 
 // ServiceStatus returns the status of the Docker Swarm Servicer.
 func ServiceStatus(namespace []string) (StatusType, error) {
-	if _, err := FindService(namespace); !docker.IsErrNotFound(err) {
+	_, err := FindService(namespace)
+	if docker.IsErrNotFound(err) {
+		return STOPPED, nil
+	}
+	if err != nil {
 		return STOPPED, err
 	}
 	return RUNNING, nil
