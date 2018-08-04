@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// All the configuration keys
+// All the configuration keys.
 const (
 	APIServerAddress       = "Api.Server.Address"
 	APIServerSocket        = "Api.Server.Socket"

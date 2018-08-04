@@ -1,11 +1,12 @@
 package hash
 
-import "strings"
+import (
+	"strings"
+)
 
 const separator = "."
 
-// Calculate will return a hash according to the data given
-func Calculate(data []string) (res string) {
-	res = strings.Join(data, separator)
-	return
+// Calculate returns a hash according to the given data.
+func Calculate(data []string) string {
+	return strings.Join(data, separator)
 }

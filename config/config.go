@@ -14,7 +14,7 @@ const (
 	configFileName   = "config"
 )
 
-// ToEnv transform a config key to a env key
+// ToEnv transforms a config key to a env key.
 func ToEnv(key string) string {
 	replacer := strings.NewReplacer(defaultSeparator, envSeparator)
 	return envPrefix + envSeparator + replacer.Replace(strings.ToUpper(key))

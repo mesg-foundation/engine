@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/spf13/viper"
-
 	"github.com/stvp/assert"
 )
 
