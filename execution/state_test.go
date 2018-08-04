@@ -11,7 +11,7 @@ func TestMoveFromPendingToInProgress(t *testing.T) {
 	s := service.Service{
 		Name: "TestMoveFromPendingToInProgress",
 		Tasks: map[string]*service.Task{
-			"test": &service.Task{},
+			"test": {},
 		},
 	}
 	var inputs map[string]interface{}
@@ -33,7 +33,7 @@ func TestMoveFromInProgressToCompleted(t *testing.T) {
 	s := service.Service{
 		Name: "TestMoveFromInProgressToCompleted",
 		Tasks: map[string]*service.Task{
-			"test": &service.Task{},
+			"test": {},
 		},
 	}
 	var inputs map[string]interface{}
@@ -49,7 +49,7 @@ func TestMoveFromInProgressToCompletedNonExistingTask(t *testing.T) {
 	s := service.Service{
 		Name: "TestMoveFromInProgressToCompletedNonExistingTask",
 		Tasks: map[string]*service.Task{
-			"test": &service.Task{},
+			"test": {},
 		},
 	}
 	var inputs map[string]interface{}

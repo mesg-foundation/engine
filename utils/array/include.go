@@ -1,6 +1,6 @@
 package array
 
-// IncludedIn returns true if the element value is in the arr, otherwise return false
+// IncludedIn returns true if the element value is in the string slice, false otherwise.
 func IncludedIn(arr []string, value string) bool {
 	if len(arr) == 0 {
 		return false

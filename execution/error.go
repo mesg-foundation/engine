@@ -1,6 +1,6 @@
 package execution
 
-// NotInQueueError is an error when trying to access an execution that doesn't exists
+// NotInQueueError is an error when trying to access an execution that doesn't exists.
 type NotInQueueError struct {
 	ID    string
 	Queue string

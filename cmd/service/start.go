@@ -13,7 +13,7 @@ import (
 var stake float64
 var duration int
 
-// Start run the start command for a service
+// Start run the start command for a service.
 var Start = &cobra.Command{
 	Use:               "start SERVICE_ID",
 	Short:             "Start a service",
