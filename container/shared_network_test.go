@@ -8,8 +8,7 @@ import (
 	"github.com/stvp/assert"
 )
 
-func removeSharedNetworkIfExist(client *docker.Client) (err error) {
-
+func removeSharedNetworkIfExist(client *docker.Client) error {
 	if _, err := sharedNetwork(client); err != nil {
 		if docker.IsErrNotFound(err) {
 			return nil

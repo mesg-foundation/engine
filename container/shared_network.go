@@ -36,11 +36,11 @@ func sharedNetwork(client *docker.Client) (types.NetworkResource, error) {
 func SharedNetworkID() (string, error) {
 	client, err := Client()
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	network, err := sharedNetwork(client)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	return network.ID, nil
 }
