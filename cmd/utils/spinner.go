@@ -6,13 +6,13 @@ import (
 	spinnerPkg "github.com/briandowns/spinner"
 )
 
-// SpinnerOptions is a struct that contains all details for the spinner
+// SpinnerOptions contains all details for the spinner
 type SpinnerOptions struct {
 	Text  string
 	Color string
 }
 
-// StartSpinner create a new spinner for the terminal
+// StartSpinner creates new spinner for terminal.
 func StartSpinner(opts SpinnerOptions) (spinner *spinnerPkg.Spinner) {
 	spinner = spinnerPkg.New(spinnerPkg.CharSets[11], 100*time.Millisecond)
 	spinner.Start()
@@ -25,7 +25,7 @@ func StartSpinner(opts SpinnerOptions) (spinner *spinnerPkg.Spinner) {
 	return
 }
 
-// ShowSpinnerForFunc shows a spinner during the execution of the function
+// ShowSpinnerForFunc shows a spinner during the execution of the function.
 func ShowSpinnerForFunc(opts SpinnerOptions, function func()) {
 	s := StartSpinner(opts)
 	defer s.Stop()

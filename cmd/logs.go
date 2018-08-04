@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Logs of the core
+// Logs of the core.
 var Logs = &cobra.Command{
 	Use:               "logs",
 	Short:             "Show the MESG Core's logs",

@@ -5,23 +5,22 @@ import (
 	"github.com/mesg-foundation/core/service"
 )
 
-// All returns all deployed services
-func All() (services []*service.Service, err error) {
+// All returns all deployed services.
+func All() ([]*service.Service, error) {
 	db, err := open()
 	defer close()
 	if err != nil {
-		return
+		return nil, err
 	}
+	var services []*service.Service
 	iter := db.NewIterator(nil, nil)
 	for iter.Next() {
 		var service service.Service
-		err = proto.Unmarshal(iter.Value(), &service)
-		if err != nil {
-			return
+		if err := proto.Unmarshal(iter.Value(), &service); err != nil {
+			return nil, err
 		}
 		services = append(services, &service)
 	}
 	iter.Release()
-	err = iter.Error()
-	return
+	return services, iter.Error()
 }

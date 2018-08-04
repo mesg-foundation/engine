@@ -8,7 +8,7 @@ import (
 	"github.com/docker/docker/api/types/swarm"
 )
 
-// ServiceOptions is a simplify version of swarm.ServiceSpec that can be created it.
+// ServiceOptions is a simplify version of swarm.ServiceSpec.
 type ServiceOptions struct {
 	Image      string
 	Namespace  []string
@@ -20,21 +20,21 @@ type ServiceOptions struct {
 	Labels     map[string]string
 }
 
-// Port is a simplify version of swarm.PortConfig
+// Port is a simplify version of swarm.PortConfig.
 type Port struct {
 	Target    uint32
 	Published uint32
 }
 
-// Mount is a simplify version of mount.Mount
+// Mount is a simplify version of mount.Mount.
 type Mount struct {
 	Source string
 	Target string
 }
 
-func (options *ServiceOptions) toSwarmServiceSpec() (service swarm.ServiceSpec) {
+func (options *ServiceOptions) toSwarmServiceSpec() swarm.ServiceSpec {
 	namespace := Namespace(options.Namespace)
-	service = swarm.ServiceSpec{
+	return swarm.ServiceSpec{
 		Annotations: swarm.Annotations{
 			Name: namespace,
 			Labels: mergeLabels(options.Labels, map[string]string{
@@ -58,11 +58,10 @@ func (options *ServiceOptions) toSwarmServiceSpec() (service swarm.ServiceSpec) 
 			Ports: options.swarmPorts(),
 		},
 	}
-	return
 }
 
-func (options *ServiceOptions) swarmPorts() (ports []swarm.PortConfig) {
-	ports = make([]swarm.PortConfig, len(options.Ports))
+func (options *ServiceOptions) swarmPorts() []swarm.PortConfig {
+	ports := make([]swarm.PortConfig, len(options.Ports))
 	for i, p := range options.Ports {
 		ports[i] = swarm.PortConfig{
 			Protocol:      swarm.PortConfigProtocolTCP,
@@ -71,23 +70,23 @@ func (options *ServiceOptions) swarmPorts() (ports []swarm.PortConfig) {
 			PublishedPort: p.Published,
 		}
 	}
-	return
+	return ports
 }
 
-func (options *ServiceOptions) swarmMounts(force bool) (mounts []mount.Mount) {
+func (options *ServiceOptions) swarmMounts(force bool) []mount.Mount {
 	// TOFIX: hack to prevent mount when in CircleCI (Mount in CircleCI doesn't work). Should use CircleCi with machine to fix this.
 	circleCI, errCircle := strconv.ParseBool(os.Getenv("CIRCLECI"))
 	if force == false && errCircle == nil && circleCI {
-		return
+		return nil
 	}
-	mounts = make([]mount.Mount, len(options.Mounts))
+	mounts := make([]mount.Mount, len(options.Mounts))
 	for i, m := range options.Mounts {
 		mounts[i] = mount.Mount{
 			Source: m.Source,
 			Target: m.Target,
 		}
 	}
-	return
+	return mounts
 }
 
 func (options *ServiceOptions) swarmNetworks() (networks []swarm.NetworkAttachmentConfig) {

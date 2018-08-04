@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-// MissingExecutionError is an error when an execution doesn't exists
+// MissingExecutionError is an error when an execution doesn't exists.
 type MissingExecutionError struct {
 	ID string
 }
