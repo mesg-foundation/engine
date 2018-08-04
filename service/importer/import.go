@@ -24,8 +24,5 @@ func fromPath(path string) (*service.Service, error) {
 		return nil, err
 	}
 	var importedService service.Service
-	if err := yaml.UnmarshalStrict(data, importedService); err != nil {
-		return nil, err
-	}
-	return &importedService, nil
+	return &importedService, yaml.UnmarshalStrict(data, &importedService)
 }
