@@ -91,10 +91,7 @@ func getTemplates(url string) ([]*templateStruct, error) {
 	}
 
 	var templates []*templateStruct
-	if err := json.Unmarshal(body, &templates); err != nil {
-		return nil, err
-	}
-	return templates, nil
+	return templates, json.Unmarshal(body, &templates)
 }
 
 func selectTemplate(templates []*templateStruct) (*templateStruct, error) {
