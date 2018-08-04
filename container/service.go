@@ -35,7 +35,7 @@ func FindService(namespace []string) (swarm.Service, error) {
 }
 
 // StartService starts a docker service.
-func StartService(options ServiceOptions) (string, error) {
+func StartService(options ServiceOptions) (id string, err error) {
 	client, err := Client()
 	if err != nil {
 		return "", err

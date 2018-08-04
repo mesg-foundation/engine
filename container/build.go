@@ -46,7 +46,7 @@ func Build(path string) (tag string, err error) {
 	return parseBuildResponse(response)
 }
 
-func parseBuildResponse(response types.ImageBuildResponse) (string, error) {
+func parseBuildResponse(response types.ImageBuildResponse) (tag string, err error) {
 	lastOutput, err := extractLastOutputFromBuildResponse(response)
 	if err != nil {
 		return "", err
@@ -62,13 +62,13 @@ func parseBuildResponse(response types.ImageBuildResponse) (string, error) {
 	return strings.TrimSuffix(buildResponse.Stream, "\n"), nil
 }
 
-func extractLastOutputFromBuildResponse(response types.ImageBuildResponse) (string, error) {
+func extractLastOutputFromBuildResponse(response types.ImageBuildResponse) (lastOutput string, err error) {
 	defer response.Body.Close()
 	r, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return "", err
 	}
-	lastOutput := ""
+	lastOutput = ""
 	rs := strings.Split(string(r), "\n")
 	i := len(rs) - 1
 	for lastOutput == "" && i >= 0 {
