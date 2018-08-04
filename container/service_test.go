@@ -6,7 +6,7 @@ import (
 	"github.com/stvp/assert"
 )
 
-func startTestService(name []string) (serviceID string, err error) {
+func startTestService(name []string) (string, error) {
 	return StartService(ServiceOptions{
 		Image:     "nginx",
 		Namespace: name,

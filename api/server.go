@@ -12,7 +12,7 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
-// Server is the main struct that contain the server config
+// Server contains the server config.
 type Server struct {
 	instance *grpc.Server
 	listener net.Listener
@@ -20,32 +20,31 @@ type Server struct {
 	Address  string
 }
 
-// Serve starts the server and listen for client connections
-func (s *Server) Serve() (err error) {
+// Serve starts the server and listens for client connections.
+func (s *Server) Serve() error {
 	if s.listener != nil {
-		err = errors.New("Server already running")
-		return
+		return errors.New("Server already running")
 	}
 
 	if s.Network == "unix" {
 		os.Remove(s.Address)
 	}
-	s.listener, err = net.Listen(s.Network, s.Address)
+	listener, err := net.Listen(s.Network, s.Address)
 	if err != nil {
-		return
+		return err
 	}
 
+	s.listener = listener
 	s.instance = grpc.NewServer()
 	s.register()
 
 	log.Println("Server listens on", s.listener.Addr())
 
 	// TODO: check if server still on after a connection throw an error. otherwise, add a for around serve
-	err = s.instance.Serve(s.listener)
-	return
+	return s.instance.Serve(s.listener)
 }
 
-// Stop stops the server (if exist)
+// Stop stops the server.
 func (s *Server) Stop() {
 	if s.instance != nil {
 		s.instance.Stop()

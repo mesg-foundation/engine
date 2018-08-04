@@ -6,26 +6,25 @@ import (
 
 	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/service"
-
 	"github.com/stvp/assert"
 )
 
 var serversubmit = new(Server)
 
-func execute(name string) (e *execution.Execution) {
+func execute(name string) *execution.Execution {
 	var inputs map[string]interface{}
-	e, _ = execution.Create(&service.Service{
+	e, _ := execution.Create(&service.Service{
 		Name: name,
 		Tasks: map[string]*service.Task{
-			"test": &service.Task{
+			"test": {
 				Outputs: map[string]*service.Output{
-					"output": &service.Output{},
+					"output": {},
 				},
 			},
 		},
 	}, "test", inputs)
 	e.Execute()
-	return
+	return e
 }
 
 func TestSubmit(t *testing.T) {
