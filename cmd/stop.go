@@ -53,11 +53,11 @@ func getCli() (cli core.CoreClient, err error) {
 func stopServices() (err error) {
 	cli, err := getCli()
 	if err != nil {
-		return
+		return err
 	}
 	hashes, err := service.ListRunning()
 	if err != nil {
-		return
+		return err
 	}
 	var mutex sync.Mutex
 	var wg sync.WaitGroup
