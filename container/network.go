@@ -37,7 +37,10 @@ func CreateNetwork(namespace []string) (id string, err error) {
 // DeleteNetwork deletes a Docker Network associated with a namespace.
 func DeleteNetwork(namespace []string) error {
 	network, err := FindNetwork(namespace)
-	if err != nil && !docker.IsErrNotFound(err) {
+	if docker.IsErrNotFound(err) {
+		return nil
+	}
+	if err != nil {
 		return err
 	}
 	client, err := Client()
