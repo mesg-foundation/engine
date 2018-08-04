@@ -63,11 +63,12 @@ func validateOutputKey(service *service.Service, taskKey string, outputFilter st
 		return fmt.Errorf("Task '%q' doesn't exist in this service", taskKey)
 	}
 
+	var err error
 	_, ok = task.Outputs[outputFilter]
 	if !ok {
-		return fmt.Errorf("Output %q doesn't exist in the task %q of this service", outputFilter, taskKey)
+		err = fmt.Errorf("Output %q doesn't exist in the task %q of this service", outputFilter, taskKey)
 	}
-	return nil
+	return err
 }
 
 func isSubscribedTask(request *ListenResultRequest, e *execution.Execution) bool {
