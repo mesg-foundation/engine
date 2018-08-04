@@ -5,7 +5,7 @@ import (
 	"github.com/mesg-foundation/core/service"
 )
 
-// Get a service based on it's hash
+// Get returns a service based on the hash.
 func Get(hash string) (service service.Service, err error) {
 	db, err := open()
 	defer close()
