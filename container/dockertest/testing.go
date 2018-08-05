@@ -96,3 +96,68 @@ func (t *Testing) ProvideNetwork(response types.NetworkCreateResponse, err error
 func (t *Testing) LastNetworkRemove() chan string {
 	return t.client.lastNetworkRemove
 }
+
+func (t *Testing) LastTaskList() chan types.TaskListOptions {
+	return t.client.lastTaskList
+}
+
+func (t *Testing) ProvideTaskList(tasks []swarm.Task, err error) {
+	t.client.tasklist = tasks
+	t.client.tasklistErr = err
+}
+
+func (t *Testing) LastServiceCreate() chan ServiceCreate {
+	return t.client.lastServiceCreate
+}
+
+func (t *Testing) ProvideServiceCreate(response types.ServiceCreateResponse, err error) {
+	// TODO(ilgooz) do the same shortcurt(calling needed Provides) made here
+	// on other needed places too.
+	containerData := types.Container{}
+	containerJSONData := types.ContainerJSON{
+		ContainerJSONBase: &types.ContainerJSONBase{
+			State: &types.ContainerState{Running: true},
+		},
+	}
+	t.ProvideContainer(containerData)
+	t.ProvideContainerInspect(containerJSONData)
+
+	t.client.serviceCreate = response
+	t.client.serviceCreateErr = err
+}
+
+func (t *Testing) LastServiceList() chan types.ServiceListOptions {
+	return t.client.lastServiceList
+}
+
+func (t *Testing) ProvideServiceList(list []swarm.Service, err error) {
+	t.client.serviceList = list
+	t.client.serviceListErr = err
+}
+
+func (t *Testing) LastServiceInspectWithRaw() chan ServiceInspectWithRaw {
+	return t.client.lastServiceInspectWithRaw
+}
+
+func (t *Testing) ProvideServiceInspectWithRaw(service swarm.Service, data []byte, err error) {
+	t.client.serviceInspectWithRaw = service
+	t.client.serviceInspectWithRawBytes = data
+	t.client.serviceInspectWithRawErr = err
+}
+
+func (t *Testing) LastServiceRemove() chan string {
+	return t.client.lastServiceRemove
+}
+
+func (t *Testing) ProvideServiceRemove(err error) {
+	t.client.serviceRemoveErr = err
+}
+
+func (t *Testing) LastServiceLogs() chan ServiceLogs {
+	return t.client.lastServiceLogs
+}
+
+func (t *Testing) ProvideServiceLogs(rc io.ReadCloser, err error) {
+	t.client.serviceLogs = rc
+	t.client.serviceLogsErr = err
+}

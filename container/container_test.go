@@ -58,7 +58,7 @@ func TestFindContainerNonExistent(t *testing.T) {
 	c, _ := New(ClientOption(dt.Client()))
 
 	_, err := c.FindContainer(namespace)
-	assert.Equal(t, dockertest.ErrContainerDoesNotExists, err)
+	assert.Equal(t, dockertest.NotFoundErr{}, err)
 
 	assert.Equal(t, types.ContainerListOptions{
 		Filters: filters.NewArgs(filters.KeyValuePair{
@@ -105,7 +105,7 @@ func TestNonExistentContainerStatus(t *testing.T) {
 	dt := dockertest.New()
 	c, _ := New(ClientOption(dt.Client()))
 	status, err := c.Status(namespace)
-	assert.Equal(t, err, dockertest.ErrContainerDoesNotExists)
+	assert.Nil(t, err)
 	assert.Equal(t, STOPPED, status)
 }
 

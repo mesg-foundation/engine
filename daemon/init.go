@@ -1,4 +1,4 @@
-// TODO(ilgooz): remove this file after service package made Newable.
+// TODO(ilgooz): remove this file after daemon package made Newable.
 package daemon
 
 import (
