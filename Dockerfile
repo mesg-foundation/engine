@@ -22,7 +22,10 @@ RUN go get github.com/xeipuuv/gojsonschema && \
 ADD . src/github.com/mesg-foundation/core
 WORKDIR src/github.com/mesg-foundation/core
 RUN go get ./...
-RUN go build -o mesg-core core/main.go
+ARG version
+RUN go build -o mesg-core \
+      -ldflags="-X 'github.com/mesg-foundation/core/version.Version=$version'" \
+      core/main.go
 
 FROM ubuntu:18.04
 WORKDIR /app
