@@ -19,11 +19,11 @@ func startForTest() {
 	if status == container.RUNNING {
 		return
 	}
-	sharedNetworkID, err := container.SharedNetworkID()
+	sharedNetworkID, err := defaultContainer.SharedNetworkID()
 	if err != nil {
 		panic(err)
 	}
-	_, err = container.StartService(container.ServiceOptions{
+	_, err = defaultContainer.StartService(container.ServiceOptions{
 		Namespace:  Namespace(),
 		Image:      "nginx",
 		NetworksID: []string{sharedNetworkID},

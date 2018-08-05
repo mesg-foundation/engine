@@ -63,8 +63,8 @@ func TestStartWith2Dependencies(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 2, len(servicesID))
 	deps := service.DependenciesFromService()
-	container1, _ := container.FindContainer(deps[0].namespace())
-	container2, _ := container.FindContainer(deps[1].namespace())
+	container1, _ := defaultContainer.FindContainer(deps[0].namespace())
+	container2, _ := defaultContainer.FindContainer(deps[1].namespace())
 	assert.Equal(t, "nginx:latest", container1.Config.Image)
 	assert.Equal(t, "alpine:latest", container2.Config.Image)
 }
@@ -120,8 +120,8 @@ func TestStartDependency(t *testing.T) {
 			},
 		},
 	}
-	networkID, err := container.CreateNetwork(service.namespace())
-	defer container.DeleteNetwork(service.namespace())
+	networkID, err := defaultContainer.CreateNetwork(service.namespace())
+	defer defaultContainer.DeleteNetwork(service.namespace())
 	dep := service.DependenciesFromService()[0]
 	serviceID, err := dep.Start(networkID)
 	defer dep.Stop()
@@ -142,7 +142,7 @@ func TestNetworkCreated(t *testing.T) {
 	}
 	service.Start()
 	defer service.Stop()
-	network, err := container.FindNetwork(service.namespace())
+	network, err := defaultContainer.FindNetwork(service.namespace())
 	assert.Nil(t, err)
 	assert.NotEqual(t, "", network.ID)
 }
