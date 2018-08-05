@@ -26,7 +26,7 @@ func (service *Service) Start() (serviceIDs []string, err error) {
 			return nil, err
 		}
 	}
-	networkID, err := container.CreateNetwork(service.namespace())
+	networkID, err := defaultContainer.CreateNetwork(service.namespace())
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (dependency *DependencyFromService) Start(networkID string) (containerServi
 	if service == nil {
 		return "", errors.New("Service is nil")
 	}
-	sharedNetworkID, err := container.SharedNetworkID()
+	sharedNetworkID, err := defaultContainer.SharedNetworkID()
 	if err != nil {
 		return "", err
 	}
@@ -74,7 +74,7 @@ func (dependency *DependencyFromService) Start(networkID string) (containerServi
 	if err != nil {
 		return "", err
 	}
-	return container.StartService(container.ServiceOptions{
+	return defaultContainer.StartService(container.ServiceOptions{
 		Namespace: dependency.namespace(),
 		Labels: map[string]string{
 			"mesg.service": service.Name,
