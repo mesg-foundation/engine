@@ -51,8 +51,8 @@ func TestNewWithExistingNode(t *testing.T) {
 	}
 }
 
-func TestFindContainerNotExisting(t *testing.T) {
-	namespace := []string{"TestFindContainerNotExisting"}
+func TestFindContainerNonExistent(t *testing.T) {
+	namespace := []string{"namespace"}
 
 	dt := dockertest.New()
 	c, _ := New(ClientOption(dt.Client()))
@@ -73,7 +73,11 @@ func TestFindContainer(t *testing.T) {
 	namespace := []string{"TestFindContainer"}
 	containerID := "1"
 	containerData := types.Container{ID: containerID}
-	containerJSONData := types.ContainerJSON{ContainerJSONBase: &types.ContainerJSONBase{ID: containerID}}
+	containerJSONData := types.ContainerJSON{
+		ContainerJSONBase: &types.ContainerJSONBase{
+			ID: containerID,
+		},
+	}
 
 	dt := dockertest.New()
 	dt.ProvideContainer(containerData)
@@ -94,4 +98,55 @@ func TestFindContainer(t *testing.T) {
 	}, <-dt.LastContainerList())
 
 	assert.Equal(t, containerID, <-dt.LastContainerInspect())
+}
+
+func TestNonExistentContainerStatus(t *testing.T) {
+	namespace := []string{"namespace"}
+	dt := dockertest.New()
+	c, _ := New(ClientOption(dt.Client()))
+	status, err := c.Status(namespace)
+	assert.Equal(t, err, dockertest.ErrContainerDoesNotExists)
+	assert.Equal(t, STOPPED, status)
+}
+
+func TestExistentContainerStatus(t *testing.T) {
+	namespace := []string{"namespace"}
+	containerID := "1"
+	containerData := types.Container{ID: containerID}
+	containerJSONData := types.ContainerJSON{
+		ContainerJSONBase: &types.ContainerJSONBase{
+			ID:    containerID,
+			State: &types.ContainerState{},
+		},
+	}
+
+	dt := dockertest.New()
+	dt.ProvideContainer(containerData)
+	dt.ProvideContainerInspect(containerJSONData)
+
+	c, _ := New(ClientOption(dt.Client()))
+	status, err := c.Status(namespace)
+	assert.Nil(t, err)
+	assert.Equal(t, STOPPED, status)
+}
+
+func TestExistentContainerRunningStatus(t *testing.T) {
+	namespace := []string{"namespace"}
+	containerID := "1"
+	containerData := types.Container{ID: containerID}
+	containerJSONData := types.ContainerJSON{
+		ContainerJSONBase: &types.ContainerJSONBase{
+			ID:    containerID,
+			State: &types.ContainerState{Running: true},
+		},
+	}
+
+	dt := dockertest.New()
+	dt.ProvideContainer(containerData)
+	dt.ProvideContainerInspect(containerJSONData)
+
+	c, _ := New(ClientOption(dt.Client()))
+	status, err := c.Status(namespace)
+	assert.Nil(t, err)
+	assert.Equal(t, RUNNING, status)
 }

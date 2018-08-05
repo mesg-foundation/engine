@@ -2,16 +2,13 @@ package dockertest
 
 import (
 	"context"
-	"errors"
+	"io"
+	"io/ioutil"
 	"sync"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/swarm"
 	docker "github.com/docker/docker/client"
-)
-
-var (
-	ErrContainerDoesNotExists = errors.New("containers does not exists")
 )
 
 type client struct {
@@ -24,6 +21,9 @@ type client struct {
 	lastInfo                chan types.Info
 	lastContainerList       chan types.ContainerListOptions
 	lastContainerInspect    chan string
+	lastImageBuild          chan ImageBuild
+	lastNetworkInspect      chan NetworkInspect
+	lastNetworkRemove       chan string
 
 	m sync.RWMutex
 
@@ -32,6 +32,14 @@ type client struct {
 
 	containers       []types.Container
 	containerInspect types.ContainerJSON
+
+	imageBuild types.ImageBuildResponse
+
+	networkInspect    types.NetworkResource
+	networkInspectErr error
+
+	networkCreate    types.NetworkCreateResponse
+	networkCreateErr error
 }
 
 func newClient() *client {
@@ -42,6 +50,9 @@ func newClient() *client {
 		lastInfo:                make(chan types.Info, 1),
 		lastContainerList:       make(chan types.ContainerListOptions, 1),
 		lastContainerInspect:    make(chan string, 1),
+		lastImageBuild:          make(chan ImageBuild, 1),
+		lastNetworkInspect:      make(chan NetworkInspect, 1),
+		lastNetworkRemove:       make(chan string, 1),
 	}
 }
 
@@ -49,9 +60,15 @@ func (c *client) NegotiateAPIVersion(ctx context.Context) {
 	c.lastNegotiateAPIVersion <- struct{}{}
 }
 
+type NetworkInspect struct {
+	Network string
+	Options types.NetworkInspectOptions
+}
+
 func (c *client) NetworkInspect(ctx context.Context, network string,
 	options types.NetworkInspectOptions) (types.NetworkResource, error) {
-	return types.NetworkResource{}, nil
+	c.lastNetworkInspect <- NetworkInspect{network, options}
+	return c.networkInspect, c.networkInspectErr
 }
 
 type NetworkCreate struct {
@@ -62,7 +79,7 @@ type NetworkCreate struct {
 func (c *client) NetworkCreate(ctx context.Context, name string,
 	options types.NetworkCreate) (types.NetworkCreateResponse, error) {
 	c.lastNetworkCreate <- NetworkCreate{name, options}
-	return types.NetworkCreateResponse{}, nil
+	return c.networkCreate, c.networkCreateErr
 }
 
 func (c *client) SwarmInit(ctx context.Context, req swarm.InitRequest) (string, error) {
@@ -88,4 +105,23 @@ func (c *client) ContainerList(ctx context.Context,
 func (c *client) ContainerInspect(ctx context.Context, container string) (types.ContainerJSON, error) {
 	c.lastContainerInspect <- container
 	return c.containerInspect, nil
+}
+
+type ImageBuild struct {
+	FileData []byte
+	Options  types.ImageBuildOptions
+}
+
+func (c *client) ImageBuild(ctx context.Context, context io.Reader, options types.ImageBuildOptions) (types.ImageBuildResponse, error) {
+	bytes, err := ioutil.ReadAll(context)
+	if err != nil {
+		return types.ImageBuildResponse{}, err
+	}
+	c.lastImageBuild <- ImageBuild{bytes, options}
+	return c.imageBuild, nil
+}
+
+func (c *client) NetworkRemove(ctx context.Context, network string) error {
+	c.lastNetworkRemove <- network
+	return nil
 }

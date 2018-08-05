@@ -2,6 +2,8 @@
 package dockertest
 
 import (
+	"io"
+
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/swarm"
 )
@@ -47,6 +49,12 @@ func (t *Testing) LastNetworkCreate() chan NetworkCreate {
 	return t.client.lastNetworkCreate
 }
 
+func (t *Testing) LastNetworkInspect() chan NetworkInspect {
+	t.client.networkInspect = types.NetworkResource{}
+	t.client.networkInspectErr = nil
+	return t.client.lastNetworkInspect
+}
+
 type SystemInfo struct {
 	Info types.Info
 	Err  error
@@ -65,4 +73,26 @@ func (t *Testing) ProvideInfo(info types.Info, err error) {
 
 func (t *Testing) LastNegotiateAPIVersion() chan struct{} {
 	return t.client.lastNegotiateAPIVersion
+}
+
+func (t *Testing) LastImageBuild() chan ImageBuild {
+	return t.client.lastImageBuild
+}
+
+func (t *Testing) ProvideImageBuild(rc io.ReadCloser) {
+	t.client.imageBuild = types.ImageBuildResponse{Body: rc}
+}
+
+func (t *Testing) ProvideNetworkInspect(response types.NetworkResource, err error) {
+	t.client.networkInspect = response
+	t.client.networkInspectErr = err
+}
+
+func (t *Testing) ProvideNetwork(response types.NetworkCreateResponse, err error) {
+	t.client.networkCreate = response
+	t.client.networkCreateErr = err
+}
+
+func (t *Testing) LastNetworkRemove() chan string {
+	return t.client.lastNetworkRemove
 }
