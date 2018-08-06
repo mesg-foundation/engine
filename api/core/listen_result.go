@@ -48,7 +48,7 @@ func validateTaskKey(service *service.Service, taskKey string) error {
 	if ok {
 		return nil
 	}
-	return fmt.Errorf("Task '%q' doesn't exist in this service", taskKey)
+	return fmt.Errorf("Task %q doesn't exist in this service", taskKey)
 }
 
 func validateOutputKey(service *service.Service, taskKey string, outputFilter string) error {
@@ -60,7 +60,7 @@ func validateOutputKey(service *service.Service, taskKey string, outputFilter st
 	}
 	task, ok := service.Tasks[taskKey]
 	if !ok {
-		return fmt.Errorf("Task '%q' doesn't exist in this service", taskKey)
+		return fmt.Errorf("Task %q doesn't exist in this service", taskKey)
 	}
 
 	var err error
