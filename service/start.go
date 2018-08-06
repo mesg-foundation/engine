@@ -15,7 +15,7 @@ import (
 )
 
 // Start starts the service.
-func (service *Service) Start() ([]string, error) {
+func (service *Service) Start() (serviceIDs []string, err error) {
 	status, err := service.Status()
 	if err != nil || status == RUNNING {
 		return nil, err //TODO: if the service is already running, serviceIDs should be returned.
@@ -34,8 +34,8 @@ func (service *Service) Start() ([]string, error) {
 		mutex                   sync.Mutex
 		wg                      sync.WaitGroup
 		dependenciesFromService = service.DependenciesFromService()
-		serviceIDs              = make([]string, len(dependenciesFromService))
 	)
+	serviceIDs = make([]string, len(dependenciesFromService))
 	for i, dependency := range dependenciesFromService {
 		wg.Add(1)
 		go func(dep *DependencyFromService, i int) {
