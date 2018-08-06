@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+
 	"github.com/mesg-foundation/core/database/services"
 )
 
@@ -9,9 +10,7 @@ import (
 func (s *Server) StopService(ctx context.Context, request *StopServiceRequest) (reply *StopServiceReply, err error) {
 	service, err := services.Get(request.ServiceID)
 	if err != nil {
-		return
+		return nil, err
 	}
-	err = service.Stop()
-	reply = &StopServiceReply{}
-	return
+	return &StopServiceReply{}, service.Stop()
 }
