@@ -39,14 +39,14 @@ func (service *Service) Start() ([]string, error) {
 	for i, dependency := range dependenciesFromService {
 		wg.Add(1)
 		go func(dep *DependencyFromService, i int) {
+			defer wg.Done()
 			serviceID, errStart := dep.Start(networkID)
 			mutex.Lock()
+			defer mutex.Unlock()
 			serviceIDs[i] = serviceID
 			if errStart != nil && err == nil {
 				err = errStart
 			}
-			mutex.Unlock()
-			wg.Done()
 		}(dependency, i)
 	}
 	wg.Wait()
