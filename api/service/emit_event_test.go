@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/database/services"
-
 	"github.com/mesg-foundation/core/pubsub"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stvp/assert"
@@ -17,10 +16,10 @@ func TestEmit(t *testing.T) {
 	service := service.Service{
 		Name: "TestEmit",
 		Events: map[string]*service.Event{
-			"test": &service.Event{},
+			"test": {},
 		},
 		Dependencies: map[string]*service.Dependency{
-			"test": &service.Dependency{
+			"test": {
 				Image: "nginx",
 			},
 		},
