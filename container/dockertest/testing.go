@@ -8,10 +8,12 @@ import (
 	"github.com/docker/docker/api/types/swarm"
 )
 
+// Testing provides functionalities to fake Docker API calls and responses.
 type Testing struct {
-	client *client
+	client *Client
 }
 
+// New creates a new Testing.
 func New() *Testing {
 	t := &Testing{
 		client: newClient(),
@@ -19,145 +21,152 @@ func New() *Testing {
 	return t
 }
 
-func (t *Testing) Client() *client {
+// Client returns a new mock client compatible with Docker's
+// docker.CommonAPIClient interface.
+func (t *Testing) Client() *Client {
 	return t.client
 }
 
-func (t *Testing) ProvideContainer(container types.Container) {
-	t.client.m.Lock()
-	defer t.client.m.Unlock()
-	t.client.containers = append(t.client.containers, container)
-}
-
-func (t *Testing) ProvideContainerInspect(container types.ContainerJSON) {
-	t.client.containerInspect = container
-}
-
-func (t *Testing) LastContainerList() chan types.ContainerListOptions {
-	return t.client.lastContainerList
-}
-
-func (t *Testing) LastContainerInspect() chan string {
-	return t.client.lastContainerInspect
-}
-
-func (t *Testing) LastSwarmInit() chan swarm.InitRequest {
-	return t.client.lastSwarmInit
-}
-
-func (t *Testing) LastNetworkCreate() chan NetworkCreate {
-	return t.client.lastNetworkCreate
-}
-
-func (t *Testing) LastNetworkInspect() chan NetworkInspect {
-	t.client.networkInspect = types.NetworkResource{}
-	t.client.networkInspectErr = nil
-	return t.client.lastNetworkInspect
-}
-
-type SystemInfo struct {
-	Info types.Info
-	Err  error
-}
-
-func (t *Testing) LastInfo() types.Info {
-	return <-t.client.lastInfo
-}
-
+// ProvideInfo sets fake return values for the next call to *Client.Into.
 func (t *Testing) ProvideInfo(info types.Info, err error) {
-	t.client.m.Lock()
-	defer t.client.m.Unlock()
-	t.client.info = info
-	t.client.infoErr = err
+	t.client.responses.info <- infoResponse{info, err}
 }
 
-func (t *Testing) LastNegotiateAPIVersion() chan struct{} {
-	return t.client.lastNegotiateAPIVersion
+// ProvideContainerList sets fake return values for the next call to *Client.ContainerList.
+func (t *Testing) ProvideContainerList(containers []types.Container, err error) {
+	t.client.responses.containerList <- containerListResponse{containers, err}
 }
 
-func (t *Testing) LastImageBuild() chan ImageBuild {
-	return t.client.lastImageBuild
+// ProvideContainerInspect sets fake return values for the next call to *Client.ContainerInspect.
+func (t *Testing) ProvideContainerInspect(json types.ContainerJSON, err error) {
+	t.client.responses.contanerInspect <- containerInspectResponse{json, err}
 }
 
+// ProvideImageBuild sets fake return values for the next call to *Client.ImageBuild.
 func (t *Testing) ProvideImageBuild(rc io.ReadCloser) {
-	t.client.imageBuild = types.ImageBuildResponse{Body: rc}
+	t.client.responses.imageBuild <- imageBuildResponse{types.ImageBuildResponse{Body: rc}, nil}
 }
 
-func (t *Testing) ProvideNetworkInspect(response types.NetworkResource, err error) {
-	t.client.networkInspect = response
-	t.client.networkInspectErr = err
+// ProvideNetworkInspect sets fake return values for the next call to *Client.NetworkInspect.
+func (t *Testing) ProvideNetworkInspect(resource types.NetworkResource, err error) {
+	t.client.responses.networkInspect <- networkInspectResponse{resource, err}
 }
 
-func (t *Testing) ProvideNetwork(response types.NetworkCreateResponse, err error) {
-	t.client.networkCreate = response
-	t.client.networkCreateErr = err
+// ProvideNetworkCreate sets fake return values for the next call to *Client.NetworkCreate.
+func (t *Testing) ProvideNetworkCreate(response types.NetworkCreateResponse, err error) {
+	t.client.responses.networkCreate <- networkCreateResponse{response, err}
 }
 
-func (t *Testing) LastNetworkRemove() chan string {
-	return t.client.lastNetworkRemove
+// ProvideServiceList sets fake return values for the next call to *Client.ServiceList.
+func (t *Testing) ProvideServiceList(services []swarm.Service, err error) {
+	t.client.responses.serviceList <- serviceListResponse{services, err}
 }
 
-func (t *Testing) LastTaskList() chan types.TaskListOptions {
-	return t.client.lastTaskList
+// ProvideServiceInspectWithRaw sets fake return values for the next call to *Client.ServiceInspectWithRaw.
+func (t *Testing) ProvideServiceInspectWithRaw(service swarm.Service, data []byte, err error) {
+	t.client.responses.serviceInspectWithRaw <- serviceInspectWithRawResponse{service, data, err}
 }
 
+// ProvideServiceLogs sets fake return values for the next call to *Client.ServiceLogs.
+func (t *Testing) ProvideServiceLogs(rc io.ReadCloser, err error) {
+	t.client.responses.serviceLogs <- serviceLogsResponse{rc, err}
+}
+
+// ProvideTaskList sets fake return values for the next call to *Client.TaskList.
 func (t *Testing) ProvideTaskList(tasks []swarm.Task, err error) {
-	t.client.tasklist = tasks
-	t.client.tasklistErr = err
+	t.client.responses.taskList <- taskListResponse{tasks, err}
 }
 
-func (t *Testing) LastServiceCreate() chan ServiceCreate {
-	return t.client.lastServiceCreate
-}
-
+// ProvideServiceCreate sets fake return values for the next call to *Client.ServiceCreate.
 func (t *Testing) ProvideServiceCreate(response types.ServiceCreateResponse, err error) {
 	// TODO(ilgooz) do the same shortcurt(calling needed Provides) made here
 	// on other needed places too.
-	containerData := types.Container{}
-	containerJSONData := types.ContainerJSON{
+	t.ProvideContainerList([]types.Container{}, nil)
+	t.ProvideContainerInspect(types.ContainerJSON{
 		ContainerJSONBase: &types.ContainerJSONBase{
 			State: &types.ContainerState{Running: true},
 		},
-	}
-	t.ProvideContainer(containerData)
-	t.ProvideContainerInspect(containerJSONData)
+	}, nil)
 
-	t.client.serviceCreate = response
-	t.client.serviceCreateErr = err
+	t.client.responses.serviceCreate <- serviceCreateResponse{response, err}
 }
 
-func (t *Testing) LastServiceList() chan types.ServiceListOptions {
-	return t.client.lastServiceList
-}
-
-func (t *Testing) ProvideServiceList(list []swarm.Service, err error) {
-	t.client.serviceList = list
-	t.client.serviceListErr = err
-}
-
-func (t *Testing) LastServiceInspectWithRaw() chan ServiceInspectWithRaw {
-	return t.client.lastServiceInspectWithRaw
-}
-
-func (t *Testing) ProvideServiceInspectWithRaw(service swarm.Service, data []byte, err error) {
-	t.client.serviceInspectWithRaw = service
-	t.client.serviceInspectWithRawBytes = data
-	t.client.serviceInspectWithRawErr = err
-}
-
-func (t *Testing) LastServiceRemove() chan string {
-	return t.client.lastServiceRemove
-}
-
+// ProvideServiceRemove sets fake return values for the next call to *Client.ServiceRemove.
 func (t *Testing) ProvideServiceRemove(err error) {
-	t.client.serviceRemoveErr = err
+	t.client.responses.serviceRemove <- serviceRemoveResponse{err}
 }
 
-func (t *Testing) LastServiceLogs() chan ServiceLogs {
-	return t.client.lastServiceLogs
+// LastContainerList returns a channel that receives call arguments of last *Client.ContainerList.
+func (t *Testing) LastContainerList() <-chan ContainerListRequest {
+	return t.client.requests.containerList
 }
 
-func (t *Testing) ProvideServiceLogs(rc io.ReadCloser, err error) {
-	t.client.serviceLogs = rc
-	t.client.serviceLogsErr = err
+// LastContainerInspect returns a channel that receives call arguments of last *Client.ContainerInspect.
+func (t *Testing) LastContainerInspect() <-chan ContainerInspectRequest {
+	return t.client.requests.containerInspect
+}
+
+// LastSwarmInit returns a channel that receives call arguments of last *Client.SwarmInit.
+func (t *Testing) LastSwarmInit() <-chan SwarmInitRequest {
+	return t.client.requests.swarmInit
+}
+
+// LastNetworkCreate returns a channel that receives call arguments of last *Client.NetworkCreate.
+func (t *Testing) LastNetworkCreate() <-chan NetworkCreateRequest {
+	return t.client.requests.networkCreate
+}
+
+// LastNetworkInspect returns a channel that receives call arguments of last *Client.NetworkInspect.
+func (t *Testing) LastNetworkInspect() <-chan NetworkInspectRequest {
+	return t.client.requests.networkInspect
+}
+
+// LastInfo returns a channel that receives call arguments of last *Client.Info.
+func (t *Testing) LastInfo() <-chan InfoRequest {
+	return t.client.requests.info
+}
+
+// LastNegotiateAPIVersion returns a channel that receives call arguments of last *Client.NegotiateAPIVersion.
+func (t *Testing) LastNegotiateAPIVersion() <-chan NegotiateAPIVersionRequest {
+	return t.client.requests.negotiateAPIVersion
+}
+
+// LastImageBuild returns a channel that receives call arguments of last *Client.ImageBuild.
+func (t *Testing) LastImageBuild() <-chan ImageBuildRequest {
+	return t.client.requests.imageBuild
+}
+
+// LastNetworkRemove returns a channel that receives call arguments of last *Client.NetworkRemove.
+func (t *Testing) LastNetworkRemove() <-chan NetworkRemoveRequest {
+	return t.client.requests.networkRemove
+}
+
+// LastTaskList returns a channel that receives call arguments of last *Client.TaskList.
+func (t *Testing) LastTaskList() <-chan TaskListRequest {
+	return t.client.requests.taskList
+}
+
+// LastServiceCreate returns a channel that receives call arguments of last *Client.ServiceCreate.
+func (t *Testing) LastServiceCreate() <-chan ServiceCreateRequest {
+	return t.client.requests.serviceCreate
+}
+
+// LastServiceList returns a channel that receives call arguments of last *Client.ServiceList.
+func (t *Testing) LastServiceList() <-chan ServiceListRequest {
+	return t.client.requests.serviceList
+}
+
+// LastServiceInspectWithRaw returns a channel that receives call arguments of last *Client.ServiceInspectWithRaw.
+func (t *Testing) LastServiceInspectWithRaw() <-chan ServiceInspectWithRawRequest {
+	return t.client.requests.serviceInspectWithRaw
+}
+
+// LastServiceRemove returns a channel that receives call arguments of last *Client.ServiceRemove.
+func (t *Testing) LastServiceRemove() <-chan ServiceRemoveRequest {
+	return t.client.requests.serviceRemove
+}
+
+// LastServiceLogs returns a channel that receives call arguments of last *Client.ServiceLogs.
+func (t *Testing) LastServiceLogs() <-chan ServiceLogsRequest {
+	return t.client.requests.serviceLogs
 }

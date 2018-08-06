@@ -23,7 +23,13 @@ func TestNew(t *testing.T) {
 		t.Fatal("should negotiate api version")
 	}
 
-	assert.Equal(t, "0.0.0.0:2377", (<-dt.LastSwarmInit()).ListenAddr)
+	select {
+	case <-dt.LastInfo():
+	default:
+		t.Error("should fetch info")
+	}
+
+	assert.Equal(t, "0.0.0.0:2377", (<-dt.LastSwarmInit()).Request.ListenAddr)
 
 	ln := <-dt.LastNetworkCreate()
 	assert.Equal(t, "mesg-shared", ln.Name)
@@ -57,6 +63,8 @@ func TestFindContainerNonExistent(t *testing.T) {
 	dt := dockertest.New()
 	c, _ := New(ClientOption(dt.Client()))
 
+	dt.ProvideContainerList(nil, dockertest.NotFoundErr{})
+
 	_, err := c.FindContainer(namespace)
 	assert.Equal(t, dockertest.NotFoundErr{}, err)
 
@@ -66,13 +74,15 @@ func TestFindContainerNonExistent(t *testing.T) {
 			Value: "com.docker.stack.namespace=" + Namespace(namespace),
 		}),
 		Limit: 1,
-	}, <-dt.LastContainerList())
+	}, (<-dt.LastContainerList()).Options)
 }
 
 func TestFindContainer(t *testing.T) {
 	namespace := []string{"TestFindContainer"}
 	containerID := "1"
-	containerData := types.Container{ID: containerID}
+	containerData := []types.Container{
+		{ID: containerID},
+	}
 	containerJSONData := types.ContainerJSON{
 		ContainerJSONBase: &types.ContainerJSONBase{
 			ID: containerID,
@@ -80,8 +90,8 @@ func TestFindContainer(t *testing.T) {
 	}
 
 	dt := dockertest.New()
-	dt.ProvideContainer(containerData)
-	dt.ProvideContainerInspect(containerJSONData)
+	dt.ProvideContainerList(containerData, nil)
+	dt.ProvideContainerInspect(containerJSONData, nil)
 
 	c, _ := New(ClientOption(dt.Client()))
 
@@ -95,15 +105,19 @@ func TestFindContainer(t *testing.T) {
 			Value: "com.docker.stack.namespace=" + Namespace(namespace),
 		}),
 		Limit: 1,
-	}, <-dt.LastContainerList())
+	}, (<-dt.LastContainerList()).Options)
 
-	assert.Equal(t, containerID, <-dt.LastContainerInspect())
+	assert.Equal(t, containerID, (<-dt.LastContainerInspect()).Container)
 }
 
 func TestNonExistentContainerStatus(t *testing.T) {
 	namespace := []string{"namespace"}
+
 	dt := dockertest.New()
 	c, _ := New(ClientOption(dt.Client()))
+
+	dt.ProvideContainerList(nil, dockertest.NotFoundErr{})
+
 	status, err := c.Status(namespace)
 	assert.Nil(t, err)
 	assert.Equal(t, STOPPED, status)
@@ -112,7 +126,9 @@ func TestNonExistentContainerStatus(t *testing.T) {
 func TestExistentContainerStatus(t *testing.T) {
 	namespace := []string{"namespace"}
 	containerID := "1"
-	containerData := types.Container{ID: containerID}
+	containerData := []types.Container{
+		{ID: containerID},
+	}
 	containerJSONData := types.ContainerJSON{
 		ContainerJSONBase: &types.ContainerJSONBase{
 			ID:    containerID,
@@ -121,8 +137,8 @@ func TestExistentContainerStatus(t *testing.T) {
 	}
 
 	dt := dockertest.New()
-	dt.ProvideContainer(containerData)
-	dt.ProvideContainerInspect(containerJSONData)
+	dt.ProvideContainerList(containerData, nil)
+	dt.ProvideContainerInspect(containerJSONData, nil)
 
 	c, _ := New(ClientOption(dt.Client()))
 	status, err := c.Status(namespace)
@@ -133,7 +149,9 @@ func TestExistentContainerStatus(t *testing.T) {
 func TestExistentContainerRunningStatus(t *testing.T) {
 	namespace := []string{"namespace"}
 	containerID := "1"
-	containerData := types.Container{ID: containerID}
+	containerData := []types.Container{
+		{ID: containerID},
+	}
 	containerJSONData := types.ContainerJSON{
 		ContainerJSONBase: &types.ContainerJSONBase{
 			ID:    containerID,
@@ -142,8 +160,8 @@ func TestExistentContainerRunningStatus(t *testing.T) {
 	}
 
 	dt := dockertest.New()
-	dt.ProvideContainer(containerData)
-	dt.ProvideContainerInspect(containerJSONData)
+	dt.ProvideContainerList(containerData, nil)
+	dt.ProvideContainerInspect(containerJSONData, nil)
 
 	c, _ := New(ClientOption(dt.Client()))
 	status, err := c.Status(namespace)

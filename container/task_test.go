@@ -4,6 +4,8 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
 	"github.com/mesg-foundation/core/container/dockertest"
 	"github.com/stvp/assert"
@@ -25,6 +27,13 @@ func TestListTasks(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, tasks, tasks1)
 	assert.Equal(t, len(tasks), len(tasks1))
+
+	assert.Equal(t, types.TaskListOptions{
+		Filters: filters.NewArgs(filters.KeyValuePair{
+			Key:   "label",
+			Value: "com.docker.stack.namespace=" + Namespace(namespace),
+		}),
+	}, (<-dt.LastTaskList()).Options)
 }
 
 var errTaskList = errors.New("task list")
