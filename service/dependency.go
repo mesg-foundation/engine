@@ -19,7 +19,7 @@ func (s *Service) DependenciesFromService() []*DependencyFromService {
 	}
 	sort.Strings(keys)
 
-	d := make([]*DependencyFromService, len(keys))
+	d := make([]*DependencyFromService, 0, len(keys))
 	for _, key := range keys {
 		dependency := s.Dependencies[key]
 		d = append(d, &DependencyFromService{
