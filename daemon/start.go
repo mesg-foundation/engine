@@ -8,26 +8,25 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Start the docker core
+// Start starts the docker core.
 func Start() (serviceID string, err error) {
 	status, err := Status()
 	if err != nil || status == container.RUNNING {
-		return
+		return "", err
 	}
 	spec, err := serviceSpec()
 	if err != nil {
-		return
+		return "", err
 	}
-	serviceID, err = container.StartService(spec)
-	return
+	return container.StartService(spec)
 }
 
 func serviceSpec() (spec container.ServiceOptions, err error) {
 	sharedNetworkID, err := container.SharedNetworkID()
 	if err != nil {
-		return
+		return container.ServiceOptions{}, err
 	}
-	spec = container.ServiceOptions{
+	return container.ServiceOptions{
 		Namespace: Namespace(),
 		Image:     viper.GetString(config.CoreImage),
 		Env: container.MapToEnv(map[string]string{
@@ -36,22 +35,21 @@ func serviceSpec() (spec container.ServiceOptions, err error) {
 			config.ToEnv(config.ServicePathHost):      filepath.Join(viper.GetString(config.MESGPath), "services"),
 		}),
 		Mounts: []container.Mount{
-			container.Mount{
+			{
 				Source: dockerSocket,
 				Target: dockerSocket,
 			},
-			container.Mount{
+			{
 				Source: viper.GetString(config.MESGPath),
 				Target: "/mesg",
 			},
 		},
 		Ports: []container.Port{
-			container.Port{
+			{
 				Target:    50052,
 				Published: 50052,
 			},
 		},
 		NetworksID: []string{sharedNetworkID},
-	}
-	return
+	}, nil
 }

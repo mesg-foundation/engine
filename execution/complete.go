@@ -8,7 +8,7 @@ import (
 	"github.com/mesg-foundation/core/service"
 )
 
-// Complete mark an execution as complete and put it in the list of processed tasks
+// Complete marks an execution as complete and puts into the list of processed tasks.
 func (execution *Execution) Complete(output string, data map[string]interface{}) error {
 	serviceOutput, outputFound := execution.Service.Tasks[execution.Task].Outputs[output]
 	if !outputFound {

@@ -13,7 +13,7 @@ var sharedNetworkNamespace = []string{"shared"}
 var clientInstance *docker.Client
 var mu sync.Mutex
 
-// Client create a docker client ready to use
+// Client creates a ready to use docker client.
 func Client() (client *docker.Client, err error) {
 	mu.Lock()
 	defer mu.Unlock()
@@ -43,25 +43,25 @@ func resetClient() {
 	clientInstance = nil
 }
 
-func createClient() (client *docker.Client, err error) {
-	client, err = docker.NewEnvClient()
+func createClient() (*docker.Client, error) {
+	client, err := docker.NewEnvClient()
 	if err != nil {
-		return
+		return nil, err
 	}
 	client.NegotiateAPIVersion(context.Background())
-	return
+	return client, nil
 }
 
-func createSwarmIfNeeded(client *docker.Client) (err error) {
+func createSwarmIfNeeded(client *docker.Client) error {
 	info, err := client.Info(context.Background())
 	if err != nil {
-		return
+		return err
 	}
 	if info.Swarm.NodeID != "" {
-		return
+		return nil
 	}
 	_, err = client.SwarmInit(context.Background(), swarm.InitRequest{
 		ListenAddr: "0.0.0.0:2377", // https://docs.docker.com/engine/reference/commandline/swarm_init/#usage
 	})
-	return
+	return err
 }
