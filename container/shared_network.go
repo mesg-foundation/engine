@@ -24,7 +24,7 @@ func createSharedNetworkIfNeeded(client *docker.Client) error {
 			"com.docker.stack.namespace": namespace,
 		},
 	})
-	return nil
+	return err
 }
 
 // sharedNetwork returns the shared network created to connect services and MESG Core.
