@@ -1,22 +1,15 @@
 package dockertest
 
-import "errors"
+// NotFoundErr satisfies docker client's NotFoundErr interface.
+// docker.IsErrNotFound(err) will return true with NotFoundErr.
+type NotFoundErr struct{}
 
-var (
-	ErrContainerDoesNotExists = errors.New("containers does not exists")
-)
-
-type NotFoundErr struct {
-}
-
-func NewNotFoundErr() NotFoundErr {
-	return NotFoundErr{}
-}
-
+// NotFound indicates that this error is a not found error.
 func (e NotFoundErr) NotFound() bool {
 	return true
 }
 
+// Error returns the string representation of error.
 func (e NotFoundErr) Error() string {
 	return "not found"
 }

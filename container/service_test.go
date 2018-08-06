@@ -36,9 +36,18 @@ func TestStartService(t *testing.T) {
 
 func TestStopService(t *testing.T) {
 	namespace := []string{"namespace"}
+	containerData := []types.Container{}
+	containerJSONData := types.ContainerJSON{
+		ContainerJSONBase: &types.ContainerJSONBase{
+			State: &types.ContainerState{},
+		},
+	}
 
 	dt := dockertest.New()
 	c, _ := New(ClientOption(dt.Client()))
+
+	dt.ProvideContainerList(containerData, nil)
+	dt.ProvideContainerInspect(containerJSONData, nil)
 
 	assert.Nil(t, c.StopService(namespace))
 
@@ -46,7 +55,7 @@ func TestStopService(t *testing.T) {
 	assert.Equal(t, Namespace(namespace), li.ServiceID)
 	assert.Equal(t, types.ServiceInspectOptions{}, li.Options)
 
-	assert.Equal(t, Namespace(namespace), <-dt.LastServiceRemove())
+	assert.Equal(t, Namespace(namespace), (<-dt.LastServiceRemove()).ServiceID)
 }
 
 func TestStopNotExistingService(t *testing.T) {
@@ -160,7 +169,7 @@ func TestListServices(t *testing.T) {
 			Key:   "label",
 			Value: label,
 		}),
-	}, <-dt.LastServiceList())
+	}, (<-dt.LastServiceList()).Options)
 }
 
 func TestServiceLogs(t *testing.T) {

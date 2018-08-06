@@ -12,7 +12,9 @@ import (
 func TestWaitForStatusRunning(t *testing.T) {
 	namespace := []string{"namespace"}
 	containerID := "1"
-	containerData := types.Container{ID: containerID}
+	containerData := []types.Container{
+		{ID: containerID},
+	}
 	containerJSONData := types.ContainerJSON{
 		ContainerJSONBase: &types.ContainerJSONBase{
 			ID:    containerID,
@@ -23,8 +25,8 @@ func TestWaitForStatusRunning(t *testing.T) {
 	dt := dockertest.New()
 	c, _ := New(ClientOption(dt.Client()))
 
-	dt.ProvideContainer(containerData)
-	dt.ProvideContainerInspect(containerJSONData)
+	dt.ProvideContainerList(containerData, nil)
+	dt.ProvideContainerInspect(containerJSONData, nil)
 
 	assert.Nil(t, c.waitForStatus(namespace, RUNNING))
 }
@@ -32,7 +34,9 @@ func TestWaitForStatusRunning(t *testing.T) {
 func TestWaitForStatusStopped(t *testing.T) {
 	namespace := []string{"namespace"}
 	containerID := "1"
-	containerData := types.Container{ID: containerID}
+	containerData := []types.Container{
+		{ID: containerID},
+	}
 	containerJSONData := types.ContainerJSON{
 		ContainerJSONBase: &types.ContainerJSONBase{
 			ID:    containerID,
@@ -43,8 +47,8 @@ func TestWaitForStatusStopped(t *testing.T) {
 	dt := dockertest.New()
 	c, _ := New(ClientOption(dt.Client()))
 
-	dt.ProvideContainer(containerData)
-	dt.ProvideContainerInspect(containerJSONData)
+	dt.ProvideContainerList(containerData, nil)
+	dt.ProvideContainerInspect(containerJSONData, nil)
 
 	assert.Nil(t, c.waitForStatus(namespace, STOPPED))
 }

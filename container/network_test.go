@@ -20,7 +20,7 @@ func TestCreateNetwork(t *testing.T) {
 	<-dt.LastNetworkInspect()
 	<-dt.LastNetworkCreate()
 
-	dt.ProvideNetwork(types.NetworkCreateResponse{ID: id}, nil)
+	dt.ProvideNetworkCreate(types.NetworkCreateResponse{ID: id}, nil)
 	dt.ProvideNetworkInspect(types.NetworkResource{}, nil)
 
 	networkID, err := c.CreateNetwork(namespace)
@@ -79,7 +79,7 @@ func TestDeleteNetwork(t *testing.T) {
 	assert.Equal(t, Namespace(namespace), li.Network)
 	assert.Equal(t, types.NetworkInspectOptions{}, li.Options)
 
-	assert.Equal(t, id, <-dt.LastNetworkRemove())
+	assert.Equal(t, id, (<-dt.LastNetworkRemove()).Network)
 }
 
 func TestDeleteNotExistingNetwork(t *testing.T) {
@@ -92,7 +92,7 @@ func TestDeleteNotExistingNetwork(t *testing.T) {
 	<-dt.LastNetworkInspect()
 	<-dt.LastNetworkCreate()
 
-	dt.ProvideNetworkInspect(types.NetworkResource{}, dockertest.NewNotFoundErr())
+	dt.ProvideNetworkInspect(types.NetworkResource{}, dockertest.NotFoundErr{})
 
 	assert.Nil(t, c.DeleteNetwork(namespace))
 
@@ -144,7 +144,6 @@ func TestFindNetwork(t *testing.T) {
 
 func TestFindNotExistingNetwork(t *testing.T) {
 	namespace := []string{"namespace"}
-	notFoundErr := dockertest.NewNotFoundErr()
 
 	dt := dockertest.New()
 	c, _ := New(ClientOption(dt.Client()))
@@ -153,8 +152,8 @@ func TestFindNotExistingNetwork(t *testing.T) {
 	<-dt.LastNetworkInspect()
 	<-dt.LastNetworkCreate()
 
-	dt.ProvideNetworkInspect(types.NetworkResource{}, notFoundErr)
+	dt.ProvideNetworkInspect(types.NetworkResource{}, dockertest.NotFoundErr{})
 
 	_, err := c.FindNetwork(namespace)
-	assert.Equal(t, notFoundErr, err)
+	assert.Equal(t, dockertest.NotFoundErr{}, err)
 }
