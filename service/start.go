@@ -22,7 +22,7 @@ func (service *Service) Start() (serviceIDs []string, err error) {
 	}
 	// If there is one but not all services running stop to restart all
 	if status == PARTIAL {
-		if err = service.StopDependencies(); err != nil {
+		if err := service.StopDependencies(); err != nil {
 			return nil, err
 		}
 	}
