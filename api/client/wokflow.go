@@ -10,14 +10,19 @@ import (
 
 // Start is the function to start the workflow
 func (wf *Workflow) Start() (err error) {
-	if wf.Execute == nil {
+	switch {
+	case wf.Execute == nil:
 		err = errors.New("A workflow needs a task")
-		return
-	}
-	if wf.OnEvent == nil && wf.OnResult == nil {
+		break
+
+	case wf.OnEvent == nil && wf.OnResult == nil:
 		err = errors.New("A workflow needs an event OnEvent or OnResult")
+		break
+	}
+	if err != nil {
 		return
 	}
+
 	wf.client, err = getClient()
 	if err != nil {
 		return
