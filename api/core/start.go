@@ -12,8 +12,6 @@ func (s *Server) StartService(ctx context.Context, request *StartServiceRequest)
 	if err != nil {
 		return nil, err
 	}
-	if _, err = service.Start(); err != nil {
-		return nil, err
-	}
-	return &StartServiceReply{}, nil
+	_, err = service.Start()
+	return &StartServiceReply{}, err
 }
