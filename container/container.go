@@ -74,7 +74,9 @@ func (c *Container) createSwarmIfNeeded() error {
 	if info.Swarm.NodeID != "" {
 		return nil
 	}
-	_, err = c.client.SwarmInit(context.Background(), swarm.InitRequest{
+	ctx, cancel = context.WithTimeout(context.Background(), c.callTimeout)
+	defer cancel()
+	_, err = c.client.SwarmInit(ctx, swarm.InitRequest{
 		ListenAddr: "0.0.0.0:2377", // https://docs.docker.com/engine/reference/commandline/swarm_init/#usage
 	})
 	return err
@@ -82,7 +84,9 @@ func (c *Container) createSwarmIfNeeded() error {
 
 // FindContainer returns a docker container.
 func (c *Container) FindContainer(namespace []string) (types.ContainerJSON, error) {
-	containers, err := c.client.ContainerList(context.Background(), types.ContainerListOptions{
+	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
+	defer cancel()
+	containers, err := c.client.ContainerList(ctx, types.ContainerListOptions{
 		Filters: filters.NewArgs(filters.KeyValuePair{
 			Key:   "label",
 			Value: "com.docker.stack.namespace=" + Namespace(namespace),
@@ -96,7 +100,9 @@ func (c *Container) FindContainer(namespace []string) (types.ContainerJSON, erro
 	if len(containers) == 1 {
 		containerID = containers[0].ID
 	}
-	return c.client.ContainerInspect(context.Background(), containerID)
+	ctx, cancel = context.WithTimeout(context.Background(), c.callTimeout)
+	defer cancel()
+	return c.client.ContainerInspect(ctx, containerID)
 }
 
 // Status returns the status of a docker container.
