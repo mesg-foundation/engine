@@ -44,7 +44,7 @@ func TestExecuteWithInvalidJSON(t *testing.T) {
 		Service: &service.Service{
 			Name: "TestExecuteWithInvalidJSON",
 			Tasks: map[string]*service.Task{
-				"test": &service.Task{},
+				"test": {},
 			},
 		},
 	})
@@ -53,7 +53,6 @@ func TestExecuteWithInvalidJSON(t *testing.T) {
 		TaskKey:   "test",
 		InputData: "",
 	})
-
 	assert.NotNil(t, err)
 	assert.Equal(t, err.Error(), "unexpected end of JSON input")
 	services.Delete(deployment.ServiceID)
@@ -63,7 +62,7 @@ func TestExecuteWithInvalidTask(t *testing.T) {
 	srv := service.Service{
 		Name: "TestExecuteWithInvalidTask",
 		Tasks: map[string]*service.Task{
-			"test": &service.Task{},
+			"test": {},
 		},
 		Dependencies: map[string]*service.Dependency{
 			"test": {

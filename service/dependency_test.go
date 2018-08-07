@@ -10,10 +10,10 @@ func TestDependenciesFromService(t *testing.T) {
 	service := &Service{
 		Name: "TestPartiallyRunningService",
 		Dependencies: map[string]*Dependency{
-			"testa": &Dependency{
+			"testa": {
 				Image: "nginx",
 			},
-			"testb": &Dependency{
+			"testb": {
 				Image: "nginx",
 			},
 		},

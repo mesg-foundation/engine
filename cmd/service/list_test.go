@@ -21,9 +21,9 @@ func TestServiceStatusString(t *testing.T) {
 
 func TestSort(t *testing.T) {
 	status := []serviceStatus{
-		serviceStatus{status: service.PARTIAL, service: &service.Service{Name: "Partial"}},
-		serviceStatus{status: service.RUNNING, service: &service.Service{Name: "Running"}},
-		serviceStatus{status: service.STOPPED, service: &service.Service{Name: "Stopped"}},
+		{status: service.PARTIAL, service: &service.Service{Name: "Partial"}},
+		{status: service.RUNNING, service: &service.Service{Name: "Running"}},
+		{status: service.STOPPED, service: &service.Service{Name: "Stopped"}},
 	}
 	sort.Sort(byStatus(status))
 	assert.Equal(t, status[0].status, service.RUNNING)

@@ -23,7 +23,7 @@ func TestReadJSONFile(t *testing.T) {
 func TestTaskKeysFromService(t *testing.T) {
 	keys := taskKeysFromService(&service.Service{
 		Tasks: map[string]*service.Task{
-			"task1": &service.Task{},
+			"task1": {},
 		},
 	})
 	assert.Equal(t, "task1", keys[0])

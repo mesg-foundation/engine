@@ -1,7 +1,7 @@
 package importer
 
 import (
-	"errors"
+	"fmt"
 	"io/ioutil"
 	"path/filepath"
 
@@ -10,42 +10,39 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-func readServiceFile(path string) (data []byte, err error) {
+func readServiceFile(path string) ([]byte, error) {
 	file := filepath.Join(path, "mesg.yml")
-	data, err = ioutil.ReadFile(file)
-	return
+	return ioutil.ReadFile(file)
 }
 
-// validateServiceFile returns a list of warnings (empty if no warning)
-func validateServiceFile(data []byte) (warnings []string, err error) {
+// validateServiceFile returns a list of warnings.
+func validateServiceFile(data []byte) ([]string, error) {
 	var body interface{}
-	err = yaml.Unmarshal(data, &body)
-	if err != nil {
-		err = errors.New("Error with file 'mesg.yml'. " + err.Error())
-		return
+	if err := yaml.Unmarshal(data, &body); err != nil {
+		return nil, fmt.Errorf("Error with file 'mesg.yml'. %s", err)
 	}
 	body = convert(body)
 	result, err := validateServiceFileSchema(body, "service/importer/assets/schema.json")
 	if err != nil {
-		return
+		return nil, err
 	}
+	var warnings []string
 	if result.Valid() == false {
 		for _, warning := range result.Errors() {
 			warnings = append(warnings, warning.String())
 		}
 	}
-	return
+	return warnings, nil
 }
 
-func validateServiceFileSchema(data interface{}, schemaPath string) (result *gojsonschema.Result, err error) {
+func validateServiceFileSchema(data interface{}, schemaPath string) (*gojsonschema.Result, error) {
 	schemaData, err := assets.Asset(schemaPath)
 	if err != nil {
-		return
+		return nil, err
 	}
 	schema := gojsonschema.NewBytesLoader(schemaData)
 	loaded := gojsonschema.NewGoLoader(data)
-	result, err = gojsonschema.Validate(schema, loaded)
-	return
+	return gojsonschema.Validate(schema, loaded)
 }
 
 func convert(i interface{}) interface{} {

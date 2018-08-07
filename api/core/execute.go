@@ -1,17 +1,15 @@
 package core
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/mesg-foundation/core/database/services"
-	"github.com/mesg-foundation/core/service"
-
-	"context"
-
 	"github.com/mesg-foundation/core/execution"
+	"github.com/mesg-foundation/core/service"
 )
 
-// ExecuteTask will execute a task for a given service
+// ExecuteTask executes a task for a given service.
 func (s *Server) ExecuteTask(ctx context.Context, request *ExecuteTaskRequest) (*ExecuteTaskReply, error) {
 	srv, err := services.Get(request.ServiceID)
 	if err != nil {
@@ -24,9 +22,9 @@ func (s *Server) ExecuteTask(ctx context.Context, request *ExecuteTaskRequest) (
 	if err := checkService(&srv); err != nil {
 		return nil, err
 	}
-	execution, err := execute(&srv, request.TaskKey, inputs)
+	executionID, err := execute(&srv, request.TaskKey, inputs)
 	return &ExecuteTaskReply{
-		ExecutionID: execution,
+		ExecutionID: executionID,
 	}, err
 }
 
@@ -47,11 +45,11 @@ func getData(request *ExecuteTaskRequest) (map[string]interface{}, error) {
 	return inputs, err
 }
 
-func execute(srv *service.Service, key string, inputs map[string]interface{}) (string, error) {
-	execution, err := execution.Create(srv, key, inputs)
+func execute(srv *service.Service, key string, inputs map[string]interface{}) (executionID string, err error) {
+	exc, err := execution.Create(srv, key, inputs)
 	if err != nil {
 		return "", err
 	}
-	err = execution.Execute()
-	return execution.ID, err
+	err = exc.Execute()
+	return exc.ID, err
 }

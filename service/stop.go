@@ -6,27 +6,24 @@ import (
 	"github.com/mesg-foundation/core/container"
 )
 
-// Stop a service
-func (service *Service) Stop() (err error) {
+// Stop stops a service.
+func (service *Service) Stop() error {
 	status, err := service.Status()
 	if err != nil || status == STOPPED {
-		return
+		return err
 	}
-	err = service.StopDependencies()
-	if err != nil {
-		return
+
+	if err := service.StopDependencies(); err != nil {
+		return err
 	}
-	err = container.DeleteNetwork(service.namespace())
-	if err != nil {
-		return
-	}
-	return
+	return container.DeleteNetwork(service.namespace())
 }
 
-// StopDependencies stops all dependencies
-func (service *Service) StopDependencies() (err error) {
+// StopDependencies stops all dependencies.
+func (service *Service) StopDependencies() error {
 	var mutex sync.Mutex
 	var wg sync.WaitGroup
+	var err error
 	for _, dependency := range service.DependenciesFromService() {
 		wg.Add(1)
 		go func(d *DependencyFromService) {
@@ -40,15 +37,14 @@ func (service *Service) StopDependencies() (err error) {
 		}(dependency)
 	}
 	wg.Wait()
-	return
+	return err
 }
 
-// Stop a dependency
-func (dependency *DependencyFromService) Stop() (err error) {
+// Stop stops a dependency.
+func (dependency *DependencyFromService) Stop() error {
 	status, err := dependency.Status()
 	if err != nil || status == container.STOPPED {
-		return
+		return err
 	}
-	err = container.StopService(dependency.namespace())
-	return
+	return container.StopService(dependency.namespace())
 }

@@ -4,12 +4,11 @@ import (
 	"github.com/mesg-foundation/core/container"
 )
 
-// Stop the MESG Core docker container
-func Stop() (err error) {
+// Stop stops the MESG Core docker container.
+func Stop() error {
 	status, err := Status()
 	if err != nil || status == container.STOPPED {
-		return
+		return err
 	}
-	err = container.StopService(Namespace())
-	return
+	return container.StopService(Namespace())
 }
