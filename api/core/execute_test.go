@@ -16,7 +16,7 @@ func TestExecute(t *testing.T) {
 		Service: &service.Service{
 			Name: "TestExecute",
 			Tasks: map[string]*service.Task{
-				"test": &service.Task{},
+				"test": {},
 			},
 		},
 	})
@@ -36,7 +36,7 @@ func TestExecuteWithInvalidJSON(t *testing.T) {
 		Service: &service.Service{
 			Name: "TestExecuteWithInvalidJSON",
 			Tasks: map[string]*service.Task{
-				"test": &service.Task{},
+				"test": {},
 			},
 		},
 	})
@@ -56,7 +56,7 @@ func TestExecuteWithInvalidTask(t *testing.T) {
 		Service: &service.Service{
 			Name: "TestExecuteWithInvalidJSON",
 			Tasks: map[string]*service.Task{
-				"test": &service.Task{},
+				"test": {},
 			},
 		},
 	})
