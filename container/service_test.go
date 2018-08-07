@@ -96,7 +96,7 @@ func TestServiceStatusNeverStarted(t *testing.T) {
 	assert.Equal(t, types.ServiceInspectOptions{}, li.Options)
 }
 
-func TestIntegrationServiceStatusRunning(t *testing.T) {
+func TestServiceStatusRunning(t *testing.T) {
 	namespace := []string{"namespace"}
 
 	dt := dockertest.New()
@@ -147,10 +147,11 @@ func TestFindServiceNotExisting(t *testing.T) {
 
 func TestListServices(t *testing.T) {
 	namespace := []string{"namespace"}
+	namespace1 := []string{"namespace"}
 	label := "1"
 	swarmServices := []swarm.Service{
 		{Spec: swarm.ServiceSpec{Annotations: swarm.Annotations{Name: Namespace(namespace)}}},
-		{Spec: swarm.ServiceSpec{Annotations: swarm.Annotations{Name: Namespace(namespace)}}},
+		{Spec: swarm.ServiceSpec{Annotations: swarm.Annotations{Name: Namespace(namespace1)}}},
 	}
 
 	dt := dockertest.New()
@@ -162,7 +163,7 @@ func TestListServices(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 2, len(services))
 	assert.Equal(t, Namespace(namespace), services[0].Spec.Name)
-	assert.Equal(t, Namespace(namespace), services[1].Spec.Name)
+	assert.Equal(t, Namespace(namespace1), services[1].Spec.Name)
 
 	assert.Equal(t, types.ServiceListOptions{
 		Filters: filters.NewArgs(filters.KeyValuePair{
@@ -183,14 +184,13 @@ func TestServiceLogs(t *testing.T) {
 
 	reader, err := c.ServiceLogs(namespace)
 	assert.Nil(t, err)
-
 	defer reader.Close()
+
 	bytes, err := ioutil.ReadAll(reader)
 	assert.Nil(t, err)
 	assert.Equal(t, data, string(bytes))
 
 	ll := <-dt.LastServiceLogs()
-
 	assert.Equal(t, Namespace(namespace), ll.ServiceID)
 	assert.Equal(t, types.ContainerLogsOptions{
 		ShowStdout: true,

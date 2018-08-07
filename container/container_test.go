@@ -90,10 +90,10 @@ func TestFindContainer(t *testing.T) {
 	}
 
 	dt := dockertest.New()
+	c, _ := New(ClientOption(dt.Client()))
+
 	dt.ProvideContainerList(containerData, nil)
 	dt.ProvideContainerInspect(containerJSONData, nil)
-
-	c, _ := New(ClientOption(dt.Client()))
 
 	container, err := c.FindContainer(namespace)
 	assert.Nil(t, err)
@@ -121,6 +121,14 @@ func TestNonExistentContainerStatus(t *testing.T) {
 	status, err := c.Status(namespace)
 	assert.Nil(t, err)
 	assert.Equal(t, STOPPED, status)
+
+	assert.Equal(t, types.ContainerListOptions{
+		Filters: filters.NewArgs(filters.KeyValuePair{
+			Key:   "label",
+			Value: "com.docker.stack.namespace=" + Namespace(namespace),
+		}),
+		Limit: 1,
+	}, (<-dt.LastContainerList()).Options)
 }
 
 func TestExistentContainerStatus(t *testing.T) {
@@ -137,10 +145,11 @@ func TestExistentContainerStatus(t *testing.T) {
 	}
 
 	dt := dockertest.New()
+	c, _ := New(ClientOption(dt.Client()))
+
 	dt.ProvideContainerList(containerData, nil)
 	dt.ProvideContainerInspect(containerJSONData, nil)
 
-	c, _ := New(ClientOption(dt.Client()))
 	status, err := c.Status(namespace)
 	assert.Nil(t, err)
 	assert.Equal(t, STOPPED, status)
@@ -160,10 +169,11 @@ func TestExistentContainerRunningStatus(t *testing.T) {
 	}
 
 	dt := dockertest.New()
+	c, _ := New(ClientOption(dt.Client()))
+
 	dt.ProvideContainerList(containerData, nil)
 	dt.ProvideContainerInspect(containerJSONData, nil)
 
-	c, _ := New(ClientOption(dt.Client()))
 	status, err := c.Status(namespace)
 	assert.Nil(t, err)
 	assert.Equal(t, RUNNING, status)

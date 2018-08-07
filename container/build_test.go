@@ -16,11 +16,11 @@ func TestBuild(t *testing.T) {
 	tag := "sha256:1f6359c933421f53a7ef9e417bfa51b1c313c54878fdeb16de827f427e16d836"
 
 	dt := dockertest.New()
+	c, _ := New(ClientOption(dt.Client()))
+
 	dt.ProvideImageBuild(ioutil.NopCloser(strings.NewReader(
 		fmt.Sprintf(`{"stream":"%s\n"}`, tag),
 	)))
-
-	c, _ := New(ClientOption(dt.Client()))
 
 	tag1, err := c.Build(path)
 	assert.Nil(t, err)
@@ -39,12 +39,12 @@ func TestBuildNotWorking(t *testing.T) {
 	path := "test-not-valid/"
 
 	dt := dockertest.New()
+	c, _ := New(ClientOption(dt.Client()))
+
 	dt.ProvideImageBuild(ioutil.NopCloser(strings.NewReader(`
 {"stream":"Step 1/2 : FROM notExistingImage"}
 {"stream":"\n"}
 {"errorDetail":{"message":"invalid reference format: repository name must be lowercase"},"error":"invalid reference format: repository name must be lowercase"}`)))
-
-	c, _ := New(ClientOption(dt.Client()))
 
 	tag, err := c.Build(path)
 	assert.Equal(t, "Image build failed. invalid reference format: repository name must be lowercase", err.Error())
@@ -53,9 +53,10 @@ func TestBuildNotWorking(t *testing.T) {
 
 func TestBuildWrongPath(t *testing.T) {
 	dt := dockertest.New()
+	c, _ := New(ClientOption(dt.Client()))
+
 	dt.ProvideImageBuild(ioutil.NopCloser(strings.NewReader("")))
 
-	c, _ := New(ClientOption(dt.Client()))
 	_, err := c.Build("testss/")
 	assert.Equal(t, "Could not parse container build response", err.Error())
 }

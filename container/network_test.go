@@ -58,6 +58,12 @@ func TestCreateAlreadyExistingNetwork(t *testing.T) {
 	li := <-dt.LastNetworkInspect()
 	assert.Equal(t, Namespace(namespace), li.Network)
 	assert.Equal(t, types.NetworkInspectOptions{}, li.Options)
+
+	select {
+	case <-dt.LastNetworkCreate():
+		t.Error("should not create existing network")
+	default:
+	}
 }
 
 func TestDeleteNetwork(t *testing.T) {
