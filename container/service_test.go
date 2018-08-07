@@ -1,8 +1,8 @@
 package container
 
 import (
+	"bytes"
 	"io/ioutil"
-	"strings"
 	"testing"
 
 	"github.com/docker/docker/api/types"
@@ -175,12 +175,12 @@ func TestListServices(t *testing.T) {
 
 func TestServiceLogs(t *testing.T) {
 	namespace := []string{"namespace"}
-	data := "mesg"
+	data := []byte{1, 2}
 
 	dt := dockertest.New()
 	c, _ := New(ClientOption(dt.Client()))
 
-	dt.ProvideServiceLogs(ioutil.NopCloser(strings.NewReader(data)), nil)
+	dt.ProvideServiceLogs(ioutil.NopCloser(bytes.NewReader(data)), nil)
 
 	reader, err := c.ServiceLogs(namespace)
 	assert.Nil(t, err)
@@ -188,7 +188,7 @@ func TestServiceLogs(t *testing.T) {
 
 	bytes, err := ioutil.ReadAll(reader)
 	assert.Nil(t, err)
-	assert.Equal(t, data, string(bytes))
+	assert.Equal(t, data, bytes)
 
 	ll := <-dt.LastServiceLogs()
 	assert.Equal(t, Namespace(namespace), ll.ServiceID)
