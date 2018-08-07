@@ -5,23 +5,22 @@ import (
 	"fmt"
 
 	"github.com/mesg-foundation/core/database/services"
-	service "github.com/mesg-foundation/core/service"
-	"github.com/mesg-foundation/core/utils/array"
-
 	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/pubsub"
+	service "github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/core/utils/array"
 )
 
-// ListenResult will listen for results from a services
+// ListenResult listens for results from a services.
 func (s *Server) ListenResult(request *ListenResultRequest, stream Core_ListenResultServer) error {
 	service, err := services.Get(request.ServiceID)
 	if err != nil {
 		return err
 	}
-	if err = validateTaskKey(&service, request.TaskFilter); err != nil {
+	if err := validateTaskKey(&service, request.TaskFilter); err != nil {
 		return err
 	}
-	if err = validateOutputKey(&service, request.TaskFilter, request.OutputFilter); err != nil {
+	if err := validateOutputKey(&service, request.TaskFilter, request.OutputFilter); err != nil {
 		return err
 	}
 	subscription := pubsub.Subscribe(service.ResultSubscriptionChannel())
@@ -44,8 +43,7 @@ func validateTaskKey(service *service.Service, taskKey string) error {
 	if taskKey == "" || taskKey == "*" {
 		return nil
 	}
-	_, ok := service.Tasks[taskKey]
-	if ok {
+	if _, ok := service.Tasks[taskKey]; ok {
 		return nil
 	}
 	return fmt.Errorf("Task %q doesn't exist in this service", taskKey)

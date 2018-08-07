@@ -11,7 +11,7 @@ import (
 func TestValidateEventKey(t *testing.T) {
 	s := &service.Service{
 		Events: map[string]*service.Event{
-			"test": &service.Event{},
+			"test": {},
 		},
 	}
 	assert.Nil(t, validateEventKey(s, ""))
