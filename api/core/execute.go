@@ -15,11 +15,11 @@ func (s *Server) ExecuteTask(ctx context.Context, request *ExecuteTaskRequest) (
 	if err != nil {
 		return nil, err
 	}
-	inputs, err := getData(request)
-	if err != nil {
+	if err := checkService(&srv); err != nil {
 		return nil, err
 	}
-	if err := checkService(&srv); err != nil {
+	inputs, err := getData(request)
+	if err != nil {
 		return nil, err
 	}
 	executionID, err := execute(&srv, request.TaskKey, inputs)
