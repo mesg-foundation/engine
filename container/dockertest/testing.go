@@ -43,8 +43,8 @@ func (t *Testing) ProvideContainerInspect(json types.ContainerJSON, err error) {
 }
 
 // ProvideImageBuild sets fake return values for the next call to *Client.ImageBuild.
-func (t *Testing) ProvideImageBuild(rc io.ReadCloser) {
-	t.client.responses.imageBuild <- imageBuildResponse{types.ImageBuildResponse{Body: rc}, nil}
+func (t *Testing) ProvideImageBuild(rc io.ReadCloser, err error) {
+	t.client.responses.imageBuild <- imageBuildResponse{types.ImageBuildResponse{Body: rc}, err}
 }
 
 // ProvideNetworkInspect sets fake return values for the next call to *Client.NetworkInspect.

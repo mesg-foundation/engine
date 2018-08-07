@@ -52,7 +52,6 @@ type SwarmInitRequest struct {
 
 // InfoRequest holds call arguments of *Client.Info.
 type InfoRequest struct {
-	Info types.Info
 }
 
 // ContainerListRequest holds call arguments of *Client.ContainerList.
