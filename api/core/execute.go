@@ -50,6 +50,5 @@ func execute(srv *service.Service, key string, inputs map[string]interface{}) (e
 	if err != nil {
 		return "", err
 	}
-	err = exc.Execute()
-	return exc.ID, err
+	return exc.ID, exc.Execute()
 }
