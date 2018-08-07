@@ -19,9 +19,9 @@ type Client struct {
 	docker.CommonAPIClient
 }
 
-// requests holds request channels that holds call arguments of Docker client methods.
-// Each call to a Docker client method piped to its request chan so multiple
-// call to a same method can be received by reading its chan multiple times.
+// requests encapsulates request channels that keeps call arguments of Docker client methods.
+// Each call to a Docker client method piped to its request channel so multiple
+// call to a same method can be inspected by reading its channel multiple times.
 // Inspecting call arguments can be made by listening chan returned by LastX methods of *Testing.
 type requests struct {
 	negotiateAPIVersion   chan NegotiateAPIVersionRequest
@@ -41,12 +41,12 @@ type requests struct {
 	serviceLogs           chan ServiceLogsRequest
 }
 
-// responses holds response channels that holds 'faked' return values of Docker client methods.
+// responses encapsulates response channels that holds 'faked' return values of Docker client methods.
 // To fake a Docker client method's response send fake return values to it's
-// response channel. This is done via ProvideX methods of *Testing.
+// response channel. This can be made by calling ProvideX methods of *Testing.
 // We use channels here instead of setting values on the struct in case of a need for returning
-// conditional responses depending on method paramaters in future to deal with parallel calls to
-// same client methods.
+// conditional responses depending on request paramaters in future to deal with parallel calls made
+// to same client methods.
 type responses struct {
 	info                  chan infoResponse
 	imageBuild            chan imageBuildResponse
@@ -105,7 +105,7 @@ func newClient() *Client {
 }
 
 // note that select: default statements are a short cut of returning zero value responses
-// instead of a explicit need to call Provide methods with zero values.
+// instead of an explicit need to call Provide methods with zero values.
 
 // NegotiateAPIVersion is the mock version of the actual method.
 func (c *Client) NegotiateAPIVersion(ctx context.Context) {

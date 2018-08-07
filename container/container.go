@@ -10,7 +10,7 @@ import (
 	docker "github.com/docker/docker/client"
 )
 
-// Container provides functionaliets for Docker containers for MESG.
+// Container provides high level interactions with Docker API for MESG.
 type Container struct {
 	// client is a Docker client.
 	client docker.CommonAPIClient
@@ -44,14 +44,14 @@ func New(options ...Option) (*Container, error) {
 	return c, c.createSharedNetworkIfNeeded()
 }
 
-// ClientOption creates a new Option with given docker client for Container.
+// ClientOption receives a client which will be used to interact with Docker API.
 func ClientOption(client docker.CommonAPIClient) Option {
 	return func(c *Container) {
 		c.client = client
 	}
 }
 
-// TimeoutOption creates a new Option with given d http call timeout for Container.
+// TimeoutOption receives d which will be set as a timeout value for Docker API calls.
 func TimeoutOption(d time.Duration) Option {
 	return func(c *Container) {
 		c.callTimeout = d
