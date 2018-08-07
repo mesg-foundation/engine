@@ -15,7 +15,7 @@ func TestDeployService(t *testing.T) {
 	service := service.Service{
 		Name: "TestDeployService",
 		Dependencies: map[string]*service.Dependency{
-			"test": &service.Dependency{
+			"test": {
 				Image: "nginx",
 			},
 		},

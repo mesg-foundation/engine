@@ -2,16 +2,16 @@ package core
 
 import (
 	"context"
+
 	"github.com/mesg-foundation/core/database/services"
 )
 
-// StartService fetch a service in the db and starts it
-func (s *Server) StartService(ctx context.Context, request *StartServiceRequest) (reply *StartServiceReply, err error) {
+// StartService fetches a service from the database and starts it.
+func (s *Server) StartService(ctx context.Context, request *StartServiceRequest) (*StartServiceReply, error) {
 	service, err := services.Get(request.ServiceID)
 	if err != nil {
-		return
+		return nil, err
 	}
 	_, err = service.Start()
-	reply = &StartServiceReply{}
-	return
+	return &StartServiceReply{}, err
 }
