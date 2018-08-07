@@ -50,6 +50,16 @@ func (e *InvalidTaskInputError) Error() string {
 	return errorString
 }
 
+// InputNotFoundError is an error when a service doesn't contains a specific input.
+type InputNotFoundError struct {
+	Service  *Service
+	InputKey string
+}
+
+func (e *InputNotFoundError) Error() string {
+	return "Input '" + e.InputKey + "' not found in service '" + e.Service.Name + "'"
+}
+
 // OutputNotFoundError is an error when a service doesn't contains a specific output
 type OutputNotFoundError struct {
 	Service   *Service
