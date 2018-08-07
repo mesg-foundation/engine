@@ -12,7 +12,9 @@ import (
 
 // ListServices returns existing docker services matching a specific label name.
 func (c *Container) ListServices(label string) ([]swarm.Service, error) {
-	return c.client.ServiceList(context.Background(), types.ServiceListOptions{
+	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
+	defer cancel()
+	return c.client.ServiceList(ctx, types.ServiceListOptions{
 		Filters: filters.NewArgs(filters.KeyValuePair{
 			Key:   "label",
 			Value: label,
@@ -22,9 +24,9 @@ func (c *Container) ListServices(label string) ([]swarm.Service, error) {
 
 // FindService returns the Docker Service or an error if not found.
 func (c *Container) FindService(namespace []string) (swarm.Service, error) {
-	service, _, err := c.client.ServiceInspectWithRaw(
-		context.Background(),
-		Namespace(namespace),
+	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
+	defer cancel()
+	service, _, err := c.client.ServiceInspectWithRaw(ctx, Namespace(namespace),
 		types.ServiceInspectOptions{},
 	)
 	return service, err
@@ -33,7 +35,9 @@ func (c *Container) FindService(namespace []string) (swarm.Service, error) {
 // StartService starts a docker service.
 func (c *Container) StartService(options ServiceOptions) (serviceID string, err error) {
 	service := options.toSwarmServiceSpec()
-	response, err := c.client.ServiceCreate(context.Background(), service, types.ServiceCreateOptions{})
+	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
+	defer cancel()
+	response, err := c.client.ServiceCreate(ctx, service, types.ServiceCreateOptions{})
 	if err != nil {
 		return "", err
 	}
@@ -46,7 +50,9 @@ func (c *Container) StopService(namespace []string) (err error) {
 	if err != nil || status == STOPPED {
 		return err
 	}
-	if err := c.client.ServiceRemove(context.Background(), Namespace(namespace)); err != nil {
+	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
+	defer cancel()
+	if err := c.client.ServiceRemove(ctx, Namespace(namespace)); err != nil {
 		return err
 	}
 	return c.waitForStatus(namespace, STOPPED)
@@ -66,9 +72,9 @@ func (c *Container) ServiceStatus(namespace []string) (StatusType, error) {
 
 // ServiceLogs returns the logs of a service.
 func (c *Container) ServiceLogs(namespace []string) (io.ReadCloser, error) {
-	return c.client.ServiceLogs(
-		context.Background(),
-		Namespace(namespace),
+	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
+	defer cancel()
+	return c.client.ServiceLogs(ctx, Namespace(namespace),
 		types.ContainerLogsOptions{
 			ShowStdout: true,
 			ShowStderr: true,

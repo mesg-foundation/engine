@@ -31,7 +31,9 @@ func (c *Container) Build(path string) (tag string, err error) {
 		return "", err
 	}
 	defer buildContext.Close()
-	response, err := c.client.ImageBuild(context.Background(), buildContext, types.ImageBuildOptions{
+	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
+	defer cancel()
+	response, err := c.client.ImageBuild(ctx, buildContext, types.ImageBuildOptions{
 		Remove:         true,
 		ForceRemove:    true,
 		SuppressOutput: true,
