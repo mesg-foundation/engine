@@ -1,6 +1,6 @@
 package service
 
-// ParameterWarning is a struct that contains a specific warning related to a parameter
+// ParameterWarning contains a specific warning related to a parameter.
 type ParameterWarning struct {
 	warning   string
 	key       string
@@ -27,7 +27,7 @@ func validateParameters(parameters map[string]*Parameter, data map[string]interf
 	return warnings
 }
 
-// IsValid returns true if the data are valid for a specific event
+// IsValid returns true if the data are valid for a specific event.
 func (e *Event) IsValid(data map[string]interface{}) bool {
 	return validParameters(e.Data, data)
 }
@@ -37,27 +37,27 @@ func (e *Event) Validate(data map[string]interface{}) []*ParameterWarning {
 	return validateParameters(e.Data, data)
 }
 
-// IsValid returns true if the inputs are valid for a specific task
+// IsValid returns true if the inputs are valid for a specific task.
 func (t *Task) IsValid(data map[string]interface{}) bool {
 	return validParameters(t.Inputs, data)
 }
 
-// Validate inputs for a specific task
+// Validate inputs for a specific task.
 func (t *Task) Validate(data map[string]interface{}) []*ParameterWarning {
 	return validateParameters(t.Inputs, data)
 }
 
-// IsValid returns true if the data are valid for a specific output
+// IsValid returns true if the data are valid for a specific output.
 func (o *Output) IsValid(data map[string]interface{}) bool {
 	return validParameters(o.Data, data)
 }
 
-// Validate data for a specific output
+// Validate data for a specific output.
 func (o *Output) Validate(data map[string]interface{}) []*ParameterWarning {
 	return validateParameters(o.Data, data)
 }
 
-// Validate returns a warning based on the match of the data given in parameter and the parameter
+// Validate returns a warning based on the match of the data given in parameter and the parameter.
 func (p *Parameter) Validate(data interface{}) *ParameterWarning {
 	if data == nil {
 		if p.Optional {
