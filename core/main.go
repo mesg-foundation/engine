@@ -8,11 +8,12 @@ import (
 
 	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/config"
+	"github.com/mesg-foundation/core/version"
 	"github.com/spf13/viper"
 )
 
 func main() {
-	log.Println("Starting MESG Core")
+	log.Println("Starting MESG Core", version.Version)
 	go startServer(&api.Server{
 		Network: "tcp",
 		Address: viper.GetString(config.APIServerAddress),
