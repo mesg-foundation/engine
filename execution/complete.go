@@ -1,9 +1,9 @@
 package execution
 
 import (
-	"log"
 	"time"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/mesg-foundation/core/pubsub"
 	"github.com/mesg-foundation/core/service"
 )
@@ -32,7 +32,7 @@ func (execution *Execution) Complete(output string, data map[string]interface{})
 	execution.Output = output
 	execution.OutputData = data
 
-	log.Println("[COMPLETED]", execution.Task)
+	log.Info("[COMPLETED]", execution.Task)
 
 	go pubsub.Publish(execution.Service.ResultSubscriptionChannel(), execution)
 

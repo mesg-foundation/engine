@@ -1,9 +1,9 @@
 package execution
 
 import (
-	"log"
 	"time"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/mesg-foundation/core/pubsub"
 )
 
@@ -13,7 +13,7 @@ func (execution *Execution) Execute() error {
 		return err
 	}
 	execution.ExecutedAt = time.Now()
-	log.Println("[PROCESSING]", execution.Task)
+	log.Info("[PROCESSING]", execution.Task)
 
 	channel := execution.Service.TaskSubscriptionChannel()
 
