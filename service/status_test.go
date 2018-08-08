@@ -11,7 +11,7 @@ func TestStatusService(t *testing.T) {
 	service := &Service{
 		Name: "TestStatusService",
 		Dependencies: map[string]*Dependency{
-			"test": &Dependency{
+			"test": {
 				Image: "nginx",
 			},
 		},
@@ -32,7 +32,7 @@ func TestStatusDependency(t *testing.T) {
 	service := &Service{
 		Name: "TestStatusDependency",
 		Dependencies: map[string]*Dependency{
-			"test": &Dependency{
+			"test": {
 				Image: "nginx",
 			},
 		},
@@ -54,7 +54,7 @@ func TestList(t *testing.T) {
 	service := &Service{
 		Name: "TestList",
 		Dependencies: map[string]*Dependency{
-			"test": &Dependency{
+			"test": {
 				Image: "nginx",
 			},
 		},
@@ -72,10 +72,10 @@ func TestListMultipleDependencies(t *testing.T) {
 	service := &Service{
 		Name: "TestListMultipleDependencies",
 		Dependencies: map[string]*Dependency{
-			"test": &Dependency{
+			"test": {
 				Image: "nginx",
 			},
-			"test2": &Dependency{
+			"test2": {
 				Image: "nginx",
 			},
 		},

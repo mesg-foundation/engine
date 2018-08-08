@@ -11,7 +11,7 @@ import (
 func TestValidateTaskKey(t *testing.T) {
 	s := &service.Service{
 		Tasks: map[string]*service.Task{
-			"test": &service.Task{},
+			"test": {},
 		},
 	}
 	assert.Nil(t, validateTaskKey(s, ""))
@@ -23,9 +23,9 @@ func TestValidateTaskKey(t *testing.T) {
 func TestValidateOutputKey(t *testing.T) {
 	s := &service.Service{
 		Tasks: map[string]*service.Task{
-			"test": &service.Task{
+			"test": {
 				Outputs: map[string]*service.Output{
-					"outputx": &service.Output{},
+					"outputx": {},
 				},
 			},
 		},

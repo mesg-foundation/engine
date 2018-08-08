@@ -1,6 +1,6 @@
 package service
 
-// EventNotFoundError is an error when we cannot find an event in a service
+// EventNotFoundError is an error when an event cannot be found in a service.
 type EventNotFoundError struct {
 	Service  *Service
 	EventKey string
@@ -10,7 +10,7 @@ func (e *EventNotFoundError) Error() string {
 	return "Event '" + e.EventKey + "' not found in service '" + e.Service.Name + "'"
 }
 
-// InvalidEventDataError is an error when the data of an event are not valid
+// InvalidEventDataError is an error when the data of an event are not valid.
 type InvalidEventDataError struct {
 	Event *Event
 	Key   string
@@ -25,7 +25,7 @@ func (e *InvalidEventDataError) Error() string {
 	return errorString
 }
 
-// TaskNotFoundError is an error when we cannot find an task in a service
+// TaskNotFoundError is an error when a task cannot be found in a service.
 type TaskNotFoundError struct {
 	Service *Service
 	TaskKey string
@@ -35,7 +35,7 @@ func (e *TaskNotFoundError) Error() string {
 	return "Task '" + e.TaskKey + "' not found in service '" + e.Service.Name + "'"
 }
 
-// InvalidTaskInputError is an error when the inputs of a task are not valid
+// InvalidTaskInputError is an error when the inputs of a task are not valid.
 type InvalidTaskInputError struct {
 	Task   *Task
 	Key    string
@@ -60,7 +60,7 @@ func (e *InputNotFoundError) Error() string {
 	return "Input '" + e.InputKey + "' not found in service '" + e.Service.Name + "'"
 }
 
-// OutputNotFoundError is an error when a service doesn't contains a specific output
+// OutputNotFoundError is an error when a service doesn't contain a specific output.
 type OutputNotFoundError struct {
 	Service   *Service
 	OutputKey string
@@ -70,7 +70,7 @@ func (e *OutputNotFoundError) Error() string {
 	return "Output '" + e.OutputKey + "' not found in service '" + e.Service.Name + "'"
 }
 
-// InvalidOutputDataError is an error when the outputs for one task result are not valid
+// InvalidOutputDataError is an error when the outputs for one task result are not valid.
 type InvalidOutputDataError struct {
 	Output *Output
 	Key    string

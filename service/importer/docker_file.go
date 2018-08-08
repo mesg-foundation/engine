@@ -5,8 +5,7 @@ import (
 	"path/filepath"
 )
 
-func readDockerfile(path string) (data []byte, err error) {
+func readDockerfile(path string) ([]byte, error) {
 	file := filepath.Join(path, "Dockerfile")
-	data, err = ioutil.ReadFile(file)
-	return
+	return ioutil.ReadFile(file)
 }
