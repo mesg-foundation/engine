@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 )
@@ -29,8 +30,11 @@ func castBoolean(value string) (interface{}, error) {
 	return b, nil
 }
 func castObject(value string) (interface{}, error) {
-	// do not cast object type
-	return nil, nil
+	var v interface{}
+	if err := json.Unmarshal([]byte(value), &v); err != nil {
+		return nil, fmt.Errorf("input %q is not a Object type", value)
+	}
+	return v, nil
 }
 
 var casters = map[string]caster{

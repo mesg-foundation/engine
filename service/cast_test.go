@@ -34,7 +34,7 @@ func TestServiceCast(t *testing.T) {
 			},
 			map[string]interface{}{
 				"a": "_",
-				"b": 1,
+				"b": int64(1),
 				"c": 1.1,
 				"d": true,
 			},
@@ -60,8 +60,8 @@ func TestServiceCast(t *testing.T) {
 		},
 		{
 			createTestServcieWithInputs(map[string]string{"a": "Object"}),
-			map[string]string{"a": "{}"},
-			map[string]interface{}{},
+			map[string]string{"a": `{"b":1}`},
+			map[string]interface{}{"a": map[string]interface{}{"b": float64(1)}},
 			false,
 		},
 	}
@@ -70,8 +70,10 @@ func TestServiceCast(t *testing.T) {
 		got, err := tt.service.Cast("test", tt.data)
 		if tt.expectErr {
 			assert.NotNil(t, err)
+		} else {
+			assert.Equal(t, len(tt.expected), len(got), "maps len are not equal")
+			assert.Equal(t, tt.expected, got, "maps are not equal")
 		}
-		assert.Equal(t, len(tt.expected), len(got), "maps len not equal")
 	}
 
 	// test if non-existing key returns error
