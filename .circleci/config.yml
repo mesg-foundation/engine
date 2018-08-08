@@ -26,7 +26,7 @@ jobs:
     steps:
       - checkout
       - run: docker pull mesg/core:latest
-      - run: docker build -t mesg/core:$CIRCLE_SHA1 .
+      - run: docker build -t mesg/core:$CIRCLE_SHA1 --build-arg version="dev build `echo $CIRCLE_SHA1 | cut -c1-7`" .
 
   "test":
     docker:
