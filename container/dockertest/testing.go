@@ -39,7 +39,7 @@ func (t *Testing) ProvideContainerList(containers []types.Container, err error) 
 
 // ProvideContainerInspect sets fake return values for the next call to *Client.ContainerInspect.
 func (t *Testing) ProvideContainerInspect(json types.ContainerJSON, err error) {
-	t.client.responses.contanerInspect <- containerInspectResponse{json, err}
+	t.client.responses.containerInspect <- containerInspectResponse{json, err}
 }
 
 // ProvideImageBuild sets fake return values for the next call to *Client.ImageBuild.

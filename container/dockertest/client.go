@@ -58,7 +58,7 @@ type responses struct {
 	serviceInspectWithRaw chan serviceInspectWithRawResponse
 	serviceRemove         chan serviceRemoveResponse
 	serviceLogs           chan serviceLogsResponse
-	contanerInspect       chan containerInspectResponse
+	containerInspect      chan containerInspectResponse
 	containerList         chan containerListResponse
 }
 
@@ -98,7 +98,7 @@ func newClient() *Client {
 			serviceInspectWithRaw: make(chan serviceInspectWithRawResponse, 1),
 			serviceRemove:         make(chan serviceRemoveResponse, 1),
 			serviceLogs:           make(chan serviceLogsResponse, 1),
-			contanerInspect:       make(chan containerInspectResponse, 1),
+			containerInspect:      make(chan containerInspectResponse, 1),
 			containerList:         make(chan containerListResponse, 1),
 		},
 	}
@@ -169,7 +169,7 @@ func (c *Client) ContainerList(ctx context.Context,
 func (c *Client) ContainerInspect(ctx context.Context, container string) (types.ContainerJSON, error) {
 	c.requests.containerInspect <- ContainerInspectRequest{container}
 	select {
-	case resp := <-c.responses.contanerInspect:
+	case resp := <-c.responses.containerInspect:
 		return resp.json, resp.err
 	default:
 		return types.ContainerJSON{}, nil
