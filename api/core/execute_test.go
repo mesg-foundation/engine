@@ -153,7 +153,7 @@ func TestGetDataInvalid(t *testing.T) {
 }
 
 func TestCheckServiceNotRunning(t *testing.T) {
-	err := checkService(&service.Service{Name: "TestCheckServiceNotRunning"})
+	err := checkServiceStatus(&service.Service{Name: "TestCheckServiceNotRunning"})
 	assert.NotNil(t, err)
 	_, notRunningError := err.(*NotRunningServiceError)
 	assert.True(t, notRunningError)
@@ -170,6 +170,6 @@ func TestCheckService(t *testing.T) {
 	}
 	srv.Start()
 	defer srv.Stop()
-	err := checkService(&srv)
+	err := checkServiceStatus(&srv)
 	assert.Nil(t, err)
 }
