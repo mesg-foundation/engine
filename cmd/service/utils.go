@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/url"
 	"os"
 
@@ -19,6 +20,18 @@ import (
 	git "gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing"
 )
+
+// TODO(ilgooz): remove this after service package made Newable.
+var defaultContainer *container.Container
+
+// TODO(ilgooz): remove this after service package made Newable.
+func init() {
+	c, err := container.New()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defaultContainer = c
+}
 
 func cli() core.CoreClient {
 	connection, err := grpc.Dial(viper.GetString(config.APIClientTarget), grpc.WithInsecure())
@@ -100,7 +113,7 @@ func createTempFolder() (path string, err error) {
 
 func buildDockerImage(path string) (imageHash string, err error) {
 	utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: "Building image..."}, func() {
-		imageHash, err = container.Build(path)
+		imageHash, err = defaultContainer.Build(path)
 	})
 	return
 }

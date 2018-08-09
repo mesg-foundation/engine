@@ -10,5 +10,5 @@ func Stop() error {
 	if err != nil || status == container.STOPPED {
 		return err
 	}
-	return container.StopService(Namespace())
+	return defaultContainer.StopService(Namespace())
 }

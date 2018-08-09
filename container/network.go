@@ -8,8 +8,8 @@ import (
 )
 
 // CreateNetwork creates a Docker Network with a namespace.
-func CreateNetwork(namespace []string) (id string, err error) {
-	network, err := FindNetwork(namespace)
+func (c *Container) CreateNetwork(namespace []string) (id string, err error) {
+	network, err := c.FindNetwork(namespace)
 	if err != nil && !docker.IsErrNotFound(err) {
 		return "", err
 	}
@@ -17,11 +17,9 @@ func CreateNetwork(namespace []string) (id string, err error) {
 		return network.ID, nil
 	}
 	namespaceFlat := Namespace(namespace)
-	client, err := Client()
-	if err != nil {
-		return "", err
-	}
-	response, err := client.NetworkCreate(context.Background(), namespaceFlat, types.NetworkCreate{
+	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
+	defer cancel()
+	response, err := c.client.NetworkCreate(ctx, namespaceFlat, types.NetworkCreate{
 		CheckDuplicate: true, // Cannot have 2 network with the same name
 		Driver:         "overlay",
 		Labels: map[string]string{
@@ -35,26 +33,22 @@ func CreateNetwork(namespace []string) (id string, err error) {
 }
 
 // DeleteNetwork deletes a Docker Network associated with a namespace.
-func DeleteNetwork(namespace []string) error {
-	network, err := FindNetwork(namespace)
+func (c *Container) DeleteNetwork(namespace []string) error {
+	network, err := c.FindNetwork(namespace)
 	if docker.IsErrNotFound(err) {
 		return nil
 	}
 	if err != nil {
 		return err
 	}
-	client, err := Client()
-	if err != nil {
-		return err
-	}
-	return client.NetworkRemove(context.Background(), network.ID)
+	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
+	defer cancel()
+	return c.client.NetworkRemove(ctx, network.ID)
 }
 
 // FindNetwork finds a Docker Network by a namespace. If no network is found, an error is returned.
-func FindNetwork(namespace []string) (types.NetworkResource, error) {
-	client, err := Client()
-	if err != nil {
-		return types.NetworkResource{}, err
-	}
-	return client.NetworkInspect(context.Background(), Namespace(namespace), types.NetworkInspectOptions{})
+func (c *Container) FindNetwork(namespace []string) (types.NetworkResource, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
+	defer cancel()
+	return c.client.NetworkInspect(ctx, Namespace(namespace), types.NetworkInspectOptions{})
 }
