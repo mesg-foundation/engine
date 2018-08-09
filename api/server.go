@@ -9,7 +9,7 @@ import (
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	"github.com/mesg-foundation/core/api/core"
 	"github.com/mesg-foundation/core/api/service"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -39,15 +39,15 @@ func (s *Server) Serve() error {
 	s.listener = listener
 	s.instance = grpc.NewServer(
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
-			grpc_logrus.StreamServerInterceptor(log.NewEntry(log.StandardLogger())),
+			grpc_logrus.StreamServerInterceptor(logrus.NewEntry(logrus.StandardLogger())),
 		)),
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-			grpc_logrus.UnaryServerInterceptor(log.NewEntry(log.StandardLogger())),
+			grpc_logrus.UnaryServerInterceptor(logrus.NewEntry(logrus.StandardLogger())),
 		)),
 	)
 	s.register()
 
-	log.Info("Server listens on ", s.listener.Addr())
+	logrus.Info("Server listens on ", s.listener.Addr())
 
 	// TODO: check if server still on after a connection throw an error. otherwise, add a for around serve
 	return s.instance.Serve(s.listener)

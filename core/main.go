@@ -9,7 +9,7 @@ import (
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/logger"
 	"github.com/mesg-foundation/core/version"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -18,7 +18,7 @@ func main() {
 	level := viper.GetString(config.LogLevel)
 	logger.Init(format, level)
 
-	log.Println("Starting MESG Core", version.Version)
+	logrus.Println("Starting MESG Core", version.Version)
 	go startServer(&api.Server{
 		Network: "tcp",
 		Address: viper.GetString(config.APIServerAddress),
@@ -36,6 +36,6 @@ func startServer(server *api.Server) {
 	err := server.Serve()
 	defer server.Stop()
 	if err != nil {
-		log.Fatalln(err)
+		logrus.Fatalln(err)
 	}
 }

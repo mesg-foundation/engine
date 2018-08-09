@@ -7,7 +7,7 @@ import (
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/api/core"
 	"github.com/mesg-foundation/core/cmd/utils"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -74,10 +74,10 @@ func listenEvents(serviceID string, filter string) {
 	for {
 		event, err := stream.Recv()
 		if err != nil {
-			log.Info(aurora.Red(err))
+			logrus.Info(aurora.Red(err))
 			return
 		}
-		log.Info("Receive event", aurora.Green(event.EventKey), ":", aurora.Bold(event.EventData))
+		logrus.Info("Receive event", aurora.Green(event.EventKey), ":", aurora.Bold(event.EventData))
 	}
 }
 
@@ -92,9 +92,9 @@ func listenResults(serviceID string, result string, output string) {
 	for {
 		result, err := stream.Recv()
 		if err != nil {
-			log.Info(aurora.Red(err))
+			logrus.Info(aurora.Red(err))
 			return
 		}
-		log.Info("Receive result", aurora.Green(result.TaskKey), aurora.Cyan(result.OutputKey), "with data", aurora.Bold(result.OutputData))
+		logrus.Info("Receive result", aurora.Green(result.TaskKey), aurora.Cyan(result.OutputKey), "with data", aurora.Bold(result.OutputData))
 	}
 }
