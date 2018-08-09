@@ -21,7 +21,7 @@ const (
 func HandleError(err error) {
 	if err != nil {
 		fmt.Println(errorMessage(err))
-		os.Exit(0)
+		os.Exit(1)
 	}
 }
 

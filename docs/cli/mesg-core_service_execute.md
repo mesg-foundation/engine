@@ -19,9 +19,10 @@ mesg-core service execute SERVICE_ID
 ### Options
 
 ```
-  -h, --help          help for execute
-  -j, --json string   Path to a JSON file containing the data required to run the task
-  -t, --task string   Run the given task
+  -d, --data key=value   data required to run the task
+  -h, --help             help for execute
+  -j, --json string      Path to a JSON file containing the data required to run the task
+  -t, --task string      Run the given task
 ```
 
 ### SEE ALSO
