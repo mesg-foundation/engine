@@ -45,3 +45,13 @@ func TestSubscribeMultipleTimes(t *testing.T) {
 	Subscribe(key)
 	assert.Equal(t, len(listeners[key]), 2)
 }
+
+func TestUnsubscribe(t *testing.T) {
+	key := "TestUnsubscribe"
+	channel := Subscribe(key)
+	channel1 := Subscribe(key)
+	Unsubscribe(key, channel)
+	assert.Equal(t, len(listeners[key]), 1)
+	Unsubscribe(key, channel1)
+	assert.Equal(t, len(listeners[key]), 0)
+}

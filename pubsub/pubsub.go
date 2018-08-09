@@ -34,3 +34,15 @@ func Subscribe(channel string) chan Message {
 	mu.Unlock()
 	return listener
 }
+
+// Unsubscribe unsubscribes a subscription for listening channel.
+func Unsubscribe(channel string, subscription chan Message) {
+	mu.Lock()
+	defer mu.Unlock()
+	for i, s := range listeners[channel] {
+		if s == subscription {
+			listeners[channel] = append(listeners[channel][:i], listeners[channel][i+1:]...)
+			return
+		}
+	}
+}
