@@ -35,7 +35,7 @@ func (tests parameterTests) parameterTestsToMapData() map[string]interface{} {
 
 func (tests parameterTests) assert(t *testing.T, err string) {
 	for _, test := range tests {
-		require.Contains(t, "Value of '"+test.Key+"' is "+test.Error, err)
+		require.Contains(t, err, "Value of '"+test.Key+"' is "+test.Error)
 	}
 }
 
@@ -65,7 +65,7 @@ func TestInvalidEventDataError(t *testing.T) {
 		Key:  "TestInvalidEventDataErrorEventKey",
 		Data: tests.parameterTestsToMapData(),
 	}
-	require.Contains(t, "Data of event 'TestInvalidEventDataErrorEventKey' is invalid", err.Error())
+	require.Contains(t, err.Error(), "Data of event 'TestInvalidEventDataErrorEventKey' is invalid")
 	tests.assert(t, err.Error())
 }
 
@@ -95,7 +95,7 @@ func TestInvalidTaskInputError(t *testing.T) {
 		Key:    "TestInvalidTaskInputErrorEventKey",
 		Inputs: tests.parameterTestsToMapData(),
 	}
-	require.Contains(t, "Inputs of task 'TestInvalidTaskInputErrorEventKey' are invalid", err.Error())
+	require.Contains(t, err.Error(), "Inputs of task 'TestInvalidTaskInputErrorEventKey' are invalid")
 	tests.assert(t, err.Error())
 }
 
@@ -125,6 +125,6 @@ func TestInvalidOutputDataError(t *testing.T) {
 		Key:  "TestInvalidOutputDataErrorEventKey",
 		Data: tests.parameterTestsToMapData(),
 	}
-	require.Contains(t, "Outputs of task 'TestInvalidOutputDataErrorEventKey' are invalid", err.Error())
+	require.Contains(t, err.Error(), "Outputs of task 'TestInvalidOutputDataErrorEventKey' are invalid")
 	tests.assert(t, err.Error())
 }

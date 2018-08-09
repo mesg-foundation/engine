@@ -14,9 +14,9 @@ func TestServiceStatusString(t *testing.T) {
 		service: &s,
 		status:  service.RUNNING,
 	}
-	require.Contains(t, "[Running]", status.String())
-	require.Contains(t, s.Hash(), status.String())
-	require.Contains(t, s.Name, status.String())
+	require.Contains(t, status.String(), "[Running]")
+	require.Contains(t, status.String(), s.Hash())
+	require.Contains(t, status.String(), s.Name)
 }
 
 func TestSort(t *testing.T) {

@@ -8,5 +8,5 @@ import (
 
 func TestNotInQueueError(t *testing.T) {
 	e := NotInQueueError{"test", "queueName"}
-	require.Contains(t, "Execution 'test' not found in queue 'queueName'", e.Error())
+	require.Contains(t, e.Error(), "Execution 'test' not found in queue 'queueName'")
 }

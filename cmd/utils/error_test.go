@@ -26,11 +26,11 @@ func TestDockerDaemonError(t *testing.T) {
 }
 
 func TestErrorMessage(t *testing.T) {
-	require.Contains(t, cannotReachTheCore, errorMessage(testCoreConnectionErr))
-	require.Contains(t, startCore, errorMessage(testCoreConnectionErr))
+	require.Contains(t, errorMessage(testCoreConnectionErr), cannotReachTheCore)
+	require.Contains(t, errorMessage(testCoreConnectionErr), startCore)
 
-	require.Contains(t, cannotReachDocker, errorMessage(testDockerConnectionErr))
-	require.Contains(t, installDocker, errorMessage(testDockerConnectionErr))
+	require.Contains(t, errorMessage(testDockerConnectionErr), cannotReachDocker)
+	require.Contains(t, errorMessage(testDockerConnectionErr), installDocker)
 
-	require.Contains(t, "errorX", errorMessage(errors.New("errorX")))
+	require.Contains(t, errorMessage(errors.New("errorX")), "errorX")
 }

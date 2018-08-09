@@ -29,5 +29,5 @@ func TestAPIDefault(t *testing.T) {
 	}
 
 	// Override by ENV when testing, so only test the image name
-	require.Contains(t, "mesg/core:", viper.GetString(CoreImage))
+	require.Contains(t, viper.GetString(CoreImage), "mesg/core:")
 }
