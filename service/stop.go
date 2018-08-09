@@ -16,7 +16,7 @@ func (service *Service) Stop() error {
 	if err := service.StopDependencies(); err != nil {
 		return err
 	}
-	return container.DeleteNetwork(service.namespace())
+	return defaultContainer.DeleteNetwork(service.namespace())
 }
 
 // StopDependencies stops all dependencies.
@@ -46,5 +46,5 @@ func (dependency *DependencyFromService) Stop() error {
 	if err != nil || status == container.STOPPED {
 		return err
 	}
-	return container.StopService(dependency.namespace())
+	return defaultContainer.StopService(dependency.namespace())
 }

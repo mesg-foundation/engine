@@ -37,13 +37,13 @@ func (service *Service) Status() (StatusType, error) {
 
 // Status returns StatusType of dependency's container.
 func (dependency *DependencyFromService) Status() (container.StatusType, error) {
-	return container.ServiceStatus(dependency.namespace())
+	return defaultContainer.ServiceStatus(dependency.namespace())
 }
 
 // ListRunning returns all the running services.2
 // TODO: should move to another file
 func ListRunning() ([]string, error) {
-	services, err := container.ListServices("mesg.hash")
+	services, err := defaultContainer.ListServices("mesg.hash")
 	if err != nil {
 		return nil, err
 	}

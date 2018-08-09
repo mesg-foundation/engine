@@ -18,11 +18,11 @@ func Start() (serviceID string, err error) {
 	if err != nil {
 		return "", err
 	}
-	return container.StartService(spec)
+	return defaultContainer.StartService(spec)
 }
 
 func serviceSpec() (spec container.ServiceOptions, err error) {
-	sharedNetworkID, err := container.SharedNetworkID()
+	sharedNetworkID, err := defaultContainer.SharedNetworkID()
 	if err != nil {
 		return container.ServiceOptions{}, err
 	}
