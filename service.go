@@ -20,7 +20,7 @@ import (
 )
 
 const (
-	tcpEndpointEnv = "MESG_ENDPOINT_TCP"
+	tcpEndpointEnv = "MESG_ENDPOINT"
 	tokenEnv       = "MESG_TOKEN"
 )
 
@@ -49,8 +49,8 @@ type Service struct {
 	// callTimeout used to timeout gRPC requests or dial.
 	callTimeout time.Duration
 
-	// tasks holds task handlers by their names.
-	tasks map[string]Task
+	// tasks holds task handlers.
+	tasks []Taskable
 	mt    sync.RWMutex
 
 	// log is a logger for service.
@@ -68,7 +68,6 @@ func New(options ...Option) (*Service, error) {
 	s := &Service{
 		endpoint:    os.Getenv(tcpEndpointEnv),
 		token:       os.Getenv(tokenEnv),
-		tasks:       map[string]Task{},
 		callTimeout: time.Second * 10,
 		logOutput:   ioutil.Discard,
 		dialOptions: []grpc.DialOption{grpc.WithInsecure()},
@@ -121,7 +120,6 @@ func DialOption(dialer Dialer) Option {
 	}
 }
 
-// TODO(ilgooz) handle timeouts
 func (s *Service) setupServiceClient() error {
 	var err error
 	ctx, cancel := context.WithTimeout(context.Background(), s.callTimeout)
@@ -135,16 +133,13 @@ func (s *Service) setupServiceClient() error {
 }
 
 // Listen listens requests for given tasks. It's a blocking call.
-func (s *Service) Listen(task Task, tasks ...Task) error {
+func (s *Service) Listen(task Taskable, tasks ...Taskable) error {
 	s.mt.Lock()
 	if len(s.tasks) > 0 {
 		s.mt.Unlock()
 		return errors.New("tasks already set")
 	}
-	s.tasks[task.name] = task
-	for _, task := range tasks {
-		s.tasks[task.name] = task
-	}
+	s.tasks = append(tasks, task)
 	s.mt.Unlock()
 	if err := s.validateTasks(); err != nil {
 		return err
@@ -152,6 +147,8 @@ func (s *Service) Listen(task Task, tasks ...Task) error {
 	return s.listenTasks()
 }
 
+// validateTasks checks if the tasks handled exectly desribed in mesg.yaml.
+// TODO(ilgooz) use validation handlers of core server to do this?
 func (s *Service) validateTasks() error { return nil }
 
 func (s *Service) listenTasks() error {
@@ -172,20 +169,19 @@ func (s *Service) listenTasks() error {
 
 func (s *Service) executeTask(data *service.TaskData) {
 	s.mt.RLock()
-	fn, ok := s.tasks[data.TaskKey]
+	for _, task := range s.tasks {
+		if task.Name() == data.TaskKey {
+			s.mt.RUnlock()
+
+			execution := newExecution(s, data)
+			if err := execution.reply(task.Execute(execution)); err != nil {
+				s.log.Println(err)
+			}
+
+			return
+		}
+	}
 	s.mt.RUnlock()
-	if !ok {
-		return
-	}
-	req := &Request{
-		ExecutionID: data.ExecutionID,
-		Key:         data.TaskKey,
-		data:        data.InputData,
-		service:     s,
-	}
-	if err := req.reply(fn.handler(req)); err != nil {
-		s.log.Println(err)
-	}
 }
 
 // Emit emits a MESG event with given data for name.

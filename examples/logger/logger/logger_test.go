@@ -42,7 +42,7 @@ func TestListenSuccess(t *testing.T) {
 	assert.Equal(t, "success", execution.Key())
 
 	var resp successResponse
-	assert.Nil(t, execution.Decode(&resp))
+	assert.Nil(t, execution.Data(&resp))
 	assert.Equal(t, "ok", resp.Message)
 }
 
@@ -60,7 +60,7 @@ func TestListenError(t *testing.T) {
 	assert.Equal(t, "error", execution.Key())
 
 	var resp errorResponse
-	assert.Nil(t, execution.Decode(&resp))
+	assert.Nil(t, execution.Data(&resp))
 	assert.Contains(t, "json", resp.Message)
 }
 

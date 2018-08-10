@@ -6,26 +6,20 @@ import (
 	mesg "github.com/mesg-foundation/go-service"
 )
 
-func (l *Logger) handler(req *mesg.Request) mesg.Response {
+func (l *Logger) handler(execution *mesg.Execution) (string, mesg.Data) {
 	var data logRequest
-	if err := req.Decode(&data); err != nil {
-		return mesg.Response{
-			"error": errorResponse{err.Error()},
-		}
+	if err := execution.Data(&data); err != nil {
+		return "error", errorResponse{err.Error()}
 	}
 
 	bytes, err := json.Marshal(data.Data)
 	if err != nil {
-		return mesg.Response{
-			"error": errorResponse{err.Error()},
-		}
+		return "error", errorResponse{err.Error()}
 	}
 
 	l.log.Printf("%s: %s", data.ServiceID, string(bytes))
 
-	return mesg.Response{
-		"success": successResponse{"ok"},
-	}
+	return "success", successResponse{"ok"}
 }
 
 type logRequest struct {

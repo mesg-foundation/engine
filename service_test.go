@@ -45,7 +45,7 @@ func TestEmit(t *testing.T) {
 	assert.Equal(t, token, le.Token())
 
 	var data1 eventRequest
-	assert.Nil(t, le.Decode(&data1))
+	assert.Nil(t, le.Data(&data1))
 	assert.Equal(t, data.URL, data1.URL)
 }
 
@@ -71,14 +71,12 @@ func TestListen(t *testing.T) {
 	wg.Add(1)
 	go func() {
 		err := service.Listen(
-			NewTask(task, func(req *Request) Response {
+			Task(task, func(execution *Execution) (string, Data) {
 				var data2 taskRequest
-				assert.Nil(t, req.Decode(&data2))
+				assert.Nil(t, execution.Data(&data2))
 				assert.Equal(t, reqData.URL, data2.URL)
 
-				return Response{
-					Key(key): resData,
-				}
+				return key, resData
 			}),
 		)
 		assert.NotNil(t, err)
@@ -92,7 +90,7 @@ func TestListen(t *testing.T) {
 	assert.Equal(t, token, server.ListenToken())
 
 	var data1 taskResponse
-	assert.Nil(t, execution.Decode(&data1))
+	assert.Nil(t, execution.Data(&data1))
 	assert.Equal(t, resData.Message, data1.Message)
 
 	service.Close()

@@ -19,7 +19,7 @@ func (e *Execution) Key() string {
 	return e.key
 }
 
-// Decode decodes task output to out.
-func (e *Execution) Decode(out interface{}) error {
+// Data decodes task output to out.
+func (e *Execution) Data(out interface{}) error {
 	return json.Unmarshal([]byte(e.data), out)
 }
