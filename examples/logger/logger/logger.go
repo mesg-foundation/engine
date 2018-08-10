@@ -41,7 +41,7 @@ func LogOutputOption(out io.Writer) Option {
 // Start starts logger as a service.
 func (l *Logger) Start() error {
 	return l.service.Listen(
-		mesg.NewTask("log", l.handler),
+		mesg.Task("log", l.handler),
 	)
 }
 

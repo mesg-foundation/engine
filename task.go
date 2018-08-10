@@ -1,71 +1,32 @@
 package mesg
 
-import (
-	"context"
-	"encoding/json"
-	"errors"
+// Taskable represents implementation of task executor.
+type Taskable interface {
+	// Name returns the task key.
+	Name() (key string)
 
-	"github.com/mesg-foundation/core/api/service"
-)
+	// Execute called when a task execution request arrived with the same key
+	// returned by Name().
+	// key is the output key and data is the output data of task.
+	Execute(execution *Execution) (key string, data Data)
+}
 
-var errOnlyOneOutputKey = errors.New("there should be only one output key in response")
-
-// Task represents a MESG task.
-type Task struct {
+// defaultTask implements Task.
+type defaultTask struct {
 	name    string
-	handler func(*Request) Response
+	handler func(execution *Execution) (key string, data Data)
 }
 
-// NewTask creates a task with name, handler executed when a matching task request is received.
-func NewTask(name string, handler func(*Request) Response) Task {
-	t := Task{
-		name:    name,
-		handler: handler,
-	}
-	return t
+func (t *defaultTask) Name() string {
+	return t.name
 }
 
-// Key is the output key of task.
-type Key string
-
-// Data is an event data or output data of a task.
-type Data interface{}
-
-// Response is a task response.
-type Response map[Key]Data
-
-// Request holds information about a Task request.
-type Request struct {
-	// ExecutionID is the execution id of task.
-	ExecutionID string
-
-	// Key is the name of task.
-	Key string
-
-	data    string
-	service *Service
+func (t *defaultTask) Execute(execution *Execution) (key string, data Data) {
+	return t.handler(execution)
 }
 
-// Decode decodes task data input to out.
-func (t *Request) Decode(out interface{}) error {
-	return json.Unmarshal([]byte(t.data), out)
-}
-
-func (t *Request) reply(resp Response) error {
-	if len(resp) != 1 {
-		return errOnlyOneOutputKey
-	}
-	for key, data := range resp {
-		dataBytes, err := json.Marshal(data)
-		if err != nil {
-			return err
-		}
-		_, err = t.service.client.SubmitResult(context.Background(), &service.SubmitResultRequest{
-			ExecutionID: t.ExecutionID,
-			OutputKey:   string(key),
-			OutputData:  string(dataBytes),
-		})
-		return err
-	}
-	return nil
+// Task creates an executable task for given task name, handler called when a
+// matching task execution request arrived.
+func Task(name string, handler func(*Execution) (key string, data Data)) Taskable {
+	return &defaultTask{name, handler}
 }

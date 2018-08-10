@@ -14,8 +14,8 @@ func (e *Event) Name() string {
 	return e.name
 }
 
-// Decode decodes event data to out.
-func (e *Event) Decode(out interface{}) error {
+// Data decodes event data to out.
+func (e *Event) Data(out interface{}) error {
 	return json.Unmarshal([]byte(e.data), out)
 }
 

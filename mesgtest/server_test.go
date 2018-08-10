@@ -42,7 +42,7 @@ func TestLastEmit(t *testing.T) {
 	assert.Equal(t, token, event.Token())
 
 	var data1 eventRequest
-	assert.Nil(t, event.Decode(&data1))
+	assert.Nil(t, event.Data(&data1))
 	assert.Equal(t, data.URL, data1.URL)
 }
 
@@ -85,7 +85,7 @@ func TestExecute(t *testing.T) {
 		assert.Equal(t, key, execution.Key())
 
 		var data taskResponse
-		assert.Nil(t, execution.Decode(&data))
+		assert.Nil(t, execution.Data(&data))
 		assert.Equal(t, resData.Message, data.Message)
 	}()
 
