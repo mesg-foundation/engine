@@ -4,6 +4,7 @@ package mesg
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -43,15 +44,26 @@ type Service struct {
 	// conn is underlying gRPC conn
 	conn *grpc.ClientConn
 
-	// dialOptions passed to grpc dial as options.
+	// dialOptions holds dial options of gRPC.
 	dialOptions []grpc.DialOption
 
 	// callTimeout used to timeout gRPC requests or dial.
 	callTimeout time.Duration
 
-	// tasks holds task handlers.
-	tasks []Taskable
-	mt    sync.RWMutex
+	// cancel stops receiving from gRPC task stream.
+	cancel context.CancelFunc
+	mc     sync.Mutex // protects cancel and conn.Close().
+
+	// isListening set true after the first call to Listen().
+	isListening bool
+	ml          sync.Mutex
+
+	// gracefulWait will be in the done state when all processing
+	// task executions are done.
+	gracefulWait *sync.WaitGroup
+
+	// taskables holds task handlers.
+	taskables []Taskable
 
 	// log is a logger for service.
 	log *log.Logger
@@ -66,11 +78,12 @@ type Option func(*Service)
 // New starts a new Service with options.
 func New(options ...Option) (*Service, error) {
 	s := &Service{
-		endpoint:    os.Getenv(tcpEndpointEnv),
-		token:       os.Getenv(tokenEnv),
-		callTimeout: time.Second * 10,
-		logOutput:   ioutil.Discard,
-		dialOptions: []grpc.DialOption{grpc.WithInsecure()},
+		endpoint:     os.Getenv(tcpEndpointEnv),
+		token:        os.Getenv(tokenEnv),
+		callTimeout:  time.Second * 10,
+		gracefulWait: &sync.WaitGroup{},
+		logOutput:    ioutil.Discard,
+		dialOptions:  []grpc.DialOption{grpc.WithInsecure()},
 	}
 	for _, option := range options {
 		option(s)
@@ -134,13 +147,14 @@ func (s *Service) setupServiceClient() error {
 
 // Listen listens requests for given tasks. It's a blocking call.
 func (s *Service) Listen(task Taskable, tasks ...Taskable) error {
-	s.mt.Lock()
-	if len(s.tasks) > 0 {
-		s.mt.Unlock()
-		return errors.New("tasks already set")
+	s.ml.Lock()
+	if s.isListening {
+		s.ml.Unlock()
+		return errAlreadyListening{}
 	}
-	s.tasks = append(tasks, task)
-	s.mt.Unlock()
+	s.isListening = true
+	s.ml.Unlock()
+	s.taskables = append(tasks, task)
 	if err := s.validateTasks(); err != nil {
 		return err
 	}
@@ -152,36 +166,47 @@ func (s *Service) Listen(task Taskable, tasks ...Taskable) error {
 func (s *Service) validateTasks() error { return nil }
 
 func (s *Service) listenTasks() error {
-	stream, err := s.client.ListenTask(context.Background(), &service.ListenTaskRequest{
+	var ctx context.Context
+	s.mc.Lock()
+	ctx, s.cancel = context.WithCancel(context.Background())
+	s.mc.Unlock()
+	stream, err := s.client.ListenTask(ctx, &service.ListenTaskRequest{
 		Token: s.token,
 	})
 	if err != nil {
 		return err
 	}
 	for {
+		s.gracefulWait.Add(1)
 		data, err := stream.Recv()
 		if err != nil {
+			s.gracefulWait.Done()
 			return err
 		}
 		go s.executeTask(data)
 	}
 }
 
-func (s *Service) executeTask(data *service.TaskData) {
-	s.mt.RLock()
-	for _, task := range s.tasks {
-		if task.Name() == data.TaskKey {
-			s.mt.RUnlock()
-
-			execution := newExecution(s, data)
-			if err := execution.reply(task.Execute(execution)); err != nil {
-				s.log.Println(err)
-			}
-
-			return
+func (s *Service) getTaskableByName(key string) Taskable {
+	for _, taskable := range s.taskables {
+		if taskable.Name() == key {
+			return taskable
 		}
 	}
-	s.mt.RUnlock()
+	return nil
+}
+
+func (s *Service) executeTask(data *service.TaskData) {
+	defer s.gracefulWait.Done()
+	taskable := s.getTaskableByName(data.TaskKey)
+	if taskable == nil {
+		s.log.Println(errNonExistentTask{data.TaskKey})
+		return
+	}
+	execution := newExecution(s, data)
+	if err := execution.reply(taskable.Execute(execution)); err != nil {
+		s.log.Println(err)
+	}
 }
 
 // Emit emits a MESG event with given data for name.
@@ -200,7 +225,26 @@ func (s *Service) Emit(event string, data Data) error {
 	return err
 }
 
-// Close gracefully closes underlying connections and stops listening for task requests.
+// Close gracefully stops listening for future task execution requests and waits
+// current ones to complete before closing underlying connection.
 func (s *Service) Close() error {
+	s.mc.Lock()
+	defer s.mc.Unlock()
+	s.cancel()
+	s.gracefulWait.Wait()
 	return s.conn.Close()
+}
+
+type errNonExistentTask struct {
+	name string
+}
+
+func (e errNonExistentTask) Error() string {
+	return fmt.Sprintf("task %q does not exists", e.name)
+}
+
+type errAlreadyListening struct{}
+
+func (e errAlreadyListening) Error() string {
+	return "already listening for tasks"
 }
