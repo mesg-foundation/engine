@@ -73,7 +73,7 @@ func TestCreateSharedNetworkIfNeededExists(t *testing.T) {
 	}
 }
 
-func TestIntegrationSharedNetworkID(t *testing.T) {
+func TestSharedNetworkID(t *testing.T) {
 	id := "1"
 	dt := dockertest.New()
 	c, _ := New(ClientOption(dt.Client()))
