@@ -13,6 +13,7 @@
 - (#303) Add command `service dev` that build and run the service with the logs
 - (#303) Add command `service execute` that execute a task on a service
 - (#316) Delete service when stoping the `service dev` command to avoid to keep all the versions of the services.
+- (#317) Add errors when trying to execute a service that is not running (nothing was happening before)
 - (#344) Add `service execute --data` flag to pass arguments as key=value.
 
 #### Removed
