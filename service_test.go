@@ -1,6 +1,8 @@
 package mesg
 
 import (
+	"bufio"
+	"io"
 	"io/ioutil"
 	"sync"
 	"testing"
@@ -95,4 +97,48 @@ func TestListen(t *testing.T) {
 
 	service.Close()
 	wg.Wait()
+}
+
+func TestMultipleListenCall(t *testing.T) {
+	taskKey := "1"
+	data := taskRequest{"https://mesg.com"}
+
+	service, server := newServiceAndServer(t)
+	go server.Start()
+
+	makeSureListeningC := make(chan struct{}, 0)
+	taskable := Task(taskKey, func(*Execution) (string, Data) {
+		close(makeSureListeningC)
+		return "", ""
+	})
+
+	go service.Listen(taskable)
+	go server.Execute(taskKey, data)
+	<-makeSureListeningC
+
+	assert.Equal(t, service.Listen(taskable).Error(), errAlreadyListening{}.Error())
+}
+
+func TestNonExistentTaskExecutionRequest(t *testing.T) {
+	taskKey := "1"
+	nonExistentTaskKey := "2"
+	data := taskRequest{"https://mesg.com"}
+
+	server := mesgtest.NewServer()
+	go server.Start()
+
+	reader, writer := io.Pipe()
+	service, _ := New(
+		DialOption(server.Socket()),
+		TokenOption(token),
+		EndpointOption(endpoint),
+		LogOutputOption(writer),
+	)
+
+	go service.Listen(Task(taskKey, func(*Execution) (string, Data) { return "", "" }))
+	go server.Execute(nonExistentTaskKey, data)
+
+	line, _, err := bufio.NewReader(reader).ReadLine()
+	assert.Nil(t, err)
+	assert.Contains(t, errNonExistentTask{name: nonExistentTaskKey}.Error(), string(line))
 }
