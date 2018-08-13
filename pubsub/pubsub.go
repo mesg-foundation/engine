@@ -15,32 +15,34 @@ type Message interface{}
 // Publish publishes a message to a channel.
 func Publish(channel string, data Message) {
 	mu.Lock()
+	defer mu.Unlock()
 	for _, listener := range listeners[channel] {
-		if listener != nil {
-			listener <- data
-		}
+		listener <- data
 	}
-	mu.Unlock()
 }
 
 // Subscribe subscribes to the channel and returns listener for it.
 func Subscribe(channel string) chan Message {
-	listener := make(chan Message)
 	mu.Lock()
+	defer mu.Unlock()
+	listener := make(chan Message)
 	if listeners[channel] == nil {
 		listeners[channel] = make([]chan Message, 0)
 	}
 	listeners[channel] = append(listeners[channel], listener)
-	mu.Unlock()
 	return listener
 }
 
-// Unsubscribe unsubscribes a subscription for listening channel.
-func Unsubscribe(channel string, subscription chan Message) {
+// Unsubscribe unsubscribes a listener from listening channel.
+func Unsubscribe(channel string, listener chan Message) {
 	mu.Lock()
 	defer mu.Unlock()
-	for i, s := range listeners[channel] {
-		if s == subscription {
+	if len(listeners[channel]) == 1 {
+		listeners[channel] = nil
+		return
+	}
+	for i, l := range listeners[channel] {
+		if l == listener {
 			listeners[channel] = append(listeners[channel][:i], listeners[channel][i+1:]...)
 			return
 		}
