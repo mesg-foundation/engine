@@ -193,7 +193,8 @@ The request's data for the `ListenResult` stream API.
 {
   "serviceID":     "__SERVICE_ID__",
   "taskFilter":    "__TASK_KEY_TO_MATCH__",
-  "outputFilter":  "__OUTPUT_KEY_TO_MATCH__"
+  "outputFilter":  "__OUTPUT_KEY_TO_MATCH__",
+  "tagFilter":     ["tagX"]
 }
 ```
 
@@ -203,6 +204,7 @@ The request's data for the `ListenResult` stream API.
 | serviceID | [string](#string) | The Service ID. Generated when using the [`DeployService` API](#deployservice). |
 | taskFilter | [string](#string) | __Optional.__  The task's key to filter. The task must match this key. The default is `*` which matches any task. |
 | outputFilter | [string](#string) | __Optional.__ The output's key from the task to filter. The task must return this output's key. The default is `*` which matches any output. |
+| tagFilter | [string](#string)[] | __Optional.__ List of tags to filter. This is am "match all" list. All tags in parameters should be included in the execution to match. |
 
 
 

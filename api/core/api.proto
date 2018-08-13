@@ -79,13 +79,15 @@ message EventData {
 // {
 //   "serviceID":     "__SERVICE_ID__",
 //   "taskFilter":    "__TASK_KEY_TO_MATCH__",
-//   "outputFilter":  "__OUTPUT_KEY_TO_MATCH__"
+//   "outputFilter":  "__OUTPUT_KEY_TO_MATCH__",
+//   "tagFilter":     ["tagX"]
 // }
 // ```
 message ListenResultRequest {
-  string serviceID = 1;     // The Service ID. Generated when using the [`DeployService` API](#deployservice).
-  string taskFilter = 2;    // __Optional.__  The task's key to filter. The task must match this key. The default is `*` which matches any task.
-  string outputFilter = 3;  // __Optional.__ The output's key from the task to filter. The task must return this output's key. The default is `*` which matches any output.
+  string serviceID = 1;           // The Service ID. Generated when using the [`DeployService` API](#deployservice).
+  string taskFilter = 2;          // __Optional.__  The task's key to filter. The task must match this key. The default is `*` which matches any task.
+  string outputFilter = 3;        // __Optional.__ The output's key from the task to filter. The task must return this output's key. The default is `*` which matches any output.
+  repeated string tagFilter = 4;  // __Optional.__ List of tags to filter. This is am "match all" list. All tags in parameters should be included in the execution to match.
 }
 
 // The data received from the stream of the `ListenResult` API.
