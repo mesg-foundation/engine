@@ -72,9 +72,7 @@ func (c *Container) ServiceStatus(namespace []string) (StatusType, error) {
 
 // ServiceLogs returns the logs of a service.
 func (c *Container) ServiceLogs(namespace []string) (io.ReadCloser, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
-	defer cancel()
-	return c.client.ServiceLogs(ctx, Namespace(namespace),
+	return c.client.ServiceLogs(context.Background(), Namespace(namespace),
 		types.ContainerLogsOptions{
 			ShowStdout: true,
 			ShowStderr: true,
