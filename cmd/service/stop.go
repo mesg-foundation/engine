@@ -22,6 +22,7 @@ To have more explanation, see the page [stake explanation from the documentation
 	Example:           `mesg-core service stop SERVICE_ID`,
 	Run:               stopHandler,
 	DisableAutoGenTag: true,
+	Args:              cobra.MinimumNArgs(1),
 }
 
 func stopHandler(cmd *cobra.Command, args []string) {
