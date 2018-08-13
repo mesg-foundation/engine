@@ -22,7 +22,7 @@ func execute(name string) *execution.Execution {
 				},
 			},
 		},
-	}, "test", inputs)
+	}, "test", inputs, []string{})
 	e.Execute()
 	return e
 }
