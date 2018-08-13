@@ -8,25 +8,20 @@ import (
 )
 
 func (task *Task) processEvent(wf *Workflow, data *core.EventData) (err error) {
-	var d interface{}
-	err = json.Unmarshal([]byte(data.EventData), &d)
-	if err != nil {
-		return
-	}
-	return task.process(wf, d)
+	return task.process(wf, data.EventData)
 }
 
 func (task *Task) processResult(wf *Workflow, data *core.ResultData) (err error) {
+	return task.process(wf, data.OutputData)
+}
+
+func (task *Task) process(wf *Workflow, data string) (err error) {
 	var d interface{}
-	err = json.Unmarshal([]byte(data.OutputData), &d)
+	err = json.Unmarshal([]byte(data), &d)
 	if err != nil {
 		return
 	}
-	return task.process(wf, d)
-}
-
-func (task *Task) process(wf *Workflow, data interface{}) (err error) {
-	inputData, err := task.convertData(data)
+	inputData, err := task.convertData(d)
 	if err != nil {
 		return
 	}

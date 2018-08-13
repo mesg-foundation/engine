@@ -11,7 +11,7 @@ func TestExecute(t *testing.T) {
 	s := service.Service{
 		Name: "TestExecute",
 		Tasks: map[string]*service.Task{
-			"test": &service.Task{},
+			"test": {},
 		},
 	}
 	var inputs map[string]interface{}

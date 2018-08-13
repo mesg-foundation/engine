@@ -1,138 +1,201 @@
 package container
 
 import (
+	"bytes"
+	"io/ioutil"
 	"testing"
 
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/filters"
+	"github.com/docker/docker/api/types/swarm"
+	"github.com/mesg-foundation/core/container/dockertest"
 	"github.com/stvp/assert"
 )
 
-func startTestService(name []string) (serviceID string, err error) {
-	return StartService(ServiceOptions{
-		Image:     "nginx",
-		Namespace: name,
-	})
-}
-
 func TestStartService(t *testing.T) {
-	namespace := []string{"TestStartService"}
-	serviceID, err := startTestService(namespace)
-	defer StopService(namespace)
-	assert.Nil(t, err)
-	assert.NotEqual(t, "", serviceID)
-}
+	namespace := []string{"namespace"}
+	containerID := "id"
+	options := ServiceOptions{
+		Image:     "nginx",
+		Namespace: namespace,
+	}
 
-func TestStartService2Times(t *testing.T) {
-	namespace := []string{"TestStartService2Times"}
-	startTestService(namespace)
-	defer StopService(namespace)
-	serviceID, err := startTestService(namespace)
-	assert.NotNil(t, err)
-	assert.Equal(t, "", serviceID)
+	dt := dockertest.New()
+	c, _ := New(ClientOption(dt.Client()))
+
+	dt.ProvideServiceCreate(types.ServiceCreateResponse{ID: containerID}, nil)
+
+	id, err := c.StartService(options)
+	assert.Nil(t, err)
+	assert.Equal(t, containerID, id)
+
+	ls := <-dt.LastServiceCreate()
+	assert.Equal(t, options.toSwarmServiceSpec(), ls.Service)
+	assert.Equal(t, types.ServiceCreateOptions{}, ls.Options)
 }
 
 func TestStopService(t *testing.T) {
-	namespace := []string{"TestStopService"}
-	startTestService(namespace)
-	err := StopService(namespace)
-	assert.Nil(t, err)
+	namespace := []string{"namespace"}
+	containerData := []types.Container{}
+	containerJSONData := types.ContainerJSON{
+		ContainerJSONBase: &types.ContainerJSONBase{
+			State: &types.ContainerState{},
+		},
+	}
+
+	dt := dockertest.New()
+	c, _ := New(ClientOption(dt.Client()))
+
+	dt.ProvideContainerList(containerData, nil)
+	dt.ProvideContainerInspect(containerJSONData, nil)
+
+	assert.Nil(t, c.StopService(namespace))
+
+	li := <-dt.LastServiceInspectWithRaw()
+	assert.Equal(t, Namespace(namespace), li.ServiceID)
+	assert.Equal(t, types.ServiceInspectOptions{}, li.Options)
+
+	assert.Equal(t, Namespace(namespace), (<-dt.LastServiceRemove()).ServiceID)
 }
 
 func TestStopNotExistingService(t *testing.T) {
-	namespace := []string{"TestStopNotExistingService"}
-	err := StopService(namespace)
-	assert.Nil(t, err)
+	namespace := []string{"namespace"}
+
+	dt := dockertest.New()
+	c, _ := New(ClientOption(dt.Client()))
+
+	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
+
+	assert.Nil(t, c.StopService(namespace))
+
+	li := <-dt.LastServiceInspectWithRaw()
+	assert.Equal(t, Namespace(namespace), li.ServiceID)
+	assert.Equal(t, types.ServiceInspectOptions{}, li.Options)
+
+	select {
+	case <-dt.LastServiceRemove():
+		t.Error("should not remove non existent service")
+	default:
+	}
 }
 
 func TestServiceStatusNeverStarted(t *testing.T) {
-	namespace := []string{"TestServiceStatusNeverStarted"}
-	status, err := ServiceStatus(namespace)
+	namespace := []string{"namespace"}
+
+	dt := dockertest.New()
+	c, _ := New(ClientOption(dt.Client()))
+
+	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
+
+	status, err := c.ServiceStatus(namespace)
 	assert.Nil(t, err)
-	assert.NotEqual(t, RUNNING, status)
 	assert.Equal(t, STOPPED, status)
+
+	li := <-dt.LastServiceInspectWithRaw()
+	assert.Equal(t, Namespace(namespace), li.ServiceID)
+	assert.Equal(t, types.ServiceInspectOptions{}, li.Options)
 }
 
 func TestServiceStatusRunning(t *testing.T) {
-	namespace := []string{"TestServiceStatusRunning"}
-	startTestService(namespace)
-	defer StopService(namespace)
-	status, err := ServiceStatus(namespace)
-	assert.Nil(t, err)
-	assert.Equal(t, status, RUNNING)
-	assert.NotEqual(t, status, STOPPED)
-}
+	namespace := []string{"namespace"}
 
-func TestServiceStatusStopped(t *testing.T) {
-	namespace := []string{"TestServiceStatusStopped"}
-	startTestService(namespace)
-	StopService(namespace)
-	status, err := ServiceStatus(namespace)
-	assert.Nil(t, err)
-	assert.Equal(t, status, STOPPED)
-	assert.NotEqual(t, status, RUNNING)
-}
+	dt := dockertest.New()
+	c, _ := New(ClientOption(dt.Client()))
 
-func TestFindServiceNotExisting(t *testing.T) {
-	_, err := FindService([]string{"TestFindServiceNotExisting"})
-	assert.NotNil(t, err)
+	status, err := c.ServiceStatus(namespace)
+	assert.Nil(t, err)
+	assert.Equal(t, RUNNING, status)
+
+	li := <-dt.LastServiceInspectWithRaw()
+	assert.Equal(t, Namespace(namespace), li.ServiceID)
+	assert.Equal(t, types.ServiceInspectOptions{}, li.Options)
 }
 
 func TestFindService(t *testing.T) {
-	namespace := []string{"TestFindService"}
-	startTestService(namespace)
-	defer StopService(namespace)
-	service, err := FindService(namespace)
+	namespace := []string{"namespace"}
+	swarmService := swarm.Service{ID: "1"}
+
+	dt := dockertest.New()
+	c, _ := New(ClientOption(dt.Client()))
+
+	dt.ProvideServiceInspectWithRaw(swarmService, nil, nil)
+
+	service, err := c.FindService(namespace)
 	assert.Nil(t, err)
-	assert.NotEqual(t, "", service.ID)
+	assert.Equal(t, swarmService.ID, service.ID)
+
+	li := <-dt.LastServiceInspectWithRaw()
+	assert.Equal(t, Namespace(namespace), li.ServiceID)
+	assert.Equal(t, types.ServiceInspectOptions{}, li.Options)
 }
 
-func TestFindServiceCloseName(t *testing.T) {
-	namespace := []string{"TestFindServiceCloseName", "name"}
-	namespace1 := []string{"TestFindServiceCloseName", "name2"}
-	startTestService(namespace)
-	defer StopService(namespace)
-	startTestService(namespace1)
-	defer StopService(namespace1)
-	service, err := FindService(namespace)
-	assert.Nil(t, err)
-	assert.NotEqual(t, "", service.ID)
-}
+func TestFindServiceNotExisting(t *testing.T) {
+	namespace := []string{"namespace"}
 
-func TestFindServiceStopped(t *testing.T) {
-	namespace := []string{"TestFindServiceStopped"}
-	startTestService(namespace)
-	StopService(namespace)
-	_, err := FindService(namespace)
-	assert.NotNil(t, err)
+	dt := dockertest.New()
+	c, _ := New(ClientOption(dt.Client()))
+
+	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
+
+	_, err := c.FindService(namespace)
+	assert.Equal(t, dockertest.NotFoundErr{}, err)
+
+	li := <-dt.LastServiceInspectWithRaw()
+	assert.Equal(t, Namespace(namespace), li.ServiceID)
+	assert.Equal(t, types.ServiceInspectOptions{}, li.Options)
 }
 
 func TestListServices(t *testing.T) {
-	StartService(ServiceOptions{
-		Image:     "nginx",
-		Namespace: []string{"TestListServices"},
-		Labels: map[string]string{
-			"label_name": "value_1",
-		},
-	})
-	StartService(ServiceOptions{
-		Image:     "nginx",
-		Namespace: []string{"TestListServiceswithValue2"},
-		Labels: map[string]string{
-			"label_name_2": "value_2",
-		},
-	})
-	defer StopService([]string{"TestListServices"})
-	defer StopService([]string{"TestListServiceswithValue2"})
-	services, err := ListServices("label_name")
+	namespace := []string{"namespace"}
+	namespace1 := []string{"namespace"}
+	label := "1"
+	swarmServices := []swarm.Service{
+		{Spec: swarm.ServiceSpec{Annotations: swarm.Annotations{Name: Namespace(namespace)}}},
+		{Spec: swarm.ServiceSpec{Annotations: swarm.Annotations{Name: Namespace(namespace1)}}},
+	}
+
+	dt := dockertest.New()
+	c, _ := New(ClientOption(dt.Client()))
+
+	dt.ProvideServiceList(swarmServices, nil)
+
+	services, err := c.ListServices(label)
 	assert.Nil(t, err)
-	assert.Equal(t, 1, len(services))
-	assert.Equal(t, Namespace([]string{"TestListServices"}), services[0].Spec.Name)
+	assert.Equal(t, 2, len(services))
+	assert.Equal(t, Namespace(namespace), services[0].Spec.Name)
+	assert.Equal(t, Namespace(namespace1), services[1].Spec.Name)
+
+	assert.Equal(t, types.ServiceListOptions{
+		Filters: filters.NewArgs(filters.KeyValuePair{
+			Key:   "label",
+			Value: label,
+		}),
+	}, (<-dt.LastServiceList()).Options)
 }
 
 func TestServiceLogs(t *testing.T) {
-	namespace := []string{"TestServiceLogs"}
-	startTestService(namespace)
-	defer StopService(namespace)
-	reader, err := ServiceLogs(namespace)
+	namespace := []string{"namespace"}
+	data := []byte{1, 2}
+
+	dt := dockertest.New()
+	c, _ := New(ClientOption(dt.Client()))
+
+	dt.ProvideServiceLogs(ioutil.NopCloser(bytes.NewReader(data)), nil)
+
+	reader, err := c.ServiceLogs(namespace)
 	assert.Nil(t, err)
-	assert.NotNil(t, reader)
+	defer reader.Close()
+
+	bytes, err := ioutil.ReadAll(reader)
+	assert.Nil(t, err)
+	assert.Equal(t, data, bytes)
+
+	ll := <-dt.LastServiceLogs()
+	assert.Equal(t, Namespace(namespace), ll.ServiceID)
+	assert.Equal(t, types.ContainerLogsOptions{
+		ShowStdout: true,
+		ShowStderr: true,
+		Timestamps: false,
+		Follow:     true,
+	}, ll.Options)
 }

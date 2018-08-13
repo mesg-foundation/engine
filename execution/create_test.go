@@ -34,7 +34,7 @@ func TestCreate(t *testing.T) {
 	s := service.Service{
 		Name: "TestCreate",
 		Tasks: map[string]*service.Task{
-			"test": &service.Task{},
+			"test": {},
 		},
 	}
 	var inputs map[string]interface{}
@@ -50,7 +50,7 @@ func TestCreateInvalidTask(t *testing.T) {
 	s := service.Service{
 		Name: "TestCreateInvalidTask",
 		Tasks: map[string]*service.Task{
-			"test": &service.Task{},
+			"test": {},
 		},
 	}
 	var inputs map[string]interface{}
@@ -64,9 +64,9 @@ func TestCreateInvalidInputs(t *testing.T) {
 	s := service.Service{
 		Name: "TestCreateInvalidInputs",
 		Tasks: map[string]*service.Task{
-			"test": &service.Task{
+			"test": {
 				Inputs: map[string]*service.Parameter{
-					"foo": &service.Parameter{
+					"foo": {
 						Type: "String",
 					},
 				},

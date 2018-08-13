@@ -11,9 +11,9 @@ func TestComplete(t *testing.T) {
 	s := service.Service{
 		Name: "TestComplete",
 		Tasks: map[string]*service.Task{
-			"test": &service.Task{
+			"test": {
 				Outputs: map[string]*service.Output{
-					"output": &service.Output{},
+					"output": {},
 				},
 			},
 		},
@@ -33,7 +33,7 @@ func TestCompleteNotFound(t *testing.T) {
 	s := service.Service{
 		Name: "TestCompleteNotFound",
 		Tasks: map[string]*service.Task{
-			"test": &service.Task{},
+			"test": {},
 		},
 	}
 	var inputs map[string]interface{}
@@ -51,11 +51,11 @@ func TestCompleteInvalidOutputs(t *testing.T) {
 	s := service.Service{
 		Name: "TestCompleteInvalidOutputs",
 		Tasks: map[string]*service.Task{
-			"test": &service.Task{
+			"test": {
 				Outputs: map[string]*service.Output{
-					"output": &service.Output{
+					"output": {
 						Data: map[string]*service.Parameter{
-							"foo": &service.Parameter{},
+							"foo": {},
 						},
 					},
 				},
@@ -77,9 +77,9 @@ func TestCompleteNotProcessed(t *testing.T) {
 	s := service.Service{
 		Name: "TestCompleteNotProcessed",
 		Tasks: map[string]*service.Task{
-			"test": &service.Task{
+			"test": {
 				Outputs: map[string]*service.Output{
-					"output": &service.Output{},
+					"output": {},
 				},
 			},
 		},

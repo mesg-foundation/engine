@@ -3,10 +3,9 @@ package service
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/url"
 	"os"
-
-	"gopkg.in/src-d/go-git.v4/plumbing"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/logrusorgru/aurora"
@@ -19,7 +18,20 @@ import (
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	git "gopkg.in/src-d/go-git.v4"
+	"gopkg.in/src-d/go-git.v4/plumbing"
 )
+
+// TODO(ilgooz): remove this after service package made Newable.
+var defaultContainer *container.Container
+
+// TODO(ilgooz): remove this after service package made Newable.
+func init() {
+	c, err := container.New()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defaultContainer = c
+}
 
 func cli() core.CoreClient {
 	connection, err := grpc.Dial(viper.GetString(config.APIClientTarget), grpc.WithInsecure())
@@ -44,37 +56,38 @@ func handleValidationError(err error) {
 }
 
 // prepareService downloads if needed, create the service, build it and inject configuration
-func prepareService(path string) (importedService *service.Service) {
+func prepareService(path string) *service.Service {
 	path, didDownload, err := downloadServiceIfNeeded(path)
 	utils.HandleError(err)
 	if didDownload {
 		defer os.RemoveAll(path)
 		fmt.Printf("%s Service downloaded with success\n", aurora.Green("✔"))
 	}
-	importedService, err = importer.From(path)
+	importedService, err := importer.From(path)
 	handleValidationError(err)
 	utils.HandleError(err)
 	imageHash, err := buildDockerImage(path)
 	utils.HandleError(err)
 	fmt.Printf("%s Image built with success\n", aurora.Green("✔"))
 	injectConfigurationInDependencies(importedService, imageHash)
-	return
+	return importedService
 }
 
 func downloadServiceIfNeeded(path string) (newPath string, didDownload bool, err error) {
-	newPath = path
-	if govalidator.IsURL(path) {
-		newPath, err = createTempFolder()
-		if err != nil {
-			return
-		}
-		err = gitClone(path, newPath, "Downloading service...")
-		didDownload = err == nil
+	if !govalidator.IsURL(path) {
+		return path, false, nil
 	}
-	return
+	newPath, err = createTempFolder()
+	if err != nil {
+		return "", false, err
+	}
+	if err := gitClone(path, newPath, "Downloading service..."); err != nil {
+		return "", false, err
+	}
+	return newPath, true, nil
 }
 
-func gitClone(repoURL string, path string, message string) (err error) {
+func gitClone(repoURL string, path string, message string) error {
 	u, err := url.Parse(repoURL)
 	if err != nil {
 		return err
@@ -91,17 +104,16 @@ func gitClone(repoURL string, path string, message string) (err error) {
 	utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: message}, func() {
 		_, err = git.PlainClone(path, false, options)
 	})
-	return
+	return err
 }
 
 func createTempFolder() (path string, err error) {
-	path, err = ioutil.TempDir("", "mesg-")
-	return
+	return ioutil.TempDir("", "mesg-")
 }
 
 func buildDockerImage(path string) (imageHash string, err error) {
 	utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: "Building image..."}, func() {
-		imageHash, err = container.Build(path)
+		imageHash, err = defaultContainer.Build(path)
 	})
 	return
 }

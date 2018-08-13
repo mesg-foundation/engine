@@ -16,7 +16,7 @@ func TestDeleteService(t *testing.T) {
 	service := service.Service{
 		Name: "TestDeleteService",
 		Dependencies: map[string]*service.Dependency{
-			"test": &service.Dependency{
+			"test": {
 				Image: "nginx",
 			},
 		},

@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/database/services"
-
 	"github.com/mesg-foundation/core/service"
 	"github.com/stvp/assert"
 )
@@ -17,7 +16,7 @@ func TestStopService(t *testing.T) {
 		Service: &service.Service{
 			Name: "TestStopService",
 			Dependencies: map[string]*service.Dependency{
-				"test": &service.Dependency{
+				"test": {
 					Image: "nginx",
 				},
 			},
