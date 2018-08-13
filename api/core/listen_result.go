@@ -17,10 +17,7 @@ func (s *Server) ListenResult(request *ListenResultRequest, stream Core_ListenRe
 	if err != nil {
 		return err
 	}
-	if err := validateTaskKey(&service, request.TaskFilter); err != nil {
-		return err
-	}
-	if err := validateOutputKey(&service, request.TaskFilter, request.OutputFilter); err != nil {
+	if err := validateTask(&service, request); err != nil {
 		return err
 	}
 
@@ -48,6 +45,13 @@ func (s *Server) ListenResult(request *ListenResultRequest, stream Core_ListenRe
 			}
 		}
 	}
+}
+
+func validateTask(service *service.Service, request *ListenResultRequest) error {
+	if err := validateTaskKey(service, request.TaskFilter); err != nil {
+		return err
+	}
+	return validateOutputKey(service, request.TaskFilter, request.OutputFilter)
 }
 
 func validateTaskKey(service *service.Service, taskKey string) error {
