@@ -21,7 +21,7 @@ func (s *Server) ExecuteTask(ctx context.Context, request *ExecuteTaskRequest) (
 	if err != nil {
 		return nil, err
 	}
-	execution, err := execution.Create(&service, request.TaskKey, inputs)
+	execution, err := execution.Create(&service, request.TaskKey, inputs, request.Tags)
 	if err != nil {
 		return nil, err
 	}

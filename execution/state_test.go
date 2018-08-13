@@ -15,7 +15,7 @@ func TestMoveFromPendingToInProgress(t *testing.T) {
 		},
 	}
 	var inputs map[string]interface{}
-	exec, _ := Create(&s, "test", inputs)
+	exec, _ := Create(&s, "test", inputs, []string{})
 	err := exec.moveFromPendingToInProgress()
 	assert.Equal(t, inProgressExecutions[exec.ID], exec)
 	assert.Nil(t, pendingExecutions[exec.ID])
@@ -37,7 +37,7 @@ func TestMoveFromInProgressToCompleted(t *testing.T) {
 		},
 	}
 	var inputs map[string]interface{}
-	exec, _ := Create(&s, "test", inputs)
+	exec, _ := Create(&s, "test", inputs, []string{})
 	exec.moveFromPendingToInProgress()
 	err := exec.moveFromInProgressToProcessed()
 	assert.Equal(t, processedExecutions[exec.ID], exec)
@@ -53,7 +53,7 @@ func TestMoveFromInProgressToCompletedNonExistingTask(t *testing.T) {
 		},
 	}
 	var inputs map[string]interface{}
-	exec, _ := Create(&s, "test", inputs)
+	exec, _ := Create(&s, "test", inputs, []string{})
 	err := exec.moveFromInProgressToProcessed()
 	assert.NotNil(t, err)
 	assert.Nil(t, inProgressExecutions[exec.ID])

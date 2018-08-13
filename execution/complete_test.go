@@ -19,7 +19,7 @@ func TestComplete(t *testing.T) {
 		},
 	}
 	var inputs map[string]interface{}
-	execution, _ := Create(&s, "test", inputs)
+	execution, _ := Create(&s, "test", inputs, []string{})
 	execution.Execute()
 	var outputs map[string]interface{}
 	err := execution.Complete("output", outputs)
@@ -37,7 +37,7 @@ func TestCompleteNotFound(t *testing.T) {
 		},
 	}
 	var inputs map[string]interface{}
-	execution, _ := Create(&s, "test", inputs)
+	execution, _ := Create(&s, "test", inputs, []string{})
 	execution.Execute()
 	var outputs map[string]interface{}
 	err := execution.Complete("output", outputs)
@@ -63,7 +63,7 @@ func TestCompleteInvalidOutputs(t *testing.T) {
 		},
 	}
 	var inputs map[string]interface{}
-	execution, _ := Create(&s, "test", inputs)
+	execution, _ := Create(&s, "test", inputs, []string{})
 	execution.Execute()
 	var outputs map[string]interface{}
 	err := execution.Complete("output", outputs)
@@ -85,7 +85,7 @@ func TestCompleteNotProcessed(t *testing.T) {
 		},
 	}
 	var inputs map[string]interface{}
-	execution, _ := Create(&s, "test", inputs)
+	execution, _ := Create(&s, "test", inputs, []string{})
 	var outputs map[string]interface{}
 	err := execution.Complete("output", outputs)
 	assert.NotNil(t, err)

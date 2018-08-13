@@ -97,14 +97,16 @@ message ListenResultRequest {
 //   "executionID": "__EXECUTION_ID__",
 //   "taskKey":     "__TASK_KEY__",
 //   "outputKey":   "__OUTPUT_KEY__",
-//   "outputData":  "{\"foo\":\"bar\"}"
+//   "outputData":  "{\"foo\":\"bar\"}",
+//   "tags":        ["executionX", "test"]
 // }
 // ```
 message ResultData {
-  string executionID = 1; // The unique identifier of the execution.
-  string taskKey = 2;     // The key of the executed task.
-  string outputKey = 3;   // The output's key from the returned task.
-  string outputData = 4;  // The output's data from the returned task, encoded in JSON.
+  string executionID = 1;   // The unique identifier of the execution.
+  string taskKey = 2;       // The key of the executed task.
+  string outputKey = 3;     // The output's key from the returned task.
+  string outputData = 4;    // The output's data from the returned task, encoded in JSON.
+  repeated string tags = 5; // List of tags associated to the task
 }
 
 // The request's data for the `ExecuteTask` API.
@@ -114,13 +116,15 @@ message ResultData {
 // {
 //   "serviceID": "__SERVICE_ID__",
 //   "taskKey":   "__TASK_KEY__",
-//   "inputData": "{\"foo\":\"bar\"}"
+//   "inputData": "{\"foo\":\"bar\"}",
+//   "tags":      ["executionX", "test"]
 // }
 // ```
 message ExecuteTaskRequest {
-  string serviceID = 1; // The Service ID. Generated when using the [`DeployService` API](#deployservice).
-  string taskKey = 2;   // The task's key to execute.
-  string inputData = 3; // The inputs of the task to execute, encoded in JSON.
+  string serviceID = 1;     // The Service ID. Generated when using the [`DeployService` API](#deployservice).
+  string taskKey = 2;       // The task's key to execute.
+  string inputData = 3;     // The inputs of the task to execute, encoded in JSON.
+  repeated string tags = 4; // List of tags to assign to this task
 }
 
 // The reply's data of the `ExecuteTask` API.

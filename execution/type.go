@@ -11,6 +11,7 @@ type Execution struct {
 	ID                string
 	Service           *service.Service
 	Task              string
+	Tags              []string
 	CreatedAt         time.Time
 	ExecutedAt        time.Time
 	ExecutionDuration time.Duration

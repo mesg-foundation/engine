@@ -260,7 +260,8 @@ The data will be received over time as long as the stream is open.
   "executionID": "__EXECUTION_ID__",
   "taskKey":     "__TASK_KEY__",
   "outputKey":   "__OUTPUT_KEY__",
-  "outputData":  "{\"foo\":\"bar\"}"
+  "outputData":  "{\"foo\":\"bar\"}",
+  "tags":        ["executionX", "test"]
 }
 ```
 
@@ -271,6 +272,7 @@ The data will be received over time as long as the stream is open.
 | taskKey | [string](#string) | The key of the executed task. |
 | outputKey | [string](#string) | The output's key from the returned task. |
 | outputData | [string](#string) | The output's data from the returned task, encoded in JSON. |
+| tags | [string](#string)[] | List of tags associated to the task |
 
 
 
@@ -316,7 +318,8 @@ The request's data for the `ExecuteTask` API.
 {
   "serviceID": "__SERVICE_ID__",
   "taskKey":   "__TASK_KEY__",
-  "inputData": "{\"foo\":\"bar\"}"
+  "inputData": "{\"foo\":\"bar\"}",
+  "tags":      ["executionX", "test"]
 }
 ```
 
@@ -326,6 +329,7 @@ The request's data for the `ExecuteTask` API.
 | serviceID | [string](#string) | The Service ID. Generated when using the [`DeployService` API](#deployservice). |
 | taskKey | [string](#string) | The task's key to execute. |
 | inputData | [string](#string) | The inputs of the task to execute, encoded in JSON. |
+| tags | [string](#string)[] | List of tags to assign to this task |
 
 
 
