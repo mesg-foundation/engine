@@ -20,18 +20,29 @@ func (s *Server) ListenEvent(request *ListenEventRequest, stream Core_ListenEven
 	if err := validateEventKey(&service, request.EventFilter); err != nil {
 		return err
 	}
-	subscription := pubsub.Subscribe(service.EventSubscriptionChannel())
-	for data := range subscription {
-		event := data.(*event.Event)
-		if isSubscribedEvent(request, event) {
-			eventData, _ := json.Marshal(event.Data)
-			stream.Send(&EventData{
-				EventKey:  event.Key,
-				EventData: string(eventData),
-			})
+
+	ctx := stream.Context()
+	channel := service.EventSubscriptionChannel()
+	subscription := pubsub.Subscribe(channel)
+	defer pubsub.Unsubscribe(channel, subscription)
+
+	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case data := <-subscription:
+			event := data.(*event.Event)
+			if isSubscribedEvent(request, event) {
+				eventData, _ := json.Marshal(event.Data)
+				if err := stream.Send(&EventData{
+					EventKey:  event.Key,
+					EventData: string(eventData),
+				}); err != nil {
+					return err
+				}
+			}
 		}
 	}
-	return nil
 }
 
 func validateEventKey(service *service.Service, eventKey string) error {

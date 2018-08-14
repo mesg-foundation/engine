@@ -22,6 +22,7 @@
 - (#303) Deprecate command `service test` in favor of `service dev` and `service execute`
 
 #### Fixed
+- (#358) Fix goroutine leaks on api package handlers where gRPC streams are used. Handlers now doesn't block forever by exiting on context cancellation and stream.Send() errors.
 
 ## [v1.0.0]
 

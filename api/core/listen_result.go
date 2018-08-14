@@ -17,27 +17,42 @@ func (s *Server) ListenResult(request *ListenResultRequest, stream Core_ListenRe
 	if err != nil {
 		return err
 	}
-	if err := validateTaskKey(&service, request.TaskFilter); err != nil {
+	if err := validateTask(&service, request); err != nil {
 		return err
 	}
-	if err := validateOutputKey(&service, request.TaskFilter, request.OutputFilter); err != nil {
-		return err
-	}
-	subscription := pubsub.Subscribe(service.ResultSubscriptionChannel())
-	for data := range subscription {
-		execution := data.(*execution.Execution)
-		if isSubscribedToTags(request, execution) && isSubscribedToTask(request, execution) && isSubscribedToOutput(request, execution) {
-			outputs, _ := json.Marshal(execution.OutputData)
-			stream.Send(&ResultData{
-				ExecutionID: execution.ID,
-				TaskKey:     execution.Task,
-				OutputKey:   execution.Output,
-				OutputData:  string(outputs),
-				Tags:        execution.Tags,
-			})
+
+	ctx := stream.Context()
+	channel := service.ResultSubscriptionChannel()
+	subscription := pubsub.Subscribe(channel)
+	defer pubsub.Unsubscribe(channel, subscription)
+
+	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case data := <-subscription:
+			execution := data.(*execution.Execution)
+			if isSubscribedToTags(request, execution) && isSubscribedToTask(request, execution) && isSubscribedToOutput(request, execution) {
+				outputs, _ := json.Marshal(execution.OutputData)
+				if err := stream.Send(&ResultData{
+					ExecutionID: execution.ID,
+					TaskKey:     execution.Task,
+					OutputKey:   execution.Output,
+					OutputData:  string(outputs),
+					Tags:        execution.Tags,
+				}); err != nil {
+					return err
+				}
+			}
 		}
 	}
-	return nil
+}
+
+func validateTask(service *service.Service, request *ListenResultRequest) error {
+	if err := validateTaskKey(service, request.TaskFilter); err != nil {
+		return err
+	}
+	return validateOutputKey(service, request.TaskFilter, request.OutputFilter)
 }
 
 func validateTaskKey(service *service.Service, taskKey string) error {
