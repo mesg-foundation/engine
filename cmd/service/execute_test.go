@@ -58,6 +58,25 @@ func TestGetData(t *testing.T) {
 	assert.Equal(t, "{\"bool\":true,\"foo\":\"bar\",\"hello\":\"world\",\"number\":42}", res)
 }
 
+func TestGetDataError(t *testing.T) {
+	s := service.Service{
+		Tasks: map[string]*service.Task{
+			"test": {
+				Inputs: map[string]*service.Parameter{
+					"bool": {Type: "Boolean"},
+				},
+			},
+		},
+	}
+	var data map[string]string
+	cmd := cobra.Command{}
+	cmd.Flags().VarP(xpflag.NewStringToStringValue(&data, nil), "data", "", "")
+	cmd.Flags().StringP("json", "", "", "")
+	cmd.Flags().Set("data", "bool=hello")
+	_, err := getData(&cmd, "test", &s, data)
+	assert.NotNil(t, err)
+}
+
 func TestGetDataJSON(t *testing.T) {
 	s := service.Service{
 		Tasks: map[string]*service.Task{
@@ -83,4 +102,12 @@ func TestGetTaskKey(t *testing.T) {
 	cmd.Flags().StringP("task", "", "", "")
 	cmd.Flags().Set("task", "test")
 	assert.Equal(t, "test", getTaskKey(&cmd, &service.Service{}))
+}
+
+func TestExecutePreRun(t *testing.T) {
+	cmd := cobra.Command{}
+	cmd.Flags().StringP("data", "", "", "")
+	cmd.Flags().StringP("json", "", "", "")
+	cmd.Flags().Set("json", "test")
+	executePreRun(&cmd, []string{})
 }
