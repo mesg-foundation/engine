@@ -37,13 +37,12 @@ func Subscribe(channel string) chan Message {
 func Unsubscribe(channel string, listener chan Message) {
 	mu.Lock()
 	defer mu.Unlock()
-	if len(listeners[channel]) == 1 {
-		listeners[channel] = nil
-		return
-	}
 	for i, l := range listeners[channel] {
 		if l == listener {
 			listeners[channel] = append(listeners[channel][:i], listeners[channel][i+1:]...)
+			if len(listeners[channel]) == 0 {
+				listeners[channel] = nil
+			}
 			return
 		}
 	}
