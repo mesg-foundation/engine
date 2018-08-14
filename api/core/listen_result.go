@@ -26,7 +26,7 @@ func (s *Server) ListenResult(request *ListenResultRequest, stream Core_ListenRe
 	subscription := pubsub.Subscribe(service.ResultSubscriptionChannel())
 	for data := range subscription {
 		execution := data.(*execution.Execution)
-		if isSubscribedTask(request, execution) && isSubscribedOutput(request, execution) {
+		if isSubscribedExecution(request, execution) && isSubscribedTask(request, execution) && isSubscribedOutput(request, execution) {
 			outputs, _ := json.Marshal(execution.OutputData)
 			stream.Send(&ResultData{
 				ExecutionID: execution.ID,
@@ -70,4 +70,16 @@ func isSubscribedTask(request *ListenResultRequest, e *execution.Execution) bool
 
 func isSubscribedOutput(request *ListenResultRequest, e *execution.Execution) bool {
 	return array.IncludedIn([]string{"", "*", e.Output}, request.OutputFilter)
+}
+
+func isSubscribedExecution(request *ListenResultRequest, e *execution.Execution) bool {
+	if len(request.TagFilter) == 0 {
+		return true
+	}
+	for _, tag := range request.TagFilter {
+		if !array.IncludedIn(e.Tags, tag) {
+			return false
+		}
+	}
+	return true
 }

@@ -75,3 +75,47 @@ func TestIsSubscribedOutput(t *testing.T) {
 	r = &ListenResultRequest{OutputFilter: "xxx"}
 	assert.False(t, isSubscribedOutput(r, x))
 }
+
+func TestIsSubscribedExecution(t *testing.T) {
+	type result struct {
+		execution *execution.Execution
+		valid     bool
+	}
+	tests := []struct {
+		request *ListenResultRequest
+		results []result
+	}{
+		{
+			&ListenResultRequest{},
+			[]result{
+				{&execution.Execution{}, true},
+				{&execution.Execution{Tags: []string{"foo"}}, true},
+				{&execution.Execution{Tags: []string{"foo", "bar"}}, true},
+				{&execution.Execution{Tags: []string{"none"}}, true},
+			},
+		},
+		{
+			&ListenResultRequest{TagFilter: []string{"foo"}},
+			[]result{
+				{&execution.Execution{}, false},
+				{&execution.Execution{Tags: []string{"foo"}}, true},
+				{&execution.Execution{Tags: []string{"foo", "bar"}}, true},
+				{&execution.Execution{Tags: []string{"none"}}, false},
+			},
+		},
+		{
+			&ListenResultRequest{TagFilter: []string{"foo", "bar"}},
+			[]result{
+				{&execution.Execution{}, false},
+				{&execution.Execution{Tags: []string{"foo"}}, false},
+				{&execution.Execution{Tags: []string{"foo", "bar"}}, true},
+				{&execution.Execution{Tags: []string{"none"}}, false},
+			},
+		},
+	}
+	for _, test := range tests {
+		for _, r := range test.results {
+			assert.Equal(t, r.valid, isSubscribedExecution(test.request, r.execution))
+		}
+	}
+}
