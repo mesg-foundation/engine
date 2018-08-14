@@ -51,7 +51,7 @@ func executeHandler(cmd *cobra.Command, args []string) {
 	})
 	utils.HandleError(err)
 	taskKey := getTaskKey(cmd, serviceReply.Service)
-	taskData, err := getData(cmd, taskKey, serviceReply.Service)
+	taskData, err := getData(cmd, taskKey, serviceReply.Service, executeData)
 	utils.HandleError(err)
 
 	tags := []string{strconv.FormatInt(time.Now().UnixNano(), 10)}
@@ -110,12 +110,12 @@ func getTaskKey(cmd *cobra.Command, s *service.Service) string {
 	return taskKey
 }
 
-func getData(cmd *cobra.Command, taskKey string, s *service.Service) (string, error) {
+func getData(cmd *cobra.Command, taskKey string, s *service.Service, dataStruct map[string]string) (string, error) {
 	data := cmd.Flag("data").Value.String()
 	jsonFile := cmd.Flag("json").Value.String()
 
 	if data != "" {
-		castData, err := s.Cast(taskKey, executeData)
+		castData, err := s.Cast(taskKey, dataStruct)
 		if err != nil {
 			return "", err
 		}
