@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/logrusorgru/aurora"
@@ -53,9 +54,11 @@ func executeHandler(cmd *cobra.Command, args []string) {
 	taskData, err := getData(cmd, taskKey, serviceReply.Service)
 	utils.HandleError(err)
 
+	tags := []string{strconv.FormatInt(time.Now().UnixNano(), 10)}
 	stream, err := cli().ListenResult(context.Background(), &core.ListenResultRequest{
 		ServiceID:  serviceID,
 		TaskFilter: taskKey,
+		TagFilter:  tags,
 	})
 	utils.HandleError(err)
 
@@ -64,7 +67,7 @@ func executeHandler(cmd *cobra.Command, args []string) {
 		// TODO: Fix this, it's a bit messy to have a sleep here
 		go func() {
 			time.Sleep(1 * time.Second)
-			_, err = executeTask(serviceID, taskKey, taskData)
+			_, err = executeTask(serviceID, taskKey, taskData, tags)
 			utils.HandleError(err)
 		}()
 		for {
@@ -77,11 +80,12 @@ func executeHandler(cmd *cobra.Command, args []string) {
 	fmt.Println(aurora.Bold(execution.OutputData).String())
 }
 
-func executeTask(serviceID string, task string, data string) (execution *core.ExecuteTaskReply, err error) {
+func executeTask(serviceID string, task string, data string, tags []string) (execution *core.ExecuteTaskReply, err error) {
 	return cli().ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
 		ServiceID: serviceID,
 		TaskKey:   task,
 		InputData: data,
+		Tags:      tags,
 	})
 }
 
