@@ -40,43 +40,43 @@ func TestValidateOutputKey(t *testing.T) {
 	assert.NotNil(t, validateOutputKey(s, "xxx", "xxx"))
 }
 
-func TestIsSubscribedTask(t *testing.T) {
+func TestIsSubscribedToTask(t *testing.T) {
 	x := &execution.Execution{Task: "task"}
 	r := &ListenResultRequest{}
-	assert.True(t, isSubscribedTask(r, x))
+	assert.True(t, isSubscribedToTask(r, x))
 
 	r = &ListenResultRequest{TaskFilter: ""}
-	assert.True(t, isSubscribedTask(r, x))
+	assert.True(t, isSubscribedToTask(r, x))
 
 	r = &ListenResultRequest{TaskFilter: "*"}
-	assert.True(t, isSubscribedTask(r, x))
+	assert.True(t, isSubscribedToTask(r, x))
 
 	r = &ListenResultRequest{TaskFilter: "task"}
-	assert.True(t, isSubscribedTask(r, x))
+	assert.True(t, isSubscribedToTask(r, x))
 
 	r = &ListenResultRequest{TaskFilter: "xxx"}
-	assert.False(t, isSubscribedTask(r, x))
+	assert.False(t, isSubscribedToTask(r, x))
 }
 
-func TestIsSubscribedOutput(t *testing.T) {
+func TestIsSubscribedToOutput(t *testing.T) {
 	x := &execution.Execution{Output: "output"}
 	r := &ListenResultRequest{}
-	assert.True(t, isSubscribedOutput(r, x))
+	assert.True(t, isSubscribedToOutput(r, x))
 
 	r = &ListenResultRequest{OutputFilter: ""}
-	assert.True(t, isSubscribedOutput(r, x))
+	assert.True(t, isSubscribedToOutput(r, x))
 
 	r = &ListenResultRequest{OutputFilter: "*"}
-	assert.True(t, isSubscribedOutput(r, x))
+	assert.True(t, isSubscribedToOutput(r, x))
 
 	r = &ListenResultRequest{OutputFilter: "output"}
-	assert.True(t, isSubscribedOutput(r, x))
+	assert.True(t, isSubscribedToOutput(r, x))
 
 	r = &ListenResultRequest{OutputFilter: "xxx"}
-	assert.False(t, isSubscribedOutput(r, x))
+	assert.False(t, isSubscribedToOutput(r, x))
 }
 
-func TestIsSubscribedExecution(t *testing.T) {
+func TestIsSubscribedToTags(t *testing.T) {
 	type result struct {
 		execution *execution.Execution
 		valid     bool
@@ -115,7 +115,7 @@ func TestIsSubscribedExecution(t *testing.T) {
 	}
 	for _, test := range tests {
 		for _, r := range test.results {
-			assert.Equal(t, r.valid, isSubscribedExecution(test.request, r.execution))
+			assert.Equal(t, r.valid, isSubscribedToTags(test.request, r.execution))
 		}
 	}
 }

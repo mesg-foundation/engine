@@ -26,7 +26,7 @@ func (s *Server) ListenResult(request *ListenResultRequest, stream Core_ListenRe
 	subscription := pubsub.Subscribe(service.ResultSubscriptionChannel())
 	for data := range subscription {
 		execution := data.(*execution.Execution)
-		if isSubscribedExecution(request, execution) && isSubscribedTask(request, execution) && isSubscribedOutput(request, execution) {
+		if isSubscribedToTags(request, execution) && isSubscribedToTask(request, execution) && isSubscribedToOutput(request, execution) {
 			outputs, _ := json.Marshal(execution.OutputData)
 			stream.Send(&ResultData{
 				ExecutionID: execution.ID,
@@ -65,15 +65,15 @@ func validateOutputKey(service *service.Service, taskKey string, outputFilter st
 	return nil
 }
 
-func isSubscribedTask(request *ListenResultRequest, e *execution.Execution) bool {
+func isSubscribedToTask(request *ListenResultRequest, e *execution.Execution) bool {
 	return array.IncludedIn([]string{"", "*", e.Task}, request.TaskFilter)
 }
 
-func isSubscribedOutput(request *ListenResultRequest, e *execution.Execution) bool {
+func isSubscribedToOutput(request *ListenResultRequest, e *execution.Execution) bool {
 	return array.IncludedIn([]string{"", "*", e.Output}, request.OutputFilter)
 }
 
-func isSubscribedExecution(request *ListenResultRequest, e *execution.Execution) bool {
+func isSubscribedToTags(request *ListenResultRequest, e *execution.Execution) bool {
 	if len(request.TagFilter) == 0 {
 		return true
 	}
