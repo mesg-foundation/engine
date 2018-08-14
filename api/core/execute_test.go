@@ -126,14 +126,14 @@ func TestExecuteFunc(t *testing.T) {
 			"test": {},
 		},
 	}
-	id, err := execute(srv, "test", map[string]interface{}{})
+	id, err := execute(srv, "test", map[string]interface{}{}, []string{})
 	assert.Nil(t, err)
 	assert.NotNil(t, id)
 }
 
 func TestExecuteFuncInvalidTaskName(t *testing.T) {
 	srv := &service.Service{}
-	_, err := execute(srv, "test", map[string]interface{}{})
+	_, err := execute(srv, "test", map[string]interface{}{}, []string{})
 	assert.NotNil(t, err)
 }
 
