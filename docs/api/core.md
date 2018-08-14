@@ -204,7 +204,7 @@ The request's data for the `ListenResult` stream API.
 | serviceID | [string](#string) | The Service ID. Generated when using the [`DeployService` API](#deployservice). |
 | taskFilter | [string](#string) | __Optional.__  The task's key to filter. The task must match this key. The default is `*` which matches any task. |
 | outputFilter | [string](#string) | __Optional.__ The output's key from the task to filter. The task must return this output's key. The default is `*` which matches any output. |
-| tagFilter | [string](#string)[] | __Optional.__ List of tags to filter. This is am "match all" list. All tags in parameters should be included in the execution to match. |
+| tagFilter | [string](#string)[] | __Optional.__ List of tags to filter. This is a "match all" list. All tags in parameters should be included in the execution to match. |
 
 
 
@@ -274,7 +274,7 @@ The data will be received over time as long as the stream is open.
 | taskKey | [string](#string) | The key of the executed task. |
 | outputKey | [string](#string) | The output's key from the returned task. |
 | outputData | [string](#string) | The output's data from the returned task, encoded in JSON. |
-| tags | [string](#string)[] | List of tags associated to the task |
+| tags | [string](#string)[] | The list of tags associated to the execution |
 
 
 
@@ -331,7 +331,7 @@ The request's data for the `ExecuteTask` API.
 | serviceID | [string](#string) | The Service ID. Generated when using the [`DeployService` API](#deployservice). |
 | taskKey | [string](#string) | The task's key to execute. |
 | inputData | [string](#string) | The inputs of the task to execute, encoded in JSON. |
-| tags | [string](#string)[] | List of tags to assign to this task |
+| tags | [string](#string)[] | The list of tags to associate to the execution |
 
 
 

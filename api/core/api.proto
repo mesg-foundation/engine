@@ -87,7 +87,7 @@ message ListenResultRequest {
   string serviceID = 1;           // The Service ID. Generated when using the [`DeployService` API](#deployservice).
   string taskFilter = 2;          // __Optional.__  The task's key to filter. The task must match this key. The default is `*` which matches any task.
   string outputFilter = 3;        // __Optional.__ The output's key from the task to filter. The task must return this output's key. The default is `*` which matches any output.
-  repeated string tagFilter = 4;  // __Optional.__ List of tags to filter. This is am "match all" list. All tags in parameters should be included in the execution to match.
+  repeated string tagFilter = 4;  // __Optional.__ List of tags to filter. This is a "match all" list. All tags in parameters should be included in the execution to match.
 }
 
 // The data received from the stream of the `ListenResult` API.
@@ -108,7 +108,7 @@ message ResultData {
   string taskKey = 2;       // The key of the executed task.
   string outputKey = 3;     // The output's key from the returned task.
   string outputData = 4;    // The output's data from the returned task, encoded in JSON.
-  repeated string tags = 5; // List of tags associated to the task
+  repeated string tags = 5; // The list of tags associated to the execution
 }
 
 // The request's data for the `ExecuteTask` API.
@@ -126,7 +126,7 @@ message ExecuteTaskRequest {
   string serviceID = 1;     // The Service ID. Generated when using the [`DeployService` API](#deployservice).
   string taskKey = 2;       // The task's key to execute.
   string inputData = 3;     // The inputs of the task to execute, encoded in JSON.
-  repeated string tags = 4; // List of tags to assign to this task
+  repeated string tags = 4; // The list of tags to associate to the execution
 }
 
 // The reply's data of the `ExecuteTask` API.
