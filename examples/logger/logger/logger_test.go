@@ -31,11 +31,11 @@ func TestListenSuccess(t *testing.T) {
 		Data:      "data",
 	}
 
-	s, server := newServiceAndServer(t)
-	go server.Start()
+	service, server := newServiceAndServer(t)
+	logger := New(service, LogOutputOption(ioutil.Discard))
 
-	l := New(s, LogOutputOption(ioutil.Discard))
-	go l.Start()
+	go server.Start()
+	go logger.Start()
 
 	_, execution, err := server.Execute("log", data)
 	assert.Nil(t, err)
@@ -49,11 +49,11 @@ func TestListenSuccess(t *testing.T) {
 func TestListenError(t *testing.T) {
 	data := "data"
 
-	s, server := newServiceAndServer(t)
-	go server.Start()
+	service, server := newServiceAndServer(t)
+	logger := New(service)
 
-	l := New(s)
-	go l.Start()
+	go server.Start()
+	go logger.Start()
 
 	_, execution, err := server.Execute("log", data)
 	assert.Nil(t, err)
@@ -67,23 +67,25 @@ func TestListenError(t *testing.T) {
 func TestClose(t *testing.T) {
 	data := "data"
 
-	s, server := newServiceAndServer(t)
+	service, server := newServiceAndServer(t)
+	logger := New(service)
+
 	go server.Start()
 
-	l := New(s)
 	var wg sync.WaitGroup
 
 	wg.Add(1)
 	go func() {
-		assert.NotNil(t, l.Start())
-		wg.Done()
+		defer wg.Done()
+		assert.NotNil(t, logger.Start())
 	}()
+
 	_, _, err := server.Execute("log", data)
 	assert.Nil(t, err)
-	assert.Nil(t, l.Close())
+	assert.Nil(t, logger.Close())
 
 	_, _, err = server.Execute("log", data)
-	assert.NotNil(t, err)
+	assert.Equal(t, mesgtest.ErrConnectionClosed{}, err)
 
 	wg.Wait()
 }

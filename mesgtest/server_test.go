@@ -30,19 +30,19 @@ func TestLastEmit(t *testing.T) {
 	server := NewServer()
 	assert.NotNil(t, server)
 
-	go server.service.EmitEvent(context.Background(), &service.EmitEventRequest{
+	server.service.EmitEvent(context.Background(), &service.EmitEventRequest{
 		EventKey:  key,
 		EventData: dataStr,
 		Token:     token,
 	})
 
-	event := server.LastEmit()
-	assert.NotNil(t, event)
-	assert.Equal(t, key, event.Name())
-	assert.Equal(t, token, event.Token())
+	le := <-server.LastEmit()
+
+	assert.Equal(t, key, le.Name())
+	assert.Equal(t, token, le.Token())
 
 	var data1 eventRequest
-	assert.Nil(t, event.Data(&data1))
+	assert.Nil(t, le.Data(&data1))
 	assert.Equal(t, data.URL, data1.URL)
 }
 

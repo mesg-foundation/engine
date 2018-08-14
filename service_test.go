@@ -42,7 +42,8 @@ func TestEmit(t *testing.T) {
 	go server.Start()
 
 	go func() { assert.Nil(t, service.Emit(event, data)) }()
-	le := server.LastEmit()
+	le := <-server.LastEmit()
+
 	assert.Equal(t, event, le.Name())
 	assert.Equal(t, token, le.Token())
 
@@ -72,6 +73,8 @@ func TestListen(t *testing.T) {
 
 	wg.Add(1)
 	go func() {
+		defer wg.Done()
+
 		err := service.Listen(
 			Task(task, func(execution *Execution) (string, Data) {
 				var data2 taskRequest
@@ -81,8 +84,8 @@ func TestListen(t *testing.T) {
 				return key, resData
 			}),
 		)
+
 		assert.NotNil(t, err)
-		wg.Done()
 	}()
 
 	id, execution, err := server.Execute(task, reqData)
@@ -113,7 +116,7 @@ func TestMultipleListenCall(t *testing.T) {
 	})
 
 	go service.Listen(taskable)
-	go server.Execute(taskKey, data)
+	server.Execute(taskKey, data)
 	<-makeSureListeningC
 
 	assert.Equal(t, service.Listen(taskable).Error(), errAlreadyListening{}.Error())

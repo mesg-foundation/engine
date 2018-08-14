@@ -4,7 +4,6 @@ package mesgtest
 
 import (
 	"encoding/json"
-	"errors"
 
 	"github.com/mesg-foundation/core/api/service"
 	uuid "github.com/satori/go.uuid"
@@ -34,14 +33,9 @@ func (s *Server) Socket() *Socket {
 	return s.socket
 }
 
-// LastEmit returns the last emitted event.
-func (s *Server) LastEmit() *Event {
-	e := <-s.service.emitC
-	return &Event{
-		name:  e.EventKey,
-		data:  e.EventData,
-		token: e.Token,
-	}
+// LastEmit returns the chan that receives last emitted event's info.
+func (s *Server) LastEmit() chan *Event {
+	return s.service.emitC
 }
 
 // Execute executes a task with data.
@@ -56,27 +50,24 @@ func (s *Server) Execute(task string, data interface{}) (string, *Execution, err
 		return "", nil, err
 	}
 	id := uuidV4.String()
+
 	taskData := &service.TaskData{
 		ExecutionID: id,
 		TaskKey:     task,
 		InputData:   string(bytes),
 	}
+
 	select {
 	case <-s.service.closingC:
-		return "", nil, errors.New("connection closed")
+		return "", nil, ErrConnectionClosed{}
 	case s.service.taskC <- taskData:
 	}
 
 	select {
 	case <-s.service.closingC:
-		return "", nil, errors.New("connection closed")
-
+		return "", nil, ErrConnectionClosed{}
 	case resp := <-s.service.submitC:
-		return id, &Execution{
-			id:   resp.ExecutionID,
-			key:  resp.OutputKey,
-			data: resp.OutputData,
-		}, nil
+		return id, resp, nil
 	}
 }
 
@@ -88,4 +79,11 @@ func (s *Server) ListenToken() string {
 // Close closes test server.
 func (s *Server) Close() error {
 	return s.socket.close()
+}
+
+// ErrConnectionClosed returned when the connection closed between go-service and server.
+type ErrConnectionClosed struct{}
+
+func (e ErrConnectionClosed) Error() string {
+	return "connection closed"
 }
