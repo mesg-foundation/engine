@@ -95,7 +95,7 @@ func TestIsSubscribedToTags(t *testing.T) {
 			},
 		},
 		{
-			&ListenResultRequest{TagFilter: []string{"foo"}},
+			&ListenResultRequest{TagFilters: []string{"foo"}},
 			[]result{
 				{&execution.Execution{}, false},
 				{&execution.Execution{Tags: []string{"foo"}}, true},
@@ -104,7 +104,7 @@ func TestIsSubscribedToTags(t *testing.T) {
 			},
 		},
 		{
-			&ListenResultRequest{TagFilter: []string{"foo", "bar"}},
+			&ListenResultRequest{TagFilters: []string{"foo", "bar"}},
 			[]result{
 				{&execution.Execution{}, false},
 				{&execution.Execution{Tags: []string{"foo"}}, false},

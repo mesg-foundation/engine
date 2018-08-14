@@ -58,7 +58,7 @@ func executeHandler(cmd *cobra.Command, args []string) {
 	stream, err := cli().ListenResult(context.Background(), &core.ListenResultRequest{
 		ServiceID:  serviceID,
 		TaskFilter: taskKey,
-		TagFilter:  tags,
+		TagFilters: tags,
 	})
 	utils.HandleError(err)
 
