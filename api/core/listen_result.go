@@ -33,6 +33,7 @@ func (s *Server) ListenResult(request *ListenResultRequest, stream Core_ListenRe
 				TaskKey:     execution.Task,
 				OutputKey:   execution.Output,
 				OutputData:  string(outputs),
+				Tags:        execution.Tags,
 			})
 		}
 	}
