@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/mesg-foundation/core/version"
 	"github.com/spf13/viper"
 )
 
@@ -40,5 +41,5 @@ func setAPIDefault() {
 	viper.SetDefault(ServicePathDocker, filepath.Join("/mesg", "services"))
 	os.MkdirAll(viper.GetString(ServicePathDocker), os.ModePerm)
 
-	viper.SetDefault(CoreImage, "mesg/core:latest")
+	viper.SetDefault(CoreImage, "mesg/core:"+version.Version)
 }
