@@ -10,3 +10,4 @@ ignore:
   - "cmd/service/assets/*.go"
   - "cmd/service/tests"
   - "docs/**/*"
+  - "**/vendor/"
