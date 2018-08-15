@@ -1,7 +1,9 @@
 package daemon
 
 import (
+	"net"
 	"path/filepath"
+	"strconv"
 
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
@@ -26,6 +28,17 @@ func serviceSpec() (spec container.ServiceOptions, err error) {
 	if err != nil {
 		return container.ServiceOptions{}, err
 	}
+
+	_, portStr, err := net.SplitHostPort(viper.GetString(config.APIServerAddress))
+	if err != nil {
+		return container.ServiceOptions{}, err
+	}
+
+	port, err := strconv.ParseInt(portStr, 10, 64)
+	if err != nil {
+		return container.ServiceOptions{}, err
+	}
+
 	return container.ServiceOptions{
 		Namespace: Namespace(),
 		Image:     viper.GetString(config.CoreImage),
@@ -46,8 +59,8 @@ func serviceSpec() (spec container.ServiceOptions, err error) {
 		},
 		Ports: []container.Port{
 			{
-				Target:    50052,
-				Published: 50052,
+				Target:    uint32(port),
+				Published: uint32(port),
 			},
 		},
 		NetworksID: []string{sharedNetworkID},
