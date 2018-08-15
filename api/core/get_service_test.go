@@ -6,7 +6,7 @@ import (
 
 	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/service"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var servergetservice = new(Server)
@@ -19,7 +19,7 @@ func TestGetService(t *testing.T) {
 	reply, err := servergetservice.GetService(context.Background(), &GetServiceRequest{
 		ServiceID: hash,
 	})
-	assert.Nil(t, err)
-	assert.NotNil(t, reply)
-	assert.Equal(t, reply.Service.Name, "TestGetService")
+	require.Nil(t, err)
+	require.NotNil(t, reply)
+	require.Equal(t, reply.Service.Name, "TestGetService")
 }

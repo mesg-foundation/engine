@@ -6,6 +6,7 @@ import (
 
 	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/service"
+	"github.com/stretchr/testify/require"
 	"github.com/stvp/assert"
 )
 
@@ -35,8 +36,8 @@ func TestExecute(t *testing.T) {
 		InputData: "{}",
 	})
 
-	assert.Nil(t, err)
-	assert.NotNil(t, reply)
+	require.Nil(t, err)
+	require.NotNil(t, reply)
 }
 
 func TestExecuteWithInvalidJSON(t *testing.T) {
@@ -53,8 +54,9 @@ func TestExecuteWithInvalidJSON(t *testing.T) {
 		TaskKey:   "test",
 		InputData: "",
 	})
-	assert.NotNil(t, err)
-	assert.Equal(t, err.Error(), "unexpected end of JSON input")
+
+	require.NotNil(t, err)
+	require.Equal(t, err.Error(), "unexpected end of JSON input")
 	services.Delete(deployment.ServiceID)
 }
 
@@ -82,9 +84,8 @@ func TestExecuteWithInvalidTask(t *testing.T) {
 		InputData: "{}",
 	})
 
-	assert.NotNil(t, err)
-	_, invalid := err.(*service.TaskNotFoundError)
-	assert.True(t, invalid)
+	require.Error(t, err)
+	require.IsType(t, (*service.TaskNotFoundError)(nil), err)
 }
 
 func TestExecuteWithNonRunningService(t *testing.T) {
@@ -104,9 +105,9 @@ func TestExecuteWithNonRunningService(t *testing.T) {
 		InputData: "{}",
 	})
 
-	assert.NotNil(t, err)
+	require.NotNil(t, err)
 	_, nonRunning := err.(*NotRunningServiceError)
-	assert.True(t, nonRunning)
+	require.True(t, nonRunning)
 }
 
 func TestExecuteWithNonExistingService(t *testing.T) {
@@ -116,7 +117,7 @@ func TestExecuteWithNonExistingService(t *testing.T) {
 		InputData: "{}",
 	})
 
-	assert.NotNil(t, err)
+	require.NotNil(t, err)
 }
 
 func TestExecuteFunc(t *testing.T) {

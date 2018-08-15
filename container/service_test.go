@@ -9,7 +9,7 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
 	"github.com/mesg-foundation/core/container/dockertest"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestStartService(t *testing.T) {
@@ -26,12 +26,12 @@ func TestStartService(t *testing.T) {
 	dt.ProvideServiceCreate(types.ServiceCreateResponse{ID: containerID}, nil)
 
 	id, err := c.StartService(options)
-	assert.Nil(t, err)
-	assert.Equal(t, containerID, id)
+	require.Nil(t, err)
+	require.Equal(t, containerID, id)
 
 	ls := <-dt.LastServiceCreate()
-	assert.Equal(t, options.toSwarmServiceSpec(), ls.Service)
-	assert.Equal(t, types.ServiceCreateOptions{}, ls.Options)
+	require.Equal(t, options.toSwarmServiceSpec(), ls.Service)
+	require.Equal(t, types.ServiceCreateOptions{}, ls.Options)
 }
 
 func TestStopService(t *testing.T) {
@@ -49,13 +49,13 @@ func TestStopService(t *testing.T) {
 	dt.ProvideContainerList(containerData, nil)
 	dt.ProvideContainerInspect(containerJSONData, nil)
 
-	assert.Nil(t, c.StopService(namespace))
+	require.Nil(t, c.StopService(namespace))
 
 	li := <-dt.LastServiceInspectWithRaw()
-	assert.Equal(t, Namespace(namespace), li.ServiceID)
-	assert.Equal(t, types.ServiceInspectOptions{}, li.Options)
+	require.Equal(t, Namespace(namespace), li.ServiceID)
+	require.Equal(t, types.ServiceInspectOptions{}, li.Options)
 
-	assert.Equal(t, Namespace(namespace), (<-dt.LastServiceRemove()).ServiceID)
+	require.Equal(t, Namespace(namespace), (<-dt.LastServiceRemove()).ServiceID)
 }
 
 func TestStopNotExistingService(t *testing.T) {
@@ -66,11 +66,11 @@ func TestStopNotExistingService(t *testing.T) {
 
 	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
 
-	assert.Nil(t, c.StopService(namespace))
+	require.Nil(t, c.StopService(namespace))
 
 	li := <-dt.LastServiceInspectWithRaw()
-	assert.Equal(t, Namespace(namespace), li.ServiceID)
-	assert.Equal(t, types.ServiceInspectOptions{}, li.Options)
+	require.Equal(t, Namespace(namespace), li.ServiceID)
+	require.Equal(t, types.ServiceInspectOptions{}, li.Options)
 
 	select {
 	case <-dt.LastServiceRemove():
@@ -88,12 +88,12 @@ func TestServiceStatusNeverStarted(t *testing.T) {
 	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
 
 	status, err := c.ServiceStatus(namespace)
-	assert.Nil(t, err)
-	assert.Equal(t, STOPPED, status)
+	require.Nil(t, err)
+	require.Equal(t, STOPPED, status)
 
 	li := <-dt.LastServiceInspectWithRaw()
-	assert.Equal(t, Namespace(namespace), li.ServiceID)
-	assert.Equal(t, types.ServiceInspectOptions{}, li.Options)
+	require.Equal(t, Namespace(namespace), li.ServiceID)
+	require.Equal(t, types.ServiceInspectOptions{}, li.Options)
 }
 
 func TestServiceStatusRunning(t *testing.T) {
@@ -103,12 +103,12 @@ func TestServiceStatusRunning(t *testing.T) {
 	c, _ := New(ClientOption(dt.Client()))
 
 	status, err := c.ServiceStatus(namespace)
-	assert.Nil(t, err)
-	assert.Equal(t, RUNNING, status)
+	require.Nil(t, err)
+	require.Equal(t, RUNNING, status)
 
 	li := <-dt.LastServiceInspectWithRaw()
-	assert.Equal(t, Namespace(namespace), li.ServiceID)
-	assert.Equal(t, types.ServiceInspectOptions{}, li.Options)
+	require.Equal(t, Namespace(namespace), li.ServiceID)
+	require.Equal(t, types.ServiceInspectOptions{}, li.Options)
 }
 
 func TestFindService(t *testing.T) {
@@ -121,12 +121,12 @@ func TestFindService(t *testing.T) {
 	dt.ProvideServiceInspectWithRaw(swarmService, nil, nil)
 
 	service, err := c.FindService(namespace)
-	assert.Nil(t, err)
-	assert.Equal(t, swarmService.ID, service.ID)
+	require.Nil(t, err)
+	require.Equal(t, swarmService.ID, service.ID)
 
 	li := <-dt.LastServiceInspectWithRaw()
-	assert.Equal(t, Namespace(namespace), li.ServiceID)
-	assert.Equal(t, types.ServiceInspectOptions{}, li.Options)
+	require.Equal(t, Namespace(namespace), li.ServiceID)
+	require.Equal(t, types.ServiceInspectOptions{}, li.Options)
 }
 
 func TestFindServiceNotExisting(t *testing.T) {
@@ -138,11 +138,11 @@ func TestFindServiceNotExisting(t *testing.T) {
 	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
 
 	_, err := c.FindService(namespace)
-	assert.Equal(t, dockertest.NotFoundErr{}, err)
+	require.Equal(t, dockertest.NotFoundErr{}, err)
 
 	li := <-dt.LastServiceInspectWithRaw()
-	assert.Equal(t, Namespace(namespace), li.ServiceID)
-	assert.Equal(t, types.ServiceInspectOptions{}, li.Options)
+	require.Equal(t, Namespace(namespace), li.ServiceID)
+	require.Equal(t, types.ServiceInspectOptions{}, li.Options)
 }
 
 func TestListServices(t *testing.T) {
@@ -160,12 +160,12 @@ func TestListServices(t *testing.T) {
 	dt.ProvideServiceList(swarmServices, nil)
 
 	services, err := c.ListServices(label)
-	assert.Nil(t, err)
-	assert.Equal(t, 2, len(services))
-	assert.Equal(t, Namespace(namespace), services[0].Spec.Name)
-	assert.Equal(t, Namespace(namespace1), services[1].Spec.Name)
+	require.Nil(t, err)
+	require.Equal(t, 2, len(services))
+	require.Equal(t, Namespace(namespace), services[0].Spec.Name)
+	require.Equal(t, Namespace(namespace1), services[1].Spec.Name)
 
-	assert.Equal(t, types.ServiceListOptions{
+	require.Equal(t, types.ServiceListOptions{
 		Filters: filters.NewArgs(filters.KeyValuePair{
 			Key:   "label",
 			Value: label,
@@ -183,16 +183,16 @@ func TestServiceLogs(t *testing.T) {
 	dt.ProvideServiceLogs(ioutil.NopCloser(bytes.NewReader(data)), nil)
 
 	reader, err := c.ServiceLogs(namespace)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 	defer reader.Close()
 
 	bytes, err := ioutil.ReadAll(reader)
-	assert.Nil(t, err)
-	assert.Equal(t, data, bytes)
+	require.Nil(t, err)
+	require.Equal(t, data, bytes)
 
 	ll := <-dt.LastServiceLogs()
-	assert.Equal(t, Namespace(namespace), ll.ServiceID)
-	assert.Equal(t, types.ContainerLogsOptions{
+	require.Equal(t, Namespace(namespace), ll.ServiceID)
+	require.Equal(t, types.ContainerLogsOptions{
 		ShowStdout: true,
 		ShowStderr: true,
 		Timestamps: false,

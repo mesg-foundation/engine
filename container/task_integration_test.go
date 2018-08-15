@@ -6,24 +6,24 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestIntegrationListTasks(t *testing.T) {
 	c, err := New()
-	assert.Nil(t, err)
+	require.Nil(t, err)
 	namespace := []string{"TestListTasks"}
 	startTestService(namespace)
 	defer c.StopService(namespace)
 	tasks, err := c.ListTasks(namespace)
-	assert.Nil(t, err)
-	assert.NotNil(t, tasks)
-	assert.Equal(t, 1, len(tasks))
+	require.Nil(t, err)
+	require.NotNil(t, tasks)
+	require.Equal(t, 1, len(tasks))
 }
 
 func TestIntegrationTasksError(t *testing.T) {
 	c, err := New()
-	assert.Nil(t, err)
+	require.Nil(t, err)
 	namespace := []string{"TestTasksError"}
 	c.StartService(ServiceOptions{
 		Image:     "fiifioewifewiewfifewijopwjeokpfeo",
@@ -38,8 +38,8 @@ func TestIntegrationTasksError(t *testing.T) {
 		}
 		time.Sleep(500 * time.Millisecond)
 	}
-	assert.Nil(t, err)
-	assert.NotNil(t, errors)
-	assert.True(t, len(errors) > 0)
-	assert.Equal(t, "No such image: fiifioewifewiewfifewijopwjeokpfeo:latest", errors[0])
+	require.Nil(t, err)
+	require.NotNil(t, errors)
+	require.True(t, len(errors) > 0)
+	require.Equal(t, "No such image: fiifioewifewiewfifewijopwjeokpfeo:latest", errors[0])
 }

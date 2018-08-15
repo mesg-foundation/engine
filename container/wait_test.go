@@ -6,7 +6,7 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/swarm"
 	"github.com/mesg-foundation/core/container/dockertest"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestWaitForStatusRunning(t *testing.T) {
@@ -28,7 +28,7 @@ func TestWaitForStatusRunning(t *testing.T) {
 	dt.ProvideContainerList(containerData, nil)
 	dt.ProvideContainerInspect(containerJSONData, nil)
 
-	assert.Nil(t, c.waitForStatus(namespace, RUNNING))
+	require.Nil(t, c.waitForStatus(namespace, RUNNING))
 }
 
 func TestWaitForStatusStopped(t *testing.T) {
@@ -50,7 +50,7 @@ func TestWaitForStatusStopped(t *testing.T) {
 	dt.ProvideContainerList(containerData, nil)
 	dt.ProvideContainerInspect(containerJSONData, nil)
 
-	assert.Nil(t, c.waitForStatus(namespace, STOPPED))
+	require.Nil(t, c.waitForStatus(namespace, STOPPED))
 }
 
 func TestWaitForStatusTaskError(t *testing.T) {
@@ -71,7 +71,7 @@ func TestWaitForStatusTaskError(t *testing.T) {
 
 	dt.ProvideTaskList(tasks, nil)
 
-	assert.Equal(t, "1-err, 2-err", c.waitForStatus(namespace, RUNNING).Error())
+	require.Equal(t, "1-err, 2-err", c.waitForStatus(namespace, RUNNING).Error())
 
 	select {
 	case <-dt.LastContainerList():

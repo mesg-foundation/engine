@@ -4,18 +4,18 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGetTemplate(t *testing.T) {
 	templates, err := getTemplates(templatesURL)
-	assert.Nil(t, err)
-	assert.True(t, len(templates) > 0)
+	require.Nil(t, err)
+	require.True(t, len(templates) > 0)
 }
 
 func TestGetTemplateBadURL(t *testing.T) {
 	_, err := getTemplates("...")
-	assert.NotNil(t, err)
+	require.NotNil(t, err)
 }
 
 func TestTemplatesToOption(t *testing.T) {
@@ -24,15 +24,15 @@ func TestTemplatesToOption(t *testing.T) {
 		{Name: "yyy", URL: "https://..."},
 	}
 	options := templatesToOption(templates)
-	assert.Equal(t, len(options), len(templates)+2)
-	assert.Equal(t, options[0], "xxx (https://...)")
-	assert.Equal(t, options[1], "yyy (https://...)")
-	assert.Equal(t, options[2], custom)
-	assert.Equal(t, options[3], addMyOwn)
+	require.Equal(t, len(options), len(templates)+2)
+	require.Equal(t, options[0], "xxx (https://...)")
+	require.Equal(t, options[1], "yyy (https://...)")
+	require.Equal(t, options[2], custom)
+	require.Equal(t, options[3], addMyOwn)
 }
 
 func TestGetTemplateResultAddMyOwn(t *testing.T) {
-	assert.Nil(t, getTemplateResult(addMyOwn, []*templateStruct{}))
+	require.Nil(t, getTemplateResult(addMyOwn, []*templateStruct{}))
 }
 
 func TestGetTemplateResultAdd(t *testing.T) {
@@ -42,8 +42,8 @@ func TestGetTemplateResultAdd(t *testing.T) {
 	}
 	result := "yyy (https://...)"
 	tmpl := getTemplateResult(result, templates)
-	assert.NotNil(t, tmpl)
-	assert.Equal(t, tmpl.Name, templates[1].Name)
+	require.NotNil(t, tmpl)
+	require.Equal(t, tmpl.Name, templates[1].Name)
 }
 
 func TestDownloadTemplate(t *testing.T) {
@@ -52,6 +52,6 @@ func TestDownloadTemplate(t *testing.T) {
 	}
 	path, err := downloadTemplate(tmpl)
 	defer os.RemoveAll(path)
-	assert.Nil(t, err)
-	assert.NotNil(t, path)
+	require.Nil(t, err)
+	require.NotNil(t, path)
 }

@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/mesg-foundation/core/container"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func testForceAndWaitForFullStop() chan error {
@@ -43,13 +43,13 @@ func testForceAndWaitForFullStop() chan error {
 func TestIsNotRunning(t *testing.T) {
 	<-testForceAndWaitForFullStop()
 	status, err := Status()
-	assert.Nil(t, err)
-	assert.Equal(t, container.STOPPED, status)
+	require.Nil(t, err)
+	require.Equal(t, container.STOPPED, status)
 }
 
 func TestIsRunning(t *testing.T) {
 	startForTest()
 	status, err := Status()
-	assert.Nil(t, err)
-	assert.Equal(t, container.RUNNING, status)
+	require.Nil(t, err)
+	require.Equal(t, container.RUNNING, status)
 }
