@@ -52,6 +52,8 @@ func TestUnsubscribe(t *testing.T) {
 	channel1 := Subscribe(key)
 	Unsubscribe(key, channel)
 	require.Len(t, listeners[key], 1)
+	require.NotNil(t, listeners[key])
 	Unsubscribe(key, channel1)
+	require.Len(t, listeners[key], 0)
 	require.Nil(t, listeners[key])
 }
