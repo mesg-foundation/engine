@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestServices(t *testing.T) {
@@ -14,10 +14,10 @@ func TestServices(t *testing.T) {
 		Execute:  &Task{ServiceID: "zzz"},
 	}
 	services := wf.services()
-	assert.Equal(t, len(services), 3)
-	assert.Equal(t, services[0], "xxx")
-	assert.Equal(t, services[1], "yyy")
-	assert.Equal(t, services[2], "zzz")
+	require.Equal(t, len(services), 3)
+	require.Equal(t, services[0], "xxx")
+	require.Equal(t, services[1], "yyy")
+	require.Equal(t, services[2], "zzz")
 }
 
 func TestServicesDuplicate(t *testing.T) {
@@ -27,9 +27,9 @@ func TestServicesDuplicate(t *testing.T) {
 		Execute:  &Task{ServiceID: "xxx"},
 	}
 	services := wf.services()
-	assert.Equal(t, len(services), 2)
-	assert.Equal(t, services[0], "xxx")
-	assert.Equal(t, services[1], "yyy")
+	require.Equal(t, len(services), 2)
+	require.Equal(t, services[0], "xxx")
+	require.Equal(t, services[1], "yyy")
 }
 
 func TestIterateService(t *testing.T) {
@@ -43,8 +43,8 @@ func TestIterateService(t *testing.T) {
 		cpt++
 		return nil
 	})
-	assert.Nil(t, err)
-	assert.Equal(t, cpt, 3)
+	require.Nil(t, err)
+	require.Equal(t, cpt, 3)
 }
 
 func TestIterateServiceWithError(t *testing.T) {
@@ -56,5 +56,5 @@ func TestIterateServiceWithError(t *testing.T) {
 	err := iterateService(wf, func(ID string) error {
 		return errors.New("test error")
 	})
-	assert.NotNil(t, err)
+	require.NotNil(t, err)
 }

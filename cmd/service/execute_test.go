@@ -7,20 +7,20 @@ import (
 
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/utils/xpflag"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestReadJSONFile(t *testing.T) {
 	d, e := readJSONFile("")
-	assert.Nil(t, e)
-	assert.Equal(t, "{}", d)
+	require.Nil(t, e)
+	require.Equal(t, "{}", d)
 
 	d, e = readJSONFile("./doesntexistsfile")
-	assert.NotNil(t, e)
+	require.NotNil(t, e)
 
 	d, e = readJSONFile("./tests/validData.json")
-	assert.Nil(t, e)
-	assert.Equal(t, "{\"foo\":\"bar\"}", d)
+	require.Nil(t, e)
+	require.Equal(t, "{\"foo\":\"bar\"}", d)
 }
 
 func TestTaskKeysFromService(t *testing.T) {
@@ -29,7 +29,7 @@ func TestTaskKeysFromService(t *testing.T) {
 			"task1": {},
 		},
 	})
-	assert.Equal(t, "task1", keys[0])
+	require.Equal(t, "task1", keys[0])
 }
 
 func TestGetData(t *testing.T) {
@@ -54,8 +54,8 @@ func TestGetData(t *testing.T) {
 	cmd.Flags().Set("data", "number=42")
 	cmd.Flags().Set("data", "bool=true")
 	res, err := getData(&cmd, "test", &s, data)
-	assert.Nil(t, err)
-	assert.Equal(t, "{\"bool\":true,\"foo\":\"bar\",\"hello\":\"world\",\"number\":42}", res)
+	require.Nil(t, err)
+	require.Equal(t, "{\"bool\":true,\"foo\":\"bar\",\"hello\":\"world\",\"number\":42}", res)
 }
 
 func TestGetDataError(t *testing.T) {
@@ -74,7 +74,7 @@ func TestGetDataError(t *testing.T) {
 	cmd.Flags().StringP("json", "", "", "")
 	cmd.Flags().Set("data", "bool=hello")
 	_, err := getData(&cmd, "test", &s, data)
-	assert.NotNil(t, err)
+	require.NotNil(t, err)
 }
 
 func TestGetDataJSON(t *testing.T) {
@@ -93,15 +93,15 @@ func TestGetDataJSON(t *testing.T) {
 	cmd.Flags().StringP("json", "", "", "")
 	cmd.Flags().Set("json", "./tests/validData.json")
 	res, err := getData(&cmd, "test", &s, data)
-	assert.Nil(t, err)
-	assert.Equal(t, "{\"foo\":\"bar\"}", res)
+	require.Nil(t, err)
+	require.Equal(t, "{\"foo\":\"bar\"}", res)
 }
 
 func TestGetTaskKey(t *testing.T) {
 	cmd := cobra.Command{}
 	cmd.Flags().StringP("task", "", "", "")
 	cmd.Flags().Set("task", "test")
-	assert.Equal(t, "test", getTaskKey(&cmd, &service.Service{}))
+	require.Equal(t, "test", getTaskKey(&cmd, &service.Service{}))
 }
 
 func TestExecutePreRun(t *testing.T) {

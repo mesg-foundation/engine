@@ -5,7 +5,7 @@ import (
 
 	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/service"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestValidateTaskKey(t *testing.T) {
@@ -14,10 +14,10 @@ func TestValidateTaskKey(t *testing.T) {
 			"test": {},
 		},
 	}
-	assert.Nil(t, validateTaskKey(s, ""))
-	assert.Nil(t, validateTaskKey(s, "*"))
-	assert.Nil(t, validateTaskKey(s, "test"))
-	assert.NotNil(t, validateTaskKey(s, "xxx"))
+	require.Nil(t, validateTaskKey(s, ""))
+	require.Nil(t, validateTaskKey(s, "*"))
+	require.Nil(t, validateTaskKey(s, "test"))
+	require.NotNil(t, validateTaskKey(s, "xxx"))
 }
 
 func TestValidateOutputKey(t *testing.T) {
@@ -30,50 +30,50 @@ func TestValidateOutputKey(t *testing.T) {
 			},
 		},
 	}
-	assert.Nil(t, validateOutputKey(s, "test", ""))
-	assert.Nil(t, validateOutputKey(s, "test", "*"))
-	assert.Nil(t, validateOutputKey(s, "test", "outputx"))
-	assert.NotNil(t, validateOutputKey(s, "test", "xxx"))
-	assert.Nil(t, validateOutputKey(s, "xxx", ""))
-	assert.Nil(t, validateOutputKey(s, "xxx", "*"))
-	assert.NotNil(t, validateOutputKey(s, "xxx", "outputX"))
-	assert.NotNil(t, validateOutputKey(s, "xxx", "xxx"))
+	require.Nil(t, validateOutputKey(s, "test", ""))
+	require.Nil(t, validateOutputKey(s, "test", "*"))
+	require.Nil(t, validateOutputKey(s, "test", "outputx"))
+	require.NotNil(t, validateOutputKey(s, "test", "xxx"))
+	require.Nil(t, validateOutputKey(s, "xxx", ""))
+	require.Nil(t, validateOutputKey(s, "xxx", "*"))
+	require.NotNil(t, validateOutputKey(s, "xxx", "outputX"))
+	require.NotNil(t, validateOutputKey(s, "xxx", "xxx"))
 }
 
 func TestIsSubscribedToTask(t *testing.T) {
 	x := &execution.Execution{Task: "task"}
 	r := &ListenResultRequest{}
-	assert.True(t, isSubscribedToTask(r, x))
+	require.True(t, isSubscribedToTask(r, x))
 
 	r = &ListenResultRequest{TaskFilter: ""}
-	assert.True(t, isSubscribedToTask(r, x))
+	require.True(t, isSubscribedToTask(r, x))
 
 	r = &ListenResultRequest{TaskFilter: "*"}
-	assert.True(t, isSubscribedToTask(r, x))
+	require.True(t, isSubscribedToTask(r, x))
 
 	r = &ListenResultRequest{TaskFilter: "task"}
-	assert.True(t, isSubscribedToTask(r, x))
+	require.True(t, isSubscribedToTask(r, x))
 
 	r = &ListenResultRequest{TaskFilter: "xxx"}
-	assert.False(t, isSubscribedToTask(r, x))
+	require.False(t, isSubscribedToTask(r, x))
 }
 
 func TestIsSubscribedToOutput(t *testing.T) {
 	x := &execution.Execution{Output: "output"}
 	r := &ListenResultRequest{}
-	assert.True(t, isSubscribedToOutput(r, x))
+	require.True(t, isSubscribedToOutput(r, x))
 
 	r = &ListenResultRequest{OutputFilter: ""}
-	assert.True(t, isSubscribedToOutput(r, x))
+	require.True(t, isSubscribedToOutput(r, x))
 
 	r = &ListenResultRequest{OutputFilter: "*"}
-	assert.True(t, isSubscribedToOutput(r, x))
+	require.True(t, isSubscribedToOutput(r, x))
 
 	r = &ListenResultRequest{OutputFilter: "output"}
-	assert.True(t, isSubscribedToOutput(r, x))
+	require.True(t, isSubscribedToOutput(r, x))
 
 	r = &ListenResultRequest{OutputFilter: "xxx"}
-	assert.False(t, isSubscribedToOutput(r, x))
+	require.False(t, isSubscribedToOutput(r, x))
 }
 
 func TestIsSubscribedToTags(t *testing.T) {
@@ -115,7 +115,7 @@ func TestIsSubscribedToTags(t *testing.T) {
 	}
 	for _, test := range tests {
 		for _, r := range test.results {
-			assert.Equal(t, r.valid, isSubscribedToTags(test.request, r.execution))
+			require.Equal(t, r.valid, isSubscribedToTags(test.request, r.execution))
 		}
 	}
 }

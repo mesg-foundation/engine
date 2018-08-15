@@ -7,7 +7,7 @@ import (
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
 	"github.com/spf13/viper"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // startForTest starts a dummy MESG Core service
@@ -37,8 +37,8 @@ func startForTest() {
 // func TestStart(t *testing.T) {
 // 	<-testForceAndWaitForFullStop()
 // 	service, err := Start()
-// 	assert.Nil(t, err)
-// 	assert.NotNil(t, service)
+// 	require.Nil(t, err)
+// 	require.NotNil(t, service)
 // }
 
 func contains(list []string, item string) bool {
@@ -52,18 +52,18 @@ func contains(list []string, item string) bool {
 
 func TestStartConfig(t *testing.T) {
 	spec, err := serviceSpec()
-	assert.Nil(t, err)
+	require.Nil(t, err)
 	// Make sure that the config directory is passed in parameter to write on the same folder
-	assert.True(t, contains(spec.Env, "MESG_MESG_PATH=/mesg"))
-	assert.True(t, contains(spec.Env, "MESG_API_SERVICE_SOCKETPATH="+filepath.Join(viper.GetString(config.MESGPath), "server.sock")))
-	assert.True(t, contains(spec.Env, "MESG_SERVICE_PATH_HOST="+filepath.Join(viper.GetString(config.MESGPath), "services")))
+	require.True(t, contains(spec.Env, "MESG_MESG_PATH=/mesg"))
+	require.True(t, contains(spec.Env, "MESG_API_SERVICE_SOCKETPATH="+filepath.Join(viper.GetString(config.MESGPath), "server.sock")))
+	require.True(t, contains(spec.Env, "MESG_SERVICE_PATH_HOST="+filepath.Join(viper.GetString(config.MESGPath), "services")))
 	// Ensure that the port is shared
-	assert.Equal(t, spec.Ports[0].Published, uint32(50052))
-	assert.Equal(t, spec.Ports[0].Target, uint32(50052))
+	require.Equal(t, spec.Ports[0].Published, uint32(50052))
+	require.Equal(t, spec.Ports[0].Target, uint32(50052))
 	// Ensure that the docker socket is shared in the core
-	assert.Equal(t, spec.Mounts[0].Source, dockerSocket)
-	assert.Equal(t, spec.Mounts[0].Target, dockerSocket)
+	require.Equal(t, spec.Mounts[0].Source, dockerSocket)
+	require.Equal(t, spec.Mounts[0].Target, dockerSocket)
 	// Ensure that the host users folder is sync with the core
-	assert.Equal(t, spec.Mounts[1].Source, viper.GetString(config.MESGPath))
-	assert.Equal(t, spec.Mounts[1].Target, "/mesg")
+	require.Equal(t, spec.Mounts[1].Source, viper.GetString(config.MESGPath))
+	require.Equal(t, spec.Mounts[1].Target, "/mesg")
 }

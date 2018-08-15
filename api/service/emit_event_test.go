@@ -7,7 +7,7 @@ import (
 	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/pubsub"
 	"github.com/mesg-foundation/core/service"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var serveremit = new(Server)
@@ -36,7 +36,7 @@ func TestEmit(t *testing.T) {
 	})
 
 	res := <-subscription
-	assert.NotNil(t, res)
+	require.NotNil(t, res)
 }
 
 func TestEmitNoData(t *testing.T) {
@@ -47,7 +47,7 @@ func TestEmitNoData(t *testing.T) {
 		Token:    service.Hash(),
 		EventKey: "test",
 	})
-	assert.Equal(t, err.Error(), "unexpected end of JSON input")
+	require.Equal(t, err.Error(), "unexpected end of JSON input")
 }
 
 func TestEmitWrongData(t *testing.T) {
@@ -59,7 +59,7 @@ func TestEmitWrongData(t *testing.T) {
 		EventKey:  "test",
 		EventData: "",
 	})
-	assert.Equal(t, err.Error(), "unexpected end of JSON input")
+	require.Equal(t, err.Error(), "unexpected end of JSON input")
 }
 
 func TestEmitWrongEvent(t *testing.T) {
@@ -71,9 +71,9 @@ func TestEmitWrongEvent(t *testing.T) {
 		EventKey:  "test",
 		EventData: "{}",
 	})
-	assert.NotNil(t, err)
+	require.NotNil(t, err)
 	_, notFound := err.(*service.EventNotFoundError)
-	assert.True(t, notFound)
+	require.True(t, notFound)
 }
 
 func TestServiceNotExists(t *testing.T) {
@@ -83,5 +83,5 @@ func TestServiceNotExists(t *testing.T) {
 		EventKey:  "test",
 		EventData: "{}",
 	})
-	assert.NotNil(t, err)
+	require.NotNil(t, err)
 }

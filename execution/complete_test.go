@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/service"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestComplete(t *testing.T) {
@@ -23,10 +23,10 @@ func TestComplete(t *testing.T) {
 	execution.Execute()
 	var outputs map[string]interface{}
 	err := execution.Complete("output", outputs)
-	assert.Nil(t, err)
-	assert.Equal(t, execution.Output, "output")
-	assert.Equal(t, execution.OutputData, outputs)
-	assert.True(t, execution.ExecutionDuration > 0)
+	require.Nil(t, err)
+	require.Equal(t, execution.Output, "output")
+	require.Equal(t, execution.OutputData, outputs)
+	require.True(t, execution.ExecutionDuration > 0)
 }
 
 func TestCompleteNotFound(t *testing.T) {
@@ -41,10 +41,10 @@ func TestCompleteNotFound(t *testing.T) {
 	execution.Execute()
 	var outputs map[string]interface{}
 	err := execution.Complete("output", outputs)
-	assert.NotNil(t, err)
+	require.NotNil(t, err)
 	x, missingOutputError := err.(*service.OutputNotFoundError)
-	assert.True(t, missingOutputError)
-	assert.Equal(t, "output", x.OutputKey)
+	require.True(t, missingOutputError)
+	require.Equal(t, "output", x.OutputKey)
 }
 
 func TestCompleteInvalidOutputs(t *testing.T) {
@@ -67,10 +67,10 @@ func TestCompleteInvalidOutputs(t *testing.T) {
 	execution.Execute()
 	var outputs map[string]interface{}
 	err := execution.Complete("output", outputs)
-	assert.NotNil(t, err)
+	require.NotNil(t, err)
 	x, invalidOutputError := err.(*service.InvalidOutputDataError)
-	assert.True(t, invalidOutputError)
-	assert.Equal(t, "output", x.Key)
+	require.True(t, invalidOutputError)
+	require.Equal(t, "output", x.Key)
 }
 
 func TestCompleteNotProcessed(t *testing.T) {
@@ -88,8 +88,8 @@ func TestCompleteNotProcessed(t *testing.T) {
 	execution, _ := Create(&s, "test", inputs, []string{})
 	var outputs map[string]interface{}
 	err := execution.Complete("output", outputs)
-	assert.NotNil(t, err)
+	require.NotNil(t, err)
 	x, notInQueueError := err.(*NotInQueueError)
-	assert.True(t, notInQueueError)
-	assert.Equal(t, "inProgress", x.Queue)
+	require.True(t, notInQueueError)
+	require.Equal(t, "inProgress", x.Queue)
 }

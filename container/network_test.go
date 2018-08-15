@@ -6,7 +6,7 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/mesg-foundation/core/container/dockertest"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestCreateNetwork(t *testing.T) {
@@ -24,12 +24,12 @@ func TestCreateNetwork(t *testing.T) {
 	dt.ProvideNetworkInspect(types.NetworkResource{}, nil)
 
 	networkID, err := c.CreateNetwork(namespace)
-	assert.Nil(t, err)
-	assert.Equal(t, id, networkID)
+	require.Nil(t, err)
+	require.Equal(t, id, networkID)
 
 	li := <-dt.LastNetworkCreate()
-	assert.Equal(t, Namespace(namespace), li.Name)
-	assert.Equal(t, types.NetworkCreate{
+	require.Equal(t, Namespace(namespace), li.Name)
+	require.Equal(t, types.NetworkCreate{
 		CheckDuplicate: true,
 		Driver:         "overlay",
 		Labels: map[string]string{
@@ -52,12 +52,12 @@ func TestCreateAlreadyExistingNetwork(t *testing.T) {
 	dt.ProvideNetworkInspect(types.NetworkResource{ID: id}, nil)
 
 	networkID, err := c.CreateNetwork(namespace)
-	assert.Nil(t, err)
-	assert.Equal(t, id, networkID)
+	require.Nil(t, err)
+	require.Equal(t, id, networkID)
 
 	li := <-dt.LastNetworkInspect()
-	assert.Equal(t, Namespace(namespace), li.Network)
-	assert.Equal(t, types.NetworkInspectOptions{}, li.Options)
+	require.Equal(t, Namespace(namespace), li.Network)
+	require.Equal(t, types.NetworkInspectOptions{}, li.Options)
 
 	select {
 	case <-dt.LastNetworkCreate():
@@ -79,13 +79,13 @@ func TestDeleteNetwork(t *testing.T) {
 
 	dt.ProvideNetworkInspect(types.NetworkResource{ID: id}, nil)
 
-	assert.Nil(t, c.DeleteNetwork(namespace))
+	require.Nil(t, c.DeleteNetwork(namespace))
 
 	li := <-dt.LastNetworkInspect()
-	assert.Equal(t, Namespace(namespace), li.Network)
-	assert.Equal(t, types.NetworkInspectOptions{}, li.Options)
+	require.Equal(t, Namespace(namespace), li.Network)
+	require.Equal(t, types.NetworkInspectOptions{}, li.Options)
 
-	assert.Equal(t, id, (<-dt.LastNetworkRemove()).Network)
+	require.Equal(t, id, (<-dt.LastNetworkRemove()).Network)
 }
 
 func TestDeleteNotExistingNetwork(t *testing.T) {
@@ -100,7 +100,7 @@ func TestDeleteNotExistingNetwork(t *testing.T) {
 
 	dt.ProvideNetworkInspect(types.NetworkResource{}, dockertest.NotFoundErr{})
 
-	assert.Nil(t, c.DeleteNetwork(namespace))
+	require.Nil(t, c.DeleteNetwork(namespace))
 
 	select {
 	case <-dt.LastNetworkRemove():
@@ -123,7 +123,7 @@ func TestDeleteNetworkError(t *testing.T) {
 
 	dt.ProvideNetworkInspect(types.NetworkResource{}, errNetworkDelete)
 
-	assert.NotNil(t, c.DeleteNetwork(namespace))
+	require.NotNil(t, c.DeleteNetwork(namespace))
 }
 
 func TestFindNetwork(t *testing.T) {
@@ -140,12 +140,12 @@ func TestFindNetwork(t *testing.T) {
 	dt.ProvideNetworkInspect(types.NetworkResource{ID: id}, nil)
 
 	network, err := c.FindNetwork(namespace)
-	assert.Nil(t, err)
-	assert.Equal(t, id, network.ID)
+	require.Nil(t, err)
+	require.Equal(t, id, network.ID)
 
 	li := <-dt.LastNetworkInspect()
-	assert.Equal(t, Namespace(namespace), li.Network)
-	assert.Equal(t, types.NetworkInspectOptions{}, li.Options)
+	require.Equal(t, Namespace(namespace), li.Network)
+	require.Equal(t, types.NetworkInspectOptions{}, li.Options)
 }
 
 func TestFindNotExistingNetwork(t *testing.T) {
@@ -161,5 +161,5 @@ func TestFindNotExistingNetwork(t *testing.T) {
 	dt.ProvideNetworkInspect(types.NetworkResource{}, dockertest.NotFoundErr{})
 
 	_, err := c.FindNetwork(namespace)
-	assert.Equal(t, dockertest.NotFoundErr{}, err)
+	require.Equal(t, dockertest.NotFoundErr{}, err)
 }

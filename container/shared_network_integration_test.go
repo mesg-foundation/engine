@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	docker "github.com/docker/docker/client"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func removeSharedNetworkIfExist(c *Container) error {
@@ -22,25 +22,25 @@ func removeSharedNetworkIfExist(c *Container) error {
 
 func TestIntegrationCreateSharedNetworkIfNeeded(t *testing.T) {
 	c, err := New()
-	assert.Nil(t, err)
+	require.Nil(t, err)
 	err = removeSharedNetworkIfExist(c)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 	err = c.createSharedNetworkIfNeeded()
-	assert.Nil(t, err)
+	require.Nil(t, err)
 }
 
 func TestIntegrationSharedNetwork(t *testing.T) {
 	c, err := New()
-	assert.Nil(t, err)
+	require.Nil(t, err)
 	network, err := c.sharedNetwork()
-	assert.Nil(t, err)
-	assert.NotEqual(t, "", network.ID)
+	require.Nil(t, err)
+	require.NotEqual(t, "", network.ID)
 }
 
 func TestIntegrationSharedNetworkID(t *testing.T) {
 	c, err := New()
-	assert.Nil(t, err)
+	require.Nil(t, err)
 	networkID, err := c.SharedNetworkID()
-	assert.Nil(t, err)
-	assert.NotEqual(t, "", networkID)
+	require.Nil(t, err)
+	require.NotEqual(t, "", networkID)
 }

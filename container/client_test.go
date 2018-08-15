@@ -5,15 +5,15 @@ package container
 // 	leaveSwarm()
 // 	dockerClient, _ := godocker.NewClientFromEnv()
 // 	ID, err := createSwarm(dockerClient)
-// 	assert.Nil(t, err)
-// 	assert.NotEqual(t, ID, "")
+// 	require.Nil(t, err)
+// 	require.NotEqual(t, ID, "")
 // }
 
 // func TestClientWithCreateSwarm(t *testing.T) {
 // 	leaveSwarm()
 // 	client, err := Client()
-// 	assert.Nil(t, err)
-// 	assert.NotNil(t, client)
+// 	require.Nil(t, err)
+// 	require.NotNil(t, client)
 // }
 
 // func leaveSwarm() {

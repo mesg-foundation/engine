@@ -3,12 +3,12 @@ package daemon
 import (
 	"testing"
 
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestLogs(t *testing.T) {
 	startForTest()
 	reader, err := Logs()
-	assert.Nil(t, err)
-	assert.NotNil(t, reader)
+	require.Nil(t, err)
+	require.NotNil(t, reader)
 }

@@ -3,16 +3,16 @@ package array
 import (
 	"testing"
 
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestIncludedIn(t *testing.T) {
-	assert.False(t, IncludedIn([]string{}, ""))
-	assert.True(t, IncludedIn([]string{""}, ""))
-	assert.False(t, IncludedIn([]string{"a"}, ""))
-	assert.True(t, IncludedIn([]string{"a"}, "a"))
-	assert.False(t, IncludedIn([]string{""}, "a"))
-	assert.True(t, IncludedIn([]string{"a", "b"}, "a"))
-	assert.True(t, IncludedIn([]string{"a", "b"}, "b"))
-	assert.False(t, IncludedIn([]string{"a", "b"}, "c"))
+	require.False(t, IncludedIn([]string{}, ""))
+	require.True(t, IncludedIn([]string{""}, ""))
+	require.False(t, IncludedIn([]string{"a"}, ""))
+	require.True(t, IncludedIn([]string{"a"}, "a"))
+	require.False(t, IncludedIn([]string{""}, "a"))
+	require.True(t, IncludedIn([]string{"a", "b"}, "a"))
+	require.True(t, IncludedIn([]string{"a", "b"}, "b"))
+	require.False(t, IncludedIn([]string{"a", "b"}, "c"))
 }

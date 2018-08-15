@@ -10,19 +10,19 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var errGeneric = errors.New("titan of the errors")
 
 func TestNew(t *testing.T) {
 	dt := New()
-	assert.NotNil(t, dt)
+	require.NotNil(t, dt)
 }
 
 func TestClient(t *testing.T) {
 	dt := New()
-	assert.NotNil(t, dt.Client())
+	require.NotNil(t, dt.Client())
 }
 
 func TestNegotiateAPIVersion(t *testing.T) {
@@ -45,12 +45,12 @@ func TestNetworkInspect(t *testing.T) {
 	dt.ProvideNetworkInspect(resource, errGeneric)
 
 	resource1, err := dt.Client().NetworkInspect(context.Background(), network, options)
-	assert.Equal(t, errGeneric, err)
-	assert.Equal(t, resource, resource1)
+	require.Equal(t, errGeneric, err)
+	require.Equal(t, resource, resource1)
 
 	ll := <-dt.LastNetworkInspect()
-	assert.Equal(t, network, ll.Network)
-	assert.Equal(t, options, ll.Options)
+	require.Equal(t, network, ll.Network)
+	require.Equal(t, options, ll.Options)
 }
 
 func TestNetworkCreate(t *testing.T) {
@@ -62,12 +62,12 @@ func TestNetworkCreate(t *testing.T) {
 	dt.ProvideNetworkCreate(response, errGeneric)
 
 	response1, err := dt.Client().NetworkCreate(context.Background(), name, options)
-	assert.Equal(t, errGeneric, err)
-	assert.Equal(t, response, response1)
+	require.Equal(t, errGeneric, err)
+	require.Equal(t, response, response1)
 
 	ll := <-dt.LastNetworkCreate()
-	assert.Equal(t, name, ll.Name)
-	assert.Equal(t, options, ll.Options)
+	require.Equal(t, name, ll.Name)
+	require.Equal(t, options, ll.Options)
 }
 
 func TestSwarmInit(t *testing.T) {
@@ -76,10 +76,10 @@ func TestSwarmInit(t *testing.T) {
 	dt := New()
 
 	data, err := dt.Client().SwarmInit(context.Background(), request)
-	assert.Nil(t, err)
-	assert.Equal(t, "", data)
+	require.Nil(t, err)
+	require.Equal(t, "", data)
 
-	assert.Equal(t, request, (<-dt.LastSwarmInit()).Request)
+	require.Equal(t, request, (<-dt.LastSwarmInit()).Request)
 }
 
 func TestInfo(t *testing.T) {
@@ -89,8 +89,8 @@ func TestInfo(t *testing.T) {
 	dt.ProvideInfo(info, errGeneric)
 
 	info1, err := dt.Client().Info(context.Background())
-	assert.Equal(t, errGeneric, err)
-	assert.Equal(t, info, info1)
+	require.Equal(t, errGeneric, err)
+	require.Equal(t, info, info1)
 
 	select {
 	case <-dt.LastInfo():
@@ -107,11 +107,11 @@ func TestContainerList(t *testing.T) {
 	dt.ProvideContainerList(containers, errGeneric)
 
 	containers1, err := dt.Client().ContainerList(context.Background(), options)
-	assert.Equal(t, errGeneric, err)
-	assert.Equal(t, containers, containers1)
+	require.Equal(t, errGeneric, err)
+	require.Equal(t, containers, containers1)
 
 	ll := <-dt.LastContainerList()
-	assert.Equal(t, options, ll.Options)
+	require.Equal(t, options, ll.Options)
 }
 
 func TestContainerInspect(t *testing.T) {
@@ -122,11 +122,11 @@ func TestContainerInspect(t *testing.T) {
 	dt.ProvideContainerInspect(containerJSON, errGeneric)
 
 	containerJSON1, err := dt.Client().ContainerInspect(context.Background(), container)
-	assert.Equal(t, errGeneric, err)
-	assert.Equal(t, containerJSON, containerJSON1)
+	require.Equal(t, errGeneric, err)
+	require.Equal(t, containerJSON, containerJSON1)
 
 	ll := <-dt.LastContainerInspect()
-	assert.Equal(t, container, ll.Container)
+	require.Equal(t, container, ll.Container)
 }
 
 func TestImageBuild(t *testing.T) {
@@ -139,23 +139,23 @@ func TestImageBuild(t *testing.T) {
 
 	resp, err := dt.Client().ImageBuild(context.Background(),
 		ioutil.NopCloser(bytes.NewReader(request)), options)
-	assert.Equal(t, errGeneric, err)
+	require.Equal(t, errGeneric, err)
 	defer resp.Body.Close()
 
 	respData, err := ioutil.ReadAll(resp.Body)
-	assert.Nil(t, err)
-	assert.Equal(t, response, respData)
+	require.Nil(t, err)
+	require.Equal(t, response, respData)
 
 	ll := <-dt.LastImageBuild()
-	assert.Equal(t, options, ll.Options)
-	assert.Equal(t, request, ll.FileData)
+	require.Equal(t, options, ll.Options)
+	require.Equal(t, request, ll.FileData)
 }
 
 func TestNetworkRemove(t *testing.T) {
 	network := "1"
 	dt := New()
-	assert.Nil(t, dt.Client().NetworkRemove(context.Background(), network))
-	assert.Equal(t, network, (<-dt.LastNetworkRemove()).Network)
+	require.Nil(t, dt.Client().NetworkRemove(context.Background(), network))
+	require.Equal(t, network, (<-dt.LastNetworkRemove()).Network)
 }
 
 func TestTaskList(t *testing.T) {
@@ -170,10 +170,10 @@ func TestTaskList(t *testing.T) {
 	dt.ProvideTaskList(tasks, errGeneric)
 
 	tasks1, err := dt.Client().TaskList(context.Background(), options)
-	assert.Equal(t, errGeneric, err)
-	assert.Equal(t, tasks, tasks1)
+	require.Equal(t, errGeneric, err)
+	require.Equal(t, tasks, tasks1)
 
-	assert.Equal(t, options, (<-dt.LastTaskList()).Options)
+	require.Equal(t, options, (<-dt.LastTaskList()).Options)
 }
 
 func TestServiceCreate(t *testing.T) {
@@ -185,12 +185,12 @@ func TestServiceCreate(t *testing.T) {
 	dt.ProvideServiceCreate(response, errGeneric)
 
 	response1, err := dt.Client().ServiceCreate(context.Background(), service, options)
-	assert.Equal(t, errGeneric, err)
-	assert.Equal(t, response, response1)
+	require.Equal(t, errGeneric, err)
+	require.Equal(t, response, response1)
 
 	ll := <-dt.LastServiceCreate()
-	assert.Equal(t, service, ll.Service)
-	assert.Equal(t, options, ll.Options)
+	require.Equal(t, service, ll.Service)
+	require.Equal(t, options, ll.Options)
 }
 
 func TestServiceList(t *testing.T) {
@@ -205,11 +205,11 @@ func TestServiceList(t *testing.T) {
 	dt.ProvideServiceList(services, errGeneric)
 
 	services1, err := dt.Client().ServiceList(context.Background(), options)
-	assert.Equal(t, errGeneric, err)
-	assert.Equal(t, services, services1)
+	require.Equal(t, errGeneric, err)
+	require.Equal(t, services, services1)
 
 	ll := <-dt.LastServiceList()
-	assert.Equal(t, options, ll.Options)
+	require.Equal(t, options, ll.Options)
 }
 
 func TestServiceInspectWithRaw(t *testing.T) {
@@ -222,13 +222,13 @@ func TestServiceInspectWithRaw(t *testing.T) {
 	dt.ProvideServiceInspectWithRaw(service, data, errGeneric)
 
 	service1, data1, err := dt.Client().ServiceInspectWithRaw(context.Background(), serviceID, options)
-	assert.Equal(t, errGeneric, err)
-	assert.Equal(t, service, service1)
-	assert.Equal(t, data, data1)
+	require.Equal(t, errGeneric, err)
+	require.Equal(t, service, service1)
+	require.Equal(t, data, data1)
 
 	ll := <-dt.LastServiceInspectWithRaw()
-	assert.Equal(t, serviceID, ll.ServiceID)
-	assert.Equal(t, options, ll.Options)
+	require.Equal(t, serviceID, ll.ServiceID)
+	require.Equal(t, options, ll.Options)
 }
 
 func TestServiceRemove(t *testing.T) {
@@ -237,10 +237,10 @@ func TestServiceRemove(t *testing.T) {
 	dt := New()
 	dt.ProvideServiceRemove(errGeneric)
 
-	assert.Equal(t, errGeneric, dt.Client().ServiceRemove(context.Background(), serviceID))
+	require.Equal(t, errGeneric, dt.Client().ServiceRemove(context.Background(), serviceID))
 
 	ll := <-dt.LastServiceRemove()
-	assert.Equal(t, serviceID, ll.ServiceID)
+	require.Equal(t, serviceID, ll.ServiceID)
 }
 
 func TestServiceLogs(t *testing.T) {
@@ -252,14 +252,14 @@ func TestServiceLogs(t *testing.T) {
 	dt.ProvideServiceLogs(ioutil.NopCloser(bytes.NewReader(data)), errGeneric)
 
 	rc, err := dt.Client().ServiceLogs(context.Background(), serviceID, options)
-	assert.Equal(t, errGeneric, err)
+	require.Equal(t, errGeneric, err)
 	defer rc.Close()
 
 	data1, err := ioutil.ReadAll(rc)
-	assert.Nil(t, err)
-	assert.Equal(t, data, data1)
+	require.Nil(t, err)
+	require.Equal(t, data, data1)
 
 	ll := <-dt.LastServiceLogs()
-	assert.Equal(t, serviceID, ll.ServiceID)
-	assert.Equal(t, options, ll.Options)
+	require.Equal(t, serviceID, ll.ServiceID)
+	require.Equal(t, options, ll.Options)
 }

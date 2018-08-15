@@ -8,7 +8,7 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
 	"github.com/mesg-foundation/core/container/dockertest"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestListTasks(t *testing.T) {
@@ -24,11 +24,11 @@ func TestListTasks(t *testing.T) {
 	dt.ProvideTaskList(tasks, nil)
 
 	tasks1, err := c.ListTasks(namespace)
-	assert.Nil(t, err)
-	assert.Equal(t, tasks, tasks1)
-	assert.Equal(t, len(tasks), len(tasks1))
+	require.Nil(t, err)
+	require.Equal(t, tasks, tasks1)
+	require.Equal(t, len(tasks), len(tasks1))
 
-	assert.Equal(t, types.TaskListOptions{
+	require.Equal(t, types.TaskListOptions{
 		Filters: filters.NewArgs(filters.KeyValuePair{
 			Key:   "label",
 			Value: "com.docker.stack.namespace=" + Namespace(namespace),
@@ -47,7 +47,7 @@ func TestListTasksError(t *testing.T) {
 	dt.ProvideTaskList(nil, errTaskList)
 
 	_, err := c.ListTasks(namespace)
-	assert.Equal(t, errTaskList, err)
+	require.Equal(t, errTaskList, err)
 }
 
 func TestTasksError(t *testing.T) {
@@ -69,8 +69,8 @@ func TestTasksError(t *testing.T) {
 	dt.ProvideTaskList(tasks, nil)
 
 	errors, err := c.TasksError(namespace)
-	assert.Nil(t, err)
-	assert.Equal(t, len(tasks), len(errors))
-	assert.Equal(t, tasks[0].Status.Err, errors[0])
-	assert.Equal(t, tasks[1].Status.Err, errors[1])
+	require.Nil(t, err)
+	require.Equal(t, len(tasks), len(errors))
+	require.Equal(t, tasks[0].Status.Err, errors[0])
+	require.Equal(t, tasks[1].Status.Err, errors[1])
 }

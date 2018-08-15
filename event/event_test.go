@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/service"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestCreate(t *testing.T) {
@@ -16,11 +16,11 @@ func TestCreate(t *testing.T) {
 	}
 	var data map[string]interface{}
 	exec, err := Create(&s, "test", data)
-	assert.Nil(t, err)
-	assert.Equal(t, &s, exec.Service)
-	assert.Equal(t, data, exec.Data)
-	assert.Equal(t, "test", exec.Key)
-	assert.NotNil(t, exec.CreatedAt)
+	require.Nil(t, err)
+	require.Equal(t, &s, exec.Service)
+	require.Equal(t, data, exec.Data)
+	require.Equal(t, "test", exec.Key)
+	require.NotNil(t, exec.CreatedAt)
 }
 
 func TestCreateNotPresentEvent(t *testing.T) {
@@ -32,9 +32,9 @@ func TestCreateNotPresentEvent(t *testing.T) {
 	}
 	var data map[string]interface{}
 	_, err := Create(&s, "testinvalid", data)
-	assert.NotNil(t, err)
+	require.NotNil(t, err)
 	_, notFound := err.(*service.EventNotFoundError)
-	assert.True(t, notFound)
+	require.True(t, notFound)
 }
 
 func TestCreateInvalidData(t *testing.T) {
@@ -50,7 +50,7 @@ func TestCreateInvalidData(t *testing.T) {
 	}
 	var data map[string]interface{}
 	_, err := Create(&s, "test", data)
-	assert.NotNil(t, err)
+	require.NotNil(t, err)
 	_, invalid := err.(*service.InvalidEventDataError)
-	assert.True(t, invalid)
+	require.True(t, invalid)
 }
