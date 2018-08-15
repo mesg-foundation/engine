@@ -8,7 +8,7 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/mesg-foundation/core/container/dockertest"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestBuild(t *testing.T) {
@@ -23,12 +23,12 @@ func TestBuild(t *testing.T) {
 	)), nil)
 
 	tag1, err := c.Build(path)
-	assert.Nil(t, err)
-	assert.Equal(t, tag, tag1)
+	require.Nil(t, err)
+	require.Equal(t, tag, tag1)
 
 	li := <-dt.LastImageBuild()
-	assert.True(t, len(li.FileData) > 0)
-	assert.Equal(t, types.ImageBuildOptions{
+	require.True(t, len(li.FileData) > 0)
+	require.Equal(t, types.ImageBuildOptions{
 		Remove:         true,
 		ForceRemove:    true,
 		SuppressOutput: true,
@@ -47,8 +47,8 @@ func TestBuildNotWorking(t *testing.T) {
 {"errorDetail":{"message":"invalid reference format: repository name must be lowercase"},"error":"invalid reference format: repository name must be lowercase"}`)), nil)
 
 	tag, err := c.Build(path)
-	assert.Equal(t, "Image build failed. invalid reference format: repository name must be lowercase", err.Error())
-	assert.Equal(t, "", tag)
+	require.Equal(t, "Image build failed. invalid reference format: repository name must be lowercase", err.Error())
+	require.Equal(t, "", tag)
 }
 
 func TestBuildWrongPath(t *testing.T) {
@@ -58,7 +58,7 @@ func TestBuildWrongPath(t *testing.T) {
 	dt.ProvideImageBuild(ioutil.NopCloser(strings.NewReader("")), nil)
 
 	_, err := c.Build("testss/")
-	assert.Equal(t, "Could not parse container build response", err.Error())
+	require.Equal(t, "Could not parse container build response", err.Error())
 }
 
 func TestParseBuildResponseInvalidJSON(t *testing.T) {
@@ -67,7 +67,7 @@ func TestParseBuildResponseInvalidJSON(t *testing.T) {
 		Body: body,
 	}
 	_, err := parseBuildResponse(response)
-	assert.NotNil(t, err)
+	require.NotNil(t, err)
 }
 
 func TestParseBuildResponse(t *testing.T) {
@@ -76,8 +76,8 @@ func TestParseBuildResponse(t *testing.T) {
 		Body: body,
 	}
 	tag, err := parseBuildResponse(response)
-	assert.Nil(t, err)
-	assert.Equal(t, tag, "ok")
+	require.Nil(t, err)
+	require.Equal(t, tag, "ok")
 }
 
 func TestParseBuildResponseWithNewLine(t *testing.T) {
@@ -86,6 +86,6 @@ func TestParseBuildResponseWithNewLine(t *testing.T) {
 		Body: body,
 	}
 	tag, err := parseBuildResponse(response)
-	assert.Nil(t, err)
-	assert.Equal(t, tag, "ok")
+	require.Nil(t, err)
+	require.Equal(t, tag, "ok")
 }

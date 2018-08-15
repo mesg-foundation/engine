@@ -4,20 +4,20 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/service"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestReadJSONFile(t *testing.T) {
 	d, e := readJSONFile("")
-	assert.Nil(t, e)
-	assert.Equal(t, "{}", d)
+	require.Nil(t, e)
+	require.Equal(t, "{}", d)
 
 	d, e = readJSONFile("./doesntexistsfile")
-	assert.NotNil(t, e)
+	require.NotNil(t, e)
 
 	d, e = readJSONFile("./tests/validData.json")
-	assert.Nil(t, e)
-	assert.Equal(t, "{\"foo\":\"bar\"}", d)
+	require.Nil(t, e)
+	require.Equal(t, "{\"foo\":\"bar\"}", d)
 }
 
 func TestTaskKeysFromService(t *testing.T) {
@@ -26,5 +26,5 @@ func TestTaskKeysFromService(t *testing.T) {
 			"task1": {},
 		},
 	})
-	assert.Equal(t, "task1", keys[0])
+	require.Equal(t, "task1", keys[0])
 }

@@ -5,12 +5,12 @@ import (
 	"testing"
 
 	"github.com/spf13/viper"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func assertViperDefault(t *testing.T, key string, expected string) {
 	value := viper.GetString(key)
-	assert.Equal(t, expected, value, "Wrong default for key "+key)
+	require.Equal(t, expected, value, "Wrong default for key "+key)
 }
 
 func TestAPIDefault(t *testing.T) {
@@ -29,5 +29,5 @@ func TestAPIDefault(t *testing.T) {
 	}
 
 	// Override by ENV when testing, so only test the image name
-	assert.Contains(t, "mesg/core:", viper.GetString(CoreImage))
+	require.Contains(t, viper.GetString(CoreImage), "mesg/core:")
 }

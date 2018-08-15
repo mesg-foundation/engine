@@ -3,7 +3,7 @@ package service
 import (
 	"testing"
 
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestLogs(t *testing.T) {
@@ -21,8 +21,8 @@ func TestLogs(t *testing.T) {
 	service.Start()
 	defer service.Stop()
 	readers, err := service.Logs("*")
-	assert.Nil(t, err)
-	assert.Equal(t, 2, len(readers))
+	require.Nil(t, err)
+	require.Equal(t, 2, len(readers))
 }
 
 func TestLogsOnlyOneDependency(t *testing.T) {
@@ -40,6 +40,6 @@ func TestLogsOnlyOneDependency(t *testing.T) {
 	service.Start()
 	defer service.Stop()
 	readers, err := service.Logs("test2")
-	assert.Nil(t, err)
-	assert.Equal(t, 1, len(readers))
+	require.Nil(t, err)
+	require.Equal(t, 1, len(readers))
 }

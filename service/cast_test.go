@@ -3,7 +3,7 @@ package service
 import (
 	"testing"
 
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestServiceCast(t *testing.T) {
@@ -69,16 +69,16 @@ func TestServiceCast(t *testing.T) {
 	for _, tt := range tests {
 		got, err := tt.service.Cast("test", tt.data)
 		if tt.expectErr {
-			assert.NotNil(t, err)
+			require.NotNil(t, err)
 		} else {
-			assert.Equal(t, len(tt.expected), len(got), "maps len are not equal")
-			assert.Equal(t, tt.expected, got, "maps are not equal")
+			require.Equal(t, len(tt.expected), len(got), "maps len are not equal")
+			require.Equal(t, tt.expected, got, "maps are not equal")
 		}
 	}
 
 	// test if non-existing key returns error
 	_, err := tests[0].service.Cast("_", nil)
-	assert.NotNil(t, err)
+	require.NotNil(t, err)
 }
 
 // creates test service with given inputs name and type under "test" task key.

@@ -3,7 +3,7 @@ package service
 import (
 	"testing"
 
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGenerateId(t *testing.T) {
@@ -11,7 +11,7 @@ func TestGenerateId(t *testing.T) {
 		Name: "TestGenerateId",
 	}
 	hash := service.Hash()
-	assert.Equal(t, string(hash), "v1_b3664cde5d7fcb2d37fe2ebb45acdd27")
+	require.Equal(t, string(hash), "v1_b3664cde5d7fcb2d37fe2ebb45acdd27")
 }
 
 func TestNoCollision(t *testing.T) {
@@ -23,5 +23,5 @@ func TestNoCollision(t *testing.T) {
 	}
 	hash1 := service1.Hash()
 	hash2 := service2.Hash()
-	assert.NotEqual(t, string(hash1), string(hash2))
+	require.NotEqual(t, string(hash1), string(hash2))
 }

@@ -3,11 +3,11 @@ package daemon
 import (
 	"testing"
 
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestStop(t *testing.T) {
 	startForTest()
 	err := Stop()
-	assert.Nil(t, err)
+	require.Nil(t, err)
 }

@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/service"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestSaveReturningHash(t *testing.T) {
@@ -14,8 +14,8 @@ func TestSaveReturningHash(t *testing.T) {
 	calculatedHash := service.Hash()
 	hash, err := Save(service)
 	defer Delete(hash)
-	assert.Nil(t, err)
-	assert.Equal(t, hash, calculatedHash)
+	require.Nil(t, err)
+	require.Equal(t, hash, calculatedHash)
 }
 
 func TestSaveAndPresentInDB(t *testing.T) {
@@ -24,5 +24,5 @@ func TestSaveAndPresentInDB(t *testing.T) {
 	})
 	defer Delete(hash)
 	service, _ := Get(hash)
-	assert.Equal(t, service.Name, "TestSaveAndPresentInDB")
+	require.Equal(t, service.Name, "TestSaveAndPresentInDB")
 }

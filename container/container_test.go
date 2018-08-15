@@ -8,14 +8,14 @@ import (
 	"github.com/docker/docker/api/types/swarm"
 
 	"github.com/mesg-foundation/core/container/dockertest"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNew(t *testing.T) {
 	dt := dockertest.New()
 	c, err := New(ClientOption(dt.Client()))
-	assert.Nil(t, err)
-	assert.NotNil(t, c)
+	require.Nil(t, err)
+	require.NotNil(t, c)
 
 	select {
 	case <-dt.LastNegotiateAPIVersion():
@@ -29,11 +29,11 @@ func TestNew(t *testing.T) {
 		t.Error("should fetch info")
 	}
 
-	assert.Equal(t, "0.0.0.0:2377", (<-dt.LastSwarmInit()).Request.ListenAddr)
+	require.Equal(t, "0.0.0.0:2377", (<-dt.LastSwarmInit()).Request.ListenAddr)
 
 	ln := <-dt.LastNetworkCreate()
-	assert.Equal(t, "mesg-shared", ln.Name)
-	assert.Equal(t, types.NetworkCreate{
+	require.Equal(t, "mesg-shared", ln.Name)
+	require.Equal(t, types.NetworkCreate{
 		CheckDuplicate: true,
 		Driver:         "overlay",
 		Labels: map[string]string{
@@ -47,8 +47,8 @@ func TestNewWithExistingNode(t *testing.T) {
 	dt.ProvideInfo(types.Info{Swarm: swarm.Info{NodeID: "1"}}, nil)
 
 	c, err := New(ClientOption(dt.Client()))
-	assert.Nil(t, err)
-	assert.NotNil(t, c)
+	require.Nil(t, err)
+	require.NotNil(t, c)
 
 	select {
 	case <-dt.LastSwarmInit():
@@ -66,9 +66,9 @@ func TestFindContainerNonExistent(t *testing.T) {
 	dt.ProvideContainerList(nil, dockertest.NotFoundErr{})
 
 	_, err := c.FindContainer(namespace)
-	assert.Equal(t, dockertest.NotFoundErr{}, err)
+	require.Equal(t, dockertest.NotFoundErr{}, err)
 
-	assert.Equal(t, types.ContainerListOptions{
+	require.Equal(t, types.ContainerListOptions{
 		Filters: filters.NewArgs(filters.KeyValuePair{
 			Key:   "label",
 			Value: "com.docker.stack.namespace=" + Namespace(namespace),
@@ -96,10 +96,10 @@ func TestFindContainer(t *testing.T) {
 	dt.ProvideContainerInspect(containerJSONData, nil)
 
 	container, err := c.FindContainer(namespace)
-	assert.Nil(t, err)
-	assert.Equal(t, containerJSONData.ID, container.ID)
+	require.Nil(t, err)
+	require.Equal(t, containerJSONData.ID, container.ID)
 
-	assert.Equal(t, types.ContainerListOptions{
+	require.Equal(t, types.ContainerListOptions{
 		Filters: filters.NewArgs(filters.KeyValuePair{
 			Key:   "label",
 			Value: "com.docker.stack.namespace=" + Namespace(namespace),
@@ -107,7 +107,7 @@ func TestFindContainer(t *testing.T) {
 		Limit: 1,
 	}, (<-dt.LastContainerList()).Options)
 
-	assert.Equal(t, containerID, (<-dt.LastContainerInspect()).Container)
+	require.Equal(t, containerID, (<-dt.LastContainerInspect()).Container)
 }
 
 func TestNonExistentContainerStatus(t *testing.T) {
@@ -119,10 +119,10 @@ func TestNonExistentContainerStatus(t *testing.T) {
 	dt.ProvideContainerList(nil, dockertest.NotFoundErr{})
 
 	status, err := c.Status(namespace)
-	assert.Nil(t, err)
-	assert.Equal(t, STOPPED, status)
+	require.Nil(t, err)
+	require.Equal(t, STOPPED, status)
 
-	assert.Equal(t, types.ContainerListOptions{
+	require.Equal(t, types.ContainerListOptions{
 		Filters: filters.NewArgs(filters.KeyValuePair{
 			Key:   "label",
 			Value: "com.docker.stack.namespace=" + Namespace(namespace),
@@ -151,8 +151,8 @@ func TestExistentContainerStatus(t *testing.T) {
 	dt.ProvideContainerInspect(containerJSONData, nil)
 
 	status, err := c.Status(namespace)
-	assert.Nil(t, err)
-	assert.Equal(t, STOPPED, status)
+	require.Nil(t, err)
+	require.Equal(t, STOPPED, status)
 }
 
 func TestExistentContainerRunningStatus(t *testing.T) {
@@ -175,6 +175,6 @@ func TestExistentContainerRunningStatus(t *testing.T) {
 	dt.ProvideContainerInspect(containerJSONData, nil)
 
 	status, err := c.Status(namespace)
-	assert.Nil(t, err)
-	assert.Equal(t, RUNNING, status)
+	require.Nil(t, err)
+	require.Equal(t, RUNNING, status)
 }
