@@ -36,14 +36,14 @@ func TestSubscribe(t *testing.T) {
 	key := "TestSubscribe"
 	res := Subscribe(key)
 	require.NotNil(t, res)
-	require.Equal(t, len(listeners[key]), 1)
+	require.Len(t, listeners[key], 1)
 }
 
 func TestSubscribeMultipleTimes(t *testing.T) {
 	key := "TestSubscribeMultipleTimes"
 	Subscribe(key)
 	Subscribe(key)
-	require.Equal(t, len(listeners[key]), 2)
+	require.Len(t, listeners[key], 2)
 }
 
 func TestUnsubscribe(t *testing.T) {
@@ -51,9 +51,7 @@ func TestUnsubscribe(t *testing.T) {
 	channel := Subscribe(key)
 	channel1 := Subscribe(key)
 	Unsubscribe(key, channel)
-	assert.Equal(t, len(listeners[key]), 1)
-	assert.NotNil(t, listeners[key])
+	require.Len(t, listeners[key], 1)
 	Unsubscribe(key, channel1)
-	assert.Equal(t, len(listeners[key]), 0)
-	assert.Nil(t, listeners[key])
+	require.Nil(t, listeners[key])
 }
