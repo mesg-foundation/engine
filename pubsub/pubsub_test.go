@@ -3,7 +3,7 @@ package pubsub
 import (
 	"testing"
 
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 type messageStructTest struct {
@@ -17,7 +17,7 @@ func TestPublish(t *testing.T) {
 	res := Subscribe(key)
 	go Publish(key, data)
 	x := <-res
-	assert.Equal(t, x, data)
+	require.Equal(t, x, data)
 }
 
 func TestPublishMultipleListeners(t *testing.T) {
@@ -28,22 +28,22 @@ func TestPublishMultipleListeners(t *testing.T) {
 	go Publish(key, data)
 	x := <-res1
 	y := <-res2
-	assert.Equal(t, x, data)
-	assert.Equal(t, y, data)
+	require.Equal(t, x, data)
+	require.Equal(t, y, data)
 }
 
 func TestSubscribe(t *testing.T) {
 	key := "TestSubscribe"
 	res := Subscribe(key)
-	assert.NotNil(t, res)
-	assert.Equal(t, len(listeners[key]), 1)
+	require.NotNil(t, res)
+	require.Len(t, listeners[key], 1)
 }
 
 func TestSubscribeMultipleTimes(t *testing.T) {
 	key := "TestSubscribeMultipleTimes"
 	Subscribe(key)
 	Subscribe(key)
-	assert.Equal(t, len(listeners[key]), 2)
+	require.Len(t, listeners[key], 2)
 }
 
 func TestUnsubscribe(t *testing.T) {
@@ -51,9 +51,7 @@ func TestUnsubscribe(t *testing.T) {
 	channel := Subscribe(key)
 	channel1 := Subscribe(key)
 	Unsubscribe(key, channel)
-	assert.Equal(t, len(listeners[key]), 1)
-	assert.NotNil(t, listeners[key])
+	require.Len(t, listeners[key], 1)
 	Unsubscribe(key, channel1)
-	assert.Equal(t, len(listeners[key]), 0)
-	assert.Nil(t, listeners[key])
+	require.Nil(t, listeners[key])
 }

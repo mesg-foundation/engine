@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/mesg-foundation/core/container"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestStopRunningService(t *testing.T) {
@@ -19,9 +19,9 @@ func TestStopRunningService(t *testing.T) {
 	}
 	service.Start()
 	err := service.Stop()
-	assert.Nil(t, err)
+	require.Nil(t, err)
 	status, _ := service.Status()
-	assert.Equal(t, STOPPED, status)
+	require.Equal(t, STOPPED, status)
 }
 
 func TestStopNonRunningService(t *testing.T) {
@@ -34,9 +34,9 @@ func TestStopNonRunningService(t *testing.T) {
 		},
 	}
 	err := service.Stop()
-	assert.Nil(t, err)
+	require.Nil(t, err)
 	status, _ := service.Status()
-	assert.Equal(t, STOPPED, status)
+	require.Equal(t, STOPPED, status)
 }
 
 func TestStopDependency(t *testing.T) {
@@ -53,9 +53,9 @@ func TestStopDependency(t *testing.T) {
 	dep := service.DependenciesFromService()[0]
 	dep.Start(networkID)
 	err = dep.Stop()
-	assert.Nil(t, err)
+	require.Nil(t, err)
 	status, _ := dep.Status()
-	assert.Equal(t, container.STOPPED, status)
+	require.Equal(t, container.STOPPED, status)
 }
 
 func TestNetworkDeleted(t *testing.T) {
@@ -71,5 +71,5 @@ func TestNetworkDeleted(t *testing.T) {
 	service.Stop()
 	time.Sleep(5 * time.Second)
 	_, err := defaultContainer.FindNetwork(service.namespace())
-	assert.NotNil(t, err)
+	require.NotNil(t, err)
 }

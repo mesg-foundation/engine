@@ -5,33 +5,33 @@ package container
 import (
 	"testing"
 
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestIntegrationWaitForStatusRunning(t *testing.T) {
 	c, err := New()
-	assert.Nil(t, err)
+	require.Nil(t, err)
 	namespace := []string{"TestWaitForStatusRunning"}
 	startTestService(namespace)
 	defer c.StopService(namespace)
 	err = c.waitForStatus(namespace, RUNNING)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 }
 
 func TestIntegrationWaitForStatusStopped(t *testing.T) {
 	c, err := New()
-	assert.Nil(t, err)
+	require.Nil(t, err)
 	namespace := []string{"TestWaitForStatusStopped"}
 	startTestService(namespace)
 	c.waitForStatus(namespace, RUNNING)
 	c.StopService(namespace)
 	err = c.waitForStatus(namespace, STOPPED)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 }
 
 func TestIntegrationWaitForStatusTaskError(t *testing.T) {
 	c, err := New()
-	assert.Nil(t, err)
+	require.Nil(t, err)
 	namespace := []string{"TestWaitForStatusTaskError"}
 	c.StartService(ServiceOptions{
 		Image:     "awgdaywudaywudwa",
@@ -39,6 +39,6 @@ func TestIntegrationWaitForStatusTaskError(t *testing.T) {
 	})
 	defer c.StopService(namespace)
 	err = c.waitForStatus(namespace, RUNNING)
-	assert.NotNil(t, err)
-	assert.Equal(t, "No such image: awgdaywudaywudwa:latest", err.Error())
+	require.NotNil(t, err)
+	require.Equal(t, "No such image: awgdaywudaywudwa:latest", err.Error())
 }

@@ -5,7 +5,7 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/mesg-foundation/core/container/dockertest"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestSharedNetwork(t *testing.T) {
@@ -21,12 +21,12 @@ func TestSharedNetwork(t *testing.T) {
 	dt.ProvideNetworkInspect(types.NetworkResource{ID: id}, nil)
 
 	network, err := c.sharedNetwork()
-	assert.Nil(t, err)
-	assert.Equal(t, id, network.ID)
+	require.Nil(t, err)
+	require.Equal(t, id, network.ID)
 
 	li := <-dt.LastNetworkInspect()
-	assert.Equal(t, Namespace(sharedNetworkNamespace), li.Network)
-	assert.Equal(t, types.NetworkInspectOptions{}, li.Options)
+	require.Equal(t, Namespace(sharedNetworkNamespace), li.Network)
+	require.Equal(t, types.NetworkInspectOptions{}, li.Options)
 }
 
 func TestCreateSharedNetworkIfNeeded(t *testing.T) {
@@ -39,11 +39,11 @@ func TestCreateSharedNetworkIfNeeded(t *testing.T) {
 
 	dt.ProvideNetworkInspect(types.NetworkResource{}, nil)
 
-	assert.Nil(t, c.createSharedNetworkIfNeeded())
+	require.Nil(t, c.createSharedNetworkIfNeeded())
 
 	lc := <-dt.LastNetworkCreate()
-	assert.Equal(t, Namespace(sharedNetworkNamespace), lc.Name)
-	assert.Equal(t, types.NetworkCreate{
+	require.Equal(t, Namespace(sharedNetworkNamespace), lc.Name)
+	require.Equal(t, types.NetworkCreate{
 		CheckDuplicate: true,
 		Driver:         "overlay",
 		Labels: map[string]string{
@@ -64,7 +64,7 @@ func TestCreateSharedNetworkIfNeededExists(t *testing.T) {
 
 	dt.ProvideNetworkInspect(types.NetworkResource{ID: id}, nil)
 
-	assert.Nil(t, c.createSharedNetworkIfNeeded())
+	require.Nil(t, c.createSharedNetworkIfNeeded())
 
 	select {
 	case <-dt.LastNetworkCreate():
@@ -85,10 +85,10 @@ func TestSharedNetworkID(t *testing.T) {
 	dt.ProvideNetworkInspect(types.NetworkResource{ID: id}, nil)
 
 	network, err := c.SharedNetworkID()
-	assert.Nil(t, err)
-	assert.Equal(t, network, id)
+	require.Nil(t, err)
+	require.Equal(t, network, id)
 
 	li := <-dt.LastNetworkInspect()
-	assert.Equal(t, Namespace(sharedNetworkNamespace), li.Network)
-	assert.Equal(t, types.NetworkInspectOptions{}, li.Options)
+	require.Equal(t, Namespace(sharedNetworkNamespace), li.Network)
+	require.Equal(t, types.NetworkInspectOptions{}, li.Options)
 }

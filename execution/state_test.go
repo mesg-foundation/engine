@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/service"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestMoveFromPendingToInProgress(t *testing.T) {
@@ -17,16 +17,16 @@ func TestMoveFromPendingToInProgress(t *testing.T) {
 	var inputs map[string]interface{}
 	exec, _ := Create(&s, "test", inputs)
 	err := exec.moveFromPendingToInProgress()
-	assert.Equal(t, inProgressExecutions[exec.ID], exec)
-	assert.Nil(t, pendingExecutions[exec.ID])
-	assert.Nil(t, err)
+	require.Equal(t, inProgressExecutions[exec.ID], exec)
+	require.Nil(t, pendingExecutions[exec.ID])
+	require.Nil(t, err)
 }
 
 func TestMoveFromPendingToInProgressNonExistingTask(t *testing.T) {
 	exec := Execution{ID: "test"}
 	err := exec.moveFromPendingToInProgress()
-	assert.NotNil(t, err)
-	assert.Nil(t, pendingExecutions[exec.ID])
+	require.NotNil(t, err)
+	require.Nil(t, pendingExecutions[exec.ID])
 }
 
 func TestMoveFromInProgressToCompleted(t *testing.T) {
@@ -40,9 +40,9 @@ func TestMoveFromInProgressToCompleted(t *testing.T) {
 	exec, _ := Create(&s, "test", inputs)
 	exec.moveFromPendingToInProgress()
 	err := exec.moveFromInProgressToProcessed()
-	assert.Equal(t, processedExecutions[exec.ID], exec)
-	assert.Nil(t, inProgressExecutions[exec.ID])
-	assert.Nil(t, err)
+	require.Equal(t, processedExecutions[exec.ID], exec)
+	require.Nil(t, inProgressExecutions[exec.ID])
+	require.Nil(t, err)
 }
 
 func TestMoveFromInProgressToCompletedNonExistingTask(t *testing.T) {
@@ -55,13 +55,13 @@ func TestMoveFromInProgressToCompletedNonExistingTask(t *testing.T) {
 	var inputs map[string]interface{}
 	exec, _ := Create(&s, "test", inputs)
 	err := exec.moveFromInProgressToProcessed()
-	assert.NotNil(t, err)
-	assert.Nil(t, inProgressExecutions[exec.ID])
+	require.NotNil(t, err)
+	require.Nil(t, inProgressExecutions[exec.ID])
 }
 
 func TestInProgress(t *testing.T) {
 	inProgressExecutions["foo"] = &Execution{ID: "TestInProgress"}
-	assert.NotNil(t, InProgress("foo"))
-	assert.Equal(t, "TestInProgress", InProgress("foo").ID)
-	assert.Nil(t, InProgress("bar"))
+	require.NotNil(t, InProgress("foo"))
+	require.Equal(t, "TestInProgress", InProgress("foo").ID)
+	require.Nil(t, InProgress("bar"))
 }

@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/service"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestDelete(t *testing.T) {
@@ -12,5 +12,5 @@ func TestDelete(t *testing.T) {
 		Name: "TestDelete",
 	})
 	err := Delete(hash)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 }
