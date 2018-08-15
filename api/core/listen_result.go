@@ -35,11 +35,11 @@ func (s *Server) ListenResult(request *ListenResultRequest, stream Core_ListenRe
 			if isSubscribedToTags(request, execution) && isSubscribedToTask(request, execution) && isSubscribedToOutput(request, execution) {
 				outputs, _ := json.Marshal(execution.OutputData)
 				if err := stream.Send(&ResultData{
-					ExecutionID: execution.ID,
-					TaskKey:     execution.Task,
-					OutputKey:   execution.Output,
-					OutputData:  string(outputs),
-					Tags:        execution.Tags,
+					ExecutionID:   execution.ID,
+					TaskKey:       execution.Task,
+					OutputKey:     execution.Output,
+					OutputData:    string(outputs),
+					ExecutionTags: execution.Tags,
 				}); err != nil {
 					return err
 				}

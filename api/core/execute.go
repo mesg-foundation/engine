@@ -22,7 +22,7 @@ func (s *Server) ExecuteTask(ctx context.Context, request *ExecuteTaskRequest) (
 	if err := checkServiceStatus(&srv); err != nil {
 		return nil, err
 	}
-	executionID, err := execute(&srv, request.TaskKey, inputs, request.Tags)
+	executionID, err := execute(&srv, request.TaskKey, inputs, request.ExecutionTags)
 	return &ExecuteTaskReply{
 		ExecutionID: executionID,
 	}, err

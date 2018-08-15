@@ -82,10 +82,10 @@ func executeHandler(cmd *cobra.Command, args []string) {
 
 func executeTask(serviceID string, task string, data string, tags []string) (execution *core.ExecuteTaskReply, err error) {
 	return cli().ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
-		ServiceID: serviceID,
-		TaskKey:   task,
-		InputData: data,
-		Tags:      tags,
+		ServiceID:     serviceID,
+		TaskKey:       task,
+		InputData:     data,
+		ExecutionTags: tags,
 	})
 }
 
