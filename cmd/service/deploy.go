@@ -54,29 +54,8 @@ func deployService(path string) (serviceID string, err error) {
 			return "", err
 		}
 	} else {
-		archive, err := archive.TarWithOptions(path, &archive.TarOptions{
-			Compression: archive.Gzip,
-		})
-		if err != nil {
+		if err := deployServiceSendServiceContext(path, stream); err != nil {
 			return "", err
-		}
-
-		buf := make([]byte, 1024)
-		for {
-			n, err := archive.Read(buf)
-			if err == io.EOF {
-				break
-			}
-			if err != nil {
-				return "", err
-			}
-
-			if err := stream.Send(&core.DeployServiceRequest{
-				Value: &core.DeployServiceRequest_Chunk{Chunk: buf[:n]},
-			}); err != nil {
-				return "", err
-			}
-
 		}
 	}
 
@@ -86,6 +65,34 @@ func deployService(path string) (serviceID string, err error) {
 
 	result := <-deployment
 	return result.serviceID, result.err
+}
+
+func deployServiceSendServiceContext(path string, stream core.Core_DeployServiceClient) error {
+	archive, err := archive.TarWithOptions(path, &archive.TarOptions{
+		Compression: archive.Gzip,
+	})
+	if err != nil {
+		return err
+	}
+
+	buf := make([]byte, 1024)
+	for {
+		n, err := archive.Read(buf)
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return err
+		}
+
+		if err := stream.Send(&core.DeployServiceRequest{
+			Value: &core.DeployServiceRequest_Chunk{Chunk: buf[:n]},
+		}); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 type deploymentResult struct {

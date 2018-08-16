@@ -26,7 +26,8 @@ func New(options ...Option) (*MESG, error) {
 	return m, nil
 }
 
-func DockerClientOption(container *container.Container) Option {
+// ContainerOption configures underlying container access API.
+func ContainerOption(container *container.Container) Option {
 	return func(m *MESG) {
 		m.container = container
 	}

@@ -14,7 +14,7 @@ func newMESGAndDockerTest(t *testing.T) (*MESG, *dockertest.Testing) {
 	container, err := container.New(container.ClientOption(dt.Client()))
 	require.Nil(t, err)
 
-	m, err := New(DockerClientOption(container))
+	m, err := New(ContainerOption(container))
 	require.Nil(t, err)
 
 	return m, dt

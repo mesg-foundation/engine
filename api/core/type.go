@@ -26,6 +26,7 @@ func NewServer(options ...Option) (*Server, error) {
 	return s, nil
 }
 
+// MESGOption configures underlying mesg access API.
 func MESGOption(mesg *mesg.MESG) Option {
 	return func(s *Server) {
 		s.mesg = mesg

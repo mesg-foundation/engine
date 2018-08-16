@@ -13,7 +13,7 @@ func newServer(t *testing.T) *Server {
 	container, err := container.New()
 	require.Nil(t, err)
 
-	m, err := mesg.New(mesg.DockerClientOption(container))
+	m, err := mesg.New(mesg.ContainerOption(container))
 	require.Nil(t, err)
 
 	server, err := NewServer(MESGOption(m))
@@ -28,7 +28,7 @@ func newServerAndDockerTest(t *testing.T) (*Server, *dockertest.Testing) {
 	container, err := container.New(container.ClientOption(dt.Client()))
 	require.Nil(t, err)
 
-	m, err := mesg.New(mesg.DockerClientOption(container))
+	m, err := mesg.New(mesg.ContainerOption(container))
 	require.Nil(t, err)
 
 	server, err := NewServer(MESGOption(m))
