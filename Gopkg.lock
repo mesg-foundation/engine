@@ -19,14 +19,6 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:3c2529252615b209e6cf92c89a77505016f192372d279d28f49513fe7b69367c"
-  name = "github.com/briandowns/spinner"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "5b875a9171af19dbde37e70a8fcbe2ebd7285e05"
-
-[[projects]]
-  branch = "master"
   digest = "1:0ec96fca24e0ab3ffd02c0ef10b81ed8bf7452f24a83e356327a35610368b170"
   name = "github.com/cnf/structhash"
   packages = ["."]
@@ -277,6 +269,14 @@
   version = "v0.0.3"
 
 [[projects]]
+  digest = "1:3c2529252615b209e6cf92c89a77505016f192372d279d28f49513fe7b69367c"
+  name = "github.com/mesg-foundation/spinner"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "5b875a9171af19dbde37e70a8fcbe2ebd7285e05"
+  version = "1.1"
+
+[[projects]]
   branch = "master"
   digest = "1:2b32af4d2a529083275afc192d1067d8126b578c7a9613b26600e4df9c735155"
   name = "github.com/mgutz/ansi"
@@ -369,6 +369,14 @@
   pruneopts = "UT"
   revision = "55d61fa8aa702f59229e6cff85793c22e580eaf5"
   version = "v1.5.1"
+
+[[projects]]
+  digest = "1:274f67cb6fed9588ea2521ecdac05a6d62a8c51c074c1fccc6a49a40ba80e925"
+  name = "github.com/satori/go.uuid"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
+  version = "v1.2.0"
 
 [[projects]]
   branch = "master"
@@ -747,7 +755,6 @@
   analyzer-version = 1
   input-imports = [
     "github.com/asaskevich/govalidator",
-    "github.com/briandowns/spinner",
     "github.com/cnf/structhash",
     "github.com/docker/docker/api/types",
     "github.com/docker/docker/api/types/filters",
@@ -758,7 +765,9 @@
     "github.com/docker/docker/pkg/stdcopy",
     "github.com/golang/protobuf/proto",
     "github.com/logrusorgru/aurora",
+    "github.com/mesg-foundation/spinner",
     "github.com/mitchellh/go-homedir",
+    "github.com/satori/go.uuid",
     "github.com/spf13/cobra",
     "github.com/spf13/cobra/doc",
     "github.com/spf13/pflag",
