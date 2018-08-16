@@ -269,12 +269,12 @@
   version = "v0.0.3"
 
 [[projects]]
-  digest = "1:3c2529252615b209e6cf92c89a77505016f192372d279d28f49513fe7b69367c"
+  digest = "1:62418b2f2c48eba31082f234f85d7549063df126a6375d259eb7ce2dc2c31cc1"
   name = "github.com/mesg-foundation/spinner"
   packages = ["."]
   pruneopts = "UT"
-  revision = "5b875a9171af19dbde37e70a8fcbe2ebd7285e05"
-  version = "1.1"
+  revision = "2dfb4780f8e2e251e89826f5d21981d5f8671d45"
+  version = "1.2"
 
 [[projects]]
   branch = "master"

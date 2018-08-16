@@ -14,6 +14,7 @@
 package spinner
 
 import (
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
@@ -21,7 +22,6 @@ import (
 	"sync"
 	"time"
 	"unicode/utf8"
-	"encoding/hex"
 
 	"github.com/fatih/color"
 )
@@ -304,6 +304,7 @@ func (s *Spinner) erase() {
 			fmt.Fprintf(s.Writer, c)
 		}
 	}
+	fmt.Fprintf(s.Writer, "\033[K") // for OS X Terminal
 	s.lastOutput = ""
 }
 
