@@ -8,6 +8,7 @@ import (
 
 	"github.com/mesg-foundation/core/api/core"
 	"github.com/mesg-foundation/core/api/service"
+	"github.com/mesg-foundation/core/mesg"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -54,8 +55,18 @@ func (s *Server) Stop() {
 
 // register all server
 func (s *Server) register() {
+	m, err := mesg.New()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	coreServer, err := core.NewServer(core.MESGOption(m))
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	service.RegisterServiceServer(s.instance, &service.Server{})
-	core.RegisterCoreServer(s.instance, &core.Server{})
+	core.RegisterCoreServer(s.instance, coreServer)
 
 	reflection.Register(s.instance)
 }

@@ -690,7 +690,10 @@ The request's data for `DeployService` API.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| service | [service.Service](#service.Service) | The service's definition to deploy. [Details here](./service-type.md). |
+| url | [string](#string) | Git repo url of service. If url provided, stream will be closed after 
+first receive. |
+| chunk | [bytes](#bytes) | Chunks of gzipped tar archive of service. If chunk provided, stream will 
+be closed after all chunks sent. |
 
 
 
@@ -747,7 +750,9 @@ The reply's data of `DeployService` API.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| serviceID | [string](#string) | The generated identifier of the deployed service. Use this ID with other APIs. |
+| status | [string](#string) | status will be sent after each status change. |
+| serviceID | [string](#string) | serviceID will be sent as the last message of stream. |
+| validationError | [string](#string) |  |
 
 
 

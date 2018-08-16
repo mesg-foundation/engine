@@ -31,7 +31,7 @@ service Core {
   rpc StopService (StopServiceRequest) returns (StopServiceReply) {}
   
   // Deploy a service to [Core](../guide/start-here/core.md). This will give you an unique identifier which is used to interact with the service.
-  rpc DeployService (DeployServiceRequest) returns (DeployServiceReply) {}
+  rpc DeployService (stream DeployServiceRequest) returns (stream DeployServiceReply) {}
   
   // Delete a service from Core. This function only deletes a deployed service in [Core](../guide/start-here/core.md). If the service's code is on your computer, the source code will not be deleted.
   rpc DeleteService (DeleteServiceRequest) returns (DeleteServiceReply) {}
@@ -199,7 +199,15 @@ message StopServiceReply {
 // }
 // ```
 message DeployServiceRequest {
-  service.Service service = 1; // The service's definition to deploy. [Details here](./service-type.md).
+  oneof value {
+    // Git repo url of service. If url provided, stream will be closed after 
+    // first receive.
+    string url = 1;
+    
+    // Chunks of gzipped tar archive of service. If chunk provided, stream will 
+    // be closed after all chunks sent.
+    bytes chunk = 2; 
+  }
 }
 
 // The reply's data of `DeployService` API.
@@ -211,7 +219,18 @@ message DeployServiceRequest {
 // }
 // ```
 message DeployServiceReply {
-  string serviceID = 1; // The generated identifier of the deployed service. Use this ID with other APIs.
+  oneof value {
+    // status will be sent after each status change.
+    string status = 1;
+
+    // serviceID will be sent as the last message of stream when
+    // service deployed successfully.
+    string serviceID = 2;
+
+    // validationError will be sent as the last message of stream when
+    // there is a validation error.
+    string validationError = 3;
+  }
 }
 
 // Request's data of the `DeleteService` API.

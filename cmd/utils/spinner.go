@@ -3,7 +3,15 @@ package utils
 import (
 	"time"
 
-	spinnerPkg "github.com/briandowns/spinner"
+	spinnerPkg "github.com/mesg-foundation/spinner"
+)
+
+var (
+	// SpinnerCharset is the default animation.
+	SpinnerCharset = spinnerPkg.CharSets[11]
+
+	// SpinnerDuration is the default duration for spinning.
+	SpinnerDuration = 100 * time.Millisecond
 )
 
 // SpinnerOptions contains all details for the spinner
@@ -14,7 +22,7 @@ type SpinnerOptions struct {
 
 // StartSpinner creates new spinner for terminal.
 func StartSpinner(opts SpinnerOptions) (spinner *spinnerPkg.Spinner) {
-	spinner = spinnerPkg.New(spinnerPkg.CharSets[11], 100*time.Millisecond)
+	spinner = spinnerPkg.New(SpinnerCharset, SpinnerDuration)
 	spinner.Start()
 	if opts.Color != "" {
 		spinner.Color(opts.Color)

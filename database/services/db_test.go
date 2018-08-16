@@ -22,12 +22,12 @@ func TestConcurrency(t *testing.T) {
 	service := &service.Service{
 		Name: "TestConcurrency",
 	}
-	hash, _ := Save(service)
-	defer Delete(hash)
+	Save(service)
+	defer Delete(service.Id)
 	for i := 0; i < 5; i++ {
 		wg.Add(1)
 		go func() {
-			s, err := Get(hash)
+			s, err := Get(service.Id)
 			require.Nil(t, err)
 			require.Equal(t, s.Name, service.Name)
 			wg.Done()

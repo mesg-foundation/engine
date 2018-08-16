@@ -49,19 +49,17 @@ func devHandler(cmd *cobra.Command, args []string) {
 }
 
 func createService(path string) (string, error) {
-	service := prepareService(path)
-	deployment, err := cli().DeployService(context.Background(), &core.DeployServiceRequest{
-		Service: service,
-	})
+	serviceID, err := deployService(path)
 	if err != nil {
 		return "", err
 	}
+
 	utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: "Starting service..."}, func() {
 		_, err = cli().StartService(context.Background(), &core.StartServiceRequest{
-			ServiceID: deployment.ServiceID,
+			ServiceID: serviceID,
 		})
 	})
-	return deployment.ServiceID, err
+	return serviceID, err
 }
 
 func listenEvents(serviceID string, filter string) {

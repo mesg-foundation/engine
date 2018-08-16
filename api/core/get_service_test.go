@@ -12,12 +12,13 @@ import (
 var servergetservice = new(Server)
 
 func TestGetService(t *testing.T) {
-	hash, _ := services.Save(&service.Service{
+	service := &service.Service{
 		Name: "TestGetService",
-	})
-	defer services.Delete(hash)
+	}
+	services.Save(service)
+	defer services.Delete(service.Id)
 	reply, err := servergetservice.GetService(context.Background(), &GetServiceRequest{
-		ServiceID: hash,
+		ServiceID: service.Id,
 	})
 	require.Nil(t, err)
 	require.NotNil(t, reply)

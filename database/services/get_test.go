@@ -8,13 +8,14 @@ import (
 )
 
 func TestGet(t *testing.T) {
-	hash, _ := Save(&service.Service{
+	service := &service.Service{
 		Name: "TestGet",
-	})
-	defer Delete(hash)
-	service, err := Get(hash)
+	}
+	Save(service)
+	defer Delete(service.Id)
+	srv, err := Get(service.Id)
 	require.Nil(t, err)
-	require.Equal(t, service.Name, "TestGet")
+	require.Equal(t, srv.Name, "TestGet")
 }
 
 func TestGetMissing(t *testing.T) {

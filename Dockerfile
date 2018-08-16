@@ -8,6 +8,7 @@ RUN go build -o mesg-core \
       core/main.go
 
 FROM ubuntu:18.04
+RUN apt-get update && apt-get install -y ca-certificates
 WORKDIR /app
 COPY --from=build /go/src/github.com/mesg-foundation/core/mesg-core .
 CMD ["./mesg-core"]

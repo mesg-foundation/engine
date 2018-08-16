@@ -4,13 +4,14 @@ package service;
 
 // This is the definition of a MESG Service.
 message Service {
-  string name = 1;                          // The service's name.
-  string description = 2;                   // The service's description.
+  string id = 10;                           // Service's unique id hash.
+  string name = 1;                          // Service's name.
+  string description = 2;                   // Service's description.
   map<string, Task> tasks = 5;              // The list of tasks this service can execute.
   map<string, Event> events = 6;            // The list of events this service can emit.
   map<string, Dependency> dependencies = 7; // The Docker dependencies this service requires.
-  Dependency configuration = 8;             // The service's Docker configuration.
-  string repository = 9;                    // The service's repository that contain its source code.
+  Dependency configuration = 8;             // Service's Docker configuration.
+  string repository = 9;                    // Service's repository that contain its source code.
 }
 
 // Events are emitted by the service whenever the service wants.

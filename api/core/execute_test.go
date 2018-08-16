@@ -13,73 +13,68 @@ import (
 var serverexecute = new(Server)
 
 func TestExecute(t *testing.T) {
-	srv := service.Service{
-		Name: "TestExecute",
-		Tasks: map[string]*service.Task{
-			"test": &service.Task{},
-		},
-		Dependencies: map[string]*service.Dependency{
-			"test": {
-				Image: "nginx",
-			},
-		},
-	}
-	deployment, _ := serverexecute.DeployService(context.Background(), &DeployServiceRequest{
-		Service: &srv,
+	url := "https://github.com/mesg-foundation/service-webhook"
+	taskKey := "call"
+	data := `{"url": "https://mesg.tech", "data": {}, "headers": {}}`
+
+	server := newServer(t)
+	stream := newTestDeployStream(url)
+
+	server.DeployService(stream)
+	defer services.Delete(stream.serviceID)
+
+	serverexecute.StartService(context.Background(), &StartServiceRequest{
+		ServiceID: stream.serviceID,
 	})
-	defer services.Delete(deployment.ServiceID)
-	srv.Start()
-	defer srv.Stop()
+	defer serverexecute.StopService(context.Background(), &StopServiceRequest{
+		ServiceID: stream.serviceID,
+	})
+
 	reply, err := serverexecute.ExecuteTask(context.Background(), &ExecuteTaskRequest{
-		ServiceID: deployment.ServiceID,
-		TaskKey:   "test",
-		InputData: "{}",
+		ServiceID: stream.serviceID,
+		TaskKey:   taskKey,
+		InputData: data,
 	})
 
 	require.Nil(t, err)
-	require.NotNil(t, reply)
+	require.NotEqual(t, "", reply.ExecutionID)
 }
 
 func TestExecuteWithInvalidJSON(t *testing.T) {
-	deployment, _ := serverexecute.DeployService(context.Background(), &DeployServiceRequest{
-		Service: &service.Service{
-			Name: "TestExecuteWithInvalidJSON",
-			Tasks: map[string]*service.Task{
-				"test": {},
-			},
-		},
-	})
+	url := "https://github.com/mesg-foundation/service-webhook"
+
+	server := newServer(t)
+	stream := newTestDeployStream(url)
+	server.DeployService(stream)
+
 	_, err := serverexecute.ExecuteTask(context.Background(), &ExecuteTaskRequest{
-		ServiceID: deployment.ServiceID,
+		ServiceID: stream.serviceID,
 		TaskKey:   "test",
 		InputData: "",
 	})
-
 	require.NotNil(t, err)
 	require.Equal(t, err.Error(), "unexpected end of JSON input")
-	services.Delete(deployment.ServiceID)
+	services.Delete(stream.serviceID)
 }
 
 func TestExecuteWithInvalidTask(t *testing.T) {
-	srv := service.Service{
-		Name: "TestExecuteWithInvalidTask",
-		Tasks: map[string]*service.Task{
-			"test": {},
-		},
-		Dependencies: map[string]*service.Dependency{
-			"test": {
-				Image: "nginx",
-			},
-		},
-	}
-	deployment, _ := serverexecute.DeployService(context.Background(), &DeployServiceRequest{
-		Service: &srv,
+	url := "https://github.com/mesg-foundation/service-webhook"
+
+	server := newServer(t)
+	stream := newTestDeployStream(url)
+
+	server.DeployService(stream)
+	defer services.Delete(stream.serviceID)
+
+	serverexecute.StartService(context.Background(), &StartServiceRequest{
+		ServiceID: stream.serviceID,
 	})
-	defer services.Delete(deployment.ServiceID)
-	srv.Start()
-	defer srv.Stop()
+	defer serverexecute.StopService(context.Background(), &StopServiceRequest{
+		ServiceID: stream.serviceID,
+	})
+
 	_, err := serverexecute.ExecuteTask(context.Background(), &ExecuteTaskRequest{
-		ServiceID: deployment.ServiceID,
+		ServiceID: stream.serviceID,
 		TaskKey:   "error",
 		InputData: "{}",
 	})
@@ -89,18 +84,16 @@ func TestExecuteWithInvalidTask(t *testing.T) {
 }
 
 func TestExecuteWithNonRunningService(t *testing.T) {
-	srv := service.Service{
-		Name: "TestExecuteWithNonRunningService",
-		Tasks: map[string]*service.Task{
-			"test": &service.Task{},
-		},
-	}
-	deployment, _ := serverexecute.DeployService(context.Background(), &DeployServiceRequest{
-		Service: &srv,
-	})
-	defer services.Delete(deployment.ServiceID)
+	url := "https://github.com/mesg-foundation/service-webhook"
+
+	server := newServer(t)
+	stream := newTestDeployStream(url)
+
+	server.DeployService(stream)
+	defer services.Delete(stream.serviceID)
+
 	_, err := serverexecute.ExecuteTask(context.Background(), &ExecuteTaskRequest{
-		ServiceID: deployment.ServiceID,
+		ServiceID: stream.serviceID,
 		TaskKey:   "test",
 		InputData: "{}",
 	})
