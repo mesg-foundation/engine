@@ -21,7 +21,7 @@ var Start = &cobra.Command{
 	DisableAutoGenTag: true,
 }
 
-// logFormatValue reprenets log format flag value.
+// logFormatValue represents log format flag value.
 type logFormatValue string
 
 func (v *logFormatValue) Set(value string) error {
@@ -35,7 +35,7 @@ func (v *logFormatValue) Set(value string) error {
 func (v *logFormatValue) Type() string   { return "string" }
 func (v *logFormatValue) String() string { return string(*v) }
 
-// logLevelValue reprenets log level flag value.
+// logLevelValue represents log level flag value.
 type logLevelValue string
 
 func (v *logLevelValue) Set(value string) error {
