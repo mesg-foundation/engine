@@ -21,6 +21,8 @@ func TestAPIDefault(t *testing.T) {
 		APIServiceSocketPath:   filepath.Join(viper.GetString(MESGPath), "server.sock"),
 		APIServiceTargetPath:   "/mesg/server.sock",
 		APIServiceTargetSocket: "unix://" + viper.GetString(APIServiceTargetPath),
+		LogFormat:              "text",
+		LogLevel:               "info",
 		ServicePathHost:        filepath.Join(viper.GetString(MESGPath), "services"),
 		ServicePathDocker:      filepath.Join("/mesg", "services"),
 	}

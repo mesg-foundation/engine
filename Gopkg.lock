@@ -164,14 +164,16 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:49423818ec67651d03b2fbb29faa55b0428135fae5733604b4a35ddcf45a49a3"
+  digest = "1:bc5428c2f966023755ec3ab5e5d84e060ac6d40dbdb96fac8cbd9b55d9326421"
   name = "github.com/golang/protobuf"
   packages = [
+    "jsonpb",
     "proto",
     "protoc-gen-go/descriptor",
     "ptypes",
     "ptypes/any",
     "ptypes/duration",
+    "ptypes/struct",
     "ptypes/timestamp",
   ]
   pruneopts = "UT"
@@ -184,6 +186,21 @@
   packages = ["."]
   pruneopts = "UT"
   revision = "2e65f85255dbc3072edf28d6b5b8efc472979f5a"
+
+[[projects]]
+  branch = "master"
+  digest = "1:41993447bd7c10bb25f0dc044a1607031bd399178db73cbbc621bbd525e084af"
+  name = "github.com/grpc-ecosystem/go-grpc-middleware"
+  packages = [
+    ".",
+    "logging",
+    "logging/logrus",
+    "logging/logrus/ctxlogrus",
+    "tags",
+    "tags/logrus",
+  ]
+  pruneopts = "UT"
+  revision = "e9c5d9645c437ab1b204cff969a2c0fb16cd4276"
 
 [[projects]]
   branch = "master"
@@ -757,8 +774,11 @@
     "github.com/docker/docker/pkg/archive",
     "github.com/docker/docker/pkg/stdcopy",
     "github.com/golang/protobuf/proto",
+    "github.com/grpc-ecosystem/go-grpc-middleware",
+    "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus",
     "github.com/logrusorgru/aurora",
     "github.com/mitchellh/go-homedir",
+    "github.com/sirupsen/logrus",
     "github.com/spf13/cobra",
     "github.com/spf13/cobra/doc",
     "github.com/spf13/pflag",

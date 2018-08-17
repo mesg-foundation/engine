@@ -1,7 +1,6 @@
 package execution
 
 import (
-	"log"
 	"time"
 
 	"github.com/mesg-foundation/core/pubsub"
@@ -13,8 +12,6 @@ func (execution *Execution) Execute() error {
 		return err
 	}
 	execution.ExecutedAt = time.Now()
-	log.Println("[PROCESSING]", execution.Task)
-
 	channel := execution.Service.TaskSubscriptionChannel()
 
 	go pubsub.Publish(channel, execution)
