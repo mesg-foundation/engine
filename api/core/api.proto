@@ -8,11 +8,11 @@ import "github.com/mesg-foundation/core/service/service.proto";
 // This is the primary API to interact with MESG Core functionalities.
 // It can be consumed by any applications or tools that you'd like to interact with MESG Core.
 // It is actually used by the MESG CLI and MESG Application libraries.
-// 
+//
 // This API is only accessible through [gRPC](https://grpc.io/).
-// 
+//
 // Services must not use this API, but rather use the [Service API](./service.md).
-// 
+//
 // The source file of this API is hosted on [GitHub](https://github.com/mesg-foundation/core/blob/master/api/core/api.proto).
 service Core {
   // Subscribe to a stream that listens for events from a service.
@@ -20,7 +20,7 @@ service Core {
 
   // Subscribe to a stream that listens for task's result from a service.
   rpc ListenResult (ListenResultRequest) returns (stream ResultData) {}
-  
+
   // Execute a service's task through [Core](../guide/start-here/core.md).
   rpc ExecuteTask (ExecuteTaskRequest) returns (ExecuteTaskReply) {}
 
@@ -29,7 +29,7 @@ service Core {
 
   // Stop a service. The service must be already deployed to [Core](../guide/start-here/core.md).
   rpc StopService (StopServiceRequest) returns (StopServiceReply) {}
-  
+
   // Deploy a service to [Core](../guide/start-here/core.md). This will give you an unique identifier which is used to interact with the service.
   rpc DeployService (stream DeployServiceRequest) returns (stream DeployServiceReply) {}
   
@@ -44,7 +44,7 @@ service Core {
 }
 
 // The request's data for the `ListenEvent` stream's API.
-// 
+//
 // **Example**
 // ```json
 // {
@@ -59,7 +59,7 @@ message ListenEventRequest {
 
 // The data received from the stream of the `ListenEvent` API.
 // The data will be received over time as long as the stream is open.
-// 
+//
 // **Example**
 // ```json
 // {
@@ -73,7 +73,7 @@ message EventData {
 }
 
 // The request's data for the `ListenResult` stream API.
-// 
+//
 // **Example**
 // ```json
 // {
@@ -90,7 +90,7 @@ message ListenResultRequest {
 
 // The data received from the stream of the `ListenResult` API.
 // The data will be received over time as long as the stream is open.
-// 
+//
 // **Example**
 // ```json
 // {
@@ -108,7 +108,7 @@ message ResultData {
 }
 
 // The request's data for the `ExecuteTask` API.
-// 
+//
 // **Example**
 // ```json
 // {
@@ -124,7 +124,7 @@ message ExecuteTaskRequest {
 }
 
 // The reply's data of the `ExecuteTask` API.
-// 
+//
 // **Example**
 // ```json
 // {
@@ -136,7 +136,7 @@ message ExecuteTaskReply {
 }
 
 // The request's data for the `StartService` API.
-// 
+//
 // **Example**
 // ```json
 // {
@@ -152,7 +152,7 @@ message StartServiceReply {
 }
 
 // The request's data for the `StopService` API.
-// 
+//
 // **Example**
 // ```json
 // {
@@ -168,7 +168,7 @@ message StopServiceReply {
 }
 
 // The request's data for `DeployService` API.
-// 
+//
 // **Example**
 // ```json
 // {
@@ -211,7 +211,7 @@ message DeployServiceRequest {
 }
 
 // The reply's data of `DeployService` API.
-// 
+//
 // **Example**
 // ```json
 // {
@@ -234,7 +234,7 @@ message DeployServiceReply {
 }
 
 // Request's data of the `DeleteService` API.
-// 
+//
 // **Example**
 // ```json
 // {
@@ -254,7 +254,7 @@ message ListServicesRequest {
 }
 
 // The reply's data of the `ListServices` API.
-// 
+//
 // **Example**
 // ```json
 // [{
@@ -289,7 +289,7 @@ message ListServicesReply {
 }
 
 // The request's data for the `GetService` API.
-// 
+//
 // **Example**
 // ```json
 // {
@@ -301,7 +301,7 @@ message GetServiceRequest {
 }
 
 // The reply's data of the `GetService` API.
-// 
+//
 // **Example**
 // ```json
 // {
