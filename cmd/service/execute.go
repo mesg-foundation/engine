@@ -54,7 +54,7 @@ func executeHandler(cmd *cobra.Command, args []string) {
 	taskData, err := getData(cmd, taskKey, serviceReply.Service, executeData)
 	utils.HandleError(err)
 
-	// Create an unique tag that will be used to listen the result of this exact execution
+	// Create an unique tag that will be used to listen to the result of this exact execution
 	tags := []string{uuid.NewV4().String()}
 	stream, err := cli().ListenResult(context.Background(), &core.ListenResultRequest{
 		ServiceID:  serviceID,
