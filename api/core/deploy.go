@@ -32,11 +32,9 @@ func (s *Server) DeployService(stream Core_DeployServiceServer) error {
 		return err
 	}
 	if validationError != nil {
-		if err := stream.Send(&DeployServiceReply{
+		return stream.Send(&DeployServiceReply{
 			Value: &DeployServiceReply_ValidationError{ValidationError: validationError.Error()},
-		}); err != nil {
-			return err
-		}
+		})
 	}
 
 	return stream.Send(&DeployServiceReply{
