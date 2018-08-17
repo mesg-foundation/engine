@@ -31,6 +31,8 @@ func serviceSpec() (spec container.ServiceOptions, err error) {
 		Image:     viper.GetString(config.CoreImage),
 		Env: container.MapToEnv(map[string]string{
 			config.ToEnv(config.MESGPath):             "/mesg",
+			config.ToEnv(config.LogFormat):            viper.GetString(config.LogFormat),
+			config.ToEnv(config.LogLevel):             viper.GetString(config.LogLevel),
 			config.ToEnv(config.APIServiceSocketPath): filepath.Join(viper.GetString(config.MESGPath), "server.sock"),
 			config.ToEnv(config.ServicePathHost):      filepath.Join(viper.GetString(config.MESGPath), "services"),
 		}),

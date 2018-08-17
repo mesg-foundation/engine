@@ -2,8 +2,10 @@ package config
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -35,6 +37,20 @@ func initConfigFile() {
 	}
 }
 
+func validateConfig() {
+	format := viper.GetString(LogFormat)
+	if format != "text" && format != "json" {
+		fmt.Fprintf(os.Stderr, "config: %s is not valid log format", format)
+		os.Exit(1)
+	}
+
+	level := viper.GetString(LogLevel)
+	if _, err := logrus.ParseLevel(level); err != nil {
+		fmt.Fprintf(os.Stderr, "config: %s is not valid log level", level)
+		os.Exit(1)
+	}
+}
+
 func init() {
 	initConfigFile()
 	initViperEnv()
@@ -45,4 +61,5 @@ func init() {
 	}
 
 	setAPIDefault()
+	validateConfig()
 }

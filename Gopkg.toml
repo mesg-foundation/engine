@@ -24,6 +24,13 @@
 #   go-tests = true
 #   unused-packages = true
 
+[[constraint]]
+  branch = "master"
+  name = "github.com/grpc-ecosystem/go-grpc-middleware"
+
+[[constraint]]
+  version = "1.0.6"
+  name = "github.com/sirupsen/logrus"
 
 [[constraint]]
   branch = "master"
@@ -77,7 +84,7 @@
   branch = "master"
   name = "golang.org/x/net"
 
-[[constraint]]
+[[override]]
   branch = "master"
   name = "google.golang.org/grpc"
 

@@ -15,6 +15,8 @@ const (
 	APIServiceTargetPath   = "Api.Service.TargetPath"
 	APIServiceTargetSocket = "Api.Service.TargetSocket"
 	APIServiceSocketPath   = "Api.Service.SocketPath"
+	LogFormat              = "Log.Format"
+	LogLevel               = "Log.Level"
 	ServicePathHost        = "Service.Path.Host"
 	ServicePathDocker      = "Service.Path.Docker"
 	MESGPath               = "MESG.Path"
@@ -35,6 +37,9 @@ func setAPIDefault() {
 	viper.SetDefault(APIServiceSocketPath, filepath.Join(viper.GetString(MESGPath), "server.sock"))
 	viper.SetDefault(APIServiceTargetPath, "/mesg/server.sock")
 	viper.SetDefault(APIServiceTargetSocket, "unix://"+viper.GetString(APIServiceTargetPath))
+
+	viper.SetDefault(LogFormat, "text")
+	viper.SetDefault(LogLevel, "info")
 
 	viper.SetDefault(ServicePathHost, filepath.Join(viper.GetString(MESGPath), "services"))
 	viper.SetDefault(ServicePathDocker, filepath.Join("/mesg", "services"))
