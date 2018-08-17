@@ -7,7 +7,7 @@ import (
 )
 
 // DeployService deploys a service from Git URL or service.tar.gz file. It'll send status
-// events during the process and finishes with sending service id or validation error.
+// events during the process and finish with sending service id or validation error.
 func (s *Server) DeployService(stream Core_DeployServiceServer) error {
 	statuses := make(chan string, 0)
 	go sendDeployStatus(statuses, stream)
@@ -64,6 +64,9 @@ func newDeployServiceStreamReader(stream Core_DeployServiceServer) *deployServic
 
 func (r *deployServiceStreamReader) GetURL() (url string, err error) {
 	message, err := r.stream.Recv()
+	if err != nil {
+		return "", err
+	}
 	r.data = message.GetChunk()
 	return message.GetUrl(), err
 }

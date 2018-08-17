@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/api/core"
@@ -28,7 +29,10 @@ func init() {
 }
 
 func devHandler(cmd *cobra.Command, args []string) {
-	serviceID, err := createService(defaultPath(args))
+	serviceID, isValid, err := createService(defaultPath(args))
+	if !isValid {
+		os.Exit(1)
+	}
 	utils.HandleError(err)
 	fmt.Printf("%s Service started with success\n", aurora.Green("✔"))
 	fmt.Printf("Service ID: %s\n", aurora.Bold(serviceID))
@@ -48,10 +52,10 @@ func devHandler(cmd *cobra.Command, args []string) {
 	})
 }
 
-func createService(path string) (string, error) {
-	serviceID, err := deployService(path)
-	if err != nil {
-		return "", err
+func createService(path string) (serviceID string, isValid bool, err error) {
+	serviceID, isValid, err = deployService(path)
+	if !isValid || err != nil {
+		return "", isValid, err
 	}
 
 	utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: "Starting service..."}, func() {
@@ -59,7 +63,7 @@ func createService(path string) (string, error) {
 			ServiceID: serviceID,
 		})
 	})
-	return serviceID, err
+	return serviceID, true, err
 }
 
 func listenEvents(serviceID string, filter string) {

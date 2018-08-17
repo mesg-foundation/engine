@@ -30,7 +30,10 @@ To get more information, see the [deploy page from the documentation](https://do
 
 func deployHandler(cmd *cobra.Command, args []string) {
 	path := defaultPath(args)
-	serviceID, err := deployService(path)
+	serviceID, isValid, err := deployService(path)
+	if !isValid {
+		os.Exit(1)
+	}
 	utils.HandleError(err)
 
 	fmt.Println("Service deployed with ID:", aurora.Green(serviceID))
@@ -38,10 +41,10 @@ func deployHandler(cmd *cobra.Command, args []string) {
 
 }
 
-func deployService(path string) (serviceID string, err error) {
+func deployService(path string) (serviceID string, isValid bool, err error) {
 	stream, err := cli().DeployService(context.Background())
 	if err != nil {
-		return "", err
+		return "", false, err
 	}
 
 	deployment := make(chan deploymentResult)
@@ -51,20 +54,20 @@ func deployService(path string) (serviceID string, err error) {
 		if err := stream.Send(&core.DeployServiceRequest{
 			Value: &core.DeployServiceRequest_Url{Url: path},
 		}); err != nil {
-			return "", err
+			return "", false, err
 		}
 	} else {
 		if err := deployServiceSendServiceContext(path, stream); err != nil {
-			return "", err
+			return "", false, err
 		}
 	}
 
 	if err := stream.CloseSend(); err != nil {
-		return "", err
+		return "", false, err
 	}
 
 	result := <-deployment
-	return result.serviceID, result.err
+	return result.serviceID, result.isValid, result.err
 }
 
 func deployServiceSendServiceContext(path string, stream core.Core_DeployServiceClient) error {
@@ -98,10 +101,12 @@ func deployServiceSendServiceContext(path string, stream core.Core_DeployService
 type deploymentResult struct {
 	serviceID string
 	err       error
+	isValid   bool
 }
 
 func readDeployReply(stream core.Core_DeployServiceClient, deployment chan deploymentResult) {
 	sp := spinner.New(utils.SpinnerCharset, utils.SpinnerDuration)
+	result := deploymentResult{isValid: true}
 
 	for {
 		message, err := stream.Recv()
@@ -125,14 +130,16 @@ func readDeployReply(stream core.Core_DeployServiceClient, deployment chan deplo
 			sp.Suffix = " " + status
 		case serviceID != "":
 			sp.Stop()
-			deployment <- deploymentResult{serviceID: serviceID}
+			result.serviceID = serviceID
+			deployment <- result
 			return
 		case validationError != "":
 			sp.Stop()
 			fmt.Println(aurora.Red(validationError))
 			fmt.Println("Run the command 'service validate' for more details")
-			os.Exit(0)
+			result.isValid = false
+			deployment <- result
+			return
 		}
-
 	}
 }

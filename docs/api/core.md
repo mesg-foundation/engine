@@ -751,8 +751,10 @@ The reply's data of `DeployService` API.
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | status | [string](#string) | status will be sent after each status change. |
-| serviceID | [string](#string) | serviceID will be sent as the last message of stream. |
-| validationError | [string](#string) |  |
+| serviceID | [string](#string) | serviceID will be sent as the last message of stream when
+service deployed successfully. |
+| validationError | [string](#string) | validationError will be sent as the last message of stream when
+there is a validation error. |
 
 
 

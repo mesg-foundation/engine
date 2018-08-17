@@ -29,6 +29,7 @@ func newServiceDeployer(mesg *MESG) *serviceDeployer {
 	}
 }
 
+// FromGitURL deploys a service hosted at a Git url.
 func (d *serviceDeployer) FromGitURL(url string) (*service.Service, *importer.ValidationError, error) {
 	d.sendStatus("Downloading service...")
 	path, err := d.createTempDir()
@@ -41,6 +42,22 @@ func (d *serviceDeployer) FromGitURL(url string) (*service.Service, *importer.Va
 	return d.deploy(path)
 }
 
+// FromGzippedTar deploys a service from a gzipped tarball.
+func (d *serviceDeployer) FromGzippedTar(r io.Reader) (*service.Service, *importer.ValidationError, error) {
+	d.sendStatus("Sending service context to core daemon...")
+	path, err := d.createTempDir()
+	if err != nil {
+		return nil, nil, err
+	}
+	if err := archive.Untar(r, path, &archive.TarOptions{
+		Compression: archive.Gzip,
+	}); err != nil {
+		return nil, nil, err
+	}
+	return d.deploy(path)
+}
+
+// gitClone clones a repo hosted at repoURL to path.
 func (d *serviceDeployer) gitClone(repoURL string, path string) error {
 	u, err := url.Parse(repoURL)
 	if err != nil {
@@ -59,20 +76,7 @@ func (d *serviceDeployer) gitClone(repoURL string, path string) error {
 	return err
 }
 
-func (d *serviceDeployer) FromGzippedTar(r io.Reader) (*service.Service, *importer.ValidationError, error) {
-	d.sendStatus("Sending service context to core daemon...")
-	path, err := d.createTempDir()
-	if err != nil {
-		return nil, nil, err
-	}
-	if err := archive.Untar(r, path, &archive.TarOptions{
-		Compression: archive.Gzip,
-	}); err != nil {
-		return nil, nil, err
-	}
-	return d.deploy(path)
-}
-
+// deploy deploys a service in path.
 func (d *serviceDeployer) deploy(path string) (*service.Service, *importer.ValidationError, error) {
 	defer os.RemoveAll(path)
 
@@ -118,6 +122,7 @@ func (d *serviceDeployer) createTempDir() (path string, err error) {
 	return ioutil.TempDir("", "mesg-"+uuid.NewV4().String())
 }
 
+// sendStatus sends a status message.
 func (d *serviceDeployer) sendStatus(message string) {
 	if d.Statuses != nil {
 		d.Statuses <- message

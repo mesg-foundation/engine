@@ -1,9 +1,7 @@
-#!/bin/bash
+#!/bin/bash -e
 
-# chain these to stop execution on failure
-./scripts/build-test-core.sh && \
-./dev-cli stop && \
-./dev-cli start && \
+./scripts/build-test-core.sh
+./dev-cli stop
+./dev-cli start
 ./dev-cli logs
-
 ./dev-cli stop
