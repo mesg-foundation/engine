@@ -108,7 +108,7 @@ message ResultData {
   string taskKey = 2;                 // The key of the executed task.
   string outputKey = 3;               // The output's key from the returned task.
   string outputData = 4;              // The output's data from the returned task, encoded in JSON.
-  repeated string executionTags = 5;  // The list of tags associated to the execution
+  repeated string executionTags = 5;  // The list of tags associated with the execution
 }
 
 // The request's data for the `ExecuteTask` API.

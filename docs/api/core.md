@@ -274,7 +274,7 @@ The data will be received over time as long as the stream is open.
 | taskKey | [string](#string) | The key of the executed task. |
 | outputKey | [string](#string) | The output's key from the returned task. |
 | outputData | [string](#string) | The output's data from the returned task, encoded in JSON. |
-| executionTags | [string](#string)[] | The list of tags associated to the execution |
+| executionTags | [string](#string)[] | The list of tags associated with the execution |
 
 
 
