@@ -331,7 +331,7 @@ The request's data for the `ExecuteTask` API.
 | serviceID | [string](#string) | The Service ID. Generated when using the [`DeployService` API](#deployservice). |
 | taskKey | [string](#string) | The task's key to execute. |
 | inputData | [string](#string) | The inputs of the task to execute, encoded in JSON. |
-| executionTags | [string](#string)[] | __Optional.__ The list of tags to associate to the execution |
+| executionTags | [string](#string)[] | __Optional.__ The list of tags to associate with the execution |
 
 
 

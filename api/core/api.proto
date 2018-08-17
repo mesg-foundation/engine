@@ -126,7 +126,7 @@ message ExecuteTaskRequest {
   string serviceID = 1;               // The Service ID. Generated when using the [`DeployService` API](#deployservice).
   string taskKey = 2;                 // The task's key to execute.
   string inputData = 3;               // The inputs of the task to execute, encoded in JSON.
-  repeated string executionTags = 4;  // __Optional.__ The list of tags to associate to the execution
+  repeated string executionTags = 4;  // __Optional.__ The list of tags to associate with the execution
 }
 
 // The reply's data of the `ExecuteTask` API.
