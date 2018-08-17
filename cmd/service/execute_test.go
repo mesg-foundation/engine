@@ -3,10 +3,9 @@ package service
 import (
 	"testing"
 
-	"github.com/spf13/cobra"
-
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/utils/xpflag"
+	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/require"
 )
 
