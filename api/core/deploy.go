@@ -6,7 +6,8 @@ import (
 	"github.com/mesg-foundation/core/service/importer"
 )
 
-// DeployService saves a service in the database and returns the hash of this service.
+// DeployService deploys a service from Git URL or service.tar.gz file. It'll send status
+// events during the process and finishes with sending service id or validation error.
 func (s *Server) DeployService(stream Core_DeployServiceServer) error {
 	statuses := make(chan string, 0)
 	go sendDeployStatus(statuses, stream)
