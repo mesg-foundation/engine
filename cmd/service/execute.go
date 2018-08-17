@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/logrusorgru/aurora"
@@ -15,6 +14,7 @@ import (
 	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/utils/xpflag"
+	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/cobra"
 	survey "gopkg.in/AlecAivazis/survey.v1"
 )
@@ -54,7 +54,8 @@ func executeHandler(cmd *cobra.Command, args []string) {
 	taskData, err := getData(cmd, taskKey, serviceReply.Service, executeData)
 	utils.HandleError(err)
 
-	tags := []string{strconv.FormatInt(time.Now().UnixNano(), 10)}
+	// Create an unique tag that will be used to listen the result of this exact execution
+	tags := []string{uuid.NewV4().String()}
 	stream, err := cli().ListenResult(context.Background(), &core.ListenResultRequest{
 		ServiceID:  serviceID,
 		TaskFilter: taskKey,
