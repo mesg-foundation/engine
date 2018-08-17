@@ -89,9 +89,6 @@ func isSubscribedToOutput(request *ListenResultRequest, e *execution.Execution) 
 }
 
 func isSubscribedToTags(request *ListenResultRequest, e *execution.Execution) bool {
-	if len(request.TagFilters) == 0 {
-		return true
-	}
 	for _, tag := range request.TagFilters {
 		if !array.IncludedIn(e.Tags, tag) {
 			return false
