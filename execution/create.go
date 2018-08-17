@@ -2,7 +2,6 @@ package execution
 
 import (
 	"encoding/json"
-	"log"
 	"time"
 
 	"github.com/mesg-foundation/core/service"
@@ -40,7 +39,6 @@ func Create(serviceForExecution *service.Service, task string, inputs map[string
 	mu.Lock()
 	defer mu.Unlock()
 	pendingExecutions[execution.ID] = execution
-	log.Println("[PENDING]", task)
 	return execution, err
 }
 
