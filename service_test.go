@@ -35,8 +35,10 @@ func newServiceAndServer(t *testing.T) (*Service, *mesgtest.Server) {
 }
 
 func TestEmit(t *testing.T) {
-	event := "request"
-	data := eventRequest{"https://mesg.tech"}
+	var (
+		event = "request"
+		data  = eventRequest{"https://mesg.tech"}
+	)
 
 	service, server := newServiceAndServer(t)
 	go server.Start()
@@ -61,10 +63,12 @@ type taskResponse struct {
 }
 
 func TestListen(t *testing.T) {
-	task := "send"
-	key := "success"
-	reqData := taskRequest{"https://mesg.com"}
-	resData := taskResponse{"ok"}
+	var (
+		task    = "send"
+		key     = "success"
+		reqData = taskRequest{"https://mesg.com"}
+		resData = taskResponse{"ok"}
+	)
 
 	service, server := newServiceAndServer(t)
 	go server.Start()
@@ -103,8 +107,10 @@ func TestListen(t *testing.T) {
 }
 
 func TestMultipleListenCall(t *testing.T) {
-	taskKey := "1"
-	data := taskRequest{"https://mesg.com"}
+	var (
+		taskKey = "1"
+		data    = taskRequest{"https://mesg.com"}
+	)
 
 	service, server := newServiceAndServer(t)
 	go server.Start()
@@ -123,9 +129,11 @@ func TestMultipleListenCall(t *testing.T) {
 }
 
 func TestNonExistentTaskExecutionRequest(t *testing.T) {
-	taskKey := "1"
-	nonExistentTaskKey := "2"
-	data := taskRequest{"https://mesg.com"}
+	var (
+		taskKey            = "1"
+		nonExistentTaskKey = "2"
+		data               = taskRequest{"https://mesg.com"}
+	)
 
 	server := mesgtest.NewServer()
 	go server.Start()

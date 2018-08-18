@@ -23,9 +23,11 @@ type eventRequest struct {
 }
 
 func TestLastEmit(t *testing.T) {
-	key := "key"
-	data := eventRequest{"https://mesg.tech"}
-	dataStr := jsonMarshal(t, data)
+	var (
+		key     = "key"
+		data    = eventRequest{"https://mesg.tech"}
+		dataStr = jsonMarshal(t, data)
+	)
 
 	server := NewServer()
 	assert.NotNil(t, server)
@@ -61,12 +63,14 @@ type taskResponse struct {
 }
 
 func TestExecute(t *testing.T) {
-	task := "task"
-	key := "success"
-	reqData := taskRequest{"https://mesg.com"}
-	resData := taskResponse{"ok"}
-	reqDataStr := jsonMarshal(t, reqData)
-	resDataStr := jsonMarshal(t, resData)
+	var (
+		task       = "task"
+		key        = "success"
+		reqData    = taskRequest{"https://mesg.com"}
+		resData    = taskResponse{"ok"}
+		reqDataStr = jsonMarshal(t, reqData)
+		resDataStr = jsonMarshal(t, resData)
+	)
 
 	server := NewServer()
 	assert.NotNil(t, server)
