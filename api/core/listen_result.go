@@ -32,7 +32,7 @@ func (s *Server) ListenResult(request *ListenResultRequest, stream Core_ListenRe
 			return ctx.Err()
 		case data := <-subscription:
 			execution := data.(*execution.Execution)
-			if isSubscribedToTags(request, execution) && isSubscribedToTask(request, execution) && isSubscribedToOutput(request, execution) {
+			if isSubscribed(request, execution) {
 				outputs, _ := json.Marshal(execution.OutputData)
 				if err := stream.Send(&ResultData{
 					ExecutionID:   execution.ID,
@@ -78,6 +78,12 @@ func validateOutputKey(service *service.Service, taskKey string, outputFilter st
 		return fmt.Errorf("Output %q doesn't exist in the task %q of this service", outputFilter, taskKey)
 	}
 	return nil
+}
+
+func isSubscribed(request *ListenResultRequest, e *execution.Execution) bool {
+	return isSubscribedToTags(request, e) &&
+		isSubscribedToTask(request, e) &&
+		isSubscribedToOutput(request, e)
 }
 
 func isSubscribedToTask(request *ListenResultRequest, e *execution.Execution) bool {

@@ -119,3 +119,48 @@ func TestIsSubscribedToTags(t *testing.T) {
 		}
 	}
 }
+
+func TestIsSubscribed(t *testing.T) {
+	type test struct {
+		r ListenResultRequest
+		e execution.Execution
+	}
+	subscribeToOutput := func(x *test) *test {
+		return x
+	}
+	notSubscribeToOutput := func(x *test) *test {
+		x.r.OutputFilter = "foo"
+		return x
+	}
+	subscribeToTask := func(x *test) *test {
+		return x
+	}
+	notSubscribeToTask := func(x *test) *test {
+		x.r.TaskFilter = "foo"
+		return x
+	}
+	subscribeToTags := func(x *test) *test {
+		return x
+	}
+	notSubscribeToTags := func(x *test) *test {
+		x.r.TagFilters = []string{"foo"}
+		return x
+	}
+	tests := []struct {
+		t     *test
+		valid bool
+		msg   string
+	}{
+		{notSubscribeToTags(notSubscribeToTask(notSubscribeToOutput(&test{}))), false, "[]"},
+		{notSubscribeToTags(notSubscribeToTask(subscribeToOutput(&test{}))), false, "[output]"},
+		{notSubscribeToTags(subscribeToTask(notSubscribeToOutput(&test{}))), false, "[task]"},
+		{notSubscribeToTags(subscribeToTask(subscribeToOutput(&test{}))), false, "[task, output]"},
+		{subscribeToTags(notSubscribeToTask(notSubscribeToOutput(&test{}))), false, "[tags]"},
+		{subscribeToTags(notSubscribeToTask(subscribeToOutput(&test{}))), false, "[tags, output]"},
+		{subscribeToTags(subscribeToTask(notSubscribeToOutput(&test{}))), false, "[tags, task]"},
+		{subscribeToTags(subscribeToTask(subscribeToOutput(&test{}))), true, "[tags, task, output]"},
+	}
+	for _, test := range tests {
+		require.Equal(t, test.valid, isSubscribed(&test.t.r, &test.t.e), test.msg)
+	}
+}
