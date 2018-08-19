@@ -62,8 +62,8 @@ func TestInvalidEventDataError(t *testing.T) {
 		Event: &Event{
 			Data: tests.parameterTestsToMapParameter(),
 		},
-		Key:  "TestInvalidEventDataErrorEventKey",
-		Data: tests.parameterTestsToMapData(),
+		EventKey: "TestInvalidEventDataErrorEventKey",
+		Data:     tests.parameterTestsToMapData(),
 	}
 	require.Contains(t, err.Error(), "Data of event 'TestInvalidEventDataErrorEventKey' is invalid")
 	tests.assert(t, err.Error())
