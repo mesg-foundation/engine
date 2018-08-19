@@ -103,9 +103,10 @@ func TestInvalidTaskInputError(t *testing.T) {
 func TestOutputNotFoundError(t *testing.T) {
 	err := OutputNotFoundError{
 		Service:   &Service{Name: "TestOutputNotFoundError"},
-		OutputKey: "TestOutputNotFoundErrorEventKey",
+		TaskKey:   "TaskKey",
+		OutputKey: "OutputKey",
 	}
-	require.Equal(t, "Output 'TestOutputNotFoundErrorEventKey' not found in service 'TestOutputNotFoundError'", err.Error())
+	require.Equal(t, "Output 'OutputKey' of task 'TaskKey' not found in service 'TestOutputNotFoundError'", err.Error())
 }
 
 // Test InvalidOutputDataError

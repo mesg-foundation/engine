@@ -14,6 +14,7 @@ func (execution *Execution) Complete(output string, data map[string]interface{})
 		return &service.OutputNotFoundError{
 			Service:   execution.Service,
 			OutputKey: output,
+			TaskKey:   execution.Task,
 		}
 	}
 	if !serviceOutput.IsValid(data) {

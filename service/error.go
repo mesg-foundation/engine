@@ -64,11 +64,12 @@ func (e *InputNotFoundError) Error() string {
 // OutputNotFoundError is an error when a service doesn't contain a specific output.
 type OutputNotFoundError struct {
 	Service   *Service
+	TaskKey   string
 	OutputKey string
 }
 
 func (e *OutputNotFoundError) Error() string {
-	return "Output '" + e.OutputKey + "' not found in service '" + e.Service.Name + "'"
+	return "Output '" + e.OutputKey + "' of task '" + e.TaskKey + "' not found in service '" + e.Service.Name + "'"
 }
 
 // InvalidOutputDataError is an error when the outputs for one task result are not valid.
