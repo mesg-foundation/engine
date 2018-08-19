@@ -92,10 +92,10 @@ func TestInvalidTaskInputError(t *testing.T) {
 		Task: &Task{
 			Inputs: tests.parameterTestsToMapParameter(),
 		},
-		Key:    "TestInvalidTaskInputErrorEventKey",
-		Inputs: tests.parameterTestsToMapData(),
+		TaskKey: "TestInvalidTaskInputErrorKey",
+		Inputs:  tests.parameterTestsToMapData(),
 	}
-	require.Contains(t, err.Error(), "Inputs of task 'TestInvalidTaskInputErrorEventKey' are invalid")
+	require.Contains(t, err.Error(), "Inputs of task 'TestInvalidTaskInputErrorKey' are invalid")
 	tests.assert(t, err.Error())
 }
 

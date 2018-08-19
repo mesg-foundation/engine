@@ -37,13 +37,13 @@ func (e *TaskNotFoundError) Error() string {
 
 // InvalidTaskInputError is an error when the inputs of a task are not valid.
 type InvalidTaskInputError struct {
-	Task   *Task
-	Key    string
-	Inputs map[string]interface{}
+	Task    *Task
+	TaskKey string
+	Inputs  map[string]interface{}
 }
 
 func (e *InvalidTaskInputError) Error() string {
-	errorString := "Inputs of task '" + e.Key + "' are invalid"
+	errorString := "Inputs of task '" + e.TaskKey + "' are invalid"
 	for _, warning := range e.Task.Validate(e.Inputs) {
 		errorString = errorString + ". " + warning.String()
 	}
