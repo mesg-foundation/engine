@@ -22,7 +22,7 @@ func (s *Server) ExecuteTask(ctx context.Context, request *ExecuteTaskRequest) (
 	if err := checkServiceStatus(&srv); err != nil {
 		return nil, err
 	}
-	executionID, err := execute(&srv, request.TaskKey, inputs)
+	executionID, err := execute(&srv, request.TaskKey, inputs, request.ExecutionTags)
 	return &ExecuteTaskReply{
 		ExecutionID: executionID,
 	}, err
@@ -45,8 +45,8 @@ func getData(request *ExecuteTaskRequest) (map[string]interface{}, error) {
 	return inputs, err
 }
 
-func execute(srv *service.Service, key string, inputs map[string]interface{}) (executionID string, err error) {
-	exc, err := execution.Create(srv, key, inputs)
+func execute(srv *service.Service, key string, inputs map[string]interface{}, tags []string) (executionID string, err error) {
+	exc, err := execution.Create(srv, key, inputs, tags)
 	if err != nil {
 		return "", err
 	}

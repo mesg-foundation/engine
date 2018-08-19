@@ -38,7 +38,7 @@ func TestCreate(t *testing.T) {
 		},
 	}
 	var inputs map[string]interface{}
-	exec, err := Create(&s, "test", inputs)
+	exec, err := Create(&s, "test", inputs, []string{})
 	require.Nil(t, err)
 	require.Equal(t, exec.Service, &s)
 	require.Equal(t, exec.Inputs, inputs)
@@ -54,7 +54,7 @@ func TestCreateInvalidTask(t *testing.T) {
 		},
 	}
 	var inputs map[string]interface{}
-	_, err := Create(&s, "testinvalid", inputs)
+	_, err := Create(&s, "testinvalid", inputs, []string{})
 	require.NotNil(t, err)
 	_, notFound := err.(*service.TaskNotFoundError)
 	require.True(t, notFound)
@@ -74,7 +74,7 @@ func TestCreateInvalidInputs(t *testing.T) {
 		},
 	}
 	var inputs map[string]interface{}
-	_, err := Create(&s, "test", inputs)
+	_, err := Create(&s, "test", inputs, []string{})
 	require.NotNil(t, err)
 	_, invalid := err.(*service.InvalidTaskInputError)
 	require.True(t, invalid)

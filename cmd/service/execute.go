@@ -14,6 +14,7 @@ import (
 	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/utils/xpflag"
+	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/cobra"
 	survey "gopkg.in/AlecAivazis/survey.v1"
 )
@@ -50,12 +51,15 @@ func executeHandler(cmd *cobra.Command, args []string) {
 	})
 	utils.HandleError(err)
 	taskKey := getTaskKey(cmd, serviceReply.Service)
-	taskData, err := getData(cmd, taskKey, serviceReply.Service)
+	taskData, err := getData(cmd, taskKey, serviceReply.Service, executeData)
 	utils.HandleError(err)
 
+	// Create an unique tag that will be used to listen to the result of this exact execution
+	tags := []string{uuid.NewV4().String()}
 	stream, err := cli().ListenResult(context.Background(), &core.ListenResultRequest{
 		ServiceID:  serviceID,
 		TaskFilter: taskKey,
+		TagFilters: tags,
 	})
 	utils.HandleError(err)
 
@@ -64,7 +68,7 @@ func executeHandler(cmd *cobra.Command, args []string) {
 		// TODO: Fix this, it's a bit messy to have a sleep here
 		go func() {
 			time.Sleep(1 * time.Second)
-			_, err = executeTask(serviceID, taskKey, taskData)
+			_, err = executeTask(serviceID, taskKey, taskData, tags)
 			utils.HandleError(err)
 		}()
 		for {
@@ -77,11 +81,12 @@ func executeHandler(cmd *cobra.Command, args []string) {
 	fmt.Println(aurora.Bold(execution.OutputData).String())
 }
 
-func executeTask(serviceID string, task string, data string) (execution *core.ExecuteTaskReply, err error) {
+func executeTask(serviceID string, task string, data string, tags []string) (execution *core.ExecuteTaskReply, err error) {
 	return cli().ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
-		ServiceID: serviceID,
-		TaskKey:   task,
-		InputData: data,
+		ServiceID:     serviceID,
+		TaskKey:       task,
+		InputData:     data,
+		ExecutionTags: tags,
 	})
 }
 
@@ -106,12 +111,12 @@ func getTaskKey(cmd *cobra.Command, s *service.Service) string {
 	return taskKey
 }
 
-func getData(cmd *cobra.Command, taskKey string, s *service.Service) (string, error) {
+func getData(cmd *cobra.Command, taskKey string, s *service.Service, dataStruct map[string]string) (string, error) {
 	data := cmd.Flag("data").Value.String()
 	jsonFile := cmd.Flag("json").Value.String()
 
 	if data != "" {
-		castData, err := s.Cast(taskKey, executeData)
+		castData, err := s.Cast(taskKey, dataStruct)
 		if err != nil {
 			return "", err
 		}
