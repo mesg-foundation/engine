@@ -74,13 +74,14 @@ func (e *OutputNotFoundError) Error() string {
 
 // InvalidOutputDataError is an error when the outputs for one task result are not valid.
 type InvalidOutputDataError struct {
-	Output *Output
-	Key    string
-	Data   map[string]interface{}
+	Output    *Output
+	TaskKey   string
+	OutputKey string
+	Data      map[string]interface{}
 }
 
 func (e *InvalidOutputDataError) Error() string {
-	errorString := "Outputs of task '" + e.Key + "' are invalid"
+	errorString := "Outputs '" + e.OutputKey + "' of task '" + e.TaskKey + "' are invalid"
 	for _, warning := range e.Output.Validate(e.Data) {
 		errorString = errorString + ". " + warning.String()
 	}

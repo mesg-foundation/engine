@@ -123,10 +123,11 @@ func TestInvalidOutputDataError(t *testing.T) {
 		Output: &Output{
 			Data: tests.parameterTestsToMapParameter(),
 		},
-		Key:  "TestInvalidOutputDataErrorEventKey",
-		Data: tests.parameterTestsToMapData(),
+		OutputKey: "OutputKey",
+		TaskKey:   "TaskKey",
+		Data:      tests.parameterTestsToMapData(),
 	}
-	require.Contains(t, err.Error(), "Outputs of task 'TestInvalidOutputDataErrorEventKey' are invalid")
+	require.Contains(t, err.Error(), "Outputs 'OutputKey' of task 'TaskKey' are invalid")
 	tests.assert(t, err.Error())
 }
 
