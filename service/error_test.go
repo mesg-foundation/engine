@@ -128,3 +128,13 @@ func TestInvalidOutputDataError(t *testing.T) {
 	require.Contains(t, err.Error(), "Outputs of task 'TestInvalidOutputDataErrorEventKey' are invalid")
 	tests.assert(t, err.Error())
 }
+
+// Test InputNotFoundError
+func TestInputNotFoundError(t *testing.T) {
+	err := InputNotFoundError{
+		Service:  &Service{Name: "InputNotFoundError"},
+		TaskKey:  "TaskKey",
+		InputKey: "InputKey",
+	}
+	require.Equal(t, "Input 'InputKey' of task 'TaskKey' not found in service 'InputNotFoundError'", err.Error())
+}
