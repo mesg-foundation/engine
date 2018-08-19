@@ -70,7 +70,7 @@ func TestCompleteInvalidOutputs(t *testing.T) {
 	require.NotNil(t, err)
 	x, invalidOutputError := err.(*service.InvalidOutputDataError)
 	require.True(t, invalidOutputError)
-	require.Equal(t, "output", x.Key)
+	require.Equal(t, "output", x.OutputKey)
 }
 
 func TestCompleteNotProcessed(t *testing.T) {
