@@ -2,15 +2,14 @@ package execution
 
 import (
 	"encoding/json"
-	"log"
 	"time"
 
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/utils/hash"
 )
 
-// Create an execution with a unique ID and put it in the pending list
-func Create(serviceForExecution *service.Service, task string, inputs map[string]interface{}) (*Execution, error) {
+// Create creates an execution with a unique ID and puts it in the pending list.
+func Create(serviceForExecution *service.Service, task string, inputs map[string]interface{}, tags []string) (*Execution, error) {
 	serviceTask, taskFound := serviceForExecution.Tasks[task]
 	if !taskFound {
 		return nil, &service.TaskNotFoundError{
@@ -20,15 +19,16 @@ func Create(serviceForExecution *service.Service, task string, inputs map[string
 	}
 	if !serviceTask.IsValid(inputs) {
 		return nil, &service.InvalidTaskInputError{
-			Task:   serviceTask,
-			Key:    task,
-			Inputs: inputs,
+			Task:      serviceTask,
+			TaskKey:   task,
+			InputData: inputs,
 		}
 	}
 	execution := &Execution{
 		Service:   serviceForExecution,
 		Inputs:    inputs,
 		Task:      task,
+		Tags:      tags,
 		CreatedAt: time.Now(),
 	}
 	var err error
@@ -39,20 +39,18 @@ func Create(serviceForExecution *service.Service, task string, inputs map[string
 	mu.Lock()
 	defer mu.Unlock()
 	pendingExecutions[execution.ID] = execution
-	log.Println("[PENDING]", task)
 	return execution, err
 }
 
-func generateID(execution *Execution) (id string, err error) {
+func generateID(execution *Execution) (string, error) {
 	inputs, err := json.Marshal(execution.Inputs)
 	if err != nil {
-		return
+		return "", err
 	}
-	id = hash.Calculate([]string{
+	return hash.Calculate([]string{
 		execution.CreatedAt.UTC().String(),
 		execution.Service.Name,
 		execution.Task,
 		string(inputs),
-	})
-	return
+	}), nil
 }

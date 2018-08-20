@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/api/core"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestProcessEventWithInvalidEventData(t *testing.T) {
@@ -19,7 +19,7 @@ func TestProcessEventWithInvalidEventData(t *testing.T) {
 		EventData: "",
 	}
 	err := wf.Execute.processEvent(wf, data)
-	assert.Equal(t, err.Error(), "unexpected end of JSON input")
+	require.Equal(t, err.Error(), "unexpected end of JSON input")
 }
 
 func TestProcessResulsWithInvalidEventData(t *testing.T) {
@@ -36,7 +36,7 @@ func TestProcessResulsWithInvalidEventData(t *testing.T) {
 		TaskKey:     "taskx",
 	}
 	err := wf.Execute.processResult(wf, data)
-	assert.Equal(t, err.Error(), "unexpected end of JSON input")
+	require.Equal(t, err.Error(), "unexpected end of JSON input")
 }
 
 func TestConvertData(t *testing.T) {
@@ -46,8 +46,8 @@ func TestConvertData(t *testing.T) {
 		},
 	}
 	res, err := task.convertData("foo")
-	assert.Nil(t, err)
-	assert.Equal(t, res, "\"bar\"")
+	require.Nil(t, err)
+	require.Equal(t, res, "\"bar\"")
 }
 
 func TestConvertDataObject(t *testing.T) {
@@ -60,8 +60,8 @@ func TestConvertDataObject(t *testing.T) {
 		"foo":    "bar",
 		"number": 42,
 	})
-	assert.Nil(t, err)
-	assert.Equal(t, res, "{\"foo\":\"bar\",\"number\":42}")
+	require.Nil(t, err)
+	require.Equal(t, res, "{\"foo\":\"bar\",\"number\":42}")
 }
 
 func TestConvertDataWithNull(t *testing.T) {
@@ -71,6 +71,6 @@ func TestConvertDataWithNull(t *testing.T) {
 		},
 	}
 	res, err := task.convertData("xxx")
-	assert.Nil(t, err)
-	assert.Equal(t, res, "null")
+	require.Nil(t, err)
+	require.Equal(t, res, "null")
 }

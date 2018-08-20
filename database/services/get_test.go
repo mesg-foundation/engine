@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/service"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGet(t *testing.T) {
@@ -13,13 +13,13 @@ func TestGet(t *testing.T) {
 	})
 	defer Delete(hash)
 	service, err := Get(hash)
-	assert.Nil(t, err)
-	assert.Equal(t, service.Name, "TestGet")
+	require.Nil(t, err)
+	require.Equal(t, service.Name, "TestGet")
 }
 
 func TestGetMissing(t *testing.T) {
 	emptyService := service.Service{}
 	service, err := Get("hash_that_doesnt_exists")
-	assert.Equal(t, err, NotFound{Hash: "hash_that_doesnt_exists"})
-	assert.Equal(t, service, emptyService)
+	require.Equal(t, err, NotFound{Hash: "hash_that_doesnt_exists"})
+	require.Equal(t, service, emptyService)
 }

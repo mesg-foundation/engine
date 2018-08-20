@@ -3,7 +3,7 @@ package importer
 import (
 	"testing"
 
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // Test ValidationResult.IsValid function
@@ -14,7 +14,7 @@ func TestValidationResultIsValid(t *testing.T) {
 		ServiceFileWarnings: []string{},
 		DockerfileExist:     true,
 	}
-	assert.True(t, v.IsValid())
+	require.True(t, v.IsValid())
 }
 
 func TestValidationResultIsValidServiceFileDoesNotExist(t *testing.T) {
@@ -23,7 +23,7 @@ func TestValidationResultIsValidServiceFileDoesNotExist(t *testing.T) {
 		ServiceFileWarnings: []string{},
 		DockerfileExist:     true,
 	}
-	assert.False(t, v.IsValid())
+	require.False(t, v.IsValid())
 }
 
 func TestValidationResultIsValidServiceFileWarnings(t *testing.T) {
@@ -32,7 +32,7 @@ func TestValidationResultIsValidServiceFileWarnings(t *testing.T) {
 		ServiceFileWarnings: []string{"Warning"},
 		DockerfileExist:     true,
 	}
-	assert.False(t, v.IsValid())
+	require.False(t, v.IsValid())
 }
 
 func TestValidationResultIsValidDockfileDoesNotExist(t *testing.T) {
@@ -41,5 +41,5 @@ func TestValidationResultIsValidDockfileDoesNotExist(t *testing.T) {
 		ServiceFileWarnings: []string{},
 		DockerfileExist:     false,
 	}
-	assert.False(t, v.IsValid())
+	require.False(t, v.IsValid())
 }

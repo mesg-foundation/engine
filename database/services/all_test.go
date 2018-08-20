@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/service"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestAll(t *testing.T) {
@@ -18,6 +18,6 @@ func TestAll(t *testing.T) {
 			break
 		}
 	}
-	assert.Nil(t, err)
-	assert.True(t, founded)
+	require.Nil(t, err)
+	require.True(t, founded)
 }

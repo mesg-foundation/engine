@@ -4,7 +4,7 @@ import (
 	leveldbErrors "github.com/syndtr/goleveldb/leveldb/errors"
 )
 
-// NotFound represents a service not found error
+// NotFound represents a service not found error.
 type NotFound struct {
 	Hash string
 }

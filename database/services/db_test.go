@@ -5,15 +5,14 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/service"
-
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestDb(t *testing.T) {
 	db, err := open()
 	defer close()
-	assert.Nil(t, err)
-	assert.NotNil(t, db)
+	require.Nil(t, err)
+	require.NotNil(t, db)
 }
 
 // Test to stress the database with concurrency access
@@ -29,8 +28,8 @@ func TestConcurrency(t *testing.T) {
 		wg.Add(1)
 		go func() {
 			s, err := Get(hash)
-			assert.Nil(t, err)
-			assert.Equal(t, s.Name, service.Name)
+			require.Nil(t, err)
+			require.Equal(t, s.Name, service.Name)
 			wg.Done()
 		}()
 	}

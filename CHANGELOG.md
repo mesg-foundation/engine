@@ -1,22 +1,36 @@
 # Changelog
 
 ## [Unreleased]
+#### Changed
+#### Added
+#### Removed
+#### Fixed
+
+## [v1.2.0]
 
 #### Changed
 - (#282) Branch support added. You can now specify your branches with a `#branch` fragment at the end of your git url. E.g.: https://github.com/mesg-foundation/service-ethereum-erc20#websocket
 - (#299) Add more user friendly errors when failing to connect to the Core or Docker
+- (#356) Use github.com/stretchr/testify package
+- (#352) Use logrus logging package
 
 #### Added
 - (#242) Add more details in command `mesg-core service validate`
 - (#295) Added more validation on the API for the data of `executeTask`, `submitResult` and `emitEvent`. Now if data doesn't match the service file, the API returns an error
 - (#302) Possibility to use a config file in ~/.mesg/config.yml
-- (#) Add command `service dev` that build and run the service with the logs
-- (#) Add command `service execute` that execute a task on a service
+- (#303) Add command `service dev` that build and run the service with the logs
+- (#303) Add command `service execute` that execute a task on a service
+- (#316) Delete service when stoping the `service dev` command to avoid to keep all the versions of the services.
+- (#317) Add errors when trying to execute a service that is not running (nothing was happening before)
+- (#344) Add `service execute --data` flag to pass arguments as key=value.
+- (#362) Add `tags` list parameter for execution in order to be able to categorize and/or track a specific task execution.
+- (#362) Add possibility to listen to results with the specific tag(s)
 
 #### Removed
-- (#) Deprecate command `service test` in favor of `service dev` and `service execute`
+- (#303) Deprecate command `service test` in favor of `service dev` and `service execute`
 
 #### Fixed
+- (#358) Fix goroutine leaks on api package handlers where gRPC streams are used. Handlers now doesn't block forever by exiting on context cancellation and stream.Send() errors.
 
 ## [v1.0.0]
 

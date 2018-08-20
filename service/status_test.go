@@ -4,49 +4,49 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/container"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestStatusService(t *testing.T) {
 	service := &Service{
 		Name: "TestStatusService",
 		Dependencies: map[string]*Dependency{
-			"test": &Dependency{
+			"test": {
 				Image: "nginx",
 			},
 		},
 	}
 	status, err := service.Status()
-	assert.Nil(t, err)
-	assert.Equal(t, STOPPED, status)
+	require.Nil(t, err)
+	require.Equal(t, STOPPED, status)
 	dockerServices, err := service.Start()
 	defer service.Stop()
-	assert.Nil(t, err)
-	assert.Equal(t, len(dockerServices), len(service.GetDependencies()))
+	require.Nil(t, err)
+	require.Equal(t, len(dockerServices), len(service.GetDependencies()))
 	status, err = service.Status()
-	assert.Nil(t, err)
-	assert.Equal(t, RUNNING, status)
+	require.Nil(t, err)
+	require.Equal(t, RUNNING, status)
 }
 
 func TestStatusDependency(t *testing.T) {
 	service := &Service{
 		Name: "TestStatusDependency",
 		Dependencies: map[string]*Dependency{
-			"test": &Dependency{
+			"test": {
 				Image: "nginx",
 			},
 		},
 	}
 	dep := service.DependenciesFromService()[0]
 	status, err := dep.Status()
-	assert.Nil(t, err)
-	assert.Equal(t, container.STOPPED, status)
+	require.Nil(t, err)
+	require.Equal(t, container.STOPPED, status)
 	dockerServices, err := service.Start()
-	assert.Nil(t, err)
-	assert.Equal(t, len(dockerServices), len(service.GetDependencies()))
+	require.Nil(t, err)
+	require.Equal(t, len(dockerServices), len(service.GetDependencies()))
 	status, err = dep.Status()
-	assert.Nil(t, err)
-	assert.Equal(t, container.RUNNING, status)
+	require.Nil(t, err)
+	require.Equal(t, container.RUNNING, status)
 	service.Stop()
 }
 
@@ -54,7 +54,7 @@ func TestList(t *testing.T) {
 	service := &Service{
 		Name: "TestList",
 		Dependencies: map[string]*Dependency{
-			"test": &Dependency{
+			"test": {
 				Image: "nginx",
 			},
 		},
@@ -63,19 +63,19 @@ func TestList(t *testing.T) {
 	service.Start()
 	defer service.Stop()
 	list, err := ListRunning()
-	assert.Nil(t, err)
-	assert.Equal(t, len(list), 1)
-	assert.Equal(t, list[0], hash)
+	require.Nil(t, err)
+	require.Equal(t, len(list), 1)
+	require.Equal(t, list[0], hash)
 }
 
 func TestListMultipleDependencies(t *testing.T) {
 	service := &Service{
 		Name: "TestListMultipleDependencies",
 		Dependencies: map[string]*Dependency{
-			"test": &Dependency{
+			"test": {
 				Image: "nginx",
 			},
-			"test2": &Dependency{
+			"test2": {
 				Image: "nginx",
 			},
 		},
@@ -84,7 +84,7 @@ func TestListMultipleDependencies(t *testing.T) {
 	service.Start()
 	defer service.Stop()
 	list, err := ListRunning()
-	assert.Nil(t, err)
-	assert.Equal(t, len(list), 1)
-	assert.Equal(t, list[0], hash)
+	require.Nil(t, err)
+	require.Equal(t, len(list), 1)
+	require.Equal(t, list[0], hash)
 }

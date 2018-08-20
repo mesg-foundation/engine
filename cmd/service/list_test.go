@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/service"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestServiceStatusString(t *testing.T) {
@@ -14,26 +14,26 @@ func TestServiceStatusString(t *testing.T) {
 		service: &s,
 		status:  service.RUNNING,
 	}
-	assert.Contains(t, "[Running]", status.String())
-	assert.Contains(t, s.Hash(), status.String())
-	assert.Contains(t, s.Name, status.String())
+	require.Contains(t, status.String(), "[Running]")
+	require.Contains(t, status.String(), s.Hash())
+	require.Contains(t, status.String(), s.Name)
 }
 
 func TestSort(t *testing.T) {
 	status := []serviceStatus{
-		serviceStatus{status: service.PARTIAL, service: &service.Service{Name: "Partial"}},
-		serviceStatus{status: service.RUNNING, service: &service.Service{Name: "Running"}},
-		serviceStatus{status: service.STOPPED, service: &service.Service{Name: "Stopped"}},
+		{status: service.PARTIAL, service: &service.Service{Name: "Partial"}},
+		{status: service.RUNNING, service: &service.Service{Name: "Running"}},
+		{status: service.STOPPED, service: &service.Service{Name: "Stopped"}},
 	}
 	sort.Sort(byStatus(status))
-	assert.Equal(t, status[0].status, service.RUNNING)
-	assert.Equal(t, status[1].status, service.PARTIAL)
-	assert.Equal(t, status[2].status, service.STOPPED)
+	require.Equal(t, status[0].status, service.RUNNING)
+	require.Equal(t, status[1].status, service.PARTIAL)
+	require.Equal(t, status[2].status, service.STOPPED)
 }
 
 func TestServicesWithStatus(t *testing.T) {
 	services := append([]*service.Service{}, &service.Service{Name: "TestServicesWithStatus"})
 	status, err := servicesWithStatus(services)
-	assert.Nil(t, err)
-	assert.Equal(t, status[0].status, service.STOPPED)
+	require.Nil(t, err)
+	require.Equal(t, status[0].status, service.STOPPED)
 }

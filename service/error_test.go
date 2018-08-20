@@ -3,7 +3,7 @@ package service
 import (
 	"testing"
 
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 type parameterTests []*parameterTest
@@ -35,7 +35,7 @@ func (tests parameterTests) parameterTestsToMapData() map[string]interface{} {
 
 func (tests parameterTests) assert(t *testing.T, err string) {
 	for _, test := range tests {
-		assert.Contains(t, "Value of '"+test.Key+"' is "+test.Error, err)
+		require.Contains(t, err, "Value of '"+test.Key+"' is "+test.Error)
 	}
 }
 
@@ -45,7 +45,7 @@ func TestEventNotFoundError(t *testing.T) {
 		Service:  &Service{Name: "TestEventNotFoundError"},
 		EventKey: "TestEventNotFoundErrorEventKey",
 	}
-	assert.Equal(t, "Event 'TestEventNotFoundErrorEventKey' not found in service 'TestEventNotFoundError'", err.Error())
+	require.Equal(t, "Event 'TestEventNotFoundErrorEventKey' not found in service 'TestEventNotFoundError'", err.Error())
 }
 
 // Test InvalidEventDataError
@@ -62,10 +62,10 @@ func TestInvalidEventDataError(t *testing.T) {
 		Event: &Event{
 			Data: tests.parameterTestsToMapParameter(),
 		},
-		Key:  "TestInvalidEventDataErrorEventKey",
-		Data: tests.parameterTestsToMapData(),
+		EventKey:  "TestInvalidEventDataErrorEventKey",
+		EventData: tests.parameterTestsToMapData(),
 	}
-	assert.Contains(t, "Data of event 'TestInvalidEventDataErrorEventKey' is invalid", err.Error())
+	require.Contains(t, err.Error(), "Data of event 'TestInvalidEventDataErrorEventKey' is invalid")
 	tests.assert(t, err.Error())
 }
 
@@ -75,7 +75,7 @@ func TestTaskNotFoundError(t *testing.T) {
 		Service: &Service{Name: "TestTaskNotFoundError"},
 		TaskKey: "TestTaskNotFoundErrorEventKey",
 	}
-	assert.Equal(t, "Task 'TestTaskNotFoundErrorEventKey' not found in service 'TestTaskNotFoundError'", err.Error())
+	require.Equal(t, "Task 'TestTaskNotFoundErrorEventKey' not found in service 'TestTaskNotFoundError'", err.Error())
 }
 
 // Test InvalidTaskInputError
@@ -92,10 +92,10 @@ func TestInvalidTaskInputError(t *testing.T) {
 		Task: &Task{
 			Inputs: tests.parameterTestsToMapParameter(),
 		},
-		Key:    "TestInvalidTaskInputErrorEventKey",
-		Inputs: tests.parameterTestsToMapData(),
+		TaskKey:   "TestInvalidTaskInputErrorKey",
+		InputData: tests.parameterTestsToMapData(),
 	}
-	assert.Contains(t, "Inputs of task 'TestInvalidTaskInputErrorEventKey' are invalid", err.Error())
+	require.Contains(t, err.Error(), "Inputs of task 'TestInvalidTaskInputErrorKey' are invalid")
 	tests.assert(t, err.Error())
 }
 
@@ -103,9 +103,10 @@ func TestInvalidTaskInputError(t *testing.T) {
 func TestOutputNotFoundError(t *testing.T) {
 	err := OutputNotFoundError{
 		Service:   &Service{Name: "TestOutputNotFoundError"},
-		OutputKey: "TestOutputNotFoundErrorEventKey",
+		TaskKey:   "TaskKey",
+		OutputKey: "OutputKey",
 	}
-	assert.Equal(t, "Output 'TestOutputNotFoundErrorEventKey' not found in service 'TestOutputNotFoundError'", err.Error())
+	require.Equal(t, "Output 'OutputKey' of task 'TaskKey' not found in service 'TestOutputNotFoundError'", err.Error())
 }
 
 // Test InvalidOutputDataError
@@ -122,9 +123,20 @@ func TestInvalidOutputDataError(t *testing.T) {
 		Output: &Output{
 			Data: tests.parameterTestsToMapParameter(),
 		},
-		Key:  "TestInvalidOutputDataErrorEventKey",
-		Data: tests.parameterTestsToMapData(),
+		OutputKey:  "OutputKey",
+		TaskKey:    "TaskKey",
+		OutputData: tests.parameterTestsToMapData(),
 	}
-	assert.Contains(t, "Outputs of task 'TestInvalidOutputDataErrorEventKey' are invalid", err.Error())
+	require.Contains(t, err.Error(), "Outputs 'OutputKey' of task 'TaskKey' are invalid")
 	tests.assert(t, err.Error())
+}
+
+// Test InputNotFoundError
+func TestInputNotFoundError(t *testing.T) {
+	err := InputNotFoundError{
+		Service:  &Service{Name: "InputNotFoundError"},
+		TaskKey:  "TaskKey",
+		InputKey: "InputKey",
+	}
+	require.Equal(t, "Input 'InputKey' of task 'TaskKey' not found in service 'InputNotFoundError'", err.Error())
 }

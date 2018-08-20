@@ -6,7 +6,7 @@ import (
 
 	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/service"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var serverdelete = new(Server)
@@ -16,7 +16,7 @@ func TestDeleteService(t *testing.T) {
 	service := service.Service{
 		Name: "TestDeleteService",
 		Dependencies: map[string]*service.Dependency{
-			"test": &service.Dependency{
+			"test": {
 				Image: "nginx",
 			},
 		},
@@ -27,8 +27,8 @@ func TestDeleteService(t *testing.T) {
 	reply, err := serverdelete.DeleteService(context.Background(), &DeleteServiceRequest{
 		ServiceID: deployment.ServiceID,
 	})
-	assert.Nil(t, err)
-	assert.NotNil(t, reply)
+	require.Nil(t, err)
+	require.NotNil(t, reply)
 	x, _ := services.Get(deployment.ServiceID)
-	assert.Equal(t, x, emptyService)
+	require.Equal(t, x, emptyService)
 }

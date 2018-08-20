@@ -1,32 +1,54 @@
 package core
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/mesg-foundation/core/database/services"
-
-	"context"
-
 	"github.com/mesg-foundation/core/execution"
+	"github.com/mesg-foundation/core/service"
 )
 
-// ExecuteTask will execute a task for a given service
+// ExecuteTask executes a task for a given service.
 func (s *Server) ExecuteTask(ctx context.Context, request *ExecuteTaskRequest) (*ExecuteTaskReply, error) {
-	service, err := services.Get(request.ServiceID)
+	srv, err := services.Get(request.ServiceID)
 	if err != nil {
 		return nil, err
 	}
-	var inputs map[string]interface{}
-	err = json.Unmarshal([]byte(request.InputData), &inputs)
+	inputs, err := getData(request)
 	if err != nil {
 		return nil, err
 	}
-	execution, err := execution.Create(&service, request.TaskKey, inputs)
-	if err != nil {
+	if err := checkServiceStatus(&srv); err != nil {
 		return nil, err
 	}
-	err = execution.Execute()
+	executionID, err := execute(&srv, request.TaskKey, inputs, request.ExecutionTags)
 	return &ExecuteTaskReply{
-		ExecutionID: execution.ID,
+		ExecutionID: executionID,
 	}, err
+}
+
+func checkServiceStatus(srv *service.Service) error {
+	status, err := srv.Status()
+	if err != nil {
+		return err
+	}
+	if status != service.RUNNING {
+		return &NotRunningServiceError{ServiceID: srv.Hash()}
+	}
+	return nil
+}
+
+func getData(request *ExecuteTaskRequest) (map[string]interface{}, error) {
+	var inputs map[string]interface{}
+	err := json.Unmarshal([]byte(request.InputData), &inputs)
+	return inputs, err
+}
+
+func execute(srv *service.Service, key string, inputs map[string]interface{}, tags []string) (executionID string, err error) {
+	exc, err := execution.Create(srv, key, inputs, tags)
+	if err != nil {
+		return "", err
+	}
+	return exc.ID, exc.Execute()
 }

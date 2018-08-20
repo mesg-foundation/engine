@@ -1,4 +1,7 @@
 #!/bin/bash
 
-image=mesg/core:local
-env MESG_CORE_IMAGE=$image go run cli/main.go $@ 
+version="local"
+go run \
+  -ldflags="-X 'github.com/mesg-foundation/core/version.Version=$version'" \
+  cli/main.go \
+  $@ 
