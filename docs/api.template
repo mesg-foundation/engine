@@ -1,0 +1,53 @@
+{{define "data"}}
+#### {{.LongName}}
+{{.Description}}
+
+{{if .HasFields}}
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+{{range .Fields -}}
+  | {{.Name}} | [{{.LongType}}](#{{.FullType}}){{if eq .Label "repeated"}}[]{{end}} | {{.Description}} |
+{{end}}
+{{end}}
+{{end}}
+
+{{range .Files}}
+{{$file := .}}
+{{range .Services}}
+# {{.Name}} API
+<!--
+DO NOT EDIT
+This file is generated using the ./scripts/build-proto.sh scripts
+Please update the {{.Name}} file
+-->
+
+{{.Description}}
+
+[[toc]]
+
+{{range .Methods -}}
+{{$method := .}}
+## {{.Name}}
+
+{{.Description}}
+
+<tabs>
+<tab title="Request">
+{{range $file.Messages}}
+{{if eq .LongName $method.RequestLongType}}
+{{template "data" .}}
+{{end}}
+{{end}}
+</tab>
+
+<tab title="Reply">
+{{range $file.Messages}}
+{{if eq .LongName $method.ResponseLongType}}
+{{template "data" .}}
+{{end}}
+{{end}}
+</tab>
+</tabs>
+{{end}}
+{{end}}
+{{end}}

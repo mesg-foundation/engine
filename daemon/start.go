@@ -30,11 +30,11 @@ func serviceSpec() (spec container.ServiceOptions, err error) {
 	spec = container.ServiceOptions{
 		Namespace: Namespace(),
 		Image:     viper.GetString(config.CoreImage),
-		Env: []string{
-			"MESG.PATH=/mesg",
-			"API.SERVICE.SOCKETPATH=" + filepath.Join(viper.GetString(config.MESGPath), "server.sock"),
-			"SERVICE.PATH.HOST=" + filepath.Join(viper.GetString(config.MESGPath), "services"),
-		},
+		Env: container.MapToEnv(map[string]string{
+			config.ToEnv(config.MESGPath):             "/mesg",
+			config.ToEnv(config.APIServiceSocketPath): filepath.Join(viper.GetString(config.MESGPath), "server.sock"),
+			config.ToEnv(config.ServicePathHost):      filepath.Join(viper.GetString(config.MESGPath), "services"),
+		}),
 		Mounts: []container.Mount{
 			container.Mount{
 				Source: dockerSocket,

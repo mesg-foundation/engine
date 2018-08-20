@@ -9,14 +9,14 @@ It is generated from these files:
 
 It has these top-level messages:
 	ListenEventRequest
-	ExecuteTaskRequest
-	ListenResultRequest
-	StartServiceRequest
-	StopServiceRequest
 	EventData
-	ExecuteTaskReply
+	ListenResultRequest
 	ResultData
+	ExecuteTaskRequest
+	ExecuteTaskReply
+	StartServiceRequest
 	StartServiceReply
+	StopServiceRequest
 	StopServiceReply
 	DeployServiceRequest
 	DeployServiceReply
@@ -35,7 +35,7 @@ import math "math"
 import service "github.com/mesg-foundation/core/service"
 
 import (
-	context "context"
+	context "golang.org/x/net/context"
 	grpc "google.golang.org/grpc"
 )
 
@@ -50,6 +50,15 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
+// The request's data for the `ListenEvent` stream's API.
+//
+// **Example**
+// ```json
+// {
+//   "serviceID":   "__SERVICE_ID__",
+//   "eventFilter": "__EVENT_KEY_TO_MATCH__"
+// }
+// ```
 type ListenEventRequest struct {
 	ServiceID   string `protobuf:"bytes,1,opt,name=serviceID" json:"serviceID,omitempty"`
 	EventFilter string `protobuf:"bytes,2,opt,name=eventFilter" json:"eventFilter,omitempty"`
@@ -74,38 +83,50 @@ func (m *ListenEventRequest) GetEventFilter() string {
 	return ""
 }
 
-type ExecuteTaskRequest struct {
-	ServiceID string `protobuf:"bytes,1,opt,name=serviceID" json:"serviceID,omitempty"`
-	TaskKey   string `protobuf:"bytes,2,opt,name=taskKey" json:"taskKey,omitempty"`
-	InputData string `protobuf:"bytes,3,opt,name=inputData" json:"inputData,omitempty"`
+// The data received from the stream of the `ListenEvent` API.
+// The data will be received over time as long as the stream is open.
+//
+// **Example**
+// ```json
+// {
+//   "eventKey":  "__EVENT_KEY__",
+//   "eventData": "{\"foo\":\"bar\"}"
+// }
+// ```
+type EventData struct {
+	EventKey  string `protobuf:"bytes,1,opt,name=eventKey" json:"eventKey,omitempty"`
+	EventData string `protobuf:"bytes,2,opt,name=eventData" json:"eventData,omitempty"`
 }
 
-func (m *ExecuteTaskRequest) Reset()                    { *m = ExecuteTaskRequest{} }
-func (m *ExecuteTaskRequest) String() string            { return proto.CompactTextString(m) }
-func (*ExecuteTaskRequest) ProtoMessage()               {}
-func (*ExecuteTaskRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
+func (m *EventData) Reset()                    { *m = EventData{} }
+func (m *EventData) String() string            { return proto.CompactTextString(m) }
+func (*EventData) ProtoMessage()               {}
+func (*EventData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
 
-func (m *ExecuteTaskRequest) GetServiceID() string {
+func (m *EventData) GetEventKey() string {
 	if m != nil {
-		return m.ServiceID
+		return m.EventKey
 	}
 	return ""
 }
 
-func (m *ExecuteTaskRequest) GetTaskKey() string {
+func (m *EventData) GetEventData() string {
 	if m != nil {
-		return m.TaskKey
+		return m.EventData
 	}
 	return ""
 }
 
-func (m *ExecuteTaskRequest) GetInputData() string {
-	if m != nil {
-		return m.InputData
-	}
-	return ""
-}
-
+// The request's data for the `ListenResult` stream API.
+//
+// **Example**
+// ```json
+// {
+//   "serviceID":     "__SERVICE_ID__",
+//   "taskFilter":    "__TASK_KEY_TO_MATCH__",
+//   "outputFilter":  "__OUTPUT_KEY_TO_MATCH__"
+// }
+// ```
 type ListenResultRequest struct {
 	ServiceID    string `protobuf:"bytes,1,opt,name=serviceID" json:"serviceID,omitempty"`
 	TaskFilter   string `protobuf:"bytes,2,opt,name=taskFilter" json:"taskFilter,omitempty"`
@@ -138,78 +159,18 @@ func (m *ListenResultRequest) GetOutputFilter() string {
 	return ""
 }
 
-type StartServiceRequest struct {
-	ServiceID string `protobuf:"bytes,1,opt,name=serviceID" json:"serviceID,omitempty"`
-}
-
-func (m *StartServiceRequest) Reset()                    { *m = StartServiceRequest{} }
-func (m *StartServiceRequest) String() string            { return proto.CompactTextString(m) }
-func (*StartServiceRequest) ProtoMessage()               {}
-func (*StartServiceRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
-
-func (m *StartServiceRequest) GetServiceID() string {
-	if m != nil {
-		return m.ServiceID
-	}
-	return ""
-}
-
-type StopServiceRequest struct {
-	ServiceID string `protobuf:"bytes,1,opt,name=serviceID" json:"serviceID,omitempty"`
-}
-
-func (m *StopServiceRequest) Reset()                    { *m = StopServiceRequest{} }
-func (m *StopServiceRequest) String() string            { return proto.CompactTextString(m) }
-func (*StopServiceRequest) ProtoMessage()               {}
-func (*StopServiceRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
-
-func (m *StopServiceRequest) GetServiceID() string {
-	if m != nil {
-		return m.ServiceID
-	}
-	return ""
-}
-
-type EventData struct {
-	EventKey  string `protobuf:"bytes,1,opt,name=eventKey" json:"eventKey,omitempty"`
-	EventData string `protobuf:"bytes,2,opt,name=eventData" json:"eventData,omitempty"`
-}
-
-func (m *EventData) Reset()                    { *m = EventData{} }
-func (m *EventData) String() string            { return proto.CompactTextString(m) }
-func (*EventData) ProtoMessage()               {}
-func (*EventData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{5} }
-
-func (m *EventData) GetEventKey() string {
-	if m != nil {
-		return m.EventKey
-	}
-	return ""
-}
-
-func (m *EventData) GetEventData() string {
-	if m != nil {
-		return m.EventData
-	}
-	return ""
-}
-
-type ExecuteTaskReply struct {
-	ExecutionID string `protobuf:"bytes,1,opt,name=executionID" json:"executionID,omitempty"`
-}
-
-func (m *ExecuteTaskReply) Reset()                    { *m = ExecuteTaskReply{} }
-func (m *ExecuteTaskReply) String() string            { return proto.CompactTextString(m) }
-func (*ExecuteTaskReply) ProtoMessage()               {}
-func (*ExecuteTaskReply) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{6} }
-
-func (m *ExecuteTaskReply) GetExecutionID() string {
-	if m != nil {
-		return m.ExecutionID
-	}
-	return ""
-}
-
+// The data received from the stream of the `ListenResult` API.
+// The data will be received over time as long as the stream is open.
+//
+// **Example**
+// ```json
+// {
+//   "executionID": "__EXECUTION_ID__",
+//   "taskKey":     "__TASK_KEY__",
+//   "outputKey":   "__OUTPUT_KEY__",
+//   "outputData":  "{\"foo\":\"bar\"}"
+// }
+// ```
 type ResultData struct {
 	ExecutionID string `protobuf:"bytes,1,opt,name=executionID" json:"executionID,omitempty"`
 	TaskKey     string `protobuf:"bytes,2,opt,name=taskKey" json:"taskKey,omitempty"`
@@ -220,7 +181,7 @@ type ResultData struct {
 func (m *ResultData) Reset()                    { *m = ResultData{} }
 func (m *ResultData) String() string            { return proto.CompactTextString(m) }
 func (*ResultData) ProtoMessage()               {}
-func (*ResultData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{7} }
+func (*ResultData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
 
 func (m *ResultData) GetExecutionID() string {
 	if m != nil {
@@ -250,14 +211,130 @@ func (m *ResultData) GetOutputData() string {
 	return ""
 }
 
+// The request's data for the `ExecuteTask` API.
+//
+// **Example**
+// ```json
+// {
+//   "serviceID": "__SERVICE_ID__",
+//   "taskKey":   "__TASK_KEY__",
+//   "inputData": "{\"foo\":\"bar\"}"
+// }
+// ```
+type ExecuteTaskRequest struct {
+	ServiceID string `protobuf:"bytes,1,opt,name=serviceID" json:"serviceID,omitempty"`
+	TaskKey   string `protobuf:"bytes,2,opt,name=taskKey" json:"taskKey,omitempty"`
+	InputData string `protobuf:"bytes,3,opt,name=inputData" json:"inputData,omitempty"`
+}
+
+func (m *ExecuteTaskRequest) Reset()                    { *m = ExecuteTaskRequest{} }
+func (m *ExecuteTaskRequest) String() string            { return proto.CompactTextString(m) }
+func (*ExecuteTaskRequest) ProtoMessage()               {}
+func (*ExecuteTaskRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
+
+func (m *ExecuteTaskRequest) GetServiceID() string {
+	if m != nil {
+		return m.ServiceID
+	}
+	return ""
+}
+
+func (m *ExecuteTaskRequest) GetTaskKey() string {
+	if m != nil {
+		return m.TaskKey
+	}
+	return ""
+}
+
+func (m *ExecuteTaskRequest) GetInputData() string {
+	if m != nil {
+		return m.InputData
+	}
+	return ""
+}
+
+// The reply's data of the `ExecuteTask` API.
+//
+// **Example**
+// ```json
+// {
+//   "executionID": "__EXECUTION_ID__"
+// }
+// ```
+type ExecuteTaskReply struct {
+	ExecutionID string `protobuf:"bytes,1,opt,name=executionID" json:"executionID,omitempty"`
+}
+
+func (m *ExecuteTaskReply) Reset()                    { *m = ExecuteTaskReply{} }
+func (m *ExecuteTaskReply) String() string            { return proto.CompactTextString(m) }
+func (*ExecuteTaskReply) ProtoMessage()               {}
+func (*ExecuteTaskReply) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{5} }
+
+func (m *ExecuteTaskReply) GetExecutionID() string {
+	if m != nil {
+		return m.ExecutionID
+	}
+	return ""
+}
+
+// The request's data for the `StartService` API.
+//
+// **Example**
+// ```json
+// {
+//   "serviceID": "__SERVICE_ID__"
+// }
+// ```
+type StartServiceRequest struct {
+	ServiceID string `protobuf:"bytes,1,opt,name=serviceID" json:"serviceID,omitempty"`
+}
+
+func (m *StartServiceRequest) Reset()                    { *m = StartServiceRequest{} }
+func (m *StartServiceRequest) String() string            { return proto.CompactTextString(m) }
+func (*StartServiceRequest) ProtoMessage()               {}
+func (*StartServiceRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{6} }
+
+func (m *StartServiceRequest) GetServiceID() string {
+	if m != nil {
+		return m.ServiceID
+	}
+	return ""
+}
+
+// Reply of `StartService` API doesn't contain any data.
 type StartServiceReply struct {
 }
 
 func (m *StartServiceReply) Reset()                    { *m = StartServiceReply{} }
 func (m *StartServiceReply) String() string            { return proto.CompactTextString(m) }
 func (*StartServiceReply) ProtoMessage()               {}
-func (*StartServiceReply) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{8} }
+func (*StartServiceReply) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{7} }
 
+// The request's data for the `StopService` API.
+//
+// **Example**
+// ```json
+// {
+//   "serviceID": "__SERVICE_ID__"
+// }
+// ```
+type StopServiceRequest struct {
+	ServiceID string `protobuf:"bytes,1,opt,name=serviceID" json:"serviceID,omitempty"`
+}
+
+func (m *StopServiceRequest) Reset()                    { *m = StopServiceRequest{} }
+func (m *StopServiceRequest) String() string            { return proto.CompactTextString(m) }
+func (*StopServiceRequest) ProtoMessage()               {}
+func (*StopServiceRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{8} }
+
+func (m *StopServiceRequest) GetServiceID() string {
+	if m != nil {
+		return m.ServiceID
+	}
+	return ""
+}
+
+// Reply of `StopService` API doesn't contain any data.
 type StopServiceReply struct {
 }
 
@@ -266,6 +343,37 @@ func (m *StopServiceReply) String() string            { return proto.CompactText
 func (*StopServiceReply) ProtoMessage()               {}
 func (*StopServiceReply) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{9} }
 
+// The request's data for `DeployService` API.
+//
+// **Example**
+// ```json
+// {
+//   "service": {
+//     "name": "serviceX",
+//     "events": {
+//       "eventX": {
+//         "data": {
+//           "dataX": { "type": "String" }
+//         }
+//       }
+//     },
+//     "tasks": {
+//       "taskX": {
+//         "inputs": {
+//           "foo": { "type": "String" }
+//         },
+//         "outputs": {
+//           "outputX": {
+//             "data": {
+//               "resX": { "type": "String" }
+//             }
+//           }
+//         }
+//       }
+//     }
+//   }
+// }
+// ```
 type DeployServiceRequest struct {
 	Service *service.Service `protobuf:"bytes,1,opt,name=service" json:"service,omitempty"`
 }
@@ -282,6 +390,14 @@ func (m *DeployServiceRequest) GetService() *service.Service {
 	return nil
 }
 
+// The reply's data of `DeployService` API.
+//
+// **Example**
+// ```json
+// {
+//   "serviceID": "__SERVICE_ID__"
+// }
+// ```
 type DeployServiceReply struct {
 	ServiceID string `protobuf:"bytes,1,opt,name=serviceID" json:"serviceID,omitempty"`
 }
@@ -298,6 +414,14 @@ func (m *DeployServiceReply) GetServiceID() string {
 	return ""
 }
 
+// Request's data of the `DeleteService` API.
+//
+// **Example**
+// ```json
+// {
+//   "serviceID": "__SERVICE_ID__"
+// }
+// ```
 type DeleteServiceRequest struct {
 	ServiceID string `protobuf:"bytes,1,opt,name=serviceID" json:"serviceID,omitempty"`
 }
@@ -314,6 +438,7 @@ func (m *DeleteServiceRequest) GetServiceID() string {
 	return ""
 }
 
+// Reply of `DeleteService` API doesn't contain any data.
 type DeleteServiceReply struct {
 }
 
@@ -322,6 +447,7 @@ func (m *DeleteServiceReply) String() string            { return proto.CompactTe
 func (*DeleteServiceReply) ProtoMessage()               {}
 func (*DeleteServiceReply) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{13} }
 
+// Reply of `ListServices` API doesn't contain any data.
 type ListServicesRequest struct {
 }
 
@@ -330,6 +456,37 @@ func (m *ListServicesRequest) String() string            { return proto.CompactT
 func (*ListServicesRequest) ProtoMessage()               {}
 func (*ListServicesRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{14} }
 
+// The reply's data of the `ListServices` API.
+//
+// **Example**
+// ```json
+// [{
+//   "service": {
+//     "name": "serviceX",
+//     "events": {
+//       "eventX": {
+//         "data": {
+//           "dataX": { "type": "String" }
+//         }
+//       }
+//     },
+//     "tasks": {
+//       "taskX": {
+//         "inputs": {
+//           "foo": { "type": "String" }
+//         },
+//         "outputs": {
+//           "outputX": {
+//             "data": {
+//               "resX": { "type": "String" }
+//             }
+//           }
+//         }
+//       }
+//     }
+//   }
+// }]
+// ```
 type ListServicesReply struct {
 	Services []*service.Service `protobuf:"bytes,1,rep,name=services" json:"services,omitempty"`
 }
@@ -346,6 +503,14 @@ func (m *ListServicesReply) GetServices() []*service.Service {
 	return nil
 }
 
+// The request's data for the `GetService` API.
+//
+// **Example**
+// ```json
+// {
+//   "serviceID": "__SERVICE_ID__"
+// }
+// ```
 type GetServiceRequest struct {
 	ServiceID string `protobuf:"bytes,1,opt,name=serviceID" json:"serviceID,omitempty"`
 }
@@ -362,6 +527,37 @@ func (m *GetServiceRequest) GetServiceID() string {
 	return ""
 }
 
+// The reply's data of the `GetService` API.
+//
+// **Example**
+// ```json
+// {
+//   "service": {
+//     "name": "serviceX",
+//     "events": {
+//       "eventX": {
+//         "data": {
+//           "dataX": { "type": "String" }
+//         }
+//       }
+//     },
+//     "tasks": {
+//       "taskX": {
+//         "inputs": {
+//           "foo": { "type": "String" }
+//         },
+//         "outputs": {
+//           "outputX": {
+//             "data": {
+//               "resX": { "type": "String" }
+//             }
+//           }
+//         }
+//       }
+//     }
+//   }
+// }
+// ```
 type GetServiceReply struct {
 	Service *service.Service `protobuf:"bytes,1,opt,name=service" json:"service,omitempty"`
 }
@@ -380,14 +576,14 @@ func (m *GetServiceReply) GetService() *service.Service {
 
 func init() {
 	proto.RegisterType((*ListenEventRequest)(nil), "api.ListenEventRequest")
-	proto.RegisterType((*ExecuteTaskRequest)(nil), "api.ExecuteTaskRequest")
-	proto.RegisterType((*ListenResultRequest)(nil), "api.ListenResultRequest")
-	proto.RegisterType((*StartServiceRequest)(nil), "api.StartServiceRequest")
-	proto.RegisterType((*StopServiceRequest)(nil), "api.StopServiceRequest")
 	proto.RegisterType((*EventData)(nil), "api.EventData")
-	proto.RegisterType((*ExecuteTaskReply)(nil), "api.ExecuteTaskReply")
+	proto.RegisterType((*ListenResultRequest)(nil), "api.ListenResultRequest")
 	proto.RegisterType((*ResultData)(nil), "api.ResultData")
+	proto.RegisterType((*ExecuteTaskRequest)(nil), "api.ExecuteTaskRequest")
+	proto.RegisterType((*ExecuteTaskReply)(nil), "api.ExecuteTaskReply")
+	proto.RegisterType((*StartServiceRequest)(nil), "api.StartServiceRequest")
 	proto.RegisterType((*StartServiceReply)(nil), "api.StartServiceReply")
+	proto.RegisterType((*StopServiceRequest)(nil), "api.StopServiceRequest")
 	proto.RegisterType((*StopServiceReply)(nil), "api.StopServiceReply")
 	proto.RegisterType((*DeployServiceRequest)(nil), "api.DeployServiceRequest")
 	proto.RegisterType((*DeployServiceReply)(nil), "api.DeployServiceReply")
@@ -410,14 +606,23 @@ const _ = grpc.SupportPackageIsVersion4
 // Client API for Core service
 
 type CoreClient interface {
+	// Subscribe to a stream that listens for events from a service.
 	ListenEvent(ctx context.Context, in *ListenEventRequest, opts ...grpc.CallOption) (Core_ListenEventClient, error)
-	ExecuteTask(ctx context.Context, in *ExecuteTaskRequest, opts ...grpc.CallOption) (*ExecuteTaskReply, error)
+	// Subscribe to a stream that listens for task's result from a service.
 	ListenResult(ctx context.Context, in *ListenResultRequest, opts ...grpc.CallOption) (Core_ListenResultClient, error)
+	// Execute a service's task through [Core](../guide/start-here/core.md).
+	ExecuteTask(ctx context.Context, in *ExecuteTaskRequest, opts ...grpc.CallOption) (*ExecuteTaskReply, error)
+	// Start a service. The service must be already deployed to [Core](../guide/start-here/core.md).
 	StartService(ctx context.Context, in *StartServiceRequest, opts ...grpc.CallOption) (*StartServiceReply, error)
+	// Stop a service. The service must be already deployed to [Core](../guide/start-here/core.md).
 	StopService(ctx context.Context, in *StopServiceRequest, opts ...grpc.CallOption) (*StopServiceReply, error)
+	// Deploy a service to [Core](../guide/start-here/core.md). This will give you an unique identifier which is used to interact with the service.
 	DeployService(ctx context.Context, in *DeployServiceRequest, opts ...grpc.CallOption) (*DeployServiceReply, error)
+	// Delete a service from Core. This function only deletes a deployed service in [Core](../guide/start-here/core.md). If the service's code is on your computer, the source code will not be deleted.
 	DeleteService(ctx context.Context, in *DeleteServiceRequest, opts ...grpc.CallOption) (*DeleteServiceReply, error)
+	// List all services already deployed in [Core](../guide/start-here/core.md).
 	ListServices(ctx context.Context, in *ListServicesRequest, opts ...grpc.CallOption) (*ListServicesReply, error)
+	// Get the definition of an already-deployed service from its ID.
 	GetService(ctx context.Context, in *GetServiceRequest, opts ...grpc.CallOption) (*GetServiceReply, error)
 }
 
@@ -461,15 +666,6 @@ func (x *coreListenEventClient) Recv() (*EventData, error) {
 	return m, nil
 }
 
-func (c *coreClient) ExecuteTask(ctx context.Context, in *ExecuteTaskRequest, opts ...grpc.CallOption) (*ExecuteTaskReply, error) {
-	out := new(ExecuteTaskReply)
-	err := grpc.Invoke(ctx, "/api.Core/ExecuteTask", in, out, c.cc, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *coreClient) ListenResult(ctx context.Context, in *ListenResultRequest, opts ...grpc.CallOption) (Core_ListenResultClient, error) {
 	stream, err := grpc.NewClientStream(ctx, &_Core_serviceDesc.Streams[1], c.cc, "/api.Core/ListenResult", opts...)
 	if err != nil {
@@ -500,6 +696,15 @@ func (x *coreListenResultClient) Recv() (*ResultData, error) {
 		return nil, err
 	}
 	return m, nil
+}
+
+func (c *coreClient) ExecuteTask(ctx context.Context, in *ExecuteTaskRequest, opts ...grpc.CallOption) (*ExecuteTaskReply, error) {
+	out := new(ExecuteTaskReply)
+	err := grpc.Invoke(ctx, "/api.Core/ExecuteTask", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *coreClient) StartService(ctx context.Context, in *StartServiceRequest, opts ...grpc.CallOption) (*StartServiceReply, error) {
@@ -559,14 +764,23 @@ func (c *coreClient) GetService(ctx context.Context, in *GetServiceRequest, opts
 // Server API for Core service
 
 type CoreServer interface {
+	// Subscribe to a stream that listens for events from a service.
 	ListenEvent(*ListenEventRequest, Core_ListenEventServer) error
-	ExecuteTask(context.Context, *ExecuteTaskRequest) (*ExecuteTaskReply, error)
+	// Subscribe to a stream that listens for task's result from a service.
 	ListenResult(*ListenResultRequest, Core_ListenResultServer) error
+	// Execute a service's task through [Core](../guide/start-here/core.md).
+	ExecuteTask(context.Context, *ExecuteTaskRequest) (*ExecuteTaskReply, error)
+	// Start a service. The service must be already deployed to [Core](../guide/start-here/core.md).
 	StartService(context.Context, *StartServiceRequest) (*StartServiceReply, error)
+	// Stop a service. The service must be already deployed to [Core](../guide/start-here/core.md).
 	StopService(context.Context, *StopServiceRequest) (*StopServiceReply, error)
+	// Deploy a service to [Core](../guide/start-here/core.md). This will give you an unique identifier which is used to interact with the service.
 	DeployService(context.Context, *DeployServiceRequest) (*DeployServiceReply, error)
+	// Delete a service from Core. This function only deletes a deployed service in [Core](../guide/start-here/core.md). If the service's code is on your computer, the source code will not be deleted.
 	DeleteService(context.Context, *DeleteServiceRequest) (*DeleteServiceReply, error)
+	// List all services already deployed in [Core](../guide/start-here/core.md).
 	ListServices(context.Context, *ListServicesRequest) (*ListServicesReply, error)
+	// Get the definition of an already-deployed service from its ID.
 	GetService(context.Context, *GetServiceRequest) (*GetServiceReply, error)
 }
 
@@ -595,24 +809,6 @@ func (x *coreListenEventServer) Send(m *EventData) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func _Core_ExecuteTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ExecuteTaskRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CoreServer).ExecuteTask(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/api.Core/ExecuteTask",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CoreServer).ExecuteTask(ctx, req.(*ExecuteTaskRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Core_ListenResult_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(ListenResultRequest)
 	if err := stream.RecvMsg(m); err != nil {
@@ -632,6 +828,24 @@ type coreListenResultServer struct {
 
 func (x *coreListenResultServer) Send(m *ResultData) error {
 	return x.ServerStream.SendMsg(m)
+}
+
+func _Core_ExecuteTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExecuteTaskRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServer).ExecuteTask(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.Core/ExecuteTask",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServer).ExecuteTask(ctx, req.(*ExecuteTaskRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Core_StartService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -793,43 +1007,43 @@ var _Core_serviceDesc = grpc.ServiceDesc{
 func init() { proto.RegisterFile("github.com/mesg-foundation/core/api/core/api.proto", fileDescriptor0) }
 
 var fileDescriptor0 = []byte{
-	// 605 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x55, 0xdd, 0x72, 0x12, 0x31,
-	0x14, 0x06, 0xcb, 0xb4, 0xe5, 0x80, 0x16, 0x02, 0xb5, 0xeb, 0x8e, 0xe3, 0x30, 0xb9, 0x72, 0x1c,
-	0x05, 0xa5, 0xf5, 0xc6, 0xb1, 0xd3, 0x11, 0x41, 0xc7, 0xd1, 0x2b, 0xe8, 0x95, 0x77, 0x5b, 0x8c,
-	0x75, 0xed, 0x76, 0xb3, 0xee, 0x66, 0xab, 0xbc, 0x80, 0xaf, 0xe8, 0xeb, 0x38, 0x27, 0xc9, 0x86,
-	0x2c, 0x61, 0x5a, 0xb8, 0x82, 0x7c, 0xe7, 0x2f, 0xe7, 0x3b, 0xdf, 0x9e, 0xc0, 0xf0, 0x32, 0x14,
-	0x3f, 0xf2, 0x8b, 0xfe, 0x9c, 0x5f, 0x0f, 0xae, 0x59, 0x76, 0xf9, 0xe2, 0x3b, 0xcf, 0xe3, 0x6f,
-	0x81, 0x08, 0x79, 0x3c, 0x98, 0xf3, 0x94, 0x0d, 0x82, 0x24, 0x34, 0x7f, 0xfa, 0x49, 0xca, 0x05,
-	0x27, 0x3b, 0x41, 0x12, 0xfa, 0xaf, 0xef, 0x0a, 0xcc, 0x58, 0x7a, 0x13, 0xce, 0xcd, 0xaf, 0x8a,
-	0xa5, 0xe7, 0x40, 0xbe, 0x84, 0x99, 0x60, 0xf1, 0xe4, 0x86, 0xc5, 0x62, 0xca, 0x7e, 0xe5, 0x2c,
-	0x13, 0xe4, 0x31, 0xd4, 0xb5, 0xdb, 0xa7, 0xb1, 0x57, 0xed, 0x55, 0x9f, 0xd6, 0xa7, 0x4b, 0x80,
-	0xf4, 0xa0, 0xc1, 0xd0, 0xfb, 0x43, 0x18, 0x09, 0x96, 0x7a, 0xf7, 0xa4, 0xdd, 0x86, 0xe8, 0x4f,
-	0x20, 0x93, 0x3f, 0x6c, 0x9e, 0x0b, 0x76, 0x1e, 0x64, 0x57, 0x9b, 0x65, 0xf5, 0x60, 0x4f, 0x04,
-	0xd9, 0xd5, 0x67, 0xb6, 0xd0, 0x19, 0x8b, 0x23, 0xc6, 0x85, 0x71, 0x92, 0x8b, 0x71, 0x20, 0x02,
-	0x6f, 0x47, 0xc5, 0x19, 0x80, 0xfe, 0x86, 0x8e, 0xea, 0x60, 0xca, 0xb2, 0x3c, 0xda, 0xb0, 0x85,
-	0x27, 0x00, 0x98, 0xbd, 0xd4, 0x81, 0x85, 0x10, 0x0a, 0x4d, 0x9e, 0x8b, 0x24, 0x2f, 0x7a, 0x54,
-	0x55, 0x4b, 0x18, 0x3d, 0x86, 0xce, 0x4c, 0x04, 0xa9, 0x98, 0xa9, 0xac, 0x1b, 0x15, 0xa6, 0x43,
-	0x20, 0x33, 0xc1, 0x93, 0xad, 0x62, 0x26, 0x50, 0x97, 0xd3, 0xc1, 0x76, 0x89, 0x0f, 0xfb, 0x92,
-	0x69, 0xe4, 0x49, 0x79, 0x9a, 0x33, 0xa6, 0x61, 0x85, 0xa3, 0x6e, 0x6a, 0x09, 0xd0, 0x13, 0x68,
-	0x95, 0x86, 0x92, 0x44, 0x0b, 0x39, 0x4a, 0x89, 0x85, 0x3c, 0x36, 0xa5, 0x6d, 0x88, 0xfe, 0xad,
-	0x02, 0x28, 0x66, 0x65, 0xf9, 0x3b, 0x03, 0x6e, 0x9f, 0xa3, 0x22, 0x10, 0x6d, 0x7a, 0x8e, 0x06,
-	0xc0, 0x91, 0xa8, 0x83, 0xbc, 0x7d, 0x4d, 0x8d, 0x64, 0x89, 0xd0, 0x0e, 0xb4, 0xcb, 0x74, 0x27,
-	0xd1, 0x82, 0x12, 0x68, 0x95, 0xe8, 0x44, 0x6c, 0x04, 0xdd, 0x31, 0x4b, 0x22, 0xbe, 0x58, 0x21,
-	0xf9, 0x19, 0xec, 0x69, 0x4e, 0xe5, 0xb5, 0x1b, 0xc3, 0x56, 0xbf, 0xf8, 0x16, 0x0a, 0xcf, 0xc2,
-	0x01, 0xc7, 0xb4, 0x92, 0x03, 0xd9, 0xba, 0x7d, 0x4c, 0x27, 0x58, 0x37, 0x62, 0x82, 0x6d, 0x35,
-	0xdc, 0x2e, 0x56, 0x2a, 0x45, 0x61, 0x0f, 0x87, 0x4a, 0xd4, 0x1a, 0xcb, 0x74, 0x2a, 0xfa, 0x0e,
-	0xda, 0x65, 0x18, 0x6f, 0xf5, 0x1c, 0xf6, 0x75, 0xba, 0xcc, 0xab, 0xf6, 0x76, 0xd6, 0x36, 0x66,
-	0x3c, 0xe8, 0x2b, 0x68, 0x7f, 0x64, 0xdb, 0x69, 0xf6, 0x14, 0x0e, 0xec, 0x10, 0xac, 0xb9, 0x05,
-	0x97, 0xc3, 0x7f, 0x35, 0xa8, 0xbd, 0xe7, 0x29, 0x23, 0x6f, 0xa0, 0x61, 0xed, 0x1a, 0x72, 0xd4,
-	0xc7, 0x15, 0xe6, 0x6e, 0x1f, 0xff, 0x81, 0x34, 0x18, 0xc9, 0xd3, 0xca, 0xcb, 0x2a, 0x39, 0x83,
-	0x86, 0x25, 0x5e, 0x1d, 0xeb, 0xee, 0x18, 0xff, 0xd0, 0x35, 0x20, 0x9f, 0x15, 0x72, 0x0a, 0x4d,
-	0x7b, 0x4d, 0x10, 0xcf, 0xaa, 0x5e, 0xda, 0x1c, 0xfe, 0x81, 0xb4, 0x2c, 0x35, 0x2f, 0xeb, 0x8f,
-	0xa0, 0x69, 0xab, 0x4f, 0x87, 0xaf, 0xf9, 0xfe, 0xfd, 0x87, 0x6b, 0x2c, 0xea, 0x0a, 0x67, 0xd0,
-	0xb0, 0xc4, 0xaa, 0x7b, 0x70, 0xb7, 0x81, 0xee, 0xc1, 0xd1, 0x75, 0x85, 0x4c, 0xe0, 0x7e, 0x49,
-	0x95, 0xe4, 0x91, 0xf4, 0x5c, 0xa7, 0x76, 0xff, 0x68, 0x9d, 0xc9, 0x4a, 0x63, 0x49, 0xce, 0xa4,
-	0x71, 0xc5, 0x6b, 0xd2, 0x38, 0x0a, 0xad, 0x20, 0x25, 0xb6, 0x18, 0x2d, 0x46, 0x57, 0x64, 0xab,
-	0x29, 0x71, 0x94, 0x4b, 0x2b, 0xe4, 0x2d, 0xc0, 0x52, 0x5a, 0x44, 0xf9, 0x39, 0xf2, 0xf4, 0xbb,
-	0x0e, 0x2e, 0xa3, 0x47, 0xbb, 0x5f, 0x6b, 0xf8, 0xb4, 0x5d, 0xec, 0xca, 0xb7, 0xec, 0xf8, 0x7f,
-	0x00, 0x00, 0x00, 0xff, 0xff, 0x95, 0x93, 0x45, 0xcc, 0x3d, 0x07, 0x00, 0x00,
+	// 598 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x55, 0x5d, 0x73, 0xd2, 0x40,
+	0x14, 0x05, 0xcb, 0xb4, 0xe5, 0x82, 0x16, 0x16, 0x6a, 0x63, 0xc6, 0x71, 0x98, 0x7d, 0x72, 0x1c,
+	0x05, 0xa5, 0xf5, 0xc5, 0xb1, 0xd3, 0x11, 0x41, 0xc7, 0xd1, 0x27, 0xe8, 0x93, 0x6f, 0x29, 0xae,
+	0x35, 0x36, 0xcd, 0xc6, 0x64, 0x53, 0xe5, 0x0f, 0xf8, 0x17, 0xfd, 0x3b, 0xce, 0xdd, 0xdd, 0x24,
+	0x1b, 0x36, 0xd3, 0xc2, 0x13, 0xe4, 0x7e, 0x9c, 0x73, 0xee, 0xcd, 0xd9, 0x0d, 0x8c, 0x2f, 0x7d,
+	0xf1, 0x23, 0xbd, 0x18, 0x2e, 0xf9, 0xf5, 0xe8, 0x9a, 0x25, 0x97, 0x2f, 0xbe, 0xf3, 0x34, 0xfc,
+	0xe6, 0x09, 0x9f, 0x87, 0xa3, 0x25, 0x8f, 0xd9, 0xc8, 0x8b, 0xfc, 0xfc, 0xcf, 0x30, 0x8a, 0xb9,
+	0xe0, 0x64, 0xc7, 0x8b, 0x7c, 0xf7, 0xf5, 0x5d, 0x8d, 0x09, 0x8b, 0x6f, 0xfc, 0x65, 0xfe, 0xab,
+	0x7a, 0xe9, 0x39, 0x90, 0x2f, 0x7e, 0x22, 0x58, 0x38, 0xbb, 0x61, 0xa1, 0x98, 0xb3, 0x5f, 0x29,
+	0x4b, 0x04, 0x79, 0x0c, 0x4d, 0x5d, 0xf6, 0x69, 0xea, 0xd4, 0x07, 0xf5, 0xa7, 0xcd, 0x79, 0x11,
+	0x20, 0x03, 0x68, 0x31, 0xac, 0xfe, 0xe0, 0x07, 0x82, 0xc5, 0xce, 0x3d, 0x99, 0x37, 0x43, 0x74,
+	0x06, 0x4d, 0x89, 0x37, 0xf5, 0x84, 0x47, 0x5c, 0xd8, 0x97, 0xb9, 0xcf, 0x6c, 0xa5, 0xb1, 0xf2,
+	0x67, 0x24, 0x62, 0x59, 0xa1, 0x06, 0x2a, 0x02, 0xf4, 0x37, 0xf4, 0x94, 0xb8, 0x39, 0x4b, 0xd2,
+	0x60, 0x43, 0x75, 0x4f, 0x00, 0x84, 0x97, 0x5c, 0x95, 0xc4, 0x19, 0x11, 0x42, 0xa1, 0xcd, 0x53,
+	0x11, 0xa5, 0x99, 0xfc, 0x1d, 0x59, 0x51, 0x8a, 0xd1, 0xbf, 0x75, 0x00, 0xc5, 0x29, 0x27, 0xc0,
+	0x81, 0xff, 0xb0, 0x65, 0x8a, 0xcb, 0xcc, 0x29, 0xcd, 0x10, 0x71, 0x60, 0x0f, 0x29, 0x70, 0x44,
+	0xc5, 0x98, 0x3d, 0xa2, 0x58, 0x05, 0x8d, 0x39, 0xc5, 0x55, 0x04, 0x50, 0xac, 0x7a, 0x90, 0x0b,
+	0x68, 0x28, 0xb1, 0x45, 0x84, 0xfe, 0x04, 0x32, 0x93, 0x34, 0xec, 0xdc, 0x4b, 0xae, 0x36, 0x5b,
+	0xc0, 0xad, 0x5a, 0xfc, 0x30, 0x23, 0xd3, 0x5a, 0xf2, 0x00, 0x3d, 0x81, 0x4e, 0x89, 0x2b, 0x0a,
+	0x56, 0x77, 0x4f, 0x4e, 0x8f, 0xa1, 0xb7, 0x10, 0x5e, 0x2c, 0x16, 0x8a, 0x7f, 0x23, 0x89, 0xb4,
+	0x07, 0xdd, 0x72, 0x53, 0x14, 0xac, 0xe8, 0x18, 0xc8, 0x42, 0xf0, 0x68, 0x2b, 0x20, 0x02, 0x9d,
+	0x52, 0x0f, 0xe2, 0x4c, 0xa0, 0x3f, 0x65, 0x51, 0xc0, 0x57, 0x6b, 0x48, 0xcf, 0x60, 0x4f, 0x37,
+	0x4a, 0x9c, 0xd6, 0xb8, 0x33, 0xcc, 0xce, 0x42, 0x56, 0x99, 0x15, 0xa0, 0x96, 0x35, 0x0c, 0xdc,
+	0xc6, 0xed, 0x5a, 0x4e, 0x90, 0x37, 0x60, 0x82, 0x6d, 0x35, 0x41, 0x1f, 0x99, 0x4a, 0x5d, 0x38,
+	0xc3, 0xa1, 0x72, 0xbe, 0x8e, 0x25, 0x1a, 0x8a, 0xbe, 0x83, 0x6e, 0x39, 0x8c, 0xaa, 0x9e, 0xc3,
+	0xbe, 0x86, 0x4b, 0x9c, 0xfa, 0x60, 0xa7, 0x72, 0xb0, 0xbc, 0x82, 0xbe, 0x82, 0xee, 0x47, 0xb6,
+	0xdd, 0xdb, 0x3a, 0x85, 0x03, 0xb3, 0x05, 0x39, 0xb7, 0xd8, 0xe5, 0xf8, 0x5f, 0x03, 0x1a, 0xef,
+	0x79, 0xcc, 0xc8, 0x1b, 0x68, 0x19, 0x77, 0x0d, 0x39, 0x1a, 0xe2, 0x15, 0x66, 0xdf, 0x3e, 0xee,
+	0x03, 0x99, 0xc8, 0x2f, 0x10, 0x5a, 0x7b, 0x59, 0x27, 0xa7, 0xd0, 0x36, 0xaf, 0x02, 0xe2, 0x18,
+	0xcd, 0xa5, 0xdb, 0xc1, 0x3d, 0x90, 0x99, 0xe2, 0xf4, 0xca, 0xf6, 0x33, 0x68, 0x19, 0xde, 0xd6,
+	0xd4, 0xf6, 0xc9, 0x72, 0x0f, 0xed, 0x04, 0xbe, 0x8e, 0x1a, 0x99, 0x40, 0xdb, 0x74, 0xac, 0xe6,
+	0xaf, 0x70, 0xbe, 0xfb, 0xb0, 0x22, 0xa3, 0x30, 0xce, 0xa0, 0x65, 0x98, 0x55, 0x8b, 0xb0, 0x2d,
+	0xaf, 0x45, 0x58, 0xbe, 0xae, 0x91, 0x19, 0xdc, 0x2f, 0xb9, 0x92, 0x3c, 0x92, 0x95, 0x55, 0x6e,
+	0x77, 0x8f, 0xaa, 0x52, 0x06, 0x8c, 0x61, 0xb9, 0x1c, 0xc6, 0x36, 0x6f, 0x0e, 0x63, 0x39, 0x54,
+	0xae, 0xc4, 0x34, 0xa3, 0xf1, 0x4a, 0xd6, 0x6c, 0xab, 0x57, 0x62, 0x39, 0x97, 0xd6, 0xc8, 0x5b,
+	0x80, 0xc2, 0x5a, 0x44, 0xd5, 0x59, 0xf6, 0x74, 0xfb, 0x56, 0x5c, 0x76, 0x4f, 0x76, 0xbf, 0x36,
+	0xf0, 0xd3, 0x76, 0xb1, 0x2b, 0xbf, 0x65, 0xc7, 0xff, 0x03, 0x00, 0x00, 0xff, 0xff, 0x61, 0x2f,
+	0x20, 0x7b, 0x3d, 0x07, 0x00, 0x00,
 }

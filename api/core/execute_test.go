@@ -67,6 +67,17 @@ func TestExecuteWithInvalidTask(t *testing.T) {
 	})
 
 	assert.NotNil(t, err)
-	assert.Equal(t, err.Error(), "Task error doesn't exists in service TestExecuteWithInvalidJSON")
+	_, invalid := err.(*service.TaskNotFoundError)
+	assert.True(t, invalid)
 	services.Delete(deployment.ServiceID)
+}
+
+func TestExecuteWithNonExistingService(t *testing.T) {
+	_, err := serverexecute.ExecuteTask(context.Background(), &ExecuteTaskRequest{
+		ServiceID: "service that doesnt exists",
+		TaskKey:   "error",
+		InputData: "{}",
+	})
+
+	assert.NotNil(t, err)
 }

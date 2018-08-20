@@ -64,15 +64,17 @@ func TestEmitWrongData(t *testing.T) {
 }
 
 func TestEmitWrongEvent(t *testing.T) {
-	service := service.Service{Name: "TestEmitWrongEvent"}
-	hash, _ := services.Save(&service)
+	srv := service.Service{Name: "TestEmitWrongEvent"}
+	hash, _ := services.Save(&srv)
 	defer services.Delete(hash)
 	_, err := serveremit.EmitEvent(context.Background(), &EmitEventRequest{
-		Token:     service.Hash(),
+		Token:     srv.Hash(),
 		EventKey:  "test",
 		EventData: "{}",
 	})
-	assert.Equal(t, err.Error(), "Event test doesn't exists in service TestEmitWrongEvent")
+	assert.NotNil(t, err)
+	_, notFound := err.(*service.EventNotFoundError)
+	assert.True(t, notFound)
 }
 
 func TestServiceNotExists(t *testing.T) {

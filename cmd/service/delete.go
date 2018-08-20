@@ -16,7 +16,8 @@ var Delete = &cobra.Command{
 	Use:   "delete",
 	Short: "Delete one or many services",
 	Example: `mesg-core service delete SERVICE_ID
-mesg-core service delete SERVICE_ID_1 SERVICE_ID_2`,
+mesg-core service delete SERVICE_ID_1 SERVICE_ID_2
+mesg-core service delete --all`,
 	Run:               deleteHandler,
 	DisableAutoGenTag: true,
 }
@@ -35,7 +36,7 @@ func deleteHandler(cmd *cobra.Command, args []string) {
 			return
 		}
 		fmt.Println("Deleting all services...")
-		reply, err := cli.ListServices(context.Background(), &core.ListServicesRequest{})
+		reply, err := cli().ListServices(context.Background(), &core.ListServicesRequest{})
 		utils.HandleError(err)
 		if len(reply.Services) == 0 {
 			fmt.Println("All services are already deleted")
@@ -51,7 +52,7 @@ func deleteHandler(cmd *cobra.Command, args []string) {
 	for _, arg := range args {
 		var err error
 		utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: "Deleting service " + arg + "..."}, func() {
-			_, err = cli.DeleteService(context.Background(), &core.DeleteServiceRequest{
+			_, err = cli().DeleteService(context.Background(), &core.DeleteServiceRequest{
 				ServiceID: arg,
 			})
 		})

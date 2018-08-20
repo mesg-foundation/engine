@@ -9,10 +9,10 @@ import (
 )
 
 // ListenTask create a stream that will send data for every task to execute
-func (s *Server) ListenTask(request *ListenTaskRequest, stream Service_ListenTaskServer) (err error) {
+func (s *Server) ListenTask(request *ListenTaskRequest, stream Service_ListenTaskServer) error {
 	service, err := services.Get(request.Token)
 	if err != nil {
-		return
+		return err
 	}
 	subscription := pubsub.Subscribe(service.TaskSubscriptionChannel())
 	for data := range subscription {
@@ -24,5 +24,5 @@ func (s *Server) ListenTask(request *ListenTaskRequest, stream Service_ListenTas
 			InputData:   string(inputs),
 		})
 	}
-	return
+	return nil
 }

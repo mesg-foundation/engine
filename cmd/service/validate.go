@@ -4,7 +4,8 @@ import (
 	"fmt"
 
 	"github.com/logrusorgru/aurora"
-	"github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/core/cmd/utils"
+	"github.com/mesg-foundation/core/service/importer"
 	"github.com/spf13/cobra"
 )
 
@@ -14,7 +15,7 @@ var Validate = &cobra.Command{
 	Short: "Validate a service file",
 	Long: `Validate a service file. Check the yml format and rules.
 
-All the definitions of the service file can be found in the page [Service File from the documentation](https://docs.mesg.tech/service/service-file.html).`,
+All the definitions of the service file can be found in the page [Service File from the documentation](https://docs.mesg.com/guide/service/service-file.html).`,
 	Example: `mesg-core service validate
 mesg-core service validate ./SERVICE_FOLDER`,
 	Run:               validateHandler,
@@ -22,14 +23,42 @@ mesg-core service validate ./SERVICE_FOLDER`,
 }
 
 func validateHandler(cmd *cobra.Command, args []string) {
-	warnings, err := service.ValidService(defaultPath(args))
-	if err == nil {
-		fmt.Println(aurora.Green("Service is valid"))
+	validation, err := importer.Validate(defaultPath(args))
+	utils.HandleError(err)
+
+	validateServiceFile(validation)
+	validateDockerfile(validation)
+	validateSummary(validation)
+}
+
+func validateServiceFile(validation *importer.ValidationResult) {
+	if validation.ServiceFileExist == false {
+		fmt.Printf("%s File 'mesg.yml' does not exist\n", aurora.Red("⨯"))
 		return
 	}
-	fmt.Println(aurora.Red("Service error").Bold())
-	fmt.Println(err)
-	for _, warning := range warnings {
-		fmt.Println(warning)
+
+	if len(validation.ServiceFileWarnings) > 0 {
+		fmt.Printf("%s File 'mesg.yml' is not valid. See documentation: %s\n", aurora.Red("⨯"), "https://docs.mesg.com/guide/service/service-file.html")
+		for _, warning := range validation.ServiceFileWarnings {
+			fmt.Printf("  - %s\n", warning)
+		}
+	} else {
+		fmt.Printf("%s File 'mesg.yml' is valid\n", aurora.Green("✔"))
+	}
+}
+
+func validateDockerfile(validation *importer.ValidationResult) {
+	if validation.DockerfileExist {
+		fmt.Printf("%s Dockerfile exists\n", aurora.Green("✔"))
+	} else {
+		fmt.Printf("%s Dockerfile does not exist\n", aurora.Red("⨯"))
+	}
+}
+
+func validateSummary(validation *importer.ValidationResult) {
+	if validation.IsValid() {
+		fmt.Println(aurora.Green("Service is valid"))
+	} else {
+		fmt.Println(aurora.Red("Service is not valid"))
 	}
 }
