@@ -9,7 +9,7 @@ import (
 )
 
 // Create creates an execution with a unique ID and puts it in the pending list.
-func Create(serviceForExecution *service.Service, task string, inputs map[string]interface{}) (*Execution, error) {
+func Create(serviceForExecution *service.Service, task string, inputs map[string]interface{}, tags []string) (*Execution, error) {
 	serviceTask, taskFound := serviceForExecution.Tasks[task]
 	if !taskFound {
 		return nil, &service.TaskNotFoundError{
@@ -28,6 +28,7 @@ func Create(serviceForExecution *service.Service, task string, inputs map[string
 		Service:   serviceForExecution,
 		Inputs:    inputs,
 		Task:      task,
+		Tags:      tags,
 		CreatedAt: time.Now(),
 	}
 	var err error

@@ -32,13 +32,14 @@ func (s *Server) ListenResult(request *ListenResultRequest, stream Core_ListenRe
 			return ctx.Err()
 		case data := <-subscription:
 			execution := data.(*execution.Execution)
-			if isSubscribedTask(request, execution) && isSubscribedOutput(request, execution) {
+			if isSubscribed(request, execution) {
 				outputs, _ := json.Marshal(execution.OutputData)
 				if err := stream.Send(&ResultData{
-					ExecutionID: execution.ID,
-					TaskKey:     execution.Task,
-					OutputKey:   execution.Output,
-					OutputData:  string(outputs),
+					ExecutionID:   execution.ID,
+					TaskKey:       execution.Task,
+					OutputKey:     execution.Output,
+					OutputData:    string(outputs),
+					ExecutionTags: execution.Tags,
 				}); err != nil {
 					return err
 				}
@@ -79,10 +80,25 @@ func validateOutputKey(service *service.Service, taskKey string, outputFilter st
 	return nil
 }
 
-func isSubscribedTask(request *ListenResultRequest, e *execution.Execution) bool {
+func isSubscribed(request *ListenResultRequest, e *execution.Execution) bool {
+	return isSubscribedToTags(request, e) &&
+		isSubscribedToTask(request, e) &&
+		isSubscribedToOutput(request, e)
+}
+
+func isSubscribedToTask(request *ListenResultRequest, e *execution.Execution) bool {
 	return array.IncludedIn([]string{"", "*", e.Task}, request.TaskFilter)
 }
 
-func isSubscribedOutput(request *ListenResultRequest, e *execution.Execution) bool {
+func isSubscribedToOutput(request *ListenResultRequest, e *execution.Execution) bool {
 	return array.IncludedIn([]string{"", "*", e.Output}, request.OutputFilter)
+}
+
+func isSubscribedToTags(request *ListenResultRequest, e *execution.Execution) bool {
+	for _, tag := range request.TagFilters {
+		if !array.IncludedIn(e.Tags, tag) {
+			return false
+		}
+	}
+	return true
 }
