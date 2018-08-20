@@ -26,9 +26,9 @@ func Create(serviceForEvent *service.Service, eventKey string, data map[string]i
 	}
 	if !serviceEvent.IsValid(data) {
 		return nil, &service.InvalidEventDataError{
-			Event:    serviceEvent,
-			EventKey: eventKey,
-			Data:     data,
+			Event:     serviceEvent,
+			EventKey:  eventKey,
+			EventData: data,
 		}
 	}
 	return &Event{

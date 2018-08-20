@@ -19,10 +19,10 @@ func (execution *Execution) Complete(output string, data map[string]interface{})
 	}
 	if !serviceOutput.IsValid(data) {
 		return &service.InvalidOutputDataError{
-			Output:    serviceOutput,
-			TaskKey:   execution.Task,
-			OutputKey: output,
-			Data:      data,
+			Output:     serviceOutput,
+			TaskKey:    execution.Task,
+			OutputKey:  output,
+			OutputData: data,
 		}
 	}
 	err := execution.moveFromInProgressToProcessed()

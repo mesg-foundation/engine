@@ -62,8 +62,8 @@ func TestInvalidEventDataError(t *testing.T) {
 		Event: &Event{
 			Data: tests.parameterTestsToMapParameter(),
 		},
-		EventKey: "TestInvalidEventDataErrorEventKey",
-		Data:     tests.parameterTestsToMapData(),
+		EventKey:  "TestInvalidEventDataErrorEventKey",
+		EventData: tests.parameterTestsToMapData(),
 	}
 	require.Contains(t, err.Error(), "Data of event 'TestInvalidEventDataErrorEventKey' is invalid")
 	tests.assert(t, err.Error())
@@ -92,8 +92,8 @@ func TestInvalidTaskInputError(t *testing.T) {
 		Task: &Task{
 			Inputs: tests.parameterTestsToMapParameter(),
 		},
-		TaskKey: "TestInvalidTaskInputErrorKey",
-		Inputs:  tests.parameterTestsToMapData(),
+		TaskKey:   "TestInvalidTaskInputErrorKey",
+		InputData: tests.parameterTestsToMapData(),
 	}
 	require.Contains(t, err.Error(), "Inputs of task 'TestInvalidTaskInputErrorKey' are invalid")
 	tests.assert(t, err.Error())
@@ -123,9 +123,9 @@ func TestInvalidOutputDataError(t *testing.T) {
 		Output: &Output{
 			Data: tests.parameterTestsToMapParameter(),
 		},
-		OutputKey: "OutputKey",
-		TaskKey:   "TaskKey",
-		Data:      tests.parameterTestsToMapData(),
+		OutputKey:  "OutputKey",
+		TaskKey:    "TaskKey",
+		OutputData: tests.parameterTestsToMapData(),
 	}
 	require.Contains(t, err.Error(), "Outputs 'OutputKey' of task 'TaskKey' are invalid")
 	tests.assert(t, err.Error())
