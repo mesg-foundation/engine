@@ -19,9 +19,9 @@ func Create(serviceForExecution *service.Service, task string, inputs map[string
 	}
 	if !serviceTask.IsValid(inputs) {
 		return nil, &service.InvalidTaskInputError{
-			Task:   serviceTask,
-			Key:    task,
-			Inputs: inputs,
+			Task:      serviceTask,
+			TaskKey:   task,
+			InputData: inputs,
 		}
 	}
 	execution := &Execution{
