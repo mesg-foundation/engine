@@ -17,6 +17,8 @@
 - (#316) Delete service when stoping the `service dev` command to avoid to keep all the versions of the services.
 - (#317) Add errors when trying to execute a service that is not running (nothing was happening before)
 - (#344) Add `service execute --data` flag to pass arguments as key=value.
+- (#362) Add `tags` list parameter for execution in order to be able to categorize and/or track a specific task execution.
+- (#362) Add possibility to listen to results with the specific tag(s)
 
 #### Removed
 - (#303) Deprecate command `service test` in favor of `service dev` and `service execute`

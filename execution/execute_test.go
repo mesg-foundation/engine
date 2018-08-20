@@ -15,7 +15,7 @@ func TestExecute(t *testing.T) {
 		},
 	}
 	var inputs map[string]interface{}
-	execution, _ := Create(&s, "test", inputs)
+	execution, _ := Create(&s, "test", inputs, []string{})
 	err := execution.Execute()
 	require.Nil(t, err)
 }
