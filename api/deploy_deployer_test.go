@@ -1,4 +1,4 @@
-package mesg
+package api
 
 import (
 	"os"
@@ -10,8 +10,8 @@ import (
 )
 
 func TestGitCloneRepositoryDoNotExist(t *testing.T) {
-	m, _ := newMESGAndDockerTest(t)
-	deployer := newServiceDeployer(m)
+	a, _ := newAPIAndDockerTest(t)
+	deployer := newServiceDeployer(a)
 
 	path, _ := deployer.createTempDir()
 	defer os.RemoveAll(path)
@@ -20,7 +20,7 @@ func TestGitCloneRepositoryDoNotExist(t *testing.T) {
 }
 
 func TestGitCloneWithoutURLSchema(t *testing.T) {
-	m, _ := newMESGAndDockerTest(t)
+	m, _ := newAPIAndDockerTest(t)
 	deployer := newServiceDeployer(m)
 
 	path, _ := deployer.createTempDir()
@@ -30,8 +30,8 @@ func TestGitCloneWithoutURLSchema(t *testing.T) {
 }
 
 func TestGitCloneCustomBranch(t *testing.T) {
-	m, _ := newMESGAndDockerTest(t)
-	deployer := newServiceDeployer(m)
+	a, _ := newAPIAndDockerTest(t)
+	deployer := newServiceDeployer(a)
 
 	branchName := "5-generic-service"
 	path, _ := deployer.createTempDir()
@@ -46,8 +46,8 @@ func TestGitCloneCustomBranch(t *testing.T) {
 }
 
 func TestCreateTempFolder(t *testing.T) {
-	m, _ := newMESGAndDockerTest(t)
-	deployer := newServiceDeployer(m)
+	a, _ := newAPIAndDockerTest(t)
+	deployer := newServiceDeployer(a)
 
 	path, err := deployer.createTempDir()
 	defer os.RemoveAll(path)
@@ -56,8 +56,8 @@ func TestCreateTempFolder(t *testing.T) {
 }
 
 func TestRemoveTempFolder(t *testing.T) {
-	m, _ := newMESGAndDockerTest(t)
-	deployer := newServiceDeployer(m)
+	a, _ := newAPIAndDockerTest(t)
+	deployer := newServiceDeployer(a)
 
 	path, _ := deployer.createTempDir()
 	err := os.RemoveAll(path)
@@ -65,8 +65,8 @@ func TestRemoveTempFolder(t *testing.T) {
 }
 
 func TestInjectConfigurationInDependencies(t *testing.T) {
-	m, _ := newMESGAndDockerTest(t)
-	deployer := newServiceDeployer(m)
+	a, _ := newAPIAndDockerTest(t)
+	deployer := newServiceDeployer(a)
 
 	s := &service.Service{}
 	deployer.injectConfigurationInDependencies(s, "TestInjectConfigurationInDependencies")
@@ -74,8 +74,8 @@ func TestInjectConfigurationInDependencies(t *testing.T) {
 }
 
 func TestInjectConfigurationInDependenciesWithConfig(t *testing.T) {
-	m, _ := newMESGAndDockerTest(t)
-	deployer := newServiceDeployer(m)
+	a, _ := newAPIAndDockerTest(t)
+	deployer := newServiceDeployer(a)
 
 	s := &service.Service{
 		Configuration: &service.Dependency{
@@ -89,8 +89,8 @@ func TestInjectConfigurationInDependenciesWithConfig(t *testing.T) {
 }
 
 func TestInjectConfigurationInDependenciesWithDependency(t *testing.T) {
-	m, _ := newMESGAndDockerTest(t)
-	deployer := newServiceDeployer(m)
+	a, _ := newAPIAndDockerTest(t)
+	deployer := newServiceDeployer(a)
 
 	s := &service.Service{
 		Dependencies: map[string]*service.Dependency{
@@ -105,8 +105,8 @@ func TestInjectConfigurationInDependenciesWithDependency(t *testing.T) {
 }
 
 func TestInjectConfigurationInDependenciesWithDependencyOverride(t *testing.T) {
-	m, _ := newMESGAndDockerTest(t)
-	deployer := newServiceDeployer(m)
+	a, _ := newAPIAndDockerTest(t)
+	deployer := newServiceDeployer(a)
 
 	s := &service.Service{
 		Dependencies: map[string]*service.Dependency{

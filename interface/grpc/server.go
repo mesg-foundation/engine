@@ -1,4 +1,4 @@
-package api
+package grpc
 
 import (
 	"errors"
@@ -7,9 +7,9 @@ import (
 
 	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
-	"github.com/mesg-foundation/core/api/core"
-	"github.com/mesg-foundation/core/api/service"
-	"github.com/mesg-foundation/core/mesg"
+	"github.com/mesg-foundation/core/api"
+	"github.com/mesg-foundation/core/interface/grpc/core"
+	"github.com/mesg-foundation/core/interface/grpc/service"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -66,12 +66,12 @@ func (s *Server) Stop() {
 
 // register all server
 func (s *Server) register() error {
-	m, err := mesg.New()
+	a, err := api.New()
 	if err != nil {
 		return err
 	}
 
-	coreServer, err := core.NewServer(core.MESGOption(m))
+	coreServer, err := core.NewServer(core.APIOption(a))
 	if err != nil {
 		return err
 	}

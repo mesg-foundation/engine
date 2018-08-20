@@ -1,7 +1,7 @@
 package core
 
 import (
-	"github.com/mesg-foundation/core/mesg"
+	"github.com/mesg-foundation/core/api"
 	service "github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/importer"
 )
@@ -24,9 +24,9 @@ func (s *Server) DeployService(stream Core_DeployServiceServer) error {
 		return err
 	}
 	if url != "" {
-		service, validationError, err = s.mesg.DeployServiceFromURL(url, mesg.DeployServiceStatusOption(statuses))
+		service, validationError, err = s.api.DeployServiceFromURL(url, api.DeployServiceStatusOption(statuses))
 	} else {
-		service, validationError, err = s.mesg.DeployService(sr, mesg.DeployServiceStatusOption(statuses))
+		service, validationError, err = s.api.DeployService(sr, api.DeployServiceStatusOption(statuses))
 	}
 
 	if err != nil {

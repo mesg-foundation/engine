@@ -3,9 +3,9 @@ package core
 import (
 	"testing"
 
+	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/container/dockertest"
-	"github.com/mesg-foundation/core/mesg"
 	"github.com/stretchr/testify/require"
 )
 
@@ -13,10 +13,10 @@ func newServer(t *testing.T) *Server {
 	container, err := container.New()
 	require.Nil(t, err)
 
-	m, err := mesg.New(mesg.ContainerOption(container))
+	a, err := api.New(api.ContainerOption(container))
 	require.Nil(t, err)
 
-	server, err := NewServer(MESGOption(m))
+	server, err := NewServer(APIOption(a))
 	require.Nil(t, err)
 
 	return server
@@ -28,10 +28,10 @@ func newServerAndDockerTest(t *testing.T) (*Server, *dockertest.Testing) {
 	container, err := container.New(container.ClientOption(dt.Client()))
 	require.Nil(t, err)
 
-	m, err := mesg.New(mesg.ContainerOption(container))
+	a, err := api.New(api.ContainerOption(container))
 	require.Nil(t, err)
 
-	server, err := NewServer(MESGOption(m))
+	server, err := NewServer(APIOption(a))
 	require.Nil(t, err)
 
 	return server, dt

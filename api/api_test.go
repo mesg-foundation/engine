@@ -1,4 +1,4 @@
-package mesg
+package api
 
 import (
 	"testing"
@@ -8,14 +8,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func newMESGAndDockerTest(t *testing.T) (*MESG, *dockertest.Testing) {
+func newAPIAndDockerTest(t *testing.T) (*API, *dockertest.Testing) {
 	dt := dockertest.New()
 
 	container, err := container.New(container.ClientOption(dt.Client()))
 	require.Nil(t, err)
 
-	m, err := New(ContainerOption(container))
+	a, err := New(ContainerOption(container))
 	require.Nil(t, err)
 
-	return m, dt
+	return a, dt
 }

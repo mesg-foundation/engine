@@ -3,12 +3,12 @@ package core
 import (
 	"errors"
 
-	"github.com/mesg-foundation/core/mesg"
+	"github.com/mesg-foundation/core/api"
 )
 
 // Server is the type to aggregate all the APIs.
 type Server struct {
-	mesg *mesg.MESG
+	api *api.API
 }
 
 // Option is a configuration func for Server.
@@ -20,15 +20,15 @@ func NewServer(options ...Option) (*Server, error) {
 	for _, option := range options {
 		option(s)
 	}
-	if s.mesg == nil {
+	if s.api == nil {
 		return nil, errors.New("mesg should be provided")
 	}
 	return s, nil
 }
 
-// MESGOption configures underlying mesg access API.
-func MESGOption(mesg *mesg.MESG) Option {
+// APIOption sets underlying mesg API.
+func APIOption(api *api.API) Option {
 	return func(s *Server) {
-		s.mesg = mesg
+		s.api = api
 	}
 }

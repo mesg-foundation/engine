@@ -1,34 +1,34 @@
-package mesg
+package api
 
 import "github.com/mesg-foundation/core/container"
 
-// MESG gives all functionalies of MESG core.
-type MESG struct {
+// API exposes all functionalies of MESG core.
+type API struct {
 	container *container.Container
 }
 
 // Option is a configuration func for MESG.
-type Option func(*MESG)
+type Option func(*API)
 
-// New creates a new MESG with given options.
-func New(options ...Option) (*MESG, error) {
-	m := &MESG{}
+// New creates a new API with given options.
+func New(options ...Option) (*API, error) {
+	a := &API{}
 	for _, option := range options {
-		option(m)
+		option(a)
 	}
 	var err error
-	if m.container == nil {
-		m.container, err = container.New()
+	if a.container == nil {
+		a.container, err = container.New()
 		if err != nil {
 			return nil, err
 		}
 	}
-	return m, nil
+	return a, nil
 }
 
 // ContainerOption configures underlying container access API.
 func ContainerOption(container *container.Container) Option {
-	return func(m *MESG) {
-		m.container = container
+	return func(a *API) {
+		a.container = container
 	}
 }
