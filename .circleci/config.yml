@@ -39,7 +39,7 @@ jobs:
       - run: docker swarm init
       - run: docker pull nginx
       - run: docker pull alpine
-      - run: env CORE.IMAGE=mesg/core:$CIRCLE_SHA1 go test -timeout 180s -p 1 -coverprofile=coverage.txt ./...
+      - run: env MESG_CORE_IMAGE=mesg/core:$CIRCLE_SHA1 go test -timeout 180s -p 1 -coverprofile=coverage.txt ./...
       - run: bash <(curl -s https://codecov.io/bash)
 
   "publish_docker_dev":
@@ -67,7 +67,7 @@ jobs:
       - checkout
       - run: scripts/build-cli.sh "dev build `echo $CIRCLE_SHA1 | cut -c1-7`"
       - run: go get -u github.com/tcnksm/ghr
-      - run: ghr -u mesg-foundation -r core -delete -prerelease -b "Warning - this is a developer release, use it only if you know what are doing. You have to set the env variable \`export CORE.IMAGE=mesg/core:dev\`" release-dev ./bin
+      - run: ghr -u mesg-foundation -r core -delete -prerelease -b "Warning - this is a developer release, use it only if you know what are doing. You have to set the env variable \`export MESG_CORE_IMAGE=mesg/core:dev\`" release-dev ./bin
 
   "release_cli_prod":
     <<: *runOnMachine

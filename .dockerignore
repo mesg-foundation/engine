@@ -8,3 +8,4 @@ dev-cli
 .git
 **/*.test
 **/debug
+node_modules

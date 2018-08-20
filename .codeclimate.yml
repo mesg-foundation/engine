@@ -2,8 +2,10 @@ exclude_patterns:
   - "**/*_test.go"
   - "**/*.d.ts"
   - "**/*.pb.go"
-  - "**/service/assets/*.go"
-  - "**/cmd/service/assets/*.go"
+  - "service/importer/assets/*.go"
+  - "cmd/service/assets/*.go"
+  - "cmd/service/tests/**/*"
+  - "docs/**/*"
 plugins:
   gofmt:
     enabled: true

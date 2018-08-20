@@ -1,0 +1,225 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "type": "object",
+  "required": [
+    "name"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string"
+    },
+    "visibility": {},
+    "publish": {},
+    "repository": {
+      "type": "string"
+    },
+    "events": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "patternProperties": {
+            "^[a-zA-Z_-]+$": {
+              "$ref": "#/definitions/event"
+            }
+          }
+        }
+      ]
+    },
+    "tasks": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "patternProperties": {
+            "^[a-zA-Z_-]+$": {
+              "$ref": "#/definitions/task"
+            }
+          }
+        }
+      ]
+    },
+    "dependencies": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-zA-Z_-]+$": {
+          "$ref": "#/definitions/dependency",
+          "required": [
+            "image"
+          ]
+        }
+      }
+    },
+    "configuration": {
+      "$ref": "#/definitions/dependency"
+    }
+  },
+  "definitions": {
+    "parameters": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "patternProperties": {
+            "^[a-zA-Z_-]+$": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "optional": {
+                  "type": "boolean"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "String",
+                    "Number",
+                    "Boolean",
+                    "Object"
+                  ],
+                  "default": "String"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "task": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outputs"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "verifiable": {},
+        "payable": {},
+        "fees": {},
+        "inputs": {
+          "$ref": "#/definitions/parameters"
+        },
+        "secrets": {
+          "$ref": "#/definitions/parameters"
+        },
+        "outputs": {
+          "type": "object",
+          "additionalProperties": false,
+          "patternProperties": {
+            "^[a-zA-Z_-]+$": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "data"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "data": {
+                  "$ref": "#/definitions/parameters"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "data"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "fees": {},
+        "data": {
+          "$ref": "#/definitions/parameters"
+        }
+      }
+    },
+    "dependency": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "image": {
+          "type": "string",
+          "minLength": 1
+        },
+        "command": {
+          "type": "string"
+        },
+        "volumes": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "volumesfrom": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "ports": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

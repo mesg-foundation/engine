@@ -9,21 +9,20 @@ import (
 )
 
 // EmitEvent permits to send and event to anyone who subscribed to it
-func (s *Server) EmitEvent(context context.Context, request *EmitEventRequest) (reply *EmitEventReply, err error) {
+func (s *Server) EmitEvent(context context.Context, request *EmitEventRequest) (*EmitEventReply, error) {
 	service, err := services.Get(request.Token)
 	if err != nil {
-		return
+		return nil, err
 	}
-	var data interface{}
+	var data map[string]interface{}
 	err = json.Unmarshal([]byte(request.EventData), &data)
 	if err != nil {
-		return
+		return nil, err
 	}
 	event, err := event.Create(&service, request.EventKey, data)
 	if err != nil {
-		return
+		return nil, err
 	}
 	event.Publish()
-	reply = &EmitEventReply{}
-	return
+	return &EmitEventReply{}, nil
 }
