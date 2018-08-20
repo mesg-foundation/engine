@@ -62,8 +62,8 @@ func TestInvalidEventDataError(t *testing.T) {
 		Event: &Event{
 			Data: tests.parameterTestsToMapParameter(),
 		},
-		Key:  "TestInvalidEventDataErrorEventKey",
-		Data: tests.parameterTestsToMapData(),
+		EventKey:  "TestInvalidEventDataErrorEventKey",
+		EventData: tests.parameterTestsToMapData(),
 	}
 	require.Contains(t, err.Error(), "Data of event 'TestInvalidEventDataErrorEventKey' is invalid")
 	tests.assert(t, err.Error())
@@ -92,10 +92,10 @@ func TestInvalidTaskInputError(t *testing.T) {
 		Task: &Task{
 			Inputs: tests.parameterTestsToMapParameter(),
 		},
-		Key:    "TestInvalidTaskInputErrorEventKey",
-		Inputs: tests.parameterTestsToMapData(),
+		TaskKey:   "TestInvalidTaskInputErrorKey",
+		InputData: tests.parameterTestsToMapData(),
 	}
-	require.Contains(t, err.Error(), "Inputs of task 'TestInvalidTaskInputErrorEventKey' are invalid")
+	require.Contains(t, err.Error(), "Inputs of task 'TestInvalidTaskInputErrorKey' are invalid")
 	tests.assert(t, err.Error())
 }
 
@@ -103,9 +103,10 @@ func TestInvalidTaskInputError(t *testing.T) {
 func TestOutputNotFoundError(t *testing.T) {
 	err := OutputNotFoundError{
 		Service:   &Service{Name: "TestOutputNotFoundError"},
-		OutputKey: "TestOutputNotFoundErrorEventKey",
+		TaskKey:   "TaskKey",
+		OutputKey: "OutputKey",
 	}
-	require.Equal(t, "Output 'TestOutputNotFoundErrorEventKey' not found in service 'TestOutputNotFoundError'", err.Error())
+	require.Equal(t, "Output 'OutputKey' of task 'TaskKey' not found in service 'TestOutputNotFoundError'", err.Error())
 }
 
 // Test InvalidOutputDataError
@@ -122,9 +123,20 @@ func TestInvalidOutputDataError(t *testing.T) {
 		Output: &Output{
 			Data: tests.parameterTestsToMapParameter(),
 		},
-		Key:  "TestInvalidOutputDataErrorEventKey",
-		Data: tests.parameterTestsToMapData(),
+		OutputKey:  "OutputKey",
+		TaskKey:    "TaskKey",
+		OutputData: tests.parameterTestsToMapData(),
 	}
-	require.Contains(t, err.Error(), "Outputs of task 'TestInvalidOutputDataErrorEventKey' are invalid")
+	require.Contains(t, err.Error(), "Outputs 'OutputKey' of task 'TaskKey' are invalid")
 	tests.assert(t, err.Error())
+}
+
+// Test InputNotFoundError
+func TestInputNotFoundError(t *testing.T) {
+	err := InputNotFoundError{
+		Service:  &Service{Name: "InputNotFoundError"},
+		TaskKey:  "TaskKey",
+		InputKey: "InputKey",
+	}
+	require.Equal(t, "Input 'InputKey' of task 'TaskKey' not found in service 'InputNotFoundError'", err.Error())
 }

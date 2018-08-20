@@ -14,13 +14,15 @@ func (execution *Execution) Complete(output string, data map[string]interface{})
 		return &service.OutputNotFoundError{
 			Service:   execution.Service,
 			OutputKey: output,
+			TaskKey:   execution.Task,
 		}
 	}
 	if !serviceOutput.IsValid(data) {
 		return &service.InvalidOutputDataError{
-			Output: serviceOutput,
-			Key:    output,
-			Data:   data,
+			Output:     serviceOutput,
+			TaskKey:    execution.Task,
+			OutputKey:  output,
+			OutputData: data,
 		}
 	}
 	err := execution.moveFromInProgressToProcessed()

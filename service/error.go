@@ -12,14 +12,14 @@ func (e *EventNotFoundError) Error() string {
 
 // InvalidEventDataError is an error when the data of an event are not valid.
 type InvalidEventDataError struct {
-	Event *Event
-	Key   string
-	Data  map[string]interface{}
+	Event     *Event
+	EventKey  string
+	EventData map[string]interface{}
 }
 
 func (e *InvalidEventDataError) Error() string {
-	errorString := "Data of event '" + e.Key + "' is invalid"
-	for _, warning := range e.Event.Validate(e.Data) {
+	errorString := "Data of event '" + e.EventKey + "' is invalid"
+	for _, warning := range e.Event.Validate(e.EventData) {
 		errorString = errorString + ". " + warning.String()
 	}
 	return errorString
@@ -37,14 +37,14 @@ func (e *TaskNotFoundError) Error() string {
 
 // InvalidTaskInputError is an error when the inputs of a task are not valid.
 type InvalidTaskInputError struct {
-	Task   *Task
-	Key    string
-	Inputs map[string]interface{}
+	Task      *Task
+	TaskKey   string
+	InputData map[string]interface{}
 }
 
 func (e *InvalidTaskInputError) Error() string {
-	errorString := "Inputs of task '" + e.Key + "' are invalid"
-	for _, warning := range e.Task.Validate(e.Inputs) {
+	errorString := "Inputs of task '" + e.TaskKey + "' are invalid"
+	for _, warning := range e.Task.Validate(e.InputData) {
 		errorString = errorString + ". " + warning.String()
 	}
 	return errorString
@@ -53,33 +53,36 @@ func (e *InvalidTaskInputError) Error() string {
 // InputNotFoundError is an error when a service doesn't contains a specific input.
 type InputNotFoundError struct {
 	Service  *Service
+	TaskKey  string
 	InputKey string
 }
 
 func (e *InputNotFoundError) Error() string {
-	return "Input '" + e.InputKey + "' not found in service '" + e.Service.Name + "'"
+	return "Input '" + e.InputKey + "' of task '" + e.TaskKey + "' not found in service '" + e.Service.Name + "'"
 }
 
 // OutputNotFoundError is an error when a service doesn't contain a specific output.
 type OutputNotFoundError struct {
 	Service   *Service
+	TaskKey   string
 	OutputKey string
 }
 
 func (e *OutputNotFoundError) Error() string {
-	return "Output '" + e.OutputKey + "' not found in service '" + e.Service.Name + "'"
+	return "Output '" + e.OutputKey + "' of task '" + e.TaskKey + "' not found in service '" + e.Service.Name + "'"
 }
 
 // InvalidOutputDataError is an error when the outputs for one task result are not valid.
 type InvalidOutputDataError struct {
-	Output *Output
-	Key    string
-	Data   map[string]interface{}
+	Output     *Output
+	TaskKey    string
+	OutputKey  string
+	OutputData map[string]interface{}
 }
 
 func (e *InvalidOutputDataError) Error() string {
-	errorString := "Outputs of task '" + e.Key + "' are invalid"
-	for _, warning := range e.Output.Validate(e.Data) {
+	errorString := "Outputs '" + e.OutputKey + "' of task '" + e.TaskKey + "' are invalid"
+	for _, warning := range e.Output.Validate(e.OutputData) {
 		errorString = errorString + ". " + warning.String()
 	}
 	return errorString
