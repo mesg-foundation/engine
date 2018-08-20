@@ -4,18 +4,20 @@ import (
 	"context"
 	"testing"
 
+	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
-	"github.com/stvp/assert"
 )
 
 var serverexecute = new(Server)
 
 func TestExecute(t *testing.T) {
-	url := "https://github.com/mesg-foundation/service-webhook"
-	taskKey := "call"
-	data := `{"url": "https://mesg.tech", "data": {}, "headers": {}}`
+	var (
+		url     = "https://github.com/mesg-foundation/service-webhook"
+		taskKey = "call"
+		data    = `{"url": "https://mesg.tech", "data": {}, "headers": {}}`
+	)
 
 	server := newServer(t)
 	stream := newTestDeployStream(url)
@@ -98,9 +100,7 @@ func TestExecuteWithNonRunningService(t *testing.T) {
 		InputData: "{}",
 	})
 
-	require.NotNil(t, err)
-	_, nonRunning := err.(*NotRunningServiceError)
-	require.True(t, nonRunning)
+	require.Equal(t, err, &api.NotRunningServiceError{ServiceID: stream.serviceID})
 }
 
 func TestExecuteWithNonExistingService(t *testing.T) {
@@ -111,59 +111,4 @@ func TestExecuteWithNonExistingService(t *testing.T) {
 	})
 
 	require.NotNil(t, err)
-}
-
-func TestExecuteFunc(t *testing.T) {
-	srv := &service.Service{
-		Name: "TestExecuteFunc",
-		Tasks: map[string]*service.Task{
-			"test": {},
-		},
-	}
-	id, err := execute(srv, "test", map[string]interface{}{}, []string{})
-	assert.Nil(t, err)
-	assert.NotNil(t, id)
-}
-
-func TestExecuteFuncInvalidTaskName(t *testing.T) {
-	srv := &service.Service{}
-	_, err := execute(srv, "test", map[string]interface{}{}, []string{})
-	assert.NotNil(t, err)
-}
-
-func TestGetData(t *testing.T) {
-	inputs, err := getData(&ExecuteTaskRequest{
-		InputData: "{\"foo\":\"bar\"}",
-	})
-	assert.Nil(t, err)
-	assert.Equal(t, "bar", inputs["foo"])
-}
-
-func TestGetDataInvalid(t *testing.T) {
-	_, err := getData(&ExecuteTaskRequest{
-		InputData: "",
-	})
-	assert.NotNil(t, err)
-}
-
-func TestCheckServiceNotRunning(t *testing.T) {
-	err := checkServiceStatus(&service.Service{Name: "TestCheckServiceNotRunning"})
-	assert.NotNil(t, err)
-	_, notRunningError := err.(*NotRunningServiceError)
-	assert.True(t, notRunningError)
-}
-
-func TestCheckService(t *testing.T) {
-	srv := service.Service{
-		Name: "TestCheckService",
-		Dependencies: map[string]*service.Dependency{
-			"test": {
-				Image: "nginx",
-			},
-		},
-	}
-	srv.Start()
-	defer srv.Stop()
-	err := checkServiceStatus(&srv)
-	assert.Nil(t, err)
 }
