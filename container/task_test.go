@@ -1,40 +1,76 @@
 package container
 
 import (
+	"errors"
 	"testing"
-	"time"
 
-	"github.com/stvp/assert"
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/filters"
+	"github.com/docker/docker/api/types/swarm"
+	"github.com/mesg-foundation/core/container/dockertest"
+	"github.com/stretchr/testify/require"
 )
 
 func TestListTasks(t *testing.T) {
-	namespace := []string{"TestListTasks"}
-	startTestService(namespace)
-	defer StopService(namespace)
-	tasks, err := ListTasks(namespace)
-	assert.Nil(t, err)
-	assert.NotNil(t, tasks)
-	assert.Equal(t, 1, len(tasks))
+	namespace := []string{"namespace"}
+	tasks := []swarm.Task{
+		{ID: "1"},
+		{ID: "2"},
+	}
+
+	dt := dockertest.New()
+	c, _ := New(ClientOption(dt.Client()))
+
+	dt.ProvideTaskList(tasks, nil)
+
+	tasks1, err := c.ListTasks(namespace)
+	require.Nil(t, err)
+	require.Equal(t, tasks, tasks1)
+	require.Equal(t, len(tasks), len(tasks1))
+
+	require.Equal(t, types.TaskListOptions{
+		Filters: filters.NewArgs(filters.KeyValuePair{
+			Key:   "label",
+			Value: "com.docker.stack.namespace=" + Namespace(namespace),
+		}),
+	}, (<-dt.LastTaskList()).Options)
+}
+
+var errTaskList = errors.New("task list")
+
+func TestListTasksError(t *testing.T) {
+	namespace := []string{"namespace"}
+
+	dt := dockertest.New()
+	c, _ := New(ClientOption(dt.Client()))
+
+	dt.ProvideTaskList(nil, errTaskList)
+
+	_, err := c.ListTasks(namespace)
+	require.Equal(t, errTaskList, err)
 }
 
 func TestTasksError(t *testing.T) {
-	namespace := []string{"TestTasksError"}
-	StartService(ServiceOptions{
-		Image:     "fiifioewifewiewfifewijopwjeokpfeo",
-		Namespace: namespace,
-	})
-	defer StopService(namespace)
-	var errors []string
-	var err error
-	for {
-		errors, err = TasksError(namespace)
-		if err != nil || len(errors) > 0 {
-			break
-		}
-		time.Sleep(500 * time.Millisecond)
+	namespace := []string{"namespace"}
+	tasks := []swarm.Task{
+		{
+			ID:     "1",
+			Status: swarm.TaskStatus{Err: "1-err"},
+		},
+		{
+			ID:     "1",
+			Status: swarm.TaskStatus{Err: "2-err"},
+		},
 	}
-	assert.Nil(t, err)
-	assert.NotNil(t, errors)
-	assert.True(t, len(errors) > 0)
-	assert.Equal(t, "No such image: fiifioewifewiewfifewijopwjeokpfeo:latest", errors[0])
+
+	dt := dockertest.New()
+	c, _ := New(ClientOption(dt.Client()))
+
+	dt.ProvideTaskList(tasks, nil)
+
+	errors, err := c.TasksError(namespace)
+	require.Nil(t, err)
+	require.Equal(t, len(tasks), len(errors))
+	require.Equal(t, tasks[0].Status.Err, errors[0])
+	require.Equal(t, tasks[1].Status.Err, errors[1])
 }

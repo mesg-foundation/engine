@@ -3,17 +3,17 @@ package importer
 import (
 	"testing"
 
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestReadDockerFile(t *testing.T) {
 	data, err := readDockerfile("./tests/service-valid")
-	assert.Nil(t, err)
-	assert.True(t, (len(data) > 0))
+	require.Nil(t, err)
+	require.True(t, (len(data) > 0))
 }
 
 func TestReadDockerFileDoesNotExist(t *testing.T) {
 	data, err := readDockerfile("./tests/docker-missing")
-	assert.NotNil(t, err)
-	assert.True(t, (len(data) == 0))
+	require.NotNil(t, err)
+	require.True(t, (len(data) == 0))
 }

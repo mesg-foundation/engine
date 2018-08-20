@@ -193,7 +193,8 @@ The request's data for the `ListenResult` stream API.
 {
   "serviceID":     "__SERVICE_ID__",
   "taskFilter":    "__TASK_KEY_TO_MATCH__",
-  "outputFilter":  "__OUTPUT_KEY_TO_MATCH__"
+  "outputFilter":  "__OUTPUT_KEY_TO_MATCH__",
+  "tagFilters":     ["tagX"]
 }
 ```
 
@@ -203,6 +204,7 @@ The request's data for the `ListenResult` stream API.
 | serviceID | [string](#string) | The Service ID. Generated when using the [`DeployService` API](#deployservice). |
 | taskFilter | [string](#string) | __Optional.__  The task's key to filter. The task must match this key. The default is `*` which matches any task. |
 | outputFilter | [string](#string) | __Optional.__ The output's key from the task to filter. The task must return this output's key. The default is `*` which matches any output. |
+| tagFilters | [string](#string)[] | __Optional.__ The list of tags to filter. This is a "match all" list. All tags in parameters should be included in the execution to match. |
 
 
 
@@ -257,10 +259,11 @@ The data will be received over time as long as the stream is open.
 **Example**
 ```json
 {
-  "executionID": "__EXECUTION_ID__",
-  "taskKey":     "__TASK_KEY__",
-  "outputKey":   "__OUTPUT_KEY__",
-  "outputData":  "{\"foo\":\"bar\"}"
+  "executionID":   "__EXECUTION_ID__",
+  "taskKey":       "__TASK_KEY__",
+  "outputKey":     "__OUTPUT_KEY__",
+  "outputData":    "{\"foo\":\"bar\"}",
+  "executionTags": ["executionX", "test"]
 }
 ```
 
@@ -271,6 +274,7 @@ The data will be received over time as long as the stream is open.
 | taskKey | [string](#string) | The key of the executed task. |
 | outputKey | [string](#string) | The output's key from the returned task. |
 | outputData | [string](#string) | The output's data from the returned task, encoded in JSON. |
+| executionTags | [string](#string)[] | The list of tags associated with the execution |
 
 
 
@@ -314,9 +318,10 @@ The request's data for the `ExecuteTask` API.
 **Example**
 ```json
 {
-  "serviceID": "__SERVICE_ID__",
-  "taskKey":   "__TASK_KEY__",
-  "inputData": "{\"foo\":\"bar\"}"
+  "serviceID":     "__SERVICE_ID__",
+  "taskKey":       "__TASK_KEY__",
+  "inputData":     "{\"foo\":\"bar\"}",
+  "executionTags": ["executionX", "test"]
 }
 ```
 
@@ -326,6 +331,7 @@ The request's data for the `ExecuteTask` API.
 | serviceID | [string](#string) | The Service ID. Generated when using the [`DeployService` API](#deployservice). |
 | taskKey | [string](#string) | The task's key to execute. |
 | inputData | [string](#string) | The inputs of the task to execute, encoded in JSON. |
+| executionTags | [string](#string)[] | __Optional.__ The list of tags to associate with the execution |
 
 
 

@@ -6,11 +6,11 @@ option go_package = "service";
 // This is the API for MESG Services to interact with MESG Core.
 // It is to be consumed only by MESG Services.
 // It provides all necessary functions that MESG Services need in order to interact with MESG Core.
-// 
+//
 // This API is only accessible through [gRPC](https://grpc.io/).
-// 
+//
 // Applications must not use this API, but rather use the [Core API](./core.md).
-// 
+//
 // The source file of this API is hosted on [GitHub](https://github.com/mesg-foundation/core/blob/master/api/service/api.proto).
 service Service {
   // Emit an event to [Core](../guide/start-here/core.md).
@@ -27,7 +27,7 @@ service Service {
 }
 
 // The request's data for the `EmitEvent` API.
-// 
+//
 // **Example:**
 // ```json
 // {
@@ -47,7 +47,7 @@ message EmitEventReply {
 }
 
 // The request's data for the `ListenTask` stream API.
-// 
+//
 // **Example:**
 // ```json
 // {
@@ -61,7 +61,7 @@ message ListenTaskRequest {
 // The data received from the stream of the `ListenTask` API.
 // The data will be received over time as long as the stream is open.
 // The `executionID` value must be kept and sent with the result when calling the [`SubmitResult` API](#submitresult).
-// 
+//
 // **Example:**
 // ```json
 // {
@@ -78,7 +78,7 @@ message TaskData {
 
 // The request's data for the `SubmitResult` API.
 // The data must contain the `executionID` of the executed task received from the stream of [`ListenTask` API](#listentask).
-// 
+//
 // **Example:**
 // ```json
 // {

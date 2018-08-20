@@ -1,43 +1,94 @@
 package container
 
 import (
-	"context"
 	"testing"
 
-	docker "github.com/docker/docker/client"
-	"github.com/stvp/assert"
+	"github.com/docker/docker/api/types"
+	"github.com/mesg-foundation/core/container/dockertest"
+	"github.com/stretchr/testify/require"
 )
 
-func removeSharedNetworkIfExist(client *docker.Client) (err error) {
-	_, err = sharedNetwork(client)
-	if docker.IsErrNotFound(err) {
-		err = nil
-		return
-	}
-	if err != nil {
-		return
-	}
-	err = client.NetworkRemove(context.Background(), Namespace(sharedNetworkNamespace))
-	return
+func TestSharedNetwork(t *testing.T) {
+	id := "id"
+
+	dt := dockertest.New()
+	c, _ := New(ClientOption(dt.Client()))
+
+	// discard network requests made from New.
+	<-dt.LastNetworkInspect()
+	<-dt.LastNetworkCreate()
+
+	dt.ProvideNetworkInspect(types.NetworkResource{ID: id}, nil)
+
+	network, err := c.sharedNetwork()
+	require.Nil(t, err)
+	require.Equal(t, id, network.ID)
+
+	li := <-dt.LastNetworkInspect()
+	require.Equal(t, Namespace(sharedNetworkNamespace), li.Network)
+	require.Equal(t, types.NetworkInspectOptions{}, li.Options)
 }
 
 func TestCreateSharedNetworkIfNeeded(t *testing.T) {
-	client, _ := createClient()
-	err := removeSharedNetworkIfExist(client)
-	assert.Nil(t, err)
-	err = createSharedNetworkIfNeeded(client)
-	assert.Nil(t, err)
+	dt := dockertest.New()
+	c, _ := New(ClientOption(dt.Client()))
+
+	// discard network requests made from New.
+	<-dt.LastNetworkInspect()
+	<-dt.LastNetworkCreate()
+
+	dt.ProvideNetworkInspect(types.NetworkResource{}, nil)
+
+	require.Nil(t, c.createSharedNetworkIfNeeded())
+
+	lc := <-dt.LastNetworkCreate()
+	require.Equal(t, Namespace(sharedNetworkNamespace), lc.Name)
+	require.Equal(t, types.NetworkCreate{
+		CheckDuplicate: true,
+		Driver:         "overlay",
+		Labels: map[string]string{
+			"com.docker.stack.namespace": Namespace(sharedNetworkNamespace),
+		},
+	}, lc.Options)
 }
 
-func TestSharedNetwork(t *testing.T) {
-	client, _ := Client()
-	network, err := sharedNetwork(client)
-	assert.Nil(t, err)
-	assert.NotEqual(t, "", network.ID)
+func TestCreateSharedNetworkIfNeededExists(t *testing.T) {
+	id := "id"
+
+	dt := dockertest.New()
+	c, _ := New(ClientOption(dt.Client()))
+
+	// discard network requests made from New.
+	<-dt.LastNetworkInspect()
+	<-dt.LastNetworkCreate()
+
+	dt.ProvideNetworkInspect(types.NetworkResource{ID: id}, nil)
+
+	require.Nil(t, c.createSharedNetworkIfNeeded())
+
+	select {
+	case <-dt.LastNetworkCreate():
+		t.Error("should not create network")
+	default:
+	}
 }
 
 func TestSharedNetworkID(t *testing.T) {
-	networkID, err := SharedNetworkID()
-	assert.Nil(t, err)
-	assert.NotEqual(t, "", networkID)
+	id := "1"
+	dt := dockertest.New()
+	c, _ := New(ClientOption(dt.Client()))
+
+	// discard network requests made from New.
+	<-dt.LastNetworkInspect()
+	<-dt.LastNetworkCreate()
+
+	dt.ProvideNetworkInspect(types.NetworkResource{ID: id}, nil)
+
+	network, err := c.SharedNetworkID()
+	require.Nil(t, err)
+	require.Equal(t, network, id)
+
+	li := <-dt.LastNetworkInspect()
+	require.Equal(t, Namespace(sharedNetworkNamespace), li.Network)
+	require.Equal(t, types.NetworkInspectOptions{}, li.Options)
 }

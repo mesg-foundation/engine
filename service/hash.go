@@ -4,9 +4,9 @@ import (
 	"github.com/cnf/structhash"
 )
 
-// Hash calculate and return the hash of the service
-func (service *Service) Hash() (hash string) {
+// Hash calculates and returns the hash of the service.
+func (service *Service) Hash() string {
 	// Ignore the err result because the lib always return nil
-	hash, _ = structhash.Hash(service, 1) // TODO: why not reuse the package utils/hash?
-	return
+	hash, _ := structhash.Hash(service, 1) // TODO: why not reuse the package utils/hash?
+	return hash
 }

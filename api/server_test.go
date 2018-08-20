@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -21,7 +21,7 @@ func TestServerServe(t *testing.T) {
 		s.Stop()
 	}()
 	err := s.Serve()
-	assert.Nil(t, err)
+	require.Nil(t, err)
 }
 
 func TestServerServeNoAddress(t *testing.T) {
@@ -31,7 +31,7 @@ func TestServerServeNoAddress(t *testing.T) {
 		s.Stop()
 	}()
 	err := s.Serve()
-	assert.NotNil(t, err)
+	require.NotNil(t, err)
 }
 
 func TestServerServeAlreadyListening(t *testing.T) {
@@ -43,5 +43,5 @@ func TestServerServeAlreadyListening(t *testing.T) {
 	time.Sleep(waitForServe)
 	err := s.Serve()
 	defer s.Stop()
-	assert.NotNil(t, err)
+	require.NotNil(t, err)
 }

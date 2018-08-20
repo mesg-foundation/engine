@@ -6,26 +6,25 @@ import (
 
 	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/service"
-
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var serversubmit = new(Server)
 
-func execute(name string) (e *execution.Execution) {
+func execute(name string) *execution.Execution {
 	var inputs map[string]interface{}
-	e, _ = execution.Create(&service.Service{
+	e, _ := execution.Create(&service.Service{
 		Name: name,
 		Tasks: map[string]*service.Task{
-			"test": &service.Task{
+			"test": {
 				Outputs: map[string]*service.Output{
-					"output": &service.Output{},
+					"output": {},
 				},
 			},
 		},
-	}, "test", inputs)
+	}, "test", inputs, []string{})
 	e.Execute()
-	return
+	return e
 }
 
 func TestSubmit(t *testing.T) {
@@ -36,8 +35,8 @@ func TestSubmit(t *testing.T) {
 		OutputData:  "{}",
 	})
 
-	assert.Nil(t, err)
-	assert.NotNil(t, reply)
+	require.Nil(t, err)
+	require.NotNil(t, reply)
 }
 
 func TestSubmitWithInvalidJSON(t *testing.T) {
@@ -48,7 +47,7 @@ func TestSubmitWithInvalidJSON(t *testing.T) {
 		OutputData:  "",
 	})
 
-	assert.NotNil(t, err)
+	require.NotNil(t, err)
 }
 
 func TestSubmitWithInvalidID(t *testing.T) {
@@ -57,8 +56,8 @@ func TestSubmitWithInvalidID(t *testing.T) {
 		OutputKey:   "output",
 		OutputData:  "",
 	})
-	assert.NotNil(t, err)
+	require.NotNil(t, err)
 	x, missingExecutionError := err.(*MissingExecutionError)
-	assert.True(t, missingExecutionError)
-	assert.Equal(t, "xxxx", x.ID)
+	require.True(t, missingExecutionError)
+	require.Equal(t, "xxxx", x.ID)
 }

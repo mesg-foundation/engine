@@ -1,7 +1,10 @@
 #!/bin/bash
 
-scripts/build-test-core.sh
-env MESG_CORE_IMAGE=mesg/core:local go run cli/main.go stop
-env MESG_CORE_IMAGE=mesg/core:local go run cli/main.go start
-env MESG_CORE_IMAGE=mesg/core:local go run cli/main.go logs
-env MESG_CORE_IMAGE=mesg/core:local go run cli/main.go stop
+
+echo "Building mesg/core:local..."
+docker build -t mesg/core:local --build-arg version="local" .
+
+./dev-cli stop
+./dev-cli start
+./dev-cli logs
+./dev-cli stop

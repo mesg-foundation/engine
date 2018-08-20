@@ -3,9 +3,9 @@ package config
 import (
 	"testing"
 
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestToEnv(t *testing.T) {
-	assert.Equal(t, envPrefix+envSeparator+"FOO"+envSeparator+"BAR", ToEnv("foo.bar"))
+	require.Equal(t, envPrefix+envSeparator+"FOO"+envSeparator+"BAR", ToEnv("foo.bar"))
 }

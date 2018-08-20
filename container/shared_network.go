@@ -7,45 +7,44 @@ import (
 	docker "github.com/docker/docker/client"
 )
 
-func createSharedNetworkIfNeeded(client *docker.Client) (err error) {
-	network, err := sharedNetwork(client)
-	if docker.IsErrNotFound(err) {
-		err = nil
-	}
+var sharedNetworkNamespace = []string{"shared"}
+
+// SharedNetworkID returns the ID of the shared network.
+func (c *Container) SharedNetworkID() (networkID string, err error) {
+	network, err := c.sharedNetwork()
 	if err != nil {
-		return
+		return "", err
+	}
+	return network.ID, nil
+}
+
+func (c *Container) createSharedNetworkIfNeeded() error {
+	network, err := c.sharedNetwork()
+	if err != nil && !docker.IsErrNotFound(err) {
+		return err
 	}
 	if network.ID != "" {
-		return
+		return nil
 	}
-	// Create the new network needed to run containers
+
+	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
+	defer cancel()
+
+	// Create the new network needed to run containers.
 	namespace := Namespace(sharedNetworkNamespace)
-	_, err = client.NetworkCreate(context.Background(), namespace, types.NetworkCreate{
+	_, err = c.client.NetworkCreate(ctx, namespace, types.NetworkCreate{
 		CheckDuplicate: true,
 		Driver:         "overlay",
 		Labels: map[string]string{
 			"com.docker.stack.namespace": namespace,
 		},
 	})
-	return
+	return err
 }
 
-// sharedNetwork returns the shared network created to connect services and MESG Core
-func sharedNetwork(client *docker.Client) (network types.NetworkResource, err error) {
-	network, err = client.NetworkInspect(context.Background(), Namespace(sharedNetworkNamespace), types.NetworkInspectOptions{})
-	return
-}
-
-// SharedNetworkID returns the id of the shared network
-func SharedNetworkID() (networkID string, err error) {
-	client, err := Client()
-	if err != nil {
-		return
-	}
-	network, err := sharedNetwork(client)
-	if err != nil {
-		return
-	}
-	networkID = network.ID
-	return
+// sharedNetwork returns the shared network created to connect services and MESG Core.
+func (c *Container) sharedNetwork() (network types.NetworkResource, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
+	defer cancel()
+	return c.client.NetworkInspect(ctx, Namespace(sharedNetworkNamespace), types.NetworkInspectOptions{})
 }

@@ -3,10 +3,10 @@ package service
 import (
 	"testing"
 
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestMissingExecutionError(t *testing.T) {
 	e := MissingExecutionError{ID: "test"}
-	assert.Equal(t, "Execution test doesn't exists", e.Error())
+	require.Equal(t, "Execution test doesn't exists", e.Error())
 }
