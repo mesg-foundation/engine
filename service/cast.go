@@ -55,7 +55,11 @@ func (s *Service) Cast(taskKey string, taskData map[string]string) (map[string]i
 	for key, value := range taskData {
 		inputType, ok := task.Inputs[key]
 		if !ok {
-			return nil, &InputNotFoundError{Service: s, InputKey: key}
+			return nil, &InputNotFoundError{
+				Service:  s,
+				TaskKey:  taskKey,
+				InputKey: key,
+			}
 		}
 
 		newValue, err := s.cast(value, inputType.Type)
