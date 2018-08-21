@@ -189,7 +189,7 @@ func (s *Service) listenTasks() error {
 
 func (s *Service) getTaskableByName(key string) Taskable {
 	for _, taskable := range s.taskables {
-		if taskable.Name() == key {
+		if taskable.Key() == key {
 			return taskable
 		}
 	}
@@ -209,9 +209,9 @@ func (s *Service) executeTask(data *service.TaskData) {
 	}
 }
 
-// Emit emits a MESG event with given data for name.
-func (s *Service) Emit(event string, data Data) error {
-	dataBytes, err := json.Marshal(data)
+// Emit emits a MESG event eventKey with given eventData.
+func (s *Service) Emit(eventKey string, eventData Data) error {
+	dataBytes, err := json.Marshal(eventData)
 	if err != nil {
 		return err
 	}
@@ -219,7 +219,7 @@ func (s *Service) Emit(event string, data Data) error {
 	defer cancel()
 	_, err = s.client.EmitEvent(ctx, &service.EmitEventRequest{
 		Token:     s.token,
-		EventKey:  event,
+		EventKey:  eventKey,
 		EventData: string(dataBytes),
 	})
 	return err
