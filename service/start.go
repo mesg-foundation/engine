@@ -54,7 +54,7 @@ func (service *Service) Start() (serviceIDs []string, err error) {
 	if err != nil {
 		service.Stop()
 	}
-	return serviceIDs, nil
+	return serviceIDs, err
 }
 
 // Start starts a dependency container.
