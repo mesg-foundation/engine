@@ -18,6 +18,14 @@
   revision = "7d2e70ef918f16bd6455529af38304d6d025c952"
 
 [[projects]]
+  digest = "1:89e98f6335a3ca6d6ae179bb030d7d73326b809c3ba87e9a4b7dffd458ab85d7"
+  name = "github.com/briandowns/spinner"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "9f016caa1359c8ecdc1d95243e92c0d28b524368"
+  version = "1.2"
+
+[[projects]]
   branch = "master"
   digest = "1:0ec96fca24e0ab3ffd02c0ef10b81ed8bf7452f24a83e356327a35610368b170"
   name = "github.com/cnf/structhash"
@@ -284,14 +292,6 @@
   pruneopts = "UT"
   revision = "0360b2af4f38e8d38c7fce2a9f4e702702d73a39"
   version = "v0.0.3"
-
-[[projects]]
-  digest = "1:62418b2f2c48eba31082f234f85d7549063df126a6375d259eb7ce2dc2c31cc1"
-  name = "github.com/mesg-foundation/spinner"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "2dfb4780f8e2e251e89826f5d21981d5f8671d45"
-  version = "1.2"
 
 [[projects]]
   branch = "master"
@@ -772,6 +772,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/asaskevich/govalidator",
+    "github.com/briandowns/spinner",
     "github.com/cnf/structhash",
     "github.com/docker/docker/api/types",
     "github.com/docker/docker/api/types/filters",
@@ -784,7 +785,6 @@
     "github.com/grpc-ecosystem/go-grpc-middleware",
     "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus",
     "github.com/logrusorgru/aurora",
-    "github.com/mesg-foundation/spinner",
     "github.com/mitchellh/go-homedir",
     "github.com/satori/go.uuid",
     "github.com/sirupsen/logrus",

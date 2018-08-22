@@ -299,12 +299,16 @@ func (s *Spinner) UpdateCharSet(cs []string) {
 func (s *Spinner) erase() {
 	n := utf8.RuneCountInString(s.lastOutput)
 	del, _ := hex.DecodeString("7f")
-	for _, c := range []string{"\b", string(del), "\b"} {
+	for _, c := range []string{
+		"\b",
+		string(del),
+		"\b",
+		"\033[K", // for macOS Terminal
+	} {
 		for i := 0; i < n; i++ {
 			fmt.Fprintf(s.Writer, c)
 		}
 	}
-	fmt.Fprintf(s.Writer, "\033[K") // for OS X Terminal
 	s.lastOutput = ""
 }
 
