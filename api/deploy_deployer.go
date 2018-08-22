@@ -17,6 +17,7 @@ import (
 	"gopkg.in/src-d/go-git.v4/plumbing"
 )
 
+// serviceDeployer provides functionalities to deploy a MESG service.
 type serviceDeployer struct {
 	Statuses chan DeployStatus
 
@@ -40,10 +41,15 @@ type DeployStatus struct {
 	Type    StatusType
 }
 
-func newServiceDeployer(api *API) *serviceDeployer {
-	return &serviceDeployer{
+// newServiceDeployer creates a new serviceDeployer with given api and options.
+func newServiceDeployer(api *API, options ...DeployServiceOption) *serviceDeployer {
+	d := &serviceDeployer{
 		api: api,
 	}
+	for _, option := range options {
+		option(d)
+	}
+	return d
 }
 
 // FromGitURL deploys a service hosted at a Git url.

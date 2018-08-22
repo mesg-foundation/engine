@@ -2,10 +2,12 @@ package api
 
 import "github.com/mesg-foundation/core/database/services"
 
+// serviceDeleter provides functionalities to delete a MESG service.
 type serviceDeleter struct {
 	api *API
 }
 
+// newServiceDeleter creates a new serviceDeleter with given.
 func newServiceDeleter(api *API) *serviceDeleter {
 	return &serviceDeleter{
 		api: api,

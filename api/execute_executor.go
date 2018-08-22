@@ -8,7 +8,7 @@ import (
 	"github.com/mesg-foundation/core/service"
 )
 
-// taskExecutor provides functionalies to execute a MESG task.
+// taskExecutor provides functionalities to execute a MESG task.
 type taskExecutor struct {
 	api *API
 }
