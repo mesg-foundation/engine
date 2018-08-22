@@ -88,3 +88,34 @@ func TestListMultipleDependencies(t *testing.T) {
 	require.Equal(t, len(list), 1)
 	require.Equal(t, list[0], hash)
 }
+
+func TestServiceDependenciesListensFromSamePort(t *testing.T) {
+	var (
+		service = &Service{
+			Name: "TestServiceDependenciesListensFromSamePort",
+			Dependencies: map[string]*Dependency{
+				"test": {
+					Image: "nginx",
+					Ports: []string{"80"},
+				},
+			},
+		}
+
+		service1 = &Service{
+			Name: "TestServiceDependenciesListensFromSamePort1",
+			Dependencies: map[string]*Dependency{
+				"test": {
+					Image: "nginx",
+					Ports: []string{"80"},
+				},
+			},
+		}
+	)
+	_, err := service.Start()
+	require.NoError(t, err)
+	defer service.Stop()
+
+	_, err = service1.Start()
+	require.NotZero(t, err)
+	require.Contains(t, err.Error(), `port '80' is already in use`)
+}
