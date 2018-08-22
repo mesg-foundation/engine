@@ -2,21 +2,9 @@ package core
 
 import (
 	"context"
-
-	"github.com/mesg-foundation/core/database/services"
 )
 
-// DeleteService deletes a service in the database and eventually stops the docker of this service.
+// DeleteService stops and deletes service serviceID.
 func (s *Server) DeleteService(ctx context.Context, request *DeleteServiceRequest) (*DeleteServiceReply, error) {
-	service, err := services.Get(request.ServiceID)
-	if err != nil {
-		return nil, err
-	}
-	if err := service.Stop(); err != nil {
-		return nil, err
-	}
-	if err := services.Delete(request.ServiceID); err != nil {
-		return nil, err
-	}
-	return &DeleteServiceReply{}, nil
+	return &DeleteServiceReply{}, s.api.DeleteService(request.ServiceID)
 }
