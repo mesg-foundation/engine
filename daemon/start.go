@@ -1,12 +1,11 @@
 package daemon
 
 import (
-	"net"
 	"path/filepath"
-	"strconv"
 
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
+	"github.com/mesg-foundation/core/x/xnet"
 	"github.com/spf13/viper"
 )
 
@@ -29,12 +28,7 @@ func serviceSpec() (spec container.ServiceOptions, err error) {
 		return container.ServiceOptions{}, err
 	}
 
-	_, portStr, err := net.SplitHostPort(viper.GetString(config.APIServerAddress))
-	if err != nil {
-		return container.ServiceOptions{}, err
-	}
-
-	port, err := strconv.ParseInt(portStr, 10, 64)
+	_, port, err := xnet.SplitHostPort(viper.GetString(config.APIServerAddress))
 	if err != nil {
 		return container.ServiceOptions{}, err
 	}

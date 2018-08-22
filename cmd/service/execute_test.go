@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/service"
-	"github.com/mesg-foundation/core/utils/xpflag"
+	"github.com/mesg-foundation/core/x/xpflag"
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/require"
 )

@@ -6,7 +6,6 @@ import (
 
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
-	git "gopkg.in/src-d/go-git.v4"
 )
 
 func TestDefaultPath(t *testing.T) {
@@ -18,33 +17,6 @@ func TestDefaultPath(t *testing.T) {
 func TestBuildDockerImagePathDoNotExist(t *testing.T) {
 	_, err := buildDockerImage("/doNotExist")
 	require.NotNil(t, err)
-}
-
-func TestGitCloneRepositoryDoNotExist(t *testing.T) {
-	path, _ := createTempFolder()
-	defer os.RemoveAll(path)
-	err := gitClone("/doNotExist", path, "testing...")
-	require.NotNil(t, err)
-}
-
-func TestGitCloneWithoutURLSchema(t *testing.T) {
-	path, _ := createTempFolder()
-	defer os.RemoveAll(path)
-	err := gitClone("github.com/mesg-foundation/awesome.git", path, "testing...")
-	require.Nil(t, err)
-}
-
-func TestGitCloneCustomBranch(t *testing.T) {
-	branchName := "5-generic-service"
-	path, _ := createTempFolder()
-	defer os.RemoveAll(path)
-	err := gitClone("github.com/mesg-foundation/service-ethereum-erc20#"+branchName, path, "testing...")
-	require.Nil(t, err)
-	repo, err := git.PlainOpen(path)
-	require.Nil(t, err)
-	branch, err := repo.Branch(branchName)
-	require.Nil(t, err)
-	require.NotNil(t, branch)
 }
 
 func TestDownloadServiceIfNeededAbsolutePath(t *testing.T) {
@@ -70,19 +42,6 @@ func TestDownloadServiceIfNeededUrl(t *testing.T) {
 	require.Nil(t, err)
 	require.NotEqual(t, path, newPath)
 	require.Equal(t, true, didDownload)
-}
-
-func TestCreateTempFolder(t *testing.T) {
-	path, err := createTempFolder()
-	defer os.RemoveAll(path)
-	require.Nil(t, err)
-	require.NotEqual(t, "", path)
-}
-
-func TestRemoveTempFolder(t *testing.T) {
-	path, _ := createTempFolder()
-	err := os.RemoveAll(path)
-	require.Nil(t, err)
 }
 
 func TestInjectConfigurationInDependencies(t *testing.T) {

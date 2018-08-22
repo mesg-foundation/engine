@@ -11,6 +11,7 @@ import (
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/cmd/utils"
+	"github.com/mesg-foundation/core/x/xgit"
 	"github.com/spf13/cobra"
 	"gopkg.in/AlecAivazis/survey.v1"
 )
@@ -140,12 +141,19 @@ func getTemplateResult(result string, templates []*templateStruct) (tmpl *templa
 }
 
 func downloadTemplate(tmpl *templateStruct) (path string, err error) {
-	path, err = createTempFolder()
+	path, err = ioutil.TempDir("", utils.TempDirPrefix)
 	if err != nil {
 		return "", err
 	}
 
-	return path, gitClone(tmpl.URL, path, "Downloading template "+tmpl.Name+"...")
+	message := fmt.Sprintf("Downloading template %s ...\n", tmpl.Name)
+	utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: message}, func() {
+		err = xgit.Clone(tmpl.URL, path)
+	})
+	if err != nil {
+		return "", err
+	}
+	return path, nil
 }
 
 func ask(label string, value string, validator survey.Validator) string {

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"net/url"
 	"os"
 
 	"github.com/asaskevich/govalidator"
@@ -15,10 +14,9 @@ import (
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/importer"
+	"github.com/mesg-foundation/core/x/xgit"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
-	git "gopkg.in/src-d/go-git.v4"
-	"gopkg.in/src-d/go-git.v4/plumbing"
 )
 
 // TODO(ilgooz): remove this after service package made Newable.
@@ -77,38 +75,17 @@ func downloadServiceIfNeeded(path string) (newPath string, didDownload bool, err
 	if !govalidator.IsURL(path) {
 		return path, false, nil
 	}
-	newPath, err = createTempFolder()
+	newPath, err = ioutil.TempDir("", utils.TempDirPrefix)
 	if err != nil {
 		return "", false, err
 	}
-	if err := gitClone(path, newPath, "Downloading service..."); err != nil {
+	utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: "Downloading service..."}, func() {
+		err = xgit.Clone(path, newPath)
+	})
+	if err != nil {
 		return "", false, err
 	}
 	return newPath, true, nil
-}
-
-func gitClone(repoURL string, path string, message string) error {
-	u, err := url.Parse(repoURL)
-	if err != nil {
-		return err
-	}
-	if u.Scheme == "" {
-		u.Scheme = "https"
-	}
-	options := &git.CloneOptions{}
-	if u.Fragment != "" {
-		options.ReferenceName = plumbing.ReferenceName("refs/heads/" + u.Fragment)
-		u.Fragment = ""
-	}
-	options.URL = u.String()
-	utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: message}, func() {
-		_, err = git.PlainClone(path, false, options)
-	})
-	return err
-}
-
-func createTempFolder() (path string, err error) {
-	return ioutil.TempDir("", "mesg-")
 }
 
 func buildDockerImage(path string) (imageHash string, err error) {
