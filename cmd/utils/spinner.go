@@ -3,7 +3,7 @@ package utils
 import (
 	"time"
 
-	spinnerPkg "github.com/mesg-foundation/spinner"
+	spinnerPkg "github.com/briandowns/spinner"
 )
 
 var (

@@ -7,11 +7,11 @@ import (
 	"os"
 
 	"github.com/asaskevich/govalidator"
+	"github.com/briandowns/spinner"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/api/core"
 	"github.com/mesg-foundation/core/cmd/utils"
-	"github.com/mesg-foundation/spinner"
 	"github.com/spf13/cobra"
 )
 
