@@ -2,11 +2,13 @@ package core
 
 import (
 	"encoding/json"
+
+	"github.com/mesg-foundation/core/api"
 )
 
 // ListenEvent listens events matches with eventFilter on serviceID.
 func (s *Server) ListenEvent(request *ListenEventRequest, stream Core_ListenEventServer) error {
-	ln, err := s.api.ListenEvent(request.ServiceID, request.EventFilter)
+	ln, err := s.api.ListenEvent(request.ServiceID, api.ListenEventKeyFilter(request.EventFilter))
 	if err != nil {
 		return err
 	}

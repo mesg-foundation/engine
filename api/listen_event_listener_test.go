@@ -17,10 +17,18 @@ func TestValidateEventKey(t *testing.T) {
 			"test": {},
 		},
 	}
-	require.Nil(t, ln.validateEventKey(s, ""))
-	require.Nil(t, ln.validateEventKey(s, "*"))
-	require.Nil(t, ln.validateEventKey(s, "test"))
-	require.NotNil(t, ln.validateEventKey(s, "xxx"))
+
+	ln.eventKey = ""
+	require.Nil(t, ln.validateEventKey(s))
+
+	ln.eventKey = "*"
+	require.Nil(t, ln.validateEventKey(s))
+
+	ln.eventKey = "test"
+	require.Nil(t, ln.validateEventKey(s))
+
+	ln.eventKey = "xxx"
+	require.NotNil(t, ln.validateEventKey(s))
 }
 
 func TestIsSubscribedEvent(t *testing.T) {
@@ -28,8 +36,16 @@ func TestIsSubscribedEvent(t *testing.T) {
 	ln := newEventListener(a)
 
 	e := &event.Event{Key: "test"}
-	require.True(t, ln.isSubscribedEvent("", e))
-	require.True(t, ln.isSubscribedEvent("*", e))
-	require.True(t, ln.isSubscribedEvent("test", e))
-	require.False(t, ln.isSubscribedEvent("xxx", e))
+
+	ln.eventKey = ""
+	require.True(t, ln.isSubscribedEvent(e))
+
+	ln.eventKey = "*"
+	require.True(t, ln.isSubscribedEvent(e))
+
+	ln.eventKey = "test"
+	require.True(t, ln.isSubscribedEvent(e))
+
+	ln.eventKey = "xxx"
+	require.False(t, ln.isSubscribedEvent(e))
 }

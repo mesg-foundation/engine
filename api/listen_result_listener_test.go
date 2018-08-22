@@ -1,4 +1,4 @@
-package core
+package api
 
 import (
 	"testing"
@@ -9,18 +9,32 @@ import (
 )
 
 func TestValidateTaskKey(t *testing.T) {
+	a, _ := newAPIAndDockerTest(t)
+	ln := newResultListener(a)
+
 	s := &service.Service{
 		Tasks: map[string]*service.Task{
 			"test": {},
 		},
 	}
-	require.Nil(t, validateTaskKey(s, ""))
-	require.Nil(t, validateTaskKey(s, "*"))
-	require.Nil(t, validateTaskKey(s, "test"))
-	require.NotNil(t, validateTaskKey(s, "xxx"))
+
+	ln.taskKey = ""
+	require.Nil(t, ln.validateTaskKey(s))
+
+	ln.taskKey = "*"
+	require.Nil(t, ln.validateTaskKey(s))
+
+	ln.taskKey = "test"
+	require.Nil(t, ln.validateTaskKey(s))
+
+	ln.taskKey = "xxx"
+	require.NotNil(t, ln.validateTaskKey(s))
 }
 
 func TestValidateOutputKey(t *testing.T) {
+	a, _ := newAPIAndDockerTest(t)
+	ln := newResultListener(a)
+
 	s := &service.Service{
 		Tasks: map[string]*service.Task{
 			"test": {
@@ -30,63 +44,92 @@ func TestValidateOutputKey(t *testing.T) {
 			},
 		},
 	}
-	require.Nil(t, validateOutputKey(s, "test", ""))
-	require.Nil(t, validateOutputKey(s, "test", "*"))
-	require.Nil(t, validateOutputKey(s, "test", "outputx"))
-	require.NotNil(t, validateOutputKey(s, "test", "xxx"))
-	require.Nil(t, validateOutputKey(s, "xxx", ""))
-	require.Nil(t, validateOutputKey(s, "xxx", "*"))
-	require.NotNil(t, validateOutputKey(s, "xxx", "outputX"))
-	require.NotNil(t, validateOutputKey(s, "xxx", "xxx"))
+
+	ln.taskKey = "test"
+	ln.outputKey = ""
+	require.Nil(t, ln.validateOutputKey(s))
+
+	ln.taskKey = "test"
+	ln.outputKey = "*"
+	require.Nil(t, ln.validateOutputKey(s))
+
+	ln.taskKey = "test"
+	ln.outputKey = "outputx"
+	require.Nil(t, ln.validateOutputKey(s))
+
+	ln.taskKey = "test"
+	ln.outputKey = "xxx"
+	require.NotNil(t, ln.validateOutputKey(s))
+
+	ln.taskKey = "xxx"
+	ln.outputKey = ""
+	require.Nil(t, ln.validateOutputKey(s))
+
+	ln.taskKey = "xxx"
+	ln.outputKey = "*"
+	require.Nil(t, ln.validateOutputKey(s))
+
+	ln.taskKey = "xxx"
+	ln.outputKey = "outputX"
+	require.NotNil(t, ln.validateOutputKey(s))
+
+	ln.taskKey = "xxx"
+	ln.outputKey = "xxx"
+	require.NotNil(t, ln.validateOutputKey(s))
 }
 
 func TestIsSubscribedToTask(t *testing.T) {
+	a, _ := newAPIAndDockerTest(t)
+	ln := newResultListener(a)
+
 	x := &execution.Execution{Task: "task"}
-	r := &ListenResultRequest{}
-	require.True(t, isSubscribedToTask(r, x))
 
-	r = &ListenResultRequest{TaskFilter: ""}
-	require.True(t, isSubscribedToTask(r, x))
+	ln.taskKey = ""
+	require.True(t, ln.isSubscribedToTask(x))
 
-	r = &ListenResultRequest{TaskFilter: "*"}
-	require.True(t, isSubscribedToTask(r, x))
+	ln.taskKey = "*"
+	require.True(t, ln.isSubscribedToTask(x))
 
-	r = &ListenResultRequest{TaskFilter: "task"}
-	require.True(t, isSubscribedToTask(r, x))
+	ln.taskKey = "task"
+	require.True(t, ln.isSubscribedToTask(x))
 
-	r = &ListenResultRequest{TaskFilter: "xxx"}
-	require.False(t, isSubscribedToTask(r, x))
+	ln.taskKey = "xxx"
+	require.False(t, ln.isSubscribedToTask(x))
 }
 
 func TestIsSubscribedToOutput(t *testing.T) {
+	a, _ := newAPIAndDockerTest(t)
+	ln := newResultListener(a)
+
 	x := &execution.Execution{Output: "output"}
-	r := &ListenResultRequest{}
-	require.True(t, isSubscribedToOutput(r, x))
 
-	r = &ListenResultRequest{OutputFilter: ""}
-	require.True(t, isSubscribedToOutput(r, x))
+	ln.outputKey = ""
+	require.True(t, ln.isSubscribedToOutput(x))
 
-	r = &ListenResultRequest{OutputFilter: "*"}
-	require.True(t, isSubscribedToOutput(r, x))
+	ln.outputKey = "*"
+	require.True(t, ln.isSubscribedToOutput(x))
 
-	r = &ListenResultRequest{OutputFilter: "output"}
-	require.True(t, isSubscribedToOutput(r, x))
+	ln.outputKey = "output"
+	require.True(t, ln.isSubscribedToOutput(x))
 
-	r = &ListenResultRequest{OutputFilter: "xxx"}
-	require.False(t, isSubscribedToOutput(r, x))
+	ln.outputKey = "xxx"
+	require.False(t, ln.isSubscribedToOutput(x))
 }
 
 func TestIsSubscribedToTags(t *testing.T) {
+	a, _ := newAPIAndDockerTest(t)
+	ln := newResultListener(a)
+
 	type result struct {
 		execution *execution.Execution
 		valid     bool
 	}
 	tests := []struct {
-		request *ListenResultRequest
+		tags    []string
 		results []result
 	}{
 		{
-			&ListenResultRequest{},
+			[]string{},
 			[]result{
 				{&execution.Execution{}, true},
 				{&execution.Execution{Tags: []string{"foo"}}, true},
@@ -95,7 +138,7 @@ func TestIsSubscribedToTags(t *testing.T) {
 			},
 		},
 		{
-			&ListenResultRequest{TagFilters: []string{"foo"}},
+			[]string{"foo"},
 			[]result{
 				{&execution.Execution{}, false},
 				{&execution.Execution{Tags: []string{"foo"}}, true},
@@ -104,7 +147,7 @@ func TestIsSubscribedToTags(t *testing.T) {
 			},
 		},
 		{
-			&ListenResultRequest{TagFilters: []string{"foo", "bar"}},
+			[]string{"foo", "bar"},
 			[]result{
 				{&execution.Execution{}, false},
 				{&execution.Execution{Tags: []string{"foo"}}, false},
@@ -115,35 +158,40 @@ func TestIsSubscribedToTags(t *testing.T) {
 	}
 	for _, test := range tests {
 		for _, r := range test.results {
-			require.Equal(t, r.valid, isSubscribedToTags(test.request, r.execution))
+			ln.tagFilters = test.tags
+			require.Equal(t, r.valid, ln.isSubscribedToTags(r.execution))
 		}
 	}
 }
 
 func TestIsSubscribed(t *testing.T) {
+	a, _ := newAPIAndDockerTest(t)
+	ln := newResultListener(a)
+
 	type test struct {
-		r ListenResultRequest
-		e execution.Execution
+		taskFilter, outputFilter string
+		tagFilters               []string
+		e                        execution.Execution
 	}
 	subscribeToOutput := func(x *test) *test {
 		return x
 	}
 	notSubscribeToOutput := func(x *test) *test {
-		x.r.OutputFilter = "foo"
+		x.outputFilter = "foo"
 		return x
 	}
 	subscribeToTask := func(x *test) *test {
 		return x
 	}
 	notSubscribeToTask := func(x *test) *test {
-		x.r.TaskFilter = "foo"
+		x.taskFilter = "foo"
 		return x
 	}
 	subscribeToTags := func(x *test) *test {
 		return x
 	}
 	notSubscribeToTags := func(x *test) *test {
-		x.r.TagFilters = []string{"foo"}
+		x.tagFilters = []string{"foo"}
 		return x
 	}
 	tests := []struct {
@@ -161,6 +209,9 @@ func TestIsSubscribed(t *testing.T) {
 		{subscribeToTags(subscribeToTask(subscribeToOutput(&test{}))), true, "[tags, task, output]"},
 	}
 	for _, test := range tests {
-		require.Equal(t, test.valid, isSubscribed(&test.t.r, &test.t.e), test.msg)
+		ln.taskKey = test.t.taskFilter
+		ln.outputKey = test.t.outputFilter
+		ln.tagFilters = test.t.tagFilters
+		require.Equal(t, test.valid, ln.isSubscribed(&test.t.e), test.msg)
 	}
 }

@@ -21,46 +21,53 @@ type EventListener struct {
 	// cancel stops listening for new events.
 	cancel chan struct{}
 
+	// filters.
+	eventKey string
+
 	api *API
 }
 
 // newEventListener creates a new EventListener with given api.
-func newEventListener(api *API) *EventListener {
-	return &EventListener{
+func newEventListener(api *API, filters ...ListenEventFilter) *EventListener {
+	ln := &EventListener{
 		Events: make(chan *event.Event, 0),
 		Err:    make(chan error, 1),
 		cancel: make(chan struct{}, 0),
 		api:    api,
 	}
+	for _, filter := range filters {
+		filter(ln)
+	}
+	return ln
 }
 
 // Close stops listening for events.
-func (e *EventListener) Close() error {
-	close(e.cancel)
+func (l *EventListener) Close() error {
+	close(l.cancel)
 	return nil
 }
 
 // listen listens events matches with eventFilter on serviceID.
-func (e *EventListener) listen(serviceID, eventFilter string) error {
+func (l *EventListener) listen(serviceID string) error {
 	service, err := services.Get(serviceID)
 	if err != nil {
 		return err
 	}
-	if err := e.validateEventKey(&service, eventFilter); err != nil {
+	if err := l.validateEventKey(&service); err != nil {
 		return err
 	}
-	go e.listenLoop(&service, eventFilter)
+	go l.listenLoop(&service)
 	return nil
 }
 
-func (e *EventListener) listenLoop(service *service.Service, eventFilter string) {
+func (l *EventListener) listenLoop(service *service.Service) {
 	channel := service.EventSubscriptionChannel()
 	subscription := pubsub.Subscribe(channel)
 	defer pubsub.Unsubscribe(channel, subscription)
 
 	for {
 		select {
-		case <-e.cancel:
+		case <-l.cancel:
 			return
 
 		// TODO use e.Err when subscription fails.
@@ -68,23 +75,23 @@ func (e *EventListener) listenLoop(service *service.Service, eventFilter string)
 		// need to pass an error to Err chan.
 		case data := <-subscription:
 			event := data.(*event.Event)
-			if e.isSubscribedEvent(eventFilter, event) {
-				e.Events <- event
+			if l.isSubscribedEvent(event) {
+				l.Events <- event
 			}
 		}
 	}
 }
 
-func (e *EventListener) validateEventKey(service *service.Service, eventKey string) error {
-	if eventKey == "" || eventKey == "*" {
+func (l *EventListener) validateEventKey(service *service.Service) error {
+	if l.eventKey == "" || l.eventKey == "*" {
 		return nil
 	}
-	if _, ok := service.Events[eventKey]; ok {
+	if _, ok := service.Events[l.eventKey]; ok {
 		return nil
 	}
-	return fmt.Errorf("Event %q doesn't exist in this service", eventKey)
+	return fmt.Errorf("Event %q doesn't exist in this service", l.eventKey)
 }
 
-func (e *EventListener) isSubscribedEvent(eventFilter string, ev *event.Event) bool {
-	return array.IncludedIn([]string{"", "*", ev.Key}, eventFilter)
+func (l *EventListener) isSubscribedEvent(e *event.Event) bool {
+	return array.IncludedIn([]string{"", "*", e.Key}, l.eventKey)
 }
