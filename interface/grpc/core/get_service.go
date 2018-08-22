@@ -2,14 +2,10 @@ package core
 
 import (
 	"context"
-
-	"github.com/mesg-foundation/core/database/services"
 )
 
-// GetService fetches a service from the database and returns it.
+// GetService returns service serviceID.
 func (s *Server) GetService(ctx context.Context, request *GetServiceRequest) (*GetServiceReply, error) {
-	service, err := services.Get(request.ServiceID)
-	return &GetServiceReply{
-		Service: &service,
-	}, err
+	service, err := s.api.GetService(request.ServiceID)
+	return &GetServiceReply{Service: service}, err
 }

@@ -100,7 +100,7 @@ func TestExecuteWithNonRunningService(t *testing.T) {
 		InputData: "{}",
 	})
 
-	require.Equal(t, err, &api.NotRunningServiceError{ServiceID: stream.serviceID})
+	require.Equal(t, &api.NotRunningServiceError{ServiceID: stream.serviceID}, err)
 }
 
 func TestExecuteWithNonExistingService(t *testing.T) {
