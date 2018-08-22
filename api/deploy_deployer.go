@@ -19,6 +19,7 @@ import (
 
 // serviceDeployer provides functionalities to deploy a MESG service.
 type serviceDeployer struct {
+	// Statuses receives status messages produced during deployment.
 	Statuses chan DeployStatus
 
 	api *API
