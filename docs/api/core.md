@@ -54,6 +54,8 @@ Subscribe to a stream that listens for events from a service.
 
 
 
+
+
 #### ListenEventRequest
 The request's data for the `ListenEvent` stream's API.
 
@@ -90,6 +92,8 @@ The request's data for the `ListenEvent` stream's API.
 </tab>
 
 <tab title="Reply">
+
+
 
 
 
@@ -185,6 +189,8 @@ Subscribe to a stream that listens for task's result from a service.
 
 
 
+
+
 #### ListenResultRequest
 The request's data for the `ListenResult` stream API.
 
@@ -223,6 +229,8 @@ The request's data for the `ListenResult` stream API.
 </tab>
 
 <tab title="Reply">
+
+
 
 
 
@@ -312,6 +320,8 @@ Execute a service's task through [Core](../guide/start-here/core.md).
 
 
 
+
+
 #### ExecuteTaskRequest
 The request's data for the `ExecuteTask` API.
 
@@ -362,6 +372,8 @@ The request's data for the `ExecuteTask` API.
 </tab>
 
 <tab title="Reply">
+
+
 
 
 
@@ -460,6 +472,8 @@ Start a service. The service must be already deployed to [Core](../guide/start-h
 
 
 
+
+
 #### StartServiceRequest
 The request's data for the `StartService` API.
 
@@ -517,6 +531,8 @@ The request's data for the `StartService` API.
 
 
 
+
+
 #### StartServiceReply
 Reply of `StartService` API doesn't contain any data.
 
@@ -539,6 +555,8 @@ Stop a service. The service must be already deployed to [Core](../guide/start-he
 
 <tabs>
 <tab title="Request">
+
+
 
 
 
@@ -633,6 +651,8 @@ The request's data for the `StopService` API.
 
 
 
+
+
 #### StopServiceReply
 Reply of `StopService` API doesn't contain any data.
 
@@ -651,6 +671,8 @@ Deploy a service to [Core](../guide/start-here/core.md). This will give you an u
 
 <tabs>
 <tab title="Request">
+
+
 
 
 
@@ -756,11 +778,13 @@ The reply's data of `DeployService` API.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| status | [string](#string) | status will be sent after each status change. |
+| status | [DeployServiceReply.Status](#api.DeployServiceReply.Status) | status will be sent after each status change. |
 | serviceID | [string](#string) | serviceID will be sent as the last message of stream when
 service deployed successfully. |
 | validationError | [string](#string) | validationError will be sent as the last message of stream when
 there is a validation error. |
+
+
 
 
 
@@ -861,6 +885,8 @@ Request's data of the `DeleteService` API.
 
 
 
+
+
 </tab>
 
 <tab title="Reply">
@@ -869,6 +895,8 @@ Request's data of the `DeleteService` API.
 
 #### DeleteServiceReply
 Reply of `DeleteService` API doesn't contain any data.
+
+
 
 
 
@@ -940,6 +968,8 @@ List all services already deployed in [Core](../guide/start-here/core.md).
 
 
 
+
+
 #### ListServicesRequest
 Reply of `ListServices` API doesn't contain any data.
 
@@ -964,6 +994,8 @@ Reply of `ListServices` API doesn't contain any data.
 </tab>
 
 <tab title="Reply">
+
+
 
 
 
@@ -1071,6 +1103,8 @@ Get the definition of an already-deployed service from its ID.
 
 
 
+
+
 #### GetServiceRequest
 The request's data for the `GetService` API.
 
@@ -1111,6 +1145,8 @@ The request's data for the `GetService` API.
 </tab>
 
 <tab title="Reply">
+
+
 
 
 

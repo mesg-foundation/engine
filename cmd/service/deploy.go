@@ -125,14 +125,22 @@ func readDeployReply(stream core.Core_DeployServiceClient, deployment chan deplo
 		)
 
 		switch {
-		case status != "":
-			sp.Start()
-			sp.Suffix = " " + status
+		case status != nil:
+			switch status.Type {
+			case core.DeployServiceReply_Status_RUNNING:
+				sp.Start()
+				sp.Suffix = " " + status.Message
+			case core.DeployServiceReply_Status_DONE:
+				sp.Stop()
+				fmt.Println(status.Message)
+			}
+
 		case serviceID != "":
 			sp.Stop()
 			result.serviceID = serviceID
 			deployment <- result
 			return
+
 		case validationError != "":
 			sp.Stop()
 			fmt.Println(aurora.Red(validationError))

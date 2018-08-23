@@ -18,9 +18,26 @@ import (
 )
 
 type serviceDeployer struct {
-	Statuses chan string
+	Statuses chan DeployStatus
 
 	mesg *MESG
+}
+
+// StatusType indicates the type of status message.
+type StatusType int
+
+const (
+	// RUNNING indicates that status message belongs to an active state.
+	RUNNING StatusType = iota + 1
+
+	// DONE indicates that status message belongs to completed state.
+	DONE
+)
+
+// DeployStatus represents the deployment status.
+type DeployStatus struct {
+	Message string
+	Type    StatusType
 }
 
 func newServiceDeployer(mesg *MESG) *serviceDeployer {
@@ -31,7 +48,7 @@ func newServiceDeployer(mesg *MESG) *serviceDeployer {
 
 // FromGitURL deploys a service hosted at a Git url.
 func (d *serviceDeployer) FromGitURL(url string) (*service.Service, *importer.ValidationError, error) {
-	d.sendStatus("Downloading service...")
+	d.sendStatus("Downloading service...", RUNNING)
 	path, err := d.createTempDir()
 	if err != nil {
 		return nil, nil, err
@@ -39,12 +56,13 @@ func (d *serviceDeployer) FromGitURL(url string) (*service.Service, *importer.Va
 	if err := d.gitClone(url, path); err != nil {
 		return nil, nil, err
 	}
+	d.sendStatus(fmt.Sprintf("%s Service downloaded with success.", aurora.Green("✔")), DONE)
 	return d.deploy(path)
 }
 
 // FromGzippedTar deploys a service from a gzipped tarball.
 func (d *serviceDeployer) FromGzippedTar(r io.Reader) (*service.Service, *importer.ValidationError, error) {
-	d.sendStatus("Sending service context to core daemon...")
+	d.sendStatus("Sending service context to core daemon...", RUNNING)
 	path, err := d.createTempDir()
 	if err != nil {
 		return nil, nil, err
@@ -54,6 +72,7 @@ func (d *serviceDeployer) FromGzippedTar(r io.Reader) (*service.Service, *import
 	}); err != nil {
 		return nil, nil, err
 	}
+	d.sendStatus(fmt.Sprintf("%s Service context sent to core daemon with success.", aurora.Green("✔")), DONE)
 	return d.deploy(path)
 }
 
@@ -89,14 +108,15 @@ func (d *serviceDeployer) deploy(path string) (*service.Service, *importer.Valid
 		return nil, validationErr, nil
 	}
 
-	d.sendStatus("Building Docker image...")
+	d.sendStatus("Building Docker image...", RUNNING)
 	imageHash, err := d.mesg.container.Build(path)
 	if err != nil {
 		return nil, nil, err
 	}
+	d.sendStatus(fmt.Sprintf("%s Image built with success.", aurora.Green("✔")), DONE)
 	d.injectConfigurationInDependencies(service, imageHash)
 
-	d.sendStatus(fmt.Sprintf("%s Completed.", aurora.Green("✔")))
+	d.sendStatus(fmt.Sprintf("%s Completed.", aurora.Green("✔")), DONE)
 	return service, nil, services.Save(service)
 }
 
@@ -123,9 +143,12 @@ func (d *serviceDeployer) createTempDir() (path string, err error) {
 }
 
 // sendStatus sends a status message.
-func (d *serviceDeployer) sendStatus(message string) {
+func (d *serviceDeployer) sendStatus(message string, typ StatusType) {
 	if d.Statuses != nil {
-		d.Statuses <- message
+		d.Statuses <- DeployStatus{
+			Message: message,
+			Type:    typ,
+		}
 	}
 }
 

@@ -225,9 +225,25 @@ message DeployServiceRequest {
 // }
 // ```
 message DeployServiceReply {
+  message Status {
+    enum Type {
+      // RUNNING indicates that status message belongs to an active state.
+      RUNNING = 0;
+
+      // DONE indicates that status message belongs to completed state.
+      DONE = 1;
+    }
+
+    // message is status message.
+    string message = 1;
+
+    // type is the type of status message.
+    Type type = 2;
+  }
+
   oneof value {
     // status will be sent after each status change.
-    string status = 2;
+    Status status = 2;
 
     // serviceID will be sent as the last message of stream when
     // service deployed successfully.
