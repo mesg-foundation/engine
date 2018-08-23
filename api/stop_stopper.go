@@ -4,7 +4,7 @@ import (
 	"github.com/mesg-foundation/core/database/services"
 )
 
-// serviceStopper provides functionalities to start a MESG service.
+// serviceStopper provides functionalities to stop a MESG service.
 type serviceStopper struct {
 	api *API
 }

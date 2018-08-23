@@ -38,25 +38,30 @@ func TestDeployService(t *testing.T) {
 		require.Equal(t, 1, structhash.Version(service.Id))
 	}()
 
-	status := <-statuses
-	require.Equal(t, RUNNING, status.Type)
-	require.Equal(t, "Sending service context to core daemon...", status.Message)
+	require.Equal(t, DeployStatus{
+		Message: "Sending service context to core daemon...",
+		Type:    RUNNING,
+	}, <-statuses)
 
-	status = <-statuses
-	require.Equal(t, DONE, status.Type)
-	require.Equal(t, fmt.Sprintf("%s Service context sent to core daemon with success.", aurora.Green("✔")), status.Message)
+	require.Equal(t, DeployStatus{
+		Message: fmt.Sprintf("%s Service context sent to core daemon with success.", aurora.Green("✔")),
+		Type:    DONE,
+	}, <-statuses)
 
-	status = <-statuses
-	require.Equal(t, RUNNING, status.Type)
-	require.Equal(t, "Building Docker image...", status.Message)
+	require.Equal(t, DeployStatus{
+		Message: "Building Docker image...",
+		Type:    RUNNING,
+	}, <-statuses)
 
-	status = <-statuses
-	require.Equal(t, DONE, status.Type)
-	require.Equal(t, fmt.Sprintf("%s Image built with success.", aurora.Green("✔")), status.Message)
+	require.Equal(t, DeployStatus{
+		Message: fmt.Sprintf("%s Image built with success.", aurora.Green("✔")),
+		Type:    DONE,
+	}, <-statuses)
 
-	status = <-statuses
-	require.Equal(t, DONE, status.Type)
-	require.Equal(t, fmt.Sprintf("%s Completed.", aurora.Green("✔")), status.Message)
+	require.Equal(t, DeployStatus{
+		Message: fmt.Sprintf("%s Completed.", aurora.Green("✔")),
+		Type:    DONE,
+	}, <-statuses)
 
 	wg.Wait()
 }
@@ -86,7 +91,8 @@ func TestDeployInvalidService(t *testing.T) {
 	}()
 
 	require.Equal(t, "Sending service context to core daemon...", (<-statuses).Message)
-	require.Equal(t, fmt.Sprintf("%s Service context sent to core daemon with success.", aurora.Green("✔")), (<-statuses).Message)
+	require.Equal(t, fmt.Sprintf("%s Service context sent to core daemon with success.", aurora.Green("✔")),
+		(<-statuses).Message)
 
 	select {
 	case <-statuses:
@@ -115,25 +121,30 @@ func TestDeployServiceFromURL(t *testing.T) {
 		require.Equal(t, 1, structhash.Version(service.Id))
 	}()
 
-	status := <-statuses
-	require.Equal(t, RUNNING, status.Type)
-	require.Equal(t, "Downloading service...", status.Message)
+	require.Equal(t, DeployStatus{
+		Message: "Downloading service...",
+		Type:    RUNNING,
+	}, <-statuses)
 
-	status = <-statuses
-	require.Equal(t, DONE, status.Type)
-	require.Equal(t, fmt.Sprintf("%s Service downloaded with success.", aurora.Green("✔")), status.Message)
+	require.Equal(t, DeployStatus{
+		Message: fmt.Sprintf("%s Service downloaded with success.", aurora.Green("✔")),
+		Type:    DONE,
+	}, <-statuses)
 
-	status = <-statuses
-	require.Equal(t, RUNNING, status.Type)
-	require.Equal(t, "Building Docker image...", status.Message)
+	require.Equal(t, DeployStatus{
+		Message: "Building Docker image...",
+		Type:    RUNNING,
+	}, <-statuses)
 
-	status = <-statuses
-	require.Equal(t, DONE, status.Type)
-	require.Equal(t, fmt.Sprintf("%s Image built with success.", aurora.Green("✔")), status.Message)
+	require.Equal(t, DeployStatus{
+		Message: fmt.Sprintf("%s Image built with success.", aurora.Green("✔")),
+		Type:    DONE,
+	}, <-statuses)
 
-	status = <-statuses
-	require.Equal(t, DONE, status.Type)
-	require.Equal(t, fmt.Sprintf("%s Completed.", aurora.Green("✔")), status.Message)
+	require.Equal(t, DeployStatus{
+		Message: fmt.Sprintf("%s Completed.", aurora.Green("✔")),
+		Type:    DONE,
+	}, <-statuses)
 
 	wg.Wait()
 }

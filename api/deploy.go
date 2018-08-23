@@ -18,7 +18,8 @@ func DeployServiceStatusOption(statuses chan DeployStatus) DeployServiceOption {
 }
 
 // DeployService deploys a service from a gzipped tarball.
-func (a *API) DeployService(r io.Reader, options ...DeployServiceOption) (*service.Service, *importer.ValidationError, error) {
+func (a *API) DeployService(r io.Reader, options ...DeployServiceOption) (*service.Service,
+	*importer.ValidationError, error) {
 	return newServiceDeployer(a, options...).FromGzippedTar(r)
 }
 
@@ -26,6 +27,7 @@ func (a *API) DeployService(r io.Reader, options ...DeployServiceOption) (*servi
 // Supported URL types:
 // - https://github.com/mesg-foundation/service-ethereum
 // - https://github.com/mesg-foundation/service-ethereum#branchName
-func (a *API) DeployServiceFromURL(url string, options ...DeployServiceOption) (*service.Service, *importer.ValidationError, error) {
+func (a *API) DeployServiceFromURL(url string, options ...DeployServiceOption) (*service.Service,
+	*importer.ValidationError, error) {
 	return newServiceDeployer(a, options...).FromGitURL(url)
 }
