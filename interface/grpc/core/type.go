@@ -21,7 +21,7 @@ func NewServer(options ...Option) (*Server, error) {
 		option(s)
 	}
 	if s.api == nil {
-		return nil, errors.New("mesg should be provided")
+		return nil, errors.New("api should be provided")
 	}
 	return s, nil
 }

@@ -10,9 +10,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var serveremit = new(Server)
-
 func TestEmit(t *testing.T) {
+	server := newServer(t)
 	service := service.Service{
 		Name: "TestEmit",
 		Events: map[string]*service.Event{
@@ -30,7 +29,7 @@ func TestEmit(t *testing.T) {
 
 	subscription := pubsub.Subscribe(service.EventSubscriptionChannel())
 
-	go serveremit.EmitEvent(context.Background(), &EmitEventRequest{
+	go server.EmitEvent(context.Background(), &EmitEventRequest{
 		Token:     service.Hash(),
 		EventKey:  "test",
 		EventData: "{}",
@@ -41,11 +40,12 @@ func TestEmit(t *testing.T) {
 }
 
 func TestEmitNoData(t *testing.T) {
+	server := newServer(t)
 	service := service.Service{}
 	services.Save(&service)
 	service.Id = "" // TODO(ilgooz) remove this when Service type created by hand.
 	defer services.Delete(service.Id)
-	_, err := serveremit.EmitEvent(context.Background(), &EmitEventRequest{
+	_, err := server.EmitEvent(context.Background(), &EmitEventRequest{
 		Token:    service.Hash(),
 		EventKey: "test",
 	})
@@ -53,11 +53,12 @@ func TestEmitNoData(t *testing.T) {
 }
 
 func TestEmitWrongData(t *testing.T) {
+	server := newServer(t)
 	service := service.Service{}
 	services.Save(&service)
 	service.Id = "" // TODO(ilgooz) remove this when Service type created by hand.
 	defer services.Delete(service.Id)
-	_, err := serveremit.EmitEvent(context.Background(), &EmitEventRequest{
+	_, err := server.EmitEvent(context.Background(), &EmitEventRequest{
 		Token:     service.Hash(),
 		EventKey:  "test",
 		EventData: "",
@@ -66,11 +67,12 @@ func TestEmitWrongData(t *testing.T) {
 }
 
 func TestEmitWrongEvent(t *testing.T) {
+	server := newServer(t)
 	srv := service.Service{Name: "TestEmitWrongEvent"}
 	services.Save(&srv)
 	srv.Id = "" // TODO(ilgooz) remove this when Service type created by hand.
 	defer services.Delete(srv.Id)
-	_, err := serveremit.EmitEvent(context.Background(), &EmitEventRequest{
+	_, err := server.EmitEvent(context.Background(), &EmitEventRequest{
 		Token:     srv.Hash(),
 		EventKey:  "test",
 		EventData: "{}",
@@ -81,8 +83,9 @@ func TestEmitWrongEvent(t *testing.T) {
 }
 
 func TestServiceNotExists(t *testing.T) {
+	server := newServer(t)
 	service := service.Service{Name: "TestServiceNotExists"}
-	_, err := serveremit.EmitEvent(context.Background(), &EmitEventRequest{
+	_, err := server.EmitEvent(context.Background(), &EmitEventRequest{
 		Token:     service.Hash(),
 		EventKey:  "test",
 		EventData: "{}",

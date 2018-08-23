@@ -76,7 +76,12 @@ func (s *Server) register() error {
 		return err
 	}
 
-	service.RegisterServiceServer(s.instance, &service.Server{})
+	serviceServer, err := service.NewServer(service.APIOption(a))
+	if err != nil {
+		return err
+	}
+
+	service.RegisterServiceServer(s.instance, serviceServer)
 	core.RegisterCoreServer(s.instance, coreServer)
 
 	reflection.Register(s.instance)
