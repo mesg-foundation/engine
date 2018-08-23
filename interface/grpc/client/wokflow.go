@@ -5,7 +5,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/mesg-foundation/core/api/core"
+	"github.com/mesg-foundation/core/interface/grpc/core"
 )
 
 // Start is the function to start the workflow

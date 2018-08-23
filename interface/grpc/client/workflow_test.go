@@ -3,7 +3,7 @@ package client
 import (
 	"testing"
 
-	"github.com/mesg-foundation/core/api/core"
+	"github.com/mesg-foundation/core/interface/grpc/core"
 	"github.com/stretchr/testify/require"
 )
 

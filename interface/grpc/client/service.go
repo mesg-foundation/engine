@@ -3,7 +3,7 @@ package client
 import (
 	"context"
 
-	"github.com/mesg-foundation/core/api/core"
+	"github.com/mesg-foundation/core/interface/grpc/core"
 )
 
 func (wf *Workflow) services() (services []string) {

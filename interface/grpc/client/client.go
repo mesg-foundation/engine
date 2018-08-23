@@ -3,8 +3,8 @@ package client
 import (
 	"sync"
 
-	"github.com/mesg-foundation/core/api/core"
 	"github.com/mesg-foundation/core/config"
+	"github.com/mesg-foundation/core/interface/grpc/core"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )

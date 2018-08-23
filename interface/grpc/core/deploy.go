@@ -9,7 +9,7 @@ import (
 // DeployService deploys a service from Git URL or service.tar.gz file. It'll send status
 // events during the process and finish with sending service id or validation error.
 func (s *Server) DeployService(stream Core_DeployServiceServer) error {
-	statuses := make(chan mesg.DeployStatus, 0)
+	statuses := make(chan api.DeployStatus, 0)
 	go sendDeployStatus(statuses, stream)
 
 	var (
@@ -43,13 +43,13 @@ func (s *Server) DeployService(stream Core_DeployServiceServer) error {
 	})
 }
 
-func sendDeployStatus(statuses chan mesg.DeployStatus, stream Core_DeployServiceServer) {
+func sendDeployStatus(statuses chan api.DeployStatus, stream Core_DeployServiceServer) {
 	for status := range statuses {
 		var typ DeployServiceReply_Status_Type
 		switch status.Type {
-		case mesg.RUNNING:
+		case api.RUNNING:
 			typ = DeployServiceReply_Status_RUNNING
-		case mesg.DONE:
+		case api.DONE:
 			typ = DeployServiceReply_Status_DONE
 		}
 

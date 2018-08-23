@@ -8,7 +8,7 @@ import (
 
 	"github.com/cnf/structhash"
 	"github.com/logrusorgru/aurora"
-	"github.com/mesg-foundation/core/mesg"
+	"github.com/mesg-foundation/core/api"
 	"github.com/stretchr/testify/require"
 	grpc "google.golang.org/grpc"
 )
@@ -23,9 +23,9 @@ func TestDeployService(t *testing.T) {
 	require.Nil(t, server.DeployService(stream))
 	require.Equal(t, 1, structhash.Version(stream.serviceID))
 
-	require.Contains(t, stream.statuses, mesg.DeployStatus{
+	require.Contains(t, stream.statuses, api.DeployStatus{
 		Message: fmt.Sprintf("%s Completed.", aurora.Green("✔")),
-		Type:    mesg.DONE,
+		Type:    api.DONE,
 	})
 }
 
@@ -34,7 +34,7 @@ type testDeployStream struct {
 	url       string // Git repo url.
 	err       error
 	serviceID string
-	statuses  []mesg.DeployStatus
+	statuses  []api.DeployStatus
 	grpc.ServerStream
 }
 
@@ -47,14 +47,14 @@ func (s *testDeployStream) Send(m *DeployServiceReply) error {
 
 	status := m.GetStatus()
 	if status != nil {
-		var typ mesg.StatusType
+		var typ api.StatusType
 		switch status.Type {
 		case DeployServiceReply_Status_RUNNING:
-			typ = mesg.RUNNING
+			typ = api.RUNNING
 		case DeployServiceReply_Status_DONE:
-			typ = mesg.DONE
+			typ = api.DONE
 		}
-		s.statuses = append(s.statuses, mesg.DeployStatus{
+		s.statuses = append(s.statuses, api.DeployStatus{
 			Message: status.Message,
 			Type:    typ,
 		})
