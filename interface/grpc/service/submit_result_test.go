@@ -4,12 +4,11 @@ import (
 	"context"
 	"testing"
 
+	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
 )
-
-var serversubmit = new(Server)
 
 func execute(name string) *execution.Execution {
 	var inputs map[string]interface{}
@@ -28,8 +27,9 @@ func execute(name string) *execution.Execution {
 }
 
 func TestSubmit(t *testing.T) {
+	server := newServer(t)
 	execution := execute("TestSubmit")
-	reply, err := serversubmit.SubmitResult(context.Background(), &SubmitResultRequest{
+	reply, err := server.SubmitResult(context.Background(), &SubmitResultRequest{
 		ExecutionID: execution.ID,
 		OutputKey:   "output",
 		OutputData:  "{}",
@@ -40,8 +40,9 @@ func TestSubmit(t *testing.T) {
 }
 
 func TestSubmitWithInvalidJSON(t *testing.T) {
+	server := newServer(t)
 	execution := execute("TestSubmitWithInvalidJSON")
-	_, err := serversubmit.SubmitResult(context.Background(), &SubmitResultRequest{
+	_, err := server.SubmitResult(context.Background(), &SubmitResultRequest{
 		ExecutionID: execution.ID,
 		OutputKey:   "output",
 		OutputData:  "",
@@ -51,13 +52,12 @@ func TestSubmitWithInvalidJSON(t *testing.T) {
 }
 
 func TestSubmitWithInvalidID(t *testing.T) {
-	_, err := serversubmit.SubmitResult(context.Background(), &SubmitResultRequest{
-		ExecutionID: "xxxx",
+	server := newServer(t)
+	executionID := "xxxx"
+	_, err := server.SubmitResult(context.Background(), &SubmitResultRequest{
+		ExecutionID: executionID,
 		OutputKey:   "output",
-		OutputData:  "",
+		OutputData:  "{}",
 	})
-	require.NotNil(t, err)
-	x, missingExecutionError := err.(*MissingExecutionError)
-	require.True(t, missingExecutionError)
-	require.Equal(t, "xxxx", x.ID)
+	require.Equal(t, &api.MissingExecutionError{ID: executionID}, err)
 }

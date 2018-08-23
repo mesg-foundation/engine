@@ -1,4 +1,4 @@
-package service
+package api
 
 import (
 	"testing"
@@ -8,5 +8,5 @@ import (
 
 func TestMissingExecutionError(t *testing.T) {
 	e := MissingExecutionError{ID: "test"}
-	require.Equal(t, "Execution test doesn't exists", e.Error())
+	require.Equal(t, `Execution "test" doesn't exists`, e.Error())
 }
