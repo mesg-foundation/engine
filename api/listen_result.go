@@ -10,7 +10,7 @@ func ListenResultTaskFilter(taskKey string) ListenResultFilter {
 	}
 }
 
-// ListenResultOutputFilter returns a outputKey filter.
+// ListenResultOutputFilter returns an outputKey filter.
 func ListenResultOutputFilter(outputKey string) ListenResultFilter {
 	return func(ln *ResultListener) {
 		ln.outputKey = outputKey

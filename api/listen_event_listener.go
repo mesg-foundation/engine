@@ -27,7 +27,7 @@ type EventListener struct {
 	api *API
 }
 
-// newEventListener creates a new EventListener with given api.
+// newEventListener creates a new EventListener with given api and filters.
 func newEventListener(api *API, filters ...ListenEventFilter) *EventListener {
 	ln := &EventListener{
 		Events: make(chan *event.Event, 0),

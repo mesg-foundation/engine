@@ -29,7 +29,7 @@ type ResultListener struct {
 	api *API
 }
 
-// newResultListener creates a new ResultListener with given api.
+// newResultListener creates a new ResultListener with given api and filters.
 func newResultListener(api *API, filters ...ListenResultFilter) *ResultListener {
 	ln := &ResultListener{
 		Executions: make(chan *execution.Execution, 0),
