@@ -44,7 +44,7 @@ func deployHandler(cmd *cobra.Command, args []string) {
 func deployService(path string) (serviceID string, isValid bool, err error) {
 	stream, err := cli().DeployService(context.Background())
 	if err != nil {
-		return "", false, err
+		return "", true, err
 	}
 
 	deployment := make(chan deploymentResult)
@@ -54,16 +54,16 @@ func deployService(path string) (serviceID string, isValid bool, err error) {
 		if err := stream.Send(&core.DeployServiceRequest{
 			Value: &core.DeployServiceRequest_Url{Url: path},
 		}); err != nil {
-			return "", false, err
+			return "", true, err
 		}
 	} else {
 		if err := deployServiceSendServiceContext(path, stream); err != nil {
-			return "", false, err
+			return "", true, err
 		}
 	}
 
 	if err := stream.CloseSend(); err != nil {
-		return "", false, err
+		return "", true, err
 	}
 
 	result := <-deployment
