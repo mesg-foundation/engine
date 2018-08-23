@@ -26,7 +26,10 @@ func (m *MESG) DeployService(r io.Reader, options ...DeployServiceOption) (*serv
 	return deployer.FromGzippedTar(r)
 }
 
-// DeployServiceFromURL deploys a service lives at a Git host.
+// DeployServiceFromURL deploys a service living at a Git host.
+// Supported URL types:
+// - https://github.com/mesg-foundation/service-ethereum
+// - https://github.com/mesg-foundation/service-ethereum#branchName
 func (m *MESG) DeployServiceFromURL(url string, options ...DeployServiceOption) (*service.Service, *importer.ValidationError, error) {
 	deployer := newServiceDeployer(m)
 	for _, option := range options {
