@@ -105,16 +105,16 @@ type deploymentResult struct {
 }
 
 func readDeployReply(stream core.Core_DeployServiceClient, deployment chan deploymentResult) {
-	sp := spinner.New(utils.SpinnerCharset, utils.SpinnerDuration)
-	result := deploymentResult{isValid: true}
+	var (
+		sp     *spinner.Spinner
+		result = deploymentResult{isValid: true}
+	)
 
 	for {
 		message, err := stream.Recv()
-		if err == io.EOF {
-			return
-		}
 		if err != nil {
-			deployment <- deploymentResult{err: err}
+			result.err = err
+			deployment <- result
 			return
 		}
 
@@ -128,8 +128,8 @@ func readDeployReply(stream core.Core_DeployServiceClient, deployment chan deplo
 		case status != nil:
 			switch status.Type {
 			case core.DeployServiceReply_Status_RUNNING:
-				sp.Start()
-				sp.Suffix = " " + status.Message
+				sp = utils.StartSpinner(utils.SpinnerOptions{Text: status.Message})
+
 			case core.DeployServiceReply_Status_DONE:
 				sp.Stop()
 				fmt.Println(status.Message)
@@ -137,14 +137,17 @@ func readDeployReply(stream core.Core_DeployServiceClient, deployment chan deplo
 
 		case serviceID != "":
 			sp.Stop()
+
 			result.serviceID = serviceID
 			deployment <- result
 			return
 
 		case validationError != "":
 			sp.Stop()
+
 			fmt.Println(aurora.Red(validationError))
 			fmt.Println("Run the command 'service validate' for more details")
+
 			result.isValid = false
 			deployment <- result
 			return
