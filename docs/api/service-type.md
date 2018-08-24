@@ -34,13 +34,14 @@ This is the definition of a MESG Service.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| name | [string](#string) | The service's name. |
-| description | [string](#string) | The service's description. |
+| id | [string](#string) | Service's unique id hash. |
+| name | [string](#string) | Service's name. |
+| description | [string](#string) | Service's description. |
 | tasks | [Service.TasksEntry](#service.Service.TasksEntry)[] | The list of tasks this service can execute. |
 | events | [Service.EventsEntry](#service.Service.EventsEntry)[] | The list of events this service can emit. |
 | dependencies | [Service.DependenciesEntry](#service.Service.DependenciesEntry)[] | The Docker dependencies this service requires. |
-| configuration | [Dependency](#service.Dependency) | The service's Docker configuration. |
-| repository | [string](#string) | The service's repository that contain its source code. |
+| configuration | [Dependency](#service.Dependency) | Service's Docker configuration. |
+| repository | [string](#string) | Service's repository that contain its source code. |
 
 
 
