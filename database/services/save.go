@@ -6,16 +6,17 @@ import (
 )
 
 // Save stores a service in the database and returns a hash or an error.
-func Save(service *service.Service) (hash string, err error) {
+func Save(service *service.Service) error {
 	bytes, err := proto.Marshal(service)
 	if err != nil {
-		return "", err
+		return err
 	}
 	db, err := open()
 	defer close()
 	if err != nil {
-		return "", err
+		return err
 	}
-	hash = service.Hash()
-	return hash, db.Put([]byte(hash), bytes, nil)
+	hash := service.Hash()
+	service.Id = hash
+	return db.Put([]byte(hash), bytes, nil)
 }

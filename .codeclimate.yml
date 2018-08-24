@@ -14,3 +14,8 @@ plugins:
     enabled: true
   govet:
     enabled: true
+
+checks:
+  return-statements:
+    config:
+      threshold: 6

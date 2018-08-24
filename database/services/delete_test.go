@@ -8,9 +8,10 @@ import (
 )
 
 func TestDelete(t *testing.T) {
-	hash, _ := Save(&service.Service{
+	service := &service.Service{
 		Name: "TestDelete",
-	})
-	err := Delete(hash)
+	}
+	Save(service)
+	err := Delete(service.Id)
 	require.Nil(t, err)
 }

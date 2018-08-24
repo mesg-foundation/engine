@@ -9,6 +9,7 @@ import (
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	"github.com/mesg-foundation/core/api/core"
 	"github.com/mesg-foundation/core/api/service"
+	"github.com/mesg-foundation/core/mesg"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -45,7 +46,9 @@ func (s *Server) Serve() error {
 			grpc_logrus.UnaryServerInterceptor(logrus.NewEntry(logrus.StandardLogger())),
 		)),
 	)
-	s.register()
+	if err := s.register(); err != nil {
+		return err
+	}
 
 	logrus.Info("Server listens on ", s.listener.Addr())
 
@@ -62,9 +65,20 @@ func (s *Server) Stop() {
 }
 
 // register all server
-func (s *Server) register() {
+func (s *Server) register() error {
+	m, err := mesg.New()
+	if err != nil {
+		return err
+	}
+
+	coreServer, err := core.NewServer(core.MESGOption(m))
+	if err != nil {
+		return err
+	}
+
 	service.RegisterServiceServer(s.instance, &service.Server{})
-	core.RegisterCoreServer(s.instance, &core.Server{})
+	core.RegisterCoreServer(s.instance, coreServer)
 
 	reflection.Register(s.instance)
+	return nil
 }
