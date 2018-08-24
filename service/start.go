@@ -50,7 +50,7 @@ func (service *Service) Start() (serviceIDs []string, err error) {
 		}(dependency, i)
 	}
 	wg.Wait()
-	// Grasfully stop the service because there is an error
+	// Gracefully stop the service because there is an error
 	if err != nil {
 		service.Stop()
 	}
