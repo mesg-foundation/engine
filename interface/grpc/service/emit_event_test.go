@@ -4,89 +4,110 @@ import (
 	"context"
 	"testing"
 
-	"github.com/mesg-foundation/core/database/services"
-	"github.com/mesg-foundation/core/pubsub"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
 )
 
 func TestEmit(t *testing.T) {
-	server := newServer(t)
-	service := service.Service{
-		Name: "TestEmit",
-		Events: map[string]*service.Event{
-			"test": {},
-		},
-		Dependencies: map[string]*service.Dependency{
-			"test": {
-				Image: "nginx",
-			},
-		},
-	}
-	services.Save(&service)
-	service.Id = "" // TODO(ilgooz) remove this when Service type created by hand.
-	defer services.Delete(service.Id)
+	var (
+		path      = "./service-test-event"
+		eventKey  = "request"
+		eventData = `{"data":{}}`
+		server    = newServer(t)
+	)
 
-	subscription := pubsub.Subscribe(service.EventSubscriptionChannel())
+	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
+	require.Zero(t, validationErr)
+	require.NoError(t, err)
+	defer server.api.DeleteService(s.Id)
 
-	go server.EmitEvent(context.Background(), &EmitEventRequest{
-		Token:     service.Hash(),
-		EventKey:  "test",
-		EventData: "{}",
+	ln, err := server.api.ListenEvent(s.Id)
+	require.NoError(t, err)
+	defer ln.Close()
+
+	_, err = server.EmitEvent(context.Background(), &EmitEventRequest{
+		Token:     s.Id,
+		EventKey:  eventKey,
+		EventData: eventData,
 	})
+	require.NoError(t, err)
 
-	res := <-subscription
-	require.NotNil(t, res)
+	select {
+	case err := <-ln.Err:
+		t.Error(err)
+
+	case event := <-ln.Events:
+		require.Equal(t, eventKey, event.Key)
+		require.Equal(t, eventData, jsonMarshal(t, event.Data))
+	}
+
 }
 
 func TestEmitNoData(t *testing.T) {
-	server := newServer(t)
-	service := service.Service{}
-	services.Save(&service)
-	service.Id = "" // TODO(ilgooz) remove this when Service type created by hand.
-	defer services.Delete(service.Id)
-	_, err := server.EmitEvent(context.Background(), &EmitEventRequest{
-		Token:    service.Hash(),
-		EventKey: "test",
+	var (
+		path     = "./service-test-event"
+		eventKey = "request"
+		server   = newServer(t)
+	)
+
+	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
+	require.Zero(t, validationErr)
+	require.NoError(t, err)
+	defer server.api.DeleteService(s.Id)
+
+	_, err = server.EmitEvent(context.Background(), &EmitEventRequest{
+		Token:    s.Id,
+		EventKey: eventKey,
 	})
 	require.Equal(t, err.Error(), "unexpected end of JSON input")
 }
 
 func TestEmitWrongData(t *testing.T) {
-	server := newServer(t)
-	service := service.Service{}
-	services.Save(&service)
-	service.Id = "" // TODO(ilgooz) remove this when Service type created by hand.
-	defer services.Delete(service.Id)
-	_, err := server.EmitEvent(context.Background(), &EmitEventRequest{
-		Token:     service.Hash(),
-		EventKey:  "test",
+	var (
+		path     = "./service-test-event"
+		eventKey = "request"
+		server   = newServer(t)
+	)
+
+	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
+	require.Zero(t, validationErr)
+	require.NoError(t, err)
+	defer server.api.DeleteService(s.Id)
+
+	_, err = server.EmitEvent(context.Background(), &EmitEventRequest{
+		Token:     s.Id,
+		EventKey:  eventKey,
 		EventData: "",
 	})
 	require.Equal(t, err.Error(), "unexpected end of JSON input")
 }
 
 func TestEmitWrongEvent(t *testing.T) {
-	server := newServer(t)
-	srv := service.Service{Name: "TestEmitWrongEvent"}
-	services.Save(&srv)
-	srv.Id = "" // TODO(ilgooz) remove this when Service type created by hand.
-	defer services.Delete(srv.Id)
-	_, err := server.EmitEvent(context.Background(), &EmitEventRequest{
-		Token:     srv.Hash(),
-		EventKey:  "test",
+	var (
+		path     = "./service-test-event"
+		eventKey = "test"
+		server   = newServer(t)
+	)
+
+	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
+	require.Zero(t, validationErr)
+	require.NoError(t, err)
+	defer server.api.DeleteService(s.Id)
+
+	_, err = server.EmitEvent(context.Background(), &EmitEventRequest{
+		Token:     s.Id,
+		EventKey:  eventKey,
 		EventData: "{}",
 	})
-	require.NotNil(t, err)
+	require.Error(t, err)
 	_, notFound := err.(*service.EventNotFoundError)
 	require.True(t, notFound)
 }
 
 func TestServiceNotExists(t *testing.T) {
 	server := newServer(t)
-	service := service.Service{Name: "TestServiceNotExists"}
 	_, err := server.EmitEvent(context.Background(), &EmitEventRequest{
-		Token:     service.Hash(),
+		Token:     "TestServiceNotExists",
 		EventKey:  "test",
 		EventData: "{}",
 	})

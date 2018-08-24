@@ -5,110 +5,104 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/api"
-	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
 )
 
-var serverexecute = new(Server)
-
 func TestExecute(t *testing.T) {
 	var (
-		url     = "https://github.com/mesg-foundation/service-webhook"
+		path    = "./service-test-task"
 		taskKey = "call"
 		data    = `{"url": "https://mesg.tech", "data": {}, "headers": {}}`
+		server  = newServer(t)
 	)
 
-	server := newServer(t)
-	stream := newTestDeployStream(url)
+	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
+	require.Zero(t, validationErr)
+	require.NoError(t, err)
+	defer server.api.DeleteService(s.Id)
 
-	server.DeployService(stream)
-	defer services.Delete(stream.serviceID)
+	require.NoError(t, server.api.StartService(s.Id))
+	defer server.api.StopService(s.Id)
 
-	serverexecute.StartService(context.Background(), &StartServiceRequest{
-		ServiceID: stream.serviceID,
-	})
-	defer serverexecute.StopService(context.Background(), &StopServiceRequest{
-		ServiceID: stream.serviceID,
-	})
-
-	reply, err := serverexecute.ExecuteTask(context.Background(), &ExecuteTaskRequest{
-		ServiceID: stream.serviceID,
+	reply, err := server.ExecuteTask(context.Background(), &ExecuteTaskRequest{
+		ServiceID: s.Id,
 		TaskKey:   taskKey,
 		InputData: data,
 	})
-
 	require.Nil(t, err)
 	require.NotEqual(t, "", reply.ExecutionID)
 }
 
 func TestExecuteWithInvalidJSON(t *testing.T) {
-	url := "https://github.com/mesg-foundation/service-webhook"
+	var (
+		path   = "./service-test-task"
+		server = newServer(t)
+	)
 
-	server := newServer(t)
-	stream := newTestDeployStream(url)
-	server.DeployService(stream)
+	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
+	require.Zero(t, validationErr)
+	require.NoError(t, err)
+	defer server.api.DeleteService(s.Id)
 
-	_, err := serverexecute.ExecuteTask(context.Background(), &ExecuteTaskRequest{
-		ServiceID: stream.serviceID,
+	_, err = server.ExecuteTask(context.Background(), &ExecuteTaskRequest{
+		ServiceID: s.Id,
 		TaskKey:   "test",
 		InputData: "",
 	})
 	require.NotNil(t, err)
 	require.Equal(t, err.Error(), "unexpected end of JSON input")
-	services.Delete(stream.serviceID)
 }
 
 func TestExecuteWithInvalidTask(t *testing.T) {
-	url := "https://github.com/mesg-foundation/service-webhook"
+	var (
+		path   = "./service-test-task"
+		server = newServer(t)
+	)
 
-	server := newServer(t)
-	stream := newTestDeployStream(url)
+	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
+	require.Zero(t, validationErr)
+	require.NoError(t, err)
+	defer server.api.DeleteService(s.Id)
 
-	server.DeployService(stream)
-	defer services.Delete(stream.serviceID)
+	require.NoError(t, server.api.StartService(s.Id))
+	defer server.api.StopService(s.Id)
 
-	serverexecute.StartService(context.Background(), &StartServiceRequest{
-		ServiceID: stream.serviceID,
-	})
-	defer serverexecute.StopService(context.Background(), &StopServiceRequest{
-		ServiceID: stream.serviceID,
-	})
-
-	_, err := serverexecute.ExecuteTask(context.Background(), &ExecuteTaskRequest{
-		ServiceID: stream.serviceID,
+	_, err = server.ExecuteTask(context.Background(), &ExecuteTaskRequest{
+		ServiceID: s.Id,
 		TaskKey:   "error",
 		InputData: "{}",
 	})
-
 	require.Error(t, err)
 	require.IsType(t, (*service.TaskNotFoundError)(nil), err)
 }
 
 func TestExecuteWithNonRunningService(t *testing.T) {
-	url := "https://github.com/mesg-foundation/service-webhook"
+	var (
+		path   = "./service-test-task"
+		server = newServer(t)
+	)
 
-	server := newServer(t)
-	stream := newTestDeployStream(url)
+	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
+	require.Zero(t, validationErr)
+	require.NoError(t, err)
+	defer server.api.DeleteService(s.Id)
 
-	server.DeployService(stream)
-	defer services.Delete(stream.serviceID)
-
-	_, err := serverexecute.ExecuteTask(context.Background(), &ExecuteTaskRequest{
-		ServiceID: stream.serviceID,
+	_, err = server.ExecuteTask(context.Background(), &ExecuteTaskRequest{
+		ServiceID: s.Id,
 		TaskKey:   "test",
 		InputData: "{}",
 	})
-
-	require.Equal(t, &api.NotRunningServiceError{ServiceID: stream.serviceID}, err)
+	require.Equal(t, &api.NotRunningServiceError{ServiceID: s.Id}, err)
 }
 
 func TestExecuteWithNonExistingService(t *testing.T) {
-	_, err := serverexecute.ExecuteTask(context.Background(), &ExecuteTaskRequest{
+	server := newServer(t)
+
+	_, err := server.ExecuteTask(context.Background(), &ExecuteTaskRequest{
 		ServiceID: "service that doesnt exists",
 		TaskKey:   "error",
 		InputData: "{}",
 	})
-
 	require.NotNil(t, err)
 }

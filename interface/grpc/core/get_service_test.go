@@ -4,23 +4,24 @@ import (
 	"context"
 	"testing"
 
-	"github.com/mesg-foundation/core/database/services"
-	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
 )
 
-var servergetservice = new(Server)
-
 func TestGetService(t *testing.T) {
-	service := &service.Service{
-		Name: "TestGetService",
-	}
-	services.Save(service)
-	defer services.Delete(service.Id)
-	reply, err := servergetservice.GetService(context.Background(), &GetServiceRequest{
-		ServiceID: service.Id,
+	var (
+		path   = "./service-test-task"
+		server = newServer(t)
+	)
+
+	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
+	require.Zero(t, validationErr)
+	require.NoError(t, err)
+	defer server.api.DeleteService(s.Id)
+
+	reply, err := server.GetService(context.Background(), &GetServiceRequest{
+		ServiceID: s.Id,
 	})
 	require.Nil(t, err)
 	require.NotNil(t, reply)
-	require.Equal(t, reply.Service.Name, "TestGetService")
+	require.Equal(t, reply.Service.Name, "Task")
 }

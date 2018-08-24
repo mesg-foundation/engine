@@ -4,27 +4,25 @@ import (
 	"context"
 	"testing"
 
-	"github.com/mesg-foundation/core/database/services"
-	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
 )
 
-var serverdelete = new(Server)
-
 func TestDeleteService(t *testing.T) {
-	emptyService := service.Service{}
+	var (
+		path   = "./service-test-task"
+		server = newServer(t)
+	)
 
-	url := "https://github.com/mesg-foundation/service-webhook"
+	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
+	require.Zero(t, validationErr)
+	require.NoError(t, err)
 
-	server := newServer(t)
-	stream := newTestDeployStream(url)
-	server.DeployService(stream)
-
-	reply, err := serverdelete.DeleteService(context.Background(), &DeleteServiceRequest{
-		ServiceID: stream.serviceID,
+	reply, err := server.DeleteService(context.Background(), &DeleteServiceRequest{
+		ServiceID: s.Id,
 	})
 	require.Nil(t, err)
 	require.NotNil(t, reply)
-	x, _ := services.Get(stream.serviceID)
-	require.Equal(t, emptyService, x)
+
+	_, err = server.api.GetService(s.Id)
+	require.Error(t, err)
 }

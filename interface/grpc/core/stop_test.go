@@ -4,28 +4,34 @@ import (
 	"context"
 	"testing"
 
-	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
 )
 
-var serverstop = new(Server)
-
 func TestStopService(t *testing.T) {
-	url := "https://github.com/mesg-foundation/service-webhook"
+	var (
+		// we use a test service without tasks definition here otherwise we need to
+		// spin up the gRPC server in order to prevent service exit with failer because
+		// it'll try to listen for tasks.
+		path   = "./service-test-event"
+		server = newServer(t)
+	)
 
-	server := newServer(t)
-	stream := newTestDeployStream(url)
-	server.DeployService(stream)
+	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
+	require.Zero(t, validationErr)
+	require.NoError(t, err)
+	defer server.api.DeleteService(s.Id)
 
-	s, _ := services.Get(stream.serviceID)
-	s.Start()
-	reply, err := serverstop.StopService(context.Background(), &StopServiceRequest{
-		ServiceID: stream.serviceID,
+	require.NoError(t, server.api.StartService(s.Id))
+
+	reply, err := server.StopService(context.Background(), &StopServiceRequest{
+		ServiceID: s.Id,
 	})
-	status, _ := s.Status()
+
+	s.Id = "" // TODO(ilgooz) remove this when Service type created by hand.
+	status, err := s.Status()
+	require.NoError(t, err)
 	require.Equal(t, service.STOPPED, status)
 	require.Nil(t, err)
 	require.NotNil(t, reply)
-	services.Delete(stream.serviceID)
 }
