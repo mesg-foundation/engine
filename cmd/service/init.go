@@ -146,7 +146,7 @@ func downloadTemplate(tmpl *templateStruct) (path string, err error) {
 		return "", err
 	}
 
-	message := fmt.Sprintf("Downloading template %s ...\n", tmpl.Name)
+	message := fmt.Sprintf("Downloading template %s ...", tmpl.Name)
 	utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: message}, func() {
 		err = xgit.Clone(tmpl.URL, path)
 	})
