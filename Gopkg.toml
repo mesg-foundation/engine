@@ -38,10 +38,6 @@
 
 [[constraint]]
   branch = "master"
-  name = "github.com/briandowns/spinner"
-
-[[constraint]]
-  branch = "master"
   name = "github.com/cnf/structhash"
 
 [[constraint]]
@@ -67,10 +63,6 @@
 [[constraint]]
   branch = "master"
   name = "github.com/spf13/viper"
-
-[[constraint]]
-  branch = "master"
-  name = "github.com/stvp/assert"
 
 [[constraint]]
   branch = "master"

@@ -18,12 +18,12 @@
   revision = "7d2e70ef918f16bd6455529af38304d6d025c952"
 
 [[projects]]
-  branch = "master"
-  digest = "1:3c2529252615b209e6cf92c89a77505016f192372d279d28f49513fe7b69367c"
+  digest = "1:89e98f6335a3ca6d6ae179bb030d7d73326b809c3ba87e9a4b7dffd458ab85d7"
   name = "github.com/briandowns/spinner"
   packages = ["."]
   pruneopts = "UT"
-  revision = "5b875a9171af19dbde37e70a8fcbe2ebd7285e05"
+  revision = "9f016caa1359c8ecdc1d95243e92c0d28b524368"
+  version = "1.2"
 
 [[projects]]
   branch = "master"

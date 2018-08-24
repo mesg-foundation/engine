@@ -24,8 +24,9 @@ func TestEmit(t *testing.T) {
 			},
 		},
 	}
-	hash, _ := services.Save(&service)
-	defer services.Delete(hash)
+	services.Save(&service)
+	service.Id = "" // TODO(ilgooz) remove this when Service type created by hand.
+	defer services.Delete(service.Id)
 
 	subscription := pubsub.Subscribe(service.EventSubscriptionChannel())
 
@@ -41,8 +42,9 @@ func TestEmit(t *testing.T) {
 
 func TestEmitNoData(t *testing.T) {
 	service := service.Service{}
-	hash, _ := services.Save(&service)
-	defer services.Delete(hash)
+	services.Save(&service)
+	service.Id = "" // TODO(ilgooz) remove this when Service type created by hand.
+	defer services.Delete(service.Id)
 	_, err := serveremit.EmitEvent(context.Background(), &EmitEventRequest{
 		Token:    service.Hash(),
 		EventKey: "test",
@@ -52,8 +54,9 @@ func TestEmitNoData(t *testing.T) {
 
 func TestEmitWrongData(t *testing.T) {
 	service := service.Service{}
-	hash, _ := services.Save(&service)
-	defer services.Delete(hash)
+	services.Save(&service)
+	service.Id = "" // TODO(ilgooz) remove this when Service type created by hand.
+	defer services.Delete(service.Id)
 	_, err := serveremit.EmitEvent(context.Background(), &EmitEventRequest{
 		Token:     service.Hash(),
 		EventKey:  "test",
@@ -64,8 +67,9 @@ func TestEmitWrongData(t *testing.T) {
 
 func TestEmitWrongEvent(t *testing.T) {
 	srv := service.Service{Name: "TestEmitWrongEvent"}
-	hash, _ := services.Save(&srv)
-	defer services.Delete(hash)
+	services.Save(&srv)
+	srv.Id = "" // TODO(ilgooz) remove this when Service type created by hand.
+	defer services.Delete(srv.Id)
 	_, err := serveremit.EmitEvent(context.Background(), &EmitEventRequest{
 		Token:     srv.Hash(),
 		EventKey:  "test",
