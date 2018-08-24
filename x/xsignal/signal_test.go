@@ -34,6 +34,6 @@ loop:
 	}
 
 	if sigCount != 2 {
-		t.Fatalf("recived signals failed: got: %d, want: %d", sigCount, 2)
+		t.Fatalf("received signals failed: got: %d, want: %d", sigCount, 2)
 	}
 }
