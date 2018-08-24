@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestSubmitA(t *testing.T) {
+func TestSubmit(t *testing.T) {
 	var (
 		path     = "./service-test-task"
 		taskKey  = "call"
