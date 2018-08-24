@@ -13,7 +13,7 @@ func TestStopService(t *testing.T) {
 		// we use a test service without tasks definition here otherwise we need to
 		// spin up the gRPC server in order to prevent service exit with a failure
 		// because it'll try to listen for tasks.
-		path   = "./service-test-event"
+		path   = "../../../service-test/event"
 		server = newServer(t)
 	)
 

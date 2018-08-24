@@ -10,7 +10,7 @@ import (
 
 func TestSubmit(t *testing.T) {
 	var (
-		path     = "./service-test-task"
+		path     = "../../../service-test/task"
 		taskKey  = "call"
 		taskData = map[string]interface{}{
 			"url":     "https://mesg.tech",
@@ -57,7 +57,7 @@ func TestSubmit(t *testing.T) {
 
 func TestSubmitWithInvalidJSON(t *testing.T) {
 	var (
-		path     = "./service-test-task"
+		path     = "../../../service-test/task"
 		taskKey  = "call"
 		taskData = map[string]interface{}{
 			"url":     "https://mesg.tech",

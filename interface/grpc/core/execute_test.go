@@ -11,7 +11,7 @@ import (
 
 func TestExecute(t *testing.T) {
 	var (
-		path    = "./service-test-task"
+		path    = "../../../service-test/task"
 		taskKey = "call"
 		data    = `{"url": "https://mesg.tech", "data": {}, "headers": {}}`
 		server  = newServer(t)
@@ -36,7 +36,7 @@ func TestExecute(t *testing.T) {
 
 func TestExecuteWithInvalidJSON(t *testing.T) {
 	var (
-		path   = "./service-test-task"
+		path   = "../../../service-test/task"
 		server = newServer(t)
 	)
 
@@ -56,7 +56,7 @@ func TestExecuteWithInvalidJSON(t *testing.T) {
 
 func TestExecuteWithInvalidTask(t *testing.T) {
 	var (
-		path   = "./service-test-task"
+		path   = "../../../service-test/task"
 		server = newServer(t)
 	)
 
@@ -79,7 +79,7 @@ func TestExecuteWithInvalidTask(t *testing.T) {
 
 func TestExecuteWithNonRunningService(t *testing.T) {
 	var (
-		path   = "./service-test-task"
+		path   = "../../../service-test/task"
 		server = newServer(t)
 	)
 

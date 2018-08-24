@@ -10,7 +10,7 @@ import (
 
 func TestEmit(t *testing.T) {
 	var (
-		path      = "./service-test-event"
+		path      = "../../../service-test/event"
 		eventKey  = "request"
 		eventData = `{"data":{}}`
 		server    = newServer(t)
@@ -45,7 +45,7 @@ func TestEmit(t *testing.T) {
 
 func TestEmitNoData(t *testing.T) {
 	var (
-		path     = "./service-test-event"
+		path     = "../../../service-test/event"
 		eventKey = "request"
 		server   = newServer(t)
 	)
@@ -64,7 +64,7 @@ func TestEmitNoData(t *testing.T) {
 
 func TestEmitWrongData(t *testing.T) {
 	var (
-		path     = "./service-test-event"
+		path     = "../../../service-test/event"
 		eventKey = "request"
 		server   = newServer(t)
 	)
@@ -84,7 +84,7 @@ func TestEmitWrongData(t *testing.T) {
 
 func TestEmitWrongEvent(t *testing.T) {
 	var (
-		path     = "./service-test-event"
+		path     = "../../../service-test/event"
 		eventKey = "test"
 		server   = newServer(t)
 	)

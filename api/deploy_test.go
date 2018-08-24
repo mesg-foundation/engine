@@ -15,7 +15,7 @@ import (
 )
 
 func TestDeployService(t *testing.T) {
-	path := "./service-test"
+	path := "../service-test/task"
 
 	a, dt := newAPIAndDockerTest(t)
 	dt.ProvideImageBuild(ioutil.NopCloser(strings.NewReader(`{"stream":"sha256:x"}`)), nil)
@@ -67,7 +67,7 @@ func TestDeployService(t *testing.T) {
 }
 
 func TestDeployInvalidService(t *testing.T) {
-	path := "./service-test-invalid"
+	path := "../service-test/invalid"
 
 	a, dt := newAPIAndDockerTest(t)
 	dt.ProvideImageBuild(ioutil.NopCloser(strings.NewReader(`{"stream":"sha256:x"}`)), nil)

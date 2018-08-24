@@ -9,7 +9,7 @@ import (
 
 func TestGetService(t *testing.T) {
 	var (
-		path   = "./service-test-task"
+		path   = "../../../service-test/task"
 		server = newServer(t)
 	)
 
