@@ -1,4 +1,4 @@
-package xrequire
+package xarchive
 
 import (
 	"io"
