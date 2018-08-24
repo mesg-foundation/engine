@@ -18,6 +18,9 @@ type TaskListener struct {
 	// cancel stops listening for tasks.
 	cancel chan struct{}
 
+	// listening indicates if listening started
+	listening chan struct{}
+
 	api *API
 }
 
@@ -27,6 +30,7 @@ func newTaskListener(api *API) *TaskListener {
 		Executions: make(chan *execution.Execution, 0),
 		Err:        make(chan error, 1),
 		cancel:     make(chan struct{}, 0),
+		listening:  make(chan struct{}, 0),
 		api:        api,
 	}
 }
@@ -44,6 +48,7 @@ func (l *TaskListener) listen(token string) error {
 		return err
 	}
 	go l.listenLoop(&service)
+	<-l.listening
 	return nil
 }
 
@@ -51,6 +56,7 @@ func (l *TaskListener) listenLoop(service *service.Service) {
 	channel := service.TaskSubscriptionChannel()
 	subscription := pubsub.Subscribe(channel)
 	defer pubsub.Unsubscribe(channel, subscription)
+	close(l.listening)
 
 	for {
 		select {

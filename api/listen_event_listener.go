@@ -21,6 +21,9 @@ type EventListener struct {
 	// cancel stops listening for new events.
 	cancel chan struct{}
 
+	// listening indicates if listening started
+	listening chan struct{}
+
 	// filters.
 	eventKey string
 
@@ -30,10 +33,11 @@ type EventListener struct {
 // newEventListener creates a new EventListener with given api and filters.
 func newEventListener(api *API, filters ...ListenEventFilter) *EventListener {
 	ln := &EventListener{
-		Events: make(chan *event.Event, 0),
-		Err:    make(chan error, 1),
-		cancel: make(chan struct{}, 0),
-		api:    api,
+		Events:    make(chan *event.Event, 0),
+		Err:       make(chan error, 1),
+		cancel:    make(chan struct{}, 0),
+		listening: make(chan struct{}, 0),
+		api:       api,
 	}
 	for _, filter := range filters {
 		filter(ln)
@@ -57,6 +61,7 @@ func (l *EventListener) listen(serviceID string) error {
 		return err
 	}
 	go l.listenLoop(&service)
+	<-l.listening
 	return nil
 }
 
@@ -64,6 +69,7 @@ func (l *EventListener) listenLoop(service *service.Service) {
 	channel := service.EventSubscriptionChannel()
 	subscription := pubsub.Subscribe(channel)
 	defer pubsub.Unsubscribe(channel, subscription)
+	close(l.listening)
 
 	for {
 		select {

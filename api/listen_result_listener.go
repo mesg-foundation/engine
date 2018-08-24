@@ -21,6 +21,9 @@ type ResultListener struct {
 	// cancel stops listening for new results.
 	cancel chan struct{}
 
+	// listening indicates if listening started
+	listening chan struct{}
+
 	// filters.
 	taskKey    string
 	outputKey  string
@@ -35,6 +38,7 @@ func newResultListener(api *API, filters ...ListenResultFilter) *ResultListener 
 		Executions: make(chan *execution.Execution, 0),
 		Err:        make(chan error, 1),
 		cancel:     make(chan struct{}, 0),
+		listening:  make(chan struct{}, 0),
 		api:        api,
 	}
 	for _, filter := range filters {
@@ -59,6 +63,7 @@ func (l *ResultListener) listen(serviceID string) error {
 		return err
 	}
 	go l.listenLoop(&service)
+	<-l.listening
 	return nil
 }
 
@@ -66,6 +71,7 @@ func (l *ResultListener) listenLoop(service *service.Service) {
 	channel := service.ResultSubscriptionChannel()
 	subscription := pubsub.Subscribe(channel)
 	defer pubsub.Unsubscribe(channel, subscription)
+	close(l.listening)
 
 	for {
 		select {
