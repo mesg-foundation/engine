@@ -12,7 +12,6 @@ import (
 	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
-	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/importer"
 	"github.com/mesg-foundation/core/x/xgit"
 	"github.com/spf13/viper"
@@ -53,24 +52,6 @@ func handleValidationError(err error) {
 	}
 }
 
-// prepareService downloads if needed, create the service, build it and inject configuration
-func prepareService(path string) *service.Service {
-	path, didDownload, err := downloadServiceIfNeeded(path)
-	utils.HandleError(err)
-	if didDownload {
-		defer os.RemoveAll(path)
-		fmt.Printf("%s Service downloaded with success\n", aurora.Green("✔"))
-	}
-	importedService, err := importer.From(path)
-	handleValidationError(err)
-	utils.HandleError(err)
-	imageHash, err := buildDockerImage(path)
-	utils.HandleError(err)
-	fmt.Printf("%s Image built with success\n", aurora.Green("✔"))
-	injectConfigurationInDependencies(importedService, imageHash)
-	return importedService
-}
-
 func downloadServiceIfNeeded(path string) (newPath string, didDownload bool, err error) {
 	if !govalidator.IsURL(path) {
 		return path, false, nil
@@ -93,22 +74,4 @@ func buildDockerImage(path string) (imageHash string, err error) {
 		imageHash, err = defaultContainer.Build(path)
 	})
 	return
-}
-
-func injectConfigurationInDependencies(s *service.Service, imageHash string) {
-	config := s.Configuration
-	if config == nil {
-		config = &service.Dependency{}
-	}
-	dependency := &service.Dependency{
-		Command:     config.Command,
-		Ports:       config.Ports,
-		Volumes:     config.Volumes,
-		Volumesfrom: config.Volumesfrom,
-		Image:       imageHash,
-	}
-	if s.Dependencies == nil {
-		s.Dependencies = make(map[string]*service.Dependency)
-	}
-	s.Dependencies["service"] = dependency
 }
