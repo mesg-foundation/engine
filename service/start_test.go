@@ -63,8 +63,10 @@ func TestStartWith2Dependencies(t *testing.T) {
 	require.Nil(t, err)
 	require.Equal(t, 2, len(servicesID))
 	deps := service.DependenciesFromService()
-	container1, _ := defaultContainer.FindContainer(deps[0].namespace())
-	container2, _ := defaultContainer.FindContainer(deps[1].namespace())
+	container1, err1 := defaultContainer.FindContainer(deps[0].namespace())
+	container2, err2 := defaultContainer.FindContainer(deps[1].namespace())
+	require.Nil(t, err1)
+	require.Nil(t, err2)
 	require.Equal(t, "nginx:latest", container1.Config.Image)
 	require.Equal(t, "alpine:latest", container2.Config.Image)
 }
