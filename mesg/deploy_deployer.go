@@ -116,10 +116,9 @@ func (d *serviceDeployer) deploy(path string) (*service.Service, *importer.Valid
 	}
 	if _, err := os.Stat(filepath.Join(path, ".mesgignore")); err == nil {
 		// TODO: remove for a future release
-		d.sendStatus(fmt.Sprintf("%s [DEPRECATION] please use .dockerignore instead of .mesgignore", aurora.Red("⨯")), DONE)
-	} else {
-		d.sendStatus(fmt.Sprintf("%s Image built with success.", aurora.Green("✔")), DONE)
+		d.sendStatus(fmt.Sprintf("%s [DEPRECATED] Please use .dockerignore instead of .mesgignore", aurora.Red("⨯")), DONE)
 	}
+	d.sendStatus(fmt.Sprintf("%s Image built with success.", aurora.Green("✔")), DONE)
 	d.injectConfigurationInDependencies(service, imageHash)
 
 	d.sendStatus(fmt.Sprintf("%s Completed.", aurora.Green("✔")), DONE)
