@@ -42,9 +42,9 @@ func TestCompleteNotFound(t *testing.T) {
 	var outputs map[string]interface{}
 	err := execution.Complete("output", outputs)
 	require.NotNil(t, err)
-	x, missingOutputError := err.(*service.OutputNotFoundError)
+	x, missingOutputError := err.(*service.TaskOutputNotFoundError)
 	require.True(t, missingOutputError)
-	require.Equal(t, "output", x.OutputKey)
+	require.Equal(t, "output", x.TaskOutputKey)
 }
 
 func TestCompleteInvalidOutputs(t *testing.T) {
@@ -68,9 +68,9 @@ func TestCompleteInvalidOutputs(t *testing.T) {
 	var outputs map[string]interface{}
 	err := execution.Complete("output", outputs)
 	require.NotNil(t, err)
-	x, invalidOutputError := err.(*service.InvalidOutputDataError)
+	x, invalidOutputError := err.(*service.InvalidTaskOutputError)
 	require.True(t, invalidOutputError)
-	require.Equal(t, "output", x.OutputKey)
+	require.Equal(t, "output", x.TaskOutputKey)
 }
 
 func TestCompleteNotProcessed(t *testing.T) {

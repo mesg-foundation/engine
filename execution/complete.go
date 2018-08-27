@@ -11,18 +11,18 @@ import (
 func (execution *Execution) Complete(output string, data map[string]interface{}) error {
 	serviceOutput, outputFound := execution.Service.Tasks[execution.Task].Outputs[output]
 	if !outputFound {
-		return &service.OutputNotFoundError{
-			Service:   execution.Service,
-			OutputKey: output,
-			TaskKey:   execution.Task,
+		return &service.TaskOutputNotFoundError{
+			TaskKey:       execution.Task,
+			TaskOutputKey: output,
+			ServiceName:   execution.Service.Name,
 		}
 	}
-	if !serviceOutput.IsValid(data) {
-		return &service.InvalidOutputDataError{
-			Output:     serviceOutput,
-			TaskKey:    execution.Task,
-			OutputKey:  output,
-			OutputData: data,
+	warnings := execution.Service.ValidateParametersSchema(serviceOutput.Data, data)
+	if len(warnings) > 0 {
+		return &service.InvalidTaskOutputError{
+			TaskKey:       execution.Task,
+			TaskOutputKey: output,
+			Warnings:      warnings,
 		}
 	}
 	err := execution.moveFromInProgressToProcessed()

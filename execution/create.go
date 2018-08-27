@@ -13,15 +13,15 @@ func Create(serviceForExecution *service.Service, task string, inputs map[string
 	serviceTask, taskFound := serviceForExecution.Tasks[task]
 	if !taskFound {
 		return nil, &service.TaskNotFoundError{
-			Service: serviceForExecution,
-			TaskKey: task,
+			TaskKey:     task,
+			ServiceName: serviceForExecution.Name,
 		}
 	}
-	if !serviceTask.IsValid(inputs) {
+	warnings := serviceForExecution.ValidateParametersSchema(serviceTask.Inputs, inputs)
+	if len(warnings) > 0 {
 		return nil, &service.InvalidTaskInputError{
-			Task:      serviceTask,
-			TaskKey:   task,
-			InputData: inputs,
+			TaskKey:  task,
+			Warnings: warnings,
 		}
 	}
 	execution := &Execution{

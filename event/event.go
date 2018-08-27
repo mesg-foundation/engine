@@ -20,15 +20,15 @@ func Create(serviceForEvent *service.Service, eventKey string, data map[string]i
 	serviceEvent, eventFound := serviceForEvent.Events[eventKey]
 	if !eventFound {
 		return nil, &service.EventNotFoundError{
-			Service:  serviceForEvent,
-			EventKey: eventKey,
+			EventKey:    eventKey,
+			ServiceName: serviceForEvent.Name,
 		}
 	}
-	if !serviceEvent.IsValid(data) {
+	warnings := serviceForEvent.ValidateParametersSchema(serviceEvent.Data, data)
+	if len(warnings) > 0 {
 		return nil, &service.InvalidEventDataError{
-			Event:     serviceEvent,
-			EventKey:  eventKey,
-			EventData: data,
+			EventKey: eventKey,
+			Warnings: warnings,
 		}
 	}
 	return &Event{
