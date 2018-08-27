@@ -7,7 +7,7 @@ import (
 	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/pubsub"
 	"github.com/mesg-foundation/core/service"
-	"github.com/mesg-foundation/core/utils/array"
+	"github.com/mesg-foundation/core/x/xstrings"
 )
 
 // ResultListener provides functionalities to listen MESG results.
@@ -129,16 +129,16 @@ func (l *ResultListener) isSubscribed(e *execution.Execution) bool {
 }
 
 func (l *ResultListener) isSubscribedToTask(e *execution.Execution) bool {
-	return array.IncludedIn([]string{"", "*", e.Task}, l.taskKey)
+	return xstrings.SliceContains([]string{"", "*", e.Task}, l.taskKey)
 }
 
 func (l *ResultListener) isSubscribedToOutput(e *execution.Execution) bool {
-	return array.IncludedIn([]string{"", "*", e.Output}, l.outputKey)
+	return xstrings.SliceContains([]string{"", "*", e.Output}, l.outputKey)
 }
 
 func (l *ResultListener) isSubscribedToTags(e *execution.Execution) bool {
 	for _, tag := range l.tagFilters {
-		if !array.IncludedIn(e.Tags, tag) {
+		if !xstrings.SliceContains(e.Tags, tag) {
 			return false
 		}
 	}

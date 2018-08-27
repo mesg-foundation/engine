@@ -6,44 +6,7 @@ import (
 
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
-	git "gopkg.in/src-d/go-git.v4"
 )
-
-func TestGitCloneRepositoryDoNotExist(t *testing.T) {
-	a, _ := newAPIAndDockerTest(t)
-	deployer := newServiceDeployer(a)
-
-	path, _ := deployer.createTempDir()
-	defer os.RemoveAll(path)
-	err := deployer.gitClone("/doNotExist", path)
-	require.NotNil(t, err)
-}
-
-func TestGitCloneWithoutURLSchema(t *testing.T) {
-	m, _ := newAPIAndDockerTest(t)
-	deployer := newServiceDeployer(m)
-
-	path, _ := deployer.createTempDir()
-	defer os.RemoveAll(path)
-	err := deployer.gitClone("github.com/mesg-foundation/awesome.git", path)
-	require.Nil(t, err)
-}
-
-func TestGitCloneCustomBranch(t *testing.T) {
-	a, _ := newAPIAndDockerTest(t)
-	deployer := newServiceDeployer(a)
-
-	branchName := "5-generic-service"
-	path, _ := deployer.createTempDir()
-	defer os.RemoveAll(path)
-	err := deployer.gitClone("github.com/mesg-foundation/service-ethereum-erc20#"+branchName, path)
-	require.Nil(t, err)
-	repo, err := git.PlainOpen(path)
-	require.Nil(t, err)
-	branch, err := repo.Branch(branchName)
-	require.Nil(t, err)
-	require.NotNil(t, branch)
-}
 
 func TestCreateTempFolder(t *testing.T) {
 	a, _ := newAPIAndDockerTest(t)

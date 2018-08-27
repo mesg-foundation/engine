@@ -7,7 +7,7 @@ import (
 	"github.com/mesg-foundation/core/event"
 	"github.com/mesg-foundation/core/pubsub"
 	"github.com/mesg-foundation/core/service"
-	"github.com/mesg-foundation/core/utils/array"
+	"github.com/mesg-foundation/core/x/xstrings"
 )
 
 // EventListener provides functionalities to listen MESG events.
@@ -99,5 +99,5 @@ func (l *EventListener) validateEventKey(service *service.Service) error {
 }
 
 func (l *EventListener) isSubscribedEvent(e *event.Event) bool {
-	return array.IncludedIn([]string{"", "*", e.Key}, l.eventKey)
+	return xstrings.SliceContains([]string{"", "*", e.Key}, l.eventKey)
 }
