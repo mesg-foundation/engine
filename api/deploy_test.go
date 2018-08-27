@@ -54,6 +54,11 @@ func TestDeployService(t *testing.T) {
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
+		Message: fmt.Sprintf("%s [DEPRECATED] Please use .dockerignore instead of .mesgignore", aurora.Red("⨯")),
+		Type:    DONE,
+	}, <-statuses)
+
+	require.Equal(t, DeployStatus{
 		Message: fmt.Sprintf("%s Image built with success.", aurora.Green("✔")),
 		Type:    DONE,
 	}, <-statuses)

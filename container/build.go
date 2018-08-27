@@ -21,8 +21,12 @@ type BuildResponse struct {
 
 // Build builds a docker image.
 func (c *Container) Build(path string) (tag string, err error) {
-	excludeFilesBytes, _ := ioutil.ReadFile(filepath.Join(path, ".mesgignore"))
-	excludeFiles := strings.Fields(string(excludeFilesBytes))
+	excludeFiles := []string{}
+	// TODO: remove .mesgignore for a future release
+	for _, file := range []string{".mesgignore", ".dockerignore"} {
+		excludeFilesBytes, _ := ioutil.ReadFile(filepath.Join(path, file))
+		excludeFiles = append(excludeFiles, strings.Fields(string(excludeFilesBytes))...)
+	}
 	buildContext, err := archive.TarWithOptions(path, &archive.TarOptions{
 		Compression:     archive.Gzip,
 		ExcludePatterns: excludeFiles,
