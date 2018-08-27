@@ -16,21 +16,37 @@ func main() {
 	logger.Init(format, level)
 
 	logrus.Println("Starting MESG Core", version.Version)
-	go startServer(&api.Server{
+
+	tcpServer := &api.Server{
 		Network: "tcp",
 		Address: viper.GetString(config.APIServerAddress),
-	})
-	go startServer(&api.Server{
+	}
+
+	unixServer := &api.Server{
 		Network: "unix",
 		Address: viper.GetString(config.APIServerSocket),
-	})
+	}
+
+	go startServer(tcpServer)
+	go startServer(unixServer)
+
+	closing := make(chan struct{}, 2)
+
 	<-xsignal.WaitForInterrupt()
+
+	go closeServer(tcpServer, closing)
+	go closeServer(unixServer, closing)
+	<-closing
+	<-closing
 }
 
 func startServer(server *api.Server) {
-	err := server.Serve()
-	defer server.Stop()
-	if err != nil {
+	if err := server.Serve(); err != nil {
 		logrus.Fatalln(err)
 	}
+}
+
+func closeServer(server *api.Server, closing chan struct{}) {
+	server.Close()
+	closing <- struct{}{}
 }
