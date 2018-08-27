@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"net/url"
 	"os"
 
 	"github.com/docker/docker/pkg/archive"
@@ -12,9 +11,8 @@ import (
 	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/importer"
+	"github.com/mesg-foundation/core/x/xgit"
 	uuid "github.com/satori/go.uuid"
-	git "gopkg.in/src-d/go-git.v4"
-	"gopkg.in/src-d/go-git.v4/plumbing"
 )
 
 type serviceDeployer struct {
@@ -53,7 +51,7 @@ func (d *serviceDeployer) FromGitURL(url string) (*service.Service, *importer.Va
 	if err != nil {
 		return nil, nil, err
 	}
-	if err := d.gitClone(url, path); err != nil {
+	if err := xgit.Clone(url, path); err != nil {
 		return nil, nil, err
 	}
 	d.sendStatus(fmt.Sprintf("%s Service downloaded with success.", aurora.Green("✔")), DONE)
@@ -74,25 +72,6 @@ func (d *serviceDeployer) FromGzippedTar(r io.Reader) (*service.Service, *import
 	}
 	d.sendStatus(fmt.Sprintf("%s Service context sent to core daemon with success.", aurora.Green("✔")), DONE)
 	return d.deploy(path)
-}
-
-// gitClone clones a repo hosted at repoURL to path.
-func (d *serviceDeployer) gitClone(repoURL string, path string) error {
-	u, err := url.Parse(repoURL)
-	if err != nil {
-		return err
-	}
-	if u.Scheme == "" {
-		u.Scheme = "https"
-	}
-	options := &git.CloneOptions{}
-	if u.Fragment != "" {
-		options.ReferenceName = plumbing.ReferenceName("refs/heads/" + u.Fragment)
-		u.Fragment = ""
-	}
-	options.URL = u.String()
-	_, err = git.PlainClone(path, false, options)
-	return err
 }
 
 // deploy deploys a service in path.

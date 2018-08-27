@@ -8,9 +8,9 @@ import (
 	"testing"
 
 	"github.com/cnf/structhash"
-	"github.com/docker/docker/pkg/archive"
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/service/importer"
+	"github.com/mesg-foundation/core/x/xdocker/xarchive"
 	"github.com/stretchr/testify/require"
 )
 
@@ -27,9 +27,7 @@ func TestDeployService(t *testing.T) {
 	go func() {
 		defer wg.Done()
 
-		archive, err := archive.TarWithOptions(path, &archive.TarOptions{
-			Compression: archive.Gzip,
-		})
+		archive, err := xarchive.GzippedTar(path)
 		require.Nil(t, err)
 
 		service, validationError, err := mesg.DeployService(archive, DeployServiceStatusOption(statuses))
@@ -74,9 +72,7 @@ func TestDeployInvalidService(t *testing.T) {
 	go func() {
 		defer wg.Done()
 
-		archive, err := archive.TarWithOptions(path, &archive.TarOptions{
-			Compression: archive.Gzip,
-		})
+		archive, err := xarchive.GzippedTar(path)
 		require.Nil(t, err)
 
 		service, validationError, err := mesg.DeployService(archive, DeployServiceStatusOption(statuses))
