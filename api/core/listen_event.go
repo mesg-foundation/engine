@@ -8,7 +8,7 @@ import (
 	"github.com/mesg-foundation/core/event"
 	"github.com/mesg-foundation/core/pubsub"
 	service "github.com/mesg-foundation/core/service"
-	"github.com/mesg-foundation/core/utils/array"
+	"github.com/mesg-foundation/core/x/xstrings"
 )
 
 // ListenEvent listens for an event from a specific service.
@@ -56,5 +56,5 @@ func validateEventKey(service *service.Service, eventKey string) error {
 }
 
 func isSubscribedEvent(request *ListenEventRequest, e *event.Event) bool {
-	return array.IncludedIn([]string{"", "*", e.Key}, request.EventFilter)
+	return xstrings.SliceContains([]string{"", "*", e.Key}, request.EventFilter)
 }

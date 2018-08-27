@@ -8,6 +8,7 @@ import (
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/api/core"
 	"github.com/mesg-foundation/core/cmd/utils"
+	"github.com/mesg-foundation/core/x/xsignal"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -43,7 +44,7 @@ func devHandler(cmd *cobra.Command, args []string) {
 	closeReaders := showLogs(serviceID, "*")
 	defer closeReaders()
 
-	<-utils.WaitForCancel()
+	<-xsignal.WaitForInterrupt()
 
 	utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: "Deleting test service..."}, func() {
 		cli().DeleteService(context.Background(), &core.DeleteServiceRequest{ // Delete service. This will automatically stop the service too
