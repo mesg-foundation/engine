@@ -31,7 +31,7 @@ func (s *Server) listen() (net.Listener, error) {
 	defer s.mi.Unlock()
 
 	if s.closed {
-		return nil, alreadyClosedError{}
+		return nil, &alreadyClosedError{}
 	}
 
 	if s.Network == "unix" {
@@ -104,6 +104,6 @@ func (s *Server) register() error {
 
 type alreadyClosedError struct{}
 
-func (e alreadyClosedError) Error() string {
+func (e *alreadyClosedError) Error() string {
 	return "already closed"
 }

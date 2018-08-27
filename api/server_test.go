@@ -42,5 +42,5 @@ func TestServerListenAfterClose(t *testing.T) {
 	go s.Serve()
 	time.Sleep(waitForServe)
 	s.Close()
-	require.Equal(t, alreadyClosedError{}, s.Serve())
+	require.Equal(t, &alreadyClosedError{}, s.Serve())
 }
