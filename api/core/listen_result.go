@@ -8,7 +8,7 @@ import (
 	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/pubsub"
 	service "github.com/mesg-foundation/core/service"
-	"github.com/mesg-foundation/core/utils/array"
+	"github.com/mesg-foundation/core/x/xstrings"
 )
 
 // ListenResult listens for results from a services.
@@ -87,16 +87,16 @@ func isSubscribed(request *ListenResultRequest, e *execution.Execution) bool {
 }
 
 func isSubscribedToTask(request *ListenResultRequest, e *execution.Execution) bool {
-	return array.IncludedIn([]string{"", "*", e.Task}, request.TaskFilter)
+	return xstrings.SliceContains([]string{"", "*", e.Task}, request.TaskFilter)
 }
 
 func isSubscribedToOutput(request *ListenResultRequest, e *execution.Execution) bool {
-	return array.IncludedIn([]string{"", "*", e.Output}, request.OutputFilter)
+	return xstrings.SliceContains([]string{"", "*", e.Output}, request.OutputFilter)
 }
 
 func isSubscribedToTags(request *ListenResultRequest, e *execution.Execution) bool {
 	for _, tag := range request.TagFilters {
-		if !array.IncludedIn(e.Tags, tag) {
+		if !xstrings.SliceContains(e.Tags, tag) {
 			return false
 		}
 	}
