@@ -3,6 +3,9 @@
 ## [Unreleased]
 #### Changed
 #### Added
+
+- (#) Support of `.dockerignore` file
+
 #### Removed
 #### Fixed
 
