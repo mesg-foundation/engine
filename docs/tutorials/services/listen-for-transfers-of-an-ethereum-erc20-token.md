@@ -223,9 +223,9 @@ Let's update the `Dockerfile` to make our Service compatible with Docker. Becaus
 
 <<< @/docs/tutorials/services/listen-to-transfer-of-ethereum-erc20-token/Dockerfile
 
-Let's also create a `.mesgignore` file to ignore the `node_modules` from the build of the Service.
+Let's also create a `.dockerignore` file to ignore the `node_modules` from the build of the Service.
 
-<<< @/docs/tutorials/services/listen-to-transfer-of-ethereum-erc20-token/.mesgignore
+<<< @/docs/tutorials/services/listen-to-transfer-of-ethereum-erc20-token/.dockerignore
 
 ### Test the Service
 

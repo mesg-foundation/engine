@@ -5,6 +5,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	"github.com/docker/docker/pkg/archive"
 	"github.com/logrusorgru/aurora"
@@ -91,6 +92,10 @@ func (d *serviceDeployer) deploy(path string) (*service.Service, *importer.Valid
 	imageHash, err := d.mesg.container.Build(path)
 	if err != nil {
 		return nil, nil, err
+	}
+	if _, err := os.Stat(filepath.Join(path, ".mesgignore")); err == nil {
+		// TODO: remove for a future release
+		d.sendStatus(fmt.Sprintf("%s [DEPRECATED] Please use .dockerignore instead of .mesgignore", aurora.Red("⨯")), DONE)
 	}
 	d.sendStatus(fmt.Sprintf("%s Image built with success.", aurora.Green("✔")), DONE)
 	d.injectConfigurationInDependencies(service, imageHash)
