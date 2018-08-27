@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/mesg-foundation/core/interface/grpc/core"
 	"github.com/mesg-foundation/core/x/xsignal"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 

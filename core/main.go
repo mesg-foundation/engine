@@ -1,12 +1,12 @@
 package main
 
 import (
-	"github.com/Sirupsen/logrus"
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/interface/grpc"
 	"github.com/mesg-foundation/core/logger"
 	"github.com/mesg-foundation/core/version"
 	"github.com/mesg-foundation/core/x/xsignal"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
