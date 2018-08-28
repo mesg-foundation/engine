@@ -45,37 +45,3 @@ func TestCreate(t *testing.T) {
 	require.Equal(t, exec.Task, "test")
 	require.Equal(t, pendingExecutions[exec.ID], exec)
 }
-
-func TestCreateInvalidTask(t *testing.T) {
-	s := service.Service{
-		Name: "TestCreateInvalidTask",
-		Tasks: map[string]*service.Task{
-			"test": {},
-		},
-	}
-	var inputs map[string]interface{}
-	_, err := Create(&s, "testinvalid", inputs, []string{})
-	require.NotNil(t, err)
-	_, notFound := err.(*service.TaskNotFoundError)
-	require.True(t, notFound)
-}
-
-func TestCreateInvalidInputs(t *testing.T) {
-	s := service.Service{
-		Name: "TestCreateInvalidInputs",
-		Tasks: map[string]*service.Task{
-			"test": {
-				Inputs: map[string]*service.Parameter{
-					"foo": {
-						Type: "String",
-					},
-				},
-			},
-		},
-	}
-	var inputs map[string]interface{}
-	_, err := Create(&s, "test", inputs, []string{})
-	require.NotNil(t, err)
-	_, invalid := err.(*service.InvalidTaskInputError)
-	require.True(t, invalid)
-}

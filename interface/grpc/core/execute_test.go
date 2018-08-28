@@ -56,8 +56,9 @@ func TestExecuteWithInvalidJSON(t *testing.T) {
 
 func TestExecuteWithInvalidTask(t *testing.T) {
 	var (
-		path   = "../../../service-test/task"
-		server = newServer(t)
+		path    = "../../../service-test/task"
+		taskKey = "error"
+		server  = newServer(t)
 	)
 
 	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
@@ -70,11 +71,39 @@ func TestExecuteWithInvalidTask(t *testing.T) {
 
 	_, err = server.ExecuteTask(context.Background(), &ExecuteTaskRequest{
 		ServiceID: s.Id,
-		TaskKey:   "error",
+		TaskKey:   taskKey,
 		InputData: "{}",
 	})
 	require.Error(t, err)
-	require.IsType(t, (*service.TaskNotFoundError)(nil), err)
+	notFoundErr := err.(*service.TaskNotFoundError)
+	require.Equal(t, taskKey, notFoundErr.TaskKey)
+	require.Equal(t, s.Name, notFoundErr.ServiceName)
+}
+
+func TestExecuteWithInvalidTaskInput(t *testing.T) {
+	var (
+		path    = "../../../service-test/task"
+		taskKey = "call"
+		data    = `{"headers": {}}`
+		server  = newServer(t)
+	)
+
+	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
+	require.Zero(t, validationErr)
+	require.NoError(t, err)
+	defer server.api.DeleteService(s.Id)
+
+	require.NoError(t, server.api.StartService(s.Id))
+	defer server.api.StopService(s.Id)
+
+	_, err = server.ExecuteTask(context.Background(), &ExecuteTaskRequest{
+		ServiceID: s.Id,
+		TaskKey:   taskKey,
+		InputData: data,
+	})
+	require.NotNil(t, err)
+	invalidErr := err.(*service.InvalidTaskInputError)
+	require.Equal(t, taskKey, invalidErr.TaskKey)
 }
 
 func TestExecuteWithNonRunningService(t *testing.T) {

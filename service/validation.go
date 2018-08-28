@@ -50,6 +50,10 @@ func (v *parameterValidator) Validate(value interface{}) *ParameterWarning {
 		return v.newParemeterWarning("required")
 	}
 
+	return v.validateType(value)
+}
+
+func (v *parameterValidator) validateType(value interface{}) *ParameterWarning {
 	switch v.parameter.Type {
 	case "String":
 		if _, ok := value.(string); !ok {
@@ -75,6 +79,7 @@ func (v *parameterValidator) Validate(value interface{}) *ParameterWarning {
 		if !okObj && !okArr {
 			return v.newParemeterWarning("not an object or array")
 		}
+
 	default:
 		return v.newParemeterWarning("an invalid type")
 	}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/mesg-foundation/core/execution"
+	"github.com/mesg-foundation/core/service"
 )
 
 // resultSubmitter provides functionalities to submit a MESG task result.
@@ -26,6 +27,24 @@ func (s *resultSubmitter) Submit(executionID, outputKey string, outputData map[s
 			ID: executionID,
 		}
 	}
+
+	serviceOutput, outputFound := execution.Service.Tasks[execution.Task].Outputs[outputKey]
+	if !outputFound {
+		return &service.TaskOutputNotFoundError{
+			TaskKey:       execution.Task,
+			TaskOutputKey: outputKey,
+			ServiceName:   execution.Service.Name,
+		}
+	}
+	warnings := execution.Service.ValidateParametersSchema(serviceOutput.Data, outputData)
+	if len(warnings) > 0 {
+		return &service.InvalidTaskOutputError{
+			TaskKey:       execution.Task,
+			TaskOutputKey: outputKey,
+			Warnings:      warnings,
+		}
+	}
+
 	return execution.Complete(outputKey, outputData)
 }
 

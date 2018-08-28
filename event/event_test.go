@@ -22,35 +22,3 @@ func TestCreate(t *testing.T) {
 	require.Equal(t, "test", exec.Key)
 	require.NotNil(t, exec.CreatedAt)
 }
-
-func TestCreateNotPresentEvent(t *testing.T) {
-	s := service.Service{
-		Name: "TestCreateNotPresentEvent",
-		Events: map[string]*service.Event{
-			"test": {},
-		},
-	}
-	var data map[string]interface{}
-	_, err := Create(&s, "testinvalid", data)
-	require.NotNil(t, err)
-	_, notFound := err.(*service.EventNotFoundError)
-	require.True(t, notFound)
-}
-
-func TestCreateInvalidData(t *testing.T) {
-	s := service.Service{
-		Name: "TestCreateInvalidData",
-		Events: map[string]*service.Event{
-			"test": {
-				Data: map[string]*service.Parameter{
-					"xxx": {},
-				},
-			},
-		},
-	}
-	var data map[string]interface{}
-	_, err := Create(&s, "test", data)
-	require.NotNil(t, err)
-	_, invalid := err.(*service.InvalidEventDataError)
-	require.True(t, invalid)
-}
