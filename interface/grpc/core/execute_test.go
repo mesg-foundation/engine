@@ -75,7 +75,8 @@ func TestExecuteWithInvalidTask(t *testing.T) {
 		InputData: "{}",
 	})
 	require.Error(t, err)
-	notFoundErr := err.(*service.TaskNotFoundError)
+	notFoundErr, ok := err.(*service.TaskNotFoundError)
+	require.True(t, ok)
 	require.Equal(t, taskKey, notFoundErr.TaskKey)
 	require.Equal(t, s.Name, notFoundErr.ServiceName)
 }
@@ -101,8 +102,9 @@ func TestExecuteWithInvalidTaskInput(t *testing.T) {
 		TaskKey:   taskKey,
 		InputData: data,
 	})
-	require.NotNil(t, err)
-	invalidErr := err.(*service.InvalidTaskInputError)
+	require.Error(t, err)
+	invalidErr, ok := err.(*service.InvalidTaskInputError)
+	require.True(t, ok)
 	require.Equal(t, taskKey, invalidErr.TaskKey)
 }
 

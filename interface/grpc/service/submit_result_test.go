@@ -135,9 +135,10 @@ func TestSubmitWithNonExistentOutputKey(t *testing.T) {
 		OutputData:  outputData,
 	})
 	require.Error(t, err)
-	notFoundErr, isNotFoundErr := err.(*service.TaskOutputNotFoundError)
-	require.True(t, isNotFoundErr)
+	notFoundErr, ok := err.(*service.TaskOutputNotFoundError)
+	require.True(t, ok)
 	require.Equal(t, outputKey, notFoundErr.TaskOutputKey)
+	require.Equal(t, s.Name, notFoundErr.ServiceName)
 }
 
 func TestSubmitWithInvalidTaskOutputs(t *testing.T) {
@@ -171,7 +172,8 @@ func TestSubmitWithInvalidTaskOutputs(t *testing.T) {
 		OutputData:  outputData,
 	})
 	require.Error(t, err)
-	invalidOutputError, isInvalidOutputError := err.(*service.InvalidTaskOutputError)
-	require.True(t, isInvalidOutputError)
-	require.Equal(t, outputKey, invalidOutputError.TaskOutputKey)
+	invalidErr, ok := err.(*service.InvalidTaskOutputError)
+	require.True(t, ok)
+	require.Equal(t, taskKey, invalidErr.TaskKey)
+	require.Equal(t, outputKey, invalidErr.TaskOutputKey)
 }

@@ -100,8 +100,10 @@ func TestEmitWrongEvent(t *testing.T) {
 		EventData: "{}",
 	})
 	require.Error(t, err)
-	_, notFound := err.(*service.EventNotFoundError)
-	require.True(t, notFound)
+	notFoundErr, ok := err.(*service.EventNotFoundError)
+	require.True(t, ok)
+	require.Equal(t, eventKey, notFoundErr.EventKey)
+	require.Equal(t, s.Name, notFoundErr.ServiceName)
 }
 
 func TestEmitInvalidData(t *testing.T) {
@@ -123,8 +125,9 @@ func TestEmitInvalidData(t *testing.T) {
 		EventData: eventData,
 	})
 	require.Error(t, err)
-	_, invalid := err.(*service.InvalidEventDataError)
-	require.True(t, invalid)
+	invalidErr, ok := err.(*service.InvalidEventDataError)
+	require.True(t, ok)
+	require.Equal(t, eventKey, invalidErr.EventKey)
 }
 
 func TestServiceNotExists(t *testing.T) {
