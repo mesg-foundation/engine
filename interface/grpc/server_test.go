@@ -18,7 +18,7 @@ func TestServerServe(t *testing.T) {
 	}
 	go func() {
 		time.Sleep(waitForServe)
-		s.Stop()
+		s.Close()
 	}()
 	err := s.Serve()
 	require.Nil(t, err)
@@ -28,20 +28,19 @@ func TestServerServeNoAddress(t *testing.T) {
 	s := Server{}
 	go func() {
 		time.Sleep(waitForServe)
-		s.Stop()
+		s.Close()
 	}()
 	err := s.Serve()
 	require.NotNil(t, err)
 }
 
-func TestServerServeAlreadyListening(t *testing.T) {
+func TestServerListenAfterClose(t *testing.T) {
 	s := Server{
 		Network: "unix",
-		Address: "TestServerServeAlreadyListening.sock",
+		Address: "TestServerListenAfterClose.sock",
 	}
 	go s.Serve()
 	time.Sleep(waitForServe)
-	err := s.Serve()
-	defer s.Stop()
-	require.NotNil(t, err)
+	s.Close()
+	require.Equal(t, &alreadyClosedError{}, s.Serve())
 }

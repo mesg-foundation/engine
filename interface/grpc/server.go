@@ -1,9 +1,9 @@
 package grpc
 
 import (
-	"errors"
 	"net"
 	"os"
+	"sync"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
@@ -18,26 +18,31 @@ import (
 // Server contains the server config.
 type Server struct {
 	instance *grpc.Server
-	listener net.Listener
-	Network  string
-	Address  string
+	closed   bool
+	mi       sync.Mutex // protects startup.
+
+	Network string
+	Address string
 }
 
-// Serve starts the server and listens for client connections.
-func (s *Server) Serve() error {
-	if s.listener != nil {
-		return errors.New("Server already running")
+// listen listens for connections.
+func (s *Server) listen() (net.Listener, error) {
+	s.mi.Lock()
+	defer s.mi.Unlock()
+
+	if s.closed {
+		return nil, &alreadyClosedError{}
 	}
 
 	if s.Network == "unix" {
 		os.Remove(s.Address)
 	}
-	listener, err := net.Listen(s.Network, s.Address)
+
+	ln, err := net.Listen(s.Network, s.Address)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	s.listener = listener
 	s.instance = grpc.NewServer(
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			grpc_logrus.StreamServerInterceptor(logrus.NewEntry(logrus.StandardLogger())),
@@ -47,21 +52,35 @@ func (s *Server) Serve() error {
 		)),
 	)
 	if err := s.register(); err != nil {
+		return nil, err
+	}
+
+	logrus.Info("Server listens on ", ln.Addr())
+	return ln, nil
+}
+
+// Serve starts the server and listens for client connections.
+func (s *Server) Serve() error {
+	ln, err := s.listen()
+	if err != nil {
 		return err
 	}
 
-	logrus.Info("Server listens on ", s.listener.Addr())
-
 	// TODO: check if server still on after a connection throw an error. otherwise, add a for around serve
-	return s.instance.Serve(s.listener)
+	return s.instance.Serve(ln)
 }
 
-// Stop stops the server.
-func (s *Server) Stop() {
-	if s.instance != nil {
-		s.instance.Stop()
-		s.instance = nil
+// Close gracefully closes the server.
+func (s *Server) Close() {
+	s.mi.Lock()
+	defer s.mi.Unlock()
+	if s.closed {
+		return
 	}
+	if s.instance != nil {
+		s.instance.GracefulStop()
+	}
+	s.closed = true
 }
 
 // register all server
@@ -86,4 +105,10 @@ func (s *Server) register() error {
 
 	reflection.Register(s.instance)
 	return nil
+}
+
+type alreadyClosedError struct{}
+
+func (e *alreadyClosedError) Error() string {
+	return "already closed"
 }
