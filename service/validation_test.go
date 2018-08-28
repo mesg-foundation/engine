@@ -25,43 +25,43 @@ var eventDataSchema = map[string]*Parameter{
 	},
 }
 
-func validateParemeterData(parameter string, data interface{}) bool {
+func validateParameterData(parameter string, data interface{}) bool {
 	return newParameterValidator("", eventDataSchema[parameter]).Validate(data) == nil
 }
 
 func TestRequired(t *testing.T) {
-	require.True(t, validateParemeterData("optional", "presence"))
-	require.True(t, validateParemeterData("optional", nil))
+	require.True(t, validateParameterData("optional", "presence"))
+	require.True(t, validateParameterData("optional", nil))
 	// this parameter is required
-	require.False(t, validateParemeterData("string", nil))
+	require.False(t, validateParameterData("string", nil))
 }
 
 func TestString(t *testing.T) {
-	require.True(t, validateParemeterData("string", "valid"))
-	require.False(t, validateParemeterData("string", false))
+	require.True(t, validateParameterData("string", "valid"))
+	require.False(t, validateParameterData("string", false))
 }
 
 func TestNumber(t *testing.T) {
-	require.True(t, validateParemeterData("number", 10.5))
-	require.True(t, validateParemeterData("number", 10))
-	require.False(t, validateParemeterData("number", "not a number"))
+	require.True(t, validateParameterData("number", 10.5))
+	require.True(t, validateParameterData("number", 10))
+	require.False(t, validateParameterData("number", "not a number"))
 }
 
 func TestBoolean(t *testing.T) {
-	require.True(t, validateParemeterData("boolean", true))
-	require.True(t, validateParemeterData("boolean", false))
-	require.False(t, validateParemeterData("boolean", "not a boolean"))
+	require.True(t, validateParameterData("boolean", true))
+	require.True(t, validateParameterData("boolean", false))
+	require.False(t, validateParameterData("boolean", "not a boolean"))
 }
 
 func TestObject(t *testing.T) {
-	require.True(t, validateParemeterData("object", map[string]interface{}{
+	require.True(t, validateParameterData("object", map[string]interface{}{
 		"foo": "bar",
 	}))
-	require.True(t, validateParemeterData("object", []interface{}{
+	require.True(t, validateParameterData("object", []interface{}{
 		"foo",
 		"bar",
 	}))
-	require.False(t, validateParemeterData("object", 42))
+	require.False(t, validateParameterData("object", 42))
 }
 
 func TestValidateParameters(t *testing.T) {

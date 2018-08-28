@@ -17,7 +17,7 @@ func (p *ParameterWarning) String() string {
 
 // ValidateParametersSchema validates data to see if it matches with parameters schema.
 // TODO(ilgooz) make this private when we manually create Service type.
-// TODO(ilgooz) remove pointer from *Paremeter.
+// TODO(ilgooz) remove pointer from *Parameter.
 func (s *Service) ValidateParametersSchema(parameters map[string]*Parameter,
 	data map[string]interface{}) []*ParameterWarning {
 	warnings := make([]*ParameterWarning, 0)
@@ -47,7 +47,7 @@ func (v *parameterValidator) Validate(value interface{}) *ParameterWarning {
 		if v.parameter.Optional {
 			return nil
 		}
-		return v.newParemeterWarning("required")
+		return v.newParameterWarning("required")
 	}
 
 	return v.validateType(value)
@@ -57,7 +57,7 @@ func (v *parameterValidator) validateType(value interface{}) *ParameterWarning {
 	switch v.parameter.Type {
 	case "String":
 		if _, ok := value.(string); !ok {
-			return v.newParemeterWarning("not a string")
+			return v.newParameterWarning("not a string")
 		}
 
 	case "Number":
@@ -65,29 +65,29 @@ func (v *parameterValidator) validateType(value interface{}) *ParameterWarning {
 		_, okFloat32 := value.(float32)
 		_, okInt := value.(int)
 		if !okInt && !okFloat64 && !okFloat32 {
-			return v.newParemeterWarning("not a number")
+			return v.newParameterWarning("not a number")
 		}
 
 	case "Boolean":
 		if _, ok := value.(bool); !ok {
-			return v.newParemeterWarning("not a boolean")
+			return v.newParameterWarning("not a boolean")
 		}
 
 	case "Object":
 		_, okObj := value.(map[string]interface{})
 		_, okArr := value.([]interface{})
 		if !okObj && !okArr {
-			return v.newParemeterWarning("not an object or array")
+			return v.newParameterWarning("not an object or array")
 		}
 
 	default:
-		return v.newParemeterWarning("an invalid type")
+		return v.newParameterWarning("an invalid type")
 	}
 
 	return nil
 }
 
-func (v *parameterValidator) newParemeterWarning(warning string) *ParameterWarning {
+func (v *parameterValidator) newParameterWarning(warning string) *ParameterWarning {
 	return &ParameterWarning{
 		Key:       v.key,
 		Warning:   warning,
