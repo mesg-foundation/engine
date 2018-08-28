@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 go get ./...
 go get github.com/karalabe/xgo
@@ -7,5 +7,5 @@ xgo --targets=darwin/386,darwin/amd64,linux/386,linux/amd64,windows/386,windows/
   -ldflags="-X 'github.com/mesg-foundation/core/version.Version=$1'" \
   -out mesg-core \
   -dest ./bin \
-  ./cli
+  ./interface/cli
 sudo chmod +x ./bin/*

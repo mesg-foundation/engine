@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/config"
+	"github.com/mesg-foundation/core/interface/grpc"
 	"github.com/mesg-foundation/core/logger"
 	"github.com/mesg-foundation/core/version"
 	"github.com/mesg-foundation/core/x/xsignal"
@@ -17,12 +17,12 @@ func main() {
 
 	logrus.Println("Starting MESG Core", version.Version)
 
-	tcpServer := &api.Server{
+	tcpServer := &grpc.Server{
 		Network: "tcp",
 		Address: viper.GetString(config.APIServerAddress),
 	}
 
-	unixServer := &api.Server{
+	unixServer := &grpc.Server{
 		Network: "unix",
 		Address: viper.GetString(config.APIServerSocket),
 	}
@@ -40,13 +40,13 @@ func main() {
 	<-closing
 }
 
-func startServer(server *api.Server) {
+func startServer(server *grpc.Server) {
 	if err := server.Serve(); err != nil {
 		logrus.Fatalln(err)
 	}
 }
 
-func closeServer(server *api.Server, closing chan struct{}) {
+func closeServer(server *grpc.Server, closing chan struct{}) {
 	server.Close()
 	closing <- struct{}{}
 }
