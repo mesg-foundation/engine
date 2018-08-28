@@ -5,8 +5,8 @@ import (
 	"os"
 
 	"github.com/docker/docker/pkg/stdcopy"
-	"github.com/mesg-foundation/core/api/core"
 	"github.com/mesg-foundation/core/cmd/utils"
+	"github.com/mesg-foundation/core/interface/grpc/core"
 	"github.com/mesg-foundation/core/x/xsignal"
 	"github.com/spf13/cobra"
 )
