@@ -62,11 +62,12 @@ func TestInvalidEventDataError(t *testing.T) {
 		&parameterTest{Key: "keyRequired", Type: "String", Value: nil, Error: "required"},
 	}
 	err := InvalidEventDataError{
+		EventKey:    "TestInvalidEventDataErrorEventKey",
+		ServiceName: "TestInvalidEventDataError",
 		Warnings: s.ValidateParametersSchema(tests.parameterTestsToMapParameter(),
 			tests.parameterTestsToMapData()),
-		EventKey: "TestInvalidEventDataErrorEventKey",
 	}
-	require.Contains(t, err.Error(), `Data of event "TestInvalidEventDataErrorEventKey" is invalid`)
+	require.Contains(t, err.Error(), `Data of event "TestInvalidEventDataErrorEventKey" is invalid in service "TestInvalidEventDataError"`)
 	tests.assert(t, err.Error())
 }
 
@@ -91,11 +92,12 @@ func TestInvalidTaskInputError(t *testing.T) {
 		&parameterTest{Key: "keyRequired", Type: "String", Value: nil, Error: "required"},
 	}
 	err := InvalidTaskInputError{
+		TaskKey:     "TestInvalidTaskInputErrorKey",
+		ServiceName: "TestInvalidTaskInputError",
 		Warnings: s.ValidateParametersSchema(tests.parameterTestsToMapParameter(),
 			tests.parameterTestsToMapData()),
-		TaskKey: "TestInvalidTaskInputErrorKey",
 	}
-	require.Contains(t, err.Error(), `Inputs of task "TestInvalidTaskInputErrorKey" are invalid`)
+	require.Contains(t, err.Error(), `Inputs of task "TestInvalidTaskInputErrorKey" are invalid in service "TestInvalidTaskInputError"`)
 	tests.assert(t, err.Error())
 }
 
@@ -121,12 +123,13 @@ func TestInvalidOutputDataError(t *testing.T) {
 		&parameterTest{Key: "keyRequired", Type: "String", Value: nil, Error: "required"},
 	}
 	err := InvalidTaskOutputError{
-		Warnings: s.ValidateParametersSchema(tests.parameterTestsToMapParameter(),
-			tests.parameterTestsToMapData()),
 		TaskKey:       "TaskKey",
 		TaskOutputKey: "OutputKey",
+		ServiceName:   "TestInvalidOutputDataError",
+		Warnings: s.ValidateParametersSchema(tests.parameterTestsToMapParameter(),
+			tests.parameterTestsToMapData()),
 	}
-	require.Contains(t, err.Error(), `Outputs "OutputKey" of task "TaskKey" are invalid`)
+	require.Contains(t, err.Error(), `Outputs "OutputKey" of task "TaskKey" are invalid in service "TestInvalidOutputDataError"`)
 	tests.assert(t, err.Error())
 }
 

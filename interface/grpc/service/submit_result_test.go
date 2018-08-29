@@ -176,4 +176,5 @@ func TestSubmitWithInvalidTaskOutputs(t *testing.T) {
 	require.True(t, ok)
 	require.Equal(t, taskKey, invalidErr.TaskKey)
 	require.Equal(t, outputKey, invalidErr.TaskOutputKey)
+	require.Equal(t, s.Name, invalidErr.ServiceName)
 }

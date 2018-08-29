@@ -30,7 +30,8 @@ type TaskInputNotFoundError struct {
 }
 
 func (e *TaskInputNotFoundError) Error() string {
-	return fmt.Sprintf("Input %q of task %q not found in service %q", e.TaskInputKey, e.TaskKey, e.ServiceName)
+	return fmt.Sprintf("Input %q of task %q not found in service %q", e.TaskInputKey, e.TaskKey,
+		e.ServiceName)
 }
 
 // TaskOutputNotFoundError is an error returned when service doesn't contain corresponding output.
@@ -41,17 +42,19 @@ type TaskOutputNotFoundError struct {
 }
 
 func (e *TaskOutputNotFoundError) Error() string {
-	return fmt.Sprintf("Output %q of task %q not found in service %q", e.TaskOutputKey, e.TaskKey, e.ServiceName)
+	return fmt.Sprintf("Output %q of task %q not found in service %q", e.TaskOutputKey, e.TaskKey,
+		e.ServiceName)
 }
 
 // InvalidEventDataError is an error returned when the data of corresponding event is not valid.
 type InvalidEventDataError struct {
-	EventKey string
-	Warnings []*ParameterWarning
+	EventKey    string
+	ServiceName string
+	Warnings    []*ParameterWarning
 }
 
 func (e *InvalidEventDataError) Error() string {
-	s := fmt.Sprintf("Data of event %q is invalid", e.EventKey)
+	s := fmt.Sprintf("Data of event %q is invalid in service %q", e.EventKey, e.ServiceName)
 	for _, warning := range e.Warnings {
 		s = fmt.Sprintf("%s. %s", s, warning)
 	}
@@ -60,12 +63,13 @@ func (e *InvalidEventDataError) Error() string {
 
 // InvalidTaskInputError is an error returned when the inputs of corresponding task are not valid.
 type InvalidTaskInputError struct {
-	TaskKey  string
-	Warnings []*ParameterWarning
+	TaskKey     string
+	ServiceName string
+	Warnings    []*ParameterWarning
 }
 
 func (e *InvalidTaskInputError) Error() string {
-	s := fmt.Sprintf("Inputs of task %q are invalid", e.TaskKey)
+	s := fmt.Sprintf("Inputs of task %q are invalid in service %q", e.TaskKey, e.ServiceName)
 	for _, warning := range e.Warnings {
 		s = fmt.Sprintf("%s. %s", s, warning)
 	}
@@ -76,11 +80,13 @@ func (e *InvalidTaskInputError) Error() string {
 type InvalidTaskOutputError struct {
 	TaskKey       string
 	TaskOutputKey string
+	ServiceName   string
 	Warnings      []*ParameterWarning
 }
 
 func (e *InvalidTaskOutputError) Error() string {
-	s := fmt.Sprintf("Outputs %q of task %q are invalid", e.TaskOutputKey, e.TaskKey)
+	s := fmt.Sprintf("Outputs %q of task %q are invalid in service %q", e.TaskOutputKey, e.TaskKey,
+		e.ServiceName)
 	for _, warning := range e.Warnings {
 		s = fmt.Sprintf("%s. %s", s, warning)
 	}

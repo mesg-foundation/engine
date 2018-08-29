@@ -22,6 +22,7 @@ func (execution *Execution) Complete(outputKey string, outputData map[string]int
 		return &service.InvalidTaskOutputError{
 			TaskKey:       execution.Task,
 			TaskOutputKey: outputKey,
+			ServiceName:   execution.Service.Name,
 			Warnings:      warnings,
 		}
 	}

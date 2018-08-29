@@ -106,6 +106,7 @@ func TestExecuteWithInvalidTaskInput(t *testing.T) {
 	invalidErr, ok := err.(*service.InvalidTaskInputError)
 	require.True(t, ok)
 	require.Equal(t, taskKey, invalidErr.TaskKey)
+	require.Equal(t, s.Name, invalidErr.ServiceName)
 }
 
 func TestExecuteWithNonRunningService(t *testing.T) {

@@ -20,8 +20,9 @@ func Create(s *service.Service, taskKey string, taskInputs map[string]interface{
 	warnings := s.ValidateParametersSchema(task.Inputs, taskInputs)
 	if len(warnings) > 0 {
 		return nil, &service.InvalidTaskInputError{
-			TaskKey:  taskKey,
-			Warnings: warnings,
+			TaskKey:     taskKey,
+			ServiceName: s.Name,
+			Warnings:    warnings,
 		}
 	}
 	execution := &Execution{

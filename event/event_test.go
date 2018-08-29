@@ -45,9 +45,12 @@ func TestCreateNotPresentEvent(t *testing.T) {
 }
 
 func TestCreateInvalidData(t *testing.T) {
-	eventName := "test"
+	var (
+		eventName   = "test"
+		serviceName = "TestCreateInvalidData"
+	)
 	s := service.Service{
-		Name: "TestCreateInvalidData",
+		Name: serviceName,
 		Events: map[string]*service.Event{
 			eventName: {
 				Data: map[string]*service.Parameter{
@@ -62,4 +65,5 @@ func TestCreateInvalidData(t *testing.T) {
 	invalidErr, ok := err.(*service.InvalidEventDataError)
 	require.True(t, ok)
 	require.Equal(t, eventName, invalidErr.EventKey)
+	require.Equal(t, serviceName, invalidErr.ServiceName)
 }

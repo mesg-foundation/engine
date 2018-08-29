@@ -128,6 +128,7 @@ func TestEmitInvalidData(t *testing.T) {
 	invalidErr, ok := err.(*service.InvalidEventDataError)
 	require.True(t, ok)
 	require.Equal(t, eventKey, invalidErr.EventKey)
+	require.Equal(t, s.Name, invalidErr.ServiceName)
 }
 
 func TestServiceNotExists(t *testing.T) {

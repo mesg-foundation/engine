@@ -77,11 +77,12 @@ func TestCompleteNotFound(t *testing.T) {
 
 func TestCompleteInvalidOutputs(t *testing.T) {
 	var (
-		taskKey   = "test"
-		outputKey = "output"
+		taskKey     = "test"
+		outputKey   = "output"
+		serviceName = "TestCompleteInvalidOutputs"
 	)
 	s := service.Service{
-		Name: "TestCompleteInvalidOutputs",
+		Name: serviceName,
 		Tasks: map[string]*service.Task{
 			taskKey: {
 				Outputs: map[string]*service.Output{
@@ -104,4 +105,5 @@ func TestCompleteInvalidOutputs(t *testing.T) {
 	require.True(t, ok)
 	require.Equal(t, taskKey, invalidErr.TaskKey)
 	require.Equal(t, outputKey, invalidErr.TaskOutputKey)
+	require.Equal(t, serviceName, invalidErr.ServiceName)
 }

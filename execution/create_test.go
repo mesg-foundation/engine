@@ -67,9 +67,12 @@ func TestCreateInvalidTask(t *testing.T) {
 	require.Equal(t, serviceName, notFoundErr.ServiceName)
 }
 func TestCreateInvalidInputs(t *testing.T) {
-	taskKey := "test"
+	var (
+		taskKey     = "test"
+		serviceName = "TestCreateInvalidInputs"
+	)
 	s := service.Service{
-		Name: "TestCreateInvalidInputs",
+		Name: serviceName,
 		Tasks: map[string]*service.Task{
 			taskKey: {
 				Inputs: map[string]*service.Parameter{
@@ -86,4 +89,5 @@ func TestCreateInvalidInputs(t *testing.T) {
 	invalidErr, ok := err.(*service.InvalidTaskInputError)
 	require.True(t, ok)
 	require.Equal(t, taskKey, invalidErr.TaskKey)
+	require.Equal(t, serviceName, invalidErr.ServiceName)
 }

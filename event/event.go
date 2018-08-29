@@ -27,8 +27,9 @@ func Create(s *service.Service, eventKey string, eventData map[string]interface{
 	warnings := s.ValidateParametersSchema(event.Data, eventData)
 	if len(warnings) > 0 {
 		return nil, &service.InvalidEventDataError{
-			EventKey: eventKey,
-			Warnings: warnings,
+			EventKey:    eventKey,
+			ServiceName: s.Name,
+			Warnings:    warnings,
 		}
 	}
 	return &Event{
