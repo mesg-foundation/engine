@@ -49,21 +49,6 @@ func (e *taskExecutor) checkServiceStatus(s *service.Service) error {
 // execute executes task.
 func (e *taskExecutor) execute(s *service.Service, taskKey string, taskInputs map[string]interface{},
 	tags []string) (executionID string, err error) {
-	serviceTask, taskFound := s.Tasks[taskKey]
-	if !taskFound {
-		return "", &service.TaskNotFoundError{
-			TaskKey:     taskKey,
-			ServiceName: s.Name,
-		}
-	}
-	warnings := s.ValidateParametersSchema(serviceTask.Inputs, taskInputs)
-	if len(warnings) > 0 {
-		return "", &service.InvalidTaskInputError{
-			TaskKey:  taskKey,
-			Warnings: warnings,
-		}
-	}
-
 	exc, err := execution.Create(s, taskKey, taskInputs, tags)
 	if err != nil {
 		return "", err
