@@ -11,10 +11,10 @@ func TestDependenciesFromService(t *testing.T) {
 		Name: "TestPartiallyRunningService",
 		Dependencies: map[string]*Dependency{
 			"testa": {
-				Image: "nginx",
+				Image: "nginx:stable-alpine",
 			},
 			"testb": {
-				Image: "nginx",
+				Image: "nginx:stable-alpine",
 			},
 		},
 	}

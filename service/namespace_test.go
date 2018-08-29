@@ -18,7 +18,7 @@ func TestDependencyNamespace(t *testing.T) {
 		Name: "TestDependencyNamespace",
 		Dependencies: map[string]*Dependency{
 			"test": {
-				Image: "nginx",
+				Image: "nginx:stable-alpine",
 			},
 		},
 	}

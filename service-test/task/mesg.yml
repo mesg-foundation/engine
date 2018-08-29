@@ -11,4 +11,6 @@ tasks:
         type: Object
     outputs:
       result:
-        data: {}
+        data:
+          foo:
+            type: Object

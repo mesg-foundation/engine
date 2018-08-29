@@ -16,7 +16,7 @@ func TestStartService(t *testing.T) {
 	namespace := []string{"namespace"}
 	containerID := "id"
 	options := ServiceOptions{
-		Image:     "nginx",
+		Image:     "nginx:stable-alpine",
 		Namespace: namespace,
 	}
 

@@ -14,7 +14,7 @@ func startTestService(name []string) (string, error) {
 		return "", err
 	}
 	return c.StartService(ServiceOptions{
-		Image:     "nginx",
+		Image:     "nginx:stable-alpine",
 		Namespace: name,
 	})
 }
@@ -137,14 +137,14 @@ func TestIntegrationListServices(t *testing.T) {
 	c, err := New()
 	require.Nil(t, err)
 	c.StartService(ServiceOptions{
-		Image:     "nginx",
+		Image:     "nginx:stable-alpine",
 		Namespace: []string{"TestListServices"},
 		Labels: map[string]string{
 			"label_name": "value_1",
 		},
 	})
 	c.StartService(ServiceOptions{
-		Image:     "nginx",
+		Image:     "nginx:stable-alpine",
 		Namespace: []string{"TestListServiceswithValue2"},
 		Labels: map[string]string{
 			"label_name_2": "value_2",

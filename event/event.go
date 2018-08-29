@@ -16,25 +16,26 @@ type Event struct {
 }
 
 // Create creates an event.
-func Create(serviceForEvent *service.Service, eventKey string, data map[string]interface{}) (*Event, error) {
-	serviceEvent, eventFound := serviceForEvent.Events[eventKey]
-	if !eventFound {
+func Create(s *service.Service, eventKey string, eventData map[string]interface{}) (*Event, error) {
+	event, ok := s.Events[eventKey]
+	if !ok {
 		return nil, &service.EventNotFoundError{
-			Service:  serviceForEvent,
-			EventKey: eventKey,
+			EventKey:    eventKey,
+			ServiceName: s.Name,
 		}
 	}
-	if !serviceEvent.IsValid(data) {
+	warnings := s.ValidateParametersSchema(event.Data, eventData)
+	if len(warnings) > 0 {
 		return nil, &service.InvalidEventDataError{
-			Event:     serviceEvent,
-			EventKey:  eventKey,
-			EventData: data,
+			EventKey:    eventKey,
+			ServiceName: s.Name,
+			Warnings:    warnings,
 		}
 	}
 	return &Event{
-		Service:   serviceForEvent,
+		Service:   s,
 		Key:       eventKey,
-		Data:      data,
+		Data:      eventData,
 		CreatedAt: time.Now(),
 	}, nil
 }

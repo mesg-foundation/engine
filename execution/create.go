@@ -9,25 +9,26 @@ import (
 )
 
 // Create creates an execution with a unique ID and puts it in the pending list.
-func Create(serviceForExecution *service.Service, task string, inputs map[string]interface{}, tags []string) (*Execution, error) {
-	serviceTask, taskFound := serviceForExecution.Tasks[task]
-	if !taskFound {
+func Create(s *service.Service, taskKey string, taskInputs map[string]interface{}, tags []string) (*Execution, error) {
+	task, ok := s.Tasks[taskKey]
+	if !ok {
 		return nil, &service.TaskNotFoundError{
-			Service: serviceForExecution,
-			TaskKey: task,
+			TaskKey:     taskKey,
+			ServiceName: s.Name,
 		}
 	}
-	if !serviceTask.IsValid(inputs) {
+	warnings := s.ValidateParametersSchema(task.Inputs, taskInputs)
+	if len(warnings) > 0 {
 		return nil, &service.InvalidTaskInputError{
-			Task:      serviceTask,
-			TaskKey:   task,
-			InputData: inputs,
+			TaskKey:     taskKey,
+			ServiceName: s.Name,
+			Warnings:    warnings,
 		}
 	}
 	execution := &Execution{
-		Service:   serviceForExecution,
-		Inputs:    inputs,
-		Task:      task,
+		Service:   s,
+		Inputs:    taskInputs,
+		Task:      taskKey,
 		Tags:      tags,
 		CreatedAt: time.Now(),
 	}

@@ -34,7 +34,7 @@ func TestStartService(t *testing.T) {
 		Name: "TestStartService",
 		Dependencies: map[string]*Dependency{
 			"test": {
-				Image: "nginx",
+				Image: "nginx:stable-alpine",
 			},
 		},
 	}
@@ -51,7 +51,7 @@ func TestStartWith2Dependencies(t *testing.T) {
 		Name: "TestStartWith2Dependencies",
 		Dependencies: map[string]*Dependency{
 			"testa": {
-				Image: "nginx:latest",
+				Image: "nginx:stable-alpine",
 			},
 			"testb": {
 				Image: "alpine:latest",
@@ -67,7 +67,7 @@ func TestStartWith2Dependencies(t *testing.T) {
 	container2, err2 := defaultContainer.FindContainer(deps[1].namespace())
 	require.Nil(t, err1)
 	require.Nil(t, err2)
-	require.Equal(t, "nginx:latest", container1.Config.Image)
+	require.Equal(t, "nginx:stable-alpine", container1.Config.Image)
 	require.Equal(t, "alpine:latest", container2.Config.Image)
 }
 
@@ -76,7 +76,7 @@ func TestStartAgainService(t *testing.T) {
 		Name: "TestStartAgainService",
 		Dependencies: map[string]*Dependency{
 			"test": {
-				Image: "nginx",
+				Image: "nginx:stable-alpine",
 			},
 		},
 	}
@@ -94,10 +94,10 @@ func TestPartiallyRunningService(t *testing.T) {
 		Name: "TestPartiallyRunningService",
 		Dependencies: map[string]*Dependency{
 			"testa": {
-				Image: "nginx",
+				Image: "nginx:stable-alpine",
 			},
 			"testb": {
-				Image: "nginx",
+				Image: "nginx:stable-alpine",
 			},
 		},
 	}
@@ -118,7 +118,7 @@ func TestStartDependency(t *testing.T) {
 		Name: "TestStartDependency",
 		Dependencies: map[string]*Dependency{
 			"test": {
-				Image: "nginx",
+				Image: "nginx:stable-alpine",
 			},
 		},
 	}
@@ -138,7 +138,7 @@ func TestNetworkCreated(t *testing.T) {
 		Name: "TestNetworkCreated",
 		Dependencies: map[string]*Dependency{
 			"test": {
-				Image: "nginx",
+				Image: "nginx:stable-alpine",
 			},
 		},
 	}
@@ -155,7 +155,7 @@ func TestStartStopStart(t *testing.T) {
 		Name: "TestStartStopStart",
 		Dependencies: map[string]*Dependency{
 			"test": {
-				Image: "nginx",
+				Image: "nginx:stable-alpine",
 			},
 		},
 	}
@@ -176,7 +176,7 @@ func TestServiceDependenciesListensFromSamePort(t *testing.T) {
 			Name: "TestServiceDependenciesListensFromSamePort",
 			Dependencies: map[string]*Dependency{
 				"test": {
-					Image: "nginx",
+					Image: "nginx:stable-alpine",
 					Ports: []string{"80"},
 				},
 			},
@@ -186,7 +186,7 @@ func TestServiceDependenciesListensFromSamePort(t *testing.T) {
 			Name: "TestServiceDependenciesListensFromSamePort1",
 			Dependencies: map[string]*Dependency{
 				"test": {
-					Image: "nginx",
+					Image: "nginx:stable-alpine",
 					Ports: []string{"80"},
 				},
 			},
