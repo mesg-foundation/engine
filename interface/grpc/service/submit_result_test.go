@@ -11,7 +11,6 @@ import (
 
 func TestSubmit(t *testing.T) {
 	var (
-		path     = "../../../service-test/task"
 		taskKey  = "call"
 		taskData = map[string]interface{}{
 			"url":     "https://mesg.tech",
@@ -23,7 +22,7 @@ func TestSubmit(t *testing.T) {
 		server     = newServer(t)
 	)
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
+	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.Id)
@@ -58,7 +57,6 @@ func TestSubmit(t *testing.T) {
 
 func TestSubmitWithInvalidJSON(t *testing.T) {
 	var (
-		path     = "../../../service-test/task"
 		taskKey  = "call"
 		taskData = map[string]interface{}{
 			"url":     "https://mesg.tech",
@@ -69,7 +67,7 @@ func TestSubmitWithInvalidJSON(t *testing.T) {
 		server    = newServer(t)
 	)
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
+	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.Id)
@@ -106,7 +104,6 @@ func TestSubmitWithInvalidID(t *testing.T) {
 
 func TestSubmitWithNonExistentOutputKey(t *testing.T) {
 	var (
-		path     = "../../../service-test/task"
 		taskKey  = "call"
 		taskData = map[string]interface{}{
 			"url":     "https://mesg.tech",
@@ -118,7 +115,7 @@ func TestSubmitWithNonExistentOutputKey(t *testing.T) {
 		server     = newServer(t)
 	)
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
+	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.Id)
@@ -143,7 +140,6 @@ func TestSubmitWithNonExistentOutputKey(t *testing.T) {
 
 func TestSubmitWithInvalidTaskOutputs(t *testing.T) {
 	var (
-		path     = "../../../service-test/task"
 		taskKey  = "call"
 		taskData = map[string]interface{}{
 			"url":     "https://mesg.tech",
@@ -155,7 +151,7 @@ func TestSubmitWithInvalidTaskOutputs(t *testing.T) {
 		server     = newServer(t)
 	)
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
+	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.Id)

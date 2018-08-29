@@ -11,13 +11,12 @@ import (
 
 func TestExecute(t *testing.T) {
 	var (
-		path    = "../../../service-test/task"
 		taskKey = "call"
 		data    = `{"url": "https://mesg.tech", "data": {}, "headers": {}}`
 		server  = newServer(t)
 	)
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
+	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.Id)
@@ -35,12 +34,9 @@ func TestExecute(t *testing.T) {
 }
 
 func TestExecuteWithInvalidJSON(t *testing.T) {
-	var (
-		path   = "../../../service-test/task"
-		server = newServer(t)
-	)
+	var server = newServer(t)
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
+	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.Id)
@@ -56,12 +52,11 @@ func TestExecuteWithInvalidJSON(t *testing.T) {
 
 func TestExecuteWithInvalidTask(t *testing.T) {
 	var (
-		path    = "../../../service-test/task"
 		taskKey = "error"
 		server  = newServer(t)
 	)
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
+	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.Id)
@@ -83,13 +78,12 @@ func TestExecuteWithInvalidTask(t *testing.T) {
 
 func TestExecuteWithInvalidTaskInput(t *testing.T) {
 	var (
-		path    = "../../../service-test/task"
 		taskKey = "call"
 		data    = `{"headers": {}}`
 		server  = newServer(t)
 	)
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
+	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.Id)
@@ -110,12 +104,9 @@ func TestExecuteWithInvalidTaskInput(t *testing.T) {
 }
 
 func TestExecuteWithNonRunningService(t *testing.T) {
-	var (
-		path   = "../../../service-test/task"
-		server = newServer(t)
-	)
+	var server = newServer(t)
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
+	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.Id)
