@@ -51,7 +51,7 @@ func TestStartWith2Dependencies(t *testing.T) {
 		Name: "TestStartWith2Dependencies",
 		Dependencies: map[string]*Dependency{
 			"testa": {
-				Image: "nginx:latest",
+				Image: "nginx:stable-alpine",
 			},
 			"testb": {
 				Image: "alpine:latest",
@@ -67,7 +67,7 @@ func TestStartWith2Dependencies(t *testing.T) {
 	container2, err2 := defaultContainer.FindContainer(deps[1].namespace())
 	require.Nil(t, err1)
 	require.Nil(t, err2)
-	require.Equal(t, "nginx:latest", container1.Config.Image)
+	require.Equal(t, "nginx:stable-alpine", container1.Config.Image)
 	require.Equal(t, "alpine:latest", container2.Config.Image)
 }
 
