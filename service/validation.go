@@ -32,6 +32,7 @@ func validateParametersSchema(parameters map[string]*Parameter,
 	return warnings
 }
 
+// parameterValidator provides functionalities to check data against its parameter schema.
 type parameterValidator struct {
 	key       string
 	parameter *Parameter
@@ -41,7 +42,7 @@ func newParameterValidator(key string, parameter *Parameter) *parameterValidator
 	return &parameterValidator{key, parameter}
 }
 
-// Validate returns a warning based on the match of the data given in parameter and the parameter.
+// Validate validates value by comparing to its parameter schema.
 func (v *parameterValidator) Validate(value interface{}) *ParameterWarning {
 	if value == nil {
 		if v.parameter.Optional {
@@ -53,6 +54,7 @@ func (v *parameterValidator) Validate(value interface{}) *ParameterWarning {
 	return v.validateType(value)
 }
 
+// validateType checks if value comforts its expected type.
 func (v *parameterValidator) validateType(value interface{}) *ParameterWarning {
 	switch v.parameter.Type {
 	case "String":
@@ -87,6 +89,7 @@ func (v *parameterValidator) validateType(value interface{}) *ParameterWarning {
 	return nil
 }
 
+// newParameterWarning creates a ParameterWarning with given warning message.
 func (v *parameterValidator) newParameterWarning(warning string) *ParameterWarning {
 	return &ParameterWarning{
 		Key:       v.key,

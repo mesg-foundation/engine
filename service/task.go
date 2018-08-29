@@ -12,12 +12,12 @@ func (s *Service) GetTask(taskKey string) (*Task, error) {
 	return task, nil
 }
 
-// ValidateInputs validates task inputs to match with paremeter config.
+// ValidateInputs produces warnings for task inputs that doesn't satisfy their parameter schemas.
 func (t *Task) ValidateInputs(taskInputs map[string]interface{}) []*ParameterWarning {
 	return validateParametersSchema(t.Inputs, taskInputs)
 }
 
-// RequireInputs requires task inputs to match with paremeter config.
+// RequireInputs requires task inputs to be matched with parameter schemas.
 func (t *Task) RequireInputs(taskInputs map[string]interface{}) error {
 	warnings := t.ValidateInputs(taskInputs)
 	if len(warnings) > 0 {
@@ -43,12 +43,12 @@ func (t *Task) GetOutput(outputKey string) (*Output, error) {
 	return output, nil
 }
 
-// ValidateData validates task outputs to match with paremeter config.
+// ValidateData produces warnings for task outputs that doesn't satisfy their parameter schemas.
 func (o *Output) ValidateData(outputData map[string]interface{}) []*ParameterWarning {
 	return validateParametersSchema(o.Data, outputData)
 }
 
-// RequireData requires task outputs to match with paremeter config.
+// RequireData requires task outputs to be matched with parameter schemas.
 func (o *Output) RequireData(outputData map[string]interface{}) error {
 	warnings := o.ValidateData(outputData)
 	if len(warnings) > 0 {

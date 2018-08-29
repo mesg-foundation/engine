@@ -12,12 +12,12 @@ func (s *Service) GetEvent(eventKey string) (*Event, error) {
 	return event, nil
 }
 
-// ValidateData validates event data to match with paremeter config.
+// ValidateData produces warnings for event datas that doesn't satisfy their parameter schemas.
 func (e *Event) ValidateData(eventData map[string]interface{}) []*ParameterWarning {
 	return validateParametersSchema(e.Data, eventData)
 }
 
-// RequireData requires event data to match with paremeter config.
+// RequireData requires event datas to be matched with parameter schemas.
 func (e *Event) RequireData(eventData map[string]interface{}) error {
 	warnings := e.ValidateData(eventData)
 	if len(warnings) > 0 {

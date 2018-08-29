@@ -15,7 +15,7 @@ type Event struct {
 	CreatedAt time.Time
 }
 
-// Create creates an event.
+// Create creates an event eventKey with eventData for service s.
 func Create(s *service.Service, eventKey string, eventData map[string]interface{}) (*Event, error) {
 	event, err := s.GetEvent(eventKey)
 	if err != nil {
