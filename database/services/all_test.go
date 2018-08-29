@@ -8,8 +8,9 @@ import (
 )
 
 func TestAll(t *testing.T) {
-	hash, _ := Save(&service.Service{Name: "Service1"})
-	defer Delete(hash)
+	service := &service.Service{Name: "Service1"}
+	Save(service)
+	defer Delete(service.Id)
 	services, err := All()
 	founded := false
 	for _, s := range services {

@@ -1,0 +1,358 @@
+syntax = "proto3";
+
+package api;
+option go_package = "core";
+
+import "github.com/mesg-foundation/core/service/service.proto";
+
+// This is the primary API to interact with MESG Core functionalities.
+// It can be consumed by any applications or tools that you'd like to interact with MESG Core.
+// It is actually used by the MESG CLI and MESG Application libraries.
+//
+// This API is only accessible through [gRPC](https://grpc.io/).
+//
+// Services must not use this API, but rather use the [Service API](./service.md).
+//
+// The source file of this API is hosted on [GitHub](https://github.com/mesg-foundation/core/blob/master/api/core/api.proto).
+service Core {
+  // Subscribe to a stream that listens for events from a service.
+  rpc ListenEvent (ListenEventRequest) returns (stream EventData) {}
+
+  // Subscribe to a stream that listens for task's result from a service.
+  rpc ListenResult (ListenResultRequest) returns (stream ResultData) {}
+
+  // Execute a service's task through [Core](../guide/start-here/core.md).
+  rpc ExecuteTask (ExecuteTaskRequest) returns (ExecuteTaskReply) {}
+
+  // Start a service. The service must be already deployed to [Core](../guide/start-here/core.md).
+  rpc StartService (StartServiceRequest) returns (StartServiceReply) {}
+
+  // Stop a service. The service must be already deployed to [Core](../guide/start-here/core.md).
+  rpc StopService (StopServiceRequest) returns (StopServiceReply) {}
+
+  // Deploy a service to [Core](../guide/start-here/core.md). This will give you an unique identifier which is used to interact with the service.
+  rpc DeployService (stream DeployServiceRequest) returns (stream DeployServiceReply) {}
+
+  // Delete a service from Core. This function only deletes a deployed service in [Core](../guide/start-here/core.md). If the service's code is on your computer, the source code will not be deleted.
+  rpc DeleteService (DeleteServiceRequest) returns (DeleteServiceReply) {}
+
+  // List all services already deployed in [Core](../guide/start-here/core.md).
+  rpc ListServices (ListServicesRequest) returns (ListServicesReply) {}
+
+  // Get the definition of an already-deployed service from its ID.
+  rpc GetService (GetServiceRequest) returns (GetServiceReply) {}
+}
+
+// The request's data for the `ListenEvent` stream's API.
+//
+// **Example**
+// ```json
+// {
+//   "serviceID":   "__SERVICE_ID__",
+//   "eventFilter": "__EVENT_KEY_TO_MATCH__"
+// }
+// ```
+message ListenEventRequest {
+  string serviceID = 1;   // The Service ID. Generated when using the [`DeployService` API](#deployservice).
+  string eventFilter = 2; // __Optional.__ Event's key to filter. The event must match this key. The default is `*` which matches any event.
+}
+
+// The data received from the stream of the `ListenEvent` API.
+// The data will be received over time as long as the stream is open.
+//
+// **Example**
+// ```json
+// {
+//   "eventKey":  "__EVENT_KEY__",
+//   "eventData": "{\"foo\":\"bar\"}"
+// }
+// ```
+message EventData {
+  string eventKey = 1;  // The event's key.
+  string eventData = 2; // The event's data encoded in JSON.
+}
+
+// The request's data for the `ListenResult` stream API.
+//
+// **Example**
+// ```json
+// {
+//   "serviceID":     "__SERVICE_ID__",
+//   "taskFilter":    "__TASK_KEY_TO_MATCH__",
+//   "outputFilter":  "__OUTPUT_KEY_TO_MATCH__",
+//   "tagFilters":     ["tagX"]
+// }
+// ```
+message ListenResultRequest {
+  string serviceID = 1;           // The Service ID. Generated when using the [`DeployService` API](#deployservice).
+  string taskFilter = 2;          // __Optional.__  The task's key to filter. The task must match this key. The default is `*` which matches any task.
+  string outputFilter = 3;        // __Optional.__ The output's key from the task to filter. The task must return this output's key. The default is `*` which matches any output.
+  repeated string tagFilters = 4; // __Optional.__ The list of tags to filter. This is a "match all" list. All tags in parameters should be included in the execution to match.
+}
+
+// The data received from the stream of the `ListenResult` API.
+// The data will be received over time as long as the stream is open.
+//
+// **Example**
+// ```json
+// {
+//   "executionID":   "__EXECUTION_ID__",
+//   "taskKey":       "__TASK_KEY__",
+//   "outputKey":     "__OUTPUT_KEY__",
+//   "outputData":    "{\"foo\":\"bar\"}",
+//   "executionTags": ["executionX", "test"]
+// }
+// ```
+message ResultData {
+  string executionID = 1;             // The unique identifier of the execution.
+  string taskKey = 2;                 // The key of the executed task.
+  string outputKey = 3;               // The output's key from the returned task.
+  string outputData = 4;              // The output's data from the returned task, encoded in JSON.
+  repeated string executionTags = 5;  // The list of tags associated with the execution
+}
+
+// The request's data for the `ExecuteTask` API.
+//
+// **Example**
+// ```json
+// {
+//   "serviceID":     "__SERVICE_ID__",
+//   "taskKey":       "__TASK_KEY__",
+//   "inputData":     "{\"foo\":\"bar\"}",
+//   "executionTags": ["executionX", "test"]
+// }
+// ```
+message ExecuteTaskRequest {
+  string serviceID = 1;               // The Service ID. Generated when using the [`DeployService` API](#deployservice).
+  string taskKey = 2;                 // The task's key to execute.
+  string inputData = 3;               // The inputs of the task to execute, encoded in JSON.
+  repeated string executionTags = 4;  // __Optional.__ The list of tags to associate with the execution
+}
+
+// The reply's data of the `ExecuteTask` API.
+//
+// **Example**
+// ```json
+// {
+//   "executionID": "__EXECUTION_ID__"
+// }
+// ```
+message ExecuteTaskReply {
+  string executionID = 1; // The unique identifier of the execution.
+}
+
+// The request's data for the `StartService` API.
+//
+// **Example**
+// ```json
+// {
+//   "serviceID": "__SERVICE_ID__"
+// }
+// ```
+message StartServiceRequest {
+  string serviceID = 1; // The Service ID. Generated when using the [`DeployService` API](#deployservice).
+}
+
+// Reply of `StartService` API doesn't contain any data.
+message StartServiceReply {
+}
+
+// The request's data for the `StopService` API.
+//
+// **Example**
+// ```json
+// {
+//   "serviceID": "__SERVICE_ID__"
+// }
+// ```
+message StopServiceRequest {
+  string serviceID = 1; // The Service ID. Generated when using the [`DeployService` API](#deployservice).
+}
+
+// Reply of `StopService` API doesn't contain any data.
+message StopServiceReply {
+}
+
+// The request's data for `DeployService` API.
+//
+// **Example**
+// ```json
+// {
+//   "service": {
+//     "name": "serviceX",
+//     "events": {
+//       "eventX": {
+//         "data": {
+//           "dataX": { "type": "String" }
+//         }
+//       }
+//     },
+//     "tasks": {
+//       "taskX": {
+//         "inputs": {
+//           "foo": { "type": "String" }
+//         },
+//         "outputs": {
+//           "outputX": {
+//             "data": {
+//               "resX": { "type": "String" }
+//             }
+//           }
+//         }
+//       }
+//     }
+//   }
+// }
+// ```
+message DeployServiceRequest {
+  oneof value {
+    // Git repo url of service. If url provided, stream will be closed after 
+    // first receive.
+    string url = 2;
+    
+    // Chunks of gzipped tar archive of service. If chunk provided, stream will 
+    // be closed after all chunks sent.
+    bytes chunk = 3; 
+  }
+}
+
+// The reply's data of `DeployService` API.
+//
+// **Example**
+// ```json
+// {
+//   "serviceID": "__SERVICE_ID__"
+// }
+// ```
+message DeployServiceReply {
+  message Status {
+    enum Type {
+      // RUNNING indicates that status message belongs to an active state.
+      RUNNING = 0;
+
+      // DONE indicates that status message belongs to completed state.
+      DONE = 1;
+    }
+
+    // message is status message.
+    string message = 1;
+
+    // type is the type of status message.
+    Type type = 2;
+  }
+
+  oneof value {
+    // status will be sent after each status change.
+    Status status = 2;
+
+    // serviceID will be sent as the last message of stream when
+    // service deployed successfully.
+    string serviceID = 3;
+
+    // validationError will be sent as the last message of stream when
+    // there is a validation error.
+    string validationError = 4;
+  }
+}
+
+// Request's data of the `DeleteService` API.
+//
+// **Example**
+// ```json
+// {
+//   "serviceID": "__SERVICE_ID__"
+// }
+// ```
+message DeleteServiceRequest {
+  string serviceID = 1; // The Service ID. Generated when using the [`DeployService` API](#deployservice).
+}
+
+// Reply of `DeleteService` API doesn't contain any data.
+message DeleteServiceReply {
+}
+
+// Reply of `ListServices` API doesn't contain any data.
+message ListServicesRequest {
+}
+
+// The reply's data of the `ListServices` API.
+//
+// **Example**
+// ```json
+// [{
+//   "service": {
+//     "name": "serviceX",
+//     "events": {
+//       "eventX": {
+//         "data": {
+//           "dataX": { "type": "String" }
+//         }
+//       }
+//     },
+//     "tasks": {
+//       "taskX": {
+//         "inputs": {
+//           "foo": { "type": "String" }
+//         },
+//         "outputs": {
+//           "outputX": {
+//             "data": {
+//               "resX": { "type": "String" }
+//             }
+//           }
+//         }
+//       }
+//     }
+//   }
+// }]
+// ```
+message ListServicesReply {
+  repeated service.Service services = 1; // The list of previously-deployed services' definitions. [Details here](./service-type.md).
+}
+
+// The request's data for the `GetService` API.
+//
+// **Example**
+// ```json
+// {
+//   "serviceID": "__SERVICE_ID__"
+// }
+// ```
+message GetServiceRequest {
+  string serviceID = 1; // The Service ID. Generated when using the [`DeployService` API](#deployservice).
+}
+
+// The reply's data of the `GetService` API.
+//
+// **Example**
+// ```json
+// {
+//   "service": {
+//     "name": "serviceX",
+//     "events": {
+//       "eventX": {
+//         "data": {
+//           "dataX": { "type": "String" }
+//         }
+//       }
+//     },
+//     "tasks": {
+//       "taskX": {
+//         "inputs": {
+//           "foo": { "type": "String" }
+//         },
+//         "outputs": {
+//           "outputX": {
+//             "data": {
+//               "resX": { "type": "String" }
+//             }
+//           }
+//         }
+//       }
+//     }
+//   }
+// }
+// ```
+message GetServiceReply {
+  service.Service service = 1; // Service's definition. [Details here](./service-type.md).
+}

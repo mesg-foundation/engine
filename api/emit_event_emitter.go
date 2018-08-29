@@ -1,0 +1,32 @@
+package api
+
+import (
+	"github.com/mesg-foundation/core/database/services"
+	"github.com/mesg-foundation/core/event"
+)
+
+// eventEmitter provides functionalities to emit a MESG event.
+type eventEmitter struct {
+	api *API
+}
+
+// newEventEmitter creates a new eventEmitter with given api.
+func newEventEmitter(api *API) *eventEmitter {
+	return &eventEmitter{
+		api: api,
+	}
+}
+
+// Emit emits a MESG event eventKey with eventData for service token.
+func (e *eventEmitter) Emit(token, eventKey string, eventData map[string]interface{}) error {
+	service, err := services.Get(token)
+	if err != nil {
+		return err
+	}
+	event, err := event.Create(&service, eventKey, eventData)
+	if err != nil {
+		return err
+	}
+	event.Publish()
+	return nil
+}

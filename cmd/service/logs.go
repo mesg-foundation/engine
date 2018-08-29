@@ -5,8 +5,9 @@ import (
 	"os"
 
 	"github.com/docker/docker/pkg/stdcopy"
-	"github.com/mesg-foundation/core/api/core"
 	"github.com/mesg-foundation/core/cmd/utils"
+	"github.com/mesg-foundation/core/interface/grpc/core"
+	"github.com/mesg-foundation/core/x/xsignal"
 	"github.com/spf13/cobra"
 )
 
@@ -28,7 +29,7 @@ func init() {
 func logsHandler(cmd *cobra.Command, args []string) {
 	closeReaders := showLogs(args[0], cmd.Flag("dependency").Value.String())
 	defer closeReaders()
-	<-utils.WaitForCancel()
+	<-xsignal.WaitForInterrupt()
 }
 
 func showLogs(serviceID string, dependency string) func() {

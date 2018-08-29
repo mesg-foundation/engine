@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"github.com/logrusorgru/aurora"
-	"github.com/mesg-foundation/core/api/core"
 	"github.com/mesg-foundation/core/cmd/utils"
+	"github.com/mesg-foundation/core/interface/grpc/core"
 	"github.com/spf13/cobra"
 )
 
