@@ -13,7 +13,7 @@ func TestStopRunningService(t *testing.T) {
 		Name: "TestStopRunningService",
 		Dependencies: map[string]*Dependency{
 			"test": {
-				Image: "nginx:stable-alpine",
+				Image: "http-server",
 			},
 		},
 	}
@@ -29,7 +29,7 @@ func TestStopNonRunningService(t *testing.T) {
 		Name: "TestStopNonRunningService",
 		Dependencies: map[string]*Dependency{
 			"test": {
-				Image: "nginx:stable-alpine",
+				Image: "http-server",
 			},
 		},
 	}
@@ -44,7 +44,7 @@ func TestStopDependency(t *testing.T) {
 		Name: "TestStartDependency",
 		Dependencies: map[string]*Dependency{
 			"test": {
-				Image: "nginx:stable-alpine",
+				Image: "http-server",
 			},
 		},
 	}
@@ -63,7 +63,7 @@ func TestNetworkDeleted(t *testing.T) {
 		Name: "TestNetworkDeleted",
 		Dependencies: map[string]*Dependency{
 			"test": {
-				Image: "nginx:stable-alpine",
+				Image: "http-server",
 			},
 		},
 	}

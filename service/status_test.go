@@ -12,7 +12,7 @@ func TestStatusService(t *testing.T) {
 		Name: "TestStatusService",
 		Dependencies: map[string]*Dependency{
 			"test": {
-				Image: "nginx:stable-alpine",
+				Image: "http-server",
 			},
 		},
 	}
@@ -33,7 +33,7 @@ func TestStatusDependency(t *testing.T) {
 		Name: "TestStatusDependency",
 		Dependencies: map[string]*Dependency{
 			"test": {
-				Image: "nginx:stable-alpine",
+				Image: "http-server",
 			},
 		},
 	}
@@ -55,7 +55,7 @@ func TestList(t *testing.T) {
 		Name: "TestList",
 		Dependencies: map[string]*Dependency{
 			"test": {
-				Image: "nginx:stable-alpine",
+				Image: "http-server",
 			},
 		},
 	}
@@ -73,10 +73,10 @@ func TestListMultipleDependencies(t *testing.T) {
 		Name: "TestListMultipleDependencies",
 		Dependencies: map[string]*Dependency{
 			"test": {
-				Image: "nginx:stable-alpine",
+				Image: "http-server",
 			},
 			"test2": {
-				Image: "nginx:stable-alpine",
+				Image: "http-server",
 			},
 		},
 	}
