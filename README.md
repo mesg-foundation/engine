@@ -6,6 +6,7 @@
 [Website](https://mesg.com/) - [Docs](https://docs.mesg.com/) - [Chat](https://discordapp.com/invite/SaZ5HcE) - [Blog](https://medium.com/mesg)
 
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/08deeb315efd49f5aaadcc8140dd3a65)](https://app.codacy.com/app/anthony-estebe/core?utm_source=github.com&utm_medium=referral&utm_content=mesg-foundation/core&utm_campaign=Badge_Grade_Settings)
 [![CircleCI](https://img.shields.io/circleci/project/github/mesg-foundation/core.svg)](https://github.com/mesg-foundation/core)
 [![Docker Pulls](https://img.shields.io/docker/pulls/mesg/core.svg)](https://hub.docker.com/r/mesg/core/)
 [![Maintainability](https://api.codeclimate.com/v1/badges/86ad77f7c13cde40807e/maintainability)](https://codeclimate.com/github/mesg-foundation/core/maintainability)
