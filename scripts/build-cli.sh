@@ -1,6 +1,5 @@
 #!/bin/bash -e
 
-go get ./...
 mkdir -p bin
 
 archs=(amd64 386)
