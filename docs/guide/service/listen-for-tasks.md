@@ -165,7 +165,7 @@ import (
 )
 
 func main() {
-    connection, _ := grpc.Dial(os.Getenv("MESG_ENDPOINT"), grpc.WithInsecure())
+    connection, _ := grpc.Dial(os.Getenv("MESG_ENDPOINT_TCP"), grpc.WithInsecure())
     cli := api.NewServiceClient(connection)
 
     stream, _ := cli.ListenTask(context.Background(), &api.ListenTaskRequest{
@@ -261,7 +261,7 @@ type OutputX struct {
 }
 
 func main() {
-    connection, _ := grpc.Dial(os.Getenv("MESG_ENDPOINT"), grpc.WithInsecure())
+    connection, _ := grpc.Dial(os.Getenv("MESG_ENDPOINT_TCP"), grpc.WithInsecure())
     cli := api.NewServiceClient(connection)
 
     stream, _ := cli.ListenTask(context.Background(), &api.ListenTaskRequest{

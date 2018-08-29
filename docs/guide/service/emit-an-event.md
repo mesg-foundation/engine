@@ -144,7 +144,7 @@ type EventX struct {
 }
 
 func main() {
-    connection, _ := grpc.Dial(os.Getenv("MESG_ENDPOINT"), grpc.WithInsecure())
+    connection, _ := grpc.Dial(os.Getenv("MESG_ENDPOINT_TCP"), grpc.WithInsecure())
     cli := api.NewServiceClient(connection)
 
     eventX, _ := json.Marshal(EventX{
