@@ -100,8 +100,35 @@ func TestEmitWrongEvent(t *testing.T) {
 		EventData: "{}",
 	})
 	require.Error(t, err)
-	_, notFound := err.(*service.EventNotFoundError)
-	require.True(t, notFound)
+	notFoundErr, ok := err.(*service.EventNotFoundError)
+	require.True(t, ok)
+	require.Equal(t, eventKey, notFoundErr.EventKey)
+	require.Equal(t, s.Name, notFoundErr.ServiceName)
+}
+
+func TestEmitInvalidData(t *testing.T) {
+	var (
+		path      = "../../../service-test/event"
+		eventKey  = "request"
+		eventData = `{"body":{}}`
+		server    = newServer(t)
+	)
+
+	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
+	require.Zero(t, validationErr)
+	require.NoError(t, err)
+	defer server.api.DeleteService(s.Id)
+
+	_, err = server.EmitEvent(context.Background(), &EmitEventRequest{
+		Token:     s.Id,
+		EventKey:  eventKey,
+		EventData: eventData,
+	})
+	require.Error(t, err)
+	invalidErr, ok := err.(*service.InvalidEventDataError)
+	require.True(t, ok)
+	require.Equal(t, eventKey, invalidErr.EventKey)
+	require.Equal(t, s.Name, invalidErr.ServiceName)
 }
 
 func TestServiceNotExists(t *testing.T) {

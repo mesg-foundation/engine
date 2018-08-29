@@ -24,24 +24,35 @@ func TestCreate(t *testing.T) {
 }
 
 func TestCreateNotPresentEvent(t *testing.T) {
+	var (
+		serviceName      = "TestCreateNotPresentEvent"
+		eventName        = "test"
+		invalidEventName = "testInvalid"
+	)
 	s := service.Service{
-		Name: "TestCreateNotPresentEvent",
+		Name: serviceName,
 		Events: map[string]*service.Event{
-			"test": {},
+			eventName: {},
 		},
 	}
 	var data map[string]interface{}
-	_, err := Create(&s, "testinvalid", data)
-	require.NotNil(t, err)
-	_, notFound := err.(*service.EventNotFoundError)
-	require.True(t, notFound)
+	_, err := Create(&s, invalidEventName, data)
+	require.Error(t, err)
+	notFoundErr, ok := err.(*service.EventNotFoundError)
+	require.True(t, ok)
+	require.Equal(t, invalidEventName, notFoundErr.EventKey)
+	require.Equal(t, serviceName, notFoundErr.ServiceName)
 }
 
 func TestCreateInvalidData(t *testing.T) {
+	var (
+		eventName   = "test"
+		serviceName = "TestCreateInvalidData"
+	)
 	s := service.Service{
-		Name: "TestCreateInvalidData",
+		Name: serviceName,
 		Events: map[string]*service.Event{
-			"test": {
+			eventName: {
 				Data: map[string]*service.Parameter{
 					"xxx": {},
 				},
@@ -50,7 +61,9 @@ func TestCreateInvalidData(t *testing.T) {
 	}
 	var data map[string]interface{}
 	_, err := Create(&s, "test", data)
-	require.NotNil(t, err)
-	_, invalid := err.(*service.InvalidEventDataError)
-	require.True(t, invalid)
+	require.Error(t, err)
+	invalidErr, ok := err.(*service.InvalidEventDataError)
+	require.True(t, ok)
+	require.Equal(t, eventName, invalidErr.EventKey)
+	require.Equal(t, serviceName, invalidErr.ServiceName)
 }

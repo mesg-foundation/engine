@@ -25,7 +25,7 @@ func startForTest() {
 	}
 	_, err = defaultContainer.StartService(container.ServiceOptions{
 		Namespace:  Namespace(),
-		Image:      "nginx",
+		Image:      "nginx:stable-alpine",
 		NetworksID: []string{sharedNetworkID},
 	})
 	if err != nil {

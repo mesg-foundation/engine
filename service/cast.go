@@ -11,6 +11,7 @@ type caster func(value string) (interface{}, error)
 func castString(value string) (interface{}, error) {
 	return value, nil
 }
+
 func castNumber(value string) (interface{}, error) {
 	i, err := strconv.ParseInt(value, 10, 64)
 	if err == nil {
@@ -48,17 +49,20 @@ var casters = map[string]caster{
 func (s *Service) Cast(taskKey string, taskData map[string]string) (map[string]interface{}, error) {
 	task, ok := s.Tasks[taskKey]
 	if !ok {
-		return nil, &TaskNotFoundError{Service: s, TaskKey: taskKey}
+		return nil, &TaskNotFoundError{
+			TaskKey:     taskKey,
+			ServiceName: s.Name,
+		}
 	}
 
 	m := make(map[string]interface{}, len(taskData))
 	for key, value := range taskData {
 		inputType, ok := task.Inputs[key]
 		if !ok {
-			return nil, &InputNotFoundError{
-				Service:  s,
-				TaskKey:  taskKey,
-				InputKey: key,
+			return nil, &TaskInputNotFoundError{
+				TaskKey:      taskKey,
+				TaskInputKey: key,
+				ServiceName:  s.Name,
 			}
 		}
 
