@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"io/ioutil"
+	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
@@ -15,7 +16,7 @@ import (
 )
 
 func TestDeployService(t *testing.T) {
-	path := "../service-test/task"
+	path := filepath.Join("..", "service-test", "task")
 
 	a, dt := newAPIAndDockerTest(t)
 	dt.ProvideImageBuild(ioutil.NopCloser(strings.NewReader(`{"stream":"sha256:x"}`)), nil)
@@ -70,7 +71,7 @@ func TestDeployService(t *testing.T) {
 }
 
 func TestDeployInvalidService(t *testing.T) {
-	path := "../service-test/invalid"
+	path := filepath.Join("..", "service-test", "invalid")
 
 	a, dt := newAPIAndDockerTest(t)
 	dt.ProvideImageBuild(ioutil.NopCloser(strings.NewReader(`{"stream":"sha256:x"}`)), nil)

@@ -8,12 +8,9 @@ import (
 )
 
 func TestGetService(t *testing.T) {
-	var (
-		path   = "../../../service-test/task"
-		server = newServer(t)
-	)
+	var server = newServer(t)
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
+	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.Id)
