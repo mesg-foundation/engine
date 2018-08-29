@@ -15,32 +15,42 @@ message Service {
 }
 
 // Events are emitted by the service whenever the service wants.
+// TODO(ilgooz) remove key field when Event type crafted manually.
 message Event {
-  string name = 1;                  // The event's name.
-  string description = 2;           // The event's description.
-  map<string, Parameter> data = 3;  // The list of data of this event.
+  string key = 4;                   // Event's key.
+  string name = 1;                  // Event's name.
+  string description = 2;           // Event's description.
+  string serviceName = 5;           // Event's service name.
+  map<string, Parameter> data = 3;  // List of data of this event.
 }
 
 // A task is a function that requires inputs and returns output.
+// TODO(ilgooz) remove key, serviceName fields when Task type crafted manually.
 message Task {
-  string name = 1;                    // The task's name.
-  string description = 2;             // The task's description.
-  map<string, Parameter> inputs = 6;  // The list inputs of this task.
-  map<string, Output> outputs = 7;    // The list of outputs this task can return.
+  string key = 8;                     // Task's key.
+  string name = 1;                    // Task's name.
+  string description = 2;             // Task's description.
+  string serviceName = 9;             // Task's service name.
+  map<string, Parameter> inputs = 6;  // List inputs of this task.
+  map<string, Output> outputs = 7;    // List of outputs this task can return.
 }
 
 // A output is the data a task must return.
+// TODO(ilgooz) remove key, taskKey, serviceName fields when Output type crafted manually.
 message Output {
-  string name = 1;                  // The output's name.
-  string description = 2;           // the output's description.
-  map<string, Parameter> data = 3;  // The list of data of this output.
+  string key = 4;                   // Output's key.
+  string name = 1;                  // Output's name.
+  string description = 2;           // Output's description.
+  string taskKey = 5;               // Output's task key.
+  string serviceName = 6;           // Output's service name.
+  map<string, Parameter> data = 3;  // List of data of this output.
 }
 
 // A parameter is the definition of a specific value.
 message Parameter {
-  string name = 1;        // The parameter's name.
-  string description = 2; // The parameter's description.
-  string type = 3;        // The parameter's type: `String`, `Number`, `Boolean` or `Object`.
+  string name = 1;        // Parameter's name.
+  string description = 2; // Parameter's description.
+  string type = 3;        // Parameter's type: `String`, `Number`, `Boolean` or `Object`.
   bool optional = 4;      // Set the parameter as optional.
 }
 
