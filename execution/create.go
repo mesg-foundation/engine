@@ -10,20 +10,12 @@ import (
 
 // Create creates an execution with a unique ID and puts it in the pending list.
 func Create(s *service.Service, taskKey string, taskInputs map[string]interface{}, tags []string) (*Execution, error) {
-	task, ok := s.Tasks[taskKey]
-	if !ok {
-		return nil, &service.TaskNotFoundError{
-			TaskKey:     taskKey,
-			ServiceName: s.Name,
-		}
+	task, err := s.GetTask(taskKey)
+	if err != nil {
+		return nil, err
 	}
-	warnings := s.ValidateParametersSchema(task.Inputs, taskInputs)
-	if len(warnings) > 0 {
-		return nil, &service.InvalidTaskInputError{
-			TaskKey:     taskKey,
-			ServiceName: s.Name,
-			Warnings:    warnings,
-		}
+	if err := task.RequireInputs(taskInputs); err != nil {
+		return nil, err
 	}
 	execution := &Execution{
 		Service:   s,
@@ -32,7 +24,6 @@ func Create(s *service.Service, taskKey string, taskInputs map[string]interface{
 		Tags:      tags,
 		CreatedAt: time.Now(),
 	}
-	var err error
 	execution.ID, err = generateID(execution)
 	if err != nil {
 		return nil, err

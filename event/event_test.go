@@ -32,7 +32,10 @@ func TestCreateNotPresentEvent(t *testing.T) {
 	s := service.Service{
 		Name: serviceName,
 		Events: map[string]*service.Event{
-			eventName: {},
+			eventName: {
+				Key:         eventName,
+				ServiceName: serviceName,
+			},
 		},
 	}
 	var data map[string]interface{}
@@ -53,6 +56,8 @@ func TestCreateInvalidData(t *testing.T) {
 		Name: serviceName,
 		Events: map[string]*service.Event{
 			eventName: {
+				Key:         eventName,
+				ServiceName: serviceName,
 				Data: map[string]*service.Parameter{
 					"xxx": {},
 				},
