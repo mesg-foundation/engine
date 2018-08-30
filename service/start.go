@@ -129,7 +129,7 @@ func (dependency *DependencyFromService) extractVolumes() ([]container.Mount, er
 		// TODO: move mkdir in container package
 		os.MkdirAll(filepath.Join(viper.GetString(config.ServicePathDocker), path), os.ModePerm)
 	}
-	for _, depName := range dependency.Volumesfrom {
+	for _, depName := range dependency.VolumesFrom {
 		dep := service.Dependencies[depName]
 		if dep == nil {
 			return nil, fmt.Errorf("Dependency %s do not exist", depName)

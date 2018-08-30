@@ -20,13 +20,13 @@ func TestExecute(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Id)
+	defer server.api.DeleteService(s.ID)
 
-	require.NoError(t, server.api.StartService(s.Id))
-	defer server.api.StopService(s.Id)
+	require.NoError(t, server.api.StartService(s.ID))
+	defer server.api.StopService(s.ID)
 
 	reply, err := server.ExecuteTask(context.Background(), &ExecuteTaskRequest{
-		ServiceID: s.Id,
+		ServiceID: s.ID,
 		TaskKey:   taskKey,
 		InputData: data,
 	})
@@ -43,10 +43,10 @@ func TestExecuteWithInvalidJSON(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Id)
+	defer server.api.DeleteService(s.ID)
 
 	_, err = server.ExecuteTask(context.Background(), &ExecuteTaskRequest{
-		ServiceID: s.Id,
+		ServiceID: s.ID,
 		TaskKey:   "test",
 		InputData: "",
 	})
@@ -64,13 +64,13 @@ func TestExecuteWithInvalidTask(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Id)
+	defer server.api.DeleteService(s.ID)
 
-	require.NoError(t, server.api.StartService(s.Id))
-	defer server.api.StopService(s.Id)
+	require.NoError(t, server.api.StartService(s.ID))
+	defer server.api.StopService(s.ID)
 
 	_, err = server.ExecuteTask(context.Background(), &ExecuteTaskRequest{
-		ServiceID: s.Id,
+		ServiceID: s.ID,
 		TaskKey:   taskKey,
 		InputData: "{}",
 	})
@@ -92,13 +92,13 @@ func TestExecuteWithInvalidTaskInput(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Id)
+	defer server.api.DeleteService(s.ID)
 
-	require.NoError(t, server.api.StartService(s.Id))
-	defer server.api.StopService(s.Id)
+	require.NoError(t, server.api.StartService(s.ID))
+	defer server.api.StopService(s.ID)
 
 	_, err = server.ExecuteTask(context.Background(), &ExecuteTaskRequest{
-		ServiceID: s.Id,
+		ServiceID: s.ID,
 		TaskKey:   taskKey,
 		InputData: data,
 	})
@@ -118,14 +118,14 @@ func TestExecuteWithNonRunningService(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Id)
+	defer server.api.DeleteService(s.ID)
 
 	_, err = server.ExecuteTask(context.Background(), &ExecuteTaskRequest{
-		ServiceID: s.Id,
+		ServiceID: s.ID,
 		TaskKey:   "test",
 		InputData: "{}",
 	})
-	require.Equal(t, &api.NotRunningServiceError{ServiceID: s.Id}, err)
+	require.Equal(t, &api.NotRunningServiceError{ServiceID: s.ID}, err)
 }
 
 func TestExecuteWithNonExistingService(t *testing.T) {

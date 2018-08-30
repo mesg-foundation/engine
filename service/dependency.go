@@ -4,6 +4,25 @@ import (
 	"sort"
 )
 
+// Dependency represents a Docker container and it holds instructions about
+// how it should run.
+type Dependency struct {
+	// Image the Docker image.
+	Image string `hash:"name:1" yaml:"image"`
+
+	// Volumes.
+	Volumes []string `hash:"name:2" yaml:"volumes"`
+
+	// VolumesFrom.
+	VolumesFrom []string `hash:"name:3" yaml:"volumesfrom"`
+
+	// Ports holds ports configuration for container.
+	Ports []string `hash:"name:4" yaml:"ports"`
+
+	// Command to execute.
+	Command string `hash:"name:5" yaml:"command"`
+}
+
 // DependencyFromService represents a Dependency with a pointer to its service and its name.
 type DependencyFromService struct {
 	*Dependency

@@ -2,11 +2,11 @@
 
 
 
-# Data service
+# Data core
 <!--
 DO NOT EDIT
 This file is generated using the ./scripts/build-proto.sh scripts
-Please update the github.com/mesg-foundation/core/service/service.proto file
+Please update the github.com/mesg-foundation/core/interface/grpc/core/service.proto file
 -->
 
 
@@ -34,13 +34,13 @@ This is the definition of a MESG Service.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| id | [string](#string) | Service's unique id hash. |
+| id | [string](#string) | Service's unique id service hash. |
 | name | [string](#string) | Service's name. |
 | description | [string](#string) | Service's description. |
-| tasks | [Service.TasksEntry](#service.Service.TasksEntry)[] | The list of tasks this service can execute. |
-| events | [Service.EventsEntry](#service.Service.EventsEntry)[] | The list of events this service can emit. |
-| dependencies | [Service.DependenciesEntry](#service.Service.DependenciesEntry)[] | The Docker dependencies this service requires. |
-| configuration | [Dependency](#service.Dependency) | Service's Docker configuration. |
+| tasks | [Service.TasksEntry](#core.Service.TasksEntry)[] | The list of tasks this service can execute. |
+| events | [Service.EventsEntry](#core.Service.EventsEntry)[] | The list of events this service can emit. |
+| dependencies | [Service.DependenciesEntry](#core.Service.DependenciesEntry)[] | The Docker dependencies this service requires. |
+| configuration | [Dependency](#core.Dependency) | Service's Docker configuration. |
 | repository | [string](#string) | Service's repository that contain its source code. |
 
 
@@ -83,13 +83,16 @@ A dependency is a configuration of an other Docker container that runs separatel
 
 #### Event
 Events are emitted by the service whenever the service wants.
+TODO(ilgooz) remove key, serviceName fields when Event type crafted manually.
 
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| name | [string](#string) | The event's name. |
-| description | [string](#string) | The event's description. |
-| data | [Event.DataEntry](#service.Event.DataEntry)[] | The list of data of this event. |
+| key | [string](#string) | Event's key. |
+| name | [string](#string) | Event's name. |
+| description | [string](#string) | Event's description. |
+| serviceName | [string](#string) | Event's service name. |
+| data | [Event.DataEntry](#core.Event.DataEntry)[] | List of data of this event. |
 
 
 
@@ -104,7 +107,7 @@ Events are emitted by the service whenever the service wants.
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | key | [string](#string) |  |
-| value | [Parameter](#service.Parameter) |  |
+| value | [Parameter](#core.Parameter) |  |
 
 
 
@@ -114,13 +117,17 @@ Events are emitted by the service whenever the service wants.
 
 #### Output
 A output is the data a task must return.
+TODO(ilgooz) remove key, taskKey, serviceName fields when Output type crafted manually.
 
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| name | [string](#string) | The output's name. |
-| description | [string](#string) | the output's description. |
-| data | [Output.DataEntry](#service.Output.DataEntry)[] | The list of data of this output. |
+| key | [string](#string) | Output's key. |
+| name | [string](#string) | Output's name. |
+| description | [string](#string) | Output's description. |
+| taskKey | [string](#string) | Output's task key. |
+| serviceName | [string](#string) | Output's service name. |
+| data | [Output.DataEntry](#core.Output.DataEntry)[] | List of data of this output. |
 
 
 
@@ -135,7 +142,7 @@ A output is the data a task must return.
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | key | [string](#string) |  |
-| value | [Parameter](#service.Parameter) |  |
+| value | [Parameter](#core.Parameter) |  |
 
 
 
@@ -149,9 +156,9 @@ A parameter is the definition of a specific value.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| name | [string](#string) | The parameter's name. |
-| description | [string](#string) | The parameter's description. |
-| type | [string](#string) | The parameter's type: `String`, `Number`, `Boolean` or `Object`. |
+| name | [string](#string) | Parameter's name. |
+| description | [string](#string) | Parameter's description. |
+| type | [string](#string) | Parameter's type: `String`, `Number`, `Boolean` or `Object`. |
 | optional | [bool](#bool) | Set the parameter as optional. |
 
 
@@ -169,7 +176,7 @@ A parameter is the definition of a specific value.
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | key | [string](#string) |  |
-| value | [Dependency](#service.Dependency) |  |
+| value | [Dependency](#core.Dependency) |  |
 
 
 
@@ -184,7 +191,7 @@ A parameter is the definition of a specific value.
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | key | [string](#string) |  |
-| value | [Event](#service.Event) |  |
+| value | [Event](#core.Event) |  |
 
 
 
@@ -199,7 +206,7 @@ A parameter is the definition of a specific value.
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | key | [string](#string) |  |
-| value | [Task](#service.Task) |  |
+| value | [Task](#core.Task) |  |
 
 
 
@@ -209,14 +216,17 @@ A parameter is the definition of a specific value.
 
 #### Task
 A task is a function that requires inputs and returns output.
+TODO(ilgooz) remove key, serviceName fields when Task type crafted manually.
 
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| name | [string](#string) | The task's name. |
-| description | [string](#string) | The task's description. |
-| inputs | [Task.InputsEntry](#service.Task.InputsEntry)[] | The list inputs of this task. |
-| outputs | [Task.OutputsEntry](#service.Task.OutputsEntry)[] | The list of outputs this task can return. |
+| key | [string](#string) | Task's key. |
+| name | [string](#string) | Task's name. |
+| description | [string](#string) | Task's description. |
+| serviceName | [string](#string) | Task's service name. |
+| inputs | [Task.InputsEntry](#core.Task.InputsEntry)[] | List inputs of this task. |
+| outputs | [Task.OutputsEntry](#core.Task.OutputsEntry)[] | List of outputs this task can return. |
 
 
 
@@ -231,7 +241,7 @@ A task is a function that requires inputs and returns output.
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | key | [string](#string) |  |
-| value | [Parameter](#service.Parameter) |  |
+| value | [Parameter](#core.Parameter) |  |
 
 
 
@@ -246,7 +256,7 @@ A task is a function that requires inputs and returns output.
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | key | [string](#string) |  |
-| value | [Output](#service.Output) |  |
+| value | [Output](#core.Output) |  |
 
 
 

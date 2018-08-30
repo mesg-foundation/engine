@@ -16,5 +16,5 @@ func TestListServices(t *testing.T) {
 	services, err := server.api.ListServices()
 	require.NoError(t, err)
 
-	require.Equal(t, services, reply.Services)
+	require.Equal(t, toGRPCServices(services), reply.Services)
 }

@@ -107,6 +107,7 @@ func (d *serviceDeployer) deploy(path string) (*service.Service, *importer.Valid
 	d.sendStatus(fmt.Sprintf("%s Image built with success.", aurora.Green("✔")), DONE)
 	d.adjustFields(s)
 	d.injectConfigurationInDependencies(s, imageHash)
+	s.ID = s.Hash()
 
 	d.sendStatus(fmt.Sprintf("%s Completed.", aurora.Green("✔")), DONE)
 	return s, nil, services.Save(s)
@@ -137,7 +138,7 @@ func (d *serviceDeployer) injectConfigurationInDependencies(s *service.Service, 
 		Command:     config.Command,
 		Ports:       config.Ports,
 		Volumes:     config.Volumes,
-		Volumesfrom: config.Volumesfrom,
+		VolumesFrom: config.VolumesFrom,
 		Image:       imageHash,
 	}
 	if s.Dependencies == nil {

@@ -43,7 +43,7 @@ func deleteHandler(cmd *cobra.Command, args []string) {
 			return
 		}
 		for _, service := range reply.Services {
-			args = append(args, service.Hash())
+			args = append(args, service.Id)
 		}
 	}
 	if len(args) == 0 {

@@ -10,7 +10,7 @@ import (
 func TestAll(t *testing.T) {
 	service := &service.Service{Name: "Service1"}
 	Save(service)
-	defer Delete(service.Id)
+	defer Delete(service.ID)
 	services, err := All()
 	founded := false
 	for _, s := range services {
