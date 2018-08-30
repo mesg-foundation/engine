@@ -75,6 +75,8 @@ func TestCreateInvalidInputs(t *testing.T) {
 		Name: serviceName,
 		Tasks: map[string]*service.Task{
 			taskKey: {
+				Key:         taskKey,
+				ServiceName: serviceName,
 				Inputs: map[string]*service.Parameter{
 					"foo": {
 						Type: "String",

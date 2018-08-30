@@ -65,8 +65,7 @@ func TestObject(t *testing.T) {
 }
 
 func TestValidateParameters(t *testing.T) {
-	s := &Service{}
-	require.Len(t, s.ValidateParametersSchema(eventDataSchema, map[string]interface{}{
+	require.Len(t, validateParametersSchema(eventDataSchema, map[string]interface{}{
 		"string":  "hello",
 		"number":  10,
 		"boolean": true,
@@ -74,7 +73,7 @@ func TestValidateParameters(t *testing.T) {
 			"foo": "bar",
 		},
 	}), 0)
-	require.Len(t, s.ValidateParametersSchema(eventDataSchema, map[string]interface{}{
+	require.Len(t, validateParametersSchema(eventDataSchema, map[string]interface{}{
 		"optional": "yeah",
 		"string":   "hello",
 		"number":   10,
@@ -88,7 +87,7 @@ func TestValidateParameters(t *testing.T) {
 	//  - invalid number
 	//  - invalid boolean
 	//  - invalid object
-	require.Len(t, s.ValidateParametersSchema(eventDataSchema, map[string]interface{}{
+	require.Len(t, validateParametersSchema(eventDataSchema, map[string]interface{}{
 		"number":  "string",
 		"boolean": 42,
 		"object":  false,
