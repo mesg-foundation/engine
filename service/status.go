@@ -27,7 +27,7 @@ var containerStatusTypeMappings = map[container.StatusType]StatusType{
 func (service *Service) Status() (StatusType, error) {
 	var (
 		dependencies = service.DependenciesFromService()
-		statuses     map[container.StatusType]bool
+		statuses     = make(map[container.StatusType]bool)
 	)
 	for _, d := range dependencies {
 		status, err := d.Status()
