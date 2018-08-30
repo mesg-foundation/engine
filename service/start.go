@@ -88,10 +88,7 @@ func (dependency *DependencyFromService) Start(networkID string) (containerServi
 			"MESG_ENDPOINT":     endpoint,
 			"MESG_ENDPOINT_TCP": endpoint,
 		}),
-		Mounts: append(mounts, container.Mount{
-			Source: viper.GetString(config.APIServiceSocketPath),
-			Target: viper.GetString(config.APIServiceTargetPath),
-		}),
+		Mounts:     mounts,
 		Ports:      dependency.extractPorts(),
 		NetworksID: []string{networkID, sharedNetworkID},
 	})
