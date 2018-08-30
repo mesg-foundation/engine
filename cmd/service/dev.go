@@ -2,9 +2,11 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/cmd/utils"
@@ -17,7 +19,7 @@ import (
 // It will also listen for all events and outputs from the tasks
 var Dev = &cobra.Command{
 	Use:               "dev",
-	Short:             "Run your service in development mode",
+	Short:             "Run a service in development mode",
 	Example:           "mesg-core service dev PATH",
 	Run:               devHandler,
 	DisableAutoGenTag: true,
@@ -31,10 +33,10 @@ func init() {
 
 func devHandler(cmd *cobra.Command, args []string) {
 	serviceID, isValid, err := createService(defaultPath(args))
+	utils.HandleError(err)
 	if !isValid {
 		os.Exit(1)
 	}
-	utils.HandleError(err)
 	fmt.Printf("%s Service started with success\n", aurora.Green("✔"))
 	fmt.Printf("Service ID: %s\n", aurora.Bold(serviceID))
 
@@ -46,7 +48,7 @@ func devHandler(cmd *cobra.Command, args []string) {
 
 	<-xsignal.WaitForInterrupt()
 
-	utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: "Deleting test service..."}, func() {
+	utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: "Stopping service..."}, func() {
 		cli().DeleteService(context.Background(), &core.DeleteServiceRequest{ // Delete service. This will automatically stop the service too
 			ServiceID: serviceID,
 		})
@@ -80,7 +82,7 @@ func listenEvents(serviceID string, filter string) {
 			log.Println(aurora.Red(err))
 			return
 		}
-		logrus.Info("Receive event", aurora.Green(event.EventKey), ":", aurora.Bold(event.EventData))
+		log.Println("Receive event", aurora.Green(event.EventKey), "with data", formatJSON(event.EventData))
 	}
 }
 
@@ -98,6 +100,18 @@ func listenResults(serviceID string, result string, output string) {
 			log.Println(aurora.Red(err))
 			return
 		}
-		logrus.Info("Receive result", aurora.Green(result.TaskKey), aurora.Cyan(result.OutputKey), "with data", aurora.Bold(result.OutputData))
+		log.Println("Receive result", aurora.Green(result.TaskKey), aurora.Cyan(result.OutputKey), "with data", formatJSON(result.OutputData))
 	}
+}
+
+func formatJSON(data string) string {
+	var decoded map[string]interface{}
+	if err := json.Unmarshal([]byte(data), &decoded); err != nil {
+		return data
+	}
+	var outputs []string
+	for key, value := range decoded {
+		outputs = append(outputs, fmt.Sprintf("%v = %v", aurora.Cyan(key), value))
+	}
+	return strings.Join(outputs, ", ")
 }
