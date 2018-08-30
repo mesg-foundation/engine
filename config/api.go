@@ -9,12 +9,10 @@ import (
 	"github.com/spf13/viper"
 )
 
-// All the configuration keys.
+// All the API configuration keys.
 const (
 	APIServerAddress  = "Api.Server.Address"
 	APIClientTarget   = "Api.Client.Target"
-	LogFormat         = "Log.Format"
-	LogLevel          = "Log.Level"
 	ServicePathHost   = "Service.Path.Host"
 	ServicePathDocker = "Service.Path.Docker"
 	MESGPath          = "MESG.Path"
@@ -30,9 +28,6 @@ func setAPIDefault() {
 	os.MkdirAll("/mesg", os.ModePerm)
 
 	viper.SetDefault(APIClientTarget, viper.GetString(APIServerAddress))
-
-	viper.SetDefault(LogFormat, "text")
-	viper.SetDefault(LogLevel, "info")
 
 	viper.SetDefault(ServicePathHost, filepath.Join(viper.GetString(MESGPath), "services"))
 	viper.SetDefault(ServicePathDocker, filepath.Join("/mesg", "services"))
