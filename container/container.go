@@ -25,14 +25,14 @@ type Option func(*Container)
 // New creates a new Container with given options.
 func New(options ...Option) (*Container, error) {
 	c := &Container{
-		callTimeout: time.Second * 10,
+		callTimeout: 10 * time.Second,
 	}
 	for _, option := range options {
 		option(c)
 	}
 	var err error
 	if c.client == nil {
-		c.client, err = docker.NewClientWithOpts(docker.FromEnv)
+		c.client, err = docker.NewEnvClient()
 		if err != nil {
 			return c, err
 		}
@@ -105,18 +105,26 @@ func (c *Container) FindContainer(namespace []string) (types.ContainerJSON, erro
 	return c.client.ContainerInspect(ctx, containerID)
 }
 
-// Status returns the status of a docker container.
+// Status returns the status of a docker container and servcie.
 func (c *Container) Status(namespace []string) (StatusType, error) {
-	status := STOPPED
-	container, err := c.FindContainer(namespace)
+	_, err := c.FindService(namespace)
 	if docker.IsErrNotFound(err) {
-		return status, nil
+		return STOPPED, nil
 	}
 	if err != nil {
-		return status, err
+		return UNKNOWN, err
 	}
+
+	container, err := c.FindContainer(namespace)
+	if docker.IsErrNotFound(err) {
+		return STARTING, nil
+	}
+	if err != nil {
+		return UNKNOWN, err
+	}
+
 	if container.State.Running {
-		status = RUNNING
+		return RUNNING, nil
 	}
-	return status, nil
+	return STARTING, nil
 }
