@@ -12,8 +12,8 @@ func TestGet(t *testing.T) {
 		Name: "TestGet",
 	}
 	Save(service)
-	defer Delete(service.Id)
-	srv, err := Get(service.Id)
+	defer Delete(service.ID)
+	srv, err := Get(service.ID)
 	require.Nil(t, err)
 	require.Equal(t, srv.Name, "TestGet")
 }
