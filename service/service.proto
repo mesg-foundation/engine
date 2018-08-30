@@ -15,7 +15,7 @@ message Service {
 }
 
 // Events are emitted by the service whenever the service wants.
-// TODO(ilgooz) remove key field when Event type crafted manually.
+// TODO(ilgooz) remove key, serviceName fields when Event type crafted manually.
 message Event {
   string key = 4;                   // Event's key.
   string name = 1;                  // Event's name.
