@@ -11,3 +11,9 @@ func TestColorizeJSON(t *testing.T) {
 	colorized := ColorizeJSON(jsonStringified)
 	require.Equal(t, "\x1b[36mkey1\x1b[0m = value1, \x1b[36mkey2\x1b[0m = value2", colorized)
 }
+
+func TestColorizeJSONFailed(t *testing.T) {
+	notJSON := "value"
+	colorized := ColorizeJSON(notJSON)
+	require.Equal(t, notJSON, colorized)
+}
