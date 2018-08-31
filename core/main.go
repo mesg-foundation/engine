@@ -22,31 +22,12 @@ func main() {
 		Address: viper.GetString(config.APIServerAddress),
 	}
 
-	unixServer := &grpc.Server{
-		Network: "unix",
-		Address: viper.GetString(config.APIServerSocket),
-	}
-
-	go startServer(tcpServer)
-	go startServer(unixServer)
-
-	closing := make(chan struct{}, 2)
+	go func() {
+		if err := tcpServer.Serve(); err != nil {
+			logrus.Fatalln(err)
+		}
+	}()
 
 	<-xsignal.WaitForInterrupt()
-
-	go closeServer(tcpServer, closing)
-	go closeServer(unixServer, closing)
-	<-closing
-	<-closing
-}
-
-func startServer(server *grpc.Server) {
-	if err := server.Serve(); err != nil {
-		logrus.Fatalln(err)
-	}
-}
-
-func closeServer(server *grpc.Server, closing chan struct{}) {
-	server.Close()
-	closing <- struct{}{}
+	tcpServer.Close()
 }
