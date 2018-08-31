@@ -5,10 +5,10 @@ import (
 )
 
 // Logs returns the service's docker service logs. Optionally only shows the logs of a given dependency.
-func (service *Service) Logs(onlyForDependency string) ([]io.ReadCloser, error) {
+func (s *Service) Logs(onlyForDependency string) ([]io.ReadCloser, error) {
 	var readers []io.ReadCloser
-	for _, dep := range service.DependenciesFromService() {
-		if onlyForDependency == "" || onlyForDependency == "*" || onlyForDependency == dep.Name {
+	for _, dep := range s.Dependencies {
+		if onlyForDependency == "" || onlyForDependency == "*" || onlyForDependency == dep.Key {
 			var reader io.ReadCloser
 			reader, err := defaultContainer.ServiceLogs(dep.namespace())
 			if err != nil {

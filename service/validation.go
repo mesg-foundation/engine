@@ -18,12 +18,12 @@ func (p *ParameterWarning) String() string {
 // ValidateParametersSchema validates data to see if it matches with parameters schema.
 // TODO(ilgooz) add this as a method to Service type when create custom types for Event, Task etc.
 // TODO(ilgooz) remove pointer from *Parameter.
-func validateParametersSchema(parameters map[string]*Parameter,
+func validateParametersSchema(parameters []*Parameter,
 	data map[string]interface{}) []*ParameterWarning {
 	warnings := make([]*ParameterWarning, 0)
 
-	for key, parameter := range parameters {
-		warning := newParameterValidator(key, parameter).Validate(data[key])
+	for _, param := range parameters {
+		warning := newParameterValidator(param).Validate(data[param.Key])
 		if warning != nil {
 			warnings = append(warnings, warning)
 		}
@@ -34,12 +34,11 @@ func validateParametersSchema(parameters map[string]*Parameter,
 
 // parameterValidator provides functionalities to check data against its parameter schema.
 type parameterValidator struct {
-	key       string
 	parameter *Parameter
 }
 
-func newParameterValidator(key string, parameter *Parameter) *parameterValidator {
-	return &parameterValidator{key, parameter}
+func newParameterValidator(parameter *Parameter) *parameterValidator {
+	return &parameterValidator{parameter}
 }
 
 // Validate validates value by comparing to its parameter schema.
@@ -92,7 +91,7 @@ func (v *parameterValidator) validateType(value interface{}) *ParameterWarning {
 // newParameterWarning creates a ParameterWarning with given warning message.
 func (v *parameterValidator) newParameterWarning(warning string) *ParameterWarning {
 	return &ParameterWarning{
-		Key:       v.key,
+		Key:       v.parameter.Key,
 		Warning:   warning,
 		Parameter: v.parameter,
 	}

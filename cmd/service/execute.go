@@ -57,7 +57,7 @@ func executeHandler(cmd *cobra.Command, args []string) {
 	sv, err := services.Get(serviceReply.Service.ID)
 	utils.HandleError(err)
 
-	taskData, err := getData(cmd, taskKey, &sv, executeData)
+	taskData, err := getData(cmd, taskKey, sv, executeData)
 	utils.HandleError(err)
 
 	// Create an unique tag that will be used to listen to the result of this exact execution
@@ -98,8 +98,8 @@ func executeTask(serviceID string, task string, data string, tags []string) (exe
 
 func taskKeysFromService(s *core.Service) []string {
 	var taskKeys []string
-	for key := range s.Tasks {
-		taskKeys = append(taskKeys, key)
+	for _, task := range s.Tasks {
+		taskKeys = append(taskKeys, task.Key)
 	}
 	return taskKeys
 }

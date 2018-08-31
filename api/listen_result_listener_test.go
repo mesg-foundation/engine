@@ -12,11 +12,13 @@ func TestValidateTaskKey(t *testing.T) {
 	a, _ := newAPIAndDockerTest(t)
 	ln := newResultListener(a)
 
-	s := &service.Service{
-		Tasks: map[string]*service.Task{
-			"test": {},
+	s, _ := service.FromService(&service.Service{
+		Tasks: []*service.Task{
+			{
+				Key: "test",
+			},
 		},
-	}
+	}, service.ContainerOption(a.container))
 
 	ln.taskKey = ""
 	require.Nil(t, ln.validateTaskKey(s))
@@ -35,15 +37,18 @@ func TestValidateOutputKey(t *testing.T) {
 	a, _ := newAPIAndDockerTest(t)
 	ln := newResultListener(a)
 
-	s := &service.Service{
-		Tasks: map[string]*service.Task{
-			"test": {
-				Outputs: map[string]*service.Output{
-					"outputx": {},
+	s, _ := service.FromService(&service.Service{
+		Tasks: []*service.Task{
+			{
+				Key: "test",
+				Outputs: []*service.Output{
+					{
+						Key: "outputx",
+					},
 				},
 			},
 		},
-	}
+	}, service.ContainerOption(a.container))
 
 	ln.taskKey = "test"
 	ln.outputKey = ""

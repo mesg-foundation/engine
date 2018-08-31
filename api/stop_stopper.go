@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/mesg-foundation/core/database/services"
+	"github.com/mesg-foundation/core/service"
 )
 
 // serviceStopper provides functionalities to stop a MESG service.
@@ -18,9 +19,13 @@ func newServiceStopper(api *API) *serviceStopper {
 
 // Stop stops service serviceID.
 func (s *serviceStopper) Stop(serviceID string) error {
-	service, err := services.Get(serviceID)
+	sr, err := services.Get(serviceID)
 	if err != nil {
 		return err
 	}
-	return service.Stop()
+	sr, err = service.FromService(sr, service.ContainerOption(s.api.container))
+	if err != nil {
+		return err
+	}
+	return sr.Stop()
 }

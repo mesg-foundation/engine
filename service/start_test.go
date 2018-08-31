@@ -30,14 +30,15 @@ func TestExtractPorts(t *testing.T) {
 }
 
 func TestStartService(t *testing.T) {
-	service := &Service{
+	service, _ := FromService(&Service{
 		Name: "TestStartService",
-		Dependencies: map[string]*Dependency{
-			"test": {
+		Dependencies: []*Dependency{
+			{
+				Key:   "test",
 				Image: "nginx:stable-alpine",
 			},
 		},
-	}
+	}, ContainerOption(defaultContainer))
 	dockerServices, err := service.Start()
 	defer service.Stop()
 	require.Nil(t, err)
@@ -47,22 +48,24 @@ func TestStartService(t *testing.T) {
 }
 
 func TestStartWith2Dependencies(t *testing.T) {
-	service := &Service{
+	service, _ := FromService(&Service{
 		Name: "TestStartWith2Dependencies",
-		Dependencies: map[string]*Dependency{
-			"testa": {
+		Dependencies: []*Dependency{
+			{
+				Key:   "testa",
 				Image: "nginx:stable-alpine",
 			},
-			"testb": {
+			{
+				Key:   "testb",
 				Image: "alpine:latest",
 			},
 		},
-	}
+	}, ContainerOption(defaultContainer))
 	servicesID, err := service.Start()
 	defer service.Stop()
 	require.Nil(t, err)
 	require.Equal(t, 2, len(servicesID))
-	deps := service.DependenciesFromService()
+	deps := service.Dependencies
 	container1, err1 := defaultContainer.FindContainer(deps[0].namespace())
 	container2, err2 := defaultContainer.FindContainer(deps[1].namespace())
 	require.Nil(t, err1)
@@ -72,14 +75,15 @@ func TestStartWith2Dependencies(t *testing.T) {
 }
 
 func TestStartAgainService(t *testing.T) {
-	service := &Service{
+	service, _ := FromService(&Service{
 		Name: "TestStartAgainService",
-		Dependencies: map[string]*Dependency{
-			"test": {
+		Dependencies: []*Dependency{
+			{
+				Key:   "test",
 				Image: "nginx:stable-alpine",
 			},
 		},
-	}
+	}, ContainerOption(defaultContainer))
 	service.Start()
 	defer service.Stop()
 	dockerServices, err := service.Start()
@@ -90,20 +94,22 @@ func TestStartAgainService(t *testing.T) {
 }
 
 func TestPartiallyRunningService(t *testing.T) {
-	service := &Service{
+	service, _ := FromService(&Service{
 		Name: "TestPartiallyRunningService",
-		Dependencies: map[string]*Dependency{
-			"testa": {
+		Dependencies: []*Dependency{
+			{
+				Key:   "testa",
 				Image: "nginx:stable-alpine",
 			},
-			"testb": {
+			{
+				Key:   "testb",
 				Image: "nginx:stable-alpine",
 			},
 		},
-	}
+	}, ContainerOption(defaultContainer))
 	service.Start()
 	defer service.Stop()
-	service.DependenciesFromService()[0].Stop()
+	service.Dependencies[0].Stop()
 	status, _ := service.Status()
 	require.Equal(t, PARTIAL, status)
 	dockerServices, err := service.Start()
@@ -114,17 +120,18 @@ func TestPartiallyRunningService(t *testing.T) {
 }
 
 func TestStartDependency(t *testing.T) {
-	service := &Service{
+	service, _ := FromService(&Service{
 		Name: "TestStartDependency",
-		Dependencies: map[string]*Dependency{
-			"test": {
+		Dependencies: []*Dependency{
+			{
+				Key:   "test",
 				Image: "nginx:stable-alpine",
 			},
 		},
-	}
+	}, ContainerOption(defaultContainer))
 	networkID, err := defaultContainer.CreateNetwork(service.namespace())
 	defer defaultContainer.DeleteNetwork(service.namespace())
-	dep := service.DependenciesFromService()[0]
+	dep := service.Dependencies[0]
 	serviceID, err := dep.Start(networkID)
 	defer dep.Stop()
 	require.Nil(t, err)
@@ -134,14 +141,15 @@ func TestStartDependency(t *testing.T) {
 }
 
 func TestNetworkCreated(t *testing.T) {
-	service := &Service{
+	service, _ := FromService(&Service{
 		Name: "TestNetworkCreated",
-		Dependencies: map[string]*Dependency{
-			"test": {
+		Dependencies: []*Dependency{
+			{
+				Key:   "test",
 				Image: "nginx:stable-alpine",
 			},
 		},
-	}
+	}, ContainerOption(defaultContainer))
 	service.Start()
 	defer service.Stop()
 	network, err := defaultContainer.FindNetwork(service.namespace())
@@ -151,14 +159,15 @@ func TestNetworkCreated(t *testing.T) {
 
 // Test for https://github.com/mesg-foundation/core/issues/88
 func TestStartStopStart(t *testing.T) {
-	service := &Service{
+	service, _ := FromService(&Service{
 		Name: "TestStartStopStart",
-		Dependencies: map[string]*Dependency{
-			"test": {
+		Dependencies: []*Dependency{
+			{
+				Key:   "test",
 				Image: "nginx:stable-alpine",
 			},
 		},
-	}
+	}, ContainerOption(defaultContainer))
 	service.Start()
 	service.Stop()
 	time.Sleep(10 * time.Second)
@@ -172,25 +181,27 @@ func TestStartStopStart(t *testing.T) {
 
 func TestServiceDependenciesListensFromSamePort(t *testing.T) {
 	var (
-		service = &Service{
+		service, _ = FromService(&Service{
 			Name: "TestServiceDependenciesListensFromSamePort",
-			Dependencies: map[string]*Dependency{
-				"test": {
+			Dependencies: []*Dependency{
+				{
+					Key:   "test",
 					Image: "nginx:stable-alpine",
 					Ports: []string{"80"},
 				},
 			},
-		}
+		}, ContainerOption(defaultContainer))
 
-		service1 = &Service{
+		service1, _ = FromService(&Service{
 			Name: "TestServiceDependenciesListensFromSamePort1",
-			Dependencies: map[string]*Dependency{
-				"test": {
+			Dependencies: []*Dependency{
+				{
+					Key:   "test",
 					Image: "nginx:stable-alpine",
 					Ports: []string{"80"},
 				},
 			},
-		}
+		}, ContainerOption(defaultContainer))
 	)
 	_, err := service.Start()
 	require.NoError(t, err)

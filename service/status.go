@@ -15,11 +15,11 @@ const (
 )
 
 // Status returns StatusType of all dependency.
-func (service *Service) Status() (StatusType, error) {
+func (s *Service) Status() (StatusType, error) {
 	status := STOPPED
 	allRunning := true
-	for _, dependency := range service.DependenciesFromService() {
-		depStatus, err := dependency.Status()
+	for _, dep := range s.Dependencies {
+		depStatus, err := dep.Status()
 		if err != nil {
 			return status, err
 		}
@@ -36,8 +36,8 @@ func (service *Service) Status() (StatusType, error) {
 }
 
 // Status returns StatusType of dependency's container.
-func (dependency *DependencyFromService) Status() (container.StatusType, error) {
-	return defaultContainer.ServiceStatus(dependency.namespace())
+func (d *Dependency) Status() (container.StatusType, error) {
+	return defaultContainer.ServiceStatus(d.namespace())
 }
 
 // ListRunning returns all the running services.2
