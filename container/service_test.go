@@ -44,6 +44,7 @@ func TestStopService(t *testing.T) {
 
 	require.Nil(t, c.StopService(namespace))
 	require.Equal(t, Namespace(namespace), (<-dt.LastServiceRemove()).ServiceID)
+	require.Equal(t, Namespace(namespace), (<-dt.LastServiceInspectWithRaw()).ServiceID)
 }
 
 func TestStopNotExistingService(t *testing.T) {

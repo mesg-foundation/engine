@@ -121,6 +121,8 @@ func TestNonExistentContainerStatus(t *testing.T) {
 	status, err := c.Status(namespace)
 	require.NoError(t, err)
 	require.Equal(t, STOPPED, status)
+
+	require.Equal(t, Namespace(namespace), (<-dt.LastServiceInspectWithRaw()).ServiceID)
 }
 
 func TestExistentContainerStatus(t *testing.T) {
