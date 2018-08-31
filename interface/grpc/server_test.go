@@ -13,8 +13,8 @@ const (
 
 func TestServerServe(t *testing.T) {
 	s := Server{
-		Network: "unix",
-		Address: "TestServerServe.sock",
+		Network: "tcp",
+		Address: "localhost:50052",
 	}
 	go func() {
 		time.Sleep(waitForServe)
@@ -36,8 +36,8 @@ func TestServerServeNoAddress(t *testing.T) {
 
 func TestServerListenAfterClose(t *testing.T) {
 	s := Server{
-		Network: "unix",
-		Address: "TestServerListenAfterClose.sock",
+		Network: "tcp",
+		Address: "localhost:50052",
 	}
 	go s.Serve()
 	time.Sleep(waitForServe)

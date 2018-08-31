@@ -2,7 +2,6 @@ package grpc
 
 import (
 	"net"
-	"os"
 	"sync"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware"
@@ -32,10 +31,6 @@ func (s *Server) listen() (net.Listener, error) {
 
 	if s.closed {
 		return nil, &alreadyClosedError{}
-	}
-
-	if s.Network == "unix" {
-		os.Remove(s.Address)
 	}
 
 	ln, err := net.Listen(s.Network, s.Address)

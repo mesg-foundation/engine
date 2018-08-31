@@ -59,7 +59,10 @@ func TestCompleteNotFound(t *testing.T) {
 	s := service.Service{
 		Name: serviceName,
 		Tasks: map[string]*service.Task{
-			taskKey: {},
+			taskKey: {
+				Key:         taskKey,
+				ServiceName: serviceName,
+			},
 		},
 	}
 	var inputs map[string]interface{}
@@ -85,8 +88,13 @@ func TestCompleteInvalidOutputs(t *testing.T) {
 		Name: serviceName,
 		Tasks: map[string]*service.Task{
 			taskKey: {
+				Key:         taskKey,
+				ServiceName: serviceName,
 				Outputs: map[string]*service.Output{
 					outputKey: {
+						Key:         outputKey,
+						TaskKey:     taskKey,
+						ServiceName: serviceName,
 						Data: map[string]*service.Parameter{
 							"foo": {},
 						},
