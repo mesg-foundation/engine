@@ -126,8 +126,10 @@ func (dependency *DependencyFromService) extractVolumes() ([]container.Mount, er
 			Source: source,
 			Target: volume,
 		})
-		// TODO: move mkdir in container package
-		os.MkdirAll(filepath.Join(viper.GetString(config.ServicePathDocker), path), os.ModePerm)
+		err := os.MkdirAll(filepath.Join(viper.GetString(config.ServicePathDocker), path), os.ModePerm)
+		if os.IsExist(err) == false {
+			return nil, err
+		}
 	}
 	for _, depName := range dependency.Volumesfrom {
 		dep := service.Dependencies[depName]
@@ -141,8 +143,10 @@ func (dependency *DependencyFromService) extractVolumes() ([]container.Mount, er
 				Source: source,
 				Target: volume,
 			})
-			// TODO: move mkdir in container package
-			os.MkdirAll(filepath.Join(viper.GetString(config.ServicePathDocker), path), os.ModePerm)
+			err := os.MkdirAll(filepath.Join(viper.GetString(config.ServicePathDocker), path), os.ModePerm)
+			if os.IsExist(err) == false {
+				return nil, err
+			}
 		}
 	}
 	return volumes, nil
