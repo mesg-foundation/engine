@@ -122,7 +122,9 @@ func TestNonExistentContainerStatus(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, STOPPED, status)
 
-	require.Equal(t, Namespace(namespace), (<-dt.LastServiceInspectWithRaw()).ServiceID)
+	resp := <-dt.LastServiceInspectWithRaw()
+	require.Equal(t, Namespace(namespace), resp.ServiceID)
+	require.Equal(t, types.ServiceInspectOptions{false}, resp.Options)
 }
 
 func TestExistentContainerStatus(t *testing.T) {
