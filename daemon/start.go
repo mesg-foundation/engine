@@ -46,9 +46,10 @@ func serviceSpec() (spec container.ServiceOptions, err error) {
 			{
 				Source: dockerSocket,
 				Target: dockerSocket,
+				Bind:   true,
 			},
 			{
-				Source: viper.GetString(config.MESGPath),
+				Source: "mesg-core",
 				Target: "/mesg",
 			},
 		},
