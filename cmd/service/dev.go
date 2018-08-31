@@ -2,11 +2,9 @@ package service
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"os"
-	"strings"
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/cmd/utils"
@@ -82,7 +80,7 @@ func listenEvents(serviceID string, filter string) {
 			log.Println(aurora.Red(err))
 			return
 		}
-		log.Println("Receive event", aurora.Green(event.EventKey), "with data", formatJSON(event.EventData))
+		log.Println("Receive event", aurora.Green(event.EventKey), "with data", utils.ColorizeJSON(event.EventData))
 	}
 }
 
@@ -100,18 +98,6 @@ func listenResults(serviceID string, result string, output string) {
 			log.Println(aurora.Red(err))
 			return
 		}
-		log.Println("Receive result", aurora.Green(result.TaskKey), aurora.Cyan(result.OutputKey), "with data", formatJSON(result.OutputData))
+		log.Println("Receive result", aurora.Green(result.TaskKey), aurora.Cyan(result.OutputKey), "with data", utils.ColorizeJSON(result.OutputData))
 	}
-}
-
-func formatJSON(data string) string {
-	var decoded map[string]interface{}
-	if err := json.Unmarshal([]byte(data), &decoded); err != nil {
-		return data
-	}
-	var outputs []string
-	for key, value := range decoded {
-		outputs = append(outputs, fmt.Sprintf("%v = %v", aurora.Cyan(key), value))
-	}
-	return strings.Join(outputs, ", ")
 }
