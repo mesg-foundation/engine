@@ -1,5 +1,13 @@
 package service
 
+// WARNING about hash tags on Service type and its inner types:
+// * never change the name attr of hash tag. use an incremented value for
+// name attr when a new configuration field added to Service.
+// * don't increment the value of name attr if corresponding field's name
+// changed but its behavior remains the same.
+// * this is required for not breaking Service IDs unless there is a behavioral
+// change.
+
 // Service represents a MESG service.
 type Service struct {
 	// ID is the unique id of service.

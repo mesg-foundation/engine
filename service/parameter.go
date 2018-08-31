@@ -10,7 +10,6 @@ type Parameter struct {
 	Description string `hash:"name:2" yaml:"description"`
 
 	// Type is the data type of parameter.
-	// Type DataType `hash:"3"`
 	Type string `hash:"name:3" yaml:"type"`
 
 	// Optional indicates if parameter is optional.
