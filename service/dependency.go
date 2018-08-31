@@ -7,19 +7,19 @@ import (
 // Dependency represents a Docker container and it holds instructions about
 // how it should run.
 type Dependency struct {
-	// Image the Docker image.
+	// Image is the Docker image.
 	Image string `hash:"name:1" yaml:"image"`
 
-	// Volumes.
+	// Volumes are the Docker volumes.
 	Volumes []string `hash:"name:2" yaml:"volumes"`
 
-	// VolumesFrom.
+	// VolumesFrom are the docker volumes-from from.
 	VolumesFrom []string `hash:"name:3" yaml:"volumesfrom"`
 
 	// Ports holds ports configuration for container.
 	Ports []string `hash:"name:4" yaml:"ports"`
 
-	// Command to execute.
+	// Command is the Docker command which will be executed when container started.
 	Command string `hash:"name:5" yaml:"command"`
 }
 
