@@ -5,24 +5,39 @@ import (
 	"path/filepath"
 
 	homedir "github.com/mitchellh/go-homedir"
+	"github.com/spf13/viper"
 )
 
-const configDirectory = ".mesg"
+const (
+	defaultDirectory        = ".mesg"
+	defaultServiceDirectory = "services"
+	MESGPath                = "MESG.Path"
+)
 
-func getConfigPath() (string, error) {
-	homePath, err := homedir.Dir()
-	if err != nil {
-		return "", nil
-	}
-	return filepath.Join(homePath, configDirectory), nil
+func setDirectoryDefault() {
+	viper.SetDefault(MESGPath, getDefaultPath())
 }
 
-func createConfigPath() error {
-	configPath, err := getConfigPath()
+func getDefaultPath() string {
+	path, err := homedir.Dir()
 	if err != nil {
+		return ""
+	}
+	return filepath.Join(path, defaultDirectory)
+}
+
+func createPath() error {
+	path := viper.GetString(MESGPath)
+	err := os.Mkdir(path, os.ModePerm)
+	if os.IsExist(err) == false {
 		return err
 	}
-	err = os.Mkdir(configPath, os.ModePerm)
+	return nil
+}
+
+func createServicesPath() error {
+	path := filepath.Join(viper.GetString(MESGPath), defaultServiceDirectory)
+	err := os.Mkdir(path, os.ModePerm)
 	if os.IsExist(err) == false {
 		return err
 	}

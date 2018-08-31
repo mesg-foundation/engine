@@ -20,29 +20,38 @@ func ToEnv(key string) string {
 	return envPrefix + envSeparator + replacer.Replace(strings.ToUpper(key))
 }
 
-func initViperEnv() {
+func readConfigFromEnv() {
 	viper.SetEnvPrefix(envPrefix)
 	viper.AutomaticEnv()
 	viper.SetEnvKeyReplacer(strings.NewReplacer(defaultSeparator, envSeparator))
 }
 
-func initConfigFile() {
+func readConfigFromFile() {
 	viper.SetConfigName(configFileName)
-	path, _ := getConfigPath()
-	viper.AddConfigPath(path)
+	viper.AddConfigPath(viper.GetString(MESGPath))
 	if viper.ReadInConfig() == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
 }
 
 func init() {
-	initConfigFile()
-	initViperEnv()
+	// The order of the following functions is critical. Do not change it.
+	// Set the default app directory
+	setDirectoryDefault()
 
-	err := createConfigPath()
-	if err != nil {
+	// Read the app directory from env if set
+	readConfigFromEnv()
+
+	// Create the required directories if needed
+	if err := createPath(); err != nil {
 		panic(err)
 	}
+	if err := createServicesPath(); err != nil {
+		panic(err)
+	}
+
+	// Read the config file from the app directory if exist
+	readConfigFromFile()
 
 	setAPIDefault()
 	setLogDefault()
