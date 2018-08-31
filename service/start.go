@@ -74,6 +74,7 @@ func (dependency *DependencyFromService) Start(networkID string) (containerServi
 	if err != nil {
 		return "", err
 	}
+	endpoint := "mesg-core:50052" // TODO: should get this from daemon namespace and config
 	return defaultContainer.StartService(container.ServiceOptions{
 		Namespace: dependency.namespace(),
 		Labels: map[string]string{
@@ -84,13 +85,10 @@ func (dependency *DependencyFromService) Start(networkID string) (containerServi
 		Args:  strings.Fields(dependency.Command),
 		Env: container.MapToEnv(map[string]string{
 			"MESG_TOKEN":        service.Hash(),
-			"MESG_ENDPOINT":     viper.GetString(config.APIServiceTargetSocket),
-			"MESG_ENDPOINT_TCP": "mesg-core:50052", // TODO: should get this from daemon namespace and config
+			"MESG_ENDPOINT":     endpoint,
+			"MESG_ENDPOINT_TCP": endpoint,
 		}),
-		Mounts: append(mounts, container.Mount{
-			Source: viper.GetString(config.APIServiceSocketPath),
-			Target: viper.GetString(config.APIServiceTargetPath),
-		}),
+		Mounts:     mounts,
 		Ports:      dependency.extractPorts(),
 		NetworksID: []string{networkID, sharedNetworkID},
 	})

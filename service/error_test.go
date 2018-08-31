@@ -52,7 +52,6 @@ func TestEventNotFoundError(t *testing.T) {
 
 // Test InvalidEventDataError
 func TestInvalidEventDataError(t *testing.T) {
-	s := &Service{}
 	tests := parameterTests{
 		&parameterTest{Key: "keyString", Type: "String", Value: 2323, Error: "not a string"},
 		&parameterTest{Key: "keyNumber", Type: "Number", Value: "string", Error: "not a number"},
@@ -64,7 +63,7 @@ func TestInvalidEventDataError(t *testing.T) {
 	err := InvalidEventDataError{
 		EventKey:    "TestInvalidEventDataErrorEventKey",
 		ServiceName: "TestInvalidEventDataError",
-		Warnings: s.ValidateParametersSchema(tests.parameterTestsToMapParameter(),
+		Warnings: validateParametersSchema(tests.parameterTestsToMapParameter(),
 			tests.parameterTestsToMapData()),
 	}
 	require.Contains(t, err.Error(), `Data of event "TestInvalidEventDataErrorEventKey" is invalid in service "TestInvalidEventDataError"`)
@@ -82,7 +81,6 @@ func TestTaskNotFoundError(t *testing.T) {
 
 // Test InvalidTaskInputError
 func TestInvalidTaskInputError(t *testing.T) {
-	s := &Service{}
 	tests := parameterTests{
 		&parameterTest{Key: "keyString", Type: "String", Value: 2323, Error: "not a string"},
 		&parameterTest{Key: "keyNumber", Type: "Number", Value: "string", Error: "not a number"},
@@ -94,7 +92,7 @@ func TestInvalidTaskInputError(t *testing.T) {
 	err := InvalidTaskInputError{
 		TaskKey:     "TestInvalidTaskInputErrorKey",
 		ServiceName: "TestInvalidTaskInputError",
-		Warnings: s.ValidateParametersSchema(tests.parameterTestsToMapParameter(),
+		Warnings: validateParametersSchema(tests.parameterTestsToMapParameter(),
 			tests.parameterTestsToMapData()),
 	}
 	require.Contains(t, err.Error(), `Inputs of task "TestInvalidTaskInputErrorKey" are invalid in service "TestInvalidTaskInputError"`)
@@ -113,7 +111,6 @@ func TestOutputNotFoundError(t *testing.T) {
 
 // Test InvalidOutputDataError
 func TestInvalidOutputDataError(t *testing.T) {
-	s := &Service{}
 	tests := parameterTests{
 		&parameterTest{Key: "keyString", Type: "String", Value: 2323, Error: "not a string"},
 		&parameterTest{Key: "keyNumber", Type: "Number", Value: "string", Error: "not a number"},
@@ -126,7 +123,7 @@ func TestInvalidOutputDataError(t *testing.T) {
 		TaskKey:       "TaskKey",
 		TaskOutputKey: "OutputKey",
 		ServiceName:   "TestInvalidOutputDataError",
-		Warnings: s.ValidateParametersSchema(tests.parameterTestsToMapParameter(),
+		Warnings: validateParametersSchema(tests.parameterTestsToMapParameter(),
 			tests.parameterTestsToMapData()),
 	}
 	require.Contains(t, err.Error(), `Outputs "OutputKey" of task "TaskKey" are invalid in service "TestInvalidOutputDataError"`)
