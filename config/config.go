@@ -53,7 +53,7 @@ func init() {
 	// Read the config file from the app directory if exist
 	readConfigFromFile()
 
-	setAPIDefault()
+	setCoreDefault()
 	setLogDefault()
 
 	validateLog()

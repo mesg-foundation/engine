@@ -15,7 +15,7 @@ func assertViperDefault(t *testing.T, defaults map[string]string) {
 	}
 }
 
-func TestAPIDefault(t *testing.T) {
+func TestCoreDefault(t *testing.T) {
 	assertViperDefault(t, map[string]string{
 		APIServerAddress:  ":50052",
 		ServicePathHost:   filepath.Join(viper.GetString(MESGPath), "services"),

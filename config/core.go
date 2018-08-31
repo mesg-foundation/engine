@@ -17,7 +17,7 @@ const (
 	CoreImage         = "Core.Image"
 )
 
-func setAPIDefault() {
+func setCoreDefault() {
 	viper.SetDefault(APIServerAddress, ":50052")
 
 	viper.SetDefault(APIClientTarget, viper.GetString(APIServerAddress))
