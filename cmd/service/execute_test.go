@@ -25,8 +25,8 @@ func TestReadJSONFile(t *testing.T) {
 
 func TestTaskKeysFromService(t *testing.T) {
 	keys := taskKeysFromService(&core.Service{
-		Tasks: map[string]*core.Task{
-			"task1": {},
+		Tasks: []*core.Task{
+			{Key: "task1"},
 		},
 	})
 	require.Equal(t, "task1", keys[0])
@@ -34,13 +34,14 @@ func TestTaskKeysFromService(t *testing.T) {
 
 func TestGetData(t *testing.T) {
 	s := service.Service{
-		Tasks: map[string]*service.Task{
-			"test": {
-				Inputs: map[string]*service.Parameter{
-					"foo":    {Type: "String"},
-					"hello":  {Type: "String"},
-					"number": {Type: "Number"},
-					"bool":   {Type: "Boolean"},
+		Tasks: []*service.Task{
+			{
+				Key: "test",
+				Inputs: []*service.Parameter{
+					{Key: "foo", Type: "String"},
+					{Key: "hello", Type: "String"},
+					{Key: "number", Type: "Number"},
+					{Key: "bool", Type: "Boolean"},
 				},
 			},
 		},
@@ -60,10 +61,11 @@ func TestGetData(t *testing.T) {
 
 func TestGetDataError(t *testing.T) {
 	s := service.Service{
-		Tasks: map[string]*service.Task{
-			"test": {
-				Inputs: map[string]*service.Parameter{
-					"bool": {Type: "Boolean"},
+		Tasks: []*service.Task{
+			{
+				Key: "test",
+				Inputs: []*service.Parameter{
+					{Key: "bool", Type: "Boolean"},
 				},
 			},
 		},
@@ -79,10 +81,11 @@ func TestGetDataError(t *testing.T) {
 
 func TestGetDataJSON(t *testing.T) {
 	s := service.Service{
-		Tasks: map[string]*service.Task{
-			"test": {
-				Inputs: map[string]*service.Parameter{
-					"foo": {Type: "String"},
+		Tasks: []*service.Task{
+			{
+				Key: "test",
+				Inputs: []*service.Parameter{
+					{Key: "foo", Type: "String"},
 				},
 			},
 		},

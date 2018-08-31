@@ -20,44 +20,43 @@ func toService(s *core.Service) *service.Service {
 		ID:          s.ID,
 		Name:        s.Name,
 		Description: s.Description,
-		Tasks:       map[string]*service.Task{},
+		Tasks:       []*service.Task{},
 	}
 
-	for taskKey, task := range s.Tasks {
+	for _, task := range s.Tasks {
 		t := &service.Task{
 			Key:         task.Key,
 			Name:        task.Name,
 			Description: task.Description,
-			ServiceName: task.ServiceName,
 			Inputs:      toParameters(task.Inputs),
-			Outputs:     map[string]*service.Output{},
+			Outputs:     []*service.Output{},
 		}
-		for outputKey, output := range task.Outputs {
-			t.Outputs[outputKey] = &service.Output{
+		for _, output := range task.Outputs {
+			o := &service.Output{
 				Key:         output.Key,
 				Name:        output.Name,
 				Description: output.Description,
-				TaskKey:     output.TaskKey,
-				ServiceName: output.ServiceName,
 				Data:        toParameters(output.Data),
 			}
+			t.Outputs = append(t.Outputs, o)
 		}
-		sv.Tasks[taskKey] = t
+		sv.Tasks = append(sv.Tasks, t)
 	}
 
 	return sv
 }
 
 // TODO(ilgooz) rm this when we stop using internal methods of service in cmd.
-func toParameters(params map[string]*core.Parameter) map[string]*service.Parameter {
-	gParams := make(map[string]*service.Parameter, 0)
-	for key, param := range params {
-		gParams[key] = &service.Parameter{
+func toParameters(params []*core.Parameter) []*service.Parameter {
+	gParams := make([]*service.Parameter, 0)
+	for _, param := range params {
+		p := &service.Parameter{
 			Name:        param.Name,
 			Description: param.Description,
 			Type:        param.Type,
 			Optional:    param.Optional,
 		}
+		gParams = append(gParams, p)
 	}
 	return gParams
 }

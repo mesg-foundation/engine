@@ -7,7 +7,6 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/cnf/structhash"
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/service/importer"
 	"github.com/mesg-foundation/core/x/xdocker/xarchive"
@@ -33,27 +32,27 @@ func TestDeployService(t *testing.T) {
 		service, validationError, err := a.DeployService(archive, DeployServiceStatusOption(statuses))
 		require.Nil(t, validationError)
 		require.Nil(t, err)
-		require.Equal(t, 1, structhash.Version(service.ID))
+		require.Len(t, service.ID, 40)
 	}()
 
 	require.Equal(t, DeployStatus{
-		Message: "Sending service context to core daemon...",
+		Message: "Receiving service context...",
 		Type:    RUNNING,
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
-		Message: fmt.Sprintf("%s Service context sent to core daemon with success.", aurora.Green("✔")),
+		Message: fmt.Sprintf("%s Service context received with success.", aurora.Green("✔")),
+		Type:    DONE,
+	}, <-statuses)
+
+	require.Equal(t, DeployStatus{
+		Message: fmt.Sprintf("%s [DEPRECATED] Please use .dockerignore instead of .mesgignore", aurora.Red("⨯")),
 		Type:    DONE,
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
 		Message: "Building Docker image...",
 		Type:    RUNNING,
-	}, <-statuses)
-
-	require.Equal(t, DeployStatus{
-		Message: fmt.Sprintf("%s [DEPRECATED] Please use .dockerignore instead of .mesgignore", aurora.Red("⨯")),
-		Type:    DONE,
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
@@ -91,9 +90,15 @@ func TestDeployInvalidService(t *testing.T) {
 		require.Equal(t, (&importer.ValidationError{}).Error(), validationError.Error())
 	}()
 
-	require.Equal(t, "Sending service context to core daemon...", (<-statuses).Message)
-	require.Equal(t, fmt.Sprintf("%s Service context sent to core daemon with success.", aurora.Green("✔")),
-		(<-statuses).Message)
+	require.Equal(t, DeployStatus{
+		Message: "Receiving service context...",
+		Type:    RUNNING,
+	}, <-statuses)
+
+	require.Equal(t, DeployStatus{
+		Message: fmt.Sprintf("%s Service context received with success.", aurora.Green("✔")),
+		Type:    DONE,
+	}, <-statuses)
 
 	select {
 	case <-statuses:
@@ -119,7 +124,7 @@ func TestDeployServiceFromURL(t *testing.T) {
 		service, validationError, err := a.DeployServiceFromURL(url, DeployServiceStatusOption(statuses))
 		require.Nil(t, validationError)
 		require.Nil(t, err)
-		require.Equal(t, 1, structhash.Version(service.ID))
+		require.Len(t, service.ID, 40)
 	}()
 
 	require.Equal(t, DeployStatus{
@@ -129,6 +134,16 @@ func TestDeployServiceFromURL(t *testing.T) {
 
 	require.Equal(t, DeployStatus{
 		Message: fmt.Sprintf("%s Service downloaded with success.", aurora.Green("✔")),
+		Type:    DONE,
+	}, <-statuses)
+
+	require.Equal(t, DeployStatus{
+		Message: "Receiving service context...",
+		Type:    RUNNING,
+	}, <-statuses)
+
+	require.Equal(t, DeployStatus{
+		Message: fmt.Sprintf("%s Service context received with success.", aurora.Green("✔")),
 		Type:    DONE,
 	}, <-statuses)
 

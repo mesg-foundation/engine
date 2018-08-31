@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/cnf/structhash"
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/api"
 	"github.com/stretchr/testify/require"
@@ -21,7 +20,7 @@ func TestDeployService(t *testing.T) {
 
 	stream := newTestDeployStream(url)
 	require.Nil(t, server.DeployService(stream))
-	require.Equal(t, 1, structhash.Version(stream.serviceID))
+	require.Len(t, stream.serviceID, 40)
 
 	require.Contains(t, stream.statuses, api.DeployStatus{
 		Message: fmt.Sprintf("%s Completed.", aurora.Green("✔")),

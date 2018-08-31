@@ -31,8 +31,8 @@ func detailHandler(cmd *cobra.Command, args []string) {
 	fmt.Println("events: ")
 	for name, event := range service.Events {
 		params := []string{}
-		for key, d := range event.Data {
-			params = append(params, key+" "+d.Type)
+		for _, d := range event.Data {
+			params = append(params, d.Key+" "+d.Type)
 		}
 		fmt.Println("  ", aurora.Bold(name), "(", strings.Join(params, ", "), ")")
 	}
@@ -41,8 +41,8 @@ func detailHandler(cmd *cobra.Command, args []string) {
 		fmt.Println("  ", aurora.Bold(name), ":")
 		for outputName, output := range task.Outputs {
 			params := []string{}
-			for paramName, param := range output.Data {
-				params = append(params, paramName+" "+param.Type)
+			for _, param := range output.Data {
+				params = append(params, param.Key+" "+param.Type)
 			}
 			fmt.Println("    ", aurora.Bold(outputName), "(", strings.Join(params, ", "), ")")
 		}

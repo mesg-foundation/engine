@@ -8,18 +8,21 @@ import (
 )
 
 func TestComplete(t *testing.T) {
-	s := service.Service{
+	s, _ := service.FromService(&service.Service{
 		Name: "TestComplete",
-		Tasks: map[string]*service.Task{
-			"test": {
-				Outputs: map[string]*service.Output{
-					"output": {},
+		Tasks: []*service.Task{
+			{
+				Key: "test",
+				Outputs: []*service.Output{
+					{
+						Key: "output",
+					},
 				},
 			},
 		},
-	}
+	})
 	var inputs map[string]interface{}
-	execution, _ := Create(&s, "test", inputs, []string{})
+	execution, _ := Create(s, "test", inputs, []string{})
 	execution.Execute()
 	var outputs map[string]interface{}
 	err := execution.Complete("output", outputs)
@@ -30,18 +33,21 @@ func TestComplete(t *testing.T) {
 }
 
 func TestCompleteNotProcessed(t *testing.T) {
-	s := service.Service{
+	s, _ := service.FromService(&service.Service{
 		Name: "TestCompleteNotProcessed",
-		Tasks: map[string]*service.Task{
-			"test": {
-				Outputs: map[string]*service.Output{
-					"output": {},
+		Tasks: []*service.Task{
+			{
+				Key: "test",
+				Outputs: []*service.Output{
+					{
+						Key: "output",
+					},
 				},
 			},
 		},
-	}
+	})
 	var inputs map[string]interface{}
-	execution, _ := Create(&s, "test", inputs, []string{})
+	execution, _ := Create(s, "test", inputs, []string{})
 	var outputs map[string]interface{}
 	err := execution.Complete("output", outputs)
 	require.NotNil(t, err)
@@ -56,17 +62,16 @@ func TestCompleteNotFound(t *testing.T) {
 		outputKey   = "output"
 		serviceName = "TestCompleteNotFound"
 	)
-	s := service.Service{
+	s, _ := service.FromService(&service.Service{
 		Name: serviceName,
-		Tasks: map[string]*service.Task{
-			taskKey: {
-				Key:         taskKey,
-				ServiceName: serviceName,
+		Tasks: []*service.Task{
+			{
+				Key: taskKey,
 			},
 		},
-	}
+	})
 	var inputs map[string]interface{}
-	execution, _ := Create(&s, taskKey, inputs, []string{})
+	execution, _ := Create(s, taskKey, inputs, []string{})
 	execution.Execute()
 	var outputs map[string]interface{}
 	err := execution.Complete(outputKey, outputs)
@@ -84,27 +89,24 @@ func TestCompleteInvalidOutputs(t *testing.T) {
 		outputKey   = "output"
 		serviceName = "TestCompleteInvalidOutputs"
 	)
-	s := service.Service{
+	s, _ := service.FromService(&service.Service{
 		Name: serviceName,
-		Tasks: map[string]*service.Task{
-			taskKey: {
-				Key:         taskKey,
-				ServiceName: serviceName,
-				Outputs: map[string]*service.Output{
-					outputKey: {
-						Key:         outputKey,
-						TaskKey:     taskKey,
-						ServiceName: serviceName,
-						Data: map[string]*service.Parameter{
-							"foo": {},
+		Tasks: []*service.Task{
+			{
+				Key: taskKey,
+				Outputs: []*service.Output{
+					{
+						Key: outputKey,
+						Data: []*service.Parameter{
+							{Key: "foo"},
 						},
 					},
 				},
 			},
 		},
-	}
+	})
 	var inputs map[string]interface{}
-	execution, _ := Create(&s, taskKey, inputs, []string{})
+	execution, _ := Create(s, taskKey, inputs, []string{})
 	execution.Execute()
 	var outputs map[string]interface{}
 	err := execution.Complete(outputKey, outputs)

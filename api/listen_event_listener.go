@@ -1,8 +1,6 @@
 package api
 
 import (
-	"fmt"
-
 	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/event"
 	"github.com/mesg-foundation/core/pubsub"
@@ -53,14 +51,14 @@ func (l *EventListener) Close() error {
 
 // listen listens events matches with eventFilter on serviceID.
 func (l *EventListener) listen(serviceID string) error {
-	service, err := services.Get(serviceID)
+	s, err := services.Get(serviceID)
 	if err != nil {
 		return err
 	}
-	if err := l.validateEventKey(&service); err != nil {
+	if err := l.validateEventKey(s); err != nil {
 		return err
 	}
-	go l.listenLoop(&service)
+	go l.listenLoop(s)
 	<-l.listening
 	return nil
 }
@@ -92,10 +90,8 @@ func (l *EventListener) validateEventKey(service *service.Service) error {
 	if l.eventKey == "" || l.eventKey == "*" {
 		return nil
 	}
-	if _, ok := service.Events[l.eventKey]; ok {
-		return nil
-	}
-	return fmt.Errorf("Event %q doesn't exist in this service", l.eventKey)
+	_, err := service.GetEvent(l.eventKey)
+	return err
 }
 
 func (l *EventListener) isSubscribedEvent(e *event.Event) bool {

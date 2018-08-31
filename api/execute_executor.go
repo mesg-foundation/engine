@@ -27,10 +27,14 @@ func (e *taskExecutor) Execute(serviceID, taskKey string, inputData map[string]i
 	if err != nil {
 		return "", err
 	}
-	if err := e.checkServiceStatus(&s); err != nil {
+	s, err = service.FromService(s, service.ContainerOption(e.api.container))
+	if err != nil {
 		return "", err
 	}
-	return e.execute(&s, taskKey, inputData, tags)
+	if err := e.checkServiceStatus(s); err != nil {
+		return "", err
+	}
+	return e.execute(s, taskKey, inputData, tags)
 }
 
 // checkServiceStatus checks service status. A task should be executed only if
@@ -41,7 +45,7 @@ func (e *taskExecutor) checkServiceStatus(s *service.Service) error {
 		return err
 	}
 	if status != service.RUNNING {
-		return &NotRunningServiceError{ServiceID: s.Hash()}
+		return &NotRunningServiceError{ServiceID: s.ID}
 	}
 	return nil
 }

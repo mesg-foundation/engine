@@ -19,6 +19,10 @@ func newServiceGetter(api *API) *serviceGetter {
 
 // Get returns service serviceID.
 func (g *serviceGetter) Get(serviceID string) (*service.Service, error) {
-	service, err := services.Get(serviceID)
-	return &service, err
+	s, err := services.Get(serviceID)
+	if err != nil {
+		return nil, err
+	}
+	s, err = service.FromService(s, service.ContainerOption(g.api.container))
+	return s, err
 }

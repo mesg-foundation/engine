@@ -31,16 +31,16 @@ func TestGenerateID(t *testing.T) {
 }
 
 func TestCreate(t *testing.T) {
-	s := service.Service{
+	s, _ := service.FromService(&service.Service{
 		Name: "TestCreate",
-		Tasks: map[string]*service.Task{
-			"test": {},
+		Tasks: []*service.Task{
+			{Key: "test"},
 		},
-	}
+	})
 	var inputs map[string]interface{}
-	exec, err := Create(&s, "test", inputs, []string{})
+	exec, err := Create(s, "test", inputs, []string{})
 	require.Nil(t, err)
-	require.Equal(t, exec.Service, &s)
+	require.Equal(t, exec.Service, s)
 	require.Equal(t, exec.Inputs, inputs)
 	require.Equal(t, exec.Task, "test")
 	require.Equal(t, pendingExecutions[exec.ID], exec)
@@ -52,14 +52,14 @@ func TestCreateInvalidTask(t *testing.T) {
 		invalidTaskKey = "testinvalid"
 		serviceName    = "TestCreateInvalidTask"
 	)
-	s := service.Service{
+	s, _ := service.FromService(&service.Service{
 		Name: serviceName,
-		Tasks: map[string]*service.Task{
-			taskKey: {},
+		Tasks: []*service.Task{
+			{Key: taskKey},
 		},
-	}
+	})
 	var inputs map[string]interface{}
-	_, err := Create(&s, invalidTaskKey, inputs, []string{})
+	_, err := Create(s, invalidTaskKey, inputs, []string{})
 	require.NotNil(t, err)
 	notFoundErr, ok := err.(*service.TaskNotFoundError)
 	require.True(t, ok)
@@ -71,22 +71,22 @@ func TestCreateInvalidInputs(t *testing.T) {
 		taskKey     = "test"
 		serviceName = "TestCreateInvalidInputs"
 	)
-	s := service.Service{
+	s, _ := service.FromService(&service.Service{
 		Name: serviceName,
-		Tasks: map[string]*service.Task{
-			taskKey: {
-				Key:         taskKey,
-				ServiceName: serviceName,
-				Inputs: map[string]*service.Parameter{
-					"foo": {
+		Tasks: []*service.Task{
+			{
+				Key: taskKey,
+				Inputs: []*service.Parameter{
+					{
+						Key:  "foo",
 						Type: "String",
 					},
 				},
 			},
 		},
-	}
+	})
 	var inputs map[string]interface{}
-	_, err := Create(&s, taskKey, inputs, []string{})
+	_, err := Create(s, taskKey, inputs, []string{})
 	require.NotNil(t, err)
 	invalidErr, ok := err.(*service.InvalidTaskInputError)
 	require.True(t, ok)

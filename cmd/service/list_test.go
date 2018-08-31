@@ -15,7 +15,7 @@ func TestServiceStatusString(t *testing.T) {
 		status:  service.RUNNING,
 	}
 	require.Contains(t, status.String(), "[Running]")
-	require.Contains(t, status.String(), s.Hash())
+	require.Contains(t, status.String(), s.ID)
 	require.Contains(t, status.String(), s.Name)
 }
 

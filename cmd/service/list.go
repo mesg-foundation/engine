@@ -27,7 +27,7 @@ func (s serviceStatus) String() string {
 	return strings.Join([]string{
 		"-",
 		statusText[s.status].String(),
-		aurora.Bold(s.service.Hash()).String(),
+		aurora.Bold(s.service.ID).String(),
 		s.service.Name,
 	}, " ")
 }

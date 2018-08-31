@@ -8,14 +8,15 @@ import (
 )
 
 func TestStatusService(t *testing.T) {
-	service := &Service{
+	service, _ := FromService(&Service{
 		Name: "TestStatusService",
-		Dependencies: map[string]*Dependency{
-			"test": {
+		Dependencies: []*Dependency{
+			{
+				Key:   "test",
 				Image: "nginx:stable-alpine",
 			},
 		},
-	}
+	}, ContainerOption(defaultContainer))
 	status, err := service.Status()
 	require.Nil(t, err)
 	require.Equal(t, STOPPED, status)
@@ -29,15 +30,16 @@ func TestStatusService(t *testing.T) {
 }
 
 func TestStatusDependency(t *testing.T) {
-	service := &Service{
+	service, _ := FromService(&Service{
 		Name: "TestStatusDependency",
-		Dependencies: map[string]*Dependency{
-			"test": {
+		Dependencies: []*Dependency{
+			{
+				Key:   "test",
 				Image: "nginx:stable-alpine",
 			},
 		},
-	}
-	dep := service.DependenciesFromService()[0]
+	}, ContainerOption(defaultContainer))
+	dep := service.Dependencies[0]
 	status, err := dep.Status()
 	require.Nil(t, err)
 	require.Equal(t, container.STOPPED, status)
@@ -51,40 +53,41 @@ func TestStatusDependency(t *testing.T) {
 }
 
 func TestList(t *testing.T) {
-	service := &Service{
+	service, _ := FromService(&Service{
 		Name: "TestList",
-		Dependencies: map[string]*Dependency{
-			"test": {
+		Dependencies: []*Dependency{
+			{
+				Key:   "test",
 				Image: "nginx:stable-alpine",
 			},
 		},
-	}
-	hash := service.Hash()
+	}, ContainerOption(defaultContainer))
 	service.Start()
 	defer service.Stop()
 	list, err := ListRunning()
 	require.Nil(t, err)
 	require.Equal(t, len(list), 1)
-	require.Equal(t, list[0], hash)
+	require.Equal(t, list[0], service.ID)
 }
 
 func TestListMultipleDependencies(t *testing.T) {
-	service := &Service{
+	service, _ := FromService(&Service{
 		Name: "TestListMultipleDependencies",
-		Dependencies: map[string]*Dependency{
-			"test": {
+		Dependencies: []*Dependency{
+			{
+				Key:   "test",
 				Image: "nginx:stable-alpine",
 			},
-			"test2": {
+			{
+				Key:   "test2",
 				Image: "nginx:stable-alpine",
 			},
 		},
-	}
-	hash := service.Hash()
+	}, ContainerOption(defaultContainer))
 	service.Start()
 	defer service.Stop()
 	list, err := ListRunning()
 	require.Nil(t, err)
 	require.Equal(t, len(list), 1)
-	require.Equal(t, list[0], hash)
+	require.Equal(t, list[0], service.ID)
 }

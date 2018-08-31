@@ -47,26 +47,19 @@ var casters = map[string]caster{
 
 // Cast converts map[string]string to map[string]interface{} based on defined types in the service tasks map.
 func (s *Service) Cast(taskKey string, taskData map[string]string) (map[string]interface{}, error) {
-	task, ok := s.Tasks[taskKey]
-	if !ok {
-		return nil, &TaskNotFoundError{
-			TaskKey:     taskKey,
-			ServiceName: s.Name,
-		}
+	task, err := s.GetTask(taskKey)
+	if err != nil {
+		return nil, err
 	}
 
 	m := make(map[string]interface{}, len(taskData))
 	for key, value := range taskData {
-		inputType, ok := task.Inputs[key]
-		if !ok {
-			return nil, &TaskInputNotFoundError{
-				TaskKey:      taskKey,
-				TaskInputKey: key,
-				ServiceName:  s.Name,
-			}
+		inputParam, err := task.GetInputParameter(key)
+		if err != nil {
+			return nil, err
 		}
 
-		newValue, err := s.cast(value, inputType.Type)
+		newValue, err := s.cast(value, inputParam.Type)
 		if err != nil {
 			return nil, fmt.Errorf("Task %q - %s", taskKey, err)
 		}

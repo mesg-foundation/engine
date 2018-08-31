@@ -8,14 +8,14 @@ import (
 )
 
 func TestMoveFromPendingToInProgress(t *testing.T) {
-	s := service.Service{
+	s, _ := service.FromService(&service.Service{
 		Name: "TestMoveFromPendingToInProgress",
-		Tasks: map[string]*service.Task{
-			"test": {},
+		Tasks: []*service.Task{
+			{Key: "test"},
 		},
-	}
+	})
 	var inputs map[string]interface{}
-	exec, _ := Create(&s, "test", inputs, []string{})
+	exec, _ := Create(s, "test", inputs, []string{})
 	err := exec.moveFromPendingToInProgress()
 	require.Equal(t, inProgressExecutions[exec.ID], exec)
 	require.Nil(t, pendingExecutions[exec.ID])
@@ -30,14 +30,14 @@ func TestMoveFromPendingToInProgressNonExistingTask(t *testing.T) {
 }
 
 func TestMoveFromInProgressToCompleted(t *testing.T) {
-	s := service.Service{
+	s, _ := service.FromService(&service.Service{
 		Name: "TestMoveFromInProgressToCompleted",
-		Tasks: map[string]*service.Task{
-			"test": {},
+		Tasks: []*service.Task{
+			{Key: "test"},
 		},
-	}
+	})
 	var inputs map[string]interface{}
-	exec, _ := Create(&s, "test", inputs, []string{})
+	exec, _ := Create(s, "test", inputs, []string{})
 	exec.moveFromPendingToInProgress()
 	err := exec.moveFromInProgressToProcessed()
 	require.Equal(t, processedExecutions[exec.ID], exec)
@@ -46,14 +46,14 @@ func TestMoveFromInProgressToCompleted(t *testing.T) {
 }
 
 func TestMoveFromInProgressToCompletedNonExistingTask(t *testing.T) {
-	s := service.Service{
+	s, _ := service.FromService(&service.Service{
 		Name: "TestMoveFromInProgressToCompletedNonExistingTask",
-		Tasks: map[string]*service.Task{
-			"test": {},
+		Tasks: []*service.Task{
+			{Key: "test"},
 		},
-	}
+	})
 	var inputs map[string]interface{}
-	exec, _ := Create(&s, "test", inputs, []string{})
+	exec, _ := Create(s, "test", inputs, []string{})
 	err := exec.moveFromInProgressToProcessed()
 	require.NotNil(t, err)
 	require.Nil(t, inProgressExecutions[exec.ID])

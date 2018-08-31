@@ -1,6 +1,9 @@
 package api
 
-import "github.com/mesg-foundation/core/database/services"
+import (
+	"github.com/mesg-foundation/core/database/services"
+	"github.com/mesg-foundation/core/service"
+)
 
 // serviceDeleter provides functionalities to delete a MESG service.
 type serviceDeleter struct {
@@ -16,11 +19,15 @@ func newServiceDeleter(api *API) *serviceDeleter {
 
 // Delete stops and deletes service serviceID.
 func (d *serviceDeleter) Delete(serviceID string) error {
-	service, err := services.Get(serviceID)
+	s, err := services.Get(serviceID)
 	if err != nil {
 		return err
 	}
-	if err := service.Stop(); err != nil {
+	s, err = service.FromService(s, service.ContainerOption(d.api.container))
+	if err != nil {
+		return err
+	}
+	if err := s.Stop(); err != nil {
 		return err
 	}
 	return services.Delete(serviceID)

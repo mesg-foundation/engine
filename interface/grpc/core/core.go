@@ -15,43 +15,42 @@ func toProtoService(s *service.Service) *Service {
 		ID:          s.ID,
 		Name:        s.Name,
 		Description: s.Description,
-		Tasks:       map[string]*Task{},
+		Tasks:       []*Task{},
 	}
 
-	for taskKey, task := range s.Tasks {
+	for _, task := range s.Tasks {
 		t := &Task{
 			Key:         task.Key,
 			Name:        task.Name,
 			Description: task.Description,
-			ServiceName: task.ServiceName,
 			Inputs:      toProtoParameters(task.Inputs),
-			Outputs:     map[string]*Output{},
+			Outputs:     []*Output{},
 		}
-		for outputKey, output := range task.Outputs {
-			t.Outputs[outputKey] = &Output{
+		for _, output := range task.Outputs {
+			o := &Output{
 				Key:         output.Key,
 				Name:        output.Name,
 				Description: output.Description,
-				TaskKey:     output.TaskKey,
-				ServiceName: output.ServiceName,
 				Data:        toProtoParameters(output.Data),
 			}
+			t.Outputs = append(t.Outputs, o)
 		}
-		sv.Tasks[taskKey] = t
+		sv.Tasks = append(sv.Tasks, t)
 	}
 
 	return sv
 }
 
-func toProtoParameters(params map[string]*service.Parameter) map[string]*Parameter {
-	ps := make(map[string]*Parameter, 0)
-	for key, param := range params {
-		ps[key] = &Parameter{
+func toProtoParameters(params []*service.Parameter) []*Parameter {
+	ps := make([]*Parameter, 0)
+	for _, param := range params {
+		p := &Parameter{
 			Name:        param.Name,
 			Description: param.Description,
 			Type:        param.Type,
 			Optional:    param.Optional,
 		}
+		ps = append(ps, p)
 	}
 	return ps
 }
