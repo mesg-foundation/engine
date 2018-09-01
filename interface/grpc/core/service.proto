@@ -4,7 +4,7 @@ package core;
 
 // This is the definition of a MESG Service.
 message Service {
-  string id = 10;                           // Service's unique id service hash.
+  string ID = 10;                           // Service's unique id service hash.
   string name = 1;                          // Service's name.
   string description = 2;                   // Service's description.
   map<string, Task> tasks = 5;              // The list of tasks this service can execute.

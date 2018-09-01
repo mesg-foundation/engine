@@ -17,7 +17,7 @@ func toServices(ss []*core.Service) []*service.Service {
 // TODO(ilgooz) rm this when we stop using internal methods of service in cmd.
 func toService(s *core.Service) *service.Service {
 	sv := &service.Service{
-		ID:          s.Id,
+		ID:          s.ID,
 		Name:        s.Name,
 		Description: s.Description,
 		Tasks:       map[string]*service.Task{},

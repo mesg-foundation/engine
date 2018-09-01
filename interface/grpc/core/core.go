@@ -2,17 +2,17 @@ package core
 
 import service "github.com/mesg-foundation/core/service"
 
-func toGRPCServices(ss []*service.Service) []*Service {
+func toProtoServices(ss []*service.Service) []*Service {
 	services := make([]*Service, 0)
 	for _, s := range ss {
-		services = append(services, toGRPCService(s))
+		services = append(services, toProtoService(s))
 	}
 	return services
 }
 
-func toGRPCService(s *service.Service) *Service {
+func toProtoService(s *service.Service) *Service {
 	sv := &Service{
-		Id:          s.ID,
+		ID:          s.ID,
 		Name:        s.Name,
 		Description: s.Description,
 		Tasks:       map[string]*Task{},
@@ -24,7 +24,7 @@ func toGRPCService(s *service.Service) *Service {
 			Name:        task.Name,
 			Description: task.Description,
 			ServiceName: task.ServiceName,
-			Inputs:      toGRPCParameters(task.Inputs),
+			Inputs:      toProtoParameters(task.Inputs),
 			Outputs:     map[string]*Output{},
 		}
 		for outputKey, output := range task.Outputs {
@@ -34,7 +34,7 @@ func toGRPCService(s *service.Service) *Service {
 				Description: output.Description,
 				TaskKey:     output.TaskKey,
 				ServiceName: output.ServiceName,
-				Data:        toGRPCParameters(output.Data),
+				Data:        toProtoParameters(output.Data),
 			}
 		}
 		sv.Tasks[taskKey] = t
@@ -43,7 +43,7 @@ func toGRPCService(s *service.Service) *Service {
 	return sv
 }
 
-func toGRPCParameters(params map[string]*service.Parameter) map[string]*Parameter {
+func toProtoParameters(params map[string]*service.Parameter) map[string]*Parameter {
 	ps := make(map[string]*Parameter, 0)
 	for key, param := range params {
 		ps[key] = &Parameter{
