@@ -34,7 +34,7 @@ This is the definition of a MESG Service.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| id | [string](#string) | Service's unique id service hash. |
+| ID | [string](#string) | Service's unique id service hash. |
 | name | [string](#string) | Service's name. |
 | description | [string](#string) | Service's description. |
 | tasks | [Service.TasksEntry](#core.Service.TasksEntry)[] | The list of tasks this service can execute. |

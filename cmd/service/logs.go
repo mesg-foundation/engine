@@ -40,7 +40,7 @@ func showLogs(serviceID string, dependency string) func() {
 	utils.HandleError(err)
 
 	// TODO(ilgooz) rm this when we stop using internal methods of service in cmd.
-	s, err := services.Get(reply.Service.Id)
+	s, err := services.Get(reply.Service.ID)
 	utils.HandleError(err)
 
 	readers, err := s.Logs(dependency)
