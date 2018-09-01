@@ -9,6 +9,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/mesg-foundation/core/x/xstructhash"
+
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
 	"github.com/spf13/viper"
@@ -120,14 +122,15 @@ func (dependency *DependencyFromService) extractVolumes() ([]container.Mount, er
 	servicePath := strings.Join(service.namespace(), "-")
 	volumes := make([]container.Mount, 0)
 	for _, volume := range dependency.Volumes {
-		path := filepath.Join(servicePath, dependency.Name, volume)
-		source := filepath.Join(viper.GetString(config.ServicePathHost), path)
+		source := xstructhash.Hash([]string{
+			service.Hash(),
+			dependency.Name,
+			volume,
+		}, 1)
 		volumes = append(volumes, container.Mount{
 			Source: source,
 			Target: volume,
 		})
-		// TODO: move mkdir in container package
-		os.MkdirAll(filepath.Join(viper.GetString(config.ServicePathDocker), path), os.ModePerm)
 	}
 	for _, depName := range dependency.Volumesfrom {
 		dep := service.Dependencies[depName]
