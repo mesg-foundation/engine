@@ -1,8 +1,6 @@
 package daemon
 
 import (
-	"path/filepath"
-
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/x/xnet"
@@ -37,10 +35,9 @@ func serviceSpec() (spec container.ServiceOptions, err error) {
 		Namespace: Namespace(),
 		Image:     viper.GetString(config.CoreImage),
 		Env: container.MapToEnv(map[string]string{
-			config.ToEnv(config.MESGPath):        "/mesg",
-			config.ToEnv(config.LogFormat):       viper.GetString(config.LogFormat),
-			config.ToEnv(config.LogLevel):        viper.GetString(config.LogLevel),
-			config.ToEnv(config.ServicePathHost): filepath.Join(viper.GetString(config.MESGPath), "services"),
+			config.ToEnv(config.MESGPath):  "/mesg",
+			config.ToEnv(config.LogFormat): viper.GetString(config.LogFormat),
+			config.ToEnv(config.LogLevel):  viper.GetString(config.LogLevel),
 		}),
 		Mounts: []container.Mount{
 			{
