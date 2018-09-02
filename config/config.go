@@ -13,7 +13,7 @@ const (
 	envPrefix        = "MESG"
 	envSeparator     = "_"
 	defaultSeparator = "."
-	configFileName   = "config"
+	configFileName   = ".mesg"
 )
 
 // ToEnv transforms a config key to a env key.
@@ -30,8 +30,8 @@ func initViperEnv() {
 
 func initConfigFile() {
 	viper.SetConfigName(configFileName)
-	path, _ := getConfigPath()
-	viper.AddConfigPath(path)
+	viper.AddConfigPath("$HOME") // for user home path
+	viper.AddConfigPath(".") // for current path
 	if viper.ReadInConfig() == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
