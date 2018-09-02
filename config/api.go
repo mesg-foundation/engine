@@ -1,7 +1,6 @@
 package config
 
 import (
-	"os"
 	"strings"
 
 	"github.com/mesg-foundation/core/version"
@@ -12,18 +11,14 @@ import (
 const (
 	LogFormat        = "Log.Format"
 	LogLevel         = "Log.Level"
-	MESGPath         = "MESG.Path"
 	CoreImage        = "Core.Image"
 	APIGRPCPort     = "API.GRPC.Port"
 	APIGRPCAddresss = "API.GRPC.Address"
+	Path            = "Path" // The path to a dedicated directory for Core
 )
 
 func setAPIDefault() {
-	configPath, _ := getConfigPath()
-
-	viper.SetDefault(MESGPath, configPath)
-
-	os.MkdirAll("/mesg", os.ModePerm)
+	viper.SetDefault(Path, "/mesg")
 
 	viper.SetDefault(APIGRPCPort, 50052)
 	viper.SetDefault(APIGRPCAddresss, ":50052")
