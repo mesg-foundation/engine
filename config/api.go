@@ -10,12 +10,12 @@ import (
 
 // All the configuration keys.
 const (
-	APIServerAddress = "Api.Server.Address"
-	APIClientTarget  = "Api.Client.Target"
 	LogFormat        = "Log.Format"
 	LogLevel         = "Log.Level"
 	MESGPath         = "MESG.Path"
 	CoreImage        = "Core.Image"
+	APIGRPCPort     = "API.GRPC.Port"
+	APIGRPCAddresss = "API.GRPC.Address"
 )
 
 func setAPIDefault() {
@@ -23,10 +23,10 @@ func setAPIDefault() {
 
 	viper.SetDefault(MESGPath, configPath)
 
-	viper.SetDefault(APIServerAddress, ":50052")
 	os.MkdirAll("/mesg", os.ModePerm)
 
-	viper.SetDefault(APIClientTarget, viper.GetString(APIServerAddress))
+	viper.SetDefault(APIGRPCPort, 50052)
+	viper.SetDefault(APIGRPCAddresss, ":50052")
 
 	viper.SetDefault(LogFormat, "text")
 	viper.SetDefault(LogLevel, "info")
