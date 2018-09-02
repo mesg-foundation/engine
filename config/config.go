@@ -55,11 +55,6 @@ func init() {
 	initConfigFile()
 	initViperEnv()
 
-	err := createConfigPath()
-	if err != nil {
-		panic(err)
-	}
-
 	setAPIDefault()
 	validateConfig()
 }
