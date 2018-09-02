@@ -18,6 +18,7 @@ func TestAPIDefault(t *testing.T) {
 		APIGRPCAddresss: ":50052",
 		LogFormat:       "text",
 		LogLevel:        "info",
+		Path:            "/mesg",
 	}
 	for key, defaultValue := range defaults {
 		assertViperDefault(t, key, defaultValue)

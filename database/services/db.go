@@ -17,7 +17,7 @@ func open() (db *leveldb.DB, err error) {
 	instanceMutex.Lock()
 	defer instanceMutex.Unlock()
 	if _instance == nil {
-		storagePath := filepath.Join(viper.GetString(config.MESGPath), "database", "services")
+		storagePath := filepath.Join(viper.GetString(config.Path), "database", "services")
 		_instance, err = leveldb.OpenFile(storagePath, nil)
 		if err != nil {
 			panic(err) // TODO: this should just be returned?
