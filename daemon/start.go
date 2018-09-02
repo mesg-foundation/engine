@@ -3,7 +3,6 @@ package daemon
 import (
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
-	"github.com/mesg-foundation/core/x/xnet"
 	"github.com/spf13/viper"
 )
 
@@ -26,10 +25,7 @@ func serviceSpec() (spec container.ServiceOptions, err error) {
 		return container.ServiceOptions{}, err
 	}
 
-	_, port, err := xnet.SplitHostPort(viper.GetString(config.APIServerAddress))
-	if err != nil {
-		return container.ServiceOptions{}, err
-	}
+	port := uint32(viper.GetInt32(config.APIGRPCPort))
 
 	return container.ServiceOptions{
 		Namespace: Namespace(),
@@ -52,8 +48,8 @@ func serviceSpec() (spec container.ServiceOptions, err error) {
 		},
 		Ports: []container.Port{
 			{
-				Target:    uint32(port),
-				Published: uint32(port),
+				Target:    port,
+				Published: port,
 			},
 		},
 		NetworksID: []string{sharedNetworkID},
