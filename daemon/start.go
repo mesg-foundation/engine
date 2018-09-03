@@ -31,7 +31,6 @@ func serviceSpec() (spec container.ServiceOptions, err error) {
 		Namespace: Namespace(),
 		Image:     viper.GetString(config.CoreImage),
 		Env: container.MapToEnv(map[string]string{
-			config.ToEnv(config.Path):      path,
 			config.ToEnv(config.LogFormat): viper.GetString(config.LogFormat),
 			config.ToEnv(config.LogLevel):  viper.GetString(config.LogLevel),
 		}),

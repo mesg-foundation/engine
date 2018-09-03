@@ -5,7 +5,6 @@ import (
 	"sync"
 
 	"github.com/mesg-foundation/core/config"
-	"github.com/spf13/viper"
 	"github.com/syndtr/goleveldb/leveldb"
 )
 
@@ -17,7 +16,7 @@ func open() (db *leveldb.DB, err error) {
 	instanceMutex.Lock()
 	defer instanceMutex.Unlock()
 	if _instance == nil {
-		storagePath := filepath.Join(viper.GetString(config.Path), "database", "services")
+		storagePath := filepath.Join(config.Path, "database", "services")
 		_instance, err = leveldb.OpenFile(storagePath, nil)
 		if err != nil {
 			panic(err) // TODO: this should just be returned?

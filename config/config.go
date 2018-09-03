@@ -31,7 +31,7 @@ func initViperEnv() {
 func initConfigFile() {
 	viper.SetConfigName(configFileName)
 	viper.AddConfigPath("$HOME") // for user home path
-	viper.AddConfigPath(".") // for current path
+	viper.AddConfigPath(".")     // for current path
 	if viper.ReadInConfig() == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
@@ -52,8 +52,8 @@ func validateConfig() {
 }
 
 func init() {
-	initConfigFile()
 	initViperEnv()
+	initConfigFile()
 
 	setAPIDefault()
 	validateConfig()
