@@ -47,6 +47,10 @@ func (l *TaskListener) listen(token string) error {
 	if err != nil {
 		return err
 	}
+	s, err = service.FromService(s, service.ContainerOption(l.api.container))
+	if err != nil {
+		return err
+	}
 	go l.listenLoop(s)
 	<-l.listening
 	return nil

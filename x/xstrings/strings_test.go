@@ -16,3 +16,18 @@ func TestSliceContains(t *testing.T) {
 		}
 	}
 }
+
+func TestSliceIndex(t *testing.T) {
+	for _, tt := range []struct {
+		s        []string
+		e        string
+		expected int
+	}{
+		{[]string{"a", "b"}, "a", 0},
+		{[]string{"a", "b"}, "b", 1},
+	} {
+		if got := SliceIndex(tt.s, tt.e); got != tt.expected {
+			t.Errorf("%v slice index %s - got %d, want %d", tt.s, tt.e, got, tt.expected)
+		}
+	}
+}

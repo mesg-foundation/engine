@@ -9,3 +9,13 @@ func SliceContains(a []string, e string) bool {
 	}
 	return false
 }
+
+// SliceIndex returns the index e in a.
+func SliceIndex(a []string, e string) int {
+	for i, s := range a {
+		if s == e {
+			return i
+		}
+	}
+	return 0
+}

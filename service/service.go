@@ -105,10 +105,11 @@ func New(tarball io.Reader, options ...Option) (*Service, error) {
 	if err := s.deploy(); err != nil {
 		return nil, err
 	}
+
 	return s.fromService(), nil
 }
 
-// FromService initializes a Service type from s.
+// FromService upgrades service s to by setting its options and private fields.
 func FromService(s *Service, options ...Option) (*Service, error) {
 	if err := s.setOptions(options...); err != nil {
 		return nil, err
@@ -123,6 +124,7 @@ func (s *Service) setOptions(options ...Option) error {
 	return nil
 }
 
+// fromService upgrades service s by setting a calculated ID and cross-referencing its child fields.
 func (s *Service) fromService() *Service {
 	for _, event := range s.Events {
 		event.service = s
@@ -169,6 +171,7 @@ func (s *Service) computeHash() string {
 	return fmt.Sprintf("%x", h.Sum(nil))
 }
 
+// saveContext downloads service context to a temp dir.
 func (s *Service) saveContext(r io.Reader) error {
 	var err error
 	s.tempPath, err = s.createTempDir()
@@ -189,78 +192,7 @@ func (s *Service) createTempDir() (path string, err error) {
 	return ioutil.TempDir("", "mesg-"+uuid.NewV4().String())
 }
 
-func (s *Service) injectDefinition(def *importer.ServiceDefinition) {
-	s.Name = def.Name
-	s.Description = def.Description
-	s.Repository = def.Repository
-	s.Events = []*Event{}
-	s.Tasks = []*Task{}
-	s.Dependencies = []*Dependency{}
-
-	for key, dep := range def.Dependencies {
-		s.Dependencies = append(s.Dependencies, &Dependency{
-			Key:         key,
-			Image:       dep.Image,
-			Volumes:     dep.Volumes,
-			VolumesFrom: dep.VolumesFrom,
-			Ports:       dep.Ports,
-			Command:     dep.Command,
-		})
-	}
-
-	for key, event := range def.Events {
-		s.Events = append(s.Events, &Event{
-			Key:         key,
-			Name:        event.Name,
-			Description: event.Description,
-			Data:        s.defParametersToServiceParameters(event.Data),
-		})
-	}
-
-	for key, task := range def.Tasks {
-		t := &Task{
-			Key:         key,
-			Name:        def.Name,
-			Description: def.Description,
-			Inputs:      s.defParametersToServiceParameters(task.Inputs),
-			Outputs:     []*Output{},
-		}
-
-		for key, output := range task.Outputs {
-			t.Outputs = append(t.Outputs, &Output{
-				Key:         key,
-				Name:        output.Name,
-				Description: output.Description,
-				Data:        s.defParametersToServiceParameters(output.Data),
-			})
-		}
-
-		s.Tasks = append(s.Tasks, t)
-	}
-
-	s.configuration = &Dependency{}
-	if def.Configuration != nil {
-		s.configuration.Command = def.Configuration.Command
-		s.configuration.Ports = def.Configuration.Ports
-		s.configuration.Volumes = def.Configuration.Volumes
-		s.configuration.VolumesFrom = def.Configuration.VolumesFrom
-	}
-}
-
-func (s *Service) defParametersToServiceParameters(params map[string]*importer.Parameter) []*Parameter {
-	ps := []*Parameter{}
-	for key, param := range params {
-		ps = append(ps, &Parameter{
-			Key:         key,
-			Name:        param.Name,
-			Description: param.Description,
-			Type:        param.Type,
-			Optional:    param.Optional,
-		})
-	}
-	return ps
-}
-
+// deploy deploys service.
 func (s *Service) deploy() error {
 	defer os.RemoveAll(s.tempPath)
 	defer s.closeStatusSend()
@@ -281,6 +213,7 @@ func (s *Service) deploy() error {
 	return nil
 }
 
+// checkDeprecations checks deprecated usages in service.
 func (s *Service) checkDeprecations() error {
 	if _, err := os.Stat(filepath.Join(s.tempPath, ".mesgignore")); err == nil {
 		// TODO: remove for a future release
@@ -316,12 +249,4 @@ func (s *Service) getDependency(dependencyKey string) (*Dependency, error) {
 		}
 	}
 	return nil, fmt.Errorf("Dependency %s do not exist", dependencyKey)
-}
-
-// containerNotProvidedError returned when a *container.Container instace not
-// provided during Service initialization.
-type containerNotProvidedError struct{}
-
-func (e *containerNotProvidedError) Error() string {
-	return "container instance not provided"
 }
