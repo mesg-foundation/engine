@@ -2,7 +2,6 @@ package config
 
 import (
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/mesg-foundation/core/version"
@@ -11,14 +10,12 @@ import (
 
 // All the configuration keys.
 const (
-	APIServerAddress  = "Api.Server.Address"
-	APIClientTarget   = "Api.Client.Target"
-	LogFormat         = "Log.Format"
-	LogLevel          = "Log.Level"
-	ServicePathHost   = "Service.Path.Host"
-	ServicePathDocker = "Service.Path.Docker"
-	MESGPath          = "MESG.Path"
-	CoreImage         = "Core.Image"
+	APIServerAddress = "Api.Server.Address"
+	APIClientTarget  = "Api.Client.Target"
+	LogFormat        = "Log.Format"
+	LogLevel         = "Log.Level"
+	MESGPath         = "MESG.Path"
+	CoreImage        = "Core.Image"
 )
 
 func setAPIDefault() {
@@ -33,10 +30,6 @@ func setAPIDefault() {
 
 	viper.SetDefault(LogFormat, "text")
 	viper.SetDefault(LogLevel, "info")
-
-	viper.SetDefault(ServicePathHost, filepath.Join(viper.GetString(MESGPath), "services"))
-	viper.SetDefault(ServicePathDocker, filepath.Join("/mesg", "services"))
-	os.MkdirAll(viper.GetString(ServicePathDocker), os.ModePerm)
 
 	// Keep only the first part if Version contains space
 	coreTag := strings.Split(version.Version, " ")
