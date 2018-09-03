@@ -3,13 +3,13 @@ package service
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/mesg-foundation/core/interface/grpc/core"
 	"github.com/mesg-foundation/core/x/xsignal"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -17,7 +17,7 @@ import (
 // It will also listen for all events and outputs from the tasks
 var Dev = &cobra.Command{
 	Use:               "dev",
-	Short:             "Run your service in development mode",
+	Short:             "Run a service in development mode",
 	Example:           "mesg-core service dev PATH",
 	Run:               devHandler,
 	DisableAutoGenTag: true,
@@ -31,10 +31,10 @@ func init() {
 
 func devHandler(cmd *cobra.Command, args []string) {
 	serviceID, isValid, err := createService(defaultPath(args))
+	utils.HandleError(err)
 	if !isValid {
 		os.Exit(1)
 	}
-	utils.HandleError(err)
 	fmt.Printf("%s Service started with success\n", aurora.Green("✔"))
 	fmt.Printf("Service ID: %s\n", aurora.Bold(serviceID))
 
@@ -46,7 +46,7 @@ func devHandler(cmd *cobra.Command, args []string) {
 
 	<-xsignal.WaitForInterrupt()
 
-	utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: "Deleting test service..."}, func() {
+	utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: "Stopping service..."}, func() {
 		cli().DeleteService(context.Background(), &core.DeleteServiceRequest{ // Delete service. This will automatically stop the service too
 			ServiceID: serviceID,
 		})
@@ -77,10 +77,10 @@ func listenEvents(serviceID string, filter string) {
 	for {
 		event, err := stream.Recv()
 		if err != nil {
-			logrus.Info(aurora.Red(err))
+			log.Println(aurora.Red(err))
 			return
 		}
-		logrus.Info("Receive event", aurora.Green(event.EventKey), ":", aurora.Bold(event.EventData))
+		log.Println("Receive event", aurora.Green(event.EventKey), "with data", utils.ColorizeJSON(event.EventData))
 	}
 }
 
@@ -95,9 +95,9 @@ func listenResults(serviceID string, result string, output string) {
 	for {
 		result, err := stream.Recv()
 		if err != nil {
-			logrus.Info(aurora.Red(err))
+			log.Println(aurora.Red(err))
 			return
 		}
-		logrus.Info("Receive result", aurora.Green(result.TaskKey), aurora.Cyan(result.OutputKey), "with data", aurora.Bold(result.OutputData))
+		log.Println("Receive result", aurora.Green(result.TaskKey), aurora.Cyan(result.OutputKey), "with data", utils.ColorizeJSON(result.OutputData))
 	}
 }
