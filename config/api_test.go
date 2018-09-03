@@ -14,7 +14,6 @@ func assertViperDefault(t *testing.T, key string, expected string) {
 
 func TestAPIDefault(t *testing.T) {
 	defaults := map[string]string{
-		Path:            "/mesg",
 		APIPort:    "50052",
 		APIAddress: "",
 		LogFormat:  "text",

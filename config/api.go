@@ -16,9 +16,10 @@ const (
 	CoreImage  = "Core.Image"  // The Core's image to use
 )
 
-func setAPIDefault() {
-	viper.SetDefault(Path, "/mesg")
+// Path to a dedicated directory for Core
+const Path = "/mesg"
 
+func setAPIDefault() {
 	viper.SetDefault(APIPort, "50052")
 	viper.SetDefault(APIAddress, "")
 
