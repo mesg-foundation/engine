@@ -42,7 +42,7 @@ func serviceSpec() (spec container.ServiceOptions, err error) {
 			},
 			{
 				Source: volume,
-				Target: path,
+				Target: config.Path,
 			},
 		},
 		Ports: []container.Port{
