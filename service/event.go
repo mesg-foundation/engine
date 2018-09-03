@@ -3,16 +3,16 @@ package service
 // Event describes a service task.
 type Event struct {
 	// Key is the key of event.
-	Key string `hash:"-"`
+	Key string `hash:"1"`
 
 	// Name is the name of event.
-	Name string `hash:"name:1"`
+	Name string `hash:"name:2"`
 
 	// Description is the description of event.
-	Description string `hash:"name:2"`
+	Description string `hash:"name:3"`
 
 	// Data holds the input parameters of event.
-	Data []*Parameter `hash:"name:3"`
+	Data []*Parameter `hash:"name:4"`
 
 	// service is the event's service.
 	service *Service `hash:"-"`
