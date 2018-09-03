@@ -14,11 +14,11 @@ func assertViperDefault(t *testing.T, key string, expected string) {
 
 func TestAPIDefault(t *testing.T) {
 	defaults := map[string]string{
-		APIGRPCPort:     "50052",
-		APIGRPCAddresss: ":50052",
-		LogFormat:       "text",
-		LogLevel:        "info",
 		Path:            "/mesg",
+		APIPort:    "50052",
+		APIAddress: "",
+		LogFormat:  "text",
+		LogLevel:   "info",
 	}
 	for key, defaultValue := range defaults {
 		assertViperDefault(t, key, defaultValue)

@@ -25,7 +25,7 @@ func serviceSpec() (spec container.ServiceOptions, err error) {
 		return container.ServiceOptions{}, err
 	}
 
-	port := uint32(viper.GetInt32(config.APIGRPCPort))
+	port := uint32(viper.GetInt32(config.APIPort))
 
 	return container.ServiceOptions{
 		Namespace: Namespace(),

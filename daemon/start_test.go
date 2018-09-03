@@ -3,7 +3,9 @@ package daemon
 import (
 	"testing"
 
+	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
 
@@ -55,8 +57,8 @@ func TestStartConfig(t *testing.T) {
 	require.True(t, contains(spec.Env, "MESG_LOG_LEVEL=info"))
 	require.True(t, contains(spec.Env, "MESG_LOG_FORMAT=text"))
 	// Ensure that the port is shared
-	require.Equal(t, spec.Ports[0].Published, uint32(50052))
-	require.Equal(t, spec.Ports[0].Target, uint32(50052))
+	require.Equal(t, spec.Ports[0].Published, uint32(viper.GetInt32(config.APIPort)))
+	require.Equal(t, spec.Ports[0].Target, uint32(viper.GetInt32(config.APIPort)))
 	// Ensure that the docker socket is shared in the core
 	require.Equal(t, spec.Mounts[0].Source, dockerSocket)
 	require.Equal(t, spec.Mounts[0].Target, dockerSocket)

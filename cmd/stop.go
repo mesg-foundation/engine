@@ -42,7 +42,7 @@ func stopHandler(cmd *cobra.Command, args []string) {
 }
 
 func getCli() (cli core.CoreClient, err error) {
-	connection, err := grpc.Dial(viper.GetString(config.APIGRPCAddresss), grpc.WithInsecure())
+	connection, err := grpc.Dial(viper.GetString(config.APIAddress)+":"+viper.GetString(config.APIPort), grpc.WithInsecure())
 	if err != nil {
 		return
 	}
