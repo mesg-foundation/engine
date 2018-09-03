@@ -7,8 +7,10 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/x/xstructhash"
+	"github.com/spf13/viper"
 )
 
 // Start starts the service.
@@ -71,7 +73,7 @@ func (dependency *DependencyFromService) Start(networkID string) (containerServi
 	if err != nil {
 		return "", err
 	}
-	endpoint := "mesg-core:50052" // TODO: should get this from daemon namespace and config
+	endpoint := "mesg-core:" + viper.GetString(config.APIPort) // TODO: should get this from daemon namespace and config
 	return defaultContainer.StartService(container.ServiceOptions{
 		Namespace: dependency.namespace(),
 		Labels: map[string]string{

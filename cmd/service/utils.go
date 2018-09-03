@@ -14,7 +14,7 @@ import (
 )
 
 func cli() core.CoreClient {
-	connection, err := grpc.Dial(viper.GetString(config.APIGRPCAddresss), grpc.WithInsecure())
+	connection, err := grpc.Dial(viper.GetString(config.APIAddress)+":"+viper.GetString(config.APIPort), grpc.WithInsecure())
 	utils.HandleError(err)
 	return core.NewCoreClient(connection)
 }

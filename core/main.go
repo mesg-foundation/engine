@@ -19,7 +19,7 @@ func main() {
 
 	tcpServer := &grpc.Server{
 		Network: "tcp",
-		Address: ":" + viper.GetString(config.APIGRPCPort),
+		Address: ":" + viper.GetString(config.APIPort),
 	}
 
 	go func() {

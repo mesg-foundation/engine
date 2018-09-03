@@ -9,19 +9,18 @@ import (
 
 // All the configuration keys.
 const (
-	LogFormat        = "Log.Format"
-	LogLevel         = "Log.Level"
-	CoreImage        = "Core.Image"
-	APIGRPCPort     = "API.GRPC.Port"
-	APIGRPCAddresss = "API.GRPC.Address"
-	Path            = "Path" // The path to a dedicated directory for Core
+	APIPort    = "API.Port"    // The port of the GRPC API
+	APIAddress = "API.Address" // The ip address of the GRPC API
+	LogFormat  = "Log.Format"  // The log's format. Can be text or JSON
+	LogLevel   = "Log.Level"   // The minimum log's level to output
+	CoreImage  = "Core.Image"  // The Core's image to use
 )
 
 func setAPIDefault() {
 	viper.SetDefault(Path, "/mesg")
 
-	viper.SetDefault(APIGRPCPort, 50052)
-	viper.SetDefault(APIGRPCAddresss, ":50052")
+	viper.SetDefault(APIPort, "50052")
+	viper.SetDefault(APIAddress, "")
 
 	viper.SetDefault(LogFormat, "text")
 	viper.SetDefault(LogLevel, "info")
