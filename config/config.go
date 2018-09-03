@@ -1,60 +1,50 @@
 package config
 
 import (
-	"fmt"
-	"os"
 	"strings"
 
-	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
+	"github.com/mesg-foundation/core/version"
 )
 
-const (
-	envPrefix        = "MESG"
-	envSeparator     = "_"
-	defaultSeparator = "."
-	configFileName   = ".mesg"
-)
+// Path to a dedicated directory for Core
+const Path = "/mesg"
 
-// ToEnv transforms a config key to a env key.
-func ToEnv(key string) string {
-	replacer := strings.NewReplacer(defaultSeparator, envSeparator)
-	return envPrefix + envSeparator + replacer.Replace(strings.ToUpper(key))
+// APIPort is the port of the GRPC API
+func APIPort() Setting {
+	return newViperSetting("API.Port", "50052")
 }
 
-func initViperEnv() {
-	viper.SetEnvPrefix(envPrefix)
-	viper.AutomaticEnv()
-	viper.SetEnvKeyReplacer(strings.NewReplacer(defaultSeparator, envSeparator))
+// APIAddress is the ip address of the GRPC API
+func APIAddress() Setting {
+	return newViperSetting("API.Address", "")
 }
 
-func initConfigFile() {
-	viper.SetConfigName(configFileName)
-	viper.AddConfigPath("$HOME") // for user home path
-	viper.AddConfigPath(".")     // for current path
-	if viper.ReadInConfig() == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
-	}
+// LogFormat is the log's format. Can be text or JSON.
+func LogFormat() Setting {
+	return newViperSetting("Log.Format", "text")
 }
 
-func validateConfig() {
-	format := viper.GetString(LogFormat)
-	if format != "text" && format != "json" {
-		fmt.Fprintf(os.Stderr, "config: %s is not valid log format", format)
-		os.Exit(1)
-	}
-
-	level := viper.GetString(LogLevel)
-	if _, err := logrus.ParseLevel(level); err != nil {
-		fmt.Fprintf(os.Stderr, "config: %s is not valid log level", level)
-		os.Exit(1)
-	}
+// LogLevel is the minimum log's level to output.
+func LogLevel() Setting {
+	return newViperSetting("Log.Level", "info")
 }
 
-func init() {
-	initViperEnv()
-	initConfigFile()
-
-	setAPIDefault()
-	validateConfig()
+// CoreImage is the port of the GRPC API
+func CoreImage() Setting {
+	coreTag := strings.Split(version.Version, " ")
+	return newViperSetting("Core.Image", "mesg/core:"+coreTag[0])
 }
+
+// func validateConfig() {
+// 	format := viper.GetString(LogFormat)
+// 	if format != "text" && format != "json" {
+// 		fmt.Fprintf(os.Stderr, "config: %s is not valid log format", format)
+// 		os.Exit(1)
+// 	}
+
+// 	level := viper.GetString(LogLevel)
+// 	if _, err := logrus.ParseLevel(level); err != nil {
+// 		fmt.Fprintf(os.Stderr, "config: %s is not valid log level", level)
+// 		os.Exit(1)
+// 	}
+// }
