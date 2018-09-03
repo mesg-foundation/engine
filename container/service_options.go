@@ -30,6 +30,7 @@ type Port struct {
 type Mount struct {
 	Source string
 	Target string
+	Bind   bool
 }
 
 func (options *ServiceOptions) toSwarmServiceSpec() swarm.ServiceSpec {
@@ -81,9 +82,14 @@ func (options *ServiceOptions) swarmMounts(force bool) []mount.Mount {
 	}
 	mounts := make([]mount.Mount, len(options.Mounts))
 	for i, m := range options.Mounts {
+		mountType := mount.TypeVolume
+		if m.Bind {
+			mountType = mount.TypeBind
+		}
 		mounts[i] = mount.Mount{
 			Source: m.Source,
 			Target: m.Target,
+			Type:   mountType,
 		}
 	}
 	return mounts
