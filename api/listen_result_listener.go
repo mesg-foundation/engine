@@ -57,6 +57,10 @@ func (l *ResultListener) listen(serviceID string) error {
 	if err != nil {
 		return err
 	}
+	s, err = service.FromService(s, service.ContainerOption(l.api.container))
+	if err != nil {
+		return err
+	}
 	if err := l.validateTask(s); err != nil {
 		return err
 	}

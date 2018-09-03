@@ -56,6 +56,8 @@ func executeHandler(cmd *cobra.Command, args []string) {
 	// TODO(ilgooz) rm this when we stop using internal methods of service in cmd.
 	sv, err := services.Get(serviceReply.Service.ID)
 	utils.HandleError(err)
+	sv, err = service.FromService(sv)
+	utils.HandleError(err)
 
 	taskData, err := getData(cmd, taskKey, sv, executeData)
 	utils.HandleError(err)

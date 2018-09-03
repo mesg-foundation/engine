@@ -8,6 +8,7 @@ import (
 	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/interface/grpc/core"
+	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/x/xsignal"
 	"github.com/spf13/cobra"
 )
@@ -41,6 +42,8 @@ func showLogs(serviceID string, dependency string) func() {
 
 	// TODO(ilgooz) rm this when we stop using internal methods of service in cmd.
 	s, err := services.Get(reply.Service.ID)
+	utils.HandleError(err)
+	s, err = service.FromService(s)
 	utils.HandleError(err)
 
 	readers, err := s.Logs(dependency)
