@@ -107,31 +107,26 @@ func (c *Container) FindContainer(namespace []string) (types.ContainerJSON, erro
 
 // Status returns the status of a docker container and servcie.
 func (c *Container) Status(namespace []string) (StatusType, error) {
-
-	containerNotFound := false
 	container, err := c.FindContainer(namespace)
-	if docker.IsErrNotFound(err) {
-		containerNotFound = true
-		// return STARTING, nil
-	} else if err != nil {
+	if err != nil && !docker.IsErrNotFound(err) {
 		return UNKNOWN, err
 	}
-
-	serviceNotFound := false
-	_, err = c.FindService(namespace)
-	if docker.IsErrNotFound(err) {
-		serviceNotFound = true
-		// return STOPPED, nil
-	} else if err != nil {
-		return UNKNOWN, err
-	}
-
-	if containerNotFound && serviceNotFound {
-		return STOPPED, nil
-	}
-
-	if container.State != nil && container.State.Running {
+	containerFound := !docker.IsErrNotFound(err)
+	if containerFound && container.State.Running {
 		return RUNNING, nil
 	}
-	return STARTING, nil
+
+	_, err = c.FindService(namespace)
+	if err != nil && !docker.IsErrNotFound(err) {
+		return UNKNOWN, err
+	}
+	serviceFound := !docker.IsErrNotFound(err)
+
+	if serviceFound {
+		return STARTING, nil
+	}
+	if containerFound {
+		return RUNNING, nil
+	}
+	return STOPPED, nil
 }
