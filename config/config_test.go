@@ -6,6 +6,19 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestToEnv(t *testing.T) {
-	require.Equal(t, envPrefix+envSeparator+"FOO"+envSeparator+"BAR", ToEnv("foo.bar"))
+func TestDefaultValue(t *testing.T) {
+	tests := []struct {
+		setting      func() Setting
+		defaultValue string
+	}{
+		{APIPort, "50052"},
+		{APIAddress, ""},
+		{LogFormat, "text"},
+		{LogLevel, "info"},
+	}
+	for _, test := range tests {
+		require.Equal(t, test.defaultValue, test.setting().GetValue())
+	}
+
+	require.Contains(t, CoreImage().GetValue(), "mesg/core:")
 }
