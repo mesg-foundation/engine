@@ -111,18 +111,14 @@ func (d *serviceDeployer) sendStatus(message string, typ StatusType) {
 // forwardStatuses forwards status messages.
 func (d *serviceDeployer) forwardDeployStatuses(statuses chan service.DeployStatus) {
 	for status := range statuses {
-		if d.statuses != nil {
-			st := DeployStatus{
-				Message: status.Message,
-			}
-			switch status.Type {
-			case service.DRUNNING:
-				st.Type = RUNNING
-			case service.DDONE:
-				st.Type = DONE
-			}
-			d.statuses <- st
+		var t StatusType
+		switch status.Type {
+		case service.DRUNNING:
+			t = RUNNING
+		case service.DDONE:
+			t = DONE
 		}
+		d.sendStatus(status.Message, t)
 	}
 }
 

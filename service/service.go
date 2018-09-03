@@ -97,7 +97,7 @@ func New(tarball io.Reader, options ...Option) (*Service, error) {
 
 	def, err := importer.From(s.tempPath)
 	if err != nil {
-		os.RemoveAll(s.tempPath)
+		s.removeTempDir()
 		return nil, err
 	}
 	s.injectDefinition(def)
@@ -109,7 +109,7 @@ func New(tarball io.Reader, options ...Option) (*Service, error) {
 	return s.fromService(), nil
 }
 
-// FromService upgrades service s to by setting its options and private fields.
+// FromService upgrades service s by setting its options and private fields.
 func FromService(s *Service, options ...Option) (*Service, error) {
 	if err := s.setOptions(options...); err != nil {
 		return nil, err
@@ -192,9 +192,13 @@ func (s *Service) createTempDir() (path string, err error) {
 	return ioutil.TempDir("", "mesg-"+uuid.NewV4().String())
 }
 
+func (s *Service) removeTempDir() error {
+	return os.RemoveAll(s.tempPath)
+}
+
 // deploy deploys service.
 func (s *Service) deploy() error {
-	defer os.RemoveAll(s.tempPath)
+	defer s.removeTempDir()
 	defer s.closeStatusSend()
 
 	s.sendStatus("Building Docker image...", DRUNNING)

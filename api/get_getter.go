@@ -23,6 +23,5 @@ func (g *serviceGetter) Get(serviceID string) (*service.Service, error) {
 	if err != nil {
 		return nil, err
 	}
-	s, err = service.FromService(s, service.ContainerOption(g.api.container))
-	return s, err
+	return service.FromService(s, service.ContainerOption(g.api.container))
 }
