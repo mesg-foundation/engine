@@ -13,5 +13,5 @@ type Parameter struct {
 	Type string `hash:"name:3" yaml:"type"`
 
 	// Optional indicates if parameter is optional.
-	Optional bool `hash:"name:4" yaml:"optiona"`
+	Optional bool `hash:"name:4" yaml:"optional"`
 }
