@@ -226,7 +226,7 @@ func TestExtractVolumes(t *testing.T) {
 	dep = &DependencyFromService{
 		Service: &Service{},
 		Dependency: &Dependency{
-			Volumesfrom: []string{"test"},
+			VolumesFrom: []string{"test"},
 		},
 	}
 	_, err = dep.extractVolumes()
@@ -241,7 +241,7 @@ func TestExtractVolumes(t *testing.T) {
 			},
 		},
 		Dependency: &Dependency{
-			Volumesfrom: []string{"test"},
+			VolumesFrom: []string{"test"},
 		},
 	}
 	volumes, err = dep.extractVolumes()
