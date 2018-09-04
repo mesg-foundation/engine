@@ -213,55 +213,47 @@ func TestServiceDependenciesListensFromSamePort(t *testing.T) {
 }
 
 func TestExtractVolumes(t *testing.T) {
-	dep := &DependencyFromService{}
-	_, err := dep.extractVolumes()
-	require.NotNil(t, err)
-
-	dep = &DependencyFromService{
-		Name:    "test",
-		Service: &Service{},
-		Dependency: &Dependency{
+	s, _ := FromService(&Service{
+		Dependencies: []*Dependency{{
+			Key:     "test",
 			Volumes: []string{"foo", "bar"},
-		},
-	}
-	volumes, err := dep.extractVolumes()
+		}},
+	})
+	volumes, err := s.Dependencies[0].extractVolumes()
 	require.Nil(t, err)
 	require.Len(t, volumes, 2)
-	require.Equal(t, volumeKey(dep.Service, "test", "foo"), volumes[0].Source)
+	require.Equal(t, volumeKey(s, "test", "foo"), volumes[0].Source)
 	require.Equal(t, "foo", volumes[0].Target)
 	require.Equal(t, false, volumes[0].Bind)
-	require.Equal(t, volumeKey(dep.Service, "test", "bar"), volumes[1].Source)
+	require.Equal(t, volumeKey(s, "test", "bar"), volumes[1].Source)
 	require.Equal(t, "bar", volumes[1].Target)
 	require.Equal(t, false, volumes[1].Bind)
 
-	dep = &DependencyFromService{
-		Service: &Service{},
-		Dependency: &Dependency{
+	s, _ = FromService(&Service{
+		Dependencies: []*Dependency{{
 			VolumesFrom: []string{"test"},
-		},
-	}
-	_, err = dep.extractVolumes()
-	require.NotNil(t, err)
+		}},
+	})
+	_, err = s.Dependencies[0].extractVolumes()
+	require.Error(t, err)
 
-	dep = &DependencyFromService{
-		Service: &Service{
-			Dependencies: map[string]*Dependency{
-				"test": &Dependency{
-					Volumes: []string{"foo", "bar"},
-				},
+	s, _ = FromService(&Service{
+		Dependencies: []*Dependency{
+			{
+				Key:     "test",
+				Volumes: []string{"foo", "bar"},
 			},
-		},
-		Dependency: &Dependency{
-			VolumesFrom: []string{"test"},
-		},
-	}
-	volumes, err = dep.extractVolumes()
+			{
+				VolumesFrom: []string{"test"},
+			}},
+	})
+	volumes, err = s.Dependencies[1].extractVolumes()
 	require.Nil(t, err)
 	require.Len(t, volumes, 2)
-	require.Equal(t, volumeKey(dep.Service, "test", "foo"), volumes[0].Source)
+	require.Equal(t, volumeKey(s, "test", "foo"), volumes[0].Source)
 	require.Equal(t, "foo", volumes[0].Target)
 	require.Equal(t, false, volumes[0].Bind)
-	require.Equal(t, volumeKey(dep.Service, "test", "bar"), volumes[1].Source)
+	require.Equal(t, volumeKey(s, "test", "bar"), volumes[1].Source)
 	require.Equal(t, "bar", volumes[1].Target)
 	require.Equal(t, false, volumes[1].Bind)
 }
