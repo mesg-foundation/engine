@@ -41,6 +41,7 @@ func TestStopService(t *testing.T) {
 
 	dt.ProvideServiceRemove(nil)
 	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
+	dt.ProvideContainerInspect(types.ContainerJSON{}, dockertest.NotFoundErr{})
 
 	require.Nil(t, c.StopService(namespace))
 	require.Equal(t, Namespace(namespace), (<-dt.LastServiceRemove()).ServiceID)
@@ -57,6 +58,7 @@ func TestStopNotExistingService(t *testing.T) {
 	c, _ := New(ClientOption(dt.Client()))
 
 	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
+	dt.ProvideContainerInspect(types.ContainerJSON{}, dockertest.NotFoundErr{})
 
 	require.Nil(t, c.StopService(namespace))
 
