@@ -8,16 +8,22 @@ type viperSetting struct {
 	key string
 }
 
-func newViperSetting(key string, defaultValue string) Setting {
+func newViperSetting(key string, defaultValue string) setting {
 	getViper().SetDefault(key, defaultValue)
 	return &viperSetting{key: key}
 }
 
-func (s *viperSetting) GetValue() string {
-	return getViper().GetString(s.key)
+func (s *viperSetting) setValue(value string) error {
+	getViper().Set(s.key, value)
+	return nil
 }
 
-func (s *viperSetting) GetEnvKey() string {
+func (s *viperSetting) getValue() (string, error) {
+	value := getViper().GetString(s.key)
+	return value, nil
+}
+
+func (s *viperSetting) getEnvKey() string {
 	replacer := strings.NewReplacer(defaultSeparator, envSeparator)
 	return envPrefix + envSeparator + replacer.Replace(strings.ToUpper(s.key))
 }
