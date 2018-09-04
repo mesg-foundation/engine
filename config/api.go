@@ -13,32 +13,32 @@ const Path = "/mesg"
 
 // APIPort is the port of the GRPC API
 func APIPort() *Config {
-	return new(newViperSetting("API.Port", "50052"))
+	return new("API.Port", "50052", getViperEngine())
 }
 
 // APIAddress is the ip address of the GRPC API
 func APIAddress() *Config {
-	return new(newViperSetting("API.Address", ""))
+	return new("API.Address", "", getViperEngine())
 }
 
 // LogFormat is the log's format. Can be text or JSON.
 func LogFormat() *Config {
-	return new(newViperSetting("Log.Format", "text"), withAllowedValues("text", "json"))
+	return new("Log.Format", "text", getViperEngine(), withAllowedValues("text", "json"))
 }
 
 // LogLevel is the minimum log's level to output.
 func LogLevel() *Config {
 	validation := func(value string) error {
 		if _, err := logrus.ParseLevel(value); err != nil {
-			return fmt.Errorf("config: %s is not valid log level", value)
+			return fmt.Errorf("Value %q is not a valid log level", value)
 		}
 		return nil
 	}
-	return new(newViperSetting("Log.Level", "info"), withValidation(validation))
+	return new("Log.Level", "info", getViperEngine(), withValidation(validation))
 }
 
 // CoreImage is the port of the GRPC API
 func CoreImage() *Config {
 	coreTag := strings.Split(version.Version, " ")
-	return new(newViperSetting("Core.Image", "mesg/core:"+coreTag[0]))
+	return new("Core.Image", "mesg/core:"+coreTag[0], getViperEngine())
 }

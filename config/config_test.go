@@ -2,53 +2,71 @@ package config
 
 import (
 	"errors"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
-type testSetting struct {
-	envKey string
-	value  string
+type testEngine struct {
+	data map[string]string
 }
 
-func (s *testSetting) setValue(value string) error {
-	s.value = value
+func newTestEngine() *testEngine {
+	return &testEngine{
+		data: make(map[string]string),
+	}
+}
+
+func (t *testEngine) setDefaultValue(key string, defaultValue string) error {
+	t.data[key] = defaultValue
 	return nil
 }
 
-func (s *testSetting) getValue() (string, error) {
-	return s.value, nil
+func (t *testEngine) setValue(key string, value string) error {
+	t.data[key] = value
+	return nil
 }
 
-func (s *testSetting) getEnvKey() string {
-	return s.envKey
+func (t *testEngine) getValue(key string) (string, error) {
+	value, ok := t.data[key]
+	if ok == false {
+		return "", errors.New("no value this key")
+	}
+	return value, nil
 }
 
-type testErrorSetting struct{}
+func (t *testEngine) getEnvKey(key string) string {
+	return strings.ToUpper(key)
+}
 
-func (s *testErrorSetting) setValue(value string) error {
+type testErrorEngine struct {
+}
+
+func (t *testErrorEngine) setDefaultValue(key string, defaultValue string) error {
+	return errors.New("error setDefaultValue")
+}
+
+func (t *testErrorEngine) setValue(key string, value string) error {
 	return errors.New("error setValue")
 }
 
-func (s *testErrorSetting) getValue() (string, error) {
+func (t *testErrorEngine) getValue(key string) (string, error) {
 	return "", errors.New("error getValue")
 }
 
-func (s *testErrorSetting) getEnvKey() string {
+func (t *testErrorEngine) getEnvKey(key string) string {
 	return ""
 }
 
 func TestNew(t *testing.T) {
-	testSetting := &testSetting{value: "testValue"}
-	config := new(testSetting)
+	config := new("key", "defaultValue1", newTestEngine())
 	require.NotNil(t, config)
-	require.NotNil(t, config.setting)
-	require.Equal(t, testSetting, config.setting)
+	require.NotNil(t, config.engine)
 }
 
 func TestConfigGetSetValue(t *testing.T) {
-	config := new(&testSetting{value: "testValue"})
+	config := new("key", "testValue", newTestEngine())
 	value, err := config.GetValue()
 	require.Nil(t, err)
 	require.Equal(t, "testValue", value)
@@ -60,27 +78,26 @@ func TestConfigGetSetValue(t *testing.T) {
 }
 
 func TestConfigSetValueError(t *testing.T) {
-	config := new(&testErrorSetting{})
+	config := new("", "", &testErrorEngine{})
 	err := config.SetValue("leu")
 	require.NotNil(t, err)
 }
 
 func TestConfigGetValueError(t *testing.T) {
-	config := new(&testErrorSetting{})
+	config := new("", "", &testErrorEngine{})
 	value, err := config.GetValue()
 	require.NotNil(t, err)
 	require.Equal(t, "", value)
 }
 
 func TestConfigGetEnvKey(t *testing.T) {
-	config := new(&testSetting{envKey: "testEnvKey"})
+	config := new("key", "testValue", newTestEngine())
 	envKey := config.GetEnvKey()
-	require.Equal(t, "testEnvKey", envKey)
+	require.Equal(t, "KEY", envKey)
 }
 
 func TestValidationWithAllowedValues(t *testing.T) {
-	testSetting := &testSetting{value: "three"}
-	config := new(testSetting, withAllowedValues("one", "two"))
+	config := new("key", "three", newTestEngine(), withAllowedValues("one", "two"))
 
 	value, err := config.GetValue()
 	require.NotNil(t, err)
@@ -96,39 +113,3 @@ func TestValidationWithAllowedValues(t *testing.T) {
 	require.Nil(t, err)
 	require.Equal(t, "two", value)
 }
-
-// func TestDefaultValue(t *testing.T) {
-// 	tests := []struct {
-// 		config       func() *Config
-// 		defaultValue string
-// 	}{
-// 		{APIPort, "50052"},
-// 		{APIAddress, ""},
-// 		{LogFormat, "text"},
-// 		{LogLevel, "info"},
-// 	}
-// 	for _, test := range tests {
-// 		value, err := test.config().GetValue()
-// 		require.Nil(t, err)
-// 		require.Equal(t, test.defaultValue, value)
-// 	}
-
-// 	coreValue, err := CoreImage().GetValue()
-// 	require.Nil(t, err)
-// 	require.Contains(t, coreValue, "mesg/core:")
-// }
-
-// func TestValidation(t *testing.T) {
-// 	tests := []struct {
-// 		config func() *Config
-// 		value  string
-// 	}{
-// 		// {APIPort, "50052"},
-// 		// {APIAddress, ""},
-// 		{LogFormat, "notValidValue"},
-// 		{LogLevel, "notValidValue"},
-// 	}
-// 	for _, test := range tests {
-// 		getViper().Set(test.config().)
-// 	}
-// }
