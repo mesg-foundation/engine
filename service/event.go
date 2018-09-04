@@ -3,7 +3,7 @@ package service
 // Event describes a service task.
 type Event struct {
 	// Key is the key of event.
-	Key string `hash:"1"`
+	Key string `hash:"name:1"`
 
 	// Name is the name of event.
 	Name string `hash:"name:2"`
