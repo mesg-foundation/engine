@@ -117,6 +117,7 @@ func TestNonExistentContainerStatus(t *testing.T) {
 	c, _ := New(ClientOption(dt.Client()))
 
 	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
+	dt.ProvideContainerInspect(types.ContainerJSON{}, dockertest.NotFoundErr{})
 
 	status, err := c.Status(namespace)
 	require.NoError(t, err)
