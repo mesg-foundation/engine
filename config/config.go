@@ -8,8 +8,9 @@ import (
 
 // Config is a wrapper of Setting that has validation functionality.
 type Config struct {
-	setting    setting
-	validation []func(value string) error
+	key         string
+	engine      engine
+	validations []func(value string) error
 }
 
 type option func(*Config)
@@ -17,7 +18,7 @@ type option func(*Config)
 func withAllowedValues(allowedValues ...string) option {
 	return withValidation(func(value string) error {
 		if xstrings.SliceContains(allowedValues, value) == false {
-			return fmt.Errorf("Config: %s is not an allowed", value)
+			return fmt.Errorf("Value %q is not an allowed", value)
 		}
 		return nil
 	})
@@ -25,23 +26,25 @@ func withAllowedValues(allowedValues ...string) option {
 
 func withValidation(validation func(value string) error) option {
 	return func(c *Config) {
-		c.validation = append(c.validation, validation)
+		c.validations = append(c.validations, validation)
 	}
 }
 
 // New initializes a Config based on a setting and optional validation function
-func new(s setting, options ...option) *Config {
+func new(key string, defaultValue string, e engine, options ...option) *Config {
 	c := &Config{
-		setting: s,
+		key:    key,
+		engine: e,
 	}
 	for _, option := range options {
 		option(c)
 	}
+	c.engine.setDefaultValue(key, defaultValue)
 	return c
 }
 
 func (config *Config) validate(value string) error {
-	for _, validation := range config.validation {
+	for _, validation := range config.validations {
 		if err := validation(value); err != nil {
 			return err
 		}
@@ -54,12 +57,12 @@ func (config *Config) SetValue(value string) error {
 	if err := config.validate(value); err != nil {
 		return err
 	}
-	return config.setting.setValue(value)
+	return config.engine.setValue(config.key, value)
 }
 
 // GetValue returns the value and an error if the validation failed.
 func (config *Config) GetValue() (string, error) {
-	value, err := config.setting.getValue()
+	value, err := config.engine.getValue(config.key)
 	if err != nil {
 		return "", err
 	}
@@ -71,5 +74,5 @@ func (config *Config) GetValue() (string, error) {
 
 // GetEnvKey returns the key to use in env
 func (config *Config) GetEnvKey() string {
-	return config.setting.getEnvKey()
+	return config.engine.getEnvKey(config.key)
 }
