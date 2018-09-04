@@ -12,6 +12,6 @@ func TestDelete(t *testing.T) {
 		Name: "TestDelete",
 	}
 	Save(service)
-	err := Delete(service.Id)
+	err := Delete(service.ID)
 	require.Nil(t, err)
 }

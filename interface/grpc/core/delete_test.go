@@ -18,11 +18,11 @@ func TestDeleteService(t *testing.T) {
 	require.NoError(t, err)
 
 	reply, err := server.DeleteService(context.Background(), &DeleteServiceRequest{
-		ServiceID: s.Id,
+		ServiceID: s.ID,
 	})
 	require.Nil(t, err)
 	require.NotNil(t, reply)
 
-	_, err = server.api.GetService(s.Id)
+	_, err = server.api.GetService(s.ID)
 	require.Error(t, err)
 }
