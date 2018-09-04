@@ -12,7 +12,6 @@ import (
 	"github.com/mesg-foundation/core/interface/grpc/core"
 	"github.com/mesg-foundation/core/service"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )
 
@@ -42,7 +41,11 @@ func stopHandler(cmd *cobra.Command, args []string) {
 }
 
 func getCli() (cli core.CoreClient, err error) {
-	connection, err := grpc.Dial(viper.GetString(config.APIAddress)+":"+viper.GetString(config.APIPort), grpc.WithInsecure())
+	apiAddress, err := config.APIAddress().GetValue()
+	utils.HandleError(err)
+	apiPort, err := config.APIPort().GetValue()
+	utils.HandleError(err)
+	connection, err := grpc.Dial(apiAddress+":"+apiPort, grpc.WithInsecure())
 	if err != nil {
 		return
 	}

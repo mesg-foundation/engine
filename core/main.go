@@ -7,19 +7,29 @@ import (
 	"github.com/mesg-foundation/core/version"
 	"github.com/mesg-foundation/core/x/xsignal"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 )
 
 func main() {
-	format := viper.GetString(config.LogFormat)
-	level := viper.GetString(config.LogLevel)
+	format, err := config.LogFormat().GetValue()
+	if err != nil {
+		panic(err)
+	}
+	level, err := config.LogLevel().GetValue()
+	if err != nil {
+		panic(err)
+	}
+	apiPort, err := config.APIPort().GetValue()
+	if err != nil {
+		panic(err)
+	}
+
 	logger.Init(format, level)
 
 	logrus.Println("Starting MESG Core", version.Version)
 
 	tcpServer := &grpc.Server{
 		Network: "tcp",
-		Address: ":" + viper.GetString(config.APIPort),
+		Address: ":" + apiPort,
 	}
 
 	go func() {

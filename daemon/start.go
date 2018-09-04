@@ -1,9 +1,10 @@
 package daemon
 
 import (
+	"strconv"
+
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
-	"github.com/spf13/viper"
 )
 
 // Start starts the docker core.
@@ -24,15 +25,34 @@ func serviceSpec() (spec container.ServiceOptions, err error) {
 	if err != nil {
 		return container.ServiceOptions{}, err
 	}
-
-	port := uint32(viper.GetInt32(config.APIPort))
-
+	portValue, err := config.APIPort().GetValue()
+	if err != nil {
+		return container.ServiceOptions{}, err
+	}
+	port, err := strconv.Atoi(portValue)
+	if err != nil {
+		return container.ServiceOptions{}, err
+	}
+	coreImage, err := config.CoreImage().GetValue()
+	if err != nil {
+		return container.ServiceOptions{}, err
+	}
+	logFormat := config.LogFormat()
+	logFormatValue, err := logFormat.GetValue()
+	if err != nil {
+		return container.ServiceOptions{}, err
+	}
+	logLevel := config.LogLevel()
+	logLevelValue, err := logLevel.GetValue()
+	if err != nil {
+		return container.ServiceOptions{}, err
+	}
 	return container.ServiceOptions{
 		Namespace: Namespace(),
-		Image:     viper.GetString(config.CoreImage),
+		Image:     coreImage,
 		Env: container.MapToEnv(map[string]string{
-			config.ToEnv(config.LogFormat): viper.GetString(config.LogFormat),
-			config.ToEnv(config.LogLevel):  viper.GetString(config.LogLevel),
+			logFormat.GetEnvKey(): logFormatValue,
+			logLevel.GetEnvKey():  logLevelValue,
 		}),
 		Mounts: []container.Mount{
 			{
@@ -47,8 +67,8 @@ func serviceSpec() (spec container.ServiceOptions, err error) {
 		},
 		Ports: []container.Port{
 			{
-				Target:    port,
-				Published: port,
+				Target:    uint32(port),
+				Published: uint32(port),
 			},
 		},
 		NetworksID: []string{sharedNetworkID},
