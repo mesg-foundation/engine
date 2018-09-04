@@ -1,50 +1,75 @@
 package config
 
 import (
-	"strings"
+	"fmt"
 
-	"github.com/mesg-foundation/core/version"
+	"github.com/mesg-foundation/core/x/xstrings"
 )
 
-// Path to a dedicated directory for Core
-const Path = "/mesg"
-
-// APIPort is the port of the GRPC API
-func APIPort() Setting {
-	return newViperSetting("API.Port", "50052")
+// Config is a wrapper of Setting that has validation functionality.
+type Config struct {
+	setting    setting
+	validation []func(value string) error
 }
 
-// APIAddress is the ip address of the GRPC API
-func APIAddress() Setting {
-	return newViperSetting("API.Address", "")
+type option func(*Config)
+
+func withAllowedValues(allowedValues ...string) option {
+	return withValidation(func(value string) error {
+		if xstrings.SliceContains(allowedValues, value) == false {
+			return fmt.Errorf("Config: %s is not an allowed", value)
+		}
+		return nil
+	})
 }
 
-// LogFormat is the log's format. Can be text or JSON.
-func LogFormat() Setting {
-	return newViperSetting("Log.Format", "text")
+func withValidation(validation func(value string) error) option {
+	return func(c *Config) {
+		c.validation = append(c.validation, validation)
+	}
 }
 
-// LogLevel is the minimum log's level to output.
-func LogLevel() Setting {
-	return newViperSetting("Log.Level", "info")
+// New initializes a Config based on a setting and optional validation function
+func new(s setting, options ...option) *Config {
+	c := &Config{
+		setting: s,
+	}
+	for _, option := range options {
+		option(c)
+	}
+	return c
 }
 
-// CoreImage is the port of the GRPC API
-func CoreImage() Setting {
-	coreTag := strings.Split(version.Version, " ")
-	return newViperSetting("Core.Image", "mesg/core:"+coreTag[0])
+func (config *Config) validate(value string) error {
+	for _, validation := range config.validation {
+		if err := validation(value); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
-// func validateConfig() {
-// 	format := viper.GetString(LogFormat)
-// 	if format != "text" && format != "json" {
-// 		fmt.Fprintf(os.Stderr, "config: %s is not valid log format", format)
-// 		os.Exit(1)
-// 	}
+// SetValue validates and set the value to the config
+func (config *Config) SetValue(value string) error {
+	if err := config.validate(value); err != nil {
+		return err
+	}
+	return config.setting.setValue(value)
+}
 
-// 	level := viper.GetString(LogLevel)
-// 	if _, err := logrus.ParseLevel(level); err != nil {
-// 		fmt.Fprintf(os.Stderr, "config: %s is not valid log level", level)
-// 		os.Exit(1)
-// 	}
-// }
+// GetValue returns the value and an error if the validation failed.
+func (config *Config) GetValue() (string, error) {
+	value, err := config.setting.getValue()
+	if err != nil {
+		return "", err
+	}
+	if err := config.validate(value); err != nil {
+		return "", err
+	}
+	return value, nil
+}
+
+// GetEnvKey returns the key to use in env
+func (config *Config) GetEnvKey() string {
+	return config.setting.getEnvKey()
+}
