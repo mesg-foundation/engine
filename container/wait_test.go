@@ -38,6 +38,7 @@ func TestWaitForStatusStopped(t *testing.T) {
 	c, _ := New(ClientOption(dt.Client()))
 
 	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
+	dt.ProvideContainerInspect(types.ContainerJSON{}, dockertest.NotFoundErr{})
 	require.Nil(t, c.waitForStatus(namespace, STOPPED))
 }
 
