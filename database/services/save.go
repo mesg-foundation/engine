@@ -1,13 +1,14 @@
 package services
 
 import (
-	"github.com/golang/protobuf/proto"
+	"encoding/json"
+
 	"github.com/mesg-foundation/core/service"
 )
 
 // Save stores a service in the database and returns a hash or an error.
 func Save(service *service.Service) error {
-	bytes, err := proto.Marshal(service)
+	bytes, err := json.Marshal(service)
 	if err != nil {
 		return err
 	}
@@ -16,7 +17,9 @@ func Save(service *service.Service) error {
 	if err != nil {
 		return err
 	}
-	hash := service.Hash()
-	service.Id = hash
-	return db.Put([]byte(hash), bytes, nil)
+
+	// TODO(ilgooz) rm this when we have a New() initializer for Service type.
+	service.ID = service.Hash()
+
+	return db.Put([]byte(service.ID), bytes, nil)
 }
