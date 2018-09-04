@@ -105,25 +105,61 @@ func (c *Container) FindContainer(namespace []string) (types.ContainerJSON, erro
 	return c.client.ContainerInspect(ctx, containerID)
 }
 
-// Status returns the status of a docker container and servcie.
+// Status returns the status of the container based on the docker container and docker service
+// If any error happen the status will be `UNKNOWN`
+// Otherwise the following status will be applied:
+//   - RUNNING: When the container is running in docker (whatever the status of the service)
+//   - STARTING: When the service is running but the container is not yet started
+//   - STOPPED: When neither the container nor the service are running in docker
 func (c *Container) Status(namespace []string) (StatusType, error) {
+	container, err := c.containerExists(namespace)
+	if err != nil {
+		return UNKNOWN, err
+	}
+	service, err := c.serviceExists(namespace)
+	if err != nil {
+		return UNKNOWN, err
+	}
+
+	statuses := []struct {
+		container bool
+		service   bool
+		status    StatusType
+	}{
+		{service: true, container: true, status: RUNNING},
+		{service: true, container: false, status: STARTING},
+		{service: false, container: true, status: RUNNING}, // This is actually stopping
+		{service: false, container: false, status: STOPPED},
+	}
+
+	for _, s := range statuses {
+		if s.container == container && s.service == service {
+			return s.status, nil
+		}
+	}
+	return UNKNOWN, nil // This should never be reached but it's better than a panic :)
+}
+
+// containerExists return true if the docker service can be found, return false otherwise and return
+// any errors that are not `NotFound` errors
+func (c *Container) containerExists(namespace []string) (bool, error) {
 	_, err := c.FindContainer(namespace)
-	if err != nil && !docker.IsErrNotFound(err) {
-		return UNKNOWN, err
-	}
-	containerFound := !docker.IsErrNotFound(err)
-	if containerFound {
-		return RUNNING, nil
-	}
+	return presenceHandling(err)
+}
 
-	_, err = c.FindService(namespace)
-	if err != nil && !docker.IsErrNotFound(err) {
-		return UNKNOWN, err
-	}
-	serviceFound := !docker.IsErrNotFound(err)
-	if serviceFound {
-		return STARTING, nil
-	}
+// serviceExists return true if the docker container can be found, return false otherwise and return
+// any errors that are not `NotFound` errors
+func (c *Container) serviceExists(namespace []string) (bool, error) {
+	_, err := c.FindService(namespace)
+	return presenceHandling(err)
+}
 
-	return STOPPED, nil
+// presenceHandling handle the error the check the presence of a docker resource.
+// It returns any error that are not docker `NotFound` errors
+// It returns a boolean that says if the docker resource exists
+func presenceHandling(err error) (bool, error) {
+	if err != nil && !docker.IsErrNotFound(err) {
+		return false, err
+	}
+	return !docker.IsErrNotFound(err), nil
 }
