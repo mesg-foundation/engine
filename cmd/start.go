@@ -10,7 +10,6 @@ import (
 	"github.com/mesg-foundation/core/daemon"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 // Start the MESG Core.
@@ -28,7 +27,10 @@ func (v *logFormatValue) Set(value string) error {
 	if value != "text" && value != "json" {
 		return fmt.Errorf("%s is not valid log format", value)
 	}
-	viper.Set(config.LogFormat, value)
+	err := config.LogFormat().SetValue(value)
+	if err != nil {
+		return err
+	}
 	*v = logFormatValue(value)
 	return nil
 }
@@ -42,7 +44,10 @@ func (v *logLevelValue) Set(value string) error {
 	if _, err := logrus.ParseLevel(value); err != nil {
 		return fmt.Errorf("%s is not valid log level", value)
 	}
-	viper.Set(config.LogLevel, value)
+	err := config.LogLevel().SetValue(value)
+	if err != nil {
+		return err
+	}
 	*v = logLevelValue(value)
 	return nil
 }

@@ -9,12 +9,15 @@ import (
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/interface/grpc/core"
 	"github.com/mesg-foundation/core/service/importer"
-	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )
 
 func cli() core.CoreClient {
-	connection, err := grpc.Dial(viper.GetString(config.APIAddress)+":"+viper.GetString(config.APIPort), grpc.WithInsecure())
+	apiAddress, err := config.APIAddress().GetValue()
+	utils.HandleError(err)
+	apiPort, err := config.APIPort().GetValue()
+	utils.HandleError(err)
+	connection, err := grpc.Dial(apiAddress+":"+apiPort, grpc.WithInsecure())
 	utils.HandleError(err)
 	return core.NewCoreClient(connection)
 }
