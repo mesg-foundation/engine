@@ -13,8 +13,10 @@ type Config struct {
 	validations []func(value string) error
 }
 
+// option for configuring a Config
 type option func(*Config)
 
+// withAllowedValues accepts a list of allowed values that the config's value should match
 func withAllowedValues(allowedValues ...string) option {
 	return withValidation(func(value string) error {
 		if xstrings.SliceContains(allowedValues, value) == false {
@@ -24,6 +26,7 @@ func withAllowedValues(allowedValues ...string) option {
 	})
 }
 
+// withValidation accepts a generic function to validate the value
 func withValidation(validation func(value string) error) option {
 	return func(c *Config) {
 		c.validations = append(c.validations, validation)
@@ -43,6 +46,7 @@ func new(key string, defaultValue string, e engine, options ...option) *Config {
 	return c
 }
 
+// validate checks the value against the validation functions
 func (config *Config) validate(value string) error {
 	for _, validation := range config.validations {
 		if err := validation(value); err != nil {

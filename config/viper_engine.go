@@ -53,21 +53,25 @@ func (v *viperEngine) readConfigFile() {
 	}
 }
 
+// setDefaultValue sets a default value to viper
 func (v *viperEngine) setDefaultValue(key string, defaultValue string) error {
 	v.viper.SetDefault(key, defaultValue)
 	return nil
 }
 
+// setValue sets the value to viper
 func (v *viperEngine) setValue(key string, value string) error {
 	v.viper.Set(key, value)
 	return nil
 }
 
+// getValue gets a value from viper
 func (v *viperEngine) getValue(key string) (string, error) {
 	value := v.viper.GetString(key)
 	return value, nil
 }
 
+// getEnvKey returns the env key to use for setting this config in env
 func (v *viperEngine) getEnvKey(key string) string {
 	replacer := strings.NewReplacer(defaultSeparator, envSeparator)
 	return envPrefix + envSeparator + replacer.Replace(strings.ToUpper(key))
