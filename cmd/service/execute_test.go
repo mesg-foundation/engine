@@ -3,6 +3,7 @@ package service
 import (
 	"testing"
 
+	"github.com/mesg-foundation/core/interface/grpc/core"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/x/xpflag"
 	"github.com/spf13/cobra"
@@ -23,8 +24,8 @@ func TestReadJSONFile(t *testing.T) {
 }
 
 func TestTaskKeysFromService(t *testing.T) {
-	keys := taskKeysFromService(&service.Service{
-		Tasks: map[string]*service.Task{
+	keys := taskKeysFromService(&core.Service{
+		Tasks: map[string]*core.Task{
 			"task1": {},
 		},
 	})
@@ -100,7 +101,7 @@ func TestGetTaskKey(t *testing.T) {
 	cmd := cobra.Command{}
 	cmd.Flags().StringP("task", "", "", "")
 	cmd.Flags().Set("task", "test")
-	require.Equal(t, "test", getTaskKey(&cmd, &service.Service{}))
+	require.Equal(t, "test", getTaskKey(&cmd, &core.Service{}))
 }
 
 func TestExecutePreRun(t *testing.T) {

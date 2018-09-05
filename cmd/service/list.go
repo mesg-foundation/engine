@@ -53,7 +53,7 @@ To have more details, see the [detail command](mesg-core_service_detail.md).`,
 func listHandler(cmd *cobra.Command, args []string) {
 	reply, err := cli().ListServices(context.Background(), &core.ListServicesRequest{})
 	utils.HandleError(err)
-	status, err := servicesWithStatus(reply.Services)
+	status, err := servicesWithStatus(toServices(reply.Services))
 	utils.HandleError(err)
 	sort.Sort(byStatus(status))
 	for _, serviceStatus := range status {
@@ -61,8 +61,8 @@ func listHandler(cmd *cobra.Command, args []string) {
 	}
 }
 
-func servicesWithStatus(services []*service.Service) (status []serviceStatus, err error) {
-	for _, s := range services {
+func servicesWithStatus(ss []*service.Service) (status []serviceStatus, err error) {
+	for _, s := range ss {
 		st, err := s.Status()
 		if err != nil {
 			break

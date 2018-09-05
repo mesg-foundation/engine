@@ -16,10 +16,10 @@ func TestGetService(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Id)
+	defer server.api.DeleteService(s.ID)
 
 	reply, err := server.GetService(context.Background(), &GetServiceRequest{
-		ServiceID: s.Id,
+		ServiceID: s.ID,
 	})
 	require.Nil(t, err)
 	require.NotNil(t, reply)

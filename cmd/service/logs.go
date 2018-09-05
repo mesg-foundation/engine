@@ -6,6 +6,7 @@ import (
 
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/mesg-foundation/core/cmd/utils"
+	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/interface/grpc/core"
 	"github.com/mesg-foundation/core/x/xsignal"
 	"github.com/spf13/cobra"
@@ -37,7 +38,12 @@ func showLogs(serviceID string, dependency string) func() {
 		ServiceID: serviceID,
 	})
 	utils.HandleError(err)
-	readers, err := reply.Service.Logs(dependency)
+
+	// TODO(ilgooz) rm this when we stop using internal methods of service in cmd.
+	s, err := services.Get(reply.Service.ID)
+	utils.HandleError(err)
+
+	readers, err := s.Logs(dependency)
 	utils.HandleError(err)
 	for _, reader := range readers {
 		go stdcopy.StdCopy(os.Stdout, os.Stderr, reader)
