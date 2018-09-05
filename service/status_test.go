@@ -12,7 +12,7 @@ func TestStatusService(t *testing.T) {
 		Name: "TestStatusService",
 		Dependencies: map[string]*Dependency{
 			"test": {
-				Image: "nginx",
+				Image: "nginx:stable-alpine",
 			},
 		},
 	}
@@ -22,7 +22,7 @@ func TestStatusService(t *testing.T) {
 	dockerServices, err := service.Start()
 	defer service.Stop()
 	require.Nil(t, err)
-	require.Equal(t, len(dockerServices), len(service.GetDependencies()))
+	require.Equal(t, len(dockerServices), len(service.Dependencies))
 	status, err = service.Status()
 	require.Nil(t, err)
 	require.Equal(t, RUNNING, status)
@@ -33,7 +33,7 @@ func TestStatusDependency(t *testing.T) {
 		Name: "TestStatusDependency",
 		Dependencies: map[string]*Dependency{
 			"test": {
-				Image: "nginx",
+				Image: "nginx:stable-alpine",
 			},
 		},
 	}
@@ -43,7 +43,7 @@ func TestStatusDependency(t *testing.T) {
 	require.Equal(t, container.STOPPED, status)
 	dockerServices, err := service.Start()
 	require.Nil(t, err)
-	require.Equal(t, len(dockerServices), len(service.GetDependencies()))
+	require.Equal(t, len(dockerServices), len(service.Dependencies))
 	status, err = dep.Status()
 	require.Nil(t, err)
 	require.Equal(t, container.RUNNING, status)
@@ -55,7 +55,7 @@ func TestList(t *testing.T) {
 		Name: "TestList",
 		Dependencies: map[string]*Dependency{
 			"test": {
-				Image: "nginx",
+				Image: "nginx:stable-alpine",
 			},
 		},
 	}
@@ -73,10 +73,10 @@ func TestListMultipleDependencies(t *testing.T) {
 		Name: "TestListMultipleDependencies",
 		Dependencies: map[string]*Dependency{
 			"test": {
-				Image: "nginx",
+				Image: "nginx:stable-alpine",
 			},
 			"test2": {
-				Image: "nginx",
+				Image: "nginx:stable-alpine",
 			},
 		},
 	}

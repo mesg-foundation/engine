@@ -1,98 +1,99 @@
 package service
 
+import (
+	"fmt"
+)
+
 // ParameterWarning contains a specific warning related to a parameter.
 type ParameterWarning struct {
-	warning   string
+	Key       string
+	Warning   string
+	Parameter *Parameter
+}
+
+func (p *ParameterWarning) String() string {
+	return fmt.Sprintf("Value of %q is %s", p.Key, p.Warning)
+}
+
+// ValidateParametersSchema validates data to see if it matches with parameters schema.
+// TODO(ilgooz) add this as a method to Service type when create custom types for Event, Task etc.
+// TODO(ilgooz) remove pointer from *Parameter.
+func validateParametersSchema(parameters map[string]*Parameter,
+	data map[string]interface{}) []*ParameterWarning {
+	warnings := make([]*ParameterWarning, 0)
+
+	for key, parameter := range parameters {
+		warning := newParameterValidator(key, parameter).Validate(data[key])
+		if warning != nil {
+			warnings = append(warnings, warning)
+		}
+	}
+
+	return warnings
+}
+
+// parameterValidator provides functionalities to check data against its parameter schema.
+type parameterValidator struct {
 	key       string
 	parameter *Parameter
 }
 
-func (p *ParameterWarning) String() string {
-	return "Value of '" + p.key + "' is " + p.warning
+func newParameterValidator(key string, parameter *Parameter) *parameterValidator {
+	return &parameterValidator{key, parameter}
 }
 
-func validParameters(parameters map[string]*Parameter, data map[string]interface{}) bool {
-	return len(validateParameters(parameters, data)) == 0
-}
-
-func validateParameters(parameters map[string]*Parameter, data map[string]interface{}) []*ParameterWarning {
-	warnings := make([]*ParameterWarning, 0)
-	for key, param := range parameters {
-		warning := param.Validate(data[key])
-		if warning != nil {
-			warning.key = key
-			warnings = append(warnings, warning)
-		}
-	}
-	return warnings
-}
-
-// IsValid returns true if the data are valid for a specific event.
-func (e *Event) IsValid(data map[string]interface{}) bool {
-	return validParameters(e.Data, data)
-}
-
-// Validate data for a specific event
-func (e *Event) Validate(data map[string]interface{}) []*ParameterWarning {
-	return validateParameters(e.Data, data)
-}
-
-// IsValid returns true if the inputs are valid for a specific task.
-func (t *Task) IsValid(data map[string]interface{}) bool {
-	return validParameters(t.Inputs, data)
-}
-
-// Validate inputs for a specific task.
-func (t *Task) Validate(data map[string]interface{}) []*ParameterWarning {
-	return validateParameters(t.Inputs, data)
-}
-
-// IsValid returns true if the data are valid for a specific output.
-func (o *Output) IsValid(data map[string]interface{}) bool {
-	return validParameters(o.Data, data)
-}
-
-// Validate data for a specific output.
-func (o *Output) Validate(data map[string]interface{}) []*ParameterWarning {
-	return validateParameters(o.Data, data)
-}
-
-// Validate returns a warning based on the match of the data given in parameter and the parameter.
-func (p *Parameter) Validate(data interface{}) *ParameterWarning {
-	if data == nil {
-		if p.Optional {
+// Validate validates value by comparing to its parameter schema.
+func (v *parameterValidator) Validate(value interface{}) *ParameterWarning {
+	if value == nil {
+		if v.parameter.Optional {
 			return nil
 		}
-		return &ParameterWarning{parameter: p, warning: "required"}
+		return v.newParameterWarning("required")
 	}
-	value := data
-	var warning *ParameterWarning
-	switch p.Type {
+
+	return v.validateType(value)
+}
+
+// validateType checks if value comforts its expected type.
+func (v *parameterValidator) validateType(value interface{}) *ParameterWarning {
+	switch v.parameter.Type {
 	case "String":
-		_, ok := value.(string)
-		if !ok {
-			warning = &ParameterWarning{parameter: p, warning: "not a string"}
+		if _, ok := value.(string); !ok {
+			return v.newParameterWarning("not a string")
 		}
+
 	case "Number":
 		_, okFloat64 := value.(float64)
 		_, okFloat32 := value.(float32)
 		_, okInt := value.(int)
 		if !okInt && !okFloat64 && !okFloat32 {
-			warning = &ParameterWarning{parameter: p, warning: "not a number"}
+			return v.newParameterWarning("not a number")
 		}
+
 	case "Boolean":
-		_, ok := value.(bool)
-		if !ok {
-			warning = &ParameterWarning{parameter: p, warning: "not a boolean"}
+		if _, ok := value.(bool); !ok {
+			return v.newParameterWarning("not a boolean")
 		}
+
 	case "Object":
 		_, okObj := value.(map[string]interface{})
 		_, okArr := value.([]interface{})
 		if !okObj && !okArr {
-			warning = &ParameterWarning{parameter: p, warning: "not an object or array"}
+			return v.newParameterWarning("not an object or array")
 		}
+
 	default:
-		warning = &ParameterWarning{parameter: p, warning: "an invalid type"}
+		return v.newParameterWarning("an invalid type")
 	}
-	return warning
+
+	return nil
+}
+
+// newParameterWarning creates a ParameterWarning with given warning message.
+func (v *parameterValidator) newParameterWarning(warning string) *ParameterWarning {
+	return &ParameterWarning{
+		Key:       v.key,
+		Warning:   warning,
+		Parameter: v.parameter,
+	}
 }
