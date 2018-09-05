@@ -9,7 +9,8 @@ import (
 )
 
 // Path to a dedicated directory for Core
-const Path = "/mesg"
+// TODO: Path should be reverted to a const when the package database is renovated
+var Path = "/mesg"
 
 // APIPort is the port of the GRPC API
 func APIPort() *Config {
