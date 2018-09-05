@@ -1,5 +1,50 @@
 package service
 
+// Task describes a service task.
+type Task struct {
+	// Key is the key of task.
+	Key string `hash:"-" yaml:"-"`
+
+	// Name is the name of task.
+	Name string `hash:"name:1" yaml:"name"`
+
+	// Description is the description of task.
+	Description string `hash:"name:2" yaml:"description"`
+
+	// ServiceName is the service name of task.
+	// TODO(ilgooz) remove this or replace with Service type in next PRs.
+	ServiceName string `hash:"-" yaml:"-"`
+
+	// Inputs are the definition of the execution inputs of task.
+	Inputs map[string]*Parameter `hash:"name:3" yaml:"inputs"`
+
+	// Outputs are the definition of the execution results of task.
+	Outputs map[string]*Output `hash:"name:4" yaml:"outputs"`
+}
+
+// Output describes task output.
+type Output struct {
+	// Key is the key of output.
+	Key string `hash:"-" yaml:"-"`
+
+	// Name is the name of task output.
+	Name string `hash:"name:1" yaml:"name"`
+
+	// Description is the description of task output.
+	Description string `hash:"name:2" yaml:"description"`
+
+	// TaskKey is the task key of the output.
+	// TODO(ilgooz) remove this or replace with Task type in next PRs.
+	TaskKey string `hash:"-" yaml:"-"`
+
+	// ServiceName is the service name of tasj output.
+	// TODO(ilgooz) remove this or replace with Service type in next PRs.
+	ServiceName string `hash:"-" yaml:"-"`
+
+	// Data holds the output parameters of a task output.
+	Data map[string]*Parameter `hash:"3" yaml:"data"`
+}
+
 // GetTask returns task taskKey of service.
 func (s *Service) GetTask(taskKey string) (*Task, error) {
 	task, ok := s.Tasks[taskKey]

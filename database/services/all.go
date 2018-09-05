@@ -1,7 +1,8 @@
 package services
 
 import (
-	"github.com/golang/protobuf/proto"
+	"encoding/json"
+
 	"github.com/mesg-foundation/core/service"
 )
 
@@ -16,7 +17,7 @@ func All() ([]*service.Service, error) {
 	iter := db.NewIterator(nil, nil)
 	for iter.Next() {
 		var service service.Service
-		if err := proto.Unmarshal(iter.Value(), &service); err != nil {
+		if err := json.Unmarshal(iter.Value(), &service); err != nil {
 			return nil, err
 		}
 		services = append(services, &service)

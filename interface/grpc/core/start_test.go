@@ -20,15 +20,14 @@ func TestStartService(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Id)
+	defer server.api.DeleteService(s.ID)
 
 	_, err = server.StartService(context.Background(), &StartServiceRequest{
-		ServiceID: s.Id,
+		ServiceID: s.ID,
 	})
 	require.NoError(t, err)
-	defer server.api.StopService(s.Id)
+	defer server.api.StopService(s.ID)
 
-	s.Id = "" // TODO(ilgooz) remove this when Service type created by hand.
 	status, err := s.Status()
 	require.NoError(t, err)
 	require.Equal(t, service.RUNNING, status)

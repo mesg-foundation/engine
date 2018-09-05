@@ -126,7 +126,7 @@ func (dependency *DependencyFromService) extractVolumes() ([]container.Mount, er
 			Target: volume,
 		})
 	}
-	for _, depName := range dependency.Volumesfrom {
+	for _, depName := range dependency.VolumesFrom {
 		dep := service.Dependencies[depName]
 		if dep == nil {
 			return nil, fmt.Errorf("Dependency %s do not exist", depName)
