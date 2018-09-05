@@ -1,12 +1,9 @@
 package daemon
 
 import (
-	"path/filepath"
 	"testing"
 
-	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
-	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
 
@@ -25,7 +22,7 @@ func startForTest() {
 	}
 	_, err = defaultContainer.StartService(container.ServiceOptions{
 		Namespace:  Namespace(),
-		Image:      "nginx",
+		Image:      "nginx:stable-alpine",
 		NetworksID: []string{sharedNetworkID},
 	})
 	if err != nil {
@@ -55,8 +52,8 @@ func TestStartConfig(t *testing.T) {
 	require.Nil(t, err)
 	// Make sure that the config directory is passed in parameter to write on the same folder
 	require.True(t, contains(spec.Env, "MESG_MESG_PATH=/mesg"))
-	require.True(t, contains(spec.Env, "MESG_API_SERVICE_SOCKETPATH="+filepath.Join(viper.GetString(config.MESGPath), "server.sock")))
-	require.True(t, contains(spec.Env, "MESG_SERVICE_PATH_HOST="+filepath.Join(viper.GetString(config.MESGPath), "services")))
+	require.True(t, contains(spec.Env, "MESG_LOG_LEVEL=info"))
+	require.True(t, contains(spec.Env, "MESG_LOG_FORMAT=text"))
 	// Ensure that the port is shared
 	require.Equal(t, spec.Ports[0].Published, uint32(50052))
 	require.Equal(t, spec.Ports[0].Target, uint32(50052))
@@ -64,6 +61,6 @@ func TestStartConfig(t *testing.T) {
 	require.Equal(t, spec.Mounts[0].Source, dockerSocket)
 	require.Equal(t, spec.Mounts[0].Target, dockerSocket)
 	// Ensure that the host users folder is sync with the core
-	require.Equal(t, spec.Mounts[1].Source, viper.GetString(config.MESGPath))
-	require.Equal(t, spec.Mounts[1].Target, "/mesg")
+	require.Equal(t, spec.Mounts[1].Source, volume)
+	require.Equal(t, spec.Mounts[1].Target, path)
 }

@@ -10,8 +10,9 @@ import (
 	"time"
 
 	"github.com/logrusorgru/aurora"
-	"github.com/mesg-foundation/core/api/core"
 	"github.com/mesg-foundation/core/cmd/utils"
+	"github.com/mesg-foundation/core/database/services"
+	"github.com/mesg-foundation/core/interface/grpc/core"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/x/xpflag"
 	uuid "github.com/satori/go.uuid"
@@ -51,7 +52,12 @@ func executeHandler(cmd *cobra.Command, args []string) {
 	})
 	utils.HandleError(err)
 	taskKey := getTaskKey(cmd, serviceReply.Service)
-	taskData, err := getData(cmd, taskKey, serviceReply.Service, executeData)
+
+	// TODO(ilgooz) rm this when we stop using internal methods of service in cmd.
+	sv, err := services.Get(serviceReply.Service.ID)
+	utils.HandleError(err)
+
+	taskData, err := getData(cmd, taskKey, &sv, executeData)
 	utils.HandleError(err)
 
 	// Create an unique tag that will be used to listen to the result of this exact execution
@@ -90,7 +96,7 @@ func executeTask(serviceID string, task string, data string, tags []string) (exe
 	})
 }
 
-func taskKeysFromService(s *service.Service) []string {
+func taskKeysFromService(s *core.Service) []string {
 	var taskKeys []string
 	for key := range s.Tasks {
 		taskKeys = append(taskKeys, key)
@@ -98,7 +104,7 @@ func taskKeysFromService(s *service.Service) []string {
 	return taskKeys
 }
 
-func getTaskKey(cmd *cobra.Command, s *service.Service) string {
+func getTaskKey(cmd *cobra.Command, s *core.Service) string {
 	taskKey := cmd.Flag("task").Value.String()
 	if taskKey == "" {
 		if survey.AskOne(&survey.Select{

@@ -1053,7 +1053,7 @@ The reply's data of the `ListServices` API.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| services | [service.Service](#service.Service)[] | The list of previously-deployed services' definitions. [Details here](./service-type.md). |
+| services | [core.Service](#core.Service)[] | The list of previously-deployed services' definitions. [Details here](./service-type.md). |
 
 
 
@@ -1200,7 +1200,7 @@ The reply's data of the `GetService` API.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| service | [service.Service](#service.Service) | Service's definition. [Details here](./service-type.md). |
+| service | [core.Service](#core.Service) | Service's definition. [Details here](./service-type.md). |
 
 
 
