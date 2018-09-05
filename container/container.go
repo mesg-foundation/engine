@@ -145,7 +145,8 @@ func (c *Container) Status(namespace []string) (StatusType, error) {
 // any errors that are not `NotFound` errors
 func (c *Container) containerExists(namespace []string) (bool, error) {
 	container, err := c.FindContainer(namespace)
-	if xstrings.SliceContains([]string{"exited", "dead"}, container.State.Status) {
+	if err == nil && container.State != nil &&
+		xstrings.SliceContains([]string{"exited", "dead"}, container.State.Status) {
 		return false, nil
 	}
 	return presenceHandling(err)
