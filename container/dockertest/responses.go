@@ -78,3 +78,8 @@ type containerInspectResponse struct {
 	json types.ContainerJSON
 	err  error
 }
+
+// containerStopResponse holds fake return values of *Client.ContainerStop.
+type containerStopResponse struct {
+	err error
+}
