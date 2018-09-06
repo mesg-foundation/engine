@@ -64,6 +64,11 @@ type ContainerInspectRequest struct {
 	Container string
 }
 
+// ContainerStopRequest holds call arguments of *Client.ContainerStop.
+type ContainerStopRequest struct {
+	Container string
+}
+
 // NetworkRemoveRequest holds call arguments of *Client.NetworkRemove.
 type NetworkRemoveRequest struct {
 	Network string

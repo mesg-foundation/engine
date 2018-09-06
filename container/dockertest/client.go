@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"io/ioutil"
+	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/swarm"
@@ -30,6 +31,7 @@ type requests struct {
 	info                  chan InfoRequest
 	containerList         chan ContainerListRequest
 	containerInspect      chan ContainerInspectRequest
+	containerStop         chan ContainerStopRequest
 	imageBuild            chan ImageBuildRequest
 	networkInspect        chan NetworkInspectRequest
 	networkRemove         chan NetworkRemoveRequest
@@ -60,6 +62,7 @@ type responses struct {
 	serviceLogs           chan serviceLogsResponse
 	containerInspect      chan containerInspectResponse
 	containerList         chan containerListResponse
+	containerStop         chan containerStopResponse
 }
 
 // newClient returns a new mock Client for Docker.
@@ -74,6 +77,7 @@ func newClient() *Client {
 			info:                  make(chan InfoRequest, 1),
 			containerList:         make(chan ContainerListRequest, 1),
 			containerInspect:      make(chan ContainerInspectRequest, 1),
+			containerStop:         make(chan ContainerStopRequest, 1),
 			imageBuild:            make(chan ImageBuildRequest, 1),
 			networkInspect:        make(chan NetworkInspectRequest, 1),
 			networkRemove:         make(chan NetworkRemoveRequest, 1),
@@ -100,6 +104,7 @@ func newClient() *Client {
 			serviceLogs:           make(chan serviceLogsResponse, 1),
 			containerInspect:      make(chan containerInspectResponse, 1),
 			containerList:         make(chan containerListResponse, 1),
+			containerStop:         make(chan containerStopResponse, 1),
 		},
 	}
 }
@@ -173,6 +178,17 @@ func (c *Client) ContainerInspect(ctx context.Context, container string) (types.
 		return resp.json, resp.err
 	default:
 		return types.ContainerJSON{}, nil
+	}
+}
+
+// ContainerStop is the mock version of the actual method.
+func (c *Client) ContainerStop(ctx context.Context, container string, timeout *time.Duration) error {
+	c.requests.containerStop <- ContainerStopRequest{container}
+	select {
+	case resp := <-c.responses.containerStop:
+		return resp.err
+	default:
+		return nil
 	}
 }
 
