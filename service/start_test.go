@@ -2,7 +2,6 @@ package service
 
 import (
 	"testing"
-	"time"
 
 	"github.com/mesg-foundation/core/container"
 	"github.com/stretchr/testify/require"
@@ -161,7 +160,6 @@ func TestStartStopStart(t *testing.T) {
 	}
 	service.Start()
 	service.Stop()
-	time.Sleep(10 * time.Second)
 	dockerServices, err := service.Start()
 	defer service.Stop()
 	require.Nil(t, err)
