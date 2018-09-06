@@ -20,16 +20,42 @@ func Start() (serviceID string, err error) {
 	return defaultContainer.StartService(spec)
 }
 
-func serviceSpec() (spec container.ServiceOptions, err error) {
-	sharedNetworkID, err := defaultContainer.SharedNetworkID()
+func getEnv() (map[string]string, error) {
+	logFormat := config.LogFormat()
+	logFormatValue, err := logFormat.GetValue()
 	if err != nil {
-		return container.ServiceOptions{}, err
+		return map[string]string{}, err
 	}
+	logLevel := config.LogLevel()
+	logLevelValue, err := logLevel.GetValue()
+	if err != nil {
+		return map[string]string{}, err
+	}
+	return map[string]string{
+		logFormat.GetEnvKey(): logFormatValue,
+		logLevel.GetEnvKey():  logLevelValue,
+	}, nil
+}
+
+func getPorts() ([]container.Port, error) {
 	portValue, err := config.APIPort().GetValue()
 	if err != nil {
-		return container.ServiceOptions{}, err
+		return []container.Port{}, err
 	}
 	port, err := strconv.Atoi(portValue)
+	if err != nil {
+		return []container.Port{}, err
+	}
+	return []container.Port{
+		{
+			Target:    uint32(port),
+			Published: uint32(port),
+		},
+	}, nil
+}
+
+func serviceSpec() (spec container.ServiceOptions, err error) {
+	sharedNetworkID, err := defaultContainer.SharedNetworkID()
 	if err != nil {
 		return container.ServiceOptions{}, err
 	}
@@ -37,23 +63,19 @@ func serviceSpec() (spec container.ServiceOptions, err error) {
 	if err != nil {
 		return container.ServiceOptions{}, err
 	}
-	logFormat := config.LogFormat()
-	logFormatValue, err := logFormat.GetValue()
+	env, err := getEnv()
 	if err != nil {
 		return container.ServiceOptions{}, err
 	}
-	logLevel := config.LogLevel()
-	logLevelValue, err := logLevel.GetValue()
+	ports, err := getPorts()
 	if err != nil {
 		return container.ServiceOptions{}, err
 	}
+
 	return container.ServiceOptions{
 		Namespace: Namespace(),
 		Image:     coreImage,
-		Env: container.MapToEnv(map[string]string{
-			logFormat.GetEnvKey(): logFormatValue,
-			logLevel.GetEnvKey():  logLevelValue,
-		}),
+		Env:       container.MapToEnv(env),
 		Mounts: []container.Mount{
 			{
 				Source: dockerSocket,
@@ -65,12 +87,7 @@ func serviceSpec() (spec container.ServiceOptions, err error) {
 				Target: config.Path,
 			},
 		},
-		Ports: []container.Port{
-			{
-				Target:    uint32(port),
-				Published: uint32(port),
-			},
-		},
+		Ports:      ports,
 		NetworksID: []string{sharedNetworkID},
 	}, nil
 }
