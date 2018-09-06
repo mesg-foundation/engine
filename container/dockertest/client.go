@@ -32,6 +32,7 @@ type requests struct {
 	containerList         chan ContainerListRequest
 	containerInspect      chan ContainerInspectRequest
 	containerStop         chan ContainerStopRequest
+	containerRemove       chan ContainerRemoveRequest
 	imageBuild            chan ImageBuildRequest
 	networkInspect        chan NetworkInspectRequest
 	networkRemove         chan NetworkRemoveRequest
@@ -63,6 +64,7 @@ type responses struct {
 	containerInspect      chan containerInspectResponse
 	containerList         chan containerListResponse
 	containerStop         chan containerStopResponse
+	containerRemove       chan containerRemoveResponse
 }
 
 // newClient returns a new mock Client for Docker.
@@ -78,6 +80,7 @@ func newClient() *Client {
 			containerList:         make(chan ContainerListRequest, 1),
 			containerInspect:      make(chan ContainerInspectRequest, 1),
 			containerStop:         make(chan ContainerStopRequest, 1),
+			containerRemove:       make(chan ContainerRemoveRequest, 1),
 			imageBuild:            make(chan ImageBuildRequest, 1),
 			networkInspect:        make(chan NetworkInspectRequest, 1),
 			networkRemove:         make(chan NetworkRemoveRequest, 1),
@@ -105,6 +108,7 @@ func newClient() *Client {
 			containerInspect:      make(chan containerInspectResponse, 1),
 			containerList:         make(chan containerListResponse, 1),
 			containerStop:         make(chan containerStopResponse, 1),
+			containerRemove:       make(chan containerRemoveResponse, 1),
 		},
 	}
 }
@@ -186,6 +190,17 @@ func (c *Client) ContainerStop(ctx context.Context, container string, timeout *t
 	c.requests.containerStop <- ContainerStopRequest{container}
 	select {
 	case resp := <-c.responses.containerStop:
+		return resp.err
+	default:
+		return nil
+	}
+}
+
+// ContainerRemove is the mock version of the actual method.
+func (c *Client) ContainerRemove(ctx context.Context, container string, options types.ContainerRemoveOptions) error {
+	c.requests.containerRemove <- ContainerRemoveRequest{container, options}
+	select {
+	case resp := <-c.responses.containerRemove:
 		return resp.err
 	default:
 		return nil

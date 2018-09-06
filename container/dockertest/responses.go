@@ -83,3 +83,8 @@ type containerInspectResponse struct {
 type containerStopResponse struct {
 	err error
 }
+
+// containerRemoveResponse holds fake return values of *Client.ContainerRemove.
+type containerRemoveResponse struct {
+	err error
+}
