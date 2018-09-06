@@ -8,7 +8,6 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
 	docker "github.com/docker/docker/client"
-	"github.com/mesg-foundation/core/x/xstrings"
 )
 
 // Container provides high level interactions with Docker API for MESG.
@@ -144,11 +143,7 @@ func (c *Container) Status(namespace []string) (StatusType, error) {
 // containerExists return true if the docker service can be found, return false otherwise and return
 // any errors that are not `NotFound` errors
 func (c *Container) containerExists(namespace []string) (bool, error) {
-	container, err := c.FindContainer(namespace)
-	if err == nil && container.State != nil &&
-		xstrings.SliceContains([]string{"exited", "dead"}, container.State.Status) {
-		return false, nil
-	}
+	_, err := c.FindContainer(namespace)
 	return presenceHandling(err)
 }
 
