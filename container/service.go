@@ -3,6 +3,7 @@ package container
 import (
 	"context"
 	"io"
+	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
@@ -48,10 +49,18 @@ func (c *Container) StartService(options ServiceOptions) (serviceID string, err 
 func (c *Container) StopService(namespace []string) (err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
-	if err := c.client.ServiceRemove(ctx, Namespace(namespace)); err != nil {
-		if docker.IsErrNotFound(err) {
-			return nil
-		}
+	container, err := c.FindContainer(namespace)
+	if err != nil {
+		return err
+	}
+	if err := c.client.ServiceRemove(ctx, Namespace(namespace)); err != nil && !docker.IsErrNotFound(err) {
+		return err
+	}
+	timeout := 1 * time.Second
+	if err := c.client.ContainerStop(ctx, container.ID, &timeout); err != nil {
+		return err
+	}
+	if err := c.client.ContainerRemove(ctx, container.ID, types.ContainerRemoveOptions{}); err != nil && !docker.IsErrNotFound(err) {
 		return err
 	}
 	return c.waitForStatus(namespace, STOPPED)
