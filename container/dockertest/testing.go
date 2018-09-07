@@ -42,6 +42,16 @@ func (t *Testing) ProvideContainerInspect(json types.ContainerJSON, err error) {
 	t.client.responses.containerInspect <- containerInspectResponse{json, err}
 }
 
+// ProvideContainerStop sets fake return values for the next call to *Client.ContainerInspect.
+func (t *Testing) ProvideContainerStop(err error) {
+	t.client.responses.containerStop <- containerStopResponse{err}
+}
+
+// ProvideContainerRemove sets fake return values for the next call to *Client.ContainerInspect.
+func (t *Testing) ProvideContainerRemove(err error) {
+	t.client.responses.containerRemove <- containerRemoveResponse{err}
+}
+
 // ProvideImageBuild sets fake return values for the next call to *Client.ImageBuild.
 func (t *Testing) ProvideImageBuild(rc io.ReadCloser, err error) {
 	t.client.responses.imageBuild <- imageBuildResponse{types.ImageBuildResponse{Body: rc}, err}
