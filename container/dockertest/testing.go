@@ -116,6 +116,16 @@ func (t *Testing) LastContainerInspect() <-chan ContainerInspectRequest {
 	return t.client.requests.containerInspect
 }
 
+// LastContainerStop returns a channel that receives call arguments of last *Client.ContainerStop call.
+func (t *Testing) LastContainerStop() <-chan ContainerStopRequest {
+	return t.client.requests.containerStop
+}
+
+// LastContainerRemove returns a channel that receives call arguments of last *Client.ContainerRemove call.
+func (t *Testing) LastContainerRemove() <-chan ContainerRemoveRequest {
+	return t.client.requests.containerRemove
+}
+
 // LastSwarmInit returns a channel that receives call arguments of last *Client.SwarmInit call.
 func (t *Testing) LastSwarmInit() <-chan SwarmInitRequest {
 	return t.client.requests.swarmInit
