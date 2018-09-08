@@ -14,6 +14,19 @@ const (
 	RUNNING StatusType = 2
 )
 
+func (s StatusType) String() string {
+	switch s {
+	case STOPPED:
+		return "STOPPED"
+	case PARTIAL:
+		return "PARTIAL"
+	case RUNNING:
+		return "RUNNING"
+	default:
+		return "UNKNOWN"
+	}
+}
+
 // Status returns StatusType of all dependency.
 func (service *Service) Status() (StatusType, error) {
 	status := STOPPED
