@@ -28,8 +28,8 @@ func (s *Server) ServiceLogs(request *ServiceLogsRequest, stream Core_ServiceLog
 	results := make(chan logChunk)
 
 	for _, l := range sl {
-		rstd := newLogReader(LogData_Data_Standard, l.Dependency, l.Standard, results)
-		rerr := newLogReader(LogData_Data_Error, l.Dependency, l.Error, results)
+		rstd := newLogPiper(LogData_Data_Standard, l.Dependency, l.Standard, results)
+		rerr := newLogPiper(LogData_Data_Error, l.Dependency, l.Error, results)
 		defer rstd.Close()
 		defer rerr.Close()
 	}
@@ -65,24 +65,24 @@ type logChunk struct {
 	Err        error
 }
 
-// logReader reads logs from given reader for corresponding dependency and log type.
-type logReader struct {
+// logPiper reads logs from given reader for corresponding dependency and log type.
+type logPiper struct {
 	Type       LogData_Data_Type
 	Dependency string
 	Stream     io.ReadCloser
-	Results    chan logChunk
+	Chunks     chan logChunk
 	closing    chan struct{}
 }
 
-// newLogReader creates a new log reader and starts reading from log reader and pipes data
-// chunks to results chan.
-func newLogReader(typ LogData_Data_Type, dependency string, stream io.ReadCloser,
-	results chan logChunk) *logReader {
-	r := &logReader{
+// newLogPiper creates a new log piper which starts reading from reader and pipes data
+// chunks to chunks chan.
+func newLogPiper(typ LogData_Data_Type, dependency string, stream io.ReadCloser,
+	results chan logChunk) *logPiper {
+	r := &logPiper{
 		Type:       typ,
 		Dependency: dependency,
 		Stream:     stream,
-		Results:    results,
+		Chunks:     results,
 		closing:    make(chan struct{}, 0),
 	}
 	go r.run()
@@ -90,7 +90,7 @@ func newLogReader(typ LogData_Data_Type, dependency string, stream io.ReadCloser
 }
 
 // run reads log data from reader and sends it to gRPC's stream send queue.
-func (r *logReader) run() {
+func (r *logPiper) run() {
 	buf := make([]byte, 1024)
 	for {
 		n, err := r.Stream.Read(buf)
@@ -99,7 +99,7 @@ func (r *logReader) run() {
 			case <-r.closing:
 				return
 
-			case r.Results <- logChunk{Err: err}:
+			case r.Chunks <- logChunk{Err: err}:
 			}
 		}
 
@@ -107,7 +107,7 @@ func (r *logReader) run() {
 		case <-r.closing:
 			return
 
-		case r.Results <- logChunk{
+		case r.Chunks <- logChunk{
 			Dependency: r.Dependency,
 			Type:       r.Type,
 			Data:       buf[:n],
@@ -116,7 +116,7 @@ func (r *logReader) run() {
 	}
 }
 
-func (r *logReader) Close() error {
+func (r *logPiper) Close() error {
 	r.Stream.Close()
 	close(r.closing)
 	return nil
