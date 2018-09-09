@@ -41,6 +41,9 @@ service Core {
 
   // Get the definition of an already-deployed service from its ID.
   rpc GetService (GetServiceRequest) returns (GetServiceReply) {}
+
+  // ServiceLogs gives a stream for dependency logs of a service.
+  rpc ServiceLogs (ServiceLogsRequest) returns (stream LogData) {}
 }
 
 // The request's data for the `ListenEvent` stream's API.
@@ -355,4 +358,40 @@ message GetServiceRequest {
 // ```
 message GetServiceReply {
   core.Service service = 1; // Service's definition. [Details here](./service-type.md).
+}
+
+// The request's data for `ServiceLogs` API.
+message ServiceLogsRequest {
+  string serviceID = 1;
+  repeated string dependencies = 2;
+}
+
+// LogData holds the log data chunk and log info of service dependencies.
+message LogData {
+  message Data {
+    enum Type {
+      // Standard represents standard log output.
+      Standard = 0;
+
+      // Error represents error log output.
+      Error = 1;
+    }
+
+    // dependency is the dependency that data belongs.
+    string dependency = 1;
+
+    // type is the log type.
+    Type type = 2;
+
+    // data is a log data chunk.
+    bytes data = 3;
+  }
+
+  // depedencies are the depedencies that log datas will be sent for.
+  // it'll be only sent once as a first message of gRPC stream.
+  repeated string depedencies = 1;
+  
+
+  // data is a dependency log data.
+  Data data = 2;
 }

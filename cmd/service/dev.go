@@ -41,7 +41,7 @@ func devHandler(cmd *cobra.Command, args []string) {
 	go listenEvents(serviceID, cmd.Flag("event-filter").Value.String())
 	go listenResults(serviceID, cmd.Flag("task-filter").Value.String(), cmd.Flag("output-filter").Value.String())
 
-	closeReaders := showLogs(serviceID, "*")
+	closeReaders := showLogs(serviceID)
 	defer closeReaders()
 
 	<-xsignal.WaitForInterrupt()
