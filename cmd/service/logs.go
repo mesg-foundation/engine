@@ -2,13 +2,17 @@ package service
 
 import (
 	"context"
+	"fmt"
+	"io"
+	"math/rand"
 	"os"
+	"time"
 
-	"github.com/docker/docker/pkg/stdcopy"
+	"github.com/fatih/color"
 	"github.com/mesg-foundation/core/cmd/utils"
-	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/interface/grpc/core"
 	"github.com/mesg-foundation/core/x/xsignal"
+	"github.com/mesg-foundation/prefixer"
 	"github.com/spf13/cobra"
 )
 
@@ -23,34 +27,157 @@ mesg-core service logs SERVICE_ID --dependency DEPENDENCY_NAME`,
 	DisableAutoGenTag: true,
 }
 
+var dependencies []string
+
 func init() {
-	Logs.Flags().StringP("dependency", "d", "*", "Name of the dependency to only show the logs from")
+	Logs.Flags().StringArrayVarP(&dependencies, "dependency", "d", nil, "Name of the dependency to only show the logs from")
 }
 
 func logsHandler(cmd *cobra.Command, args []string) {
-	closeReaders := showLogs(args[0], cmd.Flag("dependency").Value.String())
+	closeReaders := showLogs(args[0], dependencies...)
 	defer closeReaders()
 	<-xsignal.WaitForInterrupt()
 }
 
-func showLogs(serviceID string, dependency string) func() {
-	reply, err := cli().GetService(context.Background(), &core.GetServiceRequest{
-		ServiceID: serviceID,
+// dependencyLogs keeps dependency info and corresponding std & err log streams.
+type dependencyLogs struct {
+	Dependency      string
+	Standard, Error *logReader
+}
+
+func showLogs(serviceID string, dependencies ...string) func() {
+	stream, err := cli().ServiceLogs(context.Background(), &core.ServiceLogsRequest{
+		ServiceID:    serviceID,
+		Dependencies: dependencies,
 	})
 	utils.HandleError(err)
 
-	// TODO(ilgooz) rm this when we stop using internal methods of service in cmd.
-	s, err := services.Get(reply.Service.ID)
+	// first received dependency list.
+	data, err := stream.Recv()
 	utils.HandleError(err)
 
-	readers, err := s.Logs(dependency)
-	utils.HandleError(err)
-	for _, reader := range readers {
-		go stdcopy.StdCopy(os.Stdout, os.Stderr, reader)
+	var (
+		logs    []*dependencyLogs
+		readers []io.Reader
+		closers []io.Closer
+	)
+
+	for _, dep := range data.Depedencies {
+		var (
+			rstd   = newLogReader(dep, core.LogData_Data_Standard)
+			rerr   = newLogReader(dep, core.LogData_Data_Error)
+			prefix = color.New(randColor()).Sprintf("%s |", dep)
+		)
+
+		readers = append(readers, newPrefixedReader(rstd, prefix), newPrefixedReader(rerr, prefix))
+		closers = append(closers, rstd, rerr)
+
+		logs = append(logs, &dependencyLogs{
+			Dependency: dep,
+			Standard:   rstd,
+			Error:      rerr,
+		})
 	}
-	return func() {
-		for _, reader := range readers {
-			reader.Close()
+
+	for _, r := range readers {
+		go io.Copy(os.Stdout, r)
+	}
+
+	for {
+		data, err := stream.Recv()
+		if err != nil {
+			break
+		}
+		for _, l := range logs {
+			l.Standard.process(data)
+			l.Error.process(data)
 		}
 	}
+
+	return func() {
+		for _, c := range closers {
+			c.Close()
+		}
+	}
+}
+
+// logReader implements io.Reader to combine log data chunks being received
+// from gRPC stream.
+type logReader struct {
+	dependency string
+	typ        core.LogData_Data_Type
+
+	recv chan []byte
+	done chan struct{}
+
+	data []byte
+	i    int64
+}
+
+// newLogReader returns a new log reader.
+func newLogReader(dependency string, typ core.LogData_Data_Type) *logReader {
+	return &logReader{
+		dependency: dependency,
+		typ:        typ,
+		recv:       make(chan []byte, 0),
+		done:       make(chan struct{}, 0),
+	}
+}
+
+// process processes log data received from gRPC stream and checks if it belongs
+// to this log stream.
+func (r *logReader) process(data *core.LogData) {
+	if r.dependency == data.Data.Dependency &&
+		r.typ == data.Data.Type {
+		r.recv <- data.Data.Data
+	}
+}
+
+// Read implements io.Reader.
+func (r *logReader) Read(p []byte) (n int, err error) {
+	if r.i >= int64(len(r.data)) {
+		for {
+			select {
+			case <-r.done:
+				return 0, io.EOF
+
+			case data := <-r.recv:
+				if err != nil {
+					return 0, err
+				}
+				r.data = data
+				r.i = 0
+				return r.Read(p)
+			}
+		}
+	}
+	n = copy(p, r.data[r.i:])
+	r.i += int64(n)
+	return n, nil
+}
+
+// Close closes log reader.
+func (r *logReader) Close() error {
+	close(r.done)
+	return nil
+}
+
+// newPrefixedReader wraps io.Reader by adding a prefix for each new line
+// in the stream.
+func newPrefixedReader(r io.Reader, prefix string) io.Reader {
+	return prefixer.New(r, fmt.Sprintf("%s ", prefix))
+}
+
+// randColor returns a random color.
+func randColor() color.Attribute {
+	attrs := []color.Attribute{
+		color.FgRed,
+		color.FgGreen,
+		color.FgYellow,
+		color.FgBlue,
+		color.FgMagenta,
+		color.FgCyan,
+	}
+	rand.Seed(time.Now().UnixNano())
+	return attrs[rand.Intn(len(attrs))]
 }
