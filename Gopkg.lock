@@ -294,6 +294,14 @@
   version = "v0.0.3"
 
 [[projects]]
+  digest = "1:b0b0f412c74e5dc0361e736d28b73e8d6d1fda37479a8ff813917a35a3aec556"
+  name = "github.com/mesg-foundation/prefixer"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "d7dbe41616bd2a2a65f521b4960654f91cb121b5"
+  version = "1.0"
+
+[[projects]]
   branch = "master"
   digest = "1:2b32af4d2a529083275afc192d1067d8126b578c7a9613b26600e4df9c735155"
   name = "github.com/mgutz/ansi"
@@ -781,10 +789,12 @@
     "github.com/docker/docker/client",
     "github.com/docker/docker/pkg/archive",
     "github.com/docker/docker/pkg/stdcopy",
+    "github.com/fatih/color",
     "github.com/golang/protobuf/proto",
     "github.com/grpc-ecosystem/go-grpc-middleware",
     "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus",
     "github.com/logrusorgru/aurora",
+    "github.com/mesg-foundation/prefixer",
     "github.com/mitchellh/go-homedir",
     "github.com/satori/go.uuid",
     "github.com/sirupsen/logrus",
