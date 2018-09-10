@@ -12,6 +12,7 @@ import (
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/mesg-foundation/core/interface/grpc/core"
+	casting "github.com/mesg-foundation/core/utils/service-input-casting"
 	"github.com/mesg-foundation/core/x/xpflag"
 	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/cobra"
@@ -116,7 +117,7 @@ func getData(cmd *cobra.Command, taskKey string, s *core.Service, dataStruct map
 	jsonFile := cmd.Flag("json").Value.String()
 
 	if data != "" {
-		castData, err := castInputs(s, taskKey, dataStruct)
+		castData, err := casting.TaskInputs(s, taskKey, dataStruct)
 		if err != nil {
 			return "", err
 		}
