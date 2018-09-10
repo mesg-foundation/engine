@@ -11,9 +11,7 @@ import (
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/cmd/utils"
-	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/interface/grpc/core"
-	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/x/xpflag"
 	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/cobra"
@@ -53,11 +51,7 @@ func executeHandler(cmd *cobra.Command, args []string) {
 	utils.HandleError(err)
 	taskKey := getTaskKey(cmd, serviceReply.Service)
 
-	// TODO(ilgooz) rm this when we stop using internal methods of service in cmd.
-	sv, err := services.Get(serviceReply.Service.ID)
-	utils.HandleError(err)
-
-	taskData, err := getData(cmd, taskKey, &sv, executeData)
+	taskData, err := getData(cmd, taskKey, serviceReply.Service, executeData)
 	utils.HandleError(err)
 
 	// Create an unique tag that will be used to listen to the result of this exact execution
@@ -117,12 +111,12 @@ func getTaskKey(cmd *cobra.Command, s *core.Service) string {
 	return taskKey
 }
 
-func getData(cmd *cobra.Command, taskKey string, s *service.Service, dataStruct map[string]string) (string, error) {
+func getData(cmd *cobra.Command, taskKey string, s *core.Service, dataStruct map[string]string) (string, error) {
 	data := cmd.Flag("data").Value.String()
 	jsonFile := cmd.Flag("json").Value.String()
 
 	if data != "" {
-		castData, err := s.Cast(taskKey, dataStruct)
+		castData, err := castInputs(s, taskKey, dataStruct)
 		if err != nil {
 			return "", err
 		}
