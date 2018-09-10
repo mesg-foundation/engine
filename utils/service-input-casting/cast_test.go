@@ -1,4 +1,4 @@
-package service
+package casting
 
 import (
 	"testing"
@@ -68,7 +68,7 @@ func TestServiceCast(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		got, err := castInputs(tt.service, "test", tt.data)
+		got, err := TaskInputs(tt.service, "test", tt.data)
 		if tt.expectErr {
 			require.NotNil(t, err)
 		} else {
@@ -78,7 +78,7 @@ func TestServiceCast(t *testing.T) {
 	}
 
 	// test if non-existing key returns error
-	_, err := castInputs(tests[0].service, "_", nil)
+	_, err := TaskInputs(tests[0].service, "_", nil)
 	require.NotNil(t, err)
 }
 

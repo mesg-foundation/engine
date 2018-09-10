@@ -1,4 +1,4 @@
-package service
+package casting
 
 import (
 	"encoding/json"
@@ -49,8 +49,8 @@ var casters = map[string]caster{
 	"Object":  castObject,
 }
 
-// castInputs converts map[string]string to map[string]interface{} based on defined types in the service tasks map.
-func castInputs(s *core.Service, taskKey string, taskData map[string]string) (map[string]interface{}, error) {
+// TaskInputs converts map[string]string to map[string]interface{} based on defined types in the service tasks map.
+func TaskInputs(s *core.Service, taskKey string, taskData map[string]string) (map[string]interface{}, error) {
 	task, ok := s.Tasks[taskKey]
 	if !ok {
 		return nil, fmt.Errorf("task %q does not exists", taskKey)
@@ -63,7 +63,7 @@ func castInputs(s *core.Service, taskKey string, taskData map[string]string) (ma
 			return nil, fmt.Errorf("task input %q does not exists", key)
 		}
 
-		newValue, err := castInput(value, inputType.Type)
+		newValue, err := taskInputs(value, inputType.Type)
 		if err != nil {
 			return nil, fmt.Errorf("task %q - %s", taskKey, err)
 		}
@@ -74,8 +74,8 @@ func castInputs(s *core.Service, taskKey string, taskData map[string]string) (ma
 	return m, nil
 }
 
-// castInput converts single value based on its type.
-func castInput(value, inputType string) (interface{}, error) {
+// taskInputs converts single value based on its type.
+func taskInputs(value, inputType string) (interface{}, error) {
 	c, ok := casters[inputType]
 	if !ok {
 		return nil, fmt.Errorf("input %q - invalid type", value)
