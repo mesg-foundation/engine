@@ -1,70 +1,86 @@
 package config
 
 import (
+	"fmt"
 	"strings"
 	"sync"
 
+	"github.com/kelseyhightower/envconfig"
 	"github.com/mesg-foundation/core/version"
+	"github.com/mesg-foundation/core/x/xstrings"
 	"github.com/sirupsen/logrus"
 )
 
-// Path to a dedicated directory for Core
-// TODO: Path should be reverted to a const when the package database is renovated
-var Path = "/mesg"
+const envPrefix = "mesg"
 
 var (
-	configInstance *config
-	configOnce     sync.Once
+	instance *Config
+	once     sync.Once
 )
 
-// config contains all necessary configs
-type config struct {
-	apiPort    *Entry
-	apiAddress *Entry
-	logFormat  *Entry
-	logLevel   *Entry
-	coreImage  *Entry
+// Config contains all the configuration needed.
+type Config struct {
+	Server struct {
+		Address string
+	}
+
+	Client struct {
+		Address string
+	}
+
+	Log struct {
+		Format string
+		Level  string
+	}
+
+	Core struct {
+		Image string
+	}
 }
 
-// getConfig return a singleton of config
-func getConfig() *config {
-	configOnce.Do(func() {
-		viperEngine := getViperEngine()
-		configInstance = &config{
-			apiPort:    newEntry("API.Port", "50052", viperEngine),
-			apiAddress: newEntry("API.Address", "", viperEngine),
-			logFormat:  newEntry("Log.Format", "text", viperEngine, withAllowedValues("text", "json")),
-			logLevel: newEntry("Log.Level", "info", viperEngine, withValidation(func(value string) error {
-				_, err := logrus.ParseLevel(value)
-				return err
-			})),
-			coreImage: newEntry("Core.Image", "mesg/core:"+strings.Split(version.Version, " ")[0], viperEngine),
-		}
+// New creates a new config with default values.
+func New() *Config {
+	var c Config
+	c.Server.Address = ":50052"
+	c.Client.Address = "localhost:50052"
+	c.Log.Format = "text"
+	c.Log.Level = "info"
+	c.Core.Image = "mesg/core:" + strings.Split(version.Version, " ")[0]
+	return &c
+}
+
+// Global returns a singleton of a Config after loaded ENV and validate the values.
+func Global() (*Config, error) {
+	once.Do(func() {
+		instance = New()
+		instance.Load()
 	})
-	return configInstance
+	if err := instance.Validate(); err != nil {
+		return nil, err
+	}
+	return instance, nil
 }
 
-// APIPort is the port of the GRPC API
-func APIPort() *Entry {
-	return getConfig().apiPort
+// Load reads config from environmental variables.
+func (c *Config) Load() {
+	envconfig.MustProcess(envPrefix, c)
 }
 
-// APIAddress is the ip address of the GRPC API
-func APIAddress() *Entry {
-	return getConfig().apiAddress
+// Validate checks values and return an error if any validation failed.
+func (c *Config) Validate() error {
+	if xstrings.SliceContains([]string{"text", "json"}, c.Log.Format) == false {
+		return fmt.Errorf("Value %q is not an allowed", c.Log.Format)
+	}
+	if _, err := logrus.ParseLevel(c.Log.Level); err != nil {
+		return err
+	}
+	return nil
 }
 
-// LogFormat is the log's format. Can be text or JSON.
-func LogFormat() *Entry {
-	return getConfig().logFormat
-}
-
-// LogLevel is the minimum log's level to output.
-func LogLevel() *Entry {
-	return getConfig().logLevel
-}
-
-// CoreImage is the port of the GRPC API
-func CoreImage() *Entry {
-	return getConfig().coreImage
+// DaemonEnv returns the needed environmental variable for the Daemon.
+func (c *Config) DaemonEnv() map[string]string {
+	return map[string]string{
+		"MESG_LOG_FORMAT": c.Log.Format,
+		"MESG_LOG_LEVEL":  c.Log.Level,
+	}
 }
