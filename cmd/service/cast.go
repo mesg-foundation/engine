@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+
+	"github.com/mesg-foundation/core/interface/grpc/core"
 )
 
 type caster func(value string) (interface{}, error)
@@ -23,6 +25,7 @@ func castNumber(value string) (interface{}, error) {
 	}
 	return f, nil
 }
+
 func castBoolean(value string) (interface{}, error) {
 	b, err := strconv.ParseBool(value)
 	if err != nil {
@@ -30,6 +33,7 @@ func castBoolean(value string) (interface{}, error) {
 	}
 	return b, nil
 }
+
 func castObject(value string) (interface{}, error) {
 	var v interface{}
 	if err := json.Unmarshal([]byte(value), &v); err != nil {
@@ -45,30 +49,23 @@ var casters = map[string]caster{
 	"Object":  castObject,
 }
 
-// Cast converts map[string]string to map[string]interface{} based on defined types in the service tasks map.
-func (s *Service) Cast(taskKey string, taskData map[string]string) (map[string]interface{}, error) {
+// castInputs converts map[string]string to map[string]interface{} based on defined types in the service tasks map.
+func castInputs(s *core.Service, taskKey string, taskData map[string]string) (map[string]interface{}, error) {
 	task, ok := s.Tasks[taskKey]
 	if !ok {
-		return nil, &TaskNotFoundError{
-			TaskKey:     taskKey,
-			ServiceName: s.Name,
-		}
+		return nil, fmt.Errorf("task %q does not exists", taskKey)
 	}
 
 	m := make(map[string]interface{}, len(taskData))
 	for key, value := range taskData {
 		inputType, ok := task.Inputs[key]
 		if !ok {
-			return nil, &TaskInputNotFoundError{
-				TaskKey:      taskKey,
-				TaskInputKey: key,
-				ServiceName:  s.Name,
-			}
+			return nil, fmt.Errorf("task input %q does not exists", key)
 		}
 
-		newValue, err := s.cast(value, inputType.Type)
+		newValue, err := castInput(value, inputType.Type)
 		if err != nil {
-			return nil, fmt.Errorf("Task %q - %s", taskKey, err)
+			return nil, fmt.Errorf("task %q - %s", taskKey, err)
 		}
 		if newValue != nil {
 			m[key] = newValue
@@ -77,8 +74,8 @@ func (s *Service) Cast(taskKey string, taskData map[string]string) (map[string]i
 	return m, nil
 }
 
-// cast converts single value based on its type.
-func (s *Service) cast(value, inputType string) (interface{}, error) {
+// castInput converts single value based on its type.
+func castInput(value, inputType string) (interface{}, error) {
 	c, ok := casters[inputType]
 	if !ok {
 		return nil, fmt.Errorf("input %q - invalid type", value)

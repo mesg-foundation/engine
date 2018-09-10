@@ -3,12 +3,13 @@ package service
 import (
 	"testing"
 
+	"github.com/mesg-foundation/core/interface/grpc/core"
 	"github.com/stretchr/testify/require"
 )
 
 func TestServiceCast(t *testing.T) {
 	var tests = []struct {
-		service   *Service
+		service   *core.Service
 		data      map[string]string
 		expected  map[string]interface{}
 		expectErr bool
@@ -67,7 +68,7 @@ func TestServiceCast(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		got, err := tt.service.Cast("test", tt.data)
+		got, err := castInputs(tt.service, "test", tt.data)
 		if tt.expectErr {
 			require.NotNil(t, err)
 		} else {
@@ -77,22 +78,22 @@ func TestServiceCast(t *testing.T) {
 	}
 
 	// test if non-existing key returns error
-	_, err := tests[0].service.Cast("_", nil)
+	_, err := castInputs(tests[0].service, "_", nil)
 	require.NotNil(t, err)
 }
 
 // creates test service with given inputs name and type under "test" task key.
-func createTestServcieWithInputs(inputs map[string]string) *Service {
-	s := &Service{
-		Tasks: map[string]*Task{
+func createTestServcieWithInputs(inputs map[string]string) *core.Service {
+	s := &core.Service{
+		Tasks: map[string]*core.Task{
 			"test": {
-				Inputs: make(map[string]*Parameter),
+				Inputs: make(map[string]*core.Parameter),
 			},
 		},
 	}
 
 	for name, itype := range inputs {
-		s.Tasks["test"].Inputs[name] = &Parameter{Type: itype}
+		s.Tasks["test"].Inputs[name] = &core.Parameter{Type: itype}
 	}
 	return s
 }
