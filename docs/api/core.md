@@ -778,10 +778,8 @@ The request's data for `DeployService` API.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| url | [string](#string) | Git repo url of service. If url provided, stream will be closed after 
-first receive. |
-| chunk | [bytes](#bytes) | Chunks of gzipped tar archive of service. If chunk provided, stream will 
-be closed after all chunks sent. |
+| url | [string](#string) | Git repo url of service. If url provided, stream will be closed after first receive. |
+| chunk | [bytes](#bytes) | Chunks of gzipped tar archive of service. If chunk provided, stream will be closed after all chunks sent. |
 
 
 
@@ -844,11 +842,9 @@ The reply's data of `DeployService` API.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| status | [DeployServiceReply.Status](#api.DeployServiceReply.Status) | status will be sent after each status change. |
-| serviceID | [string](#string) | serviceID will be sent as the last message of stream when
-service deployed successfully. |
-| validationError | [string](#string) | validationError will be sent as the last message of stream when
-there is a validation error. |
+| status | [DeployServiceReply.Status](#api.DeployServiceReply.Status) | `status` will be sent after each status change. |
+| serviceID | [string](#string) | `serviceID` will be sent as the last message of stream when service deployed successfully. |
+| validationError | [string](#string) | `validationError` will be sent as the last message of stream when there is a validation error. |
 
 
 
@@ -1339,7 +1335,7 @@ The reply's data of the `GetService` API.
 
 ## ServiceLogs
 
-ServiceLogs gives logs for all dependencies or one when specified of a service.
+ServiceLogs gives a stream for dependency logs of a service.
 
 <tabs>
 <tab title="Request">
@@ -1381,13 +1377,13 @@ ServiceLogs gives logs for all dependencies or one when specified of a service.
 
 
 #### ServiceLogsRequest
-
+The request's data for `ServiceLogs` API.
 
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| serviceID | [string](#string) |  |
-| dependencies | [string](#string)[] |  |
+| serviceID | [string](#string) | The Service ID. Generated when using the [`DeployService` API](#deployservice). |
+| dependencies | [string](#string)[] | __Optional.__ List of dependencies to filter service logs. All by default. |
 
 
 
@@ -1436,14 +1432,13 @@ ServiceLogs gives logs for all dependencies or one when specified of a service.
 
 
 #### LogData
-LogData is the log data of service dependencies.
+LogData holds the log data chunk and log info of service dependencies.
 
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| depedencies | [string](#string)[] | depedencies are the depedencies that log data will be sent for.
-it'll be only sent once as a first message of gRPC stream. |
-| data | [LogData.Data](#api.LogData.Data) | data is a log data of dependency . |
+| depedencies | [string](#string)[] | depedencies are the depedencies that log datas will be sent for. It'll be only sent once as a first message of gRPC stream. |
+| data | [LogData.Data](#api.LogData.Data) | data is a dependency log data. |
 
 
 

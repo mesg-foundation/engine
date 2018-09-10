@@ -20,8 +20,8 @@ mesg-core service logs SERVICE_ID --dependency DEPENDENCY_NAME
 ### Options
 
 ```
-  -d, --dependency string   Name of the dependency to only show the logs from (default "*")
-  -h, --help                help for logs
+  -d, --dependency stringArray   Name of the dependency to only show the logs from
+  -h, --help                     help for logs
 ```
 
 ### SEE ALSO
