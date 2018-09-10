@@ -57,13 +57,11 @@ func (c *Container) DeleteNetwork(namespace []string) error {
 	if err != nil {
 		return err
 	}
-	for {
-		select {
-		case <-messageChan:
-			return nil
-		case err := <-errChan:
-			return err
-		}
+	select {
+	case <-messageChan:
+		return nil
+	case err := <-errChan:
+		return err
 	}
 }
 
