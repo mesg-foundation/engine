@@ -57,30 +57,24 @@ func showLogs(serviceID string, dependencies ...string) func() {
 	utils.HandleError(err)
 
 	var (
-		logs    []*dependencyLogs
-		readers []io.Reader
-		closers []io.Closer
+		rstds, rerrs []*logReader
 	)
 
 	for _, dep := range data.Depedencies {
 		var (
-			rstd   = newLogReader(dep, core.LogData_Data_Standard)
-			rerr   = newLogReader(dep, core.LogData_Data_Error)
-			prefix = color.New(randColor()).Sprintf("%s |", dep)
+			rstd = newLogReader(dep, core.LogData_Data_Standard)
+			rerr = newLogReader(dep, core.LogData_Data_Error)
 		)
 
-		readers = append(readers, newPrefixedReader(rstd, prefix), newPrefixedReader(rerr, prefix))
-		closers = append(closers, rstd, rerr)
-
-		logs = append(logs, &dependencyLogs{
-			Dependency: dep,
-			Standard:   rstd,
-			Error:      rerr,
-		})
+		rstds = append(rstds, rstd)
+		rerrs = append(rerrs, rerr)
 	}
 
-	for _, r := range readers {
-		go io.Copy(os.Stdout, r)
+	for _, r := range rstds {
+		go prefixedCopy(os.Stdout, r, r.dependency)
+	}
+	for _, r := range rerrs {
+		go prefixedCopy(os.Stderr, r, r.dependency)
 	}
 
 	for {
@@ -88,14 +82,13 @@ func showLogs(serviceID string, dependencies ...string) func() {
 		if err != nil {
 			break
 		}
-		for _, l := range logs {
-			l.Standard.process(data)
-			l.Error.process(data)
+		for _, l := range append(rstds, rerrs...) {
+			l.process(data)
 		}
 	}
 
 	return func() {
-		for _, c := range closers {
+		for _, c := range append(rstds, rerrs...) {
 			c.Close()
 		}
 	}
@@ -162,10 +155,16 @@ func (r *logReader) Close() error {
 	return nil
 }
 
-// newPrefixedReader wraps io.Reader by adding a prefix for each new line
+// prefixedReader wraps io.Reader by adding a prefix for each new line
 // in the stream.
-func newPrefixedReader(r io.Reader, prefix string) io.Reader {
+func prefixedReader(r io.Reader, prefix string) io.Reader {
 	return prefixer.New(r, fmt.Sprintf("%s ", prefix))
+}
+
+// prefixedCopy copies src to dst by prefixing dependency key to each new line.
+func prefixedCopy(dst io.Writer, src io.Reader, dep string) {
+	prefix := color.New(randColor()).Sprintf("%s |", dep)
+	io.Copy(dst, prefixedReader(src, prefix))
 }
 
 // randColor returns a random color.
