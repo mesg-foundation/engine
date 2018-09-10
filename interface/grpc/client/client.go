@@ -19,18 +19,10 @@ func API() (core.CoreClient, error) {
 
 func getClient() (cli core.CoreClient, err error) {
 	once.Do(func() {
-		apiAddress, err := config.APIAddress().GetValue()
-		if err != nil {
-			return
-		}
-		apiPort, err := config.APIPort().GetValue()
-		if err != nil {
-			return
-		}
+		c, err := config.Global()
 		utils.HandleError(err)
-
 		var connection *grpc.ClientConn
-		connection, err = grpc.Dial(apiAddress+":"+apiPort, grpc.WithInsecure())
+		connection, err = grpc.Dial(c.Client.Address, grpc.WithInsecure())
 		if err != nil {
 			return
 		}
