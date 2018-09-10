@@ -1,11 +1,11 @@
 package daemon
 
 import (
-	"strconv"
 	"testing"
 
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
+	"github.com/mesg-foundation/core/x/xnet"
 	"github.com/stretchr/testify/require"
 )
 
@@ -56,8 +56,8 @@ func TestStartConfig(t *testing.T) {
 	require.True(t, contains(spec.Env, "MESG_LOG_LEVEL=info"))
 	require.True(t, contains(spec.Env, "MESG_LOG_FORMAT=text"))
 	// Ensure that the port is shared
-	portValue, _ := config.APIPort().GetValue()
-	port, _ := strconv.Atoi(portValue)
+	c, err := config.Global()
+	_, port, err := xnet.SplitHostPort(c.Server.Address)
 	require.Equal(t, spec.Ports[0].Published, uint32(port))
 	require.Equal(t, spec.Ports[0].Target, uint32(port))
 	// Ensure that the docker socket is shared in the core

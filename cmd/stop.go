@@ -40,17 +40,16 @@ func stopHandler(cmd *cobra.Command, args []string) {
 	fmt.Println(aurora.Green("MESG Core stopped"))
 }
 
-func getCli() (cli core.CoreClient, err error) {
-	apiAddress, err := config.APIAddress().GetValue()
-	utils.HandleError(err)
-	apiPort, err := config.APIPort().GetValue()
-	utils.HandleError(err)
-	connection, err := grpc.Dial(apiAddress+":"+apiPort, grpc.WithInsecure())
+func getCli() (core.CoreClient, error) {
+	c, err := config.Global()
 	if err != nil {
-		return
+		return nil, err
 	}
-	cli = core.NewCoreClient(connection)
-	return
+	connection, err := grpc.Dial(c.Client.Address, grpc.WithInsecure())
+	if err != nil {
+		return nil, err
+	}
+	return core.NewCoreClient(connection), nil
 }
 
 func stopServices() (err error) {

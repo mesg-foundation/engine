@@ -27,10 +27,11 @@ func (v *logFormatValue) Set(value string) error {
 	if value != "text" && value != "json" {
 		return fmt.Errorf("%s is not valid log format", value)
 	}
-	err := config.LogFormat().SetValue(value)
+	c, err := config.Global()
 	if err != nil {
 		return err
 	}
+	c.Log.Format = value
 	*v = logFormatValue(value)
 	return nil
 }
@@ -44,10 +45,11 @@ func (v *logLevelValue) Set(value string) error {
 	if _, err := logrus.ParseLevel(value); err != nil {
 		return fmt.Errorf("%s is not valid log level", value)
 	}
-	err := config.LogLevel().SetValue(value)
+	c, err := config.Global()
 	if err != nil {
 		return err
 	}
+	c.Log.Level = value
 	*v = logLevelValue(value)
 	return nil
 }

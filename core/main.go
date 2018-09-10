@@ -10,26 +10,18 @@ import (
 )
 
 func main() {
-	format, err := config.LogFormat().GetValue()
-	if err != nil {
-		panic(err)
-	}
-	level, err := config.LogLevel().GetValue()
-	if err != nil {
-		panic(err)
-	}
-	apiPort, err := config.APIPort().GetValue()
+	c, err := config.Global()
 	if err != nil {
 		panic(err)
 	}
 
-	logger.Init(format, level)
+	logger.Init(c.Log.Format, c.Log.Level)
 
 	logrus.Println("Starting MESG Core", version.Version)
 
 	tcpServer := &grpc.Server{
 		Network: "tcp",
-		Address: ":" + apiPort,
+		Address: c.Server.Address,
 	}
 
 	go func() {

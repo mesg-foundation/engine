@@ -13,11 +13,9 @@ import (
 )
 
 func cli() core.CoreClient {
-	apiAddress, err := config.APIAddress().GetValue()
+	c, err := config.Global()
 	utils.HandleError(err)
-	apiPort, err := config.APIPort().GetValue()
-	utils.HandleError(err)
-	connection, err := grpc.Dial(apiAddress+":"+apiPort, grpc.WithInsecure())
+	connection, err := grpc.Dial(c.Client.Address, grpc.WithInsecure())
 	utils.HandleError(err)
 	return core.NewCoreClient(connection)
 }
