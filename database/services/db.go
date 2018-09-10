@@ -32,7 +32,7 @@ func close() (err error) {
 	defer instanceMutex.Unlock()
 	instances--
 	if _instance != nil && instances == 0 {
-		err = _instance.Close()
+		err = _instance.Close() // TODO: this should return the error before set _instance to nil
 		_instance = nil
 	}
 	return
