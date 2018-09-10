@@ -1,82 +1,70 @@
 package config
 
 import (
-	"fmt"
+	"strings"
+	"sync"
 
-	"github.com/mesg-foundation/core/x/xstrings"
+	"github.com/mesg-foundation/core/version"
+	"github.com/sirupsen/logrus"
 )
 
-// Config is a wrapper of Setting that has validation functionality.
-type Config struct {
-	key         string
-	engine      engine
-	validations []func(value string) error
+// Path to a dedicated directory for Core
+// TODO: Path should be reverted to a const when the package database is renovated
+var Path = "/mesg"
+
+var (
+	configInstance *config
+	configOnce     sync.Once
+)
+
+// config contains all necessary configs
+type config struct {
+	apiPort    *Entry
+	apiAddress *Entry
+	logFormat  *Entry
+	logLevel   *Entry
+	coreImage  *Entry
 }
 
-// option for configuring a Config
-type option func(*Config)
-
-// withAllowedValues accepts a list of allowed values that the config's value should match
-func withAllowedValues(allowedValues ...string) option {
-	return withValidation(func(value string) error {
-		if xstrings.SliceContains(allowedValues, value) == false {
-			return fmt.Errorf("Value %q is not an allowed", value)
+// getConfig return a singleton of config
+func getConfig() *config {
+	configOnce.Do(func() {
+		viperEngine := getViperEngine()
+		configInstance = &config{
+			apiPort:    newEntry("API.Port", "50052", viperEngine),
+			apiAddress: newEntry("API.Address", "", viperEngine),
+			logFormat:  newEntry("Log.Format", "text", viperEngine, withAllowedValues("text", "json")),
+			logLevel: newEntry("Log.Level", "info", viperEngine, withValidation(func(value string) error {
+				_, err := logrus.ParseLevel(value)
+				return err
+			})),
+			coreImage: newEntry("Core.Image", "mesg/core:"+strings.Split(version.Version, " ")[0], viperEngine),
 		}
-		return nil
 	})
+	return configInstance
 }
 
-// withValidation accepts a generic function to validate the value
-func withValidation(validation func(value string) error) option {
-	return func(c *Config) {
-		c.validations = append(c.validations, validation)
-	}
+// APIPort is the port of the GRPC API
+func APIPort() *Entry {
+	return getConfig().apiPort
 }
 
-// New initializes a Config based on a setting and optional validation function
-func new(key string, defaultValue string, e engine, options ...option) *Config {
-	c := &Config{
-		key:    key,
-		engine: e,
-	}
-	for _, option := range options {
-		option(c)
-	}
-	c.engine.setDefaultValue(key, defaultValue)
-	return c
+// APIAddress is the ip address of the GRPC API
+func APIAddress() *Entry {
+	return getConfig().apiAddress
 }
 
-// validate checks the value against the validation functions
-func (config *Config) validate(value string) error {
-	for _, validation := range config.validations {
-		if err := validation(value); err != nil {
-			return err
-		}
-	}
-	return nil
+// LogFormat is the log's format. Can be text or JSON.
+func LogFormat() *Entry {
+	return getConfig().logFormat
 }
 
-// SetValue validates and set the value to the config
-func (config *Config) SetValue(value string) error {
-	if err := config.validate(value); err != nil {
-		return err
-	}
-	return config.engine.setValue(config.key, value)
+// LogLevel is the minimum log's level to output.
+func LogLevel() *Entry {
+	return getConfig().logLevel
 }
 
-// GetValue returns the value and an error if the validation failed.
-func (config *Config) GetValue() (string, error) {
-	value, err := config.engine.getValue(config.key)
-	if err != nil {
-		return "", err
-	}
-	if err := config.validate(value); err != nil {
-		return "", err
-	}
-	return value, nil
-}
-
-// GetEnvKey returns the key to use in env
-func (config *Config) GetEnvKey() string {
-	return config.engine.getEnvKey(config.key)
+// CoreImage is the port of the GRPC API
+func CoreImage() *Entry {
+	return getConfig().coreImage
 }
