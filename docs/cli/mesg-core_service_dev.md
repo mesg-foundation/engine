@@ -1,10 +1,10 @@
 ## mesg-core service dev
 
-Run your service in development mode
+Run a service in development mode
 
 ### Synopsis
 
-Run your service in development mode
+Run a service in development mode
 
 ```
 mesg-core service dev [flags]

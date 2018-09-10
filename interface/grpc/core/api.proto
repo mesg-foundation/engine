@@ -209,12 +209,10 @@ message StopServiceReply {
 // ```
 message DeployServiceRequest {
   oneof value {
-    // Git repo url of service. If url provided, stream will be closed after 
-    // first receive.
+    // Git repo url of service. If url provided, stream will be closed after first receive.
     string url = 2;
     
-    // Chunks of gzipped tar archive of service. If chunk provided, stream will 
-    // be closed after all chunks sent.
+    // Chunks of gzipped tar archive of service. If chunk provided, stream will be closed after all chunks sent.
     bytes chunk = 3; 
   }
 }
@@ -245,15 +243,13 @@ message DeployServiceReply {
   }
 
   oneof value {
-    // status will be sent after each status change.
+    // `status` will be sent after each status change.
     Status status = 2;
 
-    // serviceID will be sent as the last message of stream when
-    // service deployed successfully.
+    // `serviceID` will be sent as the last message of stream when service deployed successfully.
     string serviceID = 3;
 
-    // validationError will be sent as the last message of stream when
-    // there is a validation error.
+    // `validationError` will be sent as the last message of stream when there is a validation error.
     string validationError = 4;
   }
 }
@@ -362,8 +358,8 @@ message GetServiceReply {
 
 // The request's data for `ServiceLogs` API.
 message ServiceLogsRequest {
-  string serviceID = 1;
-  repeated string dependencies = 2;
+  string serviceID = 1;             // The Service ID. Generated when using the [`DeployService` API](#deployservice).
+  repeated string dependencies = 2; // __Optional.__ List of dependencies to filter service logs. All by default.
 }
 
 // LogData holds the log data chunk and log info of service dependencies.
@@ -387,8 +383,7 @@ message LogData {
     bytes data = 3;
   }
 
-  // depedencies are the depedencies that log datas will be sent for.
-  // it'll be only sent once as a first message of gRPC stream.
+  // depedencies are the depedencies that log datas will be sent for. It'll be only sent once as a first message of gRPC stream.
   repeated string depedencies = 1;
   
 
