@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/spf13/cobra"
 	survey "gopkg.in/AlecAivazis/survey.v1"
 )
@@ -59,7 +60,7 @@ func (c *serviceDeleteCmd) runE(cmd *cobra.Command, args []string) error {
 		if err := c.e.ServiceDeleteAll(); err != nil {
 			return err
 		}
-		fmt.Println("All services are deleted")
+		fmt.Printf("%s all services are deleted", pretty.SuccessSign)
 		return nil
 	}
 
@@ -67,9 +68,9 @@ func (c *serviceDeleteCmd) runE(cmd *cobra.Command, args []string) error {
 	for _, arg := range args {
 		if err := c.e.ServiceDelete(arg); err != nil {
 			exitWithError = true
-			fmt.Fprintf(os.Stderr, "can't delete %s service: %s\n", arg, err)
+			fmt.Fprintf(os.Stderr, "%s can't delete %s service: %s\n", pretty.FailSign, arg, err)
 		} else {
-			fmt.Println("Service", arg, "deleted")
+			fmt.Printf("%s service %s deleted\n", pretty.SuccessSign, arg)
 		}
 	}
 
