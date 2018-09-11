@@ -16,7 +16,9 @@ func (e Errors) Error() string {
 
 	var s string
 	for _, err := range e {
-		s += err.Error() + "\n"
+		if err != nil {
+			s += err.Error() + "\n"
+		}
 	}
 	// remove last new line
 	return s[:len(s)-1]
