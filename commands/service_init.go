@@ -50,38 +50,18 @@ mesg-core service init --current`,
 }
 
 func (c *serviceInitCmd) preRunE(cmd *cobra.Command, args []string) error {
-	// select service name
-	if c.name == "" {
-		if err := survey.AskOne(&survey.Input{
-			Message: "Enter the service name",
-		}, &c.name, nil); err != nil {
-			return err
-		}
+	if err := c.selectName(); err != nil {
+		return err
 	}
 
-	// select service description
-	if c.description == "" {
-		if err := survey.AskOne(&survey.Input{
-			Message: "Enter the service description",
-		}, &c.description, nil); err != nil {
-			return err
-		}
+	if err := c.selectDescription(); err != nil {
+		return err
 	}
 
-	// select output directory
-	if c.dir == "" {
-		defval := c.name
-		if defval == "" {
-			defval = "."
-		}
-
-		if err := survey.AskOne(&survey.Input{
-			Message: "Enter the output directory",
-			Default: defval,
-		}, &c.dir, nil); err != nil {
-			return err
-		}
+	if err := c.selectOutputDirecotry(); err != nil {
+		return err
 	}
+
 	if c.templateURL != "" {
 		c.templateName = c.templateURL
 		return nil
@@ -135,6 +115,39 @@ func (c *serviceInitCmd) runE(cmd *cobra.Command, args []string) error {
 		Name:        c.name,
 		Description: c.description,
 	})
+}
+
+func (c *serviceInitCmd) selectName() error {
+	if c.name != "" {
+		return nil
+	}
+	return survey.AskOne(&survey.Input{
+		Message: "Enter the service name",
+	}, &c.name, nil)
+}
+
+func (c *serviceInitCmd) selectDescription() error {
+	if c.description != "" {
+		return nil
+	}
+	return survey.AskOne(&survey.Input{
+		Message: "Enter the service description",
+	}, &c.description, nil)
+}
+
+func (c *serviceInitCmd) selectOutputDirecotry() error {
+	if c.dir != "" {
+		return nil
+	}
+	defval := c.name
+	if defval == "" {
+		defval = "."
+	}
+
+	return survey.AskOne(&survey.Input{
+		Message: "Enter the output directory",
+		Default: defval,
+	}, &c.dir, nil)
 }
 
 func templatesToOptions(templates []*servicetemplate.Template) []string {
