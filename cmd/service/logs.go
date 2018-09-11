@@ -40,7 +40,8 @@ func logsHandler(cmd *cobra.Command, args []string) {
 }
 
 func showLogs(serviceID string, dependencies ...string) func() {
-	stream, err := cli().ServiceLogs(context.Background(), &core.ServiceLogsRequest{
+	ctx, cancel := context.WithCancel(context.Background())
+	stream, err := cli().ServiceLogs(ctx, &core.ServiceLogsRequest{
 		ServiceID:    serviceID,
 		Dependencies: dependencies,
 	})
@@ -81,17 +82,20 @@ func showLogs(serviceID string, dependencies ...string) func() {
 		go prefixedCopy(os.Stderr, r, dependencyPrefix[r.dependency])
 	}
 
-	for {
-		data, err := stream.Recv()
-		if err != nil {
-			break
+	go func() {
+		for {
+			data, err := stream.Recv()
+			if err != nil {
+				return
+			}
+			for _, l := range append(rstds, rerrs...) {
+				l.process(data)
+			}
 		}
-		for _, l := range append(rstds, rerrs...) {
-			l.process(data)
-		}
-	}
+	}()
 
 	return func() {
+		cancel()
 		for _, c := range append(rstds, rerrs...) {
 			c.Close()
 		}

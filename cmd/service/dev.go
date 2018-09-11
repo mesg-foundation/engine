@@ -42,9 +42,10 @@ func devHandler(cmd *cobra.Command, args []string) {
 	go listenResults(serviceID, cmd.Flag("task-filter").Value.String(), cmd.Flag("output-filter").Value.String())
 
 	closeReaders := showLogs(serviceID)
-	defer closeReaders()
 
 	<-xsignal.WaitForInterrupt()
+
+	closeReaders()
 
 	utils.ShowSpinnerForFunc(utils.SpinnerOptions{Text: "Stopping service..."}, func() {
 		cli().DeleteService(context.Background(), &core.DeleteServiceRequest{ // Delete service. This will automatically stop the service too
