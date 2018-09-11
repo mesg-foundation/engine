@@ -49,16 +49,21 @@ func (c *serviceDevCmd) preRunE(cmd *cobra.Command, args []string) error {
 }
 
 func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
-	fmt.Println("Deploying the service...")
-	id, valid, err := c.e.ServiceDeploy(c.path)
+	var (
+		id    string
+		valid bool
+		err   error
+	)
+	pretty.Progress("Deploying the service...", func() {
+		id, valid, err = c.e.ServiceDeploy(c.path)
+	})
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%s Service deployed\n", pretty.SuccessSign)
-
 	if !valid {
 		return errors.New("service deploy invalid")
 	}
+	fmt.Printf("%s Service deployed\n", pretty.SuccessSign)
 	defer pretty.Progress("Removing the service...", func() { c.e.ServiceDelete(id) })
 
 	pretty.Progress("Starting the service...", func() { err = c.e.ServiceStart(id) })
