@@ -18,7 +18,7 @@ func TestStartService(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	}, ContainerOption(defaultContainer))
+	}, ContainerOption(newContainer(t)))
 	dockerServices, err := service.Start()
 	defer service.Stop()
 	require.Nil(t, err)
@@ -28,6 +28,7 @@ func TestStartService(t *testing.T) {
 }
 
 func TestStartWith2Dependencies(t *testing.T) {
+	c := newContainer(t)
 	service, _ := FromService(&Service{
 		Name: "TestStartWith2Dependencies",
 		Dependencies: []*Dependency{
@@ -40,14 +41,14 @@ func TestStartWith2Dependencies(t *testing.T) {
 				Image: "sleep:latest",
 			},
 		},
-	}, ContainerOption(defaultContainer))
+	}, ContainerOption(c))
 	servicesID, err := service.Start()
 	defer service.Stop()
 	require.Nil(t, err)
 	require.Equal(t, 2, len(servicesID))
 	deps := service.Dependencies
-	container1, err1 := defaultContainer.FindContainer(deps[0].namespace())
-	container2, err2 := defaultContainer.FindContainer(deps[1].namespace())
+	container1, err1 := c.FindContainer(deps[0].namespace())
+	container2, err2 := c.FindContainer(deps[1].namespace())
 	require.Nil(t, err1)
 	require.Nil(t, err2)
 	require.Equal(t, "http-server:latest", container1.Config.Image)
@@ -63,7 +64,7 @@ func TestStartAgainService(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	}, ContainerOption(defaultContainer))
+	}, ContainerOption(newContainer(t)))
 	service.Start()
 	defer service.Stop()
 	dockerServices, err := service.Start()
@@ -87,7 +88,7 @@ func TestStartAgainService(t *testing.T) {
 // 				Image: "http-server",
 // 			},
 // 		},
-// 	}, ContainerOption(defaultContainer))
+// 	}, ContainerOption(newContainer(t)))
 // 	service.Start()
 // 	defer service.Stop()
 // 	service.Dependencies[0].Stop()
@@ -101,6 +102,7 @@ func TestStartAgainService(t *testing.T) {
 // }
 
 func TestStartDependency(t *testing.T) {
+	c := newContainer(t)
 	service, _ := FromService(&Service{
 		Name: "TestStartDependency",
 		Dependencies: []*Dependency{
@@ -109,9 +111,9 @@ func TestStartDependency(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	}, ContainerOption(defaultContainer))
-	networkID, err := defaultContainer.CreateNetwork(service.namespace())
-	defer defaultContainer.DeleteNetwork(service.namespace())
+	}, ContainerOption(c))
+	networkID, err := c.CreateNetwork(service.namespace())
+	defer c.DeleteNetwork(service.namespace())
 	dep := service.Dependencies[0]
 	serviceID, err := dep.Start(networkID)
 	defer dep.Stop()
@@ -122,6 +124,7 @@ func TestStartDependency(t *testing.T) {
 }
 
 func TestNetworkCreated(t *testing.T) {
+	c := newContainer(t)
 	service, _ := FromService(&Service{
 		Name: "TestNetworkCreated",
 		Dependencies: []*Dependency{
@@ -130,10 +133,10 @@ func TestNetworkCreated(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	}, ContainerOption(defaultContainer))
+	}, ContainerOption(c))
 	service.Start()
 	defer service.Stop()
-	network, err := defaultContainer.FindNetwork(service.namespace())
+	network, err := c.FindNetwork(service.namespace())
 	require.Nil(t, err)
 	require.NotEqual(t, "", network.ID)
 }
@@ -148,7 +151,7 @@ func TestStartStopStart(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	}, ContainerOption(defaultContainer))
+	}, ContainerOption(newContainer(t)))
 	service.Start()
 	service.Stop()
 	dockerServices, err := service.Start()
@@ -160,6 +163,7 @@ func TestStartStopStart(t *testing.T) {
 }
 
 func TestServiceDependenciesListensFromSamePort(t *testing.T) {
+	c := newContainer(t)
 	var (
 		service, _ = FromService(&Service{
 			Name: "TestServiceDependenciesListensFromSamePort",
@@ -170,7 +174,7 @@ func TestServiceDependenciesListensFromSamePort(t *testing.T) {
 					Ports: []string{"80"},
 				},
 			},
-		}, ContainerOption(defaultContainer))
+		}, ContainerOption(c))
 
 		service1, _ = FromService(&Service{
 			Name: "TestServiceDependenciesListensFromSamePort1",
@@ -181,7 +185,7 @@ func TestServiceDependenciesListensFromSamePort(t *testing.T) {
 					Ports: []string{"80"},
 				},
 			},
-		}, ContainerOption(defaultContainer))
+		}, ContainerOption(c))
 	)
 	_, err := service.Start()
 	require.NoError(t, err)

@@ -21,7 +21,7 @@ func TestLogs(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	}, ContainerOption(defaultContainer))
+	}, ContainerOption(newContainer(t)))
 	service.Start()
 	defer service.Stop()
 	readers, err := service.Logs()
@@ -42,7 +42,7 @@ func TestLogsOnlyOneDependency(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	}, ContainerOption(defaultContainer))
+	}, ContainerOption(newContainer(t)))
 	service.Start()
 	defer service.Stop()
 	readers, err := service.Logs("test2")
