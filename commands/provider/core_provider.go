@@ -12,21 +12,25 @@ import (
 	"github.com/mesg-foundation/core/x/xerrors"
 )
 
+// CoreProvider is a struct that provides all methods required by core command.
 type CoreProvider struct {
 	client core.CoreClient
 }
 
+// NewCoreProvider creates new CoreProvider.
 func NewCoreProvider(client core.CoreClient) *CoreProvider {
 	return &CoreProvider{
 		client: client,
 	}
 }
 
+// Start starts core daemon.
 func (p *CoreProvider) Start() error {
 	_, err := daemon.Start()
 	return err
 }
 
+// Stop stops core daemon and all running services.
 func (p *CoreProvider) Stop() error {
 	var wg sync.WaitGroup
 
@@ -70,10 +74,12 @@ loop:
 	return errs.ErrorOrNil()
 }
 
+// Status returns daemon status.
 func (p *CoreProvider) Status() (container.StatusType, error) {
 	return daemon.Status()
 }
 
+// Logs returns daemon logs reader.
 func (p *CoreProvider) Logs() (io.ReadCloser, error) {
 	return daemon.Logs()
 }
