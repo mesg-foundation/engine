@@ -244,15 +244,11 @@ func (p *Pretty) Progress(message string, fn func()) {
 		return
 	}
 
-	p.Spinner.Suffix = " " + message
+	p.Spinner.Suffix = " " + strings.TrimRight(message, "\n")
 	p.Spinner.Start()
 	fn()
 	p.Spinner.Stop()
 	p.Spinner.Suffix = ""
-
-	if !strings.HasSuffix(message, "\n") {
-		fmt.Println()
-	}
 }
 
 // FgColors returns a slice with predefiend foreground color.

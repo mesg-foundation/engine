@@ -211,7 +211,3 @@ func (p *ServiceProvider) ServiceInitTemplateList() ([]*servicetemplate.Template
 func (p *ServiceProvider) ServiceInitDownloadTemplate(t *servicetemplate.Template, dst string) error {
 	return servicetemplate.Download(t, dst)
 }
-
-func (p *ServiceProvider) ServiceInitExecuteTemplate(dst string, option servicetemplate.ConfigOption) error {
-	return servicetemplate.ExecuteTemplateConfig(dst, option)
-}

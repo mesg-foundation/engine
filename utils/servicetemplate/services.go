@@ -1,14 +1,12 @@
 package servicetemplate
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
-	"text/template"
 
 	"github.com/mesg-foundation/core/x/xgit"
 	"github.com/mesg-foundation/core/x/xos"
@@ -61,27 +59,4 @@ func Download(t *Template, dst string) error {
 	}
 
 	return xos.CopyDir(filepath.Join(path, "template"), dst)
-}
-
-func ExecuteTemplateConfig(dst string, option ConfigOption) error {
-	var (
-		file = filepath.Join(dst, "mesg.yml")
-		buf  *bytes.Buffer
-	)
-
-	t, err := template.ParseFiles(file)
-	if err != nil {
-		return err
-	}
-
-	si, err := os.Stat(file)
-	if err != nil {
-		return err
-	}
-
-	if err := t.Execute(buf, option); err != nil {
-		return err
-	}
-
-	return ioutil.WriteFile(file, buf.Bytes(), si.Mode())
 }

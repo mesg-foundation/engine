@@ -17,13 +17,13 @@ import (
 func main() {
 	cfg, err := config.Global()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		fmt.Fprintf(os.Stderr, "%s\n", pretty.Fail(clierrors.ErrorMessage(err)))
 		os.Exit(1)
 	}
 
 	connection, err := grpc.Dial(cfg.Client.Address, grpc.WithInsecure())
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		fmt.Fprintf(os.Stderr, "%s\n", pretty.Fail(clierrors.ErrorMessage(err)))
 		os.Exit(1)
 	}
 
