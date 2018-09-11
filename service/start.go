@@ -7,7 +7,9 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
+	"github.com/mesg-foundation/core/x/xnet"
 	"github.com/mesg-foundation/core/x/xstructhash"
 )
 
@@ -71,7 +73,12 @@ func (dependency *DependencyFromService) Start(networkID string) (containerServi
 	if err != nil {
 		return "", err
 	}
-	endpoint := "mesg-core:50052" // TODO: should get this from daemon namespace and config
+	c, err := config.Global()
+	if err != nil {
+		return "", err
+	}
+	_, port, err := xnet.SplitHostPort(c.Server.Address)
+	endpoint := "mesg-core:" + strconv.Itoa(port) // TODO: should get this from daemon namespace and config
 	return defaultContainer.StartService(container.ServiceOptions{
 		Namespace: dependency.namespace(),
 		Labels: map[string]string{
