@@ -15,6 +15,7 @@ const (
 	installDocker      = "Please make sure Docker is running.\nIf Docker is not installed on your machine you can install it here: https://store.docker.com/search?type=edition&offering=community"
 )
 
+// ErrorMessage returns error description based on error type.
 func ErrorMessage(err error) string {
 	switch {
 	case coreConnectionError(err):
