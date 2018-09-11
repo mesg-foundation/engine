@@ -2,14 +2,10 @@ package provider
 
 import (
 	"context"
-	"fmt"
 	"io"
 
 	"github.com/asaskevich/govalidator"
-	"github.com/briandowns/spinner"
 	"github.com/docker/docker/pkg/archive"
-	"github.com/logrusorgru/aurora"
-	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/mesg-foundation/core/interface/grpc/core"
 )
 
@@ -78,7 +74,6 @@ type deploymentResult struct {
 
 func readDeployReply(stream core.Core_DeployServiceClient, deployment chan deploymentResult) {
 	var (
-		sp     *spinner.Spinner
 		result = deploymentResult{isValid: true}
 	)
 
@@ -91,35 +86,17 @@ func readDeployReply(stream core.Core_DeployServiceClient, deployment chan deplo
 		}
 
 		var (
-			status          = message.GetStatus()
 			serviceID       = message.GetServiceID()
 			validationError = message.GetValidationError()
 		)
 
 		switch {
-		case status != nil:
-			switch status.Type {
-			case core.DeployServiceReply_Status_RUNNING:
-				sp = utils.StartSpinner(utils.SpinnerOptions{Text: status.Message})
-
-			case core.DeployServiceReply_Status_DONE:
-				sp.Stop()
-				fmt.Println(status.Message)
-			}
-
 		case serviceID != "":
-			sp.Stop()
-
 			result.serviceID = serviceID
 			deployment <- result
 			return
 
 		case validationError != "":
-			sp.Stop()
-
-			fmt.Println(aurora.Red(validationError))
-			fmt.Println("Run the command 'service validate' for more details")
-
 			result.isValid = false
 			deployment <- result
 			return
