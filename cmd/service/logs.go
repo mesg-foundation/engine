@@ -4,13 +4,12 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"math/rand"
 	"os"
-	"time"
 
 	"github.com/fatih/color"
 	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/mesg-foundation/core/interface/grpc/core"
+	"github.com/mesg-foundation/core/x/xcolor"
 	"github.com/mesg-foundation/core/x/xsignal"
 	"github.com/mesg-foundation/core/x/xstrings"
 	"github.com/mesg-foundation/prefixer"
@@ -40,12 +39,6 @@ func logsHandler(cmd *cobra.Command, args []string) {
 	<-xsignal.WaitForInterrupt()
 }
 
-// dependencyLogs keeps dependency info and corresponding std & err log streams.
-type dependencyLogs struct {
-	Dependency      string
-	Standard, Error *logReader
-}
-
 func showLogs(serviceID string, dependencies ...string) func() {
 	stream, err := cli().ServiceLogs(context.Background(), &core.ServiceLogsRequest{
 		ServiceID:    serviceID,
@@ -59,31 +52,33 @@ func showLogs(serviceID string, dependencies ...string) func() {
 
 	var (
 		rstds, rerrs []*logReader
+
+		// maxCharLen is the char length of longest dependency key.
+		maxCharLen int
+
+		// dependencyPrefix is a dependency key, log prefix pair.
+		dependencyPrefix = make(map[string]string)
 	)
 
+	// find out the char length of longest dependency key.
 	for _, dep := range data.Depedencies {
-		var (
-			rstd = newLogReader(dep, core.LogData_Data_Standard)
-			rerr = newLogReader(dep, core.LogData_Data_Error)
-		)
-
-		rstds = append(rstds, rstd)
-		rerrs = append(rerrs, rerr)
-	}
-
-	var maxCharLen int
-	for _, r := range append(rstds, rerrs...) {
-		l := len(r.dependency)
+		l := len(dep)
 		if l > maxCharLen {
 			maxCharLen = l
 		}
 	}
 
+	for _, dep := range data.Depedencies {
+		rstds = append(rstds, newLogReader(dep, core.LogData_Data_Standard))
+		rerrs = append(rerrs, newLogReader(dep, core.LogData_Data_Error))
+		dependencyPrefix[dep] = color.New(xcolor.NextColor()).Sprintf("%s |", fillSpace(dep, maxCharLen))
+	}
+
 	for _, r := range rstds {
-		go prefixedCopy(os.Stdout, r, fillSpace(r.dependency, maxCharLen))
+		go prefixedCopy(os.Stdout, r, dependencyPrefix[r.dependency])
 	}
 	for _, r := range rerrs {
-		go prefixedCopy(os.Stderr, r, fillSpace(r.dependency, maxCharLen))
+		go prefixedCopy(os.Stderr, r, dependencyPrefix[r.dependency])
 	}
 
 	for {
@@ -172,22 +167,7 @@ func prefixedReader(r io.Reader, prefix string) io.Reader {
 
 // prefixedCopy copies src to dst by prefixing dependency key to each new line.
 func prefixedCopy(dst io.Writer, src io.Reader, dep string) {
-	prefix := color.New(randColor()).Sprintf("%s |", dep)
-	io.Copy(dst, prefixedReader(src, prefix))
-}
-
-// randColor returns a random color.
-func randColor() color.Attribute {
-	attrs := []color.Attribute{
-		color.FgRed,
-		color.FgGreen,
-		color.FgYellow,
-		color.FgBlue,
-		color.FgMagenta,
-		color.FgCyan,
-	}
-	rand.Seed(time.Now().UnixNano())
-	return attrs[rand.Intn(len(attrs))]
+	io.Copy(dst, prefixedReader(src, dep))
 }
 
 func fillSpace(name string, maxCharLen int) string {
