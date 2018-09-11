@@ -24,7 +24,7 @@ func newServiceDeleteCmd(e ServiceExecutor) *serviceDeleteCmd {
 	c.cmd = newCommand(&cobra.Command{
 		Use:   "delete",
 		Short: "Delete one or many services",
-		Example: `mesg-core service delete SERVICE_ID [SERVICE_ID...]
+		Example: `mesg-core service delete SERVICE [SERVICE...]
 mesg-core service delete --all`,
 		PreRunE: c.preRunE,
 		RunE:    c.runE,
@@ -44,7 +44,9 @@ func (c *serviceDeleteCmd) preRunE(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	if err := survey.AskOne(&survey.Confirm{Message: "Are you sure to delete all services?"}, &c.force, nil); err != nil {
+	if err := survey.AskOne(&survey.Confirm{
+		Message: "Are you sure to delete all services?",
+	}, &c.force, nil); err != nil {
 		return err
 	}
 

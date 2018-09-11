@@ -12,7 +12,7 @@ func newRootServiceCmd(e ServiceExecutor) *rootServiceCmd {
 	c := &rootServiceCmd{}
 	c.cmd = newCommand(&cobra.Command{
 		Use:   "service",
-		Short: "Manage your services",
+		Short: "Manage services",
 	})
 
 	c.cmd.AddCommand(

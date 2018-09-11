@@ -18,7 +18,7 @@ func newStatusCmd(e RootExecutor) *statusCmd {
 	c := &statusCmd{e: e}
 	c.cmd = newCommand(&cobra.Command{
 		Use:   "status",
-		Short: "Status of the Core",
+		Short: "Get the Core's status.",
 		RunE:  c.runE,
 	})
 	return c

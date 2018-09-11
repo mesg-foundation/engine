@@ -61,7 +61,7 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	if !valid {
-		return errors.New("service deploy invalid")
+		return errors.New("Service is invalid. To get more information, run: mesg-core service validate")
 	}
 	fmt.Printf("%s Service deployed\n", pretty.SuccessSign)
 	defer pretty.Progress("Removing the service...", func() { c.e.ServiceDelete(id) })

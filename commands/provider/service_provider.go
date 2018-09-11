@@ -76,7 +76,7 @@ func (p *ServiceProvider) ServiceListenEvents(id, eventFilter string) (chan *cor
 		return nil, nil, err
 	}
 
-	reslutC := make(chan *core.EventData)
+	resultC := make(chan *core.EventData)
 	errC := make(chan error)
 
 	go func() {
@@ -84,11 +84,11 @@ func (p *ServiceProvider) ServiceListenEvents(id, eventFilter string) (chan *cor
 			if res, err := stream.Recv(); err != nil {
 				errC <- err
 			} else {
-				reslutC <- res
+				resultC <- res
 			}
 		}
 	}()
-	return reslutC, errC, nil
+	return resultC, errC, nil
 
 }
 
@@ -103,7 +103,7 @@ func (p *ServiceProvider) ServiceListenResults(id, taskFilter, outputFilter stri
 	if err != nil {
 		return nil, nil, err
 	}
-	reslutC := make(chan *core.ResultData)
+	resultC := make(chan *core.ResultData)
 	errC := make(chan error)
 
 	go func() {
@@ -111,11 +111,11 @@ func (p *ServiceProvider) ServiceListenResults(id, taskFilter, outputFilter stri
 			if res, err := stream.Recv(); err != nil {
 				errC <- err
 			} else {
-				reslutC <- res
+				resultC <- res
 			}
 		}
 	}()
-	return reslutC, errC, nil
+	return resultC, errC, nil
 }
 
 // ServiceLogs returns logs reader for all service dependencies.
@@ -134,7 +134,7 @@ func (p *ServiceProvider) ServiceLogs(id string) (io.ReadCloser, error) {
 // ServiceDependencyLogs returns logs reader for given service dependencies.
 func (p *ServiceProvider) ServiceDependencyLogs(id string, dependency string) ([]io.ReadCloser, error) {
 	// TODO: wait for feature fix-cmd-logs to be merged
-	return nil, errors.New("logs unimplementd")
+	return nil, errors.New("logs unimplemented")
 }
 
 // ServiceExecuteTask executes task on given service.
@@ -168,7 +168,7 @@ func (p *ServiceProvider) ServiceValidate(path string) (string, error) {
 	}
 
 	if !validation.ServiceFileExist {
-		return fmt.Sprintf("%s File 'mesg.yml' does not exist\n", pretty.FailSign), nil
+		return fmt.Sprintf("%s File 'mesg.yml' does not exist", pretty.FailSign), nil
 	}
 
 	if len(validation.ServiceFileWarnings) > 0 {
@@ -186,7 +186,7 @@ func (p *ServiceProvider) ServiceValidate(path string) (string, error) {
 		return fmt.Sprintf("%s Service is not valid", pretty.FailSign), nil
 	}
 
-	return fmt.Sprintf(`%s Dockerfile exists
+	return fmt.Sprintf(`%s Dockerfile exists\n
 %s mesg.yml is valid
 %s Service is valid`, pretty.SuccessSign, pretty.SuccessSign, pretty.SuccessSign), nil
 }

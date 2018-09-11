@@ -43,7 +43,7 @@ func newServiceExecuteCmd(e ServiceExecutor) *serviceExecuteCmd {
 
 func (c *serviceExecuteCmd) preRunE(cmd *cobra.Command, args []string) error {
 	if cmd.Flag("data").Changed && cmd.Flag("json").Changed {
-		return errors.New("Ynu can specify only one of '--data' or '--json' options")
+		return errors.New("Only one of '--data' or '--json' options can be specified")
 	}
 	return nil
 }

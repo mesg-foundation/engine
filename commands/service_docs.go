@@ -37,7 +37,9 @@ func (c *serviceDocsCmd) preRunE(cmd *cobra.Command, args []string) error {
 	c.path = getFirstOrDefault(args, "./")
 	readmePath := filepath.Join(c.path, "README.md")
 	if _, err := os.Stat(readmePath); !c.force && err == nil {
-		if err := survey.AskOne(&survey.Confirm{Message: "The file README.md already exists. Do you want to overwrite it?"}, &c.force, nil); err != nil {
+		if err := survey.AskOne(&survey.Confirm{
+			Message: "The file README.md already exists. Do you want to overwrite it?",
+		}, &c.force, nil); err != nil {
 			return err
 		}
 		if !c.force {
