@@ -17,15 +17,14 @@ func TestStopService(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Id)
+	defer server.api.DeleteService(s.ID)
 
-	require.NoError(t, server.api.StartService(s.Id))
+	require.NoError(t, server.api.StartService(s.ID))
 
 	reply, err := server.StopService(context.Background(), &StopServiceRequest{
-		ServiceID: s.Id,
+		ServiceID: s.ID,
 	})
 
-	s.Id = "" // TODO(ilgooz) remove this when Service type created by hand.
 	status, err := s.Status()
 	require.NoError(t, err)
 	require.Equal(t, service.STOPPED, status)

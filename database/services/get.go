@@ -1,7 +1,8 @@
 package services
 
 import (
-	"github.com/golang/protobuf/proto"
+	"encoding/json"
+
 	"github.com/mesg-foundation/core/service"
 )
 
@@ -17,6 +18,6 @@ func Get(hash string) (service service.Service, err error) {
 		err = handleErrorNotFound(err, hash)
 		return
 	}
-	err = proto.Unmarshal(bytes, &service)
+	err = json.Unmarshal(bytes, &service)
 	return
 }

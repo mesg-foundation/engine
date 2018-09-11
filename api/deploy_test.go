@@ -34,7 +34,7 @@ func TestDeployService(t *testing.T) {
 		service, validationError, err := a.DeployService(archive, DeployServiceStatusOption(statuses))
 		require.Nil(t, validationError)
 		require.Nil(t, err)
-		require.Equal(t, 1, structhash.Version(service.Id))
+		require.Equal(t, 1, structhash.Version(service.ID))
 	}()
 
 	require.Equal(t, DeployStatus{
@@ -120,7 +120,7 @@ func TestDeployServiceFromURL(t *testing.T) {
 		service, validationError, err := a.DeployServiceFromURL(url, DeployServiceStatusOption(statuses))
 		require.Nil(t, validationError)
 		require.Nil(t, err)
-		require.Equal(t, 1, structhash.Version(service.Id))
+		require.Equal(t, 1, structhash.Version(service.ID))
 	}()
 
 	require.Equal(t, DeployStatus{

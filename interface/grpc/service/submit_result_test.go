@@ -25,15 +25,15 @@ func TestSubmit(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Id)
+	defer server.api.DeleteService(s.ID)
 
-	require.NoError(t, server.api.StartService(s.Id))
-	defer server.api.StopService(s.Id)
+	require.NoError(t, server.api.StartService(s.ID))
+	defer server.api.StopService(s.ID)
 
-	executionID, err := server.api.ExecuteTask(s.Id, taskKey, taskData, nil)
+	executionID, err := server.api.ExecuteTask(s.ID, taskKey, taskData, nil)
 	require.NoError(t, err)
 
-	ln, err := server.api.ListenResult(s.Id)
+	ln, err := server.api.ListenResult(s.ID)
 	require.NoError(t, err)
 	defer ln.Close()
 
@@ -70,12 +70,12 @@ func TestSubmitWithInvalidJSON(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Id)
+	defer server.api.DeleteService(s.ID)
 
-	require.NoError(t, server.api.StartService(s.Id))
-	defer server.api.StopService(s.Id)
+	require.NoError(t, server.api.StartService(s.ID))
+	defer server.api.StopService(s.ID)
 
-	executionID, err := server.api.ExecuteTask(s.Id, taskKey, taskData, nil)
+	executionID, err := server.api.ExecuteTask(s.ID, taskKey, taskData, nil)
 	require.NoError(t, err)
 
 	_, err = server.SubmitResult(context.Background(), &SubmitResultRequest{
@@ -118,12 +118,12 @@ func TestSubmitWithNonExistentOutputKey(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Id)
+	defer server.api.DeleteService(s.ID)
 
-	require.NoError(t, server.api.StartService(s.Id))
-	defer server.api.StopService(s.Id)
+	require.NoError(t, server.api.StartService(s.ID))
+	defer server.api.StopService(s.ID)
 
-	executionID, err := server.api.ExecuteTask(s.Id, taskKey, taskData, nil)
+	executionID, err := server.api.ExecuteTask(s.ID, taskKey, taskData, nil)
 	require.NoError(t, err)
 
 	_, err = server.SubmitResult(context.Background(), &SubmitResultRequest{
@@ -154,12 +154,12 @@ func TestSubmitWithInvalidTaskOutputs(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Id)
+	defer server.api.DeleteService(s.ID)
 
-	require.NoError(t, server.api.StartService(s.Id))
-	defer server.api.StopService(s.Id)
+	require.NoError(t, server.api.StartService(s.ID))
+	defer server.api.StopService(s.ID)
 
-	executionID, err := server.api.ExecuteTask(s.Id, taskKey, taskData, nil)
+	executionID, err := server.api.ExecuteTask(s.ID, taskKey, taskData, nil)
 	require.NoError(t, err)
 
 	_, err = server.SubmitResult(context.Background(), &SubmitResultRequest{

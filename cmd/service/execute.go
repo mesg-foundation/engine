@@ -12,7 +12,7 @@ import (
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/mesg-foundation/core/interface/grpc/core"
-	"github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/core/utils/servicecasting"
 	"github.com/mesg-foundation/core/x/xpflag"
 	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/cobra"
@@ -51,6 +51,7 @@ func executeHandler(cmd *cobra.Command, args []string) {
 	})
 	utils.HandleError(err)
 	taskKey := getTaskKey(cmd, serviceReply.Service)
+
 	taskData, err := getData(cmd, taskKey, serviceReply.Service, executeData)
 	utils.HandleError(err)
 
@@ -90,7 +91,7 @@ func executeTask(serviceID string, task string, data string, tags []string) (exe
 	})
 }
 
-func taskKeysFromService(s *service.Service) []string {
+func taskKeysFromService(s *core.Service) []string {
 	var taskKeys []string
 	for key := range s.Tasks {
 		taskKeys = append(taskKeys, key)
@@ -98,7 +99,7 @@ func taskKeysFromService(s *service.Service) []string {
 	return taskKeys
 }
 
-func getTaskKey(cmd *cobra.Command, s *service.Service) string {
+func getTaskKey(cmd *cobra.Command, s *core.Service) string {
 	taskKey := cmd.Flag("task").Value.String()
 	if taskKey == "" {
 		if survey.AskOne(&survey.Select{
@@ -111,12 +112,12 @@ func getTaskKey(cmd *cobra.Command, s *service.Service) string {
 	return taskKey
 }
 
-func getData(cmd *cobra.Command, taskKey string, s *service.Service, dataStruct map[string]string) (string, error) {
+func getData(cmd *cobra.Command, taskKey string, s *core.Service, dataStruct map[string]string) (string, error) {
 	data := cmd.Flag("data").Value.String()
 	jsonFile := cmd.Flag("json").Value.String()
 
 	if data != "" {
-		castData, err := s.Cast(taskKey, dataStruct)
+		castData, err := casting.TaskInputs(s, taskKey, dataStruct)
 		if err != nil {
 			return "", err
 		}

@@ -86,7 +86,7 @@ func (d *serviceDeployer) FromGzippedTar(r io.Reader) (*service.Service, *import
 func (d *serviceDeployer) deploy(path string) (*service.Service, *importer.ValidationError, error) {
 	defer os.RemoveAll(path)
 
-	service, err := importer.From(path)
+	s, err := importer.From(path)
 	validationErr, err := d.assertValidationError(err)
 	if err != nil {
 		return nil, nil, err
@@ -105,10 +105,28 @@ func (d *serviceDeployer) deploy(path string) (*service.Service, *importer.Valid
 		d.sendStatus(fmt.Sprintf("%s [DEPRECATED] Please use .dockerignore instead of .mesgignore", aurora.Red("⨯")), DONE)
 	}
 	d.sendStatus(fmt.Sprintf("%s Image built with success.", aurora.Green("✔")), DONE)
-	d.injectConfigurationInDependencies(service, imageHash)
+	d.adjustFields(s)
+	d.injectConfigurationInDependencies(s, imageHash)
+	s.ID = s.Hash()
 
 	d.sendStatus(fmt.Sprintf("%s Completed.", aurora.Green("✔")), DONE)
-	return service, nil, services.Save(service)
+	return s, nil, services.Save(s)
+}
+
+func (d *serviceDeployer) adjustFields(s *service.Service) {
+	for eventKey, event := range s.Events {
+		event.Key = eventKey
+		event.ServiceName = s.Name
+	}
+	for taskKey, task := range s.Tasks {
+		task.Key = taskKey
+		task.ServiceName = s.Name
+		for outputKey, output := range task.Outputs {
+			output.Key = outputKey
+			output.TaskKey = taskKey
+			output.ServiceName = s.Name
+		}
+	}
 }
 
 func (d *serviceDeployer) injectConfigurationInDependencies(s *service.Service, imageHash string) {
@@ -120,7 +138,7 @@ func (d *serviceDeployer) injectConfigurationInDependencies(s *service.Service, 
 		Command:     config.Command,
 		Ports:       config.Ports,
 		Volumes:     config.Volumes,
-		Volumesfrom: config.Volumesfrom,
+		VolumesFrom: config.VolumesFrom,
 		Image:       imageHash,
 	}
 	if s.Dependencies == nil {

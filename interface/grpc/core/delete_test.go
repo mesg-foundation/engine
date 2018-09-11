@@ -23,13 +23,12 @@ func TestDeleteService(t *testing.T) {
 	fmt.Println("after deploy", time.Now())
 
 	reply, err := server.DeleteService(context.Background(), &DeleteServiceRequest{
-		ServiceID: s.Id,
+		ServiceID: s.ID,
 	})
 	fmt.Println("after delete", time.Now())
 	require.Nil(t, err)
 	require.NotNil(t, reply)
 
 	_, err = server.api.GetService(s.Id)
-	fmt.Println("after get", time.Now())
 	require.Error(t, err)
 }
