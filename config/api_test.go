@@ -1,7 +1,6 @@
 package config
 
 import (
-	"path/filepath"
 	"testing"
 
 	"github.com/spf13/viper"
@@ -15,16 +14,9 @@ func assertViperDefault(t *testing.T, key string, expected string) {
 
 func TestAPIDefault(t *testing.T) {
 	defaults := map[string]string{
-		APIServerAddress:       ":50052",
-		APIServerSocket:        "/mesg/server.sock",
-		APIClientTarget:        viper.GetString(APIServerAddress),
-		APIServiceSocketPath:   filepath.Join(viper.GetString(MESGPath), "server.sock"),
-		APIServiceTargetPath:   "/mesg/server.sock",
-		APIServiceTargetSocket: "unix://" + viper.GetString(APIServiceTargetPath),
-		LogFormat:              "text",
-		LogLevel:               "info",
-		ServicePathHost:        filepath.Join(viper.GetString(MESGPath), "services"),
-		ServicePathDocker:      filepath.Join("/mesg", "services"),
+		APIServerAddress: ":50052",
+		LogFormat:        "text",
+		LogLevel:         "info",
 	}
 	for key, defaultValue := range defaults {
 		assertViperDefault(t, key, defaultValue)
