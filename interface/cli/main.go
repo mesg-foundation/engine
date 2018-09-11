@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mesg-foundation/core/cmd"
 	"github.com/mesg-foundation/core/commands"
 	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/config"
@@ -16,8 +15,6 @@ import (
 )
 
 func init() {
-	cmd.RootCmd.Version = version.Version
-	cmd.RootCmd.Short = cmd.RootCmd.Short + " " + version.Version
 }
 
 func main() {
@@ -28,7 +25,11 @@ func main() {
 	}
 
 	p := provider.New(core.NewCoreClient(connection))
-	if err := commands.Build(p).Execute(); err != nil {
+	cmd := commands.Build(p)
+	cmd.Version = version.Version
+	cmd.Short = cmd.Short + " " + version.Version
+
+	if err := cmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, clierrors.ErrorMessage(err))
 		os.Exit(1)
 	}
