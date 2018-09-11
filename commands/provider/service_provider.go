@@ -17,14 +17,17 @@ import (
 	"github.com/mesg-foundation/core/x/xerrors"
 )
 
+// ServiceProvider is a struct that provides all methods required by service command.
 type ServiceProvider struct {
 	client core.CoreClient
 }
 
+// NewServiceProvider creates new ServiceProvider.
 func NewServiceProvider(c core.CoreClient) *ServiceProvider {
 	return &ServiceProvider{client: c}
 }
 
+// ServiceByID finds service based on given id.
 func (p *ServiceProvider) ServiceByID(id string) (*core.Service, error) {
 	serviceReply, err := p.client.GetService(context.Background(), &core.GetServiceRequest{ServiceID: id})
 	if err != nil {
@@ -34,6 +37,7 @@ func (p *ServiceProvider) ServiceByID(id string) (*core.Service, error) {
 	return serviceReply.Service, nil
 }
 
+// ServiceDeleteAll deletes all services.
 func (p *ServiceProvider) ServiceDeleteAll() error {
 	rep, err := p.client.ListServices(context.Background(), &core.ListServicesRequest{})
 	if err != nil {
@@ -50,6 +54,7 @@ func (p *ServiceProvider) ServiceDeleteAll() error {
 	return errs.ErrorOrNil()
 }
 
+// ServiceDelete deletes service with given ids.
 func (p *ServiceProvider) ServiceDelete(ids ...string) error {
 	var errs xerrors.Errors
 	for _, id := range ids {
@@ -61,6 +66,7 @@ func (p *ServiceProvider) ServiceDelete(ids ...string) error {
 	return errs.ErrorOrNil()
 }
 
+// ServiceListenEvents returns a channel with event data streaming..
 func (p *ServiceProvider) ServiceListenEvents(id, eventFilter string) (chan *core.EventData, chan error, error) {
 	stream, err := p.client.ListenEvent(context.Background(), &core.ListenEventRequest{
 		ServiceID:   id,
@@ -86,6 +92,7 @@ func (p *ServiceProvider) ServiceListenEvents(id, eventFilter string) (chan *cor
 
 }
 
+// ServiceListenResults returns a channel with event results streaming..
 func (p *ServiceProvider) ServiceListenResults(id, taskFilter, outputFilter string, tagFilters []string) (chan *core.ResultData, chan error, error) {
 	stream, err := p.client.ListenResult(context.Background(), &core.ListenResultRequest{
 		ServiceID:    id,
@@ -111,6 +118,7 @@ func (p *ServiceProvider) ServiceListenResults(id, taskFilter, outputFilter stri
 	return reslutC, errC, nil
 }
 
+// ServiceLogs returns logs reader for all service dependencies.
 func (p *ServiceProvider) ServiceLogs(id string) (io.ReadCloser, error) {
 	rs, err := p.ServiceDependencyLogs(id, "*")
 	if err != nil {
@@ -123,11 +131,13 @@ func (p *ServiceProvider) ServiceLogs(id string) (io.ReadCloser, error) {
 	return rs[0], nil
 }
 
+// ServiceDependencyLogs returns logs reader for given service dependencies.
 func (p *ServiceProvider) ServiceDependencyLogs(id string, dependency string) ([]io.ReadCloser, error) {
 	// TODO: wait for feature fix-cmd-logs to be merged
 	return nil, errors.New("logs unimplementd")
 }
 
+// ServiceExecuteTask executes task on given service.
 func (p *ServiceProvider) ServiceExecuteTask(id, taskKey, inputData string, tags []string) error {
 	_, err := p.client.ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
 		ServiceID:     id,
@@ -138,16 +148,19 @@ func (p *ServiceProvider) ServiceExecuteTask(id, taskKey, inputData string, tags
 	return err
 }
 
+// ServiceStart starts a service.
 func (p *ServiceProvider) ServiceStart(id string) error {
 	_, err := p.client.StartService(context.Background(), &core.StartServiceRequest{ServiceID: id})
 	return err
 }
 
+// ServiceStop stops a service.
 func (p *ServiceProvider) ServiceStop(id string) error {
 	_, err := p.client.StopService(context.Background(), &core.StopServiceRequest{ServiceID: id})
 	return err
 }
 
+// ServiceValidate validates a service configuration and Dockerfile.
 func (p *ServiceProvider) ServiceValidate(path string) (string, error) {
 	validation, err := importer.Validate(path)
 	if err != nil {
@@ -180,6 +193,7 @@ func (p *ServiceProvider) ServiceValidate(path string) (string, error) {
 	`, pretty.SuccessSign, pretty.SuccessSign, pretty.SuccessSign), nil
 }
 
+// ServiceGenerateDocs creates docs in given path.
 func (p *ServiceProvider) ServiceGenerateDocs(path string) error {
 	readmePath := filepath.Join(path, "README.md")
 	service, err := importer.From(path)
@@ -196,6 +210,7 @@ func (p *ServiceProvider) ServiceGenerateDocs(path string) error {
 	return tmpl.Execute(f, service)
 }
 
+// ServiceList lists all services.
 func (p *ServiceProvider) ServiceList() ([]*core.Service, error) {
 	reply, err := p.client.ListServices(context.Background(), &core.ListServicesRequest{})
 	if err != nil {
@@ -204,10 +219,12 @@ func (p *ServiceProvider) ServiceList() ([]*core.Service, error) {
 	return reply.Services, nil
 }
 
+// ServiceInitTemplateList downloads services templates list from awesome github repo.
 func (p *ServiceProvider) ServiceInitTemplateList() ([]*servicetemplate.Template, error) {
 	return servicetemplate.List()
 }
 
+// ServiceInitDownloadTemplate download given service template.
 func (p *ServiceProvider) ServiceInitDownloadTemplate(t *servicetemplate.Template, dst string) error {
 	return servicetemplate.Download(t, dst)
 }
