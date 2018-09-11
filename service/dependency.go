@@ -66,6 +66,7 @@ func (d *DependencyFromService) Logs() (rstd, rerr io.ReadCloser, err error) {
 	er, ew := io.Pipe()
 	go func() {
 		if _, err := stdcopy.StdCopy(sw, ew, reader); err != nil {
+			reader.Close()
 			logrus.Errorln(err)
 		}
 	}()
