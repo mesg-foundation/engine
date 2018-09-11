@@ -93,8 +93,6 @@ The request's data for the `ListenEvent` stream's API.
 
 
 
-
-
 </tab>
 
 <tab title="Reply">
@@ -128,8 +126,6 @@ The data will be received over time as long as the stream is open.
 | ----- | ---- | ----------- |
 | eventKey | [string](#string) | The event's key. |
 | eventData | [string](#string) | The event's data encoded in JSON. |
-
-
 
 
 
@@ -242,13 +238,9 @@ The request's data for the `ListenResult` stream API.
 
 
 
-
-
 </tab>
 
 <tab title="Reply">
-
-
 
 
 
@@ -397,8 +389,6 @@ The request's data for the `ExecuteTask` API.
 
 
 
-
-
 </tab>
 
 <tab title="Reply">
@@ -464,8 +454,6 @@ The reply's data of the `ExecuteTask` API.
 
 
 
-
-
 </tab>
 </tabs>
 
@@ -475,8 +463,6 @@ Start a service. The service must be already deployed to [Core](../guide/start-h
 
 <tabs>
 <tab title="Request">
-
-
 
 
 
@@ -579,8 +565,6 @@ The request's data for the `StartService` API.
 
 
 
-
-
 #### StartServiceReply
 Reply of `StartService` API doesn't contain any data.
 
@@ -646,8 +630,6 @@ Stop a service. The service must be already deployed to [Core](../guide/start-he
 
 
 
-
-
 #### StopServiceRequest
 The request's data for the `StopService` API.
 
@@ -670,8 +652,6 @@ The request's data for the `StopService` API.
 </tab>
 
 <tab title="Reply">
-
-
 
 
 
@@ -817,8 +797,6 @@ The request's data for `DeployService` API.
 
 
 
-
-
 </tab>
 
 <tab title="Reply">
@@ -845,8 +823,6 @@ The reply's data of `DeployService` API.
 | status | [DeployServiceReply.Status](#api.DeployServiceReply.Status) | `status` will be sent after each status change. |
 | serviceID | [string](#string) | `serviceID` will be sent as the last message of stream when service deployed successfully. |
 | validationError | [string](#string) | `validationError` will be sent as the last message of stream when there is a validation error. |
-
-
 
 
 
@@ -959,8 +935,6 @@ Request's data of the `DeleteService` API.
 
 
 
-
-
 </tab>
 
 <tab title="Reply">
@@ -969,8 +943,6 @@ Request's data of the `DeleteService` API.
 
 #### DeleteServiceReply
 Reply of `DeleteService` API doesn't contain any data.
-
-
 
 
 
@@ -1052,8 +1024,6 @@ List all services already deployed in [Core](../guide/start-here/core.md).
 
 #### ListServicesRequest
 Reply of `ListServices` API doesn't contain any data.
-
-
 
 
 
@@ -1165,8 +1135,6 @@ The reply's data of the `ListServices` API.
 
 
 
-
-
 </tab>
 </tabs>
 
@@ -1211,8 +1179,6 @@ The request's data for the `GetService` API.
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | serviceID | [string](#string) | The Service ID. Generated when using the [`DeployService` API](#deployservice). |
-
-
 
 
 
@@ -1328,8 +1294,6 @@ The reply's data of the `GetService` API.
 
 
 
-
-
 </tab>
 </tabs>
 
@@ -1339,8 +1303,6 @@ ServiceLogs gives a stream for dependency logs of a service.
 
 <tabs>
 <tab title="Request">
-
-
 
 
 
@@ -1437,10 +1399,9 @@ LogData holds the log data chunk and log info of service dependencies.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| depedencies | [string](#string)[] | depedencies are the depedencies that log datas will be sent for. It'll be only sent once as a first message of gRPC stream. |
-| data | [LogData.Data](#api.LogData.Data) | data is a dependency log data. |
-
-
+| dependency | [string](#string) | dependency is the dependency that data belongs. |
+| type | [LogData.Type](#api.LogData.Type) | type is the log type. |
+| data | [bytes](#bytes) | data is a log data chunk. |
 
 
 

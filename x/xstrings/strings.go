@@ -10,8 +10,8 @@ func SliceContains(a []string, e string) bool {
 	return false
 }
 
-// AppendSpace appends n times space to s.
-func AppendSpace(s string, n int) string {
+// AppendSpaces appends n times space to s.
+func AppendSpaces(s string, n int) string {
 	if n <= 0 {
 		return s
 	}
