@@ -9,7 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/mesg-foundation/core/cmd/service/assets"
+	"github.com/mesg-foundation/core/commands/provider/assets"
 	"github.com/mesg-foundation/core/interface/grpc/core"
 	"github.com/mesg-foundation/core/service/importer"
 	"github.com/mesg-foundation/core/utils/pretty"
