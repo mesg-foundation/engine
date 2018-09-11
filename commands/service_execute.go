@@ -6,10 +6,9 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/interface/grpc/core"
-	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/utils/pretty"
+	casting "github.com/mesg-foundation/core/utils/servicecasting"
 	"github.com/mesg-foundation/core/x/xpflag"
 	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/cobra"
@@ -59,12 +58,7 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	sv, err := services.Get(s.ID)
-	if err != nil {
-		return err
-	}
-
-	inputData, err := c.getData(c.taskKey, &sv, c.executeData)
+	inputData, err := c.getData(c.taskKey, s, c.executeData)
 	if err != nil {
 		return err
 	}
@@ -107,9 +101,9 @@ func (c *serviceExecuteCmd) getTaskKey(s *core.Service) error {
 	return nil
 }
 
-func (c *serviceExecuteCmd) getData(taskKey string, s *service.Service, dataStruct map[string]string) (string, error) {
+func (c *serviceExecuteCmd) getData(taskKey string, s *core.Service, dataStruct map[string]string) (string, error) {
 	if dataStruct != nil {
-		castData, err := s.Cast(taskKey, dataStruct)
+		castData, err := casting.TaskInputs(s, taskKey, dataStruct)
 		if err != nil {
 			return "", err
 		}
