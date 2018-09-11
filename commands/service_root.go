@@ -16,7 +16,6 @@ func newRootServiceCmd(e ServiceExecutor) *rootServiceCmd {
 	})
 
 	c.cmd.AddCommand(
-		newServiceTestCmd().cmd,
 		newServiceDeployCmd(e).cmd,
 		newServiceValidateCmd(e).cmd,
 		newServiceStartCmd(e).cmd,
