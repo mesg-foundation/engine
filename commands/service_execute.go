@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io/ioutil"
 
+	"github.com/mesg-foundation/core/database/services"
+	"github.com/mesg-foundation/core/interface/grpc/core"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/mesg-foundation/core/x/xpflag"
@@ -57,7 +59,12 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	inputData, err := c.getData(c.taskKey, s, c.executeData)
+	sv, err := services.Get(s.ID)
+	if err != nil {
+		return err
+	}
+
+	inputData, err := c.getData(c.taskKey, &sv, c.executeData)
 	if err != nil {
 		return err
 	}
@@ -88,7 +95,7 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func (c *serviceExecuteCmd) getTaskKey(s *service.Service) error {
+func (c *serviceExecuteCmd) getTaskKey(s *core.Service) error {
 	if c.taskKey == "" {
 		if survey.AskOne(&survey.Select{
 			Message: "Select the task to execute",
@@ -130,7 +137,7 @@ func readJSONFile(path string) (string, error) {
 	return string(data), nil
 }
 
-func taskKeysFromService(s *service.Service) []string {
+func taskKeysFromService(s *core.Service) []string {
 	var taskKeys []string
 	for key := range s.Tasks {
 		taskKeys = append(taskKeys, key)

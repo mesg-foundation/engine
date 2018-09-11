@@ -11,7 +11,6 @@ import (
 
 	"github.com/mesg-foundation/core/cmd/service/assets"
 	"github.com/mesg-foundation/core/interface/grpc/core"
-	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/importer"
 	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/mesg-foundation/core/utils/servicetemplate"
@@ -26,7 +25,7 @@ func NewServiceProvider(c core.CoreClient) *ServiceProvider {
 	return &ServiceProvider{client: c}
 }
 
-func (p *ServiceProvider) ServiceByID(id string) (*service.Service, error) {
+func (p *ServiceProvider) ServiceByID(id string) (*core.Service, error) {
 	serviceReply, err := p.client.GetService(context.Background(), &core.GetServiceRequest{ServiceID: id})
 	if err != nil {
 		return nil, err
@@ -43,7 +42,7 @@ func (p *ServiceProvider) ServiceDeleteAll() error {
 
 	var errs xerrors.Errors
 	for _, s := range rep.Services {
-		_, err := p.client.DeleteService(context.Background(), &core.DeleteServiceRequest{ServiceID: s.Id})
+		_, err := p.client.DeleteService(context.Background(), &core.DeleteServiceRequest{ServiceID: s.ID})
 		if err != nil {
 			errs = append(errs, err)
 		}
@@ -125,11 +124,8 @@ func (p *ServiceProvider) ServiceLogs(id string) (io.ReadCloser, error) {
 }
 
 func (p *ServiceProvider) ServiceDependencyLogs(id string, dependency string) ([]io.ReadCloser, error) {
-	s, err := p.ServiceByID(id)
-	if err != nil {
-		return nil, err
-	}
-	return s.Logs(dependency)
+	// TODO: wait for feature fix-cmd-logs to be merged
+	return nil, errors.New("unimplementd")
 }
 
 func (p *ServiceProvider) ServiceExecuteTask(id, taskKey, inputData string, tags []string) error {
@@ -200,7 +196,7 @@ func (p *ServiceProvider) ServiceGenerateDocs(path string) error {
 	return tmpl.Execute(f, service)
 }
 
-func (p *ServiceProvider) ServiceList() ([]*service.Service, error) {
+func (p *ServiceProvider) ServiceList() ([]*core.Service, error) {
 	reply, err := p.client.ListServices(context.Background(), &core.ListServicesRequest{})
 	if err != nil {
 		return nil, err
