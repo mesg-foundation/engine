@@ -18,7 +18,13 @@ func init() {
 }
 
 func main() {
-	connection, err := grpc.Dial(viper.GetString(config.APIClientTarget), grpc.WithInsecure())
+	cfg, err := config.Global()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
+	connection, err := grpc.Dial(viper.GetString(cfg.Client.Address), grpc.WithInsecure())
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
