@@ -24,6 +24,13 @@ mesg-core service deploy PATH_TO_SERVICE
   -h, --help   help for deploy
 ```
 
+### Options inherited from parent commands
+
+```
+      --no-color     disable colorized output
+      --no-spinner   disable spinners
+```
+
 ### SEE ALSO
 
 * [mesg-core service](mesg-core_service.md)	 - Manage your services
