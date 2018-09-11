@@ -14,6 +14,7 @@ import (
 
 const templatesURL = "https://raw.githubusercontent.com/mesg-foundation/awesome/master/templates.json"
 
+// Template represents single entry on awesome github list.
 type Template struct {
 	Name string
 	URL  string
@@ -23,11 +24,7 @@ func (s *Template) String() string {
 	return fmt.Sprintf("%s (%s)", s.Name, s.URL)
 }
 
-type ConfigOption struct {
-	Name        string
-	Description string
-}
-
+// List returns all service templates from awesome github project.
 func List() ([]*Template, error) {
 	resp, err := http.Get(templatesURL)
 	if err != nil {
@@ -47,6 +44,7 @@ func List() ([]*Template, error) {
 	return list, nil
 }
 
+// Download download given template into dst directory.
 func Download(t *Template, dst string) error {
 	path, err := ioutil.TempDir("", "mesg-")
 	if err != nil {

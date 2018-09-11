@@ -2,8 +2,10 @@ package xerrors
 
 import "strings"
 
+// Errors is an error for tracing multiple errors.
 type Errors []error
 
+// ErrorOrNil returns an error if there is more then 0 error, nil otherwise.
 func (e Errors) ErrorOrNil() error {
 	if len(e) == 0 {
 		return nil

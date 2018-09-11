@@ -31,7 +31,7 @@ func TestLoad(t *testing.T) {
 		"MESG_LOG_LEVEL":      "",
 		"MESG_CORE_IMAGE":     "",
 	}
-	for key, _ := range snapsnot {
+	for key := range snapsnot {
 		snapsnot[key] = os.Getenv(key)
 	}
 	defer func() {

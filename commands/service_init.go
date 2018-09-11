@@ -42,13 +42,13 @@ mesg-core service init --current`,
 		PreRunE: c.preRunE,
 		RunE:    c.runE,
 	})
-	c.cmd.Flags().StringVar(&c.dir, "dir", c.dir, "Create the service in the direcotry")
+	c.cmd.Flags().StringVar(&c.dir, "dir", c.dir, "Create the service in the directory")
 	c.cmd.Flags().StringVarP(&c.templateURL, "template", "t", c.templateURL, "Specify the template URL to use")
 	return c
 }
 
 func (c *serviceInitCmd) preRunE(cmd *cobra.Command, args []string) error {
-	if err := c.selectOutputDirecotry(); err != nil {
+	if err := c.selectOutputDirectory(); err != nil {
 		return err
 	}
 
@@ -102,7 +102,7 @@ func (c *serviceInitCmd) runE(cmd *cobra.Command, args []string) error {
 	}, c.dir)
 }
 
-func (c *serviceInitCmd) selectOutputDirecotry() error {
+func (c *serviceInitCmd) selectOutputDirectory() error {
 	if c.dir != "" {
 		return nil
 	}
