@@ -5,6 +5,8 @@ type StatusType uint
 
 // Possible status for services.
 const (
-	STOPPED StatusType = 0
-	RUNNING StatusType = 1
+	UNKNOWN StatusType = iota
+	STOPPED
+	STARTING
+	RUNNING
 )

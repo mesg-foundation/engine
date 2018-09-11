@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/events"
 	"github.com/mesg-foundation/core/container/dockertest"
 	"github.com/stretchr/testify/require"
 )
@@ -72,6 +73,11 @@ func TestDeleteNetwork(t *testing.T) {
 
 	dt := dockertest.New()
 	c, _ := New(ClientOption(dt.Client()))
+
+	msgC := make(chan events.Message, 1)
+	errC := make(chan error)
+	dt.ProvideEvents(msgC, errC)
+	msgC <- events.Message{ID: id}
 
 	// discard network requests made from New.
 	<-dt.LastNetworkInspect()
