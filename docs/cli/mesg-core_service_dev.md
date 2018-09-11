@@ -25,6 +25,13 @@ mesg-core service dev PATH
   -t, --task-filter string     Only log the result of the given task
 ```
 
+### Options inherited from parent commands
+
+```
+      --no-color     disable colorized output
+      --no-spinner   disable spinners
+```
+
 ### SEE ALSO
 
 * [mesg-core service](mesg-core_service.md)	 - Manage your services
