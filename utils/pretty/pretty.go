@@ -85,7 +85,7 @@ func (p *Pretty) DisableColor() {
 // EnableColor enables the color output.
 func (p *Pretty) EnableColor() {
 	// windows terminal dosen't support colors
-	if runtime.GOOS == "windwos" {
+	if runtime.GOOS == "windows" {
 		return
 	}
 
@@ -105,7 +105,7 @@ func (p *Pretty) DisableSpinner() {
 // EnableSpinner enables the spinner.
 func (p *Pretty) EnableSpinner() {
 	// windows terminal dosen't support spinner
-	if runtime.GOOS == "windwos" {
+	if runtime.GOOS == "windows" {
 		return
 	}
 

@@ -34,14 +34,14 @@ func TestStartService(t *testing.T) {
 		Name: "TestStartService",
 		Dependencies: map[string]*Dependency{
 			"test": {
-				Image: "nginx",
+				Image: "nginx:stable-alpine",
 			},
 		},
 	}
 	dockerServices, err := service.Start()
 	defer service.Stop()
 	require.Nil(t, err)
-	require.Equal(t, len(service.GetDependencies()), len(dockerServices))
+	require.Equal(t, len(service.Dependencies), len(dockerServices))
 	status, _ := service.Status()
 	require.Equal(t, RUNNING, status)
 }
@@ -51,7 +51,7 @@ func TestStartWith2Dependencies(t *testing.T) {
 		Name: "TestStartWith2Dependencies",
 		Dependencies: map[string]*Dependency{
 			"testa": {
-				Image: "nginx:latest",
+				Image: "nginx:stable-alpine",
 			},
 			"testb": {
 				Image: "alpine:latest",
@@ -67,7 +67,7 @@ func TestStartWith2Dependencies(t *testing.T) {
 	container2, err2 := defaultContainer.FindContainer(deps[1].namespace())
 	require.Nil(t, err1)
 	require.Nil(t, err2)
-	require.Equal(t, "nginx:latest", container1.Config.Image)
+	require.Equal(t, "nginx:stable-alpine", container1.Config.Image)
 	require.Equal(t, "alpine:latest", container2.Config.Image)
 }
 
@@ -76,7 +76,7 @@ func TestStartAgainService(t *testing.T) {
 		Name: "TestStartAgainService",
 		Dependencies: map[string]*Dependency{
 			"test": {
-				Image: "nginx",
+				Image: "nginx:stable-alpine",
 			},
 		},
 	}
@@ -94,10 +94,10 @@ func TestPartiallyRunningService(t *testing.T) {
 		Name: "TestPartiallyRunningService",
 		Dependencies: map[string]*Dependency{
 			"testa": {
-				Image: "nginx",
+				Image: "nginx:stable-alpine",
 			},
 			"testb": {
-				Image: "nginx",
+				Image: "nginx:stable-alpine",
 			},
 		},
 	}
@@ -108,7 +108,7 @@ func TestPartiallyRunningService(t *testing.T) {
 	require.Equal(t, PARTIAL, status)
 	dockerServices, err := service.Start()
 	require.Nil(t, err)
-	require.Equal(t, len(dockerServices), len(service.GetDependencies()))
+	require.Equal(t, len(dockerServices), len(service.Dependencies))
 	status, _ = service.Status()
 	require.Equal(t, RUNNING, status)
 }
@@ -118,7 +118,7 @@ func TestStartDependency(t *testing.T) {
 		Name: "TestStartDependency",
 		Dependencies: map[string]*Dependency{
 			"test": {
-				Image: "nginx",
+				Image: "nginx:stable-alpine",
 			},
 		},
 	}
@@ -138,7 +138,7 @@ func TestNetworkCreated(t *testing.T) {
 		Name: "TestNetworkCreated",
 		Dependencies: map[string]*Dependency{
 			"test": {
-				Image: "nginx",
+				Image: "nginx:stable-alpine",
 			},
 		},
 	}
@@ -155,7 +155,7 @@ func TestStartStopStart(t *testing.T) {
 		Name: "TestStartStopStart",
 		Dependencies: map[string]*Dependency{
 			"test": {
-				Image: "nginx",
+				Image: "nginx:stable-alpine",
 			},
 		},
 	}
@@ -176,7 +176,7 @@ func TestServiceDependenciesListensFromSamePort(t *testing.T) {
 			Name: "TestServiceDependenciesListensFromSamePort",
 			Dependencies: map[string]*Dependency{
 				"test": {
-					Image: "nginx",
+					Image: "nginx:stable-alpine",
 					Ports: []string{"80"},
 				},
 			},
@@ -186,7 +186,7 @@ func TestServiceDependenciesListensFromSamePort(t *testing.T) {
 			Name: "TestServiceDependenciesListensFromSamePort1",
 			Dependencies: map[string]*Dependency{
 				"test": {
-					Image: "nginx",
+					Image: "nginx:stable-alpine",
 					Ports: []string{"80"},
 				},
 			},
@@ -199,4 +199,58 @@ func TestServiceDependenciesListensFromSamePort(t *testing.T) {
 	_, err = service1.Start()
 	require.NotZero(t, err)
 	require.Contains(t, err.Error(), `port '80' is already in use`)
+}
+
+func TestExtractVolumes(t *testing.T) {
+	dep := &DependencyFromService{}
+	_, err := dep.extractVolumes()
+	require.NotNil(t, err)
+
+	dep = &DependencyFromService{
+		Name:    "test",
+		Service: &Service{},
+		Dependency: &Dependency{
+			Volumes: []string{"foo", "bar"},
+		},
+	}
+	volumes, err := dep.extractVolumes()
+	require.Nil(t, err)
+	require.Len(t, volumes, 2)
+	require.Equal(t, volumeKey(dep.Service, "test", "foo"), volumes[0].Source)
+	require.Equal(t, "foo", volumes[0].Target)
+	require.Equal(t, false, volumes[0].Bind)
+	require.Equal(t, volumeKey(dep.Service, "test", "bar"), volumes[1].Source)
+	require.Equal(t, "bar", volumes[1].Target)
+	require.Equal(t, false, volumes[1].Bind)
+
+	dep = &DependencyFromService{
+		Service: &Service{},
+		Dependency: &Dependency{
+			VolumesFrom: []string{"test"},
+		},
+	}
+	_, err = dep.extractVolumes()
+	require.NotNil(t, err)
+
+	dep = &DependencyFromService{
+		Service: &Service{
+			Dependencies: map[string]*Dependency{
+				"test": &Dependency{
+					Volumes: []string{"foo", "bar"},
+				},
+			},
+		},
+		Dependency: &Dependency{
+			VolumesFrom: []string{"test"},
+		},
+	}
+	volumes, err = dep.extractVolumes()
+	require.Nil(t, err)
+	require.Len(t, volumes, 2)
+	require.Equal(t, volumeKey(dep.Service, "test", "foo"), volumes[0].Source)
+	require.Equal(t, "foo", volumes[0].Target)
+	require.Equal(t, false, volumes[0].Bind)
+	require.Equal(t, volumeKey(dep.Service, "test", "bar"), volumes[1].Source)
+	require.Equal(t, "bar", volumes[1].Target)
+	require.Equal(t, false, volumes[1].Bind)
 }

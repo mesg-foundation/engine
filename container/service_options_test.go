@@ -19,7 +19,7 @@ func TestServiceOptionNamespace(t *testing.T) {
 }
 
 func TestServiceOptionImage(t *testing.T) {
-	image := "nginx"
+	image := "nginx:stable-alpine"
 	options := &ServiceOptions{
 		Image: image,
 	}

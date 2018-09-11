@@ -47,9 +47,9 @@ func (e *taskExecutor) checkServiceStatus(s *service.Service) error {
 }
 
 // execute executes task.
-func (e *taskExecutor) execute(s *service.Service, key string, inputs map[string]interface{},
+func (e *taskExecutor) execute(s *service.Service, taskKey string, taskInputs map[string]interface{},
 	tags []string) (executionID string, err error) {
-	exc, err := execution.Create(s, key, inputs, tags)
+	exc, err := execution.Create(s, taskKey, taskInputs, tags)
 	if err != nil {
 		return "", err
 	}
