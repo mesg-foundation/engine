@@ -91,13 +91,20 @@ loop:
 	for {
 		select {
 		case e := <-listenEventsC:
-			fmt.Println("Receive event", pretty.Success(e.EventKey), ":", pretty.Bold(e.EventData))
+			fmt.Printf("Receive event %s: %s\n",
+				pretty.Success(e.EventKey),
+				pretty.ColorizeJSON(pretty.FgCyan, pretty.FgMagenta, []byte(e.EventData)),
+			)
 		case err := <-eventsErrC:
-			fmt.Fprintln(os.Stderr, "Listening events error:", err)
+			fmt.Fprintf(os.Stderr, "%s Listening events error: %s", pretty.FailSign, err)
 		case r := <-listenResultsC:
-			fmt.Println("Receive result", pretty.Success(r.TaskKey), pretty.Colorize(color.New(color.FgCyan), r.OutputKey), "with data", pretty.Bold(r.OutputData))
+			fmt.Printf("Receive result %s %s with data\n%s\n",
+				pretty.Success(r.TaskKey),
+				pretty.Colorize(color.New(color.FgCyan), r.OutputKey),
+				pretty.ColorizeJSON(pretty.FgBlue, pretty.FgMagenta, []byte(r.OutputData)),
+			)
 		case err := <-resultsErrC:
-			fmt.Fprintln(os.Stderr, "Listening results error:", err)
+			fmt.Fprintf(os.Stderr, "%s Listening results error: %s", pretty.FailSign, err)
 		case <-abort:
 			break loop
 		}
