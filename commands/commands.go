@@ -5,7 +5,6 @@ import (
 
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/interface/grpc/core"
-	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/utils/servicetemplate"
 	"github.com/spf13/cobra"
 )
@@ -18,7 +17,7 @@ type RootExecutor interface {
 }
 
 type ServiceExecutor interface {
-	ServiceByID(id string) (*service.Service, error)
+	ServiceByID(id string) (*core.Service, error)
 	ServiceDeleteAll() error
 	ServiceDelete(ids ...string) error
 	ServiceDeploy(path string) (id string, valid bool, err error)
@@ -31,7 +30,7 @@ type ServiceExecutor interface {
 	ServiceStop(id string) error
 	ServiceValidate(path string) (string, error)
 	ServiceGenerateDocs(path string) error
-	ServiceList() ([]*service.Service, error)
+	ServiceList() ([]*core.Service, error)
 	ServiceInitTemplateList() ([]*servicetemplate.Template, error)
 	ServiceInitDownloadTemplate(t *servicetemplate.Template, dst string) error
 	ServiceInitExecuteTemplate(dst string, option servicetemplate.ConfigOption) error

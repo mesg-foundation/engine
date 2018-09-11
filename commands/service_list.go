@@ -30,10 +30,11 @@ To have more details, see the [detail command](mesg-core_service_detail.md).`,
 }
 
 func (c *serviceListCmd) runE(cmd *cobra.Command, args []string) error {
-	services, err := c.e.ServiceList()
+	coreServices, err := c.e.ServiceList()
 	if err != nil {
 		return err
 	}
+	services := toServices(coreServices)
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 4, ' ', 0)
 	fmt.Fprintf(w, "STATUS\tSERVICE\tNAME\n")
