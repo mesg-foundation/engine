@@ -3,6 +3,7 @@ package container
 import (
 	"context"
 	"io"
+	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
@@ -46,28 +47,23 @@ func (c *Container) StartService(options ServiceOptions) (serviceID string, err 
 
 // StopService stops a docker service.
 func (c *Container) StopService(namespace []string) (err error) {
-	status, err := c.ServiceStatus(namespace)
-	if err != nil || status == STOPPED {
-		return err
-	}
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
-	if err := c.client.ServiceRemove(ctx, Namespace(namespace)); err != nil {
+	container, err := c.FindContainer(namespace)
+	if err != nil {
+		return err
+	}
+	if err := c.client.ServiceRemove(ctx, Namespace(namespace)); err != nil && !docker.IsErrNotFound(err) {
+		return err
+	}
+	timeout := 1 * time.Second
+	if err := c.client.ContainerStop(ctx, container.ID, &timeout); err != nil {
+		return err
+	}
+	if err := c.client.ContainerRemove(ctx, container.ID, types.ContainerRemoveOptions{}); err != nil && !docker.IsErrNotFound(err) {
 		return err
 	}
 	return c.waitForStatus(namespace, STOPPED)
-}
-
-// ServiceStatus returns the status of the Docker Swarm Servicer.
-func (c *Container) ServiceStatus(namespace []string) (StatusType, error) {
-	_, err := c.FindService(namespace)
-	if docker.IsErrNotFound(err) {
-		return STOPPED, nil
-	}
-	if err != nil {
-		return STOPPED, err
-	}
-	return RUNNING, nil
 }
 
 // ServiceLogs returns the logs of a service.

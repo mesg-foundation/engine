@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/filters"
 	docker "github.com/docker/docker/client"
 )
 
@@ -43,7 +44,25 @@ func (c *Container) DeleteNetwork(namespace []string) error {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
-	return c.client.NetworkRemove(ctx, network.ID)
+	messageChan, errChan := c.client.Events(ctx, types.EventsOptions{
+		Filters: filters.NewArgs(filters.KeyValuePair{
+			Key:   "network",
+			Value: network.ID,
+		}, filters.KeyValuePair{
+			Key:   "event",
+			Value: "destroy",
+		}),
+	})
+	err = c.client.NetworkRemove(ctx, network.ID)
+	if err != nil {
+		return err
+	}
+	select {
+	case <-messageChan:
+		return nil
+	case err := <-errChan:
+		return err
+	}
 }
 
 // FindNetwork finds a Docker Network by a namespace. If no network is found, an error is returned.

@@ -5,6 +5,7 @@ import (
 	"io"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/events"
 	"github.com/docker/docker/api/types/swarm"
 )
 
@@ -40,6 +41,16 @@ func (t *Testing) ProvideContainerList(containers []types.Container, err error) 
 // ProvideContainerInspect sets fake return values for the next call to *Client.ContainerInspect.
 func (t *Testing) ProvideContainerInspect(json types.ContainerJSON, err error) {
 	t.client.responses.containerInspect <- containerInspectResponse{json, err}
+}
+
+// ProvideContainerStop sets fake return values for the next call to *Client.ContainerInspect.
+func (t *Testing) ProvideContainerStop(err error) {
+	t.client.responses.containerStop <- containerStopResponse{err}
+}
+
+// ProvideContainerRemove sets fake return values for the next call to *Client.ContainerInspect.
+func (t *Testing) ProvideContainerRemove(err error) {
+	t.client.responses.containerRemove <- containerRemoveResponse{err}
 }
 
 // ProvideImageBuild sets fake return values for the next call to *Client.ImageBuild.
@@ -91,6 +102,11 @@ func (t *Testing) ProvideServiceCreate(response types.ServiceCreateResponse, err
 	t.client.responses.serviceCreate <- serviceCreateResponse{response, err}
 }
 
+// ProvideEvents sets fake return values for the next call to *Client.Event.
+func (t *Testing) ProvideEvents(message chan events.Message, err chan error) {
+	t.client.responses.events <- eventsResponse{messageChan: message, errChan: err}
+}
+
 // ProvideServiceRemove sets fake return values for the next call to *Client.ServiceRemove.
 func (t *Testing) ProvideServiceRemove(err error) {
 	t.client.responses.serviceRemove <- serviceRemoveResponse{err}
@@ -104,6 +120,16 @@ func (t *Testing) LastContainerList() <-chan ContainerListRequest {
 // LastContainerInspect returns a channel that receives call arguments of last *Client.ContainerInspect call.
 func (t *Testing) LastContainerInspect() <-chan ContainerInspectRequest {
 	return t.client.requests.containerInspect
+}
+
+// LastContainerStop returns a channel that receives call arguments of last *Client.ContainerStop call.
+func (t *Testing) LastContainerStop() <-chan ContainerStopRequest {
+	return t.client.requests.containerStop
+}
+
+// LastContainerRemove returns a channel that receives call arguments of last *Client.ContainerRemove call.
+func (t *Testing) LastContainerRemove() <-chan ContainerRemoveRequest {
+	return t.client.requests.containerRemove
 }
 
 // LastSwarmInit returns a channel that receives call arguments of last *Client.SwarmInit call.
@@ -169,4 +195,9 @@ func (t *Testing) LastServiceRemove() <-chan ServiceRemoveRequest {
 // LastServiceLogs returns a channel that receives call arguments of last *Client.ServiceLogs call.
 func (t *Testing) LastServiceLogs() <-chan ServiceLogsRequest {
 	return t.client.requests.serviceLogs
+}
+
+// LastEvents returns a channel that receives call arguments of last *Client.ServiceLogs call.
+func (t *Testing) LastEvents() <-chan EventsRequest {
+	return t.client.requests.events
 }

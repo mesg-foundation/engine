@@ -4,6 +4,7 @@ import (
 	"io"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/events"
 	"github.com/docker/docker/api/types/swarm"
 )
 
@@ -77,4 +78,20 @@ type containerListResponse struct {
 type containerInspectResponse struct {
 	json types.ContainerJSON
 	err  error
+}
+
+// containerStopResponse holds fake return values of *Client.ContainerStop.
+type containerStopResponse struct {
+	err error
+}
+
+// containerRemoveResponse holds fake return values of *Client.ContainerRemove.
+type containerRemoveResponse struct {
+	err error
+}
+
+// eventsResponse holds fake return values of *Client.Events.
+type eventsResponse struct {
+	messageChan <-chan events.Message
+	errChan     <-chan error
 }

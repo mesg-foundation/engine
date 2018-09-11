@@ -12,7 +12,6 @@ import (
 	"github.com/mesg-foundation/core/interface/grpc/core"
 	"github.com/mesg-foundation/core/service"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )
 
@@ -41,13 +40,16 @@ func stopHandler(cmd *cobra.Command, args []string) {
 	fmt.Println(aurora.Green("MESG Core stopped"))
 }
 
-func getCli() (cli core.CoreClient, err error) {
-	connection, err := grpc.Dial(viper.GetString(config.APIClientTarget), grpc.WithInsecure())
+func getCli() (core.CoreClient, error) {
+	c, err := config.Global()
 	if err != nil {
-		return
+		return nil, err
 	}
-	cli = core.NewCoreClient(connection)
-	return
+	connection, err := grpc.Dial(c.Client.Address, grpc.WithInsecure())
+	if err != nil {
+		return nil, err
+	}
+	return core.NewCoreClient(connection), nil
 }
 
 func stopServices() (err error) {
