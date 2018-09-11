@@ -4,7 +4,6 @@ import (
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/x/xnet"
-	"github.com/spf13/viper"
 )
 
 // Start starts the docker core.
@@ -25,20 +24,18 @@ func serviceSpec() (spec container.ServiceOptions, err error) {
 	if err != nil {
 		return container.ServiceOptions{}, err
 	}
-
-	_, port, err := xnet.SplitHostPort(viper.GetString(config.APIServerAddress))
+	c, err := config.Global()
 	if err != nil {
 		return container.ServiceOptions{}, err
 	}
-
+	_, port, err := xnet.SplitHostPort(c.Server.Address)
+	if err != nil {
+		return container.ServiceOptions{}, err
+	}
 	return container.ServiceOptions{
 		Namespace: Namespace(),
-		Image:     viper.GetString(config.CoreImage),
-		Env: container.MapToEnv(map[string]string{
-			config.ToEnv(config.MESGPath):  path,
-			config.ToEnv(config.LogFormat): viper.GetString(config.LogFormat),
-			config.ToEnv(config.LogLevel):  viper.GetString(config.LogLevel),
-		}),
+		Image:     c.Core.Image,
+		Env:       container.MapToEnv(c.DaemonEnv()),
 		Mounts: []container.Mount{
 			{
 				Source: dockerSocket,
@@ -47,7 +44,7 @@ func serviceSpec() (spec container.ServiceOptions, err error) {
 			},
 			{
 				Source: volume,
-				Target: path,
+				Target: config.Path,
 			},
 		},
 		Ports: []container.Port{
