@@ -364,29 +364,20 @@ message ServiceLogsRequest {
 
 // LogData holds the log data chunk and log info of service dependencies.
 message LogData {
-  message Data {
-    enum Type {
-      // Standard represents standard log output.
-      Standard = 0;
+  enum Type {
+    // Standard represents standard log output.
+    Standard = 0;
 
-      // Error represents error log output.
-      Error = 1;
-    }
-
-    // dependency is the dependency that data belongs.
-    string dependency = 1;
-
-    // type is the log type.
-    Type type = 2;
-
-    // data is a log data chunk.
-    bytes data = 3;
+    // Error represents error log output.
+    Error = 1;
   }
 
-  // depedencies are the depedencies that log datas will be sent for. It'll be only sent once as a first message of gRPC stream.
-  repeated string depedencies = 1;
-  
+  // dependency is the dependency that data belongs.
+  string dependency = 1;
 
-  // data is a dependency log data.
-  Data data = 2;
+  // type is the log type.
+  Type type = 2;
+
+  // data is a log data chunk.
+  bytes data = 3;
 }

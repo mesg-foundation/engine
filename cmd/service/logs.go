@@ -9,6 +9,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/mesg-foundation/core/interface/grpc/core"
+	"github.com/mesg-foundation/core/utils/chunker"
 	"github.com/mesg-foundation/core/x/xcolor"
 	"github.com/mesg-foundation/core/x/xsignal"
 	"github.com/mesg-foundation/core/x/xstrings"
@@ -40,47 +41,18 @@ func logsHandler(cmd *cobra.Command, args []string) {
 }
 
 func showLogs(serviceID string, dependencies ...string) func() {
+	prefixes, err := dependencyPrefixes(serviceID)
+	utils.HandleError(err)
+
 	ctx, cancel := context.WithCancel(context.Background())
+
 	stream, err := cli().ServiceLogs(ctx, &core.ServiceLogsRequest{
 		ServiceID:    serviceID,
 		Dependencies: dependencies,
 	})
 	utils.HandleError(err)
 
-	// first received dependency list.
-	data, err := stream.Recv()
-	utils.HandleError(err)
-
-	var (
-		rstds, rerrs []*logReader
-
-		// maxCharLen is the char length of longest dependency key.
-		maxCharLen int
-
-		// dependencyPrefix is a dependency key, log prefix pair.
-		dependencyPrefix = make(map[string]string)
-	)
-
-	// find out the char length of longest dependency key.
-	for _, dep := range data.Depedencies {
-		l := len(dep)
-		if l > maxCharLen {
-			maxCharLen = l
-		}
-	}
-
-	for _, dep := range data.Depedencies {
-		rstds = append(rstds, newLogReader(dep, core.LogData_Data_Standard))
-		rerrs = append(rerrs, newLogReader(dep, core.LogData_Data_Error))
-		dependencyPrefix[dep] = color.New(xcolor.NextColor()).Sprintf("%s |", fillSpace(dep, maxCharLen))
-	}
-
-	for _, r := range rstds {
-		go prefixedCopy(os.Stdout, r, dependencyPrefix[r.dependency])
-	}
-	for _, r := range rerrs {
-		go prefixedCopy(os.Stderr, r, dependencyPrefix[r.dependency])
-	}
+	streams := make(map[chunkMeta]*chunker.Stream)
 
 	go func() {
 		for {
@@ -88,79 +60,52 @@ func showLogs(serviceID string, dependencies ...string) func() {
 			if err != nil {
 				return
 			}
-			for _, l := range append(rstds, rerrs...) {
-				l.process(data)
+			meta := chunkMeta{
+				Dependency: data.Dependency,
+				Type:       data.Type,
 			}
+			stream, ok := streams[meta]
+			if !ok {
+				stream = chunker.NewStream()
+				go prefixedCopy(os.Stdout, stream, prefixes[meta.Dependency])
+				streams[meta] = stream
+			}
+			stream.Provide(data.Data)
 		}
 	}()
 
 	return func() {
 		cancel()
-		for _, c := range append(rstds, rerrs...) {
-			c.Close()
+		for _, stream := range streams {
+			stream.Close()
 		}
 	}
 }
 
-// logReader implements io.Reader to combine log data chunks being received
-// from gRPC stream.
-type logReader struct {
-	dependency string
-	typ        core.LogData_Data_Type
+// dependencyPrefixes returns dependency key, log prefix pair.
+func dependencyPrefixes(serviceID string) (prefixes map[string]string, err error) {
+	// maxCharLen is the char length of longest dependency key.
+	var maxCharLen int
 
-	recv chan []byte
-	done chan struct{}
-
-	data []byte
-	i    int64
-}
-
-// newLogReader returns a new log reader.
-func newLogReader(dependency string, typ core.LogData_Data_Type) *logReader {
-	return &logReader{
-		dependency: dependency,
-		typ:        typ,
-		recv:       make(chan []byte, 0),
-		done:       make(chan struct{}, 0),
+	// get list of services to calibrate spaces for short dependency keys.
+	resp, err := cli().GetService(context.Background(), &core.GetServiceRequest{
+		ServiceID: serviceID,
+	})
+	if err != nil {
+		return nil, err
 	}
-}
 
-// process processes log data received from gRPC stream and checks if it belongs
-// to this log stream.
-func (r *logReader) process(data *core.LogData) {
-	if r.dependency == data.Data.Dependency &&
-		r.typ == data.Data.Type {
-		r.recv <- data.Data.Data
-	}
-}
-
-// Read implements io.Reader.
-func (r *logReader) Read(p []byte) (n int, err error) {
-	if r.i >= int64(len(r.data)) {
-		for {
-			select {
-			case <-r.done:
-				return 0, io.EOF
-
-			case data := <-r.recv:
-				if err != nil {
-					return 0, err
-				}
-				r.data = data
-				r.i = 0
-				return r.Read(p)
-			}
+	for key := range resp.Service.Dependencies {
+		l := len(key)
+		if l > maxCharLen {
+			maxCharLen = l
 		}
 	}
-	n = copy(p, r.data[r.i:])
-	r.i += int64(n)
-	return n, nil
-}
+	for key := range resp.Service.Dependencies {
+		prefixes[key] = color.New(xcolor.NextColor()).Sprintf("%s |", fillSpace(key, maxCharLen))
+	}
 
-// Close closes log reader.
-func (r *logReader) Close() error {
-	close(r.done)
-	return nil
+	return prefixes, nil
 }
 
 // prefixedReader wraps io.Reader by adding a prefix for each new line
@@ -174,6 +119,13 @@ func prefixedCopy(dst io.Writer, src io.Reader, dep string) {
 	io.Copy(dst, prefixedReader(src, dep))
 }
 
-func fillSpace(name string, maxCharLen int) string {
-	return xstrings.AppendSpace(name, maxCharLen-len(name))
+// fillSpace fills the end of name with spaces until max chars limit hits.
+func fillSpace(name string, max int) string {
+	return xstrings.AppendSpaces(name, max-len(name))
+}
+
+// chunkMeta is a meta data for chunks.
+type chunkMeta struct {
+	Dependency string
+	Type       core.LogData_Type
 }

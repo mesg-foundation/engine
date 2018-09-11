@@ -28,7 +28,7 @@ func TestAppendSpace(t *testing.T) {
 		{"a", 1, "a "},
 		{"a", 2, "a  "},
 	} {
-		if got := AppendSpace(tt.s, tt.n); got != tt.expected {
+		if got := AppendSpaces(tt.s, tt.n); got != tt.expected {
 			t.Errorf("%v append space %d - got %s, want %s", tt.s, tt.n, got, tt.expected)
 		}
 	}
