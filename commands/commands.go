@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// RootExecutor is an interface that handles core commands.
 type RootExecutor interface {
 	Start() error
 	Stop() error
@@ -16,6 +17,7 @@ type RootExecutor interface {
 	Logs() (io.ReadCloser, error)
 }
 
+// ServiceExecutor is an interface that handles services commands.
 type ServiceExecutor interface {
 	ServiceByID(id string) (*core.Service, error)
 	ServiceDeleteAll() error
@@ -33,14 +35,15 @@ type ServiceExecutor interface {
 	ServiceList() ([]*core.Service, error)
 	ServiceInitTemplateList() ([]*servicetemplate.Template, error)
 	ServiceInitDownloadTemplate(t *servicetemplate.Template, dst string) error
-	ServiceInitExecuteTemplate(dst string, option servicetemplate.ConfigOption) error
 }
 
+// Executor is an interface that keeps all commands interfaces.
 type Executor interface {
 	RootExecutor
 	ServiceExecutor
 }
 
+// Build constructs root command and returns it.
 func Build(e Executor) *cobra.Command {
 	return newRootCmd(e).cmd
 }

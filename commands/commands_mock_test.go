@@ -122,8 +122,3 @@ func (m *mockServiceExecutor) ServiceInitDownloadTemplate(t *servicetemplate.Tem
 	args := m.Called()
 	return args.Error(0)
 }
-
-func (m *mockServiceExecutor) ServiceInitExecuteTemplate(dst string, option servicetemplate.ConfigOption) error {
-	args := m.Called()
-	return args.Error(0)
-}

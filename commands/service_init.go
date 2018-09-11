@@ -42,22 +42,12 @@ mesg-core service init --current`,
 		PreRunE: c.preRunE,
 		RunE:    c.runE,
 	})
-	c.cmd.Flags().StringVarP(&c.name, "name", "n", c.name, "Service name")
-	c.cmd.Flags().StringVarP(&c.description, "description", "d", c.description, "Service description")
 	c.cmd.Flags().StringVar(&c.dir, "dir", c.dir, "Create the service in the direcotry")
 	c.cmd.Flags().StringVarP(&c.templateURL, "template", "t", c.templateURL, "Specify the template URL to use")
 	return c
 }
 
 func (c *serviceInitCmd) preRunE(cmd *cobra.Command, args []string) error {
-	if err := c.selectName(); err != nil {
-		return err
-	}
-
-	if err := c.selectDescription(); err != nil {
-		return err
-	}
-
 	if err := c.selectOutputDirecotry(); err != nil {
 		return err
 	}
@@ -106,34 +96,10 @@ func (c *serviceInitCmd) preRunE(cmd *cobra.Command, args []string) error {
 }
 
 func (c *serviceInitCmd) runE(cmd *cobra.Command, args []string) error {
-	if err := c.e.ServiceInitDownloadTemplate(&servicetemplate.Template{
+	return c.e.ServiceInitDownloadTemplate(&servicetemplate.Template{
 		Name: c.templateName,
 		URL:  c.templateURL,
-	}, c.dir); err != nil {
-		return err
-	}
-	return c.e.ServiceInitExecuteTemplate(c.dir, servicetemplate.ConfigOption{
-		Name:        c.name,
-		Description: c.description,
-	})
-}
-
-func (c *serviceInitCmd) selectName() error {
-	if c.name != "" {
-		return nil
-	}
-	return survey.AskOne(&survey.Input{
-		Message: "Enter the service name",
-	}, &c.name, nil)
-}
-
-func (c *serviceInitCmd) selectDescription() error {
-	if c.description != "" {
-		return nil
-	}
-	return survey.AskOne(&survey.Input{
-		Message: "Enter the service description",
-	}, &c.description, nil)
+	}, c.dir)
 }
 
 func (c *serviceInitCmd) selectOutputDirecotry() error {
