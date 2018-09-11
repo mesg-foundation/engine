@@ -273,10 +273,20 @@ func (p *Pretty) FgColors() []*color.Color {
 func Default() *Pretty { return pg }
 
 // DisableColor disables the color output.
-func DisableColor() { pg.DisableColor() }
+func DisableColor() {
+	pg.DisableColor()
+	SuccessSign = pg.Success("✔")
+	WarnSign = pg.Warn("?")
+	FailSign = pg.Fail("⨯")
+}
 
 // EnableColor enables the color output.
-func EnableColor() { pg.EnableColor() }
+func EnableColor() {
+	pg.EnableColor()
+	SuccessSign = pg.Success("✔")
+	WarnSign = pg.Warn("?")
+	FailSign = pg.Fail("⨯")
+}
 
 // DisableSpinner disables the spinner.
 func DisableSpinner() { pg.DisableSpinner() }

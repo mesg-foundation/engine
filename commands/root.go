@@ -19,6 +19,7 @@ func newRootCmd(e Executor) *rootCmd {
 		Short:            "MESG Core",
 		PersistentPreRun: c.persistentPreRun,
 		SilenceUsage:     true,
+		SilenceErrors:    true,
 	})
 	c.cmd.PersistentFlags().BoolVar(&c.noColor, "no-color", c.noColor, "disable colorized output")
 	c.cmd.PersistentFlags().BoolVar(&c.noSpinner, "no-spinner", c.noSpinner, "disable spinners")
