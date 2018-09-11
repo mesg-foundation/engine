@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/events"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
 	"github.com/stretchr/testify/require"
@@ -262,4 +263,27 @@ func TestServiceLogs(t *testing.T) {
 	ll := <-dt.LastServiceLogs()
 	require.Equal(t, serviceID, ll.ServiceID)
 	require.Equal(t, options, ll.Options)
+}
+
+func TestEvents(t *testing.T) {
+	dt := New()
+	msgC := make(chan events.Message)
+	errC := make(chan error)
+	dt.ProvideEvents(msgC, errC)
+
+	options := types.EventsOptions{}
+	event := events.Message{ID: "TestEvents"}
+	err := errors.New("TestEvents Error")
+
+	newMsgC, newErrC := dt.Client().Events(context.Background(), options)
+
+	go func() {
+		msgC <- event
+		errC <- err
+	}()
+
+	require.Equal(t, event, <-newMsgC)
+	require.Equal(t, err, <-newErrC)
+
+	require.Equal(t, options, (<-dt.LastEvents()).Options)
 }

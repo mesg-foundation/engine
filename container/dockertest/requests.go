@@ -94,3 +94,8 @@ type ServiceListRequest struct {
 type ServiceRemoveRequest struct {
 	ServiceID string
 }
+
+// EventsRequest holds call arguments of *Client.Events.
+type EventsRequest struct {
+	Options types.EventsOptions
+}

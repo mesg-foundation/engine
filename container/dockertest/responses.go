@@ -4,6 +4,7 @@ import (
 	"io"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/events"
 	"github.com/docker/docker/api/types/swarm"
 )
 
@@ -87,4 +88,10 @@ type containerStopResponse struct {
 // containerRemoveResponse holds fake return values of *Client.ContainerRemove.
 type containerRemoveResponse struct {
 	err error
+}
+
+// eventsResponse holds fake return values of *Client.Events.
+type eventsResponse struct {
+	messageChan <-chan events.Message
+	errChan     <-chan error
 }
