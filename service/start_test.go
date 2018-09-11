@@ -40,7 +40,7 @@ func TestStartService(t *testing.T) {
 	dockerServices, err := service.Start()
 	defer service.Stop()
 	require.Nil(t, err)
-	require.Equal(t, len(service.GetDependencies()), len(dockerServices))
+	require.Equal(t, len(service.Dependencies), len(dockerServices))
 	status, _ := service.Status()
 	require.Equal(t, RUNNING, status)
 }
@@ -88,30 +88,29 @@ func TestStartAgainService(t *testing.T) {
 	require.Equal(t, RUNNING, status)
 }
 
-// TODO: disable in order to the CI to pass. This test is working but for some reasons not on the CI
-// func TestPartiallyRunningService(t *testing.T) {
-// 	service := &Service{
-// 		Name: "TestPartiallyRunningService",
-// 		Dependencies: map[string]*Dependency{
-// 			"testa": {
-// 				Image: "nginx:stable-alpine",
-// 			},
-// 			"testb": {
-// 				Image: "nginx:stable-alpine",
-// 			},
-// 		},
-// 	}
-// 	service.Start()
-// 	defer service.Stop()
-// 	service.DependenciesFromService()[0].Stop()
-// 	status, _ := service.Status()
-// 	require.Equal(t, PARTIAL, status)
-// 	dockerServices, err := service.Start()
-// 	require.Nil(t, err)
-// 	require.Equal(t, len(dockerServices), len(service.GetDependencies()))
-// 	status, _ = service.Status()
-// 	require.Equal(t, RUNNING, status)
-// }
+func TestPartiallyRunningService(t *testing.T) {
+	service := &Service{
+		Name: "TestPartiallyRunningService",
+		Dependencies: map[string]*Dependency{
+			"testa": {
+				Image: "nginx:stable-alpine",
+			},
+			"testb": {
+				Image: "nginx:stable-alpine",
+			},
+		},
+	}
+	service.Start()
+	defer service.Stop()
+	service.DependenciesFromService()[0].Stop()
+	status, _ := service.Status()
+	require.Equal(t, PARTIAL, status)
+	dockerServices, err := service.Start()
+	require.Nil(t, err)
+	require.Equal(t, len(dockerServices), len(service.Dependencies))
+	status, _ = service.Status()
+	require.Equal(t, RUNNING, status)
+}
 
 func TestStartDependency(t *testing.T) {
 	service := &Service{
@@ -225,7 +224,7 @@ func TestExtractVolumes(t *testing.T) {
 	dep = &DependencyFromService{
 		Service: &Service{},
 		Dependency: &Dependency{
-			Volumesfrom: []string{"test"},
+			VolumesFrom: []string{"test"},
 		},
 	}
 	_, err = dep.extractVolumes()
@@ -240,7 +239,7 @@ func TestExtractVolumes(t *testing.T) {
 			},
 		},
 		Dependency: &Dependency{
-			Volumesfrom: []string{"test"},
+			VolumesFrom: []string{"test"},
 		},
 	}
 	volumes, err = dep.extractVolumes()
