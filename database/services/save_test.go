@@ -11,12 +11,11 @@ func TestSaveReturningHash(t *testing.T) {
 	service := &service.Service{
 		Name: "TestSaveReturningHash",
 	}
-	calculatedHash := service.Hash()
 
 	err := Save(service)
-	defer Delete(service.Id)
+	defer Delete(service.ID)
 	require.Nil(t, err)
-	require.Equal(t, calculatedHash, service.Id)
+	require.Equal(t, service.Hash(), service.ID)
 }
 
 func TestSaveAndPresentInDB(t *testing.T) {
@@ -24,7 +23,7 @@ func TestSaveAndPresentInDB(t *testing.T) {
 		Name: "TestSaveAndPresentInDB",
 	}
 	Save(service)
-	defer Delete(service.Id)
-	srv, _ := Get(service.Id)
+	defer Delete(service.ID)
+	srv, _ := Get(service.ID)
 	require.Equal(t, srv.Name, "TestSaveAndPresentInDB")
 }
