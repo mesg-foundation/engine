@@ -10,7 +10,6 @@ import (
 	"github.com/mesg-foundation/core/interface/grpc/core"
 	"github.com/mesg-foundation/core/utils/clierrors"
 	"github.com/mesg-foundation/core/version"
-	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )
 
@@ -24,7 +23,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	connection, err := grpc.Dial(viper.GetString(cfg.Client.Address), grpc.WithInsecure())
+	connection, err := grpc.Dial(cfg.Client.Address, grpc.WithInsecure())
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
