@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/interface/grpc/core"
-	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/x/xpflag"
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/require"
@@ -33,11 +32,11 @@ func TestTaskKeysFromService(t *testing.T) {
 }
 
 func TestGetData(t *testing.T) {
-	s := service.Service{
-		Tasks: []*service.Task{
+	s := core.Service{
+		Tasks: []*core.Task{
 			{
 				Key: "test",
-				Inputs: []*service.Parameter{
+				Inputs: []*core.Parameter{
 					{Key: "foo", Type: "String"},
 					{Key: "hello", Type: "String"},
 					{Key: "number", Type: "Number"},
@@ -60,11 +59,11 @@ func TestGetData(t *testing.T) {
 }
 
 func TestGetDataError(t *testing.T) {
-	s := service.Service{
-		Tasks: []*service.Task{
+	s := core.Service{
+		Tasks: []*core.Task{
 			{
 				Key: "test",
-				Inputs: []*service.Parameter{
+				Inputs: []*core.Parameter{
 					{Key: "bool", Type: "Boolean"},
 				},
 			},
@@ -80,11 +79,11 @@ func TestGetDataError(t *testing.T) {
 }
 
 func TestGetDataJSON(t *testing.T) {
-	s := service.Service{
-		Tasks: []*service.Task{
+	s := core.Service{
+		Tasks: []*core.Task{
 			{
 				Key: "test",
-				Inputs: []*service.Parameter{
+				Inputs: []*core.Parameter{
 					{Key: "foo", Type: "String"},
 				},
 			},
