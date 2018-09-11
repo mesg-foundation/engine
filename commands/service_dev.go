@@ -71,15 +71,11 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	defer close(listenEventsC)
-	defer close(eventsErrC)
 
 	listenResultsC, resultsErrC, err := c.e.ServiceListenResults(c.path, c.taskFilter, c.outputFilter, nil)
 	if err != nil {
 		return err
 	}
-	defer close(listenResultsC)
-	defer close(resultsErrC)
 
 	reader, err := c.e.ServiceLogs(id)
 	if err != nil {
