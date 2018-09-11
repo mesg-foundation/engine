@@ -28,6 +28,6 @@ func (c *stopCmd) runE(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(pretty.Success("Core stopped"))
+	fmt.Printf("%s Core stopped\n", pretty.SuccessSign)
 	return nil
 }

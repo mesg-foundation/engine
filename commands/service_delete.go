@@ -48,7 +48,7 @@ func (c *serviceDeleteCmd) preRunE(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// is still no confirm .
+	// if still no confirm .
 	if !c.force {
 		return errors.New("can't continue without confirmation")
 	}
@@ -60,7 +60,7 @@ func (c *serviceDeleteCmd) runE(cmd *cobra.Command, args []string) error {
 		if err := c.e.ServiceDeleteAll(); err != nil {
 			return err
 		}
-		fmt.Printf("%s all services are deleted", pretty.SuccessSign)
+		fmt.Printf("%s all services are deleted\n", pretty.SuccessSign)
 		return nil
 	}
 

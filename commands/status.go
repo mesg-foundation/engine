@@ -31,9 +31,9 @@ func (c *statusCmd) runE(cmd *cobra.Command, args []string) error {
 	}
 
 	if status == container.RUNNING {
-		fmt.Println(pretty.Success("Core is running"))
+		fmt.Printf("%s Core is running\n", pretty.SuccessSign)
 	} else {
-		fmt.Println(pretty.Warn("Core is stopped"))
+		fmt.Printf("%s Core is stopped\n", pretty.WarnSign)
 	}
 	return nil
 }
