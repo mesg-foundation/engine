@@ -26,7 +26,7 @@ func newStartCmd(e RootExecutor) *startCmd {
 	}
 	c.cmd = newCommand(&cobra.Command{
 		Use:     "start",
-		Short:   "Start the MESG Core",
+		Short:   "Start the Core",
 		PreRunE: c.preRunE,
 		RunE:    c.runE,
 	})
@@ -45,7 +45,7 @@ func (c *startCmd) preRunE(cmd *cobra.Command, args []string) error {
 
 func (c *startCmd) runE(cmd *cobra.Command, args []string) error {
 	var err error
-	pretty.Progress("Starting MESG Core...", func() { err = c.e.Start() })
+	pretty.Progress("Starting Core...", func() { err = c.e.Start() })
 	if err != nil {
 		return err
 	}

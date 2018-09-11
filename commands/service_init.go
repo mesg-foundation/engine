@@ -50,21 +50,6 @@ mesg-core service init --current`,
 }
 
 func (c *serviceInitCmd) preRunE(cmd *cobra.Command, args []string) error {
-	// select output directory
-	if c.dir == "" {
-		defval := c.name
-		if defval == "" {
-			defval = "."
-		}
-
-		if err := survey.AskOne(&survey.Input{
-			Message: "Enter the output directory",
-			Default: defval,
-		}, &c.dir, nil); err != nil {
-			return err
-		}
-	}
-
 	// select service name
 	if c.name == "" {
 		if err := survey.AskOne(&survey.Input{
@@ -83,6 +68,20 @@ func (c *serviceInitCmd) preRunE(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	// select output directory
+	if c.dir == "" {
+		defval := c.name
+		if defval == "" {
+			defval = "."
+		}
+
+		if err := survey.AskOne(&survey.Input{
+			Message: "Enter the output directory",
+			Default: defval,
+		}, &c.dir, nil); err != nil {
+			return err
+		}
+	}
 	if c.templateURL != "" {
 		c.templateName = c.templateURL
 		return nil

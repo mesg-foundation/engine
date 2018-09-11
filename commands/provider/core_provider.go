@@ -65,7 +65,7 @@ loop:
 		errs = append(errs, err)
 	}
 
-	return errs
+	return errs.ErrorOrNil()
 }
 
 func (p *CoreProvider) Status() (container.StatusType, error) {

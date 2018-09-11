@@ -47,7 +47,7 @@ func (p *ServiceProvider) ServiceDeleteAll() error {
 			errs = append(errs, err)
 		}
 	}
-	return errs
+	return errs.ErrorOrNil()
 }
 
 func (p *ServiceProvider) ServiceDelete(ids ...string) error {
@@ -58,7 +58,7 @@ func (p *ServiceProvider) ServiceDelete(ids ...string) error {
 			errs = append(errs, err)
 		}
 	}
-	return errs
+	return errs.ErrorOrNil()
 }
 
 func (p *ServiceProvider) ServiceListenEvents(id, eventFilter string) (chan *core.EventData, chan error, error) {
