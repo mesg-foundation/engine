@@ -50,7 +50,7 @@ func Copy(src, dest string) error {
 	return os.Chmod(dest, si.Mode())
 }
 
-// CopyDir copies direcotry from source to target path.
+// CopyDir copies directory from source to target path.
 func CopyDir(src, dest string) error {
 	si, err := os.Lstat(src)
 	if err != nil {

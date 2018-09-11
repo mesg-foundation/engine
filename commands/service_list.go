@@ -44,7 +44,7 @@ func (c *serviceListCmd) runE(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		fmt.Fprintf(w, "%s\t%s\t%s\n", status, s.Hash(), s.Name)
+		fmt.Fprintf(w, "%s\t%s\t%s\n", status.String(), s.Hash(), s.Name)
 	}
 	return w.Flush()
 }
