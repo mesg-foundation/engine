@@ -6,7 +6,6 @@ import (
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 type startCmd struct {
@@ -37,9 +36,13 @@ func newStartCmd(e RootExecutor) *startCmd {
 }
 
 func (c *startCmd) preRunE(cmd *cobra.Command, args []string) error {
-	// TODO: figure out how to move this to config
-	viper.Set(config.LogFormat, string(c.lfv))
-	viper.Set(config.LogLevel, string(c.llv))
+	cfg, err := config.Global()
+	if err != nil {
+		return err
+	}
+
+	cfg.Log.Format = string(c.lfv)
+	cfg.Log.Level = string(c.llv)
 	return nil
 }
 
