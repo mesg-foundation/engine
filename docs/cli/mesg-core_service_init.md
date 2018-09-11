@@ -23,11 +23,9 @@ mesg-core service init --current
 ### Options
 
 ```
-  -d, --description string   Service description
-      --dir string           Create the service in the direcotry
-  -h, --help                 help for init
-  -n, --name string          Service name
-  -t, --template string      Specify the template URL to use
+      --dir string        Create the service in the direcotry
+  -h, --help              help for init
+  -t, --template string   Specify the template URL to use
 ```
 
 ### Options inherited from parent commands
