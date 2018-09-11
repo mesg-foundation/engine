@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/briandowns/spinner"
@@ -20,6 +21,25 @@ var (
 
 // pg is the default Pretty printer.
 var pg = New()
+
+// Signs to print for success, warn and fail.
+var (
+	SuccessSign = pg.Success("✔")
+	WarnSign    = pg.Warn("?")
+	FailSign    = pg.Fail("⨯")
+)
+
+// Predefiend colors
+var (
+	FgBlack   = color.New(color.FgBlack)
+	FgYellow  = color.New(color.FgYellow)
+	FgBlue    = color.New(color.FgBlue)
+	FgMagenta = color.New(color.FgMagenta)
+	FgCyan    = color.New(color.FgCyan)
+	FgWhite   = color.New(color.FgWhite)
+	FgRed     = color.New(color.FgRed)
+	FgGreen   = color.New(color.FgGreen)
+)
 
 // Pretty handles pretty printing for terminal and string.
 type Pretty struct {
@@ -183,7 +203,7 @@ func (p *Pretty) Colorize(c *color.Color, msg string) string {
 
 // ColorizeJSON colors keys and values of stringified JSON. On errors the original string is returned.
 // If color is nil then key/value won't be colorize.
-func (p *Pretty) ColorizeJSON(keyColor *color.Color, valueColor *color.Color, data string) string {
+func (p *Pretty) ColorizeJSON(keyColor *color.Color, valueColor *color.Color, data []byte) []byte {
 	if p.noColor {
 		return data
 	}
@@ -193,7 +213,7 @@ func (p *Pretty) ColorizeJSON(keyColor *color.Color, valueColor *color.Color, da
 		out map[string]interface{}
 	)
 
-	if json.Unmarshal([]byte(data), &in) != nil {
+	if json.Unmarshal(data, &in) != nil {
 		return data
 	}
 
@@ -213,7 +233,7 @@ func (p *Pretty) ColorizeJSON(keyColor *color.Color, valueColor *color.Color, da
 		return data
 	}
 
-	return string(b)
+	return b
 }
 
 // Progress prints spinner with the given message while calling fn function.
@@ -224,21 +244,45 @@ func (p *Pretty) Progress(message string, fn func()) {
 		return
 	}
 
-	p.Spinner.Suffix = " " + message
+	p.Spinner.Suffix = " " + strings.TrimRight(message, "\n")
 	p.Spinner.Start()
 	fn()
 	p.Spinner.Stop()
 	p.Spinner.Suffix = ""
 }
 
+// FgColors returns a slice with predefiend foreground color.
+func (p *Pretty) FgColors() []*color.Color {
+	return []*color.Color{
+		FgBlack,
+		FgYellow,
+		FgBlue,
+		FgMagenta,
+		FgCyan,
+		FgWhite,
+		FgRed,
+		FgGreen,
+	}
+}
+
 // Default returns the default Pretty printer.
 func Default() *Pretty { return pg }
 
 // DisableColor disables the color output.
-func DisableColor() { pg.DisableColor() }
+func DisableColor() {
+	pg.DisableColor()
+	SuccessSign = pg.Success("✔")
+	WarnSign = pg.Warn("?")
+	FailSign = pg.Fail("⨯")
+}
 
 // EnableColor enables the color output.
-func EnableColor() { pg.EnableColor() }
+func EnableColor() {
+	pg.EnableColor()
+	SuccessSign = pg.Success("✔")
+	WarnSign = pg.Warn("?")
+	FailSign = pg.Fail("⨯")
+}
 
 // DisableSpinner disables the spinner.
 func DisableSpinner() { pg.DisableSpinner() }
@@ -312,6 +356,11 @@ func Progress(message string, fn func()) { pg.Progress(message, fn) }
 
 // ColorizeJSON colors keys and values of stringified JSON. On errors the original string is returned.
 // If color is nil then key/value won't be colorize.
-func ColorizeJSON(keyColor *color.Color, valueColor *color.Color, data string) string {
+func ColorizeJSON(keyColor *color.Color, valueColor *color.Color, data []byte) []byte {
 	return pg.ColorizeJSON(keyColor, valueColor, data)
+}
+
+// FgColors returns a slice with predefiend foreground color.
+func FgColors() []*color.Color {
+	return pg.FgColors()
 }

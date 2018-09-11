@@ -16,6 +16,21 @@ const (
 	RUNNING
 )
 
+func (s StatusType) String() string {
+	switch s {
+	case STOPPED:
+		return "STOPPED"
+	case STARTING:
+		return "STARTING"
+	case PARTIAL:
+		return "PARTIAL"
+	case RUNNING:
+		return "RUNNING"
+	default:
+		return "UNKNOWN"
+	}
+}
+
 var containerStatusTypeMappings = map[container.StatusType]StatusType{
 	container.UNKNOWN:  UNKNOWN,
 	container.STOPPED:  STOPPED,
