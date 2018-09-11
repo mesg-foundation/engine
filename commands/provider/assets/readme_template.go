@@ -2,7 +2,7 @@
 // sources:
 // readme_template.go
 // readme_template.md
-package main
+package assets
 
 import (
 	"bytes"
@@ -202,6 +202,7 @@ type bintree struct {
 	Func     func() (*asset, error)
 	Children map[string]*bintree
 }
+
 var _bintree = &bintree{nil, map[string]*bintree{
 	"readme_template.go": &bintree{readme_templateGo, map[string]*bintree{}},
 	"readme_template.md": &bintree{readme_templateMd, map[string]*bintree{}},
@@ -253,4 +254,3 @@ func _filePath(dir, name string) string {
 	cannonicalName := strings.Replace(name, "\\", "/", -1)
 	return filepath.Join(append([]string{dir}, strings.Split(cannonicalName, "/")...)...)
 }
-
