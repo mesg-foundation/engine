@@ -125,7 +125,7 @@ func (p *ServiceProvider) ServiceLogs(id string) (io.ReadCloser, error) {
 
 func (p *ServiceProvider) ServiceDependencyLogs(id string, dependency string) ([]io.ReadCloser, error) {
 	// TODO: wait for feature fix-cmd-logs to be merged
-	return nil, errors.New("unimplementd")
+	return nil, errors.New("logs unimplementd")
 }
 
 func (p *ServiceProvider) ServiceExecuteTask(id, taskKey, inputData string, tags []string) error {
