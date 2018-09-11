@@ -1,14 +1,15 @@
-package service
+package casting
 
 import (
 	"testing"
 
+	"github.com/mesg-foundation/core/interface/grpc/core"
 	"github.com/stretchr/testify/require"
 )
 
 func TestServiceCast(t *testing.T) {
 	var tests = []struct {
-		service   *Service
+		service   *core.Service
 		data      map[string]string
 		expected  map[string]interface{}
 		expectErr bool
@@ -67,7 +68,7 @@ func TestServiceCast(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		got, err := tt.service.Cast("test", tt.data)
+		got, err := TaskInputs(tt.service, "test", tt.data)
 		if tt.expectErr {
 			require.Error(t, err)
 		} else {
@@ -77,27 +78,30 @@ func TestServiceCast(t *testing.T) {
 	}
 
 	// test if non-existing key returns error
-	_, err := tests[0].service.Cast("_", nil)
-	require.Error(t, err)
+	_, err := TaskInputs(tests[0].service, "_", nil)
+	require.NotNil(t, err)
 }
 
-// creates test service with given inputs name and type under "test" task key.
-func createTestServcieWithInputs(inputs map[string]string) *Service {
-	s := &Service{
-		Tasks: []*Task{
+// createTestServcieWithInputs creates test service with given inputs name and type under "test" task key.
+func createTestServcieWithInputs(inputs map[string]string) *core.Service {
+	s := &core.Service{
+		Tasks: []*core.Task{
 			{
 				Key:    "test",
-				Inputs: make([]*Parameter, 0),
+				Inputs: make([]*core.Parameter, 0),
 			},
 		},
 	}
 
 	for name, itype := range inputs {
-		task, _ := s.GetTask("test")
-		task.Inputs = append(task.Inputs, &Parameter{
-			Key:  name,
-			Type: itype,
-		})
+		for _, task := range s.Tasks {
+			if task.Key == "test" {
+				task.Inputs = append(task.Inputs, &core.Parameter{
+					Key:  name,
+					Type: itype,
+				})
+			}
+		}
 	}
 	return s
 }
