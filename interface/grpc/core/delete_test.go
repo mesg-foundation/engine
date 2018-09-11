@@ -29,6 +29,6 @@ func TestDeleteService(t *testing.T) {
 	require.Nil(t, err)
 	require.NotNil(t, reply)
 
-	_, err = server.api.GetService(s.Id)
+	_, err = server.api.GetService(s.ID)
 	require.Error(t, err)
 }
