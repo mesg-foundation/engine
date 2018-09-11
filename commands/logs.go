@@ -20,7 +20,7 @@ func newLogsCmd(e RootExecutor) *logsCmd {
 	c := &logsCmd{e: e}
 	c.cmd = newCommand(&cobra.Command{
 		Use:   "logs",
-		Short: "Show the MESG Core's logs",
+		Short: "Show the Core's logs",
 		RunE:  c.runE,
 	})
 	return c
@@ -33,7 +33,7 @@ func (c *logsCmd) runE(cmd *cobra.Command, args []string) error {
 	}
 
 	if status == container.STOPPED {
-		fmt.Println(pretty.Warn("MESG Core is stopped"))
+		fmt.Println(pretty.Warn("Core is stopped"))
 		return nil
 	}
 

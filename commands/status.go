@@ -18,7 +18,7 @@ func newStatusCmd(e RootExecutor) *statusCmd {
 	c := &statusCmd{e: e}
 	c.cmd = newCommand(&cobra.Command{
 		Use:   "status",
-		Short: "Status of the MESG Core",
+		Short: "Status of the Core",
 		RunE:  c.runE,
 	})
 	return c
@@ -31,9 +31,9 @@ func (c *statusCmd) runE(cmd *cobra.Command, args []string) error {
 	}
 
 	if status == container.RUNNING {
-		fmt.Println(pretty.Success("MESG Core is running"))
+		fmt.Println(pretty.Success("Core is running"))
 	} else {
-		fmt.Println(pretty.Warn("MESG Core is stopped"))
+		fmt.Println(pretty.Warn("Core is stopped"))
 	}
 	return nil
 }

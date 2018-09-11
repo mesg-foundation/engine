@@ -15,9 +15,10 @@ type rootCmd struct {
 func newRootCmd(e Executor) *rootCmd {
 	c := &rootCmd{}
 	c.cmd = newCommand(&cobra.Command{
-		Use:    "mesg-core",
-		Short:  "MESG Core",
-		PreRun: c.preRun,
+		Use:              "mesg-core",
+		Short:            "MESG Core",
+		PersistentPreRun: c.persistentPreRun,
+		SilenceUsage:     true,
 	})
 	c.cmd.PersistentFlags().BoolVar(&c.noColor, "no-color", c.noColor, "disable colorized output")
 	c.cmd.PersistentFlags().BoolVar(&c.noSpinner, "no-spinner", c.noSpinner, "disable spinners")
@@ -32,7 +33,7 @@ func newRootCmd(e Executor) *rootCmd {
 	return c
 }
 
-func (c *rootCmd) preRun(cmd *cobra.Command, args []string) {
+func (c *rootCmd) persistentPreRun(cmd *cobra.Command, args []string) {
 	if c.noColor {
 		pretty.DisableColor()
 	}

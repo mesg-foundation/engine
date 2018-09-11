@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/briandowns/spinner"
@@ -248,6 +249,10 @@ func (p *Pretty) Progress(message string, fn func()) {
 	fn()
 	p.Spinner.Stop()
 	p.Spinner.Suffix = ""
+
+	if !strings.HasSuffix(message, "\n") {
+		fmt.Println()
+	}
 }
 
 // FgColors returns a slice with predefiend foreground color.
