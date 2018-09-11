@@ -19,14 +19,14 @@ func TestEmit(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Id)
+	defer server.api.DeleteService(s.ID)
 
-	ln, err := server.api.ListenEvent(s.Id)
+	ln, err := server.api.ListenEvent(s.ID)
 	require.NoError(t, err)
 	defer ln.Close()
 
 	_, err = server.EmitEvent(context.Background(), &EmitEventRequest{
-		Token:     s.Id,
+		Token:     s.ID,
 		EventKey:  eventKey,
 		EventData: eventData,
 	})
@@ -53,10 +53,10 @@ func TestEmitNoData(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Id)
+	defer server.api.DeleteService(s.ID)
 
 	_, err = server.EmitEvent(context.Background(), &EmitEventRequest{
-		Token:    s.Id,
+		Token:    s.ID,
 		EventKey: eventKey,
 	})
 	require.Equal(t, err.Error(), "unexpected end of JSON input")
@@ -72,10 +72,10 @@ func TestEmitWrongData(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Id)
+	defer server.api.DeleteService(s.ID)
 
 	_, err = server.EmitEvent(context.Background(), &EmitEventRequest{
-		Token:     s.Id,
+		Token:     s.ID,
 		EventKey:  eventKey,
 		EventData: "",
 	})
@@ -92,10 +92,10 @@ func TestEmitWrongEvent(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Id)
+	defer server.api.DeleteService(s.ID)
 
 	_, err = server.EmitEvent(context.Background(), &EmitEventRequest{
-		Token:     s.Id,
+		Token:     s.ID,
 		EventKey:  eventKey,
 		EventData: "{}",
 	})
@@ -117,10 +117,10 @@ func TestEmitInvalidData(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Id)
+	defer server.api.DeleteService(s.ID)
 
 	_, err = server.EmitEvent(context.Background(), &EmitEventRequest{
-		Token:     s.Id,
+		Token:     s.ID,
 		EventKey:  eventKey,
 		EventData: eventData,
 	})

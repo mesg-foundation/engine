@@ -199,3 +199,12 @@ Also, be sure to check out the [blog](https://medium.com/mesg) to stay up-to-dat
 Contributions are more than welcome. For more details on how to contribute, please check out the [contribution guide](/CONTRIBUTING.md).
 
 If you have any questions, please reach out to us directly on [Discord](https://discordapp.com/invite/SaZ5HcE).
+
+[![0](https://sourcerer.io/fame/antho1404/mesg-foundation/core/images/0)](https://sourcerer.io/fame/antho1404/mesg-foundation/core/links/0)
+[![1](https://sourcerer.io/fame/antho1404/mesg-foundation/core/images/1)](https://sourcerer.io/fame/antho1404/mesg-foundation/core/links/1)
+[![2](https://sourcerer.io/fame/antho1404/mesg-foundation/core/images/2)](https://sourcerer.io/fame/antho1404/mesg-foundation/core/links/2)
+[![3](https://sourcerer.io/fame/antho1404/mesg-foundation/core/images/3)](https://sourcerer.io/fame/antho1404/mesg-foundation/core/links/3)
+[![4](https://sourcerer.io/fame/antho1404/mesg-foundation/core/images/4)](https://sourcerer.io/fame/antho1404/mesg-foundation/core/links/4)
+[![5](https://sourcerer.io/fame/antho1404/mesg-foundation/core/images/5)](https://sourcerer.io/fame/antho1404/mesg-foundation/core/links/5)
+[![6](https://sourcerer.io/fame/antho1404/mesg-foundation/core/images/6)](https://sourcerer.io/fame/antho1404/mesg-foundation/core/links/6)
+[![7](https://sourcerer.io/fame/antho1404/mesg-foundation/core/images/7)](https://sourcerer.io/fame/antho1404/mesg-foundation/core/links/7)
