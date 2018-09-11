@@ -18,7 +18,7 @@ func TestStatusService(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	}, ContainerOption(defaultContainer))
+	}, ContainerOption(newContainer(t)))
 	status, err := service.Status()
 	require.Nil(t, err)
 	require.Equal(t, STOPPED, status)
@@ -40,7 +40,7 @@ func TestStatusDependency(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	}, ContainerOption(defaultContainer))
+	}, ContainerOption(newContainer(t)))
 	dep := service.Dependencies[0]
 	status, err := dep.Status()
 	require.Nil(t, err)
@@ -63,7 +63,7 @@ func TestList(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	}, ContainerOption(defaultContainer))
+	}, ContainerOption(newContainer(t)))
 	service.Start()
 	defer service.Stop()
 	list, err := ListRunning()
@@ -85,7 +85,7 @@ func TestListMultipleDependencies(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	}, ContainerOption(defaultContainer))
+	}, ContainerOption(newContainer(t)))
 	service.Start()
 	defer service.Stop()
 	list, err := ListRunning()

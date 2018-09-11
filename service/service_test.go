@@ -33,11 +33,11 @@ func TestGenerateId(t *testing.T) {
 func TestNoCollision(t *testing.T) {
 	service1, _ := FromService(&Service{
 		Name: "TestNoCollision",
-	}, ContainerOption(defaultContainer))
+	})
 
 	service2, _ := FromService(&Service{
 		Name: "TestNoCollision2",
-	}, ContainerOption(defaultContainer))
+	})
 
 	require.NotEqual(t, service1.ID, service2.ID)
 }
