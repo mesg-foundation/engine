@@ -9,6 +9,7 @@ import (
 	"github.com/mesg-foundation/core/interface/grpc/core"
 )
 
+// ServiceDeploy deploys service from given path.
 func (p *ServiceProvider) ServiceDeploy(path string) (string, bool, error) {
 	stream, err := p.client.DeployService(context.Background())
 	if err != nil {
