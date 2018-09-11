@@ -12,6 +12,7 @@ import (
 	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/mesg-foundation/core/interface/grpc/core"
 	"github.com/mesg-foundation/core/x/xsignal"
+	"github.com/mesg-foundation/core/x/xstrings"
 	"github.com/mesg-foundation/prefixer"
 	"github.com/spf13/cobra"
 )
@@ -70,11 +71,19 @@ func showLogs(serviceID string, dependencies ...string) func() {
 		rerrs = append(rerrs, rerr)
 	}
 
+	var maxCharLen int
+	for _, r := range append(rstds, rerrs...) {
+		l := len(r.dependency)
+		if l > maxCharLen {
+			maxCharLen = l
+		}
+	}
+
 	for _, r := range rstds {
-		go prefixedCopy(os.Stdout, r, r.dependency)
+		go prefixedCopy(os.Stdout, r, fillSpace(r.dependency, maxCharLen))
 	}
 	for _, r := range rerrs {
-		go prefixedCopy(os.Stderr, r, r.dependency)
+		go prefixedCopy(os.Stderr, r, fillSpace(r.dependency, maxCharLen))
 	}
 
 	for {
@@ -179,4 +188,8 @@ func randColor() color.Attribute {
 	}
 	rand.Seed(time.Now().UnixNano())
 	return attrs[rand.Intn(len(attrs))]
+}
+
+func fillSpace(name string, maxCharLen int) string {
+	return xstrings.AppendSpace(name, maxCharLen-len(name))
 }
