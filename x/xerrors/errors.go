@@ -1,5 +1,7 @@
 package xerrors
 
+import "strings"
+
 type Errors []error
 
 func (e Errors) ErrorOrNil() error {
@@ -10,16 +12,12 @@ func (e Errors) ErrorOrNil() error {
 }
 
 func (e Errors) Error() string {
-	if len(e) == 0 {
-		return ""
-	}
-
-	var s string
+	var s []string
 	for _, err := range e {
 		if err != nil {
-			s += err.Error() + "\n"
+			s = append(s, err.Error())
 		}
 	}
-	// remove last new line
-	return s[:len(s)-1]
+
+	return strings.Join(s, "\n")
 }

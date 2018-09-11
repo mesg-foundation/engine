@@ -91,9 +91,15 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 
 func (c *serviceExecuteCmd) getTaskKey(s *core.Service) error {
 	if c.taskKey == "" {
+		keys := taskKeysFromService(s)
+		if len(keys) == 1 {
+			c.taskKey = keys[0]
+			return nil
+		}
+
 		if survey.AskOne(&survey.Select{
 			Message: "Select the task to execute",
-			Options: taskKeysFromService(s),
+			Options: keys,
 		}, &c.taskKey, nil) != nil {
 			return errors.New("no task to execute")
 		}

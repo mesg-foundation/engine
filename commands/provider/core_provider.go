@@ -55,7 +55,9 @@ loop:
 	for {
 		select {
 		case err := <-errC:
-			errs = append(errs, err)
+			if err != nil {
+				errs = append(errs, err)
+			}
 		default:
 			break loop
 		}
