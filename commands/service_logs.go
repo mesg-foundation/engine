@@ -24,7 +24,7 @@ func newServiceLogsCmd(e ServiceExecutor) *serviceLogsCmd {
 
 	c.cmd = newCommand(&cobra.Command{
 		Use:   "logs",
-		Short: "Show the logs of a service",
+		Short: "Show logs of a service",
 		Example: `mesg-core service logs SERVICE
 mesg-core service logs SERVICE --dependency DEPENDENCY_NAME`,
 		Args: cobra.ExactArgs(1),

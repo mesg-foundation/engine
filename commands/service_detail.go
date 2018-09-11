@@ -30,24 +30,24 @@ func (c *serviceDetailCmd) runE(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("name: ", pretty.Bold(service.Name))
-	fmt.Println("events: ")
+	fmt.Printf("name: %s\n", pretty.Bold(service.Name))
+	fmt.Println("events:")
 	for name, event := range service.Events {
 		params := []string{}
 		for key, d := range event.Data {
 			params = append(params, key+" "+d.Type)
 		}
-		fmt.Println("  ", pretty.Bold(name), "(", strings.Join(params, ", "), ")")
+		fmt.Printf("  %s (%s)\n", pretty.Bold(name), strings.Join(params, ", "))
 	}
-	fmt.Println("tasks: ")
+	fmt.Println("tasks:")
 	for name, task := range service.Tasks {
-		fmt.Println("  ", pretty.Bold(name), ":")
+		fmt.Printf("  %s:\n", pretty.Bold(name))
 		for outputName, output := range task.Outputs {
 			params := []string{}
 			for paramName, param := range output.Data {
 				params = append(params, paramName+" "+param.Type)
 			}
-			fmt.Println("    ", pretty.Bold(outputName), "(", strings.Join(params, ", "), ")")
+			fmt.Printf("    %s (%s)\n", pretty.Bold(outputName), strings.Join(params, ", "))
 		}
 	}
 	return nil
