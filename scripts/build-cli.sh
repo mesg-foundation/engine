@@ -1,11 +1,16 @@
 #!/bin/bash -e
 
-go get ./...
-go get github.com/karalabe/xgo
-mkdir bin
-xgo --targets=darwin/386,darwin/amd64,linux/386,linux/amd64,windows/386,windows/amd64 \
-  -ldflags="-X 'github.com/mesg-foundation/core/version.Version=$1'" \
-  -out mesg-core \
-  -dest ./bin \
-  ./interface/cli
-sudo chmod +x ./bin/*
+mkdir -p bin
+
+archs=(amd64 386)
+oss=(linux darwin)
+
+for os in ${oss[*]}; do
+  for arch in ${archs[*]}; do
+    echo "Building $os $arch..."
+    GOOS=$os GOARCH=$arch go build \
+      -o ./bin/mesg-core-$os-$arch \
+      -ldflags="-X 'github.com/mesg-foundation/core/version.Version=$1'" \
+      ./interface/cli
+  done
+done

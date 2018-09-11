@@ -29,50 +29,6 @@ func TestComplete(t *testing.T) {
 	require.True(t, execution.ExecutionDuration > 0)
 }
 
-func TestCompleteNotFound(t *testing.T) {
-	s := service.Service{
-		Name: "TestCompleteNotFound",
-		Tasks: map[string]*service.Task{
-			"test": {},
-		},
-	}
-	var inputs map[string]interface{}
-	execution, _ := Create(&s, "test", inputs, []string{})
-	execution.Execute()
-	var outputs map[string]interface{}
-	err := execution.Complete("output", outputs)
-	require.NotNil(t, err)
-	x, missingOutputError := err.(*service.OutputNotFoundError)
-	require.True(t, missingOutputError)
-	require.Equal(t, "output", x.OutputKey)
-}
-
-func TestCompleteInvalidOutputs(t *testing.T) {
-	s := service.Service{
-		Name: "TestCompleteInvalidOutputs",
-		Tasks: map[string]*service.Task{
-			"test": {
-				Outputs: map[string]*service.Output{
-					"output": {
-						Data: map[string]*service.Parameter{
-							"foo": {},
-						},
-					},
-				},
-			},
-		},
-	}
-	var inputs map[string]interface{}
-	execution, _ := Create(&s, "test", inputs, []string{})
-	execution.Execute()
-	var outputs map[string]interface{}
-	err := execution.Complete("output", outputs)
-	require.NotNil(t, err)
-	x, invalidOutputError := err.(*service.InvalidOutputDataError)
-	require.True(t, invalidOutputError)
-	require.Equal(t, "output", x.OutputKey)
-}
-
 func TestCompleteNotProcessed(t *testing.T) {
 	s := service.Service{
 		Name: "TestCompleteNotProcessed",
@@ -92,4 +48,70 @@ func TestCompleteNotProcessed(t *testing.T) {
 	x, notInQueueError := err.(*NotInQueueError)
 	require.True(t, notInQueueError)
 	require.Equal(t, "inProgress", x.Queue)
+}
+
+func TestCompleteNotFound(t *testing.T) {
+	var (
+		taskKey     = "test"
+		outputKey   = "output"
+		serviceName = "TestCompleteNotFound"
+	)
+	s := service.Service{
+		Name: serviceName,
+		Tasks: map[string]*service.Task{
+			taskKey: {
+				Key:         taskKey,
+				ServiceName: serviceName,
+			},
+		},
+	}
+	var inputs map[string]interface{}
+	execution, _ := Create(&s, taskKey, inputs, []string{})
+	execution.Execute()
+	var outputs map[string]interface{}
+	err := execution.Complete(outputKey, outputs)
+	require.NotNil(t, err)
+	notFoundErr, ok := err.(*service.TaskOutputNotFoundError)
+	require.True(t, ok)
+	require.Equal(t, taskKey, notFoundErr.TaskKey)
+	require.Equal(t, outputKey, notFoundErr.TaskOutputKey)
+	require.Equal(t, serviceName, notFoundErr.ServiceName)
+}
+
+func TestCompleteInvalidOutputs(t *testing.T) {
+	var (
+		taskKey     = "test"
+		outputKey   = "output"
+		serviceName = "TestCompleteInvalidOutputs"
+	)
+	s := service.Service{
+		Name: serviceName,
+		Tasks: map[string]*service.Task{
+			taskKey: {
+				Key:         taskKey,
+				ServiceName: serviceName,
+				Outputs: map[string]*service.Output{
+					outputKey: {
+						Key:         outputKey,
+						TaskKey:     taskKey,
+						ServiceName: serviceName,
+						Data: map[string]*service.Parameter{
+							"foo": {},
+						},
+					},
+				},
+			},
+		},
+	}
+	var inputs map[string]interface{}
+	execution, _ := Create(&s, taskKey, inputs, []string{})
+	execution.Execute()
+	var outputs map[string]interface{}
+	err := execution.Complete(outputKey, outputs)
+	require.NotNil(t, err)
+	invalidErr, ok := err.(*service.InvalidTaskOutputError)
+	require.True(t, ok)
+	require.Equal(t, taskKey, invalidErr.TaskKey)
+	require.Equal(t, outputKey, invalidErr.TaskOutputKey)
+	require.Equal(t, serviceName, invalidErr.ServiceName)
 }

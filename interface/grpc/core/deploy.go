@@ -39,7 +39,7 @@ func (s *Server) DeployService(stream Core_DeployServiceServer) error {
 	}
 
 	return stream.Send(&DeployServiceReply{
-		Value: &DeployServiceReply_ServiceID{ServiceID: service.Id},
+		Value: &DeployServiceReply_ServiceID{ServiceID: service.ID},
 	})
 }
 

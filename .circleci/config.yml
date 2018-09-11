@@ -19,6 +19,10 @@ runOnMachine: &runOnMachine
   machine:
     docker_layer_caching: true
   working_directory: ~/.go_workspace/src/github.com/mesg-foundation/core
+runOnDocker: &runOnDocker
+  docker:
+    - image: circleci/golang:1.10
+  working_directory: /go/src/github.com/mesg-foundation/core
 
 jobs:
   "build_docker":
@@ -29,15 +33,13 @@ jobs:
       - run: docker build -t mesg/core:$CIRCLE_SHA1 --build-arg version="dev build `echo $CIRCLE_SHA1 | cut -c1-7`" .
 
   "test":
-    docker:
-      - image: circleci/golang:1.10
-    working_directory: /go/src/github.com/mesg-foundation/core
+    <<: *runOnDocker
     steps:
       - checkout
       - setup_remote_docker
       - run: go get -t ./...
       - run: docker swarm init
-      - run: docker pull nginx
+      - run: docker pull nginx:stable-alpine
       - run: docker pull alpine
       - run: env MESG_CORE_IMAGE=mesg/core:$CIRCLE_SHA1 go test -timeout 180s -p 1 -coverprofile=coverage.txt ./...
       - run: bash <(curl -s https://codecov.io/bash)
@@ -62,7 +64,7 @@ jobs:
       - run: docker push mesg/core:latest
 
   "release_cli_dev":
-    <<: *runOnMachine
+    <<: *runOnDocker
     steps:
       - checkout
       - run: scripts/build-cli.sh "dev build `echo $CIRCLE_SHA1 | cut -c1-7`"
@@ -70,7 +72,7 @@ jobs:
       - run: ghr -u mesg-foundation -r core -delete -prerelease -b "Warning - this is a developer release, use it only if you know what are doing. Make sure to pull the latest \`mesg/core:dev\` image. \`\`\`docker pull mesg/core:dev\`\`\`" release-dev ./bin
 
   "release_cli_prod":
-    <<: *runOnMachine
+    <<: *runOnDocker
     steps:
       - checkout
       - run: scripts/build-cli.sh $CIRCLE_TAG

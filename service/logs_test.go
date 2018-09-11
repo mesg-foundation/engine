@@ -11,10 +11,10 @@ func TestLogs(t *testing.T) {
 		Name: "TestLogs",
 		Dependencies: map[string]*Dependency{
 			"test": {
-				Image: "nginx",
+				Image: "nginx:stable-alpine",
 			},
 			"test2": {
-				Image: "nginx",
+				Image: "nginx:stable-alpine",
 			},
 		},
 	}
@@ -30,10 +30,10 @@ func TestLogsOnlyOneDependency(t *testing.T) {
 		Name: "TestLogsOnlyOneDependency",
 		Dependencies: map[string]*Dependency{
 			"test": {
-				Image: "nginx",
+				Image: "nginx:stable-alpine",
 			},
 			"test2": {
-				Image: "nginx",
+				Image: "nginx:stable-alpine",
 			},
 		},
 	}
