@@ -36,26 +36,34 @@ func TestStartService(t *testing.T) {
 
 func TestStopService(t *testing.T) {
 	namespace := []string{"namespace"}
-	containerData := []types.Container{}
-	containerJSONData := types.ContainerJSON{
-		ContainerJSONBase: &types.ContainerJSONBase{
-			State: &types.ContainerState{},
-		},
-	}
-
 	dt := dockertest.New()
 	c, _ := New(ClientOption(dt.Client()))
+	containerID := "1"
 
-	dt.ProvideContainerList(containerData, nil)
-	dt.ProvideContainerInspect(containerJSONData, nil)
+	dt.ProvideContainerList([]types.Container{
+		{ID: containerID},
+	}, nil)
+	dt.ProvideContainerInspect(types.ContainerJSON{
+		ContainerJSONBase: &types.ContainerJSONBase{ID: containerID},
+	}, nil)
+
+	go func() {
+		<-dt.LastContainerList()
+		<-dt.LastContainerInspect()
+
+		dt.ProvideContainerList(nil, dockertest.NotFoundErr{})
+		dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
+	}()
 
 	require.Nil(t, c.StopService(namespace))
-
-	li := <-dt.LastServiceInspectWithRaw()
-	require.Equal(t, Namespace(namespace), li.ServiceID)
-	require.Equal(t, types.ServiceInspectOptions{}, li.Options)
-
 	require.Equal(t, Namespace(namespace), (<-dt.LastServiceRemove()).ServiceID)
+
+	ls := <-dt.LastContainerStop()
+	require.Equal(t, containerID, ls.Container)
+
+	lr := <-dt.LastContainerRemove()
+	require.Equal(t, containerID, lr.Container)
+	require.Equal(t, types.ContainerRemoveOptions{}, lr.Options)
 }
 
 func TestStopNotExistingService(t *testing.T) {
@@ -65,50 +73,15 @@ func TestStopNotExistingService(t *testing.T) {
 	c, _ := New(ClientOption(dt.Client()))
 
 	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
+	dt.ProvideContainerInspect(types.ContainerJSON{}, dockertest.NotFoundErr{})
 
-	require.Nil(t, c.StopService(namespace))
-
-	li := <-dt.LastServiceInspectWithRaw()
-	require.Equal(t, Namespace(namespace), li.ServiceID)
-	require.Equal(t, types.ServiceInspectOptions{}, li.Options)
+	require.Equal(t, dockertest.NotFoundErr{}, c.StopService(namespace))
 
 	select {
 	case <-dt.LastServiceRemove():
 		t.Error("should not remove non existent service")
 	default:
 	}
-}
-
-func TestServiceStatusNeverStarted(t *testing.T) {
-	namespace := []string{"namespace"}
-
-	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
-
-	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
-
-	status, err := c.ServiceStatus(namespace)
-	require.Nil(t, err)
-	require.Equal(t, STOPPED, status)
-
-	li := <-dt.LastServiceInspectWithRaw()
-	require.Equal(t, Namespace(namespace), li.ServiceID)
-	require.Equal(t, types.ServiceInspectOptions{}, li.Options)
-}
-
-func TestServiceStatusRunning(t *testing.T) {
-	namespace := []string{"namespace"}
-
-	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
-
-	status, err := c.ServiceStatus(namespace)
-	require.Nil(t, err)
-	require.Equal(t, RUNNING, status)
-
-	li := <-dt.LastServiceInspectWithRaw()
-	require.Equal(t, Namespace(namespace), li.ServiceID)
-	require.Equal(t, types.ServiceInspectOptions{}, li.Options)
 }
 
 func TestFindService(t *testing.T) {

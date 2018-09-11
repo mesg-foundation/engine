@@ -2,7 +2,6 @@ package service
 
 import (
 	"testing"
-	"time"
 
 	"github.com/mesg-foundation/core/container"
 	"github.com/stretchr/testify/require"
@@ -69,7 +68,7 @@ func TestNetworkDeleted(t *testing.T) {
 	}
 	service.Start()
 	service.Stop()
-	time.Sleep(5 * time.Second)
-	_, err := defaultContainer.FindNetwork(service.namespace())
+	n, err := defaultContainer.FindNetwork(service.namespace())
+	require.Empty(t, n)
 	require.NotNil(t, err)
 }
