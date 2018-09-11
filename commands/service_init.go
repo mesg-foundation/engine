@@ -89,7 +89,9 @@ func (c *serviceInitCmd) preRunE(cmd *cobra.Command, args []string) error {
 	}
 
 	if result == customURL {
-		if survey.AskOne(&survey.Input{Message: "Enter template URL"}, &c.templateURL, nil) != nil {
+		if err := survey.AskOne(&survey.Input{
+			Message: "Enter template URL",
+		}, &c.templateURL, nil); err != nil {
 			return err
 		}
 	}
@@ -100,7 +102,6 @@ func (c *serviceInitCmd) preRunE(cmd *cobra.Command, args []string) error {
 			c.templateName = l.Name
 		}
 	}
-
 	return nil
 }
 
