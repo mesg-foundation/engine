@@ -50,7 +50,7 @@ func TestCheckService(t *testing.T) {
 		Name: "TestCheckService",
 		Dependencies: map[string]*service.Dependency{
 			"test": {
-				Image: "nginx:stable-alpine",
+				Image: "http-server",
 			},
 		},
 	}

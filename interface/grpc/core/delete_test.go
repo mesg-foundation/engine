@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -9,7 +10,7 @@ import (
 
 func TestDeleteService(t *testing.T) {
 	var (
-		path   = "../../../service-test/task"
+		path   = filepath.Join("..", "..", "..", "service-test", "task")
 		server = newServer(t)
 	)
 
