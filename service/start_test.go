@@ -94,10 +94,10 @@ func TestStartAgainService(t *testing.T) {
 // 		Name: "TestPartiallyRunningService",
 // 		Dependencies: map[string]*Dependency{
 // 			"testa": {
-// 				Image: "nginx:stable-alpine",
+// 				Image: "http-server",
 // 			},
 // 			"testb": {
-// 				Image: "nginx:stable-alpine",
+// 				Image: "http-server",
 // 			},
 // 		},
 // 	}
