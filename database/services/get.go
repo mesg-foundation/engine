@@ -6,18 +6,18 @@ import (
 	"github.com/mesg-foundation/core/service"
 )
 
-// Get returns a service based on the hash.
-func Get(hash string) (service service.Service, err error) {
+// Get returns a service based on the id.
+func Get(id string) (*service.Service, error) {
 	db, err := open()
 	defer close()
 	if err != nil {
-		return
+		return nil, err
 	}
-	bytes, err := db.Get([]byte(hash), nil)
+	bytes, err := db.Get([]byte(id), nil)
 	if err != nil {
-		err = handleErrorNotFound(err, hash)
-		return
+		err = handleErrorNotFound(err, id)
+		return nil, err
 	}
-	err = json.Unmarshal(bytes, &service)
-	return
+	s := &service.Service{}
+	return s, json.Unmarshal(bytes, s)
 }

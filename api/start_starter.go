@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/mesg-foundation/core/database/services"
+	"github.com/mesg-foundation/core/service"
 )
 
 // serviceStarter provides functionalities to start a MESG service.
@@ -18,10 +19,14 @@ func newServiceStarter(api *API) *serviceStarter {
 
 // Start starts service serviceID.
 func (s *serviceStarter) Start(serviceID string) error {
-	service, err := services.Get(serviceID)
+	sr, err := services.Get(serviceID)
 	if err != nil {
 		return err
 	}
-	_, err = service.Start()
+	sr, err = service.FromService(sr, service.ContainerOption(s.api.container))
+	if err != nil {
+		return err
+	}
+	_, err = sr.Start()
 	return err
 }
