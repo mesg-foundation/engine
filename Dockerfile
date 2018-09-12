@@ -1,4 +1,4 @@
-FROM golang:1.10.3-stretch AS build
+FROM golang:1.10.4-stretch AS build
 WORKDIR src/github.com/mesg-foundation/core
 COPY . .
 ARG version
