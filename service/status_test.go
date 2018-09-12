@@ -13,7 +13,7 @@ func TestStatusService(t *testing.T) {
 		Dependencies: []*Dependency{
 			{
 				Key:   "test",
-				Image: "nginx:stable-alpine",
+				Image: "http-server",
 			},
 		},
 	}, ContainerOption(defaultContainer))
@@ -35,7 +35,7 @@ func TestStatusDependency(t *testing.T) {
 		Dependencies: []*Dependency{
 			{
 				Key:   "test",
-				Image: "nginx:stable-alpine",
+				Image: "http-server",
 			},
 		},
 	}, ContainerOption(defaultContainer))
@@ -58,7 +58,7 @@ func TestList(t *testing.T) {
 		Dependencies: []*Dependency{
 			{
 				Key:   "test",
-				Image: "nginx:stable-alpine",
+				Image: "http-server",
 			},
 		},
 	}, ContainerOption(defaultContainer))
@@ -76,11 +76,11 @@ func TestListMultipleDependencies(t *testing.T) {
 		Dependencies: []*Dependency{
 			{
 				Key:   "test",
-				Image: "nginx:stable-alpine",
+				Image: "http-server",
 			},
 			{
 				Key:   "test2",
-				Image: "nginx:stable-alpine",
+				Image: "http-server",
 			},
 		},
 	}, ContainerOption(defaultContainer))

@@ -3,7 +3,9 @@ package daemon
 import (
 	"testing"
 
+	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
+	"github.com/mesg-foundation/core/x/xnet"
 	"github.com/stretchr/testify/require"
 )
 
@@ -22,7 +24,7 @@ func startForTest() {
 	}
 	_, err = defaultContainer.StartService(container.ServiceOptions{
 		Namespace:  Namespace(),
-		Image:      "nginx:stable-alpine",
+		Image:      "http-server",
 		NetworksID: []string{sharedNetworkID},
 	})
 	if err != nil {
@@ -51,16 +53,17 @@ func TestStartConfig(t *testing.T) {
 	spec, err := serviceSpec()
 	require.Nil(t, err)
 	// Make sure that the config directory is passed in parameter to write on the same folder
-	require.True(t, contains(spec.Env, "MESG_MESG_PATH=/mesg"))
 	require.True(t, contains(spec.Env, "MESG_LOG_LEVEL=info"))
 	require.True(t, contains(spec.Env, "MESG_LOG_FORMAT=text"))
 	// Ensure that the port is shared
-	require.Equal(t, spec.Ports[0].Published, uint32(50052))
-	require.Equal(t, spec.Ports[0].Target, uint32(50052))
+	c, err := config.Global()
+	_, port, err := xnet.SplitHostPort(c.Server.Address)
+	require.Equal(t, spec.Ports[0].Published, uint32(port))
+	require.Equal(t, spec.Ports[0].Target, uint32(port))
 	// Ensure that the docker socket is shared in the core
 	require.Equal(t, spec.Mounts[0].Source, dockerSocket)
 	require.Equal(t, spec.Mounts[0].Target, dockerSocket)
 	// Ensure that the host users folder is sync with the core
 	require.Equal(t, spec.Mounts[1].Source, volume)
-	require.Equal(t, spec.Mounts[1].Target, path)
+	require.Equal(t, spec.Mounts[1].Target, config.Path)
 }

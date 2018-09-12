@@ -12,11 +12,11 @@ func TestLogs(t *testing.T) {
 		Dependencies: []*Dependency{
 			{
 				Key:   "test",
-				Image: "nginx:stable-alpine",
+				Image: "http-server",
 			},
 			{
 				Key:   "test2",
-				Image: "nginx:stable-alpine",
+				Image: "http-server",
 			},
 		},
 	}, ContainerOption(defaultContainer))
@@ -33,11 +33,11 @@ func TestLogsOnlyOneDependency(t *testing.T) {
 		Dependencies: []*Dependency{
 			{
 				Key:   "test",
-				Image: "nginx:stable-alpine",
+				Image: "http-server",
 			},
 			{
 				Key:   "test2",
-				Image: "nginx:stable-alpine",
+				Image: "http-server",
 			},
 		},
 	}, ContainerOption(defaultContainer))

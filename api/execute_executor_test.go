@@ -53,7 +53,7 @@ func TestCheckService(t *testing.T) {
 		Dependencies: []*service.Dependency{
 			{
 				Key:   "test",
-				Image: "nginx:stable-alpine",
+				Image: "http-server",
 			},
 		},
 	}, service.ContainerOption(a.container))

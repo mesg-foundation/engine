@@ -23,6 +23,13 @@ mesg-core service gen-doc ./PATH_TO_SERVICE
   -h, --help   help for gen-doc
 ```
 
+### Options inherited from parent commands
+
+```
+      --no-color     disable colorized output
+      --no-spinner   disable spinners
+```
+
 ### SEE ALSO
 
 * [mesg-core service](mesg-core_service.md)	 - Manage your services

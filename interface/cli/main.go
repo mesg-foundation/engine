@@ -1,17 +1,39 @@
 package main
 
 import (
-	"github.com/mesg-foundation/core/cmd"
-	"github.com/mesg-foundation/core/cmd/utils"
+	"fmt"
+	"os"
+
+	"github.com/mesg-foundation/core/commands"
+	"github.com/mesg-foundation/core/commands/provider"
+	"github.com/mesg-foundation/core/config"
+	"github.com/mesg-foundation/core/interface/grpc/core"
+	"github.com/mesg-foundation/core/utils/clierrors"
+	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/mesg-foundation/core/version"
+	"google.golang.org/grpc"
 )
 
-func init() {
-	cmd.RootCmd.Version = version.Version
-	cmd.RootCmd.Short = cmd.RootCmd.Short + " " + version.Version
-}
-
 func main() {
-	err := cmd.RootCmd.Execute()
-	utils.HandleError(err)
+	cfg, err := config.Global()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s\n", pretty.Fail(clierrors.ErrorMessage(err)))
+		os.Exit(1)
+	}
+
+	connection, err := grpc.Dial(cfg.Client.Address, grpc.WithInsecure())
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s\n", pretty.Fail(clierrors.ErrorMessage(err)))
+		os.Exit(1)
+	}
+
+	p := provider.New(core.NewCoreClient(connection))
+	cmd := commands.Build(p)
+	cmd.Version = version.Version
+	cmd.Short = cmd.Short + " " + version.Version
+
+	if err := cmd.Execute(); err != nil {
+		fmt.Fprintf(os.Stderr, "%s\n", pretty.Fail(clierrors.ErrorMessage(err)))
+		os.Exit(1)
+	}
 }
