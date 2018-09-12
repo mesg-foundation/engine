@@ -4,7 +4,7 @@ Start a service
 
 ### Synopsis
 
-Start a service from the published available services. You have to provide a stake value and duration.
+Start a service previously published services.
 
 ```
 mesg-core service start SERVICE [flags]
@@ -31,5 +31,5 @@ mesg-core service start SERVICE
 
 ### SEE ALSO
 
-* [mesg-core service](mesg-core_service.md)	 - Manage your services
+* [mesg-core service](mesg-core_service.md)	 - Manage services
 

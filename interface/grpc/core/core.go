@@ -20,18 +20,8 @@ func toProtoService(s *service.Service) *Service {
 		Repository:    s.Repository,
 		Tasks:         map[string]*Task{},
 		Events:        map[string]*Event{},
-		Dependencies:  map[string]*Dependency{},
-		Configuration: nil,
-	}
-
-	if s.Configuration != nil {
-		sv.Configuration = &Dependency{
-			Image:       s.Configuration.Image,
-			Volumes:     s.Configuration.Volumes,
-			Volumesfrom: s.Configuration.VolumesFrom,
-			Ports:       s.Configuration.Ports,
-			Command:     s.Configuration.Command,
-		}
+		Dependencies:  toProtoDependencies(s.Dependencies),
+		Configuration: toProtoDependency(s.Configuration),
 	}
 
 	for eventKey, event := range s.Events {
@@ -41,16 +31,6 @@ func toProtoService(s *service.Service) *Service {
 			Description: event.Description,
 			ServiceName: event.ServiceName,
 			Data:        toProtoParameters(event.Data),
-		}
-	}
-
-	for dependencyKey, dependency := range s.Dependencies {
-		sv.Dependencies[dependencyKey] = &Dependency{
-			Image:       dependency.Image,
-			Volumes:     dependency.Volumes,
-			Volumesfrom: dependency.VolumesFrom,
-			Ports:       dependency.Ports,
-			Command:     dependency.Command,
 		}
 	}
 
@@ -90,4 +70,25 @@ func toProtoParameters(params map[string]*service.Parameter) map[string]*Paramet
 		}
 	}
 	return ps
+}
+
+func toProtoDependency(dep *service.Dependency) *Dependency {
+	if dep == nil {
+		return nil
+	}
+	return &Dependency{
+		Image:       dep.Image,
+		Volumes:     dep.Volumes,
+		Volumesfrom: dep.VolumesFrom,
+		Ports:       dep.Ports,
+		Command:     dep.Command,
+	}
+}
+
+func toProtoDependencies(deps map[string]*service.Dependency) map[string]*Dependency {
+	ds := make(map[string]*Dependency, 0)
+	for key, dep := range deps {
+		ds[key] = toProtoDependency(dep)
+	}
+	return ds
 }

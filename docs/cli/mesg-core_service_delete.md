@@ -13,7 +13,7 @@ mesg-core service delete [flags]
 ### Examples
 
 ```
-mesg-core service delete SERVICE_ID [SERVICE_ID...]
+mesg-core service delete SERVICE [SERVICE...]
 mesg-core service delete --all
 ```
 
@@ -34,5 +34,5 @@ mesg-core service delete --all
 
 ### SEE ALSO
 
-* [mesg-core service](mesg-core_service.md)	 - Manage your services
+* [mesg-core service](mesg-core_service.md)	 - Manage services
 
