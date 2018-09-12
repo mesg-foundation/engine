@@ -60,6 +60,9 @@ func toProtoParameters(params map[string]*service.Parameter) map[string]*Paramet
 }
 
 func toProtoDependency(dep *service.Dependency) *Dependency {
+	if dep == nil {
+		return nil
+	}
 	return &Dependency{
 		Image:       dep.Image,
 		Volumes:     dep.Volumes,

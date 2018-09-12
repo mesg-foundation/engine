@@ -7,13 +7,13 @@ Show details of a published service
 Show details of a published service
 
 ```
-mesg-core service detail SERVICE_ID [flags]
+mesg-core service detail SERVICE [flags]
 ```
 
 ### Examples
 
 ```
-mesg-core service detail SERVICE_ID
+mesg-core service detail SERVICE
 ```
 
 ### Options
@@ -22,7 +22,14 @@ mesg-core service detail SERVICE_ID
   -h, --help   help for detail
 ```
 
+### Options inherited from parent commands
+
+```
+      --no-color     disable colorized output
+      --no-spinner   disable spinners
+```
+
 ### SEE ALSO
 
-* [mesg-core service](mesg-core_service.md)	 - Manage your services
+* [mesg-core service](mesg-core_service.md)	 - Manage services
 

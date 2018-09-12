@@ -1,10 +1,10 @@
 ## mesg-core start
 
-Start the MESG Core
+Start the Core
 
 ### Synopsis
 
-Start the MESG Core
+Start the Core
 
 ```
 mesg-core start [flags]
@@ -16,6 +16,13 @@ mesg-core start [flags]
   -h, --help                help for start
       --log-format string   log format [text|json] (default "text")
       --log-level string    log level [debug|info|warn|error|fatal|panic] (default "info")
+```
+
+### Options inherited from parent commands
+
+```
+      --no-color     disable colorized output
+      --no-spinner   disable spinners
 ```
 
 ### SEE ALSO

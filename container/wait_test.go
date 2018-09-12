@@ -33,23 +33,12 @@ func TestWaitForStatusRunning(t *testing.T) {
 
 func TestWaitForStatusStopped(t *testing.T) {
 	namespace := []string{"namespace"}
-	containerID := "1"
-	containerData := []types.Container{
-		{ID: containerID},
-	}
-	containerJSONData := types.ContainerJSON{
-		ContainerJSONBase: &types.ContainerJSONBase{
-			ID:    containerID,
-			State: &types.ContainerState{},
-		},
-	}
 
 	dt := dockertest.New()
 	c, _ := New(ClientOption(dt.Client()))
 
-	dt.ProvideContainerList(containerData, nil)
-	dt.ProvideContainerInspect(containerJSONData, nil)
-
+	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
+	dt.ProvideContainerInspect(types.ContainerJSON{}, dockertest.NotFoundErr{})
 	require.Nil(t, c.waitForStatus(namespace, STOPPED))
 }
 

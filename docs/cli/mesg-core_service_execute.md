@@ -13,7 +13,7 @@ mesg-core service execute [flags]
 ### Examples
 
 ```
-mesg-core service execute SERVICE_ID
+mesg-core service execute SERVICE
 ```
 
 ### Options
@@ -25,7 +25,14 @@ mesg-core service execute SERVICE_ID
   -t, --task string      Run the given task
 ```
 
+### Options inherited from parent commands
+
+```
+      --no-color     disable colorized output
+      --no-spinner   disable spinners
+```
+
 ### SEE ALSO
 
-* [mesg-core service](mesg-core_service.md)	 - Manage your services
+* [mesg-core service](mesg-core_service.md)	 - Manage services
 
