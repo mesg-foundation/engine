@@ -82,6 +82,7 @@ func (p *ServiceProvider) ServiceListenEvents(id, eventFilter string) (chan *cor
 		for {
 			if res, err := stream.Recv(); err != nil {
 				errC <- err
+				break
 			} else {
 				resultC <- res
 			}
@@ -109,6 +110,7 @@ func (p *ServiceProvider) ServiceListenResults(id, taskFilter, outputFilter stri
 		for {
 			if res, err := stream.Recv(); err != nil {
 				errC <- err
+				break
 			} else {
 				resultC <- res
 			}
