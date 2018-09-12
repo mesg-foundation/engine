@@ -2,20 +2,36 @@ package service
 
 import (
 	"io"
+
+	"github.com/mesg-foundation/core/x/xstrings"
 )
 
-// Logs returns the service's docker service logs. Optionally only shows the logs of a given dependency.
-func (service *Service) Logs(onlyForDependency string) ([]io.ReadCloser, error) {
-	var readers []io.ReadCloser
-	for _, dep := range service.DependenciesFromService() {
-		if onlyForDependency == "" || onlyForDependency == "*" || onlyForDependency == dep.Name {
-			var reader io.ReadCloser
-			reader, err := defaultContainer.ServiceLogs(dep.namespace())
+// Log holds log streams of dependency.
+type Log struct {
+	Dependency string
+	Standard   io.ReadCloser
+	Error      io.ReadCloser
+}
+
+// Logs gives service's logs and applies dependencies filter to filter logs.
+// if dependencies has a length of zero all dependency logs will be provided.
+func (s *Service) Logs(dependencies ...string) ([]*Log, error) {
+	var (
+		logs       []*Log
+		isNoFilter = len(dependencies) == 0
+	)
+	for _, dep := range s.DependenciesFromService() {
+		if isNoFilter || xstrings.SliceContains(dependencies, dep.Name) {
+			rstd, rerr, err := dep.Logs()
 			if err != nil {
-				return readers, err
+				return nil, err
 			}
-			readers = append(readers, reader)
+			logs = append(logs, &Log{
+				Dependency: dep.Name,
+				Standard:   rstd,
+				Error:      rerr,
+			})
 		}
 	}
-	return readers, nil
+	return logs, nil
 }

@@ -23,18 +23,8 @@ func toService(s *core.Service) *service.Service {
 		Repository:    s.Repository,
 		Tasks:         map[string]*service.Task{},
 		Events:        map[string]*service.Event{},
-		Dependencies:  map[string]*service.Dependency{},
-		Configuration: nil,
-	}
-
-	if s.Configuration != nil {
-		sv.Configuration = &service.Dependency{
-			Image:       s.Configuration.Image,
-			Volumes:     s.Configuration.Volumes,
-			VolumesFrom: s.Configuration.Volumesfrom,
-			Ports:       s.Configuration.Ports,
-			Command:     s.Configuration.Command,
-		}
+		Dependencies:  toDependencies(s.Dependencies),
+		Configuration: toDependency(s.Configuration),
 	}
 
 	for eventKey, event := range s.Events {
@@ -44,16 +34,6 @@ func toService(s *core.Service) *service.Service {
 			Description: event.Description,
 			ServiceName: event.ServiceName,
 			Data:        toParameters(event.Data),
-		}
-	}
-
-	for dependencyKey, dependency := range s.Dependencies {
-		sv.Dependencies[dependencyKey] = &service.Dependency{
-			Image:       dependency.Image,
-			Volumes:     dependency.Volumes,
-			VolumesFrom: dependency.Volumesfrom,
-			Ports:       dependency.Ports,
-			Command:     dependency.Command,
 		}
 	}
 
@@ -94,4 +74,25 @@ func toParameters(params map[string]*core.Parameter) map[string]*service.Paramet
 		}
 	}
 	return gParams
+}
+
+func toDependency(dep *core.Dependency) *service.Dependency {
+	if dep == nil {
+		return nil
+	}
+	return &service.Dependency{
+		Image:       dep.Image,
+		Volumes:     dep.Volumes,
+		VolumesFrom: dep.Volumesfrom,
+		Ports:       dep.Ports,
+		Command:     dep.Command,
+	}
+}
+
+func toDependencies(deps map[string]*core.Dependency) map[string]*service.Dependency {
+	ds := make(map[string]*service.Dependency, 0)
+	for key, dep := range deps {
+		ds[key] = toDependency(dep)
+	}
+	return ds
 }

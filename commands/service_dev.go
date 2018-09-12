@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/fatih/color"
 	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/mesg-foundation/core/x/xsignal"
@@ -72,23 +71,21 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 	}
 	fmt.Printf("%s Service started with success: %s\n", pretty.SuccessSign, pretty.Success(id))
 
-	listenEventsC, eventsErrC, err := c.e.ServiceListenEvents(c.path, c.eventFilter)
+	listenEventsC, eventsErrC, err := c.e.ServiceListenEvents(id, c.eventFilter)
 	if err != nil {
 		return err
 	}
 
-	listenResultsC, resultsErrC, err := c.e.ServiceListenResults(c.path, c.taskFilter, c.outputFilter, nil)
+	listenResultsC, resultsErrC, err := c.e.ServiceListenResults(id, c.taskFilter, c.outputFilter, nil)
 	if err != nil {
 		return err
 	}
 
-	reader, err := c.e.ServiceLogs(id)
+	closer, err := showLogs(c.e, id)
 	if err != nil {
 		return err
 	}
-	defer reader.Close()
-
-	go stdcopy.StdCopy(os.Stdout, os.Stderr, reader)
+	defer closer()
 
 	abort := xsignal.WaitForInterrupt()
 
