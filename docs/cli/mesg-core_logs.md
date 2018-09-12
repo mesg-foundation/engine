@@ -1,10 +1,10 @@
 ## mesg-core logs
 
-Show the MESG Core's logs
+Show the Core's logs
 
 ### Synopsis
 
-Show the MESG Core's logs
+Show the Core's logs
 
 ```
 mesg-core logs [flags]
@@ -14,6 +14,13 @@ mesg-core logs [flags]
 
 ```
   -h, --help   help for logs
+```
+
+### Options inherited from parent commands
+
+```
+      --no-color     disable colorized output
+      --no-spinner   disable spinners
 ```
 
 ### SEE ALSO

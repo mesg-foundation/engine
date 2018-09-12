@@ -38,6 +38,38 @@ func TestExist(t *testing.T) {
 	}
 }
 
+func TestCopyDir(t *testing.T) {
+	var (
+		srcdir    = filepath.Join(os.TempDir(), "__test-dir-src")
+		dstdir    = filepath.Join(os.TempDir(), "__test-dir-dst")
+		srcsubdir = filepath.Join(srcdir, "a", "b")
+		file      = filepath.Join(srcsubdir, "__test-file")
+		content   = "test"
+	)
+	defer Remove(srcdir, dstdir, file)
+
+	if err := os.MkdirAll(srcsubdir, 0777); err != nil {
+		t.Fatalf("Mkdir failed: %s", err)
+	}
+
+	if err := ioutil.WriteFile(file, []byte(content), 0644); err != nil {
+		t.Fatalf("WriteFile failed: %s", err)
+	}
+
+	if err := CopyDir(srcdir, dstdir); err != nil {
+		t.Fatalf("CopyDir failed: %s", err)
+	}
+
+	b, err := ioutil.ReadFile(file)
+	if err != nil {
+		t.Fatalf("ReadFile failed: %s", err)
+	}
+
+	if string(b) != content {
+		t.Fatalf("Copy failed with different content - got: %s, want: %s", string(b), content)
+	}
+}
+
 func TestCopyFile(t *testing.T) {
 	content := "test"
 	srcname := filepath.Join(os.TempDir(), "__test-file_src")
