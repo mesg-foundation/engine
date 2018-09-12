@@ -66,6 +66,7 @@ func toProtoParameters(params []*service.Parameter) []*Parameter {
 	ps := make([]*Parameter, 0)
 	for _, param := range params {
 		p := &Parameter{
+			Key:         param.Key,
 			Name:        param.Name,
 			Description: param.Description,
 			Type:        param.Type,
@@ -81,6 +82,7 @@ func toProtoDependency(dep *service.Dependency) *Dependency {
 		return nil
 	}
 	return &Dependency{
+		Key:         dep.Key,
 		Image:       dep.Image,
 		Volumes:     dep.Volumes,
 		Volumesfrom: dep.VolumesFrom,
