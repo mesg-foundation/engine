@@ -23,7 +23,7 @@ mesg-core service init --current
 ### Options
 
 ```
-      --dir string        Create the service in the direcotry
+      --dir string        Create the service in the directory
   -h, --help              help for init
   -t, --template string   Specify the template URL to use
 ```
@@ -37,5 +37,5 @@ mesg-core service init --current
 
 ### SEE ALSO
 
-* [mesg-core service](mesg-core_service.md)	 - Manage your services
+* [mesg-core service](mesg-core_service.md)	 - Manage services
 

@@ -12,10 +12,13 @@ func toProtoServices(ss []*service.Service) []*Service {
 
 func toProtoService(s *service.Service) *Service {
 	sv := &Service{
-		ID:          s.ID,
-		Name:        s.Name,
-		Description: s.Description,
-		Tasks:       map[string]*Task{},
+		ID:            s.ID,
+		Name:          s.Name,
+		Description:   s.Description,
+		Tasks:         map[string]*Task{},
+		Dependencies:  toProtoDependencies(s.Dependencies),
+		Configuration: toProtoDependency(s.Configuration),
+		Repository:    s.Repository,
 	}
 
 	for taskKey, task := range s.Tasks {
@@ -54,4 +57,25 @@ func toProtoParameters(params map[string]*service.Parameter) map[string]*Paramet
 		}
 	}
 	return ps
+}
+
+func toProtoDependency(dep *service.Dependency) *Dependency {
+	if dep == nil {
+		return nil
+	}
+	return &Dependency{
+		Image:       dep.Image,
+		Volumes:     dep.Volumes,
+		Volumesfrom: dep.VolumesFrom,
+		Ports:       dep.Ports,
+		Command:     dep.Command,
+	}
+}
+
+func toProtoDependencies(deps map[string]*service.Dependency) map[string]*Dependency {
+	ds := make(map[string]*Dependency, 0)
+	for key, dep := range deps {
+		ds[key] = toProtoDependency(dep)
+	}
+	return ds
 }

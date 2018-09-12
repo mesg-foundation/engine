@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 #### Changed
+- (#435) `service logs` and `service dev` commands now outputs colored dependency logs.
+- (#435) `service logs` accepts multiple dependency filters with multiple use of `-d` flag.
+
 #### Added
 
 - (#) Support of `.dockerignore` file

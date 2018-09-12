@@ -2,16 +2,15 @@ package provider
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"html/template"
-	"io"
 	"os"
 	"path/filepath"
 
 	"github.com/mesg-foundation/core/commands/provider/assets"
 	"github.com/mesg-foundation/core/interface/grpc/core"
 	"github.com/mesg-foundation/core/service/importer"
+	"github.com/mesg-foundation/core/utils/chunker"
 	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/mesg-foundation/core/utils/servicetemplate"
 	"github.com/mesg-foundation/core/x/xerrors"
@@ -118,23 +117,87 @@ func (p *ServiceProvider) ServiceListenResults(id, taskFilter, outputFilter stri
 	return resultC, errC, nil
 }
 
-// ServiceLogs returns logs reader for all service dependencies.
-func (p *ServiceProvider) ServiceLogs(id string) (io.ReadCloser, error) {
-	rs, err := p.ServiceDependencyLogs(id, "*")
-	if err != nil {
-		return nil, err
-	}
-
-	if len(rs) != 1 {
-		return nil, errors.New("no valid readers")
-	}
-	return rs[0], nil
+// Log keeps dependency logs of service.
+type Log struct {
+	Dependency      string
+	Standard, Error *chunker.Stream
 }
 
-// ServiceDependencyLogs returns logs reader for given service dependencies.
-func (p *ServiceProvider) ServiceDependencyLogs(id string, dependency string) ([]io.ReadCloser, error) {
-	// TODO: wait for feature fix-cmd-logs to be merged
-	return nil, errors.New("logs unimplemented")
+// ServiceLogs returns logs reader for all service dependencies.
+func (p *ServiceProvider) ServiceLogs(id string, dependencies ...string) (logs []*Log, close func(), err error) {
+	if len(dependencies) == 0 {
+		resp, err := p.client.GetService(context.Background(), &core.GetServiceRequest{
+			ServiceID: id,
+		})
+		if err != nil {
+			return nil, nil, err
+		}
+		for key := range resp.Service.Dependencies {
+			dependencies = append(dependencies, key)
+		}
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+
+	stream, err := p.client.ServiceLogs(ctx, &core.ServiceLogsRequest{
+		ServiceID:    id,
+		Dependencies: dependencies,
+	})
+	if err != nil {
+		cancel()
+		return nil, nil, err
+	}
+
+	for _, key := range dependencies {
+		log := &Log{
+			Dependency: key,
+			Standard:   chunker.NewStream(),
+			Error:      chunker.NewStream(),
+		}
+		logs = append(logs, log)
+	}
+
+	closer := func() {
+		cancel()
+		for _, log := range logs {
+			log.Standard.Close()
+			log.Error.Close()
+		}
+	}
+
+	errC := make(chan error, len(logs))
+	go p.listenServiceLogs(stream, logs, errC)
+	go func() {
+		<-errC
+		closer()
+	}()
+
+	return logs, closer, nil
+}
+
+// listenServiceLogs listen gRPC stream to get service logs.
+func (p *ServiceProvider) listenServiceLogs(stream core.Core_ServiceLogsClient, logs []*Log,
+	errC chan error) {
+	for {
+		data, err := stream.Recv()
+		if err != nil {
+			errC <- err
+			return
+		}
+
+		for _, log := range logs {
+			if log.Dependency == data.Dependency {
+				var out *chunker.Stream
+				switch data.Type {
+				case core.LogData_Standard:
+					out = log.Standard
+				case core.LogData_Error:
+					out = log.Error
+				}
+				out.Provide(data.Data)
+			}
+		}
+	}
 }
 
 // ServiceExecuteTask executes task on given service.
