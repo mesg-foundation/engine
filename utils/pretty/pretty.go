@@ -271,6 +271,10 @@ func DisableColor() {
 	SuccessSign = pg.Success("✔")
 	WarnSign = pg.Warn("?")
 	FailSign = pg.Fail("⨯")
+
+	for _, c := range FgColors() {
+		c.DisableColor()
+	}
 }
 
 // EnableColor enables the color output.
@@ -279,6 +283,10 @@ func EnableColor() {
 	SuccessSign = pg.Success("✔")
 	WarnSign = pg.Warn("?")
 	FailSign = pg.Fail("⨯")
+
+	for _, c := range FgColors() {
+		c.EnableColor()
+	}
 }
 
 // DisableSpinner disables the spinner.
