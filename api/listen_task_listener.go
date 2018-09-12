@@ -43,11 +43,15 @@ func (l *TaskListener) Close() error {
 
 // listen listens tasks matches with service token.
 func (l *TaskListener) listen(token string) error {
-	service, err := services.Get(token)
+	s, err := services.Get(token)
 	if err != nil {
 		return err
 	}
-	go l.listenLoop(&service)
+	s, err = service.FromService(s, service.ContainerOption(l.api.container))
+	if err != nil {
+		return err
+	}
+	go l.listenLoop(s)
 	<-l.listening
 	return nil
 }

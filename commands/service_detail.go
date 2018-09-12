@@ -32,22 +32,22 @@ func (c *serviceDetailCmd) runE(cmd *cobra.Command, args []string) error {
 	}
 	fmt.Printf("name: %s\n", pretty.Bold(service.Name))
 	fmt.Println("events:")
-	for name, event := range service.Events {
+	for _, event := range service.Events {
 		params := []string{}
-		for key, d := range event.Data {
-			params = append(params, key+" "+d.Type)
+		for _, d := range event.Data {
+			params = append(params, d.Key+" "+d.Type)
 		}
-		fmt.Printf("  %s (%s)\n", pretty.Bold(name), strings.Join(params, ", "))
+		fmt.Printf("  %s (%s)\n", pretty.Bold(event.Key), strings.Join(params, ", "))
 	}
 	fmt.Println("tasks:")
-	for name, task := range service.Tasks {
-		fmt.Printf("  %s:\n", pretty.Bold(name))
-		for outputName, output := range task.Outputs {
+	for _, task := range service.Tasks {
+		fmt.Printf("  %s:\n", pretty.Bold(task.Key))
+		for _, output := range task.Outputs {
 			params := []string{}
-			for paramName, param := range output.Data {
-				params = append(params, paramName+" "+param.Type)
+			for _, param := range output.Data {
+				params = append(params, param.Key+" "+param.Type)
 			}
-			fmt.Printf("    %s (%s)\n", pretty.Bold(outputName), strings.Join(params, ", "))
+			fmt.Printf("    %s (%s)\n", pretty.Bold(output.Key), strings.Join(params, ", "))
 		}
 	}
 	return nil

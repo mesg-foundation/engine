@@ -39,13 +39,10 @@ var containerStatusTypeMappings = map[container.StatusType]StatusType{
 }
 
 // Status returns StatusType of all dependency.
-func (service *Service) Status() (StatusType, error) {
-	var (
-		dependencies = service.DependenciesFromService()
-		statuses     = make(map[container.StatusType]bool)
-	)
-	for _, d := range dependencies {
-		status, err := d.Status()
+func (s *Service) Status() (StatusType, error) {
+	statuses := make(map[container.StatusType]bool)
+	for _, dep := range s.Dependencies {
+		status, err := dep.Status()
 		if err != nil {
 			return UNKNOWN, err
 		}
@@ -66,8 +63,8 @@ func (service *Service) Status() (StatusType, error) {
 }
 
 // Status returns StatusType of dependency's container.
-func (dependency *DependencyFromService) Status() (container.StatusType, error) {
-	return defaultContainer.Status(dependency.namespace())
+func (d *Dependency) Status() (container.StatusType, error) {
+	return defaultContainer.Status(d.namespace())
 }
 
 // ListRunning returns all the running services.2

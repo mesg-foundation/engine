@@ -3,58 +3,71 @@ package service
 // Task describes a service task.
 type Task struct {
 	// Key is the key of task.
-	Key string `hash:"-" yaml:"-"`
+	Key string `hash:"name:1"`
 
 	// Name is the name of task.
-	Name string `hash:"name:1" yaml:"name"`
+	Name string `hash:"name:2"`
 
 	// Description is the description of task.
-	Description string `hash:"name:2" yaml:"description"`
-
-	// ServiceName is the service name of task.
-	// TODO(ilgooz) remove this or replace with Service type in next PRs.
-	ServiceName string `hash:"-" yaml:"-"`
+	Description string `hash:"name:3"`
 
 	// Inputs are the definition of the execution inputs of task.
-	Inputs map[string]*Parameter `hash:"name:3" yaml:"inputs"`
+	Inputs []*Parameter `hash:"name:4"`
 
 	// Outputs are the definition of the execution results of task.
-	Outputs map[string]*Output `hash:"name:4" yaml:"outputs"`
+	Outputs []*Output `hash:"name:5"`
+
+	// service is the task's service.
+	service *Service `hash:"-"`
 }
 
 // Output describes task output.
 type Output struct {
 	// Key is the key of output.
-	Key string `hash:"-" yaml:"-"`
+	Key string `hash:"name:1"`
 
 	// Name is the name of task output.
-	Name string `hash:"name:1" yaml:"name"`
+	Name string `hash:"name:2"`
 
 	// Description is the description of task output.
-	Description string `hash:"name:2" yaml:"description"`
-
-	// TaskKey is the task key of the output.
-	// TODO(ilgooz) remove this or replace with Task type in next PRs.
-	TaskKey string `hash:"-" yaml:"-"`
-
-	// ServiceName is the service name of tasj output.
-	// TODO(ilgooz) remove this or replace with Service type in next PRs.
-	ServiceName string `hash:"-" yaml:"-"`
+	Description string `hash:"name:3"`
 
 	// Data holds the output parameters of a task output.
-	Data map[string]*Parameter `hash:"3" yaml:"data"`
+	Data []*Parameter `hash:"name:4"`
+
+	// task is the output's task.
+	task *Task `hash:"-"`
+
+	// service is the output's service.
+	service *Service `hash:"-"`
 }
 
 // GetTask returns task taskKey of service.
 func (s *Service) GetTask(taskKey string) (*Task, error) {
-	task, ok := s.Tasks[taskKey]
-	if !ok {
-		return nil, &TaskNotFoundError{
-			TaskKey:     taskKey,
-			ServiceName: s.Name,
+	for _, task := range s.Tasks {
+		if task.Key == taskKey {
+			task.service = s
+			return task, nil
 		}
 	}
-	return task, nil
+	return nil, &TaskNotFoundError{
+		TaskKey:     taskKey,
+		ServiceName: s.Name,
+	}
+}
+
+// GetInputParameter returns input inputKey parameter of task.
+func (t *Task) GetInputParameter(inputKey string) (*Parameter, error) {
+	for _, input := range t.Inputs {
+		if input.Key == inputKey {
+			return input, nil
+		}
+	}
+	return nil, &TaskInputNotFoundError{
+		TaskKey:      t.Key,
+		TaskInputKey: inputKey,
+		ServiceName:  t.service.Name,
+	}
 }
 
 // ValidateInputs produces warnings for task inputs that doesn't satisfy their parameter schemas.
@@ -68,7 +81,7 @@ func (t *Task) RequireInputs(taskInputs map[string]interface{}) error {
 	if len(warnings) > 0 {
 		return &InvalidTaskInputError{
 			TaskKey:     t.Key,
-			ServiceName: t.ServiceName,
+			ServiceName: t.service.Name,
 			Warnings:    warnings,
 		}
 	}
@@ -77,15 +90,18 @@ func (t *Task) RequireInputs(taskInputs map[string]interface{}) error {
 
 // GetOutput returns output outputKey of task.
 func (t *Task) GetOutput(outputKey string) (*Output, error) {
-	output, ok := t.Outputs[outputKey]
-	if !ok {
-		return nil, &TaskOutputNotFoundError{
-			TaskKey:       t.Key,
-			TaskOutputKey: outputKey,
-			ServiceName:   t.ServiceName,
+	for _, output := range t.Outputs {
+		if output.Key == outputKey {
+			output.task = t
+			output.service = t.service
+			return output, nil
 		}
 	}
-	return output, nil
+	return nil, &TaskOutputNotFoundError{
+		TaskKey:       t.Key,
+		TaskOutputKey: outputKey,
+		ServiceName:   t.service.Name,
+	}
 }
 
 // ValidateData produces warnings for task outputs that doesn't satisfy their parameter schemas.
@@ -98,9 +114,9 @@ func (o *Output) RequireData(outputData map[string]interface{}) error {
 	warnings := o.ValidateData(outputData)
 	if len(warnings) > 0 {
 		return &InvalidTaskOutputError{
-			TaskKey:       o.TaskKey,
+			TaskKey:       o.task.Key,
 			TaskOutputKey: o.Key,
-			ServiceName:   o.ServiceName,
+			ServiceName:   o.service.Name,
 			Warnings:      warnings,
 		}
 	}

@@ -8,14 +8,15 @@ import (
 )
 
 func TestStopRunningService(t *testing.T) {
-	service := &Service{
+	service, _ := FromService(&Service{
 		Name: "TestStopRunningService",
-		Dependencies: map[string]*Dependency{
-			"test": {
+		Dependencies: []*Dependency{
+			{
+				Key:   "test",
 				Image: "http-server",
 			},
 		},
-	}
+	}, ContainerOption(defaultContainer))
 	service.Start()
 	err := service.Stop()
 	require.Nil(t, err)
@@ -24,14 +25,15 @@ func TestStopRunningService(t *testing.T) {
 }
 
 func TestStopNonRunningService(t *testing.T) {
-	service := &Service{
+	service, _ := FromService(&Service{
 		Name: "TestStopNonRunningService",
-		Dependencies: map[string]*Dependency{
-			"test": {
+		Dependencies: []*Dependency{
+			{
+				Key:   "test",
 				Image: "http-server",
 			},
 		},
-	}
+	}, ContainerOption(defaultContainer))
 	err := service.Stop()
 	require.Nil(t, err)
 	status, _ := service.Status()
@@ -39,17 +41,18 @@ func TestStopNonRunningService(t *testing.T) {
 }
 
 func TestStopDependency(t *testing.T) {
-	service := &Service{
+	service, _ := FromService(&Service{
 		Name: "TestStartDependency",
-		Dependencies: map[string]*Dependency{
-			"test": {
+		Dependencies: []*Dependency{
+			{
+				Key:   "test",
 				Image: "http-server",
 			},
 		},
-	}
+	}, ContainerOption(defaultContainer))
 	networkID, err := defaultContainer.CreateNetwork(service.namespace())
 	defer defaultContainer.DeleteNetwork(service.namespace())
-	dep := service.DependenciesFromService()[0]
+	dep := service.Dependencies[0]
 	dep.Start(networkID)
 	err = dep.Stop()
 	require.Nil(t, err)
@@ -58,14 +61,15 @@ func TestStopDependency(t *testing.T) {
 }
 
 func TestNetworkDeleted(t *testing.T) {
-	service := &Service{
+	service, _ := FromService(&Service{
 		Name: "TestNetworkDeleted",
-		Dependencies: map[string]*Dependency{
-			"test": {
+		Dependencies: []*Dependency{
+			{
+				Key:   "test",
 				Image: "http-server",
 			},
 		},
-	}
+	}, ContainerOption(defaultContainer))
 	service.Start()
 	service.Stop()
 	n, err := defaultContainer.FindNetwork(service.namespace())

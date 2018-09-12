@@ -12,11 +12,13 @@ func TestValidateEventKey(t *testing.T) {
 	a, _ := newAPIAndDockerTest(t)
 	ln := newEventListener(a)
 
-	s := &service.Service{
-		Events: map[string]*service.Event{
-			"test": {},
+	s, _ := service.FromService(&service.Service{
+		Events: []*service.Event{
+			{
+				Key: "test",
+			},
 		},
-	}
+	}, service.ContainerOption(a.container))
 
 	ln.eventKey = ""
 	require.Nil(t, ln.validateEventKey(s))

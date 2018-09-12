@@ -23,7 +23,7 @@ func (e *eventEmitter) Emit(token, eventKey string, eventData map[string]interfa
 	if err != nil {
 		return err
 	}
-	event, err := event.Create(&s, eventKey, eventData)
+	event, err := event.Create(s, eventKey, eventData)
 	if err != nil {
 		return err
 	}

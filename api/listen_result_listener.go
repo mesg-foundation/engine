@@ -1,8 +1,6 @@
 package api
 
 import (
-	"fmt"
-
 	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/pubsub"
@@ -55,14 +53,18 @@ func (l *ResultListener) Close() error {
 
 // listen listens results matches with filters on serviceID.
 func (l *ResultListener) listen(serviceID string) error {
-	service, err := services.Get(serviceID)
+	s, err := services.Get(serviceID)
 	if err != nil {
 		return err
 	}
-	if err := l.validateTask(&service); err != nil {
+	s, err = service.FromService(s, service.ContainerOption(l.api.container))
+	if err != nil {
 		return err
 	}
-	go l.listenLoop(&service)
+	if err := l.validateTask(s); err != nil {
+		return err
+	}
+	go l.listenLoop(s)
 	<-l.listening
 	return nil
 }
@@ -101,25 +103,20 @@ func (l *ResultListener) validateTaskKey(service *service.Service) error {
 	if l.taskKey == "" || l.taskKey == "*" {
 		return nil
 	}
-	if _, ok := service.Tasks[l.taskKey]; ok {
-		return nil
-	}
-	return fmt.Errorf("Task %q doesn't exist in this service", l.taskKey)
+	_, err := service.GetTask(l.taskKey)
+	return err
 }
 
 func (l *ResultListener) validateOutputKey(service *service.Service) error {
 	if l.outputKey == "" || l.outputKey == "*" {
 		return nil
 	}
-	task, ok := service.Tasks[l.taskKey]
-	if !ok {
-		return fmt.Errorf("Task %q doesn't exist in this service", l.taskKey)
+	task, err := service.GetTask(l.taskKey)
+	if err != nil {
+		return err
 	}
-	_, ok = task.Outputs[l.outputKey]
-	if !ok {
-		return fmt.Errorf("Output %q doesn't exist in the task %q of this service", l.outputKey, l.taskKey)
-	}
-	return nil
+	_, err = task.GetOutput(l.outputKey)
+	return err
 }
 
 func (l *ResultListener) isSubscribed(e *execution.Execution) bool {
