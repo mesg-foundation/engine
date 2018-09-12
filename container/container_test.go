@@ -1,6 +1,7 @@
 package container
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/docker/docker/api/types"
@@ -116,19 +117,16 @@ func TestNonExistentContainerStatus(t *testing.T) {
 	dt := dockertest.New()
 	c, _ := New(ClientOption(dt.Client()))
 
-	dt.ProvideContainerList(nil, dockertest.NotFoundErr{})
+	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
+	dt.ProvideContainerInspect(types.ContainerJSON{}, dockertest.NotFoundErr{})
 
 	status, err := c.Status(namespace)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, STOPPED, status)
 
-	require.Equal(t, types.ContainerListOptions{
-		Filters: filters.NewArgs(filters.KeyValuePair{
-			Key:   "label",
-			Value: "com.docker.stack.namespace=" + Namespace(namespace),
-		}),
-		Limit: 1,
-	}, (<-dt.LastContainerList()).Options)
+	resp := <-dt.LastServiceInspectWithRaw()
+	require.Equal(t, Namespace(namespace), resp.ServiceID)
+	require.Equal(t, types.ServiceInspectOptions{false}, resp.Options)
 }
 
 func TestExistentContainerStatus(t *testing.T) {
@@ -140,19 +138,20 @@ func TestExistentContainerStatus(t *testing.T) {
 	containerJSONData := types.ContainerJSON{
 		ContainerJSONBase: &types.ContainerJSONBase{
 			ID:    containerID,
-			State: &types.ContainerState{},
+			State: &types.ContainerState{Running: true},
 		},
 	}
 
 	dt := dockertest.New()
 	c, _ := New(ClientOption(dt.Client()))
 
+	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, nil)
 	dt.ProvideContainerList(containerData, nil)
 	dt.ProvideContainerInspect(containerJSONData, nil)
 
 	status, err := c.Status(namespace)
 	require.Nil(t, err)
-	require.Equal(t, STOPPED, status)
+	require.Equal(t, RUNNING, status)
 }
 
 func TestExistentContainerRunningStatus(t *testing.T) {
@@ -177,4 +176,21 @@ func TestExistentContainerRunningStatus(t *testing.T) {
 	status, err := c.Status(namespace)
 	require.Nil(t, err)
 	require.Equal(t, RUNNING, status)
+}
+
+func TestPresenceHandling(t *testing.T) {
+	tests := []struct {
+		param    error
+		presence bool
+		err      error
+	}{
+		{param: nil, presence: true, err: nil},
+		{param: dockertest.NotFoundErr{}, presence: false, err: nil},
+		{param: errors.New("test"), presence: false, err: errors.New("test")},
+	}
+	for _, test := range tests {
+		presence, err := presenceHandling(test.param)
+		require.Equal(t, test.presence, presence)
+		require.Equal(t, test.err, err)
+	}
 }

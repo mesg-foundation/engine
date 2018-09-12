@@ -9,35 +9,62 @@ type StatusType uint
 
 // Possible statuses for service.
 const (
-	STOPPED StatusType = 0
-	PARTIAL StatusType = 1
-	RUNNING StatusType = 2
+	UNKNOWN StatusType = iota
+	STOPPED
+	STARTING
+	PARTIAL
+	RUNNING
 )
+
+func (s StatusType) String() string {
+	switch s {
+	case STOPPED:
+		return "STOPPED"
+	case STARTING:
+		return "STARTING"
+	case PARTIAL:
+		return "PARTIAL"
+	case RUNNING:
+		return "RUNNING"
+	default:
+		return "UNKNOWN"
+	}
+}
+
+var containerStatusTypeMappings = map[container.StatusType]StatusType{
+	container.UNKNOWN:  UNKNOWN,
+	container.STOPPED:  STOPPED,
+	container.STARTING: STARTING,
+	container.RUNNING:  RUNNING,
+}
 
 // Status returns StatusType of all dependency.
 func (s *Service) Status() (StatusType, error) {
-	status := STOPPED
-	allRunning := true
+	statuses := make(map[container.StatusType]bool)
 	for _, dep := range s.Dependencies {
-		depStatus, err := dep.Status()
+		status, err := dep.Status()
 		if err != nil {
-			return status, err
+			return UNKNOWN, err
 		}
-		if depStatus == container.RUNNING {
-			status = RUNNING
-		} else {
-			allRunning = false
+		statuses[status] = true
+	}
+
+	switch len(statuses) {
+	case 0:
+		return STOPPED, nil
+	case 1:
+		for status := range statuses {
+			return containerStatusTypeMappings[status], nil
 		}
+	default:
+		return PARTIAL, nil
 	}
-	if status == RUNNING && !allRunning {
-		status = PARTIAL
-	}
-	return status, nil
+	panic("not reached")
 }
 
 // Status returns StatusType of dependency's container.
 func (d *Dependency) Status() (container.StatusType, error) {
-	return defaultContainer.ServiceStatus(d.namespace())
+	return defaultContainer.Status(d.namespace())
 }
 
 // ListRunning returns all the running services.2
