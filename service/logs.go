@@ -6,8 +6,8 @@ import (
 	"github.com/mesg-foundation/core/x/xstrings"
 )
 
-// Logs holds log streams of dependency.
-type Logs struct {
+// Log holds log streams of dependency.
+type Log struct {
 	Dependency string
 	Standard   io.ReadCloser
 	Error      io.ReadCloser
@@ -15,9 +15,9 @@ type Logs struct {
 
 // Logs gives service's logs and applies dependencies filter to filter logs.
 // if dependencies has a length of zero all dependency logs will be provided.
-func (s *Service) Logs(dependencies ...string) ([]*Logs, error) {
+func (s *Service) Logs(dependencies ...string) ([]*Log, error) {
 	var (
-		logs       []*Logs
+		logs       []*Log
 		isNoFilter = len(dependencies) == 0
 	)
 	for _, dep := range s.DependenciesFromService() {
@@ -26,7 +26,7 @@ func (s *Service) Logs(dependencies ...string) ([]*Logs, error) {
 			if err != nil {
 				return nil, err
 			}
-			logs = append(logs, &Logs{
+			logs = append(logs, &Log{
 				Dependency: dep.Name,
 				Standard:   rstd,
 				Error:      rerr,

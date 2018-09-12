@@ -49,6 +49,10 @@ func (s *Stream) Read(p []byte) (n int, err error) {
 
 // Close closes reader.
 func (s *Stream) Close() error {
+	if s.done == nil {
+		return nil
+	}
 	close(s.done)
+	s.done = nil
 	return nil
 }

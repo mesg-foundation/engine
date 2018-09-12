@@ -117,6 +117,7 @@ func (p *ServiceProvider) ServiceListenResults(id, taskFilter, outputFilter stri
 	return resultC, errC, nil
 }
 
+// Log keeps dependency logs of service.
 type Log struct {
 	Dependency      string
 	Standard, Error *chunker.Stream
@@ -143,6 +144,7 @@ func (p *ServiceProvider) ServiceLogs(id string, dependencies ...string) (logs [
 		Dependencies: dependencies,
 	})
 	if err != nil {
+		cancel()
 		return nil, nil, err
 	}
 
@@ -155,28 +157,6 @@ func (p *ServiceProvider) ServiceLogs(id string, dependencies ...string) (logs [
 		logs = append(logs, log)
 	}
 
-	go func() {
-		for {
-			data, err := stream.Recv()
-			if err != nil {
-				return
-			}
-
-			for _, log := range logs {
-				if log.Dependency == data.Dependency {
-					var out *chunker.Stream
-					switch data.Type {
-					case core.LogData_Standard:
-						out = log.Standard
-					case core.LogData_Error:
-						out = log.Error
-					}
-					out.Provide(data.Data)
-				}
-			}
-		}
-	}()
-
 	closer := func() {
 		cancel()
 		for _, log := range logs {
@@ -185,7 +165,39 @@ func (p *ServiceProvider) ServiceLogs(id string, dependencies ...string) (logs [
 		}
 	}
 
+	errC := make(chan error, len(logs))
+	go p.listenServiceLogs(stream, logs, errC)
+	go func() {
+		<-errC
+		closer()
+	}()
+
 	return logs, closer, nil
+}
+
+// listenServiceLogs listen gRPC stream to get service logs.
+func (p *ServiceProvider) listenServiceLogs(stream core.Core_ServiceLogsClient, logs []*Log,
+	errC chan error) {
+	for {
+		data, err := stream.Recv()
+		if err != nil {
+			errC <- err
+			return
+		}
+
+		for _, log := range logs {
+			if log.Dependency == data.Dependency {
+				var out *chunker.Stream
+				switch data.Type {
+				case core.LogData_Standard:
+					out = log.Standard
+				case core.LogData_Error:
+					out = log.Error
+				}
+				out.Provide(data.Data)
+			}
+		}
+	}
 }
 
 // ServiceExecuteTask executes task on given service.
