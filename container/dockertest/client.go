@@ -4,8 +4,10 @@ import (
 	"context"
 	"io"
 	"io/ioutil"
+	"time"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/events"
 	"github.com/docker/docker/api/types/swarm"
 	docker "github.com/docker/docker/client"
 )
@@ -30,6 +32,8 @@ type requests struct {
 	info                  chan InfoRequest
 	containerList         chan ContainerListRequest
 	containerInspect      chan ContainerInspectRequest
+	containerStop         chan ContainerStopRequest
+	containerRemove       chan ContainerRemoveRequest
 	imageBuild            chan ImageBuildRequest
 	networkInspect        chan NetworkInspectRequest
 	networkRemove         chan NetworkRemoveRequest
@@ -39,6 +43,7 @@ type requests struct {
 	serviceInspectWithRaw chan ServiceInspectWithRawRequest
 	serviceRemove         chan ServiceRemoveRequest
 	serviceLogs           chan ServiceLogsRequest
+	events                chan EventsRequest
 }
 
 // responses encapsulates response channels that holds 'faked' return values of Docker client methods.
@@ -60,6 +65,9 @@ type responses struct {
 	serviceLogs           chan serviceLogsResponse
 	containerInspect      chan containerInspectResponse
 	containerList         chan containerListResponse
+	containerStop         chan containerStopResponse
+	containerRemove       chan containerRemoveResponse
+	events                chan eventsResponse
 }
 
 // newClient returns a new mock Client for Docker.
@@ -74,6 +82,8 @@ func newClient() *Client {
 			info:                  make(chan InfoRequest, 1),
 			containerList:         make(chan ContainerListRequest, 1),
 			containerInspect:      make(chan ContainerInspectRequest, 1),
+			containerStop:         make(chan ContainerStopRequest, 1),
+			containerRemove:       make(chan ContainerRemoveRequest, 1),
 			imageBuild:            make(chan ImageBuildRequest, 1),
 			networkInspect:        make(chan NetworkInspectRequest, 1),
 			networkRemove:         make(chan NetworkRemoveRequest, 1),
@@ -83,6 +93,7 @@ func newClient() *Client {
 			serviceInspectWithRaw: make(chan ServiceInspectWithRawRequest, 1),
 			serviceRemove:         make(chan ServiceRemoveRequest, 1),
 			serviceLogs:           make(chan ServiceLogsRequest, 1),
+			events:                make(chan EventsRequest, 1),
 		},
 
 		// buffered channels helps with writing tests in synchronous syntax while using
@@ -100,6 +111,9 @@ func newClient() *Client {
 			serviceLogs:           make(chan serviceLogsResponse, 1),
 			containerInspect:      make(chan containerInspectResponse, 1),
 			containerList:         make(chan containerListResponse, 1),
+			containerStop:         make(chan containerStopResponse, 1),
+			containerRemove:       make(chan containerRemoveResponse, 1),
+			events:                make(chan eventsResponse, 1),
 		},
 	}
 }
@@ -173,6 +187,28 @@ func (c *Client) ContainerInspect(ctx context.Context, container string) (types.
 		return resp.json, resp.err
 	default:
 		return types.ContainerJSON{}, nil
+	}
+}
+
+// ContainerStop is the mock version of the actual method.
+func (c *Client) ContainerStop(ctx context.Context, container string, timeout *time.Duration) error {
+	c.requests.containerStop <- ContainerStopRequest{container}
+	select {
+	case resp := <-c.responses.containerStop:
+		return resp.err
+	default:
+		return nil
+	}
+}
+
+// ContainerRemove is the mock version of the actual method.
+func (c *Client) ContainerRemove(ctx context.Context, container string, options types.ContainerRemoveOptions) error {
+	c.requests.containerRemove <- ContainerRemoveRequest{container, options}
+	select {
+	case resp := <-c.responses.containerRemove:
+		return resp.err
+	default:
+		return nil
 	}
 }
 
@@ -265,4 +301,11 @@ func (c *Client) ServiceLogs(ctx context.Context,
 	default:
 		return nil, nil
 	}
+}
+
+// Events is the mock version of the actual method.
+func (c *Client) Events(ctx context.Context, options types.EventsOptions) (<-chan events.Message, <-chan error) {
+	c.requests.events <- EventsRequest{Options: options}
+	resp := <-c.responses.events
+	return resp.messageChan, resp.errChan
 }
