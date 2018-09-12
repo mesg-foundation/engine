@@ -28,7 +28,7 @@ func (s *Service) injectDefinition(def *importer.ServiceDefinition) {
 func (s *Service) defTasksToService(tasks map[string]*importer.Task) []*Task {
 	var (
 		keys []string
-		ts   = make([]*Task, len(tasks))
+		ts   = make([]*Task, 0, len(tasks))
 	)
 
 	for key := range tasks {
@@ -53,7 +53,7 @@ func (s *Service) defTasksToService(tasks map[string]*importer.Task) []*Task {
 func (s *Service) defOutputsToService(outputs map[string]*importer.Output) []*Output {
 	var (
 		keys []string
-		ots  = make([]*Output, len(outputs))
+		ots  = make([]*Output, 0, len(outputs))
 	)
 
 	for key := range outputs {
@@ -76,7 +76,7 @@ func (s *Service) defOutputsToService(outputs map[string]*importer.Output) []*Ou
 func (s *Service) defEventsToService(events map[string]*importer.Event) []*Event {
 	var (
 		keys []string
-		es   = make([]*Event, len(events))
+		es   = make([]*Event, 0, len(events))
 	)
 
 	for key := range events {
@@ -99,7 +99,7 @@ func (s *Service) defEventsToService(events map[string]*importer.Event) []*Event
 func (s *Service) defDependenciesToService(dependencies map[string]*importer.Dependency) []*Dependency {
 	var (
 		keys []string
-		deps = make([]*Dependency, len(dependencies))
+		deps = make([]*Dependency, 0, len(dependencies))
 	)
 
 	for key := range dependencies {
@@ -124,7 +124,7 @@ func (s *Service) defDependenciesToService(dependencies map[string]*importer.Dep
 func (s *Service) defParametersToService(params map[string]*importer.Parameter) []*Parameter {
 	var (
 		keys []string
-		ps   = make([]*Parameter, len(params))
+		ps   = make([]*Parameter, 0, len(params))
 	)
 
 	for key := range params {
