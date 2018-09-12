@@ -32,5 +32,5 @@ mesg-core service gen-doc ./PATH_TO_SERVICE
 
 ### SEE ALSO
 
-* [mesg-core service](mesg-core_service.md)	 - Manage your services
+* [mesg-core service](mesg-core_service.md)	 - Manage services
 

@@ -31,5 +31,5 @@ mesg-core service detail SERVICE
 
 ### SEE ALSO
 
-* [mesg-core service](mesg-core_service.md)	 - Manage your services
+* [mesg-core service](mesg-core_service.md)	 - Manage services
 

@@ -3,6 +3,7 @@ package commands
 import (
 	"io"
 
+	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/interface/grpc/core"
 	"github.com/mesg-foundation/core/service"
@@ -68,14 +69,9 @@ func (m *mockServiceExecutor) ServiceListenResults(id, taskFilter, outputFilter 
 	return args.Get(0).(chan *core.ResultData), args.Get(1).(chan error), args.Error(2)
 }
 
-func (m *mockServiceExecutor) ServiceLogs(id string) (io.ReadCloser, error) {
+func (m *mockServiceExecutor) ServiceLogs(id string, dependencies ...string) (logs []*provider.Log, close func(), err error) {
 	args := m.Called()
-	return args.Get(0).(io.ReadCloser), args.Error(1)
-}
-
-func (m *mockServiceExecutor) ServiceDependencyLogs(id string, dependency string) ([]io.ReadCloser, error) {
-	args := m.Called()
-	return args.Get(0).([]io.ReadCloser), args.Error(1)
+	return args.Get(0).([]*provider.Log), args.Get(1).(func()), args.Error(2)
 }
 
 func (m *mockServiceExecutor) ServiceExecuteTask(id, taskKey, inputData string, tags []string) (listenResults chan core.ResultData, err error) {

@@ -34,5 +34,5 @@ mesg-core service validate ./SERVICE_FOLDER
 
 ### SEE ALSO
 
-* [mesg-core service](mesg-core_service.md)	 - Manage your services
+* [mesg-core service](mesg-core_service.md)	 - Manage services
 
