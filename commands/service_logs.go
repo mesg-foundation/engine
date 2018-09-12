@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/fatih/color"
 	"github.com/mesg-foundation/core/x/xcolor"
 	"github.com/mesg-foundation/core/x/xsignal"
-	"github.com/mesg-foundation/core/x/xstrings"
 	"github.com/mesg-foundation/prefixer"
 	"github.com/spf13/cobra"
 )
@@ -75,7 +75,7 @@ func dependencyPrefixes(dependencies []string) (prefixes map[string]string) {
 	// maxCharLen is the char length of longest dependency key.
 	var maxCharLen int
 
-	prefixes = make(map[string]string, 0)
+	prefixes = make(map[string]string, len(dependencies))
 
 	for _, key := range dependencies {
 		l := len(key)
@@ -92,7 +92,7 @@ func dependencyPrefixes(dependencies []string) (prefixes map[string]string) {
 
 // fillSpace fills the end of name with spaces until max chars limit hits.
 func fillSpace(name string, max int) string {
-	return xstrings.AppendSpaces(name, max-len(name))
+	return fmt.Sprintf("%s%s", name, strings.Repeat(" ", max-len(name)))
 }
 
 // prefixedCopy copies src to dst by prefixing dependency key to each new line.
