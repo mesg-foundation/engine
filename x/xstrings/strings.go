@@ -9,3 +9,14 @@ func SliceContains(a []string, e string) bool {
 	}
 	return false
 }
+
+// FindLongest finds the length of longest string in slice.
+func FindLongest(ss []string) int {
+	l := 0
+	for _, s := range ss {
+		if i := len(s); i > l {
+			l = i
+		}
+	}
+	return l
+}
