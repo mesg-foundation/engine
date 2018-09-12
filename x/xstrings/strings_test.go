@@ -23,6 +23,7 @@ func TestSliceIndex(t *testing.T) {
 		e        string
 		expected int
 	}{
+		{[]string{"a"}, "b", -1},
 		{[]string{"a", "b"}, "a", 0},
 		{[]string{"a", "b"}, "b", 1},
 	} {
