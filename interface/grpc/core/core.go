@@ -25,7 +25,7 @@ func toProtoService(s *service.Service) *Service {
 }
 
 func toProtoTasks(tasks []*service.Task) []*Task {
-	ts := make([]*Task, 0, len(tasks))
+	ts := make([]*Task, len(tasks))
 	for _, task := range tasks {
 		t := &Task{
 			Key:         task.Key,
@@ -49,7 +49,7 @@ func toProtoTasks(tasks []*service.Task) []*Task {
 }
 
 func toProtoEvents(events []*service.Event) []*Event {
-	es := make([]*Event, 0, len(events))
+	es := make([]*Event, len(events))
 	for _, event := range events {
 		e := &Event{
 			Key:         event.Key,
@@ -63,7 +63,7 @@ func toProtoEvents(events []*service.Event) []*Event {
 }
 
 func toProtoParameters(params []*service.Parameter) []*Parameter {
-	ps := make([]*Parameter, 0, len(params))
+	ps := make([]*Parameter, len(params))
 	for _, param := range params {
 		p := &Parameter{
 			Name:        param.Name,
@@ -90,7 +90,7 @@ func toProtoDependency(dep *service.Dependency) *Dependency {
 }
 
 func toProtoDependencies(deps []*service.Dependency) []*Dependency {
-	ds := make([]*Dependency, 0, len(deps))
+	ds := make([]*Dependency, len(deps))
 	for _, dep := range deps {
 		ds = append(ds, toProtoDependency(dep))
 	}

@@ -31,7 +31,7 @@ func (s *Service) Start() (serviceIDs []string, err error) {
 		mutex sync.Mutex
 		wg    sync.WaitGroup
 	)
-	serviceIDs = make([]string, 0, len(s.Dependencies))
+	serviceIDs = make([]string, len(s.Dependencies))
 	for i, dependency := range s.Dependencies {
 		wg.Add(1)
 		go func(dep *Dependency, i int) {
@@ -89,7 +89,7 @@ func (d *Dependency) Start(networkID string) (containerServiceID string, err err
 }
 
 func (d *Dependency) extractPorts() []container.Port {
-	ports := make([]container.Port, 0, len(d.Ports))
+	ports := make([]container.Port, len(d.Ports))
 	for i, p := range d.Ports {
 		split := strings.Split(p, ":")
 		from, _ := strconv.ParseUint(split[0], 10, 64)
