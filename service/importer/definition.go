@@ -96,5 +96,5 @@ type Parameter struct {
 	Type string `yaml:"type"`
 
 	// Optional indicates if parameter is optional.
-	Optional bool `yaml:"optiona"`
+	Optional bool `yaml:"optional"`
 }
