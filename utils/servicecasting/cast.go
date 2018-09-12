@@ -55,15 +55,9 @@ func TaskInputs(s *core.Service, taskKey string, taskData map[string]string) (ma
 		if task.Key == taskKey {
 			m := make(map[string]interface{}, len(taskData))
 			for key, value := range taskData {
-				var param *core.Parameter
-				for _, p := range task.Inputs {
-					if p.Key == key {
-						param = p
-					}
-				}
-
-				if param == nil {
-					return nil, fmt.Errorf("task input %q does not exists", key)
+				param, err := findParam(task.Inputs, key)
+				if err != nil {
+					return nil, err
 				}
 
 				newValue, err := taskInputs(value, param.Type)
@@ -78,6 +72,16 @@ func TaskInputs(s *core.Service, taskKey string, taskData map[string]string) (ma
 		}
 	}
 	return nil, fmt.Errorf("task %q does not exists", taskKey)
+}
+
+// findParam return a param based on the key from a list of parameter
+func findParam(parameters []*core.Parameter, key string) (*core.Parameter, error) {
+	for _, p := range parameters {
+		if p.Key == key {
+			return p, nil
+		}
+	}
+	return nil, fmt.Errorf("task input %q does not exists", key)
 }
 
 // taskInputs converts single value based on its type.
