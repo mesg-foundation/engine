@@ -132,8 +132,8 @@ func (p *ServiceProvider) ServiceLogs(id string, dependencies ...string) (logs [
 		if err != nil {
 			return nil, nil, err
 		}
-		for key := range resp.Service.Dependencies {
-			dependencies = append(dependencies, key)
+		for _, dep := range resp.Service.Dependencies {
+			dependencies = append(dependencies, dep.Key)
 		}
 	}
 
