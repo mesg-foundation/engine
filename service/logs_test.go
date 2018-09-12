@@ -7,17 +7,19 @@ import (
 )
 
 func TestLogs(t *testing.T) {
-	service := &Service{
+	service, _ := FromService(&Service{
 		Name: "TestLogs",
-		Dependencies: map[string]*Dependency{
-			"test": {
+		Dependencies: []*Dependency{
+			{
+				Key:   "test",
 				Image: "http-server",
 			},
-			"test2": {
+			{
+				Key:   "test2",
 				Image: "http-server",
 			},
 		},
-	}
+	}, ContainerOption(defaultContainer))
 	service.Start()
 	defer service.Stop()
 	readers, err := service.Logs()
@@ -26,17 +28,19 @@ func TestLogs(t *testing.T) {
 }
 
 func TestLogsOnlyOneDependency(t *testing.T) {
-	service := &Service{
+	service, _ := FromService(&Service{
 		Name: "TestLogsOnlyOneDependency",
-		Dependencies: map[string]*Dependency{
-			"test": {
+		Dependencies: []*Dependency{
+			{
+				Key:   "test",
 				Image: "http-server",
 			},
-			"test2": {
+			{
+				Key:   "test2",
 				Image: "http-server",
 			},
 		},
-	}
+	}, ContainerOption(defaultContainer))
 	service.Start()
 	defer service.Stop()
 	readers, err := service.Logs("test2")

@@ -20,24 +20,24 @@ const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 // This is the definition of a MESG Service.
 type Service struct {
-	ID                   string                 `protobuf:"bytes,10,opt,name=ID,proto3" json:"ID,omitempty"`
-	Name                 string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Description          string                 `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	Tasks                map[string]*Task       `protobuf:"bytes,5,rep,name=tasks,proto3" json:"tasks,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	Events               map[string]*Event      `protobuf:"bytes,6,rep,name=events,proto3" json:"events,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	Dependencies         map[string]*Dependency `protobuf:"bytes,7,rep,name=dependencies,proto3" json:"dependencies,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	Configuration        *Dependency            `protobuf:"bytes,8,opt,name=configuration,proto3" json:"configuration,omitempty"`
-	Repository           string                 `protobuf:"bytes,9,opt,name=repository,proto3" json:"repository,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}               `json:"-"`
-	XXX_unrecognized     []byte                 `json:"-"`
-	XXX_sizecache        int32                  `json:"-"`
+	ID                   string        `protobuf:"bytes,10,opt,name=ID,proto3" json:"ID,omitempty"`
+	Name                 string        `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Description          string        `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	Tasks                []*Task       `protobuf:"bytes,5,rep,name=tasks,proto3" json:"tasks,omitempty"`
+	Events               []*Event      `protobuf:"bytes,6,rep,name=events,proto3" json:"events,omitempty"`
+	Dependencies         []*Dependency `protobuf:"bytes,7,rep,name=dependencies,proto3" json:"dependencies,omitempty"`
+	Configuration        *Dependency   `protobuf:"bytes,8,opt,name=configuration,proto3" json:"configuration,omitempty"`
+	Repository           string        `protobuf:"bytes,9,opt,name=repository,proto3" json:"repository,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
+	XXX_unrecognized     []byte        `json:"-"`
+	XXX_sizecache        int32         `json:"-"`
 }
 
 func (m *Service) Reset()         { *m = Service{} }
 func (m *Service) String() string { return proto.CompactTextString(m) }
 func (*Service) ProtoMessage()    {}
 func (*Service) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_ed22868549afeba4, []int{0}
+	return fileDescriptor_service_5af76bb787fb4919, []int{0}
 }
 func (m *Service) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Service.Unmarshal(m, b)
@@ -78,21 +78,21 @@ func (m *Service) GetDescription() string {
 	return ""
 }
 
-func (m *Service) GetTasks() map[string]*Task {
+func (m *Service) GetTasks() []*Task {
 	if m != nil {
 		return m.Tasks
 	}
 	return nil
 }
 
-func (m *Service) GetEvents() map[string]*Event {
+func (m *Service) GetEvents() []*Event {
 	if m != nil {
 		return m.Events
 	}
 	return nil
 }
 
-func (m *Service) GetDependencies() map[string]*Dependency {
+func (m *Service) GetDependencies() []*Dependency {
 	if m != nil {
 		return m.Dependencies
 	}
@@ -116,21 +116,20 @@ func (m *Service) GetRepository() string {
 // Events are emitted by the service whenever the service wants.
 // TODO(ilgooz) remove key, serviceName fields when Event type crafted manually.
 type Event struct {
-	Key                  string                `protobuf:"bytes,4,opt,name=key,proto3" json:"key,omitempty"`
-	Name                 string                `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Description          string                `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	ServiceName          string                `protobuf:"bytes,5,opt,name=serviceName,proto3" json:"serviceName,omitempty"`
-	Data                 map[string]*Parameter `protobuf:"bytes,3,rep,name=data,proto3" json:"data,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
-	XXX_unrecognized     []byte                `json:"-"`
-	XXX_sizecache        int32                 `json:"-"`
+	Key                  string       `protobuf:"bytes,4,opt,name=key,proto3" json:"key,omitempty"`
+	Name                 string       `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Description          string       `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	Data                 []*Parameter `protobuf:"bytes,3,rep,name=data,proto3" json:"data,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
+	XXX_unrecognized     []byte       `json:"-"`
+	XXX_sizecache        int32        `json:"-"`
 }
 
 func (m *Event) Reset()         { *m = Event{} }
 func (m *Event) String() string { return proto.CompactTextString(m) }
 func (*Event) ProtoMessage()    {}
 func (*Event) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_ed22868549afeba4, []int{1}
+	return fileDescriptor_service_5af76bb787fb4919, []int{1}
 }
 func (m *Event) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Event.Unmarshal(m, b)
@@ -171,14 +170,7 @@ func (m *Event) GetDescription() string {
 	return ""
 }
 
-func (m *Event) GetServiceName() string {
-	if m != nil {
-		return m.ServiceName
-	}
-	return ""
-}
-
-func (m *Event) GetData() map[string]*Parameter {
+func (m *Event) GetData() []*Parameter {
 	if m != nil {
 		return m.Data
 	}
@@ -188,22 +180,21 @@ func (m *Event) GetData() map[string]*Parameter {
 // A task is a function that requires inputs and returns output.
 // TODO(ilgooz) remove key, serviceName fields when Task type crafted manually.
 type Task struct {
-	Key                  string                `protobuf:"bytes,8,opt,name=key,proto3" json:"key,omitempty"`
-	Name                 string                `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Description          string                `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	ServiceName          string                `protobuf:"bytes,9,opt,name=serviceName,proto3" json:"serviceName,omitempty"`
-	Inputs               map[string]*Parameter `protobuf:"bytes,6,rep,name=inputs,proto3" json:"inputs,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	Outputs              map[string]*Output    `protobuf:"bytes,7,rep,name=outputs,proto3" json:"outputs,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
-	XXX_unrecognized     []byte                `json:"-"`
-	XXX_sizecache        int32                 `json:"-"`
+	Key                  string       `protobuf:"bytes,8,opt,name=key,proto3" json:"key,omitempty"`
+	Name                 string       `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Description          string       `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	Inputs               []*Parameter `protobuf:"bytes,6,rep,name=inputs,proto3" json:"inputs,omitempty"`
+	Outputs              []*Output    `protobuf:"bytes,7,rep,name=outputs,proto3" json:"outputs,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
+	XXX_unrecognized     []byte       `json:"-"`
+	XXX_sizecache        int32        `json:"-"`
 }
 
 func (m *Task) Reset()         { *m = Task{} }
 func (m *Task) String() string { return proto.CompactTextString(m) }
 func (*Task) ProtoMessage()    {}
 func (*Task) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_ed22868549afeba4, []int{2}
+	return fileDescriptor_service_5af76bb787fb4919, []int{2}
 }
 func (m *Task) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Task.Unmarshal(m, b)
@@ -244,21 +235,14 @@ func (m *Task) GetDescription() string {
 	return ""
 }
 
-func (m *Task) GetServiceName() string {
-	if m != nil {
-		return m.ServiceName
-	}
-	return ""
-}
-
-func (m *Task) GetInputs() map[string]*Parameter {
+func (m *Task) GetInputs() []*Parameter {
 	if m != nil {
 		return m.Inputs
 	}
 	return nil
 }
 
-func (m *Task) GetOutputs() map[string]*Output {
+func (m *Task) GetOutputs() []*Output {
 	if m != nil {
 		return m.Outputs
 	}
@@ -268,22 +252,20 @@ func (m *Task) GetOutputs() map[string]*Output {
 // A output is the data a task must return.
 // TODO(ilgooz) remove key, taskKey, serviceName fields when Output type crafted manually.
 type Output struct {
-	Key                  string                `protobuf:"bytes,4,opt,name=key,proto3" json:"key,omitempty"`
-	Name                 string                `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Description          string                `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	TaskKey              string                `protobuf:"bytes,5,opt,name=taskKey,proto3" json:"taskKey,omitempty"`
-	ServiceName          string                `protobuf:"bytes,6,opt,name=serviceName,proto3" json:"serviceName,omitempty"`
-	Data                 map[string]*Parameter `protobuf:"bytes,3,rep,name=data,proto3" json:"data,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
-	XXX_unrecognized     []byte                `json:"-"`
-	XXX_sizecache        int32                 `json:"-"`
+	Key                  string       `protobuf:"bytes,4,opt,name=key,proto3" json:"key,omitempty"`
+	Name                 string       `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Description          string       `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	Data                 []*Parameter `protobuf:"bytes,3,rep,name=data,proto3" json:"data,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
+	XXX_unrecognized     []byte       `json:"-"`
+	XXX_sizecache        int32        `json:"-"`
 }
 
 func (m *Output) Reset()         { *m = Output{} }
 func (m *Output) String() string { return proto.CompactTextString(m) }
 func (*Output) ProtoMessage()    {}
 func (*Output) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_ed22868549afeba4, []int{3}
+	return fileDescriptor_service_5af76bb787fb4919, []int{3}
 }
 func (m *Output) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Output.Unmarshal(m, b)
@@ -324,21 +306,7 @@ func (m *Output) GetDescription() string {
 	return ""
 }
 
-func (m *Output) GetTaskKey() string {
-	if m != nil {
-		return m.TaskKey
-	}
-	return ""
-}
-
-func (m *Output) GetServiceName() string {
-	if m != nil {
-		return m.ServiceName
-	}
-	return ""
-}
-
-func (m *Output) GetData() map[string]*Parameter {
+func (m *Output) GetData() []*Parameter {
 	if m != nil {
 		return m.Data
 	}
@@ -347,6 +315,7 @@ func (m *Output) GetData() map[string]*Parameter {
 
 // A parameter is the definition of a specific value.
 type Parameter struct {
+	Key                  string   `protobuf:"bytes,8,opt,name=key,proto3" json:"key,omitempty"`
 	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	Description          string   `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
 	Type                 string   `protobuf:"bytes,3,opt,name=type,proto3" json:"type,omitempty"`
@@ -360,7 +329,7 @@ func (m *Parameter) Reset()         { *m = Parameter{} }
 func (m *Parameter) String() string { return proto.CompactTextString(m) }
 func (*Parameter) ProtoMessage()    {}
 func (*Parameter) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_ed22868549afeba4, []int{4}
+	return fileDescriptor_service_5af76bb787fb4919, []int{4}
 }
 func (m *Parameter) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Parameter.Unmarshal(m, b)
@@ -379,6 +348,13 @@ func (m *Parameter) XXX_DiscardUnknown() {
 }
 
 var xxx_messageInfo_Parameter proto.InternalMessageInfo
+
+func (m *Parameter) GetKey() string {
+	if m != nil {
+		return m.Key
+	}
+	return ""
+}
 
 func (m *Parameter) GetName() string {
 	if m != nil {
@@ -410,6 +386,7 @@ func (m *Parameter) GetOptional() bool {
 
 // A dependency is a configuration of an other Docker container that runs separately from the service.
 type Dependency struct {
+	Key                  string   `protobuf:"bytes,8,opt,name=key,proto3" json:"key,omitempty"`
 	Image                string   `protobuf:"bytes,1,opt,name=image,proto3" json:"image,omitempty"`
 	Volumes              []string `protobuf:"bytes,2,rep,name=volumes,proto3" json:"volumes,omitempty"`
 	Volumesfrom          []string `protobuf:"bytes,3,rep,name=volumesfrom,proto3" json:"volumesfrom,omitempty"`
@@ -424,7 +401,7 @@ func (m *Dependency) Reset()         { *m = Dependency{} }
 func (m *Dependency) String() string { return proto.CompactTextString(m) }
 func (*Dependency) ProtoMessage()    {}
 func (*Dependency) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_ed22868549afeba4, []int{5}
+	return fileDescriptor_service_5af76bb787fb4919, []int{5}
 }
 func (m *Dependency) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Dependency.Unmarshal(m, b)
@@ -443,6 +420,13 @@ func (m *Dependency) XXX_DiscardUnknown() {
 }
 
 var xxx_messageInfo_Dependency proto.InternalMessageInfo
+
+func (m *Dependency) GetKey() string {
+	if m != nil {
+		return m.Key
+	}
+	return ""
+}
 
 func (m *Dependency) GetImage() string {
 	if m != nil {
@@ -481,64 +465,45 @@ func (m *Dependency) GetCommand() string {
 
 func init() {
 	proto.RegisterType((*Service)(nil), "core.Service")
-	proto.RegisterMapType((map[string]*Dependency)(nil), "core.Service.DependenciesEntry")
-	proto.RegisterMapType((map[string]*Event)(nil), "core.Service.EventsEntry")
-	proto.RegisterMapType((map[string]*Task)(nil), "core.Service.TasksEntry")
 	proto.RegisterType((*Event)(nil), "core.Event")
-	proto.RegisterMapType((map[string]*Parameter)(nil), "core.Event.DataEntry")
 	proto.RegisterType((*Task)(nil), "core.Task")
-	proto.RegisterMapType((map[string]*Parameter)(nil), "core.Task.InputsEntry")
-	proto.RegisterMapType((map[string]*Output)(nil), "core.Task.OutputsEntry")
 	proto.RegisterType((*Output)(nil), "core.Output")
-	proto.RegisterMapType((map[string]*Parameter)(nil), "core.Output.DataEntry")
 	proto.RegisterType((*Parameter)(nil), "core.Parameter")
 	proto.RegisterType((*Dependency)(nil), "core.Dependency")
 }
 
 func init() {
-	proto.RegisterFile("github.com/mesg-foundation/core/interface/grpc/core/service.proto", fileDescriptor_service_ed22868549afeba4)
+	proto.RegisterFile("github.com/mesg-foundation/core/interface/grpc/core/service.proto", fileDescriptor_service_5af76bb787fb4919)
 }
 
-var fileDescriptor_service_ed22868549afeba4 = []byte{
-	// 625 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x55, 0xdd, 0x6e, 0xd3, 0x30,
-	0x14, 0x56, 0xd3, 0x24, 0x6d, 0x4e, 0x06, 0x0c, 0x0b, 0x86, 0xc9, 0x05, 0x84, 0x4a, 0xa0, 0x81,
-	0x44, 0xaa, 0x0d, 0x09, 0x21, 0xee, 0x10, 0x1d, 0xda, 0x40, 0xe2, 0x27, 0xf0, 0x02, 0x5e, 0xe2,
-	0x96, 0x68, 0x4d, 0x1c, 0x1c, 0xa7, 0x52, 0x6e, 0x79, 0x00, 0x9e, 0x85, 0xa7, 0x42, 0xe2, 0x2d,
-	0x90, 0xed, 0xa4, 0x75, 0x68, 0xaf, 0xc6, 0xb8, 0xb3, 0xbf, 0x73, 0xbe, 0xef, 0xe4, 0x7c, 0xe7,
-	0xb8, 0x85, 0x57, 0x8b, 0x4c, 0x7c, 0xad, 0xcf, 0xa3, 0x84, 0xe5, 0xd3, 0x9c, 0x56, 0x8b, 0xa7,
-	0x73, 0x56, 0x17, 0x29, 0x11, 0x19, 0x2b, 0xa6, 0x09, 0xe3, 0x74, 0x9a, 0x15, 0x82, 0xf2, 0x39,
-	0x49, 0xe8, 0x74, 0xc1, 0xcb, 0x44, 0x63, 0x15, 0xe5, 0xab, 0x2c, 0xa1, 0x51, 0xc9, 0x99, 0x60,
-	0xc8, 0x96, 0xd8, 0xe4, 0xa7, 0x0d, 0xa3, 0xcf, 0x1a, 0x47, 0xd7, 0xc1, 0x3a, 0x9b, 0x61, 0x08,
-	0x07, 0x87, 0x5e, 0x6c, 0x9d, 0xcd, 0x10, 0x02, 0xbb, 0x20, 0x39, 0xc5, 0x03, 0x85, 0xa8, 0x33,
-	0x0a, 0xc1, 0x4f, 0x69, 0x95, 0xf0, 0xac, 0x94, 0xb5, 0xb0, 0xa5, 0x42, 0x26, 0x84, 0x22, 0x70,
-	0x04, 0xa9, 0x2e, 0x2a, 0xec, 0x84, 0xc3, 0x43, 0xff, 0x18, 0x47, 0xb2, 0x4e, 0xd4, 0xd6, 0x88,
-	0xbe, 0xc8, 0xd0, 0x49, 0x21, 0x78, 0x13, 0xeb, 0x34, 0x74, 0x04, 0x2e, 0x5d, 0xd1, 0x42, 0x54,
-	0xd8, 0x55, 0x84, 0xbb, 0x7d, 0xc2, 0x89, 0x8a, 0x69, 0x46, 0x9b, 0x88, 0x5e, 0xc3, 0x5e, 0x4a,
-	0x4b, 0x5a, 0xa4, 0xb4, 0x48, 0x32, 0x5a, 0xe1, 0x91, 0x22, 0xde, 0xef, 0x13, 0x67, 0x46, 0x86,
-	0xa6, 0xf7, 0x48, 0xe8, 0x39, 0x5c, 0x4b, 0x58, 0x31, 0xcf, 0x16, 0x35, 0x57, 0xbe, 0xe1, 0x71,
-	0x38, 0x38, 0xf4, 0x8f, 0xf7, 0xb5, 0xca, 0x9a, 0xdd, 0xc4, 0xfd, 0x34, 0x74, 0x0f, 0x80, 0xd3,
-	0x92, 0x55, 0x99, 0x60, 0xbc, 0xc1, 0x9e, 0x32, 0xc0, 0x40, 0x82, 0x19, 0xc0, 0xa6, 0x49, 0xb4,
-	0x0f, 0xc3, 0x0b, 0xda, 0xb4, 0x16, 0xca, 0x23, 0x0a, 0xc1, 0x59, 0x91, 0x65, 0x4d, 0x95, 0x77,
-	0xfe, 0x31, 0xe8, 0x7a, 0x92, 0x12, 0xeb, 0xc0, 0x4b, 0xeb, 0xc5, 0x20, 0x78, 0x03, 0xbe, 0xd1,
-	0xf9, 0x0e, 0x99, 0x07, 0x7d, 0x19, 0x5f, 0xcb, 0x28, 0x8e, 0xa9, 0xf3, 0x09, 0x6e, 0x6e, 0x19,
-	0xb1, 0x43, 0xed, 0x51, 0x5f, 0x6d, 0xdb, 0x84, 0x8d, 0xe4, 0xe4, 0xd7, 0x00, 0x1c, 0x55, 0xa7,
-	0xd3, 0xb1, 0x37, 0x3a, 0x97, 0x5b, 0x99, 0x10, 0xfc, 0x76, 0x37, 0xdf, 0x4b, 0xb2, 0xa3, 0x33,
-	0x0c, 0x08, 0x3d, 0x06, 0x3b, 0x25, 0x82, 0xe0, 0xa1, 0x9a, 0xf4, 0x6d, 0xa3, 0xd9, 0x68, 0x46,
-	0x04, 0xd1, 0xf3, 0x55, 0x29, 0xc1, 0x29, 0x78, 0x6b, 0x68, 0x47, 0xa7, 0x0f, 0xfb, 0x9d, 0xde,
-	0xd0, 0x52, 0x1f, 0x09, 0x27, 0x39, 0x15, 0x94, 0x9b, 0x8d, 0xfe, 0xb6, 0xc0, 0x96, 0x73, 0xe9,
-	0x54, 0xc6, 0x57, 0xdc, 0xa7, 0xb7, 0xdd, 0x67, 0x04, 0x6e, 0x56, 0x94, 0xf5, 0xfa, 0x31, 0x1c,
-	0x6c, 0xb6, 0x23, 0x3a, 0x53, 0x81, 0xf6, 0x25, 0xe8, 0x2c, 0x74, 0x04, 0x23, 0x56, 0x0b, 0x45,
-	0xd0, 0x8f, 0xe0, 0x8e, 0x41, 0xf8, 0xa0, 0x23, 0x9a, 0xd1, 0xe5, 0x05, 0x6f, 0xc1, 0x37, 0x94,
-	0xfe, 0xc9, 0xa1, 0xe0, 0x14, 0xf6, 0xcc, 0x22, 0x3b, 0xc4, 0x26, 0x7d, 0xb1, 0x3d, 0x2d, 0xa6,
-	0x49, 0xa6, 0xd7, 0xdf, 0x2d, 0x70, 0x35, 0x7a, 0x65, 0x5b, 0x85, 0x61, 0x24, 0x7f, 0x61, 0xde,
-	0xd1, 0xa6, 0xdd, 0xa8, 0xee, 0xfa, 0xf7, 0x1c, 0xdc, 0xed, 0x39, 0x3c, 0xe9, 0xed, 0xdb, 0x81,
-	0xf9, 0xd5, 0xff, 0x71, 0xe1, 0xbe, 0x81, 0xb7, 0xc6, 0x2f, 0xd9, 0x34, 0x02, 0x5b, 0x34, 0x25,
-	0xc5, 0x43, 0xcd, 0x92, 0x67, 0x14, 0xc0, 0x98, 0xa9, 0x28, 0x59, 0x2a, 0x57, 0xc7, 0xf1, 0xfa,
-	0x3e, 0xf9, 0x31, 0x00, 0xd8, 0x3c, 0x73, 0x74, 0x0b, 0x9c, 0x2c, 0x27, 0x8b, 0xae, 0xaa, 0xbe,
-	0x48, 0x27, 0x57, 0x6c, 0x59, 0xe7, 0xb4, 0xc2, 0x56, 0x38, 0x94, 0x4e, 0xb6, 0x57, 0xf9, 0x41,
-	0xed, 0x71, 0xce, 0x59, 0xae, 0xec, 0xf2, 0x62, 0x13, 0x92, 0x8a, 0x25, 0xe3, 0xa2, 0xc2, 0xb6,
-	0x8a, 0xe9, 0x8b, 0x54, 0x4c, 0x58, 0x9e, 0x93, 0x22, 0xed, 0x66, 0xd3, 0x5e, 0xcf, 0x5d, 0xf5,
-	0xef, 0xf4, 0xec, 0x4f, 0x00, 0x00, 0x00, 0xff, 0xff, 0x49, 0xf9, 0xc5, 0x15, 0xe2, 0x06, 0x00,
-	0x00,
+var fileDescriptor_service_5af76bb787fb4919 = []byte{
+	// 446 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x93, 0xcf, 0x8e, 0xd3, 0x30,
+	0x10, 0xc6, 0x95, 0xbf, 0x6d, 0xa6, 0x0b, 0xac, 0x2c, 0x0e, 0x16, 0x07, 0x14, 0x65, 0x25, 0xe8,
+	0x85, 0x56, 0x02, 0xc4, 0x1d, 0xa9, 0x1c, 0xf6, 0x04, 0x0a, 0xbc, 0x80, 0x37, 0x99, 0x06, 0xab,
+	0x1b, 0x3b, 0xb2, 0x9d, 0x4a, 0x3d, 0xf3, 0x20, 0x70, 0xe0, 0x41, 0x91, 0xc7, 0x4d, 0xe9, 0x8a,
+	0x3d, 0x01, 0xda, 0xdb, 0xcc, 0xef, 0xfb, 0xec, 0x19, 0x7f, 0x4a, 0xe0, 0x7d, 0x27, 0xdd, 0xd7,
+	0xf1, 0x66, 0xd5, 0xe8, 0x7e, 0xdd, 0xa3, 0xed, 0x5e, 0x6d, 0xf5, 0xa8, 0x5a, 0xe1, 0xa4, 0x56,
+	0xeb, 0x46, 0x1b, 0x5c, 0x4b, 0xe5, 0xd0, 0x6c, 0x45, 0x83, 0xeb, 0xce, 0x0c, 0x4d, 0x60, 0x16,
+	0xcd, 0x5e, 0x36, 0xb8, 0x1a, 0x8c, 0x76, 0x9a, 0xa5, 0x9e, 0x55, 0x3f, 0x63, 0x98, 0x7d, 0x0e,
+	0x9c, 0x3d, 0x86, 0xf8, 0x7a, 0xc3, 0xa1, 0x8c, 0x96, 0x45, 0x1d, 0x5f, 0x6f, 0x18, 0x83, 0x54,
+	0x89, 0x1e, 0x79, 0x44, 0x84, 0x6a, 0x56, 0xc2, 0xa2, 0x45, 0xdb, 0x18, 0x39, 0xf8, 0x59, 0x3c,
+	0x26, 0xe9, 0x1c, 0xb1, 0x12, 0x32, 0x27, 0xec, 0xce, 0xf2, 0xac, 0x4c, 0x96, 0x8b, 0xd7, 0xb0,
+	0xf2, 0x73, 0x56, 0x5f, 0x84, 0xdd, 0xd5, 0x41, 0x60, 0x57, 0x90, 0xe3, 0x1e, 0x95, 0xb3, 0x3c,
+	0x27, 0xcb, 0x22, 0x58, 0x3e, 0x78, 0x56, 0x1f, 0x25, 0xf6, 0x16, 0x2e, 0x5a, 0x1c, 0x50, 0xb5,
+	0xa8, 0x1a, 0x89, 0x96, 0xcf, 0xc8, 0x7a, 0x19, 0xac, 0x9b, 0x49, 0x39, 0xd4, 0x77, 0x5c, 0xec,
+	0x1d, 0x3c, 0x6a, 0xb4, 0xda, 0xca, 0x6e, 0x34, 0x14, 0x06, 0x9f, 0x97, 0xd1, 0xbd, 0xc7, 0xee,
+	0xda, 0xd8, 0x73, 0x00, 0x83, 0x83, 0xb6, 0xd2, 0x69, 0x73, 0xe0, 0x05, 0xbd, 0xea, 0x8c, 0x54,
+	0x0e, 0x32, 0x5a, 0x8f, 0x5d, 0x42, 0xb2, 0xc3, 0x03, 0x4f, 0xc9, 0xe1, 0xcb, 0xbf, 0x4c, 0xe9,
+	0x0a, 0xd2, 0x56, 0x38, 0xc1, 0x13, 0x7a, 0xd6, 0x93, 0xb0, 0xdf, 0x27, 0x61, 0x44, 0x8f, 0x0e,
+	0x4d, 0x4d, 0x62, 0xf5, 0x3d, 0x82, 0xd4, 0x07, 0x37, 0x4d, 0x9d, 0xff, 0xeb, 0xd4, 0x97, 0x90,
+	0x4b, 0x35, 0x8c, 0xa7, 0xe4, 0xff, 0x98, 0x7b, 0x94, 0xd9, 0x0b, 0x98, 0xe9, 0xd1, 0x91, 0x33,
+	0x04, 0x7f, 0x11, 0x9c, 0x1f, 0x09, 0xd6, 0x93, 0x58, 0x8d, 0x90, 0x07, 0xf4, 0xb0, 0xc1, 0x7c,
+	0x8b, 0xa0, 0x38, 0xb1, 0xff, 0x96, 0x0e, 0x83, 0xd4, 0x1d, 0x06, 0xe4, 0x49, 0x38, 0xe5, 0x6b,
+	0xf6, 0x0c, 0xe6, 0x9a, 0x54, 0x71, 0x4b, 0x6f, 0x9b, 0xd7, 0xa7, 0xbe, 0xfa, 0x11, 0x01, 0xfc,
+	0xfe, 0xa4, 0xee, 0x59, 0xe3, 0x29, 0x64, 0xb2, 0x17, 0xdd, 0xb4, 0x47, 0x68, 0x18, 0x87, 0xd9,
+	0x5e, 0xdf, 0x8e, 0x3d, 0x5a, 0x1e, 0x97, 0xc9, 0xb2, 0xa8, 0xa7, 0xd6, 0xaf, 0x78, 0x2c, 0xb7,
+	0x46, 0xf7, 0x14, 0x41, 0x51, 0x9f, 0x23, 0x7f, 0xe3, 0xa0, 0x8d, 0xb3, 0x3c, 0x25, 0x2d, 0x34,
+	0xfe, 0xc6, 0x46, 0xf7, 0xbd, 0x50, 0x2d, 0xcf, 0x68, 0xd2, 0xd4, 0xde, 0xe4, 0xf4, 0xaf, 0xbf,
+	0xf9, 0x15, 0x00, 0x00, 0xff, 0xff, 0x08, 0x91, 0x76, 0x54, 0x30, 0x04, 0x00, 0x00,
 }

@@ -23,5 +23,17 @@ func newServiceLister(api *API, filters ...ListServicesFilter) *serviceLister {
 
 // Lists services.
 func (l *serviceLister) List() ([]*service.Service, error) {
-	return services.All()
+	ss, err := services.All()
+	if err != nil {
+		return nil, err
+	}
+	var services []*service.Service
+	for _, s := range ss {
+		s, err = service.FromService(s, service.ContainerOption(l.api.container))
+		if err != nil {
+			return nil, err
+		}
+		services = append(services, s)
+	}
+	return services, nil
 }

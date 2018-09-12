@@ -70,7 +70,7 @@ func TestServiceCast(t *testing.T) {
 	for _, tt := range tests {
 		got, err := TaskInputs(tt.service, "test", tt.data)
 		if tt.expectErr {
-			require.NotNil(t, err)
+			require.Error(t, err)
 		} else {
 			require.Equal(t, len(tt.expected), len(got), "maps len are not equal")
 			require.Equal(t, tt.expected, got, "maps are not equal")
@@ -82,18 +82,26 @@ func TestServiceCast(t *testing.T) {
 	require.NotNil(t, err)
 }
 
-// creates test service with given inputs name and type under "test" task key.
+// createTestServcieWithInputs creates test service with given inputs name and type under "test" task key.
 func createTestServcieWithInputs(inputs map[string]string) *core.Service {
 	s := &core.Service{
-		Tasks: map[string]*core.Task{
-			"test": {
-				Inputs: make(map[string]*core.Parameter),
+		Tasks: []*core.Task{
+			{
+				Key:    "test",
+				Inputs: make([]*core.Parameter, 0),
 			},
 		},
 	}
 
 	for name, itype := range inputs {
-		s.Tasks["test"].Inputs[name] = &core.Parameter{Type: itype}
+		for _, task := range s.Tasks {
+			if task.Key == "test" {
+				task.Inputs = append(task.Inputs, &core.Parameter{
+					Key:  name,
+					Type: itype,
+				})
+			}
+		}
 	}
 	return s
 }

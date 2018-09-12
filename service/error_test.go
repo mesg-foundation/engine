@@ -16,12 +16,13 @@ type parameterTest struct {
 	Error string
 }
 
-func (tests parameterTests) parameterTestsToMapParameter() map[string]*Parameter {
-	params := make(map[string]*Parameter)
+func (tests parameterTests) parameterTestsToSliceParameters() []*Parameter {
+	params := make([]*Parameter, 0)
 	for _, test := range tests {
-		params[test.Key] = &Parameter{
+		params = append(params, &Parameter{
+			Key:  test.Key,
 			Type: test.Type,
-		}
+		})
 	}
 	return params
 }
@@ -63,7 +64,7 @@ func TestInvalidEventDataError(t *testing.T) {
 	err := InvalidEventDataError{
 		EventKey:    "TestInvalidEventDataErrorEventKey",
 		ServiceName: "TestInvalidEventDataError",
-		Warnings: validateParametersSchema(tests.parameterTestsToMapParameter(),
+		Warnings: validateParametersSchema(tests.parameterTestsToSliceParameters(),
 			tests.parameterTestsToMapData()),
 	}
 	require.Contains(t, err.Error(), `Data of event "TestInvalidEventDataErrorEventKey" is invalid in service "TestInvalidEventDataError"`)
@@ -92,7 +93,7 @@ func TestInvalidTaskInputError(t *testing.T) {
 	err := InvalidTaskInputError{
 		TaskKey:     "TestInvalidTaskInputErrorKey",
 		ServiceName: "TestInvalidTaskInputError",
-		Warnings: validateParametersSchema(tests.parameterTestsToMapParameter(),
+		Warnings: validateParametersSchema(tests.parameterTestsToSliceParameters(),
 			tests.parameterTestsToMapData()),
 	}
 	require.Contains(t, err.Error(), `Inputs of task "TestInvalidTaskInputErrorKey" are invalid in service "TestInvalidTaskInputError"`)
@@ -123,7 +124,7 @@ func TestInvalidOutputDataError(t *testing.T) {
 		TaskKey:       "TaskKey",
 		TaskOutputKey: "OutputKey",
 		ServiceName:   "TestInvalidOutputDataError",
-		Warnings: validateParametersSchema(tests.parameterTestsToMapParameter(),
+		Warnings: validateParametersSchema(tests.parameterTestsToSliceParameters(),
 			tests.parameterTestsToMapData()),
 	}
 	require.Contains(t, err.Error(), `Outputs "OutputKey" of task "TaskKey" are invalid in service "TestInvalidOutputDataError"`)
