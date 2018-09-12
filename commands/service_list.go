@@ -30,21 +30,24 @@ To have more details, see the [detail command](mesg-core_service_detail.md).`,
 }
 
 func (c *serviceListCmd) runE(cmd *cobra.Command, args []string) error {
-	coreServices, err := c.e.ServiceList()
+	services, err := c.e.ServiceList()
 	if err != nil {
 		return err
 	}
-	services := toServices(coreServices)
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 4, ' ', 0)
-	fmt.Fprintf(w, "STATUS\tSERVICE\tNAME\n")
-	for _, s := range services {
-		status, err := s.Status()
-		if err != nil {
-			return err
-		}
+	fmt.Fprintf(w, "SERVICE\tNAME\n")
 
-		fmt.Fprintf(w, "%s\t%s\t%s\n", status.String(), s.ID, s.Name)
+	// TODO: implement status to ServiceList API.
+	//fmt.Fprintf(w, "STATUS\tSERVICE\tNAME\n")
+	for _, s := range services {
+		// status, err := s.Status()
+		// if err != nil {
+		// 	return err
+		// }
+
+		fmt.Fprintf(w, "%s\t%s\n", s.ID, s.Name)
+		//fmt.Fprintf(w, "%s\t%s\t%s\n", status.String(), s.ID, s.Name)
 	}
 	return w.Flush()
 }

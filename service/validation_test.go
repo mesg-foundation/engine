@@ -6,27 +6,37 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var eventDataSchema = map[string]*Parameter{
-	"optional": {
+var eventDataSchema = []*Parameter{
+	{
+		Key:      "optional",
 		Type:     "String",
 		Optional: true,
 	},
-	"string": {
+	{
+		Key:  "string",
 		Type: "String",
 	},
-	"number": {
+	{
+		Key:  "number",
 		Type: "Number",
 	},
-	"boolean": {
+	{
+		Key:  "boolean",
 		Type: "Boolean",
 	},
-	"object": {
+	{
+		Key:  "object",
 		Type: "Object",
 	},
 }
 
-func validateParameterData(parameter string, data interface{}) bool {
-	return newParameterValidator("", eventDataSchema[parameter]).Validate(data) == nil
+func validateParameterData(paramKey string, data interface{}) bool {
+	for _, param := range eventDataSchema {
+		if param.Key == paramKey {
+			return newParameterValidator(param).Validate(data) == nil
+		}
+	}
+	return false
 }
 
 func TestRequired(t *testing.T) {

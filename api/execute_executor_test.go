@@ -15,12 +15,14 @@ func TestNotRunningServiceError(t *testing.T) {
 func TestExecuteFunc(t *testing.T) {
 	a, _ := newAPIAndDockerTest(t)
 	executor := newTaskExecutor(a)
-	s := &service.Service{
+	s, _ := service.FromService(&service.Service{
 		Name: "TestExecuteFunc",
-		Tasks: map[string]*service.Task{
-			"test": {},
+		Tasks: []*service.Task{
+			{
+				Key: "test",
+			},
 		},
-	}
+	}, service.ContainerOption(a.container))
 	id, err := executor.execute(s, "test", map[string]interface{}{}, []string{})
 	assert.Nil(t, err)
 	assert.NotNil(t, id)
@@ -46,16 +48,17 @@ func TestCheckServiceNotRunning(t *testing.T) {
 func TestCheckService(t *testing.T) {
 	a, _ := newAPIAndDockerTest(t)
 	executor := newTaskExecutor(a)
-	s := service.Service{
+	s, _ := service.FromService(&service.Service{
 		Name: "TestCheckService",
-		Dependencies: map[string]*service.Dependency{
-			"test": {
+		Dependencies: []*service.Dependency{
+			{
+				Key:   "test",
 				Image: "http-server",
 			},
 		},
-	}
+	}, service.ContainerOption(a.container))
 	s.Start()
 	defer s.Stop()
-	err := executor.checkServiceStatus(&s)
+	err := executor.checkServiceStatus(s)
 	assert.Nil(t, err)
 }
