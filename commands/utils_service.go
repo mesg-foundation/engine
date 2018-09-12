@@ -16,14 +16,21 @@ func toServices(ss []*core.Service) []*service.Service {
 
 // TODO(ilgooz) rm this when we stop using internal methods of service in cmd.
 func toService(s *core.Service) *service.Service {
-	sv := &service.Service{
-		ID:          s.ID,
-		Name:        s.Name,
-		Description: s.Description,
-		Tasks:       map[string]*service.Task{},
+	return &service.Service{
+		ID:            s.ID,
+		Name:          s.Name,
+		Description:   s.Description,
+		Repository:    s.Repository,
+		Tasks:         toTasks(s.Tasks),
+		Events:        toEvents(s.Events),
+		Dependencies:  toDependencies(s.Dependencies),
+		Configuration: toDependency(s.Configuration),
 	}
+}
 
-	for taskKey, task := range s.Tasks {
+func toTasks(tasks map[string]*core.Task) map[string]*service.Task {
+	ts := make(map[string]*service.Task, 0)
+	for taskKey, task := range tasks {
 		t := &service.Task{
 			Key:         task.Key,
 			Name:        task.Name,
@@ -42,10 +49,23 @@ func toService(s *core.Service) *service.Service {
 				Data:        toParameters(output.Data),
 			}
 		}
-		sv.Tasks[taskKey] = t
+		ts[taskKey] = t
 	}
+	return ts
+}
 
-	return sv
+func toEvents(events map[string]*core.Event) map[string]*service.Event {
+	es := make(map[string]*service.Event, 0)
+	for eventKey, event := range events {
+		es[eventKey] = &service.Event{
+			Key:         event.Key,
+			Name:        event.Name,
+			Description: event.Description,
+			ServiceName: event.ServiceName,
+			Data:        toParameters(event.Data),
+		}
+	}
+	return es
 }
 
 // TODO(ilgooz) rm this when we stop using internal methods of service in cmd.
@@ -60,4 +80,25 @@ func toParameters(params map[string]*core.Parameter) map[string]*service.Paramet
 		}
 	}
 	return gParams
+}
+
+func toDependency(dep *core.Dependency) *service.Dependency {
+	if dep == nil {
+		return nil
+	}
+	return &service.Dependency{
+		Image:       dep.Image,
+		Volumes:     dep.Volumes,
+		VolumesFrom: dep.Volumesfrom,
+		Ports:       dep.Ports,
+		Command:     dep.Command,
+	}
+}
+
+func toDependencies(deps map[string]*core.Dependency) map[string]*service.Dependency {
+	ds := make(map[string]*service.Dependency, 0)
+	for key, dep := range deps {
+		ds[key] = toDependency(dep)
+	}
+	return ds
 }

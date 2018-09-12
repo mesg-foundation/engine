@@ -1,6 +1,8 @@
 package core
 
-import service "github.com/mesg-foundation/core/service"
+import (
+	service "github.com/mesg-foundation/core/service"
+)
 
 func toProtoServices(ss []*service.Service) []*Service {
 	services := make([]*Service, 0)
@@ -11,17 +13,21 @@ func toProtoServices(ss []*service.Service) []*Service {
 }
 
 func toProtoService(s *service.Service) *Service {
-	sv := &Service{
+	return &Service{
 		ID:            s.ID,
 		Name:          s.Name,
 		Description:   s.Description,
-		Tasks:         map[string]*Task{},
+		Repository:    s.Repository,
+		Tasks:         toProtoTasks(s.Tasks),
+		Events:        toProtoEvents(s.Events),
 		Dependencies:  toProtoDependencies(s.Dependencies),
 		Configuration: toProtoDependency(s.Configuration),
-		Repository:    s.Repository,
 	}
+}
 
-	for taskKey, task := range s.Tasks {
+func toProtoTasks(tasks map[string]*service.Task) map[string]*Task {
+	ts := make(map[string]*Task, 0)
+	for taskKey, task := range tasks {
 		t := &Task{
 			Key:         task.Key,
 			Name:        task.Name,
@@ -40,10 +46,23 @@ func toProtoService(s *service.Service) *Service {
 				Data:        toProtoParameters(output.Data),
 			}
 		}
-		sv.Tasks[taskKey] = t
+		ts[taskKey] = t
 	}
+	return ts
+}
 
-	return sv
+func toProtoEvents(events map[string]*service.Event) map[string]*Event {
+	es := make(map[string]*Event, 0)
+	for eventKey, event := range events {
+		es[eventKey] = &Event{
+			Key:         event.Key,
+			Name:        event.Name,
+			Description: event.Description,
+			ServiceName: event.ServiceName,
+			Data:        toProtoParameters(event.Data),
+		}
+	}
+	return es
 }
 
 func toProtoParameters(params map[string]*service.Parameter) map[string]*Parameter {
