@@ -16,28 +16,21 @@ func toServices(ss []*core.Service) []*service.Service {
 
 // TODO(ilgooz) rm this when we stop using internal methods of service in cmd.
 func toService(s *core.Service) *service.Service {
-	sv := &service.Service{
+	return &service.Service{
 		ID:            s.ID,
 		Name:          s.Name,
 		Description:   s.Description,
 		Repository:    s.Repository,
-		Tasks:         map[string]*service.Task{},
-		Events:        map[string]*service.Event{},
+		Tasks:         toTasks(s.Tasks),
+		Events:        toEvents(s.Events),
 		Dependencies:  toDependencies(s.Dependencies),
 		Configuration: toDependency(s.Configuration),
 	}
+}
 
-	for eventKey, event := range s.Events {
-		sv.Events[eventKey] = &service.Event{
-			Key:         event.Key,
-			Name:        event.Name,
-			Description: event.Description,
-			ServiceName: event.ServiceName,
-			Data:        toParameters(event.Data),
-		}
-	}
-
-	for taskKey, task := range s.Tasks {
+func toTasks(tasks map[string]*core.Task) map[string]*service.Task {
+	ts := make(map[string]*service.Task, 0)
+	for taskKey, task := range tasks {
 		t := &service.Task{
 			Key:         task.Key,
 			Name:        task.Name,
@@ -56,10 +49,23 @@ func toService(s *core.Service) *service.Service {
 				Data:        toParameters(output.Data),
 			}
 		}
-		sv.Tasks[taskKey] = t
+		ts[taskKey] = t
 	}
+	return ts
+}
 
-	return sv
+func toEvents(events map[string]*core.Event) map[string]*service.Event {
+	es := make(map[string]*service.Event, 0)
+	for eventKey, event := range events {
+		es[eventKey] = &service.Event{
+			Key:         event.Key,
+			Name:        event.Name,
+			Description: event.Description,
+			ServiceName: event.ServiceName,
+			Data:        toParameters(event.Data),
+		}
+	}
+	return es
 }
 
 // TODO(ilgooz) rm this when we stop using internal methods of service in cmd.
