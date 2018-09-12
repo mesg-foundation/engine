@@ -17,10 +17,44 @@ func toServices(ss []*core.Service) []*service.Service {
 // TODO(ilgooz) rm this when we stop using internal methods of service in cmd.
 func toService(s *core.Service) *service.Service {
 	sv := &service.Service{
-		ID:          s.ID,
-		Name:        s.Name,
-		Description: s.Description,
-		Tasks:       map[string]*service.Task{},
+		ID:            s.ID,
+		Name:          s.Name,
+		Description:   s.Description,
+		Repository:    s.Repository,
+		Tasks:         map[string]*service.Task{},
+		Events:        map[string]*service.Event{},
+		Dependencies:  map[string]*service.Dependency{},
+		Configuration: nil,
+	}
+
+	if s.Configuration != nil {
+		sv.Configuration = &service.Dependency{
+			Image:       s.Configuration.Image,
+			Volumes:     s.Configuration.Volumes,
+			VolumesFrom: s.Configuration.Volumesfrom,
+			Ports:       s.Configuration.Ports,
+			Command:     s.Configuration.Command,
+		}
+	}
+
+	for eventKey, event := range s.Events {
+		sv.Events[eventKey] = &service.Event{
+			Key:         event.Key,
+			Name:        event.Name,
+			Description: event.Description,
+			ServiceName: event.ServiceName,
+			Data:        toParameters(event.Data),
+		}
+	}
+
+	for dependencyKey, dependency := range s.Dependencies {
+		sv.Dependencies[dependencyKey] = &service.Dependency{
+			Image:       dependency.Image,
+			Volumes:     dependency.Volumes,
+			VolumesFrom: dependency.Volumesfrom,
+			Ports:       dependency.Ports,
+			Command:     dependency.Command,
+		}
 	}
 
 	for taskKey, task := range s.Tasks {
