@@ -27,9 +27,13 @@ type Chunker struct {
 	closed chan struct{}
 }
 
+// Data represents a data chunk.
 type Data struct {
+	// Value carries the context value of data chunk.
 	Value interface{}
-	Data  []byte
+
+	// Data is data chunk.
+	Data []byte
 }
 
 // New returns a new chunker for r and it forwards each chunk to chunks channel.

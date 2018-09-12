@@ -13,6 +13,6 @@ func ServiceLogsDependenciesFilter(dependencies ...string) ServiceLogsFilter {
 }
 
 // ServiceLogs gives logs for all dependencies or one when specified with filters of service serviceID.
-func (a *API) ServiceLogs(serviceID string, filters ...ServiceLogsFilter) ([]*service.Logs, error) {
+func (a *API) ServiceLogs(serviceID string, filters ...ServiceLogsFilter) ([]*service.Log, error) {
 	return newLogLogger(a, filters...).logs(serviceID)
 }
