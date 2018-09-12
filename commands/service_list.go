@@ -5,7 +5,6 @@ import (
 	"os"
 	"text/tabwriter"
 
-	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/spf13/cobra"
 )
 
@@ -38,7 +37,7 @@ func (c *serviceListCmd) runE(cmd *cobra.Command, args []string) error {
 	services := toServices(coreServices)
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 4, ' ', 0)
-	fmt.Fprintf(w, pretty.Bold("STATUS\tSERVICE\tNAME\n"))
+	fmt.Fprintf(w, "STATUS\tSERVICE\tNAME\n")
 	for _, s := range services {
 		status, err := s.Status()
 		if err != nil {
