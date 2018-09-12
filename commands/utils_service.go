@@ -28,7 +28,7 @@ func toService(s *core.Service) *service.Service {
 }
 
 func toTasks(tasks []*core.Task) []*service.Task {
-	ts := make([]*service.Task, 0, len(tasks))
+	ts := make([]*service.Task, len(tasks))
 	for _, task := range tasks {
 		t := &service.Task{
 			Key:         task.Key,
@@ -52,7 +52,7 @@ func toTasks(tasks []*core.Task) []*service.Task {
 }
 
 func toEvents(events []*core.Event) []*service.Event {
-	es := make([]*service.Event, 0, len(events))
+	es := make([]*service.Event, len(events))
 	for eventKey, event := range events {
 		es[eventKey] = &service.Event{
 			Key:         event.Key,
@@ -66,7 +66,7 @@ func toEvents(events []*core.Event) []*service.Event {
 
 // TODO(ilgooz) rm this when we stop using internal methods of service in cmd.
 func toParameters(params []*core.Parameter) []*service.Parameter {
-	gParams := make([]*service.Parameter, 0, len(params))
+	gParams := make([]*service.Parameter, len(params))
 	for _, param := range params {
 		p := &service.Parameter{
 			Name:        param.Name,
