@@ -20,7 +20,7 @@ var (
 
 // Path to a dedicated directory for Core
 // TODO: Path should be reverted to a const when the package database is renovated
-var Path = "/tmp/mesg"
+var Path = "/mesg"
 
 // Config contains all the configuration needed.
 type Config struct {
