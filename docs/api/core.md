@@ -89,6 +89,10 @@ The request's data for the `ListenEvent` stream's API.
 
 
 
+
+
+
+
 </tab>
 
 <tab title="Reply">
@@ -122,6 +126,10 @@ The data will be received over time as long as the stream is open.
 | ----- | ---- | ----------- |
 | eventKey | [string](#string) | The event's key. |
 | eventData | [string](#string) | The event's data encoded in JSON. |
+
+
+
+
 
 
 
@@ -226,9 +234,15 @@ The request's data for the `ListenResult` stream API.
 
 
 
+
+
+
+
 </tab>
 
 <tab title="Reply">
+
+
 
 
 
@@ -296,6 +310,8 @@ The data will be received over time as long as the stream is open.
 
 
 
+
+
 </tab>
 </tabs>
 
@@ -342,6 +358,10 @@ The request's data for the `ExecuteTask` API.
 | taskKey | [string](#string) | The task's key to execute. |
 | inputData | [string](#string) | The inputs of the task to execute, encoded in JSON. |
 | executionTags | [string](#string)[] | __Optional.__ The list of tags to associate with the execution |
+
+
+
+
 
 
 
@@ -430,6 +450,10 @@ The reply's data of the `ExecuteTask` API.
 
 
 
+
+
+
+
 </tab>
 </tabs>
 
@@ -439,6 +463,10 @@ Start a service. The service must be already deployed to [Core](../guide/start-h
 
 <tabs>
 <tab title="Request">
+
+
+
+
 
 
 
@@ -533,6 +561,10 @@ The request's data for the `StartService` API.
 
 
 
+
+
+
+
 #### StartServiceReply
 Reply of `StartService` API doesn't contain any data.
 
@@ -594,6 +626,10 @@ Stop a service. The service must be already deployed to [Core](../guide/start-he
 
 
 
+
+
+
+
 #### StopServiceRequest
 The request's data for the `StopService` API.
 
@@ -616,6 +652,10 @@ The request's data for the `StopService` API.
 </tab>
 
 <tab title="Reply">
+
+
+
+
 
 
 
@@ -718,10 +758,12 @@ The request's data for `DeployService` API.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| url | [string](#string) | Git repo url of service. If url provided, stream will be closed after 
-first receive. |
-| chunk | [bytes](#bytes) | Chunks of gzipped tar archive of service. If chunk provided, stream will 
-be closed after all chunks sent. |
+| url | [string](#string) | Git repo url of service. If url provided, stream will be closed after first receive. |
+| chunk | [bytes](#bytes) | Chunks of gzipped tar archive of service. If chunk provided, stream will be closed after all chunks sent. |
+
+
+
+
 
 
 
@@ -778,11 +820,13 @@ The reply's data of `DeployService` API.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| status | [DeployServiceReply.Status](#api.DeployServiceReply.Status) | status will be sent after each status change. |
-| serviceID | [string](#string) | serviceID will be sent as the last message of stream when
-service deployed successfully. |
-| validationError | [string](#string) | validationError will be sent as the last message of stream when
-there is a validation error. |
+| status | [DeployServiceReply.Status](#api.DeployServiceReply.Status) | `status` will be sent after each status change. |
+| serviceID | [string](#string) | `serviceID` will be sent as the last message of stream when service deployed successfully. |
+| validationError | [string](#string) | `validationError` will be sent as the last message of stream when there is a validation error. |
+
+
+
+
 
 
 
@@ -887,6 +931,10 @@ Request's data of the `DeleteService` API.
 
 
 
+
+
+
+
 </tab>
 
 <tab title="Reply">
@@ -895,6 +943,10 @@ Request's data of the `DeleteService` API.
 
 #### DeleteServiceReply
 Reply of `DeleteService` API doesn't contain any data.
+
+
+
+
 
 
 
@@ -972,6 +1024,10 @@ List all services already deployed in [Core](../guide/start-here/core.md).
 
 #### ListServicesRequest
 Reply of `ListServices` API doesn't contain any data.
+
+
+
+
 
 
 
@@ -1075,6 +1131,10 @@ The reply's data of the `ListServices` API.
 
 
 
+
+
+
+
 </tab>
 </tabs>
 
@@ -1119,6 +1179,10 @@ The request's data for the `GetService` API.
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | serviceID | [string](#string) | The Service ID. Generated when using the [`DeployService` API](#deployservice). |
+
+
+
+
 
 
 
@@ -1209,6 +1273,135 @@ The reply's data of the `GetService` API.
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</tab>
+</tabs>
+
+## ServiceLogs
+
+ServiceLogs gives a stream for dependency logs of a service.
+
+<tabs>
+<tab title="Request">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#### ServiceLogsRequest
+The request's data for `ServiceLogs` API.
+
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| serviceID | [string](#string) | The Service ID. Generated when using the [`DeployService` API](#deployservice). |
+| dependencies | [string](#string)[] | __Optional.__ List of dependencies to filter service logs. All by default. |
+
+
+
+
+
+
+
+
+
+
+
+
+
+</tab>
+
+<tab title="Reply">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#### LogData
+LogData holds the log data chunk and log info of service dependencies.
+
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| dependency | [string](#string) | dependency is the dependency that data belongs. |
+| type | [LogData.Type](#api.LogData.Type) | type is the log type. |
+| data | [bytes](#bytes) | data is a log data chunk. |
 
 
 

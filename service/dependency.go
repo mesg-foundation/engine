@@ -1,5 +1,12 @@
 package service
 
+import (
+	"io"
+
+	"github.com/docker/docker/pkg/stdcopy"
+	"github.com/sirupsen/logrus"
+)
+
 // Dependency represents a Docker container and it holds instructions about
 // how it should run.
 type Dependency struct {
@@ -23,4 +30,23 @@ type Dependency struct {
 
 	// service is the dependency's service.
 	service *Service `hash:"-"`
+}
+
+// Logs gives the dependency logs. rstd stands for standard logs and rerr stands for
+// error logs.
+func (d *Dependency) Logs() (rstd, rerr io.ReadCloser, err error) {
+	var reader io.ReadCloser
+	reader, err = defaultContainer.ServiceLogs(d.namespace())
+	if err != nil {
+		return nil, nil, err
+	}
+	sr, sw := io.Pipe()
+	er, ew := io.Pipe()
+	go func() {
+		if _, err := stdcopy.StdCopy(sw, ew, reader); err != nil {
+			reader.Close()
+			logrus.Errorln(err)
+		}
+	}()
+	return sr, er, nil
 }

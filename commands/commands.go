@@ -3,6 +3,7 @@ package commands
 import (
 	"io"
 
+	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/interface/grpc/core"
 	"github.com/mesg-foundation/core/utils/servicetemplate"
@@ -25,8 +26,7 @@ type ServiceExecutor interface {
 	ServiceDeploy(path string) (id string, valid bool, err error)
 	ServiceListenEvents(id, eventFilter string) (chan *core.EventData, chan error, error)
 	ServiceListenResults(id, taskFilter, outputFilter string, tagFilters []string) (chan *core.ResultData, chan error, error)
-	ServiceLogs(id string) (io.ReadCloser, error)
-	ServiceDependencyLogs(id string, dependency string) ([]io.ReadCloser, error)
+	ServiceLogs(id string, dependencies ...string) (logs []*provider.Log, closer func(), err error)
 	ServiceExecuteTask(id, taskKey, inputData string, tags []string) error
 	ServiceStart(id string) error
 	ServiceStop(id string) error

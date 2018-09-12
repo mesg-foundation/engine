@@ -22,7 +22,7 @@ func TestLogs(t *testing.T) {
 	}, ContainerOption(defaultContainer))
 	service.Start()
 	defer service.Stop()
-	readers, err := service.Logs("*")
+	readers, err := service.Logs()
 	require.Nil(t, err)
 	require.Equal(t, 2, len(readers))
 }
