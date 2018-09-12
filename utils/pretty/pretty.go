@@ -210,7 +210,7 @@ func (p *Pretty) ColorizeJSON(keyColor *color.Color, valueColor *color.Color, da
 
 	var (
 		in  map[string]interface{}
-		out map[string]interface{}
+		out []string
 	)
 
 	if json.Unmarshal(data, &in) != nil {
@@ -223,17 +223,14 @@ func (p *Pretty) ColorizeJSON(keyColor *color.Color, valueColor *color.Color, da
 	if valueColor == nil {
 		valueColor = color.New()
 	}
-
-	for k, v := range in {
-		out[keyColor.Sprint(k)] = valueColor.Sprint(v)
+	for key, value := range in {
+		out = append(out, fmt.Sprintf(
+			`"%v": "%v"`,
+			keyColor.Sprint(key),
+			valueColor.Sprint(value),
+		))
 	}
-
-	b, err := json.Marshal(out)
-	if err != nil {
-		return data
-	}
-
-	return b
+	return []byte(fmt.Sprintf("{ %v }", strings.Join(out, ", ")))
 }
 
 // Progress prints spinner with the given message while calling fn function.
