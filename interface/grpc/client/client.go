@@ -1,11 +1,13 @@
 package client
 
 import (
+	"fmt"
+	"os"
 	"sync"
 
-	"github.com/mesg-foundation/core/cmd/utils"
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/interface/grpc/core"
+	"github.com/mesg-foundation/core/utils/clierrors"
 	"google.golang.org/grpc"
 )
 
@@ -20,7 +22,10 @@ func API() (core.CoreClient, error) {
 func getClient() (cli core.CoreClient, err error) {
 	once.Do(func() {
 		c, err := config.Global()
-		utils.HandleError(err)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, clierrors.ErrorMessage(err))
+			os.Exit(1)
+		}
 		var connection *grpc.ClientConn
 		connection, err = grpc.Dial(c.Client.Address, grpc.WithInsecure())
 		if err != nil {

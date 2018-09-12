@@ -1,9 +1,0 @@
-{
-  "name": "your-package-name",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "dependencies": {
-    "mesg-js": "^1.2.1"
-  }
-}

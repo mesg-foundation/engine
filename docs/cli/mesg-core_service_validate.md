@@ -25,6 +25,13 @@ mesg-core service validate ./SERVICE_FOLDER
   -h, --help   help for validate
 ```
 
+### Options inherited from parent commands
+
+```
+      --no-color     disable colorized output
+      --no-spinner   disable spinners
+```
+
 ### SEE ALSO
 
 * [mesg-core service](mesg-core_service.md)	 - Manage your services
