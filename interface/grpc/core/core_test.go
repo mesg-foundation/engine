@@ -2,6 +2,7 @@ package core
 
 import (
 	"io"
+	"path/filepath"
 	"testing"
 
 	"github.com/docker/docker/pkg/archive"
@@ -9,6 +10,11 @@ import (
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/container/dockertest"
 	"github.com/stretchr/testify/require"
+)
+
+var (
+	eventServicePath = filepath.Join("..", "..", "..", "service-test", "event")
+	taskServicePath  = filepath.Join("..", "..", "..", "service-test", "task")
 )
 
 func newServer(t *testing.T) *Server {
