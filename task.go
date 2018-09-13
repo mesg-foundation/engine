@@ -14,7 +14,7 @@ type Taskable interface {
 // defaultTask implements Task.
 type defaultTask struct {
 	name    string
-	handler func(execution *Execution) (key string, data Data)
+	handler func(execution *Execution) (outputKey string, outputData Data)
 }
 
 func (t *defaultTask) Key() string {
@@ -27,6 +27,6 @@ func (t *defaultTask) Execute(execution *Execution) (outputKey string, outputDat
 
 // Task creates an executable task for given task key, handler called when a
 // matching task execution request arrived.
-func Task(key string, handler func(*Execution) (key string, data Data)) Taskable {
+func Task(key string, handler func(*Execution) (outputKey string, outputData Data)) Taskable {
 	return &defaultTask{key, handler}
 }
