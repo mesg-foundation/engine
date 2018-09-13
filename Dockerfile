@@ -9,7 +9,6 @@ RUN go build -o mesg-core \
 FROM ubuntu:18.04
 RUN apt-get update && \
       apt-get install -y --no-install-recommends ca-certificates=20180409 && \
-      apt-get clean && \
       rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY --from=build /go/src/github.com/mesg-foundation/core/mesg-core .
