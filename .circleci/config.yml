@@ -36,7 +36,6 @@ jobs:
     <<: *runOnMachine
     steps:
       - checkout
-      - run: docker pull mesg/core:latest
       - run: docker build -t mesg/core:$CIRCLE_SHA1 --build-arg version="dev build `echo $CIRCLE_SHA1 | cut -c1-7`" .
 
   "test":
@@ -44,7 +43,6 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      - run: go get -t ./...
       - run: docker swarm init
       - run: docker build -t sleep docker-images/sleep/
       - run: docker build -t http-server docker-images/http-server/
@@ -55,7 +53,6 @@ jobs:
     <<: *runOnMachine
     steps:
       - checkout
-      - run: docker pull mesg/core:dev
       - run: docker build -t mesg/core:dev --build-arg version="dev build `echo $CIRCLE_SHA1 | cut -c1-7`" .
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
       - run: docker push mesg/core:dev
@@ -64,7 +61,6 @@ jobs:
     <<: *runOnMachine
     steps:
       - checkout
-      - run: docker pull mesg/core:latest
       - run: docker build -t mesg/core:$CIRCLE_TAG -t mesg/core:latest --build-arg version=$CIRCLE_TAG .
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
       - run: docker push mesg/core:$CIRCLE_TAG
