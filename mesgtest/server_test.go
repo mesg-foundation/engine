@@ -6,7 +6,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/mesg-foundation/core/api/service"
+	service "github.com/mesg-foundation/go-service/proto"
 	"github.com/stvp/assert"
 )
 
