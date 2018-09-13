@@ -5,7 +5,7 @@ package mesgtest
 import (
 	"encoding/json"
 
-	"github.com/mesg-foundation/core/api/service"
+	service "github.com/mesg-foundation/go-service/proto"
 	uuid "github.com/satori/go.uuid"
 )
 

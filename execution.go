@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/mesg-foundation/core/api/service"
+	service "github.com/mesg-foundation/go-service/proto"
 )
 
 // Execution holds information about a Task execution.
