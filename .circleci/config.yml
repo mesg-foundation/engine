@@ -5,20 +5,27 @@ onlyTagProd: &onlyTagProd
     tags:
       only: /^v.*/
     branches:
-      ignore: /.*/
+      only: master
+
 onlyBranchDev: &onlyBranchDev
   filters:
+    tags:
+      only: /.*/
     branches:
-      only:
-        - dev
+      only: dev
+
 transient: &transient
   filters:
     tags:
       only: /.*/
+    branches:
+      only: /.*/
+
 runOnMachine: &runOnMachine
   machine:
     docker_layer_caching: true
   working_directory: ~/.go_workspace/src/github.com/mesg-foundation/core
+
 runOnDocker: &runOnDocker
   docker:
     - image: circleci/golang:1.10
