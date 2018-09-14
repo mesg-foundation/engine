@@ -71,6 +71,11 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	// XXX: sleep because listen stream may not be ready to stream the data
+	// and execution will done before stream is ready. In that case the response
+	// wlll never come TODO: investigate
+	time.Sleep(1 * time.Seoncd)
+
 	if err := c.e.ServiceExecuteTask(args[0], c.taskKey, inputData, tags); err != nil {
 		return err
 	}
@@ -85,6 +90,10 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 
 	case err := <-resultsErrC:
 		return err
+
+		// XXX: double check if sleep before was too short.
+	case <-time.After(5 * time.Second):
+		return errors.Errorf("Task %s didn't get any response", c.taskKey)
 	}
 	return nil
 }
