@@ -92,7 +92,7 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 	case err := <-resultsErrC:
 		return err
 
-		// XXX: double check if sleep before was too short.
+	// XXX: double check if sleep before was too short.
 	case <-time.After(5 * time.Second):
 		return errors.Errorf("Task %s didn't get any response", c.taskKey)
 	}
