@@ -11,12 +11,12 @@ const resultChannel string = "Result"
 
 // namespace returns the namespace of the service.
 func (service *Service) namespace() []string {
-	return []string{service.Hash()}
+	return []string{service.ID}
 }
 
 // namespace returns the namespace of a dependency.
-func (dep *DependencyFromService) namespace() []string {
-	return append(dep.Service.namespace(), dep.Name)
+func (d *Dependency) namespace() []string {
+	return append(d.service.namespace(), d.Key)
 }
 
 // EventSubscriptionChannel returns the channel to listen for events from this service.

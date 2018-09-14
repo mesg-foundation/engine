@@ -30,5 +30,9 @@ func (l *logLogger) logs(serviceID string) ([]*service.Log, error) {
 	if err != nil {
 		return nil, err
 	}
+	s, err = service.FromService(s, service.ContainerOption(l.api.container))
+	if err != nil {
+		return nil, err
+	}
 	return s.Logs(l.dependencies...)
 }

@@ -7,26 +7,26 @@ import (
 )
 
 // Stop stops a service.
-func (service *Service) Stop() error {
-	status, err := service.Status()
+func (s *Service) Stop() error {
+	status, err := s.Status()
 	if err != nil || status == STOPPED {
 		return err
 	}
 
-	if err := service.StopDependencies(); err != nil {
+	if err := s.StopDependencies(); err != nil {
 		return err
 	}
-	return defaultContainer.DeleteNetwork(service.namespace())
+	return defaultContainer.DeleteNetwork(s.namespace())
 }
 
 // StopDependencies stops all dependencies.
-func (service *Service) StopDependencies() error {
+func (s *Service) StopDependencies() error {
 	var mutex sync.Mutex
 	var wg sync.WaitGroup
 	var err error
-	for _, dependency := range service.DependenciesFromService() {
+	for _, dep := range s.Dependencies {
 		wg.Add(1)
-		go func(d *DependencyFromService) {
+		go func(d *Dependency) {
 			defer wg.Done()
 			errStop := d.Stop()
 			mutex.Lock()
@@ -34,17 +34,17 @@ func (service *Service) StopDependencies() error {
 			if errStop != nil && err == nil {
 				err = errStop
 			}
-		}(dependency)
+		}(dep)
 	}
 	wg.Wait()
 	return err
 }
 
 // Stop stops a dependency.
-func (dependency *DependencyFromService) Stop() error {
-	status, err := dependency.Status()
+func (d *Dependency) Stop() error {
+	status, err := d.Status()
 	if err != nil || status == container.STOPPED {
 		return err
 	}
-	return defaultContainer.StopService(dependency.namespace())
+	return defaultContainer.StopService(d.namespace())
 }

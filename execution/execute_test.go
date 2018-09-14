@@ -8,14 +8,14 @@ import (
 )
 
 func TestExecute(t *testing.T) {
-	s := service.Service{
+	s, _ := service.FromService(&service.Service{
 		Name: "TestExecute",
-		Tasks: map[string]*service.Task{
-			"test": {},
+		Tasks: []*service.Task{
+			{Key: "test"},
 		},
-	}
+	})
 	var inputs map[string]interface{}
-	execution, _ := Create(&s, "test", inputs, []string{})
+	execution, _ := Create(s, "test", inputs, []string{})
 	err := execution.Execute()
 	require.Nil(t, err)
 }

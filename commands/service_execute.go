@@ -149,8 +149,8 @@ func readJSONFile(path string) (string, error) {
 
 func taskKeysFromService(s *core.Service) []string {
 	var taskKeys []string
-	for key := range s.Tasks {
-		taskKeys = append(taskKeys, key)
+	for _, task := range s.Tasks {
+		taskKeys = append(taskKeys, task.Key)
 	}
 	return taskKeys
 }

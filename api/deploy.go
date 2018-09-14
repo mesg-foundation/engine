@@ -13,7 +13,7 @@ type DeployServiceOption func(*serviceDeployer)
 // DeployServiceStatusOption receives chan statuses to send deploy statuses.
 func DeployServiceStatusOption(statuses chan DeployStatus) DeployServiceOption {
 	return func(deployer *serviceDeployer) {
-		deployer.Statuses = statuses
+		deployer.statuses = statuses
 	}
 }
 

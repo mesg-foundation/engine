@@ -14,66 +14,65 @@ func toProtoServices(ss []*service.Service) []*Service {
 
 func toProtoService(s *service.Service) *Service {
 	return &Service{
-		ID:            s.ID,
-		Name:          s.Name,
-		Description:   s.Description,
-		Repository:    s.Repository,
-		Tasks:         toProtoTasks(s.Tasks),
-		Events:        toProtoEvents(s.Events),
-		Dependencies:  toProtoDependencies(s.Dependencies),
-		Configuration: toProtoDependency(s.Configuration),
+		ID:           s.ID,
+		Name:         s.Name,
+		Description:  s.Description,
+		Repository:   s.Repository,
+		Tasks:        toProtoTasks(s.Tasks),
+		Events:       toProtoEvents(s.Events),
+		Dependencies: toProtoDependencies(s.Dependencies),
 	}
 }
 
-func toProtoTasks(tasks map[string]*service.Task) map[string]*Task {
-	ts := make(map[string]*Task, 0)
-	for taskKey, task := range tasks {
+func toProtoTasks(tasks []*service.Task) []*Task {
+	ts := make([]*Task, 0)
+	for _, task := range tasks {
 		t := &Task{
 			Key:         task.Key,
 			Name:        task.Name,
 			Description: task.Description,
-			ServiceName: task.ServiceName,
 			Inputs:      toProtoParameters(task.Inputs),
-			Outputs:     map[string]*Output{},
+			Outputs:     []*Output{},
 		}
-		for outputKey, output := range task.Outputs {
-			t.Outputs[outputKey] = &Output{
+		for _, output := range task.Outputs {
+			o := &Output{
 				Key:         output.Key,
 				Name:        output.Name,
 				Description: output.Description,
-				TaskKey:     output.TaskKey,
-				ServiceName: output.ServiceName,
 				Data:        toProtoParameters(output.Data),
 			}
+			t.Outputs = append(t.Outputs, o)
 		}
-		ts[taskKey] = t
+		ts = append(ts, t)
 	}
 	return ts
 }
 
-func toProtoEvents(events map[string]*service.Event) map[string]*Event {
-	es := make(map[string]*Event, 0)
-	for eventKey, event := range events {
-		es[eventKey] = &Event{
+func toProtoEvents(events []*service.Event) []*Event {
+	es := make([]*Event, 0)
+	for _, event := range events {
+		e := &Event{
 			Key:         event.Key,
 			Name:        event.Name,
 			Description: event.Description,
-			ServiceName: event.ServiceName,
 			Data:        toProtoParameters(event.Data),
 		}
+		es = append(es, e)
 	}
 	return es
 }
 
-func toProtoParameters(params map[string]*service.Parameter) map[string]*Parameter {
-	ps := make(map[string]*Parameter, 0)
-	for key, param := range params {
-		ps[key] = &Parameter{
+func toProtoParameters(params []*service.Parameter) []*Parameter {
+	ps := make([]*Parameter, 0)
+	for _, param := range params {
+		p := &Parameter{
+			Key:         param.Key,
 			Name:        param.Name,
 			Description: param.Description,
 			Type:        param.Type,
 			Optional:    param.Optional,
 		}
+		ps = append(ps, p)
 	}
 	return ps
 }
@@ -83,6 +82,7 @@ func toProtoDependency(dep *service.Dependency) *Dependency {
 		return nil
 	}
 	return &Dependency{
+		Key:         dep.Key,
 		Image:       dep.Image,
 		Volumes:     dep.Volumes,
 		Volumesfrom: dep.VolumesFrom,
@@ -91,10 +91,10 @@ func toProtoDependency(dep *service.Dependency) *Dependency {
 	}
 }
 
-func toProtoDependencies(deps map[string]*service.Dependency) map[string]*Dependency {
-	ds := make(map[string]*Dependency, 0)
-	for key, dep := range deps {
-		ds[key] = toProtoDependency(dep)
+func toProtoDependencies(deps []*service.Dependency) []*Dependency {
+	ds := make([]*Dependency, 0)
+	for _, dep := range deps {
+		ds = append(ds, toProtoDependency(dep))
 	}
 	return ds
 }
