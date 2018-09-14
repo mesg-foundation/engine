@@ -2,14 +2,15 @@ package commands
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
+	"time"
 
 	"github.com/mesg-foundation/core/interface/grpc/core"
 	"github.com/mesg-foundation/core/utils/pretty"
 	casting "github.com/mesg-foundation/core/utils/servicecasting"
 	"github.com/mesg-foundation/core/x/xpflag"
+	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/cobra"
 	survey "gopkg.in/AlecAivazis/survey.v1"
@@ -74,7 +75,7 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 	// XXX: sleep because listen stream may not be ready to stream the data
 	// and execution will done before stream is ready. In that case the response
 	// wlll never come TODO: investigate
-	time.Sleep(1 * time.Seoncd)
+	time.Sleep(1 * time.Second)
 
 	if err := c.e.ServiceExecuteTask(args[0], c.taskKey, inputData, tags); err != nil {
 		return err
