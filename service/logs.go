@@ -20,14 +20,14 @@ func (s *Service) Logs(dependencies ...string) ([]*Log, error) {
 		logs       []*Log
 		isNoFilter = len(dependencies) == 0
 	)
-	for _, dep := range s.DependenciesFromService() {
-		if isNoFilter || xstrings.SliceContains(dependencies, dep.Name) {
+	for _, dep := range s.Dependencies {
+		if isNoFilter || xstrings.SliceContains(dependencies, dep.Key) {
 			rstd, rerr, err := dep.Logs()
 			if err != nil {
 				return nil, err
 			}
 			logs = append(logs, &Log{
-				Dependency: dep.Name,
+				Dependency: dep.Key,
 				Standard:   rstd,
 				Error:      rerr,
 			})

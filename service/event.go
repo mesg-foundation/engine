@@ -3,32 +3,33 @@ package service
 // Event describes a service task.
 type Event struct {
 	// Key is the key of event.
-	Key string `hash:"-" yaml:"-"`
+	Key string `hash:"name:1"`
 
 	// Name is the name of event.
-	Name string `hash:"name:1" yaml:"name"`
+	Name string `hash:"name:2"`
 
 	// Description is the description of event.
-	Description string `hash:"name:2" yaml:"description"`
-
-	// ServiceName is the service name of event.
-	// TODO(ilgooz) remove this or replace with Service type in next PRs.
-	ServiceName string `hash:"-" yaml:"-"`
+	Description string `hash:"name:3"`
 
 	// Data holds the input parameters of event.
-	Data map[string]*Parameter `hash:"name:3" yaml:"data"`
+	Data []*Parameter `hash:"name:4"`
+
+	// service is the event's service.
+	service *Service `hash:"-"`
 }
 
 // GetEvent returns event eventKey of service.
 func (s *Service) GetEvent(eventKey string) (*Event, error) {
-	event, ok := s.Events[eventKey]
-	if !ok {
-		return nil, &EventNotFoundError{
-			EventKey:    eventKey,
-			ServiceName: s.Name,
+	for _, event := range s.Events {
+		if event.Key == eventKey {
+			event.service = s
+			return event, nil
 		}
 	}
-	return event, nil
+	return nil, &EventNotFoundError{
+		EventKey:    eventKey,
+		ServiceName: s.Name,
+	}
 }
 
 // ValidateData produces warnings for event datas that doesn't satisfy their parameter schemas.
@@ -42,7 +43,7 @@ func (e *Event) RequireData(eventData map[string]interface{}) error {
 	if len(warnings) > 0 {
 		return &InvalidEventDataError{
 			EventKey:    e.Key,
-			ServiceName: e.ServiceName,
+			ServiceName: e.service.Name,
 			Warnings:    warnings,
 		}
 	}
