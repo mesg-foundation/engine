@@ -83,7 +83,7 @@ func dependencyPrefixes(dependencies []string) map[string]string {
 	max := xstrings.FindLongest(dependencies)
 	for i, dep := range dependencies {
 		c := colors[i%len(colors)]
-		prefixes[dep] = c.Sprintf("% *s | ", max, dep)
+		prefixes[dep] = c.Sprintf("% *s |", max, dep)
 	}
 
 	return prefixes
