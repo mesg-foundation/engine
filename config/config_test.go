@@ -85,6 +85,10 @@ func TestValidate(t *testing.T) {
 	require.Error(t, c.Validate())
 
 	c = newConfig()
+	c.Server.Plugins = append(c.Server.Plugins, plugin{})
+	require.Error(t, c.Validate())
+
+	c = newConfig()
 	c.Server.Plugins = append(c.Server.Plugins, plugin{
 		Name: "plugin",
 		Path: "/tmp",

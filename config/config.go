@@ -8,6 +8,7 @@ import (
 	"github.com/kelseyhightower/envconfig"
 	"github.com/mesg-foundation/core/x/xstrings"
 	homedir "github.com/mitchellh/go-homedir"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -16,12 +17,22 @@ const envPrefix = "mesg"
 var (
 	instance *Config
 	once     sync.Once
+
+	logformats = []string{"text", "json"}
 )
+
+type plugin struct {
+	Name string
+	Path string
+	ID   string
+}
 
 // Config contains all the configuration needed.
 type Config struct {
 	Server struct {
 		Address string
+
+		Plugins []plugin
 	}
 
 	Database struct {
@@ -81,11 +92,21 @@ func (c *Config) Load() {
 
 // Validate checks values and return an error if any validation failed.
 func (c *Config) Validate() error {
-	if xstrings.SliceContains([]string{"text", "json"}, c.Log.Format) == false {
-		return fmt.Errorf("Value %q is not an allowed", c.Log.Format)
+	if !xstrings.SliceContains(logformats, c.Log.Format) {
+		return fmt.Errorf("value %q is not allowed", c.Log.Format)
 	}
 	if _, err := logrus.ParseLevel(c.Log.Level); err != nil {
 		return err
 	}
+
+	for _, p := range c.Server.Plugins {
+		if p.Name == "" {
+			return errors.New("plugin name required")
+		}
+		if p.Path != "" && p.ID != "" {
+			return errors.Errorf("plugin %s is both path and id - only one is allowed at the same time", p.Name)
+		}
+	}
+
 	return nil
 }
