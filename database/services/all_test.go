@@ -8,17 +8,18 @@ import (
 )
 
 func TestAll(t *testing.T) {
-	service := &service.Service{Name: "Service1"}
+	service := &service.Service{Name: "Service"}
 	Save(service)
 	defer Delete(service.ID)
 	services, err := All()
-	founded := false
+	require.Nil(t, err)
+
+	found := false
 	for _, s := range services {
-		if s.Name == "Service1" {
-			founded = true
+		if s.Name == "Service" {
+			found = true
 			break
 		}
 	}
-	require.Nil(t, err)
-	require.True(t, founded)
+	require.True(t, found)
 }
