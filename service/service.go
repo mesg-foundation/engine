@@ -130,7 +130,7 @@ func NewFromPath(path string, options ...Option) ([]string, error) {
 	return s.Start()
 }
 
-// FromService upgrades service s by setting its options and private fields.
+// FromService upgrades service by setting its options and private fields.
 func FromService(s *Service, options ...Option) (*Service, error) {
 	s.setOptions(options...)
 	return s.fromService(), nil
@@ -142,7 +142,7 @@ func (s *Service) setOptions(options ...Option) {
 	}
 }
 
-// fromService upgrades service s by setting a calculated ID and cross-referencing its child fields.
+// fromService upgrades service by setting a calculated ID and cross-referencing its children fields.
 func (s *Service) fromService() *Service {
 	for _, event := range s.Events {
 		event.service = s
