@@ -1,7 +1,6 @@
 package service
 
 import (
-	"crypto/sha1"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -85,9 +84,7 @@ type DeployStatus struct {
 // New creates a new service from a gzipped tarball.
 func New(tarball io.Reader, options ...Option) (*Service, error) {
 	s := &Service{}
-	if err := s.setOptions(options...); err != nil {
-		return nil, err
-	}
+	s.setOptions(options...)
 	if err := s.saveContext(tarball); err != nil {
 		return nil, err
 	}
@@ -109,19 +106,40 @@ func New(tarball io.Reader, options ...Option) (*Service, error) {
 	return s.fromService(), nil
 }
 
-// FromService upgrades service s by setting its options and private fields.
-func FromService(s *Service, options ...Option) (*Service, error) {
-	if err := s.setOptions(options...); err != nil {
+// NewFromPath creates and runs new service from a given path.
+func NewFromPath(path string, options ...Option) ([]string, error) {
+	s := &Service{}
+	s.setOptions(options...)
+
+	def, err := importer.From(path)
+	if err != nil {
 		return nil, err
 	}
+	s.injectDefinition(def)
+
+	imageHash, err := s.docker.Build(s.tempPath)
+	if err != nil {
+		return nil, err
+	}
+
+	s.configuration.Key = "service"
+	s.configuration.Image = imageHash
+	s.Dependencies = append(s.Dependencies, s.configuration)
+
+	s.fromService()
+	return s.Start()
+}
+
+// FromService upgrades service s by setting its options and private fields.
+func FromService(s *Service, options ...Option) (*Service, error) {
+	s.setOptions(options...)
 	return s.fromService(), nil
 }
 
-func (s *Service) setOptions(options ...Option) error {
+func (s *Service) setOptions(options ...Option) {
 	for _, option := range options {
 		option(s)
 	}
-	return nil
 }
 
 // fromService upgrades service s by setting a calculated ID and cross-referencing its child fields.
@@ -166,9 +184,7 @@ func DeployStatusOption(statuses chan DeployStatus) Option {
 // have effect on computation but extending or removing configurations or changing
 // values in mesg.yml will cause computeHash to generate a different value.
 func (s *Service) computeHash() string {
-	h := sha1.New()
-	h.Write(structhash.Dump(s, 1))
-	return fmt.Sprintf("%x", h.Sum(nil))
+	return fmt.Sprintf("%x", structhash.Sha1(s, 1))
 }
 
 // saveContext downloads service context to a temp dir.
