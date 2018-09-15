@@ -2,19 +2,24 @@ package config
 
 import (
 	"os"
-	"strings"
+	"path/filepath"
 	"testing"
 
+	homedir "github.com/mitchellh/go-homedir"
 	"github.com/stretchr/testify/require"
 )
 
 func TestDefaultValue(t *testing.T) {
-	c := New()
+	home, err := homedir.Dir()
+	require.NoError(t, err)
+
+	c, err := New()
+	require.NoError(t, err)
 	require.Equal(t, ":50052", c.Server.Address)
 	require.Equal(t, "localhost:50052", c.Client.Address)
+	require.Equal(t, filepath.Join(home, ".mesg", "db"), c.Database.Path)
 	require.Equal(t, "text", c.Log.Format)
 	require.Equal(t, "info", c.Log.Level)
-	require.True(t, strings.HasPrefix(c.Core.Image, "mesg/core:"))
 }
 
 func TestGlobal(t *testing.T) {
@@ -27,9 +32,9 @@ func TestLoad(t *testing.T) {
 	snapsnot := map[string]string{
 		"MESG_SERVER_ADDRESS": "",
 		"MESG_CLIENT_ADDRESS": "",
+		"MESG_DATABASE_PATH":  "",
 		"MESG_LOG_FORMAT":     "",
 		"MESG_LOG_LEVEL":      "",
-		"MESG_CORE_IMAGE":     "",
 	}
 	for key := range snapsnot {
 		snapsnot[key] = os.Getenv(key)
@@ -42,34 +47,48 @@ func TestLoad(t *testing.T) {
 
 	os.Setenv("MESG_SERVER_ADDRESS", "test_server_address")
 	os.Setenv("MESG_CLIENT_ADDRESS", "test_client_address")
+	os.Setenv("MESG_DATABASE_PATH", "test_database_path")
 	os.Setenv("MESG_LOG_FORMAT", "test_log_format")
 	os.Setenv("MESG_LOG_LEVEL", "test_log_level")
-	os.Setenv("MESG_CORE_IMAGE", "test_core_image")
-	c := New()
+
+	c, err := New()
+	require.NoError(t, err)
 	c.Load()
+
 	require.Equal(t, "test_server_address", c.Server.Address)
 	require.Equal(t, "test_client_address", c.Client.Address)
+	require.Equal(t, "test_database_path", c.Database.Path)
 	require.Equal(t, "test_log_format", c.Log.Format)
 	require.Equal(t, "test_log_level", c.Log.Level)
-	require.Equal(t, "test_core_image", c.Core.Image)
 }
 
 func TestValidate(t *testing.T) {
-	c := New()
+	var newConfig = func() *Config {
+		c, err := New()
+		require.NoError(t, err)
+		return c
+	}
+
+	c := newConfig()
 	require.NoError(t, c.Validate())
 
-	c = New()
+	c = newConfig()
 	c.Log.Format = "wrongValue"
 	require.Error(t, c.Validate())
 
-	c = New()
+	c = newConfig()
 	c.Log.Level = "wrongValue"
 	require.Error(t, c.Validate())
-}
 
-func TestDaemonEnv(t *testing.T) {
-	c := New()
-	env := c.DaemonEnv()
-	require.Equal(t, c.Log.Format, env["MESG_LOG_FORMAT"])
-	require.Equal(t, c.Log.Level, env["MESG_LOG_LEVEL"])
+	c = newConfig()
+	c.Server.Plugins = append(c.Server.Plugins, plugin{})
+	require.Error(t, c.Validate())
+
+	c = newConfig()
+	c.Server.Plugins = append(c.Server.Plugins, plugin{
+		Name: "plugin",
+		Path: "/tmp",
+		ID:   "1",
+	})
+	require.Error(t, c.Validate())
 }

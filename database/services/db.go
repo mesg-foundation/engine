@@ -8,32 +8,39 @@ import (
 	"github.com/syndtr/goleveldb/leveldb"
 )
 
-var _instance *leveldb.DB
-var instances = 0
-var instanceMutex sync.Mutex
+var (
+	_instance     *leveldb.DB
+	instances     = 0
+	instanceMutex sync.Mutex
+)
 
 func open() (db *leveldb.DB, err error) {
+	cfg, err := config.Global()
+	if err != nil {
+		return nil, err
+	}
+
 	instanceMutex.Lock()
 	defer instanceMutex.Unlock()
 	if _instance == nil {
-		storagePath := filepath.Join(config.Path, "database", "services")
+		storagePath := filepath.Join(cfg.Database.Path, "services")
 		_instance, err = leveldb.OpenFile(storagePath, nil)
 		if err != nil {
-			panic(err) // TODO: this should just be returned?
+			return nil, err
 		}
 	}
 	instances++
-	db = _instance
-	return
+	return _instance, nil
 }
 
-func close() (err error) {
+func close() error {
 	instanceMutex.Lock()
 	defer instanceMutex.Unlock()
-	instances--
 	if _instance != nil && instances == 0 {
-		err = _instance.Close() // TODO: this should return the error before set _instance to nil
+		instances--
+		err := _instance.Close()
 		_instance = nil
+		return err
 	}
-	return
+	return nil
 }
