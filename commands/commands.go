@@ -1,22 +1,11 @@
 package commands
 
 import (
-	"io"
-
 	"github.com/mesg-foundation/core/commands/provider"
-	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/interface/grpc/core"
 	"github.com/mesg-foundation/core/utils/servicetemplate"
 	"github.com/spf13/cobra"
 )
-
-// RootExecutor is an interface that handles core commands.
-type RootExecutor interface {
-	Start() error
-	Stop() error
-	Status() (container.StatusType, error)
-	Logs() (io.ReadCloser, error)
-}
 
 // ServiceExecutor is an interface that handles services commands.
 type ServiceExecutor interface {
@@ -39,7 +28,6 @@ type ServiceExecutor interface {
 
 // Executor is an interface that keeps all commands interfaces.
 type Executor interface {
-	RootExecutor
 	ServiceExecutor
 }
 
