@@ -1,39 +1,12 @@
 package commands
 
 import (
-	"io"
-
 	"github.com/mesg-foundation/core/commands/provider"
-	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/interface/grpc/core"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/utils/servicetemplate"
 	"github.com/stretchr/testify/mock"
 )
-
-type mockRootExecutor struct {
-	mock.Mock
-}
-
-func (m *mockRootExecutor) Start() error {
-	args := m.Called()
-	return args.Error(0)
-}
-
-func (m *mockRootExecutor) Stop() error {
-	args := m.Called()
-	return args.Error(0)
-}
-
-func (m *mockRootExecutor) Status() (container.StatusType, error) {
-	args := m.Called()
-	return args.Get(0).(container.StatusType), args.Error(1)
-}
-
-func (m *mockRootExecutor) Logs() (io.ReadCloser, error) {
-	args := m.Called()
-	return args.Get(0).(io.ReadCloser), args.Error(1)
-}
 
 type mockServiceExecutor struct {
 	mock.Mock
