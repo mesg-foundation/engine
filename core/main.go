@@ -4,6 +4,7 @@ import (
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/interface/grpc"
 	"github.com/mesg-foundation/core/logger"
+	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/version"
 	"github.com/sirupsen/logrus"
 )
@@ -17,6 +18,14 @@ func main() {
 	logger.Init(c.Log.Format, c.Log.Level)
 
 	logrus.Println("Starting MESG Core", version.Version)
+
+	for _, plugin := range c.Server.Plugins {
+		if plugin.Path != "" {
+			if _, err := service.NewFromPath(plugin.Path); err != nil {
+				logrus.Fatalln(err)
+			}
+		}
+	}
 
 	tcpServer := &grpc.Server{
 		Network: "tcp",
