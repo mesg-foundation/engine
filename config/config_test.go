@@ -53,7 +53,7 @@ func TestLoad(t *testing.T) {
 
 	c, err := New()
 	require.NoError(t, err)
-	c.Load()
+	c.LoadFromEnv()
 
 	require.Equal(t, "test_server_address", c.Server.Address)
 	require.Equal(t, "test_client_address", c.Client.Address)
