@@ -17,7 +17,8 @@ import (
 func TestDeployService(t *testing.T) {
 	path := filepath.Join("..", "service-test", "task")
 
-	a, dt := newAPIAndDockerTest(t)
+	a, dt, closer := newAPIAndDockerTest(t)
+	defer closer()
 	dt.ProvideImageBuild(ioutil.NopCloser(strings.NewReader(`{"stream":"sha256:x"}`)), nil)
 
 	statuses := make(chan DeployStatus)
@@ -72,7 +73,8 @@ func TestDeployService(t *testing.T) {
 func TestDeployInvalidService(t *testing.T) {
 	path := filepath.Join("..", "service-test", "invalid")
 
-	a, dt := newAPIAndDockerTest(t)
+	a, dt, closer := newAPIAndDockerTest(t)
+	defer closer()
 	dt.ProvideImageBuild(ioutil.NopCloser(strings.NewReader(`{"stream":"sha256:x"}`)), nil)
 
 	statuses := make(chan DeployStatus)
@@ -113,7 +115,8 @@ func TestDeployInvalidService(t *testing.T) {
 func TestDeployServiceFromURL(t *testing.T) {
 	url := "https://github.com/mesg-foundation/service-webhook"
 
-	a, dt := newAPIAndDockerTest(t)
+	a, dt, closer := newAPIAndDockerTest(t)
+	defer closer()
 	dt.ProvideImageBuild(ioutil.NopCloser(strings.NewReader(`{"stream":"sha256:x"}`)), nil)
 
 	statuses := make(chan DeployStatus)

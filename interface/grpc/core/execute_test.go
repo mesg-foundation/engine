@@ -11,10 +11,11 @@ import (
 
 func TestExecute(t *testing.T) {
 	var (
-		taskKey = "call"
-		data    = `{"url": "https://mesg.tech", "data": {}, "headers": {}}`
-		server  = newServer(t)
+		taskKey        = "call"
+		data           = `{"url": "https://mesg.tech", "data": {}, "headers": {}}`
+		server, closer = newServer(t)
 	)
+	defer closer()
 
 	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
 	require.Zero(t, validationErr)
@@ -34,7 +35,8 @@ func TestExecute(t *testing.T) {
 }
 
 func TestExecuteWithInvalidJSON(t *testing.T) {
-	var server = newServer(t)
+	server, closer := newServer(t)
+	defer closer()
 
 	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
 	require.Zero(t, validationErr)
@@ -52,9 +54,10 @@ func TestExecuteWithInvalidJSON(t *testing.T) {
 
 func TestExecuteWithInvalidTask(t *testing.T) {
 	var (
-		taskKey = "error"
-		server  = newServer(t)
+		taskKey        = "error"
+		server, closer = newServer(t)
 	)
+	defer closer()
 
 	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
 	require.Zero(t, validationErr)
@@ -78,10 +81,11 @@ func TestExecuteWithInvalidTask(t *testing.T) {
 
 func TestExecuteWithInvalidTaskInput(t *testing.T) {
 	var (
-		taskKey = "call"
-		data    = `{"headers": {}}`
-		server  = newServer(t)
+		taskKey        = "call"
+		data           = `{"headers": {}}`
+		server, closer = newServer(t)
 	)
+	defer closer()
 
 	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
 	require.Zero(t, validationErr)
@@ -104,7 +108,8 @@ func TestExecuteWithInvalidTaskInput(t *testing.T) {
 }
 
 func TestExecuteWithNonRunningService(t *testing.T) {
-	var server = newServer(t)
+	server, closer := newServer(t)
+	defer closer()
 
 	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
 	require.Zero(t, validationErr)
@@ -120,7 +125,8 @@ func TestExecuteWithNonRunningService(t *testing.T) {
 }
 
 func TestExecuteWithNonExistingService(t *testing.T) {
-	server := newServer(t)
+	server, closer := newServer(t)
+	defer closer()
 
 	_, err := server.ExecuteTask(context.Background(), &ExecuteTaskRequest{
 		ServiceID: "service that doesnt exists",

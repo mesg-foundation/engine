@@ -17,10 +17,11 @@ func TestSubmit(t *testing.T) {
 			"data":    map[string]interface{}{},
 			"headers": map[string]interface{}{},
 		}
-		outputKey  = "result"
-		outputData = `{"foo":{}}`
-		server     = newServer(t)
+		outputKey      = "result"
+		outputData     = `{"foo":{}}`
+		server, closer = newServer(t)
 	)
+	defer closer()
 
 	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
 	require.Zero(t, validationErr)
@@ -63,9 +64,10 @@ func TestSubmitWithInvalidJSON(t *testing.T) {
 			"data":    map[string]interface{}{},
 			"headers": map[string]interface{}{},
 		}
-		outputKey = "result"
-		server    = newServer(t)
+		outputKey      = "result"
+		server, closer = newServer(t)
 	)
+	defer closer()
 
 	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
 	require.Zero(t, validationErr)
@@ -88,11 +90,12 @@ func TestSubmitWithInvalidJSON(t *testing.T) {
 
 func TestSubmitWithInvalidID(t *testing.T) {
 	var (
-		outputKey   = "output"
-		outputData  = "{}"
-		executionID = "1"
-		server      = newServer(t)
+		outputKey      = "output"
+		outputData     = "{}"
+		executionID    = "1"
+		server, closer = newServer(t)
 	)
+	defer closer()
 
 	_, err := server.SubmitResult(context.Background(), &SubmitResultRequest{
 		ExecutionID: executionID,
@@ -110,10 +113,11 @@ func TestSubmitWithNonExistentOutputKey(t *testing.T) {
 			"data":    map[string]interface{}{},
 			"headers": map[string]interface{}{},
 		}
-		outputKey  = "nonExistent"
-		outputData = `{"foo":{}}`
-		server     = newServer(t)
+		outputKey      = "nonExistent"
+		outputData     = `{"foo":{}}`
+		server, closer = newServer(t)
 	)
+	defer closer()
 
 	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
 	require.Zero(t, validationErr)
@@ -146,10 +150,11 @@ func TestSubmitWithInvalidTaskOutputs(t *testing.T) {
 			"data":    map[string]interface{}{},
 			"headers": map[string]interface{}{},
 		}
-		outputKey  = "result"
-		outputData = `{"foo":1}`
-		server     = newServer(t)
+		outputKey      = "result"
+		outputData     = `{"foo":1}`
+		server, closer = newServer(t)
 	)
+	defer closer()
 
 	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
 	require.Zero(t, validationErr)
