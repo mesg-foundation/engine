@@ -10,10 +10,11 @@ import (
 
 func TestEmit(t *testing.T) {
 	var (
-		eventKey  = "request"
-		eventData = `{"data":{}}`
-		server    = newServer(t)
+		eventKey       = "request"
+		eventData      = `{"data":{}}`
+		server, closer = newServer(t)
 	)
+	defer closer()
 
 	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath))
 	require.Zero(t, validationErr)
@@ -44,9 +45,10 @@ func TestEmit(t *testing.T) {
 
 func TestEmitNoData(t *testing.T) {
 	var (
-		eventKey = "request"
-		server   = newServer(t)
+		eventKey       = "request"
+		server, closer = newServer(t)
 	)
+	defer closer()
 
 	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath))
 	require.Zero(t, validationErr)
@@ -62,9 +64,10 @@ func TestEmitNoData(t *testing.T) {
 
 func TestEmitWrongData(t *testing.T) {
 	var (
-		eventKey = "request"
-		server   = newServer(t)
+		eventKey       = "request"
+		server, closer = newServer(t)
 	)
+	defer closer()
 
 	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath))
 	require.Zero(t, validationErr)
@@ -81,9 +84,10 @@ func TestEmitWrongData(t *testing.T) {
 
 func TestEmitWrongEvent(t *testing.T) {
 	var (
-		eventKey = "test"
-		server   = newServer(t)
+		eventKey       = "test"
+		server, closer = newServer(t)
 	)
+	defer closer()
 
 	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath))
 	require.Zero(t, validationErr)
@@ -104,10 +108,11 @@ func TestEmitWrongEvent(t *testing.T) {
 
 func TestEmitInvalidData(t *testing.T) {
 	var (
-		eventKey  = "request"
-		eventData = `{"body":{}}`
-		server    = newServer(t)
+		eventKey       = "request"
+		eventData      = `{"body":{}}`
+		server, closer = newServer(t)
 	)
+	defer closer()
 
 	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath))
 	require.Zero(t, validationErr)
@@ -127,7 +132,9 @@ func TestEmitInvalidData(t *testing.T) {
 }
 
 func TestServiceNotExists(t *testing.T) {
-	server := newServer(t)
+	server, closer := newServer(t)
+	defer closer()
+
 	_, err := server.EmitEvent(context.Background(), &EmitEventRequest{
 		Token:     "TestServiceNotExists",
 		EventKey:  "test",

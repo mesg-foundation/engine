@@ -8,7 +8,8 @@ import (
 )
 
 func TestCreateTempFolder(t *testing.T) {
-	a, _ := newAPIAndDockerTest(t)
+	a, _, closer := newAPIAndDockerTest(t)
+	defer closer()
 	deployer := newServiceDeployer(a)
 
 	path, err := deployer.createTempDir()
@@ -18,7 +19,8 @@ func TestCreateTempFolder(t *testing.T) {
 }
 
 func TestRemoveTempFolder(t *testing.T) {
-	a, _ := newAPIAndDockerTest(t)
+	a, _, closer := newAPIAndDockerTest(t)
+	defer closer()
 	deployer := newServiceDeployer(a)
 
 	path, _ := deployer.createTempDir()
