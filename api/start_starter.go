@@ -1,7 +1,6 @@
 package api
 
 import (
-	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/service"
 )
 
@@ -19,7 +18,7 @@ func newServiceStarter(api *API) *serviceStarter {
 
 // Start starts service serviceID.
 func (s *serviceStarter) Start(serviceID string) error {
-	sr, err := services.Get(serviceID)
+	sr, err := s.api.db.Get(serviceID)
 	if err != nil {
 		return err
 	}

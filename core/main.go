@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/mesg-foundation/core/config"
+	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/interface/grpc"
 	"github.com/mesg-foundation/core/logger"
 	"github.com/mesg-foundation/core/service"
@@ -11,6 +12,11 @@ import (
 
 func main() {
 	c, err := config.Global()
+	if err != nil {
+		logrus.Fatalln(err)
+	}
+
+	db, err := database.NewServiceDB(c.Database.Path)
 	if err != nil {
 		logrus.Fatalln(err)
 	}
@@ -28,8 +34,9 @@ func main() {
 	}
 
 	tcpServer := &grpc.Server{
-		Network: "tcp",
-		Address: c.Server.Address,
+		Network:   "tcp",
+		Address:   c.Server.Address,
+		ServiceDB: db,
 	}
 
 	if err := tcpServer.Serve(); err != nil {
