@@ -55,7 +55,7 @@ func showLogs(e ServiceExecutor, serviceID string, dependencies ...string) (clos
 		return nil, err
 	}
 
-	// if there was no dependiecies copy all returned
+	// if there was no dependencies copy all returned
 	// by service logs.
 	if len(dependencies) == 0 {
 		for _, log := range logs {
