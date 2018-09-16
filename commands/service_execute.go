@@ -6,22 +6,18 @@ import (
 	"io/ioutil"
 	"time"
 
-	"github.com/mesg-foundation/core/interface/grpc/core"
 	"github.com/mesg-foundation/core/utils/pretty"
-	casting "github.com/mesg-foundation/core/utils/servicecasting"
-	"github.com/mesg-foundation/core/x/xpflag"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/cobra"
-	survey "gopkg.in/AlecAivazis/survey.v1"
 )
 
 type serviceExecuteCmd struct {
 	baseCmd
 
-	executeData map[string]string
-	taskKey     string
-	jsonFile    string
+	taskKey  string
+	jsonData string
+	jsonFile string
 
 	e ServiceExecutor
 }
@@ -37,33 +33,36 @@ func newServiceExecuteCmd(e ServiceExecutor) *serviceExecuteCmd {
 		RunE:    c.runE,
 	})
 	c.cmd.Flags().StringVarP(&c.taskKey, "task", "t", c.taskKey, "Run the given task")
-	c.cmd.Flags().VarP(xpflag.NewStringToStringValue(&c.executeData, nil), "data", "d", "data required to run the task")
-	c.cmd.Flags().StringVarP(&c.jsonFile, "json", "j", c.jsonFile, "Path to a JSON file containing the data required to run the task")
+	c.cmd.Flags().StringVarP(&c.jsonFile, "json", "j", c.jsonData, "JSON containing the data required to run the task")
+	c.cmd.Flags().StringVarP(&c.jsonFile, "json-file", "f", c.jsonFile, "Path to a JSON file containing the data required to run the task")
+
+	c.cmd.MarkPersistentFlagRequired("task")
 	return c
 }
 
 func (c *serviceExecuteCmd) preRunE(cmd *cobra.Command, args []string) error {
-	if cmd.Flag("data").Changed && cmd.Flag("json").Changed {
-		return errors.New("Only one of '--data' or '--json' options can be specified")
+	if cmd.Flag("json").Changed && cmd.Flag("json-file").Changed {
+		return errors.New("Only one of '--json' or '--json-file' options can be specified")
 	}
+
+	if c.jsonFile != "" {
+		b, err := ioutil.ReadFile(c.jsonFile)
+		if err != nil {
+			return err
+		}
+		c.jsonData = string(b)
+	}
+
+	// validate json data
+	var js json.RawMessage
+	if err := json.Unmarshal([]byte(c.jsonData), &js); err == nil {
+		return fmt.Errorf("invalid json: %s", err)
+	}
+
 	return nil
 }
 
 func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
-	s, err := c.e.ServiceByID(args[0])
-	if err != nil {
-		return err
-	}
-
-	if err := c.getTaskKey(s); err != nil {
-		return err
-	}
-
-	inputData, err := c.getData(c.taskKey, s, c.executeData)
-	if err != nil {
-		return err
-	}
-
 	// Create an unique tag that will be used to listen to the result of this exact execution
 	tags := []string{uuid.NewV4().String()}
 
@@ -77,7 +76,7 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 	// wlll never come TODO: investigate
 	time.Sleep(1 * time.Second)
 
-	if err := c.e.ServiceExecuteTask(args[0], c.taskKey, inputData, tags); err != nil {
+	if err := c.e.ServiceExecuteTask(args[0], c.taskKey, c.jsonData, tags); err != nil {
 		return err
 	}
 
@@ -97,60 +96,4 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 		return errors.Errorf("Task %s didn't get any response", c.taskKey)
 	}
 	return nil
-}
-
-func (c *serviceExecuteCmd) getTaskKey(s *core.Service) error {
-	if c.taskKey == "" {
-		keys := taskKeysFromService(s)
-		if len(keys) == 1 {
-			c.taskKey = keys[0]
-			return nil
-		}
-
-		if survey.AskOne(&survey.Select{
-			Message: "Select the task to execute",
-			Options: keys,
-		}, &c.taskKey, nil) != nil {
-			return errors.New("no task to execute")
-		}
-	}
-	return nil
-}
-
-func (c *serviceExecuteCmd) getData(taskKey string, s *core.Service, dataStruct map[string]string) (string, error) {
-	if dataStruct != nil {
-		castData, err := casting.TaskInputs(s, taskKey, dataStruct)
-		if err != nil {
-			return "", err
-		}
-
-		b, err := json.Marshal(castData)
-		return string(b), err
-	}
-
-	if c.jsonFile == "" {
-		if survey.AskOne(&survey.Input{Message: "Enter the filepath to the inputs"}, &c.jsonFile, nil) != nil {
-			return "", errors.New("no filepath given")
-		}
-	}
-	return readJSONFile(c.jsonFile)
-}
-
-func readJSONFile(path string) (string, error) {
-	if path == "" {
-		return "{}", nil
-	}
-	data, err := ioutil.ReadFile(path)
-	if err != nil {
-		return "", err
-	}
-	return string(data), nil
-}
-
-func taskKeysFromService(s *core.Service) []string {
-	var taskKeys []string
-	for _, task := range s.Tasks {
-		taskKeys = append(taskKeys, task.Key)
-	}
-	return taskKeys
 }
