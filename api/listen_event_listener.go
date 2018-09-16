@@ -1,7 +1,6 @@
 package api
 
 import (
-	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/event"
 	"github.com/mesg-foundation/core/pubsub"
 	"github.com/mesg-foundation/core/service"
@@ -51,7 +50,7 @@ func (l *EventListener) Close() error {
 
 // listen listens events matches with eventFilter on serviceID.
 func (l *EventListener) listen(serviceID string) error {
-	s, err := services.Get(serviceID)
+	s, err := l.api.db.Get(serviceID)
 	if err != nil {
 		return err
 	}

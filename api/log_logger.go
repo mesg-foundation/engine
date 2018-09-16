@@ -1,7 +1,6 @@
 package api
 
 import (
-	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/service"
 )
 
@@ -26,7 +25,7 @@ func newLogLogger(api *API, filters ...ServiceLogsFilter) *logLogger {
 
 // logs gives logs of service serviceID and applies dependency filters to filter logs.
 func (l *logLogger) logs(serviceID string) ([]*service.Log, error) {
-	s, err := services.Get(serviceID)
+	s, err := l.api.db.Get(serviceID)
 	if err != nil {
 		return nil, err
 	}

@@ -1,7 +1,6 @@
 package api
 
 import (
-	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/pubsub"
 	"github.com/mesg-foundation/core/service"
@@ -43,7 +42,7 @@ func (l *TaskListener) Close() error {
 
 // listen listens tasks matches with service token.
 func (l *TaskListener) listen(token string) error {
-	s, err := services.Get(token)
+	s, err := l.api.db.Get(token)
 	if err != nil {
 		return err
 	}
