@@ -23,6 +23,9 @@ func newRootCmd(e Executor) *rootCmd {
 	})
 	c.cmd.PersistentFlags().BoolVar(&c.noColor, "no-color", c.noColor, "disable colorized output")
 	c.cmd.PersistentFlags().BoolVar(&c.noSpinner, "no-spinner", c.noSpinner, "disable spinners")
+	c.cmd.AddCommand(
+		newRootServiceCmd(e).cmd,
+	)
 	return c
 }
 
