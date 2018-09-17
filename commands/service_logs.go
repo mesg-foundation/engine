@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/mesg-foundation/core/x/xsignal"
@@ -83,7 +84,7 @@ func dependencyPrefixes(dependencies []string) map[string]string {
 	max := xstrings.FindLongest(dependencies)
 	for i, dep := range dependencies {
 		c := colors[i%len(colors)]
-		prefixes[dep] = c.Sprintf("% *s |", max, dep)
+		prefixes[dep] = c.Sprintf("%s%s |", dep, strings.Repeat(" ", max-len(dep)))
 	}
 
 	return prefixes
