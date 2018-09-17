@@ -1,11 +1,16 @@
 package chunker
 
-import "io"
+import (
+	"io"
+	"sync"
+)
 
 // Stream implements io.Reader.
 type Stream struct {
 	recv chan []byte
+
 	done chan struct{}
+	m    sync.Mutex
 
 	data []byte
 	i    int64
@@ -49,10 +54,12 @@ func (s *Stream) Read(p []byte) (n int, err error) {
 
 // Close closes reader.
 func (s *Stream) Close() error {
+	s.m.Lock()
+	defer s.m.Unlock()
 	if s.done == nil {
 		return nil
 	}
-	close(s.done)
+	s.done <- struct{}{}
 	s.done = nil
 	return nil
 }
