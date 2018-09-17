@@ -42,16 +42,16 @@ func newTestDeployStream(url string) *testDeployStream {
 	return &testDeployStream{url: url}
 }
 
-func (s *testDeployStream) Send(m *core.DeployServiceReply) error {
+func (s *testDeployStream) Send(m *coreapi.DeployServiceReply) error {
 	s.serviceID = m.GetServiceID()
 
 	status := m.GetStatus()
 	if status != nil {
 		var typ api.StatusType
 		switch status.Type {
-		case core.DeployServiceReply_Status_RUNNING:
+		case coreapi.DeployServiceReply_Status_RUNNING:
 			typ = api.RUNNING
-		case core.DeployServiceReply_Status_DONE:
+		case coreapi.DeployServiceReply_Status_DONE:
 			typ = api.DONE
 		}
 		s.statuses = append(s.statuses, api.DeployStatus{
@@ -63,8 +63,8 @@ func (s *testDeployStream) Send(m *core.DeployServiceReply) error {
 	return nil
 }
 
-func (s *testDeployStream) Recv() (*core.DeployServiceRequest, error) {
-	return &core.DeployServiceRequest{
-		Value: &core.DeployServiceRequest_Url{Url: s.url},
+func (s *testDeployStream) Recv() (*coreapi.DeployServiceRequest, error) {
+	return &coreapi.DeployServiceRequest{
+		Value: &coreapi.DeployServiceRequest_Url{Url: s.url},
 	}, s.err
 }

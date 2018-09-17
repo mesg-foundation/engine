@@ -50,7 +50,7 @@ var casters = map[string]caster{
 }
 
 // TaskInputs converts map[string]string to map[string]interface{} based on defined types in the service tasks map.
-func TaskInputs(s *core.Service, taskKey string, taskData map[string]string) (map[string]interface{}, error) {
+func TaskInputs(s *coreapi.Service, taskKey string, taskData map[string]string) (map[string]interface{}, error) {
 	for _, task := range s.Tasks {
 		if task.Key == taskKey {
 			m := make(map[string]interface{}, len(taskData))
@@ -75,7 +75,7 @@ func TaskInputs(s *core.Service, taskKey string, taskData map[string]string) (ma
 }
 
 // findParam return a param based on the key from a list of parameter
-func findParam(parameters []*core.Parameter, key string) (*core.Parameter, error) {
+func findParam(parameters []*coreapi.Parameter, key string) (*coreapi.Parameter, error) {
 	for _, p := range parameters {
 		if p.Key == key {
 			return p, nil

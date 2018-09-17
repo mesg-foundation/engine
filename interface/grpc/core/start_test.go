@@ -20,7 +20,7 @@ func TestStartService(t *testing.T) {
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.ID)
 
-	_, err = server.StartService(context.Background(), &core.StartServiceRequest{
+	_, err = server.StartService(context.Background(), &coreapi.StartServiceRequest{
 		ServiceID: s.ID,
 	})
 	require.NoError(t, err)

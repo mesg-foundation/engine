@@ -8,7 +8,7 @@ import (
 )
 
 // ListenResult listens for results from a services.
-func (s *Server) ListenResult(request *core.ListenResultRequest, stream core.Core_ListenResultServer) error {
+func (s *Server) ListenResult(request *coreapi.ListenResultRequest, stream coreapi.Core_ListenResultServer) error {
 	ln, err := s.api.ListenResult(request.ServiceID,
 		api.ListenResultTaskFilter(request.TaskFilter),
 		api.ListenResultOutputFilter(request.OutputFilter),
@@ -33,7 +33,7 @@ func (s *Server) ListenResult(request *core.ListenResultRequest, stream core.Cor
 				return err
 			}
 
-			if err := stream.Send(&core.ResultData{
+			if err := stream.Send(&coreapi.ResultData{
 				ExecutionID:   execution.ID,
 				TaskKey:       execution.Task,
 				OutputKey:     execution.Output,

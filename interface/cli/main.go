@@ -27,7 +27,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	p := provider.New(core.NewCoreClient(connection))
+	p := provider.New(coreapi.NewCoreClient(connection))
 	cmd := commands.Build(p)
 	cmd.Version = version.Version
 	cmd.Short = cmd.Short + " " + version.Version

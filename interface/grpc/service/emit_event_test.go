@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	pService "github.com/mesg-foundation/core/protobuf/service"
+	"github.com/mesg-foundation/core/protobuf/service"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
 )
@@ -25,7 +25,7 @@ func TestEmit(t *testing.T) {
 	require.NoError(t, err)
 	defer ln.Close()
 
-	_, err = server.EmitEvent(context.Background(), &pService.EmitEventRequest{
+	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
 		Token:     s.ID,
 		EventKey:  eventKey,
 		EventData: eventData,
@@ -54,7 +54,7 @@ func TestEmitNoData(t *testing.T) {
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.ID)
 
-	_, err = server.EmitEvent(context.Background(), &pService.EmitEventRequest{
+	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
 		Token:    s.ID,
 		EventKey: eventKey,
 	})
@@ -72,7 +72,7 @@ func TestEmitWrongData(t *testing.T) {
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.ID)
 
-	_, err = server.EmitEvent(context.Background(), &pService.EmitEventRequest{
+	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
 		Token:     s.ID,
 		EventKey:  eventKey,
 		EventData: "",
@@ -91,7 +91,7 @@ func TestEmitWrongEvent(t *testing.T) {
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.ID)
 
-	_, err = server.EmitEvent(context.Background(), &pService.EmitEventRequest{
+	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
 		Token:     s.ID,
 		EventKey:  eventKey,
 		EventData: "{}",
@@ -115,7 +115,7 @@ func TestEmitInvalidData(t *testing.T) {
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.ID)
 
-	_, err = server.EmitEvent(context.Background(), &pService.EmitEventRequest{
+	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
 		Token:     s.ID,
 		EventKey:  eventKey,
 		EventData: eventData,
@@ -129,7 +129,7 @@ func TestEmitInvalidData(t *testing.T) {
 
 func TestServiceNotExists(t *testing.T) {
 	server := newServer(t)
-	_, err := server.EmitEvent(context.Background(), &pService.EmitEventRequest{
+	_, err := server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
 		Token:     "TestServiceNotExists",
 		EventKey:  "test",
 		EventData: "{}",

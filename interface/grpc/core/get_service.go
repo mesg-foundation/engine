@@ -7,10 +7,10 @@ import (
 )
 
 // GetService returns service serviceID.
-func (s *Server) GetService(ctx context.Context, request *core.GetServiceRequest) (*core.GetServiceReply, error) {
+func (s *Server) GetService(ctx context.Context, request *coreapi.GetServiceRequest) (*coreapi.GetServiceReply, error) {
 	srv, err := s.api.GetService(request.ServiceID)
 	if err != nil {
 		return nil, err
 	}
-	return &core.GetServiceReply{Service: toProtoService(srv)}, nil
+	return &coreapi.GetServiceReply{Service: toProtoService(srv)}, nil
 }

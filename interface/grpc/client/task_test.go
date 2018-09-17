@@ -14,7 +14,7 @@ func TestProcessEventWithInvalidEventData(t *testing.T) {
 			ServiceID: "xxx",
 		},
 	}
-	data := &core.EventData{
+	data := &coreapi.EventData{
 		EventKey:  "EventX",
 		EventData: "",
 	}
@@ -29,7 +29,7 @@ func TestProcessResulsWithInvalidEventData(t *testing.T) {
 			ServiceID: "xxx",
 		},
 	}
-	data := &core.ResultData{
+	data := &coreapi.ResultData{
 		ExecutionID: "xxx",
 		OutputData:  "",
 		OutputKey:   "outputx",

@@ -25,7 +25,7 @@ func TestExecute(t *testing.T) {
 	require.NoError(t, server.api.StartService(s.ID))
 	defer server.api.StopService(s.ID)
 
-	reply, err := server.ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
+	reply, err := server.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
 		ServiceID: s.ID,
 		TaskKey:   taskKey,
 		InputData: data,
@@ -42,7 +42,7 @@ func TestExecuteWithInvalidJSON(t *testing.T) {
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.ID)
 
-	_, err = server.ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
+	_, err = server.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
 		ServiceID: s.ID,
 		TaskKey:   "test",
 		InputData: "",
@@ -65,7 +65,7 @@ func TestExecuteWithInvalidTask(t *testing.T) {
 	require.NoError(t, server.api.StartService(s.ID))
 	defer server.api.StopService(s.ID)
 
-	_, err = server.ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
+	_, err = server.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
 		ServiceID: s.ID,
 		TaskKey:   taskKey,
 		InputData: "{}",
@@ -92,7 +92,7 @@ func TestExecuteWithInvalidTaskInput(t *testing.T) {
 	require.NoError(t, server.api.StartService(s.ID))
 	defer server.api.StopService(s.ID)
 
-	_, err = server.ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
+	_, err = server.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
 		ServiceID: s.ID,
 		TaskKey:   taskKey,
 		InputData: data,
@@ -112,7 +112,7 @@ func TestExecuteWithNonRunningService(t *testing.T) {
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.ID)
 
-	_, err = server.ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
+	_, err = server.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
 		ServiceID: s.ID,
 		TaskKey:   "test",
 		InputData: "{}",
@@ -123,7 +123,7 @@ func TestExecuteWithNonRunningService(t *testing.T) {
 func TestExecuteWithNonExistingService(t *testing.T) {
 	server := newServer(t)
 
-	_, err := server.ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
+	_, err := server.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
 		ServiceID: "service that doesnt exists",
 		TaskKey:   "error",
 		InputData: "{}",

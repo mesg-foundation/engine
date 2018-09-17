@@ -7,6 +7,6 @@ import (
 )
 
 // StopService stops a service.
-func (s *Server) StopService(ctx context.Context, request *core.StopServiceRequest) (*core.StopServiceReply, error) {
-	return &core.StopServiceReply{}, s.api.StopService(request.ServiceID)
+func (s *Server) StopService(ctx context.Context, request *coreapi.StopServiceRequest) (*coreapi.StopServiceReply, error) {
+	return &coreapi.StopServiceReply{}, s.api.StopService(request.ServiceID)
 }
