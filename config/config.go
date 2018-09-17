@@ -2,16 +2,13 @@ package config
 
 import (
 	"fmt"
-	"io/ioutil"
 	"path/filepath"
 	"sync"
 
 	"github.com/kelseyhightower/envconfig"
 	"github.com/mesg-foundation/core/x/xstrings"
 	homedir "github.com/mitchellh/go-homedir"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	yaml "gopkg.in/yaml.v2"
 )
 
 const envPrefix = "mesg"
@@ -23,18 +20,14 @@ var (
 	logformats = []string{"text", "json"}
 )
 
-type plugin struct {
-	Name string
-	Path string
-	ID   string
-}
-
 // Config contains all the configuration needed.
 type Config struct {
 	Server struct {
 		Address string
 
-		Plugins []plugin
+		Plugin struct {
+			Resolver string
+		}
 	}
 
 	Database struct {
@@ -75,7 +68,7 @@ func Global() (*Config, error) {
 		if err != nil {
 			return
 		}
-		instance.LoadFromEnv()
+		instance.Load()
 	})
 	if err != nil {
 		return nil, fmt.Errorf("config: %s", err)
@@ -87,31 +80,10 @@ func Global() (*Config, error) {
 	return instance, nil
 }
 
-// Load reads config from yaml and env.
+// Load reads config from env.
 // Note that env variables have higher precedence then yaml config.
-func (c *Config) Load(file string) error {
-	if err := c.LoadFromYaml(file); err != nil {
-		return err
-	}
-	c.LoadFromEnv()
-	return nil
-}
-
-// LoadFromEnv reads config from environmental variables.
-func (c *Config) LoadFromEnv() {
+func (c *Config) Load() {
 	envconfig.MustProcess(envPrefix, c)
-}
-
-// LoadFromYaml reads config from yaml file.
-func (c *Config) LoadFromYaml(file string) error {
-	content, err := ioutil.ReadFile(file)
-	if err != nil {
-		return fmt.Errorf("config: can't read file %s", err)
-	}
-	if err := yaml.UnmarshalStrict(content, c); err != nil {
-		return fmt.Errorf("config: can't parse yaml file %s", err)
-	}
-	return nil
 }
 
 // Validate checks values and return an error if any validation failed.
@@ -122,15 +94,5 @@ func (c *Config) Validate() error {
 	if _, err := logrus.ParseLevel(c.Log.Level); err != nil {
 		return err
 	}
-
-	for _, p := range c.Server.Plugins {
-		if p.Name == "" {
-			return errors.New("plugin name required")
-		}
-		if p.Path != "" && p.ID != "" {
-			return errors.Errorf("plugin %s is both path and id - only one is allowed at the same time", p.Name)
-		}
-	}
-
 	return nil
 }

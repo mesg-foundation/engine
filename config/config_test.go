@@ -53,7 +53,7 @@ func TestLoad(t *testing.T) {
 
 	c, err := New()
 	require.NoError(t, err)
-	c.LoadFromEnv()
+	c.Load()
 
 	require.Equal(t, "test_server_address", c.Server.Address)
 	require.Equal(t, "test_client_address", c.Client.Address)
@@ -78,21 +78,5 @@ func TestValidate(t *testing.T) {
 
 	c = newConfig()
 	c.Log.Level = "wrongValue"
-	require.Error(t, c.Validate())
-
-	c = newConfig()
-	c.Server.Plugins = append(c.Server.Plugins, plugin{})
-	require.Error(t, c.Validate())
-
-	c = newConfig()
-	c.Server.Plugins = append(c.Server.Plugins, plugin{})
-	require.Error(t, c.Validate())
-
-	c = newConfig()
-	c.Server.Plugins = append(c.Server.Plugins, plugin{
-		Name: "plugin",
-		Path: "/tmp",
-		ID:   "1",
-	})
 	require.Error(t, c.Validate())
 }
