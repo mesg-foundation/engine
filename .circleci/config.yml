@@ -25,13 +25,6 @@ runOnDocker: &runOnDocker
   working_directory: /go/src/github.com/mesg-foundation/core
 
 jobs:
-  "build_docker":
-    <<: *runOnMachine
-    steps:
-      - checkout
-      - run: docker pull mesg/core:latest
-      - run: docker build -t mesg/core:$CIRCLE_SHA1 --build-arg version="dev build `echo $CIRCLE_SHA1 | cut -c1-7`" .
-
   "test":
     <<: *runOnDocker
     steps:
@@ -41,28 +34,8 @@ jobs:
       - run: docker swarm init
       - run: docker build -t sleep docker-images/sleep/
       - run: docker build -t http-server docker-images/http-server/
-      - run: env MESG_CORE_IMAGE=mesg/core:$CIRCLE_SHA1 go test -ldflags="-X 'github.com/mesg-foundation/core/config.Path=./'" -timeout 180s -p 1 -coverprofile=coverage.txt ./... # TODO: should remove ldflags when package database is mocked
+      - run: go test -timeout 180s -p 1 -coverprofile=coverage.txt ./...
       - run: bash <(curl -s https://codecov.io/bash)
-
-  "publish_docker_dev":
-    <<: *runOnMachine
-    steps:
-      - checkout
-      - run: docker pull mesg/core:dev
-      - run: docker build -t mesg/core:dev --build-arg version="dev build `echo $CIRCLE_SHA1 | cut -c1-7`" .
-      - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
-      - run: docker push mesg/core:dev
-
-  "publish_docker_prod":
-    <<: *runOnMachine
-    steps:
-      - checkout
-      - run: docker pull mesg/core:latest
-      - run: docker build -t mesg/core:$CIRCLE_TAG -t mesg/core:latest --build-arg version=$CIRCLE_TAG .
-      - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
-      - run: docker push mesg/core:$CIRCLE_TAG
-      - run: docker push mesg/core:latest
-
   "release_cli_dev":
     <<: *runOnDocker
     steps:
@@ -83,25 +56,13 @@ workflows:
   version: 2
   build_n_deploy:
     jobs:
-      - "build_docker":
-          <<: *transient
       - "test":
           <<: *transient
-          requires:
-            - "build_docker"
-      - "publish_docker_dev":
-          <<: *onlyBranchDev
-          requires:
-            - "test"
       - "release_cli_dev":
           <<: *onlyBranchDev
-          requires:
-            - "publish_docker_dev"
-      - "publish_docker_prod":
-          <<: *onlyTagProd
           requires:
             - "test"
       - "release_cli_prod":
           <<: *onlyTagProd
           requires:
-            - "publish_docker_prod"
+            - "test"

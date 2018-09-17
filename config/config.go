@@ -2,12 +2,12 @@ package config
 
 import (
 	"fmt"
-	"strings"
+	"path/filepath"
 	"sync"
 
 	"github.com/kelseyhightower/envconfig"
-	"github.com/mesg-foundation/core/version"
 	"github.com/mesg-foundation/core/x/xstrings"
+	homedir "github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
 )
 
@@ -18,14 +18,14 @@ var (
 	once     sync.Once
 )
 
-// Path to a dedicated directory for Core
-// TODO: Path should be reverted to a const when the package database is renovated
-var Path = "/mesg"
-
 // Config contains all the configuration needed.
 type Config struct {
 	Server struct {
 		Address string
+	}
+
+	Database struct {
+		Path string
 	}
 
 	Client struct {
@@ -36,29 +36,38 @@ type Config struct {
 		Format string
 		Level  string
 	}
-
-	Core struct {
-		Image string
-	}
 }
 
 // New creates a new config with default values.
-func New() *Config {
+func New() (*Config, error) {
+	home, err := homedir.Dir()
+	if err != nil {
+		return nil, err
+	}
+
 	var c Config
 	c.Server.Address = ":50052"
 	c.Client.Address = "localhost:50052"
+	c.Database.Path = filepath.Join(home, ".mesg", "db")
 	c.Log.Format = "text"
 	c.Log.Level = "info"
-	c.Core.Image = "mesg/core:" + strings.Split(version.Version, " ")[0]
-	return &c
+	return &c, nil
 }
 
 // Global returns a singleton of a Config after loaded ENV and validate the values.
 func Global() (*Config, error) {
+	var err error
 	once.Do(func() {
-		instance = New()
+		instance, err = New()
+		if err != nil {
+			return
+		}
 		instance.Load()
 	})
+	if err != nil {
+		return nil, err
+	}
+
 	if err := instance.Validate(); err != nil {
 		return nil, err
 	}
@@ -79,12 +88,4 @@ func (c *Config) Validate() error {
 		return err
 	}
 	return nil
-}
-
-// DaemonEnv returns the needed environmental variable for the Daemon.
-func (c *Config) DaemonEnv() map[string]string {
-	return map[string]string{
-		"MESG_LOG_FORMAT": c.Log.Format,
-		"MESG_LOG_LEVEL":  c.Log.Level,
-	}
 }

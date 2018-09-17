@@ -15,7 +15,8 @@ import (
 func TestDeployService(t *testing.T) {
 	url := "https://github.com/mesg-foundation/service-webhook"
 
-	server, dt := newServerAndDockerTest(t)
+	server, dt, closer := newServerAndDockerTest(t)
+	defer closer()
 	dt.ProvideImageBuild(ioutil.NopCloser(strings.NewReader(`{"stream":"sha256:x"}`)), nil)
 
 	stream := newTestDeployStream(url)

@@ -11,6 +11,6 @@ for os in ${oss[*]}; do
     GOOS=$os GOARCH=$arch go build \
       -o ./bin/mesg-core-$os-$arch \
       -ldflags="-X 'github.com/mesg-foundation/core/version.Version=$1'" \
-      ./interface/cli
+      ./main.go
   done
 done

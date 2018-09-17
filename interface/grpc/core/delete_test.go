@@ -10,9 +10,10 @@ import (
 
 func TestDeleteService(t *testing.T) {
 	var (
-		path   = filepath.Join("..", "..", "..", "service-test", "task")
-		server = newServer(t)
+		path           = filepath.Join("..", "..", "..", "service-test", "task")
+		server, closer = newServer(t)
 	)
+	defer closer()
 
 	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
 	require.Zero(t, validationErr)
