@@ -2,11 +2,12 @@ package core
 
 import (
 	"github.com/mesg-foundation/core/api"
+	"github.com/mesg-foundation/core/protobuf/core"
 	"github.com/mesg-foundation/core/utils/chunker"
 )
 
 // ServiceLogs gives logs of service with the applied dependency filters.
-func (s *Server) ServiceLogs(request *ServiceLogsRequest, stream Core_ServiceLogsServer) error {
+func (s *Server) ServiceLogs(request *core.ServiceLogsRequest, stream core.Core_ServiceLogsServer) error {
 	sl, err := s.api.ServiceLogs(request.ServiceID,
 		api.ServiceLogsDependenciesFilter(request.Dependencies...))
 	if err != nil {
@@ -21,11 +22,11 @@ func (s *Server) ServiceLogs(request *ServiceLogsRequest, stream Core_ServiceLog
 	for _, l := range sl {
 		cstd := chunker.New(l.Standard, chunks, errs, chunker.ValueOption(&chunkMeta{
 			Dependency: l.Dependency,
-			Type:       LogData_Standard,
+			Type:       core.LogData_Standard,
 		}))
 		cerr := chunker.New(l.Error, chunks, errs, chunker.ValueOption(&chunkMeta{
 			Dependency: l.Dependency,
-			Type:       LogData_Error,
+			Type:       core.LogData_Error,
 		}))
 		defer cstd.Close()
 		defer cerr.Close()
@@ -44,7 +45,7 @@ func (s *Server) ServiceLogs(request *ServiceLogsRequest, stream Core_ServiceLog
 
 		case chunk := <-chunks:
 			meta := chunk.Value.(*chunkMeta)
-			data := &LogData{
+			data := &core.LogData{
 				Dependency: meta.Dependency,
 				Type:       meta.Type,
 				Data:       chunk.Data,
@@ -59,5 +60,5 @@ func (s *Server) ServiceLogs(request *ServiceLogsRequest, stream Core_ServiceLog
 // chunkMeta is a meta data for chunks.
 type chunkMeta struct {
 	Dependency string
-	Type       LogData_Type
+	Type       core.LogData_Type
 }

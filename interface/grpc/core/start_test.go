@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/mesg-foundation/core/protobuf/core"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
 )
@@ -19,7 +20,7 @@ func TestStartService(t *testing.T) {
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.ID)
 
-	_, err = server.StartService(context.Background(), &StartServiceRequest{
+	_, err = server.StartService(context.Background(), &core.StartServiceRequest{
 		ServiceID: s.ID,
 	})
 	require.NoError(t, err)

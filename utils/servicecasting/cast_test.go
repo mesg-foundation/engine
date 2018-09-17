@@ -3,7 +3,7 @@ package casting
 import (
 	"testing"
 
-	"github.com/mesg-foundation/core/interface/grpc/core"
+	"github.com/mesg-foundation/core/protobuf/core"
 	"github.com/stretchr/testify/require"
 )
 

@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/api"
+	"github.com/mesg-foundation/core/protobuf/core"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
 )
@@ -24,7 +25,7 @@ func TestExecute(t *testing.T) {
 	require.NoError(t, server.api.StartService(s.ID))
 	defer server.api.StopService(s.ID)
 
-	reply, err := server.ExecuteTask(context.Background(), &ExecuteTaskRequest{
+	reply, err := server.ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
 		ServiceID: s.ID,
 		TaskKey:   taskKey,
 		InputData: data,
@@ -41,7 +42,7 @@ func TestExecuteWithInvalidJSON(t *testing.T) {
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.ID)
 
-	_, err = server.ExecuteTask(context.Background(), &ExecuteTaskRequest{
+	_, err = server.ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
 		ServiceID: s.ID,
 		TaskKey:   "test",
 		InputData: "",
@@ -64,7 +65,7 @@ func TestExecuteWithInvalidTask(t *testing.T) {
 	require.NoError(t, server.api.StartService(s.ID))
 	defer server.api.StopService(s.ID)
 
-	_, err = server.ExecuteTask(context.Background(), &ExecuteTaskRequest{
+	_, err = server.ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
 		ServiceID: s.ID,
 		TaskKey:   taskKey,
 		InputData: "{}",
@@ -91,7 +92,7 @@ func TestExecuteWithInvalidTaskInput(t *testing.T) {
 	require.NoError(t, server.api.StartService(s.ID))
 	defer server.api.StopService(s.ID)
 
-	_, err = server.ExecuteTask(context.Background(), &ExecuteTaskRequest{
+	_, err = server.ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
 		ServiceID: s.ID,
 		TaskKey:   taskKey,
 		InputData: data,
@@ -111,7 +112,7 @@ func TestExecuteWithNonRunningService(t *testing.T) {
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.ID)
 
-	_, err = server.ExecuteTask(context.Background(), &ExecuteTaskRequest{
+	_, err = server.ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
 		ServiceID: s.ID,
 		TaskKey:   "test",
 		InputData: "{}",
@@ -122,7 +123,7 @@ func TestExecuteWithNonRunningService(t *testing.T) {
 func TestExecuteWithNonExistingService(t *testing.T) {
 	server := newServer(t)
 
-	_, err := server.ExecuteTask(context.Background(), &ExecuteTaskRequest{
+	_, err := server.ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
 		ServiceID: "service that doesnt exists",
 		TaskKey:   "error",
 		InputData: "{}",

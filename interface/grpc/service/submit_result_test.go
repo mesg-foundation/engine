@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/api"
+	pService "github.com/mesg-foundation/core/protobuf/service"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
 )
@@ -37,7 +38,7 @@ func TestSubmit(t *testing.T) {
 	require.NoError(t, err)
 	defer ln.Close()
 
-	_, err = server.SubmitResult(context.Background(), &SubmitResultRequest{
+	_, err = server.SubmitResult(context.Background(), &pService.SubmitResultRequest{
 		ExecutionID: executionID,
 		OutputKey:   outputKey,
 		OutputData:  outputData,
@@ -78,7 +79,7 @@ func TestSubmitWithInvalidJSON(t *testing.T) {
 	executionID, err := server.api.ExecuteTask(s.ID, taskKey, taskData, nil)
 	require.NoError(t, err)
 
-	_, err = server.SubmitResult(context.Background(), &SubmitResultRequest{
+	_, err = server.SubmitResult(context.Background(), &pService.SubmitResultRequest{
 		ExecutionID: executionID,
 		OutputKey:   outputKey,
 		OutputData:  "",
@@ -94,7 +95,7 @@ func TestSubmitWithInvalidID(t *testing.T) {
 		server      = newServer(t)
 	)
 
-	_, err := server.SubmitResult(context.Background(), &SubmitResultRequest{
+	_, err := server.SubmitResult(context.Background(), &pService.SubmitResultRequest{
 		ExecutionID: executionID,
 		OutputKey:   outputKey,
 		OutputData:  outputData,
@@ -126,7 +127,7 @@ func TestSubmitWithNonExistentOutputKey(t *testing.T) {
 	executionID, err := server.api.ExecuteTask(s.ID, taskKey, taskData, nil)
 	require.NoError(t, err)
 
-	_, err = server.SubmitResult(context.Background(), &SubmitResultRequest{
+	_, err = server.SubmitResult(context.Background(), &pService.SubmitResultRequest{
 		ExecutionID: executionID,
 		OutputKey:   outputKey,
 		OutputData:  outputData,
@@ -162,7 +163,7 @@ func TestSubmitWithInvalidTaskOutputs(t *testing.T) {
 	executionID, err := server.api.ExecuteTask(s.ID, taskKey, taskData, nil)
 	require.NoError(t, err)
 
-	_, err = server.SubmitResult(context.Background(), &SubmitResultRequest{
+	_, err = server.SubmitResult(context.Background(), &pService.SubmitResultRequest{
 		ExecutionID: executionID,
 		OutputKey:   outputKey,
 		OutputData:  outputData,

@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 
 	"github.com/mesg-foundation/core/api"
+	"github.com/mesg-foundation/core/protobuf/core"
 )
 
 // ListenEvent listens events matches with eventFilter on serviceID.
-func (s *Server) ListenEvent(request *ListenEventRequest, stream Core_ListenEventServer) error {
+func (s *Server) ListenEvent(request *core.ListenEventRequest, stream core.Core_ListenEventServer) error {
 	ln, err := s.api.ListenEvent(request.ServiceID, api.ListenEventKeyFilter(request.EventFilter))
 	if err != nil {
 		return err
@@ -29,7 +30,7 @@ func (s *Server) ListenEvent(request *ListenEventRequest, stream Core_ListenEven
 				return err
 			}
 
-			if err := stream.Send(&EventData{
+			if err := stream.Send(&core.EventData{
 				EventKey:  ev.Key,
 				EventData: string(evData),
 			}); err != nil {

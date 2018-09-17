@@ -1,6 +1,8 @@
 package provider
 
-import "github.com/mesg-foundation/core/interface/grpc/core"
+import (
+	"github.com/mesg-foundation/core/protobuf/core"
+)
 
 // Provider is a struct that provides all methods required by any command.
 type Provider struct {

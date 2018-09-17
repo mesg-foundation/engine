@@ -5,7 +5,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/mesg-foundation/core/interface/grpc/core"
+	"github.com/mesg-foundation/core/protobuf/core"
 )
 
 // Start is the function to start the workflow
