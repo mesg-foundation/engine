@@ -8,6 +8,7 @@ import (
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/api"
+	"github.com/mesg-foundation/core/protobuf/core"
 	"github.com/stretchr/testify/require"
 	grpc "google.golang.org/grpc"
 )
@@ -41,16 +42,16 @@ func newTestDeployStream(url string) *testDeployStream {
 	return &testDeployStream{url: url}
 }
 
-func (s *testDeployStream) Send(m *DeployServiceReply) error {
+func (s *testDeployStream) Send(m *core.DeployServiceReply) error {
 	s.serviceID = m.GetServiceID()
 
 	status := m.GetStatus()
 	if status != nil {
 		var typ api.StatusType
 		switch status.Type {
-		case DeployServiceReply_Status_RUNNING:
+		case core.DeployServiceReply_Status_RUNNING:
 			typ = api.RUNNING
-		case DeployServiceReply_Status_DONE:
+		case core.DeployServiceReply_Status_DONE:
 			typ = api.DONE
 		}
 		s.statuses = append(s.statuses, api.DeployStatus{
@@ -62,8 +63,8 @@ func (s *testDeployStream) Send(m *DeployServiceReply) error {
 	return nil
 }
 
-func (s *testDeployStream) Recv() (*DeployServiceRequest, error) {
-	return &DeployServiceRequest{
-		Value: &DeployServiceRequest_Url{Url: s.url},
+func (s *testDeployStream) Recv() (*core.DeployServiceRequest, error) {
+	return &core.DeployServiceRequest{
+		Value: &core.DeployServiceRequest_Url{Url: s.url},
 	}, s.err
 }

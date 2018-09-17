@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/mesg-foundation/core/interface/grpc/core"
+	"github.com/mesg-foundation/core/protobuf/core"
 )
 
 func (task *Task) processEvent(wf *Workflow, data *core.EventData) (err error) {

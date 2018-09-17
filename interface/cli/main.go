@@ -7,7 +7,7 @@ import (
 	"github.com/mesg-foundation/core/commands"
 	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/config"
-	"github.com/mesg-foundation/core/interface/grpc/core"
+	"github.com/mesg-foundation/core/protobuf/core"
 	"github.com/mesg-foundation/core/utils/clierrors"
 	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/mesg-foundation/core/version"

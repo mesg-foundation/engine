@@ -2,13 +2,14 @@ package core
 
 import (
 	"github.com/mesg-foundation/core/api"
+	"github.com/mesg-foundation/core/protobuf/core"
 	service "github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/importer"
 )
 
 // DeployService deploys a service from Git URL or service.tar.gz file. It'll send status
 // events during the process and finish with sending service id or validation error.
-func (s *Server) DeployService(stream Core_DeployServiceServer) error {
+func (s *Server) DeployService(stream core.Core_DeployServiceServer) error {
 	statuses := make(chan api.DeployStatus, 0)
 	go sendDeployStatus(statuses, stream)
 
@@ -33,29 +34,29 @@ func (s *Server) DeployService(stream Core_DeployServiceServer) error {
 		return err
 	}
 	if validationError != nil {
-		return stream.Send(&DeployServiceReply{
-			Value: &DeployServiceReply_ValidationError{ValidationError: validationError.Error()},
+		return stream.Send(&core.DeployServiceReply{
+			Value: &core.DeployServiceReply_ValidationError{ValidationError: validationError.Error()},
 		})
 	}
 
-	return stream.Send(&DeployServiceReply{
-		Value: &DeployServiceReply_ServiceID{ServiceID: service.ID},
+	return stream.Send(&core.DeployServiceReply{
+		Value: &core.DeployServiceReply_ServiceID{ServiceID: service.ID},
 	})
 }
 
-func sendDeployStatus(statuses chan api.DeployStatus, stream Core_DeployServiceServer) {
+func sendDeployStatus(statuses chan api.DeployStatus, stream core.Core_DeployServiceServer) {
 	for status := range statuses {
-		var typ DeployServiceReply_Status_Type
+		var typ core.DeployServiceReply_Status_Type
 		switch status.Type {
 		case api.RUNNING:
-			typ = DeployServiceReply_Status_RUNNING
+			typ = core.DeployServiceReply_Status_RUNNING
 		case api.DONE:
-			typ = DeployServiceReply_Status_DONE
+			typ = core.DeployServiceReply_Status_DONE
 		}
 
-		stream.Send(&DeployServiceReply{
-			Value: &DeployServiceReply_Status_{
-				Status: &DeployServiceReply_Status{
+		stream.Send(&core.DeployServiceReply{
+			Value: &core.DeployServiceReply_Status_{
+				Status: &core.DeployServiceReply_Status{
 					Message: status.Message,
 					Type:    typ,
 				},
@@ -65,13 +66,13 @@ func sendDeployStatus(statuses chan api.DeployStatus, stream Core_DeployServiceS
 }
 
 type deployServiceStreamReader struct {
-	stream Core_DeployServiceServer
+	stream core.Core_DeployServiceServer
 
 	data []byte
 	i    int64
 }
 
-func newDeployServiceStreamReader(stream Core_DeployServiceServer) *deployServiceStreamReader {
+func newDeployServiceStreamReader(stream core.Core_DeployServiceServer) *deployServiceStreamReader {
 	return &deployServiceStreamReader{stream: stream}
 }
 

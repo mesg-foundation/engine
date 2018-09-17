@@ -9,6 +9,8 @@ import (
 	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/interface/grpc/core"
 	"github.com/mesg-foundation/core/interface/grpc/service"
+	pCore "github.com/mesg-foundation/core/protobuf/core"
+	pService "github.com/mesg-foundation/core/protobuf/service"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -95,8 +97,8 @@ func (s *Server) register() error {
 		return err
 	}
 
-	service.RegisterServiceServer(s.instance, serviceServer)
-	core.RegisterCoreServer(s.instance, coreServer)
+	pService.RegisterServiceServer(s.instance, serviceServer)
+	pCore.RegisterCoreServer(s.instance, coreServer)
 
 	reflection.Register(s.instance)
 	return nil
