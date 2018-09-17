@@ -53,6 +53,6 @@ func (c *startCmd) runE(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Println(pretty.Success("Core is running"))
+	fmt.Printf("%s Core is running\n", pretty.SuccessSign)
 	return nil
 }

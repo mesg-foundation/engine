@@ -17,6 +17,20 @@ func TestSliceContains(t *testing.T) {
 	}
 }
 
+func TestFindLongest(t *testing.T) {
+	for _, tt := range []struct {
+		s        []string
+		expected int
+	}{
+		{[]string{"a"}, 1},
+		{[]string{"a", "aa"}, 2},
+	} {
+		if got := FindLongest(tt.s); got != tt.expected {
+			t.Errorf("%v slice find longetst - got %d, want %d", tt.s, got, tt.expected)
+		}
+	}
+}
+
 func TestSliceIndex(t *testing.T) {
 	for _, tt := range []struct {
 		s        []string
