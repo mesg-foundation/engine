@@ -5,7 +5,6 @@ import (
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/interface/grpc"
 	"github.com/mesg-foundation/core/logger"
-	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/mesg-foundation/core/version"
 	"github.com/sirupsen/logrus"
@@ -59,15 +58,7 @@ func (c *rootCmd) runE(cmd *cobra.Command, args []string) error {
 
 	logger.Init(cfg.Log.Format, cfg.Log.Level)
 
-	logrus.Println("Starting MESG Core", version.Version)
-
-	for _, plugin := range cfg.Server.Plugins {
-		if plugin.Path != "" {
-			if _, err := service.NewFromPath(plugin.Path); err != nil {
-				return err
-			}
-		}
-	}
+	logrus.Println("Starting Core", version.Version)
 
 	tcpServer := &grpc.Server{
 		Network:   "tcp",
