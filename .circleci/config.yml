@@ -58,13 +58,11 @@ workflows:
     jobs:
       - "test":
           <<: *transient
-          requires:
-            - "build_docker"
       - "release_cli_dev":
           <<: *onlyBranchDev
           requires:
-            - "publish_docker_dev"
+            - "test"
       - "release_cli_prod":
           <<: *onlyTagProd
           requires:
-            - "publish_docker_prod"
+            - "test"
