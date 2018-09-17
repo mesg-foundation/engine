@@ -7,7 +7,6 @@ import (
 	"os"
 
 	"github.com/logrusorgru/aurora"
-	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/importer"
 	"github.com/mesg-foundation/core/x/xdocker/xarchive"
@@ -84,14 +83,15 @@ func (d *serviceDeployer) deploy(r io.Reader) (*service.Service, *importer.Valid
 		service.ContainerOption(d.api.container),
 		service.DeployStatusOption(statuses),
 	)
-	validationErr, err := d.assertValidationError(err)
+
 	if err != nil {
+		if validationErr, ok := err.(*importer.ValidationError); ok {
+			return nil, validationErr, nil
+		}
 		return nil, nil, err
 	}
-	if validationErr != nil {
-		return nil, validationErr, nil
-	}
-	return s, nil, services.Save(s)
+
+	return s, nil, d.api.db.Save(s)
 }
 
 func (d *serviceDeployer) createTempDir() (path string, err error) {
@@ -120,14 +120,4 @@ func (d *serviceDeployer) forwardDeployStatuses(statuses chan service.DeployStat
 		}
 		d.sendStatus(status.Message, t)
 	}
-}
-
-func (d *serviceDeployer) assertValidationError(err error) (*importer.ValidationError, error) {
-	if err == nil {
-		return nil, nil
-	}
-	if validationError, ok := err.(*importer.ValidationError); ok {
-		return validationError, nil
-	}
-	return nil, err
 }

@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strings"
 
-	"github.com/fatih/color"
-	"github.com/mesg-foundation/core/x/xcolor"
+	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/mesg-foundation/core/x/xsignal"
+	"github.com/mesg-foundation/core/x/xstrings"
 	"github.com/mesg-foundation/prefixer"
 	"github.com/spf13/cobra"
 )
@@ -30,11 +29,12 @@ func newServiceLogsCmd(e ServiceExecutor) *serviceLogsCmd {
 		Use:   "logs",
 		Short: "Show logs of a service",
 		Example: `mesg-core service logs SERVICE
-mesg-core service logs SERVICE --dependency DEPENDENCY_NAME`,
+mesg-core service logs SERVICE --dependencies DEPENDENCY_NAME,DEPENDENCY_NAME,...`,
 		Args: cobra.ExactArgs(1),
 		RunE: c.runE,
 	})
-	c.cmd.Flags().StringArrayVarP(&c.dependencies, "dependencies", "d", nil, "Name of the dependency to show the logs from")
+
+	c.cmd.Flags().StringArrayVarP(&c.dependencies, "dependencies", "d", c.dependencies, "Name of the dependency to show the logs from")
 	return c
 }
 
@@ -55,9 +55,12 @@ func showLogs(e ServiceExecutor, serviceID string, dependencies ...string) (clos
 		return nil, err
 	}
 
-	dependencies = []string{}
-	for _, log := range logs {
-		dependencies = append(dependencies, log.Dependency)
+	// if there was no dependiecies copy all returned
+	// by service logs.
+	if len(dependencies) == 0 {
+		for _, log := range logs {
+			dependencies = append(dependencies, log.Dependency)
+		}
 	}
 
 	prefixes := dependencyPrefixes(dependencies)
@@ -70,29 +73,20 @@ func showLogs(e ServiceExecutor, serviceID string, dependencies ...string) (clos
 	return closer, nil
 }
 
-// dependencyPrefixes returns dependency key, log prefix pair.
-func dependencyPrefixes(dependencies []string) (prefixes map[string]string) {
-	// maxCharLen is the char length of longest dependency key.
-	var maxCharLen int
+// dependencyPrefixes returns colored dependency name prefixes.
+func dependencyPrefixes(dependencies []string) map[string]string {
+	var (
+		colors   = pretty.FgColors()
+		prefixes = make(map[string]string, len(dependencies))
+	)
 
-	prefixes = make(map[string]string, len(dependencies))
-
-	for _, key := range dependencies {
-		l := len(key)
-		if l > maxCharLen {
-			maxCharLen = l
-		}
-	}
-	for _, key := range dependencies {
-		prefixes[key] = color.New(xcolor.NextColor()).Sprintf("%s |", fillSpace(key, maxCharLen))
+	max := xstrings.FindLongest(dependencies)
+	for i, dep := range dependencies {
+		c := colors[i%len(colors)]
+		prefixes[dep] = c.Sprintf("% *s |", max, dep)
 	}
 
 	return prefixes
-}
-
-// fillSpace fills the end of name with spaces until max chars limit hits.
-func fillSpace(name string, max int) string {
-	return fmt.Sprintf("%s%s", name, strings.Repeat(" ", max-len(name)))
 }
 
 // prefixedCopy copies src to dst by prefixing dependency key to each new line.

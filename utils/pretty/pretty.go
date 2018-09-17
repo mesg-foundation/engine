@@ -31,14 +31,13 @@ var (
 
 // Predefiend colors
 var (
-	FgBlack   = color.New(color.FgBlack)
 	FgYellow  = color.New(color.FgYellow)
 	FgBlue    = color.New(color.FgBlue)
 	FgMagenta = color.New(color.FgMagenta)
 	FgCyan    = color.New(color.FgCyan)
-	FgWhite   = color.New(color.FgWhite)
 	FgRed     = color.New(color.FgRed)
 	FgGreen   = color.New(color.FgGreen)
+	FgWhite   = color.New(color.FgWhite)
 )
 
 // Pretty handles pretty printing for terminal and string.
@@ -251,7 +250,6 @@ func (p *Pretty) Progress(message string, fn func()) {
 // FgColors returns a slice with predefiend foreground color.
 func (p *Pretty) FgColors() []*color.Color {
 	return []*color.Color{
-		FgBlack,
 		FgYellow,
 		FgBlue,
 		FgMagenta,
@@ -271,6 +269,10 @@ func DisableColor() {
 	SuccessSign = pg.Success("✔")
 	WarnSign = pg.Warn("?")
 	FailSign = pg.Fail("⨯")
+
+	for _, c := range FgColors() {
+		c.DisableColor()
+	}
 }
 
 // EnableColor enables the color output.
@@ -279,6 +281,10 @@ func EnableColor() {
 	SuccessSign = pg.Success("✔")
 	WarnSign = pg.Warn("?")
 	FailSign = pg.Fail("⨯")
+
+	for _, c := range FgColors() {
+		c.EnableColor()
+	}
 }
 
 // DisableSpinner disables the spinner.
