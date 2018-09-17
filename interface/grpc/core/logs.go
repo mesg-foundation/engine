@@ -7,7 +7,7 @@ import (
 )
 
 // ServiceLogs gives logs of service with the applied dependency filters.
-func (s *Server) ServiceLogs(request *core.ServiceLogsRequest, stream core.Core_ServiceLogsServer) error {
+func (s *Server) ServiceLogs(request *coreapi.ServiceLogsRequest, stream coreapi.Core_ServiceLogsServer) error {
 	sl, err := s.api.ServiceLogs(request.ServiceID,
 		api.ServiceLogsDependenciesFilter(request.Dependencies...))
 	if err != nil {
@@ -22,11 +22,11 @@ func (s *Server) ServiceLogs(request *core.ServiceLogsRequest, stream core.Core_
 	for _, l := range sl {
 		cstd := chunker.New(l.Standard, chunks, errs, chunker.ValueOption(&chunkMeta{
 			Dependency: l.Dependency,
-			Type:       core.LogData_Standard,
+			Type:       coreapi.LogData_Standard,
 		}))
 		cerr := chunker.New(l.Error, chunks, errs, chunker.ValueOption(&chunkMeta{
 			Dependency: l.Dependency,
-			Type:       core.LogData_Error,
+			Type:       coreapi.LogData_Error,
 		}))
 		defer cstd.Close()
 		defer cerr.Close()
@@ -45,7 +45,7 @@ func (s *Server) ServiceLogs(request *core.ServiceLogsRequest, stream core.Core_
 
 		case chunk := <-chunks:
 			meta := chunk.Value.(*chunkMeta)
-			data := &core.LogData{
+			data := &coreapi.LogData{
 				Dependency: meta.Dependency,
 				Type:       meta.Type,
 				Data:       chunk.Data,
@@ -60,5 +60,5 @@ func (s *Server) ServiceLogs(request *core.ServiceLogsRequest, stream core.Core_
 // chunkMeta is a meta data for chunks.
 type chunkMeta struct {
 	Dependency string
-	Type       core.LogData_Type
+	Type       coreapi.LogData_Type
 }

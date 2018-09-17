@@ -10,7 +10,7 @@ type Workflow struct {
 	OnEvent  *Event
 	OnResult *Result
 	Execute  *Task
-	client   core.CoreClient
+	client   coreapi.CoreClient
 }
 
 // Task is a struct that contains the details of a task

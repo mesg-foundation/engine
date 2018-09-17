@@ -5,16 +5,16 @@ import (
 	service "github.com/mesg-foundation/core/service"
 )
 
-func toProtoServices(ss []*service.Service) []*core.Service {
-	services := make([]*core.Service, 0)
+func toProtoServices(ss []*service.Service) []*coreapi.Service {
+	services := make([]*coreapi.Service, 0)
 	for _, s := range ss {
 		services = append(services, toProtoService(s))
 	}
 	return services
 }
 
-func toProtoService(s *service.Service) *core.Service {
-	return &core.Service{
+func toProtoService(s *service.Service) *coreapi.Service {
+	return &coreapi.Service{
 		ID:           s.ID,
 		Name:         s.Name,
 		Description:  s.Description,
@@ -25,18 +25,18 @@ func toProtoService(s *service.Service) *core.Service {
 	}
 }
 
-func toProtoTasks(tasks []*service.Task) []*core.Task {
-	ts := make([]*core.Task, 0)
+func toProtoTasks(tasks []*service.Task) []*coreapi.Task {
+	ts := make([]*coreapi.Task, 0)
 	for _, task := range tasks {
-		t := &core.Task{
+		t := &coreapi.Task{
 			Key:         task.Key,
 			Name:        task.Name,
 			Description: task.Description,
 			Inputs:      toProtoParameters(task.Inputs),
-			Outputs:     []*core.Output{},
+			Outputs:     []*coreapi.Output{},
 		}
 		for _, output := range task.Outputs {
-			o := &core.Output{
+			o := &coreapi.Output{
 				Key:         output.Key,
 				Name:        output.Name,
 				Description: output.Description,
@@ -49,10 +49,10 @@ func toProtoTasks(tasks []*service.Task) []*core.Task {
 	return ts
 }
 
-func toProtoEvents(events []*service.Event) []*core.Event {
-	es := make([]*core.Event, 0)
+func toProtoEvents(events []*service.Event) []*coreapi.Event {
+	es := make([]*coreapi.Event, 0)
 	for _, event := range events {
-		e := &core.Event{
+		e := &coreapi.Event{
 			Key:         event.Key,
 			Name:        event.Name,
 			Description: event.Description,
@@ -63,10 +63,10 @@ func toProtoEvents(events []*service.Event) []*core.Event {
 	return es
 }
 
-func toProtoParameters(params []*service.Parameter) []*core.Parameter {
-	ps := make([]*core.Parameter, 0)
+func toProtoParameters(params []*service.Parameter) []*coreapi.Parameter {
+	ps := make([]*coreapi.Parameter, 0)
 	for _, param := range params {
-		p := &core.Parameter{
+		p := &coreapi.Parameter{
 			Key:         param.Key,
 			Name:        param.Name,
 			Description: param.Description,
@@ -78,11 +78,11 @@ func toProtoParameters(params []*service.Parameter) []*core.Parameter {
 	return ps
 }
 
-func toProtoDependency(dep *service.Dependency) *core.Dependency {
+func toProtoDependency(dep *service.Dependency) *coreapi.Dependency {
 	if dep == nil {
 		return nil
 	}
-	return &core.Dependency{
+	return &coreapi.Dependency{
 		Key:         dep.Key,
 		Image:       dep.Image,
 		Volumes:     dep.Volumes,
@@ -92,8 +92,8 @@ func toProtoDependency(dep *service.Dependency) *core.Dependency {
 	}
 }
 
-func toProtoDependencies(deps []*service.Dependency) []*core.Dependency {
-	ds := make([]*core.Dependency, 0)
+func toProtoDependencies(deps []*service.Dependency) []*coreapi.Dependency {
+	ds := make([]*coreapi.Dependency, 0)
 	for _, dep := range deps {
 		ds = append(ds, toProtoDependency(dep))
 	}

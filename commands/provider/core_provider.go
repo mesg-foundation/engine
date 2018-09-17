@@ -14,11 +14,11 @@ import (
 
 // CoreProvider is a struct that provides all methods required by core command.
 type CoreProvider struct {
-	client core.CoreClient
+	client coreapi.CoreClient
 }
 
 // NewCoreProvider creates new CoreProvider.
-func NewCoreProvider(client core.CoreClient) *CoreProvider {
+func NewCoreProvider(client coreapi.CoreClient) *CoreProvider {
 	return &CoreProvider{
 		client: client,
 	}
@@ -45,7 +45,7 @@ func (p *CoreProvider) Stop() error {
 	for _, id := range ids {
 		go func(id string) {
 			defer wg.Done()
-			if _, err := p.client.StopService(context.Background(), &core.StopServiceRequest{
+			if _, err := p.client.StopService(context.Background(), &coreapi.StopServiceRequest{
 				ServiceID: id,
 			}); err == nil {
 				errC <- err

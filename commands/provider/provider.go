@@ -11,7 +11,7 @@ type Provider struct {
 }
 
 // New creates Provider based on given CoreClient.
-func New(c core.CoreClient) *Provider {
+func New(c coreapi.CoreClient) *Provider {
 	return &Provider{
 		CoreProvider:    NewCoreProvider(c),
 		ServiceProvider: NewServiceProvider(c),

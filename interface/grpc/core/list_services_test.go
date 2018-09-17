@@ -11,7 +11,7 @@ import (
 func TestListServices(t *testing.T) {
 	server := newServer(t)
 
-	reply, err := server.ListServices(context.Background(), &core.ListServicesRequest{})
+	reply, err := server.ListServices(context.Background(), &coreapi.ListServicesRequest{})
 	require.NoError(t, err)
 
 	services, err := server.api.ListServices()

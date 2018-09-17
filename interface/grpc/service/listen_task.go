@@ -7,7 +7,7 @@ import (
 )
 
 // ListenTask creates a stream that will send data for every task to execute.
-func (s *Server) ListenTask(request *service.ListenTaskRequest, stream service.Service_ListenTaskServer) error {
+func (s *Server) ListenTask(request *serviceapi.ListenTaskRequest, stream serviceapi.Service_ListenTaskServer) error {
 	ln, err := s.api.ListenTask(request.Token)
 	if err != nil {
 		return err
@@ -29,7 +29,7 @@ func (s *Server) ListenTask(request *service.ListenTaskRequest, stream service.S
 				return err
 			}
 
-			if err := stream.Send(&service.TaskData{
+			if err := stream.Send(&serviceapi.TaskData{
 				ExecutionID: execution.ID,
 				TaskKey:     execution.Task,
 				InputData:   string(inputs),

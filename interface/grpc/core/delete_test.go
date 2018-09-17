@@ -19,7 +19,7 @@ func TestDeleteService(t *testing.T) {
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
 
-	reply, err := server.DeleteService(context.Background(), &core.DeleteServiceRequest{
+	reply, err := server.DeleteService(context.Background(), &coreapi.DeleteServiceRequest{
 		ServiceID: s.ID,
 	})
 	require.Nil(t, err)

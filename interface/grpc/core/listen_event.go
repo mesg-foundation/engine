@@ -8,7 +8,7 @@ import (
 )
 
 // ListenEvent listens events matches with eventFilter on serviceID.
-func (s *Server) ListenEvent(request *core.ListenEventRequest, stream core.Core_ListenEventServer) error {
+func (s *Server) ListenEvent(request *coreapi.ListenEventRequest, stream coreapi.Core_ListenEventServer) error {
 	ln, err := s.api.ListenEvent(request.ServiceID, api.ListenEventKeyFilter(request.EventFilter))
 	if err != nil {
 		return err
@@ -30,7 +30,7 @@ func (s *Server) ListenEvent(request *core.ListenEventRequest, stream core.Core_
 				return err
 			}
 
-			if err := stream.Send(&core.EventData{
+			if err := stream.Send(&coreapi.EventData{
 				EventKey:  ev.Key,
 				EventData: string(evData),
 			}); err != nil {

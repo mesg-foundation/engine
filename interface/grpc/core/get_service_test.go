@@ -16,7 +16,7 @@ func TestGetService(t *testing.T) {
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.ID)
 
-	reply, err := server.GetService(context.Background(), &core.GetServiceRequest{
+	reply, err := server.GetService(context.Background(), &coreapi.GetServiceRequest{
 		ServiceID: s.ID,
 	})
 	require.Nil(t, err)

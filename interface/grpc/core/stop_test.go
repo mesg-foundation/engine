@@ -22,7 +22,7 @@ func TestStopService(t *testing.T) {
 
 	require.NoError(t, server.api.StartService(s.ID))
 
-	reply, err := server.StopService(context.Background(), &core.StopServiceRequest{
+	reply, err := server.StopService(context.Background(), &coreapi.StopServiceRequest{
 		ServiceID: s.ID,
 	})
 
