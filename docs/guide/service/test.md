@@ -38,3 +38,6 @@ The file for the inputs should be a `json` with a map of all the inputs that you
 ```
 
 [More details here](../../cli/mesg-core_service_execute.md)
+
+::: tip Get Help
+You need help ? Check out the <a href="https://forum.mesg.com" target="_blank">MESG Forum</a>.
