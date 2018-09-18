@@ -10,6 +10,17 @@ func SliceContains(a []string, e string) bool {
 	return false
 }
 
+// FindLongest finds the length of longest string in slice.
+func FindLongest(ss []string) int {
+	l := 0
+	for _, s := range ss {
+		if i := len(s); i > l {
+			l = i
+		}
+	}
+	return l
+}
+
 // SliceIndex returns the index e in a, return -1 if not found.
 func SliceIndex(a []string, e string) int {
 	for i, s := range a {
