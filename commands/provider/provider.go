@@ -1,7 +1,7 @@
 package provider
 
 import (
-	"github.com/mesg-foundation/core/protobuf/core"
+	"github.com/mesg-foundation/core/protobuf/coreapi"
 )
 
 // Provider is a struct that provides all methods required by any command.

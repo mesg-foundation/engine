@@ -2,7 +2,7 @@ package core
 
 import (
 	"github.com/mesg-foundation/core/api"
-	"github.com/mesg-foundation/core/protobuf/core"
+	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/utils/chunker"
 )
 

@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"time"
 
-	"github.com/mesg-foundation/core/protobuf/core"
+	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/utils/pretty"
 	casting "github.com/mesg-foundation/core/utils/servicecasting"
 	"github.com/mesg-foundation/core/x/xpflag"

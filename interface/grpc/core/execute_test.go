@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/api"
-	"github.com/mesg-foundation/core/protobuf/core"
+	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
 )

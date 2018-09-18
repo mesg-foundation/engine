@@ -1,6 +1,6 @@
 package client
 
-import "github.com/mesg-foundation/core/protobuf/core"
+import "github.com/mesg-foundation/core/protobuf/coreapi"
 
 // Workflow is a struct that contains all the details of
 // a workflow. A workflow contains an event source and

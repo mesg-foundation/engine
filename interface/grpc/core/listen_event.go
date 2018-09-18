@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/mesg-foundation/core/api"
-	"github.com/mesg-foundation/core/protobuf/core"
+	"github.com/mesg-foundation/core/protobuf/coreapi"
 )
 
 // ListenEvent listens events matches with eventFilter on serviceID.

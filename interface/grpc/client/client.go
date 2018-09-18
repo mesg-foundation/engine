@@ -6,7 +6,7 @@ import (
 	"sync"
 
 	"github.com/mesg-foundation/core/config"
-	"github.com/mesg-foundation/core/protobuf/core"
+	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/utils/clierrors"
 	"google.golang.org/grpc"
 )
