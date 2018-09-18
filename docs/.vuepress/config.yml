@@ -1,12 +1,12 @@
 title: MESG
-description: Create applications connected to anything
+description: Build applications connecting any technologies
 ga: UA-117583862-3
 # serviceWorker: true
 markdown:
   toc:
     includeLevel: [2]
 themeConfig:
-  logo: /logo-light.svg
+  logo: /logo-light.png
   searchMaxSuggestions: 15
   lastUpdated: true
   repo: mesg-foundation/
@@ -29,10 +29,10 @@ themeConfig:
       link: /cli/mesg-core
     - text: API
       link: /api/core.md
+    - text: Get Help
+      link: https://forum.mesg.com/
     - text: Changelog
       link: https://github.com/mesg-foundation/core/blob/master/CHANGELOG.md
-    - text: Discord
-      link: https://discord.gg/SaZ5HcE
   sidebar:
     /guide/:
       - /guide/
