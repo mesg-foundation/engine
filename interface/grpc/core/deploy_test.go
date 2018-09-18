@@ -8,7 +8,7 @@ import (
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/api"
-	"github.com/mesg-foundation/core/protobuf/core"
+	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/stretchr/testify/require"
 	grpc "google.golang.org/grpc"
 )

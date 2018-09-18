@@ -3,7 +3,7 @@ package casting
 import (
 	"testing"
 
-	"github.com/mesg-foundation/core/protobuf/core"
+	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/stretchr/testify/require"
 )
 

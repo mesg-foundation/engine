@@ -3,7 +3,7 @@ package client
 import (
 	"context"
 
-	"github.com/mesg-foundation/core/protobuf/core"
+	"github.com/mesg-foundation/core/protobuf/coreapi"
 )
 
 func (wf *Workflow) services() (services []string) {

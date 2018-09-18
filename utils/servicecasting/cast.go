@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/mesg-foundation/core/protobuf/core"
+	"github.com/mesg-foundation/core/protobuf/coreapi"
 )
 
 type caster func(value string) (interface{}, error)

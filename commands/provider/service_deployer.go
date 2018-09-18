@@ -6,7 +6,7 @@ import (
 
 	"github.com/asaskevich/govalidator"
 	"github.com/docker/docker/pkg/archive"
-	"github.com/mesg-foundation/core/protobuf/core"
+	"github.com/mesg-foundation/core/protobuf/coreapi"
 )
 
 // ServiceDeploy deploys service from given path.

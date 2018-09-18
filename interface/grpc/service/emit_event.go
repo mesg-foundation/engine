@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/mesg-foundation/core/protobuf/service"
+	"github.com/mesg-foundation/core/protobuf/serviceapi"
 )
 
 // EmitEvent permits to send and event to anyone who subscribed to it.

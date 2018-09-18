@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/mesg-foundation/core/protobuf/service"
+	"github.com/mesg-foundation/core/protobuf/serviceapi"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
 )

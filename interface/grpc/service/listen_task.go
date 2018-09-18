@@ -3,7 +3,7 @@ package service
 import (
 	"encoding/json"
 
-	"github.com/mesg-foundation/core/protobuf/service"
+	"github.com/mesg-foundation/core/protobuf/serviceapi"
 )
 
 // ListenTask creates a stream that will send data for every task to execute.

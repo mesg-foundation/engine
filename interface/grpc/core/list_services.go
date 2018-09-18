@@ -3,7 +3,7 @@ package core
 import (
 	"context"
 
-	"github.com/mesg-foundation/core/protobuf/core"
+	"github.com/mesg-foundation/core/protobuf/coreapi"
 )
 
 // ListServices lists services.

@@ -1,7 +1,7 @@
 package core
 
 import (
-	"github.com/mesg-foundation/core/protobuf/core"
+	"github.com/mesg-foundation/core/protobuf/coreapi"
 	service "github.com/mesg-foundation/core/service"
 )
 

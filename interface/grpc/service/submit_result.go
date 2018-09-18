@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/mesg-foundation/core/protobuf/service"
+	"github.com/mesg-foundation/core/protobuf/serviceapi"
 )
 
 // SubmitResult submits results of an execution.

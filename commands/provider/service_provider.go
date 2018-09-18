@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/mesg-foundation/core/commands/provider/assets"
-	"github.com/mesg-foundation/core/protobuf/core"
+	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/service/importer"
 	"github.com/mesg-foundation/core/utils/chunker"
 	"github.com/mesg-foundation/core/utils/pretty"
