@@ -3,13 +3,13 @@ package casting
 import (
 	"testing"
 
-	"github.com/mesg-foundation/core/interface/grpc/core"
+	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/stretchr/testify/require"
 )
 
 func TestServiceCast(t *testing.T) {
 	var tests = []struct {
-		service   *core.Service
+		service   *coreapi.Service
 		data      map[string]string
 		expected  map[string]interface{}
 		expectErr bool
@@ -83,12 +83,12 @@ func TestServiceCast(t *testing.T) {
 }
 
 // createTestServcieWithInputs creates test service with given inputs name and type under "test" task key.
-func createTestServcieWithInputs(inputs map[string]string) *core.Service {
-	s := &core.Service{
-		Tasks: []*core.Task{
+func createTestServcieWithInputs(inputs map[string]string) *coreapi.Service {
+	s := &coreapi.Service{
+		Tasks: []*coreapi.Task{
 			{
 				Key:    "test",
-				Inputs: make([]*core.Parameter, 0),
+				Inputs: make([]*coreapi.Parameter, 0),
 			},
 		},
 	}
@@ -96,7 +96,7 @@ func createTestServcieWithInputs(inputs map[string]string) *core.Service {
 	for name, itype := range inputs {
 		for _, task := range s.Tasks {
 			if task.Key == "test" {
-				task.Inputs = append(task.Inputs, &core.Parameter{
+				task.Inputs = append(task.Inputs, &coreapi.Parameter{
 					Key:  name,
 					Type: itype,
 				})
