@@ -7,6 +7,7 @@ import (
 	"github.com/mesg-foundation/core/logger"
 	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/mesg-foundation/core/version"
+	"github.com/mesg-foundation/core/x/xsignal"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -55,6 +56,7 @@ func (c *rootCmd) runE(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	defer db.Close()
 
 	logger.Init(cfg.Log.Format, cfg.Log.Level)
 
@@ -65,10 +67,19 @@ func (c *rootCmd) runE(cmd *cobra.Command, args []string) error {
 		Address:   cfg.Server.Address,
 		ServiceDB: db,
 	}
+	defer tcpServer.Close()
 
-	if err := tcpServer.Serve(); err != nil {
+	errC := make(chan error, 1)
+	go func() {
+		if err := tcpServer.Serve(); err != nil {
+			errC <- err
+		}
+	}()
+
+	select {
+	case err := <-errC:
 		return err
+	case <-xsignal.WaitForInterrupt():
+		return nil
 	}
-	tcpServer.Close()
-	return nil
 }
