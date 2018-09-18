@@ -92,3 +92,5 @@ curl -XPOST http://localhost:3000/webhook
 
 :tada: You should have received an email in your inbox with your invitation to our Discord. Come join our community.
 
+::: tip Get Help
+You need help ? Check out the <a href="https://forum.mesg.com" target="_blank">MESG Forum</a>.
