@@ -40,6 +40,12 @@ type Config struct {
 		Image string
 		Path  string
 	}
+
+	Docker struct {
+		Socket string
+		Core   struct {
+			Path string
+		}
 	}
 }
 
@@ -57,6 +63,8 @@ func New() (*Config, error) {
 	c.Log.Level = "info"
 	c.Core.Image = "mesg/core:" + strings.Split(version.Version, " ")[0]
 	c.Core.Path = filepath.Join(home, ".mesg")
+	c.Docker.Core.Path = "/mesg"
+	c.Docker.Socket = "/var/run/docker.sock"
 	return &c, nil
 }
 
@@ -114,5 +122,6 @@ func (c *Config) DaemonEnv() map[string]string {
 	return map[string]string{
 		"MESG_LOG_FORMAT": c.Log.Format,
 		"MESG_LOG_LEVEL":  c.Log.Level,
+		"MESG_CORE_PATH":  c.Docker.Core.Path,
 	}
 }
