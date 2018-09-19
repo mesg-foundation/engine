@@ -1,8 +1,6 @@
 package services
 
 import (
-	"encoding/json"
-
 	"github.com/mesg-foundation/core/service"
 )
 
@@ -16,9 +14,9 @@ func All() ([]*service.Service, error) {
 	var services []*service.Service
 	iter := db.NewIterator(nil, nil)
 	for iter.Next() {
-		var service service.Service
-		if err := json.Unmarshal(iter.Value(), &service); err != nil {
 			return nil, err
+		service, err := decode(string(iter.Key()), iter.Value())
+		if err != nil {
 		}
 		services = append(services, &service)
 	}
