@@ -19,7 +19,7 @@ func open() (db *leveldb.DB, err error) {
 		storagePath := filepath.Join(config.Path, "database", "services")
 		_instance, err = leveldb.OpenFile(storagePath, nil)
 		if err != nil {
-			panic(err) // TODO: this should just be returned?
+			return nil, err
 		}
 	}
 	instances++
