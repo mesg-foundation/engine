@@ -18,11 +18,12 @@ func TestDefaultValue(t *testing.T) {
 	require.Equal(t, "localhost:50052", c.Client.Address)
 	require.Equal(t, "text", c.Log.Format)
 	require.Equal(t, "info", c.Log.Level)
-	require.Equal(t, filepath.Join(home, ".mesg"), c.Core.Path)
+	require.Equal(t, filepath.Join(home, ".mesg"), c.Core.RootPath)
 	require.Equal(t, "mesg-core", c.Core.Name)
 	require.Equal(t, "/mesg", c.Docker.Core.Path)
 	require.Equal(t, "/var/run/docker.sock", c.Docker.Socket)
 	require.True(t, strings.HasPrefix(c.Core.Image, "mesg/core:"))
+	require.Equal(t, filepath.Join(home, ".mesg", c.Core.Name), c.CorePath())
 }
 
 func TestGlobal(t *testing.T) {
