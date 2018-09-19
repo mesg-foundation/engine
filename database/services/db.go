@@ -16,7 +16,11 @@ func open() (db *leveldb.DB, err error) {
 	instanceMutex.Lock()
 	defer instanceMutex.Unlock()
 	if _instance == nil {
-		storagePath := filepath.Join(config.Path, "database", "services")
+		c, err := config.Global()
+		if err != nil {
+			return nil, err
+		}
+		storagePath := filepath.Join(c.Core.Path, "database", "services")
 		_instance, err = leveldb.OpenFile(storagePath, nil)
 		if err != nil {
 			return nil, err

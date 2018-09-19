@@ -2,18 +2,23 @@ package config
 
 import (
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
+	homedir "github.com/mitchellh/go-homedir"
 	"github.com/stretchr/testify/require"
 )
 
 func TestDefaultValue(t *testing.T) {
-	c := New()
+	home, _ := homedir.Dir()
+	c, err := New()
+	require.NoError(t, err)
 	require.Equal(t, ":50052", c.Server.Address)
 	require.Equal(t, "localhost:50052", c.Client.Address)
 	require.Equal(t, "text", c.Log.Format)
 	require.Equal(t, "info", c.Log.Level)
+	require.Equal(t, filepath.Join(home, ".mesg"), c.Core.Path)
 	require.True(t, strings.HasPrefix(c.Core.Image, "mesg/core:"))
 }
 
@@ -45,7 +50,7 @@ func TestLoad(t *testing.T) {
 	os.Setenv("MESG_LOG_FORMAT", "test_log_format")
 	os.Setenv("MESG_LOG_LEVEL", "test_log_level")
 	os.Setenv("MESG_CORE_IMAGE", "test_core_image")
-	c := New()
+	c, _ := New()
 	c.Load()
 	require.Equal(t, "test_server_address", c.Server.Address)
 	require.Equal(t, "test_client_address", c.Client.Address)
@@ -55,20 +60,20 @@ func TestLoad(t *testing.T) {
 }
 
 func TestValidate(t *testing.T) {
-	c := New()
+	c, _ := New()
 	require.NoError(t, c.Validate())
 
-	c = New()
+	c, _ = New()
 	c.Log.Format = "wrongValue"
 	require.Error(t, c.Validate())
 
-	c = New()
+	c, _ = New()
 	c.Log.Level = "wrongValue"
 	require.Error(t, c.Validate())
 }
 
 func TestDaemonEnv(t *testing.T) {
-	c := New()
+	c, _ := New()
 	env := c.DaemonEnv()
 	require.Equal(t, c.Log.Format, env["MESG_LOG_FORMAT"])
 	require.Equal(t, c.Log.Level, env["MESG_LOG_LEVEL"])

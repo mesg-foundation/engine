@@ -43,8 +43,9 @@ func serviceSpec() (spec container.ServiceOptions, err error) {
 				Bind:   true,
 			},
 			{
-				Source: volume,
 				Target: config.Path,
+				Source: c.Core.Path,
+				Bind:   true,
 			},
 		},
 		Ports: []container.Port{
