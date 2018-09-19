@@ -1,6 +1,8 @@
 package daemon
 
 import (
+	"path/filepath"
+
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/x/xnet"
@@ -33,7 +35,7 @@ func serviceSpec() (spec container.ServiceOptions, err error) {
 		return container.ServiceOptions{}, err
 	}
 	return container.ServiceOptions{
-		Namespace: Namespace(),
+		Namespace: []string{},
 		Image:     c.Core.Image,
 		Env:       container.MapToEnv(c.DaemonEnv()),
 		Mounts: []container.Mount{
@@ -43,8 +45,8 @@ func serviceSpec() (spec container.ServiceOptions, err error) {
 				Bind:   true,
 			},
 			{
-				Source: c.Core.Path,
-				Target: c.Docker.Core.Path,
+				Source: c.CorePath(),
+				Target: filepath.Join(c.Docker.Core.Path, c.Core.Name),
 				Bind:   true,
 			},
 		},
