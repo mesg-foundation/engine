@@ -100,10 +100,7 @@ func (c *Config) Load() error {
 
 // Prepare setups local directories or any other required thing based on config
 func (c *Config) Prepare() error {
-	if err := os.MkdirAll(c.Core.Path, os.FileMode(0755)); err != nil {
-		return err
-	}
-	return nil
+	return os.MkdirAll(c.Core.Path, os.FileMode(0755))
 }
 
 // Validate checks values and return an error if any validation failed.
