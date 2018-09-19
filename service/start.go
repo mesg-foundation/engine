@@ -68,7 +68,7 @@ func (d *Dependency) Start(networkID string) (containerServiceID string, err err
 		return "", err
 	}
 	_, port, err := xnet.SplitHostPort(c.Server.Address)
-	endpoint := "mesg-core:" + strconv.Itoa(port) // TODO: should get this from daemon namespace and config
+	endpoint := c.Core.Name + ":" + strconv.Itoa(port)
 	return defaultContainer.StartService(container.ServiceOptions{
 		Namespace: d.namespace(),
 		Labels: map[string]string{
