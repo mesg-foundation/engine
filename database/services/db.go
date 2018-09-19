@@ -20,7 +20,7 @@ func open() (db *leveldb.DB, err error) {
 		if err != nil {
 			return nil, err
 		}
-		storagePath := filepath.Join(c.Core.Path, "database", "services")
+		storagePath := filepath.Join(c.CorePath(), "database", "services")
 		_instance, err = leveldb.OpenFile(storagePath, nil)
 		if err != nil {
 			return nil, err
