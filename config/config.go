@@ -38,6 +38,7 @@ type Config struct {
 
 	Core struct {
 		Image string
+		Name  string
 		Path  string
 	}
 
@@ -62,6 +63,8 @@ func New() (*Config, error) {
 	c.Log.Format = "text"
 	c.Log.Level = "info"
 	c.Core.Image = "mesg/core:" + strings.Split(version.Version, " ")[0]
+	c.Core.Name = "mesg-core"
+	// TODO: Add core.name in core.path
 	c.Core.Path = filepath.Join(home, ".mesg")
 	c.Docker.Core.Path = "/mesg"
 	c.Docker.Socket = "/var/run/docker.sock"
