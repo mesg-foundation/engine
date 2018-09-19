@@ -7,8 +7,6 @@ import (
 	docker "github.com/docker/docker/client"
 )
 
-var sharedNetworkNamespace = []string{"shared"}
-
 // SharedNetworkID returns the ID of the shared network.
 func (c *Container) SharedNetworkID() (networkID string, err error) {
 	network, err := c.sharedNetwork()
@@ -31,7 +29,7 @@ func (c *Container) createSharedNetworkIfNeeded() error {
 	defer cancel()
 
 	// Create the new network needed to run containers.
-	namespace := Namespace(sharedNetworkNamespace)
+	namespace := Namespace([]string{})
 	_, err = c.client.NetworkCreate(ctx, namespace, types.NetworkCreate{
 		CheckDuplicate: true,
 		Driver:         "overlay",
@@ -46,5 +44,5 @@ func (c *Container) createSharedNetworkIfNeeded() error {
 func (c *Container) sharedNetwork() (network types.NetworkResource, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
-	return c.client.NetworkInspect(ctx, Namespace(sharedNetworkNamespace), types.NetworkInspectOptions{})
+	return c.client.NetworkInspect(ctx, Namespace([]string{}), types.NetworkInspectOptions{})
 }
