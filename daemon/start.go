@@ -38,13 +38,13 @@ func serviceSpec() (spec container.ServiceOptions, err error) {
 		Env:       container.MapToEnv(c.DaemonEnv()),
 		Mounts: []container.Mount{
 			{
-				Source: dockerSocket,
-				Target: dockerSocket,
+				Source: c.Docker.Socket,
+				Target: c.Docker.Socket,
 				Bind:   true,
 			},
 			{
-				Target: config.Path,
 				Source: c.Core.Path,
+				Target: c.Docker.Core.Path,
 				Bind:   true,
 			},
 		},
