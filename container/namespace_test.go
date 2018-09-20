@@ -9,13 +9,15 @@ import (
 )
 
 func TestNamespace(t *testing.T) {
-	c, _ := config.Global()
-	namespace := Namespace([]string{"test"})
-	require.Equal(t, namespace, strings.Join([]string{c.Core.Name, "test"}, namespaceSeparator))
+	cfg, _ := config.Global()
+	c, _ := New()
+	namespace := c.Namespace([]string{"test"})
+	require.Equal(t, namespace, strings.Join([]string{cfg.Core.Name, "test"}, namespaceSeparator))
 }
 
 func TestNamespaceReplaceSpace(t *testing.T) {
-	c, _ := config.Global()
-	namespace := Namespace([]string{"test foo"})
-	require.Equal(t, namespace, strings.Join([]string{c.Core.Name, "test-foo"}, namespaceSeparator))
+	cfg, _ := config.Global()
+	c, _ := New()
+	namespace := c.Namespace([]string{"test foo"})
+	require.Equal(t, namespace, strings.Join([]string{cfg.Core.Name, "test-foo"}, namespaceSeparator))
 }

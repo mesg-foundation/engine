@@ -31,7 +31,7 @@ func TestListTasks(t *testing.T) {
 	require.Equal(t, types.TaskListOptions{
 		Filters: filters.NewArgs(filters.KeyValuePair{
 			Key:   "label",
-			Value: "com.docker.stack.namespace=" + Namespace(namespace),
+			Value: "com.docker.stack.namespace=" + c.Namespace(namespace),
 		}),
 	}, (<-dt.LastTaskList()).Options)
 }
