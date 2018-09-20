@@ -3,7 +3,7 @@ package client
 import (
 	"testing"
 
-	"github.com/mesg-foundation/core/interface/grpc/core"
+	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/stretchr/testify/require"
 )
 
@@ -11,48 +11,48 @@ func TestValidEventFromAny(t *testing.T) {
 	wf := &Workflow{
 		OnEvent: &Event{Name: "*"},
 	}
-	require.True(t, wf.validEvent(&core.EventData{EventKey: "xxx"}))
+	require.True(t, wf.validEvent(&coreapi.EventData{EventKey: "xxx"}))
 }
 
 func TestValidEventFromValue(t *testing.T) {
 	wf := &Workflow{
 		OnEvent: &Event{Name: "xxx"},
 	}
-	require.True(t, wf.validEvent(&core.EventData{EventKey: "xxx"}))
-	require.False(t, wf.validEvent(&core.EventData{EventKey: "yyy"}))
+	require.True(t, wf.validEvent(&coreapi.EventData{EventKey: "xxx"}))
+	require.False(t, wf.validEvent(&coreapi.EventData{EventKey: "yyy"}))
 }
 
 func TestValidResultFromAnyNameAndAnyOutput(t *testing.T) {
 	wf := &Workflow{
 		OnResult: &Result{Name: "*", Output: "*"},
 	}
-	require.True(t, wf.validResult(&core.ResultData{TaskKey: "xxx", OutputKey: "xxx"}))
+	require.True(t, wf.validResult(&coreapi.ResultData{TaskKey: "xxx", OutputKey: "xxx"}))
 }
 
 func TestValidResultFromAnyNameAndNotAnyOutput(t *testing.T) {
 	wf := &Workflow{
 		OnResult: &Result{Name: "*", Output: "xxx"},
 	}
-	require.True(t, wf.validResult(&core.ResultData{TaskKey: "xxx", OutputKey: "xxx"}))
-	require.False(t, wf.validResult(&core.ResultData{TaskKey: "yyy", OutputKey: "yyy"}))
+	require.True(t, wf.validResult(&coreapi.ResultData{TaskKey: "xxx", OutputKey: "xxx"}))
+	require.False(t, wf.validResult(&coreapi.ResultData{TaskKey: "yyy", OutputKey: "yyy"}))
 }
 
 func TestValidResultFromNotAnyNameAndAnyOutput(t *testing.T) {
 	wf := &Workflow{
 		OnResult: &Result{Name: "xxx", Output: "*"},
 	}
-	require.True(t, wf.validResult(&core.ResultData{TaskKey: "xxx", OutputKey: "xxx"}))
-	require.False(t, wf.validResult(&core.ResultData{TaskKey: "yyy", OutputKey: "yyy"}))
+	require.True(t, wf.validResult(&coreapi.ResultData{TaskKey: "xxx", OutputKey: "xxx"}))
+	require.False(t, wf.validResult(&coreapi.ResultData{TaskKey: "yyy", OutputKey: "yyy"}))
 }
 
 func TestValidResultFromNotAnyNameAndNotAnyOutput(t *testing.T) {
 	wf := &Workflow{
 		OnResult: &Result{Name: "xxx", Output: "yyy"},
 	}
-	require.True(t, wf.validResult(&core.ResultData{TaskKey: "xxx", OutputKey: "yyy"}))
-	require.False(t, wf.validResult(&core.ResultData{TaskKey: "yyy", OutputKey: "yyy"}))
-	require.False(t, wf.validResult(&core.ResultData{TaskKey: "xxx", OutputKey: "xxx"}))
-	require.False(t, wf.validResult(&core.ResultData{TaskKey: "yyy", OutputKey: "xxx"}))
+	require.True(t, wf.validResult(&coreapi.ResultData{TaskKey: "xxx", OutputKey: "yyy"}))
+	require.False(t, wf.validResult(&coreapi.ResultData{TaskKey: "yyy", OutputKey: "yyy"}))
+	require.False(t, wf.validResult(&coreapi.ResultData{TaskKey: "xxx", OutputKey: "xxx"}))
+	require.False(t, wf.validResult(&coreapi.ResultData{TaskKey: "yyy", OutputKey: "xxx"}))
 }
 
 func TestInvalidListenResult(t *testing.T) {

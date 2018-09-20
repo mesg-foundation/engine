@@ -1,6 +1,6 @@
 package client
 
-import "github.com/mesg-foundation/core/interface/grpc/core"
+import "github.com/mesg-foundation/core/protobuf/coreapi"
 
 // Workflow is a struct that contains all the details of
 // a workflow. A workflow contains an event source and
@@ -10,7 +10,7 @@ type Workflow struct {
 	OnEvent  *Event
 	OnResult *Result
 	Execute  *Task
-	client   core.CoreClient
+	client   coreapi.CoreClient
 }
 
 // Task is a struct that contains the details of a task

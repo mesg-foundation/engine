@@ -5,7 +5,7 @@ import (
 
 	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/container"
-	"github.com/mesg-foundation/core/interface/grpc/core"
+	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/utils/servicetemplate"
 	"github.com/spf13/cobra"
 )
@@ -20,19 +20,19 @@ type RootExecutor interface {
 
 // ServiceExecutor is an interface that handles services commands.
 type ServiceExecutor interface {
-	ServiceByID(id string) (*core.Service, error)
+	ServiceByID(id string) (*coreapi.Service, error)
 	ServiceDeleteAll() error
 	ServiceDelete(ids ...string) error
 	ServiceDeploy(path string) (id string, valid bool, err error)
-	ServiceListenEvents(id, eventFilter string) (chan *core.EventData, chan error, error)
-	ServiceListenResults(id, taskFilter, outputFilter string, tagFilters []string) (chan *core.ResultData, chan error, error)
+	ServiceListenEvents(id, eventFilter string) (chan *coreapi.EventData, chan error, error)
+	ServiceListenResults(id, taskFilter, outputFilter string, tagFilters []string) (chan *coreapi.ResultData, chan error, error)
 	ServiceLogs(id string, dependencies ...string) (logs []*provider.Log, closer func(), err error)
 	ServiceExecuteTask(id, taskKey, inputData string, tags []string) error
 	ServiceStart(id string) error
 	ServiceStop(id string) error
 	ServiceValidate(path string) (string, error)
 	ServiceGenerateDocs(path string) error
-	ServiceList() ([]*core.Service, error)
+	ServiceList() ([]*coreapi.Service, error)
 	ServiceInitTemplateList() ([]*servicetemplate.Template, error)
 	ServiceInitDownloadTemplate(t *servicetemplate.Template, dst string) error
 }
