@@ -27,10 +27,14 @@ func newServiceStartCmd(e ServiceExecutor) *serviceStartCmd {
 }
 
 func (c *serviceStartCmd) runE(cmd *cobra.Command, args []string) error {
-	if err := c.e.ServiceStart(args[0]); err != nil {
+	var err error
+	pretty.Progress("Starting service...", func() {
+		err = c.e.ServiceStart(args[0])
+	})
+	if err != nil {
 		return err
 	}
-
-	fmt.Println(pretty.Success("Service is running"))
+	fmt.Printf("%s Service started\n", pretty.SuccessSign)
+	fmt.Printf("To show its logs, run the command:\nmesg-core service logs %s\n", args[0])
 	return nil
 }

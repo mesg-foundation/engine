@@ -43,7 +43,7 @@ func (c *serviceDeployCmd) runE(cmd *cobra.Command, args []string) error {
 		valid bool
 		err   error
 	)
-	pretty.Progress("Deploying the service...", func() {
+	pretty.Progress("Deploying service...", func() {
 		id, valid, err = c.e.ServiceDeploy(c.path)
 	})
 	if err != nil {
@@ -52,7 +52,7 @@ func (c *serviceDeployCmd) runE(cmd *cobra.Command, args []string) error {
 	if !valid {
 		return errors.New("Service is invalid. To get more information, run: mesg-core service validate")
 	}
-	fmt.Println("Service deployed with ID:", pretty.Success(id))
-	fmt.Printf("To start it, run the command: mesg-core service start %s\n", id)
+	fmt.Printf("%s Service deployed with ID: %v\n", pretty.SuccessSign, pretty.Success(id))
+	fmt.Printf("To start it, run the command:\nmesg-core service start %s\n", id)
 	return nil
 }

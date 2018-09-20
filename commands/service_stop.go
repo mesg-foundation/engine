@@ -26,9 +26,13 @@ func newServiceStopCmd(e ServiceExecutor) *serviceStopCmd {
 }
 
 func (c *serviceStopCmd) runE(cmd *cobra.Command, args []string) error {
-	if err := c.e.ServiceStop(args[0]); err != nil {
+	var err error
+	pretty.Progress("Stopping service...", func() {
+		err = c.e.ServiceStop(args[0])
+	})
+	if err != nil {
 		return err
 	}
-	fmt.Println(pretty.Success("Service stopped"))
+	fmt.Printf("%s Service stopped\n", pretty.SuccessSign)
 	return nil
 }
