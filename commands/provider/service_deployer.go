@@ -6,7 +6,7 @@ import (
 
 	"github.com/asaskevich/govalidator"
 	"github.com/docker/docker/pkg/archive"
-	"github.com/mesg-foundation/core/interface/grpc/core"
+	"github.com/mesg-foundation/core/protobuf/coreapi"
 )
 
 // ServiceDeploy deploys service from given path.
@@ -20,8 +20,8 @@ func (p *ServiceProvider) ServiceDeploy(path string) (string, bool, error) {
 	go readDeployReply(stream, deployment)
 
 	if govalidator.IsURL(path) {
-		if err := stream.Send(&core.DeployServiceRequest{
-			Value: &core.DeployServiceRequest_Url{Url: path},
+		if err := stream.Send(&coreapi.DeployServiceRequest{
+			Value: &coreapi.DeployServiceRequest_Url{Url: path},
 		}); err != nil {
 			return "", true, err
 		}
@@ -39,7 +39,7 @@ func (p *ServiceProvider) ServiceDeploy(path string) (string, bool, error) {
 	return result.serviceID, result.isValid, result.err
 }
 
-func deployServiceSendServiceContext(path string, stream core.Core_DeployServiceClient) error {
+func deployServiceSendServiceContext(path string, stream coreapi.Core_DeployServiceClient) error {
 	archive, err := archive.TarWithOptions(path, &archive.TarOptions{
 		Compression: archive.Gzip,
 	})
@@ -57,8 +57,8 @@ func deployServiceSendServiceContext(path string, stream core.Core_DeployService
 			return err
 		}
 
-		if err := stream.Send(&core.DeployServiceRequest{
-			Value: &core.DeployServiceRequest_Chunk{Chunk: buf[:n]},
+		if err := stream.Send(&coreapi.DeployServiceRequest{
+			Value: &coreapi.DeployServiceRequest_Chunk{Chunk: buf[:n]},
 		}); err != nil {
 			return err
 		}
@@ -73,7 +73,7 @@ type deploymentResult struct {
 	isValid   bool
 }
 
-func readDeployReply(stream core.Core_DeployServiceClient, deployment chan deploymentResult) {
+func readDeployReply(stream coreapi.Core_DeployServiceClient, deployment chan deploymentResult) {
 	var (
 		result = deploymentResult{isValid: true}
 	)

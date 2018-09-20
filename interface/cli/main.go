@@ -7,7 +7,7 @@ import (
 	"github.com/mesg-foundation/core/commands"
 	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/config"
-	"github.com/mesg-foundation/core/interface/grpc/core"
+	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/utils/clierrors"
 	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/mesg-foundation/core/version"
@@ -27,7 +27,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	p := provider.New(core.NewCoreClient(connection))
+	p := provider.New(coreapi.NewCoreClient(connection))
 	cmd := commands.Build(p)
 	cmd.Version = version.Version
 	cmd.Short = cmd.Short + " " + version.Version
