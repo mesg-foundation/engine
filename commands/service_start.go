@@ -35,6 +35,6 @@ func (c *serviceStartCmd) runE(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	fmt.Printf("%s Service started\n", pretty.SuccessSign)
-	fmt.Printf("To show its logs, run the command:\nmesg-core service logs %s\n", args[0])
+	fmt.Printf("To show its logs, run the command:\n\tmesg-core service logs %s\n", args[0])
 	return nil
 }
