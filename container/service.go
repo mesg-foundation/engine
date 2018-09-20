@@ -12,14 +12,18 @@ import (
 )
 
 // ListServices returns existing docker services matching a specific label name.
-func (c *Container) ListServices(label string) ([]swarm.Service, error) {
+func (c *Container) ListServices(labels ...string) ([]swarm.Service, error) {
+	args := make([]filters.KeyValuePair, 0)
+	for _, label := range labels {
+		args = append(args, filters.KeyValuePair{
+			Key:   "label",
+			Value: label,
+		})
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
 	return c.client.ServiceList(ctx, types.ServiceListOptions{
-		Filters: filters.NewArgs(filters.KeyValuePair{
-			Key:   "label",
-			Value: label,
-		}),
+		Filters: filters.NewArgs(args...),
 	})
 }
 

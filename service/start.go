@@ -74,6 +74,7 @@ func (d *Dependency) Start(networkID string) (containerServiceID string, err err
 		Labels: map[string]string{
 			"mesg.service": d.service.Name,
 			"mesg.hash":    d.service.ID,
+			"mesg.core":    c.Core.Name,
 		},
 		Image: d.Image,
 		Args:  strings.Fields(d.Command),

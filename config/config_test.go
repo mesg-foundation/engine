@@ -79,6 +79,9 @@ func TestValidate(t *testing.T) {
 func TestDaemonEnv(t *testing.T) {
 	c, _ := New()
 	env := c.DaemonEnv()
-	require.Equal(t, c.Log.Format, env["MESG_LOG_FORMAT"])
+	require.Equal(t, c.Server.Address, env["MESG_SERVER_ADDRESS"])
 	require.Equal(t, c.Log.Level, env["MESG_LOG_LEVEL"])
+	require.Equal(t, c.Log.Format, env["MESG_LOG_FORMAT"])
+	require.Equal(t, c.Core.Name, env["MESG_CORE_NAME"])
+	require.Equal(t, c.Docker.Core.Path, env["MESG_CORE_ROOTPATH"])
 }
