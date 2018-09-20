@@ -2,43 +2,68 @@ package provider
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"io"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
-	"github.com/mesg-foundation/core/utils/pretty"
 )
 
+// StatusType indicates the type of status message.
+type StatusType int
+
+const (
+	// RUNNING indicates that status message belongs to an active state.
+	RUNNING StatusType = iota + 1
+
+	// DONE indicates that status message belongs to completed state.
+	DONE
+)
+
+// DeployStatus represents the deployment status.
+type DeployStatus struct {
+	Message string
+	Type    StatusType
+}
+
+// deploymentResult keeps information about deployment result.
+type deploymentResult struct {
+	serviceID       string
+	err             error
+	validationError error
+}
+
 // ServiceDeploy deploys service from given path.
-func (p *ServiceProvider) ServiceDeploy(path string) (string, bool, error) {
+func (p *ServiceProvider) ServiceDeploy(path string, statuses chan DeployStatus) (id string,
+	validationError, err error) {
 	stream, err := p.client.DeployService(context.Background())
 	if err != nil {
-		return "", false, err
+		return "", nil, err
 	}
 
 	deployment := make(chan deploymentResult)
-	go readDeployReply(stream, deployment)
+	go readDeployReply(stream, deployment, statuses)
 
 	if govalidator.IsURL(path) {
 		if err := stream.Send(&coreapi.DeployServiceRequest{
 			Value: &coreapi.DeployServiceRequest_Url{Url: path},
 		}); err != nil {
-			return "", true, err
+			return "", nil, err
 		}
 	} else {
 		if err := deployServiceSendServiceContext(path, stream); err != nil {
-			return "", true, err
+			return "", nil, err
 		}
 	}
 
 	if err := stream.CloseSend(); err != nil {
-		return "", true, err
+		return "", nil, err
 	}
 
 	result := <-deployment
-	return result.serviceID, result.isValid, result.err
+	close(statuses)
+	return result.serviceID, result.validationError, result.err
 }
 
 func deployServiceSendServiceContext(path string, stream coreapi.Core_DeployServiceClient) error {
@@ -69,16 +94,9 @@ func deployServiceSendServiceContext(path string, stream coreapi.Core_DeployServ
 	return nil
 }
 
-type deploymentResult struct {
-	serviceID string
-	err       error
-	isValid   bool
-}
-
-func readDeployReply(stream coreapi.Core_DeployServiceClient, deployment chan deploymentResult) {
-	var (
-		result = deploymentResult{isValid: true}
-	)
+func readDeployReply(stream coreapi.Core_DeployServiceClient, deployment chan deploymentResult,
+	statuses chan DeployStatus) {
+	result := deploymentResult{}
 
 	for {
 		message, err := stream.Recv()
@@ -98,23 +116,25 @@ func readDeployReply(stream coreapi.Core_DeployServiceClient, deployment chan de
 		case status != nil:
 			switch status.Type {
 			case coreapi.DeployServiceReply_Status_RUNNING:
-				pretty.UseSpinner(status.Message)
+				statuses <- DeployStatus{
+					Message: status.Message,
+					Type:    RUNNING,
+				}
 
 			case coreapi.DeployServiceReply_Status_DONE:
-				pretty.DestroySpinner()
-				fmt.Println(status.Message)
+				statuses <- DeployStatus{
+					Message: status.Message,
+					Type:    DONE,
+				}
 			}
 
 		case serviceID != "":
-			pretty.DestroySpinner()
 			result.serviceID = serviceID
 			deployment <- result
 			return
 
 		case validationError != "":
-			pretty.DestroySpinner()
-			fmt.Println(pretty.Fail(validationError))
-			result.isValid = false
+			result.validationError = errors.New(validationError)
 			deployment <- result
 			return
 		}
