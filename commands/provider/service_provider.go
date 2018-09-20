@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/mesg-foundation/core/commands/provider/assets"
-	"github.com/mesg-foundation/core/interface/grpc/core"
+	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/service/importer"
 	"github.com/mesg-foundation/core/utils/chunker"
 	"github.com/mesg-foundation/core/utils/pretty"
@@ -18,17 +18,17 @@ import (
 
 // ServiceProvider is a struct that provides all methods required by service command.
 type ServiceProvider struct {
-	client core.CoreClient
+	client coreapi.CoreClient
 }
 
 // NewServiceProvider creates new ServiceProvider.
-func NewServiceProvider(c core.CoreClient) *ServiceProvider {
+func NewServiceProvider(c coreapi.CoreClient) *ServiceProvider {
 	return &ServiceProvider{client: c}
 }
 
 // ServiceByID finds service based on given id.
-func (p *ServiceProvider) ServiceByID(id string) (*core.Service, error) {
-	serviceReply, err := p.client.GetService(context.Background(), &core.GetServiceRequest{ServiceID: id})
+func (p *ServiceProvider) ServiceByID(id string) (*coreapi.Service, error) {
+	serviceReply, err := p.client.GetService(context.Background(), &coreapi.GetServiceRequest{ServiceID: id})
 	if err != nil {
 		return nil, err
 	}
@@ -38,14 +38,14 @@ func (p *ServiceProvider) ServiceByID(id string) (*core.Service, error) {
 
 // ServiceDeleteAll deletes all services.
 func (p *ServiceProvider) ServiceDeleteAll() error {
-	rep, err := p.client.ListServices(context.Background(), &core.ListServicesRequest{})
+	rep, err := p.client.ListServices(context.Background(), &coreapi.ListServicesRequest{})
 	if err != nil {
 		return err
 	}
 
 	var errs xerrors.Errors
 	for _, s := range rep.Services {
-		_, err := p.client.DeleteService(context.Background(), &core.DeleteServiceRequest{ServiceID: s.ID})
+		_, err := p.client.DeleteService(context.Background(), &coreapi.DeleteServiceRequest{ServiceID: s.ID})
 		if err != nil {
 			errs = append(errs, err)
 		}
@@ -57,7 +57,7 @@ func (p *ServiceProvider) ServiceDeleteAll() error {
 func (p *ServiceProvider) ServiceDelete(ids ...string) error {
 	var errs xerrors.Errors
 	for _, id := range ids {
-		_, err := p.client.DeleteService(context.Background(), &core.DeleteServiceRequest{ServiceID: id})
+		_, err := p.client.DeleteService(context.Background(), &coreapi.DeleteServiceRequest{ServiceID: id})
 		if err != nil {
 			errs = append(errs, err)
 		}
@@ -66,8 +66,8 @@ func (p *ServiceProvider) ServiceDelete(ids ...string) error {
 }
 
 // ServiceListenEvents returns a channel with event data streaming..
-func (p *ServiceProvider) ServiceListenEvents(id, eventFilter string) (chan *core.EventData, chan error, error) {
-	stream, err := p.client.ListenEvent(context.Background(), &core.ListenEventRequest{
+func (p *ServiceProvider) ServiceListenEvents(id, eventFilter string) (chan *coreapi.EventData, chan error, error) {
+	stream, err := p.client.ListenEvent(context.Background(), &coreapi.ListenEventRequest{
 		ServiceID:   id,
 		EventFilter: eventFilter,
 	})
@@ -75,7 +75,7 @@ func (p *ServiceProvider) ServiceListenEvents(id, eventFilter string) (chan *cor
 		return nil, nil, err
 	}
 
-	resultC := make(chan *core.EventData)
+	resultC := make(chan *coreapi.EventData)
 	errC := make(chan error)
 
 	go func() {
@@ -93,8 +93,8 @@ func (p *ServiceProvider) ServiceListenEvents(id, eventFilter string) (chan *cor
 }
 
 // ServiceListenResults returns a channel with event results streaming..
-func (p *ServiceProvider) ServiceListenResults(id, taskFilter, outputFilter string, tagFilters []string) (chan *core.ResultData, chan error, error) {
-	stream, err := p.client.ListenResult(context.Background(), &core.ListenResultRequest{
+func (p *ServiceProvider) ServiceListenResults(id, taskFilter, outputFilter string, tagFilters []string) (chan *coreapi.ResultData, chan error, error) {
+	stream, err := p.client.ListenResult(context.Background(), &coreapi.ListenResultRequest{
 		ServiceID:    id,
 		TaskFilter:   taskFilter,
 		OutputFilter: outputFilter,
@@ -103,7 +103,7 @@ func (p *ServiceProvider) ServiceListenResults(id, taskFilter, outputFilter stri
 	if err != nil {
 		return nil, nil, err
 	}
-	resultC := make(chan *core.ResultData)
+	resultC := make(chan *coreapi.ResultData)
 	errC := make(chan error)
 
 	go func() {
@@ -128,7 +128,7 @@ type Log struct {
 // ServiceLogs returns logs reader for all service dependencies.
 func (p *ServiceProvider) ServiceLogs(id string, dependencies ...string) (logs []*Log, close func(), err error) {
 	if len(dependencies) == 0 {
-		resp, err := p.client.GetService(context.Background(), &core.GetServiceRequest{
+		resp, err := p.client.GetService(context.Background(), &coreapi.GetServiceRequest{
 			ServiceID: id,
 		})
 		if err != nil {
@@ -141,7 +141,7 @@ func (p *ServiceProvider) ServiceLogs(id string, dependencies ...string) (logs [
 
 	ctx, cancel := context.WithCancel(context.Background())
 
-	stream, err := p.client.ServiceLogs(ctx, &core.ServiceLogsRequest{
+	stream, err := p.client.ServiceLogs(ctx, &coreapi.ServiceLogsRequest{
 		ServiceID:    id,
 		Dependencies: dependencies,
 	})
@@ -178,7 +178,7 @@ func (p *ServiceProvider) ServiceLogs(id string, dependencies ...string) (logs [
 }
 
 // listenServiceLogs listen gRPC stream to get service logs.
-func (p *ServiceProvider) listenServiceLogs(stream core.Core_ServiceLogsClient, logs []*Log,
+func (p *ServiceProvider) listenServiceLogs(stream coreapi.Core_ServiceLogsClient, logs []*Log,
 	errC chan error) {
 	for {
 		data, err := stream.Recv()
@@ -191,9 +191,9 @@ func (p *ServiceProvider) listenServiceLogs(stream core.Core_ServiceLogsClient, 
 			if log.Dependency == data.Dependency {
 				var out *chunker.Stream
 				switch data.Type {
-				case core.LogData_Standard:
+				case coreapi.LogData_Standard:
 					out = log.Standard
-				case core.LogData_Error:
+				case coreapi.LogData_Error:
 					out = log.Error
 				}
 				out.Provide(data.Data)
@@ -204,7 +204,7 @@ func (p *ServiceProvider) listenServiceLogs(stream core.Core_ServiceLogsClient, 
 
 // ServiceExecuteTask executes task on given service.
 func (p *ServiceProvider) ServiceExecuteTask(id, taskKey, inputData string, tags []string) error {
-	_, err := p.client.ExecuteTask(context.Background(), &core.ExecuteTaskRequest{
+	_, err := p.client.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
 		ServiceID:     id,
 		TaskKey:       taskKey,
 		InputData:     inputData,
@@ -215,13 +215,13 @@ func (p *ServiceProvider) ServiceExecuteTask(id, taskKey, inputData string, tags
 
 // ServiceStart starts a service.
 func (p *ServiceProvider) ServiceStart(id string) error {
-	_, err := p.client.StartService(context.Background(), &core.StartServiceRequest{ServiceID: id})
+	_, err := p.client.StartService(context.Background(), &coreapi.StartServiceRequest{ServiceID: id})
 	return err
 }
 
 // ServiceStop stops a service.
 func (p *ServiceProvider) ServiceStop(id string) error {
-	_, err := p.client.StopService(context.Background(), &core.StopServiceRequest{ServiceID: id})
+	_, err := p.client.StopService(context.Background(), &coreapi.StopServiceRequest{ServiceID: id})
 	return err
 }
 
@@ -274,8 +274,8 @@ func (p *ServiceProvider) ServiceGenerateDocs(path string) error {
 }
 
 // ServiceList lists all services.
-func (p *ServiceProvider) ServiceList() ([]*core.Service, error) {
-	reply, err := p.client.ListServices(context.Background(), &core.ListServicesRequest{})
+func (p *ServiceProvider) ServiceList() ([]*coreapi.Service, error) {
+	reply, err := p.client.ListServices(context.Background(), &coreapi.ListServicesRequest{})
 	if err != nil {
 		return nil, err
 	}

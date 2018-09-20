@@ -5,7 +5,7 @@ import (
 
 	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/container"
-	"github.com/mesg-foundation/core/interface/grpc/core"
+	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/utils/servicetemplate"
 	"github.com/stretchr/testify/mock"
@@ -59,14 +59,14 @@ func (m *mockServiceExecutor) ServiceDeploy(path string) (id string, valid bool,
 	return args.String(0), args.Bool(1), args.Error(2)
 }
 
-func (m *mockServiceExecutor) ServiceListenEvents(id, taskFilter string) (chan *core.EventData, chan error, error) {
+func (m *mockServiceExecutor) ServiceListenEvents(id, taskFilter string) (chan *coreapi.EventData, chan error, error) {
 	args := m.Called()
-	return args.Get(0).(chan *core.EventData), args.Get(1).(chan error), args.Error(2)
+	return args.Get(0).(chan *coreapi.EventData), args.Get(1).(chan error), args.Error(2)
 }
 
-func (m *mockServiceExecutor) ServiceListenResults(id, taskFilter, outputFilter string, tagFilters []string) (chan *core.ResultData, chan error, error) {
+func (m *mockServiceExecutor) ServiceListenResults(id, taskFilter, outputFilter string, tagFilters []string) (chan *coreapi.ResultData, chan error, error) {
 	args := m.Called()
-	return args.Get(0).(chan *core.ResultData), args.Get(1).(chan error), args.Error(2)
+	return args.Get(0).(chan *coreapi.ResultData), args.Get(1).(chan error), args.Error(2)
 }
 
 func (m *mockServiceExecutor) ServiceLogs(id string, dependencies ...string) (logs []*provider.Log, close func(), err error) {
@@ -74,9 +74,9 @@ func (m *mockServiceExecutor) ServiceLogs(id string, dependencies ...string) (lo
 	return args.Get(0).([]*provider.Log), args.Get(1).(func()), args.Error(2)
 }
 
-func (m *mockServiceExecutor) ServiceExecuteTask(id, taskKey, inputData string, tags []string) (listenResults chan core.ResultData, err error) {
+func (m *mockServiceExecutor) ServiceExecuteTask(id, taskKey, inputData string, tags []string) (listenResults chan coreapi.ResultData, err error) {
 	args := m.Called()
-	return args.Get(0).(chan core.ResultData), args.Error(1)
+	return args.Get(0).(chan coreapi.ResultData), args.Error(1)
 }
 
 func (m *mockServiceExecutor) ServiceStart(id string) error {

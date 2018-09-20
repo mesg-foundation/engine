@@ -5,7 +5,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/mesg-foundation/core/interface/grpc/core"
+	"github.com/mesg-foundation/core/protobuf/coreapi"
 )
 
 // Start is the function to start the workflow
@@ -50,7 +50,7 @@ func listenEvents(wf *Workflow) (err error) {
 		err = errors.New("Event's Name should be defined (you can use * to react to any event)")
 		return
 	}
-	stream, err := wf.client.ListenEvent(context.Background(), &core.ListenEventRequest{
+	stream, err := wf.client.ListenEvent(context.Background(), &coreapi.ListenEventRequest{
 		ServiceID: wf.OnEvent.ServiceID,
 	})
 	if err != nil {
@@ -58,7 +58,7 @@ func listenEvents(wf *Workflow) (err error) {
 	}
 
 	for {
-		var data *core.EventData
+		var data *coreapi.EventData
 		data, err = stream.Recv()
 		if err != nil {
 			break
@@ -73,7 +73,7 @@ func listenEvents(wf *Workflow) (err error) {
 	return
 }
 
-func (wf *Workflow) validEvent(data *core.EventData) bool {
+func (wf *Workflow) validEvent(data *coreapi.EventData) bool {
 	if strings.Compare(wf.OnEvent.Name, "*") == 0 {
 		return true
 	}
@@ -85,7 +85,7 @@ func listenResults(wf *Workflow) (err error) {
 		err = errors.New("Result's Name and Output should be defined (you can use * to react to any result)")
 		return
 	}
-	stream, err := wf.client.ListenResult(context.Background(), &core.ListenResultRequest{
+	stream, err := wf.client.ListenResult(context.Background(), &coreapi.ListenResultRequest{
 		ServiceID: wf.OnResult.ServiceID,
 	})
 	if err != nil {
@@ -93,7 +93,7 @@ func listenResults(wf *Workflow) (err error) {
 	}
 
 	for {
-		var data *core.ResultData
+		var data *coreapi.ResultData
 		data, err = stream.Recv()
 		if err != nil {
 			break
@@ -108,7 +108,7 @@ func listenResults(wf *Workflow) (err error) {
 	return
 }
 
-func (wf *Workflow) validResult(data *core.ResultData) bool {
+func (wf *Workflow) validResult(data *coreapi.ResultData) bool {
 	validName := strings.Compare(wf.OnResult.Name, "*") == 0
 	if !validName {
 		validName = strings.Compare(wf.OnResult.Name, data.TaskKey) == 0

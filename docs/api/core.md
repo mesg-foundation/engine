@@ -56,6 +56,10 @@ Subscribe to a stream that listens for events from a service.
 
 
 
+
+
+
+
 #### ListenEventRequest
 The request's data for the `ListenEvent` stream's API.
 
@@ -93,9 +97,21 @@ The request's data for the `ListenEvent` stream's API.
 
 
 
+
+
+
+
+
+
+
+
 </tab>
 
 <tab title="Reply">
+
+
+
+
 
 
 
@@ -126,6 +142,14 @@ The data will be received over time as long as the stream is open.
 | ----- | ---- | ----------- |
 | eventKey | [string](#string) | The event's key. |
 | eventData | [string](#string) | The event's data encoded in JSON. |
+
+
+
+
+
+
+
+
 
 
 
@@ -199,6 +223,10 @@ Subscribe to a stream that listens for task's result from a service.
 
 
 
+
+
+
+
 #### ListenResultRequest
 The request's data for the `ListenResult` stream API.
 
@@ -238,9 +266,25 @@ The request's data for the `ListenResult` stream API.
 
 
 
+
+
+
+
+
+
+
+
 </tab>
 
 <tab title="Reply">
+
+
+
+
+
+
+
+
 
 
 
@@ -312,6 +356,10 @@ The data will be received over time as long as the stream is open.
 
 
 
+
+
+
+
 </tab>
 </tabs>
 
@@ -321,6 +369,10 @@ Execute a service's task through [Core](../guide/start-here/core.md).
 
 <tabs>
 <tab title="Request">
+
+
+
+
 
 
 
@@ -389,9 +441,21 @@ The request's data for the `ExecuteTask` API.
 
 
 
+
+
+
+
+
+
+
+
 </tab>
 
 <tab title="Reply">
+
+
+
+
 
 
 
@@ -421,6 +485,14 @@ The reply's data of the `ExecuteTask` API.
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | executionID | [string](#string) | The unique identifier of the execution. |
+
+
+
+
+
+
+
+
 
 
 
@@ -502,6 +574,16 @@ Start a service. The service must be already deployed to [Core](../guide/start-h
 
 
 
+
+
+
+
+
+
+
+
+
+
 #### StartServiceRequest
 The request's data for the `StartService` API.
 
@@ -516,6 +598,8 @@ The request's data for the `StartService` API.
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | serviceID | [string](#string) | The Service ID. Generated when using the [`DeployService` API](#deployservice). |
+
+
 
 
 
@@ -565,8 +649,20 @@ The request's data for the `StartService` API.
 
 
 
+
+
+
+
+
+
+
+
+
+
 #### StartServiceReply
 Reply of `StartService` API doesn't contain any data.
+
+
 
 
 
@@ -630,6 +726,16 @@ Stop a service. The service must be already deployed to [Core](../guide/start-he
 
 
 
+
+
+
+
+
+
+
+
+
+
 #### StopServiceRequest
 The request's data for the `StopService` API.
 
@@ -649,9 +755,21 @@ The request's data for the `StopService` API.
 
 
 
+
+
 </tab>
 
 <tab title="Reply">
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -702,6 +820,8 @@ Reply of `StopService` API doesn't contain any data.
 
 
 
+
+
 </tab>
 </tabs>
 
@@ -711,6 +831,8 @@ Deploy a service to [Core](../guide/start-here/core.md). This will give you an u
 
 <tabs>
 <tab title="Request">
+
+
 
 
 
@@ -797,9 +919,21 @@ The request's data for `DeployService` API.
 
 
 
+
+
+
+
+
+
+
+
+
+
 </tab>
 
 <tab title="Reply">
+
+
 
 
 
@@ -823,6 +957,16 @@ The reply's data of `DeployService` API.
 | status | [DeployServiceReply.Status](#api.DeployServiceReply.Status) | `status` will be sent after each status change. |
 | serviceID | [string](#string) | `serviceID` will be sent as the last message of stream when service deployed successfully. |
 | validationError | [string](#string) | `validationError` will be sent as the last message of stream when there is a validation error. |
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -935,6 +1079,18 @@ Request's data of the `DeleteService` API.
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 </tab>
 
 <tab title="Reply">
@@ -943,6 +1099,18 @@ Request's data of the `DeleteService` API.
 
 #### DeleteServiceReply
 Reply of `DeleteService` API doesn't contain any data.
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1022,8 +1190,20 @@ List all services already deployed in [Core](../guide/start-here/core.md).
 
 
 
+
+
+
+
 #### ListServicesRequest
 Reply of `ListServices` API doesn't contain any data.
+
+
+
+
+
+
+
+
 
 
 
@@ -1050,6 +1230,10 @@ Reply of `ListServices` API doesn't contain any data.
 </tab>
 
 <tab title="Reply">
+
+
+
+
 
 
 
@@ -1109,7 +1293,15 @@ The reply's data of the `ListServices` API.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| services | [core.Service](#core.Service)[] | The list of previously-deployed services' definitions. [Details here](./service-type.md). |
+| services | [Service](#api.Service)[] | The list of previously-deployed services' definitions. |
+
+
+
+
+
+
+
+
 
 
 
@@ -1144,6 +1336,10 @@ Get the definition of an already-deployed service from its ID.
 
 <tabs>
 <tab title="Request">
+
+
+
+
 
 
 
@@ -1206,9 +1402,21 @@ The request's data for the `GetService` API.
 
 
 
+
+
+
+
+
+
+
+
 </tab>
 
 <tab title="Reply">
+
+
+
+
 
 
 
@@ -1264,7 +1472,15 @@ The reply's data of the `GetService` API.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| service | [core.Service](#core.Service) | Service's definition. [Details here](./service-type.md). |
+| service | [Service](#api.Service) | Service's definition. |
+
+
+
+
+
+
+
+
 
 
 
@@ -1338,6 +1554,16 @@ ServiceLogs gives a stream for dependency logs of a service.
 
 
 
+
+
+
+
+
+
+
+
+
+
 #### ServiceLogsRequest
 The request's data for `ServiceLogs` API.
 
@@ -1346,6 +1572,8 @@ The request's data for `ServiceLogs` API.
 | ----- | ---- | ----------- |
 | serviceID | [string](#string) | The Service ID. Generated when using the [`DeployService` API](#deployservice). |
 | dependencies | [string](#string)[] | __Optional.__ List of dependencies to filter service logs. All by default. |
+
+
 
 
 
@@ -1393,6 +1621,10 @@ The request's data for `ServiceLogs` API.
 
 
 
+
+
+
+
 #### LogData
 LogData holds the log data chunk and log info of service dependencies.
 
@@ -1402,6 +1634,14 @@ LogData holds the log data chunk and log info of service dependencies.
 | dependency | [string](#string) | dependency is the dependency that data belongs. |
 | type | [LogData.Type](#api.LogData.Type) | type is the log type. |
 | data | [bytes](#bytes) | data is a log data chunk. |
+
+
+
+
+
+
+
+
 
 
 
