@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
 )
 
@@ -70,10 +71,15 @@ func (d *Dependency) Status() (container.StatusType, error) {
 // ListRunning returns all the running services.2
 // TODO: should move to another file
 func ListRunning() ([]string, error) {
-	services, err := defaultContainer.ListServices("mesg.hash")
+	c, err := config.Global()
 	if err != nil {
 		return nil, err
 	}
+	services, err := defaultContainer.ListServices("mesg.hash", "mesg.core="+c.Core.Name)
+	if err != nil {
+		return nil, err
+	}
+	// Make service list unique. One mesg service can have multiple docker service.
 	mapRes := make(map[string]uint)
 	for _, service := range services {
 		serviceName := service.Spec.Annotations.Labels["mesg.hash"]
