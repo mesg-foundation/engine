@@ -4,10 +4,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/mesg-foundation/core/x/xerrors"
-
 	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/utils/pretty"
+	"github.com/mesg-foundation/core/x/xerrors"
 	"github.com/spf13/cobra"
 )
 
