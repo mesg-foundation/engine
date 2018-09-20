@@ -50,7 +50,7 @@ func (c *serviceDevCmd) preRunE(cmd *cobra.Command, args []string) error {
 }
 
 func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
-	statuses := make(chan provider.DeployStatus, 0)
+	statuses := make(chan provider.DeployStatus)
 	go printDeployStatuses(statuses)
 	id, validationError, err := c.e.ServiceDeploy(c.path, statuses)
 	pretty.DestroySpinner()
