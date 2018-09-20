@@ -6,7 +6,9 @@ import (
 	"os"
 
 	"github.com/fatih/color"
+	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/utils/pretty"
+	"github.com/mesg-foundation/core/x/xerrors"
 	"github.com/mesg-foundation/core/x/xsignal"
 	"github.com/spf13/cobra"
 )
@@ -48,17 +50,18 @@ func (c *serviceDevCmd) preRunE(cmd *cobra.Command, args []string) error {
 }
 
 func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
-	var (
-		id    string
-		valid bool
-		err   error
-	)
-	id, valid, err = c.e.ServiceDeploy(c.path)
+	statuses := make(chan provider.DeployStatus, 0)
+	go printDeployStatuses(statuses)
+	id, validationError, err := c.e.ServiceDeploy(c.path, statuses)
 	if err != nil {
 		return err
 	}
-	if !valid {
-		return errors.New("To get more information, run: mesg-core service validate")
+	if validationError != nil {
+		pretty.DestroySpinner()
+		return xerrors.Errors{
+			validationError,
+			errors.New("To get more information, run: mesg-core service validate"),
+		}
 	}
 	defer pretty.Progress("Removing the service...", func() { c.e.ServiceDelete(id) })
 

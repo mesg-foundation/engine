@@ -4,6 +4,9 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/mesg-foundation/core/x/xerrors"
+
+	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/spf13/cobra"
 )
@@ -38,19 +41,32 @@ func (c *serviceDeployCmd) preRunE(cmd *cobra.Command, args []string) error {
 }
 
 func (c *serviceDeployCmd) runE(cmd *cobra.Command, args []string) error {
-	var (
-		id    string
-		valid bool
-		err   error
-	)
-	id, valid, err = c.e.ServiceDeploy(c.path)
+	statuses := make(chan provider.DeployStatus, 0)
+	go printDeployStatuses(statuses)
+	id, validationError, err := c.e.ServiceDeploy(c.path, statuses)
 	if err != nil {
 		return err
 	}
-	if !valid {
-		return errors.New("To get more information, run: mesg-core service validate")
+	if validationError != nil {
+		pretty.DestroySpinner()
+		return xerrors.Errors{
+			validationError,
+			errors.New("To get more information, run: mesg-core service validate"),
+		}
 	}
 	fmt.Println("Service deployed with ID:", pretty.Success(id))
 	fmt.Printf("To start it, run the command: mesg-core service start %s\n", id)
 	return nil
+}
+
+func printDeployStatuses(statuses chan provider.DeployStatus) {
+	for status := range statuses {
+		switch status.Type {
+		case provider.RUNNING:
+			pretty.UseSpinner(status.Message)
+		case provider.DONE:
+			pretty.DestroySpinner()
+			fmt.Println(status.Message)
+		}
+	}
 }
