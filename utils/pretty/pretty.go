@@ -224,7 +224,7 @@ func (p *Pretty) ColorizeJSON(keyColor *color.Color, valueColor *color.Color, da
 	f.NumberColor = valueColor
 	f.NullColor = valueColor
 
-	out, err := f.Marshal(data)
+	out, err := f.Format(data)
 	if err != nil {
 		return data
 	}
