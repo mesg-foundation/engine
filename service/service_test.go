@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/docker/docker/api/types"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/container/dockertest"
 	"github.com/mesg-foundation/core/service/importer"
@@ -16,10 +17,21 @@ import (
 func newContainerAndDockerTest(t *testing.T) (*container.Container, *dockertest.Testing) {
 	dt := dockertest.New()
 
+	dt.ProvideInfo(types.Info{}, nil)
+	dt.ProvideNetworkInspect(types.NetworkResource{}, nil)
+	dt.ProvideNetworkCreate(types.NetworkCreateResponse{}, nil)
+
 	container, err := container.New(container.ClientOption(dt.Client()))
 	require.Nil(t, err)
 
 	return container, dt
+}
+
+func newFromServiceAndDockerTest(t *testing.T, s *Service) (*Service, *dockertest.Testing) {
+	c, dt := newContainerAndDockerTest(t)
+	s, err := FromService(s, ContainerOption(c))
+	require.NoError(t, err)
+	return s, dt
 }
 
 func TestGenerateId(t *testing.T) {
