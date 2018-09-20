@@ -1,8 +1,6 @@
 package services
 
 import (
-	"encoding/json"
-
 	"github.com/mesg-foundation/core/service"
 )
 
@@ -18,6 +16,5 @@ func Get(id string) (*service.Service, error) {
 		err = handleErrorNotFound(err, id)
 		return nil, err
 	}
-	s := &service.Service{}
-	return s, json.Unmarshal(bytes, s)
+	return decode(id, bytes)
 }

@@ -2,10 +2,12 @@ package service
 
 import (
 	"encoding/json"
+
+	"github.com/mesg-foundation/core/protobuf/serviceapi"
 )
 
 // ListenTask creates a stream that will send data for every task to execute.
-func (s *Server) ListenTask(request *ListenTaskRequest, stream Service_ListenTaskServer) error {
+func (s *Server) ListenTask(request *serviceapi.ListenTaskRequest, stream serviceapi.Service_ListenTaskServer) error {
 	ln, err := s.api.ListenTask(request.Token)
 	if err != nil {
 		return err
@@ -27,7 +29,7 @@ func (s *Server) ListenTask(request *ListenTaskRequest, stream Service_ListenTas
 				return err
 			}
 
-			if err := stream.Send(&TaskData{
+			if err := stream.Send(&serviceapi.TaskData{
 				ExecutionID: execution.ID,
 				TaskKey:     execution.Task,
 				InputData:   string(inputs),

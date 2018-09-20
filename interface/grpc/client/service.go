@@ -3,7 +3,7 @@ package client
 import (
 	"context"
 
-	"github.com/mesg-foundation/core/interface/grpc/core"
+	"github.com/mesg-foundation/core/protobuf/coreapi"
 )
 
 func (wf *Workflow) services() (services []string) {
@@ -35,7 +35,7 @@ func iterateService(wf *Workflow, action func(string) error) (err error) {
 
 func startServices(wf *Workflow) error {
 	return iterateService(wf, func(ID string) (err error) {
-		_, err = wf.client.StartService(context.Background(), &core.StartServiceRequest{
+		_, err = wf.client.StartService(context.Background(), &coreapi.StartServiceRequest{
 			ServiceID: ID,
 		})
 		return
@@ -44,7 +44,7 @@ func startServices(wf *Workflow) error {
 
 func stopServices(wf *Workflow) error {
 	return iterateService(wf, func(ID string) (err error) {
-		_, err = wf.client.StopService(context.Background(), &core.StopServiceRequest{
+		_, err = wf.client.StopService(context.Background(), &coreapi.StopServiceRequest{
 			ServiceID: ID,
 		})
 		return

@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package api;
-option go_package = "service";
+option go_package = "serviceapi";
 
 // This is the API for MESG Services to interact with MESG Core.
 // It is to be consumed only by MESG Services.
