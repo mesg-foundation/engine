@@ -1,6 +1,7 @@
 package daemon
 
 import (
+	"path/filepath"
 	"testing"
 
 	"github.com/mesg-foundation/core/config"
@@ -11,10 +12,6 @@ import (
 
 // startForTest starts a dummy MESG Core service
 func startForTest() {
-	c, err := config.Global()
-	if err != nil {
-		panic(err)
-	}
 	status, err := Status()
 	if err != nil {
 		panic(err)
@@ -27,7 +24,7 @@ func startForTest() {
 		panic(err)
 	}
 	_, err = defaultContainer.StartService(container.ServiceOptions{
-		Namespace:  []string{c.Core.Name},
+		Namespace:  []string{},
 		Image:      "http-server",
 		NetworksID: []string{sharedNetworkID},
 	})
@@ -41,7 +38,7 @@ func TestStartConfig(t *testing.T) {
 	c, _ := config.Global()
 	spec, err := serviceSpec()
 	require.NoError(t, err)
-	require.Equal(t, []string{c.Core.Name}, spec.Namespace)
+	require.Equal(t, []string{}, spec.Namespace)
 	// Make sure that the config directory is passed in parameter to write on the same folder
 	require.Contains(t, spec.Env, "MESG_LOG_LEVEL=info")
 	require.Contains(t, spec.Env, "MESG_LOG_FORMAT=text")
@@ -55,7 +52,7 @@ func TestStartConfig(t *testing.T) {
 	require.Equal(t, spec.Mounts[0].Target, c.Docker.Socket)
 	require.True(t, spec.Mounts[0].Bind)
 	// Ensure that the host users folder is sync with the core
-	require.Equal(t, spec.Mounts[1].Source, c.Core.RootPath)
-	require.Equal(t, spec.Mounts[1].Target, c.Docker.Core.Path)
+	require.Equal(t, spec.Mounts[1].Source, c.CorePath())
+	require.Equal(t, spec.Mounts[1].Target, filepath.Join(c.Docker.Core.Path, c.Core.Name))
 	require.True(t, spec.Mounts[1].Bind)
 }
