@@ -5,6 +5,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/database/services"
@@ -62,6 +63,13 @@ func (d *serviceDeployer) FromGitURL(url string) (*service.Service, *importer.Va
 	if err := xgit.Clone(url, path); err != nil {
 		return nil, nil, err
 	}
+
+	// XXX: remove .git folder from repo.
+	// It makes docker build iamge id same between repo clones.
+	if err := os.RemoveAll(filepath.Join(path, ".git")); err != nil {
+		return nil, nil, err
+	}
+
 	d.sendStatus(fmt.Sprintf("%s Service downloaded with success.", aurora.Green("✔")), DONE)
 	r, err := xarchive.GzippedTar(path)
 	if err != nil {
