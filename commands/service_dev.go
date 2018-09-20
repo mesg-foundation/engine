@@ -53,11 +53,11 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 	statuses := make(chan provider.DeployStatus, 0)
 	go printDeployStatuses(statuses)
 	id, validationError, err := c.e.ServiceDeploy(c.path, statuses)
+	pretty.DestroySpinner()
 	if err != nil {
 		return err
 	}
 	if validationError != nil {
-		pretty.DestroySpinner()
 		return xerrors.Errors{
 			validationError,
 			errors.New("To get more information, run: mesg-core service validate"),
