@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/mesg-foundation/core/protobuf/coreapi"
-
 	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/spf13/cobra"
 )
