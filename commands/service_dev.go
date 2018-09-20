@@ -53,7 +53,7 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 		valid bool
 		err   error
 	)
-	pretty.Progress("Deploying the service...", func() {
+	pretty.Progress("Deploying service...", func() {
 		id, valid, err = c.e.ServiceDeploy(c.path)
 	})
 	if err != nil {
@@ -62,14 +62,14 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 	if !valid {
 		return errors.New("Service is invalid. To get more information, run: mesg-core service validate")
 	}
-	fmt.Printf("%s Service deployed\n", pretty.SuccessSign)
-	defer pretty.Progress("Removing the service...", func() { c.e.ServiceDelete(id) })
+	fmt.Printf("%s Service deployed with ID: %v\n", pretty.SuccessSign, pretty.Success(id))
+	defer pretty.Progress("Removing service...", func() { c.e.ServiceDelete(id) })
 
-	pretty.Progress("Starting the service...", func() { err = c.e.ServiceStart(id) })
+	pretty.Progress("Starting service...", func() { err = c.e.ServiceStart(id) })
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%s Service started with success: %s\n", pretty.SuccessSign, pretty.Success(id))
+	fmt.Printf("%s Service started\n", pretty.SuccessSign)
 
 	listenEventsC, eventsErrC, err := c.e.ServiceListenEvents(id, c.eventFilter)
 	if err != nil {

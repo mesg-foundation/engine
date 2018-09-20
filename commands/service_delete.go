@@ -58,8 +58,12 @@ func (c *serviceDeleteCmd) preRunE(cmd *cobra.Command, args []string) error {
 }
 
 func (c *serviceDeleteCmd) runE(cmd *cobra.Command, args []string) error {
+	var err error
 	if c.all {
-		if err := c.e.ServiceDeleteAll(); err != nil {
+		pretty.Progress("Deleting all services...", func() {
+			err = c.e.ServiceDeleteAll()
+		})
+		if err != nil {
 			return err
 		}
 		fmt.Printf("%s all services are deleted\n", pretty.SuccessSign)
@@ -68,11 +72,14 @@ func (c *serviceDeleteCmd) runE(cmd *cobra.Command, args []string) error {
 
 	exitWithError := false
 	for _, arg := range args {
-		if err := c.e.ServiceDelete(arg); err != nil {
+		pretty.Progress(fmt.Sprintf("Deleting service %q...", arg), func() {
+			err = c.e.ServiceDelete(arg)
+		})
+		if err != nil {
 			exitWithError = true
-			fmt.Fprintf(os.Stderr, "%s can't delete %s service: %s\n", pretty.FailSign, arg, err)
+			fmt.Fprintf(os.Stderr, "%s can't delete service %q: %s\n", pretty.FailSign, arg, err)
 		} else {
-			fmt.Printf("%s service %s deleted\n", pretty.SuccessSign, arg)
+			fmt.Printf("%s service %q deleted\n", pretty.SuccessSign, arg)
 		}
 	}
 
