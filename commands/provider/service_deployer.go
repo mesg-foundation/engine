@@ -2,11 +2,13 @@ package provider
 
 import (
 	"context"
+	"fmt"
 	"io"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
+	"github.com/mesg-foundation/core/utils/pretty"
 )
 
 // ServiceDeploy deploys service from given path.
@@ -87,17 +89,31 @@ func readDeployReply(stream coreapi.Core_DeployServiceClient, deployment chan de
 		}
 
 		var (
+			status          = message.GetStatus()
 			serviceID       = message.GetServiceID()
 			validationError = message.GetValidationError()
 		)
 
 		switch {
+		case status != nil:
+			switch status.Type {
+			case coreapi.DeployServiceReply_Status_RUNNING:
+				pretty.UseSpinner(status.Message)
+
+			case coreapi.DeployServiceReply_Status_DONE:
+				pretty.DestroySpinner()
+				fmt.Println(status.Message)
+			}
+
 		case serviceID != "":
+			pretty.DestroySpinner()
 			result.serviceID = serviceID
 			deployment <- result
 			return
 
 		case validationError != "":
+			pretty.DestroySpinner()
+			fmt.Println(pretty.Fail(validationError))
 			result.isValid = false
 			deployment <- result
 			return

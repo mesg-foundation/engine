@@ -209,7 +209,7 @@ func (s *Service) deploy() error {
 	}
 
 	s.sendStatus(fmt.Sprintf("%s Image built with success.", aurora.Green("✔")), DDONE)
-	s.sendStatus(fmt.Sprintf("%s Completed.", aurora.Green("✔")), DDONE)
+	s.sendStatus(fmt.Sprintf("%s Service deployed.", aurora.Green("✔")), DDONE)
 
 	s.configuration.Key = "service"
 	s.configuration.Image = imageHash
