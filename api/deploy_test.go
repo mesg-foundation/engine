@@ -62,7 +62,7 @@ func TestDeployService(t *testing.T) {
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
-		Message: fmt.Sprintf("%s Completed.", aurora.Green("✔")),
+		Message: fmt.Sprintf("%s Service deployed.", aurora.Green("✔")),
 		Type:    DONE,
 	}, <-statuses)
 
@@ -159,7 +159,7 @@ func TestDeployServiceFromURL(t *testing.T) {
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
-		Message: fmt.Sprintf("%s Completed.", aurora.Green("✔")),
+		Message: fmt.Sprintf("%s Service deployed.", aurora.Green("✔")),
 		Type:    DONE,
 	}, <-statuses)
 
