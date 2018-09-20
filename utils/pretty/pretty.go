@@ -1,7 +1,6 @@
 package pretty
 
 import (
-	"encoding/json"
 	"fmt"
 	"runtime"
 	"strings"
@@ -9,6 +8,7 @@ import (
 
 	"github.com/briandowns/spinner"
 	"github.com/fatih/color"
+	prettyjson "github.com/hokaccha/go-prettyjson"
 )
 
 var (
@@ -53,6 +53,8 @@ type Pretty struct {
 	*color.Color
 
 	*spinner.Spinner
+
+	*prettyjson.Formatter
 }
 
 // New returns a new pretty object with all values set to default one.
@@ -69,6 +71,8 @@ func New() *Pretty {
 		Color: color.New(),
 
 		Spinner: spinner.New(spinnerCharset, spinnerDuration),
+
+		Formatter: prettyjson.NewFormatter(),
 	}
 }
 
@@ -80,6 +84,8 @@ func (p *Pretty) DisableColor() {
 	p.failColor.DisableColor()
 	p.boldColor.DisableColor()
 	p.Color.DisableColor()
+
+	p.Formatter.DisabledColor = true
 }
 
 // EnableColor enables the color output.
@@ -95,6 +101,7 @@ func (p *Pretty) EnableColor() {
 	p.failColor.EnableColor()
 	p.boldColor.EnableColor()
 	p.Color.EnableColor()
+	p.Formatter.DisabledColor = false
 }
 
 // DisableSpinner disables the spinner.
@@ -207,29 +214,21 @@ func (p *Pretty) ColorizeJSON(keyColor *color.Color, valueColor *color.Color, da
 		return data
 	}
 
-	var (
-		in  map[string]interface{}
-		out []string
-	)
+	f := prettyjson.NewFormatter()
+	f.Indent = 0
+	f.Newline = ""
 
-	if json.Unmarshal(data, &in) != nil {
+	f.KeyColor = keyColor
+	f.StringColor = valueColor
+	f.BoolColor = valueColor
+	f.NumberColor = valueColor
+	f.NullColor = valueColor
+
+	out, err := f.Marshal(data)
+	if err != nil {
 		return data
 	}
-
-	if keyColor == nil {
-		keyColor = color.New()
-	}
-	if valueColor == nil {
-		valueColor = color.New()
-	}
-	for key, value := range in {
-		out = append(out, fmt.Sprintf(
-			`"%v": "%v"`,
-			keyColor.Sprint(key),
-			valueColor.Sprint(value),
-		))
-	}
-	return []byte(fmt.Sprintf("{ %v }", strings.Join(out, ", ")))
+	return out
 }
 
 // Progress prints spinner with the given message while calling fn function.
