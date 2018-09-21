@@ -56,7 +56,8 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 		resultsErrC    chan error
 	)
 	pretty.Progress(fmt.Sprintf("Executing task %q...", c.taskKey), func() {
-		s, err := c.e.ServiceByID(args[0])
+		var s *coreapi.Service
+		s, err = c.e.ServiceByID(args[0])
 		if err != nil {
 			return
 		}
@@ -83,14 +84,12 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 		// wlll never come TODO: investigate
 		time.Sleep(1 * time.Second)
 
-		if err = c.e.ServiceExecuteTask(args[0], c.taskKey, inputData, tags); err != nil {
-			return
-		}
+		err = c.e.ServiceExecuteTask(args[0], c.taskKey, inputData, tags)
 	})
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%s Task %q executed\n", pretty.SuccessSign, c.taskKey)
+	fmt.Printf("%s Task %q executed.\n", pretty.SuccessSign, c.taskKey)
 
 	var result *coreapi.ResultData
 	pretty.Progress("Waiting for result...", func() {

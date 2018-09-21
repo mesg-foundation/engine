@@ -33,6 +33,6 @@ func (c *serviceStopCmd) runE(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%s Service stopped\n", pretty.SuccessSign)
+	fmt.Printf("%s Service stopped.\n", pretty.SuccessSign)
 	return nil
 }

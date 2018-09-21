@@ -113,7 +113,7 @@ func (c *serviceInitCmd) runE(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%s Service initialized in %q\n", pretty.SuccessSign, c.dir)
+	fmt.Printf("%s Service initialized in %q.\n", pretty.SuccessSign, c.dir)
 	return nil
 }
 

@@ -63,14 +63,17 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 			errors.New("To get more information, run: mesg-core service validate"),
 		}
 	}
-	fmt.Printf("%s Service deployed with ID: %v\n", pretty.SuccessSign, pretty.Success(id))
-	defer pretty.Progress("Removing service...", func() { c.e.ServiceDelete(id) })
+	fmt.Printf("%s Service deployed with ID: %v\n\t", pretty.SuccessSign, pretty.Success(id))
+	defer func() {
+		pretty.Progress("Removing the service...", func() { c.e.ServiceDelete(id) })
+		fmt.Printf("%s Service removed.\n", pretty.SuccessSign)
+	}()
 
-	pretty.Progress("Starting service...", func() { err = c.e.ServiceStart(id) })
+	pretty.Progress("Starting the service...", func() { err = c.e.ServiceStart(id) })
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%s Service started\n", pretty.SuccessSign)
+	fmt.Printf("%s Service started.\n", pretty.SuccessSign)
 
 	listenEventsC, eventsErrC, err := c.e.ServiceListenEvents(id, c.eventFilter)
 	if err != nil {
@@ -90,27 +93,29 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 
 	abort := xsignal.WaitForInterrupt()
 
-loop:
 	for {
 		select {
+		case <-abort:
+			return nil
+
 		case e := <-listenEventsC:
 			fmt.Printf("Receive event %s: %s\n",
 				pretty.Success(e.EventKey),
 				pretty.ColorizeJSON(pretty.FgCyan, nil, false, []byte(e.EventData)),
 			)
+
 		case err := <-eventsErrC:
 			fmt.Fprintf(os.Stderr, "%s Listening events error: %s", pretty.FailSign, err)
+
 		case r := <-listenResultsC:
 			fmt.Printf("Receive result %s %s: %s\n",
 				pretty.Success(r.TaskKey),
 				pretty.Colorize(color.New(color.FgCyan), r.OutputKey),
 				pretty.ColorizeJSON(pretty.FgCyan, nil, false, []byte(r.OutputData)),
 			)
+
 		case err := <-resultsErrC:
 			fmt.Fprintf(os.Stderr, "%s Listening results error: %s", pretty.FailSign, err)
-		case <-abort:
-			break loop
 		}
 	}
-	return nil
 }
