@@ -1,6 +1,8 @@
 package services
 
 import (
+	"fmt"
+
 	leveldbErrors "github.com/syndtr/goleveldb/leveldb/errors"
 )
 
@@ -10,7 +12,7 @@ type NotFound struct {
 }
 
 func (e NotFound) Error() string {
-	return "Database services: Service with hash '" + e.Hash + "' not found"
+	return fmt.Sprintf("Database services: Service %q not found", e.Hash)
 }
 
 func handleErrorNotFound(err error, hash string) error {
@@ -18,4 +20,13 @@ func handleErrorNotFound(err error, hash string) error {
 		return NotFound{Hash: hash}
 	}
 	return err
+}
+
+// DecodeError represents a service impossible to decode
+type DecodeError struct {
+	Hash string
+}
+
+func (e *DecodeError) Error() string {
+	return fmt.Sprintf("Database services: Could not decode service %q.", e.Hash)
 }
