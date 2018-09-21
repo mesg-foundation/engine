@@ -57,35 +57,35 @@ func TestIntegrationStopNotExistingService(t *testing.T) {
 	require.Nil(t, err)
 }
 
-func TestIntegrationServiceStatusNeverStarted(t *testing.T) {
+func TestIntegrationStatusNeverStarted(t *testing.T) {
 	c, err := New()
 	require.Nil(t, err)
-	namespace := []string{"TestServiceStatusNeverStarted"}
-	status, err := c.ServiceStatus(namespace)
+	namespace := []string{"TestStatusNeverStarted"}
+	status, err := c.Status(namespace)
 	require.Nil(t, err)
 	require.NotEqual(t, RUNNING, status)
 	require.Equal(t, STOPPED, status)
 }
 
-func TestIntegrationServiceStatusRunning(t *testing.T) {
+func TestIntegrationStatusRunning(t *testing.T) {
 	c, err := New()
 	require.Nil(t, err)
-	namespace := []string{"TestServiceStatusRunning"}
+	namespace := []string{"TestStatusRunning"}
 	startTestService(namespace)
 	defer c.StopService(namespace)
-	status, err := c.ServiceStatus(namespace)
+	status, err := c.Status(namespace)
 	require.Nil(t, err)
 	require.Equal(t, status, RUNNING)
 	require.NotEqual(t, status, STOPPED)
 }
 
-func TestIntegrationServiceStatusStopped(t *testing.T) {
+func TestIntegrationStatusStopped(t *testing.T) {
 	c, err := New()
 	require.Nil(t, err)
-	namespace := []string{"TestServiceStatusStopped"}
+	namespace := []string{"TestStatusStopped"}
 	startTestService(namespace)
 	c.StopService(namespace)
-	status, err := c.ServiceStatus(namespace)
+	status, err := c.Status(namespace)
 	require.Nil(t, err)
 	require.Equal(t, status, STOPPED)
 	require.NotEqual(t, status, RUNNING)

@@ -22,7 +22,7 @@ func TestIntegrationDeployService(t *testing.T) {
 
 	require.Len(t, stream.serviceID, 40)
 	require.Contains(t, stream.statuses, api.DeployStatus{
-		Message: fmt.Sprintf("%s Completed.", aurora.Green("✔")),
+		Message: fmt.Sprintf("%s Image built with success.", aurora.Green("✔")),
 		Type:    api.DONE,
 	})
 }
