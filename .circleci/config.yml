@@ -25,23 +25,15 @@ runOnDocker: &runOnDocker
   working_directory: /go/src/github.com/mesg-foundation/core
 
 jobs:
-  "build_docker":
-    <<: *runOnMachine
-    steps:
-      - checkout
-      - run: docker build -t mesg/core:$CIRCLE_SHA1 --build-arg version="dev build `echo $CIRCLE_SHA1 | cut -c1-7`" .
-      - run: docker build -t sleep docker-images/sleep/
-      - run: docker build -t http-server docker-images/http-server/
-
   "unit_test":
     <<: *runOnDocker
     steps:
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker # this should be remove when no test are actually using docker
       - run: go get -t ./...
-      - run: docker swarm init
-      - run: docker build -t sleep docker-images/sleep/
-      - run: docker build -t http-server docker-images/http-server/
+      - run: docker swarm init # this should be remove when no test are actually using docker
+      - run: docker build -t sleep docker-images/sleep/ # this should be remove when no test are actually using docker
+      - run: docker build -t http-server docker-images/http-server/ # this should be remove when no test are actually using docker
       - run: env MESG_CORE_IMAGE=mesg/core:NONEXISTINGIMAGE go test -timeout 180s -p 1 -coverprofile=coverage.txt ./...
       - run: bash <(curl -s https://codecov.io/bash)
   
@@ -52,9 +44,9 @@ jobs:
       - setup_remote_docker
       - run: go get -t ./...
       - run: docker swarm init
-      - run: docker build -t sleep docker-images/sleep/
+      - run: docker build -t sleep docker-images/sleep/ # the build should be move to another task with a cache system to share it between tasks
       - run: docker build -t http-server docker-images/http-server/
-      - run: env MESG_CORE_IMAGE=mesg/core:$CIRCLE_SHA1 go test -timeout 180s -p 1 -tags=integration ./...
+      - run: go test -timeout 180s -p 1 -tags=integration ./...
 
   "publish_docker_dev":
     <<: *runOnMachine
