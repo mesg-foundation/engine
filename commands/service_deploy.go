@@ -63,9 +63,16 @@ func printDeployStatuses(statuses chan provider.DeployStatus) {
 		switch status.Type {
 		case provider.RUNNING:
 			pretty.UseSpinner(status.Message)
-		case provider.DONE:
+		default:
+			var sign string
+			switch status.Type {
+			case provider.DONE_POSITIVE:
+				sign = pretty.SuccessSign
+			case provider.DONE_NEGATIVE:
+				sign = pretty.FailSign
+			}
 			pretty.DestroySpinner()
-			fmt.Println(status.Message)
+			fmt.Printf("%s %s\n", sign, status.Message)
 		}
 	}
 }

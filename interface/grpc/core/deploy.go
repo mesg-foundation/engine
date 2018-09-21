@@ -50,8 +50,10 @@ func sendDeployStatus(statuses chan api.DeployStatus, stream coreapi.Core_Deploy
 		switch status.Type {
 		case api.RUNNING:
 			typ = coreapi.DeployServiceReply_Status_RUNNING
-		case api.DONE:
-			typ = coreapi.DeployServiceReply_Status_DONE
+		case api.DONE_POSITIVE:
+			typ = coreapi.DeployServiceReply_Status_DONE_POSITIVE
+		case api.DONE_NEGATIVE:
+			typ = coreapi.DeployServiceReply_Status_DONE_NEGATIVE
 		}
 
 		stream.Send(&coreapi.DeployServiceReply{

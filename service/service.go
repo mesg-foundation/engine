@@ -11,7 +11,6 @@ import (
 
 	"github.com/cnf/structhash"
 	"github.com/docker/docker/pkg/archive"
-	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/service/importer"
 	uuid "github.com/satori/go.uuid"
@@ -71,11 +70,14 @@ type DStatusType int
 const (
 	_ DStatusType = iota // skip zero value.
 
-	// DRUNNING indicates that status message belongs to an active state.
+	// DRUNNING indicates that status message belongs to a continuous state.
 	DRUNNING
 
-	// DDONE indicates that status message belongs to completed state.
-	DDONE
+	// DDONE_POSITIVE indicates that status message belongs to a positive noncontinuous state.
+	DDONE_POSITIVE
+
+	// DDONE_NEGATIVE indicates that status message belongs to a negative noncontinuous state.
+	DDONE_NEGATIVE
 )
 
 // DeployStatus represents the deployment status.
@@ -182,7 +184,7 @@ func (s *Service) saveContext(r io.Reader) error {
 	}
 
 	s.sendStatus("Receiving service context...", DRUNNING)
-	defer s.sendStatus(fmt.Sprintf("%s Service context received with success.", aurora.Green("✔")), DDONE)
+	defer s.sendStatus("Service context received with success.", DDONE_POSITIVE)
 
 	return archive.Untar(r, s.tempPath, &archive.TarOptions{
 		Compression: archive.Gzip,
@@ -210,8 +212,8 @@ func (s *Service) deploy() error {
 		return err
 	}
 
-	s.sendStatus(fmt.Sprintf("%s Image built with success.", aurora.Green("✔")), DDONE)
-	s.sendStatus(fmt.Sprintf("%s Service deployed.", aurora.Green("✔")), DDONE)
+	s.sendStatus("Image built with success.", DDONE_POSITIVE)
+	s.sendStatus("Service deployed.", DDONE_POSITIVE)
 
 	s.configuration.Key = "service"
 	s.configuration.Image = imageHash
@@ -223,8 +225,7 @@ func (s *Service) deploy() error {
 func (s *Service) checkDeprecations() error {
 	if _, err := os.Stat(filepath.Join(s.tempPath, ".mesgignore")); err == nil {
 		// TODO: remove for a future release
-		s.sendStatus(fmt.Sprintf("%s [DEPRECATED] Please use .dockerignore instead of .mesgignore",
-			aurora.Red("⨯")), DDONE)
+		s.sendStatus("[DEPRECATED] Please use .dockerignore instead of .mesgignore", DDONE_NEGATIVE)
 	}
 	return nil
 }
