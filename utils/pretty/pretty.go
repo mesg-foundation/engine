@@ -1,7 +1,6 @@
 package pretty
 
 import (
-	"encoding/json"
 	"fmt"
 	"runtime"
 	"strings"
@@ -9,6 +8,7 @@ import (
 
 	"github.com/briandowns/spinner"
 	"github.com/fatih/color"
+	prettyjson "github.com/hokaccha/go-prettyjson"
 )
 
 var (
@@ -53,6 +53,8 @@ type Pretty struct {
 	*color.Color
 
 	*spinner.Spinner
+
+	*prettyjson.Formatter
 }
 
 // New returns a new pretty object with all values set to default one.
@@ -69,6 +71,8 @@ func New() *Pretty {
 		Color: color.New(),
 
 		Spinner: spinner.New(spinnerCharset, spinnerDuration),
+
+		Formatter: prettyjson.NewFormatter(),
 	}
 }
 
@@ -80,6 +84,8 @@ func (p *Pretty) DisableColor() {
 	p.failColor.DisableColor()
 	p.boldColor.DisableColor()
 	p.Color.DisableColor()
+
+	p.Formatter.DisabledColor = true
 }
 
 // EnableColor enables the color output.
@@ -95,6 +101,7 @@ func (p *Pretty) EnableColor() {
 	p.failColor.EnableColor()
 	p.boldColor.EnableColor()
 	p.Color.EnableColor()
+	p.Formatter.DisabledColor = false
 }
 
 // DisableSpinner disables the spinner.
@@ -202,34 +209,28 @@ func (p *Pretty) Colorize(c *color.Color, msg string) string {
 
 // ColorizeJSON colors keys and values of stringified JSON. On errors the original string is returned.
 // If color is nil then key/value won't be colorize.
-func (p *Pretty) ColorizeJSON(keyColor *color.Color, valueColor *color.Color, data []byte) []byte {
+func (p *Pretty) ColorizeJSON(keyColor *color.Color, valueColor *color.Color, multiline bool, data []byte) []byte {
 	if p.noColor {
 		return data
 	}
 
-	var (
-		in  map[string]interface{}
-		out []string
-	)
+	f := prettyjson.NewFormatter()
+	if !multiline {
+		f.Indent = 0
+		f.Newline = ""
+	}
 
-	if json.Unmarshal(data, &in) != nil {
+	f.KeyColor = keyColor
+	f.StringColor = valueColor
+	f.BoolColor = valueColor
+	f.NumberColor = valueColor
+	f.NullColor = valueColor
+
+	out, err := f.Format(data)
+	if err != nil {
 		return data
 	}
-
-	if keyColor == nil {
-		keyColor = color.New()
-	}
-	if valueColor == nil {
-		valueColor = color.New()
-	}
-	for key, value := range in {
-		out = append(out, fmt.Sprintf(
-			`"%v": "%v"`,
-			keyColor.Sprint(key),
-			valueColor.Sprint(value),
-		))
-	}
-	return []byte(fmt.Sprintf("{ %v }", strings.Join(out, ", ")))
+	return out
 }
 
 // Progress prints spinner with the given message while calling fn function.
@@ -359,8 +360,8 @@ func Progress(message string, fn func()) { pg.Progress(message, fn) }
 
 // ColorizeJSON colors keys and values of stringified JSON. On errors the original string is returned.
 // If color is nil then key/value won't be colorize.
-func ColorizeJSON(keyColor *color.Color, valueColor *color.Color, data []byte) []byte {
-	return pg.ColorizeJSON(keyColor, valueColor, data)
+func ColorizeJSON(keyColor *color.Color, valueColor *color.Color, multiline bool, data []byte) []byte {
+	return pg.ColorizeJSON(keyColor, valueColor, multiline, data)
 }
 
 // FgColors returns a slice with predefiend foreground color.

@@ -196,6 +196,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:6727359c2ab1efe714cc87acb36be6cf15a3aae078d8ae736a17fec787dab307"
+  name = "github.com/hokaccha/go-prettyjson"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "f579f869bbfea48a61fbea09207cadd1aaeceb83"
+
+[[projects]]
+  branch = "master"
   digest = "1:870d441fe217b8e689d7949fef6e43efbc787e50f200cb1e70dbca9204a1d6be"
   name = "github.com/inconshreveable/mousetrap"
   packages = ["."]
@@ -725,9 +733,11 @@
     "github.com/golang/protobuf/proto",
     "github.com/grpc-ecosystem/go-grpc-middleware",
     "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus",
+    "github.com/hokaccha/go-prettyjson",
     "github.com/kelseyhightower/envconfig",
     "github.com/logrusorgru/aurora",
     "github.com/mesg-foundation/prefixer",
+    "github.com/pkg/errors",
     "github.com/satori/go.uuid",
     "github.com/sirupsen/logrus",
     "github.com/spf13/cobra",
