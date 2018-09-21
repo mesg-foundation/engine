@@ -215,7 +215,7 @@ func (p *Pretty) ColorizeJSON(keyColor *color.Color, valueColor *color.Color, mu
 	}
 
 	f := prettyjson.NewFormatter()
-	if false == multiline {
+	if !multiline {
 		f.Indent = 0
 		f.Newline = ""
 	}
