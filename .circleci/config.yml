@@ -85,12 +85,8 @@ workflows:
   version: 2
   build_n_deploy:
     jobs:
-      - "build_docker":
-          <<: *transient
       - "unit_test":
           <<: *transient
-          requires:
-            - "build_docker"
       - "integration_test":
           <<: *transient
           requires:
