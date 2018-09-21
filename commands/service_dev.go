@@ -6,7 +6,9 @@ import (
 	"os"
 
 	"github.com/fatih/color"
+	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/utils/pretty"
+	"github.com/mesg-foundation/core/x/xerrors"
 	"github.com/mesg-foundation/core/x/xsignal"
 	"github.com/spf13/cobra"
 )
@@ -48,21 +50,19 @@ func (c *serviceDevCmd) preRunE(cmd *cobra.Command, args []string) error {
 }
 
 func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
-	var (
-		id    string
-		valid bool
-		err   error
-	)
-	pretty.Progress("Deploying the service...", func() {
-		id, valid, err = c.e.ServiceDeploy(c.path)
-	})
+	statuses := make(chan provider.DeployStatus)
+	go printDeployStatuses(statuses)
+	id, validationError, err := c.e.ServiceDeploy(c.path, statuses)
+	pretty.DestroySpinner()
 	if err != nil {
 		return err
 	}
-	if !valid {
-		return errors.New("Service is invalid. To get more information, run: mesg-core service validate")
+	if validationError != nil {
+		return xerrors.Errors{
+			validationError,
+			errors.New("To get more information, run: mesg-core service validate"),
+		}
 	}
-	fmt.Printf("%s Service deployed\n", pretty.SuccessSign)
 	defer pretty.Progress("Removing the service...", func() { c.e.ServiceDelete(id) })
 
 	pretty.Progress("Starting the service...", func() { err = c.e.ServiceStart(id) })
@@ -95,7 +95,7 @@ loop:
 		case e := <-listenEventsC:
 			fmt.Printf("Receive event %s: %s\n",
 				pretty.Success(e.EventKey),
-				pretty.ColorizeJSON(pretty.FgCyan, nil, []byte(e.EventData)),
+				pretty.ColorizeJSON(pretty.FgCyan, nil, false, []byte(e.EventData)),
 			)
 		case err := <-eventsErrC:
 			fmt.Fprintf(os.Stderr, "%s Listening events error: %s", pretty.FailSign, err)
@@ -103,7 +103,7 @@ loop:
 			fmt.Printf("Receive result %s %s: %s\n",
 				pretty.Success(r.TaskKey),
 				pretty.Colorize(color.New(color.FgCyan), r.OutputKey),
-				pretty.ColorizeJSON(pretty.FgCyan, nil, []byte(r.OutputData)),
+				pretty.ColorizeJSON(pretty.FgCyan, nil, false, []byte(r.OutputData)),
 			)
 		case err := <-resultsErrC:
 			fmt.Fprintf(os.Stderr, "%s Listening results error: %s", pretty.FailSign, err)
