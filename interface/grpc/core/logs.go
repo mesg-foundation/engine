@@ -15,8 +15,8 @@ func (s *Server) ServiceLogs(request *coreapi.ServiceLogsRequest, stream coreapi
 	}
 
 	var (
-		chunks = make(chan chunker.Data, 0)
-		errs   = make(chan error, 0)
+		chunks = make(chan chunker.Data)
+		errs   = make(chan error)
 	)
 
 	for _, l := range sl {
