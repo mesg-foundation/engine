@@ -29,7 +29,7 @@ var (
 	FailSign    = pg.Fail("⨯")
 )
 
-// Predefiend colors
+// Predefined colors.
 var (
 	FgYellow  = color.New(color.FgYellow)
 	FgBlue    = color.New(color.FgBlue)
@@ -241,9 +241,19 @@ func (p *Pretty) Progress(message string, fn func()) {
 		return
 	}
 
+	p.UseSpinner(message)
+	fn()
+	p.DestroySpinner()
+}
+
+// UseSpinner uses spinner animation for message.
+func (p *Pretty) UseSpinner(message string) {
 	p.Spinner.Suffix = " " + strings.TrimRight(message, "\n")
 	p.Spinner.Start()
-	fn()
+}
+
+// DestroySpinner destroyes spinner animation.
+func (p *Pretty) DestroySpinner() {
 	p.Spinner.Stop()
 	p.Spinner.Suffix = ""
 }
@@ -357,6 +367,12 @@ func Colorize(c *color.Color, msg string) string { return pg.Colorize(c, msg) }
 
 // Progress prints spinner with the given message while calling fn function.
 func Progress(message string, fn func()) { pg.Progress(message, fn) }
+
+// UseSpinner uses spinner animation for message.
+func UseSpinner(message string) { pg.UseSpinner(message) }
+
+// DestroySpinner destroyes spinner animation.
+func DestroySpinner() { pg.DestroySpinner() }
 
 // ColorizeJSON colors keys and values of stringified JSON. On errors the original string is returned.
 // If color is nil then key/value won't be colorize.
