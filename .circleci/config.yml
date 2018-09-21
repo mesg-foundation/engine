@@ -40,7 +40,9 @@ jobs:
       - setup_remote_docker
       - run: go get -t ./...
       - run: docker swarm init
-      - run: env MESG_CORE_IMAGE=mesg/core:$CIRCLE_SHA1 go test -timeout 180s -p 1 -coverprofile=coverage.txt ./...
+      - run: docker build -t sleep docker-images/sleep/
+      - run: docker build -t http-server docker-images/http-server/
+      - run: env MESG_CORE_IMAGE=mesg/core:NONEXISTINGIMAGE go test -timeout 180s -p 1 -coverprofile=coverage.txt ./...
       - run: bash <(curl -s https://codecov.io/bash)
   
   "integration_test":
@@ -50,6 +52,8 @@ jobs:
       - setup_remote_docker
       - run: go get -t ./...
       - run: docker swarm init
+      - run: docker build -t sleep docker-images/sleep/
+      - run: docker build -t http-server docker-images/http-server/
       - run: env MESG_CORE_IMAGE=mesg/core:$CIRCLE_SHA1 go test -timeout 180s -p 1 -tags=integration ./...
 
   "publish_docker_dev":
