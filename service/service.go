@@ -69,8 +69,10 @@ type Service struct {
 type DStatusType int
 
 const (
+	_ DStatusType = iota // skip zero value.
+
 	// DRUNNING indicates that status message belongs to an active state.
-	DRUNNING DStatusType = iota + 1
+	DRUNNING
 
 	// DDONE indicates that status message belongs to completed state.
 	DDONE
