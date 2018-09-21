@@ -61,11 +61,6 @@ func TestDeployService(t *testing.T) {
 		Type:    DONE,
 	}, <-statuses)
 
-	require.Equal(t, DeployStatus{
-		Message: fmt.Sprintf("%s Completed.", aurora.Green("✔")),
-		Type:    DONE,
-	}, <-statuses)
-
 	wg.Wait()
 }
 
@@ -155,11 +150,6 @@ func TestDeployServiceFromURL(t *testing.T) {
 
 	require.Equal(t, DeployStatus{
 		Message: fmt.Sprintf("%s Image built with success.", aurora.Green("✔")),
-		Type:    DONE,
-	}, <-statuses)
-
-	require.Equal(t, DeployStatus{
-		Message: fmt.Sprintf("%s Completed.", aurora.Green("✔")),
 		Type:    DONE,
 	}, <-statuses)
 
