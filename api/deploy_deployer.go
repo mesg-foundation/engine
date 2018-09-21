@@ -5,6 +5,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/database/services"
@@ -27,8 +28,10 @@ type serviceDeployer struct {
 type StatusType int
 
 const (
+	_ StatusType = iota // skip zero value.
+
 	// RUNNING indicates that status message belongs to an active state.
-	RUNNING StatusType = iota + 1
+	RUNNING
 
 	// DONE indicates that status message belongs to completed state.
 	DONE
@@ -62,6 +65,13 @@ func (d *serviceDeployer) FromGitURL(url string) (*service.Service, *importer.Va
 	if err := xgit.Clone(url, path); err != nil {
 		return nil, nil, err
 	}
+
+	// XXX: remove .git folder from repo.
+	// It makes docker build iamge id same between repo clones.
+	if err := os.RemoveAll(filepath.Join(path, ".git")); err != nil {
+		return nil, nil, err
+	}
+
 	d.sendStatus(fmt.Sprintf("%s Service downloaded with success.", aurora.Green("✔")), DONE)
 	r, err := xarchive.GzippedTar(path)
 	if err != nil {
@@ -77,7 +87,7 @@ func (d *serviceDeployer) FromGzippedTar(r io.Reader) (*service.Service, *import
 
 // deploy deploys a service in path.
 func (d *serviceDeployer) deploy(r io.Reader) (*service.Service, *importer.ValidationError, error) {
-	statuses := make(chan service.DeployStatus, 0)
+	statuses := make(chan service.DeployStatus)
 	go d.forwardDeployStatuses(statuses)
 
 	s, err := service.New(r,
