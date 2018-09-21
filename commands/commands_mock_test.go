@@ -54,9 +54,9 @@ func (m *mockServiceExecutor) ServiceDelete(ids ...string) error {
 	return args.Error(0)
 }
 
-func (m *mockServiceExecutor) ServiceDeploy(path string) (id string, valid bool, err error) {
+func (m *mockServiceExecutor) ServiceDeploy(path string, statuses chan provider.DeployStatus) (id string, validationError, err error) {
 	args := m.Called()
-	return args.String(0), args.Bool(1), args.Error(2)
+	return args.String(0), args.Error(1), args.Error(2)
 }
 
 func (m *mockServiceExecutor) ServiceListenEvents(id, taskFilter string) (chan *coreapi.EventData, chan error, error) {
