@@ -95,7 +95,7 @@ loop:
 		case e := <-listenEventsC:
 			fmt.Printf("Receive event %s: %s\n",
 				pretty.Success(e.EventKey),
-				pretty.ColorizeJSON(pretty.FgCyan, nil, []byte(e.EventData)),
+				pretty.ColorizeJSON(pretty.FgCyan, nil, false, []byte(e.EventData)),
 			)
 		case err := <-eventsErrC:
 			fmt.Fprintf(os.Stderr, "%s Listening events error: %s", pretty.FailSign, err)
@@ -103,7 +103,7 @@ loop:
 			fmt.Printf("Receive result %s %s: %s\n",
 				pretty.Success(r.TaskKey),
 				pretty.Colorize(color.New(color.FgCyan), r.OutputKey),
-				pretty.ColorizeJSON(pretty.FgCyan, nil, []byte(r.OutputData)),
+				pretty.ColorizeJSON(pretty.FgCyan, nil, false, []byte(r.OutputData)),
 			)
 		case err := <-resultsErrC:
 			fmt.Fprintf(os.Stderr, "%s Listening results error: %s", pretty.FailSign, err)

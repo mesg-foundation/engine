@@ -1,9 +1,7 @@
 package daemon
 
 const (
-	name         = "core"
-	dockerSocket = "/var/run/docker.sock"
-	volume       = "mesg-core"
+	name = "core"
 )
 
 // Namespace returns the namespace of the MESG Core.

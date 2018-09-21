@@ -209,14 +209,16 @@ func (p *Pretty) Colorize(c *color.Color, msg string) string {
 
 // ColorizeJSON colors keys and values of stringified JSON. On errors the original string is returned.
 // If color is nil then key/value won't be colorize.
-func (p *Pretty) ColorizeJSON(keyColor *color.Color, valueColor *color.Color, data []byte) []byte {
+func (p *Pretty) ColorizeJSON(keyColor *color.Color, valueColor *color.Color, multiline bool, data []byte) []byte {
 	if p.noColor {
 		return data
 	}
 
 	f := prettyjson.NewFormatter()
-	f.Indent = 0
-	f.Newline = ""
+	if !multiline {
+		f.Indent = 0
+		f.Newline = ""
+	}
 
 	f.KeyColor = keyColor
 	f.StringColor = valueColor
@@ -374,8 +376,8 @@ func DestroySpinner() { pg.DestroySpinner() }
 
 // ColorizeJSON colors keys and values of stringified JSON. On errors the original string is returned.
 // If color is nil then key/value won't be colorize.
-func ColorizeJSON(keyColor *color.Color, valueColor *color.Color, data []byte) []byte {
-	return pg.ColorizeJSON(keyColor, valueColor, data)
+func ColorizeJSON(keyColor *color.Color, valueColor *color.Color, multiline bool, data []byte) []byte {
+	return pg.ColorizeJSON(keyColor, valueColor, multiline, data)
 }
 
 // FgColors returns a slice with predefiend foreground color.
