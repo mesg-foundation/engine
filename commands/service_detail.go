@@ -31,7 +31,7 @@ func (c *serviceDetailCmd) runE(cmd *cobra.Command, args []string) error {
 		err     error
 		service *coreapi.Service
 	)
-	pretty.Progress("Loading service...", func() {
+	pretty.Progress("Loading the service...", func() {
 		service, err = c.e.ServiceByID(args[0])
 	})
 	if err != nil {
