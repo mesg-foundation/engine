@@ -37,7 +37,7 @@ mesg-core service delete --all`,
 
 func (c *serviceDeleteCmd) preRunE(cmd *cobra.Command, args []string) error {
 	if len(args) == 0 && !c.all {
-		return errors.New("at least one service id must be provided (or run with --all flag).")
+		return errors.New("at least one service id must be provided (or run with --all flag)")
 	}
 
 	if !c.all || (c.all && c.force) {
@@ -52,7 +52,7 @@ func (c *serviceDeleteCmd) preRunE(cmd *cobra.Command, args []string) error {
 
 	// if still no confirm .
 	if !c.force {
-		return errors.New("can't continue without confirmation.")
+		return errors.New("can't continue without confirmation")
 	}
 	return nil
 }
@@ -84,7 +84,7 @@ func (c *serviceDeleteCmd) runE(cmd *cobra.Command, args []string) error {
 	}
 
 	if exitWithError {
-		return errors.New("There was a problem with deleting some services.")
+		return errors.New("there was a problem with deleting some services")
 	}
 	return nil
 }
