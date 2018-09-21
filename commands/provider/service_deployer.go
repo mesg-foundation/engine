@@ -14,8 +14,10 @@ import (
 type StatusType int
 
 const (
+	_ StatusType = iota // skip zero value.
+
 	// RUNNING indicates that status message belongs to an active state.
-	RUNNING StatusType = iota + 1
+	RUNNING
 
 	// DONE indicates that status message belongs to completed state.
 	DONE
