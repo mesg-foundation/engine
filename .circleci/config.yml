@@ -30,13 +30,17 @@ jobs:
     steps:
       - checkout
       - run: docker build -t mesg/core:$CIRCLE_SHA1 --build-arg version="dev build `echo $CIRCLE_SHA1 | cut -c1-7`" .
+      - run: docker build -t sleep docker-images/sleep/
+      - run: docker build -t http-server docker-images/http-server/
 
   "unit_test":
     <<: *runOnDocker
     steps:
       - checkout
+      - setup_remote_docker
       - run: go get -t ./...
-      - run: go test -coverprofile=coverage.txt ./...
+      - run: docker swarm init
+      - run: env MESG_CORE_IMAGE=mesg/core:$CIRCLE_SHA1 go test -timeout 180s -p 1 -coverprofile=coverage.txt ./...
       - run: bash <(curl -s https://codecov.io/bash)
   
   "integration_test":
@@ -46,9 +50,7 @@ jobs:
       - setup_remote_docker
       - run: go get -t ./...
       - run: docker swarm init
-      - run: docker build -t sleep docker-images/sleep/
-      - run: docker build -t http-server docker-images/http-server/
-      - run: env MESG_CORE_IMAGE=mesg/core:$CIRCLE_SHA1 go test -tags=integration -timeout 180s -p 1
+      - run: env MESG_CORE_IMAGE=mesg/core:$CIRCLE_SHA1 go test -timeout 180s -p 1 -tags=integration ./...
 
   "publish_docker_dev":
     <<: *runOnMachine
@@ -87,18 +89,20 @@ workflows:
   version: 2
   build_n_deploy:
     jobs:
-      - "unit_test":
-          <<: *transient
       - "build_docker":
           <<: *transient
-      - "integration_test":
+      - "unit_test":
           <<: *transient
           requires:
             - "build_docker"
+      - "integration_test":
+          <<: *transient
+          requires:
+            - "unit_test"
       - "publish_docker_dev":
           <<: *onlyBranchDev
           requires:
-            - "unit_test"
+            - "integration_test"
       - "release_cli_dev":
           <<: *onlyBranchDev
           requires:
@@ -106,7 +110,7 @@ workflows:
       - "publish_docker_prod":
           <<: *onlyTagProd
           requires:
-            - "unit_test"
+            - "integration_test"
       - "release_cli_prod":
           <<: *onlyTagProd
           requires:
