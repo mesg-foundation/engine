@@ -32,7 +32,15 @@ jobs:
       - run: docker pull mesg/core:latest
       - run: docker build -t mesg/core:$CIRCLE_SHA1 --build-arg version="dev build `echo $CIRCLE_SHA1 | cut -c1-7`" .
 
-  "test":
+  "unit_test":
+    <<: *runOnDocker
+    steps:
+      - checkout
+      - run: go get -t ./...
+      - run: go test -coverprofile=coverage.txt ./...
+      - run: bash <(curl -s https://codecov.io/bash)
+  
+  "integration_test":
     <<: *runOnDocker
     steps:
       - checkout
@@ -41,8 +49,7 @@ jobs:
       - run: docker swarm init
       - run: docker build -t sleep docker-images/sleep/
       - run: docker build -t http-server docker-images/http-server/
-      - run: env MESG_CORE_IMAGE=mesg/core:$CIRCLE_SHA1 go test -timeout 180s -p 1 -coverprofile=coverage.txt ./...
-      - run: bash <(curl -s https://codecov.io/bash)
+      - run: env MESG_CORE_IMAGE=mesg/core:$CIRCLE_SHA1 go test -tags=integration -timeout 180s -p 1
 
   "publish_docker_dev":
     <<: *runOnMachine
@@ -83,16 +90,18 @@ workflows:
   version: 2
   build_n_deploy:
     jobs:
+      - "unit_test":
+          <<: *transient
       - "build_docker":
           <<: *transient
-      - "test":
+      - "integration_test":
           <<: *transient
           requires:
             - "build_docker"
       - "publish_docker_dev":
           <<: *onlyBranchDev
           requires:
-            - "test"
+            - "unit_test"
       - "release_cli_dev":
           <<: *onlyBranchDev
           requires:
