@@ -106,7 +106,7 @@ workflows:
       - "publish_docker_prod":
           <<: *onlyTagProd
           requires:
-            - "test"
+            - "unit_test"
       - "release_cli_prod":
           <<: *onlyTagProd
           requires:
