@@ -63,7 +63,7 @@ func New() (*Config, error) {
 	c.Log.Format = "text"
 	c.Log.Level = "info"
 	c.Core.Image = "mesg/core:" + strings.Split(version.Version, " ")[0]
-	c.Core.Name = "mesg-core"
+	c.Core.Name = "core"
 	c.Core.RootPath = filepath.Join(home, ".mesg")
 	c.Docker.Core.Path = "/mesg"
 	c.Docker.Socket = "/var/run/docker.sock"
