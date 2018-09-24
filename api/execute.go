@@ -3,7 +3,6 @@ package api
 import (
 	"fmt"
 
-	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/service"
 )
@@ -29,7 +28,7 @@ func newTaskExecutor(api *API) *taskExecutor {
 // ExecuteTask executes a task tasKey with inputData and tags for service serviceID.
 func (e *taskExecutor) Execute(serviceID, taskKey string, inputData map[string]interface{},
 	tags []string) (executionID string, err error) {
-	s, err := services.Get(serviceID)
+	s, err := e.api.db.Get(serviceID)
 	if err != nil {
 		return "", err
 	}
