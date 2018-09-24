@@ -5,6 +5,8 @@ import (
 	"os"
 	"text/tabwriter"
 
+	"github.com/mesg-foundation/core/protobuf/coreapi"
+	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/spf13/cobra"
 )
 
@@ -30,7 +32,13 @@ To have more details, see the [detail command](mesg-core_service_detail.md).`,
 }
 
 func (c *serviceListCmd) runE(cmd *cobra.Command, args []string) error {
-	services, err := c.e.ServiceList()
+	var (
+		services []*coreapi.Service
+		err      error
+	)
+	pretty.Progress("Listing services...", func() {
+		services, err = c.e.ServiceList()
+	})
 	if err != nil {
 		return err
 	}

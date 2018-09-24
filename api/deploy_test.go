@@ -60,11 +60,6 @@ func TestDeployService(t *testing.T) {
 		Type:    DonePositive,
 	}, <-statuses)
 
-	require.Equal(t, DeployStatus{
-		Message: "Service deployed.",
-		Type:    DonePositive,
-	}, <-statuses)
-
 	wg.Wait()
 }
 
@@ -154,11 +149,6 @@ func TestDeployServiceFromURL(t *testing.T) {
 
 	require.Equal(t, DeployStatus{
 		Message: "Image built with success.",
-		Type:    DonePositive,
-	}, <-statuses)
-
-	require.Equal(t, DeployStatus{
-		Message: "Service deployed.",
 		Type:    DonePositive,
 	}, <-statuses)
 
