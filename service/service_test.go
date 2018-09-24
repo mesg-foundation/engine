@@ -22,6 +22,13 @@ func newContainerAndDockerTest(t *testing.T) (*container.Container, *dockertest.
 	return container, dt
 }
 
+func newFromServiceAndDockerTest(t *testing.T, s *Service) (*Service, *dockertest.Testing) {
+	c, dt := newContainerAndDockerTest(t)
+	s, err := FromService(s, ContainerOption(c))
+	require.NoError(t, err)
+	return s, dt
+}
+
 func TestGenerateId(t *testing.T) {
 	service, _ := FromService(&Service{
 		Name: "TestGenerateId",
@@ -33,11 +40,11 @@ func TestGenerateId(t *testing.T) {
 func TestNoCollision(t *testing.T) {
 	service1, _ := FromService(&Service{
 		Name: "TestNoCollision",
-	}, ContainerOption(defaultContainer))
+	})
 
 	service2, _ := FromService(&Service{
 		Name: "TestNoCollision2",
-	}, ContainerOption(defaultContainer))
+	})
 
 	require.NotEqual(t, service1.ID, service2.ID)
 }

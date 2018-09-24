@@ -1,3 +1,5 @@
+// +build integration
+
 package service
 
 import (
@@ -16,7 +18,7 @@ func TestStopRunningService(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	}, ContainerOption(defaultContainer))
+	}, ContainerOption(newContainer(t)))
 	service.Start()
 	err := service.Stop()
 	require.Nil(t, err)
@@ -33,7 +35,7 @@ func TestStopNonRunningService(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	}, ContainerOption(defaultContainer))
+	}, ContainerOption(newContainer(t)))
 	err := service.Stop()
 	require.Nil(t, err)
 	status, _ := service.Status()
@@ -41,6 +43,7 @@ func TestStopNonRunningService(t *testing.T) {
 }
 
 func TestStopDependency(t *testing.T) {
+	c := newContainer(t)
 	service, _ := FromService(&Service{
 		Name: "TestStartDependency",
 		Dependencies: []*Dependency{
@@ -49,9 +52,9 @@ func TestStopDependency(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	}, ContainerOption(defaultContainer))
-	networkID, err := defaultContainer.CreateNetwork(service.namespace())
-	defer defaultContainer.DeleteNetwork(service.namespace())
+	}, ContainerOption(c))
+	networkID, err := c.CreateNetwork(service.namespace())
+	defer c.DeleteNetwork(service.namespace())
 	dep := service.Dependencies[0]
 	dep.Start(networkID)
 	err = dep.Stop()
@@ -61,6 +64,7 @@ func TestStopDependency(t *testing.T) {
 }
 
 func TestNetworkDeleted(t *testing.T) {
+	c := newContainer(t)
 	service, _ := FromService(&Service{
 		Name: "TestNetworkDeleted",
 		Dependencies: []*Dependency{
@@ -69,10 +73,10 @@ func TestNetworkDeleted(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	}, ContainerOption(defaultContainer))
+	}, ContainerOption(c))
 	service.Start()
 	service.Stop()
-	n, err := defaultContainer.FindNetwork(service.namespace())
+	n, err := c.FindNetwork(service.namespace())
 	require.Empty(t, n)
 	require.NotNil(t, err)
 }

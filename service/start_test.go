@@ -3,7 +3,11 @@ package service
 import (
 	"testing"
 
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/swarm"
 	"github.com/mesg-foundation/core/container"
+	"github.com/mesg-foundation/core/container/dockertest"
+	"github.com/mesg-foundation/core/x/xstrings"
 	"github.com/stretchr/testify/require"
 )
 
@@ -26,189 +30,6 @@ func TestExtractPorts(t *testing.T) {
 	require.Equal(t, ports[0].Published, uint32(80))
 	require.Equal(t, ports[1].Target, uint32(8080))
 	require.Equal(t, ports[1].Published, uint32(3000))
-}
-
-func TestStartService(t *testing.T) {
-	service, _ := FromService(&Service{
-		Name: "TestStartService",
-		Dependencies: []*Dependency{
-			{
-				Key:   "test",
-				Image: "http-server",
-			},
-		},
-	}, ContainerOption(defaultContainer))
-	dockerServices, err := service.Start()
-	defer service.Stop()
-	require.Nil(t, err)
-	require.Equal(t, len(service.Dependencies), len(dockerServices))
-	status, _ := service.Status()
-	require.Equal(t, RUNNING, status)
-}
-
-func TestStartWith2Dependencies(t *testing.T) {
-	service, _ := FromService(&Service{
-		Name: "TestStartWith2Dependencies",
-		Dependencies: []*Dependency{
-			{
-				Key:   "testa",
-				Image: "http-server:latest",
-			},
-			{
-				Key:   "testb",
-				Image: "sleep:latest",
-			},
-		},
-	}, ContainerOption(defaultContainer))
-	servicesID, err := service.Start()
-	defer service.Stop()
-	require.Nil(t, err)
-	require.Equal(t, 2, len(servicesID))
-	deps := service.Dependencies
-	container1, err1 := defaultContainer.FindContainer(deps[0].namespace())
-	container2, err2 := defaultContainer.FindContainer(deps[1].namespace())
-	require.Nil(t, err1)
-	require.Nil(t, err2)
-	require.Equal(t, "http-server:latest", container1.Config.Image)
-	require.Equal(t, "sleep:latest", container2.Config.Image)
-}
-
-func TestStartAgainService(t *testing.T) {
-	service, _ := FromService(&Service{
-		Name: "TestStartAgainService",
-		Dependencies: []*Dependency{
-			{
-				Key:   "test",
-				Image: "http-server",
-			},
-		},
-	}, ContainerOption(defaultContainer))
-	service.Start()
-	defer service.Stop()
-	dockerServices, err := service.Start()
-	require.Nil(t, err)
-	require.Equal(t, len(dockerServices), 0) // 0 because already started so no new one to start
-	status, _ := service.Status()
-	require.Equal(t, RUNNING, status)
-}
-
-// TODO: Disable this test in order to have the CI working
-// func TestPartiallyRunningService(t *testing.T) {
-// 	service, _ := FromService(&Service{
-// 		Name: "TestPartiallyRunningService",
-// 		Dependencies: []*Dependency{
-// 			{
-// 				Key:   "testa",
-// 				Image: "http-server",
-// 			},
-// 			{
-// 				Key:   "testb",
-// 				Image: "http-server",
-// 			},
-// 		},
-// 	}, ContainerOption(defaultContainer))
-// 	service.Start()
-// 	defer service.Stop()
-// 	service.Dependencies[0].Stop()
-// 	status, _ := service.Status()
-// 	require.Equal(t, PARTIAL, status)
-// 	dockerServices, err := service.Start()
-// 	require.Nil(t, err)
-// 	require.Equal(t, len(dockerServices), len(service.Dependencies))
-// 	status, _ = service.Status()
-// 	require.Equal(t, RUNNING, status)
-// }
-
-func TestStartDependency(t *testing.T) {
-	service, _ := FromService(&Service{
-		Name: "TestStartDependency",
-		Dependencies: []*Dependency{
-			{
-				Key:   "test",
-				Image: "http-server",
-			},
-		},
-	}, ContainerOption(defaultContainer))
-	networkID, err := defaultContainer.CreateNetwork(service.namespace())
-	defer defaultContainer.DeleteNetwork(service.namespace())
-	dep := service.Dependencies[0]
-	serviceID, err := dep.Start(networkID)
-	defer dep.Stop()
-	require.Nil(t, err)
-	require.NotEqual(t, "", serviceID)
-	status, _ := dep.Status()
-	require.Equal(t, container.RUNNING, status)
-}
-
-func TestNetworkCreated(t *testing.T) {
-	service, _ := FromService(&Service{
-		Name: "TestNetworkCreated",
-		Dependencies: []*Dependency{
-			{
-				Key:   "test",
-				Image: "http-server",
-			},
-		},
-	}, ContainerOption(defaultContainer))
-	service.Start()
-	defer service.Stop()
-	network, err := defaultContainer.FindNetwork(service.namespace())
-	require.Nil(t, err)
-	require.NotEqual(t, "", network.ID)
-}
-
-// Test for https://github.com/mesg-foundation/core/issues/88
-func TestStartStopStart(t *testing.T) {
-	service, _ := FromService(&Service{
-		Name: "TestStartStopStart",
-		Dependencies: []*Dependency{
-			{
-				Key:   "test",
-				Image: "http-server",
-			},
-		},
-	}, ContainerOption(defaultContainer))
-	service.Start()
-	service.Stop()
-	dockerServices, err := service.Start()
-	defer service.Stop()
-	require.Nil(t, err)
-	require.Equal(t, len(dockerServices), 1)
-	status, _ := service.Status()
-	require.Equal(t, RUNNING, status)
-}
-
-func TestServiceDependenciesListensFromSamePort(t *testing.T) {
-	var (
-		service, _ = FromService(&Service{
-			Name: "TestServiceDependenciesListensFromSamePort",
-			Dependencies: []*Dependency{
-				{
-					Key:   "test",
-					Image: "http-server",
-					Ports: []string{"80"},
-				},
-			},
-		}, ContainerOption(defaultContainer))
-
-		service1, _ = FromService(&Service{
-			Name: "TestServiceDependenciesListensFromSamePort1",
-			Dependencies: []*Dependency{
-				{
-					Key:   "test",
-					Image: "http-server",
-					Ports: []string{"80"},
-				},
-			},
-		}, ContainerOption(defaultContainer))
-	)
-	_, err := service.Start()
-	require.NoError(t, err)
-	defer service.Stop()
-
-	_, err = service1.Start()
-	require.NotZero(t, err)
-	require.Contains(t, err.Error(), `port '80' is already in use`)
 }
 
 func TestExtractVolumes(t *testing.T) {
@@ -255,4 +76,109 @@ func TestExtractVolumes(t *testing.T) {
 	require.Equal(t, volumeKey(s, "test", "bar"), volumes[1].Source)
 	require.Equal(t, "bar", volumes[1].Target)
 	require.Equal(t, false, volumes[1].Bind)
+}
+
+func TestStartService(t *testing.T) {
+	var (
+		containerServiceID = "1"
+		dependencyKey      = "2"
+		serviceName        = "TestStartService"
+		s, dt              = newFromServiceAndDockerTest(t, &Service{
+			Name: serviceName,
+			Dependencies: []*Dependency{
+				{
+					Key:   dependencyKey,
+					Image: "http-server",
+				},
+			},
+		})
+	)
+
+	dt.ProvideContainerList(nil, dockertest.NotFoundErr{})
+	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
+	dt.ProvideNetworkInspect(types.NetworkResource{ID: "3"}, nil)
+	dt.ProvideNetworkInspect(types.NetworkResource{ID: "4"}, nil)
+
+	// service create.
+	dt.ProvideServiceCreate(types.ServiceCreateResponse{ID: containerServiceID}, nil)
+
+	dockerServices, err := s.Start()
+	require.NoError(t, err)
+	require.Len(t, dockerServices, 1)
+	require.Equal(t, containerServiceID, dockerServices[0])
+
+	lc := <-dt.LastServiceCreate()
+	require.Equal(t, types.ServiceCreateOptions{}, lc.Options)
+	require.Equal(t, container.Namespace([]string{s.ID, dependencyKey}), lc.Service.Name)
+}
+
+func TestStartWith2Dependencies(t *testing.T) {
+	var (
+		containerServiceID  = "1"
+		containerServiceID2 = "2"
+		dependencyKey       = "3"
+		dependencyKey2      = "4"
+		dependencyImage     = "5"
+		dependencyImage2    = "6"
+		serviceName         = "TestStartWith2Dependencies"
+		s, dt               = newFromServiceAndDockerTest(t, &Service{
+			Name: serviceName,
+			Dependencies: []*Dependency{
+				{
+					Key:   dependencyKey,
+					Image: dependencyImage,
+				},
+				{
+					Key:   dependencyKey2,
+					Image: dependencyImage2,
+				},
+			},
+		})
+	)
+
+	// for dep1 & dep2
+	for i := 0; i < 2; i++ {
+		dt.ProvideContainerList(nil, dockertest.NotFoundErr{})
+		dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
+		dt.ProvideNetworkInspect(types.NetworkResource{ID: "3"}, nil)
+		dt.ProvideNetworkInspect(types.NetworkResource{ID: "4"}, nil)
+	}
+
+	// service create.
+	dt.ProvideServiceCreate(types.ServiceCreateResponse{ID: containerServiceID}, nil)
+	dt.ProvideServiceCreate(types.ServiceCreateResponse{ID: containerServiceID2}, nil)
+
+	servicesIDs, err := s.Start()
+	require.NoError(t, err)
+	require.Len(t, servicesIDs, 2)
+	require.True(t, xstrings.SliceContains(servicesIDs, containerServiceID))
+	require.True(t, xstrings.SliceContains(servicesIDs, containerServiceID2))
+
+	images := []string{dependencyImage, dependencyImage2}
+
+	for i := 0; i < 2; i++ {
+		lc := <-dt.LastServiceCreate()
+		require.True(t, xstrings.SliceContains(images, lc.Service.TaskTemplate.ContainerSpec.Image))
+	}
+}
+
+func TestStartServiceRunning(t *testing.T) {
+	var (
+		s, dt = newFromServiceAndDockerTest(t, &Service{
+			Dependencies: []*Dependency{
+				{
+					Key:   "1",
+					Image: "2",
+				},
+			},
+		})
+	)
+
+	dt.ProvideContainerList([]types.Container{{ID: "1"}}, nil)
+	dt.ProvideContainerInspect(types.ContainerJSON{ContainerJSONBase: &types.ContainerJSONBase{ID: "1"}}, nil)
+	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, nil)
+
+	dockerServices, err := s.Start()
+	require.NoError(t, err)
+	require.Len(t, dockerServices, 0)
 }
