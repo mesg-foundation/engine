@@ -68,12 +68,13 @@ func (d *Dependency) Start(networkID string) (containerServiceID string, err err
 		return "", err
 	}
 	_, port, err := xnet.SplitHostPort(c.Server.Address)
-	endpoint := "mesg-core:" + strconv.Itoa(port) // TODO: should get this from daemon namespace and config
+	endpoint := c.Core.Name + ":" + strconv.Itoa(port)
 	return d.service.docker.StartService(container.ServiceOptions{
 		Namespace: d.namespace(),
 		Labels: map[string]string{
 			"mesg.service": d.service.Name,
 			"mesg.hash":    d.service.ID,
+			"mesg.core":    c.Core.Name,
 		},
 		Image: d.Image,
 		Args:  strings.Fields(d.Command),

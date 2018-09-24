@@ -33,8 +33,8 @@ type Mount struct {
 	Bind   bool
 }
 
-func (options *ServiceOptions) toSwarmServiceSpec() swarm.ServiceSpec {
-	namespace := Namespace(options.Namespace)
+func (options *ServiceOptions) toSwarmServiceSpec(c *Container) swarm.ServiceSpec {
+	namespace := c.Namespace(options.Namespace)
 	return swarm.ServiceSpec{
 		Annotations: swarm.Annotations{
 			Name: namespace,
