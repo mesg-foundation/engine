@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/mesg-foundation/core/utils/servicetemplate"
 	"github.com/spf13/cobra"
 	survey "gopkg.in/AlecAivazis/survey.v1"
@@ -58,7 +59,13 @@ func (c *serviceInitCmd) preRunE(cmd *cobra.Command, args []string) error {
 	}
 
 	// no template specify - download and select one
-	list, err := c.e.ServiceInitTemplateList()
+	var (
+		list []*servicetemplate.Template
+		err  error
+	)
+	pretty.Progress("Loading templates...", func() {
+		list, err = c.e.ServiceInitTemplateList()
+	})
 	if err != nil {
 		return err
 	}
@@ -96,10 +103,18 @@ func (c *serviceInitCmd) preRunE(cmd *cobra.Command, args []string) error {
 }
 
 func (c *serviceInitCmd) runE(cmd *cobra.Command, args []string) error {
-	return c.e.ServiceInitDownloadTemplate(&servicetemplate.Template{
-		Name: c.templateName,
-		URL:  c.templateURL,
-	}, c.dir)
+	var err error
+	pretty.Progress("Downloading template...", func() {
+		err = c.e.ServiceInitDownloadTemplate(&servicetemplate.Template{
+			Name: c.templateName,
+			URL:  c.templateURL,
+		}, c.dir)
+	})
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%s Service initialized in %q.\n", pretty.SuccessSign, c.dir)
+	return nil
 }
 
 func (c *serviceInitCmd) selectOutputDirectory() error {

@@ -50,49 +50,64 @@ func (c *serviceExecuteCmd) preRunE(cmd *cobra.Command, args []string) error {
 }
 
 func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
-	s, err := c.e.ServiceByID(args[0])
+	var (
+		err            error
+		listenResultsC chan *coreapi.ResultData
+		resultsErrC    chan error
+	)
+	pretty.Progress(fmt.Sprintf("Executing task %q...", c.taskKey), func() {
+		var s *coreapi.Service
+		s, err = c.e.ServiceByID(args[0])
+		if err != nil {
+			return
+		}
+
+		if err = c.getTaskKey(s); err != nil {
+			return
+		}
+
+		inputData, err := c.getData(c.taskKey, s, c.executeData)
+		if err != nil {
+			return
+		}
+
+		// Create an unique tag that will be used to listen to the result of this exact execution
+		tags := []string{uuid.NewV4().String()}
+
+		listenResultsC, resultsErrC, err = c.e.ServiceListenResults(args[0], c.taskKey, "", tags)
+		if err != nil {
+			return
+		}
+
+		// XXX: sleep because listen stream may not be ready to stream the data
+		// and execution will done before stream is ready. In that case the response
+		// wlll never come TODO: investigate
+		time.Sleep(1 * time.Second)
+
+		err = c.e.ServiceExecuteTask(args[0], c.taskKey, inputData, tags)
+	})
 	if err != nil {
 		return err
 	}
+	fmt.Printf("%s Task %q executed.\n", pretty.SuccessSign, c.taskKey)
 
-	if err := c.getTaskKey(s); err != nil {
-		return err
-	}
-
-	inputData, err := c.getData(c.taskKey, s, c.executeData)
+	var result *coreapi.ResultData
+	pretty.Progress("Waiting for result...", func() {
+		select {
+		case result = <-listenResultsC:
+			return
+		case err = <-resultsErrC:
+			return
+		}
+	})
 	if err != nil {
 		return err
 	}
-
-	// Create an unique tag that will be used to listen to the result of this exact execution
-	tags := []string{uuid.NewV4().String()}
-
-	listenResultsC, resultsErrC, err := c.e.ServiceListenResults(args[0], c.taskKey, "", tags)
-	if err != nil {
-		return err
-	}
-
-	// XXX: sleep because listen stream may not be ready to stream the data
-	// and execution will done before stream is ready. In that case the response
-	// wlll never come TODO: investigate
-	time.Sleep(1 * time.Second)
-
-	if err := c.e.ServiceExecuteTask(args[0], c.taskKey, inputData, tags); err != nil {
-		return err
-	}
-
-	select {
-	case result := <-listenResultsC:
-		fmt.Printf("Task %s returned output %s with data:\n%s\n",
-			pretty.Success(c.taskKey),
-			pretty.Colorize(pretty.FgBlue, result.OutputKey),
-			pretty.Bold(result.OutputData),
-		)
-
-	case err := <-resultsErrC:
-		return err
-	}
-
+	fmt.Printf("Task %s returned output %s with data:\n%s\n",
+		pretty.Success(c.taskKey),
+		pretty.Colorize(pretty.FgCyan, result.OutputKey),
+		pretty.ColorizeJSON(pretty.FgCyan, nil, true, []byte(result.OutputData)),
+	)
 	return nil
 }
 
