@@ -65,17 +65,20 @@ func (s *Service) Status() (StatusType, error) {
 
 // Status returns StatusType of dependency's container.
 func (d *Dependency) Status() (container.StatusType, error) {
-	return defaultContainer.Status(d.namespace())
+	return d.service.docker.Status(d.namespace())
 }
 
 // ListRunning returns all the running services.2
 // TODO: should move to another file
 func ListRunning() ([]string, error) {
-	c, err := config.Global()
+	cfg, err := config.Global()
+	// TODO(ilgooz): remove this line after ListRunning refactored.
+	c, err := container.New()
 	if err != nil {
 		return nil, err
 	}
-	services, err := defaultContainer.ListServices("mesg.hash", "mesg.core="+c.Core.Name)
+
+	services, err := c.ListServices("mesg.hash", "mesg.core="+cfg.Core.Name)
 	if err != nil {
 		return nil, err
 	}
