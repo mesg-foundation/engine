@@ -1,13 +1,11 @@
 package api
 
 import (
-	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 
-	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/importer"
@@ -55,11 +53,14 @@ type StatusType int
 const (
 	_ StatusType = iota // skip zero value.
 
-	// RUNNING indicates that status message belongs to an active state.
-	RUNNING
+	// Running indicates that status message belongs to a continuous state.
+	Running
 
-	// DONE indicates that status message belongs to completed state.
-	DONE
+	// DonePositive indicates that status message belongs to a positive noncontinuous state.
+	DonePositive
+
+	// DoneNegative indicates that status message belongs to a negative noncontinuous state.
+	DoneNegative
 )
 
 // DeployStatus represents the deployment status.
@@ -81,7 +82,7 @@ func newServiceDeployer(api *API, options ...DeployServiceOption) *serviceDeploy
 
 // FromGitURL deploys a service hosted at a Git url.
 func (d *serviceDeployer) FromGitURL(url string) (*service.Service, *importer.ValidationError, error) {
-	d.sendStatus("Downloading service...", RUNNING)
+	d.sendStatus("Downloading service...", Running)
 	path, err := d.createTempDir()
 	if err != nil {
 		return nil, nil, err
@@ -97,7 +98,7 @@ func (d *serviceDeployer) FromGitURL(url string) (*service.Service, *importer.Va
 		return nil, nil, err
 	}
 
-	d.sendStatus(fmt.Sprintf("%s Service downloaded with success.", aurora.Green("✔")), DONE)
+	d.sendStatus("Service downloaded with success.", DonePositive)
 	r, err := xarchive.GzippedTar(path)
 	if err != nil {
 		return nil, nil, err
@@ -148,10 +149,12 @@ func (d *serviceDeployer) forwardDeployStatuses(statuses chan service.DeployStat
 	for status := range statuses {
 		var t StatusType
 		switch status.Type {
-		case service.DRUNNING:
-			t = RUNNING
-		case service.DDONE:
-			t = DONE
+		case service.DRunning:
+			t = Running
+		case service.DDonePositive:
+			t = DonePositive
+		case service.DDoneNegative:
+			t = DoneNegative
 		}
 		d.sendStatus(status.Message, t)
 	}

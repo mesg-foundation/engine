@@ -16,11 +16,14 @@ type StatusType int
 const (
 	_ StatusType = iota // skip zero value.
 
-	// RUNNING indicates that status message belongs to an active state.
-	RUNNING
+	// Running indicates that status message belongs to a continuous state.
+	Running
 
-	// DONE indicates that status message belongs to completed state.
-	DONE
+	// DonePositive indicates that status message belongs to a positive noncontinuous state.
+	DonePositive
+
+	// DoneNegative indicates that status message belongs to a negative noncontinuous state.
+	DoneNegative
 )
 
 // DeployStatus represents the deployment status.
@@ -116,19 +119,20 @@ func readDeployReply(stream coreapi.Core_DeployServiceClient, deployment chan de
 
 		switch {
 		case status != nil:
+			s := DeployStatus{
+				Message: status.Message,
+			}
+
 			switch status.Type {
 			case coreapi.DeployServiceReply_Status_RUNNING:
-				statuses <- DeployStatus{
-					Message: status.Message,
-					Type:    RUNNING,
-				}
-
-			case coreapi.DeployServiceReply_Status_DONE:
-				statuses <- DeployStatus{
-					Message: status.Message,
-					Type:    DONE,
-				}
+				s.Type = Running
+			case coreapi.DeployServiceReply_Status_DONE_POSITIVE:
+				s.Type = DonePositive
+			case coreapi.DeployServiceReply_Status_DONE_NEGATIVE:
+				s.Type = DoneNegative
 			}
+
+			statuses <- s
 
 		case serviceID != "":
 			result.serviceID = serviceID
