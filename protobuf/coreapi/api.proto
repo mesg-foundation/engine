@@ -226,11 +226,14 @@ message DeployServiceRequest {
 message DeployServiceReply {
   message Status {
     enum Type {
-      // RUNNING indicates that status message belongs to an active state.
+      // RUNNING indicates that status message belongs to a continuous state.
       RUNNING = 0;
 
-      // DONE indicates that status message belongs to completed state.
-      DONE = 1;
+      // DONE_POSITIVE indicates that status message belongs to a positive noncontinuous state.
+      DONE_POSITIVE = 1;
+
+      // DONE_NEGATIVE indicates that status message belongs to a negative noncontinuous state.
+      DONE_NEGATIVE = 2;
     }
 
     // message is status message.

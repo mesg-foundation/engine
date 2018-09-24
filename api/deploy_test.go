@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -9,7 +8,6 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/service/importer"
 	"github.com/mesg-foundation/core/x/xdocker/xarchive"
 	"github.com/stretchr/testify/require"
@@ -39,32 +37,32 @@ func TestDeployService(t *testing.T) {
 
 	require.Equal(t, DeployStatus{
 		Message: "Receiving service context...",
-		Type:    RUNNING,
+		Type:    Running,
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
-		Message: fmt.Sprintf("%s Service context received with success.", aurora.Green("✔")),
-		Type:    DONE,
+		Message: "Service context received with success.",
+		Type:    DonePositive,
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
-		Message: fmt.Sprintf("%s [DEPRECATED] Please use .dockerignore instead of .mesgignore", aurora.Red("⨯")),
-		Type:    DONE,
+		Message: "[DEPRECATED] Please use .dockerignore instead of .mesgignore",
+		Type:    DoneNegative,
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
 		Message: "Building Docker image...",
-		Type:    RUNNING,
+		Type:    Running,
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
-		Message: fmt.Sprintf("%s Image built with success.", aurora.Green("✔")),
-		Type:    DONE,
+		Message: "Image built with success.",
+		Type:    DonePositive,
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
-		Message: fmt.Sprintf("%s Service deployed.", aurora.Green("✔")),
-		Type:    DONE,
+		Message: "Service deployed.",
+		Type:    DonePositive,
 	}, <-statuses)
 
 	wg.Wait()
@@ -94,12 +92,12 @@ func TestDeployInvalidService(t *testing.T) {
 
 	require.Equal(t, DeployStatus{
 		Message: "Receiving service context...",
-		Type:    RUNNING,
+		Type:    Running,
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
-		Message: fmt.Sprintf("%s Service context received with success.", aurora.Green("✔")),
-		Type:    DONE,
+		Message: "Service context received with success.",
+		Type:    DonePositive,
 	}, <-statuses)
 
 	select {
@@ -131,37 +129,37 @@ func TestDeployServiceFromURL(t *testing.T) {
 
 	require.Equal(t, DeployStatus{
 		Message: "Downloading service...",
-		Type:    RUNNING,
+		Type:    Running,
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
-		Message: fmt.Sprintf("%s Service downloaded with success.", aurora.Green("✔")),
-		Type:    DONE,
+		Message: "Service downloaded with success.",
+		Type:    DonePositive,
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
 		Message: "Receiving service context...",
-		Type:    RUNNING,
+		Type:    Running,
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
-		Message: fmt.Sprintf("%s Service context received with success.", aurora.Green("✔")),
-		Type:    DONE,
+		Message: "Service context received with success.",
+		Type:    DonePositive,
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
 		Message: "Building Docker image...",
-		Type:    RUNNING,
+		Type:    Running,
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
-		Message: fmt.Sprintf("%s Image built with success.", aurora.Green("✔")),
-		Type:    DONE,
+		Message: "Image built with success.",
+		Type:    DonePositive,
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
-		Message: fmt.Sprintf("%s Service deployed.", aurora.Green("✔")),
-		Type:    DONE,
+		Message: "Service deployed.",
+		Type:    DonePositive,
 	}, <-statuses)
 
 	wg.Wait()
