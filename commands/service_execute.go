@@ -66,7 +66,8 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 			return
 		}
 
-		inputData, err := c.getData(c.taskKey, s, c.executeData)
+		var inputData string
+		inputData, err = c.getData(c.taskKey, s, c.executeData)
 		if err != nil {
 			return
 		}
