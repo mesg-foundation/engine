@@ -5,7 +5,6 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/swarm"
-	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/container/dockertest"
 	"github.com/mesg-foundation/core/x/xstrings"
 	"github.com/stretchr/testify/require"
@@ -94,8 +93,6 @@ func TestStartService(t *testing.T) {
 		})
 	)
 
-	c, _ := container.New()
-
 	dt.ProvideContainerList(nil, dockertest.NotFoundErr{})
 	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
 	dt.ProvideNetworkInspect(types.NetworkResource{ID: "3"}, nil)
@@ -111,7 +108,7 @@ func TestStartService(t *testing.T) {
 
 	lc := <-dt.LastServiceCreate()
 	require.Equal(t, types.ServiceCreateOptions{}, lc.Options)
-	require.Equal(t, c.Namespace([]string{s.ID, dependencyKey}), lc.Service.Name)
+	require.Equal(t, s.docker.Namespace([]string{s.ID, dependencyKey}), lc.Service.Name)
 }
 
 func TestStartWith2Dependencies(t *testing.T) {
