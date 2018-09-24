@@ -28,7 +28,7 @@
           "type": "object",
           "additionalProperties": false,
           "patternProperties": {
-            "^[a-zA-Z_-]+$": {
+            "^[0-9a-zA-Z_-]+$": {
               "$ref": "#/definitions/event"
             }
           }
@@ -42,7 +42,7 @@
           "type": "object",
           "additionalProperties": false,
           "patternProperties": {
-            "^[a-zA-Z_-]+$": {
+            "^[0-9a-zA-Z_-]+$": {
               "$ref": "#/definitions/task"
             }
           }
@@ -53,7 +53,7 @@
       "type": "object",
       "additionalProperties": false,
       "patternProperties": {
-        "^[a-zA-Z_-]+$": {
+        "^[0-9a-zA-Z_-]+$": {
           "$ref": "#/definitions/dependency",
           "required": [
             "image"
@@ -73,7 +73,7 @@
           "type": "object",
           "additionalProperties": false,
           "patternProperties": {
-            "^[a-zA-Z_-]+$": {
+            "^[0-9a-zA-Z_-]+$": {
               "type": "object",
               "additionalProperties": false,
               "required": [
@@ -131,7 +131,7 @@
           "type": "object",
           "additionalProperties": false,
           "patternProperties": {
-            "^[a-zA-Z_-]+$": {
+            "^[0-9a-zA-Z_-]+$": {
               "type": "object",
               "additionalProperties": false,
               "required": [
