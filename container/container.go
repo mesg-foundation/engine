@@ -8,6 +8,7 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
 	docker "github.com/docker/docker/client"
+	"github.com/mesg-foundation/core/config"
 )
 
 // Container provides high level interactions with Docker API for MESG.
@@ -17,6 +18,8 @@ type Container struct {
 
 	// callTimeout is the timeout value for Docker API calls.
 	callTimeout time.Duration
+
+	config *config.Config
 }
 
 // Option is a configuration func for Container.
@@ -31,6 +34,11 @@ func New(options ...Option) (*Container, error) {
 		option(c)
 	}
 	var err error
+	cfg, err := config.Global()
+	if err != nil {
+		return nil, err
+	}
+	c.config = cfg
 	if c.client == nil {
 		c.client, err = docker.NewEnvClient()
 		if err != nil {
@@ -89,7 +97,7 @@ func (c *Container) FindContainer(namespace []string) (types.ContainerJSON, erro
 	containers, err := c.client.ContainerList(ctx, types.ContainerListOptions{
 		Filters: filters.NewArgs(filters.KeyValuePair{
 			Key:   "label",
-			Value: "com.docker.stack.namespace=" + Namespace(namespace),
+			Value: "com.docker.stack.namespace=" + c.Namespace(namespace),
 		}),
 		Limit: 1,
 	})
