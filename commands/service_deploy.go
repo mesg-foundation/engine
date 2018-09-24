@@ -61,11 +61,18 @@ func (c *serviceDeployCmd) runE(cmd *cobra.Command, args []string) error {
 func printDeployStatuses(statuses chan provider.DeployStatus) {
 	for status := range statuses {
 		switch status.Type {
-		case provider.RUNNING:
+		case provider.Running:
 			pretty.UseSpinner(status.Message)
-		case provider.DONE:
+		default:
+			var sign string
+			switch status.Type {
+			case provider.DonePositive:
+				sign = pretty.SuccessSign
+			case provider.DoneNegative:
+				sign = pretty.FailSign
+			}
 			pretty.DestroySpinner()
-			fmt.Println(status.Message)
+			fmt.Printf("%s %s\n", sign, status.Message)
 		}
 	}
 }
