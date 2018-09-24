@@ -37,32 +37,32 @@ func TestDeployService(t *testing.T) {
 
 	require.Equal(t, DeployStatus{
 		Message: "Receiving service context...",
-		Type:    RUNNING,
+		Type:    Running,
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
 		Message: "Service context received with success.",
-		Type:    DONE_POSITIVE,
+		Type:    DonePositive,
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
 		Message: "[DEPRECATED] Please use .dockerignore instead of .mesgignore",
-		Type:    DONE_NEGATIVE,
+		Type:    DoneNegative,
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
 		Message: "Building Docker image...",
-		Type:    RUNNING,
+		Type:    Running,
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
 		Message: "Image built with success.",
-		Type:    DONE_POSITIVE,
+		Type:    DonePositive,
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
 		Message: "Service deployed.",
-		Type:    DONE_POSITIVE,
+		Type:    DonePositive,
 	}, <-statuses)
 
 	wg.Wait()
@@ -92,12 +92,12 @@ func TestDeployInvalidService(t *testing.T) {
 
 	require.Equal(t, DeployStatus{
 		Message: "Receiving service context...",
-		Type:    RUNNING,
+		Type:    Running,
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
 		Message: "Service context received with success.",
-		Type:    DONE_POSITIVE,
+		Type:    DonePositive,
 	}, <-statuses)
 
 	select {
@@ -129,37 +129,37 @@ func TestDeployServiceFromURL(t *testing.T) {
 
 	require.Equal(t, DeployStatus{
 		Message: "Downloading service...",
-		Type:    RUNNING,
+		Type:    Running,
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
 		Message: "Service downloaded with success.",
-		Type:    DONE_POSITIVE,
+		Type:    DonePositive,
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
 		Message: "Receiving service context...",
-		Type:    RUNNING,
+		Type:    Running,
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
 		Message: "Service context received with success.",
-		Type:    DONE_POSITIVE,
+		Type:    DonePositive,
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
 		Message: "Building Docker image...",
-		Type:    RUNNING,
+		Type:    Running,
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
 		Message: "Image built with success.",
-		Type:    DONE_POSITIVE,
+		Type:    DonePositive,
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
 		Message: "Service deployed.",
-		Type:    DONE_POSITIVE,
+		Type:    DonePositive,
 	}, <-statuses)
 
 	wg.Wait()

@@ -23,7 +23,7 @@ func TestDeployService(t *testing.T) {
 
 	require.Contains(t, stream.statuses, api.DeployStatus{
 		Message: "Service deployed.",
-		Type:    api.DONE_POSITIVE,
+		Type:    api.DonePositive,
 	})
 }
 
@@ -48,11 +48,11 @@ func (s *testDeployStream) Send(m *coreapi.DeployServiceReply) error {
 		var typ api.StatusType
 		switch status.Type {
 		case coreapi.DeployServiceReply_Status_RUNNING:
-			typ = api.RUNNING
+			typ = api.Running
 		case coreapi.DeployServiceReply_Status_DONE_POSITIVE:
-			typ = api.DONE_POSITIVE
+			typ = api.DonePositive
 		case coreapi.DeployServiceReply_Status_DONE_NEGATIVE:
-			typ = api.DONE_NEGATIVE
+			typ = api.DoneNegative
 		}
 		s.statuses = append(s.statuses, api.DeployStatus{
 			Message: status.Message,
