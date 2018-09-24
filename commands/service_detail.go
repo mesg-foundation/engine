@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/spf13/cobra"
 )
@@ -26,7 +27,13 @@ func newServiceDetailCmd(e ServiceExecutor) *serviceDetailCmd {
 }
 
 func (c *serviceDetailCmd) runE(cmd *cobra.Command, args []string) error {
-	service, err := c.e.ServiceByID(args[0])
+	var (
+		err     error
+		service *coreapi.Service
+	)
+	pretty.Progress("Loading the service...", func() {
+		service, err = c.e.ServiceByID(args[0])
+	})
 	if err != nil {
 		return err
 	}

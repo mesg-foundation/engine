@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/mesg-foundation/core/x/xsignal"
 	"github.com/mesg-foundation/core/x/xstrings"
@@ -51,7 +52,12 @@ func (c *serviceLogsCmd) runE(cmd *cobra.Command, args []string) error {
 }
 
 func showLogs(e ServiceExecutor, serviceID string, dependencies ...string) (closer func(), err error) {
-	logs, closer, err := e.ServiceLogs(serviceID, dependencies...)
+	var (
+		logs []*provider.Log
+	)
+	pretty.Progress("Loading logs...", func() {
+		logs, closer, err = e.ServiceLogs(serviceID, dependencies...)
+	})
 	if err != nil {
 		return nil, err
 	}
