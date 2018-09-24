@@ -46,7 +46,7 @@ func TestCheckServiceNotRunning(t *testing.T) {
 }
 
 func TestCheckService(t *testing.T) {
-	a, _ := newAPIAndDockerTest(t)
+	a, _ := New()
 	executor := newTaskExecutor(a)
 	s, _ := service.FromService(&service.Service{
 		Name: "TestCheckService",
