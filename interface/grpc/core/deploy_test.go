@@ -22,7 +22,7 @@ func TestDeployService(t *testing.T) {
 	require.Len(t, stream.serviceID, 40)
 
 	require.Contains(t, stream.statuses, api.DeployStatus{
-		Message: "Service deployed.",
+		Message: "Image built with success.",
 		Type:    api.DonePositive,
 	})
 }
