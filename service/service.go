@@ -213,7 +213,6 @@ func (s *Service) deploy() error {
 	}
 
 	s.sendStatus("Image built with success.", DDonePositive)
-	s.sendStatus("Service deployed.", DDonePositive)
 
 	s.configuration.Key = "service"
 	s.configuration.Image = imageHash
