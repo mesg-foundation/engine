@@ -63,7 +63,7 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 			errors.New("To get more information, run: mesg-core service validate"),
 		}
 	}
-	fmt.Printf("%s Service deployed with ID: %v\n\t", pretty.SuccessSign, pretty.Success(id))
+	fmt.Printf("%s Service deployed with ID: %v\n", pretty.SuccessSign, pretty.Success(id))
 	defer func() {
 		var err error
 		pretty.Progress("Removing the service...", func() {
