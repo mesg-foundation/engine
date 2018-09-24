@@ -37,9 +37,9 @@ type Config struct {
 	}
 
 	Core struct {
-		Image    string
-		Name     string
-		RootPath string
+		Image string
+		Name  string
+		Path  string
 	}
 
 	Docker struct {
@@ -64,15 +64,10 @@ func New() (*Config, error) {
 	c.Log.Level = "info"
 	c.Core.Image = "mesg/core:" + strings.Split(version.Version, " ")[0]
 	c.Core.Name = "core"
-	c.Core.RootPath = filepath.Join(home, ".mesg")
+	c.Core.Path = filepath.Join(home, ".mesg")
 	c.Docker.Core.Path = "/mesg"
 	c.Docker.Socket = "/var/run/docker.sock"
 	return &c, nil
-}
-
-// CorePath returns the path based on the Core.Name
-func (c *Config) CorePath() string {
-	return filepath.Join(c.Core.RootPath, c.Core.Name)
 }
 
 // Global returns a singleton of a Config after loaded ENV and validate the values.
@@ -107,7 +102,7 @@ func (c *Config) Load() error {
 
 // Prepare setups local directories or any other required thing based on config
 func (c *Config) Prepare() error {
-	return os.MkdirAll(c.CorePath(), os.FileMode(0755))
+	return os.MkdirAll(c.Core.Path, os.FileMode(0755))
 }
 
 // Validate checks values and return an error if any validation failed.
@@ -128,6 +123,6 @@ func (c *Config) DaemonEnv() map[string]string {
 		"MESG_LOG_FORMAT":     c.Log.Format,
 		"MESG_LOG_LEVEL":      c.Log.Level,
 		"MESG_CORE_NAME":      c.Core.Name,
-		"MESG_CORE_ROOTPATH":  c.Docker.Core.Path,
+		"MESG_CORE_PATH":      c.Docker.Core.Path,
 	}
 }

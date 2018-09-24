@@ -1,7 +1,6 @@
 package daemon
 
 import (
-	"path/filepath"
 	"testing"
 
 	"github.com/mesg-foundation/core/config"
@@ -42,7 +41,7 @@ func TestStartConfig(t *testing.T) {
 	// Make sure that the config directory is passed in parameter to write on the same folder
 	require.Contains(t, spec.Env, "MESG_LOG_LEVEL=info")
 	require.Contains(t, spec.Env, "MESG_LOG_FORMAT=text")
-	require.Contains(t, spec.Env, "MESG_CORE_ROOTPATH="+c.Docker.Core.Path)
+	require.Contains(t, spec.Env, "MESG_CORE_PATH="+c.Docker.Core.Path)
 	// Ensure that the port is shared
 	_, port, _ := xnet.SplitHostPort(c.Server.Address)
 	require.Equal(t, spec.Ports[0].Published, uint32(port))
@@ -52,7 +51,7 @@ func TestStartConfig(t *testing.T) {
 	require.Equal(t, spec.Mounts[0].Target, c.Docker.Socket)
 	require.True(t, spec.Mounts[0].Bind)
 	// Ensure that the host users folder is sync with the core
-	require.Equal(t, spec.Mounts[1].Source, c.CorePath())
-	require.Equal(t, spec.Mounts[1].Target, filepath.Join(c.Docker.Core.Path, c.Core.Name))
+	require.Equal(t, spec.Mounts[1].Source, c.Core.Path)
+	require.Equal(t, spec.Mounts[1].Target, c.Docker.Core.Path)
 	require.True(t, spec.Mounts[1].Bind)
 }
