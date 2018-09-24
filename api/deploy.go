@@ -53,14 +53,14 @@ type StatusType int
 const (
 	_ StatusType = iota // skip zero value.
 
-	// RUNNING indicates that status message belongs to a continuous state.
-	RUNNING
+	// Running indicates that status message belongs to a continuous state.
+	Running
 
-	// DONE_POSITIVE indicates that status message belongs to a positive noncontinuous state.
-	DONE_POSITIVE
+	// DonePositive indicates that status message belongs to a positive noncontinuous state.
+	DonePositive
 
-	// DONE_NEGATIVE indicates that status message belongs to a negative noncontinuous state.
-	DONE_NEGATIVE
+	// DoneNegative indicates that status message belongs to a negative noncontinuous state.
+	DoneNegative
 )
 
 // DeployStatus represents the deployment status.
@@ -82,7 +82,7 @@ func newServiceDeployer(api *API, options ...DeployServiceOption) *serviceDeploy
 
 // FromGitURL deploys a service hosted at a Git url.
 func (d *serviceDeployer) FromGitURL(url string) (*service.Service, *importer.ValidationError, error) {
-	d.sendStatus("Downloading service...", RUNNING)
+	d.sendStatus("Downloading service...", Running)
 	path, err := d.createTempDir()
 	if err != nil {
 		return nil, nil, err
@@ -98,7 +98,7 @@ func (d *serviceDeployer) FromGitURL(url string) (*service.Service, *importer.Va
 		return nil, nil, err
 	}
 
-	d.sendStatus("Service downloaded with success.", DONE_POSITIVE)
+	d.sendStatus("Service downloaded with success.", DonePositive)
 	r, err := xarchive.GzippedTar(path)
 	if err != nil {
 		return nil, nil, err
@@ -149,12 +149,12 @@ func (d *serviceDeployer) forwardDeployStatuses(statuses chan service.DeployStat
 	for status := range statuses {
 		var t StatusType
 		switch status.Type {
-		case service.DRUNNING:
-			t = RUNNING
-		case service.DDONE_POSITIVE:
-			t = DONE_POSITIVE
-		case service.DDONE_NEGATIVE:
-			t = DONE_NEGATIVE
+		case service.DRunning:
+			t = Running
+		case service.DDonePositive:
+			t = DonePositive
+		case service.DDoneNegative:
+			t = DoneNegative
 		}
 		d.sendStatus(status.Message, t)
 	}
