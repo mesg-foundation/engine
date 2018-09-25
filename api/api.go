@@ -1,6 +1,8 @@
 package api
 
 import (
+	"errors"
+
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/database"
@@ -32,6 +34,9 @@ func New(options ...Option) (*API, error) {
 		if err != nil {
 			return nil, err
 		}
+	}
+	if a.db == nil {
+		return nil, errors.New("db should be provided")
 	}
 	return a, nil
 }
