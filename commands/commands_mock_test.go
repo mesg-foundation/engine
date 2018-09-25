@@ -10,14 +10,18 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func newExecutorMock() Executor {
+type mockExecutor struct {
+	*mock.Mock
+	*mockRootExecutor
+	*mockServiceExecutor
+}
+
+func newMockExecutor() *mockExecutor {
 	m := &mock.Mock{}
-	return struct {
-		RootExecutor
-		ServiceExecutor
-	}{
-		RootExecutor:    &mockRootExecutor{m},
-		ServiceExecutor: &mockServiceExecutor{m},
+	return &mockExecutor{
+		Mock:                m,
+		mockRootExecutor:    &mockRootExecutor{m},
+		mockServiceExecutor: &mockServiceExecutor{m},
 	}
 }
 
