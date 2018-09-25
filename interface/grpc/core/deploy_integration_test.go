@@ -14,7 +14,8 @@ import (
 func TestIntegrationDeployService(t *testing.T) {
 	url := "https://github.com/mesg-foundation/service-webhook"
 
-	server := newServer(t)
+	server, closer := newServer(t)
+	defer closer()
 	stream := newTestDeployStream(url)
 
 	require.Nil(t, server.DeployService(stream))
