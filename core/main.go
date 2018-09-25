@@ -1,6 +1,8 @@
 package main
 
 import (
+	"path/filepath"
+
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/interface/grpc"
@@ -16,7 +18,7 @@ func main() {
 		panic(err)
 	}
 
-	db, err := database.NewServiceDB(c.Core.Path)
+	db, err := database.NewServiceDB(filepath.Join(c.Core.Path, c.Core.Database.RelativePath))
 	if err != nil {
 		logrus.Fatalln(err)
 	}
