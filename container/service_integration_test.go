@@ -155,7 +155,7 @@ func TestIntegrationListServices(t *testing.T) {
 	services, err := c.ListServices("label_name")
 	require.Nil(t, err)
 	require.Equal(t, 1, len(services))
-	require.Equal(t, Namespace([]string{"TestListServices"}), services[0].Spec.Name)
+	require.Equal(t, c.Namespace([]string{"TestListServices"}), services[0].Spec.Name)
 }
 
 func TestIntegrationServiceLogs(t *testing.T) {

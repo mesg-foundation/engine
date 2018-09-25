@@ -3,10 +3,8 @@
 package core
 
 import (
-	"fmt"
 	"testing"
 
-	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/api"
 	"github.com/stretchr/testify/require"
 )
@@ -23,7 +21,7 @@ func TestIntegrationDeployService(t *testing.T) {
 
 	require.Len(t, stream.serviceID, 40)
 	require.Contains(t, stream.statuses, api.DeployStatus{
-		Message: fmt.Sprintf("%s Image built with success.", aurora.Green("✔")),
-		Type:    api.DONE,
+		Message: "Image built with success.",
+		Type:    api.DonePositive,
 	})
 }
