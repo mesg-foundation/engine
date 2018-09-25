@@ -1,52 +1,26 @@
 version: 2
 
-onlyTagProd: &onlyTagProd
-  filters:
-    tags:
-      only: /^v.*/
-    branches:
-      ignore: /.*/
-onlyBranchDev: &onlyBranchDev
-  filters:
-    branches:
-      only:
-        - dev
-transient: &transient
-  filters:
-    tags:
-      only: /.*/
 runOnMachine: &runOnMachine
   machine:
     docker_layer_caching: true
   working_directory: ~/.go_workspace/src/github.com/mesg-foundation/core
+
 runOnDocker: &runOnDocker
   docker:
     - image: circleci/golang:1.10
   working_directory: /go/src/github.com/mesg-foundation/core
 
 jobs:
-  "unit_test":
+  "test":
     <<: *runOnDocker
     steps:
       - checkout
       - setup_remote_docker # this should be remove when no test are actually using docker
-      - run: go get -t ./...
       - run: docker swarm init # this should be remove when no test are actually using docker
       - run: docker build -t sleep docker-images/sleep/ # this should be remove when no test are actually using docker
       - run: docker build -t http-server docker-images/http-server/ # this should be remove when no test are actually using docker
-      - run: env MESG_CORE_IMAGE=mesg/core:NONEXISTINGIMAGE go test -timeout 180s -p 1 -coverprofile=coverage.txt ./...
+      - run: env MESG_CORE_IMAGE=mesg/core:NONEXISTINGIMAGE go test -timeout 180s -p 1 -tags=integration -coverprofile=coverage.txt ./...
       - run: bash <(curl -s https://codecov.io/bash)
-  
-  "integration_test":
-    <<: *runOnDocker
-    steps:
-      - checkout
-      - setup_remote_docker
-      - run: go get -t ./...
-      - run: docker swarm init
-      - run: docker build -t sleep docker-images/sleep/ # the build should be move to another task with a cache system to share it between tasks
-      - run: docker build -t http-server docker-images/http-server/
-      - run: go test -timeout 180s -p 1 -tags=integration ./...
 
   "publish_docker_dev":
     <<: *runOnMachine
@@ -83,27 +57,44 @@ jobs:
 
 workflows:
   version: 2
-  build_n_deploy:
+
+  pull_request:
     jobs:
-      - "unit_test":
-          <<: *transient
-      - "integration_test":
-          <<: *transient
-          requires:
-            - "unit_test"
+      - "test":
+        filters:
+          tags:
+            ignore: /.*/
+          branches:
+            ignore:
+              - "dev"
+              - "master"
+
+  release_dev:
+    jobs:
+      - "test":
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              only: dev
       - "publish_docker_dev":
-          <<: *onlyBranchDev
           requires:
-            - "integration_test"
+            - "test"
       - "release_cli_dev":
-          <<: *onlyBranchDev
           requires:
             - "publish_docker_dev"
+
+  release_prod:
+    jobs:
+      - "test":
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              only: master
       - "publish_docker_prod":
-          <<: *onlyTagProd
           requires:
-            - "integration_test"
+            - "test"
       - "release_cli_prod":
-          <<: *onlyTagProd
           requires:
             - "publish_docker_prod"
