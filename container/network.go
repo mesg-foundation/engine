@@ -34,7 +34,10 @@ func (c *Container) CreateNetwork(namespace []string) (id string, err error) {
 }
 
 // DeleteNetwork deletes a Docker Network associated with a namespace.
-func (c *Container) DeleteNetwork(namespace []string) error {
+// event parameter can be "destroy" or "remove". If the network was used by a service, the event to use is "destroy". If the network has not been used, the event is "remove".
+// Remove removes the reference from Docker to the network.
+// Destroy removes the network from Docker active network.
+func (c *Container) DeleteNetwork(namespace []string, event string) error {
 	network, err := c.FindNetwork(namespace)
 	if docker.IsErrNotFound(err) {
 		return nil
@@ -50,7 +53,7 @@ func (c *Container) DeleteNetwork(namespace []string) error {
 			Value: network.ID,
 		}, filters.KeyValuePair{
 			Key:   "event",
-			Value: "destroy",
+			Value: event,
 		}),
 	})
 	err = c.client.NetworkRemove(ctx, network.ID)

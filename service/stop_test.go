@@ -51,7 +51,7 @@ func TestStopDependency(t *testing.T) {
 		},
 	}, ContainerOption(defaultContainer))
 	networkID, err := defaultContainer.CreateNetwork(service.namespace())
-	defer defaultContainer.DeleteNetwork(service.namespace())
+	defer defaultContainer.DeleteNetwork(service.namespace(), "destroy")
 	dep := service.Dependencies[0]
 	dep.Start(networkID)
 	err = dep.Stop()
