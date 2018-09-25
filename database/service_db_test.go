@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const testdbname = "db.test"
+const testdbname = "/tmp/db.test"
 
 func openServiceDB(t *testing.T) (*ServiceDB, func()) {
 	db, err := NewServiceDB(testdbname)
@@ -77,10 +77,26 @@ func TestServiceDBAll(t *testing.T) {
 	require.NoError(t, db.Save(s1))
 	require.NoError(t, db.Save(s2))
 
-	services, err := db.All()
+	services, err := db.All(nil)
 	require.NoError(t, err)
 	require.Len(t, services, 2)
 	require.Contains(t, services, s1)
+	require.Contains(t, services, s2)
+}
+
+func TestServiceDBAllWithIDs(t *testing.T) {
+	db, closer := openServiceDB(t)
+	defer closer()
+
+	s1 := &service.Service{ID: "1", Name: "test-service"}
+	s2 := &service.Service{ID: "2", Name: "test-service"}
+
+	require.NoError(t, db.Save(s1))
+	require.NoError(t, db.Save(s2))
+
+	services, err := db.All([]string{s2.ID})
+	require.NoError(t, err)
+	require.Len(t, services, 1)
 	require.Contains(t, services, s2)
 }
 
