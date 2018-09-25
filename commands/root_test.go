@@ -1,9 +1,11 @@
 package commands
 
 import (
+	"os"
 	"strings"
 	"testing"
 
+	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/require"
 )
@@ -15,6 +17,12 @@ func findCommandChildByUsePrefix(root *cobra.Command, use string) bool {
 		}
 	}
 	return false
+}
+
+func TestMain(m *testing.M) {
+	pretty.DisableColor()
+	pretty.DisableSpinner()
+	os.Exit(m.Run())
 }
 
 func TestRootCmd(t *testing.T) {
