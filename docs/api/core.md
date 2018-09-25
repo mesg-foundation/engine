@@ -1198,6 +1198,11 @@ List all services already deployed in [Core](../guide/start-here/core.md).
 Reply of `ListServices` API doesn't contain any data.
 
 
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| filterRunning | [bool](#bool) |  |
+
+
 
 
 

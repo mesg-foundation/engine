@@ -273,6 +273,7 @@ message DeleteServiceReply {
 
 // Reply of `ListServices` API doesn't contain any data.
 message ListServicesRequest {
+  bool filterRunning = 1;
 }
 
 // The reply's data of the `ListServices` API.
@@ -393,6 +394,7 @@ message Service {
   repeated Dependency dependencies = 7;     // The Docker dependencies this service requires.
   Dependency configuration = 8;             // Service's Docker configuration.
   string repository = 9;                    // Service's repository that contain its source code.
+  bool isRunning = 11;                      // Service's running state.
 }
 
 // Events are emitted by the service whenever the service wants.

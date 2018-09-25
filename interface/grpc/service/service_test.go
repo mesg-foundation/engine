@@ -21,7 +21,8 @@ var (
 func newServer(t *testing.T) (*Server, func()) {
 	db, err := database.NewServiceDB("db.test")
 	require.NoError(t, err)
-	a, err := api.New(db)
+
+	a, err := api.New(api.DatabaseOption(db))
 	require.Nil(t, err)
 
 	server, err := NewServer(APIOption(a))

@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/core/x/xstrings"
 	"github.com/sirupsen/logrus"
 	"github.com/syndtr/goleveldb/leveldb"
 )
@@ -64,7 +65,8 @@ func (db *ServiceDB) unmarshal(id string, value []byte) (*service.Service, error
 }
 
 // All returns every service in database.
-func (db *ServiceDB) All() ([]*service.Service, error) {
+// If ids > 0, it'll only return services with matching ids.
+func (db *ServiceDB) All(ids []string) ([]*service.Service, error) {
 	var (
 		services []*service.Service
 		iter     = db.db.NewIterator(nil, nil)
@@ -81,7 +83,9 @@ func (db *ServiceDB) All() ([]*service.Service, error) {
 			}
 			return nil, err
 		}
-		services = append(services, s)
+		if len(ids) == 0 || xstrings.SliceContains(ids, s.ID) {
+			services = append(services, s)
+		}
 	}
 	iter.Release()
 	if err := iter.Error(); err != nil {

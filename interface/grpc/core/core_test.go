@@ -19,7 +19,7 @@ var (
 	taskServicePath  = filepath.Join("..", "..", "..", "service-test", "task")
 )
 
-const testdbname = "db.test"
+const testdbname = "/tmp/db.test"
 
 func newServer(t *testing.T) (*Server, func()) {
 	container, err := container.New()
@@ -28,7 +28,10 @@ func newServer(t *testing.T) (*Server, func()) {
 	db, err := database.NewServiceDB(testdbname)
 	require.NoError(t, err)
 
-	a, err := api.New(db, api.ContainerOption(container))
+	a, err := api.New(
+		api.DatabaseOption(db),
+		api.ContainerOption(container),
+	)
 	require.NoError(t, err)
 
 	server, err := NewServer(APIOption(a))
@@ -50,7 +53,10 @@ func newServerAndDockerTest(t *testing.T) (*Server, *dockertest.Testing, func())
 	db, err := database.NewServiceDB(testdbname)
 	require.NoError(t, err)
 
-	a, err := api.New(db, api.ContainerOption(container))
+	a, err := api.New(
+		api.DatabaseOption(db),
+		api.ContainerOption(container),
+	)
 	require.NoError(t, err)
 
 	server, err := NewServer(APIOption(a))
