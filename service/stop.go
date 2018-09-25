@@ -16,7 +16,7 @@ func (s *Service) Stop() error {
 	if err := s.StopDependencies(); err != nil {
 		return err
 	}
-	return defaultContainer.DeleteNetwork(s.namespace())
+	return defaultContainer.DeleteNetwork(s.namespace(), "destroy")
 }
 
 // StopDependencies stops all dependencies.
