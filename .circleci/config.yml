@@ -15,11 +15,11 @@ jobs:
     <<: *runOnDocker
     steps:
       - checkout
-      - setup_remote_docker # this should be remove when no test are actually using docker
-      - run: docker swarm init # this should be remove when no test are actually using docker
-      - run: docker build -t sleep docker-images/sleep/ # this should be remove when no test are actually using docker
-      - run: docker build -t http-server docker-images/http-server/ # this should be remove when no test are actually using docker
-      - run: env MESG_CORE_IMAGE=mesg/core:NONEXISTINGIMAGE go test -timeout 180s -p 1 -tags=integration -coverprofile=coverage.txt ./...
+      - setup_remote_docker
+      - run: docker swarm init
+      - run: docker build -t sleep docker-images/sleep/
+      - run: docker build -t http-server docker-images/http-server/
+      - run: go test -timeout 180s -p 1 -tags=integration -coverprofile=coverage.txt ./...
       - run: bash <(curl -s https://codecov.io/bash)
 
   "publish_docker_dev":
