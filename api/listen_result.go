@@ -1,7 +1,6 @@
 package api
 
 import (
-	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/pubsub"
 	"github.com/mesg-foundation/core/service"
@@ -83,7 +82,7 @@ func (l *ResultListener) Close() error {
 
 // listen listens results matches with filters on serviceID.
 func (l *ResultListener) listen(serviceID string) error {
-	s, err := services.Get(serviceID)
+	s, err := l.api.db.Get(serviceID)
 	if err != nil {
 		return err
 	}
