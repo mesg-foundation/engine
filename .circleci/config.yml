@@ -61,13 +61,13 @@ workflows:
   pull_request:
     jobs:
       - "test":
-        filters:
-          tags:
-            ignore: /.*/
-          branches:
-            ignore:
-              - "dev"
-              - "master"
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              ignore:
+                - "dev"
+                - "master"
 
   release_dev:
     jobs:
