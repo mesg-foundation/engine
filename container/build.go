@@ -22,8 +22,7 @@ type BuildResponse struct {
 // Build builds a docker image.
 func (c *Container) Build(path string) (tag string, err error) {
 	excludeFiles := []string{}
-	// TODO: remove .mesgignore for a future release
-	for _, file := range []string{".mesgignore", ".dockerignore"} {
+	for _, file := range []string{".dockerignore"} {
 		excludeFilesBytes, _ := ioutil.ReadFile(filepath.Join(path, file))
 		excludeFiles = append(excludeFiles, strings.Fields(string(excludeFilesBytes))...)
 	}
