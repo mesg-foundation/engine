@@ -21,7 +21,7 @@ func TestServerServe(t *testing.T) {
 		s.Close()
 	}()
 	err := s.Serve()
-	require.Nil(t, err)
+	require.NoError(t, err)
 }
 
 func TestServerServeNoAddress(t *testing.T) {
@@ -31,7 +31,7 @@ func TestServerServeNoAddress(t *testing.T) {
 		s.Close()
 	}()
 	err := s.Serve()
-	require.NotNil(t, err)
+	require.Error(t, err)
 }
 
 func TestServerListenAfterClose(t *testing.T) {

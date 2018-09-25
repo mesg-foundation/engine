@@ -17,7 +17,7 @@ func newContainerAndDockerTest(t *testing.T) (*container.Container, *dockertest.
 	dt := dockertest.New()
 
 	container, err := container.New(container.ClientOption(dt.Client()))
-	require.Nil(t, err)
+	require.NoError(t, err)
 
 	return container, dt
 }

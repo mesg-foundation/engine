@@ -26,7 +26,7 @@ func TestStartService(t *testing.T) {
 	dt.ProvideServiceCreate(types.ServiceCreateResponse{ID: containerID}, nil)
 
 	id, err := c.StartService(options)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, containerID, id)
 
 	ls := <-dt.LastServiceCreate()
@@ -94,7 +94,7 @@ func TestFindService(t *testing.T) {
 	dt.ProvideServiceInspectWithRaw(swarmService, nil, nil)
 
 	service, err := c.FindService(namespace)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, swarmService.ID, service.ID)
 
 	li := <-dt.LastServiceInspectWithRaw()
@@ -132,7 +132,7 @@ func TestListServices(t *testing.T) {
 	dt.ProvideServiceList(swarmServices, nil)
 
 	services, err := c.ListServices(label)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, 2, len(services))
 	require.Equal(t, c.Namespace(namespace), services[0].Spec.Name)
 	require.Equal(t, c.Namespace(namespace1), services[1].Spec.Name)
@@ -155,11 +155,11 @@ func TestServiceLogs(t *testing.T) {
 	dt.ProvideServiceLogs(ioutil.NopCloser(bytes.NewReader(data)), nil)
 
 	reader, err := c.ServiceLogs(namespace)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	defer reader.Close()
 
 	bytes, err := ioutil.ReadAll(reader)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, data, bytes)
 
 	ll := <-dt.LastServiceLogs()

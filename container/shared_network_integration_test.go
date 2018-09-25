@@ -22,25 +22,25 @@ func removeSharedNetworkIfExist(c *Container) error {
 
 func TestIntegrationCreateSharedNetworkIfNeeded(t *testing.T) {
 	c, err := New()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	err = removeSharedNetworkIfExist(c)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	err = c.createSharedNetworkIfNeeded()
-	require.Nil(t, err)
+	require.NoError(t, err)
 }
 
 func TestIntegrationSharedNetwork(t *testing.T) {
 	c, err := New()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	network, err := c.sharedNetwork()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.NotEqual(t, "", network.ID)
 }
 
 func TestIntegrationSharedNetworkID(t *testing.T) {
 	c, err := New()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	networkID, err := c.SharedNetworkID()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.NotEqual(t, "", networkID)
 }

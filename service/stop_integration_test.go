@@ -21,7 +21,7 @@ func TestStopRunningService(t *testing.T) {
 	}, ContainerOption(newContainer(t)))
 	service.Start()
 	err := service.Stop()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	status, _ := service.Status()
 	require.Equal(t, STOPPED, status)
 }
@@ -37,7 +37,7 @@ func TestStopNonRunningService(t *testing.T) {
 		},
 	}, ContainerOption(newContainer(t)))
 	err := service.Stop()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	status, _ := service.Status()
 	require.Equal(t, STOPPED, status)
 }
@@ -58,7 +58,7 @@ func TestStopDependency(t *testing.T) {
 	dep := service.Dependencies[0]
 	dep.Start(networkID)
 	err = dep.Stop()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	status, _ := dep.Status()
 	require.Equal(t, container.STOPPED, status)
 }
@@ -78,5 +78,5 @@ func TestNetworkDeleted(t *testing.T) {
 	service.Stop()
 	n, err := c.FindNetwork(service.namespace())
 	require.Empty(t, n)
-	require.NotNil(t, err)
+	require.Error(t, err)
 }
