@@ -1,7 +1,6 @@
 package api
 
 import (
-	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/service"
 )
 
@@ -31,7 +30,7 @@ func newServiceLister(api *API, filters ...ListServicesFilter) *serviceLister {
 
 // Lists services.
 func (l *serviceLister) List() ([]*service.Service, error) {
-	ss, err := services.All()
+	ss, err := l.api.db.All()
 	if err != nil {
 		return nil, err
 	}

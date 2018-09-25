@@ -9,7 +9,8 @@ import (
 )
 
 func TestValidateTaskKey(t *testing.T) {
-	a, _ := newAPIAndDockerTest(t)
+	a, _, closer := newAPIAndDockerTest(t)
+	defer closer()
 	ln := newResultListener(a)
 
 	s, _ := service.FromService(&service.Service{
@@ -34,7 +35,8 @@ func TestValidateTaskKey(t *testing.T) {
 }
 
 func TestValidateOutputKey(t *testing.T) {
-	a, _ := newAPIAndDockerTest(t)
+	a, _, closer := newAPIAndDockerTest(t)
+	defer closer()
 	ln := newResultListener(a)
 
 	s, _ := service.FromService(&service.Service{
@@ -84,7 +86,8 @@ func TestValidateOutputKey(t *testing.T) {
 }
 
 func TestIsSubscribedToTask(t *testing.T) {
-	a, _ := newAPIAndDockerTest(t)
+	a, _, closer := newAPIAndDockerTest(t)
+	defer closer()
 	ln := newResultListener(a)
 
 	x := &execution.Execution{Task: "task"}
@@ -103,7 +106,8 @@ func TestIsSubscribedToTask(t *testing.T) {
 }
 
 func TestIsSubscribedToOutput(t *testing.T) {
-	a, _ := newAPIAndDockerTest(t)
+	a, _, closer := newAPIAndDockerTest(t)
+	defer closer()
 	ln := newResultListener(a)
 
 	x := &execution.Execution{Output: "output"}
@@ -122,7 +126,8 @@ func TestIsSubscribedToOutput(t *testing.T) {
 }
 
 func TestIsSubscribedToTags(t *testing.T) {
-	a, _ := newAPIAndDockerTest(t)
+	a, _, closer := newAPIAndDockerTest(t)
+	defer closer()
 	ln := newResultListener(a)
 
 	type result struct {
@@ -170,7 +175,8 @@ func TestIsSubscribedToTags(t *testing.T) {
 }
 
 func TestIsSubscribed(t *testing.T) {
-	a, _ := newAPIAndDockerTest(t)
+	a, _, closer := newAPIAndDockerTest(t)
+	defer closer()
 	ln := newResultListener(a)
 
 	type test struct {

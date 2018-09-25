@@ -1,7 +1,6 @@
 package api
 
 import (
-	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/service"
 )
 
@@ -24,7 +23,7 @@ func newServiceDeleter(api *API) *serviceDeleter {
 
 // Delete stops and deletes service serviceID.
 func (d *serviceDeleter) Delete(serviceID string) error {
-	s, err := services.Get(serviceID)
+	s, err := d.api.db.Get(serviceID)
 	if err != nil {
 		return err
 	}
@@ -35,5 +34,5 @@ func (d *serviceDeleter) Delete(serviceID string) error {
 	if err := s.Stop(); err != nil {
 		return err
 	}
-	return services.Delete(serviceID)
+	return d.api.db.Delete(serviceID)
 }

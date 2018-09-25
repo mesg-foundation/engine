@@ -2,6 +2,7 @@ package core
 
 import (
 	"io"
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/container/dockertest"
+	"github.com/mesg-foundation/core/database"
 	"github.com/stretchr/testify/require"
 )
 
@@ -17,32 +19,48 @@ var (
 	taskServicePath  = filepath.Join("..", "..", "..", "service-test", "task")
 )
 
-func newServer(t *testing.T) *Server {
+const testdbname = "db.test"
+
+func newServer(t *testing.T) (*Server, func()) {
 	container, err := container.New()
 	require.NoError(t, err)
 
-	a, err := api.New(api.ContainerOption(container))
+	db, err := database.NewServiceDB(testdbname)
+	require.NoError(t, err)
+
+	a, err := api.New(db, api.ContainerOption(container))
 	require.NoError(t, err)
 
 	server, err := NewServer(APIOption(a))
 	require.NoError(t, err)
 
-	return server
+	closer := func() {
+		db.Close()
+		os.RemoveAll(testdbname)
+	}
+	return server, closer
 }
 
-func newServerAndDockerTest(t *testing.T) (*Server, *dockertest.Testing) {
+func newServerAndDockerTest(t *testing.T) (*Server, *dockertest.Testing, func()) {
 	dt := dockertest.New()
 
 	container, err := container.New(container.ClientOption(dt.Client()))
 	require.NoError(t, err)
 
-	a, err := api.New(api.ContainerOption(container))
+	db, err := database.NewServiceDB(testdbname)
+	require.NoError(t, err)
+
+	a, err := api.New(db, api.ContainerOption(container))
 	require.NoError(t, err)
 
 	server, err := NewServer(APIOption(a))
 	require.NoError(t, err)
 
-	return server, dt
+	closer := func() {
+		db.Close()
+		os.RemoveAll(testdbname)
+	}
+	return server, dt, closer
 }
 
 func serviceTar(t *testing.T, path string) io.Reader {
