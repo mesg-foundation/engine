@@ -21,7 +21,7 @@ func TestIntegrationStopRunningService(t *testing.T) {
 	}, ContainerOption(newIntegrationContainer(t)))
 	service.Start()
 	err := service.Stop()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	status, _ := service.Status()
 	require.Equal(t, STOPPED, status)
 }
@@ -37,7 +37,7 @@ func TestIntegrationStopNonRunningService(t *testing.T) {
 		},
 	}, ContainerOption(newIntegrationContainer(t)))
 	err := service.Stop()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	status, _ := service.Status()
 	require.Equal(t, STOPPED, status)
 }
@@ -58,7 +58,7 @@ func TestIntegrationStopDependency(t *testing.T) {
 	dep := service.Dependencies[0]
 	dep.Start(networkID)
 	err = dep.Stop()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	status, _ := dep.Status()
 	require.Equal(t, container.STOPPED, status)
 }
@@ -78,5 +78,5 @@ func TestIntegrationNetworkDeleted(t *testing.T) {
 	service.Stop()
 	n, err := c.FindNetwork(service.namespace())
 	require.Empty(t, n)
-	require.NotNil(t, err)
+	require.Error(t, err)
 }

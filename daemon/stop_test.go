@@ -9,5 +9,5 @@ import (
 func TestStop(t *testing.T) {
 	startForTest()
 	err := Stop()
-	require.Nil(t, err)
+	require.NoError(t, err)
 }

@@ -17,7 +17,7 @@ func TestExecute(t *testing.T) {
 	var inputs map[string]interface{}
 	execution, _ := Create(s, "test", inputs, []string{})
 	err := execution.Execute()
-	require.Nil(t, err)
+	require.NoError(t, err)
 }
 
 func TestExecuteNotPending(t *testing.T) {
@@ -25,5 +25,5 @@ func TestExecuteNotPending(t *testing.T) {
 		ID: "TestExecuteNotPending",
 	}
 	err := execution.Execute()
-	require.NotNil(t, err)
+	require.Error(t, err)
 }

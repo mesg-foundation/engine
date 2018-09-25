@@ -46,7 +46,7 @@ func TestConvertData(t *testing.T) {
 		},
 	}
 	res, err := task.convertData("foo")
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, res, "\"bar\"")
 }
 
@@ -60,7 +60,7 @@ func TestConvertDataObject(t *testing.T) {
 		"foo":    "bar",
 		"number": 42,
 	})
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, res, "{\"foo\":\"bar\",\"number\":42}")
 }
 
@@ -71,6 +71,6 @@ func TestConvertDataWithNull(t *testing.T) {
 		},
 	}
 	res, err := task.convertData("xxx")
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, res, "null")
 }
