@@ -17,7 +17,7 @@ func (c *Container) CreateNetwork(namespace []string) (id string, err error) {
 	if network.ID != "" {
 		return network.ID, nil
 	}
-	namespaceFlat := Namespace(namespace)
+	namespaceFlat := c.Namespace(namespace)
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
 	response, err := c.client.NetworkCreate(ctx, namespaceFlat, types.NetworkCreate{
@@ -72,5 +72,5 @@ func (c *Container) DeleteNetwork(namespace []string, event string) error {
 func (c *Container) FindNetwork(namespace []string) (types.NetworkResource, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
-	return c.client.NetworkInspect(ctx, Namespace(namespace), types.NetworkInspectOptions{})
+	return c.client.NetworkInspect(ctx, c.Namespace(namespace), types.NetworkInspectOptions{})
 }

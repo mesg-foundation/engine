@@ -1,12 +1,10 @@
 package core
 
 import (
-	"fmt"
 	"io/ioutil"
 	"strings"
 	"testing"
 
-	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/stretchr/testify/require"
@@ -16,7 +14,8 @@ import (
 func TestDeployService(t *testing.T) {
 	url := "https://github.com/mesg-foundation/service-webhook"
 
-	server, dt := newServerAndDockerTest(t)
+	server, dt, closer := newServerAndDockerTest(t)
+	defer closer()
 	dt.ProvideImageBuild(ioutil.NopCloser(strings.NewReader(`{"stream":"sha256:x"}`)), nil)
 
 	stream := newTestDeployStream(url)
@@ -24,8 +23,8 @@ func TestDeployService(t *testing.T) {
 	require.Len(t, stream.serviceID, 40)
 
 	require.Contains(t, stream.statuses, api.DeployStatus{
-		Message: fmt.Sprintf("%s Service deployed.", aurora.Green("✔")),
-		Type:    api.DONE,
+		Message: "Image built with success.",
+		Type:    api.DonePositive,
 	})
 }
 
@@ -50,9 +49,11 @@ func (s *testDeployStream) Send(m *coreapi.DeployServiceReply) error {
 		var typ api.StatusType
 		switch status.Type {
 		case coreapi.DeployServiceReply_Status_RUNNING:
-			typ = api.RUNNING
-		case coreapi.DeployServiceReply_Status_DONE:
-			typ = api.DONE
+			typ = api.Running
+		case coreapi.DeployServiceReply_Status_DONE_POSITIVE:
+			typ = api.DonePositive
+		case coreapi.DeployServiceReply_Status_DONE_NEGATIVE:
+			typ = api.DoneNegative
 		}
 		s.statuses = append(s.statuses, api.DeployStatus{
 			Message: status.Message,

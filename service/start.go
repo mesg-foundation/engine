@@ -23,7 +23,7 @@ func (s *Service) Start() (serviceIDs []string, err error) {
 			return nil, err
 		}
 	}
-	networkID, err := defaultContainer.CreateNetwork(s.namespace())
+	networkID, err := s.docker.CreateNetwork(s.namespace())
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (s *Service) Start() (serviceIDs []string, err error) {
 
 // Start starts a dependency container.
 func (d *Dependency) Start(networkID string) (containerServiceID string, err error) {
-	sharedNetworkID, err := defaultContainer.SharedNetworkID()
+	sharedNetworkID, err := d.service.docker.SharedNetworkID()
 	if err != nil {
 		return "", err
 	}
@@ -68,12 +68,13 @@ func (d *Dependency) Start(networkID string) (containerServiceID string, err err
 		return "", err
 	}
 	_, port, err := xnet.SplitHostPort(c.Server.Address)
-	endpoint := "mesg-core:" + strconv.Itoa(port) // TODO: should get this from daemon namespace and config
-	return defaultContainer.StartService(container.ServiceOptions{
+	endpoint := c.Core.Name + ":" + strconv.Itoa(port)
+	return d.service.docker.StartService(container.ServiceOptions{
 		Namespace: d.namespace(),
 		Labels: map[string]string{
 			"mesg.service": d.service.Name,
 			"mesg.hash":    d.service.ID,
+			"mesg.core":    c.Core.Name,
 		},
 		Image: d.Image,
 		Args:  strings.Fields(d.Command),

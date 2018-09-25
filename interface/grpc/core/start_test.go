@@ -10,7 +10,8 @@ import (
 )
 
 func TestStartService(t *testing.T) {
-	var server = newServer(t)
+	server, closer := newServer(t)
+	defer closer()
 
 	// we use a test service without tasks definition here otherwise we need to
 	// spin up the gRPC server in order to prevent service exit with a failure
