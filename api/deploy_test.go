@@ -97,12 +97,7 @@ func TestDeployInvalidService(t *testing.T) {
 		Type:    DonePositive,
 	}, <-statuses)
 
-	select {
-	case <-statuses:
-		t.Error("should not send further status messages")
-	default:
-	}
-
+	require.Empty(t, statuses)
 	wg.Wait()
 }
 
@@ -166,7 +161,7 @@ func TestCreateTempFolder(t *testing.T) {
 	path, err := deployer.createTempDir()
 	defer os.RemoveAll(path)
 	require.NoError(t, err)
-	require.NotEqual(t, "", path)
+	require.NotZero(t, path)
 }
 
 func TestRemoveTempFolder(t *testing.T) {

@@ -235,22 +235,6 @@
   revision = "82cf3f92643814c75904bc4b01dd5721afa7bb89"
 
 [[projects]]
-  branch = "main"
-  digest = "1:ca955a9cd5b50b0f43d2cc3aeb35c951473eeca41b34eb67507f1dbcc0542394"
-  name = "github.com/kr/pretty"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "73f6ac0b30a98e433b289500d779f50c1a6f0712"
-
-[[projects]]
-  branch = "main"
-  digest = "1:15b5cc79aad436d47019f814fde81a10221c740dc8ddf769221a65097fb6c2e9"
-  name = "github.com/kr/text"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "e2ffdb16a802fe2bb95e2e35ff34f0e53aeef34f"
-
-[[projects]]
   branch = "master"
   digest = "1:7616dd8d9ddca4d4d8aa0e3793f66015c8c8bf9a3f2387be6be59347f43a75c0"
   name = "github.com/logrusorgru/aurora"
@@ -435,14 +419,6 @@
   pruneopts = "UT"
   revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
   version = "v1.2.2"
-
-[[projects]]
-  branch = "master"
-  digest = "1:42a7575a9db2a8adb8176427163dfbd63f49214ff6529efb00855c9038bee269"
-  name = "github.com/stvp/assert"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "4bc16443988bace8e1b42d62d3601f70d74e4638"
 
 [[projects]]
   branch = "master"
@@ -737,6 +713,7 @@
     "github.com/kelseyhightower/envconfig",
     "github.com/logrusorgru/aurora",
     "github.com/mesg-foundation/prefixer",
+    "github.com/mitchellh/go-homedir",
     "github.com/pkg/errors",
     "github.com/satori/go.uuid",
     "github.com/sirupsen/logrus",
@@ -745,9 +722,7 @@
     "github.com/spf13/pflag",
     "github.com/stretchr/testify/mock",
     "github.com/stretchr/testify/require",
-    "github.com/stvp/assert",
     "github.com/syndtr/goleveldb/leveldb",
-    "github.com/syndtr/goleveldb/leveldb/errors",
     "github.com/xeipuuv/gojsonschema",
     "golang.org/x/net/context",
     "google.golang.org/grpc",

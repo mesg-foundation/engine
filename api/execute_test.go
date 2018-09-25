@@ -6,12 +6,12 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/mesg-foundation/core/container/dockertest"
 	"github.com/mesg-foundation/core/service"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNotRunningServiceError(t *testing.T) {
 	e := NotRunningServiceError{ServiceID: "test"}
-	assert.Equal(t, `Service "test" is not running`, e.Error())
+	require.Equal(t, `Service "test" is not running`, e.Error())
 }
 
 func TestExecuteFunc(t *testing.T) {
@@ -27,8 +27,8 @@ func TestExecuteFunc(t *testing.T) {
 		},
 	}, service.ContainerOption(a.container))
 	id, err := executor.execute(s, "test", map[string]interface{}{}, []string{})
-	assert.NoError(t, err)
-	assert.NotNil(t, id)
+	require.NoError(t, err)
+	require.NotZero(t, id)
 }
 
 func TestExecuteFuncInvalidTaskName(t *testing.T) {
@@ -37,7 +37,7 @@ func TestExecuteFuncInvalidTaskName(t *testing.T) {
 	executor := newTaskExecutor(a)
 	srv := &service.Service{}
 	_, err := executor.execute(srv, "test", map[string]interface{}{}, []string{})
-	assert.Error(t, err)
+	require.Error(t, err)
 }
 
 func TestCheckServiceNotRunning(t *testing.T) {
@@ -45,9 +45,8 @@ func TestCheckServiceNotRunning(t *testing.T) {
 	defer closer()
 	executor := newTaskExecutor(a)
 	err := executor.checkServiceStatus(&service.Service{Name: "TestCheckServiceNotRunning"})
-	assert.Error(t, err)
-	_, notRunningError := err.(*NotRunningServiceError)
-	assert.True(t, notRunningError)
+	require.Error(t, err)
+	require.IsType(t, &NotRunningServiceError{}, err)
 }
 
 func TestCheckService(t *testing.T) {
@@ -65,7 +64,7 @@ func TestCheckService(t *testing.T) {
 	}, service.ContainerOption(a.container))
 	s.Start()
 	err := executor.checkServiceStatus(s)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	// Mock DockerTest.
 	// Need 3 of them because the Docker API is called 3 times in s.Stop().
 	dt.ProvideContainerInspect(types.ContainerJSON{}, dockertest.NotFoundErr{})
