@@ -40,6 +40,10 @@ type Config struct {
 		Image string
 		Name  string
 		Path  string
+
+		Database struct {
+			RelativePath string
+		}
 	}
 
 	Docker struct {
@@ -65,6 +69,7 @@ func New() (*Config, error) {
 	c.Core.Image = "mesg/core:" + strings.Split(version.Version, " ")[0]
 	c.Core.Name = "core"
 	c.Core.Path = filepath.Join(home, ".mesg")
+	c.Core.Database.RelativePath = filepath.Join("database", "services")
 	c.Docker.Core.Path = "/mesg"
 	c.Docker.Socket = "/var/run/docker.sock"
 	return &c, nil

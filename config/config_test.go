@@ -19,6 +19,7 @@ func TestDefaultValue(t *testing.T) {
 	require.Equal(t, "text", c.Log.Format)
 	require.Equal(t, "info", c.Log.Level)
 	require.Equal(t, filepath.Join(home, ".mesg"), c.Core.Path)
+	require.Equal(t, filepath.Join("database", "services"), c.Core.Database.RelativePath)
 	require.Equal(t, "core", c.Core.Name)
 	require.Equal(t, "/mesg", c.Docker.Core.Path)
 	require.Equal(t, "/var/run/docker.sock", c.Docker.Socket)
