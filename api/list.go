@@ -9,10 +9,11 @@ import (
 // ListServicesFilter is a filter func for listing services.
 type ListServicesFilter func(*serviceLister)
 
-// ListRunningServicesFilter returns an option to filter by running services.
+// ListRunningServicesFilter returns an option to filter services that are
+// in the starting process or already started.
 func ListRunningServicesFilter() ListServicesFilter {
 	return func(l *serviceLister) {
-		l.filterRunning = true
+		l.filterActive = true
 	}
 }
 
@@ -23,8 +24,8 @@ func (a *API) ListServices(filters ...ListServicesFilter) ([]*service.Service, e
 
 // serviceLister provides functionalities to list MESG services.
 type serviceLister struct {
-	api           *API
-	filterRunning bool
+	api          *API
+	filterActive bool
 }
 
 // newServiceLister creates a new serviceLister with given api and filters.
@@ -42,9 +43,9 @@ func newServiceLister(api *API, filters ...ListServicesFilter) *serviceLister {
 func (l *serviceLister) List() ([]*service.Service, error) {
 	var ids []string
 
-	if l.filterRunning {
+	if l.filterActive {
 		var err error
-		ids, err = l.getRunningServiceIDs()
+		ids, err = l.getActiveServicesIDs()
 		if err != nil {
 			return nil, err
 		}
@@ -79,7 +80,9 @@ func (l *serviceLister) List() ([]*service.Service, error) {
 	return services, nil
 }
 
-func (l *serviceLister) getRunningServiceIDs() ([]string, error) {
+// getActiveServicesIDs returns the services ids for the services that are
+// in the starting process or already started.
+func (l *serviceLister) getActiveServicesIDs() ([]string, error) {
 	var ids []string
 
 	runningServices, err := l.api.container.ListServices("mesg.hash", fmt.Sprintf("mesg.core=%s", l.api.cfg.Core.Name))

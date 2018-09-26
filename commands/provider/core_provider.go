@@ -31,7 +31,7 @@ func (p *CoreProvider) Start() error {
 // Stop stops core daemon and all running services.
 func (p *CoreProvider) Stop() error {
 	res, err := p.client.ListServices(context.Background(), &coreapi.ListServicesRequest{
-		FilterRunning: true,
+		FilterActive: true,
 	})
 	if err != nil {
 		return err
