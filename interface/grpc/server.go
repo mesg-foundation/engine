@@ -84,7 +84,7 @@ func (s *Server) Close() {
 
 // register all server
 func (s *Server) register() error {
-	a, err := api.New(api.DatabaseOption(s.ServiceDB))
+	a, err := api.New(s.ServiceDB)
 	if err != nil {
 		return err
 	}

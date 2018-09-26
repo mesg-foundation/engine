@@ -65,8 +65,7 @@ func (db *ServiceDB) unmarshal(id string, value []byte) (*service.Service, error
 }
 
 // All returns every service in database.
-// If ids > 0, it'll only return services with matching ids.
-func (db *ServiceDB) All(ids []string) ([]*service.Service, error) {
+func (db *ServiceDB) All() ([]*service.Service, error) {
 	var (
 		services []*service.Service
 		iter     = db.db.NewIterator(nil, nil)
@@ -83,15 +82,28 @@ func (db *ServiceDB) All(ids []string) ([]*service.Service, error) {
 			}
 			return nil, err
 		}
-		if len(ids) == 0 || xstrings.SliceContains(ids, s.ID) {
-			services = append(services, s)
-		}
+		services = append(services, s)
 	}
 	iter.Release()
 	if err := iter.Error(); err != nil {
 		return nil, err
 	}
 
+	return services, nil
+}
+
+// GetByIDs will return the services with matching ids.
+func (db *ServiceDB) GetByIDs(ids []string) ([]*service.Service, error) {
+	ss, err := db.All()
+	if err != nil {
+		return nil, err
+	}
+	var services []*service.Service
+	for _, s := range ss {
+		if xstrings.SliceContains(ids, s.ID) {
+			services = append(services, s)
+		}
+	}
 	return services, nil
 }
 
