@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/mesg-foundation/core/protobuf/coreapi"
-	"github.com/mesg-foundation/core/service"
 )
 
 // GetService returns service serviceID.
@@ -18,6 +17,6 @@ func (s *Server) GetService(ctx context.Context, request *coreapi.GetServiceRequ
 	if err != nil {
 		return nil, err
 	}
-	protoService.IsRunning = status == service.RUNNING
+	protoService.Status = toProtoServiceStatusType(status)
 	return &coreapi.GetServiceReply{Service: protoService}, nil
 }

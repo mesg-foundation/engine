@@ -1200,7 +1200,7 @@ Reply of `ListServices` API doesn't contain any data.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| filterRunning | [bool](#bool) |  |
+| filterActive | [bool](#bool) | filterActive filters services that are in the starting process or already started. |
 
 
 
