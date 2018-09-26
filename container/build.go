@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/docker/docker/api/types"
@@ -22,7 +23,7 @@ type BuildResponse struct {
 
 // Build builds a docker image.
 func (c *Container) Build(path string) (tag string, err error) {
-	excludeFiles, err := dockerignoreFiles()
+	excludeFiles, err := dockerignoreFiles(path)
 	if err != nil {
 		return "", err
 	}
@@ -47,8 +48,8 @@ func (c *Container) Build(path string) (tag string, err error) {
 }
 
 // dockerignoreFiles reads exlcuded files from .dockerignore.
-func dockerignoreFiles() ([]string, error) {
-	f, err := os.Open(".dockerignore")
+func dockerignoreFiles(path string) ([]string, error) {
+	f, err := os.Open(filepath.Join(path, ".dockerignore"))
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, nil
