@@ -6,9 +6,13 @@ import (
 	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
-	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/utils/servicetemplate"
 	"github.com/stretchr/testify/mock"
+)
+
+var (
+	_ RootExecutor    = (*mockRootExecutor)(nil)
+	_ ServiceExecutor = (*mockServiceExecutor)(nil)
 )
 
 type mockRootExecutor struct {
@@ -39,9 +43,9 @@ type mockServiceExecutor struct {
 	mock.Mock
 }
 
-func (m *mockServiceExecutor) ServiceByID(id string) (*service.Service, error) {
+func (m *mockServiceExecutor) ServiceByID(id string) (*coreapi.Service, error) {
 	args := m.Called()
-	return args.Get(0).(*service.Service), args.Error(1)
+	return args.Get(0).(*coreapi.Service), args.Error(1)
 }
 
 func (m *mockServiceExecutor) ServiceDeleteAll() error {
@@ -74,9 +78,9 @@ func (m *mockServiceExecutor) ServiceLogs(id string, dependencies ...string) (lo
 	return args.Get(0).([]*provider.Log), args.Get(1).(func()), args.Error(2)
 }
 
-func (m *mockServiceExecutor) ServiceExecuteTask(id, taskKey, inputData string, tags []string) (listenResults chan coreapi.ResultData, err error) {
+func (m *mockServiceExecutor) ServiceExecuteTask(id, taskKey, inputData string, tags []string) error {
 	args := m.Called()
-	return args.Get(0).(chan coreapi.ResultData), args.Error(1)
+	return args.Error(0)
 }
 
 func (m *mockServiceExecutor) ServiceStart(id string) error {
@@ -99,9 +103,9 @@ func (m *mockServiceExecutor) ServiceGenerateDocs(path string) error {
 	return args.Error(0)
 }
 
-func (m *mockServiceExecutor) ServiceList() ([]*service.Service, error) {
+func (m *mockServiceExecutor) ServiceList() ([]*coreapi.Service, error) {
 	args := m.Called()
-	return args.Get(0).([]*service.Service), args.Error(1)
+	return args.Get(0).([]*coreapi.Service), args.Error(1)
 }
 
 func (m *mockServiceExecutor) ServiceInit(name, description, templateURL string, currentDir bool) error {
