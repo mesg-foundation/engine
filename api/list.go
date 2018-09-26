@@ -53,7 +53,16 @@ func (l *serviceLister) List() ([]*service.Service, error) {
 		}
 	}
 
-	ss, err := l.api.db.All(ids)
+	var (
+		ss  []*service.Service
+		err error
+	)
+
+	if len(ids) > 0 {
+		ss, err = l.api.db.GetByIDs(ids)
+	} else {
+		ss, err = l.api.db.All()
+	}
 	if err != nil {
 		return nil, err
 	}

@@ -1,8 +1,6 @@
 package api
 
 import (
-	"errors"
-
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/database"
@@ -19,8 +17,8 @@ type API struct {
 type Option func(*API)
 
 // New creates a new API with given options.
-func New(options ...Option) (*API, error) {
-	a := &API{}
+func New(db *database.ServiceDB, options ...Option) (*API, error) {
+	a := &API{db: db}
 	for _, option := range options {
 		option(a)
 	}
@@ -35,9 +33,6 @@ func New(options ...Option) (*API, error) {
 			return nil, err
 		}
 	}
-	if a.db == nil {
-		return nil, errors.New("db should be provided")
-	}
 	return a, nil
 }
 
@@ -45,12 +40,5 @@ func New(options ...Option) (*API, error) {
 func ContainerOption(container *container.Container) Option {
 	return func(a *API) {
 		a.container = container
-	}
-}
-
-// DatabaseOption returns an option to set a db.
-func DatabaseOption(db *database.ServiceDB) Option {
-	return func(a *API) {
-		a.db = db
 	}
 }
