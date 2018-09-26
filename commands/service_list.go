@@ -2,7 +2,7 @@ package commands
 
 import (
 	"fmt"
-	"os"
+	"io"
 	"text/tabwriter"
 
 	"github.com/mesg-foundation/core/protobuf/coreapi"
@@ -14,10 +14,12 @@ type serviceListCmd struct {
 	baseCmd
 
 	e ServiceExecutor
+	w io.Writer
 }
 
-func newServiceListCmd(e ServiceExecutor) *serviceListCmd {
-	c := &serviceListCmd{e: e}
+// newServiceListCmd receives e to do API calls and w to output structured table logs.
+func newServiceListCmd(e ServiceExecutor, w io.Writer) *serviceListCmd {
+	c := &serviceListCmd{e: e, w: w}
 	c.cmd = newCommand(&cobra.Command{
 		Use:   "list",
 		Short: "List all published services",
@@ -43,19 +45,24 @@ func (c *serviceListCmd) runE(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	w := tabwriter.NewWriter(os.Stdout, 0, 0, 4, ' ', 0)
-	fmt.Fprintf(w, "SERVICE\tNAME\n")
+	w := tabwriter.NewWriter(c.w, 0, 0, 4, ' ', 0)
 
-	// TODO: implement status to ServiceList API.
-	//fmt.Fprintf(w, "STATUS\tSERVICE\tNAME\n")
+	fmt.Fprintf(w, "STATUS\tSERVICE\tNAME\t\n")
 	for _, s := range services {
-		// status, err := s.Status()
-		// if err != nil {
-		// 	return err
-		// }
-
-		fmt.Fprintf(w, "%s\t%s\n", s.ID, s.Name)
-		//fmt.Fprintf(w, "%s\t%s\t%s\n", status.String(), s.ID, s.Name)
+		var status string
+		switch s.Status {
+		case coreapi.Service_UNKNOWN:
+			status = "unknown"
+		case coreapi.Service_STOPPED:
+			status = "stopped"
+		case coreapi.Service_STARTING:
+			status = "starting"
+		case coreapi.Service_PARTIAL:
+			status = "partial"
+		case coreapi.Service_RUNNING:
+			status = "running"
+		}
+		fmt.Fprintf(w, "%s\t%s\t%s\t\n", status, s.ID, s.Name)
 	}
 	return w.Flush()
 }
