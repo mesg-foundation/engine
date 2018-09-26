@@ -27,28 +27,32 @@ func (s *Server) ListServices(ctx context.Context, request *coreapi.ListServices
 
 		servicesLen = len(services)
 		errC        = make(chan error, servicesLen)
+		wg          sync.WaitGroup
 	)
 
+	wg.Add(servicesLen)
 	for _, s := range services {
 		go func(s *service.Service) {
+			defer wg.Done()
 			status, err := s.Status()
-			if err == nil {
-				protoService := toProtoService(s)
-				protoService.Status = toProtoServiceStatusType(status)
-				mp.Lock()
-				protoServices = append(protoServices, protoService)
-				mp.Unlock()
+			if err != nil {
+				errC <- err
+				return
 			}
-			errC <- err
+			protoService := toProtoService(s)
+			protoService.Status = toProtoServiceStatusType(status)
+			mp.Lock()
+			protoServices = append(protoServices, protoService)
+			mp.Unlock()
 		}(s)
 	}
 
-	var errs xerrors.Errors
+	wg.Wait()
+	close(errC)
 
-	for i := 0; i < servicesLen; i++ {
-		if err := <-errC; err != nil {
-			errs = append(errs, err)
-		}
+	var errs xerrors.Errors
+	for err := range errC {
+		errs = append(errs, err)
 	}
 
 	return &coreapi.ListServicesReply{Services: protoServices}, errs.ErrorOrNil()
