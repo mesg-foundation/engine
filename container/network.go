@@ -8,13 +8,13 @@ import (
 	docker "github.com/docker/docker/client"
 )
 
-// NetworkEventType is a type to define the kind of event related to the network
-type NetworkEventType string
+// EventType is a type to define the kind of event related to the network
+type EventType string
 
 // List of Network status to listen to confirm a network deletion
 const (
-	NetworkRemove  NetworkEventType = "remove"
-	NetworkDestroy NetworkEventType = "destroy"
+	EventRemove  EventType = "remove"
+	EventDestroy           = "destroy"
 )
 
 // CreateNetwork creates a Docker Network with a namespace.
@@ -46,7 +46,7 @@ func (c *Container) CreateNetwork(namespace []string) (id string, err error) {
 // event parameter can be "destroy" or "remove". If the network was used by a service, the event to use is "destroy". If the network has not been used, the event is "remove".
 // Remove removes the reference from Docker to the network.
 // Destroy removes the network from Docker active network.
-func (c *Container) DeleteNetwork(namespace []string, event NetworkEventType) error {
+func (c *Container) DeleteNetwork(namespace []string, event EventType) error {
 	network, err := c.FindNetwork(namespace)
 	if docker.IsErrNotFound(err) {
 		return nil
