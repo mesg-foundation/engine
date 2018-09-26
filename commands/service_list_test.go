@@ -2,6 +2,7 @@ package commands
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"regexp"
 	"testing"
@@ -31,13 +32,19 @@ func TestServiceList(t *testing.T) {
 	require.NoError(t, err)
 	require.True(t, matched)
 
-	matched, err = regexp.Match(`\s*^running\s+1\s+a`, readLine(t, br))
-	require.NoError(t, err)
-	require.True(t, matched)
-
-	matched, err = regexp.Match(`\s*^partial\s+2\s+b`, readLine(t, br))
-	require.NoError(t, err)
-	require.True(t, matched)
+	for _, s := range services {
+		var status string
+		switch s.Status {
+		case coreapi.Service_RUNNING:
+			status = "running"
+		case coreapi.Service_PARTIAL:
+			status = "partial"
+		}
+		pattern := fmt.Sprintf(`\s*^%s\s+%s\s+%s\s*$`, status, s.ID, s.Name)
+		matched, err = regexp.Match(pattern, readLine(t, br))
+		require.NoError(t, err)
+		require.True(t, matched)
+	}
 }
 
 type testTableWriter struct {
