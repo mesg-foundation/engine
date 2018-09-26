@@ -88,11 +88,12 @@ workflows:
     jobs:
       - "test":
           filters:
-            tags:
-              only: /^v.*/
             branches:
               only: master
       - "publish_docker_prod":
+          filters:
+            tags:
+              only: /^v.*/
           requires:
             - "test"
       - "release_cli_prod":
