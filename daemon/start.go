@@ -33,7 +33,7 @@ func serviceSpec() (spec container.ServiceOptions, err error) {
 		return container.ServiceOptions{}, err
 	}
 	return container.ServiceOptions{
-		Namespace: Namespace(),
+		Namespace: []string{},
 		Image:     c.Core.Image,
 		Env:       container.MapToEnv(c.DaemonEnv()),
 		Mounts: []container.Mount{

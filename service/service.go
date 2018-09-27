@@ -6,7 +6,6 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/cnf/structhash"
@@ -93,9 +92,6 @@ func New(tarball io.Reader, options ...Option) (*Service, error) {
 		return nil, err
 	}
 	if err := s.saveContext(tarball); err != nil {
-		return nil, err
-	}
-	if err := s.checkDeprecations(); err != nil {
 		return nil, err
 	}
 
@@ -207,15 +203,6 @@ func (s *Service) deploy() error {
 	s.configuration.Key = "service"
 	s.configuration.Image = imageHash
 	s.Dependencies = append(s.Dependencies, s.configuration)
-	return nil
-}
-
-// checkDeprecations checks deprecated usages in service.
-func (s *Service) checkDeprecations() error {
-	if _, err := os.Stat(filepath.Join(s.tempPath, ".mesgignore")); err == nil {
-		// TODO: remove for a future release
-		s.sendStatus("[DEPRECATED] Please use .dockerignore instead of .mesgignore", DDoneNegative)
-	}
 	return nil
 }
 

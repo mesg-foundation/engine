@@ -1,7 +1,6 @@
 package api
 
 import (
-	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/event"
 )
 
@@ -24,7 +23,7 @@ func newEventEmitter(api *API) *eventEmitter {
 
 // Emit emits a MESG event eventKey with eventData for service token.
 func (e *eventEmitter) Emit(token, eventKey string, eventData map[string]interface{}) error {
-	s, err := services.Get(token)
+	s, err := e.api.db.Get(token)
 	if err != nil {
 		return err
 	}

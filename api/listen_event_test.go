@@ -9,7 +9,8 @@ import (
 )
 
 func TestValidateEventKey(t *testing.T) {
-	a, _ := newAPIAndDockerTest(t)
+	a, _, closer := newAPIAndDockerTest(t)
+	defer closer()
 	ln := newEventListener(a)
 
 	s, _ := service.FromService(&service.Service{
@@ -34,7 +35,8 @@ func TestValidateEventKey(t *testing.T) {
 }
 
 func TestIsSubscribedEvent(t *testing.T) {
-	a, _ := newAPIAndDockerTest(t)
+	a, _, closer := newAPIAndDockerTest(t)
+	defer closer()
 	ln := newEventListener(a)
 
 	e := &event.Event{Key: "test"}
