@@ -1,9 +1,7 @@
 package commands
 
 import (
-	"bufio"
 	"fmt"
-	"io"
 	"regexp"
 	"testing"
 
@@ -18,17 +16,15 @@ func TestServiceList(t *testing.T) {
 			{ID: "1", Name: "a", Status: coreapi.Service_RUNNING},
 			{ID: "2", Name: "b", Status: coreapi.Service_PARTIAL},
 		}
-		m    = &mockServiceExecutor{}
-		r, w = io.Pipe()
-		tw   = &testTableWriter{w}
-		br   = bufio.NewReader(r)
+		m  = &mockServiceExecutor{}
+		st = newoutputStream(t)
 	)
 
-	c := newServiceListCmd(m, tw)
+	c := newServiceListCmd(m, st)
 	m.On("ServiceList").Return(services, nil)
-	go c.runE(nil, nil)
+	go c.cmd.Execute()
 
-	matched, err := regexp.Match(`\s*^STATUS\s+SERVICE\s+NAME\s*$`, readLine(t, br))
+	matched, err := regexp.Match(`\s*^STATUS\s+SERVICE\s+NAME\s*$`, st.ReadLine())
 	require.NoError(t, err)
 	require.True(t, matched)
 
@@ -41,22 +37,8 @@ func TestServiceList(t *testing.T) {
 			status = "partial"
 		}
 		pattern := fmt.Sprintf(`\s*^%s\s+%s\s+%s\s*$`, status, s.ID, s.Name)
-		matched, err = regexp.Match(pattern, readLine(t, br))
+		matched, err = regexp.Match(pattern, st.ReadLine())
 		require.NoError(t, err)
 		require.True(t, matched)
 	}
-}
-
-type testTableWriter struct {
-	w io.Writer
-}
-
-func (t *testTableWriter) Write(b []byte) (n int, err error) {
-	return t.w.Write(b)
-}
-
-func readLine(t *testing.T, r *bufio.Reader) []byte {
-	line, _, err := r.ReadLine()
-	require.NoError(t, err)
-	return line
 }
