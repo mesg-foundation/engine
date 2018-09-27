@@ -17,7 +17,7 @@ func TestServiceList(t *testing.T) {
 			{ID: "2", Name: "b", Status: coreapi.Service_PARTIAL},
 		}
 		m  = &mockServiceExecutor{}
-		st = newoutputStream(t)
+		st = newOutputStream(t)
 	)
 
 	c := newServiceListCmd(m, st)
