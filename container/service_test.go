@@ -47,13 +47,8 @@ func TestStopService(t *testing.T) {
 		ContainerJSONBase: &types.ContainerJSONBase{ID: containerID},
 	}, nil)
 
-	go func() {
-		<-dt.LastContainerList()
-		<-dt.LastContainerInspect()
-
-		dt.ProvideContainerList(nil, dockertest.NotFoundErr{})
-		dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
-	}()
+	dt.ProvideContainerList(nil, dockertest.NotFoundErr{})
+	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
 
 	require.Nil(t, c.StopService(namespace))
 	require.Equal(t, c.Namespace(namespace), (<-dt.LastServiceRemove()).ServiceID)
