@@ -23,7 +23,7 @@ func startForTest() {
 		panic(err)
 	}
 	_, err = defaultContainer.StartService(container.ServiceOptions{
-		Namespace:  Namespace(),
+		Namespace:  []string{},
 		Image:      "http-server",
 		NetworksID: []string{sharedNetworkID},
 	})
@@ -37,6 +37,7 @@ func TestStartConfig(t *testing.T) {
 	c, _ := config.Global()
 	spec, err := serviceSpec()
 	require.NoError(t, err)
+	require.Equal(t, []string{}, spec.Namespace)
 	// Make sure that the config directory is passed in parameter to write on the same folder
 	require.Contains(t, spec.Env, "MESG_LOG_LEVEL=info")
 	require.Contains(t, spec.Env, "MESG_LOG_FORMAT=text")

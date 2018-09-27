@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/importer"
 	"github.com/mesg-foundation/core/x/xdocker/xarchive"
@@ -127,7 +126,7 @@ func (d *serviceDeployer) deploy(r io.Reader) (*service.Service, *importer.Valid
 	if validationErr != nil {
 		return nil, validationErr, nil
 	}
-	return s, nil, services.Save(s)
+	return s, nil, d.api.db.Save(s)
 }
 
 func (d *serviceDeployer) createTempDir() (path string, err error) {

@@ -3,6 +3,8 @@ package api
 import (
 	"testing"
 
+	"github.com/docker/docker/api/types"
+	"github.com/mesg-foundation/core/container/dockertest"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stvp/assert"
 )
@@ -13,7 +15,8 @@ func TestNotRunningServiceError(t *testing.T) {
 }
 
 func TestExecuteFunc(t *testing.T) {
-	a, _ := newAPIAndDockerTest(t)
+	a, _, closer := newAPIAndDockerTest(t)
+	defer closer()
 	executor := newTaskExecutor(a)
 	s, _ := service.FromService(&service.Service{
 		Name: "TestExecuteFunc",
@@ -29,7 +32,8 @@ func TestExecuteFunc(t *testing.T) {
 }
 
 func TestExecuteFuncInvalidTaskName(t *testing.T) {
-	a, _ := newAPIAndDockerTest(t)
+	a, _, closer := newAPIAndDockerTest(t)
+	defer closer()
 	executor := newTaskExecutor(a)
 	srv := &service.Service{}
 	_, err := executor.execute(srv, "test", map[string]interface{}{}, []string{})
@@ -37,7 +41,8 @@ func TestExecuteFuncInvalidTaskName(t *testing.T) {
 }
 
 func TestCheckServiceNotRunning(t *testing.T) {
-	a, _ := newAPIAndDockerTest(t)
+	a, _, closer := newAPIAndDockerTest(t)
+	defer closer()
 	executor := newTaskExecutor(a)
 	err := executor.checkServiceStatus(&service.Service{Name: "TestCheckServiceNotRunning"})
 	assert.NotNil(t, err)
@@ -46,7 +51,8 @@ func TestCheckServiceNotRunning(t *testing.T) {
 }
 
 func TestCheckService(t *testing.T) {
-	a, _ := New()
+	a, dt, closer := newAPIAndDockerTest(t)
+	defer closer()
 	executor := newTaskExecutor(a)
 	s, _ := service.FromService(&service.Service{
 		Name: "TestCheckService",
@@ -58,7 +64,12 @@ func TestCheckService(t *testing.T) {
 		},
 	}, service.ContainerOption(a.container))
 	s.Start()
-	defer s.Stop()
 	err := executor.checkServiceStatus(s)
 	assert.Nil(t, err)
+	// Mock DockerTest.
+	// Need 3 of them because the Docker API is called 3 times in s.Stop().
+	dt.ProvideContainerInspect(types.ContainerJSON{}, dockertest.NotFoundErr{})
+	dt.ProvideContainerInspect(types.ContainerJSON{}, dockertest.NotFoundErr{})
+	dt.ProvideContainerInspect(types.ContainerJSON{}, dockertest.NotFoundErr{})
+	s.Stop()
 }

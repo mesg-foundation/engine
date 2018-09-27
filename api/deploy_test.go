@@ -16,7 +16,8 @@ import (
 func TestDeployService(t *testing.T) {
 	path := filepath.Join("..", "service-test", "task")
 
-	a, dt := newAPIAndDockerTest(t)
+	a, dt, closer := newAPIAndDockerTest(t)
+	defer closer()
 	dt.ProvideImageBuild(ioutil.NopCloser(strings.NewReader(`{"stream":"sha256:x"}`)), nil)
 
 	statuses := make(chan DeployStatus)
@@ -46,11 +47,6 @@ func TestDeployService(t *testing.T) {
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
-		Message: "[DEPRECATED] Please use .dockerignore instead of .mesgignore",
-		Type:    DoneNegative,
-	}, <-statuses)
-
-	require.Equal(t, DeployStatus{
 		Message: "Building Docker image...",
 		Type:    Running,
 	}, <-statuses)
@@ -66,7 +62,8 @@ func TestDeployService(t *testing.T) {
 func TestDeployInvalidService(t *testing.T) {
 	path := filepath.Join("..", "service-test", "invalid")
 
-	a, dt := newAPIAndDockerTest(t)
+	a, dt, closer := newAPIAndDockerTest(t)
+	defer closer()
 	dt.ProvideImageBuild(ioutil.NopCloser(strings.NewReader(`{"stream":"sha256:x"}`)), nil)
 
 	statuses := make(chan DeployStatus)
@@ -107,7 +104,8 @@ func TestDeployInvalidService(t *testing.T) {
 func TestDeployServiceFromURL(t *testing.T) {
 	url := "https://github.com/mesg-foundation/service-webhook"
 
-	a, dt := newAPIAndDockerTest(t)
+	a, dt, closer := newAPIAndDockerTest(t)
+	defer closer()
 	dt.ProvideImageBuild(ioutil.NopCloser(strings.NewReader(`{"stream":"sha256:x"}`)), nil)
 
 	statuses := make(chan DeployStatus)
@@ -156,7 +154,8 @@ func TestDeployServiceFromURL(t *testing.T) {
 }
 
 func TestCreateTempFolder(t *testing.T) {
-	a, _ := newAPIAndDockerTest(t)
+	a, _, closer := newAPIAndDockerTest(t)
+	defer closer()
 	deployer := newServiceDeployer(a)
 
 	path, err := deployer.createTempDir()
@@ -166,7 +165,8 @@ func TestCreateTempFolder(t *testing.T) {
 }
 
 func TestRemoveTempFolder(t *testing.T) {
-	a, _ := newAPIAndDockerTest(t)
+	a, _, closer := newAPIAndDockerTest(t)
+	defer closer()
 	deployer := newServiceDeployer(a)
 
 	path, _ := deployer.createTempDir()

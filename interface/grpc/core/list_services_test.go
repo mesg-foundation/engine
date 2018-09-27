@@ -9,7 +9,8 @@ import (
 )
 
 func TestListServices(t *testing.T) {
-	server := newServer(t)
+	server, closer := newServer(t)
+	defer closer()
 
 	reply, err := server.ListServices(context.Background(), &coreapi.ListServicesRequest{})
 	require.NoError(t, err)
