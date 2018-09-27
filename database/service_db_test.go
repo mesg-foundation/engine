@@ -84,22 +84,6 @@ func TestServiceDBAll(t *testing.T) {
 	require.Contains(t, services, s2)
 }
 
-func TestServiceDBGetByIDs(t *testing.T) {
-	db, closer := openServiceDB(t)
-	defer closer()
-
-	s1 := &service.Service{ID: "1", Name: "test-service"}
-	s2 := &service.Service{ID: "2", Name: "test-service"}
-
-	require.NoError(t, db.Save(s1))
-	require.NoError(t, db.Save(s2))
-
-	services, err := db.GetByIDs([]string{s2.ID})
-	require.NoError(t, err)
-	require.Len(t, services, 1)
-	require.Contains(t, services, s2)
-}
-
 func TestIsErrNotFound(t *testing.T) {
 	require.True(t, IsErrNotFound(&ErrNotFound{}))
 	require.False(t, IsErrNotFound(nil))

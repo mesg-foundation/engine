@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"github.com/mesg-foundation/core/service"
-	"github.com/mesg-foundation/core/x/xstrings"
 	"github.com/sirupsen/logrus"
 	"github.com/syndtr/goleveldb/leveldb"
 )
@@ -89,21 +88,6 @@ func (db *ServiceDB) All() ([]*service.Service, error) {
 		return nil, err
 	}
 
-	return services, nil
-}
-
-// GetByIDs will return the services with matching ids.
-func (db *ServiceDB) GetByIDs(ids []string) ([]*service.Service, error) {
-	ss, err := db.All()
-	if err != nil {
-		return nil, err
-	}
-	var services []*service.Service
-	for _, s := range ss {
-		if xstrings.SliceContains(ids, s.ID) {
-			services = append(services, s)
-		}
-	}
 	return services, nil
 }
 
