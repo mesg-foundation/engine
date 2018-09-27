@@ -273,8 +273,6 @@ message DeleteServiceReply {
 
 // Reply of `ListServices` API doesn't contain any data.
 message ListServicesRequest {
-  // filterActive filters services that are in the starting process or already started.
-  bool filterActive = 1;
 }
 
 // The reply's data of the `ListServices` API.

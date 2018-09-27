@@ -1,7 +1,6 @@
 package api
 
 import (
-	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/database"
 )
@@ -10,7 +9,6 @@ import (
 type API struct {
 	db        *database.ServiceDB
 	container *container.Container
-	cfg       *config.Config
 }
 
 // Option is a configuration func for MESG.
@@ -22,12 +20,8 @@ func New(db *database.ServiceDB, options ...Option) (*API, error) {
 	for _, option := range options {
 		option(a)
 	}
-	var err error
-	a.cfg, err = config.Global()
-	if err != nil {
-		return nil, err
-	}
 	if a.container == nil {
+		var err error
 		a.container, err = container.New()
 		if err != nil {
 			return nil, err

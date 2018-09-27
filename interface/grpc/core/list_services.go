@@ -4,7 +4,6 @@ import (
 	"context"
 	"sync"
 
-	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	service "github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/x/xerrors"
@@ -12,11 +11,7 @@ import (
 
 // ListServices lists services.
 func (s *Server) ListServices(ctx context.Context, request *coreapi.ListServicesRequest) (*coreapi.ListServicesReply, error) {
-	var filters []api.ListServicesFilter
-	if request.FilterActive {
-		filters = append(filters, api.ListRunningServicesFilter())
-	}
-	services, err := s.api.ListServices(filters...)
+	services, err := s.api.ListServices()
 	if err != nil {
 		return nil, err
 	}
