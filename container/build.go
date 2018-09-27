@@ -6,10 +6,12 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/builder/dockerignore"
 	"github.com/docker/docker/pkg/archive"
 )
 
@@ -21,12 +23,11 @@ type BuildResponse struct {
 
 // Build builds a docker image.
 func (c *Container) Build(path string) (tag string, err error) {
-	excludeFiles := []string{}
-	// TODO: remove .mesgignore for a future release
-	for _, file := range []string{".mesgignore", ".dockerignore"} {
-		excludeFilesBytes, _ := ioutil.ReadFile(filepath.Join(path, file))
-		excludeFiles = append(excludeFiles, strings.Fields(string(excludeFilesBytes))...)
+	excludeFiles, err := dockerignoreFiles(path)
+	if err != nil {
+		return "", err
 	}
+
 	buildContext, err := archive.TarWithOptions(path, &archive.TarOptions{
 		Compression:     archive.Gzip,
 		ExcludePatterns: excludeFiles,
@@ -44,6 +45,19 @@ func (c *Container) Build(path string) (tag string, err error) {
 		return "", err
 	}
 	return parseBuildResponse(response)
+}
+
+// dockerignoreFiles reads exlcuded files from .dockerignore.
+func dockerignoreFiles(path string) ([]string, error) {
+	f, err := os.Open(filepath.Join(path, ".dockerignore"))
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	defer f.Close()
+	return dockerignore.ReadAll(f)
 }
 
 func parseBuildResponse(response types.ImageBuildResponse) (tag string, err error) {
