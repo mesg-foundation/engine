@@ -126,16 +126,6 @@ func (s *Service) setOptions(options ...Option) error {
 
 // fromService upgrades service s by setting a calculated ID and cross-referencing its child fields.
 func (s *Service) fromService() *Service {
-	for _, event := range s.Events {
-		event.service = s
-	}
-	for _, task := range s.Tasks {
-		task.service = s
-		for _, output := range task.Outputs {
-			output.task = task
-			output.service = s
-		}
-	}
 	for _, dep := range s.Dependencies {
 		dep.service = s
 	}
