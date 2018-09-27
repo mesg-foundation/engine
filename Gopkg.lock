@@ -70,7 +70,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:e63f820f5ef5e534ab26d187b4a68869a99881a5dae4bfa2bf3b3efc4d203502"
+  digest = "1:fe9f0979745e077233666427ffc0da58f2d0f323fbf91d0e53c72364e99167bd"
   name = "github.com/docker/docker"
   packages = [
     "api",
@@ -89,6 +89,7 @@
     "api/types/time",
     "api/types/versions",
     "api/types/volume",
+    "builder/dockerignore",
     "client",
     "errdefs",
     "pkg/archive",
@@ -726,6 +727,7 @@
     "github.com/docker/docker/api/types/filters",
     "github.com/docker/docker/api/types/mount",
     "github.com/docker/docker/api/types/swarm",
+    "github.com/docker/docker/builder/dockerignore",
     "github.com/docker/docker/client",
     "github.com/docker/docker/pkg/archive",
     "github.com/docker/docker/pkg/stdcopy",
@@ -737,6 +739,7 @@
     "github.com/kelseyhightower/envconfig",
     "github.com/logrusorgru/aurora",
     "github.com/mesg-foundation/prefixer",
+    "github.com/mitchellh/go-homedir",
     "github.com/pkg/errors",
     "github.com/satori/go.uuid",
     "github.com/sirupsen/logrus",
@@ -747,7 +750,6 @@
     "github.com/stretchr/testify/require",
     "github.com/stvp/assert",
     "github.com/syndtr/goleveldb/leveldb",
-    "github.com/syndtr/goleveldb/leveldb/errors",
     "github.com/xeipuuv/gojsonschema",
     "golang.org/x/net/context",
     "google.golang.org/grpc",
