@@ -54,7 +54,7 @@ func TestIntegrationStopNotExistingService(t *testing.T) {
 	require.Nil(t, err)
 	namespace := []string{"TestStopNotExistingService"}
 	err = c.StopService(namespace)
-	require.NotNil(t, err)
+	require.Nil(t, err)
 }
 
 func TestIntegrationStatusNeverStarted(t *testing.T) {
