@@ -40,7 +40,7 @@ func (o *outputStream) ReadLine() []byte {
 	return line
 }
 
-// ReadAll returns all the data in thee stream until it's closed.
+// ReadAll returns all the data in the stream until it's closed.
 func (o *outputStream) ReadAll() []byte {
 	bytes, err := ioutil.ReadAll(o.r)
 	require.NoError(o.t, err)
