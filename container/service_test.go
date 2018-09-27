@@ -73,7 +73,7 @@ func TestStopNotExistingService(t *testing.T) {
 	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
 	dt.ProvideContainerInspect(types.ContainerJSON{}, dockertest.NotFoundErr{})
 
-	require.Equal(t, nil, c.StopService(namespace))
+	require.NoError(t, c.StopService(namespace))
 }
 
 func TestFindService(t *testing.T) {
