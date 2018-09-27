@@ -47,11 +47,6 @@ func TestDeployService(t *testing.T) {
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
-		Message: "[DEPRECATED] Please use .dockerignore instead of .mesgignore",
-		Type:    DoneNegative,
-	}, <-statuses)
-
-	require.Equal(t, DeployStatus{
 		Message: "Building Docker image...",
 		Type:    Running,
 	}, <-statuses)
