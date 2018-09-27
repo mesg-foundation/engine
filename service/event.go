@@ -14,15 +14,15 @@ type Event struct {
 	// Data holds the input parameters of event.
 	Data []*Parameter `hash:"name:4"`
 
-	// service is the event's service.
-	service *Service `hash:"-"`
+	// serviceName is the event's service's name.
+	serviceName string `hash:"-"`
 }
 
 // GetEvent returns event eventKey of service.
 func (s *Service) GetEvent(eventKey string) (*Event, error) {
 	for _, event := range s.Events {
 		if event.Key == eventKey {
-			event.service = s
+			event.serviceName = s.Name
 			return event, nil
 		}
 	}
@@ -43,7 +43,7 @@ func (e *Event) RequireData(eventData map[string]interface{}) error {
 	if len(warnings) > 0 {
 		return &InvalidEventDataError{
 			EventKey:    e.Key,
-			ServiceName: e.service.Name,
+			ServiceName: e.serviceName,
 			Warnings:    warnings,
 		}
 	}
