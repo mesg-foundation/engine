@@ -7,8 +7,8 @@ import (
 
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
+	"github.com/mesg-foundation/core/container/mocks"
 	"github.com/mesg-foundation/core/x/xnet"
-	"github.com/mesg-foundation/core/x/xstrings"
 	"github.com/stretchr/testify/require"
 )
 
@@ -98,34 +98,13 @@ func TestStartService(t *testing.T) {
 	)
 
 	var (
-		d, _       = s.getDependency(dependencyKey)
-		c, _       = config.Global()
-		_, port, _ = xnet.SplitHostPort(c.Server.Address)
-		endpoint   = c.Core.Name + ":" + strconv.Itoa(port)
-		mounts, _  = d.extractVolumes()
+		d, _ = s.getDependency(dependencyKey)
 	)
 
 	mc.On("Status", d.namespace()).Once().Return(container.STOPPED, nil)
 	mc.On("CreateNetwork", s.namespace()).Once().Return(networkID, nil)
 	mc.On("SharedNetworkID").Once().Return(sharedNetworkID, nil)
-	mc.On("StartService", container.ServiceOptions{
-		Namespace: d.namespace(),
-		Labels: map[string]string{
-			"mesg.service": d.service.Name,
-			"mesg.hash":    d.service.ID,
-			"mesg.core":    c.Core.Name,
-		},
-		Image: d.Image,
-		Args:  strings.Fields(d.Command),
-		Env: container.MapToEnv(map[string]string{
-			"MESG_TOKEN":        d.service.ID,
-			"MESG_ENDPOINT":     endpoint,
-			"MESG_ENDPOINT_TCP": endpoint,
-		}),
-		Mounts:     mounts,
-		Ports:      d.extractPorts(),
-		NetworksID: []string{networkID, sharedNetworkID},
-	}).Once().Return(containerServiceID, nil)
+	mockStartService(d, mc, networkID, sharedNetworkID, containerServiceID)
 
 	serviceIDs, err := s.Start()
 	require.NoError(t, err)
@@ -161,12 +140,9 @@ func TestStartWith2Dependencies(t *testing.T) {
 	)
 
 	var (
-		d, _       = s.getDependency(dependencyKey)
-		d2, _      = s.getDependency(dependencyKey2)
-		c, _       = config.Global()
-		_, port, _ = xnet.SplitHostPort(c.Server.Address)
-		endpoint   = c.Core.Name + ":" + strconv.Itoa(port)
-		mounts, _  = d.extractVolumes()
+		d, _  = s.getDependency(dependencyKey)
+		d2, _ = s.getDependency(dependencyKey2)
+		ds    = []*Dependency{d, d2}
 	)
 
 	mc.On("Status", d.namespace()).Once().Return(container.STOPPED, nil)
@@ -174,33 +150,16 @@ func TestStartWith2Dependencies(t *testing.T) {
 	mc.On("CreateNetwork", s.namespace()).Once().Return(networkID, nil)
 	mc.On("SharedNetworkID").Twice().Return(sharedNetworkID, nil)
 
-	for i, d := range []*Dependency{d, d2} {
-		mc.On("StartService", container.ServiceOptions{
-			Namespace: d.namespace(),
-			Labels: map[string]string{
-				"mesg.service": d.service.Name,
-				"mesg.hash":    d.service.ID,
-				"mesg.core":    c.Core.Name,
-			},
-			Image: d.Image,
-			Args:  strings.Fields(d.Command),
-			Env: container.MapToEnv(map[string]string{
-				"MESG_TOKEN":        d.service.ID,
-				"MESG_ENDPOINT":     endpoint,
-				"MESG_ENDPOINT_TCP": endpoint,
-			}),
-			Mounts:     mounts,
-			Ports:      d.extractPorts(),
-			NetworksID: []string{networkID, sharedNetworkID},
-		}).Once().Return(containerServiceIDs[i], nil)
+	for i, d := range ds {
+		mockStartService(d, mc, networkID, sharedNetworkID, containerServiceIDs[i])
 	}
 
 	serviceIDs, err := s.Start()
 	require.NoError(t, err)
 	require.Len(t, serviceIDs, len(s.Dependencies))
 
-	for i := range s.Dependencies {
-		require.True(t, xstrings.SliceContains(serviceIDs, containerServiceIDs[i]))
+	for i := range ds {
+		require.Contains(t, serviceIDs, containerServiceIDs[i])
 	}
 
 	mc.AssertExpectations(t)
@@ -252,12 +211,9 @@ func TestPartiallyRunningService(t *testing.T) {
 	)
 
 	var (
-		d, _       = s.getDependency(dependencyKey)
-		d2, _      = s.getDependency(dependencyKey2)
-		c, _       = config.Global()
-		_, port, _ = xnet.SplitHostPort(c.Server.Address)
-		endpoint   = c.Core.Name + ":" + strconv.Itoa(port)
-		mounts, _  = d.extractVolumes()
+		d, _  = s.getDependency(dependencyKey)
+		d2, _ = s.getDependency(dependencyKey2)
+		ds    = []*Dependency{d, d2}
 	)
 
 	mc.On("Status", d.namespace()).Return(container.STOPPED, nil)
@@ -266,34 +222,45 @@ func TestPartiallyRunningService(t *testing.T) {
 	mc.On("CreateNetwork", s.namespace()).Once().Return(networkID, nil)
 	mc.On("SharedNetworkID").Twice().Return(sharedNetworkID, nil)
 
-	for i, d := range []*Dependency{d, d2} {
-		mc.On("StartService", container.ServiceOptions{
-			Namespace: d.namespace(),
-			Labels: map[string]string{
-				"mesg.service": d.service.Name,
-				"mesg.hash":    d.service.ID,
-				"mesg.core":    c.Core.Name,
-			},
-			Image: d.Image,
-			Args:  strings.Fields(d.Command),
-			Env: container.MapToEnv(map[string]string{
-				"MESG_TOKEN":        d.service.ID,
-				"MESG_ENDPOINT":     endpoint,
-				"MESG_ENDPOINT_TCP": endpoint,
-			}),
-			Mounts:     mounts,
-			Ports:      d.extractPorts(),
-			NetworksID: []string{networkID, sharedNetworkID},
-		}).Once().Return(containerServiceIDs[i], nil)
+	for i, d := range ds {
+		mockStartService(d, mc, networkID, sharedNetworkID, containerServiceIDs[i])
 	}
 
 	serviceIDs, err := s.Start()
 	require.NoError(t, err)
 	require.Len(t, serviceIDs, len(s.Dependencies))
 
-	for i := range s.Dependencies {
-		require.True(t, xstrings.SliceContains(serviceIDs, containerServiceIDs[i]))
+	for i := range ds {
+		require.Contains(t, serviceIDs, containerServiceIDs[i])
 	}
 
 	mc.AssertExpectations(t)
+}
+
+func mockStartService(d *Dependency, mc *mocks.ContainerAPI,
+	networkID, sharedNetworkID, containerServiceID string) {
+	var (
+		c, _       = config.Global()
+		_, port, _ = xnet.SplitHostPort(c.Server.Address)
+		endpoint   = c.Core.Name + ":" + strconv.Itoa(port)
+		mounts, _  = d.extractVolumes()
+	)
+	mc.On("StartService", container.ServiceOptions{
+		Namespace: d.namespace(),
+		Labels: map[string]string{
+			"mesg.service": d.service.Name,
+			"mesg.hash":    d.service.ID,
+			"mesg.core":    c.Core.Name,
+		},
+		Image: d.Image,
+		Args:  strings.Fields(d.Command),
+		Env: container.MapToEnv(map[string]string{
+			"MESG_TOKEN":        d.service.ID,
+			"MESG_ENDPOINT":     endpoint,
+			"MESG_ENDPOINT_TCP": endpoint,
+		}),
+		Mounts:     mounts,
+		Ports:      d.extractPorts(),
+		NetworksID: []string{networkID, sharedNetworkID},
+	}).Once().Return(containerServiceID, nil)
 }
