@@ -59,8 +59,8 @@ type Service struct {
 	// tempPath is the temporary path that service is hosted in file system.
 	tempPath string `hash:"-"`
 
-	// docker is the underlying Docker API.
-	docker *container.Container `hash:"-"`
+	// container is the underlying container API.
+	container container.ContainerAPI `hash:"-"`
 }
 
 // DStatusType indicates the type of status message.
@@ -138,9 +138,9 @@ func (s *Service) fromService() *Service {
 type Option func(*Service)
 
 // ContainerOption returns an option for customized container.
-func ContainerOption(container *container.Container) Option {
+func ContainerOption(container container.ContainerAPI) Option {
 	return func(s *Service) {
-		s.docker = container
+		s.container = container
 	}
 }
 
@@ -193,7 +193,7 @@ func (s *Service) deploy() error {
 
 	s.sendStatus("Building Docker image...", DRunning)
 
-	imageHash, err := s.docker.Build(s.tempPath)
+	imageHash, err := s.container.Build(s.tempPath)
 	if err != nil {
 		return err
 	}

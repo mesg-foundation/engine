@@ -108,7 +108,7 @@ func TestStartService(t *testing.T) {
 
 	lc := <-dt.LastServiceCreate()
 	require.Equal(t, types.ServiceCreateOptions{}, lc.Options)
-	require.Equal(t, s.docker.Namespace([]string{s.ID, dependencyKey}), lc.Service.Name)
+	require.Equal(t, s.container.Namespace([]string{s.ID, dependencyKey}), lc.Service.Name)
 }
 
 func TestStartWith2Dependencies(t *testing.T) {
