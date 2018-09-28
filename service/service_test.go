@@ -1,9 +1,6 @@
 package service
 
 import (
-	"fmt"
-	"io/ioutil"
-	"strings"
 	"testing"
 
 	"github.com/mesg-foundation/core/container"
@@ -11,6 +8,7 @@ import (
 	"github.com/mesg-foundation/core/container/mocks"
 	"github.com/mesg-foundation/core/service/importer"
 	"github.com/mesg-foundation/core/x/xdocker/xarchive"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
@@ -60,21 +58,23 @@ func TestNoCollision(t *testing.T) {
 func TestNew(t *testing.T) {
 	var (
 		path = "../service-test/task"
-		hash = "sha256:x"
+		hash = "1"
 	)
 
-	container, dt := newContainerAndDockerTest(t)
-	dt.ProvideImageBuild(ioutil.NopCloser(strings.NewReader(fmt.Sprintf(`{"stream":"%s"}`, hash))), nil)
+	mc := &mocks.ContainerAPI{}
+	mc.On("Build", mock.Anything).Once().Return(hash, nil)
 
 	archive, err := xarchive.GzippedTar(path)
 	require.NoError(t, err)
 
 	s, err := New(archive,
-		ContainerOption(container),
+		ContainerOption(mc),
 	)
 	require.NoError(t, err)
 	require.Equal(t, "service", s.Dependencies[0].Key)
 	require.Equal(t, hash, s.Dependencies[0].Image)
+
+	mc.AssertExpectations(t)
 }
 
 func TestInjectDefinitionWithConfig(t *testing.T) {
