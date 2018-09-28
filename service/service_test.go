@@ -1,6 +1,7 @@
 package service
 
 import (
+	"sync"
 	"testing"
 
 	"github.com/mesg-foundation/core/container"
@@ -67,14 +68,44 @@ func TestNew(t *testing.T) {
 	archive, err := xarchive.GzippedTar(path)
 	require.NoError(t, err)
 
+	statuses := make(chan DeployStatus)
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		require.Equal(t, DeployStatus{
+			Message: "Receiving service context...",
+			Type:    DRunning,
+		}, <-statuses)
+
+		require.Equal(t, DeployStatus{
+			Message: "Service context received with success.",
+			Type:    DDonePositive,
+		}, <-statuses)
+
+		require.Equal(t, DeployStatus{
+			Message: "Building Docker image...",
+			Type:    DRunning,
+		}, <-statuses)
+
+		require.Equal(t, DeployStatus{
+			Message: "Image built with success.",
+			Type:    DDonePositive,
+		}, <-statuses)
+	}()
+
 	s, err := New(archive,
 		ContainerOption(mc),
+		DeployStatusOption(statuses),
 	)
 	require.NoError(t, err)
 	require.Equal(t, "service", s.Dependencies[0].Key)
 	require.Equal(t, hash, s.Dependencies[0].Image)
 
 	mc.AssertExpectations(t)
+	wg.Wait()
 }
 
 func TestInjectDefinitionWithConfig(t *testing.T) {

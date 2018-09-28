@@ -88,16 +88,19 @@ type DeployStatus struct {
 // New creates a new service from a gzipped tarball.
 func New(tarball io.Reader, options ...Option) (*Service, error) {
 	s := &Service{}
+
+	defer s.closeStatusSend()
+
 	if err := s.setOptions(options...); err != nil {
 		return nil, err
 	}
 	if err := s.saveContext(tarball); err != nil {
 		return nil, err
 	}
+	defer s.removeTempDir()
 
 	def, err := importer.From(s.tempPath)
 	if err != nil {
-		s.removeTempDir()
 		return nil, err
 	}
 	s.injectDefinition(def)
@@ -188,9 +191,6 @@ func (s *Service) removeTempDir() error {
 
 // deploy deploys service.
 func (s *Service) deploy() error {
-	defer s.removeTempDir()
-	defer s.closeStatusSend()
-
 	s.sendStatus("Building Docker image...", DRunning)
 
 	imageHash, err := s.container.Build(s.tempPath)
