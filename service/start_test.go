@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"strconv"
 	"strings"
 	"testing"
@@ -97,14 +98,12 @@ func TestStartService(t *testing.T) {
 		})
 	)
 
-	var (
-		d, _ = s.getDependency(dependencyKey)
-	)
+	d, _ := s.getDependency(dependencyKey)
 
 	mc.On("Status", d.namespace()).Once().Return(container.STOPPED, nil)
 	mc.On("CreateNetwork", s.namespace()).Once().Return(networkID, nil)
 	mc.On("SharedNetworkID").Once().Return(sharedNetworkID, nil)
-	mockStartService(d, mc, networkID, sharedNetworkID, containerServiceID)
+	mockStartService(d, mc, networkID, sharedNetworkID, containerServiceID, nil)
 
 	serviceIDs, err := s.Start()
 	require.NoError(t, err)
@@ -151,7 +150,7 @@ func TestStartWith2Dependencies(t *testing.T) {
 	mc.On("SharedNetworkID").Twice().Return(sharedNetworkID, nil)
 
 	for i, d := range ds {
-		mockStartService(d, mc, networkID, sharedNetworkID, containerServiceIDs[i])
+		mockStartService(d, mc, networkID, sharedNetworkID, containerServiceIDs[i], nil)
 	}
 
 	serviceIDs, err := s.Start()
@@ -223,7 +222,7 @@ func TestPartiallyRunningService(t *testing.T) {
 	mc.On("SharedNetworkID").Twice().Return(sharedNetworkID, nil)
 
 	for i, d := range ds {
-		mockStartService(d, mc, networkID, sharedNetworkID, containerServiceIDs[i])
+		mockStartService(d, mc, networkID, sharedNetworkID, containerServiceIDs[i], nil)
 	}
 
 	serviceIDs, err := s.Start()
@@ -237,8 +236,69 @@ func TestPartiallyRunningService(t *testing.T) {
 	mc.AssertExpectations(t)
 }
 
+func TestStartDependency(t *testing.T) {
+	var (
+		dependencyKey      = "1"
+		networkID          = "3"
+		sharedNetworkID    = "4"
+		containerServiceID = "5"
+		s, mc              = newFromServiceAndContainerMocks(t, &Service{
+			Name: "TestStartDependency",
+			Dependencies: []*Dependency{
+				{
+					Key:   dependencyKey,
+					Image: "http-server",
+				},
+			},
+		})
+	)
+
+	d, _ := s.getDependency(dependencyKey)
+
+	mc.On("SharedNetworkID").Once().Return(sharedNetworkID, nil)
+	mockStartService(d, mc, networkID, sharedNetworkID, containerServiceID, nil)
+
+	serviceID, err := d.Start(networkID)
+	require.NoError(t, err)
+	require.Equal(t, containerServiceID, serviceID)
+
+	mc.AssertExpectations(t)
+}
+
+func TestServiceStartError(t *testing.T) {
+	var (
+		dependencyKey   = "1"
+		networkID       = "3"
+		sharedNetworkID = "4"
+		startErr        = errors.New("ops...")
+		s, mc           = newFromServiceAndContainerMocks(t, &Service{
+			Name: "TestNetworkCreated",
+			Dependencies: []*Dependency{
+				{
+					Key:   dependencyKey,
+					Image: "http-server",
+				},
+			},
+		})
+	)
+
+	d, _ := s.getDependency(dependencyKey)
+
+	mc.On("Status", d.namespace()).Once().Return(container.STOPPED, nil)
+	mc.On("CreateNetwork", s.namespace()).Once().Return(networkID, nil)
+	mc.On("SharedNetworkID").Once().Return(sharedNetworkID, nil)
+	mockStartService(d, mc, networkID, sharedNetworkID, "", startErr)
+	mc.On("Status", d.namespace()).Once().Return(container.STOPPED, nil)
+
+	serviceIDs, err := s.Start()
+	require.Equal(t, startErr, err)
+	require.Len(t, serviceIDs, 0)
+
+	mc.AssertExpectations(t)
+}
+
 func mockStartService(d *Dependency, mc *mocks.ContainerAPI,
-	networkID, sharedNetworkID, containerServiceID string) {
+	networkID, sharedNetworkID, containerServiceID string, err error) {
 	var (
 		c, _       = config.Global()
 		_, port, _ = xnet.SplitHostPort(c.Server.Address)
@@ -262,5 +322,5 @@ func mockStartService(d *Dependency, mc *mocks.ContainerAPI,
 		Mounts:     mounts,
 		Ports:      d.extractPorts(),
 		NetworksID: []string{networkID, sharedNetworkID},
-	}).Once().Return(containerServiceID, nil)
+	}).Once().Return(containerServiceID, err)
 }
