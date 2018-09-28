@@ -54,7 +54,7 @@ func TestStatusDependency(t *testing.T) {
 	service.Stop()
 }
 
-func TestList(t *testing.T) {
+func TestListRunning(t *testing.T) {
 	service, _ := FromService(&Service{
 		Name: "TestList",
 		Dependencies: []*Dependency{
@@ -72,7 +72,7 @@ func TestList(t *testing.T) {
 	require.Equal(t, list[0], service.ID)
 }
 
-func TestListMultipleDependencies(t *testing.T) {
+func TestListRunningMultipleDependencies(t *testing.T) {
 	service, _ := FromService(&Service{
 		Name: "TestListMultipleDependencies",
 		Dependencies: []*Dependency{
