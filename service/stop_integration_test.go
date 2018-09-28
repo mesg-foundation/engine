@@ -45,7 +45,7 @@ func TestStopNonRunningService(t *testing.T) {
 func TestStopDependency(t *testing.T) {
 	c := newContainer(t)
 	service, _ := FromService(&Service{
-		Name: "TestStartDependency",
+		Name: "TestStopDependency",
 		Dependencies: []*Dependency{
 			{
 				Key:   "test",
