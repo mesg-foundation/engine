@@ -208,3 +208,72 @@ func TestStartServiceRunning(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, dockerServices, 0)
 }
+
+func TestPartiallyRunningService(t *testing.T) {
+	var (
+		dependencyKey       = "1"
+		dependencyKey2      = "2"
+		networkID           = "3"
+		sharedNetworkID     = "4"
+		containerServiceIDs = []string{"5", "6"}
+		s, mc               = newFromServiceAndContainerMocks(t, &Service{
+			Name: "TestPartiallyRunningService",
+			Dependencies: []*Dependency{
+				{
+					Key:   dependencyKey,
+					Image: "http-server",
+				},
+				{
+					Key:   dependencyKey2,
+					Image: "http-server",
+				},
+			},
+		})
+	)
+
+	var (
+		d, _       = s.getDependency(dependencyKey)
+		d2, _      = s.getDependency(dependencyKey2)
+		c, _       = config.Global()
+		_, port, _ = xnet.SplitHostPort(c.Server.Address)
+		endpoint   = c.Core.Name + ":" + strconv.Itoa(port)
+		mounts, _  = d.extractVolumes()
+	)
+
+	mc.On("Status", d.namespace()).Return(container.STOPPED, nil)
+	mc.On("Status", d2.namespace()).Return(container.RUNNING, nil)
+	mc.On("StopService", d2.namespace()).Once().Return(nil)
+	mc.On("CreateNetwork", s.namespace()).Once().Return(networkID, nil)
+	mc.On("SharedNetworkID").Twice().Return(sharedNetworkID, nil)
+
+	for i, d := range []*Dependency{d, d2} {
+		mc.On("StartService", container.ServiceOptions{
+			Namespace: d.namespace(),
+			Labels: map[string]string{
+				"mesg.service": d.service.Name,
+				"mesg.hash":    d.service.ID,
+				"mesg.core":    c.Core.Name,
+			},
+			Image: d.Image,
+			Args:  strings.Fields(d.Command),
+			Env: container.MapToEnv(map[string]string{
+				"MESG_TOKEN":        d.service.ID,
+				"MESG_ENDPOINT":     endpoint,
+				"MESG_ENDPOINT_TCP": endpoint,
+			}),
+			Mounts:     mounts,
+			Ports:      d.extractPorts(),
+			NetworksID: []string{networkID, sharedNetworkID},
+		}).Once().Return(containerServiceIDs[i], nil)
+	}
+
+	serviceIDs, err := s.Start()
+	require.NoError(t, err)
+	require.Len(t, serviceIDs, len(s.Dependencies))
+
+	for i := range s.Dependencies {
+		require.Equal(t, containerServiceIDs[i], serviceIDs[i])
+	}
+
+	mc.AssertExpectations(t)
+}

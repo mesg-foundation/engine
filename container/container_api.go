@@ -7,6 +7,7 @@ import (
 	"github.com/docker/docker/api/types/swarm"
 )
 
+// ContainerAPI describes the API of container package.
 type ContainerAPI interface {
 	Build(path string) (tag string, err error)
 	CreateNetwork(namespace []string) (id string, err error)
