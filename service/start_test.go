@@ -5,11 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/swarm"
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
-	"github.com/mesg-foundation/core/container/dockertest"
 	"github.com/mesg-foundation/core/x/xnet"
 	"github.com/mesg-foundation/core/x/xstrings"
 	"github.com/stretchr/testify/require"
@@ -140,14 +137,15 @@ func TestStartService(t *testing.T) {
 
 func TestStartWith2Dependencies(t *testing.T) {
 	var (
-		containerServiceID  = "1"
-		containerServiceID2 = "2"
+		containerServiceIDs = []string{"1", "2"}
 		dependencyKey       = "3"
 		dependencyKey2      = "4"
 		dependencyImage     = "5"
 		dependencyImage2    = "6"
+		networkID           = "7"
+		sharedNetworkID     = "8"
 		serviceName         = "TestStartWith2Dependencies"
-		s, dt               = newFromServiceAndDockerTest(t, &Service{
+		s, mc               = newFromServiceAndContainerMocks(t, &Service{
 			Name: serviceName,
 			Dependencies: []*Dependency{
 				{
@@ -162,51 +160,73 @@ func TestStartWith2Dependencies(t *testing.T) {
 		})
 	)
 
-	// for dep1 & dep2
-	for i := 0; i < 2; i++ {
-		dt.ProvideContainerList(nil, dockertest.NotFoundErr{})
-		dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
-		dt.ProvideNetworkInspect(types.NetworkResource{ID: "3"}, nil)
-		dt.ProvideNetworkInspect(types.NetworkResource{ID: "4"}, nil)
+	var (
+		d, _       = s.getDependency(dependencyKey)
+		d2, _      = s.getDependency(dependencyKey2)
+		c, _       = config.Global()
+		_, port, _ = xnet.SplitHostPort(c.Server.Address)
+		endpoint   = c.Core.Name + ":" + strconv.Itoa(port)
+		mounts, _  = d.extractVolumes()
+	)
+
+	mc.On("Status", d.namespace()).Once().Return(container.STOPPED, nil)
+	mc.On("Status", d2.namespace()).Once().Return(container.STOPPED, nil)
+	mc.On("CreateNetwork", s.namespace()).Once().Return(networkID, nil)
+	mc.On("SharedNetworkID").Twice().Return(sharedNetworkID, nil)
+
+	for i, d := range []*Dependency{d, d2} {
+		mc.On("StartService", container.ServiceOptions{
+			Namespace: d.namespace(),
+			Labels: map[string]string{
+				"mesg.service": d.service.Name,
+				"mesg.hash":    d.service.ID,
+				"mesg.core":    c.Core.Name,
+			},
+			Image: d.Image,
+			Args:  strings.Fields(d.Command),
+			Env: container.MapToEnv(map[string]string{
+				"MESG_TOKEN":        d.service.ID,
+				"MESG_ENDPOINT":     endpoint,
+				"MESG_ENDPOINT_TCP": endpoint,
+			}),
+			Mounts:     mounts,
+			Ports:      d.extractPorts(),
+			NetworksID: []string{networkID, sharedNetworkID},
+		}).Once().Return(containerServiceIDs[i], nil)
 	}
 
-	// service create.
-	dt.ProvideServiceCreate(types.ServiceCreateResponse{ID: containerServiceID}, nil)
-	dt.ProvideServiceCreate(types.ServiceCreateResponse{ID: containerServiceID2}, nil)
-
-	servicesIDs, err := s.Start()
+	serviceIDs, err := s.Start()
 	require.NoError(t, err)
-	require.Len(t, servicesIDs, 2)
-	require.True(t, xstrings.SliceContains(servicesIDs, containerServiceID))
-	require.True(t, xstrings.SliceContains(servicesIDs, containerServiceID2))
+	require.Len(t, serviceIDs, len(s.Dependencies))
 
-	images := []string{dependencyImage, dependencyImage2}
-
-	for i := 0; i < 2; i++ {
-		lc := <-dt.LastServiceCreate()
-		require.True(t, xstrings.SliceContains(images, lc.Service.TaskTemplate.ContainerSpec.Image))
+	for i := range s.Dependencies {
+		require.True(t, xstrings.SliceContains(serviceIDs, containerServiceIDs[i]))
 	}
+
+	mc.AssertExpectations(t)
 }
 
 func TestStartServiceRunning(t *testing.T) {
 	var (
-		s, dt = newFromServiceAndDockerTest(t, &Service{
+		dependencyKey = "1"
+		s, mc         = newFromServiceAndContainerMocks(t, &Service{
 			Dependencies: []*Dependency{
 				{
-					Key:   "1",
+					Key:   dependencyKey,
 					Image: "2",
 				},
 			},
 		})
 	)
 
-	dt.ProvideContainerList([]types.Container{{ID: "1"}}, nil)
-	dt.ProvideContainerInspect(types.ContainerJSON{ContainerJSONBase: &types.ContainerJSONBase{ID: "1"}}, nil)
-	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, nil)
+	d, _ := s.getDependency(dependencyKey)
+	mc.On("Status", d.namespace()).Once().Return(container.RUNNING, nil)
 
 	dockerServices, err := s.Start()
 	require.NoError(t, err)
 	require.Len(t, dockerServices, 0)
+
+	mc.AssertExpectations(t)
 }
 
 func TestPartiallyRunningService(t *testing.T) {
@@ -272,7 +292,7 @@ func TestPartiallyRunningService(t *testing.T) {
 	require.Len(t, serviceIDs, len(s.Dependencies))
 
 	for i := range s.Dependencies {
-		require.Equal(t, containerServiceIDs[i], serviceIDs[i])
+		require.True(t, xstrings.SliceContains(serviceIDs, containerServiceIDs[i]))
 	}
 
 	mc.AssertExpectations(t)
