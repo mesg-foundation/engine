@@ -8,6 +8,7 @@ import (
 
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/container/dockertest"
+	"github.com/mesg-foundation/core/container/mocks"
 	"github.com/mesg-foundation/core/service/importer"
 	"github.com/mesg-foundation/core/x/xdocker/xarchive"
 	"github.com/stretchr/testify/require"
@@ -27,6 +28,13 @@ func newFromServiceAndDockerTest(t *testing.T, s *Service) (*Service, *dockertes
 	s, err := FromService(s, ContainerOption(c))
 	require.NoError(t, err)
 	return s, dt
+}
+
+func newFromServiceAndContainerMocks(t *testing.T, s *Service) (*Service, *mocks.ContainerAPI) {
+	m := &mocks.ContainerAPI{}
+	s, err := FromService(s, ContainerOption(m))
+	require.NoError(t, err)
+	return s, m
 }
 
 func TestGenerateId(t *testing.T) {

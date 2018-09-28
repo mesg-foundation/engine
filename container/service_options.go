@@ -1,7 +1,9 @@
 package container
 
 import (
+	"fmt"
 	"os"
+	"sort"
 	"strconv"
 
 	"github.com/docker/docker/api/types/mount"
@@ -115,11 +117,20 @@ func mergeLabels(l1 map[string]string, l2 map[string]string) map[string]string {
 	return l1
 }
 
-// MapToEnv transform a map of key value to a array of env string
+// MapToEnv transform a map of key value to a array of env string.
+// env vars sorted by names to get an accurate order while testing, otherwise
+// comparing a string slice with different orders will fail.
 func MapToEnv(data map[string]string) []string {
-	var env []string
-	for key, value := range data {
-		env = append(env, key+"="+value)
+	env := make([]string, 0, len(data))
+
+	for key := range data {
+		env = append(env, key)
 	}
+	sort.Strings(env)
+
+	for i, key := range env {
+		env[i] = fmt.Sprintf("%s=%s", key, data[key])
+	}
+
 	return env
 }

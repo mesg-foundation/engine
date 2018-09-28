@@ -1,11 +1,16 @@
 package service
 
 import (
+	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/swarm"
+	"github.com/mesg-foundation/core/config"
+	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/container/dockertest"
+	"github.com/mesg-foundation/core/x/xnet"
 	"github.com/mesg-foundation/core/x/xstrings"
 	"github.com/stretchr/testify/require"
 )
@@ -82,7 +87,9 @@ func TestStartService(t *testing.T) {
 		containerServiceID = "1"
 		dependencyKey      = "2"
 		serviceName        = "TestStartService"
-		s, dt              = newFromServiceAndDockerTest(t, &Service{
+		networkID          = "3"
+		sharedNetworkID    = "4"
+		s, mc              = newFromServiceAndContainerMocks(t, &Service{
 			Name: serviceName,
 			Dependencies: []*Dependency{
 				{
@@ -93,22 +100,42 @@ func TestStartService(t *testing.T) {
 		})
 	)
 
-	dt.ProvideContainerList(nil, dockertest.NotFoundErr{})
-	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
-	dt.ProvideNetworkInspect(types.NetworkResource{ID: "3"}, nil)
-	dt.ProvideNetworkInspect(types.NetworkResource{ID: "4"}, nil)
+	var (
+		d, _       = s.getDependency(dependencyKey)
+		c, _       = config.Global()
+		_, port, _ = xnet.SplitHostPort(c.Server.Address)
+		endpoint   = c.Core.Name + ":" + strconv.Itoa(port)
+		mounts, _  = d.extractVolumes()
+	)
 
-	// service create.
-	dt.ProvideServiceCreate(types.ServiceCreateResponse{ID: containerServiceID}, nil)
+	mc.On("Status", d.namespace()).Once().Return(container.STOPPED, nil)
+	mc.On("CreateNetwork", s.namespace()).Once().Return(networkID, nil)
+	mc.On("SharedNetworkID").Once().Return(sharedNetworkID, nil)
+	mc.On("StartService", container.ServiceOptions{
+		Namespace: d.namespace(),
+		Labels: map[string]string{
+			"mesg.service": d.service.Name,
+			"mesg.hash":    d.service.ID,
+			"mesg.core":    c.Core.Name,
+		},
+		Image: d.Image,
+		Args:  strings.Fields(d.Command),
+		Env: container.MapToEnv(map[string]string{
+			"MESG_TOKEN":        d.service.ID,
+			"MESG_ENDPOINT":     endpoint,
+			"MESG_ENDPOINT_TCP": endpoint,
+		}),
+		Mounts:     mounts,
+		Ports:      d.extractPorts(),
+		NetworksID: []string{networkID, sharedNetworkID},
+	}).Once().Return(containerServiceID, nil)
 
-	dockerServices, err := s.Start()
+	serviceIDs, err := s.Start()
 	require.NoError(t, err)
-	require.Len(t, dockerServices, 1)
-	require.Equal(t, containerServiceID, dockerServices[0])
+	require.Len(t, serviceIDs, 1)
+	require.Equal(t, containerServiceID, serviceIDs[0])
 
-	lc := <-dt.LastServiceCreate()
-	require.Equal(t, types.ServiceCreateOptions{}, lc.Options)
-	require.Equal(t, s.container.Namespace([]string{s.ID, dependencyKey}), lc.Service.Name)
+	mc.AssertExpectations(t)
 }
 
 func TestStartWith2Dependencies(t *testing.T) {
