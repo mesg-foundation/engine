@@ -13,7 +13,7 @@ func TestUnknownServiceStatus(t *testing.T) {
 		dependencyKey = "1"
 		statusErr     = errors.New("ops...")
 		s, mc         = newFromServiceAndContainerMocks(t, &Service{
-			Name: "TestStatusService",
+			Name: "TestUnknownServiceStatus",
 			Dependencies: []*Dependency{
 				{
 					Key:   dependencyKey,
@@ -38,7 +38,7 @@ func TestStoppedServiceStatus(t *testing.T) {
 	var (
 		dependencyKey = "1"
 		s, mc         = newFromServiceAndContainerMocks(t, &Service{
-			Name: "TestStatusService",
+			Name: "TestStoppedServiceStatus",
 			Dependencies: []*Dependency{
 				{
 					Key:   dependencyKey,
@@ -63,7 +63,7 @@ func TestRunningServiceStatus(t *testing.T) {
 	var (
 		dependencyKey = "1"
 		s, mc         = newFromServiceAndContainerMocks(t, &Service{
-			Name: "TestStatusService",
+			Name: "TestRunningServiceStatus",
 			Dependencies: []*Dependency{
 				{
 					Key:   dependencyKey,
@@ -89,7 +89,7 @@ func TestPartialServiceStatus(t *testing.T) {
 		dependencyKey  = "1"
 		dependencyKey2 = "2"
 		s, mc          = newFromServiceAndContainerMocks(t, &Service{
-			Name: "TestStatusService",
+			Name: "TestPartialServiceStatus",
 			Dependencies: []*Dependency{
 				{
 					Key:   dependencyKey,
@@ -114,6 +114,31 @@ func TestPartialServiceStatus(t *testing.T) {
 	status, err := s.Status()
 	require.NoError(t, err)
 	require.Equal(t, PARTIAL, status)
+
+	mc.AssertExpectations(t)
+}
+
+func TestDependencyStatus(t *testing.T) {
+	var (
+		dependencyKey = "1"
+		s, mc         = newFromServiceAndContainerMocks(t, &Service{
+			Name: "TestDependencyStatus",
+			Dependencies: []*Dependency{
+				{
+					Key:   dependencyKey,
+					Image: "http-server",
+				},
+			},
+		})
+	)
+
+	d, _ := s.getDependency(dependencyKey)
+
+	mc.On("Status", d.namespace()).Once().Return(container.RUNNING, nil)
+
+	status, err := d.Status()
+	require.NoError(t, err)
+	require.Equal(t, container.RUNNING, status)
 
 	mc.AssertExpectations(t)
 }
