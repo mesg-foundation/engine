@@ -31,7 +31,7 @@ func (s *Service) Start() (serviceIDs []string, err error) {
 		mutex sync.Mutex
 		wg    sync.WaitGroup
 	)
-	serviceIDs = make([]string, len(s.Dependencies))
+	serviceIDs = make([]string, 0, len(s.Dependencies))
 	for i, dependency := range s.Dependencies {
 		wg.Add(1)
 		go func(dep *Dependency, i int) {
@@ -39,7 +39,9 @@ func (s *Service) Start() (serviceIDs []string, err error) {
 			serviceID, errStart := dep.Start(networkID)
 			mutex.Lock()
 			defer mutex.Unlock()
-			serviceIDs[i] = serviceID
+			if errStart == nil {
+				serviceIDs = append(serviceIDs, serviceID)
+			}
 			if errStart != nil && err == nil {
 				err = errStart
 			}
