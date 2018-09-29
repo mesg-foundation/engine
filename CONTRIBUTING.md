@@ -1,8 +1,8 @@
 # Issues
 
-For issues concerning application or service development, please read the [docs](https://docs.mesg.tech/) or ask us directly on the [Discord](https://discordapp.com/invite/5tVTHJC) channels #application or #service.
+For issues concerning application or service development, please read the [docs](https://docs.mesg.tech/) and check on the [forum](https://forum.mesg.com)
 
-For questions or suggestions regarding a new feature of Core, please contact us on [Discord](https://discordapp.com/invite/5tVTHJC) channel #core.
+For questions or suggestions regarding a new feature of Core, please post a new message on the [Forum](https://forum.mesg.com).
 
 To report a bug, please [check for existing issues, then create a new issue on this repository](https://github.com/mesg-foundation/core/issues).
 
@@ -10,9 +10,7 @@ To report a bug, please [check for existing issues, then create a new issue on t
 
 For Services and Applications contribution, we have an [curated list of Awesome Services and Applications](https://github.com/mesg-foundation/awesome) that you should participate in.
 
-For contribution to MESG's Core, please contact us on [Discord](https://discordapp.com/invite/5tVTHJC) channel #core. We would love to include you in the development process.
-
-If you add a new feature or fix a bug then don't forget to update the CHANGELOG.md following this format https://keepachangelog.com/
+For contribution to MESG's Core, make sure to subscribe to the development/core category on the [forum](https://forum.mesg.com/c/development/core) and reach out to us. We would love to include you in the development process.
 
 # Start developing the Core
 

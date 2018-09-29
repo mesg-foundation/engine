@@ -3,7 +3,7 @@
   <br/><br/>
 </p>
 
-[Website](https://mesg.com/) - [Docs](https://docs.mesg.com/) - [Chat](https://discordapp.com/invite/SaZ5HcE) - [Blog](https://medium.com/mesg)
+[Website](https://mesg.com/) - [Docs](https://docs.mesg.com/) - [Forum](https://forum.mesg.com/) - [Chat](https://discordapp.com/invite/SaZ5HcE) - [Blog](https://medium.com/mesg)
 
 
 [![CircleCI](https://img.shields.io/circleci/project/github/mesg-foundation/core.svg)](https://github.com/mesg-foundation/core)
@@ -186,11 +186,7 @@ MESG launches its own blockchain Network providing for full scalability and a ch
 
 # Community
 
-You can find us and other MESG users on [Discord](https://discordapp.com/invite/SaZ5HcE).
-
-Be sure to join, and don't forget to introduce yourself and your project if you have one.
-
-Please feel free to share useful articles in the #newsfeed channel.
+You can find us and other MESG users on the [forum](https://forum.mesg.com). Feel free to check existing posts and help other users of MESG.
 
 Also, be sure to check out the [blog](https://medium.com/mesg) to stay up-to-date with our articles.
 
