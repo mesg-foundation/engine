@@ -58,7 +58,7 @@ themeConfig:
         - text: Resource Lists
           items:
             - text: Core Changelog
-      link: https://github.com/mesg-foundation/core/blob/master/CHANGELOG.md
+              link: https://github.com/mesg-foundation/core/blob/master/CHANGELOG.md
             - text: Awesome list
               link: https://github.com/mesg-foundation/awesome
   sidebar:
