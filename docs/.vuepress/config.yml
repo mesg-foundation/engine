@@ -34,7 +34,7 @@ themeConfig:
         - text: Help
           items:
             - text: Forum
-      link: https://forum.mesg.com/
+              link: https://forum.mesg.com
             - text: Chat
               link: https://discord.gg/SaZ5HcE
         - text: Core libraries
