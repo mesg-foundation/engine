@@ -25,10 +25,6 @@ themeConfig:
       link: /guide/
     - text: Tutorials
       link: /tutorials/
-    - text: CLI
-      link: /cli/mesg-core
-    - text: API
-      link: /api/core.md
     - text: Ecosystem
       items:
         - text: Help
@@ -37,6 +33,12 @@ themeConfig:
               link: https://forum.mesg.com
             - text: Chat
               link: https://discord.gg/SaZ5HcE
+        - text: Tools
+          items:
+            - text: CLI
+              link: /cli/mesg-core
+            - text: API
+              link: /api/core.md
         - text: Core libraries
           items:
             - text: Javascript
