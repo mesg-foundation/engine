@@ -47,13 +47,8 @@ func TestStopService(t *testing.T) {
 		ContainerJSONBase: &types.ContainerJSONBase{ID: containerID},
 	}, nil)
 
-	go func() {
-		<-dt.LastContainerList()
-		<-dt.LastContainerInspect()
-
-		dt.ProvideContainerList(nil, dockertest.NotFoundErr{})
-		dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
-	}()
+	dt.ProvideContainerList(nil, dockertest.NotFoundErr{})
+	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
 
 	require.Nil(t, c.StopService(namespace))
 	require.Equal(t, c.Namespace(namespace), (<-dt.LastServiceRemove()).ServiceID)
@@ -72,16 +67,13 @@ func TestStopNotExistingService(t *testing.T) {
 	dt := dockertest.New()
 	c, _ := New(ClientOption(dt.Client()))
 
+	dt.ProvideContainerList([]types.Container{}, nil)
+	dt.ProvideContainerInspect(types.ContainerJSON{}, dockertest.NotFoundErr{})
+	dt.ProvideServiceRemove(dockertest.NotFoundErr{})
 	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
 	dt.ProvideContainerInspect(types.ContainerJSON{}, dockertest.NotFoundErr{})
 
-	require.Equal(t, dockertest.NotFoundErr{}, c.StopService(namespace))
-
-	select {
-	case <-dt.LastServiceRemove():
-		t.Error("should not remove non existent service")
-	default:
-	}
+	require.NoError(t, c.StopService(namespace))
 }
 
 func TestFindService(t *testing.T) {
