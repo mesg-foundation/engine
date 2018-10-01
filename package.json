@@ -8,9 +8,7 @@
   "author": "Anthony Estebe <anthony@mesg.com>",
   "license": "ISC",
   "dependencies": {
+    "vuepress": "^0.14.4",
     "vuepress-plugin-sitemap": "0.0.1"
-  },
-  "devDependencies": {
-    "vuepress": "^0.14.4"
   }
 }
