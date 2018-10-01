@@ -221,4 +221,4 @@ Get some rest now, you've done a good job creating your first Service with MESG.
 
 ## Final version of the source code
 
-<repository url="https://github.com/mesg-foundation/core/tree/master/docs/tutorials/services/send-email-with-sendgrid"></repository>
+<card-link url="https://github.com/mesg-foundation/core/tree/master/docs/tutorials/services/send-email-with-sendgrid"></card-link>
