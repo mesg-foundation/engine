@@ -3,11 +3,13 @@
   "version": "1.0.0",
   "scripts": {
     "docs:dev": "vuepress dev docs",
-    "docs:build": "vuepress build docs"
+    "docs:build": "vuepress build docs && vuepress-sitemap -h https://docs.mesg.com -d docs/.vuepress/dist"
   },
   "author": "Anthony Estebe <anthony@mesg.com>",
   "license": "ISC",
-  "dependencies": {},
+  "dependencies": {
+    "vuepress-plugin-sitemap": "0.0.1"
+  },
   "devDependencies": {
     "vuepress": "^0.14.4"
   }
