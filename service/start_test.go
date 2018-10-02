@@ -297,7 +297,7 @@ func TestServiceStartError(t *testing.T) {
 	mc.AssertExpectations(t)
 }
 
-func mockStartService(d *Dependency, mc *mocks.ContainerAPI,
+func mockStartService(d *Dependency, mc *mocks.Container,
 	networkID, sharedNetworkID, containerServiceID string, err error) {
 	var (
 		c, _       = config.Global()

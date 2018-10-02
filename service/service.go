@@ -60,7 +60,7 @@ type Service struct {
 	tempPath string `hash:"-"`
 
 	// container is the underlying container API.
-	container container.ContainerAPI `hash:"-"`
+	container container.Container `hash:"-"`
 }
 
 // DStatusType indicates the type of status message.
@@ -141,7 +141,7 @@ func (s *Service) fromService() *Service {
 type Option func(*Service)
 
 // ContainerOption returns an option for customized container.
-func ContainerOption(container container.ContainerAPI) Option {
+func ContainerOption(container container.Container) Option {
 	return func(s *Service) {
 		s.container = container
 	}

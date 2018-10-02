@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func newContainerAndDockerTest(t *testing.T) (*container.Container, *dockertest.Testing) {
+func newContainerAndDockerTest(t *testing.T) (container.Container, *dockertest.Testing) {
 	dt := dockertest.New()
 
 	container, err := container.New(container.ClientOption(dt.Client()))
@@ -29,8 +29,8 @@ func newFromServiceAndDockerTest(t *testing.T, s *Service) (*Service, *dockertes
 	return s, dt
 }
 
-func newFromServiceAndContainerMocks(t *testing.T, s *Service) (*Service, *mocks.ContainerAPI) {
-	m := &mocks.ContainerAPI{}
+func newFromServiceAndContainerMocks(t *testing.T, s *Service) (*Service, *mocks.Container) {
+	m := &mocks.Container{}
 	s, err := FromService(s, ContainerOption(m))
 	require.NoError(t, err)
 	return s, m
@@ -62,7 +62,7 @@ func TestNew(t *testing.T) {
 		hash = "1"
 	)
 
-	mc := &mocks.ContainerAPI{}
+	mc := &mocks.Container{}
 	mc.On("Build", mock.Anything).Once().Return(hash, nil)
 
 	archive, err := xarchive.GzippedTar(path)
