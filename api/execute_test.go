@@ -3,8 +3,6 @@ package api
 import (
 	"testing"
 
-	"github.com/docker/docker/api/types"
-	"github.com/mesg-foundation/core/container/dockertest"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stvp/assert"
 )
@@ -51,7 +49,7 @@ func TestCheckServiceNotRunning(t *testing.T) {
 }
 
 func TestCheckService(t *testing.T) {
-	a, dt, closer := newAPIAndDockerTest(t)
+	a, _, closer := newAPIAndDockerTest(t)
 	defer closer()
 	executor := newTaskExecutor(a)
 	s, _ := service.FromService(&service.Service{
@@ -66,10 +64,4 @@ func TestCheckService(t *testing.T) {
 	s.Start()
 	err := executor.checkServiceStatus(s)
 	assert.Nil(t, err)
-	// Mock DockerTest.
-	// Need 3 of them because the Docker API is called 3 times in s.Stop().
-	dt.ProvideContainerInspect(types.ContainerJSON{}, dockertest.NotFoundErr{})
-	dt.ProvideContainerInspect(types.ContainerJSON{}, dockertest.NotFoundErr{})
-	dt.ProvideContainerInspect(types.ContainerJSON{}, dockertest.NotFoundErr{})
-	s.Stop()
 }
