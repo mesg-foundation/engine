@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	"github.com/mesg-foundation/core/protobuf/coreapi"
-	service "github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/x/xerrors"
 )
 
