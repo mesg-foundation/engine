@@ -25,7 +25,7 @@ func TestStopRunningService(t *testing.T) {
 
 	mc.On("Status", d.namespace()).Twice().Return(container.RUNNING, nil)
 	mc.On("StopService", d.namespace()).Once().Return(nil)
-	mc.On("DeleteNetwork", s.namespace()).Once().Return(nil)
+	mc.On("DeleteNetwork", s.namespace(), container.EventDestroy).Once().Return(nil)
 
 	err := s.Stop()
 	require.NoError(t, err)

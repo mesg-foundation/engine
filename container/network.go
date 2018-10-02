@@ -14,7 +14,7 @@ type EventType string
 // List of Network status to listen to confirm a network deletion
 const (
 	EventRemove  EventType = "remove"
-	EventDestroy           = "destroy"
+	EventDestroy EventType = "destroy"
 )
 
 // CreateNetwork creates a Docker Network with a namespace.
