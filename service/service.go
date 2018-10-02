@@ -6,7 +6,6 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/cnf/structhash"
@@ -95,9 +94,6 @@ func New(tarball io.Reader, options ...Option) (*Service, error) {
 	if err := s.saveContext(tarball); err != nil {
 		return nil, err
 	}
-	if err := s.checkDeprecations(); err != nil {
-		return nil, err
-	}
 
 	def, err := importer.From(s.tempPath)
 	if err != nil {
@@ -130,16 +126,6 @@ func (s *Service) setOptions(options ...Option) error {
 
 // fromService upgrades service s by setting a calculated ID and cross-referencing its child fields.
 func (s *Service) fromService() *Service {
-	for _, event := range s.Events {
-		event.service = s
-	}
-	for _, task := range s.Tasks {
-		task.service = s
-		for _, output := range task.Outputs {
-			output.task = task
-			output.service = s
-		}
-	}
 	for _, dep := range s.Dependencies {
 		dep.service = s
 	}
@@ -217,15 +203,6 @@ func (s *Service) deploy() error {
 	s.configuration.Key = "service"
 	s.configuration.Image = imageHash
 	s.Dependencies = append(s.Dependencies, s.configuration)
-	return nil
-}
-
-// checkDeprecations checks deprecated usages in service.
-func (s *Service) checkDeprecations() error {
-	if _, err := os.Stat(filepath.Join(s.tempPath, ".mesgignore")); err == nil {
-		// TODO: remove for a future release
-		s.sendStatus("[DEPRECATED] Please use .dockerignore instead of .mesgignore", DDoneNegative)
-	}
 	return nil
 }
 
