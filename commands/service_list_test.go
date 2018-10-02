@@ -5,9 +5,8 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/mesg-foundation/core/protobuf/coreapi"
+	"github.com/stretchr/testify/require"
 )
 
 func TestServiceList(t *testing.T) {
