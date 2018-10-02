@@ -3,6 +3,7 @@ package commands
 import (
 	"fmt"
 	"os"
+	"strings"
 	"text/tabwriter"
 
 	"github.com/mesg-foundation/core/protobuf/coreapi"
@@ -48,19 +49,7 @@ func (c *serviceListCmd) runE(cmd *cobra.Command, args []string) error {
 
 	fmt.Fprintf(w, "STATUS\tSERVICE\tNAME\t\n")
 	for _, s := range services {
-		var status string
-		switch s.Status {
-		case coreapi.Service_UNKNOWN:
-			status = "unknown"
-		case coreapi.Service_STOPPED:
-			status = "stopped"
-		case coreapi.Service_STARTING:
-			status = "starting"
-		case coreapi.Service_PARTIAL:
-			status = "partial"
-		case coreapi.Service_RUNNING:
-			status = "running"
-		}
+		status := strings.ToLower(s.Status.String())
 		fmt.Fprintf(w, "%s\t%s\t%s\t\n", status, s.ID, s.Name)
 	}
 	return w.Flush()
