@@ -25,14 +25,44 @@ themeConfig:
       link: /guide/
     - text: Tutorials
       link: /tutorials/
-    - text: CLI
-      link: /cli/mesg-core
-    - text: API
-      link: /api/core.md
-    - text: Community
-      link: https://forum.mesg.com/
-    - text: Changelog
-      link: https://github.com/mesg-foundation/core/blob/master/CHANGELOG.md
+    - text: Ecosystem
+      items:
+        - text: Help
+          items:
+            - text: Forum
+              link: https://forum.mesg.com
+            - text: Chat
+              link: https://discord.gg/SaZ5HcE
+        - text: Tools
+          items:
+            - text: CLI
+              link: /cli/mesg-core
+            - text: API
+              link: /api/core.md
+        - text: Core libraries
+          items:
+            - text: Javascript
+              link: https://github.com/mesg-foundation/mesg-js
+            - text: Golang (Service)
+              link: https://github.com/mesg-foundation/go-service
+            - text: Golang (Application)
+              link: https://github.com/mesg-foundation/go-application
+        - text: News
+          items:
+            - text: Blog
+              link: https://medium.com/mesg
+            - text: Twitter
+              link: https://twitter.com/mesgfoundation
+            - text: Linkedin
+              link: https://www.linkedin.com/company/mesg/
+            - text: Facebook
+              link: https://www.facebook.com/mesgfoundation/
+        - text: Resource Lists
+          items:
+            - text: Core Changelog
+              link: https://github.com/mesg-foundation/core/blob/master/CHANGELOG.md
+            - text: Awesome list
+              link: https://github.com/mesg-foundation/awesome
   sidebar:
     /guide/:
       - /guide/
