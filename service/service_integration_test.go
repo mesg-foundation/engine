@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func newIntegrationContainer(t *testing.T) *container.DockerContainer {
+func newIntegrationContainer(t *testing.T) container.Container {
 	c, err := container.New()
 	require.NoError(t, err)
 	return c
