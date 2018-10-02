@@ -85,7 +85,7 @@ func TestDeleteNetwork(t *testing.T) {
 
 	dt.ProvideNetworkInspect(types.NetworkResource{ID: id}, nil)
 
-	require.Nil(t, c.DeleteNetwork(namespace))
+	require.Nil(t, c.DeleteNetwork(namespace, EventRemove))
 
 	li := <-dt.LastNetworkInspect()
 	require.Equal(t, c.Namespace(namespace), li.Network)
@@ -106,7 +106,7 @@ func TestDeleteNotExistingNetwork(t *testing.T) {
 
 	dt.ProvideNetworkInspect(types.NetworkResource{}, dockertest.NotFoundErr{})
 
-	require.Nil(t, c.DeleteNetwork(namespace))
+	require.Nil(t, c.DeleteNetwork(namespace, EventRemove))
 
 	select {
 	case <-dt.LastNetworkRemove():
@@ -129,7 +129,7 @@ func TestDeleteNetworkError(t *testing.T) {
 
 	dt.ProvideNetworkInspect(types.NetworkResource{}, errNetworkDelete)
 
-	require.NotNil(t, c.DeleteNetwork(namespace))
+	require.NotNil(t, c.DeleteNetwork(namespace, EventRemove))
 }
 
 func TestFindNetwork(t *testing.T) {
