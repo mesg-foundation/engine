@@ -54,18 +54,20 @@ func (c *DockerContainer) StopService(namespace []string) (err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
 	container, err := c.FindContainer(namespace)
-	if err != nil {
+	if err != nil && !docker.IsErrNotFound(err) {
 		return err
 	}
 	if err := c.client.ServiceRemove(ctx, c.Namespace(namespace)); err != nil && !docker.IsErrNotFound(err) {
 		return err
 	}
-	timeout := 1 * time.Second
-	if err := c.client.ContainerStop(ctx, container.ID, &timeout); err != nil {
-		return err
-	}
-	if err := c.client.ContainerRemove(ctx, container.ID, types.ContainerRemoveOptions{}); err != nil && !docker.IsErrNotFound(err) {
-		return err
+	if container.ContainerJSONBase != nil {
+		timeout := 1 * time.Second
+		if err := c.client.ContainerStop(ctx, container.ID, &timeout); err != nil && !docker.IsErrNotFound(err) {
+			return err
+		}
+		if err := c.client.ContainerRemove(ctx, container.ID, types.ContainerRemoveOptions{}); err != nil && !docker.IsErrNotFound(err) {
+			return err
+		}
 	}
 	return c.waitForStatus(namespace, STOPPED)
 }

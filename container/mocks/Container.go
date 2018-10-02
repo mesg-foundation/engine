@@ -55,13 +55,13 @@ func (_m *Container) CreateNetwork(namespace []string) (string, error) {
 	return r0, r1
 }
 
-// DeleteNetwork provides a mock function with given fields: namespace
-func (_m *Container) DeleteNetwork(namespace []string) error {
-	ret := _m.Called(namespace)
+// DeleteNetwork provides a mock function with given fields: namespace, event
+func (_m *Container) DeleteNetwork(namespace []string, event container.EventType) error {
+	ret := _m.Called(namespace, event)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func([]string) error); ok {
-		r0 = rf(namespace)
+	if rf, ok := ret.Get(0).(func([]string, container.EventType) error); ok {
+		r0 = rf(namespace, event)
 	} else {
 		r0 = ret.Error(0)
 	}
