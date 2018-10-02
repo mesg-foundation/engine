@@ -38,13 +38,7 @@ func TestServiceList(t *testing.T) {
 	}
 
 	for _, s := range services {
-		var status string
-		switch s.Status {
-		case coreapi.Service_RUNNING:
-			status = "running"
-		case coreapi.Service_PARTIAL:
-			status = "partial"
-		}
+		status := strings.ToLower(s.Status.String())
 		pattern := fmt.Sprintf(`^\s*%s\s+%s\s+%s\s*$`, status, s.ID, s.Name)
 		matched, err := regexp.Match(pattern, readLine(t, r))
 		require.NoError(t, err)
