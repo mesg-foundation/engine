@@ -92,25 +92,20 @@ func TestStartService(t *testing.T) {
 			},
 		})
 	)
-
 	dt.ProvideContainerList(nil, dockertest.NotFoundErr{})
 	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
 	dt.ProvideNetworkInspect(types.NetworkResource{ID: "3"}, nil)
 	dt.ProvideNetworkInspect(types.NetworkResource{ID: "4"}, nil)
-
 	// service create.
 	dt.ProvideServiceCreate(types.ServiceCreateResponse{ID: containerServiceID}, nil)
-
 	dockerServices, err := s.Start()
 	require.NoError(t, err)
 	require.Len(t, dockerServices, 1)
 	require.Equal(t, containerServiceID, dockerServices[0])
-
 	lc := <-dt.LastServiceCreate()
 	require.Equal(t, types.ServiceCreateOptions{}, lc.Options)
 	require.Equal(t, s.docker.Namespace([]string{s.ID, dependencyKey}), lc.Service.Name)
 }
-
 func TestStartWith2Dependencies(t *testing.T) {
 	var (
 		containerServiceID  = "1"
@@ -134,7 +129,6 @@ func TestStartWith2Dependencies(t *testing.T) {
 			},
 		})
 	)
-
 	// for dep1 & dep2
 	for i := 0; i < 2; i++ {
 		dt.ProvideContainerList(nil, dockertest.NotFoundErr{})
@@ -142,19 +136,15 @@ func TestStartWith2Dependencies(t *testing.T) {
 		dt.ProvideNetworkInspect(types.NetworkResource{ID: "3"}, nil)
 		dt.ProvideNetworkInspect(types.NetworkResource{ID: "4"}, nil)
 	}
-
 	// service create.
 	dt.ProvideServiceCreate(types.ServiceCreateResponse{ID: containerServiceID}, nil)
 	dt.ProvideServiceCreate(types.ServiceCreateResponse{ID: containerServiceID2}, nil)
-
 	servicesIDs, err := s.Start()
 	require.NoError(t, err)
 	require.Len(t, servicesIDs, 2)
 	require.True(t, xstrings.SliceContains(servicesIDs, containerServiceID))
 	require.True(t, xstrings.SliceContains(servicesIDs, containerServiceID2))
-
 	images := []string{dependencyImage, dependencyImage2}
-
 	for i := 0; i < 2; i++ {
 		lc := <-dt.LastServiceCreate()
 		require.True(t, xstrings.SliceContains(images, lc.Service.TaskTemplate.ContainerSpec.Image))
