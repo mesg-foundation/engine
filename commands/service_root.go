@@ -1,8 +1,6 @@
 package commands
 
 import (
-	"os"
-
 	"github.com/spf13/cobra"
 )
 
@@ -23,7 +21,7 @@ func newRootServiceCmd(e ServiceExecutor) *rootServiceCmd {
 		newServiceStartCmd(e).cmd,
 		newServiceStopCmd(e).cmd,
 		newServiceDetailCmd(e).cmd,
-		newServiceListCmd(e, os.Stdout).cmd,
+		newServiceListCmd(e).cmd,
 		newServiceInitCmd(e).cmd,
 		newServiceDeleteCmd(e).cmd,
 		newServiceLogsCmd(e).cmd,
