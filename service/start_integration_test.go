@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestStartService(t *testing.T) {
+func TestStartServiceIntegration(t *testing.T) {
 	service, _ := FromService(&Service{
 		Name: "TestStartService",
 		Dependencies: []*Dependency{
@@ -27,7 +27,7 @@ func TestStartService(t *testing.T) {
 	require.Equal(t, RUNNING, status)
 }
 
-func TestStartWith2Dependencies(t *testing.T) {
+func TestStartWith2DependenciesIntegration(t *testing.T) {
 	c := newContainer(t)
 	service, _ := FromService(&Service{
 		Name: "TestStartWith2Dependencies",
@@ -113,7 +113,7 @@ func TestStartDependency(t *testing.T) {
 		},
 	}, ContainerOption(c))
 	networkID, err := c.CreateNetwork(service.namespace())
-	defer c.DeleteNetwork(service.namespace())
+	defer c.DeleteNetwork(service.namespace(), container.EventDestroy)
 	dep := service.Dependencies[0]
 	serviceID, err := dep.Start(networkID)
 	defer dep.Stop()
