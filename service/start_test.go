@@ -112,7 +112,6 @@ func TestStartService(t *testing.T) {
 
 	mc.AssertExpectations(t)
 }
-
 func TestStartWith2Dependencies(t *testing.T) {
 	var (
 		containerServiceIDs = []string{"1", "2"}

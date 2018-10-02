@@ -11,7 +11,7 @@ import (
 type Container interface {
 	Build(path string) (tag string, err error)
 	CreateNetwork(namespace []string) (id string, err error)
-	DeleteNetwork(namespace []string) error
+	DeleteNetwork(namespace []string, event EventType) error
 	FindContainer(namespace []string) (types.ContainerJSON, error)
 	FindNetwork(namespace []string) (types.NetworkResource, error)
 	FindService(namespace []string) (swarm.Service, error)
