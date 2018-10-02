@@ -92,13 +92,11 @@ themeConfig:
           - /guide/service/run-the-service
     /tutorials/:
       - /tutorials/
-      - title: Applications
+      - title: ERC20 transfer notifications
         children:
-          - /tutorials/applications/receive-email-when-there-is-an-erc20-transfer
-      - title: Services
-        children:
-          - /tutorials/services/send-emails-with-sendgrid
-          - /tutorials/services/listen-for-transfers-of-an-ethereum-erc20-token
+          - /tutorials/erc20-transfer-notifications/listen-for-transfers-of-an-ethereum-erc20-token
+          - /tutorials/erc20-transfer-notifications/send-emails-with-sendgrid
+          - /tutorials/erc20-transfer-notifications/receive-email-when-there-is-an-erc20-transfer
     /cli/:
       - /cli/mesg-core.md
       - /cli/mesg-core_start.md
