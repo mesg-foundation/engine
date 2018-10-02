@@ -7,4 +7,4 @@ go get github.com/vektra/mockery/...
 cd $GOPATH/src/github.com/mesg-foundation/core
 
 # container package
-mockery -name=ContainerAPI -dir ./container -output ./container/mocks
+mockery -name=Container -dir ./container -output ./container/mocks

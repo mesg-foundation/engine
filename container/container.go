@@ -11,8 +11,8 @@ import (
 	"github.com/mesg-foundation/core/config"
 )
 
-// Container provides high level interactions with Docker API for MESG.
-type Container struct {
+// DockerContainer provides high level interactions with Docker API for MESG.
+type DockerContainer struct {
 	// client is a Docker client.
 	client docker.CommonAPIClient
 
@@ -23,11 +23,11 @@ type Container struct {
 }
 
 // Option is a configuration func for Container.
-type Option func(*Container)
+type Option func(*DockerContainer)
 
 // New creates a new Container with given options.
-func New(options ...Option) (*Container, error) {
-	c := &Container{
+func New(options ...Option) (*DockerContainer, error) {
+	c := &DockerContainer{
 		callTimeout: 10 * time.Second,
 	}
 	for _, option := range options {
@@ -54,25 +54,25 @@ func New(options ...Option) (*Container, error) {
 
 // ClientOption receives a client which will be used to interact with Docker API.
 func ClientOption(client docker.CommonAPIClient) Option {
-	return func(c *Container) {
+	return func(c *DockerContainer) {
 		c.client = client
 	}
 }
 
 // TimeoutOption receives d which will be set as a timeout value for Docker API calls.
 func TimeoutOption(d time.Duration) Option {
-	return func(c *Container) {
+	return func(c *DockerContainer) {
 		c.callTimeout = d
 	}
 }
 
-func (c *Container) negotiateAPIVersion() {
+func (c *DockerContainer) negotiateAPIVersion() {
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
 	c.client.NegotiateAPIVersion(ctx)
 }
 
-func (c *Container) createSwarmIfNeeded() error {
+func (c *DockerContainer) createSwarmIfNeeded() error {
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
 	info, err := c.client.Info(ctx)
@@ -91,7 +91,7 @@ func (c *Container) createSwarmIfNeeded() error {
 }
 
 // FindContainer returns a docker container.
-func (c *Container) FindContainer(namespace []string) (types.ContainerJSON, error) {
+func (c *DockerContainer) FindContainer(namespace []string) (types.ContainerJSON, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
 	containers, err := c.client.ContainerList(ctx, types.ContainerListOptions{
@@ -119,7 +119,7 @@ func (c *Container) FindContainer(namespace []string) (types.ContainerJSON, erro
 //  - RUNNING: when the container is running in docker regardless of the status of the service.
 //  - STARTING: when the service is running but the container is not yet started.
 //  - STOPPED: when the container and the service is not running in docker.
-func (c *Container) Status(namespace []string) (StatusType, error) {
+func (c *DockerContainer) Status(namespace []string) (StatusType, error) {
 	container, err := c.containerExists(namespace)
 	if err != nil {
 		return UNKNOWN, err
@@ -149,13 +149,13 @@ func (c *Container) Status(namespace []string) (StatusType, error) {
 }
 
 // containerExists checks if container with namespace can be found.
-func (c *Container) containerExists(namespace []string) (bool, error) {
+func (c *DockerContainer) containerExists(namespace []string) (bool, error) {
 	_, err := c.FindContainer(namespace)
 	return presenceHandling(err)
 }
 
 // serviceExists checks if corresponding container for service namespace can be found.
-func (c *Container) serviceExists(namespace []string) (bool, error) {
+func (c *DockerContainer) serviceExists(namespace []string) (bool, error) {
 	_, err := c.FindService(namespace)
 	return presenceHandling(err)
 }

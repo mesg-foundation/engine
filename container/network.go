@@ -9,7 +9,7 @@ import (
 )
 
 // CreateNetwork creates a Docker Network with a namespace.
-func (c *Container) CreateNetwork(namespace []string) (id string, err error) {
+func (c *DockerContainer) CreateNetwork(namespace []string) (id string, err error) {
 	network, err := c.FindNetwork(namespace)
 	if err != nil && !docker.IsErrNotFound(err) {
 		return "", err
@@ -34,7 +34,7 @@ func (c *Container) CreateNetwork(namespace []string) (id string, err error) {
 }
 
 // DeleteNetwork deletes a Docker Network associated with a namespace.
-func (c *Container) DeleteNetwork(namespace []string) error {
+func (c *DockerContainer) DeleteNetwork(namespace []string) error {
 	network, err := c.FindNetwork(namespace)
 	if docker.IsErrNotFound(err) {
 		return nil
@@ -66,7 +66,7 @@ func (c *Container) DeleteNetwork(namespace []string) error {
 }
 
 // FindNetwork finds a Docker Network by a namespace. If no network is found, an error is returned.
-func (c *Container) FindNetwork(namespace []string) (types.NetworkResource, error) {
+func (c *DockerContainer) FindNetwork(namespace []string) (types.NetworkResource, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
 	return c.client.NetworkInspect(ctx, c.Namespace(namespace), types.NetworkInspectOptions{})
