@@ -22,7 +22,7 @@ type BuildResponse struct {
 }
 
 // Build builds a docker image.
-func (c *Container) Build(path string) (tag string, err error) {
+func (c *DockerContainer) Build(path string) (tag string, err error) {
 	excludeFiles, err := dockerignoreFiles(path)
 	if err != nil {
 		return "", err
