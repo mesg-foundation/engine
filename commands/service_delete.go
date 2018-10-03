@@ -66,7 +66,7 @@ func (c *serviceDeleteCmd) runE(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
-		fmt.Printf("%s all services are deleted.\n", pretty.SuccessSign)
+		fmt.Printf("%s all services are deleted\n", pretty.SuccessSign)
 		return nil
 	}
 

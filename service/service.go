@@ -170,7 +170,7 @@ func (s *Service) saveContext(r io.Reader) error {
 	}
 
 	s.sendStatus("Receiving service context...", DRunning)
-	defer s.sendStatus("Service context received with success.", DDonePositive)
+	defer s.sendStatus("Service context received with success", DDonePositive)
 
 	return archive.Untar(r, s.tempPath, &archive.TarOptions{
 		Compression: archive.Gzip,
@@ -198,7 +198,7 @@ func (s *Service) deploy() error {
 		return err
 	}
 
-	s.sendStatus("Image built with success.", DDonePositive)
+	s.sendStatus("Image built with success", DDonePositive)
 
 	s.configuration.Key = "service"
 	s.configuration.Image = imageHash
