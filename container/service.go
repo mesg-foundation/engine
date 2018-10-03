@@ -12,7 +12,7 @@ import (
 )
 
 // ListServices returns existing docker services matching a specific label name.
-func (c *Container) ListServices(labels ...string) ([]swarm.Service, error) {
+func (c *DockerContainer) ListServices(labels ...string) ([]swarm.Service, error) {
 	args := make([]filters.KeyValuePair, 0)
 	for _, label := range labels {
 		args = append(args, filters.KeyValuePair{
@@ -28,7 +28,7 @@ func (c *Container) ListServices(labels ...string) ([]swarm.Service, error) {
 }
 
 // FindService returns the Docker Service or an error if not found.
-func (c *Container) FindService(namespace []string) (swarm.Service, error) {
+func (c *DockerContainer) FindService(namespace []string) (swarm.Service, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
 	service, _, err := c.client.ServiceInspectWithRaw(ctx, c.Namespace(namespace),
@@ -38,7 +38,7 @@ func (c *Container) FindService(namespace []string) (swarm.Service, error) {
 }
 
 // StartService starts a docker service.
-func (c *Container) StartService(options ServiceOptions) (serviceID string, err error) {
+func (c *DockerContainer) StartService(options ServiceOptions) (serviceID string, err error) {
 	service := options.toSwarmServiceSpec(c)
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
@@ -50,7 +50,7 @@ func (c *Container) StartService(options ServiceOptions) (serviceID string, err 
 }
 
 // StopService stops a docker service.
-func (c *Container) StopService(namespace []string) (err error) {
+func (c *DockerContainer) StopService(namespace []string) (err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
 	container, err := c.FindContainer(namespace)
@@ -73,7 +73,7 @@ func (c *Container) StopService(namespace []string) (err error) {
 }
 
 // ServiceLogs returns the logs of a service.
-func (c *Container) ServiceLogs(namespace []string) (io.ReadCloser, error) {
+func (c *DockerContainer) ServiceLogs(namespace []string) (io.ReadCloser, error) {
 	return c.client.ServiceLogs(context.Background(), c.Namespace(namespace),
 		types.ContainerLogsOptions{
 			ShowStdout: true,

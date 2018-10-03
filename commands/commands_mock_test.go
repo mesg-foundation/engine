@@ -15,9 +15,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+var (
+	_ RootExecutor    = (*mockRootExecutor)(nil)
+	_ ServiceExecutor = (*mockServiceExecutor)(nil)
+)
+
 // captureStd is helper function that captures Stdout and Stderr and returns function
 // that returns standard output and standard error as string.
-func captureStd(t *testing.T) func() (string, string) {
+func captureStd(t *testing.T) func() (stdout string, stderr string) {
 	var (
 		bufout strings.Builder
 		buferr strings.Builder
