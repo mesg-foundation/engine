@@ -1,0 +1,33 @@
+# base Go image version.
+ARG go=1.11.0-stretch
+
+FROM golang:$go
+
+# install os packages.
+RUN apt-get update -y && \
+    apt-get install -y unzip && \
+    rm -rf /var/lib/apt/lists/*
+
+# protobuf(protoc) version.
+ARG protobuf=3.6.1
+
+# install protobuf(protoc).
+RUN wget https://github.com/protocolbuffers/protobuf/releases/download/v$protobuf/protoc-$protobuf-linux-x86_64.zip -O /tmp/protobuf.zip && \
+    mkdir /tmp/protobuf && \
+    unzip /tmp/protobuf.zip -d /tmp/protobuf && \
+    mv /tmp/protobuf/bin/protoc /usr/local/bin/protoc && \
+    rm -rf /tmp/*
+
+# install dependencies of ./scripts.
+RUN go get github.com/golang/protobuf/protoc-gen-go && \
+    go get github.com/jteeuwen/go-bindata/... && \
+    go get github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc
+
+# symlink project path to have a short version for cosmetics.
+RUN ln -s /go/src/github.com/mesg-foundation/core /core
+WORKDIR /core
+VOLUME /core
+
+# cache vendor for faster builds while using go run commands.
+ADD vendor/ vendor
+RUN go install -i ./vendor/... && rm -rf ./vendor
