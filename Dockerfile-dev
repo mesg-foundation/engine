@@ -26,4 +26,4 @@ VOLUME /core
 # cache vendor for faster builds while using go run commands.
 # also needed to install script's dependencies into /go/bin.
 ADD vendor/ vendor
-RUN go install -i ./vendor/... && rm -rf ./vendor
+RUN go install -i ./vendor/...
