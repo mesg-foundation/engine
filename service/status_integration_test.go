@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestStatusService(t *testing.T) {
+func TestIntegrationStatusService(t *testing.T) {
 	service, _ := FromService(&Service{
 		Name: "TestStatusService",
 		Dependencies: []*Dependency{
@@ -18,7 +18,7 @@ func TestStatusService(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	}, ContainerOption(newContainer(t)))
+	}, ContainerOption(newIntegrationContainer(t)))
 	status, err := service.Status()
 	require.Nil(t, err)
 	require.Equal(t, STOPPED, status)
@@ -31,7 +31,7 @@ func TestStatusService(t *testing.T) {
 	require.Equal(t, RUNNING, status)
 }
 
-func TestStatusDependency(t *testing.T) {
+func TestIntegrationStatusDependency(t *testing.T) {
 	service, _ := FromService(&Service{
 		Name: "TestStatusDependency",
 		Dependencies: []*Dependency{
@@ -40,7 +40,7 @@ func TestStatusDependency(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	}, ContainerOption(newContainer(t)))
+	}, ContainerOption(newIntegrationContainer(t)))
 	dep := service.Dependencies[0]
 	status, err := dep.Status()
 	require.Nil(t, err)
@@ -54,7 +54,7 @@ func TestStatusDependency(t *testing.T) {
 	service.Stop()
 }
 
-func TestList(t *testing.T) {
+func TestIntegrationListRunning(t *testing.T) {
 	service, _ := FromService(&Service{
 		Name: "TestList",
 		Dependencies: []*Dependency{
@@ -63,7 +63,7 @@ func TestList(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	}, ContainerOption(newContainer(t)))
+	}, ContainerOption(newIntegrationContainer(t)))
 	service.Start()
 	defer service.Stop()
 	list, err := ListRunning()
@@ -72,7 +72,7 @@ func TestList(t *testing.T) {
 	require.Equal(t, list[0], service.ID)
 }
 
-func TestListMultipleDependencies(t *testing.T) {
+func TestIntegrationListRunningMultipleDependencies(t *testing.T) {
 	service, _ := FromService(&Service{
 		Name: "TestListMultipleDependencies",
 		Dependencies: []*Dependency{
@@ -85,7 +85,7 @@ func TestListMultipleDependencies(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	}, ContainerOption(newContainer(t)))
+	}, ContainerOption(newIntegrationContainer(t)))
 	service.Start()
 	defer service.Stop()
 	list, err := ListRunning()

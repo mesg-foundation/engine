@@ -65,7 +65,7 @@ func (s *Service) Status() (StatusType, error) {
 
 // Status returns StatusType of dependency's container.
 func (d *Dependency) Status() (container.StatusType, error) {
-	return d.service.docker.Status(d.namespace())
+	return d.service.container.Status(d.namespace())
 }
 
 // ListRunning returns all the running services.2
@@ -77,7 +77,6 @@ func ListRunning() ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	services, err := c.ListServices("mesg.hash", "mesg.core="+cfg.Core.Name)
 	if err != nil {
 		return nil, err

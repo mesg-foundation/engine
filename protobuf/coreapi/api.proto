@@ -385,6 +385,14 @@ message LogData {
 
 // This is the definition of a MESG Service.
 message Service {
+  enum Status {
+    UNKNOWN = 0;
+    STOPPED = 1;
+    STARTING = 2;
+    PARTIAL = 3;
+    RUNNING = 4;
+  }
+  
   string ID = 10;                           // Service's unique id service hash.
   string name = 1;                          // Service's name.
   string description = 2;                   // Service's description.
@@ -393,6 +401,7 @@ message Service {
   repeated Dependency dependencies = 7;     // The Docker dependencies this service requires.
   Dependency configuration = 8;             // Service's Docker configuration.
   string repository = 9;                    // Service's repository that contain its source code.
+  Status status = 11;                       // Service's status.
 }
 
 // Events are emitted by the service whenever the service wants.
