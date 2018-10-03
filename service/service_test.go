@@ -81,7 +81,7 @@ func TestNew(t *testing.T) {
 		}, <-statuses)
 
 		require.Equal(t, DeployStatus{
-			Message: "Service context received with success.",
+			Message: "Service context received with success",
 			Type:    DDonePositive,
 		}, <-statuses)
 
@@ -91,7 +91,7 @@ func TestNew(t *testing.T) {
 		}, <-statuses)
 
 		require.Equal(t, DeployStatus{
-			Message: "Image built with success.",
+			Message: "Image built with success",
 			Type:    DDonePositive,
 		}, <-statuses)
 	}()
