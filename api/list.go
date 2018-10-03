@@ -34,6 +34,7 @@ func (l *serviceLister) List() ([]*service.Service, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	var services []*service.Service
 	for _, s := range ss {
 		s, err = service.FromService(s, service.ContainerOption(l.api.container))
@@ -42,5 +43,6 @@ func (l *serviceLister) List() ([]*service.Service, error) {
 		}
 		services = append(services, s)
 	}
+
 	return services, nil
 }

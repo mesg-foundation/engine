@@ -5,10 +5,10 @@ import (
 	"github.com/mesg-foundation/core/database"
 )
 
-// API exposes all functionalies of MESG core.
+// API exposes all functionalities of MESG core.
 type API struct {
 	db        *database.ServiceDB
-	container *container.Container
+	container container.Container
 }
 
 // Option is a configuration func for MESG.
@@ -20,8 +20,8 @@ func New(db *database.ServiceDB, options ...Option) (*API, error) {
 	for _, option := range options {
 		option(a)
 	}
-	var err error
 	if a.container == nil {
+		var err error
 		a.container, err = container.New()
 		if err != nil {
 			return nil, err
@@ -31,7 +31,7 @@ func New(db *database.ServiceDB, options ...Option) (*API, error) {
 }
 
 // ContainerOption configures underlying container access API.
-func ContainerOption(container *container.Container) Option {
+func ContainerOption(container container.Container) Option {
 	return func(a *API) {
 		a.container = container
 	}

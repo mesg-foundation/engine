@@ -1,19 +1,19 @@
 package service
 
 import (
-	"fmt"
-	"io/ioutil"
-	"strings"
+	"sync"
 	"testing"
 
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/container/dockertest"
+	"github.com/mesg-foundation/core/container/mocks"
 	"github.com/mesg-foundation/core/service/importer"
 	"github.com/mesg-foundation/core/x/xdocker/xarchive"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
-func newContainerAndDockerTest(t *testing.T) (*container.Container, *dockertest.Testing) {
+func newContainerAndDockerTest(t *testing.T) (container.Container, *dockertest.Testing) {
 	dt := dockertest.New()
 
 	container, err := container.New(container.ClientOption(dt.Client()))
@@ -27,6 +27,13 @@ func newFromServiceAndDockerTest(t *testing.T, s *Service) (*Service, *dockertes
 	s, err := FromService(s, ContainerOption(c))
 	require.NoError(t, err)
 	return s, dt
+}
+
+func newFromServiceAndContainerMocks(t *testing.T, s *Service) (*Service, *mocks.Container) {
+	m := &mocks.Container{}
+	s, err := FromService(s, ContainerOption(m))
+	require.NoError(t, err)
+	return s, m
 }
 
 func TestGenerateId(t *testing.T) {
@@ -52,21 +59,53 @@ func TestNoCollision(t *testing.T) {
 func TestNew(t *testing.T) {
 	var (
 		path = "../service-test/task"
-		hash = "sha256:x"
+		hash = "1"
 	)
 
-	container, dt := newContainerAndDockerTest(t)
-	dt.ProvideImageBuild(ioutil.NopCloser(strings.NewReader(fmt.Sprintf(`{"stream":"%s"}`, hash))), nil)
+	mc := &mocks.Container{}
+	mc.On("Build", mock.Anything).Once().Return(hash, nil)
 
 	archive, err := xarchive.GzippedTar(path)
 	require.NoError(t, err)
 
+	statuses := make(chan DeployStatus)
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		require.Equal(t, DeployStatus{
+			Message: "Receiving service context...",
+			Type:    DRunning,
+		}, <-statuses)
+
+		require.Equal(t, DeployStatus{
+			Message: "Service context received with success.",
+			Type:    DDonePositive,
+		}, <-statuses)
+
+		require.Equal(t, DeployStatus{
+			Message: "Building Docker image...",
+			Type:    DRunning,
+		}, <-statuses)
+
+		require.Equal(t, DeployStatus{
+			Message: "Image built with success.",
+			Type:    DDonePositive,
+		}, <-statuses)
+	}()
+
 	s, err := New(archive,
-		ContainerOption(container),
+		ContainerOption(mc),
+		DeployStatusOption(statuses),
 	)
 	require.NoError(t, err)
 	require.Equal(t, "service", s.Dependencies[0].Key)
 	require.Equal(t, hash, s.Dependencies[0].Image)
+
+	mc.AssertExpectations(t)
+	wg.Wait()
 }
 
 func TestInjectDefinitionWithConfig(t *testing.T) {
