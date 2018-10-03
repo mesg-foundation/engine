@@ -3,10 +3,8 @@
 package core
 
 import (
-	"fmt"
 	"testing"
 
-	"github.com/logrusorgru/aurora"
 	"github.com/mesg-foundation/core/api"
 	"github.com/stretchr/testify/require"
 )
@@ -14,7 +12,8 @@ import (
 func TestIntegrationDeployService(t *testing.T) {
 	url := "https://github.com/mesg-foundation/service-webhook"
 
-	server := newServer(t)
+	server, closer := newServer(t)
+	defer closer()
 	stream := newTestDeployStream(url)
 
 	require.Nil(t, server.DeployService(stream))
@@ -22,7 +21,7 @@ func TestIntegrationDeployService(t *testing.T) {
 
 	require.Len(t, stream.serviceID, 40)
 	require.Contains(t, stream.statuses, api.DeployStatus{
-		Message: fmt.Sprintf("%s Completed.", aurora.Green("✔")),
-		Type:    api.DONE,
+		Message: "Image built with success.",
+		Type:    api.DonePositive,
 	})
 }

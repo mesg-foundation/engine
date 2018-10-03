@@ -36,7 +36,7 @@ type Dependency struct {
 // error logs.
 func (d *Dependency) Logs() (rstd, rerr io.ReadCloser, err error) {
 	var reader io.ReadCloser
-	reader, err = d.service.docker.ServiceLogs(d.namespace())
+	reader, err = d.service.container.ServiceLogs(d.namespace())
 	if err != nil {
 		return nil, nil, err
 	}

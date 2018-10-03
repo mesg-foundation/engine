@@ -8,6 +8,7 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
 
+	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container/dockertest"
 	"github.com/stretchr/testify/require"
 )
@@ -15,6 +16,7 @@ import (
 func TestNew(t *testing.T) {
 	dt := dockertest.New()
 	c, err := New(ClientOption(dt.Client()))
+	cfg, _ := config.Global()
 	require.Nil(t, err)
 	require.NotNil(t, c)
 
@@ -33,7 +35,7 @@ func TestNew(t *testing.T) {
 	require.Equal(t, "0.0.0.0:2377", (<-dt.LastSwarmInit()).Request.ListenAddr)
 
 	ln := <-dt.LastNetworkCreate()
-	require.Equal(t, "mesg-shared", ln.Name)
+	require.Equal(t, cfg.Core.Name, ln.Name)
 	require.Equal(t, types.NetworkCreate{
 		CheckDuplicate: true,
 		Driver:         "overlay",
@@ -72,7 +74,7 @@ func TestFindContainerNonExistent(t *testing.T) {
 	require.Equal(t, types.ContainerListOptions{
 		Filters: filters.NewArgs(filters.KeyValuePair{
 			Key:   "label",
-			Value: "com.docker.stack.namespace=" + Namespace(namespace),
+			Value: "com.docker.stack.namespace=" + c.Namespace(namespace),
 		}),
 		Limit: 1,
 	}, (<-dt.LastContainerList()).Options)
@@ -103,7 +105,7 @@ func TestFindContainer(t *testing.T) {
 	require.Equal(t, types.ContainerListOptions{
 		Filters: filters.NewArgs(filters.KeyValuePair{
 			Key:   "label",
-			Value: "com.docker.stack.namespace=" + Namespace(namespace),
+			Value: "com.docker.stack.namespace=" + c.Namespace(namespace),
 		}),
 		Limit: 1,
 	}, (<-dt.LastContainerList()).Options)
@@ -125,7 +127,7 @@ func TestNonExistentContainerStatus(t *testing.T) {
 	require.Equal(t, STOPPED, status)
 
 	resp := <-dt.LastServiceInspectWithRaw()
-	require.Equal(t, Namespace(namespace), resp.ServiceID)
+	require.Equal(t, c.Namespace(namespace), resp.ServiceID)
 	require.Equal(t, types.ServiceInspectOptions{false}, resp.Options)
 }
 

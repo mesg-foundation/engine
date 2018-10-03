@@ -3,11 +3,13 @@ package service
 import (
 	"encoding/json"
 	"io"
+	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/api"
+	"github.com/mesg-foundation/core/database"
 	"github.com/stretchr/testify/require"
 )
 
@@ -16,14 +18,22 @@ var (
 	taskServicePath  = filepath.Join("..", "..", "..", "service-test", "task")
 )
 
-func newServer(t *testing.T) *Server {
-	a, err := api.New()
+func newServer(t *testing.T) (*Server, func()) {
+	db, err := database.NewServiceDB("db.test")
+	require.NoError(t, err)
+
+	a, err := api.New(db)
 	require.Nil(t, err)
 
 	server, err := NewServer(APIOption(a))
 	require.Nil(t, err)
 
-	return server
+	closer := func() {
+		db.Close()
+		os.RemoveAll("db.test")
+	}
+
+	return server, closer
 }
 
 func serviceTar(t *testing.T, path string) io.Reader {

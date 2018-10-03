@@ -4,14 +4,11 @@ import (
 	"strings"
 )
 
-const (
-	namespacePrefix    string = "mesg"
-	namespaceSeparator string = "-"
-)
+const namespaceSeparator string = "-"
 
 // Namespace creates a namespace from a list of string.
-func Namespace(ss []string) string {
-	ssWithPrefix := append([]string{namespacePrefix}, ss...)
+func (c *DockerContainer) Namespace(ss []string) string {
+	ssWithPrefix := append([]string{c.config.Core.Name}, ss...)
 	namespace := strings.Join(ssWithPrefix, namespaceSeparator)
 	namespace = strings.Replace(namespace, " ", namespaceSeparator, -1)
 	return namespace

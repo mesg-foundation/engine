@@ -7,7 +7,7 @@ import (
 )
 
 // waitForStatus waits for the container to have the provided status. Returns error as soon as possible.
-func (c *Container) waitForStatus(namespace []string, status StatusType) (err error) {
+func (c *DockerContainer) waitForStatus(namespace []string, status StatusType) (err error) {
 	for {
 		tasksErrors, err := c.TasksError(namespace)
 		if err != nil {
