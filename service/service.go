@@ -59,8 +59,8 @@ type Service struct {
 	// tempPath is the temporary path that service is hosted in file system.
 	tempPath string `hash:"-"`
 
-	// docker is the underlying Docker API.
-	docker *container.Container `hash:"-"`
+	// container is the underlying container API.
+	container container.Container `hash:"-"`
 }
 
 // DStatusType indicates the type of status message.
@@ -88,16 +88,19 @@ type DeployStatus struct {
 // New creates a new service from a gzipped tarball.
 func New(tarball io.Reader, options ...Option) (*Service, error) {
 	s := &Service{}
+
+	defer s.closeStatusSend()
+
 	if err := s.setOptions(options...); err != nil {
 		return nil, err
 	}
 	if err := s.saveContext(tarball); err != nil {
 		return nil, err
 	}
+	defer s.removeTempDir()
 
 	def, err := importer.From(s.tempPath)
 	if err != nil {
-		s.removeTempDir()
 		return nil, err
 	}
 	s.injectDefinition(def)
@@ -138,9 +141,9 @@ func (s *Service) fromService() *Service {
 type Option func(*Service)
 
 // ContainerOption returns an option for customized container.
-func ContainerOption(container *container.Container) Option {
+func ContainerOption(container container.Container) Option {
 	return func(s *Service) {
-		s.docker = container
+		s.container = container
 	}
 }
 
@@ -188,12 +191,9 @@ func (s *Service) removeTempDir() error {
 
 // deploy deploys service.
 func (s *Service) deploy() error {
-	defer s.removeTempDir()
-	defer s.closeStatusSend()
-
 	s.sendStatus("Building Docker image...", DRunning)
 
-	imageHash, err := s.docker.Build(s.tempPath)
+	imageHash, err := s.container.Build(s.tempPath)
 	if err != nil {
 		return err
 	}

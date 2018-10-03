@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestLogs(t *testing.T) {
+func TestIntegrationLogs(t *testing.T) {
 	service, _ := FromService(&Service{
 		Name: "TestLogs",
 		Dependencies: []*Dependency{
@@ -21,7 +21,7 @@ func TestLogs(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	}, ContainerOption(newContainer(t)))
+	}, ContainerOption(newIntegrationContainer(t)))
 	service.Start()
 	defer service.Stop()
 	readers, err := service.Logs()
@@ -29,7 +29,7 @@ func TestLogs(t *testing.T) {
 	require.Equal(t, 2, len(readers))
 }
 
-func TestLogsOnlyOneDependency(t *testing.T) {
+func TestIntegrationLogsOnlyOneDependency(t *testing.T) {
 	service, _ := FromService(&Service{
 		Name: "TestLogsOnlyOneDependency",
 		Dependencies: []*Dependency{
@@ -42,7 +42,7 @@ func TestLogsOnlyOneDependency(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	}, ContainerOption(newContainer(t)))
+	}, ContainerOption(newIntegrationContainer(t)))
 	service.Start()
 	defer service.Stop()
 	readers, err := service.Logs("test2")
