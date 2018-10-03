@@ -20,8 +20,8 @@ func New(db *database.ServiceDB, options ...Option) (*API, error) {
 	for _, option := range options {
 		option(a)
 	}
-	var err error
 	if a.container == nil {
+		var err error
 		a.container, err = container.New()
 		if err != nil {
 			return nil, err
