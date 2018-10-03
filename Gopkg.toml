@@ -24,6 +24,13 @@
 #   go-tests = true
 #   unused-packages = true
 
+# dependencies of ./scripts.
+required = [
+  "github.com/golang/protobuf/protoc-gen-go",
+  "github.com/jteeuwen/go-bindata/go-bindata",
+  "github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc", 
+]
+
 [[constraint]]
   branch = "master"
   name = "github.com/grpc-ecosystem/go-grpc-middleware"
