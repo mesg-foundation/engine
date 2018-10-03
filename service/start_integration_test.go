@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestStartService(t *testing.T) {
+func TestIntegrationStartServiceIntegration(t *testing.T) {
 	service, _ := FromService(&Service{
 		Name: "TestStartService",
 		Dependencies: []*Dependency{
@@ -18,7 +18,7 @@ func TestStartService(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	}, ContainerOption(newContainer(t)))
+	}, ContainerOption(newIntegrationContainer(t)))
 	dockerServices, err := service.Start()
 	defer service.Stop()
 	require.Nil(t, err)
@@ -27,8 +27,8 @@ func TestStartService(t *testing.T) {
 	require.Equal(t, RUNNING, status)
 }
 
-func TestStartWith2Dependencies(t *testing.T) {
-	c := newContainer(t)
+func TestIntegrationStartWith2DependenciesIntegration(t *testing.T) {
+	c := newIntegrationContainer(t)
 	service, _ := FromService(&Service{
 		Name: "TestStartWith2Dependencies",
 		Dependencies: []*Dependency{
@@ -55,7 +55,7 @@ func TestStartWith2Dependencies(t *testing.T) {
 	require.Equal(t, "sleep:latest", container2.Config.Image)
 }
 
-func TestStartAgainService(t *testing.T) {
+func TestIntegrationStartAgainService(t *testing.T) {
 	service, _ := FromService(&Service{
 		Name: "TestStartAgainService",
 		Dependencies: []*Dependency{
@@ -64,7 +64,7 @@ func TestStartAgainService(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	}, ContainerOption(newContainer(t)))
+	}, ContainerOption(newIntegrationContainer(t)))
 	service.Start()
 	defer service.Stop()
 	dockerServices, err := service.Start()
@@ -75,7 +75,7 @@ func TestStartAgainService(t *testing.T) {
 }
 
 // TODO: Disable this test in order to have the CI working
-// func TestPartiallyRunningService(t *testing.T) {
+// func TestIntegrationPartiallyRunningService(t *testing.T) {
 // 	service, _ := FromService(&Service{
 // 		Name: "TestPartiallyRunningService",
 // 		Dependencies: []*Dependency{
@@ -88,7 +88,7 @@ func TestStartAgainService(t *testing.T) {
 // 				Image: "http-server",
 // 			},
 // 		},
-// 	}, ContainerOption(newContainer(t)))
+// 	}, ContainerOption(newIntegrationContainer(t)))
 // 	service.Start()
 // 	defer service.Stop()
 // 	service.Dependencies[0].Stop()
@@ -101,8 +101,8 @@ func TestStartAgainService(t *testing.T) {
 // 	require.Equal(t, RUNNING, status)
 // }
 
-func TestStartDependency(t *testing.T) {
-	c := newContainer(t)
+func TestIntegrationStartDependency(t *testing.T) {
+	c := newIntegrationContainer(t)
 	service, _ := FromService(&Service{
 		Name: "TestStartDependency",
 		Dependencies: []*Dependency{
@@ -113,7 +113,7 @@ func TestStartDependency(t *testing.T) {
 		},
 	}, ContainerOption(c))
 	networkID, err := c.CreateNetwork(service.namespace())
-	defer c.DeleteNetwork(service.namespace())
+	defer c.DeleteNetwork(service.namespace(), container.EventDestroy)
 	dep := service.Dependencies[0]
 	serviceID, err := dep.Start(networkID)
 	defer dep.Stop()
@@ -123,8 +123,8 @@ func TestStartDependency(t *testing.T) {
 	require.Equal(t, container.RUNNING, status)
 }
 
-func TestNetworkCreated(t *testing.T) {
-	c := newContainer(t)
+func TestIntegrationNetworkCreated(t *testing.T) {
+	c := newIntegrationContainer(t)
 	service, _ := FromService(&Service{
 		Name: "TestNetworkCreated",
 		Dependencies: []*Dependency{
@@ -142,7 +142,7 @@ func TestNetworkCreated(t *testing.T) {
 }
 
 // Test for https://github.com/mesg-foundation/core/issues/88
-func TestStartStopStart(t *testing.T) {
+func TestIntegrationStartStopStart(t *testing.T) {
 	service, _ := FromService(&Service{
 		Name: "TestStartStopStart",
 		Dependencies: []*Dependency{
@@ -151,7 +151,7 @@ func TestStartStopStart(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	}, ContainerOption(newContainer(t)))
+	}, ContainerOption(newIntegrationContainer(t)))
 	service.Start()
 	service.Stop()
 	dockerServices, err := service.Start()
@@ -162,8 +162,8 @@ func TestStartStopStart(t *testing.T) {
 	require.Equal(t, RUNNING, status)
 }
 
-func TestServiceDependenciesListensFromSamePort(t *testing.T) {
-	c := newContainer(t)
+func TestIntegrationServiceDependenciesListensFromSamePort(t *testing.T) {
+	c := newIntegrationContainer(t)
 	var (
 		service, _ = FromService(&Service{
 			Name: "TestServiceDependenciesListensFromSamePort",

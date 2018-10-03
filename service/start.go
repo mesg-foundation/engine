@@ -23,7 +23,7 @@ func (s *Service) Start() (serviceIDs []string, err error) {
 			return nil, err
 		}
 	}
-	networkID, err := s.docker.CreateNetwork(s.namespace())
+	networkID, err := s.container.CreateNetwork(s.namespace())
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +31,7 @@ func (s *Service) Start() (serviceIDs []string, err error) {
 		mutex sync.Mutex
 		wg    sync.WaitGroup
 	)
-	serviceIDs = make([]string, len(s.Dependencies))
+	serviceIDs = make([]string, 0, len(s.Dependencies))
 	for i, dependency := range s.Dependencies {
 		wg.Add(1)
 		go func(dep *Dependency, i int) {
@@ -39,7 +39,9 @@ func (s *Service) Start() (serviceIDs []string, err error) {
 			serviceID, errStart := dep.Start(networkID)
 			mutex.Lock()
 			defer mutex.Unlock()
-			serviceIDs[i] = serviceID
+			if errStart == nil {
+				serviceIDs = append(serviceIDs, serviceID)
+			}
 			if errStart != nil && err == nil {
 				err = errStart
 			}
@@ -55,7 +57,7 @@ func (s *Service) Start() (serviceIDs []string, err error) {
 
 // Start starts a dependency container.
 func (d *Dependency) Start(networkID string) (containerServiceID string, err error) {
-	sharedNetworkID, err := d.service.docker.SharedNetworkID()
+	sharedNetworkID, err := d.service.container.SharedNetworkID()
 	if err != nil {
 		return "", err
 	}
@@ -68,12 +70,13 @@ func (d *Dependency) Start(networkID string) (containerServiceID string, err err
 		return "", err
 	}
 	_, port, err := xnet.SplitHostPort(c.Server.Address)
-	endpoint := "mesg-core:" + strconv.Itoa(port) // TODO: should get this from daemon namespace and config
-	return d.service.docker.StartService(container.ServiceOptions{
+	endpoint := c.Core.Name + ":" + strconv.Itoa(port)
+	return d.service.container.StartService(container.ServiceOptions{
 		Namespace: d.namespace(),
 		Labels: map[string]string{
 			"mesg.service": d.service.Name,
 			"mesg.hash":    d.service.ID,
+			"mesg.core":    c.Core.Name,
 		},
 		Image: d.Image,
 		Args:  strings.Fields(d.Command),

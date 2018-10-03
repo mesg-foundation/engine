@@ -11,8 +11,9 @@ func TestServiceOptionNamespace(t *testing.T) {
 	options := &ServiceOptions{
 		Namespace: namespace,
 	}
-	expectedNamespace := Namespace(namespace)
-	service := options.toSwarmServiceSpec()
+	c, _ := New()
+	expectedNamespace := c.Namespace(namespace)
+	service := options.toSwarmServiceSpec(c)
 	require.Equal(t, expectedNamespace, service.Annotations.Name)
 	require.Equal(t, expectedNamespace, service.Annotations.Labels["com.docker.stack.namespace"])
 	require.Equal(t, expectedNamespace, service.TaskTemplate.ContainerSpec.Labels["com.docker.stack.namespace"])
@@ -23,7 +24,8 @@ func TestServiceOptionImage(t *testing.T) {
 	options := &ServiceOptions{
 		Image: image,
 	}
-	service := options.toSwarmServiceSpec()
+	c, _ := New()
+	service := options.toSwarmServiceSpec(c)
 	require.Equal(t, image, service.Annotations.Labels["com.docker.stack.image"])
 	require.Equal(t, image, service.TaskTemplate.ContainerSpec.Image)
 }
@@ -52,7 +54,8 @@ func TestServiceOptionLabels(t *testing.T) {
 			"label2": "bar",
 		},
 	}
-	service := options.toSwarmServiceSpec()
+	c, _ := New()
+	service := options.toSwarmServiceSpec(c)
 	require.Equal(t, "foo", service.Annotations.Labels["label1"])
 	require.Equal(t, "bar", service.Annotations.Labels["label2"])
 }
@@ -97,7 +100,8 @@ func TestServiceOptionEnv(t *testing.T) {
 	options := &ServiceOptions{
 		Env: []string{"env1", "env2"},
 	}
-	service := options.toSwarmServiceSpec()
+	c, _ := New()
+	service := options.toSwarmServiceSpec(c)
 	env := service.TaskTemplate.ContainerSpec.Env
 	require.Equal(t, 2, len(env))
 	require.Equal(t, "env1", env[0])

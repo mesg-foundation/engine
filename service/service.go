@@ -6,7 +6,6 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/cnf/structhash"
@@ -60,8 +59,8 @@ type Service struct {
 	// tempPath is the temporary path that service is hosted in file system.
 	tempPath string `hash:"-"`
 
-	// docker is the underlying Docker API.
-	docker *container.Container `hash:"-"`
+	// container is the underlying container API.
+	container container.Container `hash:"-"`
 }
 
 // DStatusType indicates the type of status message.
@@ -89,19 +88,19 @@ type DeployStatus struct {
 // New creates a new service from a gzipped tarball.
 func New(tarball io.Reader, options ...Option) (*Service, error) {
 	s := &Service{}
+
+	defer s.closeStatusSend()
+
 	if err := s.setOptions(options...); err != nil {
 		return nil, err
 	}
 	if err := s.saveContext(tarball); err != nil {
 		return nil, err
 	}
-	if err := s.checkDeprecations(); err != nil {
-		return nil, err
-	}
+	defer s.removeTempDir()
 
 	def, err := importer.From(s.tempPath)
 	if err != nil {
-		s.removeTempDir()
 		return nil, err
 	}
 	s.injectDefinition(def)
@@ -130,16 +129,6 @@ func (s *Service) setOptions(options ...Option) error {
 
 // fromService upgrades service s by setting a calculated ID and cross-referencing its child fields.
 func (s *Service) fromService() *Service {
-	for _, event := range s.Events {
-		event.service = s
-	}
-	for _, task := range s.Tasks {
-		task.service = s
-		for _, output := range task.Outputs {
-			output.task = task
-			output.service = s
-		}
-	}
 	for _, dep := range s.Dependencies {
 		dep.service = s
 	}
@@ -152,9 +141,9 @@ func (s *Service) fromService() *Service {
 type Option func(*Service)
 
 // ContainerOption returns an option for customized container.
-func ContainerOption(container *container.Container) Option {
+func ContainerOption(container container.Container) Option {
 	return func(s *Service) {
-		s.docker = container
+		s.container = container
 	}
 }
 
@@ -202,12 +191,9 @@ func (s *Service) removeTempDir() error {
 
 // deploy deploys service.
 func (s *Service) deploy() error {
-	defer s.removeTempDir()
-	defer s.closeStatusSend()
-
 	s.sendStatus("Building Docker image...", DRunning)
 
-	imageHash, err := s.docker.Build(s.tempPath)
+	imageHash, err := s.container.Build(s.tempPath)
 	if err != nil {
 		return err
 	}
@@ -217,15 +203,6 @@ func (s *Service) deploy() error {
 	s.configuration.Key = "service"
 	s.configuration.Image = imageHash
 	s.Dependencies = append(s.Dependencies, s.configuration)
-	return nil
-}
-
-// checkDeprecations checks deprecated usages in service.
-func (s *Service) checkDeprecations() error {
-	if _, err := os.Stat(filepath.Join(s.tempPath, ".mesgignore")); err == nil {
-		// TODO: remove for a future release
-		s.sendStatus("[DEPRECATED] Please use .dockerignore instead of .mesgignore", DDoneNegative)
-	}
 	return nil
 }
 

@@ -9,19 +9,19 @@ import (
 )
 
 // ListTasks returns all the docker tasks.
-func (c *Container) ListTasks(namespace []string) ([]swarm.Task, error) {
+func (c *DockerContainer) ListTasks(namespace []string) ([]swarm.Task, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
 	return c.client.TaskList(ctx, types.TaskListOptions{
 		Filters: filters.NewArgs(filters.KeyValuePair{
 			Key:   "label",
-			Value: "com.docker.stack.namespace=" + Namespace(namespace),
+			Value: "com.docker.stack.namespace=" + c.Namespace(namespace),
 		}),
 	})
 }
 
 // TasksError returns the error of matching tasks.
-func (c *Container) TasksError(namespace []string) ([]string, error) {
+func (c *DockerContainer) TasksError(namespace []string) ([]string, error) {
 	tasks, err := c.ListTasks(namespace)
 	if err != nil {
 		return nil, err

@@ -1,7 +1,6 @@
 package api
 
 import (
-	"github.com/mesg-foundation/core/database/services"
 	"github.com/mesg-foundation/core/service"
 )
 
@@ -24,7 +23,7 @@ func newServiceGetter(api *API) *serviceGetter {
 
 // Get returns service serviceID.
 func (g *serviceGetter) Get(serviceID string) (*service.Service, error) {
-	s, err := services.Get(serviceID)
+	s, err := g.api.db.Get(serviceID)
 	if err != nil {
 		return nil, err
 	}

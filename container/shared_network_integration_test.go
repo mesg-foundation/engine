@@ -10,14 +10,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func removeSharedNetworkIfExist(c *Container) error {
+func removeSharedNetworkIfExist(c *DockerContainer) error {
 	if _, err := c.sharedNetwork(); err != nil {
 		if docker.IsErrNotFound(err) {
 			return nil
 		}
 		return err
 	}
-	return c.client.NetworkRemove(context.Background(), Namespace(sharedNetworkNamespace))
+	return c.client.NetworkRemove(context.Background(), c.Namespace([]string{}))
 }
 
 func TestIntegrationCreateSharedNetworkIfNeeded(t *testing.T) {

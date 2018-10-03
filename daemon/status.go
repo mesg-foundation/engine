@@ -6,5 +6,5 @@ import (
 
 // Status returns the Status of the docker service of the daemon.
 func Status() (container.StatusType, error) {
-	return defaultContainer.Status(Namespace())
+	return defaultContainer.Status([]string{})
 }
