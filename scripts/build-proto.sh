@@ -2,8 +2,6 @@
 
 cd $GOPATH/src
 
-go get github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc
-
 PROJECT=github.com/mesg-foundation/core
 GRPC=$PROJECT/protobuf
 CORE=$(pwd)/$PROJECT
