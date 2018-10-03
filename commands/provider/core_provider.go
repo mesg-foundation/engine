@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"io"
+	"sync"
 
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/daemon"
@@ -39,23 +40,28 @@ func (p *CoreProvider) Stop() error {
 	var (
 		idsLen = len(ids)
 		errC   = make(chan error, idsLen)
+		wg     sync.WaitGroup
 	)
 
+	wg.Add(idsLen)
 	for _, id := range ids {
 		go func(id string) {
+			defer wg.Done()
 			_, err := p.client.StopService(context.Background(), &coreapi.StopServiceRequest{
 				ServiceID: id,
 			})
-			errC <- err
+			if err != nil {
+				errC <- err
+			}
 		}(id)
 	}
 
-	var errs xerrors.Errors
+	wg.Wait()
+	close(errC)
 
-	for i := 0; i < idsLen; i++ {
-		if err := <-errC; err != nil {
-			errs = append(errs, err)
-		}
+	var errs xerrors.Errors
+	for err := range errC {
+		errs = append(errs, err)
 	}
 
 	if err := daemon.Stop(); err != nil {

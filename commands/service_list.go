@@ -3,6 +3,7 @@ package commands
 import (
 	"fmt"
 	"os"
+	"strings"
 	"text/tabwriter"
 
 	"github.com/mesg-foundation/core/protobuf/coreapi"
@@ -16,6 +17,7 @@ type serviceListCmd struct {
 	e ServiceExecutor
 }
 
+// newServiceListCmd receives e to do API calls and w to output structured table logs.
 func newServiceListCmd(e ServiceExecutor) *serviceListCmd {
 	c := &serviceListCmd{e: e}
 	c.cmd = newCommand(&cobra.Command{
@@ -44,18 +46,11 @@ func (c *serviceListCmd) runE(cmd *cobra.Command, args []string) error {
 	}
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 4, ' ', 0)
-	fmt.Fprintf(w, "SERVICE\tNAME\n")
 
-	// TODO: implement status to ServiceList API.
-	//fmt.Fprintf(w, "STATUS\tSERVICE\tNAME\n")
+	fmt.Fprintf(w, "STATUS\tSERVICE\tNAME\t\n")
 	for _, s := range services {
-		// status, err := s.Status()
-		// if err != nil {
-		// 	return err
-		// }
-
-		fmt.Fprintf(w, "%s\t%s\n", s.ID, s.Name)
-		//fmt.Fprintf(w, "%s\t%s\t%s\n", status.String(), s.ID, s.Name)
+		status := strings.ToLower(s.Status.String())
+		fmt.Fprintf(w, "%s\t%s\t%s\t\n", status, s.ID, s.Name)
 	}
 	return w.Flush()
 }
