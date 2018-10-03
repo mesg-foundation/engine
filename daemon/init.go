@@ -7,7 +7,7 @@ import (
 	"github.com/mesg-foundation/core/container"
 )
 
-var defaultContainer *container.Container
+var defaultContainer container.Container
 
 func init() {
 	c, err := container.New()

@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestStopRunningService(t *testing.T) {
+func TestIntegrationStopRunningService(t *testing.T) {
 	service, _ := FromService(&Service{
 		Name: "TestStopRunningService",
 		Dependencies: []*Dependency{
@@ -18,7 +18,7 @@ func TestStopRunningService(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	}, ContainerOption(newContainer(t)))
+	}, ContainerOption(newIntegrationContainer(t)))
 	service.Start()
 	err := service.Stop()
 	require.Nil(t, err)
@@ -26,7 +26,7 @@ func TestStopRunningService(t *testing.T) {
 	require.Equal(t, STOPPED, status)
 }
 
-func TestStopNonRunningService(t *testing.T) {
+func TestIntegrationStopNonRunningService(t *testing.T) {
 	service, _ := FromService(&Service{
 		Name: "TestStopNonRunningService",
 		Dependencies: []*Dependency{
@@ -35,17 +35,17 @@ func TestStopNonRunningService(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	}, ContainerOption(newContainer(t)))
+	}, ContainerOption(newIntegrationContainer(t)))
 	err := service.Stop()
 	require.Nil(t, err)
 	status, _ := service.Status()
 	require.Equal(t, STOPPED, status)
 }
 
-func TestStopDependency(t *testing.T) {
-	c := newContainer(t)
+func TestIntegrationStopDependency(t *testing.T) {
+	c := newIntegrationContainer(t)
 	service, _ := FromService(&Service{
-		Name: "TestStartDependency",
+		Name: "TestStopDependency",
 		Dependencies: []*Dependency{
 			{
 				Key:   "test",
@@ -63,8 +63,8 @@ func TestStopDependency(t *testing.T) {
 	require.Equal(t, container.STOPPED, status)
 }
 
-func TestNetworkDeleted(t *testing.T) {
-	c := newContainer(t)
+func TestIntegrationNetworkDeleted(t *testing.T) {
+	c := newIntegrationContainer(t)
 	service, _ := FromService(&Service{
 		Name: "TestNetworkDeleted",
 		Dependencies: []*Dependency{
