@@ -90,7 +90,7 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%s Task %q executed.\n", pretty.SuccessSign, c.taskKey)
+	fmt.Printf("%s Task %q executed\n", pretty.SuccessSign, c.taskKey)
 
 	var result *coreapi.ResultData
 	pretty.Progress("Waiting for result...", func() {
