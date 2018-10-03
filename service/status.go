@@ -65,7 +65,7 @@ func (s *Service) Status() (StatusType, error) {
 
 // Status returns StatusType of dependency's container.
 func (d *Dependency) Status() (container.StatusType, error) {
-	return d.service.docker.Status(d.namespace())
+	return d.service.container.Status(d.namespace())
 }
 
 // ListRunning returns all the running services.2

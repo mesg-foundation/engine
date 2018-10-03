@@ -33,12 +33,14 @@ func testDependencyLogs(t *testing.T, do func(s *Service, dependencyKey string) 
 	go wstd.Write(stdData)
 	go werr.Write(errData)
 
-	s, dt := newFromServiceAndDockerTest(t, &Service{
+	s, mc := newFromServiceAndContainerMocks(t, &Service{
 		Dependencies: []*Dependency{
 			{Key: dependencyKey},
 		},
 	})
-	dt.ProvideServiceLogs(rp, nil)
+
+	d, _ := s.getDependency(dependencyKey)
+	mc.On("ServiceLogs", d.namespace()).Once().Return(rp, nil)
 
 	rstd, rerr, err := do(s, dependencyKey)
 	require.NoError(t, err)
@@ -63,4 +65,5 @@ func testDependencyLogs(t *testing.T, do func(s *Service, dependencyKey string) 
 	}()
 
 	wg.Wait()
+	mc.AssertExpectations(t)
 }
