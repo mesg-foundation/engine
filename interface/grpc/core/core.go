@@ -25,6 +25,21 @@ func toProtoService(s *service.Service) *coreapi.Service {
 	}
 }
 
+func toProtoServiceStatusType(s service.StatusType) coreapi.Service_Status {
+	switch s {
+	default:
+		return coreapi.Service_UNKNOWN
+	case service.STOPPED:
+		return coreapi.Service_STOPPED
+	case service.STARTING:
+		return coreapi.Service_STARTING
+	case service.PARTIAL:
+		return coreapi.Service_PARTIAL
+	case service.RUNNING:
+		return coreapi.Service_RUNNING
+	}
+}
+
 func toProtoTasks(tasks []*service.Task) []*coreapi.Task {
 	ts := make([]*coreapi.Task, 0)
 	for _, task := range tasks {
