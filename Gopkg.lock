@@ -157,12 +157,17 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:bc5428c2f966023755ec3ab5e5d84e060ac6d40dbdb96fac8cbd9b55d9326421"
+  digest = "1:cdfd55b3537efa341d9b9382435817cf499b51d4356fb36baa8dde0a215b5303"
   name = "github.com/golang/protobuf"
   packages = [
     "jsonpb",
     "proto",
+    "protoc-gen-go",
     "protoc-gen-go/descriptor",
+    "protoc-gen-go/generator",
+    "protoc-gen-go/generator/internal/remap",
+    "protoc-gen-go/grpc",
+    "protoc-gen-go/plugin",
     "ptypes",
     "ptypes/any",
     "ptypes/duration",
@@ -220,6 +225,17 @@
   revision = "d14ea06fba99483203c19d92cfcd13ebe73135f4"
 
 [[projects]]
+  digest = "1:611cdcd3bd9781ebe9ea11d21edbb71528ad75bf3ff76fc41897f20b4c787d98"
+  name = "github.com/jteeuwen/go-bindata"
+  packages = [
+    ".",
+    "go-bindata",
+  ]
+  pruneopts = "UT"
+  revision = "bbd0c6e271208dce66d8fda4bc536453cd27fc4a"
+  version = "v3.0.7"
+
+[[projects]]
   digest = "1:edbef42561faa44c19129b68d1e109fbc1647f63239250391eadc8d0e7c9f669"
   name = "github.com/kelseyhightower/envconfig"
   packages = ["."]
@@ -250,14 +266,6 @@
   packages = ["."]
   pruneopts = "UT"
   revision = "e2ffdb16a802fe2bb95e2e35ff34f0e53aeef34f"
-
-[[projects]]
-  branch = "master"
-  digest = "1:7616dd8d9ddca4d4d8aa0e3793f66015c8c8bf9a3f2387be6be59347f43a75c0"
-  name = "github.com/logrusorgru/aurora"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "d694e6f975a9109e2b063829d563a7c153c4b53c"
 
 [[projects]]
   branch = "master"
@@ -351,6 +359,18 @@
   packages = ["difflib"]
   pruneopts = "UT"
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
+  version = "v1.0.0"
+
+[[projects]]
+  digest = "1:f4f47b2749b5880455b2cfca27500f7559e0c0eec51a67867f8311aed7aaf564"
+  name = "github.com/pseudomuto/protoc-gen-doc"
+  packages = [
+    ".",
+    "cmd/protoc-gen-doc",
+    "parser",
+  ]
+  pruneopts = "UT"
+  revision = "728a624b38e5ae90bb3e5da5f406e05138f1517c"
   version = "v1.0.0"
 
 [[projects]]
@@ -733,14 +753,16 @@
     "github.com/docker/docker/pkg/stdcopy",
     "github.com/fatih/color",
     "github.com/golang/protobuf/proto",
+    "github.com/golang/protobuf/protoc-gen-go",
     "github.com/grpc-ecosystem/go-grpc-middleware",
     "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus",
     "github.com/hokaccha/go-prettyjson",
+    "github.com/jteeuwen/go-bindata/go-bindata",
     "github.com/kelseyhightower/envconfig",
-    "github.com/logrusorgru/aurora",
     "github.com/mesg-foundation/prefixer",
     "github.com/mitchellh/go-homedir",
     "github.com/pkg/errors",
+    "github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc",
     "github.com/satori/go.uuid",
     "github.com/sirupsen/logrus",
     "github.com/spf13/cobra",
