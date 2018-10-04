@@ -51,8 +51,11 @@ func (c *serviceDevCmd) preRunE(cmd *cobra.Command, args []string) error {
 
 func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 	statuses := make(chan provider.DeployStatus)
-	go printDeployStatuses(statuses)
+	statusPrintDone := make(chan struct{})
+	go printDeployStatuses(statuses, statusPrintDone)
+
 	id, validationError, err := c.e.ServiceDeploy(c.path, statuses)
+	<-statusPrintDone
 	pretty.DestroySpinner()
 	if err != nil {
 		return err

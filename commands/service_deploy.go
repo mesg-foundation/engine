@@ -41,8 +41,11 @@ func (c *serviceDeployCmd) preRunE(cmd *cobra.Command, args []string) error {
 
 func (c *serviceDeployCmd) runE(cmd *cobra.Command, args []string) error {
 	statuses := make(chan provider.DeployStatus)
-	go printDeployStatuses(statuses)
+	statusPrintDone := make(chan struct{})
+	go printDeployStatuses(statuses, statusPrintDone)
+
 	id, validationError, err := c.e.ServiceDeploy(c.path, statuses)
+	<-statusPrintDone
 	pretty.DestroySpinner()
 	if err != nil {
 		return err
@@ -58,7 +61,7 @@ func (c *serviceDeployCmd) runE(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func printDeployStatuses(statuses chan provider.DeployStatus) {
+func printDeployStatuses(statuses chan provider.DeployStatus, done chan struct{}) {
 	for status := range statuses {
 		switch status.Type {
 		case provider.Running:
@@ -75,4 +78,5 @@ func printDeployStatuses(statuses chan provider.DeployStatus) {
 			fmt.Printf("%s %s\n", sign, status.Message)
 		}
 	}
+	done <- struct{}{}
 }

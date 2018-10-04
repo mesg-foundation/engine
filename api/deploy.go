@@ -81,6 +81,7 @@ func newServiceDeployer(api *API, options ...DeployServiceOption) *serviceDeploy
 
 // FromGitURL deploys a service hosted at a Git url.
 func (d *serviceDeployer) FromGitURL(url string) (*service.Service, *importer.ValidationError, error) {
+	defer d.closeStatus()
 	d.sendStatus("Downloading service...", Running)
 	path, err := d.createTempDir()
 	if err != nil {
@@ -107,18 +108,22 @@ func (d *serviceDeployer) FromGitURL(url string) (*service.Service, *importer.Va
 
 // FromGzippedTar deploys a service from a gzipped tarball.
 func (d *serviceDeployer) FromGzippedTar(r io.Reader) (*service.Service, *importer.ValidationError, error) {
+	defer d.closeStatus()
 	return d.deploy(r)
 }
 
 // deploy deploys a service in path.
 func (d *serviceDeployer) deploy(r io.Reader) (*service.Service, *importer.ValidationError, error) {
 	statuses := make(chan service.DeployStatus)
-	go d.forwardDeployStatuses(statuses)
+	forwardStatusDone := make(chan struct{})
+	go d.forwardDeployStatuses(statuses, forwardStatusDone)
 
 	s, err := service.New(r,
 		service.ContainerOption(d.api.container),
 		service.DeployStatusOption(statuses),
 	)
+	<-forwardStatusDone
+
 	validationErr, err := d.assertValidationError(err)
 	if err != nil {
 		return nil, nil, err
@@ -143,8 +148,15 @@ func (d *serviceDeployer) sendStatus(message string, typ StatusType) {
 	}
 }
 
+// closeStatus closes statuses chan.
+func (d *serviceDeployer) closeStatus() {
+	if d.statuses != nil {
+		close(d.statuses)
+	}
+}
+
 // forwardStatuses forwards status messages.
-func (d *serviceDeployer) forwardDeployStatuses(statuses chan service.DeployStatus) {
+func (d *serviceDeployer) forwardDeployStatuses(statuses chan service.DeployStatus, done chan struct{}) {
 	for status := range statuses {
 		var t StatusType
 		switch status.Type {
@@ -157,6 +169,7 @@ func (d *serviceDeployer) forwardDeployStatuses(statuses chan service.DeployStat
 		}
 		d.sendStatus(status.Message, t)
 	}
+	done <- struct{}{}
 }
 
 func (d *serviceDeployer) assertValidationError(err error) (*importer.ValidationError, error) {

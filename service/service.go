@@ -89,7 +89,7 @@ type DeployStatus struct {
 func New(tarball io.Reader, options ...Option) (*Service, error) {
 	s := &Service{}
 
-	defer s.closeStatusSend()
+	defer s.closeStatus()
 
 	if err := s.setOptions(options...); err != nil {
 		return nil, err
@@ -216,8 +216,8 @@ func (s *Service) sendStatus(message string, typ DStatusType) {
 	}
 }
 
-// closeStatusSend closes status send chan.
-func (s *Service) closeStatusSend() {
+// closeStatus closes statuses chan.
+func (s *Service) closeStatus() {
 	if s.statuses != nil {
 		close(s.statuses)
 	}
