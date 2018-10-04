@@ -11,7 +11,8 @@ import (
 // events during the process and finish with sending service id or validation error.
 func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 	statuses := make(chan api.DeployStatus)
-	go sendDeployStatus(statuses, stream)
+	statusSendDone := make(chan struct{})
+	go sendDeployStatus(statuses, statusSendDone, stream)
 
 	var (
 		service         *service.Service
@@ -29,6 +30,7 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 	} else {
 		service, validationError, err = s.api.DeployService(sr, api.DeployServiceStatusOption(statuses))
 	}
+	<-statusSendDone
 
 	if err != nil {
 		return err
@@ -44,7 +46,8 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 	})
 }
 
-func sendDeployStatus(statuses chan api.DeployStatus, stream coreapi.Core_DeployServiceServer) {
+func sendDeployStatus(statuses chan api.DeployStatus, done chan struct{},
+	stream coreapi.Core_DeployServiceServer) {
 	for status := range statuses {
 		var typ coreapi.DeployServiceReply_Status_Type
 		switch status.Type {
@@ -55,7 +58,6 @@ func sendDeployStatus(statuses chan api.DeployStatus, stream coreapi.Core_Deploy
 		case api.DoneNegative:
 			typ = coreapi.DeployServiceReply_Status_DONE_NEGATIVE
 		}
-
 		stream.Send(&coreapi.DeployServiceReply{
 			Value: &coreapi.DeployServiceReply_Status_{
 				Status: &coreapi.DeployServiceReply_Status{
@@ -65,6 +67,7 @@ func sendDeployStatus(statuses chan api.DeployStatus, stream coreapi.Core_Deploy
 			},
 		})
 	}
+	done <- struct{}{}
 }
 
 type deployServiceStreamReader struct {
