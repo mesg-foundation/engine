@@ -97,7 +97,7 @@ func (d *serviceDeployer) FromGitURL(url string) (*service.Service, *importer.Va
 		return nil, nil, err
 	}
 
-	d.sendStatus("Service downloaded with success.", DonePositive)
+	d.sendStatus("Service downloaded with success", DonePositive)
 	r, err := xarchive.GzippedTar(path)
 	if err != nil {
 		return nil, nil, err

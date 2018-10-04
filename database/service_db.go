@@ -25,7 +25,7 @@ type DecodeError struct {
 }
 
 func (e *DecodeError) Error() string {
-	return fmt.Sprintf("Database services: Could not decode service %q.", e.ID)
+	return fmt.Sprintf("Database services: Could not decode service %q", e.ID)
 }
 
 // IsErrNotFound returs true if err is type of ErrNotFound, false otherwise.
