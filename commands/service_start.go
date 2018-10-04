@@ -18,7 +18,7 @@ func newServiceStartCmd(e ServiceExecutor) *serviceStartCmd {
 	c.cmd = newCommand(&cobra.Command{
 		Use:     "start SERVICE",
 		Short:   "Start a service",
-		Long:    "Start a service previously published services.",
+		Long:    "Start a service previously published services",
 		Example: `mesg-core service start SERVICE`,
 		Args:    cobra.ExactArgs(1),
 		RunE:    c.runE,
@@ -37,7 +37,7 @@ func (c *serviceStartCmd) runE(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%s Service started.\n", pretty.SuccessSign)
+	fmt.Printf("%s Service started\n", pretty.SuccessSign)
 	fmt.Printf("To see its logs, run the command:\n\tmesg-core service logs %s\n", serviceID)
 	return nil
 }
