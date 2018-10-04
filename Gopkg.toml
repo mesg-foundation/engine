@@ -27,8 +27,8 @@
 # dependencies of ./scripts.
 required = [
   "github.com/golang/protobuf/protoc-gen-go",
-  "github.com/jteeuwen/go-bindata/go-bindata",
-  "github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc", 
+  "github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc",
+  "github.com/go-bindata/go-bindata/go-bindata",
 ]
 
 [[constraint]]
