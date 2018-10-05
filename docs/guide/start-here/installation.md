@@ -18,4 +18,5 @@ bash <(curl -fsSL https://mesg.com/install)
 * Start MESG Core with the command: `mesg-core start`
 
 
-
+::: tip Get Help
+You need help ? Check out the <a href="https://forum.mesg.com" target="_blank">MESG Forum</a>.

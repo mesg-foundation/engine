@@ -1,12 +1,12 @@
 title: MESG
-description: Create applications connected to anything
+description: Build applications connecting any technologies
 ga: UA-117583862-3
 # serviceWorker: true
 markdown:
   toc:
     includeLevel: [2]
 themeConfig:
-  logo: /logo-light.svg
+  logo: /logo-light.png
   searchMaxSuggestions: 15
   lastUpdated: true
   repo: mesg-foundation/
@@ -25,14 +25,44 @@ themeConfig:
       link: /guide/
     - text: Tutorials
       link: /tutorials/
-    - text: CLI
-      link: /cli/mesg-core
-    - text: API
-      link: /api/core.md
-    - text: Changelog
-      link: https://github.com/mesg-foundation/core/blob/master/CHANGELOG.md
-    - text: Discord
-      link: https://discord.gg/SaZ5HcE
+    - text: Ecosystem
+      items:
+        - text: Help
+          items:
+            - text: Forum
+              link: https://forum.mesg.com
+            - text: Chat
+              link: https://discord.gg/SaZ5HcE
+        - text: Tools
+          items:
+            - text: CLI
+              link: /cli/mesg-core
+            - text: API
+              link: /api/core.md
+        - text: Core libraries
+          items:
+            - text: Javascript
+              link: https://github.com/mesg-foundation/mesg-js
+            - text: Golang (Service)
+              link: https://github.com/mesg-foundation/go-service
+            - text: Golang (Application)
+              link: https://github.com/mesg-foundation/go-application
+        - text: News
+          items:
+            - text: Blog
+              link: https://medium.com/mesg
+            - text: Twitter
+              link: https://twitter.com/mesgfoundation
+            - text: Linkedin
+              link: https://www.linkedin.com/company/mesg/
+            - text: Facebook
+              link: https://www.facebook.com/mesgfoundation/
+        - text: Resource Lists
+          items:
+            - text: Core Changelog
+              link: https://github.com/mesg-foundation/core/blob/master/CHANGELOG.md
+            - text: Awesome list
+              link: https://github.com/mesg-foundation/awesome
   sidebar:
     /guide/:
       - /guide/
@@ -62,13 +92,11 @@ themeConfig:
           - /guide/service/run-the-service
     /tutorials/:
       - /tutorials/
-      - title: Applications
+      - title: ERC20 transfer notifications
         children:
-          - /tutorials/applications/receive-email-when-there-is-an-erc20-transfer
-      - title: Services
-        children:
-          - /tutorials/services/send-emails-with-sendgrid
-          - /tutorials/services/listen-for-transfers-of-an-ethereum-erc20-token
+          - /tutorials/erc20-transfer-notifications/listen-for-transfers-of-an-ethereum-erc20-token
+          - /tutorials/erc20-transfer-notifications/send-emails-with-sendgrid
+          - /tutorials/erc20-transfer-notifications/receive-email-when-there-is-an-erc20-transfer
     /cli/:
       - /cli/mesg-core.md
       - /cli/mesg-core_start.md
