@@ -845,7 +845,8 @@ Deploy a service to [Core](../guide/start-here/core.md). This will give you an u
 
 
 #### DeployServiceRequest
-The request's data for `DeployService` API.
+The data sent to the request stream of the `DeployService` API.
+Stream should be closed after url or all chunks sent to server.
 
 **Example**
 ```json
@@ -856,7 +857,7 @@ The request's data for `DeployService` API.
 or
 ```json
 {
-  "chunk": "__SERVICE_GZIPPED_TAR_FILE_CHUNK__"
+  "chunk": __SERVICE_GZIPPED_TAR_FILE_CHUNK__
 }
 ```
 
@@ -925,7 +926,8 @@ or
 
 
 #### DeployServiceReply
-The reply's data of `DeployService` API.
+The data received from the reply stream of the `DeployService` API.
+Stream will be closed by server after deployment is done.
 
 **Example**
 ```json
@@ -1571,6 +1573,14 @@ ServiceLogs gives a stream for dependency logs of a service.
 #### ServiceLogsRequest
 The request's data for `ServiceLogs` API.
 
+**Example**
+```json
+{
+  "serviceID": "__SERVICE_ID__",
+  "dependencies": "__SERVICE_DEPENDENCIES__"
+}
+```
+
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
@@ -1630,7 +1640,17 @@ The request's data for `ServiceLogs` API.
 
 
 #### LogData
-LogData holds the log data chunk and log info of service dependencies.
+The data received from the stream of the `ServiceLogs` API.
+The data will be received over time as long as the stream is open.
+
+**Example**
+```json
+{
+  "dependency":  "__DEPENDENCY_THAT_LOG_BELONGS__",
+  "type": __LOG_TYPE__,
+  "data":  __LOG_CHUNK__,
+}
+```
 
 
 | Field | Type | Description |
