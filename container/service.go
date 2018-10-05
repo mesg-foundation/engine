@@ -60,7 +60,7 @@ func (c *DockerContainer) StopService(namespace []string) (err error) {
 	if err := c.client.ServiceRemove(ctx, c.Namespace(namespace)); err != nil && !docker.IsErrNotFound(err) {
 		return err
 	}
-	// Hack to force Docker to remove the containers.
+	// TOFIX: Hack to force Docker to remove the containers.
 	// Sometime, the ServiceRemove function doesn't remove the associated containers.
 	// This hack for Docker to stop and then remove the container.
 	// See issue https://github.com/moby/moby/issues/32620
