@@ -88,6 +88,8 @@ workflows:
     jobs:
       - "test":
           filters:
+            tags:
+              only: /.*/
             branches:
               only: master
       - "publish_docker_prod":
