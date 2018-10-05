@@ -191,7 +191,7 @@ message StopServiceReply {
 // ```
 message DeployServiceRequest {
   oneof value {
-    string url = 2; // Git repo url of service. When url provided, stream will be closed after the first receive.
+    string url = 2;   // Git repo url of service. When url provided, stream will be closed after the first receive.
     bytes chunk = 3;  // Chunks of gzipped tar archive of service. If chunk provided, stream should be closed by client after all chunks sent.
   }
 }
@@ -227,8 +227,8 @@ message DeployServiceReply {
       DONE_POSITIVE = 1; // DONE_POSITIVE indicates that status message belongs to a positive noncontinuous state.
       DONE_NEGATIVE = 2; // DONE_NEGATIVE indicates that status message belongs to a negative noncontinuous state.
     }
-    string message = 1; // message is status message.
-    Type type = 2;      // type is the type of status message.
+    string message = 1; // Status message.
+    Type type = 2;      // Type of status message.
   }
 
   oneof value {
@@ -366,28 +366,20 @@ message ServiceLogsRequest {
 // **Example**
 // ```json
 // {
-//   "dependency":  "__DEPENDENCY_THAT_LOG_BELONGS__",
+//   "dependency":  "__SERVICE_DEPENDENCY__",
 //   "type": __LOG_TYPE__,
 //   "data":  __LOG_CHUNK__,
 // }
 // ```
 message LogData {
   enum Type {
-    // Standard represents standard log output.
-    Standard = 0;
-
-    // Error represents error log output.
-    Error = 1;
+    Standard = 0;  // Standard represents standard log output.
+    Error = 1;     // Error represents error log output.
   }
 
-  // dependency is the dependency that data belongs.
-  string dependency = 1;
-
-  // type is the log type.
-  Type type = 2;
-
-  // data is a log data chunk.
-  bytes data = 3;
+  string dependency = 1; // Service dependency that data belongs.
+  Type type = 2;         // The log type.
+  bytes data = 3;        // Log data chunk.
 }
 
 // This is the definition of a MESG Service.
