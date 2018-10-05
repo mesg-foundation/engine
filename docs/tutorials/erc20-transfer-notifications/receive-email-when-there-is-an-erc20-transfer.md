@@ -152,5 +152,5 @@ Be careful, the TRON token could see a surge of activity so it is possible to ha
 
 ### Final version of the source code
 
-<repository url="https://github.com/mesg-foundation/core/tree/master/docs/tutorials/applications/email-notification-one-erc20-transfer"></repository>
+<card-link url="https://github.com/mesg-foundation/core/tree/master/docs/tutorials/applications/email-notification-one-erc20-transfer"></card-link>
 
