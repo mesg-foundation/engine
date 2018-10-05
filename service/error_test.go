@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -15,12 +16,13 @@ type parameterTest struct {
 	Error string
 }
 
-func (tests parameterTests) parameterTestsToMapParameter() map[string]*Parameter {
-	params := make(map[string]*Parameter)
+func (tests parameterTests) parameterTestsToSliceParameters() []*Parameter {
+	params := make([]*Parameter, 0)
 	for _, test := range tests {
-		params[test.Key] = &Parameter{
+		params = append(params, &Parameter{
+			Key:  test.Key,
 			Type: test.Type,
-		}
+		})
 	}
 	return params
 }
@@ -35,17 +37,18 @@ func (tests parameterTests) parameterTestsToMapData() map[string]interface{} {
 
 func (tests parameterTests) assert(t *testing.T, err string) {
 	for _, test := range tests {
-		require.Contains(t, err, "Value of '"+test.Key+"' is "+test.Error)
+		require.Contains(t, err, fmt.Sprintf("Value of %q is %s", test.Key, test.Error))
 	}
 }
 
 // Test EventNotFoundError
 func TestEventNotFoundError(t *testing.T) {
 	err := EventNotFoundError{
-		Service:  &Service{Name: "TestEventNotFoundError"},
-		EventKey: "TestEventNotFoundErrorEventKey",
+		EventKey:    "TestEventNotFoundErrorEventKey",
+		ServiceName: "TestEventNotFoundError",
 	}
-	require.Equal(t, "Event 'TestEventNotFoundErrorEventKey' not found in service 'TestEventNotFoundError'", err.Error())
+	require.Equal(t, `Event "TestEventNotFoundErrorEventKey" not found in service "TestEventNotFoundError"`,
+		err.Error())
 }
 
 // Test InvalidEventDataError
@@ -59,23 +62,22 @@ func TestInvalidEventDataError(t *testing.T) {
 		&parameterTest{Key: "keyRequired", Type: "String", Value: nil, Error: "required"},
 	}
 	err := InvalidEventDataError{
-		Event: &Event{
-			Data: tests.parameterTestsToMapParameter(),
-		},
-		EventKey:  "TestInvalidEventDataErrorEventKey",
-		EventData: tests.parameterTestsToMapData(),
+		EventKey:    "TestInvalidEventDataErrorEventKey",
+		ServiceName: "TestInvalidEventDataError",
+		Warnings: validateParametersSchema(tests.parameterTestsToSliceParameters(),
+			tests.parameterTestsToMapData()),
 	}
-	require.Contains(t, err.Error(), "Data of event 'TestInvalidEventDataErrorEventKey' is invalid")
+	require.Contains(t, err.Error(), `Data of event "TestInvalidEventDataErrorEventKey" is invalid in service "TestInvalidEventDataError"`)
 	tests.assert(t, err.Error())
 }
 
 // Test TaskNotFoundError
 func TestTaskNotFoundError(t *testing.T) {
 	err := TaskNotFoundError{
-		Service: &Service{Name: "TestTaskNotFoundError"},
-		TaskKey: "TestTaskNotFoundErrorEventKey",
+		TaskKey:     "TestTaskNotFoundErrorEventKey",
+		ServiceName: "TestTaskNotFoundError",
 	}
-	require.Equal(t, "Task 'TestTaskNotFoundErrorEventKey' not found in service 'TestTaskNotFoundError'", err.Error())
+	require.Equal(t, `Task "TestTaskNotFoundErrorEventKey" not found in service "TestTaskNotFoundError"`, err.Error())
 }
 
 // Test InvalidTaskInputError
@@ -89,24 +91,23 @@ func TestInvalidTaskInputError(t *testing.T) {
 		&parameterTest{Key: "keyRequired", Type: "String", Value: nil, Error: "required"},
 	}
 	err := InvalidTaskInputError{
-		Task: &Task{
-			Inputs: tests.parameterTestsToMapParameter(),
-		},
-		TaskKey:   "TestInvalidTaskInputErrorKey",
-		InputData: tests.parameterTestsToMapData(),
+		TaskKey:     "TestInvalidTaskInputErrorKey",
+		ServiceName: "TestInvalidTaskInputError",
+		Warnings: validateParametersSchema(tests.parameterTestsToSliceParameters(),
+			tests.parameterTestsToMapData()),
 	}
-	require.Contains(t, err.Error(), "Inputs of task 'TestInvalidTaskInputErrorKey' are invalid")
+	require.Contains(t, err.Error(), `Inputs of task "TestInvalidTaskInputErrorKey" are invalid in service "TestInvalidTaskInputError"`)
 	tests.assert(t, err.Error())
 }
 
 // Test OutputNotFoundError
 func TestOutputNotFoundError(t *testing.T) {
-	err := OutputNotFoundError{
-		Service:   &Service{Name: "TestOutputNotFoundError"},
-		TaskKey:   "TaskKey",
-		OutputKey: "OutputKey",
+	err := TaskOutputNotFoundError{
+		TaskKey:       "TaskKey",
+		TaskOutputKey: "OutputKey",
+		ServiceName:   "TestOutputNotFoundError",
 	}
-	require.Equal(t, "Output 'OutputKey' of task 'TaskKey' not found in service 'TestOutputNotFoundError'", err.Error())
+	require.Equal(t, `Output "OutputKey" of task "TaskKey" not found in service "TestOutputNotFoundError"`, err.Error())
 }
 
 // Test InvalidOutputDataError
@@ -119,24 +120,23 @@ func TestInvalidOutputDataError(t *testing.T) {
 		&parameterTest{Key: "keyUnknown", Type: "Unknown", Value: "dwdw", Error: "an invalid type"},
 		&parameterTest{Key: "keyRequired", Type: "String", Value: nil, Error: "required"},
 	}
-	err := InvalidOutputDataError{
-		Output: &Output{
-			Data: tests.parameterTestsToMapParameter(),
-		},
-		OutputKey:  "OutputKey",
-		TaskKey:    "TaskKey",
-		OutputData: tests.parameterTestsToMapData(),
+	err := InvalidTaskOutputError{
+		TaskKey:       "TaskKey",
+		TaskOutputKey: "OutputKey",
+		ServiceName:   "TestInvalidOutputDataError",
+		Warnings: validateParametersSchema(tests.parameterTestsToSliceParameters(),
+			tests.parameterTestsToMapData()),
 	}
-	require.Contains(t, err.Error(), "Outputs 'OutputKey' of task 'TaskKey' are invalid")
+	require.Contains(t, err.Error(), `Outputs "OutputKey" of task "TaskKey" are invalid in service "TestInvalidOutputDataError"`)
 	tests.assert(t, err.Error())
 }
 
 // Test InputNotFoundError
 func TestInputNotFoundError(t *testing.T) {
-	err := InputNotFoundError{
-		Service:  &Service{Name: "InputNotFoundError"},
-		TaskKey:  "TaskKey",
-		InputKey: "InputKey",
+	err := TaskInputNotFoundError{
+		TaskKey:      "TaskKey",
+		TaskInputKey: "InputKey",
+		ServiceName:  "InputNotFoundError",
 	}
-	require.Equal(t, "Input 'InputKey' of task 'TaskKey' not found in service 'InputNotFoundError'", err.Error())
+	require.Equal(t, `Input "InputKey" of task "TaskKey" not found in service "InputNotFoundError"`, err.Error())
 }

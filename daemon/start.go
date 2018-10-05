@@ -1,13 +1,9 @@
 package daemon
 
 import (
-	"net"
-	"path/filepath"
-	"strconv"
-
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
-	"github.com/spf13/viper"
+	"github.com/mesg-foundation/core/x/xnet"
 )
 
 // Start starts the docker core.
@@ -28,35 +24,28 @@ func serviceSpec() (spec container.ServiceOptions, err error) {
 	if err != nil {
 		return container.ServiceOptions{}, err
 	}
-
-	_, portStr, err := net.SplitHostPort(viper.GetString(config.APIServerAddress))
+	c, err := config.Global()
 	if err != nil {
 		return container.ServiceOptions{}, err
 	}
-
-	port, err := strconv.ParseInt(portStr, 10, 64)
+	_, port, err := xnet.SplitHostPort(c.Server.Address)
 	if err != nil {
 		return container.ServiceOptions{}, err
 	}
-
 	return container.ServiceOptions{
-		Namespace: Namespace(),
-		Image:     viper.GetString(config.CoreImage),
-		Env: container.MapToEnv(map[string]string{
-			config.ToEnv(config.MESGPath):             "/mesg",
-			config.ToEnv(config.LogFormat):            viper.GetString(config.LogFormat),
-			config.ToEnv(config.LogLevel):             viper.GetString(config.LogLevel),
-			config.ToEnv(config.APIServiceSocketPath): filepath.Join(viper.GetString(config.MESGPath), "server.sock"),
-			config.ToEnv(config.ServicePathHost):      filepath.Join(viper.GetString(config.MESGPath), "services"),
-		}),
+		Namespace: []string{},
+		Image:     c.Core.Image,
+		Env:       container.MapToEnv(c.DaemonEnv()),
 		Mounts: []container.Mount{
 			{
-				Source: dockerSocket,
-				Target: dockerSocket,
+				Source: c.Docker.Socket,
+				Target: c.Docker.Socket,
+				Bind:   true,
 			},
 			{
-				Source: viper.GetString(config.MESGPath),
-				Target: "/mesg",
+				Source: c.Core.Path,
+				Target: c.Docker.Core.Path,
+				Bind:   true,
 			},
 		},
 		Ports: []container.Port{

@@ -8,49 +8,65 @@ import (
 )
 
 func TestCreate(t *testing.T) {
-	s := service.Service{
+	s, _ := service.FromService(&service.Service{
 		Name: "TestCreate",
-		Events: map[string]*service.Event{
-			"test": {},
+		Events: []*service.Event{
+			{Key: "test"},
 		},
-	}
+	})
 	var data map[string]interface{}
-	exec, err := Create(&s, "test", data)
+	exec, err := Create(s, "test", data)
 	require.Nil(t, err)
-	require.Equal(t, &s, exec.Service)
+	require.Equal(t, s, exec.Service)
 	require.Equal(t, data, exec.Data)
 	require.Equal(t, "test", exec.Key)
 	require.NotNil(t, exec.CreatedAt)
 }
 
 func TestCreateNotPresentEvent(t *testing.T) {
-	s := service.Service{
-		Name: "TestCreateNotPresentEvent",
-		Events: map[string]*service.Event{
-			"test": {},
+	var (
+		serviceName      = "TestCreateNotPresentEvent"
+		eventKey         = "test"
+		invalidEventName = "testInvalid"
+	)
+	s, _ := service.FromService(&service.Service{
+		Name: serviceName,
+		Events: []*service.Event{
+			{
+				Key: eventKey,
+			},
 		},
-	}
+	})
 	var data map[string]interface{}
-	_, err := Create(&s, "testinvalid", data)
-	require.NotNil(t, err)
-	_, notFound := err.(*service.EventNotFoundError)
-	require.True(t, notFound)
+	_, err := Create(s, invalidEventName, data)
+	require.Error(t, err)
+	notFoundErr, ok := err.(*service.EventNotFoundError)
+	require.True(t, ok)
+	require.Equal(t, invalidEventName, notFoundErr.EventKey)
+	require.Equal(t, serviceName, notFoundErr.ServiceName)
 }
 
 func TestCreateInvalidData(t *testing.T) {
-	s := service.Service{
-		Name: "TestCreateInvalidData",
-		Events: map[string]*service.Event{
-			"test": {
-				Data: map[string]*service.Parameter{
-					"xxx": {},
+	var (
+		eventKey    = "test"
+		serviceName = "TestCreateInvalidData"
+	)
+	s, _ := service.FromService(&service.Service{
+		Name: serviceName,
+		Events: []*service.Event{
+			{
+				Key: eventKey,
+				Data: []*service.Parameter{
+					{Key: "xxx"},
 				},
 			},
 		},
-	}
+	})
 	var data map[string]interface{}
-	_, err := Create(&s, "test", data)
-	require.NotNil(t, err)
-	_, invalid := err.(*service.InvalidEventDataError)
-	require.True(t, invalid)
+	_, err := Create(s, "test", data)
+	require.Error(t, err)
+	invalidErr, ok := err.(*service.InvalidEventDataError)
+	require.True(t, ok)
+	require.Equal(t, eventKey, invalidErr.EventKey)
+	require.Equal(t, serviceName, invalidErr.ServiceName)
 }

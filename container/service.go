@@ -3,6 +3,7 @@ package container
 import (
 	"context"
 	"io"
+	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
@@ -11,30 +12,34 @@ import (
 )
 
 // ListServices returns existing docker services matching a specific label name.
-func (c *Container) ListServices(label string) ([]swarm.Service, error) {
+func (c *DockerContainer) ListServices(labels ...string) ([]swarm.Service, error) {
+	args := make([]filters.KeyValuePair, 0)
+	for _, label := range labels {
+		args = append(args, filters.KeyValuePair{
+			Key:   "label",
+			Value: label,
+		})
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
 	return c.client.ServiceList(ctx, types.ServiceListOptions{
-		Filters: filters.NewArgs(filters.KeyValuePair{
-			Key:   "label",
-			Value: label,
-		}),
+		Filters: filters.NewArgs(args...),
 	})
 }
 
 // FindService returns the Docker Service or an error if not found.
-func (c *Container) FindService(namespace []string) (swarm.Service, error) {
+func (c *DockerContainer) FindService(namespace []string) (swarm.Service, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
-	service, _, err := c.client.ServiceInspectWithRaw(ctx, Namespace(namespace),
+	service, _, err := c.client.ServiceInspectWithRaw(ctx, c.Namespace(namespace),
 		types.ServiceInspectOptions{},
 	)
 	return service, err
 }
 
 // StartService starts a docker service.
-func (c *Container) StartService(options ServiceOptions) (serviceID string, err error) {
-	service := options.toSwarmServiceSpec()
+func (c *DockerContainer) StartService(options ServiceOptions) (serviceID string, err error) {
+	service := options.toSwarmServiceSpec(c)
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
 	response, err := c.client.ServiceCreate(ctx, service, types.ServiceCreateOptions{})
@@ -45,34 +50,31 @@ func (c *Container) StartService(options ServiceOptions) (serviceID string, err 
 }
 
 // StopService stops a docker service.
-func (c *Container) StopService(namespace []string) (err error) {
-	status, err := c.ServiceStatus(namespace)
-	if err != nil || status == STOPPED {
-		return err
-	}
+func (c *DockerContainer) StopService(namespace []string) (err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
-	if err := c.client.ServiceRemove(ctx, Namespace(namespace)); err != nil {
+	container, err := c.FindContainer(namespace)
+	if err != nil && !docker.IsErrNotFound(err) {
 		return err
+	}
+	if err := c.client.ServiceRemove(ctx, c.Namespace(namespace)); err != nil && !docker.IsErrNotFound(err) {
+		return err
+	}
+	// TOFIX: Hack to force Docker to remove the containers.
+	// Sometime, the ServiceRemove function doesn't remove the associated containers.
+	// This hack for Docker to stop and then remove the container.
+	// See issue https://github.com/moby/moby/issues/32620
+	if container.ContainerJSONBase != nil {
+		timeout := 1 * time.Second
+		c.client.ContainerStop(ctx, container.ID, &timeout)
+		c.client.ContainerRemove(ctx, container.ID, types.ContainerRemoveOptions{})
 	}
 	return c.waitForStatus(namespace, STOPPED)
 }
 
-// ServiceStatus returns the status of the Docker Swarm Servicer.
-func (c *Container) ServiceStatus(namespace []string) (StatusType, error) {
-	_, err := c.FindService(namespace)
-	if docker.IsErrNotFound(err) {
-		return STOPPED, nil
-	}
-	if err != nil {
-		return STOPPED, err
-	}
-	return RUNNING, nil
-}
-
 // ServiceLogs returns the logs of a service.
-func (c *Container) ServiceLogs(namespace []string) (io.ReadCloser, error) {
-	return c.client.ServiceLogs(context.Background(), Namespace(namespace),
+func (c *DockerContainer) ServiceLogs(namespace []string) (io.ReadCloser, error) {
+	return c.client.ServiceLogs(context.Background(), c.Namespace(namespace),
 		types.ContainerLogsOptions{
 			ShowStdout: true,
 			ShowStderr: true,

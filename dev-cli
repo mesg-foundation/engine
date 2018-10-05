@@ -3,5 +3,5 @@
 version="local"
 go run \
   -ldflags="-X 'github.com/mesg-foundation/core/version.Version=$version'" \
-  cli/main.go \
+  interface/cli/main.go \
   $@ 

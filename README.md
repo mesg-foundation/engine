@@ -3,7 +3,7 @@
   <br/><br/>
 </p>
 
-[Website](https://mesg.com/) - [Docs](https://docs.mesg.com/) - [Chat](https://discordapp.com/invite/SaZ5HcE) - [Blog](https://medium.com/mesg)
+[Website](https://mesg.com/) - [Docs](https://docs.mesg.com/) - [Forum](https://forum.mesg.com/) - [Chat](https://discordapp.com/invite/SaZ5HcE) - [Blog](https://medium.com/mesg)
 
 
 [![CircleCI](https://img.shields.io/circleci/project/github/mesg-foundation/core.svg)](https://github.com/mesg-foundation/core)
@@ -186,11 +186,7 @@ MESG launches its own blockchain Network providing for full scalability and a ch
 
 # Community
 
-You can find us and other MESG users on [Discord](https://discordapp.com/invite/SaZ5HcE).
-
-Be sure to join, and don't forget to introduce yourself and your project if you have one.
-
-Please feel free to share useful articles in the #newsfeed channel.
+You can find us and other MESG users on the [forum](https://forum.mesg.com). Feel free to check existing posts and help other users of MESG.
 
 Also, be sure to check out the [blog](https://medium.com/mesg) to stay up-to-date with our articles.
 
@@ -199,3 +195,12 @@ Also, be sure to check out the [blog](https://medium.com/mesg) to stay up-to-dat
 Contributions are more than welcome. For more details on how to contribute, please check out the [contribution guide](/CONTRIBUTING.md).
 
 If you have any questions, please reach out to us directly on [Discord](https://discordapp.com/invite/SaZ5HcE).
+
+[![0](https://sourcerer.io/fame/antho1404/mesg-foundation/core/images/0)](https://sourcerer.io/fame/antho1404/mesg-foundation/core/links/0)
+[![1](https://sourcerer.io/fame/antho1404/mesg-foundation/core/images/1)](https://sourcerer.io/fame/antho1404/mesg-foundation/core/links/1)
+[![2](https://sourcerer.io/fame/antho1404/mesg-foundation/core/images/2)](https://sourcerer.io/fame/antho1404/mesg-foundation/core/links/2)
+[![3](https://sourcerer.io/fame/antho1404/mesg-foundation/core/images/3)](https://sourcerer.io/fame/antho1404/mesg-foundation/core/links/3)
+[![4](https://sourcerer.io/fame/antho1404/mesg-foundation/core/images/4)](https://sourcerer.io/fame/antho1404/mesg-foundation/core/links/4)
+[![5](https://sourcerer.io/fame/antho1404/mesg-foundation/core/images/5)](https://sourcerer.io/fame/antho1404/mesg-foundation/core/links/5)
+[![6](https://sourcerer.io/fame/antho1404/mesg-foundation/core/images/6)](https://sourcerer.io/fame/antho1404/mesg-foundation/core/links/6)
+[![7](https://sourcerer.io/fame/antho1404/mesg-foundation/core/images/7)](https://sourcerer.io/fame/antho1404/mesg-foundation/core/links/7)

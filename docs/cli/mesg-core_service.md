@@ -1,15 +1,22 @@
 ## mesg-core service
 
-Manage your services
+Manage services
 
 ### Synopsis
 
-Manage your services
+Manage services
 
 ### Options
 
 ```
   -h, --help   help for service
+```
+
+### Options inherited from parent commands
+
+```
+      --no-color     disable colorized output
+      --no-spinner   disable spinners
 ```
 
 ### SEE ALSO
@@ -23,7 +30,7 @@ Manage your services
 * [mesg-core service gen-doc](mesg-core_service_gen-doc.md)	 - Generate the documentation for the service in a README.md file
 * [mesg-core service init](mesg-core_service_init.md)	 - Initialize a service
 * [mesg-core service list](mesg-core_service_list.md)	 - List all published services
-* [mesg-core service logs](mesg-core_service_logs.md)	 - Show the logs of a service
+* [mesg-core service logs](mesg-core_service_logs.md)	 - Show logs of a service
 * [mesg-core service start](mesg-core_service_start.md)	 - Start a service
 * [mesg-core service stop](mesg-core_service_stop.md)	 - Stop a service
 * [mesg-core service validate](mesg-core_service_validate.md)	 - Validate a service file

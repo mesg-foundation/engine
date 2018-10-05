@@ -1,0 +1,28 @@
+name: "minimal-valid"
+
+events:
+  Name1-_:
+    name: "name"
+    data:
+      Name1-_:
+        name: "name"
+        type: String
+
+tasks:
+    Name1-_:
+      inputs:
+        Name1-_:
+          name: "name"
+          type: String
+      
+      outputs:
+        Name1-_:
+          name: "name"
+          data:
+            Name1-_:
+              name: "name"
+              type: String
+
+dependencies:
+  Name1-_:
+    image: nginx

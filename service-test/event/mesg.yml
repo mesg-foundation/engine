@@ -1,0 +1,7 @@
+name: Event
+description: "A service that only has events definition"
+events:
+  request:
+    data:
+      data:
+        type: Object

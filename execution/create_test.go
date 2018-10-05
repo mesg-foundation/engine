@@ -31,51 +31,65 @@ func TestGenerateID(t *testing.T) {
 }
 
 func TestCreate(t *testing.T) {
-	s := service.Service{
+	s, _ := service.FromService(&service.Service{
 		Name: "TestCreate",
-		Tasks: map[string]*service.Task{
-			"test": {},
+		Tasks: []*service.Task{
+			{Key: "test"},
 		},
-	}
+	})
 	var inputs map[string]interface{}
-	exec, err := Create(&s, "test", inputs, []string{})
+	exec, err := Create(s, "test", inputs, []string{})
 	require.Nil(t, err)
-	require.Equal(t, exec.Service, &s)
+	require.Equal(t, exec.Service, s)
 	require.Equal(t, exec.Inputs, inputs)
 	require.Equal(t, exec.Task, "test")
 	require.Equal(t, pendingExecutions[exec.ID], exec)
 }
 
 func TestCreateInvalidTask(t *testing.T) {
-	s := service.Service{
-		Name: "TestCreateInvalidTask",
-		Tasks: map[string]*service.Task{
-			"test": {},
+	var (
+		taskKey        = "test"
+		invalidTaskKey = "testinvalid"
+		serviceName    = "TestCreateInvalidTask"
+	)
+	s, _ := service.FromService(&service.Service{
+		Name: serviceName,
+		Tasks: []*service.Task{
+			{Key: taskKey},
 		},
-	}
+	})
 	var inputs map[string]interface{}
-	_, err := Create(&s, "testinvalid", inputs, []string{})
+	_, err := Create(s, invalidTaskKey, inputs, []string{})
 	require.NotNil(t, err)
-	_, notFound := err.(*service.TaskNotFoundError)
-	require.True(t, notFound)
+	notFoundErr, ok := err.(*service.TaskNotFoundError)
+	require.True(t, ok)
+	require.Equal(t, invalidTaskKey, notFoundErr.TaskKey)
+	require.Equal(t, serviceName, notFoundErr.ServiceName)
 }
-
 func TestCreateInvalidInputs(t *testing.T) {
-	s := service.Service{
-		Name: "TestCreateInvalidInputs",
-		Tasks: map[string]*service.Task{
-			"test": {
-				Inputs: map[string]*service.Parameter{
-					"foo": {
+	var (
+		taskKey     = "test"
+		serviceName = "TestCreateInvalidInputs"
+	)
+	s, _ := service.FromService(&service.Service{
+		Name: serviceName,
+		Tasks: []*service.Task{
+			{
+				Key: taskKey,
+				Inputs: []*service.Parameter{
+					{
+						Key:  "foo",
 						Type: "String",
 					},
 				},
 			},
 		},
-	}
+	})
 	var inputs map[string]interface{}
-	_, err := Create(&s, "test", inputs, []string{})
+	_, err := Create(s, taskKey, inputs, []string{})
 	require.NotNil(t, err)
-	_, invalid := err.(*service.InvalidTaskInputError)
-	require.True(t, invalid)
+	invalidErr, ok := err.(*service.InvalidTaskInputError)
+	require.True(t, ok)
+	require.Equal(t, taskKey, invalidErr.TaskKey)
+	require.Equal(t, serviceName, invalidErr.ServiceName)
 }
