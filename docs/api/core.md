@@ -1646,7 +1646,7 @@ The data will be received over time as long as the stream is open.
 **Example**
 ```json
 {
-  "dependency":  "__DEPENDENCY_THAT_LOG_BELONGS__",
+  "dependency":  "__SERVICE_DEPENDENCY__",
   "type": __LOG_TYPE__,
   "data":  __LOG_CHUNK__,
 }
@@ -1655,9 +1655,9 @@ The data will be received over time as long as the stream is open.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| dependency | [string](#string) | dependency is the dependency that data belongs. |
-| type | [LogData.Type](#api.LogData.Type) | type is the log type. |
-| data | [bytes](#bytes) | data is a log data chunk. |
+| dependency | [string](#string) | Service dependency that data belongs. |
+| type | [LogData.Type](#api.LogData.Type) | The log type. |
+| data | [bytes](#bytes) | Log data chunk. |
 
 
 
