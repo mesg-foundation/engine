@@ -174,7 +174,8 @@ message StopServiceRequest {
 message StopServiceReply {
 }
 
-// The request's data for `DeployService` API.
+// The data sent to the request stream of the `DeployService` API.
+// Stream should be closed after url or all chunks sent to server.
 //
 // **Example**
 // ```json
@@ -185,7 +186,7 @@ message StopServiceReply {
 // or
 // ```json
 // {
-//   "chunk": "__SERVICE_GZIPPED_TAR_FILE_CHUNK__"
+//   "chunk": __SERVICE_GZIPPED_TAR_FILE_CHUNK__
 // }
 // ```
 message DeployServiceRequest {
@@ -195,7 +196,8 @@ message DeployServiceRequest {
   }
 }
 
-// The reply's data of `DeployService` API.
+// The data received from the reply stream of the `DeployService` API.
+// Stream will be closed by server after deployment is done.
 //
 // **Example**
 // ```json
@@ -345,12 +347,30 @@ message GetServiceReply {
 }
 
 // The request's data for `ServiceLogs` API.
+//
+// **Example**
+// ```json
+// {
+//   "serviceID": "__SERVICE_ID__",
+//   "dependencies": "__SERVICE_DEPENDENCIES__"
+// }
+// ```
 message ServiceLogsRequest {
   string serviceID = 1;             // The Service ID. Generated when using the [`DeployService` API](#deployservice).
   repeated string dependencies = 2; // __Optional.__ List of dependencies to filter service logs. All by default.
 }
 
-// LogData holds the log data chunk and log info of service dependencies.
+// The data received from the stream of the `ServiceLogs` API.
+// The data will be received over time as long as the stream is open.
+//
+// **Example**
+// ```json
+// {
+//   "dependency":  "__DEPENDENCY_THAT_LOG_BELONGS__",
+//   "type": __LOG_TYPE__,
+//   "data":  __LOG_CHUNK__,
+// }
+// ```
 message LogData {
   enum Type {
     // Standard represents standard log output.
