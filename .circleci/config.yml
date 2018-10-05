@@ -104,6 +104,16 @@ workflows:
       - "publish_docker_prod":
           requires:
             - "test"
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
       - "release_cli_prod":
           requires:
             - "publish_docker_prod"
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
