@@ -73,10 +73,10 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 			err = c.e.ServiceDelete(id)
 		})
 		if err != nil {
-			fmt.Printf("%s Error while removing the service.\n", pretty.FailSign)
+			fmt.Printf("%s Error while removing the service\n", pretty.FailSign)
 			fmt.Printf(pretty.Failln(err))
 		} else {
-			fmt.Printf("%s Service removed.\n", pretty.SuccessSign)
+			fmt.Printf("%s Service removed\n", pretty.SuccessSign)
 		}
 	}()
 
@@ -84,7 +84,7 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%s Service started.\n", pretty.SuccessSign)
+	fmt.Printf("%s Service started\n", pretty.SuccessSign)
 
 	listenEventsC, eventsErrC, err := c.e.ServiceListenEvents(id, c.eventFilter)
 	if err != nil {
