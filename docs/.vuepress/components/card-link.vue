@@ -1,11 +1,18 @@
 <template>
-  <a :href="getUrl" target="_blank" rel="noopener noreferrer">
+  <a v-if="externalLink" :href="getUrl" target="_blank" rel="noopener noreferrer">
     <main>
       <h4>{{ getTitle }}</h4>
       <p>{{ getDescription }}</p>
     </main>
-    <img src="https://avatars3.githubusercontent.com/u/34158802?s=400&v=4">
+    <img :src="getImg">
   </a>
+  <router-link v-else :to="{ path: getUrl }">
+    <main>
+      <h4>{{ getTitle }}</h4>
+      <p>{{ getDescription }}</p>
+    </main>
+    <img :src="getImg">
+  </router-link>
 </template>
 
 <script>
@@ -20,9 +27,15 @@ export default {
     },
     description: {
       type: String
+    },
+    img: {
+      type: String
     }
   },
   computed: {
+    externalLink () {
+      return this.getUrl.startsWith("http")
+    },
     getTitle () {
       return this.title || this.$page.title || this.$page.frontmatter.title || ""
     },
@@ -31,6 +44,9 @@ export default {
     },
     getUrl () {
       return this.url || this.$page.url || this.$page.frontmatter.url || ""
+    },
+    getImg () {
+      return this.img || "https://avatars3.githubusercontent.com/u/34158802?s=400&v=4"
     }
   }
 }

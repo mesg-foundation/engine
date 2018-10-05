@@ -1,17 +1,19 @@
 @import './override.styl'
 
+.hero h1
+  display none
+
 img
   max-width 100%
 
 header.navbar
   background-color $backgroundColor
-  background-image url(/bg.svg)
-  background-blend-mode overlay
-  background-size cover
 
+  .links
+    background-color transparent
   .site-name
     display none
-  a
+  .nav-item > a, .repo-link, .dropdown-title
     color #eee
     &:hover, &.router-link-active
       color white
