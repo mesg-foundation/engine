@@ -42,7 +42,7 @@ func TestDeployService(t *testing.T) {
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
-		Message: "Service context received with success.",
+		Message: "Service context received with success",
 		Type:    DonePositive,
 	}, <-statuses)
 
@@ -52,7 +52,7 @@ func TestDeployService(t *testing.T) {
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
-		Message: "Image built with success.",
+		Message: "Image built with success",
 		Type:    DonePositive,
 	}, <-statuses)
 
@@ -88,7 +88,7 @@ func TestDeployInvalidService(t *testing.T) {
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
-		Message: "Service context received with success.",
+		Message: "Service context received with success",
 		Type:    DonePositive,
 	}, <-statuses)
 
@@ -126,7 +126,7 @@ func TestDeployServiceFromURL(t *testing.T) {
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
-		Message: "Service downloaded with success.",
+		Message: "Service downloaded with success",
 		Type:    DonePositive,
 	}, <-statuses)
 
@@ -136,7 +136,7 @@ func TestDeployServiceFromURL(t *testing.T) {
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
-		Message: "Service context received with success.",
+		Message: "Service context received with success",
 		Type:    DonePositive,
 	}, <-statuses)
 
@@ -146,7 +146,7 @@ func TestDeployServiceFromURL(t *testing.T) {
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
-		Message: "Image built with success.",
+		Message: "Image built with success",
 		Type:    DonePositive,
 	}, <-statuses)
 

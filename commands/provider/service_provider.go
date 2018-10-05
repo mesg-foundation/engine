@@ -233,7 +233,7 @@ func (p *ServiceProvider) ServiceValidate(path string) (string, error) {
 	}
 
 	if !validation.ServiceFileExist {
-		return fmt.Sprintf("%s File 'mesg.yml' does not exist.", pretty.FailSign), nil
+		return fmt.Sprintf("%s File 'mesg.yml' does not exist", pretty.FailSign), nil
 	}
 
 	if len(validation.ServiceFileWarnings) > 0 {
@@ -245,10 +245,10 @@ func (p *ServiceProvider) ServiceValidate(path string) (string, error) {
 	}
 
 	if !validation.DockerfileExist {
-		return fmt.Sprintf("%s Dockerfile does not exist.", pretty.FailSign), nil
+		return fmt.Sprintf("%s Dockerfile does not exist", pretty.FailSign), nil
 	}
 	if !validation.IsValid() {
-		return fmt.Sprintf("%s Service is not valid.", pretty.FailSign), nil
+		return fmt.Sprintf("%s Service is not valid", pretty.FailSign), nil
 	}
 
 	return fmt.Sprintf(`%s Dockerfile exists
