@@ -850,38 +850,21 @@ The request's data for `DeployService` API.
 **Example**
 ```json
 {
-  "service": {
-    "name": "serviceX",
-    "events": {
-      "eventX": {
-        "data": {
-          "dataX": { "type": "String" }
-        }
-      }
-    },
-    "tasks": {
-      "taskX": {
-        "inputs": {
-          "foo": { "type": "String" }
-        },
-        "outputs": {
-          "outputX": {
-            "data": {
-              "resX": { "type": "String" }
-            }
-          }
-        }
-      }
-    }
-  }
+  "url": "__SERVICE_GIT_URL__"
+}
+```
+or
+```json
+{
+  "url": "__SERVICE_GZIPPED_TAR_FILE_CHUNK__"
 }
 ```
 
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| url | [string](#string) | Git repo url of service. If url provided, stream will be closed after first receive. |
-| chunk | [bytes](#bytes) | Chunks of gzipped tar archive of service. If chunk provided, stream will be closed after all chunks sent. |
+| url | [string](#string) | Git repo url of service. When url provided, stream will be closed after the first receive. |
+| chunk | [bytes](#bytes) | Chunks of gzipped tar archive of service. If chunk provided, stream should be closed by client after all chunks sent. |
 
 
 
@@ -947,7 +930,22 @@ The reply's data of `DeployService` API.
 **Example**
 ```json
 {
+  "status": {
+    message: "__STATUS_MESSAGE__",
+    type: __STATUS_TYPE__,
+  }
+}
+```
+or
+```json
+{
   "serviceID": "__SERVICE_ID__"
+}
+```
+or
+```json
+{
+  "validationError": "__SERVICE_VALIDATION_ERROR__"
 }
 ```
 
@@ -1264,7 +1262,10 @@ The reply's data of the `ListServices` API.
 ```json
 [{
   "service": {
+    "id": "idX",
     "name": "serviceX",
+    "description: "descriptionX",
+    "status: "statusX",
     "events": {
       "eventX": {
         "data": {
@@ -1443,7 +1444,10 @@ The reply's data of the `GetService` API.
 ```json
 {
   "service": {
+    "id": "idX",
     "name": "serviceX",
+    "description: "descriptionX",
+    "status: "statusX",
     "events": {
       "eventX": {
         "data": {
