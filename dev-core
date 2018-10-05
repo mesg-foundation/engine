@@ -1,10 +1,11 @@
 #!/bin/bash
 
-
 echo "Building mesg/core:local..."
 docker build -t mesg/core:local --build-arg version="local" .
 
-./dev-cli stop
-./dev-cli start
+# chain these to stop execution on failure
+./dev-cli stop && \
+./dev-cli start && \
 ./dev-cli logs
+
 ./dev-cli stop

@@ -4,11 +4,21 @@ import (
 	"context"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/filters"
 	docker "github.com/docker/docker/client"
 )
 
+// EventType is a type to define the kind of event related to the network
+type EventType string
+
+// List of Network status to listen to confirm a network deletion
+const (
+	EventRemove  EventType = "remove"
+	EventDestroy EventType = "destroy"
+)
+
 // CreateNetwork creates a Docker Network with a namespace.
-func (c *Container) CreateNetwork(namespace []string) (id string, err error) {
+func (c *DockerContainer) CreateNetwork(namespace []string) (id string, err error) {
 	network, err := c.FindNetwork(namespace)
 	if err != nil && !docker.IsErrNotFound(err) {
 		return "", err
@@ -16,7 +26,7 @@ func (c *Container) CreateNetwork(namespace []string) (id string, err error) {
 	if network.ID != "" {
 		return network.ID, nil
 	}
-	namespaceFlat := Namespace(namespace)
+	namespaceFlat := c.Namespace(namespace)
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
 	response, err := c.client.NetworkCreate(ctx, namespaceFlat, types.NetworkCreate{
@@ -33,7 +43,10 @@ func (c *Container) CreateNetwork(namespace []string) (id string, err error) {
 }
 
 // DeleteNetwork deletes a Docker Network associated with a namespace.
-func (c *Container) DeleteNetwork(namespace []string) error {
+// event parameter can be "destroy" or "remove". If the network was used by a service, the event to use is "destroy". If the network has not been used, the event is "remove".
+// Remove removes the reference from Docker to the network.
+// Destroy removes the network from Docker active network.
+func (c *DockerContainer) DeleteNetwork(namespace []string, event EventType) error {
 	network, err := c.FindNetwork(namespace)
 	if docker.IsErrNotFound(err) {
 		return nil
@@ -43,12 +56,30 @@ func (c *Container) DeleteNetwork(namespace []string) error {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
-	return c.client.NetworkRemove(ctx, network.ID)
+	messageChan, errChan := c.client.Events(ctx, types.EventsOptions{
+		Filters: filters.NewArgs(filters.KeyValuePair{
+			Key:   "network",
+			Value: network.ID,
+		}, filters.KeyValuePair{
+			Key:   "event",
+			Value: string(event),
+		}),
+	})
+	err = c.client.NetworkRemove(ctx, network.ID)
+	if err != nil {
+		return err
+	}
+	select {
+	case <-messageChan:
+		return nil
+	case err := <-errChan:
+		return err
+	}
 }
 
 // FindNetwork finds a Docker Network by a namespace. If no network is found, an error is returned.
-func (c *Container) FindNetwork(namespace []string) (types.NetworkResource, error) {
+func (c *DockerContainer) FindNetwork(namespace []string) (types.NetworkResource, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
-	return c.client.NetworkInspect(ctx, Namespace(namespace), types.NetworkInspectOptions{})
+	return c.client.NetworkInspect(ctx, c.Namespace(namespace), types.NetworkInspectOptions{})
 }

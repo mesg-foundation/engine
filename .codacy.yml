@@ -7,5 +7,6 @@ exclude_paths:
   - "service/importer/assets/*.go"
   - "cmd/service/assets/*.go"
   - "cmd/service/tests/**/*"
+  - "service-test/**"
   - "docs/**"
   - "vendor/**/*"

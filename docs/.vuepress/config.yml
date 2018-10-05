@@ -121,6 +121,5 @@ themeConfig:
     /api/:
       - /api/core
       - /api/service
-      - /api/service-type
     /:
       - ''

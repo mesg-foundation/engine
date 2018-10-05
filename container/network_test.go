@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/events"
 	"github.com/mesg-foundation/core/container/dockertest"
 	"github.com/stretchr/testify/require"
 )
@@ -28,12 +29,12 @@ func TestCreateNetwork(t *testing.T) {
 	require.Equal(t, id, networkID)
 
 	li := <-dt.LastNetworkCreate()
-	require.Equal(t, Namespace(namespace), li.Name)
+	require.Equal(t, c.Namespace(namespace), li.Name)
 	require.Equal(t, types.NetworkCreate{
 		CheckDuplicate: true,
 		Driver:         "overlay",
 		Labels: map[string]string{
-			"com.docker.stack.namespace": Namespace(namespace),
+			"com.docker.stack.namespace": c.Namespace(namespace),
 		},
 	}, li.Options)
 }
@@ -56,7 +57,7 @@ func TestCreateAlreadyExistingNetwork(t *testing.T) {
 	require.Equal(t, id, networkID)
 
 	li := <-dt.LastNetworkInspect()
-	require.Equal(t, Namespace(namespace), li.Network)
+	require.Equal(t, c.Namespace(namespace), li.Network)
 	require.Equal(t, types.NetworkInspectOptions{}, li.Options)
 
 	select {
@@ -73,16 +74,21 @@ func TestDeleteNetwork(t *testing.T) {
 	dt := dockertest.New()
 	c, _ := New(ClientOption(dt.Client()))
 
+	msgC := make(chan events.Message, 1)
+	errC := make(chan error)
+	dt.ProvideEvents(msgC, errC)
+	msgC <- events.Message{ID: id}
+
 	// discard network requests made from New.
 	<-dt.LastNetworkInspect()
 	<-dt.LastNetworkCreate()
 
 	dt.ProvideNetworkInspect(types.NetworkResource{ID: id}, nil)
 
-	require.Nil(t, c.DeleteNetwork(namespace))
+	require.Nil(t, c.DeleteNetwork(namespace, EventRemove))
 
 	li := <-dt.LastNetworkInspect()
-	require.Equal(t, Namespace(namespace), li.Network)
+	require.Equal(t, c.Namespace(namespace), li.Network)
 	require.Equal(t, types.NetworkInspectOptions{}, li.Options)
 
 	require.Equal(t, id, (<-dt.LastNetworkRemove()).Network)
@@ -100,7 +106,7 @@ func TestDeleteNotExistingNetwork(t *testing.T) {
 
 	dt.ProvideNetworkInspect(types.NetworkResource{}, dockertest.NotFoundErr{})
 
-	require.Nil(t, c.DeleteNetwork(namespace))
+	require.Nil(t, c.DeleteNetwork(namespace, EventRemove))
 
 	select {
 	case <-dt.LastNetworkRemove():
@@ -123,7 +129,7 @@ func TestDeleteNetworkError(t *testing.T) {
 
 	dt.ProvideNetworkInspect(types.NetworkResource{}, errNetworkDelete)
 
-	require.NotNil(t, c.DeleteNetwork(namespace))
+	require.NotNil(t, c.DeleteNetwork(namespace, EventRemove))
 }
 
 func TestFindNetwork(t *testing.T) {
@@ -144,7 +150,7 @@ func TestFindNetwork(t *testing.T) {
 	require.Equal(t, id, network.ID)
 
 	li := <-dt.LastNetworkInspect()
-	require.Equal(t, Namespace(namespace), li.Network)
+	require.Equal(t, c.Namespace(namespace), li.Network)
 	require.Equal(t, types.NetworkInspectOptions{}, li.Options)
 }
 

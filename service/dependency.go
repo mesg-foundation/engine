@@ -1,32 +1,52 @@
 package service
 
 import (
-	"sort"
+	"io"
+
+	"github.com/docker/docker/pkg/stdcopy"
+	"github.com/sirupsen/logrus"
 )
 
-// DependencyFromService represents a Dependency with a pointer to its service and its name.
-type DependencyFromService struct {
-	*Dependency
-	Service *Service
-	Name    string
+// Dependency represents a Docker container and it holds instructions about
+// how it should run.
+type Dependency struct {
+	// Key is the key of dependency.
+	Key string `hash:"1"`
+
+	// Image is the Docker image.
+	Image string `hash:"name:2"`
+
+	// Volumes are the Docker volumes.
+	Volumes []string `hash:"name:3"`
+
+	// VolumesFrom are the docker volumes-from from.
+	VolumesFrom []string `hash:"name:4"`
+
+	// Ports holds ports configuration for container.
+	Ports []string `hash:"name:5"`
+
+	// Command is the Docker command which will be executed when container started.
+	Command string `hash:"name:6"`
+
+	// service is the dependency's service.
+	service *Service `hash:"-"`
 }
 
-// DependenciesFromService returns a slice of DependencyFromService.
-func (s *Service) DependenciesFromService() []*DependencyFromService {
-	var keys []string
-	for key := range s.Dependencies {
-		keys = append(keys, key)
+// Logs gives the dependency logs. rstd stands for standard logs and rerr stands for
+// error logs.
+func (d *Dependency) Logs() (rstd, rerr io.ReadCloser, err error) {
+	var reader io.ReadCloser
+	reader, err = d.service.container.ServiceLogs(d.namespace())
+	if err != nil {
+		return nil, nil, err
 	}
-	sort.Strings(keys)
-
-	d := make([]*DependencyFromService, 0, len(keys))
-	for _, key := range keys {
-		dependency := s.Dependencies[key]
-		d = append(d, &DependencyFromService{
-			Dependency: dependency,
-			Service:    s,
-			Name:       key,
-		})
-	}
-	return d
+	sr, sw := io.Pipe()
+	er, ew := io.Pipe()
+	go func() {
+		if _, err := stdcopy.StdCopy(sw, ew, reader); err != nil {
+			reader.Close()
+			logrus.Errorln(err)
+		}
+	}()
+	return sr, er, nil
 }

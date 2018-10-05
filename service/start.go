@@ -1,104 +1,99 @@
 package service
 
 import (
-	"errors"
-	"fmt"
-	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
 
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
-	"github.com/spf13/viper"
+	"github.com/mesg-foundation/core/x/xnet"
+	"github.com/mesg-foundation/core/x/xstructhash"
 )
 
 // Start starts the service.
-func (service *Service) Start() (serviceIDs []string, err error) {
-	status, err := service.Status()
+func (s *Service) Start() (serviceIDs []string, err error) {
+	status, err := s.Status()
 	if err != nil || status == RUNNING {
 		return nil, err //TODO: if the service is already running, serviceIDs should be returned.
 	}
 	// If there is one but not all services running stop to restart all
 	if status == PARTIAL {
-		if err := service.StopDependencies(); err != nil {
+		if err := s.StopDependencies(); err != nil {
 			return nil, err
 		}
 	}
-	networkID, err := defaultContainer.CreateNetwork(service.namespace())
+	networkID, err := s.container.CreateNetwork(s.namespace())
 	if err != nil {
 		return nil, err
 	}
 	var (
-		mutex                   sync.Mutex
-		wg                      sync.WaitGroup
-		dependenciesFromService = service.DependenciesFromService()
+		mutex sync.Mutex
+		wg    sync.WaitGroup
 	)
-	serviceIDs = make([]string, len(dependenciesFromService))
-	for i, dependency := range dependenciesFromService {
+	serviceIDs = make([]string, 0, len(s.Dependencies))
+	for i, dependency := range s.Dependencies {
 		wg.Add(1)
-		go func(dep *DependencyFromService, i int) {
+		go func(dep *Dependency, i int) {
 			defer wg.Done()
 			serviceID, errStart := dep.Start(networkID)
 			mutex.Lock()
 			defer mutex.Unlock()
-			serviceIDs[i] = serviceID
+			if errStart == nil {
+				serviceIDs = append(serviceIDs, serviceID)
+			}
 			if errStart != nil && err == nil {
 				err = errStart
 			}
 		}(dependency, i)
 	}
 	wg.Wait()
-	// Grasfully stop the service because there is an error
+	// Gracefully stop the service because there is an error
 	if err != nil {
-		service.Stop()
+		s.Stop()
 	}
-	return serviceIDs, nil
+	return serviceIDs, err
 }
 
 // Start starts a dependency container.
-func (dependency *DependencyFromService) Start(networkID string) (containerServiceID string, err error) {
-	if networkID == "" {
-		return "", errors.New("Network ID should never be null")
-	}
-	service := dependency.Service
-	if service == nil {
-		return "", errors.New("Service is nil")
-	}
-	sharedNetworkID, err := defaultContainer.SharedNetworkID()
+func (d *Dependency) Start(networkID string) (containerServiceID string, err error) {
+	sharedNetworkID, err := d.service.container.SharedNetworkID()
 	if err != nil {
 		return "", err
 	}
-	mounts, err := dependency.extractVolumes()
+	mounts, err := d.extractVolumes()
 	if err != nil {
 		return "", err
 	}
-	return defaultContainer.StartService(container.ServiceOptions{
-		Namespace: dependency.namespace(),
+	c, err := config.Global()
+	if err != nil {
+		return "", err
+	}
+	_, port, err := xnet.SplitHostPort(c.Server.Address)
+	endpoint := c.Core.Name + ":" + strconv.Itoa(port)
+	return d.service.container.StartService(container.ServiceOptions{
+		Namespace: d.namespace(),
 		Labels: map[string]string{
-			"mesg.service": service.Name,
-			"mesg.hash":    service.Hash(),
+			"mesg.service": d.service.Name,
+			"mesg.hash":    d.service.ID,
+			"mesg.core":    c.Core.Name,
 		},
-		Image: dependency.Image,
-		Args:  strings.Fields(dependency.Command),
+		Image: d.Image,
+		Args:  strings.Fields(d.Command),
 		Env: container.MapToEnv(map[string]string{
-			"MESG_TOKEN":        service.Hash(),
-			"MESG_ENDPOINT":     viper.GetString(config.APIServiceTargetSocket),
-			"MESG_ENDPOINT_TCP": "mesg-core:50052", // TODO: should get this from daemon namespace and config
+			"MESG_TOKEN":        d.service.ID,
+			"MESG_ENDPOINT":     endpoint,
+			"MESG_ENDPOINT_TCP": endpoint,
 		}),
-		Mounts: append(mounts, container.Mount{
-			Source: viper.GetString(config.APIServiceSocketPath),
-			Target: viper.GetString(config.APIServiceTargetPath),
-		}),
-		Ports:      dependency.extractPorts(),
+		Mounts:     mounts,
+		Ports:      d.extractPorts(),
 		NetworksID: []string{networkID, sharedNetworkID},
 	})
 }
 
-func (dependency *Dependency) extractPorts() []container.Port {
-	ports := make([]container.Port, len(dependency.Ports))
-	for i, p := range dependency.Ports {
+func (d *Dependency) extractPorts() []container.Port {
+	ports := make([]container.Port, len(d.Ports))
+	for i, p := range d.Ports {
 		split := strings.Split(p, ":")
 		from, _ := strconv.ParseUint(split[0], 10, 64)
 		to := from
@@ -114,38 +109,33 @@ func (dependency *Dependency) extractPorts() []container.Port {
 }
 
 // TODO: add test and hack for MkDir in CircleCI
-func (dependency *DependencyFromService) extractVolumes() ([]container.Mount, error) {
-	service := dependency.Service
-	if service == nil {
-		return nil, errors.New("Service is nil")
-	}
-	servicePath := strings.Join(service.namespace(), "-")
+func (d *Dependency) extractVolumes() ([]container.Mount, error) {
 	volumes := make([]container.Mount, 0)
-	for _, volume := range dependency.Volumes {
-		path := filepath.Join(servicePath, dependency.Name, volume)
-		source := filepath.Join(viper.GetString(config.ServicePathHost), path)
+	for _, volume := range d.Volumes {
 		volumes = append(volumes, container.Mount{
-			Source: source,
+			Source: volumeKey(d.service, d.Key, volume),
 			Target: volume,
 		})
-		// TODO: move mkdir in container package
-		os.MkdirAll(filepath.Join(viper.GetString(config.ServicePathDocker), path), os.ModePerm)
 	}
-	for _, depName := range dependency.Volumesfrom {
-		dep := service.Dependencies[depName]
-		if dep == nil {
-			return nil, fmt.Errorf("Dependency %s do not exist", depName)
+	for _, depName := range d.VolumesFrom {
+		dep, err := d.service.getDependency(depName)
+		if err != nil {
+			return nil, err
 		}
 		for _, volume := range dep.Volumes {
-			path := filepath.Join(servicePath, depName, volume)
-			source := filepath.Join(viper.GetString(config.ServicePathHost), path)
 			volumes = append(volumes, container.Mount{
-				Source: source,
+				Source: volumeKey(d.service, depName, volume),
 				Target: volume,
 			})
-			// TODO: move mkdir in container package
-			os.MkdirAll(filepath.Join(viper.GetString(config.ServicePathDocker), path), os.ModePerm)
 		}
 	}
 	return volumes, nil
+}
+
+func volumeKey(s *Service, dependency string, volume string) string {
+	return xstructhash.Hash([]string{
+		s.ID,
+		dependency,
+		volume,
+	}, 1)
 }

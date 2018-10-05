@@ -3,8 +3,10 @@ exclude_patterns:
   - "**/*.d.ts"
   - "**/*.pb.go"
   - "service/importer/assets/*.go"
+  - "commands/provider/assets/"
   - "cmd/service/assets/*.go"
   - "cmd/service/tests/**/*"
+  - "service-test/**"
   - "docs/**/*"
   - "**/vendor/"
 plugins:
@@ -14,3 +16,8 @@ plugins:
     enabled: true
   govet:
     enabled: true
+
+checks:
+  return-statements:
+    config:
+      threshold: 6

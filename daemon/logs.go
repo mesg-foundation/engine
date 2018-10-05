@@ -6,5 +6,5 @@ import (
 
 // Logs returns the core's docker service logs.
 func Logs() (io.ReadCloser, error) {
-	return defaultContainer.ServiceLogs(Namespace())
+	return defaultContainer.ServiceLogs([]string{})
 }

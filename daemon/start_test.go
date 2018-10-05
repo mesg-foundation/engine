@@ -1,12 +1,11 @@
 package daemon
 
 import (
-	"path/filepath"
 	"testing"
 
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
-	"github.com/spf13/viper"
+	"github.com/mesg-foundation/core/x/xnet"
 	"github.com/stretchr/testify/require"
 )
 
@@ -24,8 +23,8 @@ func startForTest() {
 		panic(err)
 	}
 	_, err = defaultContainer.StartService(container.ServiceOptions{
-		Namespace:  Namespace(),
-		Image:      "nginx",
+		Namespace:  []string{},
+		Image:      "http-server",
 		NetworksID: []string{sharedNetworkID},
 	})
 	if err != nil {
@@ -34,36 +33,25 @@ func startForTest() {
 	return
 }
 
-// func TestStart(t *testing.T) {
-// 	<-testForceAndWaitForFullStop()
-// 	service, err := Start()
-// 	require.Nil(t, err)
-// 	require.NotNil(t, service)
-// }
-
-func contains(list []string, item string) bool {
-	for _, itemInList := range list {
-		if itemInList == item {
-			return true
-		}
-	}
-	return false
-}
-
 func TestStartConfig(t *testing.T) {
+	c, _ := config.Global()
 	spec, err := serviceSpec()
-	require.Nil(t, err)
+	require.NoError(t, err)
+	require.Equal(t, []string{}, spec.Namespace)
 	// Make sure that the config directory is passed in parameter to write on the same folder
-	require.True(t, contains(spec.Env, "MESG_MESG_PATH=/mesg"))
-	require.True(t, contains(spec.Env, "MESG_API_SERVICE_SOCKETPATH="+filepath.Join(viper.GetString(config.MESGPath), "server.sock")))
-	require.True(t, contains(spec.Env, "MESG_SERVICE_PATH_HOST="+filepath.Join(viper.GetString(config.MESGPath), "services")))
+	require.Contains(t, spec.Env, "MESG_LOG_LEVEL=info")
+	require.Contains(t, spec.Env, "MESG_LOG_FORMAT=text")
+	require.Contains(t, spec.Env, "MESG_CORE_PATH="+c.Docker.Core.Path)
 	// Ensure that the port is shared
-	require.Equal(t, spec.Ports[0].Published, uint32(50052))
-	require.Equal(t, spec.Ports[0].Target, uint32(50052))
+	_, port, _ := xnet.SplitHostPort(c.Server.Address)
+	require.Equal(t, spec.Ports[0].Published, uint32(port))
+	require.Equal(t, spec.Ports[0].Target, uint32(port))
 	// Ensure that the docker socket is shared in the core
-	require.Equal(t, spec.Mounts[0].Source, dockerSocket)
-	require.Equal(t, spec.Mounts[0].Target, dockerSocket)
+	require.Equal(t, spec.Mounts[0].Source, c.Docker.Socket)
+	require.Equal(t, spec.Mounts[0].Target, c.Docker.Socket)
+	require.True(t, spec.Mounts[0].Bind)
 	// Ensure that the host users folder is sync with the core
-	require.Equal(t, spec.Mounts[1].Source, viper.GetString(config.MESGPath))
-	require.Equal(t, spec.Mounts[1].Target, "/mesg")
+	require.Equal(t, spec.Mounts[1].Source, c.Core.Path)
+	require.Equal(t, spec.Mounts[1].Target, c.Docker.Core.Path)
+	require.True(t, spec.Mounts[1].Bind)
 }

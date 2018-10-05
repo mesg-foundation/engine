@@ -2,74 +2,106 @@ package service
 
 import (
 	"testing"
-	"time"
 
 	"github.com/mesg-foundation/core/container"
 	"github.com/stretchr/testify/require"
 )
 
 func TestStopRunningService(t *testing.T) {
-	service := &Service{
-		Name: "TestStopRunningService",
-		Dependencies: map[string]*Dependency{
-			"test": {
-				Image: "nginx",
+	var (
+		dependencyKey = "1"
+		s, mc         = newFromServiceAndContainerMocks(t, &Service{
+			Name: "TestStopRunningService",
+			Dependencies: []*Dependency{
+				{
+					Key:   dependencyKey,
+					Image: "http-server",
+				},
 			},
-		},
-	}
-	service.Start()
-	err := service.Stop()
-	require.Nil(t, err)
-	status, _ := service.Status()
-	require.Equal(t, STOPPED, status)
+		})
+	)
+
+	d, _ := s.getDependency(dependencyKey)
+
+	mc.On("Status", d.namespace()).Twice().Return(container.RUNNING, nil)
+	mc.On("StopService", d.namespace()).Once().Return(nil)
+	mc.On("DeleteNetwork", s.namespace(), container.EventDestroy).Once().Return(nil)
+
+	err := s.Stop()
+	require.NoError(t, err)
+
+	mc.AssertExpectations(t)
 }
 
 func TestStopNonRunningService(t *testing.T) {
-	service := &Service{
-		Name: "TestStopNonRunningService",
-		Dependencies: map[string]*Dependency{
-			"test": {
-				Image: "nginx",
+	var (
+		dependencyKey = "1"
+		s, mc         = newFromServiceAndContainerMocks(t, &Service{
+			Name: "TestStopNonRunningService",
+			Dependencies: []*Dependency{
+				{
+					Key:   dependencyKey,
+					Image: "http-server",
+				},
 			},
-		},
-	}
-	err := service.Stop()
-	require.Nil(t, err)
-	status, _ := service.Status()
-	require.Equal(t, STOPPED, status)
+		})
+	)
+
+	d, _ := s.getDependency(dependencyKey)
+
+	mc.On("Status", d.namespace()).Once().Return(container.STOPPED, nil)
+
+	err := s.Stop()
+	require.NoError(t, err)
+
+	mc.AssertExpectations(t)
 }
 
-func TestStopDependency(t *testing.T) {
-	service := &Service{
-		Name: "TestStartDependency",
-		Dependencies: map[string]*Dependency{
-			"test": {
-				Image: "nginx",
+func TestStopRunningDependency(t *testing.T) {
+	var (
+		dependencyKey = "1"
+		s, mc         = newFromServiceAndContainerMocks(t, &Service{
+			Name: "TestStopNonRunningService",
+			Dependencies: []*Dependency{
+				{
+					Key:   dependencyKey,
+					Image: "http-server",
+				},
 			},
-		},
-	}
-	networkID, err := defaultContainer.CreateNetwork(service.namespace())
-	defer defaultContainer.DeleteNetwork(service.namespace())
-	dep := service.DependenciesFromService()[0]
-	dep.Start(networkID)
-	err = dep.Stop()
-	require.Nil(t, err)
-	status, _ := dep.Status()
-	require.Equal(t, container.STOPPED, status)
+		})
+	)
+
+	d, _ := s.getDependency(dependencyKey)
+
+	mc.On("Status", d.namespace()).Once().Return(container.RUNNING, nil)
+	mc.On("StopService", d.namespace()).Once().Return(nil)
+
+	err := d.Stop()
+	require.NoError(t, err)
+
+	mc.AssertExpectations(t)
 }
 
-func TestNetworkDeleted(t *testing.T) {
-	service := &Service{
-		Name: "TestNetworkDeleted",
-		Dependencies: map[string]*Dependency{
-			"test": {
-				Image: "nginx",
+func TestStopNonRunningDependency(t *testing.T) {
+	var (
+		dependencyKey = "1"
+		s, mc         = newFromServiceAndContainerMocks(t, &Service{
+			Name: "TestStopNonRunningService",
+			Dependencies: []*Dependency{
+				{
+					Key:   dependencyKey,
+					Image: "http-server",
+				},
 			},
-		},
-	}
-	service.Start()
-	service.Stop()
-	time.Sleep(5 * time.Second)
-	_, err := defaultContainer.FindNetwork(service.namespace())
-	require.NotNil(t, err)
+		})
+	)
+
+	d, _ := s.getDependency(dependencyKey)
+
+	mc.On("Status", d.namespace()).Once().Return(container.STOPPED, nil)
+
+	err := d.Stop()
+	require.NoError(t, err)
+
+	mc.AssertExpectations(t)
 }

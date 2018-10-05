@@ -7,10 +7,8 @@ import (
 	docker "github.com/docker/docker/client"
 )
 
-var sharedNetworkNamespace = []string{"shared"}
-
 // SharedNetworkID returns the ID of the shared network.
-func (c *Container) SharedNetworkID() (networkID string, err error) {
+func (c *DockerContainer) SharedNetworkID() (networkID string, err error) {
 	network, err := c.sharedNetwork()
 	if err != nil {
 		return "", err
@@ -18,7 +16,7 @@ func (c *Container) SharedNetworkID() (networkID string, err error) {
 	return network.ID, nil
 }
 
-func (c *Container) createSharedNetworkIfNeeded() error {
+func (c *DockerContainer) createSharedNetworkIfNeeded() error {
 	network, err := c.sharedNetwork()
 	if err != nil && !docker.IsErrNotFound(err) {
 		return err
@@ -31,7 +29,7 @@ func (c *Container) createSharedNetworkIfNeeded() error {
 	defer cancel()
 
 	// Create the new network needed to run containers.
-	namespace := Namespace(sharedNetworkNamespace)
+	namespace := c.Namespace([]string{})
 	_, err = c.client.NetworkCreate(ctx, namespace, types.NetworkCreate{
 		CheckDuplicate: true,
 		Driver:         "overlay",
@@ -43,8 +41,8 @@ func (c *Container) createSharedNetworkIfNeeded() error {
 }
 
 // sharedNetwork returns the shared network created to connect services and MESG Core.
-func (c *Container) sharedNetwork() (network types.NetworkResource, err error) {
+func (c *DockerContainer) sharedNetwork() (network types.NetworkResource, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
-	return c.client.NetworkInspect(ctx, Namespace(sharedNetworkNamespace), types.NetworkInspectOptions{})
+	return c.client.NetworkInspect(ctx, c.Namespace([]string{}), types.NetworkInspectOptions{})
 }
