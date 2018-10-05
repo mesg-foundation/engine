@@ -163,7 +163,7 @@ This code is setting the API Key necessary to work with Sendgrid, then it sends 
 
 Now your final Service code should look like this:
 
-<<< @/docs/tutorials/services/send-email-with-sendgrid/index.js
+<<< @/docs/tutorials/erc20-transfer-notifications/send-email-with-sendgrid/index.js
 
 ::: warning
 Don't forget to change the `__CHANGE_WITH_YOUR_SENDGRID_API_KEY__` with your own private Sendgrid API key that you can create here: [https://app.sendgrid.com/settings/api\_keys](https://app.sendgrid.com/settings/api_keys)​.
@@ -175,7 +175,7 @@ Your Service is now ready for the second step.
 
 This step is quite short and may not be necessary in the future. We need to edit the `Dockerfile` to make your Service compatible with Docker. In the case of a Javascript Service, the file will look like this:
 
-<<< @/docs/tutorials/services/send-email-with-sendgrid/Dockerfile
+<<< @/docs/tutorials/erc20-transfer-notifications/send-email-with-sendgrid/Dockerfile
 
 With this file, your Service can now run in Docker, but don't worry, MESG will manage all this for you.
 
@@ -191,7 +191,7 @@ Your should have a message with `Service is valid`, if not, check the previous s
 
 Now that your Service is valid, let's create a test file to test your task. Create a `test.json` file is with all the inputs needed for your task.
 
-<<< @/docs/tutorials/services/send-email-with-sendgrid/test.json
+<<< @/docs/tutorials/erc20-transfer-notifications/send-email-with-sendgrid/test.json
 
 ::: warning
 Replace the **\_\_YOUR\_EMAIL\_\_** with your own email to test it. Don't worry, this is only done locally. We will not collect it 😀
@@ -221,4 +221,4 @@ Get some rest now, you've done a good job creating your first Service with MESG.
 
 ## Final version of the source code
 
-<repository url="https://github.com/mesg-foundation/core/tree/master/docs/tutorials/services/send-email-with-sendgrid"></repository>
+<card-link url="https://github.com/mesg-foundation/core/tree/master/docs/tutorials/services/send-email-with-sendgrid"></card-link>
