@@ -273,4 +273,4 @@ This command returns the service's ID that will be required by your application.
 
 ## Final version of the source code
 
-<repository url="https://github.com/mesg-foundation/core/tree/master/docs/tutorials/services/listen-to-transfer-of-ethereum-erc20-token"></repository>
+<card-link url="https://github.com/mesg-foundation/core/tree/master/docs/tutorials/services/listen-to-transfer-of-ethereum-erc20-token"></card-link>
