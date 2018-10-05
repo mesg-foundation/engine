@@ -60,14 +60,14 @@ func (c *DockerContainer) StopService(namespace []string) (err error) {
 	if err := c.client.ServiceRemove(ctx, c.Namespace(namespace)); err != nil && !docker.IsErrNotFound(err) {
 		return err
 	}
+	// TOFIX: Hack to force Docker to remove the containers.
+	// Sometime, the ServiceRemove function doesn't remove the associated containers.
+	// This hack for Docker to stop and then remove the container.
+	// See issue https://github.com/moby/moby/issues/32620
 	if container.ContainerJSONBase != nil {
 		timeout := 1 * time.Second
-		if err := c.client.ContainerStop(ctx, container.ID, &timeout); err != nil && !docker.IsErrNotFound(err) {
-			return err
-		}
-		if err := c.client.ContainerRemove(ctx, container.ID, types.ContainerRemoveOptions{}); err != nil && !docker.IsErrNotFound(err) {
-			return err
-		}
+		c.client.ContainerStop(ctx, container.ID, &timeout)
+		c.client.ContainerRemove(ctx, container.ID, types.ContainerRemoveOptions{})
 	}
 	return c.waitForStatus(namespace, STOPPED)
 }
