@@ -84,7 +84,7 @@ workflows:
           requires:
             - "publish_docker_dev"
 
-  release_prod:
+  test_prod:
     jobs:
       - "test":
           filters:
@@ -92,10 +92,17 @@ workflows:
               only: /.*/
             branches:
               only: master
-      - "publish_docker_prod":
+
+
+  release_prod:
+    jobs:
+      - "test":
           filters:
             tags:
               only: /^v.*/
+            branches:
+              only: master
+      - "publish_docker_prod":
           requires:
             - "test"
       - "release_cli_prod":
