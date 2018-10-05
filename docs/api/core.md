@@ -856,7 +856,7 @@ The request's data for `DeployService` API.
 or
 ```json
 {
-  "url": "__SERVICE_GZIPPED_TAR_FILE_CHUNK__"
+  "chunk": "__SERVICE_GZIPPED_TAR_FILE_CHUNK__"
 }
 ```
 

@@ -185,7 +185,7 @@ message StopServiceReply {
 // or
 // ```json
 // {
-//   "url": "__SERVICE_GZIPPED_TAR_FILE_CHUNK__"
+//   "chunk": "__SERVICE_GZIPPED_TAR_FILE_CHUNK__"
 // }
 // ```
 message DeployServiceRequest {
