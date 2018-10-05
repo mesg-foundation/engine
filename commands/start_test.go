@@ -16,7 +16,7 @@ func TestStartCmdRunE(t *testing.T) {
 	c.cmd.Execute()
 
 	stdout, stderr := closeStd()
-	require.Contains(t, stdout, "Starting Core.")
+	require.Contains(t, stdout, "Starting Core")
 	require.Contains(t, stdout, "Core started")
 	require.Empty(t, stderr)
 

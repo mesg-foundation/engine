@@ -79,7 +79,7 @@ func (c *serviceInitCmd) preRunE(cmd *cobra.Command, args []string) error {
 	}
 
 	if result == addMyOwn {
-		fmt.Println("You can create and add your own template to this list.")
+		fmt.Println("You can create and add your own template to this list")
 		fmt.Println("Go to the Awesome Github to see how")
 		fmt.Println("https://github.com/mesg-foundation/awesome")
 		os.Exit(0)
@@ -113,7 +113,7 @@ func (c *serviceInitCmd) runE(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%s Service initialized in %q.\n", pretty.SuccessSign, c.dir)
+	fmt.Printf("%s Service initialized in %q\n", pretty.SuccessSign, c.dir)
 	return nil
 }
 
