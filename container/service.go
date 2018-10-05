@@ -65,7 +65,7 @@ func (c *DockerContainer) StopService(namespace []string) (err error) {
 	// This hack for Docker to stop and then remove the container.
 	// See issue https://github.com/moby/moby/issues/32620
 	if container.ContainerJSONBase != nil {
-		timeout := 5 * time.Second
+		timeout := 1 * time.Second
 		c.client.ContainerStop(ctx, container.ID, &timeout)
 		c.client.ContainerRemove(ctx, container.ID, types.ContainerRemoveOptions{})
 	}
