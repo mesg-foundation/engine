@@ -11,7 +11,7 @@ runOnDocker: &runOnDocker
   working_directory: /go/src/github.com/mesg-foundation/core
 
 jobs:
-  "test":
+  "unit_test":
     <<: *runOnDocker
     steps:
       - checkout
@@ -19,8 +19,18 @@ jobs:
       - run: docker swarm init
       - run: docker build -t sleep docker-images/sleep/
       - run: docker build -t http-server docker-images/http-server/
-      - run: go test -v -timeout 300s -p 1 -tags=integration -coverprofile=coverage.txt ./...
+      - run: go test -v -timeout 300s -p 1 -coverprofile=coverage.txt ./...
       - run: bash <(curl -s https://codecov.io/bash)
+
+  "integration_test":
+    <<: *runOnDocker
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run: docker swarm init
+      - run: docker build -t sleep docker-images/sleep/
+      - run: docker build -t http-server docker-images/http-server/
+      - run: go test -v -timeout 300s -p 1 -tags=integration ./...
 
   "publish_docker_dev":
     <<: *runOnMachine
@@ -60,7 +70,7 @@ workflows:
 
   pull_request:
     jobs:
-      - "test":
+      - "unit_test":
           filters:
             tags:
               ignore: /.*/
@@ -68,34 +78,43 @@ workflows:
               ignore:
                 - "dev"
                 - "master"
+      - "integration_test":
+          requires:
+            - "unit_test"
 
   release_dev:
     jobs:
-      - "test":
+      - "unit_test":
           filters:
             tags:
               ignore: /.*/
             branches:
               only: dev
+      - "integration_test":
+          requires:
+            - "unit_test"
       - "publish_docker_dev":
           requires:
-            - "test"
+            - "integration_test"
       - "release_cli_dev":
           requires:
             - "publish_docker_dev"
 
   release_prod:
     jobs:
-      - "test":
+      - "unit_test":
           filters:
             branches:
               only: master
+      - "integration_test":
+          requires:
+            - "unit_test"
       - "publish_docker_prod":
           filters:
             tags:
               only: /^v.*/
           requires:
-            - "test"
+            - "integration_test"
       - "release_cli_prod":
           requires:
             - "publish_docker_prod"
