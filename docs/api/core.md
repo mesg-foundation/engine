@@ -1266,8 +1266,8 @@ The reply's data of the `ListServices` API.
   "service": {
     "id": "idX",
     "name": "serviceX",
-    "description: "descriptionX",
-    "status: "statusX",
+    "description": "descriptionX",
+    "status": "statusX",
     "events": {
       "eventX": {
         "data": {
@@ -1448,8 +1448,8 @@ The reply's data of the `GetService` API.
   "service": {
     "id": "idX",
     "name": "serviceX",
-    "description: "descriptionX",
-    "status: "statusX",
+    "description": "descriptionX",
+    "status": "statusX",
     "events": {
       "eventX": {
         "data": {
@@ -1577,7 +1577,7 @@ The request's data for `ServiceLogs` API.
 ```json
 {
   "serviceID": "__SERVICE_ID__",
-  "dependencies": "__SERVICE_DEPENDENCIES__"
+  "dependencies": __SERVICE_DEPENDENCIES__
 }
 ```
 
