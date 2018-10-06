@@ -266,8 +266,8 @@ message ListServicesRequest {
 //   "service": {
 //     "id": "idX",
 //     "name": "serviceX",
-//     "description: "descriptionX",
-//     "status: "statusX",
+//     "description": "descriptionX",
+//     "status": "statusX",
 //     "events": {
 //       "eventX": {
 //         "data": {
@@ -316,8 +316,8 @@ message GetServiceRequest {
 //   "service": {
 //     "id": "idX",
 //     "name": "serviceX",
-//     "description: "descriptionX",
-//     "status: "statusX",
+//     "description": "descriptionX",
+//     "status": "statusX",
 //     "events": {
 //       "eventX": {
 //         "data": {
@@ -352,7 +352,7 @@ message GetServiceReply {
 // ```json
 // {
 //   "serviceID": "__SERVICE_ID__",
-//   "dependencies": "__SERVICE_DEPENDENCIES__"
+//   "dependencies": __SERVICE_DEPENDENCIES__
 // }
 // ```
 message ServiceLogsRequest {
