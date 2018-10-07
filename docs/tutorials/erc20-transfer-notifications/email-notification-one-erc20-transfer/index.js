@@ -16,8 +16,8 @@ const sendEmail = {
       apiKey: __SENDGRID_API_KEY__,
       from: "test@erc20notification.com",
       to: __REPLACE_WITH_YOUR_EMAIL__,
-      subject: "New transfer on TRON",
-      text: `Transfer from ${from} to ${to} with the amount ${value} -> ${transactionHash}`
+      subject: 'New ERC20 transfer',
+      text: `Transfer from ${from} to ${to} of ${value} tokens -> ${transactionHash}`
     };
   }
 };

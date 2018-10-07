@@ -46,11 +46,9 @@ mesg-core service deploy https://github.com/mesg-foundation/service-ethereum-erc
 
 Make sure to copy/paste the service ID somewhere. You will need it later.
 
-Note: By default, this service is listening for a TRON ERC20 transfer, but it can be changed by following the [service documentation](https://github.com/mesg-foundation/service-ethereum-erc20).
-
 #### Deploy the SendGrid Service
 
-This will be the same process as the ERC20:
+This will be the same process as previous service:
 
 ```bash
 mesg-core service deploy https://github.com/mesg-foundation/service-email-sendgrid
@@ -109,8 +107,8 @@ const sendEmail = {
       apiKey: __SENDGRID_API_KEY__,
       from: 'test@erc20notification.com',
       to: __REPLACE_WITH_YOUR_EMAIL__,
-      subject: 'New transfer on TRON',
-      text: `Transfer from ${from} to ${to} with the amount ${value} -> ${transactionHash}`
+      subject: 'New ERC20 transfer',
+      text: `Transfer from ${from} to ${to} of ${value} tokens -> ${transactionHash}`
     }
   }
 }
@@ -142,15 +140,12 @@ Now your application is ready.
 node index.js
 ```
 
-Your application will automatically start the services, connect to the Ethereum network, and send you an email every time a transfer occurs on the TRON ERC20 token.
+Your application will automatically start the services, connect to the Ethereum network, and send you an email every time a transfer occurs on any ERC20 token.
 
-**Note**
+Be careful, ERC20 tokens have a lot of activity so it is possible to have thousands of emails per day and reach the SendGrid limit if you leave your application running.
 
-Be patient, as it's based on real transfers on the TRON ERC20 token, you might have to wait a few minutes before any transfer occurs. You can see the activity of the TRON token on [Etherscan](https://etherscan.io/token/0xf230b790e05390fc8295f4d3f60332c93bed42e2).
-
-Be careful, the TRON token could see a surge of activity so it is possible to have thousands of emails per day and reach the SendGrid limit if you leave your application running.
 
 ### Final version of the source code
 
-<card-link url="https://github.com/mesg-foundation/core/tree/master/docs/tutorials/applications/email-notification-one-erc20-transfer"></card-link>
+<card-link url="https://github.com/mesg-foundation/core/tree/master/docs/tutorials/erc20-transfer-notifications/email-notification-one-erc20-transfer"></card-link>
 
