@@ -272,7 +272,7 @@ message ListServicesRequest {
 //       "key": "eventX",
 //       "name": "nameX",
 //       "description": "descriptionX",
-//       "data":[{  
+//       "data": [{  
 //         "key": "dataX",
 //         "name": "nameX",
 //         "description": "descriptionX",
@@ -280,7 +280,7 @@ message ListServicesRequest {
 //         "optional": true
 //       }]
 //     }],
-//     "tasks":[{
+//     "tasks": [{
 //       "key": "taskX",
 //       "name": "nameX",
 //       "description": "descriptionX",
@@ -337,7 +337,7 @@ message GetServiceRequest {
 //       "key": "eventX",
 //       "name": "nameX",
 //       "description": "descriptionX",
-//       "data":[{  
+//       "data": [{  
 //         "key": "dataX",
 //         "name": "nameX",
 //         "description": "descriptionX",
@@ -345,7 +345,7 @@ message GetServiceRequest {
 //         "optional": true
 //       }]
 //     }],
-//     "tasks":[{
+//     "tasks": [{
 //       "key": "taskX",
 //       "name": "nameX",
 //       "description": "descriptionX",
