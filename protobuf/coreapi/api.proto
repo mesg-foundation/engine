@@ -262,8 +262,8 @@ message ListServicesRequest {
 //
 // **Example**
 // ```json
-// [{
-//   "service": {
+// {
+//   "services": [{
 //     "id": "idX",
 //     "name": "serviceX",
 //     "description": "descriptionX",
@@ -304,8 +304,8 @@ message ListServicesRequest {
 //         }]
 //       }]
 //     }]
-//   }
-// }]
+//   }]
+// }
 // ```
 message ListServicesReply {
   repeated Service services = 1; // The list of previously-deployed services' definitions.
