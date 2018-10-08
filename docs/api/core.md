@@ -1272,7 +1272,7 @@ The reply's data of the `ListServices` API.
       "key": "eventX",
       "name": "nameX",
       "description": "descriptionX",
-      "data":[{  
+      "data": [{  
         "key": "dataX",
         "name": "nameX",
         "description": "descriptionX",
@@ -1280,7 +1280,7 @@ The reply's data of the `ListServices` API.
         "optional": true
       }]
     }],
-    "tasks":[{
+    "tasks": [{
       "key": "taskX",
       "name": "nameX",
       "description": "descriptionX",
@@ -1469,7 +1469,7 @@ The reply's data of the `GetService` API.
       "key": "eventX",
       "name": "nameX",
       "description": "descriptionX",
-      "data":[{  
+      "data": [{  
         "key": "dataX",
         "name": "nameX",
         "description": "descriptionX",
@@ -1477,7 +1477,7 @@ The reply's data of the `GetService` API.
         "optional": true
       }]
     }],
-    "tasks":[{
+    "tasks": [{
       "key": "taskX",
       "name": "nameX",
       "description": "descriptionX",
