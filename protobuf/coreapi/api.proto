@@ -382,7 +382,7 @@ message GetServiceReply {
 // ```json
 // {
 //   "serviceID": "__SERVICE_ID__",
-//   "dependencies": __SERVICE_DEPENDENCIES__
+//   "dependencies": [__SERVICE_DEPENDENCY__]
 // }
 // ```
 message ServiceLogsRequest {
