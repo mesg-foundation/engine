@@ -1262,8 +1262,8 @@ The reply's data of the `ListServices` API.
 
 **Example**
 ```json
-[{
-  "service": {
+{
+  "services": [{
     "id": "idX",
     "name": "serviceX",
     "description": "descriptionX",
@@ -1304,8 +1304,8 @@ The reply's data of the `ListServices` API.
         }]
       }]
     }]
-  }
-}]
+  }]
+}
 ```
 
 
