@@ -1268,27 +1268,42 @@ The reply's data of the `ListServices` API.
     "name": "serviceX",
     "description": "descriptionX",
     "status": "statusX",
-    "events": {
-      "eventX": {
-        "data": {
-          "dataX": { "type": "String" }
-        }
-      }
-    },
-    "tasks": {
-      "taskX": {
-        "inputs": {
-          "foo": { "type": "String" }
-        },
-        "outputs": {
-          "outputX": {
-            "data": {
-              "resX": { "type": "String" }
-            }
-          }
-        }
-      }
-    }
+    "events": [{
+      "key": "eventX",
+      "name": "nameX",
+      "description": "descriptionX",
+      "data":[{  
+        "key": "dataX",
+        "name": "nameX",
+        "description": "descriptionX",
+        "type": "String",
+        "optional": true
+      }]
+    }],
+    "tasks":[{
+      "key": "taskX",
+      "name": "nameX",
+      "description": "descriptionX",
+      "inputs": [{
+        "key": "foo",
+        "name": "nameX",
+        "description": "descriptionX",
+        "type": "String",
+        "optional": true
+      }],
+      "outputs": [{
+        "key": "outputX",
+        "name": "nameX",
+        "description": "descriptionX",
+        "data": [{  
+          "key": "resX",
+          "name": "nameX",
+          "description": "descriptionX",
+          "type": "String",
+          "optional": false
+        }]
+      }]
+    }]
   }
 }]
 ```
@@ -1450,27 +1465,42 @@ The reply's data of the `GetService` API.
     "name": "serviceX",
     "description": "descriptionX",
     "status": "statusX",
-    "events": {
-      "eventX": {
-        "data": {
-          "dataX": { "type": "String" }
-        }
-      }
-    },
-    "tasks": {
-      "taskX": {
-        "inputs": {
-          "foo": { "type": "String" }
-        },
-        "outputs": {
-          "outputX": {
-            "data": {
-              "resX": { "type": "String" }
-            }
-          }
-        }
-      }
-    }
+    "events": [{  
+      "key": "eventX",
+      "name": "nameX",
+      "description": "descriptionX",
+      "data":[{  
+        "key": "dataX",
+        "name": "nameX",
+        "description": "descriptionX",
+        "type": "String",
+        "optional": true
+      }]
+    }],
+    "tasks":[{
+      "key": "taskX",
+      "name": "nameX",
+      "description": "descriptionX",
+      "inputs": [{  
+        "key": "foo",
+        "name": "nameX",
+        "description": "descriptionX",
+        "type": "String",
+        "optional": true
+      }],
+      "outputs": [{
+        "key": "outputX",
+        "name": "nameX",
+        "description": "descriptionX",
+        "data": [{  
+          "key": "resX",
+          "name": "nameX",
+          "description": "descriptionX",
+          "type": "String",
+          "optional": false
+        }]
+      }]
+    }]
   }
 }
 ```
@@ -1577,7 +1607,7 @@ The request's data for `ServiceLogs` API.
 ```json
 {
   "serviceID": "__SERVICE_ID__",
-  "dependencies": __SERVICE_DEPENDENCIES__
+  "dependencies": [__SERVICE_DEPENDENCY__]
 }
 ```
 
