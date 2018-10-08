@@ -14,8 +14,11 @@ type SystemServices struct{}
 
 // New creates a new SystemServices instance.
 // It accepts an instance of the API package.
-// It starts all system services.
 // It reads the services' ID from the config package.
+// It starts all system services.
+// It waits for all system services to run.
+// If services' ID are not in the config, it should return an error.
+// IF the services don't start properly, it should return an error.
 func New(api *api.API) (*SystemServices, error) {
 	return nil, nil
 }
