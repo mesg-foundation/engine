@@ -97,11 +97,15 @@ func (options *ServiceOptions) swarmMounts(force bool) []mount.Mount {
 	return mounts
 }
 
+// swarmNetworks creates all necessary network attachment configurations
+// Each network will be attached based on their networkID but also based on aliases
+// These aliases will make services accessible from other containers inside the same network
 func (options *ServiceOptions) swarmNetworks() (networks []swarm.NetworkAttachmentConfig) {
 	networks = make([]swarm.NetworkAttachmentConfig, len(options.NetworksID))
 	for i, networkID := range options.NetworksID {
 		networks[i] = swarm.NetworkAttachmentConfig{
-			Target: networkID,
+			Target:  networkID,
+			Aliases: options.Namespace,
 		}
 	}
 	return
