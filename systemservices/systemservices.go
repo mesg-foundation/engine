@@ -56,17 +56,11 @@ var systemServices = map[systemService]string{
 
 // initSystemServices initializes all system services.
 func (s *SystemServices) initSystemServices(services []*service.Service) error {
-	var err error
-
 	// init resolver system service.
 	resolverServiceID := s.getServiceID(services, systemServices[resolverService])
 	if resolverServiceID == "" {
 		return &systemServiceNotFound{name: systemServices[resolverService]}
 	}
-	s.resolverService, err = resolver.New(resolverServiceID, s.api)
-	if err != nil {
-		return err
-	}
-
+	s.resolverService = resolver.New(resolverServiceID, s.api)
 	return nil
 }
