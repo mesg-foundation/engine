@@ -54,6 +54,8 @@ func serviceSpec() (spec container.ServiceOptions, err error) {
 				Published: uint32(port),
 			},
 		},
-		NetworksID: []string{sharedNetworkID},
+		Networks: []container.Network{
+			{ID: sharedNetworkID},
+		},
 	}, nil
 }

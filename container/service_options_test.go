@@ -110,12 +110,18 @@ func TestServiceOptionEnv(t *testing.T) {
 
 func TestServiceOptionNetworks(t *testing.T) {
 	options := &ServiceOptions{
-		NetworksID: []string{"network1", "network2"},
+		Networks: []Network{
+			Network{ID: "network1"},
+			Network{ID: "network2", Alias: "test"},
+		},
 	}
 	networks := options.swarmNetworks()
 	require.Equal(t, 2, len(networks))
 	require.Equal(t, "network1", networks[0].Target)
+	require.Equal(t, 0, len(networks[0].Aliases))
 	require.Equal(t, "network2", networks[1].Target)
+	require.Equal(t, 1, len(networks[1].Aliases))
+	require.Equal(t, "test", networks[1].Aliases[0])
 }
 
 func contains(list []string, item string) bool {
