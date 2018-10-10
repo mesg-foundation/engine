@@ -74,3 +74,13 @@ func (s *SystemServices) deployService(path string) (*service.Service, error) {
 	}
 	return service, nil
 }
+
+// getServiceID returns the service id of the service that it's name matches with name.
+func (s *SystemServices) getServiceID(services []*service.Service, name string) string {
+	for _, s := range services {
+		if s.Name == name {
+			return s.ID
+		}
+	}
+	return ""
+}
