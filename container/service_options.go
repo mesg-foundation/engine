@@ -12,14 +12,20 @@ import (
 
 // ServiceOptions is a simplify version of swarm.ServiceSpec.
 type ServiceOptions struct {
-	Image      string
-	Namespace  []string
-	Ports      []Port
-	Mounts     []Mount
-	Env        []string // TODO: should be transform to  map[string]string and use the func mapToEnv
-	Args       []string
-	NetworksID []string
-	Labels     map[string]string
+	Image     string
+	Namespace []string
+	Ports     []Port
+	Mounts    []Mount
+	Env       []string // TODO: should be transform to  map[string]string and use the func mapToEnv
+	Args      []string
+	Networks  []Network
+	Labels    map[string]string
+}
+
+// Network contains an ID of a docker network and it's associated optional alias
+type Network struct {
+	ID    string // ID of the docker network
+	Alias string // Alias is an optional attribute to name this network and be able to access it using this name
 }
 
 // Port is a simplify version of swarm.PortConfig.
@@ -101,11 +107,15 @@ func (options *ServiceOptions) swarmMounts(force bool) []mount.Mount {
 // Each network will be attached based on their networkID but also based on aliases
 // These aliases will make services accessible from other containers inside the same network
 func (options *ServiceOptions) swarmNetworks() (networks []swarm.NetworkAttachmentConfig) {
-	networks = make([]swarm.NetworkAttachmentConfig, len(options.NetworksID))
-	for i, networkID := range options.NetworksID {
+	networks = make([]swarm.NetworkAttachmentConfig, len(options.Networks))
+	for i, network := range options.Networks {
+		aliases := make([]string, 0)
+		if network.Alias != "" {
+			aliases = append(aliases, network.Alias)
+		}
 		networks[i] = swarm.NetworkAttachmentConfig{
-			Target:  networkID,
-			Aliases: options.Namespace,
+			Target:  network.ID,
+			Aliases: aliases,
 		}
 	}
 	return
