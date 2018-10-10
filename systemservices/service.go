@@ -75,6 +75,31 @@ func (s *SystemServices) deployService(path string) (*service.Service, error) {
 	return service, nil
 }
 
+// startService starts the services.
+func (s *SystemServices) startServices(services []*service.Service) error {
+	var (
+		errs xerrors.Errors
+		m    sync.Mutex
+
+		wg sync.WaitGroup
+	)
+
+	wg.Add(len(services))
+	for _, ss := range services {
+		go func(id string) {
+			defer wg.Done()
+			if err := s.api.StartService(id); err != nil {
+				m.Lock()
+				defer m.Unlock()
+				errs = append(errs, err)
+			}
+		}(ss.ID)
+	}
+
+	wg.Wait()
+	return errs.ErrorOrNil()
+}
+
 // getServiceID returns the service id of the service that it's name matches with name.
 func (s *SystemServices) getServiceID(services []*service.Service, name string) string {
 	for _, s := range services {

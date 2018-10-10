@@ -36,6 +36,9 @@ func New(api *api.API, systemServicesPath string) (*SystemServices, error) {
 	if err != nil {
 		return nil, err
 	}
+	if err := s.startServices(services); err != nil {
+		return nil, err
+	}
 	return s, s.initSystemServices(services)
 }
 
