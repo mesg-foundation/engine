@@ -3,6 +3,7 @@ package systemservices
 import (
 	"io/ioutil"
 	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/docker/docker/pkg/archive"
@@ -64,6 +65,11 @@ func (s *SystemServices) deploySystemServices() ([]*service.Service, error) {
 
 	for _, file := range files {
 		dirName := file.Name()
+
+		// ignore dot files/dirs. (e.g. .DS_Store)
+		if strings.HasPrefix(dirName, ".") {
+			continue
+		}
 		if !file.IsDir() {
 			return nil, &notDirectoryError{fileName: dirName}
 		}

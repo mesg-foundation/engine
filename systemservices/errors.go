@@ -4,6 +4,8 @@ import (
 	"fmt"
 )
 
+// notDirectoryError is returned when a dir expected but
+// instead a file found.
 type notDirectoryError struct {
 	fileName string
 }
