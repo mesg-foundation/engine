@@ -47,11 +47,6 @@ func (r *Resolver) AddPeers(addresses []string) error {
 	}
 }
 
-// ResolveFoundOutput is the found output data of resolve task.
-type ResolveFoundOutput struct {
-	Address string `json:"address"` // Address is the IP address of core peer.
-}
-
 // Resolve is the task that return the address of a core that runs the desired service.
 func (r *Resolver) Resolve(serviceID string) (address string, err error) {
 	e, err := r.api.ExecuteAndListen(r.serviceID, resolveTask, map[string]interface{}{
@@ -60,7 +55,7 @@ func (r *Resolver) Resolve(serviceID string) (address string, err error) {
 
 	switch e.Output {
 	case "found":
-		return e.OutputData["found"].(*ResolveFoundOutput).Address, nil
+		return e.OutputData["address"].(string), nil
 	case "notFound":
 		return "", fmt.Errorf("address for service id %s not found", serviceID)
 	case "error":
