@@ -109,14 +109,13 @@ func (options *ServiceOptions) swarmMounts(force bool) []mount.Mount {
 func (options *ServiceOptions) swarmNetworks() (networks []swarm.NetworkAttachmentConfig) {
 	networks = make([]swarm.NetworkAttachmentConfig, len(options.Networks))
 	for i, network := range options.Networks {
-		aliases := make([]string, 0)
+		cfg := swarm.NetworkAttachmentConfig{
+			Target: network.ID,
+		}
 		if network.Alias != "" {
-			aliases = append(aliases, network.Alias)
+			cfg.Aliases = []string{network.Alias}
 		}
-		networks[i] = swarm.NetworkAttachmentConfig{
-			Target:  network.ID,
-			Aliases: aliases,
-		}
+		networks[i] = cfg
 	}
 	return
 }
