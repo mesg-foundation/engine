@@ -67,13 +67,3 @@ func (s *SystemServices) initSystemServices(services []*service.Service) error {
 
 	return nil
 }
-
-// getServiceID returns the service id of the service that it's name matches with name.
-func (s *SystemServices) getServiceID(services []*service.Service, name string) string {
-	for _, s := range services {
-		if s.Name == name {
-			return s.ID
-		}
-	}
-	return ""
-}
