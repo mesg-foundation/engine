@@ -48,7 +48,7 @@ func (r *Resolver) AddPeers(addresses []string) error {
 	}
 }
 
-// Resolve return the address of a peer(node) that runs the desired service.
+// Resolve returns the address of a peer(node) that runs the desired service.
 func (r *Resolver) Resolve(serviceID string) (address string, err error) {
 	e, err := r.api.ExecuteAndListen(r.serviceID, resolveTask, map[string]interface{}{
 		"serviceID": serviceID,
