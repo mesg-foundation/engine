@@ -7,7 +7,7 @@ import (
 )
 
 // list of system services.
-// these names are also paths of system services in the filesystem.
+// these names are also relative paths of system services in the filesystem.
 const (
 	resolverService = "resolver"
 )
@@ -22,7 +22,7 @@ var systemServicesList = []string{
 type systemService struct {
 	*service.Service
 
-	// name is unique name of system service.
+	// name is the unique name of system service.
 	// it's also the relative path of system service in the filesystem.
 	name string
 }
@@ -68,6 +68,11 @@ func New(api *api.API, systemServicesPath string) (*SystemServices, error) {
 		return nil, err
 	}
 	return s, s.initServices(services)
+}
+
+// Resolver returns the Resolver instance using the running Resolver service.
+func (s *SystemServices) Resolver() *resolver.Resolver {
+	return s.resolverService
 }
 
 // initServices initializes all system services.
