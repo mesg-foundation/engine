@@ -22,13 +22,13 @@ type ServiceOptions struct {
 	Labels    map[string]string
 }
 
-// Network contains an ID of a docker network and it's associated optional alias.
+// Network keeps the network info for service.
 type Network struct {
 	// ID of the docker network.
 	ID string
 
 	// Alias is an optional attribute to name this service in the
-	// network and be able to access it using this name.
+	// network and be able to access to it using this name.
 	Alias string
 }
 
