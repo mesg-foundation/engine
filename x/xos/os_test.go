@@ -38,6 +38,49 @@ func TestExist(t *testing.T) {
 	}
 }
 
+// TestDirExist tests the existence of a dir in different ways
+// by testing against non existent dir, an existent file and a dir.
+func TestDirExists(t *testing.T) {
+	name := filepath.Join(os.TempDir(), "__test-dir")
+	defer Remove(name)
+
+	if err := Touch(name); err != nil {
+		t.Fatalf("Touch failed: %s", err)
+	}
+
+	exists, err := DirExists(name)
+	if err != nil {
+		t.Fatalf("DirExist failed: %s", err)
+	}
+	if exists {
+		t.Fatalf("DirExist got: %t, want: %t ", true, false)
+	}
+
+	if err := Remove(name); err != nil {
+		t.Fatalf("Remove failed: %s", err)
+	}
+
+	if err := os.Mkdir(name, os.ModeDir); err != nil {
+		t.Fatalf("Mkdir failed: %s", err)
+	}
+
+	exists, err = DirExists(name)
+	if err != nil {
+		t.Fatalf("DirExist failed: %s", err)
+	}
+	if !exists {
+		t.Fatalf("DirExist got: %t, want: %t ", false, true)
+	}
+
+	exists, err = DirExists(name + "0")
+	if err != nil {
+		t.Fatalf("DirExist failed: %s", err)
+	}
+	if exists {
+		t.Fatalf("DirExist got: %t, want: %t ", true, false)
+	}
+}
+
 func TestCopyDir(t *testing.T) {
 	var (
 		srcdir    = filepath.Join(os.TempDir(), "__test-dir-src")
