@@ -1,3 +1,4 @@
+// Package resolver is a wrapper for system resolver service to call it's tasks.
 package resolver
 
 import (
