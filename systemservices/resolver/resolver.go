@@ -10,8 +10,8 @@ import (
 
 // Resolvers tasks.
 const (
-	addPeersTask = "AddPeers"
-	resolveTask  = "Resolve"
+	addPeersTask = "addPeers"
+	resolveTask  = "resolve"
 )
 
 // Resolver is the system service that responsible from finding the addresses
@@ -32,8 +32,17 @@ func New(serviceID string, api *api.API) *Resolver {
 
 // AddPeers attaches peers(nodes) to resolver.
 func (r *Resolver) AddPeers(addresses []string) error {
+	// TODO: this hack is not something that we should do but
+	// it's needed because *parameterValidator is not able to identify
+	// string slices for now.
+	var addressesInterface []interface{}
+	for _, address := range addresses {
+		addressesInterface = append(addressesInterface, address)
+	}
+
+	// TODO: timeout?
 	e, err := r.api.ExecuteAndListen(r.serviceID, addPeersTask, map[string]interface{}{
-		"addresses": addresses,
+		"addresses": addressesInterface,
 	})
 	if err != nil {
 		return err

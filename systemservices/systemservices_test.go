@@ -16,8 +16,8 @@ func TestNew(t *testing.T) {
 	require.NoError(t, err)
 
 	var (
-		pluginsPath  = filepath.Join(conf.Core.Path, conf.SystemServices.RelativePath)
-		databasePath = filepath.Join(conf.Core.Path, conf.Core.Database.RelativePath)
+		systemServicesPath = filepath.Join(conf.Core.Path, conf.SystemServices.RelativePath)
+		databasePath       = filepath.Join(conf.Core.Path, conf.Core.Database.RelativePath)
 	)
 
 	db, err := database.NewServiceDB(databasePath)
@@ -26,7 +26,7 @@ func TestNew(t *testing.T) {
 	a, err := api.New(db)
 	require.NoError(t, err)
 
-	s, err := New(a, pluginsPath)
+	s, err := New(a, systemServicesPath)
 	require.NoError(t, err)
 	require.NotZero(t, s)
 }
