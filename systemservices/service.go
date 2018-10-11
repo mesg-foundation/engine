@@ -1,63 +1,55 @@
 package systemservices
 
 import (
-	"io/ioutil"
 	"path/filepath"
-	"strings"
 	"sync"
 
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/x/xerrors"
+	"github.com/mesg-foundation/core/x/xos"
 )
 
-// deploySystemServices deploys system services placed inside the system services path.
-func (s *SystemServices) deploySystemServices() ([]*service.Service, error) {
-	files, err := ioutil.ReadDir(s.systemServicesPath)
-	if err != nil {
-		return nil, err
-	}
-
+// deployServices deploys system services.
+func (s *SystemServices) deployServices(services []*systemService) error {
 	var (
-		services []*service.Service
-		errs     xerrors.Errors
-		m        sync.Mutex
+		// errs are the deployment errors.
+		errs xerrors.Errors
+		m    sync.Mutex
 
 		wg sync.WaitGroup
 	)
 
-	for _, file := range files {
-		dirName := file.Name()
-
-		// ignore dot files/dirs. (e.g. .DS_Store)
-		if strings.HasPrefix(dirName, ".") {
-			continue
-		}
-		if !file.IsDir() {
-			return nil, &notDirectoryError{fileName: dirName}
-		}
-
+	for _, ss := range services {
 		wg.Add(1)
-		go func(dirName string) {
+		go func(ss *systemService) {
 			defer wg.Done()
-			path := filepath.Join(s.systemServicesPath, dirName)
-			s, err := s.deployService(path)
+			s, err := s.deployService(ss.name)
 			m.Lock()
 			defer m.Unlock()
 			if err != nil {
 				errs = append(errs, err)
 				return
 			}
-			services = append(services, s)
-		}(dirName)
+			ss.Service = s
+		}(ss)
 	}
 
 	wg.Wait()
-	return services, errs.ErrorOrNil()
+	return errs.ErrorOrNil()
 }
 
-// deployService deploys a service living in path.
-func (s *SystemServices) deployService(path string) (*service.Service, error) {
+// deployService deploys a system service living in relativePath.
+func (s *SystemServices) deployService(relativePath string) (*service.Service, error) {
+	path := filepath.Join(s.systemServicesPath, relativePath)
+	exists, err := xos.DirExists(path)
+	if err != nil {
+		return nil, err
+	}
+	if !exists {
+		return nil, &systemServiceNotFoundError{name: relativePath}
+	}
+
 	archive, err := archive.TarWithOptions(path, &archive.TarOptions{
 		Compression: archive.Gzip,
 	})
@@ -75,37 +67,39 @@ func (s *SystemServices) deployService(path string) (*service.Service, error) {
 	return service, nil
 }
 
-// startService starts the services.
-func (s *SystemServices) startServices(services []*service.Service) error {
+// startService starts the system services.
+func (s *SystemServices) startServices(services []*systemService) error {
 	var (
+		// errs are the service starting errors.
 		errs xerrors.Errors
 		m    sync.Mutex
 
 		wg sync.WaitGroup
 	)
 
-	wg.Add(len(services))
 	for _, ss := range services {
-		go func(id string) {
+		wg.Add(1)
+		go func(ss *systemService) {
 			defer wg.Done()
-			if err := s.api.StartService(id); err != nil {
+			if err := s.api.StartService(ss.ID); err != nil {
 				m.Lock()
 				defer m.Unlock()
 				errs = append(errs, err)
 			}
-		}(ss.ID)
+		}(ss)
 	}
 
 	wg.Wait()
 	return errs.ErrorOrNil()
 }
 
-// getServiceID returns the service id of the service that it's name matches with name.
-func (s *SystemServices) getServiceID(services []*service.Service, name string) string {
+// getServiceID returns the service id of a system service that matches with name.
+// name compared with the unique name/relative path of system service.
+func (s *SystemServices) getServiceID(services []*systemService, name string) string {
 	for _, s := range services {
-		if s.Name == name {
+		if s.name == name {
 			return s.ID
 		}
 	}
-	return ""
+	panic("unreachable")
 }
