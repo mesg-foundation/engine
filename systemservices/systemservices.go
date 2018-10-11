@@ -1,3 +1,5 @@
+// Package systemservices is responsible to manage all system services
+// by executing their tasks, reacting on their task results and events.
 package systemservices
 
 import (
