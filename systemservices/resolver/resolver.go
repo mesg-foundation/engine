@@ -41,7 +41,7 @@ func (r *Resolver) AddPeers(addresses []string) error {
 	case "success":
 		return nil
 	case "error":
-		return errors.New(e.OutputData["error"].(string))
+		return errors.New(e.OutputData["message"].(string))
 	default:
 		return fmt.Errorf("unexpected output %s", e.Output)
 	}
@@ -59,7 +59,7 @@ func (r *Resolver) Resolve(serviceID string) (address string, err error) {
 	case "notFound":
 		return "", fmt.Errorf("address for service id %s not found", serviceID)
 	case "error":
-		return "", errors.New(e.OutputData["error"].(string))
+		return "", errors.New(e.OutputData["message"].(string))
 	default:
 		return "", fmt.Errorf("unexpected output %s", e.Output)
 	}
