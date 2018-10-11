@@ -22,10 +22,14 @@ type ServiceOptions struct {
 	Labels    map[string]string
 }
 
-// Network contains an ID of a docker network and it's associated optional alias
+// Network contains an ID of a docker network and it's associated optional alias.
 type Network struct {
-	ID    string // ID of the docker network
-	Alias string // Alias is an optional attribute to name this network and be able to access it using this name
+	// ID of the docker network.
+	ID string
+
+	// Alias is an optional attribute to name this service in the
+	// network and be able to access it using this name.
+	Alias string
 }
 
 // Port is a simplify version of swarm.PortConfig.
@@ -103,9 +107,10 @@ func (options *ServiceOptions) swarmMounts(force bool) []mount.Mount {
 	return mounts
 }
 
-// swarmNetworks creates all necessary network attachment configurations
-// Each network will be attached based on their networkID but also based on aliases
-// These aliases will make services accessible from other containers inside the same network
+// swarmNetworks creates all necessary network attachment configurations for service.
+// each network will be attached based on their networkID and an alias can be used to
+// identify service in the network.
+// aliases will make services accessible from other containers inside the same network.
 func (options *ServiceOptions) swarmNetworks() (networks []swarm.NetworkAttachmentConfig) {
 	networks = make([]swarm.NetworkAttachmentConfig, len(options.Networks))
 	for i, network := range options.Networks {
@@ -117,7 +122,7 @@ func (options *ServiceOptions) swarmNetworks() (networks []swarm.NetworkAttachme
 		}
 		networks[i] = cfg
 	}
-	return
+	return networks
 }
 
 func mergeLabels(l1 map[string]string, l2 map[string]string) map[string]string {
