@@ -9,12 +9,13 @@ import (
 
 // Resolvers tasks.
 const (
-	addPeersTask string = "AddPeers"
-	resolveTask         = "Resolve"
+	addPeersTask = "AddPeers"
+	resolveTask  = "Resolve"
 )
 
-// Resolver is the system service responsible for getting the address of
-// other node of the network that are running the desired service.
+// Resolver is the system service that responsible from finding the addresses
+// of other peers(nodes) in the network that are running the desired services.
+// This Resolver is a wrapper for system resolver service to call it's tasks.
 type Resolver struct {
 	api       *api.API
 	serviceID string
@@ -28,7 +29,7 @@ func New(serviceID string, api *api.API) *Resolver {
 	}
 }
 
-// AddPeers is the task that actually new add peers to the service.
+// AddPeers attaches peers(nodes) to resolver.
 func (r *Resolver) AddPeers(addresses []string) error {
 	e, err := r.api.ExecuteAndListen(r.serviceID, addPeersTask, map[string]interface{}{
 		"addresses": addresses,
@@ -47,7 +48,7 @@ func (r *Resolver) AddPeers(addresses []string) error {
 	}
 }
 
-// Resolve is the task that return the address of a core that runs the desired service.
+// Resolve return the address of a peer(node) that runs the desired service.
 func (r *Resolver) Resolve(serviceID string) (address string, err error) {
 	e, err := r.api.ExecuteAndListen(r.serviceID, resolveTask, map[string]interface{}{
 		"serviceID": serviceID,
