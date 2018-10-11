@@ -89,8 +89,8 @@ dependencies:
       - "1234"
 ```
 
-Keys of your dependencies are used as **hostname** to access from your service.
-In this example you can access your dependency calling the `http://serviceToConnectWith:1234` endpoint.
+Each dependency's key is used as their **hostname** on the shared network between the service and dependencies.
+In this example, the service can access the dependency at the endpoint `serviceToConnectWith:1234`.
 
 ::: tip Get Help
 You need help ? Check out the <a href="https://forum.mesg.com" target="_blank">MESG Forum</a>.
