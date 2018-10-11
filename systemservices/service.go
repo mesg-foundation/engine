@@ -24,14 +24,14 @@ func (s *SystemServices) deployServices(services []*systemService) error {
 		wg.Add(1)
 		go func(ss *systemService) {
 			defer wg.Done()
-			s, err := s.deployService(ss.name)
+			sr, err := s.deployService(ss.name)
 			m.Lock()
 			defer m.Unlock()
 			if err != nil {
 				errs = append(errs, err)
 				return
 			}
-			ss.Service = s
+			ss.Service = sr
 		}(ss)
 	}
 
@@ -57,14 +57,14 @@ func (s *SystemServices) deployService(relativePath string) (*service.Service, e
 		return nil, err
 	}
 
-	service, validationErr, err := s.api.DeployService(archive)
+	sr, validationErr, err := s.api.DeployService(archive)
 	if err != nil {
 		return nil, err
 	}
 	if validationErr != nil {
 		return nil, validationErr
 	}
-	return service, nil
+	return sr, nil
 }
 
 // startService starts the system services.
