@@ -1,5 +1,5 @@
 {
-  "name": "email-notification-one-erc20-transfer",
+  "name": "email-notification-on-erc20-transfer",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",

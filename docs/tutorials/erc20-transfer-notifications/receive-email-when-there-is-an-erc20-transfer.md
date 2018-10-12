@@ -3,22 +3,17 @@ title: Receive email when there is an ERC20 transfer
 description: >-
   Tutorial: How to create an application that sends an email every time there is
   a transfer on an ERC20 smart contract.
-published_link: 'https://docs.mesg.com/tutorials/applications/receive-email-when-there-is-an-erc20-transfer.html'
+published_link: 'https://docs.mesg.com/tutorials/erc20-transfer-notifications/receive-email-when-there-is-an-erc20-transfer.html'
 ---
 
 # Receive email when there is an ERC20 transfer
 
-Today we'll learn how to create a JavaScript application that connects two MESG Services:
-
-* [Service Ethereum ERC20](https://github.com/mesg-foundation/service-ethereum-erc20)
-* [Service Email SendGrid](https://github.com/mesg-foundation/service-email-sendgrid)
-
-Those two services have tutorial on how to create them. Check them out:
+Today we'll learn how to create a JavaScript application that connects the two previously created MESG Services:
 
 * [Tutorial: Transfer notifications from an ERC20 transfer](./listen-for-transfers-of-an-ethereum-erc20-token.md)
 * [Tutorial: Sending emails through SendGrid](./send-emails-with-sendgrid.md)
 
-You can access the final version of the [source code on GitHub](https://github.com/mesg-foundation/core/tree/master/docs/tutorials/applications/email-notification-one-erc20-transfer).
+You can access the final version of the [source code on GitHub](https://github.com/mesg-foundation/core/tree/master/docs/tutorials/erc20-transfer-notifications/email-notification-on-erc20-transfer).
 
 ::: tip
 MESG Core should already be installed on your computer. If it isn't yet, [install it here](../../guide/start-here/installation.html).
@@ -41,7 +36,7 @@ We'll start with our two already-created services. If you haven't already, make 
 #### Deploy the ERC20 Service
 
 ```bash
-mesg-core service deploy https://github.com/mesg-foundation/service-ethereum-erc20
+mesg-core service deploy ./PATH_TO_THE_ERC20_SERVICE
 ```
 
 Make sure to copy/paste the service ID somewhere. You will need it later.
@@ -51,7 +46,7 @@ Make sure to copy/paste the service ID somewhere. You will need it later.
 This will be the same process as previous service:
 
 ```bash
-mesg-core service deploy https://github.com/mesg-foundation/service-email-sendgrid
+mesg-core service deploy ./PATH_TO_THE_SENDGRID_SERVICE
 ```
 
 Make sure to copy/paste the service ID somewhere. You will need it later.
@@ -85,12 +80,12 @@ Let's define a variable for the event we want to listen to:
 ```javascript
 // Event we need to listen
 const erc20Transfer = {
-  serviceID: __ERC20_SERVICE_ID__, // The serviceID of the ERC20 service deployed
+  serviceID: '__ERC20_SERVICE_ID__', // The serviceID of the ERC20 service deployed
   filter: 'transfer' // The event we want to listen
 }
 ```
 
-Replace `__ERC20_SERVICE_ID__` with the right values. You can deploy the ERC20 service again if you didn't copy its service ID.
+Replace `__ERC20_SERVICE_ID__` with service ID of the ERC20 service. You can deploy the ERC20 service again if you didn't copy its service ID.
 
 ### Execute the send email task
 
@@ -99,16 +94,16 @@ Let's define another variable for the task we want to execute:
 ```javascript
 // Task to execute
 const sendEmail = {
-  serviceID: __SENDGRID_SERVICE_ID__, // The serviceID of the service to send emails
+  serviceID: '__SENDGRID_SERVICE_ID__', // The serviceID of the service to send emails
   taskKey: 'send', // The task we want to execute
-  inputs: (eventKey, { from, to, value, transactionHash }) => { // a function that returns the inputs for the send task based on the data of the event
-    console.log('new transfer received with hash', transactionHash)
+  inputs: (eventKey, eventData) => { // This function returns the inputs for of task send based on the data of the event
+    console.log('New ERC20 transfer received. will send an email. Transaction hash:', eventData.transactionHash)
     return {
-      apiKey: __SENDGRID_API_KEY__,
+      apiKey: '__SENDGRID_API_KEY__',
       from: 'test@erc20notification.com',
-      to: __REPLACE_WITH_YOUR_EMAIL__,
+      to: '__REPLACE_WITH_YOUR_EMAIL__',
       subject: 'New ERC20 transfer',
-      text: `Transfer from ${from} to ${to} of ${value} tokens -> ${transactionHash}`
+      text: `Transfer from ${eventData.from} to ${eventData.to} of ${eventData.value} tokens -> ${eventData.transactionHash}`
     }
   }
 }
@@ -130,6 +125,7 @@ Then simply add the `whenEvent` function at the end of your code to link the eve
 
 ```javascript
 MESG.whenEvent(erc20Transfer, sendEmail)
+console.log('Listening ERC20 transfer...')
 ```
 
 #### Run it!
@@ -142,10 +138,15 @@ node index.js
 
 Your application will automatically start the services, connect to the Ethereum network, and send you an email every time a transfer occurs on any ERC20 token.
 
+As it is based on the ERC20 transfer activity, it could take a while to receive the first email. You can check the logs of the service ERC20 by running the command (replace `__ERC20_SERVICE_ID__` with service ID of the ERC20 service):
+```
+mesg-core service logs __ERC20_SERVICE_ID__
+```
+
 Be careful, ERC20 tokens have a lot of activity so it is possible to have thousands of emails per day and reach the SendGrid limit if you leave your application running.
 
 
 ### Final version of the source code
 
-<card-link url="https://github.com/mesg-foundation/core/tree/master/docs/tutorials/erc20-transfer-notifications/email-notification-one-erc20-transfer"></card-link>
+<card-link url="https://github.com/mesg-foundation/core/tree/master/docs/tutorials/erc20-transfer-notifications/email-notification-on-erc20-transfer"></card-link>
 
