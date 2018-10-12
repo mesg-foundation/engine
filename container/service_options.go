@@ -12,14 +12,24 @@ import (
 
 // ServiceOptions is a simplify version of swarm.ServiceSpec.
 type ServiceOptions struct {
-	Image      string
-	Namespace  []string
-	Ports      []Port
-	Mounts     []Mount
-	Env        []string // TODO: should be transform to  map[string]string and use the func mapToEnv
-	Args       []string
-	NetworksID []string
-	Labels     map[string]string
+	Image     string
+	Namespace []string
+	Ports     []Port
+	Mounts    []Mount
+	Env       []string // TODO: should be transform to  map[string]string and use the func mapToEnv
+	Args      []string
+	Networks  []Network
+	Labels    map[string]string
+}
+
+// Network keeps the network info for service.
+type Network struct {
+	// ID of the docker network.
+	ID string
+
+	// Alias is an optional attribute to name this service in the
+	// network and be able to access to it using this name.
+	Alias string
 }
 
 // Port is a simplify version of swarm.PortConfig.
@@ -97,14 +107,22 @@ func (options *ServiceOptions) swarmMounts(force bool) []mount.Mount {
 	return mounts
 }
 
+// swarmNetworks creates all necessary network attachment configurations for service.
+// each network will be attached based on their networkID and an alias can be used to
+// identify service in the network.
+// aliases will make services accessible from other containers inside the same network.
 func (options *ServiceOptions) swarmNetworks() (networks []swarm.NetworkAttachmentConfig) {
-	networks = make([]swarm.NetworkAttachmentConfig, len(options.NetworksID))
-	for i, networkID := range options.NetworksID {
-		networks[i] = swarm.NetworkAttachmentConfig{
-			Target: networkID,
+	networks = make([]swarm.NetworkAttachmentConfig, len(options.Networks))
+	for i, network := range options.Networks {
+		cfg := swarm.NetworkAttachmentConfig{
+			Target: network.ID,
 		}
+		if network.Alias != "" {
+			cfg.Aliases = []string{network.Alias}
+		}
+		networks[i] = cfg
 	}
-	return
+	return networks
 }
 
 func mergeLabels(l1 map[string]string, l2 map[string]string) map[string]string {
