@@ -8,3 +8,6 @@ cd $GOPATH/src/github.com/mesg-foundation/core
 
 # container package
 mockery -name=Container -dir ./container -output ./container/mocks
+
+# databse package
+mockery -name=ServiceDB -dir ./database -output ./database/mocks
