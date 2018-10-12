@@ -85,9 +85,12 @@ func (d *Dependency) Start(networkID string) (containerServiceID string, err err
 			"MESG_ENDPOINT":     endpoint,
 			"MESG_ENDPOINT_TCP": endpoint,
 		}),
-		Mounts:     mounts,
-		Ports:      d.extractPorts(),
-		NetworksID: []string{networkID, sharedNetworkID},
+		Mounts: mounts,
+		Ports:  d.extractPorts(),
+		Networks: []container.Network{
+			{ID: networkID, Alias: d.Key},
+			{ID: sharedNetworkID},
+		},
 	})
 }
 
