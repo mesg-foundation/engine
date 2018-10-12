@@ -23,9 +23,9 @@ func startForTest() {
 		panic(err)
 	}
 	_, err = defaultContainer.StartService(container.ServiceOptions{
-		Namespace:  []string{},
-		Image:      "http-server",
-		NetworksID: []string{sharedNetworkID},
+		Namespace: []string{},
+		Image:     "http-server",
+		Networks:  []container.Network{{ID: sharedNetworkID}},
 	})
 	if err != nil {
 		panic(err)
