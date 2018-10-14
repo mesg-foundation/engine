@@ -81,7 +81,7 @@ Let's define a variable for the event we want to listen to:
 // Event we need to listen
 const erc20Transfer = {
   serviceID: '__ERC20_SERVICE_ID__', // The serviceID of the ERC20 service deployed
-  filter: 'transfer' // The event we want to listen
+  eventKey: 'transfer' // The event we want to listen
 }
 ```
 
