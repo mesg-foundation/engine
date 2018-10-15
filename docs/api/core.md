@@ -933,8 +933,8 @@ Stream will be closed by server after deployment is done.
 ```json
 {
   "status": {
-    message: "__STATUS_MESSAGE__",
-    type: __STATUS_TYPE__,
+    "message": "__STATUS_MESSAGE__",
+    "type": __STATUS_TYPE__,
   }
 }
 ```
