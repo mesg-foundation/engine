@@ -845,43 +845,27 @@ Deploy a service to [Core](../guide/start-here/core.md). This will give you an u
 
 
 #### DeployServiceRequest
-The request's data for `DeployService` API.
+The data sent to the request stream of the `DeployService` API.
+Stream should be closed after url or all chunks sent to server.
 
 **Example**
 ```json
 {
-  "service": {
-    "name": "serviceX",
-    "events": {
-      "eventX": {
-        "data": {
-          "dataX": { "type": "String" }
-        }
-      }
-    },
-    "tasks": {
-      "taskX": {
-        "inputs": {
-          "foo": { "type": "String" }
-        },
-        "outputs": {
-          "outputX": {
-            "data": {
-              "resX": { "type": "String" }
-            }
-          }
-        }
-      }
-    }
-  }
+  "url": "__SERVICE_GIT_URL__"
+}
+```
+or
+```json
+{
+  "chunk": "__SERVICE_GZIPPED_TAR_FILE_CHUNK__"
 }
 ```
 
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| url | [string](#string) | Git repo url of service. If url provided, stream will be closed after first receive. |
-| chunk | [bytes](#bytes) | Chunks of gzipped tar archive of service. If chunk provided, stream will be closed after all chunks sent. |
+| url | [string](#string) | Git repo url of service. When url provided, stream will be closed after the first receive. |
+| chunk | [bytes](#bytes) | Chunks of gzipped tar archive of service. If chunk provided, stream should be closed by client after all chunks sent. |
 
 
 
@@ -942,12 +926,28 @@ The request's data for `DeployService` API.
 
 
 #### DeployServiceReply
-The reply's data of `DeployService` API.
+The data received from the reply stream of the `DeployService` API.
+Stream will be closed by server after deployment is done.
 
 **Example**
 ```json
 {
+  "status": {
+    "message": "__STATUS_MESSAGE__",
+    "type": "__STATUS_TYPE__",
+  }
+}
+```
+or
+```json
+{
   "serviceID": "__SERVICE_ID__"
+}
+```
+or
+```json
+{
+  "validationError": "__SERVICE_VALIDATION_ERROR__"
 }
 ```
 
@@ -1262,32 +1262,50 @@ The reply's data of the `ListServices` API.
 
 **Example**
 ```json
-[{
-  "service": {
+{
+  "services": [{
+    "id": "idX",
     "name": "serviceX",
-    "events": {
-      "eventX": {
-        "data": {
-          "dataX": { "type": "String" }
-        }
-      }
-    },
-    "tasks": {
-      "taskX": {
-        "inputs": {
-          "foo": { "type": "String" }
-        },
-        "outputs": {
-          "outputX": {
-            "data": {
-              "resX": { "type": "String" }
-            }
-          }
-        }
-      }
-    }
-  }
-}]
+    "description": "descriptionX",
+    "status": "statusX",
+    "events": [{
+      "key": "eventX",
+      "name": "nameX",
+      "description": "descriptionX",
+      "data": [{  
+        "key": "dataX",
+        "name": "nameX",
+        "description": "descriptionX",
+        "type": "String",
+        "optional": true
+      }]
+    }],
+    "tasks": [{
+      "key": "taskX",
+      "name": "nameX",
+      "description": "descriptionX",
+      "inputs": [{
+        "key": "foo",
+        "name": "nameX",
+        "description": "descriptionX",
+        "type": "String",
+        "optional": true
+      }],
+      "outputs": [{
+        "key": "outputX",
+        "name": "nameX",
+        "description": "descriptionX",
+        "data": [{  
+          "key": "resX",
+          "name": "nameX",
+          "description": "descriptionX",
+          "type": "String",
+          "optional": false
+        }]
+      }]
+    }]
+  }]
+}
 ```
 
 
@@ -1443,28 +1461,46 @@ The reply's data of the `GetService` API.
 ```json
 {
   "service": {
+    "id": "idX",
     "name": "serviceX",
-    "events": {
-      "eventX": {
-        "data": {
-          "dataX": { "type": "String" }
-        }
-      }
-    },
-    "tasks": {
-      "taskX": {
-        "inputs": {
-          "foo": { "type": "String" }
-        },
-        "outputs": {
-          "outputX": {
-            "data": {
-              "resX": { "type": "String" }
-            }
-          }
-        }
-      }
-    }
+    "description": "descriptionX",
+    "status": "statusX",
+    "events": [{  
+      "key": "eventX",
+      "name": "nameX",
+      "description": "descriptionX",
+      "data": [{  
+        "key": "dataX",
+        "name": "nameX",
+        "description": "descriptionX",
+        "type": "String",
+        "optional": true
+      }]
+    }],
+    "tasks": [{
+      "key": "taskX",
+      "name": "nameX",
+      "description": "descriptionX",
+      "inputs": [{  
+        "key": "foo",
+        "name": "nameX",
+        "description": "descriptionX",
+        "type": "String",
+        "optional": true
+      }],
+      "outputs": [{
+        "key": "outputX",
+        "name": "nameX",
+        "description": "descriptionX",
+        "data": [{  
+          "key": "resX",
+          "name": "nameX",
+          "description": "descriptionX",
+          "type": "String",
+          "optional": false
+        }]
+      }]
+    }]
   }
 }
 ```
@@ -1567,6 +1603,14 @@ ServiceLogs gives a stream for dependency logs of a service.
 #### ServiceLogsRequest
 The request's data for `ServiceLogs` API.
 
+**Example**
+```json
+{
+  "serviceID": "__SERVICE_ID__",
+  "dependencies": ["__SERVICE_DEPENDENCY__"]
+}
+```
+
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
@@ -1626,14 +1670,24 @@ The request's data for `ServiceLogs` API.
 
 
 #### LogData
-LogData holds the log data chunk and log info of service dependencies.
+The data received from the stream of the `ServiceLogs` API.
+The data will be received over time as long as the stream is open.
+
+**Example**
+```json
+{
+  "dependency":  "__SERVICE_DEPENDENCY__",
+  "type": "__LOG_TYPE__",
+  "data":  "__LOG_CHUNK__",
+}
+```
 
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| dependency | [string](#string) | dependency is the dependency that data belongs. |
-| type | [LogData.Type](#api.LogData.Type) | type is the log type. |
-| data | [bytes](#bytes) | data is a log data chunk. |
+| dependency | [string](#string) | Service dependency that data belongs. |
+| type | [LogData.Type](#api.LogData.Type) | The log type. |
+| data | [bytes](#bytes) | Log data chunk. |
 
 
 
