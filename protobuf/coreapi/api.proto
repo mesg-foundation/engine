@@ -174,84 +174,67 @@ message StopServiceRequest {
 message StopServiceReply {
 }
 
-// The request's data for `DeployService` API.
+// The data sent to the request stream of the `DeployService` API.
+// Stream should be closed after url or all chunks sent to server.
 //
 // **Example**
 // ```json
 // {
-//   "service": {
-//     "name": "serviceX",
-//     "events": {
-//       "eventX": {
-//         "data": {
-//           "dataX": { "type": "String" }
-//         }
-//       }
-//     },
-//     "tasks": {
-//       "taskX": {
-//         "inputs": {
-//           "foo": { "type": "String" }
-//         },
-//         "outputs": {
-//           "outputX": {
-//             "data": {
-//               "resX": { "type": "String" }
-//             }
-//           }
-//         }
-//       }
-//     }
-//   }
+//   "url": "__SERVICE_GIT_URL__"
+// }
+// ```
+// or
+// ```json
+// {
+//   "chunk": "__SERVICE_GZIPPED_TAR_FILE_CHUNK__"
 // }
 // ```
 message DeployServiceRequest {
   oneof value {
-    // Git repo url of service. If url provided, stream will be closed after first receive.
-    string url = 2;
-    
-    // Chunks of gzipped tar archive of service. If chunk provided, stream will be closed after all chunks sent.
-    bytes chunk = 3; 
+    string url = 2;   // Git repo url of service. When url provided, stream will be closed after the first receive.
+    bytes chunk = 3;  // Chunks of gzipped tar archive of service. If chunk provided, stream should be closed by client after all chunks sent.
   }
 }
 
-// The reply's data of `DeployService` API.
+// The data received from the reply stream of the `DeployService` API.
+// Stream will be closed by server after deployment is done.
 //
 // **Example**
+// ```json
+// {
+//   "status": {
+//     "message": "__STATUS_MESSAGE__",
+//     "type": "__STATUS_TYPE__",
+//   }
+// }
+// ```
+// or
 // ```json
 // {
 //   "serviceID": "__SERVICE_ID__"
 // }
 // ```
+// or
+// ```json
+// {
+//   "validationError": "__SERVICE_VALIDATION_ERROR__"
+// }
+// ```
 message DeployServiceReply {
   message Status {
     enum Type {
-      // RUNNING indicates that status message belongs to a continuous state.
-      RUNNING = 0;
-
-      // DONE_POSITIVE indicates that status message belongs to a positive noncontinuous state.
-      DONE_POSITIVE = 1;
-
-      // DONE_NEGATIVE indicates that status message belongs to a negative noncontinuous state.
-      DONE_NEGATIVE = 2;
+      RUNNING = 0;       // RUNNING indicates that status message belongs to a continuous state.
+      DONE_POSITIVE = 1; // DONE_POSITIVE indicates that status message belongs to a positive noncontinuous state.
+      DONE_NEGATIVE = 2; // DONE_NEGATIVE indicates that status message belongs to a negative noncontinuous state.
     }
-
-    // message is status message.
-    string message = 1;
-
-    // type is the type of status message.
-    Type type = 2;
+    string message = 1; // Status message.
+    Type type = 2;      // Type of status message.
   }
 
   oneof value {
-    // `status` will be sent after each status change.
-    Status status = 2;
-
-    // `serviceID` will be sent as the last message of stream when service deployed successfully.
-    string serviceID = 3;
-
-    // `validationError` will be sent as the last message of stream when there is a validation error.
-    string validationError = 4;
+    Status status = 2;          // `status` will be sent after each status change.
+    string serviceID = 3;       // `serviceID` will be sent as the last message of stream when service deployed successfully.
+    string validationError = 4; // `validationError` will be sent as the last message of stream when there is a validation error.
   }
 }
 
@@ -279,32 +262,50 @@ message ListServicesRequest {
 //
 // **Example**
 // ```json
-// [{
-//   "service": {
+// {
+//   "services": [{
+//     "id": "idX",
 //     "name": "serviceX",
-//     "events": {
-//       "eventX": {
-//         "data": {
-//           "dataX": { "type": "String" }
-//         }
-//       }
-//     },
-//     "tasks": {
-//       "taskX": {
-//         "inputs": {
-//           "foo": { "type": "String" }
-//         },
-//         "outputs": {
-//           "outputX": {
-//             "data": {
-//               "resX": { "type": "String" }
-//             }
-//           }
-//         }
-//       }
-//     }
-//   }
-// }]
+//     "description": "descriptionX",
+//     "status": "statusX",
+//     "events": [{
+//       "key": "eventX",
+//       "name": "nameX",
+//       "description": "descriptionX",
+//       "data": [{  
+//         "key": "dataX",
+//         "name": "nameX",
+//         "description": "descriptionX",
+//         "type": "String",
+//         "optional": true
+//       }]
+//     }],
+//     "tasks": [{
+//       "key": "taskX",
+//       "name": "nameX",
+//       "description": "descriptionX",
+//       "inputs": [{
+//         "key": "foo",
+//         "name": "nameX",
+//         "description": "descriptionX",
+//         "type": "String",
+//         "optional": true
+//       }],
+//       "outputs": [{
+//         "key": "outputX",
+//         "name": "nameX",
+//         "description": "descriptionX",
+//         "data": [{  
+//           "key": "resX",
+//           "name": "nameX",
+//           "description": "descriptionX",
+//           "type": "String",
+//           "optional": false
+//         }]
+//       }]
+//     }]
+//   }]
+// }
 // ```
 message ListServicesReply {
   repeated Service services = 1; // The list of previously-deployed services' definitions.
@@ -328,28 +329,46 @@ message GetServiceRequest {
 // ```json
 // {
 //   "service": {
+//     "id": "idX",
 //     "name": "serviceX",
-//     "events": {
-//       "eventX": {
-//         "data": {
-//           "dataX": { "type": "String" }
-//         }
-//       }
-//     },
-//     "tasks": {
-//       "taskX": {
-//         "inputs": {
-//           "foo": { "type": "String" }
-//         },
-//         "outputs": {
-//           "outputX": {
-//             "data": {
-//               "resX": { "type": "String" }
-//             }
-//           }
-//         }
-//       }
-//     }
+//     "description": "descriptionX",
+//     "status": "statusX",
+//     "events": [{  
+//       "key": "eventX",
+//       "name": "nameX",
+//       "description": "descriptionX",
+//       "data": [{  
+//         "key": "dataX",
+//         "name": "nameX",
+//         "description": "descriptionX",
+//         "type": "String",
+//         "optional": true
+//       }]
+//     }],
+//     "tasks": [{
+//       "key": "taskX",
+//       "name": "nameX",
+//       "description": "descriptionX",
+//       "inputs": [{  
+//         "key": "foo",
+//         "name": "nameX",
+//         "description": "descriptionX",
+//         "type": "String",
+//         "optional": true
+//       }],
+//       "outputs": [{
+//         "key": "outputX",
+//         "name": "nameX",
+//         "description": "descriptionX",
+//         "data": [{  
+//           "key": "resX",
+//           "name": "nameX",
+//           "description": "descriptionX",
+//           "type": "String",
+//           "optional": false
+//         }]
+//       }]
+//     }]
 //   }
 // }
 // ```
@@ -358,29 +377,39 @@ message GetServiceReply {
 }
 
 // The request's data for `ServiceLogs` API.
+//
+// **Example**
+// ```json
+// {
+//   "serviceID": "__SERVICE_ID__",
+//   "dependencies": ["__SERVICE_DEPENDENCY__"]
+// }
+// ```
 message ServiceLogsRequest {
   string serviceID = 1;             // The Service ID. Generated when using the [`DeployService` API](#deployservice).
   repeated string dependencies = 2; // __Optional.__ List of dependencies to filter service logs. All by default.
 }
 
-// LogData holds the log data chunk and log info of service dependencies.
+// The data received from the stream of the `ServiceLogs` API.
+// The data will be received over time as long as the stream is open.
+//
+// **Example**
+// ```json
+// {
+//   "dependency":  "__SERVICE_DEPENDENCY__",
+//   "type": "__LOG_TYPE__",
+//   "data":  "__LOG_CHUNK__",
+// }
+// ```
 message LogData {
   enum Type {
-    // Standard represents standard log output.
-    Standard = 0;
-
-    // Error represents error log output.
-    Error = 1;
+    Standard = 0;  // Standard represents standard log output.
+    Error = 1;     // Error represents error log output.
   }
 
-  // dependency is the dependency that data belongs.
-  string dependency = 1;
-
-  // type is the log type.
-  Type type = 2;
-
-  // data is a log data chunk.
-  bytes data = 3;
+  string dependency = 1; // Service dependency that data belongs.
+  Type type = 2;         // The log type.
+  bytes data = 3;        // Log data chunk.
 }
 
 // This is the definition of a MESG Service.

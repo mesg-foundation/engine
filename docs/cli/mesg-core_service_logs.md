@@ -14,7 +14,7 @@ mesg-core service logs [flags]
 
 ```
 mesg-core service logs SERVICE
-mesg-core service logs SERVICE --dependency DEPENDENCY_NAME
+mesg-core service logs SERVICE --dependencies DEPENDENCY_NAME,DEPENDENCY_NAME,...
 ```
 
 ### Options
