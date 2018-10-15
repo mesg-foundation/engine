@@ -1,5 +1,5 @@
 {
-  "name": "email-notification-one-erc20-transfer",
+  "name": "email-notification-on-erc20-transfer",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,6 +9,6 @@
   "author": "Anthony Estebe <anthony@mesg.tech>",
   "license": "ISC",
   "dependencies": {
-    "mesg-js": "^1.2.2"
+    "mesg-js": "^1.3.0"
   }
 }
