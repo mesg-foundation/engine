@@ -186,7 +186,7 @@ message StopServiceReply {
 // or
 // ```json
 // {
-//   "chunk": __SERVICE_GZIPPED_TAR_FILE_CHUNK__
+//   "chunk": "__SERVICE_GZIPPED_TAR_FILE_CHUNK__"
 // }
 // ```
 message DeployServiceRequest {
@@ -204,7 +204,7 @@ message DeployServiceRequest {
 // {
 //   "status": {
 //     "message": "__STATUS_MESSAGE__",
-//     "type": __STATUS_TYPE__,
+//     "type": "__STATUS_TYPE__",
 //   }
 // }
 // ```
@@ -382,7 +382,7 @@ message GetServiceReply {
 // ```json
 // {
 //   "serviceID": "__SERVICE_ID__",
-//   "dependencies": [__SERVICE_DEPENDENCY__]
+//   "dependencies": ["__SERVICE_DEPENDENCY__"]
 // }
 // ```
 message ServiceLogsRequest {
@@ -397,8 +397,8 @@ message ServiceLogsRequest {
 // ```json
 // {
 //   "dependency":  "__SERVICE_DEPENDENCY__",
-//   "type": __LOG_TYPE__,
-//   "data":  __LOG_CHUNK__,
+//   "type": "__LOG_TYPE__",
+//   "data":  "__LOG_CHUNK__",
 // }
 // ```
 message LogData {
