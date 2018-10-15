@@ -857,7 +857,7 @@ Stream should be closed after url or all chunks sent to server.
 or
 ```json
 {
-  "chunk": __SERVICE_GZIPPED_TAR_FILE_CHUNK__
+  "chunk": "__SERVICE_GZIPPED_TAR_FILE_CHUNK__"
 }
 ```
 
@@ -934,7 +934,7 @@ Stream will be closed by server after deployment is done.
 {
   "status": {
     "message": "__STATUS_MESSAGE__",
-    "type": __STATUS_TYPE__,
+    "type": "__STATUS_TYPE__",
   }
 }
 ```
@@ -1607,7 +1607,7 @@ The request's data for `ServiceLogs` API.
 ```json
 {
   "serviceID": "__SERVICE_ID__",
-  "dependencies": [__SERVICE_DEPENDENCY__]
+  "dependencies": ["__SERVICE_DEPENDENCY__"]
 }
 ```
 
@@ -1677,8 +1677,8 @@ The data will be received over time as long as the stream is open.
 ```json
 {
   "dependency":  "__SERVICE_DEPENDENCY__",
-  "type": __LOG_TYPE__,
-  "data":  __LOG_CHUNK__,
+  "type": "__LOG_TYPE__",
+  "data":  "__LOG_CHUNK__",
 }
 ```
 
