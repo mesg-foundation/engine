@@ -4,7 +4,7 @@ Start a service
 
 ### Synopsis
 
-Start a service previously published services.
+Start a service previously published services
 
 ```
 mesg-core service start SERVICE [flags]
