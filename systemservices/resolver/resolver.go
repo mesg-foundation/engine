@@ -57,7 +57,7 @@ func (r *Resolver) AddPeers(addresses []string) error {
 	panic("unreachable")
 }
 
-// PeerNotFoundError error returned when a peer not found for a service.
+// PeerNotFoundError error returned when a peer cannot be found for a service.
 type PeerNotFoundError struct {
 	ServiceID string
 }
