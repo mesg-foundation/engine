@@ -1,0 +1,61 @@
+name: "System Resolver Service"
+description: ""
+
+tasks:
+
+  addPeers:
+    name: "Add new peers"
+    inputs:
+      addresses:
+        name: "Addresses of peers"
+        type: Object
+    outputs:
+      success:
+        name: "Success"
+        description: "Output when success"
+        data:
+          addresses:
+            name: "Addresses of added peers"
+            type: Object
+      error:
+        name: "Error"
+        description: "Output when error"
+        data:
+          message:
+            name: "Message"
+            description: "The error's message"
+            type: String
+
+  resolve:
+    name: "Resolve the peer to contact for a given service"
+    inputs:
+      serviceID:
+        name: "Service ID to resolve"
+        type: String
+    outputs:
+      found:
+        name: "Found"
+        description: "A peer matches"
+        data:
+          address:
+            name: "Peer's address"
+            type: String
+          serviceID:
+            name: "Service ID to resolve"
+            type: String
+      notFound:
+        name: "Not Found"
+        description: "No peers have been found"
+        data:
+          serviceID:
+            name: "Service ID to resolve"
+            type: String
+      error:
+        name: "Error"
+        description: "Output when error"
+        data:
+          message:
+            name: "Message"
+            description: "The error's message"
+            type: String
+#11s111

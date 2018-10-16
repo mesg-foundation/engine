@@ -55,6 +55,14 @@ type Config struct {
 		Core   struct {
 			Path string
 		}
+		SystemServices struct {
+			// this hack needed otherwise we cannot access symlink of systemservices
+			// inside docker container.
+			// absolute path of system services navigated to core/systemservices/_sources
+			// while running in development mode where ~/.mesg/systemservices is a symlink.
+			// except the development mode absolute path nativated to ~/.mesg/systemservices.
+			AbsolutePath string
+		}
 	}
 }
 
@@ -77,6 +85,7 @@ func New() (*Config, error) {
 	c.SystemServices.RelativePath = "systemservices"
 	c.Docker.Core.Path = "/mesg"
 	c.Docker.Socket = "/var/run/docker.sock"
+	c.Docker.SystemServices.AbsolutePath = filepath.Join(c.Core.Path, c.SystemServices.RelativePath)
 	return &c, nil
 }
 

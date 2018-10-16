@@ -1,6 +1,8 @@
 package daemon
 
 import (
+	"path/filepath"
+
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/x/xnet"
@@ -45,6 +47,11 @@ func serviceSpec() (spec container.ServiceOptions, err error) {
 			{
 				Source: c.Core.Path,
 				Target: c.Docker.Core.Path,
+				Bind:   true,
+			},
+			{
+				Source: c.Docker.SystemServices.AbsolutePath,
+				Target: filepath.Join(c.Docker.Core.Path, c.SystemServices.RelativePath),
 				Bind:   true,
 			},
 		},
