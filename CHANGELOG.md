@@ -3,8 +3,11 @@
 ## [Unreleased](https://github.com/mesg-foundation/core/releases/tag/)
 
 #### Added
+
+- ([#535](https://github.com/mesg-foundation/core/pull/535)) Run MESG with MESG! A base logic implemented to have system services for core. In future, core will be split to system services and only act as a proxy to them. System services placed under `~/.mesg/systemservices`.
+
 #### Changed
-#### Added
+#### Fixed
 #### Removed
 
 ## [v0.3.0](https://github.com/mesg-foundation/core/releases/tag/v0.3.0)
