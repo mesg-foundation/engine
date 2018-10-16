@@ -2,7 +2,6 @@
 
 version="local"
 
-MESG_DOCKER_SYSTEMSERVICES_ABSOLUTEPATH=$GOPATH/src/github.com/mesg-foundation/core/systemservices/_sources \
 go run \
   -ldflags="-X 'github.com/mesg-foundation/core/version.Version=$version'" \
   interface/cli/main.go \

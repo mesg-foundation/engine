@@ -50,7 +50,7 @@ func serviceSpec() (spec container.ServiceOptions, err error) {
 				Bind:   true,
 			},
 			{
-				Source: c.Docker.SystemServices.AbsolutePath,
+				Source: filepath.Join(c.Core.Path, c.SystemServices.RelativePath),
 				Target: filepath.Join(c.Docker.Core.Path, c.SystemServices.RelativePath),
 				Bind:   true,
 			},
