@@ -25,7 +25,7 @@ type Server struct {
 
 	Network   string
 	Address   string
-	ServiceDB *database.ServiceDB
+	ServiceDB database.ServiceDB
 }
 
 // listen listens for connections.

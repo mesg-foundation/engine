@@ -3,7 +3,7 @@ title: Listen to transfer of Ethereum ERC20 token
 description: >-
   Tutorial: How to create a MESG Service that listens for the transfers of an
   Ethereum ERC20 token.
-published_link: 'https://docs.mesg.com/tutorials/services/listen-for-transfers-of-an-ethereum-erc20-token.html'
+published_link: 'https://docs.mesg.com/tutorials/erc20-transfer-notifications/listen-for-transfers-of-an-ethereum-erc20-token.html'
 ---
 
 # Listen for transfers of an Ethereum ERC20 token
@@ -15,7 +15,9 @@ In this tutorial, we will cover how to create a MESG Service that listens for th
 This Service will be developed with JavaScript and [Node.js](https://nodejs.org).  
 We will use the library [Web3.js](https://web3js.readthedocs.io/en/1.0/) to interact with Ethereum through [Infura](https://infura.io/).
 
-You can access the final version of the [source code on GitHub](https://github.com/mesg-foundation/core/tree/master/docs/tutorials/services/listen-to-transfer-of-ethereum-erc20-token).
+You can access the final version of the [source code on GitHub](https://github.com/mesg-foundation/core/tree/master/docs/tutorials/erc20-transfer-notifications/listen-to-transfer-of-ethereum-erc20-token).
+
+You can find a more advanced and maintained version of this service here: [Service Ethereum ERC20](https://github.com/mesg-foundation/service-ethereum-erc20).
 
 ::: tip
 MESG Core should already be installed on your computer. If it isn't yet, [install it here](../../guide/start-here/installation.md).
@@ -65,15 +67,13 @@ Add the following code to the top of `index.js` :
 
 ```javascript
 const Web3 = require('web3')
-const web3 = new Web3('wss://mainnet.infura.io/_ws')
+const web3 = new Web3('wss://mainnet.infura.io/ws')
 ```
-
-We are using the new WebSocket endpoint of Infura to listen to transfers. This endpoint is public, but is not production ready yet and it may change in the future. If you aren't able to listen for transfers at the end of this tutorial, please let us know.
 
 ### Specify the ERC20 contract
 
 To listen to transfers of an ERC20, we'll have to direct both the contract ABI and its address to Web3.  
-In this tutorial, we will use the TRON ERC20 token. You can find its ABI and address on [Etherscan](https://etherscan.io/address/0xf230b790e05390fc8295f4d3f60332c93bed42e2#code).  
+In this tutorial, we will use the 0x Protocol (ZRX) token. You can find its ABI and address on [Etherscan](https://etherscan.io/address/0xe41d2489571d322189246dafa5ebde1f4699f498#code).  
 For the simplicity of this tutorial, we will use only a small part of the ABI that exposes the transfers.
 
 Create the file `erc20-abi.json` in the Service folder and copy/paste the following ABI:
@@ -83,7 +83,7 @@ Create the file `erc20-abi.json` in the Service folder and copy/paste the follow
 Now, let's come back to `index.js` and initialize the contract with the ABI and the address. Add:
 
 ```javascript
-const contract = new web3.eth.Contract(require('./erc20-abi.json'), "0xf230b790e05390fc8295f4d3f60332c93bed42e2")
+const contract = new web3.eth.Contract(require('./erc20-abi.json'), '0xe41d2489571d322189246dafa5ebde1f4699f498')
 ```
 
 ### Listen for transfer events
@@ -97,6 +97,7 @@ contract.events.Transfer({fromBlock: 'latest'})
 .on('data', event => {
   console.log('transfer', event)
 })
+console.log('Listening ERC20 transfer...')
 ```
 
 Let's try it!
@@ -106,7 +107,7 @@ node index.js
 ```
 
 ::: warning
-It might take a while to receive and display a transfer in the console. The events are received in real time, but if nobody is transferring this ERC20, you won't receive or see any events. You can go onto [Etherscan](https://etherscan.io/token/0xf230b790e05390fc8295f4d3f60332c93bed42e2) to see the transfers.
+It might take a while to receive and display a transfer in the console. The events are received in real time, but if nobody is transferring this ERC20, you won't receive or see any events. You can go onto [Etherscan](https://etherscan.io/token/0xe41d2489571d322189246dafa5ebde1f4699f498) to see the transfers.
 :::
 
 Let's improve the output by showing only the useful information. Edit to match:
@@ -119,14 +120,11 @@ contract.events.Transfer({fromBlock: 'latest'})
     transactionHash: event.transactionHash,
     from: event.returnValues.from,
     to: event.returnValues.to,
-    value: event.returnValues.value / Math.pow(10, 6),
+    value: String(event.returnValues.value / Math.pow(10, 18)) // We convert value to its user representation based on the number of decimals used by this ERC20.
   })
 })
+console.log('Listening ERC20 transfer...')
 ```
-
-::: tip
-We have to `divide` value by `Math.pow(10, 6)` because of the number of decimals defined in this contract.
-:::
 
 Let's run it again:
 
@@ -141,12 +139,12 @@ transfer { blockNumber: 5827612,
   transactionHash: '0x02019f4a80ad43019b8e69aed59e1dea0f03fb48d9df610686a1f590e8f6216d',
   from: '0x58993319Fc9e1b6cFAda8047B63a723Cceb1FfFE',
   to: '0x99f79B7A134db6e30d1b12F9Ee823339CaC0BA83',
-  value: 11276.800815 }
+  value: '11276800815' }
 transfer { blockNumber: 5827612,
   transactionHash: '0xf4a0aad5245417ae376cb9962c93bb9c599d8160cec49a5d82ba593033e657d2',
   from: '0x385dFF5650776188f4da150aA8b17a467812923b',
   to: '0xe8b69609342C337873cD20513e64be7FdE9feCf2',
-  value: 100 }
+  value: '100000000' }
 ```
 
 ::: tip Congratulation
@@ -183,7 +181,7 @@ events:
       to:
         type: String
       value:
-        type: Number
+        type: String
 ```
 
 This definition matches the JavaScript object we want to emit to MESG Core. You can refer to the [documentation](../../guide/service/service-file.md) for more information about the `mesg.yml` file.
@@ -207,14 +205,16 @@ Replace `console.log` by `MESG.emitEvent`, like so:
 ```javascript
 contract.events.Transfer({fromBlock: 'latest'})
 .on('data', event => {
+  console.log('New ERC20 transfer received with hash:', event.transactionHash)
   MESG.emitEvent('transfer', {
     blockNumber: event.blockNumber,
     transactionHash: event.transactionHash,
     from: event.returnValues.from,
     to: event.returnValues.to,
-    value: event.returnValues.value / Math.pow(10, 6),
+    value: String(event.returnValues.value / Math.pow(10, 18)) // We convert value to its user representation based on the number of decimals used by this ERC20.
   })
 })
+console.log('Listening ERC20 transfer...')
 ```
 
 ### Dockerize it
@@ -254,7 +254,7 @@ Listening for results from the service...
 And finally, after a few seconds:
 
 ```text
-2018/06/21 18:40:15 Receive event transfer : {"blockNumber":5828174,"from":"0x5B47bbA2F60AFb4870c3909a5b249F01E6d11BAe","to":"0x819B2368fa8781C4866237A0EA5E61Ec51492A32","transactionHash":"0x524751269a73294fa1fddf8fd584e40d51f4174df2a4ee8e081ea9a94ce7cc90","value":79}
+2018/06/21 18:40:15 Receive event transfer : {"blockNumber":5828174,"from":"0x5B47bbA2F60AFb4870c3909a5b249F01E6d11BAe","to":"0x819B2368fa8781C4866237A0EA5E61Ec51492A32","transactionHash":"0x524751269a73294fa1fddf8fd584e40d51f4174df2a4ee8e081ea9a94ce7cc90","value":"79000000"}
 ```
 
 ::: tip Congratulation!
@@ -273,4 +273,4 @@ This command returns the service's ID that will be required by your application.
 
 ## Final version of the source code
 
-<card-link url="https://github.com/mesg-foundation/core/tree/master/docs/tutorials/services/listen-to-transfer-of-ethereum-erc20-token"></card-link>
+<card-link url="https://github.com/mesg-foundation/core/tree/master/docs/tutorials/erc20-transfer-notifications/listen-to-transfer-of-ethereum-erc20-token"></card-link>
