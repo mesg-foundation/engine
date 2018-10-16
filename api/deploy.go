@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/importer"
@@ -114,15 +115,22 @@ func (d *serviceDeployer) FromGzippedTar(r io.Reader) (*service.Service, *import
 
 // deploy deploys a service in path.
 func (d *serviceDeployer) deploy(r io.Reader) (*service.Service, *importer.ValidationError, error) {
-	statuses := make(chan service.DeployStatus)
-	forwardStatusDone := make(chan struct{})
-	go d.forwardDeployStatuses(statuses, forwardStatusDone)
+	var (
+		statuses = make(chan service.DeployStatus)
+		wg       sync.WaitGroup
+	)
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		d.forwardDeployStatuses(statuses)
+	}()
 
 	s, err := service.New(r,
 		service.ContainerOption(d.api.container),
 		service.DeployStatusOption(statuses),
 	)
-	<-forwardStatusDone
+	wg.Wait()
 
 	validationErr, err := d.assertValidationError(err)
 	if err != nil {
@@ -156,7 +164,7 @@ func (d *serviceDeployer) closeStatus() {
 }
 
 // forwardStatuses forwards status messages.
-func (d *serviceDeployer) forwardDeployStatuses(statuses chan service.DeployStatus, done chan struct{}) {
+func (d *serviceDeployer) forwardDeployStatuses(statuses chan service.DeployStatus) {
 	for status := range statuses {
 		var t StatusType
 		switch status.Type {
@@ -169,7 +177,6 @@ func (d *serviceDeployer) forwardDeployStatuses(statuses chan service.DeployStat
 		}
 		d.sendStatus(status.Message, t)
 	}
-	done <- struct{}{}
 }
 
 func (d *serviceDeployer) assertValidationError(err error) (*importer.ValidationError, error) {

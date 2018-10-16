@@ -3,6 +3,7 @@ package commands
 import (
 	"errors"
 	"fmt"
+	"sync"
 
 	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/utils/pretty"
@@ -40,12 +41,20 @@ func (c *serviceDeployCmd) preRunE(cmd *cobra.Command, args []string) error {
 }
 
 func (c *serviceDeployCmd) runE(cmd *cobra.Command, args []string) error {
-	statuses := make(chan provider.DeployStatus)
-	statusPrintDone := make(chan struct{})
-	go printDeployStatuses(statuses, statusPrintDone)
+	var (
+		statuses = make(chan provider.DeployStatus)
+		wg       sync.WaitGroup
+	)
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		printDeployStatuses(statuses)
+	}()
 
 	id, validationError, err := c.e.ServiceDeploy(c.path, statuses)
-	<-statusPrintDone
+	wg.Wait()
+
 	pretty.DestroySpinner()
 	if err != nil {
 		return err
@@ -61,7 +70,7 @@ func (c *serviceDeployCmd) runE(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func printDeployStatuses(statuses chan provider.DeployStatus, done chan struct{}) {
+func printDeployStatuses(statuses chan provider.DeployStatus) {
 	for status := range statuses {
 		switch status.Type {
 		case provider.Running:
@@ -78,5 +87,4 @@ func printDeployStatuses(statuses chan provider.DeployStatus, done chan struct{}
 			fmt.Printf("%s %s\n", sign, status.Message)
 		}
 	}
-	done <- struct{}{}
 }

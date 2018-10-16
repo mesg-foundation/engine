@@ -1,6 +1,8 @@
 package core
 
 import (
+	"sync"
+
 	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	service "github.com/mesg-foundation/core/service"
@@ -10,9 +12,16 @@ import (
 // DeployService deploys a service from Git URL or service.tar.gz file. It'll send status
 // events during the process and finish with sending service id or validation error.
 func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
-	statuses := make(chan api.DeployStatus)
-	statusSendDone := make(chan struct{})
-	go sendDeployStatus(statuses, statusSendDone, stream)
+	var (
+		statuses = make(chan api.DeployStatus)
+		wg       sync.WaitGroup
+	)
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		sendDeployStatus(statuses, stream)
+	}()
 
 	var (
 		service         *service.Service
@@ -30,7 +39,7 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 	} else {
 		service, validationError, err = s.api.DeployService(sr, api.DeployServiceStatusOption(statuses))
 	}
-	<-statusSendDone
+	wg.Wait()
 
 	if err != nil {
 		return err
@@ -46,8 +55,7 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 	})
 }
 
-func sendDeployStatus(statuses chan api.DeployStatus, done chan struct{},
-	stream coreapi.Core_DeployServiceServer) {
+func sendDeployStatus(statuses chan api.DeployStatus, stream coreapi.Core_DeployServiceServer) {
 	for status := range statuses {
 		var typ coreapi.DeployServiceReply_Status_Type
 		switch status.Type {
@@ -67,7 +75,6 @@ func sendDeployStatus(statuses chan api.DeployStatus, done chan struct{},
 			},
 		})
 	}
-	done <- struct{}{}
 }
 
 type deployServiceStreamReader struct {
