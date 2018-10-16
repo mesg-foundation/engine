@@ -1,7 +1,7 @@
 ---
 title: Send email with Sendgrid
 description: 'Tutorial: how to use MESG to send an email through the Sendgrid API'
-published_link: 'https://docs.mesg.com/tutorials/services/send-emails-with-sendgrid.html'
+published_link: 'https://docs.mesg.com/tutorials/erc20-transfer-notifications/send-emails-with-sendgrid.html'
 ---
 
 # Send emails with Sendgrid
@@ -12,7 +12,9 @@ Today we will learn how to create and use our first service.
 
 We'll start with the example of an email provider where we will send emails through a MESG service.
 
-You can access the final version of the [source code on GitHub](https://github.com/mesg-foundation/core/tree/master/docs/tutorials/services/send-email-with-sendgrid).
+You can access the final version of the [source code on GitHub](https://github.com/mesg-foundation/core/tree/master/docs/tutorials/erc20-transfer-notifications/send-email-with-sendgrid).
+
+You can find a more advanced and maintained version of this service here: [Service Email SendGrid](https://github.com/mesg-foundation/service-email-sendgrid).
 
 ::: tip
 If you haven't installed **MESG Core** yet, you can do so by running the command:
@@ -109,31 +111,39 @@ const MESG = require('mesg-js').service()
 Secondly we'll need to create the different tasks defined in the `mesg.yml` as functions.
 
 ```javascript
-const send = ({ from, to, subject, text }, { success, failure }) => { 
+const sendHandler = async (inputs, outputs) => {
+  console.log('New send task received')
   // TODO later
 }
 ```
 
-For this task, the function will take all the inputs as a first parameter and all the outputs as a second parameter \(we are using [object destructuration](https://developer.mozilla.org/nl/docs/Web/JavaScript/Reference/Operatoren/Destructuring_assignment) here\).
+For this task, the function will take all the inputs as a first parameter and all the outputs as a second parameter.
 
-The last step is to start listening for tasks from **MESG Core,** then react to those events.
+The last step is to start listening for tasks from **MESG Core**, then react to those events.
 
 ```javascript
-MESG.listenTask({ send })
+MESG.listenTask({
+  send: sendHandler
+})
+console.log('Listening tasks...')
 ```
 
-Here we say that when there is the event `send` coming from MESG Core, we will execute the method `send` defined earlier.
+Here we say that when there is the task `send` coming from MESG Core, we will execute the method `sendHandler` defined earlier.
 
 The full file should look like this:
 
 ```javascript
 const MESG = require('mesg-js').service()​
 
-const send = ({ from, to, subject, text }, { success, failure }) => {
+const sendHandler = async (inputs, outputs) => {
+  console.log('New send task received')
   // TODO later
 }
 
-​MESG.listenTask({ send })
+​MESG.listenTask({
+  send: sendHandler
+})
+console.log('Listening tasks...')
 ```
 
 This is a basic skeleton for a Service, but now we need to actually code the emails with Sendgrid. For this, we will use the Sendgrid library.
@@ -148,18 +158,37 @@ Then require it in our file the same way we required it the `mesg-js` library.
 const sendgrid = require('@sendgrid/mail')
 ```
 
-We had a `TODO` in our `send` task, let's code the business logic of this function using the Sendgrid library we just imported.
+We had a `TODO` in our `sendHandler` function, let's code the business logic using the Sendgrid library we just imported.
 
 ```javascript
-const send = ({ from, to, subject, text }, { success, failure }) => {
-  sendgrid.setApiKey('__CHANGE_WITH_YOUR_SENDGRID_API_KEY__')
-  sendgrid.send({ from, to, subject, text })
-    .then(([response, _]) => success({ status: response.statusCode }))
-    .catch(e => failure({ message: e.toString() }))
+const sendHandler = async (inputs, outputs) => {
+  try {
+    console.log('New send task received')
+    // Configure SendGrid
+    sendgrid.setApiKey('__CHANGE_WITH_YOUR_SENDGRID_API_KEY__')
+    // Sends an email with the inputs
+    const result = await sendgrid.send({
+      from: inputs.from,
+      to: inputs.to,
+      subject: inputs.subject,
+      text: inputs.text
+    })
+    // Return the success output
+    return outputs.success({
+      status: result[0].statusCode
+    })
+  } catch (error) {
+    // If an error occurs, return the failure output
+    return outputs.failure({
+      message: error.toString()
+    })
+  }
 }
 ```
 
-This code is setting the API Key necessary to work with Sendgrid, then it sends an email with the parameters defined by our MESG Service. The result of this call is a promise that if successful, it will call the output `success` with the data `status` or if it fails, it will call the output `failure` with the `message` of the failure.
+This code is setting the API Key necessary to work with Sendgrid.
+Then it sends an email with the inputs defined in the `mesg.yml` and returns the output `success` containing the status code.
+If an error occurs, it returns the output `failure` with the error's message.
 
 Now your final Service code should look like this:
 
@@ -197,15 +226,25 @@ Now that your Service is valid, let's create a test file to test your task. Crea
 Replace the **\_\_YOUR\_EMAIL\_\_** with your own email to test it. Don't worry, this is only done locally. We will not collect it 😀
 :::
 
-Now time to test it. Simply run the following command:
+Now time to test it.
+
+In one terminal execute:
 
 ```bash
-mesg-core service test --task send --data test.json
+mesg-core service dev
 ```
 
 Don't worry, the first time you do this, it will take a bit of time because MESG Core is building your Service, but the subsequent times will be faster.
 
-Once your Service starts, the `send` task will be executed and you should have the result in the console and your precious email in your mailbox.
+Wait for the service to start and then copy the service ID.
+
+In an other terminal, execute the following command (replace `__SERVICE_ID__` by the previously copied service ID):
+
+```bash
+mesg-core service execute __SERVICE_ID__ --task send --json test.json
+```
+
+The `send` task will be executed and you should have the result in the console and your precious email in your mailbox.
 
 ## Usage
 
@@ -221,4 +260,4 @@ Get some rest now, you've done a good job creating your first Service with MESG.
 
 ## Final version of the source code
 
-<card-link url="https://github.com/mesg-foundation/core/tree/master/docs/tutorials/services/send-email-with-sendgrid"></card-link>
+<card-link url="https://github.com/mesg-foundation/core/tree/master/docs/tutorials/erc20-transfer-notifications/send-email-with-sendgrid"></card-link>
