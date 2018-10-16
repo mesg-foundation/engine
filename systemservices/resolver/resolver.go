@@ -53,25 +53,35 @@ func (r *Resolver) AddPeers(addresses []string) error {
 		return nil
 	case "error":
 		return errors.New(e.OutputData["message"].(string))
-	default:
-		return fmt.Errorf("unexpected output %s", e.Output)
 	}
+	panic("unreachable")
+}
+
+// PeerNotFoundError error returned when a peer not found for a service.
+type PeerNotFoundError struct {
+	ServiceID string
+}
+
+func (e *PeerNotFoundError) Error() string {
+	return fmt.Sprintf("peer could not found for %q service", e.ServiceID)
 }
 
 // Resolve returns the address of a peer(node) that runs the desired service.
-func (r *Resolver) Resolve(serviceID string) (address string, err error) {
+func (r *Resolver) Resolve(serviceID string) (peerAddress string, err error) {
 	e, err := r.api.ExecuteAndListen(r.serviceID, resolveTask, map[string]interface{}{
 		"serviceID": serviceID,
 	})
+	if err != nil {
+		return "", err
+	}
 
 	switch e.Output {
 	case "found":
 		return e.OutputData["address"].(string), nil
 	case "notFound":
-		return "", fmt.Errorf("address for service id %s not found", serviceID)
+		return "", &PeerNotFoundError{serviceID}
 	case "error":
 		return "", errors.New(e.OutputData["message"].(string))
-	default:
-		return "", fmt.Errorf("unexpected output %s", e.Output)
 	}
+	panic("unreachable")
 }
