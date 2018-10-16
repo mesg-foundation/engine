@@ -7,7 +7,7 @@ import (
 
 // API exposes all functionalities of MESG core.
 type API struct {
-	db        *database.ServiceDB
+	db        database.ServiceDB
 	container container.Container
 }
 
@@ -15,7 +15,7 @@ type API struct {
 type Option func(*API)
 
 // New creates a new API with given options.
-func New(db *database.ServiceDB, options ...Option) (*API, error) {
+func New(db database.ServiceDB, options ...Option) (*API, error) {
 	a := &API{db: db}
 	for _, option := range options {
 		option(a)
