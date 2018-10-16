@@ -10,7 +10,7 @@ import (
 
 const testdbname = "db.test"
 
-func openServiceDB(t *testing.T) (*ServiceDB, func()) {
+func openServiceDB(t *testing.T) (*LevelDBServiceDB, func()) {
 	db, err := NewServiceDB(testdbname)
 	require.NoError(t, err)
 	return db, func() {
