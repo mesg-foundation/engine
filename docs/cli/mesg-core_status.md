@@ -1,10 +1,10 @@
 ## mesg-core status
 
-Get the Core's status.
+Get the Core's status
 
 ### Synopsis
 
-Get the Core's status.
+Get the Core's status
 
 ```
 mesg-core status [flags]
