@@ -1,6 +1,8 @@
 package core
 
 import (
+	"sync"
+
 	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	service "github.com/mesg-foundation/core/service"
@@ -10,8 +12,16 @@ import (
 // DeployService deploys a service from Git URL or service.tar.gz file. It'll send status
 // events during the process and finish with sending service id or validation error.
 func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
-	statuses := make(chan api.DeployStatus)
-	go sendDeployStatus(statuses, stream)
+	var (
+		statuses = make(chan api.DeployStatus)
+		wg       sync.WaitGroup
+	)
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		sendDeployStatus(statuses, stream)
+	}()
 
 	var (
 		service         *service.Service
@@ -29,6 +39,7 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 	} else {
 		service, validationError, err = s.api.DeployService(sr, api.DeployServiceStatusOption(statuses))
 	}
+	wg.Wait()
 
 	if err != nil {
 		return err
@@ -55,7 +66,6 @@ func sendDeployStatus(statuses chan api.DeployStatus, stream coreapi.Core_Deploy
 		case api.DoneNegative:
 			typ = coreapi.DeployServiceReply_Status_DONE_NEGATIVE
 		}
-
 		stream.Send(&coreapi.DeployServiceReply{
 			Value: &coreapi.DeployServiceReply_Status_{
 				Status: &coreapi.DeployServiceReply_Status{
