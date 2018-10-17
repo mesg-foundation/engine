@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/importer"
@@ -81,6 +82,7 @@ func newServiceDeployer(api *API, options ...DeployServiceOption) *serviceDeploy
 
 // FromGitURL deploys a service hosted at a Git url.
 func (d *serviceDeployer) FromGitURL(url string) (*service.Service, *importer.ValidationError, error) {
+	defer d.closeStatus()
 	d.sendStatus("Downloading service...", Running)
 	path, err := d.createTempDir()
 	if err != nil {
@@ -107,18 +109,29 @@ func (d *serviceDeployer) FromGitURL(url string) (*service.Service, *importer.Va
 
 // FromGzippedTar deploys a service from a gzipped tarball.
 func (d *serviceDeployer) FromGzippedTar(r io.Reader) (*service.Service, *importer.ValidationError, error) {
+	defer d.closeStatus()
 	return d.deploy(r)
 }
 
 // deploy deploys a service in path.
 func (d *serviceDeployer) deploy(r io.Reader) (*service.Service, *importer.ValidationError, error) {
-	statuses := make(chan service.DeployStatus)
-	go d.forwardDeployStatuses(statuses)
+	var (
+		statuses = make(chan service.DeployStatus)
+		wg       sync.WaitGroup
+	)
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		d.forwardDeployStatuses(statuses)
+	}()
 
 	s, err := service.New(r,
 		service.ContainerOption(d.api.container),
 		service.DeployStatusOption(statuses),
 	)
+	wg.Wait()
+
 	validationErr, err := d.assertValidationError(err)
 	if err != nil {
 		return nil, nil, err
@@ -140,6 +153,13 @@ func (d *serviceDeployer) sendStatus(message string, typ StatusType) {
 			Message: message,
 			Type:    typ,
 		}
+	}
+}
+
+// closeStatus closes statuses chan.
+func (d *serviceDeployer) closeStatus() {
+	if d.statuses != nil {
+		close(d.statuses)
 	}
 }
 
