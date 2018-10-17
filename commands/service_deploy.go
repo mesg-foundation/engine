@@ -3,6 +3,7 @@ package commands
 import (
 	"errors"
 	"fmt"
+	"sync"
 
 	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/utils/pretty"
@@ -40,9 +41,20 @@ func (c *serviceDeployCmd) preRunE(cmd *cobra.Command, args []string) error {
 }
 
 func (c *serviceDeployCmd) runE(cmd *cobra.Command, args []string) error {
-	statuses := make(chan provider.DeployStatus)
-	go printDeployStatuses(statuses)
+	var (
+		statuses = make(chan provider.DeployStatus)
+		wg       sync.WaitGroup
+	)
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		printDeployStatuses(statuses)
+	}()
+
 	id, validationError, err := c.e.ServiceDeploy(c.path, statuses)
+	wg.Wait()
+
 	pretty.DestroySpinner()
 	if err != nil {
 		return err
