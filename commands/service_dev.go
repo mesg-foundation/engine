@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"sync"
 
 	"github.com/fatih/color"
 	"github.com/mesg-foundation/core/commands/provider"
@@ -50,9 +51,20 @@ func (c *serviceDevCmd) preRunE(cmd *cobra.Command, args []string) error {
 }
 
 func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
-	statuses := make(chan provider.DeployStatus)
-	go printDeployStatuses(statuses)
+	var (
+		statuses = make(chan provider.DeployStatus)
+		wg       sync.WaitGroup
+	)
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		printDeployStatuses(statuses)
+	}()
+
 	id, validationError, err := c.e.ServiceDeploy(c.path, statuses)
+	wg.Wait()
+
 	pretty.DestroySpinner()
 	if err != nil {
 		return err
