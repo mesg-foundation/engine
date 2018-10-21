@@ -10,8 +10,10 @@ var inProgressExecutions = make(map[string]*Execution)
 
 // InProgress returns the matching in progress execution if exists
 func InProgress(ID string) (execution *Execution) {
+	mu.Lock()
+	defer mu.Unlock()
 	execution = inProgressExecutions[ID]
-	return
+	return execution
 }
 
 func (execution *Execution) moveFromPendingToInProgress() error {
