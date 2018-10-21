@@ -31,7 +31,7 @@ func (execution *Execution) moveFromPendingToInProgress() error {
 	return nil
 }
 
-func (execution *Execution) deleteFromQueue() error {
+func (execution *Execution) deleteFromInProgressQueue() error {
 	mu.Lock()
 	defer mu.Unlock()
 	_, ok := inProgressExecutions[execution.ID]

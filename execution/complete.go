@@ -24,7 +24,7 @@ func (execution *Execution) Complete(outputKey string, outputData map[string]int
 		return err
 	}
 
-	if err := execution.deleteFromQueue(); err != nil {
+	if err := execution.deleteFromInProgressQueue(); err != nil {
 		return err
 	}
 	execution.ExecutionDuration = time.Since(execution.ExecutedAt)

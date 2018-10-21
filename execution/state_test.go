@@ -29,9 +29,9 @@ func TestMoveFromPendingToInProgressNonExistingTask(t *testing.T) {
 	require.Nil(t, pendingExecutions[exec.ID])
 }
 
-func TestDeleteFromQueue(t *testing.T) {
+func TestDeleteFromInProgressQueue(t *testing.T) {
 	s, _ := service.FromService(&service.Service{
-		Name: "TestDeleteFromQueue",
+		Name: "TestDeleteFromInProgressQueue",
 		Tasks: []*service.Task{
 			{Key: "test"},
 		},
@@ -39,21 +39,21 @@ func TestDeleteFromQueue(t *testing.T) {
 	var inputs map[string]interface{}
 	exec, _ := Create(s, "test", inputs, []string{})
 	exec.moveFromPendingToInProgress()
-	err := exec.deleteFromQueue()
+	err := exec.deleteFromInProgressQueue()
 	require.Nil(t, inProgressExecutions[exec.ID])
 	require.Nil(t, err)
 }
 
-func TestMoveFromInProgressToCompletedNonExistingTask(t *testing.T) {
+func TestDeleteFromInProgressQueueNonExistingTask(t *testing.T) {
 	s, _ := service.FromService(&service.Service{
-		Name: "TestMoveFromInProgressToCompletedNonExistingTask",
+		Name: "TestDeleteFromInProgressQueueNonExistingTask",
 		Tasks: []*service.Task{
 			{Key: "test"},
 		},
 	})
 	var inputs map[string]interface{}
 	exec, _ := Create(s, "test", inputs, []string{})
-	err := exec.deleteFromQueue()
+	err := exec.deleteFromInProgressQueue()
 	require.NotNil(t, err)
 	require.Nil(t, inProgressExecutions[exec.ID])
 }
