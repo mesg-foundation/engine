@@ -7,33 +7,40 @@ import (
 var mu sync.Mutex
 var pendingExecutions = make(map[string]*Execution)
 var inProgressExecutions = make(map[string]*Execution)
-var processedExecutions = make(map[string]*Execution)
 
 // InProgress returns the matching in progress execution if exists
 func InProgress(ID string) (execution *Execution) {
+	mu.Lock()
+	defer mu.Unlock()
 	execution = inProgressExecutions[ID]
-	return
+	return execution
 }
 
 func (execution *Execution) moveFromPendingToInProgress() error {
-	return execution.move("pending", pendingExecutions, inProgressExecutions)
-}
-
-func (execution *Execution) moveFromInProgressToProcessed() error {
-	return execution.move("inProgress", inProgressExecutions, processedExecutions)
-}
-
-func (execution *Execution) move(queue string, from, to map[string]*Execution) error {
 	mu.Lock()
 	defer mu.Unlock()
-	e, ok := from[execution.ID]
+	e, ok := pendingExecutions[execution.ID]
 	if !ok {
 		return &NotInQueueError{
 			ID:    execution.ID,
-			Queue: queue,
+			Queue: "pending",
 		}
 	}
-	to[execution.ID] = e
-	delete(from, execution.ID)
+	inProgressExecutions[execution.ID] = e
+	delete(pendingExecutions, execution.ID)
+	return nil
+}
+
+func (execution *Execution) deleteFromInProgressQueue() error {
+	mu.Lock()
+	defer mu.Unlock()
+	_, ok := inProgressExecutions[execution.ID]
+	if !ok {
+		return &NotInQueueError{
+			ID:    execution.ID,
+			Queue: "inProgress",
+		}
+	}
+	delete(inProgressExecutions, execution.ID)
 	return nil
 }
