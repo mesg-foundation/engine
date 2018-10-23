@@ -1,0 +1,37 @@
+name: "Workflow System Service"
+description: "A manager and vm for running workflows"
+
+tasks:
+  create:
+    name: "Create and run a new workflow"
+    inputs:
+      file:
+        name: "workflow.yml file"
+        type: String
+      alias:
+        name: "unique name alias for workflow"
+        type: String
+        optional: true
+    outputs:
+      success:
+        data:
+          id:
+            name: "unique id of workflow"
+            type: String
+      error:
+        data:
+          message: 
+            type: String
+  delete:
+    name: "Stop and deletes a workflow"
+    inputs:
+      id:
+        name: "id or unique name alias of workflow"
+        type: String
+    outputs:
+      success:
+        data:
+      error:
+        data:
+          message: 
+            type: String

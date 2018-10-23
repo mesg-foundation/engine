@@ -6,18 +6,21 @@ import (
 	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/systemservices/resolver"
+	"github.com/mesg-foundation/core/systemservices/workflow"
 )
 
 // list of system services.
 // these names are also relative paths of system services in the filesystem.
 const (
 	resolverService = "resolver"
+	workflowService = "workflow"
 )
 
 // systemServicesList is the list of system services.
 // system services will be created from this list.
 var systemServicesList = []string{
 	resolverService,
+	workflowService,
 }
 
 // systemService represents a system service.
@@ -42,6 +45,7 @@ type SystemServices struct {
 
 	// system services.
 	resolverService *resolver.Resolver
+	workflowService *workflow.Workflow
 }
 
 // New creates a new SystemServices instance.
@@ -77,9 +81,16 @@ func (s *SystemServices) Resolver() *resolver.Resolver {
 	return s.resolverService
 }
 
+// Workflow returns the Workflow instance using the running Workflow service.
+func (s *SystemServices) Workflow() *workflow.Workflow {
+	return s.workflowService
+}
+
 // initServices initializes all system services.
 func (s *SystemServices) initServices(services []*systemService) error {
 	// init resolver system service.
 	s.resolverService = resolver.New(s.getServiceID(services, resolverService), s.api)
+	// init workflow system service.
+	s.workflowService = workflow.New(s.getServiceID(services, workflowService), s.api)
 	return nil
 }
