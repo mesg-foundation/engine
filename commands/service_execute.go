@@ -59,7 +59,7 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 		err            error
 	)
 
-	pretty.Progress("Getting the service definition...", func() {
+	pretty.Progress("Loading the service...", func() {
 		s, err = c.e.ServiceByID(args[0])
 	})
 	if err != nil {
