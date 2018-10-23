@@ -60,9 +60,6 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 
 	pretty.Progress("Getting the service definition...", func() {
 		s, err = c.e.ServiceByID(args[0])
-		if err != nil {
-			return
-		}
 	})
 	if err != nil {
 		return err
@@ -77,7 +74,6 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	pretty.Progress(fmt.Sprintf("Executing task %q...", c.taskKey), func() {
-
 		// Create an unique tag that will be used to listen to the result of this exact execution
 		tags := []string{uuid.NewV4().String()}
 
