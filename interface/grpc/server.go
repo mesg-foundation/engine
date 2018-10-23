@@ -7,7 +7,6 @@ import (
 	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	"github.com/mesg-foundation/core/api"
-	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/interface/grpc/core"
 	"github.com/mesg-foundation/core/interface/grpc/service"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
@@ -19,13 +18,23 @@ import (
 
 // Server contains the server config.
 type Server struct {
+	api *api.API
+
 	instance *grpc.Server
 	closed   bool
 	mi       sync.Mutex // protects startup.
 
-	Network   string
-	Address   string
-	ServiceDB database.ServiceDB
+	network string
+	address string
+}
+
+// New returns a new gRPC server.
+func New(address string, api *api.API) *Server {
+	return &Server{
+		api:     api,
+		address: address,
+		network: "tcp",
+	}
 }
 
 // listen listens for connections.
@@ -37,7 +46,7 @@ func (s *Server) listen() (net.Listener, error) {
 		return nil, &alreadyClosedError{}
 	}
 
-	ln, err := net.Listen(s.Network, s.Address)
+	ln, err := net.Listen(s.network, s.address)
 	if err != nil {
 		return nil, err
 	}
@@ -84,20 +93,8 @@ func (s *Server) Close() {
 
 // register all server
 func (s *Server) register() error {
-	a, err := api.New(s.ServiceDB)
-	if err != nil {
-		return err
-	}
-
-	coreServer, err := core.NewServer(core.APIOption(a))
-	if err != nil {
-		return err
-	}
-
-	serviceServer, err := service.NewServer(service.APIOption(a))
-	if err != nil {
-		return err
-	}
+	coreServer := core.NewServer(s.api)
+	serviceServer := service.NewServer(s.api)
 
 	serviceapi.RegisterServiceServer(s.instance, serviceServer)
 	coreapi.RegisterCoreServer(s.instance, coreServer)
