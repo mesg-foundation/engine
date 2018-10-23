@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"sync"
-	"time"
 
 	"github.com/fatih/color"
 	"github.com/mesg-foundation/core/commands/provider"
@@ -113,10 +112,6 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 	defer closer()
 
 	abort := xsignal.WaitForInterrupt()
-	go func() {
-		time.Sleep(time.Second * 2)
-		eventsErrC <- errors.New("test error")
-	}()
 
 	for {
 		select {
