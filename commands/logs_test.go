@@ -7,20 +7,29 @@ import (
 
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/mesg-foundation/core/container"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestLogsCmdRunE(t *testing.T) {
-	m := newMockExecutor()
-	c := newLogsCmd(m)
+	var (
+		m        = newMockExecutor()
+		c        = newLogsCmd(m)
+		closeStd = captureStd(t)
+		buf      = new(bytes.Buffer)
+		msg      = []byte("core: 2018-01-01 log\n")
+	)
 
 	// create reader for docker stdcopy
-	buf := new(bytes.Buffer)
 	w := stdcopy.NewStdWriter(buf, stdcopy.Stdout)
-	w.Write([]byte("core: 2018-01-01 log\n"))
+	w.Write(msg)
 
 	m.On("Status").Return(container.RUNNING, nil)
 	m.On("Logs").Return(ioutil.NopCloser(buf), nil)
 	c.cmd.Execute()
 
 	m.AssertExpectations(t)
+
+	stdout, stderr := closeStd()
+	assert.Zero(t, stderr)
+	assert.Equal(t, stdout, string(msg))
 }
