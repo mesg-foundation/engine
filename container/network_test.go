@@ -25,7 +25,7 @@ func TestCreateNetwork(t *testing.T) {
 	dt.ProvideNetworkInspect(types.NetworkResource{}, nil)
 
 	networkID, err := c.CreateNetwork(namespace)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, id, networkID)
 
 	li := <-dt.LastNetworkCreate()
@@ -53,7 +53,7 @@ func TestCreateAlreadyExistingNetwork(t *testing.T) {
 	dt.ProvideNetworkInspect(types.NetworkResource{ID: id}, nil)
 
 	networkID, err := c.CreateNetwork(namespace)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, id, networkID)
 
 	li := <-dt.LastNetworkInspect()
@@ -146,7 +146,7 @@ func TestFindNetwork(t *testing.T) {
 	dt.ProvideNetworkInspect(types.NetworkResource{ID: id}, nil)
 
 	network, err := c.FindNetwork(namespace)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, id, network.ID)
 
 	li := <-dt.LastNetworkInspect()

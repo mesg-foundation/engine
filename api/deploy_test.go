@@ -28,11 +28,11 @@ func TestDeployService(t *testing.T) {
 		defer wg.Done()
 
 		archive, err := xarchive.GzippedTar(path)
-		require.Nil(t, err)
+		require.NoError(t, err)
 
 		service, validationError, err := a.DeployService(archive, DeployServiceStatusOption(statuses))
 		require.Nil(t, validationError)
-		require.Nil(t, err)
+		require.NoError(t, err)
 		require.Len(t, service.ID, 40)
 	}()
 
@@ -74,11 +74,11 @@ func TestDeployInvalidService(t *testing.T) {
 		defer wg.Done()
 
 		archive, err := xarchive.GzippedTar(path)
-		require.Nil(t, err)
+		require.NoError(t, err)
 
 		service, validationError, err := a.DeployService(archive, DeployServiceStatusOption(statuses))
 		require.Nil(t, service)
-		require.Nil(t, err)
+		require.NoError(t, err)
 		require.Equal(t, (&importer.ValidationError{}).Error(), validationError.Error())
 	}()
 
@@ -92,12 +92,7 @@ func TestDeployInvalidService(t *testing.T) {
 		Type:    DonePositive,
 	}, <-statuses)
 
-	select {
-	case <-statuses:
-		t.Error("should not send further status messages")
-	default:
-	}
-
+	require.Empty(t, statuses)
 	wg.Wait()
 }
 
@@ -116,7 +111,7 @@ func TestDeployServiceFromURL(t *testing.T) {
 		defer wg.Done()
 		service, validationError, err := a.DeployServiceFromURL(url, DeployServiceStatusOption(statuses))
 		require.Nil(t, validationError)
-		require.Nil(t, err)
+		require.NoError(t, err)
 		require.Len(t, service.ID, 40)
 	}()
 
@@ -160,8 +155,8 @@ func TestCreateTempFolder(t *testing.T) {
 
 	path, err := deployer.createTempDir()
 	defer os.RemoveAll(path)
-	require.Nil(t, err)
-	require.NotEqual(t, "", path)
+	require.NoError(t, err)
+	require.NotZero(t, path)
 }
 
 func TestRemoveTempFolder(t *testing.T) {
@@ -171,5 +166,5 @@ func TestRemoveTempFolder(t *testing.T) {
 
 	path, _ := deployer.createTempDir()
 	err := os.RemoveAll(path)
-	require.Nil(t, err)
+	require.NoError(t, err)
 }

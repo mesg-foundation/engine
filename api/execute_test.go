@@ -25,8 +25,8 @@ func TestExecuteFunc(t *testing.T) {
 		},
 	}, service.ContainerOption(a.container))
 	id, err := executor.execute(s, "test", map[string]interface{}{}, []string{})
-	require.Nil(t, err)
-	require.NotNil(t, id)
+	require.NoError(t, err)
+	require.NotZero(t, id)
 }
 
 func TestExecuteFuncInvalidTaskName(t *testing.T) {
@@ -35,7 +35,7 @@ func TestExecuteFuncInvalidTaskName(t *testing.T) {
 	executor := newTaskExecutor(a)
 	srv := &service.Service{}
 	_, err := executor.execute(srv, "test", map[string]interface{}{}, []string{})
-	require.NotNil(t, err)
+	require.Error(t, err)
 }
 
 func TestCheckServiceNotRunning(t *testing.T) {
@@ -43,9 +43,8 @@ func TestCheckServiceNotRunning(t *testing.T) {
 	defer closer()
 	executor := newTaskExecutor(a)
 	err := executor.checkServiceStatus(&service.Service{Name: "TestCheckServiceNotRunning"})
-	require.NotNil(t, err)
-	_, notRunningError := err.(*NotRunningServiceError)
-	require.True(t, notRunningError)
+	require.Error(t, err)
+	require.IsType(t, &NotRunningServiceError{}, err)
 }
 
 func TestCheckService(t *testing.T) {
@@ -62,6 +61,5 @@ func TestCheckService(t *testing.T) {
 		},
 	}, service.ContainerOption(a.container))
 	s.Start()
-	err := executor.checkServiceStatus(s)
-	require.Nil(t, err)
+	require.NoError(t, executor.checkServiceStatus(s))
 }

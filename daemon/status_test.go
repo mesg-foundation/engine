@@ -43,13 +43,13 @@ func testForceAndWaitForFullStop() chan error {
 func TestIsNotRunning(t *testing.T) {
 	<-testForceAndWaitForFullStop()
 	status, err := Status()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, container.STOPPED, status)
 }
 
 func TestIsRunning(t *testing.T) {
 	startForTest()
 	status, err := Status()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, container.RUNNING, status)
 }
