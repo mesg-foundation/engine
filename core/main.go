@@ -28,7 +28,14 @@ func initGRPCServer(c *config.Config) (*grpc.Server, error) {
 		return nil, err
 	}
 
-	return grpc.New(c.Server.Address, a), nil
+	// init system services.
+	systemServicesPath := filepath.Join(c.Core.Path, c.SystemServices.RelativePath)
+	ss, err := systemservices.New(a, systemServicesPath)
+	if err != nil {
+		return nil, err
+	}
+
+	return grpc.New(c.Server.Address, a, ss), nil
 }
 
 func main() {
@@ -47,52 +54,12 @@ func main() {
 		logrus.Fatalln(err)
 	}
 
-	logrus.Println("Starting MESG Core", version.Version)
+	logrus.Infof("starting MESG Core version %s", version.Version)
 
 	go func() {
 		if err := server.Serve(); err != nil {
 			logrus.Fatalln(err)
 		}
-	}()
-
-	// TODO: rm this goroutine.
-	// we have it here temporarily to test systemservices pkg.
-	go func() {
-		logrus.Println("service resolver: testing...")
-
-		systemServicesPath := filepath.Join(c.Core.Path, c.SystemServices.RelativePath)
-
-		a, err := api.New(db)
-		if err != nil {
-			logrus.Fatalln(err)
-		}
-		s, err := systemservices.New(a, systemServicesPath)
-		if err != nil {
-			logrus.Fatalln(err)
-		}
-
-		ss, validationErr, err := a.DeployServiceFromURL("https://github.com/mesg-foundation/service-webhook")
-		if err != nil {
-			logrus.Fatalln(err)
-		}
-		if validationErr != nil {
-			logrus.Fatalln(err)
-		}
-
-		peers := []string{"core:50052"}
-		logrus.Println("service resolver: webhook service started on peer:", peers[0])
-
-		if err := s.Resolver().AddPeers(peers); err != nil {
-			logrus.Fatalln(err)
-		}
-		logrus.Println("service resolver: webhook service's peer registered to resolver as:", peers[0])
-
-		address, err := s.Resolver().Resolve(ss.ID)
-		if err != nil {
-			logrus.Fatalln(err)
-		}
-		logrus.Println("service resolver: peer address resolved for webhook service as:", address)
-		logrus.Println("service resolver: works great!")
 	}()
 
 	<-xsignal.WaitForInterrupt()

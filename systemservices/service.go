@@ -8,6 +8,7 @@ import (
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/x/xerrors"
 	"github.com/mesg-foundation/core/x/xos"
+	"github.com/sirupsen/logrus"
 )
 
 // deployServices deploys system services.
@@ -20,6 +21,8 @@ func (s *SystemServices) deployServices(services []*systemService) error {
 		wg sync.WaitGroup
 	)
 
+	logrus.Infof("deploying (%d) system services...", len(services))
+
 	for _, ss := range services {
 		wg.Add(1)
 		go func(ss *systemService) {
@@ -31,6 +34,7 @@ func (s *SystemServices) deployServices(services []*systemService) error {
 				errs = append(errs, err)
 				return
 			}
+			logrus.Infof("'%s' system service deployed", ss.name)
 			ss.Service = sr
 		}(ss)
 	}
@@ -77,6 +81,8 @@ func (s *SystemServices) startServices(services []*systemService) error {
 		wg sync.WaitGroup
 	)
 
+	logrus.Info("starting system services...")
+
 	for _, ss := range services {
 		wg.Add(1)
 		go func(ss *systemService) {
@@ -90,7 +96,13 @@ func (s *SystemServices) startServices(services []*systemService) error {
 	}
 
 	wg.Wait()
-	return errs.ErrorOrNil()
+
+	if err := errs.ErrorOrNil(); err != nil {
+		return err
+	}
+
+	logrus.Info("all system services started")
+	return nil
 }
 
 // getServiceID returns the service id of a system service that matches with name.
