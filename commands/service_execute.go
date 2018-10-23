@@ -52,6 +52,7 @@ func (c *serviceExecuteCmd) preRunE(cmd *cobra.Command, args []string) error {
 func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 	var (
 		s              *coreapi.Service
+		result         *coreapi.ResultData
 		listenResultsC chan *coreapi.ResultData
 		inputData      string
 		resultsErrC    chan error
@@ -94,13 +95,10 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 	}
 	fmt.Printf("%s Task %q executed\n", pretty.SuccessSign, c.taskKey)
 
-	var result *coreapi.ResultData
 	pretty.Progress("Waiting for result...", func() {
 		select {
 		case result = <-listenResultsC:
-			return
 		case err = <-resultsErrC:
-			return
 		}
 	})
 	if err != nil {
@@ -155,10 +153,17 @@ func readJSONFile(path string) (string, error) {
 	if path == "" {
 		return "{}", nil
 	}
+
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
 		return "", err
 	}
+
+	var raw json.RawMessage
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return "", err
+	}
+
 	return string(data), nil
 }
 
