@@ -53,6 +53,7 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 	var (
 		s              *coreapi.Service
 		listenResultsC chan *coreapi.ResultData
+		inputData      string
 		resultsErrC    chan error
 		err            error
 	)
@@ -70,12 +71,12 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 	if err = c.getTaskKey(s); err != nil {
 		return err
 	}
+
+	inputData, err = c.getData(c.taskKey, s, c.executeData)
+	if err != nil {
+		return err
+	}
 	pretty.Progress(fmt.Sprintf("Executing task %q...", c.taskKey), func() {
-		var inputData string
-		inputData, err = c.getData(c.taskKey, s, c.executeData)
-		if err != nil {
-			return
-		}
 
 		// Create an unique tag that will be used to listen to the result of this exact execution
 		tags := []string{uuid.NewV4().String()}
