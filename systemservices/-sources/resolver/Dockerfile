@@ -1,5 +1,5 @@
 FROM golang:1.10.4
-WORKDIR /go/src/github.com/mesg-foundation/service-system-resolver
+WORKDIR /go/src/github.com/mesg-foundation/core/systemservices/-sources/resolver
 RUN go get -v github.com/mesg-foundation/go-service && \
     go get -v github.com/mesg-foundation/go-service/mesgtest && \
     go get -v github.com/mesg-foundation/core/x/xstrings && \
