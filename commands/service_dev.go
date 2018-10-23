@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"sync"
+	"time"
 
 	"github.com/fatih/color"
 	"github.com/mesg-foundation/core/commands/provider"
@@ -112,6 +113,10 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 	defer closer()
 
 	abort := xsignal.WaitForInterrupt()
+	go func() {
+		time.Sleep(time.Second * 2)
+		eventsErrC <- errors.New("test error")
+	}()
 
 	for {
 		select {
@@ -125,7 +130,7 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 			)
 
 		case err := <-eventsErrC:
-			fmt.Fprintf(os.Stderr, "%s Listening events error: %s", pretty.FailSign, err)
+			fmt.Fprintf(os.Stderr, "%s Listening events error: %s\n", pretty.FailSign, err)
 			return nil
 
 		case r := <-listenResultsC:
@@ -136,7 +141,7 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 			)
 
 		case err := <-resultsErrC:
-			fmt.Fprintf(os.Stderr, "%s Listening results error: %s", pretty.FailSign, err)
+			fmt.Fprintf(os.Stderr, "%s Listening results error: %s\n", pretty.FailSign, err)
 			return nil
 		}
 	}
