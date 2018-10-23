@@ -51,21 +51,26 @@ func (c *serviceExecuteCmd) preRunE(cmd *cobra.Command, args []string) error {
 
 func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 	var (
-		err            error
+		s              *coreapi.Service
 		listenResultsC chan *coreapi.ResultData
 		resultsErrC    chan error
+		err            error
 	)
-	pretty.Progress(fmt.Sprintf("Executing task %q...", c.taskKey), func() {
-		var s *coreapi.Service
+
+	pretty.Progress("Getting the service definition...", func() {
 		s, err = c.e.ServiceByID(args[0])
 		if err != nil {
 			return
 		}
+	})
+	if err != nil {
+		return err
+	}
 
-		if err = c.getTaskKey(s); err != nil {
-			return
-		}
-
+	if err = c.getTaskKey(s); err != nil {
+		return err
+	}
+	pretty.Progress(fmt.Sprintf("Executing task %q...", c.taskKey), func() {
 		var inputData string
 		inputData, err = c.getData(c.taskKey, s, c.executeData)
 		if err != nil {
