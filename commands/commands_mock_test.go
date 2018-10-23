@@ -74,14 +74,16 @@ type mockExecutor struct {
 	*mock.Mock
 	*mockRootExecutor
 	*mockServiceExecutor
+	*mockWorkflowExecutor
 }
 
 func newMockExecutor() *mockExecutor {
 	m := &mock.Mock{}
 	return &mockExecutor{
-		Mock:                m,
-		mockRootExecutor:    &mockRootExecutor{m},
-		mockServiceExecutor: &mockServiceExecutor{m},
+		Mock:                 m,
+		mockRootExecutor:     &mockRootExecutor{m},
+		mockServiceExecutor:  &mockServiceExecutor{m},
+		mockWorkflowExecutor: &mockWorkflowExecutor{m},
 	}
 }
 
@@ -190,5 +192,19 @@ func (m *mockServiceExecutor) ServiceInitTemplateList() ([]*servicetemplate.Temp
 
 func (m *mockServiceExecutor) ServiceInitDownloadTemplate(t *servicetemplate.Template, dst string) error {
 	args := m.Called()
+	return args.Error(0)
+}
+
+type mockWorkflowExecutor struct {
+	*mock.Mock
+}
+
+func (m *mockWorkflowExecutor) CreateWorkflow(filePath string, name string) (id string, err error) {
+	args := m.Called(filePath, name)
+	return args.Get(0).(string), args.Error(1)
+}
+
+func (m *mockWorkflowExecutor) DeleteWorkflow(id string) error {
+	args := m.Called(id)
 	return args.Error(0)
 }

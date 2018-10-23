@@ -42,6 +42,54 @@ service Core {
 
   // ServiceLogs gives a stream for dependency logs of a service.
   rpc ServiceLogs (ServiceLogsRequest) returns (stream LogData) {}
+
+  // CreateWorkflow creates and runs a new workflow.
+  rpc CreateWorkflow (CreateWorkflowRequest) returns (CreateWorkflowReply) {}
+
+  // DeleteWorkflow stops and deletes a workflow.
+  rpc DeleteWorkflow (DeleteWorkflowRequest) returns (DeleteWorkflowReply) {}
+}
+
+// The request's data for the `CreateWorkflow` API.
+//
+// **Example**
+// ```json
+// {
+//   "file":   __FILE__,
+//   "name": "__UNIQUE_WORKFLOW_NAME__"
+// }
+// ```
+message CreateWorkflowRequest {
+  bytes file = 1;  // workflow.yml file.
+  string name = 2; // An optional unique name for workflow.
+}
+
+// The reply's data of the `CreateWorkflow` API.
+//
+// **Example**
+// ```json
+// {
+//   "id": "__WORKFLOW_ID__"
+// }
+// ```
+message CreateWorkflowReply {
+  string ID = 1; // Unique ID of workflow.
+}
+
+// The request's data for the `DeleteWorkflow` API.
+//
+// **Example**
+// ```json
+// {
+//   "id": "__WORKFLOW_ID__"
+// }
+// ```
+message DeleteWorkflowRequest {
+  string ID = 1;  // Unique name or ID of workflow.
+}
+
+// Reply of `DeleteWorkflow` API doesn't contain any data.
+message DeleteWorkflowReply {
 }
 
 // The request's data for the `ListenEvent` stream's API.
