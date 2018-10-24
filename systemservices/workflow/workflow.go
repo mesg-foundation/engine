@@ -13,6 +13,7 @@ const (
 )
 
 // Workflow is a high level wrapper for Workflow System Service.
+// It calls the WSS's tasks and reacts to its event through network.
 // WSS responsible for managing and running workflows.
 type Workflow struct {
 	api       *api.API
@@ -27,7 +28,7 @@ func New(serviceID string, api *api.API) *Workflow {
 	}
 }
 
-// Create creates and runs workflow file with an optionally given unique name.
+// Create creates and runs a workflow file with an optionally given unique name.
 func (w *Workflow) Create(file []byte, name string) (id string, err error) {
 	e, err := w.api.ExecuteAndListen(w.serviceID, createTaskKey, map[string]interface{}{
 		"file": string(file),
