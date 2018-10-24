@@ -9,29 +9,31 @@ tasks:
         name: "workflow.yml file"
         type: String
       alias:
-        name: "unique name alias for workflow"
+        name: "Unique name alias for workflow"
         type: String
         optional: true
     outputs:
       success:
         data:
           id:
-            name: "unique id of workflow"
+            name: "Unique id of workflow"
             type: String
       error:
         data:
-          message: 
+          message:
+            name: "Error message"
             type: String
   delete:
     name: "Stop and deletes a workflow"
     inputs:
       id:
-        name: "id or unique name alias of workflow"
+        name: "ID or unique name alias of workflow"
         type: String
     outputs:
       success:
         data:
       error:
         data:
-          message: 
+          message:
+            name: "Error message"
             type: String

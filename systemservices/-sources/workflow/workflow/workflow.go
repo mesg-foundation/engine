@@ -24,7 +24,7 @@ type Workflow struct {
 	cp coreClientProvider
 }
 
-// New returns a new resolver.
+// New returns a new Workflow.
 func New(options ...Option) (*Workflow, error) {
 	r := &Workflow{
 		timeout: 5 * time.Second,

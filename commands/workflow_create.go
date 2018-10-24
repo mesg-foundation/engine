@@ -20,8 +20,8 @@ func newCreateWorkflowCmd(e WorkflowExecutor) *createWorkflowCmd {
 	c := &createWorkflowCmd{e: e}
 	c.cmd = newCommand(&cobra.Command{
 		Use:     "create WORKFLOW.yml",
-		Short:   "Create and run a workflow",
-		Long:    "Create a workflow from yaml file and run it",
+		Short:   "Create and run a new workflow",
+		Long:    "Create a new workflow from yaml file and run it",
 		Example: `mesg-core workflow create WORKFLOW.yml`,
 		Args:    cobra.ExactArgs(1),
 		RunE:    c.runE,
