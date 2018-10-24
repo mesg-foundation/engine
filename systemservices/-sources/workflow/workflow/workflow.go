@@ -25,28 +25,41 @@ type Workflow struct {
 
 	// cp is a core client provider.
 	cp coreClientProvider
+
+	// vm that runs workflows.
+	vm *VM
 }
 
 // New returns a new Workflow with given storage st and options.
-func New(st Storage, options ...Option) (*Workflow, error) {
-	r := &Workflow{
+func New(coreAddr string, st Storage, options ...Option) (*Workflow, error) {
+	w := &Workflow{
 		timeout: 5 * time.Second,
 		st:      st,
 	}
 	for _, option := range options {
-		option(r)
+		option(w)
 	}
-	if r.s == nil {
-		var err error
-		r.s, err = mesg.New()
+	if w.s == nil {
+		s, err := mesg.New()
 		if err != nil {
 			return nil, err
 		}
+		w.s = s
 	}
-	if r.cp == nil {
-		r.cp = &defaultCoreClientProvider{timeout: r.timeout}
+
+	var cp coreClientProvider
+	if w.cp != nil {
+		cp = w.cp
+	} else {
+		cp = &defaultCoreClientProvider{timeout: w.timeout}
 	}
-	return r, nil
+
+	core, err := cp.New(coreAddr)
+	if err != nil {
+		return nil, err
+	}
+	w.vm = newVM(core)
+	return w, nil
 }
 
 // Option is a configuration func for WSS.
@@ -68,6 +81,9 @@ func coreClientProviderOption(p coreClientProvider) Option {
 
 // Start starts WSS.
 func (w *Workflow) Start() error {
+	if err := w.runWorkflows(); err != nil {
+		return err
+	}
 	return w.listenTasks()
 }
 
@@ -80,5 +96,22 @@ func (w *Workflow) listenTasks() error {
 
 // Close gracefully closes WSS.
 func (w *Workflow) Close() error {
-	return w.s.Close()
+	if err := w.s.Close(); err != nil {
+		return err
+	}
+	return w.vm.TerminateAll()
+}
+
+// runWorkflows runs all workflows in the storage.
+func (w *Workflow) runWorkflows() error {
+	workflows, err := w.st.All()
+	if err != nil {
+		return err
+	}
+	for _, workflow := range workflows {
+		if err := w.vm.Run(workflow); err != nil {
+			return err
+		}
+	}
+	return nil
 }

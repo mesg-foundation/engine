@@ -31,15 +31,24 @@ func (w *Workflow) createHandler(execution *mesg.Execution) (string, mesg.Data) 
 	if err != nil {
 		return "error", errorOutput{err.Error()}
 	}
+
 	h := sha1.New()
 	h.Write(structhash.Dump(def, 1))
 	id := fmt.Sprintf("%x", h.Sum(nil))
-	if err := w.st.Save(&WorkflowDocument{
+
+	wdoc := &WorkflowDocument{
 		ID:         id,
 		Name:       inputs.Name,
 		Definition: def,
-	}); err != nil {
+	}
+
+	if err := w.st.Save(wdoc); err != nil {
 		return "error", errorOutput{err.Error()}
 	}
+
+	if err := w.vm.Run(wdoc); err != nil {
+		return "error", errorOutput{err.Error()}
+	}
+
 	return "success", createSuccessOutput{id}
 }

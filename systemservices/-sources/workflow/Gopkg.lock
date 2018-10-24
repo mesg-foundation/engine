@@ -24,12 +24,21 @@
   revision = "d7fc20193620986259ffb1f9b9da752114ee14a4"
 
 [[projects]]
+  digest = "1:0a69a1c0db3591fcefb47f115b224592c8dfa4368b7ba9fae509d5e16cdc95c8"
+  name = "github.com/konsorten/go-windows-terminal-sequences"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "5c8c8bd35d3832f5d134ae1e1e375b69a4d25242"
+  version = "v1.0.1"
+
+[[projects]]
   branch = "feature/system-services"
-  digest = "1:11e3b9d4c3b1d4c826320e9cb6565aeaa0caa5ec984e73d2cf0ab2d1fffea360"
+  digest = "1:5b5ef015c2ed8a80a197054d31763dae1e3c7af862bad7d78406fc6ec253373e"
   name = "github.com/mesg-foundation/core"
   packages = [
     "systemservices/-sources/resolver/proto/core",
     "x/xsignal",
+    "x/xstrings",
   ]
   pruneopts = "UT"
   revision = "516e26355a13e748c4f2bf9ec7e62732b1cd83be"
@@ -44,6 +53,22 @@
   ]
   pruneopts = "UT"
   revision = "c53d57c454a245c03505a9f0f8430832cfd4d6c9"
+
+[[projects]]
+  digest = "1:3f53e9e4dfbb664cd62940c9c4b65a2171c66acd0b7621a1a6b8e78513525a52"
+  name = "github.com/sirupsen/logrus"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "ad15b42461921f1fb3529b058c6786c6a45d5162"
+  version = "v1.1.1"
+
+[[projects]]
+  branch = "master"
+  digest = "1:3f3a05ae0b95893d90b9b3b5afdb79a9b3d96e4e36e099d841ae602e4aca0da8"
+  name = "golang.org/x/crypto"
+  packages = ["ssh/terminal"]
+  pruneopts = "UT"
+  revision = "74cb1d3d52f4c01cbfb44c1b50d204462f3124c7"
 
 [[projects]]
   branch = "master"
@@ -63,9 +88,12 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:c5791551cb1ebd8cd399edad5bc32805661a5c0340515110dd7d5ab0b0508efc"
+  digest = "1:eb2ed765d17a2cedfc307cf8beda6f0857ad378431a4d8f2726c419f3d7105de"
   name = "golang.org/x/sys"
-  packages = ["unix"]
+  packages = [
+    "unix",
+    "windows",
+  ]
   pruneopts = "UT"
   revision = "8a28ead16f52c8aaeffbf79239b251dfdf6c4f96"
 
@@ -165,7 +193,9 @@
     "github.com/golang/protobuf/proto",
     "github.com/mesg-foundation/core/systemservices/-sources/resolver/proto/core",
     "github.com/mesg-foundation/core/x/xsignal",
+    "github.com/mesg-foundation/core/x/xstrings",
     "github.com/mesg-foundation/go-service",
+    "github.com/sirupsen/logrus",
     "golang.org/x/net/context",
     "google.golang.org/grpc",
     "gopkg.in/mgo.v2",

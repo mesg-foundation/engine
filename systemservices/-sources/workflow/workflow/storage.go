@@ -12,11 +12,14 @@ type Storage interface {
 	// Otherwise it should return an error.
 	Save(w *WorkflowDocument) error
 
+	// Get gets workflow from database by unique id/name of workflow document.
+	Get(id string) (*WorkflowDocument, error)
+
 	// Delete deletes workflow from database by unique id/name of workflow document.
 	Delete(id string) error
 
 	// All returns all the workflows from database.
-	All() (defs []*WorkflowDocument, err error)
+	All() ([]*WorkflowDocument, error)
 }
 
 // MongoStorage implements Storage.
@@ -72,6 +75,17 @@ func (s *MongoStorage) Save(w *WorkflowDocument) error {
 	ss := s.ss.Clone()
 	defer ss.Close()
 	return ss.DB(s.dbName).C(s.workflowsC).Insert(w)
+}
+
+// Get gets workflow from database by unique id/name of workflow document.
+func (s *MongoStorage) Get(id string) (*WorkflowDocument, error) {
+	ss := s.ss.Clone()
+	defer ss.Close()
+	var workflow *WorkflowDocument
+	return workflow, ss.DB(s.dbName).C(s.workflowsC).Find(bson.M{"$or": []bson.M{
+		bson.M{"id": id},
+		bson.M{"name": id},
+	}}).One(&workflow)
 }
 
 // Delete deletes workflow from database by unique id/name of workflow document.

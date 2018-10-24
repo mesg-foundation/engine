@@ -13,7 +13,14 @@ func (w *Workflow) deleteHandler(execution *mesg.Execution) (string, mesg.Data) 
 	if err := execution.Data(&inputs); err != nil {
 		return "error", errorOutput{err.Error()}
 	}
-	if err := w.st.Delete(inputs.ID); err != nil {
+	workflow, err := w.st.Get(inputs.ID)
+	if err != nil {
+		return "error", errorOutput{err.Error()}
+	}
+	if err := w.vm.Terminate(workflow.ID); err != nil {
+		return "error", errorOutput{err.Error()}
+	}
+	if err := w.st.Delete(workflow.ID); err != nil {
 		return "error", errorOutput{err.Error()}
 	}
 	return "success", nil
