@@ -8,8 +8,13 @@ import (
 )
 
 func main() {
+	storage, err := workflow.NewMongoStorage("mongodb://mongo:27017", "workflow")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// init WSS.
-	w, err := workflow.New()
+	w, err := workflow.New(storage)
 	if err != nil {
 		log.Fatal(err)
 	}

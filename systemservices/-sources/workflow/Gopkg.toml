@@ -38,10 +38,6 @@
   name = "github.com/mesg-foundation/go-service"
 
 [[constraint]]
-  name = "github.com/satori/go.uuid"
-  version = "1.2.0"
-
-[[constraint]]
   branch = "master"
   name = "golang.org/x/net"
 

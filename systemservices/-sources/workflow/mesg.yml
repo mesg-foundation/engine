@@ -37,3 +37,11 @@ tasks:
           message:
             name: "Error message"
             type: String
+
+dependencies:
+  mongo:
+    image: mongo
+    ports:
+      - 50005:27017
+    volumes:
+      - /data/db

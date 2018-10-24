@@ -14,6 +14,9 @@ const (
 
 // Workflow is Workflow System Service for managing and running workflows.
 type Workflow struct {
+	// st is storage for workflows.
+	st Storage
+
 	// timeout used to set timeouts for external requests.
 	timeout time.Duration
 
@@ -24,10 +27,11 @@ type Workflow struct {
 	cp coreClientProvider
 }
 
-// New returns a new Workflow.
-func New(options ...Option) (*Workflow, error) {
+// New returns a new Workflow with given storage st and options.
+func New(st Storage, options ...Option) (*Workflow, error) {
 	r := &Workflow{
 		timeout: 5 * time.Second,
+		st:      st,
 	}
 	for _, option := range options {
 		option(r)

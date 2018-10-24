@@ -3,6 +3,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:0ec96fca24e0ab3ffd02c0ef10b81ed8bf7452f24a83e356327a35610368b170"
+  name = "github.com/cnf/structhash"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "62a607eb02243845670f25a61cbc2d394c1ede10"
+
+[[projects]]
+  branch = "master"
   digest = "1:f26d410f706e6bdfb1576cacf9e4bbd3add8b55a298bf90ab20f588854bad6e0"
   name = "github.com/golang/protobuf"
   packages = [
@@ -36,14 +44,6 @@
   ]
   pruneopts = "UT"
   revision = "c53d57c454a245c03505a9f0f8430832cfd4d6c9"
-
-[[projects]]
-  digest = "1:274f67cb6fed9588ea2521ecdac05a6d62a8c51c074c1fccc6a49a40ba80e925"
-  name = "github.com/satori/go.uuid"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
-  version = "v1.2.0"
 
 [[projects]]
   branch = "master"
@@ -135,17 +135,42 @@
   revision = "8dea3dc473e90c8179e519d91302d0597c0ca1d1"
   version = "v1.15.0"
 
+[[projects]]
+  branch = "v2"
+  digest = "1:988de7520a09024d5d94cd99bd545afbf194893994ec759b1cda0a0bbb6adb80"
+  name = "gopkg.in/mgo.v2"
+  packages = [
+    ".",
+    "bson",
+    "internal/json",
+    "internal/sasl",
+    "internal/scram",
+  ]
+  pruneopts = "UT"
+  revision = "9856a29383ce1c59f308dd1cf0363a79b5bef6b5"
+
+[[projects]]
+  digest = "1:342378ac4dcb378a5448dd723f0784ae519383532f5e70ade24132c4c8693202"
+  name = "gopkg.in/yaml.v2"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
+  version = "v2.2.1"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/cnf/structhash",
     "github.com/golang/protobuf/proto",
     "github.com/mesg-foundation/core/systemservices/-sources/resolver/proto/core",
     "github.com/mesg-foundation/core/x/xsignal",
     "github.com/mesg-foundation/go-service",
-    "github.com/satori/go.uuid",
     "golang.org/x/net/context",
     "google.golang.org/grpc",
+    "gopkg.in/mgo.v2",
+    "gopkg.in/mgo.v2/bson",
+    "gopkg.in/yaml.v2",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
