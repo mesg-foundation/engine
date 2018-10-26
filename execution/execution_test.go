@@ -12,13 +12,29 @@ import (
 )
 
 var (
-	task = &service.Task{
-		Key: "task",
-		Inputs: []*service.Parameter{
-			&service.Parameter{Key: "foo", Type: "String"},
-			&service.Parameter{Key: "bar", Type: "String"},
+	srv = &service.Service{
+		Tasks: []*service.Task{
+			&service.Task{
+				Key: "task",
+				Inputs: []*service.Parameter{
+					&service.Parameter{Key: "foo", Type: "String"},
+					&service.Parameter{Key: "bar", Type: "String"},
+				},
+				Outputs: []*service.Output{
+					&service.Output{
+						Key: "outputX",
+						Data: []*service.Parameter{
+							&service.Parameter{
+								Key:  "foo",
+								Type: "String",
+							},
+						},
+					},
+				},
+			},
 		},
 	}
+	taskKey       = "task"
 	defaultInputs = map[string]interface{}{
 		"foo": "hello",
 		"bar": "world",
@@ -44,7 +60,7 @@ func TestCreate(t *testing.T) {
 		{inputs: map[string]interface{}{"foo": "hello"}, assert: true},
 	}
 	for _, test := range tests {
-		execution, err := db.Create(task, test.inputs, tags)
+		execution, err := db.Create(srv, taskKey, test.inputs, tags)
 		if test.assert {
 			require.Error(t, err)
 		} else {
@@ -53,7 +69,8 @@ func TestCreate(t *testing.T) {
 			e, err := db.Find(execution.ID)
 			require.NoError(t, err)
 			require.NotNil(t, e)
-			require.Equal(t, task, e.Task)
+			require.Equal(t, srv.ID, e.Service.ID)
+			require.Equal(t, taskKey, e.TaskKey)
 			require.Equal(t, test.inputs, e.Inputs)
 			require.Equal(t, tags, e.Tags)
 			require.Equal(t, execution.Status, Created)
@@ -65,7 +82,7 @@ func TestCreate(t *testing.T) {
 func TestFind(t *testing.T) {
 	db := db(t, filepath.Join(os.TempDir(), "TestFindExecution"))
 	defer db.Close()
-	e, _ := db.Create(task, defaultInputs, tags)
+	e, _ := db.Create(srv, taskKey, defaultInputs, tags)
 	tests := []struct {
 		id     string
 		assert bool
@@ -87,7 +104,7 @@ func TestFind(t *testing.T) {
 func TestExecute(t *testing.T) {
 	db := db(t, filepath.Join(os.TempDir(), "TestExecute"))
 	defer db.Close()
-	e, _ := db.Create(&service.Task{Key: "TestExecute"}, map[string]interface{}{}, tags)
+	e, _ := db.Create(srv, taskKey, map[string]interface{}{"foo": "1", "bar": "2"}, tags)
 	tests := []struct {
 		id     string
 		assert bool
@@ -115,17 +132,7 @@ func TestExecute(t *testing.T) {
 func TestComplete(t *testing.T) {
 	db := db(t, filepath.Join(os.TempDir(), "TestComplete"))
 	defer db.Close()
-	e, _ := db.Create(&service.Task{Key: "TestComplete", Outputs: []*service.Output{
-		&service.Output{
-			Key: "outputX",
-			Data: []*service.Parameter{
-				&service.Parameter{
-					Key:  "foo",
-					Type: "String",
-				},
-			},
-		},
-	}}, map[string]interface{}{}, tags)
+	e, _ := db.Create(srv, taskKey, map[string]interface{}{"foo": "1", "bar": "2"}, tags)
 	db.Execute(e.ID)
 	tests := []struct {
 		id     string
@@ -158,12 +165,10 @@ func TestComplete(t *testing.T) {
 func TestConsistentID(t *testing.T) {
 	db := db(t, filepath.Join(os.TempDir(), "TestConsistentID"))
 	defer db.Close()
-	e, _ := db.Create(&service.Task{Key: "TestConsistentID", Outputs: []*service.Output{
-		&service.Output{Key: "foo"},
-	}}, map[string]interface{}{}, tags)
+	e, _ := db.Create(srv, taskKey, map[string]interface{}{"foo": "1", "bar": "2"}, tags)
 	require.NotZero(t, e.ID)
 	e2, _ := db.Execute(e.ID)
 	require.Equal(t, e.ID, e2.ID)
-	e3, _ := db.Complete(e2.ID, "foo", map[string]interface{}{})
+	e3, _ := db.Complete(e2.ID, "outputX", map[string]interface{}{"foo": "1", "bar": "2"})
 	require.Equal(t, e.ID, e3.ID)
 }

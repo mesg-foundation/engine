@@ -90,7 +90,7 @@ func TestIsSubscribedToTask(t *testing.T) {
 	defer closer()
 	ln := newResultListener(a)
 
-	x := &execution.Execution{Task: &service.Task{Key: "task"}}
+	x := &execution.Execution{TaskKey: "task"}
 
 	ln.taskKey = ""
 	require.True(t, ln.isSubscribedToTask(x))
@@ -205,7 +205,6 @@ func TestIsSubscribed(t *testing.T) {
 		x.tagFilters = []string{"foo"}
 		return x
 	}
-	task := &service.Task{Key: "test"}
 	tests := []struct {
 		t     *test
 		valid bool
@@ -221,7 +220,6 @@ func TestIsSubscribed(t *testing.T) {
 		{subscribeToTags(subscribeToTask(subscribeToOutput(&test{}))), true, "[tags, task, output]"},
 	}
 	for _, test := range tests {
-		test.t.e.Task = task
 		ln.taskKey = test.t.taskFilter
 		ln.outputKey = test.t.outputFilter
 		ln.tagFilters = test.t.tagFilters

@@ -28,13 +28,18 @@ func New(path string) (DB, error) {
 // Create a record in the database to store this execution and returns the id
 // returns an error if any problem happen with the database
 // returns an error if inputs are invalid
-func (db *LevelDB) Create(task *service.Task, inputs map[string]interface{}, tags []string) (*Execution, error) {
+func (db *LevelDB) Create(service *service.Service, taskKey string, inputs map[string]interface{}, tags []string) (*Execution, error) {
+	task, err := service.GetTask(taskKey)
+	if err != nil {
+		return nil, err
+	}
 	if err := task.RequireInputs(inputs); err != nil {
 		return nil, err
 	}
 	return db.save(&Execution{
+		Service:   service,
 		Inputs:    inputs,
-		Task:      task,
+		TaskKey:   taskKey,
 		Tags:      tags,
 		CreatedAt: time.Now(),
 		Status:    Created,
@@ -80,7 +85,11 @@ func (db *LevelDB) Complete(executionID, outputKey string, outputData map[string
 	if e.Status != InProgress {
 		return nil, StatusError{}
 	}
-	output, err := e.Task.GetOutput(outputKey)
+	task, err := e.Service.GetTask(e.TaskKey)
+	if err != nil {
+		return nil, err
+	}
+	output, err := task.GetOutput(outputKey)
 	if err != nil {
 		return nil, err
 	}

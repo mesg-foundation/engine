@@ -1,8 +1,6 @@
 package api
 
 import (
-	"fmt"
-
 	"github.com/mesg-foundation/core/pubsub"
 )
 
@@ -29,19 +27,6 @@ func (s *resultSubmitter) Submit(executionID string, outputKey string, outputDat
 	if err != nil {
 		return err
 	}
-	srv, err := s.api.db.Get(execution.ServiceID)
-	if err != nil {
-		return err
-	}
-	go pubsub.Publish(srv.ResultSubscriptionChannel(), execution)
+	go pubsub.Publish(execution.Service.ResultSubscriptionChannel(), execution)
 	return nil
-}
-
-// MissingExecutionError is returned when corresponding execution doesn't exists.
-type MissingExecutionError struct {
-	ID string
-}
-
-func (e *MissingExecutionError) Error() string {
-	return fmt.Sprintf("Execution %q doesn't exists", e.ID)
 }

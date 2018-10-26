@@ -22,7 +22,8 @@ var (
 func newServer(t *testing.T) (*Server, func()) {
 	db, err := database.NewServiceDB("db.test")
 	require.NoError(t, err)
-	execDB, err := execution.New("db.test")
+
+	execDB, err := execution.New("dbexec.test")
 	require.NoError(t, err)
 
 	a, err := api.New(db, execDB)
@@ -33,6 +34,7 @@ func newServer(t *testing.T) (*Server, func()) {
 
 	closer := func() {
 		db.Close()
+		execDB.Close()
 		os.RemoveAll("db.test")
 	}
 
