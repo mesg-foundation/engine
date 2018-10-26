@@ -41,6 +41,7 @@ type ServiceExecutor interface {
 type WorkflowExecutor interface {
 	CreateWorkflow(filePath string, name string) (id string, err error)
 	DeleteWorkflow(id string) error
+	WorkflowLogs(id string) (log *provider.WorkflowLog, close func(), err error)
 }
 
 // Executor is an interface that keeps all commands interfaces.

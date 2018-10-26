@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/mesg-foundation/core/protobuf/coreapi"
+	"github.com/mesg-foundation/core/utils/chunker"
 )
 
 // WorkflowProvider is a struct that provides all methods required by workflow command.
@@ -46,4 +47,62 @@ func (p *WorkflowProvider) CreateWorkflow(filePath string, name string) (id stri
 func (p *WorkflowProvider) DeleteWorkflow(id string) error {
 	_, err := p.client.DeleteWorkflow(context.Background(), &coreapi.DeleteWorkflowRequest{ID: id})
 	return err
+}
+
+// WorkflowLog keeps workflow logs' standard and error streams.
+type WorkflowLog struct {
+	Standard, Error *chunker.Stream
+}
+
+// WorkflowLogs returns workflow log streams.
+func (p *WorkflowProvider) WorkflowLogs(id string) (log *WorkflowLog, close func(), err error) {
+	ctx, cancel := context.WithCancel(context.Background())
+	stream, err := p.client.WorkflowLogs(ctx, &coreapi.WorkflowLogsRequest{
+		ID: id,
+	})
+	if err != nil {
+		cancel()
+		return nil, nil, err
+	}
+
+	log = &WorkflowLog{
+		Standard: chunker.NewStream(),
+		Error:    chunker.NewStream(),
+	}
+
+	closer := func() {
+		cancel()
+		log.Standard.Close()
+		log.Error.Close()
+	}
+
+	errC := make(chan error, 1)
+	go p.listenWorkflowLogs(stream, log, errC)
+	go func() {
+		<-errC
+		closer()
+	}()
+
+	return log, closer, nil
+}
+
+// listenWorkflowLogs listens gRPC stream to get workflow logs.
+func (p *WorkflowProvider) listenWorkflowLogs(stream coreapi.Core_WorkflowLogsClient, log *WorkflowLog,
+	errC chan error) {
+	for {
+		data, err := stream.Recv()
+		if err != nil {
+			errC <- err
+			return
+		}
+
+		var out *chunker.Stream
+		switch data.Type {
+		case coreapi.WorkflowLogData_Standard:
+			out = log.Standard
+		case coreapi.WorkflowLogData_Error:
+			out = log.Error
+		}
+		out.Provide(data.Data)
+	}
 }

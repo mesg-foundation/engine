@@ -48,6 +48,9 @@ service Core {
 
   // DeleteWorkflow stops and deletes a workflow.
   rpc DeleteWorkflow (DeleteWorkflowRequest) returns (DeleteWorkflowReply) {}
+
+  // WorkflowLogs gives the logs stream of a workflow.
+  rpc WorkflowLogs (WorkflowLogsRequest) returns (stream WorkflowLogData) {}
 }
 
 // The request's data for the `CreateWorkflow` API.
@@ -85,11 +88,43 @@ message CreateWorkflowReply {
 // }
 // ```
 message DeleteWorkflowRequest {
-  string ID = 1;  // Unique name or ID of workflow.
+  string ID = 1; // Unique name or ID of workflow.
 }
 
 // Reply of `DeleteWorkflow` API doesn't contain any data.
 message DeleteWorkflowReply {
+}
+
+// The request's data for `WorkflowLogs` API.
+//
+// **Example**
+// ```json
+// {
+//   "id": "__WORKFLOW_ID__",
+// }
+// ```
+message WorkflowLogsRequest {
+  string ID = 1; // Unique name or ID of workflow.
+}
+
+// The data received from the stream of the `WorkflowLogs` API.
+// The data will be received over time as long as the stream is open.
+//
+// **Example**
+// ```json
+// {
+//   "type": "__LOG_TYPE__",
+//   "data":  "__LOG_CHUNK__",
+// }
+// ```
+message WorkflowLogData {
+  enum Type {
+    Standard = 0;  // Standard represents standard log output.
+    Error = 1;     // Error represents error log output.
+  }
+
+  Type type = 2;         // The log type.
+  bytes data = 3;        // Log data chunk.
 }
 
 // The request's data for the `ListenEvent` stream's API.

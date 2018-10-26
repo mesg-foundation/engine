@@ -113,6 +113,10 @@ The request's data for the `ListenEvent` stream's API.
 
 
 
+
+
+
+
 </tab>
 
 <tab title="Reply">
@@ -158,6 +162,10 @@ The data will be received over time as long as the stream is open.
 | ----- | ---- | ----------- |
 | eventKey | [string](#string) | The event's key. |
 | eventData | [string](#string) | The event's data encoded in JSON. |
+
+
+
+
 
 
 
@@ -298,6 +306,10 @@ The request's data for the `ListenResult` stream API.
 
 
 
+
+
+
+
 </tab>
 
 <tab title="Reply">
@@ -373,6 +385,10 @@ The data will be received over time as long as the stream is open.
 | outputKey | [string](#string) | The output's key from the returned task. |
 | outputData | [string](#string) | The output's data from the returned task, encoded in JSON. |
 | executionTags | [string](#string)[] | The list of tags associated with the execution |
+
+
+
+
 
 
 
@@ -489,6 +505,10 @@ The request's data for the `ExecuteTask` API.
 
 
 
+
+
+
+
 </tab>
 
 <tab title="Reply">
@@ -533,6 +553,10 @@ The reply's data of the `ExecuteTask` API.
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | executionID | [string](#string) | The unique identifier of the execution. |
+
+
+
+
 
 
 
@@ -665,6 +689,10 @@ The request's data for the `StartService` API.
 
 
 
+
+
+
+
 </tab>
 
 <tab title="Reply">
@@ -725,6 +753,10 @@ The request's data for the `StartService` API.
 
 #### StartServiceReply
 Reply of `StartService` API doesn't contain any data.
+
+
+
+
 
 
 
@@ -829,6 +861,10 @@ The request's data for the `StopService` API.
 
 
 
+
+
+
+
 </tab>
 
 <tab title="Reply">
@@ -902,6 +938,10 @@ Reply of `StopService` API doesn't contain any data.
 
 
 
+
+
+
+
 </tab>
 </tabs>
 
@@ -954,6 +994,10 @@ or
 | ----- | ---- | ----------- |
 | url | [string](#string) | Git repo url of service. When url provided, stream will be closed after the first receive. |
 | chunk | [bytes](#bytes) | Chunks of gzipped tar archive of service. If chunk provided, stream should be closed by client after all chunks sent. |
+
+
+
+
 
 
 
@@ -1104,6 +1148,10 @@ or
 
 
 
+
+
+
+
 </tab>
 </tabs>
 
@@ -1136,6 +1184,10 @@ Request's data of the `DeleteService` API.
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | serviceID | [string](#string) | The Service ID. Generated when using the [`DeployService` API](#deployservice). |
+
+
+
+
 
 
 
@@ -1268,6 +1320,10 @@ Reply of `DeleteService` API doesn't contain any data.
 
 
 
+
+
+
+
 </tab>
 </tabs>
 
@@ -1316,6 +1372,10 @@ List all services already deployed in [Core](../guide/start-here/core.md).
 
 #### ListServicesRequest
 Reply of `ListServices` API doesn't contain any data.
+
+
+
+
 
 
 
@@ -1473,6 +1533,10 @@ The reply's data of the `ListServices` API.
 
 
 
+
+
+
+
 </tab>
 </tabs>
 
@@ -1529,6 +1593,10 @@ The request's data for the `GetService` API.
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | serviceID | [string](#string) | The Service ID. Generated when using the [`DeployService` API](#deployservice). |
+
+
+
+
 
 
 
@@ -1690,6 +1758,10 @@ The reply's data of the `GetService` API.
 
 
 
+
+
+
+
 </tab>
 </tabs>
 
@@ -1783,6 +1855,10 @@ The request's data for `ServiceLogs` API.
 
 
 
+
+
+
+
 </tab>
 
 <tab title="Reply">
@@ -1848,6 +1924,10 @@ The data will be received over time as long as the stream is open.
 | dependency | [string](#string) | Service dependency that data belongs. |
 | type | [LogData.Type](#api.LogData.Type) | The log type. |
 | data | [bytes](#bytes) | Log data chunk. |
+
+
+
+
 
 
 
@@ -1966,6 +2046,10 @@ The request's data for the `CreateWorkflow` API.
 
 
 
+
+
+
+
 </tab>
 
 <tab title="Reply">
@@ -1986,6 +2070,10 @@ The reply's data of the `CreateWorkflow` API.
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | ID | [string](#string) | Unique ID of workflow. |
+
+
+
+
 
 
 
@@ -2142,6 +2230,10 @@ The request's data for the `DeleteWorkflow` API.
 
 
 
+
+
+
+
 </tab>
 
 <tab title="Reply">
@@ -2208,6 +2300,197 @@ Reply of `DeleteWorkflow` API doesn't contain any data.
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+</tab>
+</tabs>
+
+## WorkflowLogs
+
+WorkflowLogs gives the logs stream of a workflow.
+
+<tabs>
+<tab title="Request">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#### WorkflowLogsRequest
+The request's data for `WorkflowLogs` API.
+
+**Example**
+```json
+{
+  "id": "__WORKFLOW_ID__",
+}
+```
+
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| ID | [string](#string) | Unique name or ID of workflow. |
+
+
+
+
+
+</tab>
+
+<tab title="Reply">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#### WorkflowLogData
+The data received from the stream of the `WorkflowLogs` API.
+The data will be received over time as long as the stream is open.
+
+**Example**
+```json
+{
+  "type": "__LOG_TYPE__",
+  "data":  "__LOG_CHUNK__",
+}
+```
+
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| type | [WorkflowLogData.Type](#api.WorkflowLogData.Type) | The log type. |
+| data | [bytes](#bytes) | Log data chunk. |
 
 
 
