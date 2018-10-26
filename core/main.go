@@ -1,8 +1,10 @@
 package main
 
 import (
+	"log"
 	"path/filepath"
 
+	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/execution"
@@ -13,39 +15,52 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func main() {
-	c, err := config.Global()
-	if err != nil {
-		panic(err)
-	}
-
+func initGRPCServer(c *config.Config) (*grpc.Server, error) {
+	// init services db.
 	db, err := database.NewServiceDB(filepath.Join(c.Core.Path, c.Core.Database.ServiceRelativePath))
 	if err != nil {
-		logrus.Fatalln(err)
+		return nil, err
 	}
 
+	// init execution db.
 	execDB, err := execution.New(filepath.Join(c.Core.Path, c.Core.Database.ExecutionRelativePath))
+	if err != nil {
+		return nil, err
+	}
+
+	// init api.
+	a, err := api.New(db, execDB)
+	if err != nil {
+		return nil, err
+	}
+
+	return grpc.New(c.Server.Address, a), nil
+}
+
+func main() {
+	// init configs.
+	c, err := config.Global()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// init logger.
+	logger.Init(c.Log.Format, c.Log.Level)
+
+	// init gRPC server.
+	server, err := initGRPCServer(c)
 	if err != nil {
 		logrus.Fatalln(err)
 	}
-
-	logger.Init(c.Log.Format, c.Log.Level)
 
 	logrus.Println("Starting MESG Core", version.Version)
 
-	tcpServer := &grpc.Server{
-		Network:   "tcp",
-		Address:   c.Server.Address,
-		ServiceDB: db,
-		ExecDB:    execDB,
-	}
-
 	go func() {
-		if err := tcpServer.Serve(); err != nil {
+		if err := server.Serve(); err != nil {
 			logrus.Fatalln(err)
 		}
 	}()
 
 	<-xsignal.WaitForInterrupt()
-	tcpServer.Close()
+	server.Close()
 }

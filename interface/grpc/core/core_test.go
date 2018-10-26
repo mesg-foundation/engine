@@ -36,8 +36,7 @@ func newServer(t *testing.T) (*Server, func()) {
 	a, err := api.New(db, execDB, api.ContainerOption(container))
 	require.NoError(t, err)
 
-	server, err := NewServer(APIOption(a))
-	require.NoError(t, err)
+	server := NewServer(a)
 
 	closer := func() {
 		db.Close()
@@ -62,8 +61,7 @@ func newServerAndDockerTest(t *testing.T) (*Server, *dockertest.Testing, func())
 	a, err := api.New(db, execDB, api.ContainerOption(container))
 	require.NoError(t, err)
 
-	server, err := NewServer(APIOption(a))
-	require.NoError(t, err)
+	server := NewServer(a)
 
 	closer := func() {
 		db.Close()
