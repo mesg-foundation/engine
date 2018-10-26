@@ -29,8 +29,7 @@ func newServer(t *testing.T) (*Server, func()) {
 	a, err := api.New(db, execDB)
 	require.Nil(t, err)
 
-	server, err := NewServer(APIOption(a))
-	require.Nil(t, err)
+	server := NewServer(a)
 
 	closer := func() {
 		db.Close()
