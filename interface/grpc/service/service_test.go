@@ -10,6 +10,7 @@ import (
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/database"
+	"github.com/mesg-foundation/core/execution"
 	"github.com/stretchr/testify/require"
 )
 
@@ -21,8 +22,10 @@ var (
 func newServer(t *testing.T) (*Server, func()) {
 	db, err := database.NewServiceDB("db.test")
 	require.NoError(t, err)
+	execDB, err := execution.New("db.test")
+	require.NoError(t, err)
 
-	a, err := api.New(db)
+	a, err := api.New(db, execDB)
 	require.Nil(t, err)
 
 	server, err := NewServer(APIOption(a))
