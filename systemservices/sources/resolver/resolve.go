@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/mesg-foundation/core/systemservices/-sources/resolver/proto/core"
+	"github.com/mesg-foundation/core/systemservices/sources/resolver/proto/core"
 	"github.com/mesg-foundation/core/x/xstrings"
 	mesg "github.com/mesg-foundation/go-service"
 	"google.golang.org/grpc"
