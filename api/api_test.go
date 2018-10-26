@@ -4,6 +4,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/mesg-foundation/core/execution"
+
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/container/dockertest"
 	"github.com/mesg-foundation/core/database"
@@ -22,11 +24,15 @@ func newAPIAndDockerTest(t *testing.T) (*API, *dockertest.Testing, func()) {
 	db, err := database.NewServiceDB(testdbname)
 	require.NoError(t, err)
 
-	a, err := New(db, ContainerOption(container))
+	execDB, err := execution.New("execution" + testdbname)
+	require.NoError(t, err)
+
+	a, err := New(db, execDB, ContainerOption(container))
 	require.Nil(t, err)
 
 	closer := func() {
 		require.NoError(t, db.Close())
+		require.NoError(t, execDB.Close())
 		require.NoError(t, os.RemoveAll(testdbname))
 	}
 	return a, dt, closer
