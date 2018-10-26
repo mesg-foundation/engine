@@ -24,7 +24,7 @@ func main() {
 		logrus.Fatalln(err)
 	}
 
-	execDB, err := execution.DB(filepath.Join(c.Core.Path, c.Core.Database.ExecutionRelativePath))
+	execDB, err := execution.New(filepath.Join(c.Core.Path, c.Core.Database.ExecutionRelativePath))
 	if err != nil {
 		logrus.Fatalln(err)
 	}
