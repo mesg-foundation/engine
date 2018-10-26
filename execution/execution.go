@@ -21,9 +21,9 @@ const (
 
 // Execution stores all informations about executions.
 type Execution struct {
-	ID                []byte                 `hash:"-"`
+	ID                string                 `hash:"-"`
 	Status            Status                 `hash:"-"`
-	ServiceID         []byte                 `hash:"serviceID"`
+	ServiceID         string                 `hash:"serviceID"`
 	Task              *service.Task          `hash:"task"`
 	Tags              []string               `hash:"tags"`
 	Inputs            map[string]interface{} `hash:"inputs"`
@@ -37,7 +37,7 @@ type Execution struct {
 // DB exposes all the functionalities
 type DB interface {
 	Create(task *service.Task, taskInputs map[string]interface{}, tags []string) (*Execution, error)
-	Find(executionID []byte) (*Execution, error)
-	Execute(executionID []byte) (*Execution, error)
-	Complete(executionID []byte, outputKey string, outputData map[string]interface{}) (*Execution, error)
+	Find(executionID string) (*Execution, error)
+	Execute(executionID string) (*Execution, error)
+	Complete(executionID string, outputKey string, outputData map[string]interface{}) (*Execution, error)
 }
