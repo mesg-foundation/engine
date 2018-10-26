@@ -65,11 +65,11 @@ func TestFind(t *testing.T) {
 	db := db(t, filepath.Join(os.TempDir(), "TestFindExecution"))
 	e, _ := db.Create(task, defaultInputs, tags)
 	tests := []struct {
-		id     []byte
+		id     string
 		assert bool
 	}{
 		{e.ID, false},
-		{[]byte("noid"), true},
+		{"noid", true},
 	}
 	for _, test := range tests {
 		e, err := db.Find(test.id)
@@ -86,11 +86,11 @@ func TestExecute(t *testing.T) {
 	db := db(t, filepath.Join(os.TempDir(), "TestExecute"))
 	e, _ := db.Create(&service.Task{Key: "TestExecute"}, map[string]interface{}{}, tags)
 	tests := []struct {
-		id     []byte
+		id     string
 		assert bool
 	}{
 		{e.ID, false},
-		{[]byte("doesn't exists"), true},
+		{"doesn't exists", true},
 		{e.ID, true}, // this one is already executed so it should return an error
 	}
 	for _, test := range tests {
@@ -124,12 +124,12 @@ func TestComplete(t *testing.T) {
 	}}, map[string]interface{}{}, tags)
 	db.Execute(e.ID)
 	tests := []struct {
-		id     []byte
+		id     string
 		key    string
 		data   map[string]interface{}
 		assert bool
 	}{
-		{id: []byte("doesn't exists"), key: "", data: map[string]interface{}{}, assert: true},
+		{id: "doesn't exists", key: "", data: map[string]interface{}{}, assert: true},
 		{id: e.ID, key: "output", data: map[string]interface{}{"foo": "bar"}, assert: true},
 		{id: e.ID, key: "outputX", data: map[string]interface{}{}, assert: true},
 		{id: e.ID, key: "outputX", data: map[string]interface{}{"foo": "bar"}, assert: false},

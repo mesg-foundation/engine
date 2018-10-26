@@ -42,8 +42,8 @@ func (db *LevelDB) Create(task *service.Task, inputs map[string]interface{}, tag
 }
 
 // Find the execution based on an executionID, returns an error if not found
-func (db *LevelDB) Find(executionID []byte) (*Execution, error) {
-	data, err := db.db.Get(executionID, nil)
+func (db *LevelDB) Find(executionID string) (*Execution, error) {
+	data, err := db.db.Get([]byte(executionID), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (db *LevelDB) Find(executionID []byte) (*Execution, error) {
 // Execute a given execution
 // Returns an error if the execution doesn't exists in the database
 // Returns an error if the status of the execution is different of `Created`
-func (db *LevelDB) Execute(executionID []byte) (*Execution, error) {
+func (db *LevelDB) Execute(executionID string) (*Execution, error) {
 	e, err := db.Find(executionID)
 	if err != nil {
 		return nil, err
@@ -72,7 +72,7 @@ func (db *LevelDB) Execute(executionID []byte) (*Execution, error) {
 // Returns an error if the executionID doesn't exists
 // Returns an error if the execution is not `InProgress`
 // Returns an error if the `outputKey` or `outputData` are not valid
-func (db *LevelDB) Complete(executionID []byte, outputKey string, outputData map[string]interface{}) (*Execution, error) {
+func (db *LevelDB) Complete(executionID, outputKey string, outputData map[string]interface{}) (*Execution, error) {
 	e, err := db.Find(executionID)
 	if err != nil {
 		return nil, err
@@ -100,7 +100,7 @@ func (db *LevelDB) save(execution *Execution) (*Execution, error) {
 	h := sha1.New()
 	h.Write(structhash.Dump(execution, 1))
 	id := h.Sum(nil)
-	execution.ID = id
+	execution.ID = string(id)
 	data, err := json.Marshal(execution)
 	if err != nil {
 		return nil, err
