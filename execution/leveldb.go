@@ -96,6 +96,11 @@ func (db *LevelDB) Complete(executionID, outputKey string, outputData map[string
 	return db.save(e)
 }
 
+// Close closes database.
+func (db *LevelDB) Close() error {
+	return db.db.Close()
+}
+
 func (db *LevelDB) save(execution *Execution) (*Execution, error) {
 	h := sha1.New()
 	h.Write(structhash.Dump(execution, 1))

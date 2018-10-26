@@ -35,6 +35,7 @@ func db(t *testing.T, dir string) DB {
 
 func TestCreate(t *testing.T) {
 	db := db(t, filepath.Join(os.TempDir(), "TestCreate"))
+	defer db.Close()
 	tests := []struct {
 		inputs map[string]interface{}
 		assert bool
@@ -63,6 +64,7 @@ func TestCreate(t *testing.T) {
 
 func TestFind(t *testing.T) {
 	db := db(t, filepath.Join(os.TempDir(), "TestFindExecution"))
+	defer db.Close()
 	e, _ := db.Create(task, defaultInputs, tags)
 	tests := []struct {
 		id     string
@@ -84,6 +86,7 @@ func TestFind(t *testing.T) {
 
 func TestExecute(t *testing.T) {
 	db := db(t, filepath.Join(os.TempDir(), "TestExecute"))
+	defer db.Close()
 	e, _ := db.Create(&service.Task{Key: "TestExecute"}, map[string]interface{}{}, tags)
 	tests := []struct {
 		id     string
@@ -111,6 +114,7 @@ func TestExecute(t *testing.T) {
 
 func TestComplete(t *testing.T) {
 	db := db(t, filepath.Join(os.TempDir(), "TestComplete"))
+	defer db.Close()
 	e, _ := db.Create(&service.Task{Key: "TestComplete", Outputs: []*service.Output{
 		&service.Output{
 			Key: "outputX",
@@ -153,6 +157,7 @@ func TestComplete(t *testing.T) {
 
 func TestConsistentID(t *testing.T) {
 	db := db(t, filepath.Join(os.TempDir(), "TestConsistentID"))
+	defer db.Close()
 	e, _ := db.Create(&service.Task{Key: "TestConsistentID", Outputs: []*service.Output{
 		&service.Output{Key: "foo"},
 	}}, map[string]interface{}{}, tags)
