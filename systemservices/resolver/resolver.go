@@ -1,37 +1,20 @@
-// Package resolver is a wrapper for system resolver service to call it's tasks.
+// Package resolver is a wrapper for system resolver service to map tasks data.
 package resolver
 
 import (
-	"errors"
 	"fmt"
 
-	"github.com/mesg-foundation/core/api"
+	"github.com/mesg-foundation/core/execution"
 )
 
 // Resolvers tasks.
 const (
-	addPeersTask = "addPeers"
-	resolveTask  = "resolve"
+	AddPeersTask = "addPeers"
+	ResolveTask  = "resolve"
 )
 
-// Resolver is the system service that responsible from finding the addresses
-// of other peers(nodes) in the network that are running the desired services.
-// This Resolver is a wrapper for system resolver service to call it's tasks.
-type Resolver struct {
-	api       *api.API
-	serviceID string
-}
-
-// New creates a new instance of the Resolver system service.
-func New(serviceID string, api *api.API) *Resolver {
-	return &Resolver{
-		api:       api,
-		serviceID: serviceID,
-	}
-}
-
-// AddPeers attaches peers(nodes) to resolver.
-func (r *Resolver) AddPeers(addresses []string) error {
+// AddPeersInputs map add peer task inputs.
+func AddPeersInputs(addresses []string) map[string]interface{} {
 	// TODO: this hack is not something that we should do but
 	// it's needed because *parameterValidator is not able to identify
 	// string slices for now.
@@ -39,49 +22,34 @@ func (r *Resolver) AddPeers(addresses []string) error {
 	for _, address := range addresses {
 		addressesInterface = append(addressesInterface, address)
 	}
+	return map[string]interface{}{"addresses": addressesInterface}
+}
 
-	// TODO: timeout?
-	e, err := r.api.ExecuteAndListen(r.serviceID, addPeersTask, map[string]interface{}{
-		"addresses": addressesInterface,
-	})
-	if err != nil {
-		return err
-	}
-
+// AddPeersOutputs map add peer task outputs.
+func AddPeersOutputs(e *execution.Execution) error {
 	switch e.Output {
 	case "success":
 		return nil
 	case "error":
-		return errors.New(e.OutputData["message"].(string))
+		return fmt.Errorf("resolver: %s", e.OutputData["message"])
 	}
-	panic("unreachable")
+	return fmt.Errorf("resolver: task add peers has unknown output %s", e.Output)
 }
 
-// PeerNotFoundError error returned when a peer cannot be found for a service.
-type PeerNotFoundError struct {
-	ServiceID string
+// ResolveInputs map resolve task inputs.
+func ResolveInputs(serviceID string) map[string]interface{} {
+	return map[string]interface{}{"serviceID": serviceID}
 }
 
-func (e *PeerNotFoundError) Error() string {
-	return fmt.Sprintf("peer could not found for %q service", e.ServiceID)
-}
-
-// Resolve returns the address of a peer(node) that runs the desired service.
-func (r *Resolver) Resolve(serviceID string) (peerAddress string, err error) {
-	e, err := r.api.ExecuteAndListen(r.serviceID, resolveTask, map[string]interface{}{
-		"serviceID": serviceID,
-	})
-	if err != nil {
-		return "", err
-	}
-
+// ResolveOutputs map resolve task outputs.
+func ResolveOutputs(e *execution.Execution) (peerAddress string, err error) {
 	switch e.Output {
 	case "found":
 		return e.OutputData["address"].(string), nil
 	case "notFound":
-		return "", &PeerNotFoundError{serviceID}
+		return "", fmt.Errorf("resolver: peer address could not be found for %s service", e.OutputData["serviceID"])
 	case "error":
-		return "", errors.New(e.OutputData["message"].(string))
+		return "", fmt.Errorf("resolver: %s", e.OutputData["message"])
 	}
-	panic("unreachable")
+	return "", fmt.Errorf("resolver: task resolve has unknown output %s", e.Output)
 }
