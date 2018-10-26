@@ -3,11 +3,11 @@ package api
 import (
 	"fmt"
 
-	"github.com/mesg-foundation/core/execution"
+	"github.com/mesg-foundation/core/pubsub"
 )
 
 // SubmitResult submits results for executionID.
-func (a *API) SubmitResult(executionID, outputKey string, outputData map[string]interface{}) error {
+func (a *API) SubmitResult(executionID string, outputKey string, outputData map[string]interface{}) error {
 	return newResultSubmitter(a).Submit(executionID, outputKey, outputData)
 }
 
@@ -24,14 +24,17 @@ func newResultSubmitter(api *API) *resultSubmitter {
 }
 
 // Submit submits results for executionID.
-func (s *resultSubmitter) Submit(executionID, outputKey string, outputData map[string]interface{}) error {
-	execution := execution.InProgress(executionID)
-	if execution == nil {
-		return &MissingExecutionError{
-			ID: executionID,
-		}
+func (s *resultSubmitter) Submit(executionID string, outputKey string, outputData map[string]interface{}) error {
+	execution, err := s.api.execDB.Complete(executionID, outputKey, outputData)
+	if err != nil {
+		return err
 	}
-	return execution.Complete(outputKey, outputData)
+	srv, err := s.api.db.Get(execution.ServiceID)
+	if err != nil {
+		return err
+	}
+	go pubsub.Publish(srv.ResultSubscriptionChannel(), execution)
+	return nil
 }
 
 // MissingExecutionError is returned when corresponding execution doesn't exists.
