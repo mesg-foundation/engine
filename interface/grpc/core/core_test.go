@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/mesg-foundation/core/execution"
+
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/container"
@@ -28,7 +30,10 @@ func newServer(t *testing.T) (*Server, func()) {
 	db, err := database.NewServiceDB(testdbname)
 	require.NoError(t, err)
 
-	a, err := api.New(db, api.ContainerOption(container))
+	execDB, err := execution.New("execution" + testdbname)
+	require.NoError(t, err)
+
+	a, err := api.New(db, execDB, api.ContainerOption(container))
 	require.NoError(t, err)
 
 	server, err := NewServer(APIOption(a))
@@ -36,6 +41,7 @@ func newServer(t *testing.T) (*Server, func()) {
 
 	closer := func() {
 		db.Close()
+		execDB.Close()
 		os.RemoveAll(testdbname)
 	}
 	return server, closer
@@ -47,10 +53,13 @@ func newServerAndDockerTest(t *testing.T) (*Server, *dockertest.Testing, func())
 	container, err := container.New(container.ClientOption(dt.Client()))
 	require.NoError(t, err)
 
-	db, err := database.NewServiceDB(testdbname)
+	db, err := database.NewServiceDB("qeffeq" + testdbname)
 	require.NoError(t, err)
 
-	a, err := api.New(db, api.ContainerOption(container))
+	execDB, err := execution.New("dqjbdq" + testdbname)
+	require.NoError(t, err)
+
+	a, err := api.New(db, execDB, api.ContainerOption(container))
 	require.NoError(t, err)
 
 	server, err := NewServer(APIOption(a))
@@ -58,6 +67,7 @@ func newServerAndDockerTest(t *testing.T) (*Server, *dockertest.Testing, func())
 
 	closer := func() {
 		db.Close()
+		execDB.Close()
 		os.RemoveAll(testdbname)
 	}
 	return server, dt, closer

@@ -8,6 +8,7 @@ import (
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/database"
+	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/interface/grpc/core"
 	"github.com/mesg-foundation/core/interface/grpc/service"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
@@ -26,6 +27,7 @@ type Server struct {
 	Network   string
 	Address   string
 	ServiceDB database.ServiceDB
+	ExecDB    execution.DB
 }
 
 // listen listens for connections.
@@ -84,7 +86,7 @@ func (s *Server) Close() {
 
 // register all server
 func (s *Server) register() error {
-	a, err := api.New(s.ServiceDB)
+	a, err := api.New(s.ServiceDB, s.ExecDB)
 	if err != nil {
 		return err
 	}
