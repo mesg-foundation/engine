@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	task = service.Task{
+	task = &service.Task{
 		Key: "task",
 		Inputs: []*service.Parameter{
 			&service.Parameter{Key: "foo", Type: "String"},
@@ -84,7 +84,7 @@ func TestFind(t *testing.T) {
 
 func TestExecute(t *testing.T) {
 	db := db(t, filepath.Join(os.TempDir(), "TestExecute"))
-	e, _ := db.Create(service.Task{Key: "TestExecute"}, map[string]interface{}{}, tags)
+	e, _ := db.Create(&service.Task{Key: "TestExecute"}, map[string]interface{}{}, tags)
 	tests := []struct {
 		id     []byte
 		assert bool
@@ -111,7 +111,7 @@ func TestExecute(t *testing.T) {
 
 func TestComplete(t *testing.T) {
 	db := db(t, filepath.Join(os.TempDir(), "TestComplete"))
-	e, _ := db.Create(service.Task{Key: "TestComplete", Outputs: []*service.Output{
+	e, _ := db.Create(&service.Task{Key: "TestComplete", Outputs: []*service.Output{
 		&service.Output{
 			Key: "outputX",
 			Data: []*service.Parameter{
@@ -153,7 +153,7 @@ func TestComplete(t *testing.T) {
 
 func TestConsistentID(t *testing.T) {
 	db := db(t, filepath.Join(os.TempDir(), "TestConsistentID"))
-	e, _ := db.Create(service.Task{Key: "TestConsistentID", Outputs: []*service.Output{
+	e, _ := db.Create(&service.Task{Key: "TestConsistentID", Outputs: []*service.Output{
 		&service.Output{Key: "foo"},
 	}}, map[string]interface{}{}, tags)
 	require.NotZero(t, e.ID)
