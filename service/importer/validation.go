@@ -22,8 +22,8 @@ func Validate(source string) (*ValidationResult, error) {
 func validateFromPath(path string) (*ValidationResult, error) {
 	// Service file
 	data, err := readServiceFile(path)
-	serviceFileExist := err == nil || os.IsNotExist(err) == false
-	if err != nil && os.IsNotExist(err) == false {
+	serviceFileExist := err == nil || !os.IsNotExist(err)
+	if err != nil && !os.IsNotExist(err) {
 		return nil, err
 	}
 	serviceFileWarnings, err := validateServiceFile(data)
@@ -33,8 +33,8 @@ func validateFromPath(path string) (*ValidationResult, error) {
 
 	// Dockerfile
 	_, err = readDockerfile(path)
-	dockerfileExist := err == nil || os.IsNotExist(err) == false
-	if err != nil && os.IsNotExist(err) == false {
+	dockerfileExist := err == nil || !os.IsNotExist(err)
+	if err != nil && !os.IsNotExist(err) {
 		return nil, err
 	}
 
