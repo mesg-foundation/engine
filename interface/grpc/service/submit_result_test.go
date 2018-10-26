@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
@@ -103,7 +102,7 @@ func TestSubmitWithInvalidID(t *testing.T) {
 		OutputKey:   outputKey,
 		OutputData:  outputData,
 	})
-	require.Equal(t, &api.MissingExecutionError{ID: executionID}, err)
+	require.Error(t, err)
 }
 
 func TestSubmitWithNonExistentOutputKey(t *testing.T) {

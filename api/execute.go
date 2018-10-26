@@ -57,11 +57,7 @@ func (e *taskExecutor) checkServiceStatus(s *service.Service) error {
 
 // execute executes task.
 func (e *taskExecutor) execute(s *service.Service, taskKey string, taskInputs map[string]interface{}, tags []string) (executionID string, err error) {
-	task, err := s.GetTask(taskKey)
-	if err != nil {
-		return "", err
-	}
-	exc, err := e.api.execDB.Create(task, taskInputs, tags)
+	exc, err := e.api.execDB.Create(s, taskKey, taskInputs, tags)
 	if err != nil {
 		return "", err
 	}
