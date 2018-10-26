@@ -40,4 +40,5 @@ type DB interface {
 	Find(executionID string) (*Execution, error)
 	Execute(executionID string) (*Execution, error)
 	Complete(executionID string, outputKey string, outputData map[string]interface{}) (*Execution, error)
+	Close() error
 }
