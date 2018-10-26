@@ -3,6 +3,7 @@ package execution
 import (
 	"crypto/sha1"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/cnf/structhash"
@@ -113,12 +114,12 @@ func (db *LevelDB) Close() error {
 func (db *LevelDB) save(execution *Execution) (*Execution, error) {
 	h := sha1.New()
 	h.Write(structhash.Dump(execution, 1))
-	id := h.Sum(nil)
+	id := fmt.Sprintf("%x", h.Sum(nil))
 	execution.ID = string(id)
 	data, err := json.Marshal(execution)
 	if err != nil {
 		return nil, err
 	}
-	err = db.db.Put(id, data, nil)
+	err = db.db.Put([]byte(id), data, nil)
 	return execution, nil
 }
