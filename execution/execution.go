@@ -24,7 +24,7 @@ type Execution struct {
 	ID                []byte                 `hash:"-"`
 	Status            Status                 `hash:"-"`
 	ServiceID         []byte                 `hash:"serviceID"`
-	Task              service.Task           `hash:"task"`
+	Task              *service.Task          `hash:"task"`
 	Tags              []string               `hash:"tags"`
 	Inputs            map[string]interface{} `hash:"inputs"`
 	Output            string                 `hash:"-"`
@@ -36,7 +36,7 @@ type Execution struct {
 
 // DB exposes all the functionalities
 type DB interface {
-	Create(task service.Task, taskInputs map[string]interface{}, tags []string) (*Execution, error)
+	Create(task *service.Task, taskInputs map[string]interface{}, tags []string) (*Execution, error)
 	Find(executionID []byte) (*Execution, error)
 	Execute(executionID []byte) (*Execution, error)
 	Complete(executionID []byte, outputKey string, outputData map[string]interface{}) (*Execution, error)

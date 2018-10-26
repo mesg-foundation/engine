@@ -28,7 +28,7 @@ func New(path string) (DB, error) {
 // Create a record in the database to store this execution and returns the id
 // returns an error if any problem happen with the database
 // returns an error if inputs are invalid
-func (db *LevelDB) Create(task service.Task, inputs map[string]interface{}, tags []string) (*Execution, error) {
+func (db *LevelDB) Create(task *service.Task, inputs map[string]interface{}, tags []string) (*Execution, error) {
 	if err := task.RequireInputs(inputs); err != nil {
 		return nil, err
 	}
