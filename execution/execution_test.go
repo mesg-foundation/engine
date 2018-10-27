@@ -53,29 +53,29 @@ func TestCreate(t *testing.T) {
 	db := db(t, dir)
 	defer db.Close()
 	tests := []struct {
-		inputs map[string]interface{}
-		assert bool
+		inputs   map[string]interface{}
+		hasError bool
 	}{
-		{inputs: map[string]interface{}{"foo": "hello", "bar": "world"}, assert: false},
-		{inputs: map[string]interface{}{"foo": "hello"}, assert: true},
+		{inputs: map[string]interface{}{"foo": "hello", "bar": "world"}, hasError: false},
+		{inputs: map[string]interface{}{"foo": "hello"}, hasError: true},
 	}
 	for _, test := range tests {
 		execution, err := db.Create(srv, taskKey, test.inputs, tags)
-		if test.assert {
+		if test.hasError {
 			require.Error(t, err)
-		} else {
-			require.NoError(t, err)
-			require.NotNil(t, execution)
-			e, err := db.Find(execution.ID)
-			require.NoError(t, err)
-			require.NotNil(t, e)
-			require.Equal(t, srv.ID, e.Service.ID)
-			require.Equal(t, taskKey, e.TaskKey)
-			require.Equal(t, test.inputs, e.Inputs)
-			require.Equal(t, tags, e.Tags)
-			require.Equal(t, execution.Status, Created)
-			require.NotZero(t, e.CreatedAt)
+			continue
 		}
+		require.NoError(t, err)
+		require.NotNil(t, execution)
+		e, err := db.Find(execution.ID)
+		require.NoError(t, err)
+		require.NotNil(t, e)
+		require.Equal(t, srv.ID, e.Service.ID)
+		require.Equal(t, taskKey, e.TaskKey)
+		require.Equal(t, test.inputs, e.Inputs)
+		require.Equal(t, tags, e.Tags)
+		require.Equal(t, execution.Status, Created)
+		require.NotZero(t, e.CreatedAt)
 	}
 }
 
@@ -86,20 +86,20 @@ func TestFind(t *testing.T) {
 	defer db.Close()
 	e, _ := db.Create(srv, taskKey, defaultInputs, tags)
 	tests := []struct {
-		id     string
-		assert bool
+		id       string
+		hasError bool
 	}{
 		{e.ID, false},
-		{"noid", true},
+		{"doesn't exists", true},
 	}
 	for _, test := range tests {
 		e, err := db.Find(test.id)
-		if test.assert {
+		if test.hasError {
 			require.Error(t, err)
-		} else {
-			require.NoError(t, err)
-			require.NotNil(t, e)
+			continue
 		}
+		require.NoError(t, err)
+		require.NotNil(t, e)
 	}
 }
 
@@ -110,8 +110,8 @@ func TestExecute(t *testing.T) {
 	defer db.Close()
 	e, _ := db.Create(srv, taskKey, map[string]interface{}{"foo": "1", "bar": "2"}, tags)
 	tests := []struct {
-		id     string
-		assert bool
+		id       string
+		hasError bool
 	}{
 		{e.ID, false},
 		{"doesn't exists", true},
@@ -119,17 +119,17 @@ func TestExecute(t *testing.T) {
 	}
 	for _, test := range tests {
 		e, err := db.Execute(test.id)
-		if test.assert {
+		if test.hasError {
 			require.Error(t, err)
-		} else {
-			require.NoError(t, err)
-			require.NotNil(t, e)
-			e, err := db.Find(e.ID)
-			require.NoError(t, err)
-			require.NotNil(t, e)
-			require.Equal(t, e.Status, InProgress)
-			require.NotZero(t, e.ExecutedAt)
+			continue
 		}
+		require.NoError(t, err)
+		require.NotNil(t, e)
+		e, err = db.Find(e.ID)
+		require.NoError(t, err)
+		require.NotNil(t, e)
+		require.Equal(t, e.Status, InProgress)
+		require.NotZero(t, e.ExecutedAt)
 	}
 }
 
@@ -141,30 +141,30 @@ func TestComplete(t *testing.T) {
 	e, _ := db.Create(srv, taskKey, map[string]interface{}{"foo": "1", "bar": "2"}, tags)
 	db.Execute(e.ID)
 	tests := []struct {
-		id     string
-		key    string
-		data   map[string]interface{}
-		assert bool
+		id       string
+		key      string
+		data     map[string]interface{}
+		hasError bool
 	}{
-		{id: "doesn't exists", key: "", data: map[string]interface{}{}, assert: true},
-		{id: e.ID, key: "output", data: map[string]interface{}{"foo": "bar"}, assert: true},
-		{id: e.ID, key: "outputX", data: map[string]interface{}{}, assert: true},
-		{id: e.ID, key: "outputX", data: map[string]interface{}{"foo": "bar"}, assert: false},
-		{id: e.ID, key: "outputX", data: map[string]interface{}{"foo": "bar"}, assert: true}, // this one is already proccessed
+		{id: "doesn't exists", key: "", data: map[string]interface{}{}, hasError: true},
+		{id: e.ID, key: "output", data: map[string]interface{}{"foo": "bar"}, hasError: true},
+		{id: e.ID, key: "outputX", data: map[string]interface{}{}, hasError: true},
+		{id: e.ID, key: "outputX", data: map[string]interface{}{"foo": "bar"}, hasError: false},
+		{id: e.ID, key: "outputX", data: map[string]interface{}{"foo": "bar"}, hasError: true}, // this one is already proccessed
 	}
 	for _, test := range tests {
 		e, err := db.Complete(test.id, test.key, test.data)
-		if test.assert {
+		if test.hasError {
 			require.Error(t, err)
-		} else {
-			require.NoError(t, err)
-			require.NotNil(t, e)
-			e, err := db.Find(e.ID)
-			require.NoError(t, err)
-			require.NotNil(t, e)
-			require.Equal(t, e.Status, Completed)
-			require.NotZero(t, e.ExecutionDuration)
+			continue
 		}
+		require.NoError(t, err)
+		require.NotNil(t, e)
+		e, err = db.Find(e.ID)
+		require.NoError(t, err)
+		require.NotNil(t, e)
+		require.Equal(t, e.Status, Completed)
+		require.NotZero(t, e.ExecutionDuration)
 	}
 }
 
