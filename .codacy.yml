@@ -9,4 +9,4 @@ exclude_paths:
   - "cmd/service/tests/**/*"
   - "service-test/**"
   - "docs/**"
-  - "vendor/**/*"
+  - "**/vendor/**/*"
