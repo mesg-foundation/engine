@@ -67,7 +67,10 @@ func (db *LevelDB) Execute(executionID string) (*Execution, error) {
 		return nil, err
 	}
 	if e.Status != Created {
-		return nil, StatusError{}
+		return nil, StatusError{
+			ActualStatus:   e.Status,
+			ExpectedStatus: Created,
+		}
 	}
 	e.ExecutedAt = time.Now()
 	e.Status = InProgress
@@ -84,7 +87,10 @@ func (db *LevelDB) Complete(executionID, outputKey string, outputData map[string
 		return nil, err
 	}
 	if e.Status != InProgress {
-		return nil, StatusError{}
+		return nil, StatusError{
+			ActualStatus:   e.Status,
+			ExpectedStatus: InProgress,
+		}
 	}
 	task, err := e.Service.GetTask(e.TaskKey)
 	if err != nil {
