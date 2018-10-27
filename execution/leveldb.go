@@ -118,9 +118,7 @@ func (db *LevelDB) Close() error {
 }
 
 func (db *LevelDB) save(execution *Execution) (*Execution, error) {
-	h := sha1.New()
-	h.Write(structhash.Dump(execution, 1))
-	id := fmt.Sprintf("%x", h.Sum(nil))
+	id := fmt.Sprintf("%x", sha1.Sum(structhash.Dump(execution, 1)))
 	execution.ID = string(id)
 	data, err := json.Marshal(execution)
 	if err != nil {
