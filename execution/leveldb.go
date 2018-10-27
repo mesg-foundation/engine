@@ -17,7 +17,7 @@ type LevelDB struct {
 }
 
 // New creates a new DB instance
-func New(path string) (DB, error) {
+func New(path string) (*LevelDB, error) {
 	db, err := leveldb.OpenFile(path, nil)
 	if err != nil {
 		return nil, err
