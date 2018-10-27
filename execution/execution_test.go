@@ -1,9 +1,8 @@
 package execution
 
 import (
-	"fmt"
+	"io/ioutil"
 	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -43,14 +42,15 @@ var (
 )
 
 func db(t *testing.T, dir string) DB {
-	fmt.Println(dir)
 	db, err := New(dir)
 	require.NoError(t, err)
 	return db
 }
 
 func TestCreate(t *testing.T) {
-	db := db(t, filepath.Join(os.TempDir(), "TestCreate"))
+	dir, _ := ioutil.TempDir("", "TestCreate")
+	defer os.RemoveAll(dir)
+	db := db(t, dir)
 	defer db.Close()
 	tests := []struct {
 		inputs map[string]interface{}
@@ -80,7 +80,9 @@ func TestCreate(t *testing.T) {
 }
 
 func TestFind(t *testing.T) {
-	db := db(t, filepath.Join(os.TempDir(), "TestFindExecution"))
+	dir, _ := ioutil.TempDir("", "TestFindExecution")
+	defer os.RemoveAll(dir)
+	db := db(t, dir)
 	defer db.Close()
 	e, _ := db.Create(srv, taskKey, defaultInputs, tags)
 	tests := []struct {
@@ -102,7 +104,9 @@ func TestFind(t *testing.T) {
 }
 
 func TestExecute(t *testing.T) {
-	db := db(t, filepath.Join(os.TempDir(), "TestExecute"))
+	dir, _ := ioutil.TempDir("", "TestExecute")
+	defer os.RemoveAll(dir)
+	db := db(t, dir)
 	defer db.Close()
 	e, _ := db.Create(srv, taskKey, map[string]interface{}{"foo": "1", "bar": "2"}, tags)
 	tests := []struct {
@@ -130,7 +134,9 @@ func TestExecute(t *testing.T) {
 }
 
 func TestComplete(t *testing.T) {
-	db := db(t, filepath.Join(os.TempDir(), "TestComplete"))
+	dir, _ := ioutil.TempDir("", "TestComplete")
+	defer os.RemoveAll(dir)
+	db := db(t, dir)
 	defer db.Close()
 	e, _ := db.Create(srv, taskKey, map[string]interface{}{"foo": "1", "bar": "2"}, tags)
 	db.Execute(e.ID)
@@ -163,7 +169,9 @@ func TestComplete(t *testing.T) {
 }
 
 func TestConsistentID(t *testing.T) {
-	db := db(t, filepath.Join(os.TempDir(), "TestConsistentID"))
+	dir, _ := ioutil.TempDir("", "TestConsistentID")
+	defer os.RemoveAll(dir)
+	db := db(t, dir)
 	defer db.Close()
 	e, _ := db.Create(srv, taskKey, map[string]interface{}{"foo": "1", "bar": "2"}, tags)
 	require.NotZero(t, e.ID)
