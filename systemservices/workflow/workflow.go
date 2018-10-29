@@ -70,6 +70,7 @@ func (w *Workflow) Delete(id string) (err error) {
 }
 
 // Logs returns the standard and error log streams of workflow with id.
+// TODO(ilgooz): support getting logs with workflow's name as well.
 func (w *Workflow) Logs(id string) (stdLogs, errLogs io.ReadCloser, err error) {
 	logs, err := w.api.ServiceLogs(w.serviceID, api.ServiceLogsDependenciesFilter("service"))
 	if err != nil {
