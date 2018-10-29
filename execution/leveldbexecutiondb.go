@@ -11,7 +11,7 @@ import (
 	"github.com/syndtr/goleveldb/leveldb"
 )
 
-// LevelDB is a concrete implementation of the DB interface
+// LevelDBExecutionDB is a concrete implementation of the DB interface
 type LevelDBExecutionDB struct {
 	db *leveldb.DB
 }
