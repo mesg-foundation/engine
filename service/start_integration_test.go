@@ -21,7 +21,7 @@ func TestIntegrationStartServiceIntegration(t *testing.T) {
 	}, ContainerOption(newIntegrationContainer(t)))
 	dockerServices, err := service.Start()
 	defer service.Stop()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, len(service.Dependencies), len(dockerServices))
 	status, _ := service.Status()
 	require.Equal(t, RUNNING, status)
@@ -44,7 +44,7 @@ func TestIntegrationStartWith2DependenciesIntegration(t *testing.T) {
 	}, ContainerOption(c))
 	servicesID, err := service.Start()
 	defer service.Stop()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, 2, len(servicesID))
 	deps := service.Dependencies
 	container1, err1 := c.FindContainer(deps[0].namespace())
@@ -68,7 +68,7 @@ func TestIntegrationStartAgainService(t *testing.T) {
 	service.Start()
 	defer service.Stop()
 	dockerServices, err := service.Start()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, len(dockerServices), 0) // 0 because already started so no new one to start
 	status, _ := service.Status()
 	require.Equal(t, RUNNING, status)
@@ -95,7 +95,7 @@ func TestIntegrationStartAgainService(t *testing.T) {
 // 	status, _ := service.Status()
 // 	require.Equal(t, PARTIAL, status)
 // 	dockerServices, err := service.Start()
-// 	require.Nil(t, err)
+// 	require.NoError(t, err)
 // 	require.Equal(t, len(dockerServices), len(service.Dependencies))
 // 	status, _ = service.Status()
 // 	require.Equal(t, RUNNING, status)
@@ -117,7 +117,7 @@ func TestIntegrationStartDependency(t *testing.T) {
 	dep := service.Dependencies[0]
 	serviceID, err := dep.Start(networkID)
 	defer dep.Stop()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.NotEqual(t, "", serviceID)
 	status, _ := dep.Status()
 	require.Equal(t, container.RUNNING, status)
@@ -137,7 +137,7 @@ func TestIntegrationNetworkCreated(t *testing.T) {
 	service.Start()
 	defer service.Stop()
 	network, err := c.FindNetwork(service.namespace())
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.NotEqual(t, "", network.ID)
 }
 
@@ -156,7 +156,7 @@ func TestIntegrationStartStopStart(t *testing.T) {
 	service.Stop()
 	dockerServices, err := service.Start()
 	defer service.Stop()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, len(dockerServices), 1)
 	status, _ := service.Status()
 	require.Equal(t, RUNNING, status)

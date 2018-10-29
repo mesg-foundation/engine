@@ -9,6 +9,6 @@ import (
 func TestLogs(t *testing.T) {
 	startForTest()
 	reader, err := Logs()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.NotNil(t, reader)
 }

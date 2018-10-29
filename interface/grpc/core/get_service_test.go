@@ -20,7 +20,7 @@ func TestGetService(t *testing.T) {
 	reply, err := server.GetService(context.Background(), &coreapi.GetServiceRequest{
 		ServiceID: s.ID,
 	})
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.NotNil(t, reply)
 	require.Equal(t, reply.Service.Name, "Task")
 }

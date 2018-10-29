@@ -43,7 +43,7 @@ func TestIterateService(t *testing.T) {
 		cpt++
 		return nil
 	})
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, cpt, 3)
 }
 
@@ -56,5 +56,5 @@ func TestIterateServiceWithError(t *testing.T) {
 	err := iterateService(wf, func(ID string) error {
 		return errors.New("test error")
 	})
-	require.NotNil(t, err)
+	require.Error(t, err)
 }
