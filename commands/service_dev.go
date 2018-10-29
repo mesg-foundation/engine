@@ -112,6 +112,7 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 	defer closer()
 
 	abort := xsignal.WaitForInterrupt()
+	fmt.Println("Listening for results and events from the service...")
 
 	for {
 		select {
