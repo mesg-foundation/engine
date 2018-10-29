@@ -17,7 +17,7 @@ func TestNew(t *testing.T) {
 	dt := dockertest.New()
 	c, err := New(ClientOption(dt.Client()))
 	cfg, _ := config.Global()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.NotNil(t, c)
 
 	select {
@@ -50,7 +50,7 @@ func TestNewWithExistingNode(t *testing.T) {
 	dt.ProvideInfo(types.Info{Swarm: swarm.Info{NodeID: "1"}}, nil)
 
 	c, err := New(ClientOption(dt.Client()))
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.NotNil(t, c)
 
 	select {
@@ -99,7 +99,7 @@ func TestFindContainer(t *testing.T) {
 	dt.ProvideContainerInspect(containerJSONData, nil)
 
 	container, err := c.FindContainer(namespace)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, containerJSONData.ID, container.ID)
 
 	require.Equal(t, types.ContainerListOptions{
@@ -152,7 +152,7 @@ func TestExistentContainerStatus(t *testing.T) {
 	dt.ProvideContainerInspect(containerJSONData, nil)
 
 	status, err := c.Status(namespace)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, RUNNING, status)
 }
 
@@ -176,7 +176,7 @@ func TestExistentContainerRunningStatus(t *testing.T) {
 	dt.ProvideContainerInspect(containerJSONData, nil)
 
 	status, err := c.Status(namespace)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, RUNNING, status)
 }
 
