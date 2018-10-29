@@ -76,10 +76,18 @@ func (p *WorkflowProvider) WorkflowLogs(id string) (log *WorkflowLog, close func
 		log.Error.Close()
 	}
 
-	errC := make(chan error, 1)
-	go p.listenWorkflowLogs(stream, log, errC)
+	// TODO(ilgooz):
+	// * this one actually should be handled by Close() (io.Closer) called from chunker.Stream.
+	//   chunkler.Stream should accept a closeFunc handler in the initialization time to call it later.
+	// * listening gRPC stream shouldn't be done by listenWorkflowLogs() as well.
+	//   chunker.Stream can accept a readFunc that will be called when Read() (io.Reader) called from it.
+	//   content of listenWorkflowLogs() should be implemented inside readFunc handler.
+	// * to make these changes possible, chunker Streams should be initialized from a parent Stream.
+	//   otherwise reading source will be duplicated which is error prone.
+	//   and similar thing will happen for the closeFunc as well.
+	// * when this change is made, do not forget updating other places that uses pkg chunker.
 	go func() {
-		<-errC
+		p.listenWorkflowLogs(stream, log)
 		closer()
 	}()
 
@@ -87,13 +95,11 @@ func (p *WorkflowProvider) WorkflowLogs(id string) (log *WorkflowLog, close func
 }
 
 // listenWorkflowLogs listens gRPC stream to get workflow logs.
-func (p *WorkflowProvider) listenWorkflowLogs(stream coreapi.Core_WorkflowLogsClient, log *WorkflowLog,
-	errC chan error) {
+func (p *WorkflowProvider) listenWorkflowLogs(stream coreapi.Core_WorkflowLogsClient, log *WorkflowLog) error {
 	for {
 		data, err := stream.Recv()
 		if err != nil {
-			errC <- err
-			return
+			return err
 		}
 
 		var out *chunker.Stream

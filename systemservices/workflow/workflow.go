@@ -122,6 +122,8 @@ func (s *logStream) Read(p []byte) (n int, err error) {
 	return n, nil
 }
 
+// scan scans the next log line and compares the workflow ids to filter.
+// it returns the line if ids matches.
 func (s *logStream) scan() ([]byte, error) {
 	if s.s.Scan() {
 		data := s.s.Bytes()

@@ -102,7 +102,7 @@ func (c *workflowLogsCmd) printLog(out io.Writer, r io.Reader) {
 	dc := json.NewDecoder(r)
 
 	for {
-		var line *logLine
+		var line logLine
 		if err := dc.Decode(&line); err != nil {
 			fmt.Println(err)
 			return
