@@ -11,19 +11,19 @@ import (
 
 func TestIntegrationListTasks(t *testing.T) {
 	c, err := New()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	namespace := []string{"TestListTasks"}
 	startTestService(namespace)
 	defer c.StopService(namespace)
 	tasks, err := c.ListTasks(namespace)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.NotNil(t, tasks)
 	require.Equal(t, 1, len(tasks))
 }
 
 func TestIntegrationTasksError(t *testing.T) {
 	c, err := New()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	namespace := []string{"TestTasksError"}
 	c.StartService(ServiceOptions{
 		Image:     "fiifioewifewiewfifewijopwjeokpfeo",
@@ -38,7 +38,7 @@ func TestIntegrationTasksError(t *testing.T) {
 		}
 		time.Sleep(500 * time.Millisecond)
 	}
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.NotNil(t, errors)
 	require.True(t, len(errors) > 0)
 	require.Equal(t, "No such image: fiifioewifewiewfifewijopwjeokpfeo:latest", errors[0])

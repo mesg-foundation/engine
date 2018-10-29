@@ -112,6 +112,7 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 	defer closer()
 
 	abort := xsignal.WaitForInterrupt()
+	fmt.Println("Listening for results and events from the service...")
 
 	for {
 		select {
@@ -125,7 +126,8 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 			)
 
 		case err := <-eventsErrC:
-			fmt.Fprintf(os.Stderr, "%s Listening events error: %s", pretty.FailSign, err)
+			fmt.Fprintf(os.Stderr, "%s Listening events error: %s\n", pretty.FailSign, err)
+			return nil
 
 		case r := <-listenResultsC:
 			fmt.Printf("Receive result %s %s: %s\n",
@@ -135,7 +137,8 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 			)
 
 		case err := <-resultsErrC:
-			fmt.Fprintf(os.Stderr, "%s Listening results error: %s", pretty.FailSign, err)
+			fmt.Fprintf(os.Stderr, "%s Listening results error: %s\n", pretty.FailSign, err)
+			return nil
 		}
 	}
 }
