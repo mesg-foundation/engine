@@ -42,7 +42,7 @@ func TestExtractVolumes(t *testing.T) {
 		}},
 	})
 	volumes, err := s.Dependencies[0].extractVolumes()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Len(t, volumes, 2)
 	require.Equal(t, volumeKey(s, "test", "foo"), volumes[0].Source)
 	require.Equal(t, "foo", volumes[0].Target)
@@ -70,7 +70,7 @@ func TestExtractVolumes(t *testing.T) {
 			}},
 	})
 	volumes, err = s.Dependencies[1].extractVolumes()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Len(t, volumes, 2)
 	require.Equal(t, volumeKey(s, "test", "foo"), volumes[0].Source)
 	require.Equal(t, "foo", volumes[0].Target)
