@@ -20,14 +20,14 @@ func TestIntegrationStatusService(t *testing.T) {
 		},
 	}, ContainerOption(newIntegrationContainer(t)))
 	status, err := service.Status()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, STOPPED, status)
 	dockerServices, err := service.Start()
 	defer service.Stop()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, len(dockerServices), len(service.Dependencies))
 	status, err = service.Status()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, RUNNING, status)
 }
 
@@ -43,13 +43,13 @@ func TestIntegrationStatusDependency(t *testing.T) {
 	}, ContainerOption(newIntegrationContainer(t)))
 	dep := service.Dependencies[0]
 	status, err := dep.Status()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, container.STOPPED, status)
 	dockerServices, err := service.Start()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, len(dockerServices), len(service.Dependencies))
 	status, err = dep.Status()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, container.RUNNING, status)
 	service.Stop()
 }
@@ -67,7 +67,7 @@ func TestIntegrationListRunning(t *testing.T) {
 	service.Start()
 	defer service.Stop()
 	list, err := ListRunning()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, len(list), 1)
 	require.Equal(t, list[0], service.ID)
 }
@@ -89,7 +89,7 @@ func TestIntegrationListRunningMultipleDependencies(t *testing.T) {
 	service.Start()
 	defer service.Stop()
 	list, err := ListRunning()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, len(list), 1)
 	require.Equal(t, list[0], service.ID)
 }
