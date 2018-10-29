@@ -26,7 +26,7 @@ func TestComplete(t *testing.T) {
 	execution.Execute()
 	var outputs map[string]interface{}
 	err := execution.Complete("output", outputs)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, execution.Output, "output")
 	require.Equal(t, execution.OutputData, outputs)
 	require.True(t, execution.ExecutionDuration > 0)
@@ -50,7 +50,7 @@ func TestCompleteNotProcessed(t *testing.T) {
 	execution, _ := Create(s, "test", inputs, []string{})
 	var outputs map[string]interface{}
 	err := execution.Complete("output", outputs)
-	require.NotNil(t, err)
+	require.Error(t, err)
 	x, notInQueueError := err.(*NotInQueueError)
 	require.True(t, notInQueueError)
 	require.Equal(t, "inProgress", x.Queue)
@@ -75,7 +75,7 @@ func TestCompleteNotFound(t *testing.T) {
 	execution.Execute()
 	var outputs map[string]interface{}
 	err := execution.Complete(outputKey, outputs)
-	require.NotNil(t, err)
+	require.Error(t, err)
 	notFoundErr, ok := err.(*service.TaskOutputNotFoundError)
 	require.True(t, ok)
 	require.Equal(t, taskKey, notFoundErr.TaskKey)
@@ -110,7 +110,7 @@ func TestCompleteInvalidOutputs(t *testing.T) {
 	execution.Execute()
 	var outputs map[string]interface{}
 	err := execution.Complete(outputKey, outputs)
-	require.NotNil(t, err)
+	require.Error(t, err)
 	invalidErr, ok := err.(*service.InvalidTaskOutputError)
 	require.True(t, ok)
 	require.Equal(t, taskKey, invalidErr.TaskKey)
