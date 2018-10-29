@@ -32,12 +32,13 @@ func (w *Workflow) createHandler(execution *mesg.Execution) (string, mesg.Data) 
 	if err := execution.Data(&inputs); err != nil {
 		return newErrorOutput(err)
 	}
+
 	def, err := ParseYAML(strings.NewReader(inputs.File))
 	if err != nil {
 		return newErrorOutput(err)
 	}
 
-	id := w.generateIDFromWorkflowDefinition(def)
+	id := w.generateIDFromDefinition(def)
 
 	wdoc := &WorkflowDocument{
 		ID:         id,
@@ -56,7 +57,7 @@ func (w *Workflow) createHandler(execution *mesg.Execution) (string, mesg.Data) 
 	return createSuccessOutputKey, createSuccessOutput{id}
 }
 
-func (w *Workflow) generateIDFromWorkflowDefinition(def WorkflowDefinition) string {
+func (w *Workflow) generateIDFromDefinition(def WorkflowDefinition) string {
 	h := sha1.New()
 	h.Write(structhash.Dump(def, 1))
 	return fmt.Sprintf("%x", h.Sum(nil))

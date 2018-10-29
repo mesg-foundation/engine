@@ -39,6 +39,7 @@ func New(coreAddr string, st Storage, options ...Option) (*Workflow, error) {
 	for _, option := range options {
 		option(w)
 	}
+
 	if w.s == nil {
 		s, err := mesg.New()
 		if err != nil {
@@ -81,7 +82,7 @@ func coreClientProviderOption(p coreClientProvider) Option {
 
 // Start starts WSS.
 func (w *Workflow) Start() error {
-	if err := w.runWorkflows(); err != nil {
+	if err := w.runAllWorkflows(); err != nil {
 		return err
 	}
 	return w.listenTasks()
@@ -103,7 +104,7 @@ func (w *Workflow) Close() error {
 }
 
 // runWorkflows runs all workflows in the storage.
-func (w *Workflow) runWorkflows() error {
+func (w *Workflow) runAllWorkflows() error {
 	workflows, err := w.st.All()
 	if err != nil {
 		return err
