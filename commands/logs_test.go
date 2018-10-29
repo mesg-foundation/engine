@@ -7,7 +7,7 @@ import (
 
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/mesg-foundation/core/container"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestLogsCmdRunE(t *testing.T) {
@@ -34,6 +34,6 @@ func TestLogsCmdRunE(t *testing.T) {
 	m.AssertExpectations(t)
 
 	stdout, stderr := closeStd()
-	assert.Equal(t, stdout, string(msgout))
-	assert.Equal(t, stderr, string(msgerr))
+	require.Equal(t, string(msgout), stdout)
+	require.Equal(t, string(msgerr), stderr)
 }
