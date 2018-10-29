@@ -8,12 +8,12 @@ import (
 
 func TestReadDockerFile(t *testing.T) {
 	data, err := readDockerfile("./tests/service-valid")
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.True(t, (len(data) > 0))
 }
 
 func TestReadDockerFileDoesNotExist(t *testing.T) {
 	data, err := readDockerfile("./tests/docker-missing")
-	require.NotNil(t, err)
+	require.Error(t, err)
 	require.True(t, (len(data) == 0))
 }
