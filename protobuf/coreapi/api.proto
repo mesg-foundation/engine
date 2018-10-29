@@ -53,80 +53,6 @@ service Core {
   rpc WorkflowLogs (WorkflowLogsRequest) returns (stream WorkflowLogData) {}
 }
 
-// The request's data for the `CreateWorkflow` API.
-//
-// **Example**
-// ```json
-// {
-//   "file":   __FILE__,
-//   "name": "__UNIQUE_WORKFLOW_NAME__"
-// }
-// ```
-message CreateWorkflowRequest {
-  bytes file = 1;  // workflow.yml file.
-  string name = 2; // An optional unique name for workflow.
-}
-
-// The reply's data of the `CreateWorkflow` API.
-//
-// **Example**
-// ```json
-// {
-//   "id": "__WORKFLOW_ID__"
-// }
-// ```
-message CreateWorkflowReply {
-  string ID = 1; // Unique ID of workflow.
-}
-
-// The request's data for the `DeleteWorkflow` API.
-//
-// **Example**
-// ```json
-// {
-//   "id": "__WORKFLOW_ID__"
-// }
-// ```
-message DeleteWorkflowRequest {
-  string ID = 1; // Unique name or ID of workflow.
-}
-
-// Reply of `DeleteWorkflow` API doesn't contain any data.
-message DeleteWorkflowReply {
-}
-
-// The request's data for `WorkflowLogs` API.
-//
-// **Example**
-// ```json
-// {
-//   "id": "__WORKFLOW_ID__",
-// }
-// ```
-message WorkflowLogsRequest {
-  string ID = 1; // Unique name or ID of workflow.
-}
-
-// The data received from the stream of the `WorkflowLogs` API.
-// The data will be received over time as long as the stream is open.
-//
-// **Example**
-// ```json
-// {
-//   "type": "__LOG_TYPE__",
-//   "data":  "__LOG_CHUNK__",
-// }
-// ```
-message WorkflowLogData {
-  enum Type {
-    Standard = 0;  // Standard represents standard log output.
-    Error = 1;     // Error represents error log output.
-  }
-
-  Type type = 2;         // The log type.
-  bytes data = 3;        // Log data chunk.
-}
-
 // The request's data for the `ListenEvent` stream's API.
 //
 // **Example**
@@ -558,4 +484,78 @@ message Dependency {
   repeated string volumesfrom = 3;  // List of volumes mounted from other dependencies.
   repeated string ports = 4;        // List of ports the container exposes.
   string command = 5;               // Command to run the container.
+}
+
+// The request's data for the `CreateWorkflow` API.
+//
+// **Example**
+// ```json
+// {
+//   "file":   __FILE__,
+//   "name": "__UNIQUE_WORKFLOW_NAME__"
+// }
+// ```
+message CreateWorkflowRequest {
+  bytes file = 1;  // workflow.yml file.
+  string name = 2; // An optional unique name for workflow.
+}
+
+// The reply's data of the `CreateWorkflow` API.
+//
+// **Example**
+// ```json
+// {
+//   "id": "__WORKFLOW_ID__"
+// }
+// ```
+message CreateWorkflowReply {
+  string ID = 1; // Unique ID of workflow.
+}
+
+// The request's data for the `DeleteWorkflow` API.
+//
+// **Example**
+// ```json
+// {
+//   "id": "__WORKFLOW_ID__"
+// }
+// ```
+message DeleteWorkflowRequest {
+  string ID = 1; // Unique name or ID of workflow.
+}
+
+// Reply of `DeleteWorkflow` API doesn't contain any data.
+message DeleteWorkflowReply {
+}
+
+// The request's data for `WorkflowLogs` API.
+//
+// **Example**
+// ```json
+// {
+//   "id": "__WORKFLOW_ID__",
+// }
+// ```
+message WorkflowLogsRequest {
+  string ID = 1; // Unique name or ID of workflow.
+}
+
+// The data received from the stream of the `WorkflowLogs` API.
+// The data will be received over time as long as the stream is open.
+//
+// **Example**
+// ```json
+// {
+//   "type": "__LOG_TYPE__",
+//   "data":  "__LOG_CHUNK__",
+// }
+// ```
+message WorkflowLogData {
+  enum Type {
+    Standard = 0;  // Standard represents standard log output.
+    Error = 1;     // Error represents error log output.
+  }
+
+  Type type = 2;         // The log type.
+  bytes data = 3;        // Log data chunk.
 }

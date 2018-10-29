@@ -208,3 +208,8 @@ func (m *mockWorkflowExecutor) DeleteWorkflow(id string) error {
 	args := m.Called(id)
 	return args.Error(0)
 }
+
+func (m *mockWorkflowExecutor) WorkflowLogs(id string) (log *provider.WorkflowLog, close func(), err error) {
+	args := m.Called(id)
+	return args.Get(0).(*provider.WorkflowLog), args.Get(1).(func()), args.Error(2)
+}
