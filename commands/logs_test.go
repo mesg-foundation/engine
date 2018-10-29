@@ -16,12 +16,16 @@ func TestLogsCmdRunE(t *testing.T) {
 		c        = newLogsCmd(m)
 		closeStd = captureStd(t)
 		buf      = new(bytes.Buffer)
-		msg      = []byte("core: 2018-01-01 log\n")
+		msgout   = []byte("core: 2018-01-01 log\n")
+		msgerr   = []byte("core: 2018-01-01 errlog\n")
 	)
 
 	// create reader for docker stdcopy
-	w := stdcopy.NewStdWriter(buf, stdcopy.Stdout)
-	w.Write(msg)
+	wout := stdcopy.NewStdWriter(buf, stdcopy.Stdout)
+	wout.Write(msgout)
+
+	werr := stdcopy.NewStdWriter(buf, stdcopy.Stderr)
+	werr.Write(msgerr)
 
 	m.On("Status").Return(container.RUNNING, nil)
 	m.On("Logs").Return(ioutil.NopCloser(buf), nil)
@@ -30,6 +34,6 @@ func TestLogsCmdRunE(t *testing.T) {
 	m.AssertExpectations(t)
 
 	stdout, stderr := closeStd()
-	assert.Zero(t, stderr)
-	assert.Equal(t, stdout, string(msg))
+	assert.Equal(t, stdout, string(msgout))
+	assert.Equal(t, stderr, string(msgerr))
 }
