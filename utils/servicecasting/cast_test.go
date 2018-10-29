@@ -79,7 +79,7 @@ func TestServiceCast(t *testing.T) {
 
 	// test if non-existing key returns error
 	_, err := TaskInputs(tests[0].service, "_", nil)
-	require.NotNil(t, err)
+	require.Error(t, err)
 }
 
 // createTestServcieWithInputs creates test service with given inputs name and type under "test" task key.

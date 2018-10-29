@@ -30,6 +30,6 @@ func TestStopService(t *testing.T) {
 	status, err := s.Status()
 	require.NoError(t, err)
 	require.Equal(t, service.STOPPED, status)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.NotNil(t, reply)
 }

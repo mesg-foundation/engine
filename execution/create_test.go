@@ -21,7 +21,7 @@ func TestGenerateID(t *testing.T) {
 		Inputs:    i,
 	}
 	id, err := generateID(&execution)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, id, hash.Calculate([]string{
 		execution.CreatedAt.UTC().String(),
 		execution.Service.Name,
@@ -39,7 +39,7 @@ func TestCreate(t *testing.T) {
 	})
 	var inputs map[string]interface{}
 	exec, err := Create(s, "test", inputs, []string{})
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, exec.Service, s)
 	require.Equal(t, exec.Inputs, inputs)
 	require.Equal(t, exec.Task, "test")
@@ -60,7 +60,7 @@ func TestCreateInvalidTask(t *testing.T) {
 	})
 	var inputs map[string]interface{}
 	_, err := Create(s, invalidTaskKey, inputs, []string{})
-	require.NotNil(t, err)
+	require.Error(t, err)
 	notFoundErr, ok := err.(*service.TaskNotFoundError)
 	require.True(t, ok)
 	require.Equal(t, invalidTaskKey, notFoundErr.TaskKey)
@@ -87,7 +87,7 @@ func TestCreateInvalidInputs(t *testing.T) {
 	})
 	var inputs map[string]interface{}
 	_, err := Create(s, taskKey, inputs, []string{})
-	require.NotNil(t, err)
+	require.Error(t, err)
 	invalidErr, ok := err.(*service.InvalidTaskInputError)
 	require.True(t, ok)
 	require.Equal(t, taskKey, invalidErr.TaskKey)
