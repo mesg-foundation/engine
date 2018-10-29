@@ -141,5 +141,5 @@ func TestServiceNotExists(t *testing.T) {
 		EventKey:  "test",
 		EventData: "{}",
 	})
-	require.NotNil(t, err)
+	require.Error(t, err)
 }

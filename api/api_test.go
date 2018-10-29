@@ -17,13 +17,13 @@ func newAPIAndDockerTest(t *testing.T) (*API, *dockertest.Testing, func()) {
 	dt := dockertest.New()
 
 	container, err := container.New(container.ClientOption(dt.Client()))
-	require.Nil(t, err)
+	require.NoError(t, err)
 
 	db, err := database.NewServiceDB(testdbname)
 	require.NoError(t, err)
 
 	a, err := New(db, ContainerOption(container))
-	require.Nil(t, err)
+	require.NoError(t, err)
 
 	closer := func() {
 		require.NoError(t, db.Close())
