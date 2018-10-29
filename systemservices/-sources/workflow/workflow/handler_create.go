@@ -9,13 +9,18 @@ import (
 	mesg "github.com/mesg-foundation/go-service"
 )
 
-// createInputs is the inputs data of workflow creation.
+// output keys for create task.
+const (
+	createSuccessOutputKey = "success"
+)
+
+// createInputs is the input data of new workflow creation.
 type createInputs struct {
 	File string `json:"file"`
 	Name string `json:"name"`
 }
 
-// createSuccessOutput is the output data of creating a new workflow.
+// createSuccessOutput is the success output data of new workflow creation.
 type createSuccessOutput struct {
 	// ID of the workflow.
 	ID string `json:"id"`
@@ -25,16 +30,14 @@ type createSuccessOutput struct {
 func (w *Workflow) createHandler(execution *mesg.Execution) (string, mesg.Data) {
 	var inputs createInputs
 	if err := execution.Data(&inputs); err != nil {
-		return "error", errorOutput{err.Error()}
+		return newErrorOutput(err)
 	}
 	def, err := ParseYAML(strings.NewReader(inputs.File))
 	if err != nil {
-		return "error", errorOutput{err.Error()}
+		return newErrorOutput(err)
 	}
 
-	h := sha1.New()
-	h.Write(structhash.Dump(def, 1))
-	id := fmt.Sprintf("%x", h.Sum(nil))
+	id := w.generateIDFromWorkflowDefinition(def)
 
 	wdoc := &WorkflowDocument{
 		ID:         id,
@@ -43,12 +46,18 @@ func (w *Workflow) createHandler(execution *mesg.Execution) (string, mesg.Data) 
 	}
 
 	if err := w.st.Save(wdoc); err != nil {
-		return "error", errorOutput{err.Error()}
+		return newErrorOutput(err)
 	}
 
 	if err := w.vm.Run(wdoc); err != nil {
-		return "error", errorOutput{err.Error()}
+		return newErrorOutput(err)
 	}
 
-	return "success", createSuccessOutput{id}
+	return createSuccessOutputKey, createSuccessOutput{id}
+}
+
+func (w *Workflow) generateIDFromWorkflowDefinition(def WorkflowDefinition) string {
+	h := sha1.New()
+	h.Write(structhash.Dump(def, 1))
+	return fmt.Sprintf("%x", h.Sum(nil))
 }
