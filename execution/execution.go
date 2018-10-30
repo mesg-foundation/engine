@@ -34,11 +34,69 @@ type Execution struct {
 	ExecutionDuration time.Duration          `hash:"-"`
 }
 
-// DB exposes all the functionalities
-type DB interface {
-	Create(service *service.Service, taskKey string, taskInputs map[string]interface{}, tags []string) (*Execution, error)
-	Find(executionID string) (*Execution, error)
-	Execute(executionID string) (*Execution, error)
-	Complete(executionID string, outputKey string, outputData map[string]interface{}) (*Execution, error)
-	Close() error
+// New a record in the database to store this execution and returns the id
+// returns an error if any problem happen with the database
+// returns an error if inputs are invalid
+func New(service *service.Service, taskKey string, inputs map[string]interface{}, tags []string) (*Execution, error) {
+	task, err := service.GetTask(taskKey)
+	if err != nil {
+		return nil, err
+	}
+	if err := task.RequireInputs(inputs); err != nil {
+		return nil, err
+	}
+	return &Execution{
+		Service:   service,
+		Inputs:    inputs,
+		TaskKey:   taskKey,
+		Tags:      tags,
+		CreatedAt: time.Now(),
+		Status:    Created,
+	}, err
+}
+
+// Execute a given execution
+// Returns an error if the execution doesn't exists in the database
+// Returns an error if the status of the execution is different of `Created`
+func (execution *Execution) Execute() error {
+	if execution.Status != Created {
+		return StatusError{
+			ActualStatus:   execution.Status,
+			ExpectedStatus: Created,
+		}
+	}
+	execution.ExecutedAt = time.Now()
+	execution.Status = InProgress
+	return nil
+}
+
+// Complete verifies the output associated to the execution and save this to the database
+// Returns an error if the executionID doesn't exists
+// Returns an error if the execution is not `InProgress`
+// Returns an error if the `outputKey` or `outputData` are not valid
+func (execution *Execution) Complete(outputKey string, outputData map[string]interface{}) error {
+	if execution.Status != InProgress {
+		return StatusError{
+			ActualStatus:   execution.Status,
+			ExpectedStatus: InProgress,
+		}
+	}
+	task, err := execution.Service.GetTask(execution.TaskKey)
+	if err != nil {
+		return err
+	}
+	output, err := task.GetOutput(outputKey)
+	if err != nil {
+		return err
+	}
+	if err := output.RequireData(outputData); err != nil {
+		return err
+	}
+
+	execution.ExecutionDuration = time.Since(execution.ExecutedAt)
+	execution.Output = outputKey
+	execution.OutputData = outputData
+	execution.Status = Completed
+
+	return nil
 }
