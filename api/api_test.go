@@ -22,7 +22,7 @@ func newAPIAndDockerTest(t *testing.T) (*API, *dockertest.Testing, func()) {
 	db, err := database.NewServiceDB(testdbname)
 	require.NoError(t, err)
 
-	execDB, err := database.New("execution" + testdbname)
+	execDB, err := database.NewExecutionDB("execution" + testdbname)
 	require.NoError(t, err)
 
 	a, err := New(db, execDB, ContainerOption(container))
