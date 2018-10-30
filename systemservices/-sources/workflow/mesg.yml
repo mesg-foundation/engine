@@ -23,6 +23,23 @@ tasks:
           message:
             name: "Error message"
             type: String
+  get:
+    name: "Create and run a new workflow"
+    inputs:
+      id:
+        name: "Unique name or id of workflow"
+        type: String
+    outputs:
+      success:
+        data:
+          workflow:
+            name: "Workflow details"
+            type: Object
+      error:
+        data:
+          message:
+            name: "Error message"
+            type: String
   delete:
     name: "Stop and deletes a workflow"
     inputs:

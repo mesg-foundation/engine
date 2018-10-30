@@ -7,6 +7,7 @@ import (
 
 	"github.com/cnf/structhash"
 	mesg "github.com/mesg-foundation/go-service"
+	uuid "github.com/satori/go.uuid"
 )
 
 // output keys for create task.
@@ -38,10 +39,11 @@ func (w *Workflow) createHandler(execution *mesg.Execution) (string, mesg.Data) 
 		return newErrorOutput(err)
 	}
 
-	id := w.generateIDFromDefinition(def)
+	id := w.generateHashFromDefinition(def)
 
 	wdoc := &WorkflowDocument{
 		ID:         id,
+		CreationID: uuid.NewV4().String(),
 		Name:       inputs.Name,
 		Definition: def,
 	}
@@ -57,7 +59,7 @@ func (w *Workflow) createHandler(execution *mesg.Execution) (string, mesg.Data) 
 	return createSuccessOutputKey, createSuccessOutput{id}
 }
 
-func (w *Workflow) generateIDFromDefinition(def WorkflowDefinition) string {
+func (w *Workflow) generateHashFromDefinition(def WorkflowDefinition) string {
 	h := sha1.New()
 	h.Write(structhash.Dump(def, 1))
 	return fmt.Sprintf("%x", h.Sum(nil))

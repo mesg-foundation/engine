@@ -5,13 +5,17 @@ import mesg "github.com/mesg-foundation/go-service"
 // WorkflowDocument combines a workflow with additional info.
 type WorkflowDocument struct {
 	// ID is the unique id for workflow.
-	ID string
+	ID string `json:"id"`
+
+	// CreationID is the unique random id generated when
+	// workflow is created.
+	CreationID string `json:"creationID"`
 
 	// Name is the optionally set unique name for workflow.
-	Name string
+	Name string `json:"name"`
 
 	// Definition of workflow.
-	Definition WorkflowDefinition
+	Definition WorkflowDefinition `json:"-"`
 }
 
 // output key for errors.

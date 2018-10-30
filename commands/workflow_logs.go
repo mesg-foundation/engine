@@ -49,6 +49,7 @@ func (c *workflowLogsCmd) runE(cmd *cobra.Command, args []string) error {
 // WorkflowLog keeps workflow logs.
 type WorkflowLog struct {
 	RunStart                      bool   `json:"runStart"`
+	Deleted                       bool   `json:"deleted"`
 	WorkflowID                    string `json:"workflowID"`
 	WorkflowName                  string `json:"workflowName"`
 	WorkflowDefinitionName        string `json:"workflowDefinitionName"`
@@ -107,6 +108,7 @@ func (c *workflowLogsCmd) printLog(out io.Writer, r io.Reader) {
 			fmt.Println(err)
 			return
 		}
+
 		switch {
 		case line.Workflow != nil:
 			c.printWorkflowLog(out, line.Workflow)
@@ -122,6 +124,7 @@ func (c *workflowLogsCmd) printLog(out io.Writer, r io.Reader) {
 var (
 	colorGreen  = color.New(color.FgGreen)
 	colorYellow = color.New(color.FgYellow)
+	colorRed    = color.New(color.FgRed)
 	colorBold   = color.New(color.Bold)
 
 	colorAttention = color.New(color.FgYellow, color.Bold)
@@ -131,8 +134,13 @@ var (
 
 // printWorkflowLog prints logs related directly with workflow.
 func (c *workflowLogsCmd) printWorkflowLog(out io.Writer, workflow *WorkflowLog) {
-	fmt.Println(colorGreen.Sprintf("✔ %s workflow started", colorBold.Sprintf("%s", workflow.WorkflowDefinitionName)))
-	fmt.Println(colorYellow.Sprintf("%s", workflow.WorkflowDefinitionDescription))
+	switch {
+	case workflow.RunStart:
+		fmt.Println(colorGreen.Sprintf("✔ %s workflow started", colorBold.Sprintf("%s", workflow.WorkflowDefinitionName)))
+		fmt.Println(colorYellow.Sprintf("%s", workflow.WorkflowDefinitionDescription))
+	case workflow.Deleted:
+		fmt.Println(colorRed.Sprintf("%s workflow deleted", workflow.WorkflowDefinitionName))
+	}
 }
 
 // printWorkflowLog prints logs related with workflow's events.

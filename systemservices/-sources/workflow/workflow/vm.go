@@ -64,10 +64,11 @@ func (v *VM) Run(workflow *WorkflowDocument) error {
 	v.addWorkflow(workflow)
 
 	logrus.WithFields(logrus.Fields{
-		workflowIDKey: workflow.ID,
+		workflowCreationIDKey: workflow.CreationID,
 		workflowLogKey: WorkflowLog{
 			RunStart:                      true,
 			WorkflowID:                    workflow.ID,
+			WorkflowCreationID:            workflow.CreationID,
 			WorkflowName:                  workflow.Name,
 			WorkflowDefinitionName:        workflow.Definition.Name,
 			WorkflowDefinitionDescription: workflow.Definition.Description,
@@ -386,25 +387,27 @@ func (v *VM) execute(workflow *WorkflowDocument, def EventDefinition, event Even
 	)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
-			workflowIDKey: workflow.ID,
+			workflowCreationIDKey: workflow.CreationID,
 			eventLogKey: EventLog{
-				WorkflowID:   workflow.ID,
-				WorkflowName: workflow.Name,
-				ServiceName:  def.ServiceName,
-				EventKey:     event.EventKey,
+				WorkflowID:         workflow.ID,
+				WorkflowCreationID: workflow.CreationID,
+				WorkflowName:       workflow.Name,
+				ServiceName:        def.ServiceName,
+				EventKey:           event.EventKey,
 			},
 		}).Error("error while parsing event data")
 		return
 	}
 
 	logrus.WithFields(logrus.Fields{
-		workflowIDKey: workflow.ID,
+		workflowCreationIDKey: workflow.CreationID,
 		eventLogKey: EventLog{
-			WorkflowID:    workflow.ID,
-			WorkflowName:  workflow.Name,
-			ServiceName:   def.ServiceName,
-			EventKey:      event.EventKey,
-			ExecutionData: executionData,
+			WorkflowID:         workflow.ID,
+			WorkflowCreationID: workflow.CreationID,
+			WorkflowName:       workflow.Name,
+			ServiceName:        def.ServiceName,
+			EventKey:           event.EventKey,
+			ExecutionData:      executionData,
 		},
 	}).Info("event received")
 
@@ -414,24 +417,26 @@ func (v *VM) execute(workflow *WorkflowDocument, def EventDefinition, event Even
 		executionData,
 	); err != nil {
 		logrus.WithFields(logrus.Fields{
-			workflowIDKey: workflow.ID,
+			workflowCreationIDKey: workflow.CreationID,
 			executionLogKey: ExecutionLog{
-				WorkflowID:   workflow.ID,
-				WorkflowName: workflow.Name,
-				ServiceName:  def.ServiceName,
-				TaskKey:      def.Execute.TaskKey,
+				WorkflowID:         workflow.ID,
+				WorkflowCreationID: workflow.CreationID,
+				WorkflowName:       workflow.Name,
+				ServiceName:        def.ServiceName,
+				TaskKey:            def.Execute.TaskKey,
 			},
 		}).Info("error while executing task")
 		return
 	}
 
 	logrus.WithFields(logrus.Fields{
-		workflowIDKey: workflow.ID,
+		workflowCreationIDKey: workflow.CreationID,
 		executionLogKey: ExecutionLog{
-			WorkflowID:   workflow.ID,
-			WorkflowName: workflow.Name,
-			ServiceName:  def.ServiceName,
-			TaskKey:      def.Execute.TaskKey,
+			WorkflowID:         workflow.ID,
+			WorkflowCreationID: workflow.CreationID,
+			WorkflowName:       workflow.Name,
+			ServiceName:        def.ServiceName,
+			TaskKey:            def.Execute.TaskKey,
 		},
 	}).Info("task executed")
 }
@@ -452,16 +457,18 @@ func (v *VM) executeTask(serviceID, taskKey string, inputData map[string]interfa
 
 // list of field keys for log messages.
 var (
-	workflowIDKey   = "workflowID"
-	workflowLogKey  = "workflow"
-	eventLogKey     = "event"
-	executionLogKey = "execution"
+	workflowCreationIDKey = "workflowCreationID"
+	workflowLogKey        = "workflow"
+	eventLogKey           = "event"
+	executionLogKey       = "execution"
 )
 
 // WorkflowLog keeps the workflow log data format.
 type WorkflowLog struct {
 	RunStart                      bool   `json:"runStart"`
+	Deleted                       bool   `json:"deleted"`
 	WorkflowID                    string `json:"workflowID"`
+	WorkflowCreationID            string `json:"workflowCreationID"`
 	WorkflowName                  string `json:"workflowName"`
 	WorkflowDefinitionName        string `json:"workflowDefinitionName"`
 	WorkflowDefinitionDescription string `json:"workflowDefinitionDescription"`
@@ -469,17 +476,19 @@ type WorkflowLog struct {
 
 // EventLog keeps the workflow log data format.
 type EventLog struct {
-	WorkflowID    string      `json:"workflowID"`
-	WorkflowName  string      `json:"workflowName"`
-	ServiceName   string      `json:"serviceName"`
-	EventKey      string      `json:"eventKey"`
-	ExecutionData interface{} `json:"executionData"`
+	WorkflowID         string      `json:"workflowID"`
+	WorkflowCreationID string      `json:"workflowCreationID"`
+	WorkflowName       string      `json:"workflowName"`
+	ServiceName        string      `json:"serviceName"`
+	EventKey           string      `json:"eventKey"`
+	ExecutionData      interface{} `json:"executionData"`
 }
 
 // ExecutionLog keeps the workflow log data format.
 type ExecutionLog struct {
-	WorkflowID   string `json:"workflowID"`
-	WorkflowName string `json:"workflowName"`
-	ServiceName  string `json:"serviceName"`
-	TaskKey      string `json:"taskKey"`
+	WorkflowID         string `json:"workflowID"`
+	WorkflowCreationID string `json:"workflowCreationID"`
+	WorkflowName       string `json:"workflowName"`
+	ServiceName        string `json:"serviceName"`
+	TaskKey            string `json:"taskKey"`
 }

@@ -1,6 +1,9 @@
 package workflow
 
-import mesg "github.com/mesg-foundation/go-service"
+import (
+	mesg "github.com/mesg-foundation/go-service"
+	"github.com/sirupsen/logrus"
+)
 
 // output keys for delete task.
 const (
@@ -28,5 +31,17 @@ func (w *Workflow) deleteHandler(execution *mesg.Execution) (string, mesg.Data) 
 	if err := w.st.Delete(workflow.ID); err != nil {
 		return newErrorOutput(err)
 	}
+
+	logrus.WithFields(logrus.Fields{
+		workflowCreationIDKey: workflow.CreationID,
+		workflowLogKey: WorkflowLog{
+			Deleted:                       true,
+			WorkflowID:                    workflow.ID,
+			WorkflowCreationID:            workflow.CreationID,
+			WorkflowName:                  workflow.Name,
+			WorkflowDefinitionName:        workflow.Definition.Name,
+			WorkflowDefinitionDescription: workflow.Definition.Description,
+		}}).Info("workflow is deleted")
+
 	return deleteSuccessOutputKey, nil
 }

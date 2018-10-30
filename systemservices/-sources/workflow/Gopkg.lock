@@ -55,6 +55,14 @@
   revision = "c53d57c454a245c03505a9f0f8430832cfd4d6c9"
 
 [[projects]]
+  digest = "1:274f67cb6fed9588ea2521ecdac05a6d62a8c51c074c1fccc6a49a40ba80e925"
+  name = "github.com/satori/go.uuid"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
+  version = "v1.2.0"
+
+[[projects]]
   digest = "1:3f53e9e4dfbb664cd62940c9c4b65a2171c66acd0b7621a1a6b8e78513525a52"
   name = "github.com/sirupsen/logrus"
   packages = ["."]
@@ -195,6 +203,7 @@
     "github.com/mesg-foundation/core/x/xsignal",
     "github.com/mesg-foundation/core/x/xstrings",
     "github.com/mesg-foundation/go-service",
+    "github.com/satori/go.uuid",
     "github.com/sirupsen/logrus",
     "golang.org/x/net/context",
     "google.golang.org/grpc",

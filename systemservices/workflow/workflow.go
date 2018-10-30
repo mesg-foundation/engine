@@ -12,6 +12,7 @@ import (
 // WSS's tasks.
 const (
 	createTaskKey = "create"
+	getTaskKey    = "get"
 	deleteTaskKey = "delete"
 )
 
@@ -50,8 +51,43 @@ func (w *Workflow) Create(file []byte, name string) (id string, err error) {
 	panic("unreachable")
 }
 
+// WorkflowDocument keeps workflow info.
+type WorkflowDocument struct {
+	// ID is the unique id for workflow.
+	ID string
+
+	// CreationID is the unique random id generated when
+	// workflow is created.
+	CreationID string
+
+	// Name is the optionally set unique name for workflow.
+	Name string
+}
+
+// Get returns the workflow info.
+func (w *Workflow) Get(id string) (*WorkflowDocument, error) {
+	e, err := w.api.ExecuteAndListen(w.serviceID, getTaskKey, map[string]interface{}{
+		"id": id,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	switch e.Output {
+	case "success":
+		workflow := e.OutputData["workflow"].(map[string]interface{})
+		return &WorkflowDocument{
+			ID:         workflow["id"].(string),
+			CreationID: workflow["creationID"].(string),
+			Name:       workflow["name"].(string),
+		}, nil
+	case "error":
+		return nil, errors.New(e.OutputData["message"].(string))
+	}
+	panic("unreachable")
+}
+
 // Delete stops and deletes workflow with id.
-// TODO(ilgooz) close active log streams and delete the old log messages.
 func (w *Workflow) Delete(id string) (err error) {
 	e, err := w.api.ExecuteAndListen(w.serviceID, deleteTaskKey, map[string]interface{}{
 		"id": id,
@@ -70,20 +106,27 @@ func (w *Workflow) Delete(id string) (err error) {
 }
 
 // Logs returns the standard and error log streams of workflow with id.
-// TODO(ilgooz): support getting logs with workflow's name as well.
 func (w *Workflow) Logs(id string) (stdLogs, errLogs io.ReadCloser, err error) {
+	wdoc, err := w.Get(id)
+	if err != nil {
+		return nil, nil, err
+	}
 	logs, err := w.api.ServiceLogs(w.serviceID, api.ServiceLogsDependenciesFilter("service"))
 	if err != nil {
 		return nil, nil, err
 	}
 	serviceLogs := logs[0]
-	return newLogStream(id, serviceLogs.Standard), newLogStream(id, serviceLogs.Error), nil
+	stdout := newLogStream(wdoc.CreationID, serviceLogs.Standard)
+	stderr := newLogStream(wdoc.CreationID, serviceLogs.Error)
+	return stdout, stderr, nil
 }
 
 // logStream filters service logs for getting logs of a workflow.
 // it implements io.ReadCloser.
 type logStream struct {
-	workflowID string
+	workflowCreationID string
+
+	closing bool
 
 	c io.Closer
 	s *bufio.Scanner
@@ -92,23 +135,29 @@ type logStream struct {
 	i    int64
 }
 
-// newLogStream returns a log stream that filters service logs for getting logs of workflowID.
-func newLogStream(workflowID string, rc io.ReadCloser) *logStream {
+// newLogStream returns a log stream that filters service logs to get logs of workflowCreationID.
+func newLogStream(workflowCreationID string, rc io.ReadCloser) *logStream {
 	return &logStream{
-		workflowID: workflowID,
-		c:          rc,
-		s:          bufio.NewScanner(rc),
+		workflowCreationID: workflowCreationID,
+		c:                  rc,
+		s:                  bufio.NewScanner(rc),
 	}
 }
 
 // logLine represents a log line received from log stream.
 type logLine struct {
-	WorkflowID string `json:"workflowID"`
+	WorkflowCreationID string `json:"workflowCreationID"`
+	Workflow           struct {
+		Deleted bool `json:"deleted"`
+	} `json:"workflow"`
 }
 
 // Read implements io.Reader.
 func (s *logStream) Read(p []byte) (n int, err error) {
 	if s.i >= int64(len(s.data)) {
+		if s.closing {
+			return 0, io.EOF
+		}
 		data, err := s.scan()
 		if err != nil {
 			return 0, err
@@ -131,7 +180,10 @@ func (s *logStream) scan() ([]byte, error) {
 		if err := json.Unmarshal(data, &line); err != nil {
 			return nil, err
 		}
-		if line.WorkflowID == s.workflowID {
+		if line.WorkflowCreationID == s.workflowCreationID {
+			if line.Workflow.Deleted {
+				s.closing = true
+			}
 			return data, nil
 		}
 	}

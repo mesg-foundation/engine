@@ -9,6 +9,7 @@ import (
 
 const (
 	createTaskKey = "create"
+	getTaskKey    = "get"
 	deleteTaskKey = "delete"
 )
 
@@ -91,6 +92,7 @@ func (w *Workflow) Start() error {
 func (w *Workflow) listenTasks() error {
 	return w.s.Listen(
 		mesg.Task(createTaskKey, w.createHandler),
+		mesg.Task(getTaskKey, w.getHandler),
 		mesg.Task(deleteTaskKey, w.deleteHandler),
 	)
 }
