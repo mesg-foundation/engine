@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/mesg-foundation/core/execution"
-
 	"github.com/mesg-foundation/core/pubsub"
 	"github.com/mesg-foundation/core/service"
 )
