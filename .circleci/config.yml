@@ -13,13 +13,23 @@ runOnDocker: &runOnDocker
 jobs:
   "test":
     <<: *runOnDocker
+    environment:
+      - GOCACHE: "/tmp/go/cache"
     steps:
       - checkout
       - setup_remote_docker
       - run: docker swarm init
       - run: docker build -t sleep docker-images/sleep/
       - run: docker build -t http-server docker-images/http-server/
+      - restore_cache:
+          keys:
+            - build-cache-{{ .Branch  }}-{{ .Environment.CIRCLE_PREVIOUS_BUILD_NUM }}
+            - test-cache-{{ .Branch }}
       - run: go test -v -timeout 300s -p 1 -tags=integration -coverprofile=coverage.txt ./...
+      - save_cache:
+          key: test-cache-{{ .Branch }}-{{ .BuildNum }}
+          paths:
+            - /tmp/go/cache
       - run: bash <(curl -s https://codecov.io/bash)
 
   "publish_docker_dev":
