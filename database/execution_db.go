@@ -10,8 +10,8 @@ import (
 	"github.com/syndtr/goleveldb/leveldb"
 )
 
-// DB exposes all the functionalities
-type DB interface {
+// ExecutionDB exposes all the functionalities
+type ExecutionDB interface {
 	Find(executionID string) (*execution.Execution, error)
 	Save(execution *execution.Execution) (*execution.Execution, error)
 	Close() error
@@ -22,8 +22,8 @@ type LevelDBExecutionDB struct {
 	db *leveldb.DB
 }
 
-// New creates a new DB instance
-func New(path string) (*LevelDBExecutionDB, error) {
+// NewExecutionDB creates a new DB instance
+func NewExecutionDB(path string) (*LevelDBExecutionDB, error) {
 	db, err := leveldb.OpenFile(path, nil)
 	if err != nil {
 		return nil, err

@@ -9,8 +9,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func db(t *testing.T, dir string) DB {
-	db, err := New(dir)
+func db(t *testing.T, dir string) ExecutionDB {
+	db, err := NewExecutionDB(dir)
 	require.NoError(t, err)
 	return db
 }
