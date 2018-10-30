@@ -10,7 +10,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const testdbname = "db.test"
+const (
+	servicedbname = "service.db.test"
+	execdbname    = "exec.db.test"
+)
 
 func newAPIAndDockerTest(t *testing.T) (*API, *dockertest.Testing, func()) {
 
@@ -19,10 +22,10 @@ func newAPIAndDockerTest(t *testing.T) (*API, *dockertest.Testing, func()) {
 	container, err := container.New(container.ClientOption(dt.Client()))
 	require.NoError(t, err)
 
-	db, err := database.NewServiceDB(testdbname)
+	db, err := database.NewServiceDB(servicedbname)
 	require.NoError(t, err)
 
-	execDB, err := database.NewExecutionDB("execution" + testdbname)
+	execDB, err := database.NewExecutionDB(execdbname)
 	require.NoError(t, err)
 
 	a, err := New(db, execDB, ContainerOption(container))
@@ -31,7 +34,8 @@ func newAPIAndDockerTest(t *testing.T) (*API, *dockertest.Testing, func()) {
 	closer := func() {
 		require.NoError(t, db.Close())
 		require.NoError(t, execDB.Close())
-		require.NoError(t, os.RemoveAll(testdbname))
+		require.NoError(t, os.RemoveAll(servicedbname))
+		require.NoError(t, os.RemoveAll(execdbname))
 	}
 	return a, dt, closer
 }
