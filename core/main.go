@@ -7,7 +7,6 @@ import (
 	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/database"
-	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/interface/grpc"
 	"github.com/mesg-foundation/core/logger"
 	"github.com/mesg-foundation/core/version"
@@ -23,7 +22,7 @@ func initGRPCServer(c *config.Config) (*grpc.Server, error) {
 	}
 
 	// init execution db.
-	execDB, err := execution.New(filepath.Join(c.Core.Path, c.Core.Database.ExecutionRelativePath))
+	execDB, err := database.NewExecutionDB(filepath.Join(c.Core.Path, c.Core.Database.ExecutionRelativePath))
 	if err != nil {
 		return nil, err
 	}

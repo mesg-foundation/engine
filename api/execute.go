@@ -3,6 +3,8 @@ package api
 import (
 	"fmt"
 
+	"github.com/mesg-foundation/core/execution"
+
 	"github.com/mesg-foundation/core/pubsub"
 	"github.com/mesg-foundation/core/service"
 )
@@ -57,16 +59,19 @@ func (e *taskExecutor) checkServiceStatus(s *service.Service) error {
 
 // execute executes task.
 func (e *taskExecutor) execute(s *service.Service, taskKey string, taskInputs map[string]interface{}, tags []string) (executionID string, err error) {
-	exc, err := e.api.execDB.Create(s, taskKey, taskInputs, tags)
+	exec, err := execution.New(s, taskKey, taskInputs, tags)
 	if err != nil {
 		return "", err
 	}
-	exc, err = e.api.execDB.Execute(exc.ID)
+	if err := exec.Execute(); err != nil {
+		return "", err
+	}
+	exec, err = e.api.execDB.Save(exec)
 	if err != nil {
 		return "", err
 	}
-	go pubsub.Publish(s.TaskSubscriptionChannel(), exc)
-	return exc.ID, nil
+	go pubsub.Publish(s.TaskSubscriptionChannel(), exec)
+	return exec.ID, nil
 }
 
 // NotRunningServiceError is an error returned when the service is not running that
