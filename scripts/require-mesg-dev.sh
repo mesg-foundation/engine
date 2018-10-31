@@ -1,3 +1,5 @@
+#!/bin/bash
+
 if [ ! "$MESG_DEV" = "true" ]; then
    echo "you must run scripts via ./mesg-dev script,";
    echo "try executing the following command from the root of core:";
