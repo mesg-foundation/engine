@@ -640,6 +640,20 @@
   revision = "17861e192dc11fd2f5081df1932c94cce262fa1e"
 
 [[projects]]
+  branch = "v2"
+  digest = "1:988de7520a09024d5d94cd99bd545afbf194893994ec759b1cda0a0bbb6adb80"
+  name = "gopkg.in/mgo.v2"
+  packages = [
+    ".",
+    "bson",
+    "internal/json",
+    "internal/sasl",
+    "internal/scram",
+  ]
+  pruneopts = "UT"
+  revision = "9856a29383ce1c59f308dd1cf0363a79b5bef6b5"
+
+[[projects]]
   branch = "master"
   digest = "1:fd4a663d6407f5fb9f7b41e1f0bdeaf744b6bf4e23e5cc463c34d6e39036229e"
   name = "gopkg.in/src-d/go-billy.v4"
@@ -765,6 +779,8 @@
     "google.golang.org/grpc/reflection",
     "google.golang.org/grpc/status",
     "gopkg.in/AlecAivazis/survey.v1",
+    "gopkg.in/mgo.v2",
+    "gopkg.in/mgo.v2/bson",
     "gopkg.in/src-d/go-git.v4",
     "gopkg.in/src-d/go-git.v4/plumbing",
     "gopkg.in/yaml.v2",

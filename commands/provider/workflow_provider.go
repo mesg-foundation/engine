@@ -95,11 +95,12 @@ func (p *WorkflowProvider) WorkflowLogs(id string) (log *WorkflowLog, close func
 }
 
 // listenWorkflowLogs listens gRPC stream to get workflow logs.
-func (p *WorkflowProvider) listenWorkflowLogs(stream coreapi.Core_WorkflowLogsClient, log *WorkflowLog) error {
+func (p *WorkflowProvider) listenWorkflowLogs(stream coreapi.Core_WorkflowLogsClient, log *WorkflowLog) {
 	for {
 		data, err := stream.Recv()
 		if err != nil {
-			return err
+			log.Standard.CloseWithError(err)
+			return
 		}
 
 		var out *chunker.Stream

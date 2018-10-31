@@ -174,6 +174,8 @@ func (s *logStream) Read(p []byte) (n int, err error) {
 // scan scans the next log line and compares the workflow ids to filter.
 // it returns the line if ids matches.
 func (s *logStream) scan() ([]byte, error) {
+	// TODO(ilgooz)
+	// read by line is error prone because json message can have unescaped \n char.
 	if s.s.Scan() {
 		data := s.s.Bytes()
 		var line *logLine

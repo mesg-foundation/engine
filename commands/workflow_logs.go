@@ -5,10 +5,13 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sync"
 
 	"github.com/fatih/color"
 	"github.com/mesg-foundation/core/commands/provider"
+	"github.com/mesg-foundation/core/utils/chunker"
 	"github.com/mesg-foundation/core/utils/pretty"
+	"github.com/mesg-foundation/core/x/xerrors"
 	"github.com/mesg-foundation/core/x/xsignal"
 	"github.com/spf13/cobra"
 )
@@ -36,14 +39,18 @@ func newWorkflowLogsCmd(e WorkflowExecutor) *workflowLogsCmd {
 }
 
 func (c *workflowLogsCmd) runE(cmd *cobra.Command, args []string) error {
-	closer, err := c.showLogs(c.e, args[0])
+	waitC, closer, err := c.showLogs(c.e, args[0])
 	if err != nil {
 		return err
 	}
 	defer closer()
 
-	<-xsignal.WaitForInterrupt()
-	return nil
+	select {
+	case <-xsignal.WaitForInterrupt():
+		return nil
+	case err := <-waitC:
+		return err
+	}
 }
 
 // WorkflowLog keeps workflow logs.
@@ -81,7 +88,7 @@ type logLine struct {
 }
 
 // showLogs prints logs for workflowID.
-func (c *workflowLogsCmd) showLogs(e WorkflowExecutor, workflowID string) (closer func(), err error) {
+func (c *workflowLogsCmd) showLogs(e WorkflowExecutor, workflowID string) (waitC chan error, closer func(), err error) {
 	var (
 		log *provider.WorkflowLog
 	)
@@ -89,24 +96,48 @@ func (c *workflowLogsCmd) showLogs(e WorkflowExecutor, workflowID string) (close
 		log, closer, err = e.WorkflowLogs(workflowID)
 	})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	go c.printLog(os.Stdout, log.Standard)
-	go c.printLog(os.Stderr, log.Error)
+	var (
+		wg sync.WaitGroup
 
-	return closer, nil
+		errs xerrors.Errors
+		m    sync.Mutex
+	)
+	wg.Add(2)
+
+	for _, log := range []struct {
+		out    io.Writer
+		stream *chunker.Stream
+	}{
+		{os.Stdout, log.Standard},
+		{os.Stderr, log.Error},
+	} {
+		go func(out io.Writer, stream *chunker.Stream) {
+			defer wg.Done()
+			if err := c.printLog(out, stream); err != nil && err != io.EOF {
+				m.Lock()
+				defer m.Unlock()
+				errs = append(errs, err)
+			}
+		}(log.out, log.stream)
+	}
+
+	waitC = make(chan error)
+	go func() { wg.Wait(); waitC <- errs.ErrorOrNil() }()
+
+	return waitC, closer, nil
 }
 
 // printLog prints logs from workflow's r stream by its log types.
-func (c *workflowLogsCmd) printLog(out io.Writer, r io.Reader) {
+func (c *workflowLogsCmd) printLog(out io.Writer, r io.Reader) error {
 	dc := json.NewDecoder(r)
 
 	for {
 		var line logLine
 		if err := dc.Decode(&line); err != nil {
-			fmt.Println(err)
-			return
+			return err
 		}
 
 		switch {

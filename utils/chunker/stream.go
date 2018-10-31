@@ -9,6 +9,9 @@ import (
 type Stream struct {
 	recv chan []byte
 
+	closeErr error
+	me       sync.Mutex
+
 	done chan struct{}
 	m    sync.Mutex
 
@@ -19,8 +22,9 @@ type Stream struct {
 // NewStream returns a new stream.
 func NewStream() *Stream {
 	return &Stream{
-		recv: make(chan []byte, 0),
-		done: make(chan struct{}, 0),
+		closeErr: io.EOF,
+		recv:     make(chan []byte),
+		done:     make(chan struct{}),
 	}
 }
 
@@ -35,7 +39,9 @@ func (s *Stream) Read(p []byte) (n int, err error) {
 		for {
 			select {
 			case <-s.done:
-				return 0, io.EOF
+				s.me.Lock()
+				defer s.me.Unlock()
+				return 0, s.closeErr
 
 			case data := <-s.recv:
 				if err != nil {
@@ -62,4 +68,12 @@ func (s *Stream) Close() error {
 	s.done <- struct{}{}
 	s.done = nil
 	return nil
+}
+
+// CloseWithError closes reader with an error.
+func (s *Stream) CloseWithError(err error) {
+	s.me.Lock()
+	s.closeErr = err
+	s.me.Unlock()
+	s.Close()
 }

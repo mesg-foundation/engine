@@ -1,6 +1,7 @@
 package chunker
 
 import (
+	"errors"
 	"io/ioutil"
 	"testing"
 
@@ -26,4 +27,14 @@ func TestLogReader(t *testing.T) {
 	require.Len(t, data, 2)
 	require.Equal(t, chunk1, []byte{data[0]})
 	require.Equal(t, chunk2, []byte{data[1]})
+}
+
+func TestLogReaderCloseWithError(t *testing.T) {
+	anErr := errors.New("oh an error")
+
+	s := NewStream()
+	go s.CloseWithError(anErr)
+
+	_, err := ioutil.ReadAll(s)
+	require.Error(t, anErr, err)
 }
