@@ -1,8 +1,11 @@
 package execution
 
 import (
+	"crypto/sha1"
+	"fmt"
 	"time"
 
+	"github.com/cnf/structhash"
 	"github.com/mesg-foundation/core/service"
 )
 
@@ -22,6 +25,7 @@ const (
 // Execution stores all informations about executions.
 type Execution struct {
 	ID                string                 `hash:"-"`
+	EventID           string                 `hash:"eventID"`
 	Status            Status                 `hash:"-"`
 	Service           *service.Service       `hash:"service"`
 	TaskKey           string                 `hash:"taskKey"`
@@ -29,13 +33,13 @@ type Execution struct {
 	Inputs            map[string]interface{} `hash:"inputs"`
 	Output            string                 `hash:"-"`
 	OutputData        map[string]interface{} `hash:"-"`
-	CreatedAt         time.Time              `hash:"createdAt"`
+	CreatedAt         time.Time              `hash:"-"`
 	ExecutedAt        time.Time              `hash:"-"`
 	ExecutionDuration time.Duration          `hash:"-"`
 }
 
 // New returns a new execution. It returns an error if inputs are invalid.
-func New(service *service.Service, taskKey string, inputs map[string]interface{}, tags []string) (*Execution, error) {
+func New(service *service.Service, eventID string, taskKey string, inputs map[string]interface{}, tags []string) (*Execution, error) {
 	task, err := service.GetTask(taskKey)
 	if err != nil {
 		return nil, err
@@ -43,14 +47,17 @@ func New(service *service.Service, taskKey string, inputs map[string]interface{}
 	if err := task.RequireInputs(inputs); err != nil {
 		return nil, err
 	}
-	return &Execution{
+	exec := &Execution{
+		EventID:   eventID,
 		Service:   service,
 		Inputs:    inputs,
 		TaskKey:   taskKey,
 		Tags:      tags,
 		CreatedAt: time.Now(),
 		Status:    Created,
-	}, err
+	}
+	exec.ID = fmt.Sprintf("%x", sha1.Sum(structhash.Dump(exec, 1)))
+	return exec, nil
 }
 
 // Execute changes executions status to in progres and update its execute time.
