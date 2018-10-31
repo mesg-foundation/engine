@@ -65,8 +65,7 @@ func (e *taskExecutor) execute(s *service.Service, taskKey string, taskInputs ma
 	if err := exec.Execute(); err != nil {
 		return "", err
 	}
-	exec, err = e.api.execDB.Save(exec)
-	if err != nil {
+	if err = e.api.execDB.Save(exec); err != nil {
 		return "", err
 	}
 	go pubsub.Publish(s.TaskSubscriptionChannel(), exec)

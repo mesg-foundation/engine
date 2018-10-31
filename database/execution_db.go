@@ -13,7 +13,7 @@ import (
 // ExecutionDB exposes all the functionalities
 type ExecutionDB interface {
 	Find(executionID string) (*execution.Execution, error)
-	Save(execution *execution.Execution) (*execution.Execution, error)
+	Save(execution *execution.Execution) error
 	Close() error
 }
 
@@ -39,21 +39,21 @@ func (db *LevelDBExecutionDB) Find(executionID string) (*execution.Execution, er
 		return nil, err
 	}
 	var execution execution.Execution
-	err = json.Unmarshal(data, &execution)
-	return &execution, err
+	if err := json.Unmarshal(data, &execution); err != nil {
+		return nil, err
+	}
+	return &execution, nil
 }
 
 // Save an instance of executable in the database
 // Returns an error if anything from marshaling to database saving goes wrong
-func (db *LevelDBExecutionDB) Save(execution *execution.Execution) (*execution.Execution, error) {
-	id := fmt.Sprintf("%x", sha1.Sum(structhash.Dump(execution, 1)))
-	execution.ID = string(id)
+func (db *LevelDBExecutionDB) Save(execution *execution.Execution) error {
+	execution.ID = fmt.Sprintf("%x", sha1.Sum(structhash.Dump(execution, 1)))
 	data, err := json.Marshal(execution)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	err = db.db.Put([]byte(id), data, nil)
-	return execution, nil
+	return db.db.Put([]byte(execution.ID), data, nil)
 }
 
 // Close closes database.

@@ -16,7 +16,6 @@ const (
 )
 
 func newAPIAndDockerTest(t *testing.T) (*API, *dockertest.Testing, func()) {
-
 	dt := dockertest.New()
 
 	container, err := container.New(container.ClientOption(dt.Client()))

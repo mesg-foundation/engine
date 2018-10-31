@@ -20,7 +20,8 @@ func TestFind(t *testing.T) {
 	defer os.RemoveAll(dir)
 	db := db(t, dir)
 	defer db.Close()
-	e, _ := db.Save(&execution.Execution{})
+	e := &execution.Execution{}
+	db.Save(e)
 	tests := []struct {
 		id       string
 		hasError bool
@@ -54,12 +55,11 @@ func TestSave(t *testing.T) {
 		{&execution.Execution{}, false},
 	}
 	for _, test := range tests {
-		e, err := db.Save(test.execution)
+		err := db.Save(test.execution)
 		if test.hasError {
 			require.Error(t, err)
 			continue
 		}
 		require.NoError(t, err)
-		require.NotNil(t, e)
 	}
 }
