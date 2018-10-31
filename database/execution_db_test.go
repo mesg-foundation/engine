@@ -20,7 +20,7 @@ func TestFind(t *testing.T) {
 	defer os.RemoveAll(dir)
 	db := db(t, dir)
 	defer db.Close()
-	e := &execution.Execution{}
+	e := &execution.Execution{ID: "xxx"}
 	db.Save(e)
 	tests := []struct {
 		id       string
@@ -52,7 +52,8 @@ func TestSave(t *testing.T) {
 		execution *execution.Execution
 		hasError  bool
 	}{
-		{&execution.Execution{}, false},
+		{&execution.Execution{ID: "xxx"}, false},
+		{&execution.Execution{}, true},
 	}
 	for _, test := range tests {
 		err := db.Save(test.execution)
