@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# make sure script is running inside mesg-dev container.
+source $(dirname $0)/require-mesg-dev.sh
+
 cd $GOPATH/src
 
 PROJECT=github.com/mesg-foundation/core

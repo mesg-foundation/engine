@@ -27,3 +27,6 @@ VOLUME /core
 # also needed to install script's dependencies into /go/bin.
 ADD vendor/ vendor
 RUN go install -i ./vendor/...
+
+# verify that mesg-dev container is being used.
+ENV MESG_DEV true
