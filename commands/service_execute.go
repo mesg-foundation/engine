@@ -3,12 +3,12 @@ package commands
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"time"
 
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/utils/pretty"
 	casting "github.com/mesg-foundation/core/utils/servicecasting"
+	"github.com/mesg-foundation/core/x/xjson"
 	"github.com/mesg-foundation/core/x/xpflag"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
@@ -146,25 +146,18 @@ func (c *serviceExecuteCmd) getData(taskKey string, s *coreapi.Service, dataStru
 			return "", errors.New("no filepath given")
 		}
 	}
-	return readJSONFile(c.jsonFile)
-}
 
-func readJSONFile(path string) (string, error) {
-	if path == "" {
+	// still no answer then return empty json object
+	if c.jsonFile == "" {
 		return "{}", nil
 	}
 
-	data, err := ioutil.ReadFile(path)
+	content, err := xjson.ReadFile(c.jsonFile)
 	if err != nil {
 		return "", err
 	}
 
-	var raw json.RawMessage
-	if err := json.Unmarshal(data, &raw); err != nil {
-		return "", err
-	}
-
-	return string(data), nil
+	return string(content), nil
 }
 
 func taskKeysFromService(s *coreapi.Service) []string {
