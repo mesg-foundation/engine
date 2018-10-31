@@ -31,7 +31,7 @@ func TestExecute(t *testing.T) {
 		TaskKey:   taskKey,
 		InputData: data,
 	})
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.NotEqual(t, "", reply.ExecutionID)
 }
 
@@ -49,7 +49,7 @@ func TestExecuteWithInvalidJSON(t *testing.T) {
 		TaskKey:   "test",
 		InputData: "",
 	})
-	require.NotNil(t, err)
+	require.Error(t, err)
 	require.Equal(t, err.Error(), "unexpected end of JSON input")
 }
 
@@ -134,5 +134,5 @@ func TestExecuteWithNonExistingService(t *testing.T) {
 		TaskKey:   "error",
 		InputData: "{}",
 	})
-	require.NotNil(t, err)
+	require.Error(t, err)
 }
