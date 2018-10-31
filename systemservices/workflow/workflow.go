@@ -135,7 +135,8 @@ type logStream struct {
 	i    int64
 }
 
-// newLogStream returns a log stream that filters service logs to get logs of workflowCreationID.
+// newLogStream returns a log stream that filters service logs to get logs
+// of a workflow with workflowCreationID.
 func newLogStream(workflowCreationID string, rc io.ReadCloser) *logStream {
 	return &logStream{
 		workflowCreationID: workflowCreationID,
