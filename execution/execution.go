@@ -34,9 +34,7 @@ type Execution struct {
 	ExecutionDuration time.Duration          `hash:"-"`
 }
 
-// New a record in the database to store this execution and returns the id
-// returns an error if any problem happen with the database
-// returns an error if inputs are invalid
+// New returns a new execution. It returns an error if inputs are invalid.
 func New(service *service.Service, taskKey string, inputs map[string]interface{}, tags []string) (*Execution, error) {
 	task, err := service.GetTask(taskKey)
 	if err != nil {
@@ -55,9 +53,8 @@ func New(service *service.Service, taskKey string, inputs map[string]interface{}
 	}, err
 }
 
-// Execute a given execution
-// Returns an error if the execution doesn't exists in the database
-// Returns an error if the status of the execution is different of `Created`
+// Execute changes executions status to in progres and update its execute time.
+// It returns an error if the status is different then Created.
 func (execution *Execution) Execute() error {
 	if execution.Status != Created {
 		return StatusError{
@@ -70,10 +67,8 @@ func (execution *Execution) Execute() error {
 	return nil
 }
 
-// Complete verifies the output associated to the execution and save this to the database
-// Returns an error if the executionID doesn't exists
-// Returns an error if the execution is not `InProgress`
-// Returns an error if the `outputKey` or `outputData` are not valid
+// Complete changes execution status to completed. It verifies the output.
+// It returns an error if the status is different then InProgress or verification fails.
 func (execution *Execution) Complete(outputKey string, outputData map[string]interface{}) error {
 	if execution.Status != InProgress {
 		return StatusError{
@@ -97,6 +92,5 @@ func (execution *Execution) Complete(outputKey string, outputData map[string]int
 	execution.Output = outputKey
 	execution.OutputData = outputData
 	execution.Status = Completed
-
 	return nil
 }

@@ -23,17 +23,16 @@ func newResultSubmitter(api *API) *resultSubmitter {
 
 // Submit submits results for executionID.
 func (s *resultSubmitter) Submit(executionID string, outputKey string, outputData map[string]interface{}) error {
-	execution, err := s.api.execDB.Find(executionID)
+	exec, err := s.api.execDB.Find(executionID)
 	if err != nil {
 		return err
 	}
-	if err := execution.Complete(outputKey, outputData); err != nil {
+	if err := exec.Complete(outputKey, outputData); err != nil {
 		return err
 	}
-	execution, err = s.api.execDB.Save(execution)
-	if err != nil {
+	if err = s.api.execDB.Save(exec); err != nil {
 		return err
 	}
-	go pubsub.Publish(execution.Service.ResultSubscriptionChannel(), execution)
+	go pubsub.Publish(exec.Service.ResultSubscriptionChannel(), exec)
 	return nil
 }
