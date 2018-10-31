@@ -79,12 +79,14 @@ func (p *WorkflowProvider) WorkflowLogs(id string) (log *WorkflowLog, close func
 	// TODO(ilgooz):
 	// * this one actually should be handled by Close() (io.Closer) called from chunker.Stream.
 	//   chunkler.Stream should accept a closeFunc handler in the initialization time to call it later.
-	// * listening gRPC stream shouldn't be done by listenWorkflowLogs() as well.
+	//   closeFunc should call cancel().
+	// * listening the gRPC stream shouldn't be done by listenWorkflowLogs() as well.
 	//   chunker.Stream can accept a readFunc that will be called when Read() (io.Reader) called from it.
 	//   content of listenWorkflowLogs() should be implemented inside readFunc handler.
 	// * to make these changes possible, chunker Streams should be initialized from a parent Stream.
 	//   otherwise reading source will be duplicated which is error prone.
 	//   and similar thing will happen for the closeFunc as well.
+	//   sub streams can be forked from parent by their stream ids. stream.SubStream(id) *Stream
 	// * when this change is made, do not forget updating other places that uses pkg chunker.
 	go func() {
 		p.listenWorkflowLogs(stream, log)
