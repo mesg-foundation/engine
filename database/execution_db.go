@@ -1,11 +1,9 @@
 package database
 
 import (
-	"crypto/sha1"
 	"encoding/json"
-	"fmt"
+	"errors"
 
-	"github.com/cnf/structhash"
 	"github.com/mesg-foundation/core/execution"
 	"github.com/syndtr/goleveldb/leveldb"
 )
@@ -48,7 +46,9 @@ func (db *LevelDBExecutionDB) Find(executionID string) (*execution.Execution, er
 // Save an instance of executable in the database
 // Returns an error if anything from marshaling to database saving goes wrong
 func (db *LevelDBExecutionDB) Save(execution *execution.Execution) error {
-	execution.ID = fmt.Sprintf("%x", sha1.Sum(structhash.Dump(execution, 1)))
+	if execution.ID == "" {
+		return errors.New("database: can't save service without id")
+	}
 	data, err := json.Marshal(execution)
 	if err != nil {
 		return err
