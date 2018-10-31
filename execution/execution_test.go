@@ -50,7 +50,7 @@ func TestNewFromService(t *testing.T) {
 		{taskKey: taskKey, inputs: map[string]interface{}{"foo": "hello"}, hasError: true},
 	}
 	for _, test := range tests {
-		execution, err := New(srv, test.taskKey, test.inputs, tags)
+		execution, err := New(srv, "xxx", test.taskKey, test.inputs, tags)
 		if test.hasError {
 			require.Error(t, err)
 			continue
@@ -67,7 +67,7 @@ func TestNewFromService(t *testing.T) {
 }
 
 func TestExecute(t *testing.T) {
-	e, _ := New(srv, taskKey, map[string]interface{}{"foo": "1", "bar": "2"}, tags)
+	e, _ := New(srv, "xxx", taskKey, map[string]interface{}{"foo": "1", "bar": "2"}, tags)
 	tests := []struct {
 		id       string
 		hasError bool
@@ -92,7 +92,7 @@ func TestExecute(t *testing.T) {
 }
 
 func TestComplete(t *testing.T) {
-	e, _ := New(srv, taskKey, map[string]interface{}{"foo": "1", "bar": "2"}, tags)
+	e, _ := New(srv, "xxx", taskKey, map[string]interface{}{"foo": "1", "bar": "2"}, tags)
 	e.Execute()
 	tests := []struct {
 		id       string
