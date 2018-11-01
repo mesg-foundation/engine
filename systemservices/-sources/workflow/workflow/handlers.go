@@ -12,7 +12,7 @@ type WorkflowDocument struct {
 	CreationID string `json:"creationID"`
 
 	// Name is the optionally set unique name for workflow.
-	Name string `json:"name"`
+	Name string `json:"name" bson:",omitempty"`
 
 	// Definition of workflow.
 	Definition WorkflowDefinition `json:"-"`
