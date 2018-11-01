@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
-# go get mockery
-go get github.com/vektra/mockery/...
+# make sure script is running inside mesg-dev container.
+source $(dirname $0)/require-mesg-dev.sh
 
 # navigate to core repo
 cd $GOPATH/src/github.com/mesg-foundation/core

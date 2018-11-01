@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# build the dev container.
+docker build -t mesg-dev:latest -f Dockerfile-dev .
+
+# clear build logs.
+clear
+
+# shortland of container run command.
+run_in_container="docker run -ti -v /var/run/docker.sock:/var/run/docker.sock -v `pwd`:/core mesg-dev:latest"
+
+# run any command under dev container.
+$run_in_container $@
