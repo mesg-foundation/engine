@@ -24,7 +24,7 @@ func TestListTasks(t *testing.T) {
 	dt.ProvideTaskList(tasks, nil)
 
 	tasks1, err := c.ListTasks(namespace)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, tasks, tasks1)
 	require.Equal(t, len(tasks), len(tasks1))
 
@@ -69,7 +69,7 @@ func TestTasksError(t *testing.T) {
 	dt.ProvideTaskList(tasks, nil)
 
 	errors, err := c.TasksError(namespace)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, len(tasks), len(errors))
 	require.Equal(t, tasks[0].Status.Err, errors[0])
 	require.Equal(t, tasks[1].Status.Err, errors[1])

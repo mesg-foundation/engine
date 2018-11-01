@@ -236,22 +236,6 @@
   revision = "82cf3f92643814c75904bc4b01dd5721afa7bb89"
 
 [[projects]]
-  branch = "main"
-  digest = "1:ca955a9cd5b50b0f43d2cc3aeb35c951473eeca41b34eb67507f1dbcc0542394"
-  name = "github.com/kr/pretty"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "73f6ac0b30a98e433b289500d779f50c1a6f0712"
-
-[[projects]]
-  branch = "main"
-  digest = "1:15b5cc79aad436d47019f814fde81a10221c740dc8ddf769221a65097fb6c2e9"
-  name = "github.com/kr/text"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "e2ffdb16a802fe2bb95e2e35ff34f0e53aeef34f"
-
-[[projects]]
   branch = "master"
   digest = "1:0f96ec4151a24d7bfd4298fc13cc320a000e31b4e5431cf88e3ffc961db846fd"
   name = "github.com/mattn/go-colorable"
@@ -439,14 +423,6 @@
   pruneopts = "UT"
   revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
   version = "v1.2.2"
-
-[[projects]]
-  branch = "master"
-  digest = "1:42a7575a9db2a8adb8176427163dfbd63f49214ff6529efb00855c9038bee269"
-  name = "github.com/stvp/assert"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "4bc16443988bace8e1b42d62d3601f70d74e4638"
 
 [[projects]]
   branch = "master"
@@ -756,7 +732,6 @@
     "github.com/spf13/pflag",
     "github.com/stretchr/testify/mock",
     "github.com/stretchr/testify/require",
-    "github.com/stvp/assert",
     "github.com/syndtr/goleveldb/leveldb",
     "github.com/xeipuuv/gojsonschema",
     "golang.org/x/net/context",

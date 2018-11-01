@@ -19,13 +19,13 @@ func TestMoveFromPendingToInProgress(t *testing.T) {
 	err := exec.moveFromPendingToInProgress()
 	require.Equal(t, inProgressExecutions[exec.ID], exec)
 	require.Nil(t, pendingExecutions[exec.ID])
-	require.Nil(t, err)
+	require.NoError(t, err)
 }
 
 func TestMoveFromPendingToInProgressNonExistingTask(t *testing.T) {
 	exec := Execution{ID: "test"}
 	err := exec.moveFromPendingToInProgress()
-	require.NotNil(t, err)
+	require.Error(t, err)
 	require.Nil(t, pendingExecutions[exec.ID])
 }
 
@@ -41,7 +41,7 @@ func TestDeleteFromInProgressQueue(t *testing.T) {
 	exec.moveFromPendingToInProgress()
 	err := exec.deleteFromInProgressQueue()
 	require.Nil(t, inProgressExecutions[exec.ID])
-	require.Nil(t, err)
+	require.NoError(t, err)
 }
 
 func TestDeleteFromInProgressQueueNonExistingTask(t *testing.T) {
@@ -54,7 +54,7 @@ func TestDeleteFromInProgressQueueNonExistingTask(t *testing.T) {
 	var inputs map[string]interface{}
 	exec, _ := Create(s, "test", inputs, []string{})
 	err := exec.deleteFromInProgressQueue()
-	require.NotNil(t, err)
+	require.Error(t, err)
 	require.Nil(t, inProgressExecutions[exec.ID])
 }
 
