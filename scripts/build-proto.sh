@@ -1,8 +1,9 @@
 #!/bin/bash
 
-cd $GOPATH/src
+# make sure script is running inside mesg-dev container.
+source $(dirname $0)/require-mesg-dev.sh
 
-go get github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc
+cd $GOPATH/src
 
 PROJECT=github.com/mesg-foundation/core
 GRPC=$PROJECT/protobuf

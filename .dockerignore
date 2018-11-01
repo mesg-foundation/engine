@@ -1,10 +1,12 @@
 Dockerfile
+Dockerfile-dev
 .circleci
 .vscode
 /examples
 /test
 dev-core
-dev-cli 
+dev-cli
+mesg-dev
 .git
 **/*.test
 **/debug
