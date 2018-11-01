@@ -13,9 +13,9 @@ import (
 type Status int
 
 // Status for an execution
-// Created 		=> The execution is created but not yet processed
+// Created    => The execution is created but not yet processed
 // InProgress => The execution is being processed
-// Completed	=> The execution is completed
+// Completed  => The execution is completed
 const (
 	Created Status = iota
 	InProgress
@@ -31,7 +31,7 @@ type Execution struct {
 	TaskKey           string                 `hash:"taskKey"`
 	Tags              []string               `hash:"tags"`
 	Inputs            map[string]interface{} `hash:"inputs"`
-	Output            string                 `hash:"-"`
+	OutputKey         string                 `hash:"-"`
 	OutputData        map[string]interface{} `hash:"-"`
 	CreatedAt         time.Time              `hash:"-"`
 	ExecutedAt        time.Time              `hash:"-"`
@@ -65,8 +65,8 @@ func New(service *service.Service, eventID string, taskKey string, inputs map[st
 func (execution *Execution) Execute() error {
 	if execution.Status != Created {
 		return StatusError{
-			ActualStatus:   execution.Status,
 			ExpectedStatus: Created,
+			ActualStatus:   execution.Status,
 		}
 	}
 	execution.ExecutedAt = time.Now()
@@ -79,8 +79,8 @@ func (execution *Execution) Execute() error {
 func (execution *Execution) Complete(outputKey string, outputData map[string]interface{}) error {
 	if execution.Status != InProgress {
 		return StatusError{
-			ActualStatus:   execution.Status,
 			ExpectedStatus: InProgress,
+			ActualStatus:   execution.Status,
 		}
 	}
 	task, err := execution.Service.GetTask(execution.TaskKey)
@@ -96,7 +96,7 @@ func (execution *Execution) Complete(outputKey string, outputData map[string]int
 	}
 
 	execution.ExecutionDuration = time.Since(execution.ExecutedAt)
-	execution.Output = outputKey
+	execution.OutputKey = outputKey
 	execution.OutputData = outputData
 	execution.Status = Completed
 	return nil
