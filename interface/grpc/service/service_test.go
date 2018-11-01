@@ -31,15 +31,15 @@ func newServer(t *testing.T) (*Server, func()) {
 	require.NoError(t, err)
 
 	a, err := api.New(db, execDB)
-	require.Nil(t, err)
+	require.NoError(t, err)
 
 	server := NewServer(a)
 
 	closer := func() {
-		db.Close()
-		execDB.Close()
-		os.RemoveAll(servicedbname)
-		os.RemoveAll(execdbname)
+		require.NoError(t, db.Close())
+		require.NoError(t, execDB.Close())
+		require.NoError(t, os.RemoveAll(servicedbname))
+		require.NoError(t, os.RemoveAll(execdbname))
 	}
 
 	return server, closer
