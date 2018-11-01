@@ -28,7 +28,7 @@ func newAPIAndDockerTest(t *testing.T) (*API, *dockertest.Testing, func()) {
 	require.NoError(t, err)
 
 	a, err := New(db, execDB, ContainerOption(container))
-	require.Nil(t, err)
+	require.NoError(t, err)
 
 	closer := func() {
 		require.NoError(t, db.Close())
