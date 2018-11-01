@@ -89,7 +89,7 @@ func TestListen(t *testing.T) {
 			}),
 		)
 
-		assert.NotNil(t, err)
+		assert.Nil(t, err)
 	}()
 
 	id, execution, err := server.Execute(task, reqData)
