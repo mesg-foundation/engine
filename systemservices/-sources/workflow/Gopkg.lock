@@ -44,15 +44,15 @@
   revision = "516e26355a13e748c4f2bf9ec7e62732b1cd83be"
 
 [[projects]]
-  branch = "master"
-  digest = "1:ccb421790591cd07ebcf7bec71d660ae97652d1438e00a13ff9c9dc9b4a4e9fc"
+  branch = "feature/improve-listen"
+  digest = "1:8b50f8320491a61cd8074ab0211ea94cca21d949264ce1bcdb92d2d669411342"
   name = "github.com/mesg-foundation/go-service"
   packages = [
     ".",
     "proto",
   ]
   pruneopts = "UT"
-  revision = "c53d57c454a245c03505a9f0f8430832cfd4d6c9"
+  revision = "f89649f82aafb46103984c1e023f67c758e8f790"
 
 [[projects]]
   digest = "1:274f67cb6fed9588ea2521ecdac05a6d62a8c51c074c1fccc6a49a40ba80e925"

@@ -34,7 +34,7 @@
   name = "github.com/mesg-foundation/core"
 
 [[constraint]]
-  branch = "master"
+  branch = "feature/improve-listen"
   name = "github.com/mesg-foundation/go-service"
 
 [[constraint]]
