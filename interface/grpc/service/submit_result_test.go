@@ -51,7 +51,7 @@ func TestSubmit(t *testing.T) {
 
 	case execution := <-ln.Executions:
 		require.Equal(t, executionID, execution.ID)
-		require.Equal(t, outputKey, execution.Output)
+		require.Equal(t, outputKey, execution.OutputKey)
 		require.Equal(t, outputData, jsonMarshal(t, execution.OutputData))
 	}
 }

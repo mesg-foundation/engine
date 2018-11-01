@@ -110,7 +110,7 @@ func TestIsSubscribedToOutput(t *testing.T) {
 	defer closer()
 	ln := newResultListener(a)
 
-	x := &execution.Execution{Output: "output"}
+	x := &execution.Execution{OutputKey: "output"}
 
 	ln.outputKey = ""
 	require.True(t, ln.isSubscribedToOutput(x))
