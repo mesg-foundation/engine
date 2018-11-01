@@ -148,6 +148,17 @@
   revision = "5df930a27be2502f99b292b7cc09ebad4d0891f4"
 
 [[projects]]
+  digest = "1:cc2ca3cb5d06a0c295f59afb86c74b303f00217c5fe3b328ad05172f59e6c3a7"
+  name = "github.com/go-bindata/go-bindata"
+  packages = [
+    ".",
+    "go-bindata",
+  ]
+  pruneopts = "UT"
+  revision = "5ebd2c033d84e12a7f4aae4483d98ec7dde53b66"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:9a688317f3231e0175b3429033f44411906c0ce119361b7b5019d01375f8cff7"
   name = "github.com/gogo/protobuf"
   packages = ["proto"]
@@ -157,12 +168,17 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:bc5428c2f966023755ec3ab5e5d84e060ac6d40dbdb96fac8cbd9b55d9326421"
+  digest = "1:cdfd55b3537efa341d9b9382435817cf499b51d4356fb36baa8dde0a215b5303"
   name = "github.com/golang/protobuf"
   packages = [
     "jsonpb",
     "proto",
+    "protoc-gen-go",
     "protoc-gen-go/descriptor",
+    "protoc-gen-go/generator",
+    "protoc-gen-go/generator/internal/remap",
+    "protoc-gen-go/grpc",
+    "protoc-gen-go/plugin",
     "ptypes",
     "ptypes/any",
     "ptypes/duration",
@@ -341,6 +357,18 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:f4f47b2749b5880455b2cfca27500f7559e0c0eec51a67867f8311aed7aaf564"
+  name = "github.com/pseudomuto/protoc-gen-doc"
+  packages = [
+    ".",
+    "cmd/protoc-gen-doc",
+    "parser",
+  ]
+  pruneopts = "UT"
+  revision = "728a624b38e5ae90bb3e5da5f406e05138f1517c"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:8bc629776d035c003c7814d4369521afe67fdb8efc4b5f66540d29343b98cf23"
   name = "github.com/russross/blackfriday"
   packages = ["."]
@@ -444,6 +472,17 @@
   ]
   pruneopts = "UT"
   revision = "c4c61651e9e37fa117f53c5a906d3b63090d8445"
+
+[[projects]]
+  branch = "master"
+  digest = "1:dc5dee1fc09e9dfe3aa0f064ec56d79fe38b45bddfd8c0a383ad98605d1dc692"
+  name = "github.com/vektra/mockery"
+  packages = [
+    "cmd/mockery",
+    "mockery",
+  ]
+  pruneopts = "UT"
+  revision = "ea265755d541b124de6bc248f7744eab9005fd33"
 
 [[projects]]
   branch = "master"
@@ -557,6 +596,21 @@
   ]
   pruneopts = "UT"
   revision = "0605a8320aceb4207a5fb3521281e17ec2075476"
+
+[[projects]]
+  branch = "master"
+  digest = "1:42d800e308d6fcd0e22a9567266f7c1f79066c9a3831d28afbd07778b0954d37"
+  name = "golang.org/x/tools"
+  packages = [
+    "go/ast/astutil",
+    "go/buildutil",
+    "go/internal/cgo",
+    "go/loader",
+    "imports",
+    "internal/fastwalk",
+  ]
+  pruneopts = "UT"
+  revision = "59602fdee893255faef9b2cd3aa8f880ea85265c"
 
 [[projects]]
   branch = "master"
@@ -716,7 +770,9 @@
     "github.com/docker/docker/pkg/archive",
     "github.com/docker/docker/pkg/stdcopy",
     "github.com/fatih/color",
+    "github.com/go-bindata/go-bindata/go-bindata",
     "github.com/golang/protobuf/proto",
+    "github.com/golang/protobuf/protoc-gen-go",
     "github.com/grpc-ecosystem/go-grpc-middleware",
     "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus",
     "github.com/hokaccha/go-prettyjson",
@@ -725,6 +781,7 @@
     "github.com/mesg-foundation/prefixer",
     "github.com/mitchellh/go-homedir",
     "github.com/pkg/errors",
+    "github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc",
     "github.com/satori/go.uuid",
     "github.com/sirupsen/logrus",
     "github.com/spf13/cobra",
@@ -733,6 +790,7 @@
     "github.com/stretchr/testify/mock",
     "github.com/stretchr/testify/require",
     "github.com/syndtr/goleveldb/leveldb",
+    "github.com/vektra/mockery/cmd/mockery",
     "github.com/xeipuuv/gojsonschema",
     "golang.org/x/net/context",
     "google.golang.org/grpc",
