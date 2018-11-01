@@ -25,7 +25,7 @@ func TestIntegrationLogs(t *testing.T) {
 	service.Start()
 	defer service.Stop()
 	readers, err := service.Logs()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, 2, len(readers))
 }
 
@@ -46,6 +46,6 @@ func TestIntegrationLogsOnlyOneDependency(t *testing.T) {
 	service.Start()
 	defer service.Stop()
 	readers, err := service.Logs("test2")
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, 1, len(readers))
 }

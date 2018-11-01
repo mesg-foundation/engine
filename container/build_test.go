@@ -23,7 +23,7 @@ func TestBuild(t *testing.T) {
 	)), nil)
 
 	tag1, err := c.Build(path)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, tag, tag1)
 
 	li := <-dt.LastImageBuild()
@@ -67,7 +67,7 @@ func TestParseBuildResponseInvalidJSON(t *testing.T) {
 		Body: body,
 	}
 	_, err := parseBuildResponse(response)
-	require.NotNil(t, err)
+	require.Error(t, err)
 }
 
 func TestParseBuildResponse(t *testing.T) {
@@ -76,7 +76,7 @@ func TestParseBuildResponse(t *testing.T) {
 		Body: body,
 	}
 	tag, err := parseBuildResponse(response)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, tag, "ok")
 }
 
@@ -86,6 +86,6 @@ func TestParseBuildResponseWithNewLine(t *testing.T) {
 		Body: body,
 	}
 	tag, err := parseBuildResponse(response)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, tag, "ok")
 }
