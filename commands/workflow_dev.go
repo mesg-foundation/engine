@@ -16,8 +16,7 @@ func newDevWorkflowCmd(e WorkflowExecutor) *devWorkflowCmd {
 	c := &devWorkflowCmd{e: e}
 	c.cmd = newCommand(&cobra.Command{
 		Use:     "dev WORKFLOW.yml",
-		Short:   "Create and run a new workflow in development mode",
-		Long:    "Create and run a new workflow in development mode which will be deleted after exiting",
+		Short:   "Run a workflow in development mode",
 		Example: `mesg-core workflow dev WORKFLOW.yml`,
 		Args:    cobra.ExactArgs(1),
 		RunE:    c.runE,
