@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/mesg-foundation/core/pubsub"
+	"github.com/mesg-foundation/core/service"
 )
 
 // SubmitResult submits results for executionID.
@@ -24,6 +25,10 @@ func newResultSubmitter(api *API) *resultSubmitter {
 // Submit submits results for executionID.
 func (s *resultSubmitter) Submit(executionID string, outputKey string, outputData map[string]interface{}) error {
 	exec, err := s.api.execDB.Find(executionID)
+	if err != nil {
+		return err
+	}
+	exec.Service, err = service.FromService(exec.Service, service.ContainerOption(s.api.container))
 	if err != nil {
 		return err
 	}
