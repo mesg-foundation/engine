@@ -19,6 +19,7 @@ func newRootWorkflowCmd(e WorkflowExecutor) *rootWorkflowCmd {
 		newCreateWorkflowCmd(e).cmd,
 		newDeleteWorkflowCmd(e).cmd,
 		newWorkflowLogsCmd(e).cmd,
+		newDevWorkflowCmd(e).cmd,
 	)
 
 	return c

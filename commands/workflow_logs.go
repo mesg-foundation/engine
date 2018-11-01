@@ -39,7 +39,7 @@ func newWorkflowLogsCmd(e WorkflowExecutor) *workflowLogsCmd {
 }
 
 func (c *workflowLogsCmd) runE(cmd *cobra.Command, args []string) error {
-	waitC, closer, err := c.showLogs(c.e, args[0])
+	waitC, closer, err := newWorkflowLogsPrinter().Print(c.e, args[0])
 	if err != nil {
 		return err
 	}
@@ -53,42 +53,15 @@ func (c *workflowLogsCmd) runE(cmd *cobra.Command, args []string) error {
 	}
 }
 
-// WorkflowLog keeps workflow logs.
-type WorkflowLog struct {
-	RunStart                      bool   `json:"runStart"`
-	Deleted                       bool   `json:"deleted"`
-	WorkflowID                    string `json:"workflowID"`
-	WorkflowName                  string `json:"workflowName"`
-	WorkflowDefinitionName        string `json:"workflowDefinitionName"`
-	WorkflowDefinitionDescription string `json:"workflowDefinitionDescription"`
+// workflowLogsPrinter prints workflow logs to standard out and err.
+type workflowLogsPrinter struct{}
+
+func newWorkflowLogsPrinter() *workflowLogsPrinter {
+	return &workflowLogsPrinter{}
 }
 
-// EventLog keeps event logs.
-type EventLog struct {
-	WorkflowID    string      `json:"workflowID"`
-	WorkflowName  string      `json:"workflowName"`
-	ServiceName   string      `json:"serviceName"`
-	EventKey      string      `json:"eventKey"`
-	ExecutionData interface{} `json:"executionData"`
-}
-
-// ExecutionLog keeps execution logs.
-type ExecutionLog struct {
-	WorkflowID   string `json:"workflowID"`
-	WorkflowName string `json:"workflowName"`
-	ServiceName  string `json:"serviceName"`
-	TaskKey      string `json:"taskKey"`
-}
-
-// logLine represents a log line received from log stream.
-type logLine struct {
-	Workflow  *WorkflowLog  `json:"workflow"`
-	Event     *EventLog     `json:"event"`
-	Execution *ExecutionLog `json:"execution"`
-}
-
-// showLogs prints logs for workflowID.
-func (c *workflowLogsCmd) showLogs(e WorkflowExecutor, workflowID string) (waitC chan error, closer func(), err error) {
+// show prints logs for workflowID.
+func (c *workflowLogsPrinter) Print(e WorkflowExecutor, workflowID string) (waitC chan error, closer func(), err error) {
 	var (
 		log *provider.WorkflowLog
 	)
@@ -131,7 +104,7 @@ func (c *workflowLogsCmd) showLogs(e WorkflowExecutor, workflowID string) (waitC
 }
 
 // printLog prints logs from workflow's r stream by its log types.
-func (c *workflowLogsCmd) printLog(out io.Writer, r io.Reader) error {
+func (c *workflowLogsPrinter) printLog(out io.Writer, r io.Reader) error {
 	dc := json.NewDecoder(r)
 
 	for {
@@ -164,7 +137,7 @@ var (
 )
 
 // printWorkflowLog prints logs related directly with workflow.
-func (c *workflowLogsCmd) printWorkflowLog(out io.Writer, workflow *WorkflowLog) {
+func (c *workflowLogsPrinter) printWorkflowLog(out io.Writer, workflow *WorkflowLog) {
 	switch {
 	case workflow.RunStart:
 		fmt.Println(colorGreen.Sprintf("✔ %s workflow started", colorBold.Sprintf("%s", workflow.WorkflowDefinitionName)))
@@ -175,7 +148,7 @@ func (c *workflowLogsCmd) printWorkflowLog(out io.Writer, workflow *WorkflowLog)
 }
 
 // printWorkflowLog prints logs related with workflow's events.
-func (c *workflowLogsCmd) printEventLog(out io.Writer, event *EventLog) error {
+func (c *workflowLogsPrinter) printEventLog(out io.Writer, event *EventLog) error {
 	data, err := json.MarshalIndent(event.ExecutionData, "", "  ")
 	if err != nil {
 		return err
@@ -190,8 +163,42 @@ func (c *workflowLogsCmd) printEventLog(out io.Writer, event *EventLog) error {
 }
 
 // printWorkflowLog prints logs related with workflow's executions.
-func (c *workflowLogsCmd) printExecutionLog(out io.Writer, execution *ExecutionLog) {
+func (c *workflowLogsPrinter) printExecutionLog(out io.Writer, execution *ExecutionLog) {
 	fmt.Printf("<< execution successfully made for %s task on %s service\n",
 		colorAttention.Sprintf("%s", execution.TaskKey),
 		colorAttention.Sprintf("%s", execution.ServiceName))
+}
+
+// WorkflowLog keeps workflow logs.
+type WorkflowLog struct {
+	RunStart                      bool   `json:"runStart"`
+	Deleted                       bool   `json:"deleted"`
+	WorkflowID                    string `json:"workflowID"`
+	WorkflowName                  string `json:"workflowName"`
+	WorkflowDefinitionName        string `json:"workflowDefinitionName"`
+	WorkflowDefinitionDescription string `json:"workflowDefinitionDescription"`
+}
+
+// EventLog keeps event logs.
+type EventLog struct {
+	WorkflowID    string      `json:"workflowID"`
+	WorkflowName  string      `json:"workflowName"`
+	ServiceName   string      `json:"serviceName"`
+	EventKey      string      `json:"eventKey"`
+	ExecutionData interface{} `json:"executionData"`
+}
+
+// ExecutionLog keeps execution logs.
+type ExecutionLog struct {
+	WorkflowID   string `json:"workflowID"`
+	WorkflowName string `json:"workflowName"`
+	ServiceName  string `json:"serviceName"`
+	TaskKey      string `json:"taskKey"`
+}
+
+// logLine represents a log line received from log stream.
+type logLine struct {
+	Workflow  *WorkflowLog  `json:"workflow"`
+	Event     *EventLog     `json:"event"`
+	Execution *ExecutionLog `json:"execution"`
 }
