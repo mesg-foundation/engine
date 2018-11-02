@@ -11,19 +11,19 @@
 
 #### Added
 
-- ([#534](https://github.com/mesg-foundation/core/pull/534)) Access service dependencies containers based on the name of the dependency
-- ([#555](https://github.com/mesg-foundation/core/pull/555)) Add more logs on the CLI
+- ([#534](https://github.com/mesg-foundation/core/pull/534)) Access service dependencies based on the name of the dependency through the network.
+- ([#555](https://github.com/mesg-foundation/core/pull/555)) Add more logs on the CLI.
 
 #### Changed
 
-- ([#560](https://github.com/mesg-foundation/core/pull/560)) Store executions in a database - Optimize memory of Core [#542](https://github.com/mesg-foundation/core/pull/542)
+- ([#560](https://github.com/mesg-foundation/core/pull/560)) Store executions in a database - Fix memory leak [#542](https://github.com/mesg-foundation/core/pull/542)
 
 #### Fixed
 
-- ([#553](https://github.com/mesg-foundation/core/pull/553)) UI issue with service execute command
-- ([#552](https://github.com/mesg-foundation/core/pull/552)) service dev command return with an error when needed
-- ([#526](https://github.com/mesg-foundation/core/pull/526)) Improve container deletion when a service is stopped
-- ([#524](https://github.com/mesg-foundation/core/pull/524)) fix sync issue on status send chans and sync issue on gRPC deploy stream sends
+- ([#553](https://github.com/mesg-foundation/core/pull/553)) UI issue with service execute command.
+- ([#552](https://github.com/mesg-foundation/core/pull/552)) Service dev command returns with an error when needed.
+- ([#526](https://github.com/mesg-foundation/core/pull/526)) Improve container deletion when a service is stopped.
+- ([#524](https://github.com/mesg-foundation/core/pull/524)) Fix sync issue on status send chans and sync issue on gRPC deploy stream sends.
 
 ## [v0.3.0](https://github.com/mesg-foundation/core/releases/tag/v0.3.0)
 
