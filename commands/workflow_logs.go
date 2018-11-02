@@ -60,7 +60,7 @@ func newWorkflowLogsPrinter() *workflowLogsPrinter {
 	return &workflowLogsPrinter{}
 }
 
-// show prints logs for workflowID.
+// Print prints logs for workflowID.
 func (c *workflowLogsPrinter) Print(e WorkflowExecutor, workflowID string) (waitC chan error, closer func(), err error) {
 	var (
 		log *provider.WorkflowLog
