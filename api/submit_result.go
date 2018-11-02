@@ -1,13 +1,12 @@
 package api
 
 import (
-	"fmt"
-
-	"github.com/mesg-foundation/core/execution"
+	"github.com/mesg-foundation/core/pubsub"
+	"github.com/mesg-foundation/core/service"
 )
 
 // SubmitResult submits results for executionID.
-func (a *API) SubmitResult(executionID, outputKey string, outputData map[string]interface{}) error {
+func (a *API) SubmitResult(executionID string, outputKey string, outputData map[string]interface{}) error {
 	return newResultSubmitter(a).Submit(executionID, outputKey, outputData)
 }
 
@@ -24,21 +23,21 @@ func newResultSubmitter(api *API) *resultSubmitter {
 }
 
 // Submit submits results for executionID.
-func (s *resultSubmitter) Submit(executionID, outputKey string, outputData map[string]interface{}) error {
-	execution := execution.InProgress(executionID)
-	if execution == nil {
-		return &MissingExecutionError{
-			ID: executionID,
-		}
+func (s *resultSubmitter) Submit(executionID string, outputKey string, outputData map[string]interface{}) error {
+	exec, err := s.api.execDB.Find(executionID)
+	if err != nil {
+		return err
 	}
-	return execution.Complete(outputKey, outputData)
-}
-
-// MissingExecutionError is returned when corresponding execution doesn't exists.
-type MissingExecutionError struct {
-	ID string
-}
-
-func (e *MissingExecutionError) Error() string {
-	return fmt.Sprintf("Execution %q doesn't exists", e.ID)
+	exec.Service, err = service.FromService(exec.Service, service.ContainerOption(s.api.container))
+	if err != nil {
+		return err
+	}
+	if err := exec.Complete(outputKey, outputData); err != nil {
+		return err
+	}
+	if err = s.api.execDB.Save(exec); err != nil {
+		return err
+	}
+	go pubsub.Publish(exec.Service.ResultSubscriptionChannel(), exec)
+	return nil
 }
