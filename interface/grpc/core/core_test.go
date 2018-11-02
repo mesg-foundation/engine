@@ -19,46 +19,44 @@ var (
 	taskServicePath  = filepath.Join("..", "..", "..", "service-test", "task")
 )
 
-const testdbname = "db.test"
+const (
+	servicedbname = "service.db.test"
+	execdbname    = "exec.db.test"
+)
 
-func newServer(t *testing.T) (*Server, func()) {
-	container, err := container.New()
+func newServerWithContainer(t *testing.T, c container.Container) (*Server, func()) {
+	db, err := database.NewServiceDB(servicedbname)
 	require.NoError(t, err)
 
-	db, err := database.NewServiceDB(testdbname)
+	execDB, err := database.NewExecutionDB(execdbname)
 	require.NoError(t, err)
 
-	a, err := api.New(db, api.ContainerOption(container))
+	a, err := api.New(db, execDB, api.ContainerOption(c))
 	require.NoError(t, err)
 
 	server := NewServer(a)
 
 	closer := func() {
 		db.Close()
-		os.RemoveAll(testdbname)
+		execDB.Close()
+		os.RemoveAll(servicedbname)
+		os.RemoveAll(execdbname)
 	}
 	return server, closer
 }
 
+func newServer(t *testing.T) (*Server, func()) {
+	c, err := container.New()
+	require.NoError(t, err)
+	return newServerWithContainer(t, c)
+}
+
 func newServerAndDockerTest(t *testing.T) (*Server, *dockertest.Testing, func()) {
 	dt := dockertest.New()
-
-	container, err := container.New(container.ClientOption(dt.Client()))
+	c, err := container.New(container.ClientOption(dt.Client()))
 	require.NoError(t, err)
-
-	db, err := database.NewServiceDB(testdbname)
-	require.NoError(t, err)
-
-	a, err := api.New(db, api.ContainerOption(container))
-	require.NoError(t, err)
-
-	server := NewServer(a)
-
-	closer := func() {
-		db.Close()
-		os.RemoveAll(testdbname)
-	}
-	return server, dt, closer
+	s, closer := newServerWithContainer(t, c)
+	return s, dt, closer
 }
 
 func serviceTar(t *testing.T, path string) io.Reader {
