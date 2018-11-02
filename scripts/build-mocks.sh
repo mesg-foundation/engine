@@ -3,11 +3,14 @@
 # make sure script is running inside mesg-dev container.
 source $(dirname $0)/require-mesg-dev.sh
 
-# navigate to core repo
+# navigate to core repo.
 cd $GOPATH/src/github.com/mesg-foundation/core
 
-# container package
+# generate mocks for container package.
 mockery -name=Container -dir ./container -output ./container/mocks
 
-# database package
+# generate mocks for database package.
 mockery -name=ServiceDB -dir ./database -output ./database/mocks
+
+# generate mocks for commands package.
+mockery -name=Executor -dir ./commands -output ./commands/mocks
