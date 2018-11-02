@@ -17,13 +17,17 @@ func TestNew(t *testing.T) {
 
 	var (
 		systemServicesPath = filepath.Join(conf.Core.Path, conf.SystemServices.RelativePath)
-		databasePath       = filepath.Join(conf.Core.Path, conf.Core.Database.RelativePath)
+		databasePath       = filepath.Join(conf.Core.Path, conf.Core.Database.ServiceRelativePath)
+		execDatabasePath   = filepath.Join(conf.Core.Path, conf.Core.Database.ExecutionRelativePath)
 	)
 
-	db, err := database.NewServiceDB(databasePath)
+	serviceDB, err := database.NewServiceDB(databasePath)
 	require.NoError(t, err)
 
-	a, err := api.New(db)
+	execDB, err := database.NewExecutionDB(execDatabasePath)
+	require.NoError(t, err)
+
+	a, err := api.New(serviceDB, execDB)
 	require.NoError(t, err)
 
 	s, err := New(a, systemServicesPath)
