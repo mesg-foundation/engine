@@ -155,11 +155,11 @@ func (l *ResultListener) isSubscribed(e *execution.Execution) bool {
 }
 
 func (l *ResultListener) isSubscribedToTask(e *execution.Execution) bool {
-	return xstrings.SliceContains([]string{"", "*", e.Task}, l.taskKey)
+	return xstrings.SliceContains([]string{"", "*", e.TaskKey}, l.taskKey)
 }
 
 func (l *ResultListener) isSubscribedToOutput(e *execution.Execution) bool {
-	return xstrings.SliceContains([]string{"", "*", e.Output}, l.outputKey)
+	return xstrings.SliceContains([]string{"", "*", e.OutputKey}, l.outputKey)
 }
 
 func (l *ResultListener) isSubscribedToTags(e *execution.Execution) bool {
