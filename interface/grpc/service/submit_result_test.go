@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
@@ -52,7 +51,7 @@ func TestSubmit(t *testing.T) {
 
 	case execution := <-ln.Executions:
 		require.Equal(t, executionID, execution.ID)
-		require.Equal(t, outputKey, execution.Output)
+		require.Equal(t, outputKey, execution.OutputKey)
 		require.Equal(t, outputData, jsonMarshal(t, execution.OutputData))
 	}
 }
@@ -103,7 +102,7 @@ func TestSubmitWithInvalidID(t *testing.T) {
 		OutputKey:   outputKey,
 		OutputData:  outputData,
 	})
-	require.Equal(t, &api.MissingExecutionError{ID: executionID}, err)
+	require.Error(t, err)
 }
 
 func TestSubmitWithNonExistentOutputKey(t *testing.T) {
