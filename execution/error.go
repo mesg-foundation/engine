@@ -1,11 +1,14 @@
 package execution
 
-// NotInQueueError is an error when trying to access an execution that doesn't exists.
-type NotInQueueError struct {
-	ID    string
-	Queue string
+import "fmt"
+
+// StatusError is an error when the processing is done on en execution with the wrong status
+type StatusError struct {
+	ExpectedStatus Status
+	ActualStatus   Status
 }
 
-func (e *NotInQueueError) Error() string {
-	return "Execution '" + e.ID + "' not found in queue '" + e.Queue + "'"
+// Error returns the string representation of error.
+func (e StatusError) Error() string {
+	return fmt.Sprintf("Execution status error: %q instead of %q", e.ActualStatus, e.ExpectedStatus)
 }
