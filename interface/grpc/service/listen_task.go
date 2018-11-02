@@ -31,7 +31,7 @@ func (s *Server) ListenTask(request *serviceapi.ListenTaskRequest, stream servic
 
 			if err := stream.Send(&serviceapi.TaskData{
 				ExecutionID: execution.ID,
-				TaskKey:     execution.Task,
+				TaskKey:     execution.TaskKey,
 				InputData:   string(inputs),
 			}); err != nil {
 				return err
