@@ -27,13 +27,13 @@ func AddPeersInputs(addresses []string) map[string]interface{} {
 
 // AddPeersOutputs map add peer task outputs.
 func AddPeersOutputs(e *execution.Execution) error {
-	switch e.Output {
+	switch e.OutputKey {
 	case "success":
 		return nil
 	case "error":
 		return fmt.Errorf("resolver: %s", e.OutputData["message"])
 	}
-	return fmt.Errorf("resolver: task add peers has unknown output %s", e.Output)
+	return fmt.Errorf("resolver: task add peers has unknown output %s", e.OutputKey)
 }
 
 // ResolveInputs map resolve task inputs.
@@ -43,7 +43,7 @@ func ResolveInputs(serviceID string) map[string]interface{} {
 
 // ResolveOutputs map resolve task outputs.
 func ResolveOutputs(e *execution.Execution) (peerAddress string, err error) {
-	switch e.Output {
+	switch e.OutputKey {
 	case "found":
 		return e.OutputData["address"].(string), nil
 	case "notFound":
@@ -51,5 +51,5 @@ func ResolveOutputs(e *execution.Execution) (peerAddress string, err error) {
 	case "error":
 		return "", fmt.Errorf("resolver: %s", e.OutputData["message"])
 	}
-	return "", fmt.Errorf("resolver: task resolve has unknown output %s", e.Output)
+	return "", fmt.Errorf("resolver: task resolve has unknown output %s", e.OutputKey)
 }
