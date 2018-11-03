@@ -90,7 +90,7 @@ func TestIsSubscribedToTask(t *testing.T) {
 	defer closer()
 	ln := newResultListener(a)
 
-	x := &execution.Execution{Task: "task"}
+	x := &execution.Execution{TaskKey: "task"}
 
 	ln.taskKey = ""
 	require.True(t, ln.isSubscribedToTask(x))
@@ -110,7 +110,7 @@ func TestIsSubscribedToOutput(t *testing.T) {
 	defer closer()
 	ln := newResultListener(a)
 
-	x := &execution.Execution{Output: "output"}
+	x := &execution.Execution{OutputKey: "output"}
 
 	ln.outputKey = ""
 	require.True(t, ln.isSubscribedToOutput(x))
