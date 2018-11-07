@@ -9,6 +9,7 @@ import (
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/interface/grpc"
 	"github.com/mesg-foundation/core/logger"
+	"github.com/mesg-foundation/core/systemservices"
 	"github.com/mesg-foundation/core/version"
 	"github.com/mesg-foundation/core/x/xsignal"
 	"github.com/sirupsen/logrus"
@@ -33,7 +34,14 @@ func initGRPCServer(c *config.Config) (*grpc.Server, error) {
 		return nil, err
 	}
 
-	return grpc.New(c.Server.Address, a), nil
+	// init system services.
+	systemServicesPath := filepath.Join(c.Core.Path, c.SystemServices.RelativePath)
+	ss, err := systemservices.New(a, systemServicesPath)
+	if err != nil {
+		return nil, err
+	}
+
+	return grpc.New(c.Server.Address, a, ss), nil
 }
 
 func main() {
@@ -52,7 +60,7 @@ func main() {
 		logrus.Fatalln(err)
 	}
 
-	logrus.Println("Starting MESG Core", version.Version)
+	logrus.Infof("starting MESG Core version %s", version.Version)
 
 	go func() {
 		if err := server.Serve(); err != nil {

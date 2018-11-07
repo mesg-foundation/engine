@@ -22,6 +22,18 @@ func Exist(name string) bool {
 	return !os.IsNotExist(err)
 }
 
+// DirExists returns true if given directory exists, false otherwise.
+func DirExists(name string) (bool, error) {
+	fi, err := os.Stat(name)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return false, nil
+		}
+		return false, err
+	}
+	return fi.IsDir(), nil
+}
+
 // Copy copies file, symlink and file metadata from source to target path.
 func Copy(src, dest string) error {
 	si, err := os.Lstat(src)

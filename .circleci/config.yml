@@ -19,6 +19,7 @@ jobs:
       - run: docker swarm init
       - run: docker build -t sleep docker-images/sleep/
       - run: docker build -t http-server docker-images/http-server/
+      - run: mkdir -p ~/.mesg && ln -s /go/src/github.com/mesg-foundation/core/systemservices/sources ~/.mesg/systemservices
       - run: go test -v -timeout 300s -p 1 -tags=integration -coverprofile=coverage.txt ./...
       - run: bash <(curl -s https://codecov.io/bash)
 
