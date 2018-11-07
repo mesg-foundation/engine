@@ -3,7 +3,12 @@
 echo "Building mesg/core:local..."
 docker build -t mesg/core:local --build-arg version="local" .
 
-# chain these to stop execution on failure
+# create a symlink for system services.
+rm -rf ~/.mesg/systemservices
+mkdir -p ~/.mesg
+ln -s $GOPATH/src/github.com/mesg-foundation/core/systemservices/sources ~/.mesg/systemservices
+
+# chain these to stop execution on failure.
 ./dev-cli stop && \
 ./dev-cli start && \
 ./dev-cli logs

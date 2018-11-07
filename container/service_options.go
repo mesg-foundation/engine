@@ -89,7 +89,7 @@ func (options *ServiceOptions) swarmPorts() []swarm.PortConfig {
 func (options *ServiceOptions) swarmMounts(force bool) []mount.Mount {
 	// TOFIX: hack to prevent mount when in CircleCI (Mount in CircleCI doesn't work). Should use CircleCi with machine to fix this.
 	circleCI, errCircle := strconv.ParseBool(os.Getenv("CIRCLECI"))
-	if force == false && errCircle == nil && circleCI {
+	if !force && errCircle == nil && circleCI {
 		return nil
 	}
 	mounts := make([]mount.Mount, len(options.Mounts))
