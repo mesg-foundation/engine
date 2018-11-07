@@ -3,12 +3,12 @@ package commands
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"time"
 
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/utils/pretty"
 	casting "github.com/mesg-foundation/core/utils/servicecasting"
+	"github.com/mesg-foundation/core/x/xjson"
 	"github.com/mesg-foundation/core/x/xpflag"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
@@ -51,27 +51,30 @@ func (c *serviceExecuteCmd) preRunE(cmd *cobra.Command, args []string) error {
 
 func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 	var (
-		err            error
+		s              *coreapi.Service
+		result         *coreapi.ResultData
 		listenResultsC chan *coreapi.ResultData
+		inputData      string
 		resultsErrC    chan error
+		err            error
 	)
-	pretty.Progress(fmt.Sprintf("Executing task %q...", c.taskKey), func() {
-		var s *coreapi.Service
+
+	pretty.Progress("Loading the service...", func() {
 		s, err = c.e.ServiceByID(args[0])
-		if err != nil {
-			return
-		}
+	})
+	if err != nil {
+		return err
+	}
 
-		if err = c.getTaskKey(s); err != nil {
-			return
-		}
+	if err = c.getTaskKey(s); err != nil {
+		return err
+	}
 
-		var inputData string
-		inputData, err = c.getData(c.taskKey, s, c.executeData)
-		if err != nil {
-			return
-		}
-
+	inputData, err = c.getData(c.taskKey, s, c.executeData)
+	if err != nil {
+		return err
+	}
+	pretty.Progress(fmt.Sprintf("Executing task %q...", c.taskKey), func() {
 		// Create an unique tag that will be used to listen to the result of this exact execution
 		tags := []string{uuid.NewV4().String()}
 
@@ -92,13 +95,10 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 	}
 	fmt.Printf("%s Task %q executed\n", pretty.SuccessSign, c.taskKey)
 
-	var result *coreapi.ResultData
 	pretty.Progress("Waiting for result...", func() {
 		select {
 		case result = <-listenResultsC:
-			return
 		case err = <-resultsErrC:
-			return
 		}
 	})
 	if err != nil {
@@ -146,18 +146,18 @@ func (c *serviceExecuteCmd) getData(taskKey string, s *coreapi.Service, dataStru
 			return "", errors.New("no filepath given")
 		}
 	}
-	return readJSONFile(c.jsonFile)
-}
 
-func readJSONFile(path string) (string, error) {
-	if path == "" {
+	// still no answer then return empty json object
+	if c.jsonFile == "" {
 		return "{}", nil
 	}
-	data, err := ioutil.ReadFile(path)
+
+	content, err := xjson.ReadFile(c.jsonFile)
 	if err != nil {
 		return "", err
 	}
-	return string(data), nil
+
+	return string(content), nil
 }
 
 func taskKeysFromService(s *coreapi.Service) []string {

@@ -24,7 +24,7 @@ func TestExecuteFunc(t *testing.T) {
 			},
 		},
 	}, service.ContainerOption(a.container))
-	id, err := executor.execute(s, "test", map[string]interface{}{}, []string{})
+	id, err := executor.execute(s, "xxx", "test", map[string]interface{}{}, []string{})
 	require.NoError(t, err)
 	require.NotNil(t, id)
 }
@@ -34,7 +34,7 @@ func TestExecuteFuncInvalidTaskName(t *testing.T) {
 	defer closer()
 	executor := newTaskExecutor(a)
 	srv := &service.Service{}
-	_, err := executor.execute(srv, "test", map[string]interface{}{}, []string{})
+	_, err := executor.execute(srv, "xxx", "test", map[string]interface{}{}, []string{})
 	require.Error(t, err)
 }
 

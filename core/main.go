@@ -16,13 +16,19 @@ import (
 
 func initGRPCServer(c *config.Config) (*grpc.Server, error) {
 	// init services db.
-	db, err := database.NewServiceDB(filepath.Join(c.Core.Path, c.Core.Database.RelativePath))
+	db, err := database.NewServiceDB(filepath.Join(c.Core.Path, c.Core.Database.ServiceRelativePath))
+	if err != nil {
+		return nil, err
+	}
+
+	// init execution db.
+	execDB, err := database.NewExecutionDB(filepath.Join(c.Core.Path, c.Core.Database.ExecutionRelativePath))
 	if err != nil {
 		return nil, err
 	}
 
 	// init api.
-	a, err := api.New(db)
+	a, err := api.New(db, execDB)
 	if err != nil {
 		return nil, err
 	}

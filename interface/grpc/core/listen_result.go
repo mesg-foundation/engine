@@ -35,8 +35,8 @@ func (s *Server) ListenResult(request *coreapi.ListenResultRequest, stream corea
 
 			if err := stream.Send(&coreapi.ResultData{
 				ExecutionID:   execution.ID,
-				TaskKey:       execution.Task,
-				OutputKey:     execution.Output,
+				TaskKey:       execution.TaskKey,
+				OutputKey:     execution.OutputKey,
 				OutputData:    string(outputs),
 				ExecutionTags: execution.Tags,
 			}); err != nil {
