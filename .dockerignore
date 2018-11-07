@@ -12,5 +12,5 @@ mesg-dev
 **/debug
 node_modules
 
-# prevent go build cache to break inside Docker on changes to systemservices/-sources.
-systemservices/-sources
+# prevent go build cache to break inside Docker on changes to systemservices/sources.
+systemservices/sources
