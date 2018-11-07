@@ -268,6 +268,17 @@
   version = "v0.0.3"
 
 [[projects]]
+  branch = "master"
+  digest = "1:ccb421790591cd07ebcf7bec71d660ae97652d1438e00a13ff9c9dc9b4a4e9fc"
+  name = "github.com/mesg-foundation/go-service"
+  packages = [
+    ".",
+    "proto",
+  ]
+  pruneopts = "UT"
+  revision = "c53d57c454a245c03505a9f0f8430832cfd4d6c9"
+
+[[projects]]
   digest = "1:b0b0f412c74e5dc0361e736d28b73e8d6d1fda37479a8ff813917a35a3aec556"
   name = "github.com/mesg-foundation/prefixer"
   packages = ["."]
@@ -766,6 +777,7 @@
     "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus",
     "github.com/hokaccha/go-prettyjson",
     "github.com/kelseyhightower/envconfig",
+    "github.com/mesg-foundation/go-service",
     "github.com/mesg-foundation/prefixer",
     "github.com/mitchellh/go-homedir",
     "github.com/pkg/errors",

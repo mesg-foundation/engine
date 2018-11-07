@@ -25,6 +25,7 @@ jobs:
           keys:
             - test-cache-{{ .Branch }}-{{ .Environment.CIRCLE_PREVIOUS_BUILD_NUM }}
             - test-cache-{{ .Branch }}
+      - run: mkdir -p ~/.mesg && ln -s /go/src/github.com/mesg-foundation/core/systemservices/sources ~/.mesg/systemservices
       - run: go test -v -timeout 300s -p 1 -tags=integration ./...
       - save_cache:
           key: test-cache-{{ .Branch }}-{{ .BuildNum }}
