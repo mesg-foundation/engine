@@ -3,7 +3,6 @@ package workflow
 import (
 	"errors"
 
-	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/execution"
 )
 
@@ -12,22 +11,6 @@ const (
 	CreateTaskKey = "create"
 	DeleteTaskKey = "delete"
 )
-
-// Workflow is a high level wrapper for Workflow System Service.
-// It calls the WSS's tasks and reacts to its event through network.
-// WSS responsible for managing and running workflows.
-type Workflow struct {
-	api       *api.API
-	serviceID string
-}
-
-// New creates a new Workflow for given WSS serviceID and api.
-func New(serviceID string, api *api.API) *Workflow {
-	return &Workflow{
-		api:       api,
-		serviceID: serviceID,
-	}
-}
 
 // CreateInputs maps create task's inputs.
 // name is optional and has to be unique.
