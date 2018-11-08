@@ -31,9 +31,9 @@ func New(serviceID string, api *api.API) *Workflow {
 
 // CreateInputs maps create task's inputs.
 // name is optional and has to be unique.
-func CreateInputs(file []byte, name string) map[string]interface{} {
+func CreateInputs(yaml []byte, name string) map[string]interface{} {
 	return map[string]interface{}{
-		"file": string(file),
+		"yaml": string(yaml),
 		"name": name,
 	}
 }
