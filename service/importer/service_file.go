@@ -27,7 +27,7 @@ func validateServiceFile(data []byte) ([]string, error) {
 		return nil, err
 	}
 	var warnings []string
-	if result.Valid() == false {
+	if !result.Valid() {
 		for _, warning := range result.Errors() {
 			warnings = append(warnings, warning.String())
 		}

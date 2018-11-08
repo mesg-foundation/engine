@@ -16,7 +16,7 @@ func TestCreate(t *testing.T) {
 	})
 	var data map[string]interface{}
 	exec, err := Create(s, "test", data)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, s, exec.Service)
 	require.Equal(t, data, exec.Data)
 	require.Equal(t, "test", exec.Key)

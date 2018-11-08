@@ -18,18 +18,28 @@ var (
 	taskServicePath  = filepath.Join("..", "..", "..", "service-test", "task")
 )
 
+const (
+	servicedbname = "service.db.test"
+	execdbname    = "exec.db.test"
+)
+
 func newServer(t *testing.T) (*Server, func()) {
-	db, err := database.NewServiceDB("db.test")
+	db, err := database.NewServiceDB(servicedbname)
 	require.NoError(t, err)
 
-	a, err := api.New(db)
-	require.Nil(t, err)
+	execDB, err := database.NewExecutionDB(execdbname)
+	require.NoError(t, err)
+
+	a, err := api.New(db, execDB)
+	require.NoError(t, err)
 
 	server := NewServer(a)
 
 	closer := func() {
-		db.Close()
-		os.RemoveAll("db.test")
+		require.NoError(t, db.Close())
+		require.NoError(t, execDB.Close())
+		require.NoError(t, os.RemoveAll(servicedbname))
+		require.NoError(t, os.RemoveAll(execdbname))
 	}
 
 	return server, closer

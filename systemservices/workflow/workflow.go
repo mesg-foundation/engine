@@ -4,12 +4,13 @@ import (
 	"errors"
 
 	"github.com/mesg-foundation/core/api"
+	"github.com/mesg-foundation/core/execution"
 )
 
 // WSS's tasks.
 const (
-	createTaskKey = "create"
-	deleteTaskKey = "delete"
+	CreateTaskKey = "create"
+	DeleteTaskKey = "delete"
 )
 
 // Workflow is a high level wrapper for Workflow System Service.
@@ -28,17 +29,19 @@ func New(serviceID string, api *api.API) *Workflow {
 	}
 }
 
-// Create creates and runs a workflow file with an optionally given unique name.
-func (w *Workflow) Create(file []byte, name string) (id string, err error) {
-	e, err := w.api.ExecuteAndListen(w.serviceID, createTaskKey, map[string]interface{}{
+// CreateInputs maps create task's inputs.
+// name is optional and has to be unique.
+func CreateInputs(file []byte, name string) map[string]interface{} {
+	return map[string]interface{}{
 		"file": string(file),
 		"name": name,
-	})
-	if err != nil {
-		return "", err
 	}
+}
 
-	switch e.Output {
+// CreateOutputs maps create task's outputs.
+// id is unique workflow id.
+func CreateOutputs(e *execution.Execution) (id string, err error) {
+	switch e.OutputKey {
 	case "success":
 		return e.OutputData["id"].(string), nil
 	case "error":
@@ -47,16 +50,17 @@ func (w *Workflow) Create(file []byte, name string) (id string, err error) {
 	panic("unreachable")
 }
 
-// Delete stops and deletes workflow with id.
-func (w *Workflow) Delete(id string) (err error) {
-	e, err := w.api.ExecuteAndListen(w.serviceID, deleteTaskKey, map[string]interface{}{
+// DeleteInputs maps delete task's inputs.
+// id is unique workflow id.
+func DeleteInputs(id string) map[string]interface{} {
+	return map[string]interface{}{
 		"id": id,
-	})
-	if err != nil {
-		return err
 	}
+}
 
-	switch e.Output {
+// DeleteOutputs maps delete task's outputs.
+func DeleteOutputs(e *execution.Execution) error {
+	switch e.OutputKey {
 	case "success":
 		return nil
 	case "error":
