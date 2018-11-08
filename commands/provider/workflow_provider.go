@@ -33,7 +33,7 @@ func (p *WorkflowProvider) CreateWorkflow(filePath string, name string) (id stri
 	}
 
 	reply, err := p.client.CreateWorkflow(context.Background(), &coreapi.CreateWorkflowRequest{
-		File: fileData,
+		YAML: fileData,
 		Name: name,
 	})
 	if err != nil {

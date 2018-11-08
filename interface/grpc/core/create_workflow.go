@@ -9,7 +9,7 @@ import (
 
 // CreateWorkflow creates and runs a new workflow.
 func (s *Server) CreateWorkflow(ctx context.Context, request *coreapi.CreateWorkflowRequest) (*coreapi.CreateWorkflowReply, error) {
-	exec, err := s.api.ExecuteAndListen(s.ss.WorkflowServiceID(), workflow.CreateTaskKey, workflow.CreateInputs(request.File, request.Name))
+	exec, err := s.api.ExecuteAndListen(s.ss.WorkflowServiceID(), workflow.CreateTaskKey, workflow.CreateInputs(request.YAML, request.Name))
 	if err != nil {
 		return nil, err
 	}
