@@ -5,8 +5,6 @@ package systemservices
 import (
 	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/service"
-	"github.com/mesg-foundation/core/systemservices/resolver"
-	"github.com/mesg-foundation/core/systemservices/workflow"
 )
 
 // list of system services.
@@ -43,9 +41,8 @@ type SystemServices struct {
 	// absolute path of system services dir.
 	systemServicesPath string
 
-	// system services.
-	resolverService *resolver.Resolver
-	workflowService *workflow.Workflow
+	// all deployed system services
+	services []*systemService
 }
 
 // New creates a new SystemServices instance.
@@ -62,35 +59,25 @@ func New(api *api.API, systemServicesPath string) (*SystemServices, error) {
 		systemServicesPath: systemServicesPath,
 	}
 
-	var services []*systemService
 	for _, name := range systemServicesList {
-		services = append(services, &systemService{name: name})
+		s.services = append(s.services, &systemService{name: name})
 	}
 
-	if err := s.deployServices(services); err != nil {
+	if err := s.deployServices(); err != nil {
 		return nil, err
 	}
-	if err := s.startServices(services); err != nil {
+	if err := s.startServices(); err != nil {
 		return nil, err
 	}
-	return s, s.initServices(services)
+	return s, nil
 }
 
-// Resolver returns the Resolver instance using the running Resolver service.
-func (s *SystemServices) Resolver() *resolver.Resolver {
-	return s.resolverService
+// ResolverServiceID returns resolver service id.
+func (s *SystemServices) ResolverServiceID() string {
+	return s.getServiceID(resolverService)
 }
 
-// Workflow returns the Workflow instance using the running Workflow service.
-func (s *SystemServices) Workflow() *workflow.Workflow {
-	return s.workflowService
-}
-
-// initServices initializes all system services.
-func (s *SystemServices) initServices(services []*systemService) error {
-	// init resolver system service.
-	s.resolverService = resolver.New(s.getServiceID(services, resolverService), s.api)
-	// init workflow system service.
-	s.workflowService = workflow.New(s.getServiceID(services, workflowService), s.api)
-	return nil
+// WorkflowServiceID returns workflow service's id.
+func (s *SystemServices) WorkflowServiceID() string {
+	return s.getServiceID(workflowService)
 }

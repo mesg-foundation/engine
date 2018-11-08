@@ -15,7 +15,7 @@ func fromPath(path string) (*ServiceDefinition, error) {
 	if err != nil {
 		return nil, err
 	}
-	if isValid == false {
+	if !isValid {
 		return nil, &ValidationError{}
 	}
 	data, err := readServiceFile(path)

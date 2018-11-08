@@ -4,7 +4,9 @@ import (
 	"fmt"
 
 	"github.com/mesg-foundation/core/execution"
+	"github.com/mesg-foundation/core/pubsub"
 	"github.com/mesg-foundation/core/service"
+	uuid "github.com/satori/go.uuid"
 )
 
 // ExecuteTask executes a task tasKey with inputData and tags for service serviceID.
@@ -39,7 +41,7 @@ func (e *taskExecutor) Execute(serviceID, taskKey string, inputData map[string]i
 	if err := e.checkServiceStatus(s); err != nil {
 		return "", err
 	}
-	return e.execute(s, taskKey, inputData, tags)
+	return e.execute(s, uuid.NewV4().String(), taskKey, inputData, tags)
 }
 
 // checkServiceStatus checks service status. A task should be executed only if
@@ -56,13 +58,19 @@ func (e *taskExecutor) checkServiceStatus(s *service.Service) error {
 }
 
 // execute executes task.
-func (e *taskExecutor) execute(s *service.Service, taskKey string, taskInputs map[string]interface{},
-	tags []string) (executionID string, err error) {
-	exc, err := execution.Create(s, taskKey, taskInputs, tags)
+func (e *taskExecutor) execute(s *service.Service, eventID string, taskKey string, taskInputs map[string]interface{}, tags []string) (executionID string, err error) {
+	exec, err := execution.New(s, eventID, taskKey, taskInputs, tags)
 	if err != nil {
 		return "", err
 	}
-	return exc.ID, exc.Execute()
+	if err := exec.Execute(); err != nil {
+		return "", err
+	}
+	if err = e.api.execDB.Save(exec); err != nil {
+		return "", err
+	}
+	go pubsub.Publish(s.TaskSubscriptionChannel(), exec)
+	return exec.ID, nil
 }
 
 // NotRunningServiceError is an error returned when the service is not running that

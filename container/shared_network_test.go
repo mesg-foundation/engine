@@ -21,7 +21,7 @@ func TestSharedNetwork(t *testing.T) {
 	dt.ProvideNetworkInspect(types.NetworkResource{ID: id}, nil)
 
 	network, err := c.sharedNetwork()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, id, network.ID)
 
 	li := <-dt.LastNetworkInspect()
@@ -85,7 +85,7 @@ func TestSharedNetworkID(t *testing.T) {
 	dt.ProvideNetworkInspect(types.NetworkResource{ID: id}, nil)
 
 	network, err := c.SharedNetworkID()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, network, id)
 
 	li := <-dt.LastNetworkInspect()

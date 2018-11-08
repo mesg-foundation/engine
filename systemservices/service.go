@@ -12,7 +12,7 @@ import (
 )
 
 // deployServices deploys system services.
-func (s *SystemServices) deployServices(services []*systemService) error {
+func (s *SystemServices) deployServices() error {
 	var (
 		// errs are the deployment errors.
 		errs xerrors.Errors
@@ -21,9 +21,9 @@ func (s *SystemServices) deployServices(services []*systemService) error {
 		wg sync.WaitGroup
 	)
 
-	logrus.Infof("deploying (%d) system services...", len(services))
+	logrus.Infof("deploying (%d) system services...", len(s.services))
 
-	for _, ss := range services {
+	for _, ss := range s.services {
 		wg.Add(1)
 		go func(ss *systemService) {
 			defer wg.Done()
@@ -72,7 +72,7 @@ func (s *SystemServices) deployService(relativePath string) (*service.Service, e
 }
 
 // startService starts the system services.
-func (s *SystemServices) startServices(services []*systemService) error {
+func (s *SystemServices) startServices() error {
 	var (
 		// errs are the service starting errors.
 		errs xerrors.Errors
@@ -83,7 +83,7 @@ func (s *SystemServices) startServices(services []*systemService) error {
 
 	logrus.Info("starting system services...")
 
-	for _, ss := range services {
+	for _, ss := range s.services {
 		wg.Add(1)
 		go func(ss *systemService) {
 			defer wg.Done()
@@ -107,8 +107,8 @@ func (s *SystemServices) startServices(services []*systemService) error {
 
 // getServiceID returns the service id of a system service that matches with name.
 // name compared with the unique name/relative path of system service.
-func (s *SystemServices) getServiceID(services []*systemService, name string) string {
-	for _, s := range services {
+func (s *SystemServices) getServiceID(name string) string {
+	for _, s := range s.services {
 		if s.name == name {
 			return s.ID
 		}

@@ -77,7 +77,7 @@ func TestSwarmInit(t *testing.T) {
 	dt := New()
 
 	data, err := dt.Client().SwarmInit(context.Background(), request)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, "", data)
 
 	require.Equal(t, request, (<-dt.LastSwarmInit()).Request)
@@ -144,7 +144,7 @@ func TestImageBuild(t *testing.T) {
 	defer resp.Body.Close()
 
 	respData, err := ioutil.ReadAll(resp.Body)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, response, respData)
 
 	ll := <-dt.LastImageBuild()
@@ -257,7 +257,7 @@ func TestServiceLogs(t *testing.T) {
 	defer rc.Close()
 
 	data1, err := ioutil.ReadAll(rc)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, data, data1)
 
 	ll := <-dt.LastServiceLogs()

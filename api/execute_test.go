@@ -4,12 +4,12 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/service"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNotRunningServiceError(t *testing.T) {
 	e := NotRunningServiceError{ServiceID: "test"}
-	assert.Equal(t, `Service "test" is not running`, e.Error())
+	require.Equal(t, `Service "test" is not running`, e.Error())
 }
 
 func TestExecuteFunc(t *testing.T) {
@@ -24,9 +24,9 @@ func TestExecuteFunc(t *testing.T) {
 			},
 		},
 	}, service.ContainerOption(a.container))
-	id, err := executor.execute(s, "test", map[string]interface{}{}, []string{})
-	assert.Nil(t, err)
-	assert.NotNil(t, id)
+	id, err := executor.execute(s, "xxx", "test", map[string]interface{}{}, []string{})
+	require.NoError(t, err)
+	require.NotNil(t, id)
 }
 
 func TestExecuteFuncInvalidTaskName(t *testing.T) {
@@ -34,8 +34,8 @@ func TestExecuteFuncInvalidTaskName(t *testing.T) {
 	defer closer()
 	executor := newTaskExecutor(a)
 	srv := &service.Service{}
-	_, err := executor.execute(srv, "test", map[string]interface{}{}, []string{})
-	assert.NotNil(t, err)
+	_, err := executor.execute(srv, "xxx", "test", map[string]interface{}{}, []string{})
+	require.Error(t, err)
 }
 
 func TestCheckServiceNotRunning(t *testing.T) {
@@ -43,9 +43,9 @@ func TestCheckServiceNotRunning(t *testing.T) {
 	defer closer()
 	executor := newTaskExecutor(a)
 	err := executor.checkServiceStatus(&service.Service{Name: "TestCheckServiceNotRunning"})
-	assert.NotNil(t, err)
+	require.Error(t, err)
 	_, notRunningError := err.(*NotRunningServiceError)
-	assert.True(t, notRunningError)
+	require.True(t, notRunningError)
 }
 
 func TestCheckService(t *testing.T) {
@@ -63,5 +63,5 @@ func TestCheckService(t *testing.T) {
 	}, service.ContainerOption(a.container))
 	s.Start()
 	err := executor.checkServiceStatus(s)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 }
