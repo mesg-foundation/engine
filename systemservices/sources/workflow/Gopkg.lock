@@ -16,15 +16,12 @@
   revision = "d7fc20193620986259ffb1f9b9da752114ee14a4"
 
 [[projects]]
-  branch = "feature/system-services"
-  digest = "1:11e3b9d4c3b1d4c826320e9cb6565aeaa0caa5ec984e73d2cf0ab2d1fffea360"
+  digest = "1:e16b454d87dc0dc977cbfdee80ea9ee9caee2f17559643c47ddb94d9993785ea"
   name = "github.com/mesg-foundation/core"
-  packages = [
-    "systemservices/-sources/resolver/proto/core",
-    "x/xsignal",
-  ]
+  packages = ["x/xsignal"]
   pruneopts = "UT"
-  revision = "516e26355a13e748c4f2bf9ec7e62732b1cd83be"
+  revision = "6f59df8387f7e2050077074287c67d08c5d521db"
+  version = "v0.4.0"
 
 [[projects]]
   branch = "master"
@@ -140,7 +137,6 @@
   analyzer-version = 1
   input-imports = [
     "github.com/golang/protobuf/proto",
-    "github.com/mesg-foundation/core/systemservices/-sources/resolver/proto/core",
     "github.com/mesg-foundation/core/x/xsignal",
     "github.com/mesg-foundation/go-service",
     "github.com/satori/go.uuid",
