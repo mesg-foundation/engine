@@ -30,7 +30,7 @@
   name = "github.com/golang/protobuf"
 
 [[constraint]]
-  branch = "feature/system-services"
+  branch = "master"
   name = "github.com/mesg-foundation/core"
 
 [[constraint]]

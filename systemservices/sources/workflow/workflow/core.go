@@ -5,7 +5,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/mesg-foundation/core/systemservices/-sources/resolver/proto/core"
+	core "github.com/mesg-foundation/core/systemservices/sources/workflow/workflow/proto"
 	"google.golang.org/grpc"
 )
 
