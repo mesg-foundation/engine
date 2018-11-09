@@ -60,7 +60,9 @@ service Core {
 // }
 // ```
 message CreateWorkflowRequest {
-  bytes YAML = 1;  // content of workflow.yml file.
+  message WorkflowDefinition {
+  }
+  WorkflowDefinition definition = 1;  // Workflow definition.
   string name = 2; // An optional unique name for workflow.
 }
 

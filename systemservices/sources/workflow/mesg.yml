@@ -5,10 +5,10 @@ tasks:
   create:
     name: "Create and run a new workflow"
     inputs:
-      yaml:
-        name: "content of workflow.yml"
-        type: String
-      alias:
+      definition:
+        name: "Workflow definition"
+        type: Object
+      name:
         name: "Unique name alias for workflow"
         type: String
         optional: true
