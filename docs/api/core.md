@@ -68,6 +68,8 @@ Subscribe to a stream that listens for events from a service.
 
 
 
+
+
 #### ListenEventRequest
 The request's data for the `ListenEvent` stream's API.
 
@@ -116,6 +118,8 @@ Example
 </tab>
 
 <tab title="Reply">
+
+
 
 
 
@@ -210,6 +214,8 @@ Subscribe to a stream that listens for task's result from a service.
 
 <tabs>
 <tab title="Request">
+
+
 
 
 
@@ -350,6 +356,8 @@ Example
 
 
 
+
+
 #### ResultData
 The data received from the stream of the `ListenResult` API.
 The data will be received over time as long as the stream is open.
@@ -401,6 +409,8 @@ Execute a service's task through [Core](../guide/start-here/core.md).
 
 <tabs>
 <tab title="Request">
+
+
 
 
 
@@ -492,6 +502,8 @@ Example
 </tab>
 
 <tab title="Reply">
+
+
 
 
 
@@ -640,6 +652,8 @@ Start a service. The service must be already deployed to [Core](../guide/start-h
 
 
 
+
+
 #### StartServiceRequest
 The request's data for the `StartService` API.
 
@@ -723,6 +737,8 @@ Example
 
 
 
+
+
 #### StartServiceReply
 Reply of `StartService` API doesn't contain any data.
 
@@ -747,6 +763,8 @@ Stop a service. The service must be already deployed to [Core](../guide/start-he
 
 <tabs>
 <tab title="Request">
+
+
 
 
 
@@ -891,6 +909,8 @@ Example
 
 
 
+
+
 #### StopServiceReply
 Reply of `StopService` API doesn't contain any data.
 
@@ -911,6 +931,8 @@ Deploy a service to [Core](../guide/start-here/core.md). This will give you an u
 
 <tabs>
 <tab title="Request">
+
+
 
 
 
@@ -1004,6 +1026,8 @@ or
 </tab>
 
 <tab title="Reply">
+
+
 
 
 
@@ -1122,6 +1146,8 @@ Delete a service from Core. This function only deletes a deployed service in [Co
 
 
 
+
+
 #### DeleteServiceRequest
 Request's data of the `DeleteService` API.
 
@@ -1198,6 +1224,8 @@ Example
 </tab>
 
 <tab title="Reply">
+
+
 
 
 
@@ -1314,6 +1342,8 @@ List all services already deployed in [Core](../guide/start-here/core.md).
 
 
 
+
+
 #### ListServicesRequest
 Reply of `ListServices` API doesn't contain any data.
 
@@ -1350,6 +1380,8 @@ Reply of `ListServices` API doesn't contain any data.
 </tab>
 
 <tab title="Reply">
+
+
 
 
 
@@ -1515,6 +1547,8 @@ Get the definition of an already-deployed service from its ID.
 
 
 
+
+
 #### GetServiceRequest
 The request's data for the `GetService` API.
 
@@ -1567,6 +1601,8 @@ Example
 </tab>
 
 <tab title="Reply">
+
+
 
 
 
@@ -1752,6 +1788,8 @@ ServiceLogs gives a stream for dependency logs of a service.
 
 
 
+
+
 #### ServiceLogsRequest
 The request's data for `ServiceLogs` API.
 
@@ -1786,6 +1824,8 @@ Example
 </tab>
 
 <tab title="Reply">
+
+
 
 
 
@@ -1901,8 +1941,10 @@ Example
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| YAML | [bytes](#bytes) | content of workflow.yml file. |
+| definition | [CreateWorkflowRequest.WorkflowDefinition](#api.CreateWorkflowRequest.WorkflowDefinition) | Workflow definition. |
 | name | [string](#string) | An optional unique name for workflow. |
+
+
 
 
 
@@ -2051,6 +2093,8 @@ Example
 
 
 
+
+
 </tab>
 </tabs>
 
@@ -2060,6 +2104,8 @@ DeleteWorkflow stops and deletes a workflow.
 
 <tabs>
 <tab title="Request">
+
+
 
 
 
@@ -2145,6 +2191,8 @@ Example
 </tab>
 
 <tab title="Reply">
+
+
 
 
 
