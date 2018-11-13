@@ -141,16 +141,17 @@ func (d *Dependency) extractVolumes() ([]container.Mount, error) {
 
 func volumeInformations(s *Service, dependency string, volume string) (container.Mount, error) {
 	if strings.Contains(volume, ":") {
+		volumeInformations := strings.Split(volume, ":")
 		// Get the volume path from the HOST and not from the docker.
 		// We are sharing the docker socket so the host will be creating this container
 		// MESG_HOST_PATH is injected when the daemon is created in /config/config.go#DaemonEnv
-		directory := filepath.Join(os.Getenv("MESG_HOST_PATH"), "services", s.Name, dependency, volume)
+		directory := filepath.Join(os.Getenv("MESG_HOST_PATH"), "services", s.Name, dependency, volumeInformations[0])
 		if err := os.MkdirAll(directory, os.ModePerm); err != nil {
 			return container.Mount{}, err
 		}
 		return container.Mount{
 			Source: directory,
-			Target: volume,
+			Target: volumeInformations[1],
 			Bind:   true,
 		}, nil
 	}
