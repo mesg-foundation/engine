@@ -15,7 +15,7 @@ To listen for events, the Application needs to open a stream with Core with [gRP
 
 | **Name** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
-| **serviceID** | `String` | Required | ID of the service that you want to listen. |
+| **serviceID** | `String` | Required | ID of the Service that you want to listen to. |
 | **eventFilter** | `String` | Optional | Only listens for this given event ID. |
 
 ```javascript
@@ -31,7 +31,7 @@ To listen for events, the Application needs to open a stream with Core with [gRP
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- | --- |
-| **eventKey** | `String` | The event's key defined in the [service file](../service/service-file.md). |
+| **eventKey** | `String` | The event's key defined in the [Service file](../service/service-file.md). |
 | **eventData** | `String` | The event's data in JSON format. |
 
 ```javascript
@@ -111,7 +111,7 @@ Outputs are sent asynchronously. Make sure that the Application listens for outp
 
 | **Name** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
-| **serviceID** | `String` | Required | ID of the service. |
+| **serviceID** | `String` | Required | ID of the Service. |
 | **taskFilter** | `String` | Optional | Only listens for this given task ID. |
 | **outputFilter** | `String` | Optional | Only listens for this given output ID. If set, the attribute `taskFilter` should also be provided. |
 
