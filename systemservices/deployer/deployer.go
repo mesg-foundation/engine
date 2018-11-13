@@ -1,3 +1,5 @@
+// Package deployer deploys and starts system services by using api
+// and provides ids of services by their names.
 package deployer
 
 import (
@@ -21,7 +23,8 @@ type systemService struct {
 	name string
 }
 
-// Deployer deploys and starts system services by using api.
+// Deployer deploys and starts system services by using api
+// and provides ids of services by their names.
 type Deployer struct {
 	api *api.API
 
