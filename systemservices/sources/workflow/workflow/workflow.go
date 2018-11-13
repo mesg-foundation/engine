@@ -19,9 +19,6 @@ type Workflow struct {
 
 	// s is mesg service.
 	s *mesg.Service
-
-	// cp is a core client provider.
-	cp coreClientProvider
 }
 
 // New returns a new Workflow.
@@ -39,9 +36,6 @@ func New(options ...Option) (*Workflow, error) {
 			return nil, err
 		}
 	}
-	if r.cp == nil {
-		r.cp = &defaultCoreClientProvider{timeout: r.timeout}
-	}
 	return r, nil
 }
 
@@ -52,13 +46,6 @@ type Option func(*Workflow)
 func mesgOption(s *mesg.Service) Option {
 	return func(r *Workflow) {
 		r.s = s
-	}
-}
-
-// coreClientProviderOption returns an option for setting core client provider.
-func coreClientProviderOption(p coreClientProvider) Option {
-	return func(w *Workflow) {
-		w.cp = p
 	}
 }
 
