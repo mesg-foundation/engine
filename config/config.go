@@ -136,5 +136,6 @@ func (c *Config) DaemonEnv() map[string]string {
 		"MESG_LOG_LEVEL":      c.Log.Level,
 		"MESG_CORE_NAME":      c.Core.Name,
 		"MESG_CORE_PATH":      c.Docker.Core.Path,
+		"MESG_HOST_PATH":      c.Core.Path, // Necessary to bind the volume from inside the daemon container
 	}
 }

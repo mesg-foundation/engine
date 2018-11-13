@@ -1,6 +1,8 @@
 package service
 
 import (
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -115,10 +117,11 @@ func (d *Dependency) extractPorts() []container.Port {
 func (d *Dependency) extractVolumes() ([]container.Mount, error) {
 	volumes := make([]container.Mount, 0)
 	for _, volume := range d.Volumes {
-		volumes = append(volumes, container.Mount{
-			Source: volumeKey(d.service, d.Key, volume),
-			Target: volume,
-		})
+		v, err := volumeInformations(d.service, d.Key, volume)
+		if err != nil {
+			return nil, err
+		}
+		volumes = append(volumes, v)
 	}
 	for _, depName := range d.VolumesFrom {
 		dep, err := d.service.getDependency(depName)
@@ -126,19 +129,38 @@ func (d *Dependency) extractVolumes() ([]container.Mount, error) {
 			return nil, err
 		}
 		for _, volume := range dep.Volumes {
-			volumes = append(volumes, container.Mount{
-				Source: volumeKey(d.service, depName, volume),
-				Target: volume,
-			})
+			v, err := volumeInformations(d.service, depName, volume)
+			if err != nil {
+				return nil, err
+			}
+			volumes = append(volumes, v)
 		}
 	}
 	return volumes, nil
 }
 
-func volumeKey(s *Service, dependency string, volume string) string {
-	return xstructhash.Hash([]string{
-		s.ID,
-		dependency,
-		volume,
-	}, 1)
+func volumeInformations(s *Service, dependency string, volume string) (container.Mount, error) {
+	if strings.Contains(volume, ":") {
+		// Get the volume path from the HOST and not from the docker.
+		// We are sharing the docker socket so the host will be creating this container
+		// MESG_HOST_PATH is injected when the daemon is created in /config/config.go#DaemonEnv
+		directory := filepath.Join(os.Getenv("MESG_HOST_PATH"), "services", s.Name, dependency, volume)
+		if err := os.MkdirAll(directory, os.ModePerm); err != nil {
+			return container.Mount{}, err
+		}
+		return container.Mount{
+			Source: directory,
+			Target: volume,
+			Bind:   true,
+		}, nil
+	}
+	return container.Mount{
+		Source: xstructhash.Hash([]string{
+			s.ID,
+			dependency,
+			volume,
+		}, 1),
+		Target: volume,
+		Bind:   false,
+	}, nil
 }

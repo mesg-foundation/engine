@@ -86,4 +86,5 @@ func TestDaemonEnv(t *testing.T) {
 	require.Equal(t, c.Log.Format, env["MESG_LOG_FORMAT"])
 	require.Equal(t, c.Core.Name, env["MESG_CORE_NAME"])
 	require.Equal(t, c.Docker.Core.Path, env["MESG_CORE_PATH"])
+	require.Equal(t, c.Core.Path, env["MESG_HOST_PATH"])
 }
