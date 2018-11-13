@@ -1983,17 +1983,17 @@ type CoreClient interface {
 	ListenEvent(ctx context.Context, in *ListenEventRequest, opts ...grpc.CallOption) (Core_ListenEventClient, error)
 	// Subscribe to a stream that listens for task's result from a service.
 	ListenResult(ctx context.Context, in *ListenResultRequest, opts ...grpc.CallOption) (Core_ListenResultClient, error)
-	// Execute a service's task through [Core](../guide/start-here/core.md).
+	// Execute a service's task through [Core](../guide/start-here/installation.md).
 	ExecuteTask(ctx context.Context, in *ExecuteTaskRequest, opts ...grpc.CallOption) (*ExecuteTaskReply, error)
-	// Start a service. The service must be already deployed to [Core](../guide/start-here/core.md).
+	// Start a service. The service must be already deployed to [Core](../guide/start-here/installation.md).
 	StartService(ctx context.Context, in *StartServiceRequest, opts ...grpc.CallOption) (*StartServiceReply, error)
-	// Stop a service. The service must be already deployed to [Core](../guide/start-here/core.md).
+	// Stop a service. The service must be already deployed to [Core](../guide/start-here/installation.md).
 	StopService(ctx context.Context, in *StopServiceRequest, opts ...grpc.CallOption) (*StopServiceReply, error)
-	// Deploy a service to [Core](../guide/start-here/core.md). This will give you an unique identifier which is used to interact with the service.
+	// Deploy a service to [Core](../guide/start-here/installation.md). This will give you an unique identifier which is used to interact with the service.
 	DeployService(ctx context.Context, opts ...grpc.CallOption) (Core_DeployServiceClient, error)
-	// Delete a service from Core. This function only deletes a deployed service in [Core](../guide/start-here/core.md). If the service's code is on your computer, the source code will not be deleted.
+	// Delete a service from Core. This function only deletes a deployed service in [Core](../guide/start-here/installation.md). If the service's code is on your computer, the source code will not be deleted.
 	DeleteService(ctx context.Context, in *DeleteServiceRequest, opts ...grpc.CallOption) (*DeleteServiceReply, error)
-	// List all services already deployed in [Core](../guide/start-here/core.md).
+	// List all services already deployed in [Core](../guide/start-here/installation.md).
 	ListServices(ctx context.Context, in *ListServicesRequest, opts ...grpc.CallOption) (*ListServicesReply, error)
 	// Get the definition of an already-deployed service from its ID.
 	GetService(ctx context.Context, in *GetServiceRequest, opts ...grpc.CallOption) (*GetServiceReply, error)
@@ -2196,17 +2196,17 @@ type CoreServer interface {
 	ListenEvent(*ListenEventRequest, Core_ListenEventServer) error
 	// Subscribe to a stream that listens for task's result from a service.
 	ListenResult(*ListenResultRequest, Core_ListenResultServer) error
-	// Execute a service's task through [Core](../guide/start-here/core.md).
+	// Execute a service's task through [Core](../guide/start-here/installation.md).
 	ExecuteTask(context.Context, *ExecuteTaskRequest) (*ExecuteTaskReply, error)
-	// Start a service. The service must be already deployed to [Core](../guide/start-here/core.md).
+	// Start a service. The service must be already deployed to [Core](../guide/start-here/installation.md).
 	StartService(context.Context, *StartServiceRequest) (*StartServiceReply, error)
-	// Stop a service. The service must be already deployed to [Core](../guide/start-here/core.md).
+	// Stop a service. The service must be already deployed to [Core](../guide/start-here/installation.md).
 	StopService(context.Context, *StopServiceRequest) (*StopServiceReply, error)
-	// Deploy a service to [Core](../guide/start-here/core.md). This will give you an unique identifier which is used to interact with the service.
+	// Deploy a service to [Core](../guide/start-here/installation.md). This will give you an unique identifier which is used to interact with the service.
 	DeployService(Core_DeployServiceServer) error
-	// Delete a service from Core. This function only deletes a deployed service in [Core](../guide/start-here/core.md). If the service's code is on your computer, the source code will not be deleted.
+	// Delete a service from Core. This function only deletes a deployed service in [Core](../guide/start-here/installation.md). If the service's code is on your computer, the source code will not be deleted.
 	DeleteService(context.Context, *DeleteServiceRequest) (*DeleteServiceReply, error)
-	// List all services already deployed in [Core](../guide/start-here/core.md).
+	// List all services already deployed in [Core](../guide/start-here/installation.md).
 	ListServices(context.Context, *ListServicesRequest) (*ListServicesReply, error)
 	// Get the definition of an already-deployed service from its ID.
 	GetService(context.Context, *GetServiceRequest) (*GetServiceReply, error)

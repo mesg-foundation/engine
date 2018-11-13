@@ -347,13 +347,13 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type ServiceClient interface {
-	// Emit an event to [Core](../guide/start-here/core.md).
+	// Emit an event to [Core](../guide/start-here/installation.md).
 	// The event and its data must be defined in the [service's definition file](../guide/service/service-file.md).
 	EmitEvent(ctx context.Context, in *EmitEventRequest, opts ...grpc.CallOption) (*EmitEventReply, error)
 	// Subscribe to the stream of tasks to execute.
 	// Every task received must be executed and its result must be submitted using the `SubmitResult` API.
 	ListenTask(ctx context.Context, in *ListenTaskRequest, opts ...grpc.CallOption) (Service_ListenTaskClient, error)
-	// Submit the result of a task's execution to [Core](../guide/start-here/core.md).
+	// Submit the result of a task's execution to [Core](../guide/start-here/installation.md).
 	// The result must be defined as a task's output in the [service's definition file](../guide/service/service-file.md).
 	SubmitResult(ctx context.Context, in *SubmitResultRequest, opts ...grpc.CallOption) (*SubmitResultReply, error)
 }
@@ -418,13 +418,13 @@ func (c *serviceClient) SubmitResult(ctx context.Context, in *SubmitResultReques
 
 // ServiceServer is the server API for Service service.
 type ServiceServer interface {
-	// Emit an event to [Core](../guide/start-here/core.md).
+	// Emit an event to [Core](../guide/start-here/installation.md).
 	// The event and its data must be defined in the [service's definition file](../guide/service/service-file.md).
 	EmitEvent(context.Context, *EmitEventRequest) (*EmitEventReply, error)
 	// Subscribe to the stream of tasks to execute.
 	// Every task received must be executed and its result must be submitted using the `SubmitResult` API.
 	ListenTask(*ListenTaskRequest, Service_ListenTaskServer) error
-	// Submit the result of a task's execution to [Core](../guide/start-here/core.md).
+	// Submit the result of a task's execution to [Core](../guide/start-here/installation.md).
 	// The result must be defined as a task's output in the [service's definition file](../guide/service/service-file.md).
 	SubmitResult(context.Context, *SubmitResultRequest) (*SubmitResultReply, error)
 }

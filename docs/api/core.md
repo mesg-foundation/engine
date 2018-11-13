@@ -365,7 +365,7 @@ The data will be received over time as long as the stream is open.
 
 ## ExecuteTask
 
-Execute a service's task through [Core](../guide/start-here/core.md).
+Execute a service's task through [Core](../guide/start-here/installation.md).
 
 <tabs>
 <tab title="Request">
@@ -531,7 +531,7 @@ The reply's data of the `ExecuteTask` API.
 
 ## StartService
 
-Start a service. The service must be already deployed to [Core](../guide/start-here/core.md).
+Start a service. The service must be already deployed to [Core](../guide/start-here/installation.md).
 
 <tabs>
 <tab title="Request">
@@ -679,7 +679,7 @@ Reply of `StartService` API doesn't contain any data.
 
 ## StopService
 
-Stop a service. The service must be already deployed to [Core](../guide/start-here/core.md).
+Stop a service. The service must be already deployed to [Core](../guide/start-here/installation.md).
 
 <tabs>
 <tab title="Request">
@@ -827,7 +827,7 @@ Reply of `StopService` API doesn't contain any data.
 
 ## DeployService
 
-Deploy a service to [Core](../guide/start-here/core.md). This will give you an unique identifier which is used to interact with the service.
+Deploy a service to [Core](../guide/start-here/installation.md). This will give you an unique identifier which is used to interact with the service.
 
 <tabs>
 <tab title="Request">
@@ -1013,7 +1013,7 @@ or
 
 ## DeleteService
 
-Delete a service from Core. This function only deletes a deployed service in [Core](../guide/start-here/core.md). If the service's code is on your computer, the source code will not be deleted.
+Delete a service from Core. This function only deletes a deployed service in [Core](../guide/start-here/installation.md). If the service's code is on your computer, the source code will not be deleted.
 
 <tabs>
 <tab title="Request">
@@ -1161,7 +1161,7 @@ Reply of `DeleteService` API doesn't contain any data.
 
 ## ListServices
 
-List all services already deployed in [Core](../guide/start-here/core.md).
+List all services already deployed in [Core](../guide/start-here/installation.md).
 
 <tabs>
 <tab title="Request">
