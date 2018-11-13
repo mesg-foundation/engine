@@ -28,4 +28,4 @@ mesg-core service delete SERVICE_ID
 
 
 
-Ned help? Check out the <a href="https://forum.mesg.com" target="_blank">MESG Forum</a>.
+Need help? Check out the <a href="https://forum.mesg.com" target="_blank">MESG Forum</a>.
