@@ -36,5 +36,4 @@ Our community thrives on the sharing of Services.  If you'd like to contribute t
   
 We are excited to see what you've built!
 
-::: tip Get Help
-You need help ? Check out the <a href="https://forum.mesg.com" target="_blank">MESG Forum</a>.
+Need help ? Check out the <a href="https://forum.mesg.com" target="_blank">MESG Forum</a>.
