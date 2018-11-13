@@ -1,22 +1,24 @@
 # What is MESG?
 
-MESG \(pronounced ˈmesij/, or **message**\) is a technology-agnostic **infrastructure** for decentralized app development. It’s an advancement in productivity, enabling users to connect technologies with ease.
+MESG \(pronounced ˈmesij/, or **message**\) is a technology-agnostic network of [Services](../service/what-is-a-service.md). 
 
-The days of unconnected dApps are over. Through only one connection to MESG's [Core](core.md), your application becomes instantly compatible with any other technology, including blockchains. 
+Services can be connected to any technology, including but not limited to: blockchains, web services, databases, notifications, business logic or IoT devices. 
 
-MESG acts as a communication layer between your application and all other technologies. It organizes and dispatches information to and from all connected services and filters through a stream of real-time information to your application, so your application can remain lightweight and powerful.
+Because Services are often identical between applications, they be shared and reused through through our [Awesome](https://github.com/mesg-foundation/awesome) repository to accelerate development efficiency. 
 
-To accomplish this, Event Driven Architecture \(EDA\) is utilized as the framework in which [applications](../application/what-is-an-application.md) are constructed, meaning applications are built to listen to events and respond with tasks. 
+Services can be combined together in any order to create [Applications](../application/what-is-an-application.md). Since developers can use a shared Service instead of being required to write each one from scratch, they can now feature complex technologies in their Applications without needing to first learn their languages.
 
-Technologies are connected to MESG via [Services](../service/what-is-a-service.md), which are also constructed to allow for the emitting of events and execution of tasks. As services largely remain the same for each application built with MESG, they can be shared on our [Awesome](https://github.com/mesg-foundation/awesome) page, meaning you can now feature complex technologies in your application without even knowing the languages.
+Interoperability between all Services and Applications is managed automatically by MESG Core. [Core](../start-here/core.md) organizes and dispatches information to and from all connected Services and routes it through a stream of real-time information to your Application, allowing Applications to be highly interconnected, yet lightweight and powerful.
 
-An application on MESG could be anything from a multinational dApp store, to the automation of a workflow for a small business, to paying personal bills, or adding notifications to events on the blockchain. MESG allows decentralized applications to deliver the same outstanding user experience that centralized apps deliver. The possibilities and use cases are truly endless.
+The MESG infrastructure is based upon event-driven programming, so Applications built using MESG are designed to listen to events and react with tasks, resuling in easily-maintainable autonomous applications. 
 
-We are creating the best community-driven open-source infrastructure, empowering developers to use MESG to build innovations.
+Applications on MESG can look like anything from a multinational dApp store, to an automated business workflow, to an automatic payment of personal bills or linking real-time notifications to blockchain events. The possibilities and use cases are truly endless.
 
-**In Q3 2018**, rather than writing any code whatsoever, you will be able to write a simple configuration file including desired events and tasks, then allow Core to assemble your application on your behalf.
+**In Q4 2018**, MESG will deploy the beta decentralized Network to unify the MESG infrastructure. It will make it easy for developers to incorporate decentralization into any existing technology.
 
-**In Q4 2018**, we will deploy the beta Network to unify the MESG infrastructure. The Network makes it easy for developers to harness the benefits of decentralization, and to share and reuse connections to technologies, making back-end app building a breeze. Once a connection from a technology to Core is made, it can be shared for free or sold in a Marketplace, allowing developers to receive income each time their connection is used. We value and incentivize contributions.
+The decentralized network will help DApps adopt useful functionalities that boost the UX, such as notifications or fiat payment processing. DApps will soon be able to deliver the same excellent user experiences that centralized apps deliver while remaining highy decentralized. 
+
+The Network also introduces MESG's token-based economy. Pre-built Services will be sold on the Network using MESG Tokens, allowing developers to receive income each time their Service is used, while rewarding each actor in the network with passive income from their participation. 
 
   
 
