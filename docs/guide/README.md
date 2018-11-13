@@ -4,7 +4,7 @@ MESG \(pronounced ˈmesij/, or **message**\) is a technology-agnostic network of
 
 Services can be connected to any technology, including but not limited to: blockchains, web services, databases, notifications, business logic or IoT devices. 
 
-Because Services are often identical between applications, they be shared and reused through through our [Awesome](https://github.com/mesg-foundation/awesome) repository to accelerate development efficiency. 
+As Services are often identical between applications, they be shared and reused through through our [Awesome](https://github.com/mesg-foundation/awesome) repository to accelerate development efficiency. 
 
 Services can be combined together in any order to create [Applications](../application/what-is-an-application.md). Since developers can use a shared Service instead of being required to write each one from scratch, they can now feature complex technologies in their Applications without needing to first learn their languages.
 
