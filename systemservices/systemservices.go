@@ -1,5 +1,5 @@
-// Package systemservices is responsible to manage all system services
-// by executing their tasks, reacting on their task results and events.
+// Package systemservices is responsible to deploy & start all
+// system services and provide their service ids.
 package systemservices
 
 import "github.com/mesg-foundation/core/systemservices/deployer"
@@ -18,8 +18,7 @@ var systemServicesList = []string{
 
 // SystemServices is managing all system services.
 // It is responsible to start all system services when the core start.
-// It reads the services' ID from the config package.
-// All system services should runs all the time.
+// All system services should run all the time.
 // Any interaction with the system services are done by using the api package.
 type SystemServices struct {
 	d *deployer.Deployer
@@ -31,7 +30,7 @@ func New(d *deployer.Deployer) (*SystemServices, error) {
 	return s, s.d.Deploy(systemServicesList)
 }
 
-// ResolverServiceID returns resolver service id.
+// ResolverServiceID returns resolver system service's id.
 func (s *SystemServices) ResolverServiceID() string {
 	return s.d.GetServiceID(ResolverService)
 }
