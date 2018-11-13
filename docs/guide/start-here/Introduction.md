@@ -1,4 +1,4 @@
-# What is MESG?
+# Introduction
 
 MESG \(pronounced ˈmesij/, or **message**\) is a technology-agnostic network of [Services](../service/what-is-a-service.md). 
 
