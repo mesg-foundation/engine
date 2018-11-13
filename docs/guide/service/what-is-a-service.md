@@ -4,7 +4,7 @@ A Service is a normalized bi-directional communication layer which acts a connec
 
 MESG depends heavily on Services. These Services are automatically built and ran inside Docker. You can connect anything you want, as long as it can run inside Docker \(as long as it can run on a computer\). If you need more details about how to connect dependencies to your service check out the [Dockerize the Service](dockerize-the-service.md) page.
 
-A service needs to implement two types of communications: receiving tasks and submitting events. 
+A Service needs to implement two types of communications: receiving tasks and submitting events. 
 
 ## Receiving Tasks
 
@@ -25,6 +25,5 @@ For more info on how to create events, learn more on our [Emit an Event](emit-an
 ## Share Services 
 
 New Services can be created and shared. Alternatively, builders can use already-created services without coding by using our [Awesome](https://github.com/mesg-foundation/awesome) repository.   
-  
-**In Q3 2018**, once the Network is deployed, Services will be shared or sold on our Marketplace, opening up an economy of efficiencies and solutions. 
+   
 
