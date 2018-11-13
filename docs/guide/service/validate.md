@@ -1,6 +1,6 @@
 # Validate
 
-To validate a service, checking for definition mistakes, run the command `service validate`:
+To validate a Service to check for definition mistakes, run the command `service validate`:
 
 ```bash
 mesg-core service validate ./PATH_TO_SERVICE_FOLDER
