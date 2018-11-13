@@ -1,4 +1,4 @@
-package systemservices
+package deployer
 
 import (
 	"fmt"
