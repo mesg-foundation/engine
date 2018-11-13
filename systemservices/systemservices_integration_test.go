@@ -11,6 +11,7 @@ import (
 	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/database"
+	"github.com/mesg-foundation/core/systemservices/deployer"
 )
 
 func TestNew(t *testing.T) {
@@ -32,7 +33,7 @@ func TestNew(t *testing.T) {
 	a, err := api.New(serviceDB, execDB)
 	require.NoError(t, err)
 
-	s, err := New(a, systemServicesPath)
+	s, err := New(deployer.New(a, systemServicesPath))
 	require.NoError(t, err)
 	require.NotZero(t, s)
 }
