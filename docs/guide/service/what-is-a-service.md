@@ -24,6 +24,6 @@ For more info on how to create events, learn more on our [Emit an Event](emit-an
 
 ## Share Services 
 
-New Services can be created and shared. Alternatively, builders can use already-created services without coding by using our [Awesome](https://github.com/mesg-foundation/awesome) repository.   
+New Services can be created and shared. Alternatively, builders can use already-created Services without coding by using our [Awesome](https://github.com/mesg-foundation/awesome) repository.   
    
 
