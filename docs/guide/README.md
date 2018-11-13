@@ -1,22 +1,18 @@
 # Introduction
 
-MESG is an open-source decentralized infrastructure which makes all technologies interoperable, including blockchains. In short, it’s a building platform for developers.
+MESG is an open-source decentralized network of reusable bridges to technologies. It allows users to connect any businesses or services together, including any blockchains, regardless of their programming language. 
 
-Instead of individually connecting each technology to your application, you can now make a single connection to [Core](start-here/core.md) and allow Core to manage connections to all other technologies on your application's behalf. It handles the communication of information and tasks between any technologies and your application, making the creation and maintenance of DApps a breeze.  
+Through an event-driven microservice infrastructure, each connected service within MESG exists independently, yet is fully compatible with all other connected services. This cooperative independence and the ability to share and reuse existing connections allows development costs to be reduced by up to 98%. 
 
-This technology-agnostic architecture allows all technologies and languages to play nicely together for the first time in a decentralized way, ushering in a new era of productivity and possibilities.
+Once a connection to a service has been built, it can be shared in the Network, allowing developers or companies to generate passive income each time their connection is used by other MESG users.
 
-**Arriving Q3 2018:**
+Take the best of what has already been built to create your custom solution for a fraction of the cost. 
 
-Once a connection from a technology to Core is made, it can be shared in a Marketplace, allowing developers to generate income each time their connection is used.
+You can get involved by writing code or combining already-existing bridges into viable solutions. All contributors benefit from an incentive system designed to reward participation.
 
-Take the best of what has already been created to build your custom solution. This building platform allows you to easily connect technologies without needing to code or know the languages of the technologies you're using.
+We’re excited to see what you come up with.
 
-You can get involved by writing code or creating viable solutions, all while benefiting from an incentive system designed to reward building.
-
-We’re excited to see what you come up with.  
-
-
-To navigate to other sections of this guide, please use the Menu, or continue below.  
+To navigate to other sections of this guide, please use the Menu, or continue below.
+ 
 
 
