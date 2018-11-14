@@ -30,15 +30,16 @@ func initGRPCServer(c *config.Config) (*grpc.Server, error) {
 	}
 
 	// init api.
-	a, err := api.New(db, execDB)
+	ss := systemservices.New()
+	a, err := api.New(db, execDB, ss)
 	if err != nil {
 		return nil, err
 	}
 
 	// init system services.
 	systemServicesPath := filepath.Join(c.Core.Path, c.SystemServices.RelativePath)
-	ss, err := systemservices.New(deployer.New(a, systemServicesPath))
-	if err != nil {
+	d := deployer.New(a, systemServicesPath, ss)
+	if err := d.Deploy(systemservices.SystemServicesList); err != nil {
 		return nil, err
 	}
 

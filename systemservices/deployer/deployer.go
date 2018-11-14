@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"sync"
 
+	"github.com/mesg-foundation/core/systemservices"
+
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/service"
@@ -14,33 +16,25 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// systemService represents a system service.
-type systemService struct {
-	*service.Service
-
-	// name is the unique name of system service.
-	// it's also the relative path of system service in the filesystem.
-	name string
-}
-
 // Deployer deploys and starts system services by using api
 // and provides ids of services by their names.
 type Deployer struct {
 	api *api.API
 
+	// instance of the system services manager to update
+	ss *systemservices.SystemServices
+
 	// absolute path of system services dir.
 	systemServicesPath string
-
-	// all deployed system services
-	services []*systemService
 }
 
 // New creates a new Deployer.
 // It accepts an instance of the api package.
 // It accepts the system services path.
-func New(api *api.API, systemServicesPath string) *Deployer {
+func New(api *api.API, systemServicesPath string, ss *systemservices.SystemServices) *Deployer {
 	return &Deployer{
 		api:                api,
+		ss:                 ss,
 		systemServicesPath: systemServicesPath,
 	}
 }
@@ -50,28 +44,14 @@ func New(api *api.API, systemServicesPath string) *Deployer {
 // If services are not found, it should return an error.
 // If services doesn't start properly, it should return an error.
 func (d *Deployer) Deploy(services []string) error {
-	for _, name := range services {
-		d.services = append(d.services, &systemService{name: name})
-	}
-	if err := d.deployServices(); err != nil {
+	if err := d.deployServices(services); err != nil {
 		return err
 	}
-	return d.startServices()
-}
-
-// GetServiceID returns the service id of a system service that matches with name.
-// name compared with the unique name/relative path of system service.
-func (d *Deployer) GetServiceID(name string) string {
-	for _, s := range d.services {
-		if s.name == name {
-			return s.ID
-		}
-	}
-	panic("unreachable")
+	return d.startServices(services)
 }
 
 // deployServices deploys system services.
-func (d *Deployer) deployServices() error {
+func (d *Deployer) deployServices(services []string) error {
 	var (
 		// errs are the deployment errors.
 		errs xerrors.Errors
@@ -80,22 +60,21 @@ func (d *Deployer) deployServices() error {
 		wg sync.WaitGroup
 	)
 
-	logrus.Infof("deploying (%d) system services...", len(d.services))
-
-	for _, ss := range d.services {
+	for _, srv := range services {
 		wg.Add(1)
-		go func(ss *systemService) {
+		go func(service string) {
 			defer wg.Done()
-			sr, err := d.deployService(ss.name)
+			logrus.Infof("Deploying system service %q", service)
+			sr, err := d.deployService(service)
 			m.Lock()
 			defer m.Unlock()
 			if err != nil {
 				errs = append(errs, err)
 				return
 			}
-			logrus.Infof("'%s' system service deployed", ss.name)
-			ss.Service = sr
-		}(ss)
+			logrus.Infof("System service %q deployed", service)
+			d.ss.RegisterSystemService(service, sr)
+		}(srv)
 	}
 
 	wg.Wait()
@@ -131,7 +110,7 @@ func (d *Deployer) deployService(relativePath string) (*service.Service, error) 
 }
 
 // startService starts the system services.
-func (d *Deployer) startServices() error {
+func (d *Deployer) startServices(services []string) error {
 	var (
 		// errs are the service starting errors.
 		errs xerrors.Errors
@@ -140,18 +119,20 @@ func (d *Deployer) startServices() error {
 		wg sync.WaitGroup
 	)
 
-	logrus.Info("starting system services...")
-
-	for _, ss := range d.services {
+	for _, srv := range services {
 		wg.Add(1)
-		go func(ss *systemService) {
+		go func(service string) {
 			defer wg.Done()
-			if err := d.api.StartService(ss.ID); err != nil {
+
+			logrus.Infof("Starting system service %q", service)
+			if err := d.api.StartService(d.ss.GetServiceID(service)); err != nil {
 				m.Lock()
 				defer m.Unlock()
 				errs = append(errs, err)
+			} else {
+				logrus.Infof("Starting system service %q", service)
 			}
-		}(ss)
+		}(srv)
 	}
 
 	wg.Wait()
