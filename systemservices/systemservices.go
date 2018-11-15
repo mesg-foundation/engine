@@ -58,16 +58,16 @@ func (s *SystemServices) RegisterSystemService(name string, service *service.Ser
 
 // GetServiceID returns the service id of a system service that matches with name.
 // name compared with the unique name/relative path of system service.
-func (s *SystemServices) GetServiceID(name string) string {
+func (s *SystemServices) GetServiceID(name string) (string, error) {
 	for _, srv := range s.services {
 		if srv.name == name {
-			return srv.service.ID
+			return srv.service.ID, nil
 		}
 	}
-	panic("unreachable")
+	return "", &SystemServiceNotFoundError{Name: name}
 }
 
 // ResolverServiceID returns resolver system service's id.
-func (s *SystemServices) ResolverServiceID() string {
+func (s *SystemServices) ResolverServiceID() (string, error) {
 	return s.GetServiceID(ResolverService)
 }

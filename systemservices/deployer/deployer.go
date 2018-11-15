@@ -89,7 +89,7 @@ func (d *Deployer) deployService(relativePath string) (*service.Service, error) 
 		return nil, err
 	}
 	if !exists {
-		return nil, &systemServiceNotFoundError{name: relativePath}
+		return nil, &systemservices.SystemServiceNotFoundError{Name: relativePath}
 	}
 
 	archive, err := archive.TarWithOptions(path, &archive.TarOptions{
@@ -125,7 +125,13 @@ func (d *Deployer) startServices(services []string) error {
 			defer wg.Done()
 
 			logrus.Infof("Starting system service %q", service)
-			if err := d.api.StartService(d.ss.GetServiceID(service)); err != nil {
+			serviceID, err := d.ss.GetServiceID(service)
+			if err != nil {
+				m.Lock()
+				defer m.Unlock()
+				errs = append(errs, err)
+			}
+			if err := d.api.StartService(serviceID); err != nil {
 				m.Lock()
 				defer m.Unlock()
 				errs = append(errs, err)
