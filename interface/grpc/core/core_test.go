@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/mesg-foundation/core/systemservices"
+
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/container"
@@ -31,7 +33,7 @@ func newServerWithContainer(t *testing.T, c container.Container) (*Server, func(
 	execDB, err := database.NewExecutionDB(execdbname)
 	require.NoError(t, err)
 
-	a, err := api.New(db, execDB, api.ContainerOption(c))
+	a, err := api.New(db, execDB, systemservices.New(), api.ContainerOption(c))
 	require.NoError(t, err)
 
 	server := NewServer(a, nil)
