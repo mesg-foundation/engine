@@ -51,7 +51,7 @@ func TestNotExisting(t *testing.T) {
 	d, closer := newDeployer(t)
 	defer closer()
 	err := d.Deploy([]string{"noExisting"})
-	expectedErr := &systemServiceNotFoundError{name: "noExisting"}
+	expectedErr := &systemservices.SystemServiceNotFoundError{Name: "noExisting"}
 	require.EqualError(t, err, expectedErr.Error())
 }
 
