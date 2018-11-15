@@ -130,7 +130,7 @@ func (d *Deployer) startServices(services []string) error {
 				defer m.Unlock()
 				errs = append(errs, err)
 			} else {
-				logrus.Infof("Starting system service %q", service)
+				logrus.Infof("System service %q started", service)
 			}
 		}(srv)
 	}
@@ -141,6 +141,6 @@ func (d *Deployer) startServices(services []string) error {
 		return err
 	}
 
-	logrus.Info("all system services started")
+	logrus.Info("All system services started with success")
 	return nil
 }
