@@ -77,7 +77,7 @@ func TestClose(t *testing.T) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		assert.NotNil(t, logger.Start())
+		assert.Nil(t, logger.Start())
 	}()
 
 	_, _, err := server.Execute("log", data)
