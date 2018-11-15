@@ -51,8 +51,9 @@ type Service struct {
 	callTimeout time.Duration
 
 	// cancel stops receiving from gRPC task stream.
-	cancel context.CancelFunc
-	mc     sync.Mutex // protects cancel and conn.Close().
+	cancel  context.CancelFunc
+	closing bool
+	mc      sync.Mutex // protects above and conn.Close().
 
 	// isListening set true after the first call to Listen().
 	isListening bool
@@ -181,6 +182,9 @@ func (s *Service) listenTasks() error {
 		data, err := stream.Recv()
 		if err != nil {
 			s.gracefulWait.Done()
+			if s.closing {
+				return nil
+			}
 			return err
 		}
 		go s.executeTask(data)
@@ -230,6 +234,7 @@ func (s *Service) Emit(eventKey string, eventData Data) error {
 func (s *Service) Close() error {
 	s.mc.Lock()
 	defer s.mc.Unlock()
+	s.closing = true
 	s.cancel()
 	s.gracefulWait.Wait()
 	return s.conn.Close()
