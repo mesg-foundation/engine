@@ -11,5 +11,5 @@ type systemServiceNotFoundError struct {
 }
 
 func (e *systemServiceNotFoundError) Error() string {
-	return fmt.Sprintf("system service %q not found", e.name)
+	return fmt.Sprintf("System service %q not found", e.name)
 }
