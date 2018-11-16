@@ -2,11 +2,11 @@ package api
 
 import (
 	"github.com/mesg-foundation/core/systemservices/workflow"
-	"github.com/mesg-foundation/core/utils/workflowparser/yaml"
+	"github.com/mesg-foundation/core/utils/workflowparser"
 )
 
 // CreateWorkflow creates and runs a new workflow with optionally given unique name.
-func (a *API) CreateWorkflow(definition yaml.WorkflowDefinition, name string) (id string, err error) {
+func (a *API) CreateWorkflow(definition workflowparser.WorkflowDefinition, name string) (id string, err error) {
 	return newWorkflowCreator(a).Create(definition, name)
 }
 
@@ -23,7 +23,7 @@ func newWorkflowCreator(api *API) *workflowCreator {
 }
 
 // Create creates and runs a new workflow with optionally given unique name.
-func (w *workflowCreator) Create(definition yaml.WorkflowDefinition, name string) (id string, err error) {
+func (w *workflowCreator) Create(definition workflowparser.WorkflowDefinition, name string) (id string, err error) {
 	inputs, err := workflow.CreateInputs(definition, name)
 	if err != nil {
 		return "", err

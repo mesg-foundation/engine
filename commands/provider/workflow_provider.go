@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/mesg-foundation/core/protobuf/coreapi"
-	"github.com/mesg-foundation/core/utils/workflowparser/yaml"
+	"github.com/mesg-foundation/core/utils/workflowparser"
 )
 
 // WorkflowProvider is a struct that provides all methods required by workflow command.
@@ -20,7 +20,7 @@ func NewWorkflowProvider(c coreapi.CoreClient) *WorkflowProvider {
 // CreateWorkflow creates and runs a new workflow with given yaml file and
 // optionally given unique name.
 func (p *WorkflowProvider) CreateWorkflow(filePath string, name string) (id string, err error) {
-	definition, err := yaml.ParseFromFile(filePath)
+	definition, err := workflowparser.ParseFromFile(filePath)
 	if err != nil {
 		return "", err
 	}
@@ -40,6 +40,6 @@ func (p *WorkflowProvider) DeleteWorkflow(id string) error {
 	return err
 }
 
-func (p *WorkflowProvider) toProtoWorkflowDefinition(definition yaml.WorkflowDefinition) *coreapi.CreateWorkflowRequest_WorkflowDefinition {
+func (p *WorkflowProvider) toProtoWorkflowDefinition(definition workflowparser.WorkflowDefinition) *coreapi.CreateWorkflowRequest_WorkflowDefinition {
 	return &coreapi.CreateWorkflowRequest_WorkflowDefinition{}
 }
