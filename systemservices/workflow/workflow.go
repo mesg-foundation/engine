@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/mesg-foundation/core/execution"
-	"github.com/mesg-foundation/core/utils/workflowparser/yaml"
+	"github.com/mesg-foundation/core/utils/workflowparser"
 )
 
 // WSS's tasks.
@@ -16,7 +16,7 @@ const (
 
 // CreateInputs maps create task's inputs.
 // name is optional and has to be unique.
-func CreateInputs(definition yaml.WorkflowDefinition, name string) (map[string]interface{}, error) {
+func CreateInputs(definition workflowparser.WorkflowDefinition, name string) (map[string]interface{}, error) {
 	// TODO: this hack is not something that we should do but
 	// it's needed because *parameterValidator is not able to identify
 	// structs for now.

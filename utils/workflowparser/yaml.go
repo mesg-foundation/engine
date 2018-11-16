@@ -1,4 +1,4 @@
-package yaml
+package workflowparser
 
 import (
 	"io/ioutil"
