@@ -44,7 +44,7 @@ func (c *createWorkflowCmd) runE(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Printf("%s Workflow running\n", pretty.SuccessSign)
+	fmt.Printf("%s Workflow is running\n", pretty.SuccessSign)
 	fmt.Printf("To see its logs, run the command:\n\tmesg-core workflow logs %s\n", workflowID)
 	return nil
 }
