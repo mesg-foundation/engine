@@ -6,23 +6,23 @@ import (
 
 // DeleteService stops and deletes service serviceID.
 func (a *API) DeleteService(serviceID string) error {
-	return newServiceDeleter(a).Delete(serviceID)
+	return newServiceDeletor(a).Delete(serviceID)
 }
 
-// serviceDeleter provides functionalities to delete a MESG service.
-type serviceDeleter struct {
+// serviceDeletor provides functionalities to delete a MESG service.
+type serviceDeletor struct {
 	api *API
 }
 
-// newServiceDeleter creates a new serviceDeleter with given.
-func newServiceDeleter(api *API) *serviceDeleter {
-	return &serviceDeleter{
+// newServiceDeletor creates a new serviceDeletor with given.
+func newServiceDeletor(api *API) *serviceDeletor {
+	return &serviceDeletor{
 		api: api,
 	}
 }
 
 // Delete stops and deletes service serviceID.
-func (d *serviceDeleter) Delete(serviceID string) error {
+func (d *serviceDeletor) Delete(serviceID string) error {
 	s, err := d.api.db.Get(serviceID)
 	if err != nil {
 		return err
