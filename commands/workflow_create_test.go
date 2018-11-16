@@ -27,7 +27,7 @@ func TestCreateWorkflow(t *testing.T) {
 
 	ss := strings.Split(stdout, "\n")
 	require.Contains(t, ss[0], "Creating workflow...")
-	require.Contains(t, ss[1], "Workflow running")
+	require.Contains(t, ss[1], "Workflow is running")
 	require.Contains(t, ss[2], "To see its logs, run the command:")
 	require.Contains(t, ss[3], fmt.Sprintf("mesg-core workflow logs %s", workflowID))
 
