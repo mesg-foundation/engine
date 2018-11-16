@@ -167,8 +167,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:cdfd55b3537efa341d9b9382435817cf499b51d4356fb36baa8dde0a215b5303"
+  digest = "1:b746be1272035dd3643aed45a302cf150ca3ce0e9cfd38992f0f91771433620f"
   name = "github.com/golang/protobuf"
   packages = [
     "jsonpb",
@@ -186,7 +185,8 @@
     "ptypes/timestamp",
   ]
   pruneopts = "UT"
-  revision = "93b26e6a70e37abb14f2f88194949312b0592a84"
+  revision = "aa810b61a9c79d51363740d207bb46cf8e620ed5"
+  version = "v1.2.0"
 
 [[projects]]
   branch = "master"
@@ -357,16 +357,23 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:f4f47b2749b5880455b2cfca27500f7559e0c0eec51a67867f8311aed7aaf564"
+  digest = "1:3d092f8e75aad5f817962b97d6d902d5667411f071b95855b0cb9210a6e21c5d"
   name = "github.com/pseudomuto/protoc-gen-doc"
   packages = [
     ".",
     "cmd/protoc-gen-doc",
-    "parser",
   ]
   pruneopts = "UT"
-  revision = "728a624b38e5ae90bb3e5da5f406e05138f1517c"
-  version = "v1.0.0"
+  revision = "0c4d666cfe1175663cf067963396a0b9b34f543f"
+  version = "v1.1.0"
+
+[[projects]]
+  digest = "1:37fe5a9adb37233d7f2d764dcdef5e2537d0d927bf57a6095f178817c8c616e5"
+  name = "github.com/pseudomuto/protokit"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "7037620bf27b13fcdc10b1b17ddef82540db670b"
+  version = "v0.1.0"
 
 [[projects]]
   digest = "1:8bc629776d035c003c7814d4369521afe67fdb8efc4b5f66540d29343b98cf23"
