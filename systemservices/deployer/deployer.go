@@ -147,6 +147,6 @@ func (d *Deployer) startServices(services []string) error {
 		return err
 	}
 
-	logrus.Info("all system services are started")
+	logrus.Info("all system services heve started")
 	return nil
 }
