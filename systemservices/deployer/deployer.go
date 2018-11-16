@@ -60,11 +60,12 @@ func (d *Deployer) deployServices(services []string) error {
 		wg sync.WaitGroup
 	)
 
+	logrus.Infof("deploying (%d) system services...", len(services))
+
 	for _, srv := range services {
 		wg.Add(1)
 		go func(service string) {
 			defer wg.Done()
-			logrus.Infof("Deploying system service %q", service)
 			sr, err := d.deployService(service)
 			m.Lock()
 			defer m.Unlock()
@@ -72,7 +73,7 @@ func (d *Deployer) deployServices(services []string) error {
 				errs = append(errs, err)
 				return
 			}
-			logrus.Infof("System service %q deployed", service)
+			logrus.Infof("'%s' system service deployed", service)
 			d.ss.RegisterSystemService(service, sr)
 		}(srv)
 	}
@@ -119,12 +120,13 @@ func (d *Deployer) startServices(services []string) error {
 		wg sync.WaitGroup
 	)
 
+	logrus.Info("starting system services...")
+
 	for _, srv := range services {
 		wg.Add(1)
 		go func(service string) {
 			defer wg.Done()
 
-			logrus.Infof("Starting system service %q", service)
 			serviceID, err := d.ss.GetServiceID(service)
 			if err != nil {
 				m.Lock()
@@ -135,8 +137,6 @@ func (d *Deployer) startServices(services []string) error {
 				m.Lock()
 				defer m.Unlock()
 				errs = append(errs, err)
-			} else {
-				logrus.Infof("System service %q started", service)
 			}
 		}(srv)
 	}
@@ -147,6 +147,6 @@ func (d *Deployer) startServices(services []string) error {
 		return err
 	}
 
-	logrus.Info("All system services started with success")
+	logrus.Info("all system services are started")
 	return nil
 }
