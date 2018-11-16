@@ -38,12 +38,12 @@ The event and its data must be defined in the [service's definition file](../gui
 #### EmitEventRequest
 The request's data for the `EmitEvent` API.
 
-Example:
+**Example:**
 ```json
 {
-"token":     "__SERVICE_TOKEN_FROM_ENV__",
-"eventKey":  "__EVENT_KEY__",
-"eventData": "{\"foo\":\"hello\",\"bar\":false}"
+  "token":     "__SERVICE_TOKEN_FROM_ENV__",
+  "eventKey":  "__EVENT_KEY__",
+  "eventData": "{\"foo\":\"hello\",\"bar\":false}"
 }
 ```
 
@@ -109,10 +109,10 @@ Every task received must be executed and its result must be submitted using the 
 #### ListenTaskRequest
 The request's data for the `ListenTask` stream API.
 
-Example:
+**Example:**
 ```json
 {
-"token": "__SERVICE_TOKEN_FROM_ENV__"
+  "token": "__SERVICE_TOKEN_FROM_ENV__"
 }
 ```
 
@@ -152,12 +152,12 @@ The data received from the stream of the `ListenTask` API.
 The data will be received over time as long as the stream is open.
 The `executionID` value must be kept and sent with the result when calling the [`SubmitResult` API](#submitresult).
 
-Example:
+**Example:**
 ```json
 {
-"executionID": "__EXECUTION_ID__",
-"taskKey":     "__TASK_KEY__",
-"inputData":   "{\"inputX\":\"Hello world!\",\"inputY\":true}"
+  "executionID": "__EXECUTION_ID__",
+  "taskKey":     "__TASK_KEY__",
+  "inputData":   "{\"inputX\":\"Hello world!\",\"inputY\":true}"
 }
 ```
 
@@ -197,12 +197,12 @@ The result must be defined as a task's output in the [service's definition file]
 The request's data for the `SubmitResult` API.
 The data must contain the `executionID` of the executed task received from the stream of [`ListenTask` API](#listentask).
 
-Example:
+**Example:**
 ```json
 {
-"executionID": "__EXECUTION_ID__",
-"outputKey":   "__OUTPUT_KEY__",
-"outputData":  "{\"foo\":\"super result\",\"bar\":true}"
+  "executionID": "__EXECUTION_ID__",
+  "outputKey":   "__OUTPUT_KEY__",
+  "outputData":  "{\"foo\":\"super result\",\"bar\":true}"
 }
 ```
 
