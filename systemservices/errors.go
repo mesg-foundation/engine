@@ -4,12 +4,12 @@ import (
 	"fmt"
 )
 
-// systemServiceNotFoundError is returned when an expected
+// SystemServiceNotFoundError is returned when an expected
 // system service is not found.
-type systemServiceNotFoundError struct {
-	name string
+type SystemServiceNotFoundError struct {
+	Name string
 }
 
-func (e *systemServiceNotFoundError) Error() string {
-	return fmt.Sprintf("system service %q not found", e.name)
+func (e *SystemServiceNotFoundError) Error() string {
+	return fmt.Sprintf("System service %q not found", e.Name)
 }
