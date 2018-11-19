@@ -5,9 +5,9 @@ actionText: Get Started →
 actionLink: /guide/index
 features:
   - title: Technology Agnostic
-    details: Any technologies can seamlessly be connected to your applications, from traditional web to new blockchain technologies.
+    details: Any technologies can be connected to applications, including web services, business logic, IoT, or even blockchain technologies.
   - title: Event Driven
-    details: Start creating your application by reacting to events and build truly real time and scalable applications.
+    details: Build scalable applications that listen for events in real-time and react with tasks.
   - title: Services
-    details: Use the power of microservices. All you have to do is connect services through their events.
+    details: Harness the power of microservices to achieve efficient application creation and maintenance. 
 ---
