@@ -3,6 +3,7 @@ package workflow
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/utils/workflowparser"
@@ -43,7 +44,7 @@ func CreateOutputs(e *execution.Execution) (id string, err error) {
 	case "error":
 		return "", errors.New(e.OutputData["message"].(string))
 	}
-	panic("unreachable")
+	return "", fmt.Errorf("workflow: task create workflow has unknown output %s", e.OutputKey)
 }
 
 // DeleteInputs maps delete task's inputs.
@@ -62,5 +63,5 @@ func DeleteOutputs(e *execution.Execution) error {
 	case "error":
 		return errors.New(e.OutputData["message"].(string))
 	}
-	panic("unreachable")
+	return fmt.Errorf("workflow: task delete workflow has unknown output %s", e.OutputKey)
 }
