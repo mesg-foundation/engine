@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# make sure script is running inside mesg-dev container.
-source $(dirname $0)/require-mesg-dev.sh
+# make sure script is running inside mesg/tools container.
+source $(dirname $0)/require-mesg-tools.sh
 
 cd $GOPATH/src
 
