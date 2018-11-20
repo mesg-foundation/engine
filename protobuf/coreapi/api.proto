@@ -19,22 +19,22 @@ service Core {
   // Subscribe to a stream that listens for task's result from a service.
   rpc ListenResult (ListenResultRequest) returns (stream ResultData) {}
 
-  // Execute a service's task through [Core](../guide/start-here/installation.md).
+  // Execute a service's task through Core.
   rpc ExecuteTask (ExecuteTaskRequest) returns (ExecuteTaskReply) {}
 
-  // Start a service. The service must be already deployed to [Core](../guide/start-here/installation.md).
+  // Start a service. The service must be already deployed to Core.
   rpc StartService (StartServiceRequest) returns (StartServiceReply) {}
 
-  // Stop a service. The service must be already deployed to [Core](../guide/start-here/installation.md).
+  // Stop a service. The service must be already deployed to Core.
   rpc StopService (StopServiceRequest) returns (StopServiceReply) {}
 
-  // Deploy a service to [Core](../guide/start-here/installation.md). This will give you an unique identifier which is used to interact with the service.
+  // Deploy a service to Core. This will give you an unique identifier which is used to interact with the service.
   rpc DeployService (stream DeployServiceRequest) returns (stream DeployServiceReply) {}
 
-  // Delete a service from Core. This function only deletes a deployed service in [Core](../guide/start-here/installation.md). If the service's code is on your computer, the source code will not be deleted.
+  // Delete a service from Core. This function only deletes a deployed service in Core. If the service's code is on your computer, the source code will not be deleted.
   rpc DeleteService (DeleteServiceRequest) returns (DeleteServiceReply) {}
 
-  // List all services already deployed in [Core](../guide/start-here/installation.md).
+  // List all services already deployed in Core.
   rpc ListServices (ListServicesRequest) returns (ListServicesReply) {}
 
   // Get the definition of an already-deployed service from its ID.
