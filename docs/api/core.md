@@ -63,11 +63,11 @@ Subscribe to a stream that listens for events from a service.
 #### ListenEventRequest
 The request's data for the `ListenEvent` stream's API.
 
-**Example**
+Example
 ```json
 {
-  "serviceID":   "__SERVICE_ID__",
-  "eventFilter": "__EVENT_KEY_TO_MATCH__"
+"serviceID":   "__SERVICE_ID__",
+"eventFilter": "__EVENT_KEY_TO_MATCH__"
 }
 ```
 
@@ -129,11 +129,11 @@ The request's data for the `ListenEvent` stream's API.
 The data received from the stream of the `ListenEvent` API.
 The data will be received over time as long as the stream is open.
 
-**Example**
+Example
 ```json
 {
-  "eventKey":  "__EVENT_KEY__",
-  "eventData": "{\"foo\":\"bar\"}"
+"eventKey":  "__EVENT_KEY__",
+"eventData": "{\"foo\":\"bar\"}"
 }
 ```
 
@@ -230,13 +230,13 @@ Subscribe to a stream that listens for task's result from a service.
 #### ListenResultRequest
 The request's data for the `ListenResult` stream API.
 
-**Example**
+Example
 ```json
 {
-  "serviceID":     "__SERVICE_ID__",
-  "taskFilter":    "__TASK_KEY_TO_MATCH__",
-  "outputFilter":  "__OUTPUT_KEY_TO_MATCH__",
-  "tagFilters":     ["tagX"]
+"serviceID":     "__SERVICE_ID__",
+"taskFilter":    "__TASK_KEY_TO_MATCH__",
+"outputFilter":  "__OUTPUT_KEY_TO_MATCH__",
+"tagFilters":     ["tagX"]
 }
 ```
 
@@ -322,14 +322,14 @@ The request's data for the `ListenResult` stream API.
 The data received from the stream of the `ListenResult` API.
 The data will be received over time as long as the stream is open.
 
-**Example**
+Example
 ```json
 {
-  "executionID":   "__EXECUTION_ID__",
-  "taskKey":       "__TASK_KEY__",
-  "outputKey":     "__OUTPUT_KEY__",
-  "outputData":    "{\"foo\":\"bar\"}",
-  "executionTags": ["executionX", "test"]
+"executionID":   "__EXECUTION_ID__",
+"taskKey":       "__TASK_KEY__",
+"outputKey":     "__OUTPUT_KEY__",
+"outputData":    "{\"foo\":\"bar\"}",
+"executionTags": ["executionX", "test"]
 }
 ```
 
@@ -365,7 +365,7 @@ The data will be received over time as long as the stream is open.
 
 ## ExecuteTask
 
-Execute a service's task through [Core](../guide/start-here/installation.md).
+Execute a service's task through Core.
 
 <tabs>
 <tab title="Request">
@@ -393,13 +393,13 @@ Execute a service's task through [Core](../guide/start-here/installation.md).
 #### ExecuteTaskRequest
 The request's data for the `ExecuteTask` API.
 
-**Example**
+Example
 ```json
 {
-  "serviceID":     "__SERVICE_ID__",
-  "taskKey":       "__TASK_KEY__",
-  "inputData":     "{\"foo\":\"bar\"}",
-  "executionTags": ["executionX", "test"]
+"serviceID":     "__SERVICE_ID__",
+"taskKey":       "__TASK_KEY__",
+"inputData":     "{\"foo\":\"bar\"}",
+"executionTags": ["executionX", "test"]
 }
 ```
 
@@ -474,10 +474,10 @@ The request's data for the `ExecuteTask` API.
 #### ExecuteTaskReply
 The reply's data of the `ExecuteTask` API.
 
-**Example**
+Example
 ```json
 {
-  "executionID": "__EXECUTION_ID__"
+"executionID": "__EXECUTION_ID__"
 }
 ```
 
@@ -531,7 +531,7 @@ The reply's data of the `ExecuteTask` API.
 
 ## StartService
 
-Start a service. The service must be already deployed to [Core](../guide/start-here/installation.md).
+Start a service. The service must be already deployed to Core.
 
 <tabs>
 <tab title="Request">
@@ -587,10 +587,10 @@ Start a service. The service must be already deployed to [Core](../guide/start-h
 #### StartServiceRequest
 The request's data for the `StartService` API.
 
-**Example**
+Example
 ```json
 {
-  "serviceID": "__SERVICE_ID__"
+"serviceID": "__SERVICE_ID__"
 }
 ```
 
@@ -679,7 +679,7 @@ Reply of `StartService` API doesn't contain any data.
 
 ## StopService
 
-Stop a service. The service must be already deployed to [Core](../guide/start-here/installation.md).
+Stop a service. The service must be already deployed to Core.
 
 <tabs>
 <tab title="Request">
@@ -739,10 +739,10 @@ Stop a service. The service must be already deployed to [Core](../guide/start-he
 #### StopServiceRequest
 The request's data for the `StopService` API.
 
-**Example**
+Example
 ```json
 {
-  "serviceID": "__SERVICE_ID__"
+"serviceID": "__SERVICE_ID__"
 }
 ```
 
@@ -827,7 +827,7 @@ Reply of `StopService` API doesn't contain any data.
 
 ## DeployService
 
-Deploy a service to [Core](../guide/start-here/installation.md). This will give you an unique identifier which is used to interact with the service.
+Deploy a service to Core. This will give you an unique identifier which is used to interact with the service.
 
 <tabs>
 <tab title="Request">
@@ -848,16 +848,16 @@ Deploy a service to [Core](../guide/start-here/installation.md). This will give 
 The data sent to the request stream of the `DeployService` API.
 Stream should be closed after url or all chunks sent to server.
 
-**Example**
+Example
 ```json
 {
-  "url": "__SERVICE_GIT_URL__"
+"url": "__SERVICE_GIT_URL__"
 }
 ```
 or
 ```json
 {
-  "chunk": "__SERVICE_GZIPPED_TAR_FILE_CHUNK__"
+"chunk": "__SERVICE_GZIPPED_TAR_FILE_CHUNK__"
 }
 ```
 
@@ -929,25 +929,25 @@ or
 The data received from the reply stream of the `DeployService` API.
 Stream will be closed by server after deployment is done.
 
-**Example**
+Example
 ```json
 {
-  "status": {
-    "message": "__STATUS_MESSAGE__",
-    "type": "__STATUS_TYPE__",
-  }
+"status": {
+"message": "__STATUS_MESSAGE__",
+"type": "__STATUS_TYPE__",
+}
 }
 ```
 or
 ```json
 {
-  "serviceID": "__SERVICE_ID__"
+"serviceID": "__SERVICE_ID__"
 }
 ```
 or
 ```json
 {
-  "validationError": "__SERVICE_VALIDATION_ERROR__"
+"validationError": "__SERVICE_VALIDATION_ERROR__"
 }
 ```
 
@@ -1013,7 +1013,7 @@ or
 
 ## DeleteService
 
-Delete a service from Core. This function only deletes a deployed service in [Core](../guide/start-here/installation.md). If the service's code is on your computer, the source code will not be deleted.
+Delete a service from Core. This function only deletes a deployed service in Core. If the service's code is on your computer, the source code will not be deleted.
 
 <tabs>
 <tab title="Request">
@@ -1025,10 +1025,10 @@ Delete a service from Core. This function only deletes a deployed service in [Co
 #### DeleteServiceRequest
 Request's data of the `DeleteService` API.
 
-**Example**
+Example
 ```json
 {
-  "serviceID": "__SERVICE_ID__"
+"serviceID": "__SERVICE_ID__"
 }
 ```
 
@@ -1161,7 +1161,7 @@ Reply of `DeleteService` API doesn't contain any data.
 
 ## ListServices
 
-List all services already deployed in [Core](../guide/start-here/installation.md).
+List all services already deployed in Core.
 
 <tabs>
 <tab title="Request">
@@ -1260,51 +1260,51 @@ Reply of `ListServices` API doesn't contain any data.
 #### ListServicesReply
 The reply's data of the `ListServices` API.
 
-**Example**
+Example
 ```json
 {
-  "services": [{
-    "id": "idX",
-    "name": "serviceX",
-    "description": "descriptionX",
-    "status": "statusX",
-    "events": [{
-      "key": "eventX",
-      "name": "nameX",
-      "description": "descriptionX",
-      "data": [{  
-        "key": "dataX",
-        "name": "nameX",
-        "description": "descriptionX",
-        "type": "String",
-        "optional": true
-      }]
-    }],
-    "tasks": [{
-      "key": "taskX",
-      "name": "nameX",
-      "description": "descriptionX",
-      "inputs": [{
-        "key": "foo",
-        "name": "nameX",
-        "description": "descriptionX",
-        "type": "String",
-        "optional": true
-      }],
-      "outputs": [{
-        "key": "outputX",
-        "name": "nameX",
-        "description": "descriptionX",
-        "data": [{  
-          "key": "resX",
-          "name": "nameX",
-          "description": "descriptionX",
-          "type": "String",
-          "optional": false
-        }]
-      }]
-    }]
-  }]
+"services": [{
+"id": "idX",
+"name": "serviceX",
+"description": "descriptionX",
+"status": "statusX",
+"events": [{
+"key": "eventX",
+"name": "nameX",
+"description": "descriptionX",
+"data": [{
+"key": "dataX",
+"name": "nameX",
+"description": "descriptionX",
+"type": "String",
+"optional": true
+}]
+}],
+"tasks": [{
+"key": "taskX",
+"name": "nameX",
+"description": "descriptionX",
+"inputs": [{
+"key": "foo",
+"name": "nameX",
+"description": "descriptionX",
+"type": "String",
+"optional": true
+}],
+"outputs": [{
+"key": "outputX",
+"name": "nameX",
+"description": "descriptionX",
+"data": [{
+"key": "resX",
+"name": "nameX",
+"description": "descriptionX",
+"type": "String",
+"optional": false
+}]
+}]
+}]
+}]
 }
 ```
 
@@ -1382,10 +1382,10 @@ Get the definition of an already-deployed service from its ID.
 #### GetServiceRequest
 The request's data for the `GetService` API.
 
-**Example**
+Example
 ```json
 {
-  "serviceID": "__SERVICE_ID__"
+"serviceID": "__SERVICE_ID__"
 }
 ```
 
@@ -1457,51 +1457,51 @@ The request's data for the `GetService` API.
 #### GetServiceReply
 The reply's data of the `GetService` API.
 
-**Example**
+Example
 ```json
 {
-  "service": {
-    "id": "idX",
-    "name": "serviceX",
-    "description": "descriptionX",
-    "status": "statusX",
-    "events": [{  
-      "key": "eventX",
-      "name": "nameX",
-      "description": "descriptionX",
-      "data": [{  
-        "key": "dataX",
-        "name": "nameX",
-        "description": "descriptionX",
-        "type": "String",
-        "optional": true
-      }]
-    }],
-    "tasks": [{
-      "key": "taskX",
-      "name": "nameX",
-      "description": "descriptionX",
-      "inputs": [{  
-        "key": "foo",
-        "name": "nameX",
-        "description": "descriptionX",
-        "type": "String",
-        "optional": true
-      }],
-      "outputs": [{
-        "key": "outputX",
-        "name": "nameX",
-        "description": "descriptionX",
-        "data": [{  
-          "key": "resX",
-          "name": "nameX",
-          "description": "descriptionX",
-          "type": "String",
-          "optional": false
-        }]
-      }]
-    }]
-  }
+"service": {
+"id": "idX",
+"name": "serviceX",
+"description": "descriptionX",
+"status": "statusX",
+"events": [{
+"key": "eventX",
+"name": "nameX",
+"description": "descriptionX",
+"data": [{
+"key": "dataX",
+"name": "nameX",
+"description": "descriptionX",
+"type": "String",
+"optional": true
+}]
+}],
+"tasks": [{
+"key": "taskX",
+"name": "nameX",
+"description": "descriptionX",
+"inputs": [{
+"key": "foo",
+"name": "nameX",
+"description": "descriptionX",
+"type": "String",
+"optional": true
+}],
+"outputs": [{
+"key": "outputX",
+"name": "nameX",
+"description": "descriptionX",
+"data": [{
+"key": "resX",
+"name": "nameX",
+"description": "descriptionX",
+"type": "String",
+"optional": false
+}]
+}]
+}]
+}
 }
 ```
 
@@ -1603,11 +1603,11 @@ ServiceLogs gives a stream for dependency logs of a service.
 #### ServiceLogsRequest
 The request's data for `ServiceLogs` API.
 
-**Example**
+Example
 ```json
 {
-  "serviceID": "__SERVICE_ID__",
-  "dependencies": ["__SERVICE_DEPENDENCY__"]
+"serviceID": "__SERVICE_ID__",
+"dependencies": ["__SERVICE_DEPENDENCY__"]
 }
 ```
 
@@ -1673,12 +1673,12 @@ The request's data for `ServiceLogs` API.
 The data received from the stream of the `ServiceLogs` API.
 The data will be received over time as long as the stream is open.
 
-**Example**
+Example
 ```json
 {
-  "dependency":  "__SERVICE_DEPENDENCY__",
-  "type": "__LOG_TYPE__",
-  "data":  "__LOG_CHUNK__",
+"dependency":  "__SERVICE_DEPENDENCY__",
+"type": "__LOG_TYPE__",
+"data":  "__LOG_CHUNK__",
 }
 ```
 
