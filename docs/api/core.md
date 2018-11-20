@@ -60,6 +60,16 @@ Subscribe to a stream that listens for events from a service.
 
 
 
+
+
+
+
+
+
+
+
+
+
 #### ListenEventRequest
 The request's data for the `ListenEvent` stream's API.
 
@@ -108,6 +118,16 @@ The request's data for the `ListenEvent` stream's API.
 </tab>
 
 <tab title="Reply">
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -194,6 +214,16 @@ Subscribe to a stream that listens for task's result from a service.
 
 <tabs>
 <tab title="Request">
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -318,6 +348,16 @@ The request's data for the `ListenResult` stream API.
 
 
 
+
+
+
+
+
+
+
+
+
+
 #### ResultData
 The data received from the stream of the `ListenResult` API.
 The data will be received over time as long as the stream is open.
@@ -369,6 +409,16 @@ Execute a service's task through [Core](../guide/start-here/core.md).
 
 <tabs>
 <tab title="Request">
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -452,6 +502,16 @@ The request's data for the `ExecuteTask` API.
 </tab>
 
 <tab title="Reply">
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -584,6 +644,16 @@ Start a service. The service must be already deployed to [Core](../guide/start-h
 
 
 
+
+
+
+
+
+
+
+
+
+
 #### StartServiceRequest
 The request's data for the `StartService` API.
 
@@ -659,6 +729,16 @@ The request's data for the `StartService` API.
 
 
 
+
+
+
+
+
+
+
+
+
+
 #### StartServiceReply
 Reply of `StartService` API doesn't contain any data.
 
@@ -683,6 +763,16 @@ Stop a service. The service must be already deployed to [Core](../guide/start-he
 
 <tabs>
 <tab title="Request">
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -811,6 +901,16 @@ The request's data for the `StopService` API.
 
 
 
+
+
+
+
+
+
+
+
+
+
 #### StopServiceReply
 Reply of `StopService` API doesn't contain any data.
 
@@ -831,6 +931,16 @@ Deploy a service to [Core](../guide/start-here/core.md). This will give you an u
 
 <tabs>
 <tab title="Request">
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -916,6 +1026,16 @@ or
 </tab>
 
 <tab title="Reply">
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1022,6 +1142,12 @@ Delete a service from Core. This function only deletes a deployed service in [Co
 
 
 
+
+
+
+
+
+
 #### DeleteServiceRequest
 Request's data of the `DeleteService` API.
 
@@ -1091,14 +1217,28 @@ Request's data of the `DeleteService` API.
 
 
 
+
+
+
+
 </tab>
 
 <tab title="Reply">
 
 
 
+
+
+
+
+
+
 #### DeleteServiceReply
 Reply of `DeleteService` API doesn't contain any data.
+
+
+
+
 
 
 
@@ -1194,6 +1334,16 @@ List all services already deployed in [Core](../guide/start-here/core.md).
 
 
 
+
+
+
+
+
+
+
+
+
+
 #### ListServicesRequest
 Reply of `ListServices` API doesn't contain any data.
 
@@ -1230,6 +1380,16 @@ Reply of `ListServices` API doesn't contain any data.
 </tab>
 
 <tab title="Reply">
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1379,6 +1539,16 @@ Get the definition of an already-deployed service from its ID.
 
 
 
+
+
+
+
+
+
+
+
+
+
 #### GetServiceRequest
 The request's data for the `GetService` API.
 
@@ -1431,6 +1601,16 @@ The request's data for the `GetService` API.
 </tab>
 
 <tab title="Reply">
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1600,6 +1780,16 @@ ServiceLogs gives a stream for dependency logs of a service.
 
 
 
+
+
+
+
+
+
+
+
+
+
 #### ServiceLogsRequest
 The request's data for `ServiceLogs` API.
 
@@ -1669,6 +1859,16 @@ The request's data for `ServiceLogs` API.
 
 
 
+
+
+
+
+
+
+
+
+
+
 #### LogData
 The data received from the stream of the `ServiceLogs` API.
 The data will be received over time as long as the stream is open.
@@ -1688,6 +1888,356 @@ The data will be received over time as long as the stream is open.
 | dependency | [string](#string) | Service dependency that data belongs. |
 | type | [LogData.Type](#api.LogData.Type) | The log type. |
 | data | [bytes](#bytes) | Log data chunk. |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</tab>
+</tabs>
+
+## CreateWorkflow
+
+CreateWorkflow creates and runs a new workflow.
+
+<tabs>
+<tab title="Request">
+
+
+
+
+
+#### CreateWorkflowRequest
+The request's data for the `CreateWorkflow` API.
+
+**Example**
+```json
+{
+  "file":   __FILE__,
+  "name": "__UNIQUE_WORKFLOW_NAME__"
+}
+```
+
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| definition | [CreateWorkflowRequest.WorkflowDefinition](#api.CreateWorkflowRequest.WorkflowDefinition) | Workflow definition. |
+| name | [string](#string) | An optional unique name for workflow. |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</tab>
+
+<tab title="Reply">
+
+
+
+#### CreateWorkflowReply
+The reply's data of the `CreateWorkflow` API.
+
+**Example**
+```json
+{
+  "id": "__WORKFLOW_ID__"
+}
+```
+
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| ID | [string](#string) | Unique ID of workflow. |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</tab>
+</tabs>
+
+## DeleteWorkflow
+
+DeleteWorkflow stops and deletes a workflow.
+
+<tabs>
+<tab title="Request">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#### DeleteWorkflowRequest
+The request's data for the `DeleteWorkflow` API.
+
+**Example**
+```json
+{
+  "id": "__WORKFLOW_ID__"
+}
+```
+
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| ID | [string](#string) | Unique name or ID of workflow. |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</tab>
+
+<tab title="Reply">
+
+
+
+
+
+
+
+
+
+
+
+
+
+#### DeleteWorkflowReply
+Reply of `DeleteWorkflow` API doesn't contain any data.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
