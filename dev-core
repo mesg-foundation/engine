@@ -1,16 +1,49 @@
 #!/bin/bash
 
-echo "Building mesg/core:local..."
-docker build -t mesg/core:local --build-arg version="local" .
+set -e
+
+DIR=${GOPATH:-$HOME/go}
+VERSION=local
+LDFLAGS="-X 'github.com/mesg-foundation/core/version.Version=$VERSION'"
+
+echo "compile cli and core"
+go build -o ./bin/core -ldflags="$LDFLAGS" core/main.go
+go build -o ./bin/cli -ldflags="$LDFLAGS" interface/cli/main.go
+
+CORE_SUM_PATH="./bin/.core.sum"
+touch "$CORE_SUM_PATH"
+
+# check if core bin was is cached
+CORE_SUM="$(sha256sum ./bin/core)"
+CORE_SUM_PREV="$(cat $CORE_SUM_PATH)"
+if [[ "$CORE_SUM" == "$CORE_SUM_PREV" ]]; then
+  BINCACHED=true
+else
+  echo "$CORE_SUM" > "$CORE_SUM_PATH"
+fi
 
 # create a symlink for system services.
-rm -rf ~/.mesg/systemservices
-mkdir -p ~/.mesg
-ln -s $GOPATH/src/github.com/mesg-foundation/core/systemservices/sources ~/.mesg/systemservices
+rm -rf "$HOME/.mesg/systemservices"
+mkdir -p "$HOME/.mesg/"
+ln -s "$DIR/src/github.com/mesg-foundation/core/systemservices/sources" "$HOME/.mesg/systemservices"
 
-# chain these to stop execution on failure.
-./dev-cli stop && \
-./dev-cli start && \
-./dev-cli logs
+echo "build mesg/core image"
+if [[ ! $BINCACHED ]]; then
+  docker build -f Dockerfile.dev -t "mesg/core:$VERSION" .
+fi
 
-./dev-cli stop
+# remove docker core service if it wasn't clean up.
+COREID="$(docker service ls --format="{{.ID}} {{.Name}}" | grep core | awk '{{print $1}}')"
+if [[ "$COREID" ]]; then
+  echo "remove previous core servcies"
+  docker service rm $COREID
+fi
+
+trap onexit EXIT INT
+
+function onexit {
+  ./bin/cli stop
+}
+
+./bin/cli start
+./bin/cli logs
