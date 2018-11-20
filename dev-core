@@ -14,7 +14,7 @@ CORE_SUM_PATH="./bin/.core.sum"
 touch "$CORE_SUM_PATH"
 
 # check if core bin was is cached
-CORE_SUM="$(sha256sum ./bin/core)"
+CORE_SUM="$(openssl md5 ./bin/core)"
 CORE_SUM_PREV="$(cat $CORE_SUM_PATH)"
 if [[ "$CORE_SUM" == "$CORE_SUM_PREV" ]]; then
   BINCACHED=true
