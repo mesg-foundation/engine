@@ -14,6 +14,41 @@ type Executor struct {
 	mock.Mock
 }
 
+// CreateWorkflow provides a mock function with given fields: filePath, name
+func (_m *Executor) CreateWorkflow(filePath string, name string) (string, error) {
+	ret := _m.Called(filePath, name)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(string, string) string); ok {
+		r0 = rf(filePath, name)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = rf(filePath, name)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// DeleteWorkflow provides a mock function with given fields: id
+func (_m *Executor) DeleteWorkflow(id string) error {
+	ret := _m.Called(id)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(id)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Logs provides a mock function with given fields:
 func (_m *Executor) Logs() (io.ReadCloser, error) {
 	ret := _m.Called()
