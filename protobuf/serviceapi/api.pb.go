@@ -46,7 +46,7 @@ func (m *EmitEventRequest) Reset()         { *m = EmitEventRequest{} }
 func (m *EmitEventRequest) String() string { return proto.CompactTextString(m) }
 func (*EmitEventRequest) ProtoMessage()    {}
 func (*EmitEventRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_7368b4573047168d, []int{0}
+	return fileDescriptor_api_722fa58223ac81c9, []int{0}
 }
 func (m *EmitEventRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_EmitEventRequest.Unmarshal(m, b)
@@ -98,7 +98,7 @@ func (m *EmitEventReply) Reset()         { *m = EmitEventReply{} }
 func (m *EmitEventReply) String() string { return proto.CompactTextString(m) }
 func (*EmitEventReply) ProtoMessage()    {}
 func (*EmitEventReply) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_7368b4573047168d, []int{1}
+	return fileDescriptor_api_722fa58223ac81c9, []int{1}
 }
 func (m *EmitEventReply) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_EmitEventReply.Unmarshal(m, b)
@@ -137,7 +137,7 @@ func (m *ListenTaskRequest) Reset()         { *m = ListenTaskRequest{} }
 func (m *ListenTaskRequest) String() string { return proto.CompactTextString(m) }
 func (*ListenTaskRequest) ProtoMessage()    {}
 func (*ListenTaskRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_7368b4573047168d, []int{2}
+	return fileDescriptor_api_722fa58223ac81c9, []int{2}
 }
 func (m *ListenTaskRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListenTaskRequest.Unmarshal(m, b)
@@ -189,7 +189,7 @@ func (m *TaskData) Reset()         { *m = TaskData{} }
 func (m *TaskData) String() string { return proto.CompactTextString(m) }
 func (*TaskData) ProtoMessage()    {}
 func (*TaskData) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_7368b4573047168d, []int{3}
+	return fileDescriptor_api_722fa58223ac81c9, []int{3}
 }
 func (m *TaskData) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_TaskData.Unmarshal(m, b)
@@ -254,7 +254,7 @@ func (m *SubmitResultRequest) Reset()         { *m = SubmitResultRequest{} }
 func (m *SubmitResultRequest) String() string { return proto.CompactTextString(m) }
 func (*SubmitResultRequest) ProtoMessage()    {}
 func (*SubmitResultRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_7368b4573047168d, []int{4}
+	return fileDescriptor_api_722fa58223ac81c9, []int{4}
 }
 func (m *SubmitResultRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SubmitResultRequest.Unmarshal(m, b)
@@ -306,7 +306,7 @@ func (m *SubmitResultReply) Reset()         { *m = SubmitResultReply{} }
 func (m *SubmitResultReply) String() string { return proto.CompactTextString(m) }
 func (*SubmitResultReply) ProtoMessage()    {}
 func (*SubmitResultReply) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_7368b4573047168d, []int{5}
+	return fileDescriptor_api_722fa58223ac81c9, []int{5}
 }
 func (m *SubmitResultReply) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SubmitResultReply.Unmarshal(m, b)
@@ -347,13 +347,13 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type ServiceClient interface {
-	// Emit an event to [Core](../guide/start-here/installation.md).
+	// Emit an event to Core.
 	// The event and its data must be defined in the [service's definition file](../guide/service/service-file.md).
 	EmitEvent(ctx context.Context, in *EmitEventRequest, opts ...grpc.CallOption) (*EmitEventReply, error)
 	// Subscribe to the stream of tasks to execute.
 	// Every task received must be executed and its result must be submitted using the `SubmitResult` API.
 	ListenTask(ctx context.Context, in *ListenTaskRequest, opts ...grpc.CallOption) (Service_ListenTaskClient, error)
-	// Submit the result of a task's execution to [Core](../guide/start-here/installation.md).
+	// Submit the result of a task's execution to Core.
 	// The result must be defined as a task's output in the [service's definition file](../guide/service/service-file.md).
 	SubmitResult(ctx context.Context, in *SubmitResultRequest, opts ...grpc.CallOption) (*SubmitResultReply, error)
 }
@@ -418,13 +418,13 @@ func (c *serviceClient) SubmitResult(ctx context.Context, in *SubmitResultReques
 
 // ServiceServer is the server API for Service service.
 type ServiceServer interface {
-	// Emit an event to [Core](../guide/start-here/installation.md).
+	// Emit an event to Core.
 	// The event and its data must be defined in the [service's definition file](../guide/service/service-file.md).
 	EmitEvent(context.Context, *EmitEventRequest) (*EmitEventReply, error)
 	// Subscribe to the stream of tasks to execute.
 	// Every task received must be executed and its result must be submitted using the `SubmitResult` API.
 	ListenTask(*ListenTaskRequest, Service_ListenTaskServer) error
-	// Submit the result of a task's execution to [Core](../guide/start-here/installation.md).
+	// Submit the result of a task's execution to Core.
 	// The result must be defined as a task's output in the [service's definition file](../guide/service/service-file.md).
 	SubmitResult(context.Context, *SubmitResultRequest) (*SubmitResultReply, error)
 }
@@ -514,10 +514,10 @@ var _Service_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("github.com/mesg-foundation/core/protobuf/serviceapi/api.proto", fileDescriptor_api_7368b4573047168d)
+	proto.RegisterFile("github.com/mesg-foundation/core/protobuf/serviceapi/api.proto", fileDescriptor_api_722fa58223ac81c9)
 }
 
-var fileDescriptor_api_7368b4573047168d = []byte{
+var fileDescriptor_api_722fa58223ac81c9 = []byte{
 	// 346 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x92, 0x41, 0x4f, 0xc2, 0x40,
 	0x10, 0x85, 0xa9, 0x44, 0xa1, 0x23, 0x1a, 0x58, 0x94, 0x34, 0x0d, 0x31, 0xa4, 0x27, 0x3d, 0x48,
