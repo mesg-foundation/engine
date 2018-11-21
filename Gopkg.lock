@@ -148,15 +148,14 @@
   revision = "5df930a27be2502f99b292b7cc09ebad4d0891f4"
 
 [[projects]]
-  digest = "1:cc2ca3cb5d06a0c295f59afb86c74b303f00217c5fe3b328ad05172f59e6c3a7"
+  digest = "1:b16db30b5311fb0946093d7afdc8352c6528280d8b2e77926229e60dd47672d5"
   name = "github.com/go-bindata/go-bindata"
   packages = [
     ".",
     "go-bindata",
   ]
   pruneopts = "UT"
-  revision = "5ebd2c033d84e12a7f4aae4483d98ec7dde53b66"
-  version = "v1.0.0"
+  revision = "41975c0ccc30077fd791b15b383818e805d0a57e"
 
 [[projects]]
   digest = "1:9a688317f3231e0175b3429033f44411906c0ce119361b7b5019d01375f8cff7"
