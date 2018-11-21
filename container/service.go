@@ -44,7 +44,8 @@ func (c *DockerContainer) StartService(options ServiceOptions) (serviceID string
 		return "", err
 	}
 	if status == RUNNING {
-		return "", nil
+		service, err := c.FindService(options.Namespace)
+		return service.ID, err
 	}
 
 	service := options.toSwarmServiceSpec(c)
