@@ -28,27 +28,30 @@ type Service struct {
 	// ID is the unique id of service.
 	ID string `hash:"-"`
 
+	// Alias is an alias to access the service. This alias should be unique
+	Alias string `hash:"alias:1"`
+
 	// Name is the service name.
-	Name string `hash:"name:1"`
+	Name string `hash:"name:2"`
 
 	// Description is service description.
-	Description string `hash:"name:2"`
+	Description string `hash:"name:3"`
 
 	// Tasks are the list of tasks that service can execute.
-	Tasks []*Task `hash:"name:3"`
+	Tasks []*Task `hash:"name:4"`
 
 	// Events are the list of events that service can emit.
-	Events []*Event `hash:"name:4"`
+	Events []*Event `hash:"name:5"`
 
 	// Configuration is the Docker container that service runs inside.
 	configuration *Dependency `hash:"-"`
 
 	// Dependencies are the Docker containers that service can depend on.
-	Dependencies []*Dependency `hash:"name:5"`
+	Dependencies []*Dependency `hash:"name:6"`
 
 	// Repository holds the service's repository url if it's living on
 	// a Git host.
-	Repository string `hash:"name:6"`
+	Repository string `hash:"name:7"`
 
 	// DeployedAt holds the creation time of service.
 	DeployedAt time.Time `hash:"-"`

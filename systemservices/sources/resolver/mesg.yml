@@ -1,4 +1,5 @@
 name: "System Resolver Service"
+alias: resolver
 description: ""
 
 tasks:
