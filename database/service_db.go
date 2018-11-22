@@ -21,7 +21,8 @@ type ServiceDB interface {
 
 // LevelDBServiceDB is a database for storing service definition.
 type LevelDBServiceDB struct {
-	db *leveldb.DB
+	db      *leveldb.DB
+	aliases *leveldb.DB
 }
 
 // NewServiceDB returns the database which is located under given path.
@@ -30,8 +31,12 @@ func NewServiceDB(path string) (*LevelDBServiceDB, error) {
 	if err != nil {
 		return nil, err
 	}
+	aliases, err := leveldb.OpenFile(path+"_aliases", nil)
+	if err != nil {
+		return nil, err
+	}
 
-	return &LevelDBServiceDB{db: db}, nil
+	return &LevelDBServiceDB{db: db, aliases: aliases}, nil
 }
 
 // marshal returns the byte slice from service.
@@ -77,39 +82,66 @@ func (d *LevelDBServiceDB) All() ([]*service.Service, error) {
 }
 
 // Delete deletes service from database.
-func (d *LevelDBServiceDB) Delete(id string) error {
+func (d *LevelDBServiceDB) Delete(idOrAlias string) error {
+	id, err := d.aliases.Get([]byte(idOrAlias), nil)
+	if err != nil && err != leveldb.ErrNotFound {
+		return err
+	}
+	if string(id) != "" { // has alias, deleting it...
+		idOrAlias = string(id)
+		if err := d.aliases.Delete([]byte(idOrAlias), nil); err != nil {
+			return err
+		}
+	}
 	return d.db.Delete([]byte(id), nil)
 }
 
 // Get retrives service from database.
-func (d *LevelDBServiceDB) Get(id string) (*service.Service, error) {
-	b, err := d.db.Get([]byte(id), nil)
+func (d *LevelDBServiceDB) Get(idOrAlias string) (*service.Service, error) {
+	id, err := d.aliases.Get([]byte(idOrAlias), nil)
+	if err != nil && err != leveldb.ErrNotFound {
+		return nil, err
+	}
+	if string(id) != "" {
+		idOrAlias = string(id)
+	}
+	b, err := d.db.Get([]byte(idOrAlias), nil)
 	if err != nil {
 		if err == leveldb.ErrNotFound {
-			return nil, &ErrNotFound{ID: id}
+			return nil, &ErrNotFound{ID: idOrAlias}
 		}
 		return nil, err
 	}
 
-	return d.unmarshal(id, b)
+	return d.unmarshal(idOrAlias, b)
 }
 
 // Save stores service in database.
 func (d *LevelDBServiceDB) Save(s *service.Service) error {
-	if s.ID == "" {
-		return errors.New("database: can't save service without id")
+	if s.ID == "" || s.Alias == "" {
+		return errors.New("database: can't save service without id nor alias")
 	}
 	b, err := d.marshal(s)
 	if err != nil {
 		return err
 	}
+	if err := d.db.Put([]byte(s.ID), b, nil); err != nil {
+		return err
+	}
 
-	return d.db.Put([]byte(s.ID), b, nil)
+	if err := d.aliases.Put([]byte(s.Alias), []byte(s.ID), nil); err != nil {
+		d.Delete(s.ID)
+		return err
+	}
+	return nil
 }
 
 // Close closes database.
 func (d *LevelDBServiceDB) Close() error {
-	return d.db.Close()
+	if err := d.db.Close(); err != nil {
+		return err
+	}
+	return d.aliases.Close()
 }
 
 // ErrNotFound is an not found error.
