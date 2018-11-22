@@ -215,6 +215,7 @@ func TestPartiallyRunningService(t *testing.T) {
 	)
 
 	mc.On("Status", d.namespace()).Return(container.STOPPED, nil)
+	mc.On("StopService", d.namespace()).Once().Return(nil)
 	mc.On("Status", d2.namespace()).Return(container.RUNNING, nil)
 	mc.On("StopService", d2.namespace()).Once().Return(nil)
 	mc.On("CreateNetwork", s.namespace()).Once().Return(networkID, nil)
