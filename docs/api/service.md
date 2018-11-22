@@ -25,7 +25,7 @@ The source file of this API is hosted on [GitHub](https://github.com/mesg-founda
 
 ## EmitEvent
 
-Emit an event to [Core](../guide/start-here/core.md).
+Emit an event to Core.
 The event and its data must be defined in the [service's definition file](../guide/service/service-file.md).
 
 <tabs>
@@ -177,7 +177,7 @@ The `executionID` value must be kept and sent with the result when calling the [
 
 ## SubmitResult
 
-Submit the result of a task's execution to [Core](../guide/start-here/core.md).
+Submit the result of a task's execution to Core.
 The result must be defined as a task's output in the [service's definition file](../guide/service/service-file.md).
 
 <tabs>
