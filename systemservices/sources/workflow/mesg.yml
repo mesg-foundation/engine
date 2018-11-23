@@ -1,0 +1,39 @@
+name: "Workflow System Service"
+description: "A manager and vm for running workflows"
+
+tasks:
+  create:
+    name: "Create and run a new workflow"
+    inputs:
+      definition:
+        name: "Workflow definition"
+        type: Object
+      name:
+        name: "Unique name alias for workflow"
+        type: String
+        optional: true
+    outputs:
+      success:
+        data:
+          id:
+            name: "Unique id of workflow"
+            type: String
+      error:
+        data:
+          message:
+            name: "Error message"
+            type: String
+  delete:
+    name: "Stop and deletes a workflow"
+    inputs:
+      id:
+        name: "ID or unique name alias of workflow"
+        type: String
+    outputs:
+      success:
+        data:
+      error:
+        data:
+          message:
+            name: "Error message"
+            type: String

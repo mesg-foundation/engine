@@ -21,4 +21,5 @@ MESG Core
 * [mesg-core start](mesg-core_start.md)	 - Start the Core
 * [mesg-core status](mesg-core_status.md)	 - Get the Core's status
 * [mesg-core stop](mesg-core_stop.md)	 - Stop the Core
+* [mesg-core workflow](mesg-core_workflow.md)	 - Manage workflows
 

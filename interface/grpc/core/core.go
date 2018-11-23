@@ -3,6 +3,7 @@ package core
 import (
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	service "github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/core/utils/workflowparser"
 )
 
 func toProtoServices(ss []*service.Service) []*coreapi.Service {
@@ -113,4 +114,8 @@ func toProtoDependencies(deps []*service.Dependency) []*coreapi.Dependency {
 		ds = append(ds, toProtoDependency(dep))
 	}
 	return ds
+}
+
+func toWorkflowDefinition(definition *coreapi.CreateWorkflowRequest_WorkflowDefinition) workflowparser.WorkflowDefinition {
+	return workflowparser.WorkflowDefinition{}
 }
