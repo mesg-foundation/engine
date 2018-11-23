@@ -14,11 +14,22 @@ const aliasesPathSuffix = "_aliases"
 
 // ServiceDB describes the API of database package.
 type ServiceDB interface {
-	All() ([]*service.Service, error)
-	Close() error
-	Delete(id string) error
-	Get(id string) (*service.Service, error)
+	// Save saves a service to database.
 	Save(s *service.Service) error
+
+	// Get gets a service from database by its unique id
+	// or unique alias.
+	Get(idOrAlias string) (*service.Service, error)
+
+	// Delete deletes a service from database by its unique id
+	// or unique alias.
+	Delete(idOrAlias string) error
+
+	// All returns all services from database.
+	All() ([]*service.Service, error)
+
+	// Close closes underlying database connection.
+	Close() error
 }
 
 // LevelDBServiceDB is a database for storing service definition.
