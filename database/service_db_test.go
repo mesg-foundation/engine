@@ -55,7 +55,7 @@ func TestServiceDBSaveWithAlias(t *testing.T) {
 
 	// try saving a service with the same alias.
 	s = &service.Service{ID: "3", Alias: "2", Name: "test-service"}
-	require.Error(t, db.Save(s))
+	require.Equal(t, &ErrSameAlias{alias: "2"}, db.Save(s))
 }
 
 func TestServiceDBGet(t *testing.T) {

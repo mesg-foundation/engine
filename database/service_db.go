@@ -151,7 +151,7 @@ func (d *LevelDBServiceDB) Save(s *service.Service) error {
 				return err
 			}
 		} else {
-			return &errSameAlias{alias: s.Alias}
+			return &ErrSameAlias{alias: s.Alias}
 		}
 
 		if err := d.aliases.Put([]byte(s.Alias), []byte(s.ID), nil); err != nil {
@@ -191,16 +191,17 @@ func (e *DecodeError) Error() string {
 	return fmt.Sprintf("Database services: Could not decode service %q", e.ID)
 }
 
-// IsErrNotFound returs true if err is type of ErrNotFound, false otherwise.
+// IsErrNotFound returns true if err is type of ErrNotFound, false otherwise.
 func IsErrNotFound(err error) bool {
 	_, ok := err.(*ErrNotFound)
 	return ok
 }
 
-type errSameAlias struct {
+// ErrSameAlias error returned when there is a service with the same alias.
+type ErrSameAlias struct {
 	alias string
 }
 
-func (e *errSameAlias) Error() string {
+func (e *ErrSameAlias) Error() string {
 	return fmt.Sprintf("database: a service with the %q alias already exists", e.alias)
 }
