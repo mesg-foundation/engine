@@ -10,6 +10,8 @@ import (
 	"github.com/syndtr/goleveldb/leveldb"
 )
 
+const aliasesPathSuffix = "_aliases"
+
 // ServiceDB describes the API of database package.
 type ServiceDB interface {
 	All() ([]*service.Service, error)
@@ -31,12 +33,14 @@ func NewServiceDB(path string) (*LevelDBServiceDB, error) {
 	if err != nil {
 		return nil, err
 	}
-	aliases, err := leveldb.OpenFile(path+"_aliases", nil)
+	aliases, err := leveldb.OpenFile(path+aliasesPathSuffix, nil)
 	if err != nil {
 		return nil, err
 	}
-
-	return &LevelDBServiceDB{db: db, aliases: aliases}, nil
+	return &LevelDBServiceDB{
+		db:      db,
+		aliases: aliases,
+	}, nil
 }
 
 // marshal returns the byte slice from service.
@@ -83,17 +87,18 @@ func (d *LevelDBServiceDB) All() ([]*service.Service, error) {
 
 // Delete deletes service from database.
 func (d *LevelDBServiceDB) Delete(idOrAlias string) error {
-	id, err := d.aliases.Get([]byte(idOrAlias), nil)
+	idOrAliasBytes := []byte(idOrAlias)
+	id, err := d.aliases.Get(idOrAliasBytes, nil)
 	if err != nil && err != leveldb.ErrNotFound {
 		return err
 	}
-	if string(id) != "" { // has alias, deleting it...
-		idOrAlias = string(id)
-		if err := d.aliases.Delete([]byte(idOrAlias), nil); err != nil {
+	if id != nil { // has alias, deleting it first.
+		idOrAliasBytes = id
+		if err := d.aliases.Delete(idOrAliasBytes, nil); err != nil {
 			return err
 		}
 	}
-	return d.db.Delete([]byte(id), nil)
+	return d.db.Delete(idOrAliasBytes, nil)
 }
 
 // Get retrives service from database.
@@ -119,7 +124,7 @@ func (d *LevelDBServiceDB) Get(idOrAlias string) (*service.Service, error) {
 // Save stores service in database.
 func (d *LevelDBServiceDB) Save(s *service.Service) error {
 	if s.ID == "" || s.Alias == "" {
-		return errors.New("database: can't save service without id nor alias")
+		return errors.New("database: can't save service without at least an id or alias")
 	}
 	b, err := d.marshal(s)
 	if err != nil {
@@ -128,7 +133,6 @@ func (d *LevelDBServiceDB) Save(s *service.Service) error {
 	if err := d.db.Put([]byte(s.ID), b, nil); err != nil {
 		return err
 	}
-
 	if err := d.aliases.Put([]byte(s.Alias), []byte(s.ID), nil); err != nil {
 		d.Delete(s.ID)
 		return err
