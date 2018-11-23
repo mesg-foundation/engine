@@ -32,8 +32,7 @@ func TestServiceDBSave(t *testing.T) {
 
 	s := &service.Service{ID: "1", Name: "test-service"}
 	require.NoError(t, db.Save(s))
-	_, err := db.Get(s.ID)
-	require.NoError(t, err)
+	defer db.Delete(s.ID)
 
 	// test service without id
 	s = &service.Service{Name: "test-service"}
@@ -46,6 +45,8 @@ func TestServiceDBGet(t *testing.T) {
 
 	want := &service.Service{ID: "1", Name: "test-service"}
 	require.NoError(t, db.Save(want))
+	defer db.Delete(want.ID)
+
 	got, err := db.Get(want.ID)
 	require.NoError(t, err)
 	require.Equal(t, want, got)
@@ -76,6 +77,8 @@ func TestServiceDBAll(t *testing.T) {
 
 	require.NoError(t, db.Save(s1))
 	require.NoError(t, db.Save(s2))
+	defer db.Delete(s1.ID)
+	defer db.Delete(s2.ID)
 
 	services, err := db.All()
 	require.NoError(t, err)
