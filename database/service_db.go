@@ -123,8 +123,8 @@ func (d *LevelDBServiceDB) Get(idOrAlias string) (*service.Service, error) {
 
 // Save stores service in database.
 func (d *LevelDBServiceDB) Save(s *service.Service) error {
-	if s.ID == "" || s.Alias == "" {
-		return errors.New("database: can't save service without at least an id or alias")
+	if s.ID == "" {
+		return errors.New("database: can't save service without id")
 	}
 	b, err := d.marshal(s)
 	if err != nil {
@@ -133,9 +133,11 @@ func (d *LevelDBServiceDB) Save(s *service.Service) error {
 	if err := d.db.Put([]byte(s.ID), b, nil); err != nil {
 		return err
 	}
-	if err := d.aliases.Put([]byte(s.Alias), []byte(s.ID), nil); err != nil {
-		d.Delete(s.ID)
-		return err
+	if s.Alias != "" {
+		if err := d.aliases.Put([]byte(s.Alias), []byte(s.ID), nil); err != nil {
+			d.Delete(s.ID)
+			return err
+		}
 	}
 	return nil
 }
