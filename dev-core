@@ -8,7 +8,7 @@ LDFLAGS="-X 'github.com/mesg-foundation/core/version.Version=$VERSION'"
 
 echo "compile cli and core"
 GOOS=linux GOARCH=amd64 go build -o ./bin/core -ldflags="$LDFLAGS" core/main.go
-GOOS=linux GOARCH=amd64 go build -o ./bin/cli -ldflags="$LDFLAGS" interface/cli/main.go
+go build -o ./bin/cli -ldflags="$LDFLAGS" interface/cli/main.go
 
 CORE_SUM_PATH="./bin/.core.sum"
 touch "$CORE_SUM_PATH"
