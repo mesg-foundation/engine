@@ -76,6 +76,19 @@ func TestServiceDBGet(t *testing.T) {
 	require.True(t, IsErrNotFound(err))
 }
 
+func TestServiceDBGetWithAlias(t *testing.T) {
+	db, closer := openServiceDB(t)
+	defer closer()
+
+	want := &service.Service{ID: "1", Alias: "2", Name: "test-service"}
+	require.NoError(t, db.Save(want))
+	defer db.Delete(want.ID)
+
+	got, err := db.Get(want.Alias)
+	require.NoError(t, err)
+	require.Equal(t, want, got)
+}
+
 func TestServiceDBDelete(t *testing.T) {
 	db, closer := openServiceDB(t)
 	defer closer()
