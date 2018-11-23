@@ -3,6 +3,7 @@
 set -e
 
 DIR=${GOPATH:-$HOME/go}
+MESG_LOG_LEVEL=${MESG_LOG_LEVEL:-debug}
 VERSION=local
 LDFLAGS="-X 'github.com/mesg-foundation/core/version.Version=$VERSION'"
 
@@ -45,5 +46,5 @@ function onexit {
   ./bin/cli stop
 }
 
-./bin/cli start --log-level debug
+./bin/cli start --log-level "$MESG_LOG_LEVEL"
 ./bin/cli logs
