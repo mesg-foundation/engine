@@ -11,12 +11,18 @@ import (
 const testdbname = "db.test"
 
 func openServiceDB(t *testing.T) (*LevelDBServiceDB, func()) {
+	deleteDBs(t)
 	db, err := NewServiceDB(testdbname)
 	require.NoError(t, err)
 	return db, func() {
 		require.NoError(t, db.Close())
-		require.NoError(t, os.RemoveAll(testdbname))
+		deleteDBs(t)
 	}
+}
+
+func deleteDBs(t *testing.T) {
+	require.NoError(t, os.RemoveAll(testdbname))
+	require.NoError(t, os.RemoveAll(testdbname+aliasesPathSuffix))
 }
 
 func TestDecodeError(t *testing.T) {
