@@ -19,22 +19,22 @@ service Core {
   // Subscribe to a stream that listens for task's result from a service.
   rpc ListenResult (ListenResultRequest) returns (stream ResultData) {}
 
-  // Execute a service's task through [Core](../guide/start-here/core.md).
+  // Execute a service's task through Core.
   rpc ExecuteTask (ExecuteTaskRequest) returns (ExecuteTaskReply) {}
 
-  // Start a service. The service must be already deployed to [Core](../guide/start-here/core.md).
+  // Start a service. The service must be already deployed to Core.
   rpc StartService (StartServiceRequest) returns (StartServiceReply) {}
 
-  // Stop a service. The service must be already deployed to [Core](../guide/start-here/core.md).
+  // Stop a service. The service must be already deployed to Core.
   rpc StopService (StopServiceRequest) returns (StopServiceReply) {}
 
-  // Deploy a service to [Core](../guide/start-here/core.md). This will give you an unique identifier which is used to interact with the service.
+  // Deploy a service to Core. This will give you an unique identifier which is used to interact with the service.
   rpc DeployService (stream DeployServiceRequest) returns (stream DeployServiceReply) {}
 
-  // Delete a service from Core. This function only deletes a deployed service in [Core](../guide/start-here/core.md). If the service's code is on your computer, the source code will not be deleted.
+  // Delete a service from Core. This function only deletes a deployed service in Core. If the service's code is on your computer, the source code will not be deleted.
   rpc DeleteService (DeleteServiceRequest) returns (DeleteServiceReply) {}
 
-  // List all services already deployed in [Core](../guide/start-here/core.md).
+  // List all services already deployed in Core.
   rpc ListServices (ListServicesRequest) returns (ListServicesReply) {}
 
   // Get the definition of an already-deployed service from its ID.
@@ -42,6 +42,56 @@ service Core {
 
   // ServiceLogs gives a stream for dependency logs of a service.
   rpc ServiceLogs (ServiceLogsRequest) returns (stream LogData) {}
+
+  // CreateWorkflow creates and runs a new workflow.
+  rpc CreateWorkflow (CreateWorkflowRequest) returns (CreateWorkflowReply) {}
+
+  // DeleteWorkflow stops and deletes a workflow.
+  rpc DeleteWorkflow (DeleteWorkflowRequest) returns (DeleteWorkflowReply) {}
+}
+
+// The request's data for the `CreateWorkflow` API.
+//
+// **Example**
+// ```json
+// {
+//   "file":   __FILE__,
+//   "name": "__UNIQUE_WORKFLOW_NAME__"
+// }
+// ```
+message CreateWorkflowRequest {
+  message WorkflowDefinition {
+  }
+  WorkflowDefinition definition = 1;  // Workflow definition.
+  string name = 2; // An optional unique name for workflow.
+}
+
+// The reply's data of the `CreateWorkflow` API.
+//
+// **Example**
+// ```json
+// {
+//   "id": "__WORKFLOW_ID__"
+// }
+// ```
+message CreateWorkflowReply {
+  string ID = 1; // Unique ID of workflow.
+}
+
+// The request's data for the `DeleteWorkflow` API.
+//
+// **Example**
+// ```json
+// {
+//   "id": "__WORKFLOW_ID__"
+// }
+// ```
+message DeleteWorkflowRequest {
+  string ID = 1;  // Unique name or ID of workflow.
+}
+
+// Reply of `DeleteWorkflow` API doesn't contain any data.
+message DeleteWorkflowReply {
 }
 
 // The request's data for the `ListenEvent` stream's API.
