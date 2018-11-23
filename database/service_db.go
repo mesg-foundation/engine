@@ -12,6 +12,10 @@ import (
 
 const aliasesPathSuffix = "_aliases"
 
+var (
+	errCannotSaveWithoutID = errors.New("database: can't save service without id")
+)
+
 // ServiceDB describes the API of database package.
 type ServiceDB interface {
 	// Save saves a service to database.
@@ -97,6 +101,7 @@ func (d *LevelDBServiceDB) All() ([]*service.Service, error) {
 }
 
 // Delete deletes service from database.
+// TODO this should also find and delete alias when id is given.
 func (d *LevelDBServiceDB) Delete(idOrAlias string) error {
 	idOrAliasBytes := []byte(idOrAlias)
 	id, err := d.aliases.Get(idOrAliasBytes, nil)
@@ -128,27 +133,34 @@ func (d *LevelDBServiceDB) Get(idOrAlias string) (*service.Service, error) {
 		}
 		return nil, err
 	}
-
 	return d.unmarshal(idOrAlias, b)
 }
 
 // Save stores service in database.
 func (d *LevelDBServiceDB) Save(s *service.Service) error {
 	if s.ID == "" {
-		return errors.New("database: can't save service without id")
+		return errCannotSaveWithoutID
 	}
 	b, err := d.marshal(s)
 	if err != nil {
 		return err
 	}
-	if err := d.db.Put([]byte(s.ID), b, nil); err != nil {
-		return err
-	}
 	if s.Alias != "" {
+		if _, err := d.Get(s.Alias); err != nil {
+			if _, ok := err.(*ErrNotFound); !ok {
+				return err
+			}
+		} else {
+			return &errSameAlias{alias: s.Alias}
+		}
+
 		if err := d.aliases.Put([]byte(s.Alias), []byte(s.ID), nil); err != nil {
-			d.Delete(s.ID)
 			return err
 		}
+	}
+	if err := d.db.Put([]byte(s.ID), b, nil); err != nil {
+		d.Delete(s.Alias)
+		return err
 	}
 	return nil
 }
@@ -183,4 +195,12 @@ func (e *DecodeError) Error() string {
 func IsErrNotFound(err error) bool {
 	_, ok := err.(*ErrNotFound)
 	return ok
+}
+
+type errSameAlias struct {
+	alias string
+}
+
+func (e *errSameAlias) Error() string {
+	return fmt.Sprintf("database: a service with the %q alias already exists", e.alias)
 }
