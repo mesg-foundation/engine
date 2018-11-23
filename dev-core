@@ -45,5 +45,5 @@ function onexit {
   ./bin/cli stop
 }
 
-./bin/cli start
+./bin/cli start --log-level debug
 ./bin/cli logs
