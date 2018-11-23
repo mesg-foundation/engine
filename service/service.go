@@ -28,8 +28,9 @@ type Service struct {
 	// ID is the unique id of service.
 	ID string `hash:"-"`
 
-	// Alias is an alias to access the service. This alias should be unique
-	Alias string `hash:"alias:1"`
+	// Alias is an alias for service.
+	// It needs to be unique and can be used to access to service.
+	Alias string `hash:"name:1"`
 
 	// Name is the service name.
 	Name string `hash:"name:2"`
