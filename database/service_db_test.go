@@ -45,6 +45,19 @@ func TestServiceDBSave(t *testing.T) {
 	require.Error(t, db.Save(s))
 }
 
+func TestServiceDBSaveWithAlias(t *testing.T) {
+	db, closer := openServiceDB(t)
+	defer closer()
+
+	s := &service.Service{ID: "1", Alias: "2", Name: "test-service"}
+	require.NoError(t, db.Save(s))
+	defer db.Delete(s.ID)
+
+	// try saving a service with the same alias.
+	s = &service.Service{ID: "3", Alias: "2", Name: "test-service"}
+	require.Error(t, db.Save(s))
+}
+
 func TestServiceDBGet(t *testing.T) {
 	db, closer := openServiceDB(t)
 	defer closer()
