@@ -36,7 +36,7 @@ fi
 # remove docker core services if it wasn't clean up.
 SERVICE_IDS="$(docker service ls --format="{{.ID}} {{.Name}}" | grep core | awk '{{print $1}}')"
 if [[ "$SERVICE_IDS" ]]; then
-  echo "remove previous core servcies"
+  echo "remove previous core services"
   docker service rm $SERVICE_IDS
 fi
 
