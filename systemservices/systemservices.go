@@ -12,12 +12,14 @@ import (
 // these names are also relative paths of system services in the filesystem.
 const (
 	ResolverService = "resolver"
+	WorkflowService = "workflow"
 )
 
 // SystemServicesList is the list of system services.
 // system services will be created from this list.
 var SystemServicesList = []string{
 	ResolverService,
+	WorkflowService,
 }
 
 // systemService represents a system service.
@@ -70,4 +72,9 @@ func (s *SystemServices) GetServiceID(name string) (string, error) {
 // ResolverServiceID returns resolver system service's id.
 func (s *SystemServices) ResolverServiceID() (string, error) {
 	return s.GetServiceID(ResolverService)
+}
+
+// WorkflowServiceID returns workflow service's id.
+func (s *SystemServices) WorkflowServiceID() (string, error) {
+	return s.GetServiceID(WorkflowService)
 }

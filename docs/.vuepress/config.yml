@@ -66,11 +66,8 @@ themeConfig:
   sidebar:
     /guide/:
       - /guide/
-      - /guide/start-here/what-is-mesg
-      - /guide/start-here/core
-      - /guide/start-here/mesg-infrastructure
-      - /guide/start-here/quick-start-guide
       - /guide/start-here/installation
+      - /guide/start-here/quick-start-guide
       - /guide/start-here/join-us
       - title: Application
         children:
