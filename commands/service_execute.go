@@ -141,15 +141,20 @@ func (c *serviceExecuteCmd) getData(taskKey string, s *coreapi.Service, dataStru
 		return string(b), err
 	}
 
+	// see if task has no inputs.
+	for _, task := range s.Tasks {
+		if task.Key == taskKey {
+			if len(task.Inputs) == 0 {
+				return "{}", nil
+			}
+			break
+		}
+	}
+
 	if c.jsonFile == "" {
 		if survey.AskOne(&survey.Input{Message: "Enter the filepath to the inputs"}, &c.jsonFile, nil) != nil {
 			return "", errors.New("no filepath given")
 		}
-	}
-
-	// still no answer then return empty json object
-	if c.jsonFile == "" {
-		return "{}", nil
 	}
 
 	content, err := xjson.ReadFile(c.jsonFile)
