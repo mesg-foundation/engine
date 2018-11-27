@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# build the dev container.
+docker build -t mesg/tools:local -f Dockerfile.tools .
+
+# shortland of container run command.
+run_in_container="docker run -ti -v /var/run/docker.sock:/var/run/docker.sock -v `pwd`:/core mesg/tools:local"
+
+# run any command under dev container.
+$run_in_container $@
