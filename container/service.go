@@ -53,12 +53,22 @@ func (c *DockerContainer) StartService(options ServiceOptions) (serviceID string
 func (c *DockerContainer) StopService(namespace []string) (err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
+	if err := c.client.ServiceRemove(ctx, c.Namespace(namespace)); err != nil && !docker.IsErrNotFound(err) {
+		return err
+	}
+	c.deletePendingContainer(namespace)
+	return c.waitForStatus(namespace, STOPPED)
+}
+
+func (c *DockerContainer) deletePendingContainer(namespace []string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
+	defer cancel()
 	container, err := c.FindContainer(namespace)
 	if err != nil && !docker.IsErrNotFound(err) {
 		return err
 	}
-	if err := c.client.ServiceRemove(ctx, c.Namespace(namespace)); err != nil && !docker.IsErrNotFound(err) {
-		return err
+	if docker.IsErrNotFound(err) {
+		return nil
 	}
 	// TOFIX: Hack to force Docker to remove the containers.
 	// Sometime, the ServiceRemove function doesn't remove the associated containers.
@@ -69,7 +79,7 @@ func (c *DockerContainer) StopService(namespace []string) (err error) {
 		c.client.ContainerStop(ctx, container.ID, &timeout)
 		c.client.ContainerRemove(ctx, container.ID, types.ContainerRemoveOptions{})
 	}
-	return c.waitForStatus(namespace, STOPPED)
+	return c.deletePendingContainer(namespace)
 }
 
 // ServiceLogs returns the logs of a service.
