@@ -1,4 +1,3 @@
-// TODO(ilgooz): remove this file after daemon package made Newable.
 package daemon
 
 import (
@@ -9,6 +8,7 @@ import (
 
 var defaultContainer container.Container
 
+// TODO(ilgooz): remove init after daemon package made Newable.
 func init() {
 	c, err := container.New()
 	if err != nil {
