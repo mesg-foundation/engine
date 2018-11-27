@@ -81,7 +81,7 @@ func commandsProviderAssetsReadme_templateMd() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "commands/provider/assets/readme_template.md", size: 1140, mode: os.FileMode(420), modTime: time.Unix(1537169867, 0)}
+	info := bindataFileInfo{name: "commands/provider/assets/readme_template.md", size: 1140, mode: os.FileMode(420), modTime: time.Unix(1539186396, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }

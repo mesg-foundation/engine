@@ -2,8 +2,7 @@
   "$schema": "http://json-schema.org/draft-06/schema#",
   "type": "object",
   "required": [
-    "name",
-    "alias"
+    "name"
   ],
   "additionalProperties": false,
   "properties": {
@@ -12,8 +11,7 @@
       "minLength": 1
     },
     "alias": {
-      "type": "string",
-      "minLengh": 1
+      "type": "string"
     },
     "description": {
       "type": "string"
