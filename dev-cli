@@ -3,4 +3,4 @@
 VERSION="local"
 LDFLAGS="-X 'github.com/mesg-foundation/core/version.Version=$VERSION'"
 
-go run $LDFLAGS interface/cli/main.go $@
+go run -ldflags="$LDFLAGS" interface/cli/main.go $@
