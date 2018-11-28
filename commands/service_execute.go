@@ -10,6 +10,7 @@ import (
 	casting "github.com/mesg-foundation/core/utils/servicecasting"
 	"github.com/mesg-foundation/core/x/xjson"
 	"github.com/mesg-foundation/core/x/xpflag"
+	"github.com/mesg-foundation/core/x/xstrings"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/cobra"
@@ -113,19 +114,25 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 }
 
 func (c *serviceExecuteCmd) getTaskKey(s *coreapi.Service) error {
-	if c.taskKey == "" {
-		keys := taskKeysFromService(s)
-		if len(keys) == 1 {
-			c.taskKey = keys[0]
-			return nil
-		}
+	keys := taskKeysFromService(s)
 
-		if survey.AskOne(&survey.Select{
-			Message: "Select the task to execute",
-			Options: keys,
-		}, &c.taskKey, nil) != nil {
-			return errors.New("no task to execute")
+	if c.taskKey != "" {
+		if !xstrings.SliceContains(keys, c.taskKey) {
+			return fmt.Errorf("task %s does not exists on service", c.taskKey)
 		}
+		return nil
+	}
+
+	if len(keys) == 1 {
+		c.taskKey = keys[0]
+		return nil
+	}
+
+	if survey.AskOne(&survey.Select{
+		Message: "Select the task to execute",
+		Options: keys,
+	}, &c.taskKey, nil) != nil {
+		return errors.New("no task to execute")
 	}
 	return nil
 }
