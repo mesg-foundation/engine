@@ -118,7 +118,7 @@ func (c *serviceExecuteCmd) getTaskKey(s *coreapi.Service) error {
 
 	if c.taskKey != "" {
 		if !xstrings.SliceContains(keys, c.taskKey) {
-			return fmt.Errorf("task %s does not exists on service", c.taskKey)
+			return fmt.Errorf("task %q does not exists on service", c.taskKey)
 		}
 		return nil
 	}
