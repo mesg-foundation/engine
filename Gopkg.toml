@@ -33,9 +33,13 @@ required = [
 ]
 
 [[override]]
+  revision = "41975c0ccc30077fd791b15b383818e805d0a57e"
+  name = "github.com/go-bindata/go-bindata"
+
+[[override]]
   version = "v1.1.0"
   name = "github.com/pseudomuto/protoc-gen-doc"
-
+  
 [[constraint]]
   branch = "master"
   name = "github.com/grpc-ecosystem/go-grpc-middleware"

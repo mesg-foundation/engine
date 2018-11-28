@@ -47,7 +47,7 @@ func (c *DockerContainer) Build(path string) (tag string, err error) {
 	return parseBuildResponse(response)
 }
 
-// dockerignoreFiles reads exlcuded files from .dockerignore.
+// dockerignoreFiles reads excluded files from .dockerignore.
 func dockerignoreFiles(path string) ([]string, error) {
 	f, err := os.Open(filepath.Join(path, ".dockerignore"))
 	if err != nil {

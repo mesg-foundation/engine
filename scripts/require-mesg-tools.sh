@@ -7,9 +7,9 @@ SCRIPT_PATH=$0
 SCRIPT_PATH=${SCRIPT_PATH#*scripts/}
 SCRIPT_PATH=./scripts/${SCRIPT_PATH#./}
 
-if [ ! "$MESG_DEV" = "true" ]; then
-   echo "you must run scripts via ./mesg-dev script,";
-   echo "try executing the following command from the root of core:";
-   echo -e "\t./mesg-dev $SCRIPT_PATH $*"
-   exit 1;
+if [ "$MESG_DEV" != "true" ]; then
+   echo "you must run scripts via ./mesg-tools script"
+   echo "try executing the following command from the root of core:"
+   echo -e "\t./mesg-tools $SCRIPT_PATH $*"
+   exit 1
 fi
