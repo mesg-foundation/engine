@@ -138,14 +138,26 @@ func (c *serviceExecuteCmd) getTaskKey(s *coreapi.Service) error {
 }
 
 func (c *serviceExecuteCmd) getData(s *coreapi.Service) (string, error) {
+	if c.jsonFile != "" {
+		return c.readFile()
+	}
+
 	// see if task has no inputs.
+	noInput := false
 	for _, task := range s.Tasks {
 		if task.Key == c.taskKey {
 			if len(task.Inputs) == 0 {
-				return "{}", nil
+				noInput = true
 			}
 			break
 		}
+	}
+
+	if noInput {
+		if len(c.executeData) > 0 {
+			return "", fmt.Errorf("task %q has no input but --data flag was supplied", c.taskKey)
+		}
+		return "{}", nil
 	}
 
 	if c.executeData != nil {
@@ -163,13 +175,12 @@ func (c *serviceExecuteCmd) getData(s *coreapi.Service) (string, error) {
 			return "", errors.New("no filepath given")
 		}
 	}
+	return c.readFile()
+}
 
+func (c *serviceExecuteCmd) readFile() (string, error) {
 	content, err := xjson.ReadFile(c.jsonFile)
-	if err != nil {
-		return "", err
-	}
-
-	return string(content), nil
+	return string(content), err
 }
 
 func taskKeysFromService(s *coreapi.Service) []string {
