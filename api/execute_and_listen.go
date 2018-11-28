@@ -7,7 +7,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-// ExecuteAndListen executes given task and listenes for result.
+// ExecuteAndListen executes given task and listen for result.
 func (a *API) ExecuteAndListen(serviceID, task string, inputs map[string]interface{}) (*execution.Execution, error) {
 	tag := uuid.NewV4().String()
 	result, err := a.ListenResult(serviceID, ListenResultTagFilters([]string{tag}))
