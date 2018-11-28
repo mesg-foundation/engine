@@ -71,7 +71,7 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	inputData, err = c.getData(c.taskKey, s, c.executeData)
+	inputData, err = c.getData(s)
 	if err != nil {
 		return err
 	}
@@ -137,9 +137,9 @@ func (c *serviceExecuteCmd) getTaskKey(s *coreapi.Service) error {
 	return nil
 }
 
-func (c *serviceExecuteCmd) getData(taskKey string, s *coreapi.Service, dataStruct map[string]string) (string, error) {
-	if dataStruct != nil {
-		castData, err := casting.TaskInputs(s, taskKey, dataStruct)
+func (c *serviceExecuteCmd) getData(s *coreapi.Service) (string, error) {
+	if c.executeData != nil {
+		castData, err := casting.TaskInputs(s, c.taskKey, c.executeData)
 		if err != nil {
 			return "", err
 		}
@@ -150,7 +150,7 @@ func (c *serviceExecuteCmd) getData(taskKey string, s *coreapi.Service, dataStru
 
 	// see if task has no inputs.
 	for _, task := range s.Tasks {
-		if task.Key == taskKey {
+		if task.Key == c.taskKey {
 			if len(task.Inputs) == 0 {
 				return "{}", nil
 			}
