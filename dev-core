@@ -1,16 +1,68 @@
 #!/bin/bash
 
-echo "Building mesg/core:local..."
-docker build -t mesg/core:local --build-arg version="local" .
+set -e
+
+DIR=${GOPATH:-$HOME/go}
+MESG_LOG_LEVEL=${MESG_LOG_LEVEL:-debug}
+VERSION=local
+LDFLAGS="-X 'github.com/mesg-foundation/core/version.Version=$VERSION'"
+
+echo "compile cli and core"
+GOOS=linux GOARCH=amd64 go build -o ./bin/core -ldflags="$LDFLAGS" core/main.go
+go build -o ./bin/cli -ldflags="$LDFLAGS" interface/cli/main.go
+
+CORE_SUM_PATH="./bin/.core.sum"
+touch "$CORE_SUM_PATH"
+
+DOCKER_SUM_PATH="./bin/.Dockerfile.dev.sum"
+touch "$DOCKER_SUM_PATH"
+
+# check if core bin was cached
+CORE_SUM="$(openssl md5 ./bin/core)"
+CORE_SUM_PREV="$(cat $CORE_SUM_PATH)"
+if [[ "$CORE_SUM" == "$CORE_SUM_PREV" ]]; then
+  BINCACHED=true
+else
+  echo "$CORE_SUM" > "$CORE_SUM_PATH"
+fi
+
+# check if dockerfile was cached
+DOCKER_SUM="$(openssl md5 ./Dockerfile.dev)"
+DOCKER_SUM_PREV="$(cat $DOCKER_SUM_PATH)"
+if [[ "$DOCKER_SUM" == "$DOCKER_SUM_PREV" ]]; then
+  DOCKERCACHED=true
+else
+  echo "$DOCKER_SUM" > "$DOCKER_SUM_PATH"
+fi
 
 # create a symlink for system services.
-rm -rf ~/.mesg/systemservices
-mkdir -p ~/.mesg
-ln -s $GOPATH/src/github.com/mesg-foundation/core/systemservices/sources ~/.mesg/systemservices
+rm -rf "$HOME/.mesg/systemservices"
+mkdir -p "$HOME/.mesg/"
+ln -s "$DIR/src/github.com/mesg-foundation/core/systemservices/sources" "$HOME/.mesg/systemservices"
 
-# chain these to stop execution on failure.
-./dev-cli stop && \
-./dev-cli start && \
-./dev-cli logs
+echo "build mesg/core image"
+if [[ ! $BINCACHED ]] || [[ ! $DOCKERCACHED ]]; then
+  docker build -f Dockerfile.dev -t "mesg/core:$VERSION" .
+fi
 
-./dev-cli stop
+# remove docker core services if it wasn't clean up.
+SERVICE_IDS="$(docker service ls --format="{{.ID}} {{.Name}}" | grep core | awk '{{print $1}}')"
+if [[ "$SERVICE_IDS" ]]; then
+  echo "remove previous core services"
+  docker service rm $SERVICE_IDS
+fi
+
+CONTAINER_IDS="$(docker ps -q --filter label=mesg.core)"
+if [[ "$CONTAINER_IDS" ]]; then
+  echo "remove core service containers"
+  docker rm $CONTAINER_IDS
+fi
+
+trap onexit EXIT INT
+
+function onexit {
+  ./bin/cli stop
+}
+
+./bin/cli start --log-level "$MESG_LOG_LEVEL"
+./bin/cli logs

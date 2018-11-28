@@ -1,8 +1,6 @@
 #!/bin/bash
 
-version="local"
+VERSION="local"
+LDFLAGS="-X 'github.com/mesg-foundation/core/version.Version=$VERSION'"
 
-go run \
-  -ldflags="-X 'github.com/mesg-foundation/core/version.Version=$version'" \
-  interface/cli/main.go \
-  $@
+go run -ldflags="$LDFLAGS" interface/cli/main.go $@
