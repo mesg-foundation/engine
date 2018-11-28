@@ -17,7 +17,7 @@ func TestStart(t *testing.T) {
 
 	c.On("SharedNetworkID").Return("1", nil)
 	c.On("StartService", d.buildServiceOptions("1")).Return("1", nil)
-	d.Start()
+	require.NoError(t, d.Start())
 	c.AssertExpectations(t)
 }
 
@@ -27,7 +27,7 @@ func TestStop(t *testing.T) {
 	d := NewContainerDaemon(cfg, c)
 
 	c.On("StopService", []string{}).Return(nil)
-	d.Stop()
+	require.NoError(t, d.Stop())
 	c.AssertExpectations(t)
 }
 
@@ -37,7 +37,9 @@ func TestStatus(t *testing.T) {
 	d := NewContainerDaemon(cfg, c)
 
 	c.On("Status", []string{}).Return(container.STOPPED, nil)
-	d.Status()
+	status, err := d.Status()
+	require.NoError(t, err)
+	require.Equal(t, container.STOPPED, status)
 	c.AssertExpectations(t)
 }
 
@@ -47,7 +49,8 @@ func TestLogs(t *testing.T) {
 	d := NewContainerDaemon(cfg, c)
 
 	c.On("ServiceLogs", []string{}).Return(nil, nil)
-	d.Logs()
+	_, err := d.Logs()
+	require.NoError(t, err)
 	c.AssertExpectations(t)
 }
 
