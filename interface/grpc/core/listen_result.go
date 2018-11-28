@@ -49,8 +49,8 @@ func (s *Server) ListenResult(request *coreapi.ListenResultRequest, stream corea
 			} else {
 				data.Result = &coreapi.ResultData_Output_{
 					Output: &coreapi.ResultData_Output{
-						OutputKey:  execution.OutputKey,
-						OutputData: string(outputs),
+						Key:  execution.OutputKey,
+						Data: string(outputs),
 					},
 				}
 			}

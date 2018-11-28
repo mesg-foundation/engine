@@ -104,18 +104,18 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	resultWithErr := result.GetError()
-	resultWithOutput := result.GetOutput()
-	if resultWithErr != nil {
+	errResult := result.GetError()
+	outputResult := result.GetOutput()
+	if errResult != nil {
 		fmt.Printf("Task %s cannot be completed, error:\n%s\n",
 			pretty.Fail(c.taskKey),
-			pretty.Fail(resultWithErr.Message),
+			pretty.Fail(errResult.Message),
 		)
 	} else {
 		fmt.Printf("Task %s returned output %s with data:\n%s\n",
 			pretty.Success(c.taskKey),
-			pretty.Colorize(pretty.FgCyan, resultWithOutput.OutputKey),
-			pretty.ColorizeJSON(pretty.FgCyan, nil, true, []byte(resultWithOutput.OutputData)),
+			pretty.Colorize(pretty.FgCyan, outputResult.Key),
+			pretty.ColorizeJSON(pretty.FgCyan, nil, true, []byte(outputResult.Data)),
 		)
 	}
 	return nil

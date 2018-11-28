@@ -130,18 +130,18 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 			return nil
 
 		case r := <-listenResultsC:
-			resultWithErr := r.GetError()
-			resultWithOutput := r.GetOutput()
-			if resultWithErr != nil {
+			errResult := r.GetError()
+			outputResult := r.GetOutput()
+			if errResult != nil {
 				fmt.Printf("Receive execution error on %s task: %s\n",
 					pretty.Fail(r.TaskKey),
-					pretty.Fail(resultWithErr.Message),
+					pretty.Fail(errResult.Message),
 				)
 			} else {
 				fmt.Printf("Receive result %s %s: %s\n",
 					pretty.Success(r.TaskKey),
-					pretty.Colorize(color.New(color.FgCyan), resultWithOutput.OutputKey),
-					pretty.ColorizeJSON(pretty.FgCyan, nil, false, []byte(resultWithOutput.OutputData)),
+					pretty.Colorize(color.New(color.FgCyan), outputResult.Key),
+					pretty.ColorizeJSON(pretty.FgCyan, nil, false, []byte(outputResult.Data)),
 				)
 			}
 

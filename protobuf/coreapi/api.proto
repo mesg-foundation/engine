@@ -164,8 +164,8 @@ message ResultData {
   }
 
   message Output {
-    string outputKey = 3;   // The output's key from the returned task.
-    string outputData = 4;  // The output's data from the returned task, encoded in JSON.
+    string key = 3;   // The output's key from the returned task.
+    string data = 4;  // The output's data from the returned task, encoded in JSON.
   }
   
   message Error {
