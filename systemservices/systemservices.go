@@ -18,8 +18,8 @@ const (
 // SystemServicesList is the list of system services.
 // system services will be created from this list.
 var SystemServicesList = []string{
-	ResolverService,
-	WorkflowService,
+	// ResolverService,
+	// WorkflowService,
 }
 
 // systemService represents a system service.
