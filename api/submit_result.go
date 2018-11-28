@@ -6,6 +6,7 @@ import (
 )
 
 // SubmitResult submits results for executionID.
+// rerr used to submit result with an error.
 func (a *API) SubmitResult(executionID string, outputKey string, outputData map[string]interface{}, rerr error) error {
 	return newResultSubmitter(a).Submit(executionID, outputKey, outputData, rerr)
 }
@@ -23,6 +24,7 @@ func newResultSubmitter(api *API) *resultSubmitter {
 }
 
 // Submit submits results for executionID.
+// rerr used to submit result with an error.
 func (s *resultSubmitter) Submit(executionID string, outputKey string, outputData map[string]interface{}, rerr error) error {
 	exec, err := s.api.execDB.Find(executionID)
 	if err != nil {

@@ -77,7 +77,8 @@ func (execution *Execution) Execute() error {
 
 // Complete changes execution status to completed. It verifies the output.
 // It returns an error if the status is different then InProgress or verification fails.
-func (execution *Execution) Complete(outputKey string, outputData map[string]interface{}, rerr error) error {
+// xerr used to complete execution with an error.
+func (execution *Execution) Complete(outputKey string, outputData map[string]interface{}, xerr error) error {
 	if execution.Status != InProgress {
 		return StatusError{
 			ExpectedStatus: InProgress,
@@ -85,8 +86,8 @@ func (execution *Execution) Complete(outputKey string, outputData map[string]int
 		}
 	}
 
-	if rerr != nil {
-		execution.Error = rerr
+	if xerr != nil {
+		execution.Error = xerr
 	} else {
 		task, err := execution.Service.GetTask(execution.TaskKey)
 		if err != nil {
