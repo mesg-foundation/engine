@@ -33,6 +33,7 @@ type Execution struct {
 	Inputs            map[string]interface{} `hash:"inputs"`
 	OutputKey         string                 `hash:"-"`
 	OutputData        map[string]interface{} `hash:"-"`
+	Error             error                  `hash:"-"`
 	CreatedAt         time.Time              `hash:"-"`
 	ExecutedAt        time.Time              `hash:"-"`
 	ExecutionDuration time.Duration          `hash:"-"`
@@ -76,23 +77,28 @@ func (execution *Execution) Execute() error {
 
 // Complete changes execution status to completed. It verifies the output.
 // It returns an error if the status is different then InProgress or verification fails.
-func (execution *Execution) Complete(outputKey string, outputData map[string]interface{}) error {
+func (execution *Execution) Complete(outputKey string, outputData map[string]interface{}, rerr error) error {
 	if execution.Status != InProgress {
 		return StatusError{
 			ExpectedStatus: InProgress,
 			ActualStatus:   execution.Status,
 		}
 	}
-	task, err := execution.Service.GetTask(execution.TaskKey)
-	if err != nil {
-		return err
-	}
-	output, err := task.GetOutput(outputKey)
-	if err != nil {
-		return err
-	}
-	if err := output.RequireData(outputData); err != nil {
-		return err
+
+	if rerr != nil {
+		execution.Error = rerr
+	} else {
+		task, err := execution.Service.GetTask(execution.TaskKey)
+		if err != nil {
+			return err
+		}
+		output, err := task.GetOutput(outputKey)
+		if err != nil {
+			return err
+		}
+		if err := output.RequireData(outputData); err != nil {
+			return err
+		}
 	}
 
 	execution.ExecutionDuration = time.Since(execution.ExecutedAt)

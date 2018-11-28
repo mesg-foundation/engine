@@ -1,6 +1,7 @@
 package execution
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -9,10 +10,11 @@ import (
 )
 
 var (
-	serviceName   = "1"
-	eventID       = "2"
-	taskKey       = "task"
-	defaultInputs = map[string]interface{}{
+	serviceName      = "1"
+	eventID          = "2"
+	taskKey          = "task"
+	taskKeyWithError = "task2"
+	defaultInputs    = map[string]interface{}{
 		"foo": "hello",
 		"bar": "world",
 	}
@@ -25,6 +27,23 @@ var (
 				Inputs: []*service.Parameter{
 					&service.Parameter{Key: "foo", Type: "String"},
 					&service.Parameter{Key: "bar", Type: "String"},
+				},
+				Outputs: []*service.Output{
+					&service.Output{
+						Key: "outputX",
+						Data: []*service.Parameter{
+							&service.Parameter{
+								Key:  "foo",
+								Type: "String",
+							},
+						},
+					},
+				},
+			},
+			&service.Task{
+				Key: taskKeyWithError,
+				Inputs: []*service.Parameter{
+					&service.Parameter{Key: "foo", Type: "String"},
 				},
 				Outputs: []*service.Output{
 					&service.Output{
@@ -142,7 +161,7 @@ func TestComplete(t *testing.T) {
 		}}, // this one is already proccessed
 	}
 	for _, test := range tests {
-		err := e.Complete(test.key, test.data)
+		err := e.Complete(test.key, test.data, nil)
 		require.Equal(t, test.err, err, test.name)
 		if test.err != nil {
 			continue
@@ -150,7 +169,34 @@ func TestComplete(t *testing.T) {
 		require.NotNil(t, e)
 		require.NoError(t, err, test.name)
 		require.NotNil(t, e, test.name)
-		require.Equal(t, e.Status, Completed, test.name)
+		require.Equal(t, Completed, e.Status, test.name)
 		require.NotZero(t, e.ExecutionDuration, test.name)
+	}
+}
+
+func TestCompleteWithError(t *testing.T) {
+	e, _ := New(srv, eventID, taskKeyWithError, map[string]interface{}{"foo": "1", "bar": "2"}, tags)
+	e.Execute()
+	tests := []struct {
+		name string
+		key  string
+		data map[string]interface{}
+		xerr error
+		err  error
+	}{
+		{name: "1", key: "outputX", data: map[string]interface{}{"foo": "bar"}, xerr: errors.New("cannot complete"), err: nil},
+	}
+	for _, test := range tests {
+		err := e.Complete(test.key, test.data, test.xerr)
+		require.Equal(t, test.err, err, test.name)
+		if test.err != nil {
+			continue
+		}
+		require.NotNil(t, e)
+		require.NoError(t, err, test.name)
+		require.NotNil(t, e, test.name)
+		require.Equal(t, Completed, e.Status, test.name)
+		require.NotZero(t, e.ExecutionDuration, test.name)
+		require.Equal(t, test.xerr, e.Error, test.name)
 	}
 }

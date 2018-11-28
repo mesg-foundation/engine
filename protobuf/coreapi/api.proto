@@ -157,9 +157,23 @@ message ListenResultRequest {
 message ResultData {
   string executionID = 1;             // The unique identifier of the execution.
   string taskKey = 2;                 // The key of the executed task.
-  string outputKey = 3;               // The output's key from the returned task.
-  string outputData = 4;              // The output's data from the returned task, encoded in JSON.
   repeated string executionTags = 5;  // The list of tags associated with the execution
+  oneof result {
+    Output output = 6;   // output is filled when there is matching task execution that completed successfully.
+    Error error = 7;     // error is filled when there is a matching task execution that cannot be completed. 
+  }
+
+  message Output {
+    string outputKey = 3;   // The output's key from the returned task.
+    string outputData = 4;  // The output's data from the returned task, encoded in JSON.
+  }
+  
+  message Error {
+    string message = 1;
+  }
+
+  string outputKey = 3;   // [Deprecated] The output's key from the returned task.
+  string outputData = 4;  // [Deprecated] The output's data from the returned task, encoded in JSON.
 }
 
 // The request's data for the `ExecuteTask` API.

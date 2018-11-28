@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/mesg-foundation/core/x/xerrors"
+
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
@@ -85,7 +87,7 @@ func TestSubmitWithInvalidJSON(t *testing.T) {
 		OutputKey:   outputKey,
 		OutputData:  "",
 	})
-	require.Equal(t, err.Error(), "unexpected end of JSON input")
+	require.Equal(t, "invalid output data error: unexpected end of JSON input", err.Error())
 }
 
 func TestSubmitWithInvalidID(t *testing.T) {
@@ -136,7 +138,7 @@ func TestSubmitWithNonExistentOutputKey(t *testing.T) {
 		OutputData:  outputData,
 	})
 	require.Error(t, err)
-	notFoundErr, ok := err.(*service.TaskOutputNotFoundError)
+	notFoundErr, ok := err.(xerrors.Errors)[0].(*service.TaskOutputNotFoundError)
 	require.True(t, ok)
 	require.Equal(t, outputKey, notFoundErr.TaskOutputKey)
 	require.Equal(t, s.Name, notFoundErr.ServiceName)
@@ -173,7 +175,7 @@ func TestSubmitWithInvalidTaskOutputs(t *testing.T) {
 		OutputData:  outputData,
 	})
 	require.Error(t, err)
-	invalidErr, ok := err.(*service.InvalidTaskOutputError)
+	invalidErr, ok := err.(xerrors.Errors)[0].(*service.InvalidTaskOutputError)
 	require.True(t, ok)
 	require.Equal(t, taskKey, invalidErr.TaskKey)
 	require.Equal(t, outputKey, invalidErr.TaskOutputKey)

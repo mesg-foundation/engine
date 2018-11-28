@@ -6,8 +6,8 @@ import (
 )
 
 // SubmitResult submits results for executionID.
-func (a *API) SubmitResult(executionID string, outputKey string, outputData map[string]interface{}) error {
-	return newResultSubmitter(a).Submit(executionID, outputKey, outputData)
+func (a *API) SubmitResult(executionID string, outputKey string, outputData map[string]interface{}, rerr error) error {
+	return newResultSubmitter(a).Submit(executionID, outputKey, outputData, rerr)
 }
 
 // resultSubmitter provides functionalities to submit a MESG task result.
@@ -23,7 +23,7 @@ func newResultSubmitter(api *API) *resultSubmitter {
 }
 
 // Submit submits results for executionID.
-func (s *resultSubmitter) Submit(executionID string, outputKey string, outputData map[string]interface{}) error {
+func (s *resultSubmitter) Submit(executionID string, outputKey string, outputData map[string]interface{}, rerr error) error {
 	exec, err := s.api.execDB.Find(executionID)
 	if err != nil {
 		return err
@@ -32,12 +32,14 @@ func (s *resultSubmitter) Submit(executionID string, outputKey string, outputDat
 	if err != nil {
 		return err
 	}
-	if err := exec.Complete(outputKey, outputData); err != nil {
-		return err
-	}
-	if err = s.api.execDB.Save(exec); err != nil {
-		return err
+
+	if err = exec.Complete(outputKey, outputData, rerr); err != nil {
+		exec.Error = err
+	} else {
+		if err = s.api.execDB.Save(exec); err != nil {
+			exec.Error = err
+		}
 	}
 	go pubsub.Publish(exec.Service.ResultSubscriptionChannel(), exec)
-	return nil
+	return err
 }

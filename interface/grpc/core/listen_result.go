@@ -33,13 +33,28 @@ func (s *Server) ListenResult(request *coreapi.ListenResultRequest, stream corea
 				return err
 			}
 
-			if err := stream.Send(&coreapi.ResultData{
+			data := &coreapi.ResultData{
 				ExecutionID:   execution.ID,
 				TaskKey:       execution.TaskKey,
 				OutputKey:     execution.OutputKey,
 				OutputData:    string(outputs),
 				ExecutionTags: execution.Tags,
-			}); err != nil {
+			}
+			if execution.Error != nil {
+				data.Result = &coreapi.ResultData_Error_{
+					Error: &coreapi.ResultData_Error{
+						Message: execution.Error.Error(),
+					},
+				}
+			} else {
+				data.Result = &coreapi.ResultData_Output_{
+					Output: &coreapi.ResultData_Output{
+						OutputKey:  execution.OutputKey,
+						OutputData: string(outputs),
+					},
+				}
+			}
+			if err := stream.Send(data); err != nil {
 				return err
 			}
 		}
