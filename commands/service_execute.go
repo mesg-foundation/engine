@@ -138,16 +138,6 @@ func (c *serviceExecuteCmd) getTaskKey(s *coreapi.Service) error {
 }
 
 func (c *serviceExecuteCmd) getData(s *coreapi.Service) (string, error) {
-	if c.executeData != nil {
-		castData, err := casting.TaskInputs(s, c.taskKey, c.executeData)
-		if err != nil {
-			return "", err
-		}
-
-		b, err := json.Marshal(castData)
-		return string(b), err
-	}
-
 	// see if task has no inputs.
 	for _, task := range s.Tasks {
 		if task.Key == c.taskKey {
@@ -156,6 +146,16 @@ func (c *serviceExecuteCmd) getData(s *coreapi.Service) (string, error) {
 			}
 			break
 		}
+	}
+
+	if c.executeData != nil {
+		castData, err := casting.TaskInputs(s, c.taskKey, c.executeData)
+		if err != nil {
+			return "", err
+		}
+
+		b, err := json.Marshal(castData)
+		return string(b), err
 	}
 
 	if c.jsonFile == "" {
