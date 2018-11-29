@@ -46,10 +46,10 @@ type EventListener struct {
 // newEventListener creates a new EventListener with given api and filters.
 func newEventListener(api *API, filters ...ListenEventFilter) *EventListener {
 	ln := &EventListener{
-		Events:    make(chan *event.Event, 0),
+		Events:    make(chan *event.Event),
 		Err:       make(chan error, 1),
-		cancel:    make(chan struct{}, 0),
-		listening: make(chan struct{}, 0),
+		cancel:    make(chan struct{}),
+		listening: make(chan struct{}),
 		api:       api,
 	}
 	for _, filter := range filters {

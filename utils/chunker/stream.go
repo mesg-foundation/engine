@@ -19,8 +19,8 @@ type Stream struct {
 // NewStream returns a new stream.
 func NewStream() *Stream {
 	return &Stream{
-		recv: make(chan []byte, 0),
-		done: make(chan struct{}, 0),
+		recv: make(chan []byte),
+		done: make(chan struct{}),
 	}
 }
 

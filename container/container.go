@@ -60,7 +60,7 @@ func New(options ...Option) (*DockerContainer, error) {
 	}
 	c.config = cfg
 	if c.client == nil {
-		c.client, err = docker.NewEnvClient()
+		c.client, err = docker.NewClientWithOpts(docker.FromEnv)
 		if err != nil {
 			return c, err
 		}

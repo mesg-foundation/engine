@@ -11,7 +11,7 @@ import (
 func TestUnknownServiceStatus(t *testing.T) {
 	var (
 		dependencyKey = "1"
-		statusErr     = errors.New("ops...")
+		statusErr     = errors.New("ops")
 		s, mc         = newFromServiceAndContainerMocks(t, &Service{
 			Name: "TestUnknownServiceStatus",
 			Dependencies: []*Dependency{

@@ -34,7 +34,7 @@ mesg-core service gen-doc ./PATH_TO_SERVICE`,
 }
 
 func (c *serviceDocsCmd) preRunE(cmd *cobra.Command, args []string) error {
-	c.path = getFirstOrDefault(args, "./")
+	c.path = getFirstOrDefault(args)
 	readmePath := filepath.Join(c.path, "README.md")
 	if _, err := os.Stat(readmePath); !c.force && err == nil {
 		if err := survey.AskOne(&survey.Confirm{

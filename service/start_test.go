@@ -270,7 +270,7 @@ func TestServiceStartError(t *testing.T) {
 		dependencyKey   = "1"
 		networkID       = "3"
 		sharedNetworkID = "4"
-		startErr        = errors.New("ops...")
+		startErr        = errors.New("ops")
 		s, mc           = newFromServiceAndContainerMocks(t, &Service{
 			Name: "TestNetworkCreated",
 			Dependencies: []*Dependency{

@@ -72,6 +72,10 @@ func (d *Dependency) Status() (container.StatusType, error) {
 // TODO: should move to another file
 func ListRunning() ([]string, error) {
 	cfg, err := config.Global()
+	if err != nil {
+		return nil, err
+	}
+
 	// TODO(ilgooz): remove this line after ListRunning refactored.
 	c, err := container.New()
 	if err != nil {
