@@ -65,9 +65,10 @@ func newCommand(c *cobra.Command) *cobra.Command {
 	return c
 }
 
-func getFirstOrDefault(args []string, def string) string {
+// getFirstOrDefault returns directory if args len is gt 0 or current directory.
+func getFirstOrDefault(args []string) string {
 	if len(args) > 0 {
 		return args[0]
 	}
-	return def
+	return "./"
 }

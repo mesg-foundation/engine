@@ -43,7 +43,7 @@ func New(r io.Reader, chunks chan Data, err chan error, options ...Option) *Chun
 		reader:    r,
 		chunks:    chunks,
 		err:       err,
-		closed:    make(chan struct{}, 0),
+		closed:    make(chan struct{}),
 		chunkSize: 1024,
 	}
 	for _, option := range options {
