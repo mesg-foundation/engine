@@ -19,7 +19,7 @@ func readServiceFile(path string) ([]byte, error) {
 func validateServiceFile(data []byte) ([]string, error) {
 	var body interface{}
 	if err := yaml.Unmarshal(data, &body); err != nil {
-		return nil, fmt.Errorf("Error with file 'mesg.yml'. %s", err)
+		return nil, fmt.Errorf("parse mesg.yml error: %s", err)
 	}
 	body = convert(body)
 	result, err := validateServiceFileSchema(body, "service/importer/assets/schema.json")
@@ -46,13 +46,13 @@ func validateServiceFileSchema(data interface{}, schemaPath string) (*gojsonsche
 }
 
 func convert(i interface{}) interface{} {
-	switch x := i.(type) {
-	case map[interface{}]interface{}:
-		m2 := map[string]interface{}{}
-		for k, v := range x {
-			m2[k.(string)] = convert(v)
-		}
-		return m2
+	x, ok := i.(map[interface{}]interface{})
+	if !ok {
+		return i
 	}
-	return i
+	m2 := map[string]interface{}{}
+	for k, v := range x {
+		m2[k.(string)] = convert(v)
+	}
+	return m2
 }

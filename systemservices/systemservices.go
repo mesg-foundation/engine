@@ -48,7 +48,7 @@ func New() *SystemServices {
 func (s *SystemServices) RegisterSystemService(name string, service *service.Service) error {
 	for _, ss := range s.services {
 		if ss.name == name {
-			return fmt.Errorf("System service already registered")
+			return fmt.Errorf("system service %s already registered", name)
 		}
 	}
 	s.services = append(s.services, &systemService{

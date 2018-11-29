@@ -17,12 +17,12 @@ type parameterTest struct {
 }
 
 func (tests parameterTests) parameterTestsToSliceParameters() []*Parameter {
-	params := make([]*Parameter, 0)
-	for _, test := range tests {
-		params = append(params, &Parameter{
+	params := make([]*Parameter, len(tests))
+	for i, test := range tests {
+		params[i] = &Parameter{
 			Key:  test.Key,
 			Type: test.Type,
-		})
+		}
 	}
 	return params
 }
@@ -41,6 +41,17 @@ func (tests parameterTests) assert(t *testing.T, err string) {
 	}
 }
 
+func newParameterTestCases() parameterTests {
+	return parameterTests{
+		&parameterTest{Key: "keyString", Type: "String", Value: 2323, Error: "not a string"},
+		&parameterTest{Key: "keyNumber", Type: "Number", Value: "string", Error: "not a number"},
+		&parameterTest{Key: "keyBoolean", Type: "Boolean", Value: "dwdwd", Error: "not a boolean"},
+		&parameterTest{Key: "keyObject", Type: "Object", Value: 2323, Error: "not an object or array"},
+		&parameterTest{Key: "keyUnknown", Type: "Unknown", Value: "dwdw", Error: "an invalid type"},
+		&parameterTest{Key: "keyRequired", Type: "String", Value: nil, Error: "required"},
+	}
+}
+
 // Test EventNotFoundError
 func TestEventNotFoundError(t *testing.T) {
 	err := EventNotFoundError{
@@ -53,14 +64,7 @@ func TestEventNotFoundError(t *testing.T) {
 
 // Test InvalidEventDataError
 func TestInvalidEventDataError(t *testing.T) {
-	tests := parameterTests{
-		&parameterTest{Key: "keyString", Type: "String", Value: 2323, Error: "not a string"},
-		&parameterTest{Key: "keyNumber", Type: "Number", Value: "string", Error: "not a number"},
-		&parameterTest{Key: "keyBoolean", Type: "Boolean", Value: "dwdwd", Error: "not a boolean"},
-		&parameterTest{Key: "keyObject", Type: "Object", Value: 2323, Error: "not an object or array"},
-		&parameterTest{Key: "keyUnknown", Type: "Unknown", Value: "dwdw", Error: "an invalid type"},
-		&parameterTest{Key: "keyRequired", Type: "String", Value: nil, Error: "required"},
-	}
+	tests := newParameterTestCases()
 	err := InvalidEventDataError{
 		EventKey:    "TestInvalidEventDataErrorEventKey",
 		ServiceName: "TestInvalidEventDataError",
@@ -82,14 +86,7 @@ func TestTaskNotFoundError(t *testing.T) {
 
 // Test InvalidTaskInputError
 func TestInvalidTaskInputError(t *testing.T) {
-	tests := parameterTests{
-		&parameterTest{Key: "keyString", Type: "String", Value: 2323, Error: "not a string"},
-		&parameterTest{Key: "keyNumber", Type: "Number", Value: "string", Error: "not a number"},
-		&parameterTest{Key: "keyBoolean", Type: "Boolean", Value: "dwdwd", Error: "not a boolean"},
-		&parameterTest{Key: "keyObject", Type: "Object", Value: 2323, Error: "not an object or array"},
-		&parameterTest{Key: "keyUnknown", Type: "Unknown", Value: "dwdw", Error: "an invalid type"},
-		&parameterTest{Key: "keyRequired", Type: "String", Value: nil, Error: "required"},
-	}
+	tests := newParameterTestCases()
 	err := InvalidTaskInputError{
 		TaskKey:     "TestInvalidTaskInputErrorKey",
 		ServiceName: "TestInvalidTaskInputError",
@@ -112,14 +109,7 @@ func TestOutputNotFoundError(t *testing.T) {
 
 // Test InvalidOutputDataError
 func TestInvalidOutputDataError(t *testing.T) {
-	tests := parameterTests{
-		&parameterTest{Key: "keyString", Type: "String", Value: 2323, Error: "not a string"},
-		&parameterTest{Key: "keyNumber", Type: "Number", Value: "string", Error: "not a number"},
-		&parameterTest{Key: "keyBoolean", Type: "Boolean", Value: "dwdwd", Error: "not a boolean"},
-		&parameterTest{Key: "keyObject", Type: "Object", Value: 2323, Error: "not an object or array"},
-		&parameterTest{Key: "keyUnknown", Type: "Unknown", Value: "dwdw", Error: "an invalid type"},
-		&parameterTest{Key: "keyRequired", Type: "String", Value: nil, Error: "required"},
-	}
+	tests := newParameterTestCases()
 	err := InvalidTaskOutputError{
 		TaskKey:       "TaskKey",
 		TaskOutputKey: "OutputKey",

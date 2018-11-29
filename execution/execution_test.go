@@ -9,28 +9,24 @@ import (
 )
 
 var (
-	serviceName   = "1"
-	eventID       = "2"
-	taskKey       = "task"
-	defaultInputs = map[string]interface{}{
-		"foo": "hello",
-		"bar": "world",
-	}
-	tags   = []string{"tag1", "tag2"}
-	srv, _ = service.FromService(&service.Service{
+	serviceName = "1"
+	eventID     = "2"
+	taskKey     = "task"
+	tags        = []string{"tag1", "tag2"}
+	srv, _      = service.FromService(&service.Service{
 		Name: serviceName,
 		Tasks: []*service.Task{
-			&service.Task{
+			{
 				Key: taskKey,
 				Inputs: []*service.Parameter{
-					&service.Parameter{Key: "foo", Type: "String"},
-					&service.Parameter{Key: "bar", Type: "String"},
+					{Key: "foo", Type: "String"},
+					{Key: "bar", Type: "String"},
 				},
 				Outputs: []*service.Output{
-					&service.Output{
+					{
 						Key: "outputX",
 						Data: []*service.Parameter{
-							&service.Parameter{
+							{
 								Key:  "foo",
 								Type: "String",
 							},

@@ -54,7 +54,7 @@ func (d *Dependency) Start(networkID string) (containerServiceID string, err err
 	if err != nil {
 		return "", err
 	}
-	_, port, err := xnet.SplitHostPort(c.Server.Address)
+	_, port, _ := xnet.SplitHostPort(c.Server.Address)
 	endpoint := c.Core.Name + ":" + strconv.Itoa(port)
 	return d.service.container.StartService(container.ServiceOptions{
 		Namespace: d.namespace(),

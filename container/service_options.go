@@ -140,15 +140,9 @@ func mergeLabels(l1 map[string]string, l2 map[string]string) map[string]string {
 // comparing a string slice with different orders will fail.
 func MapToEnv(data map[string]string) []string {
 	env := make([]string, 0, len(data))
-
-	for key := range data {
-		env = append(env, key)
+	for key, value := range data {
+		env = append(env, fmt.Sprintf("%s=%s", key, value))
 	}
 	sort.Strings(env)
-
-	for i, key := range env {
-		env[i] = fmt.Sprintf("%s=%s", key, data[key])
-	}
-
 	return env
 }

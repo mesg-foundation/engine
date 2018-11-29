@@ -46,7 +46,7 @@ func newServiceDevCmd(e ServiceExecutor) *serviceDevCmd {
 }
 
 func (c *serviceDevCmd) preRunE(cmd *cobra.Command, args []string) error {
-	c.path = getFirstOrDefault(args, "./")
+	c.path = getFirstOrDefault(args)
 	return nil
 }
 
@@ -72,7 +72,7 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 	if validationError != nil {
 		return xerrors.Errors{
 			validationError,
-			errors.New("To get more information, run: mesg-core service validate"),
+			errors.New("to get more information, run: mesg-core service validate"),
 		}
 	}
 	fmt.Printf("%s Service deployed with ID: %v\n", pretty.SuccessSign, pretty.Success(id))
@@ -82,8 +82,7 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 			err = c.e.ServiceDelete(id)
 		})
 		if err != nil {
-			fmt.Printf("%s Error while removing the service\n", pretty.FailSign)
-			fmt.Printf(pretty.Failln(err))
+			fmt.Printf("%s Removing the service error: %s\n", pretty.FailSign, err)
 		} else {
 			fmt.Printf("%s Service removed\n", pretty.SuccessSign)
 		}

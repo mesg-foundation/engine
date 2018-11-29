@@ -265,6 +265,9 @@ func (p *ServiceProvider) ServiceGenerateDocs(path string) error {
 	}
 
 	f, err := os.OpenFile(readmePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, os.ModePerm)
+	if err != nil {
+		return err
+	}
 	defer f.Close()
 
 	readmeTemplate := assets.MustAsset("readme_template.md")
