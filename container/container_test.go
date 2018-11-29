@@ -10,8 +10,27 @@ import (
 
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container/dockertest"
+	"github.com/mesg-foundation/core/utils/docker/mocks"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
+
+func newTesting(t *testing.T) (*DockerContainer, *mocks.CommonAPIClient) {
+	m := &mocks.CommonAPIClient{}
+	mockNew(m)
+
+	c, err := New(ClientOption(m))
+	require.NoError(t, err)
+
+	return c, m
+}
+
+func mockNew(m *mocks.CommonAPIClient) {
+	m.On("NegotiateAPIVersion", mock.Anything).Once().Return()
+	m.On("Info", mock.Anything).Once().Return(types.Info{Swarm: swarm.Info{NodeID: "1"}}, nil)
+	m.On("NetworkInspect", mock.Anything, "core", types.NetworkInspectOptions{}).Once().
+		Return(types.NetworkResource{ID: "1"}, nil)
+}
 
 func TestNew(t *testing.T) {
 	dt := dockertest.New()
