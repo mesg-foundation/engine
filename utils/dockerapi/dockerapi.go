@@ -1,4 +1,4 @@
-package dockermock
+package dockerapi
 
 import (
 	docker "github.com/docker/docker/client"
