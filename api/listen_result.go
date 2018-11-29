@@ -62,10 +62,10 @@ type ResultListener struct {
 // newResultListener creates a new ResultListener with given api and filters.
 func newResultListener(api *API, filters ...ListenResultFilter) *ResultListener {
 	ln := &ResultListener{
-		Executions: make(chan *execution.Execution, 0),
+		Executions: make(chan *execution.Execution),
 		Err:        make(chan error, 1),
-		cancel:     make(chan struct{}, 0),
-		listening:  make(chan struct{}, 0),
+		cancel:     make(chan struct{}),
+		listening:  make(chan struct{}),
 		api:        api,
 	}
 	for _, filter := range filters {

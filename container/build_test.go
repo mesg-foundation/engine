@@ -47,7 +47,7 @@ func TestBuildNotWorking(t *testing.T) {
 {"errorDetail":{"message":"invalid reference format: repository name must be lowercase"},"error":"invalid reference format: repository name must be lowercase"}`)), nil)
 
 	tag, err := c.Build(path)
-	require.Equal(t, "Image build failed. invalid reference format: repository name must be lowercase", err.Error())
+	require.Equal(t, "image build failed. invalid reference format: repository name must be lowercase", err.Error())
 	require.Equal(t, "", tag)
 }
 
@@ -58,7 +58,7 @@ func TestBuildWrongPath(t *testing.T) {
 	dt.ProvideImageBuild(ioutil.NopCloser(strings.NewReader("")), nil)
 
 	_, err := c.Build("testss/")
-	require.Equal(t, "Could not parse container build response", err.Error())
+	require.Equal(t, "could not parse container build response", err.Error())
 }
 
 func TestParseBuildResponseInvalidJSON(t *testing.T) {

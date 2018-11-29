@@ -7,9 +7,9 @@ import (
 )
 
 func toProtoServices(ss []*service.Service) []*coreapi.Service {
-	services := make([]*coreapi.Service, 0)
-	for _, s := range ss {
-		services = append(services, toProtoService(s))
+	services := make([]*coreapi.Service, len(ss))
+	for i, s := range ss {
+		services[i] = toProtoService(s)
 	}
 	return services
 }
@@ -42,8 +42,8 @@ func toProtoServiceStatusType(s service.StatusType) coreapi.Service_Status {
 }
 
 func toProtoTasks(tasks []*service.Task) []*coreapi.Task {
-	ts := make([]*coreapi.Task, 0)
-	for _, task := range tasks {
+	ts := make([]*coreapi.Task, len(tasks))
+	for i, task := range tasks {
 		t := &coreapi.Task{
 			Key:         task.Key,
 			Name:        task.Name,
@@ -60,36 +60,34 @@ func toProtoTasks(tasks []*service.Task) []*coreapi.Task {
 			}
 			t.Outputs = append(t.Outputs, o)
 		}
-		ts = append(ts, t)
+		ts[i] = t
 	}
 	return ts
 }
 
 func toProtoEvents(events []*service.Event) []*coreapi.Event {
-	es := make([]*coreapi.Event, 0)
-	for _, event := range events {
-		e := &coreapi.Event{
+	es := make([]*coreapi.Event, len(events))
+	for i, event := range events {
+		es[i] = &coreapi.Event{
 			Key:         event.Key,
 			Name:        event.Name,
 			Description: event.Description,
 			Data:        toProtoParameters(event.Data),
 		}
-		es = append(es, e)
 	}
 	return es
 }
 
 func toProtoParameters(params []*service.Parameter) []*coreapi.Parameter {
-	ps := make([]*coreapi.Parameter, 0)
-	for _, param := range params {
-		p := &coreapi.Parameter{
+	ps := make([]*coreapi.Parameter, len(params))
+	for i, param := range params {
+		ps[i] = &coreapi.Parameter{
 			Key:         param.Key,
 			Name:        param.Name,
 			Description: param.Description,
 			Type:        param.Type,
 			Optional:    param.Optional,
 		}
-		ps = append(ps, p)
 	}
 	return ps
 }
@@ -109,13 +107,13 @@ func toProtoDependency(dep *service.Dependency) *coreapi.Dependency {
 }
 
 func toProtoDependencies(deps []*service.Dependency) []*coreapi.Dependency {
-	ds := make([]*coreapi.Dependency, 0)
-	for _, dep := range deps {
-		ds = append(ds, toProtoDependency(dep))
+	ds := make([]*coreapi.Dependency, len(deps))
+	for i, dep := range deps {
+		ds[i] = toProtoDependency(dep)
 	}
 	return ds
 }
 
-func toWorkflowDefinition(definition *coreapi.CreateWorkflowRequest_WorkflowDefinition) workflowparser.WorkflowDefinition {
+func toWorkflowDefinition(_ *coreapi.CreateWorkflowRequest_WorkflowDefinition) workflowparser.WorkflowDefinition {
 	return workflowparser.WorkflowDefinition{}
 }
