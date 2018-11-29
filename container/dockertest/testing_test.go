@@ -273,7 +273,7 @@ func TestEvents(t *testing.T) {
 
 	options := types.EventsOptions{}
 	event := events.Message{ID: "TestEvents"}
-	err := errors.New("TestEvents Error")
+	err := errors.New("test events error")
 
 	newMsgC, newErrC := dt.Client().Events(context.Background(), options)
 

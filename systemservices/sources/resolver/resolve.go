@@ -70,9 +70,9 @@ func listServices(peer string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	serviceIDs := make([]string, 0)
-	for _, service := range reply.Services {
-		serviceIDs = append(serviceIDs, service.ID)
+	serviceIDs := make([]string, len(reply.Services))
+	for i, service := range reply.Services {
+		serviceIDs[i] = service.ID
 	}
 	return serviceIDs, nil
 }

@@ -231,5 +231,5 @@ func (s *Service) getDependency(dependencyKey string) (*Dependency, error) {
 			return dep, nil
 		}
 	}
-	return nil, fmt.Errorf("Dependency %s do not exist", dependencyKey)
+	return nil, fmt.Errorf("dependency %s do not exist", dependencyKey)
 }

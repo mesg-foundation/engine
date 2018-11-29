@@ -36,7 +36,7 @@ To get more information, see the [deploy page from the documentation](https://do
 }
 
 func (c *serviceDeployCmd) preRunE(cmd *cobra.Command, args []string) error {
-	c.path = getFirstOrDefault(args, "./")
+	c.path = getFirstOrDefault(args)
 	return nil
 }
 
@@ -62,7 +62,7 @@ func (c *serviceDeployCmd) runE(cmd *cobra.Command, args []string) error {
 	if validationError != nil {
 		return xerrors.Errors{
 			validationError,
-			errors.New("To get more information, run: mesg-core service validate"),
+			errors.New("to get more information, run: mesg-core service validate"),
 		}
 	}
 	fmt.Printf("%s Service deployed with ID: %v\n", pretty.SuccessSign, pretty.Success(id))
