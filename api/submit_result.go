@@ -37,10 +37,8 @@ func (s *resultSubmitter) Submit(executionID string, outputKey string, outputDat
 
 	if err = exec.Complete(outputKey, outputData, rerr); err != nil {
 		exec.Error = err
-	} else {
-		if err = s.api.execDB.Save(exec); err != nil {
-			exec.Error = err
-		}
+	} else if err = s.api.execDB.Save(exec); err != nil {
+		exec.Error = err
 	}
 	go pubsub.Publish(exec.Service.ResultSubscriptionChannel(), exec)
 	return err
