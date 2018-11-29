@@ -82,7 +82,7 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 			err = c.e.ServiceDelete(id)
 		})
 		if err != nil {
-			fmt.Printf("%s Removing the service error: %s\n", pretty.FailSign, err)
+			fmt.Printf("%s Removing the service completed with an error: %s\n", pretty.FailSign, err)
 		} else {
 			fmt.Printf("%s Service removed\n", pretty.SuccessSign)
 		}
