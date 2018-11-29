@@ -121,9 +121,10 @@ func (d *Dependency) extractVolumes() ([]container.Mount, error) {
 }
 
 func volumeKey(s *Service, dependency string, volume string) string {
-	return xstructhash.Hash([]string{
+	a := xstructhash.Hash([]string{
 		s.ID,
 		dependency,
 		volume,
 	}, 1)
+	return a
 }

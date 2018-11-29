@@ -13,8 +13,9 @@ import (
 type serviceDeleteCmd struct {
 	baseCmd
 
-	all   bool
-	force bool
+	all        bool
+	force      bool
+	deleteData bool
 
 	e ServiceExecutor
 }
@@ -32,6 +33,7 @@ mesg-core service delete --all`,
 
 	c.cmd.Flags().BoolVar(&c.all, "all", c.all, "Delete all services")
 	c.cmd.Flags().BoolVarP(&c.force, "force", "f", c.force, "Force delete all services")
+	c.cmd.Flags().BoolVarP(&c.deleteData, "delete-data", "d", c.force, "Delete services' permanents data along the way")
 	return c
 }
 
@@ -41,7 +43,7 @@ func (c *serviceDeleteCmd) preRunE(cmd *cobra.Command, args []string) error {
 	}
 
 	if !c.all || (c.all && c.force) {
-		return nil
+		return c.askDeleteData()
 	}
 
 	if err := survey.AskOne(&survey.Confirm{
@@ -54,6 +56,19 @@ func (c *serviceDeleteCmd) preRunE(cmd *cobra.Command, args []string) error {
 	if !c.force {
 		return errors.New("can't continue without confirmation")
 	}
+
+	return c.askDeleteData()
+}
+
+func (c *serviceDeleteCmd) askDeleteData() error {
+	if !c.deleteData {
+		if err := survey.AskOne(&survey.Confirm{
+			Message: "Do you want to remove service(s)' permament data as well?",
+			Default: true,
+		}, &c.deleteData, nil); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -61,7 +76,7 @@ func (c *serviceDeleteCmd) runE(cmd *cobra.Command, args []string) error {
 	var err error
 	if c.all {
 		pretty.Progress("Deleting all services...", func() {
-			err = c.e.ServiceDeleteAll()
+			err = c.e.ServiceDeleteAll(c.deleteData)
 		})
 		if err != nil {
 			return err
@@ -75,7 +90,7 @@ func (c *serviceDeleteCmd) runE(cmd *cobra.Command, args []string) error {
 		// build function to avoid using arg inside progress
 		fn := func(id string) func() {
 			return func() {
-				err = c.e.ServiceDelete(id)
+				err = c.e.ServiceDelete(c.deleteData, id)
 			}
 		}(arg)
 		pretty.Progress(fmt.Sprintf("Deleting service %q...", arg), fn)

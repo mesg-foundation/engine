@@ -37,7 +37,7 @@ func (p *ServiceProvider) ServiceByID(id string) (*coreapi.Service, error) {
 }
 
 // ServiceDeleteAll deletes all services.
-func (p *ServiceProvider) ServiceDeleteAll() error {
+func (p *ServiceProvider) ServiceDeleteAll(deleteData bool) error {
 	rep, err := p.client.ListServices(context.Background(), &coreapi.ListServicesRequest{})
 	if err != nil {
 		return err
@@ -45,8 +45,10 @@ func (p *ServiceProvider) ServiceDeleteAll() error {
 
 	var errs xerrors.Errors
 	for _, s := range rep.Services {
-		_, err := p.client.DeleteService(context.Background(), &coreapi.DeleteServiceRequest{ServiceID: s.ID})
-		if err != nil {
+		if _, err := p.client.DeleteService(context.Background(), &coreapi.DeleteServiceRequest{
+			ServiceID:  s.ID,
+			DeleteData: deleteData,
+		}); err != nil {
 			errs = append(errs, err)
 		}
 	}
@@ -54,11 +56,13 @@ func (p *ServiceProvider) ServiceDeleteAll() error {
 }
 
 // ServiceDelete deletes service with given ids.
-func (p *ServiceProvider) ServiceDelete(ids ...string) error {
+func (p *ServiceProvider) ServiceDelete(deleteData bool, ids ...string) error {
 	var errs xerrors.Errors
 	for _, id := range ids {
-		_, err := p.client.DeleteService(context.Background(), &coreapi.DeleteServiceRequest{ServiceID: id})
-		if err != nil {
+		if _, err := p.client.DeleteService(context.Background(), &coreapi.DeleteServiceRequest{
+			ServiceID:  id,
+			DeleteData: deleteData,
+		}); err != nil {
 			errs = append(errs, err)
 		}
 	}
