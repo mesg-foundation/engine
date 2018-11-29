@@ -70,11 +70,23 @@ func (c *DockerContainer) StopService(namespace []string) error {
 
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
-	container, err := c.FindContainer(namespace)
-	if err != nil && !docker.IsErrNotFound(err) {
+	if err := c.client.ServiceRemove(ctx, c.Namespace(namespace)); err != nil && !docker.IsErrNotFound(err) {
 		return err
 	}
-	if err := c.client.ServiceRemove(ctx, c.Namespace(namespace)); err != nil && !docker.IsErrNotFound(err) {
+	if err := c.deletePendingContainer(namespace); err != nil {
+		return err
+	}
+	return c.waitForStatus(namespace, STOPPED)
+}
+
+func (c *DockerContainer) deletePendingContainer(namespace []string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
+	defer cancel()
+	container, err := c.FindContainer(namespace)
+	if err != nil {
+		if docker.IsErrNotFound(err) {
+			return nil
+		}
 		return err
 	}
 	// TOFIX: Hack to force Docker to remove the containers.
@@ -86,7 +98,7 @@ func (c *DockerContainer) StopService(namespace []string) error {
 		c.client.ContainerStop(ctx, container.ID, &timeout)
 		c.client.ContainerRemove(ctx, container.ID, types.ContainerRemoveOptions{})
 	}
-	return c.waitForStatus(namespace, STOPPED)
+	return c.deletePendingContainer(namespace)
 }
 
 // ServiceLogs returns the logs of a service.
