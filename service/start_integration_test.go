@@ -195,3 +195,24 @@ func TestIntegrationServiceDependenciesListensFromSamePort(t *testing.T) {
 	require.NotZero(t, err)
 	require.Contains(t, err.Error(), `port '80' is already in use`)
 }
+
+func TestStartWithSamePorts(t *testing.T) {
+	c := newIntegrationContainer(t)
+	service, _ := FromService(&Service{
+		Name: "TestStartWithSamePorts",
+		Dependencies: []*Dependency{
+			{
+				Key:   "1",
+				Image: "nginx",
+				Ports: []string{"80"},
+			},
+			{
+				Key:   "2",
+				Image: "nginx",
+				Ports: []string{"80"},
+			},
+		},
+	}, ContainerOption(c))
+	_, err := service.Start()
+	require.Error(t, err)
+}
