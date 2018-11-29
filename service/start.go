@@ -3,7 +3,6 @@ package service
 import (
 	"strconv"
 	"strings"
-	"sync"
 
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
@@ -27,30 +26,16 @@ func (s *Service) Start() (serviceIDs []string, err error) {
 	if err != nil {
 		return nil, err
 	}
-	var (
-		mutex sync.Mutex
-		wg    sync.WaitGroup
-	)
-	serviceIDs = make([]string, 0, len(s.Dependencies))
-	for i, dependency := range s.Dependencies {
-		wg.Add(1)
-		go func(dep *Dependency, i int) {
-			defer wg.Done()
-			serviceID, errStart := dep.Start(networkID)
-			mutex.Lock()
-			defer mutex.Unlock()
-			if errStart == nil {
-				serviceIDs = append(serviceIDs, serviceID)
-			}
-			if errStart != nil && err == nil {
-				err = errStart
-			}
-		}(dependency, i)
-	}
-	wg.Wait()
-	// Gracefully stop the service because there is an error
-	if err != nil {
-		s.Stop()
+	// BUG: https://github.com/mesg-foundation/core/issues/382
+	// After solving this by docker, switch back to deploy in parallel
+	serviceIDs = make([]string, len(s.Dependencies))
+	for i, dep := range s.Dependencies {
+		serviceID, err := dep.Start(networkID)
+		if err != nil {
+			s.Stop()
+			return nil, err
+		}
+		serviceIDs[i] = serviceID
 	}
 	return serviceIDs, err
 }
