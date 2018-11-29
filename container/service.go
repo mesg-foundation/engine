@@ -39,6 +39,15 @@ func (c *DockerContainer) FindService(namespace []string) (swarm.Service, error)
 
 // StartService starts a docker service.
 func (c *DockerContainer) StartService(options ServiceOptions) (serviceID string, err error) {
+	status, err := c.Status(options.Namespace)
+	if err != nil {
+		return "", err
+	}
+	if status == RUNNING {
+		service, err := c.FindService(options.Namespace)
+		return service.ID, err
+	}
+
 	service := options.toSwarmServiceSpec(c)
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
@@ -50,7 +59,15 @@ func (c *DockerContainer) StartService(options ServiceOptions) (serviceID string
 }
 
 // StopService stops a docker service.
-func (c *DockerContainer) StopService(namespace []string) (err error) {
+func (c *DockerContainer) StopService(namespace []string) error {
+	status, err := c.Status(namespace)
+	if err != nil {
+		return err
+	}
+	if status == STOPPED {
+		return nil
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
 	container, err := c.FindContainer(namespace)
