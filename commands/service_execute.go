@@ -10,6 +10,7 @@ import (
 	casting "github.com/mesg-foundation/core/utils/servicecasting"
 	"github.com/mesg-foundation/core/x/xjson"
 	"github.com/mesg-foundation/core/x/xpflag"
+	"github.com/mesg-foundation/core/x/xstrings"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/cobra"
@@ -70,7 +71,7 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	inputData, err = c.getData(c.taskKey, s, c.executeData)
+	inputData, err = c.getData(s)
 	if err != nil {
 		return err
 	}
@@ -113,26 +114,54 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 }
 
 func (c *serviceExecuteCmd) getTaskKey(s *coreapi.Service) error {
-	if c.taskKey == "" {
-		keys := taskKeysFromService(s)
-		if len(keys) == 1 {
-			c.taskKey = keys[0]
-			return nil
-		}
+	keys := taskKeysFromService(s)
 
-		if survey.AskOne(&survey.Select{
-			Message: "Select the task to execute",
-			Options: keys,
-		}, &c.taskKey, nil) != nil {
-			return errors.New("no task to execute")
+	if c.taskKey != "" {
+		if !xstrings.SliceContains(keys, c.taskKey) {
+			return fmt.Errorf("task %q does not exists on service", c.taskKey)
 		}
+		return nil
+	}
+
+	if len(keys) == 1 {
+		c.taskKey = keys[0]
+		return nil
+	}
+
+	if survey.AskOne(&survey.Select{
+		Message: "Select the task to execute",
+		Options: keys,
+	}, &c.taskKey, nil) != nil {
+		return errors.New("no task to execute")
 	}
 	return nil
 }
 
-func (c *serviceExecuteCmd) getData(taskKey string, s *coreapi.Service, dataStruct map[string]string) (string, error) {
-	if dataStruct != nil {
-		castData, err := casting.TaskInputs(s, taskKey, dataStruct)
+func (c *serviceExecuteCmd) getData(s *coreapi.Service) (string, error) {
+	if c.jsonFile != "" {
+		return c.readFile()
+	}
+
+	// see if task has no inputs.
+	noInput := false
+	for _, task := range s.Tasks {
+		if task.Key == c.taskKey {
+			if len(task.Inputs) == 0 {
+				noInput = true
+			}
+			break
+		}
+	}
+
+	if noInput {
+		if len(c.executeData) > 0 {
+			return "", fmt.Errorf("task %q has no input but --data flag was supplied", c.taskKey)
+		}
+		return "{}", nil
+	}
+
+	if c.executeData != nil {
+		castData, err := casting.TaskInputs(s, c.taskKey, c.executeData)
 		if err != nil {
 			return "", err
 		}
@@ -146,18 +175,12 @@ func (c *serviceExecuteCmd) getData(taskKey string, s *coreapi.Service, dataStru
 			return "", errors.New("no filepath given")
 		}
 	}
+	return c.readFile()
+}
 
-	// still no answer then return empty json object
-	if c.jsonFile == "" {
-		return "{}", nil
-	}
-
+func (c *serviceExecuteCmd) readFile() (string, error) {
 	content, err := xjson.ReadFile(c.jsonFile)
-	if err != nil {
-		return "", err
-	}
-
-	return string(content), nil
+	return string(content), err
 }
 
 func taskKeysFromService(s *coreapi.Service) []string {
