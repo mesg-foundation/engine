@@ -14,7 +14,10 @@ go build -o ./bin/cli -ldflags="$LDFLAGS" interface/cli/main.go
 CORE_SUM_PATH="./bin/.core.sum"
 touch "$CORE_SUM_PATH"
 
-# check if core bin was is cached
+DOCKER_SUM_PATH="./bin/.Dockerfile.dev.sum"
+touch "$DOCKER_SUM_PATH"
+
+# check if core bin was cached
 CORE_SUM="$(openssl md5 ./bin/core)"
 CORE_SUM_PREV="$(cat $CORE_SUM_PATH)"
 if [[ "$CORE_SUM" == "$CORE_SUM_PREV" ]]; then
@@ -23,13 +26,22 @@ else
   echo "$CORE_SUM" > "$CORE_SUM_PATH"
 fi
 
+# check if dockerfile was cached
+DOCKER_SUM="$(openssl md5 ./Dockerfile.dev)"
+DOCKER_SUM_PREV="$(cat $DOCKER_SUM_PATH)"
+if [[ "$DOCKER_SUM" == "$DOCKER_SUM_PREV" ]]; then
+  DOCKERCACHED=true
+else
+  echo "$DOCKER_SUM" > "$DOCKER_SUM_PATH"
+fi
+
 # create a symlink for system services.
 rm -rf "$HOME/.mesg/systemservices"
 mkdir -p "$HOME/.mesg/"
 ln -s "$DIR/src/github.com/mesg-foundation/core/systemservices/sources" "$HOME/.mesg/systemservices"
 
 echo "build mesg/core image"
-if [[ ! $BINCACHED ]]; then
+if [[ ! $BINCACHED ]] || [[ ! $DOCKERCACHED ]]; then
   docker build -f Dockerfile.dev -t "mesg/core:$VERSION" .
 fi
 

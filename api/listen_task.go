@@ -32,10 +32,10 @@ type TaskListener struct {
 // newTaskListener creates a new TaskListener with given api.
 func newTaskListener(api *API) *TaskListener {
 	return &TaskListener{
-		Executions: make(chan *execution.Execution, 0),
+		Executions: make(chan *execution.Execution),
 		Err:        make(chan error, 1),
-		cancel:     make(chan struct{}, 0),
-		listening:  make(chan struct{}, 0),
+		cancel:     make(chan struct{}),
+		listening:  make(chan struct{}),
 		api:        api,
 	}
 }

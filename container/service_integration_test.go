@@ -29,15 +29,16 @@ func TestIntegrationStartService(t *testing.T) {
 	require.NotEqual(t, "", serviceID)
 }
 
-func TestIntegrationStartService2Times(t *testing.T) {
+func TestIntegrationStartServiceTwice(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
-	namespace := []string{"TestStartService2Times"}
-	startTestService(namespace)
+	namespace := []string{"TestStartServiceTwice"}
+	id1, err := startTestService(namespace)
+	require.NoError(t, err)
 	defer c.StopService(namespace)
-	serviceID, err := startTestService(namespace)
-	require.Error(t, err)
-	require.Equal(t, "", serviceID)
+	id2, err := startTestService(namespace)
+	require.NoError(t, err)
+	require.Equal(t, id1, id2)
 }
 
 func TestIntegrationStopService(t *testing.T) {
