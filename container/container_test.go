@@ -32,6 +32,35 @@ func mockNew(m *mocks.CommonAPIClient) {
 		Return(types.NetworkResource{ID: "1"}, nil)
 }
 
+// TODO: support all status types.
+func mockStatus(t *testing.T, m *mocks.CommonAPIClient, namespace string, wantedStatus StatusType) {
+	var (
+		containerID = "1"
+	)
+
+	m.On("ContainerList", mock.AnythingOfType("*context.timerCtx"), types.ContainerListOptions{
+		Filters: filters.NewArgs(filters.KeyValuePair{
+			Key:   "label",
+			Value: "com.docker.stack.namespace=" + namespace,
+		}),
+		Limit: 1,
+	}).Once().
+		Return([]types.Container{{ID: "1"}}, nil)
+
+	containerInspect := m.On("ContainerInspect", mock.AnythingOfType("*context.timerCtx"), containerID).Once()
+	serviceInspect := m.On("ServiceInspectWithRaw", mock.Anything, namespace, types.ServiceInspectOptions{}).Once()
+	switch wantedStatus {
+	case RUNNING:
+		containerInspect.Return(types.ContainerJSON{}, nil)
+		serviceInspect.Return(swarm.Service{}, nil, nil)
+	case STOPPED:
+		containerInspect.Return(types.ContainerJSON{}, dockertest.NotFoundErr{})
+		serviceInspect.Return(swarm.Service{}, nil, dockertest.NotFoundErr{})
+	default:
+		t.Errorf("unhandled status %v", wantedStatus)
+	}
+}
+
 func TestNew(t *testing.T) {
 	dt := dockertest.New()
 	c, err := New(ClientOption(dt.Client()))

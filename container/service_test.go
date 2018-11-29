@@ -14,6 +14,7 @@ import (
 )
 
 func TestStartService(t *testing.T) {
+	t.Skip("put back when dockertest will be replaced with testify.Mock")
 	namespace := []string{"namespace"}
 	containerID := "id"
 	options := ServiceOptions{
@@ -43,6 +44,7 @@ func TestStopService(t *testing.T) {
 		fullNamespace = c.Namespace(namespace)
 	)
 
+	mockStatus(t, m, fullNamespace, RUNNING)
 	m.On("ServiceRemove", mock.Anything, fullNamespace).Once().Return(nil)
 	m.On("ContainerList", mock.AnythingOfType("*context.timerCtx"), types.ContainerListOptions{
 		Filters: filters.NewArgs(filters.KeyValuePair{

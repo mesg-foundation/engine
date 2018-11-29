@@ -12,12 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TODO: support all status types.
 func mockWaitForStatus(t *testing.T, m *mocks.CommonAPIClient, namespace string, wantedStatus StatusType) {
-	var (
-		containerID = "1"
-	)
-
 	m.On("TaskList", mock.Anything, types.TaskListOptions{
 		Filters: filters.NewArgs(filters.KeyValuePair{
 			Key:   "label",
@@ -25,24 +20,7 @@ func mockWaitForStatus(t *testing.T, m *mocks.CommonAPIClient, namespace string,
 		}),
 	}).Once().
 		Return([]swarm.Task{}, nil)
-	m.On("ContainerList", mock.AnythingOfType("*context.timerCtx"), types.ContainerListOptions{
-		Filters: filters.NewArgs(filters.KeyValuePair{
-			Key:   "label",
-			Value: "com.docker.stack.namespace=" + namespace,
-		}),
-		Limit: 1,
-	}).Once().
-		Return([]types.Container{{ID: containerID}}, nil)
-
-	containerInspect := m.On("ContainerInspect", mock.AnythingOfType("*context.timerCtx"), containerID).Once()
-	serviceInspect := m.On("ServiceInspectWithRaw", mock.Anything, namespace, types.ServiceInspectOptions{}).Once()
-	switch wantedStatus {
-	case STOPPED:
-		containerInspect.Return(types.ContainerJSON{}, dockertest.NotFoundErr{})
-		serviceInspect.Return(swarm.Service{}, nil, dockertest.NotFoundErr{})
-	default:
-		t.Errorf("unhandled status %v", wantedStatus)
-	}
+	mockStatus(t, m, namespace, wantedStatus)
 }
 
 func TestWaitForStatusRunning(t *testing.T) {
