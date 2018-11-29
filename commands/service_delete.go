@@ -72,9 +72,13 @@ func (c *serviceDeleteCmd) runE(cmd *cobra.Command, args []string) error {
 
 	exitWithError := false
 	for _, arg := range args {
-		pretty.Progress(fmt.Sprintf("Deleting service %q...", arg), func() {
-			err = c.e.ServiceDelete(arg)
-		})
+		// build function to avoid using arg inside progress
+		fn := func(id string) func() {
+			return func() {
+				err = c.e.ServiceDelete(id)
+			}
+		}(arg)
+		pretty.Progress(fmt.Sprintf("Deleting service %q...", arg), fn)
 		if err != nil {
 			exitWithError = true
 			fmt.Fprintf(os.Stderr, "%s can't delete service %q: %s\n", pretty.FailSign, arg, err)

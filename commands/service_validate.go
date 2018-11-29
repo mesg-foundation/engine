@@ -32,7 +32,7 @@ mesg-core service validate ./SERVICE_FOLDER`,
 }
 
 func (c *serviceValidateCmd) preRunE(cmd *cobra.Command, args []string) error {
-	c.path = getFirstOrDefault(args, "./")
+	c.path = getFirstOrDefault(args)
 	return nil
 }
 

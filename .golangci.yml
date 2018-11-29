@@ -1,0 +1,37 @@
+run:
+  tests: true
+  build-tags:
+    - integration
+  skip-dirs:
+    - commands/provider/assets/
+    - protobuf/
+    - service/importer/assets/
+    - systemservices/sources/resolver/proto/
+
+linters-settings:
+  govet:
+    check-shadowing: false
+  golint:
+    min-confidence: 0
+  gocyclo:
+    min-complexity: 20
+  maligned:
+    suggest-new: true
+  misspell:
+    locale: US
+
+issues:
+  exclude:
+    - "ineffective break statement. Did you mean to break out of the outer loop"
+
+linters:
+  enable-all: true
+  disable:
+    - depguard
+    - dupl
+    - errcheck
+    - gochecknoglobals
+    - goconst
+    - gosec
+    - lll
+    - prealloc

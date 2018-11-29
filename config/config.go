@@ -119,8 +119,8 @@ func (c *Config) Prepare() error {
 
 // Validate checks values and return an error if any validation failed.
 func (c *Config) Validate() error {
-	if xstrings.SliceContains([]string{"text", "json"}, c.Log.Format) == false {
-		return fmt.Errorf("Value %q is not an allowed", c.Log.Format)
+	if !xstrings.SliceContains([]string{"text", "json"}, c.Log.Format) {
+		return fmt.Errorf("value %q is not an allowed", c.Log.Format)
 	}
 	if _, err := logrus.ParseLevel(c.Log.Level); err != nil {
 		return err

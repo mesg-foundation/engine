@@ -42,12 +42,13 @@ func New(options ...Option) (*Workflow, error) {
 // Option is a configuration func for WSS.
 type Option func(*Workflow)
 
-// mesgOption returns an option for setting mesg service s.
-func mesgOption(s *mesg.Service) Option {
-	return func(r *Workflow) {
-		r.s = s
-	}
-}
+// UNUSED: remove comment when used
+// // mesgOption returns an option for setting mesg service s.
+// func mesgOption(s *mesg.Service) Option {
+// 	return func(r *Workflow) {
+// 		r.s = s
+// 	}
+// }
 
 // Start starts WSS.
 func (w *Workflow) Start() error {
