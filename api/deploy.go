@@ -139,6 +139,10 @@ func (d *serviceDeployer) deploy(r io.Reader) (*service.Service, *importer.Valid
 	if validationErr != nil {
 		return nil, validationErr, nil
 	}
+
+	if err := s.CreateVolumes(); err != nil {
+		return nil, nil, err
+	}
 	return s, nil, d.api.db.Save(s)
 }
 

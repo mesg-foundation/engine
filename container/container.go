@@ -29,6 +29,8 @@ type Container interface {
 	Status(namespace []string) (StatusType, error)
 	StopService(namespace []string) (err error)
 	TasksError(namespace []string) ([]string, error)
+	CreateVolume(name string) (types.Volume, error)
+	DeleteVolume(name string) error
 }
 
 // DockerContainer provides high level interactions with Docker API for MESG.
