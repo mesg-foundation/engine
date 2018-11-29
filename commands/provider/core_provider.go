@@ -14,20 +14,21 @@ import (
 
 // CoreProvider is a struct that provides all methods required by core command.
 type CoreProvider struct {
+	d      daemon.Daemon
 	client coreapi.CoreClient
 }
 
 // NewCoreProvider creates new CoreProvider.
-func NewCoreProvider(client coreapi.CoreClient) *CoreProvider {
+func NewCoreProvider(client coreapi.CoreClient, d daemon.Daemon) *CoreProvider {
 	return &CoreProvider{
 		client: client,
+		d:      d,
 	}
 }
 
 // Start starts core daemon.
 func (p *CoreProvider) Start() error {
-	_, err := daemon.Start()
-	return err
+	return p.d.Start()
 }
 
 // Stop stops core daemon and all running services.
@@ -64,7 +65,7 @@ func (p *CoreProvider) Stop() error {
 		errs = append(errs, err)
 	}
 
-	if err := daemon.Stop(); err != nil {
+	if err := p.d.Stop(); err != nil {
 		errs = append(errs, err)
 	}
 
@@ -73,10 +74,10 @@ func (p *CoreProvider) Stop() error {
 
 // Status returns daemon status.
 func (p *CoreProvider) Status() (container.StatusType, error) {
-	return daemon.Status()
+	return p.d.Status()
 }
 
 // Logs returns daemon logs reader.
 func (p *CoreProvider) Logs() (io.ReadCloser, error) {
-	return daemon.Logs()
+	return p.d.Logs()
 }

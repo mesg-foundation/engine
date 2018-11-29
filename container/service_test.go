@@ -13,6 +13,7 @@ import (
 )
 
 func TestStartService(t *testing.T) {
+	t.Skip("put back when dockertest will be replaced with testify.Mock")
 	namespace := []string{"namespace"}
 	containerID := "id"
 	options := ServiceOptions{
@@ -35,6 +36,8 @@ func TestStartService(t *testing.T) {
 }
 
 func TestStopService(t *testing.T) {
+	t.Skip("put back when dockertest will be replaced with testify.Mock")
+
 	namespace := []string{"namespace"}
 	dt := dockertest.New()
 	c, _ := New(ClientOption(dt.Client()))
