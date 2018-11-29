@@ -56,7 +56,9 @@ func (c *DockerContainer) StopService(namespace []string) (err error) {
 	if err := c.client.ServiceRemove(ctx, c.Namespace(namespace)); err != nil && !docker.IsErrNotFound(err) {
 		return err
 	}
-	c.deletePendingContainer(namespace)
+	if err := c.deletePendingContainer(namespace); err != nil {
+		return err
+	}
 	return c.waitForStatus(namespace, STOPPED)
 }
 
@@ -64,11 +66,11 @@ func (c *DockerContainer) deletePendingContainer(namespace []string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
 	container, err := c.FindContainer(namespace)
-	if err != nil && !docker.IsErrNotFound(err) {
+	if err != nil {
+		if docker.IsErrNotFound(err) {
+			return nil
+		}
 		return err
-	}
-	if docker.IsErrNotFound(err) {
-		return nil
 	}
 	// TOFIX: Hack to force Docker to remove the containers.
 	// Sometime, the ServiceRemove function doesn't remove the associated containers.
