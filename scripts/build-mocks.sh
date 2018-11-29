@@ -9,6 +9,9 @@ cd $GOPATH/src/github.com/mesg-foundation/core
 # generate mocks for container package.
 mockery -name=Container -dir ./container -output ./container/mocks
 
+# generate mocks for docker.CommonAPIClient that used by container package.
+mockery -name=Docker -dir ./utils/docker -inpkg
+
 # generate mocks for database package.
 mockery -name=ServiceDB -dir ./database -output ./database/mocks
 
