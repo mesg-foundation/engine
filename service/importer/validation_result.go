@@ -2,8 +2,8 @@ package importer
 
 // ValidationResult contains the result of the validation of a service.
 type ValidationResult struct {
-	ServiceFileExist    bool
 	ServiceFileWarnings []string
+	ServiceFileExist    bool
 	DockerfileExist     bool
 }
 

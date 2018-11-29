@@ -54,6 +54,7 @@ func TestIntegrationStopDependency(t *testing.T) {
 		},
 	}, ContainerOption(c))
 	networkID, err := c.CreateNetwork(service.namespace())
+	require.NoError(t, err)
 	defer c.DeleteNetwork(service.namespace(), container.EventDestroy)
 	dep := service.Dependencies[0]
 	dep.Start(networkID)
