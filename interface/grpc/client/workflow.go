@@ -12,12 +12,9 @@ import (
 func (wf *Workflow) Start() (err error) {
 	switch {
 	case wf.Execute == nil:
-		err = errors.New("A workflow needs a task")
-		break
-
+		err = errors.New("a workflow needs a task")
 	case wf.OnEvent == nil && wf.OnResult == nil:
-		err = errors.New("A workflow needs an event OnEvent or OnResult")
-		break
+		err = errors.New("a workflow needs an event OnEvent or OnResult")
 	}
 	if err != nil {
 		return
@@ -47,7 +44,7 @@ func (wf *Workflow) Stop() (err error) {
 
 func listenEvents(wf *Workflow) (err error) {
 	if wf.OnEvent.Name == "" {
-		err = errors.New("Event's Name should be defined (you can use * to react to any event)")
+		err = errors.New("event's Name should be defined (you can use * to react to any event)")
 		return
 	}
 	stream, err := wf.client.ListenEvent(context.Background(), &coreapi.ListenEventRequest{
@@ -82,7 +79,7 @@ func (wf *Workflow) validEvent(data *coreapi.EventData) bool {
 
 func listenResults(wf *Workflow) (err error) {
 	if wf.OnResult.Name == "" || wf.OnResult.Output == "" {
-		err = errors.New("Result's Name and Output should be defined (you can use * to react to any result)")
+		err = errors.New("result's Name and Output should be defined (you can use * to react to any result)")
 		return
 	}
 	stream, err := wf.client.ListenResult(context.Background(), &coreapi.ListenResultRequest{

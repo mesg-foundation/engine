@@ -68,10 +68,10 @@ func parseBuildResponse(response types.ImageBuildResponse) (tag string, err erro
 	var buildResponse BuildResponse
 
 	if err := json.Unmarshal([]byte(lastOutput), &buildResponse); err != nil {
-		return "", fmt.Errorf("Could not parse container build response. %s", err)
+		return "", fmt.Errorf("could not parse container build response. %s", err)
 	}
 	if buildResponse.Error != "" {
-		return "", fmt.Errorf("Image build failed. %s", buildResponse.Error)
+		return "", fmt.Errorf("image build failed. %s", buildResponse.Error)
 	}
 	return strings.TrimSuffix(buildResponse.Stream, "\n"), nil
 }
@@ -90,7 +90,7 @@ func extractLastOutputFromBuildResponse(response types.ImageBuildResponse) (last
 		i--
 	}
 	if lastOutput == "" {
-		return "", errors.New("Could not parse container build response")
+		return "", errors.New("could not parse container build response")
 	}
 	return lastOutput, nil
 }

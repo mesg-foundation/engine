@@ -26,6 +26,7 @@ func TestStopService(t *testing.T) {
 	reply, err := server.StopService(context.Background(), &coreapi.StopServiceRequest{
 		ServiceID: s.ID,
 	})
+	require.NoError(t, err)
 
 	status, err := s.Status()
 	require.NoError(t, err)

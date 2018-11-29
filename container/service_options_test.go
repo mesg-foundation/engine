@@ -111,8 +111,8 @@ func TestServiceOptionEnv(t *testing.T) {
 func TestServiceOptionNetworks(t *testing.T) {
 	options := &ServiceOptions{
 		Networks: []Network{
-			Network{ID: "network1"},
-			Network{ID: "network2", Alias: "test"},
+			{ID: "network1"},
+			{ID: "network2", Alias: "test"},
 		},
 	}
 	networks := options.swarmNetworks()
