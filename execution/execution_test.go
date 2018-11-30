@@ -36,16 +36,16 @@ var (
 					},
 				},
 			},
-			&service.Task{
+			{
 				Key: taskKeyWithError,
 				Inputs: []*service.Parameter{
-					&service.Parameter{Key: "foo", Type: "String"},
+					{Key: "foo", Type: "String"},
 				},
 				Outputs: []*service.Output{
-					&service.Output{
+					{
 						Key: "outputX",
 						Data: []*service.Parameter{
-							&service.Parameter{
+							{
 								Key:  "foo",
 								Type: "String",
 							},
