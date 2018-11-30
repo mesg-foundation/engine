@@ -121,7 +121,7 @@ func (d *Dependency) extractVolumes() ([]container.Mount, error) {
 	return volumes, nil
 }
 
-// volumeKey create an key for the volume based on the alias to make sure that the volume
+// volumeKey creates a key for service's volume based on the service's alias to make sure that the volume
 // will be consistent from one service's version to another.
 func volumeKey(s *Service, dependency string, volume string) string {
 	return xstructhash.Hash([]string{
