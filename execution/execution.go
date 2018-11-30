@@ -1,12 +1,10 @@
 package execution
 
 import (
-	"crypto/sha1"
-	"fmt"
 	"time"
 
-	"github.com/cnf/structhash"
 	"github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/core/x/xstructhash"
 )
 
 // Status stores the state of an execution
@@ -57,7 +55,7 @@ func New(service *service.Service, eventID string, taskKey string, inputs map[st
 		CreatedAt: time.Now(),
 		Status:    Created,
 	}
-	exec.ID = fmt.Sprintf("%x", sha1.Sum(structhash.Dump(exec, 1)))
+	exec.ID = xstructhash.Hash(exec, 1)
 	return exec, nil
 }
 
