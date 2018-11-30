@@ -177,6 +177,17 @@
         "command": {
           "type": "string"
         },
+        "args": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
         "volumes": {
           "oneOf": [
             { "type": "null" },
