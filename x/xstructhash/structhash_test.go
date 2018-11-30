@@ -1,14 +1,19 @@
 package xstructhash
 
 import (
+	"crypto/sha1"
+	"fmt"
 	"testing"
 
 	"github.com/cnf/structhash"
 )
 
 func TestHash(t *testing.T) {
-	hash := Hash(struct{}{}, 1)
-	if version := structhash.Version(hash); version != 1 {
-		t.Errorf("invalid version - got %d, want %d", version, 1)
+	s := struct{}{}
+	v := 1
+	got := Hash(s, v)
+	want := fmt.Sprintf("%x", sha1.Sum(structhash.Dump(s, v)))
+	if got != want {
+		t.Errorf("invalid hash")
 	}
 }
