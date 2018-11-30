@@ -13,7 +13,8 @@ import (
 const aliasesPathSuffix = "_aliases"
 
 var (
-	errCannotSaveWithoutID = errors.New("database: can't save service without id")
+	errCannotSaveWithoutID    = errors.New("database: can't save service without id")
+	errCannotSaveWithoutAlias = errors.New("database: can't save service without alias")
 )
 
 // ServiceDB describes the API of database package.
@@ -141,10 +142,11 @@ func (d *LevelDBServiceDB) Save(s *service.Service) error {
 		return err
 	}
 	// save alias if exist
-	if s.Alias != "" {
-		if err := d.aliases.Put([]byte(s.Alias), []byte(s.ID), nil); err != nil {
-			return err
-		}
+	if s.Alias == "" {
+		return errCannotSaveWithoutAlias
+	}
+	if err := d.aliases.Put([]byte(s.Alias), []byte(s.ID), nil); err != nil {
+		return err
 	}
 	return nil
 }
