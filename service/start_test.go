@@ -3,7 +3,6 @@ package service
 import (
 	"errors"
 	"strconv"
-	"strings"
 	"testing"
 
 	"github.com/mesg-foundation/core/config"
@@ -315,8 +314,9 @@ func mockStartService(d *Dependency, mc *mocks.Container,
 			"mesg.service": d.service.Name,
 			"mesg.hash":    d.service.ID,
 		},
-		Image: d.Image,
-		Args:  strings.Fields(d.Command),
+		Image:   d.Image,
+		Command: d.Command,
+		Args:    d.Args,
 		Env: container.MapToEnv(map[string]string{
 			"MESG_TOKEN":        d.service.ID,
 			"MESG_ENDPOINT":     endpoint,

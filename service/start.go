@@ -64,8 +64,9 @@ func (d *Dependency) Start(networkID string) (containerServiceID string, err err
 			"mesg.alias":   d.service.Alias,
 			"mesg.core":    c.Core.Name,
 		},
-		Image: d.Image,
-		Args:  strings.Fields(d.Command),
+		Image:   d.Image,
+		Args:    d.Args,
+		Command: d.Command,
 		Env: container.MapToEnv(map[string]string{
 			"MESG_TOKEN":        d.service.ID,
 			"MESG_ENDPOINT":     endpoint,

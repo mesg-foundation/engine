@@ -5,6 +5,7 @@ import (
 	"os"
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/swarm"
@@ -18,6 +19,7 @@ type ServiceOptions struct {
 	Mounts    []Mount
 	Env       []string // TODO: should be transform to  map[string]string and use the func mapToEnv
 	Args      []string
+	Command   string
 	Networks  []Network
 	Labels    map[string]string
 }
@@ -61,9 +63,10 @@ func (options *ServiceOptions) toSwarmServiceSpec(c *DockerContainer) swarm.Serv
 				Labels: map[string]string{
 					"com.docker.stack.namespace": namespace,
 				},
-				Env:    options.Env,
-				Args:   options.Args,
-				Mounts: options.swarmMounts(false),
+				Env:     options.Env,
+				Args:    options.Args,
+				Command: strings.Fields(options.Command),
+				Mounts:  options.swarmMounts(false),
 			},
 			Networks: options.swarmNetworks(),
 		},
