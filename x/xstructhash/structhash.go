@@ -1,6 +1,8 @@
 package xstructhash
 
 import (
+	"fmt"
+
 	"github.com/cnf/structhash"
 )
 
@@ -10,7 +12,5 @@ import (
 // This function uses md5 hashing function and default formatter. See also Dump()
 // function.
 func Hash(c interface{}, version int) string {
-	// structhash.Hash always returns nil.
-	hash, _ := structhash.Hash(c, version)
-	return hash
+	return fmt.Sprintf("%x", structhash.Sha1(c, version))
 }
