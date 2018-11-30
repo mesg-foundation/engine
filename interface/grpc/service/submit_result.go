@@ -12,7 +12,7 @@ import (
 func (s *Server) SubmitResult(context context.Context, request *serviceapi.SubmitResultRequest) (*serviceapi.SubmitResultReply, error) {
 	var data map[string]interface{}
 	if err := json.Unmarshal([]byte(request.OutputData), &data); err != nil {
-		return nil, fmt.Errorf("servcie sent invalid json data in %s output", request.OutputKey)
+		return nil, fmt.Errorf("service sent invalid json data in output %q", request.OutputKey)
 	}
 	return &serviceapi.SubmitResultReply{}, s.api.SubmitResult(request.ExecutionID, request.OutputKey, data)
 }
