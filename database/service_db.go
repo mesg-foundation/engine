@@ -78,7 +78,6 @@ func (d *LevelDBServiceDB) All() ([]*service.Service, error) {
 		services []*service.Service
 		iter     = d.db.NewIterator(nil, nil)
 	)
-
 	for iter.Next() {
 		s, err := d.unmarshal(string(iter.Key()), iter.Value())
 		if err != nil {
@@ -88,49 +87,39 @@ func (d *LevelDBServiceDB) All() ([]*service.Service, error) {
 				logrus.WithField("service", decodeErr.ID).Warning(decodeErr.Error())
 				continue
 			}
+			iter.Release()
 			return nil, err
 		}
 		services = append(services, s)
 	}
 	iter.Release()
-	if err := iter.Error(); err != nil {
-		return nil, err
-	}
-
-	return services, nil
+	return services, iter.Error()
 }
 
 // Delete deletes service from database.
-// TODO this should also find and delete alias when id is given.
 func (d *LevelDBServiceDB) Delete(idOrAlias string) error {
-	idOrAliasBytes := []byte(idOrAlias)
-	id, err := d.aliases.Get(idOrAliasBytes, nil)
-	if err != nil && err != leveldb.ErrNotFound {
+	id, alias, err := d.getIDAndAlias(idOrAlias)
+	if err != nil {
 		return err
 	}
-	if id != nil { // has alias, deleting it first.
-		idOrAliasBytes = id
-		if err := d.aliases.Delete(idOrAliasBytes, nil); err != nil {
+	// delete alias
+	if alias != "" {
+		if err := d.aliases.Delete([]byte(alias), nil); err != nil {
 			return err
 		}
 	}
-	return d.db.Delete(idOrAliasBytes, nil)
+	// delete service
+	return d.db.Delete([]byte(id), nil)
 }
 
 // Get retrives service from database.
 func (d *LevelDBServiceDB) Get(idOrAlias string) (*service.Service, error) {
-	id, err := d.aliases.Get([]byte(idOrAlias), nil)
-	if err != nil && err != leveldb.ErrNotFound {
+	id, _, err := d.getIDAndAlias(idOrAlias)
+	if err != nil {
 		return nil, err
 	}
-	if string(id) != "" {
-		idOrAlias = string(id)
-	}
-	b, err := d.db.Get([]byte(idOrAlias), nil)
+	b, err := d.db.Get([]byte(id), nil)
 	if err != nil {
-		if err == leveldb.ErrNotFound {
-			return nil, &ErrNotFound{ID: idOrAlias}
-		}
 		return nil, err
 	}
 	return d.unmarshal(idOrAlias, b)
@@ -138,29 +127,24 @@ func (d *LevelDBServiceDB) Get(idOrAlias string) (*service.Service, error) {
 
 // Save stores service in database.
 func (d *LevelDBServiceDB) Save(s *service.Service) error {
+	// check service
 	if s.ID == "" {
 		return errCannotSaveWithoutID
 	}
+	// encode service
 	b, err := d.marshal(s)
 	if err != nil {
 		return err
 	}
+	// save service
+	if err := d.db.Put([]byte(s.ID), b, nil); err != nil {
+		return err
+	}
+	// save alias if exist
 	if s.Alias != "" {
-		if _, err := d.Get(s.Alias); err != nil {
-			if _, ok := err.(*ErrNotFound); !ok {
-				return err
-			}
-		} else {
-			return &ErrSameAlias{alias: s.Alias}
-		}
-
 		if err := d.aliases.Put([]byte(s.Alias), []byte(s.ID), nil); err != nil {
 			return err
 		}
-	}
-	if err := d.db.Put([]byte(s.ID), b, nil); err != nil {
-		d.Delete(s.Alias)
-		return err
 	}
 	return nil
 }
@@ -171,6 +155,51 @@ func (d *LevelDBServiceDB) Close() error {
 		return err
 	}
 	return d.aliases.Close()
+}
+
+// getIDAndAlias returns and separates id from alias.
+// id cannot be empty if an error is returned.
+// returned alias can be empty.
+func (d *LevelDBServiceDB) getIDAndAlias(idOrAlias string) (id string, alias string, err error) {
+	// check if idOrAlias is an id
+	// if it is already an id, return it with correspond alias if exist
+	isID, err := d.db.Has([]byte(idOrAlias), nil)
+	if err != nil {
+		return "", "", err
+	}
+	if isID {
+		id = idOrAlias
+		alias, err = d.getAliasFromID(id)
+		if err != nil {
+			return "", "", err
+		}
+		return id, alias, nil
+	}
+	// check if idOrAlias is an alias
+	// if it is an alias, return it with the corresponding id
+	alias = idOrAlias
+	idB, err := d.aliases.Get([]byte(alias), nil)
+	if err != nil {
+		if err == leveldb.ErrNotFound {
+			return "", "", &ErrNotFound{ID: alias}
+		}
+		return "", "", err
+	}
+	id = string(idB)
+	return id, alias, nil
+}
+
+// getAliasFromID returns the alias pointing to the id if exist.
+func (d *LevelDBServiceDB) getAliasFromID(id string) (alias string, err error) {
+	iter := d.aliases.NewIterator(nil, nil)
+	for iter.Next() {
+		if string(iter.Value()) == id {
+			alias = string(iter.Key())
+			break
+		}
+	}
+	iter.Release()
+	return alias, iter.Error()
 }
 
 // ErrNotFound is an not found error.
@@ -188,20 +217,11 @@ type DecodeError struct {
 }
 
 func (e *DecodeError) Error() string {
-	return fmt.Sprintf("Database services: Could not decode service %q", e.ID)
+	return fmt.Sprintf("database: Could not decode service %q", e.ID)
 }
 
 // IsErrNotFound returns true if err is type of ErrNotFound, false otherwise.
 func IsErrNotFound(err error) bool {
 	_, ok := err.(*ErrNotFound)
 	return ok
-}
-
-// ErrSameAlias error returned when there is a service with the same alias.
-type ErrSameAlias struct {
-	alias string
-}
-
-func (e *ErrSameAlias) Error() string {
-	return fmt.Sprintf("database: a service with the %q alias already exists", e.alias)
 }
