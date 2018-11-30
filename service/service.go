@@ -1,17 +1,16 @@
 package service
 
 import (
-	"crypto/sha1"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
 	"time"
 
-	"github.com/cnf/structhash"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/service/importer"
+	"github.com/mesg-foundation/core/x/xstructhash"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -159,9 +158,7 @@ func DeployStatusOption(statuses chan DeployStatus) Option {
 // have effect on computation but extending or removing configurations or changing
 // values in mesg.yml will cause computeHash to generate a different value.
 func (s *Service) computeHash() string {
-	h := sha1.New()
-	h.Write(structhash.Dump(s, 1))
-	return fmt.Sprintf("%x", h.Sum(nil))
+	return xstructhash.Hash(s, 1)
 }
 
 // saveContext downloads service context to a temp dir.
