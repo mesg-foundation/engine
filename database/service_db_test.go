@@ -25,13 +25,6 @@ func deleteDBs(t *testing.T) {
 	require.NoError(t, os.RemoveAll(testdbname+aliasesPathSuffix))
 }
 
-func TestDecodeError(t *testing.T) {
-	db, closer := openServiceDB(t)
-	defer closer()
-	_, err := db.unmarshal("IDToTest", []byte("oaiwdhhiodoihwaiohwa"))
-	require.IsType(t, &DecodeError{}, err)
-}
-
 func TestServiceDBSave(t *testing.T) {
 	db, closer := openServiceDB(t)
 	defer closer()
@@ -40,43 +33,17 @@ func TestServiceDBSave(t *testing.T) {
 	require.NoError(t, db.Save(s))
 	defer db.Delete(s.ID)
 
-	// test service without id
-	s = &service.Service{Name: "test-service"}
-	require.Error(t, db.Save(s))
-}
-
-func TestServiceDBSaveWithAlias(t *testing.T) {
-	db, closer := openServiceDB(t)
-	defer closer()
-
-	s := &service.Service{ID: "1", Alias: "2", Name: "test-service"}
+	// with alias
+	s = &service.Service{ID: "1", Alias: "2", Name: "test-service"}
 	require.NoError(t, db.Save(s))
 	defer db.Delete(s.ID)
 
-	// try saving a service with the same alias.
-	s = &service.Service{ID: "3", Alias: "2", Name: "test-service"}
-	require.Equal(t, &ErrSameAlias{alias: "2"}, db.Save(s))
+	// test service without id
+	s = &service.Service{Name: "test-service"}
+	require.EqualError(t, db.Save(s), errCannotSaveWithoutID.Error())
 }
 
 func TestServiceDBGet(t *testing.T) {
-	db, closer := openServiceDB(t)
-	defer closer()
-
-	want := &service.Service{ID: "1", Name: "test-service"}
-	require.NoError(t, db.Save(want))
-	defer db.Delete(want.ID)
-
-	got, err := db.Get(want.ID)
-	require.NoError(t, err)
-	require.Equal(t, want, got)
-
-	// test return err not found
-	_, err = db.Get("2")
-	require.Error(t, err)
-	require.True(t, IsErrNotFound(err))
-}
-
-func TestServiceDBGetWithAlias(t *testing.T) {
 	db, closer := openServiceDB(t)
 	defer closer()
 
@@ -84,19 +51,38 @@ func TestServiceDBGetWithAlias(t *testing.T) {
 	require.NoError(t, db.Save(want))
 	defer db.Delete(want.ID)
 
-	got, err := db.Get(want.Alias)
+	// id
+	got, err := db.Get(want.ID)
 	require.NoError(t, err)
 	require.Equal(t, want, got)
+
+	// alias
+	got, err = db.Get(want.Alias)
+	require.NoError(t, err)
+	require.Equal(t, want, got)
+
+	// test return err not found
+	_, err = db.Get("3")
+	require.Error(t, err)
+	require.True(t, IsErrNotFound(err))
 }
 
 func TestServiceDBDelete(t *testing.T) {
 	db, closer := openServiceDB(t)
 	defer closer()
 
+	// id
 	s := &service.Service{ID: "1", Name: "test-service"}
 	require.NoError(t, db.Save(s))
 	require.NoError(t, db.Delete(s.ID))
 	_, err := db.Get(s.ID)
+	require.True(t, IsErrNotFound(err))
+
+	// alias
+	s = &service.Service{ID: "1", Alias: "2", Name: "test-service"}
+	require.NoError(t, db.Save(s))
+	require.NoError(t, db.Delete(s.Alias))
+	_, err = db.Get(s.Alias)
 	require.True(t, IsErrNotFound(err))
 }
 
@@ -117,6 +103,24 @@ func TestServiceDBAll(t *testing.T) {
 	require.Len(t, services, 2)
 	require.Contains(t, services, s1)
 	require.Contains(t, services, s2)
+}
+
+func TestServiceDBAllWithDecodeError(t *testing.T) {
+	db, closer := openServiceDB(t)
+	defer closer()
+
+	id := "idtest"
+	require.NoError(t, db.db.Put([]byte(id), []byte("oaiwdhhiodoihwaiohwa"), nil))
+	defer db.db.Delete([]byte(id), nil)
+
+	s1 := &service.Service{ID: "1", Name: "test-service"}
+	require.NoError(t, db.Save(s1))
+	defer db.Delete(s1.ID)
+
+	services, err := db.All()
+	require.NoError(t, err)
+	require.Len(t, services, 1)
+	require.Contains(t, services, s1)
 }
 
 func TestIsErrNotFound(t *testing.T) {
