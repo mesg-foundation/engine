@@ -158,7 +158,7 @@ func (d *LevelDBServiceDB) Close() error {
 }
 
 // getIDAndAlias returns and separates id from alias.
-// id cannot be empty if an error is returned.
+// id will be filled if there are no errors.
 // returned alias can be empty.
 func (d *LevelDBServiceDB) getIDAndAlias(idOrAlias string) (id string, alias string, err error) {
 	// check if idOrAlias is an id
