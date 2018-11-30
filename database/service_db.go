@@ -132,6 +132,9 @@ func (d *LevelDBServiceDB) Save(s *service.Service) error {
 	if s.ID == "" {
 		return errCannotSaveWithoutID
 	}
+	if s.Alias == "" {
+		return errCannotSaveWithoutAlias
+	}
 	// encode service
 	b, err := d.marshal(s)
 	if err != nil {
@@ -141,10 +144,7 @@ func (d *LevelDBServiceDB) Save(s *service.Service) error {
 	if err := d.db.Put([]byte(s.ID), b, nil); err != nil {
 		return err
 	}
-	// save alias if exist
-	if s.Alias == "" {
-		return errCannotSaveWithoutAlias
-	}
+	// save alias
 	if err := d.aliases.Put([]byte(s.Alias), []byte(s.ID), nil); err != nil {
 		return err
 	}
