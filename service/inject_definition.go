@@ -151,7 +151,7 @@ func (s *Service) defParametersToService(params map[string]*importer.Parameter) 
 }
 
 func (s *Service) generateAlias() string {
-	alias := strings.Replace(s.Name, " ", "_", -1)
+	alias := strings.Replace(s.Name, " ", "-", -1)
 	alias = strings.Trim(alias, " _-.,")
 	alias = strings.ToLower(alias)
 	return alias
