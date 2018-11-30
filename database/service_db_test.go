@@ -22,16 +22,16 @@ func openServiceDB(t *testing.T) (*LevelDBServiceDB, func()) {
 
 func deleteDBs(t *testing.T) {
 	require.NoError(t, os.RemoveAll(testdbname))
-	require.NoError(t, os.RemoveAll(testdbname+aliasesPathSuffix))
 }
 
 func TestServiceDBSave(t *testing.T) {
 	db, closer := openServiceDB(t)
 	defer closer()
 
-	s := &service.Service{ID: "1", Alias: "2", Name: "test-service"}
+	s := &service.Service{ID: "00", Alias: "1", Name: "test-service"}
 	require.NoError(t, db.Save(s))
-	defer db.Delete(s.ID)
+	s = &service.Service{ID: "00", Alias: "2", Name: "test-service"}
+	require.NoError(t, db.Save(s))
 
 	// test service without id
 	s = &service.Service{Name: "test-service", Alias: "alias"}
@@ -46,7 +46,7 @@ func TestServiceDBGet(t *testing.T) {
 	db, closer := openServiceDB(t)
 	defer closer()
 
-	want := &service.Service{ID: "1", Alias: "2", Name: "test-service"}
+	want := &service.Service{ID: "00", Alias: "2", Name: "test-service"}
 	require.NoError(t, db.Save(want))
 	defer db.Delete(want.ID)
 
@@ -71,26 +71,26 @@ func TestServiceDBDelete(t *testing.T) {
 	defer closer()
 
 	// id
-	s := &service.Service{ID: "1", Alias: "2", Name: "test-service"}
+	s := &service.Service{ID: "00", Alias: "2", Name: "test-service"}
 	require.NoError(t, db.Save(s))
 	require.NoError(t, db.Delete(s.ID))
 	_, err := db.Get(s.ID)
-	require.True(t, IsErrNotFound(err))
+	require.IsType(t, &ErrNotFound{}, err)
 
 	// alias
-	s = &service.Service{ID: "1", Alias: "2", Name: "test-service"}
+	s = &service.Service{ID: "00", Alias: "2", Name: "test-service"}
 	require.NoError(t, db.Save(s))
 	require.NoError(t, db.Delete(s.Alias))
 	_, err = db.Get(s.Alias)
-	require.True(t, IsErrNotFound(err))
+	require.IsType(t, &ErrNotFound{}, err)
 }
 
 func TestServiceDBAll(t *testing.T) {
 	db, closer := openServiceDB(t)
 	defer closer()
 
-	s1 := &service.Service{ID: "1", Alias: "alias1", Name: "test-service"}
-	s2 := &service.Service{ID: "2", Alias: "alias2", Name: "test-service"}
+	s1 := &service.Service{ID: "00", Alias: "alias1", Name: "test-service"}
+	s2 := &service.Service{ID: "01", Alias: "alias2", Name: "test-service"}
 
 	require.NoError(t, db.Save(s1))
 	require.NoError(t, db.Save(s2))
@@ -112,7 +112,7 @@ func TestServiceDBAllWithDecodeError(t *testing.T) {
 	require.NoError(t, db.db.Put([]byte(id), []byte("oaiwdhhiodoihwaiohwa"), nil))
 	defer db.db.Delete([]byte(id), nil)
 
-	s1 := &service.Service{ID: "1", Alias: "2", Name: "test-service"}
+	s1 := &service.Service{ID: "00", Alias: "2", Name: "test-service"}
 	require.NoError(t, db.Save(s1))
 	defer db.Delete(s1.ID)
 

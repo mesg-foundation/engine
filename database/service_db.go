@@ -4,17 +4,22 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/mesg-foundation/core/service"
 	"github.com/sirupsen/logrus"
 	"github.com/syndtr/goleveldb/leveldb"
 )
 
-const aliasesPathSuffix = "_aliases"
+const (
+	aliasKeyPrefix = "alias_"
+	idKeyPrefix    = "id_"
+)
 
 var (
 	errCannotSaveWithoutID    = errors.New("database: can't save service without id")
 	errCannotSaveWithoutAlias = errors.New("database: can't save service without alias")
+	errAliasSameLen           = errors.New("database: service alias can't have same length as id")
 )
 
 // ServiceDB describes the API of database package.
@@ -39,8 +44,7 @@ type ServiceDB interface {
 
 // LevelDBServiceDB is a database for storing service definition.
 type LevelDBServiceDB struct {
-	db      *leveldb.DB
-	aliases *leveldb.DB
+	db *leveldb.DB
 }
 
 // NewServiceDB returns the database which is located under given path.
@@ -49,14 +53,7 @@ func NewServiceDB(path string) (*LevelDBServiceDB, error) {
 	if err != nil {
 		return nil, err
 	}
-	aliases, err := leveldb.OpenFile(path+aliasesPathSuffix, nil)
-	if err != nil {
-		return nil, err
-	}
-	return &LevelDBServiceDB{
-		db:      db,
-		aliases: aliases,
-	}, nil
+	return &LevelDBServiceDB{db: db}, nil
 }
 
 // marshal returns the byte slice from service.
@@ -80,7 +77,12 @@ func (d *LevelDBServiceDB) All() ([]*service.Service, error) {
 		iter     = d.db.NewIterator(nil, nil)
 	)
 	for iter.Next() {
-		s, err := d.unmarshal(string(iter.Key()), iter.Value())
+		key := string(iter.Key())
+		if strings.HasPrefix(key, aliasKeyPrefix) {
+			continue
+		}
+
+		s, err := d.unmarshal(strings.TrimPrefix(key, idKeyPrefix), iter.Value())
 		if err != nil {
 			// NOTE: Ignore all decode errors (possibly due to a service
 			// structure change or database corruption)
@@ -99,28 +101,27 @@ func (d *LevelDBServiceDB) All() ([]*service.Service, error) {
 
 // Delete deletes service from database.
 func (d *LevelDBServiceDB) Delete(idOrAlias string) error {
-	id, alias, err := d.getIDAndAlias(idOrAlias)
-	if err != nil {
-		return err
-	}
-	// delete alias
-	if alias != "" {
-		if err := d.aliases.Delete([]byte(alias), nil); err != nil {
-			return err
-		}
-	}
-	// delete service
-	return d.db.Delete([]byte(id), nil)
+	batch := &leveldb.Batch{}
+	batch.Delete([]byte(idKeyPrefix + idOrAlias))
+	batch.Delete([]byte(aliasKeyPrefix + idOrAlias))
+	return d.db.Write(batch, nil)
 }
 
 // Get retrives service from database.
 func (d *LevelDBServiceDB) Get(idOrAlias string) (*service.Service, error) {
-	id, _, err := d.getIDAndAlias(idOrAlias)
-	if err != nil {
+	// check if key is an alias, if yes then save id.
+	id, err := d.db.Get([]byte(aliasKeyPrefix+idOrAlias), nil)
+	if err != nil && err != leveldb.ErrNotFound {
 		return nil, err
+	} else if err == nil {
+		idOrAlias = string(id)
 	}
-	b, err := d.db.Get([]byte(id), nil)
+
+	b, err := d.db.Get([]byte(idKeyPrefix+idOrAlias), nil)
 	if err != nil {
+		if err == leveldb.ErrNotFound {
+			return nil, &ErrNotFound{ID: idOrAlias}
+		}
 		return nil, err
 	}
 	return d.unmarshal(idOrAlias, b)
@@ -135,73 +136,25 @@ func (d *LevelDBServiceDB) Save(s *service.Service) error {
 	if s.Alias == "" {
 		return errCannotSaveWithoutAlias
 	}
+	if len(s.ID) == len(s.Alias) {
+		return errAliasSameLen
+	}
+
 	// encode service
 	b, err := d.marshal(s)
 	if err != nil {
 		return err
 	}
-	// save service
-	if err := d.db.Put([]byte(s.ID), b, nil); err != nil {
-		return err
-	}
-	// save alias
-	if err := d.aliases.Put([]byte(s.Alias), []byte(s.ID), nil); err != nil {
-		return err
-	}
-	return nil
+
+	batch := &leveldb.Batch{}
+	batch.Put([]byte(idKeyPrefix+s.ID), b)
+	batch.Put([]byte(aliasKeyPrefix+s.Alias), []byte(s.ID))
+	return d.db.Write(batch, nil)
 }
 
 // Close closes database.
 func (d *LevelDBServiceDB) Close() error {
-	if err := d.db.Close(); err != nil {
-		return err
-	}
-	return d.aliases.Close()
-}
-
-// getIDAndAlias returns and separates id from alias.
-// id will be filled if there are no errors.
-// returned alias can be empty.
-func (d *LevelDBServiceDB) getIDAndAlias(idOrAlias string) (id string, alias string, err error) {
-	// check if idOrAlias is an id
-	// if it is already an id, return it with correspond alias if exist
-	isID, err := d.db.Has([]byte(idOrAlias), nil)
-	if err != nil {
-		return "", "", err
-	}
-	if isID {
-		id = idOrAlias
-		alias, err = d.getAliasFromID(id)
-		if err != nil {
-			return "", "", err
-		}
-		return id, alias, nil
-	}
-	// check if idOrAlias is an alias
-	// if it is an alias, return it with the corresponding id
-	alias = idOrAlias
-	idB, err := d.aliases.Get([]byte(alias), nil)
-	if err != nil {
-		if err == leveldb.ErrNotFound {
-			return "", "", &ErrNotFound{ID: alias}
-		}
-		return "", "", err
-	}
-	id = string(idB)
-	return id, alias, nil
-}
-
-// getAliasFromID returns the alias pointing to the id if exist.
-func (d *LevelDBServiceDB) getAliasFromID(id string) (alias string, err error) {
-	iter := d.aliases.NewIterator(nil, nil)
-	for iter.Next() {
-		if string(iter.Value()) == id {
-			alias = string(iter.Key())
-			break
-		}
-	}
-	iter.Release()
-	return alias, iter.Error()
+	return d.db.Close()
 }
 
 // ErrNotFound is an not found error.
