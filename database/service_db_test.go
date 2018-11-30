@@ -29,18 +29,17 @@ func TestServiceDBSave(t *testing.T) {
 	db, closer := openServiceDB(t)
 	defer closer()
 
-	s := &service.Service{ID: "1", Name: "test-service"}
-	require.NoError(t, db.Save(s))
-	defer db.Delete(s.ID)
-
-	// with alias
-	s = &service.Service{ID: "1", Alias: "2", Name: "test-service"}
+	s := &service.Service{ID: "1", Alias: "2", Name: "test-service"}
 	require.NoError(t, db.Save(s))
 	defer db.Delete(s.ID)
 
 	// test service without id
-	s = &service.Service{Name: "test-service"}
+	s = &service.Service{Name: "test-service", Alias: "alias"}
 	require.EqualError(t, db.Save(s), errCannotSaveWithoutID.Error())
+
+	// test service without alias
+	s = &service.Service{Name: "test-service", ID: "id"}
+	require.EqualError(t, db.Save(s), errCannotSaveWithoutAlias.Error())
 }
 
 func TestServiceDBGet(t *testing.T) {
@@ -72,7 +71,7 @@ func TestServiceDBDelete(t *testing.T) {
 	defer closer()
 
 	// id
-	s := &service.Service{ID: "1", Name: "test-service"}
+	s := &service.Service{ID: "1", Alias: "2", Name: "test-service"}
 	require.NoError(t, db.Save(s))
 	require.NoError(t, db.Delete(s.ID))
 	_, err := db.Get(s.ID)
@@ -90,8 +89,8 @@ func TestServiceDBAll(t *testing.T) {
 	db, closer := openServiceDB(t)
 	defer closer()
 
-	s1 := &service.Service{ID: "1", Name: "test-service"}
-	s2 := &service.Service{ID: "2", Name: "test-service"}
+	s1 := &service.Service{ID: "1", Alias: "alias1", Name: "test-service"}
+	s2 := &service.Service{ID: "2", Alias: "alias2", Name: "test-service"}
 
 	require.NoError(t, db.Save(s1))
 	require.NoError(t, db.Save(s2))
@@ -113,7 +112,7 @@ func TestServiceDBAllWithDecodeError(t *testing.T) {
 	require.NoError(t, db.db.Put([]byte(id), []byte("oaiwdhhiodoihwaiohwa"), nil))
 	defer db.db.Delete([]byte(id), nil)
 
-	s1 := &service.Service{ID: "1", Name: "test-service"}
+	s1 := &service.Service{ID: "1", Alias: "2", Name: "test-service"}
 	require.NoError(t, db.Save(s1))
 	defer db.Delete(s1.ID)
 
