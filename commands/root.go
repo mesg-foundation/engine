@@ -30,7 +30,8 @@ func newRootCmd(e Executor) *rootCmd {
 		newStopCmd(e).cmd,
 		newLogsCmd(e).cmd,
 		newRootServiceCmd(e).cmd,
-		newRootWorkflowCmd(e).cmd,
+		// Workflow system is disable for v0.5. Enable it when ready.
+		// newRootWorkflowCmd(e).cmd,
 	)
 	return c
 }
