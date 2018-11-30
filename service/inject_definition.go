@@ -2,10 +2,10 @@ package service
 
 import (
 	"sort"
+	"strings"
 
 	"github.com/mesg-foundation/core/service/importer"
 	"github.com/mesg-foundation/core/x/xstrings"
-	uuid "github.com/satori/go.uuid"
 )
 
 // injectDefinition applies service definition to Service type.
@@ -13,7 +13,7 @@ func (s *Service) injectDefinition(def *importer.ServiceDefinition) {
 	s.Name = def.Name
 	s.Alias = def.Alias
 	if s.Alias == "" {
-		s.Alias = s.defaultAlias(def.Name)
+		s.Alias = s.generateAlias()
 	}
 	s.Description = def.Description
 	s.Repository = def.Repository
@@ -150,6 +150,9 @@ func (s *Service) defParametersToService(params map[string]*importer.Parameter) 
 	return ps
 }
 
-func (s *Service) defaultAlias(name string) string {
-	return name + uuid.NewV4().String()
+func (s *Service) generateAlias() string {
+	alias := strings.Replace(s.Name, " ", "_", -1)
+	alias = strings.Trim(alias, " _-.,")
+	alias = strings.ToLower(alias)
+	return alias
 }
