@@ -9,6 +9,7 @@ import (
 	"github.com/mesg-foundation/core/service"
 	"github.com/sirupsen/logrus"
 	"github.com/syndtr/goleveldb/leveldb"
+	"github.com/syndtr/goleveldb/leveldb/util"
 )
 
 const (
@@ -74,15 +75,11 @@ func (d *LevelDBServiceDB) unmarshal(id string, value []byte) (*service.Service,
 func (d *LevelDBServiceDB) All() ([]*service.Service, error) {
 	var (
 		services []*service.Service
-		iter     = d.db.NewIterator(nil, nil)
+		iter     = d.db.NewIterator(util.BytesPrefix([]byte(idKeyPrefix)), nil)
 	)
 	for iter.Next() {
-		key := string(iter.Key())
-		if strings.HasPrefix(key, aliasKeyPrefix) {
-			continue
-		}
-
-		s, err := d.unmarshal(strings.TrimPrefix(key, idKeyPrefix), iter.Value())
+		key := strings.TrimPrefix(string(iter.Key()), idKeyPrefix)
+		s, err := d.unmarshal(key, iter.Value())
 		if err != nil {
 			// NOTE: Ignore all decode errors (possibly due to a service
 			// structure change or database corruption)
@@ -172,7 +169,7 @@ type DecodeError struct {
 }
 
 func (e *DecodeError) Error() string {
-	return fmt.Sprintf("database: Could not decode service %q", e.ID)
+	return fmt.Sprintf("database: could not decode service %q", e.ID)
 }
 
 // IsErrNotFound returns true if err is type of ErrNotFound, false otherwise.
