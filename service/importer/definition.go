@@ -54,6 +54,9 @@ type Dependency struct {
 
 	// Command is the Docker command which will be executed when container started.
 	Command string `yaml:"command"`
+
+	// Args hold the args to pass to the Docker container
+	Args []string `yaml:"args"`
 }
 
 // Task describes a service task.

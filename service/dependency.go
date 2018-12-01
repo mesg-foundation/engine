@@ -28,6 +28,9 @@ type Dependency struct {
 	// Command is the Docker command which will be executed when container started.
 	Command string `hash:"name:6"`
 
+	// Argument holds the args to pass to the Docker container
+	Args []string `hash:"name:7"`
+
 	// service is the dependency's service.
 	service *Service `hash:"-"`
 }
