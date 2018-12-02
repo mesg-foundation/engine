@@ -21,7 +21,7 @@ func TestExecute(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.ID)
+	defer server.api.DeleteService(s.ID, false)
 
 	require.NoError(t, server.api.StartService(s.ID))
 	defer server.api.StopService(s.ID)
@@ -42,7 +42,7 @@ func TestExecuteWithInvalidJSON(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.ID)
+	defer server.api.DeleteService(s.ID, false)
 
 	_, err = server.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
 		ServiceID: s.ID,
@@ -63,7 +63,7 @@ func TestExecuteWithInvalidTask(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.ID)
+	defer server.api.DeleteService(s.ID, false)
 
 	require.NoError(t, server.api.StartService(s.ID))
 	defer server.api.StopService(s.ID)
@@ -91,7 +91,7 @@ func TestExecuteWithInvalidTaskInput(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.ID)
+	defer server.api.DeleteService(s.ID, false)
 
 	require.NoError(t, server.api.StartService(s.ID))
 	defer server.api.StopService(s.ID)
@@ -115,7 +115,7 @@ func TestExecuteWithNonRunningService(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.ID)
+	defer server.api.DeleteService(s.ID, false)
 
 	_, err = server.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
 		ServiceID: s.ID,
