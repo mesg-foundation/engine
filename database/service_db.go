@@ -98,14 +98,35 @@ func (d *LevelDBServiceDB) All() ([]*service.Service, error) {
 
 // Delete deletes service from database.
 func (d *LevelDBServiceDB) Delete(idOrAlias string) error {
-	s, err := d.Get(idOrAlias)
+	tx, err := d.db.OpenTransaction()
 	if err != nil {
 		return err
 	}
+
+	idBytes, err := d.db.Get([]byte(aliasKeyPrefix+idOrAlias), nil)
+	if err != nil && err != leveldb.ErrNotFound {
+		tx.Discard()
+		return err
+	}
+
+	id := string(idBytes)
+	alias := ""
+	if id == "" {
+		id = idOrAlias
+	} else {
+		alias = idOrAlias
+	}
+
 	batch := &leveldb.Batch{}
-	batch.Delete([]byte(idKeyPrefix + s.ID))
-	batch.Delete([]byte(aliasKeyPrefix + s.Alias))
-	return d.db.Write(batch, nil)
+	batch.Delete([]byte(idKeyPrefix + id))
+	if alias != "" {
+		batch.Delete([]byte(aliasKeyPrefix + alias))
+	}
+	if err := tx.Write(batch, nil); err != nil {
+		tx.Discard()
+		return err
+	}
+	return tx.Commit()
 }
 
 // Get retrives service from database.
