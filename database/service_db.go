@@ -98,9 +98,13 @@ func (d *LevelDBServiceDB) All() ([]*service.Service, error) {
 
 // Delete deletes service from database.
 func (d *LevelDBServiceDB) Delete(idOrAlias string) error {
+	s, err := d.Get(idOrAlias)
+	if err != nil {
+		return err
+	}
 	batch := &leveldb.Batch{}
-	batch.Delete([]byte(idKeyPrefix + idOrAlias))
-	batch.Delete([]byte(aliasKeyPrefix + idOrAlias))
+	batch.Delete([]byte(idKeyPrefix + s.ID))
+	batch.Delete([]byte(aliasKeyPrefix + s.Alias))
 	return d.db.Write(batch, nil)
 }
 
