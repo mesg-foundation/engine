@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"github.com/mesg-foundation/core/commands/provider/assets"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
@@ -43,15 +44,24 @@ func (p *ServiceProvider) ServiceDeleteAll(deleteData bool) error {
 		return err
 	}
 
-	var errs xerrors.Errors
+	var (
+		errs xerrors.SyncErrors
+		wg   sync.WaitGroup
+	)
+	wg.Add(len(rep.Services))
 	for _, s := range rep.Services {
-		if _, err := p.client.DeleteService(context.Background(), &coreapi.DeleteServiceRequest{
-			ServiceID:  s.ID,
-			DeleteData: deleteData,
-		}); err != nil {
-			errs = append(errs, err)
-		}
+		go func(id string) {
+			_, err := p.client.DeleteService(context.Background(), &coreapi.DeleteServiceRequest{
+				ServiceID:  id,
+				DeleteData: deleteData,
+			})
+			if err != nil {
+				errs.Append(err)
+			}
+			wg.Done()
+		}(s.ID)
 	}
+	wg.Wait()
 	return errs.ErrorOrNil()
 }
 
