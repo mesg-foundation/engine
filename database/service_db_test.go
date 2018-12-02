@@ -76,12 +76,16 @@ func TestServiceDBDelete(t *testing.T) {
 	require.NoError(t, db.Delete(s.ID))
 	_, err := db.Get(s.ID)
 	require.IsType(t, &ErrNotFound{}, err)
+	_, err = db.Get(s.Alias)
+	require.IsType(t, &ErrNotFound{}, err)
 
 	// alias
-	s = &service.Service{ID: "00", Alias: "2", Name: "test-service"}
+	s = &service.Service{ID: "11", Alias: "3", Name: "test-service"}
 	require.NoError(t, db.Save(s))
 	require.NoError(t, db.Delete(s.Alias))
 	_, err = db.Get(s.Alias)
+	require.IsType(t, &ErrNotFound{}, err)
+	_, err = db.Get(s.ID)
 	require.IsType(t, &ErrNotFound{}, err)
 }
 
