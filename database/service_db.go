@@ -78,8 +78,8 @@ func (d *LevelDBServiceDB) All() ([]*service.Service, error) {
 		iter     = d.db.NewIterator(util.BytesPrefix([]byte(idKeyPrefix)), nil)
 	)
 	for iter.Next() {
-		key := strings.TrimPrefix(string(iter.Key()), idKeyPrefix)
-		s, err := d.unmarshal(key, iter.Value())
+		id := strings.TrimPrefix(string(iter.Key()), idKeyPrefix)
+		s, err := d.unmarshal(id, iter.Value())
 		if err != nil {
 			// NOTE: Ignore all decode errors (possibly due to a service
 			// structure change or database corruption)
