@@ -16,7 +16,7 @@ func (c *DockerContainer) CreateVolume(name string) (types.Volume, error) {
 	})
 }
 
-// DeleteVolume deletes Docker Volume by name.
+// DeleteVolume deletes a Docker Volume by name.
 func (c *DockerContainer) DeleteVolume(name string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()

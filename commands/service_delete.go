@@ -33,7 +33,7 @@ mesg-core service delete --all`,
 
 	c.cmd.Flags().BoolVar(&c.all, "all", c.all, "Delete all services")
 	c.cmd.Flags().BoolVarP(&c.force, "force", "f", c.force, "Force delete all services")
-	c.cmd.Flags().BoolVarP(&c.deleteData, "delete-data", "d", c.force, "Delete services' permanents data along the way")
+	c.cmd.Flags().BoolVarP(&c.deleteData, "delete-data", "d", c.force, "Delete services' persistent data along the way")
 	return c
 }
 
@@ -63,7 +63,7 @@ func (c *serviceDeleteCmd) preRunE(cmd *cobra.Command, args []string) error {
 func (c *serviceDeleteCmd) askDeleteData() error {
 	if !c.deleteData {
 		if err := survey.AskOne(&survey.Confirm{
-			Message: "Do you want to remove service(s)' permament data as well?",
+			Message: "Do you want to remove service(s)' persistent data as well?",
 			Default: true,
 		}, &c.deleteData, nil); err != nil {
 			return err
