@@ -6,6 +6,7 @@ import (
 
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
+	"github.com/syndtr/goleveldb/leveldb"
 )
 
 const testdbname = "db.test"
@@ -79,6 +80,11 @@ func TestServiceDBDelete(t *testing.T) {
 	_, err = db.Get(s.Alias)
 	require.IsType(t, &ErrNotFound{}, err)
 
+	_, err = db.db.Get([]byte(idKeyPrefix+s.ID), nil)
+	require.Equal(t, leveldb.ErrNotFound, err)
+	_, err = db.db.Get([]byte(aliasKeyPrefix+s.Alias), nil)
+	require.Equal(t, leveldb.ErrNotFound, err)
+
 	// alias
 	s = &service.Service{ID: "11", Alias: "3", Name: "test-service"}
 	require.NoError(t, db.Save(s))
@@ -87,6 +93,11 @@ func TestServiceDBDelete(t *testing.T) {
 	require.IsType(t, &ErrNotFound{}, err)
 	_, err = db.Get(s.ID)
 	require.IsType(t, &ErrNotFound{}, err)
+
+	_, err = db.db.Get([]byte(idKeyPrefix+s.ID), nil)
+	require.Equal(t, leveldb.ErrNotFound, err)
+	_, err = db.db.Get([]byte(aliasKeyPrefix+s.Alias), nil)
+	require.Equal(t, leveldb.ErrNotFound, err)
 }
 
 func TestServiceDBAll(t *testing.T) {
