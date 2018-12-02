@@ -205,6 +205,7 @@ func (s *Service) deploy() error {
 	s.configuration.Image = imageHash
 	s.Dependencies = append(s.Dependencies, s.configuration)
 	if s.Alias == "" {
+		// make sure that alias doesn't have the same length with id.
 		s.Alias = "a" + s.computeHash()
 	}
 	return nil
