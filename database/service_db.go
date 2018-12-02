@@ -103,25 +103,15 @@ func (d *LevelDBServiceDB) Delete(idOrAlias string) error {
 		return err
 	}
 
-	idBytes, err := d.db.Get([]byte(aliasKeyPrefix+idOrAlias), nil)
-	if err != nil && err != leveldb.ErrNotFound {
+	s, err := d.get(tx, idOrAlias)
+	if err != nil {
 		tx.Discard()
 		return err
 	}
 
-	id := string(idBytes)
-	alias := ""
-	if id == "" {
-		id = idOrAlias
-	} else {
-		alias = idOrAlias
-	}
-
 	batch := &leveldb.Batch{}
-	batch.Delete([]byte(idKeyPrefix + id))
-	if alias != "" {
-		batch.Delete([]byte(aliasKeyPrefix + alias))
-	}
+	batch.Delete([]byte(idKeyPrefix + s.ID))
+	batch.Delete([]byte(aliasKeyPrefix + s.Alias))
 	if err := tx.Write(batch, nil); err != nil {
 		tx.Discard()
 		return err
@@ -131,15 +121,20 @@ func (d *LevelDBServiceDB) Delete(idOrAlias string) error {
 
 // Get retrives service from database.
 func (d *LevelDBServiceDB) Get(idOrAlias string) (*service.Service, error) {
+	return d.get(d.db, idOrAlias)
+}
+
+// get retrives service from database by using r reader.
+func (d *LevelDBServiceDB) get(r leveldb.Reader, idOrAlias string) (*service.Service, error) {
 	// check if key is an alias, if yes then save id.
-	id, err := d.db.Get([]byte(aliasKeyPrefix+idOrAlias), nil)
+	id, err := r.Get([]byte(aliasKeyPrefix+idOrAlias), nil)
 	if err != nil && err != leveldb.ErrNotFound {
 		return nil, err
 	} else if err == nil {
 		idOrAlias = string(id)
 	}
 
-	b, err := d.db.Get([]byte(idKeyPrefix+idOrAlias), nil)
+	b, err := r.Get([]byte(idKeyPrefix+idOrAlias), nil)
 	if err != nil {
 		if err == leveldb.ErrNotFound {
 			return nil, &ErrNotFound{ID: idOrAlias}
