@@ -17,7 +17,7 @@ func TestIntegrationDeployService(t *testing.T) {
 	stream := newTestDeployStream(url)
 
 	require.Nil(t, server.DeployService(stream))
-	defer server.api.DeleteService(stream.serviceID)
+	defer server.api.DeleteService(stream.serviceID, false)
 
 	require.Len(t, stream.serviceID, 40)
 	require.Contains(t, stream.statuses, api.DeployStatus{
