@@ -116,7 +116,11 @@ func (d *LevelDBServiceDB) Delete(idOrAlias string) error {
 		tx.Discard()
 		return err
 	}
-	return tx.Commit()
+	if err := tx.Commit(); err != nil {
+		tx.Discard()
+		return err
+	}
+	return nil
 }
 
 // Get retrives service from database.
