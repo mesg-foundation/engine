@@ -55,27 +55,6 @@ func (_m *Container) CreateNetwork(namespace []string) (string, error) {
 	return r0, r1
 }
 
-// CreateVolume provides a mock function with given fields: name
-func (_m *Container) CreateVolume(name string) (types.Volume, error) {
-	ret := _m.Called(name)
-
-	var r0 types.Volume
-	if rf, ok := ret.Get(0).(func(string) types.Volume); ok {
-		r0 = rf(name)
-	} else {
-		r0 = ret.Get(0).(types.Volume)
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(name)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // DeleteNetwork provides a mock function with given fields: namespace, event
 func (_m *Container) DeleteNetwork(namespace []string, event container.EventType) error {
 	ret := _m.Called(namespace, event)
