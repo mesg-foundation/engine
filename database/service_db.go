@@ -126,15 +126,18 @@ func (d *LevelDBServiceDB) Get(idOrAlias string) (*service.Service, error) {
 
 // get retrives service from database by using r reader.
 func (d *LevelDBServiceDB) get(r leveldb.Reader, idOrAlias string) (*service.Service, error) {
-	// check if key is an alias, if yes then save id.
-	id, err := r.Get([]byte(aliasKeyPrefix+idOrAlias), nil)
+	id := idOrAlias
+
+	// check if key is an alias, if yes then get id.
+	bid, err := r.Get([]byte(aliasKeyPrefix+idOrAlias), nil)
 	if err != nil && err != leveldb.ErrNotFound {
 		return nil, err
 	} else if err == nil {
-		idOrAlias = string(id)
+		id = string(bid)
 	}
 
-	b, err := r.Get([]byte(idKeyPrefix+idOrAlias), nil)
+	// get the service
+	b, err := r.Get([]byte(idKeyPrefix+id), nil)
 	if err != nil {
 		if err == leveldb.ErrNotFound {
 			return nil, &ErrNotFound{ID: idOrAlias}
