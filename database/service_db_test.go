@@ -113,18 +113,27 @@ func TestServiceDBDeleteConcurrency(t *testing.T) {
 	db.Save(s)
 
 	var wg sync.WaitGroup
-	wg.Add(1)
+	errs := make([]error, 0)
+	errsM := &sync.Mutex{}
+	n := 100
+	wg.Add(n)
 
-	// service should not be found
-	go func() {
-		defer wg.Done()
-		require.IsType(t, &ErrNotFound{}, db.Delete(s.ID))
-	}()
-
-	// delete the service
-	require.NoError(t, db.Delete(s.ID))
+	for i := 0; i < n; i++ {
+		go func(id string) {
+			defer wg.Done()
+			if err := db.Delete(id); err != nil {
+				errsM.Lock()
+				errs = append(errs, err)
+				errsM.Unlock()
+			}
+		}(s.ID)
+	}
 
 	wg.Wait()
+	require.Len(t, errs, n-1)
+	for i := 0; i < len(errs); i++ {
+		require.IsType(t, &ErrNotFound{}, errs[i])
+	}
 }
 
 func TestServiceDBAll(t *testing.T) {
