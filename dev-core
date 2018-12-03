@@ -45,18 +45,7 @@ if [[ ! $BINCACHED ]] || [[ ! $DOCKERCACHED ]]; then
   docker build -f Dockerfile.dev -t "mesg/core:$VERSION" .
 fi
 
-# remove docker core services if it wasn't clean up.
-SERVICE_IDS="$(docker service ls --format="{{.ID}} {{.Name}}" | grep core | awk '{{print $1}}')"
-if [[ "$SERVICE_IDS" ]]; then
-  echo "remove previous core services"
-  docker service rm $SERVICE_IDS
-fi
-
-CONTAINER_IDS="$(docker ps -q --filter label=mesg.core)"
-if [[ "$CONTAINER_IDS" ]]; then
-  echo "remove core service containers"
-  docker rm $CONTAINER_IDS
-fi
+./bin/cli stop
 
 trap onexit EXIT INT
 
