@@ -2,6 +2,7 @@ package database
 
 import (
 	"os"
+	"sync"
 	"testing"
 
 	"github.com/mesg-foundation/core/service"
@@ -102,6 +103,28 @@ func TestServiceDBDelete(t *testing.T) {
 	require.Equal(t, leveldb.ErrNotFound, err)
 	_, err = db.db.Get([]byte(aliasKeyPrefix+s.Alias), nil)
 	require.Equal(t, leveldb.ErrNotFound, err)
+}
+
+func TestServiceDBDeleteConcurrency(t *testing.T) {
+	db, closer := openServiceDB(t)
+	defer closer()
+
+	s := &service.Service{ID: "00", Alias: "2", Name: "test-service"}
+	db.Save(s)
+
+	var wg sync.WaitGroup
+	wg.Add(1)
+
+	// service should not be found
+	go func() {
+		defer wg.Done()
+		require.IsType(t, &ErrNotFound{}, db.Delete(s.ID))
+	}()
+
+	// delete the service
+	require.NoError(t, db.Delete(s.ID))
+
+	wg.Wait()
 }
 
 func TestServiceDBAll(t *testing.T) {
