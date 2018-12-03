@@ -33,7 +33,7 @@ mesg-core service delete --all`,
 
 	c.cmd.Flags().BoolVar(&c.all, "all", c.all, "Delete all services")
 	c.cmd.Flags().BoolVarP(&c.force, "force", "f", c.force, "Force delete all services")
-	c.cmd.Flags().BoolVarP(&c.deleteData, "delete-data", "d", c.force, "Delete services' persistent data along the way")
+	c.cmd.Flags().BoolVarP(&c.deleteData, "delete-data", "d", c.deleteData, "Delete services' persistent data along the way")
 	return c
 }
 
