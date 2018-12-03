@@ -116,11 +116,7 @@ func (d *LevelDBServiceDB) Delete(idOrAlias string) error {
 		tx.Discard()
 		return err
 	}
-	if err := tx.Commit(); err != nil {
-		tx.Discard()
-		return err
-	}
-	return nil
+	return tx.Commit()
 }
 
 // Get retrives service from database.
@@ -134,11 +130,7 @@ func (d *LevelDBServiceDB) Get(idOrAlias string) (*service.Service, error) {
 		tx.Discard()
 		return nil, err
 	}
-	if err := tx.Commit(); err != nil {
-		tx.Discard()
-		return nil, err
-	}
-	return s, nil
+	return s, tx.Commit()
 }
 
 // get retrives service from database by using r reader.
