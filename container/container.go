@@ -2,6 +2,7 @@ package container
 
 import (
 	"context"
+	"errors"
 	"io"
 	"time"
 
@@ -66,7 +67,7 @@ func New(options ...Option) (*DockerContainer, error) {
 		}
 	}
 	c.negotiateAPIVersion()
-	if err := c.createSwarmIfNeeded(); err != nil {
+	if err := c.checkSwarm(); err != nil {
 		return c, err
 	}
 	return c, c.createSharedNetworkIfNeeded()
@@ -92,22 +93,17 @@ func (c *DockerContainer) negotiateAPIVersion() {
 	c.client.NegotiateAPIVersion(ctx)
 }
 
-func (c *DockerContainer) createSwarmIfNeeded() error {
+func (c *DockerContainer) checkSwarm() error {
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
 	info, err := c.client.Info(ctx)
 	if err != nil {
 		return err
 	}
-	if info.Swarm.NodeID != "" {
-		return nil
+	if info.Swarm.NodeID == "" {
+		return errors.New("Docker Swarm is not initialized. Execute \"docker swarm init\" and try again")
 	}
-	ctx, cancel = context.WithTimeout(context.Background(), c.callTimeout)
-	defer cancel()
-	_, err = c.client.SwarmInit(ctx, swarm.InitRequest{
-		ListenAddr: "0.0.0.0:2377", // https://docs.docker.com/engine/reference/commandline/swarm_init/#usage
-	})
-	return err
+	return nil
 }
 
 // FindContainer returns a docker container.
