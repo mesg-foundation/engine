@@ -80,8 +80,6 @@ func TestNew(t *testing.T) {
 		t.Error("should fetch info")
 	}
 
-	require.Equal(t, "0.0.0.0:2377", (<-dt.LastSwarmInit()).Request.ListenAddr)
-
 	ln := <-dt.LastNetworkCreate()
 	require.Equal(t, cfg.Core.Name, ln.Name)
 	require.Equal(t, types.NetworkCreate{
