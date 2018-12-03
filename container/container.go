@@ -101,7 +101,7 @@ func (c *DockerContainer) checkSwarm() error {
 		return err
 	}
 	if info.Swarm.NodeID == "" {
-		return errors.New("docker swarm is not initialized. Execute \"docker swarm init\" and try again")
+		return errors.New("docker swarm is not initialized. Execute \"docker swarm init\" and try again. host: " + c.client.DaemonHost())
 	}
 	return nil
 }
