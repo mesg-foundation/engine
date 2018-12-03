@@ -41,6 +41,10 @@ func TestServiceDBSave(t *testing.T) {
 	// test service without alias
 	s = &service.Service{Name: "test-service", ID: "id"}
 	require.EqualError(t, db.Save(s), errCannotSaveWithoutAlias.Error())
+
+	// test service id same length as alias
+	s = &service.Service{Name: "test-service", ID: "sameLength", Alias: "sameLength"}
+	require.EqualError(t, db.Save(s), errAliasSameLen.Error())
 }
 
 func TestServiceDBGet(t *testing.T) {
