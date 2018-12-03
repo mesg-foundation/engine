@@ -61,6 +61,7 @@ func (d *Dependency) Start(networkID string) (containerServiceID string, err err
 		Labels: map[string]string{
 			"mesg.service": d.service.Name,
 			"mesg.hash":    d.service.ID,
+			"mesg.alias":   d.service.Alias,
 			"mesg.core":    c.Core.Name,
 		},
 		Image:   d.Image,
@@ -121,9 +122,11 @@ func (d *Dependency) extractVolumes() ([]container.Mount, error) {
 	return volumes, nil
 }
 
+// volumeKey creates a key for service's volume based on the service's alias to make sure that the volume
+// will stay the same for different versions of the service.
 func volumeKey(s *Service, dependency string, volume string) string {
 	return xstructhash.Hash([]string{
-		s.ID,
+		s.Alias,
 		dependency,
 		volume,
 	}, 1)
