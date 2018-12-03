@@ -298,7 +298,7 @@ message DeployServiceReply {
 // ```
 message DeleteServiceRequest {
   string serviceID = 1;  // The Service ID. Generated when using the [`DeployService` API](#deployservice).
-  bool deleteData = 2; // When enabled, any persistent data that belongs to service and its dependencies will be also deleted.
+  bool deleteData = 2; // When enabled, any persistent data (volumes) that belongs to service and its dependencies will be also deleted.
 }
 
 // Reply of `DeleteService` API doesn't contain any data.
