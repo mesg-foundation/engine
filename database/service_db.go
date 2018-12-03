@@ -125,7 +125,20 @@ func (d *LevelDBServiceDB) Delete(idOrAlias string) error {
 
 // Get retrives service from database.
 func (d *LevelDBServiceDB) Get(idOrAlias string) (*service.Service, error) {
-	return d.get(d.db, idOrAlias)
+	tx, err := d.db.OpenTransaction()
+	if err != nil {
+		return nil, err
+	}
+	s, err := d.get(tx, idOrAlias)
+	if err != nil {
+		tx.Discard()
+		return nil, err
+	}
+	if err := tx.Commit(); err != nil {
+		tx.Discard()
+		return nil, err
+	}
+	return s, nil
 }
 
 // get retrives service from database by using r reader.
