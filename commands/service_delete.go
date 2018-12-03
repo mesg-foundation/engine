@@ -64,7 +64,7 @@ func (c *serviceDeleteCmd) askDeleteData() error {
 	if !c.deleteData {
 		if err := survey.AskOne(&survey.Confirm{
 			Message: "Do you want to remove service(s)' persistent data as well?",
-			Default: true,
+			Default: false,
 		}, &c.deleteData, nil); err != nil {
 			return err
 		}
