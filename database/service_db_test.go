@@ -115,18 +115,18 @@ func TestServiceDBDeleteConcurrency(t *testing.T) {
 	var wg sync.WaitGroup
 	errs := make([]error, 0)
 	errsM := &sync.Mutex{}
-	n := 100
+	n := 10
 	wg.Add(n)
 
 	for i := 0; i < n; i++ {
-		go func(id string) {
+		go func() {
 			defer wg.Done()
-			if err := db.Delete(id); err != nil {
+			if err := db.Delete(s.ID); err != nil {
 				errsM.Lock()
 				errs = append(errs, err)
 				errsM.Unlock()
 			}
-		}(s.ID)
+		}()
 	}
 
 	wg.Wait()
