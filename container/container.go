@@ -71,7 +71,7 @@ func New(options ...Option) (*DockerContainer, error) {
 		}
 	}
 	c.negotiateAPIVersion()
-	if err := c.checkSwarmInit(); err != nil {
+	if err := c.isSwarmInit(); err != nil {
 		return c, err
 	}
 	return c, c.createSharedNetworkIfNeeded()
@@ -97,7 +97,7 @@ func (c *DockerContainer) negotiateAPIVersion() {
 	c.client.NegotiateAPIVersion(ctx)
 }
 
-func (c *DockerContainer) checkSwarmInit() error {
+func (c *DockerContainer) isSwarmInit() error {
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
 	info, err := c.client.Info(ctx)
