@@ -4,19 +4,43 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/mesg-foundation/core/service"
 	"github.com/sirupsen/logrus"
 	"github.com/syndtr/goleveldb/leveldb"
+	"github.com/syndtr/goleveldb/leveldb/util"
+)
+
+const (
+	aliasKeyPrefix = "alias_"
+	idKeyPrefix    = "id_"
+)
+
+var (
+	errCannotSaveWithoutID    = errors.New("database: can't save service without id")
+	errCannotSaveWithoutAlias = errors.New("database: can't save service without alias")
+	errAliasSameLen           = errors.New("database: service alias can't have same length as id")
 )
 
 // ServiceDB describes the API of database package.
 type ServiceDB interface {
-	All() ([]*service.Service, error)
-	Close() error
-	Delete(id string) error
-	Get(id string) (*service.Service, error)
+	// Save saves a service to database.
 	Save(s *service.Service) error
+
+	// Get gets a service from database by its unique id
+	// or unique alias.
+	Get(idOrAlias string) (*service.Service, error)
+
+	// Delete deletes a service from database by its unique id
+	// or unique alias.
+	Delete(idOrAlias string) error
+
+	// All returns all services from database.
+	All() ([]*service.Service, error)
+
+	// Close closes underlying database connection.
+	Close() error
 }
 
 // LevelDBServiceDB is a database for storing service definition.
@@ -30,7 +54,6 @@ func NewServiceDB(path string) (*LevelDBServiceDB, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return &LevelDBServiceDB{db: db}, nil
 }
 
@@ -52,11 +75,11 @@ func (d *LevelDBServiceDB) unmarshal(id string, value []byte) (*service.Service,
 func (d *LevelDBServiceDB) All() ([]*service.Service, error) {
 	var (
 		services []*service.Service
-		iter     = d.db.NewIterator(nil, nil)
+		iter     = d.db.NewIterator(util.BytesPrefix([]byte(idKeyPrefix)), nil)
 	)
-
 	for iter.Next() {
-		s, err := d.unmarshal(string(iter.Key()), iter.Value())
+		id := strings.TrimPrefix(string(iter.Key()), idKeyPrefix)
+		s, err := d.unmarshal(id, iter.Value())
 		if err != nil {
 			// NOTE: Ignore all decode errors (possibly due to a service
 			// structure change or database corruption)
@@ -64,47 +87,98 @@ func (d *LevelDBServiceDB) All() ([]*service.Service, error) {
 				logrus.WithField("service", decodeErr.ID).Warning(decodeErr.Error())
 				continue
 			}
+			iter.Release()
 			return nil, err
 		}
 		services = append(services, s)
 	}
 	iter.Release()
-	if err := iter.Error(); err != nil {
-		return nil, err
-	}
-
-	return services, nil
+	return services, iter.Error()
 }
 
 // Delete deletes service from database.
-func (d *LevelDBServiceDB) Delete(id string) error {
-	return d.db.Delete([]byte(id), nil)
+func (d *LevelDBServiceDB) Delete(idOrAlias string) error {
+	tx, err := d.db.OpenTransaction()
+	if err != nil {
+		return err
+	}
+
+	s, err := d.get(tx, idOrAlias)
+	if err != nil {
+		tx.Discard()
+		return err
+	}
+
+	batch := &leveldb.Batch{}
+	batch.Delete([]byte(idKeyPrefix + s.ID))
+	batch.Delete([]byte(aliasKeyPrefix + s.Alias))
+	if err := tx.Write(batch, nil); err != nil {
+		tx.Discard()
+		return err
+	}
+	return tx.Commit()
 }
 
 // Get retrives service from database.
-func (d *LevelDBServiceDB) Get(id string) (*service.Service, error) {
-	b, err := d.db.Get([]byte(id), nil)
+func (d *LevelDBServiceDB) Get(idOrAlias string) (*service.Service, error) {
+	tx, err := d.db.OpenTransaction()
+	if err != nil {
+		return nil, err
+	}
+	s, err := d.get(tx, idOrAlias)
+	if err != nil {
+		tx.Discard()
+		return nil, err
+	}
+	return s, tx.Commit()
+}
+
+// get retrives service from database by using r reader.
+func (d *LevelDBServiceDB) get(r leveldb.Reader, idOrAlias string) (*service.Service, error) {
+	id := idOrAlias
+
+	// check if key is an alias, if yes then get id.
+	bid, err := r.Get([]byte(aliasKeyPrefix+idOrAlias), nil)
+	if err != nil && err != leveldb.ErrNotFound {
+		return nil, err
+	} else if err == nil {
+		id = string(bid)
+	}
+
+	// get the service
+	b, err := r.Get([]byte(idKeyPrefix+id), nil)
 	if err != nil {
 		if err == leveldb.ErrNotFound {
-			return nil, &ErrNotFound{ID: id}
+			return nil, &ErrNotFound{ID: idOrAlias}
 		}
 		return nil, err
 	}
-
-	return d.unmarshal(id, b)
+	return d.unmarshal(idOrAlias, b)
 }
 
 // Save stores service in database.
 func (d *LevelDBServiceDB) Save(s *service.Service) error {
+	// check service
 	if s.ID == "" {
-		return errors.New("database: can't save service without id")
+		return errCannotSaveWithoutID
 	}
+	if s.Alias == "" {
+		return errCannotSaveWithoutAlias
+	}
+	if len(s.ID) == len(s.Alias) {
+		return errAliasSameLen
+	}
+
+	// encode service
 	b, err := d.marshal(s)
 	if err != nil {
 		return err
 	}
 
-	return d.db.Put([]byte(s.ID), b, nil)
+	batch := &leveldb.Batch{}
+	batch.Put([]byte(idKeyPrefix+s.ID), b)
+	batch.Put([]byte(aliasKeyPrefix+s.Alias), []byte(s.ID))
+	return d.db.Write(batch, nil)
 }
 
 // Close closes database.
@@ -127,10 +201,10 @@ type DecodeError struct {
 }
 
 func (e *DecodeError) Error() string {
-	return fmt.Sprintf("Database services: Could not decode service %q", e.ID)
+	return fmt.Sprintf("database: could not decode service %q", e.ID)
 }
 
-// IsErrNotFound returs true if err is type of ErrNotFound, false otherwise.
+// IsErrNotFound returns true if err is type of ErrNotFound, false otherwise.
 func IsErrNotFound(err error) bool {
 	_, ok := err.(*ErrNotFound)
 	return ok

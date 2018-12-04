@@ -473,6 +473,7 @@ message Service {
   }
   
   string ID = 10;                           // Service's unique id service hash.
+  string alias = 12;                        // Service's alias.
   string name = 1;                          // Service's name.
   string description = 2;                   // Service's description.
   repeated Task tasks = 5;                  // The list of tasks this service can execute.

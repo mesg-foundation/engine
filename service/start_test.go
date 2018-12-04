@@ -84,10 +84,12 @@ func TestStartService(t *testing.T) {
 		containerServiceID = "1"
 		dependencyKey      = "2"
 		serviceName        = "TestStartService"
+		alias              = "AliasStartService"
 		networkID          = "3"
 		sharedNetworkID    = "4"
 		s, mc              = newFromServiceAndContainerMocks(t, &Service{
-			Name: serviceName,
+			Name:  serviceName,
+			Alias: alias,
 			Dependencies: []*Dependency{
 				{
 					Key:   dependencyKey,
@@ -307,9 +309,10 @@ func mockStartService(d *Dependency, mc *mocks.Container,
 	mc.On("StartService", container.ServiceOptions{
 		Namespace: d.namespace(),
 		Labels: map[string]string{
+			"mesg.core":    c.Core.Name,
+			"mesg.alias":   d.service.Alias,
 			"mesg.service": d.service.Name,
 			"mesg.hash":    d.service.ID,
-			"mesg.core":    c.Core.Name,
 		},
 		Image:   d.Image,
 		Command: d.Command,
