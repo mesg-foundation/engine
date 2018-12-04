@@ -10,6 +10,18 @@
     - [{{or $event.Name $key}}](#{{or $event.Name $key | anchorEncode}}){{end}}{{end}}
   {{if .Tasks}}- [Tasks](#Tasks){{range $key, $task := .Tasks}}
     - [{{or $task.Name $key}}](#{{or $task.Name $key | anchorEncode}}){{end}}{{end}}
+
+# Installation
+
+## MESG Core
+
+This service requires [MESG Core](https://github.com/mesg-foundation/core) to be install.
+
+You can install MESG Core by running the following command or [follow the install guide](https://docs.mesg.tech/guide/start-here/installation.html).
+
+```bash
+bash <(curl -fsSL https://mesg.com/install)
+```
 ```bash
 mesg-core service deploy {{.Repository}}
 ```
