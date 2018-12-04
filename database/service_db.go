@@ -169,16 +169,36 @@ func (d *LevelDBServiceDB) Save(s *service.Service) error {
 		return errAliasSameLen
 	}
 
+	tx, err := d.db.OpenTransaction()
+	if err != nil {
+		return err
+	}
+
+	// check if there is a service with the same alias.
+	if _, err := d.get(tx, s.Alias); err == nil {
+		tx.Discard()
+		return &ErrSameAlias{s.Alias}
+	} else if _, ok := err.(*ErrNotFound); !ok {
+		tx.Discard()
+		return err
+	}
+
 	// encode service
 	b, err := d.marshal(s)
 	if err != nil {
+		tx.Discard()
 		return err
 	}
 
 	batch := &leveldb.Batch{}
 	batch.Put([]byte(idKeyPrefix+s.ID), b)
 	batch.Put([]byte(aliasKeyPrefix+s.Alias), []byte(s.ID))
-	return d.db.Write(batch, nil)
+	if err := tx.Write(batch, nil); err != nil {
+		tx.Discard()
+		return err
+	}
+
+	return tx.Commit()
 }
 
 // Close closes database.
@@ -208,4 +228,13 @@ func (e *DecodeError) Error() string {
 func IsErrNotFound(err error) bool {
 	_, ok := err.(*ErrNotFound)
 	return ok
+}
+
+// ErrSameAlias error returned when there is a service with the same alias.
+type ErrSameAlias struct {
+	alias string
+}
+
+func (e *ErrSameAlias) Error() string {
+	return fmt.Sprintf("database: a service with the %q alias already exists", e.alias)
 }
