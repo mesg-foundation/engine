@@ -48,6 +48,21 @@ func TestServiceDBSave(t *testing.T) {
 	require.EqualError(t, db.Save(s), errAliasSameLen.Error())
 }
 
+func TestServiceDBSaveWithSameAlias(t *testing.T) {
+	db, closer := openServiceDB(t)
+	defer closer()
+
+	s := &service.Service{ID: "01", Alias: "a", Name: "test-service"}
+	require.NoError(t, db.Save(s))
+	s = &service.Service{ID: "02", Alias: "a", Name: "test-service"}
+	require.Equal(t, &ErrSameAlias{"a"}, db.Save(s))
+
+	_, err := db.Get("1")
+	require.IsType(t, &ErrNotFound{}, err)
+	_, err = db.Get("2")
+	require.IsType(t, &ErrNotFound{}, err)
+}
+
 func TestServiceDBGet(t *testing.T) {
 	db, closer := openServiceDB(t)
 	defer closer()
