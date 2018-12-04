@@ -6,18 +6,18 @@
   ],
   "additionalProperties": false,
   "properties": {
-    "version": {
-      "type": "string"
-    },
     "name": {
       "type": "string",
       "minLength": 1
     },
+    "alias": {
+      "type": "string",
+      "maxLength": 39,
+      "pattern": "^[0-9a-zA-Z_:-]+$"
+    },
     "description": {
       "type": "string"
     },
-    "visibility": {},
-    "publish": {},
     "repository": {
       "type": "string"
     },
@@ -118,9 +118,6 @@
         "description": {
           "type": "string"
         },
-        "verifiable": {},
-        "payable": {},
-        "fees": {},
         "inputs": {
           "$ref": "#/definitions/parameters"
         },
@@ -166,7 +163,6 @@
         "description": {
           "type": "string"
         },
-        "fees": {},
         "data": {
           "$ref": "#/definitions/parameters"
         }
