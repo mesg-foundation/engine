@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	errSwarmNotInit = errors.New(`docker swarm is not initialized. run "docker swarm init" to setup swarm and try again`)
+	errSwarmNotInit = errors.New(`docker swarm is not initialized. run "docker swarm init" and try again`)
 )
 
 // Container describes the API of container package.
@@ -71,7 +71,7 @@ func New(options ...Option) (*DockerContainer, error) {
 		}
 	}
 	c.negotiateAPIVersion()
-	if err := c.checkSwarm(); err != nil {
+	if err := c.checkSwarmInit(); err != nil {
 		return c, err
 	}
 	return c, c.createSharedNetworkIfNeeded()
@@ -97,7 +97,7 @@ func (c *DockerContainer) negotiateAPIVersion() {
 	c.client.NegotiateAPIVersion(ctx)
 }
 
-func (c *DockerContainer) checkSwarm() error {
+func (c *DockerContainer) checkSwarmInit() error {
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
 	info, err := c.client.Info(ctx)
