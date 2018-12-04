@@ -13,6 +13,10 @@ import (
 	"github.com/mesg-foundation/core/config"
 )
 
+var (
+	errSwarmNotInit = errors.New(`docker swarm is not initialized. run "docker swarm init" to setup swarm and try again`)
+)
+
 // Container describes the API of container package.
 type Container interface {
 	Build(path string) (tag string, err error)
@@ -101,7 +105,7 @@ func (c *DockerContainer) checkSwarm() error {
 		return err
 	}
 	if info.Swarm.NodeID == "" {
-		return errors.New(`docker swarm is not initialized. run "docker swarm init" to setup swarm and try again`)
+		return errSwarmNotInit
 	}
 	return nil
 }

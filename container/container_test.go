@@ -91,19 +91,12 @@ func TestNew(t *testing.T) {
 	}, ln.Options)
 }
 
-func TestNewWithExistingNode(t *testing.T) {
+func TestNewSwarmError(t *testing.T) {
 	dt := dockertest.New()
-	dt.ProvideInfo(types.Info{Swarm: swarm.Info{NodeID: "1"}}, nil)
+	dt.ProvideInfo(types.Info{Swarm: swarm.Info{NodeID: ""}}, nil)
 
-	c, err := New(ClientOption(dt.Client()))
-	require.NoError(t, err)
-	require.NotNil(t, c)
-
-	select {
-	case <-dt.LastSwarmInit():
-		t.Fail()
-	default:
-	}
+	_, err := New(ClientOption(dt.Client()))
+	require.Error(t, err, errSwarmNotInit)
 }
 
 func TestFindContainerNonExistent(t *testing.T) {
