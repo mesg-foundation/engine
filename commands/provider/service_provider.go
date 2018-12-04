@@ -279,7 +279,10 @@ func (p *ServiceProvider) ServiceGenerateDocs(path string) error {
 	}
 	defer f.Close()
 
-	readmeTemplate := assets.MustAsset("readme_template.md")
+	readmeTemplate, err := assets.Asset("commands/provider/assets/readme_template.md")
+	if err != nil {
+		return err
+	}
 
 	tmpl := template.Must(template.New("doc").Parse(string(readmeTemplate)))
 	return tmpl.Execute(f, service)
