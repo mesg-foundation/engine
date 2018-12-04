@@ -13,15 +13,19 @@ import (
 type serviceDeleteCmd struct {
 	baseCmd
 
-	all        bool
-	force      bool
-	deleteData bool
+	yes               bool
+	deleteAllServices bool
+	keepData          bool
 
-	e ServiceExecutor
+	e      ServiceExecutor
+	survey Survey
 }
 
-func newServiceDeleteCmd(e ServiceExecutor) *serviceDeleteCmd {
-	c := &serviceDeleteCmd{e: e}
+func newServiceDeleteCmd(e ServiceExecutor, survey Survey) *serviceDeleteCmd {
+	c := &serviceDeleteCmd{
+		e:      e,
+		survey: survey,
+	}
 	c.cmd = newCommand(&cobra.Command{
 		Use:   "delete",
 		Short: "Delete one or many services",
@@ -30,53 +34,53 @@ mesg-core service delete --all`,
 		PreRunE: c.preRunE,
 		RunE:    c.runE,
 	})
-
-	c.cmd.Flags().BoolVar(&c.all, "all", c.all, "Delete all services")
-	c.cmd.Flags().BoolVarP(&c.force, "force", "f", c.force, "Force delete all services")
-	c.cmd.Flags().BoolVarP(&c.deleteData, "delete-data", "d", c.deleteData, "Delete services' persistent data along the way")
+	c.cmd.Flags().BoolVarP(&c.yes, "yes", "y", c.yes, `Automatically say 'Yes' to all prompts and run non-interactively`)
+	c.cmd.Flags().BoolVar(&c.deleteAllServices, "all", c.deleteAllServices, "Delete all services")
+	c.cmd.Flags().BoolVar(&c.keepData, "keep-data", c.keepData, "Delete services' persistent data along the way")
 	return c
 }
 
 func (c *serviceDeleteCmd) preRunE(cmd *cobra.Command, args []string) error {
-	if len(args) == 0 && !c.all {
+	if len(args) == 0 && !c.deleteAllServices {
 		return errors.New("at least one service id must be provided (or run with --all flag)")
 	}
 
-	if !c.all || (c.all && c.force) {
-		return c.askDeleteData()
+	if c.yes {
+		return nil
 	}
 
-	if err := survey.AskOne(&survey.Confirm{
-		Message: "Are you sure to delete all services?",
-	}, &c.force, nil); err != nil {
-		return err
-	}
-
-	// if still no confirm .
-	if !c.force {
-		return errors.New("can't continue without confirmation")
-	}
-
-	return c.askDeleteData()
-}
-
-func (c *serviceDeleteCmd) askDeleteData() error {
-	if !c.deleteData {
-		if err := survey.AskOne(&survey.Confirm{
-			Message: "Do you want to remove service(s)' persistent data as well?",
+	if c.deleteAllServices {
+		if err := c.survey.AskOne(&survey.Confirm{
+			Message: "Are you sure to delete all services?",
 			Default: false,
-		}, &c.deleteData, nil); err != nil {
+		}, &c.deleteAllServices, nil); err != nil {
 			return err
 		}
+
+		if !c.deleteAllServices {
+			return errors.New("can't continue without confirmation")
+		}
 	}
+
+	if !c.keepData {
+		if err := c.survey.AskOne(&survey.Confirm{
+			Message: "Do you want to remove service(s)' persistent data as well?",
+			Default: false,
+		}, &c.keepData, nil); err != nil {
+			return err
+		}
+
+		c.keepData = !c.keepData
+	}
+
 	return nil
 }
 
 func (c *serviceDeleteCmd) runE(cmd *cobra.Command, args []string) error {
 	var err error
-	if c.all {
+	if c.deleteAllServices {
 		pretty.Progress("Deleting all services...", func() {
-			err = c.e.ServiceDeleteAll(c.deleteData)
+			err = c.e.ServiceDeleteAll(!c.keepData)
 		})
 		if err != nil {
 			return err
@@ -90,7 +94,7 @@ func (c *serviceDeleteCmd) runE(cmd *cobra.Command, args []string) error {
 		// build function to avoid using arg inside progress
 		fn := func(id string) func() {
 			return func() {
-				err = c.e.ServiceDelete(c.deleteData, id)
+				err = c.e.ServiceDelete(!c.keepData, id)
 			}
 		}(arg)
 		pretty.Progress(fmt.Sprintf("Deleting service %q...", arg), fn)

@@ -7,7 +7,7 @@ import (
 )
 
 func TestRootServiceCmd(t *testing.T) {
-	cmd := newRootServiceCmd(nil).cmd
+	cmd := newRootServiceCmd(nil, nil).cmd
 	for _, tt := range []struct {
 		use string
 	}{

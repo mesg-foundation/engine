@@ -52,7 +52,7 @@ type Executor interface {
 
 // Build constructs root command and returns it.
 func Build(e Executor) *cobra.Command {
-	return newRootCmd(e).cmd
+	return newRootCmd(e, newSurvey()).cmd
 }
 
 type baseCmd struct {
