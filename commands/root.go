@@ -12,7 +12,7 @@ type rootCmd struct {
 	noSpinner bool
 }
 
-func newRootCmd(e Executor, survey Survey) *rootCmd {
+func newRootCmd(e Executor) *rootCmd {
 	c := &rootCmd{}
 	c.cmd = newCommand(&cobra.Command{
 		Use:              "mesg-core",
@@ -29,7 +29,7 @@ func newRootCmd(e Executor, survey Survey) *rootCmd {
 		newStatusCmd(e).cmd,
 		newStopCmd(e).cmd,
 		newLogsCmd(e).cmd,
-		newRootServiceCmd(e, survey).cmd,
+		newRootServiceCmd(e).cmd,
 		// Workflow system is disable for v0.5. Enable it when ready.
 		// newRootWorkflowCmd(e).cmd,
 	)
