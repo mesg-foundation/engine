@@ -8,6 +8,20 @@ import (
 	survey "gopkg.in/AlecAivazis/survey.v1"
 )
 
+// confirmSurvey confirms a survey with Yes.
+func confirmSurvey() func(args mock.Arguments) {
+	return func(args mock.Arguments) {
+		*args.Get(1).(*bool) = true
+	}
+}
+
+// rejectSurvey reject a survey with No.
+func rejectSurvey() func(args mock.Arguments) {
+	return func(args mock.Arguments) {
+		*args.Get(1).(*bool) = false
+	}
+}
+
 func TestServiceDeleteCmdFlags(t *testing.T) {
 	var (
 		c     = newServiceDeleteCmd(nil, nil)
@@ -31,7 +45,7 @@ func TestServiceDeleteCmdFlags(t *testing.T) {
 	require.True(t, c.keepData)
 }
 
-func TestServiceDeleteWithoutFlagOrArgument(t *testing.T) {
+func TestServiceDeleteWithoutFlagNorArgument(t *testing.T) {
 	var (
 		sm = newMockSurvey()
 		me = newMockExecutor()
@@ -44,7 +58,7 @@ func TestServiceDeleteWithoutFlagOrArgument(t *testing.T) {
 	me.AssertExpectations(t)
 }
 
-func TestServiceDeleteWithAllFlag(t *testing.T) {
+func TestServiceDeleteWithAllFlagWithServiceConfirmation(t *testing.T) {
 	var (
 		sm = newMockSurvey()
 		me = newMockExecutor()
@@ -56,16 +70,63 @@ func TestServiceDeleteWithAllFlag(t *testing.T) {
 	sm.On("AskOne", &survey.Confirm{
 		Message: "Are you sure to delete all services?",
 		Default: false,
-	}, &c.deleteAllServices, mock.Anything).Once().Return(nil)
+	}, mock.Anything, mock.Anything).Once().Return(nil).Run(confirmSurvey())
 
 	sm.On("AskOne", &survey.Confirm{
 		Message: "Do you want to remove service(s)' persistent data as well?",
 		Default: false,
-	}, &c.keepData, mock.Anything).Once().Return(nil)
+	}, mock.Anything, mock.Anything).Once().Return(nil)
 
 	me.On("ServiceDeleteAll", false).Once().Return(nil)
 
 	require.NoError(t, c.cmd.Execute())
+
+	sm.AssertExpectations(t)
+	me.AssertExpectations(t)
+}
+
+func TestServiceDeleteWithAllFlagWithServiceAndDataConfirmation(t *testing.T) {
+	var (
+		sm = newMockSurvey()
+		me = newMockExecutor()
+		c  = newServiceDeleteCmd(me, sm)
+	)
+
+	c.cmd.Flags().Set("all", "true")
+
+	sm.On("AskOne", &survey.Confirm{
+		Message: "Are you sure to delete all services?",
+		Default: false,
+	}, mock.Anything, mock.Anything).Once().Return(nil).Run(confirmSurvey())
+
+	sm.On("AskOne", &survey.Confirm{
+		Message: "Do you want to remove service(s)' persistent data as well?",
+		Default: false,
+	}, mock.Anything, mock.Anything).Once().Return(nil).Run(confirmSurvey())
+
+	me.On("ServiceDeleteAll", true).Once().Return(nil)
+
+	require.NoError(t, c.cmd.Execute())
+
+	sm.AssertExpectations(t)
+	me.AssertExpectations(t)
+}
+
+func TestServiceDeleteWithAllFlagWithoutDeleteServiceConfirmation(t *testing.T) {
+	var (
+		sm = newMockSurvey()
+		me = newMockExecutor()
+		c  = newServiceDeleteCmd(me, sm)
+	)
+
+	c.cmd.Flags().Set("all", "true")
+
+	sm.On("AskOne", &survey.Confirm{
+		Message: "Are you sure to delete all services?",
+		Default: false,
+	}, mock.Anything, mock.Anything).Once().Return(nil).Run(rejectSurvey())
+
+	require.Contains(t, errConfirmationNeeded.Error(), c.cmd.Execute().Error())
 
 	sm.AssertExpectations(t)
 	me.AssertExpectations(t)
@@ -82,9 +143,14 @@ func TestServiceDeleteWithServiceID(t *testing.T) {
 	c.cmd.SetArgs([]string{serviceID})
 
 	sm.On("AskOne", &survey.Confirm{
+		Message: "Are you sure to delete service(s)?",
+		Default: false,
+	}, mock.Anything, mock.Anything).Once().Return(nil).Run(confirmSurvey())
+
+	sm.On("AskOne", &survey.Confirm{
 		Message: "Do you want to remove service(s)' persistent data as well?",
 		Default: false,
-	}, &c.keepData, mock.Anything).Once().Return(nil)
+	}, mock.Anything, mock.Anything).Once().Return(nil)
 
 	me.On("ServiceDelete", false, serviceID).Once().Return(nil)
 

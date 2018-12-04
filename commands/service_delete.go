@@ -10,6 +10,11 @@ import (
 	survey "gopkg.in/AlecAivazis/survey.v1"
 )
 
+var (
+	errConfirmationNeeded = errors.New("can't continue without confirmation")
+	errInputsNeededErr    = errors.New("at least one service id must be provided (or run with --all flag)")
+)
+
 type serviceDeleteCmd struct {
 	baseCmd
 
@@ -41,38 +46,68 @@ mesg-core service delete --all`,
 }
 
 func (c *serviceDeleteCmd) preRunE(cmd *cobra.Command, args []string) error {
-	if len(args) == 0 && !c.deleteAllServices {
-		return errors.New("at least one service id must be provided (or run with --all flag)")
+	if err := c.validateInputs(args); err != nil {
+		return err
 	}
 
 	if c.yes {
 		return nil
 	}
 
-	if c.deleteAllServices {
-		if err := c.survey.AskOne(&survey.Confirm{
-			Message: "Are you sure to delete all services?",
-			Default: false,
-		}, &c.deleteAllServices, nil); err != nil {
-			return err
-		}
-
-		if !c.deleteAllServices {
-			return errors.New("can't continue without confirmation")
-		}
+	if err := c.confirmServiceDelete(); err != nil {
+		return err
 	}
 
 	if !c.keepData {
-		if err := c.survey.AskOne(&survey.Confirm{
-			Message: "Do you want to remove service(s)' persistent data as well?",
-			Default: false,
-		}, &c.keepData, nil); err != nil {
+		if err := c.confirmDataDelete(); err != nil {
 			return err
 		}
-
-		c.keepData = !c.keepData
 	}
 
+	return nil
+}
+
+// validateInputs validates command arguments and flags.
+func (c *serviceDeleteCmd) validateInputs(args []string) error {
+	if len(args) == 0 && !c.deleteAllServices {
+		return errInputsNeededErr
+	}
+	return nil
+}
+
+// confirmServiceDelete prompts a confirmation dialog for deleting services.
+func (c *serviceDeleteCmd) confirmServiceDelete() error {
+	var (
+		confirmed bool
+		confirm   = &survey.Confirm{Default: false}
+	)
+
+	if c.deleteAllServices {
+		confirm.Message = "Are you sure to delete all services?"
+	} else {
+		confirm.Message = "Are you sure to delete service(s)?"
+	}
+
+	if err := c.survey.AskOne(confirm, &confirmed, nil); err != nil {
+		return err
+	}
+
+	if !confirmed {
+		return errConfirmationNeeded
+	}
+	return nil
+}
+
+// confirmServiceDelete prompts a confirmation dialog for deleting services' data.
+func (c *serviceDeleteCmd) confirmDataDelete() error {
+	if err := c.survey.AskOne(&survey.Confirm{
+		Message: "Do you want to remove service(s)' persistent data as well?",
+		Default: false,
+	}, &c.keepData, nil); err != nil {
+		return err
+	}
+
+	c.keepData = !c.keepData
 	return nil
 }
 
