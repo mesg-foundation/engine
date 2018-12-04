@@ -96,7 +96,7 @@ func TestNewSwarmError(t *testing.T) {
 	dt.ProvideInfo(types.Info{Swarm: swarm.Info{NodeID: ""}}, nil)
 
 	_, err := New(ClientOption(dt.Client()))
-	require.Error(t, err, errSwarmNotInit)
+	require.Equal(t, err, errSwarmNotInit)
 }
 
 func TestFindContainerNonExistent(t *testing.T) {
