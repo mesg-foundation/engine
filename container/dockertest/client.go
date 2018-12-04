@@ -163,7 +163,7 @@ func (c *Client) Info(context.Context) (types.Info, error) {
 	case resp := <-c.responses.info:
 		return resp.info, resp.err
 	default:
-		return types.Info{}, nil
+		return types.Info{Swarm: swarm.Info{NodeID: "1"}}, nil
 	}
 }
 
