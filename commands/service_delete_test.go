@@ -33,6 +33,9 @@ func TestServiceDeletePreRunE(t *testing.T) {
 	c := newServiceDeleteCmd(nil)
 	c.discardOutput()
 	require.Equal(t, errNoID, c.preRunE(c.cmd, nil))
+
+	c.yes = true
+	require.NoError(t, c.preRunE(c.cmd, nil))
 }
 
 func TestServiceDeleteRunE(t *testing.T) {
