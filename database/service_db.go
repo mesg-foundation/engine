@@ -178,7 +178,7 @@ func (d *LevelDBServiceDB) Save(s *service.Service) error {
 	if _, err := d.get(tx, s.Alias); err == nil {
 		tx.Discard()
 		return &ErrSameAlias{s.Alias}
-	} else if _, ok := err.(*ErrNotFound); !ok {
+	} else if !IsErrNotFound(err) {
 		tx.Discard()
 		return err
 	}
