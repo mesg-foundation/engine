@@ -2,6 +2,7 @@ package commands
 
 import (
 	"io"
+	"io/ioutil"
 
 	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/container"
@@ -52,7 +53,7 @@ type Executor interface {
 
 // Build constructs root command and returns it.
 func Build(e Executor) *cobra.Command {
-	return newRootCmd(e, newSurvey()).cmd
+	return newRootCmd(e).cmd
 }
 
 type baseCmd struct {
@@ -63,6 +64,11 @@ type baseCmd struct {
 func newCommand(c *cobra.Command) *cobra.Command {
 	c.DisableAutoGenTag = true
 	return c
+}
+
+// discardOutput discards usage and error messages.
+func (c *baseCmd) discardOutput() {
+	c.cmd.SetOutput(ioutil.Discard)
 }
 
 // getFirstOrDefault returns directory if args len is gt 0 or current directory.
