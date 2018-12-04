@@ -8,6 +8,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestIntegrationCreateSwarmIfNeeded(t *testing.T) {
+	c, err := New()
+	require.NoError(t, err)
+	require.NoError(t, c.checkSwarm())
+}
+
 func TestIntegrationFindContainerNotExisting(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
