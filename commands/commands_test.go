@@ -66,6 +66,11 @@ func newMockExecutor() *mocks.Executor {
 	return &mocks.Executor{}
 }
 
+// newMockSurvey returns a Survey mock for testing.
+func newMockSurvey() *mocks.Survey {
+	return &mocks.Survey{}
+}
+
 func TestBaseCommandCmd(t *testing.T) {
 	// NOTE: this test is only to satisfy structcheck
 	// as it doesn't handle embedded structs yet.

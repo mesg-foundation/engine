@@ -8,7 +8,7 @@ type rootServiceCmd struct {
 	baseCmd
 }
 
-func newRootServiceCmd(e ServiceExecutor) *rootServiceCmd {
+func newRootServiceCmd(e ServiceExecutor, survey Survey) *rootServiceCmd {
 	c := &rootServiceCmd{}
 	c.cmd = newCommand(&cobra.Command{
 		Use:   "service",
@@ -23,7 +23,7 @@ func newRootServiceCmd(e ServiceExecutor) *rootServiceCmd {
 		newServiceDetailCmd(e).cmd,
 		newServiceListCmd(e).cmd,
 		newServiceInitCmd(e).cmd,
-		newServiceDeleteCmd(e).cmd,
+		newServiceDeleteCmd(e, survey).cmd,
 		newServiceLogsCmd(e).cmd,
 		newServiceDocsCmd(e).cmd,
 		newServiceDevCmd(e).cmd,

@@ -26,7 +26,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestRootCmd(t *testing.T) {
-	cmd := newRootCmd(nil).cmd
+	cmd := newRootCmd(nil, nil).cmd
 	for _, tt := range []struct {
 		use string
 	}{
@@ -41,7 +41,7 @@ func TestRootCmd(t *testing.T) {
 }
 
 func TestRootCmdFlags(t *testing.T) {
-	c := newRootCmd(nil)
+	c := newRootCmd(nil, nil)
 
 	c.cmd.PersistentFlags().Set("no-color", "true")
 	require.True(t, c.noColor)
