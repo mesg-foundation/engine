@@ -2,6 +2,14 @@
 
 {{.Description}}
 {{if .Repository}}
+# Contents
+
+- [Installation](#Installation)
+- [Definitions](#Definitions)
+  {{if .Events}}- [Events](#Events){{range $key, $event := .Events}}
+    - [{{or $event.Name $key}}](#{{or $event.Name $key | anchorEncode}}){{end}}{{end}}
+  {{if .Tasks}}- [Tasks](#Tasks){{range $key, $task := .Tasks}}
+    - [{{or $task.Name $key}}](#{{or $task.Name $key | anchorEncode}}){{end}}{{end}}
 ```bash
 mesg-core service deploy {{.Repository}}
 ```
