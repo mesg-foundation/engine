@@ -13,8 +13,8 @@ import (
 
 func TestIntegrationDeleteVolumes(t *testing.T) {
 	var (
-		dependencyKey1 = "1"
-		dependencyKey2 = "2"
+		dependencyKey1 = "dep1"
+		dependencyKey2 = "dep2"
 		volumeA        = "/a"
 		volumeB        = "/b"
 		s, err         = FromService(&Service{
