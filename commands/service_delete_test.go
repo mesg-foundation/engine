@@ -35,7 +35,6 @@ func TestServiceDeletePreRunE(t *testing.T) {
 	c.discardOutput()
 	require.Equal(t, errNoID, c.preRunE(c.cmd, nil))
 
-	c.discardOutput()
 	c.yes = true
 	c.all = true
 	require.NoError(t, c.preRunE(c.cmd, nil))
