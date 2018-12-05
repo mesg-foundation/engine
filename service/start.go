@@ -46,10 +46,7 @@ func (d *Dependency) Start(networkID string) (containerServiceID string, err err
 	if err != nil {
 		return "", err
 	}
-	volumes, err := d.extractVolumes()
-	if err != nil {
-		return "", err
-	}
+	volumes := d.extractVolumes()
 	volumesFrom, err := d.extractVolumesFrom()
 	if err != nil {
 		return "", err
@@ -103,7 +100,7 @@ func (d *Dependency) extractPorts() []container.Port {
 }
 
 // TODO: add test and hack for MkDir in CircleCI
-func (d *Dependency) extractVolumes() ([]container.Mount, error) {
+func (d *Dependency) extractVolumes() []container.Mount {
 	volumes := make([]container.Mount, 0)
 	for _, volume := range d.Volumes {
 		volumes = append(volumes, container.Mount{
@@ -111,7 +108,7 @@ func (d *Dependency) extractVolumes() ([]container.Mount, error) {
 			Target: volume,
 		})
 	}
-	return volumes, nil
+	return volumes
 }
 
 func (d *Dependency) extractVolumesFrom() ([]container.Mount, error) {

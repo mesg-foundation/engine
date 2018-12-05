@@ -40,8 +40,7 @@ func TestExtractVolumes(t *testing.T) {
 			Volumes: []string{"foo", "bar"},
 		}},
 	})
-	volumes, err := s.Dependencies[0].extractVolumes()
-	require.NoError(t, err)
+	volumes := s.Dependencies[0].extractVolumes()
 	require.Len(t, volumes, 2)
 	require.Equal(t, volumeKey(s, "test", "foo"), volumes[0].Source)
 	require.Equal(t, "foo", volumes[0].Target)
@@ -55,7 +54,7 @@ func TestExtractVolumes(t *testing.T) {
 			VolumesFrom: []string{"test"},
 		}},
 	})
-	_, err = s.Dependencies[0].extractVolumesFrom()
+	_, err := s.Dependencies[0].extractVolumesFrom()
 	require.Error(t, err)
 
 	s, _ = FromService(&Service{
@@ -305,7 +304,7 @@ func mockStartService(d *Dependency, mc *mocks.Container,
 		c, _           = config.Global()
 		_, port, _     = xnet.SplitHostPort(c.Server.Address)
 		endpoint       = c.Core.Name + ":" + strconv.Itoa(port)
-		volumes, _     = d.extractVolumes()
+		volumes        = d.extractVolumes()
 		volumesFrom, _ = d.extractVolumesFrom()
 	)
 	mc.On("StartService", container.ServiceOptions{
