@@ -32,7 +32,7 @@ package service
 // 					VolumesFrom: []string{dependencyKey1},
 // 				},
 // 			},
-// 		}, ContainerOption(newIntegrationContainer(t, container.TimeoutOption(time.Minute))))
+// 		}, ContainerOption(newIntegrationContainer(t)))
 // 	)
 // 	_, err := s.Start()
 // 	require.NoError(t, err)
