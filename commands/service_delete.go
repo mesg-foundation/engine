@@ -88,13 +88,13 @@ func (c *serviceDeleteCmd) confirmServiceDelete() error {
 
 // confirmServiceDelete prompts a confirmation dialog for deleting services' data.
 func (c *serviceDeleteCmd) confirmDataDelete() error {
+	var deleteData bool
 	if err := survey.AskOne(&survey.Confirm{
 		Message: "Are you sure to remove service(s)' persistent data as well?",
-	}, &c.keepData, nil); err != nil {
+	}, &deleteData, nil); err != nil {
 		return err
 	}
-
-	c.keepData = !c.keepData
+	c.keepData = !deleteData
 	return nil
 }
 
