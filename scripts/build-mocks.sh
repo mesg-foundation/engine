@@ -17,4 +17,3 @@ mockery -name=ServiceDB -dir ./database -output ./database/mocks
 
 # generate mocks for commands package.
 mockery -name=Executor -dir ./commands -output ./commands/mocks
-mockery -name=Survey -dir ./commands -output ./commands/mocks
