@@ -11,6 +11,8 @@ bash <(curl -fsSL https://mesg.com/install)
 ## Manual installation
 
 * Download and install [Docker CE](https://www.docker.com/community-edition)
+* Initialize Docker Swarm by running: `docker swarm init`
+  * If the error `Could not choose an IP address to advertise since this system has multiple addresses on interface eth0 (xxx.xxx.xxx.xxx and yyy.yyy.yyy.yyy)` is returned, run: `docker swarm init --advertise-addr xxx.xxx.xxx.xxx`
 * Download the binary from our [release page on GitHub](https://github.com/mesg-foundation/core/releases)
 * Rename the binary to `mesg-core`
 * Give it the execution permission: `chmod +x mesg-core`
