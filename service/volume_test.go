@@ -31,15 +31,11 @@ func TestDeleteVolumes(t *testing.T) {
 
 	var (
 		d1, _      = s.getDependency(dependencyKey1)
-		d2, _      = s.getDependency(dependencyKey2)
 		mounts1, _ = d1.extractVolumes()
-		mounts2, _ = d2.extractVolumes()
 	)
 
 	mc.On("DeleteVolume", mounts1[0].Source).Once().Return(nil)
 	mc.On("DeleteVolume", mounts1[1].Source).Once().Return(nil)
-	mc.On("DeleteVolume", mounts2[0].Source).Once().Return(nil)
-	mc.On("DeleteVolume", mounts2[1].Source).Once().Return(nil)
 
 	require.NoError(t, s.DeleteVolumes())
 

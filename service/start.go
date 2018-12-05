@@ -46,7 +46,11 @@ func (d *Dependency) Start(networkID string) (containerServiceID string, err err
 	if err != nil {
 		return "", err
 	}
-	mounts, err := d.extractVolumes()
+	volumes, err := d.extractVolumes()
+	if err != nil {
+		return "", err
+	}
+	volumesFrom, err := d.extractVolumesFrom()
 	if err != nil {
 		return "", err
 	}
@@ -72,7 +76,7 @@ func (d *Dependency) Start(networkID string) (containerServiceID string, err err
 			"MESG_ENDPOINT":     endpoint,
 			"MESG_ENDPOINT_TCP": endpoint,
 		}),
-		Mounts: mounts,
+		Mounts: append(volumes, volumesFrom...),
 		Ports:  d.extractPorts(),
 		Networks: []container.Network{
 			{ID: networkID, Alias: d.Key},
@@ -107,19 +111,24 @@ func (d *Dependency) extractVolumes() ([]container.Mount, error) {
 			Target: volume,
 		})
 	}
+	return volumes, nil
+}
+
+func (d *Dependency) extractVolumesFrom() ([]container.Mount, error) {
+	volumesFrom := make([]container.Mount, 0)
 	for _, depName := range d.VolumesFrom {
 		dep, err := d.service.getDependency(depName)
 		if err != nil {
 			return nil, err
 		}
 		for _, volume := range dep.Volumes {
-			volumes = append(volumes, container.Mount{
+			volumesFrom = append(volumesFrom, container.Mount{
 				Source: volumeKey(d.service, depName, volume),
 				Target: volume,
 			})
 		}
 	}
-	return volumes, nil
+	return volumesFrom, nil
 }
 
 // volumeKey creates a key for service's volume based on the service's alias to make sure that the volume
