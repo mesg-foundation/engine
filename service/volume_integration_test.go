@@ -30,7 +30,7 @@ func TestIntegrationDeleteVolumes(t *testing.T) {
 					VolumesFrom: []string{dependencyKey1},
 				},
 			},
-		}, ContainerOption(newIntegrationContainer(t, container.TimeoutOption(30*time.Second))))
+		}, ContainerOption(newIntegrationContainer(t, container.TimeoutOption(time.Minute))))
 	)
 	_, err := s.Start()
 	require.NoError(t, err)
