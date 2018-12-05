@@ -3,6 +3,7 @@
 package service
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -33,10 +34,13 @@ func TestIntegrationDeleteVolumes(t *testing.T) {
 		}, ContainerOption(newIntegrationContainer(t, container.TimeoutOption(2*time.Minute))))
 	)
 	require.NoError(t, err)
+	fmt.Println("before start")
 	_, err = s.Start()
 	require.NoError(t, err)
+	fmt.Println("before stop")
 	err = s.Stop()
 	require.NoError(t, err)
+	fmt.Println("before deletevolumes")
 	err = s.DeleteVolumes()
 	require.NoError(t, err)
 }
