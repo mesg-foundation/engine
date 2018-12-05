@@ -31,7 +31,7 @@ mesg-core service deploy {{.Repository}}
 ```
 {{else}}Download the source code of this service, and then in the service's folder, run the following command:
 ```bash
-mesg-core service deploy ./
+mesg-core service deploy
 ```
 {{end}}
 # Definitions
