@@ -4,7 +4,9 @@ package service
 
 import (
 	"testing"
+	"time"
 
+	"github.com/mesg-foundation/core/container"
 	"github.com/stretchr/testify/require"
 )
 
@@ -28,7 +30,7 @@ func TestIntegrationDeleteVolumes(t *testing.T) {
 					VolumesFrom: []string{dependencyKey1},
 				},
 			},
-		}, ContainerOption(newIntegrationContainer(t)))
+		}, ContainerOption(newIntegrationContainer(t, container.TimeoutOption(30*time.Second))))
 	)
 	_, err := s.Start()
 	require.NoError(t, err)
