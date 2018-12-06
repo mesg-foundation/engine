@@ -311,7 +311,7 @@ func mockStartService(d *Dependency, mc *mocks.Container,
 		Namespace: d.namespace(),
 		Labels: map[string]string{
 			"mesg.core":    c.Core.Name,
-			"mesg.SID":     d.service.SID,
+			"mesg.sid":     d.service.SID,
 			"mesg.service": d.service.Name,
 			"mesg.hash":    d.service.Hash,
 		},
