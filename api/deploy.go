@@ -1,12 +1,15 @@
 package api
 
 import (
+	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sync"
 
+	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/importer"
 	"github.com/mesg-foundation/core/x/xdocker/xarchive"
@@ -151,6 +154,22 @@ func (d *serviceDeployer) deploy(r io.Reader) (*service.Service, *importer.Valid
 	}
 	if validationErr != nil {
 		return nil, validationErr, nil
+	}
+
+	// check if a previous service exist with the same alias
+	// if a service exist with the same alias, ask user to confirm, then continue.
+	previousService, err := d.api.db.Get(s.Alias)
+	if err != nil && !database.IsErrNotFound(err) {
+		return nil, nil, err
+	}
+	if previousService != nil {
+		fmt.Println("ask user for confirmation")
+		d.sendStatus(fmt.Sprintf("A service already exist with alias %q and will be replace by new service. Do you confirm?", s.Alias), Confirmation)
+		conf := <-d.confirmations
+		fmt.Println("receive user confirmation", conf)
+		if !conf {
+			return nil, nil, errors.New("deployment interupted by user")
+		}
 	}
 
 	return s, nil, d.api.db.Save(s)
