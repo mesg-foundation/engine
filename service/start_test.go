@@ -311,7 +311,7 @@ func mockStartService(d *Dependency, mc *mocks.Container,
 		Namespace: d.namespace(),
 		Labels: map[string]string{
 			"mesg.core":    c.Core.Name,
-			"mesg.SID":     d.service.SID,
+			"mesg.sid":     d.service.SID,
 			"mesg.service": d.service.Name,
 			"mesg.hash":    d.service.ID,
 		},
@@ -326,7 +326,7 @@ func mockStartService(d *Dependency, mc *mocks.Container,
 		Mounts: append(volumes, volumesFrom...),
 		Ports:  d.extractPorts(),
 		Networks: []container.Network{
-			{ID: networkID, SID: d.Key},
+			{ID: networkID, Alias: d.Key},
 			{ID: sharedNetworkID},
 		},
 	}).Once().Return(containerServiceID, err)
