@@ -5,6 +5,8 @@ import (
 	"errors"
 	"io"
 
+	"github.com/golang/protobuf/ptypes/wrappers"
+
 	"github.com/asaskevich/govalidator"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
@@ -40,8 +42,9 @@ type deploymentResult struct {
 }
 
 // ServiceDeploy deploys service from given path.
-func (p *ServiceProvider) ServiceDeploy(path string, statuses chan DeployStatus,
-	confirmationFunc func(alias string) (deletion bool, err error)) (id string,
+func (p *ServiceProvider) ServiceDeploy(path string, confirmation *bool,
+	confirmationFunc func(alias string) (deletion bool, err error),
+	statuses chan DeployStatus) (id string,
 	validationError, err error) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -54,6 +57,16 @@ func (p *ServiceProvider) ServiceDeploy(path string, statuses chan DeployStatus,
 
 	deployment := make(chan deploymentResult)
 	go readDeployReply(stream, deployment, statuses, confirmationFunc)
+
+	if confirmation != nil {
+		if err := stream.Send(&coreapi.DeployServiceRequest{
+			Value: &coreapi.DeployServiceRequest_Confirmation{
+				Confirmation: &wrappers.BoolValue{Value: *confirmation},
+			},
+		}); err != nil {
+			return "", nil, err
+		}
+	}
 
 	if govalidator.IsURL(path) {
 		if err := stream.Send(&coreapi.DeployServiceRequest{
@@ -84,6 +97,11 @@ func deployServiceSendServiceContext(path string, stream coreapi.Core_DeployServ
 	for {
 		n, err := archive.Read(buf)
 		if err == io.EOF {
+			if err := stream.Send(&coreapi.DeployServiceRequest{
+				Value: &coreapi.DeployServiceRequest_ChunkDone{ChunkDone: true},
+			}); err != nil {
+				return err
+			}
 			break
 		}
 		if err != nil {
@@ -151,7 +169,9 @@ func readDeployReply(stream coreapi.Core_DeployServiceClient,
 			}
 
 			if err := stream.Send(&coreapi.DeployServiceRequest{
-				Value: &coreapi.DeployServiceRequest_Confirmation{Confirmation: deletion},
+				Value: &coreapi.DeployServiceRequest_Confirmation{
+					Confirmation: &wrappers.BoolValue{Value: deletion},
+				},
 			}); err != nil {
 				result.err = err
 				deployment <- result

@@ -1,7 +1,10 @@
 package core
 
 import (
+	"io"
 	"sync"
+
+	"github.com/golang/protobuf/ptypes/wrappers"
 
 	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
@@ -14,6 +17,7 @@ import (
 // TODO(ilgooz): sync `stream.Send()`s by doing it in a single goroutine.
 func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 	var (
+		sr       = newDeployServiceStreamReader(stream)
 		statuses = make(chan api.DeployStatus)
 		wg       sync.WaitGroup
 	)
@@ -30,15 +34,24 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 		err             error
 	)
 
-	sr := newDeployServiceStreamReader(stream)
-	url, err := sr.GetURL()
-	if err != nil {
+	// receive the first message in the stream.
+	if err := sr.RecvMessage(); err != nil {
 		return err
 	}
 
 	deployOptions := []api.DeployServiceOption{
 		api.DeployServiceStatusOption(statuses),
-		api.DeployServiceConfirmationOption(func(alias string) bool {
+	}
+
+	// receive confirmation for a force deploy.
+	// if it's not provided deployment will start anyway.
+	if sr.Confirmation != nil {
+		confirmation := sr.Confirmation.GetValue()
+		deployOptions = append(deployOptions, api.DeployServiceConfirmationOption(func(alias string) bool {
+			return confirmation
+		}))
+	} else {
+		deployOptions = append(deployOptions, api.DeployServiceConfirmationOption(func(alias string) bool {
 			// request for confirmation.
 			if err := stream.Send(&coreapi.DeployServiceReply{
 				Value: &coreapi.DeployServiceReply_RequestConfirmation{RequestConfirmation: alias},
@@ -48,16 +61,24 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 
 			// receive the confirmation result.
 			// TODO(ilgooz) add timeout.
-			deletion, err := sr.GetConfirmation()
-			if err != nil {
+			if err := sr.RecvMessage(); err != nil {
 				return false
 			}
-			return deletion
-		}),
+			if sr.Confirmation == nil {
+				return false
+			}
+			return sr.Confirmation.GetValue()
+		}))
 	}
 
-	if url != "" {
-		service, validationError, err = s.api.DeployServiceFromURL(url, deployOptions...)
+	if sr.Confirmation != nil {
+		if err := sr.RecvMessage(); err != nil {
+			return err
+		}
+	}
+
+	if sr.URL != "" {
+		service, validationError, err = s.api.DeployServiceFromURL(sr.URL, deployOptions...)
 	} else {
 		service, validationError, err = s.api.DeployService(sr, deployOptions...)
 	}
@@ -102,8 +123,12 @@ func forwardDeployStatuses(statuses chan api.DeployStatus, stream coreapi.Core_D
 type deployServiceStreamReader struct {
 	stream coreapi.Core_DeployServiceServer
 
-	data []byte
-	i    int64
+	URL          string
+	Confirmation *wrappers.BoolValue
+
+	chunk     []byte
+	chunkDone bool
+	i         int64
 }
 
 func newDeployServiceStreamReader(stream coreapi.Core_DeployServiceServer) *deployServiceStreamReader {
@@ -112,34 +137,32 @@ func newDeployServiceStreamReader(stream coreapi.Core_DeployServiceServer) *depl
 	}
 }
 
-func (r *deployServiceStreamReader) GetURL() (url string, err error) {
+// RecvMessage receives the next message in gRPC stream.
+func (r *deployServiceStreamReader) RecvMessage() error {
 	message, err := r.stream.Recv()
 	if err != nil {
-		return "", err
+		return err
 	}
-	r.data = message.GetChunk()
-	return message.GetUrl(), err
+	r.Confirmation = message.GetConfirmation()
+	r.URL = message.GetUrl()
+	r.chunk = message.GetChunk()
+	r.chunkDone = message.GetChunkDone()
+	return nil
 }
 
-func (r *deployServiceStreamReader) GetConfirmation() (bool, error) {
-	message, err := r.stream.Recv()
-	if err != nil {
-		return false, err
-	}
-	return message.GetConfirmation(), err
-}
-
+// Read reads service chunks to deploy.
 func (r *deployServiceStreamReader) Read(p []byte) (n int, err error) {
-	if r.i >= int64(len(r.data)) {
-		message, err := r.stream.Recv()
-		if err != nil {
+	if r.i >= int64(len(r.chunk)) {
+		if err := r.RecvMessage(); err != nil {
 			return 0, err
 		}
-		r.data = message.GetChunk()
+		if r.chunkDone {
+			return 0, io.EOF
+		}
 		r.i = 0
 		return r.Read(p)
 	}
-	n = copy(p, r.data[r.i:])
+	n = copy(p, r.chunk[r.i:])
 	r.i += int64(n)
 	return n, nil
 }

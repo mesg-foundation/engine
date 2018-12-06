@@ -17,6 +17,8 @@ type serviceDeployCmd struct {
 
 	path string
 
+	force bool
+
 	e ServiceExecutor
 }
 
@@ -33,6 +35,7 @@ To get more information, see the [deploy page from the documentation](https://do
 		RunE:    c.runE,
 		Args:    cobra.MaximumNArgs(1),
 	})
+	c.cmd.Flags().BoolVarP(&c.force, "force", "f", c.force, "Force deploy the service by overwriting existing service with the same alias if there is")
 	return c
 }
 
@@ -53,7 +56,12 @@ func (c *serviceDeployCmd) runE(cmd *cobra.Command, args []string) error {
 		printDeployStatuses(statuses)
 	}()
 
-	id, validationError, err := c.e.ServiceDeploy(c.path, statuses, func(alias string) (bool, error) {
+	var confirmation *bool
+	if c.force {
+		confirmation = &c.force
+	}
+
+	id, validationError, err := c.e.ServiceDeploy(c.path, confirmation, func(alias string) (bool, error) {
 		pretty.DestroySpinner()
 		var confirm bool
 		if err := survey.AskOne(&survey.Confirm{
@@ -63,7 +71,7 @@ func (c *serviceDeployCmd) runE(cmd *cobra.Command, args []string) error {
 		}
 		pretty.UseSpinner("Sending confirmation status")
 		return confirm, nil
-	})
+	}, statuses)
 	wg.Wait()
 
 	pretty.DestroySpinner()

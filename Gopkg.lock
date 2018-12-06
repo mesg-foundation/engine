@@ -166,7 +166,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:b746be1272035dd3643aed45a302cf150ca3ce0e9cfd38992f0f91771433620f"
+  digest = "1:60bfcd256ec46ee9dc194a84b5c3851b91bf3edd6fbb9600d57b122e9fdb6cc6"
   name = "github.com/golang/protobuf"
   packages = [
     "jsonpb",
@@ -182,6 +182,7 @@
     "ptypes/duration",
     "ptypes/struct",
     "ptypes/timestamp",
+    "ptypes/wrappers",
   ]
   pruneopts = "UT"
   revision = "aa810b61a9c79d51363740d207bb46cf8e620ed5"
@@ -779,6 +780,7 @@
     "github.com/go-bindata/go-bindata/go-bindata",
     "github.com/golang/protobuf/proto",
     "github.com/golang/protobuf/protoc-gen-go",
+    "github.com/golang/protobuf/ptypes/wrappers",
     "github.com/grpc-ecosystem/go-grpc-middleware",
     "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus",
     "github.com/hokaccha/go-prettyjson",
@@ -796,6 +798,7 @@
     "github.com/stretchr/testify/mock",
     "github.com/stretchr/testify/require",
     "github.com/syndtr/goleveldb/leveldb",
+    "github.com/syndtr/goleveldb/leveldb/util",
     "github.com/vektra/mockery/cmd/mockery",
     "github.com/xeipuuv/gojsonschema",
     "golang.org/x/net/context",

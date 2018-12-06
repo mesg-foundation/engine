@@ -24,7 +24,7 @@ type ServiceExecutor interface {
 	ServiceByID(id string) (*coreapi.Service, error)
 	ServiceDeleteAll(deleteData bool) error
 	ServiceDelete(deleteData bool, ids ...string) error
-	ServiceDeploy(path string, statuses chan provider.DeployStatus, confirmationFunc func(alias string) (deletion bool, err error)) (id string, validationError, err error)
+	ServiceDeploy(path string, confirmation *bool, confirmationFunc func(alias string) (deletion bool, err error), statuses chan provider.DeployStatus) (id string, validationError, err error)
 	ServiceListenEvents(id, eventFilter string) (chan *coreapi.EventData, chan error, error)
 	ServiceListenResults(id, taskFilter, outputFilter string, tagFilters []string) (chan *coreapi.ResultData, chan error, error)
 	ServiceLogs(id string, dependencies ...string) (logs []*provider.Log, closer func(), err error)
