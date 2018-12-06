@@ -41,9 +41,12 @@ type deploymentResult struct {
 
 // ServiceDeploy deploys service from given path.
 func (p *ServiceProvider) ServiceDeploy(path string, statuses chan DeployStatus,
-	confirmationFunc func(alias string) (deletion bool)) (id string,
+	confirmationFunc func(alias string) (deletion bool, err error)) (id string,
 	validationError, err error) {
-	stream, err := p.client.DeployService(context.Background())
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	stream, err := p.client.DeployService(ctx)
 	if err != nil {
 		return "", nil, err
 	}
@@ -100,7 +103,7 @@ func deployServiceSendServiceContext(path string, stream coreapi.Core_DeployServ
 func readDeployReply(stream coreapi.Core_DeployServiceClient,
 	deployment chan deploymentResult,
 	statuses chan DeployStatus,
-	confirmationFunc func(string) bool) {
+	confirmationFunc func(string) (bool, error)) {
 	result := deploymentResult{}
 
 	for {
@@ -136,7 +139,17 @@ func readDeployReply(stream coreapi.Core_DeployServiceClient,
 			statuses <- s
 
 		case requestConfirmation != "":
-			deletion := confirmationFunc(requestConfirmation)
+			var deletion bool
+			if confirmationFunc != nil {
+				var err error
+				deletion, err = confirmationFunc(requestConfirmation)
+				if err != nil {
+					result.err = err
+					deployment <- result
+					return
+				}
+			}
+
 			if err := stream.Send(&coreapi.DeployServiceRequest{
 				Value: &coreapi.DeployServiceRequest_Confirmation{Confirmation: deletion},
 			}); err != nil {
