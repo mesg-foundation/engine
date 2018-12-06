@@ -13,14 +13,14 @@ import (
 )
 
 const (
-	sidKeyPrefix = "sid_"
-	idKeyPrefix  = "id_"
+	sidKeyPrefix  = "sid_"
+	hashKeyPrefix = "hash_"
 )
 
 var (
-	errCannotSaveWithoutID  = errors.New("database: can't save service without id")
-	errCannotSaveWithoutSID = errors.New("database: can't save service without SID")
-	errSIDSameLen           = errors.New("database: service SID can't have same length as id")
+	errCannotSaveWithoutHash = errors.New("database: can't save service without hash")
+	errCannotSaveWithoutSID  = errors.New("database: can't save service without SID")
+	errSIDSameLen            = errors.New("database: service SID can't have same length as id")
 )
 
 // ServiceDB describes the API of database package.
@@ -75,10 +75,10 @@ func (d *LevelDBServiceDB) unmarshal(id string, value []byte) (*service.Service,
 func (d *LevelDBServiceDB) All() ([]*service.Service, error) {
 	var (
 		services []*service.Service
-		iter     = d.db.NewIterator(util.BytesPrefix([]byte(idKeyPrefix)), nil)
+		iter     = d.db.NewIterator(util.BytesPrefix([]byte(hashKeyPrefix)), nil)
 	)
 	for iter.Next() {
-		id := strings.TrimPrefix(string(iter.Key()), idKeyPrefix)
+		id := strings.TrimPrefix(string(iter.Key()), hashKeyPrefix)
 		s, err := d.unmarshal(id, iter.Value())
 		if err != nil {
 			// NOTE: Ignore all decode errors (possibly due to a service
@@ -115,7 +115,7 @@ func (d *LevelDBServiceDB) delete(tx *leveldb.Transaction, idOrSID string) error
 	if err != nil {
 		return err
 	}
-	if err := tx.Delete([]byte(idKeyPrefix+s.ID), nil); err != nil {
+	if err := tx.Delete([]byte(hashKeyPrefix+s.Hash), nil); err != nil {
 		return err
 	}
 	return tx.Delete([]byte(sidKeyPrefix+s.SID), nil)
@@ -148,7 +148,7 @@ func (d *LevelDBServiceDB) get(r leveldb.Reader, idOrSID string) (*service.Servi
 	}
 
 	// get the service
-	b, err := r.Get([]byte(idKeyPrefix+id), nil)
+	b, err := r.Get([]byte(hashKeyPrefix+id), nil)
 	if err != nil {
 		if err == leveldb.ErrNotFound {
 			return nil, &ErrNotFound{ID: idOrSID}
@@ -162,13 +162,13 @@ func (d *LevelDBServiceDB) get(r leveldb.Reader, idOrSID string) (*service.Servi
 // If the service's SID already exist, the previous service will be deleted
 func (d *LevelDBServiceDB) Save(s *service.Service) error {
 	// check service
-	if s.ID == "" {
-		return errCannotSaveWithoutID
+	if s.Hash == "" {
+		return errCannotSaveWithoutHash
 	}
 	if s.SID == "" {
 		return errCannotSaveWithoutSID
 	}
-	if len(s.ID) == len(s.SID) {
+	if len(s.Hash) == len(s.SID) {
 		return errSIDSameLen
 	}
 
@@ -192,13 +192,13 @@ func (d *LevelDBServiceDB) Save(s *service.Service) error {
 	}
 
 	// save service with id
-	if err := tx.Put([]byte(idKeyPrefix+s.ID), b, nil); err != nil {
+	if err := tx.Put([]byte(hashKeyPrefix+s.Hash), b, nil); err != nil {
 		tx.Discard()
 		return err
 	}
 
 	// save service SID
-	if err := tx.Put([]byte(sidKeyPrefix+s.SID), []byte(s.ID), nil); err != nil {
+	if err := tx.Put([]byte(sidKeyPrefix+s.SID), []byte(s.Hash), nil); err != nil {
 		tx.Discard()
 		return err
 	}
