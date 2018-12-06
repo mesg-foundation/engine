@@ -224,5 +224,5 @@ type ErrSameAlias struct {
 }
 
 func (e *ErrSameAlias) Error() string {
-	return fmt.Sprintf("database: a service with the %q alias already exists", e.alias)
+	return fmt.Sprintf("a service with the %q alias already exists", e.alias)
 }
