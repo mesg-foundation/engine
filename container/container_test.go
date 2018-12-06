@@ -21,6 +21,7 @@ func newTesting(t *testing.T) (*DockerContainer, *mocks.CommonAPIClient) {
 
 	c, err := New(ClientOption(m))
 	require.NoError(t, err)
+	require.NotZero(t, c)
 
 	return c, m
 }
