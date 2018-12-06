@@ -107,7 +107,7 @@ func TestIntegrationFindService(t *testing.T) {
 	defer c.StopService(namespace)
 	service, err := c.FindService(namespace)
 	require.NoError(t, err)
-	require.NotEqual(t, "", service.Hash)
+	require.NotEqual(t, "", service.ID)
 }
 
 func TestIntegrationFindServiceCloseName(t *testing.T) {
@@ -121,7 +121,7 @@ func TestIntegrationFindServiceCloseName(t *testing.T) {
 	defer c.StopService(namespace1)
 	service, err := c.FindService(namespace)
 	require.NoError(t, err)
-	require.NotEqual(t, "", service.Hash)
+	require.NotEqual(t, "", service.ID)
 }
 
 func TestIntegrationFindServiceStopped(t *testing.T) {

@@ -14,8 +14,8 @@ import (
 func TestServiceList(t *testing.T) {
 	var (
 		services = []*coreapi.Service{
-			{ID: "1", Name: "a", Status: coreapi.Service_RUNNING},
-			{ID: "2", Name: "b", Status: coreapi.Service_PARTIAL},
+			{Hash: "1", Name: "a", Status: coreapi.Service_RUNNING},
+			{Hash: "2", Name: "b", Status: coreapi.Service_PARTIAL},
 		}
 		m = newMockExecutor()
 		c = newServiceListCmd(m)

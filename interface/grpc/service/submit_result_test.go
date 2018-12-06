@@ -31,7 +31,7 @@ func TestSubmit(t *testing.T) {
 	require.NoError(t, server.api.StartService(s.Hash))
 	defer server.api.StopService(s.Hash)
 
-	executionID, err := server.api.ExecuteTask(s.Hashsh, taskKey, taskData, nil)
+	executionID, err := server.api.ExecuteTask(s.Hash, taskKey, taskData, nil)
 	require.NoError(t, err)
 
 	ln, err := server.api.ListenResult(s.Hash)

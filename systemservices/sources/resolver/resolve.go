@@ -72,7 +72,7 @@ func listServices(peer string) ([]string, error) {
 	}
 	serviceIDs := make([]string, len(reply.Services))
 	for i, service := range reply.Services {
-		serviceIDs[i] = service.Hash
+		serviceIDs[i] = service.ID
 	}
 	return serviceIDs, nil
 }
