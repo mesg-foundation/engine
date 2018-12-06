@@ -28,6 +28,7 @@ func DeployServiceStatusOption(statuses chan DeployStatus) DeployServiceOption {
 }
 
 // DeployServiceConfirmationsOption receives chan confirmation.
+// TODO: Remove from options
 func DeployServiceConfirmationsOption(confirmations chan bool) DeployServiceOption {
 	return func(deployer *serviceDeployer) {
 		deployer.confirmations = confirmations

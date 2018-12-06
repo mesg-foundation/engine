@@ -1,7 +1,6 @@
 package core
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -39,9 +38,10 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		err := readStream(stream, urls, confirmations, w)
-		fmt.Println("panic error deploy")
-		panic(err)
+		if err = readStream(stream, urls, confirmations, w); err != nil {
+			fmt.Println("panic error deploy")
+			panic(err)
+		}
 	}()
 	// sr := newDeployServiceStreamReader(stream, confirmations)
 	// url, err := sr.GetURL()
