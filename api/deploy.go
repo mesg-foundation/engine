@@ -1,7 +1,6 @@
 package api
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -27,11 +26,13 @@ func DeployServiceStatusOption(statuses chan DeployStatus) DeployServiceOption {
 	}
 }
 
-// DeployServiceConfirmationsOption receives chan confirmation.
-// TODO: Remove from options
-func DeployServiceConfirmationsOption(confirmations chan bool) DeployServiceOption {
+// DeployServiceConfirmationOption receives a confirmation func to confirm
+// deletion of an existing service with the same alias.
+// if it's not set then confirmation won't happen and deployment will fail
+// if there is a service with the same alias.
+func DeployServiceConfirmationOption(fn func(alias string) (deletion bool)) DeployServiceOption {
 	return func(deployer *serviceDeployer) {
-		deployer.confirmations = confirmations
+		deployer.confirmationFunc = fn
 	}
 }
 
@@ -55,8 +56,9 @@ type serviceDeployer struct {
 	// statuses receives status messages produced during deployment.
 	statuses chan DeployStatus
 
-	// confirmations receives confirmation message from user
-	confirmations chan bool
+	// confirmationFunc called when confirmation of deleting an existing
+	// service with the same alias is needed.
+	confirmationFunc func(alias string) (deletion bool)
 
 	api *API
 }
@@ -75,9 +77,6 @@ const (
 
 	// DoneNegative indicates that status message belongs to a negative noncontinuous state.
 	DoneNegative
-
-	// Confirmation indicates that status message belongs to a confirmation noncontinuous state.
-	Confirmation
 )
 
 // DeployStatus represents the deployment status.
@@ -157,20 +156,16 @@ func (d *serviceDeployer) deploy(r io.Reader) (*service.Service, *importer.Valid
 		return nil, validationErr, nil
 	}
 
-	// check if a previous service exist with the same alias
-	// if a service exist with the same alias, ask user to confirm, then continue.
-	previousService, err := d.api.db.Get(s.Alias)
-	if err != nil && !database.IsErrNotFound(err) {
-		return nil, nil, err
-	}
-	if previousService != nil {
-		fmt.Println("ask user for confirmation")
-		d.sendStatus(fmt.Sprintf("A service already exist with alias %q and will be replace by new service. Do you confirm?", s.Alias), Confirmation)
-		conf := <-d.confirmations
-		fmt.Println("receive user confirmation", conf)
-		if !conf {
-			return nil, nil, errors.New("deployment interupted by user")
+	// check if there is a deployed service with the same alias.
+	// if it's, try to get a confirmation for deleting it and continue to deploy.
+	if _, err := d.api.db.Get(s.Alias); err == nil {
+		if d.confirmationFunc != nil {
+			if delete := d.confirmationFunc(s.Alias); !delete {
+				return nil, nil, &ErrSameAlias{s.Alias}
+			}
 		}
+	} else if !database.IsErrNotFound(err) {
+		return nil, nil, err
 	}
 
 	return s, nil, d.api.db.Save(s)
@@ -221,4 +216,13 @@ func (d *serviceDeployer) assertValidationError(err error) (*importer.Validation
 		return validationError, nil
 	}
 	return nil, err
+}
+
+// ErrSameAlias error returned when there is a service with the same alias.
+type ErrSameAlias struct {
+	alias string
+}
+
+func (e *ErrSameAlias) Error() string {
+	return fmt.Sprintf("database: a service with the %q alias already exists", e.alias)
 }

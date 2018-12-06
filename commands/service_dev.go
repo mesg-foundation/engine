@@ -12,6 +12,7 @@ import (
 	"github.com/mesg-foundation/core/x/xerrors"
 	"github.com/mesg-foundation/core/x/xsignal"
 	"github.com/spf13/cobra"
+	survey "gopkg.in/AlecAivazis/survey.v1"
 )
 
 type serviceDevCmd struct {
@@ -52,18 +53,28 @@ func (c *serviceDevCmd) preRunE(cmd *cobra.Command, args []string) error {
 
 func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 	var (
-		statuses      = make(chan provider.DeployStatus)
-		confirmations = make(chan bool)
-		wg            sync.WaitGroup
+		statuses = make(chan provider.DeployStatus)
+		wg       sync.WaitGroup
 	)
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		printDeployStatuses(statuses, confirmations)
+		printDeployStatuses(statuses)
 	}()
 
-	id, validationError, err := c.e.ServiceDeploy(c.path, statuses, confirmations)
+	id, validationError, err := c.e.ServiceDeploy(c.path, statuses, func(alias string) bool {
+		pretty.DestroySpinner()
+		var confirm bool
+		if err := survey.AskOne(&survey.Confirm{
+			Message: fmt.Sprintf("A service already exist with the same alias %q. Do you confirm to replace it?", alias),
+		}, &confirm, nil); err != nil {
+			// TODO(ilgooz) remove panic.
+			panic(err)
+		}
+		pretty.UseSpinner("Sending confirmation status")
+		return confirm
+	})
 	wg.Wait()
 
 	pretty.DestroySpinner()

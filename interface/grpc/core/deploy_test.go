@@ -54,8 +54,6 @@ func (s *testDeployStream) Send(m *coreapi.DeployServiceReply) error {
 			typ = api.DonePositive
 		case coreapi.DeployServiceReply_Status_DONE_NEGATIVE:
 			typ = api.DoneNegative
-		case coreapi.DeployServiceReply_Status_CONFIRMATION:
-			typ = api.Confirmation
 		}
 		s.statuses = append(s.statuses, api.DeployStatus{
 			Message: status.Message,

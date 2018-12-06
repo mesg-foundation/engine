@@ -1076,6 +1076,7 @@ or
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | status | [DeployServiceReply.Status](#api.DeployServiceReply.Status) | `status` will be sent after each status change. |
+| requestConfirmation | [string](#string) | `requestConfirmation` will be sent to confirm deletion of the existing service with the same alias. It's value is the alias. |
 | serviceID | [string](#string) | `serviceID` will be sent as the last message of stream when service deployed successfully. |
 | validationError | [string](#string) | `validationError` will be sent as the last message of stream when there is a validation error. |
 

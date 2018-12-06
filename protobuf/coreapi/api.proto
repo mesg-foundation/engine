@@ -277,16 +277,16 @@ message DeployServiceReply {
       RUNNING = 0;       // RUNNING indicates that status message belongs to a continuous state.
       DONE_POSITIVE = 1; // DONE_POSITIVE indicates that status message belongs to a positive noncontinuous state.
       DONE_NEGATIVE = 2; // DONE_NEGATIVE indicates that status message belongs to a negative noncontinuous state.
-      CONFIRMATION = 3; // CONFIRMATION indicates that status message belongs to a confirmation noncontinuous state.
     }
     string message = 1; // Status message.
     Type type = 2;      // Type of status message.
   }
 
   oneof value {
-    Status status = 2;          // `status` will be sent after each status change.
-    string serviceID = 3;       // `serviceID` will be sent as the last message of stream when service deployed successfully.
-    string validationError = 4; // `validationError` will be sent as the last message of stream when there is a validation error.
+    Status status = 2;               // `status` will be sent after each status change.
+    string requestConfirmation = 5;  // `requestConfirmation` will be sent to confirm deletion of the existing service with the same alias. It's value is the alias.
+    string serviceID = 3;            // `serviceID` will be sent as the last message of stream when service deployed successfully.
+    string validationError = 4;      // `validationError` will be sent as the last message of stream when there is a validation error.
   }
 }
 
