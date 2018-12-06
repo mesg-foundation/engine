@@ -118,10 +118,7 @@ func (d *LevelDBServiceDB) delete(tx *leveldb.Transaction, idOrAlias string) err
 	if err := tx.Delete([]byte(idKeyPrefix+s.ID), nil); err != nil {
 		return err
 	}
-	if err := tx.Delete([]byte(aliasKeyPrefix+s.Alias), nil); err != nil {
-		return err
-	}
-	return nil
+	return tx.Delete([]byte(aliasKeyPrefix+s.Alias), nil)
 }
 
 // Get retrives service from database.
