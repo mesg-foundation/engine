@@ -61,7 +61,7 @@ func (d *Dependency) Start(networkID string) (containerServiceID string, err err
 		Namespace: d.namespace(),
 		Labels: map[string]string{
 			"mesg.service": d.service.Name,
-			"mesg.hash":    d.service.ID,
+			"mesg.hash":    d.service.Hash,
 			"mesg.sid":     d.service.SID,
 			"mesg.core":    c.Core.Name,
 		},
@@ -69,7 +69,7 @@ func (d *Dependency) Start(networkID string) (containerServiceID string, err err
 		Args:    d.Args,
 		Command: d.Command,
 		Env: container.MapToEnv(map[string]string{
-			"MESG_TOKEN":        d.service.ID,
+			"MESG_TOKEN":        d.service.Hash,
 			"MESG_ENDPOINT":     endpoint,
 			"MESG_ENDPOINT_TCP": endpoint,
 		}),
