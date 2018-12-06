@@ -1,5 +1,5 @@
 name: "System Resolver Service"
-alias: resolver
+sid: resolver
 description: ""
 
 tasks:

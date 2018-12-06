@@ -10,7 +10,7 @@
       "type": "string",
       "minLength": 1
     },
-    "alias": {
+    "sid": {
       "type": "string",
       "maxLength": 39,
       "pattern": "^[0-9a-zA-Z_:-]+$"

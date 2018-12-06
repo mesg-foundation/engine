@@ -27,9 +27,9 @@ type Service struct {
 	// ID is the unique id of service.
 	ID string `hash:"-"`
 
-	// Alias is an alias for service.
+	// SID is the Service ID.
 	// It needs to be unique and can be used to access to service.
-	Alias string `hash:"name:1"`
+	SID string `hash:"name:1"`
 
 	// Name is the service name.
 	Name string `hash:"name:2"`
@@ -204,9 +204,9 @@ func (s *Service) deploy() error {
 	s.configuration.Key = "service"
 	s.configuration.Image = imageHash
 	s.Dependencies = append(s.Dependencies, s.configuration)
-	if s.Alias == "" {
-		// make sure that alias doesn't have the same length with id.
-		s.Alias = "a" + s.computeHash()
+	if s.SID == "" {
+		// make sure that SID doesn't have the same length with id.
+		s.SID = "a" + s.computeHash()
 	}
 	return nil
 }
