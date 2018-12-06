@@ -66,11 +66,16 @@ func (p *ServiceProvider) ServiceDeploy(path string, statuses chan DeployStatus,
 		}
 	}
 
+	// if err := stream.CloseSend(); err != nil {
+	// 	return "", nil, err
+	// }
+
+	result := <-deployment
+
 	if err := stream.CloseSend(); err != nil {
 		return "", nil, err
 	}
 
-	result := <-deployment
 	close(statuses)
 	return result.serviceID, result.validationError, result.err
 }
@@ -99,6 +104,11 @@ func deployServiceSendServiceContext(path string, stream coreapi.Core_DeployServ
 	for {
 		n, err := archive.Read(buf)
 		if err == io.EOF {
+			if err := stream.Send(&coreapi.DeployServiceRequest{
+				Value: &coreapi.DeployServiceRequest_Chunk{Chunk: []byte("END_OF_SERVICE")},
+			}); err != nil {
+				return err
+			}
 			break
 		}
 		if err != nil {
