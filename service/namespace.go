@@ -11,7 +11,7 @@ const resultChannel string = "Result"
 
 // namespace returns the namespace of the service.
 func (service *Service) namespace() []string {
-	return []string{service.ID}
+	return []string{service.Hash}
 }
 
 // namespace returns the namespace of a dependency.

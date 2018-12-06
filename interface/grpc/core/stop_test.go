@@ -19,12 +19,12 @@ func TestStopService(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.ID, false)
+	defer server.api.DeleteService(s.Hash, false)
 
-	require.NoError(t, server.api.StartService(s.ID))
+	require.NoError(t, server.api.StartService(s.Hash))
 
 	reply, err := server.StopService(context.Background(), &coreapi.StopServiceRequest{
-		ServiceID: s.ID,
+		ServiceID: s.Hash,
 	})
 	require.NoError(t, err)
 
