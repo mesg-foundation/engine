@@ -102,21 +102,23 @@ func (d *LevelDBServiceDB) Delete(idOrAlias string) error {
 	if err != nil {
 		return err
 	}
-
-	s, err := d.get(tx, idOrAlias)
-	if err != nil {
-		tx.Discard()
-		return err
-	}
-
-	batch := &leveldb.Batch{}
-	batch.Delete([]byte(idKeyPrefix + s.ID))
-	batch.Delete([]byte(aliasKeyPrefix + s.Alias))
-	if err := tx.Write(batch, nil); err != nil {
+	if err := d.delete(tx, idOrAlias); err != nil {
 		tx.Discard()
 		return err
 	}
 	return tx.Commit()
+}
+
+// delete deletes service from database by using r reader.
+func (d *LevelDBServiceDB) delete(tx *leveldb.Transaction, idOrAlias string) error {
+	s, err := d.get(tx, idOrAlias)
+	if err != nil {
+		return err
+	}
+	if err := tx.Delete([]byte(idKeyPrefix+s.ID), nil); err != nil {
+		return err
+	}
+	return tx.Delete([]byte(aliasKeyPrefix+s.Alias), nil)
 }
 
 // Get retrives service from database.
@@ -157,6 +159,7 @@ func (d *LevelDBServiceDB) get(r leveldb.Reader, idOrAlias string) (*service.Ser
 }
 
 // Save stores service in database.
+// If the service's alias already exist, the previous service will be deleted
 func (d *LevelDBServiceDB) Save(s *service.Service) error {
 	// check service
 	if s.ID == "" {
@@ -169,16 +172,38 @@ func (d *LevelDBServiceDB) Save(s *service.Service) error {
 		return errAliasSameLen
 	}
 
-	// encode service
-	b, err := d.marshal(s)
+	// open database transaction
+	tx, err := d.db.OpenTransaction()
 	if err != nil {
 		return err
 	}
 
-	batch := &leveldb.Batch{}
-	batch.Put([]byte(idKeyPrefix+s.ID), b)
-	batch.Put([]byte(aliasKeyPrefix+s.Alias), []byte(s.ID))
-	return d.db.Write(batch, nil)
+	// delete previous service that has the same alias
+	if err := d.delete(tx, s.Alias); err != nil && !IsErrNotFound(err) {
+		tx.Discard()
+		return err
+	}
+
+	// encode service
+	b, err := d.marshal(s)
+	if err != nil {
+		tx.Discard()
+		return err
+	}
+
+	// save service with id
+	if err := tx.Put([]byte(idKeyPrefix+s.ID), b, nil); err != nil {
+		tx.Discard()
+		return err
+	}
+
+	// save service alias
+	if err := tx.Put([]byte(aliasKeyPrefix+s.Alias), []byte(s.ID), nil); err != nil {
+		tx.Discard()
+		return err
+	}
+
+	return tx.Commit()
 }
 
 // Close closes database.

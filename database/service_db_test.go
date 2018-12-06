@@ -30,13 +30,28 @@ func TestServiceDBSave(t *testing.T) {
 	db, closer := openServiceDB(t)
 	defer closer()
 
-	s := &service.Service{ID: "00", Alias: "1", Name: "test-service"}
-	require.NoError(t, db.Save(s))
-	s = &service.Service{ID: "00", Alias: "2", Name: "test-service"}
-	require.NoError(t, db.Save(s))
+	s1 := &service.Service{ID: "00", Alias: "1", Name: "test-service"}
+	require.NoError(t, db.Save(s1))
+
+	// save same service. should replace
+	require.NoError(t, db.Save(s1))
+	ss, _ := db.All()
+	require.Len(t, ss, 1)
+
+	// different id, same alias. should replace s1
+	s2 := &service.Service{ID: "01", Alias: "1", Name: "test-service"}
+	require.NoError(t, db.Save(s2))
+	_, err := db.Get(s1.ID)
+	require.IsType(t, &ErrNotFound{}, err)
+
+	// different id, different alias. should not replace anything
+	s3 := &service.Service{ID: "02", Alias: "2", Name: "test-service"}
+	require.NoError(t, db.Save(s3))
+	ss, _ = db.All()
+	require.Len(t, ss, 2)
 
 	// test service without id
-	s = &service.Service{Name: "test-service", Alias: "alias"}
+	s := &service.Service{Name: "test-service", Alias: "alias"}
 	require.EqualError(t, db.Save(s), errCannotSaveWithoutID.Error())
 
 	// test service without alias
