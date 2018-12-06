@@ -12,14 +12,18 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// mockWaitForStatus mocks waitForStatus() to wait for wantedStatus for namespace.
 func mockWaitForStatus(t *testing.T, m *mocks.CommonAPIClient, namespace string, wantedStatus StatusType) {
 	m.On("TaskList", mock.Anything, types.TaskListOptions{
 		Filters: filters.NewArgs(filters.KeyValuePair{
 			Key:   "label",
 			Value: "com.docker.stack.namespace=" + namespace,
 		}),
-	}).Once().
+	}).
+		Once().
 		Return([]swarm.Task{}, nil)
+
+	// status:
 	mockStatus(t, m, namespace, wantedStatus)
 }
 
