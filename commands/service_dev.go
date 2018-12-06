@@ -52,17 +52,18 @@ func (c *serviceDevCmd) preRunE(cmd *cobra.Command, args []string) error {
 
 func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 	var (
-		statuses = make(chan provider.DeployStatus)
-		wg       sync.WaitGroup
+		statuses      = make(chan provider.DeployStatus)
+		confirmations = make(chan bool)
+		wg            sync.WaitGroup
 	)
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		printDeployStatuses(statuses)
+		printDeployStatuses(statuses, confirmations)
 	}()
 
-	id, validationError, err := c.e.ServiceDeploy(c.path, statuses)
+	id, validationError, err := c.e.ServiceDeploy(c.path, statuses, confirmations)
 	wg.Wait()
 
 	pretty.DestroySpinner()

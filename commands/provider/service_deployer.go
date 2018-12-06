@@ -24,6 +24,9 @@ const (
 
 	// DoneNegative indicates that status message belongs to a negative noncontinuous state.
 	DoneNegative
+
+	// Confirmation indicates that status message belongs to a confirmation noncontinuous state.
+	Confirmation
 )
 
 // DeployStatus represents the deployment status.
@@ -40,7 +43,7 @@ type deploymentResult struct {
 }
 
 // ServiceDeploy deploys service from given path.
-func (p *ServiceProvider) ServiceDeploy(path string, statuses chan DeployStatus) (id string,
+func (p *ServiceProvider) ServiceDeploy(path string, statuses chan DeployStatus, confirmations chan bool) (id string,
 	validationError, err error) {
 	stream, err := p.client.DeployService(context.Background())
 	if err != nil {
@@ -49,6 +52,7 @@ func (p *ServiceProvider) ServiceDeploy(path string, statuses chan DeployStatus)
 
 	deployment := make(chan deploymentResult)
 	go readDeployReply(stream, deployment, statuses)
+	go forwardConfirmation(stream, confirmations)
 
 	if govalidator.IsURL(path) {
 		if err := stream.Send(&coreapi.DeployServiceRequest{
@@ -69,6 +73,18 @@ func (p *ServiceProvider) ServiceDeploy(path string, statuses chan DeployStatus)
 	result := <-deployment
 	close(statuses)
 	return result.serviceID, result.validationError, result.err
+}
+
+func forwardConfirmation(stream coreapi.Core_DeployServiceClient, confirmations chan bool) error {
+	for conf := range confirmations {
+		if err := stream.Send(&coreapi.DeployServiceRequest{
+			Value: &coreapi.DeployServiceRequest_Confirmation{Confirmation: conf},
+		}); err != nil {
+			return err
+		}
+	}
+	close(confirmations)
+	return nil
 }
 
 func deployServiceSendServiceContext(path string, stream coreapi.Core_DeployServiceClient) error {
@@ -130,6 +146,8 @@ func readDeployReply(stream coreapi.Core_DeployServiceClient, deployment chan de
 				s.Type = DonePositive
 			case coreapi.DeployServiceReply_Status_DONE_NEGATIVE:
 				s.Type = DoneNegative
+			case coreapi.DeployServiceReply_Status_CONFIRMATION:
+				s.Type = Confirmation
 			}
 
 			statuses <- s

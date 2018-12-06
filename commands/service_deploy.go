@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"sync"
 
+	"gopkg.in/AlecAivazis/survey.v1"
+
 	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/mesg-foundation/core/x/xerrors"
@@ -42,17 +44,18 @@ func (c *serviceDeployCmd) preRunE(cmd *cobra.Command, args []string) error {
 
 func (c *serviceDeployCmd) runE(cmd *cobra.Command, args []string) error {
 	var (
-		statuses = make(chan provider.DeployStatus)
-		wg       sync.WaitGroup
+		statuses      = make(chan provider.DeployStatus)
+		confirmations = make(chan bool)
+		wg            sync.WaitGroup
 	)
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		printDeployStatuses(statuses)
+		printDeployStatuses(statuses, confirmations)
 	}()
 
-	id, validationError, err := c.e.ServiceDeploy(c.path, statuses)
+	id, validationError, err := c.e.ServiceDeploy(c.path, statuses, confirmations)
 	wg.Wait()
 
 	pretty.DestroySpinner()
@@ -70,11 +73,20 @@ func (c *serviceDeployCmd) runE(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func printDeployStatuses(statuses chan provider.DeployStatus) {
+func printDeployStatuses(statuses chan provider.DeployStatus, confirmations chan bool) {
 	for status := range statuses {
 		switch status.Type {
 		case provider.Running:
 			pretty.UseSpinner(status.Message)
+		case provider.Confirmation:
+			pretty.DestroySpinner()
+			var confirm bool
+			if err := survey.AskOne(&survey.Confirm{
+				Message: status.Message,
+			}, &confirm, nil); err != nil {
+				panic(err)
+			}
+			confirmations <- confirm
 		default:
 			var sign string
 			switch status.Type {

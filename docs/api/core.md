@@ -976,6 +976,7 @@ or
 | ----- | ---- | ----------- |
 | url | [string](#string) | Git repo url of service. When url provided, stream will be closed after the first receive. |
 | chunk | [bytes](#bytes) | Chunks of gzipped tar archive of service. If chunk provided, stream should be closed by client after all chunks sent. |
+| confirmation | [bool](#bool) | Send confirmation |
 
 
 

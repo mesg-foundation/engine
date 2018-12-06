@@ -24,6 +24,13 @@ func DeployServiceStatusOption(statuses chan DeployStatus) DeployServiceOption {
 	}
 }
 
+// DeployServiceConfirmationsOption receives chan confirmation.
+func DeployServiceConfirmationsOption(confirmations chan bool) DeployServiceOption {
+	return func(deployer *serviceDeployer) {
+		deployer.confirmations = confirmations
+	}
+}
+
 // DeployService deploys a service from a gzipped tarball.
 func (a *API) DeployService(r io.Reader, options ...DeployServiceOption) (*service.Service,
 	*importer.ValidationError, error) {
@@ -44,6 +51,9 @@ type serviceDeployer struct {
 	// statuses receives status messages produced during deployment.
 	statuses chan DeployStatus
 
+	// confirmations receives confirmation message from user
+	confirmations chan bool
+
 	api *API
 }
 
@@ -61,6 +71,9 @@ const (
 
 	// DoneNegative indicates that status message belongs to a negative noncontinuous state.
 	DoneNegative
+
+	// Confirmation indicates that status message belongs to a confirmation noncontinuous state.
+	Confirmation
 )
 
 // DeployStatus represents the deployment status.

@@ -243,6 +243,7 @@ message DeployServiceRequest {
   oneof value {
     string url = 2;   // Git repo url of service. When url provided, stream will be closed after the first receive.
     bytes chunk = 3;  // Chunks of gzipped tar archive of service. If chunk provided, stream should be closed by client after all chunks sent.
+    bool confirmation = 4;  // Send confirmation
   }
 }
 
@@ -276,6 +277,7 @@ message DeployServiceReply {
       RUNNING = 0;       // RUNNING indicates that status message belongs to a continuous state.
       DONE_POSITIVE = 1; // DONE_POSITIVE indicates that status message belongs to a positive noncontinuous state.
       DONE_NEGATIVE = 2; // DONE_NEGATIVE indicates that status message belongs to a negative noncontinuous state.
+      CONFIRMATION = 3; // CONFIRMATION indicates that status message belongs to a confirmation noncontinuous state.
     }
     string message = 1; // Status message.
     Type type = 2;      // Type of status message.
