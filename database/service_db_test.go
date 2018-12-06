@@ -30,13 +30,46 @@ func TestServiceDBSave(t *testing.T) {
 	db, closer := openServiceDB(t)
 	defer closer()
 
-	s := &service.Service{ID: "00", Alias: "1", Name: "test-service"}
-	require.NoError(t, db.Save(s))
-	s = &service.Service{ID: "00", Alias: "2", Name: "test-service"}
-	require.NoError(t, db.Save(s))
+	s1 := &service.Service{ID: "00", Alias: "1", Name: "test-service"}
+	require.NoError(t, db.Save(s1))
+	_, err := db.Get(s1.Alias)
+	require.NoError(t, err)
+	ss, _ := db.All()
+	require.Len(t, ss, 1)
+
+	s2 := &service.Service{ID: "01", Alias: "2", Name: "test-service"}
+	require.NoError(t, db.Save(s2))
+	_, err = db.Get(s1.Alias)
+	require.NoError(t, err)
+	_, err = db.Get(s2.Alias)
+	require.NoError(t, err)
+	ss, _ = db.All()
+	require.Len(t, ss, 2)
+
+	s3 := &service.Service{ID: "02", Alias: "2", Name: "test-service"}
+	require.NoError(t, db.Save(s3))
+	_, err = db.Get(s1.Alias)
+	require.NoError(t, err)
+	s3db, err := db.Get(s3.Alias)
+	require.NoError(t, err)
+	require.Equal(t, s3.ID, s3db.ID)
+	_, err = db.Get(s2.ID)
+	require.IsType(t, &ErrNotFound{}, err)
+	ss, _ = db.All()
+	require.Len(t, ss, 2)
+
+	s4 := &service.Service{ID: "00", Alias: "2", Name: "test-service"}
+	require.NoError(t, db.Save(s4))
+	s4db, err := db.Get(s4.Alias)
+	require.NoError(t, err)
+	require.Equal(t, s4.ID, s4db.ID)
+	_, err = db.Get(s3.ID)
+	require.IsType(t, &ErrNotFound{}, err)
+	ss, _ = db.All()
+	require.Len(t, ss, 1)
 
 	// test service without id
-	s = &service.Service{Name: "test-service", Alias: "alias"}
+	s := &service.Service{Name: "test-service", Alias: "alias"}
 	require.EqualError(t, db.Save(s), errCannotSaveWithoutID.Error())
 
 	// test service without alias
@@ -46,21 +79,6 @@ func TestServiceDBSave(t *testing.T) {
 	// test service id same length as alias
 	s = &service.Service{Name: "test-service", ID: "sameLength", Alias: "sameLength"}
 	require.EqualError(t, db.Save(s), errAliasSameLen.Error())
-}
-
-func TestServiceDBSaveWithSameAlias(t *testing.T) {
-	db, closer := openServiceDB(t)
-	defer closer()
-
-	s := &service.Service{ID: "01", Alias: "a", Name: "test-service"}
-	require.NoError(t, db.Save(s))
-	s = &service.Service{ID: "02", Alias: "a", Name: "test-service"}
-	require.Equal(t, &ErrSameAlias{"a"}, db.Save(s))
-
-	_, err := db.Get("1")
-	require.IsType(t, &ErrNotFound{}, err)
-	_, err = db.Get("2")
-	require.IsType(t, &ErrNotFound{}, err)
 }
 
 func TestServiceDBGet(t *testing.T) {
