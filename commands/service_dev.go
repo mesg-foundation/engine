@@ -63,8 +63,7 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 		printDeployStatuses(statuses)
 	}()
 
-	confirmation := true
-	id, validationError, err := c.e.ServiceDeploy(c.path, &confirmation, func(alias string) (bool, error) {
+	id, validationError, err := c.e.ServiceDeploy(c.path, nil, func(alias string) (bool, error) {
 		pretty.DestroySpinner()
 		var confirm bool
 		if err := survey.AskOne(&survey.Confirm{
