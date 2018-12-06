@@ -5,8 +5,8 @@ type ServiceDefinition struct {
 	// Name is the service name.
 	Name string `yaml:"name"`
 
-	// Alias is an alias to access the service. This alias should be unique
-	Alias string `yaml:"alias"`
+	// SID is the Service ID. This SID should be unique
+	SID string `yaml:"sid"`
 
 	// Description is service description.
 	Description string `yaml:"description"`
