@@ -16,7 +16,7 @@ mesg-core service init [flags]
 
 ```
 mesg-core service init
-mesg-core service init --name NAME --description DESCRIPTION
+mesg-core service init --name NAME
 mesg-core service init --current
 ```
 

@@ -28,15 +28,12 @@ func (s *Service) DeleteVolumes() error {
 
 // DeleteVolumes deletes the data volumes of service's dependency.
 func (d *Dependency) DeleteVolumes() error {
-	mounts, err := d.extractVolumes()
-	if err != nil {
-		return err
-	}
+	volumes := d.extractVolumes()
 	var (
 		wg   sync.WaitGroup
 		errs xerrors.SyncErrors
 	)
-	for _, mount := range mounts {
+	for _, mount := range volumes {
 		wg.Add(1)
 		go func(mount container.Mount) {
 			defer wg.Done()
