@@ -32,41 +32,23 @@ func TestServiceDBSave(t *testing.T) {
 
 	s1 := &service.Service{ID: "00", Alias: "1", Name: "test-service"}
 	require.NoError(t, db.Save(s1))
-	_, err := db.Get(s1.Alias)
-	require.NoError(t, err)
+
+	// save same service. should replae
+	require.NoError(t, db.Save(s1))
 	ss, _ := db.All()
 	require.Len(t, ss, 1)
 
-	s2 := &service.Service{ID: "01", Alias: "2", Name: "test-service"}
+	// different id, same alias. should replace s1
+	s2 := &service.Service{ID: "01", Alias: "1", Name: "test-service"}
 	require.NoError(t, db.Save(s2))
-	_, err = db.Get(s1.Alias)
-	require.NoError(t, err)
-	_, err = db.Get(s2.Alias)
-	require.NoError(t, err)
-	ss, _ = db.All()
-	require.Len(t, ss, 2)
+	_, err := db.Get(s1.ID)
+	require.IsType(t, &ErrNotFound{}, err)
 
+	// different id, different alias. should not replace anything
 	s3 := &service.Service{ID: "02", Alias: "2", Name: "test-service"}
 	require.NoError(t, db.Save(s3))
-	_, err = db.Get(s1.Alias)
-	require.NoError(t, err)
-	s3db, err := db.Get(s3.Alias)
-	require.NoError(t, err)
-	require.Equal(t, s3.ID, s3db.ID)
-	_, err = db.Get(s2.ID)
-	require.IsType(t, &ErrNotFound{}, err)
 	ss, _ = db.All()
 	require.Len(t, ss, 2)
-
-	s4 := &service.Service{ID: "00", Alias: "2", Name: "test-service"}
-	require.NoError(t, db.Save(s4))
-	s4db, err := db.Get(s4.Alias)
-	require.NoError(t, err)
-	require.Equal(t, s4.ID, s4db.ID)
-	_, err = db.Get(s3.ID)
-	require.IsType(t, &ErrNotFound{}, err)
-	ss, _ = db.All()
-	require.Len(t, ss, 1)
 
 	// test service without id
 	s := &service.Service{Name: "test-service", Alias: "alias"}
