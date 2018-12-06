@@ -131,25 +131,25 @@ func (_m *Executor) ServiceDeleteAll(deleteData bool) error {
 }
 
 // ServiceDeploy provides a mock function with given fields: path, statuses, confirmationFunc
-func (_m *Executor) ServiceDeploy(path string, statuses chan provider.DeployStatus, confirmationFunc func(string) bool) (string, error, error) {
+func (_m *Executor) ServiceDeploy(path string, statuses chan provider.DeployStatus, confirmationFunc func(string) (bool, error)) (string, error, error) {
 	ret := _m.Called(path, statuses, confirmationFunc)
 
 	var r0 string
-	if rf, ok := ret.Get(0).(func(string, chan provider.DeployStatus, func(string) bool) string); ok {
+	if rf, ok := ret.Get(0).(func(string, chan provider.DeployStatus, func(string) (bool, error)) string); ok {
 		r0 = rf(path, statuses, confirmationFunc)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, chan provider.DeployStatus, func(string) bool) error); ok {
+	if rf, ok := ret.Get(1).(func(string, chan provider.DeployStatus, func(string) (bool, error)) error); ok {
 		r1 = rf(path, statuses, confirmationFunc)
 	} else {
 		r1 = ret.Error(1)
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(string, chan provider.DeployStatus, func(string) bool) error); ok {
+	if rf, ok := ret.Get(2).(func(string, chan provider.DeployStatus, func(string) (bool, error)) error); ok {
 		r2 = rf(path, statuses, confirmationFunc)
 	} else {
 		r2 = ret.Error(2)
