@@ -33,7 +33,7 @@ func TestServiceDBSave(t *testing.T) {
 	s1 := &service.Service{ID: "00", Alias: "1", Name: "test-service"}
 	require.NoError(t, db.Save(s1))
 
-	// save same service. should replae
+	// save same service. should replace
 	require.NoError(t, db.Save(s1))
 	ss, _ := db.All()
 	require.Len(t, ss, 1)
