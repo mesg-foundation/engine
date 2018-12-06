@@ -63,7 +63,7 @@ func (s *SystemServices) RegisterSystemService(name string, service *service.Ser
 func (s *SystemServices) GetServiceID(name string) (string, error) {
 	for _, srv := range s.services {
 		if srv.name == name {
-			return srv.service.ID, nil
+			return srv.service.SID, nil
 		}
 	}
 	return "", &SystemServiceNotFoundError{Name: name}

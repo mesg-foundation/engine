@@ -14,13 +14,10 @@ import (
 
 const (
 	sidKeyPrefix = "sid_"
-	idKeyPrefix  = "id_"
 )
 
 var (
-	errCannotSaveWithoutID  = errors.New("database: can't save service without id")
 	errCannotSaveWithoutSID = errors.New("database: can't save service without sid")
-	errSIDSameLen           = errors.New("database: sid can't have the same length as id")
 )
 
 // ServiceDB describes the API of database package.
@@ -30,11 +27,11 @@ type ServiceDB interface {
 
 	// Get gets a service from database by its unique id
 	// or unique sid.
-	Get(idOrSID string) (*service.Service, error)
+	Get(SID string) (*service.Service, error)
 
 	// Delete deletes a service from database by its unique id
 	// or unique sid.
-	Delete(idOrSID string) error
+	Delete(SID string) error
 
 	// All returns all services from database.
 	All() ([]*service.Service, error)
@@ -63,10 +60,10 @@ func (d *LevelDBServiceDB) marshal(s *service.Service) ([]byte, error) {
 }
 
 // unmarshal returns the service from byte slice.
-func (d *LevelDBServiceDB) unmarshal(id string, value []byte) (*service.Service, error) {
+func (d *LevelDBServiceDB) unmarshal(sid string, value []byte) (*service.Service, error) {
 	var s service.Service
 	if err := json.Unmarshal(value, &s); err != nil {
-		return nil, &DecodeError{ID: id}
+		return nil, &DecodeError{SID: sid}
 	}
 	return &s, nil
 }
@@ -75,16 +72,16 @@ func (d *LevelDBServiceDB) unmarshal(id string, value []byte) (*service.Service,
 func (d *LevelDBServiceDB) All() ([]*service.Service, error) {
 	var (
 		services []*service.Service
-		iter     = d.db.NewIterator(util.BytesPrefix([]byte(idKeyPrefix)), nil)
+		iter     = d.db.NewIterator(util.BytesPrefix([]byte(sidKeyPrefix)), nil)
 	)
 	for iter.Next() {
-		id := strings.TrimPrefix(string(iter.Key()), idKeyPrefix)
-		s, err := d.unmarshal(id, iter.Value())
+		sid := strings.TrimPrefix(string(iter.Key()), sidKeyPrefix)
+		s, err := d.unmarshal(sid, iter.Value())
 		if err != nil {
 			// NOTE: Ignore all decode errors (possibly due to a service
 			// structure change or database corruption)
 			if decodeErr, ok := err.(*DecodeError); ok {
-				logrus.WithField("service", decodeErr.ID).Warning(decodeErr.Error())
+				logrus.WithField("service", decodeErr.SID).Warning(decodeErr.Error())
 				continue
 			}
 			iter.Release()
@@ -97,113 +94,56 @@ func (d *LevelDBServiceDB) All() ([]*service.Service, error) {
 }
 
 // Delete deletes service from database.
-func (d *LevelDBServiceDB) Delete(idOrSID string) error {
+func (d *LevelDBServiceDB) Delete(SID string) error {
 	tx, err := d.db.OpenTransaction()
 	if err != nil {
 		return err
 	}
-	if err := d.delete(tx, idOrSID); err != nil {
+	if _, err := d.get(tx, SID); err != nil {
+		tx.Discard()
+		return err
+	}
+	if err := tx.Delete([]byte(sidKeyPrefix+SID), nil); err != nil {
 		tx.Discard()
 		return err
 	}
 	return tx.Commit()
 }
 
-// delete deletes service from database by using r reader.
-func (d *LevelDBServiceDB) delete(tx *leveldb.Transaction, idOrSID string) error {
-	s, err := d.get(tx, idOrSID)
-	if err != nil {
-		return err
-	}
-	if err := tx.Delete([]byte(idKeyPrefix+s.ID), nil); err != nil {
-		return err
-	}
-	return tx.Delete([]byte(sidKeyPrefix+s.SID), nil)
-}
-
 // Get retrives service from database.
-func (d *LevelDBServiceDB) Get(idOrSID string) (*service.Service, error) {
-	tx, err := d.db.OpenTransaction()
-	if err != nil {
-		return nil, err
-	}
-	s, err := d.get(tx, idOrSID)
-	if err != nil {
-		tx.Discard()
-		return nil, err
-	}
-	return s, tx.Commit()
+func (d *LevelDBServiceDB) Get(SID string) (*service.Service, error) {
+	return d.get(d.db, SID)
 }
 
 // get retrives service from database by using r reader.
-func (d *LevelDBServiceDB) get(r leveldb.Reader, idOrSID string) (*service.Service, error) {
-	id := idOrSID
-
-	// check if key is a sid, if yes then get id.
-	bid, err := r.Get([]byte(sidKeyPrefix+idOrSID), nil)
-	if err != nil && err != leveldb.ErrNotFound {
-		return nil, err
-	} else if err == nil {
-		id = string(bid)
-	}
-
+func (d *LevelDBServiceDB) get(r leveldb.Reader, SID string) (*service.Service, error) {
 	// get the service
-	b, err := r.Get([]byte(idKeyPrefix+id), nil)
+	b, err := r.Get([]byte(sidKeyPrefix+SID), nil)
 	if err != nil {
 		if err == leveldb.ErrNotFound {
-			return nil, &ErrNotFound{ID: idOrSID}
+			return nil, &ErrNotFound{SID: SID}
 		}
 		return nil, err
 	}
-	return d.unmarshal(idOrSID, b)
+	return d.unmarshal(SID, b)
 }
 
 // Save stores service in database.
 // If there is an another service that uses the same sid, it'll be deleted.
 func (d *LevelDBServiceDB) Save(s *service.Service) error {
 	// check service
-	if s.ID == "" {
-		return errCannotSaveWithoutID
-	}
 	if s.SID == "" {
 		return errCannotSaveWithoutSID
-	}
-	if len(s.ID) == len(s.SID) {
-		return errSIDSameLen
-	}
-
-	// open database transaction
-	tx, err := d.db.OpenTransaction()
-	if err != nil {
-		return err
-	}
-
-	// delete existent service that has the same sid.
-	if err := d.delete(tx, s.SID); err != nil && !IsErrNotFound(err) {
-		tx.Discard()
-		return err
 	}
 
 	// encode service
 	b, err := d.marshal(s)
 	if err != nil {
-		tx.Discard()
 		return err
 	}
 
-	// save service with id
-	if err := tx.Put([]byte(idKeyPrefix+s.ID), b, nil); err != nil {
-		tx.Discard()
-		return err
-	}
-
-	// save sid-id pair of service.
-	if err := tx.Put([]byte(sidKeyPrefix+s.SID), []byte(s.ID), nil); err != nil {
-		tx.Discard()
-		return err
-	}
-
-	return tx.Commit()
+	// save service.
+	return d.db.Put([]byte(sidKeyPrefix+s.SID), b, nil)
 }
 
 // Close closes database.
@@ -213,20 +153,20 @@ func (d *LevelDBServiceDB) Close() error {
 
 // ErrNotFound is an not found error.
 type ErrNotFound struct {
-	ID string
+	SID string
 }
 
 func (e *ErrNotFound) Error() string {
-	return fmt.Sprintf("database: service %s not found", e.ID)
+	return fmt.Sprintf("database: service %s not found", e.SID)
 }
 
 // DecodeError represents a service impossible to decode.
 type DecodeError struct {
-	ID string
+	SID string
 }
 
 func (e *DecodeError) Error() string {
-	return fmt.Sprintf("database: could not decode service %q", e.ID)
+	return fmt.Sprintf("database: could not decode service %q", e.SID)
 }
 
 // IsErrNotFound returns true if err is type of ErrNotFound, false otherwise.

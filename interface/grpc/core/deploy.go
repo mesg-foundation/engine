@@ -51,7 +51,7 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 	}
 
 	return stream.Send(&coreapi.DeployServiceReply{
-		Value: &coreapi.DeployServiceReply_ServiceID{ServiceID: service.ID},
+		Value: &coreapi.DeployServiceReply_ServiceID{ServiceID: service.SID},
 	})
 }
 

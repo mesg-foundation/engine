@@ -10,7 +10,7 @@ import (
 func TestServiceNamespace(t *testing.T) {
 	service, _ := FromService(&Service{Name: "TestServiceNamespace"})
 	namespace := service.namespace()
-	require.Equal(t, namespace, []string{service.ID})
+	require.Equal(t, namespace, []string{service.SID})
 }
 
 func TestDependencyNamespace(t *testing.T) {
@@ -24,7 +24,7 @@ func TestDependencyNamespace(t *testing.T) {
 		},
 	})
 	dep := service.Dependencies[0]
-	require.Equal(t, dep.namespace(), []string{service.ID, "test"})
+	require.Equal(t, dep.namespace(), []string{service.SID, "test"})
 }
 
 func TestEventSubscriptionChannel(t *testing.T) {

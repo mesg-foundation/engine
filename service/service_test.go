@@ -22,7 +22,7 @@ func TestGenerateId(t *testing.T) {
 		Name: "TestGenerateId",
 	})
 	hash := service.computeHash()
-	require.Equal(t, "32caba349ddb1569be576b5d53da5d6e0bcfd77e", hash)
+	require.Equal(t, "ed4cdc05fd0e7c4d83bb370a4ab62ea35cbc5319", hash)
 }
 
 func TestNoCollision(t *testing.T) {
@@ -34,7 +34,7 @@ func TestNoCollision(t *testing.T) {
 		Name: "TestNoCollision2",
 	})
 
-	require.NotEqual(t, service1.ID, service2.ID)
+	require.NotEqual(t, service1.SID, service2.SID)
 }
 
 func TestNew(t *testing.T) {

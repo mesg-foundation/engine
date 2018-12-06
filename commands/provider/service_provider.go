@@ -60,7 +60,7 @@ func (p *ServiceProvider) ServiceDeleteAll(deleteData bool) error {
 				errs.Append(err)
 			}
 			wg.Done()
-		}(s.ID)
+		}(s.SID)
 	}
 	wg.Wait()
 	return errs.ErrorOrNil()

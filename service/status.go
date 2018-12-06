@@ -81,15 +81,15 @@ func ListRunning() ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	services, err := c.ListServices("mesg.hash", "mesg.core="+cfg.Core.Name)
+	services, err := c.ListServices("mesg.sid", "mesg.core="+cfg.Core.Name)
 	if err != nil {
 		return nil, err
 	}
 	// Make service list unique. One mesg service can have multiple docker service.
 	mapRes := make(map[string]uint)
 	for _, service := range services {
-		serviceName := service.Spec.Annotations.Labels["mesg.hash"]
-		mapRes[serviceName]++
+		sid := service.Spec.Annotations.Labels["mesg.sid"]
+		mapRes[sid]++
 	}
 	res := make([]string, 0, len(mapRes))
 	for k := range mapRes {

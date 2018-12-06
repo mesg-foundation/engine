@@ -24,12 +24,10 @@ import (
 
 // Service represents a MESG service.
 type Service struct {
-	// ID is the unique id of service.
-	ID string `hash:"-"`
-
 	// SID is the service id.
 	// It needs to be unique and can be used to access to service.
-	SID string `hash:"name:1"`
+	// If omitted, it is calculated from the combination of service's source and mesg.yml.
+	SID string `hash:"-"`
 
 	// Name is the service name.
 	Name string `hash:"name:2"`
@@ -135,8 +133,9 @@ func (s *Service) fromService() *Service {
 	for _, dep := range s.Dependencies {
 		dep.service = s
 	}
-
-	s.ID = s.computeHash()
+	if s.SID == "" {
+		s.SID = s.computeHash()
+	}
 	return s
 }
 
@@ -205,8 +204,7 @@ func (s *Service) deploy() error {
 	s.configuration.Image = imageHash
 	s.Dependencies = append(s.Dependencies, s.configuration)
 	if s.SID == "" {
-		// make sure that sid doesn't have the same length with id.
-		s.SID = "a" + s.computeHash()
+		s.SID = s.computeHash()
 	}
 	return nil
 }
