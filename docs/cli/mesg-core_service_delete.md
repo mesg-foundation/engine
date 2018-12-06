@@ -20,9 +20,10 @@ mesg-core service delete --all
 ### Options
 
 ```
-      --all     Delete all services
-  -f, --force   Force delete all services
-  -h, --help    help for delete
+      --all         Delete all services
+  -h, --help        help for delete
+      --keep-data   Do not delete services' persistent data
+  -y, --yes         Automatic "yes" to all prompts and run non-interactively
 ```
 
 ### Options inherited from parent commands
