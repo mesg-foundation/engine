@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// mockWaitForStatus mocks waitForStatus() to wait for wantedStatus for namespace.
+// mockWaitForStatus mocks waitForStatus() to fake wantedStatus to happen for namespace.
 func mockWaitForStatus(t *testing.T, m *mocks.CommonAPIClient, namespace string, wantedStatus StatusType) {
 	m.On("TaskList", mock.Anything, types.TaskListOptions{
 		Filters: filters.NewArgs(filters.KeyValuePair{

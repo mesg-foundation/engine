@@ -41,7 +41,7 @@ func mockNew(m *mocks.CommonAPIClient) {
 }
 
 // TODO: support all status types.
-// mockStatus mocks Status() to return wantedStatus for namespace.
+// mockStatus mocks Status() to fake return wantedStatus for namespace.
 func mockStatus(t *testing.T, m *mocks.CommonAPIClient, namespace string, wantedStatus StatusType) {
 	var (
 		containerID = "1"
