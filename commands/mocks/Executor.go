@@ -95,19 +95,20 @@ func (_m *Executor) ServiceByID(id string) (*coreapi.Service, error) {
 	return r0, r1
 }
 
-// ServiceDelete provides a mock function with given fields: ids
-func (_m *Executor) ServiceDelete(ids ...string) error {
+// ServiceDelete provides a mock function with given fields: deleteData, ids
+func (_m *Executor) ServiceDelete(deleteData bool, ids ...string) error {
 	_va := make([]interface{}, len(ids))
 	for _i := range ids {
 		_va[_i] = ids[_i]
 	}
 	var _ca []interface{}
+	_ca = append(_ca, deleteData)
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(...string) error); ok {
-		r0 = rf(ids...)
+	if rf, ok := ret.Get(0).(func(bool, ...string) error); ok {
+		r0 = rf(deleteData, ids...)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -115,13 +116,13 @@ func (_m *Executor) ServiceDelete(ids ...string) error {
 	return r0
 }
 
-// ServiceDeleteAll provides a mock function with given fields:
-func (_m *Executor) ServiceDeleteAll() error {
-	ret := _m.Called()
+// ServiceDeleteAll provides a mock function with given fields: deleteData
+func (_m *Executor) ServiceDeleteAll(deleteData bool) error {
+	ret := _m.Called(deleteData)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func() error); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(bool) error); ok {
+		r0 = rf(deleteData)
 	} else {
 		r0 = ret.Error(0)
 	}

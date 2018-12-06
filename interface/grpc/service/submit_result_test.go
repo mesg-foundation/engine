@@ -26,7 +26,7 @@ func TestSubmit(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.ID)
+	defer server.api.DeleteService(s.ID, false)
 
 	require.NoError(t, server.api.StartService(s.ID))
 	defer server.api.StopService(s.ID)
@@ -72,7 +72,7 @@ func TestSubmitWithInvalidJSON(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.ID)
+	defer server.api.DeleteService(s.ID, false)
 
 	require.NoError(t, server.api.StartService(s.ID))
 	defer server.api.StopService(s.ID)
@@ -122,7 +122,7 @@ func TestSubmitWithNonExistentOutputKey(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.ID)
+	defer server.api.DeleteService(s.ID, false)
 
 	require.NoError(t, server.api.StartService(s.ID))
 	defer server.api.StopService(s.ID)
@@ -159,7 +159,7 @@ func TestSubmitWithInvalidTaskOutputs(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.ID)
+	defer server.api.DeleteService(s.ID, false)
 
 	require.NoError(t, server.api.StartService(s.ID))
 	defer server.api.StopService(s.ID)

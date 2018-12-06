@@ -40,8 +40,7 @@ func TestExtractVolumes(t *testing.T) {
 			Volumes: []string{"foo", "bar"},
 		}},
 	})
-	volumes, err := s.Dependencies[0].extractVolumes()
-	require.NoError(t, err)
+	volumes := s.Dependencies[0].extractVolumes()
 	require.Len(t, volumes, 2)
 	require.Equal(t, volumeKey(s, "test", "foo"), volumes[0].Source)
 	require.Equal(t, "foo", volumes[0].Target)
@@ -55,7 +54,7 @@ func TestExtractVolumes(t *testing.T) {
 			VolumesFrom: []string{"test"},
 		}},
 	})
-	_, err = s.Dependencies[0].extractVolumes()
+	_, err := s.Dependencies[0].extractVolumesFrom()
 	require.Error(t, err)
 
 	s, _ = FromService(&Service{
@@ -68,7 +67,7 @@ func TestExtractVolumes(t *testing.T) {
 				VolumesFrom: []string{"test"},
 			}},
 	})
-	volumes, err = s.Dependencies[1].extractVolumes()
+	volumes, err = s.Dependencies[1].extractVolumesFrom()
 	require.NoError(t, err)
 	require.Len(t, volumes, 2)
 	require.Equal(t, volumeKey(s, "test", "foo"), volumes[0].Source)
@@ -113,6 +112,7 @@ func TestStartService(t *testing.T) {
 
 	mc.AssertExpectations(t)
 }
+
 func TestStartWith2Dependencies(t *testing.T) {
 	var (
 		containerServiceIDs = []string{"1", "2"}
@@ -301,10 +301,11 @@ func TestServiceStartError(t *testing.T) {
 func mockStartService(d *Dependency, mc *mocks.Container,
 	networkID, sharedNetworkID, containerServiceID string, err error) {
 	var (
-		c, _       = config.Global()
-		_, port, _ = xnet.SplitHostPort(c.Server.Address)
-		endpoint   = c.Core.Name + ":" + strconv.Itoa(port)
-		mounts, _  = d.extractVolumes()
+		c, _           = config.Global()
+		_, port, _     = xnet.SplitHostPort(c.Server.Address)
+		endpoint       = c.Core.Name + ":" + strconv.Itoa(port)
+		volumes        = d.extractVolumes()
+		volumesFrom, _ = d.extractVolumesFrom()
 	)
 	mc.On("StartService", container.ServiceOptions{
 		Namespace: d.namespace(),
@@ -322,7 +323,7 @@ func mockStartService(d *Dependency, mc *mocks.Container,
 			"MESG_ENDPOINT":     endpoint,
 			"MESG_ENDPOINT_TCP": endpoint,
 		}),
-		Mounts: mounts,
+		Mounts: append(volumes, volumesFrom...),
 		Ports:  d.extractPorts(),
 		Networks: []container.Network{
 			{ID: networkID, Alias: d.Key},

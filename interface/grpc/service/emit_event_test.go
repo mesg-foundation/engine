@@ -20,7 +20,7 @@ func TestEmit(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.ID)
+	defer server.api.DeleteService(s.ID, false)
 
 	ln, err := server.api.ListenEvent(s.ID)
 	require.NoError(t, err)
@@ -54,7 +54,7 @@ func TestEmitNoData(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.ID)
+	defer server.api.DeleteService(s.ID, false)
 
 	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
 		Token:    s.ID,
@@ -73,7 +73,7 @@ func TestEmitWrongData(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.ID)
+	defer server.api.DeleteService(s.ID, false)
 
 	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
 		Token:     s.ID,
@@ -93,7 +93,7 @@ func TestEmitWrongEvent(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.ID)
+	defer server.api.DeleteService(s.ID, false)
 
 	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
 		Token:     s.ID,
@@ -118,7 +118,7 @@ func TestEmitInvalidData(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.ID)
+	defer server.api.DeleteService(s.ID, false)
 
 	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
 		Token:     s.ID,
