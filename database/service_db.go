@@ -19,8 +19,8 @@ const (
 
 var (
 	errCannotSaveWithoutHash = errors.New("database: can't save service without hash")
-	errCannotSaveWithoutSID = errors.New("database: can't save service without sid")
-	errSIDSameLen           = errors.New("database: sid can't have the same length as id")
+	errCannotSaveWithoutSID  = errors.New("database: can't save service without sid")
+	errSIDSameLen            = errors.New("database: sid can't have the same length as id")
 )
 
 // ServiceDB describes the API of database package.
