@@ -159,7 +159,7 @@ func (d *LevelDBServiceDB) get(r leveldb.Reader, idOrSID string) (*service.Servi
 }
 
 // Save stores service in database.
-// Service that uses the same sid will be deleted if it there is.
+// If there is an another service that uses the same sid, it'll be deleted.
 func (d *LevelDBServiceDB) Save(s *service.Service) error {
 	// check service
 	if s.Hash == "" {
