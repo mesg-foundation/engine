@@ -58,7 +58,7 @@ func TestServiceDBSave(t *testing.T) {
 	s = &service.Service{Name: "test-service", ID: "id"}
 	require.EqualError(t, db.Save(s), errCannotSaveWithoutSID.Error())
 
-	// test service id same length as SID
+	// test service where id has the same length as sid.
 	s = &service.Service{Name: "test-service", ID: "sameLength", SID: "sameLength"}
 	require.EqualError(t, db.Save(s), errSIDSameLen.Error())
 }

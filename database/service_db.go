@@ -20,7 +20,7 @@ const (
 var (
 	errCannotSaveWithoutID  = errors.New("database: can't save service without id")
 	errCannotSaveWithoutSID = errors.New("database: can't save service without sid")
-	errSIDSameLen           = errors.New("database: service SID can't have same length as id")
+	errSIDSameLen           = errors.New("database: sid can't have the same length as id")
 )
 
 // ServiceDB describes the API of database package.
