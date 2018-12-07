@@ -79,7 +79,7 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 	defer func() {
 		var err error
 		pretty.Progress("Removing the service...", func() {
-			err = c.e.ServiceDelete(id)
+			err = c.e.ServiceDelete(false, id)
 		})
 		if err != nil {
 			fmt.Printf("%s Removing the service completed with an error: %s\n", pretty.FailSign, err)

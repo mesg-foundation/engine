@@ -8,5 +8,5 @@ import (
 
 // DeleteService stops and deletes service serviceID.
 func (s *Server) DeleteService(ctx context.Context, request *coreapi.DeleteServiceRequest) (*coreapi.DeleteServiceReply, error) {
-	return &coreapi.DeleteServiceReply{}, s.api.DeleteService(request.ServiceID)
+	return &coreapi.DeleteServiceReply{}, s.api.DeleteService(request.ServiceID, request.DeleteData)
 }

@@ -1162,6 +1162,7 @@ Request's data of the `DeleteService` API.
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | serviceID | [string](#string) | The Service ID. Generated when using the [`DeployService` API](#deployservice). |
+| deleteData | [bool](#bool) | When enabled, any persistent data (volumes) that belongs to service and its dependencies will be also deleted. |
 
 
 

@@ -2,6 +2,7 @@ package commands
 
 import (
 	"io"
+	"io/ioutil"
 
 	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/container"
@@ -21,8 +22,8 @@ type RootExecutor interface {
 // ServiceExecutor is an interface that handles services commands.
 type ServiceExecutor interface {
 	ServiceByID(id string) (*coreapi.Service, error)
-	ServiceDeleteAll() error
-	ServiceDelete(ids ...string) error
+	ServiceDeleteAll(deleteData bool) error
+	ServiceDelete(deleteData bool, ids ...string) error
 	ServiceDeploy(path string, statuses chan provider.DeployStatus) (id string, validationError, err error)
 	ServiceListenEvents(id, eventFilter string) (chan *coreapi.EventData, chan error, error)
 	ServiceListenResults(id, taskFilter, outputFilter string, tagFilters []string) (chan *coreapi.ResultData, chan error, error)
@@ -63,6 +64,11 @@ type baseCmd struct {
 func newCommand(c *cobra.Command) *cobra.Command {
 	c.DisableAutoGenTag = true
 	return c
+}
+
+// discardOutput discards usage and error messages.
+func (c *baseCmd) discardOutput() {
+	c.cmd.SetOutput(ioutil.Discard)
 }
 
 // getFirstOrDefault returns directory if args len is gt 0 or current directory.
