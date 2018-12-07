@@ -191,7 +191,7 @@ func (d *LevelDBServiceDB) Save(s *service.Service) error {
 		return err
 	}
 
-	// save service with id
+	// save service with hash.
 	if err := tx.Put([]byte(hashKeyPrefix+s.Hash), b, nil); err != nil {
 		tx.Discard()
 		return err

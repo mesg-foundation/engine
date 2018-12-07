@@ -24,7 +24,8 @@ import (
 
 // Service represents a MESG service.
 type Service struct {
-	// Hash is a generated string that uniquely identify a service.
+	// Hash is calculated from the combination of service's source and mesg.yml.
+	// It represents the service uniquely.
 	Hash string `hash:"-"`
 
 	// SID is the service id.

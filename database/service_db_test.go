@@ -50,7 +50,7 @@ func TestServiceDBSave(t *testing.T) {
 	ss, _ = db.All()
 	require.Len(t, ss, 2)
 
-	// test service without id
+	// test service without hash.
 	s := &service.Service{Name: "test-service", SID: "SID"}
 	require.EqualError(t, db.Save(s), errCannotSaveWithoutHash.Error())
 
@@ -71,7 +71,7 @@ func TestServiceDBGet(t *testing.T) {
 	require.NoError(t, db.Save(want))
 	defer db.Delete(want.Hash)
 
-	// id
+	// hash.
 	got, err := db.Get(want.Hash)
 	require.NoError(t, err)
 	require.Equal(t, want, got)
@@ -91,7 +91,7 @@ func TestServiceDBDelete(t *testing.T) {
 	db, closer := openServiceDB(t)
 	defer closer()
 
-	// id
+	// hash.
 	s := &service.Service{Hash: "00", SID: "2", Name: "test-service"}
 	require.NoError(t, db.Save(s))
 	require.NoError(t, db.Delete(s.Hash))
