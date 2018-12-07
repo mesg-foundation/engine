@@ -9,7 +9,7 @@ tasks:
         name: "Workflow definition"
         type: Object
       name:
-        name: "Unique name SID for workflow"
+        name: "Unique name alias for workflow"
         type: String
         optional: true
     outputs:
@@ -27,7 +27,7 @@ tasks:
     name: "Stop and deletes a workflow"
     inputs:
       id:
-        name: "ID or unique name SID of workflow"
+        name: "ID or unique name alias of workflow"
         type: String
     outputs:
       success:
