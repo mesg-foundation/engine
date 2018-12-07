@@ -252,7 +252,7 @@ func (p *Pretty) UseSpinner(message string) {
 	p.Spinner.Start()
 }
 
-// DestroySpinner destroyes spinner animation.
+// DestroySpinner destroys spinner animation.
 func (p *Pretty) DestroySpinner() {
 	p.Spinner.Stop()
 	p.Spinner.Suffix = ""
@@ -371,7 +371,7 @@ func Progress(message string, fn func()) { pg.Progress(message, fn) }
 // UseSpinner uses spinner animation for message.
 func UseSpinner(message string) { pg.UseSpinner(message) }
 
-// DestroySpinner destroyes spinner animation.
+// DestroySpinner destroys spinner animation.
 func DestroySpinner() { pg.DestroySpinner() }
 
 // ColorizeJSON colors keys and values of stringified JSON. On errors the original string is returned.

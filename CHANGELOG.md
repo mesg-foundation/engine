@@ -3,9 +3,44 @@
 ## [Unreleased](https://github.com/mesg-foundation/core/releases/tag/)
 
 #### Added
+
+- ([#535](https://github.com/mesg-foundation/core/pull/535)) Run MESG with MESG! A base logic implemented to have system services for core. In future, core will be split to system services and only act as a proxy to them. System services are placed under `~/.mesg/systemservices`. [\#567](https://github.com/mesg-foundation/core/pull/567).
+
 #### Changed
 #### Fixed
 #### Removed
+#### Documentation
+
+## [v0.5.0](https://github.com/mesg-foundation/core/releases/tag/v0.5.0)
+
+#### Breaking Changes
+
+- ([\#608](https://github.com/mesg-foundation/core/pull/608)) Rename "command" property and add "args" property in service definition.
+
+#### Added
+
+- ([\#583](https://github.com/mesg-foundation/core/pull/583)) Add property SID (Service ID) in service definition file. Allow a service to reuse the same volumes after stopping. [\#627](https://github.com/mesg-foundation/core/pull/627). [\#613](https://github.com/mesg-foundation/core/pull/613). [\#619](https://github.com/mesg-foundation/core/pull/619).
+
+#### Changed
+
+- ([\#580](https://github.com/mesg-foundation/core/pull/580)) Refactor package Daemon.
+- ([\#588](https://github.com/mesg-foundation/core/pull/588)) Refactor tests of package container.
+- ([\#604](https://github.com/mesg-foundation/core/pull/604)) Improve hash function.
+- ([\#609](https://github.com/mesg-foundation/core/pull/609)) Delete all service in parallel in commands.
+- ([\#615](https://github.com/mesg-foundation/core/pull/615)) Remove initialization of swarm but display useful error.
+- ([\#617](https://github.com/mesg-foundation/core/pull/617)) Improve template of command service gen doc.
+- ([\#630](https://github.com/mesg-foundation/core/pull/630)) Rename service id to hash.
+
+#### Fixed
+
+- ([\#585](https://github.com/mesg-foundation/core/pull/585)) Handle gracefully task executions without inputs.
+- ([\#598](https://github.com/mesg-foundation/core/pull/598)) Start service dependencies one by one. Solve issue when dependencies request access to same resource.
+
+#### Documentation
+
+- ([\#568](https://github.com/mesg-foundation/core/pull/568)) Update what-is-mesg.md.
+- ([\#569](https://github.com/mesg-foundation/core/pull/569)) Update README.md.
+- ([\#620](https://github.com/mesg-foundation/core/pull/620)) Add docker swarm init steps to doc.
 
 ## [v0.4.0](https://github.com/mesg-foundation/core/releases/tag/v0.4.0)
 

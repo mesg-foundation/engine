@@ -7,6 +7,8 @@ import (
 	"github.com/mesg-foundation/core/commands"
 	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/config"
+	"github.com/mesg-foundation/core/container"
+	"github.com/mesg-foundation/core/daemon"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/utils/clierrors"
 	"github.com/mesg-foundation/core/utils/pretty"
@@ -27,7 +29,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	p := provider.New(coreapi.NewCoreClient(connection))
+	c, err := container.New()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s\n", pretty.Fail(clierrors.ErrorMessage(err)))
+		os.Exit(1)
+	}
+
+	p := provider.New(coreapi.NewCoreClient(connection), daemon.NewContainerDaemon(cfg, c))
 	cmd := commands.Build(p)
 	cmd.Version = version.Version
 	cmd.Short = cmd.Short + " " + version.Version

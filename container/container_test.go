@@ -10,8 +10,56 @@ import (
 
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container/dockertest"
+	"github.com/mesg-foundation/core/utils/docker/mocks"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
+
+func newTesting(t *testing.T) (*DockerContainer, *mocks.CommonAPIClient) {
+	m := &mocks.CommonAPIClient{}
+	mockNew(m)
+
+	c, err := New(ClientOption(m))
+	require.NoError(t, err)
+
+	return c, m
+}
+
+func mockNew(m *mocks.CommonAPIClient) {
+	m.On("NegotiateAPIVersion", mock.Anything).Once().Return()
+	m.On("Info", mock.Anything).Once().Return(types.Info{Swarm: swarm.Info{NodeID: "1"}}, nil)
+	m.On("NetworkInspect", mock.Anything, "core", types.NetworkInspectOptions{}).Once().
+		Return(types.NetworkResource{ID: "1"}, nil)
+}
+
+// TODO: support all status types.
+func mockStatus(t *testing.T, m *mocks.CommonAPIClient, namespace string, wantedStatus StatusType) {
+	var (
+		containerID = "1"
+	)
+
+	m.On("ContainerList", mock.AnythingOfType("*context.timerCtx"), types.ContainerListOptions{
+		Filters: filters.NewArgs(filters.KeyValuePair{
+			Key:   "label",
+			Value: "com.docker.stack.namespace=" + namespace,
+		}),
+		Limit: 1,
+	}).Once().
+		Return([]types.Container{{ID: "1"}}, nil)
+
+	containerInspect := m.On("ContainerInspect", mock.AnythingOfType("*context.timerCtx"), containerID).Once()
+	serviceInspect := m.On("ServiceInspectWithRaw", mock.Anything, namespace, types.ServiceInspectOptions{}).Once()
+	switch wantedStatus {
+	case RUNNING:
+		containerInspect.Return(types.ContainerJSON{}, nil)
+		serviceInspect.Return(swarm.Service{}, nil, nil)
+	case STOPPED:
+		containerInspect.Return(types.ContainerJSON{}, dockertest.NotFoundErr{})
+		serviceInspect.Return(swarm.Service{}, nil, dockertest.NotFoundErr{})
+	default:
+		t.Errorf("unhandled status %v", wantedStatus)
+	}
+}
 
 func TestNew(t *testing.T) {
 	dt := dockertest.New()
@@ -32,8 +80,6 @@ func TestNew(t *testing.T) {
 		t.Error("should fetch info")
 	}
 
-	require.Equal(t, "0.0.0.0:2377", (<-dt.LastSwarmInit()).Request.ListenAddr)
-
 	ln := <-dt.LastNetworkCreate()
 	require.Equal(t, cfg.Core.Name, ln.Name)
 	require.Equal(t, types.NetworkCreate{
@@ -45,19 +91,12 @@ func TestNew(t *testing.T) {
 	}, ln.Options)
 }
 
-func TestNewWithExistingNode(t *testing.T) {
+func TestNewSwarmError(t *testing.T) {
 	dt := dockertest.New()
-	dt.ProvideInfo(types.Info{Swarm: swarm.Info{NodeID: "1"}}, nil)
+	dt.ProvideInfo(types.Info{Swarm: swarm.Info{NodeID: ""}}, nil)
 
-	c, err := New(ClientOption(dt.Client()))
-	require.NoError(t, err)
-	require.NotNil(t, c)
-
-	select {
-	case <-dt.LastSwarmInit():
-		t.Fail()
-	default:
-	}
+	_, err := New(ClientOption(dt.Client()))
+	require.Equal(t, err, errSwarmNotInit)
 }
 
 func TestFindContainerNonExistent(t *testing.T) {
@@ -128,7 +167,7 @@ func TestNonExistentContainerStatus(t *testing.T) {
 
 	resp := <-dt.LastServiceInspectWithRaw()
 	require.Equal(t, c.Namespace(namespace), resp.ServiceID)
-	require.Equal(t, types.ServiceInspectOptions{false}, resp.Options)
+	require.Equal(t, types.ServiceInspectOptions{InsertDefaults: false}, resp.Options)
 }
 
 func TestExistentContainerStatus(t *testing.T) {

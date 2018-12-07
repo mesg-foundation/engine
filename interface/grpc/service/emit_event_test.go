@@ -20,14 +20,14 @@ func TestEmit(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.ID)
+	defer server.api.DeleteService(s.Hash, false)
 
-	ln, err := server.api.ListenEvent(s.ID)
+	ln, err := server.api.ListenEvent(s.Hash)
 	require.NoError(t, err)
 	defer ln.Close()
 
 	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
-		Token:     s.ID,
+		Token:     s.Hash,
 		EventKey:  eventKey,
 		EventData: eventData,
 	})
@@ -54,10 +54,10 @@ func TestEmitNoData(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.ID)
+	defer server.api.DeleteService(s.Hash, false)
 
 	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
-		Token:    s.ID,
+		Token:    s.Hash,
 		EventKey: eventKey,
 	})
 	require.Equal(t, err.Error(), "unexpected end of JSON input")
@@ -73,10 +73,10 @@ func TestEmitWrongData(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.ID)
+	defer server.api.DeleteService(s.Hash, false)
 
 	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
-		Token:     s.ID,
+		Token:     s.Hash,
 		EventKey:  eventKey,
 		EventData: "",
 	})
@@ -93,10 +93,10 @@ func TestEmitWrongEvent(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.ID)
+	defer server.api.DeleteService(s.Hash, false)
 
 	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
-		Token:     s.ID,
+		Token:     s.Hash,
 		EventKey:  eventKey,
 		EventData: "{}",
 	})
@@ -118,10 +118,10 @@ func TestEmitInvalidData(t *testing.T) {
 	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.ID)
+	defer server.api.DeleteService(s.Hash, false)
 
 	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
-		Token:     s.ID,
+		Token:     s.Hash,
 		EventKey:  eventKey,
 		EventData: eventData,
 	})

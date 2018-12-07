@@ -1,0 +1,21 @@
+version: 2
+
+runOnDocker: &runOnDocker
+  docker:
+    - image: circleci/golang:1.10
+  working_directory: /go/src/github.com/mesg-foundation/service-system-resolver
+
+jobs:
+  "test":
+    <<: *runOnDocker
+    steps:
+      - checkout
+      - run: go get -v -t -d ./...
+      - run: go test -p 1 -coverprofile=coverage.txt ./...
+      - run: bash <(curl -s https://codecov.io/bash)
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - "test"

@@ -9,28 +9,24 @@ import (
 )
 
 var (
-	serviceName   = "1"
-	eventID       = "2"
-	taskKey       = "task"
-	defaultInputs = map[string]interface{}{
-		"foo": "hello",
-		"bar": "world",
-	}
-	tags   = []string{"tag1", "tag2"}
-	srv, _ = service.FromService(&service.Service{
+	serviceName = "1"
+	eventID     = "2"
+	taskKey     = "task"
+	tags        = []string{"tag1", "tag2"}
+	srv, _      = service.FromService(&service.Service{
 		Name: serviceName,
 		Tasks: []*service.Task{
-			&service.Task{
+			{
 				Key: taskKey,
 				Inputs: []*service.Parameter{
-					&service.Parameter{Key: "foo", Type: "String"},
-					&service.Parameter{Key: "bar", Type: "String"},
+					{Key: "foo", Type: "String"},
+					{Key: "bar", Type: "String"},
 				},
 				Outputs: []*service.Output{
-					&service.Output{
+					{
 						Key: "outputX",
 						Data: []*service.Parameter{
-							&service.Parameter{
+							{
 								Key:  "foo",
 								Type: "String",
 							},
@@ -73,7 +69,7 @@ func TestNewFromService(t *testing.T) {
 			continue
 		}
 		require.NotNil(t, execution, test.name)
-		require.Equal(t, srv.ID, execution.Service.ID, test.name)
+		require.Equal(t, srv.Hash, execution.Service.Hash, test.name)
 		require.Equal(t, eventID, execution.EventID, test.name)
 		require.Equal(t, taskKey, execution.TaskKey, test.name)
 		require.Equal(t, test.inputs, execution.Inputs, test.name)

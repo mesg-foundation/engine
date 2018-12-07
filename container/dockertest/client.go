@@ -50,7 +50,7 @@ type requests struct {
 // To fake a Docker client method's response send fake return values to it's
 // response channel. This can be made by calling ProvideX methods of *Testing.
 // We use channels here instead of setting values on the struct in case of a need for returning
-// conditional responses depending on request paramaters in future to deal with parallel calls made
+// conditional responses depending on request parameters in future to deal with parallel calls made
 // to same client methods.
 type responses struct {
 	info                  chan infoResponse
@@ -163,7 +163,7 @@ func (c *Client) Info(context.Context) (types.Info, error) {
 	case resp := <-c.responses.info:
 		return resp.info, resp.err
 	default:
-		return types.Info{}, nil
+		return types.Info{Swarm: swarm.Info{NodeID: "1"}}, nil
 	}
 }
 

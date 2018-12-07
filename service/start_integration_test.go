@@ -113,6 +113,7 @@ func TestIntegrationStartDependency(t *testing.T) {
 		},
 	}, ContainerOption(c))
 	networkID, err := c.CreateNetwork(service.namespace())
+	require.NoError(t, err)
 	defer c.DeleteNetwork(service.namespace(), container.EventDestroy)
 	dep := service.Dependencies[0]
 	serviceID, err := dep.Start(networkID)
@@ -194,4 +195,25 @@ func TestIntegrationServiceDependenciesListensFromSamePort(t *testing.T) {
 	_, err = service1.Start()
 	require.NotZero(t, err)
 	require.Contains(t, err.Error(), `port '80' is already in use`)
+}
+
+func TestStartWithSamePorts(t *testing.T) {
+	c := newIntegrationContainer(t)
+	service, _ := FromService(&Service{
+		Name: "TestStartWithSamePorts",
+		Dependencies: []*Dependency{
+			{
+				Key:   "1",
+				Image: "nginx",
+				Ports: []string{"80"},
+			},
+			{
+				Key:   "2",
+				Image: "nginx",
+				Ports: []string{"80"},
+			},
+		},
+	}, ContainerOption(c))
+	_, err := service.Start()
+	require.Error(t, err)
 }

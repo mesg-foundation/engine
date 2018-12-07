@@ -1,12 +1,12 @@
 # Execute a task
 
-## Why execute a service's task?
+## Why execute a Service's task?
 
-Applications can execute a service's task allowing you to reuse the maximum number of already-built logic and enjoy the MESG ecosystem.
+Applications can execute a Service's task, allowing you to reuse the maximum number of already-built logic and enjoy the MESG ecosystem.
 
-## Execute a service's task
+## Execute a Service's task
 
-To execute a task, applications need to connect to Core through [gRPC](https://grpc.io/) and use the [Protobuffer definition](https://github.com/mesg-foundation/core/blob/dev/api/core/api.proto). Core will reply with an `executionID`that identifies the task's execution. To get the output of the task's execution, the application has to listen for an [execution output.](execute-a-task.md#listen-for-execution-outputs)
+To execute a task, Applications need to connect to Core through [gRPC](https://grpc.io/) and use the [Protobuffer definition](https://github.com/mesg-foundation/core/blob/dev/api/core/api.proto). Core will reply with an `executionID`that identifies the task's execution. To get the output of the task's execution, the Application has to listen for an [execution output.](execute-a-task.md#listen-for-execution-outputs)
 
 <tabs>
 <tab title="Request" vp-markdown>

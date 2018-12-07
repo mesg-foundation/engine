@@ -2,6 +2,7 @@ package commands
 
 import (
 	"io"
+	"io/ioutil"
 
 	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/container"
@@ -21,8 +22,8 @@ type RootExecutor interface {
 // ServiceExecutor is an interface that handles services commands.
 type ServiceExecutor interface {
 	ServiceByID(id string) (*coreapi.Service, error)
-	ServiceDeleteAll() error
-	ServiceDelete(ids ...string) error
+	ServiceDeleteAll(deleteData bool) error
+	ServiceDelete(deleteData bool, ids ...string) error
 	ServiceDeploy(path string, statuses chan provider.DeployStatus) (id string, validationError, err error)
 	ServiceListenEvents(id, eventFilter string) (chan *coreapi.EventData, chan error, error)
 	ServiceListenResults(id, taskFilter, outputFilter string, tagFilters []string) (chan *coreapi.ResultData, chan error, error)
@@ -37,10 +38,17 @@ type ServiceExecutor interface {
 	ServiceInitDownloadTemplate(t *servicetemplate.Template, dst string) error
 }
 
+// WorkflowExecutor is an interface that handles workflow commands.
+type WorkflowExecutor interface {
+	CreateWorkflow(filePath string, name string) (id string, err error)
+	DeleteWorkflow(id string) error
+}
+
 // Executor is an interface that keeps all commands interfaces.
 type Executor interface {
 	RootExecutor
 	ServiceExecutor
+	WorkflowExecutor
 }
 
 // Build constructs root command and returns it.
@@ -58,9 +66,15 @@ func newCommand(c *cobra.Command) *cobra.Command {
 	return c
 }
 
-func getFirstOrDefault(args []string, def string) string {
+// discardOutput discards usage and error messages.
+func (c *baseCmd) discardOutput() {
+	c.cmd.SetOutput(ioutil.Discard)
+}
+
+// getFirstOrDefault returns directory if args len is gt 0 or current directory.
+func getFirstOrDefault(args []string) string {
 	if len(args) > 0 {
 		return args[0]
 	}
-	return def
+	return "./"
 }

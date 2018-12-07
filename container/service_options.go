@@ -5,6 +5,7 @@ import (
 	"os"
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/swarm"
@@ -18,6 +19,7 @@ type ServiceOptions struct {
 	Mounts    []Mount
 	Env       []string // TODO: should be transform to  map[string]string and use the func mapToEnv
 	Args      []string
+	Command   string
 	Networks  []Network
 	Labels    map[string]string
 }
@@ -61,9 +63,10 @@ func (options *ServiceOptions) toSwarmServiceSpec(c *DockerContainer) swarm.Serv
 				Labels: map[string]string{
 					"com.docker.stack.namespace": namespace,
 				},
-				Env:    options.Env,
-				Args:   options.Args,
-				Mounts: options.swarmMounts(false),
+				Env:     options.Env,
+				Args:    options.Args,
+				Command: strings.Fields(options.Command),
+				Mounts:  options.swarmMounts(false),
 			},
 			Networks: options.swarmNetworks(),
 		},
@@ -89,7 +92,7 @@ func (options *ServiceOptions) swarmPorts() []swarm.PortConfig {
 func (options *ServiceOptions) swarmMounts(force bool) []mount.Mount {
 	// TOFIX: hack to prevent mount when in CircleCI (Mount in CircleCI doesn't work). Should use CircleCi with machine to fix this.
 	circleCI, errCircle := strconv.ParseBool(os.Getenv("CIRCLECI"))
-	if force == false && errCircle == nil && circleCI {
+	if !force && errCircle == nil && circleCI {
 		return nil
 	}
 	mounts := make([]mount.Mount, len(options.Mounts))
@@ -140,15 +143,9 @@ func mergeLabels(l1 map[string]string, l2 map[string]string) map[string]string {
 // comparing a string slice with different orders will fail.
 func MapToEnv(data map[string]string) []string {
 	env := make([]string, 0, len(data))
-
-	for key := range data {
-		env = append(env, key)
+	for key, value := range data {
+		env = append(env, fmt.Sprintf("%s=%s", key, value))
 	}
 	sort.Strings(env)
-
-	for i, key := range env {
-		env[i] = fmt.Sprintf("%s=%s", key, data[key])
-	}
-
 	return env
 }
