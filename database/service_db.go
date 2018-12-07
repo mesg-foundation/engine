@@ -137,18 +137,18 @@ func (d *LevelDBServiceDB) Get(hashOrSID string) (*service.Service, error) {
 
 // get retrives service from database by using r reader.
 func (d *LevelDBServiceDB) get(r leveldb.Reader, hashOrSID string) (*service.Service, error) {
-	id := hashOrSID
+	hash := hashOrSID
 
 	// check if key is a sid, if yes then get hash.
 	bid, err := r.Get([]byte(sidKeyPrefix+hashOrSID), nil)
 	if err != nil && err != leveldb.ErrNotFound {
 		return nil, err
 	} else if err == nil {
-		id = string(bid)
+		hash = string(bid)
 	}
 
 	// get the service
-	b, err := r.Get([]byte(hashKeyPrefix+id), nil)
+	b, err := r.Get([]byte(hashKeyPrefix+hash), nil)
 	if err != nil {
 		if err == leveldb.ErrNotFound {
 			return nil, &ErrNotFound{ID: hashOrSID}
