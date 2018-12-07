@@ -19,7 +19,7 @@ const (
 
 var (
 	errCannotSaveWithoutID  = errors.New("database: can't save service without id")
-	errCannotSaveWithoutSID = errors.New("database: can't save service without SID")
+	errCannotSaveWithoutSID = errors.New("database: can't save service without sid")
 	errSIDSameLen           = errors.New("database: service SID can't have same length as id")
 )
 
@@ -29,11 +29,11 @@ type ServiceDB interface {
 	Save(s *service.Service) error
 
 	// Get gets a service from database by its unique id
-	// or unique SID.
+	// or unique sid.
 	Get(idOrSID string) (*service.Service, error)
 
 	// Delete deletes a service from database by its unique id
-	// or unique SID.
+	// or unique sid.
 	Delete(idOrSID string) error
 
 	// All returns all services from database.
@@ -139,7 +139,7 @@ func (d *LevelDBServiceDB) Get(idOrSID string) (*service.Service, error) {
 func (d *LevelDBServiceDB) get(r leveldb.Reader, idOrSID string) (*service.Service, error) {
 	id := idOrSID
 
-	// check if key is an SID, if yes then get id.
+	// check if key is a sid, if yes then get id.
 	bid, err := r.Get([]byte(sidKeyPrefix+idOrSID), nil)
 	if err != nil && err != leveldb.ErrNotFound {
 		return nil, err
@@ -159,7 +159,7 @@ func (d *LevelDBServiceDB) get(r leveldb.Reader, idOrSID string) (*service.Servi
 }
 
 // Save stores service in database.
-// If the service's SID already exist, the previous service will be deleted
+// Service that uses the same sid will be deleted if it there is.
 func (d *LevelDBServiceDB) Save(s *service.Service) error {
 	// check service
 	if s.ID == "" {
@@ -178,7 +178,7 @@ func (d *LevelDBServiceDB) Save(s *service.Service) error {
 		return err
 	}
 
-	// delete previous service that has the same SID
+	// delete existent service that has the same sid.
 	if err := d.delete(tx, s.SID); err != nil && !IsErrNotFound(err) {
 		tx.Discard()
 		return err
@@ -197,7 +197,7 @@ func (d *LevelDBServiceDB) Save(s *service.Service) error {
 		return err
 	}
 
-	// save service SID
+	// save sid-id pair of service.
 	if err := tx.Put([]byte(sidKeyPrefix+s.SID), []byte(s.ID), nil); err != nil {
 		tx.Discard()
 		return err

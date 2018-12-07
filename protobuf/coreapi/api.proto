@@ -474,7 +474,7 @@ message Service {
   }
   
   string ID = 10;                           // Service's unique id service hash.
-  string SID = 12;                          // Service's SID.
+  string SID = 12;                          // Service's sid.
   string name = 1;                          // Service's name.
   string description = 2;                   // Service's description.
   repeated Task tasks = 5;                  // The list of tasks this service can execute.
