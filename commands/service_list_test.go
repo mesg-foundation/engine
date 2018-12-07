@@ -30,7 +30,7 @@ func TestServiceList(t *testing.T) {
 
 	for _, s := range []string{
 		`Listing services\.\.\.`,
-		`ID\s+ALIAS\s+NAME\s+STATUS`,
+		`ID\s+SID\s+NAME\s+STATUS`,
 	} {
 		matched, err := regexp.Match(fmt.Sprintf(`^\s*%s\s*$`, s), readLine(t, r))
 		require.NoError(t, err)
@@ -39,7 +39,7 @@ func TestServiceList(t *testing.T) {
 
 	for _, s := range services {
 		status := strings.ToLower(s.Status.String())
-		pattern := fmt.Sprintf(`^\s*%s\s+%s\s+%s\s+%s\s*$`, s.ID, s.Alias, s.Name, status)
+		pattern := fmt.Sprintf(`^\s*%s\s+%s\s+%s\s+%s\s*$`, s.ID, s.SID, s.Name, status)
 		matched, err := regexp.Match(pattern, readLine(t, r))
 		require.NoError(t, err)
 		require.True(t, matched)
