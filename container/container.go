@@ -2,6 +2,7 @@ package container
 
 import (
 	"context"
+	"errors"
 	"io"
 	"time"
 
@@ -10,6 +11,10 @@ import (
 	"github.com/docker/docker/api/types/swarm"
 	docker "github.com/docker/docker/client"
 	"github.com/mesg-foundation/core/config"
+)
+
+var (
+	errSwarmNotInit = errors.New(`docker swarm is not initialized. run "docker swarm init" and try again`)
 )
 
 // Container describes the API of container package.
@@ -29,6 +34,7 @@ type Container interface {
 	Status(namespace []string) (StatusType, error)
 	StopService(namespace []string) (err error)
 	TasksError(namespace []string) ([]string, error)
+	DeleteVolume(name string) error
 }
 
 // DockerContainer provides high level interactions with Docker API for MESG.
@@ -66,7 +72,7 @@ func New(options ...Option) (*DockerContainer, error) {
 		}
 	}
 	c.negotiateAPIVersion()
-	if err := c.createSwarmIfNeeded(); err != nil {
+	if err := c.isSwarmInit(); err != nil {
 		return c, err
 	}
 	return c, c.createSharedNetworkIfNeeded()
@@ -92,22 +98,17 @@ func (c *DockerContainer) negotiateAPIVersion() {
 	c.client.NegotiateAPIVersion(ctx)
 }
 
-func (c *DockerContainer) createSwarmIfNeeded() error {
+func (c *DockerContainer) isSwarmInit() error {
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
 	info, err := c.client.Info(ctx)
 	if err != nil {
 		return err
 	}
-	if info.Swarm.NodeID != "" {
-		return nil
+	if info.Swarm.NodeID == "" {
+		return errSwarmNotInit
 	}
-	ctx, cancel = context.WithTimeout(context.Background(), c.callTimeout)
-	defer cancel()
-	_, err = c.client.SwarmInit(ctx, swarm.InitRequest{
-		ListenAddr: "0.0.0.0:2377", // https://docs.docker.com/engine/reference/commandline/swarm_init/#usage
-	})
-	return err
+	return nil
 }
 
 // FindContainer returns a docker container.

@@ -297,7 +297,8 @@ message DeployServiceReply {
 // }
 // ```
 message DeleteServiceRequest {
-  string serviceID = 1; // The Service ID. Generated when using the [`DeployService` API](#deployservice).
+  string serviceID = 1;  // The Service ID. Generated when using the [`DeployService` API](#deployservice).
+  bool deleteData = 2;   // When enabled, any persistent data (volumes) that belongs to service and its dependencies will be also deleted.
 }
 
 // Reply of `DeleteService` API doesn't contain any data.
@@ -472,7 +473,8 @@ message Service {
     RUNNING = 4;
   }
   
-  string ID = 10;                           // Service's unique id service hash.
+  string hash = 10;                         // Service's hash.
+  string SID = 12;                          // Service's sid.
   string name = 1;                          // Service's name.
   string description = 2;                   // Service's description.
   repeated Task tasks = 5;                  // The list of tasks this service can execute.
