@@ -67,7 +67,7 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 		pretty.DestroySpinner()
 		var confirm bool
 		if err := survey.AskOne(&survey.Confirm{
-			Message: fmt.Sprintf("A service already exist with the same alias %q. Do you confirm to replace it?", alias),
+			Message: fmt.Sprintf("A service with the same alias %q already exists. Do you want to replace it?", alias),
 		}, &confirm, nil); err != nil {
 			return false, errors.New("confirmation rejected")
 		}

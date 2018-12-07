@@ -35,7 +35,7 @@ To get more information, see the [deploy page from the documentation](https://do
 		RunE:    c.runE,
 		Args:    cobra.MaximumNArgs(1),
 	})
-	c.cmd.Flags().BoolVarP(&c.force, "force", "f", c.force, "Force deploy the service by overwriting existing service with the same alias if there is")
+	c.cmd.Flags().BoolVarP(&c.force, "force", "f", c.force, "Force deploying overwrites existing service with the same alias")
 	return c
 }
 
@@ -65,7 +65,7 @@ func (c *serviceDeployCmd) runE(cmd *cobra.Command, args []string) error {
 		pretty.DestroySpinner()
 		var confirm bool
 		if err := survey.AskOne(&survey.Confirm{
-			Message: fmt.Sprintf("A service already exist with the same alias %q. Do you confirm to replace it?", alias),
+			Message: fmt.Sprintf("A service with the same alias %q already exists. Do you want to replace it?", alias),
 		}, &confirm, nil); err != nil {
 			return false, errors.New("confirmation rejected")
 		}

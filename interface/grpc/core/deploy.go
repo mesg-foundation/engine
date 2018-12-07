@@ -5,7 +5,6 @@ import (
 	"sync"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
-
 	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	service "github.com/mesg-foundation/core/service"
