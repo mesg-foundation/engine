@@ -30,11 +30,11 @@ type ServiceDB interface {
 
 	// Get gets a service from database by its unique id
 	// or unique sid.
-	Get(idOrSID string) (*service.Service, error)
+	Get(hashOrSID string) (*service.Service, error)
 
 	// Delete deletes a service from database by its unique id
 	// or unique sid.
-	Delete(idOrSID string) error
+	Delete(hashOrSID string) error
 
 	// All returns all services from database.
 	All() ([]*service.Service, error)
@@ -97,12 +97,12 @@ func (d *LevelDBServiceDB) All() ([]*service.Service, error) {
 }
 
 // Delete deletes service from database.
-func (d *LevelDBServiceDB) Delete(idOrSID string) error {
+func (d *LevelDBServiceDB) Delete(hashOrSID string) error {
 	tx, err := d.db.OpenTransaction()
 	if err != nil {
 		return err
 	}
-	if err := d.delete(tx, idOrSID); err != nil {
+	if err := d.delete(tx, hashOrSID); err != nil {
 		tx.Discard()
 		return err
 	}
@@ -110,8 +110,8 @@ func (d *LevelDBServiceDB) Delete(idOrSID string) error {
 }
 
 // delete deletes service from database by using r reader.
-func (d *LevelDBServiceDB) delete(tx *leveldb.Transaction, idOrSID string) error {
-	s, err := d.get(tx, idOrSID)
+func (d *LevelDBServiceDB) delete(tx *leveldb.Transaction, hashOrSID string) error {
+	s, err := d.get(tx, hashOrSID)
 	if err != nil {
 		return err
 	}
@@ -122,12 +122,12 @@ func (d *LevelDBServiceDB) delete(tx *leveldb.Transaction, idOrSID string) error
 }
 
 // Get retrives service from database.
-func (d *LevelDBServiceDB) Get(idOrSID string) (*service.Service, error) {
+func (d *LevelDBServiceDB) Get(hashOrSID string) (*service.Service, error) {
 	tx, err := d.db.OpenTransaction()
 	if err != nil {
 		return nil, err
 	}
-	s, err := d.get(tx, idOrSID)
+	s, err := d.get(tx, hashOrSID)
 	if err != nil {
 		tx.Discard()
 		return nil, err
@@ -136,11 +136,11 @@ func (d *LevelDBServiceDB) Get(idOrSID string) (*service.Service, error) {
 }
 
 // get retrives service from database by using r reader.
-func (d *LevelDBServiceDB) get(r leveldb.Reader, idOrSID string) (*service.Service, error) {
-	id := idOrSID
+func (d *LevelDBServiceDB) get(r leveldb.Reader, hashOrSID string) (*service.Service, error) {
+	id := hashOrSID
 
 	// check if key is a sid, if yes then get id.
-	bid, err := r.Get([]byte(sidKeyPrefix+idOrSID), nil)
+	bid, err := r.Get([]byte(sidKeyPrefix+hashOrSID), nil)
 	if err != nil && err != leveldb.ErrNotFound {
 		return nil, err
 	} else if err == nil {
@@ -151,11 +151,11 @@ func (d *LevelDBServiceDB) get(r leveldb.Reader, idOrSID string) (*service.Servi
 	b, err := r.Get([]byte(hashKeyPrefix+id), nil)
 	if err != nil {
 		if err == leveldb.ErrNotFound {
-			return nil, &ErrNotFound{ID: idOrSID}
+			return nil, &ErrNotFound{ID: hashOrSID}
 		}
 		return nil, err
 	}
-	return d.unmarshal(idOrSID, b)
+	return d.unmarshal(hashOrSID, b)
 }
 
 // Save stores service in database.
