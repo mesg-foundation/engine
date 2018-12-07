@@ -46,7 +46,7 @@ func TestNew(t *testing.T) {
 	mc := &mocks.Container{}
 	mc.On("Build", mock.Anything).Once().Return(hash, nil)
 
-	archive, err := xarchive.GzippedTar(path)
+	archive, err := xarchive.GzippedTar(path, nil)
 	require.NoError(t, err)
 
 	statuses := make(chan DeployStatus, 4)
