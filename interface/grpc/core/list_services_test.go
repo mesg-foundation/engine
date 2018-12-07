@@ -26,5 +26,5 @@ func TestListServices(t *testing.T) {
 	apiProtoServices := toProtoServices(services)
 
 	require.Len(t, apiProtoServices, 1)
-	require.Equal(t, reply.Services[0].ID, apiProtoServices[0].ID)
+	require.Equal(t, reply.Services[0].Hash, apiProtoServices[0].Hash)
 }
