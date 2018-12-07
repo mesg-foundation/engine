@@ -20,7 +20,7 @@ const (
 var (
 	errCannotSaveWithoutHash = errors.New("database: can't save service without hash")
 	errCannotSaveWithoutSID  = errors.New("database: can't save service without sid")
-	errSIDSameLen            = errors.New("database: sid can't have the same length as id")
+	errSIDSameLen            = errors.New("database: sid can't have the same length as hash")
 )
 
 // ServiceDB describes the API of database package.
@@ -197,7 +197,7 @@ func (d *LevelDBServiceDB) Save(s *service.Service) error {
 		return err
 	}
 
-	// save sid-id pair of service.
+	// save sid-hash pair of service.
 	if err := tx.Put([]byte(sidKeyPrefix+s.SID), []byte(s.Hash), nil); err != nil {
 		tx.Discard()
 		return err
