@@ -27,7 +27,7 @@ type Service struct {
 	// Hash is a generated string that uniquely identify a service.
 	Hash string `hash:"-"`
 
-	// SID is the Service ID.
+	// SID is the service id.
 	// It needs to be unique and can be used to access to service.
 	SID string `hash:"name:1"`
 
@@ -205,7 +205,7 @@ func (s *Service) deploy() error {
 	s.configuration.Image = imageHash
 	s.Dependencies = append(s.Dependencies, s.configuration)
 	if s.SID == "" {
-		// make sure that SID doesn't have the same length with id.
+		// make sure that sid doesn't have the same length with id.
 		s.SID = "a" + s.computeHash()
 	}
 	return nil

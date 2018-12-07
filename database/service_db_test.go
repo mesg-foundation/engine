@@ -38,13 +38,13 @@ func TestServiceDBSave(t *testing.T) {
 	ss, _ := db.All()
 	require.Len(t, ss, 1)
 
-	// different id, same SID. should replace s1
+	// different id, same sid. should replace s1.
 	s2 := &service.Service{Hash: "01", SID: "1", Name: "test-service"}
 	require.NoError(t, db.Save(s2))
 	_, err := db.Get(s1.Hash)
 	require.IsType(t, &ErrNotFound{}, err)
 
-	// different id, different SID. should not replace anything
+	// different id, different sid. should not replace anything.
 	s3 := &service.Service{Hash: "02", SID: "2", Name: "test-service"}
 	require.NoError(t, db.Save(s3))
 	ss, _ = db.All()
@@ -54,11 +54,11 @@ func TestServiceDBSave(t *testing.T) {
 	s := &service.Service{Name: "test-service", SID: "SID"}
 	require.EqualError(t, db.Save(s), errCannotSaveWithoutHash.Error())
 
-	// test service without SID
+	// test service without sid.
 	s = &service.Service{Name: "test-service", Hash: "id"}
 	require.EqualError(t, db.Save(s), errCannotSaveWithoutSID.Error())
 
-	// test service id same length as SID
+	// test service where id has the same length as sid.
 	s = &service.Service{Name: "test-service", Hash: "sameLength", SID: "sameLength"}
 	require.EqualError(t, db.Save(s), errSIDSameLen.Error())
 }
@@ -76,7 +76,7 @@ func TestServiceDBGet(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, want, got)
 
-	// SID
+	// sid.
 	got, err = db.Get(want.SID)
 	require.NoError(t, err)
 	require.Equal(t, want, got)
@@ -105,7 +105,7 @@ func TestServiceDBDelete(t *testing.T) {
 	_, err = db.db.Get([]byte(sidKeyPrefix+s.SID), nil)
 	require.Equal(t, leveldb.ErrNotFound, err)
 
-	// SID
+	// sid.
 	s = &service.Service{Hash: "11", SID: "3", Name: "test-service"}
 	require.NoError(t, db.Save(s))
 	require.NoError(t, db.Delete(s.SID))

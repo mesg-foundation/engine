@@ -81,7 +81,7 @@ func serviceImporterAssetsSchemaJson() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "service/importer/assets/schema.json", size: 5107, mode: os.FileMode(420), modTime: time.Unix(1544104932, 0)}
+	info := bindataFileInfo{name: "service/importer/assets/schema.json", size: 5107, mode: os.FileMode(420), modTime: time.Unix(1544151489, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
