@@ -69,7 +69,7 @@ func TestIntegrationListRunning(t *testing.T) {
 	list, err := ListRunning()
 	require.NoError(t, err)
 	require.Equal(t, len(list), 1)
-	require.Equal(t, list[0], service.ID)
+	require.Equal(t, list[0], service.Hash)
 }
 
 func TestIntegrationListRunningMultipleDependencies(t *testing.T) {
@@ -91,5 +91,5 @@ func TestIntegrationListRunningMultipleDependencies(t *testing.T) {
 	list, err := ListRunning()
 	require.NoError(t, err)
 	require.Equal(t, len(list), 1)
-	require.Equal(t, list[0], service.ID)
+	require.Equal(t, list[0], service.Hash)
 }

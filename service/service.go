@@ -24,8 +24,9 @@ import (
 
 // Service represents a MESG service.
 type Service struct {
-	// ID is the unique id of service.
-	ID string `hash:"-"`
+	// Hash is calculated from the combination of service's source and mesg.yml.
+	// It represents the service uniquely.
+	Hash string `hash:"-"`
 
 	// SID is the service id.
 	// It needs to be unique and can be used to access to service.
@@ -136,7 +137,7 @@ func (s *Service) fromService() *Service {
 		dep.service = s
 	}
 
-	s.ID = s.computeHash()
+	s.Hash = s.computeHash()
 	return s
 }
 
