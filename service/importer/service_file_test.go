@@ -72,9 +72,9 @@ func TestValidateServiceFileWithMultipleErrors(t *testing.T) {
 	require.Equal(t, 2, len(warnings))
 }
 
-func TestValidateServiceAliasTooLong(t *testing.T) {
-	data, _ := readServiceFile("./tests/alias-too-long")
+func TestValidateServiceSIDTooLong(t *testing.T) {
+	data, _ := readServiceFile("./tests/sid-too-long")
 	warnings, err := validateServiceFile(data)
 	require.NoError(t, err)
-	require.Contains(t, warnings[0], "alias: String length must be less than or equal to 39")
+	require.Contains(t, warnings[0], "sid: String length must be less than or equal to 39")
 }

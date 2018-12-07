@@ -13,14 +13,14 @@ import (
 )
 
 const (
-	aliasKeyPrefix = "alias_"
-	idKeyPrefix    = "id_"
+	sidKeyPrefix = "sid_"
+	idKeyPrefix  = "id_"
 )
 
 var (
-	errCannotSaveWithoutID    = errors.New("database: can't save service without id")
-	errCannotSaveWithoutAlias = errors.New("database: can't save service without alias")
-	errAliasSameLen           = errors.New("database: service alias can't have same length as id")
+	errCannotSaveWithoutID  = errors.New("database: can't save service without id")
+	errCannotSaveWithoutSID = errors.New("database: can't save service without sid")
+	errSIDSameLen           = errors.New("database: sid can't have the same length as id")
 )
 
 // ServiceDB describes the API of database package.
@@ -29,12 +29,12 @@ type ServiceDB interface {
 	Save(s *service.Service) error
 
 	// Get gets a service from database by its unique id
-	// or unique alias.
-	Get(idOrAlias string) (*service.Service, error)
+	// or unique sid.
+	Get(idOrSID string) (*service.Service, error)
 
 	// Delete deletes a service from database by its unique id
-	// or unique alias.
-	Delete(idOrAlias string) error
+	// or unique sid.
+	Delete(idOrSID string) error
 
 	// All returns all services from database.
 	All() ([]*service.Service, error)
@@ -97,12 +97,12 @@ func (d *LevelDBServiceDB) All() ([]*service.Service, error) {
 }
 
 // Delete deletes service from database.
-func (d *LevelDBServiceDB) Delete(idOrAlias string) error {
+func (d *LevelDBServiceDB) Delete(idOrSID string) error {
 	tx, err := d.db.OpenTransaction()
 	if err != nil {
 		return err
 	}
-	if err := d.delete(tx, idOrAlias); err != nil {
+	if err := d.delete(tx, idOrSID); err != nil {
 		tx.Discard()
 		return err
 	}
@@ -110,24 +110,24 @@ func (d *LevelDBServiceDB) Delete(idOrAlias string) error {
 }
 
 // delete deletes service from database by using r reader.
-func (d *LevelDBServiceDB) delete(tx *leveldb.Transaction, idOrAlias string) error {
-	s, err := d.get(tx, idOrAlias)
+func (d *LevelDBServiceDB) delete(tx *leveldb.Transaction, idOrSID string) error {
+	s, err := d.get(tx, idOrSID)
 	if err != nil {
 		return err
 	}
 	if err := tx.Delete([]byte(idKeyPrefix+s.ID), nil); err != nil {
 		return err
 	}
-	return tx.Delete([]byte(aliasKeyPrefix+s.Alias), nil)
+	return tx.Delete([]byte(sidKeyPrefix+s.SID), nil)
 }
 
 // Get retrives service from database.
-func (d *LevelDBServiceDB) Get(idOrAlias string) (*service.Service, error) {
+func (d *LevelDBServiceDB) Get(idOrSID string) (*service.Service, error) {
 	tx, err := d.db.OpenTransaction()
 	if err != nil {
 		return nil, err
 	}
-	s, err := d.get(tx, idOrAlias)
+	s, err := d.get(tx, idOrSID)
 	if err != nil {
 		tx.Discard()
 		return nil, err
@@ -136,11 +136,11 @@ func (d *LevelDBServiceDB) Get(idOrAlias string) (*service.Service, error) {
 }
 
 // get retrives service from database by using r reader.
-func (d *LevelDBServiceDB) get(r leveldb.Reader, idOrAlias string) (*service.Service, error) {
-	id := idOrAlias
+func (d *LevelDBServiceDB) get(r leveldb.Reader, idOrSID string) (*service.Service, error) {
+	id := idOrSID
 
-	// check if key is an alias, if yes then get id.
-	bid, err := r.Get([]byte(aliasKeyPrefix+idOrAlias), nil)
+	// check if key is a sid, if yes then get id.
+	bid, err := r.Get([]byte(sidKeyPrefix+idOrSID), nil)
 	if err != nil && err != leveldb.ErrNotFound {
 		return nil, err
 	} else if err == nil {
@@ -151,25 +151,25 @@ func (d *LevelDBServiceDB) get(r leveldb.Reader, idOrAlias string) (*service.Ser
 	b, err := r.Get([]byte(idKeyPrefix+id), nil)
 	if err != nil {
 		if err == leveldb.ErrNotFound {
-			return nil, &ErrNotFound{ID: idOrAlias}
+			return nil, &ErrNotFound{ID: idOrSID}
 		}
 		return nil, err
 	}
-	return d.unmarshal(idOrAlias, b)
+	return d.unmarshal(idOrSID, b)
 }
 
 // Save stores service in database.
-// If the service's alias already exist, the previous service will be deleted
+// If there is an another service that uses the same sid, it'll be deleted.
 func (d *LevelDBServiceDB) Save(s *service.Service) error {
 	// check service
 	if s.ID == "" {
 		return errCannotSaveWithoutID
 	}
-	if s.Alias == "" {
-		return errCannotSaveWithoutAlias
+	if s.SID == "" {
+		return errCannotSaveWithoutSID
 	}
-	if len(s.ID) == len(s.Alias) {
-		return errAliasSameLen
+	if len(s.ID) == len(s.SID) {
+		return errSIDSameLen
 	}
 
 	// open database transaction
@@ -178,8 +178,8 @@ func (d *LevelDBServiceDB) Save(s *service.Service) error {
 		return err
 	}
 
-	// delete previous service that has the same alias
-	if err := d.delete(tx, s.Alias); err != nil && !IsErrNotFound(err) {
+	// delete existent service that has the same sid.
+	if err := d.delete(tx, s.SID); err != nil && !IsErrNotFound(err) {
 		tx.Discard()
 		return err
 	}
@@ -197,8 +197,8 @@ func (d *LevelDBServiceDB) Save(s *service.Service) error {
 		return err
 	}
 
-	// save service alias
-	if err := tx.Put([]byte(aliasKeyPrefix+s.Alias), []byte(s.ID), nil); err != nil {
+	// save sid-id pair of service.
+	if err := tx.Put([]byte(sidKeyPrefix+s.SID), []byte(s.ID), nil); err != nil {
 		tx.Discard()
 		return err
 	}
