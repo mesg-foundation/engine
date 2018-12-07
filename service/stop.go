@@ -42,9 +42,5 @@ func (s *Service) StopDependencies() error {
 
 // Stop stops a dependency.
 func (d *Dependency) Stop() error {
-	status, err := d.Status()
-	if err != nil || status == container.STOPPED {
-		return err
-	}
 	return d.service.container.StopService(d.namespace())
 }

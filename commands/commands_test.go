@@ -65,3 +65,11 @@ func captureStd(t *testing.T) func() (stdout string, stderr string) {
 func newMockExecutor() *mocks.Executor {
 	return &mocks.Executor{}
 }
+
+func TestBaseCommandCmd(t *testing.T) {
+	// NOTE: this test is only to satisfy structcheck
+	// as it doesn't handle embedded structs yet.
+	// It is still very usesful linter so
+	// DO NOT REMOVE this test
+	_ = baseCmd{}.cmd
+}

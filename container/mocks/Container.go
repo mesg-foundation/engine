@@ -69,6 +69,20 @@ func (_m *Container) DeleteNetwork(namespace []string, event container.EventType
 	return r0
 }
 
+// DeleteVolume provides a mock function with given fields: name
+func (_m *Container) DeleteVolume(name string) error {
+	ret := _m.Called(name)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(name)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // FindContainer provides a mock function with given fields: namespace
 func (_m *Container) FindContainer(namespace []string) (types.ContainerJSON, error) {
 	ret := _m.Called(namespace)

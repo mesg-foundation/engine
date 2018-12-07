@@ -72,11 +72,11 @@ func TestInvalidListenEvent(t *testing.T) {
 func TestInvalidWorkflowWithNoExecute(t *testing.T) {
 	wf := Workflow{OnEvent: &Event{}}
 	err := wf.Start()
-	require.Equal(t, err.Error(), "A workflow needs a task")
+	require.Equal(t, err.Error(), "a workflow needs a task")
 }
 
 func TestInvalidWorkflowWithNoEvent(t *testing.T) {
 	wf := Workflow{Execute: &Task{}}
 	err := wf.Start()
-	require.Equal(t, err.Error(), "A workflow needs an event OnEvent or OnResult")
+	require.Equal(t, err.Error(), "a workflow needs an event OnEvent or OnResult")
 }

@@ -1,38 +1,34 @@
-.PHONY: bench test build dist docker
+.PHONY: bench setup test build dist docker examples
 
 EXAMPLE_DIR=$(shell pwd)/examples
 DOCS_DIR=$(EXAMPLE_DIR)/doc
 PROTOS_DIR=$(EXAMPLE_DIR)/proto
 
-generate:
-	@go generate
+EXAMPLE_CMD=protoc --plugin=protoc-gen-doc -Iexamples/proto --doc_out=examples/doc
+DOCKER_CMD=docker run --rm -v $(DOCS_DIR):/out:rw -v $(PROTOS_DIR):/protos:ro -v $(EXAMPLE_DIR)/templates:/templates:ro pseudomuto/protoc-gen-doc
 
-lint:
-	@golint -set_exit_status ./build/... && \
-		golint -set_exit_status ./cmd/... && \
-		golint -set_exit_status ./parser/... && \
-		golint -set_exit_status ./test/... && \
-		golint -set_exit_status .
+setup:
+	$(info Synching dev tools and dependencies...)
+	@if test -z $(which retool); then go get github.com/twitchtv/retool; fi
+	@retool sync
+	@retool do dep ensure
 
-test: generate
-	@go test -cover $(shell go list ./... | grep -v -E 'build|cmd|test|tools|vendor')
+resources.go: resources/*.tmpl resources/*.json
+	$(info Generating resources...)
+	@go run resources/main.go -in resources -out resources.go -pkg gendoc
 
-dependencies:
-	@glide install
+fixtures/fileset.pb: fixtures/*.proto fixtures/generate.go
+	$(info Generating fixtures...)
+	@cd fixtures && go generate
+
+test: fixtures/fileset.pb resources.go
+	@go test -cover ./ ./cmd/...
 
 bench:
 	@go test -bench=.
 
-build: dependencies generate
+build: setup resources.go
 	@go build ./cmd/...
-
-examples: build
-	@rm -f examples/doc/*
-	@protoc --plugin=protoc-gen-doc --doc_out=examples/doc --doc_opt=docbook,example.docbook examples/proto/*.proto
-	@protoc --plugin=protoc-gen-doc --doc_out=examples/doc --doc_opt=html,example.html examples/proto/*.proto
-	@protoc --plugin=protoc-gen-doc --doc_out=examples/doc --doc_opt=json,example.json examples/proto/*.proto
-	@protoc --plugin=protoc-gen-doc --doc_out=examples/doc --doc_opt=markdown,example.md examples/proto/*.proto
-	@protoc --plugin=protoc-gen-doc --doc_out=examples/doc --doc_opt=examples/templates/asciidoc.tmpl,example.txt examples/proto/*.proto
 
 dist:
 	@script/dist.sh
@@ -40,14 +36,19 @@ dist:
 docker:
 	@script/push_to_docker.sh
 
-docker_test: docker
+docker_test: build docker
 	@rm -f examples/doc/*
-	@docker run --rm -v $(DOCS_DIR):/out:rw -v $(PROTOS_DIR):/protos:ro pseudomuto/protoc-gen-doc --doc_opt=docbook,example.docbook
-	@docker run --rm -v $(DOCS_DIR):/out:rw -v $(PROTOS_DIR):/protos:ro pseudomuto/protoc-gen-doc --doc_opt=html,example.html
-	@docker run --rm -v $(DOCS_DIR):/out:rw -v $(PROTOS_DIR):/protos:ro pseudomuto/protoc-gen-doc --doc_opt=json,example.json
-	@docker run --rm -v $(DOCS_DIR):/out:rw -v $(PROTOS_DIR):/protos:ro pseudomuto/protoc-gen-doc --doc_opt=markdown,example.md
-	@docker run --rm \
-		-v $(DOCS_DIR):/out:rw \
-		-v $(PROTOS_DIR):/protos:ro \
-		-v $(EXAMPLE_DIR)/templates:/templates:ro \
-		pseudomuto/protoc-gen-doc --doc_opt=/templates/asciidoc.tmpl,example.txt
+	@$(DOCKER_CMD) --doc_opt=docbook,example.docbook:Ignore*
+	@$(DOCKER_CMD) --doc_opt=html,example.html:Ignore*
+	@$(DOCKER_CMD) --doc_opt=json,example.json:Ignore*
+	@$(DOCKER_CMD) --doc_opt=markdown,example.md:Ignore*
+	@$(DOCKER_CMD) --doc_opt=/templates/asciidoc.tmpl,example.txt:Ignore*
+
+examples: build examples/proto/*.proto examples/templates/*.tmpl
+	$(info Making examples...)
+	@rm -f examples/doc/*
+	@$(EXAMPLE_CMD) --doc_opt=docbook,example.docbook:Ignore* examples/proto/*.proto
+	@$(EXAMPLE_CMD) --doc_opt=html,example.html:Ignore* examples/proto/*.proto
+	@$(EXAMPLE_CMD) --doc_opt=json,example.json:Ignore* examples/proto/*.proto
+	@$(EXAMPLE_CMD) --doc_opt=markdown,example.md:Ignore* examples/proto/*.proto
+	@$(EXAMPLE_CMD) --doc_opt=examples/templates/asciidoc.tmpl,example.txt:Ignore* examples/proto/*.proto

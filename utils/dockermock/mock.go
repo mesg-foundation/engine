@@ -720,7 +720,7 @@ type SystemAPIClientMock struct {
 }
 
 // Events returns a stream of events in the daemon. It's up to the caller to
-// close the stream by cancelling the context. Once the stream has been
+// close the stream by canceling the context. Once the stream has been
 // completely read an io.EOF error will be sent over the error channel. If an
 // error is sent all processing will be stopped. It's up to the caller to
 // reopen the stream in the event of an error by reinvoking this method.

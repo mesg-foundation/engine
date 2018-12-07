@@ -13,12 +13,12 @@ import (
 
 // ListServices returns existing docker services matching a specific label name.
 func (c *DockerContainer) ListServices(labels ...string) ([]swarm.Service, error) {
-	args := make([]filters.KeyValuePair, 0)
-	for _, label := range labels {
-		args = append(args, filters.KeyValuePair{
+	args := make([]filters.KeyValuePair, len(labels))
+	for i, label := range labels {
+		args[i] = filters.KeyValuePair{
 			Key:   "label",
 			Value: label,
-		})
+		}
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
@@ -39,6 +39,15 @@ func (c *DockerContainer) FindService(namespace []string) (swarm.Service, error)
 
 // StartService starts a docker service.
 func (c *DockerContainer) StartService(options ServiceOptions) (serviceID string, err error) {
+	status, err := c.Status(options.Namespace)
+	if err != nil {
+		return "", err
+	}
+	if status == RUNNING {
+		service, err := c.FindService(options.Namespace)
+		return service.ID, err
+	}
+
 	service := options.toSwarmServiceSpec(c)
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
@@ -50,14 +59,34 @@ func (c *DockerContainer) StartService(options ServiceOptions) (serviceID string
 }
 
 // StopService stops a docker service.
-func (c *DockerContainer) StopService(namespace []string) (err error) {
+func (c *DockerContainer) StopService(namespace []string) error {
+	status, err := c.Status(namespace)
+	if err != nil {
+		return err
+	}
+	if status == STOPPED {
+		return nil
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
+	defer cancel()
+	if err := c.client.ServiceRemove(ctx, c.Namespace(namespace)); err != nil && !docker.IsErrNotFound(err) {
+		return err
+	}
+	if err := c.deletePendingContainer(namespace); err != nil {
+		return err
+	}
+	return c.waitForStatus(namespace, STOPPED)
+}
+
+func (c *DockerContainer) deletePendingContainer(namespace []string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
 	container, err := c.FindContainer(namespace)
-	if err != nil && !docker.IsErrNotFound(err) {
-		return err
-	}
-	if err := c.client.ServiceRemove(ctx, c.Namespace(namespace)); err != nil && !docker.IsErrNotFound(err) {
+	if err != nil {
+		if docker.IsErrNotFound(err) {
+			return nil
+		}
 		return err
 	}
 	// TOFIX: Hack to force Docker to remove the containers.
@@ -69,7 +98,7 @@ func (c *DockerContainer) StopService(namespace []string) (err error) {
 		c.client.ContainerStop(ctx, container.ID, &timeout)
 		c.client.ContainerRemove(ctx, container.ID, types.ContainerRemoveOptions{})
 	}
-	return c.waitForStatus(namespace, STOPPED)
+	return c.deletePendingContainer(namespace)
 }
 
 // ServiceLogs returns the logs of a service.

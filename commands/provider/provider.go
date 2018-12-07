@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"github.com/mesg-foundation/core/daemon"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 )
 
@@ -8,12 +9,14 @@ import (
 type Provider struct {
 	*CoreProvider
 	*ServiceProvider
+	*WorkflowProvider
 }
 
 // New creates Provider based on given CoreClient.
-func New(c coreapi.CoreClient) *Provider {
+func New(c coreapi.CoreClient, d daemon.Daemon) *Provider {
 	return &Provider{
-		CoreProvider:    NewCoreProvider(c),
-		ServiceProvider: NewServiceProvider(c),
+		CoreProvider:     NewCoreProvider(c, d),
+		ServiceProvider:  NewServiceProvider(c),
+		WorkflowProvider: NewWorkflowProvider(c),
 	}
 }

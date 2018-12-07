@@ -1,6 +1,9 @@
 # protoc-gen-doc
 
 [![Travis Build Status][travis-svg]][travis-ci]
+[![codecov][codecov-svg]][codecov-url]
+[![GoDoc][godoc-svg]][godoc-url]
+[![Go Report Card][goreport-svg]][goreport-url]
 
 This is a documentation generator plugin for the Google Protocol Buffers compiler (`protoc`). The plugin can generate
 HTML, JSON, DocBook and Markdown documentation from comments in your `.proto` files.
@@ -14,7 +17,7 @@ documentation from your protos.
 
 If you'd like to install this locally, you can `go get` it.
 
-`go get -u github.com/pseudomuto/protoc-gen-doc/cmd/...`
+`go get -u github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc`
 
 ## Invoking the Plugin
 
@@ -49,7 +52,7 @@ For example, to generate Markdown for all the examples:
 docker run --rm \
   -v $(pwd)/examples/doc:/out \
   -v $(pwd)/examples/proto:/protos \
-  pseudomuto/protoc-gen-doc --doc_opt=md,docs.md
+  pseudomuto/protoc-gen-doc --doc_opt=markdown,docs.md
 ```
 
 You can also generate documentation for a single file. This can be done by passing the file(s) to the command:
@@ -58,7 +61,17 @@ You can also generate documentation for a single file. This can be done by passi
 docker run --rm \
   -v $(pwd)/examples/doc:/out \
   -v $(pwd)/examples/proto:/protos \
-  pseudomuto/protoc-gen-doc --doc_opt=md,docs.md /protos/Booking.proto [OPTIONALLY LIST MORE FILES]
+  pseudomuto/protoc-gen-doc --doc_opt=markdown,docs.md /protos/Booking.proto [OPTIONALLY LIST MORE FILES]
+```
+
+You can also exclude proto files that match specific path expressions. This is done by passing a second option delimited by `:`.
+For example, you can pass any number of comma separated patterns as the second option:
+
+```
+docker run --rm \
+  -v $(pwd)/examples/doc:/out \
+  -v $(pwd)/examples/proto:/protos \
+  pseudomuto/protoc-gen-doc --doc_opt=:google/*,somepath/*
 ```
 
 _**Remember**_: Paths should be from within the container, not the host!
@@ -75,7 +88,7 @@ For example, to generate HTML documentation for all `.proto` files in the `proto
 
 The plugin executable must be in `PATH` for this to work. 
 
-### With a Custom Build
+### Using a precompiled binary
 
 Alternatively, you can specify a pre-built/not in `PATH` binary using the `--plugin` option.
 
@@ -182,3 +195,9 @@ Check out the `examples` task in the [Makefile](Makefile) to see how these were 
 [travis-ci]:
     https://travis-ci.org/pseudomuto/protoc-gen-doc
     "protoc-gen-doc at Travis CI"
+[codecov-svg]: https://codecov.io/gh/pseudomuto/protoc-gen-doc/branch/master/graph/badge.svg
+[codecov-url]: https://codecov.io/gh/pseudomuto/protoc-gen-doc
+[godoc-svg]: https://godoc.org/github.com/pseudomuto/protoc-gen-doc?status.svg
+[godoc-url]: https://godoc.org/github.com/pseudomuto/protoc-gen-doc
+[goreport-svg]: https://goreportcard.com/badge/github.com/pseudomuto/protoc-gen-doc
+[goreport-url]: https://goreportcard.com/report/github.com/pseudomuto/protoc-gen-doc

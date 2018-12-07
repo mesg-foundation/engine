@@ -9,7 +9,7 @@ The Service needs to receive a command sent by Core in order to execute any desi
 To implement tasks in your Service, you'll need to :
 
 * [Add the task definition](#task-definitions) in the Service's [`mesg.yml`](service-file.md) file
-* [Listen for task's execution](#listen-for-task-executions) from the [Core](../start-here/core.md)
+* [Listen for task's execution](#listen-for-task-executions) from the Core
 * [Submit the outputs](#submit-outputs-of-task-executions) of the task
 
 ## Task definitions
@@ -184,7 +184,7 @@ func main() {
 
 ## Submit outputs of task executions
 
-Once the task execution is finished, the Service has to send the outputs of the execution back to [Core](../start-here/core.md) using the [Protobuffer definition](https://github.com/mesg-foundation/core/blob/dev/api/service/api.proto) and [gRPC](https://grpc.io/). Only one output can be submitted per execution even if the task has declared multiple outputs.
+Once the task execution is finished, the Service has to send the outputs of the execution back to Core using the [Protobuffer definition](https://github.com/mesg-foundation/core/blob/dev/api/service/api.proto) and [gRPC](https://grpc.io/). Only one output can be submitted per execution even if the task has declared multiple outputs.
 
 <tabs>
 <tab title="Request" vp-markdown>

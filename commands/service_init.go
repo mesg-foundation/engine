@@ -14,7 +14,6 @@ type serviceInitCmd struct {
 	baseCmd
 
 	name         string
-	description  string
 	templateURL  string
 	templateName string
 	dir          string
@@ -37,7 +36,7 @@ func newServiceInitCmd(e ServiceExecutor) *serviceInitCmd {
 	
 To get more information, see the page [service file from the documentation](https://docs.mesg.com/guide/service/service-file.html)`,
 		Example: `mesg-core service init
-mesg-core service init --name NAME --description DESCRIPTION
+mesg-core service init --name NAME
 mesg-core service init --current`,
 		Args:    cobra.NoArgs,
 		PreRunE: c.preRunE,

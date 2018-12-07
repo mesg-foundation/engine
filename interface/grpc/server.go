@@ -4,6 +4,8 @@ import (
 	"net"
 	"sync"
 
+	"github.com/mesg-foundation/core/systemservices"
+
 	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	"github.com/mesg-foundation/core/api"
@@ -19,6 +21,7 @@ import (
 // Server contains the server config.
 type Server struct {
 	api *api.API
+	ss  *systemservices.SystemServices
 
 	instance *grpc.Server
 	closed   bool
@@ -29,9 +32,10 @@ type Server struct {
 }
 
 // New returns a new gRPC server.
-func New(address string, api *api.API) *Server {
+func New(address string, api *api.API, ss *systemservices.SystemServices) *Server {
 	return &Server{
 		api:     api,
+		ss:      ss,
 		address: address,
 		network: "tcp",
 	}
@@ -63,7 +67,7 @@ func (s *Server) listen() (net.Listener, error) {
 		return nil, err
 	}
 
-	logrus.Info("Server listens on ", ln.Addr())
+	logrus.Info("server listens on ", ln.Addr())
 	return ln, nil
 }
 
@@ -93,7 +97,7 @@ func (s *Server) Close() {
 
 // register all server
 func (s *Server) register() error {
-	coreServer := core.NewServer(s.api)
+	coreServer := core.NewServer(s.api, s.ss)
 	serviceServer := service.NewServer(s.api)
 
 	serviceapi.RegisterServiceServer(s.instance, serviceServer)

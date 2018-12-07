@@ -4,10 +4,24 @@ import (
 	"testing"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
 	"github.com/mesg-foundation/core/container/dockertest"
+	"github.com/mesg-foundation/core/utils/docker/mocks"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
+
+func mockWaitForStatus(t *testing.T, m *mocks.CommonAPIClient, namespace string, wantedStatus StatusType) {
+	m.On("TaskList", mock.Anything, types.TaskListOptions{
+		Filters: filters.NewArgs(filters.KeyValuePair{
+			Key:   "label",
+			Value: "com.docker.stack.namespace=" + namespace,
+		}),
+	}).Once().
+		Return([]swarm.Task{}, nil)
+	mockStatus(t, m, namespace, wantedStatus)
+}
 
 func TestWaitForStatusRunning(t *testing.T) {
 	namespace := []string{"namespace"}

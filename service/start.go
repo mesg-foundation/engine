@@ -3,7 +3,6 @@ package service
 import (
 	"strconv"
 	"strings"
-	"sync"
 
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
@@ -27,30 +26,16 @@ func (s *Service) Start() (serviceIDs []string, err error) {
 	if err != nil {
 		return nil, err
 	}
-	var (
-		mutex sync.Mutex
-		wg    sync.WaitGroup
-	)
-	serviceIDs = make([]string, 0, len(s.Dependencies))
-	for i, dependency := range s.Dependencies {
-		wg.Add(1)
-		go func(dep *Dependency, i int) {
-			defer wg.Done()
-			serviceID, errStart := dep.Start(networkID)
-			mutex.Lock()
-			defer mutex.Unlock()
-			if errStart == nil {
-				serviceIDs = append(serviceIDs, serviceID)
-			}
-			if errStart != nil && err == nil {
-				err = errStart
-			}
-		}(dependency, i)
-	}
-	wg.Wait()
-	// Gracefully stop the service because there is an error
-	if err != nil {
-		s.Stop()
+	// BUG: https://github.com/mesg-foundation/core/issues/382
+	// After solving this by docker, switch back to deploy in parallel
+	serviceIDs = make([]string, len(s.Dependencies))
+	for i, dep := range s.Dependencies {
+		serviceID, err := dep.Start(networkID)
+		if err != nil {
+			s.Stop()
+			return nil, err
+		}
+		serviceIDs[i] = serviceID
 	}
 	return serviceIDs, err
 }
@@ -61,7 +46,8 @@ func (d *Dependency) Start(networkID string) (containerServiceID string, err err
 	if err != nil {
 		return "", err
 	}
-	mounts, err := d.extractVolumes()
+	volumes := d.extractVolumes()
+	volumesFrom, err := d.extractVolumesFrom()
 	if err != nil {
 		return "", err
 	}
@@ -69,23 +55,25 @@ func (d *Dependency) Start(networkID string) (containerServiceID string, err err
 	if err != nil {
 		return "", err
 	}
-	_, port, err := xnet.SplitHostPort(c.Server.Address)
+	_, port, _ := xnet.SplitHostPort(c.Server.Address)
 	endpoint := c.Core.Name + ":" + strconv.Itoa(port)
 	return d.service.container.StartService(container.ServiceOptions{
 		Namespace: d.namespace(),
 		Labels: map[string]string{
 			"mesg.service": d.service.Name,
-			"mesg.hash":    d.service.ID,
+			"mesg.hash":    d.service.Hash,
+			"mesg.sid":     d.service.SID,
 			"mesg.core":    c.Core.Name,
 		},
-		Image: d.Image,
-		Args:  strings.Fields(d.Command),
+		Image:   d.Image,
+		Args:    d.Args,
+		Command: d.Command,
 		Env: container.MapToEnv(map[string]string{
-			"MESG_TOKEN":        d.service.ID,
+			"MESG_TOKEN":        d.service.Hash,
 			"MESG_ENDPOINT":     endpoint,
 			"MESG_ENDPOINT_TCP": endpoint,
 		}),
-		Mounts: mounts,
+		Mounts: append(volumes, volumesFrom...),
 		Ports:  d.extractPorts(),
 		Networks: []container.Network{
 			{ID: networkID, Alias: d.Key},
@@ -112,7 +100,7 @@ func (d *Dependency) extractPorts() []container.Port {
 }
 
 // TODO: add test and hack for MkDir in CircleCI
-func (d *Dependency) extractVolumes() ([]container.Mount, error) {
+func (d *Dependency) extractVolumes() []container.Mount {
 	volumes := make([]container.Mount, 0)
 	for _, volume := range d.Volumes {
 		volumes = append(volumes, container.Mount{
@@ -120,24 +108,31 @@ func (d *Dependency) extractVolumes() ([]container.Mount, error) {
 			Target: volume,
 		})
 	}
+	return volumes
+}
+
+func (d *Dependency) extractVolumesFrom() ([]container.Mount, error) {
+	volumesFrom := make([]container.Mount, 0)
 	for _, depName := range d.VolumesFrom {
 		dep, err := d.service.getDependency(depName)
 		if err != nil {
 			return nil, err
 		}
 		for _, volume := range dep.Volumes {
-			volumes = append(volumes, container.Mount{
+			volumesFrom = append(volumesFrom, container.Mount{
 				Source: volumeKey(d.service, depName, volume),
 				Target: volume,
 			})
 		}
 	}
-	return volumes, nil
+	return volumesFrom, nil
 }
 
+// volumeKey creates a key for service's volume based on the sid to make sure that the volume
+// will stay the same for different versions of the service.
 func volumeKey(s *Service, dependency string, volume string) string {
 	return xstructhash.Hash([]string{
-		s.ID,
+		s.SID,
 		dependency,
 		volume,
 	}, 1)

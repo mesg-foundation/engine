@@ -47,13 +47,13 @@ func (_m *ServiceDB) Close() error {
 	return r0
 }
 
-// Delete provides a mock function with given fields: id
-func (_m *ServiceDB) Delete(id string) error {
-	ret := _m.Called(id)
+// Delete provides a mock function with given fields: idOrSID
+func (_m *ServiceDB) Delete(idOrSID string) error {
+	ret := _m.Called(idOrSID)
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(string) error); ok {
-		r0 = rf(id)
+		r0 = rf(idOrSID)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -61,13 +61,13 @@ func (_m *ServiceDB) Delete(id string) error {
 	return r0
 }
 
-// Get provides a mock function with given fields: id
-func (_m *ServiceDB) Get(id string) (*service.Service, error) {
-	ret := _m.Called(id)
+// Get provides a mock function with given fields: idOrSID
+func (_m *ServiceDB) Get(idOrSID string) (*service.Service, error) {
+	ret := _m.Called(idOrSID)
 
 	var r0 *service.Service
 	if rf, ok := ret.Get(0).(func(string) *service.Service); ok {
-		r0 = rf(id)
+		r0 = rf(idOrSID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*service.Service)
@@ -76,7 +76,7 @@ func (_m *ServiceDB) Get(id string) (*service.Service, error) {
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(id)
+		r1 = rf(idOrSID)
 	} else {
 		r1 = ret.Error(1)
 	}

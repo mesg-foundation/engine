@@ -71,3 +71,10 @@ func TestValidateServiceFileWithMultipleErrors(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 2, len(warnings))
 }
+
+func TestValidateServiceSIDTooLong(t *testing.T) {
+	data, _ := readServiceFile("./tests/sid-too-long")
+	warnings, err := validateServiceFile(data)
+	require.NoError(t, err)
+	require.Contains(t, warnings[0], "sid: String length must be less than or equal to 39")
+}

@@ -1,6 +1,6 @@
 # Create your application
 
-Now that you have your different services ready and deployed you need to connect them through an application. You will be able to connect a task to an event with libraries that we provide, otherwise you can always connect directly to the MESG core to [listen for events](listen-for-events.md) and [execute task](execute-a-task.md).
+Now that you have your different Services ready and deployed, you need to connect them through an Application. You will be able to connect a task to an event with libraries that we provide, otherwise you can always directly connect to MESG Core to [listen for events](listen-for-events.md) and [execute tasks](execute-a-task.md).
 
 <tabs>
 <tab title="Node" vp-markdown>
@@ -31,7 +31,7 @@ MESG.whenResult({
 })
 ```
 
-[See the MESG.js library for more documentation](https://github.com/mesg-foundation/mesg-js/tree/master#application)
+[See the MESG.js library for additional documentation](https://github.com/mesg-foundation/mesg-js/tree/master#application)
 
 </tab>
 
@@ -84,7 +84,7 @@ func main() {
 </tab>
 </tabs>
 
-These kind of workflows should be enough for most use cases but if you want to create more complex applications you can connect directly to APIs and keep reading the documentation.
+These kinds of workflows should be enough for most use cases, but if you want to create more complex applications, you can connect directly to APIs and keep reading the documentation.
 
 ::: tip Get Help
 You need help ? Check out the <a href="https://forum.mesg.com" target="_blank">MESG Forum</a>.

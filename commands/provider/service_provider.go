@@ -3,9 +3,11 @@ package provider
 import (
 	"context"
 	"fmt"
-	"html/template"
 	"os"
 	"path/filepath"
+	"strings"
+	"sync"
+	"text/template"
 
 	"github.com/mesg-foundation/core/commands/provider/assets"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
@@ -37,28 +39,41 @@ func (p *ServiceProvider) ServiceByID(id string) (*coreapi.Service, error) {
 }
 
 // ServiceDeleteAll deletes all services.
-func (p *ServiceProvider) ServiceDeleteAll() error {
+func (p *ServiceProvider) ServiceDeleteAll(deleteData bool) error {
 	rep, err := p.client.ListServices(context.Background(), &coreapi.ListServicesRequest{})
 	if err != nil {
 		return err
 	}
 
-	var errs xerrors.Errors
+	var (
+		errs xerrors.SyncErrors
+		wg   sync.WaitGroup
+	)
+	wg.Add(len(rep.Services))
 	for _, s := range rep.Services {
-		_, err := p.client.DeleteService(context.Background(), &coreapi.DeleteServiceRequest{ServiceID: s.ID})
-		if err != nil {
-			errs = append(errs, err)
-		}
+		go func(id string) {
+			_, err := p.client.DeleteService(context.Background(), &coreapi.DeleteServiceRequest{
+				ServiceID:  id,
+				DeleteData: deleteData,
+			})
+			if err != nil {
+				errs.Append(err)
+			}
+			wg.Done()
+		}(s.Hash)
 	}
+	wg.Wait()
 	return errs.ErrorOrNil()
 }
 
 // ServiceDelete deletes service with given ids.
-func (p *ServiceProvider) ServiceDelete(ids ...string) error {
+func (p *ServiceProvider) ServiceDelete(deleteData bool, ids ...string) error {
 	var errs xerrors.Errors
 	for _, id := range ids {
-		_, err := p.client.DeleteService(context.Background(), &coreapi.DeleteServiceRequest{ServiceID: id})
-		if err != nil {
+		if _, err := p.client.DeleteService(context.Background(), &coreapi.DeleteServiceRequest{
+			ServiceID:  id,
+			DeleteData: deleteData,
+		}); err != nil {
 			errs = append(errs, err)
 		}
 	}
@@ -265,12 +280,27 @@ func (p *ServiceProvider) ServiceGenerateDocs(path string) error {
 	}
 
 	f, err := os.OpenFile(readmePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, os.ModePerm)
+	if err != nil {
+		return err
+	}
 	defer f.Close()
 
-	readmeTemplate := assets.MustAsset("readme_template.md")
+	readmeTemplate, err := assets.Asset("commands/provider/assets/readme_template.md")
+	if err != nil {
+		return err
+	}
 
-	tmpl := template.Must(template.New("doc").Parse(string(readmeTemplate)))
-	return tmpl.Execute(f, service)
+	anchorEncode := func(a string) string {
+		a = strings.Replace(a, " ", "-", -1)
+		a = strings.Replace(a, "'", "", -1)
+		a = strings.ToLower(a)
+		return a
+	}
+	tpl, err := template.New("doc").Funcs(template.FuncMap{"anchorEncode": anchorEncode}).Parse(string(readmeTemplate))
+	if err != nil {
+		return err
+	}
+	return tpl.Execute(f, service)
 }
 
 // ServiceList lists all services.

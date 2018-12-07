@@ -1,17 +1,16 @@
 package service
 
 import (
-	"crypto/sha1"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
 	"time"
 
-	"github.com/cnf/structhash"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/service/importer"
+	"github.com/mesg-foundation/core/x/xstructhash"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -25,30 +24,35 @@ import (
 
 // Service represents a MESG service.
 type Service struct {
-	// ID is the unique id of service.
-	ID string `hash:"-"`
+	// Hash is calculated from the combination of service's source and mesg.yml.
+	// It represents the service uniquely.
+	Hash string `hash:"-"`
+
+	// SID is the service id.
+	// It needs to be unique and can be used to access to service.
+	SID string `hash:"name:1"`
 
 	// Name is the service name.
-	Name string `hash:"name:1"`
+	Name string `hash:"name:2"`
 
 	// Description is service description.
-	Description string `hash:"name:2"`
+	Description string `hash:"name:3"`
 
 	// Tasks are the list of tasks that service can execute.
-	Tasks []*Task `hash:"name:3"`
+	Tasks []*Task `hash:"name:4"`
 
 	// Events are the list of events that service can emit.
-	Events []*Event `hash:"name:4"`
+	Events []*Event `hash:"name:5"`
 
 	// Configuration is the Docker container that service runs inside.
 	configuration *Dependency `hash:"-"`
 
 	// Dependencies are the Docker containers that service can depend on.
-	Dependencies []*Dependency `hash:"name:5"`
+	Dependencies []*Dependency `hash:"name:6"`
 
 	// Repository holds the service's repository url if it's living on
 	// a Git host.
-	Repository string `hash:"name:6"`
+	Repository string `hash:"name:7"`
 
 	// DeployedAt holds the creation time of service.
 	DeployedAt time.Time `hash:"-"`
@@ -133,7 +137,7 @@ func (s *Service) fromService() *Service {
 		dep.service = s
 	}
 
-	s.ID = s.computeHash()
+	s.Hash = s.computeHash()
 	return s
 }
 
@@ -159,9 +163,7 @@ func DeployStatusOption(statuses chan DeployStatus) Option {
 // have effect on computation but extending or removing configurations or changing
 // values in mesg.yml will cause computeHash to generate a different value.
 func (s *Service) computeHash() string {
-	h := sha1.New()
-	h.Write(structhash.Dump(s, 1))
-	return fmt.Sprintf("%x", h.Sum(nil))
+	return xstructhash.Hash(s, 1)
 }
 
 // saveContext downloads service context to a temp dir.
@@ -203,6 +205,10 @@ func (s *Service) deploy() error {
 	s.configuration.Key = "service"
 	s.configuration.Image = imageHash
 	s.Dependencies = append(s.Dependencies, s.configuration)
+	if s.SID == "" {
+		// make sure that sid doesn't have the same length with id.
+		s.SID = "a" + s.computeHash()
+	}
 	return nil
 }
 
@@ -231,5 +237,5 @@ func (s *Service) getDependency(dependencyKey string) (*Dependency, error) {
 			return dep, nil
 		}
 	}
-	return nil, fmt.Errorf("Dependency %s do not exist", dependencyKey)
+	return nil, fmt.Errorf("dependency %s do not exist", dependencyKey)
 }

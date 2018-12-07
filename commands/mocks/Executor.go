@@ -14,6 +14,41 @@ type Executor struct {
 	mock.Mock
 }
 
+// CreateWorkflow provides a mock function with given fields: filePath, name
+func (_m *Executor) CreateWorkflow(filePath string, name string) (string, error) {
+	ret := _m.Called(filePath, name)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(string, string) string); ok {
+		r0 = rf(filePath, name)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = rf(filePath, name)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// DeleteWorkflow provides a mock function with given fields: id
+func (_m *Executor) DeleteWorkflow(id string) error {
+	ret := _m.Called(id)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(id)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Logs provides a mock function with given fields:
 func (_m *Executor) Logs() (io.ReadCloser, error) {
 	ret := _m.Called()
@@ -60,19 +95,20 @@ func (_m *Executor) ServiceByID(id string) (*coreapi.Service, error) {
 	return r0, r1
 }
 
-// ServiceDelete provides a mock function with given fields: ids
-func (_m *Executor) ServiceDelete(ids ...string) error {
+// ServiceDelete provides a mock function with given fields: deleteData, ids
+func (_m *Executor) ServiceDelete(deleteData bool, ids ...string) error {
 	_va := make([]interface{}, len(ids))
 	for _i := range ids {
 		_va[_i] = ids[_i]
 	}
 	var _ca []interface{}
+	_ca = append(_ca, deleteData)
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(...string) error); ok {
-		r0 = rf(ids...)
+	if rf, ok := ret.Get(0).(func(bool, ...string) error); ok {
+		r0 = rf(deleteData, ids...)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -80,13 +116,13 @@ func (_m *Executor) ServiceDelete(ids ...string) error {
 	return r0
 }
 
-// ServiceDeleteAll provides a mock function with given fields:
-func (_m *Executor) ServiceDeleteAll() error {
-	ret := _m.Called()
+// ServiceDeleteAll provides a mock function with given fields: deleteData
+func (_m *Executor) ServiceDeleteAll(deleteData bool) error {
+	ret := _m.Called(deleteData)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func() error); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(bool) error); ok {
+		r0 = rf(deleteData)
 	} else {
 		r0 = ret.Error(0)
 	}

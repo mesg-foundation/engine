@@ -47,10 +47,10 @@ func (c *serviceListCmd) runE(cmd *cobra.Command, args []string) error {
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 4, ' ', 0)
 
-	fmt.Fprintf(w, "STATUS\tSERVICE\tNAME\t\n")
+	fmt.Fprintf(w, "HASH\tSID\tNAME\tSTATUS\t\n")
 	for _, s := range services {
 		status := strings.ToLower(s.Status.String())
-		fmt.Fprintf(w, "%s\t%s\t%s\t\n", status, s.ID, s.Name)
+		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t\n", s.Hash, s.SID, s.Name, status)
 	}
 	return w.Flush()
 }
