@@ -34,7 +34,7 @@ func TestNoCollision(t *testing.T) {
 		Name: "TestNoCollision2",
 	})
 
-	require.NotEqual(t, service1.ID, service2.ID)
+	require.NotEqual(t, service1.Hash, service2.Hash)
 }
 
 func TestNew(t *testing.T) {
