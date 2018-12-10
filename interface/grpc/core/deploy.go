@@ -2,6 +2,7 @@ package core
 
 import (
 	"io"
+	"time"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/mesg-foundation/core/api"
@@ -9,6 +10,8 @@ import (
 	service "github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/importer"
 )
+
+const confirmationTimeout = time.Minute * 3
 
 // DeployService deploys a service from Git URL or service.tar.gz file. It'll send status
 // events during the process and finish with sending service id or validation error.
@@ -53,15 +56,23 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 				return false
 			}
 
+			errC := make(chan error, 1)
 			// receive the confirmation result.
-			// TODO(ilgooz) add timeout.
-			if err := sr.RecvMessage(); err != nil {
+			go func() { errC <- sr.RecvMessage() }()
+
+			select {
+			case err := <-errC:
+				if err != nil {
+					return false
+				}
+				if sr.Confirmation == nil {
+					return false
+				}
+				return sr.Confirmation.GetValue()
+
+			case <-time.After(confirmationTimeout):
 				return false
 			}
-			if sr.Confirmation == nil {
-				return false
-			}
-			return sr.Confirmation.GetValue()
 		}))
 	}
 
