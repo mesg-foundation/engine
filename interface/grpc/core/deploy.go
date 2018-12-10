@@ -2,7 +2,6 @@ package core
 
 import (
 	"io"
-	"sync"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/mesg-foundation/core/api"
@@ -13,19 +12,15 @@ import (
 
 // DeployService deploys a service from Git URL or service.tar.gz file. It'll send status
 // events during the process and finish with sending service id or validation error.
-// TODO(ilgooz): sync `stream.Send()`s by doing it in a single goroutine.
 func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 	var (
 		sr       = newDeployServiceStreamReader(stream)
+		sendC    = make(chan sendRequest)
 		statuses = make(chan api.DeployStatus)
-		wg       sync.WaitGroup
 	)
+	defer close(sendC)
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		forwardDeployStatuses(statuses, stream)
-	}()
+	go sendLoop(stream, sendC, statuses)
 
 	var (
 		service         *service.Service
@@ -52,7 +47,7 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 	} else {
 		deployOptions = append(deployOptions, api.DeployServiceConfirmationOption(func(sid string) bool {
 			// request for confirmation.
-			if err := stream.Send(&coreapi.DeployServiceReply{
+			if err := send(sendC, &coreapi.DeployServiceReply{
 				Value: &coreapi.DeployServiceReply_RequestConfirmation{RequestConfirmation: sid},
 			}); err != nil {
 				return false
@@ -81,41 +76,77 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 	} else {
 		service, validationError, err = s.api.DeployService(sr, deployOptions...)
 	}
-	wg.Wait()
 
 	if err != nil {
 		return err
 	}
+
 	if validationError != nil {
-		return stream.Send(&coreapi.DeployServiceReply{
+		return send(sendC, &coreapi.DeployServiceReply{
 			Value: &coreapi.DeployServiceReply_ValidationError{ValidationError: validationError.Error()},
 		})
 	}
-
-	return stream.Send(&coreapi.DeployServiceReply{
+	return send(sendC, &coreapi.DeployServiceReply{
 		Value: &coreapi.DeployServiceReply_ServiceID{ServiceID: service.Hash},
 	})
 }
 
-func forwardDeployStatuses(statuses chan api.DeployStatus, stream coreapi.Core_DeployServiceServer) {
-	for status := range statuses {
-		var typ coreapi.DeployServiceReply_Status_Type
-		switch status.Type {
-		case api.Running:
-			typ = coreapi.DeployServiceReply_Status_RUNNING
-		case api.DonePositive:
-			typ = coreapi.DeployServiceReply_Status_DONE_POSITIVE
-		case api.DoneNegative:
-			typ = coreapi.DeployServiceReply_Status_DONE_NEGATIVE
+type sendRequest struct {
+	reply *coreapi.DeployServiceReply
+	errC  chan error
+}
+
+// send sends puts a gRPC message to send queue.
+func send(sendC chan sendRequest, reply *coreapi.DeployServiceReply) error {
+	req := sendRequest{
+		reply: reply,
+		errC:  make(chan error),
+	}
+	sendC <- req
+	return <-req.errC
+}
+
+// sendLoop sends any gRPC messages and deployment statuses in sync.
+// this is done to ensure to complete send of a status message before any other send
+// that might occur at the same time.
+func sendLoop(stream coreapi.Core_DeployServiceServer, sendC chan sendRequest,
+	statuses chan api.DeployStatus) {
+	for {
+		select {
+		case send, ok := <-sendC:
+			if !ok {
+				sendC = nil
+			} else {
+				send.errC <- stream.Send(send.reply)
+			}
+
+		case status, ok := <-statuses:
+			if !ok {
+				statuses = nil
+			} else {
+				var typ coreapi.DeployServiceReply_Status_Type
+				switch status.Type {
+				case api.Running:
+					typ = coreapi.DeployServiceReply_Status_RUNNING
+				case api.DonePositive:
+					typ = coreapi.DeployServiceReply_Status_DONE_POSITIVE
+				case api.DoneNegative:
+					typ = coreapi.DeployServiceReply_Status_DONE_NEGATIVE
+				}
+				stream.Send(&coreapi.DeployServiceReply{
+					Value: &coreapi.DeployServiceReply_Status_{
+						Status: &coreapi.DeployServiceReply_Status{
+							Message: status.Message,
+							Type:    typ,
+						},
+					},
+				})
+			}
 		}
-		stream.Send(&coreapi.DeployServiceReply{
-			Value: &coreapi.DeployServiceReply_Status_{
-				Status: &coreapi.DeployServiceReply_Status{
-					Message: status.Message,
-					Type:    typ,
-				},
-			},
-		})
+
+		if sendC == nil && statuses == nil {
+			break
+		}
 	}
 }
 
