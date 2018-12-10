@@ -977,7 +977,7 @@ or
 | url | [string](#string) | Git repo url of service. When url provided, stream will be closed after the first receive. |
 | chunk | [bytes](#bytes) | Chunks of gzipped tar archive of service. |
 | chunkDone | [bool](#bool) | Sent after sending chunks are done. |
-| confirmation | [google.protobuf.BoolValue](#google.protobuf.BoolValue) | Send confirmation for existent service deletion with the same alias. |
+| confirmation | [google.protobuf.BoolValue](#google.protobuf.BoolValue) | Send confirmation for existent service deletion with the same sid. |
 
 
 
@@ -1077,7 +1077,7 @@ or
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | status | [DeployServiceReply.Status](#api.DeployServiceReply.Status) | `status` will be sent after each status change. |
-| requestConfirmation | [string](#string) | `requestConfirmation` will be sent to confirm deletion of the existing service with the same alias. It's value is the alias. |
+| requestConfirmation | [string](#string) | `requestConfirmation` will be sent to confirm deletion of the existing service with the same sid. It's value is the sid. |
 | serviceID | [string](#string) | `serviceID` will be sent as the last message of stream when service deployed successfully. |
 | validationError | [string](#string) | `validationError` will be sent as the last message of stream when there is a validation error. |
 

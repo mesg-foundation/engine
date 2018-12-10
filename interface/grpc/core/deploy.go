@@ -46,14 +46,14 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 	// if it's not provided deployment will start anyway.
 	if sr.Confirmation != nil {
 		confirmation := sr.Confirmation.GetValue()
-		deployOptions = append(deployOptions, api.DeployServiceConfirmationOption(func(alias string) bool {
+		deployOptions = append(deployOptions, api.DeployServiceConfirmationOption(func(sid string) bool {
 			return confirmation
 		}))
 	} else {
-		deployOptions = append(deployOptions, api.DeployServiceConfirmationOption(func(alias string) bool {
+		deployOptions = append(deployOptions, api.DeployServiceConfirmationOption(func(sid string) bool {
 			// request for confirmation.
 			if err := stream.Send(&coreapi.DeployServiceReply{
-				Value: &coreapi.DeployServiceReply_RequestConfirmation{RequestConfirmation: alias},
+				Value: &coreapi.DeployServiceReply_RequestConfirmation{RequestConfirmation: sid},
 			}); err != nil {
 				return false
 			}

@@ -27,10 +27,10 @@ func DeployServiceStatusOption(statuses chan DeployStatus) DeployServiceOption {
 }
 
 // DeployServiceConfirmationOption receives a confirmation func to confirm
-// deletion of an existing service with the same alias.
+// deletion of an existing service with the same sid.
 // if it's not set then confirmation won't happen and deployment will fail
-// if there is a service with the same alias.
-func DeployServiceConfirmationOption(fn func(alias string) (deletion bool)) DeployServiceOption {
+// if there is a service with the same sid.
+func DeployServiceConfirmationOption(fn func(sid string) (deletion bool)) DeployServiceOption {
 	return func(deployer *serviceDeployer) {
 		deployer.confirmationFunc = fn
 	}
@@ -57,8 +57,8 @@ type serviceDeployer struct {
 	statuses chan DeployStatus
 
 	// confirmationFunc called when confirmation of deleting an existing
-	// service with the same alias is needed.
-	confirmationFunc func(alias string) (deletion bool)
+	// service with the same sid is needed.
+	confirmationFunc func(sid string) (deletion bool)
 
 	api *API
 }
@@ -156,12 +156,12 @@ func (d *serviceDeployer) deploy(r io.Reader) (*service.Service, *importer.Valid
 		return nil, validationErr, nil
 	}
 
-	// check if there is a deployed service with the same alias.
+	// check if there is a deployed service with the same sid.
 	// if it's, try to get a confirmation for deleting it and continue to deploy.
-	if _, err := d.api.db.Get(s.Alias); err == nil {
+	if _, err := d.api.db.Get(s.SID); err == nil {
 		if d.confirmationFunc != nil {
-			if delete := d.confirmationFunc(s.Alias); !delete {
-				return nil, nil, &ErrSameAlias{s.Alias}
+			if delete := d.confirmationFunc(s.SID); !delete {
+				return nil, nil, &ErrSameSID{s.SID}
 			}
 		}
 	} else if !database.IsErrNotFound(err) {
@@ -218,11 +218,11 @@ func (d *serviceDeployer) assertValidationError(err error) (*importer.Validation
 	return nil, err
 }
 
-// ErrSameAlias error returned when there is a service with the same alias.
-type ErrSameAlias struct {
-	alias string
+// ErrSameSID error returned when there is a service with the same sid.
+type ErrSameSID struct {
+	sid string
 }
 
-func (e *ErrSameAlias) Error() string {
-	return fmt.Sprintf("a service with the %q alias already exists", e.alias)
+func (e *ErrSameSID) Error() string {
+	return fmt.Sprintf("a service with the %q sid already exists", e.sid)
 }

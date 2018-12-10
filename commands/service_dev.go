@@ -63,11 +63,11 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 		printDeployStatuses(statuses)
 	}()
 
-	id, validationError, err := c.e.ServiceDeploy(c.path, nil, func(alias string) (bool, error) {
+	id, validationError, err := c.e.ServiceDeploy(c.path, nil, func(sid string) (bool, error) {
 		pretty.DestroySpinner()
 		var confirm bool
 		if err := survey.AskOne(&survey.Confirm{
-			Message: fmt.Sprintf("A service with the same alias %q already exists. Do you want to replace it?", alias),
+			Message: fmt.Sprintf("A service with the same sid %q already exists. Do you want to replace it?", sid),
 		}, &confirm, nil); err != nil {
 			return false, errors.New("confirmation rejected")
 		}

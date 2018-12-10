@@ -43,7 +43,7 @@ type deploymentResult struct {
 
 // ServiceDeploy deploys service from given path.
 func (p *ServiceProvider) ServiceDeploy(path string, confirmation *bool,
-	confirmationFunc func(alias string) (deletion bool, err error),
+	confirmationFunc func(sid string) (deletion bool, err error),
 	statuses chan DeployStatus) (id string,
 	validationError, err error) {
 	ctx, cancel := context.WithCancel(context.Background())
