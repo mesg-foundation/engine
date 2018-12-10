@@ -21,15 +21,9 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 		sendC    = make(chan sendRequest)
 		statuses = make(chan api.DeployStatus)
 	)
+
 	defer close(sendC)
-
 	go sendLoop(stream, sendC, statuses)
-
-	var (
-		service         *service.Service
-		validationError *importer.ValidationError
-		err             error
-	)
 
 	// receive the first message in the stream.
 	if err := sr.RecvMessage(); err != nil {
@@ -83,6 +77,12 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 			return err
 		}
 	}
+
+	var (
+		service         *service.Service
+		validationError *importer.ValidationError
+		err             error
+	)
 
 	if sr.URL != "" {
 		service, validationError, err = s.api.DeployServiceFromURL(sr.URL, deployOptions...)
