@@ -96,7 +96,7 @@ type sendRequest struct {
 	errC  chan error
 }
 
-// send sends puts a gRPC message to send queue.
+// send sends puts a gRPC message to send queue and waits until it's sent.
 func send(sendC chan sendRequest, reply *coreapi.DeployServiceReply) error {
 	req := sendRequest{
 		reply: reply,
