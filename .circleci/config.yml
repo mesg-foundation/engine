@@ -7,7 +7,7 @@ runOnMachine: &runOnMachine
 
 runOnDocker: &runOnDocker
   docker:
-    - image: circleci/golang:1.10
+    - image: circleci/golang:1.11
   working_directory: /go/src/github.com/mesg-foundation/core
 
 jobs:
