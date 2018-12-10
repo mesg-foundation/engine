@@ -88,7 +88,7 @@ func TestNewFromService(t *testing.T) {
 			continue
 		}
 		require.NotNil(t, execution, test.name)
-		require.Equal(t, srv.ID, execution.Service.ID, test.name)
+		require.Equal(t, srv.Hash, execution.Service.Hash, test.name)
 		require.Equal(t, eventID, execution.EventID, test.name)
 		require.Equal(t, taskKey, execution.TaskKey, test.name)
 		require.Equal(t, test.inputs, execution.Inputs, test.name)

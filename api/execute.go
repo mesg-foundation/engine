@@ -52,7 +52,7 @@ func (e *taskExecutor) checkServiceStatus(s *service.Service) error {
 		return err
 	}
 	if status != service.RUNNING {
-		return &NotRunningServiceError{ServiceID: s.ID}
+		return &NotRunningServiceError{ServiceID: s.Hash}
 	}
 	return nil
 }

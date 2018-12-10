@@ -15,7 +15,7 @@ func TestListServices(t *testing.T) {
 
 	stream := newTestDeployStream(url)
 	require.NoError(t, server.DeployService(stream))
-	defer server.api.DeleteService(stream.serviceID)
+	defer server.api.DeleteService(stream.serviceID, false)
 
 	reply, err := server.ListServices(context.Background(), &coreapi.ListServicesRequest{})
 	require.NoError(t, err)
@@ -26,5 +26,5 @@ func TestListServices(t *testing.T) {
 	apiProtoServices := toProtoServices(services)
 
 	require.Len(t, apiProtoServices, 1)
-	require.Equal(t, reply.Services[0].ID, apiProtoServices[0].ID)
+	require.Equal(t, reply.Services[0].Hash, apiProtoServices[0].Hash)
 }
