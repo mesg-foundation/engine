@@ -76,6 +76,8 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 		}))
 	}
 
+	// check if first message in the stream was a confirmation,
+	// if it's we need to receive url or first chunk of the service.
 	if sr.Confirmation != nil {
 		if err := sr.RecvMessage(); err != nil {
 			return err

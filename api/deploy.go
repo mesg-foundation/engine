@@ -29,7 +29,7 @@ func DeployServiceStatusOption(statuses chan DeployStatus) DeployServiceOption {
 // DeployServiceConfirmationOption receives a confirmation func to confirm
 // deletion of an existing service with the same sid.
 // if it's not set then confirmation won't happen and deployment will fail
-// if there is a service with the same sid.
+// when there is a service with the same sid.
 func DeployServiceConfirmationOption(fn func(sid string) (deletion bool)) DeployServiceOption {
 	return func(deployer *serviceDeployer) {
 		deployer.confirmationFunc = fn
