@@ -88,6 +88,12 @@ workflows:
 
   release_dev:
     jobs:
+      - "lint":
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              only: dev
       - "test":
           filters:
             tags:
@@ -97,6 +103,7 @@ workflows:
       - "publish_docker_dev":
           requires:
             - "test"
+            - "lint"
       - "release_cli_dev":
           requires:
             - "publish_docker_dev"
@@ -109,9 +116,21 @@ workflows:
               ignore: /.*/
             branches:
               only: master
+      - "lint":
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              only: master
 
   release_prod:
     jobs:
+      - "lint":
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
       - "test":
           filters:
             tags:
@@ -121,6 +140,7 @@ workflows:
       - "publish_docker_prod":
           requires:
             - "test"
+            - "lint"
           filters:
             tags:
               only: /^v.*/
