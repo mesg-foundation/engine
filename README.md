@@ -168,7 +168,7 @@ For more info how to create your events, visit the [Emit an Event](https://docs.
 
 We have a common place to post all community-developed Services and Applications. Check out the [curated list of Awesome Services and Applications](https://github.com/mesg-foundation/awesome) to participate.
 
-Alternatively, you can also check out the [https://mesg.com/marketplace](Marketplace).
+Alternatively, you can also check out the [https://github.com/mesg-foundation/awesome#readme](Marketplace).
 
 # Roadmap
 
