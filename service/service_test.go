@@ -51,7 +51,7 @@ func TestNew(t *testing.T) {
 
 	statuses := make(chan DeployStatus, 4)
 
-	s, err := New(archive,
+	s, err := New(archive, nil,
 		ContainerOption(mc),
 		DeployStatusOption(statuses),
 	)
@@ -89,7 +89,7 @@ func TestInjectDefinitionWithConfig(t *testing.T) {
 		Configuration: &importer.Dependency{
 			Command: command,
 		},
-	})
+	}, nil)
 	require.Equal(t, command, s.configuration.Command)
 }
 
@@ -104,6 +104,6 @@ func TestInjectDefinitionWithDependency(t *testing.T) {
 				Image: image,
 			},
 		},
-	})
+	}, nil)
 	require.Equal(t, s.Dependencies[0].Image, image)
 }
