@@ -162,9 +162,6 @@ func TestComplete(t *testing.T) {
 		if test.err != nil {
 			continue
 		}
-		require.NotNil(t, e)
-		require.NoError(t, err, test.name)
-		require.NotNil(t, e, test.name)
 		require.Equal(t, Completed, e.Status, test.name)
 		require.NotZero(t, e.ExecutionDuration, test.name)
 		require.Zero(t, e.Error, test.name)
@@ -176,13 +173,11 @@ func TestFailed(t *testing.T) {
 	e.Execute()
 	tests := []struct {
 		name string
-		key  string
-		data map[string]interface{}
 		xerr error
 		err  error
 	}{
-		{name: "1", key: "outputX", data: map[string]interface{}{"foo": "bar"}, xerr: errors.New("cannot complete"), err: nil},
-		{name: "2", key: "outputX", data: map[string]interface{}{"foo": "bar"}, err: StatusError{
+		{name: "with failed error", xerr: errors.New("failed")},
+		{name: "with status error", err: StatusError{
 			ExpectedStatus: InProgress,
 			ActualStatus:   Failed,
 		}}, // this one is already proccessed
@@ -193,9 +188,6 @@ func TestFailed(t *testing.T) {
 		if test.err != nil {
 			continue
 		}
-		require.NotNil(t, e)
-		require.NoError(t, err, test.name)
-		require.NotNil(t, e, test.name)
 		require.Equal(t, Failed, e.Status, test.name)
 		require.NotZero(t, e.ExecutionDuration, test.name)
 		require.Equal(t, test.xerr, e.Error, test.name)

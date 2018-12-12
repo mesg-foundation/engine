@@ -108,7 +108,7 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 	errResult := result.GetError()
 	outputResult := result.GetOutput()
 	if errResult != nil {
-		fmt.Printf("%s Task %s cannot be completed, error:\n%s\n",
+		fmt.Printf("%s Task %s failed with an error:\n%s\n",
 			pretty.FailSign,
 			pretty.Fail(c.taskKey),
 			pretty.Fail(errResult.Message),

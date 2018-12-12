@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 
 	"github.com/mesg-foundation/core/pubsub"
@@ -10,7 +9,7 @@ import (
 )
 
 // SubmitResult submits results for executionID.
-func (a *API) SubmitResult(executionID string, outputKey string, outputData interface{}) error {
+func (a *API) SubmitResult(executionID string, outputKey string, outputData []byte) error {
 	return newResultSubmitter(a).Submit(executionID, outputKey, outputData)
 }
 
@@ -27,7 +26,7 @@ func newResultSubmitter(api *API) *resultSubmitter {
 }
 
 // Submit submits results for executionID.
-func (s *resultSubmitter) Submit(executionID string, outputKey string, outputData interface{}) error {
+func (s *resultSubmitter) Submit(executionID string, outputKey string, outputData []byte) error {
 	exec, err := s.api.execDB.Find(executionID)
 	if err != nil {
 		return err
@@ -37,17 +36,9 @@ func (s *resultSubmitter) Submit(executionID string, outputKey string, outputDat
 		return err
 	}
 
-	// parse output data into a map.
 	var outputDataMap map[string]interface{}
-	switch d := outputData.(type) {
-	case map[string]interface{}:
-		outputDataMap = d
-	case string:
-		if err = json.Unmarshal([]byte(d), &outputDataMap); err != nil {
-			err = fmt.Errorf("invalid output data error: %s", err)
-		}
-	default:
-		err = errors.New("unexpected output data type")
+	if err = json.Unmarshal(outputData, &outputDataMap); err != nil {
+		err = fmt.Errorf("invalid output data error: %s", err)
 	}
 
 	if err == nil {
@@ -58,7 +49,7 @@ func (s *resultSubmitter) Submit(executionID string, outputKey string, outputDat
 		exec.Failed(err)
 	}
 
-	if err = s.api.execDB.Save(exec); err != nil {
+	if err := s.api.execDB.Save(exec); err != nil {
 		return err
 	}
 

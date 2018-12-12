@@ -4,8 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/mesg-foundation/core/x/xerrors"
-
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
@@ -138,7 +136,7 @@ func TestSubmitWithNonExistentOutputKey(t *testing.T) {
 		OutputData:  outputData,
 	})
 	require.Error(t, err)
-	notFoundErr, ok := err.(xerrors.Errors)[0].(*service.TaskOutputNotFoundError)
+	notFoundErr, ok := err.(*service.TaskOutputNotFoundError)
 	require.True(t, ok)
 	require.Equal(t, outputKey, notFoundErr.TaskOutputKey)
 	require.Equal(t, s.Name, notFoundErr.ServiceName)
@@ -175,7 +173,7 @@ func TestSubmitWithInvalidTaskOutputs(t *testing.T) {
 		OutputData:  outputData,
 	})
 	require.Error(t, err)
-	invalidErr, ok := err.(xerrors.Errors)[0].(*service.InvalidTaskOutputError)
+	invalidErr, ok := err.(*service.InvalidTaskOutputError)
 	require.True(t, ok)
 	require.Equal(t, taskKey, invalidErr.TaskKey)
 	require.Equal(t, outputKey, invalidErr.TaskOutputKey)
