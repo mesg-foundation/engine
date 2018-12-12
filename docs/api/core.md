@@ -70,6 +70,8 @@ Subscribe to a stream that listens for events from a service.
 
 
 
+
+
 #### ListenEventRequest
 The request's data for the `ListenEvent` stream's API.
 
@@ -118,6 +120,8 @@ The request's data for the `ListenEvent` stream's API.
 </tab>
 
 <tab title="Reply">
+
+
 
 
 
@@ -214,6 +218,8 @@ Subscribe to a stream that listens for task's result from a service.
 
 <tabs>
 <tab title="Request">
+
+
 
 
 
@@ -358,6 +364,8 @@ The request's data for the `ListenResult` stream API.
 
 
 
+
+
 #### ResultData
 The data received from the stream of the `ListenResult` API.
 The data will be received over time as long as the stream is open.
@@ -409,6 +417,8 @@ Execute a service's task through Core.
 
 <tabs>
 <tab title="Request">
+
+
 
 
 
@@ -502,6 +512,8 @@ The request's data for the `ExecuteTask` API.
 </tab>
 
 <tab title="Reply">
+
+
 
 
 
@@ -654,6 +666,8 @@ Start a service. The service must be already deployed to Core.
 
 
 
+
+
 #### StartServiceRequest
 The request's data for the `StartService` API.
 
@@ -739,6 +753,8 @@ The request's data for the `StartService` API.
 
 
 
+
+
 #### StartServiceReply
 Reply of `StartService` API doesn't contain any data.
 
@@ -763,6 +779,8 @@ Stop a service. The service must be already deployed to Core.
 
 <tabs>
 <tab title="Request">
+
+
 
 
 
@@ -911,6 +929,8 @@ The request's data for the `StopService` API.
 
 
 
+
+
 #### StopServiceReply
 Reply of `StopService` API doesn't contain any data.
 
@@ -961,12 +981,18 @@ Stream should be closed after url or all chunks sent to server.
 **Example**
 ```json
 {
+  "env": {
+    "key": "value"
+  },
   "url": "__SERVICE_GIT_URL__"
 }
 ```
 or
 ```json
 {
+  "env": {
+    "key": "value"
+  },
   "chunk": "__SERVICE_GZIPPED_TAR_FILE_CHUNK__"
 }
 ```
@@ -976,6 +1002,9 @@ or
 | ----- | ---- | ----------- |
 | url | [string](#string) | Git repo url of service. When url provided, stream will be closed after the first receive. |
 | chunk | [bytes](#bytes) | Chunks of gzipped tar archive of service. If chunk provided, stream should be closed by client after all chunks sent. |
+| env | [DeployServiceRequest.EnvEntry](#api.DeployServiceRequest.EnvEntry)[] | Env used to deploy service. |
+
+
 
 
 
@@ -1128,6 +1157,8 @@ or
 
 
 
+
+
 </tab>
 </tabs>
 
@@ -1163,6 +1194,8 @@ Request's data of the `DeleteService` API.
 | ----- | ---- | ----------- |
 | serviceID | [string](#string) | The Service ID. Generated when using the [`DeployService` API](#deployservice). |
 | deleteData | [bool](#bool) | When enabled, any persistent data (volumes) that belongs to service and its dependencies will be also deleted. |
+
+
 
 
 
@@ -1297,6 +1330,8 @@ Reply of `DeleteService` API doesn't contain any data.
 
 
 
+
+
 </tab>
 </tabs>
 
@@ -1306,6 +1341,8 @@ List all services already deployed in Core.
 
 <tabs>
 <tab title="Request">
+
+
 
 
 
@@ -1381,6 +1418,8 @@ Reply of `ListServices` API doesn't contain any data.
 </tab>
 
 <tab title="Reply">
+
+
 
 
 
@@ -1550,6 +1589,8 @@ Get the definition of an already-deployed service from its ID.
 
 
 
+
+
 #### GetServiceRequest
 The request's data for the `GetService` API.
 
@@ -1602,6 +1643,8 @@ The request's data for the `GetService` API.
 </tab>
 
 <tab title="Reply">
+
+
 
 
 
@@ -1791,6 +1834,8 @@ ServiceLogs gives a stream for dependency logs of a service.
 
 
 
+
+
 #### ServiceLogsRequest
 The request's data for `ServiceLogs` API.
 
@@ -1825,6 +1870,8 @@ The request's data for `ServiceLogs` API.
 </tab>
 
 <tab title="Reply">
+
+
 
 
 
@@ -2009,6 +2056,8 @@ The request's data for the `CreateWorkflow` API.
 
 
 
+
+
 </tab>
 
 <tab title="Reply">
@@ -2029,6 +2078,8 @@ The reply's data of the `CreateWorkflow` API.
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | ID | [string](#string) | Unique ID of workflow. |
+
+
 
 
 
@@ -2189,6 +2240,8 @@ The request's data for the `DeleteWorkflow` API.
 
 
 
+
+
 </tab>
 
 <tab title="Reply">
@@ -2207,6 +2260,8 @@ The request's data for the `DeleteWorkflow` API.
 
 #### DeleteWorkflowReply
 Reply of `DeleteWorkflow` API doesn't contain any data.
+
+
 
 
 
