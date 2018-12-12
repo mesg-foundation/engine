@@ -1,6 +1,7 @@
 package core
 
 import (
+	"errors"
 	"sync"
 
 	"github.com/mesg-foundation/core/api"
@@ -15,6 +16,10 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 	var (
 		statuses = make(chan api.DeployStatus)
 		wg       sync.WaitGroup
+
+		service         *service.Service
+		validationError *importer.ValidationError
+		err             error
 	)
 
 	wg.Add(1)
@@ -23,21 +28,23 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 		sendDeployStatus(statuses, stream)
 	}()
 
-	var (
-		service         *service.Service
-		validationError *importer.ValidationError
-		err             error
-	)
-
-	sr := newDeployServiceStreamReader(stream)
-	url, err := sr.GetURL()
+	// read first requesest from stream and check if it's url or tarball
+	in, err := stream.Recv()
 	if err != nil {
 		return err
 	}
-	if url != "" {
-		service, validationError, err = s.api.DeployServiceFromURL(url, api.DeployServiceStatusOption(statuses))
+
+	// env must go always with first package
+	env := in.GetEnv()
+
+	if url := in.GetUrl(); url != "" {
+		service, validationError, err = s.api.DeployServiceFromURL(url, env, api.DeployServiceStatusOption(statuses))
 	} else {
-		service, validationError, err = s.api.DeployService(sr, api.DeployServiceStatusOption(statuses))
+		tarball := &deployChunkReader{
+			stream: stream,
+			buf:    in.GetChunk(),
+		}
+		service, validationError, err = s.api.DeployService(tarball, env, api.DeployServiceStatusOption(statuses))
 	}
 	wg.Wait()
 
@@ -46,12 +53,16 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 	}
 	if validationError != nil {
 		return stream.Send(&coreapi.DeployServiceReply{
-			Value: &coreapi.DeployServiceReply_ValidationError{ValidationError: validationError.Error()},
+			Value: &coreapi.DeployServiceReply_ValidationError{
+				ValidationError: validationError.Error(),
+			},
 		})
 	}
 
 	return stream.Send(&coreapi.DeployServiceReply{
-		Value: &coreapi.DeployServiceReply_ServiceID{ServiceID: service.Hash},
+		Value: &coreapi.DeployServiceReply_ServiceID{
+			ServiceID: service.Hash,
+		},
 	})
 }
 
@@ -77,37 +88,26 @@ func sendDeployStatus(statuses chan api.DeployStatus, stream coreapi.Core_Deploy
 	}
 }
 
-type deployServiceStreamReader struct {
+type deployChunkReader struct {
 	stream coreapi.Core_DeployServiceServer
 
-	data []byte
-	i    int64
+	buf []byte
+	i   int
 }
 
-func newDeployServiceStreamReader(stream coreapi.Core_DeployServiceServer) *deployServiceStreamReader {
-	return &deployServiceStreamReader{stream: stream}
-}
-
-func (r *deployServiceStreamReader) GetURL() (url string, err error) {
-	message, err := r.stream.Recv()
-	if err != nil {
-		return "", err
-	}
-	r.data = message.GetChunk()
-	return message.GetUrl(), err
-}
-
-func (r *deployServiceStreamReader) Read(p []byte) (n int, err error) {
-	if r.i >= int64(len(r.data)) {
-		message, err := r.stream.Recv()
+func (r *deployChunkReader) Read(p []byte) (n int, err error) {
+	if r.i >= len(r.buf) {
+		in, err := r.stream.Recv()
 		if err != nil {
 			return 0, err
 		}
-		r.data = message.GetChunk()
+		if in.GetUrl() != "" {
+			return 0, errors.New("deploy: got url after tarball stream")
+		}
+		r.buf = in.GetChunk()
 		r.i = 0
-		return r.Read(p)
 	}
-	n = copy(p, r.data[r.i:])
-	r.i += int64(n)
+	n = copy(p, r.buf[r.i:])
+	r.i += n
 	return n, nil
 }
