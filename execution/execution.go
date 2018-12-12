@@ -18,6 +18,7 @@ const (
 	Created Status = iota
 	InProgress
 	Completed
+	Failed
 )
 
 // Execution stores all informations about executions.
@@ -75,8 +76,7 @@ func (execution *Execution) Execute() error {
 
 // Complete changes execution status to completed. It verifies the output.
 // It returns an error if the status is different then InProgress or verification fails.
-// xerr used to complete execution with an error.
-func (execution *Execution) Complete(outputKey string, outputData map[string]interface{}, xerr error) error {
+func (execution *Execution) Complete(outputKey string, outputData map[string]interface{}) error {
 	if execution.Status != InProgress {
 		return StatusError{
 			ExpectedStatus: InProgress,
@@ -84,25 +84,37 @@ func (execution *Execution) Complete(outputKey string, outputData map[string]int
 		}
 	}
 
-	if xerr != nil {
-		execution.Error = xerr
-	} else {
-		task, err := execution.Service.GetTask(execution.TaskKey)
-		if err != nil {
-			return err
-		}
-		output, err := task.GetOutput(outputKey)
-		if err != nil {
-			return err
-		}
-		if err := output.RequireData(outputData); err != nil {
-			return err
-		}
+	task, err := execution.Service.GetTask(execution.TaskKey)
+	if err != nil {
+		return err
+	}
+	output, err := task.GetOutput(outputKey)
+	if err != nil {
+		return err
+	}
+	if err := output.RequireData(outputData); err != nil {
+		return err
 	}
 
 	execution.ExecutionDuration = time.Since(execution.ExecutedAt)
 	execution.OutputKey = outputKey
 	execution.OutputData = outputData
 	execution.Status = Completed
+	return nil
+}
+
+// Failed changes execution status to failed and puts error information to execution.
+// It returns an error if the status is different then InProgress.
+func (execution *Execution) Failed(err error) error {
+	if execution.Status != InProgress {
+		return StatusError{
+			ExpectedStatus: InProgress,
+			ActualStatus:   execution.Status,
+		}
+	}
+
+	execution.Error = err
+	execution.ExecutionDuration = time.Since(execution.ExecutedAt)
+	execution.Status = Failed
 	return nil
 }
