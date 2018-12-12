@@ -90,7 +90,7 @@ type DeployStatus struct {
 }
 
 // New creates a new service from a gzipped tarball.
-func New(tarball io.Reader, options ...Option) (*Service, error) {
+func New(tarball io.Reader, env map[string]string, options ...Option) (*Service, error) {
 	s := &Service{}
 
 	defer s.closeStatus()
@@ -107,7 +107,11 @@ func New(tarball io.Reader, options ...Option) (*Service, error) {
 	if err != nil {
 		return nil, err
 	}
-	s.injectDefinition(def)
+	s.injectDefinition(def, env)
+
+	if err := s.validateEnv(); err != nil {
+		return nil, err
+	}
 
 	if err := s.deploy(); err != nil {
 		return nil, err
@@ -238,4 +242,16 @@ func (s *Service) getDependency(dependencyKey string) (*Dependency, error) {
 		}
 	}
 	return nil, fmt.Errorf("dependency %s do not exist", dependencyKey)
+}
+
+func (s *Service) validateEnv() error {
+	for _, p := range s.configuration.Env {
+		if p.Optional {
+			continue
+		}
+		if s.configuration.EnvValue[p.Key] == "" {
+			return fmt.Errorf("service env %s is empty", p.Key)
+		}
+	}
+	return nil
 }
