@@ -16,7 +16,7 @@ func TestDeleteService(t *testing.T) {
 	)
 	defer closer()
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, path))
+	s, validationErr, err := server.api.DeployService(serviceTar(t, path), nil)
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
 
