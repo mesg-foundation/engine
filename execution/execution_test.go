@@ -167,6 +167,7 @@ func TestComplete(t *testing.T) {
 		require.NotNil(t, e, test.name)
 		require.Equal(t, Completed, e.Status, test.name)
 		require.NotZero(t, e.ExecutionDuration, test.name)
+		require.Zero(t, e.Error, test.name)
 	}
 }
 
@@ -181,6 +182,10 @@ func TestFailed(t *testing.T) {
 		err  error
 	}{
 		{name: "1", key: "outputX", data: map[string]interface{}{"foo": "bar"}, xerr: errors.New("cannot complete"), err: nil},
+		{name: "2", key: "outputX", data: map[string]interface{}{"foo": "bar"}, err: StatusError{
+			ExpectedStatus: InProgress,
+			ActualStatus:   Failed,
+		}}, // this one is already proccessed
 	}
 	for _, test := range tests {
 		err := e.Failed(test.xerr)
