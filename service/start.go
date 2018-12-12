@@ -7,6 +7,7 @@ import (
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/x/xnet"
+	"github.com/mesg-foundation/core/x/xos"
 	"github.com/mesg-foundation/core/x/xstructhash"
 )
 
@@ -68,7 +69,7 @@ func (d *Dependency) Start(networkID string) (containerServiceID string, err err
 		Image:   d.Image,
 		Args:    d.Args,
 		Command: d.Command,
-		Env: container.MapToEnv(map[string]string{
+		Env: xos.MapToEnv(map[string]string{
 			"MESG_TOKEN":        d.service.Hash,
 			"MESG_ENDPOINT":     endpoint,
 			"MESG_ENDPOINT_TCP": endpoint,
