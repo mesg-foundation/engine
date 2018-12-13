@@ -85,3 +85,83 @@ func TestEventValidateAndRequireData(t *testing.T) {
 		Warnings:    warnings,
 	}, err)
 }
+
+func TestEventValidateNestedData(t *testing.T) {
+	var (
+		serviceName    = "1"
+		eventKey       = "2"
+		paramKey       = "3"
+		paramKey2      = "4"
+		paramKey3      = "5"
+		validEventData = map[string]interface{}{
+			paramKey: map[string]interface{}{
+				paramKey2: false,
+				paramKey3: 5,
+			},
+		}
+		s, _ = FromService(&Service{
+			Name: serviceName,
+			Events: []*Event{
+				{
+					Key: eventKey,
+					Data: []*Parameter{
+						{
+							Key: paramKey,
+							Parameters: []*Parameter{
+								{
+									Key:  paramKey2,
+									Type: "Any",
+								},
+								{
+									Key:  paramKey3,
+									Type: "Number",
+								},
+							},
+						},
+					},
+				},
+			},
+		})
+	)
+
+	e, _ := s.GetEvent(eventKey)
+
+	warnings := e.ValidateData(validEventData)
+	require.Len(t, warnings, 0)
+}
+
+func TestEventValidateInvalidNestedData(t *testing.T) {
+	var (
+		serviceName    = "1"
+		eventKey       = "2"
+		paramKey       = "3"
+		paramKey2      = "4"
+		validEventData = map[string]interface{}{
+			paramKey: false,
+		}
+		s, _ = FromService(&Service{
+			Name: serviceName,
+			Events: []*Event{
+				{
+					Key: eventKey,
+					Data: []*Parameter{
+						{
+							Key: paramKey,
+							Parameters: []*Parameter{
+								{
+									Key:  paramKey2,
+									Type: "Any",
+								},
+							},
+						},
+					},
+				},
+			},
+		})
+	)
+
+	e, _ := s.GetEvent(eventKey)
+
+	warnings := e.ValidateData(validEventData)
+	require.Len(t, warnings, 1)
+}

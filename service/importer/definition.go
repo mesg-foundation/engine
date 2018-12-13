@@ -99,7 +99,13 @@ type Parameter struct {
 	Description string `yaml:"description"`
 
 	// Type is the data type of parameter.
-	Type string `yaml:"type"`
+	// Type can be specified in string to indicate basic types or
+	// it can be a map of other paramaters for having nested data.
+	// e.g. map[string]*Parameter.
+	Type interface{} `yaml:"type"`
+
+	// Repeated indicates if parameter is an array of specified type.
+	Repeated bool `yaml:"repeated"`
 
 	// Optional indicates if parameter is optional.
 	Optional bool `yaml:"optional"`

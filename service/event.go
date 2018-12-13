@@ -34,7 +34,8 @@ func (s *Service) GetEvent(eventKey string) (*Event, error) {
 
 // ValidateData produces warnings for event datas that doesn't satisfy their parameter schemas.
 func (e *Event) ValidateData(eventData map[string]interface{}) []*ParameterWarning {
-	return validateParametersSchema(e.Data, eventData)
+	warnings, _ := newParameterValidator().Validate(e.Data, eventData)
+	return warnings
 }
 
 // RequireData requires event datas to be matched with parameter schemas.

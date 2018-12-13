@@ -13,7 +13,15 @@ type Parameter struct {
 	Description string `hash:"name:3"`
 
 	// Type is the data type of parameter.
+	// It indicates basic types like String, Number, Boolean, Any.
+	// It's filled when there are no child parameters.
 	Type string `hash:"name:4"`
+
+	// Parameters are the child parameters of parameter for nested data.
+	Parameters []*Parameter
+
+	// Repeated indicates if parameter is an array of specified type.
+	Repeated bool `hash:"name:7"`
 
 	// Optional indicates if parameter is optional.
 	Optional bool `hash:"name:5"`

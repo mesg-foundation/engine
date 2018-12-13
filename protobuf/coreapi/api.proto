@@ -512,11 +512,12 @@ message Output {
 
 // A parameter is the definition of a specific value.
 message Parameter {
-  string key = 8;         // Parameter's key.
-  string name = 1;        // Parameter's name.
-  string description = 2; // Parameter's description.
-  string type = 3;        // Parameter's type: `String`, `Number`, `Boolean` or `Object`.
-  bool optional = 4;      // Set the parameter as optional.
+  string key = 8;                     // Parameter's key.
+  string name = 1;                    // Parameter's name.
+  string description = 2;             // Parameter's description.
+  string type = 3;                    // Parameter's type: `String`, `Number`, `Boolean` or `Any`. It's filled when there are no child parameters.
+  repeated Parameter parameters = 5;  // Parameter's child parameters for nested data.
+  bool optional = 4;                  // Set the parameter as optional.
 }
 
 // A dependency is a configuration of an other Docker container that runs separately from the service.

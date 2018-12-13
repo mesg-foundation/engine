@@ -46,9 +46,8 @@ func newParameterTestCases() parameterTests {
 		&parameterTest{Key: "keyString", Type: "String", Value: 2323, Error: "not a string"},
 		&parameterTest{Key: "keyNumber", Type: "Number", Value: "string", Error: "not a number"},
 		&parameterTest{Key: "keyBoolean", Type: "Boolean", Value: "dwdwd", Error: "not a boolean"},
-		&parameterTest{Key: "keyObject", Type: "Object", Value: 2323, Error: "not an object or array"},
-		&parameterTest{Key: "keyUnknown", Type: "Unknown", Value: "dwdw", Error: "an invalid type"},
-		&parameterTest{Key: "keyRequired", Type: "String", Value: nil, Error: "required"},
+		&parameterTest{Key: "keyUnknown", Type: "Unknown", Value: "dwdw", Error: "unknown type"},
+		&parameterTest{Key: "keyRequired", Type: "String", Error: "required"},
 	}
 }
 
@@ -65,11 +64,11 @@ func TestEventNotFoundError(t *testing.T) {
 // Test InvalidEventDataError
 func TestInvalidEventDataError(t *testing.T) {
 	tests := newParameterTestCases()
+	warnings, _ := newParameterValidator().Validate(tests.parameterTestsToSliceParameters(), tests.parameterTestsToMapData())
 	err := InvalidEventDataError{
 		EventKey:    "TestInvalidEventDataErrorEventKey",
 		ServiceName: "TestInvalidEventDataError",
-		Warnings: validateParametersSchema(tests.parameterTestsToSliceParameters(),
-			tests.parameterTestsToMapData()),
+		Warnings:    warnings,
 	}
 	require.Contains(t, err.Error(), `Data of event "TestInvalidEventDataErrorEventKey" is invalid in service "TestInvalidEventDataError"`)
 	tests.assert(t, err.Error())
@@ -87,11 +86,11 @@ func TestTaskNotFoundError(t *testing.T) {
 // Test InvalidTaskInputError
 func TestInvalidTaskInputError(t *testing.T) {
 	tests := newParameterTestCases()
+	warnings, _ := newParameterValidator().Validate(tests.parameterTestsToSliceParameters(), tests.parameterTestsToMapData())
 	err := InvalidTaskInputError{
 		TaskKey:     "TestInvalidTaskInputErrorKey",
 		ServiceName: "TestInvalidTaskInputError",
-		Warnings: validateParametersSchema(tests.parameterTestsToSliceParameters(),
-			tests.parameterTestsToMapData()),
+		Warnings:    warnings,
 	}
 	require.Contains(t, err.Error(), `Inputs of task "TestInvalidTaskInputErrorKey" are invalid in service "TestInvalidTaskInputError"`)
 	tests.assert(t, err.Error())
@@ -110,12 +109,12 @@ func TestOutputNotFoundError(t *testing.T) {
 // Test InvalidOutputDataError
 func TestInvalidOutputDataError(t *testing.T) {
 	tests := newParameterTestCases()
+	warnings, _ := newParameterValidator().Validate(tests.parameterTestsToSliceParameters(), tests.parameterTestsToMapData())
 	err := InvalidTaskOutputError{
 		TaskKey:       "TaskKey",
 		TaskOutputKey: "OutputKey",
 		ServiceName:   "TestInvalidOutputDataError",
-		Warnings: validateParametersSchema(tests.parameterTestsToSliceParameters(),
-			tests.parameterTestsToMapData()),
+		Warnings:      warnings,
 	}
 	require.Contains(t, err.Error(), `Outputs "OutputKey" of task "TaskKey" are invalid in service "TestInvalidOutputDataError"`)
 	tests.assert(t, err.Error())

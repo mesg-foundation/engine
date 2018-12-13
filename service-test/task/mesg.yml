@@ -6,11 +6,11 @@ tasks:
       url:
         type: String
       data:
-        type: Object
+        type: Any
       headers:
-        type: Object
+        type: Any
     outputs:
       result:
         data:
           foo:
-            type: Object
+            type: Any

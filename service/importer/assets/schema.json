@@ -90,14 +90,26 @@
                   "type": "boolean"
                 },
                 "type": {
-                  "type": "string",
-                  "enum": [
-                    "String",
-                    "Number",
-                    "Boolean",
-                    "Object"
-                  ],
-                  "default": "String"
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "String",
+                        "Number",
+                        "Boolean",
+                        "Object",
+                        "Any"
+                      ],
+                      "default": "String"
+                    },
+                    {
+                      "type": "object",
+                      "$ref": "#/definitions/parameters"
+                    }
+                  ]
+                },
+                "repeated": {
+                  "type": "boolean"
                 }
               }
             }

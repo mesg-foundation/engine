@@ -21,7 +21,7 @@ tasks:
           resX:
             type: String
           resY:
-            type: String
+            type: Any
 dependencies:
   app:
     image: my-docker-image

@@ -3,6 +3,7 @@ package importer
 import (
 	"testing"
 
+	"github.com/kr/pretty"
 	"github.com/stretchr/testify/require"
 )
 
@@ -11,6 +12,16 @@ import (
 func TestValidate(t *testing.T) {
 	validation, err := Validate("./tests/service-valid")
 	require.NoError(t, err)
+	require.True(t, validation.IsValid())
+	require.True(t, validation.ServiceFileExist)
+	require.Len(t, validation.ServiceFileWarnings, 0)
+	require.True(t, validation.DockerfileExist)
+}
+
+func TestValidateWithNestedParameters(t *testing.T) {
+	validation, err := Validate("./tests/service-nested-parameters")
+	require.NoError(t, err)
+	pretty.Println(validation.ServiceFileWarnings)
 	require.True(t, validation.IsValid())
 	require.True(t, validation.ServiceFileExist)
 	require.Len(t, validation.ServiceFileWarnings, 0)

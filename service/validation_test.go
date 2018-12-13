@@ -2,104 +2,233 @@ package service
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
+	"gopkg.in/mgo.v2/bson"
 )
 
-var eventDataSchema = []*Parameter{
-	{
-		Key:      "optional",
-		Type:     "String",
-		Optional: true,
-	},
-	{
-		Key:  "string",
-		Type: "String",
-	},
-	{
-		Key:  "number",
-		Type: "Number",
-	},
-	{
-		Key:  "boolean",
-		Type: "Boolean",
-	},
-	{
-		Key:  "object",
-		Type: "Object",
-	},
-}
+func TestValidate(t *testing.T) {
+	tests := []struct {
+		name     string
+		params   []*Parameter
+		data     interface{}
+		warnings []*ParameterWarning
+		err      error
+	}{
+		{
+			"parameters with valid map data",
+			[]*Parameter{
+				{Key: "a", Type: "String"},
+				{Key: "b", Type: "Number"},
+				{Key: "c", Type: "Boolean"},
+				{Key: "d", Type: "Any"},
+				{Key: "e", Parameters: []*Parameter{
+					{Key: "f", Type: "String"},
+				}},
+			},
+			map[string]interface{}{
+				"a": "1",
+				"b": 2,
+				"c": true,
+				"d": true,
+				"e": map[string]interface{}{"f": "3"},
+			},
+			nil,
+			nil,
+		},
+		{
+			"parameters with valid struct data",
+			[]*Parameter{
+				{Key: "a", Type: "String"},
+				{Key: "b", Type: "Number"},
+				{Key: "c", Type: "Number"},
+				{Key: "d", Type: "Boolean"},
+				{Key: "e", Type: "Any"},
+				{Key: "f", Parameters: []*Parameter{
+					{Key: "g", Type: "String"},
+				}},
+				{Key: "h", Parameters: []*Parameter{
+					{Key: "g", Type: "String"},
+				}},
+			},
+			struct {
+				A string
+				B int
+				C float64
+				D bool
+				E interface{}
+				F struct{ G string }
+				H interface{}
+			}{"1", 2, 0.3, true, 4, struct{ G string }{"6"}, struct{ G string }{"7"}},
+			nil,
+			nil,
+		},
+		{
+			"repeated parameters with valid data",
+			[]*Parameter{
+				{Key: "a", Repeated: true, Type: "String"},
+				{Key: "b", Repeated: true, Type: "String"},
+				{Key: "c", Repeated: true, Parameters: []*Parameter{
+					{Key: "d", Type: "String"},
+				}},
+				{Key: "e", Parameters: []*Parameter{
+					{Key: "f", Repeated: true, Parameters: []*Parameter{
+						{Key: "g", Type: "String"},
+					}},
+				}},
+			},
+			map[string]interface{}{
+				"a": []string{"1", "2"},
+				"b": []interface{}{"3", "4"},
+				"c": []map[string]interface{}{
+					{"d": "5"},
+					{"d": "6"},
+				},
+				"e": map[string]interface{}{
+					"f": []interface{}{},
+				},
+			},
+			nil,
+			nil,
+		},
+		{
+			"parameters with invalid map data",
+			[]*Parameter{
+				{Key: "a", Type: "String"},
+				{Key: "b", Type: "Number"},
+				{Key: "c", Type: "Boolean"},
+				{Key: "d", Type: "Any"},
+				{Key: "e", Parameters: []*Parameter{
+					{Key: "f", Type: "String"},
+				}},
+				{Key: "g", Type: "Invalid"},
+				{Key: "h", Type: "String"},
+				{Key: "j", Type: "String"},
+			},
+			map[string]interface{}{
+				"a": 1,
+				"b": "2",
+				"c": true,
+				"d": true,
+				"e": map[string]interface{}{"f": 3},
+				"g": "1",
+				"j": []string{"1", "2"},
+			},
+			[]*ParameterWarning{
+				notAStringWarning("a"),
+				notANumberWarning("b"),
+				notAStringWarning("f"),
+				unKnownTypeWarning("g"),
+				requiredWarning("h"),
+				notAStringWarning("j"),
+			},
+			nil,
+		},
+		{
+			"repeated parameters with invalid data",
+			[]*Parameter{
+				{Key: "a", Repeated: true, Type: "String"},
+				{Key: "b", Repeated: true, Parameters: []*Parameter{
+					{Key: "c", Repeated: true, Parameters: []*Parameter{
+						{Key: "d", Type: "Boolean"},
+					}},
+				}},
+				{Key: "e", Parameters: []*Parameter{
+					{Key: "f", Type: "Boolean"},
+				}},
+			},
+			map[string]interface{}{
+				"a": "1",
+				"b": []map[string]interface{}{
+					{"c": true},
+				},
+				"e": nil,
+			},
+			[]*ParameterWarning{
+				notAnArrayWarning("a"),
+				notAnArrayWarning("c"),
+				requiredWarning("e"),
+			},
+			nil,
+		},
+		{
+			"complex parameter data",
+			[]*Parameter{{
+				Key: "article",
+				Parameters: []*Parameter{
+					{
+						Key:  "id",
+						Type: "String",
+					},
+					{
+						Key: "location",
+						Parameters: []*Parameter{
+							&Parameter{
+								Key:  "city",
+								Type: "String",
+							},
+						},
+					},
+					{
+						Key:  "createdAt",
+						Type: "String",
+					},
+				},
+			}},
+			map[string]interface{}{
+				"article": map[string]interface{}{
+					"id": bson.NewObjectId(),
+					"location": map[string]interface{}{
+						"city": "Ankara",
+					},
+					"createdAt": time.Now(),
+				},
+			},
+			nil,
+			nil,
+		},
+	}
 
-func validateParameterData(paramKey string, data interface{}) bool {
-	for _, param := range eventDataSchema {
-		if param.Key == paramKey {
-			return newParameterValidator(param).Validate(data) == nil
+	for _, test := range tests {
+		warnings, err := newParameterValidator().Validate(test.params, test.data)
+		require.Equal(t, test.err, err, test.name)
+		require.Equal(t, len(test.warnings), len(warnings), test.name)
+		for i, w := range warnings {
+			require.Equal(t, test.warnings[i].Key, w.Key, test.name)
+			require.Equal(t, test.warnings[i].Warning, w.Warning, test.name)
 		}
 	}
-	return false
 }
 
-func TestRequired(t *testing.T) {
-	require.True(t, validateParameterData("optional", "presence"))
-	require.True(t, validateParameterData("optional", nil))
-	// this parameter is required
-	require.False(t, validateParameterData("string", nil))
+func notAStringWarning(key string) *ParameterWarning {
+	return warning(key, "not a string")
 }
 
-func TestString(t *testing.T) {
-	require.True(t, validateParameterData("string", "valid"))
-	require.False(t, validateParameterData("string", false))
+func notANumberWarning(key string) *ParameterWarning {
+	return warning(key, "not a number")
 }
 
-func TestNumber(t *testing.T) {
-	require.True(t, validateParameterData("number", 10.5))
-	require.True(t, validateParameterData("number", 10))
-	require.False(t, validateParameterData("number", "not a number"))
+func notABooleanWarning(key string) *ParameterWarning {
+	return warning(key, "not a boolean")
 }
 
-func TestBoolean(t *testing.T) {
-	require.True(t, validateParameterData("boolean", true))
-	require.True(t, validateParameterData("boolean", false))
-	require.False(t, validateParameterData("boolean", "not a boolean"))
+func notAnArrayWarning(key string) *ParameterWarning {
+	return warning(key, "not an array")
 }
 
-func TestObject(t *testing.T) {
-	require.True(t, validateParameterData("object", map[string]interface{}{
-		"foo": "bar",
-	}))
-	require.True(t, validateParameterData("object", []interface{}{
-		"foo",
-		"bar",
-	}))
-	require.False(t, validateParameterData("object", 42))
+func notAnObjectWarning(key string) *ParameterWarning {
+	return warning(key, "not an object")
 }
 
-func TestValidateParameters(t *testing.T) {
-	require.Len(t, validateParametersSchema(eventDataSchema, map[string]interface{}{
-		"string":  "hello",
-		"number":  10,
-		"boolean": true,
-		"object": map[string]interface{}{
-			"foo": "bar",
-		},
-	}), 0)
-	require.Len(t, validateParametersSchema(eventDataSchema, map[string]interface{}{
-		"optional": "yeah",
-		"string":   "hello",
-		"number":   10,
-		"boolean":  true,
-		"object": map[string]interface{}{
-			"foo": "bar",
-		},
-	}), 0)
-	// 4 errors
-	//  - not required string
-	//  - invalid number
-	//  - invalid boolean
-	//  - invalid object
-	require.Len(t, validateParametersSchema(eventDataSchema, map[string]interface{}{
-		"number":  "string",
-		"boolean": 42,
-		"object":  false,
-	}), 4)
+func unKnownTypeWarning(key string) *ParameterWarning {
+	return warning(key, "unknown type")
+}
+
+func requiredWarning(key string) *ParameterWarning {
+	return warning(key, "required")
+}
+
+func warning(key, warning string) *ParameterWarning {
+	return &ParameterWarning{Key: key, Warning: warning}
 }

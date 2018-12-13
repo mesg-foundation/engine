@@ -1,0 +1,36 @@
+name: "nameX"
+events:
+  eventX:
+    name: "eventX"
+    data:
+      foo:
+        type:
+          bar:
+            type: String
+            repeated: true
+          baz:
+            type: Number
+tasks:
+  taskX:
+    name: "taskX"
+    inputs:
+      foo:
+        repeated: true
+        type:
+          bar:
+            type: String
+            repeated: true
+          baz:
+            type:
+              bar:
+                type: Number
+    outputs:
+      outputX:
+        name: "outputX"
+        data:
+          foo:
+            type:
+              bar:
+                type: Any
+              baz:
+                type: Number

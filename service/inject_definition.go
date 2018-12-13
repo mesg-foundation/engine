@@ -136,14 +136,20 @@ func (s *Service) defParametersToService(params map[string]*importer.Parameter) 
 	sort.Strings(keys)
 
 	for key, param := range params {
-		i := xstrings.SliceIndex(keys, key)
-		ps[i] = &Parameter{
+		p := &Parameter{
 			Key:         key,
 			Name:        param.Name,
 			Description: param.Description,
-			Type:        param.Type,
+			Repeated:    param.Repeated,
 			Optional:    param.Optional,
 		}
+		switch t := param.Type.(type) {
+		case string:
+			p.Type = t
+		case map[string]*importer.Parameter:
+			p.Parameters = s.defParametersToService(t)
+		}
+		ps[xstrings.SliceIndex(keys, key)] = p
 	}
 	return ps
 }

@@ -27,3 +27,71 @@ func TestFromValidationError(t *testing.T) {
 	require.True(t, typeCasting)
 	require.Equal(t, (&ValidationError{}).Error(), err.Error())
 }
+
+// TestFromNestedParameters tests nested parameters and makes sure that
+// they have the map[string]*Parameter and not map[interface{}]interface{}.
+func TestFromNestedParameters(t *testing.T) {
+	def, err := From("./tests/service-nested-parameters")
+	require.NoError(t, err)
+	require.Equal(t, &ServiceDefinition{
+		Name: "nameX",
+		Tasks: map[string]*Task{
+			"taskX": &Task{
+				Name: "taskX",
+				Inputs: map[string]*Parameter{
+					"foo": &Parameter{
+						Type: map[string]*Parameter{
+							"bar": &Parameter{
+								Type:     "String",
+								Repeated: true,
+							},
+							"baz": &Parameter{
+								Type: map[string]*Parameter{
+									"bar": &Parameter{
+										Type: "Number",
+									},
+								},
+							},
+						},
+						Repeated: true,
+					},
+				},
+				Outputs: map[string]*Output{
+					"outputX": &Output{
+						Name: "outputX",
+						Data: map[string]*Parameter{
+							"foo": &Parameter{
+								Type: map[string]*Parameter{
+									"bar": &Parameter{
+										Type: "Any",
+									},
+									"baz": &Parameter{
+										Type: "Number",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		Events: map[string]*Event{
+			"eventX": &Event{
+				Name: "eventX",
+				Data: map[string]*Parameter{
+					"foo": &Parameter{
+						Type: map[string]*Parameter{
+							"bar": &Parameter{
+								Type:     "String",
+								Repeated: true,
+							},
+							"baz": &Parameter{
+								Type: "Number",
+							},
+						},
+					},
+				},
+			},
+		},
+	}, def)
+}
