@@ -13,15 +13,22 @@ import (
 // events during the process and finish with sending service id or validation error.
 func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 	var (
-		statuses = make(chan api.DeployStatus)
-		wg       sync.WaitGroup
+		sr         = newDeployServiceStreamReader(stream)
+		statuses   = make(chan api.DeployStatus)
+		wgStatuses sync.WaitGroup
 	)
 
-	wg.Add(1)
+	wgStatuses.Add(1)
 	go func() {
-		defer wg.Done()
+		defer wgStatuses.Done()
 		sendDeployStatus(statuses, stream)
 	}()
+
+	// receive the first message in the stream.
+	// it can be the url or first chunk of the service.
+	if err := sr.RecvMessage(); err != nil {
+		return err
+	}
 
 	var (
 		service         *service.Service
@@ -29,21 +36,24 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 		err             error
 	)
 
-	sr := newDeployServiceStreamReader(stream)
-	url, err := sr.GetURL()
-	if err != nil {
-		return err
+	deployOptions := []api.DeployServiceOption{
+		api.DeployServiceStatusOption(statuses),
 	}
-	if url != "" {
-		service, validationError, err = s.api.DeployServiceFromURL(url, api.DeployServiceStatusOption(statuses))
+
+	if sr.URL != "" {
+		service, validationError, err = s.api.DeployServiceFromURL(sr.URL, deployOptions...)
 	} else {
-		service, validationError, err = s.api.DeployService(sr, api.DeployServiceStatusOption(statuses))
+		service, validationError, err = s.api.DeployService(sr, deployOptions...)
 	}
-	wg.Wait()
+
+	// wait for statuses to be sent first otherwise sending multiple messages at the
+	// same time may cause messages to be sent in different order.
+	wgStatuses.Wait()
 
 	if err != nil {
 		return err
 	}
+
 	if validationError != nil {
 		return stream.Send(&coreapi.DeployServiceReply{
 			Value: &coreapi.DeployServiceReply_ValidationError{ValidationError: validationError.Error()},
@@ -80,34 +90,41 @@ func sendDeployStatus(statuses chan api.DeployStatus, stream coreapi.Core_Deploy
 type deployServiceStreamReader struct {
 	stream coreapi.Core_DeployServiceServer
 
-	data []byte
-	i    int64
+	// URL of the service.
+	URL string
+
+	// chunk of the service.
+	chunk []byte
+	i     int64
 }
 
 func newDeployServiceStreamReader(stream coreapi.Core_DeployServiceServer) *deployServiceStreamReader {
-	return &deployServiceStreamReader{stream: stream}
+	return &deployServiceStreamReader{
+		stream: stream,
+	}
 }
 
-func (r *deployServiceStreamReader) GetURL() (url string, err error) {
+// RecvMessage receives the next message in gRPC stream.
+func (r *deployServiceStreamReader) RecvMessage() error {
 	message, err := r.stream.Recv()
 	if err != nil {
-		return "", err
+		return err
 	}
-	r.data = message.GetChunk()
-	return message.GetUrl(), err
+	r.URL = message.GetUrl()
+	r.chunk = message.GetChunk()
+	return nil
 }
 
+// Read reads service chunks to deploy.
 func (r *deployServiceStreamReader) Read(p []byte) (n int, err error) {
-	if r.i >= int64(len(r.data)) {
-		message, err := r.stream.Recv()
-		if err != nil {
+	if r.i >= int64(len(r.chunk)) {
+		if err := r.RecvMessage(); err != nil {
 			return 0, err
 		}
-		r.data = message.GetChunk()
 		r.i = 0
 		return r.Read(p)
 	}
-	n = copy(p, r.data[r.i:])
+	n = copy(p, r.chunk[r.i:])
 	r.i += int64(n)
 	return n, nil
 }
