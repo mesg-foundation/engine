@@ -62,7 +62,7 @@ func (d *ContainerDaemon) buildServiceOptions(sharedNetworkID string) container.
 	return container.ServiceOptions{
 		Namespace: []string{},
 		Image:     d.cfg.Core.Image,
-		Env:       xos.MapToEnv(d.cfg.DaemonEnv()),
+		Env:       xos.EnvMapToSlice(d.cfg.DaemonEnv()),
 		Mounts: []container.Mount{
 			{
 				Source: d.cfg.Docker.Socket,

@@ -89,7 +89,7 @@ func TestInjectDefinitionWithConfig(t *testing.T) {
 		Configuration: &importer.Dependency{
 			Command: command,
 		},
-	}, nil)
+	})
 	require.Equal(t, command, s.configuration.Command)
 }
 
@@ -104,6 +104,6 @@ func TestInjectDefinitionWithDependency(t *testing.T) {
 				Image: image,
 			},
 		},
-	}, nil)
+	})
 	require.Equal(t, s.Dependencies[0].Image, image)
 }

@@ -15,6 +15,7 @@ import (
 func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 	var (
 		statuses = make(chan api.DeployStatus)
+		option   = api.DeployServiceStatusOption(statuses)
 		wg       sync.WaitGroup
 
 		service         *service.Service
@@ -34,18 +35,22 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 		return err
 	}
 
-	// env must go always with first package
+	// env must be set with first package (always)
 	env := in.GetEnv()
 
 	if url := in.GetUrl(); url != "" {
-		service, validationError, err = s.api.DeployServiceFromURL(url, env, api.DeployServiceStatusOption(statuses))
+		service, validationError, err = s.api.DeployServiceFromURL(url, env, option)
 	} else {
+		// create tarball reader with first chunk of bytes
 		tarball := &deployChunkReader{
 			stream: stream,
 			buf:    in.GetChunk(),
 		}
-		service, validationError, err = s.api.DeployService(tarball, env, api.DeployServiceStatusOption(statuses))
+		service, validationError, err = s.api.DeployService(tarball, env, option)
 	}
+
+	// wait for statuses to be sent first, otherwise sending multiple messages at the
+	// same time may cause messages to be sent in different order.
 	wg.Wait()
 
 	if err != nil {
@@ -88,6 +93,7 @@ func sendDeployStatus(statuses chan api.DeployStatus, stream coreapi.Core_Deploy
 	}
 }
 
+// deployChunkReader implements io.Reader for stream chunks.
 type deployChunkReader struct {
 	stream coreapi.Core_DeployServiceServer
 

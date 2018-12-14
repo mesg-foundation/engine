@@ -31,11 +31,8 @@ type Dependency struct {
 	// Argument holds the args to pass to the Docker container
 	Args []string `hash:"name:7"`
 
-	// Env is map of all defiend environments variables.
-	Env []*Parameter `hash:"name:8"`
-
-	// EnvValue is map of all values for Env
-	EnvValue map[string]string `hash:"name:9"`
+	// Env is a slice of all key=value.
+	Env []string `hash:"name:8"`
 
 	// service is the dependency's service.
 	service *Service `hash:"-"`

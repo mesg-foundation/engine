@@ -61,8 +61,8 @@ type Dependency struct {
 	// Args hold the args to pass to the Docker container
 	Args []string `yaml:"args"`
 
-	// Env is map of all defiend environments variables.
-	Env map[string]*Parameter `yaml:"env"`
+	// Env is a slice of all defiend environments variables in format key=value.
+	Env []string `yaml:"env"`
 }
 
 // Task describes a service task.

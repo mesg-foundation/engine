@@ -69,11 +69,11 @@ func (d *Dependency) Start(networkID string) (containerServiceID string, err err
 		Image:   d.Image,
 		Args:    d.Args,
 		Command: d.Command,
-		Env: xos.MapToEnv(xos.MergeMapEnvs(map[string]string{
-			"MESG_TOKEN":        d.service.Hash,
-			"MESG_ENDPOINT":     endpoint,
-			"MESG_ENDPOINT_TCP": endpoint,
-		}, d.EnvValue)),
+		Env: xos.EnvMergeSlices(d.Env, []string{
+			"MESG_TOKEN=" + d.service.Hash,
+			"MESG_ENDPOINT=" + endpoint,
+			"MESG_ENDPOINT_TCP=" + endpoint,
+		}),
 		Mounts: append(volumes, volumesFrom...),
 		Ports:  d.extractPorts(),
 		Networks: []container.Network{
