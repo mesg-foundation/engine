@@ -9,7 +9,6 @@ import (
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/container/mocks"
 	"github.com/mesg-foundation/core/x/xnet"
-	"github.com/mesg-foundation/core/x/xos"
 	"github.com/stretchr/testify/require"
 )
 
@@ -319,11 +318,11 @@ func mockStartService(d *Dependency, mc *mocks.Container,
 		Image:   d.Image,
 		Command: d.Command,
 		Args:    d.Args,
-		Env: xos.MapToEnv(map[string]string{
-			"MESG_TOKEN":        d.service.Hash,
-			"MESG_ENDPOINT":     endpoint,
-			"MESG_ENDPOINT_TCP": endpoint,
-		}),
+		Env: []string{
+			"MESG_TOKEN=" + d.service.Hash,
+			"MESG_ENDPOINT=" + endpoint,
+			"MESG_ENDPOINT_TCP=" + endpoint,
+		},
 		Mounts: append(volumes, volumesFrom...),
 		Ports:  d.extractPorts(),
 		Networks: []container.Network{

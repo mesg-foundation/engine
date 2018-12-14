@@ -5,11 +5,13 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/service/importer"
+	"github.com/mesg-foundation/core/x/xos"
 	"github.com/mesg-foundation/core/x/xstructhash"
 	uuid "github.com/satori/go.uuid"
 )
@@ -107,11 +109,17 @@ func New(tarball io.Reader, env map[string]string, options ...Option) (*Service,
 	if err != nil {
 		return nil, err
 	}
-	s.injectDefinition(def, env)
 
-	if err := s.validateEnv(); err != nil {
+	s.injectDefinition(def)
+
+	if err := s.validateConfigurationEnv(env); err != nil {
 		return nil, err
 	}
+
+	// if the all keys exists append to configuration env.
+	// The order of variables allows to safely append new variables
+	// without removing previous one. The last variable in slice will take precedens.
+	s.configuration.Env = append(s.configuration.Env, xos.EnvMapToSlice(env)...)
 
 	if err := s.deploy(); err != nil {
 		return nil, err
@@ -244,13 +252,20 @@ func (s *Service) getDependency(dependencyKey string) (*Dependency, error) {
 	return nil, fmt.Errorf("dependency %s do not exist", dependencyKey)
 }
 
-func (s *Service) validateEnv() error {
-	for _, p := range s.configuration.Env {
-		if p.Optional {
-			continue
+// validateConfigurationEnv checks if every variable from env map
+// has been defiend in mesg.yml in env section.
+func (s *Service) validateConfigurationEnv(env map[string]string) error {
+	for key := range env {
+		exist := false
+		// check if "key=" exists in configuration
+		for _, env := range s.configuration.Env {
+			if strings.HasPrefix(env, key+"=") {
+				exist = true
+				break
+			}
 		}
-		if s.configuration.EnvValue[p.Key] == "" {
-			return fmt.Errorf("service env %s is empty", p.Key)
+		if !exist {
+			return fmt.Errorf("service environment variable %q dosen't exist in mesg.yml (under configuration.env key)", key)
 		}
 	}
 	return nil

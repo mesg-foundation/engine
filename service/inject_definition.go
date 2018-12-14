@@ -8,7 +8,7 @@ import (
 )
 
 // injectDefinition applies service definition to Service type.
-func (s *Service) injectDefinition(def *importer.ServiceDefinition, env map[string]string) {
+func (s *Service) injectDefinition(def *importer.ServiceDefinition) {
 	s.Name = def.Name
 	s.SID = def.SID
 	s.Description = def.Description
@@ -17,11 +17,6 @@ func (s *Service) injectDefinition(def *importer.ServiceDefinition, env map[stri
 	s.Tasks = s.defTasksToService(def.Tasks)
 	s.Dependencies = s.defDependenciesToService(def.Dependencies)
 
-	// insert env into dependencies
-	for _, d := range s.Dependencies {
-		d.EnvValue = env
-	}
-
 	s.configuration = &Dependency{}
 	if def.Configuration != nil {
 		s.configuration.Command = def.Configuration.Command
@@ -29,8 +24,7 @@ func (s *Service) injectDefinition(def *importer.ServiceDefinition, env map[stri
 		s.configuration.Ports = def.Configuration.Ports
 		s.configuration.Volumes = def.Configuration.Volumes
 		s.configuration.VolumesFrom = def.Configuration.VolumesFrom
-		s.configuration.Env = s.defParametersToService(def.Configuration.Env)
-		s.configuration.EnvValue = env
+		s.configuration.Env = def.Configuration.Env
 	}
 }
 
