@@ -8,6 +8,9 @@ import (
 
 // CreateWorkflow creates and runs a new workflow.
 func (s *Server) CreateWorkflow(ctx context.Context, request *coreapi.CreateWorkflowRequest) (*coreapi.CreateWorkflowReply, error) {
+	if err := s.requireStake(); err != nil {
+		return nil, err
+	}
 	id, err := s.api.CreateWorkflow(toWorkflowDefinition(request.Definition), request.Name)
 	if err != nil {
 		return nil, err

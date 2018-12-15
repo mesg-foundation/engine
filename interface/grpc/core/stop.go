@@ -8,5 +8,8 @@ import (
 
 // StopService stops a service.
 func (s *Server) StopService(ctx context.Context, request *coreapi.StopServiceRequest) (*coreapi.StopServiceReply, error) {
+	if err := s.requireStake(); err != nil {
+		return nil, err
+	}
 	return &coreapi.StopServiceReply{}, s.api.StopService(request.ServiceID)
 }
