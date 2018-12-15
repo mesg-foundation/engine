@@ -1,0 +1,14 @@
+name: "MESG Stake Check"
+sid: "mesg-stake-check"
+tasks:
+  balanceOf:
+    inputs:
+      address: { type: String }
+      contractAddress: { type: String }
+    outputs:
+      success:
+        data:
+          balance: { type: String }
+      error: 
+        data:
+          message: { type: String }

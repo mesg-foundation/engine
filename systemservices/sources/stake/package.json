@@ -1,0 +1,10 @@
+{
+  "name": "mesg-stake-check",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "bignumber.js": "^8.0.1",
+    "mesg-js": "^1.4.0",
+    "web3": "^1.0.0-beta.37"
+  }
+}
