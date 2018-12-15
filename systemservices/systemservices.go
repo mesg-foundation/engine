@@ -13,6 +13,7 @@ import (
 const (
 	ResolverService = "resolver"
 	WorkflowService = "workflow"
+	StakeService    = "stake"
 )
 
 // SystemServicesList is the list of system services.
@@ -20,6 +21,7 @@ const (
 var SystemServicesList = []string{
 	// ResolverService,
 	// WorkflowService,
+	StakeService,
 }
 
 // systemService represents a system service.
@@ -77,4 +79,9 @@ func (s *SystemServices) ResolverServiceID() (string, error) {
 // WorkflowServiceID returns workflow service's id.
 func (s *SystemServices) WorkflowServiceID() (string, error) {
 	return s.GetServiceID(WorkflowService)
+}
+
+// StakeServiceID returns workflow service's id.
+func (s *SystemServices) StakeServiceID() (string, error) {
+	return s.GetServiceID(StakeService)
 }
