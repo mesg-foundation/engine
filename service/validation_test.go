@@ -26,6 +26,7 @@ func TestValidate(t *testing.T) {
 				{Key: "e", Parameters: []*Parameter{
 					{Key: "f", Type: "String"},
 				}},
+				{Key: "g", Optional: true, Type: "Boolean"},
 			},
 			map[string]interface{}{
 				"a": "1",

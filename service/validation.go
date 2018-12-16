@@ -30,8 +30,8 @@ func (p *parameterValidator) Validate(params []*Parameter, data interface{}) ([]
 func (p *parameterValidator) validateParameters(params []*Parameter, v vtree.Value) {
 	for _, param := range params {
 		v, ok := v.GetByKey(param.Key, false)
-		if !param.Optional && !ok {
-			p.addWarning(param, "required")
+		if !ok {
+			p.checkOptional(param)
 			continue
 		}
 		p.validateParameter(param, v)
@@ -53,8 +53,8 @@ func (p *parameterValidator) validateParameter(param *Parameter, v vtree.Value) 
 }
 
 func (p *parameterValidator) validateParameterType(param *Parameter, v vtree.Value) {
-	if !param.Optional && v.Type == vtree.Nil {
-		p.addWarning(param, "required")
+	if v.Type == vtree.Nil {
+		p.checkOptional(param)
 		return
 	}
 
@@ -87,6 +87,12 @@ func (p *parameterValidator) validateParameterType(param *Parameter, v vtree.Val
 		} else {
 			p.validateParameters(param.Parameters, v)
 		}
+	}
+}
+
+func (p *parameterValidator) checkOptional(param *Parameter) {
+	if !param.Optional {
+		p.addWarning(param, "required")
 	}
 }
 
