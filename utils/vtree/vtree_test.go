@@ -25,12 +25,12 @@ func TestAnalyse(t *testing.T) {
 			Value{},
 		},
 		{
-			"string",
+			"nil string",
 			str,
 			Value{Type: Nil},
 		},
 		{
-			"string nil",
+			"string",
 			"1",
 			Value{Type: String},
 		},
