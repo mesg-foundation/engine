@@ -53,7 +53,7 @@ type Value struct {
 	Values []Value
 }
 
-// GetByKey returns a child value by key of an object type.
+// GetByKey returns a child value of an object type by key.
 func (v Value) GetByKey(key string, caseSensitive bool) (vv Value, ok bool) {
 	for _, vv := range v.Values {
 		vvKey := vv.Key

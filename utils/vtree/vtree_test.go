@@ -96,3 +96,26 @@ func TestAnalyse(t *testing.T) {
 		require.Equal(t, test.result, v, test.name)
 	}
 }
+
+func TestGetByKey(t *testing.T) {
+	v := Analyze(struct {
+		A string
+		B struct {
+			C string
+		}
+	}{"1", struct{ C string }{"2"}})
+
+	vv, ok := v.GetByKey("a", true)
+	require.False(t, ok)
+	require.Equal(t, Value{}, vv)
+
+	vv, ok = v.GetByKey("a", false)
+	require.True(t, ok)
+	require.Equal(t, Value{Type: String, Key: "A"}, vv)
+
+	vv, ok = v.GetByKey("B", true)
+	require.True(t, ok)
+	require.Equal(t, Value{Type: Object, Key: "B", Values: []Value{
+		{Type: String, Key: "C"},
+	}}, vv)
+}
