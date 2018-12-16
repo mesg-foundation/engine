@@ -13,4 +13,4 @@ tasks:
       result:
         data:
           foo:
-            type: Any
+            type: String

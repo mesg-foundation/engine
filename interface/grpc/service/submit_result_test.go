@@ -18,7 +18,7 @@ func TestSubmit(t *testing.T) {
 			"headers": map[string]interface{}{},
 		}
 		outputKey      = "result"
-		outputData     = `{"foo":{}}`
+		outputData     = `{"foo":"1"}`
 		server, closer = newServer(t)
 	)
 	defer closer()
