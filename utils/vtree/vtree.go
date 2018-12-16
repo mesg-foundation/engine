@@ -79,13 +79,6 @@ func Analyze(v interface{}) Value {
 }
 
 func analyze(v Value, rv reflect.Value) Value {
-	if rv.Kind() != reflect.Invalid {
-		if _, ok := rv.Interface().(fmt.Stringer); ok {
-			v.Type = String
-			return v
-		}
-	}
-
 	switch rv.Kind() {
 	case reflect.Ptr, reflect.Interface:
 		return analyze(v, rv.Elem())
@@ -115,14 +108,18 @@ func analyze(v Value, rv reflect.Value) Value {
 		}
 
 	case reflect.Struct:
-		tv := rv.Type()
+		if _, ok := rv.Interface().(fmt.Stringer); ok {
+			v.Type = String
+		} else {
+			tv := rv.Type()
 
-		v.Type = Object
-		v.Values = make([]Value, 0)
+			v.Type = Object
+			v.Values = make([]Value, 0)
 
-		for i := 0; i < rv.NumField(); i++ {
-			vv := analyze(Value{Key: tv.Field(i).Name}, rv.Field(i))
-			v.Values = append(v.Values, vv)
+			for i := 0; i < rv.NumField(); i++ {
+				vv := analyze(Value{Key: tv.Field(i).Name}, rv.Field(i))
+				v.Values = append(v.Values, vv)
+			}
 		}
 
 	case reflect.Slice:
