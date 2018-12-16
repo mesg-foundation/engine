@@ -1,7 +1,7 @@
-// Package vtree provides utility to analyze any Go types to print a type schema tree.
-// it also resolves arrays, structs including nested types until reaching to basic
+// Package vtree provides utility to analyze any Go type to print a type tree.
+// type tree represents commonly used types by data-interchange formats.
+// it resolves nested types likes maps and structs until reach to the most basic
 // types like numbers, strings and booleans.
-// printed tree is meant to represent types that used by data encoding formats.
 package vtree
 
 import (
@@ -15,13 +15,14 @@ import (
 type Type int
 
 const (
+	// List of types.
 	Unknown Type = iota
 	Nil
 	String
 	Number
 	Bool
-	Array
-	Object
+	Array  // slices.
+	Object // maps and structs.
 )
 
 // Value represents a value.
@@ -56,15 +57,14 @@ func (v Value) GetByKey(key string, caseSensitive bool) (vv Value, ok bool) {
 
 // Analyze analyzes a Go type and produces a value tree.
 func Analyze(v interface{}) Value {
+	vv := Value{}
 	if v == nil {
-		return Value{}
+		return vv
 	}
-	return analyze(reflect.ValueOf(v))
+	return analyze(vv, reflect.ValueOf(v))
 }
 
-func analyze(rv reflect.Value) Value {
-	v := Value{}
-
+func analyze(v Value, rv reflect.Value) Value {
 	if rv.Kind() != reflect.Invalid {
 		if _, ok := rv.Interface().(fmt.Stringer); ok {
 			v.Type = String
@@ -74,7 +74,7 @@ func analyze(rv reflect.Value) Value {
 
 	switch rv.Kind() {
 	case reflect.Ptr, reflect.Interface:
-		return analyze(rv.Elem())
+		return analyze(v, rv.Elem())
 
 	case reflect.Map:
 		v.Type = Object
@@ -96,9 +96,8 @@ func analyze(rv reflect.Value) Value {
 		sort.Strings(keys)
 
 		for _, key := range keys {
-			val := analyze(rv.MapIndex(values[key]))
-			val.Key = key
-			v.Values = append(v.Values, val)
+			vv := analyze(Value{Key: key}, rv.MapIndex(values[key]))
+			v.Values = append(v.Values, vv)
 		}
 
 	case reflect.Struct:
@@ -108,9 +107,8 @@ func analyze(rv reflect.Value) Value {
 		v.Values = make([]Value, 0)
 
 		for i := 0; i < rv.NumField(); i++ {
-			val := analyze(rv.Field(i))
-			val.Key = tv.Field(i).Name
-			v.Values = append(v.Values, val)
+			vv := analyze(Value{Key: tv.Field(i).Name}, rv.Field(i))
+			v.Values = append(v.Values, vv)
 		}
 
 	case reflect.Slice:
@@ -118,7 +116,7 @@ func analyze(rv reflect.Value) Value {
 		v.Values = make([]Value, 0)
 
 		for i := 0; i < rv.Len(); i++ {
-			v.Values = append(v.Values, analyze(rv.Index(i)))
+			v.Values = append(v.Values, analyze(Value{}, rv.Index(i)))
 		}
 
 	case reflect.String:
