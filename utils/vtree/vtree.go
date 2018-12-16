@@ -15,14 +15,28 @@ import (
 type Type int
 
 const (
-	// List of types.
+	// Unknown type.
 	Unknown Type = iota
+
+	// Nil represents unset value.
 	Nil
+
+	// String type.
 	String
+
+	// Number type.
 	Number
+
+	// Bool type.
 	Bool
-	Array  // slices.
-	Object // maps and structs.
+
+	// Array type.
+	// Corresponds to Go slices.
+	Array
+
+	// Object type.
+	// Corresponds to Go maps and structs.
+	Object
 )
 
 // Value represents a value.
