@@ -54,7 +54,7 @@ func (v Value) GetByKey(key string, caseSensitive bool) (vv Value, ok bool) {
 	return Value{}, false
 }
 
-// Analyze analyses a Go type and produces a value tree.
+// Analyze analyzes a Go type and produces a value tree.
 func Analyze(v interface{}) Value {
 	if v == nil {
 		return Value{}
