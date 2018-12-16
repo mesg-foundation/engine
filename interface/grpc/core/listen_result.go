@@ -9,9 +9,6 @@ import (
 
 // ListenResult listens for results from a services.
 func (s *Server) ListenResult(request *coreapi.ListenResultRequest, stream coreapi.Core_ListenResultServer) error {
-	if err := s.requireStake(); err != nil {
-		return err
-	}
 	ln, err := s.api.ListenResult(request.ServiceID,
 		api.ListenResultTaskFilter(request.TaskFilter),
 		api.ListenResultOutputFilter(request.OutputFilter),

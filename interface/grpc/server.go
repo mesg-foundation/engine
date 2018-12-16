@@ -10,6 +10,7 @@ import (
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/interface/grpc/core"
+	"github.com/mesg-foundation/core/interface/grpc/interceptors"
 	"github.com/mesg-foundation/core/interface/grpc/service"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
@@ -58,9 +59,11 @@ func (s *Server) listen() (net.Listener, error) {
 	s.instance = grpc.NewServer(
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			grpc_logrus.StreamServerInterceptor(logrus.NewEntry(logrus.StandardLogger())),
+			interceptors.StreamStakeInterceptor(s.api),
 		)),
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			grpc_logrus.UnaryServerInterceptor(logrus.NewEntry(logrus.StandardLogger())),
+			interceptors.UnaryStakeInterceptor(s.api),
 		)),
 	)
 	if err := s.register(); err != nil {

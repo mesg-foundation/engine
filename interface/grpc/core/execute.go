@@ -9,9 +9,6 @@ import (
 
 // ExecuteTask executes a task for a given service.
 func (s *Server) ExecuteTask(ctx context.Context, request *coreapi.ExecuteTaskRequest) (*coreapi.ExecuteTaskReply, error) {
-	if err := s.requireStake(); err != nil {
-		return nil, err
-	}
 	var inputs map[string]interface{}
 	if err := json.Unmarshal([]byte(request.InputData), &inputs); err != nil {
 		return nil, err
