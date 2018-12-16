@@ -19,7 +19,7 @@ func newParameterValidator() *parameterValidator {
 // TODO(ilgooz) add this as a method to Service type when create custom types for Event, Task etc.
 // TODO(ilgooz) remove pointer from *Parameter.
 func (p *parameterValidator) Validate(params []*Parameter, data interface{}) ([]*ParameterWarning, error) {
-	v := vtree.Analyse(data)
+	v := vtree.Analyze(data)
 	if v.Type != vtree.Object {
 		return nil, errors.New("not an object")
 	}

@@ -41,10 +41,10 @@ func TestAnalyse(t *testing.T) {
 		},
 		{
 			"slice of string slices",
-			[][]string{[]string{"1"}, []string{"1", "2"}},
+			[][]string{{"1"}, {"1", "2"}},
 			Value{Type: Array, Values: []Value{
-				Value{Type: Array, Values: []Value{{Type: String}}},
-				Value{Type: Array, Values: []Value{{Type: String}, {Type: String}}},
+				{Type: Array, Values: []Value{{Type: String}}},
+				{Type: Array, Values: []Value{{Type: String}, {Type: String}}},
 			}},
 		},
 		{
@@ -92,7 +92,7 @@ func TestAnalyse(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		v := Analyse(test.value)
+		v := Analyze(test.value)
 		require.Equal(t, test.result, v, test.name)
 	}
 }

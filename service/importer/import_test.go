@@ -36,18 +36,18 @@ func TestFromNestedParameters(t *testing.T) {
 	require.Equal(t, &ServiceDefinition{
 		Name: "nameX",
 		Tasks: map[string]*Task{
-			"taskX": &Task{
+			"taskX": {
 				Name: "taskX",
 				Inputs: map[string]*Parameter{
-					"foo": &Parameter{
+					"foo": {
 						Type: map[string]*Parameter{
-							"bar": &Parameter{
+							"bar": {
 								Type:     "String",
 								Repeated: true,
 							},
-							"baz": &Parameter{
+							"baz": {
 								Type: map[string]*Parameter{
-									"bar": &Parameter{
+									"bar": {
 										Type: "Number",
 									},
 								},
@@ -57,15 +57,15 @@ func TestFromNestedParameters(t *testing.T) {
 					},
 				},
 				Outputs: map[string]*Output{
-					"outputX": &Output{
+					"outputX": {
 						Name: "outputX",
 						Data: map[string]*Parameter{
-							"foo": &Parameter{
+							"foo": {
 								Type: map[string]*Parameter{
-									"bar": &Parameter{
+									"bar": {
 										Type: "Any",
 									},
-									"baz": &Parameter{
+									"baz": {
 										Type: "Number",
 									},
 								},
@@ -76,16 +76,16 @@ func TestFromNestedParameters(t *testing.T) {
 			},
 		},
 		Events: map[string]*Event{
-			"eventX": &Event{
+			"eventX": {
 				Name: "eventX",
 				Data: map[string]*Parameter{
-					"foo": &Parameter{
+					"foo": {
 						Type: map[string]*Parameter{
-							"bar": &Parameter{
+							"bar": {
 								Type:     "String",
 								Repeated: true,
 							},
-							"baz": &Parameter{
+							"baz": {
 								Type: "Number",
 							},
 						},

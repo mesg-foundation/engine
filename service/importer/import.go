@@ -57,8 +57,7 @@ func normalizeParameter(param *Parameter) {
 	if param == nil {
 		return
 	}
-	switch t := param.Type.(type) {
-	case map[interface{}]interface{}:
+	if t, ok := param.Type.(map[interface{}]interface{}); ok {
 		var params map[string]*Parameter
 		mapstructure.Decode(t, &params)
 		param.Type = params

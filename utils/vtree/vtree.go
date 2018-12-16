@@ -1,4 +1,4 @@
-// Package vtree provides utility to analyse any Go types to print a type schema tree.
+// Package vtree provides utility to analyze any Go types to print a type schema tree.
 // it also resolves arrays, structs including nested types until reaching to basic
 // types like numbers, strings and booleans.
 // printed tree is meant to represent types that used by data encoding formats.
@@ -54,15 +54,15 @@ func (v Value) GetByKey(key string, caseSensitive bool) (vv Value, ok bool) {
 	return Value{}, false
 }
 
-// Analyse analyses a Go type and produces a value tree.
-func Analyse(v interface{}) Value {
+// Analyze analyses a Go type and produces a value tree.
+func Analyze(v interface{}) Value {
 	if v == nil {
 		return Value{}
 	}
-	return analyse(reflect.ValueOf(v))
+	return analyze(reflect.ValueOf(v))
 }
 
-func analyse(rv reflect.Value) Value {
+func analyze(rv reflect.Value) Value {
 	v := Value{}
 
 	if rv.Kind() != reflect.Invalid {
@@ -74,7 +74,7 @@ func analyse(rv reflect.Value) Value {
 
 	switch rv.Kind() {
 	case reflect.Ptr, reflect.Interface:
-		return analyse(rv.Elem())
+		return analyze(rv.Elem())
 
 	case reflect.Map:
 		v.Type = Object
@@ -96,7 +96,7 @@ func analyse(rv reflect.Value) Value {
 		sort.Strings(keys)
 
 		for _, key := range keys {
-			val := analyse(rv.MapIndex(values[key]))
+			val := analyze(rv.MapIndex(values[key]))
 			val.Key = key
 			v.Values = append(v.Values, val)
 		}
@@ -108,7 +108,7 @@ func analyse(rv reflect.Value) Value {
 		v.Values = make([]Value, 0)
 
 		for i := 0; i < rv.NumField(); i++ {
-			val := analyse(rv.Field(i))
+			val := analyze(rv.Field(i))
 			val.Key = tv.Field(i).Name
 			v.Values = append(v.Values, val)
 		}
@@ -118,7 +118,7 @@ func analyse(rv reflect.Value) Value {
 		v.Values = make([]Value, 0)
 
 		for i := 0; i < rv.Len(); i++ {
-			v.Values = append(v.Values, analyse(rv.Index(i)))
+			v.Values = append(v.Values, analyze(rv.Index(i)))
 		}
 
 	case reflect.String:
