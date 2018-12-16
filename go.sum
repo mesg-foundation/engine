@@ -44,6 +44,11 @@ github.com/kelseyhightower/envconfig v1.3.0 h1:IvRS4f2VcIQy6j4ORGIf9145T/AsUB+oY
 github.com/kelseyhightower/envconfig v1.3.0/go.mod h1:cccZRl6mQpaq41TPp5QxidR+Sa3axMbJDNb//FQX6Gg=
 github.com/kevinburke/ssh_config v0.0.0-20180711164746-82cf3f926438 h1:O2UbfXNOrED3WZ12PoAr2hYOb8hOXYyIHImqrEjkFGQ=
 github.com/kevinburke/ssh_config v0.0.0-20180711164746-82cf3f926438/go.mod h1:CT57kijsi8u/K/BOFA39wgDQJ9CxiF4nAY/ojJ6r6mM=
+github.com/kr/pretty v0.1.0 h1:L/CwN0zerZDmRFUapSPitk6f+Q3+0za1rQkzVuMiMFI=
+github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORNo=
+github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
+github.com/kr/text v0.1.0 h1:45sCR5RtlFHMR4UwH9sdQ5TC8v0qDQCHnXt+kaKSTVE=
+github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
 github.com/mattn/go-colorable v0.0.0-20180310133214-efa589957cd0 h1:cDvUG90i1ssGJGqMNx2Ubbn+bx7VOzjdvQ45zpy0X4w=
 github.com/mattn/go-colorable v0.0.0-20180310133214-efa589957cd0/go.mod h1:9vuHe8Xs5qXnSaW/c/ABM9alt+Vo+STaOChaDxuIBZU=
 github.com/mattn/go-isatty v0.0.3 h1:ns/ykhmWi7G9O+8a448SecJU3nSMBXJfqQkl0upE1jI=
@@ -121,6 +126,8 @@ google.golang.org/grpc v0.0.0-20180710012024-c491b25057c8/go.mod h1:yo6s7OP7yaDg
 gopkg.in/AlecAivazis/survey.v1 v1.6.1 h1:HyWkjKGBpzhNxrpaKRLDqoa4L1f4cMVBNU4bnVmU8Mw=
 gopkg.in/AlecAivazis/survey.v1 v1.6.1/go.mod h1:2Ehl7OqkBl3Xb8VmC4oFW2bItAhnUfzIjrOzwRxCrOU=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
+gopkg.in/mgo.v2 v2.0.0-20180705113604-9856a29383ce h1:xcEWjVhvbDy+nHP67nPDDpbYrY+ILlfndk4bRioVHaU=
+gopkg.in/mgo.v2 v2.0.0-20180705113604-9856a29383ce/go.mod h1:yeKp02qBN3iKW1OzL3MGk2IdtZzaj7SFntXj72NppTA=
 gopkg.in/src-d/go-billy.v4 v4.2.0 h1:VGbrP1EsYxtvVPEiHui+4//imr4E5MGEFLx66bQtusg=
 gopkg.in/src-d/go-billy.v4 v4.2.0/go.mod h1:ZHSF0JP+7oD97194otDUCD7Ofbk63+xFcfWP5bT6h+Q=
 gopkg.in/src-d/go-git.v4 v4.5.0 h1:6VjUh+5ATbfmlCAhV/Fb+1uQ7GnwLIuBPkwcRtxHZkk=

@@ -24,13 +24,14 @@ require (
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/kelseyhightower/envconfig v1.3.0
 	github.com/kevinburke/ssh_config v0.0.0-20180711164746-82cf3f926438 // indirect
+	github.com/kr/pretty v0.1.0
 	github.com/mattn/go-colorable v0.0.0-20180310133214-efa589957cd0 // indirect
 	github.com/mattn/go-isatty v0.0.3 // indirect
 	github.com/mesg-foundation/go-service v0.0.0-20180914022507-c53d57c454a2
 	github.com/mesg-foundation/prefixer v0.0.0-20180907095533-d7dbe41616bd
 	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b // indirect
 	github.com/mitchellh/go-homedir v0.0.0-20161203194507-b8bc1bf76747
-	github.com/mitchellh/mapstructure v1.1.2 // indirect
+	github.com/mitchellh/mapstructure v1.1.2
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/opencontainers/runc v0.1.1 // indirect
@@ -62,6 +63,7 @@ require (
 	google.golang.org/genproto v0.0.0-20180709204101-e92b11657268 // indirect
 	google.golang.org/grpc v0.0.0-20180710012024-c491b25057c8
 	gopkg.in/AlecAivazis/survey.v1 v1.6.1
+	gopkg.in/mgo.v2 v2.0.0-20180705113604-9856a29383ce
 	gopkg.in/src-d/go-billy.v4 v4.2.0 // indirect
 	gopkg.in/src-d/go-git.v4 v4.5.0
 	gopkg.in/warnings.v0 v0.1.2 // indirect

@@ -97,6 +97,10 @@ github.com/jbenet/go-context/io
 github.com/kelseyhightower/envconfig
 # github.com/kevinburke/ssh_config v0.0.0-20180711164746-82cf3f926438
 github.com/kevinburke/ssh_config
+# github.com/kr/pretty v0.1.0
+github.com/kr/pretty
+# github.com/kr/text v0.1.0
+github.com/kr/text
 # github.com/mattn/go-colorable v0.0.0-20180310133214-efa589957cd0
 github.com/mattn/go-colorable
 # github.com/mattn/go-isatty v0.0.3
@@ -110,6 +114,8 @@ github.com/mesg-foundation/prefixer
 github.com/mgutz/ansi
 # github.com/mitchellh/go-homedir v0.0.0-20161203194507-b8bc1bf76747
 github.com/mitchellh/go-homedir
+# github.com/mitchellh/mapstructure v1.1.2
+github.com/mitchellh/mapstructure
 # github.com/opencontainers/go-digest v1.0.0-rc1
 github.com/opencontainers/go-digest
 # github.com/opencontainers/image-spec v1.0.1
@@ -155,6 +161,7 @@ github.com/stretchr/testify/require
 github.com/stretchr/testify/assert
 # github.com/syndtr/goleveldb v0.0.0-20180708030551-c4c61651e9e3
 github.com/syndtr/goleveldb/leveldb
+github.com/syndtr/goleveldb/leveldb/util
 github.com/syndtr/goleveldb/leveldb/cache
 github.com/syndtr/goleveldb/leveldb/comparer
 github.com/syndtr/goleveldb/leveldb/errors
@@ -165,7 +172,6 @@ github.com/syndtr/goleveldb/leveldb/memdb
 github.com/syndtr/goleveldb/leveldb/opt
 github.com/syndtr/goleveldb/leveldb/storage
 github.com/syndtr/goleveldb/leveldb/table
-github.com/syndtr/goleveldb/leveldb/util
 # github.com/vektra/mockery v0.0.0-20180815001236-ea265755d541
 github.com/vektra/mockery/cmd/mockery
 github.com/vektra/mockery/mockery
@@ -256,6 +262,9 @@ google.golang.org/grpc/balancer/base
 gopkg.in/AlecAivazis/survey.v1
 gopkg.in/AlecAivazis/survey.v1/core
 gopkg.in/AlecAivazis/survey.v1/terminal
+# gopkg.in/mgo.v2 v2.0.0-20180705113604-9856a29383ce
+gopkg.in/mgo.v2/bson
+gopkg.in/mgo.v2/internal/json
 # gopkg.in/src-d/go-billy.v4 v4.2.0
 gopkg.in/src-d/go-billy.v4
 gopkg.in/src-d/go-billy.v4/osfs
