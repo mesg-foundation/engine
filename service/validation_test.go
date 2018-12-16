@@ -137,6 +137,10 @@ func TestValidate(t *testing.T) {
 				{Key: "e", Parameters: []*Parameter{
 					{Key: "f", Type: "Boolean"},
 				}},
+				{Key: "g", Type: "Boolean"},
+				{Key: "h", Parameters: []*Parameter{
+					{Key: "j", Type: "Boolean"},
+				}},
 			},
 			map[string]interface{}{
 				"a": "1",
@@ -144,11 +148,15 @@ func TestValidate(t *testing.T) {
 					{"c": true},
 				},
 				"e": nil,
+				"g": "2",
+				"h": "3",
 			},
 			[]*ParameterWarning{
 				notAnArrayWarning("a"),
 				notAnArrayWarning("c"),
 				requiredWarning("e"),
+				notABooleanWarning("g"),
+				notAnObjectWarning("h"),
 			},
 			nil,
 		},
@@ -157,23 +165,11 @@ func TestValidate(t *testing.T) {
 			[]*Parameter{{
 				Key: "article",
 				Parameters: []*Parameter{
-					{
-						Key:  "id",
-						Type: "String",
-					},
-					{
-						Key: "location",
-						Parameters: []*Parameter{
-							&Parameter{
-								Key:  "city",
-								Type: "String",
-							},
-						},
-					},
-					{
-						Key:  "createdAt",
-						Type: "String",
-					},
+					{Key: "id", Type: "String"},
+					{Key: "location", Parameters: []*Parameter{
+						{Key: "city", Type: "String"},
+					}},
+					{Key: "createdAt", Type: "String"},
 				},
 			}},
 			map[string]interface{}{
