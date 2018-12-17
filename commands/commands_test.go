@@ -82,7 +82,7 @@ func readLine(t *testing.T, r *bufio.Reader) []byte {
 	return line
 }
 
-func readAll(t *testing.T, r *bufio.Reader) []byte {
+func readAll(t *testing.T, r io.Reader) []byte {
 	data, err := ioutil.ReadAll(r)
 	require.NoError(t, err)
 	return data
