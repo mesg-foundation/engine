@@ -38,10 +38,10 @@ func (c *serviceDetailCmd) runE(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	// dump service definition.
-	bytes, err := json.MarshalIndent(service, "", "  ")
+	bytes, err := json.Marshal(service)
 	if err != nil {
 		return err
 	}
-	fmt.Println((string(bytes)))
+	fmt.Println(string(pretty.ColorizeJSON(pretty.FgCyan, nil, true, bytes)))
 	return nil
 }
