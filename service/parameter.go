@@ -20,7 +20,7 @@ type Parameter struct {
 	// Parameters are the child parameters of parameter to keep nested data.
 	Parameters []*Parameter `hash:"name:6"`
 
-	// Repeated indicates if parameter is an array of specified type.
+	// Repeated shows that if type or child parameters are repeated.
 	Repeated bool `hash:"name:7"`
 
 	// Optional indicates if parameter is optional.

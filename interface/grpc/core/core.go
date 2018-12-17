@@ -88,6 +88,7 @@ func toProtoParameters(params []*service.Parameter) []*coreapi.Parameter {
 			Description: param.Description,
 			Type:        param.Type,
 			Parameters:  toProtoParameters(param.Parameters),
+			Repeated:    param.Repeated,
 			Optional:    param.Optional,
 		}
 	}
