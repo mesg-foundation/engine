@@ -103,22 +103,18 @@ func analyze(v Value, rv reflect.Value) Value {
 		sort.Strings(keys)
 
 		for _, key := range keys {
-			vv := analyze(Value{Key: key}, rv.MapIndex(values[key]))
-			v.Values = append(v.Values, vv)
+			v.Values = append(v.Values, analyze(Value{Key: key}, rv.MapIndex(values[key])))
 		}
 
 	case reflect.Struct:
 		if _, ok := rv.Interface().(fmt.Stringer); ok {
 			v.Type = String
 		} else {
-			tv := rv.Type()
-
 			v.Type = Object
 			v.Values = make([]Value, 0)
 
 			for i := 0; i < rv.NumField(); i++ {
-				vv := analyze(Value{Key: tv.Field(i).Name}, rv.Field(i))
-				v.Values = append(v.Values, vv)
+				v.Values = append(v.Values, analyze(Value{Key: rv.Type().Field(i).Name}, rv.Field(i)))
 			}
 		}
 
