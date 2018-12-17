@@ -1,4 +1,4 @@
-// Package vtree provides utility to analyze any Go type to print a type tree.
+// Package vtree provides utility to analyze any Go types to print a type tree.
 // type tree represents commonly used types by data-interchange formats.
 // it resolves nested types like maps and structs until reach to the most basic
 // types like numbers, strings and booleans.
