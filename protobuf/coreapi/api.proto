@@ -516,8 +516,8 @@ message Parameter {
   string name = 1;                    // Parameter's name.
   string description = 2;             // Parameter's description.
   string type = 3;                    // Parameter's type: `String`, `Number`, `Boolean` or `Any`. It's filled when there are no child parameters.
-  repeated Parameter parameters = 5;  // Parameter's child parameters for nested data.
-  bool repeated = 6;                  // Shows that if type or child parameters are repeated.
+  repeated Parameter parameters = 9;  // Parameter's child parameters for nested data.
+  bool repeated = 10;                 // Shows that if type or child parameters are repeated.
   bool optional = 4;                  // Set the parameter as optional.
 }
 
