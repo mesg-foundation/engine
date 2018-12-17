@@ -29,7 +29,7 @@ func TestFromValidationError(t *testing.T) {
 }
 
 // TestFromNestedParameters tests nested parameters and makes sure that
-// they have the map[string]*Parameter and not map[interface{}]interface{}.
+// they have the map[string]*Parameter types and not map[interface{}]interface{} types.
 func TestFromNestedParameters(t *testing.T) {
 	def, err := From("./tests/service-nested-parameters")
 	require.NoError(t, err)
@@ -41,17 +41,8 @@ func TestFromNestedParameters(t *testing.T) {
 				Inputs: map[string]*Parameter{
 					"foo": {
 						Type: map[string]*Parameter{
-							"bar": {
-								Type:     "String",
-								Repeated: true,
-							},
-							"baz": {
-								Type: map[string]*Parameter{
-									"bar": {
-										Type: "Number",
-									},
-								},
-							},
+							"bar": {Type: "String", Repeated: true},
+							"baz": {Type: map[string]*Parameter{"bar": {Type: "Number"}}},
 						},
 						Repeated: true,
 					},
@@ -62,12 +53,8 @@ func TestFromNestedParameters(t *testing.T) {
 						Data: map[string]*Parameter{
 							"foo": {
 								Type: map[string]*Parameter{
-									"bar": {
-										Type: "Any",
-									},
-									"baz": {
-										Type: "Number",
-									},
+									"bar": {Type: "Any"},
+									"baz": {Type: "Number"},
 								},
 							},
 						},
@@ -81,13 +68,8 @@ func TestFromNestedParameters(t *testing.T) {
 				Data: map[string]*Parameter{
 					"foo": {
 						Type: map[string]*Parameter{
-							"bar": {
-								Type:     "String",
-								Repeated: true,
-							},
-							"baz": {
-								Type: "Number",
-							},
+							"bar": {Type: "String", Repeated: true},
+							"baz": {Type: "Number"},
 						},
 					},
 				},

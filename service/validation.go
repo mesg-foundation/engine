@@ -52,6 +52,7 @@ func (p *parameterValidator) validateParameter(param *Parameter, v vtree.Value) 
 	}
 }
 
+// validateParameterType checks parameter's type.
 func (p *parameterValidator) validateParameterType(param *Parameter, v vtree.Value) {
 	if v.Type == vtree.Nil {
 		p.checkOptional(param)

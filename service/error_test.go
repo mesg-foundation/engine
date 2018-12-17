@@ -47,7 +47,7 @@ func newParameterTestCases() parameterTests {
 		&parameterTest{Key: "keyNumber", Type: "Number", Value: "string", Error: "not a number"},
 		&parameterTest{Key: "keyBoolean", Type: "Boolean", Value: "dwdwd", Error: "not a boolean"},
 		&parameterTest{Key: "keyUnknown", Type: "Unknown", Value: "dwdw", Error: "unknown type"},
-		&parameterTest{Key: "keyRequired", Type: "String", Error: "required"},
+		&parameterTest{Key: "keyRequired", Type: "String", Value: nil, Error: "required"},
 	}
 }
 

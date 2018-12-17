@@ -101,31 +101,16 @@ func TestEventValidateNestedData(t *testing.T) {
 		}
 		s, _ = FromService(&Service{
 			Name: serviceName,
-			Events: []*Event{
-				{
-					Key: eventKey,
-					Data: []*Parameter{
-						{
-							Key: paramKey,
-							Parameters: []*Parameter{
-								{
-									Key:  paramKey2,
-									Type: "Any",
-								},
-								{
-									Key:  paramKey3,
-									Type: "Number",
-								},
-							},
-						},
-					},
-				},
-			},
+			Events: []*Event{{Key: eventKey, Data: []*Parameter{
+				{Key: paramKey, Parameters: []*Parameter{
+					{Key: paramKey2, Type: "Any"},
+					{Key: paramKey3, Type: "Number"},
+				}},
+			}}},
 		})
 	)
 
 	e, _ := s.GetEvent(eventKey)
-
 	warnings := e.ValidateData(validEventData)
 	require.Len(t, warnings, 0)
 }
@@ -141,27 +126,15 @@ func TestEventValidateInvalidNestedData(t *testing.T) {
 		}
 		s, _ = FromService(&Service{
 			Name: serviceName,
-			Events: []*Event{
-				{
-					Key: eventKey,
-					Data: []*Parameter{
-						{
-							Key: paramKey,
-							Parameters: []*Parameter{
-								{
-									Key:  paramKey2,
-									Type: "Any",
-								},
-							},
-						},
-					},
-				},
-			},
+			Events: []*Event{{Key: eventKey, Data: []*Parameter{
+				{Key: paramKey, Parameters: []*Parameter{
+					{Key: paramKey2, Type: "Any"},
+				}},
+			}}},
 		})
 	)
 
 	e, _ := s.GetEvent(eventKey)
-
 	warnings := e.ValidateData(validEventData)
 	require.Len(t, warnings, 1)
 }

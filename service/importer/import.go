@@ -32,27 +32,27 @@ func fromPath(path string) (*ServiceDefinition, error) {
 }
 
 // normalizeService normalizes types in service definition by converting
-// interface types to their actual definition type if there is.
+// interface types to their actual definition types if there are.
 func normalizeService(def *ServiceDefinition) {
 	for _, task := range def.Tasks {
-		for _, input := range task.Inputs {
-			normalizeParameter(input)
-		}
+		normalizeParameters(task.Inputs)
 		for _, output := range task.Outputs {
-			for _, d := range output.Data {
-				normalizeParameter(d)
-			}
+			normalizeParameters(output.Data)
 		}
 	}
 	for _, event := range def.Events {
-		for _, d := range event.Data {
-			normalizeParameter(d)
-		}
+		normalizeParameters(event.Data)
 	}
 }
 
-// normalizeParameter normalizes nested parameters to have map[string]*Parameter type
-// instead of map[interface{}]interface{}.
+func normalizeParameters(params map[string]*Parameter) {
+	for _, param := range params {
+		normalizeParameter(param)
+	}
+}
+
+// normalizeParameter normalizes nested parameters by converting
+// map[interface{}]interface{} types to map[string]*Parameter types.
 func normalizeParameter(param *Parameter) {
 	if param == nil {
 		return

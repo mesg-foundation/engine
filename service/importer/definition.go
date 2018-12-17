@@ -103,7 +103,7 @@ type Parameter struct {
 	// or other parameters(map[string]*Parameter) to have nested data.
 	Type interface{} `yaml:"type"`
 
-	// Repeated indicates if parameter is an array of specified type.
+	// Repeated shows that if type or child parameters are repeated.
 	Repeated bool `yaml:"repeated"`
 
 	// Optional indicates if parameter is optional.
