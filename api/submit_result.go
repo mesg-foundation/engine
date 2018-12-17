@@ -37,14 +37,13 @@ func (s *resultSubmitter) Submit(executionID string, outputKey string, outputDat
 func (s *resultSubmitter) processExecution(executionID string, outputKey string, outputData []byte) (*execution.Execution, error) {
 	exec, err := s.api.execDB.Find(executionID)
 	if err != nil {
-		exec.Failed(err)
 		return nil, err
 	}
 
 	exec.Service, err = service.FromService(exec.Service, service.ContainerOption(s.api.container))
 	if err != nil {
 		exec.Failed(err)
-		return nil, err
+		return exec, err
 	}
 
 	var outputDataMap map[string]interface{}
@@ -59,7 +58,7 @@ func (s *resultSubmitter) processExecution(executionID string, outputKey string,
 
 	if err := s.api.execDB.Save(exec); err != nil {
 		exec.Failed(err)
-		return nil, err
+		return exec, err
 	}
 
 	return exec, nil
