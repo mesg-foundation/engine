@@ -98,7 +98,7 @@ func analyze(v Value, rv reflect.Value) Value {
 			values[k] = key
 			keys = append(keys, k)
 		}
-		// sort by map key to always keep the members of Values
+		// sort by map keys to always keep the members of Values
 		// slice in the same order.
 		sort.Strings(keys)
 
