@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/protobuf/coreapi"
+	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/stretchr/testify/require"
 )
 
@@ -26,10 +27,11 @@ func TestServiceDetail(t *testing.T) {
 	stdout, _ := closeStd()
 	r := bufio.NewReader(strings.NewReader(stdout))
 
-	data, _ := json.MarshalIndent(service, "", "  ")
+	data, _ := json.Marshal(service)
 
 	require.Equal(t, "Loading the service...", string(readLine(t, r)))
-	require.Equal(t, string(data), strings.TrimSpace(string(readAll(t, r))))
+	require.Equal(t, string(pretty.ColorizeJSON(pretty.FgCyan, nil, true, data)),
+		strings.TrimSpace(string(readAll(t, r))))
 
 	m.AssertExpectations(t)
 }
