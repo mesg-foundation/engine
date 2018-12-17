@@ -163,15 +163,13 @@ func TestValidate(t *testing.T) {
 		},
 		{
 			"complex parameter data",
-			[]*Parameter{{
-				Key: "article",
-				Parameters: []*Parameter{
-					{Key: "id", Type: "String"},
-					{Key: "location", Parameters: []*Parameter{
-						{Key: "city", Type: "String"},
-					}},
-					{Key: "createdAt", Type: "String"},
-				},
+			[]*Parameter{{Key: "article", Parameters: []*Parameter{
+				{Key: "id", Type: "String"},
+				{Key: "location", Parameters: []*Parameter{
+					{Key: "city", Type: "String"},
+				}},
+				{Key: "createdAt", Type: "String"},
+			},
 			}},
 			map[string]interface{}{
 				"article": map[string]interface{}{
@@ -181,6 +179,19 @@ func TestValidate(t *testing.T) {
 					},
 					"createdAt": time.Now(),
 				},
+			},
+			nil,
+			nil,
+		},
+		{
+			"optional",
+			[]*Parameter{
+				{Key: "a", Optional: true, Type: "String"},
+				{Key: "b", Optional: true, Type: "String"},
+			},
+			map[string]interface{}{
+				"a": "1",
+				"b": nil,
 			},
 			nil,
 			nil,
