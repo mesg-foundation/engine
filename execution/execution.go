@@ -21,6 +21,20 @@ const (
 	Failed
 )
 
+func (s Status) String() (r string) {
+	switch s {
+	case Created:
+		r = "created"
+	case InProgress:
+		r = "in progress"
+	case Completed:
+		r = "completed"
+	case Failed:
+		r = "failed"
+	}
+	return r
+}
+
 // Execution stores all informations about executions.
 type Execution struct {
 	ID                string                 `hash:"-"`
