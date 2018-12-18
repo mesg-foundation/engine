@@ -190,6 +190,6 @@ func TestFailed(t *testing.T) {
 		}
 		require.Equal(t, Failed, e.Status, test.name)
 		require.NotZero(t, e.ExecutionDuration, test.name)
-		require.Equal(t, test.xerr, e.Error, test.name)
+		require.Equal(t, test.xerr.Error(), e.Error, test.name)
 	}
 }
