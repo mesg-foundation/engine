@@ -118,7 +118,7 @@ func New(tarball io.Reader, env map[string]string, options ...Option) (*Service,
 
 	// if the all keys exists append to configuration env.
 	// The order of variables allows to safely append new variables
-	// without removing previous one. The last variable in slice will take precedens.
+	// without removing previous one. The last variable in a slice will take the precedence.
 	s.configuration.Env = append(s.configuration.Env, xos.EnvMapToSlice(env)...)
 
 	if err := s.deploy(); err != nil {
@@ -252,8 +252,7 @@ func (s *Service) getDependency(dependencyKey string) (*Dependency, error) {
 	return nil, fmt.Errorf("dependency %s do not exist", dependencyKey)
 }
 
-// validateConfigurationEnv checks if every variable from env map
-// has been defiend in mesg.yml in env section.
+// validateConfigurationEnv checks presence of env variables in mesg.yml under env section.
 func (s *Service) validateConfigurationEnv(env map[string]string) error {
 	for key := range env {
 		exist := false
