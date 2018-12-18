@@ -40,10 +40,10 @@ func (s *Server) ListenResult(request *coreapi.ListenResultRequest, stream corea
 				OutputData:    string(outputs),
 				ExecutionTags: execution.Tags,
 			}
-			if execution.Error != nil {
+			if execution.Error != "" {
 				data.Result = &coreapi.ResultData_Error_{
 					Error: &coreapi.ResultData_Error{
-						Message: execution.Error.Error(),
+						Message: execution.Error,
 					},
 				}
 			} else {

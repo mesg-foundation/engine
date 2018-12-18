@@ -32,7 +32,7 @@ type Execution struct {
 	Inputs            map[string]interface{} `hash:"inputs"`
 	OutputKey         string                 `hash:"-"`
 	OutputData        map[string]interface{} `hash:"-"`
-	Error             error                  `hash:"-"`
+	Error             string                 `hash:"-"`
 	CreatedAt         time.Time              `hash:"-"`
 	ExecutedAt        time.Time              `hash:"-"`
 	ExecutionDuration time.Duration          `hash:"-"`
@@ -113,7 +113,7 @@ func (execution *Execution) Failed(err error) error {
 		}
 	}
 
-	execution.Error = err
+	execution.Error = err.Error()
 	execution.ExecutionDuration = time.Since(execution.ExecutedAt)
 	execution.Status = Failed
 	return nil
