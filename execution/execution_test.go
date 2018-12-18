@@ -128,33 +128,58 @@ func TestComplete(t *testing.T) {
 		data map[string]interface{}
 		err  error
 	}{
-		{name: "1", key: "", data: map[string]interface{}{}, err: &service.TaskOutputNotFoundError{
-			TaskKey:       taskKey,
-			TaskOutputKey: "",
-			ServiceName:   serviceName},
+		{
+			name: "1",
+			key:  "",
+			data: map[string]interface{}{},
+			err: &service.TaskOutputNotFoundError{
+				TaskKey:       taskKey,
+				TaskOutputKey: "",
+				ServiceName:   serviceName,
+			},
 		},
-		{name: "2", key: "output", data: map[string]interface{}{"foo": "bar"}, err: &service.TaskOutputNotFoundError{
-			TaskKey:       taskKey,
-			TaskOutputKey: "output",
-			ServiceName:   serviceName,
-		}},
-		{name: "3", key: "outputX", data: map[string]interface{}{}, err: &service.InvalidTaskOutputError{
-			TaskKey:       taskKey,
-			TaskOutputKey: "outputX",
-			ServiceName:   serviceName,
-			Warnings: []*service.ParameterWarning{
-				{
-					Key:       "foo",
-					Warning:   "required",
-					Parameter: &service.Parameter{Key: "foo", Type: "String"},
+		{
+			name: "2",
+			key:  "output",
+			data: map[string]interface{}{"foo": "bar"},
+			err: &service.TaskOutputNotFoundError{
+				TaskKey:       taskKey,
+				TaskOutputKey: "output",
+				ServiceName:   serviceName,
+			},
+		},
+		{
+			name: "3",
+			key:  "outputX",
+			data: map[string]interface{}{},
+			err: &service.InvalidTaskOutputError{
+				TaskKey:       taskKey,
+				TaskOutputKey: "outputX",
+				ServiceName:   serviceName,
+				Warnings: []*service.ParameterWarning{
+					{
+						Key:       "foo",
+						Warning:   "required",
+						Parameter: &service.Parameter{Key: "foo", Type: "String"},
+					},
 				},
 			},
-		}},
-		{name: "4", key: "outputX", data: map[string]interface{}{"foo": "bar"}, err: nil},
-		{name: "5", key: "outputX", data: map[string]interface{}{"foo": "bar"}, err: StatusError{
-			ExpectedStatus: InProgress,
-			ActualStatus:   Completed,
-		}}, // this one is already proccessed
+		},
+		{
+			name: "4",
+			key:  "outputX",
+			data: map[string]interface{}{"foo": "bar"},
+			err:  nil,
+		},
+		{
+			name: "5",
+			key:  "outputX",
+			data: map[string]interface{}{"foo": "bar"},
+			err: StatusError{
+				ExpectedStatus: InProgress,
+				ActualStatus:   Completed,
+			},
+		}, // this one is already proccessed
 	}
 	for _, test := range tests {
 		err := e.Complete(test.key, test.data)
