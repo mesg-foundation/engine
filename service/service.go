@@ -116,10 +116,9 @@ func New(tarball io.Reader, env map[string]string, options ...Option) (*Service,
 		return nil, err
 	}
 
-	// if the all keys exists append to configuration env.
-	// The order of variables allows to safely append new variables
-	// without removing previous one. The last variable in a slice will take the precedence.
-	s.configuration.Env = append(s.configuration.Env, xos.EnvMapToSlice(env)...)
+	// replace default env with new one.
+	defenv := xos.EnvSliceToMap(s.configuration.Env)
+	s.configuration.Env = xos.EnvMapToSlice(xos.EnvMergeMaps(defenv, env))
 
 	if err := s.deploy(); err != nil {
 		return nil, err
