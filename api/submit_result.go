@@ -28,47 +28,48 @@ func newResultSubmitter(api *API) *resultSubmitter {
 
 // Submit submits results for executionID.
 func (s *resultSubmitter) Submit(executionID string, outputKey string, outputData []byte) error {
-	exec, err := s.processExecution(executionID, outputKey, outputData)
-	if err != nil {
-		return err
+	exec, stateChanged, err := s.processExecution(executionID, outputKey, outputData)
+	if stateChanged == true {
+		// only publish to listeners when the execution's state changed.
+		go pubsub.Publish(exec.Service.ResultSubscriptionChannel(), exec)
 	}
-	go pubsub.Publish(exec.Service.ResultSubscriptionChannel(), exec)
-	return nil
+	// always return any error to the service.
+	return err
 }
 
 // processExecution processes execution and marks it as complated or failed.
-func (s *resultSubmitter) processExecution(executionID string, outputKey string, outputData []byte) (*execution.Execution, error) {
-	exec, err := s.api.execDB.Find(executionID)
+func (s *resultSubmitter) processExecution(executionID string, outputKey string, outputData []byte) (exec *execution.Execution, stateChanged bool, err error) {
+	stateChanged = false
+	exec, err = s.api.execDB.Find(executionID)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 
 	exec.Service, err = service.FromService(exec.Service, service.ContainerOption(s.api.container))
 	if err != nil {
-		return exec, s.failedAndSave(exec, err)
+		return s.saveExecution(exec, err)
 	}
 
 	var outputDataMap map[string]interface{}
 	if err := json.Unmarshal(outputData, &outputDataMap); err != nil {
-		return exec, s.failedAndSave(exec, fmt.Errorf("invalid output data error: %s", err))
+		return s.saveExecution(exec, fmt.Errorf("invalid output data error: %s", err))
 	}
 
-	if err = exec.Complete(outputKey, outputDataMap); err != nil {
-		return exec, s.failedAndSave(exec, err)
+	if err := exec.Complete(outputKey, outputDataMap); err != nil {
+		return s.saveExecution(exec, err)
 	}
 
-	if err := s.api.execDB.Save(exec); err != nil {
-		// if save already fail, it's not necessary to try to save again
-		return exec, exec.Failed(err)
-	}
-
-	return exec, nil
+	return s.saveExecution(exec, nil)
 }
 
-// failedAndSave set the execution as failed and save it.
-func (s *resultSubmitter) failedAndSave(exec *execution.Execution, err error) error {
-	if errFailed := exec.Failed(err); errFailed != nil {
-		return errFailed
+func (s *resultSubmitter) saveExecution(exec *execution.Execution, err error) (execOut *execution.Execution, stateChanged bool, errOut error) {
+	if err != nil {
+		if errFailed := exec.Failed(err); errFailed != nil {
+			return exec, false, errFailed
+		}
 	}
-	return s.api.execDB.Save(exec)
+	if errSave := s.api.execDB.Save(exec); errSave != nil {
+		return exec, true, errSave
+	}
+	return exec, true, err
 }
