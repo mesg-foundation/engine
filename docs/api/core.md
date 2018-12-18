@@ -115,10 +115,6 @@ The request's data for the `ListenEvent` stream's API.
 
 
 
-
-
-
-
 </tab>
 
 <tab title="Reply">
@@ -166,10 +162,6 @@ The data will be received over time as long as the stream is open.
 | ----- | ---- | ----------- |
 | eventKey | [string](#string) | The event's key. |
 | eventData | [string](#string) | The event's data encoded in JSON. |
-
-
-
-
 
 
 
@@ -312,10 +304,6 @@ The request's data for the `ListenResult` stream API.
 
 
 
-
-
-
-
 </tab>
 
 <tab title="Reply">
@@ -390,15 +378,10 @@ The data will be received over time as long as the stream is open.
 | ----- | ---- | ----------- |
 | executionID | [string](#string) | The unique identifier of the execution. |
 | taskKey | [string](#string) | The key of the executed task. |
-| executionTags | [string](#string)[] | The list of tags associated with the execution |
-| output | [ResultData.Output](#api.ResultData.Output) | output is filled when there is matching task execution that completed successfully. |
-| error | [ResultData.Error](#api.ResultData.Error) | error is filled when there is a matching task execution that cannot be completed. |
-| outputKey | [string](#string) | [Deprecated] The output's key from the returned task. |
-| outputData | [string](#string) | [Deprecated] The output's data from the returned task, encoded in JSON. |
-
-
-
-
+| outputKey | [string](#string) | The output's key from the returned task. |
+| outputData | [string](#string) | The output's data from the returned task, encoded in JSON. |
+| executionTags | [string](#string)[] | The list of tags associated with the execution. |
+| error | [string](#string) | The execution's error if something went wrong. |
 
 
 
@@ -478,10 +461,6 @@ The request's data for the `ExecuteTask` API.
 | taskKey | [string](#string) | The task's key to execute. |
 | inputData | [string](#string) | The inputs of the task to execute, encoded in JSON. |
 | executionTags | [string](#string)[] | __Optional.__ The list of tags to associate with the execution |
-
-
-
-
 
 
 
@@ -608,10 +587,6 @@ The reply's data of the `ExecuteTask` API.
 
 
 
-
-
-
-
 </tab>
 </tabs>
 
@@ -621,10 +596,6 @@ Start a service. The service must be already deployed to Core.
 
 <tabs>
 <tab title="Request">
-
-
-
-
 
 
 
@@ -769,10 +740,6 @@ The request's data for the `StartService` API.
 
 
 
-
-
-
-
 #### StartServiceReply
 Reply of `StartService` API doesn't contain any data.
 
@@ -860,10 +827,6 @@ Stop a service. The service must be already deployed to Core.
 
 
 
-
-
-
-
 #### StopServiceRequest
 The request's data for the `StopService` API.
 
@@ -888,10 +851,6 @@ The request's data for the `StopService` API.
 </tab>
 
 <tab title="Reply">
-
-
-
-
 
 
 
@@ -1065,10 +1024,6 @@ or
 
 
 
-
-
-
-
 </tab>
 
 <tab title="Reply">
@@ -1123,10 +1078,6 @@ or
 | status | [DeployServiceReply.Status](#api.DeployServiceReply.Status) | `status` will be sent after each status change. |
 | serviceID | [string](#string) | `serviceID` will be sent as the last message of stream when service deployed successfully. |
 | validationError | [string](#string) | `validationError` will be sent as the last message of stream when there is a validation error. |
-
-
-
-
 
 
 
@@ -1272,10 +1223,6 @@ Request's data of the `DeleteService` API.
 
 
 
-
-
-
-
 </tab>
 
 <tab title="Reply">
@@ -1290,10 +1237,6 @@ Request's data of the `DeleteService` API.
 
 #### DeleteServiceReply
 Reply of `DeleteService` API doesn't contain any data.
-
-
-
-
 
 
 
@@ -1405,10 +1348,6 @@ List all services already deployed in Core.
 
 #### ListServicesRequest
 Reply of `ListServices` API doesn't contain any data.
-
-
-
-
 
 
 
@@ -1568,10 +1507,6 @@ The reply's data of the `ListServices` API.
 
 
 
-
-
-
-
 </tab>
 </tabs>
 
@@ -1630,10 +1565,6 @@ The request's data for the `GetService` API.
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | serviceID | [string](#string) | The Service ID. Generated when using the [`DeployService` API](#deployservice). |
-
-
-
-
 
 
 
@@ -1797,10 +1728,6 @@ The reply's data of the `GetService` API.
 
 
 
-
-
-
-
 </tab>
 </tabs>
 
@@ -1810,10 +1737,6 @@ ServiceLogs gives a stream for dependency logs of a service.
 
 <tabs>
 <tab title="Request">
-
-
-
-
 
 
 
@@ -1992,10 +1915,6 @@ The data will be received over time as long as the stream is open.
 
 
 
-
-
-
-
 </tab>
 </tabs>
 
@@ -2091,10 +2010,6 @@ The request's data for the `CreateWorkflow` API.
 
 
 
-
-
-
-
 </tab>
 
 <tab title="Reply">
@@ -2115,10 +2030,6 @@ The reply's data of the `CreateWorkflow` API.
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | ID | [string](#string) | Unique ID of workflow. |
-
-
-
-
 
 
 
@@ -2279,10 +2190,6 @@ The request's data for the `DeleteWorkflow` API.
 
 
 
-
-
-
-
 </tab>
 
 <tab title="Reply">
@@ -2301,10 +2208,6 @@ The request's data for the `DeleteWorkflow` API.
 
 #### DeleteWorkflowReply
 Reply of `DeleteWorkflow` API doesn't contain any data.
-
-
-
-
 
 
 
