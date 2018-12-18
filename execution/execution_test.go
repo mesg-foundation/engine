@@ -64,22 +64,37 @@ func TestNewFromService(t *testing.T) {
 		inputs  map[string]interface{}
 		err     error
 	}{
-		{name: "1", taskKey: taskKey, inputs: map[string]interface{}{"foo": "hello", "bar": "world"}, err: nil},
-		{name: "2", taskKey: "wrongtask", inputs: map[string]interface{}{}, err: &service.TaskNotFoundError{
-			TaskKey:     "wrongtask",
-			ServiceName: serviceName,
-		}},
-		{name: "3", taskKey: taskKey, inputs: map[string]interface{}{"foo": "hello"}, err: &service.InvalidTaskInputError{
-			TaskKey:     taskKey,
-			ServiceName: serviceName,
-			Warnings: []*service.ParameterWarning{
-				{
-					Key:       "bar",
-					Warning:   "required",
-					Parameter: &service.Parameter{Key: "bar", Type: "String"},
+		{
+			name:    "1",
+			taskKey: taskKey,
+			inputs:  map[string]interface{}{"foo": "hello", "bar": "world"},
+			err:     nil,
+		},
+		{
+			name:    "2",
+			taskKey: "wrongtask",
+			inputs:  map[string]interface{}{},
+			err: &service.TaskNotFoundError{
+				TaskKey:     "wrongtask",
+				ServiceName: serviceName,
+			},
+		},
+		{
+			name:    "3",
+			taskKey: taskKey,
+			inputs:  map[string]interface{}{"foo": "hello"},
+			err: &service.InvalidTaskInputError{
+				TaskKey:     taskKey,
+				ServiceName: serviceName,
+				Warnings: []*service.ParameterWarning{
+					{
+						Key:       "bar",
+						Warning:   "required",
+						Parameter: &service.Parameter{Key: "bar", Type: "String"},
+					},
 				},
 			},
-		}},
+		},
 	}
 	for _, test := range tests {
 		execution, err := New(srv, eventID, test.taskKey, test.inputs, tags)
@@ -93,7 +108,8 @@ func TestNewFromService(t *testing.T) {
 		require.Equal(t, taskKey, execution.TaskKey, test.name)
 		require.Equal(t, test.inputs, execution.Inputs, test.name)
 		require.Equal(t, tags, execution.Tags, test.name)
-		require.Equal(t, execution.Status, Created, test.name)
+		require.Equal(t, Created, execution.Status, test.name)
+		require.Equal(t, Created.String(), execution.Status.String(), test.name)
 		require.NotZero(t, execution.CreatedAt, test.name)
 	}
 }
@@ -104,8 +120,17 @@ func TestExecute(t *testing.T) {
 		name string
 		err  error
 	}{
-		{name: "1", err: nil},
-		{name: "2", err: StatusError{ExpectedStatus: Created, ActualStatus: InProgress}}, // this one is already executed so it should return an error
+		{
+			name: "1",
+			err:  nil,
+		},
+		{ // this one is already executed so it should return an error
+			name: "2",
+			err: StatusError{
+				ExpectedStatus: Created,
+				ActualStatus:   InProgress,
+			},
+		},
 	}
 	for _, test := range tests {
 		err := e.Execute()
@@ -114,7 +139,8 @@ func TestExecute(t *testing.T) {
 			continue
 		}
 		require.NotNil(t, e, test.name)
-		require.Equal(t, e.Status, InProgress, test.name)
+		require.Equal(t, InProgress, e.Status, test.name)
+		require.Equal(t, InProgress.String(), e.Status.String(), test.name)
 		require.NotZero(t, e.ExecutedAt, test.name)
 	}
 }
@@ -171,7 +197,7 @@ func TestComplete(t *testing.T) {
 			data: map[string]interface{}{"foo": "bar"},
 			err:  nil,
 		},
-		{
+		{ // this one is already proccessed
 			name: "5",
 			key:  "outputX",
 			data: map[string]interface{}{"foo": "bar"},
@@ -179,7 +205,7 @@ func TestComplete(t *testing.T) {
 				ExpectedStatus: InProgress,
 				ActualStatus:   Completed,
 			},
-		}, // this one is already proccessed
+		},
 	}
 	for _, test := range tests {
 		err := e.Complete(test.key, test.data)
@@ -188,6 +214,7 @@ func TestComplete(t *testing.T) {
 			continue
 		}
 		require.Equal(t, Completed, e.Status, test.name)
+		require.Equal(t, Completed.String(), e.Status.String(), test.name)
 		require.NotZero(t, e.ExecutionDuration, test.name)
 		require.Zero(t, e.Error, test.name)
 	}
@@ -201,11 +228,17 @@ func TestFailed(t *testing.T) {
 		xerr error
 		err  error
 	}{
-		{name: "with failed error", xerr: errors.New("failed")},
-		{name: "with status error", err: StatusError{
-			ExpectedStatus: InProgress,
-			ActualStatus:   Failed,
-		}}, // this one is already proccessed
+		{
+			name: "with failed error",
+			xerr: errors.New("failed"),
+		},
+		{ // this one is already proccessed
+			name: "with status error",
+			err: StatusError{
+				ExpectedStatus: InProgress,
+				ActualStatus:   Failed,
+			},
+		},
 	}
 	for _, test := range tests {
 		err := e.Failed(test.xerr)
@@ -214,6 +247,7 @@ func TestFailed(t *testing.T) {
 			continue
 		}
 		require.Equal(t, Failed, e.Status, test.name)
+		require.Equal(t, Failed.String(), e.Status.String(), test.name)
 		require.NotZero(t, e.ExecutionDuration, test.name)
 		require.Equal(t, test.xerr.Error(), e.Error, test.name)
 	}
