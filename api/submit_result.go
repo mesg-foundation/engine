@@ -29,7 +29,7 @@ func newResultSubmitter(api *API) *resultSubmitter {
 // Submit submits results for executionID.
 func (s *resultSubmitter) Submit(executionID string, outputKey string, outputData []byte) error {
 	exec, stateChanged, err := s.processExecution(executionID, outputKey, outputData)
-	if stateChanged == true {
+	if stateChanged {
 		// only publish to listeners when the execution's state changed.
 		go pubsub.Publish(exec.Service.ResultSubscriptionChannel(), exec)
 	}
