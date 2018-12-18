@@ -107,11 +107,11 @@ func (r *deployChunkReader) Read(p []byte) (n int, err error) {
 		if err != nil {
 			return 0, err
 		}
-		if in.GetUrl() != "" {
-			return 0, errors.New("deploy: got url after tarball stream")
+
+		r.buf, r.i = in.GetChunk(), 0
+		if len(r.buf) == 0 {
+			return 0, errors.New("deploy: got empty chunk of tarball")
 		}
-		r.buf = in.GetChunk()
-		r.i = 0
 	}
 	n = copy(p, r.buf[r.i:])
 	r.i += n
