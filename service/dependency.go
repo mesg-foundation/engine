@@ -31,7 +31,7 @@ type Dependency struct {
 	// Argument holds the args to pass to the Docker container
 	Args []string `hash:"name:7"`
 
-	// Env is a slice of all key=value.
+	// Env is a slice of environment variables in key=value format.
 	Env []string `hash:"name:8"`
 
 	// service is the dependency's service.
