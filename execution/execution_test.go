@@ -14,12 +14,8 @@ var (
 	eventID          = "2"
 	taskKey          = "task"
 	taskKeyWithError = "task2"
-	defaultInputs    = map[string]interface{}{
-		"foo": "hello",
-		"bar": "world",
-	}
-	tags   = []string{"tag1", "tag2"}
-	srv, _ = service.FromService(&service.Service{
+	tags             = []string{"tag1", "tag2"}
+	srv, _           = service.FromService(&service.Service{
 		Name: serviceName,
 		Tasks: []*service.Task{
 			{
