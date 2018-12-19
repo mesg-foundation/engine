@@ -5,6 +5,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"sort"
 	"strings"
 	"time"
 
@@ -278,6 +279,7 @@ func (s *Service) validateConfigurationEnv() error {
 		}
 	}
 	if len(nonDefined) > 0 {
+		sort.Strings(nonDefined)
 		return ErrNotDefinedEnv{nonDefined}
 	}
 	return nil
