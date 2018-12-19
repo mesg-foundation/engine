@@ -316,6 +316,7 @@ message ListServicesRequest {
 // {
 //   "services": [{
 //     "id": "idX",
+//     "sid": "sidX",
 //     "name": "serviceX",
 //     "description": "descriptionX",
 //     "status": "statusX",
@@ -381,6 +382,7 @@ message GetServiceRequest {
 // {
 //   "service": {
 //     "id": "idX",
+//     "sid": "sidX",
 //     "name": "serviceX",
 //     "description": "descriptionX",
 //     "status": "statusX",
