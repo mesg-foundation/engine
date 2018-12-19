@@ -264,18 +264,22 @@ func (s *Service) getDependency(dependencyKey string) (*Dependency, error) {
 
 // validateConfigurationEnv checks presence of env variables in mesg.yml under env section.
 func (s *Service) validateConfigurationEnv() error {
+	var nonExistent []string
 	for key := range s.deployEnv {
-		exist := false
-		// check if "key=" exists in configuration
+		// check if "key=" exists in configuration.
+		exists := false
 		for _, env := range s.configuration.Env {
 			if strings.HasPrefix(env, key+"=") {
-				exist = true
-				break
+				exists = true
 			}
 		}
-		if !exist {
-			return fmt.Errorf("service environment variable %q dosen't exist in mesg.yml (under configuration.env key)", key)
+		if !exists {
+			nonExistent = append(nonExistent, key)
 		}
+	}
+	if len(nonExistent) > 0 {
+		return fmt.Errorf("environment variable(s) %q not defined in mesg.yml (under configuration.env key)",
+			strings.Join(nonExistent, " ,"))
 	}
 	return nil
 }
