@@ -109,7 +109,6 @@ func TestNewFromService(t *testing.T) {
 		require.Equal(t, test.inputs, execution.Inputs, test.name)
 		require.Equal(t, tags, execution.Tags, test.name)
 		require.Equal(t, Created, execution.Status, test.name)
-		require.Equal(t, Created.String(), execution.Status.String(), test.name)
 		require.NotZero(t, execution.CreatedAt, test.name)
 	}
 }
@@ -140,7 +139,6 @@ func TestExecute(t *testing.T) {
 		}
 		require.NotNil(t, e, test.name)
 		require.Equal(t, InProgress, e.Status, test.name)
-		require.Equal(t, InProgress.String(), e.Status.String(), test.name)
 		require.NotZero(t, e.ExecutedAt, test.name)
 	}
 }
@@ -214,7 +212,6 @@ func TestComplete(t *testing.T) {
 			continue
 		}
 		require.Equal(t, Completed, e.Status, test.name)
-		require.Equal(t, Completed.String(), e.Status.String(), test.name)
 		require.NotZero(t, e.ExecutionDuration, test.name)
 		require.Zero(t, e.Error, test.name)
 	}
@@ -247,8 +244,14 @@ func TestFailed(t *testing.T) {
 			continue
 		}
 		require.Equal(t, Failed, e.Status, test.name)
-		require.Equal(t, Failed.String(), e.Status.String(), test.name)
 		require.NotZero(t, e.ExecutionDuration, test.name)
 		require.Equal(t, test.xerr.Error(), e.Error, test.name)
 	}
+}
+
+func TestStatus(t *testing.T) {
+	require.Equal(t, "created", Created.String())
+	require.Equal(t, "in progress", InProgress.String())
+	require.Equal(t, "completed", Completed.String())
+	require.Equal(t, "failed", Failed.String())
 }
