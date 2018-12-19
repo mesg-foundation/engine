@@ -13,60 +13,62 @@ import (
 // events during the process and finish with sending service id or validation error.
 func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 	var (
-		statuses = make(chan api.DeployStatus)
-		option   = api.DeployServiceStatusOption(statuses)
-		wg       sync.WaitGroup
+		sr         = newDeployServiceStreamReader(stream)
+		statuses   = make(chan api.DeployStatus)
+		wgStatuses sync.WaitGroup
+	)
 
+	wgStatuses.Add(1)
+	go func() {
+		defer wgStatuses.Done()
+		sendDeployStatus(statuses, stream)
+	}()
+
+	var (
 		service         *service.Service
 		validationError *importer.ValidationError
 		err             error
 	)
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		sendDeployStatus(statuses, stream)
-	}()
+	deployOptions := []api.DeployServiceOption{
+		api.DeployServiceStatusOption(statuses),
+	}
 
-	// read first requesest from stream and check if it's url or tarball
-	in, err := stream.Recv()
-	if err != nil {
+	// receive the 1th message in the stream.
+	// it'll be the deployment options.
+	if err := sr.RecvMessage(); err != nil {
+		return err
+	}
+	env := sr.Options.Env
+
+	// receive the 2nd message in the stream.
+	// it can be the url or first chunk of the service.
+	if err := sr.RecvMessage(); err != nil {
 		return err
 	}
 
-	// env must be set with first package (always)
-	env := in.GetEnv()
-
-	if url := in.GetUrl(); url != "" {
-		service, validationError, err = s.api.DeployServiceFromURL(url, env, option)
+	if sr.URL != "" {
+		service, validationError, err = s.api.DeployServiceFromURL(sr.URL, env, deployOptions...)
 	} else {
-		// create tarball reader with first chunk of bytes
-		tarball := &deployChunkReader{
-			stream: stream,
-			buf:    in.GetChunk(),
-		}
-		service, validationError, err = s.api.DeployService(tarball, env, option)
+		service, validationError, err = s.api.DeployService(sr, env, deployOptions...)
 	}
 
-	// wait for statuses to be sent first, otherwise sending multiple messages at the
+	// wait for statuses to be sent first otherwise sending multiple messages at the
 	// same time may cause messages to be sent in different order.
-	wg.Wait()
+	wgStatuses.Wait()
 
 	if err != nil {
 		return err
 	}
+
 	if validationError != nil {
 		return stream.Send(&coreapi.DeployServiceReply{
-			Value: &coreapi.DeployServiceReply_ValidationError{
-				ValidationError: validationError.Error(),
-			},
+			Value: &coreapi.DeployServiceReply_ValidationError{ValidationError: validationError.Error()},
 		})
 	}
 
 	return stream.Send(&coreapi.DeployServiceReply{
-		Value: &coreapi.DeployServiceReply_ServiceID{
-			ServiceID: service.Hash,
-		},
+		Value: &coreapi.DeployServiceReply_ServiceID{ServiceID: service.Hash},
 	})
 }
 
@@ -92,24 +94,48 @@ func sendDeployStatus(statuses chan api.DeployStatus, stream coreapi.Core_Deploy
 	}
 }
 
-// deployChunkReader implements io.Reader for stream chunks.
-type deployChunkReader struct {
+type deployServiceStreamReader struct {
 	stream coreapi.Core_DeployServiceServer
 
-	buf []byte
-	i   int
+	// Options is the deployment options.
+	Options *coreapi.DeployServiceRequest_Options
+
+	// URL of the service.
+	URL string
+
+	// chunk of the service.
+	chunk []byte
+	i     int64
 }
 
-func (r *deployChunkReader) Read(p []byte) (n int, err error) {
-	if r.i >= len(r.buf) {
-		in, err := r.stream.Recv()
-		if err != nil {
+func newDeployServiceStreamReader(stream coreapi.Core_DeployServiceServer) *deployServiceStreamReader {
+	return &deployServiceStreamReader{
+		stream: stream,
+	}
+}
+
+// RecvMessage receives the next message in gRPC stream.
+func (r *deployServiceStreamReader) RecvMessage() error {
+	message, err := r.stream.Recv()
+	if err != nil {
+		return err
+	}
+	r.Options = message.GetOptions()
+	r.URL = message.GetUrl()
+	r.chunk = message.GetChunk()
+	return nil
+}
+
+// Read reads service chunks to deploy.
+func (r *deployServiceStreamReader) Read(p []byte) (n int, err error) {
+	if r.i >= int64(len(r.chunk)) {
+		if err := r.RecvMessage(); err != nil {
 			return 0, err
 		}
-		r.buf = in.GetChunk()
 		r.i = 0
+		return r.Read(p)
 	}
-	n = copy(p, r.buf[r.i:])
-	r.i += n
+	n = copy(p, r.chunk[r.i:])
+	r.i += int64(n)
 	return n, nil
 }

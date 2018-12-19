@@ -229,28 +229,36 @@ message StopServiceReply {
 //
 // **Example**
 // ```json
+// 1th, send deployment options even if they're empty:
 // {
-//   "env": {
-//     "key": "value"
+//   "options": {
+//     "env": {
+//       "key": "value"
+//     },
 //   },
+// }
+// ```
+// 2nd, send url of the service to deploy:
+// ```json
+// {
 //   "url": "__SERVICE_GIT_URL__"
 // }
 // ```
-// or
+// or send the service chunks to deploy from a gzipped tarball:
 // ```json
 // {
-//   "env": {
-//     "key": "value"
-//   },
 //   "chunk": "__SERVICE_GZIPPED_TAR_FILE_CHUNK__"
 // }
 // ```
 message DeployServiceRequest {
-  oneof value {
-    string url = 2;   // Git repo url of service. When url provided, stream will be closed after the first receive.
-    bytes chunk = 3;  // Chunks of gzipped tar archive of service. If chunk provided, stream should be closed by client after all chunks sent.
+  message Options {
+    map<string, string> env = 1; // Env variables to deploy service with. They must be defined in the yml file will overwrite their default values.
   }
-  map<string, string> env = 4; // Env used to deploy service.
+  oneof value {
+    Options options = 4; // Options used as deployment options for service. It should be sent as the first message in the stream event if it's empty.
+    string url = 2;      // Git repo url of service. When url provided, stream will be closed after the first receive.
+    bytes chunk = 3;     // Chunks of gzipped tar archive of service. If chunk provided, stream should be closed by client after all chunks sent.
+  }
 }
 
 // The data received from the reply stream of the `DeployService` API.
