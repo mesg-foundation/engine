@@ -264,7 +264,7 @@ func (s *Service) getDependency(dependencyKey string) (*Dependency, error) {
 
 // validateConfigurationEnv checks presence of env variables in mesg.yml under env section.
 func (s *Service) validateConfigurationEnv() error {
-	var nonExistent []string
+	var nonDefined []string
 	for key := range s.deployEnv {
 		// check if "key=" exists in configuration.
 		exists := false
@@ -274,12 +274,22 @@ func (s *Service) validateConfigurationEnv() error {
 			}
 		}
 		if !exists {
-			nonExistent = append(nonExistent, key)
+			nonDefined = append(nonDefined, key)
 		}
 	}
-	if len(nonExistent) > 0 {
-		return fmt.Errorf("environment variable(s) %q not defined in mesg.yml (under configuration.env key)",
-			strings.Join(nonExistent, " ,"))
+	if len(nonDefined) > 0 {
+		return ErrNotDefinedEnv{nonDefined}
 	}
 	return nil
+}
+
+// ErrNotDefinedEnv error returned when optionally given env variables
+// are not defined in tne mesg.yml file.
+type ErrNotDefinedEnv struct {
+	env []string
+}
+
+func (e ErrNotDefinedEnv) Error() string {
+	return fmt.Sprintf("environment variable(s) %q not defined in mesg.yml (under configuration.env key)",
+		strings.Join(e.env, ", "))
 }

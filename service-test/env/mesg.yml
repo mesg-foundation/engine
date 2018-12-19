@@ -1,0 +1,15 @@
+name: Task
+configuration:
+  env:
+    - A=1
+    - B=2
+tasks:
+  foo:
+    inputs:
+      bar:
+        type: String
+    outputs:
+      bar:
+        data:
+          baz:
+            type: Object
