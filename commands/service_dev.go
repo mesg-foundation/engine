@@ -133,12 +133,13 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 
 		case r := <-listenResultsC:
 			if r.Error != "" {
-				fmt.Printf("Receive execution error on %s task: %s\n",
-					pretty.Fail(r.TaskKey),
+ 				fmt.Printf("Receive execution error on %s task %s: %s\n",
+ 					pretty.Fail(r.TaskKey),
+ 					pretty.Fail(r.OutputKey),
 					pretty.Fail(r.Error),
 				)
 			} else {
-				fmt.Printf("Receive result %s %s: %s\n",
+ 				fmt.Printf("Receive execution result on %s task %s: %s\n",
 					pretty.Success(r.TaskKey),
 					pretty.Colorize(color.New(color.FgCyan), r.OutputKey),
 					pretty.ColorizeJSON(pretty.FgCyan, nil, false, []byte(r.OutputData)),
