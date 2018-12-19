@@ -17,18 +17,18 @@ import (
 // DeployServiceOption is a configuration func for deploying services.
 type DeployServiceOption func(*serviceDeployer)
 
-// DeployServiceStatusOption receives chan statuses to send deploy statuses.
-func DeployServiceStatusOption(statuses chan DeployStatus) DeployServiceOption {
-	return func(deployer *serviceDeployer) {
-		deployer.statuses = statuses
-	}
-}
-
 // DeployServiceEnvOption is a configuration to overwrite env variables defined
 // in the service's mesg.yml file.
 func DeployServiceEnvOption(env map[string]string) DeployServiceOption {
 	return func(deployer *serviceDeployer) {
 		deployer.env = env
+	}
+}
+
+// DeployServiceStatusOption receives chan statuses to send deploy statuses.
+func DeployServiceStatusOption(statuses chan DeployStatus) DeployServiceOption {
+	return func(deployer *serviceDeployer) {
+		deployer.statuses = statuses
 	}
 }
 
@@ -136,9 +136,10 @@ func (d *serviceDeployer) deploy(r io.Reader) (*service.Service, *importer.Valid
 		d.forwardDeployStatuses(statuses)
 	}()
 
-	s, err := service.New(r, d.env,
+	s, err := service.New(r,
 		service.ContainerOption(d.api.container),
 		service.DeployStatusOption(statuses),
+		service.DeployEnvOption(d.env),
 	)
 	wg.Wait()
 

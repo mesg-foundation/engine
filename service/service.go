@@ -59,6 +59,9 @@ type Service struct {
 	// DeployedAt holds the creation time of service.
 	DeployedAt time.Time `hash:"-"`
 
+	// deployEnv will overwrite the env variables defined in the service's mesg.yml file.
+	deployEnv map[string]string `hash:"-"`
+
 	// statuses receives status messages produced during deployment.
 	statuses chan DeployStatus `hash:"-"`
 
@@ -92,7 +95,7 @@ type DeployStatus struct {
 }
 
 // New creates a new service from a gzipped tarball.
-func New(tarball io.Reader, env map[string]string, options ...Option) (*Service, error) {
+func New(tarball io.Reader, options ...Option) (*Service, error) {
 	s := &Service{}
 
 	defer s.closeStatus()
@@ -112,13 +115,13 @@ func New(tarball io.Reader, env map[string]string, options ...Option) (*Service,
 
 	s.injectDefinition(def)
 
-	if err := s.validateConfigurationEnv(env); err != nil {
+	if err := s.validateConfigurationEnv(); err != nil {
 		return nil, err
 	}
 
 	// replace default env with new one.
 	defenv := xos.EnvSliceToMap(s.configuration.Env)
-	s.configuration.Env = xos.EnvMapToSlice(xos.EnvMergeMaps(defenv, env))
+	s.configuration.Env = xos.EnvMapToSlice(xos.EnvMergeMaps(defenv, s.deployEnv))
 
 	if err := s.deploy(); err != nil {
 		return nil, err
@@ -166,6 +169,14 @@ func ContainerOption(container container.Container) Option {
 func DeployStatusOption(statuses chan DeployStatus) Option {
 	return func(s *Service) {
 		s.statuses = statuses
+	}
+}
+
+// DeployEnvOption is a configuration to overwrite env variables defined
+// in the service's mesg.yml file.
+func DeployEnvOption(env map[string]string) Option {
+	return func(s *Service) {
+		s.deployEnv = env
 	}
 }
 
@@ -252,8 +263,8 @@ func (s *Service) getDependency(dependencyKey string) (*Dependency, error) {
 }
 
 // validateConfigurationEnv checks presence of env variables in mesg.yml under env section.
-func (s *Service) validateConfigurationEnv(env map[string]string) error {
-	for key := range env {
+func (s *Service) validateConfigurationEnv() error {
+	for key := range s.deployEnv {
 		exist := false
 		// check if "key=" exists in configuration
 		for _, env := range s.configuration.Env {
