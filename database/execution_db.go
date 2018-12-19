@@ -13,6 +13,9 @@ type ExecutionDB interface {
 	Find(executionID string) (*execution.Execution, error)
 	Save(execution *execution.Execution) error
 	Close() error
+	OpenTransaction() (*leveldb.Transaction, error)
+	FindWithTx(tx leveldb.Reader, executionID string) (*execution.Execution, error)
+	SaveWithTx(tx *leveldb.Transaction, execution *execution.Execution) error
 }
 
 // LevelDBExecutionDB is a concrete implementation of the DB interface
@@ -32,7 +35,12 @@ func NewExecutionDB(path string) (*LevelDBExecutionDB, error) {
 
 // Find the execution based on an executionID, returns an error if not found
 func (db *LevelDBExecutionDB) Find(executionID string) (*execution.Execution, error) {
-	data, err := db.db.Get([]byte(executionID), nil)
+	return db.FindWithTx(db.db, executionID)
+}
+
+// FindWithTx the execution based on an executionID, returns an error if not found
+func (db *LevelDBExecutionDB) FindWithTx(tx leveldb.Reader, executionID string) (*execution.Execution, error) {
+	data, err := tx.Get([]byte(executionID), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -46,6 +54,20 @@ func (db *LevelDBExecutionDB) Find(executionID string) (*execution.Execution, er
 // Save an instance of executable in the database
 // Returns an error if anything from marshaling to database saving goes wrong
 func (db *LevelDBExecutionDB) Save(execution *execution.Execution) error {
+	tx, err := db.db.OpenTransaction()
+	if err != nil {
+		return err
+	}
+	if err := db.SaveWithTx(tx, execution); err != nil {
+		tx.Discard()
+		return err
+	}
+	return tx.Commit()
+}
+
+// SaveWithTx an instance of executable in the database
+// Returns an error if anything from marshaling to database saving goes wrong
+func (db *LevelDBExecutionDB) SaveWithTx(tx *leveldb.Transaction, execution *execution.Execution) error {
 	if execution.ID == "" {
 		return errors.New("database: can't save service without id")
 	}
@@ -53,10 +75,15 @@ func (db *LevelDBExecutionDB) Save(execution *execution.Execution) error {
 	if err != nil {
 		return err
 	}
-	return db.db.Put([]byte(execution.ID), data, nil)
+	return tx.Put([]byte(execution.ID), data, nil)
 }
 
 // Close closes database.
 func (db *LevelDBExecutionDB) Close() error {
 	return db.db.Close()
+}
+
+// OpenTransaction creates an new transaction on this db.
+func (db *LevelDBExecutionDB) OpenTransaction() (*leveldb.Transaction, error) {
+	return db.db.OpenTransaction()
 }
