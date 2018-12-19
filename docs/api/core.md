@@ -979,8 +979,8 @@ The data sent to the request stream of the `DeployService` API.
 Stream should be closed after url or all chunks sent to server.
 
 **Example**
-```json
 1th, send deployment options even if they're empty:
+```json
 {
   "options": {
     "env": {

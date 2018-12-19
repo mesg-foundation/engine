@@ -24,29 +24,29 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 		sendDeployStatus(statuses, stream)
 	}()
 
-	var (
-		service         *service.Service
-		validationError *importer.ValidationError
-		err             error
-	)
+	deployOptions := []api.DeployServiceOption{
+		api.DeployServiceStatusOption(statuses),
+	}
 
 	// receive the 1th message in the stream.
 	// it'll be the deployment options.
 	if err := sr.RecvMessage(); err != nil {
 		return err
 	}
-
-	deployOptions := []api.DeployServiceOption{
-		api.DeployServiceStatusOption(statuses),
-		api.DeployServiceEnvOption(sr.Options.Env),
+	if sr.Options != nil && sr.Options.Env != nil {
+		deployOptions = append(deployOptions, api.DeployServiceEnvOption(sr.Options.Env))
 	}
 
+	var (
+		service         *service.Service
+		validationError *importer.ValidationError
+		err             error
+	)
 	// receive the 2nd message in the stream.
 	// it can be the url or first chunk of the service.
 	if err := sr.RecvMessage(); err != nil {
 		return err
 	}
-
 	if sr.URL != "" {
 		service, validationError, err = s.api.DeployServiceFromURL(sr.URL, deployOptions...)
 	} else {
