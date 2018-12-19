@@ -979,7 +979,7 @@ The data sent to the request stream of the `DeployService` API.
 Stream should be closed after url or all chunks sent to server.
 
 **Example**
-1th, send deployment options even if they're empty:
+1th, send deployment options (not required, optional to send):
 ```json
 {
   "options": {
@@ -1005,7 +1005,7 @@ or send the service chunks to deploy from a gzipped tarball:
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| options | [DeployServiceRequest.Options](#api.DeployServiceRequest.Options) | Options used as deployment options for service. It should be sent as the first message in the stream event if it's empty. |
+| options | [DeployServiceRequest.Options](#api.DeployServiceRequest.Options) | Options used as deployment options for service. It should be sent as the first message in the stream but not required. |
 | url | [string](#string) | Git repo url of service. When url provided, stream will be closed after the first receive. |
 | chunk | [bytes](#bytes) | Chunks of gzipped tar archive of service. If chunk provided, stream should be closed by client after all chunks sent. |
 

@@ -285,7 +285,7 @@ func (s *Service) validateConfigurationEnv() error {
 	return nil
 }
 
-// ErrNotDefinedEnv error returned when optionally given env variables
+// ErrNotDefinedEnv error returned when deploy time env variables
 // are not defined in tne mesg.yml file.
 type ErrNotDefinedEnv struct {
 	env []string
