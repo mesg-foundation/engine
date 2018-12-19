@@ -51,12 +51,14 @@ func (p *ServiceProvider) ServiceDeploy(path string, env map[string]string, stat
 	go readDeployReply(stream, deployment, statuses)
 
 	// deployment options should be sent as the 1th message in the stream.
-	if err := stream.Send(&coreapi.DeployServiceRequest{
-		Value: &coreapi.DeployServiceRequest_Options_{Options: &coreapi.DeployServiceRequest_Options{
-			Env: env,
-		}},
-	}); err != nil {
-		return "", nil, err
+	if len(env) > 0 {
+		if err := stream.Send(&coreapi.DeployServiceRequest{
+			Value: &coreapi.DeployServiceRequest_Options_{Options: &coreapi.DeployServiceRequest_Options{
+				Env: env,
+			}},
+		}); err != nil {
+			return "", nil, err
+		}
 	}
 
 	if govalidator.IsURL(path) {

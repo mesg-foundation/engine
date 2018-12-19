@@ -29,11 +29,11 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 	}
 
 	// receive the 1th message in the stream.
-	// it'll be the deployment options.
+	// it can be the deployment options or service's url/first chunk.
 	if err := sr.RecvMessage(); err != nil {
 		return err
 	}
-	if sr.Options != nil && sr.Options.Env != nil {
+	if sr.Options != nil {
 		deployOptions = append(deployOptions, api.DeployServiceEnvOption(sr.Options.Env))
 	}
 
@@ -42,10 +42,12 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 		validationError *importer.ValidationError
 		err             error
 	)
-	// receive the 2nd message in the stream.
-	// it can be the url or first chunk of the service.
-	if err := sr.RecvMessage(); err != nil {
-		return err
+	// receive the 2nd message in the stream if first message was the options.
+	// message can contain url or first chunk of the service.
+	if sr.Options != nil {
+		if err := sr.RecvMessage(); err != nil {
+			return err
+		}
 	}
 	if sr.URL != "" {
 		service, validationError, err = s.api.DeployServiceFromURL(sr.URL, deployOptions...)
