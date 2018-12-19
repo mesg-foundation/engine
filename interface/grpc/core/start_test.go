@@ -16,7 +16,7 @@ func TestStartService(t *testing.T) {
 	// we use a test service without tasks definition here otherwise we need to
 	// spin up the gRPC server in order to prevent service exit with a failure
 	// because it'll try to listen for tasks.
-	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath), nil)
+	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.Hash, false)

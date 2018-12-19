@@ -30,16 +30,16 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 		err             error
 	)
 
-	deployOptions := []api.DeployServiceOption{
-		api.DeployServiceStatusOption(statuses),
-	}
-
 	// receive the 1th message in the stream.
 	// it'll be the deployment options.
 	if err := sr.RecvMessage(); err != nil {
 		return err
 	}
-	env := sr.Options.Env
+
+	deployOptions := []api.DeployServiceOption{
+		api.DeployServiceStatusOption(statuses),
+		api.DeployServiceEnvOption(sr.Options.Env),
+	}
 
 	// receive the 2nd message in the stream.
 	// it can be the url or first chunk of the service.
@@ -48,9 +48,9 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 	}
 
 	if sr.URL != "" {
-		service, validationError, err = s.api.DeployServiceFromURL(sr.URL, env, deployOptions...)
+		service, validationError, err = s.api.DeployServiceFromURL(sr.URL, deployOptions...)
 	} else {
-		service, validationError, err = s.api.DeployService(sr, env, deployOptions...)
+		service, validationError, err = s.api.DeployService(sr, deployOptions...)
 	}
 
 	// wait for statuses to be sent first otherwise sending multiple messages at the
