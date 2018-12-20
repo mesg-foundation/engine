@@ -24,6 +24,7 @@ func (s *Service) injectDefinition(def *importer.ServiceDefinition) {
 		s.configuration.Ports = def.Configuration.Ports
 		s.configuration.Volumes = def.Configuration.Volumes
 		s.configuration.VolumesFrom = def.Configuration.VolumesFrom
+		s.configuration.Env = def.Configuration.Env
 	}
 }
 
@@ -47,7 +48,6 @@ func (s *Service) defTasksToService(tasks map[string]*importer.Task) []*Task {
 			Inputs:      s.defParametersToService(task.Inputs),
 			Outputs:     s.defOutputsToService(task.Outputs),
 		}
-
 	}
 	return ts
 }

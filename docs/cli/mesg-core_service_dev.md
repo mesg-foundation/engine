@@ -19,6 +19,7 @@ mesg-core service dev PATH
 ### Options
 
 ```
+      --env key=value          set env defined in mesg.yml (configuration.env)
   -e, --event-filter string    Only log the data of the given event (default "*")
   -h, --help                   help for dev
   -o, --output-filter string   Only log the data of the given output of a task result. If set, you also need to set the task in --task-filter

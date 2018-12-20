@@ -230,12 +230,18 @@ message StopServiceReply {
 // **Example**
 // ```json
 // {
+//   "env": {
+//     "key": "value"
+//   },
 //   "url": "__SERVICE_GIT_URL__"
 // }
 // ```
 // or
 // ```json
 // {
+//   "env": {
+//     "key": "value"
+//   },
 //   "chunk": "__SERVICE_GZIPPED_TAR_FILE_CHUNK__"
 // }
 // ```
@@ -244,6 +250,7 @@ message DeployServiceRequest {
     string url = 2;   // Git repo url of service. When url provided, stream will be closed after the first receive.
     bytes chunk = 3;  // Chunks of gzipped tar archive of service. If chunk provided, stream should be closed by client after all chunks sent.
   }
+  map<string, string> env = 4; // Env used to deploy service.
 }
 
 // The data received from the reply stream of the `DeployService` API.
