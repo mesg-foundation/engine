@@ -37,12 +37,12 @@ mv ./mesg-core /usr/local/bin/mesg-core
 <!-- * Clone the core repo to get system services
 ```
 git clone https://github.com/mesg-foundation/core.git /tmp/mesg-core
-```
+```-->
 * Create system services folder under your mesg path
 ```
 mkdir -p ~/.mesg/systemservices
 ```
-* Copy system services from core repo
+<!-- * Copy system services from core repo
 ```
 cp -a /tmp/mesg-core/systemservices/sources/. ~/.mesg/systemservices
 ```-->
