@@ -30,7 +30,7 @@ func TestDeployService(t *testing.T) {
 		archive, err := xarchive.GzippedTar(path)
 		require.NoError(t, err)
 
-		service, validationError, err := a.DeployService(archive, nil, DeployServiceStatusOption(statuses))
+		service, validationError, err := a.DeployService(archive, DeployServiceStatusOption(statuses))
 		require.Nil(t, validationError)
 		require.NoError(t, err)
 		require.Len(t, service.Hash, 40)
@@ -76,7 +76,7 @@ func TestDeployInvalidService(t *testing.T) {
 		archive, err := xarchive.GzippedTar(path)
 		require.NoError(t, err)
 
-		service, validationError, err := a.DeployService(archive, nil, DeployServiceStatusOption(statuses))
+		service, validationError, err := a.DeployService(archive, DeployServiceStatusOption(statuses))
 		require.Nil(t, service)
 		require.NoError(t, err)
 		require.Equal(t, (&importer.ValidationError{}).Error(), validationError.Error())
@@ -114,7 +114,7 @@ func TestDeployServiceFromURL(t *testing.T) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		service, validationError, err := a.DeployServiceFromURL(url, nil, DeployServiceStatusOption(statuses))
+		service, validationError, err := a.DeployServiceFromURL(url, DeployServiceStatusOption(statuses))
 		require.Nil(t, validationError)
 		require.NoError(t, err)
 		require.Len(t, service.Hash, 40)
@@ -156,7 +156,7 @@ func TestDeployServiceFromURL(t *testing.T) {
 func TestCreateTempFolder(t *testing.T) {
 	a, _, closer := newAPIAndDockerTest(t)
 	defer closer()
-	deployer := newServiceDeployer(a, nil)
+	deployer := newServiceDeployer(a)
 
 	path, err := deployer.createTempDir()
 	defer os.RemoveAll(path)
@@ -167,7 +167,7 @@ func TestCreateTempFolder(t *testing.T) {
 func TestRemoveTempFolder(t *testing.T) {
 	a, _, closer := newAPIAndDockerTest(t)
 	defer closer()
-	deployer := newServiceDeployer(a, nil)
+	deployer := newServiceDeployer(a)
 
 	path, _ := deployer.createTempDir()
 	err := os.RemoveAll(path)

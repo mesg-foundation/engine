@@ -100,7 +100,7 @@ func (d *Deployer) deployService(relativePath string) (*service.Service, error) 
 		return nil, err
 	}
 
-	sr, validationErr, err := d.api.DeployService(archive, nil)
+	sr, validationErr, err := d.api.DeployService(archive)
 	if err != nil {
 		return nil, err
 	}

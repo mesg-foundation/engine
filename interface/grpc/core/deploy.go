@@ -15,7 +15,6 @@ import (
 func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 	var (
 		statuses = make(chan api.DeployStatus)
-		option   = api.DeployServiceStatusOption(statuses)
 		wg       sync.WaitGroup
 
 		service         *service.Service
@@ -29,6 +28,10 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 		sendDeployStatus(statuses, stream)
 	}()
 
+	deployOptions := []api.DeployServiceOption{
+		api.DeployServiceStatusOption(statuses),
+	}
+
 	// read first requesest from stream and check if it's url or tarball
 	in, err := stream.Recv()
 	if err != nil {
@@ -36,17 +39,17 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 	}
 
 	// env must be set with first package (always)
-	env := in.GetEnv()
+	deployOptions = append(deployOptions, api.DeployServiceEnvOption(in.GetEnv()))
 
 	if url := in.GetUrl(); url != "" {
-		service, validationError, err = s.api.DeployServiceFromURL(url, env, option)
+		service, validationError, err = s.api.DeployServiceFromURL(url, deployOptions...)
 	} else {
 		// create tarball reader with first chunk of bytes
 		tarball := &deployChunkReader{
 			stream: stream,
 			buf:    in.GetChunk(),
 		}
-		service, validationError, err = s.api.DeployService(tarball, env, option)
+		service, validationError, err = s.api.DeployService(tarball, deployOptions...)
 	}
 
 	// wait for statuses to be sent first, otherwise sending multiple messages at the

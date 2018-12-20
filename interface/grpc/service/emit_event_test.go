@@ -17,7 +17,7 @@ func TestEmit(t *testing.T) {
 	)
 	defer closer()
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath), nil)
+	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.Hash, false)
@@ -51,7 +51,7 @@ func TestEmitNoData(t *testing.T) {
 	)
 	defer closer()
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath), nil)
+	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.Hash, false)
@@ -70,7 +70,7 @@ func TestEmitWrongData(t *testing.T) {
 	)
 	defer closer()
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath), nil)
+	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.Hash, false)
@@ -90,7 +90,7 @@ func TestEmitWrongEvent(t *testing.T) {
 	)
 	defer closer()
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath), nil)
+	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.Hash, false)
@@ -115,7 +115,7 @@ func TestEmitInvalidData(t *testing.T) {
 	)
 	defer closer()
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath), nil)
+	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath))
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.Hash, false)
