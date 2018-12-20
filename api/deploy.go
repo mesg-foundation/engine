@@ -129,9 +129,10 @@ func (d *serviceDeployer) deploy(r io.Reader) (*service.Service, *importer.Valid
 		d.forwardDeployStatuses(statuses)
 	}()
 
-	s, err := service.New(r, d.env,
+	s, err := service.New(r,
 		service.ContainerOption(d.api.container),
 		service.DeployStatusOption(statuses),
+		service.DeployEnvOption(d.env),
 	)
 	wg.Wait()
 
