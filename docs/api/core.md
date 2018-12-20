@@ -979,20 +979,25 @@ The data sent to the request stream of the `DeployService` API.
 Stream should be closed after url or all chunks sent to server.
 
 **Example**
+1th, send deployment options (not required, optional to send):
 ```json
 {
-  "env": {
-    "key": "value"
+  "options": {
+    "env": {
+      "key": "value"
+    },
   },
+}
+```
+2nd, send url of the service to deploy:
+```json
+{
   "url": "__SERVICE_GIT_URL__"
 }
 ```
-or
+or send the service chunks to deploy from a gzipped tarball:
 ```json
 {
-  "env": {
-    "key": "value"
-  },
   "chunk": "__SERVICE_GZIPPED_TAR_FILE_CHUNK__"
 }
 ```
@@ -1000,9 +1005,9 @@ or
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
+| options | [DeployServiceRequest.Options](#api.DeployServiceRequest.Options) | Options used as deployment options for service. It should be sent as the first message in the stream but not required. |
 | url | [string](#string) | Git repo url of service. When url provided, stream will be closed after the first receive. |
 | chunk | [bytes](#bytes) | Chunks of gzipped tar archive of service. If chunk provided, stream should be closed by client after all chunks sent. |
-| env | [DeployServiceRequest.EnvEntry](#api.DeployServiceRequest.EnvEntry)[] | Env used to deploy service. |
 
 
 
