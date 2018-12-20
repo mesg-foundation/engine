@@ -72,8 +72,7 @@ func (t *Task) GetInputParameter(inputKey string) (*Parameter, error) {
 
 // ValidateInputs produces warnings for task inputs that doesn't satisfy their parameter schemas.
 func (t *Task) ValidateInputs(taskInputs map[string]interface{}) []*ParameterWarning {
-	warnings, _ := newParameterValidator().Validate(t.Inputs, taskInputs)
-	return warnings
+	return newParameterValidator().Validate(t.Inputs, taskInputs)
 }
 
 // RequireInputs requires task inputs to be matched with parameter schemas.
@@ -107,8 +106,7 @@ func (t *Task) GetOutput(outputKey string) (*Output, error) {
 
 // ValidateData produces warnings for task outputs that doesn't satisfy their parameter schemas.
 func (o *Output) ValidateData(outputData map[string]interface{}) []*ParameterWarning {
-	warnings, _ := newParameterValidator().Validate(o.Data, outputData)
-	return warnings
+	return newParameterValidator().Validate(o.Data, outputData)
 }
 
 // RequireData requires task outputs to be matched with parameter schemas.

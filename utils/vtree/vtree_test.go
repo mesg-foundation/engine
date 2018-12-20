@@ -6,13 +6,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type Simple struct {
-	A string
-	B bool
-}
-
-var str *string
-
 func TestAnalyse(t *testing.T) {
 	tests := []struct {
 		name   string
@@ -22,11 +15,6 @@ func TestAnalyse(t *testing.T) {
 		{
 			"nil",
 			nil,
-			Value{},
-		},
-		{
-			"nil string",
-			str,
 			Value{Type: Nil},
 		},
 		{
@@ -38,14 +26,6 @@ func TestAnalyse(t *testing.T) {
 			"string slice",
 			[]string{"1", "2"},
 			Value{Type: Array, Values: []Value{{Type: String}, {Type: String}}},
-		},
-		{
-			"slice of string slices",
-			[][]string{{"1"}, {"1", "2"}},
-			Value{Type: Array, Values: []Value{
-				{Type: Array, Values: []Value{{Type: String}}},
-				{Type: Array, Values: []Value{{Type: String}, {Type: String}}},
-			}},
 		},
 		{
 			"interface slice",
@@ -62,8 +42,8 @@ func TestAnalyse(t *testing.T) {
 			map[string]interface{}{
 				"a": 1,
 				"b": true,
-				"c": &Simple{"1", true},
-				"d": []*Simple{{"1", true}, {"1", true}},
+				"c": map[string]interface{}{"A": "1", "B": true},
+				"d": []map[string]interface{}{{"A": "1", "B": true}, {"A": "2", "B": true}},
 			},
 			Value{Type: Object, Values: []Value{
 				{Key: "a", Type: Number},
@@ -84,11 +64,6 @@ func TestAnalyse(t *testing.T) {
 				}},
 			}},
 		},
-		{
-			"struct",
-			Simple{"1", true},
-			Value{Type: Object, Values: []Value{{Key: "A", Type: String}, {Key: "B", Type: Bool}}},
-		},
 	}
 
 	for _, test := range tests {
@@ -98,12 +73,12 @@ func TestAnalyse(t *testing.T) {
 }
 
 func TestGetByKey(t *testing.T) {
-	v := Analyze(struct {
-		A string
-		B struct {
-			C string
-		}
-	}{"1", struct{ C string }{"2"}})
+	v := Analyze(map[string]interface{}{
+		"A": "1",
+		"B": map[string]interface{}{
+			"C": "2",
+		},
+	})
 
 	vv, ok := v.GetByKey("a", true)
 	require.False(t, ok)

@@ -2,19 +2,16 @@ package service
 
 import (
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/require"
-	"gopkg.in/mgo.v2/bson"
 )
 
 func TestValidate(t *testing.T) {
 	tests := []struct {
 		name     string
 		params   []*Parameter
-		data     interface{}
+		data     map[string]interface{}
 		warnings []*ParameterWarning
-		err      error
 	}{
 		{
 			"parameters with valid map data",
@@ -35,34 +32,6 @@ func TestValidate(t *testing.T) {
 				"d": true,
 				"e": map[string]interface{}{"f": "3"},
 			},
-			nil,
-			nil,
-		},
-		{
-			"parameters with valid struct data",
-			[]*Parameter{
-				{Key: "a", Type: "String"},
-				{Key: "b", Type: "Number"},
-				{Key: "c", Type: "Number"},
-				{Key: "d", Type: "Boolean"},
-				{Key: "e", Type: "Any"},
-				{Key: "f", Parameters: []*Parameter{
-					{Key: "g", Type: "String"},
-				}},
-				{Key: "h", Parameters: []*Parameter{
-					{Key: "g", Type: "String"},
-				}},
-			},
-			struct {
-				A string
-				B int
-				C float64
-				D bool
-				E interface{}
-				F struct{ G string }
-				H interface{}
-			}{"1", 2, 0.3, true, 4, struct{ G string }{"6"}, struct{ G string }{"7"}},
-			nil,
 			nil,
 		},
 		{
@@ -90,7 +59,6 @@ func TestValidate(t *testing.T) {
 					"f": []interface{}{},
 				},
 			},
-			nil,
 			nil,
 		},
 		{
@@ -124,7 +92,6 @@ func TestValidate(t *testing.T) {
 				requiredWarning("h"),
 				notAStringWarning("j"),
 			},
-			nil,
 		},
 		{
 			"repeated parameters with invalid data",
@@ -159,29 +126,6 @@ func TestValidate(t *testing.T) {
 				notABooleanWarning("g"),
 				notAnObjectWarning("h"),
 			},
-			nil,
-		},
-		{
-			"complex parameter data",
-			[]*Parameter{{Key: "article", Parameters: []*Parameter{
-				{Key: "id", Type: "String"},
-				{Key: "location", Parameters: []*Parameter{
-					{Key: "city", Type: "String"},
-				}},
-				{Key: "createdAt", Type: "String"},
-			},
-			}},
-			map[string]interface{}{
-				"article": map[string]interface{}{
-					"id": bson.NewObjectId(),
-					"location": map[string]interface{}{
-						"city": "Ankara",
-					},
-					"createdAt": time.Now(),
-				},
-			},
-			nil,
-			nil,
 		},
 		{
 			"optional",
@@ -194,13 +138,11 @@ func TestValidate(t *testing.T) {
 				"b": nil,
 			},
 			nil,
-			nil,
 		},
 	}
 
 	for _, test := range tests {
-		warnings, err := newParameterValidator().Validate(test.params, test.data)
-		require.Equal(t, test.err, err, test.name)
+		warnings := newParameterValidator().Validate(test.params, test.data)
 		require.Equal(t, len(test.warnings), len(warnings), test.name)
 		for i, w := range warnings {
 			require.Equal(t, test.warnings[i].Key, w.Key, test.name)

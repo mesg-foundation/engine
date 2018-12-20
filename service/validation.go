@@ -1,7 +1,6 @@
 package service
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/mesg-foundation/core/utils/vtree"
@@ -18,13 +17,9 @@ func newParameterValidator() *parameterValidator {
 // Validate validates data to check if it matches with parameter's schema.
 // TODO(ilgooz) add this as a method to Service type when create custom types for Event, Task etc.
 // TODO(ilgooz) remove pointer from *Parameter.
-func (p *parameterValidator) Validate(params []*Parameter, data interface{}) ([]*ParameterWarning, error) {
-	v := vtree.Analyze(data)
-	if v.Type != vtree.Object {
-		return nil, errors.New("not an object")
-	}
-	p.validateParameters(params, v)
-	return p.warnings, nil
+func (p *parameterValidator) Validate(params []*Parameter, data map[string]interface{}) []*ParameterWarning {
+	p.validateParameters(params, vtree.Analyze(data))
+	return p.warnings
 }
 
 func (p *parameterValidator) validateParameters(params []*Parameter, v vtree.Value) {

@@ -1,12 +1,10 @@
-// Package vtree provides utility to analyze any Go types to print a type tree.
+// Package vtree provides utility to analyze Go types to print a type tree.
 // type tree represents commonly used types by data-interchange formats.
-// it resolves nested types like maps and structs until reach to the most basic
+// it's capable to resolve nested maps until reach to the most basic
 // types like numbers, strings and booleans.
 package vtree
 
 import (
-	"fmt"
-	"reflect"
 	"sort"
 	"strings"
 )
@@ -35,7 +33,7 @@ const (
 	Array
 
 	// Object type.
-	// Corresponds to Go maps and structs.
+	// Corresponds to Go maps.
 	Object
 )
 
@@ -70,79 +68,131 @@ func (v Value) GetByKey(key string, caseSensitive bool) (vv Value, ok bool) {
 }
 
 // Analyze analyzes a Go type and produces a value tree.
+// v can be;
+// * basic types like string, number types, bool;
+// * slices of string, number types, bool, maps for one level (e.g. []string and not [][]string);
+// * maps & nested maps with map[string]interface{} type which can contain basic types and slices.
+// pointer values and structs aren't supported.
 func Analyze(v interface{}) Value {
-	vv := Value{}
-	if v == nil {
-		return vv
-	}
-	return analyze(vv, reflect.ValueOf(v))
+	return analyze(Value{}, v)
 }
 
-func analyze(v Value, rv reflect.Value) Value {
-	switch rv.Kind() {
-	case reflect.Ptr, reflect.Interface:
-		return analyze(v, rv.Elem())
+func analyze(vv Value, v interface{}) Value {
+	switch d := v.(type) {
+	case map[string]interface{}:
+		vv.Type = Object
+		vv.Values = make([]Value, 0)
 
-	case reflect.Map:
-		v.Type = Object
-		v.Values = make([]Value, 0)
-
-		var (
-			keys = []string{}
-			// key-reflect.Value pair.
-			values = map[string]reflect.Value{}
-		)
-
-		for _, key := range rv.MapKeys() {
-			k := key.String()
-			values[k] = key
-			keys = append(keys, k)
+		keys := []string{}
+		for key := range d {
+			keys = append(keys, key)
 		}
 		// sort by map keys to always keep the members of Values
 		// slice in the same order.
 		sort.Strings(keys)
 
 		for _, key := range keys {
-			v.Values = append(v.Values, analyze(Value{Key: key}, rv.MapIndex(values[key])))
+			vv.Values = append(vv.Values, analyze(Value{Key: key}, d[key]))
 		}
 
-	case reflect.Struct:
-		if _, ok := rv.Interface().(fmt.Stringer); ok {
-			v.Type = String
-		} else {
-			v.Type = Object
-			v.Values = make([]Value, 0)
+	case []map[string]interface{}:
+		vv.Type = Array
+		vv.Values = make([]Value, 0)
 
-			for i := 0; i < rv.NumField(); i++ {
-				v.Values = append(v.Values, analyze(Value{Key: rv.Type().Field(i).Name}, rv.Field(i)))
-			}
+		for _, val := range d {
+			vv.Values = append(vv.Values, analyze(Value{}, val))
 		}
 
-	case reflect.Slice:
-		v.Type = Array
-		v.Values = make([]Value, 0)
+	case []interface{}:
+		vv.Type = Array
+		vv.Values = make([]Value, 0)
 
-		for i := 0; i < rv.Len(); i++ {
-			v.Values = append(v.Values, analyze(Value{}, rv.Index(i)))
+		for _, val := range d {
+			vv.Values = append(vv.Values, analyze(Value{}, val))
 		}
 
-	case reflect.String:
-		v.Type = String
+	case []string:
+		vv.Type = Array
+		vv.Values = createValues(String, len(d))
 
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
-		reflect.Float32, reflect.Float64:
-		v.Type = Number
+	case []int:
+		vv.Type = Array
+		vv.Values = createValues(Number, len(d))
 
-	case reflect.Bool:
-		v.Type = Bool
+	case []int8:
+		vv.Type = Array
+		vv.Values = createValues(Number, len(d))
 
-	case reflect.Invalid:
-		v.Type = Nil
+	case []int16:
+		vv.Type = Array
+		vv.Values = createValues(Number, len(d))
+
+	case []int32:
+		vv.Type = Array
+		vv.Values = createValues(Number, len(d))
+
+	case []int64:
+		vv.Type = Array
+		vv.Values = createValues(Number, len(d))
+
+	case []uint:
+		vv.Type = Array
+		vv.Values = createValues(Number, len(d))
+
+	case []uint8:
+		vv.Type = Array
+		vv.Values = createValues(Number, len(d))
+
+	case []uint16:
+		vv.Type = Array
+		vv.Values = createValues(Number, len(d))
+
+	case []uint32:
+		vv.Type = Array
+		vv.Values = createValues(Number, len(d))
+
+	case []uint64:
+		vv.Type = Array
+		vv.Values = createValues(Number, len(d))
+
+	case []float32:
+		vv.Type = Array
+		vv.Values = createValues(Number, len(d))
+
+	case []float64:
+		vv.Type = Array
+		vv.Values = createValues(Number, len(d))
+
+	case []bool:
+		vv.Type = Array
+		vv.Values = createValues(Bool, len(d))
+
+	case string:
+		vv.Type = String
+
+	case int, int8, int16, int32, int64,
+		uint, uint8, uint16, uint32, uint64,
+		float32, float64:
+		vv.Type = Number
+
+	case bool:
+		vv.Type = Bool
+
+	case nil:
+		vv.Type = Nil
 
 	default:
-		v.Type = Unknown
+		vv.Type = Unknown
 	}
 
-	return v
+	return vv
+}
+
+// createValues creates a slice of n values with the same t.
+func createValues(t Type, n int) []Value {
+	values := make([]Value, 0)
+	for i := 0; i < n; i++ {
+		values = append(values, Value{Type: t})
+	}
+	return values
 }

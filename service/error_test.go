@@ -64,7 +64,7 @@ func TestEventNotFoundError(t *testing.T) {
 // Test InvalidEventDataError
 func TestInvalidEventDataError(t *testing.T) {
 	tests := newParameterTestCases()
-	warnings, _ := newParameterValidator().Validate(tests.parameterTestsToSliceParameters(), tests.parameterTestsToMapData())
+	warnings := newParameterValidator().Validate(tests.parameterTestsToSliceParameters(), tests.parameterTestsToMapData())
 	err := InvalidEventDataError{
 		EventKey:    "TestInvalidEventDataErrorEventKey",
 		ServiceName: "TestInvalidEventDataError",
@@ -86,7 +86,7 @@ func TestTaskNotFoundError(t *testing.T) {
 // Test InvalidTaskInputError
 func TestInvalidTaskInputError(t *testing.T) {
 	tests := newParameterTestCases()
-	warnings, _ := newParameterValidator().Validate(tests.parameterTestsToSliceParameters(), tests.parameterTestsToMapData())
+	warnings := newParameterValidator().Validate(tests.parameterTestsToSliceParameters(), tests.parameterTestsToMapData())
 	err := InvalidTaskInputError{
 		TaskKey:     "TestInvalidTaskInputErrorKey",
 		ServiceName: "TestInvalidTaskInputError",
@@ -109,7 +109,7 @@ func TestOutputNotFoundError(t *testing.T) {
 // Test InvalidOutputDataError
 func TestInvalidOutputDataError(t *testing.T) {
 	tests := newParameterTestCases()
-	warnings, _ := newParameterValidator().Validate(tests.parameterTestsToSliceParameters(), tests.parameterTestsToMapData())
+	warnings := newParameterValidator().Validate(tests.parameterTestsToSliceParameters(), tests.parameterTestsToMapData())
 	err := InvalidTaskOutputError{
 		TaskKey:       "TaskKey",
 		TaskOutputKey: "OutputKey",
