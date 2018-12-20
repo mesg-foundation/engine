@@ -44,8 +44,8 @@ mkdir -p ~/.mesg/systemservices
 ```
 * Copy system services from core repo
 ```
-cp -a /tmp/mesg-core/systemservices/sources/. ~/.mesg/systemservices -->
-```
+cp -a /tmp/mesg-core/systemservices/sources/. ~/.mesg/systemservices
+```-->
 * Start MESG Core with the command
 ```
 mesg-core start
