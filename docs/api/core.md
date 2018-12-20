@@ -1465,6 +1465,7 @@ The reply's data of the `ListServices` API.
 {
   "services": [{
     "id": "idX",
+    "sid": "sidX",
     "name": "serviceX",
     "description": "descriptionX",
     "status": "statusX",
@@ -1686,6 +1687,7 @@ The reply's data of the `GetService` API.
 {
   "service": {
     "id": "idX",
+    "sid": "sidX",
     "name": "serviceX",
     "description": "descriptionX",
     "status": "statusX",
