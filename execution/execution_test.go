@@ -10,10 +10,10 @@ import (
 )
 
 var (
-	serviceName      = "1"
-	eventID          = "2"
-	taskKey          = "task"
-	taskKeyWithError = "task2"
+	serviceName      = "SERVICE_ID"
+	eventID          = "EVENT_ID"
+	taskKey          = "TASK_KEY"
+	taskKeyWithError = "TASK_KEY_ERROR"
 	tags             = []string{"tag1", "tag2"}
 	srv, _           = service.FromService(&service.Service{
 		Name: serviceName,
@@ -26,7 +26,7 @@ var (
 				},
 				Outputs: []*service.Output{
 					{
-						Key: "outputX",
+						Key: "OUTPUT_KEY_1",
 						Data: []*service.Parameter{
 							{
 								Key:  "foo",
@@ -43,7 +43,7 @@ var (
 				},
 				Outputs: []*service.Output{
 					{
-						Key: "outputX",
+						Key: "OUTPUT_KEY_1",
 						Data: []*service.Parameter{
 							{
 								Key:  "foo",
@@ -65,13 +65,13 @@ func TestNewFromService(t *testing.T) {
 		err     error
 	}{
 		{
-			name:    "1",
+			name:    "success",
 			taskKey: taskKey,
 			inputs:  map[string]interface{}{"foo": "hello", "bar": "world"},
 			err:     nil,
 		},
 		{
-			name:    "2",
+			name:    "task not found",
 			taskKey: "wrongtask",
 			inputs:  map[string]interface{}{},
 			err: &service.TaskNotFoundError{
@@ -80,7 +80,7 @@ func TestNewFromService(t *testing.T) {
 			},
 		},
 		{
-			name:    "3",
+			name:    "invalid task input",
 			taskKey: taskKey,
 			inputs:  map[string]interface{}{"foo": "hello"},
 			err: &service.InvalidTaskInputError{
@@ -120,11 +120,11 @@ func TestExecute(t *testing.T) {
 		err  error
 	}{
 		{
-			name: "1",
+			name: "success",
 			err:  nil,
 		},
 		{ // this one is already executed so it should return an error
-			name: "2",
+			name: "status error",
 			err: StatusError{
 				ExpectedStatus: Created,
 				ActualStatus:   InProgress,
@@ -153,7 +153,7 @@ func TestComplete(t *testing.T) {
 		err  error
 	}{
 		{
-			name: "1",
+			name: "task output not found because of empty output key",
 			key:  "",
 			data: map[string]interface{}{},
 			err: &service.TaskOutputNotFoundError{
@@ -163,7 +163,7 @@ func TestComplete(t *testing.T) {
 			},
 		},
 		{
-			name: "2",
+			name: "task output not found because wrong output key",
 			key:  "output",
 			data: map[string]interface{}{"foo": "bar"},
 			err: &service.TaskOutputNotFoundError{
@@ -173,12 +173,12 @@ func TestComplete(t *testing.T) {
 			},
 		},
 		{
-			name: "3",
-			key:  "outputX",
+			name: "invalid task output",
+			key:  "OUTPUT_KEY_1",
 			data: map[string]interface{}{},
 			err: &service.InvalidTaskOutputError{
 				TaskKey:       taskKey,
-				TaskOutputKey: "outputX",
+				TaskOutputKey: "OUTPUT_KEY_1",
 				ServiceName:   serviceName,
 				Warnings: []*service.ParameterWarning{
 					{
@@ -190,14 +190,14 @@ func TestComplete(t *testing.T) {
 			},
 		},
 		{
-			name: "4",
-			key:  "outputX",
+			name: "success",
+			key:  "OUTPUT_KEY_1",
 			data: map[string]interface{}{"foo": "bar"},
 			err:  nil,
 		},
 		{ // this one is already proccessed
-			name: "5",
-			key:  "outputX",
+			name: "already executed",
+			key:  "OUTPUT_KEY_1",
 			data: map[string]interface{}{"foo": "bar"},
 			err: StatusError{
 				ExpectedStatus: InProgress,
