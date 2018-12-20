@@ -10,6 +10,7 @@ import (
 	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/mesg-foundation/core/x/xerrors"
+	"github.com/mesg-foundation/core/x/xpflag"
 	"github.com/mesg-foundation/core/x/xsignal"
 	"github.com/spf13/cobra"
 )
@@ -21,6 +22,7 @@ type serviceDevCmd struct {
 	taskFilter   string
 	outputFilter string
 	path         string
+	env          map[string]string
 
 	e ServiceExecutor
 }
@@ -42,6 +44,7 @@ func newServiceDevCmd(e ServiceExecutor) *serviceDevCmd {
 	c.cmd.Flags().StringVarP(&c.eventFilter, "event-filter", "e", c.eventFilter, "Only log the data of the given event")
 	c.cmd.Flags().StringVarP(&c.taskFilter, "task-filter", "t", "", "Only log the result of the given task")
 	c.cmd.Flags().StringVarP(&c.outputFilter, "output-filter", "o", "", "Only log the data of the given output of a task result. If set, you also need to set the task in --task-filter")
+	c.cmd.Flags().Var(xpflag.NewStringToStringValue(&c.env, nil), "env", "set env defined in mesg.yml (configuration.env)")
 	return c
 }
 
@@ -62,7 +65,7 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 		printDeployStatuses(statuses)
 	}()
 
-	id, validationError, err := c.e.ServiceDeploy(c.path, statuses)
+	id, validationError, err := c.e.ServiceDeploy(c.path, c.env, statuses)
 	wg.Wait()
 
 	pretty.DestroySpinner()

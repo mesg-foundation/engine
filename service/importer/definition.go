@@ -60,6 +60,9 @@ type Dependency struct {
 
 	// Args hold the args to pass to the Docker container
 	Args []string `yaml:"args"`
+
+	// Env is a slice of environment variables in key=value format.
+	Env []string `yaml:"env"`
 }
 
 // Task describes a service task.

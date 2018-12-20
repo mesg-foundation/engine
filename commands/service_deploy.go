@@ -8,6 +8,7 @@ import (
 	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/mesg-foundation/core/x/xerrors"
+	"github.com/mesg-foundation/core/x/xpflag"
 	"github.com/spf13/cobra"
 )
 
@@ -15,6 +16,7 @@ type serviceDeployCmd struct {
 	baseCmd
 
 	path string
+	env  map[string]string
 
 	e ServiceExecutor
 }
@@ -27,11 +29,12 @@ func newServiceDeployCmd(e ServiceExecutor) *serviceDeployCmd {
 		Long: `Deploy a service.
 
 To get more information, see the [deploy page from the documentation](https://docs.mesg.com/guide/service/deploy-a-service.html)`,
-		Example: `mesg-core service deploy PATH_TO_SERVICE`,
+		Example: `mesg-core service deploy [PATH_TO_SERVICE|URL_TO_SERVICE]`,
 		PreRunE: c.preRunE,
 		RunE:    c.runE,
 		Args:    cobra.MaximumNArgs(1),
 	})
+	c.cmd.Flags().Var(xpflag.NewStringToStringValue(&c.env, nil), "env", "set env defined in mesg.yml (configuration.env)")
 	return c
 }
 
@@ -52,7 +55,7 @@ func (c *serviceDeployCmd) runE(cmd *cobra.Command, args []string) error {
 		printDeployStatuses(statuses)
 	}()
 
-	id, validationError, err := c.e.ServiceDeploy(c.path, statuses)
+	id, validationError, err := c.e.ServiceDeploy(c.path, c.env, statuses)
 	wg.Wait()
 
 	pretty.DestroySpinner()

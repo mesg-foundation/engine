@@ -123,21 +123,3 @@ func TestServiceOptionNetworks(t *testing.T) {
 	require.Equal(t, 1, len(networks[1].Aliases))
 	require.Equal(t, "test", networks[1].Aliases[0])
 }
-
-func contains(list []string, item string) bool {
-	for _, itemInList := range list {
-		if itemInList == item {
-			return true
-		}
-	}
-	return false
-}
-
-func TestMapToEnv(t *testing.T) {
-	env := MapToEnv(map[string]string{
-		"first":  "first_value",
-		"second": "second_value",
-	})
-	require.True(t, contains(env, "first=first_value"))
-	require.True(t, contains(env, "second=second_value"))
-}

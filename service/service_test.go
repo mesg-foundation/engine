@@ -51,7 +51,7 @@ func TestNew(t *testing.T) {
 
 	statuses := make(chan DeployStatus, 4)
 
-	s, err := New(archive,
+	s, err := New(archive, nil,
 		ContainerOption(mc),
 		DeployStatusOption(statuses),
 	)

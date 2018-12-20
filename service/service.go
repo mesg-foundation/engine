@@ -5,11 +5,13 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/service/importer"
+	"github.com/mesg-foundation/core/x/xos"
 	"github.com/mesg-foundation/core/x/xstructhash"
 	uuid "github.com/satori/go.uuid"
 )
@@ -90,7 +92,7 @@ type DeployStatus struct {
 }
 
 // New creates a new service from a gzipped tarball.
-func New(tarball io.Reader, options ...Option) (*Service, error) {
+func New(tarball io.Reader, env map[string]string, options ...Option) (*Service, error) {
 	s := &Service{}
 
 	defer s.closeStatus()
@@ -107,7 +109,16 @@ func New(tarball io.Reader, options ...Option) (*Service, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	s.injectDefinition(def)
+
+	if err := s.validateConfigurationEnv(env); err != nil {
+		return nil, err
+	}
+
+	// replace default env with new one.
+	defenv := xos.EnvSliceToMap(s.configuration.Env)
+	s.configuration.Env = xos.EnvMapToSlice(xos.EnvMergeMaps(defenv, env))
 
 	if err := s.deploy(); err != nil {
 		return nil, err
@@ -238,4 +249,22 @@ func (s *Service) getDependency(dependencyKey string) (*Dependency, error) {
 		}
 	}
 	return nil, fmt.Errorf("dependency %s do not exist", dependencyKey)
+}
+
+// validateConfigurationEnv checks presence of env variables in mesg.yml under env section.
+func (s *Service) validateConfigurationEnv(env map[string]string) error {
+	for key := range env {
+		exist := false
+		// check if "key=" exists in configuration
+		for _, env := range s.configuration.Env {
+			if strings.HasPrefix(env, key+"=") {
+				exist = true
+				break
+			}
+		}
+		if !exist {
+			return fmt.Errorf("service environment variable %q dosen't exist in mesg.yml (under configuration.env key)", key)
+		}
+	}
+	return nil
 }
