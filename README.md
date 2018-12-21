@@ -98,7 +98,7 @@ const email      = '__YOUR_EMAIL_HERE__' // To replace by your email
 const sendgridAPIKey = '__SENDGRID_API_KEY__' // To replace by your SendGrid API key. See https://app.sendgrid.com/settings/api_keys
 
 MESG.whenEvent(
-  { serviceID: webhook, filter: 'request' },
+  { serviceID: webhook, eventKey: 'request' },
   { serviceID: invitation, taskKey: 'send', inputs: { email, sendgridAPIKey } },
 )
 ```
