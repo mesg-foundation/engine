@@ -170,20 +170,6 @@ We have a common place to post all community-developed Services and Applications
 
 Alternatively, you can also check out the [https://github.com/mesg-foundation/awesome#readme](Marketplace).
 
-# Roadmap
-
-#### June 2018 - Core V1.0 Launched
-Create your services and connect them together with your application through a single connection to Core, allowing Core to handle all communications and interoperability with any technology.
-
-#### Q3 2018 - Rapid Deployment
-No need to code your application anymore, just send a list of events with corresponding tasks within a simple configuration file to Core which will then execute tasks on your application’s behalf.
-
-#### Q4 2018 - Beta Network
-The beta decentralized Network means no coding or servers are necessary to run your applications. Connect thousands of services or applications from our shared repository. 
-
-#### Q3 2019 - Main Network
-MESG launches its own blockchain Network providing for full scalability and a cheaper and faster user experience. The main network will host the full functionality of the value-driven open market for the sharing of services.
-
 # Community
 
 You can find us and other MESG users on the [forum](https://forum.mesg.com). Feel free to check existing posts and help other users of MESG.
