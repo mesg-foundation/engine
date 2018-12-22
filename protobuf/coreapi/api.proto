@@ -151,7 +151,8 @@ message ListenResultRequest {
 //   "taskKey":       "__TASK_KEY__",
 //   "outputKey":     "__OUTPUT_KEY__",
 //   "outputData":    "{\"foo\":\"bar\"}",
-//   "executionTags": ["executionX", "test"]
+//   "executionTags": ["executionX", "test"],
+//   "error":         "error from the execution if something went wrong",
 // }
 // ```
 message ResultData {
@@ -159,7 +160,8 @@ message ResultData {
   string taskKey = 2;                 // The key of the executed task.
   string outputKey = 3;               // The output's key from the returned task.
   string outputData = 4;              // The output's data from the returned task, encoded in JSON.
-  repeated string executionTags = 5;  // The list of tags associated with the execution
+  repeated string executionTags = 5;  // The list of tags associated with the execution.
+  string error = 6;                   // The execution's error if something went wrong.
 }
 
 // The request's data for the `ExecuteTask` API.

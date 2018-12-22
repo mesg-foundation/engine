@@ -18,7 +18,22 @@ const (
 	Created Status = iota
 	InProgress
 	Completed
+	Failed
 )
+
+func (s Status) String() (r string) {
+	switch s {
+	case Created:
+		r = "created"
+	case InProgress:
+		r = "in progress"
+	case Completed:
+		r = "completed"
+	case Failed:
+		r = "failed"
+	}
+	return r
+}
 
 // Execution stores all informations about executions.
 type Execution struct {
@@ -31,6 +46,7 @@ type Execution struct {
 	Inputs            map[string]interface{} `hash:"inputs"`
 	OutputKey         string                 `hash:"-"`
 	OutputData        map[string]interface{} `hash:"-"`
+	Error             string                 `hash:"-"`
 	CreatedAt         time.Time              `hash:"-"`
 	ExecutedAt        time.Time              `hash:"-"`
 	ExecutionDuration time.Duration          `hash:"-"`
@@ -81,6 +97,7 @@ func (execution *Execution) Complete(outputKey string, outputData map[string]int
 			ActualStatus:   execution.Status,
 		}
 	}
+
 	task, err := execution.Service.GetTask(execution.TaskKey)
 	if err != nil {
 		return err
@@ -97,5 +114,21 @@ func (execution *Execution) Complete(outputKey string, outputData map[string]int
 	execution.OutputKey = outputKey
 	execution.OutputData = outputData
 	execution.Status = Completed
+	return nil
+}
+
+// Failed changes execution status to failed and puts error information to execution.
+// It returns an error if the status is different then InProgress.
+func (execution *Execution) Failed(err error) error {
+	if execution.Status != InProgress {
+		return StatusError{
+			ExpectedStatus: InProgress,
+			ActualStatus:   execution.Status,
+		}
+	}
+
+	execution.Error = err.Error()
+	execution.ExecutionDuration = time.Since(execution.ExecutedAt)
+	execution.Status = Failed
 	return nil
 }

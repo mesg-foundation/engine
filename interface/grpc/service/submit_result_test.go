@@ -85,7 +85,7 @@ func TestSubmitWithInvalidJSON(t *testing.T) {
 		OutputKey:   outputKey,
 		OutputData:  "",
 	})
-	require.Error(t, err)
+	require.Equal(t, "invalid output data error: unexpected end of JSON input", err.Error())
 }
 
 func TestSubmitWithInvalidID(t *testing.T) {
