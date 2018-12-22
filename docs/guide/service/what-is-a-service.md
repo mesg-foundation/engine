@@ -12,7 +12,7 @@ Tasks are designed to receive information from Core and the Application that you
 
 You could have a task that takes a name as an input, and perhaps shows `success` as an output. This task factors the type of name with its probability like this:`{ "type": "female", "proabiliy": 92.34% }` but, could also have an `error` output with a type of error like this: `{ "message": "This doesn't looks like a name" }`.
 
-Click here for more information on how info how to create [tasks](https://docs.mesg.tech/service/listen-for-tasks).
+Click here for more information on how info how to create [tasks](https://docs.mesg.com/service/listen-for-tasks).
 
 ## Submitting Events
 
