@@ -100,24 +100,58 @@ func TestStopService(t *testing.T) {
 	mockStatus(t, mc, fullNamespace, RUNNING)
 
 	// remove service:
-	mc.On("ServiceRemove", mock.Anything, fullNamespace).Once().Return(nil)
+	serviceRemoveArguments := []interface{}{
+		mock.Anything,
+		fullNamespace,
+	}
+	mc.On("ServiceRemove", serviceRemoveArguments...).Once().Return(nil)
 
 	// delete pending container:
-	mc.On("ContainerList", mock.Anything, mock.Anything).Once().Return([]types.Container{{
-		ID: containerID,
-	}}, nil)
+	var (
+		containerListArguments = []interface{}{
+			mock.Anything,
+			mock.Anything,
+		}
+		containerListResponse = []interface{}{
+			[]types.Container{{
+				ID: containerID,
+			}},
+			nil,
+		}
+	)
+	mc.On("ContainerList", containerListArguments...).Once().Return(containerListResponse...)
 
-	mc.On("ContainerInspect", mock.Anything, mock.Anything).Once().Return(types.ContainerJSON{
-		ContainerJSONBase: &types.ContainerJSONBase{
-			ID: containerID,
-		},
-	}, nil)
+	var (
+		containerInspectArguments = []interface{}{
+			mock.Anything,
+			mock.Anything,
+		}
+		containerInspectResponse = []interface{}{
+			types.ContainerJSON{
+				ContainerJSONBase: &types.ContainerJSONBase{
+					ID: containerID,
+				},
+			},
+			nil,
+		}
+	)
+	mc.On("ContainerInspect", containerInspectArguments...).Once().Return(containerInspectResponse...)
 
-	mc.On("ContainerStop", mock.Anything, containerID, mock.AnythingOfType("*time.Duration")).Once().Return(nil)
+	containerStopArguments := []interface{}{
+		mock.Anything,
+		containerID,
+		mock.AnythingOfType("*time.Duration"),
+	}
+	mc.On("ContainerStop", containerStopArguments...).Once().Return(nil)
 
-	mc.On("ContainerRemove", mock.Anything, containerID, types.ContainerRemoveOptions{}).Once().Return(nil)
+	containerRemoveArguments := []interface{}{
+		mock.Anything,
+		containerID,
+		types.ContainerRemoveOptions{},
+	}
+	mc.On("ContainerRemove", containerRemoveArguments...).Once().Return(nil)
 
-	mc.On("ContainerList", mock.Anything, mock.Anything).Once().Return(nil, dockertest.NotFoundErr{})
+	mc.On("ContainerList", containerListArguments...).Once().Return(nil, dockertest.NotFoundErr{})
 
 	// wait status:
 	mockWaitForStatus(t, mc, fullNamespace, STOPPED)
