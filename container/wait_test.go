@@ -14,16 +14,17 @@ import (
 
 // mockWaitForStatus mocks waitForStatus() to fake wantedStatus to happen for namespace.
 func mockWaitForStatus(t *testing.T, m *mocks.CommonAPIClient, namespace string, wantedStatus StatusType) {
-	m.On("TaskList", mock.Anything, types.TaskListOptions{
-		Filters: filters.NewArgs(filters.KeyValuePair{
-			Key:   "label",
-			Value: "com.docker.stack.namespace=" + namespace,
-		}),
-	}).
-		Once().
-		Return([]swarm.Task{}, nil)
+	taskListArguments := []interface{}{
+		mock.Anything,
+		types.TaskListOptions{
+			Filters: filters.NewArgs(filters.KeyValuePair{
+				Key:   "label",
+				Value: "com.docker.stack.namespace=" + namespace,
+			}),
+		},
+	}
+	m.On("TaskList", taskListArguments...).Once().Return([]swarm.Task{}, nil)
 
-	// status:
 	mockStatus(t, m, namespace, wantedStatus)
 }
 
