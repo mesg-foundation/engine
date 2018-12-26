@@ -21,17 +21,26 @@ func TestStartService(t *testing.T) {
 			Image:     "3",
 			Namespace: namespace,
 		}
-		c, mc         = newTesting(t)
-		fullNamespace = c.Namespace(namespace)
+		c, mc                  = newTesting(t)
+		fullNamespace          = c.Namespace(namespace)
+		serviceCreateArguments = []interface{}{
+			mock.Anything,
+			options.toSwarmServiceSpec(c),
+			types.ServiceCreateOptions{},
+		}
+		serviceCreateResponse = []interface{}{
+			types.ServiceCreateResponse{
+				ID: serviceID,
+			},
+			nil,
+		}
 	)
 
 	// status:
 	mockStatus(t, mc, fullNamespace, STOPPED)
 
 	// create service:
-	mc.On("ServiceCreate", mock.Anything, options.toSwarmServiceSpec(c), types.ServiceCreateOptions{}).
-		Once().
-		Return(types.ServiceCreateResponse{ID: serviceID}, nil)
+	mc.On("ServiceCreate", serviceCreateArguments...).Once().Return(serviceCreateResponse...)
 
 	// wait status:
 	mockWaitForStatus(t, mc, fullNamespace, RUNNING)
@@ -51,17 +60,27 @@ func TestStartServiceRunningStatus(t *testing.T) {
 			Image:     "3",
 			Namespace: namespace,
 		}
-		c, mc         = newTesting(t)
-		fullNamespace = c.Namespace(namespace)
+		c, mc                   = newTesting(t)
+		fullNamespace           = c.Namespace(namespace)
+		serviceInspectArguments = []interface{}{
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		}
+		serviceInspectResponse = []interface{}{
+			swarm.Service{
+				ID: serviceID,
+			},
+			nil,
+			nil,
+		}
 	)
 
 	// status:
 	mockStatus(t, mc, fullNamespace, RUNNING)
 
 	// find service:
-	mc.On("ServiceInspectWithRaw", mock.Anything, mock.Anything, mock.Anything).
-		Once().
-		Return(swarm.Service{ID: serviceID}, nil, nil)
+	mc.On("ServiceInspectWithRaw", serviceInspectArguments...).Once().Return(serviceInspectResponse...)
 
 	id, err := c.StartService(options)
 	require.NoError(t, err)
@@ -81,32 +100,24 @@ func TestStopService(t *testing.T) {
 	mockStatus(t, mc, fullNamespace, RUNNING)
 
 	// remove service:
-	mc.On("ServiceRemove", mock.Anything, fullNamespace).
-		Once().
-		Return(nil)
+	mc.On("ServiceRemove", mock.Anything, fullNamespace).Once().Return(nil)
 
 	// delete pending container:
-	mc.On("ContainerList", mock.Anything, mock.Anything).
-		Once().
-		Return([]types.Container{{ID: containerID}}, nil)
+	mc.On("ContainerList", mock.Anything, mock.Anything).Once().Return([]types.Container{{
+		ID: containerID,
+	}}, nil)
 
-	mc.On("ContainerInspect", mock.Anything, mock.Anything).
-		Once().
-		Return(types.ContainerJSON{
-			ContainerJSONBase: &types.ContainerJSONBase{ID: containerID},
-		}, nil)
+	mc.On("ContainerInspect", mock.Anything, mock.Anything).Once().Return(types.ContainerJSON{
+		ContainerJSONBase: &types.ContainerJSONBase{
+			ID: containerID,
+		},
+	}, nil)
 
-	mc.On("ContainerStop", mock.Anything, containerID, mock.AnythingOfType("*time.Duration")).
-		Once().
-		Return(nil)
+	mc.On("ContainerStop", mock.Anything, containerID, mock.AnythingOfType("*time.Duration")).Once().Return(nil)
 
-	mc.On("ContainerRemove", mock.Anything, containerID, types.ContainerRemoveOptions{}).
-		Once().
-		Return(nil)
+	mc.On("ContainerRemove", mock.Anything, containerID, types.ContainerRemoveOptions{}).Once().Return(nil)
 
-	mc.On("ContainerList", mock.Anything, mock.Anything).
-		Once().
-		Return(nil, dockertest.NotFoundErr{})
+	mc.On("ContainerList", mock.Anything, mock.Anything).Once().Return(nil, dockertest.NotFoundErr{})
 
 	// wait status:
 	mockWaitForStatus(t, mc, fullNamespace, STOPPED)

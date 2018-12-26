@@ -28,28 +28,30 @@ func TestBuild(t *testing.T) {
 			ForceRemove:    true,
 			SuppressOutput: true,
 		}
-		c, m                   = newTesting(t)
-		imageBuildMatchContext = func(context io.Reader) bool {
-			buildContext, err := archive.TarWithOptions("test/", &archive.TarOptions{
-				Compression:     archive.Gzip,
-				ExcludePatterns: []string{"ignoreme"},
-			})
-			if err != nil {
-				return false
-			}
-			defer buildContext.Close()
+		c, m = newTesting(t)
+	)
 
-			wantedData, err := ioutil.ReadAll(buildContext)
-			if err != nil {
-				return false
-			}
-
-			data, err := ioutil.ReadAll(context)
-			if err != nil {
-				return false
-			}
-			return bytes.Equal(wantedData, data)
+	imageBuildMatchContext := func(context io.Reader) bool {
+		buildContext, err := archive.TarWithOptions("test/", &archive.TarOptions{
+			Compression:     archive.Gzip,
+			ExcludePatterns: []string{"ignoreme"},
+		})
+		if err != nil {
+			return false
 		}
+		defer buildContext.Close()
+		wantedData, err := ioutil.ReadAll(buildContext)
+		if err != nil {
+			return false
+		}
+		data, err := ioutil.ReadAll(context)
+		if err != nil {
+			return false
+		}
+		return bytes.Equal(wantedData, data)
+	}
+
+	var (
 		imageBuildArguments = []interface{}{
 			mock.Anything,
 			mock.MatchedBy(imageBuildMatchContext),

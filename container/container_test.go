@@ -27,43 +27,57 @@ func newTesting(t *testing.T) (*DockerContainer, *mocks.CommonAPIClient) {
 }
 
 func mockNew(m *mocks.CommonAPIClient) {
-	m.On("NegotiateAPIVersion", mock.Anything).
-		Once().
-		Return()
-
-	m.On("Info", mock.Anything).
-		Once().
-		Return(types.Info{Swarm: swarm.Info{NodeID: "1"}}, nil)
-
-	m.On("NetworkInspect", mock.Anything, "core", types.NetworkInspectOptions{}).
-		Once().
-		Return(types.NetworkResource{ID: "1"}, nil)
+	var (
+		infoResponse = types.Info{
+			Swarm: swarm.Info{
+				NodeID: "1",
+			},
+		}
+		networkInspectArguments = []interface{}{
+			mock.Anything,
+			"core",
+			types.NetworkInspectOptions{},
+		}
+		networkInspectResponse = types.NetworkResource{
+			ID: "1",
+		}
+	)
+	m.On("NegotiateAPIVersion", mock.Anything).Once().Return()
+	m.On("Info", mock.Anything).Once().Return(infoResponse, nil)
+	m.On("NetworkInspect", networkInspectArguments...).Once().Return(networkInspectResponse, nil)
 }
 
 // TODO: support all status types.
 // mockStatus mocks Status() to fake return wantedStatus for namespace.
 func mockStatus(t *testing.T, m *mocks.CommonAPIClient, namespace string, wantedStatus StatusType) {
 	var (
-		containerID = "1"
+		containerID            = "1"
+		containerListArguments = []interface{}{
+			mock.AnythingOfType("*context.timerCtx"),
+			types.ContainerListOptions{
+				Filters: filters.NewArgs(filters.KeyValuePair{
+					Key:   "label",
+					Value: "com.docker.stack.namespace=" + namespace,
+				}),
+				Limit: 1,
+			},
+		}
+		containerListResponse     = []types.Container{{ID: "1"}}
+		containerInspectArguments = []interface{}{
+			mock.AnythingOfType("*context.timerCtx"),
+			containerID,
+		}
+		serviceInspectArguments = []interface{}{
+			mock.Anything,
+			namespace,
+			types.ServiceInspectOptions{},
+		}
 	)
 
-	m.On("ContainerList", mock.AnythingOfType("*context.timerCtx"), types.ContainerListOptions{
-		Filters: filters.NewArgs(filters.KeyValuePair{
-			Key:   "label",
-			Value: "com.docker.stack.namespace=" + namespace,
-		}),
-		Limit: 1,
-	}).
-		Once().
-		Return([]types.Container{{ID: "1"}}, nil)
+	m.On("ContainerList", containerListArguments...).Once().Return(containerListResponse, nil)
 
-	containerInspect := m.
-		On("ContainerInspect", mock.AnythingOfType("*context.timerCtx"), containerID).
-		Once()
-
-	serviceInspect := m.
-		On("ServiceInspectWithRaw", mock.Anything, namespace, types.ServiceInspectOptions{}).
-		Once()
+	containerInspect := m.On("ContainerInspect", containerInspectArguments...).Once()
+	serviceInspect := m.On("ServiceInspectWithRaw", serviceInspectArguments...).Once()
 
 	switch wantedStatus {
 	case RUNNING:
