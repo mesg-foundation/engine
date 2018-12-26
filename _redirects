@@ -1,0 +1,2 @@
+https://docs.mesg.tech/* https://docs.mesg.com/:splat 301!
+https://mesg-docs.netlify.com/* https://docs.mesg.com/:splat 301!
