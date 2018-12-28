@@ -1,6 +1,7 @@
 package importer
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -77,4 +78,11 @@ func TestIsValid(t *testing.T) {
 func TestIsValidMalFormattedServiceFile(t *testing.T) {
 	_, err := IsValid("./tests/service-file-mal-formatted")
 	require.Error(t, err)
+}
+
+func TestInvalidDependencyName(t *testing.T) {
+	validation, err := Validate("./tests/service-invalid-dependency-name")
+	require.NoError(t, err)
+	require.Len(t, validation.ServiceFileWarnings, 1)
+	fmt.Println("validation.ServiceFileWarnings", validation.ServiceFileWarnings)
 }
