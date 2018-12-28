@@ -35,7 +35,19 @@ func validateServiceFile(data []byte) ([]string, error) {
 			warnings = append(warnings, warning.String())
 		}
 	}
+	if depKeyWarning := validateServiceFileDependencyKey(body); depKeyWarning != "" {
+		warnings = append(warnings, depKeyWarning)
+	}
 	return warnings, nil
+}
+
+func validateServiceFileDependencyKey(data interface{}) (warning string) {
+	s, _ := data.(map[string]interface{})
+	dep, _ := s["dependencies"].(map[string]interface{})
+	if dep[ConfigurationDependencyKey] != nil {
+		return fmt.Sprintf("cannot use %q as dependency key", ConfigurationDependencyKey)
+	}
+	return ""
 }
 
 func validateServiceFileSchema(data interface{}, schemaPath string) (*gojsonschema.Result, error) {
