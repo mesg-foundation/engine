@@ -266,5 +266,10 @@ func (s *Service) validateConfigurationEnv(env map[string]string) error {
 
 // helper to return the configuration of the service from the dependencies array
 func (s *Service) configuration() *Dependency {
-	return s.Dependencies[len(s.Dependencies)-1]
+	for _, dep := range s.Dependencies {
+		if dep.Key == importer.ConfigurationDependencyKey {
+			return dep
+		}
+	}
+	return nil
 }
