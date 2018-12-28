@@ -119,6 +119,7 @@ func (s *Service) defDependenciesToService(dependencies map[string]*importer.Dep
 			Ports:       dep.Ports,
 			Command:     dep.Command,
 			Args:        dep.Args,
+			Env:         dep.Env,
 		}
 	}
 	return deps
