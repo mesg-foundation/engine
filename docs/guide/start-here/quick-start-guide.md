@@ -57,17 +57,32 @@ npm init && npm install --save mesg-js
 Now, let's create an `index.js` file and with the following code:
 
 ```javascript
-const MESG = require('mesg-js').application()
+import { application, CoreTypes } from 'mesg-js'
+const api = application().api
 
 const webhook    = '__ID_SERVICE_WEBHOOK__' // To replace by the Service ID of the Webhook service
 const invitation = '__ID_SERVICE_INVITATION_DISCORD__' // To replace by the Service ID of the Invite Discord service
 const email      = '__YOUR_EMAIL_HERE__' // To replace by your email
 const sendgridAPIKey = '__SENDGRID_API_KEY__' // To replace by your SendGrid API key. See https://app.sendgrid.com/settings/api_keys
 
-MESG.whenEvent(
-  { serviceID: webhook, eventKey: 'request' },
-  { serviceID: invitation, taskKey: 'send', inputs: { email, sendgridAPIKey } },
-)
+var listenReq = new CoreTypes.ListenEventRequest()
+listenReq.setServiceid(webhook)
+listenReq.setEventfilter("request")
+
+var stream = api.listenEvent(listenReq)
+  .on('error', function(err) {
+    console.log("Stream error: ", err.details)
+  })
+  .on('data', function(data) {
+    var execReq = new CoreTypes.ExecuteTaskRequest()
+    execReq.setServiceid(invitation)
+    execReq.setTaskkey("send")
+    execReq.setInputdata(JSON.stringify({email, sendgridAPIKey}))
+
+    api.executeTask(execReq, function(err){ 
+      if (err) console.log("Execution error: ", err)
+    })
+  })
 ```
 
 Don't forget to replace the values `__ID_SERVICE_WEBHOOK__`, `__ID_SERVICE_INVITATION_DISCORD__`, `__YOUR_EMAIL_HERE__` and `__SENDGRID_API_KEY__`.
