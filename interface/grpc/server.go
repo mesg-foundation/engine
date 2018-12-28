@@ -4,8 +4,6 @@ import (
 	"net"
 	"sync"
 
-	"github.com/mesg-foundation/core/systemservices"
-
 	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	"github.com/mesg-foundation/core/api"
@@ -13,6 +11,7 @@ import (
 	"github.com/mesg-foundation/core/interface/grpc/service"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
+	"github.com/mesg-foundation/core/systemservices"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
