@@ -18,7 +18,7 @@ func (s *Service) injectDefinition(def *importer.ServiceDefinition) {
 	s.Dependencies = s.defDependenciesToService(def.Dependencies)
 
 	configuration := &Dependency{
-		Key: "service",
+		Key: importer.ConfigurationDependencyKey,
 	}
 	if def.Configuration != nil {
 		configuration.Command = def.Configuration.Command

@@ -10,6 +10,9 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
+// ConfigurationDependencyKey is the reserved key of the service's configuration in the dependencies array.
+const ConfigurationDependencyKey = "service"
+
 func readServiceFile(path string) ([]byte, error) {
 	file := filepath.Join(path, "mesg.yml")
 	return ioutil.ReadFile(file)
