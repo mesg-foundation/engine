@@ -25,24 +25,26 @@ func DeployServiceStatusOption(statuses chan DeployStatus) DeployServiceOption {
 }
 
 // DeployService deploys a service from a gzipped tarball.
-func (a *API) DeployService(r io.Reader, options ...DeployServiceOption) (*service.Service,
+func (a *API) DeployService(r io.Reader, env map[string]string, options ...DeployServiceOption) (*service.Service,
 	*importer.ValidationError, error) {
-	return newServiceDeployer(a, options...).FromGzippedTar(r)
+	return newServiceDeployer(a, env, options...).FromGzippedTar(r)
 }
 
 // DeployServiceFromURL deploys a service living at a Git host.
 // Supported URL types:
 // - https://github.com/mesg-foundation/service-ethereum
 // - https://github.com/mesg-foundation/service-ethereum#branchName
-func (a *API) DeployServiceFromURL(url string, options ...DeployServiceOption) (*service.Service,
+func (a *API) DeployServiceFromURL(url string, env map[string]string, options ...DeployServiceOption) (*service.Service,
 	*importer.ValidationError, error) {
-	return newServiceDeployer(a, options...).FromGitURL(url)
+	return newServiceDeployer(a, env, options...).FromGitURL(url)
 }
 
 // serviceDeployer provides functionalities to deploy a MESG service.
 type serviceDeployer struct {
 	// statuses receives status messages produced during deployment.
 	statuses chan DeployStatus
+
+	env map[string]string
 
 	api *API
 }
@@ -70,9 +72,10 @@ type DeployStatus struct {
 }
 
 // newServiceDeployer creates a new serviceDeployer with given api and options.
-func newServiceDeployer(api *API, options ...DeployServiceOption) *serviceDeployer {
+func newServiceDeployer(api *API, env map[string]string, options ...DeployServiceOption) *serviceDeployer {
 	d := &serviceDeployer{
 		api: api,
+		env: env,
 	}
 	for _, option := range options {
 		option(d)
@@ -126,7 +129,7 @@ func (d *serviceDeployer) deploy(r io.Reader) (*service.Service, *importer.Valid
 		d.forwardDeployStatuses(statuses)
 	}()
 
-	s, err := service.New(r,
+	s, err := service.New(r, d.env,
 		service.ContainerOption(d.api.container),
 		service.DeployStatusOption(statuses),
 	)
