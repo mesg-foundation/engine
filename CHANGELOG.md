@@ -19,7 +19,7 @@
 
 #### Added
 
-- ([\#583](https://github.com/mesg-foundation/core/pull/583)) Add property SID (Service ID) in service definition file. Allow a service to reuse the same volumes after stopping. [\#627](https://github.com/mesg-foundation/core/pull/627). [\#613](https://github.com/mesg-foundation/core/pull/613). [\#619](https://github.com/mesg-foundation/core/pull/619).
+- ([\#583](https://github.com/mesg-foundation/core/pull/583)) Add property Sid (Service ID) in service definition file. Allow a service to reuse the same volumes after stopping. [\#627](https://github.com/mesg-foundation/core/pull/627). [\#613](https://github.com/mesg-foundation/core/pull/613). [\#619](https://github.com/mesg-foundation/core/pull/619).
 
 #### Changed
 
