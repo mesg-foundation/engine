@@ -1,8 +1,8 @@
 package commands
 
 import (
+	"encoding/json"
 	"fmt"
-	"strings"
 
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/utils/pretty"
@@ -37,27 +37,11 @@ func (c *serviceDetailCmd) runE(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("name: %s\n", pretty.Bold(service.Name))
-	fmt.Printf("sid: %s\n", pretty.Bold(service.Sid))
-	fmt.Printf("hash: %s\n", pretty.Bold(service.Hash))
-	fmt.Println("events:")
-	for _, event := range service.Events {
-		params := []string{}
-		for _, d := range event.Data {
-			params = append(params, d.Key+" "+d.Type)
-		}
-		fmt.Printf("  %s (%s)\n", pretty.Bold(event.Key), strings.Join(params, ", "))
+	// dump service definition.
+	bytes, err := json.Marshal(service)
+	if err != nil {
+		return err
 	}
-	fmt.Println("tasks:")
-	for _, task := range service.Tasks {
-		fmt.Printf("  %s:\n", pretty.Bold(task.Key))
-		for _, output := range task.Outputs {
-			params := []string{}
-			for _, param := range output.Data {
-				params = append(params, param.Key+" "+param.Type)
-			}
-			fmt.Printf("    %s (%s)\n", pretty.Bold(output.Key), strings.Join(params, ", "))
-		}
-	}
+	fmt.Println(string(pretty.ColorizeJSON(pretty.FgCyan, nil, true, bytes)))
 	return nil
 }

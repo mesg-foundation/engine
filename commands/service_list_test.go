@@ -45,9 +45,3 @@ func TestServiceList(t *testing.T) {
 		require.True(t, matched)
 	}
 }
-
-func readLine(t *testing.T, r *bufio.Reader) []byte {
-	line, _, err := r.ReadLine()
-	require.NoError(t, err)
-	return line
-}
