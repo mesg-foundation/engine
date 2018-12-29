@@ -2,6 +2,7 @@
 
 ## [Unreleased](https://github.com/mesg-foundation/core/releases/tag/)
 
+#### Breaking Changes
 #### Added
 
 - ([#535](https://github.com/mesg-foundation/core/pull/535)) Run MESG with MESG! A base logic implemented to have system services for core. In future, core will be split to system services and only act as a proxy to them. System services are placed under `~/.mesg/systemservices`. [\#567](https://github.com/mesg-foundation/core/pull/567).
@@ -10,6 +11,26 @@
 #### Fixed
 #### Removed
 #### Documentation
+
+## [v0.6.0](https://github.com/mesg-foundation/core/releases/tag/v0.6.0)
+
+#### Added
+
+- ([\#641](https://github.com/mesg-foundation/core/pull/641)) Services definition accept env variables. Users can override them on deploy. [\#660](https://github.com/mesg-foundation/core/pull/660). [\#666](https://github.com/mesg-foundation/core/pull/666).
+- ([\#651](https://github.com/mesg-foundation/core/pull/651)) Error added in task execution result.
+
+#### Changed
+
+- ([\#611](https://github.com/mesg-foundation/core/pull/611)) Switch to go1.11.
+- ([\#648](https://github.com/mesg-foundation/core/pull/672)) Print all service definition in command `service detail`.
+- ([\#649](https://github.com/mesg-foundation/core/pull/649)) Lowercase sid.
+
+#### Documentation
+
+- ([\#638](https://github.com/mesg-foundation/core/pull/638)) Fix marketplace link
+- ([\#643](https://github.com/mesg-foundation/core/pull/643)) Add instruction to start the core without CLI
+- ([\#656](https://github.com/mesg-foundation/core/pull/656)) Show instruction to create manually system services folder
+- ([\#665](https://github.com/mesg-foundation/core/pull/665)) Add favicon
 
 ## [v0.5.0](https://github.com/mesg-foundation/core/releases/tag/v0.5.0)
 
