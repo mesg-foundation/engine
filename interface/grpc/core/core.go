@@ -17,7 +17,7 @@ func toProtoServices(ss []*service.Service) []*coreapi.Service {
 func toProtoService(s *service.Service) *coreapi.Service {
 	return &coreapi.Service{
 		Hash:         s.Hash,
-		SID:          s.SID,
+		Sid:          s.Sid,
 		Name:         s.Name,
 		Description:  s.Description,
 		Repository:   s.Repository,
