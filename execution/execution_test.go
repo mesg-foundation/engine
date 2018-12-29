@@ -1,6 +1,7 @@
 package execution
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -9,11 +10,12 @@ import (
 )
 
 var (
-	serviceName = "1"
-	eventID     = "2"
-	taskKey     = "task"
-	tags        = []string{"tag1", "tag2"}
-	srv, _      = service.FromService(&service.Service{
+	serviceName      = "SERVICE_ID"
+	eventID          = "EVENT_ID"
+	taskKey          = "TASK_KEY"
+	taskKeyWithError = "TASK_KEY_ERROR"
+	tags             = []string{"tag1", "tag2"}
+	srv, _           = service.FromService(&service.Service{
 		Name: serviceName,
 		Tasks: []*service.Task{
 			{
@@ -24,7 +26,24 @@ var (
 				},
 				Outputs: []*service.Output{
 					{
-						Key: "outputX",
+						Key: "OUTPUT_KEY_1",
+						Data: []*service.Parameter{
+							{
+								Key:  "foo",
+								Type: "String",
+							},
+						},
+					},
+				},
+			},
+			{
+				Key: taskKeyWithError,
+				Inputs: []*service.Parameter{
+					{Key: "foo", Type: "String"},
+				},
+				Outputs: []*service.Output{
+					{
+						Key: "OUTPUT_KEY_1",
 						Data: []*service.Parameter{
 							{
 								Key:  "foo",
@@ -45,22 +64,37 @@ func TestNewFromService(t *testing.T) {
 		inputs  map[string]interface{}
 		err     error
 	}{
-		{name: "1", taskKey: taskKey, inputs: map[string]interface{}{"foo": "hello", "bar": "world"}, err: nil},
-		{name: "2", taskKey: "wrongtask", inputs: map[string]interface{}{}, err: &service.TaskNotFoundError{
-			TaskKey:     "wrongtask",
-			ServiceName: serviceName,
-		}},
-		{name: "3", taskKey: taskKey, inputs: map[string]interface{}{"foo": "hello"}, err: &service.InvalidTaskInputError{
-			TaskKey:     taskKey,
-			ServiceName: serviceName,
-			Warnings: []*service.ParameterWarning{
-				{
-					Key:       "bar",
-					Warning:   "required",
-					Parameter: &service.Parameter{Key: "bar", Type: "String"},
+		{
+			name:    "success",
+			taskKey: taskKey,
+			inputs:  map[string]interface{}{"foo": "hello", "bar": "world"},
+			err:     nil,
+		},
+		{
+			name:    "task not found",
+			taskKey: "wrongtask",
+			inputs:  map[string]interface{}{},
+			err: &service.TaskNotFoundError{
+				TaskKey:     "wrongtask",
+				ServiceName: serviceName,
+			},
+		},
+		{
+			name:    "invalid task input",
+			taskKey: taskKey,
+			inputs:  map[string]interface{}{"foo": "hello"},
+			err: &service.InvalidTaskInputError{
+				TaskKey:     taskKey,
+				ServiceName: serviceName,
+				Warnings: []*service.ParameterWarning{
+					{
+						Key:       "bar",
+						Warning:   "required",
+						Parameter: &service.Parameter{Key: "bar", Type: "String"},
+					},
 				},
 			},
-		}},
+		},
 	}
 	for _, test := range tests {
 		execution, err := New(srv, eventID, test.taskKey, test.inputs, tags)
@@ -74,7 +108,7 @@ func TestNewFromService(t *testing.T) {
 		require.Equal(t, taskKey, execution.TaskKey, test.name)
 		require.Equal(t, test.inputs, execution.Inputs, test.name)
 		require.Equal(t, tags, execution.Tags, test.name)
-		require.Equal(t, execution.Status, Created, test.name)
+		require.Equal(t, Created, execution.Status, test.name)
 		require.NotZero(t, execution.CreatedAt, test.name)
 	}
 }
@@ -85,8 +119,17 @@ func TestExecute(t *testing.T) {
 		name string
 		err  error
 	}{
-		{name: "1", err: nil},
-		{name: "2", err: StatusError{ExpectedStatus: Created, ActualStatus: InProgress}}, // this one is already executed so it should return an error
+		{
+			name: "success",
+			err:  nil,
+		},
+		{ // this one is already executed so it should return an error
+			name: "status error",
+			err: StatusError{
+				ExpectedStatus: Created,
+				ActualStatus:   InProgress,
+			},
+		},
 	}
 	for _, test := range tests {
 		err := e.Execute()
@@ -95,7 +138,7 @@ func TestExecute(t *testing.T) {
 			continue
 		}
 		require.NotNil(t, e, test.name)
-		require.Equal(t, e.Status, InProgress, test.name)
+		require.Equal(t, InProgress, e.Status, test.name)
 		require.NotZero(t, e.ExecutedAt, test.name)
 	}
 }
@@ -109,33 +152,58 @@ func TestComplete(t *testing.T) {
 		data map[string]interface{}
 		err  error
 	}{
-		{name: "1", key: "", data: map[string]interface{}{}, err: &service.TaskOutputNotFoundError{
-			TaskKey:       taskKey,
-			TaskOutputKey: "",
-			ServiceName:   serviceName},
+		{
+			name: "task output not found because of empty output key",
+			key:  "",
+			data: map[string]interface{}{},
+			err: &service.TaskOutputNotFoundError{
+				TaskKey:       taskKey,
+				TaskOutputKey: "",
+				ServiceName:   serviceName,
+			},
 		},
-		{name: "2", key: "output", data: map[string]interface{}{"foo": "bar"}, err: &service.TaskOutputNotFoundError{
-			TaskKey:       taskKey,
-			TaskOutputKey: "output",
-			ServiceName:   serviceName,
-		}},
-		{name: "3", key: "outputX", data: map[string]interface{}{}, err: &service.InvalidTaskOutputError{
-			TaskKey:       taskKey,
-			TaskOutputKey: "outputX",
-			ServiceName:   serviceName,
-			Warnings: []*service.ParameterWarning{
-				{
-					Key:       "foo",
-					Warning:   "required",
-					Parameter: &service.Parameter{Key: "foo", Type: "String"},
+		{
+			name: "task output not found because wrong output key",
+			key:  "output",
+			data: map[string]interface{}{"foo": "bar"},
+			err: &service.TaskOutputNotFoundError{
+				TaskKey:       taskKey,
+				TaskOutputKey: "output",
+				ServiceName:   serviceName,
+			},
+		},
+		{
+			name: "invalid task output",
+			key:  "OUTPUT_KEY_1",
+			data: map[string]interface{}{},
+			err: &service.InvalidTaskOutputError{
+				TaskKey:       taskKey,
+				TaskOutputKey: "OUTPUT_KEY_1",
+				ServiceName:   serviceName,
+				Warnings: []*service.ParameterWarning{
+					{
+						Key:       "foo",
+						Warning:   "required",
+						Parameter: &service.Parameter{Key: "foo", Type: "String"},
+					},
 				},
 			},
-		}},
-		{name: "4", key: "outputX", data: map[string]interface{}{"foo": "bar"}, err: nil},
-		{name: "5", key: "outputX", data: map[string]interface{}{"foo": "bar"}, err: StatusError{
-			ExpectedStatus: InProgress,
-			ActualStatus:   Completed,
-		}}, // this one is already proccessed
+		},
+		{
+			name: "success",
+			key:  "OUTPUT_KEY_1",
+			data: map[string]interface{}{"foo": "bar"},
+			err:  nil,
+		},
+		{ // this one is already proccessed
+			name: "already executed",
+			key:  "OUTPUT_KEY_1",
+			data: map[string]interface{}{"foo": "bar"},
+			err: StatusError{
+				ExpectedStatus: InProgress,
+				ActualStatus:   Completed,
+			},
+		},
 	}
 	for _, test := range tests {
 		err := e.Complete(test.key, test.data)
@@ -143,10 +211,47 @@ func TestComplete(t *testing.T) {
 		if test.err != nil {
 			continue
 		}
-		require.NotNil(t, e)
-		require.NoError(t, err, test.name)
-		require.NotNil(t, e, test.name)
-		require.Equal(t, e.Status, Completed, test.name)
+		require.Equal(t, Completed, e.Status, test.name)
 		require.NotZero(t, e.ExecutionDuration, test.name)
+		require.Zero(t, e.Error, test.name)
 	}
+}
+
+func TestFailed(t *testing.T) {
+	e, _ := New(srv, eventID, taskKeyWithError, map[string]interface{}{"foo": "1", "bar": "2"}, tags)
+	e.Execute()
+	tests := []struct {
+		name string
+		xerr error
+		err  error
+	}{
+		{
+			name: "with failed error",
+			xerr: errors.New("failed"),
+		},
+		{ // this one is already proccessed
+			name: "with status error",
+			err: StatusError{
+				ExpectedStatus: InProgress,
+				ActualStatus:   Failed,
+			},
+		},
+	}
+	for _, test := range tests {
+		err := e.Failed(test.xerr)
+		require.Equal(t, test.err, err, test.name)
+		if test.err != nil {
+			continue
+		}
+		require.Equal(t, Failed, e.Status, test.name)
+		require.NotZero(t, e.ExecutionDuration, test.name)
+		require.Equal(t, test.xerr.Error(), e.Error, test.name)
+	}
+}
+
+func TestStatus(t *testing.T) {
+	require.Equal(t, "created", Created.String())
+	require.Equal(t, "in progress", InProgress.String())
+	require.Equal(t, "completed", Completed.String())
+	require.Equal(t, "failed", Failed.String())
 }

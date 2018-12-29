@@ -5,8 +5,8 @@ type ServiceDefinition struct {
 	// Name is the service name.
 	Name string `yaml:"name"`
 
-	// SID is the service id. It must be unique.
-	SID string `yaml:"sid"`
+	// Sid is the service id. It must be unique.
+	Sid string `yaml:"sid"`
 
 	// Description is service description.
 	Description string `yaml:"description"`
@@ -60,6 +60,9 @@ type Dependency struct {
 
 	// Args hold the args to pass to the Docker container
 	Args []string `yaml:"args"`
+
+	// Env is a slice of environment variables in key=value format.
+	Env []string `yaml:"env"`
 }
 
 // Task describes a service task.

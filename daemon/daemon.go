@@ -7,6 +7,7 @@ import (
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/x/xnet"
+	"github.com/mesg-foundation/core/x/xos"
 )
 
 // Daemon is an interface that start, stop etc core as daemon.
@@ -61,7 +62,7 @@ func (d *ContainerDaemon) buildServiceOptions(sharedNetworkID string) container.
 	return container.ServiceOptions{
 		Namespace: []string{},
 		Image:     d.cfg.Core.Image,
-		Env:       container.MapToEnv(d.cfg.DaemonEnv()),
+		Env:       xos.EnvMapToSlice(d.cfg.DaemonEnv()),
 		Mounts: []container.Mount{
 			{
 				Source: d.cfg.Docker.Socket,
