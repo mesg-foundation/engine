@@ -38,7 +38,7 @@ func (c *serviceDetailCmd) runE(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	fmt.Printf("name: %s\n", pretty.Bold(service.Name))
-	fmt.Printf("sid: %s\n", pretty.Bold(service.SID))
+	fmt.Printf("sid: %s\n", pretty.Bold(service.Sid))
 	fmt.Printf("hash: %s\n", pretty.Bold(service.Hash))
 	fmt.Println("events:")
 	for _, event := range service.Events {
