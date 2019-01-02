@@ -1,9 +1,7 @@
 package container
 
 import (
-	"fmt"
 	"os"
-	"sort"
 	"strconv"
 	"strings"
 
@@ -136,16 +134,4 @@ func mergeLabels(l1 map[string]string, l2 map[string]string) map[string]string {
 		l1[k] = v
 	}
 	return l1
-}
-
-// MapToEnv transform a map of key value to a array of env string.
-// env vars sorted by names to get an accurate order while testing, otherwise
-// comparing a string slice with different orders will fail.
-func MapToEnv(data map[string]string) []string {
-	env := make([]string, 0, len(data))
-	for key, value := range data {
-		env = append(env, fmt.Sprintf("%s=%s", key, value))
-	}
-	sort.Strings(env)
-	return env
 }

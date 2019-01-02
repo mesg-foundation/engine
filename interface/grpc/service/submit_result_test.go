@@ -13,7 +13,7 @@ func TestSubmit(t *testing.T) {
 	var (
 		taskKey  = "call"
 		taskData = map[string]interface{}{
-			"url":     "https://mesg.tech",
+			"url":     "https://mesg.com",
 			"data":    map[string]interface{}{},
 			"headers": map[string]interface{}{},
 		}
@@ -23,7 +23,7 @@ func TestSubmit(t *testing.T) {
 	)
 	defer closer()
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
+	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath), nil)
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.Hash, false)
@@ -60,7 +60,7 @@ func TestSubmitWithInvalidJSON(t *testing.T) {
 	var (
 		taskKey  = "call"
 		taskData = map[string]interface{}{
-			"url":     "https://mesg.tech",
+			"url":     "https://mesg.com",
 			"data":    map[string]interface{}{},
 			"headers": map[string]interface{}{},
 		}
@@ -69,7 +69,7 @@ func TestSubmitWithInvalidJSON(t *testing.T) {
 	)
 	defer closer()
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
+	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath), nil)
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.Hash, false)
@@ -85,7 +85,7 @@ func TestSubmitWithInvalidJSON(t *testing.T) {
 		OutputKey:   outputKey,
 		OutputData:  "",
 	})
-	require.Error(t, err)
+	require.Equal(t, "invalid output data error: unexpected end of JSON input", err.Error())
 }
 
 func TestSubmitWithInvalidID(t *testing.T) {
@@ -109,7 +109,7 @@ func TestSubmitWithNonExistentOutputKey(t *testing.T) {
 	var (
 		taskKey  = "call"
 		taskData = map[string]interface{}{
-			"url":     "https://mesg.tech",
+			"url":     "https://mesg.com",
 			"data":    map[string]interface{}{},
 			"headers": map[string]interface{}{},
 		}
@@ -119,7 +119,7 @@ func TestSubmitWithNonExistentOutputKey(t *testing.T) {
 	)
 	defer closer()
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
+	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath), nil)
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.Hash, false)
@@ -146,7 +146,7 @@ func TestSubmitWithInvalidTaskOutputs(t *testing.T) {
 	var (
 		taskKey  = "call"
 		taskData = map[string]interface{}{
-			"url":     "https://mesg.tech",
+			"url":     "https://mesg.com",
 			"data":    map[string]interface{}{},
 			"headers": map[string]interface{}{},
 		}
@@ -156,7 +156,7 @@ func TestSubmitWithInvalidTaskOutputs(t *testing.T) {
 	)
 	defer closer()
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
+	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath), nil)
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.Hash, false)

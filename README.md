@@ -45,7 +45,7 @@ Run the following command in a console to install MESG Core:
 bash <(curl -fsSL https://mesg.com/install)
 ```
 
-You can also install it manually by following [this guide](https://docs.mesg.tech/guide/start-here/installation.html).
+You can also install it manually by following [this guide](https://docs.mesg.com/guide/start-here/installation.html).
 
 ### 2. Run MESG Core
 
@@ -98,7 +98,7 @@ const email      = '__YOUR_EMAIL_HERE__' // To replace by your email
 const sendgridAPIKey = '__SENDGRID_API_KEY__' // To replace by your SendGrid API key. See https://app.sendgrid.com/settings/api_keys
 
 MESG.whenEvent(
-  { serviceID: webhook, filter: 'request' },
+  { serviceID: webhook, eventKey: 'request' },
   { serviceID: invitation, taskKey: 'send', inputs: { email, sendgridAPIKey } },
 )
 ```
@@ -169,20 +169,6 @@ For more info how to create your events, visit the [Emit an Event](https://docs.
 We have a common place to post all community-developed Services and Applications. Check out the [curated list of Awesome Services and Applications](https://github.com/mesg-foundation/awesome) to participate.
 
 Alternatively, you can also check out the [https://github.com/mesg-foundation/awesome#readme](Marketplace).
-
-# Roadmap
-
-#### June 2018 - Core V1.0 Launched
-Create your services and connect them together with your application through a single connection to Core, allowing Core to handle all communications and interoperability with any technology.
-
-#### Q3 2018 - Rapid Deployment
-No need to code your application anymore, just send a list of events with corresponding tasks within a simple configuration file to Core which will then execute tasks on your application’s behalf.
-
-#### Q4 2018 - Beta Network
-The beta decentralized Network means no coding or servers are necessary to run your applications. Connect thousands of services or applications from our shared repository. 
-
-#### Q3 2019 - Main Network
-MESG launches its own blockchain Network providing for full scalability and a cheaper and faster user experience. The main network will host the full functionality of the value-driven open market for the sharing of services.
 
 # Community
 

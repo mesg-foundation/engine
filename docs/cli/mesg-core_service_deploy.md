@@ -15,13 +15,14 @@ mesg-core service deploy [flags]
 ### Examples
 
 ```
-mesg-core service deploy PATH_TO_SERVICE
+mesg-core service deploy [PATH_TO_SERVICE|URL_TO_SERVICE]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for deploy
+      --env key=value   set env defined in mesg.yml (configuration.env)
+  -h, --help            help for deploy
 ```
 
 ### Options inherited from parent commands

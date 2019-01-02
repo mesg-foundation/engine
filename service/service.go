@@ -5,11 +5,14 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"sort"
+	"strings"
 	"time"
 
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/service/importer"
+	"github.com/mesg-foundation/core/x/xos"
 	"github.com/mesg-foundation/core/x/xstructhash"
 	uuid "github.com/satori/go.uuid"
 )
@@ -28,9 +31,9 @@ type Service struct {
 	// It represents the service uniquely.
 	Hash string `hash:"-"`
 
-	// SID is the service id.
+	// Sid is the service id.
 	// It needs to be unique and can be used to access to service.
-	SID string `hash:"name:1"`
+	Sid string `hash:"name:1"`
 
 	// Name is the service name.
 	Name string `hash:"name:2"`
@@ -90,7 +93,7 @@ type DeployStatus struct {
 }
 
 // New creates a new service from a gzipped tarball.
-func New(tarball io.Reader, options ...Option) (*Service, error) {
+func New(tarball io.Reader, env map[string]string, options ...Option) (*Service, error) {
 	s := &Service{}
 
 	defer s.closeStatus()
@@ -107,7 +110,16 @@ func New(tarball io.Reader, options ...Option) (*Service, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	s.injectDefinition(def)
+
+	if err := s.validateConfigurationEnv(env); err != nil {
+		return nil, err
+	}
+
+	// replace default env with new one.
+	defenv := xos.EnvSliceToMap(s.configuration.Env)
+	s.configuration.Env = xos.EnvMapToSlice(xos.EnvMergeMaps(defenv, env))
 
 	if err := s.deploy(); err != nil {
 		return nil, err
@@ -205,9 +217,9 @@ func (s *Service) deploy() error {
 	s.configuration.Key = "service"
 	s.configuration.Image = imageHash
 	s.Dependencies = append(s.Dependencies, s.configuration)
-	if s.SID == "" {
+	if s.Sid == "" {
 		// make sure that sid doesn't have the same length with id.
-		s.SID = "a" + s.computeHash()
+		s.Sid = "a" + s.computeHash()
 	}
 	return nil
 }
@@ -238,4 +250,37 @@ func (s *Service) getDependency(dependencyKey string) (*Dependency, error) {
 		}
 	}
 	return nil, fmt.Errorf("dependency %s do not exist", dependencyKey)
+}
+
+// validateConfigurationEnv checks presence of env variables in mesg.yml under env section.
+func (s *Service) validateConfigurationEnv(env map[string]string) error {
+	var nonDefined []string
+	for key := range env {
+		// check if "key=" exists in configuration.
+		exists := false
+		for _, env := range s.configuration.Env {
+			if strings.HasPrefix(env, key+"=") {
+				exists = true
+			}
+		}
+		if !exists {
+			nonDefined = append(nonDefined, key)
+		}
+	}
+	if len(nonDefined) > 0 {
+		sort.Strings(nonDefined)
+		return ErrNotDefinedEnv{nonDefined}
+	}
+	return nil
+}
+
+// ErrNotDefinedEnv error returned when optionally given env variables
+// are not defined in the mesg.yml file.
+type ErrNotDefinedEnv struct {
+	env []string
+}
+
+func (e ErrNotDefinedEnv) Error() string {
+	return fmt.Sprintf("environment variable(s) %q not defined in mesg.yml (under configuration.env key)",
+		strings.Join(e.env, ", "))
 }

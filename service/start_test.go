@@ -83,12 +83,12 @@ func TestStartService(t *testing.T) {
 		containerServiceID = "1"
 		dependencyKey      = "2"
 		serviceName        = "TestStartService"
-		SID                = "SIDStartService"
+		Sid                = "SidStartService"
 		networkID          = "3"
 		sharedNetworkID    = "4"
 		s, mc              = newFromServiceAndContainerMocks(t, &Service{
 			Name: serviceName,
-			SID:  SID,
+			Sid:  Sid,
 			Dependencies: []*Dependency{
 				{
 					Key:   dependencyKey,
@@ -311,18 +311,18 @@ func mockStartService(d *Dependency, mc *mocks.Container,
 		Namespace: d.namespace(),
 		Labels: map[string]string{
 			"mesg.core":    c.Core.Name,
-			"mesg.sid":     d.service.SID,
+			"mesg.sid":     d.service.Sid,
 			"mesg.service": d.service.Name,
 			"mesg.hash":    d.service.Hash,
 		},
 		Image:   d.Image,
 		Command: d.Command,
 		Args:    d.Args,
-		Env: container.MapToEnv(map[string]string{
-			"MESG_TOKEN":        d.service.Hash,
-			"MESG_ENDPOINT":     endpoint,
-			"MESG_ENDPOINT_TCP": endpoint,
-		}),
+		Env: []string{
+			"MESG_TOKEN=" + d.service.Hash,
+			"MESG_ENDPOINT=" + endpoint,
+			"MESG_ENDPOINT_TCP=" + endpoint,
+		},
 		Mounts: append(volumes, volumesFrom...),
 		Ports:  d.extractPorts(),
 		Networks: []container.Network{

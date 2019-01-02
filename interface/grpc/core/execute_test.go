@@ -13,12 +13,12 @@ import (
 func TestExecute(t *testing.T) {
 	var (
 		taskKey        = "call"
-		data           = `{"url": "https://mesg.tech", "data": {}, "headers": {}}`
+		data           = `{"url": "https://mesg.com", "data": {}, "headers": {}}`
 		server, closer = newServer(t)
 	)
 	defer closer()
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
+	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath), nil)
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.Hash, false)
@@ -39,7 +39,7 @@ func TestExecuteWithInvalidJSON(t *testing.T) {
 	server, closer := newServer(t)
 	defer closer()
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
+	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath), nil)
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.Hash, false)
@@ -60,7 +60,7 @@ func TestExecuteWithInvalidTask(t *testing.T) {
 	)
 	defer closer()
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
+	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath), nil)
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.Hash, false)
@@ -88,7 +88,7 @@ func TestExecuteWithInvalidTaskInput(t *testing.T) {
 	)
 	defer closer()
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
+	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath), nil)
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.Hash, false)
@@ -112,7 +112,7 @@ func TestExecuteWithNonRunningService(t *testing.T) {
 	server, closer := newServer(t)
 	defer closer()
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath))
+	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath), nil)
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.Hash, false)

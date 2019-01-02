@@ -10,7 +10,7 @@ import (
 // injectDefinition applies service definition to Service type.
 func (s *Service) injectDefinition(def *importer.ServiceDefinition) {
 	s.Name = def.Name
-	s.SID = def.SID
+	s.Sid = def.Sid
 	s.Description = def.Description
 	s.Repository = def.Repository
 	s.Events = s.defEventsToService(def.Events)
@@ -24,6 +24,7 @@ func (s *Service) injectDefinition(def *importer.ServiceDefinition) {
 		s.configuration.Ports = def.Configuration.Ports
 		s.configuration.Volumes = def.Configuration.Volumes
 		s.configuration.VolumesFrom = def.Configuration.VolumesFrom
+		s.configuration.Env = def.Configuration.Env
 	}
 }
 
@@ -47,7 +48,6 @@ func (s *Service) defTasksToService(tasks map[string]*importer.Task) []*Task {
 			Inputs:      s.defParametersToService(task.Inputs),
 			Outputs:     s.defOutputsToService(task.Outputs),
 		}
-
 	}
 	return ts
 }
@@ -119,6 +119,7 @@ func (s *Service) defDependenciesToService(dependencies map[string]*importer.Dep
 			Ports:       dep.Ports,
 			Command:     dep.Command,
 			Args:        dep.Args,
+			Env:         dep.Env,
 		}
 	}
 	return deps

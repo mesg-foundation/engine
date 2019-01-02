@@ -40,7 +40,7 @@ type deploymentResult struct {
 }
 
 // ServiceDeploy deploys service from given path.
-func (p *ServiceProvider) ServiceDeploy(path string, statuses chan DeployStatus) (id string,
+func (p *ServiceProvider) ServiceDeploy(path string, env map[string]string, statuses chan DeployStatus) (id string,
 	validationError, err error) {
 	stream, err := p.client.DeployService(context.Background())
 	if err != nil {
@@ -53,11 +53,12 @@ func (p *ServiceProvider) ServiceDeploy(path string, statuses chan DeployStatus)
 	if govalidator.IsURL(path) {
 		if err := stream.Send(&coreapi.DeployServiceRequest{
 			Value: &coreapi.DeployServiceRequest_Url{Url: path},
+			Env:   env,
 		}); err != nil {
 			return "", nil, err
 		}
 	} else {
-		if err := deployServiceSendServiceContext(path, stream); err != nil {
+		if err := deployServiceSendServiceContext(path, env, stream); err != nil {
 			return "", nil, err
 		}
 	}
@@ -71,12 +72,18 @@ func (p *ServiceProvider) ServiceDeploy(path string, statuses chan DeployStatus)
 	return result.serviceID, result.validationError, result.err
 }
 
-func deployServiceSendServiceContext(path string, stream coreapi.Core_DeployServiceClient) error {
+func deployServiceSendServiceContext(path string, env map[string]string, stream coreapi.Core_DeployServiceClient) error {
 	archive, err := archive.TarWithOptions(path, &archive.TarOptions{
 		Compression: archive.Gzip,
 	})
 	if err != nil {
 		return err
+	}
+
+	if len(env) > 0 {
+		if err := stream.Send(&coreapi.DeployServiceRequest{Env: env}); err != nil {
+			return err
+		}
 	}
 
 	buf := make([]byte, 1024)
