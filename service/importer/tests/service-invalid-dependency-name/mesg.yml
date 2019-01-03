@@ -1,0 +1,4 @@
+name: "non-valid-dependency-name"
+dependencies:
+  service:
+    image: nginx

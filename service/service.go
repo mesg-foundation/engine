@@ -47,9 +47,6 @@ type Service struct {
 	// Events are the list of events that service can emit.
 	Events []*Event `hash:"name:5"`
 
-	// Configuration is the Docker container that service runs inside.
-	configuration *Dependency `hash:"-"`
-
 	// Dependencies are the Docker containers that service can depend on.
 	Dependencies []*Dependency `hash:"name:6"`
 
@@ -118,8 +115,8 @@ func New(tarball io.Reader, env map[string]string, options ...Option) (*Service,
 	}
 
 	// replace default env with new one.
-	defenv := xos.EnvSliceToMap(s.configuration.Env)
-	s.configuration.Env = xos.EnvMapToSlice(xos.EnvMergeMaps(defenv, env))
+	defenv := xos.EnvSliceToMap(s.configuration().Env)
+	s.configuration().Env = xos.EnvMapToSlice(xos.EnvMergeMaps(defenv, env))
 
 	if err := s.deploy(); err != nil {
 		return nil, err
@@ -214,9 +211,7 @@ func (s *Service) deploy() error {
 
 	s.sendStatus("Image built with success", DDonePositive)
 
-	s.configuration.Key = "service"
-	s.configuration.Image = imageHash
-	s.Dependencies = append(s.Dependencies, s.configuration)
+	s.configuration().Image = imageHash
 	if s.Sid == "" {
 		// make sure that sid doesn't have the same length with id.
 		s.Sid = "a" + s.computeHash()
@@ -256,9 +251,9 @@ func (s *Service) getDependency(dependencyKey string) (*Dependency, error) {
 func (s *Service) validateConfigurationEnv(env map[string]string) error {
 	var nonDefined []string
 	for key := range env {
-		// check if "key=" exists in configuration.
 		exists := false
-		for _, env := range s.configuration.Env {
+		// check if "key=" exists in configuration
+		for _, env := range s.configuration().Env {
 			if strings.HasPrefix(env, key+"=") {
 				exists = true
 			}
@@ -270,6 +265,16 @@ func (s *Service) validateConfigurationEnv(env map[string]string) error {
 	if len(nonDefined) > 0 {
 		sort.Strings(nonDefined)
 		return ErrNotDefinedEnv{nonDefined}
+	}
+	return nil
+}
+
+// helper to return the configuration of the service from the dependencies array
+func (s *Service) configuration() *Dependency {
+	for _, dep := range s.Dependencies {
+		if dep.Key == importer.ConfigurationDependencyKey {
+			return dep
+		}
 	}
 	return nil
 }
