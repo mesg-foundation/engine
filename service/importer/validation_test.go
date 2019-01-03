@@ -84,5 +84,4 @@ func TestInvalidDependencyName(t *testing.T) {
 	validation, err := Validate("./tests/service-invalid-dependency-name")
 	require.NoError(t, err)
 	require.Len(t, validation.ServiceFileWarnings, 1)
-	fmt.Println("validation.ServiceFileWarnings", validation.ServiceFileWarnings)
 }
