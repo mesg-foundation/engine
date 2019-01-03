@@ -10,7 +10,7 @@ import (
 // injectDefinition applies service definition to Service type.
 func (s *Service) injectDefinition(def *importer.ServiceDefinition) {
 	s.Name = def.Name
-	s.SID = def.SID
+	s.Sid = def.Sid
 	s.Description = def.Description
 	s.Repository = def.Repository
 	s.Events = s.defEventsToService(def.Events)
@@ -122,6 +122,7 @@ func (s *Service) defDependenciesToService(dependencies map[string]*importer.Dep
 			Ports:       dep.Ports,
 			Command:     dep.Command,
 			Args:        dep.Args,
+			Env:         dep.Env,
 		}
 	}
 	return deps
