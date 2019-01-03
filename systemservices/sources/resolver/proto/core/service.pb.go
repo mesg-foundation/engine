@@ -26,7 +26,6 @@ type Service struct {
 	Tasks                []*Task       `protobuf:"bytes,5,rep,name=tasks,proto3" json:"tasks,omitempty"`
 	Events               []*Event      `protobuf:"bytes,6,rep,name=events,proto3" json:"events,omitempty"`
 	Dependencies         []*Dependency `protobuf:"bytes,7,rep,name=dependencies,proto3" json:"dependencies,omitempty"`
-	Configuration        *Dependency   `protobuf:"bytes,8,opt,name=configuration,proto3" json:"configuration,omitempty"`
 	Repository           string        `protobuf:"bytes,9,opt,name=repository,proto3" json:"repository,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
 	XXX_unrecognized     []byte        `json:"-"`
@@ -95,13 +94,6 @@ func (m *Service) GetEvents() []*Event {
 func (m *Service) GetDependencies() []*Dependency {
 	if m != nil {
 		return m.Dependencies
-	}
-	return nil
-}
-
-func (m *Service) GetConfiguration() *Dependency {
-	if m != nil {
-		return m.Configuration
 	}
 	return nil
 }
