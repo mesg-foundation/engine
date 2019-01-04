@@ -1,6 +1,6 @@
 # Issues
 
-For issues concerning application or service development, please read the [docs](https://docs.mesg.tech/) and check out the [forum](https://forum.mesg.com)
+For issues concerning application or service development, please read the [docs](https://docs.mesg.com/) and check out the [forum](https://forum.mesg.com)
 
 For questions or suggestions regarding new features of Core, please post a message on the [Forum](https://forum.mesg.com).
 

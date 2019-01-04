@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Receive HTTP connections and emit events with the data",
   "main": "index.js",
-  "author": "Anthony Estebe <anthony@mesg.tech>",
+  "author": "Anthony Estebe <anthony@mesg.com>",
   "license": "ISC",
   "dependencies": {
     "express": "^4.16.3",

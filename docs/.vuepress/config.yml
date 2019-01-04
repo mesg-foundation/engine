@@ -1,10 +1,40 @@
-title: MESG
+title: MESG Docs
 description: Build applications connecting any technologies
 ga: UA-117583862-3
 # serviceWorker: true
 markdown:
   toc:
     includeLevel: [2]
+head:
+  - - link
+    - rel: apple-touch-icon
+      sizes: 180x180
+      href: "/apple-touch-icon.png"
+  - - link
+    - rel: icon
+      type: image/png
+      sizes: 32x32
+      href: "/favicon-32x32.png"
+  - - link
+    - rel: icon
+      type: image/png
+      sizes: 16x16
+      href: "/favicon-16x16.png"
+  - - link
+    - rel: icon
+      href: "/favicon.png"
+  - - meta
+    - hid: 'og:image:height'
+      property: 'og:image:height'
+      content: '1257'
+  - - meta
+    - hid: 'og:image:width'
+      property: 'og:image:width'
+      content: '2400'
+  - - meta
+    - hid: 'og:image'
+      property: 'og:image'
+      content: 'https://docs.mesg.com/og-image.jpg'
 themeConfig:
   logo: /logo-light.png
   searchMaxSuggestions: 15

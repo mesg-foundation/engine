@@ -12,14 +12,14 @@ description: "Describe your super workflow"
 source:
   # REQUIRED
   # Type of service to listen for events. The list of all available services 
-  # can be find in the MESG Wallet or on the MESG website https://mesg.tech/services
+  # can be find in the MESG Wallet or on the MESG website https://mesg.com/services
   service: Ethereum
 
   # REQUIRED
   # Event that we want to connect. This event is related to the selected service. 
   # To know what the available events for every services please refers to the 
   # service's details in the MESG Wallet or on the MESG website 
-  # https://mesg.tech/services
+  # https://mesg.com/services
   event: onTransaction
   
   # OPTIONAL (default: [])
@@ -45,18 +45,18 @@ tasks:
   generateSlackTitle:
     # REQUIRE
     # Type of service to execute. The list of all available services 
-    # can be find in the MESG Wallet or on the MESG website https://mesg.tech/services
+    # can be find in the MESG Wallet or on the MESG website https://mesg.com/services
     service: Function
 
     # REQUIRED
     # Task to execute. This task is related to the selected service. To know what
     # are the available tasks for every services please refers to the service's 
-    # details in the MESG Wallet or on the MESG website https://mesg.tech/services
+    # details in the MESG Wallet or on the MESG website https://mesg.com/services
     task: execute
 
     # OPTIONAL (default: {})
     # Parameters needed to execute the task please refers to the service's details 
-    # in the MESG Wallet or on the MESG website https://mesg.tech/services
+    # in the MESG Wallet or on the MESG website https://mesg.com/services
     parameters:
       data:
         amount: ${workflow:source.amount}
