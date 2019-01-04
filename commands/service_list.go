@@ -50,7 +50,7 @@ func (c *serviceListCmd) runE(cmd *cobra.Command, args []string) error {
 	fmt.Fprintf(w, "HASH\tSID\tNAME\tSTATUS\t\n")
 	for _, s := range services {
 		status := strings.ToLower(s.Status.String())
-		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t\n", s.Hash, s.SID, s.Name, status)
+		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t\n", s.Hash, s.Sid, s.Name, status)
 	}
 	return w.Flush()
 }

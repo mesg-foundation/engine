@@ -72,7 +72,7 @@ func TestValidateServiceFileWithMultipleErrors(t *testing.T) {
 	require.Equal(t, 2, len(warnings))
 }
 
-func TestValidateServiceSIDTooLong(t *testing.T) {
+func TestValidateServiceSidTooLong(t *testing.T) {
 	data, _ := readServiceFile("./tests/sid-too-long")
 	warnings, err := validateServiceFile(data)
 	require.NoError(t, err)
