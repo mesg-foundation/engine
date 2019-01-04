@@ -27,7 +27,7 @@ func TestDeployService(t *testing.T) {
 	go func() {
 		defer wg.Done()
 
-		archive, err := xarchive.GzippedTar(path)
+		archive, err := xarchive.GzippedTar(path, nil)
 		require.NoError(t, err)
 
 		service, validationError, err := a.DeployService(archive, nil, DeployServiceStatusOption(statuses))
@@ -73,7 +73,7 @@ func TestDeployInvalidService(t *testing.T) {
 	go func() {
 		defer wg.Done()
 
-		archive, err := xarchive.GzippedTar(path)
+		archive, err := xarchive.GzippedTar(path, nil)
 		require.NoError(t, err)
 
 		service, validationError, err := a.DeployService(archive, nil, DeployServiceStatusOption(statuses))
