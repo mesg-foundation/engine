@@ -21,34 +21,44 @@ func TestServiceDeployCmdFlags(t *testing.T) {
 
 func TestServiceDeploy(t *testing.T) {
 	var (
-		url = "1"
-		id  = "2"
-		env = []string{"A=3", "B=4"}
-		m   = newMockExecutor()
-		c   = newServiceDeployCmd(m)
+		url                     = "1"
+		id                      = "2"
+		env                     = []string{"A=3", "B=4"}
+		m                       = newMockExecutor()
+		c                       = newServiceDeployCmd(m)
+		serviceDeployParameters = []interface{}{
+			url,
+			xos.EnvSliceToMap(env),
+			mock.Anything,
+		}
+		serviceDeployRunFunction = func(args mock.Arguments) {
+			statuses := args.Get(2).(chan provider.DeployStatus)
+			statuses <- provider.DeployStatus{
+				Message: "5",
+				Type:    provider.DonePositive,
+			}
+			statuses <- provider.DeployStatus{
+				Message: "6",
+				Type:    provider.DoneNegative,
+			}
+			close(statuses)
+		}
 	)
 	c.cmd.SetArgs([]string{url})
 	c.cmd.Flags().Set("env", strings.Join(env, ","))
 
-	m.On("ServiceDeploy", url, xos.EnvSliceToMap(env), mock.Anything).
-		Return(id, nil, nil).
-		Run(func(args mock.Arguments) {
-			statuses := args.Get(2).(chan provider.DeployStatus)
-			statuses <- provider.DeployStatus{"5", provider.DonePositive}
-			statuses <- provider.DeployStatus{"6", provider.DoneNegative}
-			close(statuses)
-		})
+	m.On("ServiceDeploy", serviceDeployParameters...).Return(id, nil, nil).Run(serviceDeployRunFunction)
 
 	closeStd := captureStd(t)
 	c.cmd.Execute()
 	stdout, _ := closeStd()
 	r := bufio.NewReader(strings.NewReader(stdout))
 
-	require.Equal(t, `✔ 5
-⨯ 6
-✔ Service deployed with hash: 2
-To start it, run the command:
-	mesg-core service start 2`, strings.TrimSpace(string(readAll(t, r))))
+	require.Equal(t, "✔ 5", string(readLine(t, r)))
+	require.Equal(t, "⨯ 6", string(readLine(t, r)))
+	require.Equal(t, "✔ Service deployed with hash: 2", string(readLine(t, r)))
+	require.Equal(t, "To start it, run the command:", string(readLine(t, r)))
+	require.Equal(t, "	mesg-core service start 2", string(readLine(t, r)))
 
 	m.AssertExpectations(t)
 }

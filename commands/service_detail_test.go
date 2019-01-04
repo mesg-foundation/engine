@@ -31,7 +31,7 @@ func TestServiceDetail(t *testing.T) {
 
 	require.Equal(t, "Loading the service...", string(readLine(t, r)))
 	require.Equal(t, string(pretty.ColorizeJSON(pretty.FgCyan, nil, true, data)),
-		strings.TrimSpace(string(readAll(t, r))))
+		strings.TrimSpace(string(readLine(t, r))))
 
 	m.AssertExpectations(t)
 }
