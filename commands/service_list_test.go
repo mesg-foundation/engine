@@ -39,15 +39,9 @@ func TestServiceList(t *testing.T) {
 
 	for _, s := range services {
 		status := strings.ToLower(s.Status.String())
-		pattern := fmt.Sprintf(`^\s*%s\s+%s\s+%s\s+%s\s*$`, s.Hash, s.SID, s.Name, status)
+		pattern := fmt.Sprintf(`^\s*%s\s+%s\s+%s\s+%s\s*$`, s.Hash, s.Sid, s.Name, status)
 		matched, err := regexp.Match(pattern, readLine(t, r))
 		require.NoError(t, err)
 		require.True(t, matched)
 	}
-}
-
-func readLine(t *testing.T, r *bufio.Reader) []byte {
-	line, _, err := r.ReadLine()
-	require.NoError(t, err)
-	return line
 }

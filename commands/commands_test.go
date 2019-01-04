@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"bufio"
 	"io"
 	"io/ioutil"
 	"os"
@@ -73,6 +74,12 @@ func TestBaseCommandCmd(t *testing.T) {
 	// It is still very usesful linter so
 	// DO NOT REMOVE this test
 	_ = baseCmd{}.cmd
+}
+
+func readLine(t *testing.T, r *bufio.Reader) []byte {
+	line, _, err := r.ReadLine()
+	require.NoError(t, err)
+	return line
 }
 
 func readAll(t *testing.T, r io.Reader) []byte {

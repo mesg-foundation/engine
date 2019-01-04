@@ -13,7 +13,7 @@ import (
 func TestExecute(t *testing.T) {
 	var (
 		taskKey        = "call"
-		data           = `{"url": "https://mesg.tech", "data": {}, "headers": {}}`
+		data           = `{"url": "https://mesg.com", "data": {}, "headers": {}}`
 		server, closer = newServer(t)
 	)
 	defer closer()
