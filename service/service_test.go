@@ -94,7 +94,7 @@ func TestNewWithDefaultEnv(t *testing.T) {
 	mc := &mocks.Container{}
 	mc.On("Build", mock.Anything).Once().Return(hash, nil)
 
-	archive, err := xarchive.GzippedTar(path)
+	archive, err := xarchive.GzippedTar(path, nil)
 	require.NoError(t, err)
 
 	s, err := New(archive, nil,
@@ -118,7 +118,7 @@ func TestNewWithOverwrittenEnv(t *testing.T) {
 	mc := &mocks.Container{}
 	mc.On("Build", mock.Anything).Once().Return(hash, nil)
 
-	archive, err := xarchive.GzippedTar(path)
+	archive, err := xarchive.GzippedTar(path, nil)
 	require.NoError(t, err)
 
 	s, err := New(archive, xos.EnvSliceToMap(env),
@@ -139,7 +139,7 @@ func TestNewWitNotDefinedEnv(t *testing.T) {
 
 	mc := &mocks.Container{}
 
-	archive, err := xarchive.GzippedTar(path)
+	archive, err := xarchive.GzippedTar(path, nil)
 	require.NoError(t, err)
 
 	_, err = New(archive, xos.EnvSliceToMap([]string{"A=1", "B=2"}),
