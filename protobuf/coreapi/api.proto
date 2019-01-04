@@ -485,13 +485,12 @@ message Service {
   }
   
   string hash = 10;                         // Service's hash.
-  string SID = 12;                          // Service's sid.
+  string sid = 12;                          // Service's sid.
   string name = 1;                          // Service's name.
   string description = 2;                   // Service's description.
   repeated Task tasks = 5;                  // The list of tasks this service can execute.
   repeated Event events = 6;                // The list of events this service can emit.
   repeated Dependency dependencies = 7;     // The Docker dependencies this service requires.
-  Dependency configuration = 8;             // Service's Docker configuration.
   string repository = 9;                    // Service's repository that contain its source code.
   Status status = 11;                       // Service's status.
 }
