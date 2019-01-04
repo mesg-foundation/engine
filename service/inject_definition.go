@@ -10,22 +10,25 @@ import (
 // injectDefinition applies service definition to Service type.
 func (s *Service) injectDefinition(def *importer.ServiceDefinition) {
 	s.Name = def.Name
-	s.SID = def.SID
+	s.Sid = def.Sid
 	s.Description = def.Description
 	s.Repository = def.Repository
 	s.Events = s.defEventsToService(def.Events)
 	s.Tasks = s.defTasksToService(def.Tasks)
 	s.Dependencies = s.defDependenciesToService(def.Dependencies)
 
-	s.configuration = &Dependency{}
-	if def.Configuration != nil {
-		s.configuration.Command = def.Configuration.Command
-		s.configuration.Args = def.Configuration.Args
-		s.configuration.Ports = def.Configuration.Ports
-		s.configuration.Volumes = def.Configuration.Volumes
-		s.configuration.VolumesFrom = def.Configuration.VolumesFrom
-		s.configuration.Env = def.Configuration.Env
+	configuration := &Dependency{
+		Key: importer.ConfigurationDependencyKey,
 	}
+	if def.Configuration != nil {
+		configuration.Command = def.Configuration.Command
+		configuration.Args = def.Configuration.Args
+		configuration.Ports = def.Configuration.Ports
+		configuration.Volumes = def.Configuration.Volumes
+		configuration.VolumesFrom = def.Configuration.VolumesFrom
+		configuration.Env = def.Configuration.Env
+	}
+	s.Dependencies = append(s.Dependencies, configuration)
 }
 
 func (s *Service) defTasksToService(tasks map[string]*importer.Task) []*Task {

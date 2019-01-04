@@ -5,6 +5,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"sort"
 	"strings"
 	"time"
 
@@ -30,9 +31,9 @@ type Service struct {
 	// It represents the service uniquely.
 	Hash string `hash:"-"`
 
-	// SID is the service id.
+	// Sid is the service id.
 	// It needs to be unique and can be used to access to service.
-	SID string `hash:"name:1"`
+	Sid string `hash:"name:1"`
 
 	// Name is the service name.
 	Name string `hash:"name:2"`
@@ -45,9 +46,6 @@ type Service struct {
 
 	// Events are the list of events that service can emit.
 	Events []*Event `hash:"name:5"`
-
-	// Configuration is the Docker container that service runs inside.
-	configuration *Dependency `hash:"-"`
 
 	// Dependencies are the Docker containers that service can depend on.
 	Dependencies []*Dependency `hash:"name:6"`
@@ -117,8 +115,8 @@ func New(tarball io.Reader, env map[string]string, options ...Option) (*Service,
 	}
 
 	// replace default env with new one.
-	defenv := xos.EnvSliceToMap(s.configuration.Env)
-	s.configuration.Env = xos.EnvMapToSlice(xos.EnvMergeMaps(defenv, env))
+	defenv := xos.EnvSliceToMap(s.configuration().Env)
+	s.configuration().Env = xos.EnvMapToSlice(xos.EnvMergeMaps(defenv, env))
 
 	if err := s.deploy(); err != nil {
 		return nil, err
@@ -213,12 +211,10 @@ func (s *Service) deploy() error {
 
 	s.sendStatus("Image built with success", DDonePositive)
 
-	s.configuration.Key = "service"
-	s.configuration.Image = imageHash
-	s.Dependencies = append(s.Dependencies, s.configuration)
-	if s.SID == "" {
+	s.configuration().Image = imageHash
+	if s.Sid == "" {
 		// make sure that sid doesn't have the same length with id.
-		s.SID = "a" + s.computeHash()
+		s.Sid = "a" + s.computeHash()
 	}
 	return nil
 }
@@ -253,18 +249,43 @@ func (s *Service) getDependency(dependencyKey string) (*Dependency, error) {
 
 // validateConfigurationEnv checks presence of env variables in mesg.yml under env section.
 func (s *Service) validateConfigurationEnv(env map[string]string) error {
+	var nonDefined []string
 	for key := range env {
-		exist := false
+		exists := false
 		// check if "key=" exists in configuration
-		for _, env := range s.configuration.Env {
+		for _, env := range s.configuration().Env {
 			if strings.HasPrefix(env, key+"=") {
-				exist = true
-				break
+				exists = true
 			}
 		}
-		if !exist {
-			return fmt.Errorf("service environment variable %q dosen't exist in mesg.yml (under configuration.env key)", key)
+		if !exists {
+			nonDefined = append(nonDefined, key)
+		}
+	}
+	if len(nonDefined) > 0 {
+		sort.Strings(nonDefined)
+		return ErrNotDefinedEnv{nonDefined}
+	}
+	return nil
+}
+
+// helper to return the configuration of the service from the dependencies array
+func (s *Service) configuration() *Dependency {
+	for _, dep := range s.Dependencies {
+		if dep.Key == importer.ConfigurationDependencyKey {
+			return dep
 		}
 	}
 	return nil
+}
+
+// ErrNotDefinedEnv error returned when optionally given env variables
+// are not defined in the mesg.yml file.
+type ErrNotDefinedEnv struct {
+	env []string
+}
+
+func (e ErrNotDefinedEnv) Error() string {
+	return fmt.Sprintf("environment variable(s) %q not defined in mesg.yml (under configuration.env key)",
+		strings.Join(e.env, ", "))
 }
