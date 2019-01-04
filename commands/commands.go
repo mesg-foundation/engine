@@ -38,17 +38,10 @@ type ServiceExecutor interface {
 	ServiceInitDownloadTemplate(t *servicetemplate.Template, dst string) error
 }
 
-// WorkflowExecutor is an interface that handles workflow commands.
-type WorkflowExecutor interface {
-	CreateWorkflow(filePath string, name string) (id string, err error)
-	DeleteWorkflow(id string) error
-}
-
 // Executor is an interface that keeps all commands interfaces.
 type Executor interface {
 	RootExecutor
 	ServiceExecutor
-	WorkflowExecutor
 }
 
 // Build constructs root command and returns it.
