@@ -121,6 +121,14 @@ func (p *ServiceProvider) ServiceListenResults(id, taskFilter, outputFilter stri
 	resultC := make(chan *coreapi.ResultData)
 	errC := make(chan error)
 
+	// wait for server to return its ready
+	println("waiting for header...")
+	meta, err := stream.Header()
+	if err != nil {
+		return nil, nil, err
+	}
+	statuses := meta.Get("status")
+	println("header status", statuses[len(statuses)-1])
 	go func() {
 		for {
 			if res, err := stream.Recv(); err != nil {
