@@ -106,4 +106,7 @@ type Parameter struct {
 
 	// Optional indicates if parameter is optional.
 	Optional bool `yaml:"optional"`
+
+	// Repeated is to have an array of this parameter
+	Repeated bool `yaml:"repeated"`
 }
