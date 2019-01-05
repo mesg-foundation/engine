@@ -104,7 +104,7 @@ func (p *ServiceProvider) ServiceListenEvents(id, eventFilter string) (chan *cor
 		}
 	}()
 
-	// wait for server to notify its ready
+	// wait for server to notify the stream is ready.
 	if _, err := stream.Header(); err != nil {
 		return nil, nil, err
 	}
@@ -138,7 +138,7 @@ func (p *ServiceProvider) ServiceListenResults(id, taskFilter, outputFilter stri
 		}
 	}()
 
-	// wait for server to notify its ready
+	// wait for server to notify the stream is ready.
 	if _, err := stream.Header(); err != nil {
 		return nil, nil, err
 	}
@@ -201,7 +201,7 @@ func (p *ServiceProvider) ServiceLogs(id string, dependencies ...string) (logs [
 		closer()
 	}()
 
-	// wait for server to notify its ready
+	// wait for server to notify the stream is ready.
 	if _, err := stream.Header(); err != nil {
 		return nil, nil, err
 	}
