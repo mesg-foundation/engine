@@ -3,7 +3,6 @@ package commands
 import (
 	"encoding/json"
 	"fmt"
-	"time"
 
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/utils/pretty"
@@ -83,11 +82,6 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return
 		}
-
-		// XXX: sleep because listen stream may not be ready to stream the data
-		// and execution will done before stream is ready. In that case the response
-		// wlll never come TODO: investigate
-		time.Sleep(1 * time.Second)
 
 		err = c.e.ServiceExecuteTask(args[0], c.taskKey, inputData, tags)
 	})
