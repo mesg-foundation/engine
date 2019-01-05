@@ -94,6 +94,7 @@ func TestValidateParameters(t *testing.T) {
 		"object": map[string]interface{}{
 			"foo": "bar",
 		},
+		"array": []string{"foo", "bar"},
 	}), 0)
 	require.Len(t, validateParametersSchema(eventDataSchema, map[string]interface{}{
 		"optional": "yeah",
@@ -103,15 +104,18 @@ func TestValidateParameters(t *testing.T) {
 		"object": map[string]interface{}{
 			"foo": "bar",
 		},
+		"array": []string{"foo", "bar"},
 	}), 0)
-	// 4 errors
+	// 5 errors
 	//  - not required string
 	//  - invalid number
 	//  - invalid boolean
 	//  - invalid object
+	//  - invalid array
 	require.Len(t, validateParametersSchema(eventDataSchema, map[string]interface{}{
 		"number":  "string",
 		"boolean": 42,
 		"object":  false,
-	}), 4)
+		"array":   42,
+	}), 5)
 }
