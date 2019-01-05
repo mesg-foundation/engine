@@ -28,6 +28,11 @@ var eventDataSchema = []*Parameter{
 		Key:  "object",
 		Type: "Object",
 	},
+	{
+		Key:      "array",
+		Type:     "String",
+		Repeated: true,
+	},
 }
 
 func validateParameterData(paramKey string, data interface{}) bool {
@@ -72,6 +77,13 @@ func TestObject(t *testing.T) {
 		"bar",
 	}))
 	require.False(t, validateParameterData("object", 42))
+}
+
+func TestArray(t *testing.T) {
+	require.True(t, validateParameterData("array", []string{"foo", "bar"}))
+	require.True(t, validateParameterData("array", []string{}))
+	require.False(t, validateParameterData("array", []uint{10}))
+	require.False(t, validateParameterData("array", 42))
 }
 
 func TestValidateParameters(t *testing.T) {
