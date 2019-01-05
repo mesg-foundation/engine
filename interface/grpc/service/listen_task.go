@@ -15,7 +15,7 @@ func (s *Server) ListenTask(request *serviceapi.ListenTaskRequest, stream servic
 	}
 	defer ln.Close()
 
-	// send header to notify client that the stream is ready
+	// send header to notify client that the stream is ready.
 	if err := stream.SendHeader(utils.StatusReady); err != nil {
 		return err
 	}
