@@ -9,14 +9,12 @@ import (
 type Provider struct {
 	*CoreProvider
 	*ServiceProvider
-	*WorkflowProvider
 }
 
 // New creates Provider based on given CoreClient.
 func New(c coreapi.CoreClient, d daemon.Daemon) *Provider {
 	return &Provider{
-		CoreProvider:     NewCoreProvider(c, d),
-		ServiceProvider:  NewServiceProvider(c),
-		WorkflowProvider: NewWorkflowProvider(c),
+		CoreProvider:    NewCoreProvider(c, d),
+		ServiceProvider: NewServiceProvider(c),
 	}
 }
