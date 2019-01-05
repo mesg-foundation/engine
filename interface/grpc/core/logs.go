@@ -2,6 +2,7 @@ package core
 
 import (
 	"github.com/mesg-foundation/core/api"
+	"github.com/mesg-foundation/core/interface/grpc/utils"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/utils/chunker"
 )
@@ -32,6 +33,11 @@ func (s *Server) ServiceLogs(request *coreapi.ServiceLogsRequest, stream coreapi
 		defer cerr.Close()
 		defer l.Standard.Close()
 		defer l.Error.Close()
+	}
+
+	// send header to notify client that the stream is ready
+	if err := stream.SendHeader(utils.StatusReady); err != nil {
+		return err
 	}
 
 	ctx := stream.Context()
