@@ -29,6 +29,7 @@ To create an event, the first step is to update the Service's [`mesg.yml`](servi
 | **description** | `""` | `String` | Description of the data |
 | **type** | `String` | [`Type`](emit-an-event.md#type-of-your-data) | Type of data |
 | **optional** | `false` | `boolean` | Mark the data as optional |
+| **repeated** | `false` | `boolean` | Define this data as an array of the type selected |
 
 ### Data's type
 
@@ -52,14 +53,15 @@ events:
         data:
             foo:
                 name: "Foo"
-                description: "Foo is the first data"
+                description: "Foo is a string"
                 type: String
                 optional: false
             bar:
                 name: "Bar"
-                description: "Bar is the second data"
+                description: "Bar is an optional array of boolean"
                 type: Boolean
                 optional: true
+                repeated: true
 ...
 ```
 

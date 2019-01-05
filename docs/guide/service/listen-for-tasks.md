@@ -39,6 +39,7 @@ The first step is to declare the tasks that the service will be able to execute 
 | **description** | `""` | `String` | Description of the parameter. |
 | **type** | `String` | [`Type`](listen-for-tasks.md#type-of-your-data) | Type of the parameter. |
 | **optional** | `false` | `Boolean` | If true, this parameter is considered as optional and might remain empty. |
+| **repeated** | `false` | `Boolean` | Define this parameter as an array of the type selected |
 
 ### Type of parameter
 
@@ -62,14 +63,15 @@ tasks:
         inputs:
             inputX:
                 name: "Input x"
-                description: "Foo is the first data"
+                description: "Foo is a string"
                 type: String
                 optional: false
             inputY:
                 name: "Input y"
-                description: "Bar is the second data"
+                description: "Bar is an optional array of boolean"
                 type: Boolean
                 optional: true
+                repeated: true
         outputs:
             outputX:
                 name: "OutputX"
