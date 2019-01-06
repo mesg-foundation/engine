@@ -48,7 +48,19 @@ func (v *parameterValidator) Validate(value interface{}) *ParameterWarning {
 		}
 		return v.newParameterWarning("required")
 	}
-
+	if v.parameter.Repeated {
+		// Check if the value is a slice
+		array, ok := value.([]interface{})
+		if !ok {
+			return v.newParameterWarning("not an array")
+		}
+		for _, x := range array {
+			if warning := v.validateType(x); warning != nil {
+				return warning
+			}
+		}
+		return nil
+	}
 	return v.validateType(value)
 }
 
