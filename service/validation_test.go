@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -87,35 +88,55 @@ func TestArray(t *testing.T) {
 }
 
 func TestValidateParameters(t *testing.T) {
-	require.Len(t, validateParametersSchema(eventDataSchema, map[string]interface{}{
-		"string":  "hello",
-		"number":  10,
-		"boolean": true,
-		"object": map[string]interface{}{
-			"foo": "bar",
+	tests := []struct {
+		data   string
+		errors int
+	}{
+		{
+			data: `{
+				"string": "hello",
+				"number": 10,
+				"boolean": true,
+				"object": {
+					"foo": "bar"
+				},
+				"array": ["foo", "bar"]
+			}`,
+			errors: 0,
 		},
-		"array": []interface{}{"foo", "bar"},
-	}), 0)
-	require.Len(t, validateParametersSchema(eventDataSchema, map[string]interface{}{
-		"optional": "yeah",
-		"string":   "hello",
-		"number":   10,
-		"boolean":  true,
-		"object": map[string]interface{}{
-			"foo": "bar",
+		{
+			data: `{
+				"optional": "yeah",
+				"string": "hello",
+				"number": 10,
+				"boolean": true,
+				"object": {
+					"foo": "bar"
+				},
+				"array": ["foo", "bar"]
+			}`,
+			errors: 0,
 		},
-		"array": []interface{}{"foo", "bar"},
-	}), 0)
-	// 5 errors
-	//  - not required string
-	//  - invalid number
-	//  - invalid boolean
-	//  - invalid object
-	//  - invalid array
-	require.Len(t, validateParametersSchema(eventDataSchema, map[string]interface{}{
-		"number":  "string",
-		"boolean": 42,
-		"object":  false,
-		"array":   42,
-	}), 5)
+		{
+			// 5 errors
+			//  - not required string
+			//  - invalid number
+			//  - invalid boolean
+			//  - invalid object
+			//  - invalid array
+			data: `{
+				"number": "string",
+				"boolean": 42,
+				"object": false,
+				"array": 42
+			}`,
+			errors: 5,
+		},
+	}
+
+	for _, test := range tests {
+		var data map[string]interface{}
+		require.NoError(t, json.Unmarshal([]byte(test.data), &data))
+		require.Len(t, validateParametersSchema(eventDataSchema, data), test.errors)
+	}
 }
