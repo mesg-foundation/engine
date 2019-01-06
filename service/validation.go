@@ -2,7 +2,6 @@ package service
 
 import (
 	"fmt"
-	"reflect"
 )
 
 // ParameterWarning contains a specific warning related to a parameter.
@@ -51,12 +50,11 @@ func (v *parameterValidator) Validate(value interface{}) *ParameterWarning {
 	}
 	if v.parameter.Repeated {
 		// Check if the value is a slice
-		if reflect.TypeOf(value).Kind() != reflect.Slice {
+		array, ok := value.([]interface{})
+		if !ok {
 			return v.newParameterWarning("not an array")
 		}
-		array := reflect.ValueOf(value)
-		for i := 0; i < array.Len(); i++ {
-			x := array.Index(i).Interface() // Get the value as an interface{}
+		for _, x := range array {
 			if warning := v.validateType(x); warning != nil {
 				return warning
 			}
