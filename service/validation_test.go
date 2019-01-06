@@ -80,8 +80,8 @@ func TestObject(t *testing.T) {
 }
 
 func TestArray(t *testing.T) {
-	require.True(t, validateParameterData("array", []string{"foo", "bar"}))
-	require.True(t, validateParameterData("array", []string{}))
+	require.True(t, validateParameterData("array", []interface{}{"foo", "bar"}))
+	require.True(t, validateParameterData("array", []interface{}{}))
 	require.False(t, validateParameterData("array", []uint{10}))
 	require.False(t, validateParameterData("array", 42))
 }
@@ -94,7 +94,7 @@ func TestValidateParameters(t *testing.T) {
 		"object": map[string]interface{}{
 			"foo": "bar",
 		},
-		"array": []string{"foo", "bar"},
+		"array": []interface{}{"foo", "bar"},
 	}), 0)
 	require.Len(t, validateParametersSchema(eventDataSchema, map[string]interface{}{
 		"optional": "yeah",
@@ -104,7 +104,7 @@ func TestValidateParameters(t *testing.T) {
 		"object": map[string]interface{}{
 			"foo": "bar",
 		},
-		"array": []string{"foo", "bar"},
+		"array": []interface{}{"foo", "bar"},
 	}), 0)
 	// 5 errors
 	//  - not required string
