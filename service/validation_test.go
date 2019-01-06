@@ -82,7 +82,7 @@ func TestObject(t *testing.T) {
 func TestArray(t *testing.T) {
 	require.True(t, validateParameterData("array", []interface{}{"foo", "bar"}))
 	require.True(t, validateParameterData("array", []interface{}{}))
-	require.False(t, validateParameterData("array", []uint{10}))
+	require.False(t, validateParameterData("array", []interface{}{10}))
 	require.False(t, validateParameterData("array", 42))
 }
 
