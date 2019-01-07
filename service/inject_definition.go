@@ -147,6 +147,7 @@ func (s *Service) defParametersToService(params map[string]*importer.Parameter) 
 			Description: param.Description,
 			Type:        param.Type,
 			Optional:    param.Optional,
+			Repeated:    param.Repeated,
 		}
 	}
 	return ps

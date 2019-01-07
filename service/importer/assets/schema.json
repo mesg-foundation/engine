@@ -89,6 +89,9 @@
                 "optional": {
                   "type": "boolean"
                 },
+                "repeated": {
+                  "type": "boolean"
+                },
                 "type": {
                   "type": "string",
                   "enum": [
