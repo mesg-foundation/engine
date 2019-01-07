@@ -91,7 +91,8 @@ func (v *parameterValidator) validateType(value interface{}) *ParameterWarning {
 		if !okObj && !okArr {
 			return v.newParameterWarning("not an object or array")
 		}
-
+	case "Any":
+		return nil
 	default:
 		return v.newParameterWarning("an invalid type")
 	}
