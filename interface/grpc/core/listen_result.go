@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/mesg-foundation/core/api"
+	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 )
 
@@ -19,7 +20,7 @@ func (s *Server) ListenResult(request *coreapi.ListenResultRequest, stream corea
 	defer ln.Close()
 
 	// send header to notify client that the stream is ready.
-	if err := coreapi.SetStreamReady(stream); err != nil {
+	if err := acknowledgement.SetStreamReady(stream); err != nil {
 		return err
 	}
 

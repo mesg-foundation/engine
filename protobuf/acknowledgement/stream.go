@@ -1,4 +1,4 @@
-package coreapi
+package acknowledgement
 
 import (
 	fmt "fmt"
