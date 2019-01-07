@@ -2,6 +2,7 @@ package core
 
 import (
 	"github.com/mesg-foundation/core/api"
+	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/utils/chunker"
 )
@@ -35,7 +36,7 @@ func (s *Server) ServiceLogs(request *coreapi.ServiceLogsRequest, stream coreapi
 	}
 
 	// send header to notify client that the stream is ready.
-	if err := coreapi.SetStreamReady(stream); err != nil {
+	if err := acknowledgement.SetStreamReady(stream); err != nil {
 		return err
 	}
 
