@@ -475,7 +475,7 @@ message Parameter {
   string key = 8;         // Parameter's key.
   string name = 1;        // Parameter's name.
   string description = 2; // Parameter's description.
-  string type = 3;        // Parameter's type: `String`, `Number`, `Boolean` or `Object`.
+  string type = 3;        // Parameter's type: `String`, `Number`, `Boolean` or `Any`.
   bool optional = 4;      // Set the parameter as optional.
   bool repeated = 9;      // Mark a parameter as an array of the defined type
 }
