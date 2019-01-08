@@ -7,7 +7,7 @@ for file in $(find . -name '*.go' -not -path '**/vendor/*');
 do
   if ! grep -q "$copyrighgrep" $file
   then
-    echo $"$copyright 
+    echo $"$copyright
 
 $(cat $file)" > $file
   fi
