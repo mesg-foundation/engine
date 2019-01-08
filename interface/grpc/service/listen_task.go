@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 
+	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
 )
 
@@ -13,6 +14,11 @@ func (s *Server) ListenTask(request *serviceapi.ListenTaskRequest, stream servic
 		return err
 	}
 	defer ln.Close()
+
+	// send header to notify client that the stream is ready.
+	if err := acknowledgement.SetStreamReady(stream); err != nil {
+		return err
+	}
 
 	ctx := stream.Context()
 	for {
