@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/commands/provider"
-	"github.com/mesg-foundation/core/x/xos"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
@@ -15,7 +14,8 @@ func TestServiceDeployCmdFlags(t *testing.T) {
 	c := newServiceDeployCmd(nil)
 
 	flags := c.cmd.Flags()
-	flags.Set("env", "a=1,b=2")
+	flags.Set("env", "a=1")
+	flags.Set("env", "b=2")
 	require.Equal(t, map[string]string{"a": "1", "b": "2"}, c.env)
 }
 
@@ -23,12 +23,12 @@ func TestServiceDeploy(t *testing.T) {
 	var (
 		url                     = "1"
 		id                      = "2"
-		env                     = []string{"A=3", "B=4"}
+		env                     = map[string]string{"A": "3", "B": "4"}
 		m                       = newMockExecutor()
 		c                       = newServiceDeployCmd(m)
 		serviceDeployParameters = []interface{}{
 			url,
-			xos.EnvSliceToMap(env),
+			env,
 			mock.Anything,
 		}
 		serviceDeployRunFunction = func(args mock.Arguments) {
@@ -45,7 +45,7 @@ func TestServiceDeploy(t *testing.T) {
 		}
 	)
 	c.cmd.SetArgs([]string{url})
-	c.cmd.Flags().Set("env", strings.Join(env, ","))
+	c.env = env
 
 	m.On("ServiceDeploy", serviceDeployParameters...).Return(id, nil, nil).Run(serviceDeployRunFunction)
 
