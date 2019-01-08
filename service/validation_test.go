@@ -90,7 +90,7 @@ func TestAny(t *testing.T) {
 	}))
 	require.True(t, validateParameterData("any", []interface{}{
 		"foo",
-		"bar",
+		0,
 	}))
 	require.True(t, validateParameterData("any", 42))
 	require.True(t, validateParameterData("any", "string"))
@@ -116,7 +116,7 @@ func TestValidateParameters(t *testing.T) {
 				"object": {
 					"foo": "bar"
 				},
-				"any": 123,
+				"any": 0,
 				"array": ["foo", "bar"]
 			}`,
 			errors: 0,
@@ -130,7 +130,7 @@ func TestValidateParameters(t *testing.T) {
 				"object": {
 					"foo": "bar"
 				},
-				"any": 123,
+				"any": 0,
 				"array": ["foo", "bar"]
 			}`,
 			errors: 0,
@@ -146,7 +146,7 @@ func TestValidateParameters(t *testing.T) {
 				"number": "string",
 				"boolean": 42,
 				"object": false,
-				"any": 123,
+				"any": 0,
 				"array": 42
 			}`,
 			errors: 5,
