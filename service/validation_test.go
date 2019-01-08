@@ -30,6 +30,10 @@ var eventDataSchema = []*Parameter{
 		Type: "Object",
 	},
 	{
+		Key:  "any",
+		Type: "Any",
+	},
+	{
 		Key:      "array",
 		Type:     "String",
 		Repeated: true,
@@ -80,6 +84,18 @@ func TestObject(t *testing.T) {
 	require.False(t, validateParameterData("object", 42))
 }
 
+func TestAny(t *testing.T) {
+	require.True(t, validateParameterData("any", map[string]interface{}{
+		"foo": "bar",
+	}))
+	require.True(t, validateParameterData("any", []interface{}{
+		"foo",
+		0,
+	}))
+	require.True(t, validateParameterData("any", 42))
+	require.True(t, validateParameterData("any", "string"))
+}
+
 func TestArray(t *testing.T) {
 	require.True(t, validateParameterData("array", []interface{}{"foo", "bar"}))
 	require.True(t, validateParameterData("array", []interface{}{}))
@@ -100,6 +116,7 @@ func TestValidateParameters(t *testing.T) {
 				"object": {
 					"foo": "bar"
 				},
+				"any": 0,
 				"array": ["foo", "bar"]
 			}`,
 			errors: 0,
@@ -113,6 +130,7 @@ func TestValidateParameters(t *testing.T) {
 				"object": {
 					"foo": "bar"
 				},
+				"any": 0,
 				"array": ["foo", "bar"]
 			}`,
 			errors: 0,
@@ -128,6 +146,7 @@ func TestValidateParameters(t *testing.T) {
 				"number": "string",
 				"boolean": 42,
 				"object": false,
+				"any": 0,
 				"array": 42
 			}`,
 			errors: 5,

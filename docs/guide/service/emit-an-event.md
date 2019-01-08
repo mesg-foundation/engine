@@ -38,7 +38,7 @@ The data type can be one of the following:
 * `String`
 * `Boolean`
 * `Number`
-* `Object`
+* `Any`
 
 ### Example
 
