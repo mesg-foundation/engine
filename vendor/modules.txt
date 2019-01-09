@@ -97,9 +97,9 @@ github.com/jbenet/go-context/io
 github.com/kelseyhightower/envconfig
 # github.com/kevinburke/ssh_config v0.0.0-20180711164746-82cf3f926438
 github.com/kevinburke/ssh_config
-# github.com/mattn/go-colorable v0.0.0-20180310133214-efa589957cd0
+# github.com/mattn/go-colorable v0.0.9
 github.com/mattn/go-colorable
-# github.com/mattn/go-isatty v0.0.3
+# github.com/mattn/go-isatty v0.0.4
 github.com/mattn/go-isatty
 # github.com/mesg-foundation/go-service v0.0.0-20180914022507-c53d57c454a2
 github.com/mesg-foundation/go-service
@@ -155,6 +155,7 @@ github.com/stretchr/testify/require
 github.com/stretchr/testify/assert
 # github.com/syndtr/goleveldb v0.0.0-20180708030551-c4c61651e9e3
 github.com/syndtr/goleveldb/leveldb
+github.com/syndtr/goleveldb/leveldb/util
 github.com/syndtr/goleveldb/leveldb/cache
 github.com/syndtr/goleveldb/leveldb/comparer
 github.com/syndtr/goleveldb/leveldb/errors
@@ -165,7 +166,6 @@ github.com/syndtr/goleveldb/leveldb/memdb
 github.com/syndtr/goleveldb/leveldb/opt
 github.com/syndtr/goleveldb/leveldb/storage
 github.com/syndtr/goleveldb/leveldb/table
-github.com/syndtr/goleveldb/leveldb/util
 # github.com/vektra/mockery v0.0.0-20180815001236-ea265755d541
 github.com/vektra/mockery/cmd/mockery
 github.com/vektra/mockery/mockery
@@ -206,7 +206,7 @@ golang.org/x/net/http2/hpack
 golang.org/x/net/idna
 golang.org/x/net/internal/timeseries
 golang.org/x/net/internal/socks
-# golang.org/x/sys v0.0.0-20180709060233-1b2967e3c290
+# golang.org/x/sys v0.0.0-20181122145206-62eef0e2fa9b
 golang.org/x/sys/unix
 golang.org/x/sys/windows
 # golang.org/x/text v0.0.0-20180708171225-0605a8320ace
@@ -214,18 +214,20 @@ golang.org/x/text/unicode/norm
 golang.org/x/text/secure/bidirule
 golang.org/x/text/unicode/bidi
 golang.org/x/text/transform
-# golang.org/x/tools v0.0.0-20181004163742-59602fdee893
+# golang.org/x/tools v0.0.0-20181122213734-04b5d21e00f1
 golang.org/x/tools/go/loader
 golang.org/x/tools/imports
 golang.org/x/tools/go/ast/astutil
 golang.org/x/tools/go/buildutil
 golang.org/x/tools/go/internal/cgo
+golang.org/x/tools/internal/gopathwalk
 golang.org/x/tools/internal/fastwalk
 # google.golang.org/genproto v0.0.0-20180709204101-e92b11657268
 google.golang.org/genproto/googleapis/rpc/status
 # google.golang.org/grpc v0.0.0-20180710012024-c491b25057c8
 google.golang.org/grpc
 google.golang.org/grpc/reflection
+google.golang.org/grpc/metadata
 google.golang.org/grpc/codes
 google.golang.org/grpc/status
 google.golang.org/grpc/balancer
@@ -241,7 +243,6 @@ google.golang.org/grpc/internal/channelz
 google.golang.org/grpc/internal/envconfig
 google.golang.org/grpc/internal/grpcrand
 google.golang.org/grpc/keepalive
-google.golang.org/grpc/metadata
 google.golang.org/grpc/naming
 google.golang.org/grpc/peer
 google.golang.org/grpc/resolver
