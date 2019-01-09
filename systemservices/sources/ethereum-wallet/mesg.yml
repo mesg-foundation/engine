@@ -1,0 +1,8 @@
+name: "Ethereum"
+sid: ethereum
+description: ""
+events:
+  test:
+    data:
+      content:
+        type: String
