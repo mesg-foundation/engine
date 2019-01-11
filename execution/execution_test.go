@@ -3,10 +3,12 @@ package execution
 import (
 	"errors"
 	"testing"
+	"testing/quick"
 
 	"github.com/stretchr/testify/require"
 
 	"github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/core/x/xstructhash"
 )
 
 var (
@@ -254,4 +256,26 @@ func TestStatus(t *testing.T) {
 	require.Equal(t, "in progress", InProgress.String())
 	require.Equal(t, "completed", Completed.String())
 	require.Equal(t, "failed", Failed.String())
+}
+
+func TestExecutionIDHash(t *testing.T) {
+	ids := make(map[string]bool)
+
+	f := func(eventID, taskKey, inputs string, tags []string) bool {
+		e := Execution{
+			EventID: eventID,
+			TaskKey: taskKey,
+			Tags:    tags,
+			Inputs:  map[string]interface{}{inputs: "input"},
+		}
+
+		id := xstructhash.Hash(e, 1)
+		if ids[id] {
+			return false
+		}
+		ids[id] = true
+		return true
+	}
+
+	require.NoError(t, quick.Check(f, nil))
 }
