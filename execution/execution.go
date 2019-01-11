@@ -38,12 +38,12 @@ func (s Status) String() (r string) {
 // Execution stores all informations about executions.
 type Execution struct {
 	ID                string                 `hash:"-"`
-	EventID           string                 `hash:"eventID"`
+	EventID           string                 `hash:"name:eventID"`
 	Status            Status                 `hash:"-"`
-	Service           *service.Service       `hash:"service"`
-	TaskKey           string                 `hash:"taskKey"`
-	Tags              []string               `hash:"tags"`
-	Inputs            map[string]interface{} `hash:"inputs"`
+	Service           *service.Service       `hash:"name:service"`
+	TaskKey           string                 `hash:"name:taskKey"`
+	Tags              []string               `hash:"name:tags"`
+	Inputs            map[string]interface{} `hash:"name:inputs"`
 	OutputKey         string                 `hash:"-"`
 	OutputData        map[string]interface{} `hash:"-"`
 	Error             string                 `hash:"-"`
