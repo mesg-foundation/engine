@@ -102,7 +102,7 @@ func TestDeployInvalidService(t *testing.T) {
 }
 
 func TestDeployServiceFromURL(t *testing.T) {
-	url := "https://github.com/mesg-foundation/service-webhook"
+	url := "https://github.com/mesg-foundation/service-webhook.git"
 
 	a, dt, closer := newAPIAndDockerTest(t)
 	defer closer()

@@ -3,6 +3,7 @@ package api
 import (
 	"io"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"path/filepath"
 	"sync"
@@ -36,7 +37,7 @@ func (a *API) DeployService(r io.Reader, env map[string]string, options ...Deplo
 // - https://github.com/mesg-foundation/service-ethereum#branchName
 func (a *API) DeployServiceFromURL(url string, env map[string]string, options ...DeployServiceOption) (*service.Service,
 	*importer.ValidationError, error) {
-	return newServiceDeployer(a, env, options...).FromGitURL(url)
+	return newServiceDeployer(a, env, options...).FromURL(url)
 }
 
 // serviceDeployer provides functionalities to deploy a MESG service.
@@ -83,31 +84,41 @@ func newServiceDeployer(api *API, env map[string]string, options ...DeployServic
 	return d
 }
 
-// FromGitURL deploys a service hosted at a Git url.
-func (d *serviceDeployer) FromGitURL(url string) (*service.Service, *importer.ValidationError, error) {
-	defer d.closeStatus()
-	d.sendStatus("Downloading service...", Running)
-	path, err := d.createTempDir()
+// FromURL deploys a service from git or tarball url.
+func (d *serviceDeployer) FromURL(url string) (*service.Service, *importer.ValidationError, error) {
+	if xgit.IsGitURL(url) {
+		defer d.closeStatus()
+		d.sendStatus("Downloading service...", Running)
+		path, err := d.createTempDir()
+		if err != nil {
+			return nil, nil, err
+		}
+		defer os.RemoveAll(path)
+		if err := xgit.Clone(url, path); err != nil {
+			return nil, nil, err
+		}
+
+		// XXX: remove .git folder from repo.
+		// It makes docker build iamge id same between repo clones.
+		if err := os.RemoveAll(filepath.Join(path, ".git")); err != nil {
+			return nil, nil, err
+		}
+
+		d.sendStatus("Service downloaded with success", DonePositive)
+		r, err := xarchive.GzippedTar(path, nil)
+		if err != nil {
+			return nil, nil, err
+		}
+		return d.deploy(r)
+	}
+
+	// if not git repo then it should be tarball
+	resp, err := http.Get(url)
 	if err != nil {
 		return nil, nil, err
 	}
-	defer os.RemoveAll(path)
-	if err := xgit.Clone(url, path); err != nil {
-		return nil, nil, err
-	}
-
-	// XXX: remove .git folder from repo.
-	// It makes docker build iamge id same between repo clones.
-	if err := os.RemoveAll(filepath.Join(path, ".git")); err != nil {
-		return nil, nil, err
-	}
-
-	d.sendStatus("Service downloaded with success", DonePositive)
-	r, err := xarchive.GzippedTar(path, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-	return d.deploy(r)
+	defer resp.Body.Close()
+	return d.FromGzippedTar(resp.Body)
 }
 
 // FromGzippedTar deploys a service from a gzipped tarball.
