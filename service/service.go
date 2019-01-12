@@ -214,7 +214,7 @@ func (s *Service) deploy() error {
 	s.configuration().Image = imageHash
 	if s.Sid == "" {
 		// make sure that sid doesn't have the same length with id.
-		s.Sid = "a" + s.computeHash()
+		s.Sid = "_" + s.computeHash()
 	}
 	return nil
 }
