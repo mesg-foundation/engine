@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 )
@@ -60,7 +61,7 @@ func TaskInputs(s *coreapi.Service, taskKey string, taskData map[string]string) 
 					return nil, err
 				}
 
-				newValue, err := taskInputs(value, param.Type)
+				newValue, err := taskInputs(value, param.Type, param.Repeated)
 				if err != nil {
 					return nil, fmt.Errorf("task %q - %s", taskKey, err)
 				}
@@ -84,11 +85,23 @@ func findParam(parameters []*coreapi.Parameter, key string) (*coreapi.Parameter,
 	return nil, fmt.Errorf("task input %q does not exists", key)
 }
 
-// taskInputs converts single value based on its type.
-func taskInputs(value, inputType string) (interface{}, error) {
+// taskInputs converts single input based on its type.
+func taskInputs(input, inputType string, repeated bool) (interface{}, error) {
 	c, ok := casters[inputType]
 	if !ok {
-		return nil, fmt.Errorf("input %q - invalid type", value)
+		return nil, fmt.Errorf("input %q type %s - invalid type", input, inputType)
 	}
-	return c(value)
+
+	if repeated {
+		var ret []interface{}
+		for _, value := range strings.Split(input, ",") {
+			v, err := c(value)
+			if err != nil {
+				return nil, fmt.Errorf("input %q - %s is not valid type of %s", input, value, inputType)
+			}
+			ret = append(ret, v)
+		}
+		return ret, nil
+	}
+	return c(input)
 }
