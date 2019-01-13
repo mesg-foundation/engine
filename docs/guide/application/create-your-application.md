@@ -10,25 +10,25 @@ const MESG = require('mesg-js').application()
 
 // When SERVICE_EVENT_ID emits event "eventX"
 // then execute "taskX" from SERVICE_TASK_ID 
-MESG.whenEvent({
-  serviceID: SERVICE_EVENT_ID,
-  filter: "eventX"
-}, {
-  serviceID: SERVICE_TASK_ID,
-  taskKey: 'taskX',
-  inputs: (eventKey, eventData) => ({ foo: 'bar' })
-})
+MESG.listenEvent({ serviceID: SERVICE_EVENT_ID, eventFilter: 'eventX' })
+  .on('data', (event) => {
+    MESG.executeTask({
+      serviceID: SERVICE_TASK_ID,
+      taskKey: 'taskX',
+      inputData: JSON.stringify({ foo: 'bar' })
+    })
+  })
 
 // When SERVICE_TASK_ID send the result of taskX
 // then execute "taskB" from SERVICE_TASK2_ID
-MESG.whenResult({
-  serviceID: SERVICE_TASK_ID,
-  task: 'taskX'
-}, {
-  serviceID: SERVICE_TASK2_ID,
-  taskKey: 'taskB',
-  inputs: { hello: "world" }
-})
+MESG.listenResult({ serviceID: SERVICE_TASK_ID, taskFilter: 'taskX' })
+  .on('data', (event) => {
+    MESG.executeTask({
+      serviceID: SERVICE_TASK2_ID,
+      taskKey: 'taskB',
+      inputData: JSON.stringify({ hello: "world" })
+    })
+  })
 ```
 
 [See the MESG.js library for additional documentation](https://github.com/mesg-foundation/mesg-js/tree/master#application)
@@ -41,44 +41,52 @@ MESG.whenResult({
 package main
 
 import (
-  "os"
-  "os/signal"
-  "syscall"
+	"context"
+	"encoding/json"
 
-  "github.com/mesg-foundation/core/api/client"
+	"github.com/mesg-foundation/core/protobuf/coreapi"
+	"google.golang.org/grpc"
 )
 
 func main() {
-  worfklowA := client.Workflow{
-    OnEvent: &client.Event{ServiceID: SERVICE_EVENT_ID, Name: "eventX"},
-    Execute: &client.Task{ServiceID: SERVICE_TASK_ID, Name: "taskX",
-      Inputs: func(interface{}) interface{} {
-        return map[string]string{
-          "foo": "bar",
-        }
-      },
-    },
-  }
+	connection, _ := grpc.Dial(":50052", grpc.WithInsecure())
+	client := coreapi.NewCoreClient(connection)
 
-  go worfklowA.Start()
-  defer worfklowA.Stop()
-  workflowB := &client.Workflow{
-    OnResult: &client.Result{ServiceID: SERVICE_TASK_ID, Name: "taskX"},
-    Execute: &client.Task{ServiceID: SERVICE_TASK2_ID, Name: "taskB",
-      Inputs: func(data interface{}) interface{} {
-        return map[string]string{
-          "hello": "world",
-        }
-      },
-    },
-  }
-  go workflowB.Start()
-  defer workflowB.Stop()
+	go func() {
+		stream, _ := client.ListenEvent(context.Background(), &coreapi.ListenEventRequest{
+			ServiceID:   SERVICE_EVENT_ID,
+			EventFilter: "eventX",
+		})
 
-  abort := make(chan os.Signal, 1)
-  signal.Notify(abort, syscall.SIGINT, syscall.SIGTERM)
-  <-abort
+		for {
+			event, _ := stream.Recv()
+			inputData, _ := json.Marshal(map[string]string{"foo": "bar"})
+			client.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
+				ServiceID: SERVICE_TASK_ID,
+				TaskKey:   "taskX",
+				InputData: string(inputData),
+			})
+		}
+	}()
+
+	go func() {
+		stream, _ := client.ListenResult(context.Background(), &coreapi.ListenEventRequest{
+			ServiceID: SERVICE_TASK_ID,
+			TaskKey:   "taskX",
+		})
+
+		for {
+			event, _ := stream.Recv()
+			inputData, _ := json.Marshal(map[string]string{"hello": "world"})
+			client.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
+				ServiceID: SERVICE_TASK2_ID,
+				TaskKey:   "taskB",
+				InputData: string(inputData),
+			})
+		}
+	}()
 }
+
 ```
 
 </tab>
