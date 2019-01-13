@@ -43,11 +43,16 @@ func castObject(value string) (interface{}, error) {
 	return v, nil
 }
 
+func castAny(value string) (interface{}, error) {
+	return value, nil
+}
+
 var casters = map[string]caster{
 	"String":  castString,
 	"Number":  castNumber,
 	"Boolean": castBoolean,
 	"Object":  castObject,
+	"Any":     castAny,
 }
 
 // TaskInputs converts map[string]string to map[string]interface{} based on defined types in the service tasks map.
