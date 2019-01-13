@@ -141,6 +141,10 @@ func TestValidateParameters(t *testing.T) {
 				"object": {
 					"foo": "bar"
 				},
+				"fullobject": {
+					"foo": "_",
+					"bar": "_"
+				},
 				"any": 0,
 				"array": ["foo", "bar"]
 			}`,
@@ -155,6 +159,10 @@ func TestValidateParameters(t *testing.T) {
 				"object": {
 					"foo": "bar"
 				},
+				"fullobject": {
+					"foo": "_",
+					"bar": "_"
+				},
 				"any": 0,
 				"array": ["foo", "bar"]
 			}`,
@@ -167,14 +175,16 @@ func TestValidateParameters(t *testing.T) {
 			//  - invalid boolean
 			//  - invalid object
 			//  - invalid array
+			//  - invalid fullobject.foo & fullobject.bar
 			data: `{
 				"number": "string",
 				"boolean": 42,
 				"object": false,
 				"any": 0,
-				"array": 42
+				"array": 42,
+				"fullobject": { "foo": 1, "bar": true }
 			}`,
-			errors: 5,
+			errors: 7,
 		},
 	}
 
