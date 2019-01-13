@@ -36,10 +36,20 @@ jobs:
   "lint":
     docker:
       - image: golangci/golangci-lint:v1.12
+    environment:
+      - GOCACHE: "/tmp/go/cache"
     working_directory: /go/src/github.com/mesg-foundation/core
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - test-cache-{{ .Branch }}-{{ .Environment.CIRCLE_PREVIOUS_BUILD_NUM }}
+            - test-cache-{{ .Branch }}
       - run: golangci-lint run
+      - save_cache:
+          key: test-cache-{{ .Branch }}-{{ .BuildNum }}
+          paths:
+            - /tmp/go/cache
 
   "publish_docker_dev":
     <<: *runOnMachine
