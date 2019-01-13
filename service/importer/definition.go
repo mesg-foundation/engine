@@ -104,6 +104,9 @@ type Parameter struct {
 	// Type is the data type of parameter.
 	Type string `yaml:"type"`
 
+	// Object  keeps definition of object type.
+	Object map[string]*Parameter `yaml:"object"`
+
 	// Optional indicates if parameter is optional.
 	Optional bool `yaml:"optional"`
 

@@ -86,10 +86,18 @@ func (v *parameterValidator) validateType(value interface{}) *ParameterWarning {
 		}
 
 	case "Object":
-		_, okObj := value.(map[string]interface{})
-		_, okArr := value.([]interface{})
-		if !okObj && !okArr {
-			return v.newParameterWarning("not an object or array")
+		m, ok := value.(map[string]interface{})
+		if !ok {
+			return v.newParameterWarning("not an object")
+		}
+		for key, val := range m {
+			p, ok := v.parameter.Object[key]
+			if !ok {
+				return v.newParameterWarning("not found")
+			}
+			if w := newParameterValidator(p).Validate(val); w != nil {
+				return w
+			}
 		}
 	case "Any":
 		return nil

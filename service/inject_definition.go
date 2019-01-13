@@ -146,9 +146,27 @@ func (s *Service) defParametersToService(params map[string]*importer.Parameter) 
 			Name:        param.Name,
 			Description: param.Description,
 			Type:        param.Type,
+			Object:      s.defParametersMapToService(param.Object),
 			Optional:    param.Optional,
 			Repeated:    param.Repeated,
 		}
 	}
 	return ps
+}
+
+func (s *Service) defParametersMapToService(params map[string]*importer.Parameter) map[string]*Parameter {
+	m := make(map[string]*Parameter, len(params))
+
+	for key, param := range params {
+		m[key] = &Parameter{
+			Key:         key,
+			Name:        param.Name,
+			Description: param.Description,
+			Type:        param.Type,
+			Object:      s.defParametersMapToService(param.Object),
+			Optional:    param.Optional,
+			Repeated:    param.Repeated,
+		}
+	}
+	return m
 }

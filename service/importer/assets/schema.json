@@ -92,6 +92,9 @@
                 "repeated": {
                   "type": "boolean"
                 },
+                "object": {
+                  "type": "object"
+                },
                 "type": {
                   "type": "string",
                   "enum": [

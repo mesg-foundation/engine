@@ -15,6 +15,9 @@ type Parameter struct {
 	// Type is the data type of parameter.
 	Type string `hash:"name:4"`
 
+	// Object  keeps definition of object type.
+	Object map[string]*Parameter `hash:"name:7"`
+
 	// Optional indicates if parameter is optional.
 	Optional bool `hash:"name:5"`
 
