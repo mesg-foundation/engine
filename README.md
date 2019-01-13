@@ -97,10 +97,14 @@ const invitation = '__ID_SERVICE_INVITATION_DISCORD__' // To replace by the Serv
 const email      = '__YOUR_EMAIL_HERE__' // To replace by your email
 const sendgridAPIKey = '__SENDGRID_API_KEY__' // To replace by your SendGrid API key. See https://app.sendgrid.com/settings/api_keys
 
-MESG.whenEvent(
-  { serviceID: webhook, eventKey: 'request' },
-  { serviceID: invitation, taskKey: 'send', inputs: { email, sendgridAPIKey } },
-)
+MESG.listenEvent({ serviceID: webhook, eventFilter: 'request' })
+  .on('data', (event) => {
+    MESG.executeTask({
+      serviceID: invitation,
+      taskKey: 'send',
+      inputData: JSON.stringify({ email, sendgridAPIKey })
+    })
+  })
 ```
 
 Don't forget to replace the values `__ID_SERVICE_WEBHOOK__`, `__ID_SERVICE_INVITATION_DISCORD__`, `__YOUR_EMAIL_HERE__` and `__SENDGRID_API_KEY__`.
