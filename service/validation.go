@@ -23,9 +23,7 @@ func validateParametersSchema(parameters []*Parameter, data map[string]interface
 
 	for _, param := range parameters {
 		warnings := newParameterValidator(param).Validate(data[param.Key])
-		for _, warning := range warnings {
-			warningResults = append(warningResults, warning)
-		}
+		warningResults = append(warningResults, warnings...)
 	}
 
 	return warningResults
