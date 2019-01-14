@@ -1,9 +1,9 @@
 # base Go image version.
-ARG go=1.11.4-stretch
-
-FROM golang:$go
+FROM golang:1.11.4-stretch
 
 WORKDIR /project
+
+# install dependencies
 COPY go.mod go.sum ./
 RUN go mod download
 
