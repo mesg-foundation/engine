@@ -30,6 +30,14 @@ var eventDataSchema = []*Parameter{
 		Type: "Object",
 	},
 	{
+		Key:  "fullobject",
+		Type: "Object",
+		Object: []*Parameter{
+			{Key: "foo", Type: "String"},
+			{Key: "bar", Type: "String"},
+		},
+	},
+	{
 		Key:  "any",
 		Type: "Any",
 	},
@@ -43,7 +51,7 @@ var eventDataSchema = []*Parameter{
 func validateParameterData(paramKey string, data interface{}) bool {
 	for _, param := range eventDataSchema {
 		if param.Key == paramKey {
-			return newParameterValidator(param).Validate(data) == nil
+			return len(newParameterValidator(param).Validate(data)) == 0
 		}
 	}
 	return false
@@ -77,11 +85,28 @@ func TestObject(t *testing.T) {
 	require.True(t, validateParameterData("object", map[string]interface{}{
 		"foo": "bar",
 	}))
-	require.True(t, validateParameterData("object", []interface{}{
+	// Breaking change: now array is not supported by the type `object` but can be
+	// used with the parameter property `repeated: true`
+	require.False(t, validateParameterData("object", []interface{}{
 		"foo",
 		"bar",
 	}))
 	require.False(t, validateParameterData("object", 42))
+
+	require.True(t, validateParameterData("fullobject", map[string]interface{}{
+		"foo": "_",
+		"bar": "_",
+	}))
+
+	require.False(t, validateParameterData("fullobject", map[string]interface{}{
+		"foo": 1,
+		"bar": true,
+	}))
+
+	require.False(t, validateParameterData("fullobject", map[string]interface{}{
+		"x": "_",
+		"y": "_",
+	}))
 }
 
 func TestAny(t *testing.T) {
@@ -116,6 +141,10 @@ func TestValidateParameters(t *testing.T) {
 				"object": {
 					"foo": "bar"
 				},
+				"fullobject": {
+					"foo": "_",
+					"bar": "_"
+				},
 				"any": 0,
 				"array": ["foo", "bar"]
 			}`,
@@ -130,6 +159,10 @@ func TestValidateParameters(t *testing.T) {
 				"object": {
 					"foo": "bar"
 				},
+				"fullobject": {
+					"foo": "_",
+					"bar": "_"
+				},
 				"any": 0,
 				"array": ["foo", "bar"]
 			}`,
@@ -142,14 +175,16 @@ func TestValidateParameters(t *testing.T) {
 			//  - invalid boolean
 			//  - invalid object
 			//  - invalid array
+			//  - invalid fullobject.foo & fullobject.bar
 			data: `{
 				"number": "string",
 				"boolean": 42,
 				"object": false,
 				"any": 0,
-				"array": 42
+				"array": 42,
+				"fullobject": { "foo": 1, "bar": true }
 			}`,
-			errors: 5,
+			errors: 7,
 		},
 	}
 
