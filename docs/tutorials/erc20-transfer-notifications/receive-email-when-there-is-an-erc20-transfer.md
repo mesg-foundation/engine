@@ -81,7 +81,7 @@ Let's define a variable for the event we want to listen to:
 // Event we need to listen
 const erc20Transfer = {
   serviceID: '__ERC20_SERVICE_ID__', // The serviceID of the ERC20 service deployed
-  eventKey: 'transfer' // The event we want to listen
+  eventFilter: 'transfer' // The event we want to listen
 }
 ```
 
@@ -93,18 +93,17 @@ Let's define another variable for the task we want to execute:
 
 ```javascript
 // Task to execute
-const sendEmail = {
-  serviceID: '__SENDGRID_SERVICE_ID__', // The serviceID of the service to send emails
-  taskKey: 'send', // The task we want to execute
-  inputs: (eventKey, eventData) => { // This function returns the inputs for of task send based on the data of the event
-    console.log('New ERC20 transfer received. will send an email. Transaction hash:', eventData.transactionHash)
-    return {
+const emailTask = (transfer) => {
+  return {
+    serviceID: '__SENDGRID_SERVICE_ID__', // The serviceID of the service to send emails
+    taskKey: 'send', // The task we want to execute
+    inputData: JSON.stringify({ // The input data that task needs
       apiKey: '__SENDGRID_API_KEY__',
       from: 'test@erc20notification.com',
       to: '__REPLACE_WITH_YOUR_EMAIL__',
       subject: 'New ERC20 transfer',
-      text: `Transfer from ${eventData.from} to ${eventData.to} of ${eventData.value} tokens -> ${eventData.transactionHash}`
-    }
+      text: `Transfer from ${transfer.from} to ${transfer.to} of ${transfer.value} tokens -> ${transfer.transactionHash}`
+    })
   }
 }
 ```
@@ -124,7 +123,13 @@ const MESG = require('mesg-js').application()
 Then simply add the `whenEvent` function at the end of your code to link the event to the task:
 
 ```javascript
-MESG.whenEvent(erc20Transfer, sendEmail)
+MESG.listenEvent(erc20Transfer)
+  .on('data', (event) => {
+    const transfer = JSON.parse(event.eventData)
+    console.log('New ERC20 transfer received. will send an email. Transaction hash:', transfer.transactionHash)
+    MESG.executeTask(emailTask(transfer))
+  })
+
 console.log('Listening ERC20 transfer...')
 ```
 
