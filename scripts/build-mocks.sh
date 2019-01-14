@@ -3,6 +3,8 @@
 # make sure script is running inside mesg/tools container.
 source $(dirname $0)/require-mesg-tools.sh
 
+# TODO: NEED TO FIX
+
 # navigate to core repo.
 cd $GOPATH/src/github.com/mesg-foundation/core
 
