@@ -86,8 +86,8 @@ func newServiceDeployer(api *API, env map[string]string, options ...DeployServic
 
 // FromURL deploys a service from git or tarball url.
 func (d *serviceDeployer) FromURL(url string) (*service.Service, *importer.ValidationError, error) {
+	defer d.closeStatus()
 	if xgit.IsGitURL(url) {
-		defer d.closeStatus()
 		d.sendStatus("Downloading service...", Running)
 		path, err := d.createTempDir()
 		if err != nil {
@@ -109,6 +109,7 @@ func (d *serviceDeployer) FromURL(url string) (*service.Service, *importer.Valid
 		if err != nil {
 			return nil, nil, err
 		}
+		defer r.Close()
 		return d.deploy(r)
 	}
 
@@ -118,7 +119,7 @@ func (d *serviceDeployer) FromURL(url string) (*service.Service, *importer.Valid
 		return nil, nil, err
 	}
 	defer resp.Body.Close()
-	return d.FromGzippedTar(resp.Body)
+	return d.deploy(resp.Body)
 }
 
 // FromGzippedTar deploys a service from a gzipped tarball.
