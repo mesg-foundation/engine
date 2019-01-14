@@ -20,3 +20,6 @@ debug
 /node_modules
 /docs/node_modules
 /docs/.vuepress/dist
+
+# do not store vendor dir
+/vendor/
