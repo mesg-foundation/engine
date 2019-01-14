@@ -20,4 +20,7 @@ type Parameter struct {
 
 	// Repeated is to have an array of this parameter
 	Repeated bool `hash:"name:6"`
+
+	// Definition of the structure of the object when the type is object
+	Object []*Parameter `hash:"name:7"`
 }

@@ -109,4 +109,7 @@ type Parameter struct {
 
 	// Repeated is to have an array of this parameter
 	Repeated bool `yaml:"repeated"`
+
+	// Definition of the structure of the object when the type is object
+	Object map[string]*Parameter `yaml:"object"`
 }
