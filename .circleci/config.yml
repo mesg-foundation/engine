@@ -3,12 +3,10 @@ version: 2
 runOnMachine: &runOnMachine
   machine:
     docker_layer_caching: true
-  working_directory: ~/.go_workspace/src/github.com/mesg-foundation/core
 
 runOnDocker: &runOnDocker
   docker:
     - image: circleci/golang:1.11
-  working_directory: /go/src/github.com/mesg-foundation/core
 
 jobs:
   "test":
@@ -19,16 +17,17 @@ jobs:
       - run: docker swarm init
       - run: docker build -t sleep docker-images/sleep/
       - run: docker build -t http-server docker-images/http-server/
-      - run: mkdir -p ~/.mesg && ln -s /go/src/github.com/mesg-foundation/core/systemservices/sources ~/.mesg/systemservices
+      - run: mkdir -p ~/.mesg && ln -s ~/project/systemservices/sources ~/.mesg/systemservices
+      - run: go mod download
       - run: go test -v -timeout 300s -p 1 -tags=integration -coverprofile=coverage.txt ./...
       - run: bash <(curl -s https://codecov.io/bash)
 
   "lint":
     docker:
       - image: golangci/golangci-lint:v1.12
-    working_directory: /go/src/github.com/mesg-foundation/core
     steps:
       - checkout
+      - run: go mod download
       - run: golangci-lint run
 
   "publish_docker_dev":
