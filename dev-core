@@ -2,7 +2,7 @@
 
 set -e
 
-DIR=`pwd`
+DIR=$(pwd)
 MESG_LOG_LEVEL=${MESG_LOG_LEVEL:-debug}
 VERSION=local
 LDFLAGS="-X 'github.com/mesg-foundation/core/version.Version=$VERSION'"
