@@ -1,5 +1,7 @@
 FROM golang:1.11.4-stretch AS build
-WORKDIR src/github.com/mesg-foundation/core
+WORKDIR /core
+COPY go.mod go.sum ./
+RUN go mod download
 COPY . .
 ARG version
 RUN go build -o mesg-core \
@@ -12,5 +14,5 @@ RUN apt-get update && \
       apt-get clean && \
       rm -rf /var/lib/apt/lists/*
 WORKDIR /app
-COPY --from=build /go/src/github.com/mesg-foundation/core/mesg-core .
+COPY --from=build /core/mesg-core .
 CMD ["./mesg-core"]
