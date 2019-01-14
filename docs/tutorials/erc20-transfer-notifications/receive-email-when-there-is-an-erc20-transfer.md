@@ -129,6 +129,7 @@ MESG.listenEvent(erc20Transfer)
     console.log('New ERC20 transfer received. will send an email. Transaction hash:', transfer.transactionHash)
     MESG.executeTask(emailTask(transfer)).catch((err) => console.log(err.message))
   })
+  .on('error', (err) => console.log(err.message))
 
 console.log('Listening ERC20 transfer...')
 ```

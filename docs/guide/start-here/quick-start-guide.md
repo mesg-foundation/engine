@@ -72,6 +72,7 @@ MESG.listenEvent({ serviceID: webhook, eventFilter: 'request' })
       inputData: JSON.stringify({ email, sendgridAPIKey })
     }).catch((err) => console.log(err.message))
   })
+  .on('error', (err) => console.log(err.message))
 ```
 
 Don't forget to replace the values `__ID_SERVICE_WEBHOOK__`, `__ID_SERVICE_INVITATION_DISCORD__`, `__YOUR_EMAIL_HERE__` and `__SENDGRID_API_KEY__`.
