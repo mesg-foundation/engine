@@ -16,7 +16,7 @@ MESG.listenEvent({ serviceID: SERVICE_EVENT_ID, eventFilter: 'eventX' })
       serviceID: SERVICE_TASK_ID,
       taskKey: 'taskX',
       inputData: JSON.stringify({ foo: 'bar' })
-    })
+    }).catch((err) => console.log(err.message))
   })
 
 // When SERVICE_TASK_ID send the result of taskX
@@ -27,7 +27,7 @@ MESG.listenResult({ serviceID: SERVICE_TASK_ID, taskFilter: 'taskX' })
       serviceID: SERVICE_TASK2_ID,
       taskKey: 'taskB',
       inputData: JSON.stringify({ hello: "world" })
-    })
+    }).catch((err) => console.log(err.message))
   })
 ```
 

@@ -103,7 +103,7 @@ MESG.listenEvent({ serviceID: webhook, eventFilter: 'request' })
       serviceID: invitation,
       taskKey: 'send',
       inputData: JSON.stringify({ email, sendgridAPIKey })
-    })
+    }).catch((err) => console.log(err.message))
   })
 ```
 
