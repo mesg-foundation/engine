@@ -19,16 +19,14 @@ func (p *ParameterWarning) String() string {
 // TODO(ilgooz) add this as a method to Service type when create custom types for Event, Task etc.
 // TODO(ilgooz) remove pointer from *Parameter.
 func validateParametersSchema(parameters []*Parameter, data map[string]interface{}) []*ParameterWarning {
-	warnings := make([]*ParameterWarning, 0, len(parameters))
+	warningResults := make([]*ParameterWarning, 0, len(parameters))
 
 	for _, param := range parameters {
-		warning := newParameterValidator(param).Validate(data[param.Key])
-		if warning != nil {
-			warnings = append(warnings, warning)
-		}
+		warnings := newParameterValidator(param).Validate(data[param.Key])
+		warningResults = append(warningResults, warnings...)
 	}
 
-	return warnings
+	return warningResults
 }
 
 // parameterValidator provides functionalities to check data against its parameter schema.
@@ -41,22 +39,22 @@ func newParameterValidator(parameter *Parameter) *parameterValidator {
 }
 
 // Validate validates value by comparing to its parameter schema.
-func (v *parameterValidator) Validate(value interface{}) *ParameterWarning {
+func (v *parameterValidator) Validate(value interface{}) []*ParameterWarning {
 	if value == nil {
 		if v.parameter.Optional {
 			return nil
 		}
-		return v.newParameterWarning("required")
+		return []*ParameterWarning{v.newParameterWarning("required")}
 	}
 	if v.parameter.Repeated {
 		// Check if the value is a slice
 		array, ok := value.([]interface{})
 		if !ok {
-			return v.newParameterWarning("not an array")
+			return []*ParameterWarning{v.newParameterWarning("not an array")}
 		}
 		for _, x := range array {
-			if warning := v.validateType(x); warning != nil {
-				return warning
+			if warnings := v.validateType(x); warnings != nil {
+				return warnings
 			}
 		}
 		return nil
@@ -65,11 +63,11 @@ func (v *parameterValidator) Validate(value interface{}) *ParameterWarning {
 }
 
 // validateType checks if value comforts its expected type.
-func (v *parameterValidator) validateType(value interface{}) *ParameterWarning {
+func (v *parameterValidator) validateType(value interface{}) []*ParameterWarning {
 	switch v.parameter.Type {
 	case "String":
 		if _, ok := value.(string); !ok {
-			return v.newParameterWarning("not a string")
+			return []*ParameterWarning{v.newParameterWarning("not a string")}
 		}
 
 	case "Number":
@@ -77,24 +75,24 @@ func (v *parameterValidator) validateType(value interface{}) *ParameterWarning {
 		_, okFloat32 := value.(float32)
 		_, okInt := value.(int)
 		if !okInt && !okFloat64 && !okFloat32 {
-			return v.newParameterWarning("not a number")
+			return []*ParameterWarning{v.newParameterWarning("not a number")}
 		}
 
 	case "Boolean":
 		if _, ok := value.(bool); !ok {
-			return v.newParameterWarning("not a boolean")
+			return []*ParameterWarning{v.newParameterWarning("not a boolean")}
 		}
 
 	case "Object":
-		_, okObj := value.(map[string]interface{})
-		_, okArr := value.([]interface{})
-		if !okObj && !okArr {
-			return v.newParameterWarning("not an object or array")
+		data, okObj := value.(map[string]interface{})
+		if !okObj {
+			return []*ParameterWarning{v.newParameterWarning("not an object")}
 		}
+		return validateParametersSchema(v.parameter.Object, data)
 	case "Any":
 		return nil
 	default:
-		return v.newParameterWarning("an invalid type")
+		return []*ParameterWarning{v.newParameterWarning("an invalid type")}
 	}
 
 	return nil
