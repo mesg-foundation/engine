@@ -5,11 +5,11 @@ source $(dirname $0)/require-mesg-tools.sh
 
 cd $GOPATH/src
 
-PROJECT=github.com/mesg-foundation/core
-GRPC=$PROJECT/protobuf
-CORE=$(pwd)/$PROJECT
-API_DOCS="--doc_out=$CORE/docs/api/ --doc_opt=$CORE/docs/api.template"
+# PROJECT=core
+GRPC=/core/protobuf
+# CORE=$(pwd)/$PROJECT
+API_DOCS="--doc_out=/core/docs/api/ --doc_opt=/core/docs/api.template"
 GRPC_PLUGIN="--go_out=plugins=grpc:./"
 
-protoc $GRPC_PLUGIN $API_DOCS,core.md          --proto_path=./ $GRPC/coreapi/api.proto
-protoc $GRPC_PLUGIN $API_DOCS,service.md       --proto_path=./ $GRPC/serviceapi/api.proto
+protoc $GRPC_PLUGIN $API_DOCS,core.md          --proto_path=/core $GRPC/coreapi/api.proto
+protoc $GRPC_PLUGIN $API_DOCS,service.md       --proto_path=/core $GRPC/serviceapi/api.proto

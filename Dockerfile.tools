@@ -3,6 +3,12 @@ ARG go=1.11.4-stretch
 
 FROM golang:$go
 
+WORKDIR /core
+COPY go.mod go.sum ./
+RUN go mod download
+
+VOLUME /core
+
 # install some dependencies from apt-get.
 RUN apt-get update -y && \
     apt-get install -y unzip && \
@@ -18,15 +24,7 @@ RUN wget -q https://github.com/protocolbuffers/protobuf/releases/download/v$prot
     mv /tmp/protobuf/bin/protoc /usr/local/bin/protoc && \
     rm -rf /tmp/*
 
-# symlink project path to have a short version for cosmetics.
-RUN ln -s /go/src/github.com/mesg-foundation/core /core
-WORKDIR /core
-VOLUME /core
-
-# cache vendor for faster builds while using go run commands.
-# also needed to install script's dependencies into /go/bin.
-ADD vendor/ vendor
-RUN go install -i ./vendor/...
+RUN go get -u github.com/golang/protobuf/protoc-gen-go
 
 # verify that mesg-dev container is being used.
 ENV MESG_DEV true
