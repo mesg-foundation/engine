@@ -1,5 +1,5 @@
 # base Go image version.
-ARG go=1.11.0-stretch
+ARG go=1.11.4-stretch
 
 FROM golang:$go
 
