@@ -2,7 +2,7 @@
 
 set -e
 
-DIR=${GOPATH:-$HOME/go}
+DIR=`pwd`
 MESG_LOG_LEVEL=${MESG_LOG_LEVEL:-debug}
 VERSION=local
 LDFLAGS="-X 'github.com/mesg-foundation/core/version.Version=$VERSION'"
@@ -38,7 +38,7 @@ fi
 # create a symlink for system services.
 rm -rf "$HOME/.mesg/systemservices"
 mkdir -p "$HOME/.mesg/"
-ln -s "$DIR/src/github.com/mesg-foundation/core/systemservices/sources" "$HOME/.mesg/systemservices"
+ln -s "$DIR/systemservices/sources" "$HOME/.mesg/systemservices"
 
 echo "build mesg/core image"
 if [[ ! $BINCACHED ]] || [[ ! $DOCKERCACHED ]]; then
