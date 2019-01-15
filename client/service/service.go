@@ -155,7 +155,8 @@ func (s *Service) Listen(task Taskable, tasks ...Taskable) error {
 	}
 	s.isListening = true
 	s.ml.Unlock()
-	s.taskables = append(tasks, task)
+	s.taskables = tasks
+	s.taskables = append(s.taskables, task)
 	if err := s.validateTasks(); err != nil {
 		return err
 	}

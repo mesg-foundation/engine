@@ -25,7 +25,7 @@ func (s *Socket) Dial() (net.Conn, error) {
 	return s.ln.Dial()
 }
 
-func (s *Socket) listen(serviceServer *serviceServer) error {
+func (s *Socket) listen(serviceServer serviceapi.ServiceServer) error {
 	server := grpc.NewServer()
 	serviceapi.RegisterServiceServer(server, serviceServer)
 	return server.Serve(s.ln)

@@ -115,7 +115,7 @@ func TestMultipleListenCall(t *testing.T) {
 	service, server := newServiceAndServer(t)
 	go server.Start()
 
-	makeSureListeningC := make(chan struct{}, 0)
+	makeSureListeningC := make(chan struct{})
 	taskable := Task(taskKey, func(*Execution) (string, Data) {
 		close(makeSureListeningC)
 		return "", ""
