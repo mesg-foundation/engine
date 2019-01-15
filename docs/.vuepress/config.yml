@@ -74,9 +74,9 @@ themeConfig:
             - text: NodeJS
               link: https://github.com/mesg-foundation/mesg-js
             - text: Golang (Service)
-              link: https://github.com/mesg-foundation/core/client/service
+              link: https://github.com/mesg-foundation/core/tree/master/client/service
             - text: Golang (Application)
-              link: https://github.com/mesg-foundation/protobuf/coreapi
+              link: https://github.com/mesg-foundation/core/tree/master/protobuf/coreapi
         - text: News
           items:
             - text: Blog
