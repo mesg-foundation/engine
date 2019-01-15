@@ -20,9 +20,9 @@ type serviceServer struct {
 func newServiceServer() *serviceServer {
 	return &serviceServer{
 		emitC:    make(chan *Event, 1),
-		taskC:    make(chan *serviceapi.TaskData, 0),
-		submitC:  make(chan *Execution, 0),
-		closingC: make(chan struct{}, 0),
+		taskC:    make(chan *serviceapi.TaskData),
+		submitC:  make(chan *Execution),
+		closingC: make(chan struct{}),
 	}
 }
 
@@ -74,7 +74,7 @@ type taskDataStream struct {
 func newTaskDataStream() *taskDataStream {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &taskDataStream{
-		taskC:  make(chan *serviceapi.TaskData, 0),
+		taskC:  make(chan *serviceapi.TaskData),
 		ctx:    ctx,
 		cancel: cancel,
 	}

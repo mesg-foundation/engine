@@ -49,7 +49,7 @@ func (e *Execution) reply(key string, data Data) error {
 	defer cancel()
 	_, err = e.service.client.SubmitResult(ctx, &serviceapi.SubmitResultRequest{
 		ExecutionID: e.id,
-		OutputKey:   string(key),
+		OutputKey:   key,
 		OutputData:  string(dataBytes),
 	})
 	return err
@@ -59,8 +59,8 @@ func (e *Execution) reply(key string, data Data) error {
 // TODO(ilgooz) use validation handlers of core server to do this?
 func (e *Execution) validateTaskOutputs(key string, data Data) error { return nil }
 
-type errTaskOutput struct{}
+// type errTaskOutput struct{}
 
-func (e errTaskOutput) Error() string {
-	return ""
-}
+// func (e errTaskOutput) Error() string {
+// 	return ""
+// }
