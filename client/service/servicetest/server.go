@@ -1,11 +1,11 @@
-// Package mesgtest is a testing package for MESG service.
+// Package servicetest is a testing package for MESG service.
 // Use this package while unit testing your programs.
-package mesgtest
+package servicetest
 
 import (
 	"encoding/json"
 
-	service "github.com/mesg-foundation/go-service/proto"
+	"github.com/mesg-foundation/core/protobuf/serviceapi"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -45,13 +45,10 @@ func (s *Server) Execute(task string, data interface{}) (string, *Execution, err
 		return "", nil, err
 	}
 
-	uuidV4, err := uuid.NewV4()
-	if err != nil {
-		return "", nil, err
-	}
+	uuidV4 := uuid.NewV4()
 	id := uuidV4.String()
 
-	taskData := &service.TaskData{
+	taskData := &serviceapi.TaskData{
 		ExecutionID: id,
 		TaskKey:     task,
 		InputData:   string(bytes),

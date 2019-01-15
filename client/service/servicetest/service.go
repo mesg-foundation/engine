@@ -1,15 +1,15 @@
-package mesgtest
+package servicetest
 
 import (
 	"context"
 
-	service "github.com/mesg-foundation/go-service/proto"
+	"github.com/mesg-foundation/core/protobuf/serviceapi"
 	"google.golang.org/grpc"
 )
 
 // serviceServer implements MESG's service server.
 type serviceServer struct {
-	taskC   chan *service.TaskData
+	taskC   chan *serviceapi.TaskData
 	emitC   chan *Event
 	submitC chan *Execution
 	token   string
@@ -20,24 +20,24 @@ type serviceServer struct {
 func newServiceServer() *serviceServer {
 	return &serviceServer{
 		emitC:    make(chan *Event, 1),
-		taskC:    make(chan *service.TaskData, 0),
+		taskC:    make(chan *serviceapi.TaskData, 0),
 		submitC:  make(chan *Execution, 0),
 		closingC: make(chan struct{}, 0),
 	}
 }
 
 func (s *serviceServer) EmitEvent(context context.Context,
-	request *service.EmitEventRequest) (reply *service.EmitEventReply, err error) {
+	request *serviceapi.EmitEventRequest) (reply *serviceapi.EmitEventReply, err error) {
 	s.emitC <- &Event{
 		name:  request.EventKey,
 		data:  request.EventData,
 		token: request.Token,
 	}
-	return &service.EmitEventReply{}, nil
+	return &serviceapi.EmitEventReply{}, nil
 }
 
-func (s *serviceServer) ListenTask(request *service.ListenTaskRequest,
-	stream service.Service_ListenTaskServer) (err error) {
+func (s *serviceServer) ListenTask(request *serviceapi.ListenTaskRequest,
+	stream serviceapi.Service_ListenTaskServer) (err error) {
 	s.token = request.Token
 
 	for {
@@ -55,17 +55,17 @@ func (s *serviceServer) ListenTask(request *service.ListenTaskRequest,
 }
 
 func (s *serviceServer) SubmitResult(context context.Context,
-	request *service.SubmitResultRequest) (reply *service.SubmitResultReply, err error) {
+	request *serviceapi.SubmitResultRequest) (reply *serviceapi.SubmitResultReply, err error) {
 	s.submitC <- &Execution{
 		id:   request.ExecutionID,
 		key:  request.OutputKey,
 		data: request.OutputData,
 	}
-	return &service.SubmitResultReply{}, nil
+	return &serviceapi.SubmitResultReply{}, nil
 }
 
 type taskDataStream struct {
-	taskC  chan *service.TaskData
+	taskC  chan *serviceapi.TaskData
 	ctx    context.Context
 	cancel context.CancelFunc
 	grpc.ServerStream
@@ -74,13 +74,13 @@ type taskDataStream struct {
 func newTaskDataStream() *taskDataStream {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &taskDataStream{
-		taskC:  make(chan *service.TaskData, 0),
+		taskC:  make(chan *serviceapi.TaskData, 0),
 		ctx:    ctx,
 		cancel: cancel,
 	}
 }
 
-func (s taskDataStream) Send(data *service.TaskData) error {
+func (s taskDataStream) Send(data *serviceapi.TaskData) error {
 	s.taskC <- data
 	return nil
 }

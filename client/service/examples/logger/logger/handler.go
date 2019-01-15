@@ -3,10 +3,10 @@ package logger
 import (
 	"encoding/json"
 
-	mesg "github.com/mesg-foundation/go-service"
+	"github.com/mesg-foundation/core/client/service"
 )
 
-func (l *Logger) handler(execution *mesg.Execution) (string, mesg.Data) {
+func (l *Logger) handler(execution *service.Execution) (string, service.Data) {
 	var data logRequest
 	if err := execution.Data(&data); err != nil {
 		return "error", errorResponse{err.Error()}

@@ -1,9 +1,9 @@
-package mesgtest
+package servicetest
 
 import (
 	"net"
 
-	service "github.com/mesg-foundation/go-service/proto"
+	"github.com/mesg-foundation/core/protobuf/serviceapi"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/test/bufconn"
 )
@@ -27,7 +27,7 @@ func (s *Socket) Dial() (net.Conn, error) {
 
 func (s *Socket) listen(serviceServer *serviceServer) error {
 	server := grpc.NewServer()
-	service.RegisterServiceServer(server, serviceServer)
+	serviceapi.RegisterServiceServer(server, serviceServer)
 	return server.Serve(s.ln)
 }
 

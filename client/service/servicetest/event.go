@@ -1,4 +1,4 @@
-package mesgtest
+package servicetest
 
 import "encoding/json"
 

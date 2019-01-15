@@ -1,4 +1,4 @@
-package mesg
+package service
 
 import (
 	"net"

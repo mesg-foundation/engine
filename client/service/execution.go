@@ -1,10 +1,10 @@
-package mesg
+package service
 
 import (
 	"context"
 	"encoding/json"
 
-	service "github.com/mesg-foundation/go-service/proto"
+	"github.com/mesg-foundation/core/protobuf/serviceapi"
 )
 
 // Execution holds information about a Task execution.
@@ -21,7 +21,7 @@ type Execution struct {
 	service *Service
 }
 
-func newExecution(service *Service, data *service.TaskData) *Execution {
+func newExecution(service *Service, data *serviceapi.TaskData) *Execution {
 	return &Execution{
 		ID:      data.ExecutionID,
 		Key:     data.TaskKey,
@@ -47,7 +47,7 @@ func (e *Execution) reply(key string, data Data) error {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), e.service.callTimeout)
 	defer cancel()
-	_, err = e.service.client.SubmitResult(ctx, &service.SubmitResultRequest{
+	_, err = e.service.client.SubmitResult(ctx, &serviceapi.SubmitResultRequest{
 		ExecutionID: e.id,
 		OutputKey:   string(key),
 		OutputData:  string(dataBytes),

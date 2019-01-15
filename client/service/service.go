@@ -1,6 +1,6 @@
-// Package mesg is a service client for mesg-core.
+// Package service is a service client for mesg-core.
 // For more information please visit https://mesg.com.
-package mesg
+package service
 
 import (
 	"errors"
@@ -16,7 +16,7 @@ import (
 
 	"context"
 
-	service "github.com/mesg-foundation/go-service/proto"
+	"github.com/mesg-foundation/core/protobuf/serviceapi"
 	"google.golang.org/grpc"
 )
 
@@ -39,7 +39,7 @@ type Service struct {
 	token string
 
 	// client is the gRPC service client of MESG.
-	client service.ServiceClient
+	client serviceapi.ServiceClient
 
 	// conn is underlying gRPC conn
 	conn *grpc.ClientConn
@@ -142,7 +142,7 @@ func (s *Service) setupServiceClient() error {
 	if err != nil {
 		return err
 	}
-	s.client = service.NewServiceClient(s.conn)
+	s.client = serviceapi.NewServiceClient(s.conn)
 	return nil
 }
 
@@ -171,7 +171,7 @@ func (s *Service) listenTasks() error {
 	s.mc.Lock()
 	ctx, s.cancel = context.WithCancel(context.Background())
 	s.mc.Unlock()
-	stream, err := s.client.ListenTask(ctx, &service.ListenTaskRequest{
+	stream, err := s.client.ListenTask(ctx, &serviceapi.ListenTaskRequest{
 		Token: s.token,
 	})
 	if err != nil {
@@ -200,7 +200,7 @@ func (s *Service) getTaskableByName(key string) Taskable {
 	return nil
 }
 
-func (s *Service) executeTask(data *service.TaskData) {
+func (s *Service) executeTask(data *serviceapi.TaskData) {
 	defer s.gracefulWait.Done()
 	taskable := s.getTaskableByName(data.TaskKey)
 	if taskable == nil {
@@ -221,7 +221,7 @@ func (s *Service) Emit(eventKey string, eventData Data) error {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), s.callTimeout)
 	defer cancel()
-	_, err = s.client.EmitEvent(ctx, &service.EmitEventRequest{
+	_, err = s.client.EmitEvent(ctx, &serviceapi.EmitEventRequest{
 		Token:     s.token,
 		EventKey:  eventKey,
 		EventData: string(dataBytes),

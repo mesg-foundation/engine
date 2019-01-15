@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	mesg "github.com/mesg-foundation/go-service"
+	"github.com/mesg-foundation/core/client/service"
 )
 
 // Option is a configuration func for Logger.
@@ -13,13 +13,13 @@ type Option func(*Logger)
 
 // Logger is a logger service.
 type Logger struct {
-	service   *mesg.Service
+	service   *service.Service
 	log       *log.Logger
 	logOutput io.Writer
 }
 
 // New creates a new Logger runs over service s.
-func New(service *mesg.Service, options ...Option) *Logger {
+func New(service *service.Service, options ...Option) *Logger {
 	l := &Logger{
 		service:   service,
 		logOutput: os.Stdout,
@@ -41,7 +41,7 @@ func LogOutputOption(out io.Writer) Option {
 // Start starts logger as a service.
 func (l *Logger) Start() error {
 	return l.service.Listen(
-		mesg.Task("log", l.handler),
+		service.Task("log", l.handler),
 	)
 }
 

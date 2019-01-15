@@ -5,24 +5,24 @@ import (
 	"sync"
 	"testing"
 
-	mesg "github.com/mesg-foundation/go-service"
-	"github.com/mesg-foundation/go-service/mesgtest"
+	"github.com/mesg-foundation/core/client/service"
+	"github.com/mesg-foundation/core/client/service/servicetest"
 	"github.com/stvp/assert"
 )
 
 const token = "token"
 const endpoint = "endpoint"
 
-func newServiceAndServer(t *testing.T) (*mesg.Service, *mesgtest.Server) {
-	testServer := mesgtest.NewServer()
-	service, err := mesg.New(
-		mesg.DialOption(testServer.Socket()),
-		mesg.TokenOption(token),
-		mesg.EndpointOption(endpoint),
+func newServiceAndServer(t *testing.T) (*service.Service, *servicetest.Server) {
+	testServer := servicetest.NewServer()
+	s, err := service.New(
+		service.DialOption(testServer.Socket()),
+		service.TokenOption(token),
+		service.EndpointOption(endpoint),
 	)
 	assert.Nil(t, err)
-	assert.NotNil(t, service)
-	return service, testServer
+	assert.NotNil(t, s)
+	return s, testServer
 }
 
 func TestListenSuccess(t *testing.T) {
@@ -31,8 +31,8 @@ func TestListenSuccess(t *testing.T) {
 		Data:      "data",
 	}
 
-	service, server := newServiceAndServer(t)
-	logger := New(service, LogOutputOption(ioutil.Discard))
+	s, server := newServiceAndServer(t)
+	logger := New(s, LogOutputOption(ioutil.Discard))
 
 	go server.Start()
 	go logger.Start()
@@ -49,8 +49,8 @@ func TestListenSuccess(t *testing.T) {
 func TestListenError(t *testing.T) {
 	data := "data"
 
-	service, server := newServiceAndServer(t)
-	logger := New(service)
+	s, server := newServiceAndServer(t)
+	logger := New(s)
 
 	go server.Start()
 	go logger.Start()
@@ -67,8 +67,8 @@ func TestListenError(t *testing.T) {
 func TestClose(t *testing.T) {
 	data := "data"
 
-	service, server := newServiceAndServer(t)
-	logger := New(service)
+	s, server := newServiceAndServer(t)
+	logger := New(s)
 
 	go server.Start()
 
@@ -85,7 +85,7 @@ func TestClose(t *testing.T) {
 	assert.Nil(t, logger.Close())
 
 	_, _, err = server.Execute("log", data)
-	assert.Equal(t, mesgtest.ErrConnectionClosed{}, err)
+	assert.Equal(t, servicetest.ErrConnectionClosed{}, err)
 
 	wg.Wait()
 }

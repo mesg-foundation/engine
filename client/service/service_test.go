@@ -1,4 +1,4 @@
-package mesg
+package service
 
 import (
 	"bufio"
@@ -7,7 +7,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/mesg-foundation/go-service/mesgtest"
+	"github.com/mesg-foundation/core/client/service/servicetest"
 	"github.com/stvp/assert"
 )
 
@@ -18,8 +18,8 @@ type eventRequest struct {
 	URL string `json:"url"`
 }
 
-func newServiceAndServer(t *testing.T) (*Service, *mesgtest.Server) {
-	testServer := mesgtest.NewServer()
+func newServiceAndServer(t *testing.T) (*Service, *servicetest.Server) {
+	testServer := servicetest.NewServer()
 
 	service, err := New(
 		DialOption(testServer.Socket()),
@@ -135,7 +135,7 @@ func TestNonExistentTaskExecutionRequest(t *testing.T) {
 		data               = taskRequest{"https://mesg.com"}
 	)
 
-	server := mesgtest.NewServer()
+	server := servicetest.NewServer()
 	go server.Start()
 
 	reader, writer := io.Pipe()
