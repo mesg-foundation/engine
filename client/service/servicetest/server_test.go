@@ -1,4 +1,4 @@
-package mesgtest
+package servicetest
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"sync"
 	"testing"
 
-	service "github.com/mesg-foundation/go-service/proto"
+	"github.com/mesg-foundation/core/protobuf/serviceapi"
 	"github.com/stvp/assert"
 )
 
@@ -32,7 +32,7 @@ func TestLastEmit(t *testing.T) {
 	server := NewServer()
 	assert.NotNil(t, server)
 
-	server.service.EmitEvent(context.Background(), &service.EmitEventRequest{
+	server.service.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
 		EventKey:  key,
 		EventData: dataStr,
 		Token:     token,
@@ -98,7 +98,7 @@ func TestExecute(t *testing.T) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		err := server.service.ListenTask(&service.ListenTaskRequest{Token: token}, stream)
+		err := server.service.ListenTask(&serviceapi.ListenTaskRequest{Token: token}, stream)
 		assert.Nil(t, err)
 	}()
 
@@ -107,7 +107,7 @@ func TestExecute(t *testing.T) {
 	assert.Equal(t, task, taskData.TaskKey)
 	assert.Equal(t, reqDataStr, taskData.InputData)
 
-	_, err := server.service.SubmitResult(context.Background(), &service.SubmitResultRequest{
+	_, err := server.service.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
 		ExecutionID: executionID,
 		OutputKey:   key,
 		OutputData:  resDataStr,
@@ -128,7 +128,7 @@ func TestListenToken(t *testing.T) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		err := server.service.ListenTask(&service.ListenTaskRequest{Token: token}, stream)
+		err := server.service.ListenTask(&serviceapi.ListenTaskRequest{Token: token}, stream)
 		assert.Nil(t, err)
 	}()
 

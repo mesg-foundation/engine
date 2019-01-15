@@ -1,4 +1,4 @@
-package mesg
+package service
 
 // Taskable represents implementation of task executor.
 type Taskable interface {

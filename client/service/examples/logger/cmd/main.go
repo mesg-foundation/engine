@@ -6,12 +6,12 @@ import (
 	"os/signal"
 	"syscall"
 
-	mesg "github.com/mesg-foundation/go-service"
-	"github.com/mesg-foundation/go-service/examples/logger/logger"
+	"github.com/mesg-foundation/core/client/service"
+	"github.com/mesg-foundation/core/client/service/examples/logger/logger"
 )
 
 func main() {
-	s, err := mesg.New()
+	s, err := service.New()
 	if err != nil {
 		log.Fatal(err)
 	}
