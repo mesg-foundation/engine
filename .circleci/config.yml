@@ -6,7 +6,7 @@ runOnMachine: &runOnMachine
 
 runOnDocker: &runOnDocker
   docker:
-    - image: circleci/golang:1.11
+    - image: circleci/golang:1.11.4
 
 jobs:
   "test":
