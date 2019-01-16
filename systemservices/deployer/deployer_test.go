@@ -57,11 +57,10 @@ func TestNotExisting(t *testing.T) {
 
 // TODO: Should have a mock on API in order to convert this integration test to unit test
 func TestDeploy(t *testing.T) {
-	t.SkipNow()
 	// TODO: add test back with another ss
-	// d, closer := newDeployer(t)
-	// defer closer()
-	// err := d.Deploy([]string{systemservices.ResolverService})
+	d, closer := newDeployer(t)
+	defer closer()
+	err := d.Deploy([]string{systemservices.EthereumWalletService})
 	// TODO: should stop the deployed ss
-	// require.NoError(t, err)
+	require.NoError(t, err)
 }
