@@ -6,6 +6,7 @@
 [Website](https://mesg.com/) - [Docs](https://docs.mesg.com/) - [Forum](https://forum.mesg.com/) - [Chat](https://discordapp.com/invite/SaZ5HcE) - [Blog](https://medium.com/mesg)
 
 
+[![GoDoc](https://godoc.org/github.com/mesg-foundation/core?status.svg)](https://godoc.org/github.com/mesg-foundation/core)
 [![CircleCI](https://img.shields.io/circleci/project/github/mesg-foundation/core.svg)](https://github.com/mesg-foundation/core)
 [![Docker Pulls](https://img.shields.io/docker/pulls/mesg/core.svg)](https://hub.docker.com/r/mesg/core/)
 [![Maintainability](https://api.codeclimate.com/v1/badges/86ad77f7c13cde40807e/maintainability)](https://codeclimate.com/github/mesg-foundation/core/maintainability)
@@ -97,10 +98,15 @@ const invitation = '__ID_SERVICE_INVITATION_DISCORD__' // To replace by the Serv
 const email      = '__YOUR_EMAIL_HERE__' // To replace by your email
 const sendgridAPIKey = '__SENDGRID_API_KEY__' // To replace by your SendGrid API key. See https://app.sendgrid.com/settings/api_keys
 
-MESG.whenEvent(
-  { serviceID: webhook, eventKey: 'request' },
-  { serviceID: invitation, taskKey: 'send', inputs: { email, sendgridAPIKey } },
-)
+MESG.listenEvent({ serviceID: webhook, eventFilter: 'request' })
+  .on('data', (event) => {
+    MESG.executeTask({
+      serviceID: invitation,
+      taskKey: 'send',
+      inputData: JSON.stringify({ email, sendgridAPIKey })
+    }).catch((err) => console.log(err.message))
+  })
+  .on('error', (err) => console.log(err.message))
 ```
 
 Don't forget to replace the values `__ID_SERVICE_WEBHOOK__`, `__ID_SERVICE_INVITATION_DISCORD__`, `__YOUR_EMAIL_HERE__` and `__SENDGRID_API_KEY__`.
