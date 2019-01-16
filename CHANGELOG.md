@@ -21,11 +21,12 @@
 - ([#682](https://github.com/mesg-foundation/core/pull/682)) Add support of type Any to service definition. ([#689](https://github.com/mesg-foundation/core/pull/689)).
 - ([#691](https://github.com/mesg-foundation/core/pull/691)) Add database transaction mechanism to database execution.
 - ([#696](https://github.com/mesg-foundation/core/pull/696)) Add support of nested type definition for type Object.
+- ([#704](https://github.com/mesg-foundation/core/pull/704]) Move go-service to package client/service.
 
 #### Changed
 
 - ([#688](https://github.com/mesg-foundation/core/pull/688)) Change sid auto-generated prefix.
-- ([#699](https://github.com/mesg-foundation/core/pull/699)) Updated to golang v1.11.4
+- ([#699](https://github.com/mesg-foundation/core/pull/699)) Updated to golang v1.11.4.
 
 #### Fixed
 
