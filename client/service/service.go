@@ -215,7 +215,7 @@ func (s *Service) executeTask(data *serviceapi.TaskData) {
 }
 
 // Emit emits a MESG event eventKey with given eventData.
-func (s *Service) Emit(eventKey string, eventData Data) error {
+func (s *Service) Emit(eventKey string, eventData interface{}) error {
 	dataBytes, err := json.Marshal(eventData)
 	if err != nil {
 		return err

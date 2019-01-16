@@ -37,7 +37,7 @@ func (e *Execution) Data(out interface{}) error {
 }
 
 // reply sends task results to core.
-func (e *Execution) reply(key string, data Data) error {
+func (e *Execution) reply(key string, data interface{}) error {
 	if err := e.validateTaskOutputs(key, data); err != nil {
 		return err
 	}
@@ -57,7 +57,7 @@ func (e *Execution) reply(key string, data Data) error {
 
 // validateTaskOutputs validates output key and data of task as described in mesg.yaml.
 // TODO(ilgooz) use validation handlers of core server to do this?
-func (e *Execution) validateTaskOutputs(key string, data Data) error { return nil }
+func (e *Execution) validateTaskOutputs(key string, data interface{}) error { return nil }
 
 // type errTaskOutput struct{}
 
