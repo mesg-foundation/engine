@@ -28,7 +28,7 @@ func DeployServiceStatusOption(statuses chan DeployStatus) DeployServiceOption {
 // DeployService deploys a service from a gzipped tarball.
 func (a *API) DeployService(r io.Reader, env map[string]string, options ...DeployServiceOption) (*service.Service,
 	*importer.ValidationError, error) {
-	return newServiceDeployer(a, env, options...).FromGzippedTar(r)
+	return newServiceDeployer(a, env, options...).FromArchive(r)
 }
 
 // DeployServiceFromURL deploys a service living at a Git host.
@@ -122,8 +122,8 @@ func (d *serviceDeployer) FromURL(url string) (*service.Service, *importer.Valid
 	return d.deploy(resp.Body)
 }
 
-// FromGzippedTar deploys a service from a gzipped tarball.
-func (d *serviceDeployer) FromGzippedTar(r io.Reader) (*service.Service, *importer.ValidationError, error) {
+// FromArchive deploys a service from a gzipped tarball.
+func (d *serviceDeployer) FromArchive(r io.Reader) (*service.Service, *importer.ValidationError, error) {
 	defer d.closeStatus()
 	return d.deploy(r)
 }

@@ -1,10 +1,12 @@
 package service
 
 import (
+	"archive/tar"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 	"time"
@@ -14,7 +16,6 @@ import (
 	"github.com/mesg-foundation/core/service/importer"
 	"github.com/mesg-foundation/core/x/xos"
 	"github.com/mesg-foundation/core/x/xstructhash"
-	uuid "github.com/satori/go.uuid"
 )
 
 // WARNING about hash tags on Service type and its inner types:
@@ -101,7 +102,7 @@ func New(tarball io.Reader, env map[string]string, options ...Option) (*Service,
 	if err := s.saveContext(tarball); err != nil {
 		return nil, err
 	}
-	defer s.removeTempDir()
+	defer os.RemoveAll(s.tempPath)
 
 	def, err := importer.From(s.tempPath)
 	if err != nil {
@@ -178,7 +179,7 @@ func (s *Service) computeHash() string {
 // saveContext downloads service context to a temp dir.
 func (s *Service) saveContext(r io.Reader) error {
 	var err error
-	s.tempPath, err = s.createTempDir()
+	s.tempPath, err = ioutil.TempDir("", "mesg-")
 	if err != nil {
 		return err
 	}
@@ -186,18 +187,28 @@ func (s *Service) saveContext(r io.Reader) error {
 	s.sendStatus("Receiving service context...", DRunning)
 	defer s.sendStatus("Service context received with success", DDonePositive)
 
-	return archive.Untar(r, s.tempPath, &archive.TarOptions{
-		Compression: archive.Gzip,
-		NoLchown:    true,
-	})
-}
+	rds, err := archive.DecompressStream(r)
+	if err != nil {
+		return err
+	}
+	defer rds.Close()
 
-func (s *Service) createTempDir() (path string, err error) {
-	return ioutil.TempDir("", "mesg-"+uuid.NewV4().String())
-}
+	if err := archive.Untar(tar.NewReader(rds), s.tempPath, &archive.TarOptions{
+		NoLchown: true,
+	}); err != nil {
+		return err
+	}
 
-func (s *Service) removeTempDir() error {
-	return os.RemoveAll(s.tempPath)
+	// NOTE: this is check for tar repos, if there is only one directory inside untar archive
+	// set temp path to it.
+	dirs, err := ioutil.ReadDir(s.tempPath)
+	if err != nil {
+		return err
+	}
+	if len(dirs) == 1 && dirs[0].IsDir() {
+		s.tempPath = filepath.Join(s.tempPath, dirs[0].Name())
+	}
+	return nil
 }
 
 // deploy deploys service.
