@@ -51,7 +51,7 @@ require (
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/pflag v1.0.3
 	github.com/stretchr/testify v1.3.0
-	github.com/stvp/assert v0.0.0-20170616060220-4bc16443988b // indirect
+	github.com/stvp/assert v0.0.0-20170616060220-4bc16443988b
 	github.com/syndtr/goleveldb v0.0.0-20181128100959-b001fa50d6b2
 	github.com/vektra/mockery v0.0.0-20181123154057-e78b021dcbb5
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
