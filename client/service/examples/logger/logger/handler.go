@@ -6,7 +6,7 @@ import (
 	"github.com/mesg-foundation/core/client/service"
 )
 
-func (l *Logger) handler(execution *service.Execution) (string, service.Data) {
+func (l *Logger) handler(execution *service.Execution) (string, interface{}) {
 	var data logRequest
 	if err := execution.Data(&data); err != nil {
 		return "error", errorResponse{err.Error()}
