@@ -6,7 +6,6 @@ run:
     - commands/provider/assets/
     - protobuf/
     - service/importer/assets/
-    - systemservices/sources/resolver/proto/
 
 linters-settings:
   govet:
