@@ -21,7 +21,7 @@ import (
 )
 
 const (
-	tcpEndpointEnv = "MESG_ENDPOINT"
+	endpointEnv = "MESG_ENDPOINT"
 	tokenEnv       = "MESG_TOKEN"
 )
 
@@ -79,7 +79,7 @@ type Option func(*Service)
 // New starts a new Service with options.
 func New(options ...Option) (*Service, error) {
 	s := &Service{
-		endpoint:     os.Getenv(tcpEndpointEnv),
+		endpoint:     os.Getenv(endpointEnv),
 		token:        os.Getenv(tokenEnv),
 		callTimeout:  time.Second * 10,
 		gracefulWait: &sync.WaitGroup{},
