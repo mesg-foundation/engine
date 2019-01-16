@@ -71,12 +71,12 @@ themeConfig:
               link: /api/core.md
         - text: Core libraries
           items:
-            - text: Javascript
+            - text: NodeJS
               link: https://github.com/mesg-foundation/mesg-js
             - text: Golang (Service)
-              link: https://github.com/mesg-foundation/go-service
+              link: https://github.com/mesg-foundation/core/tree/master/client/service
             - text: Golang (Application)
-              link: https://github.com/mesg-foundation/go-application
+              link: https://github.com/mesg-foundation/core/tree/master/protobuf/coreapi
         - text: News
           items:
             - text: Blog
