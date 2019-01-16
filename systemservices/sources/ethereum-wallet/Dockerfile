@@ -1,7 +1,7 @@
 FROM golang:1.11.4
-WORKDIR /go/src/github.com/mesg-foundation/core/systemservices/sources/ethereum-wallet
+WORKDIR /project
 COPY go.mod go.sum ./
-RUN export GO111MODULE=on; go mod download
+RUN go mod download
 COPY . .
-RUN export GO111MODULE=on; go build ./main.go
+RUN go build ./main.go
 CMD ["./main"]
