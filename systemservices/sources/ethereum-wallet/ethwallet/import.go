@@ -18,23 +18,17 @@ type importOutputSuccess struct {
 func (s *Ethwallet) importA(execution *service.Execution) (string, interface{}) {
 	var inputs importInputs
 	if err := execution.Data(&inputs); err != nil {
-		return "error", outputError{
-			Message: err.Error(),
-		}
+		return OutputError(err.Error())
 	}
 
 	accountJSON, err := json.Marshal(inputs.Account)
 	if err != nil {
-		return "error", outputError{
-			Message: err.Error(),
-		}
+		return OutputError(err.Error())
 	}
 
 	account, err := s.keystore.Import(accountJSON, inputs.Passphrase, inputs.Passphrase)
 	if err != nil {
-		return "error", outputError{
-			Message: err.Error(),
-		}
+		return OutputError(err.Error())
 	}
 
 	return "success", importOutputSuccess{

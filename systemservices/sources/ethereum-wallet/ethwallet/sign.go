@@ -32,9 +32,7 @@ type signOutputSuccess struct {
 func (s *Ethwallet) sign(execution *service.Execution) (string, interface{}) {
 	var inputs signInputs
 	if err := execution.Data(&inputs); err != nil {
-		return "error", outputError{
-			Message: err.Error(),
-		}
+		return OutputError(err.Error())
 	}
 
 	// TODO: refacto following block with export
@@ -58,9 +56,7 @@ func (s *Ethwallet) sign(execution *service.Execution) (string, interface{}) {
 
 	signedTransaction, err := s.keystore.SignTxWithPassphrase(account, inputs.Passphrase, transaction, big.NewInt(inputs.ChainID))
 	if err != nil {
-		return "error", outputError{
-			Message: err.Error(),
-		}
+		return OutputError(err.Error())
 	}
 
 	return "success", signOutputSuccess{

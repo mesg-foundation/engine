@@ -20,9 +20,7 @@ type exportOutputSuccess struct {
 func (s *Ethwallet) export(execution *service.Execution) (string, interface{}) {
 	var inputs exportInputs
 	if err := execution.Data(&inputs); err != nil {
-		return "error", outputError{
-			Message: err.Error(),
-		}
+		return OutputError(err.Error())
 	}
 
 	_address := common.HexToAddress(inputs.Address)
@@ -43,16 +41,12 @@ func (s *Ethwallet) export(execution *service.Execution) (string, interface{}) {
 
 	keyJSON, err := s.keystore.Export(account, inputs.Passphrase, inputs.Passphrase)
 	if err != nil {
-		return "error", outputError{
-			Message: err.Error(),
-		}
+		return OutputError(err.Error())
 	}
 
 	var accountJSON encryptedKeyJSONV3
 	if err = json.Unmarshal(keyJSON, &accountJSON); err != nil {
-		return "error", outputError{
-			Message: err.Error(),
-		}
+		return OutputError(err.Error())
 	}
 	return "success", exportOutputSuccess{
 		Account: accountJSON,

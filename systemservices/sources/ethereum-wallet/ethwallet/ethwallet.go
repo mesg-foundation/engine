@@ -11,10 +11,6 @@ const (
 	keystoreEnv = "MESG_KEYSTORE"
 )
 
-type outputError struct {
-	Message string `json:"message"`
-}
-
 type Ethwallet struct {
 	service  *service.Service
 	keystore *keystore.KeyStore

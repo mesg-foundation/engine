@@ -14,9 +14,7 @@ type deleteInputs struct {
 func (s *Ethwallet) delete(execution *service.Execution) (string, interface{}) {
 	var inputs deleteInputs
 	if err := execution.Data(&inputs); err != nil {
-		return "error", outputError{
-			Message: err.Error(),
-		}
+		return OutputError(err.Error())
 	}
 
 	_address := common.HexToAddress(inputs.Address)
@@ -30,15 +28,11 @@ func (s *Ethwallet) delete(execution *service.Execution) (string, interface{}) {
 		}
 	}
 	if !found {
-		return "error", outputError{
-			Message: "Account not found",
-		}
+		return OutputError("Account not found")
 	}
 
 	if err := s.keystore.Delete(account, inputs.Passphrase); err != nil {
-		return "error", outputError{
-			Message: err.Error(),
-		}
+		return OutputError(err.Error())
 	}
 
 	return "success", nil
