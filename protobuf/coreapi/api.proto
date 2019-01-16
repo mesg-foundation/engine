@@ -475,9 +475,10 @@ message Parameter {
   string key = 8;         // Parameter's key.
   string name = 1;        // Parameter's name.
   string description = 2; // Parameter's description.
-  string type = 3;        // Parameter's type: `String`, `Number`, `Boolean` or `Any`.
+  string type = 3;        // Parameter's type: `String`, `Number`, `Boolean`, `Object` or `Any`.
   bool optional = 4;      // Set the parameter as optional.
   bool repeated = 9;      // Mark a parameter as an array of the defined type
+  repeated Parameter object = 10; // Optional object structure definition when type is set to `Object`
 }
 
 // A dependency is a configuration of an other Docker container that runs separately from the service.
