@@ -80,7 +80,7 @@ func TestListen(t *testing.T) {
 		defer wg.Done()
 
 		err := service.Listen(
-			Task(task, func(execution *Execution) (string, Data) {
+			Task(task, func(execution *Execution) (string, interface{}) {
 				var data2 taskRequest
 				assert.Nil(t, execution.Data(&data2))
 				assert.Equal(t, reqData.URL, data2.URL)
@@ -116,7 +116,7 @@ func TestMultipleListenCall(t *testing.T) {
 	go server.Start()
 
 	makeSureListeningC := make(chan struct{})
-	taskable := Task(taskKey, func(*Execution) (string, Data) {
+	taskable := Task(taskKey, func(*Execution) (string, interface{}) {
 		close(makeSureListeningC)
 		return "", ""
 	})
@@ -146,7 +146,7 @@ func TestNonExistentTaskExecutionRequest(t *testing.T) {
 		LogOutputOption(writer),
 	)
 
-	go service.Listen(Task(taskKey, func(*Execution) (string, Data) { return "", "" }))
+	go service.Listen(Task(taskKey, func(*Execution) (string, interface{}) { return "", "" }))
 	go server.Execute(nonExistentTaskKey, data)
 
 	line, _, err := bufio.NewReader(reader).ReadLine()
