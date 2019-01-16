@@ -1,7 +1,6 @@
 package service
 
 import (
-	"archive/tar"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -187,20 +186,14 @@ func (s *Service) saveContext(r io.Reader) error {
 	s.sendStatus("Receiving service context...", DRunning)
 	defer s.sendStatus("Service context received with success", DDonePositive)
 
-	rds, err := archive.DecompressStream(r)
-	if err != nil {
-		return err
-	}
-	defer rds.Close()
-
-	if err := archive.Untar(tar.NewReader(rds), s.tempPath, &archive.TarOptions{
+	if err := archive.Untar(r, s.tempPath, &archive.TarOptions{
 		NoLchown: true,
 	}); err != nil {
 		return err
 	}
 
-	// NOTE: this is check for tar repos, if there is only one directory inside untar archive
-	// set temp path to it.
+	// NOTE: this is check for tar repos, if there is only one
+	// directory inside untar archive set temp path to it.
 	dirs, err := ioutil.ReadDir(s.tempPath)
 	if err != nil {
 		return err
