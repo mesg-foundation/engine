@@ -32,7 +32,6 @@ require (
 	github.com/kr/pty v1.1.3 // indirect
 	github.com/mattn/go-colorable v0.0.0-20180310133214-efa589957cd0 // indirect
 	github.com/mattn/go-isatty v0.0.4 // indirect
-	github.com/mesg-foundation/go-service v0.0.0-20190105103631-e741021f7877
 	github.com/mesg-foundation/prefixer v0.0.0-20180907095533-d7dbe41616bd
 	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b // indirect
 	github.com/mitchellh/go-homedir v1.0.0

@@ -98,8 +98,6 @@ github.com/mattn/go-colorable v0.0.0-20180310133214-efa589957cd0 h1:cDvUG90i1ssG
 github.com/mattn/go-colorable v0.0.0-20180310133214-efa589957cd0/go.mod h1:9vuHe8Xs5qXnSaW/c/ABM9alt+Vo+STaOChaDxuIBZU=
 github.com/mattn/go-isatty v0.0.4 h1:bnP0vzxcAdeI1zdubAl5PjU6zsERjGZb7raWodagDYs=
 github.com/mattn/go-isatty v0.0.4/go.mod h1:M+lRXTBqGeGNdLjl/ufCoiOlB5xdOkqRJdNxMWT7Zi4=
-github.com/mesg-foundation/go-service v0.0.0-20190105103631-e741021f7877 h1:tr2EO4DDWISPCnnFsO/VDyAiQCxPp09gVg7Wyrya9JM=
-github.com/mesg-foundation/go-service v0.0.0-20190105103631-e741021f7877/go.mod h1:0Ejd911FRRKsEs2dYmszjJKoiElbP/89CA9REfbPRxg=
 github.com/mesg-foundation/prefixer v0.0.0-20180907095533-d7dbe41616bd h1:wk4pdQOPjpHTZymKxn+Egj8gpDwV1Y97jhc5O8dR5Dk=
 github.com/mesg-foundation/prefixer v0.0.0-20180907095533-d7dbe41616bd/go.mod h1:jwBCFVsOhfmt8FwMtfOVWeWWzBIBH7xKKm7DTUluf6Y=
 github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b h1:j7+1HpAFS1zy5+Q4qx1fWh90gTKwiN4QCGoY9TWyyO4=
