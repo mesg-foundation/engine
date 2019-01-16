@@ -1,6 +1,7 @@
 package casting
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/mesg-foundation/core/protobuf/coreapi"
@@ -26,20 +27,44 @@ func TestServiceCast(t *testing.T) {
 				"b": "Number",
 				"c": "Number",
 				"d": "Boolean",
+				"e": "repeated String",
+				"f": "repeated Number",
+				"g": "repeated Number",
+				"h": "repeated Boolean",
 			}),
 			map[string]string{
 				"a": "_",
 				"b": "1",
 				"c": "1.1",
 				"d": "true",
+				"e": "a,b",
+				"f": "1,2",
+				"g": "1.1,2.2",
+				"h": "false,true",
 			},
 			map[string]interface{}{
 				"a": "_",
 				"b": int64(1),
 				"c": 1.1,
 				"d": true,
+				"e": []interface{}{"a", "b"},
+				"f": []interface{}{int64(1), int64(2)},
+				"g": []interface{}{1.1, 2.2},
+				"h": []interface{}{false, true},
 			},
 			false,
+		},
+		{
+			createTestServcieWithInputs(map[string]string{"a": "NoType"}),
+			map[string]string{"a": ""},
+			map[string]interface{}{},
+			true,
+		},
+		{
+			createTestServcieWithInputs(map[string]string{"a": "repeated Number"}),
+			map[string]string{"a": "0,a"},
+			map[string]interface{}{},
+			true,
 		},
 		{
 			createTestServcieWithInputs(map[string]string{"a": "String"}),
@@ -72,7 +97,8 @@ func TestServiceCast(t *testing.T) {
 		if tt.expectErr {
 			require.Error(t, err)
 		} else {
-			require.Equal(t, len(tt.expected), len(got), "maps len are not equal")
+			require.NoError(t, err)
+			require.Len(t, tt.expected, len(got), "maps len are not equal")
 			require.Equal(t, tt.expected, got, "maps are not equal")
 		}
 	}
@@ -86,22 +112,16 @@ func TestServiceCast(t *testing.T) {
 func createTestServcieWithInputs(inputs map[string]string) *coreapi.Service {
 	s := &coreapi.Service{
 		Tasks: []*coreapi.Task{
-			{
-				Key:    "test",
-				Inputs: make([]*coreapi.Parameter, 0),
-			},
+			{Key: "test"},
 		},
 	}
 
 	for name, itype := range inputs {
-		for _, task := range s.Tasks {
-			if task.Key == "test" {
-				task.Inputs = append(task.Inputs, &coreapi.Parameter{
-					Key:  name,
-					Type: itype,
-				})
-			}
-		}
+		s.Tasks[0].Inputs = append(s.Tasks[0].Inputs, &coreapi.Parameter{
+			Key:      name,
+			Repeated: strings.HasPrefix(itype, "repeated"),
+			Type:     strings.TrimPrefix(itype, "repeated "),
+		})
 	}
 	return s
 }

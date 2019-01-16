@@ -89,15 +89,22 @@
                 "optional": {
                   "type": "boolean"
                 },
+                "repeated": {
+                  "type": "boolean"
+                },
                 "type": {
                   "type": "string",
                   "enum": [
                     "String",
                     "Number",
                     "Boolean",
-                    "Object"
+                    "Object",
+                    "Any"
                   ],
                   "default": "String"
+                },
+                "object": {
+                  "$ref": "#/definitions/parameters"
                 }
               }
             }

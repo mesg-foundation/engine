@@ -66,12 +66,12 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 	}()
 
 	id, validationError, err := c.e.ServiceDeploy(c.path, c.env, statuses)
-	wg.Wait()
-
-	pretty.DestroySpinner()
 	if err != nil {
 		return err
 	}
+	wg.Wait()
+
+	pretty.DestroySpinner()
 	if validationError != nil {
 		return xerrors.Errors{
 			validationError,
