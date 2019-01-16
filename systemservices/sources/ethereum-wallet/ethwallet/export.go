@@ -17,7 +17,7 @@ type exportOutputSuccess struct {
 	Account encryptedKeyJSONV3 `json:"account"`
 }
 
-func (s *Ethwallet) export(execution *service.Execution) (string, service.Data) {
+func (s *Ethwallet) export(execution *service.Execution) (string, interface{}) {
 	var inputs exportInputs
 	if err := execution.Data(&inputs); err != nil {
 		return "error", outputError{

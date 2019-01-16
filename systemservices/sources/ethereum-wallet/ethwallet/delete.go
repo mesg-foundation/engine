@@ -11,7 +11,7 @@ type deleteInputs struct {
 	Passphrase string `json:"passphrase"`
 }
 
-func (s *Ethwallet) delete(execution *service.Execution) (string, service.Data) {
+func (s *Ethwallet) delete(execution *service.Execution) (string, interface{}) {
 	var inputs deleteInputs
 	if err := execution.Data(&inputs); err != nil {
 		return "error", outputError{

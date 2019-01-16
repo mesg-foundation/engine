@@ -1,7 +1,7 @@
 package ethwallet
 
 import (
-	client "github.com/mesg-foundation/core/client/service"
+	"github.com/mesg-foundation/core/client/service"
 )
 
 type newInputs struct {
@@ -12,7 +12,7 @@ type newOutputSuccess struct {
 	Address string `json:"address"`
 }
 
-func (s *Ethwallet) new(execution *client.Execution) (string, client.Data) {
+func (s *Ethwallet) new(execution *service.Execution) (string, interface{}) {
 	var inputs newInputs
 	if err := execution.Data(&inputs); err != nil {
 		return "error", outputError{err.Error()}

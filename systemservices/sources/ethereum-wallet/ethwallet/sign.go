@@ -29,7 +29,7 @@ type signOutputSuccess struct {
 	SignedTransaction *types.Transaction `json:"signedTransaction"`
 }
 
-func (s *Ethwallet) sign(execution *service.Execution) (string, service.Data) {
+func (s *Ethwallet) sign(execution *service.Execution) (string, interface{}) {
 	var inputs signInputs
 	if err := execution.Data(&inputs); err != nil {
 		return "error", outputError{

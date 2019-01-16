@@ -15,7 +15,7 @@ type importOutputSuccess struct {
 	Address string `json:"address"`
 }
 
-func (s *Ethwallet) importA(execution *service.Execution) (string, service.Data) {
+func (s *Ethwallet) importA(execution *service.Execution) (string, interface{}) {
 	var inputs importInputs
 	if err := execution.Data(&inputs); err != nil {
 		return "error", outputError{
