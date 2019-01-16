@@ -2,7 +2,7 @@ package ethwallet
 
 import (
 	"github.com/mesg-foundation/core/client/service"
-	"github.com/mesg-foundation/core/systemservices/sources/ethereum-wallet/x/xgo-ethereum/xaccounts"
+	"github.com/mesg-foundation/core/systemservices/sources/ethwallet/x/xgo-ethereum/xaccounts"
 )
 
 type deleteInputs struct {

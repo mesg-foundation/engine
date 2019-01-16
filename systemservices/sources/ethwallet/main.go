@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/mesg-foundation/core/systemservices/sources/ethereum-wallet/ethwallet"
+	"github.com/mesg-foundation/core/systemservices/sources/ethwallet/ethwallet"
 )
 
 func main() {

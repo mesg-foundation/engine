@@ -11,13 +11,13 @@ import (
 // list of system services.
 // these names are also relative paths of system services in the filesystem.
 const (
-	EthereumWalletService = "ethereum-wallet"
+	EthWalletService = "ethwallet"
 )
 
 // SystemServicesList is the list of system services.
 // system services will be created from this list.
 var SystemServicesList = []string{
-	EthereumWalletService,
+	EthWalletService,
 }
 
 // systemService represents a system service.
@@ -67,7 +67,7 @@ func (s *SystemServices) GetServiceID(name string) (string, error) {
 	return "", &SystemServiceNotFoundError{Name: name}
 }
 
-// EthereumWalletServiceID returns ethereum wallet system service's id.
-func (s *SystemServices) EthereumWalletServiceID() (string, error) {
-	return s.GetServiceID(EthereumWalletService)
+// EthWalletServiceID returns ethereum wallet system service's id.
+func (s *SystemServices) EthWalletServiceID() (string, error) {
+	return s.GetServiceID(EthWalletService)
 }

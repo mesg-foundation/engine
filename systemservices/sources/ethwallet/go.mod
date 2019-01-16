@@ -1,4 +1,4 @@
-module github.com/mesg-foundation/core/systemservices/sources/ethereum-wallet
+module github.com/mesg-foundation/core/systemservices/sources/ethwallet
 
 require (
 	github.com/allegro/bigcache v1.1.0 // indirect

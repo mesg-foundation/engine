@@ -60,7 +60,7 @@ func TestDeploy(t *testing.T) {
 	// TODO: add test back with another ss
 	d, closer := newDeployer(t)
 	defer closer()
-	err := d.Deploy([]string{systemservices.EthereumWalletService})
+	err := d.Deploy([]string{systemservices.EthWalletService})
 	// TODO: should stop the deployed ss
 	require.NoError(t, err)
 }
