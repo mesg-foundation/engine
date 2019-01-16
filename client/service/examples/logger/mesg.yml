@@ -1,4 +1,5 @@
 name: Logger
+sid: "logger"
 description: 'Log your data to std output'
 tasks:
   log:

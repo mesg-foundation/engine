@@ -22,7 +22,7 @@ import (
 
 const (
 	endpointEnv = "MESG_ENDPOINT"
-	tokenEnv       = "MESG_TOKEN"
+	tokenEnv    = "MESG_TOKEN"
 )
 
 var (
