@@ -14,65 +14,151 @@ import (
 )
 
 func TestStartService(t *testing.T) {
-	t.Skip("put back when dockertest will be replaced with testify.Mock")
-	namespace := []string{"namespace"}
-	containerID := "id"
-	options := ServiceOptions{
-		Image:     "http-server",
-		Namespace: namespace,
-	}
+	var (
+		namespace = []string{"1"}
+		serviceID = "2"
+		options   = ServiceOptions{
+			Image:     "3",
+			Namespace: namespace,
+		}
+		c, mc                  = newTesting(t)
+		fullNamespace          = c.Namespace(namespace)
+		serviceCreateArguments = []interface{}{
+			mock.Anything,
+			options.toSwarmServiceSpec(c),
+			types.ServiceCreateOptions{},
+		}
+		serviceCreateResponse = []interface{}{
+			types.ServiceCreateResponse{
+				ID: serviceID,
+			},
+			nil,
+		}
+	)
 
-	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	// status:
+	mockStatus(t, mc, fullNamespace, STOPPED)
 
-	dt.ProvideServiceCreate(types.ServiceCreateResponse{ID: containerID}, nil)
+	// create service:
+	mc.On("ServiceCreate", serviceCreateArguments...).Once().Return(serviceCreateResponse...)
+
+	// wait status:
+	mockWaitForStatus(t, mc, fullNamespace, RUNNING)
 
 	id, err := c.StartService(options)
 	require.NoError(t, err)
-	require.Equal(t, containerID, id)
+	require.Equal(t, serviceID, id)
 
-	ls := <-dt.LastServiceCreate()
-	require.Equal(t, options.toSwarmServiceSpec(c), ls.Service)
-	require.Equal(t, types.ServiceCreateOptions{}, ls.Options)
+	mc.AssertExpectations(t)
+}
+
+func TestStartServiceRunningStatus(t *testing.T) {
+	var (
+		namespace = []string{"1"}
+		serviceID = "2"
+		options   = ServiceOptions{
+			Image:     "3",
+			Namespace: namespace,
+		}
+		c, mc                   = newTesting(t)
+		fullNamespace           = c.Namespace(namespace)
+		serviceInspectArguments = []interface{}{
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		}
+		serviceInspectResponse = []interface{}{
+			swarm.Service{
+				ID: serviceID,
+			},
+			nil,
+			nil,
+		}
+	)
+
+	// status:
+	mockStatus(t, mc, fullNamespace, RUNNING)
+
+	// find service:
+	mc.On("ServiceInspectWithRaw", serviceInspectArguments...).Once().Return(serviceInspectResponse...)
+
+	id, err := c.StartService(options)
+	require.NoError(t, err)
+	require.Equal(t, serviceID, id)
+
+	mc.AssertExpectations(t)
 }
 
 func TestStopService(t *testing.T) {
 	var (
-		c, m          = newTesting(t)
+		c, mc         = newTesting(t)
 		containerID   = "1"
 		namespace     = []string{"2"}
 		fullNamespace = c.Namespace(namespace)
 	)
 
-	mockStatus(t, m, fullNamespace, RUNNING)
-	m.On("ServiceRemove", mock.Anything, fullNamespace).Once().Return(nil)
-	m.On("ContainerList", mock.AnythingOfType("*context.timerCtx"), types.ContainerListOptions{
-		Filters: filters.NewArgs(filters.KeyValuePair{
-			Key:   "label",
-			Value: "com.docker.stack.namespace=" + fullNamespace,
-		}),
-		Limit: 1,
-	}).Once().
-		Return([]types.Container{{ID: containerID}}, nil)
-	m.On("ContainerInspect", mock.AnythingOfType("*context.timerCtx"), containerID).Once().
-		Return(types.ContainerJSON{
-			ContainerJSONBase: &types.ContainerJSONBase{ID: containerID},
-		}, nil)
-	m.On("ContainerStop", mock.Anything, containerID, mock.AnythingOfType("*time.Duration")).Once().Return(nil)
-	m.On("ContainerRemove", mock.Anything, containerID, types.ContainerRemoveOptions{}).Once().Return(nil)
-	m.On("ContainerList", mock.AnythingOfType("*context.timerCtx"), types.ContainerListOptions{
-		Filters: filters.NewArgs(filters.KeyValuePair{
-			Key:   "label",
-			Value: "com.docker.stack.namespace=" + fullNamespace,
-		}),
-		Limit: 1,
-	}).Once().
-		Return(nil, dockertest.NotFoundErr{})
-	mockWaitForStatus(t, m, fullNamespace, STOPPED)
+	mockStatus(t, mc, fullNamespace, RUNNING)
+
+	// remove service:
+	serviceRemoveArguments := []interface{}{
+		mock.Anything,
+		fullNamespace,
+	}
+	mc.On("ServiceRemove", serviceRemoveArguments...).Once().Return(nil)
+
+	// delete pending container:
+	var (
+		containerListArguments = []interface{}{
+			mock.Anything,
+			mock.Anything,
+		}
+		containerListResponse = []interface{}{
+			[]types.Container{{
+				ID: containerID,
+			}},
+			nil,
+		}
+	)
+	mc.On("ContainerList", containerListArguments...).Once().Return(containerListResponse...)
+
+	var (
+		containerInspectArguments = []interface{}{
+			mock.Anything,
+			mock.Anything,
+		}
+		containerInspectResponse = []interface{}{
+			types.ContainerJSON{
+				ContainerJSONBase: &types.ContainerJSONBase{
+					ID: containerID,
+				},
+			},
+			nil,
+		}
+	)
+	mc.On("ContainerInspect", containerInspectArguments...).Once().Return(containerInspectResponse...)
+
+	containerStopArguments := []interface{}{
+		mock.Anything,
+		containerID,
+		mock.AnythingOfType("*time.Duration"),
+	}
+	mc.On("ContainerStop", containerStopArguments...).Once().Return(nil)
+
+	containerRemoveArguments := []interface{}{
+		mock.Anything,
+		containerID,
+		types.ContainerRemoveOptions{},
+	}
+	mc.On("ContainerRemove", containerRemoveArguments...).Once().Return(nil)
+
+	mc.On("ContainerList", containerListArguments...).Once().Return(nil, dockertest.NotFoundErr{})
+
+	// wait status:
+	mockWaitForStatus(t, mc, fullNamespace, STOPPED)
 
 	require.NoError(t, c.StopService(namespace))
 
-	m.AssertExpectations(t)
+	mc.AssertExpectations(t)
 }
 
 func TestStopNotExistingService(t *testing.T) {

@@ -106,4 +106,10 @@ type Parameter struct {
 
 	// Optional indicates if parameter is optional.
 	Optional bool `yaml:"optional"`
+
+	// Repeated is to have an array of this parameter
+	Repeated bool `yaml:"repeated"`
+
+	// Definition of the structure of the object when the type is object
+	Object map[string]*Parameter `yaml:"object"`
 }

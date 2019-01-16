@@ -16,6 +16,7 @@ This will create a `mesg.yml` file in your current directory with the following 
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | **name** | `""` | `String` | Each Service has a name chosen by the developer. This name is used to identify the service in a nice humanlike way. |
 | **description** | `""` | `String` | A description that will be useful to explain the features of your service. |
+| **sid** | `auto generated` | `String` | A unique service name that can be set optionally. It'll be auto generated when it isn't provided. A service can have multiple deployed versions(hashes) but its sid is always fixed. SID can be used in place of service hash. When used, it'll point to the latest deployed version(hash) of the service.
 | **events** | `{}` | `map<id,`[`Event`](emit-an-event.md)`>` | Services must declare a list of events they can emit. Events are actions on a technology the Service is connected to. |
 | **tasks** | `{}` | `map<id,`[`Task`](listen-for-tasks.md)`>` | Services declare a list of tasks they can execute. A task is an action that accepts parameters as inputs, executes something on the connected technology, and returns one output to Core, with data. |
 | **repository** | `""` | `String` | The url of the repository eg: `https://github.com/org/repo` |

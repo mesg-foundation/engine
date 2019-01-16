@@ -3,7 +3,6 @@ package commands
 import (
 	"bufio"
 	"io"
-	"io/ioutil"
 	"os"
 	"strings"
 	"sync"
@@ -80,10 +79,4 @@ func readLine(t *testing.T, r *bufio.Reader) []byte {
 	line, _, err := r.ReadLine()
 	require.NoError(t, err)
 	return line
-}
-
-func readAll(t *testing.T, r io.Reader) []byte {
-	data, err := ioutil.ReadAll(r)
-	require.NoError(t, err)
-	return data
 }

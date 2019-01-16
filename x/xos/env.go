@@ -54,7 +54,7 @@ func EnvMergeMaps(values ...map[string]string) map[string]string {
 // EnvMergeSlices merges multiple slices into single one.
 // If the same key exist multiple time, it will be added in occurrence order.
 func EnvMergeSlices(values ...[]string) []string {
-	env := make([]string, 0, 16)
+	env := make([]string, 0)
 	for _, v := range values {
 		env = append(env, v...)
 	}

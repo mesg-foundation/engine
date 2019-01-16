@@ -17,4 +17,10 @@ type Parameter struct {
 
 	// Optional indicates if parameter is optional.
 	Optional bool `hash:"name:5"`
+
+	// Repeated is to have an array of this parameter
+	Repeated bool `hash:"name:6"`
+
+	// Definition of the structure of the object when the type is object
+	Object []*Parameter `hash:"name:7"`
 }
