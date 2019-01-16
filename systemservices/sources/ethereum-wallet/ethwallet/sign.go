@@ -3,10 +3,10 @@ package ethwallet
 import (
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/mesg-foundation/core/client/service"
+	"github.com/mesg-foundation/core/systemservices/sources/ethereum-wallet/x/xgo-ethereum/xaccounts"
 )
 
 type signInputs struct {
@@ -35,18 +35,8 @@ func (s *Ethwallet) sign(execution *service.Execution) (string, interface{}) {
 		return OutputError(err.Error())
 	}
 
-	// TODO: refacto following block with export
-	_address := common.HexToAddress(inputs.Address)
-	var account accounts.Account
-	found := false
-	for _, _account := range s.keystore.Accounts() {
-		if _account.Address == _address {
-			account = _account
-			found = true
-			break
-		}
-	}
-	if !found {
+	account, err := xaccounts.GetAccount(s.keystore, inputs.Address)
+	if err != nil {
 		return "error", outputError{
 			Message: "Account not found",
 		}
