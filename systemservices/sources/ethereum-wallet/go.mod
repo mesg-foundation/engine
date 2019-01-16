@@ -11,5 +11,6 @@ require (
 	github.com/mesg-foundation/core v0.5.1-0.20190116024037-9b474d34fc0e
 	github.com/pborman/uuid v1.2.0 // indirect
 	github.com/rjeczalik/notify v0.9.2 // indirect
-	google.golang.org/grpc v1.17.0
+	github.com/syndtr/goleveldb v0.0.0-20181128100959-b001fa50d6b2 // indirect
+	google.golang.org/grpc v1.17.0 // indirect
 )
