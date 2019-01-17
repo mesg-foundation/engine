@@ -10,15 +10,11 @@ import (
 
 // list of system services.
 // these names are also relative paths of system services in the filesystem.
-const (
-	ResolverService = "resolver"
-)
+const ()
 
 // SystemServicesList is the list of system services.
 // system services will be created from this list.
-var SystemServicesList = []string{
-	// ResolverService,
-}
+var SystemServicesList = []string{}
 
 // systemService represents a system service.
 type systemService struct {
@@ -65,9 +61,4 @@ func (s *SystemServices) GetServiceID(name string) (string, error) {
 		}
 	}
 	return "", &SystemServiceNotFoundError{Name: name}
-}
-
-// ResolverServiceID returns resolver system service's id.
-func (s *SystemServices) ResolverServiceID() (string, error) {
-	return s.GetServiceID(ResolverService)
 }
