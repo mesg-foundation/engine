@@ -2,7 +2,6 @@ package daemon
 
 import (
 	"io"
-	"path/filepath"
 
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
@@ -74,11 +73,12 @@ func (d *ContainerDaemon) buildServiceOptions(sharedNetworkID string) container.
 				Target: d.cfg.Docker.Core.Path,
 				Bind:   true,
 			},
-			{
-				Source: filepath.Join(d.cfg.Core.Path, d.cfg.SystemServices.RelativePath),
-				Target: filepath.Join(d.cfg.Docker.Core.Path, d.cfg.SystemServices.RelativePath),
-				Bind:   true,
-			},
+			// TODO: Add back for system services.
+			// {
+			// 	Source: filepath.Join(d.cfg.Core.Path, d.cfg.SystemServices.RelativePath),
+			// 	Target: filepath.Join(d.cfg.Docker.Core.Path, d.cfg.SystemServices.RelativePath),
+			// 	Bind:   true,
+			// },
 		},
 		Ports: []container.Port{
 			{
