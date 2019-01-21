@@ -12,7 +12,6 @@ require (
 	github.com/cnf/structhash v0.0.0-20180104161610-62a607eb0224
 	github.com/containerd/continuity v0.0.0-20180712174259-0377f7d76720 // indirect
 	github.com/cpuguy83/go-md2man v1.0.8 // indirect
-	github.com/davecgh/go-spew v1.1.0 // indirect
 	github.com/docker/distribution v0.0.0-20180720172123-0dae0957e5fe // indirect
 	github.com/docker/docker v0.0.0-20180803200506-eeea12db7a65
 	github.com/docker/go-connections v0.0.0-20180212134524-7beb39f0b969 // indirect
@@ -52,7 +51,6 @@ require (
 	github.com/opencontainers/runc v0.1.1 // indirect
 	github.com/pelletier/go-buffruneio v0.0.0-20180119162133-e2f66f8164ca // indirect
 	github.com/pkg/errors v0.8.0
-	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/pseudomuto/protoc-gen-doc v1.1.0
 	github.com/pseudomuto/protokit v0.1.0 // indirect
 	github.com/russross/blackfriday v1.5.1 // indirect
@@ -62,11 +60,10 @@ require (
 	github.com/spf13/cobra v0.0.0-20171207074935-ccaecb155a21
 	github.com/spf13/pflag v0.0.0-20180601132542-3ebe029320b2
 	github.com/src-d/gcfg v1.3.0 // indirect
-	github.com/stretchr/objx v0.1.1 // indirect
-	github.com/stretchr/testify v1.2.2
-	github.com/stvp/assert v0.0.0-20170616060220-4bc16443988b // indirect
+	github.com/stretchr/testify v1.3.0
+	github.com/stvp/assert v0.0.0-20170616060220-4bc16443988b
 	github.com/syndtr/goleveldb v0.0.0-20180708030551-c4c61651e9e3
-	github.com/vektra/mockery v0.0.0-20180815001236-ea265755d541
+	github.com/vektra/mockery v0.0.0-20181123154057-e78b021dcbb5
 	github.com/xanzy/ssh-agent v0.2.0 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
@@ -75,7 +72,7 @@ require (
 	golang.org/x/net v0.0.0-20180906233101-161cd47e91fd
 	golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4 // indirect
 	golang.org/x/time v0.0.0-20181108054448-85acf8d2951c // indirect
-	golang.org/x/tools v0.0.0-20181004163742-59602fdee893 // indirect
+	golang.org/x/tools v0.0.0-20190111214448-fc1d57b08d7b // indirect
 	google.golang.org/genproto v0.0.0-20180709204101-e92b11657268 // indirect
 	google.golang.org/grpc v0.0.0-20180710012024-c491b25057c8
 	gopkg.in/AlecAivazis/survey.v1 v1.6.1
