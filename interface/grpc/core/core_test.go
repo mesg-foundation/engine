@@ -34,7 +34,7 @@ func newServerWithContainer(t *testing.T, c container.Container) (*Server, func(
 	a, err := api.New(db, execDB, api.ContainerOption(c))
 	require.NoError(t, err)
 
-	server := NewServer(a, nil)
+	server := NewServer(a)
 
 	closer := func() {
 		db.Close()
