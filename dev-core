@@ -36,9 +36,7 @@ else
 fi
 
 # create a symlink for system services.
-rm -rf "$HOME/.mesg/systemservices"
 mkdir -p "$HOME/.mesg/"
-ln -s "$DIR/systemservices/sources" "$HOME/.mesg/systemservices"
 
 echo "build mesg/core image"
 if [[ ! $BINCACHED ]] || [[ ! $DOCKERCACHED ]]; then
