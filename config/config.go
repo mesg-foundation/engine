@@ -21,6 +21,12 @@ var (
 	once     sync.Once
 )
 
+// ServiceConfig contains information related to services that the config knows about
+type ServiceConfig struct {
+	URL string
+	Env map[string]string
+}
+
 // Config contains all the configuration needed.
 type Config struct {
 	Server struct {
@@ -46,6 +52,11 @@ type Config struct {
 			ExecutionRelativePath string
 		}
 	}
+
+	Service struct {
+		Foo ServiceConfig
+	}
+	Services []ServiceConfig
 
 	Docker struct {
 		Socket string
@@ -74,6 +85,10 @@ func New() (*Config, error) {
 	c.Core.Database.ExecutionRelativePath = filepath.Join("database", "executions")
 	c.Docker.Core.Path = "/mesg"
 	c.Docker.Socket = "/var/run/docker.sock"
+	c.Service.Foo = ServiceConfig{"https://github.com/mesg-foundation/service-ethereum-erc20", map[string]string{}}
+	c.Services = []ServiceConfig{
+		c.Service.Foo,
+	}
 	return &c, nil
 }
 
