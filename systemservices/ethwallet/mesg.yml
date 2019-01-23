@@ -1,0 +1,98 @@
+name: "Ethereum"
+sid: ethwallet
+description: ""
+configuration:
+  env:
+    - MESG_KEYSTORE=/keystore
+  volumes:
+    - /keystore
+events:
+  test:
+    data:
+      content:
+        type: String
+tasks:
+  list:
+    outputs:
+      success:
+        data:
+          addresses:
+            type: String
+            repeated: true
+      error: &outputError
+        data:
+          message:
+            type: String
+  new:
+    inputs:
+      passphrase:
+        type: String
+    outputs:
+      success:
+        data:
+          address:
+            type: String
+      error: *outputError
+  delete:
+    inputs:
+      address:
+        type: String
+      passphrase:
+        type: String
+    outputs:
+      success:
+        data:
+      error: *outputError
+  export:
+    inputs:
+      address:
+        type: String
+      passphrase:
+        type: String
+    outputs:
+      success:
+        data:
+          account:
+            type: Object
+      error: *outputError
+  import:
+    inputs:
+      account:
+        type: Object
+      passphrase:
+        type: String
+    outputs:
+      success:
+        data:
+          address:
+            type: String
+      error: *outputError
+  sign:
+    inputs:
+      address:
+        type: String
+      passphrase:
+        type: String
+      chainID:
+        type: Number
+      transaction:
+        type: Object
+        object:
+          nonce:
+            type: Number
+          to:
+            type: String
+          value:
+            type: Number
+          gasLimit:
+            type: Number
+          gasPrice:
+            type: Number
+          data:
+            type: Any
+    outputs:
+      success:
+        data:
+          signedTransaction:
+            type: Object
+      error: *outputError
