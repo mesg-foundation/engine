@@ -97,7 +97,6 @@ loop:
 		go func(c Service_ListenTaskClient) {
 			select {
 			case <-c.Context().Done():
-				s.c <- &core_ListenTaskClientResponse{nil, c.Context().Err()}
 				c.CloseSend()
 			case <-done:
 			}

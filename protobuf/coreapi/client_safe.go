@@ -125,7 +125,6 @@ loop:
 		go func(c Core_ListenEventClient) {
 			select {
 			case <-c.Context().Done():
-				s.c <- &core_ListenEventClientResponse{nil, c.Context().Err()}
 				c.CloseSend()
 			case <-done:
 			}
@@ -214,7 +213,6 @@ loop:
 		go func(c Core_ListenResultClient) {
 			select {
 			case <-c.Context().Done():
-				s.c <- &core_ListenResultClientResponse{nil, c.Context().Err()}
 				c.CloseSend()
 			case <-done:
 			}
@@ -306,7 +304,6 @@ loop:
 		go func(c Core_ServiceLogsClient) {
 			select {
 			case <-c.Context().Done():
-				s.c <- &core_ServiceLogsClientResponse{nil, c.Context().Err()}
 				c.CloseSend()
 			case <-done:
 			}
