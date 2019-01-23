@@ -56,7 +56,6 @@ type Config struct {
 	Service struct {
 		Foo ServiceConfig
 	}
-	Services []ServiceConfig
 
 	Docker struct {
 		Socket string
@@ -86,9 +85,6 @@ func New() (*Config, error) {
 	c.Docker.Core.Path = "/mesg"
 	c.Docker.Socket = "/var/run/docker.sock"
 	c.Service.Foo = ServiceConfig{"https://github.com/mesg-foundation/service-ethereum-erc20", map[string]string{}}
-	c.Services = []ServiceConfig{
-		c.Service.Foo,
-	}
 	return &c, nil
 }
 
@@ -136,6 +132,13 @@ func (c *Config) Validate() error {
 		return err
 	}
 	return nil
+}
+
+// Services returns all services that the configuration package is aware of
+func (c *Config) Services() []ServiceConfig {
+	return []ServiceConfig{
+		c.Service.Foo,
+	}
 }
 
 // DaemonEnv returns the needed environmental variable for the Daemon.
