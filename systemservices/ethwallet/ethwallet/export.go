@@ -24,9 +24,7 @@ func (s *Ethwallet) export(execution *service.Execution) (string, interface{}) {
 
 	account, err := xaccounts.GetAccount(s.keystore, inputs.Address)
 	if err != nil {
-		return "error", outputError{
-			Message: "Account not found",
-		}
+		return OutputError("Account not found")
 	}
 
 	keyJSON, err := s.keystore.Export(account, inputs.Passphrase, inputs.Passphrase)

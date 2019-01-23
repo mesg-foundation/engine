@@ -18,9 +18,7 @@ func (s *Ethwallet) delete(execution *service.Execution) (string, interface{}) {
 
 	account, err := xaccounts.GetAccount(s.keystore, inputs.Address)
 	if err != nil {
-		return "error", outputError{
-			Message: "Account not found",
-		}
+		return OutputError("Account not found")
 	}
 
 	if err := s.keystore.Delete(account, inputs.Passphrase); err != nil {
