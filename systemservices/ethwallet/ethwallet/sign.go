@@ -19,9 +19,9 @@ type signInputs struct {
 type transaction struct {
 	Nonce    uint64         `json:"nonce"`
 	To       common.Address `json:"to"`
-	Value    *big.Int       `json:"value"`
+	Value    string         `json:"value"`
 	GasLimit uint64         `json:"gasLimit"`
-	GasPrice *big.Int       `json:"gasPrice"`
+	GasPrice string         `json:"gasPrice"`
 	Data     []byte         `json:"data"`
 }
 
@@ -37,12 +37,20 @@ func (s *Ethwallet) sign(execution *service.Execution) (string, interface{}) {
 
 	account, err := xaccounts.GetAccount(s.keystore, inputs.Address)
 	if err != nil {
-		return "error", outputError{
-			Message: "Account not found",
-		}
+		return OutputError("Account not found")
 	}
 
-	transaction := types.NewTransaction(inputs.Transaction.Nonce, inputs.Transaction.To, inputs.Transaction.Value, inputs.Transaction.GasLimit, inputs.Transaction.GasPrice, inputs.Transaction.Data)
+	value := new(big.Int)
+	if _, ok := value.SetString(inputs.Transaction.Value, 0); !ok {
+		return OutputError("Cannot parse value")
+	}
+
+	gasPrice := new(big.Int)
+	if _, ok := gasPrice.SetString(inputs.Transaction.GasPrice, 0); !ok {
+		return OutputError("Cannot parse gasPrice")
+	}
+
+	transaction := types.NewTransaction(inputs.Transaction.Nonce, inputs.Transaction.To, value, inputs.Transaction.GasLimit, gasPrice, inputs.Transaction.Data)
 
 	signedTransaction, err := s.keystore.SignTxWithPassphrase(account, inputs.Passphrase, transaction, big.NewInt(inputs.ChainID))
 	if err != nil {
