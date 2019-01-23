@@ -4,6 +4,7 @@ set -e
 
 DIR=$(pwd)
 MESG_LOG_LEVEL=${MESG_LOG_LEVEL:-debug}
+MESG_LOG_FORCECOLORS=${MESG_LOG_FORCECOLORS:-false}
 VERSION=local
 LDFLAGS="-X 'github.com/mesg-foundation/core/version.Version=$VERSION'"
 
@@ -53,5 +54,5 @@ function onexit {
   ./bin/cli stop
 }
 
-./bin/cli start --log-level "$MESG_LOG_LEVEL"
+./bin/cli start --log-level "$MESG_LOG_LEVEL" --log-force-colors "$MESG_LOG_FORCECOLORS"
 ./bin/cli logs

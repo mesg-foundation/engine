@@ -54,7 +54,7 @@ func main() {
 	}
 
 	// init logger.
-	logger.Init(c.Log.Format, c.Log.Level)
+	logger.Init(c.Log.Format, c.Log.Level, c.Log.ForceColors)
 
 	// init gRPC server.
 	server, err := initGRPCServer(c)
