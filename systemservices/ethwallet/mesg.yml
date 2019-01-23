@@ -116,15 +116,15 @@ tasks:
           value:
             name: "Value"
             description: "The value in Wei."
-            type: Number
+            type: String
           gasLimit:
             name: "Gas limit"
-            description: "The gas limit in Wei."
+            description: "The gas limit"
             type: Number
           gasPrice:
             name: "Gas price"
             description: "The gas price in Wei."
-            type: Number
+            type: String
           data:
             name: "Data"
             description: "The data of the transaction."
