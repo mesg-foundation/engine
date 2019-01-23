@@ -163,7 +163,7 @@ func (s *Service) Listen(task Taskable, tasks ...Taskable) error {
 	return s.listenTasks()
 }
 
-// validateTasks checks if the tasks handled exectly desribed in mesg.yaml.
+// validateTasks checks if the tasks handled exactly described in mesg.yml.
 // TODO(ilgooz) use validation handlers of core server to do this?
 func (s *Service) validateTasks() error { return nil }
 
