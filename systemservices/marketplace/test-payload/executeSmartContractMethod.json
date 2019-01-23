@@ -1,0 +1,21 @@
+{
+  "methodAbi": {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "data",
+        "type": "string"
+      }
+    ],
+    "name": "execute",
+    "outputs": [],
+    "payable": true,
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  "inputs": {
+    "data": "hello"
+  },
+  "contractAddress": "",
+  "privateKey": ""
+}

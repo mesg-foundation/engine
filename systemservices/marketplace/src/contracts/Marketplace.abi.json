@@ -1,0 +1,732 @@
+[
+    {
+        "constant": false,
+        "inputs": [],
+        "name": "unpause",
+        "outputs": [],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [
+            {
+                "name": "account",
+                "type": "address"
+            }
+        ],
+        "name": "isPauser",
+        "outputs": [
+            {
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [],
+        "name": "paused",
+        "outputs": [
+            {
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": false,
+        "inputs": [],
+        "name": "renouncePauser",
+        "outputs": [],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "constant": false,
+        "inputs": [],
+        "name": "renounceOwnership",
+        "outputs": [],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "constant": false,
+        "inputs": [
+            {
+                "name": "account",
+                "type": "address"
+            }
+        ],
+        "name": "addPauser",
+        "outputs": [],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "constant": false,
+        "inputs": [],
+        "name": "pause",
+        "outputs": [],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [],
+        "name": "owner",
+        "outputs": [
+            {
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [],
+        "name": "isOwner",
+        "outputs": [
+            {
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [
+            {
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "name": "services",
+        "outputs": [
+            {
+                "name": "owner",
+                "type": "address"
+            },
+            {
+                "name": "sid",
+                "type": "bytes"
+            },
+            {
+                "name": "price",
+                "type": "uint256"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": false,
+        "inputs": [
+            {
+                "name": "newOwner",
+                "type": "address"
+            }
+        ],
+        "name": "transferOwnership",
+        "outputs": [],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [],
+        "name": "token",
+        "outputs": [
+            {
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "name": "_token",
+                "type": "address"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "name": "serviceIndex",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "name": "sid",
+                "type": "bytes"
+            },
+            {
+                "indexed": true,
+                "name": "owner",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "name": "price",
+                "type": "uint256"
+            }
+        ],
+        "name": "ServiceCreated",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "name": "serviceIndex",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "name": "sid",
+                "type": "bytes"
+            },
+            {
+                "indexed": true,
+                "name": "previousOwner",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "name": "newOwner",
+                "type": "address"
+            }
+        ],
+        "name": "ServiceOwnershipTransferred",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "name": "serviceIndex",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "name": "sid",
+                "type": "bytes"
+            },
+            {
+                "indexed": false,
+                "name": "previousPrice",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "name": "newPrice",
+                "type": "uint256"
+            }
+        ],
+        "name": "ServicePriceChanged",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "name": "serviceIndex",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "name": "sid",
+                "type": "bytes"
+            },
+            {
+                "indexed": false,
+                "name": "hash",
+                "type": "bytes20"
+            },
+            {
+                "indexed": false,
+                "name": "url",
+                "type": "bytes"
+            }
+        ],
+        "name": "ServiceVersionCreated",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "name": "serviceIndex",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "name": "sid",
+                "type": "bytes"
+            },
+            {
+                "indexed": true,
+                "name": "purchaser",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "name": "seller",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "name": "price",
+                "type": "uint256"
+            }
+        ],
+        "name": "ServicePaid",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "name": "account",
+                "type": "address"
+            }
+        ],
+        "name": "Paused",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "name": "account",
+                "type": "address"
+            }
+        ],
+        "name": "Unpaused",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "name": "account",
+                "type": "address"
+            }
+        ],
+        "name": "PauserAdded",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "name": "account",
+                "type": "address"
+            }
+        ],
+        "name": "PauserRemoved",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "name": "previousOwner",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "name": "newOwner",
+                "type": "address"
+            }
+        ],
+        "name": "OwnershipTransferred",
+        "type": "event"
+    },
+    {
+        "constant": true,
+        "inputs": [
+            {
+                "name": "serviceIndex",
+                "type": "uint256"
+            }
+        ],
+        "name": "isServiceOwner",
+        "outputs": [
+            {
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [
+            {
+                "name": "sid",
+                "type": "bytes"
+            }
+        ],
+        "name": "isServiceSidExist",
+        "outputs": [
+            {
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [
+            {
+                "name": "hash",
+                "type": "bytes20"
+            }
+        ],
+        "name": "isServiceHashExist",
+        "outputs": [
+            {
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [
+            {
+                "name": "serviceIndex",
+                "type": "uint256"
+            },
+            {
+                "name": "versionIndex",
+                "type": "uint256"
+            }
+        ],
+        "name": "getServiceVersion",
+        "outputs": [
+            {
+                "name": "hash",
+                "type": "bytes20"
+            },
+            {
+                "name": "url",
+                "type": "bytes"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [
+            {
+                "name": "serviceIndex",
+                "type": "uint256"
+            },
+            {
+                "name": "paymentIndex",
+                "type": "uint256"
+            }
+        ],
+        "name": "getServicePayment",
+        "outputs": [
+            {
+                "name": "purchaser",
+                "type": "address"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [
+            {
+                "name": "sid",
+                "type": "bytes"
+            }
+        ],
+        "name": "getServiceIndex",
+        "outputs": [
+            {
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [
+            {
+                "name": "serviceIndex",
+                "type": "uint256"
+            },
+            {
+                "name": "hash",
+                "type": "bytes20"
+            }
+        ],
+        "name": "getServiceVersionIndex",
+        "outputs": [
+            {
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [
+            {
+                "name": "serviceIndex",
+                "type": "uint256"
+            },
+            {
+                "name": "purchaser",
+                "type": "address"
+            }
+        ],
+        "name": "getServicePaymentIndex",
+        "outputs": [
+            {
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [],
+        "name": "getServicesCount",
+        "outputs": [
+            {
+                "name": "servicesCount",
+                "type": "uint256"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [
+            {
+                "name": "serviceIndex",
+                "type": "uint256"
+            }
+        ],
+        "name": "getServiceVersionsCount",
+        "outputs": [
+            {
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [
+            {
+                "name": "serviceIndex",
+                "type": "uint256"
+            }
+        ],
+        "name": "getServicePaymentsCount",
+        "outputs": [
+            {
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": false,
+        "inputs": [
+            {
+                "name": "sid",
+                "type": "bytes"
+            },
+            {
+                "name": "price",
+                "type": "uint256"
+            }
+        ],
+        "name": "createService",
+        "outputs": [
+            {
+                "name": "serviceIndex",
+                "type": "uint256"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "constant": false,
+        "inputs": [
+            {
+                "name": "serviceIndex",
+                "type": "uint256"
+            },
+            {
+                "name": "newOwner",
+                "type": "address"
+            }
+        ],
+        "name": "transferServiceOwnership",
+        "outputs": [],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "constant": false,
+        "inputs": [
+            {
+                "name": "serviceIndex",
+                "type": "uint256"
+            },
+            {
+                "name": "newPrice",
+                "type": "uint256"
+            }
+        ],
+        "name": "changeServicePrice",
+        "outputs": [],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "constant": false,
+        "inputs": [
+            {
+                "name": "serviceIndex",
+                "type": "uint256"
+            },
+            {
+                "name": "hash",
+                "type": "bytes20"
+            },
+            {
+                "name": "url",
+                "type": "bytes"
+            }
+        ],
+        "name": "createServiceVersion",
+        "outputs": [
+            {
+                "name": "versionIndex",
+                "type": "uint256"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [
+            {
+                "name": "serviceIndex",
+                "type": "uint256"
+            }
+        ],
+        "name": "hasPaid",
+        "outputs": [
+            {
+                "name": "paid",
+                "type": "bool"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": false,
+        "inputs": [
+            {
+                "name": "serviceIndex",
+                "type": "uint256"
+            }
+        ],
+        "name": "pay",
+        "outputs": [
+            {
+                "name": "paymentIndex",
+                "type": "uint256"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
+]

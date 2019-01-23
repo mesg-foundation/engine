@@ -1,0 +1,191 @@
+name: Marketplace
+sid: com.mesg.ethereum.marketplace
+description: ""
+configuration:
+  env:
+    - PROVIDER_ENDPOINT=http://host.docker.internal:7545
+    - BLOCK_CONFIRMATIONS=0
+    - DEFAULT_GAS_LIMIT=1000000
+    - POLLING_TIME=1000
+    - MARKETPLACE_ADDRESS=0xD36408aa585BEFfEFC751AefbfF917de5d2fB6a0
+tasks:
+  executeSmartContractMethod:
+    name: "Execute a Smart Contract Method"
+    description: "This task executes a method on any Smart Contract"
+    inputs:
+      methodAbi: &methodAbiParam
+        name: "Method ABI"
+        description: "The ABI of the method to execute. Only pass the ABI of the method and NOT all the Smart Contract's ABI."
+        type: Any
+      inputs: &inputsParam
+        name: "Inputs"
+        description: "The inputs to use during the execution of the method. Pass an Object with parameter's name as key and parameter's value as value."
+        type: Any
+      contractAddress: &contractAddressParam
+        name: "Contract address"
+        description: "The address of the contract"
+        type: String
+      privateKey: &privateKeyInput
+        name: "Signer private key"
+        description: "The private key to sign the transaction"
+        type: String
+      value: &value
+        type: String
+        optional: true
+      gasPrice: &gasPriceInput
+        name: "Gas Price"
+        description: "The gas price in wei to use for this transaction"
+        type: String
+        optional: true
+      gasLimit: &gasLimitInput
+        name: "Gas Limit"
+        description: "The maximum gas provided for this transaction"
+        type: Number
+        optional: true
+    outputs: &signedTransactionOutputs
+      success:
+        name: "Success"
+        description: "Output when the task executes successfully"
+        data:
+          transactionHash:
+            name: "Transaction hash"
+            description: "Hash of the transaction"
+            type: String
+      error: &errorOutput
+        name: "Error"
+        description: "Output when an error occurs"
+        data:
+          message:
+            name: "Message"
+            description: "The error message"
+            type: String
+  callSmartContractMethod:
+    name: "Call a Smart Contract Method"
+    description: "This task call a 'constant' method on any Smart Contract. It does not require fees."
+    inputs:
+      methodAbi: *methodAbiParam
+      inputs: *inputsParam
+      contractAddress: *contractAddressParam
+    outputs:
+      success:
+        name: "Success"
+        description: "Output when the task executes successfully"
+        data:
+          outputs:
+            type: Any
+      error: *errorOutput
+  decodeLog:
+    inputs:
+      abi:
+        type: Any
+      address:
+        type: String
+      data:
+        type: String
+      topics:
+        type: Any
+      logIndex:
+        type: Number
+      transactionHash:
+        type: String
+      transactionIndex:
+        type: Number
+      blockHash:
+        type: String
+      blockNumber:
+        type: Number
+    outputs:
+      success:
+        data:
+          decodedData:
+            type: Any
+          address:
+            type: String
+          data:
+            type: String
+          topics:
+            type: Any
+          logIndex:
+            type: Number
+          transactionHash:
+            type: String
+          transactionIndex:
+            type: Number
+          blockHash:
+            type: String
+          blockNumber:
+            type: Number
+      error: *errorOutput
+events:
+  log:
+    data:
+      address:
+        type: String
+      data:
+        type: String
+      topics:
+        type: Any
+      logIndex:
+        type: Number
+      transactionHash:
+        type: String
+      transactionIndex:
+        type: Number
+      blockHash:
+        type: String
+      blockNumber:
+        type: Number
+  block:
+    data:
+      number:
+        type: Number
+      hash:
+        type: String
+      parentHash:
+        type: String
+      sha3Uncles:
+        type: String
+      logsBloom:
+        type: String
+      stateRoot:
+        type: String
+      miner:
+        type: String
+      extraData:
+        type: String
+      gasLimit:
+        type: Number
+      gasUsed:
+        type: Number
+      timestamp:
+        type: Number
+      size:
+        type: Number
+      difficulty:
+        type: String
+  transaction:
+    data:
+      transactionHash:
+        type: String
+      transactionIndex:
+        type: Number
+      blockHash:
+        type: String
+      blockNumber:
+        type: Number
+      from:
+        type: String
+      to:
+        type: String
+      status:
+        type: Boolean
+      value:
+        type: String
+      gasPrice:
+        type: String
+      gas:
+        type: Number
+      gasUsed:
+        type: Number
+      input:
+        type: String
