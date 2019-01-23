@@ -33,8 +33,6 @@ func initGRPCServer(c *config.Config) (*grpc.Server, error) {
 		return nil, err
 	}
 
-	// init system services.
-
 	return grpc.New(c.Server.Address, a), nil
 }
 
