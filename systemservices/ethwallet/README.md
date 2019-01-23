@@ -6,7 +6,6 @@ Manage Ethereum accounts and sign transactions.
 
 - [Installation](#Installation)
 - [Definitions](#Definitions)
-  
   - [Tasks](#Tasks)
     - [Delete an account](#delete-an-account)
     - [Export an account](#export-an-account)
@@ -14,6 +13,7 @@ Manage Ethereum accounts and sign transactions.
     - [List accounts](#list-accounts)
     - [Create a new account](#create-a-new-account)
     - [Sign transaction](#sign-transaction)
+- [Test](#Test)
 
 # Installation
 
@@ -249,3 +249,43 @@ Output when the task executes successfully.
 | **Signed transaction** | `signedTransaction` | `Object` | The data of the signed transaction. |
 
 
+
+# Test
+
+A folder `test-data` contains test payloads to easily test the service. Adapt their content accordingly.
+
+## New
+
+```
+mesg-core service execute ethwallet --task new --json ./test-data/new.json
+```
+
+## Lost
+
+```
+mesg-core service execute ethwallet --task list --json ./empty.json
+```
+
+## Delete
+
+```
+mesg-core service execute ethwallet --task delete --json ./test-data/delete.json
+```
+
+## Export
+
+```
+mesg-core service execute ethwallet --task export --json ./test-data/export.json
+```
+
+## Import
+
+```
+mesg-core service execute ethwallet --task import --json ./test-data/import.json
+```
+
+## Sign
+
+```
+mesg-core service execute ethwallet --task sign --json ./test-data/sign.json
+```
