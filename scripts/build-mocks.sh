@@ -15,3 +15,7 @@ mockery -name=ServiceDB -dir ./database -output ./database/mocks
 
 # generate mocks for commands package.
 mockery -name=Executor -dir ./commands -output ./commands/mocks
+
+# generate mocks for protobuf servers.
+mockery -name=CoreServer -dir ./protobuf/coreapi -case underscore -inpkg -testonly
+mockery -name=ServiceServer -dir ./protobuf/serviceapi -case underscore -inpkg -testonly
