@@ -7,7 +7,6 @@ import (
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/container/dockertest"
 	"github.com/mesg-foundation/core/database"
-	"github.com/mesg-foundation/core/systemservices"
 	"github.com/stretchr/testify/require"
 )
 
@@ -28,9 +27,7 @@ func newAPIAndDockerTest(t *testing.T) (*API, *dockertest.Testing, func()) {
 	execDB, err := database.NewExecutionDB(execdbname)
 	require.NoError(t, err)
 
-	ss := systemservices.New()
-
-	a, err := New(db, execDB, ss, ContainerOption(container))
+	a, err := New(db, execDB, ContainerOption(container))
 	require.NoError(t, err)
 
 	closer := func() {
