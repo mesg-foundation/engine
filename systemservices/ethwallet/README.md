@@ -178,7 +178,7 @@ Output when the task executes successfully.
 
 ## Create a new account
 
-Task key: `new`
+Task key: `create`
 
 Create a new account with a passphrase. Make sure to backup the passphrase.
 
@@ -254,10 +254,10 @@ Output when the task executes successfully.
 
 A folder `test-data` contains test payloads to easily test the service. Adapt their content accordingly.
 
-## New
+## create
 
 ```
-mesg-core service execute ethwallet --task new --json ./test-data/new.json
+mesg-core service execute ethwallet --task create --json ./test-data/create.json
 ```
 
 ## Lost

@@ -4,16 +4,16 @@ import (
 	"github.com/mesg-foundation/core/client/service"
 )
 
-type newInputs struct {
+type createInputs struct {
 	Passphrase string `json:"passphrase"`
 }
 
-type newOutputSuccess struct {
+type createOutputSuccess struct {
 	Address string `json:"address"`
 }
 
-func (s *Ethwallet) new(execution *service.Execution) (string, interface{}) {
-	var inputs newInputs
+func (s *Ethwallet) create(execution *service.Execution) (string, interface{}) {
+	var inputs createInputs
 	if err := execution.Data(&inputs); err != nil {
 		return OutputError(err.Error())
 	}
@@ -23,7 +23,7 @@ func (s *Ethwallet) new(execution *service.Execution) (string, interface{}) {
 		return OutputError(err.Error())
 	}
 
-	return "success", newOutputSuccess{
+	return "success", createOutputSuccess{
 		Address: account.Address.String(),
 	}
 }

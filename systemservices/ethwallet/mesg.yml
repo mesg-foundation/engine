@@ -28,7 +28,7 @@ tasks:
             name: "Message"
             description: "The error message."
             type: String
-  new:
+  create:
     name: "Create a new account"
     description: "Create a new account with a passphrase. Make sure to backup the passphrase."
     inputs:
