@@ -12,10 +12,6 @@ type exportInputs struct {
 	Passphrase string `json:"passphrase"`
 }
 
-type exportOutputSuccess struct {
-	Account encryptedKeyJSONV3 `json:"account"`
-}
-
 func (s *Ethwallet) export(execution *service.Execution) (string, interface{}) {
 	var inputs exportInputs
 	if err := execution.Data(&inputs); err != nil {
@@ -36,7 +32,5 @@ func (s *Ethwallet) export(execution *service.Execution) (string, interface{}) {
 	if err = json.Unmarshal(keyJSON, &accountJSON); err != nil {
 		return OutputError(err.Error())
 	}
-	return "success", exportOutputSuccess{
-		Account: accountJSON,
-	}
+	return "success", accountJSON
 }
