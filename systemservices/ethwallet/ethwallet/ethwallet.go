@@ -35,7 +35,7 @@ func New() (*Ethwallet, error) {
 func (ethwallet *Ethwallet) Listen() error {
 	return ethwallet.service.Listen(
 		service.Task("list", ethwallet.list),
-		service.Task("new", ethwallet.new),
+		service.Task("create", ethwallet.create),
 		service.Task("delete", ethwallet.delete),
 		service.Task("export", ethwallet.export),
 		service.Task("import", ethwallet.importA),
