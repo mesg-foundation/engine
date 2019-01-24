@@ -11,11 +11,13 @@ const (
 	keystoreEnv = "MESG_KEYSTORE"
 )
 
+// Ethwallet is a Ethereum Wallet
 type Ethwallet struct {
 	service  *service.Service
 	keystore *keystore.KeyStore
 }
 
+// New creates a new instance of EthWallet
 func New() (*Ethwallet, error) {
 	// mesg client
 	service, err := service.New()
@@ -32,6 +34,7 @@ func New() (*Ethwallet, error) {
 	}, nil
 }
 
+// Listen listens for tasks from MESG
 func (ethwallet *Ethwallet) Listen() error {
 	return ethwallet.service.Listen(
 		service.Task("list", ethwallet.list),
