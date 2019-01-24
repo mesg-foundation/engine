@@ -222,6 +222,7 @@ func (s *Service) deploy() error {
 	if s.Hash == "" {
 		panic("s.Hash is empty")
 	}
+	// TODO: the following test should be moved in New function
 	if s.Sid == "" {
 		// make sure that sid doesn't have the same length with id.
 		s.Sid = "_" + s.Hash
