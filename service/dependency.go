@@ -11,7 +11,7 @@ import (
 // how it should run.
 type Dependency struct {
 	// Key is the key of dependency.
-	Key string `hash:"1"`
+	Key string `hash:"name:1"`
 
 	// Image is the Docker image.
 	Image string `hash:"name:2"`
