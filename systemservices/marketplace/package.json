@@ -6,6 +6,7 @@
   "dependencies": {
     "@types/node": "^10.12.12",
     "@types/web3": "^1.0.13",
+    "bignumber.js": "^8.0.2",
     "mesg-js": "^2.0.1",
     "ts-node": "^7.0.1",
     "typescript": "^3.2.1",

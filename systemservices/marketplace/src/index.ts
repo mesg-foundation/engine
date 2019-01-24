@@ -3,9 +3,7 @@ import Web3 from "web3"
 import { newBlockEventEmitter } from "./newBlock"
 import blockEvent from "./events/block"
 import transactionAndLogEvent from "./events/transactionAndLog"
-import decodeLog from "./tasks/decodeLog"
-import executeSmartContractMethod from "./tasks/executeSmartContractMethod"
-import callSmartContractMethod from "./tasks/callSmartContractMethod"
+import listServices from "./tasks/listServices"
 
 import marketplaceABI from "./contracts/Marketplace.abi.json"
 import { Marketplace } from "./contracts/Marketplace";
@@ -19,18 +17,12 @@ const pollingTime = parseInt(<string>process.env.POLLING_TIME, 10)
 const main = async () => {
   const mesg = MESG()
   const web3 = new Web3(providerEndpoint)
-
   const marketplace = new web3.eth.Contract(marketplaceABI, marketplaceAddress) as Marketplace
-  
-  const owner = await marketplace.methods.owner().call()
-  console.log('owner', owner)
-  
-  // mesg.listenTask({
-  //   decodeLog: decodeLog(web3),
-  //   executeSmartContractMethod: executeSmartContractMethod(web3, defaultGasLimit),
-  //   callSmartContractMethod: callSmartContractMethod(web3)
-  // })
-  // .on('error', error => console.error('catch listenTask', error))
+
+  mesg.listenTask({
+    listServices: listServices(marketplace),
+  })
+  .on('error', error => console.error('catch listenTask', error))
 
   // const newBlock = await newBlockEventEmitter(web3, blockConfirmations, null, pollingTime)
   // newBlock.on('newBlock', blockNumber => {
