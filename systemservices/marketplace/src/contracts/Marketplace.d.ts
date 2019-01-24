@@ -18,10 +18,10 @@ export class Marketplace {
       arg0: number | string
     ): TransactionObject<{
       owner: string;
-      sid: (string)[];
+      sid: string;
       price: string;
       0: string;
-      1: (string)[];
+      1: string;
       2: string;
     }>;
 
@@ -36,9 +36,9 @@ export class Marketplace {
       versionIndex: number | string
     ): TransactionObject<{
       hash: string;
-      url: (string)[];
+      url: string;
       0: string;
-      1: (string)[];
+      1: string;
     }>;
 
     getServicePayment(
