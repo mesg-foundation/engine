@@ -72,6 +72,7 @@ Output when the task executes successfully.
 
 | **Name** | **Key** | **Type** | **Description** |
 | --- | --- | --- | --- |
+| **Address** | `address` | `String` | The public address of the account deleted. |
 
 
 ## Export an account

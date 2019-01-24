@@ -10,6 +10,10 @@ type deleteInputs struct {
 	Passphrase string `json:"passphrase"`
 }
 
+type deleteOutputSuccess struct {
+	Address string `json:"address"`
+}
+
 func (s *Ethwallet) delete(execution *service.Execution) (string, interface{}) {
 	var inputs deleteInputs
 	if err := execution.Data(&inputs); err != nil {
@@ -25,5 +29,7 @@ func (s *Ethwallet) delete(execution *service.Execution) (string, interface{}) {
 		return OutputError(err.Error())
 	}
 
-	return "success", nil
+	return "success", deleteOutputSuccess{
+		Address: account.Address.String(),
+	}
 }
