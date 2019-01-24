@@ -60,6 +60,7 @@ tasks:
         name: "Success"
         description: "Output when the task executes successfully."
         data:
+          address: *address
       error: *outputError
   export:
     name: "Export an account"
