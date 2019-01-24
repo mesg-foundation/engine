@@ -108,9 +108,7 @@ func New(tarball io.Reader, env map[string]string, options ...Option) (*Service,
 	if _, err := io.Copy(h, tarball); err != nil {
 		return nil, err
 	}
-	hash := h.Sum(nil)
-	s.Hash = fmt.Sprintf("%x", hash)
-	fmt.Println("s.Hash", s.Hash)
+	s.Hash = fmt.Sprintf("%x", h.Sum(nil))
 
 	def, err := importer.From(s.tempPath)
 	if err != nil {
@@ -155,8 +153,6 @@ func (s *Service) fromService() *Service {
 	for _, dep := range s.Dependencies {
 		dep.service = s
 	}
-
-	// s.Hash = s.computeHash()
 	return s
 }
 
