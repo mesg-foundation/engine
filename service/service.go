@@ -1,6 +1,7 @@
 package service
 
 import (
+	"crypto/sha1"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -14,7 +15,6 @@ import (
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/service/importer"
 	"github.com/mesg-foundation/core/x/xos"
-	"github.com/mesg-foundation/core/x/xstructhash"
 )
 
 // WARNING about hash tags on Service type and its inner types:
@@ -103,6 +103,15 @@ func New(tarball io.Reader, env map[string]string, options ...Option) (*Service,
 	}
 	defer os.RemoveAll(s.tempPath)
 
+	// calculate hash
+	h := sha1.New()
+	if _, err := io.Copy(h, tarball); err != nil {
+		return nil, err
+	}
+	hash := h.Sum(nil)
+	s.Hash = fmt.Sprintf("%x", hash)
+	fmt.Println("s.Hash", s.Hash)
+
 	def, err := importer.From(s.tempPath)
 	if err != nil {
 		return nil, err
@@ -141,12 +150,13 @@ func (s *Service) setOptions(options ...Option) error {
 }
 
 // fromService upgrades service s by setting a calculated ID and cross-referencing its child fields.
+// TODO: this function should be deleted.
 func (s *Service) fromService() *Service {
 	for _, dep := range s.Dependencies {
 		dep.service = s
 	}
 
-	s.Hash = s.computeHash()
+	// s.Hash = s.computeHash()
 	return s
 }
 
@@ -165,14 +175,6 @@ func DeployStatusOption(statuses chan DeployStatus) Option {
 	return func(s *Service) {
 		s.statuses = statuses
 	}
-}
-
-// computeHash computes a unique sha1 value for service.
-// changes on the names of constant configuration fields of mesg.yml will not
-// have effect on computation but extending or removing configurations or changing
-// values in mesg.yml will cause computeHash to generate a different value.
-func (s *Service) computeHash() string {
-	return xstructhash.Hash(s, 1)
 }
 
 // saveContext downloads service context to a temp dir.
@@ -216,9 +218,13 @@ func (s *Service) deploy() error {
 	s.sendStatus("Image built with success", DDonePositive)
 
 	s.configuration().Image = imageHash
+	// TODO: FOR TEST ONLY
+	if s.Hash == "" {
+		panic("s.Hash is empty")
+	}
 	if s.Sid == "" {
 		// make sure that sid doesn't have the same length with id.
-		s.Sid = "_" + s.computeHash()
+		s.Sid = "_" + s.Hash
 	}
 	return nil
 }
