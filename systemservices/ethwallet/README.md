@@ -7,11 +7,11 @@ Manage Ethereum accounts and sign transactions.
 - [Installation](#Installation)
 - [Definitions](#Definitions)
   - [Tasks](#Tasks)
+    - [Create a new account](#create-a-new-account)
     - [Delete an account](#delete-an-account)
     - [Export an account](#export-an-account)
     - [Import an account](#import-an-account)
     - [List accounts](#list-accounts)
-    - [Create a new account](#create-a-new-account)
     - [Sign transaction](#sign-transaction)
 - [Test](#Test)
 
@@ -38,6 +38,41 @@ mesg-core service deploy
 
 
 # Tasks
+
+## Create a new account
+
+Task key: `create`
+
+Create a new account with a passphrase. Make sure to backup the passphrase.
+
+### Inputs
+
+| **Name** | **Key** | **Type** | **Description** |
+| --- | --- | --- | --- |
+| **Passphrase** | `passphrase` | `String` | Passphrase to use to encrypt the account. |
+
+### Outputs
+
+#### Error
+
+Output key: `error`
+
+Output when an error occurs.
+
+| **Name** | **Key** | **Type** | **Description** |
+| --- | --- | --- | --- |
+| **Message** | `message` | `String` | The error message. |
+
+#### Success
+
+Output key: `success`
+
+Output when the task executes successfully.
+
+| **Name** | **Key** | **Type** | **Description** |
+| --- | --- | --- | --- |
+| **Address** | `address` | `String` | The public address of the account. |
+
 
 ## Delete an account
 
@@ -72,7 +107,7 @@ Output when the task executes successfully.
 
 | **Name** | **Key** | **Type** | **Description** |
 | --- | --- | --- | --- |
-| **Address** | `address` | `String` | The public address of the account deleted. |
+| **Address** | `address` | `String` | The public address of the account. |
 
 
 ## Export an account
@@ -108,7 +143,10 @@ Output when the task executes successfully.
 
 | **Name** | **Key** | **Type** | **Description** |
 | --- | --- | --- | --- |
-| **Account** | `account` | `Object` | The account in JSON format. |
+| **Address** | `address` | `String` | The public address of the account. |
+| **Crypto** | `crypto` | `Object` | The encrypted account. |
+| **ID** | `id` | `String` | The id of the account. |
+| **Version** | `version` | `Number` | The version used to export the account. |
 
 
 ## Import an account
@@ -121,7 +159,7 @@ Import an account. The account have to respect the Web3 Secret Storage specifica
 
 | **Name** | **Key** | **Type** | **Description** |
 | --- | --- | --- | --- |
-| **Account** | `account` | `Object` | The account in JSON format. |
+| **Account** | `account` | `Object` | The JSON encoded account. |
 | **Passphrase** | `passphrase` | `String` | Passphrase to use to unlock the account. |
 
 ### Outputs
@@ -175,41 +213,6 @@ Output when the task executes successfully.
 | **Name** | **Key** | **Type** | **Description** |
 | --- | --- | --- | --- |
 | **Addresses** | `addresses` | `String` | List of addresses. |
-
-
-## Create a new account
-
-Task key: `create`
-
-Create a new account with a passphrase. Make sure to backup the passphrase.
-
-### Inputs
-
-| **Name** | **Key** | **Type** | **Description** |
-| --- | --- | --- | --- |
-| **Passphrase** | `passphrase` | `String` | Passphrase to use to encrypt the account. |
-
-### Outputs
-
-#### Error
-
-Output key: `error`
-
-Output when an error occurs.
-
-| **Name** | **Key** | **Type** | **Description** |
-| --- | --- | --- | --- |
-| **Message** | `message` | `String` | The error message. |
-
-#### Success
-
-Output key: `success`
-
-Output when the task executes successfully.
-
-| **Name** | **Key** | **Type** | **Description** |
-| --- | --- | --- | --- |
-| **Address** | `address` | `String` | The public address of the account. |
 
 
 ## Sign transaction
