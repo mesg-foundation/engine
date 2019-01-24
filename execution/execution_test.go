@@ -5,10 +5,9 @@ import (
 	"testing"
 	"testing/quick"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/mesg-foundation/core/service"
-	"github.com/mesg-foundation/core/x/xstructhash"
+	"github.com/mesg-foundation/core/utils/structhash"
+	"github.com/stretchr/testify/require"
 )
 
 var (
@@ -269,7 +268,7 @@ func TestExecutionIDHash(t *testing.T) {
 			Inputs:  map[string]interface{}{inputs: "input"},
 		}
 
-		id := xstructhash.Hash(e, 1)
+		id := structhash.Sha1Str(e)
 		if ids[id] {
 			return false
 		}

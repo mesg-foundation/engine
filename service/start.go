@@ -6,9 +6,9 @@ import (
 
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
+	"github.com/mesg-foundation/core/utils/structhash"
 	"github.com/mesg-foundation/core/x/xnet"
 	"github.com/mesg-foundation/core/x/xos"
-	"github.com/mesg-foundation/core/x/xstructhash"
 )
 
 // Start starts the service.
@@ -132,9 +132,9 @@ func (d *Dependency) extractVolumesFrom() ([]container.Mount, error) {
 // volumeKey creates a key for service's volume based on the sid to make sure that the volume
 // will stay the same for different versions of the service.
 func volumeKey(s *Service, dependency string, volume string) string {
-	return xstructhash.Hash([]string{
+	return structhash.Sha1Str([]string{
 		s.Sid,
 		dependency,
 		volume,
-	}, 1)
+	})
 }

@@ -13,8 +13,8 @@ import (
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/service/importer"
+	"github.com/mesg-foundation/core/utils/structhash"
 	"github.com/mesg-foundation/core/x/xos"
-	"github.com/mesg-foundation/core/x/xstructhash"
 )
 
 // WARNING about hash tags on Service type and its inner types:
@@ -172,7 +172,7 @@ func DeployStatusOption(statuses chan DeployStatus) Option {
 // have effect on computation but extending or removing configurations or changing
 // values in mesg.yml will cause computeHash to generate a different value.
 func (s *Service) computeHash() string {
-	return xstructhash.Hash(s, 1)
+	return structhash.Sha1Str(s)
 }
 
 // saveContext downloads service context to a temp dir.

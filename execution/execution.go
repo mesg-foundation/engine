@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/mesg-foundation/core/service"
-	"github.com/mesg-foundation/core/x/xstructhash"
+	"github.com/mesg-foundation/core/utils/structhash"
 )
 
 // Status stores the state of an execution
@@ -70,7 +70,7 @@ func New(service *service.Service, eventID string, taskKey string, inputs map[st
 		CreatedAt: time.Now(),
 		Status:    Created,
 	}
-	exec.ID = xstructhash.Hash(exec, 1)
+	exec.ID = structhash.Sha1Str(exec)
 	return exec, nil
 }
 
