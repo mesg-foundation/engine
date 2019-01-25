@@ -26,8 +26,9 @@ func NewServiceClientSafe(cc *grpc.ClientConn) *ServiceClientSafe {
 type serviceListenTaskClientSafe struct {
 	Service_ListenTaskClient
 
-	client *ServiceClientSafe
-	c      chan *serviceListenTaskClientSafeResponse
+	client        *ServiceClientSafe
+	data          chan *serviceListenTaskClientSafeResponse
+	streamCreated chan struct{}
 
 	ctx  context.Context
 	in   *ListenTaskRequest
@@ -42,30 +43,29 @@ type serviceListenTaskClientSafeResponse struct {
 
 // newServiceListenTaskClientSafe creates core ListenTask client.
 func newServiceListenTaskClientSafe(client *ServiceClientSafe, ctx context.Context, in *ListenTaskRequest, opts ...grpc.CallOption) *serviceListenTaskClientSafe {
-	c := &serviceListenTaskClientSafe{
-		client: client,
-		c:      make(chan *serviceListenTaskClientSafeResponse),
-
+	s := &serviceListenTaskClientSafe{
+		client:        client,
+		data:          make(chan *serviceListenTaskClientSafeResponse),
+		streamCreated: make(chan struct{}, 1),
 		ctx:  ctx,
 		in:   in,
 		opts: opts,
 	}
-	waitStream := make(chan struct{}, 1)
-	go c.recvLoop(waitStream)
-	<-waitStream
-	return c
+	go s.recvLoop()
+	<-s.streamCreated
+	return s
 }
 
 // recvLoop recives ListenTask response in loop and reconnect in on error.
-func (s *serviceListenTaskClientSafe) recvLoop(waitStream chan struct{}) {
+func (s *serviceListenTaskClientSafe) recvLoop() {
 	var err error
 loop:
 	for {
 		// connect
 		s.Service_ListenTaskClient, err = s.client.ServiceClient.ListenTask(s.ctx, s.in, s.opts...)
-		waitStream <- struct{}{}
+		s.streamCreated <- struct{}{}
 		if err != nil {
-			s.c <- &serviceListenTaskClientSafeResponse{nil, err}
+			s.data <- &serviceListenTaskClientSafeResponse{nil, err}
 			continue
 		}
 
@@ -83,7 +83,7 @@ loop:
 
 		for {
 			td, err := s.Service_ListenTaskClient.Recv()
-			s.c <- &serviceListenTaskClientSafeResponse{td, err}
+			s.data <- &serviceListenTaskClientSafeResponse{td, err}
 			if err != nil {
 				done <- struct{}{}
 				// in case of EOF end loop
@@ -101,7 +101,7 @@ loop:
 
 // Recv recives data from streams.
 func (s *serviceListenTaskClientSafe) Recv() (*TaskData, error) {
-	v := <-s.c
+	v := <-s.data
 	return v.taskData, v.err
 }
 

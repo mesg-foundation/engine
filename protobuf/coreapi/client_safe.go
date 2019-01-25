@@ -26,8 +26,9 @@ func NewCoreClientSafe(cc *grpc.ClientConn) *CoreClientSafe {
 type coreListenEventClientSafe struct {
 	Core_ListenEventClient
 
-	client *CoreClientSafe
-	c      chan *coreListenEventClientSafeResponse
+	client        *CoreClientSafe
+	data          chan *coreListenEventClientSafeResponse
+	streamCreated chan struct{}
 
 	ctx  context.Context
 	in   *ListenEventRequest
@@ -43,29 +44,28 @@ type coreListenEventClientSafeResponse struct {
 // newCoreListenEventClientSafe creates core ListenEvent client.
 func newCoreListenEventClientSafe(client *CoreClientSafe, ctx context.Context, in *ListenEventRequest, opts ...grpc.CallOption) *coreListenEventClientSafe {
 	c := &coreListenEventClientSafe{
-		client: client,
-		c:      make(chan *coreListenEventClientSafeResponse),
-
-		ctx:  ctx,
-		in:   in,
-		opts: opts,
+		client:        client,
+		data:          make(chan *coreListenEventClientSafeResponse),
+		streamCreated: make(chan struct{}, 1),
+		ctx:           ctx,
+		in:            in,
+		opts:          opts,
 	}
-	waitStream := make(chan struct{}, 1)
-	go c.recvLoop(waitStream)
-	<-waitStream
+	go c.recvLoop()
+	<-c.streamCreated
 	return c
 }
 
 // recvLoop receives ListenEvent response in loop and reconnect in on error.
-func (s *coreListenEventClientSafe) recvLoop(waitStream chan struct{}) {
+func (s *coreListenEventClientSafe) recvLoop() {
 	var err error
 loop:
 	for {
 		// connect
 		s.Core_ListenEventClient, err = s.client.CoreClient.ListenEvent(s.ctx, s.in, s.opts...)
-		waitStream <- struct{}{}
+		s.streamCreated <- struct{}{}
 		if err != nil {
-			s.c <- &coreListenEventClientSafeResponse{nil, err}
+			s.data <- &coreListenEventClientSafeResponse{nil, err}
 			continue
 		}
 
@@ -83,7 +83,7 @@ loop:
 
 		for {
 			td, err := s.Core_ListenEventClient.Recv()
-			s.c <- &coreListenEventClientSafeResponse{td, err}
+			s.data <- &coreListenEventClientSafeResponse{td, err}
 			if err != nil {
 				done <- struct{}{}
 				// in case of EOF end loop
@@ -101,7 +101,7 @@ loop:
 
 // Recv receives data from streams.
 func (s *coreListenEventClientSafe) Recv() (*EventData, error) {
-	v := <-s.c
+	v := <-s.data
 	return v.eventData, v.err
 }
 
@@ -114,8 +114,9 @@ func (c *CoreClientSafe) ListenEvent(ctx context.Context, in *ListenEventRequest
 type coreListenResultClientSafe struct {
 	Core_ListenResultClient
 
-	client *CoreClientSafe
-	c      chan *coreListenResultClientSafeResponse
+	client        *CoreClientSafe
+	data          chan *coreListenResultClientSafeResponse
+	streamCreated chan struct{}
 
 	ctx  context.Context
 	in   *ListenResultRequest
@@ -131,29 +132,28 @@ type coreListenResultClientSafeResponse struct {
 // newCoreListenResultClientSafe creates core ListenResult client.
 func newCoreListenResultClientSafe(client *CoreClientSafe, ctx context.Context, in *ListenResultRequest, opts ...grpc.CallOption) *coreListenResultClientSafe {
 	c := &coreListenResultClientSafe{
-		client: client,
-		c:      make(chan *coreListenResultClientSafeResponse),
-
-		ctx:  ctx,
-		in:   in,
-		opts: opts,
+		client:        client,
+		data:          make(chan *coreListenResultClientSafeResponse),
+		streamCreated: make(chan struct{}, 1),
+		ctx:           ctx,
+		in:            in,
+		opts:          opts,
 	}
-	waitStream := make(chan struct{}, 1)
-	go c.recvLoop(waitStream)
-	<-waitStream
+	go c.recvLoop()
+	<-c.streamCreated
 	return c
 }
 
 // recvLoop receives ListenResult response in loop and reconnect in on error.
-func (s *coreListenResultClientSafe) recvLoop(waitStream chan struct{}) {
+func (s *coreListenResultClientSafe) recvLoop() {
 	var err error
 loop:
 	for {
 		// connect
 		s.Core_ListenResultClient, err = s.client.CoreClient.ListenResult(s.ctx, s.in, s.opts...)
-		waitStream <- struct{}{}
+		s.streamCreated <- struct{}{}
 		if err != nil {
-			s.c <- &coreListenResultClientSafeResponse{nil, err}
+			s.data <- &coreListenResultClientSafeResponse{nil, err}
 			continue
 		}
 
@@ -171,7 +171,7 @@ loop:
 
 		for {
 			td, err := s.Core_ListenResultClient.Recv()
-			s.c <- &coreListenResultClientSafeResponse{td, err}
+			s.data <- &coreListenResultClientSafeResponse{td, err}
 			if err != nil {
 				done <- struct{}{}
 				// in case of EOF end loop
@@ -189,7 +189,7 @@ loop:
 
 // Recv receives data from streams.
 func (s *coreListenResultClientSafe) Recv() (*ResultData, error) {
-	v := <-s.c
+	v := <-s.data
 	return v.resultData, v.err
 }
 
@@ -202,8 +202,9 @@ func (c *CoreClientSafe) ListenResult(ctx context.Context, in *ListenResultReque
 type coreServiceLogsClientSafe struct {
 	Core_ServiceLogsClient
 
-	client *CoreClientSafe
-	c      chan *coreServiceLogsClientSafeResponse
+	client        *CoreClientSafe
+	data          chan *coreServiceLogsClientSafeResponse
+	streamCreated chan struct{}
 
 	ctx  context.Context
 	in   *ServiceLogsRequest
@@ -219,29 +220,28 @@ type coreServiceLogsClientSafeResponse struct {
 // newCoreServiceLogsClientSafe creates core ServiceLogs client.
 func newCoreServiceLogsClientSafe(client *CoreClientSafe, ctx context.Context, in *ServiceLogsRequest, opts ...grpc.CallOption) *coreServiceLogsClientSafe {
 	c := &coreServiceLogsClientSafe{
-		client: client,
-		c:      make(chan *coreServiceLogsClientSafeResponse),
-
-		ctx:  ctx,
-		in:   in,
-		opts: opts,
+		client:        client,
+		data:          make(chan *coreServiceLogsClientSafeResponse),
+		streamCreated: make(chan struct{}, 1),
+		ctx:           ctx,
+		in:            in,
+		opts:          opts,
 	}
-	waitStream := make(chan struct{}, 1)
-	go c.recvLoop(waitStream)
-	<-waitStream
+	go c.recvLoop()
+	<-c.streamCreated
 	return c
 }
 
 // recvLoop receives ServiceLogs response in loop and reconnect in on error.
-func (s *coreServiceLogsClientSafe) recvLoop(waitStream chan struct{}) {
+func (s *coreServiceLogsClientSafe) recvLoop() {
 	var err error
 loop:
 	for {
 		// connect
 		s.Core_ServiceLogsClient, err = s.client.CoreClient.ServiceLogs(s.ctx, s.in, s.opts...)
-		waitStream <- struct{}{}
+		s.streamCreated <- struct{}{}
 		if err != nil {
-			s.c <- &coreServiceLogsClientSafeResponse{nil, err}
+			s.data <- &coreServiceLogsClientSafeResponse{nil, err}
 			continue
 		}
 
@@ -259,7 +259,7 @@ loop:
 
 		for {
 			td, err := s.Core_ServiceLogsClient.Recv()
-			s.c <- &coreServiceLogsClientSafeResponse{td, err}
+			s.data <- &coreServiceLogsClientSafeResponse{td, err}
 			if err != nil {
 				done <- struct{}{}
 				// in case of EOF end loop
@@ -277,7 +277,7 @@ loop:
 
 // Recv receives data from streams.
 func (s *coreServiceLogsClientSafe) Recv() (*LogData, error) {
-	v := <-s.c
+	v := <-s.data
 	return v.logData, v.err
 }
 
