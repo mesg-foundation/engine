@@ -25,15 +25,19 @@ func newServiceStopCmd(e ServiceExecutor) *serviceStopCmd {
 }
 
 func (c *serviceStopCmd) runE(cmd *cobra.Command, args []string) error {
-	for _, serviceID := range args {
+	for _, arg := range args {
 		var err error
-		pretty.Progress("Stopping service...", func() {
-			err = c.e.ServiceStop(serviceID)
-		})
+		// build function to avoid using arg inside progress
+		fn := func(serviceID string) func() {
+			return func() {
+				err = c.e.ServiceStop(serviceID)
+			}
+		}(arg)
+		pretty.Progress("Stopping service...", fn)
 		if err != nil {
 			return err
 		}
-		fmt.Printf("%s Service %q stopped\n", pretty.SuccessSign, serviceID)
+		fmt.Printf("%s Service %q stopped\n", pretty.SuccessSign, arg)
 	}
 	return nil
 }

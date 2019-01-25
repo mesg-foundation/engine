@@ -26,17 +26,21 @@ func newServiceStartCmd(e ServiceExecutor) *serviceStartCmd {
 }
 
 func (c *serviceStartCmd) runE(cmd *cobra.Command, args []string) error {
-	for _, serviceID := range args {
+	for _, arg := range args {
 		var err error
-		pretty.Progress("Starting service...", func() {
-			err = c.e.ServiceStart(serviceID)
-		})
+		// build function to avoid using arg inside progress
+		fn := func(serviceID string) func() {
+			return func() {
+				err = c.e.ServiceStart(serviceID)
+			}
+		}(arg)
+		pretty.Progress("Starting service...", fn)
 		if err != nil {
 			return err
 		}
-		fmt.Printf("%s Service %q started\n", pretty.SuccessSign, serviceID)
+		fmt.Printf("%s Service %q started\n", pretty.SuccessSign, arg)
 		if len(args) == 1 {
-			fmt.Printf("To see its logs, run the command:\n\tmesg-core service logs %s\n", serviceID)
+			fmt.Printf("To see its logs, run the command:\n\tmesg-core service logs %s\n", arg)
 		}
 	}
 	return nil
