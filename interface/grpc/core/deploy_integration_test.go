@@ -19,7 +19,7 @@ func TestIntegrationDeployService(t *testing.T) {
 	require.Nil(t, server.DeployService(stream))
 	defer server.api.DeleteService(stream.serviceID, false)
 
-	require.Len(t, stream.serviceID, 40)
+	require.Len(t, stream.serviceID, 7)
 	require.Contains(t, stream.statuses, api.DeployStatus{
 		Message: "Image built with success",
 		Type:    api.DonePositive,
