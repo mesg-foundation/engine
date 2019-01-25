@@ -35,7 +35,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	p := provider.New(coreapi.NewCoreClientSafe(connection, coreapi.OnError), daemon.NewContainerDaemon(cfg, c))
+	p := provider.New(coreapi.NewCoreClientSafe(connection), daemon.NewContainerDaemon(cfg, c))
 	cmd := commands.Build(p)
 	cmd.Version = version.Version
 	cmd.Short = cmd.Short + " " + version.Version

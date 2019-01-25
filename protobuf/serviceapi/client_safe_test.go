@@ -35,7 +35,7 @@ func newServiceClinetSafe(t *testing.T) *ServiceClientSafe {
 		t.Fatal(err)
 	}
 
-	return NewServiceClientSafe(conn, OnError)
+	return NewServiceClientSafe(conn)
 }
 
 func TestListenTaskReconnect(t *testing.T) {

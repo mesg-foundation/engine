@@ -9,27 +9,16 @@ import (
 	"google.golang.org/grpc"
 )
 
-// ReconnectStrategy for grpc stream.
-type ReconnectStrategy int
-
-// Possible Reconnect Strategy for grpc stream.
-const (
-	Never ReconnectStrategy = iota
-	OnError
-)
-
 const reconnectDelay = 3 * time.Second
 
 // CoreClientSafe provides CoreClient with stream reconnection.
 type CoreClientSafe struct {
-	reconnect ReconnectStrategy
 	CoreClient
 }
 
 // NewCoreClient creates core client with reconnection.
-func NewCoreClientSafe(cc *grpc.ClientConn, rc ReconnectStrategy) *CoreClientSafe {
+func NewCoreClientSafe(cc *grpc.ClientConn) *CoreClientSafe {
 	return &CoreClientSafe{
-		reconnect:  rc,
 		CoreClient: NewCoreClient(cc),
 	}
 }
@@ -156,9 +145,6 @@ func (s *core_ListenEventClient) Recv() (*EventData, error) {
 
 // ListenEvent subscribe to a stream that listens for events from a service.
 func (c *CoreClientSafe) ListenEvent(ctx context.Context, in *ListenEventRequest, opts ...grpc.CallOption) (Core_ListenEventClient, error) {
-	if c.reconnect == Never {
-		return c.listenEvent(ctx, in, opts...)
-	}
 	return newCore_ListenEventClient(c, ctx, in, opts...), nil
 }
 
@@ -243,9 +229,6 @@ func (s *core_ListenResultClient) Recv() (*ResultData, error) {
 }
 
 func (c *CoreClientSafe) ListenResult(ctx context.Context, in *ListenResultRequest, opts ...grpc.CallOption) (Core_ListenResultClient, error) {
-	if c.reconnect == Never {
-		return c.listenResult(ctx, in, opts...)
-	}
 	return newCore_ListenResultClient(c, ctx, in, opts...), nil
 }
 
@@ -334,8 +317,5 @@ func (s *core_ServiceLogsClient) Recv() (*LogData, error) {
 }
 
 func (c *CoreClientSafe) ServiceLogs(ctx context.Context, in *ServiceLogsRequest, opts ...grpc.CallOption) (Core_ServiceLogsClient, error) {
-	if c.reconnect == Never {
-		return c.serviceLogs(ctx, in, opts...)
-	}
 	return newCore_ServiceLogsClient(c, ctx, in, opts...), nil
 }

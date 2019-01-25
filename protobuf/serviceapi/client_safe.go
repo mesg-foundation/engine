@@ -9,27 +9,16 @@ import (
 	"google.golang.org/grpc"
 )
 
-// ReconnectStrategy for grpc stream.
-type ReconnectStrategy int
-
-// Possible Reconnect Strategy for grpc stream.
-const (
-	Never ReconnectStrategy = iota
-	OnError
-)
-
 const reconnectDelay = 3 * time.Second
 
 // ServiceClientSafe provides ServiceClient with stream reconnection.
 type ServiceClientSafe struct {
-	reconnect ReconnectStrategy
 	ServiceClient
 }
 
 // NewServiceClient creates core client with reconnection.
-func NewServiceClientSafe(cc *grpc.ClientConn, rc ReconnectStrategy) *ServiceClientSafe {
+func NewServiceClientSafe(cc *grpc.ClientConn) *ServiceClientSafe {
 	return &ServiceClientSafe{
-		reconnect:     rc,
 		ServiceClient: NewServiceClient(cc),
 	}
 }
@@ -127,8 +116,5 @@ func (s *core_ListenTaskClient) Recv() (*TaskData, error) {
 }
 
 func (c *ServiceClientSafe) ListenTask(ctx context.Context, in *ListenTaskRequest, opts ...grpc.CallOption) (Service_ListenTaskClient, error) {
-	if c.reconnect == Never {
-		return c.listenTask(ctx, in, opts...)
-	}
 	return newService_ListenTaskClient(c, ctx, in, opts...), nil
 }
