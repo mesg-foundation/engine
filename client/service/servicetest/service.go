@@ -6,6 +6,7 @@ import (
 	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 )
 
 // serviceServer implements MESG's service server.
@@ -92,6 +93,10 @@ func (s taskDataStream) Send(data *serviceapi.TaskData) error {
 
 func (s taskDataStream) Context() context.Context {
 	return s.ctx
+}
+
+func (s taskDataStream) SendHeader(md metadata.MD) error {
+	return nil
 }
 
 func (s taskDataStream) close() {

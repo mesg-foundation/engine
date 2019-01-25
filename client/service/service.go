@@ -16,6 +16,7 @@ import (
 
 	"context"
 
+	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
 	"google.golang.org/grpc"
 )
