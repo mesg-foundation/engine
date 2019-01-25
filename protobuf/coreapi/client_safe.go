@@ -102,7 +102,7 @@ func newCore_ListenEventClient(client *CoreClientSafe, ctx context.Context, in *
 	return c
 }
 
-// recvLoop recives ListenEvent response in loop and reconnect in on error.
+// recvLoop receives ListenEvent response in loop and reconnect in on error.
 func (s *core_ListenEventClient) recvLoop() {
 	var err error
 loop:
@@ -148,7 +148,7 @@ loop:
 	}
 }
 
-// Recv recives data from streams.
+// Recv receives data from streams.
 func (s *core_ListenEventClient) Recv() (*EventData, error) {
 	v := <-s.c
 	return v.eventData, v.err
@@ -194,7 +194,7 @@ func newCore_ListenResultClient(client *CoreClientSafe, ctx context.Context, in 
 	return c
 }
 
-// recvLoop recives ListenResult response in loop and reconnect in on error.
+// recvLoop receives ListenResult response in loop and reconnect in on error.
 func (s *core_ListenResultClient) recvLoop() {
 	var err error
 loop:
@@ -236,7 +236,7 @@ loop:
 	}
 }
 
-// Recv recives data from streams.
+// Recv receives data from streams.
 func (s *core_ListenResultClient) Recv() (*ResultData, error) {
 	v := <-s.c
 	return v.resultData, v.err
@@ -281,7 +281,7 @@ func newCore_ServiceLogsClient(client *CoreClientSafe, ctx context.Context, in *
 	return c
 }
 
-// recvLoop recives ServiceLogs response in loop and reconnect in on error.
+// recvLoop receives ServiceLogs response in loop and reconnect in on error.
 func (s *core_ServiceLogsClient) recvLoop() {
 	var err error
 loop:
@@ -327,7 +327,7 @@ loop:
 	}
 }
 
-// Recv recives data from streams.
+// Recv receives data from streams.
 func (s *core_ServiceLogsClient) Recv() (*LogData, error) {
 	v := <-s.c
 	return v.logData, v.err

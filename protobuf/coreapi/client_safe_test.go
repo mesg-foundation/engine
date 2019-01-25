@@ -29,7 +29,7 @@ func newCoreServer(t *testing.T, m *MockCoreServer) *grpc.Server {
 	return s
 }
 
-func newCoreClinetSafe(t *testing.T) *CoreClientSafe {
+func newCoreClientSafe(t *testing.T) *CoreClientSafe {
 	conn, err := grpc.Dial(address, grpc.WithInsecure())
 	if err != nil {
 		t.Fatal(err)
@@ -51,7 +51,7 @@ func TestListenEventReconnect(t *testing.T) {
 
 	s := newCoreServer(t, m)
 	defer s.Stop()
-	c := newCoreClinetSafe(t)
+	c := newCoreClientSafe(t)
 
 	stream, err := c.ListenEvent(context.Background(), &ListenEventRequest{})
 	if err != nil {
@@ -78,7 +78,7 @@ func TestListenResultReconnect(t *testing.T) {
 
 	s := newCoreServer(t, m)
 	defer s.Stop()
-	c := newCoreClinetSafe(t)
+	c := newCoreClientSafe(t)
 
 	stream, err := c.ListenResult(context.Background(), &ListenResultRequest{})
 	if err != nil {
@@ -105,7 +105,7 @@ func TestServiceLogsReconnect(t *testing.T) {
 
 	s := newCoreServer(t, m)
 	defer s.Stop()
-	c := newCoreClinetSafe(t)
+	c := newCoreClientSafe(t)
 
 	stream, err := c.ServiceLogs(context.Background(), &ServiceLogsRequest{})
 	if err != nil {
