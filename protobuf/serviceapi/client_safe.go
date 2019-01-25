@@ -5,7 +5,6 @@ import (
 	"io"
 	"time"
 
-	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"google.golang.org/grpc"
 )
 
@@ -21,18 +20,6 @@ func NewServiceClientSafe(cc *grpc.ClientConn) *ServiceClientSafe {
 	return &ServiceClientSafe{
 		ServiceClient: NewServiceClient(cc),
 	}
-}
-
-// listenTask returns listen task client.
-func (s *ServiceClientSafe) listenTask(ctx context.Context, in *ListenTaskRequest, opts ...grpc.CallOption) (Service_ListenTaskClient, error) {
-	client, err := s.ServiceClient.ListenTask(ctx, in, opts...)
-	if err != nil {
-		return nil, err
-	}
-	if err := acknowledgement.WaitForStreamToBeReady(client); err != nil {
-		return nil, err
-	}
-	return client, err
 }
 
 // core_ListenTaskClient is a client with reconnection.
@@ -73,7 +60,7 @@ func (s *core_ListenTaskClient) recvLoop() {
 loop:
 	for {
 		// connect
-		s.Service_ListenTaskClient, err = s.client.listenTask(s.ctx, s.in, s.opts...)
+		s.Service_ListenTaskClient, err = s.client.ServiceClient.ListenTask(s.ctx, s.in, s.opts...)
 		if err != nil {
 			s.c <- &core_ListenTaskClientResponse{nil, err}
 			continue

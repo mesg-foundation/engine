@@ -5,7 +5,6 @@ import (
 	"io"
 	"time"
 
-	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"google.golang.org/grpc"
 )
 
@@ -21,42 +20,6 @@ func NewCoreClientSafe(cc *grpc.ClientConn) *CoreClientSafe {
 	return &CoreClientSafe{
 		CoreClient: NewCoreClient(cc),
 	}
-}
-
-// listenEvent returns listen event client.
-func (s *CoreClientSafe) listenEvent(ctx context.Context, in *ListenEventRequest, opts ...grpc.CallOption) (Core_ListenEventClient, error) {
-	client, err := s.CoreClient.ListenEvent(ctx, in, opts...)
-	if err != nil {
-		return nil, err
-	}
-	if err := acknowledgement.WaitForStreamToBeReady(client); err != nil {
-		return nil, err
-	}
-	return client, err
-}
-
-// listenResult returns listen result client.
-func (s *CoreClientSafe) listenResult(ctx context.Context, in *ListenResultRequest, opts ...grpc.CallOption) (Core_ListenResultClient, error) {
-	client, err := s.CoreClient.ListenResult(ctx, in, opts...)
-	if err != nil {
-		return nil, err
-	}
-	if err := acknowledgement.WaitForStreamToBeReady(client); err != nil {
-		return nil, err
-	}
-	return client, err
-}
-
-// serviceLogs returns service logs client.
-func (s *CoreClientSafe) serviceLogs(ctx context.Context, in *ServiceLogsRequest, opts ...grpc.CallOption) (Core_ServiceLogsClient, error) {
-	client, err := s.CoreClient.ServiceLogs(ctx, in, opts...)
-	if err != nil {
-		return nil, err
-	}
-	if err := acknowledgement.WaitForStreamToBeReady(client); err != nil {
-		return nil, err
-	}
-	return client, err
 }
 
 // core_ListenEventClient is a client with reconnection.
@@ -97,12 +60,8 @@ func (s *core_ListenEventClient) recvLoop() {
 loop:
 	for {
 		// connect
-		s.Core_ListenEventClient, err = s.client.listenEvent(s.ctx, s.in, s.opts...)
+		s.Core_ListenEventClient, err = s.client.CoreClient.ListenEvent(s.ctx, s.in, s.opts...)
 		if err != nil {
-			s.c <- &core_ListenEventClientResponse{nil, err}
-			continue
-		}
-		if err := acknowledgement.WaitForStreamToBeReady(s.Core_ListenEventClient); err != nil {
 			s.c <- &core_ListenEventClientResponse{nil, err}
 			continue
 		}
@@ -186,7 +145,7 @@ func (s *core_ListenResultClient) recvLoop() {
 loop:
 	for {
 		// connect
-		s.Core_ListenResultClient, err = s.client.listenResult(s.ctx, s.in, s.opts...)
+		s.Core_ListenResultClient, err = s.client.CoreClient.ListenResult(s.ctx, s.in, s.opts...)
 		if err != nil {
 			s.c <- &core_ListenResultClientResponse{nil, err}
 			continue
@@ -270,12 +229,8 @@ func (s *core_ServiceLogsClient) recvLoop() {
 loop:
 	for {
 		// connect
-		s.Core_ServiceLogsClient, err = s.client.serviceLogs(s.ctx, s.in, s.opts...)
+		s.Core_ServiceLogsClient, err = s.client.CoreClient.ServiceLogs(s.ctx, s.in, s.opts...)
 		if err != nil {
-			s.c <- &core_ServiceLogsClientResponse{nil, err}
-			continue
-		}
-		if err := acknowledgement.WaitForStreamToBeReady(s.Core_ServiceLogsClient); err != nil {
 			s.c <- &core_ServiceLogsClientResponse{nil, err}
 			continue
 		}
