@@ -7,7 +7,7 @@ configuration:
     - BLOCK_CONFIRMATIONS=0
     - DEFAULT_GAS_LIMIT=1000000
     - POLLING_TIME=1000
-    - MARKETPLACE_ADDRESS=0x476F4b0aCAD32BA21513f54d1ad0f06e24C5F079
+    - MARKETPLACE_ADDRESS=0x990d20670Da774865d1848CE21cd8E993790E72F
 tasks:
   listServices:
     name: ""
@@ -46,10 +46,10 @@ tasks:
                     name: ""
                     description: ""
                     type: String
-                  url:
+                  metadata:
                     name: ""
                     description: ""
-                    type: String
+                    type: Object
       error: &errorOutput
         name: "Error"
         description: "Output when an error occurs"
