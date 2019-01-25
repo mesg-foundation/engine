@@ -178,6 +178,9 @@ func (s *Service) listenTasks() error {
 	if err != nil {
 		return err
 	}
+	if err := acknowledgement.WaitForStreamToBeReady(stream); err != nil {
+		return err
+	}
 	for {
 		s.gracefulWait.Add(1)
 		data, err := stream.Recv()

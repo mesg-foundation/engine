@@ -10,6 +10,7 @@ import (
 	"text/template"
 
 	"github.com/mesg-foundation/core/commands/provider/assets"
+	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/service/importer"
 	"github.com/mesg-foundation/core/utils/chunker"
@@ -104,6 +105,10 @@ func (p *ServiceProvider) ServiceListenEvents(id, eventFilter string) (chan *cor
 		}
 	}()
 
+	if err := acknowledgement.WaitForStreamToBeReady(stream); err != nil {
+		return nil, nil, err
+	}
+
 	return resultC, errC, nil
 }
 
@@ -131,6 +136,10 @@ func (p *ServiceProvider) ServiceListenResults(id, taskFilter, outputFilter stri
 			}
 		}
 	}()
+
+	if err := acknowledgement.WaitForStreamToBeReady(stream); err != nil {
+		return nil, nil, err
+	}
 
 	return resultC, errC, nil
 }
@@ -189,6 +198,10 @@ func (p *ServiceProvider) ServiceLogs(id string, dependencies ...string) (logs [
 		<-errC
 		closer()
 	}()
+
+	if err := acknowledgement.WaitForStreamToBeReady(stream); err != nil {
+		return nil, nil, err
+	}
 
 	return logs, closer, nil
 }

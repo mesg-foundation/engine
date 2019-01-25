@@ -3,6 +3,7 @@ package servicetest
 import (
 	"context"
 
+	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
 	"google.golang.org/grpc"
 )
@@ -39,6 +40,10 @@ func (s *serviceServer) EmitEvent(context context.Context,
 func (s *serviceServer) ListenTask(request *serviceapi.ListenTaskRequest,
 	stream serviceapi.Service_ListenTaskServer) (err error) {
 	s.token = request.Token
+
+	if err := acknowledgement.SetStreamReady(stream); err != nil {
+		return err
+	}
 
 	for {
 		select {
