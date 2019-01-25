@@ -142,7 +142,7 @@ func (s *Service) setupServiceClient() error {
 	if err != nil {
 		return err
 	}
-	s.client = serviceapi.NewServiceClient(s.conn)
+	s.client = serviceapi.NewServiceClientSafe(s.conn, serviceapi.OnError)
 	return nil
 }
 
