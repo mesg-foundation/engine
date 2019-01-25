@@ -15,36 +15,36 @@ type ServiceClientSafe struct {
 	ServiceClient
 }
 
-// NewServiceClient creates core client with reconnection.
+// NewServiceClientSafe creates core client with reconnection.
 func NewServiceClientSafe(cc *grpc.ClientConn) *ServiceClientSafe {
 	return &ServiceClientSafe{
 		ServiceClient: NewServiceClient(cc),
 	}
 }
 
-// core_ListenTaskClient is a client with reconnection.
-type core_ListenTaskClient struct {
+// serviceListenTaskClientSafe is a client with reconnection.
+type serviceListenTaskClientSafe struct {
 	Service_ListenTaskClient
 
 	client *ServiceClientSafe
-	c      chan *core_ListenTaskClientResponse
+	c      chan *serviceListenTaskClientSafeResponse
 
 	ctx  context.Context
 	in   *ListenTaskRequest
 	opts []grpc.CallOption
 }
 
-// core_ListenTaskClientResponse wraps ListenTask recv response.
-type core_ListenTaskClientResponse struct {
+// serviceListenTaskClientSafeResponse wraps ListenTask recv response.
+type serviceListenTaskClientSafeResponse struct {
 	taskData *TaskData
 	err      error
 }
 
-// newService_ListenTaskClient creates core ListenTask client.
-func newService_ListenTaskClient(client *ServiceClientSafe, ctx context.Context, in *ListenTaskRequest, opts ...grpc.CallOption) *core_ListenTaskClient {
-	c := &core_ListenTaskClient{
+// newServiceListenTaskClientSafe creates core ListenTask client.
+func newServiceListenTaskClientSafe(client *ServiceClientSafe, ctx context.Context, in *ListenTaskRequest, opts ...grpc.CallOption) *serviceListenTaskClientSafe {
+	c := &serviceListenTaskClientSafe{
 		client: client,
-		c:      make(chan *core_ListenTaskClientResponse),
+		c:      make(chan *serviceListenTaskClientSafeResponse),
 
 		ctx:  ctx,
 		in:   in,
@@ -57,7 +57,7 @@ func newService_ListenTaskClient(client *ServiceClientSafe, ctx context.Context,
 }
 
 // recvLoop recives ListenTask response in loop and reconnect in on error.
-func (s *core_ListenTaskClient) recvLoop(waitStream chan struct{}) {
+func (s *serviceListenTaskClientSafe) recvLoop(waitStream chan struct{}) {
 	var err error
 loop:
 	for {
@@ -65,7 +65,7 @@ loop:
 		s.Service_ListenTaskClient, err = s.client.ServiceClient.ListenTask(s.ctx, s.in, s.opts...)
 		waitStream <- struct{}{}
 		if err != nil {
-			s.c <- &core_ListenTaskClientResponse{nil, err}
+			s.c <- &serviceListenTaskClientSafeResponse{nil, err}
 			continue
 		}
 
@@ -83,7 +83,7 @@ loop:
 
 		for {
 			td, err := s.Service_ListenTaskClient.Recv()
-			s.c <- &core_ListenTaskClientResponse{td, err}
+			s.c <- &serviceListenTaskClientSafeResponse{td, err}
 			if err != nil {
 				done <- struct{}{}
 				// in case of EOF end loop
@@ -100,11 +100,12 @@ loop:
 }
 
 // Recv recives data from streams.
-func (s *core_ListenTaskClient) Recv() (*TaskData, error) {
+func (s *serviceListenTaskClientSafe) Recv() (*TaskData, error) {
 	v := <-s.c
 	return v.taskData, v.err
 }
 
+// ListenTask subscribes to a stream that listens for task to execute.
 func (c *ServiceClientSafe) ListenTask(ctx context.Context, in *ListenTaskRequest, opts ...grpc.CallOption) (Service_ListenTaskClient, error) {
-	return newService_ListenTaskClient(c, ctx, in, opts...), nil
+	return newServiceListenTaskClientSafe(c, ctx, in, opts...), nil
 }
