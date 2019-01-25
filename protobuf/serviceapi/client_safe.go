@@ -50,17 +50,20 @@ func newService_ListenTaskClient(client *ServiceClientSafe, ctx context.Context,
 		in:   in,
 		opts: opts,
 	}
-	go c.recvLoop()
+	waitStream := make(chan struct{}, 1)
+	go c.recvLoop(waitStream)
+	<-waitStream
 	return c
 }
 
 // recvLoop recives ListenTask response in loop and reconnect in on error.
-func (s *core_ListenTaskClient) recvLoop() {
+func (s *core_ListenTaskClient) recvLoop(waitStream chan struct{}) {
 	var err error
 loop:
 	for {
 		// connect
 		s.Service_ListenTaskClient, err = s.client.ServiceClient.ListenTask(s.ctx, s.in, s.opts...)
+		waitStream <- struct{}{}
 		if err != nil {
 			s.c <- &core_ListenTaskClientResponse{nil, err}
 			continue

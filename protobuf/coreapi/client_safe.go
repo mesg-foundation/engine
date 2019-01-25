@@ -50,17 +50,20 @@ func newCore_ListenEventClient(client *CoreClientSafe, ctx context.Context, in *
 		in:   in,
 		opts: opts,
 	}
-	go c.recvLoop()
+	waitStream := make(chan struct{}, 1)
+	go c.recvLoop(waitStream)
+	<-waitStream
 	return c
 }
 
 // recvLoop receives ListenEvent response in loop and reconnect in on error.
-func (s *core_ListenEventClient) recvLoop() {
+func (s *core_ListenEventClient) recvLoop(waitStream chan struct{}) {
 	var err error
 loop:
 	for {
 		// connect
 		s.Core_ListenEventClient, err = s.client.CoreClient.ListenEvent(s.ctx, s.in, s.opts...)
+		waitStream <- struct{}{}
 		if err != nil {
 			s.c <- &core_ListenEventClientResponse{nil, err}
 			continue
@@ -135,17 +138,20 @@ func newCore_ListenResultClient(client *CoreClientSafe, ctx context.Context, in 
 		in:   in,
 		opts: opts,
 	}
-	go c.recvLoop()
+	waitStream := make(chan struct{}, 1)
+	go c.recvLoop(waitStream)
+	<-waitStream
 	return c
 }
 
 // recvLoop receives ListenResult response in loop and reconnect in on error.
-func (s *core_ListenResultClient) recvLoop() {
+func (s *core_ListenResultClient) recvLoop(waitStream chan struct{}) {
 	var err error
 loop:
 	for {
 		// connect
 		s.Core_ListenResultClient, err = s.client.CoreClient.ListenResult(s.ctx, s.in, s.opts...)
+		waitStream <- struct{}{}
 		if err != nil {
 			s.c <- &core_ListenResultClientResponse{nil, err}
 			continue
@@ -219,17 +225,20 @@ func newCore_ServiceLogsClient(client *CoreClientSafe, ctx context.Context, in *
 		in:   in,
 		opts: opts,
 	}
-	go c.recvLoop()
+	waitStream := make(chan struct{}, 1)
+	go c.recvLoop(waitStream)
+	<-waitStream
 	return c
 }
 
 // recvLoop receives ServiceLogs response in loop and reconnect in on error.
-func (s *core_ServiceLogsClient) recvLoop() {
+func (s *core_ServiceLogsClient) recvLoop(waitStream chan struct{}) {
 	var err error
 loop:
 	for {
 		// connect
 		s.Core_ServiceLogsClient, err = s.client.CoreClient.ServiceLogs(s.ctx, s.in, s.opts...)
+		waitStream <- struct{}{}
 		if err != nil {
 			s.c <- &core_ServiceLogsClientResponse{nil, err}
 			continue
