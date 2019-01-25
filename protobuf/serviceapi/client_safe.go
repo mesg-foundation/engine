@@ -5,88 +5,67 @@ import (
 	"io"
 	"time"
 
-	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"google.golang.org/grpc"
-)
-
-// ReconnectStrategy for grpc stream.
-type ReconnectStrategy int
-
-// Possible Reconnect Strategy for grpc stream.
-const (
-	Never ReconnectStrategy = iota
-	OnError
 )
 
 const reconnectDelay = 3 * time.Second
 
 // ServiceClientSafe provides ServiceClient with stream reconnection.
 type ServiceClientSafe struct {
-	reconnect ReconnectStrategy
 	ServiceClient
 }
 
-// NewServiceClient creates core client with reconnection.
-func NewServiceClientSafe(cc *grpc.ClientConn, rc ReconnectStrategy) *ServiceClientSafe {
+// NewServiceClientSafe creates core client with reconnection.
+func NewServiceClientSafe(cc *grpc.ClientConn) *ServiceClientSafe {
 	return &ServiceClientSafe{
-		reconnect:     rc,
 		ServiceClient: NewServiceClient(cc),
 	}
 }
 
-// listenTask returns listen task client.
-func (s *ServiceClientSafe) listenTask(ctx context.Context, in *ListenTaskRequest, opts ...grpc.CallOption) (Service_ListenTaskClient, error) {
-	client, err := s.ServiceClient.ListenTask(ctx, in, opts...)
-	if err != nil {
-		return nil, err
-	}
-	if err := acknowledgement.WaitForStreamToBeReady(client); err != nil {
-		return nil, err
-	}
-	return client, err
-}
-
-// core_ListenTaskClient is a client with reconnection.
-type core_ListenTaskClient struct {
+// serviceListenTaskClientSafe is a client with reconnection.
+type serviceListenTaskClientSafe struct {
 	Service_ListenTaskClient
 
-	client *ServiceClientSafe
-	c      chan *core_ListenTaskClientResponse
+	client        *ServiceClientSafe
+	data          chan *serviceListenTaskClientSafeResponse
+	streamCreated chan struct{}
 
 	ctx  context.Context
 	in   *ListenTaskRequest
 	opts []grpc.CallOption
 }
 
-// core_ListenTaskClientResponse wraps ListenTask recv response.
-type core_ListenTaskClientResponse struct {
+// serviceListenTaskClientSafeResponse wraps ListenTask recv response.
+type serviceListenTaskClientSafeResponse struct {
 	taskData *TaskData
 	err      error
 }
 
-// newService_ListenTaskClient creates core ListenTask client.
-func newService_ListenTaskClient(client *ServiceClientSafe, ctx context.Context, in *ListenTaskRequest, opts ...grpc.CallOption) *core_ListenTaskClient {
-	c := &core_ListenTaskClient{
-		client: client,
-		c:      make(chan *core_ListenTaskClientResponse),
-
+// newServiceListenTaskClientSafe creates core ListenTask client.
+func newServiceListenTaskClientSafe(client *ServiceClientSafe, ctx context.Context, in *ListenTaskRequest, opts ...grpc.CallOption) *serviceListenTaskClientSafe {
+	s := &serviceListenTaskClientSafe{
+		client:        client,
+		data:          make(chan *serviceListenTaskClientSafeResponse),
+		streamCreated: make(chan struct{}, 1),
 		ctx:  ctx,
 		in:   in,
 		opts: opts,
 	}
-	go c.recvLoop()
-	return c
+	go s.recvLoop()
+	<-s.streamCreated
+	return s
 }
 
 // recvLoop recives ListenTask response in loop and reconnect in on error.
-func (s *core_ListenTaskClient) recvLoop() {
+func (s *serviceListenTaskClientSafe) recvLoop() {
 	var err error
 loop:
 	for {
 		// connect
-		s.Service_ListenTaskClient, err = s.client.listenTask(s.ctx, s.in, s.opts...)
+		s.Service_ListenTaskClient, err = s.client.ServiceClient.ListenTask(s.ctx, s.in, s.opts...)
+		s.streamCreated <- struct{}{}
 		if err != nil {
-			s.c <- &core_ListenTaskClientResponse{nil, err}
+			s.data <- &serviceListenTaskClientSafeResponse{nil, err}
 			continue
 		}
 
@@ -104,7 +83,7 @@ loop:
 
 		for {
 			td, err := s.Service_ListenTaskClient.Recv()
-			s.c <- &core_ListenTaskClientResponse{td, err}
+			s.data <- &serviceListenTaskClientSafeResponse{td, err}
 			if err != nil {
 				done <- struct{}{}
 				// in case of EOF end loop
@@ -121,14 +100,12 @@ loop:
 }
 
 // Recv recives data from streams.
-func (s *core_ListenTaskClient) Recv() (*TaskData, error) {
-	v := <-s.c
+func (s *serviceListenTaskClientSafe) Recv() (*TaskData, error) {
+	v := <-s.data
 	return v.taskData, v.err
 }
 
+// ListenTask subscribes to a stream that listens for task to execute.
 func (c *ServiceClientSafe) ListenTask(ctx context.Context, in *ListenTaskRequest, opts ...grpc.CallOption) (Service_ListenTaskClient, error) {
-	if c.reconnect == Never {
-		return c.listenTask(ctx, in, opts...)
-	}
-	return newService_ListenTaskClient(c, ctx, in, opts...), nil
+	return newServiceListenTaskClientSafe(c, ctx, in, opts...), nil
 }

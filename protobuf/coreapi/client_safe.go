@@ -5,116 +5,67 @@ import (
 	"io"
 	"time"
 
-	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"google.golang.org/grpc"
-)
-
-// ReconnectStrategy for grpc stream.
-type ReconnectStrategy int
-
-// Possible Reconnect Strategy for grpc stream.
-const (
-	Never ReconnectStrategy = iota
-	OnError
 )
 
 const reconnectDelay = 3 * time.Second
 
 // CoreClientSafe provides CoreClient with stream reconnection.
 type CoreClientSafe struct {
-	reconnect ReconnectStrategy
 	CoreClient
 }
 
-// NewCoreClient creates core client with reconnection.
-func NewCoreClientSafe(cc *grpc.ClientConn, rc ReconnectStrategy) *CoreClientSafe {
+// NewCoreClientSafe creates core client with reconnection.
+func NewCoreClientSafe(cc *grpc.ClientConn) *CoreClientSafe {
 	return &CoreClientSafe{
-		reconnect:  rc,
 		CoreClient: NewCoreClient(cc),
 	}
 }
 
-// listenEvent returns listen event client.
-func (s *CoreClientSafe) listenEvent(ctx context.Context, in *ListenEventRequest, opts ...grpc.CallOption) (Core_ListenEventClient, error) {
-	client, err := s.CoreClient.ListenEvent(ctx, in, opts...)
-	if err != nil {
-		return nil, err
-	}
-	if err := acknowledgement.WaitForStreamToBeReady(client); err != nil {
-		return nil, err
-	}
-	return client, err
-}
-
-// listenResult returns listen result client.
-func (s *CoreClientSafe) listenResult(ctx context.Context, in *ListenResultRequest, opts ...grpc.CallOption) (Core_ListenResultClient, error) {
-	client, err := s.CoreClient.ListenResult(ctx, in, opts...)
-	if err != nil {
-		return nil, err
-	}
-	if err := acknowledgement.WaitForStreamToBeReady(client); err != nil {
-		return nil, err
-	}
-	return client, err
-}
-
-// serviceLogs returns service logs client.
-func (s *CoreClientSafe) serviceLogs(ctx context.Context, in *ServiceLogsRequest, opts ...grpc.CallOption) (Core_ServiceLogsClient, error) {
-	client, err := s.CoreClient.ServiceLogs(ctx, in, opts...)
-	if err != nil {
-		return nil, err
-	}
-	if err := acknowledgement.WaitForStreamToBeReady(client); err != nil {
-		return nil, err
-	}
-	return client, err
-}
-
-// core_ListenEventClient is a client with reconnection.
-type core_ListenEventClient struct {
+// coreListenEventClientSafe is a client with reconnection.
+type coreListenEventClientSafe struct {
 	Core_ListenEventClient
 
-	client *CoreClientSafe
-	c      chan *core_ListenEventClientResponse
+	client        *CoreClientSafe
+	data          chan *coreListenEventClientSafeResponse
+	streamCreated chan struct{}
 
 	ctx  context.Context
 	in   *ListenEventRequest
 	opts []grpc.CallOption
 }
 
-// core_ListenEventClientResponse wraps ListenEvent recv response.
-type core_ListenEventClientResponse struct {
+// coreListenEventClientSafeResponse wraps ListenEvent recv response.
+type coreListenEventClientSafeResponse struct {
 	eventData *EventData
 	err       error
 }
 
-// newCore_ListenEventClient creates core ListenEvent client.
-func newCore_ListenEventClient(client *CoreClientSafe, ctx context.Context, in *ListenEventRequest, opts ...grpc.CallOption) *core_ListenEventClient {
-	c := &core_ListenEventClient{
-		client: client,
-		c:      make(chan *core_ListenEventClientResponse),
-
-		ctx:  ctx,
-		in:   in,
-		opts: opts,
+// newCoreListenEventClientSafe creates core ListenEvent client.
+func newCoreListenEventClientSafe(client *CoreClientSafe, ctx context.Context, in *ListenEventRequest, opts ...grpc.CallOption) *coreListenEventClientSafe {
+	c := &coreListenEventClientSafe{
+		client:        client,
+		data:          make(chan *coreListenEventClientSafeResponse),
+		streamCreated: make(chan struct{}, 1),
+		ctx:           ctx,
+		in:            in,
+		opts:          opts,
 	}
 	go c.recvLoop()
+	<-c.streamCreated
 	return c
 }
 
 // recvLoop receives ListenEvent response in loop and reconnect in on error.
-func (s *core_ListenEventClient) recvLoop() {
+func (s *coreListenEventClientSafe) recvLoop() {
 	var err error
 loop:
 	for {
 		// connect
-		s.Core_ListenEventClient, err = s.client.listenEvent(s.ctx, s.in, s.opts...)
+		s.Core_ListenEventClient, err = s.client.CoreClient.ListenEvent(s.ctx, s.in, s.opts...)
+		s.streamCreated <- struct{}{}
 		if err != nil {
-			s.c <- &core_ListenEventClientResponse{nil, err}
-			continue
-		}
-		if err := acknowledgement.WaitForStreamToBeReady(s.Core_ListenEventClient); err != nil {
-			s.c <- &core_ListenEventClientResponse{nil, err}
+			s.data <- &coreListenEventClientSafeResponse{nil, err}
 			continue
 		}
 
@@ -132,7 +83,7 @@ loop:
 
 		for {
 			td, err := s.Core_ListenEventClient.Recv()
-			s.c <- &core_ListenEventClientResponse{td, err}
+			s.data <- &coreListenEventClientSafeResponse{td, err}
 			if err != nil {
 				done <- struct{}{}
 				// in case of EOF end loop
@@ -149,60 +100,60 @@ loop:
 }
 
 // Recv receives data from streams.
-func (s *core_ListenEventClient) Recv() (*EventData, error) {
-	v := <-s.c
+func (s *coreListenEventClientSafe) Recv() (*EventData, error) {
+	v := <-s.data
 	return v.eventData, v.err
 }
 
-// ListenEvent subscribe to a stream that listens for events from a service.
+// ListenEvent subscribes to a stream that listens for events from a service.
 func (c *CoreClientSafe) ListenEvent(ctx context.Context, in *ListenEventRequest, opts ...grpc.CallOption) (Core_ListenEventClient, error) {
-	if c.reconnect == Never {
-		return c.listenEvent(ctx, in, opts...)
-	}
-	return newCore_ListenEventClient(c, ctx, in, opts...), nil
+	return newCoreListenEventClientSafe(c, ctx, in, opts...), nil
 }
 
-// core_ListenResultClient is a client with reconnection.
-type core_ListenResultClient struct {
+// coreListenResultClientSafe is a client with reconnection.
+type coreListenResultClientSafe struct {
 	Core_ListenResultClient
 
-	client *CoreClientSafe
-	c      chan *core_ListenResultClientResponse
+	client        *CoreClientSafe
+	data          chan *coreListenResultClientSafeResponse
+	streamCreated chan struct{}
 
 	ctx  context.Context
 	in   *ListenResultRequest
 	opts []grpc.CallOption
 }
 
-// core_ListenResultClientResponse wraps ListenResult recv response.
-type core_ListenResultClientResponse struct {
+// coreListenResultClientSafeResponse wraps ListenResult recv response.
+type coreListenResultClientSafeResponse struct {
 	resultData *ResultData
 	err        error
 }
 
-// newCore_ListenResultClient creates core ListenResult client.
-func newCore_ListenResultClient(client *CoreClientSafe, ctx context.Context, in *ListenResultRequest, opts ...grpc.CallOption) *core_ListenResultClient {
-	c := &core_ListenResultClient{
-		client: client,
-		c:      make(chan *core_ListenResultClientResponse),
-
-		ctx:  ctx,
-		in:   in,
-		opts: opts,
+// newCoreListenResultClientSafe creates core ListenResult client.
+func newCoreListenResultClientSafe(client *CoreClientSafe, ctx context.Context, in *ListenResultRequest, opts ...grpc.CallOption) *coreListenResultClientSafe {
+	c := &coreListenResultClientSafe{
+		client:        client,
+		data:          make(chan *coreListenResultClientSafeResponse),
+		streamCreated: make(chan struct{}, 1),
+		ctx:           ctx,
+		in:            in,
+		opts:          opts,
 	}
 	go c.recvLoop()
+	<-c.streamCreated
 	return c
 }
 
 // recvLoop receives ListenResult response in loop and reconnect in on error.
-func (s *core_ListenResultClient) recvLoop() {
+func (s *coreListenResultClientSafe) recvLoop() {
 	var err error
 loop:
 	for {
 		// connect
-		s.Core_ListenResultClient, err = s.client.listenResult(s.ctx, s.in, s.opts...)
+		s.Core_ListenResultClient, err = s.client.CoreClient.ListenResult(s.ctx, s.in, s.opts...)
+		s.streamCreated <- struct{}{}
 		if err != nil {
-			s.c <- &core_ListenResultClientResponse{nil, err}
+			s.data <- &coreListenResultClientSafeResponse{nil, err}
 			continue
 		}
 
@@ -220,7 +171,7 @@ loop:
 
 		for {
 			td, err := s.Core_ListenResultClient.Recv()
-			s.c <- &core_ListenResultClientResponse{td, err}
+			s.data <- &coreListenResultClientSafeResponse{td, err}
 			if err != nil {
 				done <- struct{}{}
 				// in case of EOF end loop
@@ -237,63 +188,60 @@ loop:
 }
 
 // Recv receives data from streams.
-func (s *core_ListenResultClient) Recv() (*ResultData, error) {
-	v := <-s.c
+func (s *coreListenResultClientSafe) Recv() (*ResultData, error) {
+	v := <-s.data
 	return v.resultData, v.err
 }
 
+// ListenResult subscribes to a stream that listens for results from a service.
 func (c *CoreClientSafe) ListenResult(ctx context.Context, in *ListenResultRequest, opts ...grpc.CallOption) (Core_ListenResultClient, error) {
-	if c.reconnect == Never {
-		return c.listenResult(ctx, in, opts...)
-	}
-	return newCore_ListenResultClient(c, ctx, in, opts...), nil
+	return newCoreListenResultClientSafe(c, ctx, in, opts...), nil
 }
 
-// core_ServiceLogsClient is a client with reconnection.
-type core_ServiceLogsClient struct {
+// coreServiceLogsClientSafe is a client with reconnection.
+type coreServiceLogsClientSafe struct {
 	Core_ServiceLogsClient
 
-	client *CoreClientSafe
-	c      chan *core_ServiceLogsClientResponse
+	client        *CoreClientSafe
+	data          chan *coreServiceLogsClientSafeResponse
+	streamCreated chan struct{}
 
 	ctx  context.Context
 	in   *ServiceLogsRequest
 	opts []grpc.CallOption
 }
 
-// core_ServiceLogsClientResponse wraps ServiceLogs recv response.
-type core_ServiceLogsClientResponse struct {
+// coreServiceLogsClientSafeResponse wraps ServiceLogs recv response.
+type coreServiceLogsClientSafeResponse struct {
 	logData *LogData
 	err     error
 }
 
-// newCore_ServiceLogsClient creates core ServiceLogs client.
-func newCore_ServiceLogsClient(client *CoreClientSafe, ctx context.Context, in *ServiceLogsRequest, opts ...grpc.CallOption) *core_ServiceLogsClient {
-	c := &core_ServiceLogsClient{
-		client: client,
-		c:      make(chan *core_ServiceLogsClientResponse),
-
-		ctx:  ctx,
-		in:   in,
-		opts: opts,
+// newCoreServiceLogsClientSafe creates core ServiceLogs client.
+func newCoreServiceLogsClientSafe(client *CoreClientSafe, ctx context.Context, in *ServiceLogsRequest, opts ...grpc.CallOption) *coreServiceLogsClientSafe {
+	c := &coreServiceLogsClientSafe{
+		client:        client,
+		data:          make(chan *coreServiceLogsClientSafeResponse),
+		streamCreated: make(chan struct{}, 1),
+		ctx:           ctx,
+		in:            in,
+		opts:          opts,
 	}
 	go c.recvLoop()
+	<-c.streamCreated
 	return c
 }
 
 // recvLoop receives ServiceLogs response in loop and reconnect in on error.
-func (s *core_ServiceLogsClient) recvLoop() {
+func (s *coreServiceLogsClientSafe) recvLoop() {
 	var err error
 loop:
 	for {
 		// connect
-		s.Core_ServiceLogsClient, err = s.client.serviceLogs(s.ctx, s.in, s.opts...)
+		s.Core_ServiceLogsClient, err = s.client.CoreClient.ServiceLogs(s.ctx, s.in, s.opts...)
+		s.streamCreated <- struct{}{}
 		if err != nil {
-			s.c <- &core_ServiceLogsClientResponse{nil, err}
-			continue
-		}
-		if err := acknowledgement.WaitForStreamToBeReady(s.Core_ServiceLogsClient); err != nil {
-			s.c <- &core_ServiceLogsClientResponse{nil, err}
+			s.data <- &coreServiceLogsClientSafeResponse{nil, err}
 			continue
 		}
 
@@ -311,7 +259,7 @@ loop:
 
 		for {
 			td, err := s.Core_ServiceLogsClient.Recv()
-			s.c <- &core_ServiceLogsClientResponse{td, err}
+			s.data <- &coreServiceLogsClientSafeResponse{td, err}
 			if err != nil {
 				done <- struct{}{}
 				// in case of EOF end loop
@@ -328,14 +276,12 @@ loop:
 }
 
 // Recv receives data from streams.
-func (s *core_ServiceLogsClient) Recv() (*LogData, error) {
-	v := <-s.c
+func (s *coreServiceLogsClientSafe) Recv() (*LogData, error) {
+	v := <-s.data
 	return v.logData, v.err
 }
 
+// ServiceLogs subscribes to a stream that listens for logs from a service.
 func (c *CoreClientSafe) ServiceLogs(ctx context.Context, in *ServiceLogsRequest, opts ...grpc.CallOption) (Core_ServiceLogsClient, error) {
-	if c.reconnect == Never {
-		return c.serviceLogs(ctx, in, opts...)
-	}
-	return newCore_ServiceLogsClient(c, ctx, in, opts...), nil
+	return newCoreServiceLogsClientSafe(c, ctx, in, opts...), nil
 }

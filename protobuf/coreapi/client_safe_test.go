@@ -35,7 +35,7 @@ func newCoreClientSafe(t *testing.T) *CoreClientSafe {
 		t.Fatal(err)
 	}
 
-	return NewCoreClientSafe(conn, OnError)
+	return NewCoreClientSafe(conn)
 }
 
 func TestListenEventReconnect(t *testing.T) {

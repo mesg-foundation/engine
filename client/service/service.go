@@ -16,6 +16,7 @@ import (
 
 	"context"
 
+	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
 	"google.golang.org/grpc"
 )
@@ -142,7 +143,7 @@ func (s *Service) setupServiceClient() error {
 	if err != nil {
 		return err
 	}
-	s.client = serviceapi.NewServiceClientSafe(s.conn, serviceapi.OnError)
+	s.client = serviceapi.NewServiceClientSafe(s.conn)
 	return nil
 }
 
@@ -176,6 +177,9 @@ func (s *Service) listenTasks() error {
 		Token: s.token,
 	})
 	if err != nil {
+		return err
+	}
+	if err := acknowledgement.WaitForStreamToBeReady(stream); err != nil {
 		return err
 	}
 	for {

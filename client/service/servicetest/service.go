@@ -3,8 +3,10 @@ package servicetest
 import (
 	"context"
 
+	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 )
 
 // serviceServer implements MESG's service server.
@@ -39,6 +41,10 @@ func (s *serviceServer) EmitEvent(context context.Context,
 func (s *serviceServer) ListenTask(request *serviceapi.ListenTaskRequest,
 	stream serviceapi.Service_ListenTaskServer) (err error) {
 	s.token = request.Token
+
+	if err := acknowledgement.SetStreamReady(stream); err != nil {
+		return err
+	}
 
 	for {
 		select {
@@ -87,6 +93,10 @@ func (s taskDataStream) Send(data *serviceapi.TaskData) error {
 
 func (s taskDataStream) Context() context.Context {
 	return s.ctx
+}
+
+func (s taskDataStream) SendHeader(md metadata.MD) error {
+	return nil
 }
 
 func (s taskDataStream) close() {
