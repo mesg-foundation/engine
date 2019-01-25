@@ -7,7 +7,6 @@ import (
 	"net"
 	"testing"
 
-	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -40,14 +39,8 @@ func newCoreClientSafe(t *testing.T) *CoreClientSafe {
 
 func TestListenEventReconnect(t *testing.T) {
 	m := &MockCoreServer{}
-	m.On("ListenEvent", mock.Anything, mock.Anything).Return(func(_ *ListenEventRequest, stream Core_ListenEventServer) error {
-		acknowledgement.SetStreamReady(stream)
-		return errors.New("autoreconnect")
-	}).Once()
-	m.On("ListenEvent", mock.Anything, mock.Anything).Return(func(_ *ListenEventRequest, stream Core_ListenEventServer) error {
-		acknowledgement.SetStreamReady(stream)
-		return nil
-	}).Once()
+	m.On("ListenEvent", mock.Anything, mock.Anything).Return(errors.New("autoreconnect")).Once()
+	m.On("ListenEvent", mock.Anything, mock.Anything).Return(nil).Once()
 
 	s := newCoreServer(t, m)
 	defer s.Stop()
@@ -67,14 +60,8 @@ func TestListenEventReconnect(t *testing.T) {
 
 func TestListenResultReconnect(t *testing.T) {
 	m := &MockCoreServer{}
-	m.On("ListenResult", mock.Anything, mock.Anything).Return(func(_ *ListenResultRequest, stream Core_ListenResultServer) error {
-		acknowledgement.SetStreamReady(stream)
-		return errors.New("autoreconnect")
-	}).Once()
-	m.On("ListenResult", mock.Anything, mock.Anything).Return(func(_ *ListenResultRequest, stream Core_ListenResultServer) error {
-		acknowledgement.SetStreamReady(stream)
-		return nil
-	}).Once()
+	m.On("ListenResult", mock.Anything, mock.Anything).Return(errors.New("autoreconnect")).Once()
+	m.On("ListenResult", mock.Anything, mock.Anything).Return(nil).Once()
 
 	s := newCoreServer(t, m)
 	defer s.Stop()
@@ -94,14 +81,8 @@ func TestListenResultReconnect(t *testing.T) {
 
 func TestServiceLogsReconnect(t *testing.T) {
 	m := &MockCoreServer{}
-	m.On("ServiceLogs", mock.Anything, mock.Anything).Return(func(_ *ServiceLogsRequest, stream Core_ServiceLogsServer) error {
-		acknowledgement.SetStreamReady(stream)
-		return errors.New("autoreconnect")
-	}).Once()
-	m.On("ServiceLogs", mock.Anything, mock.Anything).Return(func(_ *ServiceLogsRequest, stream Core_ServiceLogsServer) error {
-		acknowledgement.SetStreamReady(stream)
-		return nil
-	}).Once()
+	m.On("ServiceLogs", mock.Anything, mock.Anything).Return(errors.New("autoreconnect")).Once()
+	m.On("ServiceLogs", mock.Anything, mock.Anything).Return(nil).Once()
 
 	s := newCoreServer(t, m)
 	defer s.Stop()

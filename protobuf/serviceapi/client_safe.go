@@ -3,6 +3,7 @@ package serviceapi
 import (
 	"context"
 	"io"
+	"sync"
 	"time"
 
 	"google.golang.org/grpc"
@@ -26,9 +27,11 @@ func NewServiceClientSafe(cc *grpc.ClientConn) *ServiceClientSafe {
 type serviceListenTaskClientSafe struct {
 	Service_ListenTaskClient
 
-	client        *ServiceClientSafe
-	data          chan *serviceListenTaskClientSafeResponse
-	streamCreated chan struct{}
+	client *ServiceClientSafe
+	data   chan *serviceListenTaskClientSafeResponse
+
+	mx  sync.Mutex
+	err error
 
 	ctx  context.Context
 	in   *ListenTaskRequest
@@ -44,26 +47,28 @@ type serviceListenTaskClientSafeResponse struct {
 // newServiceListenTaskClientSafe creates core ListenTask client.
 func newServiceListenTaskClientSafe(client *ServiceClientSafe, ctx context.Context, in *ListenTaskRequest, opts ...grpc.CallOption) *serviceListenTaskClientSafe {
 	s := &serviceListenTaskClientSafe{
-		client:        client,
-		data:          make(chan *serviceListenTaskClientSafeResponse),
-		streamCreated: make(chan struct{}, 1),
-		ctx:  ctx,
-		in:   in,
-		opts: opts,
+		client: client,
+		data:   make(chan *serviceListenTaskClientSafeResponse),
+		ctx:    ctx,
+		in:     in,
+		opts:   opts,
 	}
+	s.mx.Lock()
 	go s.recvLoop()
-	<-s.streamCreated
 	return s
 }
 
 // recvLoop recives ListenTask response in loop and reconnect in on error.
 func (s *serviceListenTaskClientSafe) recvLoop() {
-	var err error
 loop:
 	for {
 		// connect
-		s.Service_ListenTaskClient, err = s.client.ServiceClient.ListenTask(s.ctx, s.in, s.opts...)
-		s.streamCreated <- struct{}{}
+		stream, err := s.client.ServiceClient.ListenTask(s.ctx, s.in, s.opts...)
+		if stream != nil {
+			s.Service_ListenTaskClient = stream
+		}
+		s.err = err
+		s.mx.Unlock()
 		if err != nil {
 			s.data <- &serviceListenTaskClientSafeResponse{nil, err}
 			continue
@@ -96,6 +101,7 @@ loop:
 
 		// sleep before reconnect
 		time.Sleep(reconnectDelay)
+		s.mx.Lock()
 	}
 }
 
@@ -107,5 +113,8 @@ func (s *serviceListenTaskClientSafe) Recv() (*TaskData, error) {
 
 // ListenTask subscribes to a stream that listens for task to execute.
 func (c *ServiceClientSafe) ListenTask(ctx context.Context, in *ListenTaskRequest, opts ...grpc.CallOption) (Service_ListenTaskClient, error) {
-	return newServiceListenTaskClientSafe(c, ctx, in, opts...), nil
+	cs := newServiceListenTaskClientSafe(c, ctx, in, opts...)
+	cs.mx.Lock()
+	defer cs.mx.Unlock()
+	return cs, cs.err
 }

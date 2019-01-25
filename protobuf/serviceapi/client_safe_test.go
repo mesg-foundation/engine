@@ -7,7 +7,6 @@ import (
 	"net"
 	"testing"
 
-	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -40,14 +39,8 @@ func newServiceClinetSafe(t *testing.T) *ServiceClientSafe {
 
 func TestListenTaskReconnect(t *testing.T) {
 	m := &MockServiceServer{}
-	m.On("ListenTask", mock.Anything, mock.Anything).Return(func(_ *ListenTaskRequest, stream Service_ListenTaskServer) error {
-		acknowledgement.SetStreamReady(stream)
-		return errors.New("autoreconnect")
-	}).Once()
-	m.On("ListenTask", mock.Anything, mock.Anything).Return(func(_ *ListenTaskRequest, stream Service_ListenTaskServer) error {
-		acknowledgement.SetStreamReady(stream)
-		return nil
-	}).Once()
+	m.On("ListenTask", mock.Anything, mock.Anything).Return(errors.New("autoreconnect")).Once()
+	m.On("ListenTask", mock.Anything, mock.Anything).Return(nil).Once()
 
 	s := newServiceServer(t, m)
 	defer s.Stop()
