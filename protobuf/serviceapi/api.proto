@@ -11,7 +11,7 @@ option go_package = "serviceapi";
 //
 // Applications must not use this API, but rather use the [Core API](./core.md).
 //
-// The source file of this API is hosted on [GitHub](https://github.com/mesg-foundation/core/blob/master/api/service/api.proto).
+// The source file of this API is hosted on [GitHub](https://github.com/mesg-foundation/core/blob/master/protobuf/serviceapi/api.proto).
 service Service {
   // Emit an event to Core.
   // The event and its data must be defined in the [service's definition file](../guide/service/service-file.md).
