@@ -18,7 +18,7 @@ func newServiceStopCmd(e ServiceExecutor) *serviceStopCmd {
 	c.cmd = newCommand(&cobra.Command{
 		Use:     "stop SERVICE",
 		Short:   "Stop a service",
-		Example: `mesg-core service stop SERVICE`,
+		Example: `mesg-core service stop SERVICE [SERVICE...]`,
 		RunE:    c.runE,
 	})
 	return c
