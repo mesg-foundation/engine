@@ -19,7 +19,7 @@ func newServiceStartCmd(e ServiceExecutor) *serviceStartCmd {
 		Use:     "start SERVICE",
 		Short:   "Start a service",
 		Long:    "Start a service previously published services",
-		Example: `mesg-core service start SERVICE`,
+		Example: `mesg-core service start SERVICE [SERVICE...]`,
 		RunE:    c.runE,
 	})
 	return c
