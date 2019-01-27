@@ -1,6 +1,8 @@
 package service
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/mesg-foundation/core/container/mocks"
@@ -18,24 +20,28 @@ func newFromServiceAndContainerMocks(t *testing.T, s *Service) (*Service, *mocks
 	return s, m
 }
 
-func TestGenerateId(t *testing.T) {
-	service, _ := FromService(&Service{
-		Name: "TestGenerateId",
-	})
-	hash := service.computeHash()
-	require.Equal(t, "32caba349ddb1569be576b5d53da5d6e0bcfd77e", hash)
-}
-
-func TestNoCollision(t *testing.T) {
-	service1, _ := FromService(&Service{
-		Name: "TestNoCollision",
-	})
-
-	service2, _ := FromService(&Service{
-		Name: "TestNoCollision2",
-	})
-
-	require.NotEqual(t, service1.Hash, service2.Hash)
+func TestGenerateHash(t *testing.T) {
+	tests := []struct {
+		hash string
+		env  map[string]string
+	}{
+		{hash: "4ef21a2e92a0bee1842cae888a408df5796683f4", env: map[string]string{}},
+		{hash: "4ef21a2e92a0bee1842cae888a408df5796683f4", env: map[string]string{"": ""}},
+		{hash: "c57d05deeb30464b209430b346d353147e18b2dd", env: map[string]string{"foo": "bar"}},
+		{hash: "328aa77ff69d765da1398f4ee93503455925da24", env: map[string]string{"hello": "world"}},
+		{hash: "c4cf57e9173296292ffc3498cac245e471b08e36", env: map[string]string{"foo": "bar", "hello": "world"}},
+	}
+	for _, test := range tests {
+		service, _ := FromService(&Service{
+			Name: "TestGenerateHash",
+		})
+		f, err := os.Open(filepath.Join("..", "service-test", "test.tar.gz"))
+		require.NoError(t, err)
+		defer f.Close()
+		hash, err := service.computeHash(f, test.env)
+		require.NoError(t, err)
+		require.Equal(t, test.hash, hash)
+	}
 }
 
 func TestNew(t *testing.T) {
