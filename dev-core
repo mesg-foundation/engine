@@ -4,7 +4,7 @@ set -e
 
 DIR=$(pwd)
 MESG_LOG_LEVEL=${MESG_LOG_LEVEL:-debug}
-MESG_LOG_FORCECOLORS=${MESG_LOG_FORCECOLORS:-true}
+MESG_LOG_FORCECOLORS=${MESG_LOG_FORCECOLORS:-false}
 VERSION=local
 LDFLAGS="-X 'github.com/mesg-foundation/core/version.Version=$VERSION'"
 CLIFLAGS=""
