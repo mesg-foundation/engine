@@ -33,7 +33,7 @@ func (c *serviceStopCmd) runE(cmd *cobra.Command, args []string) error {
 				err = c.e.ServiceStop(serviceID)
 			}
 		}(arg)
-		pretty.Progress("Stopping service...", fn)
+		pretty.Progress(fmt.Sprintf("Stopping service %q...", arg), fn)
 		if err != nil {
 			return err
 		}

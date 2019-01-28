@@ -34,7 +34,7 @@ func (c *serviceStartCmd) runE(cmd *cobra.Command, args []string) error {
 				err = c.e.ServiceStart(serviceID)
 			}
 		}(arg)
-		pretty.Progress("Starting service...", fn)
+		pretty.Progress(fmt.Sprintf("Starting service %q...", arg), fn)
 		if err != nil {
 			return err
 		}
