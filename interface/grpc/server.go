@@ -53,6 +53,13 @@ func (s *Server) listen() (net.Listener, error) {
 		return nil, err
 	}
 
+	// keep-alive is need to prevent Docker network to think that gRPC connection is
+	// idle (see issues/549). without keep-alive it'll close the connection when there is
+	// no activity after some time. in that case grpc pkg will reconnect but all open
+	// gRPC streams needed to be re-established manually.
+	//
+	// keep-alive needs to be lower than Docker network's timeout that gives the
+	// decions about idle connections.
 	keepaliveOpt := grpc.KeepaliveParams(keepalive.ServerParameters{
 		Time: 1 * time.Minute,
 	})
