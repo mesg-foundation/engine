@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/mesg-foundation/core/commands"
 	"github.com/mesg-foundation/core/commands/provider"
@@ -14,6 +15,7 @@ import (
 	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/mesg-foundation/core/version"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/keepalive"
 )
 
 func main() {
@@ -23,7 +25,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	connection, err := grpc.Dial(cfg.Client.Address, grpc.WithInsecure())
+	dialKeepaliveOpt := grpc.WithKeepaliveParams(keepalive.ClientParameters{
+		Time: 1 * time.Minute,
+	})
+	connection, err := grpc.Dial(cfg.Client.Address, dialKeepaliveOpt, grpc.WithInsecure())
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s\n", pretty.Fail(clierrors.ErrorMessage(err)))
 		os.Exit(1)
