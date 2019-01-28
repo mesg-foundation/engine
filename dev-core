@@ -35,7 +35,7 @@ else
   echo "$DOCKER_SUM" > "$DOCKER_SUM_PATH"
 fi
 
-# create a symlink for system services.
+# create mesg data folder on host machine
 mkdir -p "$HOME/.mesg/"
 
 echo "build mesg/core image"
