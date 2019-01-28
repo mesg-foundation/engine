@@ -4,8 +4,10 @@ set -e
 
 DIR=$(pwd)
 MESG_LOG_LEVEL=${MESG_LOG_LEVEL:-debug}
+MESG_LOG_FORCECOLORS=${MESG_LOG_FORCECOLORS:-false}
 VERSION=local
 LDFLAGS="-X 'github.com/mesg-foundation/core/version.Version=$VERSION'"
+CLIFLAGS=""
 
 echo "compile cli and core"
 GOOS=linux GOARCH=amd64 go build -o ./bin/core -ldflags="$LDFLAGS" core/main.go
@@ -51,5 +53,9 @@ function onexit {
   ./bin/cli stop
 }
 
-./bin/cli start --log-level "$MESG_LOG_LEVEL"
+if [[ "$MESG_LOG_FORCECOLORS" = true ]]; then
+  CLIFLAGS+="--log-force-colors"
+fi
+
+./bin/cli start --log-level "$MESG_LOG_LEVEL" "$CLIFLAGS"
 ./bin/cli logs

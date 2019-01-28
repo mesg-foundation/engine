@@ -3,6 +3,7 @@ package grpc
 import (
 	"net"
 	"sync"
+	"time"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
@@ -13,6 +14,7 @@ import (
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
 )
 
@@ -51,7 +53,11 @@ func (s *Server) listen() (net.Listener, error) {
 		return nil, err
 	}
 
+	keepaliveOpt := grpc.KeepaliveParams(keepalive.ServerParameters{
+		Time: 1 * time.Minute,
+	})
 	s.instance = grpc.NewServer(
+		keepaliveOpt,
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			grpc_logrus.StreamServerInterceptor(logrus.NewEntry(logrus.StandardLogger())),
 		)),
