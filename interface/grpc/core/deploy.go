@@ -66,7 +66,7 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 
 	return stream.Send(&coreapi.DeployServiceReply{
 		Value: &coreapi.DeployServiceReply_ServiceID{
-			ServiceID: service.Hash,
+			ServiceID: service.Sid,
 		},
 	})
 }

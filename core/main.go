@@ -9,8 +9,6 @@ import (
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/interface/grpc"
 	"github.com/mesg-foundation/core/logger"
-	"github.com/mesg-foundation/core/systemservices"
-	"github.com/mesg-foundation/core/systemservices/deployer"
 	"github.com/mesg-foundation/core/version"
 	"github.com/mesg-foundation/core/x/xsignal"
 	"github.com/sirupsen/logrus"
@@ -30,20 +28,12 @@ func initGRPCServer(c *config.Config) (*grpc.Server, error) {
 	}
 
 	// init api.
-	ss := systemservices.New()
-	a, err := api.New(db, execDB, ss)
+	a, err := api.New(db, execDB)
 	if err != nil {
 		return nil, err
 	}
 
-	// init system services.
-	systemServicesPath := filepath.Join(c.Core.Path, c.SystemServices.RelativePath)
-	d := deployer.New(a, systemServicesPath, ss)
-	if err := d.Deploy(systemservices.SystemServicesList); err != nil {
-		return nil, err
-	}
-
-	return grpc.New(c.Server.Address, a, ss), nil
+	return grpc.New(c.Server.Address, a), nil
 }
 
 func main() {
