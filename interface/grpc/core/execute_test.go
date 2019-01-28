@@ -27,7 +27,7 @@ func TestExecute(t *testing.T) {
 	defer server.api.StopService(s.Hash)
 
 	reply, err := server.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
-		ServiceID: s.Hash,
+		ServiceID: s.Sid,
 		TaskKey:   taskKey,
 		InputData: data,
 	})
@@ -45,7 +45,7 @@ func TestExecuteWithInvalidJSON(t *testing.T) {
 	defer server.api.DeleteService(s.Hash, false)
 
 	_, err = server.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
-		ServiceID: s.Hash,
+		ServiceID: s.Sid,
 		TaskKey:   "test",
 		InputData: "",
 	})
@@ -69,7 +69,7 @@ func TestExecuteWithInvalidTask(t *testing.T) {
 	defer server.api.StopService(s.Hash)
 
 	_, err = server.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
-		ServiceID: s.Hash,
+		ServiceID: s.Sid,
 		TaskKey:   taskKey,
 		InputData: "{}",
 	})
@@ -97,7 +97,7 @@ func TestExecuteWithInvalidTaskInput(t *testing.T) {
 	defer server.api.StopService(s.Hash)
 
 	_, err = server.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
-		ServiceID: s.Hash,
+		ServiceID: s.Sid,
 		TaskKey:   taskKey,
 		InputData: data,
 	})
@@ -118,11 +118,11 @@ func TestExecuteWithNonRunningService(t *testing.T) {
 	defer server.api.DeleteService(s.Hash, false)
 
 	_, err = server.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
-		ServiceID: s.Hash,
+		ServiceID: s.Sid,
 		TaskKey:   "test",
 		InputData: "{}",
 	})
-	require.Equal(t, &api.NotRunningServiceError{ServiceID: s.Hash}, err)
+	require.Equal(t, &api.NotRunningServiceError{ServiceID: s.Sid}, err)
 }
 
 func TestExecuteWithNonExistingService(t *testing.T) {
