@@ -61,7 +61,7 @@ func (p *ServiceProvider) ServiceDeleteAll(deleteData bool) error {
 				errs.Append(err)
 			}
 			wg.Done()
-		}(s.Hash)
+		}(s.Sid)
 	}
 	wg.Wait()
 	return errs.ErrorOrNil()
