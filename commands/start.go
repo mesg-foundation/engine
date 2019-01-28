@@ -13,6 +13,7 @@ type startCmd struct {
 
 	lfv logFormatValue
 	llv logLevelValue
+	lfc bool
 
 	e RootExecutor
 }
@@ -32,6 +33,7 @@ func newStartCmd(e RootExecutor) *startCmd {
 
 	c.cmd.Flags().Var(&c.lfv, "log-format", "log format [text|json]")
 	c.cmd.Flags().Var(&c.llv, "log-level", "log level [debug|info|warn|error|fatal|panic]")
+	c.cmd.Flags().BoolVar(&c.lfc, "log-force-colors", false, "log force colors [false|true]")
 	return c
 }
 
@@ -43,6 +45,7 @@ func (c *startCmd) preRunE(cmd *cobra.Command, args []string) error {
 
 	cfg.Log.Format = string(c.lfv)
 	cfg.Log.Level = string(c.llv)
+	cfg.Log.ForceColors = c.lfc
 	return nil
 }
 

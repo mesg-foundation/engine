@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -21,6 +22,12 @@ var (
 	once     sync.Once
 )
 
+// ServiceConfig contains information related to services that the config knows about
+type ServiceConfig struct {
+	URL string
+	Env map[string]string
+}
+
 // Config contains all the configuration needed.
 type Config struct {
 	Server struct {
@@ -32,8 +39,9 @@ type Config struct {
 	}
 
 	Log struct {
-		Format string
-		Level  string
+		Format      string
+		ForceColors bool
+		Level       string
 	}
 
 	Core struct {
@@ -45,6 +53,10 @@ type Config struct {
 			ServiceRelativePath   string
 			ExecutionRelativePath string
 		}
+	}
+
+	Service struct {
+		Foo ServiceConfig
 	}
 
 	Docker struct {
@@ -67,6 +79,7 @@ func New() (*Config, error) {
 	c.Client.Address = "localhost:50052"
 	c.Log.Format = "text"
 	c.Log.Level = "info"
+	c.Log.ForceColors = false
 	c.Core.Image = "mesg/core:" + strings.Split(version.Version, " ")[0]
 	c.Core.Name = "core"
 	c.Core.Path = filepath.Join(home, ".mesg")
@@ -74,6 +87,7 @@ func New() (*Config, error) {
 	c.Core.Database.ExecutionRelativePath = filepath.Join("database", "executions")
 	c.Docker.Core.Path = "/mesg"
 	c.Docker.Socket = "/var/run/docker.sock"
+	c.Service.Foo = ServiceConfig{"https://github.com/mesg-foundation/service-ethereum-erc20", map[string]string{}}
 	return &c, nil
 }
 
@@ -123,13 +137,21 @@ func (c *Config) Validate() error {
 	return nil
 }
 
+// Services returns all services that the configuration package is aware of
+func (c *Config) Services() []ServiceConfig {
+	return []ServiceConfig{
+		c.Service.Foo,
+	}
+}
+
 // DaemonEnv returns the needed environmental variable for the Daemon.
 func (c *Config) DaemonEnv() map[string]string {
 	return map[string]string{
-		"MESG_SERVER_ADDRESS": c.Server.Address,
-		"MESG_LOG_FORMAT":     c.Log.Format,
-		"MESG_LOG_LEVEL":      c.Log.Level,
-		"MESG_CORE_NAME":      c.Core.Name,
-		"MESG_CORE_PATH":      c.Docker.Core.Path,
+		"MESG_SERVER_ADDRESS":  c.Server.Address,
+		"MESG_LOG_FORMAT":      c.Log.Format,
+		"MESG_LOG_LEVEL":       c.Log.Level,
+		"MESG_LOG_FORCECOLORS": strconv.FormatBool(c.Log.ForceColors),
+		"MESG_CORE_NAME":       c.Core.Name,
+		"MESG_CORE_PATH":       c.Docker.Core.Path,
 	}
 }
