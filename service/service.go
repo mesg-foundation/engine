@@ -286,22 +286,14 @@ func (s *Service) configuration() *Dependency {
 	return nil
 }
 
-func (s *Service) computeHash(tarball io.Reader, env map[string]string) (string, error) {
+// Compute hash computesh sha1 hash of r reader and env slice map.
+func (s *Service) computeHash(r io.Reader, env map[string]string) (string, error) {
 	h := sha1.New()
-	if _, err := io.Copy(h, tarball); err != nil {
+	if _, err := io.Copy(h, r); err != nil {
 		return "", err
 	}
-	var keys []string
-	for key := range env {
-		if key != "" {
-			keys = append(keys, key)
-		}
-	}
-	sort.Strings(keys)
-	for _, key := range keys {
-		if _, err := h.Write([]byte(key + "=" + env[key])); err != nil {
-			return "", err
-		}
+	if _, err := h.Write([]byte(xos.EnvMapToString(env))); err != nil {
+		return "", err
 	}
 	return hex.EncodeToString(h.Sum(nil)), nil
 }
