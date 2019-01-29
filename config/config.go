@@ -97,6 +97,7 @@ func New() (*Config, error) {
 	c.Core.Database.ExecutionRelativePath = filepath.Join("database", "executions")
 	c.Docker.Core.Path = "/mesg"
 	c.Docker.Socket = "/var/run/docker.sock"
+	c.initServices()
 	return &c, nil
 }
 
@@ -144,11 +145,6 @@ func (c *Config) Validate() error {
 		return err
 	}
 	return nil
-}
-
-// Services returns all services that the configuration package is aware of
-func (c *Config) Services() []*ServiceConfig {
-	return []*ServiceConfig{}
 }
 
 // DaemonEnv returns the needed environmental variable for the Daemon.
