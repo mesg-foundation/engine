@@ -3,6 +3,7 @@ package casting
 import (
 	"encoding/json"
 	"fmt"
+	"math/big"
 	"strconv"
 	"strings"
 
@@ -16,15 +17,15 @@ func castString(value string) (interface{}, error) {
 }
 
 func castNumber(value string) (interface{}, error) {
-	i, err := strconv.ParseInt(value, 10, 64)
-	if err == nil {
+	i, _ := new(big.Int).SetString(value, 0)
+	if i != nil {
 		return i, nil
 	}
-	f, err := strconv.ParseFloat(value, 64)
-	if err != nil {
-		return nil, fmt.Errorf("input %q is not a Number type", value)
+	f, _, _ := new(big.Float).Parse(value, 0)
+	if f != nil {
+		return f, nil
 	}
-	return f, nil
+	return nil, fmt.Errorf("input %q is not a Number type", value)
 }
 
 func castBoolean(value string) (interface{}, error) {

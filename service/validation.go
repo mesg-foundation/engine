@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"math/big"
 )
 
 // ParameterWarning contains a specific warning related to a parameter.
@@ -71,13 +72,15 @@ func (v *parameterValidator) validateType(value interface{}) []*ParameterWarning
 		}
 
 	case "Number":
-		_, okFloat64 := value.(float64)
-		_, okFloat32 := value.(float32)
-		_, okInt := value.(int)
-		if !okInt && !okFloat64 && !okFloat32 {
+		switch value.(type) {
+		case
+			uint8, uint16, uint32, uint64, uint,
+			int8, int16, int32, int64, int,
+			float64, float32,
+			*big.Int, *big.Float:
+		default:
 			return []*ParameterWarning{v.newParameterWarning("not a number")}
 		}
-
 	case "Boolean":
 		if _, ok := value.(bool); !ok {
 			return []*ParameterWarning{v.newParameterWarning("not a boolean")}

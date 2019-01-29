@@ -1,14 +1,18 @@
 package casting
 
 import (
+	"math/big"
 	"strings"
 	"testing"
 
 	"github.com/mesg-foundation/core/protobuf/coreapi"
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestServiceCast(t *testing.T) {
+	// parse float the same way that in castNumber
+	f1, _, _ := new(big.Float).Parse("1.1", 0)
+	f2, _, _ := new(big.Float).Parse("2.2", 0)
 	var tests = []struct {
 		service   *coreapi.Service
 		data      map[string]string
@@ -44,12 +48,12 @@ func TestServiceCast(t *testing.T) {
 			},
 			map[string]interface{}{
 				"a": "_",
-				"b": int64(1),
-				"c": 1.1,
+				"b": big.NewInt(1),
+				"c": f1,
 				"d": true,
 				"e": []interface{}{"a", "b"},
-				"f": []interface{}{int64(1), int64(2)},
-				"g": []interface{}{1.1, 2.2},
+				"f": []interface{}{big.NewInt(1), big.NewInt(2)},
+				"g": []interface{}{f1, f2},
 				"h": []interface{}{false, true},
 			},
 			false,
@@ -95,17 +99,17 @@ func TestServiceCast(t *testing.T) {
 	for _, tt := range tests {
 		got, err := TaskInputs(tt.service, "test", tt.data)
 		if tt.expectErr {
-			require.Error(t, err)
+			assert.Error(t, err)
 		} else {
-			require.NoError(t, err)
-			require.Len(t, tt.expected, len(got), "maps len are not equal")
-			require.Equal(t, tt.expected, got, "maps are not equal")
+			assert.NoError(t, err)
+			assert.Len(t, tt.expected, len(got), "maps len are not equal")
+			assert.Equal(t, tt.expected, got, "maps are not equal")
 		}
 	}
 
 	// test if non-existing key returns error
 	_, err := TaskInputs(tests[0].service, "_", nil)
-	require.Error(t, err)
+	assert.Error(t, err)
 }
 
 // createTestServcieWithInputs creates test service with given inputs name and type under "test" task key.
