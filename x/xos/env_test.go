@@ -35,6 +35,17 @@ func TestEnvMapToSlice(t *testing.T) {
 	}
 }
 
+func TestEnvMapToString(t *testing.T) {
+	got := EnvMapToString(map[string]string{
+		"b": "2",
+		"a": "1",
+	})
+	want := "a=1;b=2"
+	if got != want {
+		t.Errorf("invalid env string - got %s, want %s", got, want)
+	}
+}
+
 func TestEnvSliceToMap(t *testing.T) {
 	env := EnvSliceToMap([]string{"a=1", "b=2"})
 	for k, v := range map[string]string{"a": "1", "b": "2"} {
