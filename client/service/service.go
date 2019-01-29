@@ -3,6 +3,8 @@
 package service
 
 import (
+	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -11,10 +13,6 @@ import (
 	"os"
 	"sync"
 	"time"
-
-	"encoding/json"
-
-	"context"
 
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
 	"google.golang.org/grpc"
@@ -178,18 +176,30 @@ func (s *Service) listenTasks() error {
 	if err != nil {
 		return err
 	}
-	for {
-		s.gracefulWait.Add(1)
-		data, err := stream.Recv()
-		if err != nil {
-			s.gracefulWait.Done()
-			if s.closing {
-				return nil
+
+	errC := make(chan error)
+	go func() {
+		<-stream.Context().Done()
+		errC <- stream.Context().Err()
+	}()
+
+	go func() {
+		for {
+			s.gracefulWait.Add(1)
+			data, err := stream.Recv()
+			if err != nil {
+				s.gracefulWait.Done()
+				if s.closing {
+					errC <- nil
+					return
+				}
+				errC <- err
+				return
 			}
-			return err
+			go s.executeTask(data)
 		}
-		go s.executeTask(data)
-	}
+	}()
+	return <-errC
 }
 
 func (s *Service) getTaskableByName(key string) Taskable {
