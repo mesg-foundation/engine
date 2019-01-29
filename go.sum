@@ -18,8 +18,6 @@ github.com/cnf/structhash v0.0.0-20180104161610-62a607eb0224 h1:rnCKRrdSBqc061l0
 github.com/cnf/structhash v0.0.0-20180104161610-62a607eb0224/go.mod h1:pCxVEbcm3AMg7ejXyorUXi6HQCzOIBf7zEDVPtw0/U4=
 github.com/containerd/continuity v0.0.0-20180712174259-0377f7d76720 h1:T5LkgEMACPq7+VPRnkh51WhyV+Q0waOGGtp37Y82org=
 github.com/containerd/continuity v0.0.0-20180712174259-0377f7d76720/go.mod h1:GL3xCUCBDV3CZiTSEKksMWbLE66hEyuu9qyDOOqM47Y=
-github.com/cpuguy83/go-md2man v1.0.8 h1:DwoNytLphI8hzS2Af4D0dfaEaiSq2bN05mEm4R6vf8M=
-github.com/cpuguy83/go-md2man v1.0.8/go.mod h1:N6JayAiVKtlHSnuTCeuLSQVs75hb8q+dYQLjr7cDsKY=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
@@ -87,8 +85,6 @@ github.com/mattn/go-colorable v0.0.0-20180310133214-efa589957cd0 h1:cDvUG90i1ssG
 github.com/mattn/go-colorable v0.0.0-20180310133214-efa589957cd0/go.mod h1:9vuHe8Xs5qXnSaW/c/ABM9alt+Vo+STaOChaDxuIBZU=
 github.com/mattn/go-isatty v0.0.3 h1:ns/ykhmWi7G9O+8a448SecJU3nSMBXJfqQkl0upE1jI=
 github.com/mattn/go-isatty v0.0.3/go.mod h1:M+lRXTBqGeGNdLjl/ufCoiOlB5xdOkqRJdNxMWT7Zi4=
-github.com/mesg-foundation/go-service v0.0.0-20180914022507-c53d57c454a2 h1:miPgAHOua839MRR/CoyTDiyKjjj4SQyKInfg44wDPqc=
-github.com/mesg-foundation/go-service v0.0.0-20180914022507-c53d57c454a2/go.mod h1:0Ejd911FRRKsEs2dYmszjJKoiElbP/89CA9REfbPRxg=
 github.com/mesg-foundation/prefixer v0.0.0-20180907095533-d7dbe41616bd h1:wk4pdQOPjpHTZymKxn+Egj8gpDwV1Y97jhc5O8dR5Dk=
 github.com/mesg-foundation/prefixer v0.0.0-20180907095533-d7dbe41616bd/go.mod h1:jwBCFVsOhfmt8FwMtfOVWeWWzBIBH7xKKm7DTUluf6Y=
 github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b h1:j7+1HpAFS1zy5+Q4qx1fWh90gTKwiN4QCGoY9TWyyO4=
@@ -116,8 +112,6 @@ github.com/pseudomuto/protoc-gen-doc v1.1.0 h1:fJpnA9JaTm+7HDazYX1C7GYY+tH8JN1BZ
 github.com/pseudomuto/protoc-gen-doc v1.1.0/go.mod h1:fwtQAY9erXp3mC92O8OTECnDlJT2r0Ff4KSEKbGEmy0=
 github.com/pseudomuto/protokit v0.1.0 h1:qitnhC5eQ3TrdH5BVrpipfc+I3ubXIq9mlQAklmfuwY=
 github.com/pseudomuto/protokit v0.1.0/go.mod h1:2PdH30hxVHsup8KpBTOXTBeMVhJZVio3Q8ViKSAXT0Q=
-github.com/russross/blackfriday v1.5.1 h1:B8ZN6pD4PVofmlDCDUdELeYrbsVIDM/bpjW3v3zgcRc=
-github.com/russross/blackfriday v1.5.1/go.mod h1:JO/DiYxRf+HjHt06OyowR9PTA263kcR/rfWxYHBV53g=
 github.com/satori/go.uuid v1.2.0 h1:0uYX9dsZ2yD7q2RtLRtPSdGDWzjeM3TbMJP9utgA0ww=
 github.com/satori/go.uuid v1.2.0/go.mod h1:dA0hQrYB0VpLJoorglMZABFdXlWrHn1NEOzdhQKdks0=
 github.com/sergi/go-diff v0.0.0-20180205163309-da645544ed44 h1:UoZTeCJuGZpwXXqamtSHypwjqpyGdR9smB5iMleBDJ8=
