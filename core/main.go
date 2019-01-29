@@ -43,7 +43,7 @@ func initGRPCServer(c *config.Config) (*grpc.Server, error) {
 
 func deployCoreServices(c *config.Config, api *api.API) error {
 	for _, service := range c.Services() {
-		logrus.Infof("Deploy service from %s", service.URL)
+		logrus.Infof("Deploy service %q from %s", service.Key, service.URL)
 		s, valid, err := api.DeployServiceFromURL(service.URL, service.Env)
 		if valid != nil {
 			return valid
