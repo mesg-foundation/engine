@@ -2,6 +2,7 @@ package service
 
 import (
 	"crypto/sha1"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -103,12 +104,11 @@ func New(tarball io.Reader, env map[string]string, options ...Option) (*Service,
 	}
 	defer os.RemoveAll(s.tempPath)
 
-	// calculate hash
-	h := sha1.New()
-	if _, err := io.Copy(h, tarball); err != nil {
+	hash, err := s.computeHash(tarball, env)
+	if err != nil {
 		return nil, err
 	}
-	s.Hash = fmt.Sprintf("%x", h.Sum(nil))
+	s.Hash = hash
 
 	def, err := importer.From(s.tempPath)
 	if err != nil {
@@ -284,6 +284,18 @@ func (s *Service) configuration() *Dependency {
 		}
 	}
 	return nil
+}
+
+// Compute hash computesh sha1 hash of r reader and env slice map.
+func (s *Service) computeHash(r io.Reader, env map[string]string) (string, error) {
+	h := sha1.New()
+	if _, err := io.Copy(h, r); err != nil {
+		return "", err
+	}
+	if _, err := h.Write([]byte(xos.EnvMapToString(env))); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(h.Sum(nil)), nil
 }
 
 // ErrNotDefinedEnv error returned when optionally given env variables

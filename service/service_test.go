@@ -1,6 +1,8 @@
 package service
 
 import (
+	"bytes"
+	"io"
 	"testing"
 
 	"github.com/mesg-foundation/core/container/mocks"
@@ -18,24 +20,26 @@ func newFromServiceAndContainerMocks(t *testing.T, s *Service) (*Service, *mocks
 	return s, m
 }
 
-func TestGenerateId(t *testing.T) {
-	service, _ := FromService(&Service{
-		Name: "TestGenerateId",
-	})
-	hash := service.computeHash()
-	require.Equal(t, "32caba349ddb1569be576b5d53da5d6e0bcfd77e", hash)
-}
-
-func TestNoCollision(t *testing.T) {
-	service1, _ := FromService(&Service{
-		Name: "TestNoCollision",
-	})
-
-	service2, _ := FromService(&Service{
-		Name: "TestNoCollision2",
-	})
-
-	require.NotEqual(t, service1.Hash, service2.Hash)
+func TestGenerateHash(t *testing.T) {
+	tests := []struct {
+		r    io.Reader
+		hash string
+		env  map[string]string
+	}{
+		{r: new(bytes.Buffer), hash: "da39a3ee5e6b4b0d3255bfef95601890afd80709", env: map[string]string{}},
+		{r: bytes.NewBufferString("a"), hash: "86f7e437faa5a7fce15d1ddcb9eaeaea377667b8", env: map[string]string{}},
+		{r: new(bytes.Buffer), hash: "21606782c65e44cac7afbb90977d8b6f82140e76", env: map[string]string{"": ""}},
+		{r: new(bytes.Buffer), hash: "2fb8f40115dd1e695cbe23d4f97ce5b1fb697eee", env: map[string]string{"foo": "bar"}},
+		{r: bytes.NewBufferString("a"), hash: "51420feb07a534f887c2839559e0bce5212c6b15", env: map[string]string{"foo": "bar"}},
+		{r: new(bytes.Buffer), hash: "2d60d4e129a4a54062d8f982c397f56d11d7a9b9", env: map[string]string{"hello": "world"}},
+		{r: new(bytes.Buffer), hash: "069d960caf60fde30133b8150e562c770d503ea9", env: map[string]string{"foo": "bar", "hello": "world"}},
+	}
+	s := &Service{}
+	for _, test := range tests {
+		hash, err := s.computeHash(test.r, test.env)
+		require.NoError(t, err)
+		require.Equal(t, test.hash, hash)
+	}
 }
 
 func TestNew(t *testing.T) {
