@@ -14,17 +14,20 @@ const (
 	addAPI = "api/v0/add"
 )
 
+// IPFS is the struct that contains all informations to access an IPFS node
 type IPFS struct {
 	client   *http.Client
 	endpoint string
 }
 
-type IPFSResponse struct {
+// Response return the response of a file uploaded
+type Response struct {
 	Name string
 	Hash string
 	Size string
 }
 
+// New creates a new IPFS client method
 func New() *IPFS {
 	return &IPFS{
 		client:   &http.Client{},
@@ -32,7 +35,8 @@ func New() *IPFS {
 	}
 }
 
-func (ipfs *IPFS) Add(name string, reader io.Reader) (*IPFSResponse, error) {
+// Add data from a reader to the IPFS node
+func (ipfs *IPFS) Add(name string, reader io.Reader) (*Response, error) {
 	var b bytes.Buffer
 	w := multipart.NewWriter(&b)
 	fw, err := w.CreateFormFile("file", name)
@@ -54,13 +58,13 @@ func (ipfs *IPFS) Add(name string, reader io.Reader) (*IPFSResponse, error) {
 		return nil, err
 	}
 	if res.StatusCode != http.StatusOK {
-		err = fmt.Errorf("bad status: %s", res.Status)
+		return nil, fmt.Errorf("bad status: %s", res.Status)
 	}
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
-	var response IPFSResponse
+	var response Response
 	if err := json.Unmarshal(body, &response); err != nil {
 		return nil, err
 	}
