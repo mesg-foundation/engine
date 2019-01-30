@@ -12,6 +12,30 @@
 #### Removed
 #### Documentation
 
+## [v0.8.0](https://github.com/mesg-foundation/core/releases/tag/v0.8.0)
+
+#### Breaking Changes
+
+- ([#690](https://github.com/mesg-foundation/core/pull/690)) Support service deployments from tarball urls. To continue to select a branch with a git repository URL, make sure that the URL start with `git://`.
+
+#### Added
+
+- ([#732](https://github.com/mesg-foundation/core/pull/732)) Support multiple service id or hash for commands `service start` and `service stop`.
+- ([#726](https://github.com/mesg-foundation/core/pull/726)) Add flag to command `start` to force colors in logs of Core.
+
+#### Changed
+
+- ([#734](https://github.com/mesg-foundation/core/pull/734)) Returns service sid in commands instead of hash.
+- ([#724](https://github.com/mesg-foundation/core/pull/724)) Changed system services deployment system. ([#727](https://github.com/mesg-foundation/core/pull/727)). ([#725](https://github.com/mesg-foundation/core/pull/725)). ([#743](https://github.com/mesg-foundation/core/pull/743)).
+
+#### Fixed
+
+- ([#738](https://github.com/mesg-foundation/core/pull/738)) Fix stream disconnection because of more than 15min of inactivity. ([#739](https://github.com/mesg-foundation/core/pull/739)). ([#742](https://github.com/mesg-foundation/core/pull/742)). ([#744](https://github.com/mesg-foundation/core/pull/744)).
+
+#### Documentation
+
+- ([#721](https://github.com/mesg-foundation/core/pull/721)) Move documentation to [dedicated repository](https://github.com/mesg-foundation/docs).
+
 ## [v0.7.0](https://github.com/mesg-foundation/core/releases/tag/v0.7.0)
 
 #### Added
