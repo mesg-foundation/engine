@@ -9,15 +9,11 @@ import (
 )
 
 // GetAccount retrieves an account from its address.
-func GetAccount(keystore *keystore.KeyStore, address string) (account accounts.Account, err error) {
-	err = fmt.Errorf("Account not found")
-	_address := common.HexToAddress(address)
-	for _, _account := range keystore.Accounts() {
-		if _account.Address == _address {
-			account = _account
-			err = nil
-			break
+func GetAccount(keystore *keystore.KeyStore, address common.Address) (accounts.Account, error) {
+	for _, account := range keystore.Accounts() {
+		if account.Address == address {
+			return account, nil
 		}
 	}
-	return account, err
+	return accounts.Account{}, fmt.Errorf("Account not found")
 }

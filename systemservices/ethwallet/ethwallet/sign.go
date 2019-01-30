@@ -10,10 +10,10 @@ import (
 )
 
 type signInputs struct {
-	Address     string       `json:"address"`
-	Passphrase  string       `json:"passphrase"`
-	Transaction *transaction `json:"transaction"`
-	ChainID     int64        `json:"chainID"`
+	Address     common.Address `json:"address"`
+	Passphrase  string         `json:"passphrase"`
+	Transaction *transaction   `json:"transaction"`
+	ChainID     int64          `json:"chainID"`
 }
 
 type transaction struct {

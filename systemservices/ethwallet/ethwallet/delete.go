@@ -1,17 +1,18 @@
 package ethwallet
 
 import (
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/mesg-foundation/core/client/service"
 	"github.com/mesg-foundation/core/systemservices/ethwallet/x/xgo-ethereum/xaccounts"
 )
 
 type deleteInputs struct {
-	Address    string `json:"address"`
-	Passphrase string `json:"passphrase"`
+	Address    common.Address `json:"address"`
+	Passphrase string         `json:"passphrase"`
 }
 
 type deleteOutputSuccess struct {
-	Address string `json:"address"`
+	Address common.Address `json:"address"`
 }
 
 func (s *Ethwallet) delete(execution *service.Execution) (string, interface{}) {
@@ -30,6 +31,6 @@ func (s *Ethwallet) delete(execution *service.Execution) (string, interface{}) {
 	}
 
 	return "success", deleteOutputSuccess{
-		Address: account.Address.String(),
+		Address: account.Address,
 	}
 }
