@@ -14,12 +14,9 @@
 
 ## [v0.8.0](https://github.com/mesg-foundation/core/releases/tag/v0.8.0)
 
-#### Breaking Changes
-
-- ([#690](https://github.com/mesg-foundation/core/pull/690)) Support service deployments from tarball urls. To continue to select a branch with a git repository URL, make sure that the URL start with `git://`.
-
 #### Added
 
+- ([#690](https://github.com/mesg-foundation/core/pull/690)) Support service deployments from tarball urls.
 - ([#732](https://github.com/mesg-foundation/core/pull/732)) Support multiple service id or hash for commands `service start` and `service stop`.
 - ([#726](https://github.com/mesg-foundation/core/pull/726)) Add flag to command `start` to force colors in logs of Core.
 
