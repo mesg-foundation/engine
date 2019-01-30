@@ -11,6 +11,7 @@ require (
 	github.com/briandowns/spinner v0.0.0-20180822135157-9f016caa1359
 	github.com/cnf/structhash v0.0.0-20180104161610-62a607eb0224
 	github.com/containerd/continuity v0.0.0-20180712174259-0377f7d76720 // indirect
+	github.com/docker/cli v0.0.0-20190129171106-b258f458cc8d
 	github.com/docker/distribution v0.0.0-20180720172123-0dae0957e5fe // indirect
 	github.com/docker/docker v0.0.0-20180803200506-eeea12db7a65
 	github.com/docker/go-connections v0.0.0-20180212134524-7beb39f0b969 // indirect
