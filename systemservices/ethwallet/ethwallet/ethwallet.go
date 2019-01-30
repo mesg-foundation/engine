@@ -19,13 +19,11 @@ type Ethwallet struct {
 
 // New creates a new instance of EthWallet
 func New() (*Ethwallet, error) {
-	// mesg client
 	service, err := service.New()
 	if err != nil {
 		return nil, err
 	}
 
-	// keystore
 	ks := keystore.NewKeyStore(os.Getenv(keystoreEnv), keystore.StandardScryptN, keystore.StandardScryptP)
 
 	return &Ethwallet{

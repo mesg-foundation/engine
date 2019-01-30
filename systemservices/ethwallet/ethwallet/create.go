@@ -1,6 +1,7 @@
 package ethwallet
 
 import (
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/mesg-foundation/core/client/service"
 )
 
@@ -9,7 +10,7 @@ type createInputs struct {
 }
 
 type createOutputSuccess struct {
-	Address string `json:"address"`
+	Address common.Address `json:"address"`
 }
 
 func (s *Ethwallet) create(execution *service.Execution) (string, interface{}) {
@@ -24,6 +25,6 @@ func (s *Ethwallet) create(execution *service.Execution) (string, interface{}) {
 	}
 
 	return "success", createOutputSuccess{
-		Address: account.Address.String(),
+		Address: account.Address,
 	}
 }
