@@ -73,12 +73,6 @@ func (d *ContainerDaemon) buildServiceOptions(sharedNetworkID string) container.
 				Target: d.cfg.Docker.Core.Path,
 				Bind:   true,
 			},
-			// TODO: Add back for system services.
-			// {
-			// 	Source: filepath.Join(d.cfg.Core.Path, d.cfg.SystemServices.RelativePath),
-			// 	Target: filepath.Join(d.cfg.Docker.Core.Path, d.cfg.SystemServices.RelativePath),
-			// 	Bind:   true,
-			// },
 		},
 		Ports: []container.Port{
 			{
