@@ -4,8 +4,10 @@ set -e
 
 DIR=$(pwd)
 MESG_LOG_LEVEL=${MESG_LOG_LEVEL:-debug}
+MESG_LOG_FORCECOLORS=${MESG_LOG_FORCECOLORS:-false}
 VERSION=local
 LDFLAGS="-X 'github.com/mesg-foundation/core/version.Version=$VERSION'"
+CLIFLAGS=""
 
 echo "compile cli and core"
 GOOS=linux GOARCH=amd64 go build -o ./bin/core -ldflags="$LDFLAGS" core/main.go
@@ -35,10 +37,8 @@ else
   echo "$DOCKER_SUM" > "$DOCKER_SUM_PATH"
 fi
 
-# create a symlink for system services.
-rm -rf "$HOME/.mesg/systemservices"
+# create mesg data folder on host machine
 mkdir -p "$HOME/.mesg/"
-ln -s "$DIR/systemservices/sources" "$HOME/.mesg/systemservices"
 
 echo "build mesg/core image"
 if [[ ! $BINCACHED ]] || [[ ! $DOCKERCACHED ]]; then
@@ -53,5 +53,9 @@ function onexit {
   ./bin/cli stop
 }
 
-./bin/cli start --log-level "$MESG_LOG_LEVEL"
+if [[ "$MESG_LOG_FORCECOLORS" = true ]]; then
+  CLIFLAGS+="--log-force-colors"
+fi
+
+./bin/cli start --log-level "$MESG_LOG_LEVEL" "$CLIFLAGS"
 ./bin/cli logs
