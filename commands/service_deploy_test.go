@@ -56,7 +56,7 @@ func TestServiceDeploy(t *testing.T) {
 
 	require.Equal(t, "✔ 5", string(readLine(t, r)))
 	require.Equal(t, "⨯ 6", string(readLine(t, r)))
-	require.Equal(t, "✔ Service deployed with hash: 2", string(readLine(t, r)))
+	require.Equal(t, "✔ Service deployed with id: 2", string(readLine(t, r)))
 	require.Equal(t, "To start it, run the command:", string(readLine(t, r)))
 	require.Equal(t, "	mesg-core service start 2", string(readLine(t, r)))
 
