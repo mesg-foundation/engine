@@ -74,7 +74,7 @@ Deploy the [invite discord service](https://github.com/mesg-foundation/service-d
 mesg-core service deploy https://github.com/mesg-foundation/service-discord-invitation
 ```
 
-Once the service is deployed, the console displays its Service ID. The Service ID is a unique way for the application to connect to the right service through MESG Core. You'll need to use them inside the application.
+Once the service is deployed, the console displays its id. This id is a unique way for the application to connect to the right service through MESG Core. You'll need to use them inside the application.
 
 ### 4. Create the application
 
@@ -191,7 +191,7 @@ Check out the documentation for more information on [how to create tasks](https:
 
 Services can also submit events to MESG Core. They allow two-way communication with MESG Core and Applications.
 
-Let's say the service is an HTTP web server. An event could be submitted when the web server receives a request with the request's payload as the event's data. The service could also submit a specific event for every route of your API.
+Let's say the service is an HTTP web server. An event could be submitted when the web server receives a request with the request's payload as the event's data. The service could also submit a specific event for every route of your HTTP API.
 
 For more info on how to create your events, visit the [Emit an Event](https://docs.mesg.com/guide/service/emit-an-event.html) page.
 
