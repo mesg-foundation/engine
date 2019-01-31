@@ -159,7 +159,7 @@ Let's trigger the webhook with the following command:
 curl -XPOST http://localhost:3000/webhook
 ```
 
-:tada: You should have received an email in your inbox with your invitation to our Discord. Come join to our community.
+:tada: You should have received an email in your inbox with your invitation to our Discord. Come join our community.
 
 # Services
 
