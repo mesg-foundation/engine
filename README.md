@@ -82,7 +82,7 @@ Now that the services are up and running, let's create the application.
 
 The application is using [NodeJS](https://nodejs.org) and [NPM](https://www.npmjs.com/).
 
-Let's init the app and install the [MESG JS library](https://www.npmjs.com/package/mesg-js).
+Let's init the app and install the [MESG JS library](https://github.com/mesg-foundation/mesg-js).
 
 Create and move your terminal to a folder that will contain the application. Then run:
 
