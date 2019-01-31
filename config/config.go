@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -21,6 +22,14 @@ var (
 	once     sync.Once
 )
 
+// ServiceConfig contains information related to services that the config knows about
+type ServiceConfig struct {
+	URL  string
+	Env  map[string]string
+	Sid  string
+	Hash string
+}
+
 // Config contains all the configuration needed.
 type Config struct {
 	Server struct {
@@ -32,8 +41,9 @@ type Config struct {
 	}
 
 	Log struct {
-		Format string
-		Level  string
+		Format      string
+		ForceColors bool
+		Level       string
 	}
 
 	Core struct {
@@ -47,8 +57,16 @@ type Config struct {
 		}
 	}
 
-	SystemServices struct {
-		RelativePath string
+	// You can add any attribute that will be a `ServiceConfig` type
+	// 		example: `Foo ServiceConfig`
+	// You can then access it with config.Service.Foo.Sid in order to access the Sid of this service.
+	// The services in this struct are automatically started when Core starts based on the URL and Env.
+	// Sid and Hash are populated only after the deployment.
+	// You need to initialize these services in the `New` function
+	// 		example: `c.Service.Foo = ServiceConfig{URL: "https://api.github.com/repos/mesg-foundation/service-ethereum-erc20/tarball/master"}`
+	// Also add it in the `Services()` function
+	// 		example: `return []*ServiceConfig{ &c.Foo }`
+	Service struct {
 	}
 
 	Docker struct {
@@ -71,10 +89,10 @@ func New() (*Config, error) {
 	c.Client.Address = "localhost:50052"
 	c.Log.Format = "text"
 	c.Log.Level = "info"
+	c.Log.ForceColors = false
 	c.Core.Image = "mesg/core:" + strings.Split(version.Version, " ")[0]
 	c.Core.Name = "core"
 	c.Core.Path = filepath.Join(home, ".mesg")
-	c.SystemServices.RelativePath = "systemservices"
 	c.Core.Database.ServiceRelativePath = filepath.Join("database", "services")
 	c.Core.Database.ExecutionRelativePath = filepath.Join("database", "executions")
 	c.Docker.Core.Path = "/mesg"
@@ -128,13 +146,19 @@ func (c *Config) Validate() error {
 	return nil
 }
 
+// Services returns all services that the configuration package is aware of
+func (c *Config) Services() []*ServiceConfig {
+	return []*ServiceConfig{}
+}
+
 // DaemonEnv returns the needed environmental variable for the Daemon.
 func (c *Config) DaemonEnv() map[string]string {
 	return map[string]string{
-		"MESG_SERVER_ADDRESS": c.Server.Address,
-		"MESG_LOG_FORMAT":     c.Log.Format,
-		"MESG_LOG_LEVEL":      c.Log.Level,
-		"MESG_CORE_NAME":      c.Core.Name,
-		"MESG_CORE_PATH":      c.Docker.Core.Path,
+		"MESG_SERVER_ADDRESS":  c.Server.Address,
+		"MESG_LOG_FORMAT":      c.Log.Format,
+		"MESG_LOG_LEVEL":       c.Log.Level,
+		"MESG_LOG_FORCECOLORS": strconv.FormatBool(c.Log.ForceColors),
+		"MESG_CORE_NAME":       c.Core.Name,
+		"MESG_CORE_PATH":       c.Docker.Core.Path,
 	}
 }

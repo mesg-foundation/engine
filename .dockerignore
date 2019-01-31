@@ -16,5 +16,5 @@ docs/
 scripts/
 docker-images/
 
-# prevent go build cache to break inside Docker on changes to systemservices/sources.
-systemservices/sources
+# prevent go build cache to break inside Docker on changes to systemservices.
+systemservices

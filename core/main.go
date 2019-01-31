@@ -9,8 +9,6 @@ import (
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/interface/grpc"
 	"github.com/mesg-foundation/core/logger"
-	"github.com/mesg-foundation/core/systemservices"
-	"github.com/mesg-foundation/core/systemservices/deployer"
 	"github.com/mesg-foundation/core/version"
 	"github.com/mesg-foundation/core/x/xsignal"
 	"github.com/sirupsen/logrus"
@@ -30,20 +28,37 @@ func initGRPCServer(c *config.Config) (*grpc.Server, error) {
 	}
 
 	// init api.
-	ss := systemservices.New()
-	a, err := api.New(db, execDB, ss)
+	a, err := api.New(db, execDB)
 	if err != nil {
 		return nil, err
 	}
 
 	// init system services.
-	systemServicesPath := filepath.Join(c.Core.Path, c.SystemServices.RelativePath)
-	d := deployer.New(a, systemServicesPath, ss)
-	if err := d.Deploy(systemservices.SystemServicesList); err != nil {
+	if err := deployCoreServices(c, a); err != nil {
 		return nil, err
 	}
 
-	return grpc.New(c.Server.Address, a, ss), nil
+	return grpc.New(c.Server.Address, a), nil
+}
+
+func deployCoreServices(c *config.Config, api *api.API) error {
+	for _, service := range c.Services() {
+		logrus.Infof("Deploy service from %s", service.URL)
+		s, valid, err := api.DeployServiceFromURL(service.URL, service.Env)
+		if valid != nil {
+			return valid
+		}
+		if err != nil {
+			return err
+		}
+		service.Sid = s.Sid
+		service.Hash = s.Hash
+		logrus.Infof("Service %s deployed", s.Name)
+		if err := api.StartService(s.Sid); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func main() {
@@ -54,7 +69,7 @@ func main() {
 	}
 
 	// init logger.
-	logger.Init(c.Log.Format, c.Log.Level)
+	logger.Init(c.Log.Format, c.Log.Level, c.Log.ForceColors)
 
 	// init gRPC server.
 	server, err := initGRPCServer(c)

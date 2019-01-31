@@ -3,6 +3,7 @@ package grpc
 import (
 	"net"
 	"sync"
+	"time"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
@@ -11,16 +12,15 @@ import (
 	"github.com/mesg-foundation/core/interface/grpc/service"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
-	"github.com/mesg-foundation/core/systemservices"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
 )
 
 // Server contains the server config.
 type Server struct {
 	api *api.API
-	ss  *systemservices.SystemServices
 
 	instance *grpc.Server
 	closed   bool
@@ -31,10 +31,9 @@ type Server struct {
 }
 
 // New returns a new gRPC server.
-func New(address string, api *api.API, ss *systemservices.SystemServices) *Server {
+func New(address string, api *api.API) *Server {
 	return &Server{
 		api:     api,
-		ss:      ss,
 		address: address,
 		network: "tcp",
 	}
@@ -54,7 +53,18 @@ func (s *Server) listen() (net.Listener, error) {
 		return nil, err
 	}
 
+	// keep-alive is need to prevent Docker network to think that gRPC connection is
+	// idle (see issues/549). without keep-alive it'll close the connection when there is
+	// no activity after some time. in that case grpc pkg will reconnect but all open
+	// gRPC streams needed to be re-established manually.
+	//
+	// keep-alive needs to be lower than Docker network's timeout that gives the
+	// decions about idle connections.
+	keepaliveOpt := grpc.KeepaliveParams(keepalive.ServerParameters{
+		Time: 1 * time.Minute,
+	})
 	s.instance = grpc.NewServer(
+		keepaliveOpt,
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			grpc_logrus.StreamServerInterceptor(logrus.NewEntry(logrus.StandardLogger())),
 		)),
@@ -96,7 +106,7 @@ func (s *Server) Close() {
 
 // register all server
 func (s *Server) register() error {
-	coreServer := core.NewServer(s.api, s.ss)
+	coreServer := core.NewServer(s.api)
 	serviceServer := service.NewServer(s.api)
 
 	serviceapi.RegisterServiceServer(s.instance, serviceServer)
