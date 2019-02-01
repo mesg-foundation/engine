@@ -8,7 +8,7 @@ import (
 
 // LookupReadme returns the content of a readme in a directory
 func LookupReadme(path string) (string, error) {
-	reg := regexp.MustCompile("(?i)^readme(\\.md)?")
+	reg := regexp.MustCompile(`(?i)^readme(\\.md)?`)
 	files, err := ioutil.ReadDir(path)
 	if err != nil {
 		return "", err
