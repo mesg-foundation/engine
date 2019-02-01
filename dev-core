@@ -22,6 +22,7 @@ deleteServiceServer
 mkdir -p tmp-systemservices
 for i in systemservices/* ; do
   if [ -d "$i" ]; then
+    echo "Creating archive for $i..."
     cd $i
     file=$(basename "$i")
     tar -czf ../../tmp-systemservices/$file.tar.gz *
