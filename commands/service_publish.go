@@ -4,13 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"path/filepath"
-	"regexp"
 
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/ipfs"
 	"github.com/mesg-foundation/core/service/importer"
+	"github.com/mesg-foundation/core/utils/readme"
 	"github.com/spf13/cobra"
 )
 
@@ -84,27 +82,6 @@ func (c *servicePublishCmd) runE(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func (c *servicePublishCmd) readReadme() (string, error) {
-	reg, err := regexp.Compile("(?i)^readme(\\.md)?")
-	if err != nil {
-		return "", err
-	}
-	files, err := ioutil.ReadDir(c.path)
-	if err != nil {
-		return "", err
-	}
-
-	for _, file := range files {
-		if reg.Match([]byte(file.Name())) {
-			readme, err := ioutil.ReadFile(filepath.Join(c.path, file.Name()))
-			if err == nil && len(readme) > 0 {
-				return string(readme), nil
-			}
-		}
-	}
-	return "", nil
-}
-
 func (c *servicePublishCmd) createDefinitionFile(tarballHash string) ([]byte, error) {
 	definition, err := importer.From(c.path)
 	if err != nil {
@@ -113,7 +90,7 @@ func (c *servicePublishCmd) createDefinitionFile(tarballHash string) ([]byte, er
 	var data marketplaceData
 	data.Version = PublishVersion
 	data.Service.Deployment.Source = tarballHash
-	data.Readme, err = c.readReadme()
+	data.Readme, err = readme.LookupReadme(c.path)
 	if err != nil {
 		return nil, err
 	}
