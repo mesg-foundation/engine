@@ -416,9 +416,9 @@ message InfoReply {
     string url = 3;   // url used to deploy the service
     string key = 4;   // key to identify the core service
   }
-  repeated CoreService services = 1; // Map of services that the core is running as core services indexed by an unique key defined in the code
+  repeated CoreService services = 1; // List of services that the core is running as core service
   string address = 2; // Address to reach the core
-  string image = 3;   // Docker image running
+  string image = 3;   // Docker image used
   string version = 4; // Version of the core
 }
 
