@@ -90,7 +90,7 @@ func (c *servicePublishCmd) createDefinitionFile(tarballHash string) ([]byte, er
 	var data marketplaceData
 	data.Version = PublishVersion
 	data.Service.Deployment.Source = tarballHash
-	data.Readme, err = readme.LookupReadme(c.path)
+	data.Readme, err = readme.Lookup(c.path)
 	if err != nil {
 		return nil, err
 	}
