@@ -12,7 +12,6 @@ MESG_SERVICE_SERVER="core-service-server"
 
 function deleteServiceServer {
   rm -rf tmp-systemservices
-  serviceExists=$(docker service list | grep core-service-server)
   if [[ "$serviceExists" != "" ]]; then
     docker service rm $MESG_SERVICE_SERVER
   fi
