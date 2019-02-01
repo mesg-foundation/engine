@@ -16,6 +16,7 @@ import (
 
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/keepalive"
 )
 
 const (
@@ -76,13 +77,16 @@ type Option func(*Service)
 
 // New starts a new Service with options.
 func New(options ...Option) (*Service, error) {
+	dialKeepaliveOpt := grpc.WithKeepaliveParams(keepalive.ClientParameters{
+		Time: 1 * time.Minute,
+	})
 	s := &Service{
 		endpoint:     os.Getenv(endpointEnv),
 		token:        os.Getenv(tokenEnv),
 		callTimeout:  time.Second * 10,
 		gracefulWait: &sync.WaitGroup{},
 		logOutput:    ioutil.Discard,
-		dialOptions:  []grpc.DialOption{grpc.WithInsecure()},
+		dialOptions:  []grpc.DialOption{dialKeepaliveOpt, grpc.WithInsecure()},
 	}
 	for _, option := range options {
 		option(s)
