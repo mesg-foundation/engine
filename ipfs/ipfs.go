@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 )
@@ -60,12 +59,8 @@ func (ipfs *IPFS) Add(name string, reader io.Reader) (*Response, error) {
 	if res.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("bad status: %s", res.Status)
 	}
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
 	var response Response
-	if err := json.Unmarshal(body, &response); err != nil {
+	if err := json.NewDecoder(res.Body).Decode(&response); err != nil {
 		return nil, err
 	}
 	return &response, nil

@@ -6,12 +6,16 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
+	"regexp"
 
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/ipfs"
 	"github.com/mesg-foundation/core/service/importer"
 	"github.com/spf13/cobra"
 )
+
+// PublishVersion is the version used to publish the services to the marketplace
+const PublishVersion = 1
 
 type servicePublishCmd struct {
 	baseCmd
@@ -23,13 +27,13 @@ type servicePublishCmd struct {
 }
 
 type marketplaceData struct {
-	Version int `json:"version,omitempty"`
+	Version int `json:"version"`
 	Service struct {
 		Deployment struct {
-			Source string `json:"source,omitempty"`
-		} `json:"deployment,omitempty"`
-	} `json:"service,omitempty"`
-	Definition *importer.ServiceDefinition `json:"definition,omitempty"`
+			Source string `json:"source"`
+		} `json:"deployment"`
+	} `json:"service"`
+	Definition *importer.ServiceDefinition `json:"definition"`
 	Readme     string                      `json:"readme,omitempty"`
 }
 
@@ -80,15 +84,25 @@ func (c *servicePublishCmd) runE(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func (c *servicePublishCmd) readReadme() string {
-	variations := []string{"README.md", "Readme.md", "readme.md"}
-	for _, file := range variations {
-		readme, err := ioutil.ReadFile(filepath.Join(c.path, file))
-		if err == nil && len(readme) > 0 {
-			return string(readme)
+func (c *servicePublishCmd) readReadme() (string, error) {
+	reg, err := regexp.Compile("(?i)^readme(\\.md)?")
+	if err != nil {
+		return "", err
+	}
+	files, err := ioutil.ReadDir(c.path)
+	if err != nil {
+		return "", err
+	}
+
+	for _, file := range files {
+		if reg.Match([]byte(file.Name())) {
+			readme, err := ioutil.ReadFile(filepath.Join(c.path, file.Name()))
+			if err == nil && len(readme) > 0 {
+				return string(readme), nil
+			}
 		}
 	}
-	return ""
+	return "", nil
 }
 
 func (c *servicePublishCmd) createDefinitionFile(tarballHash string) ([]byte, error) {
@@ -97,9 +111,12 @@ func (c *servicePublishCmd) createDefinitionFile(tarballHash string) ([]byte, er
 		return nil, err
 	}
 	var data marketplaceData
-	data.Version = 1
+	data.Version = PublishVersion
 	data.Service.Deployment.Source = tarballHash
-	data.Readme = c.readReadme()
+	data.Readme, err = c.readReadme()
+	if err != nil {
+		return nil, err
+	}
 	data.Definition = definition
 	return json.Marshal(data)
 }
