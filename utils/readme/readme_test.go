@@ -28,7 +28,7 @@ func TestLookupReadme(t *testing.T) {
 		defer os.RemoveAll(dir)
 		err = ioutil.WriteFile(filepath.Join(dir, test.file), []byte("hello"), os.ModePerm)
 		require.NoError(t, err)
-		x, err := LookupReadme(dir)
+		x, err := Lookup(dir)
 		require.NoError(t, err)
 		if test.present {
 			require.Equal(t, "hello", x)
