@@ -42,13 +42,13 @@ func TestServiceDBSave(t *testing.T) {
 	s2 := &service.Service{Hash: "01", Sid: "1", Name: "test-service"}
 	require.NoError(t, db.Save(s2))
 	_, err := db.Get(s1.Hash)
-	require.IsType(t, &ErrNotFound{}, err)
+	require.NoError(t, err)
 
 	// different hash, different sid. should not replace anything.
 	s3 := &service.Service{Hash: "02", Sid: "2", Name: "test-service"}
 	require.NoError(t, db.Save(s3))
 	ss, _ = db.All()
-	require.Len(t, ss, 2)
+	require.Len(t, ss, 3)
 
 	// test service without hash.
 	s := &service.Service{Name: "test-service", Sid: "Sid"}
