@@ -4,12 +4,15 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	survey "gopkg.in/AlecAivazis/survey.v1"
 )
 
 type servicePublishCmd struct {
 	baseCmd
 
 	path string
+
+	yes bool
 
 	e ServiceExecutor
 }
@@ -25,6 +28,7 @@ func newServicePublishCmd(e ServiceExecutor) *servicePublishCmd {
 		Args:    cobra.MaximumNArgs(1),
 		Hidden:  true, // TODO: Remove when this feature is finished
 	})
+	c.cmd.Flags().BoolVarP(&c.yes, "yes", "y", c.yes, `Automatic "yes" to all prompts and run non-interactively`)
 	return c
 }
 
@@ -34,6 +38,18 @@ func (c *servicePublishCmd) preRunE(cmd *cobra.Command, args []string) error {
 }
 
 func (c *servicePublishCmd) runE(cmd *cobra.Command, args []string) error {
+	if !c.yes {
+		var confirmed bool
+		if err := survey.AskOne(&survey.Confirm{
+			Message: fmt.Sprintf("Are you sure to publish from path? (%s)", c.path),
+		}, &confirmed, nil); err != nil {
+			return err
+		}
+		if !confirmed {
+			return errConfirmationNeeded
+		}
+	}
+
 	definition, err := c.e.ServicePublishDefinitionFile(c.path)
 	if err != nil {
 		return err
