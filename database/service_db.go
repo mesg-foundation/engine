@@ -178,12 +178,6 @@ func (d *LevelDBServiceDB) Save(s *service.Service) error {
 		return err
 	}
 
-	// delete existent service that has the same sid.
-	if err := d.delete(tx, s.Sid); err != nil && !IsErrNotFound(err) {
-		tx.Discard()
-		return err
-	}
-
 	// encode service
 	b, err := d.marshal(s)
 	if err != nil {
