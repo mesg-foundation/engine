@@ -16,12 +16,12 @@ type createOutputSuccess struct {
 func (s *Ethwallet) create(execution *service.Execution) (string, interface{}) {
 	var inputs createInputs
 	if err := execution.Data(&inputs); err != nil {
-		return OutputError(err.Error())
+		return OutputError(err)
 	}
 
 	account, err := s.keystore.NewAccount(inputs.Passphrase)
 	if err != nil {
-		return OutputError(err.Error())
+		return OutputError(err)
 	}
 
 	return "success", createOutputSuccess{
