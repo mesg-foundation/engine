@@ -2,7 +2,6 @@ package logger
 
 import (
 	"io/ioutil"
-	"sync"
 	"testing"
 
 	"github.com/mesg-foundation/core/client/service"
@@ -71,14 +70,7 @@ func TestClose(t *testing.T) {
 	logger := New(s)
 
 	go server.Start()
-
-	var wg sync.WaitGroup
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		require.Nil(t, logger.Start())
-	}()
+	go logger.Start()
 
 	_, _, err := server.Execute("log", data)
 	require.NoError(t, err)
@@ -86,6 +78,4 @@ func TestClose(t *testing.T) {
 
 	_, _, err = server.Execute("log", data)
 	require.Equal(t, servicetest.ErrConnectionClosed{}, err)
-
-	wg.Wait()
 }
