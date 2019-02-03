@@ -95,6 +95,10 @@ func (p *ServiceProvider) ServiceListenEvents(id, eventFilter string) (chan *cor
 	errC := make(chan error)
 
 	go func() {
+		<-stream.Context().Done()
+		errC <- stream.Context().Err()
+	}()
+	go func() {
 		for {
 			if res, err := stream.Recv(); err != nil {
 				errC <- err
@@ -126,6 +130,10 @@ func (p *ServiceProvider) ServiceListenResults(id, taskFilter, outputFilter stri
 	resultC := make(chan *coreapi.ResultData)
 	errC := make(chan error)
 
+	go func() {
+		<-stream.Context().Done()
+		errC <- stream.Context().Err()
+	}()
 	go func() {
 		for {
 			if res, err := stream.Recv(); err != nil {
@@ -193,6 +201,10 @@ func (p *ServiceProvider) ServiceLogs(id string, dependencies ...string) (logs [
 	}
 
 	errC := make(chan error, len(logs))
+	go func() {
+		<-stream.Context().Done()
+		errC <- stream.Context().Err()
+	}()
 	go p.listenServiceLogs(stream, logs, errC)
 	go func() {
 		<-errC
