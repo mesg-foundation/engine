@@ -12,8 +12,7 @@ MESG_SERVICE_SERVER="core-service-server"
 
 function deleteServiceServer {
   rm -rf tmp-systemservices
-  serviceExists=$(docker service list | grep core-service-server)
-  if [[ "$serviceExists" != "" ]]; then
+  if docker service list | grep -q core-service-server; then
     docker service rm $MESG_SERVICE_SERVER
   fi
 }
@@ -22,6 +21,7 @@ deleteServiceServer
 mkdir -p tmp-systemservices
 for i in systemservices/* ; do
   if [ -d "$i" ]; then
+    echo "Creating archive for $i..."
     cd $i
     file=$(basename "$i")
     tar -czf ../../tmp-systemservices/$file.tar.gz *
