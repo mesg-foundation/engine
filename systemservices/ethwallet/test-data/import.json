@@ -1,0 +1,24 @@
+{
+    "passphrase": "1",
+    "account": {
+        "address": "383cfb1a2d54a372f5c9f7210b1ff23b0dcd50c3",
+        "crypto": {
+            "cipher": "aes-128-ctr",
+            "cipherparams": {
+                "iv": "3c5f036d2c542ee33ff71dde413152ee"
+            },
+            "ciphertext": "b902e494f36e9cd9c133c9bc96f07f048d0ba7efa957533962beae5ea7cd5ad1",
+            "kdf": "scrypt",
+            "kdfparams": {
+                "dklen": 32,
+                "n": 262144,
+                "p": 1,
+                "r": 8,
+                "salt": "4489e8c76a08b6aec33efa6b4c6e024df26ce56dfe84304033bddb20fd27dcb4"
+            },
+            "mac": "e47ff70af60cd55c67128dd6061a4826fa50c41bf075e1f36c0248535f90db8a"
+        },
+        "id": "1dcdd0a6-f9f9-4b7b-938c-3dc245c2d1ae",
+        "version": 3
+    }
+}

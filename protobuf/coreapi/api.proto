@@ -42,6 +42,9 @@ service Core {
 
   // ServiceLogs gives a stream for dependency logs of a service.
   rpc ServiceLogs (ServiceLogsRequest) returns (stream LogData) {}
+
+  // Info returns all necessary information from the core.
+  rpc Info(InfoRequest) returns (InfoReply) {}
 }
 
 // The request's data for the `ListenEvent` stream's API.
@@ -400,6 +403,23 @@ message GetServiceReply {
 message ServiceLogsRequest {
   string serviceID = 1;             // The Service ID. Generated when using the [`DeployService` API](#deployservice).
   repeated string dependencies = 2; // __Optional.__ List of dependencies to filter service logs. All by default.
+}
+
+// The request to fetch all informations of the Core
+message InfoRequest {}
+
+// Information concerning the Core from the `info` API.
+message InfoReply {
+  message CoreService {
+    string sid = 1;   // sid of the service
+    string hash = 2;  // hash of the service
+    string url = 3;   // url used to deploy the service
+    string key = 4;   // key to identify the core service
+  }
+  repeated CoreService services = 1; // List of services that the core is running as core service
+  string address = 2; // Address to reach the core
+  string image = 3;   // Docker image used
+  string version = 4; // Version of the core
 }
 
 // The data received from the stream of the `ServiceLogs` API.
