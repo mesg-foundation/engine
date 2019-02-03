@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/client/service/servicetest"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const token = "token"
@@ -29,8 +29,8 @@ func newServiceAndServer(t *testing.T) (*Service, *servicetest.Server) {
 		LogOutputOption(ioutil.Discard),
 	)
 
-	assert.Nil(t, err)
-	assert.NotNil(t, service)
+	require.NoError(t, err)
+	require.NotNil(t, service)
 
 	return service, testServer
 }
@@ -44,15 +44,15 @@ func TestEmit(t *testing.T) {
 	service, server := newServiceAndServer(t)
 	go server.Start()
 
-	go func() { assert.Nil(t, service.Emit(event, data)) }()
+	go func() { require.Nil(t, service.Emit(event, data)) }()
 	le := <-server.LastEmit()
 
-	assert.Equal(t, event, le.Name())
-	assert.Equal(t, token, le.Token())
+	require.Equal(t, event, le.Name())
+	require.Equal(t, token, le.Token())
 
 	var data1 eventRequest
-	assert.Nil(t, le.Data(&data1))
-	assert.Equal(t, data.URL, data1.URL)
+	require.Nil(t, le.Data(&data1))
+	require.Equal(t, data.URL, data1.URL)
 }
 
 type taskRequest struct {
@@ -83,23 +83,23 @@ func TestListen(t *testing.T) {
 		err := service.Listen(
 			Task(task, func(execution *Execution) (string, interface{}) {
 				var data2 taskRequest
-				assert.Nil(t, execution.Data(&data2))
-				assert.Equal(t, reqData.URL, data2.URL)
+				require.Nil(t, execution.Data(&data2))
+				require.Equal(t, reqData.URL, data2.URL)
 				return key, resData
 			}),
 		)
-		assert.True(t, err == nil || err == context.Canceled)
+		require.True(t, err == nil || err == context.Canceled)
 	}()
 
 	id, execution, err := server.Execute(task, reqData)
-	assert.Nil(t, err)
-	assert.Equal(t, id, execution.ID())
-	assert.Equal(t, key, execution.Key())
-	assert.Equal(t, token, server.ListenToken())
+	require.NoError(t, err)
+	require.Equal(t, id, execution.ID())
+	require.Equal(t, key, execution.Key())
+	require.Equal(t, token, server.ListenToken())
 
 	var data1 taskResponse
-	assert.Nil(t, execution.Data(&data1))
-	assert.Equal(t, resData.Message, data1.Message)
+	require.Nil(t, execution.Data(&data1))
+	require.Equal(t, resData.Message, data1.Message)
 
 	service.Close()
 	wg.Wait()
@@ -124,7 +124,7 @@ func TestMultipleListenCall(t *testing.T) {
 	server.Execute(taskKey, data)
 	<-makeSureListeningC
 
-	assert.Equal(t, service.Listen(taskable).Error(), errAlreadyListening{}.Error())
+	require.Equal(t, service.Listen(taskable).Error(), errAlreadyListening{}.Error())
 }
 
 func TestNonExistentTaskExecutionRequest(t *testing.T) {
@@ -149,6 +149,6 @@ func TestNonExistentTaskExecutionRequest(t *testing.T) {
 	go server.Execute(nonExistentTaskKey, data)
 
 	line, _, err := bufio.NewReader(reader).ReadLine()
-	assert.Nil(t, err)
-	assert.Contains(t, string(line), errNonExistentTask{name: nonExistentTaskKey}.Error())
+	require.NoError(t, err)
+	require.Contains(t, string(line), errNonExistentTask{name: nonExistentTaskKey}.Error())
 }

@@ -7,7 +7,7 @@ import (
 
 	"github.com/mesg-foundation/core/client/service"
 	"github.com/mesg-foundation/core/client/service/servicetest"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const token = "token"
@@ -20,8 +20,8 @@ func newServiceAndServer(t *testing.T) (*service.Service, *servicetest.Server) {
 		service.TokenOption(token),
 		service.EndpointOption(endpoint),
 	)
-	assert.Nil(t, err)
-	assert.NotNil(t, s)
+	require.NoError(t, err)
+	require.NotNil(t, s)
 	return s, testServer
 }
 
@@ -38,12 +38,12 @@ func TestListenSuccess(t *testing.T) {
 	go logger.Start()
 
 	_, execution, err := server.Execute("log", data)
-	assert.Nil(t, err)
-	assert.Equal(t, "success", execution.Key())
+	require.NoError(t, err)
+	require.Equal(t, "success", execution.Key())
 
 	var resp successResponse
-	assert.Nil(t, execution.Data(&resp))
-	assert.Equal(t, "ok", resp.Message)
+	require.Nil(t, execution.Data(&resp))
+	require.Equal(t, "ok", resp.Message)
 }
 
 func TestListenError(t *testing.T) {
@@ -56,12 +56,12 @@ func TestListenError(t *testing.T) {
 	go logger.Start()
 
 	_, execution, err := server.Execute("log", data)
-	assert.Nil(t, err)
-	assert.Equal(t, "error", execution.Key())
+	require.NoError(t, err)
+	require.Equal(t, "error", execution.Key())
 
 	var resp errorResponse
-	assert.Nil(t, execution.Data(&resp))
-	assert.Contains(t, "json", resp.Message)
+	require.Nil(t, execution.Data(&resp))
+	require.Contains(t, "json", resp.Message)
 }
 
 func TestClose(t *testing.T) {
@@ -77,15 +77,15 @@ func TestClose(t *testing.T) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		assert.Nil(t, logger.Start())
+		require.Nil(t, logger.Start())
 	}()
 
 	_, _, err := server.Execute("log", data)
-	assert.Nil(t, err)
-	assert.Nil(t, logger.Close())
+	require.NoError(t, err)
+	require.Nil(t, logger.Close())
 
 	_, _, err = server.Execute("log", data)
-	assert.Equal(t, servicetest.ErrConnectionClosed{}, err)
+	require.Equal(t, servicetest.ErrConnectionClosed{}, err)
 
 	wg.Wait()
 }
