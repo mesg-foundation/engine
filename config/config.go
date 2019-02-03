@@ -30,6 +30,12 @@ type ServiceConfig struct {
 	Hash string
 }
 
+// ServiceConfigWithKey contains information related to services that the config knows about and their key
+type ServiceConfigWithKey struct {
+	*ServiceConfig
+	Key string
+}
+
 // Config contains all the configuration needed.
 type Config struct {
 	Server struct {
@@ -65,7 +71,7 @@ type Config struct {
 	// You need to initialize these services in the `New` function
 	// 		example: `c.Service.Foo = ServiceConfig{URL: "https://api.github.com/repos/mesg-foundation/service-ethereum-erc20/tarball/master"}`
 	// Also add it in the `Services()` function
-	// 		example: `return []*ServiceConfig{ &c.Foo }`
+	// 		example: `[]*ServiceConfigWithKey{{&c.Service.Foo, "Foo"}}`
 	Service struct {
 	}
 
