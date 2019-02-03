@@ -60,7 +60,7 @@ func TestListenError(t *testing.T) {
 
 	var resp errorResponse
 	require.Nil(t, execution.Data(&resp))
-	require.Contains(t, "json", resp.Message)
+	require.Contains(t, resp.Message, "json")
 }
 
 func TestClose(t *testing.T) {
