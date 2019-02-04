@@ -35,7 +35,6 @@ require (
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/kelseyhightower/envconfig v1.3.0
 	github.com/kevinburke/ssh_config v0.0.0-20180711164746-82cf3f926438 // indirect
-	github.com/kr/pretty v0.1.0 // indirect
 	github.com/kr/pty v1.1.3 // indirect
 	github.com/mattn/go-colorable v0.0.0-20180310133214-efa589957cd0 // indirect
 	github.com/mattn/go-isatty v0.0.3 // indirect
@@ -58,7 +57,6 @@ require (
 	github.com/spf13/pflag v0.0.0-20180601132542-3ebe029320b2
 	github.com/src-d/gcfg v1.3.0 // indirect
 	github.com/stretchr/testify v1.3.0
-	github.com/stvp/assert v0.0.0-20170616060220-4bc16443988b
 	github.com/syndtr/goleveldb v0.0.0-20180708030551-c4c61651e9e3
 	github.com/vektra/mockery v0.0.0-20181123154057-e78b021dcbb5
 	github.com/xanzy/ssh-agent v0.2.0 // indirect
