@@ -13,10 +13,14 @@ import (
 // PublishVersion is the version used to publish the services to the marketplace
 const PublishVersion = 1
 
+// DeploymentType is the type of deployment used for the service
+const DeploymentType = "IPFS"
+
 type marketplaceData struct {
 	Version int `json:"version"`
 	Service struct {
 		Deployment struct {
+			Type   string `json:"type"`
 			Source string `json:"source"`
 		} `json:"deployment"`
 	} `json:"service"`
@@ -57,6 +61,7 @@ func (p *ServiceProvider) createDefinitionFile(path string, tarballHash string) 
 	}
 	var data marketplaceData
 	data.Version = PublishVersion
+	data.Service.Deployment.Type = DeploymentType
 	data.Service.Deployment.Source = tarballHash
 	data.Readme, err = readme.Lookup(path)
 	if err != nil {
