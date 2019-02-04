@@ -32,29 +32,29 @@ type signOutputSuccess struct {
 func (s *Ethwallet) sign(execution *service.Execution) (string, interface{}) {
 	var inputs signInputs
 	if err := execution.Data(&inputs); err != nil {
-		return OutputError(err.Error())
+		return OutputError(err)
 	}
 
 	account, err := xaccounts.GetAccount(s.keystore, inputs.Address)
 	if err != nil {
-		return OutputError("Account not found")
+		return OutputError(errAccountNotFound)
 	}
 
 	value := new(big.Int)
 	if _, ok := value.SetString(inputs.Transaction.Value, 0); !ok {
-		return OutputError("Cannot parse value")
+		return OutputError(errCannotParseValue)
 	}
 
 	gasPrice := new(big.Int)
 	if _, ok := gasPrice.SetString(inputs.Transaction.GasPrice, 0); !ok {
-		return OutputError("Cannot parse gasPrice")
+		return OutputError(errCannotParseGasPrice)
 	}
 
 	transaction := types.NewTransaction(inputs.Transaction.Nonce, inputs.Transaction.To, value, inputs.Transaction.GasLimit, gasPrice, inputs.Transaction.Data)
 
 	signedTransaction, err := s.keystore.SignTxWithPassphrase(account, inputs.Passphrase, transaction, big.NewInt(inputs.ChainID))
 	if err != nil {
-		return OutputError(err.Error())
+		return OutputError(err)
 	}
 
 	return "success", signOutputSuccess{

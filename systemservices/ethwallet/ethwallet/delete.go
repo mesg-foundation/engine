@@ -18,16 +18,16 @@ type deleteOutputSuccess struct {
 func (s *Ethwallet) delete(execution *service.Execution) (string, interface{}) {
 	var inputs deleteInputs
 	if err := execution.Data(&inputs); err != nil {
-		return OutputError(err.Error())
+		return OutputError(err)
 	}
 
 	account, err := xaccounts.GetAccount(s.keystore, inputs.Address)
 	if err != nil {
-		return OutputError("Account not found")
+		return OutputError(errAccountNotFound)
 	}
 
 	if err := s.keystore.Delete(account, inputs.Passphrase); err != nil {
-		return OutputError(err.Error())
+		return OutputError(err)
 	}
 
 	return "success", deleteOutputSuccess{
