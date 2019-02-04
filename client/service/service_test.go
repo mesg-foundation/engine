@@ -2,13 +2,14 @@ package service
 
 import (
 	"bufio"
+	"context"
 	"io"
 	"io/ioutil"
 	"sync"
 	"testing"
 
 	"github.com/mesg-foundation/core/client/service/servicetest"
-	"github.com/stvp/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 const token = "token"
@@ -84,12 +85,10 @@ func TestListen(t *testing.T) {
 				var data2 taskRequest
 				assert.Nil(t, execution.Data(&data2))
 				assert.Equal(t, reqData.URL, data2.URL)
-
 				return key, resData
 			}),
 		)
-
-		assert.Nil(t, err)
+		assert.True(t, err == nil || err == context.Canceled)
 	}()
 
 	id, execution, err := server.Execute(task, reqData)
@@ -151,5 +150,5 @@ func TestNonExistentTaskExecutionRequest(t *testing.T) {
 
 	line, _, err := bufio.NewReader(reader).ReadLine()
 	assert.Nil(t, err)
-	assert.Contains(t, errNonExistentTask{name: nonExistentTaskKey}.Error(), string(line))
+	assert.Contains(t, string(line), errNonExistentTask{name: nonExistentTaskKey}.Error())
 }
