@@ -131,9 +131,9 @@ tasks:
             name: "Value"
             description: "The value in Wei."
             type: String
-          gasLimit:
-            name: "Gas limit"
-            description: "The gas limit"
+          gas:
+            name: "Gas"
+            description: "The gas limit to execute this transaction"
             type: Number
           gasPrice:
             name: "Gas price"
