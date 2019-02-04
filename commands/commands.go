@@ -27,7 +27,7 @@ type ServiceExecutor interface {
 	ServiceDeploy(path string, env map[string]string, statuses chan provider.DeployStatus) (id string, validationError, err error)
 	ServiceListenEvents(id, eventFilter string) (chan *coreapi.EventData, chan error, error)
 	ServiceListenResults(id, taskFilter, outputFilter string, tagFilters []string) (chan *coreapi.ResultData, chan error, error)
-	ServiceLogs(id string, dependencies ...string) (logs []*provider.Log, closer func(), err error)
+	ServiceLogs(id string, dependencies ...string) (logs []*provider.Log, closer func(), errC chan error, err error)
 	ServiceExecuteTask(id, taskKey, inputData string, tags []string) error
 	ServiceStart(id string) error
 	ServiceStop(id string) error
