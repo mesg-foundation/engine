@@ -47,13 +47,13 @@ func (_m *ServiceDB) Close() error {
 	return r0
 }
 
-// Delete provides a mock function with given fields: idOrSid
-func (_m *ServiceDB) Delete(idOrSid string) error {
-	ret := _m.Called(idOrSid)
+// Delete provides a mock function with given fields: hashOrSid
+func (_m *ServiceDB) Delete(hashOrSid string) error {
+	ret := _m.Called(hashOrSid)
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(string) error); ok {
-		r0 = rf(idOrSid)
+		r0 = rf(hashOrSid)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -61,13 +61,13 @@ func (_m *ServiceDB) Delete(idOrSid string) error {
 	return r0
 }
 
-// Get provides a mock function with given fields: idOrSid
-func (_m *ServiceDB) Get(idOrSid string) (*service.Service, error) {
-	ret := _m.Called(idOrSid)
+// Get provides a mock function with given fields: hashOrSid
+func (_m *ServiceDB) Get(hashOrSid string) (*service.Service, error) {
+	ret := _m.Called(hashOrSid)
 
 	var r0 *service.Service
 	if rf, ok := ret.Get(0).(func(string) *service.Service); ok {
-		r0 = rf(idOrSid)
+		r0 = rf(hashOrSid)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*service.Service)
@@ -76,7 +76,7 @@ func (_m *ServiceDB) Get(idOrSid string) (*service.Service, error) {
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(idOrSid)
+		r1 = rf(hashOrSid)
 	} else {
 		r1 = ret.Error(1)
 	}
