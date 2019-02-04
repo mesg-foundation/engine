@@ -80,7 +80,7 @@ type Option func(*Service)
 // New starts a new Service with options.
 func New(options ...Option) (*Service, error) {
 	dialKeepaliveOpt := grpc.WithKeepaliveParams(keepalive.ClientParameters{
-		Time: 1 * time.Minute,
+		Time: 5 * time.Minute,
 	})
 	s := &Service{
 		endpoint:     os.Getenv(endpointEnv),

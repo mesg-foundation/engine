@@ -26,7 +26,7 @@ func main() {
 	}
 
 	dialKeepaliveOpt := grpc.WithKeepaliveParams(keepalive.ClientParameters{
-		Time: 1 * time.Minute,
+		Time: 5 * time.Minute,
 	})
 	connection, err := grpc.Dial(cfg.Client.Address, dialKeepaliveOpt, grpc.WithInsecure())
 	if err != nil {
