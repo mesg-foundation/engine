@@ -20,7 +20,7 @@ type transaction struct {
 	Nonce    uint64         `json:"nonce"`
 	To       common.Address `json:"to"`
 	Value    string         `json:"value"`
-	GasLimit uint64         `json:"gasLimit"`
+	Gas      uint64         `json:"gas"`
 	GasPrice string         `json:"gasPrice"`
 	Data     []byte         `json:"data"`
 }
@@ -50,7 +50,7 @@ func (s *Ethwallet) sign(execution *service.Execution) (string, interface{}) {
 		return OutputError(errCannotParseGasPrice)
 	}
 
-	transaction := types.NewTransaction(inputs.Transaction.Nonce, inputs.Transaction.To, value, inputs.Transaction.GasLimit, gasPrice, inputs.Transaction.Data)
+	transaction := types.NewTransaction(inputs.Transaction.Nonce, inputs.Transaction.To, value, inputs.Transaction.Gas, gasPrice, inputs.Transaction.Data)
 
 	signedTransaction, err := s.keystore.SignTxWithPassphrase(account, inputs.Passphrase, transaction, big.NewInt(inputs.ChainID))
 	if err != nil {
