@@ -276,7 +276,7 @@ func (_m *Executor) ServiceListenResults(id string, taskFilter string, outputFil
 }
 
 // ServiceLogs provides a mock function with given fields: id, dependencies
-func (_m *Executor) ServiceLogs(id string, dependencies ...string) ([]*provider.Log, func(), error) {
+func (_m *Executor) ServiceLogs(id string, dependencies ...string) ([]*provider.Log, func(), chan error, error) {
 	_va := make([]interface{}, len(dependencies))
 	for _i := range dependencies {
 		_va[_i] = dependencies[_i]
@@ -304,14 +304,23 @@ func (_m *Executor) ServiceLogs(id string, dependencies ...string) ([]*provider.
 		}
 	}
 
-	var r2 error
-	if rf, ok := ret.Get(2).(func(string, ...string) error); ok {
+	var r2 chan error
+	if rf, ok := ret.Get(2).(func(string, ...string) chan error); ok {
 		r2 = rf(id, dependencies...)
 	} else {
-		r2 = ret.Error(2)
+		if ret.Get(2) != nil {
+			r2 = ret.Get(2).(chan error)
+		}
 	}
 
-	return r0, r1, r2
+	var r3 error
+	if rf, ok := ret.Get(3).(func(string, ...string) error); ok {
+		r3 = rf(id, dependencies...)
+	} else {
+		r3 = ret.Error(3)
+	}
+
+	return r0, r1, r2, r3
 }
 
 // ServiceStart provides a mock function with given fields: id
