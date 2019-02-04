@@ -22,12 +22,11 @@ func WaitForStreamToBeReady(stream grpc.ClientStream) error {
 	// header received. check status.
 	statuses := header.Get(statusKey)
 	statusesLen := len(statuses)
-	if statusesLen == 0 {
-		return fmt.Errorf("stream header does not contain any status")
-	}
-	lastStatus := statuses[statusesLen-1]
-	if lastStatus != statusReady {
-		return fmt.Errorf("stream header status is different than ready. Got %q", lastStatus)
+	if statusesLen > 0 {
+		lastStatus := statuses[statusesLen-1]
+		if lastStatus != statusReady {
+			return fmt.Errorf("stream header status is different than ready. Got %q", lastStatus)
+		}
 	}
 	return nil
 }
