@@ -20,7 +20,7 @@
 
 #### Documentation
 
-- ([#762](https://github.com/mesg-foundation/core/pull/762)) Fix and improve guide start. [#763](https://github.com/mesg-foundation/core/pull/763).
+- ([#762](https://github.com/mesg-foundation/core/pull/762)) Fix and improve guide start. ([#763](https://github.com/mesg-foundation/core/pull/763)).
 
 ## [v0.8.0](https://github.com/mesg-foundation/core/releases/tag/v0.8.0)
 
