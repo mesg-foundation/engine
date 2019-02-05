@@ -25,8 +25,10 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Keep alive prevents Docker network to drop TCP idle connections after 15 minutes.
+	// See: https://forum.mesg.com/t/solution-summary-for-docker-dropping-connections-after-15-min/246
 	dialKeepaliveOpt := grpc.WithKeepaliveParams(keepalive.ClientParameters{
-		Time: 5 * time.Minute,
+		Time: 5 * time.Minute, // 5 minutes because it's the minimun time of gRPC enforcement policy.
 	})
 	connection, err := grpc.Dial(cfg.Client.Address, dialKeepaliveOpt, grpc.WithInsecure())
 	if err != nil {
