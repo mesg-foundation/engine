@@ -22,14 +22,6 @@ var (
 	once     sync.Once
 )
 
-// ServiceConfig contains information related to services that the config knows about
-type ServiceConfig struct {
-	URL  string
-	Env  map[string]string
-	Sid  string
-	Hash string
-}
-
 // Config contains all the configuration needed.
 type Config struct {
 	Server struct {
@@ -57,17 +49,7 @@ type Config struct {
 		}
 	}
 
-	// You can add any attribute that will be a `ServiceConfig` type
-	// 		example: `Foo ServiceConfig`
-	// You can then access it with config.Service.Foo.Sid in order to access the Sid of this service.
-	// The services in this struct are automatically started when Core starts based on the URL and Env.
-	// Sid and Hash are populated only after the deployment.
-	// You need to initialize these services in the `New` function
-	// 		example: `c.Service.Foo = ServiceConfig{URL: "https://api.github.com/repos/mesg-foundation/service-ethereum-erc20/tarball/master"}`
-	// Also add it in the `Services()` function
-	// 		example: `return []*ServiceConfig{ &c.Foo }`
-	Service struct {
-	}
+	Service ServiceConfigGroup
 
 	Docker struct {
 		Socket string
@@ -97,6 +79,7 @@ func New() (*Config, error) {
 	c.Core.Database.ExecutionRelativePath = filepath.Join("database", "executions")
 	c.Docker.Core.Path = "/mesg"
 	c.Docker.Socket = "/var/run/docker.sock"
+	c.Service = c.getServiceConfigGroup()
 	return &c, nil
 }
 
@@ -144,11 +127,6 @@ func (c *Config) Validate() error {
 		return err
 	}
 	return nil
-}
-
-// Services returns all services that the configuration package is aware of
-func (c *Config) Services() []*ServiceConfig {
-	return []*ServiceConfig{}
 }
 
 // DaemonEnv returns the needed environmental variable for the Daemon.

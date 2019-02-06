@@ -3,6 +3,8 @@
 package service
 
 import (
+	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -11,10 +13,6 @@ import (
 	"os"
 	"sync"
 	"time"
-
-	"encoding/json"
-
-	"context"
 
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
 	"google.golang.org/grpc"
@@ -79,8 +77,10 @@ type Option func(*Service)
 
 // New starts a new Service with options.
 func New(options ...Option) (*Service, error) {
+	// Keep alive prevents Docker network to drop TCP idle connections after 15 minutes.
+	// See: https://forum.mesg.com/t/solution-summary-for-docker-dropping-connections-after-15-min/246
 	dialKeepaliveOpt := grpc.WithKeepaliveParams(keepalive.ClientParameters{
-		Time: 1 * time.Minute,
+		Time: 5 * time.Minute, // 5 minutes because it's the minimun time of gRPC enforcement policy.
 	})
 	s := &Service{
 		endpoint:     os.Getenv(endpointEnv),
@@ -182,18 +182,30 @@ func (s *Service) listenTasks() error {
 	if err != nil {
 		return err
 	}
-	for {
-		s.gracefulWait.Add(1)
-		data, err := stream.Recv()
-		if err != nil {
-			s.gracefulWait.Done()
-			if s.closing {
-				return nil
+
+	errC := make(chan error)
+	go func() {
+		<-stream.Context().Done()
+		errC <- stream.Context().Err()
+	}()
+
+	go func() {
+		for {
+			s.gracefulWait.Add(1)
+			data, err := stream.Recv()
+			if err != nil {
+				s.gracefulWait.Done()
+				if s.closing {
+					errC <- nil
+					return
+				}
+				errC <- err
+				return
 			}
-			return err
+			go s.executeTask(data)
 		}
-		go s.executeTask(data)
-	}
+	}()
+	return <-errC
 }
 
 func (s *Service) getTaskableByName(key string) Taskable {

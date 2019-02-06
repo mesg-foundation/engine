@@ -50,6 +50,10 @@ func (p *ServiceProvider) ServiceDeploy(path string, env map[string]string, stat
 	}
 
 	deployment := make(chan deploymentResult)
+	go func() {
+		<-stream.Context().Done()
+		deployment <- deploymentResult{err: stream.Context().Err()}
+	}()
 	go readDeployReply(stream, deployment, statuses)
 
 	if govalidator.IsURL(path) {
