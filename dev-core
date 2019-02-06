@@ -38,6 +38,7 @@ docker service create -d \
   --name $MESG_SERVICE_SERVER \
   --network core \
   $MESG_SERVICE_SERVER
+rm -r tmp-systemservices
 
 echo "compile cli and core"
 GOOS=linux GOARCH=amd64 go build -o ./bin/core -ldflags="$LDFLAGS" core/main.go
