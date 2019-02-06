@@ -22,6 +22,8 @@ github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/docker/cli v0.0.0-20190129171106-b258f458cc8d h1:n+Le3bCrmzFqx0uw8xOmQr4ZkDfRftw+8DuprUbKfps=
+github.com/docker/cli v0.0.0-20190129171106-b258f458cc8d/go.mod h1:JLrzqnKDaYBop7H2jaqPtU4hHvMKP+vjCwu2uszcLI8=
 github.com/docker/distribution v0.0.0-20180720172123-0dae0957e5fe h1:ZRQNMB7Sw5jf9g/0imDbI+vTFNk4J7qBdtFI5/zf1kg=
 github.com/docker/distribution v0.0.0-20180720172123-0dae0957e5fe/go.mod h1:J2gT2udsDAN96Uj4KfcMRqY0/ypR+oyYUYmja8H+y+w=
 github.com/docker/docker v0.0.0-20180803200506-eeea12db7a65 h1:WeqSIzsb30/sarqEph9RS+6xw8rmRpCACwV8+cJ1Rkc=
