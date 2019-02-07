@@ -3,9 +3,11 @@ package provider
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 
 	"github.com/asaskevich/govalidator"
+	"github.com/docker/cli/cli/command/image/build"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 )
@@ -77,8 +79,27 @@ func (p *ServiceProvider) ServiceDeploy(path string, env map[string]string, stat
 }
 
 func deployServiceSendServiceContext(path string, env map[string]string, stream coreapi.Core_DeployServiceClient) error {
+	contextDir, relDockerfile, err := build.GetContextFromLocalDir(path, build.DefaultDockerfileName)
+	if err != nil {
+		return err
+	}
+
+	excludes, err := build.ReadDockerignore(contextDir)
+	if err != nil {
+		return err
+	}
+
+	if err := build.ValidateContextDirectory(contextDir, excludes); err != nil {
+		return fmt.Errorf("error checking context: %s", err)
+	}
+
+	// And canonicalize dockerfile name to a platform-independent one
+	relDockerfile = archive.CanonicalTarNameForPath(relDockerfile)
+	excludes = build.TrimBuildFilesFromExcludes(excludes, relDockerfile, false)
+
 	archive, err := archive.TarWithOptions(path, &archive.TarOptions{
-		Compression: archive.Gzip,
+		Compression:     archive.Gzip,
+		ExcludePatterns: excludes,
 	})
 	if err != nil {
 		return err
