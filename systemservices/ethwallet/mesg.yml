@@ -152,4 +152,19 @@ tasks:
             name: "Signed transaction"
             description: "The data of the signed transaction."
             type: Object
+  importFromPrivateKey:
+    name: "Import an account from a private key"
+    description: "Import an account from a private key."
+    inputs:
+      privateKey:
+        name: "Private key"
+        description: "The private key to import."
+        type: String
+      passphrase: *passphrase
+    outputs:
+      success:
+        name: "Success"
+        description: "Output when the task executes successfully."
+        data:
+          address: *address
       error: *outputError
