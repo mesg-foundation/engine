@@ -3,13 +3,13 @@
 
 import Contract, { CustomOptions, contractOptions } from "web3/eth/contract";
 import { TransactionObject, BlockType } from "web3/eth/types";
-import { Callback, EventLog } from "web3/types";
 import { EventEmitter } from "events";
 import { Provider } from "web3/providers";
+import { EventData } from "web3-eth-contract/types";
 
 export class Marketplace {
   constructor(jsonInterface: any[], address?: string, options?: CustomOptions);
-  _address: string;
+  // _address: string;
   options: contractOptions;
   methods: {
     isPauser(account: string): TransactionObject<boolean>;
@@ -27,7 +27,7 @@ export class Marketplace {
 
     isServiceOwner(serviceIndex: number | string): TransactionObject<boolean>;
 
-    isServiceSidExist(sid: (string | number[])[]): TransactionObject<boolean>;
+    isServiceSidExist(sid: (string | number[])): TransactionObject<boolean>;
 
     isServiceHashExist(hash: string | number[]): TransactionObject<boolean>;
 
@@ -46,7 +46,7 @@ export class Marketplace {
       paymentIndex: number | string
     ): TransactionObject<string>;
 
-    getServiceIndex(sid: (string | number[])[]): TransactionObject<string>;
+    getServiceIndex(sid: (string | number[])): TransactionObject<string>;
 
     getServiceVersionIndex(
       serviceIndex: number | string,
@@ -81,7 +81,7 @@ export class Marketplace {
     transferOwnership(newOwner: string): TransactionObject<void>;
 
     createService(
-      sid: (string | number[])[],
+      sid: (string | number[]),
       price: number | string
     ): TransactionObject<string>;
 
@@ -98,7 +98,7 @@ export class Marketplace {
     createServiceVersion(
       serviceIndex: number | string,
       hash: string | number[],
-      url: (string | number[])[]
+      url: (string | number[])
     ): TransactionObject<string>;
 
     pay(serviceIndex: number | string): TransactionObject<string>;
@@ -109,10 +109,10 @@ export class Marketplace {
     token(): TransactionObject<string>;
     getServicesCount(): TransactionObject<string>;
   };
-  deploy(options: {
-    data: string;
-    arguments: any[];
-  }): TransactionObject<Contract>;
+  // deploy(options: {
+  //   data: string;
+  //   arguments: any[];
+  // }): TransactionObject<Contract>;
   events: {
     ServiceCreated(
       options?: {
@@ -120,7 +120,6 @@ export class Marketplace {
         fromBlock?: BlockType;
         topics?: (null | string)[];
       },
-      cb?: Callback<EventLog>
     ): EventEmitter;
 
     ServiceOwnershipTransferred(
@@ -129,7 +128,6 @@ export class Marketplace {
         fromBlock?: BlockType;
         topics?: (null | string)[];
       },
-      cb?: Callback<EventLog>
     ): EventEmitter;
 
     ServicePriceChanged(
@@ -138,7 +136,6 @@ export class Marketplace {
         fromBlock?: BlockType;
         topics?: (null | string)[];
       },
-      cb?: Callback<EventLog>
     ): EventEmitter;
 
     ServiceVersionCreated(
@@ -147,7 +144,6 @@ export class Marketplace {
         fromBlock?: BlockType;
         topics?: (null | string)[];
       },
-      cb?: Callback<EventLog>
     ): EventEmitter;
 
     ServicePaid(
@@ -156,7 +152,6 @@ export class Marketplace {
         fromBlock?: BlockType;
         topics?: (null | string)[];
       },
-      cb?: Callback<EventLog>
     ): EventEmitter;
 
     Paused(
@@ -165,7 +160,6 @@ export class Marketplace {
         fromBlock?: BlockType;
         topics?: (null | string)[];
       },
-      cb?: Callback<EventLog>
     ): EventEmitter;
 
     Unpaused(
@@ -174,7 +168,6 @@ export class Marketplace {
         fromBlock?: BlockType;
         topics?: (null | string)[];
       },
-      cb?: Callback<EventLog>
     ): EventEmitter;
 
     PauserAdded(
@@ -183,7 +176,6 @@ export class Marketplace {
         fromBlock?: BlockType;
         topics?: (null | string)[];
       },
-      cb?: Callback<EventLog>
     ): EventEmitter;
 
     PauserRemoved(
@@ -192,7 +184,6 @@ export class Marketplace {
         fromBlock?: BlockType;
         topics?: (null | string)[];
       },
-      cb?: Callback<EventLog>
     ): EventEmitter;
 
     OwnershipTransferred(
@@ -201,7 +192,6 @@ export class Marketplace {
         fromBlock?: BlockType;
         topics?: (null | string)[];
       },
-      cb?: Callback<EventLog>
     ): EventEmitter;
 
     allEvents: (
@@ -210,7 +200,6 @@ export class Marketplace {
         fromBlock?: BlockType;
         topics?: (null | string)[];
       },
-      cb?: Callback<EventLog>
     ) => EventEmitter;
   };
   getPastEvents(
@@ -221,8 +210,7 @@ export class Marketplace {
       toBlock?: BlockType;
       topics?: (null | string)[];
     },
-    cb?: Callback<EventLog[]>
-  ): Promise<EventLog[]>;
-  setProvider(provider: Provider): void;
+  ): Promise<EventData[]>;
+  // setProvider(provider: Provider): void;
   clone(): Marketplace;
 }

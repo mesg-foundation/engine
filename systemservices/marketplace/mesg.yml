@@ -5,7 +5,7 @@ configuration:
   env:
     - PROVIDER_ENDPOINT=http://host.docker.internal:7545
     - BLOCK_CONFIRMATIONS=0
-    - DEFAULT_GAS_LIMIT=1000000
+    - DEFAULT_GAS=1000000
     - POLLING_TIME=1000
     - MARKETPLACE_ADDRESS=0x990d20670Da774865d1848CE21cd8E993790E72F
 tasks:
@@ -24,7 +24,7 @@ tasks:
             type: Object
             repeated: true
             object: &service
-              sid:
+              sid: &sid
                 name: ""
                 description: ""
                 type: String
@@ -58,4 +58,85 @@ tasks:
             name: "Message"
             description: "The error message"
             type: String
+  createService:
+    name: ""
+    description: ""
+    inputs:
+      sid: *sid
+      price:
+        name: ""
+        description: ""
+        type: String
+      transactionConfig: &transactionConfig
+        name: ""
+        description: ""
+        optional: true
+        type: Object
+        object:
+          chainID:
+            name: ""
+            description: ""
+            type: Number
+            optional: true
+          nonce:
+            name: ""
+            description: ""
+            type: Number
+            optional: true
+          gas:
+            name: ""
+            description: ""
+            type: Number
+            optional: true
+          gasPrice:
+            name: ""
+            description: ""
+            type: String
+            optional: true
+    outputs:
+      error: *errorOutput
+      success:
+        data: &transaction
+          chainID:
+            name: "Chain ID"
+            description: "The ID of the chain the transaction is for. See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md#list-of-chain-ids."
+            type: Number
+          nonce:
+            name: "Nonce"
+            description: "Nonce to use."
+            type: Number
+          to:
+            name: "To"
+            description: "The to address."
+            type: String
+          value:
+            name: "Value"
+            description: "The value in Wei."
+            type: String
+          gas:
+            name: "Gas"
+            description: "The maximum gas to use to execute this transaction"
+            type: Number
+          gasPrice:
+            name: "Gas price"
+            description: "The gas price in Wei."
+            type: String
+          data:
+            name: "Data"
+            description: "The data of the transaction."
+            type: Any
+  sendSignedRawTx:
+    name: ""
+    description: ""
+    inputs:
+      signedRawTx:
+        name: ""
+        description: ""
+        type: String
+    outputs:
+      error: *errorOutput
+      success:
+        data:
+          receipt: &receipt
+            type: Object
 events:

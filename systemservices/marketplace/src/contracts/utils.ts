@@ -1,5 +1,9 @@
-import Web3 from "web3"
+import * as utils from 'web3-utils';
 
-const hexToAscii = (x: any) => Web3.utils.hexToAscii(x).replace(/\u0000/g, '')
+const hexToAscii = (x: string) => utils.hexToAscii(x).replace(/\u0000/g, '')
+const asciiToHex = (x: string) => utils.asciiToHex(x)
 
-export { hexToAscii }
+export {
+  hexToAscii,
+  asciiToHex,
+}
