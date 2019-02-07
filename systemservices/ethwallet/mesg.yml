@@ -34,7 +34,7 @@ tasks:
     inputs:
       passphrase: &passphrase
         name: "Passphrase"
-        description: "Passphrase to use to encrypt the account."
+        description: "Passphrase to use with the account."
         type: String
     outputs:
       success:
@@ -51,10 +51,7 @@ tasks:
     description: "Delete an account from the wallet. Need the address and its associated passphrase."
     inputs:
       address: *address
-      passphrase: &passphrase
-        name: "Passphrase"
-        description: "Passphrase to use to unlock the account."
-        type: String
+      passphrase: *passphrase
     outputs:
       success:
         name: "Success"
@@ -133,7 +130,7 @@ tasks:
             type: String
           gas:
             name: "Gas"
-            description: "The gas limit to execute this transaction"
+            description: "The maximum gas to use to execute this transaction"
             type: Number
           gasPrice:
             name: "Gas price"
