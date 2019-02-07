@@ -262,7 +262,6 @@ Sign a transaction with the specified account.
 | **Name** | **Key** | **Type** | **Description** |
 | --- | --- | --- | --- |
 | **Address** | `address` | `String` | The public address of the account. |
-| **Chain ID** | `chainID` | `Number` | The ID of the chain the transaction is for. See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md#list-of-chain-ids. |
 | **Passphrase** | `passphrase` | `String` | Passphrase to use to unlock the account. |
 | **Transaction** | `transaction` | `Object` | The transaction to sign. |
 
