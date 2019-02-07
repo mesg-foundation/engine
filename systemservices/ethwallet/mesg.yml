@@ -148,10 +148,11 @@ tasks:
         name: "Success"
         description: "Output when the task executes successfully."
         data:
-          signedTransaction:
-            name: "Signed transaction"
-            description: "The data of the signed transaction."
-            type: Object
+          raw:
+            name: "Raw signed transaction"
+            description: "The raw signed transaction."
+            type: String
+      error: *outputError
   importFromPrivateKey:
     name: "Import an account from a private key"
     description: "Import an account from a private key."

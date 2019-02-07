@@ -1,6 +1,7 @@
 package ethwallet
 
 import (
+	"encoding/hex"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -26,7 +27,7 @@ type transaction struct {
 }
 
 type signOutputSuccess struct {
-	SignedTransaction *types.Transaction `json:"signedTransaction"`
+	Raw    string             `json:"raw"`
 }
 
 func (s *Ethwallet) sign(execution *service.Execution) (string, interface{}) {
@@ -57,7 +58,10 @@ func (s *Ethwallet) sign(execution *service.Execution) (string, interface{}) {
 		return OutputError(err)
 	}
 
+	ts := types.Transactions{signedTransaction}
+	rawTx := "0x" + hex.EncodeToString(ts.GetRlp(0))
+
 	return "success", signOutputSuccess{
-		SignedTransaction: signedTransaction,
+		Raw: rawTx,
 	}
 }
