@@ -14,10 +14,10 @@ type signInputs struct {
 	Address     common.Address `json:"address"`
 	Passphrase  string         `json:"passphrase"`
 	Transaction *transaction   `json:"transaction"`
-	ChainID     int64          `json:"chainID"`
 }
 
 type transaction struct {
+	ChainID  int64          `json:"chainID"`
 	Nonce    uint64         `json:"nonce"`
 	To       common.Address `json:"to"`
 	Value    string         `json:"value"`
@@ -27,7 +27,7 @@ type transaction struct {
 }
 
 type signOutputSuccess struct {
-	Raw    string             `json:"raw"`
+	Raw string `json:"raw"`
 }
 
 func (s *Ethwallet) sign(execution *service.Execution) (string, interface{}) {
@@ -53,7 +53,7 @@ func (s *Ethwallet) sign(execution *service.Execution) (string, interface{}) {
 
 	transaction := types.NewTransaction(inputs.Transaction.Nonce, inputs.Transaction.To, value, inputs.Transaction.Gas, gasPrice, inputs.Transaction.Data)
 
-	signedTransaction, err := s.keystore.SignTxWithPassphrase(account, inputs.Passphrase, transaction, big.NewInt(inputs.ChainID))
+	signedTransaction, err := s.keystore.SignTxWithPassphrase(account, inputs.Passphrase, transaction, big.NewInt(inputs.Transaction.ChainID))
 	if err != nil {
 		return OutputError(err)
 	}

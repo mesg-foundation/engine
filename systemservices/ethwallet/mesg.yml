@@ -107,15 +107,15 @@ tasks:
     inputs:
       address: *address
       passphrase: *passphrase
-      chainID:
-        name: "Chain ID"
-        description: "The ID of the chain the transaction is for. See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md#list-of-chain-ids."
-        type: Number
       transaction:
         name: "Transaction"
         description: "The transaction to sign."
         type: Object
         object:
+          chainID:
+            name: "Chain ID"
+            description: "The ID of the chain the transaction is for. See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md#list-of-chain-ids."
+            type: Number
           nonce:
             name: "Nonce"
             description: "Nonce to use."
