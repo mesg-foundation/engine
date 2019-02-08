@@ -99,21 +99,29 @@ func New(tarball io.Reader, env map[string]string, options ...Option) (*Service,
 	if err := s.setOptions(options...); err != nil {
 		return nil, err
 	}
+	// untar tarball to retrive mesg.yml
 	if err := s.saveContext(tarball); err != nil {
 		return nil, err
 	}
 	defer os.RemoveAll(s.tempPath)
 
-	hash, err := s.computeHash(tarball, env)
-	if err != nil {
-		return nil, err
-	}
-	s.Hash = hash
-
 	def, err := importer.From(s.tempPath)
 	if err != nil {
 		return nil, err
 	}
+
+	// tar it back without any compression to get constant hash
+	// despite used compression from tarball
+	t, err := archive.Tar(s.tempPath, archive.Uncompressed)
+	if err != nil {
+		return nil, err
+	}
+
+	hash, err := s.computeHash(t, env)
+	if err != nil {
+		return nil, err
+	}
+	s.Hash = hash
 
 	s.injectDefinition(def)
 
