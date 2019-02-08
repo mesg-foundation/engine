@@ -9,6 +9,7 @@ import (
 	"github.com/mesg-foundation/core/service/importer"
 	"github.com/mesg-foundation/core/x/xdocker/xarchive"
 	"github.com/mesg-foundation/core/x/xos"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
@@ -26,19 +27,47 @@ func TestGenerateHash(t *testing.T) {
 		hash string
 		env  map[string]string
 	}{
-		{r: new(bytes.Buffer), hash: "da39a3ee5e6b4b0d3255bfef95601890afd80709", env: map[string]string{}},
-		{r: bytes.NewBufferString("a"), hash: "86f7e437faa5a7fce15d1ddcb9eaeaea377667b8", env: map[string]string{}},
-		{r: new(bytes.Buffer), hash: "21606782c65e44cac7afbb90977d8b6f82140e76", env: map[string]string{"": ""}},
-		{r: new(bytes.Buffer), hash: "2fb8f40115dd1e695cbe23d4f97ce5b1fb697eee", env: map[string]string{"foo": "bar"}},
-		{r: bytes.NewBufferString("a"), hash: "51420feb07a534f887c2839559e0bce5212c6b15", env: map[string]string{"foo": "bar"}},
-		{r: new(bytes.Buffer), hash: "2d60d4e129a4a54062d8f982c397f56d11d7a9b9", env: map[string]string{"hello": "world"}},
-		{r: new(bytes.Buffer), hash: "069d960caf60fde30133b8150e562c770d503ea9", env: map[string]string{"foo": "bar", "hello": "world"}},
+		{
+			r:    new(bytes.Buffer),
+			hash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+			env:  map[string]string{},
+		},
+		{
+			r:    bytes.NewBufferString("a"),
+			hash: "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb",
+			env:  map[string]string{},
+		},
+		{
+			r:    new(bytes.Buffer),
+			hash: "380918b946a526640a40df5dced6516794f3d97bbd9e6bb553d037c4439f31c3",
+			env:  map[string]string{"": ""},
+		},
+		{
+			r:    new(bytes.Buffer),
+			hash: "3ba8907e7a252327488df390ed517c45b96dead033600219bdca7107d1d3f88a",
+			env:  map[string]string{"foo": "bar"},
+		},
+		{
+			r:    bytes.NewBufferString("a"),
+			hash: "91ae92a2599b5df0200f0416f6abb44940b4535f5e072e3583f7ea26482b1df0",
+			env:  map[string]string{"foo": "bar"},
+		},
+		{
+			r:    new(bytes.Buffer),
+			hash: "3d011e09502a84552a0f8ae112d024cc2c115597e3a577d5f49007902c221dc5",
+			env:  map[string]string{"hello": "world"},
+		},
+		{
+			r:    new(bytes.Buffer),
+			hash: "2ca363bd7b02b93f3a7e7dd5850635d37793a5fd65ae63742e218cfca29cead5",
+			env:  map[string]string{"foo": "bar", "hello": "world"},
+		},
 	}
 	s := &Service{}
 	for _, test := range tests {
 		hash, err := s.computeHash(test.r, test.env)
-		require.NoError(t, err)
-		require.Equal(t, test.hash, hash)
+		assert.NoError(t, err)
+		assert.Equal(t, test.hash, hash)
 	}
 }
 
