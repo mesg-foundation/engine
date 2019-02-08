@@ -1,7 +1,7 @@
 package service
 
 import (
-	"crypto/sha1"
+	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"io"
@@ -214,10 +214,6 @@ func (s *Service) deploy() error {
 	s.sendStatus("Image built with success", DDonePositive)
 
 	s.configuration().Image = imageHash
-	// TODO: FOR TEST ONLY
-	if s.Hash == "" {
-		panic("s.Hash is empty")
-	}
 	// TODO: the following test should be moved in New function
 	if s.Sid == "" {
 		// make sure that sid doesn't have the same length with id.
@@ -286,9 +282,9 @@ func (s *Service) configuration() *Dependency {
 	return nil
 }
 
-// Compute hash computesh sha1 hash of r reader and env slice map.
+// Compute hash computesh sha256 hash of r reader and env slice map.
 func (s *Service) computeHash(r io.Reader, env map[string]string) (string, error) {
-	h := sha1.New()
+	h := sha256.New()
 	if _, err := io.Copy(h, r); err != nil {
 		return "", err
 	}
