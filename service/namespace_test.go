@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/base64"
 	"testing"
 
 	"github.com/mesg-foundation/core/utils/hash"
@@ -10,7 +11,7 @@ import (
 func TestServiceNamespace(t *testing.T) {
 	service, _ := FromService(&Service{Name: "TestServiceNamespace"})
 	namespace := service.namespace()
-	require.Equal(t, namespace, []string{service.Hash})
+	require.Equal(t, namespace, []string{base64.StdEncoding.EncodeToString([]byte(service.Hash))})
 }
 
 func TestDependencyNamespace(t *testing.T) {
@@ -24,7 +25,7 @@ func TestDependencyNamespace(t *testing.T) {
 		},
 	})
 	dep := service.Dependencies[0]
-	require.Equal(t, dep.namespace(), []string{service.Hash, "test"})
+	require.Equal(t, dep.namespace(), []string{base64.StdEncoding.EncodeToString([]byte(service.Hash)), "test"})
 }
 
 func TestEventSubscriptionChannel(t *testing.T) {
