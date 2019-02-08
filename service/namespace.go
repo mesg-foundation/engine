@@ -1,6 +1,9 @@
 package service
 
 import (
+	"encoding/base64"
+	"encoding/hex"
+
 	"github.com/mesg-foundation/core/utils/hash"
 )
 
@@ -11,7 +14,11 @@ const resultChannel string = "Result"
 
 // namespace returns the namespace of the service.
 func (service *Service) namespace() []string {
-	return []string{service.Hash}
+	h, err := hex.DecodeString(service.Hash)
+	if err != nil {
+		panic(err)
+	}
+	return []string{base64.StdEncoding.EncodeToString([]byte(h))}
 }
 
 // namespace returns the namespace of a dependency.
