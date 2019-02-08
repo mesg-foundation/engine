@@ -20,7 +20,7 @@ func TestDeployService(t *testing.T) {
 
 	stream := newTestDeployStream(url)
 	require.Nil(t, server.DeployService(stream))
-	require.Len(t, stream.serviceID, 40)
+	require.Len(t, stream.serviceID, 64)
 
 	require.Contains(t, stream.statuses, api.DeployStatus{
 		Message: "Image built with success",

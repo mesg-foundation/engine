@@ -11,7 +11,7 @@ import (
 
 func TestIntegrationStartServiceIntegration(t *testing.T) {
 	service, _ := FromService(&Service{
-		Hash: "0",
+		Hash: "00",
 		Name: "TestStartService",
 		Dependencies: []*Dependency{
 			{
@@ -31,7 +31,7 @@ func TestIntegrationStartServiceIntegration(t *testing.T) {
 func TestIntegrationStartWith2DependenciesIntegration(t *testing.T) {
 	c := newIntegrationContainer(t)
 	service, _ := FromService(&Service{
-		Hash: "0",
+		Hash: "00",
 		Name: "TestStartWith2Dependencies",
 		Dependencies: []*Dependency{
 			{
@@ -59,7 +59,7 @@ func TestIntegrationStartWith2DependenciesIntegration(t *testing.T) {
 
 func TestIntegrationStartAgainService(t *testing.T) {
 	service, _ := FromService(&Service{
-		Hash: "0",
+		Hash: "00",
 		Name: "TestStartAgainService",
 		Dependencies: []*Dependency{
 			{
@@ -107,7 +107,7 @@ func TestIntegrationStartAgainService(t *testing.T) {
 func TestIntegrationStartDependency(t *testing.T) {
 	c := newIntegrationContainer(t)
 	service, _ := FromService(&Service{
-		Hash: "0",
+		Hash: "00",
 		Name: "TestStartDependency",
 		Dependencies: []*Dependency{
 			{
@@ -131,7 +131,7 @@ func TestIntegrationStartDependency(t *testing.T) {
 func TestIntegrationNetworkCreated(t *testing.T) {
 	c := newIntegrationContainer(t)
 	service, _ := FromService(&Service{
-		Hash: "0",
+		Hash: "00",
 		Name: "TestNetworkCreated",
 		Dependencies: []*Dependency{
 			{
@@ -150,7 +150,7 @@ func TestIntegrationNetworkCreated(t *testing.T) {
 // Test for https://github.com/mesg-foundation/core/issues/88
 func TestIntegrationStartStopStart(t *testing.T) {
 	service, _ := FromService(&Service{
-		Hash: "0",
+		Hash: "00",
 		Name: "TestStartStopStart",
 		Dependencies: []*Dependency{
 			{
@@ -173,7 +173,7 @@ func TestIntegrationServiceDependenciesListensFromSamePort(t *testing.T) {
 	c := newIntegrationContainer(t)
 	var (
 		service, _ = FromService(&Service{
-			Hash: "0",
+			Hash: "00",
 			Name: "TestServiceDependenciesListensFromSamePort",
 			Dependencies: []*Dependency{
 				{
@@ -185,7 +185,7 @@ func TestIntegrationServiceDependenciesListensFromSamePort(t *testing.T) {
 		}, ContainerOption(c))
 
 		service1, _ = FromService(&Service{
-			Hash: "1",
+			Hash: "01",
 			Name: "TestServiceDependenciesListensFromSamePort1",
 			Dependencies: []*Dependency{
 				{
@@ -208,7 +208,7 @@ func TestIntegrationServiceDependenciesListensFromSamePort(t *testing.T) {
 func TestStartWithSamePorts(t *testing.T) {
 	c := newIntegrationContainer(t)
 	service, _ := FromService(&Service{
-		Hash: "0",
+		Hash: "00",
 		Name: "TestStartWithSamePorts",
 		Dependencies: []*Dependency{
 			{

@@ -18,7 +18,7 @@ func (service *Service) namespace() []string {
 	if err != nil {
 		panic(err)
 	}
-	sum := sha1.Sum([]byte(h))
+	sum := sha1.Sum(h)
 	return []string{hex.EncodeToString(sum[:])}
 }
 
