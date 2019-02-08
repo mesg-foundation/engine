@@ -33,7 +33,7 @@ func TestDeployService(t *testing.T) {
 		service, validationError, err := a.DeployService(archive, nil, DeployServiceStatusOption(statuses))
 		require.Nil(t, validationError)
 		require.NoError(t, err)
-		require.Len(t, service.Hash, 40)
+		require.Len(t, service.Hash, 64)
 	}()
 
 	require.Equal(t, DeployStatus{
@@ -117,7 +117,7 @@ func TestDeployServiceFromURL(t *testing.T) {
 		service, validationError, err := a.DeployServiceFromURL(url, nil, DeployServiceStatusOption(statuses))
 		require.Nil(t, validationError)
 		require.NoError(t, err)
-		require.Len(t, service.Hash, 40)
+		require.Len(t, service.Hash, 64)
 	}()
 
 	require.Equal(t, DeployStatus{

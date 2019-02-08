@@ -14,7 +14,7 @@ func TestServiceNamespace(t *testing.T) {
 	namespace := service.namespace()
 	h, err := hex.DecodeString(service.Hash)
 	require.NoError(t, err)
-	sum := sha1.Sum([]byte(h))
+	sum := sha1.Sum(h)
 	require.Equal(t, namespace, []string{hex.EncodeToString(sum[:])})
 }
 
@@ -31,7 +31,7 @@ func TestDependencyNamespace(t *testing.T) {
 	dep := service.Dependencies[0]
 	h, err := hex.DecodeString(service.Hash)
 	require.NoError(t, err)
-	sum := sha1.Sum([]byte(h))
+	sum := sha1.Sum(h)
 	require.Equal(t, dep.namespace(), []string{hex.EncodeToString(sum[:]), "test"})
 }
 

@@ -99,7 +99,7 @@ func New(tarball io.Reader, env map[string]string, options ...Option) (*Service,
 	if err := s.setOptions(options...); err != nil {
 		return nil, err
 	}
-	// untar tarball to retrive mesg.yml
+	// untar tarball to retrieve mesg.yml
 	if err := s.saveContext(tarball); err != nil {
 		return nil, err
 	}
