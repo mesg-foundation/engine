@@ -1,7 +1,7 @@
 package service
 
 import (
-	"encoding/base64"
+	"crypto/sha1"
 	"encoding/hex"
 
 	"github.com/mesg-foundation/core/utils/hash"
@@ -18,7 +18,8 @@ func (service *Service) namespace() []string {
 	if err != nil {
 		panic(err)
 	}
-	return []string{base64.StdEncoding.EncodeToString([]byte(h))}
+	sum := sha1.Sum([]byte(h))
+	return []string{hex.EncodeToString(sum[:])}
 }
 
 // namespace returns the namespace of a dependency.
