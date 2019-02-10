@@ -26,10 +26,7 @@ func validateFromPath(path string) (*ValidationResult, error) {
 	if err != nil && !os.IsNotExist(err) {
 		return nil, err
 	}
-	serviceFileWarnings, err := validateServiceFile(data)
-	if err != nil {
-		return nil, err
-	}
+	serviceFileWarnings := validateServiceFile(data)
 
 	// Dockerfile
 	_, err = readDockerfile(path)

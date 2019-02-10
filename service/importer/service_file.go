@@ -15,15 +15,15 @@ func readServiceFile(path string) ([]byte, error) {
 }
 
 // validateServiceFile returns a list of warnings.
-func validateServiceFile(data []byte) ([]string, error) {
+func validateServiceFile(data []byte) []string {
 	var service ServiceDefinition
 	if err := yaml.UnmarshalStrict(data, &service); err != nil {
-		return nil, fmt.Errorf("parse mesg.yml error: %s", err)
+		return []string{fmt.Sprintf("parse mesg.yml error: %s", err)}
 	}
 	return validateServiceStruct(&service)
 }
 
-func validateServiceStruct(service *ServiceDefinition) ([]string, error) {
+func validateServiceStruct(service *ServiceDefinition) []string {
 	errs := validator.New().Struct(service)
 	warnings := []string{}
 	if errs != nil {
@@ -34,5 +34,5 @@ func validateServiceStruct(service *ServiceDefinition) ([]string, error) {
 			)
 		}
 	}
-	return warnings, nil
+	return warnings
 }
