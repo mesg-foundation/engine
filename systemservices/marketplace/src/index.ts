@@ -12,6 +12,7 @@ import sendSignedTransaction from "./tasks/sendSignedTransaction"
 import _marketplaceABI from "./contracts/Marketplace.abi.json"
 import { Marketplace } from "./contracts/Marketplace";
 import { AbiItem } from "web3-utils/types";
+import { TaskInputs } from "mesg-js/lib/service";
 
 const marketplaceABI = _marketplaceABI as AbiItem[]
 const providerEndpoint = process.env.PROVIDER_ENDPOINT as string
@@ -20,25 +21,31 @@ const blockConfirmations = parseInt(<string>process.env.BLOCK_CONFIRMATIONS, 10)
 const defaultGas = parseInt(<string>process.env.DEFAULT_GAS, 10)
 const pollingTime = parseInt(<string>process.env.POLLING_TIME, 10)
 
-let _defaultNonce = 0;
-const defaultNonce = (): number => {
-  _defaultNonce++
-  return _defaultNonce
-}
-
 const main = async () => {
   const mesg = MESG()
   const web3 = new Web3(providerEndpoint)
-  const marketplace = new web3.eth.Contract(marketplaceABI, marketplaceAddress) as Marketplace
+  const contract = new web3.eth.Contract(marketplaceABI, marketplaceAddress) as Marketplace
 
-  const defaultChainID = await web3.eth.net.getId()
-  console.log('defaultChainID', defaultChainID)
+  const chainID = await web3.eth.net.getId()
+  console.log('chainID', chainID)
   const defaultGasPrice = await web3.eth.getGasPrice()
   console.log('defaultGasPrice', defaultGasPrice)
 
+  const createTransaction = async (inputs: TaskInputs, data: string) => {
+    return {
+      chainID: chainID,
+      nonce: await web3.eth.getTransactionCount(inputs.address),
+      to: contract.options.address,
+      gas: inputs.gas || defaultGas,
+      gasPrice: inputs.gasPrice || defaultGasPrice,
+      value: "0",
+      data: data
+    }
+  }
+
   mesg.listenTask({
-    listServices: listServices(marketplace),
-    createService: createService(marketplace, defaultGas, defaultGasPrice.toString(), defaultChainID, defaultNonce),
+    listServices: listServices(contract),
+    createService: createService(contract, createTransaction),
     sendSignedTransaction: sendSignedTransaction(web3),
   })
   .on('error', error => console.error('catch listenTask', error))

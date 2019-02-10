@@ -3,11 +3,11 @@ sid: marketplace
 description: ""
 configuration:
   env:
-    - PROVIDER_ENDPOINT=http://host.docker.internal:7545
-    - BLOCK_CONFIRMATIONS=0
+    - PROVIDER_ENDPOINT=https://ropsten.infura.io
+    - BLOCK_CONFIRMATIONS=1
     - DEFAULT_GAS=1000000
     - POLLING_TIME=1000
-    - MARKETPLACE_ADDRESS=0x990d20670Da774865d1848CE21cd8E993790E72F
+    - MARKETPLACE_ADDRESS=0x4b013d9bb4c50CE183A79094cb6626dEB7e009e1
 tasks:
   listServices:
     name: ""
