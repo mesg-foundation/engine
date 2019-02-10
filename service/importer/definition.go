@@ -1,5 +1,8 @@
 package importer
 
+// ConfigurationDependencyKey is the reserved key of the service's configuration in the dependencies array.
+const ConfigurationDependencyKey = "service"
+
 // ServiceDefinition represents MESG services configurations.
 type ServiceDefinition struct {
 	// Name is the service name.
@@ -18,7 +21,7 @@ type ServiceDefinition struct {
 	Events map[string]*Event `yaml:"events" json:"events,omitempty" validate:"dive,keys,printascii,endkeys,required"`
 
 	// Dependencies are the Docker containers that service can depend on.
-	Dependencies map[string]*Dependency `yaml:"dependencies" json:"dependencies,omitempty" validate:"dive,keys,printascii,endkeys,required"`
+	Dependencies map[string]*Dependency `yaml:"dependencies" json:"dependencies,omitempty" validate:"dive,keys,printascii,ne=service,endkeys,required"`
 
 	// Configuration is the Docker container that service runs inside.
 	Configuration *Dependency `yaml:"configuration" json:"configuration,omitempty"`
