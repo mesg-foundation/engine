@@ -27,7 +27,7 @@ type transaction struct {
 }
 
 type signOutputSuccess struct {
-	Raw string `json:"raw"`
+	SignedTransaction string `json:"signedTransaction"`
 }
 
 func (s *Ethwallet) sign(execution *service.Execution) (string, interface{}) {
@@ -62,6 +62,6 @@ func (s *Ethwallet) sign(execution *service.Execution) (string, interface{}) {
 	rawTx := "0x" + hex.EncodeToString(ts.GetRlp(0))
 
 	return "success", signOutputSuccess{
-		Raw: rawTx,
+		SignedTransaction: rawTx,
 	}
 }
