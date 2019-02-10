@@ -23,7 +23,7 @@ func WaitForStreamToBeReady(stream grpc.ClientStream) error {
 	statuses := header.Get(statusKey)
 	statusesLen := len(statuses)
 	if statusesLen == 0 {
-		return fmt.Errorf("stream header does not contain any status")
+		return nil // Ignore headers with no status key
 	}
 	lastStatus := statuses[statusesLen-1]
 	if lastStatus != statusReady {

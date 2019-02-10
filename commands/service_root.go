@@ -28,6 +28,7 @@ func newRootServiceCmd(e ServiceExecutor) *rootServiceCmd {
 		newServiceDocsCmd(e).cmd,
 		newServiceDevCmd(e).cmd,
 		newServiceExecuteCmd(e).cmd,
+		newServicePublishCmd(e).cmd,
 	)
 	return c
 }
