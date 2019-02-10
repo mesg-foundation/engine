@@ -11,7 +11,7 @@ require (
 	github.com/briandowns/spinner v0.0.0-20180822135157-9f016caa1359
 	github.com/cnf/structhash v0.0.0-20180104161610-62a607eb0224
 	github.com/containerd/continuity v0.0.0-20180712174259-0377f7d76720 // indirect
-	github.com/cpuguy83/go-md2man v1.0.8 // indirect
+	github.com/docker/cli v0.0.0-20190129171106-b258f458cc8d
 	github.com/docker/distribution v0.0.0-20180720172123-0dae0957e5fe // indirect
 	github.com/docker/docker v0.0.0-20180803200506-eeea12db7a65
 	github.com/docker/go-connections v0.0.0-20180212134524-7beb39f0b969 // indirect
@@ -36,11 +36,9 @@ require (
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/kelseyhightower/envconfig v1.3.0
 	github.com/kevinburke/ssh_config v0.0.0-20180711164746-82cf3f926438 // indirect
-	github.com/kr/pretty v0.1.0 // indirect
 	github.com/kr/pty v1.1.3 // indirect
 	github.com/mattn/go-colorable v0.0.0-20180310133214-efa589957cd0 // indirect
 	github.com/mattn/go-isatty v0.0.3 // indirect
-	github.com/mesg-foundation/go-service v0.0.0-20180914022507-c53d57c454a2
 	github.com/mesg-foundation/prefixer v0.0.0-20180907095533-d7dbe41616bd
 	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b // indirect
 	github.com/mitchellh/go-homedir v0.0.0-20161203194507-b8bc1bf76747
@@ -53,7 +51,6 @@ require (
 	github.com/pkg/errors v0.8.0
 	github.com/pseudomuto/protoc-gen-doc v1.1.0
 	github.com/pseudomuto/protokit v0.1.0 // indirect
-	github.com/russross/blackfriday v1.5.1 // indirect
 	github.com/satori/go.uuid v1.2.0
 	github.com/sergi/go-diff v0.0.0-20180205163309-da645544ed44 // indirect
 	github.com/sirupsen/logrus v1.0.6
@@ -61,7 +58,6 @@ require (
 	github.com/spf13/pflag v0.0.0-20180601132542-3ebe029320b2
 	github.com/src-d/gcfg v1.3.0 // indirect
 	github.com/stretchr/testify v1.3.0
-	github.com/stvp/assert v0.0.0-20170616060220-4bc16443988b
 	github.com/syndtr/goleveldb v0.0.0-20180708030551-c4c61651e9e3
 	github.com/vektra/mockery v0.0.0-20181123154057-e78b021dcbb5
 	github.com/xanzy/ssh-agent v0.2.0 // indirect
