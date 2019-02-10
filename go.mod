@@ -21,6 +21,8 @@ require (
 	github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568 // indirect
 	github.com/gliderlabs/ssh v0.1.1 // indirect
 	github.com/go-bindata/go-bindata v0.0.0-20181025070752-41975c0ccc30
+	github.com/go-playground/locales v0.12.1 // indirect
+	github.com/go-playground/universal-translator v0.16.0 // indirect
 	github.com/gogo/protobuf v1.0.0 // indirect
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b // indirect
 	github.com/golang/protobuf v1.2.0
@@ -37,6 +39,7 @@ require (
 	github.com/kelseyhightower/envconfig v1.3.0
 	github.com/kevinburke/ssh_config v0.0.0-20180711164746-82cf3f926438 // indirect
 	github.com/kr/pty v1.1.3 // indirect
+	github.com/leodido/go-urn v1.1.0 // indirect
 	github.com/mattn/go-colorable v0.0.0-20180310133214-efa589957cd0 // indirect
 	github.com/mattn/go-isatty v0.0.3 // indirect
 	github.com/mesg-foundation/prefixer v0.0.0-20180907095533-d7dbe41616bd
@@ -74,6 +77,8 @@ require (
 	gopkg.in/AlecAivazis/survey.v1 v1.6.1
 	gopkg.in/airbrake/gobrake.v2 v2.0.9 // indirect
 	gopkg.in/gemnasium/logrus-airbrake-hook.v2 v2.1.2 // indirect
+	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
+	gopkg.in/go-playground/validator.v9 v9.26.0
 	gopkg.in/src-d/go-billy.v4 v4.2.0 // indirect
 	gopkg.in/src-d/go-git-fixtures.v3 v3.3.0 // indirect
 	gopkg.in/src-d/go-git.v4 v4.5.0
