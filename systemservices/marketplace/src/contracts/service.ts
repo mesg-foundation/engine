@@ -4,24 +4,26 @@ import { Service } from "../types/service";
 import { getServiceVersions } from "./version";
 
 const getAllServices = async (contract: Marketplace): Promise<Service[]> => {
-  const servicesCount = new BigNumber(await contract.methods.getServicesCount().call())
+  const servicesLength = new BigNumber(await contract.methods.servicesListLength().call())
   const servicesPromise: Promise<Service>[] = []
-  for (let i = new BigNumber(0); servicesCount.isGreaterThan(i); i = i.plus(1)) {
+  for (let i = new BigNumber(0); servicesLength.isGreaterThan(i); i = i.plus(1)) {
     servicesPromise.push(getService(contract, i.toString()))
   }
   return await Promise.all(servicesPromise)
 }
 
 const getService = async (contract: Marketplace, serviceIndex: string): Promise<Service> => {
-  const [ service, versions ] = await Promise.all([
-    contract.methods.services(serviceIndex).call(),
+  const [ serviceSid, versions ] = await Promise.all([
+    contract.methods.servicesList(serviceIndex).call(),
     getServiceVersions(contract, serviceIndex)
   ])
+  const serviceOwner = await contract.methods.services(serviceSid).call()
   return {
-    owner: service.owner,
-    sid: service.sid,
-    price: service.price,
-    versions: versions,
+    owner: serviceOwner,
+    sid: serviceSid,
+    versions: versions
+    // offers: offers,
+    // purchasers: purchasers,
   }
 }
 

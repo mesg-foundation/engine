@@ -1,10 +1,7 @@
 {
   "sid": "ethereum",
   "price": "1000",
-  "transactionConfig": {
-    "chainID": 1,
-    "nonce": 1,
-    "gas": 1000000,
-    "gasPrice": "1000000"
-  }
+  "address": "0xf3C21FD07B1D4c40d3cE6EfaC81a3E49f6c04592",
+  "gas": 1000000,
+  "gasPrice": "1000000"
 }

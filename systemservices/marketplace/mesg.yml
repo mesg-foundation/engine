@@ -24,7 +24,7 @@ tasks:
             type: Object
             repeated: true
             object: &service
-              sid: &sid
+              sid:
                 name: ""
                 description: ""
                 type: String
@@ -62,37 +62,24 @@ tasks:
     name: ""
     description: ""
     inputs:
-      sid: *sid
-      price:
+      sid:
         name: ""
         description: ""
         type: String
-      transactionConfig: &transactionConfig
+      address:
         name: ""
         description: ""
+        type: String
+      gas:
+        name: ""
+        description: ""
+        type: Number
         optional: true
-        type: Object
-        object:
-          chainID:
-            name: ""
-            description: ""
-            type: Number
-            optional: true
-          nonce:
-            name: ""
-            description: ""
-            type: Number
-            optional: true
-          gas:
-            name: ""
-            description: ""
-            type: Number
-            optional: true
-          gasPrice:
-            name: ""
-            description: ""
-            type: String
-            optional: true
+      gasPrice:
+        name: ""
+        description: ""
+        type: String
+        optional: true
     outputs:
       error: *errorOutput
       success:

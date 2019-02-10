@@ -12,61 +12,62 @@ export class Marketplace {
   // _address: string;
   options: contractOptions;
   methods: {
+    services(arg0: string | number[]): TransactionObject<string>;
+
+    servicesList(arg0: number | string): TransactionObject<string>;
+
     isPauser(account: string): TransactionObject<boolean>;
 
-    services(
-      arg0: number | string
-    ): TransactionObject<{
-      owner: string;
-      sid: string;
-      price: string;
-      0: string;
-      1: string;
-      2: string;
-    }>;
+    hashToService(arg0: string | number[]): TransactionObject<string>;
 
-    isServiceOwner(serviceIndex: number | string): TransactionObject<boolean>;
+    servicesVersionsListLength(
+      sid: string | number[]
+    ): TransactionObject<string>;
 
-    isServiceSidExist(sid: (string | number[])): TransactionObject<boolean>;
-
-    isServiceHashExist(hash: string | number[]): TransactionObject<boolean>;
-
-    getServiceVersion(
-      serviceIndex: number | string,
+    servicesVersionsList(
+      sid: string | number[],
       versionIndex: number | string
+    ): TransactionObject<string>;
+
+    servicesVersion(
+      sid: string | number[],
+      hash: string | number[]
     ): TransactionObject<{
-      hash: string;
-      url: string;
+      manifest: string;
+      manifestProtocol: string;
       0: string;
       1: string;
     }>;
 
-    getServicePayment(
-      serviceIndex: number | string,
-      paymentIndex: number | string
+    servicesOffersLength(sid: string | number[]): TransactionObject<string>;
+
+    servicesOffer(
+      sid: string | number[],
+      offerIndex: number | string
+    ): TransactionObject<{
+      price: string;
+      duration: string;
+      active: boolean;
+      0: string;
+      1: string;
+      2: boolean;
+    }>;
+
+    servicesPurchasesListLength(
+      sid: string | number[]
     ): TransactionObject<string>;
 
-    getServiceIndex(sid: (string | number[])): TransactionObject<string>;
-
-    getServiceVersionIndex(
-      serviceIndex: number | string,
-      hash: string | number[]
+    servicesPurchasesList(
+      sid: string | number[],
+      purchaseIndex: number | string
     ): TransactionObject<string>;
 
-    getServicePaymentIndex(
-      serviceIndex: number | string,
+    servicesPurchases(
+      sid: string | number[],
       purchaser: string
     ): TransactionObject<string>;
 
-    getServiceVersionsCount(
-      serviceIndex: number | string
-    ): TransactionObject<string>;
-
-    getServicePaymentsCount(
-      serviceIndex: number | string
-    ): TransactionObject<string>;
-
-    hasPaid(serviceIndex: number | string): TransactionObject<boolean>;
+    isAuthorized(sid: string | number[]): TransactionObject<boolean>;
 
     unpause(): TransactionObject<void>;
 
@@ -80,34 +81,41 @@ export class Marketplace {
 
     transferOwnership(newOwner: string): TransactionObject<void>;
 
-    createService(
-      sid: (string | number[]),
-      price: number | string
-    ): TransactionObject<string>;
+    createService(sid: string | number[]): TransactionObject<void>;
 
     transferServiceOwnership(
-      serviceIndex: number | string,
+      sid: string | number[],
       newOwner: string
     ): TransactionObject<void>;
 
-    changeServicePrice(
-      serviceIndex: number | string,
-      newPrice: number | string
+    createServiceVersion(
+      sid: string | number[],
+      hash: string | number[],
+      manifest: (string | number[])[],
+      manifestProtocol: (string | number[])[]
     ): TransactionObject<void>;
 
-    createServiceVersion(
-      serviceIndex: number | string,
-      hash: string | number[],
-      url: (string | number[])
+    createServiceOffer(
+      sid: string | number[],
+      price: number | string,
+      duration: number | string
     ): TransactionObject<string>;
 
-    pay(serviceIndex: number | string): TransactionObject<string>;
+    disableServiceOffer(
+      sid: string | number[],
+      offerIndex: number | string
+    ): TransactionObject<void>;
+
+    purchase(
+      sid: string | number[],
+      offerIndex: number | string
+    ): TransactionObject<void>;
 
     paused(): TransactionObject<boolean>;
     owner(): TransactionObject<string>;
     isOwner(): TransactionObject<boolean>;
     token(): TransactionObject<string>;
-    getServicesCount(): TransactionObject<string>;
+    servicesListLength(): TransactionObject<string>;
   };
   // deploy(options: {
   //   data: string;
@@ -119,7 +127,7 @@ export class Marketplace {
         filter?: object;
         fromBlock?: BlockType;
         topics?: (null | string)[];
-      },
+      }
     ): EventEmitter;
 
     ServiceOwnershipTransferred(
@@ -127,15 +135,7 @@ export class Marketplace {
         filter?: object;
         fromBlock?: BlockType;
         topics?: (null | string)[];
-      },
-    ): EventEmitter;
-
-    ServicePriceChanged(
-      options?: {
-        filter?: object;
-        fromBlock?: BlockType;
-        topics?: (null | string)[];
-      },
+      }
     ): EventEmitter;
 
     ServiceVersionCreated(
@@ -143,15 +143,31 @@ export class Marketplace {
         filter?: object;
         fromBlock?: BlockType;
         topics?: (null | string)[];
-      },
+      }
     ): EventEmitter;
 
-    ServicePaid(
+    ServiceOfferCreated(
       options?: {
         filter?: object;
         fromBlock?: BlockType;
         topics?: (null | string)[];
-      },
+      }
+    ): EventEmitter;
+
+    ServiceOfferDisabled(
+      options?: {
+        filter?: object;
+        fromBlock?: BlockType;
+        topics?: (null | string)[];
+      }
+    ): EventEmitter;
+
+    ServicePurchased(
+      options?: {
+        filter?: object;
+        fromBlock?: BlockType;
+        topics?: (null | string)[];
+      }
     ): EventEmitter;
 
     Paused(
@@ -159,7 +175,7 @@ export class Marketplace {
         filter?: object;
         fromBlock?: BlockType;
         topics?: (null | string)[];
-      },
+      }
     ): EventEmitter;
 
     Unpaused(
@@ -167,7 +183,7 @@ export class Marketplace {
         filter?: object;
         fromBlock?: BlockType;
         topics?: (null | string)[];
-      },
+      }
     ): EventEmitter;
 
     PauserAdded(
@@ -175,7 +191,7 @@ export class Marketplace {
         filter?: object;
         fromBlock?: BlockType;
         topics?: (null | string)[];
-      },
+      }
     ): EventEmitter;
 
     PauserRemoved(
@@ -183,7 +199,7 @@ export class Marketplace {
         filter?: object;
         fromBlock?: BlockType;
         topics?: (null | string)[];
-      },
+      }
     ): EventEmitter;
 
     OwnershipTransferred(
@@ -191,7 +207,7 @@ export class Marketplace {
         filter?: object;
         fromBlock?: BlockType;
         topics?: (null | string)[];
-      },
+      }
     ): EventEmitter;
 
     allEvents: (
@@ -199,7 +215,7 @@ export class Marketplace {
         filter?: object;
         fromBlock?: BlockType;
         topics?: (null | string)[];
-      },
+      }
     ) => EventEmitter;
   };
   getPastEvents(
@@ -209,7 +225,7 @@ export class Marketplace {
       fromBlock?: BlockType;
       toBlock?: BlockType;
       topics?: (null | string)[];
-    },
+    }
   ): Promise<EventData[]>;
   // setProvider(provider: Provider): void;
   clone(): Marketplace;

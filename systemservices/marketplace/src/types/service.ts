@@ -1,20 +1,21 @@
 interface Service {
   owner: string;
   sid: string;
-  price: string;
   versions: Version[];
 }
 
 interface Version {
-  hash: String;
-  metadata: Metadata;
+  hash: string;
+  manifestSource: string;
+  manifestProtocol: string;
+  manifest: Manifest;
 }
 
-interface Metadata {
-  version: Number
+interface Manifest {
+  version: number
   service: {
     deployment: {
-      source: String
+      source: string
       // env
       // etc...
     }
@@ -28,12 +29,12 @@ interface Metadata {
       // configuration
       // dependencies
     }
-    readme: String
-    // author: String
+    readme: string
+    // author: string
     // logo
     // tags
     
   }
 }
 
-export { Service, Version, Metadata }
+export { Service, Version, Manifest }

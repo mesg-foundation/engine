@@ -2,23 +2,26 @@ import BigNumber from "bignumber.js"
 import { Marketplace } from "./Marketplace"
 import { Version } from "../types/service";
 import { hexToAscii } from "./utils";
-import { getMetadata } from "./metadata";
+import { getManifest } from "./manifest";
 
-const getServiceVersions = async (contract: Marketplace, serviceIndex: string): Promise<Version[]> => {
-  const versionsCount = new BigNumber(await contract.methods.getServiceVersionsCount(serviceIndex).call())
+const getServiceVersions = async (contract: Marketplace, sid: string): Promise<Version[]> => {
+  const versionsLength = new BigNumber(await contract.methods.servicesVersionsListLength(sid).call())
   const versionsPromise: Promise<Version>[] = []
-  for (let j = new BigNumber(0); versionsCount.isGreaterThan(j); j = j.plus(1)) {
-    versionsPromise.push(getServiceVersion(contract, serviceIndex, j.toString()))
+  for (let j = new BigNumber(0); versionsLength.isGreaterThan(j); j = j.plus(1)) {
+    versionsPromise.push(getServiceVersion(contract, sid, j.toString()))
   }
   return await Promise.all(versionsPromise)
 }
 
-const getServiceVersion = async (contract: Marketplace, serviceIndex: string, versionIndex: string): Promise<Version> => {
-  const version = await contract.methods.getServiceVersion(serviceIndex, versionIndex).call()
-  const metadata = await getMetadata(hexToAscii(version.url))
+const getServiceVersion = async (contract: Marketplace, sid: string, versionIndex: string): Promise<Version> => {
+  const versionHash = await contract.methods.servicesVersionsList(sid, versionIndex).call()
+  const version = await contract.methods.servicesVersion(sid, versionHash).call()
+  const manifest = await getManifest(hexToAscii(version.manifestProtocol), hexToAscii(version.manifest))
   return {
-    hash: version.hash,
-    metadata: metadata,
+    hash: versionHash,
+    manifestSource: version.manifest,
+    manifestProtocol: version.manifestProtocol,
+    manifest: manifest,
   }
 }
 
