@@ -125,11 +125,11 @@ tasks:
             name: "Data"
             description: "The data of the transaction."
             type: Any
-  sendSignedRawTx:
+  sendSignedTransaction:
     name: ""
     description: ""
     inputs:
-      signedRawTx:
+      signedTransaction:
         name: ""
         description: ""
         type: String

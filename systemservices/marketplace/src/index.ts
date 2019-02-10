@@ -7,7 +7,7 @@ import transactionAndLogEvent from "./events/transactionAndLog"
 
 import listServices from "./tasks/listServices"
 import createService from "./tasks/createService"
-import sendSignedRawTx from "./tasks/sendSignedRawTx"
+import sendSignedTransaction from "./tasks/sendSignedTransaction"
 
 import _marketplaceABI from "./contracts/Marketplace.abi.json"
 import { Marketplace } from "./contracts/Marketplace";
@@ -39,7 +39,7 @@ const main = async () => {
   mesg.listenTask({
     listServices: listServices(marketplace),
     createService: createService(marketplace, defaultGas, defaultGasPrice.toString(), defaultChainID, defaultNonce),
-    sendSignedRawTx: sendSignedRawTx(web3),
+    sendSignedTransaction: sendSignedTransaction(web3),
   })
   .on('error', error => console.error('catch listenTask', error))
 
