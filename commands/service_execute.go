@@ -145,18 +145,7 @@ func (c *serviceExecuteCmd) getData(s *coreapi.Service) (string, error) {
 		return c.readFile()
 	}
 
-	// see if task has no inputs.
-	noInput := false
-	for _, task := range s.Tasks {
-		if task.Key == c.taskKey {
-			if len(task.Inputs) == 0 {
-				noInput = true
-			}
-			break
-		}
-	}
-
-	if noInput {
+	if len(s.Tasks[c.taskKey].Inputs) == 0 {
 		if len(c.executeData) > 0 {
 			return "", fmt.Errorf("task %q has no input but --data flag was supplied", c.taskKey)
 		}
@@ -188,8 +177,8 @@ func (c *serviceExecuteCmd) readFile() (string, error) {
 
 func taskKeysFromService(s *coreapi.Service) []string {
 	var taskKeys []string
-	for _, task := range s.Tasks {
-		taskKeys = append(taskKeys, task.Key)
+	for key := range s.Tasks {
+		taskKeys = append(taskKeys, key)
 	}
 	return taskKeys
 }

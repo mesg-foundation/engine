@@ -3,7 +3,6 @@ package event
 import (
 	"time"
 
-	"github.com/mesg-foundation/core/pubsub"
 	"github.com/mesg-foundation/core/service"
 )
 
@@ -15,25 +14,12 @@ type Event struct {
 	CreatedAt time.Time
 }
 
-// Create creates an event eventKey with eventData for service s.
-func Create(s *service.Service, eventKey string, eventData map[string]interface{}) (*Event, error) {
-	event, err := s.GetEvent(eventKey)
-	if err != nil {
-		return nil, err
-	}
-	if err := event.RequireData(eventData); err != nil {
-		return nil, err
-	}
+// New creates an event eventKey with eventData for given service.
+func New(s *service.Service, eventKey string, eventData map[string]interface{}) *Event {
 	return &Event{
 		Service:   s,
 		Key:       eventKey,
 		Data:      eventData,
 		CreatedAt: time.Now(),
-	}, nil
-}
-
-// Publish publishes an event for every listener.
-func (event *Event) Publish() {
-	channel := event.Service.EventSubscriptionChannel()
-	go pubsub.Publish(channel, event)
+	}
 }

@@ -1,0 +1,89 @@
+name: test-service
+sid: test-service
+repository: https://github.com/mesg-foundatino/test-service
+description: service for testing purpose
+
+events:
+  foo:
+    name: for task
+    description: test event
+    data:
+      param:
+        name: param 
+        description: param 
+        type: String
+        optional: true
+        repeated: true
+        object:
+          param1:
+            name: param1
+            description: param1
+            type: Number
+            optional: true
+            repeated: true
+
+tasks:
+  bar:
+    name: bar task
+    description: test task
+    inputs:
+      param:
+        name: param 
+        description: param 
+        type: String
+        optional: true
+        repeated: true
+        object:
+          param1:
+            name: param1
+            description: param1
+            type: Number
+            optional: true
+            repeated: true
+    outputs:
+      success:
+        data:
+          param:
+            name: param 
+            description: param 
+            type: String
+            optional: true
+            repeated: true
+            object:
+              param1:
+                name: param1
+                description: param1
+                type: Number
+                optional: true
+                repeated: true
+
+configuration:
+  image: busybox
+  volumes:
+    - v1
+  volumesFrom:
+    - dummy
+  ports:
+    - 8080:8080
+  command: echo
+  args:
+    - foo
+    - bar
+  env:
+    - foo
+
+dependencies:
+  dummy:
+    image: busybox
+    volumes:
+      - v1
+    volumesFrom:
+      - service
+    ports:
+      - 8080:8080
+    command: echo
+    args:
+      - foo
+      - bar
+    env:
+      - foo

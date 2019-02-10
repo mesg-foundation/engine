@@ -6,55 +6,58 @@ import (
 
 	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/config"
+	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/interface/grpc"
 	"github.com/mesg-foundation/core/logger"
+	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/version"
 	"github.com/mesg-foundation/core/x/xsignal"
 	"github.com/sirupsen/logrus"
 )
 
-func initGRPCServer(c *config.Config) (*grpc.Server, error) {
+func initGRPCServer(cfg *config.Config) (*grpc.Server, error) {
 	// init services db.
-	db, err := database.NewServiceDB(filepath.Join(c.Core.Path, c.Core.Database.ServiceRelativePath))
+	db, err := database.NewServiceDB(filepath.Join(cfg.Core.Path, cfg.Core.Database.ServiceRelativePath))
 	if err != nil {
 		return nil, err
 	}
 
 	// init execution db.
-	execDB, err := database.NewExecutionDB(filepath.Join(c.Core.Path, c.Core.Database.ExecutionRelativePath))
+	execDB, err := database.NewExecutionDB(filepath.Join(cfg.Core.Path, cfg.Core.Database.ExecutionRelativePath))
 	if err != nil {
 		return nil, err
 	}
+
+	c, err := container.New()
+	if err != nil {
+		return nil, err
+	}
+
+	sm := service.NewContainerManager(c, cfg)
 
 	// init api.
-	a, err := api.New(db, execDB)
-	if err != nil {
-		return nil, err
-	}
+	api := api.New(db, execDB, sm)
 
 	// init system services.
-	if err := deployCoreServices(c, a); err != nil {
+	if err := deployCoreServices(cfg, api); err != nil {
 		return nil, err
 	}
 
-	return grpc.New(c.Server.Address, a), nil
+	return grpc.New(cfg.Server.Address, api), nil
 }
 
-func deployCoreServices(c *config.Config, api *api.API) error {
-	for _, service := range c.Services() {
+func deployCoreServices(cfg *config.Config, api *api.API) error {
+	for _, service := range cfg.Services() {
 		logrus.Infof("Deploying service %q from %q", service.Key, service.URL)
-		s, valid, err := api.DeployServiceFromURL(service.URL, service.Env)
-		if valid != nil {
-			return valid
-		}
+		hash, err := api.DeployServiceFromURL(service.URL, service.Env, nil)
 		if err != nil {
 			return err
 		}
-		service.Sid = s.Sid
-		service.Hash = s.Hash
+		service.Hash = hash
+
 		logrus.Infof("Service %q deployed", service.Key)
-		if err := api.StartService(s.Sid); err != nil {
+		if err := api.StartService(hash); err != nil {
 			return err
 		}
 	}

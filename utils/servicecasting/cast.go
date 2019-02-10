@@ -57,37 +57,27 @@ var casters = map[string]caster{
 
 // TaskInputs converts map[string]string to map[string]interface{} based on defined types in the service tasks map.
 func TaskInputs(s *coreapi.Service, taskKey string, taskData map[string]string) (map[string]interface{}, error) {
-	for _, task := range s.Tasks {
-		if task.Key == taskKey {
-			m := make(map[string]interface{}, len(taskData))
-			for key, value := range taskData {
-				param, err := findParam(task.Inputs, key)
-				if err != nil {
-					return nil, err
-				}
+	task, ok := s.Tasks[taskKey]
+	if !ok {
+		return nil, fmt.Errorf("task %q does not exists", taskKey)
+	}
 
-				newValue, err := taskInputs(value, param.Type, param.Repeated)
-				if err != nil {
-					return nil, fmt.Errorf("task %q - %s", taskKey, err)
-				}
-				if newValue != nil {
-					m[key] = newValue
-				}
-			}
-			return m, nil
+	m := make(map[string]interface{}, len(taskData))
+	for key, value := range taskData {
+		param, ok := task.Inputs[key]
+		if !ok {
+			return nil, fmt.Errorf("task input %q does not exists", key)
+		}
+
+		newValue, err := taskInputs(value, param.Type, param.Repeated)
+		if err != nil {
+			return nil, fmt.Errorf("task %q - %s", taskKey, err)
+		}
+		if newValue != nil {
+			m[key] = newValue
 		}
 	}
-	return nil, fmt.Errorf("task %q does not exists", taskKey)
-}
-
-// findParam return a param based on the key from a list of parameter
-func findParam(parameters []*coreapi.Parameter, key string) (*coreapi.Parameter, error) {
-	for _, p := range parameters {
-		if p.Key == key {
-			return p, nil
-		}
-	}
-	return nil, fmt.Errorf("task input %q does not exists", key)
+	return m, nil
 }
 
 // taskInputs converts single input based on its type.

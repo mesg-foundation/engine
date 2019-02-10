@@ -1,182 +1,237 @@
 package service
 
 import (
+	"errors"
 	"testing"
 
-	"github.com/mesg-foundation/core/container/mocks"
-	"github.com/mesg-foundation/core/service/importer"
-	"github.com/mesg-foundation/core/x/xdocker/xarchive"
-	"github.com/mesg-foundation/core/x/xos"
-	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
+	"github.com/mesg-foundation/core/container"
+	"github.com/stretchr/testify/assert"
 )
 
-func newFromServiceAndContainerMocks(t *testing.T, s *Service) (*Service, *mocks.Container) {
-	m := &mocks.Container{}
-	s, err := FromService(s, ContainerOption(m))
-	require.NoError(t, err)
-	return s, m
-}
-
-func TestGenerateId(t *testing.T) {
-	service, _ := FromService(&Service{
-		Name: "TestGenerateId",
-	})
-	hash := service.computeHash()
-	require.Equal(t, "32caba349ddb1569be576b5d53da5d6e0bcfd77e", hash)
-}
-
-func TestNoCollision(t *testing.T) {
-	service1, _ := FromService(&Service{
-		Name: "TestNoCollision",
-	})
-
-	service2, _ := FromService(&Service{
-		Name: "TestNoCollision2",
-	})
-
-	require.NotEqual(t, service1.Hash, service2.Hash)
-}
-
-func TestNew(t *testing.T) {
-	var (
-		path = "../service-test/task"
-		hash = "1"
-	)
-
-	mc := &mocks.Container{}
-	mc.On("Build", mock.Anything).Once().Return(hash, nil)
-
-	archive, err := xarchive.GzippedTar(path, nil)
-	require.NoError(t, err)
-
-	statuses := make(chan DeployStatus, 4)
-
-	s, err := New(archive, nil,
-		ContainerOption(mc),
-		DeployStatusOption(statuses),
-	)
-	require.NoError(t, err)
-	require.Equal(t, "service", s.Dependencies[0].Key)
-	require.Equal(t, hash, s.Dependencies[0].Image)
-	require.Len(t, s.Dependencies[0].Env, 0)
-
-	require.Equal(t, DeployStatus{
-		Message: "Receiving service context...",
-		Type:    DRunning,
-	}, <-statuses)
-
-	require.Equal(t, DeployStatus{
-		Message: "Service context received with success",
-		Type:    DDonePositive,
-	}, <-statuses)
-
-	require.Equal(t, DeployStatus{
-		Message: "Building Docker image...",
-		Type:    DRunning,
-	}, <-statuses)
-
-	require.Equal(t, DeployStatus{
-		Message: "Image built with success",
-		Type:    DDonePositive,
-	}, <-statuses)
-
-	mc.AssertExpectations(t)
-}
-
-func TestNewWithDefaultEnv(t *testing.T) {
-	var (
-		path = "../service-test/env"
-		hash = "1"
-		env  = []string{"A=1", "B=2"}
-	)
-
-	mc := &mocks.Container{}
-	mc.On("Build", mock.Anything).Once().Return(hash, nil)
-
-	archive, err := xarchive.GzippedTar(path, nil)
-	require.NoError(t, err)
-
-	s, err := New(archive, nil,
-		ContainerOption(mc),
-	)
-	require.NoError(t, err)
-	require.Equal(t, "service", s.Dependencies[0].Key)
-	require.Equal(t, hash, s.Dependencies[0].Image)
-	require.Equal(t, env, s.Dependencies[0].Env)
-
-	mc.AssertExpectations(t)
-}
-
-func TestNewWithOverwrittenEnv(t *testing.T) {
-	var (
-		path = "../service-test/env"
-		hash = "1"
-		env  = []string{"A=3", "B=4"}
-	)
-
-	mc := &mocks.Container{}
-	mc.On("Build", mock.Anything).Once().Return(hash, nil)
-
-	archive, err := xarchive.GzippedTar(path, nil)
-	require.NoError(t, err)
-
-	s, err := New(archive, xos.EnvSliceToMap(env),
-		ContainerOption(mc),
-	)
-	require.NoError(t, err)
-	require.Equal(t, "service", s.Dependencies[0].Key)
-	require.Equal(t, hash, s.Dependencies[0].Image)
-	require.Equal(t, env, s.Dependencies[0].Env)
-
-	mc.AssertExpectations(t)
-}
-
-func TestNewWitNotDefinedEnv(t *testing.T) {
-	var (
-		path = "../service-test/task"
-	)
-
-	mc := &mocks.Container{}
-
-	archive, err := xarchive.GzippedTar(path, nil)
-	require.NoError(t, err)
-
-	_, err = New(archive, xos.EnvSliceToMap([]string{"A=1", "B=2"}),
-		ContainerOption(mc),
-	)
-	require.Equal(t, ErrNotDefinedEnv{[]string{"A", "B"}}, err)
-
-	mc.AssertExpectations(t)
-}
-
-func TestErrNotDefinedEnv(t *testing.T) {
-	require.Equal(t, ErrNotDefinedEnv{[]string{"A", "B"}}.Error(),
-		`environment variable(s) "A, B" not defined in mesg.yml (under configuration.env key)`)
-}
-
-func TestInjectDefinitionWithConfig(t *testing.T) {
-	command := "xxx"
-	s := &Service{}
-	s.injectDefinition(&importer.ServiceDefinition{
-		Configuration: &importer.Dependency{
-			Command: command,
-		},
-	})
-	require.Equal(t, command, s.configuration().Command)
-}
-
-func TestInjectDefinitionWithDependency(t *testing.T) {
-	var (
-		s     = &Service{}
-		image = "xxx"
-	)
-	s.injectDefinition(&importer.ServiceDefinition{
-		Dependencies: map[string]*importer.Dependency{
+func TestValidateEventData(t *testing.T) {
+	s := &Service{
+		Events: map[string]*Event{
 			"test": {
-				Image: image,
+				Data: map[string]*Parameter{
+					"foo": {
+						Type: paramAnyType,
+					},
+				},
 			},
 		},
-	})
-	require.Equal(t, s.Dependencies[0].Image, image)
+	}
+	data := map[string]interface{}{"foo": "bar"}
+	assert.NoError(t, s.ValidateEventData("test", data))
+	assert.Error(t, s.ValidateEventData("not-found", data))
+}
+
+func TestValidateTaskInputs(t *testing.T) {
+	s := &Service{
+		Tasks: map[string]*Task{
+			"test": {
+				Inputs: map[string]*Parameter{
+					"foo": {
+						Type: paramAnyType,
+					},
+				},
+			},
+		},
+	}
+	data := map[string]interface{}{"foo": "bar"}
+	assert.NoError(t, s.ValidateTaskInputs("test", data))
+	assert.Error(t, s.ValidateTaskInputs("not-found", data))
+}
+
+func TestValidateTaskOutput(t *testing.T) {
+	s := &Service{
+		Tasks: map[string]*Task{
+			"test": {
+				Outputs: map[string]*Output{
+					"output": {
+						Data: map[string]*Parameter{
+							"foo": {
+								Type: paramAnyType,
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+	data := map[string]interface{}{"foo": "bar"}
+	assert.NoError(t, s.ValidateTaskOutput("test", "output", data))
+	assert.Error(t, s.ValidateTaskOutput("test", "not-found", data))
+	assert.Error(t, s.ValidateTaskOutput("not-found", "output", data))
+}
+
+func TestValidateConfigurationEnv(t *testing.T) {
+	var s Service
+	s.Configuration.Env = []string{"foo="}
+	assert.NoError(t, s.validateConfigurationEnv(map[string]string{"foo": "bar"}))
+	assert.Error(t, s.validateConfigurationEnv(map[string]string{"bar": "foo"}))
+
+}
+
+func TestSerivcePorts(t *testing.T) {
+	s := &Service{
+		Configuration: Dependency{
+			Ports: []string{"80:81", "443"},
+		},
+		Dependencies: map[string]*Dependency{
+			"dummy": {
+				Ports: []string{"8080:8081", "8443"},
+			},
+		},
+	}
+
+	assert.Equal(t, []container.Port{
+		{Target: 81, Published: 80},
+		{Target: 443, Published: 443},
+	}, s.ports(MainServiceKey))
+
+	assert.Equal(t, []container.Port{
+		{Target: 8081, Published: 8080},
+		{Target: 8443, Published: 8443},
+	}, s.ports("dummy"))
+}
+
+func TestServiceVolumes(t *testing.T) {
+	s := &Service{
+		Configuration: Dependency{
+			Volumes:     []string{"v1"},
+			VolumesFrom: []string{"dummy"},
+		},
+		Dependencies: map[string]*Dependency{
+			"dummy": {
+				Volumes:     []string{"v2"},
+				VolumesFrom: []string{MainServiceKey},
+			},
+		},
+	}
+
+	assert.Equal(t, []container.Mount{
+		{
+			Source: "76314cf5bc59bee9e1c44c6254b5f84e7f066bd8e5fe",
+			Target: "v1",
+		},
+		{
+			Source: "76324cf5bc59bee9e1c44c6254b5f84e7f066bd8e5fe",
+			Target: "v2",
+		},
+	}, s.volumes(MainServiceKey))
+
+	assert.Equal(t, []container.Mount{
+		{
+			Source: "7632829c3804401b0727f70f73d4415e162400cbe57b",
+			Target: "v2",
+		},
+		{
+			Source: "7631829c3804401b0727f70f73d4415e162400cbe57b",
+			Target: "v1",
+		},
+	}, s.volumes("dummy"))
+}
+
+func TestVolumeKey(t *testing.T) {
+	assert.Equal(t, "766f6c756d65564ca9fb3226c4272a364725c73dbe97ec94a5ee", volumeKey("sid", "dep", "volume"))
+}
+
+func TestParametrValidate(t *testing.T) {
+	tests := []struct {
+		param Parameter
+		arg   interface{}
+		err   error
+	}{
+		{
+			Parameter{
+				Type:     paramStringType,
+				Optional: true,
+			},
+			nil,
+			nil,
+		},
+		{
+			Parameter{
+				Type: paramStringType,
+			},
+			nil,
+			errors.New("required"),
+		},
+		{
+			Parameter{
+				Type: paramStringType,
+			},
+			"foo",
+			nil,
+		},
+		{
+			Parameter{
+				Type: paramStringType,
+			},
+			0,
+			errors.New("not a string"),
+		},
+		{
+			Parameter{
+				Type: paramNumberType,
+			},
+			1.0,
+			nil,
+		},
+		{
+			Parameter{
+				Type: paramNumberType,
+			},
+			"",
+			errors.New("not a number"),
+		},
+		{
+			Parameter{
+				Type: paramBooleanType,
+			},
+			true,
+			nil,
+		},
+		{
+			Parameter{
+				Type: paramBooleanType,
+			},
+			"",
+			errors.New("not a boolean"),
+		},
+		{
+			Parameter{
+				Type:     paramStringType,
+				Repeated: true,
+			},
+			[]interface{}{"foo"},
+			nil,
+		},
+		{
+			Parameter{
+				Type:     paramStringType,
+				Repeated: true,
+			},
+			"foo",
+			errors.New("not an array"),
+		},
+		{
+			Parameter{
+				Type: paramOjbectType,
+			},
+			map[string]interface{}{},
+			nil,
+		},
+		{
+			Parameter{
+				Type: paramOjbectType,
+			},
+			[]interface{}{},
+			errors.New("not an object"),
+		},
+	}
+
+	for _, tt := range tests {
+		assert.Equal(t, tt.err, tt.param.Validate(tt.arg))
+	}
 }

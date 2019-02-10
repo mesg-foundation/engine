@@ -1,7 +1,9 @@
 package core
 
 import (
-	"github.com/mesg-foundation/core/api"
+	"io"
+
+	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/utils/chunker"
@@ -9,8 +11,7 @@ import (
 
 // ServiceLogs gives logs of service with the applied dependency filters.
 func (s *Server) ServiceLogs(request *coreapi.ServiceLogsRequest, stream coreapi.Core_ServiceLogsServer) error {
-	sl, err := s.api.ServiceLogs(request.ServiceID,
-		api.ServiceLogsDependenciesFilter(request.Dependencies...))
+	logs, err := s.api.ServiceLogs(request.ServiceID, request.Dependencies)
 	if err != nil {
 		return err
 	}
@@ -20,19 +21,24 @@ func (s *Server) ServiceLogs(request *coreapi.ServiceLogsRequest, stream coreapi
 		errs   = make(chan error)
 	)
 
-	for _, l := range sl {
-		cstd := chunker.New(l.Standard, chunks, errs, chunker.ValueOption(&chunkMeta{
-			Dependency: l.Dependency,
+	for _, log := range logs {
+		stdout, dstdout := io.Pipe()
+		stderr, dstderr := io.Pipe()
+		go func(r io.Reader) {
+			stdcopy.StdCopy(dstdout, dstderr, r)
+		}(log.Reader())
+
+		cstd := chunker.New(stdout, chunks, errs, chunker.ValueOption(&chunkMeta{
+			Dependency: log.Dependency(),
 			Type:       coreapi.LogData_Standard,
 		}))
-		cerr := chunker.New(l.Error, chunks, errs, chunker.ValueOption(&chunkMeta{
-			Dependency: l.Dependency,
+		cerr := chunker.New(stderr, chunks, errs, chunker.ValueOption(&chunkMeta{
+			Dependency: log.Dependency(),
 			Type:       coreapi.LogData_Error,
 		}))
+		defer log.Close()
 		defer cstd.Close()
 		defer cerr.Close()
-		defer l.Standard.Close()
-		defer l.Error.Close()
 	}
 
 	// send header to notify client that the stream is ready.

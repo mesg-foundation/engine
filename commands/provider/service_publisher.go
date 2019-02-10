@@ -9,7 +9,7 @@ import (
 	"github.com/docker/docker/builder/dockerignore"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/ipfs"
-	"github.com/mesg-foundation/core/service/importer"
+	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/utils/readme"
 )
 
@@ -27,8 +27,8 @@ type marketplaceData struct {
 			Source string `json:"source"`
 		} `json:"deployment"`
 	} `json:"service"`
-	Definition *importer.ServiceDefinition `json:"definition"`
-	Readme     string                      `json:"readme,omitempty"`
+	Definition *service.Service `json:"definition"`
+	Readme     string           `json:"readme,omitempty"`
 }
 
 // ServicePublishDefinitionFile upload and publish the tarball and definition file and returns the address of the definition file
@@ -75,7 +75,7 @@ func (p *ServiceProvider) getExcludeList(path string) ([]string, error) {
 }
 
 func (p *ServiceProvider) createDefinitionFile(path string, tarballHash string) ([]byte, error) {
-	definition, err := importer.From(path)
+	definition, err := service.ReadDefinition(path)
 	if err != nil {
 		return nil, err
 	}

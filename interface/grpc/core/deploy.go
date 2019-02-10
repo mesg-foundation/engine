@@ -2,12 +2,9 @@ package core
 
 import (
 	"errors"
-	"sync"
 
 	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
-	service "github.com/mesg-foundation/core/service"
-	"github.com/mesg-foundation/core/service/importer"
 )
 
 // DeployService deploys a service from Git URL or service.tar.gz file. It'll send status
@@ -15,19 +12,11 @@ import (
 func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 	var (
 		statuses = make(chan api.DeployStatus)
-		option   = api.DeployServiceStatusOption(statuses)
-		wg       sync.WaitGroup
 
-		service         *service.Service
-		validationError *importer.ValidationError
-		err             error
+		service string
+		err     error
 	)
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		sendDeployStatus(statuses, stream)
-	}()
+	defer close(statuses)
 
 	// read first requesest from stream and check if it's url or tarball
 	in, err := stream.Recv()
@@ -35,38 +24,28 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 		return err
 	}
 
+	go sendDeployStatus(statuses, stream)
+
 	// env must be set with first package (always)
 	env := in.GetEnv()
 
 	if url := in.GetUrl(); url != "" {
-		service, validationError, err = s.api.DeployServiceFromURL(url, env, option)
+		service, err = s.api.DeployServiceFromURL(url, env, statuses)
 	} else {
 		// create tarball reader with first chunk of bytes
 		tarball := &deployChunkReader{
 			stream: stream,
 			buf:    in.GetChunk(),
 		}
-		service, validationError, err = s.api.DeployService(tarball, env, option)
+		service, err = s.api.DeployService(tarball, env, statuses)
 	}
-
-	// wait for statuses to be sent first, otherwise sending multiple messages at the
-	// same time may cause messages to be sent in different order.
-	wg.Wait()
-
 	if err != nil {
 		return err
-	}
-	if validationError != nil {
-		return stream.Send(&coreapi.DeployServiceReply{
-			Value: &coreapi.DeployServiceReply_ValidationError{
-				ValidationError: validationError.Error(),
-			},
-		})
 	}
 
 	return stream.Send(&coreapi.DeployServiceReply{
 		Value: &coreapi.DeployServiceReply_ServiceID{
-			ServiceID: service.Sid,
+			ServiceID: service,
 		},
 	})
 }

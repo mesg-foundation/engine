@@ -1,0 +1,46 @@
+name: # empty name
+sid: 0000000000000000000000000000000000000000000000000000000000000000 # too long
+repository: ::// # invalid uri
+
+events:
+  foo:
+    data: # no data
+  bar:
+    data:
+      p1:
+        type: # no type
+
+tasks:
+  foo:
+    inputs: # no inputs
+    outputs: # no outputs
+
+configuration:
+  volumes:
+    - v1
+    - v1 # not unique
+  volumesFrom:
+    - dummy # not existing
+  ports:
+    - 0
+    - 65536
+    - 1:a
+    - a:1
+
+dependencies:
+  service: # forbidden key
+  dummy0:
+    image: # empty image
+    volumes:
+      - v1
+      - v1 # not unique
+    volumesFrom:
+      - none # not existing
+    ports:
+      - 0
+      - 65536
+      - 1:a
+      - a:1
+  dummy1:
+    volumesFrom:
+      - dummy # cyclic import

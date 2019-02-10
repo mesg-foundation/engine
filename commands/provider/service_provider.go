@@ -12,7 +12,7 @@ import (
 	"github.com/mesg-foundation/core/commands/provider/assets"
 	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
-	"github.com/mesg-foundation/core/service/importer"
+	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/utils/chunker"
 	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/mesg-foundation/core/utils/servicetemplate"
@@ -167,9 +167,11 @@ func (p *ServiceProvider) ServiceLogs(id string, dependencies ...string) (logs [
 		if err != nil {
 			return nil, nil, nil, err
 		}
-		for _, dep := range resp.Service.Dependencies {
-			dependencies = append(dependencies, dep.Key)
+
+		for key := range resp.Service.Dependencies {
+			dependencies = append(dependencies, key)
 		}
+		dependencies = append(dependencies, service.MainServiceKey)
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -265,39 +267,16 @@ func (p *ServiceProvider) ServiceStop(id string) error {
 
 // ServiceValidate validates a service configuration and Dockerfile.
 func (p *ServiceProvider) ServiceValidate(path string) (string, error) {
-	validation, err := importer.Validate(path)
-	if err != nil {
-		return "", err
+	if _, err := service.ReadDefinition(path); err != nil {
+		return "", nil
 	}
-
-	if !validation.ServiceFileExist {
-		return fmt.Sprintf("%s File 'mesg.yml' does not exist", pretty.FailSign), nil
-	}
-
-	if len(validation.ServiceFileWarnings) > 0 {
-		var msg = fmt.Sprintf("%s File 'mesg.yml' is not valid. See documentation: https://docs.mesg.com/guide/service/service-file.html\n", pretty.FailSign)
-		for _, warning := range validation.ServiceFileWarnings {
-			msg += fmt.Sprintf("\t* %s\n", warning)
-		}
-		return msg, nil
-	}
-
-	if !validation.DockerfileExist {
-		return fmt.Sprintf("%s Dockerfile does not exist", pretty.FailSign), nil
-	}
-	if !validation.IsValid() {
-		return fmt.Sprintf("%s Service is not valid", pretty.FailSign), nil
-	}
-
-	return fmt.Sprintf(`%s Dockerfile exists
-%s mesg.yml is valid
-%s Service is valid`, pretty.SuccessSign, pretty.SuccessSign, pretty.SuccessSign), nil
+	return fmt.Sprintf(`%s mesg.yml is valid`, pretty.SuccessSign), nil
 }
 
 // ServiceGenerateDocs creates docs in given path.
 func (p *ServiceProvider) ServiceGenerateDocs(path string) error {
 	readmePath := filepath.Join(path, "README.md")
-	service, err := importer.From(path)
+	service, err := service.ReadDefinition(path)
 	if err != nil {
 		return err
 	}

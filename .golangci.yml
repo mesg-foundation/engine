@@ -11,7 +11,7 @@ linters-settings:
   govet:
     check-shadowing: false
   golint:
-    min-confidence: 0
+    min-confidence: 1.0
   gocyclo:
     min-complexity: 20
   maligned:
@@ -20,6 +20,7 @@ linters-settings:
     locale: US
 
 issues:
+  exclude-use-default: false
   exclude:
     - "ineffective break statement. Did you mean to break out of the outer loop"
 

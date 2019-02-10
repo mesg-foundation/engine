@@ -19,7 +19,6 @@ const (
 
 var (
 	errCannotSaveWithoutHash = errors.New("database: can't save service without hash")
-	errCannotSaveWithoutSid  = errors.New("database: can't save service without sid")
 	errSidSameLen            = errors.New("database: sid can't have the same length as hash")
 )
 
@@ -164,9 +163,6 @@ func (d *LevelDBServiceDB) Save(s *service.Service) error {
 	// check service
 	if s.Hash == "" {
 		return errCannotSaveWithoutHash
-	}
-	if s.Sid == "" {
-		return errCannotSaveWithoutSid
 	}
 	if len(s.Hash) == len(s.Sid) {
 		return errSidSameLen

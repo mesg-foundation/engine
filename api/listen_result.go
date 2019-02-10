@@ -1,6 +1,8 @@
 package api
 
 import (
+	"fmt"
+
 	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/pubsub"
 	"github.com/mesg-foundation/core/service"
@@ -86,10 +88,6 @@ func (l *ResultListener) listen(serviceID string) error {
 	if err != nil {
 		return err
 	}
-	s, err = service.FromService(s, service.ContainerOption(l.api.container))
-	if err != nil {
-		return err
-	}
 	if err := l.validateTask(s); err != nil {
 		return err
 	}
@@ -129,23 +127,26 @@ func (l *ResultListener) validateTask(service *service.Service) error {
 }
 
 func (l *ResultListener) validateTaskKey(service *service.Service) error {
-	if l.taskKey == "" || l.taskKey == "*" {
+	if _, ok := service.Tasks[l.taskKey]; ok || l.taskKey == "" || l.taskKey == "*" {
 		return nil
 	}
-	_, err := service.GetTask(l.taskKey)
-	return err
+	return fmt.Errorf("task %s not found", l.taskKey)
 }
 
 func (l *ResultListener) validateOutputKey(service *service.Service) error {
 	if l.outputKey == "" || l.outputKey == "*" {
 		return nil
 	}
-	task, err := service.GetTask(l.taskKey)
-	if err != nil {
-		return err
+
+	task, ok := service.Tasks[l.taskKey]
+	if !ok {
+		return fmt.Errorf("task %s not found", l.taskKey)
 	}
-	_, err = task.GetOutput(l.outputKey)
-	return err
+
+	if _, ok := task.Outputs[l.outputKey]; !ok {
+		return fmt.Errorf("task %s output not found", l.outputKey)
+	}
+	return nil
 }
 
 func (l *ResultListener) isSubscribed(e *execution.Execution) bool {

@@ -1,295 +1,390 @@
 package service
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
+	"errors"
 	"fmt"
-	"io"
-	"io/ioutil"
-	"os"
-	"path/filepath"
-	"sort"
+	"strconv"
 	"strings"
 	"time"
 
-	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/container"
-	"github.com/mesg-foundation/core/service/importer"
-	"github.com/mesg-foundation/core/x/xos"
-	"github.com/mesg-foundation/core/x/xstructhash"
 )
 
-// WARNING about hash tags on Service type and its inner types:
-// * never change the name attr of hash tag. use an incremented value for
-// name attr when a new configuration field added to Service.
-// * don't increment the value of name attr if corresponding field's name
-// changed but its behavior remains the same.
-// * this is required for not breaking Service IDs unless there is a behavioral
-// change.
+// MainServiceKey is key for main service.
+const MainServiceKey = "service"
 
-// Service represents a MESG service.
+// Namespacees used for the docker services.
+const (
+	eventChannel  = "Event"
+	taskChannel   = "Task"
+	resultChannel = "Result"
+)
+
+// Status of the service.
+type Status uint
+
+// Possible statuses for service.
+const (
+	StatusUnknown Status = iota
+	StatusStopped
+	StatusStarting
+	StatusPartial
+	StatusRunning
+	StatusDeleted
+)
+
+func (s Status) String() string {
+	switch s {
+	case StatusStopped:
+		return "STOPPED"
+	case StatusStarting:
+		return "STARTING"
+	case StatusPartial:
+		return "PARTIAL"
+	case StatusRunning:
+		return "RUNNING"
+	case StatusDeleted:
+		return "DELETED"
+	default:
+		return "UNKNOWN"
+	}
+}
+
+// Service represents MESG services configurations.
 type Service struct {
-	// Hash is calculated from the combination of service's source and mesg.yml.
-	// It represents the service uniquely.
-	Hash string `hash:"-"`
-
-	// Sid is the service id.
-	// It needs to be unique and can be used to access to service.
-	Sid string `hash:"name:1"`
-
 	// Name is the service name.
-	Name string `hash:"name:2"`
+	Name string `yaml:"name" json:"name,omitempty" validate:"required,printascii,min=1"`
+
+	// Sid is the service id. It must be unique.
+	Sid string `yaml:"sid" json:"sid,omitempty" validate:"printascii,max=63,domain"`
 
 	// Description is service description.
-	Description string `hash:"name:3"`
+	Description string `yaml:"description" json:"description,omitempty" validate:"printascii"`
+
+	// Repository holds the service's repository url if it's living on a git host.
+	Repository string `yaml:"repository" json:"repository,omitempty" validate:"omitempty,uri"`
 
 	// Tasks are the list of tasks that service can execute.
-	Tasks []*Task `hash:"name:4"`
+	Tasks map[string]*Task `yaml:"tasks" json:"tasks,omitempty" validate:"dive,keys,printascii,endkeys,required"`
 
 	// Events are the list of events that service can emit.
-	Events []*Event `hash:"name:5"`
+	Events map[string]*Event `yaml:"events" json:"events,omitempty" validate:"dive,keys,printascii,endkeys,required"`
+
+	// Configuration is the Docker container that service runs inside.
+	Configuration Dependency `yaml:"configuration" json:"configuration,omitempty"`
 
 	// Dependencies are the Docker containers that service can depend on.
-	Dependencies []*Dependency `hash:"name:6"`
+	Dependencies map[string]*Dependency `yaml:"dependencies" json:"dependencies,omitempty" validate:"dive,keys,printascii,ne=service,endkeys,required"`
 
-	// Repository holds the service's repository url if it's living on
-	// a Git host.
-	Repository string `hash:"name:7"`
+	// Hash is calculated from the combination of service's source and mesg.yml.
+	Hash string `yaml:"-"`
+
+	// Status is service status.
+	Status Status `yaml:"-"`
 
 	// DeployedAt holds the creation time of service.
-	DeployedAt time.Time `hash:"-"`
-
-	// statuses receives status messages produced during deployment.
-	statuses chan DeployStatus `hash:"-"`
-
-	// tempPath is the temporary path that service is hosted in file system.
-	tempPath string `hash:"-"`
-
-	// container is the underlying container API.
-	container container.Container `hash:"-"`
+	DeployedAt time.Time `yaml:"-"`
 }
 
-// DStatusType indicates the type of status message.
-type DStatusType int
-
-const (
-	_ DStatusType = iota // skip zero value.
-
-	// DRunning indicates that status message belongs to a continuous state.
-	DRunning
-
-	// DDonePositive indicates that status message belongs to a positive noncontinuous state.
-	DDonePositive
-
-	// DDoneNegative indicates that status message belongs to a negative noncontinuous state.
-	DDoneNegative
-)
-
-// DeployStatus represents the deployment status.
-type DeployStatus struct {
-	Message string
-	Type    DStatusType
+// ValidateEventData checks if event data is valid for given event key.
+func (s *Service) ValidateEventData(eventKey string, eventData map[string]interface{}) error {
+	event, ok := s.Events[eventKey]
+	if !ok {
+		return fmt.Errorf("service %s - event %q not found", s.Name, eventKey)
+	}
+	return validateParametersSchema(event.Data, eventData)
 }
 
-// New creates a new service from a gzipped tarball.
-func New(tarball io.Reader, env map[string]string, options ...Option) (*Service, error) {
-	s := &Service{}
-
-	defer s.closeStatus()
-
-	if err := s.setOptions(options...); err != nil {
-		return nil, err
+// ValidateTaskInputs checks if task inputs is valid for given task key.
+func (s *Service) ValidateTaskInputs(taskKey string, inputs map[string]interface{}) error {
+	task, ok := s.Tasks[taskKey]
+	if !ok {
+		return fmt.Errorf("task %s not found", taskKey)
 	}
-	if err := s.saveContext(tarball); err != nil {
-		return nil, err
-	}
-	defer os.RemoveAll(s.tempPath)
-
-	def, err := importer.From(s.tempPath)
-	if err != nil {
-		return nil, err
-	}
-
-	s.injectDefinition(def)
-
-	if err := s.validateConfigurationEnv(env); err != nil {
-		return nil, err
-	}
-
-	// replace default env with new one.
-	defenv := xos.EnvSliceToMap(s.configuration().Env)
-	s.configuration().Env = xos.EnvMapToSlice(xos.EnvMergeMaps(defenv, env))
-
-	if err := s.deploy(); err != nil {
-		return nil, err
-	}
-
-	return s.fromService(), nil
+	return validateParametersSchema(task.Inputs, inputs)
 }
 
-// FromService upgrades service s by setting its options and private fields.
-func FromService(s *Service, options ...Option) (*Service, error) {
-	if err := s.setOptions(options...); err != nil {
-		return nil, err
+// ValidateTaskOutput checks if task output is valid for given task and output key.
+func (s *Service) ValidateTaskOutput(taskKey, outputKey string, outputData map[string]interface{}) error {
+	task, ok := s.Tasks[taskKey]
+	if !ok {
+		return fmt.Errorf("task %s not found", taskKey)
 	}
-	return s.fromService(), nil
-}
-
-func (s *Service) setOptions(options ...Option) error {
-	for _, option := range options {
-		option(s)
+	output, ok := task.Outputs[outputKey]
+	if !ok {
+		return fmt.Errorf("task %s output not found", taskKey)
 	}
-	return nil
-}
-
-// fromService upgrades service s by setting a calculated ID and cross-referencing its child fields.
-func (s *Service) fromService() *Service {
-	for _, dep := range s.Dependencies {
-		dep.service = s
-	}
-
-	s.Hash = s.computeHash()
-	return s
-}
-
-// Option is the configuration func of Service.
-type Option func(*Service)
-
-// ContainerOption returns an option for customized container.
-func ContainerOption(container container.Container) Option {
-	return func(s *Service) {
-		s.container = container
-	}
-}
-
-// DeployStatusOption receives chan statuses to send deploy statuses.
-func DeployStatusOption(statuses chan DeployStatus) Option {
-	return func(s *Service) {
-		s.statuses = statuses
-	}
-}
-
-// computeHash computes a unique sha1 value for service.
-// changes on the names of constant configuration fields of mesg.yml will not
-// have effect on computation but extending or removing configurations or changing
-// values in mesg.yml will cause computeHash to generate a different value.
-func (s *Service) computeHash() string {
-	return xstructhash.Hash(s, 1)
-}
-
-// saveContext downloads service context to a temp dir.
-func (s *Service) saveContext(r io.Reader) error {
-	var err error
-	s.tempPath, err = ioutil.TempDir("", "mesg-")
-	if err != nil {
-		return err
-	}
-
-	s.sendStatus("Receiving service context...", DRunning)
-	defer s.sendStatus("Service context received with success", DDonePositive)
-
-	if err := archive.Untar(r, s.tempPath, &archive.TarOptions{
-		NoLchown: true,
-	}); err != nil {
-		return err
-	}
-
-	// NOTE: this is check for tar repos, if there is only one
-	// directory inside untar archive set temp path to it.
-	dirs, err := ioutil.ReadDir(s.tempPath)
-	if err != nil {
-		return err
-	}
-	if len(dirs) == 1 && dirs[0].IsDir() {
-		s.tempPath = filepath.Join(s.tempPath, dirs[0].Name())
-	}
-	return nil
-}
-
-// deploy deploys service.
-func (s *Service) deploy() error {
-	s.sendStatus("Building Docker image...", DRunning)
-
-	imageHash, err := s.container.Build(s.tempPath)
-	if err != nil {
-		return err
-	}
-
-	s.sendStatus("Image built with success", DDonePositive)
-
-	s.configuration().Image = imageHash
-	if s.Sid == "" {
-		// make sure that sid doesn't have the same length with id.
-		s.Sid = "_" + s.computeHash()
-	}
-	return nil
-}
-
-// sendStatus sends a status message.
-func (s *Service) sendStatus(message string, typ DStatusType) {
-	if s.statuses != nil {
-		s.statuses <- DeployStatus{
-			Message: message,
-			Type:    typ,
-		}
-	}
-}
-
-// closeStatus closes statuses chan.
-func (s *Service) closeStatus() {
-	if s.statuses != nil {
-		close(s.statuses)
-	}
-}
-
-// getDependency returns dependency dependencyKey or a not found error.
-func (s *Service) getDependency(dependencyKey string) (*Dependency, error) {
-	for _, dep := range s.Dependencies {
-		if dep.Key == dependencyKey {
-			dep.service = s
-			return dep, nil
-		}
-	}
-	return nil, fmt.Errorf("dependency %s do not exist", dependencyKey)
+	return validateParametersSchema(output.Data, outputData)
 }
 
 // validateConfigurationEnv checks presence of env variables in mesg.yml under env section.
 func (s *Service) validateConfigurationEnv(env map[string]string) error {
-	var nonDefined []string
+	var notenv []string
 	for key := range env {
 		exists := false
 		// check if "key=" exists in configuration
-		for _, env := range s.configuration().Env {
+		for _, env := range s.Configuration.Env {
 			if strings.HasPrefix(env, key+"=") {
 				exists = true
+				break
 			}
 		}
 		if !exists {
-			nonDefined = append(nonDefined, key)
+			notenv = append(notenv, key)
 		}
 	}
-	if len(nonDefined) > 0 {
-		sort.Strings(nonDefined)
-		return ErrNotDefinedEnv{nonDefined}
+	if len(notenv) > 0 {
+		return fmt.Errorf("environment variable(s) %q not defined in mesg.yml (under configuration.env key)",
+			strings.Join(notenv, ", "))
 	}
 	return nil
 }
 
-// helper to return the configuration of the service from the dependencies array
-func (s *Service) configuration() *Dependency {
-	for _, dep := range s.Dependencies {
-		if dep.Key == importer.ConfigurationDependencyKey {
-			return dep
+// namespace returns the namespace of the service.
+func (s *Service) namespace() []string {
+	sum := sha1.Sum([]byte(s.Hash))
+	return []string{hex.EncodeToString(sum[:])}
+}
+
+// EventSubscriptionChannel returns the channel to listen for events from this service.
+func (s *Service) EventSubscriptionChannel() string {
+	return calculate(append(s.namespace(), eventChannel))
+}
+
+// TaskSubscriptionChannel returns the channel to listen for tasks from this service.
+func (s *Service) TaskSubscriptionChannel() string {
+	return calculate(append(s.namespace(), taskChannel))
+}
+
+// ResultSubscriptionChannel returns the channel to listen for tasks from this service.
+func (s *Service) ResultSubscriptionChannel() string {
+	return calculate(append(s.namespace(), resultChannel))
+}
+
+func (s *Service) ports(depKey string) []container.Port {
+	var (
+		ports []container.Port
+		dep   = &s.Configuration
+	)
+	if depKey != MainServiceKey {
+		dep = s.Dependencies[depKey]
+	}
+	for _, port := range dep.Ports {
+		parts := strings.Split(port, ":")
+		published, _ := strconv.ParseUint(parts[0], 10, 64)
+		target := published
+		if len(parts) > 1 {
+			target, _ = strconv.ParseUint(parts[1], 10, 64)
+		}
+		ports = append(ports, container.Port{
+			Target:    uint32(target),
+			Published: uint32(published),
+		})
+	}
+	return ports
+}
+
+func (s *Service) volumes(depKey string) []container.Mount {
+	var (
+		volumes []container.Mount
+		dep     = &s.Configuration
+	)
+	if depKey != MainServiceKey {
+		dep = s.Dependencies[depKey]
+	}
+
+	for _, volume := range dep.Volumes {
+		volumes = append(volumes, container.Mount{
+			Source: volumeKey(s.Sid, depKey, volume),
+			Target: volume,
+		})
+	}
+
+	for _, key := range dep.VolumesFrom {
+		depVolumes := s.Configuration.Volumes
+		if key != MainServiceKey {
+			depVolumes = s.Dependencies[key].Volumes
+		}
+
+		for _, volume := range depVolumes {
+			volumes = append(volumes, container.Mount{
+				Source: volumeKey(s.Sid, depKey, volume),
+				Target: volume,
+			})
+		}
+	}
+	return volumes
+}
+
+// Event describes a service task.
+type Event struct {
+	// Name is the name of event.
+	Name string `yaml:"name" json:"name,omitempty" validate:"printascii"`
+
+	// Description is the description of event.
+	Description string `yaml:"description" json:"description,omitempty" validate:"printascii"`
+
+	// Data holds the input inputs of event.
+	Data map[string]*Parameter `yaml:"data" json:"data,omitempty" validate:"required,dive,keys,printascii,endkeys,required"`
+}
+
+// Dependency represents a Docker container and it holds instructions about
+// how it should run.
+type Dependency struct {
+	// Image is the Docker image.
+	Image string `yaml:"image" json:"image,omitempty" validate:"printascii"`
+
+	// Volumes are the Docker volumes.
+	Volumes []string `yaml:"volumes" json:"volumes,omitempty" validate:"unique,dive,printascii"`
+
+	// VolumesFrom are the docker volumes-from from.
+	VolumesFrom []string `yaml:"volumesFrom" json:"volumesFrom,omitempty" validate:"unique,dive,printascii"`
+
+	// Ports holds ports configuration for container.
+	Ports []string `yaml:"ports" json:"ports,omitempty" validate:"unique"`
+
+	// Command is the Docker command which will be executed when container started.
+	Command string `yaml:"command" json:"command,omitempty" validate:"printascii"`
+
+	// Args hold the args to pass to the Docker container
+	Args []string `yaml:"args" json:"args,omitempty" validate:"dive,printascii"`
+
+	// Env is a slice of environment variables in key=value format.
+	Env []string `yaml:"env" json:"env,omitempty" validate:"unique,dive,printascii"`
+}
+
+// Task describes a service task.
+type Task struct {
+	// Name is the name of task.
+	Name string `yaml:"name" json:"name,omitempty" validate:"printascii"`
+
+	// Description is the description of task.
+	Description string `yaml:"description" json:"description,omitempty" validate:"printascii"`
+
+	// Parameters are the definition of the execution inputs of task.
+	Inputs map[string]*Parameter `yaml:"inputs" json:"inputs,omitempty" validate:"dive,keys,printascii,endkeys,required"`
+
+	// Outputs are the definition of the execution results of task.
+	Outputs map[string]*Output `yaml:"outputs" json:"outputs,omitempty" validate:"required,dive,keys,printascii,endkeys,required"`
+}
+
+// Output describes task output.
+type Output struct {
+	// Name is the name of task output.
+	Name string `yaml:"name" json:"name,omitempty" validate:"printascii"`
+
+	// Description is the description of task output.
+	Description string `yaml:"description" json:"description,omitempty" validate:"printascii"`
+
+	// Data holds the output inputs of a task output.
+	Data map[string]*Parameter `yaml:"data" json:"data,omitempty" validate:"required,dive,keys,printascii,endkeys,required"`
+}
+
+// Parameter describes task input inputs, output inputs of a task
+// output and input inputs of an event.
+type Parameter struct {
+	// Name is the name of input.
+	Name string `yaml:"name" json:"name,omitempty" validate:"printascii"`
+
+	// Description is the description of input.
+	Description string `yaml:"description" json:"description,omitempty" validate:"printascii"`
+
+	// Type is the data type of input.
+	Type string `yaml:"type" json:"type,omitempty" validate:"required,printascii,oneof=String Number Boolean Object Any"`
+
+	// Optional indicates if input is optional.
+	Optional bool `yaml:"optional" json:"optional,omitempty"`
+
+	// Repeated is to have an array of this input
+	Repeated bool `yaml:"repeated" json:"repeated,omitempty"`
+
+	// Definition of the structure of the object when the type is object
+	Object map[string]*Parameter `yaml:"object" json:"object,omitempty" validate:"dive,keys,printascii,endkeys,required"`
+}
+
+// Validate validates arg by comparing to its parameter schema.
+func (p *Parameter) Validate(arg interface{}) error {
+	if arg == nil {
+		if p.Optional {
+			return nil
+		}
+		return errors.New("required")
+	}
+	if p.Repeated {
+		array, ok := arg.([]interface{})
+		if !ok {
+			return errors.New("not an array")
+		}
+		for _, x := range array {
+			if err := p.validateType(x); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+	return p.validateType(arg)
+}
+
+const (
+	paramStringType  = "String"
+	paramNumberType  = "Number"
+	paramBooleanType = "Boolean"
+	paramOjbectType  = "Object"
+	paramAnyType     = "Any"
+)
+
+// validateType checks if arg comforts its expected type.
+func (p *Parameter) validateType(arg interface{}) error {
+	switch p.Type {
+	case paramStringType:
+		if _, ok := arg.(string); !ok {
+			return errors.New("not a string")
+		}
+	case paramNumberType:
+		if _, ok := arg.(float64); !ok {
+			return errors.New("not a number")
+		}
+	case paramBooleanType:
+		if _, ok := arg.(bool); !ok {
+			return errors.New("not a boolean")
+		}
+	case paramOjbectType:
+		obj, ok := arg.(map[string]interface{})
+		if !ok {
+			return errors.New("not an object")
+		}
+		return validateParametersSchema(p.Object, obj)
+	case paramAnyType:
+		return nil
+	default:
+		return errors.New("not valid type")
+	}
+	return nil
+}
+
+// calculate returns a hash according to the given data.
+func calculate(data []string) string {
+	return strings.Join(data, ".")
+}
+
+// ValidateParametersSchema validates data to see if it matches with parameters schema.
+func validateParametersSchema(parameters map[string]*Parameter, args map[string]interface{}) error {
+	for key, param := range parameters {
+		if err := param.Validate(args[key]); err != nil {
+			return fmt.Errorf("argument %s is %s", key, err)
 		}
 	}
 	return nil
 }
 
-// ErrNotDefinedEnv error returned when optionally given env variables
-// are not defined in the mesg.yml file.
-type ErrNotDefinedEnv struct {
-	env []string
-}
-
-func (e ErrNotDefinedEnv) Error() string {
-	return fmt.Sprintf("environment variable(s) %q not defined in mesg.yml (under configuration.env key)",
-		strings.Join(e.env, ", "))
+// volumeKey creates a key for service's volume based on the sid to make sure that the volume
+// will stay the same for different versions of the service.
+func volumeKey(sid, dependency, volume string) string {
+	h := sha1.New()
+	h.Write([]byte(sid))
+	h.Write([]byte(dependency))
+	sum := h.Sum([]byte(volume))
+	return hex.EncodeToString(sum)
 }

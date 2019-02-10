@@ -6,63 +6,19 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"sync"
 
+	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/service"
-	"github.com/mesg-foundation/core/service/importer"
-	"github.com/mesg-foundation/core/x/xdocker/xarchive"
 	"github.com/mesg-foundation/core/x/xgit"
-	uuid "github.com/satori/go.uuid"
 )
-
-// DeployServiceOption is a configuration func for deploying services.
-type DeployServiceOption func(*serviceDeployer)
-
-// DeployServiceStatusOption receives chan statuses to send deploy statuses.
-func DeployServiceStatusOption(statuses chan DeployStatus) DeployServiceOption {
-	return func(deployer *serviceDeployer) {
-		deployer.statuses = statuses
-	}
-}
-
-// DeployService deploys a service from a gzipped tarball.
-func (a *API) DeployService(r io.Reader, env map[string]string, options ...DeployServiceOption) (*service.Service,
-	*importer.ValidationError, error) {
-	return newServiceDeployer(a, env, options...).FromArchive(r)
-}
-
-// DeployServiceFromURL deploys a service living at a Git host.
-// Supported URL types:
-// - https://github.com/mesg-foundation/service-ethereum
-// - https://github.com/mesg-foundation/service-ethereum#branchName
-func (a *API) DeployServiceFromURL(url string, env map[string]string, options ...DeployServiceOption) (*service.Service,
-	*importer.ValidationError, error) {
-	return newServiceDeployer(a, env, options...).FromURL(url)
-}
-
-// serviceDeployer provides functionalities to deploy a MESG service.
-type serviceDeployer struct {
-	// statuses receives status messages produced during deployment.
-	statuses chan DeployStatus
-
-	env map[string]string
-
-	api *API
-}
 
 // StatusType indicates the type of status message.
 type StatusType int
 
+// Deploy Statuses.
 const (
-	_ StatusType = iota // skip zero value.
-
-	// Running indicates that status message belongs to a continuous state.
-	Running
-
-	// DonePositive indicates that status message belongs to a positive noncontinuous state.
+	Running StatusType = iota
 	DonePositive
-
-	// DoneNegative indicates that status message belongs to a negative noncontinuous state.
 	DoneNegative
 )
 
@@ -72,135 +28,92 @@ type DeployStatus struct {
 	Type    StatusType
 }
 
-// newServiceDeployer creates a new serviceDeployer with given api and options.
-func newServiceDeployer(api *API, env map[string]string, options ...DeployServiceOption) *serviceDeployer {
-	d := &serviceDeployer{
-		api: api,
-		env: env,
-	}
-	for _, option := range options {
-		option(d)
-	}
-	return d
-}
-
-// FromURL deploys a service from git or tarball url.
-func (d *serviceDeployer) FromURL(url string) (*service.Service, *importer.ValidationError, error) {
-	defer d.closeStatus()
-	if xgit.IsGitURL(url) {
-		d.sendStatus("Downloading service...", Running)
-		path, err := d.createTempDir()
-		if err != nil {
-			return nil, nil, err
-		}
-		defer os.RemoveAll(path)
-		if err := xgit.Clone(url, path); err != nil {
-			return nil, nil, err
-		}
-
-		// XXX: remove .git folder from repo.
-		// It makes docker build iamge id same between repo clones.
-		if err := os.RemoveAll(filepath.Join(path, ".git")); err != nil {
-			return nil, nil, err
-		}
-
-		d.sendStatus("Service downloaded with success", DonePositive)
-		r, err := xarchive.GzippedTar(path, nil)
-		if err != nil {
-			return nil, nil, err
-		}
-		defer r.Close()
-		return d.deploy(r)
-	}
-
-	// if not git repo then it should be tarball
-	resp, err := http.Get(url)
+// DeployService deploys a service from a gzipped tarball.
+func (api *API) DeployService(r io.Reader, env map[string]string, statusC chan DeployStatus) (string, error) {
+	contextDir, err := ioutil.TempDir("", "mesg-")
 	if err != nil {
-		return nil, nil, err
+		return "", err
 	}
-	defer resp.Body.Close()
-	return d.deploy(resp.Body)
+	if err := archive.Untar(r, contextDir, nil); err != nil {
+		return "", err
+	}
+	return api.deploy(contextDir, env)
 }
 
-// FromArchive deploys a service from a gzipped tarball.
-func (d *serviceDeployer) FromArchive(r io.Reader) (*service.Service, *importer.ValidationError, error) {
-	defer d.closeStatus()
-	return d.deploy(r)
+// DeployServiceFromURL deploys a service living at a Git host.
+// Supported URL types:
+// - https://github.com/mesg-foundation/service-ethereum
+// - https://github.com/mesg-foundation/service-ethereum#branchName
+func (api *API) DeployServiceFromURL(url string, env map[string]string, statusC chan DeployStatus) (string, error) {
+	contextDir, err := ioutil.TempDir("", "mesg-")
+	if err != nil {
+		return "", err
+	}
+	if xgit.IsGitURL(url) {
+		sendStatus(statusC, "Downloading service...", Running)
+		defer os.RemoveAll(contextDir)
+		if err := xgit.Clone(url, contextDir); err != nil {
+			return "", err
+		}
+		sendStatus(statusC, "Service downloaded with success", DonePositive)
+	} else {
+		// if not git repo then it must be tarball
+		resp, err := http.Get(url)
+		if err != nil {
+			return "", err
+		}
+		defer resp.Body.Close()
+		if err := archive.Untar(resp.Body, contextDir, nil); err != nil {
+			return "", err
+		}
+	}
+
+	contextDir, err = formalizeContextDir(contextDir)
+	if err != nil {
+		return "", err
+	}
+
+	return api.deploy(contextDir, env)
 }
 
 // deploy deploys a service in path.
-func (d *serviceDeployer) deploy(r io.Reader) (*service.Service, *importer.ValidationError, error) {
-	var (
-		statuses = make(chan service.DeployStatus)
-		wg       sync.WaitGroup
-	)
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		d.forwardDeployStatuses(statuses)
-	}()
-
-	s, err := service.New(r, d.env,
-		service.ContainerOption(d.api.container),
-		service.DeployStatusOption(statuses),
-	)
-	wg.Wait()
-
-	validationErr, err := d.assertValidationError(err)
+func (api *API) deploy(contextDir string, env map[string]string) (string, error) {
+	s, err := service.ReadDefinition(contextDir)
 	if err != nil {
-		return nil, nil, err
+		return "", err
 	}
-	if validationErr != nil {
-		return nil, validationErr, nil
+	if err := api.sm.Deploy(s, contextDir, env); err != nil {
+		return "", err
 	}
-
-	return s, nil, d.api.db.Save(s)
+	if err := api.db.Save(s); err != nil {
+		return "", err
+	}
+	return s.Hash, nil
 }
 
-func (d *serviceDeployer) createTempDir() (path string, err error) {
-	return ioutil.TempDir("", "mesg-"+uuid.NewV4().String())
+func formalizeContextDir(contextDir string) (string, error) {
+	// NOTE: remove .git folder from repo.
+	// It makes docker build iamge id same between repo clones.
+	if err := os.RemoveAll(filepath.Join(contextDir, ".git")); err != nil {
+		return "", err
+	}
+
+	// NOTE: if there is only one directory inside service context enter it.
+	dirs, err := ioutil.ReadDir(contextDir)
+	if err != nil {
+		return "", err
+	}
+	if len(dirs) == 1 && dirs[0].IsDir() {
+		contextDir = filepath.Join(contextDir, dirs[0].Name())
+	}
+	return contextDir, nil
 }
 
-// sendStatus sends a status message.
-func (d *serviceDeployer) sendStatus(message string, typ StatusType) {
-	if d.statuses != nil {
-		d.statuses <- DeployStatus{
+func sendStatus(statusC chan DeployStatus, message string, typ StatusType) {
+	if statusC != nil {
+		statusC <- DeployStatus{
 			Message: message,
 			Type:    typ,
 		}
 	}
-}
-
-// closeStatus closes statuses chan.
-func (d *serviceDeployer) closeStatus() {
-	if d.statuses != nil {
-		close(d.statuses)
-	}
-}
-
-// forwardStatuses forwards status messages.
-func (d *serviceDeployer) forwardDeployStatuses(statuses chan service.DeployStatus) {
-	for status := range statuses {
-		var t StatusType
-		switch status.Type {
-		case service.DRunning:
-			t = Running
-		case service.DDonePositive:
-			t = DonePositive
-		case service.DDoneNegative:
-			t = DoneNegative
-		}
-		d.sendStatus(status.Message, t)
-	}
-}
-
-func (d *serviceDeployer) assertValidationError(err error) (*importer.ValidationError, error) {
-	if err == nil {
-		return nil, nil
-	}
-	if validationError, ok := err.(*importer.ValidationError); ok {
-		return validationError, nil
-	}
-	return nil, err
 }

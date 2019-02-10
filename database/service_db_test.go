@@ -54,10 +54,6 @@ func TestServiceDBSave(t *testing.T) {
 	s := &service.Service{Name: "test-service", Sid: "Sid"}
 	require.EqualError(t, db.Save(s), errCannotSaveWithoutHash.Error())
 
-	// test service without sid.
-	s = &service.Service{Name: "test-service", Hash: "id"}
-	require.EqualError(t, db.Save(s), errCannotSaveWithoutSid.Error())
-
 	// test service where hash has the same length as sid.
 	s = &service.Service{Name: "test-service", Hash: "sameLength", Sid: "sameLength"}
 	require.EqualError(t, db.Save(s), errSidSameLen.Error())

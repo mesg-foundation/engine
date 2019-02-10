@@ -1,10 +1,11 @@
 package execution
 
 import (
+	"encoding/hex"
 	"time"
 
 	"github.com/mesg-foundation/core/service"
-	"github.com/mesg-foundation/core/x/xstructhash"
+	"github.com/mesg-foundation/core/utils/structhash"
 )
 
 // Status stores the state of an execution
@@ -53,14 +54,7 @@ type Execution struct {
 }
 
 // New returns a new execution. It returns an error if inputs are invalid.
-func New(service *service.Service, eventID string, taskKey string, inputs map[string]interface{}, tags []string) (*Execution, error) {
-	task, err := service.GetTask(taskKey)
-	if err != nil {
-		return nil, err
-	}
-	if err := task.RequireInputs(inputs); err != nil {
-		return nil, err
-	}
+func New(service *service.Service, eventID string, taskKey string, inputs map[string]interface{}, tags []string) *Execution {
 	exec := &Execution{
 		EventID:   eventID,
 		Service:   service,
@@ -70,8 +64,9 @@ func New(service *service.Service, eventID string, taskKey string, inputs map[st
 		CreatedAt: time.Now(),
 		Status:    Created,
 	}
-	exec.ID = xstructhash.Hash(exec, 1)
-	return exec, nil
+	h := structhash.Sha1(exec)
+	exec.ID = hex.EncodeToString(h[:])
+	return exec
 }
 
 // Execute changes executions status to in progres and update its execute time.
@@ -96,18 +91,6 @@ func (execution *Execution) Complete(outputKey string, outputData map[string]int
 			ExpectedStatus: InProgress,
 			ActualStatus:   execution.Status,
 		}
-	}
-
-	task, err := execution.Service.GetTask(execution.TaskKey)
-	if err != nil {
-		return err
-	}
-	output, err := task.GetOutput(outputKey)
-	if err != nil {
-		return err
-	}
-	if err := output.RequireData(outputData); err != nil {
-		return err
 	}
 
 	execution.ExecutionDuration = time.Since(execution.ExecutedAt)
