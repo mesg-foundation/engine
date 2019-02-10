@@ -24,35 +24,30 @@ func TestReadServiceFileDoesNotExist(t *testing.T) {
 
 func TestValidateServiceFile(t *testing.T) {
 	data, _ := readServiceFile("./tests/service-valid")
-	warnings, err := validateServiceFile(data)
-	require.NoError(t, err)
+	warnings := validateServiceFile(data)
 	require.True(t, (len(warnings) == 0))
 }
 
 func TestValidateServiceFileMalFormatted(t *testing.T) {
 	data, _ := readServiceFile("./tests/service-file-mal-formatted")
-	warnings, err := validateServiceFile(data)
-	require.Error(t, err)
-	require.True(t, (len(warnings) == 0))
+	warnings := validateServiceFile(data)
+	require.Equal(t, 1, len(warnings))
 }
 
 func TestValidateServiceFileWithErrors(t *testing.T) {
 	data, _ := readServiceFile("./tests/service-file-invalid")
-	warnings, err := validateServiceFile(data)
-	require.NoError(t, err)
+	warnings := validateServiceFile(data)
 	require.Equal(t, 1, len(warnings))
 }
 
 func TestValidateServiceFileWithMultipleErrors(t *testing.T) {
 	data, _ := readServiceFile("./tests/service-multiple-errors")
-	warnings, err := validateServiceFile(data)
-	require.Error(t, err)
-	require.Equal(t, 0, len(warnings))
+	warnings := validateServiceFile(data)
+	require.Equal(t, 1, len(warnings))
 }
 
 func TestValidateServiceSidTooLong(t *testing.T) {
 	data, _ := readServiceFile("./tests/sid-too-long")
-	warnings, err := validateServiceFile(data)
-	require.NoError(t, err)
+	warnings := validateServiceFile(data)
 	require.Contains(t, warnings[0], `Sid with value "0000000000000000000000000000000000000000" is invalid: max 39`)
 }
