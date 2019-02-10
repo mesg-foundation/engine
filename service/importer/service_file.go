@@ -5,8 +5,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
-	"github.com/mesg-foundation/core/service/importer/assets"
-	"github.com/xeipuuv/gojsonschema"
+	validator "gopkg.in/go-playground/validator.v9"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -20,23 +19,19 @@ func readServiceFile(path string) ([]byte, error) {
 
 // validateServiceFile returns a list of warnings.
 func validateServiceFile(data []byte) ([]string, error) {
-	var body interface{}
-	if err := yaml.Unmarshal(data, &body); err != nil {
+	var service ServiceDefinition
+	if err := yaml.UnmarshalStrict(data, &service); err != nil {
 		return nil, fmt.Errorf("parse mesg.yml error: %s", err)
 	}
-	body = convert(body)
-	result, err := validateServiceFileSchema(body, "service/importer/assets/schema.json")
-	if err != nil {
-		return nil, err
-	}
-	var warnings []string
-	if !result.Valid() {
-		for _, warning := range result.Errors() {
-			warnings = append(warnings, warning.String())
+	errs := validator.New().Struct(service)
+	warnings := []string{}
+	if errs != nil {
+		for _, err := range errs.(validator.ValidationErrors) {
+			warnings = append(
+				warnings,
+				fmt.Sprintf("Value %q from %q is not valid.", err.Value(), err.Field()),
+			)
 		}
-	}
-	if depKeyWarning := validateServiceFileDependencyKey(body); depKeyWarning != "" {
-		warnings = append(warnings, depKeyWarning)
 	}
 	return warnings, nil
 }
@@ -48,26 +43,4 @@ func validateServiceFileDependencyKey(data interface{}) (warning string) {
 		return fmt.Sprintf("cannot use %q as dependency key", ConfigurationDependencyKey)
 	}
 	return ""
-}
-
-func validateServiceFileSchema(data interface{}, schemaPath string) (*gojsonschema.Result, error) {
-	schemaData, err := assets.Asset(schemaPath)
-	if err != nil {
-		return nil, err
-	}
-	schema := gojsonschema.NewBytesLoader(schemaData)
-	loaded := gojsonschema.NewGoLoader(data)
-	return gojsonschema.Validate(schema, loaded)
-}
-
-func convert(i interface{}) interface{} {
-	x, ok := i.(map[interface{}]interface{})
-	if !ok {
-		return i
-	}
-	m2 := map[string]interface{}{}
-	for k, v := range x {
-		m2[k.(string)] = convert(v)
-	}
-	return m2
 }
