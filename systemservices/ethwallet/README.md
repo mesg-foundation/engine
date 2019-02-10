@@ -285,7 +285,7 @@ Output when the task executes successfully.
 
 | **Name** | **Key** | **Type** | **Description** |
 | --- | --- | --- | --- |
-| **Raw signed transaction** | `raw` | `String` | The raw signed transaction. |
+| **Signed transaction** | `signedTransaction` | `String` | The signed transaction. |
 
 
 

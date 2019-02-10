@@ -145,9 +145,9 @@ tasks:
         name: "Success"
         description: "Output when the task executes successfully."
         data:
-          raw:
-            name: "Raw signed transaction"
-            description: "The raw signed transaction."
+          signedTransaction:
+            name: "Signed transaction"
+            description: "The signed transaction."
             type: String
       error: *outputError
   importFromPrivateKey:
