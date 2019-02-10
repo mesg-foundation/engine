@@ -1,10 +1,12 @@
 package ethwallet
 
 import (
-	"encoding/hex"
+	"bytes"
+	"fmt"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/mesg-foundation/core/client/service"
 	"github.com/mesg-foundation/core/systemservices/ethwallet/x/xgo-ethereum/xaccounts"
@@ -23,7 +25,7 @@ type transaction struct {
 	Value    string         `json:"value"`
 	Gas      uint64         `json:"gas"`
 	GasPrice string         `json:"gasPrice"`
-	Data     []byte         `json:"data"`
+	Data     hexutil.Bytes  `json:"data"`
 }
 
 type signOutputSuccess struct {
@@ -58,8 +60,9 @@ func (s *Ethwallet) sign(execution *service.Execution) (string, interface{}) {
 		return OutputError(err)
 	}
 
-	ts := types.Transactions{signedTransaction}
-	rawTx := "0x" + hex.EncodeToString(ts.GetRlp(0))
+	var buff bytes.Buffer
+	signedTransaction.EncodeRLP(&buff)
+	rawTx := fmt.Sprintf("0x%x", buff.Bytes())
 
 	return "success", signOutputSuccess{
 		SignedTransaction: rawTx,
