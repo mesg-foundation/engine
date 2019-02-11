@@ -1,14 +1,30 @@
+import BigNumber from "bignumber.js";
+
 interface Service {
   owner: string;
   sid: string;
   versions: Version[];
+  offers: Offer[];
+  purchases: Purchase[];
 }
 
 interface Version {
   hash: string;
   manifestSource: string;
   manifestProtocol: string;
-  manifest: Manifest;
+  manifest: Manifest|undefined;
+}
+
+interface Offer {
+  index: BigNumber;
+  price: BigNumber;
+  duration: BigNumber;
+  active: boolean;
+}
+
+interface Purchase {
+  purchaser: string;
+  expire: BigNumber;
 }
 
 interface Manifest {
@@ -37,4 +53,4 @@ interface Manifest {
   }
 }
 
-export { Service, Version, Manifest }
+export { Service, Version, Offer, Purchase, Manifest }

@@ -32,24 +32,68 @@ tasks:
                 name: ""
                 description: ""
                 type: String
-              price:
-                name: ""
-                description: ""
-                type: String
               versions: &versions
                 name: ""
                 description: ""
                 type: Object
                 repeated: true
+                optional: true
                 object: &version
                   hash:
                     name: ""
                     description: ""
                     type: String
-                  metadata:
+                  manifestSource:
+                    name: ""
+                    description: ""
+                    type: String
+                  manifestProtocol:
+                    name: ""
+                    description: ""
+                    type: String
+                  manifest:
                     name: ""
                     description: ""
                     type: Object
+                    optional: true
+              offers: &offers
+                name: ""
+                description: ""
+                type: Object
+                repeated: true
+                optional: true
+                object: &offer
+                  index:
+                    name: ""
+                    description: ""
+                    type: String
+                  price:
+                    name: ""
+                    description: ""
+                    type: String
+                  duration:
+                    name: ""
+                    description: ""
+                    type: String
+                  active:
+                    name: ""
+                    description: ""
+                    type: Boolean
+              purchases: &purchases
+                name: ""
+                description: ""
+                type: Object
+                repeated: true
+                optional: true
+                object: &purchase
+                  purchaser:
+                    name: ""
+                    description: ""
+                    type: String
+                  expire:
+                    name: ""
+                    description: ""
+                    type: String
       error: &errorOutput
         name: "Error"
         description: "Output when an error occurs"

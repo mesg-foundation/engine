@@ -65,6 +65,7 @@ const main = async () => {
   //     console.error('catch newBlock on', error)
   //   }
   // })
+  console.log('service is ready and running')
 }
 
 try {

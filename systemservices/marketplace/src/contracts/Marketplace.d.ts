@@ -12,7 +12,9 @@ export class Marketplace {
   // _address: string;
   options: contractOptions;
   methods: {
-    services(arg0: string | number[]): TransactionObject<string>;
+    services(arg0: string | number[]): TransactionObject<{
+      owner: string;
+    }>;
 
     servicesList(arg0: number | string): TransactionObject<string>;
 
@@ -22,12 +24,16 @@ export class Marketplace {
 
     servicesVersionsListLength(
       sid: string | number[]
-    ): TransactionObject<string>;
+    ): TransactionObject<{
+      length: string;
+    }>;
 
     servicesVersionsList(
       sid: string | number[],
       versionIndex: number | string
-    ): TransactionObject<string>;
+    ): TransactionObject<{
+      hash: string;
+    }>;
 
     servicesVersion(
       sid: string | number[],
@@ -39,7 +45,11 @@ export class Marketplace {
       1: string;
     }>;
 
-    servicesOffersLength(sid: string | number[]): TransactionObject<string>;
+    servicesOffersLength(
+      sid: string | number[]
+    ): TransactionObject<{
+      length: string;
+    }>;
 
     servicesOffer(
       sid: string | number[],
@@ -55,17 +65,23 @@ export class Marketplace {
 
     servicesPurchasesListLength(
       sid: string | number[]
-    ): TransactionObject<string>;
+    ): TransactionObject<{
+      length: string;
+    }>;
 
     servicesPurchasesList(
       sid: string | number[],
       purchaseIndex: number | string
-    ): TransactionObject<string>;
+    ): TransactionObject<{
+      purchaser: string;
+    }>;
 
     servicesPurchases(
       sid: string | number[],
       purchaser: string
-    ): TransactionObject<string>;
+    ): TransactionObject<{
+      expire: string;
+    }>;
 
     isAuthorized(sid: string | number[]): TransactionObject<boolean>;
 
@@ -115,7 +131,9 @@ export class Marketplace {
     owner(): TransactionObject<string>;
     isOwner(): TransactionObject<boolean>;
     token(): TransactionObject<string>;
-    servicesListLength(): TransactionObject<string>;
+    servicesListLength(): TransactionObject<{
+      length: string;
+    }>;
   };
   // deploy(options: {
   //   data: string;
