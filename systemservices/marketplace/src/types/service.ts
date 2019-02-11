@@ -31,9 +31,8 @@ interface Manifest {
   version: number
   service: {
     deployment: {
+      type: string
       source: string
-      // env
-      // etc...
     }
     definition: {
       // basically mesg.yaml
@@ -46,10 +45,6 @@ interface Manifest {
       // dependencies
     }
     readme: string
-    // author: string
-    // logo
-    // tags
-    
   }
 }
 
