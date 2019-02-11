@@ -33,7 +33,32 @@ func initGRPCServer(c *config.Config) (*grpc.Server, error) {
 		return nil, err
 	}
 
+	// init system services.
+	if err := deployCoreServices(c, a); err != nil {
+		return nil, err
+	}
+
 	return grpc.New(c.Server.Address, a), nil
+}
+
+func deployCoreServices(c *config.Config, api *api.API) error {
+	for _, service := range c.Services() {
+		logrus.Infof("Deploying service %q from %q", service.Key, service.URL)
+		s, valid, err := api.DeployServiceFromURL(service.URL, service.Env)
+		if valid != nil {
+			return valid
+		}
+		if err != nil {
+			return err
+		}
+		service.Sid = s.Sid
+		service.Hash = s.Hash
+		logrus.Infof("Service %q deployed", service.Key)
+		if err := api.StartService(s.Sid); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func main() {
@@ -44,7 +69,7 @@ func main() {
 	}
 
 	// init logger.
-	logger.Init(c.Log.Format, c.Log.Level)
+	logger.Init(c.Log.Format, c.Log.Level, c.Log.ForceColors)
 
 	// init gRPC server.
 	server, err := initGRPCServer(c)

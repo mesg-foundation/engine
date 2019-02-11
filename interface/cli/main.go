@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/mesg-foundation/core/commands"
 	"github.com/mesg-foundation/core/commands/provider"
@@ -14,6 +15,7 @@ import (
 	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/mesg-foundation/core/version"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/keepalive"
 )
 
 func main() {
@@ -23,7 +25,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	connection, err := grpc.Dial(cfg.Client.Address, grpc.WithInsecure())
+	// Keep alive prevents Docker network to drop TCP idle connections after 15 minutes.
+	// See: https://forum.mesg.com/t/solution-summary-for-docker-dropping-connections-after-15-min/246
+	dialKeepaliveOpt := grpc.WithKeepaliveParams(keepalive.ClientParameters{
+		Time: 5 * time.Minute, // 5 minutes because it's the minimun time of gRPC enforcement policy.
+	})
+	connection, err := grpc.Dial(cfg.Client.Address, dialKeepaliveOpt, grpc.WithInsecure())
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s\n", pretty.Fail(clierrors.ErrorMessage(err)))
 		os.Exit(1)
