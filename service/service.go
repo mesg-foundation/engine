@@ -104,15 +104,28 @@ func New(tarball io.Reader, env map[string]string, options ...Option) (*Service,
 		return nil, err
 	}
 	defer os.RemoveAll(s.tempPath)
-
 	def, err := importer.From(s.tempPath)
 	if err != nil {
 		return nil, err
 	}
 
+	// XXX: remove .git folder from repo.
+	// It makes docker build iamge id same between repo clones.
+	if err := os.RemoveAll(filepath.Join(s.tempPath, ".git")); err != nil {
+		return nil, err
+	}
+
+	// XXX: change the access and modification times of service to get constant hash
+	zerot := time.Time{}
+	if err := filepath.Walk(s.tempPath, func(path string, _ os.FileInfo, _ error) error {
+		return os.Chtimes(path, zerot, zerot)
+	}); err != nil {
+		return nil, err
+	}
+
 	// tar it back without any compression to get constant hash
 	// despite used compression from tarball
-	t, err := archive.Tar(s.tempPath, archive.Uncompressed)
+	t, err := archive.Tar(s.tempPath, archive.Gzip)
 	if err != nil {
 		return nil, err
 	}
