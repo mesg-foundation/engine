@@ -74,7 +74,8 @@ func (p *ServiceProvider) ServiceDeploy(path string, env map[string]string, stat
 
 func deployServiceSendServiceContext(path string, env map[string]string, stream coreapi.Core_DeployServiceClient) error {
 	archive, err := archive.TarWithOptions(path, &archive.TarOptions{
-		Compression: archive.Gzip,
+		ExcludePatterns: []string{".git"},
+		Compression:     archive.Gzip,
 	})
 	if err != nil {
 		return err
