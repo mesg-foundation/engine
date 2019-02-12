@@ -14,7 +14,7 @@
     "request-promise-native": "^1.0.5",
     "ts-node": "^7.0.1",
     "typescript": "^3.3.3",
-    "web3": "^1.0.0-beta.46"
+    "web3": "1.0.0-beta.37"
   },
   "devDependencies": {
     "nodemon": "^1.18.10",

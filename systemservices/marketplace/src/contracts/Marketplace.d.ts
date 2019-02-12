@@ -10,7 +10,7 @@ import { EventData } from "web3-eth-contract/types";
 export class Marketplace {
   constructor(jsonInterface: any[], address?: string, options?: CustomOptions);
   // _address: string;
-  options: contractOptions;
+  options: CustomContractOptions;
   methods: {
     services(arg0: string | number[]): TransactionObject<{
       owner: string;
@@ -248,5 +248,5 @@ export class Marketplace {
     }
   ): Promise<EventData[]>;
   // setProvider(provider: Provider): void;
-  clone(): Marketplace;
+  // clone(): Marketplace;
 }

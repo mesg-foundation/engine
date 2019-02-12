@@ -1,9 +1,10 @@
 import { TaskInputs, TaskOutputs } from "mesg-js/lib/service"
 import { Marketplace } from "../contracts/Marketplace"
 import { asciiToHex } from "../contracts/utils"
+import Contract from "web3/eth/contract";
 
 export default (
-  contract: Marketplace,
+  contract: Contract,
   createTransaction: (inputs: TaskInputs, data: string) => Promise<any>
 ) => async (inputs: TaskInputs, outputs: TaskOutputs): Promise<void> => {
   try {

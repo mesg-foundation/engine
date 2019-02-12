@@ -2,8 +2,9 @@ import { service as MESG } from "mesg-js"
 import { TaskInputs, Service, EmitEventReply } from "mesg-js/lib/service"
 
 import Web3 from "web3"
-import { AbiItem } from "web3-utils/types"
-import { EventData } from "web3-eth-contract/types";
+// import { AbiItem } from "web3-utils/types"
+// import { EventData } from "web3-eth-contract/types";
+import { EventLog } from "web3/types"
 
 import { newBlockEventEmitter } from "./newBlock"
 
@@ -21,21 +22,21 @@ import transferServiceOwnership from "./tasks/transferServiceOwnership"
 import isAuthorized from "./tasks/isAuthorized"
 import serviceCreated = require("./events/serviceCreated");
 
-const marketplaceABI = _marketplaceABI as AbiItem[]
+const marketplaceABI = _marketplaceABI// as AbiItem[]
 const providerEndpoint = process.env.PROVIDER_ENDPOINT as string
 const marketplaceAddress = process.env.MARKETPLACE_ADDRESS
 const blockConfirmations = parseInt(<string>process.env.BLOCK_CONFIRMATIONS, 10)
 const defaultGas = parseInt(<string>process.env.DEFAULT_GAS, 10)
 const pollingTime = parseInt(<string>process.env.POLLING_TIME, 10)
 
-const eventHandlers: {[key: string]: (mesg: Service, event: EventData) => Promise<EmitEventReply | Error>} = {
+const eventHandlers: {[key: string]: (mesg: Service, event: EventLog) => Promise<EmitEventReply | Error>} = {
   'ServiceCreated': serviceCreated,
 }
 
 const main = async () => {
   const mesg = MESG()
   const web3 = new Web3(providerEndpoint)
-  const contract = new web3.eth.Contract(marketplaceABI, marketplaceAddress) as Marketplace
+  const contract = new web3.eth.Contract(marketplaceABI, marketplaceAddress)// as Marketplace
 
   const chainID = await web3.eth.net.getId()
   console.log('chainID', chainID)
