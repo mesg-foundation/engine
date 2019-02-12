@@ -18,6 +18,7 @@ import listServices from "./tasks/listServices"
 import purchase from "./tasks/purchase";
 import sendSignedTransaction from "./tasks/sendSignedTransaction"
 import transferServiceOwnership from "./tasks/transferServiceOwnership";
+import isAuthorized from "./tasks/isAuthorized";
 
 const marketplaceABI = _marketplaceABI as AbiItem[]
 const providerEndpoint = process.env.PROVIDER_ENDPOINT as string
@@ -57,6 +58,7 @@ const main = async () => {
     purchase: purchase(contract, createTransaction),
     transferServiceOwnership: transferServiceOwnership(contract, createTransaction),
     sendSignedTransaction: sendSignedTransaction(web3),
+    isAuthorized: isAuthorized(contract),
   })
   .on('error', error => console.error('catch listenTask', error))
 

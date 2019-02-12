@@ -2,14 +2,14 @@ import { TaskInputs, TaskOutputs } from "mesg-js/lib/service"
 import { Marketplace } from "../contracts/Marketplace"
 import { asciiToHex } from "../contracts/utils"
 
-// TODO:
 export default (
-  contract: Marketplace,
-  createTransaction: (inputs: TaskInputs, data: string) => Promise<any>
+  contract: Marketplace
 ) => async (inputs: TaskInputs, outputs: TaskOutputs): Promise<void> => {
   try {
-    const transactionData = contract.methods.createService(asciiToHex(inputs.sid)).encodeABI()
-    return outputs.success(await createTransaction(inputs, transactionData))
+    const authorized = (await contract.methods.isAuthorized(
+      asciiToHex(inputs.sid)
+    ).call({ from: inputs.from })).authorized
+    return outputs.success({ authorized })
   }
   catch (error) {
     console.error('error in createService', error)

@@ -83,7 +83,9 @@ export class Marketplace {
       expire: string;
     }>;
 
-    isAuthorized(sid: string | number[]): TransactionObject<boolean>;
+    isAuthorized(sid: string | number[]): TransactionObject<{
+      authorized: boolean;
+    }>;
 
     unpause(): TransactionObject<void>;
 

@@ -257,4 +257,20 @@ tasks:
         data:
           receipt:
             type: Object
+  isAuthorized:
+    name: ""
+    description: ""
+    inputs:
+      sid: *inputSid
+      from: *inputFrom
+    outputs:
+      error: *outputError
+      success:
+        name: ""
+        description: ""
+        data:
+          authorized:
+            name: ""
+            description: ""
+            type: Boolean
 events:
