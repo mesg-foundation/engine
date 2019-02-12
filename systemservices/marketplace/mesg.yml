@@ -24,11 +24,11 @@ tasks:
             type: Object
             repeated: true
             object: &service
-              sid:
+              sid: &sid
                 name: ""
                 description: ""
                 type: String
-              owner:
+              owner: &owner
                 name: ""
                 description: ""
                 type: String
@@ -274,3 +274,9 @@ tasks:
             description: ""
             type: Boolean
 events:
+  serviceCreated:
+    name: ""
+    description: ""
+    data:
+      sid: *sid
+      owner: *owner

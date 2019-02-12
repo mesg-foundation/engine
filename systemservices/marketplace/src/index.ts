@@ -1,24 +1,25 @@
 import { service as MESG } from "mesg-js"
+import { TaskInputs, Service, EmitEventReply } from "mesg-js/lib/service"
+
 import Web3 from "web3"
+import { AbiItem } from "web3-utils/types"
+import { EventData } from "web3-eth-contract/types";
 
 import { newBlockEventEmitter } from "./newBlock"
-import blockEvent from "./events/block"
-import transactionAndLogEvent from "./events/transactionAndLog"
 
 import _marketplaceABI from "./contracts/Marketplace.abi.json"
-import { Marketplace } from "./contracts/Marketplace";
-import { AbiItem } from "web3-utils/types";
-import { TaskInputs } from "mesg-js/lib/service";
+import { Marketplace } from "./contracts/Marketplace"
 
 import createService from "./tasks/createService"
-import createServiceOffer from "./tasks/createServiceOffer";
-import createServiceVersion from "./tasks/createServiceVersion";
-import disableServiceOffer from "./tasks/disableServiceOffer";
+import createServiceOffer from "./tasks/createServiceOffer"
+import createServiceVersion from "./tasks/createServiceVersion"
+import disableServiceOffer from "./tasks/disableServiceOffer"
 import listServices from "./tasks/listServices"
-import purchase from "./tasks/purchase";
+import purchase from "./tasks/purchase"
 import sendSignedTransaction from "./tasks/sendSignedTransaction"
-import transferServiceOwnership from "./tasks/transferServiceOwnership";
-import isAuthorized from "./tasks/isAuthorized";
+import transferServiceOwnership from "./tasks/transferServiceOwnership"
+import isAuthorized from "./tasks/isAuthorized"
+import serviceCreated = require("./events/serviceCreated");
 
 const marketplaceABI = _marketplaceABI as AbiItem[]
 const providerEndpoint = process.env.PROVIDER_ENDPOINT as string
@@ -26,6 +27,10 @@ const marketplaceAddress = process.env.MARKETPLACE_ADDRESS
 const blockConfirmations = parseInt(<string>process.env.BLOCK_CONFIRMATIONS, 10)
 const defaultGas = parseInt(<string>process.env.DEFAULT_GAS, 10)
 const pollingTime = parseInt(<string>process.env.POLLING_TIME, 10)
+
+const eventHandlers: {[key: string]: (mesg: Service, event: EventData) => Promise<EmitEventReply | Error>} = {
+  'ServiceCreated': serviceCreated,
+}
 
 const main = async () => {
   const mesg = MESG()
@@ -63,20 +68,33 @@ const main = async () => {
   .on('error', error => console.error('catch listenTask', error))
 
   // const newBlock = await newBlockEventEmitter(web3, blockConfirmations, null, pollingTime)
-  // newBlock.on('newBlock', blockNumber => {
-  //   try {
-  //     console.error('new block', blockNumber)
+  // newBlock.on('newBlock', async blockNumber => {
+    try {
+      // console.error('new block', blockNumber)
 
-  //     blockEvent(mesg, web3, blockNumber)
-  //     .catch(error => console.error('catch block event', error))
+      const blockNumber = 4990965 // TODO: to test
       
-  //     transactionAndLogEvent(mesg, web3, blockNumber)
-  //     .catch(error => console.error('catch transactionEvent', error))
-  //   }
-  //   catch (error) {
-  //     console.error('catch newBlock on', error)
-  //   }
+      const events = await contract.getPastEvents("allEvents", {
+        fromBlock: blockNumber,
+        toBlock: blockNumber,
+      })
+      events.forEach(async event => {
+        // TODO: check if really async
+        try {
+          if (!eventHandlers[event.event]) {
+            return console.error('Event not implemented', event.event)
+          }
+          eventHandlers[event.event](mesg, event)
+        } catch(error) {
+          return console.error('An error occurred during processing of an event', event)
+        }
+      })
+    }
+    catch (error) {
+      console.error('catch newBlock on', error)
+    }
   // })
+
   console.log('service is ready and running')
 }
 
