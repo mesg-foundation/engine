@@ -1,8 +1,6 @@
 import BigNumber from "bignumber.js"
 import { Marketplace } from "./Marketplace"
 import { Offer } from "../types/service";
-import { hexToAscii } from "./utils";
-import { getManifest } from "./manifest";
 
 const getServiceOffers = async (contract: Marketplace, sid: string): Promise<Offer[]> => {
   const offersLength = new BigNumber((await contract.methods.servicesOffersLength(sid).call()).length)

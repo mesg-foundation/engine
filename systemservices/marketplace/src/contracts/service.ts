@@ -4,7 +4,6 @@ import { Service } from "../types/service";
 import { getServiceVersions } from "./version";
 import { getServiceOffers } from "./offer";
 import { getServicePurchases } from "./purchase";
-import { toBN, isBN } from "web3-utils";
 
 const getAllServices = async (contract: Marketplace): Promise<Service[]> => {
   const servicesLength = new BigNumber((await contract.methods.servicesListLength().call()).length)

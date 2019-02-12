@@ -94,7 +94,7 @@ tasks:
                     name: ""
                     description: ""
                     type: String
-      error: &errorOutput
+      error: &outputError
         name: "Error"
         description: "Output when an error occurs"
         data:
@@ -106,28 +106,28 @@ tasks:
     name: ""
     description: ""
     inputs:
-      sid:
+      sid: &inputSid
         name: ""
         description: ""
         type: String
-      address:
+      from: &inputFrom
         name: ""
         description: ""
         type: String
-      gas:
+      gas: &inputGas
         name: ""
         description: ""
         type: Number
         optional: true
-      gasPrice:
+      gasPrice: &inputGasPrice
         name: ""
         description: ""
         type: String
         optional: true
     outputs:
-      error: *errorOutput
-      success:
-        data: &transaction
+      error: *outputError
+      success: &outputTransaction
+        data:
           chainID:
             name: "Chain ID"
             description: "The ID of the chain the transaction is for. See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md#list-of-chain-ids."
@@ -156,6 +156,93 @@ tasks:
             name: "Data"
             description: "The data of the transaction."
             type: Any
+  createServiceOffer:
+    name: ""
+    description: ""
+    inputs:
+      sid: *inputSid
+      price:
+        name: ""
+        description: ""
+        type: String
+      duration:
+        name: ""
+        description: ""
+        type: String
+      from: *inputFrom
+      gas: *inputGas
+      gasPrice: *inputGasPrice
+    outputs:
+      error: *outputError
+      success: *outputTransaction
+  createServiceVersion:
+    name: ""
+    description: ""
+    inputs:
+      sid: *inputSid
+      hash:
+        name: ""
+        description: ""
+        type: String
+      manifest:
+        name: ""
+        description: ""
+        type: String
+      manifestProtocol:
+        name: ""
+        description: ""
+        type: String
+      from: *inputFrom
+      gas: *inputGas
+      gasPrice: *inputGasPrice
+    outputs:
+      error: *outputError
+      success: *outputTransaction
+  disableServiceOffer:
+    name: ""
+    description: ""
+    inputs:
+      sid: *inputSid
+      offerIndex:
+        name: ""
+        description: ""
+        type: String
+      from: *inputFrom
+      gas: *inputGas
+      gasPrice: *inputGasPrice
+    outputs:
+      error: *outputError
+      success: *outputTransaction
+  purchase:
+    name: ""
+    description: ""
+    inputs:
+      sid: *inputSid
+      offerIndex:
+        name: ""
+        description: ""
+        type: String
+      from: *inputFrom
+      gas: *inputGas
+      gasPrice: *inputGasPrice
+    outputs:
+      error: *outputError
+      success: *outputTransaction
+  transferServiceOwnership:
+    name: ""
+    description: ""
+    inputs:
+      sid: *inputSid
+      newOwner:
+        name: ""
+        description: ""
+        type: String
+      from: *inputFrom
+      gas: *inputGas
+      gasPrice: *inputGasPrice
+    outputs:
+      error: *outputError
+      success: *outputTransaction
   sendSignedTransaction:
     name: ""
     description: ""
@@ -165,9 +252,9 @@ tasks:
         description: ""
         type: String
     outputs:
-      error: *errorOutput
+      error: *outputError
       success:
         data:
-          receipt: &receipt
+          receipt:
             type: Object
 events:

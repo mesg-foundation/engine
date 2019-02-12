@@ -5,14 +5,19 @@ import { newBlockEventEmitter } from "./newBlock"
 import blockEvent from "./events/block"
 import transactionAndLogEvent from "./events/transactionAndLog"
 
-import listServices from "./tasks/listServices"
-import createService from "./tasks/createService"
-import sendSignedTransaction from "./tasks/sendSignedTransaction"
-
 import _marketplaceABI from "./contracts/Marketplace.abi.json"
 import { Marketplace } from "./contracts/Marketplace";
 import { AbiItem } from "web3-utils/types";
 import { TaskInputs } from "mesg-js/lib/service";
+
+import createService from "./tasks/createService"
+import createServiceOffer from "./tasks/createServiceOffer";
+import createServiceVersion from "./tasks/createServiceVersion";
+import disableServiceOffer from "./tasks/disableServiceOffer";
+import listServices from "./tasks/listServices"
+import purchase from "./tasks/purchase";
+import sendSignedTransaction from "./tasks/sendSignedTransaction"
+import transferServiceOwnership from "./tasks/transferServiceOwnership";
 
 const marketplaceABI = _marketplaceABI as AbiItem[]
 const providerEndpoint = process.env.PROVIDER_ENDPOINT as string
@@ -34,7 +39,7 @@ const main = async () => {
   const createTransaction = async (inputs: TaskInputs, data: string) => {
     return {
       chainID: chainID,
-      nonce: await web3.eth.getTransactionCount(inputs.address),
+      nonce: await web3.eth.getTransactionCount(inputs.from),
       to: contract.options.address,
       gas: inputs.gas || defaultGas,
       gasPrice: inputs.gasPrice || defaultGasPrice,
@@ -46,6 +51,11 @@ const main = async () => {
   mesg.listenTask({
     listServices: listServices(contract),
     createService: createService(contract, createTransaction),
+    createServiceOffer: createServiceOffer(contract, createTransaction),
+    createServiceVersion: createServiceVersion(contract, createTransaction),
+    disableServiceOffer: disableServiceOffer(contract, createTransaction),
+    purchase: purchase(contract, createTransaction),
+    transferServiceOwnership: transferServiceOwnership(contract, createTransaction),
     sendSignedTransaction: sendSignedTransaction(web3),
   })
   .on('error', error => console.error('catch listenTask', error))
