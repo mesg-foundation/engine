@@ -39,15 +39,15 @@ tasks:
                 repeated: true
                 optional: true
                 object: &version
-                  hash:
+                  hash: &hash
                     name: ""
                     description: ""
                     type: String
-                  manifestSource:
+                  manifestSource: &manifestSource
                     name: ""
                     description: ""
                     type: String
-                  manifestProtocol:
+                  manifestProtocol: &manifestProtocol
                     name: ""
                     description: ""
                     type: String
@@ -63,15 +63,15 @@ tasks:
                 repeated: true
                 optional: true
                 object: &offer
-                  index:
+                  index: &offerIndex
                     name: ""
                     description: ""
                     type: String
-                  price:
+                  price: &price
                     name: ""
                     description: ""
                     type: String
-                  duration:
+                  duration: &duration
                     name: ""
                     description: ""
                     type: String
@@ -86,11 +86,11 @@ tasks:
                 repeated: true
                 optional: true
                 object: &purchase
-                  purchaser:
+                  purchaser: &purchaser
                     name: ""
                     description: ""
                     type: String
-                  expire:
+                  expire: &expire
                     name: ""
                     description: ""
                     type: String
@@ -280,3 +280,49 @@ events:
     data:
       sid: *sid
       owner: *owner
+  serviceOwnershipTransferred:
+    name: ""
+    description: ""
+    data:
+      sid: *sid
+      previousOwner:
+        name: ""
+        description: ""
+        type: String
+      newOwner:
+        name: ""
+        description: ""
+        type: String
+  serviceVersionCreated:
+    name: ""
+    description: ""
+    data:
+      sid: *sid
+      hash: *hash
+      manifest: *manifestSource
+      manifestProtocol: *manifestProtocol
+  serviceOfferCreated:
+    name: ""
+    description: ""
+    data:
+      sid: *sid
+      offerIndex: *offerIndex
+      price: *price
+      duration: *duration
+  serviceOfferDisabled:
+    name: ""
+    description: ""
+    data:
+      sid: *sid
+      offerIndex: *offerIndex
+  servicePurchased:
+    name: ""
+    description: ""
+    data:
+      sid: *sid
+      offerIndex: *offerIndex
+      purchaser: *purchaser
+      price: *price
+      duration: *duration
+      expire: *expire
+      

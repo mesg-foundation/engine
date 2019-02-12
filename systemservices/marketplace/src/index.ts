@@ -21,6 +21,11 @@ import sendSignedTransaction from "./tasks/sendSignedTransaction"
 import transferServiceOwnership from "./tasks/transferServiceOwnership"
 import isAuthorized from "./tasks/isAuthorized"
 import serviceCreated = require("./events/serviceCreated");
+import serviceOfferCreated = require("./events/serviceOfferCreated");
+import serviceOfferDisabled = require("./events/serviceOfferDisabled");
+import serviceOwnershipTransferred = require("./events/serviceOwnershipTransferred");
+import serviceVersionCreated = require("./events/serviceVersionCreated");
+import servicePurchased = require("./events/servicePurchased");
 
 const marketplaceABI = _marketplaceABI// as AbiItem[]
 const providerEndpoint = process.env.PROVIDER_ENDPOINT as string
@@ -31,6 +36,11 @@ const pollingTime = parseInt(<string>process.env.POLLING_TIME, 10)
 
 const eventHandlers: {[key: string]: (mesg: Service, event: EventLog) => Promise<EmitEventReply | Error>} = {
   'ServiceCreated': serviceCreated,
+  'ServiceOfferCreated': serviceOfferCreated,
+  'ServiceOfferDisabled': serviceOfferDisabled,
+  'ServiceOwnershipTransferred': serviceOwnershipTransferred,
+  'ServicePurchased': servicePurchased,
+  'ServiceVersionCreated': serviceVersionCreated,
 }
 
 const main = async () => {
@@ -70,30 +80,28 @@ const main = async () => {
 
   // const newBlock = await newBlockEventEmitter(web3, blockConfirmations, null, pollingTime)
   // newBlock.on('newBlock', async blockNumber => {
-    try {
-      // console.error('new block', blockNumber)
-
-      const blockNumber = 4990965 // TODO: to test
-      
-      const events = await contract.getPastEvents("allEvents", {
-        fromBlock: blockNumber,
-        toBlock: blockNumber,
-      })
-      events.forEach(async event => {
-        // TODO: check if really async
-        try {
-          if (!eventHandlers[event.event]) {
-            return console.error('Event not implemented', event.event)
-          }
-          eventHandlers[event.event](mesg, event)
-        } catch(error) {
-          return console.error('An error occurred during processing of an event', event)
+  try {
+    // console.error('new block', blockNumber)
+    
+    const events = await contract.getPastEvents("allEvents", {
+      fromBlock: 4990259,
+      toBlock: 4998258,
+    })
+    events.forEach(async event => {
+      // TODO: check if really async
+      try {
+        if (!eventHandlers[event.event]) {
+          return console.error('Event not implemented', event.event)
         }
-      })
-    }
-    catch (error) {
-      console.error('catch newBlock on', error)
-    }
+        eventHandlers[event.event](mesg, event)
+      } catch(error) {
+        return console.error('An error occurred during processing of an event', event)
+      }
+    })
+  }
+  catch (error) {
+    console.error('catch newBlock on', error)
+  }
   // })
 
   console.log('service is ready and running')
