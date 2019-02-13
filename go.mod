@@ -18,7 +18,7 @@ require (
 	github.com/docker/go-connections v0.0.0-20180212134524-7beb39f0b969 // indirect
 	github.com/docker/go-units v0.3.3 // indirect
 	github.com/emirpasic/gods v0.0.0-20180618112450-bba54c718c4e // indirect
-	github.com/ethereum/go-ethereum v1.8.22
+	github.com/ethereum/go-ethereum v1.8.20
 	github.com/fatih/color v0.0.0-20170926111411-5df930a27be2
 	github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568 // indirect
 	github.com/gliderlabs/ssh v0.1.1 // indirect

@@ -1,6 +1,9 @@
 package commands
 
 import (
+	"fmt"
+
+	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/spf13/cobra"
 	survey "gopkg.in/AlecAivazis/survey.v1"
 )
@@ -26,7 +29,7 @@ func newWalletDeleteCmd(e WalletExecutor) *walletDeleteCmd {
 		RunE:    c.runE,
 	})
 
-	c.cmd.Flags().StringBoolP(&c.passphrase, "no-passphrase", "-n", c.noPassphrase, "Leave passphrase empty")
+	c.cmd.Flags().BoolVarP(&c.passphrase, "no-passphrase", "-n", c.noPassphrase, "Leave passphrase empty")
 	c.cmd.Flags().StringVarP(&c.passphrase, "passphrase", "p", c.passphrase, "Passphrase to encrypt the account")
 	return c
 }
@@ -42,5 +45,9 @@ func (c *walletDeleteCmd) preRunE(cmd *cobra.Command, args []string) error {
 }
 
 func (c *walletDeleteCmd) runE(cmd *cobra.Command, args []string) error {
+	if err := c.e.Delete(c.address, c.passphrase); err != nil {
+		return err
+	}
+	fmt.Printf("%s Wallet deleted", pretty.SuccessSign)
 	return nil
 }

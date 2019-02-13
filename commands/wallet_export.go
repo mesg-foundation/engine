@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 	survey "gopkg.in/AlecAivazis/survey.v1"
 )
@@ -26,7 +28,7 @@ func newWalletExportCmd(e WalletExecutor) *walletExportCmd {
 		RunE:    c.runE,
 	})
 
-	c.cmd.Flags().StringBoolP(&c.passphrase, "no-passphrase", "-n", c.noPassphrase, "Leave passphrase empty")
+	c.cmd.Flags().BoolVarP(&c.passphrase, "no-passphrase", "-n", c.noPassphrase, "Leave passphrase empty")
 	c.cmd.Flags().StringVarP(&c.passphrase, "passphrase", "p", c.passphrase, "Passphrase to encrypt the account")
 	return c
 }
@@ -42,5 +44,10 @@ func (c *walletExportCmd) preRunE(cmd *cobra.Command, args []string) error {
 }
 
 func (c *walletExportCmd) runE(cmd *cobra.Command, args []string) error {
+	account, err := c.e.Export(c.address, c.passphrase)
+	if err != nil {
+		return err
+	}
+	fmt.Println(account)
 	return nil
 }

@@ -45,10 +45,10 @@ type ServiceExecutor interface {
 type WalletExecutor interface {
 	List() ([]common.Address, error)
 	Create(passphrase string) (common.Address, error)
-	Delete(passphrase string) error
-	Export(passphrase string) ([]byte, error)
-	Import(passphrase string) error
-	Sign(passphrase string) (*types.Transaction, error)
+	Delete(address common.Address, passphrase string) error
+	Export(address common.Address, passphrase string) ([]byte, error)
+	Import(address common.Address, passphrase string, account []byte) error
+	Sign(address common.Address, passphrase string) (*types.Transaction, error)
 }
 
 // Executor is an interface that keeps all commands interfaces.

@@ -1,6 +1,9 @@
 package commands
 
 import (
+	"fmt"
+
+	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/spf13/cobra"
 	survey "gopkg.in/AlecAivazis/survey.v1"
 )
@@ -11,6 +14,7 @@ type walletImportCmd struct {
 	noPassphrase bool
 	passphrase   string
 	address      string
+	account      string
 
 	e WalletExecutor
 }
@@ -26,7 +30,7 @@ func newWalletImportCmd(e WalletExecutor) *walletImportCmd {
 		RunE:    c.runE,
 	})
 
-	c.cmd.Flags().StringBoolP(&c.passphrase, "no-passphrase", "-n", c.noPassphrase, "Leave passphrase empty")
+	c.cmd.Flags().BoolVarP(&c.passphrase, "no-passphrase", "-n", c.noPassphrase, "Leave passphrase empty")
 	c.cmd.Flags().StringVarP(&c.passphrase, "passphrase", "p", c.passphrase, "Passphrase to encrypt the account")
 	return c
 }
@@ -42,5 +46,9 @@ func (c *walletImportCmd) preRunE(cmd *cobra.Command, args []string) error {
 }
 
 func (c *walletImportCmd) runE(cmd *cobra.Command, args []string) error {
+	if err := c.e.Import(c.address, c.passphrase, []byte(c.account)); err != nil {
+		return err
+	}
+	fmt.Printf("%s Wallet imported", pretty.SuccessSign)
 	return nil
 }

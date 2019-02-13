@@ -3,6 +3,7 @@ package commands
 import (
 	"fmt"
 
+	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/spf13/cobra"
 	survey "gopkg.in/AlecAivazis/survey.v1"
 )
@@ -27,7 +28,7 @@ func newWalletCreateCmd(e WalletExecutor) *walletCreateCmd {
 		RunE:    c.runE,
 	})
 
-	c.cmd.Flags().StringBoolP(&c.passphrase, "no-passphrase", "-n", c.noPassphrase, "Leave passphrase empty")
+	c.cmd.Flags().BoolVarP(&c.passphrase, "no-passphrase", "-n", c.noPassphrase, "Leave passphrase empty")
 	c.cmd.Flags().StringVarP(&c.passphrase, "passphrase", "p", c.passphrase, "Passphrase to encrypt the account")
 	return c
 }
@@ -48,6 +49,6 @@ func (c *walletCreateCmd) runE(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Printf("NOTE: remember to save passphrase\n\n")
-	fmt.Printf("wallet created with address %s", address)
+	fmt.Printf("%s Wallet created with address %s", pretty.SuccessSign, pretty.Success(address))
 	return nil
 }
