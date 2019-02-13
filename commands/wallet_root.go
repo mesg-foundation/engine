@@ -15,7 +15,7 @@ type rootWalletCmd struct {
 func newRootWalletCmd(e WalletExecutor) *rootWalletCmd {
 	c := &rootWalletCmd{}
 	c.cmd = newCommand(&cobra.Command{
-		Use:   "service",
+		Use:   "wallet",
 		Short: "Manage wallets",
 	})
 
@@ -25,7 +25,6 @@ func newRootWalletCmd(e WalletExecutor) *rootWalletCmd {
 		newWalletDeleteCmd(e).cmd,
 		newWalletExportCmd(e).cmd,
 		newWalletImportCmd(e).cmd,
-		newWalletSignCmd(e).cmd,
 	)
 	return c
 }

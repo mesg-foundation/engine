@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 )
 
@@ -24,5 +26,12 @@ func newWalletListCmd(e WalletExecutor) *walletListCmd {
 }
 
 func (c *walletListCmd) runE(cmd *cobra.Command, args []string) error {
+	addresses, err := c.e.List()
+	if err != nil {
+		return err
+	}
+	for _, address := range addresses {
+		fmt.Println(address)
+	}
 	return nil
 }
