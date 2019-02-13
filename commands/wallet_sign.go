@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/spf13/cobra"
 	survey "gopkg.in/AlecAivazis/survey.v1"
 )
@@ -10,7 +11,7 @@ type walletSignCmd struct {
 
 	noPassphrase bool
 	passphrase   string
-	address      string
+	address      common.Address
 
 	e WalletExecutor
 }
@@ -24,7 +25,7 @@ func newWalletSignCmd(e WalletExecutor) *walletSignCmd {
 		RunE:  c.runE,
 	})
 
-	c.cmd.Flags().BoolVarP(&c.passphrase, "no-passphrase", "-n", c.noPassphrase, "Leave passphrase empty")
+	c.cmd.Flags().BoolVarP(&c.noPassphrase, "no-passphrase", "-n", c.noPassphrase, "Leave passphrase empty")
 	c.cmd.Flags().StringVarP(&c.passphrase, "passphrase", "p", c.passphrase, "Passphrase to encrypt the account")
 	return c
 }
@@ -35,7 +36,10 @@ func (c *walletSignCmd) preRunE(cmd *cobra.Command, args []string) error {
 			Message: "Enther passphrase",
 		}, &c.passphrase, survey.MinLength(1))
 	}
-	c.address = args[0]
+	if !common.IsHexAddress(args[0]) {
+		return errInvalidAddress
+	}
+	c.address = common.HexToAddress(args[0])
 	return nil
 }
 

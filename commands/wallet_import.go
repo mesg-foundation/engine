@@ -3,6 +3,7 @@ package commands
 import (
 	"fmt"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/spf13/cobra"
 	survey "gopkg.in/AlecAivazis/survey.v1"
@@ -13,7 +14,7 @@ type walletImportCmd struct {
 
 	noPassphrase bool
 	passphrase   string
-	address      string
+	address      common.Address
 	account      string
 
 	e WalletExecutor
@@ -30,7 +31,7 @@ func newWalletImportCmd(e WalletExecutor) *walletImportCmd {
 		RunE:    c.runE,
 	})
 
-	c.cmd.Flags().BoolVarP(&c.passphrase, "no-passphrase", "-n", c.noPassphrase, "Leave passphrase empty")
+	c.cmd.Flags().BoolVarP(&c.noPassphrase, "no-passphrase", "-n", c.noPassphrase, "Leave passphrase empty")
 	c.cmd.Flags().StringVarP(&c.passphrase, "passphrase", "p", c.passphrase, "Passphrase to encrypt the account")
 	return c
 }
@@ -41,7 +42,10 @@ func (c *walletImportCmd) preRunE(cmd *cobra.Command, args []string) error {
 			Message: "Enther passphrase",
 		}, &c.passphrase, survey.MinLength(1))
 	}
-	c.address = args[0]
+	if !common.IsHexAddress(args[0]) {
+		return errInvalidAddress
+	}
+	c.address = common.HexToAddress(args[0])
 	return nil
 }
 

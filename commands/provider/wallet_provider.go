@@ -20,7 +20,13 @@ func (p *WalletProvider) List() ([]common.Address, error) { return nil, nil }
 func (p *WalletProvider) Create(passphrase string) (common.Address, error) {
 	return common.Address{}, nil
 }
-func (p *WalletProvider) Delete(passphrase string) error                     { return nil }
-func (p *WalletProvider) Export(passphrase string) ([]byte, error)           { return nil, nil }
-func (p *WalletProvider) Import(passphrase string) error                     { return nil }
-func (p *WalletProvider) Sign(passphrase string) (*types.Transaction, error) { return nil, nil }
+func (p *WalletProvider) Delete(address common.Address, passphrase string) error { return nil }
+func (p *WalletProvider) Export(address common.Address, passphrase string) ([]byte, error) {
+	return nil, nil
+}
+func (p *WalletProvider) Import(address common.Address, passphrase string, account []byte) error {
+	return nil
+}
+func (p *WalletProvider) Sign(address common.Address, passphrase string) (*types.Transaction, error) {
+	return nil, nil
+}

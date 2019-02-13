@@ -28,7 +28,7 @@ func newWalletCreateCmd(e WalletExecutor) *walletCreateCmd {
 		RunE:    c.runE,
 	})
 
-	c.cmd.Flags().BoolVarP(&c.passphrase, "no-passphrase", "-n", c.noPassphrase, "Leave passphrase empty")
+	c.cmd.Flags().BoolVarP(&c.noPassphrase, "no-passphrase", "-n", c.noPassphrase, "Leave passphrase empty")
 	c.cmd.Flags().StringVarP(&c.passphrase, "passphrase", "p", c.passphrase, "Passphrase to encrypt the account")
 	return c
 }
@@ -43,12 +43,12 @@ func (c *walletCreateCmd) preRunE(cmd *cobra.Command, args []string) error {
 }
 
 func (c *walletCreateCmd) runE(cmd *cobra.Command, args []string) error {
-	address, err := c.e.Create()
+	address, err := c.e.Create(c.passphrase)
 	if err != nil {
 		return err
 	}
 
 	fmt.Printf("NOTE: remember to save passphrase\n\n")
-	fmt.Printf("%s Wallet created with address %s", pretty.SuccessSign, pretty.Success(address))
+	fmt.Printf("%s Wallet created with address %s", pretty.SuccessSign, pretty.Success(address.String()))
 	return nil
 }
