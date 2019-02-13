@@ -7,10 +7,12 @@ require (
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
 	github.com/alcortesm/tgz v0.0.0-20161220082320-9c5fe88206d7 // indirect
 	github.com/anmitsu/go-shlex v0.0.0-20161002113705-648efa622239 // indirect
+	github.com/aristanetworks/goarista v0.0.0-20190212181145-83ee463e1d9e // indirect
 	github.com/asaskevich/govalidator v0.0.0-20180319081651-7d2e70ef918f
 	github.com/briandowns/spinner v0.0.0-20180822135157-9f016caa1359
 	github.com/cnf/structhash v0.0.0-20180104161610-62a607eb0224
 	github.com/containerd/continuity v0.0.0-20180712174259-0377f7d76720 // indirect
+	github.com/deckarep/golang-set v1.7.1 // indirect
 	github.com/docker/cli v0.0.0-20190129171106-b258f458cc8d
 	github.com/docker/distribution v0.0.0-20180720172123-0dae0957e5fe // indirect
 	github.com/docker/docker v0.0.0-20180803200506-eeea12db7a65
@@ -47,10 +49,12 @@ require (
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/opencontainers/runc v0.1.1 // indirect
+	github.com/pborman/uuid v1.2.0 // indirect
 	github.com/pelletier/go-buffruneio v0.0.0-20180119162133-e2f66f8164ca // indirect
 	github.com/pkg/errors v0.8.0
 	github.com/pseudomuto/protoc-gen-doc v1.1.0
 	github.com/pseudomuto/protokit v0.1.0 // indirect
+	github.com/rjeczalik/notify v0.9.2 // indirect
 	github.com/satori/go.uuid v1.2.0
 	github.com/sergi/go-diff v0.0.0-20180205163309-da645544ed44 // indirect
 	github.com/sirupsen/logrus v1.0.6
