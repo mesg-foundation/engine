@@ -4,6 +4,8 @@ import (
 	"io"
 	"io/ioutil"
 
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
@@ -37,6 +39,16 @@ type ServiceExecutor interface {
 	ServiceList() ([]*coreapi.Service, error)
 	ServiceInitTemplateList() ([]*servicetemplate.Template, error)
 	ServiceInitDownloadTemplate(t *servicetemplate.Template, dst string) error
+}
+
+// WalletExecutor is an interface that handles wallet commands.
+type WalletExecutor interface {
+	List() ([]common.Address, error)
+	Create(passphrase string) (common.Address, error)
+	Delete(passphrase string) error
+	Export(passphrase string) ([]byte, error)
+	Import(passphrase string) error
+	Sign(passphrase string) (*types.Transaction, error)
 }
 
 // Executor is an interface that keeps all commands interfaces.
