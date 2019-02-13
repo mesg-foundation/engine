@@ -26,7 +26,6 @@ type ServiceExecutor interface {
 	ServiceDeleteAll(deleteData bool) error
 	ServiceDelete(deleteData bool, ids ...string) error
 	ServiceDeploy(path string, env map[string]string, statuses chan provider.DeployStatus) (id string, validationError, err error)
-	ServicePublishDefinitionFile(path string) (string, error)
 	ServiceListenEvents(id, eventFilter string) (chan *coreapi.EventData, chan error, error)
 	ServiceListenResults(id, taskFilter, outputFilter string, tagFilters []string) (chan *coreapi.ResultData, chan error, error)
 	ServiceLogs(id string, dependencies ...string) (logs []*provider.Log, closer func(), err error)
@@ -38,6 +37,19 @@ type ServiceExecutor interface {
 	ServiceList() ([]*coreapi.Service, error)
 	ServiceInitTemplateList() ([]*servicetemplate.Template, error)
 	ServiceInitDownloadTemplate(t *servicetemplate.Template, dst string) error
+}
+
+// MarketplaceExecutor is an interface that handles marketplace commands.
+type MarketplaceExecutor interface {
+	PublishDefinitionFile(path string) (string, error)
+	CreateService(sid, from string) (*provider.Transaction, error)
+	CreateServiceVersion(sidHash, hash, manifest, manifestProtocol, from string) (*provider.Transaction, error)
+	CreateServiceOffer(sidHash, price, duration, from string) (*provider.Transaction, error)
+	DisableServiceOffer(sidHash, offerIndex, from string) (*provider.Transaction, error)
+	Purchase(sidHash, offerIndex, from string) (*provider.Transaction, error)
+	TransferServiceOwnership(sidHash, newOwner, from string) (*provider.Transaction, error)
+	SendSignedTransaction(signedTransaction string) (*provider.SendSignedTransactionTaskSuccessOutput, error)
+	IsAuthorized(sidHash string) (bool, error)
 }
 
 // WalletExecutor is an interface that handles wallet commands.
