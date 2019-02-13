@@ -25,7 +25,6 @@ type ServiceExecutor interface {
 	ServiceDeleteAll(deleteData bool) error
 	ServiceDelete(deleteData bool, ids ...string) error
 	ServiceDeploy(path string, env map[string]string, statuses chan provider.DeployStatus) (id string, validationError, err error)
-	ServicePublishDefinitionFile(path string) (string, error)
 	ServiceListenEvents(id, eventFilter string) (chan *coreapi.EventData, chan error, error)
 	ServiceListenResults(id, taskFilter, outputFilter string, tagFilters []string) (chan *coreapi.ResultData, chan error, error)
 	ServiceLogs(id string, dependencies ...string) (logs []*provider.Log, closer func(), err error)
@@ -39,10 +38,16 @@ type ServiceExecutor interface {
 	ServiceInitDownloadTemplate(t *servicetemplate.Template, dst string) error
 }
 
+// MarketplaceExecutor is an interface that handles services commands.
+type MarketplaceExecutor interface {
+	MarketplacePublishDefinitionFile(path string) (string, error)
+}
+
 // Executor is an interface that keeps all commands interfaces.
 type Executor interface {
 	RootExecutor
 	ServiceExecutor
+	MarketplaceExecutor
 }
 
 // Build constructs root command and returns it.
