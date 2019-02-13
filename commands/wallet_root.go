@@ -17,6 +17,11 @@ func newRootWalletCmd(e WalletExecutor) *rootWalletCmd {
 
 	c.cmd.AddCommand(
 		newWalletListCmd(e).cmd,
+		newWalletCreateCmd(e).cmd,
+		newWalletDeleteCmd(e).cmd,
+		newWalletExportCmd(e).cmd,
+		newWalletImportCmd(e).cmd,
+		newWalletSignCmd(e).cmd,
 	)
 	return c
 }

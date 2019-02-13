@@ -7,6 +7,7 @@ import (
 
 // Provider is a struct that provides all methods required by any command.
 type Provider struct {
+	*WalletProvider
 	*CoreProvider
 	*ServiceProvider
 }
@@ -16,5 +17,6 @@ func New(c coreapi.CoreClient, d daemon.Daemon) *Provider {
 	return &Provider{
 		CoreProvider:    NewCoreProvider(c, d),
 		ServiceProvider: NewServiceProvider(c),
+		WalletProvider:  NewWalletProvider(c),
 	}
 }

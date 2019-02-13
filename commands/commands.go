@@ -55,6 +55,7 @@ type WalletExecutor interface {
 type Executor interface {
 	RootExecutor
 	ServiceExecutor
+	WalletExecutor
 }
 
 // Build constructs root command and returns it.
