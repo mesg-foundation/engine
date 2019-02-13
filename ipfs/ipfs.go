@@ -13,7 +13,7 @@ const (
 	addAPI = "api/v0/add"
 )
 
-// IPFS is the struct that contains all informations to access an IPFS node
+// IPFS is the struct that contains all information to access an IPFS node
 type IPFS struct {
 	client   *http.Client
 	endpoint string

@@ -39,8 +39,8 @@ type marketplaceData struct {
 	Readme     string                      `json:"readme,omitempty"`
 }
 
-// MarketplacePublishDefinitionFile upload and publish the tarball and definition file and returns the address of the definition file
-func (p *MarketplaceProvider) MarketplacePublishDefinitionFile(path string) (string, error) {
+// PublishDefinitionFile upload and publish the tarball and definition file and returns the address of the definition file
+func (p *MarketplaceProvider) PublishDefinitionFile(path string) (string, error) {
 	ipfs := ipfs.New()
 	tar, err := archive.TarWithOptions(path, &archive.TarOptions{
 		Compression: archive.Gzip,
@@ -80,4 +80,10 @@ func (p *MarketplaceProvider) createDefinitionFile(path string, tarballHash stri
 	}
 	data.Definition = definition
 	return json.Marshal(data)
+}
+
+// DisableServiceOfferInputs
+type DisableServiceOfferInputs struct {
+	Version int `json:"version"`
+	
 }

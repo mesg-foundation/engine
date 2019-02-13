@@ -38,9 +38,9 @@ type ServiceExecutor interface {
 	ServiceInitDownloadTemplate(t *servicetemplate.Template, dst string) error
 }
 
-// MarketplaceExecutor is an interface that handles services commands.
+// MarketplaceExecutor is an interface that handles marketplace commands.
 type MarketplaceExecutor interface {
-	MarketplacePublishDefinitionFile(path string) (string, error)
+	PublishDefinitionFile(path string) (string, error)
 }
 
 // Executor is an interface that keeps all commands interfaces.

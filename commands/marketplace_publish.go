@@ -33,7 +33,7 @@ func (c *marketplacePublishCmd) preRunE(cmd *cobra.Command, args []string) error
 }
 
 func (c *marketplacePublishCmd) runE(cmd *cobra.Command, args []string) error {
-	definition, err := c.e.MarketplacePublishDefinitionFile(c.path)
+	definition, err := c.e.PublishDefinitionFile(c.path)
 	if err != nil {
 		return err
 	}
