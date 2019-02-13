@@ -89,6 +89,7 @@ func (p *WalletProvider) Export(address common.Address, passphrase string) (Encr
 	}
 	return output, nil
 }
+
 func (p *WalletProvider) Import(address common.Address, passphrase string, account EncryptedKeyJSONV3) (common.Address, error) {
 	r, err := p.client.ExecuteAndListen(walletServiceID, "sign", &ethwalletImportInputs{
 		Account:    account,
@@ -107,6 +108,7 @@ func (p *WalletProvider) Import(address common.Address, passphrase string, accou
 	}
 	return output.Address, nil
 }
+
 func (p *WalletProvider) Sign(address common.Address, passphrase string, transaction *Transaction) (string, error) {
 	r, err := p.client.ExecuteAndListen(walletServiceID, "sign", &ethwalletSignInputs{
 		Address:     address,

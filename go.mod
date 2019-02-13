@@ -6,6 +6,7 @@ require (
 	github.com/Netflix/go-expect v0.0.0-20180928190340-9d1f4485533b // indirect
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
 	github.com/alcortesm/tgz v0.0.0-20161220082320-9c5fe88206d7 // indirect
+	github.com/allegro/bigcache v1.2.0 // indirect
 	github.com/anmitsu/go-shlex v0.0.0-20161002113705-648efa622239 // indirect
 	github.com/aristanetworks/goarista v0.0.0-20190212181145-83ee463e1d9e // indirect
 	github.com/asaskevich/govalidator v0.0.0-20180319081651-7d2e70ef918f
@@ -19,10 +20,12 @@ require (
 	github.com/docker/go-connections v0.0.0-20180212134524-7beb39f0b969 // indirect
 	github.com/docker/go-units v0.3.3 // indirect
 	github.com/emirpasic/gods v0.0.0-20180618112450-bba54c718c4e // indirect
+	github.com/ethereum/go-ethereum v1.8.20
 	github.com/fatih/color v0.0.0-20170926111411-5df930a27be2
 	github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568 // indirect
 	github.com/gliderlabs/ssh v0.1.1 // indirect
 	github.com/go-bindata/go-bindata v0.0.0-20181025070752-41975c0ccc30
+	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/gogo/protobuf v1.0.0 // indirect
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b // indirect
 	github.com/golang/protobuf v1.2.0
