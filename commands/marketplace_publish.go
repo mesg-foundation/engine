@@ -11,10 +11,10 @@ type marketplacePublishCmd struct {
 
 	path string
 
-	e MarketplaceExecutor
+	e Executor
 }
 
-func newMarketplacePublishCmd(e MarketplaceExecutor) *marketplacePublishCmd {
+func newMarketplacePublishCmd(e Executor) *marketplacePublishCmd {
 	c := &marketplacePublishCmd{e: e}
 	c.cmd = newCommand(&cobra.Command{
 		Use:     "publish",
@@ -34,34 +34,36 @@ func (c *marketplacePublishCmd) preRunE(cmd *cobra.Command, args []string) error
 
 func (c *marketplacePublishCmd) runE(cmd *cobra.Command, args []string) error {
 	from := "0xf3C21FD07B1D4c40d3cE6EfaC81a3E49f6c04592"
+	passphrase := "1"
+
 	tx, err := c.e.CreateService("test1", from)
 	if err != nil {
 		return err
 	}
 	fmt.Println("tx", tx)
 
-	// signedTransaction, err := c.e.Sign(tx)
-	// if err != nil {
-	// 	return err
-	// }
-	// fmt.Println("transaction signed", signedTransaction)
+	signedTransaction, err := c.e.Sign(from, passphrase, tx)
+	if err != nil {
+		return err
+	}
+	fmt.Println("transaction signed", signedTransaction)
 
-	// receipt, err := c.e.SendSignedTransaction(signedTransaction)
-	// if err != nil {
-	// 	return err
-	// }
-	// fmt.Println("service created")
+	receipt, err := c.e.SendSignedTransaction(signedTransaction)
+	if err != nil {
+		return err
+	}
+	fmt.Println("service created", receipt)
 
 	// definition, err := c.e.PublishDefinitionFile(c.path)
 	// fmt.Println("upload done. https://gateway.ipfs.io/ipfs/" + definition)
 
-	// tx, err = c.e.CreateServiceVersion("test1", "0xf3C21FD07B1D4c40d3cE6EfaC81a3E49f6c04592", definition, "ipfs", from)
+	// tx, err = c.e.CreateServiceVersion(sidHash, hash, definition, "ipfs", from)
 	// if err != nil {
 	// 	return err
 	// }
 	// fmt.Println("tx", tx)
 
-	fmt.Println("published")
+	// fmt.Println("published")
 
 	return nil
 }

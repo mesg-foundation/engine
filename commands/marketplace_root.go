@@ -8,7 +8,7 @@ type rootMarketplaceCmd struct {
 	baseCmd
 }
 
-func newRootMarketplaceCmd(e MarketplaceExecutor) *rootMarketplaceCmd {
+func newRootMarketplaceCmd(e Executor) *rootMarketplaceCmd {
 	c := &rootMarketplaceCmd{}
 	c.cmd = newCommand(&cobra.Command{
 		Use:   "marketplace",

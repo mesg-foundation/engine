@@ -38,15 +38,15 @@ const (
 )
 
 type ManifestData struct {
-	Version int `json:"version"`
-	Service struct {
+	Version    int                         `json:"version"`
+	Definition *importer.ServiceDefinition `json:"definition"`
+	Readme     string                      `json:"readme,omitempty"`
+	Service    struct {
 		Deployment struct {
 			Type   string `json:"type"`
 			Source string `json:"source"`
 		} `json:"deployment"`
 	} `json:"service"`
-	Definition *importer.ServiceDefinition `json:"definition"`
-	Readme     string                      `json:"readme,omitempty"`
 }
 
 // TransactionTaskInputs is the inputs for any task that create a transaction.
@@ -147,8 +147,8 @@ func (p *MarketplaceProvider) CreateService(sid, from string) (*TransactionOutpu
 	if err != nil {
 		return nil, err
 	}
-	var outputData *TransactionOutput
-	return outputData, decodeOutput(outputKey, outputDataS, outputData)
+	var outputData TransactionOutput
+	return &outputData, decodeOutput(outputKey, outputDataS, &outputData)
 }
 
 // CreateServiceVersion executes the create service version task
@@ -165,8 +165,8 @@ func (p *MarketplaceProvider) CreateServiceVersion(sidHash, hash, manifest, mani
 	if err != nil {
 		return nil, err
 	}
-	var outputData *TransactionOutput
-	return outputData, decodeOutput(outputKey, outputDataS, outputData)
+	var outputData TransactionOutput
+	return &outputData, decodeOutput(outputKey, outputDataS, &outputData)
 }
 
 // CreateServiceOffer executes the create service offer task
@@ -182,8 +182,8 @@ func (p *MarketplaceProvider) CreateServiceOffer(sidHash, price, duration, from 
 	if err != nil {
 		return nil, err
 	}
-	var outputData *TransactionOutput
-	return outputData, decodeOutput(outputKey, outputDataS, outputData)
+	var outputData TransactionOutput
+	return &outputData, decodeOutput(outputKey, outputDataS, &outputData)
 }
 
 // DisableServiceOffer executes the disable service offer task
@@ -198,8 +198,8 @@ func (p *MarketplaceProvider) DisableServiceOffer(sidHash, offerIndex, from stri
 	if err != nil {
 		return nil, err
 	}
-	var outputData *TransactionOutput
-	return outputData, decodeOutput(outputKey, outputDataS, outputData)
+	var outputData TransactionOutput
+	return &outputData, decodeOutput(outputKey, outputDataS, &outputData)
 }
 
 // Purchase executes the purchase task
@@ -214,8 +214,8 @@ func (p *MarketplaceProvider) Purchase(sidHash, offerIndex, from string) (*Trans
 	if err != nil {
 		return nil, err
 	}
-	var outputData *TransactionOutput
-	return outputData, decodeOutput(outputKey, outputDataS, outputData)
+	var outputData TransactionOutput
+	return &outputData, decodeOutput(outputKey, outputDataS, &outputData)
 }
 
 // TransferServiceOwnership executes the task transfer service ownership.
@@ -230,8 +230,8 @@ func (p *MarketplaceProvider) TransferServiceOwnership(sidHash, newOwner, from s
 	if err != nil {
 		return nil, err
 	}
-	var outputData *TransactionOutput
-	return outputData, decodeOutput(outputKey, outputDataS, outputData)
+	var outputData TransactionOutput
+	return &outputData, decodeOutput(outputKey, outputDataS, &outputData)
 }
 
 // SendSignedTransaction executes the task send signed transaction.
@@ -242,8 +242,8 @@ func (p *MarketplaceProvider) SendSignedTransaction(signedTransaction string) (*
 	if err != nil {
 		return nil, err
 	}
-	var outputData *SendSignedTransactionTaskSuccessOutput
-	return outputData, decodeOutput(outputKey, outputDataS, outputData)
+	var outputData SendSignedTransactionTaskSuccessOutput
+	return &outputData, decodeOutput(outputKey, outputDataS, &outputData)
 }
 
 // IsAuthorized executes the task send signed transaction.
@@ -254,8 +254,8 @@ func (p *MarketplaceProvider) IsAuthorized(sidHash string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	var outputData *IsAuthorizedTaskSuccessOutput
-	if err = decodeOutput(outputKey, outputDataS, outputData); err != nil {
+	var outputData IsAuthorizedTaskSuccessOutput
+	if err = decodeOutput(outputKey, outputDataS, &outputData); err != nil {
 		return false, err
 	}
 	return outputData.Authorized, nil

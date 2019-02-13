@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
@@ -60,7 +59,7 @@ type WalletExecutor interface {
 	Delete(address common.Address, passphrase string) error
 	Export(address common.Address, passphrase string) ([]byte, error)
 	Import(address common.Address, passphrase string, account []byte) error
-	Sign(address common.Address, passphrase string) (*types.Transaction, error)
+	Sign(address string, passphrase string, transaction *provider.TransactionOutput) (string, error)
 }
 
 // Executor is an interface that keeps all commands interfaces.
