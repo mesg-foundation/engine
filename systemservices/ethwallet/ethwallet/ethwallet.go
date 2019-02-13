@@ -41,5 +41,6 @@ func (ethwallet *Ethwallet) Listen() error {
 		service.Task("export", ethwallet.export),
 		service.Task("import", ethwallet.importA),
 		service.Task("sign", ethwallet.sign),
+		service.Task("importFromPrivateKey", ethwallet.importFromPrivateKey),
 	)
 }
