@@ -15,7 +15,7 @@ const getServiceOffers = async (contract: Contract, sid: string): Promise<Offer[
 const getServiceOffer = async (contract: Contract, sid: string, offerIndex: BigNumber): Promise<Offer> => {
   const offer = await contract.methods.servicesOffer(sid, offerIndex.toString()).call()
   return {
-    index: new BigNumber(offerIndex),
+    index: offerIndex,
     price: new BigNumber(offer.price),
     duration: new BigNumber(offer.duration),
     active: offer.active,

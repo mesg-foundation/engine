@@ -1,11 +1,12 @@
 import Service, { EmitEventReply } from "mesg-js/lib/service/service"
 import { EventLog } from "web3/types";
+import { hexToAscii } from "../contracts/utils";
 
 export = (mesg: Service, event: EventLog): Promise<EmitEventReply | Error> => {
   return mesg.emitEvent('serviceVersionCreated', {
-    sid: event.returnValues.sid, // TODO: to convert to ascii
+    sid: event.returnValues.sid,
     hash: event.returnValues.hash,
-    manifest: event.returnValues.manifest, // TODO: to convert to ascii
-    manifestProtocol: event.returnValues.manifestProtocol, // TODO: to convert to ascii
+    manifest: hexToAscii(event.returnValues.manifest),
+    manifestProtocol: hexToAscii(event.returnValues.manifestProtocol),
   })
 }

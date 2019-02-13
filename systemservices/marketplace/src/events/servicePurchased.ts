@@ -3,7 +3,7 @@ import { EventLog } from "web3/types";
 
 export = (mesg: Service, event: EventLog): Promise<EmitEventReply | Error> => {
   return mesg.emitEvent('servicePurchased', {
-    sid: event.returnValues.sid, // TODO: to convert to ascii
+    sid: event.returnValues.sid,
     offerIndex: event.returnValues.offerIndex,
     purchaser: event.returnValues.purchaser,
     price: event.returnValues.price,
