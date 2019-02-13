@@ -9,7 +9,7 @@ type ServiceDefinition struct {
 	Name string `yaml:"name" json:"name,omitempty" validate:"required,printascii,min=1"`
 
 	// Sid is the service id. It must be unique.
-	Sid string `yaml:"sid" json:"sid,omitempty" validate:"printascii,max=39"`
+	Sid string `yaml:"sid" json:"sid,omitempty" validate:"printascii,max=63,domain"`
 
 	// Description is service description.
 	Description string `yaml:"description" json:"description,omitempty" validate:"printascii"`
@@ -26,8 +26,7 @@ type ServiceDefinition struct {
 	// Configuration is the Docker container that service runs inside.
 	Configuration *Dependency `yaml:"configuration" json:"configuration,omitempty"`
 
-	// Repository holds the service's repository url if it's living on
-	// a Git host.
+	// Repository holds the service's repository url if it's living on a git host.
 	Repository string `yaml:"repository" json:"repository,omitempty" validate:"omitempty,uri"`
 }
 
@@ -56,7 +55,7 @@ type Dependency struct {
 	VolumesFrom []string `yaml:"volumesfrom" json:"volumesFrom,omitempty" validate:"unique,dive,printascii"`
 
 	// Ports holds ports configuration for container.
-	Ports []string `yaml:"ports" json:"ports,omitempty" validate:"unique,dive,numeric"`
+	Ports []string `yaml:"ports" json:"ports,omitempty" validate:"unique,dive,port"`
 
 	// Command is the Docker command which will be executed when container started.
 	Command string `yaml:"command" json:"command,omitempty" validate:"printascii"`

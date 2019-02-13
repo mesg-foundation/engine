@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
+	"github.com/mesg-foundation/core/x/xvalidator"
 	validator "gopkg.in/go-playground/validator.v9"
 	yaml "gopkg.in/yaml.v2"
 )
@@ -24,15 +25,26 @@ func validateServiceFile(data []byte) []string {
 }
 
 func validateServiceStruct(service *ServiceDefinition) []string {
-	errs := validator.New().Struct(service)
+	validate := validator.New()
+	validate.RegisterValidation("port", xvalidator.IsPort)
+	validate.RegisterValidation("domain", xvalidator.IsDomainName)
+
+	errs := validate.Struct(service)
 	warnings := []string{}
 	if errs != nil {
 		for _, err := range errs.(validator.ValidationErrors) {
 			warnings = append(
 				warnings,
-				fmt.Sprintf("%s with value %q is invalid: %s %s", err.Field(), err.Value(), err.ActualTag(), err.Param()),
+				fmt.Sprintf("%s with value %q is invalid: %s %s", err.Namespace(), err.Value(), err.Tag(), err.Param()),
 			)
 		}
 	}
+
+	for k, d := range service.Dependencies {
+		if d.Image == "" {
+			fmt.Sprintf("dependencies[%s].image is invalid: empty", k)
+		}
+	}
+
 	return warnings
 }
