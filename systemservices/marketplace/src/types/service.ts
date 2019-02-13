@@ -3,6 +3,7 @@ import BigNumber from "bignumber.js";
 interface Service {
   owner: string;
   sid: string;
+  hashedSid: string;
   versions: Version[];
   offers: Offer[];
   purchases: Purchase[];

@@ -7,7 +7,7 @@ configuration:
     - BLOCK_CONFIRMATIONS=1
     - DEFAULT_GAS=1000000
     - POLLING_TIME=1000
-    - MARKETPLACE_ADDRESS=0x4b013d9bb4c50CE183A79094cb6626dEB7e009e1
+    - MARKETPLACE_ADDRESS=0x61c0E91cc9926f095b68cCAb2db950dB6a642522
 tasks:
   listServices:
     name: ""
@@ -25,6 +25,10 @@ tasks:
             repeated: true
             object: &service
               sid: &sid
+                name: ""
+                description: ""
+                type: String
+              hashedSid: &hashedSid
                 name: ""
                 description: ""
                 type: String
@@ -160,7 +164,10 @@ tasks:
     name: ""
     description: ""
     inputs:
-      sid: *inputSid
+      hashedSid: &inputHashedSid
+        name: ""
+        description: ""
+        type: String
       price:
         name: ""
         description: ""
@@ -179,7 +186,7 @@ tasks:
     name: ""
     description: ""
     inputs:
-      sid: *inputSid
+      hashedSid: *inputHashedSid
       hash:
         name: ""
         description: ""
@@ -202,7 +209,7 @@ tasks:
     name: ""
     description: ""
     inputs:
-      sid: *inputSid
+      hashedSid: *inputHashedSid
       offerIndex:
         name: ""
         description: ""
@@ -217,7 +224,7 @@ tasks:
     name: ""
     description: ""
     inputs:
-      sid: *inputSid
+      hashedSid: *inputHashedSid
       offerIndex:
         name: ""
         description: ""
@@ -232,7 +239,7 @@ tasks:
     name: ""
     description: ""
     inputs:
-      sid: *inputSid
+      hashedSid: *inputHashedSid
       newOwner:
         name: ""
         description: ""
@@ -261,7 +268,7 @@ tasks:
     name: ""
     description: ""
     inputs:
-      sid: *inputSid
+      hashedSid: *inputHashedSid
       from: *inputFrom
     outputs:
       error: *outputError
@@ -279,12 +286,13 @@ events:
     description: ""
     data:
       sid: *sid
+      hashedSid: *hashedSid
       owner: *owner
   serviceOwnershipTransferred:
     name: ""
     description: ""
     data:
-      sid: *sid
+      hashedSid: *hashedSid
       previousOwner:
         name: ""
         description: ""
@@ -297,7 +305,7 @@ events:
     name: ""
     description: ""
     data:
-      sid: *sid
+      hashedSid: *hashedSid
       hash: *hash
       manifest: *manifestSource
       manifestProtocol: *manifestProtocol
@@ -305,7 +313,7 @@ events:
     name: ""
     description: ""
     data:
-      sid: *sid
+      hashedSid: *hashedSid
       offerIndex: *offerIndex
       price: *price
       duration: *duration
@@ -313,13 +321,13 @@ events:
     name: ""
     description: ""
     data:
-      sid: *sid
+      hashedSid: *hashedSid
       offerIndex: *offerIndex
   servicePurchased:
     name: ""
     description: ""
     data:
-      sid: *sid
+      hashedSid: *hashedSid
       offerIndex: *offerIndex
       purchaser: *purchaser
       price: *price

@@ -2,13 +2,11 @@ import { service as MESG } from "mesg-js"
 import { TaskInputs, Service, EmitEventReply } from "mesg-js/lib/service"
 
 import Web3 from "web3"
-// import { AbiItem } from "web3-utils/types"
-// import { EventData } from "web3-eth-contract/types";
 import { EventLog } from "web3/types"
 
 import { newBlockEventEmitter } from "./newBlock"
 
-import _marketplaceABI from "./contracts/Marketplace.abi.json"
+import marketplaceABI from "./contracts/Marketplace.abi.json"
 import { Marketplace } from "./contracts/Marketplace"
 
 import createService from "./tasks/createService"
@@ -27,7 +25,6 @@ import serviceOwnershipTransferred = require("./events/serviceOwnershipTransferr
 import serviceVersionCreated = require("./events/serviceVersionCreated");
 import servicePurchased = require("./events/servicePurchased");
 
-const marketplaceABI = _marketplaceABI// as AbiItem[]
 const providerEndpoint = process.env.PROVIDER_ENDPOINT as string
 const marketplaceAddress = process.env.MARKETPLACE_ADDRESS
 const blockConfirmations = parseInt(<string>process.env.BLOCK_CONFIRMATIONS, 10)
@@ -46,7 +43,7 @@ const eventHandlers: {[key: string]: (mesg: Service, event: EventLog) => Promise
 const main = async () => {
   const mesg = MESG()
   const web3 = new Web3(providerEndpoint)
-  const contract = new web3.eth.Contract(marketplaceABI, marketplaceAddress)// as Marketplace
+  const contract = new web3.eth.Contract(marketplaceABI, marketplaceAddress) as Marketplace
 
   const chainID = await web3.eth.net.getId()
   console.log('chainID', chainID)
@@ -84,8 +81,8 @@ const main = async () => {
     // console.error('new block', blockNumber)
     
     const events = await contract.getPastEvents("allEvents", {
-      fromBlock: 4990259,
-      toBlock: 4998258,
+      fromBlock: 5008717, // blockNumber,
+      toBlock: 'latest', // blockNumber,
     })
     events.forEach(async event => {
       // TODO: check if really async
