@@ -25,7 +25,6 @@ func newRootWalletCmd(e WalletExecutor) *rootWalletCmd {
 		newWalletDeleteCmd(e).cmd,
 		newWalletExportCmd(e).cmd,
 		newWalletImportCmd(e).cmd,
-		newWalletSignCmd(e).cmd,
 	)
 	return c
 }
