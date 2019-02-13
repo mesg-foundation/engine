@@ -19,10 +19,12 @@ type walletSignCmd struct {
 func newWalletSignCmd(e WalletExecutor) *walletSignCmd {
 	c := &walletSignCmd{e: e}
 	c.cmd = newCommand(&cobra.Command{
-		Use:   "list",
-		Short: "list wallets",
-		Args:  cobra.ExactArgs(1),
-		RunE:  c.runE,
+		Use:     "sign",
+		Short:   "sign transaction",
+		Long:    "sign transaction with given account",
+		Example: "mesg-core wallet sign ADDRESS",
+		Args:    cobra.ExactArgs(1),
+		RunE:    c.runE,
 	})
 
 	c.cmd.Flags().BoolVarP(&c.noPassphrase, "no-passphrase", "-n", c.noPassphrase, "Leave passphrase empty")

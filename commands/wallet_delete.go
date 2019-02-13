@@ -12,9 +12,9 @@ import (
 type walletDeleteCmd struct {
 	baseCmd
 
+	address      common.Address
 	noPassphrase bool
 	passphrase   string
-	address      common.Address
 
 	e WalletExecutor
 }

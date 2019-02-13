@@ -12,9 +12,9 @@ import (
 type walletImportCmd struct {
 	baseCmd
 
+	address      common.Address
 	noPassphrase bool
 	passphrase   string
-	address      common.Address
 	account      string
 
 	e WalletExecutor
