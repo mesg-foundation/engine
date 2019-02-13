@@ -1,18 +1,23 @@
 package structhash
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSha1(t *testing.T) {
-	require.Equal(t, "da39a3ee5e6b4b0d3255bfef95601890afd80709", Sha1Str(nil))
+	assert.Equal(t, "da39a3ee5e6b4b0d3255bfef95601890afd80709", fmt.Sprintf("%x", Sha1(nil)))
+}
+
+func TestSha3(t *testing.T) {
+	assert.Equal(t, "a69f73cca23a9ac5c8b567dc185a756e97c982164fe25859e0d1dcc1475c80a615b2123af1f5f94c11e3e9402c3ac558f500199d95b6d3e301758586281dcd26", fmt.Sprintf("%x", Sha3(nil)))
 }
 
 func TestMd5(t *testing.T) {
-	require.Equal(t, "d41d8cd98f00b204e9800998ecf8427e", Md5Str(nil))
+	assert.Equal(t, "d41d8cd98f00b204e9800998ecf8427e", fmt.Sprintf("%x", Md5(nil)))
 }
 
 //nolint:megacheck
@@ -56,9 +61,8 @@ func TestDump(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		if s := Dump(tt.v); s != tt.s {
-			require.Equalf(t, tt.s, s, "type %s: %v", reflect.TypeOf(tt.v), tt.v)
-		}
+		s := Dump(tt.v)
+		assert.Equalf(t, []byte(tt.s), s, "type %s: %v", reflect.TypeOf(tt.v), tt.v)
 	}
 }
 
@@ -108,8 +112,6 @@ func TestTag(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		if s := serialize(tt.v); string(s) != tt.s {
-			require.Equalf(t, tt.s, string(s), "type %s: %v", reflect.TypeOf(tt.v), tt.v)
-		}
+		assert.Equalf(t, []byte(tt.s), serialize(tt.v), "type %s: %v", reflect.TypeOf(tt.v), tt.v)
 	}
 }

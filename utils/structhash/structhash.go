@@ -9,33 +9,28 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"golang.org/x/crypto/sha3"
 )
 
-// Sha1Str takes a data structure and returns its md5 hash as string.
-func Sha1Str(v interface{}) string {
-	return fmt.Sprintf("%x", Sha1(v))
+// Sha1 takes a data structure and returns its md5 hash as string.
+func Sha1(v interface{}) [sha1.Size]byte {
+	return sha1.Sum(serialize(v))
 }
 
 // Sha1 takes a data structure and returns its md5 hash as string.
-func Sha1(v interface{}) []byte {
-	sum := sha1.Sum(serialize(v))
-	return sum[:]
-}
-
-// Md5Str takes a data structure and returns its md5 hash as string.
-func Md5Str(v interface{}) string {
-	return fmt.Sprintf("%x", Md5(v))
+func Sha3(v interface{}) [64]byte {
+	return sha3.Sum512(serialize(v))
 }
 
 // Md5 takes a data structure and returns its md5 hash.
-func Md5(v interface{}) []byte {
-	sum := md5.Sum(serialize(v))
-	return sum[:]
+func Md5(v interface{}) [md5.Size]byte {
+	return md5.Sum(serialize(v))
 }
 
 // Dump takes a data structure and returns its string representation.
-func Dump(v interface{}) string {
-	return string(serialize(v))
+func Dump(v interface{}) []byte {
+	return serialize(v)
 }
 
 func serialize(v interface{}) []byte {
@@ -197,7 +192,7 @@ func parseTag(f reflect.StructField) tagOptions {
 		case strings.HasPrefix(option, "name:"):
 			to.name = option[len("name:"):]
 		default:
-			panic(fmt.Sprintf("field %s with tag hash:%q has invalid option %q", f.Name, tag, option))
+			panic(fmt.Sprintf("structhash: field %s with tag hash:%q has invalid option %q", f.Name, tag, option))
 		}
 	}
 	return to
