@@ -26,6 +26,7 @@ func newWalletExportCmd(e WalletExecutor) *walletExportCmd {
 		Long:    "export an existing account in order to backup it and import it in an other wallet",
 		Example: "mesg-core wallet export",
 		Args:    cobra.ExactArgs(1),
+		PreRunE: c.preRunE,
 		RunE:    c.runE,
 	})
 

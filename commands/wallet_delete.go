@@ -27,6 +27,7 @@ func newWalletDeleteCmd(e WalletExecutor) *walletDeleteCmd {
 		Long:    "Delete an account from the wallet",
 		Example: "mesg-core wallet delete 0x0",
 		Args:    cobra.ExactArgs(1),
+		PreRunE: c.preRunE,
 		RunE:    c.runE,
 	})
 

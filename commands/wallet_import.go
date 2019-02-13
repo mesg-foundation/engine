@@ -28,6 +28,7 @@ func newWalletImportCmd(e WalletExecutor) *walletImportCmd {
 		Long:    "import an account to wallet",
 		Example: "mesg-core wallet import",
 		Args:    cobra.ExactArgs(1),
+		PreRunE: c.preRunE,
 		RunE:    c.runE,
 	})
 
