@@ -159,7 +159,7 @@ tasks:
           data:
             name: "Data"
             description: "The data of the transaction."
-            type: Any
+            type: String
   createServiceOffer:
     name: ""
     description: ""
