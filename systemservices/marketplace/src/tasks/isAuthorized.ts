@@ -6,7 +6,7 @@ export default (
 ) => async (inputs: TaskInputs, outputs: TaskOutputs): Promise<void> => {
   try {
     const authorized = await contract.methods.isAuthorized(
-      inputs.hashedSid,
+      inputs.sidHash,
       inputs.from
     ).call()
     return outputs.success({ authorized })

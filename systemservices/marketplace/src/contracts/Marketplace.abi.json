@@ -20,8 +20,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x0a790eb7"
+    "type": "function"
   },
   {
     "constant": true,
@@ -40,8 +39,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x23852a30"
+    "type": "function"
   },
   {
     "constant": false,
@@ -50,8 +48,7 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x3f4ba83a"
+    "type": "function"
   },
   {
     "constant": true,
@@ -70,8 +67,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x46fbf68e"
+    "type": "function"
   },
   {
     "constant": true,
@@ -85,8 +81,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x5c975abb"
+    "type": "function"
   },
   {
     "constant": false,
@@ -95,8 +90,7 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x6ef8d66d"
+    "type": "function"
   },
   {
     "constant": false,
@@ -105,8 +99,7 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x715018a6"
+    "type": "function"
   },
   {
     "constant": false,
@@ -120,8 +113,7 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x82dc1ec4"
+    "type": "function"
   },
   {
     "constant": false,
@@ -130,8 +122,7 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x8456cb59"
+    "type": "function"
   },
   {
     "constant": true,
@@ -150,8 +141,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x8c956c02"
+    "type": "function"
   },
   {
     "constant": true,
@@ -165,8 +155,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x8da5cb5b"
+    "type": "function"
   },
   {
     "constant": true,
@@ -180,8 +169,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x8f32d59b"
+    "type": "function"
   },
   {
     "constant": false,
@@ -195,8 +183,7 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0xf2fde38b"
+    "type": "function"
   },
   {
     "constant": true,
@@ -210,8 +197,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0xfc0c546a"
+    "type": "function"
   },
   {
     "inputs": [
@@ -222,8 +208,7 @@
     ],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "constructor",
-    "signature": "constructor"
+    "type": "constructor"
   },
   {
     "anonymous": false,
@@ -235,7 +220,7 @@
       },
       {
         "indexed": true,
-        "name": "hashedSid",
+        "name": "sidHash",
         "type": "bytes32"
       },
       {
@@ -245,15 +230,14 @@
       }
     ],
     "name": "ServiceCreated",
-    "type": "event",
-    "signature": "0x44fd77aaa8b0d2741545ee60eaf0a311cf89240e04c6e7e5021d26134a246849"
+    "type": "event"
   },
   {
     "anonymous": false,
     "inputs": [
       {
         "indexed": true,
-        "name": "hashedSid",
+        "name": "sidHash",
         "type": "bytes32"
       },
       {
@@ -268,15 +252,14 @@
       }
     ],
     "name": "ServiceOwnershipTransferred",
-    "type": "event",
-    "signature": "0x290c0cf26a546d6ef32f2ca926b6c56fbc9df7e22b896843e84d075a6f2531f0"
+    "type": "event"
   },
   {
     "anonymous": false,
     "inputs": [
       {
         "indexed": true,
-        "name": "hashedSid",
+        "name": "sidHash",
         "type": "bytes32"
       },
       {
@@ -296,15 +279,14 @@
       }
     ],
     "name": "ServiceVersionCreated",
-    "type": "event",
-    "signature": "0xcd905535da63ed7e0d85ba1f33eab3e4a1bdc08f9f8a30af069b0e5aaf116877"
+    "type": "event"
   },
   {
     "anonymous": false,
     "inputs": [
       {
         "indexed": true,
-        "name": "hashedSid",
+        "name": "sidHash",
         "type": "bytes32"
       },
       {
@@ -324,15 +306,14 @@
       }
     ],
     "name": "ServiceOfferCreated",
-    "type": "event",
-    "signature": "0x3d8c4a82eb02dde4e807a58228e54d55b4d289cc33ddd3b6077b7ad8e296112c"
+    "type": "event"
   },
   {
     "anonymous": false,
     "inputs": [
       {
         "indexed": true,
-        "name": "hashedSid",
+        "name": "sidHash",
         "type": "bytes32"
       },
       {
@@ -342,15 +323,14 @@
       }
     ],
     "name": "ServiceOfferDisabled",
-    "type": "event",
-    "signature": "0xf266e1b31e25266bc290b361ea73240a753e39e482b35a0babdae2c6db498a13"
+    "type": "event"
   },
   {
     "anonymous": false,
     "inputs": [
       {
         "indexed": true,
-        "name": "hashedSid",
+        "name": "sidHash",
         "type": "bytes32"
       },
       {
@@ -380,8 +360,7 @@
       }
     ],
     "name": "ServicePurchased",
-    "type": "event",
-    "signature": "0x5f631560e36d8a0a9b7fca2c9ecda6279e29ded6d6b3f6510721844257d87b78"
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -393,8 +372,7 @@
       }
     ],
     "name": "Paused",
-    "type": "event",
-    "signature": "0x62e78cea01bee320cd4e420270b5ea74000d11b0c9f74754ebdbfc544b05a258"
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -406,8 +384,7 @@
       }
     ],
     "name": "Unpaused",
-    "type": "event",
-    "signature": "0x5db9ee0a495bf2e6ff9c91a7834c1ba4fdd244a5e8aa4e537bd38aeae4b073aa"
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -419,8 +396,7 @@
       }
     ],
     "name": "PauserAdded",
-    "type": "event",
-    "signature": "0x6719d08c1888103bea251a4ed56406bd0c3e69723c8a1686e017e7bbe159b6f8"
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -432,8 +408,7 @@
       }
     ],
     "name": "PauserRemoved",
-    "type": "event",
-    "signature": "0xcd265ebaf09df2871cc7bd4133404a235ba12eff2041bb89d9c714a2621c7c7e"
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -450,8 +425,7 @@
       }
     ],
     "name": "OwnershipTransferred",
-    "type": "event",
-    "signature": "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0"
+    "type": "event"
   },
   {
     "constant": false,
@@ -465,14 +439,13 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0xdb1e5fe0"
+    "type": "function"
   },
   {
     "constant": false,
     "inputs": [
       {
-        "name": "hashedSid",
+        "name": "sidHash",
         "type": "bytes32"
       },
       {
@@ -484,14 +457,13 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x97b10e69"
+    "type": "function"
   },
   {
     "constant": false,
     "inputs": [
       {
-        "name": "hashedSid",
+        "name": "sidHash",
         "type": "bytes32"
       },
       {
@@ -511,14 +483,13 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0xe07e7f50"
+    "type": "function"
   },
   {
     "constant": false,
     "inputs": [
       {
-        "name": "hashedSid",
+        "name": "sidHash",
         "type": "bytes32"
       },
       {
@@ -539,14 +510,13 @@
     ],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0xa2a55a08"
+    "type": "function"
   },
   {
     "constant": false,
     "inputs": [
       {
-        "name": "hashedSid",
+        "name": "sidHash",
         "type": "bytes32"
       },
       {
@@ -558,14 +528,13 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0xbd3b4ae1"
+    "type": "function"
   },
   {
     "constant": false,
     "inputs": [
       {
-        "name": "hashedSid",
+        "name": "sidHash",
         "type": "bytes32"
       },
       {
@@ -577,8 +546,7 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0xe123182b"
+    "type": "function"
   },
   {
     "constant": true,
@@ -592,14 +560,13 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x9d9e2b25"
+    "type": "function"
   },
   {
     "constant": true,
     "inputs": [
       {
-        "name": "hashedSid",
+        "name": "sidHash",
         "type": "bytes32"
       }
     ],
@@ -612,14 +579,13 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0xb9a7eb44"
+    "type": "function"
   },
   {
     "constant": true,
     "inputs": [
       {
-        "name": "hashedSid",
+        "name": "sidHash",
         "type": "bytes32"
       },
       {
@@ -636,14 +602,13 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x18ca0c92"
+    "type": "function"
   },
   {
     "constant": true,
     "inputs": [
       {
-        "name": "hashedSid",
+        "name": "sidHash",
         "type": "bytes32"
       },
       {
@@ -664,14 +629,13 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0xd479ec55"
+    "type": "function"
   },
   {
     "constant": true,
     "inputs": [
       {
-        "name": "hashedSid",
+        "name": "sidHash",
         "type": "bytes32"
       }
     ],
@@ -684,14 +648,13 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x9cbce0f2"
+    "type": "function"
   },
   {
     "constant": true,
     "inputs": [
       {
-        "name": "hashedSid",
+        "name": "sidHash",
         "type": "bytes32"
       },
       {
@@ -716,14 +679,13 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0xa29aad70"
+    "type": "function"
   },
   {
     "constant": true,
     "inputs": [
       {
-        "name": "hashedSid",
+        "name": "sidHash",
         "type": "bytes32"
       }
     ],
@@ -736,14 +698,13 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0xfcf0b8ac"
+    "type": "function"
   },
   {
     "constant": true,
     "inputs": [
       {
-        "name": "hashedSid",
+        "name": "sidHash",
         "type": "bytes32"
       },
       {
@@ -760,14 +721,13 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x67fe40c4"
+    "type": "function"
   },
   {
     "constant": true,
     "inputs": [
       {
-        "name": "hashedSid",
+        "name": "sidHash",
         "type": "bytes32"
       },
       {
@@ -784,14 +744,13 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x7790e522"
+    "type": "function"
   },
   {
     "constant": true,
     "inputs": [
       {
-        "name": "hashedSid",
+        "name": "sidHash",
         "type": "bytes32"
       },
       {
@@ -808,7 +767,6 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x956db465"
+    "type": "function"
   }
 ]

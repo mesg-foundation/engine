@@ -16,17 +16,17 @@ const getAllServices = async (contract: Marketplace): Promise<Service[]> => {
 }
 
 const getService = async (contract: Marketplace, serviceIndex: BigNumber): Promise<Service> => {
-  const hashedSid = await contract.methods.servicesList(serviceIndex.toString()).call()
+  const sidHash = await contract.methods.servicesList(serviceIndex.toString()).call()
   const [ versions, offers, purchases ] = await Promise.all([
-    getServiceVersions(contract, hashedSid),
-    getServiceOffers(contract, hashedSid),
-    getServicePurchases(contract, hashedSid),
+    getServiceVersions(contract, sidHash),
+    getServiceOffers(contract, sidHash),
+    getServicePurchases(contract, sidHash),
   ])
-  const service = await contract.methods.services(hashedSid).call()
+  const service = await contract.methods.services(sidHash).call()
   return {
     owner: service.owner,
     sid: hexToAscii(service.sid),
-    hashedSid: hashedSid,
+    sidHash: sidHash,
     versions: versions,
     offers: offers,
     purchases: purchases,

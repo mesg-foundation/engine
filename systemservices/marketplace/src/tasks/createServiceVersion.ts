@@ -1,5 +1,6 @@
 import { TaskInputs, TaskOutputs } from "mesg-js/lib/service"
 import { Marketplace } from "../contracts/Marketplace"
+import { asciiToHex } from "../contracts/utils";
 
 export default (
   contract: Marketplace,
@@ -7,10 +8,10 @@ export default (
 ) => async (inputs: TaskInputs, outputs: TaskOutputs): Promise<void> => {
   try {
     const transactionData = contract.methods.createServiceVersion(
-      inputs.hashedSid,
+      inputs.sidHash,
       inputs.hash,
-      inputs.manifest,
-      inputs.manifestProtocol
+      asciiToHex(inputs.manifest),
+      asciiToHex(inputs.manifestProtocol)
     ).encodeABI()
     return outputs.success(await createTransaction(inputs, transactionData))
   }

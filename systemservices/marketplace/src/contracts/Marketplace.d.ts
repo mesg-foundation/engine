@@ -28,16 +28,16 @@ export class Marketplace {
     hashToService(arg0: string | number[]): TransactionObject<string>;
 
     servicesVersionsListLength(
-      hashedSid: string | number[]
+      sidHash: string | number[]
     ): TransactionObject<string>;
 
     servicesVersionsList(
-      hashedSid: string | number[],
+      sidHash: string | number[],
       versionIndex: number | string
     ): TransactionObject<string>;
 
     servicesVersion(
-      hashedSid: string | number[],
+      sidHash: string | number[],
       hash: string | number[]
     ): TransactionObject<{
       manifest: string;
@@ -47,11 +47,11 @@ export class Marketplace {
     }>;
 
     servicesOffersLength(
-      hashedSid: string | number[]
+      sidHash: string | number[]
     ): TransactionObject<string>;
 
     servicesOffer(
-      hashedSid: string | number[],
+      sidHash: string | number[],
       offerIndex: number | string
     ): TransactionObject<{
       price: string;
@@ -63,21 +63,21 @@ export class Marketplace {
     }>;
 
     servicesPurchasesListLength(
-      hashedSid: string | number[]
+      sidHash: string | number[]
     ): TransactionObject<string>;
 
     servicesPurchasesList(
-      hashedSid: string | number[],
+      sidHash: string | number[],
       purchaseIndex: number | string
     ): TransactionObject<string>;
 
     servicesPurchase(
-      hashedSid: string | number[],
+      sidHash: string | number[],
       purchaser: string
     ): TransactionObject<string>;
 
     isAuthorized(
-      hashedSid: string | number[],
+      sidHash: string | number[],
       purchaser: string
     ): TransactionObject<boolean>;
 
@@ -96,30 +96,30 @@ export class Marketplace {
     createService(sid: string | number[]): TransactionObject<void>;
 
     transferServiceOwnership(
-      hashedSid: string | number[],
+      sidHash: string | number[],
       newOwner: string
     ): TransactionObject<void>;
 
     createServiceVersion(
-      hashedSid: string | number[],
+      sidHash: string | number[],
       hash: string | number[],
       manifest: string | number[],
       manifestProtocol: string | number[]
     ): TransactionObject<void>;
 
     createServiceOffer(
-      hashedSid: string | number[],
+      sidHash: string | number[],
       price: number | string,
       duration: number | string
     ): TransactionObject<string>;
 
     disableServiceOffer(
-      hashedSid: string | number[],
+      sidHash: string | number[],
       offerIndex: number | string
     ): TransactionObject<void>;
 
     purchase(
-      hashedSid: string | number[],
+      sidHash: string | number[],
       offerIndex: number | string
     ): TransactionObject<void>;
 

@@ -7,7 +7,7 @@ export default (
 ) => async (inputs: TaskInputs, outputs: TaskOutputs): Promise<void> => {
   try {
     const transactionData = contract.methods.createServiceOffer(
-      inputs.hashedSid,
+      inputs.sidHash,
       inputs.price,
       inputs.duration
     ).encodeABI()
