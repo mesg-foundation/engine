@@ -43,6 +43,6 @@ func (c *walletCreateCmd) runE(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Printf("NOTE: remember to save passphrase\n\n")
-	fmt.Printf("%s Wallet created with address %s\n", pretty.SuccessSign, pretty.Success(address.String()))
+	fmt.Printf("%s Wallet created with address %s\n", pretty.SuccessSign, pretty.Success(address))
 	return nil
 }

@@ -3,7 +3,6 @@ package commands
 import (
 	"fmt"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/spf13/cobra"
 )
 
@@ -35,7 +34,6 @@ func (c *marketplacePublishCmd) preRunE(cmd *cobra.Command, args []string) error
 
 func (c *marketplacePublishCmd) runE(cmd *cobra.Command, args []string) error {
 	from := "0xf3C21FD07B1D4c40d3cE6EfaC81a3E49f6c04592"
-	from2 := common.HexToAddress(from)
 	passphrase := "1"
 
 	tx, err := c.e.CreateService("test1", from)
@@ -44,7 +42,7 @@ func (c *marketplacePublishCmd) runE(cmd *cobra.Command, args []string) error {
 	}
 	fmt.Println("tx", tx)
 
-	signedTransaction, err := c.e.Sign(from2, passphrase, tx)
+	signedTransaction, err := c.e.Sign(from, passphrase, tx)
 	if err != nil {
 		return err
 	}

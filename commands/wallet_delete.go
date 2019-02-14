@@ -3,7 +3,6 @@ package commands
 import (
 	"fmt"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/spf13/cobra"
 )
@@ -11,7 +10,7 @@ import (
 type walletDeleteCmd struct {
 	baseWalletCmd
 
-	address common.Address
+	address string
 
 	e WalletExecutor
 }
@@ -37,10 +36,7 @@ func (c *walletDeleteCmd) preRunE(cmd *cobra.Command, args []string) error {
 			return err
 		}
 	}
-	if !common.IsHexAddress(args[0]) {
-		return errInvalidAddress
-	}
-	c.address = common.HexToAddress(args[0])
+	c.address = args[0]
 	return nil
 }
 
@@ -49,6 +45,6 @@ func (c *walletDeleteCmd) runE(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%s Wallet %s deleted\n", pretty.SuccessSign, address.String())
+	fmt.Printf("%s Wallet %s deleted\n", pretty.SuccessSign, address)
 	return nil
 }

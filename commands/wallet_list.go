@@ -35,7 +35,7 @@ func (c *walletListCmd) runE(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 	for _, address := range addresses {
-		fmt.Printf("Address: %s\n", address.String())
+		fmt.Printf("Address: %s\n", address)
 	}
 	return nil
 }

@@ -4,14 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/spf13/cobra"
 )
 
 type walletExportCmd struct {
 	baseWalletCmd
 
-	address common.Address
+	address string
 
 	e WalletExecutor
 }
@@ -37,10 +36,7 @@ func (c *walletExportCmd) preRunE(cmd *cobra.Command, args []string) error {
 			return err
 		}
 	}
-	if !common.IsHexAddress(args[0]) {
-		return errInvalidAddress
-	}
-	c.address = common.HexToAddress(args[0])
+	c.address = args[0]
 	return nil
 }
 

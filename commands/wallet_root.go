@@ -1,12 +1,8 @@
 package commands
 
 import (
-	"errors"
-
 	"github.com/spf13/cobra"
 )
-
-var errInvalidAddress = errors.New("invalid wallet address")
 
 type rootWalletCmd struct {
 	baseCmd

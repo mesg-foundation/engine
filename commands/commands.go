@@ -4,7 +4,6 @@ import (
 	"io"
 	"io/ioutil"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
@@ -54,13 +53,13 @@ type MarketplaceExecutor interface {
 
 // WalletExecutor is an interface that handles wallet commands.
 type WalletExecutor interface {
-	List() ([]common.Address, error)
-	Create(passphrase string) (common.Address, error)
-	Delete(address common.Address, passphrase string) (common.Address, error)
-	Export(address common.Address, passphrase string) (provider.EncryptedKeyJSONV3, error)
-	Import(account provider.EncryptedKeyJSONV3, passphrase string) (common.Address, error)
-	ImportFromPrivateKey(privateKey string, passphrase string) (common.Address, error)
-	Sign(address common.Address, passphrase string, transaction *provider.Transaction) (string, error)
+	List() ([]string, error)
+	Create(passphrase string) (string, error)
+	Delete(address string, passphrase string) (string, error)
+	Export(address string, passphrase string) (provider.EncryptedKeyJSONV3, error)
+	Import(account provider.EncryptedKeyJSONV3, passphrase string) (string, error)
+	ImportFromPrivateKey(privateKey string, passphrase string) (string, error)
+	Sign(address string, passphrase string, transaction *provider.Transaction) (string, error)
 }
 
 // Executor is an interface that keeps all commands interfaces.

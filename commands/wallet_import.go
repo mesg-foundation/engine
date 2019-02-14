@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/mesg-foundation/core/x/xjson"
@@ -74,7 +73,7 @@ func (c *walletImportCmd) preRunE(cmd *cobra.Command, args []string) error {
 
 func (c *walletImportCmd) runE(cmd *cobra.Command, args []string) error {
 	var (
-		address common.Address
+		address string
 		err     error
 	)
 	if c.privateKey != "" {
@@ -85,6 +84,6 @@ func (c *walletImportCmd) runE(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%s Wallet imported with address %s\n", pretty.SuccessSign, address.String())
+	fmt.Printf("%s Wallet imported with address %s\n", pretty.SuccessSign, address)
 	return nil
 }
