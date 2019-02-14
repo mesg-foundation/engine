@@ -164,10 +164,7 @@ tasks:
     name: ""
     description: ""
     inputs:
-      sidHash: &inputSidHash
-        name: ""
-        description: ""
-        type: String
+      sid: *inputSid
       price:
         name: ""
         description: ""
@@ -186,7 +183,7 @@ tasks:
     name: ""
     description: ""
     inputs:
-      sidHash: *inputSidHash
+      sid: *inputSid
       hash:
         name: ""
         description: ""
@@ -209,7 +206,7 @@ tasks:
     name: ""
     description: ""
     inputs:
-      sidHash: *inputSidHash
+      sid: *inputSid
       offerIndex:
         name: ""
         description: ""
@@ -224,7 +221,7 @@ tasks:
     name: ""
     description: ""
     inputs:
-      sidHash: *inputSidHash
+      sid: *inputSid
       offerIndex:
         name: ""
         description: ""
@@ -239,7 +236,7 @@ tasks:
     name: ""
     description: ""
     inputs:
-      sidHash: *inputSidHash
+      sid: *inputSid
       newOwner:
         name: ""
         description: ""
@@ -268,7 +265,7 @@ tasks:
     name: ""
     description: ""
     inputs:
-      sidHash: *inputSidHash
+      sid: *inputSid
       from: *inputFrom
     outputs:
       error: *outputError
