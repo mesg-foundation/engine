@@ -81,6 +81,7 @@ func (p *ServiceProvider) ServiceDelete(deleteData bool, ids ...string) error {
 	return errs.ErrorOrNil()
 }
 
+// TODO: this function should be removed in favor of client.ListenEvents
 // ServiceListenEvents returns a channel with event data streaming..
 func (p *ServiceProvider) ServiceListenEvents(id, eventFilter string) (chan *coreapi.EventData, chan error, error) {
 	stream, err := p.client.ListenEvent(context.Background(), &coreapi.ListenEventRequest{
@@ -116,6 +117,7 @@ func (p *ServiceProvider) ServiceListenEvents(id, eventFilter string) (chan *cor
 	return resultC, errC, nil
 }
 
+// TODO: this function should be removed in favor of client.ListenResults
 // ServiceListenResults returns a channel with event results streaming..
 func (p *ServiceProvider) ServiceListenResults(id, taskFilter, outputFilter string, tagFilters []string) (chan *coreapi.ResultData, chan error, error) {
 	stream, err := p.client.ListenResult(context.Background(), &coreapi.ListenResultRequest{
@@ -243,6 +245,7 @@ func (p *ServiceProvider) listenServiceLogs(stream coreapi.Core_ServiceLogsClien
 	}
 }
 
+// TODO: this function should be removed in favor of client.ExecuteTask
 // ServiceExecuteTask executes task on given service.
 func (p *ServiceProvider) ServiceExecuteTask(id, taskKey, inputData string, tags []string) error {
 	_, err := p.client.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{

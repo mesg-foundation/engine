@@ -106,6 +106,7 @@ func (c *client) ExecuteAndListen(id, taskKey string, inputData interface{}) (*c
 		return nil, err
 	}
 
+	// TODO: the following ListenResult should be destroy after result is received
 	tags := []string{uuid.NewV4().String()}
 	resultC, errC, err := c.ListenResult(id, taskKey, "", tags)
 	if err != nil {

@@ -35,9 +35,11 @@ func newWalletCreateCmd(e WalletExecutor) *walletCreateCmd {
 
 func (c *walletCreateCmd) preRunE(cmd *cobra.Command, args []string) error {
 	if !c.noPassphrase && c.passphrase == "" {
-		return survey.AskOne(&survey.Password{
-			Message: "Enther passphrase",
-		}, &c.passphrase, survey.MinLength(1))
+		if err := survey.AskOne(&survey.Password{
+			Message: "Enter passphrase",
+		}, &c.passphrase, survey.MinLength(1)); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -49,6 +51,6 @@ func (c *walletCreateCmd) runE(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Printf("NOTE: remember to save passphrase\n\n")
-	fmt.Printf("%s Wallet created with address %s", pretty.SuccessSign, pretty.Success(address.String()))
+	fmt.Printf("%s Wallet created with address %s\n", pretty.SuccessSign, pretty.Success(address.String()))
 	return nil
 }

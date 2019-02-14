@@ -2,7 +2,7 @@ package provider
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
@@ -23,8 +23,13 @@ func (p *WalletProvider) List() ([]common.Address, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	if r.OutputKey == "error" {
-		return nil, fmt.Errorf("servcie %s task %s return error: %s", walletServiceID, r.TaskKey, r.OutputData)
+		var output ErrorOutput
+		if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
+			return nil, err
+		}
+		return nil, errors.New(output.Message)
 	}
 
 	var output ethwalletListOutputSuccess
@@ -41,8 +46,13 @@ func (p *WalletProvider) Create(passphrase string) (common.Address, error) {
 	if err != nil {
 		return common.Address{}, err
 	}
+
 	if r.OutputKey == "error" {
-		return common.Address{}, fmt.Errorf("servcie %s task %s return error: %s", walletServiceID, r.TaskKey, r.OutputData)
+		var output ErrorOutput
+		if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
+			return common.Address{}, err
+		}
+		return common.Address{}, errors.New(output.Message)
 	}
 
 	var output ethwalletCreateOutputSuccess
@@ -60,8 +70,13 @@ func (p *WalletProvider) Delete(address common.Address, passphrase string) (comm
 	if err != nil {
 		return common.Address{}, err
 	}
+
 	if r.OutputKey == "error" {
-		return common.Address{}, fmt.Errorf("servcie %s task %s return error: %s", walletServiceID, r.TaskKey, r.OutputData)
+		var output ErrorOutput
+		if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
+			return common.Address{}, err
+		}
+		return common.Address{}, errors.New(output.Message)
 	}
 
 	var output ethwalletDeleteOutputSuccess
@@ -72,34 +87,68 @@ func (p *WalletProvider) Delete(address common.Address, passphrase string) (comm
 }
 
 func (p *WalletProvider) Export(address common.Address, passphrase string) (EncryptedKeyJSONV3, error) {
-	r, err := p.client.ExecuteAndListen(walletServiceID, "delete", ethwalletExportInputs{
+	var output EncryptedKeyJSONV3
+	r, err := p.client.ExecuteAndListen(walletServiceID, "export", ethwalletExportInputs{
 		Address:    address,
 		Passphrase: passphrase,
 	})
 	if err != nil {
-		return EncryptedKeyJSONV3{}, err
-	}
-	if r.OutputKey == "error" {
-		return EncryptedKeyJSONV3{}, fmt.Errorf("servcie %s task %s return error: %s", walletServiceID, r.TaskKey, r.OutputData)
+		return output, err
 	}
 
-	var output EncryptedKeyJSONV3
+	if r.OutputKey == "error" {
+		var outputData ErrorOutput
+		if err := json.Unmarshal([]byte(r.OutputData), &outputData); err != nil {
+			return output, err
+		}
+		return output, errors.New(outputData.Message)
+	}
+
 	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
-		return EncryptedKeyJSONV3{}, err
+		return output, err
 	}
 	return output, nil
 }
 
-func (p *WalletProvider) Import(address common.Address, passphrase string, account EncryptedKeyJSONV3) (common.Address, error) {
-	r, err := p.client.ExecuteAndListen(walletServiceID, "sign", &ethwalletImportInputs{
+func (p *WalletProvider) Import(account EncryptedKeyJSONV3, passphrase string) (common.Address, error) {
+	r, err := p.client.ExecuteAndListen(walletServiceID, "import", &ethwalletImportInputs{
 		Account:    account,
 		Passphrase: passphrase,
 	})
 	if err != nil {
 		return common.Address{}, err
 	}
+
 	if r.OutputKey == "error" {
-		return common.Address{}, fmt.Errorf("servcie %s task %s return error: %s", walletServiceID, r.TaskKey, r.OutputData)
+		var output ErrorOutput
+		if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
+			return common.Address{}, err
+		}
+		return common.Address{}, errors.New(output.Message)
+	}
+
+	var output ethwalletImportOutputSuccess
+	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
+		return common.Address{}, err
+	}
+	return output.Address, nil
+}
+
+func (p *WalletProvider) ImportFromPrivateKey(privateKey string, passphrase string) (common.Address, error) {
+	r, err := p.client.ExecuteAndListen(walletServiceID, "importFromPrivateKey", &ethwalletImportFromPrivateKeyInputs{
+		PrivateKey: privateKey,
+		Passphrase: passphrase,
+	})
+	if err != nil {
+		return common.Address{}, err
+	}
+
+	if r.OutputKey == "error" {
+		var output ErrorOutput
+		if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
+			return common.Address{}, err
+		}
+		return common.Address{}, errors.New(output.Message)
 	}
 
 	var output ethwalletImportOutputSuccess
@@ -118,8 +167,13 @@ func (p *WalletProvider) Sign(address common.Address, passphrase string, transac
 	if err != nil {
 		return "", err
 	}
+
 	if r.OutputKey == "error" {
-		return "", fmt.Errorf("servcie %s task %s return error: %s", walletServiceID, r.TaskKey, r.OutputData)
+		var output ErrorOutput
+		if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
+			return "", err
+		}
+		return "", errors.New(output.Message)
 	}
 
 	var output ethwalletSignOutputSuccess

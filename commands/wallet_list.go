@@ -30,8 +30,12 @@ func (c *walletListCmd) runE(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	if len(addresses) == 0 {
+		fmt.Println("No account")
+		return nil
+	}
 	for _, address := range addresses {
-		fmt.Println(address)
+		fmt.Printf("Address: %s\n", address.String())
 	}
 	return nil
 }

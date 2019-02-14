@@ -39,6 +39,11 @@ type ethwalletImportInputs struct {
 	Passphrase string             `json:"passphrase"`
 }
 
+type ethwalletImportFromPrivateKeyInputs struct {
+	PrivateKey string `json:"privateKey"`
+	Passphrase string `json:"passphrase"`
+}
+
 type ethwalletImportOutputSuccess struct {
 	Address common.Address `json:"address"`
 }

@@ -38,9 +38,11 @@ func newWalletDeleteCmd(e WalletExecutor) *walletDeleteCmd {
 
 func (c *walletDeleteCmd) preRunE(cmd *cobra.Command, args []string) error {
 	if !c.noPassphrase && c.passphrase == "" {
-		return survey.AskOne(&survey.Password{
-			Message: "Enther passphrase",
-		}, &c.passphrase, survey.MinLength(1))
+		if err := survey.AskOne(&survey.Password{
+			Message: "Enter passphrase",
+		}, &c.passphrase, survey.MinLength(1)); err != nil {
+			return err
+		}
 	}
 	if !common.IsHexAddress(args[0]) {
 		return errInvalidAddress
@@ -54,6 +56,6 @@ func (c *walletDeleteCmd) runE(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%s Wallet deleted %s", pretty.SuccessSign, address)
+	fmt.Printf("%s Wallet %s deleted\n", pretty.SuccessSign, address.String())
 	return nil
 }

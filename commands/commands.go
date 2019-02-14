@@ -58,7 +58,8 @@ type WalletExecutor interface {
 	Create(passphrase string) (common.Address, error)
 	Delete(address common.Address, passphrase string) (common.Address, error)
 	Export(address common.Address, passphrase string) (provider.EncryptedKeyJSONV3, error)
-	Import(address common.Address, passphrase string, account provider.EncryptedKeyJSONV3) (common.Address, error)
+	Import(account provider.EncryptedKeyJSONV3, passphrase string) (common.Address, error)
+	ImportFromPrivateKey(privateKey string, passphrase string) (common.Address, error)
 	Sign(address common.Address, passphrase string, transaction *provider.Transaction) (string, error)
 }
 

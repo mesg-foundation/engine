@@ -3,7 +3,7 @@ package provider
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
+	"errors"
 
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/ipfs"
@@ -33,9 +33,15 @@ func (p *MarketplaceProvider) CreateService(sid, from string) (*Transaction, err
 	if err != nil {
 		return nil, err
 	}
+
 	if r.OutputKey == "error" {
-		return nil, fmt.Errorf("servcie %s task %s return error: %s", MarketplaceServiceID, r.TaskKey, r.OutputData)
+		var output ErrorOutput
+		if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
+			return nil, err
+		}
+		return nil, errors.New(output.Message)
 	}
+
 	var output Transaction
 	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
 		return nil, err
@@ -55,9 +61,15 @@ func (p *MarketplaceProvider) CreateServiceVersion(sidHash, hash, manifest, mani
 	if err != nil {
 		return nil, err
 	}
+
 	if r.OutputKey == "error" {
-		return nil, fmt.Errorf("servcie %s task %s return error: %s", MarketplaceServiceID, r.TaskKey, r.OutputData)
+		var output ErrorOutput
+		if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
+			return nil, err
+		}
+		return nil, errors.New(output.Message)
 	}
+
 	var output Transaction
 	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
 		return nil, err
@@ -76,9 +88,15 @@ func (p *MarketplaceProvider) CreateServiceOffer(sidHash, price, duration, from 
 	if err != nil {
 		return nil, err
 	}
+
 	if r.OutputKey == "error" {
-		return nil, fmt.Errorf("servcie %s task %s return error: %s", MarketplaceServiceID, r.TaskKey, r.OutputData)
+		var output ErrorOutput
+		if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
+			return nil, err
+		}
+		return nil, errors.New(output.Message)
 	}
+
 	var output Transaction
 	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
 		return nil, err
@@ -96,9 +114,15 @@ func (p *MarketplaceProvider) DisableServiceOffer(sidHash, offerIndex, from stri
 	if err != nil {
 		return nil, err
 	}
+
 	if r.OutputKey == "error" {
-		return nil, fmt.Errorf("servcie %s task %s return error: %s", MarketplaceServiceID, r.TaskKey, r.OutputData)
+		var output ErrorOutput
+		if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
+			return nil, err
+		}
+		return nil, errors.New(output.Message)
 	}
+
 	var output Transaction
 	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
 		return nil, err
@@ -116,9 +140,15 @@ func (p *MarketplaceProvider) Purchase(sidHash, offerIndex, from string) (*Trans
 	if err != nil {
 		return nil, err
 	}
+
 	if r.OutputKey == "error" {
-		return nil, fmt.Errorf("servcie %s task %s return error: %s", MarketplaceServiceID, r.TaskKey, r.OutputData)
+		var output ErrorOutput
+		if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
+			return nil, err
+		}
+		return nil, errors.New(output.Message)
 	}
+
 	var output Transaction
 	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
 		return nil, err
@@ -136,9 +166,15 @@ func (p *MarketplaceProvider) TransferServiceOwnership(sidHash, newOwner, from s
 	if err != nil {
 		return nil, err
 	}
+
 	if r.OutputKey == "error" {
-		return nil, fmt.Errorf("servcie %s task %s return error: %s", MarketplaceServiceID, r.TaskKey, r.OutputData)
+		var output ErrorOutput
+		if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
+			return nil, err
+		}
+		return nil, errors.New(output.Message)
 	}
+
 	var output Transaction
 	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
 		return nil, err
@@ -154,9 +190,15 @@ func (p *MarketplaceProvider) SendSignedTransaction(signedTransaction string) (*
 	if err != nil {
 		return nil, err
 	}
+
 	if r.OutputKey == "error" {
-		return nil, fmt.Errorf("servcie %s task %s return error: %s", MarketplaceServiceID, r.TaskKey, r.OutputData)
+		var output ErrorOutput
+		if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
+			return nil, err
+		}
+		return nil, errors.New(output.Message)
 	}
+
 	var output SendSignedTransactionTaskSuccessOutput
 	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
 		return nil, err
@@ -172,9 +214,15 @@ func (p *MarketplaceProvider) IsAuthorized(sidHash string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+
 	if r.OutputKey == "error" {
-		return false, fmt.Errorf("servcie %s task %s return error: %s", MarketplaceServiceID, r.TaskKey, r.OutputData)
+		var output ErrorOutput
+		if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
+			return false, err
+		}
+		return false, errors.New(output.Message)
 	}
+
 	var output IsAuthorizedTaskSuccessOutput
 	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
 		return false, err
