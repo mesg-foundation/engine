@@ -13,12 +13,12 @@ import (
 // client is a wrapper for core client that
 // sets up stream connection and provides more frienldy api.
 type client struct {
-	client coreapi.CoreClient
+	coreapi.CoreClient
 }
 
 // ListenEvents returns a channel with event data streaming.
 func (c *client) ListenEvents(id, eventFilter string) (chan *coreapi.EventData, chan error, error) {
-	stream, err := c.client.ListenEvent(context.Background(), &coreapi.ListenEventRequest{
+	stream, err := c.ListenEvent(context.Background(), &coreapi.ListenEventRequest{
 		ServiceID:   id,
 		EventFilter: eventFilter,
 	})
@@ -56,7 +56,7 @@ func (c *client) ListenResult(id, taskFilter, outputFilter string, tagFilters []
 	resultC := make(chan *coreapi.ResultData)
 	errC := make(chan error)
 
-	stream, err := c.client.ListenResult(context.Background(), &coreapi.ListenResultRequest{
+	stream, err := c.CoreClient.ListenResult(context.Background(), &coreapi.ListenResultRequest{
 		ServiceID:    id,
 		TaskFilter:   taskFilter,
 		OutputFilter: outputFilter,
@@ -90,7 +90,7 @@ func (c *client) ListenResult(id, taskFilter, outputFilter string, tagFilters []
 
 // ExecuteTask executes task on given service.
 func (c *client) ExecuteTask(id, taskKey, inputData string, tags []string) error {
-	_, err := c.client.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
+	_, err := c.CoreClient.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
 		ServiceID:     id,
 		TaskKey:       taskKey,
 		InputData:     inputData,
@@ -113,7 +113,7 @@ func (c *client) ExecuteAndListen(id, taskKey string, inputData interface{}) (*c
 		return nil, err
 	}
 
-	if _, err := c.client.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
+	if _, err := c.CoreClient.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
 		ServiceID:     id,
 		TaskKey:       taskKey,
 		InputData:     string(data),
