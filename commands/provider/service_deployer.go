@@ -5,11 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/docker/cli/cli/command/image/build"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
+	"github.com/mesg-foundation/core/service"
 )
 
 // StatusType indicates the type of status message.
@@ -57,7 +59,12 @@ func (p *ServiceProvider) ServiceDeploy(path string, env map[string]string, stat
 	go readDeployReply(stream, deployment, statuses)
 
 	if govalidator.IsURL(path) {
-		if err := stream.Send(&coreapi.DeployServiceRequest{
+		// deploy from marketplace
+		if strings.HasPrefix(path, "mesg:") {
+			if err := p.deployServiceFromMarketplace(path, env, stream); err != nil {
+				return "", nil, err
+			}
+		} else if err := stream.Send(&coreapi.DeployServiceRequest{
 			Value: &coreapi.DeployServiceRequest_Url{Url: path},
 			Env:   env,
 		}); err != nil {
@@ -76,6 +83,60 @@ func (p *ServiceProvider) ServiceDeploy(path string, env map[string]string, stat
 	result := <-deployment
 	close(statuses)
 	return result.serviceID, result.validationError, result.err
+}
+
+func (p *ServiceProvider) deployServiceFromMarketplace(u string, env map[string]string, stream coreapi.Core_DeployServiceClient) error {
+	s := strings.Split(u, ":")
+	if len(s) != 4 || s[1] != "marketplace" || service.IsValidSid(s[2]) {
+		return fmt.Errorf("marketplace url %s invalid", u)
+	}
+
+	// TODO:
+	// - get metadata from marketspace (need to create task for this)
+	// - if http, pass url to deploy
+
+	// sid, hash := s[2], s[3]
+	// metadata, protocol, err := p.client.ExecuteAndListen("marketpalce", "getMetadata", sid, hash)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// 	if protocol == "https" {
+	// 		return stream.Send(&coreapi.DeployServiceRequest{
+	// 			Value: &coreapi.DeployServiceRequest_Url{Url: metadata},
+	// 			Env:   env,
+	// 		})
+	// 	}
+	// 	if protocol == "ipfs" {
+	// 		tarball, err := ipfs.Get(metadata)
+	// 		if err != nil {
+	// 			return err
+	// 		}
+	// 		if len(env) > 0 {
+	// 			if err := stream.Send(&coreapi.DeployServiceRequest{Env: env}); err != nil {
+	// 				return err
+	// 			}
+	// 		}
+
+	// 		buf := make([]byte, 1024)
+	// 		for {
+	// 			n, err := tarball.Read(buf)
+	// 			if err == io.EOF {
+	// 				break
+	// 			}
+	// 			if err != nil {
+	// 				return err
+	// 			}
+
+	// 			if err := stream.Send(&coreapi.DeployServiceRequest{
+	// 				Value: &coreapi.DeployServiceRequest_Chunk{Chunk: buf[:n]},
+	// 			}); err != nil {
+	// 				return err
+	// 			}
+	// 		}
+	// 	}
+	// return fmt.Errorf("unknown protocol %s", protocol)
+	return nil
 }
 
 func deployServiceSendServiceContext(path string, env map[string]string, stream coreapi.Core_DeployServiceClient) error {
