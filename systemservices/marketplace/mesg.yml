@@ -1,0 +1,336 @@
+name: Marketplace
+sid: marketplace
+description: ""
+configuration:
+  env:
+    - PROVIDER_ENDPOINT=https://ropsten.infura.io
+    - BLOCK_CONFIRMATIONS=1
+    - DEFAULT_GAS=1000000
+    - POLLING_TIME=1000
+    - MARKETPLACE_ADDRESS=0x2dcE54135A3b016E750BF2A3e2A88bF1898d4ad0
+tasks:
+  listServices:
+    name: ""
+    description: ""
+    inputs:
+    outputs:
+      success:
+        name: ""
+        description: ""
+        data:
+          services: &services
+            name: ""
+            description: ""
+            type: Object
+            repeated: true
+            object: &service
+              sid: &sid
+                name: ""
+                description: ""
+                type: String
+              sidHash: &sidHash
+                name: ""
+                description: ""
+                type: String
+              owner: &owner
+                name: ""
+                description: ""
+                type: String
+              versions: &versions
+                name: ""
+                description: ""
+                type: Object
+                repeated: true
+                optional: true
+                object: &version
+                  hash: &hash
+                    name: ""
+                    description: ""
+                    type: String
+                  manifestSource: &manifestSource
+                    name: ""
+                    description: ""
+                    type: String
+                  manifestProtocol: &manifestProtocol
+                    name: ""
+                    description: ""
+                    type: String
+                  manifest:
+                    name: ""
+                    description: ""
+                    type: Object
+                    optional: true
+              offers: &offers
+                name: ""
+                description: ""
+                type: Object
+                repeated: true
+                optional: true
+                object: &offer
+                  index: &offerIndex
+                    name: ""
+                    description: ""
+                    type: String
+                  price: &price
+                    name: ""
+                    description: ""
+                    type: String
+                  duration: &duration
+                    name: ""
+                    description: ""
+                    type: String
+                  active:
+                    name: ""
+                    description: ""
+                    type: Boolean
+              purchases: &purchases
+                name: ""
+                description: ""
+                type: Object
+                repeated: true
+                optional: true
+                object: &purchase
+                  purchaser: &purchaser
+                    name: ""
+                    description: ""
+                    type: String
+                  expire: &expire
+                    name: ""
+                    description: ""
+                    type: String
+      error: &outputError
+        name: "Error"
+        description: "Output when an error occurs"
+        data:
+          message:
+            name: "Message"
+            description: "The error message"
+            type: String
+  createService:
+    name: ""
+    description: ""
+    inputs:
+      sid: &inputSid
+        name: ""
+        description: ""
+        type: String
+      from: &inputFrom
+        name: ""
+        description: ""
+        type: String
+      gas: &inputGas
+        name: ""
+        description: ""
+        type: Number
+        optional: true
+      gasPrice: &inputGasPrice
+        name: ""
+        description: ""
+        type: String
+        optional: true
+    outputs:
+      error: *outputError
+      success: &outputTransaction
+        data:
+          chainID:
+            name: "Chain ID"
+            description: "The ID of the chain the transaction is for. See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md#list-of-chain-ids."
+            type: Number
+          nonce:
+            name: "Nonce"
+            description: "Nonce to use."
+            type: Number
+          to:
+            name: "To"
+            description: "The to address."
+            type: String
+          value:
+            name: "Value"
+            description: "The value in Wei."
+            type: String
+          gas:
+            name: "Gas"
+            description: "The maximum gas to use to execute this transaction"
+            type: Number
+          gasPrice:
+            name: "Gas price"
+            description: "The gas price in Wei."
+            type: String
+          data:
+            name: "Data"
+            description: "The data of the transaction."
+            type: String
+  createServiceOffer:
+    name: ""
+    description: ""
+    inputs:
+      sidHash: &inputSidHash
+        name: ""
+        description: ""
+        type: String
+      price:
+        name: ""
+        description: ""
+        type: String
+      duration:
+        name: ""
+        description: ""
+        type: String
+      from: *inputFrom
+      gas: *inputGas
+      gasPrice: *inputGasPrice
+    outputs:
+      error: *outputError
+      success: *outputTransaction
+  createServiceVersion:
+    name: ""
+    description: ""
+    inputs:
+      sidHash: *inputSidHash
+      hash:
+        name: ""
+        description: ""
+        type: String
+      manifest:
+        name: ""
+        description: ""
+        type: String
+      manifestProtocol:
+        name: ""
+        description: ""
+        type: String
+      from: *inputFrom
+      gas: *inputGas
+      gasPrice: *inputGasPrice
+    outputs:
+      error: *outputError
+      success: *outputTransaction
+  disableServiceOffer:
+    name: ""
+    description: ""
+    inputs:
+      sidHash: *inputSidHash
+      offerIndex:
+        name: ""
+        description: ""
+        type: String
+      from: *inputFrom
+      gas: *inputGas
+      gasPrice: *inputGasPrice
+    outputs:
+      error: *outputError
+      success: *outputTransaction
+  purchase:
+    name: ""
+    description: ""
+    inputs:
+      sidHash: *inputSidHash
+      offerIndex:
+        name: ""
+        description: ""
+        type: String
+      from: *inputFrom
+      gas: *inputGas
+      gasPrice: *inputGasPrice
+    outputs:
+      error: *outputError
+      success: *outputTransaction
+  transferServiceOwnership:
+    name: ""
+    description: ""
+    inputs:
+      sidHash: *inputSidHash
+      newOwner:
+        name: ""
+        description: ""
+        type: String
+      from: *inputFrom
+      gas: *inputGas
+      gasPrice: *inputGasPrice
+    outputs:
+      error: *outputError
+      success: *outputTransaction
+  sendSignedTransaction:
+    name: ""
+    description: ""
+    inputs:
+      signedTransaction:
+        name: ""
+        description: ""
+        type: String
+    outputs:
+      error: *outputError
+      success:
+        data:
+          receipt:
+            type: Object
+  isAuthorized:
+    name: ""
+    description: ""
+    inputs:
+      sidHash: *inputSidHash
+      from: *inputFrom
+    outputs:
+      error: *outputError
+      success:
+        name: ""
+        description: ""
+        data:
+          authorized:
+            name: ""
+            description: ""
+            type: Boolean
+events:
+  serviceCreated:
+    name: ""
+    description: ""
+    data:
+      sid: *sid
+      sidHash: *sidHash
+      owner: *owner
+  serviceOwnershipTransferred:
+    name: ""
+    description: ""
+    data:
+      sidHash: *sidHash
+      previousOwner:
+        name: ""
+        description: ""
+        type: String
+      newOwner:
+        name: ""
+        description: ""
+        type: String
+  serviceVersionCreated:
+    name: ""
+    description: ""
+    data:
+      sidHash: *sidHash
+      hash: *hash
+      manifest: *manifestSource
+      manifestProtocol: *manifestProtocol
+  serviceOfferCreated:
+    name: ""
+    description: ""
+    data:
+      sidHash: *sidHash
+      offerIndex: *offerIndex
+      price: *price
+      duration: *duration
+  serviceOfferDisabled:
+    name: ""
+    description: ""
+    data:
+      sidHash: *sidHash
+      offerIndex: *offerIndex
+  servicePurchased:
+    name: ""
+    description: ""
+    data:
+      sidHash: *sidHash
+      offerIndex: *offerIndex
+      purchaser: *purchaser
+      price: *price
+      duration: *duration
+      expire: *expire
+      

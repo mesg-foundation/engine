@@ -67,6 +67,7 @@ type WalletExecutor interface {
 type Executor interface {
 	RootExecutor
 	ServiceExecutor
+	MarketplaceExecutor
 	WalletExecutor
 }
 

@@ -7,6 +7,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+// TODO: to use or to delete!
 // ExecuteAndListen executes given task and listen for result.
 func (a *API) ExecuteAndListen(serviceID, task string, inputs map[string]interface{}) (*execution.Execution, error) {
 	tag := uuid.NewV4().String()
