@@ -9,7 +9,6 @@ import (
 	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/mesg-foundation/core/x/xjson"
 	"github.com/spf13/cobra"
-	survey "gopkg.in/AlecAivazis/survey.v1"
 )
 
 type walletImportCmd struct {
@@ -42,20 +41,16 @@ func newWalletImportCmd(e WalletExecutor) *walletImportCmd {
 
 func (c *walletImportCmd) preRunE(cmd *cobra.Command, args []string) error {
 	if c.jsonFile == "" && c.privateKey == "" {
-		survey.AskOne(&survey.Select{
-			Message: "How to import the account:",
-			Options: []string{"JSON file", "private key"},
-		}, &c.importType, nil)
+		var options = []string{"json file", "private key"}
+		if err := askSelect("How to import the account:", options, &c.importType); err != nil {
+			return err
+		}
 		if c.importType == "private key" {
-			if err := survey.AskOne(&survey.Password{
-				Message: "Enter the private key to import",
-			}, &c.privateKey, survey.MinLength(1)); err != nil {
+			if err := askPass("Enter the private key to import", &c.privateKey); err != nil {
 				return err
 			}
 		} else {
-			if err := survey.AskOne(&survey.Input{
-				Message: "Enter the path to the JSON file to import",
-			}, &c.jsonFile, survey.MinLength(1)); err != nil {
+			if err := askInput("Enter the path to the json file to import", &c.jsonFile); err != nil {
 				return err
 			}
 		}
@@ -70,9 +65,7 @@ func (c *walletImportCmd) preRunE(cmd *cobra.Command, args []string) error {
 		}
 	}
 	if !c.noPassphrase && c.passphrase == "" {
-		if err := survey.AskOne(&survey.Password{
-			Message: "Enter passphrase",
-		}, &c.passphrase, survey.MinLength(1)); err != nil {
+		if err := askPass("Enter passphrase", &c.passphrase); err != nil {
 			return err
 		}
 	}

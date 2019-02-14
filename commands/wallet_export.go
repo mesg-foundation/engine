@@ -6,7 +6,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/spf13/cobra"
-	survey "gopkg.in/AlecAivazis/survey.v1"
 )
 
 type walletExportCmd struct {
@@ -34,9 +33,7 @@ func newWalletExportCmd(e WalletExecutor) *walletExportCmd {
 
 func (c *walletExportCmd) preRunE(cmd *cobra.Command, args []string) error {
 	if !c.noPassphrase && c.passphrase == "" {
-		if err := survey.AskOne(&survey.Password{
-			Message: "Enter passphrase",
-		}, &c.passphrase, survey.MinLength(1)); err != nil {
+		if err := askPass("Enter passphrase", &c.passphrase); err != nil {
 			return err
 		}
 	}

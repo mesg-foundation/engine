@@ -5,7 +5,6 @@ import (
 
 	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/spf13/cobra"
-	survey "gopkg.in/AlecAivazis/survey.v1"
 )
 
 type walletCreateCmd struct {
@@ -30,9 +29,7 @@ func newWalletCreateCmd(e WalletExecutor) *walletCreateCmd {
 
 func (c *walletCreateCmd) preRunE(cmd *cobra.Command, args []string) error {
 	if !c.noPassphrase && c.passphrase == "" {
-		if err := survey.AskOne(&survey.Password{
-			Message: "Enter passphrase",
-		}, &c.passphrase, survey.MinLength(1)); err != nil {
+		if err := askPass("Enter passphrase", &c.passphrase); err != nil {
 			return err
 		}
 	}
