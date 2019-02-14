@@ -28,3 +28,16 @@ func newRootWalletCmd(e WalletExecutor) *rootWalletCmd {
 	)
 	return c
 }
+
+// baseWalletCmd is basic command for wallet subcommands
+// that require passphrase.
+type baseWalletCmd struct {
+	baseCmd
+	noPassphrase bool
+	passphrase   string
+}
+
+func (c *baseWalletCmd) setupFlags() {
+	c.cmd.Flags().BoolVarP(&c.noPassphrase, "no-passphrase", "n", c.noPassphrase, "Leave passphrase empty")
+	c.cmd.Flags().StringVarP(&c.passphrase, "passphrase", "p", c.passphrase, "Passphrase to encrypt the account")
+}

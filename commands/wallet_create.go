@@ -9,10 +9,7 @@ import (
 )
 
 type walletCreateCmd struct {
-	baseCmd
-
-	noPassphrase bool
-	passphrase   string
+	baseWalletCmd
 
 	e WalletExecutor
 }
@@ -27,9 +24,7 @@ func newWalletCreateCmd(e WalletExecutor) *walletCreateCmd {
 		PreRunE: c.preRunE,
 		RunE:    c.runE,
 	})
-
-	c.cmd.Flags().BoolVarP(&c.noPassphrase, "no-passphrase", "n", c.noPassphrase, "Leave passphrase empty")
-	c.cmd.Flags().StringVarP(&c.passphrase, "passphrase", "p", c.passphrase, "Passphrase to encrypt the account")
+	c.setupFlags()
 	return c
 }
 

@@ -13,14 +13,12 @@ import (
 )
 
 type walletImportCmd struct {
-	baseCmd
+	baseWalletCmd
 
-	importType   string
-	noPassphrase bool
-	passphrase   string
-	privateKey   string
-	jsonFile     string
-	account      provider.EncryptedKeyJSONV3
+	importType string
+	privateKey string
+	jsonFile   string
+	account    provider.EncryptedKeyJSONV3
 
 	e WalletExecutor
 }
@@ -36,10 +34,9 @@ func newWalletImportCmd(e WalletExecutor) *walletImportCmd {
 		RunE:    c.runE,
 	})
 
+	c.setupFlags()
 	c.cmd.Flags().StringVarP(&c.privateKey, "private-key", "k", c.privateKey, "Private key to import")
 	c.cmd.Flags().StringVarP(&c.jsonFile, "json", "j", c.jsonFile, "Filepath to the JSON file to import")
-	c.cmd.Flags().BoolVarP(&c.noPassphrase, "no-passphrase", "n", c.noPassphrase, "Leave passphrase empty")
-	c.cmd.Flags().StringVarP(&c.passphrase, "passphrase", "p", c.passphrase, "Passphrase to encrypt the account")
 	return c
 }
 

@@ -10,11 +10,9 @@ import (
 )
 
 type walletExportCmd struct {
-	baseCmd
+	baseWalletCmd
 
-	address      common.Address
-	noPassphrase bool
-	passphrase   string
+	address common.Address
 
 	e WalletExecutor
 }
@@ -30,9 +28,7 @@ func newWalletExportCmd(e WalletExecutor) *walletExportCmd {
 		PreRunE: c.preRunE,
 		RunE:    c.runE,
 	})
-
-	c.cmd.Flags().BoolVarP(&c.noPassphrase, "no-passphrase", "n", c.noPassphrase, "Leave passphrase empty")
-	c.cmd.Flags().StringVarP(&c.passphrase, "passphrase", "p", c.passphrase, "Passphrase to encrypt the account")
+	c.setupFlags()
 	return c
 }
 
