@@ -13,6 +13,7 @@ import (
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/service/importer"
+	"github.com/mesg-foundation/core/x/xnet"
 	"github.com/mesg-foundation/core/x/xos"
 	"github.com/mesg-foundation/core/x/xstructhash"
 )
@@ -292,4 +293,9 @@ type ErrNotDefinedEnv struct {
 func (e ErrNotDefinedEnv) Error() string {
 	return fmt.Sprintf("environment variable(s) %q not defined in mesg.yml (under configuration.env key)",
 		strings.Join(e.env, ", "))
+}
+
+// IsValidSid returns true if sid is valid, false otherwise.
+func IsValidSid(sid string) bool {
+	return 0 < len(sid) && len(sid) <= 64 && xnet.IsDomainName(sid)
 }
