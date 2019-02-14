@@ -16,9 +16,9 @@ const (
 )
 
 type ManifestData struct {
-	Version    int                         `json:"version"`
-	Definition *importer.ServiceDefinition `json:"definition"`
-	Readme     string                      `json:"readme,omitempty"`
+	Version    int                        `json:"version"`
+	Definition importer.ServiceDefinition `json:"definition"`
+	Readme     string                     `json:"readme,omitempty"`
 	Service    struct {
 		Deployment struct {
 			Type   string `json:"type"`
@@ -59,7 +59,7 @@ type CreateServiceTaskInputs struct {
 // CreateServiceVersionTaskInputs is the inputs of the task create service version.
 type CreateServiceVersionTaskInputs struct {
 	*TransactionTaskInputs
-	SidHash          string `json:"sidHash"`
+	Sid              string `json:"sid"`
 	Hash             string `json:"hash"`
 	Manifest         string `json:"manifest"`
 	ManifestProtocol string `json:"manifestProtocol"`
@@ -68,7 +68,7 @@ type CreateServiceVersionTaskInputs struct {
 // CreateServiceOfferTaskInputs is the inputs of the task create service offer.
 type CreateServiceOfferTaskInputs struct {
 	*TransactionTaskInputs
-	SidHash  string `json:"sidHash"`
+	Sid      string `json:"sid"`
 	Price    string `json:"price"`
 	Duration string `json:"duration"`
 }
@@ -76,21 +76,21 @@ type CreateServiceOfferTaskInputs struct {
 // DisableServiceOfferTaskInputs is the inputs of the task create service offer.
 type DisableServiceOfferTaskInputs struct {
 	*TransactionTaskInputs
-	SidHash    string `json:"sidHash"`
+	Sid        string `json:"sid"`
 	OfferIndex string `json:"offerIndex"`
 }
 
 // PurchaseTaskInputs is the inputs of the task purchase.
 type PurchaseTaskInputs struct {
 	*TransactionTaskInputs
-	SidHash    string `json:"sidHash"`
+	Sid        string `json:"sid"`
 	OfferIndex string `json:"offerIndex"`
 }
 
 // TransferServiceOwnershipTaskInputs is the inputs of the task transfer service ownership.
 type TransferServiceOwnershipTaskInputs struct {
 	*TransactionTaskInputs
-	SidHash  string `json:"sidHash"`
+	Sid      string `json:"sid"`
 	NewOwner string `json:"newOwner"`
 }
 
@@ -101,12 +101,20 @@ type SendSignedTransactionTaskInputs struct {
 
 // SendSignedTransactionTaskSuccessOutput is the success output of task send signed transaction.
 type SendSignedTransactionTaskSuccessOutput struct {
-	Receipt string `json:"receipt"`
+	Receipt struct {
+		BlockNumber      uint   `json:"blockNumber"`
+		From             string `json:"from"`
+		GasUsed          uint   `json:"gasUsed"`
+		Status           bool   `json:"status"`
+		To               string `json:"to"`
+		TransactionHash  string `json:"transactionHash"`
+		TransactionIndex uint   `json:"transactionIndex"`
+	} `json:"receipt"`
 }
 
 // IsAuthorizedTaskInputs is the inputs of the task is authorized.
 type IsAuthorizedTaskInputs struct {
-	SidHash string `json:"sidHash"`
+	Sid string `json:"sid"`
 }
 
 // IsAuthorizedTaskSuccessOutput is the success output of task authorized.

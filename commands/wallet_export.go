@@ -21,7 +21,7 @@ func newWalletExportCmd(e WalletExecutor) *walletExportCmd {
 		Use:     "export",
 		Short:   "export an account",
 		Long:    "export an existing account in order to backup it and import it in an other wallet",
-		Example: "mesg-core wallet export",
+		Example: "mesg-core wallet export 0x0000000...00001",
 		Args:    cobra.ExactArgs(1),
 		PreRunE: c.preRunE,
 		RunE:    c.runE,
@@ -31,6 +31,7 @@ func newWalletExportCmd(e WalletExecutor) *walletExportCmd {
 }
 
 func (c *walletExportCmd) preRunE(cmd *cobra.Command, args []string) error {
+	// TODO: if no address provided, the cli should ask to select one.
 	if !c.noPassphrase && c.passphrase == "" {
 		if err := askPass("Enter passphrase", &c.passphrase); err != nil {
 			return err

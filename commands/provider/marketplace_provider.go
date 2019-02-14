@@ -50,10 +50,10 @@ func (p *MarketplaceProvider) CreateService(sid, from string) (*Transaction, err
 }
 
 // CreateServiceVersion executes the create service version task
-func (p *MarketplaceProvider) CreateServiceVersion(sidHash, hash, manifest, manifestProtocol, from string) (*Transaction, error) {
+func (p *MarketplaceProvider) CreateServiceVersion(sid, hash, manifest, manifestProtocol, from string) (*Transaction, error) {
 	r, err := p.client.ExecuteAndListen(MarketplaceServiceID, "createServiceVersion", &CreateServiceVersionTaskInputs{
 		TransactionTaskInputs: &TransactionTaskInputs{From: from},
-		SidHash:               sidHash,
+		Sid:                   sid,
 		Hash:                  hash,
 		Manifest:              manifest,
 		ManifestProtocol:      manifestProtocol,
@@ -78,10 +78,10 @@ func (p *MarketplaceProvider) CreateServiceVersion(sidHash, hash, manifest, mani
 }
 
 // CreateServiceOffer executes the create service offer task
-func (p *MarketplaceProvider) CreateServiceOffer(sidHash, price, duration, from string) (*Transaction, error) {
+func (p *MarketplaceProvider) CreateServiceOffer(sid, price, duration, from string) (*Transaction, error) {
 	r, err := p.client.ExecuteAndListen(MarketplaceServiceID, "createServiceOffer", &CreateServiceOfferTaskInputs{
 		TransactionTaskInputs: &TransactionTaskInputs{From: from},
-		SidHash:               sidHash,
+		Sid:                   sid,
 		Price:                 price,
 		Duration:              duration,
 	})
@@ -105,10 +105,10 @@ func (p *MarketplaceProvider) CreateServiceOffer(sidHash, price, duration, from 
 }
 
 // DisableServiceOffer executes the disable service offer task
-func (p *MarketplaceProvider) DisableServiceOffer(sidHash, offerIndex, from string) (*Transaction, error) {
+func (p *MarketplaceProvider) DisableServiceOffer(sid, offerIndex, from string) (*Transaction, error) {
 	r, err := p.client.ExecuteAndListen(MarketplaceServiceID, "disableServiceOffer", &DisableServiceOfferTaskInputs{
 		TransactionTaskInputs: &TransactionTaskInputs{From: from},
-		SidHash:               sidHash,
+		Sid:                   sid,
 		OfferIndex:            offerIndex,
 	})
 	if err != nil {
@@ -131,10 +131,10 @@ func (p *MarketplaceProvider) DisableServiceOffer(sidHash, offerIndex, from stri
 }
 
 // Purchase executes the purchase task
-func (p *MarketplaceProvider) Purchase(sidHash, offerIndex, from string) (*Transaction, error) {
+func (p *MarketplaceProvider) Purchase(sid, offerIndex, from string) (*Transaction, error) {
 	r, err := p.client.ExecuteAndListen(MarketplaceServiceID, "purchase", &PurchaseTaskInputs{
 		TransactionTaskInputs: &TransactionTaskInputs{From: from},
-		SidHash:               sidHash,
+		Sid:                   sid,
 		OfferIndex:            offerIndex,
 	})
 	if err != nil {
@@ -157,10 +157,10 @@ func (p *MarketplaceProvider) Purchase(sidHash, offerIndex, from string) (*Trans
 }
 
 // TransferServiceOwnership executes the task transfer service ownership.
-func (p *MarketplaceProvider) TransferServiceOwnership(sidHash, newOwner, from string) (*Transaction, error) {
+func (p *MarketplaceProvider) TransferServiceOwnership(sid, newOwner, from string) (*Transaction, error) {
 	r, err := p.client.ExecuteAndListen(MarketplaceServiceID, "transferServiceOwnership", &TransferServiceOwnershipTaskInputs{
 		TransactionTaskInputs: &TransactionTaskInputs{From: from},
-		SidHash:               sidHash,
+		Sid:                   sid,
 		NewOwner:              newOwner,
 	})
 	if err != nil {
@@ -207,9 +207,9 @@ func (p *MarketplaceProvider) SendSignedTransaction(signedTransaction string) (*
 }
 
 // IsAuthorized executes the task send signed transaction.
-func (p *MarketplaceProvider) IsAuthorized(sidHash string) (bool, error) {
+func (p *MarketplaceProvider) IsAuthorized(sid string) (bool, error) {
 	r, err := p.client.ExecuteAndListen(MarketplaceServiceID, "isAuthorized", &IsAuthorizedTaskInputs{
-		SidHash: sidHash,
+		Sid: sid,
 	})
 	if err != nil {
 		return false, err
@@ -230,45 +230,49 @@ func (p *MarketplaceProvider) IsAuthorized(sidHash string) (bool, error) {
 	return output.Authorized, nil
 }
 
-// PublishDefinitionFile upload and publish the tarball and definition file and returns the address of the definition file
-func (p *MarketplaceProvider) PublishDefinitionFile(path string) (string, error) {
+// UploadServiceFiles upload the tarball and tje definition file, and returns the address of the definition file
+func (p *MarketplaceProvider) UploadServiceFiles(path string, manifest ManifestData) (protocol string, source string, err error) {
+	// TODO: Get the service hash
+	// upload service source to IPFS
 	ipfs := ipfs.New()
 	tar, err := archive.TarWithOptions(path, &archive.TarOptions{
 		Compression: archive.Gzip,
 	})
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	tarballResponse, err := ipfs.Add("tarball", tar)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	definitionFile, err := p.createDefinitionFile(path, tarballResponse.Hash)
+	manifest.Service.Deployment.Type = DeploymentType
+	manifest.Service.Deployment.Source = tarballResponse.Hash
+
+	// upload manifest
+	manifestData, err := json.Marshal(manifest)
 	if err != nil {
-		return "", err
+		return "", "", err
+	}
+	definitionResponse, err := ipfs.Add("manifest", bytes.NewReader(manifestData))
+	if err != nil {
+		return "", "", err
 	}
 
-	definitionResponse, err := ipfs.Add("definition", bytes.NewReader(definitionFile))
-	if err != nil {
-		return "", err
-	}
-	return definitionResponse.Hash, nil
+	return DeploymentType, definitionResponse.Hash, nil
 }
 
-func (p *MarketplaceProvider) createDefinitionFile(path string, tarballHash string) ([]byte, error) {
+func (p *MarketplaceProvider) CreateManifest(path string) (ManifestData, error) {
+	var data ManifestData
 	definition, err := importer.From(path)
 	if err != nil {
-		return nil, err
+		return data, err
 	}
-	var data ManifestData
 	data.Version = PublishVersion
-	data.Service.Deployment.Type = DeploymentType
-	data.Service.Deployment.Source = tarballHash
+	data.Definition = *definition
 	data.Readme, err = readme.Lookup(path)
 	if err != nil {
-		return nil, err
+		return data, err
 	}
-	data.Definition = definition
-	return json.Marshal(data)
+	return data, nil
 }
