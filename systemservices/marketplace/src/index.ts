@@ -75,31 +75,31 @@ const main = async () => {
   })
   .on('error', error => console.error('catch listenTask', error))
 
-  // const newBlock = await newBlockEventEmitter(web3, blockConfirmations, null, pollingTime)
-  // newBlock.on('newBlock', async blockNumber => {
-  try {
-    // console.error('new block', blockNumber)
+  const newBlock = await newBlockEventEmitter(web3, blockConfirmations, null, pollingTime)
+  newBlock.on('newBlock', async blockNumber => {
+    try {
+      console.error('new block', blockNumber)
     
-    const events = await contract.getPastEvents("allEvents", {
-      fromBlock: 5008717, // blockNumber,
-      toBlock: 'latest', // blockNumber,
-    })
-    events.forEach(async event => {
-      // TODO: check if really async
-      try {
-        if (!eventHandlers[event.event]) {
-          return console.error('Event not implemented', event.event)
+      const events = await contract.getPastEvents("allEvents", {
+        fromBlock: blockNumber,
+        toBlock: blockNumber,
+      })
+      events.forEach(async event => {
+        // TODO: check if really async
+        try {
+          if (!eventHandlers[event.event]) {
+            return console.error('Event not implemented', event.event)
+          }
+          eventHandlers[event.event](mesg, event)
+        } catch(error) {
+          return console.error('An error occurred during processing of an event', event)
         }
-        eventHandlers[event.event](mesg, event)
-      } catch(error) {
-        return console.error('An error occurred during processing of an event', event)
-      }
-    })
-  }
-  catch (error) {
-    console.error('catch newBlock on', error)
-  }
-  // })
+      })
+    }
+    catch (error) {
+      console.error('catch newBlock on', error)
+    }
+  })
 
   console.log('service is ready and running')
 }
