@@ -1,7 +1,9 @@
 package provider
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -91,51 +93,65 @@ func (p *ServiceProvider) deployServiceFromMarketplace(u string, env map[string]
 		return fmt.Errorf("marketplace url %s invalid", u)
 	}
 
-	// TODO:
-	// - get metadata from marketspace (need to create task for this)
-	// - if http, pass url to deploy
+	res, err := p.client.ExecuteAndListen("marketpalce", "getServiceVersion", ServiceVersionInputs{
+		SidHash: s[2],
+		Hash:    s[3],
+	})
+	if err != nil {
+		return err
+	}
 
-	// sid, hash := s[2], s[3]
-	// metadata, protocol, err := p.client.ExecuteAndListen("marketpalce", "getMetadata", sid, hash)
-	// if err != nil {
-	// 	return err
-	// }
+	if res.OutputKey == "success" {
+		var output ErrorOutput
+		if err := json.Unmarshal([]byte(res.OutputData), &output); err != nil {
+			return err
+		}
+		return errors.New(output.Message)
+	}
 
-	// 	if protocol == "https" {
-	// 		return stream.Send(&coreapi.DeployServiceRequest{
-	// 			Value: &coreapi.DeployServiceRequest_Url{Url: metadata},
-	// 			Env:   env,
-	// 		})
-	// 	}
-	// 	if protocol == "ipfs" {
-	// 		tarball, err := ipfs.Get(metadata)
-	// 		if err != nil {
-	// 			return err
-	// 		}
-	// 		if len(env) > 0 {
-	// 			if err := stream.Send(&coreapi.DeployServiceRequest{Env: env}); err != nil {
-	// 				return err
-	// 			}
-	// 		}
+	var version ServiceVersionSuccessOutput
+	if err := json.Unmarshal([]byte(res.OutputData), &version); err != nil {
+		return err
+	}
 
-	// 		buf := make([]byte, 1024)
-	// 		for {
-	// 			n, err := tarball.Read(buf)
-	// 			if err == io.EOF {
-	// 				break
-	// 			}
-	// 			if err != nil {
-	// 				return err
-	// 			}
+	// manifest, protocol,
+	switch version.ManifestProtocol {
+	case "https":
+		return stream.Send(&coreapi.DeployServiceRequest{
+			Value: &coreapi.DeployServiceRequest_Url{Url: version.Manifest},
+			Env:   env,
+		})
+	case "ipfs":
+		tarball, err := &bytes.Buffer{}, error(nil) // TODO: merge ipfs first ipfs.Get(version.Manifest)
+		if err != nil {
+			return err
+		}
+		if len(env) > 0 {
+			if err := stream.Send(&coreapi.DeployServiceRequest{Env: env}); err != nil {
+				return err
+			}
+		}
 
-	// 			if err := stream.Send(&coreapi.DeployServiceRequest{
-	// 				Value: &coreapi.DeployServiceRequest_Chunk{Chunk: buf[:n]},
-	// 			}); err != nil {
-	// 				return err
-	// 			}
-	// 		}
-	// 	}
-	// return fmt.Errorf("unknown protocol %s", protocol)
+		buf := make([]byte, 1024)
+		for {
+			n, err := tarball.Read(buf)
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				return err
+			}
+
+			if err := stream.Send(&coreapi.DeployServiceRequest{
+				Value: &coreapi.DeployServiceRequest_Chunk{Chunk: buf[:n]},
+			}); err != nil {
+				return err
+			}
+		}
+
+	default:
+		return fmt.Errorf("unknown protocol %s", version.ManifestProtocol)
+	}
 	return nil
 }
 

@@ -121,3 +121,15 @@ type IsAuthorizedTaskInputs struct {
 type IsAuthorizedTaskSuccessOutput struct {
 	Authorized bool `json:"authorized"`
 }
+
+// ServiceVersionInputs is the input for get service version task.
+type ServiceVersionInputs struct {
+	SidHash string `json:"sidHash"`
+	Hash    string `json:"hash"`
+}
+
+// ServiceVersionInputs is the input for get service version task.
+type ServiceVersionSuccessOutput struct {
+	Manifest         string `json:"manifest"`
+	ManifestProtocol string `json:"manifestProtocol"`
+}
