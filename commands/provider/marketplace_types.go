@@ -99,8 +99,8 @@ type SendSignedTransactionTaskInputs struct {
 	SignedTransaction string `json:"signedTransaction"`
 }
 
-// SendSignedTransactionTaskSuccessOutput is the success output of task send signed transaction.
-type SendSignedTransactionTaskSuccessOutput struct {
+// TransactionReceipt is the success output of task send signed transaction.
+type TransactionReceipt struct {
 	Receipt struct {
 		BlockNumber      uint   `json:"blockNumber"`
 		From             string `json:"from"`
@@ -120,4 +120,42 @@ type IsAuthorizedTaskInputs struct {
 // IsAuthorizedTaskSuccessOutput is the success output of task authorized.
 type IsAuthorizedTaskSuccessOutput struct {
 	Authorized bool `json:"authorized"`
+}
+
+// ServiceExistTaskInputs is the inputs of the task service exist.
+type ServiceExistTaskInputs struct {
+	Sid string `json:"sid"`
+}
+
+// ServiceExistTaskSuccessOutput is the success output of task service exist.
+type ServiceExistTaskSuccessOutput struct {
+	Exist bool `json:"exist"`
+}
+
+// GetServiceTaskInputs is the inputs of the task service exist.
+type GetServiceTaskInputs struct {
+	Sid string `json:"sid"`
+}
+
+// MarketplaceService is the success output of task service exist.
+type MarketplaceService struct {
+	Sid      string `json:"sid"`
+	SidHash  string `json:"sidHash"`
+	Owner    string `json:"owner"`
+	Versions []struct {
+		Hash             string       `json:"hash"`
+		ManifestSource   string       `json:"manifestSource"`
+		ManifestProtocol string       `json:"manifestProtocol"`
+		Manifest         ManifestData `json:"manifest"`
+	} `json:"versions"`
+	Offers []struct {
+		Index    string `json:"index"`
+		Price    string `json:"price"`
+		Duration string `json:"duration"`
+		Active   bool   `json:"active"`
+	} `json:"offers"`
+	Purchases []struct {
+		Purchaser string `json:"purchaser"`
+		Expire    string `json:"expire"`
+	} `json:"purchases"`
 }

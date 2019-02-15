@@ -42,15 +42,16 @@ type ServiceExecutor interface {
 type MarketplaceExecutor interface {
 	CreateManifest(path string) (provider.ManifestData, error)
 	UploadServiceFiles(path string, manifest provider.ManifestData) (protocol string, source string, err error)
-
 	CreateService(sid, from string) (*provider.Transaction, error)
 	CreateServiceVersion(sidHash, hash, manifest, manifestProtocol, from string) (*provider.Transaction, error)
 	CreateServiceOffer(sidHash, price, duration, from string) (*provider.Transaction, error)
 	DisableServiceOffer(sidHash, offerIndex, from string) (*provider.Transaction, error)
 	Purchase(sidHash, offerIndex, from string) (*provider.Transaction, error)
 	TransferServiceOwnership(sidHash, newOwner, from string) (*provider.Transaction, error)
-	SendSignedTransaction(signedTransaction string) (*provider.SendSignedTransactionTaskSuccessOutput, error)
+	SendSignedTransaction(signedTransaction string) (*provider.TransactionReceipt, error)
 	IsAuthorized(sidHash string) (bool, error)
+	ServiceExist(sid string) (bool, error)
+	GetService(sid string) (*provider.MarketplaceService, error)
 }
 
 // WalletExecutor is an interface that handles wallet commands.
