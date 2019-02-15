@@ -18,7 +18,7 @@ const getServiceVersions = async (contract: Marketplace, sidHash: string): Promi
 }
 
 const getServiceVersion = async (contract: Marketplace, sidHash: string, versionIndex: BigNumber): Promise<Version|undefined> => {
-  const versionHash = await contract.methods.servicesVersionsList(sidHash, versionIndex.toString()).call()
+  const versionHash = (await contract.methods.servicesVersionsList(sidHash, versionIndex.toString()).call()).toLowerCase()
   if (versionHash === '0x08c379a000000000000000000000000000000000000000000000000000000000') {
     return
   }

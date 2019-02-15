@@ -17,7 +17,7 @@ const getServicePurchases = async (contract: Marketplace, sidHash: string): Prom
 }
 
 const getServicePurchase = async (contract: Marketplace, sidHash: string, purchaseIndex: BigNumber): Promise<Purchase|undefined> => {
-  const purchaser = await contract.methods.servicesPurchasesList(sidHash, purchaseIndex.toString()).call()
+  const purchaser = (await contract.methods.servicesPurchasesList(sidHash, purchaseIndex.toString()).call()).toLowerCase()
   if (purchaser === '0x0000000000000000000000000000000000000000') {
     return
   }

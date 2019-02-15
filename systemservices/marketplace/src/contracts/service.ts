@@ -34,9 +34,9 @@ const getService = async (contract: Marketplace, sidHash: string): Promise<Servi
     getServicePurchases(contract, sidHash),
   ])
   return {
-    owner: service.owner,
-    sid: hexToAscii(service.sid),
-    sidHash: sidHash,
+    owner: service.owner.toLowerCase(),
+    sid: hexToAscii(service.sid).toLowerCase(),
+    sidHash: sidHash.toLowerCase(),
     versions: versions,
     offers: offers,
     purchases: purchases,
