@@ -8,25 +8,35 @@ import { hexToAscii } from "./utils";
 
 const getAllServices = async (contract: Marketplace): Promise<Service[]> => {
   const servicesLength = new BigNumber(await contract.methods.servicesListLength().call())
-  const servicesPromise: Promise<Service>[] = []
+  const servicesPromise: Promise<Service|undefined>[] = []
   for (let i = new BigNumber(0); servicesLength.isGreaterThan(i); i = i.plus(1)) {
-    servicesPromise.push(getService(contract, i))
+    servicesPromise.push(getServiceWithIndex(contract, i))
   }
-  return await Promise.all(servicesPromise)
+  const services = await Promise.all(servicesPromise)
+  return services.filter(service => service !== undefined) as Service[]
 }
 
-const getService = async (contract: Marketplace, serviceIndex: BigNumber): Promise<Service> => {
+const getServiceWithIndex = async (contract: Marketplace, serviceIndex: BigNumber): Promise<Service|undefined> => {
   const sidHash = await contract.methods.servicesList(serviceIndex.toString()).call()
+  return getService(contract, sidHash)
+}
+
+const getService = async (contract: Marketplace, sidHash: string): Promise<Service|undefined> => {
+  const service = await contract.methods.services(sidHash).call()
+  if (service.sid === null ||
+      service.owner === "0x0000000000000000000000000000000000000000"
+  ) {
+    return
+  }
   const [ versions, offers, purchases ] = await Promise.all([
     getServiceVersions(contract, sidHash),
     getServiceOffers(contract, sidHash),
     getServicePurchases(contract, sidHash),
   ])
-  const service = await contract.methods.services(sidHash).call()
   return {
-    owner: service.owner,
-    sid: hexToAscii(service.sid),
-    sidHash: sidHash,
+    owner: service.owner.toLowerCase(),
+    sid: hexToAscii(service.sid).toLowerCase(),
+    sidHash: sidHash.toLowerCase(),
     versions: versions,
     offers: offers,
     purchases: purchases,

@@ -183,7 +183,7 @@ func (p *MarketplaceProvider) TransferServiceOwnership(sid, newOwner, from strin
 }
 
 // SendSignedTransaction executes the task send signed transaction.
-func (p *MarketplaceProvider) SendSignedTransaction(signedTransaction string) (*SendSignedTransactionTaskSuccessOutput, error) {
+func (p *MarketplaceProvider) SendSignedTransaction(signedTransaction string) (*TransactionReceipt, error) {
 	r, err := p.client.ExecuteAndListen(MarketplaceServiceID, "sendSignedTransaction", &SendSignedTransactionTaskInputs{
 		SignedTransaction: signedTransaction,
 	})
@@ -199,7 +199,7 @@ func (p *MarketplaceProvider) SendSignedTransaction(signedTransaction string) (*
 		return nil, errors.New(output.Message)
 	}
 
-	var output SendSignedTransactionTaskSuccessOutput
+	var output TransactionReceipt
 	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
 		return nil, err
 	}
@@ -228,6 +228,54 @@ func (p *MarketplaceProvider) IsAuthorized(sid string) (bool, error) {
 		return false, err
 	}
 	return output.Authorized, nil
+}
+
+// ServiceExist executes the task service exist.
+func (p *MarketplaceProvider) ServiceExist(sid string) (bool, error) {
+	r, err := p.client.ExecuteAndListen(MarketplaceServiceID, "serviceExist", &ServiceExistTaskInputs{
+		Sid: sid,
+	})
+	if err != nil {
+		return false, err
+	}
+
+	if r.OutputKey == "error" {
+		var output ErrorOutput
+		if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
+			return false, err
+		}
+		return false, errors.New(output.Message)
+	}
+
+	var output ServiceExistTaskSuccessOutput
+	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
+		return false, err
+	}
+	return output.Exist, nil
+}
+
+// GetService executes the task get service.
+func (p *MarketplaceProvider) GetService(sid string) (*MarketplaceService, error) {
+	var output MarketplaceService
+	r, err := p.client.ExecuteAndListen(MarketplaceServiceID, "getService", &GetServiceTaskInputs{
+		Sid: sid,
+	})
+	if err != nil {
+		return &output, err
+	}
+
+	if r.OutputKey == "error" {
+		var outputError ErrorOutput
+		if err := json.Unmarshal([]byte(r.OutputData), &outputError); err != nil {
+			return &output, err
+		}
+		return &output, errors.New(outputError.Message)
+	}
+
+	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
+		return &output, err
+	}
+	return &output, nil
 }
 
 // UploadServiceFiles upload the tarball and tje definition file, and returns the address of the definition file

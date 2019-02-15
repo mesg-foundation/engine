@@ -10,6 +10,7 @@ import marketplaceABI from "./contracts/Marketplace.abi.json"
 import { Marketplace } from "./contracts/Marketplace"
 
 import createService from "./tasks/createService"
+import getService from "./tasks/getService";
 import createServiceOffer from "./tasks/createServiceOffer"
 import createServiceVersion from "./tasks/createServiceVersion"
 import disableServiceOffer from "./tasks/disableServiceOffer"
@@ -18,12 +19,14 @@ import purchase from "./tasks/purchase"
 import sendSignedTransaction from "./tasks/sendSignedTransaction"
 import transferServiceOwnership from "./tasks/transferServiceOwnership"
 import isAuthorized from "./tasks/isAuthorized"
-import serviceCreated = require("./events/serviceCreated");
-import serviceOfferCreated = require("./events/serviceOfferCreated");
-import serviceOfferDisabled = require("./events/serviceOfferDisabled");
-import serviceOwnershipTransferred = require("./events/serviceOwnershipTransferred");
-import serviceVersionCreated = require("./events/serviceVersionCreated");
-import servicePurchased = require("./events/servicePurchased");
+
+import serviceCreated from "./events/serviceCreated"
+import serviceOfferCreated from "./events/serviceOfferCreated"
+import serviceOfferDisabled from "./events/serviceOfferDisabled"
+import serviceOwnershipTransferred from "./events/serviceOwnershipTransferred"
+import serviceVersionCreated from "./events/serviceVersionCreated"
+import servicePurchased from "./events/servicePurchased"
+import serviceExist from "./tasks/serviceExist";
 
 const providerEndpoint = process.env.PROVIDER_ENDPOINT as string
 const marketplaceAddress = process.env.MARKETPLACE_ADDRESS
@@ -64,6 +67,8 @@ const main = async () => {
 
   mesg.listenTask({
     listServices: listServices(contract),
+    getService: getService(contract),
+    serviceExist: serviceExist(contract),
     createService: createService(contract, createTransaction),
     createServiceOffer: createServiceOffer(contract, createTransaction),
     createServiceVersion: createServiceVersion(contract, createTransaction),
