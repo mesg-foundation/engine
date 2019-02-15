@@ -106,7 +106,7 @@ tasks:
             name: "Message"
             description: "The error message"
             type: String
-  createService:
+  getService:
     name: ""
     description: ""
     inputs:
@@ -114,6 +114,35 @@ tasks:
         name: ""
         description: ""
         type: String
+    outputs:
+      success:
+        name: ""
+        description: ""
+        data: *service
+      error: *outputError
+  serviceExist:
+    name: ""
+    description: ""
+    inputs:
+      sid: &inputSid
+        name: ""
+        description: ""
+        type: String
+    outputs:
+      success:
+        name: ""
+        description: ""
+        data:
+          exist:
+            name: ""
+            description: ""
+            type: Boolean
+      error: *outputError
+  createService:
+    name: ""
+    description: ""
+    inputs:
+      sid: *inputSid
       from: &inputFrom
         name: ""
         description: ""
