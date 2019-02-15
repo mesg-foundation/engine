@@ -64,7 +64,7 @@ require (
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/xeipuuv/gojsonschema v0.0.0-20180618132009-1d523034197f
-	golang.org/x/crypto v0.0.0-20180621125126-a49355c7e3f8 // indirect
+	golang.org/x/crypto v0.0.0-20180621125126-a49355c7e3f8
 	golang.org/x/net v0.0.0-20180906233101-161cd47e91fd
 	golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4 // indirect
 	golang.org/x/time v0.0.0-20181108054448-85acf8d2951c // indirect

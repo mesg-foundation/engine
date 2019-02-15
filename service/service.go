@@ -1,12 +1,11 @@
 package service
 
 import (
-	"crypto/sha256"
+	"archive/tar"
 	"encoding/hex"
 	"fmt"
 	"io"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -15,6 +14,7 @@ import (
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/service/importer"
+	"github.com/mesg-foundation/core/utils/tarsum"
 	"github.com/mesg-foundation/core/x/xos"
 )
 
@@ -93,48 +93,34 @@ type DeployStatus struct {
 // New creates a new service from a gzipped tarball.
 func New(tarball io.Reader, env map[string]string, options ...Option) (*Service, error) {
 	s := &Service{}
-
 	defer s.closeStatus()
 
 	if err := s.setOptions(options...); err != nil {
 		return nil, err
 	}
+
 	// untar tarball to retrieve mesg.yml
 	if err := s.saveContext(tarball); err != nil {
 		return nil, err
 	}
-	defer os.RemoveAll(s.tempPath)
+
+	// defer os.RemoveAll(s.tempPath)
 	def, err := importer.From(s.tempPath)
 	if err != nil {
 		return nil, err
 	}
 
-	// XXX: remove .git folder from repo.
-	// It makes docker build iamge id same between repo clones.
-	if err := os.RemoveAll(filepath.Join(s.tempPath, ".git")); err != nil {
-		return nil, err
-	}
-
-	// XXX: change the access and modification times of service to get constant hash
-	zerot := time.Time{}
-	if err := filepath.Walk(s.tempPath, func(path string, _ os.FileInfo, _ error) error {
-		return os.Chtimes(path, zerot, zerot)
-	}); err != nil {
-		return nil, err
-	}
-
-	// tar it back without any compression to get constant hash
-	// despite used compression from tarball
-	t, err := archive.Tar(s.tempPath, archive.Gzip)
+	// create stream to calculate hash
+	decompressedStream, err := archive.Tar(s.tempPath, archive.Uncompressed)
 	if err != nil {
 		return nil, err
 	}
-
-	hash, err := s.computeHash(t, env)
+	envbytes := []byte(xos.EnvMapToString(env))
+	hash, err := tarsum.New(tar.NewReader(decompressedStream)).Sum(envbytes)
 	if err != nil {
 		return nil, err
 	}
-	s.Hash = hash
+	s.Hash = hex.EncodeToString(hash)
 
 	s.injectDefinition(def)
 
@@ -205,9 +191,7 @@ func (s *Service) saveContext(r io.Reader) error {
 	s.sendStatus("Receiving service context...", DRunning)
 	defer s.sendStatus("Service context received with success", DDonePositive)
 
-	if err := archive.Untar(r, s.tempPath, &archive.TarOptions{
-		NoLchown: true,
-	}); err != nil {
+	if err := archive.Untar(r, s.tempPath, nil); err != nil {
 		return err
 	}
 
@@ -301,18 +285,6 @@ func (s *Service) configuration() *Dependency {
 		}
 	}
 	return nil
-}
-
-// Compute hash computesh sha256 hash of r reader and env slice map.
-func (s *Service) computeHash(r io.Reader, env map[string]string) (string, error) {
-	h := sha256.New()
-	if _, err := io.Copy(h, r); err != nil {
-		return "", err
-	}
-	if _, err := h.Write([]byte(xos.EnvMapToString(env))); err != nil {
-		return "", err
-	}
-	return hex.EncodeToString(h.Sum(nil)), nil
 }
 
 // ErrNotDefinedEnv error returned when optionally given env variables
