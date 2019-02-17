@@ -9,6 +9,13 @@ import { newBlockEventEmitter } from "./newBlock"
 import marketplaceABI from "./contracts/Marketplace.abi.json"
 import { Marketplace } from "./contracts/Marketplace"
 
+import serviceCreated from "./events/serviceCreated"
+import serviceOfferCreated from "./events/serviceOfferCreated"
+import serviceOfferDisabled from "./events/serviceOfferDisabled"
+import serviceOwnershipTransferred from "./events/serviceOwnershipTransferred"
+import serviceVersionCreated from "./events/serviceVersionCreated"
+import servicePurchased from "./events/servicePurchased"
+
 import createService from "./tasks/createService"
 import getService from "./tasks/getService";
 import createServiceOffer from "./tasks/createServiceOffer"
@@ -19,14 +26,8 @@ import purchase from "./tasks/purchase"
 import sendSignedTransaction from "./tasks/sendSignedTransaction"
 import transferServiceOwnership from "./tasks/transferServiceOwnership"
 import isAuthorized from "./tasks/isAuthorized"
-
-import serviceCreated from "./events/serviceCreated"
-import serviceOfferCreated from "./events/serviceOfferCreated"
-import serviceOfferDisabled from "./events/serviceOfferDisabled"
-import serviceOwnershipTransferred from "./events/serviceOwnershipTransferred"
-import serviceVersionCreated from "./events/serviceVersionCreated"
-import servicePurchased from "./events/servicePurchased"
 import serviceExist from "./tasks/serviceExist";
+import getServiceVersion from "./tasks/getServiceVersion";
 
 const providerEndpoint = process.env.PROVIDER_ENDPOINT as string
 const marketplaceAddress = process.env.MARKETPLACE_ADDRESS
@@ -68,6 +69,7 @@ const main = async () => {
   mesg.listenTask({
     listServices: listServices(contract),
     getService: getService(contract),
+    getServiceVersion: getServiceVersion(contract),
     serviceExist: serviceExist(contract),
     createService: createService(contract, createTransaction),
     createServiceOffer: createServiceOffer(contract, createTransaction),

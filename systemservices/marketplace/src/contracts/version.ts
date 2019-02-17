@@ -11,17 +11,21 @@ const getServiceVersions = async (contract: Marketplace, sidHash: string): Promi
   }
   const versionsPromise: Promise<Version|undefined>[] = []
   for (let j = new BigNumber(0); versionsLength.isGreaterThan(j); j = j.plus(1)) {
-    versionsPromise.push(getServiceVersion(contract, sidHash, j))
+    versionsPromise.push(getServiceVersionWithIndex(contract, sidHash, j))
   }
   const versions = await Promise.all(versionsPromise)
   return versions.filter(version => version !== undefined) as Version[]
 }
 
-const getServiceVersion = async (contract: Marketplace, sidHash: string, versionIndex: BigNumber): Promise<Version|undefined> => {
+const getServiceVersionWithIndex = async (contract: Marketplace, sidHash: string, versionIndex: BigNumber): Promise<Version|undefined> => {
   const versionHash = (await contract.methods.servicesVersionsList(sidHash, versionIndex.toString()).call()).toLowerCase()
   if (versionHash === '0x08c379a000000000000000000000000000000000000000000000000000000000') {
     return
   }
+  return getServiceVersion(contract, sidHash, versionHash)
+}
+
+const getServiceVersion = async (contract: Marketplace, sidHash: string, versionHash: string): Promise<Version|undefined> => {
   const version = await contract.methods.servicesVersion(sidHash, versionHash).call()
   const manifest = await getManifest(hexToAscii(version.manifestProtocol), hexToAscii(version.manifest))
   return {

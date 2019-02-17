@@ -120,6 +120,21 @@ tasks:
         description: ""
         data: *service
       error: *outputError
+  getServiceVersion:
+    name: ""
+    description: ""
+    inputs:
+      sid: *inputSid
+      hash: &inputHash
+        name: ""
+        description: ""
+        type: String
+    outputs:
+      success:
+        name: ""
+        description: ""
+        data: *version
+      error: *outputError
   serviceExist:
     name: ""
     description: ""
