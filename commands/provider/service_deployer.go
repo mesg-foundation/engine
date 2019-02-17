@@ -11,6 +11,7 @@ import (
 	"github.com/asaskevich/govalidator"
 	"github.com/docker/cli/cli/command/image/build"
 	"github.com/docker/docker/pkg/archive"
+	"github.com/mesg-foundation/core/ipfs"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/service"
 )
@@ -59,14 +60,12 @@ func (p *ServiceProvider) ServiceDeploy(path string, env map[string]string, stat
 	}()
 	go readDeployReply(stream, deployment, statuses)
 
-	fmt.Println("govalidator.IsURL(path)", govalidator.IsURL(path))
-	if govalidator.IsURL(path) {
-		// deploy from marketplace
-		if strings.HasPrefix(path, "mesg:") {
-			if err := p.deployServiceFromMarketplace(path, env, stream); err != nil {
-				return "", nil, err
-			}
-		} else if err := stream.Send(&coreapi.DeployServiceRequest{
+	if strings.HasPrefix(path, "mesg:") {
+		if err := p.deployServiceFromMarketplace(path, env, stream); err != nil {
+			return "", nil, err
+		}
+	} else if govalidator.IsURL(path) {
+		if err := stream.Send(&coreapi.DeployServiceRequest{
 			Value: &coreapi.DeployServiceRequest_Url{Url: path},
 			Env:   env,
 		}); err != nil {
@@ -89,7 +88,7 @@ func (p *ServiceProvider) ServiceDeploy(path string, env map[string]string, stat
 
 func (p *ServiceProvider) deployServiceFromMarketplace(u string, env map[string]string, stream coreapi.Core_DeployServiceClient) error {
 	s := strings.Split(u, ":")
-	if len(s) != 4 || s[1] != "marketplace" || service.IsValidSid(s[2]) {
+	if len(s) != 4 || s[1] != "marketplace" || !service.IsValidSid(s[2]) {
 		return fmt.Errorf("marketplace url %s invalid", u)
 	}
 
@@ -114,13 +113,13 @@ func (p *ServiceProvider) deployServiceFromMarketplace(u string, env map[string]
 		return err
 	}
 
-	fmt.Println("version", version)
-
 	var url string
 	switch version.Manifest.Service.Deployment.Type {
 	case "https", "http":
 		url = version.Manifest.Service.Deployment.Source
-	// case "ipfs":
+	case "ipfs":
+		url = ipfs.URL(version.Manifest.Service.Deployment.Source)
+		fmt.Println("url", url) // TODO: for debug only
 	default:
 		return fmt.Errorf("unknown protocol %s", version.ManifestProtocol)
 	}
