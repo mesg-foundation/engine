@@ -1,7 +1,6 @@
 package provider
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -60,6 +59,7 @@ func (p *ServiceProvider) ServiceDeploy(path string, env map[string]string, stat
 	}()
 	go readDeployReply(stream, deployment, statuses)
 
+	fmt.Println("govalidator.IsURL(path)", govalidator.IsURL(path))
 	if govalidator.IsURL(path) {
 		// deploy from marketplace
 		if strings.HasPrefix(path, "mesg:") {
@@ -93,15 +93,15 @@ func (p *ServiceProvider) deployServiceFromMarketplace(u string, env map[string]
 		return fmt.Errorf("marketplace url %s invalid", u)
 	}
 
-	res, err := p.client.ExecuteAndListen("marketpalce", "getServiceVersion", ServiceVersionInputs{
-		SidHash: s[2],
-		Hash:    s[3],
+	res, err := p.client.ExecuteAndListen("marketplace", "getServiceVersion", ServiceVersionInputs{
+		Sid:  s[2],
+		Hash: s[3],
 	})
 	if err != nil {
 		return err
 	}
 
-	if res.OutputKey == "success" {
+	if res.OutputKey == "error" {
 		var output ErrorOutput
 		if err := json.Unmarshal([]byte(res.OutputData), &output); err != nil {
 			return err
@@ -114,45 +114,21 @@ func (p *ServiceProvider) deployServiceFromMarketplace(u string, env map[string]
 		return err
 	}
 
-	// manifest, protocol,
-	switch version.ManifestProtocol {
-	case "https":
-		return stream.Send(&coreapi.DeployServiceRequest{
-			Value: &coreapi.DeployServiceRequest_Url{Url: version.Manifest},
-			Env:   env,
-		})
-	case "ipfs":
-		tarball, err := &bytes.Buffer{}, error(nil) // TODO: merge ipfs first ipfs.Get(version.Manifest)
-		if err != nil {
-			return err
-		}
-		if len(env) > 0 {
-			if err := stream.Send(&coreapi.DeployServiceRequest{Env: env}); err != nil {
-				return err
-			}
-		}
+	fmt.Println("version", version)
 
-		buf := make([]byte, 1024)
-		for {
-			n, err := tarball.Read(buf)
-			if err == io.EOF {
-				break
-			}
-			if err != nil {
-				return err
-			}
-
-			if err := stream.Send(&coreapi.DeployServiceRequest{
-				Value: &coreapi.DeployServiceRequest_Chunk{Chunk: buf[:n]},
-			}); err != nil {
-				return err
-			}
-		}
-
+	var url string
+	switch version.Manifest.Service.Deployment.Type {
+	case "https", "http":
+		url = version.Manifest.Service.Deployment.Source
+	// case "ipfs":
 	default:
 		return fmt.Errorf("unknown protocol %s", version.ManifestProtocol)
 	}
-	return nil
+
+	return stream.Send(&coreapi.DeployServiceRequest{
+		Value: &coreapi.DeployServiceRequest_Url{Url: url},
+		Env:   env,
+	})
 }
 
 func deployServiceSendServiceContext(path string, env map[string]string, stream coreapi.Core_DeployServiceClient) error {
