@@ -12,7 +12,7 @@ export default (contract: Marketplace) => async (inputs: TaskInputs, outputs: Ta
     return outputs.success(service)
   }
   catch (error) {
-    console.error('error in listServices', error)
+    console.error('error in getService', error)
     return outputs.error({ message: error.toString() })
   }
 }
