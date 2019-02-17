@@ -282,7 +282,6 @@ func (p *MarketplaceProvider) GetService(sid string) (*MarketplaceService, error
 func (p *MarketplaceProvider) UploadServiceFiles(path string, manifest ManifestData) (protocol string, source string, err error) {
 	// TODO: Get the service hash
 	// upload service source to IPFS
-	ipfs := ipfs.New()
 	tar, err := archive.TarWithOptions(path, &archive.TarOptions{
 		Compression: archive.Gzip,
 	})
