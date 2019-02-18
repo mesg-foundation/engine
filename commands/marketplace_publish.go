@@ -79,7 +79,7 @@ func (c *marketplacePublishCmd) preRunE(cmd *cobra.Command, args []string) error
 			return err
 		}
 		if c.service.Owner != c.address {
-			return fmt.Errorf("The service's owner (%q) is different than the specified address", c.service.Owner)
+			return fmt.Errorf("the service's owner (%q) is different than the specified address", c.service.Owner)
 		}
 	}
 

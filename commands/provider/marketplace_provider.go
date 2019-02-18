@@ -278,9 +278,8 @@ func (p *MarketplaceProvider) GetService(sid string) (*MarketplaceService, error
 	return &output, nil
 }
 
-// UploadServiceFiles upload the tarball and tje definition file, and returns the address of the definition file
+// UploadServiceFiles upload the tarball and the definition file, and returns the address of the definition file
 func (p *MarketplaceProvider) UploadServiceFiles(path string, manifest ManifestData) (protocol string, source string, err error) {
-	// TODO: Get the service hash
 	// upload service source to IPFS
 	tar, err := archive.TarWithOptions(path, &archive.TarOptions{
 		Compression: archive.Gzip,

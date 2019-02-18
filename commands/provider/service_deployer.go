@@ -138,7 +138,7 @@ func (p *ServiceProvider) deployServiceFromMarketplace(u string, env map[string]
 	}
 
 	if !data.Authorized {
-		return fmt.Errorf("You are not authorized to deploy this service. Did you buy it?")
+		return fmt.Errorf("you are not authorized to deploy this service. Did you buy it?")
 	}
 
 	var url string

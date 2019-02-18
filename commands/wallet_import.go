@@ -59,7 +59,7 @@ func (c *walletImportCmd) preRunE(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
-		if err := json.Unmarshal([]byte(content), &c.account); err != nil {
+		if err := json.Unmarshal(content, &c.account); err != nil {
 			return err
 		}
 	}
