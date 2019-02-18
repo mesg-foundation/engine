@@ -173,3 +173,16 @@ type MarketplaceService struct {
 		Expire    string `json:"expire"`
 	} `json:"purchases"`
 }
+
+// CheckForDeploymentInputs is the inputs of the task check for deployment.
+type CheckForDeploymentInputs struct {
+	Hash      string   `json:"hash"`
+	Addresses []string `json:"addresses"`
+}
+
+// CheckForDeploymentSuccessOutput is the success output of task check for deployment.
+type CheckForDeploymentSuccessOutput struct {
+	Authorized bool   `json:"authorized"`
+	Source     string `json:"source"`
+	Type       string `json:"type"`
+}

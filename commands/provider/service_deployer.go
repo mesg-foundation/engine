@@ -6,14 +6,13 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/url"
 	"strings"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/docker/cli/cli/command/image/build"
 	"github.com/docker/docker/pkg/archive"
-	"github.com/mesg-foundation/core/ipfs"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
-	"github.com/mesg-foundation/core/service"
 )
 
 // StatusType indicates the type of status message.
@@ -87,14 +86,39 @@ func (p *ServiceProvider) ServiceDeploy(path string, env map[string]string, stat
 }
 
 func (p *ServiceProvider) deployServiceFromMarketplace(u string, env map[string]string, stream coreapi.Core_DeployServiceClient) error {
-	s := strings.Split(u, ":")
-	if len(s) != 4 || s[1] != "marketplace" || !service.IsValidSid(s[2]) {
+
+	urlParsed, err := url.Parse(u)
+	if err != nil {
+		return err
+	}
+	path := strings.Split(strings.Trim(urlParsed.EscapedPath(), "/"), "/")
+	if urlParsed.Hostname() != "marketplace" || len(path) != 2 || path[0] != "service" || len(path[1]) == 0 { //!service.IsValidSid(path[1])
 		return fmt.Errorf("marketplace url %s invalid", u)
 	}
 
-	res, err := p.client.ExecuteAndListen("marketplace", "getServiceVersion", ServiceVersionInputs{
-		Sid:  s[2],
-		Hash: s[3],
+	// Get ALL address from wallet
+	res, err := p.client.ExecuteAndListen("ethwallet", "list", nil)
+	if err != nil {
+		return err
+	}
+
+	if res.OutputKey == "error" {
+		var output ErrorOutput
+		if err := json.Unmarshal([]byte(res.OutputData), &output); err != nil {
+			return err
+		}
+		return errors.New(output.Message)
+	}
+
+	var listOutput ethwalletListOutputSuccess
+	if err := json.Unmarshal([]byte(res.OutputData), &listOutput); err != nil {
+		return err
+	}
+
+	// Check if one of them are is authorized
+	res, err = p.client.ExecuteAndListen("marketplace", "checkForDeployment", CheckForDeploymentInputs{
+		Hash:      path[1],
+		Addresses: listOutput.Addresses,
 	})
 	if err != nil {
 		return err
@@ -108,20 +132,23 @@ func (p *ServiceProvider) deployServiceFromMarketplace(u string, env map[string]
 		return errors.New(output.Message)
 	}
 
-	var version ServiceVersionSuccessOutput
-	if err := json.Unmarshal([]byte(res.OutputData), &version); err != nil {
+	var data CheckForDeploymentSuccessOutput
+	if err := json.Unmarshal([]byte(res.OutputData), &data); err != nil {
 		return err
 	}
 
+	if !data.Authorized {
+		return fmt.Errorf("You are not authorized to deploy this service. Did you buy it?")
+	}
+
 	var url string
-	switch version.Manifest.Service.Deployment.Type {
+	switch data.Type {
 	case "https", "http":
-		url = version.Manifest.Service.Deployment.Source
+		url = data.Source
 	case "ipfs":
-		url = ipfs.URL(version.Manifest.Service.Deployment.Source)
-		fmt.Println("url", url) // TODO: for debug only
+		url = "https://gateway.ipfs.io/ipfs/" + data.Source
 	default:
-		return fmt.Errorf("unknown protocol %s", version.ManifestProtocol)
+		return fmt.Errorf("unknown protocol %s", data.Type)
 	}
 
 	return stream.Send(&coreapi.DeployServiceRequest{
