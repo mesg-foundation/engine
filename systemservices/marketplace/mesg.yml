@@ -321,6 +321,36 @@ tasks:
             name: ""
             description: ""
             type: Boolean
+  checkForDeployment:
+    name: ""
+    description: ""
+    inputs:
+      hash: *hash
+      addresses:
+        name: ""
+        description: ""
+        repeated: true
+        type: String
+    outputs:
+      error: *outputError
+      success:
+        name: ""
+        description: ""
+        data:
+          authorized:
+            name: ""
+            description: ""
+            type: Boolean
+          source:
+            name: ""
+            description: ""
+            type: String
+            optional: true
+          type:
+            name: ""
+            description: ""
+            type: String
+            optional: true
 events:
   serviceCreated:
     name: ""

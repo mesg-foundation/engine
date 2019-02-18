@@ -17,7 +17,7 @@ import serviceVersionCreated from "./events/serviceVersionCreated"
 import servicePurchased from "./events/servicePurchased"
 
 import createService from "./tasks/createService"
-import getService from "./tasks/getService";
+import getService from "./tasks/getService"
 import createServiceOffer from "./tasks/createServiceOffer"
 import createServiceVersion from "./tasks/createServiceVersion"
 import disableServiceOffer from "./tasks/disableServiceOffer"
@@ -26,8 +26,9 @@ import purchase from "./tasks/purchase"
 import sendSignedTransaction from "./tasks/sendSignedTransaction"
 import transferServiceOwnership from "./tasks/transferServiceOwnership"
 import isAuthorized from "./tasks/isAuthorized"
-import serviceExist from "./tasks/serviceExist";
-import getServiceVersion from "./tasks/getServiceVersion";
+import serviceExist from "./tasks/serviceExist"
+import getServiceVersion from "./tasks/getServiceVersion"
+import checkForDeployment from "./tasks/checkForDeployment"
 
 const providerEndpoint = process.env.PROVIDER_ENDPOINT as string
 const marketplaceAddress = process.env.MARKETPLACE_ADDRESS
@@ -79,6 +80,7 @@ const main = async () => {
     transferServiceOwnership: transferServiceOwnership(contract, createTransaction),
     sendSignedTransaction: sendSignedTransaction(web3),
     isAuthorized: isAuthorized(contract),
+    checkForDeployment: checkForDeployment(contract),
   })
   .on('error', error => console.error('catch listenTask', error))
 

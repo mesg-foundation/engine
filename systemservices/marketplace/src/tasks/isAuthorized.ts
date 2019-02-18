@@ -13,7 +13,7 @@ export default (
     return outputs.success({ authorized })
   }
   catch (error) {
-    console.error('error in createService', error)
+    console.error('error in isAuthorized', error)
     return outputs.error({ message: error.toString() })
   }
 }
