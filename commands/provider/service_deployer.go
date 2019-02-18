@@ -110,7 +110,7 @@ func (p *ServiceProvider) deployServiceFromMarketplace(u string, env map[string]
 		return errors.New(output.Message)
 	}
 
-	var listOutput ethwalletListOutputSuccess
+	var listOutput walletListOutputSuccess
 	if err := json.Unmarshal([]byte(res.OutputData), &listOutput); err != nil {
 		return err
 	}

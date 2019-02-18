@@ -31,7 +31,7 @@ func (p *WalletProvider) List() ([]string, error) {
 		return nil, errors.New(output.Message)
 	}
 
-	var output ethwalletListOutputSuccess
+	var output walletListOutputSuccess
 	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
 		return nil, err
 	}
@@ -39,7 +39,7 @@ func (p *WalletProvider) List() ([]string, error) {
 }
 
 func (p *WalletProvider) Create(passphrase string) (string, error) {
-	r, err := p.client.ExecuteAndListen(walletServiceID, "create", ethwalletCreateInputs{
+	r, err := p.client.ExecuteAndListen(walletServiceID, "create", walletCreateInputs{
 		Passphrase: passphrase,
 	})
 	if err != nil {
@@ -54,7 +54,7 @@ func (p *WalletProvider) Create(passphrase string) (string, error) {
 		return "", errors.New(output.Message)
 	}
 
-	var output ethwalletCreateOutputSuccess
+	var output walletCreateOutputSuccess
 	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
 		return "", err
 	}
@@ -62,7 +62,7 @@ func (p *WalletProvider) Create(passphrase string) (string, error) {
 }
 
 func (p *WalletProvider) Delete(address string, passphrase string) (string, error) {
-	r, err := p.client.ExecuteAndListen(walletServiceID, "delete", ethwalletDeleteInputs{
+	r, err := p.client.ExecuteAndListen(walletServiceID, "delete", walletDeleteInputs{
 		Address:    address,
 		Passphrase: passphrase,
 	})
@@ -78,7 +78,7 @@ func (p *WalletProvider) Delete(address string, passphrase string) (string, erro
 		return "", errors.New(output.Message)
 	}
 
-	var output ethwalletDeleteOutputSuccess
+	var output walletDeleteOutputSuccess
 	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
 		return "", err
 	}
@@ -87,7 +87,7 @@ func (p *WalletProvider) Delete(address string, passphrase string) (string, erro
 
 func (p *WalletProvider) Export(address string, passphrase string) (EncryptedKeyJSONV3, error) {
 	var output EncryptedKeyJSONV3
-	r, err := p.client.ExecuteAndListen(walletServiceID, "export", ethwalletExportInputs{
+	r, err := p.client.ExecuteAndListen(walletServiceID, "export", walletExportInputs{
 		Address:    address,
 		Passphrase: passphrase,
 	})
@@ -110,7 +110,7 @@ func (p *WalletProvider) Export(address string, passphrase string) (EncryptedKey
 }
 
 func (p *WalletProvider) Import(account EncryptedKeyJSONV3, passphrase string) (string, error) {
-	r, err := p.client.ExecuteAndListen(walletServiceID, "import", &ethwalletImportInputs{
+	r, err := p.client.ExecuteAndListen(walletServiceID, "import", &walletImportInputs{
 		Account:    account,
 		Passphrase: passphrase,
 	})
@@ -126,7 +126,7 @@ func (p *WalletProvider) Import(account EncryptedKeyJSONV3, passphrase string) (
 		return "", errors.New(output.Message)
 	}
 
-	var output ethwalletImportOutputSuccess
+	var output walletImportOutputSuccess
 	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
 		return "", err
 	}
@@ -134,7 +134,7 @@ func (p *WalletProvider) Import(account EncryptedKeyJSONV3, passphrase string) (
 }
 
 func (p *WalletProvider) ImportFromPrivateKey(privateKey string, passphrase string) (string, error) {
-	r, err := p.client.ExecuteAndListen(walletServiceID, "importFromPrivateKey", &ethwalletImportFromPrivateKeyInputs{
+	r, err := p.client.ExecuteAndListen(walletServiceID, "importFromPrivateKey", &walletImportFromPrivateKeyInputs{
 		PrivateKey: privateKey,
 		Passphrase: passphrase,
 	})
@@ -150,7 +150,7 @@ func (p *WalletProvider) ImportFromPrivateKey(privateKey string, passphrase stri
 		return "", errors.New(output.Message)
 	}
 
-	var output ethwalletImportOutputSuccess
+	var output walletImportOutputSuccess
 	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
 		return "", err
 	}
@@ -158,7 +158,7 @@ func (p *WalletProvider) ImportFromPrivateKey(privateKey string, passphrase stri
 }
 
 func (p *WalletProvider) Sign(address string, passphrase string, transaction *Transaction) (string, error) {
-	r, err := p.client.ExecuteAndListen(walletServiceID, "sign", &ethwalletSignInputs{
+	r, err := p.client.ExecuteAndListen(walletServiceID, "sign", &walletSignInputs{
 		Address:     address,
 		Passphrase:  passphrase,
 		Transaction: transaction,
@@ -175,7 +175,7 @@ func (p *WalletProvider) Sign(address string, passphrase string, transaction *Tr
 		return "", errors.New(output.Message)
 	}
 
-	var output ethwalletSignOutputSuccess
+	var output walletSignOutputSuccess
 	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
 		return "", err
 	}

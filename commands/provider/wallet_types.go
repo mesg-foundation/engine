@@ -7,53 +7,53 @@ import (
 
 const walletServiceID = "ethwallet"
 
-type ethwalletListOutputSuccess struct {
+type walletListOutputSuccess struct {
 	Addresses []string `json:"addresses"`
 }
 
-type ethwalletCreateInputs struct {
+type walletCreateInputs struct {
 	Passphrase string `json:"passphrase"`
 }
 
-type ethwalletCreateOutputSuccess struct {
+type walletCreateOutputSuccess struct {
 	Address string `json:"address"`
 }
 
-type ethwalletDeleteInputs struct {
+type walletDeleteInputs struct {
 	Address    string `json:"address"`
 	Passphrase string `json:"passphrase"`
 }
 
-type ethwalletDeleteOutputSuccess struct {
+type walletDeleteOutputSuccess struct {
 	Address string `json:"address"`
 }
 
-type ethwalletExportInputs struct {
+type walletExportInputs struct {
 	Address    string `json:"address"`
 	Passphrase string `json:"passphrase"`
 }
 
-type ethwalletImportInputs struct {
+type walletImportInputs struct {
 	Account    EncryptedKeyJSONV3 `json:"account"`
 	Passphrase string             `json:"passphrase"`
 }
 
-type ethwalletImportFromPrivateKeyInputs struct {
+type walletImportFromPrivateKeyInputs struct {
 	PrivateKey string `json:"privateKey"`
 	Passphrase string `json:"passphrase"`
 }
 
-type ethwalletImportOutputSuccess struct {
+type walletImportOutputSuccess struct {
 	Address string `json:"address"`
 }
 
-type ethwalletSignInputs struct {
+type walletSignInputs struct {
 	Address     string       `json:"address"`
 	Passphrase  string       `json:"passphrase"`
 	Transaction *Transaction `json:"transaction"`
 }
 
-type ethwalletSignOutputSuccess struct {
+type walletSignOutputSuccess struct {
 	SignedTransaction string `json:"signedTransaction"`
 }
 
