@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 	"sync"
 
+	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/importer"
-	"github.com/mesg-foundation/core/x/xdocker/xarchive"
 	"github.com/mesg-foundation/core/x/xgit"
 	uuid "github.com/satori/go.uuid"
 )
@@ -86,13 +86,13 @@ func newServiceDeployer(api *API, env map[string]string, options ...DeployServic
 
 // FromURL deploys a service from git or tarball url.
 func (d *serviceDeployer) FromURL(url string) (*service.Service, *importer.ValidationError, error) {
+	path, err := d.createTempDir()
+	if err != nil {
+		return nil, nil, err
+	}
+	d.sendStatus("Downloading service...", Running)
 	defer d.closeStatus()
 	if xgit.IsGitURL(url) {
-		d.sendStatus("Downloading service...", Running)
-		path, err := d.createTempDir()
-		if err != nil {
-			return nil, nil, err
-		}
 		defer os.RemoveAll(path)
 		if err := xgit.Clone(url, path); err != nil {
 			return nil, nil, err
@@ -104,22 +104,34 @@ func (d *serviceDeployer) FromURL(url string) (*service.Service, *importer.Valid
 			return nil, nil, err
 		}
 
-		d.sendStatus("Service downloaded with success", DonePositive)
-		r, err := xarchive.GzippedTar(path, nil)
+	} else {
+		// if not git repo then it should be tarball
+		resp, err := http.Get(url)
 		if err != nil {
 			return nil, nil, err
 		}
-		defer r.Close()
-		return d.deploy(r)
-	}
+		defer resp.Body.Close()
+		if err := archive.Untar(resp.Body, path, nil); err != nil {
+			return nil, nil, err
+		}
+		// NOTE: this is check for tar repos, if there is only one
+		// directory inside untar archive set temp path to it.
+		dirs, err := ioutil.ReadDir(path)
+		if err != nil {
+			return nil, nil, err
+		}
+		if len(dirs) == 1 && dirs[0].IsDir() {
+			path = filepath.Join(path, dirs[0].Name())
+		}
 
-	// if not git repo then it should be tarball
-	resp, err := http.Get(url)
+	}
+	d.sendStatus("Service downloaded with success", DonePositive)
+	r, err := archive.Tar(path, archive.Uncompressed)
 	if err != nil {
 		return nil, nil, err
 	}
-	defer resp.Body.Close()
-	return d.deploy(resp.Body)
+	defer r.Close()
+	return d.deploy(r)
 }
 
 // FromArchive deploys a service from a gzipped tarball.

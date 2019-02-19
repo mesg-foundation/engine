@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"path/filepath"
+	"os"
 	"sort"
 	"strings"
 	"time"
@@ -92,6 +92,7 @@ type DeployStatus struct {
 
 // New creates a new service from a gzipped tarball.
 func New(tarball io.Reader, env map[string]string, options ...Option) (*Service, error) {
+	var err error
 	s := &Service{}
 	defer s.closeStatus()
 
@@ -100,11 +101,15 @@ func New(tarball io.Reader, env map[string]string, options ...Option) (*Service,
 	}
 
 	// untar tarball to retrieve mesg.yml
-	if err := s.saveContext(tarball); err != nil {
+	s.tempPath, err = ioutil.TempDir("", "mesg-")
+	if err != nil {
 		return nil, err
 	}
 
-	// defer os.RemoveAll(s.tempPath)
+	if err := archive.Untar(tarball, s.tempPath, nil); err != nil {
+		return nil, err
+	}
+	defer os.RemoveAll(s.tempPath)
 	def, err := importer.From(s.tempPath)
 	if err != nil {
 		return nil, err
@@ -178,33 +183,6 @@ func DeployStatusOption(statuses chan DeployStatus) Option {
 	return func(s *Service) {
 		s.statuses = statuses
 	}
-}
-
-// saveContext downloads service context to a temp dir.
-func (s *Service) saveContext(r io.Reader) error {
-	var err error
-	s.tempPath, err = ioutil.TempDir("", "mesg-")
-	if err != nil {
-		return err
-	}
-
-	s.sendStatus("Receiving service context...", DRunning)
-	defer s.sendStatus("Service context received with success", DDonePositive)
-
-	if err := archive.Untar(r, s.tempPath, nil); err != nil {
-		return err
-	}
-
-	// NOTE: this is check for tar repos, if there is only one
-	// directory inside untar archive set temp path to it.
-	dirs, err := ioutil.ReadDir(s.tempPath)
-	if err != nil {
-		return err
-	}
-	if len(dirs) == 1 && dirs[0].IsDir() {
-		s.tempPath = filepath.Join(s.tempPath, dirs[0].Name())
-	}
-	return nil
 }
 
 // deploy deploys service.
