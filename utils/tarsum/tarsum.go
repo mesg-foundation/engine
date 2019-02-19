@@ -2,7 +2,6 @@ package tarsum
 
 import (
 	"archive/tar"
-	"bytes"
 	"crypto/sha256"
 	"fmt"
 	"hash"
@@ -59,7 +58,7 @@ func (ts *TarSum) Sum(extra []byte) ([]byte, error) {
 	ts.fileHashes.SortByHashes()
 	h := ts.newHash()
 	for _, fih := range ts.fileHashes {
-		h.Write(fileInfoHashToBytes(fih))
+		h.Write(fih.toBytes())
 	}
 	return h.Sum(extra), nil
 }
@@ -67,20 +66,6 @@ func (ts *TarSum) Sum(extra []byte) ([]byte, error) {
 // FileHashes returns all the file hashes.
 func (ts *TarSum) FileHashes() FileInfoHashes {
 	return ts.fileHashes
-}
-
-// fileInfoHashToBytes converts FileInfoHash to slice of bytes
-// for hash calculations.
-func fileInfoHashToBytes(fih FileInfoHash) []byte {
-	buf := &bytes.Buffer{}
-	buf.Write(fih.Hash)
-	buf.Write([]byte(fih.Header.Name))
-	buf.Write([]byte{fih.Header.Typeflag})
-	if fih.Header.Typeflag == tar.TypeLink ||
-		fih.Header.Typeflag == tar.TypeSymlink {
-		buf.Write([]byte(fih.Header.Linkname))
-	}
-	return buf.Bytes()
 }
 
 func isTarFileHashable(typeFlag byte) bool {
