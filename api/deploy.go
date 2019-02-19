@@ -136,6 +136,7 @@ func (d *serviceDeployer) FromURL(url string) (*service.Service, *importer.Valid
 
 // FromArchive deploys a service from a gzipped tarball.
 func (d *serviceDeployer) FromArchive(r io.Reader) (*service.Service, *importer.ValidationError, error) {
+	d.sendStatus("Receiving service context...", Running)
 	defer d.closeStatus()
 	return d.deploy(r)
 }

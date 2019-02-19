@@ -42,16 +42,6 @@ func TestNew(t *testing.T) {
 	require.Len(t, s.Dependencies[0].Env, 0)
 
 	require.Equal(t, DeployStatus{
-		Message: "Receiving service context...",
-		Type:    DRunning,
-	}, <-statuses)
-
-	require.Equal(t, DeployStatus{
-		Message: "Service context received with success",
-		Type:    DDonePositive,
-	}, <-statuses)
-
-	require.Equal(t, DeployStatus{
 		Message: "Building Docker image...",
 		Type:    DRunning,
 	}, <-statuses)

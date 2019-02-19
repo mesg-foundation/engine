@@ -42,11 +42,6 @@ func TestDeployService(t *testing.T) {
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
-		Message: "Service context received with success",
-		Type:    DonePositive,
-	}, <-statuses)
-
-	require.Equal(t, DeployStatus{
 		Message: "Building Docker image...",
 		Type:    Running,
 	}, <-statuses)
@@ -87,17 +82,6 @@ func TestDeployInvalidService(t *testing.T) {
 		Type:    Running,
 	}, <-statuses)
 
-	require.Equal(t, DeployStatus{
-		Message: "Service context received with success",
-		Type:    DonePositive,
-	}, <-statuses)
-
-	select {
-	case <-statuses:
-		t.Error("should not send further status messages")
-	default:
-	}
-
 	wg.Wait()
 }
 
@@ -127,16 +111,6 @@ func TestDeployServiceFromURL(t *testing.T) {
 
 	require.Equal(t, DeployStatus{
 		Message: "Service downloaded with success",
-		Type:    DonePositive,
-	}, <-statuses)
-
-	require.Equal(t, DeployStatus{
-		Message: "Receiving service context...",
-		Type:    Running,
-	}, <-statuses)
-
-	require.Equal(t, DeployStatus{
-		Message: "Service context received with success",
 		Type:    DonePositive,
 	}, <-statuses)
 
