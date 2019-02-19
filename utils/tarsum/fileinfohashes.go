@@ -13,6 +13,19 @@ type FileInfoHash struct {
 	Hash   []byte
 }
 
+// toBytes serialize FileInfoHash to byte slice for hash calculations.
+func (fih *FileInfoHash) toBytes() []byte {
+	buf := &bytes.Buffer{}
+	buf.Write(fih.Hash)
+	buf.Write([]byte(fih.Header.Name))
+	buf.Write([]byte{fih.Header.Typeflag})
+	if fih.Header.Typeflag == tar.TypeLink ||
+		fih.Header.Typeflag == tar.TypeSymlink {
+		buf.Write([]byte(fih.Header.Linkname))
+	}
+	return buf.Bytes()
+}
+
 // FileInfoHashes provides a list of FileInfoHash.
 type FileInfoHashes []FileInfoHash
 
