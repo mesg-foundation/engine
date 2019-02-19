@@ -1,6 +1,7 @@
 package execution
 
 import (
+	"encoding/hex"
 	"time"
 
 	"github.com/mesg-foundation/core/service"
@@ -70,7 +71,8 @@ func New(service *service.Service, eventID string, taskKey string, inputs map[st
 		CreatedAt: time.Now(),
 		Status:    Created,
 	}
-	exec.ID = structhash.Sha1Str(exec)
+	h := structhash.Sha1(exec)
+	exec.ID = hex.EncodeToString(h[:])
 	return exec, nil
 }
 

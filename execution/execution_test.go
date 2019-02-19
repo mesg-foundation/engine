@@ -1,6 +1,7 @@
 package execution
 
 import (
+	"encoding/hex"
 	"errors"
 	"testing"
 	"testing/quick"
@@ -268,7 +269,8 @@ func TestExecutionIDHash(t *testing.T) {
 			Inputs:  map[string]interface{}{inputs: "input"},
 		}
 
-		id := structhash.Sha1Str(e)
+		h := structhash.Sha1(e)
+		id := hex.EncodeToString(h[:])
 		if ids[id] {
 			return false
 		}

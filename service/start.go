@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/hex"
 	"strconv"
 	"strings"
 
@@ -132,9 +133,10 @@ func (d *Dependency) extractVolumesFrom() ([]container.Mount, error) {
 // volumeKey creates a key for service's volume based on the sid to make sure that the volume
 // will stay the same for different versions of the service.
 func volumeKey(s *Service, dependency string, volume string) string {
-	return structhash.Sha1Str([]string{
+	h := structhash.Sha1([]string{
 		s.Sid,
 		dependency,
 		volume,
 	})
+	return hex.EncodeToString(h[:])
 }

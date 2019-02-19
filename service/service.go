@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/hex"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -172,7 +173,8 @@ func DeployStatusOption(statuses chan DeployStatus) Option {
 // have effect on computation but extending or removing configurations or changing
 // values in mesg.yml will cause computeHash to generate a different value.
 func (s *Service) computeHash() string {
-	return structhash.Sha1Str(s)
+	h := structhash.Sha1(s)
+	return hex.EncodeToString(h[:])
 }
 
 // saveContext downloads service context to a temp dir.
