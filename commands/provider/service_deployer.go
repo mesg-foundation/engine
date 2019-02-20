@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/url"
 
-	"github.com/asaskevich/govalidator"
 	"github.com/docker/cli/cli/command/image/build"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
@@ -56,7 +56,7 @@ func (p *ServiceProvider) ServiceDeploy(path string, env map[string]string, stat
 	}()
 	go readDeployReply(stream, deployment, statuses)
 
-	if govalidator.IsURL(path) {
+	if _, err := url.Parse(path); err != nil {
 		if err := stream.Send(&coreapi.DeployServiceRequest{
 			Value: &coreapi.DeployServiceRequest_Url{Url: path},
 			Env:   env,
