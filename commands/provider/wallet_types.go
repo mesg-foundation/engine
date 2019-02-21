@@ -1,10 +1,5 @@
 package provider
 
-import (
-	"github.com/ethereum/go-ethereum/accounts/keystore"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-)
-
 const walletServiceID = "ethwallet"
 
 type walletListOutputSuccess struct {
@@ -58,19 +53,19 @@ type walletSignOutputSuccess struct {
 }
 
 type EncryptedKeyJSONV3 struct {
-	Address string              `json:"address"`
-	Crypto  keystore.CryptoJSON `json:"crypto"` // TODO: remove all type from go-ethereum
-	ID      string              `json:"id"`
-	Version int                 `json:"version"`
+	Address string      `json:"address"`
+	Crypto  interface{} `json:"crypto"`
+	ID      string      `json:"id"`
+	Version int         `json:"version"`
 }
 
 // Transaction represents created transaction.
 type Transaction struct {
-	ChainID  int64         `json:"chainID"`
-	Nonce    uint64        `json:"nonce"`
-	To       string        `json:"to"`
-	Value    string        `json:"value"`
-	Gas      uint64        `json:"gas"`
-	GasPrice string        `json:"gasPrice"`
-	Data     hexutil.Bytes `json:"data"` // TODO: remove all type from go-ethereum
+	ChainID  int64  `json:"chainID"`
+	Nonce    uint64 `json:"nonce"`
+	To       string `json:"to"`
+	Value    string `json:"value"`
+	Gas      uint64 `json:"gas"`
+	GasPrice string `json:"gasPrice"`
+	Data     string `json:"data"`
 }

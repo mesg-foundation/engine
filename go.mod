@@ -6,26 +6,21 @@ require (
 	github.com/Netflix/go-expect v0.0.0-20180928190340-9d1f4485533b // indirect
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
 	github.com/alcortesm/tgz v0.0.0-20161220082320-9c5fe88206d7 // indirect
-	github.com/allegro/bigcache v1.2.0 // indirect
 	github.com/anmitsu/go-shlex v0.0.0-20161002113705-648efa622239 // indirect
-	github.com/aristanetworks/goarista v0.0.0-20190212181145-83ee463e1d9e // indirect
 	github.com/asaskevich/govalidator v0.0.0-20180319081651-7d2e70ef918f
 	github.com/briandowns/spinner v0.0.0-20180822135157-9f016caa1359
 	github.com/cnf/structhash v0.0.0-20180104161610-62a607eb0224
 	github.com/containerd/continuity v0.0.0-20180712174259-0377f7d76720 // indirect
-	github.com/deckarep/golang-set v1.7.1 // indirect
 	github.com/docker/cli v0.0.0-20190129171106-b258f458cc8d
 	github.com/docker/distribution v0.0.0-20180720172123-0dae0957e5fe // indirect
 	github.com/docker/docker v0.0.0-20180803200506-eeea12db7a65
 	github.com/docker/go-connections v0.0.0-20180212134524-7beb39f0b969 // indirect
 	github.com/docker/go-units v0.3.3 // indirect
 	github.com/emirpasic/gods v0.0.0-20180618112450-bba54c718c4e // indirect
-	github.com/ethereum/go-ethereum v1.8.20
 	github.com/fatih/color v0.0.0-20170926111411-5df930a27be2
 	github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568 // indirect
 	github.com/gliderlabs/ssh v0.1.1 // indirect
 	github.com/go-bindata/go-bindata v0.0.0-20181025070752-41975c0ccc30
-	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/gogo/protobuf v1.0.0 // indirect
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b // indirect
 	github.com/golang/protobuf v1.2.0
@@ -52,12 +47,10 @@ require (
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/opencontainers/runc v0.1.1 // indirect
-	github.com/pborman/uuid v1.2.0 // indirect
 	github.com/pelletier/go-buffruneio v0.0.0-20180119162133-e2f66f8164ca // indirect
 	github.com/pkg/errors v0.8.0
 	github.com/pseudomuto/protoc-gen-doc v1.1.0
 	github.com/pseudomuto/protokit v0.1.0 // indirect
-	github.com/rjeczalik/notify v0.9.2 // indirect
 	github.com/satori/go.uuid v1.2.0
 	github.com/sergi/go-diff v0.0.0-20180205163309-da645544ed44 // indirect
 	github.com/sirupsen/logrus v1.0.6
@@ -74,6 +67,7 @@ require (
 	golang.org/x/crypto v0.0.0-20180621125126-a49355c7e3f8
 	golang.org/x/net v0.0.0-20180906233101-161cd47e91fd
 	golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4 // indirect
+	golang.org/x/sys v0.0.0-20180926160741-c2ed4eda69e7 // indirect
 	golang.org/x/time v0.0.0-20181108054448-85acf8d2951c // indirect
 	golang.org/x/tools v0.0.0-20190111214448-fc1d57b08d7b // indirect
 	google.golang.org/genproto v0.0.0-20180709204101-e92b11657268 // indirect
