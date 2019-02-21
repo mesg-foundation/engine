@@ -97,6 +97,7 @@ func (p *ServiceProvider) deployServiceFromMarketplace(u string, env map[string]
 	}
 
 	// Get ALL address from wallet
+	// TODO: this should use the list in wallet provider
 	res, err := p.client.ExecuteAndListen("ethwallet", "list", nil)
 	if err != nil {
 		return err
@@ -116,6 +117,7 @@ func (p *ServiceProvider) deployServiceFromMarketplace(u string, env map[string]
 	}
 
 	// Check if one of them are is authorized
+	// TODO: this should move to marketplace provider
 	res, err = p.client.ExecuteAndListen("marketplace", "checkForDeployment", CheckForDeploymentInputs{
 		Hash:      path[1],
 		Addresses: listOutput.Addresses,
