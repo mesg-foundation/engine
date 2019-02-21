@@ -37,3 +37,12 @@ func (c *baseWalletCmd) setupFlags() {
 	c.cmd.Flags().BoolVarP(&c.noPassphrase, "no-passphrase", "n", c.noPassphrase, "Leave passphrase empty")
 	c.cmd.Flags().StringVarP(&c.passphrase, "passphrase", "p", c.passphrase, "Passphrase to encrypt the account")
 }
+
+func (c *baseWalletCmd) askPassphrase() error {
+	if !c.noPassphrase && c.passphrase == "" {
+		if err := askPass("Enter passphrase", &c.passphrase); err != nil {
+			return err
+		}
+	}
+	return nil
+}

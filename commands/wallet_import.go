@@ -84,6 +84,6 @@ func (c *walletImportCmd) runE(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%s Wallet imported with address %s\n", pretty.SuccessSign, address)
+	fmt.Printf("%s Account imported with address %s\n", pretty.SuccessSign, address)
 	return nil
 }

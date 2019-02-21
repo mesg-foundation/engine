@@ -10,7 +10,7 @@ import (
 type walletDeleteCmd struct {
 	baseWalletCmd
 
-	address string
+	account string
 
 	e WalletExecutor
 }
@@ -31,21 +31,19 @@ func newWalletDeleteCmd(e WalletExecutor) *walletDeleteCmd {
 }
 
 func (c *walletDeleteCmd) preRunE(cmd *cobra.Command, args []string) error {
-	// TODO: if no address provided, the cli should ask to select one.
-	if !c.noPassphrase && c.passphrase == "" {
-		if err := askPass("Enter passphrase", &c.passphrase); err != nil {
-			return err
-		}
+	if err := c.askPassphrase(); err != nil {
+		return nil
 	}
-	c.address = args[0]
+	// TODO: if no account provided, the cli should ask to select one.
+	c.account = args[0]
 	return nil
 }
 
 func (c *walletDeleteCmd) runE(cmd *cobra.Command, args []string) error {
-	address, err := c.e.Delete(c.address, c.passphrase)
+	account, err := c.e.Delete(c.account, c.passphrase)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%s Wallet %s deleted\n", pretty.SuccessSign, address)
+	fmt.Printf("%s Account %q deleted\n", pretty.SuccessSign, account)
 	return nil
 }
