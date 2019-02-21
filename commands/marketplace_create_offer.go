@@ -13,8 +13,8 @@ type marketplaceCreateOfferCmd struct {
 	baseMarketplaceCmd
 
 	service  *provider.MarketplaceService
-	price    float64 // in MESG token
-	duration uint64
+	price    string // in MESG token
+	duration string
 
 	e Executor
 }
@@ -30,8 +30,8 @@ func newMarketplaceCreateOfferCmd(e Executor) *marketplaceCreateOfferCmd {
 		Args:    cobra.MinimumNArgs(1),
 	})
 	c.setupFlags()
-	c.cmd.Flags().Float64VarP(&c.price, "price", "", c.price, "Price (in MESG token) of the offer to create")
-	c.cmd.Flags().Uint64VarP(&c.duration, "duration", "", c.duration, "Duration (in second) of the offer to create")
+	c.cmd.Flags().StringVarP(&c.price, "price", "", c.price, "Price (in MESG token) of the offer to create")
+	c.cmd.Flags().StringVarP(&c.duration, "duration", "", c.duration, "Duration (in second) of the offer to create")
 	return c
 }
 
@@ -44,15 +44,15 @@ func (c *marketplaceCreateOfferCmd) preRunE(cmd *cobra.Command, args []string) e
 		return nil
 	}
 
-	if c.price == 0 {
+	if c.price == "" {
 		if err := askInput("Enter the price (in MESG Token) of the offer", &c.price); err != nil {
 			return err
 		}
 	}
-	if c.price < 0 {
-		return fmt.Errorf("Price cannot be negative")
-	}
-	if c.duration == 0 {
+	// if c.price < 0 {
+	// 	return fmt.Errorf("Price cannot be negative")
+	// }
+	if c.duration == "" {
 		if err := askInput("Enter the duration (in second) of the offer", &c.duration); err != nil {
 			return err
 		}
@@ -70,7 +70,7 @@ func (c *marketplaceCreateOfferCmd) preRunE(cmd *cobra.Command, args []string) e
 
 	var confirmed bool
 	if err := survey.AskOne(&survey.Confirm{
-		Message: fmt.Sprintf("Are you sure to create offer on service %q with price %f and duration %d?", args[0], c.price, c.duration),
+		Message: fmt.Sprintf("Are you sure to create offer on service %q with price %q and duration %q?", args[0], c.price, c.duration),
 	}, &confirmed, nil); err != nil {
 		return err
 	}
