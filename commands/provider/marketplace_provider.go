@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"strconv"
 
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/ipfs"
@@ -78,12 +79,12 @@ func (p *MarketplaceProvider) CreateServiceVersion(sid, hash, manifest, manifest
 }
 
 // CreateServiceOffer executes the create service offer task
-func (p *MarketplaceProvider) CreateServiceOffer(sid, price, duration, from string) (*Transaction, error) {
+func (p *MarketplaceProvider) CreateServiceOffer(sid string, price float64, duration uint64, from string) (*Transaction, error) {
 	r, err := p.client.ExecuteAndListen(MarketplaceServiceID, "createServiceOffer", &CreateServiceOfferTaskInputs{
 		TransactionTaskInputs: &TransactionTaskInputs{From: from},
 		Sid:                   sid,
-		Price:                 price,
-		Duration:              duration,
+		Price:                 strconv.FormatFloat(price, 'f', -1, 64),
+		Duration:              strconv.Itoa(int(duration)),
 	})
 	if err != nil {
 		return nil, err

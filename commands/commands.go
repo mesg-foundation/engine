@@ -44,7 +44,7 @@ type MarketplaceExecutor interface {
 	UploadServiceFiles(path string, manifest provider.ManifestData) (protocol string, source string, err error)
 	CreateService(sid, from string) (*provider.Transaction, error)
 	CreateServiceVersion(sidHash, hash, manifest, manifestProtocol, from string) (*provider.Transaction, error)
-	CreateServiceOffer(sidHash, price, duration, from string) (*provider.Transaction, error)
+	CreateServiceOffer(sid string, price float64, duration uint64, from string) (*provider.Transaction, error)
 	DisableServiceOffer(sidHash, offerIndex, from string) (*provider.Transaction, error)
 	Purchase(sidHash, offerIndex, from string) (*provider.Transaction, error)
 	TransferServiceOwnership(sidHash, newOwner, from string) (*provider.Transaction, error)
