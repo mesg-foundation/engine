@@ -58,16 +58,6 @@ func (c *marketplaceCreateOfferCmd) preRunE(cmd *cobra.Command, args []string) e
 		}
 	}
 
-	// var exist bool
-	// pretty.Progress("Checking if service exist...", func() {
-	// 	exist, err = c.e.ServiceExist(args[0])
-	// })
-	// if err != nil {
-	// 	return err
-	// }
-	// if !exist {
-	// 	return fmt.Errorf("service %q doesn't exist", args[0])
-	// }
 	pretty.Progress("Getting service data...", func() {
 		c.service, err = c.e.GetService(args[0])
 	})

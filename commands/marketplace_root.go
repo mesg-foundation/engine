@@ -22,6 +22,7 @@ func newRootMarketplaceCmd(e Executor) *rootMarketplaceCmd {
 	c.cmd.AddCommand(
 		newMarketplacePublishCmd(e).cmd,
 		newMarketplaceCreateOfferCmd(e).cmd,
+		newMarketplaceDisableOfferCmd(e).cmd,
 	)
 	return c
 }
