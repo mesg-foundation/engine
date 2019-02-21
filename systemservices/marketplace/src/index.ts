@@ -115,7 +115,7 @@ const main = async () => {
 
 try {
   main()
-  .catch(error => console.error('catch promise', error))
+    .catch(error => console.error('catch promise', error))
 } catch (error) {
   console.error('catch try', error)
 }

@@ -1,6 +1,6 @@
 import { TaskInputs, TaskOutputs } from "mesg-js/lib/service"
 import { Marketplace } from "../contracts/Marketplace"
-import { sha3 } from "../contracts/utils";
+import { sha3, toUnit } from "../contracts/utils";
 
 export default (
   contract: Marketplace,
@@ -9,7 +9,7 @@ export default (
   try {
     const transactionData = contract.methods.createServiceOffer(
       sha3(inputs.sid),
-      inputs.price,
+      toUnit(inputs.price).toString(),
       inputs.duration
     ).encodeABI()
     return outputs.success(await createTransaction(inputs, transactionData))
