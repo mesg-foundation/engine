@@ -22,12 +22,10 @@ const getServiceWithIndex = async (contract: Marketplace, serviceIndex: BigNumbe
 }
 
 const getService = async (contract: Marketplace, sidHash: string): Promise<Service|undefined> => {
-  const service = await contract.methods.services(sidHash).call()
-  if (service.sid === null ||
-      service.owner === "0x0000000000000000000000000000000000000000"
-  ) {
+  if (!await contract.methods.isServiceExist(sidHash).call()) {
     return
   }
+  const service = await contract.methods.services(sidHash).call()
   const [ versions, offers, purchases ] = await Promise.all([
     getServiceVersions(contract, sidHash),
     getServiceOffers(contract, sidHash),
