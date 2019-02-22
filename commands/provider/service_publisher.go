@@ -33,8 +33,6 @@ type marketplaceData struct {
 
 // ServicePublishDefinitionFile upload and publish the tarball and definition file and returns the address of the definition file
 func (p *ServiceProvider) ServicePublishDefinitionFile(path string) (string, error) {
-	ipfs := ipfs.New()
-
 	exclude, err := p.getExcludeList(path)
 	if err != nil {
 		return "", err
