@@ -7,7 +7,7 @@ configuration:
     - BLOCK_CONFIRMATIONS=1
     - DEFAULT_GAS=1000000
     - POLLING_TIME=1000
-    - MARKETPLACE_ADDRESS=0x2dcE54135A3b016E750BF2A3e2A88bF1898d4ad0
+    - MARKETPLACE_ADDRESS=0x9FF2B98bcb62bdBB63F6b98FE812B663280c1cC4
 tasks:
   listServices:
     name: ""
@@ -25,6 +25,10 @@ tasks:
             repeated: true
             object: &service
               sid: &sid
+                name: ""
+                description: ""
+                type: String
+              createTime: &createTime
                 name: ""
                 description: ""
                 type: String
@@ -60,6 +64,7 @@ tasks:
                     description: ""
                     type: Object
                     optional: true
+                  createTime: *createTime
               offers: &offers
                 name: ""
                 description: ""
@@ -83,6 +88,7 @@ tasks:
                     name: ""
                     description: ""
                     type: Boolean
+                  createTime: *createTime
               purchases: &purchases
                 name: ""
                 description: ""
@@ -98,6 +104,7 @@ tasks:
                     name: ""
                     description: ""
                     type: String
+                  createTime: *createTime
       error: &outputError
         name: "Error"
         description: "Output when an error occurs"

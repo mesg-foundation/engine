@@ -1,5 +1,5 @@
-import { Manifest } from "../types/service";
 import Request from "request-promise-native"
+import { Manifest } from "../types/manifest";
 
 const getIpfs = async (source: string): Promise<any> => {
   return await Request.get('https://gateway.ipfs.io/ipfs/' + source, { json: true, timeout: 10000 })
