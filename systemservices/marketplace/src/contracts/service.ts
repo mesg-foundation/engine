@@ -35,10 +35,10 @@ const getService = async (contract: Marketplace, sidHash: string): Promise<Servi
     owner: service.owner.toLowerCase(),
     sid: hexToAscii(service.sid).toLowerCase(),
     sidHash: sidHash.toLowerCase(),
+    createTime: parseTimestamp(service.createTime),
     versions: versions,
     offers: offers,
     purchases: purchases,
-    createTime: parseTimestamp(service.createTime),
   }
 }
 
