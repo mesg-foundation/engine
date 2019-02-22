@@ -113,6 +113,11 @@ tasks:
             name: "Message"
             description: "The error message"
             type: String
+          code:
+            name: "Error code"
+            description: "The error code"
+            type: String
+            optional: true
   getService:
     name: ""
     description: ""
@@ -126,39 +131,6 @@ tasks:
         name: ""
         description: ""
         data: *service
-      error: *outputError
-  getServiceVersion:
-    name: ""
-    description: ""
-    inputs:
-      sid: *inputSid
-      hash: &inputHash
-        name: ""
-        description: ""
-        type: String
-    outputs:
-      success:
-        name: ""
-        description: ""
-        data: *version
-      error: *outputError
-  serviceExist:
-    name: ""
-    description: ""
-    inputs:
-      sid: &inputSid
-        name: ""
-        description: ""
-        type: String
-    outputs:
-      success:
-        name: ""
-        description: ""
-        data:
-          exist:
-            name: ""
-            description: ""
-            type: Boolean
       error: *outputError
   createService:
     name: ""
@@ -312,22 +284,6 @@ tasks:
         data:
           receipt:
             type: Object
-  isAuthorized:
-    name: ""
-    description: ""
-    inputs:
-      sid: *inputSid
-      from: *inputFrom
-    outputs:
-      error: *outputError
-      success:
-        name: ""
-        description: ""
-        data:
-          authorized:
-            name: ""
-            description: ""
-            type: Boolean
   checkForDeployment:
     name: ""
     description: ""

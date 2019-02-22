@@ -7,7 +7,10 @@ export default (contract: Marketplace) => async (inputs: TaskInputs, outputs: Ta
   try {
     const service = await getService(contract, sha3(inputs.sid))
     if (service === undefined) {
-      throw new Error('service with sid ' + inputs.sid + ' does not exist')
+      return outputs.error({
+        message: 'service with sid ' + inputs.sid + ' does not exist',
+        code: 'notFound',
+      })
     }
     return outputs.success(service)
   }
