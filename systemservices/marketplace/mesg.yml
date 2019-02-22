@@ -28,6 +28,10 @@ tasks:
                 name: ""
                 description: ""
                 type: String
+              createTime: &createTime
+                name: ""
+                description: ""
+                type: String
               sidHash: &sidHash
                 name: ""
                 description: ""
@@ -60,6 +64,7 @@ tasks:
                     description: ""
                     type: Object
                     optional: true
+                  createTime: *createTime
               offers: &offers
                 name: ""
                 description: ""
@@ -83,6 +88,7 @@ tasks:
                     name: ""
                     description: ""
                     type: Boolean
+                  createTime: *createTime
               purchases: &purchases
                 name: ""
                 description: ""
@@ -98,6 +104,7 @@ tasks:
                     name: ""
                     description: ""
                     type: String
+                  createTime: *createTime
       error: &outputError
         name: "Error"
         description: "Output when an error occurs"
