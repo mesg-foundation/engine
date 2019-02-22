@@ -23,6 +23,8 @@ const toUnit = (x: string|BigNumber) => {
 }
 const fromUnit = (x: string|BigNumber) => new BigNumber(x).dividedBy(1e18)
 
+const parseTimestamp = (x: string) => new Date(new BigNumber(x).times(1000).toString())
+
 export {
   hexToAscii,
   asciiToHex,
@@ -30,4 +32,5 @@ export {
   isValidNumber,
   toUnit,
   fromUnit,
+  parseTimestamp,
 }

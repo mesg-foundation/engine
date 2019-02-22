@@ -4,7 +4,7 @@ import { Service } from "../types/service";
 import { getServiceVersions } from "./version";
 import { getServiceOffers } from "./offer";
 import { getServicePurchases } from "./purchase";
-import { hexToAscii } from "./utils";
+import { hexToAscii, parseTimestamp } from "./utils";
 
 const getAllServices = async (contract: Marketplace): Promise<Service[]> => {
   const servicesLength = new BigNumber(await contract.methods.servicesListLength().call())
@@ -40,6 +40,7 @@ const getService = async (contract: Marketplace, sidHash: string): Promise<Servi
     versions: versions,
     offers: offers,
     purchases: purchases,
+    createTime: parseTimestamp(service.createTime),
   }
 }
 

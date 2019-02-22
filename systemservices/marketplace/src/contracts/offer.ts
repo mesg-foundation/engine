@@ -1,7 +1,7 @@
 import BigNumber from "bignumber.js"
 import { Marketplace } from "./Marketplace"
-import { Offer } from "../types/service";
-import { isValidNumber, fromUnit } from "./utils";
+import { Offer } from "../types/offer";
+import { isValidNumber, fromUnit, parseTimestamp } from "./utils";
 
 const getServiceOffers = async (contract: Marketplace, sidHash: string): Promise<Offer[]> => {
   const offersLength = new BigNumber(await contract.methods.servicesOffersLength(sidHash).call())
@@ -28,6 +28,7 @@ const getServiceOffer = async (contract: Marketplace, sidHash: string, offerInde
     price: fromUnit(price),
     duration: duration,
     active: offer.active,
+    createTime: parseTimestamp(offer.createTime),
   }
 }
 

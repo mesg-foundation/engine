@@ -1,7 +1,7 @@
 import BigNumber from "bignumber.js"
 import { Marketplace } from "./Marketplace"
-import { Version } from "../types/service";
-import { hexToAscii, isValidNumber } from "./utils";
+import { Version } from "../types/version";
+import { hexToAscii, isValidNumber, parseTimestamp } from "./utils";
 import { getManifest } from "./manifest";
 
 const getServiceVersions = async (contract: Marketplace, sidHash: string): Promise<Version[]> => {
@@ -33,6 +33,7 @@ const getServiceVersion = async (contract: Marketplace, sidHash: string, version
     manifestSource: hexToAscii(version.manifest),
     manifestProtocol: hexToAscii(version.manifestProtocol),
     manifest: manifest,
+    createTime: parseTimestamp(version.createTime),
   }
 }
 
