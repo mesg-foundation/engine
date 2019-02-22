@@ -3,7 +3,10 @@ package provider
 import (
 	"bytes"
 	"encoding/json"
+	"os"
+	"path/filepath"
 
+	"github.com/docker/docker/builder/dockerignore"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/ipfs"
 	"github.com/mesg-foundation/core/service/importer"
@@ -30,9 +33,14 @@ type marketplaceData struct {
 
 // ServicePublishDefinitionFile upload and publish the tarball and definition file and returns the address of the definition file
 func (p *ServiceProvider) ServicePublishDefinitionFile(path string) (string, error) {
-	ipfs := ipfs.New()
+	exclude, err := p.getExcludeList(path)
+	if err != nil {
+		return "", err
+	}
+
 	tar, err := archive.TarWithOptions(path, &archive.TarOptions{
-		Compression: archive.Gzip,
+		Compression:     archive.Gzip,
+		ExcludePatterns: exclude,
 	})
 	if err != nil {
 		return "", err
@@ -52,6 +60,18 @@ func (p *ServiceProvider) ServicePublishDefinitionFile(path string) (string, err
 		return "", err
 	}
 	return definitionResponse.Hash, nil
+}
+
+func (p *ServiceProvider) getExcludeList(path string) ([]string, error) {
+	f, err := os.Open(filepath.Join(path, ".mesgignore"))
+	if err != nil {
+		if os.IsNotExist(err) {
+			return []string{}, nil
+		}
+		return nil, err
+	}
+	defer f.Close()
+	return dockerignore.ReadAll(f)
 }
 
 func (p *ServiceProvider) createDefinitionFile(path string, tarballHash string) ([]byte, error) {
