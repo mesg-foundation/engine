@@ -25,9 +25,6 @@ import listServices from "./tasks/listServices"
 import purchase from "./tasks/purchase"
 import sendSignedTransaction from "./tasks/sendSignedTransaction"
 import transferServiceOwnership from "./tasks/transferServiceOwnership"
-import isAuthorized from "./tasks/isAuthorized"
-import serviceExist from "./tasks/serviceExist"
-import getServiceVersion from "./tasks/getServiceVersion"
 import checkForDeployment from "./tasks/checkForDeployment"
 
 const providerEndpoint = process.env.PROVIDER_ENDPOINT as string
@@ -70,8 +67,6 @@ const main = async () => {
   mesg.listenTask({
     listServices: listServices(contract),
     getService: getService(contract),
-    getServiceVersion: getServiceVersion(contract),
-    serviceExist: serviceExist(contract),
     createService: createService(contract, createTransaction),
     createServiceOffer: createServiceOffer(contract, createTransaction),
     createServiceVersion: createServiceVersion(contract, createTransaction),
@@ -79,7 +74,6 @@ const main = async () => {
     purchase: purchase(contract, createTransaction),
     transferServiceOwnership: transferServiceOwnership(contract, createTransaction),
     sendSignedTransaction: sendSignedTransaction(web3),
-    isAuthorized: isAuthorized(contract),
     checkForDeployment: checkForDeployment(contract),
   })
   .on('error', error => console.error('catch listenTask', error))
