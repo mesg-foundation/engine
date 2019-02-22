@@ -13,6 +13,7 @@ RUN go build -o mesg-core \
       -ldflags="-X 'github.com/mesg-foundation/core/version.Version=$version'" \
       core/main.go
 
+# NOTE: docker uses xz-utils for uncompress tar.xz files
 FROM ubuntu:18.04
 RUN apt-get update && \
       apt-get install -y --no-install-recommends ca-certificates=20180409 xz-utils && \
