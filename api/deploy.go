@@ -98,12 +98,6 @@ func (d *serviceDeployer) FromURL(url string) (*service.Service, *importer.Valid
 			return nil, nil, err
 		}
 
-		// XXX: remove .git folder from repo.
-		// It makes docker build iamge id same between repo clones.
-		if err := os.RemoveAll(filepath.Join(path, ".git")); err != nil {
-			return nil, nil, err
-		}
-
 	} else {
 		// if not git repo then it should be tarball
 		resp, err := http.Get(url)
@@ -114,17 +108,24 @@ func (d *serviceDeployer) FromURL(url string) (*service.Service, *importer.Valid
 		if err := archive.Untar(resp.Body, path, nil); err != nil {
 			return nil, nil, err
 		}
-		// NOTE: this is check for tar repos, if there is only one
-		// directory inside untar archive set temp path to it.
-		dirs, err := ioutil.ReadDir(path)
-		if err != nil {
-			return nil, nil, err
-		}
-		if len(dirs) == 1 && dirs[0].IsDir() {
-			path = filepath.Join(path, dirs[0].Name())
-		}
-
 	}
+
+	// XXX: remove .git folder from repo.
+	// It makes docker build iamge id same between repo clones.
+	if err := os.RemoveAll(filepath.Join(path, ".git")); err != nil {
+		return nil, nil, err
+	}
+
+	// NOTE: this is check for tar repos, if there is only one
+	// directory inside untar archive set temp path to it.
+	dirs, err := ioutil.ReadDir(path)
+	if err != nil {
+		return nil, nil, err
+	}
+	if len(dirs) == 1 && dirs[0].IsDir() {
+		path = filepath.Join(path, dirs[0].Name())
+	}
+
 	d.sendStatus("Service downloaded with success", DonePositive)
 	r, err := archive.Tar(path, archive.Uncompressed)
 	if err != nil {
