@@ -42,7 +42,10 @@ func validateServiceStruct(service *ServiceDefinition) []string {
 
 	for k, d := range service.Dependencies {
 		if d.Image == "" {
-			fmt.Sprintf("dependencies[%s].image is invalid: empty", k)
+			warnings = append(
+				warnings,
+				fmt.Sprintf("dependencies[%s].image is invalid: empty", k),
+			)
 		}
 	}
 
