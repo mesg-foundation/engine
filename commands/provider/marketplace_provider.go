@@ -206,54 +206,6 @@ func (p *MarketplaceProvider) SendSignedTransaction(signedTransaction string) (*
 	return &output, nil
 }
 
-// IsAuthorized executes the task send signed transaction.
-func (p *MarketplaceProvider) IsAuthorized(sid string) (bool, error) {
-	r, err := p.client.ExecuteAndListen(MarketplaceServiceID, "isAuthorized", &IsAuthorizedTaskInputs{
-		Sid: sid,
-	})
-	if err != nil {
-		return false, err
-	}
-
-	if r.OutputKey == "error" {
-		var output ErrorOutput
-		if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
-			return false, err
-		}
-		return false, errors.New(output.Message)
-	}
-
-	var output IsAuthorizedTaskSuccessOutput
-	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
-		return false, err
-	}
-	return output.Authorized, nil
-}
-
-// ServiceExist executes the task service exist.
-func (p *MarketplaceProvider) ServiceExist(sid string) (bool, error) {
-	r, err := p.client.ExecuteAndListen(MarketplaceServiceID, "serviceExist", &ServiceExistTaskInputs{
-		Sid: sid,
-	})
-	if err != nil {
-		return false, err
-	}
-
-	if r.OutputKey == "error" {
-		var output ErrorOutput
-		if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
-			return false, err
-		}
-		return false, errors.New(output.Message)
-	}
-
-	var output ServiceExistTaskSuccessOutput
-	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
-		return false, err
-	}
-	return output.Exist, nil
-}
-
 // GetService executes the task get service.
 func (p *MarketplaceProvider) GetService(sid string) (*MarketplaceService, error) {
 	var output MarketplaceService
@@ -269,7 +221,7 @@ func (p *MarketplaceProvider) GetService(sid string) (*MarketplaceService, error
 		if err := json.Unmarshal([]byte(r.OutputData), &outputError); err != nil {
 			return &output, err
 		}
-		return &output, errors.New(outputError.Message)
+		return &output, outputError
 	}
 
 	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {

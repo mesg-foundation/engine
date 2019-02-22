@@ -49,8 +49,6 @@ type MarketplaceExecutor interface {
 	Purchase(sidHash, offerIndex, from string) (*provider.Transaction, error)
 	TransferServiceOwnership(sidHash, newOwner, from string) (*provider.Transaction, error)
 	SendSignedTransaction(signedTransaction string) (*provider.TransactionReceipt, error)
-	IsAuthorized(sidHash string) (bool, error)
-	ServiceExist(sid string) (bool, error)
 	GetService(sid string) (*provider.MarketplaceService, error)
 }
 

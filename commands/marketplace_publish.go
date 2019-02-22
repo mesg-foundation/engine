@@ -50,24 +50,21 @@ func (c *marketplacePublishCmd) preRunE(cmd *cobra.Command, args []string) error
 		return err
 	}
 
-	var exist bool
-	pretty.Progress("Checking if service exist...", func() {
-		exist, err = c.e.ServiceExist(c.manifest.Definition.Sid)
+	pretty.Progress("Getting service data...", func() {
+		c.service, err = c.e.GetService(c.manifest.Definition.Sid)
 	})
-	if err != nil {
-		return err
-	}
-	if exist {
+	outputError, ok := err.(provider.ErrorOutput)
+	fmt.Println("outputError", outputError)
+	if ok && outputError.Code == "notFound" {
+		err = nil
+	} else {
 		question = "a new version of service"
-		pretty.Progress("Getting service data...", func() {
-			c.service, err = c.e.GetService(c.manifest.Definition.Sid)
-		})
-		if err != nil {
-			return err
-		}
 		if c.service.Owner != c.account {
 			return fmt.Errorf("the service's owner (%q) is different than the specified account", c.service.Owner)
 		}
+	}
+	if err != nil {
+		return err
 	}
 
 	var confirmed bool

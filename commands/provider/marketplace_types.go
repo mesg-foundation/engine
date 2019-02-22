@@ -15,6 +15,16 @@ const (
 	MarketplaceServiceID = "marketplace"
 )
 
+// ErrorOutput is the output for any task that fails.
+type ErrorOutput struct {
+	Message string `json:"message"`
+	Code    string `json:"code"`
+}
+
+func (e ErrorOutput) Error() string {
+	return e.Message
+}
+
 type ManifestData struct {
 	Version    int                        `json:"version"`
 	Definition importer.ServiceDefinition `json:"definition"`
@@ -32,11 +42,6 @@ type TransactionTaskInputs struct {
 	From string `json:"from"`
 	// Gas      string `json:"gas"` // omitempty
 	// GasPrice string `json:"gasPrice"` // omitempty
-}
-
-// ErrorOutput is the output for any task that fails.
-type ErrorOutput struct {
-	Message string `json:"message"`
 }
 
 // TransactionOutput is the output for any task that creates a transaction.
@@ -112,16 +117,6 @@ type TransactionReceipt struct {
 	} `json:"receipt"`
 }
 
-// IsAuthorizedTaskInputs is the inputs of the task is authorized.
-type IsAuthorizedTaskInputs struct {
-	Sid string `json:"sid"`
-}
-
-// IsAuthorizedTaskSuccessOutput is the success output of task authorized.
-type IsAuthorizedTaskSuccessOutput struct {
-	Authorized bool `json:"authorized"`
-}
-
 // ServiceVersionInputs is the input for get service version task.
 type ServiceVersionInputs struct {
 	Sid  string `json:"sid"`
@@ -134,16 +129,6 @@ type ServiceVersionSuccessOutput struct {
 	ManifestSource   string       `json:"manifestSource"`
 	ManifestProtocol string       `json:"manifestProtocol"`
 	Manifest         ManifestData `json:"manifest"`
-}
-
-// ServiceExistTaskInputs is the inputs of the task service exist.
-type ServiceExistTaskInputs struct {
-	Sid string `json:"sid"`
-}
-
-// ServiceExistTaskSuccessOutput is the success output of task service exist.
-type ServiceExistTaskSuccessOutput struct {
-	Exist bool `json:"exist"`
 }
 
 // GetServiceTaskInputs is the inputs of the task service exist.
