@@ -1,52 +1,13 @@
-import BigNumber from "bignumber.js";
+import { Version } from "./version";
+import { Offer } from "./offer";
+import { Purchase } from "./purchase";
 
-interface Service {
+export interface Service {
   owner: string;
   sid: string;
   sidHash: string;
   versions: Version[];
   offers: Offer[];
   purchases: Purchase[];
+  createTime: Date;
 }
-
-interface Version {
-  hash: string;
-  manifestSource: string;
-  manifestProtocol: string;
-  manifest: Manifest|undefined;
-}
-
-interface Offer {
-  index: BigNumber;
-  price: BigNumber;
-  duration: BigNumber;
-  active: boolean;
-}
-
-interface Purchase {
-  purchaser: string;
-  expire: BigNumber;
-}
-
-interface Manifest {
-  version: number
-  service: {
-    deployment: {
-      type: string
-      source: string
-    }
-    definition: {
-      // basically mesg.yaml
-      // name
-      // description
-      // sid
-      // events
-      // tasks
-      // configuration
-      // dependencies
-    }
-    readme: string
-  }
-}
-
-export { Service, Version, Offer, Purchase, Manifest }
