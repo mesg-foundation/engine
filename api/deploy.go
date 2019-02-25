@@ -90,6 +90,7 @@ func (d *serviceDeployer) FromURL(url string) (*service.Service, *importer.Valid
 	if err != nil {
 		return nil, nil, err
 	}
+	defer os.RemoveAll(path)
 	d.sendStatus("Downloading service...", Running)
 	defer d.closeStatus()
 	if xgit.IsGitURL(url) {
