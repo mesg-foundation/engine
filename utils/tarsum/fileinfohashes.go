@@ -6,7 +6,7 @@ import (
 	"sort"
 )
 
-// FileInfoHash provides an struct for accessing file hash
+// FileInfoHash provides a struct for accessing file hash
 // information within a tar file.
 type FileInfoHash struct {
 	Header *tar.Header
