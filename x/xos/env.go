@@ -29,11 +29,7 @@ func EnvMapToSlice(values map[string]string) []string {
 // EnvMapToString transform a map of key value to a string in the form "key=value;key1=value1".
 // Env vars are sorted by names to get an accurate order while testing.
 func EnvMapToString(values map[string]string) string {
-	env := make([]string, 0, len(values))
-	for k, v := range values {
-		env = append(env, k+"="+v)
-	}
-	sort.Stable(sort.StringSlice(env))
+	env := EnvMapToSlice(values)
 	return strings.Join(env, ";")
 }
 
