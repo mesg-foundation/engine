@@ -120,6 +120,8 @@ func New(tarball io.Reader, env map[string]string, options ...Option) (*Service,
 	if err != nil {
 		return nil, err
 	}
+	defer decompressedStream.Close()
+
 	envbytes := []byte(xos.EnvMapToString(env))
 	hash, err := tarsum.New(tar.NewReader(decompressedStream)).Sum(envbytes)
 	if err != nil {
