@@ -22,37 +22,36 @@ type dependencies struct {
 }
 
 func initDependencies() (*dependencies, error) {
-	dep := dependencies{}
-
 	// init configs.
 	config, err := config.Global()
 	if err != nil {
-		return &dep, err
+		return nil, err
 	}
-	dep.config = config
 
 	// init services db.
-	serviceDB, err := database.NewServiceDB(filepath.Join(dep.config.Core.Path, dep.config.Core.Database.ServiceRelativePath))
+	serviceDB, err := database.NewServiceDB(filepath.Join(config.Core.Path, config.Core.Database.ServiceRelativePath))
 	if err != nil {
-		return &dep, err
+		return nil, err
 	}
-	dep.serviceDB = serviceDB
 
 	// init execution db.
-	executionDB, err := database.NewExecutionDB(filepath.Join(dep.config.Core.Path, dep.config.Core.Database.ExecutionRelativePath))
+	executionDB, err := database.NewExecutionDB(filepath.Join(config.Core.Path, config.Core.Database.ExecutionRelativePath))
 	if err != nil {
-		return &dep, err
+		return nil, err
 	}
-	dep.executionDB = executionDB
 
 	// init api.
-	api, err := api.New(dep.serviceDB, dep.executionDB)
+	api, err := api.New(serviceDB, executionDB)
 	if err != nil {
-		return &dep, err
+		return nil, err
 	}
-	dep.api = api
 
-	return &dep, nil
+	return &dependencies{
+		config:      config,
+		serviceDB:   serviceDB,
+		executionDB: executionDB,
+		api:         api,
+	}, nil
 }
 
 func deployCoreServices(config *config.Config, api *api.API) error {
