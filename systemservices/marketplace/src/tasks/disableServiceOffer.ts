@@ -1,17 +1,17 @@
 import { TaskInputs, TaskOutputs } from "mesg-js/lib/service"
 import { Marketplace } from "../contracts/Marketplace"
-import { asciiToHex } from "../contracts/utils";
+import { asciiToHex, CreateTransaction } from "../contracts/utils";
 
 export default (
-  contract: Marketplace,
-  createTransaction: (inputs: TaskInputs, data: string) => Promise<any>
+  marketplace: Marketplace,
+  createTransaction: CreateTransaction
 ) => async (inputs: TaskInputs, outputs: TaskOutputs): Promise<void> => {
   try {
-    const transactionData = contract.methods.disableServiceOffer(
+    const transactionData = marketplace.methods.disableServiceOffer(
       asciiToHex(inputs.sid),
       inputs.offerIndex
     ).encodeABI()
-    return outputs.success(await createTransaction(inputs, transactionData))
+    return outputs.success(await createTransaction(marketplace, inputs, transactionData))
   }
   catch (error) {
     console.error('error in disableServiceOffer', error)

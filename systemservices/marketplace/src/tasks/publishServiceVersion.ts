@@ -1,19 +1,19 @@
 import { TaskInputs, TaskOutputs } from "mesg-js/lib/service"
 import { Marketplace } from "../contracts/Marketplace"
-import { asciiToHex } from "../contracts/utils";
+import { asciiToHex, CreateTransaction } from "../contracts/utils";
 
 export default (
-  contract: Marketplace,
-  createTransaction: (inputs: TaskInputs, data: string) => Promise<any>
+  marketplace: Marketplace,
+  createTransaction: CreateTransaction
 ) => async (inputs: TaskInputs, outputs: TaskOutputs): Promise<void> => {
   try {
-    const transactionData = contract.methods.publishServiceVersion(
+    const transactionData = marketplace.methods.publishServiceVersion(
       asciiToHex(inputs.sid),
       inputs.versionHash,
       asciiToHex(inputs.manifest),
       asciiToHex(inputs.manifestProtocol)
     ).encodeABI()
-    return outputs.success(await createTransaction(inputs, transactionData))
+    return outputs.success(await createTransaction(marketplace, inputs, transactionData))
   }
   catch (error) {
     console.error('error in publishServiceVersion', error)
