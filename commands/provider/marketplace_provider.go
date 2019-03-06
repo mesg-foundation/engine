@@ -104,7 +104,7 @@ func (p *MarketplaceProvider) DisableServiceOffer(sid, offerIndex, from string) 
 }
 
 // Purchase executes the purchase task
-func (p *MarketplaceProvider) Purchase(sid, offerIndex, from string) (*Transaction, error) {
+func (p *MarketplaceProvider) Purchase(sid, offerIndex, from string) (*PurchaseTaskOutputs, error) {
 	r, err := p.client.ExecuteAndListen(MarketplaceServiceID, "purchase", &PurchaseTaskInputs{
 		TransactionTaskInputs: &TransactionTaskInputs{From: from},
 		Sid:                   sid,
@@ -122,7 +122,7 @@ func (p *MarketplaceProvider) Purchase(sid, offerIndex, from string) (*Transacti
 		return nil, errors.New(output.Message)
 	}
 
-	var output Transaction
+	var output PurchaseTaskOutputs
 	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
 		return nil, err
 	}

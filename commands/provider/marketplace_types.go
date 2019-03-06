@@ -86,6 +86,11 @@ type PurchaseTaskInputs struct {
 	OfferIndex string `json:"offerIndex"`
 }
 
+// PurchaseTaskOutputs is the output of the task purchase.
+type PurchaseTaskOutputs struct {
+	Transactions []Transaction `json:"transactions"`
+}
+
 // TransferServiceOwnershipTaskInputs is the inputs of the task transfer service ownership.
 type TransferServiceOwnershipTaskInputs struct {
 	*TransactionTaskInputs
@@ -161,6 +166,7 @@ type CheckForDeploymentInputs struct {
 // CheckForDeploymentSuccessOutput is the success output of task check for deployment.
 type CheckForDeploymentSuccessOutput struct {
 	Authorized bool   `json:"authorized"`
+	Sid        string `json:"sid"`
 	Source     string `json:"source"`
 	Type       string `json:"type"`
 }

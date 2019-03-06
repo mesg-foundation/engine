@@ -115,5 +115,7 @@ func (c *marketplacePublishCmd) runE(cmd *cobra.Command, args []string) error {
 	fmt.Printf("%s Service published with success\n", pretty.SuccessSign)
 	fmt.Printf("%s See it on the marketplace: https://marketplace.mesg.com/services/%s/%s\n", pretty.SuccessSign, c.manifest.Definition.Sid, versionHash)
 
+	fmt.Printf("%s To create a service offer, execute the command:\n\tmesg-core marketplace create-offer %s\n", pretty.WarnSign, c.manifest.Definition.Sid)
+
 	return nil
 }

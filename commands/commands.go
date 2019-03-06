@@ -45,7 +45,7 @@ type MarketplaceExecutor interface {
 	PublishServiceVersion(sid, versionHash, manifest, manifestProtocol, from string) (*provider.Transaction, error)
 	CreateServiceOffer(sid string, price string, duration string, from string) (*provider.Transaction, error)
 	DisableServiceOffer(sid, offerIndex, from string) (*provider.Transaction, error)
-	Purchase(sid, offerIndex, from string) (*provider.Transaction, error)
+	Purchase(sid, offerIndex, from string) (*provider.PurchaseTaskOutputs, error)
 	TransferServiceOwnership(sid, newOwner, from string) (*provider.Transaction, error)
 	SendSignedTransaction(signedTransaction string) (*provider.TransactionReceipt, error)
 	GetService(sid string) (*provider.MarketplaceService, error)

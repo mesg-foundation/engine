@@ -24,6 +24,7 @@ func newRootMarketplaceCmd(e Executor) *rootMarketplaceCmd {
 		newMarketplaceCreateOfferCmd(e).cmd,
 		newMarketplaceDisableOfferCmd(e).cmd,
 		newMarketplaceTransferOwnershipCmd(e).cmd,
+		newMarketplacePurchaseCmd(e).cmd,
 	)
 	return c
 }
