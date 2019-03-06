@@ -4,10 +4,11 @@ import { Service } from "../types/service";
 import { getServiceVersions } from "./version";
 import { getServiceOffers } from "./offer";
 import { getServicePurchases } from "./purchase";
-import { hexToAscii, parseTimestamp } from "./utils";
+import { hexToAscii, parseTimestamp, asciiToHex } from "./utils";
+import { POINT_CONVERSION_COMPRESSED } from "constants";
 
 const getAllServices = async (contract: Marketplace): Promise<Service[]> => {
-  const servicesLength = new BigNumber(await contract.methods.servicesListLength().call())
+  const servicesLength = new BigNumber(await contract.methods.servicesLength().call())
   const servicesPromise: Promise<Service|undefined>[] = []
   for (let i = new BigNumber(0); servicesLength.isGreaterThan(i); i = i.plus(1)) {
     servicesPromise.push(getServiceWithIndex(contract, i))
@@ -17,24 +18,24 @@ const getAllServices = async (contract: Marketplace): Promise<Service[]> => {
 }
 
 const getServiceWithIndex = async (contract: Marketplace, serviceIndex: BigNumber): Promise<Service|undefined> => {
-  const sidHash = await contract.methods.servicesList(serviceIndex.toString()).call()
-  return getService(contract, sidHash)
+  const sidHex = await contract.methods.servicesList(serviceIndex.toString()).call()
+  return getService(contract, hexToAscii(sidHex))
 }
 
-const getService = async (contract: Marketplace, sidHash: string): Promise<Service|undefined> => {
-  if (!await contract.methods.isServiceExist(sidHash).call()) {
+const getService = async (contract: Marketplace, sid: string): Promise<Service|undefined> => {
+  const sidHex = asciiToHex(sid)
+  if (!await contract.methods.isServiceExist(sidHex).call()) {
     return
   }
-  const service = await contract.methods.services(sidHash).call()
+  const service = await contract.methods.service(sidHex).call()
   const [ versions, offers, purchases ] = await Promise.all([
-    getServiceVersions(contract, sidHash),
-    getServiceOffers(contract, sidHash),
-    getServicePurchases(contract, sidHash),
+    getServiceVersions(contract, sid),
+    getServiceOffers(contract, sid),
+    getServicePurchases(contract, sid),
   ])
   return {
-    owner: service.owner.toLowerCase(),
-    sid: hexToAscii(service.sid).toLowerCase(),
-    sidHash: sidHash.toLowerCase(),
+    owner: service.owner,
+    sid: sid,
     createTime: parseTimestamp(service.createTime),
     versions: versions,
     offers: offers,

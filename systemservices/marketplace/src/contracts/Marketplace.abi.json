@@ -239,26 +239,21 @@
       },
       {
         "indexed": true,
-        "name": "sidHash",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
         "name": "owner",
         "type": "address"
       }
     ],
     "name": "ServiceCreated",
     "type": "event",
-    "signature": "0x44fd77aaa8b0d2741545ee60eaf0a311cf89240e04c6e7e5021d26134a246849"
+    "signature": "0xc7a3ee5e702d359e7fdd824e6143ce0165f5069ab3032feb464048b5772518de"
   },
   {
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "name": "sidHash",
-        "type": "bytes32"
+        "indexed": false,
+        "name": "sid",
+        "type": "bytes"
       },
       {
         "indexed": true,
@@ -273,19 +268,19 @@
     ],
     "name": "ServiceOwnershipTransferred",
     "type": "event",
-    "signature": "0x290c0cf26a546d6ef32f2ca926b6c56fbc9df7e22b896843e84d075a6f2531f0"
+    "signature": "0x058673b66fec5e95788e1e145a0d9719e3ef4e87ce151a3666e811cb26f79800"
   },
   {
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "name": "sidHash",
-        "type": "bytes32"
+        "indexed": false,
+        "name": "sid",
+        "type": "bytes"
       },
       {
         "indexed": true,
-        "name": "hash",
+        "name": "versionHash",
         "type": "bytes32"
       },
       {
@@ -301,15 +296,15 @@
     ],
     "name": "ServiceVersionCreated",
     "type": "event",
-    "signature": "0xcd905535da63ed7e0d85ba1f33eab3e4a1bdc08f9f8a30af069b0e5aaf116877"
+    "signature": "0x2968ea31a63448e11ef73bed029775a3051a69d562870c99ccf814b2f2f30317"
   },
   {
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "name": "sidHash",
-        "type": "bytes32"
+        "indexed": false,
+        "name": "sid",
+        "type": "bytes"
       },
       {
         "indexed": true,
@@ -329,15 +324,15 @@
     ],
     "name": "ServiceOfferCreated",
     "type": "event",
-    "signature": "0x3d8c4a82eb02dde4e807a58228e54d55b4d289cc33ddd3b6077b7ad8e296112c"
+    "signature": "0x5c346012a185ae42e510f971a89ee24c69cef2e45b856fd72745ffdbaab342ab"
   },
   {
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "name": "sidHash",
-        "type": "bytes32"
+        "indexed": false,
+        "name": "sid",
+        "type": "bytes"
       },
       {
         "indexed": true,
@@ -347,15 +342,15 @@
     ],
     "name": "ServiceOfferDisabled",
     "type": "event",
-    "signature": "0xf266e1b31e25266bc290b361ea73240a753e39e482b35a0babdae2c6db498a13"
+    "signature": "0x13fee3082718e9804a6ee6f33a00a31266045568fb132b68e26249f073f0486a"
   },
   {
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "name": "sidHash",
-        "type": "bytes32"
+        "indexed": false,
+        "name": "sid",
+        "type": "bytes"
       },
       {
         "indexed": true,
@@ -385,7 +380,7 @@
     ],
     "name": "ServicePurchased",
     "type": "event",
-    "signature": "0x5f631560e36d8a0a9b7fca2c9ecda6279e29ded6d6b3f6510721844257d87b78"
+    "signature": "0x1ce997ee4aea362a664ecb0e8b266b1c33e6b584b335495aafb9f72d8f1ee532"
   },
   {
     "anonymous": false,
@@ -458,98 +453,6 @@
     "signature": "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0"
   },
   {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "sidHash",
-        "type": "bytes32"
-      }
-    ],
-    "name": "isServiceExist",
-    "outputs": [
-      {
-        "name": "exist",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0xff21726d"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "sidHash",
-        "type": "bytes32"
-      },
-      {
-        "name": "hash",
-        "type": "bytes32"
-      }
-    ],
-    "name": "isServiceVersionExist",
-    "outputs": [
-      {
-        "name": "exist",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0xdc5cbda6"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "sidHash",
-        "type": "bytes32"
-      },
-      {
-        "name": "offerIndex",
-        "type": "uint256"
-      }
-    ],
-    "name": "isServiceOfferExist",
-    "outputs": [
-      {
-        "name": "exist",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0xcf3cf32e"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "sidHash",
-        "type": "bytes32"
-      },
-      {
-        "name": "purchaser",
-        "type": "address"
-      }
-    ],
-    "name": "isServicesPurchaseExist",
-    "outputs": [
-      {
-        "name": "exist",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x4e82130a"
-  },
-  {
     "constant": false,
     "inputs": [
       {
@@ -568,8 +471,8 @@
     "constant": false,
     "inputs": [
       {
-        "name": "sidHash",
-        "type": "bytes32"
+        "name": "sid",
+        "type": "bytes"
       },
       {
         "name": "newOwner",
@@ -581,17 +484,17 @@
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "function",
-    "signature": "0x97b10e69"
+    "signature": "0xfcdfd0ec"
   },
   {
     "constant": false,
     "inputs": [
       {
-        "name": "sidHash",
-        "type": "bytes32"
+        "name": "sid",
+        "type": "bytes"
       },
       {
-        "name": "hash",
+        "name": "versionHash",
         "type": "bytes32"
       },
       {
@@ -608,14 +511,41 @@
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "function",
-    "signature": "0xe07e7f50"
+    "signature": "0xf2b252ac"
   },
   {
     "constant": false,
     "inputs": [
       {
-        "name": "sidHash",
+        "name": "sid",
+        "type": "bytes"
+      },
+      {
+        "name": "versionHash",
         "type": "bytes32"
+      },
+      {
+        "name": "manifest",
+        "type": "bytes"
+      },
+      {
+        "name": "manifestProtocol",
+        "type": "bytes"
+      }
+    ],
+    "name": "publishServiceVersion",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x477fdde6"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "sid",
+        "type": "bytes"
       },
       {
         "name": "price",
@@ -636,14 +566,14 @@
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "function",
-    "signature": "0xa2a55a08"
+    "signature": "0x34fb083e"
   },
   {
     "constant": false,
     "inputs": [
       {
-        "name": "sidHash",
-        "type": "bytes32"
+        "name": "sid",
+        "type": "bytes"
       },
       {
         "name": "offerIndex",
@@ -655,14 +585,14 @@
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "function",
-    "signature": "0xbd3b4ae1"
+    "signature": "0x0052ebd0"
   },
   {
     "constant": false,
     "inputs": [
       {
-        "name": "sidHash",
-        "type": "bytes32"
+        "name": "sid",
+        "type": "bytes"
       },
       {
         "name": "offerIndex",
@@ -674,12 +604,12 @@
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "function",
-    "signature": "0xe123182b"
+    "signature": "0x3a1835e1"
   },
   {
     "constant": true,
     "inputs": [],
-    "name": "servicesListLength",
+    "name": "servicesLength",
     "outputs": [
       {
         "name": "length",
@@ -689,17 +619,45 @@
     "payable": false,
     "stateMutability": "view",
     "type": "function",
-    "signature": "0x9d9e2b25"
+    "signature": "0x1ebfdca0"
   },
   {
     "constant": true,
     "inputs": [
       {
-        "name": "sidHash",
-        "type": "bytes32"
+        "name": "_sid",
+        "type": "bytes"
       }
     ],
-    "name": "servicesVersionsListLength",
+    "name": "service",
+    "outputs": [
+      {
+        "name": "createTime",
+        "type": "uint256"
+      },
+      {
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "name": "sid",
+        "type": "bytes"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x9955ec95"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "sid",
+        "type": "bytes"
+      }
+    ],
+    "name": "serviceVersionsLength",
     "outputs": [
       {
         "name": "length",
@@ -709,45 +667,45 @@
     "payable": false,
     "stateMutability": "view",
     "type": "function",
-    "signature": "0xb9a7eb44"
+    "signature": "0x66b869ae"
   },
   {
     "constant": true,
     "inputs": [
       {
-        "name": "sidHash",
-        "type": "bytes32"
+        "name": "sid",
+        "type": "bytes"
       },
       {
         "name": "versionIndex",
         "type": "uint256"
       }
     ],
-    "name": "servicesVersionsList",
+    "name": "serviceVersionHash",
     "outputs": [
       {
-        "name": "hash",
+        "name": "versionHash",
         "type": "bytes32"
       }
     ],
     "payable": false,
     "stateMutability": "view",
     "type": "function",
-    "signature": "0x18ca0c92"
+    "signature": "0x38f74cc0"
   },
   {
     "constant": true,
     "inputs": [
       {
-        "name": "sidHash",
-        "type": "bytes32"
+        "name": "sid",
+        "type": "bytes"
       },
       {
-        "name": "hash",
+        "name": "versionHash",
         "type": "bytes32"
       }
     ],
-    "name": "servicesVersion",
+    "name": "serviceVersion",
     "outputs": [
       {
         "name": "createTime",
@@ -765,17 +723,17 @@
     "payable": false,
     "stateMutability": "view",
     "type": "function",
-    "signature": "0xd479ec55"
+    "signature": "0x3496cb6b"
   },
   {
     "constant": true,
     "inputs": [
       {
-        "name": "sidHash",
-        "type": "bytes32"
+        "name": "sid",
+        "type": "bytes"
       }
     ],
-    "name": "servicesOffersLength",
+    "name": "serviceOffersLength",
     "outputs": [
       {
         "name": "length",
@@ -785,21 +743,21 @@
     "payable": false,
     "stateMutability": "view",
     "type": "function",
-    "signature": "0x9cbce0f2"
+    "signature": "0xe068ac20"
   },
   {
     "constant": true,
     "inputs": [
       {
-        "name": "sidHash",
-        "type": "bytes32"
+        "name": "sid",
+        "type": "bytes"
       },
       {
         "name": "offerIndex",
         "type": "uint256"
       }
     ],
-    "name": "servicesOffer",
+    "name": "serviceOffer",
     "outputs": [
       {
         "name": "createTime",
@@ -821,17 +779,17 @@
     "payable": false,
     "stateMutability": "view",
     "type": "function",
-    "signature": "0xa29aad70"
+    "signature": "0xb96ac2d6"
   },
   {
     "constant": true,
     "inputs": [
       {
-        "name": "sidHash",
-        "type": "bytes32"
+        "name": "sid",
+        "type": "bytes"
       }
     ],
-    "name": "servicesPurchasesListLength",
+    "name": "servicePurchasesLength",
     "outputs": [
       {
         "name": "length",
@@ -841,21 +799,21 @@
     "payable": false,
     "stateMutability": "view",
     "type": "function",
-    "signature": "0xfcf0b8ac"
+    "signature": "0xf92230b0"
   },
   {
     "constant": true,
     "inputs": [
       {
-        "name": "sidHash",
-        "type": "bytes32"
+        "name": "sid",
+        "type": "bytes"
       },
       {
         "name": "purchaseIndex",
         "type": "uint256"
       }
     ],
-    "name": "servicesPurchasesList",
+    "name": "servicePurchaseAddress",
     "outputs": [
       {
         "name": "purchaser",
@@ -865,21 +823,21 @@
     "payable": false,
     "stateMutability": "view",
     "type": "function",
-    "signature": "0x67fe40c4"
+    "signature": "0xf12a96df"
   },
   {
     "constant": true,
     "inputs": [
       {
-        "name": "sidHash",
-        "type": "bytes32"
+        "name": "sid",
+        "type": "bytes"
       },
       {
         "name": "purchaser",
         "type": "address"
       }
     ],
-    "name": "servicesPurchase",
+    "name": "servicePurchase",
     "outputs": [
       {
         "name": "createTime",
@@ -893,14 +851,14 @@
     "payable": false,
     "stateMutability": "view",
     "type": "function",
-    "signature": "0x7790e522"
+    "signature": "0xe7d583fb"
   },
   {
     "constant": true,
     "inputs": [
       {
-        "name": "sidHash",
-        "type": "bytes32"
+        "name": "sid",
+        "type": "bytes"
       },
       {
         "name": "purchaser",
@@ -917,6 +875,122 @@
     "payable": false,
     "stateMutability": "view",
     "type": "function",
-    "signature": "0x956db465"
+    "signature": "0xd0ae90db"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "sid",
+        "type": "bytes"
+      }
+    ],
+    "name": "isServiceExist",
+    "outputs": [
+      {
+        "name": "exist",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x0ae953a3"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "sid",
+        "type": "bytes"
+      },
+      {
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "isServiceOwner",
+    "outputs": [
+      {
+        "name": "isOwner",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x185351fc"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "sid",
+        "type": "bytes"
+      },
+      {
+        "name": "versionHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "isServiceVersionExist",
+    "outputs": [
+      {
+        "name": "exist",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x579b29b4"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "sid",
+        "type": "bytes"
+      },
+      {
+        "name": "offerIndex",
+        "type": "uint256"
+      }
+    ],
+    "name": "isServiceOfferExist",
+    "outputs": [
+      {
+        "name": "exist",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0xafe0b18c"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "sid",
+        "type": "bytes"
+      },
+      {
+        "name": "purchaser",
+        "type": "address"
+      }
+    ],
+    "name": "isServicesPurchaseExist",
+    "outputs": [
+      {
+        "name": "exist",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x0a0c3af7"
   }
 ]

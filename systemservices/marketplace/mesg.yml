@@ -7,7 +7,7 @@ configuration:
     - BLOCK_CONFIRMATIONS=1
     - DEFAULT_GAS=1000000
     - POLLING_TIME=1000
-    - MARKETPLACE_ADDRESS=0x9FF2B98bcb62bdBB63F6b98FE812B663280c1cC4
+    - MARKETPLACE_ADDRESS=0x2a05D5fe1e9c8179dC07826fD94077458805DB5a
 tasks:
   listServices:
     name: ""
@@ -32,10 +32,6 @@ tasks:
                 name: ""
                 description: ""
                 type: String
-              sidHash: &sidHash
-                name: ""
-                description: ""
-                type: String
               owner: &owner
                 name: ""
                 description: ""
@@ -47,11 +43,11 @@ tasks:
                 repeated: true
                 optional: true
                 object: &version
-                  hash: &hash
+                  versionHash: &versionHash
                     name: ""
                     description: ""
                     type: String
-                  manifestSource: &manifestSource
+                  manifest: &manifest
                     name: ""
                     description: ""
                     type: String
@@ -59,7 +55,7 @@ tasks:
                     name: ""
                     description: ""
                     type: String
-                  manifest:
+                  manifestData: &manifestData
                     name: ""
                     description: ""
                     type: Object
@@ -72,7 +68,7 @@ tasks:
                 repeated: true
                 optional: true
                 object: &offer
-                  index: &offerIndex
+                  offerIndex: &offerIndex
                     name: ""
                     description: ""
                     type: String
@@ -122,21 +118,21 @@ tasks:
     name: ""
     description: ""
     inputs:
-      sid: &inputSid
-        name: ""
-        description: ""
-        type: String
+      sid: *sid
     outputs:
       success:
         name: ""
         description: ""
         data: *service
       error: *outputError
-  createService:
+  publishServiceVersion:
     name: ""
     description: ""
     inputs:
-      sid: *inputSid
+      sid: *sid
+      versionHash: *versionHash
+      manifest: *manifest
+      manifestProtocol: *manifestProtocol
       from: &inputFrom
         name: ""
         description: ""
@@ -187,7 +183,7 @@ tasks:
     name: ""
     description: ""
     inputs:
-      sid: *inputSid
+      sid: *sid
       price:
         name: ""
         description: ""
@@ -202,38 +198,12 @@ tasks:
     outputs:
       error: *outputError
       success: *outputTransaction
-  createServiceVersion:
-    name: ""
-    description: ""
-    inputs:
-      sid: *inputSid
-      hash:
-        name: ""
-        description: ""
-        type: String
-      manifest:
-        name: ""
-        description: ""
-        type: String
-      manifestProtocol:
-        name: ""
-        description: ""
-        type: String
-      from: *inputFrom
-      gas: *inputGas
-      gasPrice: *inputGasPrice
-    outputs:
-      error: *outputError
-      success: *outputTransaction
   disableServiceOffer:
     name: ""
     description: ""
     inputs:
-      sid: *inputSid
-      offerIndex:
-        name: ""
-        description: ""
-        type: String
+      sid: *sid
+      offerIndex: *offerIndex
       from: *inputFrom
       gas: *inputGas
       gasPrice: *inputGasPrice
@@ -244,11 +214,8 @@ tasks:
     name: ""
     description: ""
     inputs:
-      sid: *inputSid
-      offerIndex:
-        name: ""
-        description: ""
-        type: String
+      sid: *sid
+      offerIndex: *offerIndex
       from: *inputFrom
       gas: *inputGas
       gasPrice: *inputGasPrice
@@ -259,7 +226,7 @@ tasks:
     name: ""
     description: ""
     inputs:
-      sid: *inputSid
+      sid: *sid
       newOwner:
         name: ""
         description: ""
@@ -288,7 +255,7 @@ tasks:
     name: ""
     description: ""
     inputs:
-      hash: *hash
+      versionHash: *versionHash
       addresses:
         name: ""
         description: ""
@@ -320,13 +287,12 @@ events:
     description: ""
     data:
       sid: *sid
-      sidHash: *sidHash
       owner: *owner
   serviceOwnershipTransferred:
     name: ""
     description: ""
     data:
-      sidHash: *sidHash
+      sid: *sid
       previousOwner:
         name: ""
         description: ""
@@ -339,15 +305,15 @@ events:
     name: ""
     description: ""
     data:
-      sidHash: *sidHash
-      hash: *hash
-      manifest: *manifestSource
+      sid: *sid
+      versionHash: *versionHash
+      manifest: *manifest
       manifestProtocol: *manifestProtocol
   serviceOfferCreated:
     name: ""
     description: ""
     data:
-      sidHash: *sidHash
+      sid: *sid
       offerIndex: *offerIndex
       price: *price
       duration: *duration
@@ -355,13 +321,13 @@ events:
     name: ""
     description: ""
     data:
-      sidHash: *sidHash
+      sid: *sid
       offerIndex: *offerIndex
   servicePurchased:
     name: ""
     description: ""
     data:
-      sidHash: *sidHash
+      sid: *sid
       offerIndex: *offerIndex
       purchaser: *purchaser
       price: *price

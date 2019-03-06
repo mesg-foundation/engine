@@ -1,9 +1,9 @@
 import { Manifest } from "./manifest";
 
 export interface Version {
-  hash: string;
-  manifestSource: string;
+  versionHash: string;
+  manifest: string;
   manifestProtocol: string;
-  manifest: Manifest|undefined;
+  manifestData: Manifest|undefined;
   createTime: Date;
 }

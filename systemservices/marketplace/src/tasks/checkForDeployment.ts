@@ -1,15 +1,23 @@
 import { TaskInputs, TaskOutputs } from "mesg-js/lib/service"
 import { Marketplace } from "../contracts/Marketplace"
 import { getServiceVersion } from "../contracts/version";
+import { hexToAscii } from "../contracts/utils";
 
 export default (
   contract: Marketplace,
 ) => async (inputs: TaskInputs, outputs: TaskOutputs): Promise<void> => {
   try {
-    const sidHash = await contract.methods.hashToService(inputs.hash).call()
+    const sidHash = await contract.methods.hashToService(inputs.versionHash).call()
+    if (hexToAscii(sidHash) === "") {
+      throw new Error('version with hash ' + inputs.versionHash + ' does not exist')
+    }
+    const service = await contract.methods.services(sidHash).call()
+    if (!await contract.methods.isServiceExist(service.sid).call()) {
+      throw new Error('service with sid ' + hexToAscii(service.sid) + ' does not exist')
+    }
 
     const authorizations = await Promise.all(inputs.addresses.map((address: string) => {
-      return contract.methods.isAuthorized(sidHash, address).call()
+      return contract.methods.isAuthorized(service.sid, address).call()
     }))
     let authorized = false
     authorizations.forEach(authorization => {
@@ -19,18 +27,18 @@ export default (
     })
     if (authorized === false) return outputs.success({ authorized })
 
-    const version = await getServiceVersion(contract, sidHash, inputs.hash)
+    const version = await getServiceVersion(contract, hexToAscii(service.sid), inputs.versionHash)
     if (version === undefined) {
-      throw new Error('version with hash ' + inputs.hash + ' does not exist')
+      throw new Error('version with hash ' + inputs.versionHash + ' does not exist')
     }
-    if (version.manifest === undefined) {
-      throw new Error('could not download manifest of version with hash ' + inputs.hash)
+    if (version.manifestData === undefined) {
+      throw new Error('could not download manifest of version with hash ' + inputs.versionHash)
     }
 
     return outputs.success({
       authorized: authorized,
-      type: version.manifest.service.deployment.type,
-      source: version.manifest.service.deployment.source,
+      type: version.manifestData.service.deployment.type,
+      source: version.manifestData.service.deployment.source,
     })
   }
   catch (error) {
