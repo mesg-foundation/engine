@@ -16,10 +16,9 @@ import serviceOwnershipTransferred from "./events/serviceOwnershipTransferred"
 import serviceVersionCreated from "./events/serviceVersionCreated"
 import servicePurchased from "./events/servicePurchased"
 
-import createService from "./tasks/createService"
+import publishServiceVersion from "./tasks/publishServiceVersion"
 import getService from "./tasks/getService"
 import createServiceOffer from "./tasks/createServiceOffer"
-import createServiceVersion from "./tasks/createServiceVersion"
 import disableServiceOffer from "./tasks/disableServiceOffer"
 import listServices from "./tasks/listServices"
 import purchase from "./tasks/purchase"
@@ -67,9 +66,8 @@ const main = async () => {
   mesg.listenTask({
     listServices: listServices(contract),
     getService: getService(contract),
-    createService: createService(contract, createTransaction),
+    publishServiceVersion: publishServiceVersion(contract, createTransaction),
     createServiceOffer: createServiceOffer(contract, createTransaction),
-    createServiceVersion: createServiceVersion(contract, createTransaction),
     disableServiceOffer: disableServiceOffer(contract, createTransaction),
     purchase: purchase(contract, createTransaction),
     transferServiceOwnership: transferServiceOwnership(contract, createTransaction),

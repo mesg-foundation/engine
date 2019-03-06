@@ -1,6 +1,6 @@
 import { TaskInputs, TaskOutputs } from "mesg-js/lib/service"
 import { Marketplace } from "../contracts/Marketplace"
-import { sha3, toUnit } from "../contracts/utils";
+import { toUnit, asciiToHex } from "../contracts/utils";
 
 export default (
   contract: Marketplace,
@@ -8,7 +8,7 @@ export default (
 ) => async (inputs: TaskInputs, outputs: TaskOutputs): Promise<void> => {
   try {
     const transactionData = contract.methods.createServiceOffer(
-      sha3(inputs.sid),
+      asciiToHex(inputs.sid),
       toUnit(inputs.price).toString(),
       inputs.duration
     ).encodeABI()

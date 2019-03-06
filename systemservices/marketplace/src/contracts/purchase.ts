@@ -1,31 +1,33 @@
 import BigNumber from "bignumber.js"
 import { Marketplace } from "./Marketplace"
 import { Purchase } from "../types/purchase";
-import { parseTimestamp } from "./utils";
+import { parseTimestamp, asciiToHex } from "./utils";
 
-const getServicePurchases = async (contract: Marketplace, sidHash: string): Promise<Purchase[]> => {
-  if (!await contract.methods.isServiceExist(sidHash).call()) {
+const getServicePurchases = async (contract: Marketplace, sid: string): Promise<Purchase[]> => {
+  const sidHex = asciiToHex(sid)
+  if (!await contract.methods.isServiceExist(sidHex).call()) {
     return []
   }
-  const purchasesLength = new BigNumber(await contract.methods.servicesPurchasesListLength(sidHash).call())
+  const purchasesLength = new BigNumber(await contract.methods.servicePurchasesLength(sidHex).call())
   const purchasesPromise: Promise<Purchase|undefined>[] = []
   for (let j = new BigNumber(0); purchasesLength.isGreaterThan(j); j = j.plus(1)) {
-    purchasesPromise.push(getServicePurchaseWithIndex(contract, sidHash, j))
+    purchasesPromise.push(getServicePurchaseWithIndex(contract, sid, j))
   }
   const purchases = await Promise.all(purchasesPromise)
   return purchases.filter(purchase => purchase !== undefined) as Purchase[]
 }
 
-const getServicePurchaseWithIndex = async (contract: Marketplace, sidHash: string, purchaseIndex: BigNumber): Promise<Purchase|undefined> => {
-  const purchaser = (await contract.methods.servicesPurchasesList(sidHash, purchaseIndex.toString()).call()).toLowerCase()
-  return getServicePurchase(contract, sidHash, purchaser)
+const getServicePurchaseWithIndex = async (contract: Marketplace, sid: string, purchaseIndex: BigNumber): Promise<Purchase|undefined> => {
+  const purchaser = (await contract.methods.servicePurchaseAddress(asciiToHex(sid), purchaseIndex.toString()).call())
+  return getServicePurchase(contract, sid, purchaser)
 }
 
-const getServicePurchase = async (contract: Marketplace, sidHash: string, purchaser: string): Promise<Purchase|undefined> => {
-  if (!await contract.methods.isServicesPurchaseExist(sidHash, purchaser).call()) {
+const getServicePurchase = async (contract: Marketplace, sid: string, purchaser: string): Promise<Purchase|undefined> => {
+  const sidHex = asciiToHex(sid)
+  if (!await contract.methods.isServicesPurchaseExist(sidHex, purchaser).call()) {
     return
   }
-  const purchase = await contract.methods.servicesPurchase(sidHash, purchaser).call()
+  const purchase = await contract.methods.servicePurchase(sidHex, purchaser).call()
   return {
     purchaser: purchaser,
     expire: parseTimestamp(purchase.expire),

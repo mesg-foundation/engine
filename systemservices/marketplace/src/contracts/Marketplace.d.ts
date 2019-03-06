@@ -29,35 +29,29 @@ export class Marketplace {
 
     hashToService(arg0: string | number[]): TransactionObject<string>;
 
-    isServiceExist(sidHash: string | number[]): TransactionObject<boolean>;
+    service(
+      _sid: string
+    ): TransactionObject<{
+      createTime: string;
+      owner: string;
+      sid: string;
+      0: string;
+      1: string;
+      2: string;
+    }>;
 
-    isServiceVersionExist(
-      sidHash: string | number[],
-      hash: string | number[]
-    ): TransactionObject<boolean>;
-
-    isServiceOfferExist(
-      sidHash: string | number[],
-      offerIndex: number | string
-    ): TransactionObject<boolean>;
-
-    isServicesPurchaseExist(
-      sidHash: string | number[],
-      purchaser: string
-    ): TransactionObject<boolean>;
-
-    servicesVersionsListLength(
-      sidHash: string | number[]
+    serviceVersionsLength(
+      sid: string
     ): TransactionObject<string>;
 
-    servicesVersionsList(
-      sidHash: string | number[],
+    serviceVersionHash(
+      sid: string,
       versionIndex: number | string
     ): TransactionObject<string>;
 
-    servicesVersion(
-      sidHash: string | number[],
-      hash: string | number[]
+    serviceVersion(
+      sid: string,
+      versionHash: string | number[]
     ): TransactionObject<{
       createTime: string;
       manifest: string;
@@ -67,10 +61,10 @@ export class Marketplace {
       2: string;
     }>;
 
-    servicesOffersLength(sidHash: string | number[]): TransactionObject<string>;
+    serviceOffersLength(sid: string): TransactionObject<string>;
 
-    servicesOffer(
-      sidHash: string | number[],
+    serviceOffer(
+      sid: string,
       offerIndex: number | string
     ): TransactionObject<{
       createTime: string;
@@ -83,17 +77,17 @@ export class Marketplace {
       3: boolean;
     }>;
 
-    servicesPurchasesListLength(
-      sidHash: string | number[]
+    servicePurchasesLength(
+      sid: string
     ): TransactionObject<string>;
 
-    servicesPurchasesList(
-      sidHash: string | number[],
+    servicePurchaseAddress(
+      sid: string,
       purchaseIndex: number | string
     ): TransactionObject<string>;
 
-    servicesPurchase(
-      sidHash: string | number[],
+    servicePurchase(
+      sid: string,
       purchaser: string
     ): TransactionObject<{
       createTime: string;
@@ -103,7 +97,29 @@ export class Marketplace {
     }>;
 
     isAuthorized(
-      sidHash: string | number[],
+      sid: string,
+      purchaser: string
+    ): TransactionObject<boolean>;
+
+    isServiceExist(sid: string): TransactionObject<boolean>;
+
+    isServiceOwner(
+      sid: string,
+      owner: string
+    ): TransactionObject<boolean>;
+
+    isServiceVersionExist(
+      sid: string,
+      versionHash: string | number[]
+    ): TransactionObject<boolean>;
+
+    isServiceOfferExist(
+      sid: string,
+      offerIndex: number | string
+    ): TransactionObject<boolean>;
+
+    isServicesPurchaseExist(
+      sid: string,
       purchaser: string
     ): TransactionObject<boolean>;
 
@@ -122,30 +138,37 @@ export class Marketplace {
     createService(sid: string): TransactionObject<void>;
 
     transferServiceOwnership(
-      sidHash: string | number[],
+      sid: string,
       newOwner: string
     ): TransactionObject<void>;
 
     createServiceVersion(
-      sidHash: string | number[],
-      hash: string | number[],
+      sid: string,
+      versionHash: string | number[],
+      manifest: string,
+      manifestProtocol: string
+    ): TransactionObject<void>;
+
+    publishServiceVersion(
+      sid: string,
+      versionHash: string | number[],
       manifest: string,
       manifestProtocol: string
     ): TransactionObject<void>;
 
     createServiceOffer(
-      sidHash: string | number[],
+      sid: string,
       price: number | string,
       duration: number | string
     ): TransactionObject<string>;
 
     disableServiceOffer(
-      sidHash: string | number[],
+      sid: string,
       offerIndex: number | string
     ): TransactionObject<void>;
 
     purchase(
-      sidHash: string | number[],
+      sid: string,
       offerIndex: number | string
     ): TransactionObject<void>;
 
@@ -153,7 +176,7 @@ export class Marketplace {
     owner(): TransactionObject<string>;
     isOwner(): TransactionObject<boolean>;
     token(): TransactionObject<string>;
-    servicesListLength(): TransactionObject<string>;
+    servicesLength(): TransactionObject<string>;
   };
   deploy(options: {
     data: string;

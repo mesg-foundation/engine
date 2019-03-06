@@ -5,7 +5,6 @@ import { Purchase } from "./purchase";
 export interface Service {
   owner: string;
   sid: string;
-  sidHash: string;
   versions: Version[];
   offers: Offer[];
   purchases: Purchase[];
