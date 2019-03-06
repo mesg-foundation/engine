@@ -9,6 +9,9 @@ import { newBlockEventEmitter } from "./newBlock"
 import marketplaceABI from "./contracts/Marketplace.abi.json"
 import { Marketplace } from "./contracts/Marketplace"
 
+import ERC20ABI from "./contracts/ERC20.abi.json"
+import { ERC20 } from "./contracts/ERC20"
+
 import serviceCreated from "./events/serviceCreated"
 import serviceOfferCreated from "./events/serviceOfferCreated"
 import serviceOfferDisabled from "./events/serviceOfferDisabled"
@@ -25,9 +28,12 @@ import purchase from "./tasks/purchase"
 import sendSignedTransaction from "./tasks/sendSignedTransaction"
 import transferServiceOwnership from "./tasks/transferServiceOwnership"
 import checkForDeployment from "./tasks/checkForDeployment"
+import Contract from "web3/eth/contract";
+import { createTransactionTemplate } from "./contracts/utils";
 
 const providerEndpoint = process.env.PROVIDER_ENDPOINT as string
 const marketplaceAddress = process.env.MARKETPLACE_ADDRESS
+const ERC20Address = process.env.TOKEN_ADDRESS
 const blockConfirmations = parseInt(<string>process.env.BLOCK_CONFIRMATIONS, 10)
 const defaultGas = parseInt(<string>process.env.DEFAULT_GAS, 10)
 const pollingTime = parseInt(<string>process.env.POLLING_TIME, 10)
@@ -44,35 +50,26 @@ const eventHandlers: {[key: string]: (mesg: Service, event: EventLog) => Promise
 const main = async () => {
   const mesg = MESG()
   const web3 = new Web3(providerEndpoint)
-  const contract = new web3.eth.Contract(marketplaceABI, marketplaceAddress) as Marketplace
+  const marketplace = new web3.eth.Contract(marketplaceABI, marketplaceAddress) as Marketplace
+  const token = new web3.eth.Contract(ERC20ABI, ERC20Address) as ERC20
 
   const chainID = await web3.eth.net.getId()
   console.log('chainID', chainID)
   const defaultGasPrice = await web3.eth.getGasPrice()
   console.log('defaultGasPrice', defaultGasPrice)
 
-  const createTransaction = async (inputs: TaskInputs, data: string) => {
-    return {
-      chainID: chainID,
-      nonce: await web3.eth.getTransactionCount(inputs.from),
-      to: contract.options.address,
-      gas: inputs.gas || defaultGas,
-      gasPrice: inputs.gasPrice || defaultGasPrice,
-      value: "0",
-      data: data
-    }
-  }
+  const createTransaction = createTransactionTemplate(chainID, web3, defaultGas, defaultGasPrice)
 
   mesg.listenTask({
-    listServices: listServices(contract),
-    getService: getService(contract),
-    publishServiceVersion: publishServiceVersion(contract, createTransaction),
-    createServiceOffer: createServiceOffer(contract, createTransaction),
-    disableServiceOffer: disableServiceOffer(contract, createTransaction),
-    purchase: purchase(contract, createTransaction),
-    transferServiceOwnership: transferServiceOwnership(contract, createTransaction),
+    listServices: listServices(marketplace),
+    getService: getService(marketplace),
+    publishServiceVersion: publishServiceVersion(marketplace, createTransaction),
+    createServiceOffer: createServiceOffer(marketplace, createTransaction),
+    disableServiceOffer: disableServiceOffer(marketplace, createTransaction),
+    purchase: purchase(marketplace, token, createTransaction),
+    transferServiceOwnership: transferServiceOwnership(marketplace, createTransaction),
     sendSignedTransaction: sendSignedTransaction(web3),
-    checkForDeployment: checkForDeployment(contract),
+    checkForDeployment: checkForDeployment(marketplace),
   })
   .on('error', error => console.error('catch listenTask', error))
 
@@ -81,7 +78,7 @@ const main = async () => {
     try {
       console.error('new block', blockNumber)
     
-      const events = await contract.getPastEvents("allEvents", {
+      const events = await marketplace.getPastEvents("allEvents", {
         fromBlock: blockNumber,
         toBlock: blockNumber,
       })

@@ -25,7 +25,10 @@ export default (
         authorized = true
       }
     })
-    if (authorized === false) return outputs.success({ authorized })
+    if (authorized === false) return outputs.success({
+      authorized,
+      sid: hexToAscii(service.sid),
+    })
 
     const version = await getServiceVersion(contract, hexToAscii(service.sid), inputs.versionHash)
     if (version === undefined) {
@@ -37,6 +40,7 @@ export default (
 
     return outputs.success({
       authorized: authorized,
+      sid: hexToAscii(service.sid),
       type: version.manifestData.service.deployment.type,
       source: version.manifestData.service.deployment.source,
     })

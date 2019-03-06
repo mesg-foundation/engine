@@ -8,6 +8,7 @@ configuration:
     - DEFAULT_GAS=1000000
     - POLLING_TIME=1000
     - MARKETPLACE_ADDRESS=0x2a05D5fe1e9c8179dC07826fD94077458805DB5a
+    - TOKEN_ADDRESS=0x5861b3dc52339d4f976b7fa5d80db6cd6f477f1b
 tasks:
   listServices:
     name: ""
@@ -150,7 +151,7 @@ tasks:
     outputs:
       error: *outputError
       success: &outputTransaction
-        data:
+        data: &transaction
           chainID:
             name: "Chain ID"
             description: "The ID of the chain the transaction is for. See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md#list-of-chain-ids."
@@ -221,7 +222,12 @@ tasks:
       gasPrice: *inputGasPrice
     outputs:
       error: *outputError
-      success: *outputTransaction
+      success:
+        data:
+          transactions:
+            repeated: true
+            type: Object
+            object: *transaction
   transferServiceOwnership:
     name: ""
     description: ""
@@ -271,6 +277,7 @@ tasks:
             name: ""
             description: ""
             type: Boolean
+          sid: *sid
           source:
             name: ""
             description: ""
