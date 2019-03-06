@@ -119,8 +119,8 @@ func (p *ServiceProvider) deployServiceFromMarketplace(u string, env map[string]
 	// Check if one of them are is authorized
 	// TODO: this should move to marketplace provider
 	res, err = p.client.ExecuteAndListen("marketplace", "checkForDeployment", CheckForDeploymentInputs{
-		Hash:      path[1],
-		Addresses: listOutput.Addresses,
+		VersionHash: path[1],
+		Addresses:   listOutput.Addresses,
 	})
 	if err != nil {
 		return err

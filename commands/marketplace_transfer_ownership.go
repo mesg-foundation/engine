@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/utils/pretty"
@@ -37,7 +38,7 @@ func (c *marketplaceTransferOwnershipCmd) preRunE(cmd *cobra.Command, args []str
 	)
 
 	if err := c.askAccountAndPassphrase(); err != nil {
-		return nil
+		return err
 	}
 
 	pretty.Progress("Getting service data...", func() {
@@ -46,7 +47,7 @@ func (c *marketplaceTransferOwnershipCmd) preRunE(cmd *cobra.Command, args []str
 	if err != nil {
 		return err
 	}
-	if c.service.Owner != c.account {
+	if !strings.EqualFold(c.service.Owner, c.account) {
 		return fmt.Errorf("the service's owner %q is different than the specified account", c.service.Owner)
 	}
 

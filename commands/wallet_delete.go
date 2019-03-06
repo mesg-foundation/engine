@@ -32,7 +32,7 @@ func newWalletDeleteCmd(e WalletExecutor) *walletDeleteCmd {
 
 func (c *walletDeleteCmd) preRunE(cmd *cobra.Command, args []string) error {
 	if err := c.askPassphrase(); err != nil {
-		return nil
+		return err
 	}
 	// TODO: if no account provided, the cli should ask to select one.
 	c.account = args[0]

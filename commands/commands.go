@@ -42,12 +42,11 @@ type ServiceExecutor interface {
 type MarketplaceExecutor interface {
 	CreateManifest(path string) (provider.ManifestData, error)
 	UploadServiceFiles(path string, manifest provider.ManifestData) (protocol string, source string, err error)
-	CreateService(sid, from string) (*provider.Transaction, error)
-	CreateServiceVersion(sidHash, hash, manifest, manifestProtocol, from string) (*provider.Transaction, error)
+	PublishServiceVersion(sid, versionHash, manifest, manifestProtocol, from string) (*provider.Transaction, error)
 	CreateServiceOffer(sid string, price string, duration string, from string) (*provider.Transaction, error)
-	DisableServiceOffer(sidHash, offerIndex, from string) (*provider.Transaction, error)
-	Purchase(sidHash, offerIndex, from string) (*provider.Transaction, error)
-	TransferServiceOwnership(sidHash, newOwner, from string) (*provider.Transaction, error)
+	DisableServiceOffer(sid, offerIndex, from string) (*provider.Transaction, error)
+	Purchase(sid, offerIndex, from string) (*provider.Transaction, error)
+	TransferServiceOwnership(sid, newOwner, from string) (*provider.Transaction, error)
 	SendSignedTransaction(signedTransaction string) (*provider.TransactionReceipt, error)
 	GetService(sid string) (*provider.MarketplaceService, error)
 }

@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/utils/pretty"
@@ -41,7 +42,7 @@ func (c *marketplaceCreateOfferCmd) preRunE(cmd *cobra.Command, args []string) e
 	)
 
 	if err := c.askAccountAndPassphrase(); err != nil {
-		return nil
+		return err
 	}
 
 	if c.price == "" {
@@ -64,7 +65,7 @@ func (c *marketplaceCreateOfferCmd) preRunE(cmd *cobra.Command, args []string) e
 	if err != nil {
 		return err
 	}
-	if c.service.Owner != c.account {
+	if !strings.EqualFold(c.service.Owner, c.account) {
 		return fmt.Errorf("the service's owner %q is different than the specified account", c.service.Owner)
 	}
 

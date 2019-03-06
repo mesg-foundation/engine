@@ -55,17 +55,11 @@ type TransactionOutput struct {
 	Data     string `json:"data"`
 }
 
-// CreateServiceTaskInputs is the inputs of the task create service.
-type CreateServiceTaskInputs struct {
-	*TransactionTaskInputs
-	Sid string `json:"sid"`
-}
-
-// CreateServiceVersionTaskInputs is the inputs of the task create service version.
-type CreateServiceVersionTaskInputs struct {
+// PublishServiceVersionTaskInputs is the inputs of the task publish service version.
+type PublishServiceVersionTaskInputs struct {
 	*TransactionTaskInputs
 	Sid              string `json:"sid"`
-	Hash             string `json:"hash"`
+	VersionHash      string `json:"versionHash"`
 	Manifest         string `json:"manifest"`
 	ManifestProtocol string `json:"manifestProtocol"`
 }
@@ -119,16 +113,16 @@ type TransactionReceipt struct {
 
 // ServiceVersionInputs is the input for get service version task.
 type ServiceVersionInputs struct {
-	Sid  string `json:"sid"`
-	Hash string `json:"hash"`
+	Sid         string `json:"sid"`
+	VersionHash string `json:"versionHash"`
 }
 
 // ServiceVersionSuccessOutput is the input for get service version task.
 type ServiceVersionSuccessOutput struct {
-	Hash             string       `json:"hash"`
-	ManifestSource   string       `json:"manifestSource"`
+	VersionHash      string       `json:"versionHash"`
+	Manifest         string       `json:"manifest"`
 	ManifestProtocol string       `json:"manifestProtocol"`
-	Manifest         ManifestData `json:"manifest"`
+	ManifestData     ManifestData `json:"manifestData"`
 }
 
 // GetServiceTaskInputs is the inputs of the task service exist.
@@ -139,19 +133,18 @@ type GetServiceTaskInputs struct {
 // MarketplaceService is the success output of task service exist.
 type MarketplaceService struct {
 	Sid      string `json:"sid"`
-	SidHash  string `json:"sidHash"`
 	Owner    string `json:"owner"`
 	Versions []struct {
-		Hash             string       `json:"hash"`
-		ManifestSource   string       `json:"manifestSource"`
+		VersionHash      string       `json:"versionHash"`
+		Manifest         string       `json:"manifest"`
 		ManifestProtocol string       `json:"manifestProtocol"`
-		Manifest         ManifestData `json:"manifest"`
+		ManifestData     ManifestData `json:"manifestData"`
 	} `json:"versions"`
 	Offers []struct {
-		Index    string `json:"index"`
-		Price    string `json:"price"`
-		Duration string `json:"duration"`
-		Active   bool   `json:"active"`
+		OfferIndex string `json:"offerIndex"`
+		Price      string `json:"price"`
+		Duration   string `json:"duration"`
+		Active     bool   `json:"active"`
 	} `json:"offers"`
 	Purchases []struct {
 		Purchaser string `json:"purchaser"`
@@ -161,8 +154,8 @@ type MarketplaceService struct {
 
 // CheckForDeploymentInputs is the inputs of the task check for deployment.
 type CheckForDeploymentInputs struct {
-	Hash      string   `json:"hash"`
-	Addresses []string `json:"addresses"`
+	VersionHash string   `json:"versionHash"`
+	Addresses   []string `json:"addresses"`
 }
 
 // CheckForDeploymentSuccessOutput is the success output of task check for deployment.

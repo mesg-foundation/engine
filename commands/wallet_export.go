@@ -32,7 +32,7 @@ func newWalletExportCmd(e WalletExecutor) *walletExportCmd {
 
 func (c *walletExportCmd) preRunE(cmd *cobra.Command, args []string) error {
 	if err := c.askPassphrase(); err != nil {
-		return nil
+		return err
 	}
 	// TODO: if no address provided, the cli should ask to select one.
 	c.address = args[0]

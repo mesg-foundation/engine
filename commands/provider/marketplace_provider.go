@@ -22,39 +22,12 @@ func NewMarketplaceProvider(c coreapi.CoreClient) *MarketplaceProvider {
 	return &MarketplaceProvider{client: client{c}}
 }
 
-// CreateService executes the create service task
-func (p *MarketplaceProvider) CreateService(sid, from string) (*Transaction, error) {
-	r, err := p.client.ExecuteAndListen(MarketplaceServiceID, "createService", &CreateServiceTaskInputs{
-		TransactionTaskInputs: &TransactionTaskInputs{
-			From: from,
-		},
-		Sid: sid,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	if r.OutputKey == "error" {
-		var output ErrorOutput
-		if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
-			return nil, err
-		}
-		return nil, errors.New(output.Message)
-	}
-
-	var output Transaction
-	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
-		return nil, err
-	}
-	return &output, nil
-}
-
-// CreateServiceVersion executes the create service version task
-func (p *MarketplaceProvider) CreateServiceVersion(sid, hash, manifest, manifestProtocol, from string) (*Transaction, error) {
-	r, err := p.client.ExecuteAndListen(MarketplaceServiceID, "createServiceVersion", &CreateServiceVersionTaskInputs{
+// PublishServiceVersion executes the create service version task
+func (p *MarketplaceProvider) PublishServiceVersion(sid, versionHash, manifest, manifestProtocol, from string) (*Transaction, error) {
+	r, err := p.client.ExecuteAndListen(MarketplaceServiceID, "publishServiceVersion", &PublishServiceVersionTaskInputs{
 		TransactionTaskInputs: &TransactionTaskInputs{From: from},
 		Sid:                   sid,
-		Hash:                  hash,
+		VersionHash:           versionHash,
 		Manifest:              manifest,
 		ManifestProtocol:      manifestProtocol,
 	})
