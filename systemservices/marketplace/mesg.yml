@@ -4,7 +4,7 @@ description: ""
 configuration:
   env:
     - PROVIDER_ENDPOINT=https://ropsten.infura.io
-    - BLOCK_CONFIRMATIONS=1
+    - BLOCK_CONFIRMATIONS=0
     - DEFAULT_GAS=1000000
     - POLLING_TIME=1000
     - MARKETPLACE_ADDRESS=0x2a05D5fe1e9c8179dC07826fD94077458805DB5a
@@ -257,11 +257,16 @@ tasks:
         data:
           receipt:
             type: Object
-  checkForDeployment:
+  isAuthorized:
     name: ""
     description: ""
     inputs:
-      versionHash: *versionHash
+      sid:
+        optional: true
+        <<: *sid
+      versionHash:
+        optional: true
+        <<: *versionHash
       addresses:
         name: ""
         description: ""

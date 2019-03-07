@@ -19,7 +19,7 @@ const getServiceVersions = async (contract: Marketplace, sid: string): Promise<V
 }
 
 const getServiceVersionWithIndex = async (contract: Marketplace, sid: string, versionIndex: BigNumber): Promise<Version|undefined> => {
-  const versionHash = (await contract.methods.serviceVersionHash(asciiToHex(sid), versionIndex.toString()).call())
+  const versionHash = await contract.methods.serviceVersionHash(asciiToHex(sid), versionIndex.toString()).call()
   return getServiceVersion(contract, sid, versionHash)
 }
 

@@ -27,8 +27,7 @@ import listServices from "./tasks/listServices"
 import purchase from "./tasks/purchase"
 import sendSignedTransaction from "./tasks/sendSignedTransaction"
 import transferServiceOwnership from "./tasks/transferServiceOwnership"
-import checkForDeployment from "./tasks/checkForDeployment"
-import Contract from "web3/eth/contract";
+import isAuthorized from "./tasks/isAuthorized"
 import { createTransactionTemplate } from "./contracts/utils";
 
 const providerEndpoint = process.env.PROVIDER_ENDPOINT as string
@@ -69,7 +68,7 @@ const main = async () => {
     purchase: purchase(marketplace, token, createTransaction),
     transferServiceOwnership: transferServiceOwnership(marketplace, createTransaction),
     sendSignedTransaction: sendSignedTransaction(web3),
-    checkForDeployment: checkForDeployment(marketplace),
+    isAuthorized: isAuthorized(marketplace),
   })
   .on('error', error => console.error('catch listenTask', error))
 
