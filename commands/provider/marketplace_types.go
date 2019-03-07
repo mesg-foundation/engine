@@ -88,7 +88,7 @@ type PurchaseTaskInputs struct {
 
 // PurchaseTaskOutputs is the output of the task purchase.
 type PurchaseTaskOutputs struct {
-	Transactions []Transaction `json:"transactions"`
+	Transactions []*Transaction `json:"transactions"`
 }
 
 // TransferServiceOwnershipTaskInputs is the inputs of the task transfer service ownership.

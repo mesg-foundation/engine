@@ -62,11 +62,11 @@ func (c *marketplacePurchaseCmd) preRunE(cmd *cobra.Command, args []string) erro
 		return err
 	}
 	if offerIndex >= len(service.Offers) {
-		return fmt.Errorf("Offer index %d doesn't exist", offerIndex)
+		return fmt.Errorf("offer index %d doesn't exist", offerIndex)
 	}
 	offer := service.Offers[offerIndex]
 	if !offer.Active {
-		return fmt.Errorf("Cannot purchase this offer because it is not active")
+		return fmt.Errorf("cannot purchase this offer because it is not active")
 	}
 
 	var confirmed bool
@@ -93,7 +93,7 @@ func (c *marketplacePurchaseCmd) runE(cmd *cobra.Command, args []string) error {
 			return
 		}
 		for _, tx := range output.Transactions {
-			_, err = c.signAndSendTransaction(c.e, &tx)
+			_, err = c.signAndSendTransaction(c.e, tx)
 			if err != nil {
 				return
 			}

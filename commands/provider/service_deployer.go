@@ -59,21 +59,19 @@ func (p *ServiceProvider) ServiceDeploy(path string, env map[string]string, stat
 	}()
 	go readDeployReply(stream, deployment, statuses)
 
-	if strings.HasPrefix(path, "mesg:") {
-		if err := p.deployServiceFromMarketplace(path, env, stream); err != nil {
-			return "", nil, err
-		}
-	} else if govalidator.IsURL(path) {
-		if err := stream.Send(&coreapi.DeployServiceRequest{
+	switch {
+	case strings.HasPrefix(path, "mesg:"):
+		err = p.deployServiceFromMarketplace(path, env, stream)
+	case govalidator.IsURL(path):
+		err = stream.Send(&coreapi.DeployServiceRequest{
 			Value: &coreapi.DeployServiceRequest_Url{Url: path},
 			Env:   env,
-		}); err != nil {
-			return "", nil, err
-		}
-	} else {
-		if err := deployServiceSendServiceContext(path, env, stream); err != nil {
-			return "", nil, err
-		}
+		})
+	default:
+		err = deployServiceSendServiceContext(path, env, stream)
+	}
+	if err != nil {
+		return "", nil, err
 	}
 
 	if err := stream.CloseSend(); err != nil {
@@ -140,7 +138,7 @@ func (p *ServiceProvider) deployServiceFromMarketplace(u string, env map[string]
 	}
 
 	if !data.Authorized {
-		return fmt.Errorf("You are not authorized to deploy this service. Did you purchase it?\nExecute the following command to purchase it:\n\tmesg-core marketplace purchase %s", data.Sid)
+		return fmt.Errorf("you are not authorized to deploy this service. Did you purchase it?\nExecute the following command to purchase it:\n\tmesg-core marketplace purchase %s", data.Sid)
 	}
 
 	var url string
@@ -152,6 +150,8 @@ func (p *ServiceProvider) deployServiceFromMarketplace(u string, env map[string]
 	default:
 		return fmt.Errorf("unknown protocol %s", data.Type)
 	}
+
+	fmt.Println("url", url)
 
 	return stream.Send(&coreapi.DeployServiceRequest{
 		Value: &coreapi.DeployServiceRequest_Url{Url: url},
