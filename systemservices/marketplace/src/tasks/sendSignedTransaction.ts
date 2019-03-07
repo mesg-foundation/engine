@@ -4,7 +4,6 @@ import Web3 from "web3"
 export default (web3: Web3) => async (inputs: TaskInputs, outputs: TaskOutputs): Promise<void> => {
   try {
     const receipt = await web3.eth.sendSignedTransaction(inputs.signedTransaction)
-    console.log('receipt', receipt)
     return outputs.success({ receipt })
   }
   catch (error) {
