@@ -7,6 +7,7 @@ package xnet
 // IsDomainName checks if a string is a presentation-format domain name
 // (currently restricted to hostname-compatible "preferred name" LDH labels and
 // SRV-like "underscore labels"; see golang.org/issue/12421).
+//nolint:gocyclo
 func IsDomainName(s string) bool {
 	// See RFC 1035, RFC 3696.
 	// Presentation format has dots before every label except the first, and the

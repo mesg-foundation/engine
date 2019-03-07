@@ -145,5 +145,5 @@ func (c *client) GetServiceHash(key string) (string, error) {
 			return service.Hash, nil
 		}
 	}
-	return "", fmt.Errorf("No service found with key %q", key)
+	return "", fmt.Errorf("no service found with key %q", key)
 }
