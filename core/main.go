@@ -8,7 +8,6 @@ import (
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/interface/grpc"
 	"github.com/mesg-foundation/core/logger"
-	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/version"
 	"github.com/mesg-foundation/core/x/xsignal"
 	"github.com/sirupsen/logrus"
@@ -80,14 +79,8 @@ func stopRunningServices(api *api.API) error {
 		return err
 	}
 	for _, s := range services {
-		status, err := s.Status()
-		if err != nil {
+		if err := api.StopService(s.Hash); err != nil {
 			return err
-		}
-		if status == service.STARTING || status == service.PARTIAL || status == service.RUNNING {
-			if err := api.StopService(s.Hash); err != nil {
-				return err
-			}
 		}
 	}
 	return nil
