@@ -18,7 +18,7 @@ const getServicePurchases = async (contract: Marketplace, sid: string): Promise<
 }
 
 const getServicePurchaseWithIndex = async (contract: Marketplace, sid: string, purchaseIndex: BigNumber): Promise<Purchase|undefined> => {
-  const purchaser = (await contract.methods.servicePurchaseAddress(asciiToHex(sid), purchaseIndex.toString()).call())
+  const purchaser = await contract.methods.servicePurchaseAddress(asciiToHex(sid), purchaseIndex.toString()).call()
   return getServicePurchase(contract, sid, purchaser)
 }
 
