@@ -17,8 +17,13 @@ func NewWalletProvider(c coreapi.CoreClient) *WalletProvider {
 	return &WalletProvider{client: client{c}}
 }
 
+// List return the accounts of this wallet
 func (p *WalletProvider) List() ([]string, error) {
-	r, err := p.client.ExecuteAndListen(walletServiceID, "list", nil)
+	serviceHash, err := p.client.GetServiceHash(walletServiceKey)
+	if err != nil {
+		return nil, err
+	}
+	r, err := p.client.ExecuteAndListen(serviceHash, "list", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -38,8 +43,13 @@ func (p *WalletProvider) List() ([]string, error) {
 	return output.Addresses, nil
 }
 
+// Create creates a new account in the wallet
 func (p *WalletProvider) Create(passphrase string) (string, error) {
-	r, err := p.client.ExecuteAndListen(walletServiceID, "create", walletCreateInputs{
+	serviceHash, err := p.client.GetServiceHash(walletServiceKey)
+	if err != nil {
+		return "", err
+	}
+	r, err := p.client.ExecuteAndListen(serviceHash, "create", walletCreateInputs{
 		Passphrase: passphrase,
 	})
 	if err != nil {
@@ -61,8 +71,13 @@ func (p *WalletProvider) Create(passphrase string) (string, error) {
 	return output.Address, nil
 }
 
+// Delete removes an account from the wallet
 func (p *WalletProvider) Delete(address string, passphrase string) (string, error) {
-	r, err := p.client.ExecuteAndListen(walletServiceID, "delete", walletDeleteInputs{
+	serviceHash, err := p.client.GetServiceHash(walletServiceKey)
+	if err != nil {
+		return "", err
+	}
+	r, err := p.client.ExecuteAndListen(serviceHash, "delete", walletDeleteInputs{
 		Address:    address,
 		Passphrase: passphrase,
 	})
@@ -85,9 +100,14 @@ func (p *WalletProvider) Delete(address string, passphrase string) (string, erro
 	return output.Address, nil
 }
 
+// Export exports an account
 func (p *WalletProvider) Export(address string, passphrase string) (EncryptedKeyJSONV3, error) {
 	var output EncryptedKeyJSONV3
-	r, err := p.client.ExecuteAndListen(walletServiceID, "export", walletExportInputs{
+	serviceHash, err := p.client.GetServiceHash(walletServiceKey)
+	if err != nil {
+		return output, err
+	}
+	r, err := p.client.ExecuteAndListen(serviceHash, "export", walletExportInputs{
 		Address:    address,
 		Passphrase: passphrase,
 	})
@@ -109,8 +129,13 @@ func (p *WalletProvider) Export(address string, passphrase string) (EncryptedKey
 	return output, nil
 }
 
+// Import imports an account into the wallet
 func (p *WalletProvider) Import(account EncryptedKeyJSONV3, passphrase string) (string, error) {
-	r, err := p.client.ExecuteAndListen(walletServiceID, "import", &walletImportInputs{
+	serviceHash, err := p.client.GetServiceHash(walletServiceKey)
+	if err != nil {
+		return "", err
+	}
+	r, err := p.client.ExecuteAndListen(serviceHash, "import", &walletImportInputs{
 		Account:    account,
 		Passphrase: passphrase,
 	})
@@ -133,8 +158,13 @@ func (p *WalletProvider) Import(account EncryptedKeyJSONV3, passphrase string) (
 	return output.Address, nil
 }
 
+// ImportFromPrivateKey imports an account from a private key
 func (p *WalletProvider) ImportFromPrivateKey(privateKey string, passphrase string) (string, error) {
-	r, err := p.client.ExecuteAndListen(walletServiceID, "importFromPrivateKey", &walletImportFromPrivateKeyInputs{
+	serviceHash, err := p.client.GetServiceHash(walletServiceKey)
+	if err != nil {
+		return "", err
+	}
+	r, err := p.client.ExecuteAndListen(serviceHash, "importFromPrivateKey", &walletImportFromPrivateKeyInputs{
 		PrivateKey: privateKey,
 		Passphrase: passphrase,
 	})
@@ -157,8 +187,13 @@ func (p *WalletProvider) ImportFromPrivateKey(privateKey string, passphrase stri
 	return output.Address, nil
 }
 
+// Sign signs a transaction
 func (p *WalletProvider) Sign(address string, passphrase string, transaction *Transaction) (string, error) {
-	r, err := p.client.ExecuteAndListen(walletServiceID, "sign", &walletSignInputs{
+	serviceHash, err := p.client.GetServiceHash(walletServiceKey)
+	if err != nil {
+		return "", err
+	}
+	r, err := p.client.ExecuteAndListen(serviceHash, "sign", &walletSignInputs{
 		Address:     address,
 		Passphrase:  passphrase,
 		Transaction: transaction,

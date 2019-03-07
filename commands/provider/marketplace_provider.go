@@ -24,7 +24,11 @@ func NewMarketplaceProvider(c coreapi.CoreClient) *MarketplaceProvider {
 
 // PublishServiceVersion executes the create service version task
 func (p *MarketplaceProvider) PublishServiceVersion(sid, versionHash, manifest, manifestProtocol, from string) (*Transaction, error) {
-	r, err := p.client.ExecuteAndListen(MarketplaceServiceID, "publishServiceVersion", &PublishServiceVersionTaskInputs{
+	serviceHash, err := p.client.GetServiceHash(marketplaceServiceKey)
+	if err != nil {
+		return nil, err
+	}
+	r, err := p.client.ExecuteAndListen(serviceHash, "publishServiceVersion", &PublishServiceVersionTaskInputs{
 		TransactionTaskInputs: &TransactionTaskInputs{From: from},
 		Sid:                   sid,
 		VersionHash:           versionHash,
@@ -52,7 +56,11 @@ func (p *MarketplaceProvider) PublishServiceVersion(sid, versionHash, manifest, 
 
 // CreateServiceOffer executes the create service offer task
 func (p *MarketplaceProvider) CreateServiceOffer(sid string, price string, duration string, from string) (*Transaction, error) {
-	r, err := p.client.ExecuteAndListen(MarketplaceServiceID, "createServiceOffer", &CreateServiceOfferTaskInputs{
+	serviceHash, err := p.client.GetServiceHash(marketplaceServiceKey)
+	if err != nil {
+		return nil, err
+	}
+	r, err := p.client.ExecuteAndListen(serviceHash, "createServiceOffer", &CreateServiceOfferTaskInputs{
 		TransactionTaskInputs: &TransactionTaskInputs{From: from},
 		Sid:                   sid,
 		Price:                 price,
@@ -79,7 +87,11 @@ func (p *MarketplaceProvider) CreateServiceOffer(sid string, price string, durat
 
 // DisableServiceOffer executes the disable service offer task
 func (p *MarketplaceProvider) DisableServiceOffer(sid, offerIndex, from string) (*Transaction, error) {
-	r, err := p.client.ExecuteAndListen(MarketplaceServiceID, "disableServiceOffer", &DisableServiceOfferTaskInputs{
+	serviceHash, err := p.client.GetServiceHash(marketplaceServiceKey)
+	if err != nil {
+		return nil, err
+	}
+	r, err := p.client.ExecuteAndListen(serviceHash, "disableServiceOffer", &DisableServiceOfferTaskInputs{
 		TransactionTaskInputs: &TransactionTaskInputs{From: from},
 		Sid:                   sid,
 		OfferIndex:            offerIndex,
@@ -105,7 +117,11 @@ func (p *MarketplaceProvider) DisableServiceOffer(sid, offerIndex, from string) 
 
 // Purchase executes the purchase task
 func (p *MarketplaceProvider) Purchase(sid, offerIndex, from string) (*PurchaseTaskOutputs, error) {
-	r, err := p.client.ExecuteAndListen(MarketplaceServiceID, "purchase", &PurchaseTaskInputs{
+	serviceHash, err := p.client.GetServiceHash(marketplaceServiceKey)
+	if err != nil {
+		return nil, err
+	}
+	r, err := p.client.ExecuteAndListen(serviceHash, "purchase", &PurchaseTaskInputs{
 		TransactionTaskInputs: &TransactionTaskInputs{From: from},
 		Sid:                   sid,
 		OfferIndex:            offerIndex,
@@ -131,7 +147,11 @@ func (p *MarketplaceProvider) Purchase(sid, offerIndex, from string) (*PurchaseT
 
 // TransferServiceOwnership executes the task transfer service ownership.
 func (p *MarketplaceProvider) TransferServiceOwnership(sid, newOwner, from string) (*Transaction, error) {
-	r, err := p.client.ExecuteAndListen(MarketplaceServiceID, "transferServiceOwnership", &TransferServiceOwnershipTaskInputs{
+	serviceHash, err := p.client.GetServiceHash(marketplaceServiceKey)
+	if err != nil {
+		return nil, err
+	}
+	r, err := p.client.ExecuteAndListen(serviceHash, "transferServiceOwnership", &TransferServiceOwnershipTaskInputs{
 		TransactionTaskInputs: &TransactionTaskInputs{From: from},
 		Sid:                   sid,
 		NewOwner:              newOwner,
@@ -157,7 +177,11 @@ func (p *MarketplaceProvider) TransferServiceOwnership(sid, newOwner, from strin
 
 // SendSignedTransaction executes the task send signed transaction.
 func (p *MarketplaceProvider) SendSignedTransaction(signedTransaction string) (*TransactionReceipt, error) {
-	r, err := p.client.ExecuteAndListen(MarketplaceServiceID, "sendSignedTransaction", &SendSignedTransactionTaskInputs{
+	serviceHash, err := p.client.GetServiceHash(marketplaceServiceKey)
+	if err != nil {
+		return nil, err
+	}
+	r, err := p.client.ExecuteAndListen(serviceHash, "sendSignedTransaction", &SendSignedTransactionTaskInputs{
 		SignedTransaction: signedTransaction,
 	})
 	if err != nil {
@@ -181,8 +205,12 @@ func (p *MarketplaceProvider) SendSignedTransaction(signedTransaction string) (*
 
 // GetService executes the task get service.
 func (p *MarketplaceProvider) GetService(sid string) (*MarketplaceService, error) {
+	serviceHash, err := p.client.GetServiceHash(marketplaceServiceKey)
+	if err != nil {
+		return nil, err
+	}
 	var output MarketplaceService
-	r, err := p.client.ExecuteAndListen(MarketplaceServiceID, "getService", &GetServiceTaskInputs{
+	r, err := p.client.ExecuteAndListen(serviceHash, "getService", &GetServiceTaskInputs{
 		Sid: sid,
 	})
 	if err != nil {
@@ -217,7 +245,7 @@ func (p *MarketplaceProvider) UploadServiceFiles(path string, manifest ManifestD
 		return "", "", err
 	}
 
-	manifest.Service.Deployment.Type = DeploymentType
+	manifest.Service.Deployment.Type = deploymentType
 	manifest.Service.Deployment.Source = tarballResponse.Hash
 
 	// upload manifest
@@ -230,7 +258,7 @@ func (p *MarketplaceProvider) UploadServiceFiles(path string, manifest ManifestD
 		return "", "", err
 	}
 
-	return DeploymentType, definitionResponse.Hash, nil
+	return deploymentType, definitionResponse.Hash, nil
 }
 
 func (p *MarketplaceProvider) CreateManifest(path string) (ManifestData, error) {
@@ -239,7 +267,7 @@ func (p *MarketplaceProvider) CreateManifest(path string) (ManifestData, error) 
 	if err != nil {
 		return data, err
 	}
-	data.Version = PublishVersion
+	data.Version = publishVersion
 	data.Definition = *definition
 	data.Readme, err = readme.Lookup(path)
 	if err != nil {

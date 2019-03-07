@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
@@ -131,4 +132,18 @@ func (c *client) ExecuteAndListen(id, taskKey string, inputData interface{}) (*c
 	case err := <-errC:
 		return nil, err
 	}
+}
+
+// GetServiceHash returns the service hash of the corresponding service key
+func (c *client) GetServiceHash(key string) (string, error) {
+	rep, err := c.Info(context.Background(), &coreapi.InfoRequest{})
+	if err != nil {
+		return "", err
+	}
+	for _, service := range rep.Services {
+		if service.Key == key {
+			return service.Hash, nil
+		}
+	}
+	return "", fmt.Errorf("No service found with key %q", key)
 }

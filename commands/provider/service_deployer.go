@@ -116,7 +116,7 @@ func (p *ServiceProvider) deployServiceFromMarketplace(u string, env map[string]
 
 	// Check if one of them are is authorized
 	// TODO: this should move to marketplace provider
-	res, err = p.client.ExecuteAndListen("marketplace", "checkForDeployment", CheckForDeploymentInputs{
+	res, err = p.client.ExecuteAndListen("marketplace", "isAuthorized", IsAuthorizedInputs{
 		VersionHash: path[1],
 		Addresses:   listOutput.Addresses,
 	})
@@ -132,7 +132,7 @@ func (p *ServiceProvider) deployServiceFromMarketplace(u string, env map[string]
 		return errors.New(output.Message)
 	}
 
-	var data CheckForDeploymentSuccessOutput
+	var data IsAuthorizedSuccessOutput
 	if err := json.Unmarshal([]byte(res.OutputData), &data); err != nil {
 		return err
 	}
@@ -150,8 +150,6 @@ func (p *ServiceProvider) deployServiceFromMarketplace(u string, env map[string]
 	default:
 		return fmt.Errorf("unknown protocol %s", data.Type)
 	}
-
-	fmt.Println("url", url)
 
 	return stream.Send(&coreapi.DeployServiceRequest{
 		Value: &coreapi.DeployServiceRequest_Url{Url: url},

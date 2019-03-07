@@ -1,6 +1,6 @@
 package provider
 
-const walletServiceID = "ethwallet"
+const walletServiceKey = "ethwallet"
 
 type walletListOutputSuccess struct {
 	Addresses []string `json:"addresses"`
@@ -52,6 +52,7 @@ type walletSignOutputSuccess struct {
 	SignedTransaction string `json:"signedTransaction"`
 }
 
+// EncryptedKeyJSONV3 represents an Ethereum JSON v3 encrypted wallet
 type EncryptedKeyJSONV3 struct {
 	Address string      `json:"address"`
 	Crypto  interface{} `json:"crypto"`

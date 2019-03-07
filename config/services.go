@@ -8,7 +8,8 @@ package config
 // 			BarURL string
 // 		)
 var (
-	EthwalletURL string
+	EthwalletURL   string
+	MarketplaceURL string
 )
 
 // ServiceConfig contains information related to services that the config knows about
@@ -27,20 +28,23 @@ type ServiceConfigWithKey struct {
 
 // ServiceConfigGroup is the struct that contains all the `ServiceConfig` related to the config
 type ServiceConfigGroup struct {
-	Ethwallet ServiceConfig
+	Ethwallet   ServiceConfig
+	Marketplace ServiceConfig
 }
 
 // getServiceConfigGroup return the config for all services.
 // DO NOT USE STRING HERE but variable defined on top of this file `XxxURL` for config injection
 func (c *Config) getServiceConfigGroup() ServiceConfigGroup {
 	return ServiceConfigGroup{
-		Ethwallet: ServiceConfig{URL: EthwalletURL},
+		Ethwallet:   ServiceConfig{URL: EthwalletURL},
+		Marketplace: ServiceConfig{URL: MarketplaceURL},
 	}
 }
 
 // Services returns all services that the configuration package is aware of
 func (c *Config) Services() []*ServiceConfigWithKey {
 	return []*ServiceConfigWithKey{
-		{&c.Service.Ethwallet, "Ethwallet"},
+		{&c.Service.Ethwallet, "ethwallet"},
+		{&c.Service.Marketplace, "marketplace"},
 	}
 }

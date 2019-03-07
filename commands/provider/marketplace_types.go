@@ -5,14 +5,14 @@ import (
 )
 
 const (
-	// PublishVersion is the version used to publish the services to the marketplace
-	PublishVersion = 1
+	// publishVersion is the version used to publish the services to the marketplace
+	publishVersion = 1
 
-	// DeploymentType is the type of deployment used for the service
-	DeploymentType = "ipfs"
+	// deploymentType is the type of deployment used for the service
+	deploymentType = "ipfs"
 
-	// MarketplaceServiceID is the sid of the marketplace service
-	MarketplaceServiceID = "marketplace"
+	// marketplaceServiceKey is the key of the marketplace service
+	marketplaceServiceKey = "marketplace"
 )
 
 // ErrorOutput is the output for any task that fails.
@@ -157,14 +157,15 @@ type MarketplaceService struct {
 	} `json:"purchases"`
 }
 
-// CheckForDeploymentInputs is the inputs of the task check for deployment.
-type CheckForDeploymentInputs struct {
+// IsAuthorizedInputs is the inputs of the task check for deployment.
+type IsAuthorizedInputs struct {
+	Sid         string   `json:"sid"`
 	VersionHash string   `json:"versionHash"`
 	Addresses   []string `json:"addresses"`
 }
 
-// CheckForDeploymentSuccessOutput is the success output of task check for deployment.
-type CheckForDeploymentSuccessOutput struct {
+// IsAuthorizedSuccessOutput is the success output of task check for deployment.
+type IsAuthorizedSuccessOutput struct {
 	Authorized bool   `json:"authorized"`
 	Sid        string `json:"sid"`
 	Source     string `json:"source"`
