@@ -99,19 +99,20 @@ func New(tarball io.Reader, env map[string]string, options ...Option) (*Service,
 		return nil, err
 	}
 
-	h := sha256.New()
-	io.TeeReader(tarball, h)
-
 	// untar tarball to retrieve mesg.yml
 	s.tempPath, err = ioutil.TempDir("", "mesg-")
 	if err != nil {
 		return nil, err
 	}
+	defer os.RemoveAll(s.tempPath)
 
-	if err := archive.Untar(tarball, s.tempPath, nil); err != nil {
+	// calculate the hash while untaring the archive
+	h := sha256.New()
+	stream := io.TeeReader(tarball, h)
+
+	if err := archive.Untar(stream, s.tempPath, nil); err != nil {
 		return nil, err
 	}
-	defer os.RemoveAll(s.tempPath)
 	def, err := importer.From(s.tempPath)
 	if err != nil {
 		return nil, err
