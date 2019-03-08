@@ -99,6 +99,9 @@ func New(tarball io.Reader, env map[string]string, options ...Option) (*Service,
 		return nil, err
 	}
 
+	h := sha256.New()
+	io.TeeReader(tarball, h)
+
 	// untar tarball to retrieve mesg.yml
 	s.tempPath, err = ioutil.TempDir("", "mesg-")
 	if err != nil {
@@ -114,10 +117,8 @@ func New(tarball io.Reader, env map[string]string, options ...Option) (*Service,
 		return nil, err
 	}
 
-	hash, err := serviceHash(s.tempPath, env)
-	if err != nil {
-		return nil, err
-	}
+	envbytes := []byte(xos.EnvMapToString(env))
+	hash := h.Sum(envbytes)
 	s.Hash = hex.EncodeToString(hash)
 
 	s.injectDefinition(def)
@@ -256,21 +257,6 @@ func (s *Service) configuration() *Dependency {
 		}
 	}
 	return nil
-}
-
-func serviceHash(contextDir string, env map[string]string) ([]byte, error) {
-	// create stream to calculate hash
-	stream, err := archive.Tar(contextDir, archive.Uncompressed)
-	if err != nil {
-		return nil, err
-	}
-	h := sha256.New()
-	if _, err := io.Copy(h, stream); err != nil {
-		return nil, err
-	}
-	envbytes := []byte(xos.EnvMapToString(env))
-	hash := h.Sum(envbytes)
-	return hash, nil
 }
 
 // ErrNotDefinedEnv error returned when optionally given env variables
