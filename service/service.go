@@ -1,7 +1,7 @@
 package service
 
 import (
-	"archive/tar"
+	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
 	"io"
@@ -14,7 +14,6 @@ import (
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/service/importer"
-	"github.com/mesg-foundation/core/utils/tarsum"
 	"github.com/mesg-foundation/core/x/xos"
 )
 
@@ -115,15 +114,7 @@ func New(tarball io.Reader, env map[string]string, options ...Option) (*Service,
 		return nil, err
 	}
 
-	// create stream to calculate hash
-	decompressedStream, err := archive.Tar(s.tempPath, archive.Uncompressed)
-	if err != nil {
-		return nil, err
-	}
-	defer decompressedStream.Close()
-
-	envbytes := []byte(xos.EnvMapToString(env))
-	hash, err := tarsum.New(tar.NewReader(decompressedStream)).Sum(envbytes)
+	hash, err := serviceHash(s.tempPath, env)
 	if err != nil {
 		return nil, err
 	}
@@ -265,6 +256,21 @@ func (s *Service) configuration() *Dependency {
 		}
 	}
 	return nil
+}
+
+func serviceHash(contextDir string, env map[string]string) ([]byte, error) {
+	// create stream to calculate hash
+	stream, err := archive.Tar(contextDir, archive.Uncompressed)
+	if err != nil {
+		return nil, err
+	}
+	h := sha1.New()
+	if _, err := io.Copy(h, stream); err != nil {
+		return nil, err
+	}
+	envbytes := []byte(xos.EnvMapToString(env))
+	hash := h.Sum(envbytes)
+	return hash, nil
 }
 
 // ErrNotDefinedEnv error returned when optionally given env variables
