@@ -243,10 +243,17 @@ message DeployServiceReply {
     Type type = 2;      // Type of status message.
   }
 
+  message Service {
+    string sid = 1;   // `sid` is the service ID.
+    string hash = 2;  // `hash` is the service hash.
+  }
+  
+  reserved 1, 3;
+
   oneof value {
     Status status = 2;          // `status` will be sent after each status change.
-    string serviceID = 3;       // `serviceID` will be sent as the last message of stream when service deployed successfully.
     string validationError = 4; // `validationError` will be sent as the last message of stream when there is a validation error.
+    Service service = 5;        // `service` will be sent as the last message of stream when service deployed successfully.
   }
 }
 
