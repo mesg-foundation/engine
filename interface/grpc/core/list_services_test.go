@@ -15,7 +15,7 @@ func TestListServices(t *testing.T) {
 
 	stream := newTestDeployStream(url)
 	require.NoError(t, server.DeployService(stream))
-	defer server.api.DeleteService(stream.sid, false)
+	defer server.api.DeleteService(stream.hash, false)
 
 	reply, err := server.ListServices(context.Background(), &coreapi.ListServicesRequest{})
 	require.NoError(t, err)
