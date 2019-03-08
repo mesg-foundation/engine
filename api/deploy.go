@@ -68,16 +68,17 @@ func (api *API) DeployServiceFromURL(url string, env map[string]string, statusC 
 		}
 	}
 
-	contextDir, err = formalizeContextDir(contextDir)
-	if err != nil {
-		return "", err
-	}
-
 	return api.deploy(contextDir, env)
 }
 
 // deploy deploys a service in path.
 func (api *API) deploy(contextDir string, env map[string]string) (string, error) {
+	var err error
+	contextDir, err = formalizeContextDir(contextDir)
+	if err != nil {
+		return "", err
+	}
+
 	s, err := service.ReadDefinition(contextDir)
 	if err != nil {
 		return "", err
