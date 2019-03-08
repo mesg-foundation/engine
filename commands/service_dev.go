@@ -78,7 +78,7 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 			errors.New("to get more information, run: mesg-core service validate"),
 		}
 	}
-	fmt.Printf("%s Service deployed with sid %v and hash %s\n", pretty.SuccessSign, pretty.Success(sid), hash)
+	fmt.Printf("%s Service deployed with sid %s and hash %s\n", pretty.SuccessSign, pretty.Success(sid), pretty.Success(hash))
 
 	defer func() {
 		var err error
