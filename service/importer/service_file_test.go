@@ -43,11 +43,11 @@ func TestValidateServiceFileWithErrors(t *testing.T) {
 func TestValidateServiceFileWithMultipleErrors(t *testing.T) {
 	data, _ := readServiceFile("./tests/service-multiple-errors")
 	warnings := validateServiceFile(data)
-	require.Equal(t, 1, len(warnings))
+	require.Equal(t, 2, len(warnings))
 }
 
 func TestValidateServiceSidTooLong(t *testing.T) {
 	data, _ := readServiceFile("./tests/sid-too-long")
 	warnings := validateServiceFile(data)
-	require.Contains(t, warnings[0], `Sid with value "0000000000000000000000000000000000000000" is invalid: max 39`)
+	require.Equal(t, 1, len(warnings))
 }
