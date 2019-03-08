@@ -185,6 +185,42 @@ Output when the task executes successfully.
 | **Address** | `address` | `String` | The public address of the account. |
 
 
+## Import an account from a private key
+
+Task key: `importFromPrivateKey`
+
+Import an account from a private key.
+
+### Inputs
+
+| **Name** | **Key** | **Type** | **Description** |
+| --- | --- | --- | --- |
+| **Private key** | `privateKey` | `String` | The private key to import. |
+| **Passphrase** | `passphrase` | `String` | Passphrase to use to unlock the account. |
+
+### Outputs
+
+#### Error
+
+Output key: `error`
+
+Output when an error occurs.
+
+| **Name** | **Key** | **Type** | **Description** |
+| --- | --- | --- | --- |
+| **Message** | `message` | `String` | The error message. |
+
+#### Success
+
+Output key: `success`
+
+Output when the task executes successfully.
+
+| **Name** | **Key** | **Type** | **Description** |
+| --- | --- | --- | --- |
+| **Address** | `address` | `String` | The public address of the account. |
+
+
 ## List accounts
 
 Task key: `list`
@@ -226,7 +262,6 @@ Sign a transaction with the specified account.
 | **Name** | **Key** | **Type** | **Description** |
 | --- | --- | --- | --- |
 | **Address** | `address` | `String` | The public address of the account. |
-| **Chain ID** | `chainID` | `Number` | The ID of the chain the transaction is for. See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md#list-of-chain-ids. |
 | **Passphrase** | `passphrase` | `String` | Passphrase to use to unlock the account. |
 | **Transaction** | `transaction` | `Object` | The transaction to sign. |
 
@@ -250,7 +285,7 @@ Output when the task executes successfully.
 
 | **Name** | **Key** | **Type** | **Description** |
 | --- | --- | --- | --- |
-| **Signed transaction** | `signedTransaction` | `Object` | The data of the signed transaction. |
+| **Signed transaction** | `signedTransaction` | `String` | The signed transaction. |
 
 
 
