@@ -2,6 +2,7 @@ package xvalidator
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/mesg-foundation/core/x/xnet"
 	validator "gopkg.in/go-playground/validator.v9"
@@ -17,6 +18,12 @@ func IsDomainName(fl validator.FieldLevel) bool {
 
 // IsPort validates if given field is valid port.
 func IsPort(fl validator.FieldLevel) bool {
-	i, err := strconv.Atoi(fl.Field().String())
-	return err == nil && 0 < i && i <= 65535
+	ports := strings.Split(fl.Field().String(), ":")
+	for _, port := range ports {
+		i, err := strconv.Atoi(port)
+		if !(err == nil && 0 < i && i <= 65535) {
+			return false
+		}
+	}
+	return true
 }
