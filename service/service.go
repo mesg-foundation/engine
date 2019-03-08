@@ -1,7 +1,7 @@
 package service
 
 import (
-	"crypto/sha1"
+	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"io"
@@ -264,7 +264,7 @@ func serviceHash(contextDir string, env map[string]string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	h := sha1.New()
+	h := sha256.New()
 	if _, err := io.Copy(h, stream); err != nil {
 		return nil, err
 	}
