@@ -9,6 +9,9 @@ import (
 
 // IsDomainName validates if given field is valid domain name.
 func IsDomainName(fl validator.FieldLevel) bool {
+	if fl.Field().String() == "" {
+		return true
+	}
 	return xnet.IsDomainName(fl.Field().String())
 }
 
