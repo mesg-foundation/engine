@@ -37,6 +37,70 @@ func validateServiceFile(data []byte) []string {
 }
 
 func validateServiceStruct(service *ServiceDefinition) []string {
+	validate, trans := newValidator()
+	err := validate.Struct(service)
+	warnings := []string{}
+	if err != nil {
+		errs := err.(validator.ValidationErrors)
+		for _, e := range errs {
+			// Remove the name of the struct and the field from namespace
+			trimmedNamespace := strings.TrimPrefix(e.Namespace(), namespacePrefix)
+			trimmedNamespace = strings.TrimSuffix(trimmedNamespace, e.Field())
+			// Only use it when in-cascade field
+			namespace := ""
+			if e.Field() != trimmedNamespace {
+				namespace = trimmedNamespace
+			}
+			warnings = append(warnings, fmt.Sprintf("%s%s", namespace, e.Translate(trans)))
+		}
+	}
+
+	for key, dep := range service.Dependencies {
+		if dep == nil {
+			continue
+		}
+		if dep.Image == "" {
+			warnings = append(
+				warnings,
+				fmt.Sprintf("dependencies[%s].image is a required field", key),
+			)
+		}
+	}
+
+	warnings = append(warnings, validateServiceStructVolumesFrom(service)...)
+
+	return warnings
+}
+
+func validateServiceStructVolumesFrom(service *ServiceDefinition) []string {
+	warnings := []string{}
+	if service.Configuration != nil {
+		for _, depVolumeKey := range service.Configuration.VolumesFrom {
+			if _, ok := service.Dependencies[depVolumeKey]; !ok {
+				warnings = append(
+					warnings,
+					fmt.Sprintf("configuration.volumesfrom is invalid: dependency %q does not exist", depVolumeKey),
+				)
+			}
+		}
+	}
+	for key, dep := range service.Dependencies {
+		if dep == nil {
+			continue
+		}
+		for _, depVolumeKey := range dep.VolumesFrom {
+			if _, ok := service.Dependencies[depVolumeKey]; !ok && depVolumeKey != ConfigurationDependencyKey {
+				warnings = append(
+					warnings,
+					fmt.Sprintf("dependencies[%s].volumesfrom is invalid: dependency %q does not exist", key, depVolumeKey),
+				)
+			}
+		}
+	}
+	return warnings
+}
+
+func newValidator() (*validator.Validate, ut.Translator) {
 	en := en.New()
 	uni := ut.New(en, en)
 	trans, _ := uni.GetTranslator("en")
@@ -56,54 +120,5 @@ func validateServiceStruct(service *ServiceDefinition) []string {
 		return t
 	})
 	en_translations.RegisterDefaultTranslations(validate, trans)
-
-	err := validate.Struct(service)
-	warnings := []string{}
-	if err != nil {
-		errs := err.(validator.ValidationErrors)
-		for _, e := range errs {
-			// Remove the name of the struct and the field from namespace
-			trimmedNamespace := strings.TrimPrefix(e.Namespace(), namespacePrefix)
-			trimmedNamespace = strings.TrimSuffix(trimmedNamespace, e.Field())
-			// Only use it when in-cascade field
-			namespace := ""
-			if e.Field() != trimmedNamespace {
-				namespace = trimmedNamespace
-			}
-			warnings = append(warnings, fmt.Sprintf("%s%s", namespace, e.Translate(trans)))
-		}
-	}
-
-	if service.Configuration != nil {
-		for _, depVolumeKey := range service.Configuration.VolumesFrom {
-			if _, ok := service.Dependencies[depVolumeKey]; !ok {
-				warnings = append(
-					warnings,
-					fmt.Sprintf("configuration.volumesfrom is invalid: dependency %q does not exist", depVolumeKey),
-				)
-			}
-		}
-	}
-
-	for key, dep := range service.Dependencies {
-		if dep == nil {
-			continue
-		}
-		if dep.Image == "" {
-			warnings = append(
-				warnings,
-				fmt.Sprintf("Dependencies[%s].Image is a required field", key),
-			)
-		}
-		for _, depVolumeKey := range dep.VolumesFrom {
-			if _, ok := service.Dependencies[depVolumeKey]; !ok && depVolumeKey != ConfigurationDependencyKey {
-				warnings = append(
-					warnings,
-					fmt.Sprintf("dependencies[%s].volumesfrom is invalid: dependency %q does not exist", key, depVolumeKey),
-				)
-			}
-		}
-	}
-
-	return warnings
+	return validate, trans
 }
