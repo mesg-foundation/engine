@@ -36,17 +36,17 @@ type DeployStatus struct {
 
 // deploymentResult keeps information about deployment result.
 type deploymentResult struct {
-	serviceID       string
+	sid             string
+	hash            string
 	err             error
 	validationError error
 }
 
 // ServiceDeploy deploys service from given path.
-func (p *ServiceProvider) ServiceDeploy(path string, env map[string]string, statuses chan DeployStatus) (id string,
-	validationError, err error) {
+func (p *ServiceProvider) ServiceDeploy(path string, env map[string]string, statuses chan DeployStatus) (sid string, hash string, validationError, err error) {
 	stream, err := p.client.DeployService(context.Background())
 	if err != nil {
-		return "", nil, err
+		return "", "", nil, err
 	}
 
 	deployment := make(chan deploymentResult)
@@ -62,21 +62,21 @@ func (p *ServiceProvider) ServiceDeploy(path string, env map[string]string, stat
 			Value: &coreapi.DeployServiceRequest_Url{Url: path},
 			Env:   env,
 		}); err != nil {
-			return "", nil, err
+			return "", "", nil, err
 		}
 	} else {
 		if err := deployServiceSendServiceContext(path, env, stream); err != nil {
-			return "", nil, err
+			return "", "", nil, err
 		}
 	}
 
 	if err := stream.CloseSend(); err != nil {
-		return "", nil, err
+		return "", "", nil, err
 	}
 
 	result := <-deployment
 	close(statuses)
-	return result.serviceID, result.validationError, result.err
+	return result.sid, result.hash, result.validationError, result.err
 }
 
 func deployServiceSendServiceContext(path string, env map[string]string, stream coreapi.Core_DeployServiceClient) error {
@@ -146,7 +146,7 @@ func readDeployReply(stream coreapi.Core_DeployServiceClient, deployment chan de
 
 		var (
 			status          = message.GetStatus()
-			serviceID       = message.GetServiceID()
+			service         = message.GetService()
 			validationError = message.GetValidationError()
 		)
 
@@ -167,8 +167,9 @@ func readDeployReply(stream coreapi.Core_DeployServiceClient, deployment chan de
 
 			statuses <- s
 
-		case serviceID != "":
-			result.serviceID = serviceID
+		case service != nil:
+			result.sid = service.Sid
+			result.hash = service.Hash
 			deployment <- result
 			return
 
