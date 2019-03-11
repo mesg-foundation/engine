@@ -1,8 +1,7 @@
 package api
 
 import (
-	"archive/tar"
-	"compress/gzip"
+	"bufio"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -15,6 +14,7 @@ import (
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/importer"
 	"github.com/mesg-foundation/core/x/xgit"
+	"github.com/mholt/archiver"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -141,43 +141,28 @@ func (d *serviceDeployer) preprocessURL(url string, path string) error {
 }
 
 func (d *serviceDeployer) preprocessArchive(r io.Reader, path string) error {
-	gzr, err := gzip.NewReader(r)
+
+	// detect compresion to get the file extension
+	bf := bufio.NewReader(r)
+	header, err := bf.Peek(10)
 	if err != nil {
 		return err
 	}
-	defer gzr.Close()
-	tr := tar.NewReader(gzr)
-	for {
-		header, err := tr.Next()
-		switch {
-		case err == io.EOF:
-			return nil
-		case err != nil:
-			return err
-		case header == nil:
-			continue
-		}
+	compression := archive.DetectCompression(header)
 
-		target := filepath.Join(path, header.Name)
-		switch header.Typeflag {
-		case tar.TypeDir:
-			if _, err := os.Stat(target); err != nil {
-				if err := os.MkdirAll(target, 0755); err != nil {
-					return err
-				}
-			}
-		case tar.TypeReg:
-			f, err := os.OpenFile(target, os.O_CREATE|os.O_RDWR, os.FileMode(header.Mode))
-			if err != nil {
-				return err
-			}
-			if _, err := io.Copy(f, tr); err != nil {
-				return err
-			}
-			f.Close()
-		}
+	tmpfile, err := ioutil.TempFile("", "service.*."+compression.Extension())
+	if err != nil {
+		return err
 	}
-	// return archive.Untar(r, path, &archive.TarOptions{NoLchown: true})
+	defer os.Remove(tmpfile.Name())
+	defer tmpfile.Close()
+
+	if _, err := io.Copy(tmpfile, bf); err != nil {
+		return err
+	}
+
+	// archiver unarchives based on extension
+	return archiver.Unarchive(tmpfile.Name(), path)
 }
 
 func (d *serviceDeployer) processPath(path string) (io.ReadCloser, error) {
