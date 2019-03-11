@@ -41,9 +41,9 @@ func validateServiceStruct(service *ServiceDefinition) []string {
 	uni := ut.New(en, en)
 	trans, _ := uni.GetTranslator("en")
 	validate := validator.New()
-	validate.RegisterValidation("port", xvalidator.IsPort)
+	validate.RegisterValidation("port", xvalidator.IsPortMapping)
 	validate.RegisterTranslation("port", trans, func(ut ut.Translator) error {
-		return ut.Add("port", "{0} must be a valid port", false)
+		return ut.Add("port", "{0} must be a valid port. Eg: 80 or 80:80", false)
 	}, func(ut ut.Translator, fe validator.FieldError) string {
 		t, _ := ut.T("port", fe.Field(), namespacePrefix)
 		return t
