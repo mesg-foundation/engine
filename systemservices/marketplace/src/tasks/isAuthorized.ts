@@ -1,7 +1,7 @@
 import { TaskInputs, TaskOutputs } from "mesg-js/lib/service"
 import { Marketplace } from "../contracts/Marketplace"
 import { getServiceVersion } from "../contracts/version";
-import { hexToAscii, asciiToHex } from "../contracts/utils";
+import { hexToAscii, asciiToHex, hashToHex, hexToHash } from "../contracts/utils";
 import BigNumber from "bignumber.js";
 
 export default (
@@ -13,7 +13,7 @@ export default (
     if (inputs.versionHash) {
       versionHash = inputs.versionHash
       // get service from version hash
-      const sidHash = await contract.methods.hashToService(versionHash).call()
+      const sidHash = await contract.methods.hashToService(hashToHex(versionHash)).call()
       if (hexToAscii(sidHash) === "") {
         throw new Error('version with hash ' + versionHash + ' does not exist')
       }
@@ -27,7 +27,7 @@ export default (
       if (versionsLength.isEqualTo(0)) {
         throw new Error('service with sid ' + sid + ' does not have any version')
       }
-      versionHash = await contract.methods.serviceVersionHash(asciiToHex(sid), versionsLength.minus(1).toString()).call()
+      versionHash = hexToHash(await contract.methods.serviceVersionHash(asciiToHex(sid), versionsLength.minus(1).toString()).call())
     }
     else {
       throw new Error('Input should have sid or versionHash set')
