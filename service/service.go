@@ -1,7 +1,6 @@
 package service
 
 import (
-	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"io"
@@ -14,6 +13,7 @@ import (
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/service/importer"
+	"github.com/mesg-foundation/core/utils/dirhash"
 	"github.com/mesg-foundation/core/x/xos"
 )
 
@@ -107,10 +107,7 @@ func New(tarball io.Reader, env map[string]string, options ...Option) (*Service,
 	defer os.RemoveAll(s.tempPath)
 
 	// calculate the hash while untaring the archive
-	h := sha256.New()
-	stream := io.TeeReader(tarball, h)
-
-	if err := archive.Untar(stream, s.tempPath, nil); err != nil {
+	if err := archive.Untar(tarball, s.tempPath, nil); err != nil {
 		return nil, err
 	}
 	def, err := importer.From(s.tempPath)
@@ -118,8 +115,12 @@ func New(tarball io.Reader, env map[string]string, options ...Option) (*Service,
 		return nil, err
 	}
 
+	dh := dirhash.New(s.tempPath)
 	envbytes := []byte(xos.EnvMapToString(env))
-	hash := h.Sum(envbytes)
+	hash, err := dh.Sum(envbytes)
+	if err != nil {
+		return nil, err
+	}
 	s.Hash = hex.EncodeToString(hash)
 
 	s.injectDefinition(def)
