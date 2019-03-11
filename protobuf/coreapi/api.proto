@@ -247,8 +247,6 @@ message DeployServiceReply {
     string sid = 1;   // `sid` is the service ID.
     string hash = 2;  // `hash` is the service hash.
   }
-  
-  reserved 1, 3;
 
   oneof value {
     Status status = 2;          // `status` will be sent after each status change.
