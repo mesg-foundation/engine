@@ -41,13 +41,16 @@ func (ds *DirHash) Sum(extra []byte) ([]byte, error) {
 			return err
 		}
 
+		safepath, err := filepath.Rel(ds.path, path)
+		if err != nil {
+			return err
+		}
 		// make path os-independent to get the same hash on every os
 		// despite different path separator.
-		safepath := filepath.ToSlash(path)
+		safepath = filepath.ToSlash(safepath)
 		fhash.Write([]byte(safepath))
 
 		fm := fi.Mode()
-
 		// write mode in little endian to get constant hash
 		// across different cpu architeture.
 		binary.Write(fhash, binary.LittleEndian, fm)
