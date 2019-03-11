@@ -1,15 +1,11 @@
 package commands
 
 import (
-	"errors"
 	"fmt"
 	"os"
-	"sync"
 
 	"github.com/fatih/color"
-	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/utils/pretty"
-	"github.com/mesg-foundation/core/x/xerrors"
 	"github.com/mesg-foundation/core/x/xpflag"
 	"github.com/mesg-foundation/core/x/xsignal"
 	"github.com/spf13/cobra"
@@ -54,29 +50,9 @@ func (c *serviceDevCmd) preRunE(cmd *cobra.Command, args []string) error {
 }
 
 func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
-	var (
-		statuses = make(chan provider.DeployStatus)
-		wg       sync.WaitGroup
-	)
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		printDeployStatuses(statuses)
-	}()
-
-	sid, hash, validationError, err := c.e.ServiceDeploy(c.path, c.env, statuses)
+	sid, hash, err := deployService(c.e, c.path, c.env)
 	if err != nil {
 		return err
-	}
-	wg.Wait()
-
-	pretty.DestroySpinner()
-	if validationError != nil {
-		return xerrors.Errors{
-			validationError,
-			errors.New("to get more information, run: mesg-core service validate"),
-		}
 	}
 	fmt.Printf("%s Service deployed with sid %s and hash %s\n", pretty.SuccessSign, pretty.Success(sid), pretty.Success(hash))
 
