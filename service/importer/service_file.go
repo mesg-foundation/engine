@@ -74,24 +74,27 @@ func validateServiceStruct(service *ServiceDefinition) []string {
 		}
 	}
 
-	for k, d := range service.Dependencies {
-		if d.Image == "" {
-			warnings = append(
-				warnings,
-				fmt.Sprintf("Dependencies[%s].Image is a required field", k),
-			)
+	if service.Configuration != nil {
+		for _, depVolumeKey := range service.Configuration.VolumesFrom {
+			if _, ok := service.Dependencies[depVolumeKey]; !ok {
+				warnings = append(
+					warnings,
+					fmt.Sprintf("configuration.volumesfrom is invalid: dependency %q does not exist", depVolumeKey),
+				)
+			}
 		}
 	}
 
-	for _, depVolumeKey := range service.Configuration.VolumesFrom {
-		if _, ok := service.Dependencies[depVolumeKey]; !ok {
+	for key, dep := range service.Dependencies {
+		if dep == nil {
+			continue
+		}
+		if dep.Image == "" {
 			warnings = append(
 				warnings,
-				fmt.Sprintf("configuration.volumesfrom is invalid: dependency %q does not exist", depVolumeKey),
+				fmt.Sprintf("Dependencies[%s].Image is a required field", key),
 			)
 		}
-	}
-	for key, dep := range service.Dependencies {
 		for _, depVolumeKey := range dep.VolumesFrom {
 			if _, ok := service.Dependencies[depVolumeKey]; !ok && depVolumeKey != ConfigurationDependencyKey {
 				warnings = append(
