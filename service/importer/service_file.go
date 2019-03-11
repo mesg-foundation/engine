@@ -43,13 +43,12 @@ func validateServiceStruct(service *ServiceDefinition) []string {
 	if err != nil {
 		errs := err.(validator.ValidationErrors)
 		for _, e := range errs {
-			field := strings.ToLower(e.Field())
 			// Remove the name of the struct and the field from namespace
 			trimmedNamespace := strings.TrimPrefix(e.Namespace(), namespacePrefix)
-			trimmedNamespace = strings.TrimSuffix(trimmedNamespace, field)
+			trimmedNamespace = strings.TrimSuffix(trimmedNamespace, e.Field())
 			// Only use it when in-cascade field
 			namespace := ""
-			if field != trimmedNamespace {
+			if e.Field() != trimmedNamespace {
 				namespace = trimmedNamespace
 			}
 			warnings = append(warnings, fmt.Sprintf("%s%s", namespace, e.Translate(trans)))
