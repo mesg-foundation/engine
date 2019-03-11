@@ -107,7 +107,7 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	closer, err := showLogs(c.e, id)
+	closer, logsErrC, err := showLogs(c.e, id)
 	if err != nil {
 		return err
 	}
@@ -120,6 +120,9 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 		select {
 		case <-abort:
 			return nil
+
+		case err := <-logsErrC:
+			return err
 
 		case e := <-listenEventsC:
 			fmt.Printf("Receive event %s: %s\n",

@@ -34,7 +34,7 @@ tasks:
     inputs:
       passphrase: &passphrase
         name: "Passphrase"
-        description: "Passphrase to use to encrypt the account."
+        description: "Passphrase to use with the account."
         type: String
     outputs:
       success:
@@ -51,10 +51,7 @@ tasks:
     description: "Delete an account from the wallet. Need the address and its associated passphrase."
     inputs:
       address: *address
-      passphrase: &passphrase
-        name: "Passphrase"
-        description: "Passphrase to use to unlock the account."
-        type: String
+      passphrase: *passphrase
     outputs:
       success:
         name: "Success"
@@ -110,15 +107,15 @@ tasks:
     inputs:
       address: *address
       passphrase: *passphrase
-      chainID:
-        name: "Chain ID"
-        description: "The ID of the chain the transaction is for. See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md#list-of-chain-ids."
-        type: Number
       transaction:
         name: "Transaction"
         description: "The transaction to sign."
         type: Object
         object:
+          chainID:
+            name: "Chain ID"
+            description: "The ID of the chain the transaction is for. See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md#list-of-chain-ids."
+            type: Number
           nonce:
             name: "Nonce"
             description: "Nonce to use."
@@ -133,7 +130,7 @@ tasks:
             type: String
           gas:
             name: "Gas"
-            description: "The gas limit to execute this transaction"
+            description: "The maximum gas to use to execute this transaction"
             type: Number
           gasPrice:
             name: "Gas price"
@@ -142,7 +139,7 @@ tasks:
           data:
             name: "Data"
             description: "The data of the transaction."
-            type: Any
+            type: String
     outputs:
       success:
         name: "Success"
@@ -150,6 +147,22 @@ tasks:
         data:
           signedTransaction:
             name: "Signed transaction"
-            description: "The data of the signed transaction."
-            type: Object
+            description: "The signed transaction."
+            type: String
+      error: *outputError
+  importFromPrivateKey:
+    name: "Import an account from a private key"
+    description: "Import an account from a private key."
+    inputs:
+      privateKey:
+        name: "Private key"
+        description: "The private key to import."
+        type: String
+      passphrase: *passphrase
+    outputs:
+      success:
+        name: "Success"
+        description: "Output when the task executes successfully."
+        data:
+          address: *address
       error: *outputError
