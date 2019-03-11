@@ -83,5 +83,24 @@ func validateServiceStruct(service *ServiceDefinition) []string {
 		}
 	}
 
+	for _, depVolumeKey := range service.Configuration.VolumesFrom {
+		if _, ok := service.Dependencies[depVolumeKey]; !ok {
+			warnings = append(
+				warnings,
+				fmt.Sprintf("configuration.volumesfrom is invalid: dependency %q does not exist", depVolumeKey),
+			)
+		}
+	}
+	for key, dep := range service.Dependencies {
+		for _, depVolumeKey := range dep.VolumesFrom {
+			if _, ok := service.Dependencies[depVolumeKey]; !ok && depVolumeKey != "service" {
+				warnings = append(
+					warnings,
+					fmt.Sprintf("dependencies[%s].volumesfrom is invalid: dependency %q does not exist", key, depVolumeKey),
+				)
+			}
+		}
+	}
+
 	return warnings
 }
