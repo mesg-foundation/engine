@@ -44,6 +44,16 @@ func (c *serviceDeployCmd) preRunE(cmd *cobra.Command, args []string) error {
 }
 
 func (c *serviceDeployCmd) runE(cmd *cobra.Command, args []string) error {
+	sid, hash, err := deployService(c.e, c.path, c.env)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%s Service deployed with sid %s and hash %s\n", pretty.SuccessSign, pretty.Success(sid), pretty.Success(hash))
+	fmt.Printf("To start it, run the command:\n\tmesg-core service start %s\n", sid)
+	return nil
+}
+
+func deployService(e ServiceExecutor, path string, env map[string]string) (string, string, error) {
 	var (
 		statuses = make(chan provider.DeployStatus)
 		wg       sync.WaitGroup
@@ -55,22 +65,21 @@ func (c *serviceDeployCmd) runE(cmd *cobra.Command, args []string) error {
 		printDeployStatuses(statuses)
 	}()
 
-	sid, hash, validationError, err := c.e.ServiceDeploy(c.path, c.env, statuses)
+	sid, hash, validationError, err := e.ServiceDeploy(path, env, statuses)
 	if err != nil {
-		return err
+		return "", "", err
 	}
 	wg.Wait()
 
 	pretty.DestroySpinner()
 	if validationError != nil {
-		return xerrors.Errors{
+		return "", "", xerrors.Errors{
 			validationError,
 			errors.New("to get more information, run: mesg-core service validate"),
 		}
 	}
-	fmt.Printf("%s Service deployed with sid %s and hash %s\n", pretty.SuccessSign, pretty.Success(sid), pretty.Success(hash))
-	fmt.Printf("To start it, run the command:\n\tmesg-core service start %s\n", sid)
-	return nil
+
+	return sid, hash, nil
 }
 
 func printDeployStatuses(statuses chan provider.DeployStatus) {
