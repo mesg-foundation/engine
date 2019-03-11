@@ -65,7 +65,7 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 		printDeployStatuses(statuses)
 	}()
 
-	id, validationError, err := c.e.ServiceDeploy(c.path, c.env, statuses)
+	sid, hash, validationError, err := c.e.ServiceDeploy(c.path, c.env, statuses)
 	if err != nil {
 		return err
 	}
@@ -78,11 +78,12 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 			errors.New("to get more information, run: mesg-core service validate"),
 		}
 	}
-	fmt.Printf("%s Service deployed with ID: %v\n", pretty.SuccessSign, pretty.Success(id))
+	fmt.Printf("%s Service deployed with sid %s and hash %s\n", pretty.SuccessSign, pretty.Success(sid), pretty.Success(hash))
+
 	defer func() {
 		var err error
 		pretty.Progress("Removing the service...", func() {
-			err = c.e.ServiceDelete(false, id)
+			err = c.e.ServiceDelete(false, hash)
 		})
 		if err != nil {
 			fmt.Printf("%s Removing the service completed with an error: %s\n", pretty.FailSign, err)
@@ -91,23 +92,23 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 		}
 	}()
 
-	pretty.Progress("Starting the service...", func() { err = c.e.ServiceStart(id) })
+	pretty.Progress("Starting the service...", func() { err = c.e.ServiceStart(hash) })
 	if err != nil {
 		return err
 	}
 	fmt.Printf("%s Service started\n", pretty.SuccessSign)
 
-	listenEventsC, eventsErrC, err := c.e.ServiceListenEvents(id, c.eventFilter)
+	listenEventsC, eventsErrC, err := c.e.ServiceListenEvents(hash, c.eventFilter)
 	if err != nil {
 		return err
 	}
 
-	listenResultsC, resultsErrC, err := c.e.ServiceListenResults(id, c.taskFilter, c.outputFilter, nil)
+	listenResultsC, resultsErrC, err := c.e.ServiceListenResults(hash, c.taskFilter, c.outputFilter, nil)
 	if err != nil {
 		return err
 	}
 
-	closer, err := showLogs(c.e, id)
+	closer, logsErrC, err := showLogs(c.e, hash)
 	if err != nil {
 		return err
 	}
@@ -120,6 +121,9 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 		select {
 		case <-abort:
 			return nil
+
+		case err := <-logsErrC:
+			return err
 
 		case e := <-listenEventsC:
 			fmt.Printf("Receive event %s: %s\n",

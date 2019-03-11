@@ -96,7 +96,7 @@ func (_m *Executor) ServiceDeleteAll(deleteData bool) error {
 }
 
 // ServiceDeploy provides a mock function with given fields: path, env, statuses
-func (_m *Executor) ServiceDeploy(path string, env map[string]string, statuses chan provider.DeployStatus) (string, error, error) {
+func (_m *Executor) ServiceDeploy(path string, env map[string]string, statuses chan provider.DeployStatus) (string, string, error, error) {
 	ret := _m.Called(path, env, statuses)
 
 	var r0 string
@@ -106,11 +106,11 @@ func (_m *Executor) ServiceDeploy(path string, env map[string]string, statuses c
 		r0 = ret.Get(0).(string)
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(string, map[string]string, chan provider.DeployStatus) error); ok {
+	var r1 string
+	if rf, ok := ret.Get(1).(func(string, map[string]string, chan provider.DeployStatus) string); ok {
 		r1 = rf(path, env, statuses)
 	} else {
-		r1 = ret.Error(1)
+		r1 = ret.Get(1).(string)
 	}
 
 	var r2 error
@@ -120,7 +120,14 @@ func (_m *Executor) ServiceDeploy(path string, env map[string]string, statuses c
 		r2 = ret.Error(2)
 	}
 
-	return r0, r1, r2
+	var r3 error
+	if rf, ok := ret.Get(3).(func(string, map[string]string, chan provider.DeployStatus) error); ok {
+		r3 = rf(path, env, statuses)
+	} else {
+		r3 = ret.Error(3)
+	}
+
+	return r0, r1, r2, r3
 }
 
 // ServiceExecuteTask provides a mock function with given fields: id, taskKey, inputData, tags
@@ -276,7 +283,7 @@ func (_m *Executor) ServiceListenResults(id string, taskFilter string, outputFil
 }
 
 // ServiceLogs provides a mock function with given fields: id, dependencies
-func (_m *Executor) ServiceLogs(id string, dependencies ...string) ([]*provider.Log, func(), error) {
+func (_m *Executor) ServiceLogs(id string, dependencies ...string) ([]*provider.Log, func(), chan error, error) {
 	_va := make([]interface{}, len(dependencies))
 	for _i := range dependencies {
 		_va[_i] = dependencies[_i]
@@ -304,14 +311,23 @@ func (_m *Executor) ServiceLogs(id string, dependencies ...string) ([]*provider.
 		}
 	}
 
-	var r2 error
-	if rf, ok := ret.Get(2).(func(string, ...string) error); ok {
+	var r2 chan error
+	if rf, ok := ret.Get(2).(func(string, ...string) chan error); ok {
 		r2 = rf(id, dependencies...)
 	} else {
-		r2 = ret.Error(2)
+		if ret.Get(2) != nil {
+			r2 = ret.Get(2).(chan error)
+		}
 	}
 
-	return r0, r1, r2
+	var r3 error
+	if rf, ok := ret.Get(3).(func(string, ...string) error); ok {
+		r3 = rf(id, dependencies...)
+	} else {
+		r3 = ret.Error(3)
+	}
+
+	return r0, r1, r2, r3
 }
 
 // ServicePublishDefinitionFile provides a mock function with given fields: path

@@ -129,13 +129,13 @@ type Log struct {
 }
 
 // ServiceLogs returns logs reader for all service dependencies.
-func (p *ServiceProvider) ServiceLogs(id string, dependencies ...string) (logs []*Log, close func(), err error) {
+func (p *ServiceProvider) ServiceLogs(id string, dependencies ...string) (logs []*Log, close func(), errC chan error, err error) {
 	if len(dependencies) == 0 {
 		resp, err := p.client.GetService(context.Background(), &coreapi.GetServiceRequest{
 			ServiceID: id,
 		})
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, nil, err
 		}
 		for _, dep := range resp.Service.Dependencies {
 			dependencies = append(dependencies, dep.Key)
@@ -150,7 +150,7 @@ func (p *ServiceProvider) ServiceLogs(id string, dependencies ...string) (logs [
 	})
 	if err != nil {
 		cancel()
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	for _, key := range dependencies {
@@ -170,22 +170,19 @@ func (p *ServiceProvider) ServiceLogs(id string, dependencies ...string) (logs [
 		}
 	}
 
-	errC := make(chan error, len(logs))
+	errC = make(chan error)
 	go func() {
 		<-stream.Context().Done()
 		errC <- stream.Context().Err()
 	}()
 	go p.listenServiceLogs(stream, logs, errC)
-	go func() {
-		<-errC
-		closer()
-	}()
 
 	if err := acknowledgement.WaitForStreamToBeReady(stream); err != nil {
-		return nil, nil, err
+		closer()
+		return nil, nil, nil, err
 	}
 
-	return logs, closer, nil
+	return logs, closer, errC, nil
 }
 
 // listenServiceLogs listen gRPC stream to get service logs.
