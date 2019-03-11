@@ -43,12 +43,13 @@ func validateServiceStruct(service *ServiceDefinition) []string {
 	if err != nil {
 		errs := err.(validator.ValidationErrors)
 		for _, e := range errs {
+			field := strings.ToLower(e.Field())
 			// Remove the name of the struct and the field from namespace
 			trimmedNamespace := strings.TrimPrefix(e.Namespace(), namespacePrefix)
-			trimmedNamespace = strings.TrimSuffix(trimmedNamespace, e.Field())
+			trimmedNamespace = strings.TrimSuffix(trimmedNamespace, field)
 			// Only use it when in-cascade field
 			namespace := ""
-			if e.Field() != trimmedNamespace {
+			if field != trimmedNamespace {
 				namespace = trimmedNamespace
 			}
 			warnings = append(warnings, fmt.Sprintf("%s%s", namespace, e.Translate(trans)))
@@ -105,11 +106,11 @@ func newValidator() (*validator.Validate, ut.Translator) {
 	uni := ut.New(en, en)
 	trans, _ := uni.GetTranslator("en")
 	validate := validator.New()
-	validate.RegisterValidation("port", xvalidator.IsPortMapping)
-	validate.RegisterTranslation("port", trans, func(ut ut.Translator) error {
-		return ut.Add("port", "{0} must be a valid port. Eg: 80 or 80:80", false)
+	validate.RegisterValidation("portmap", xvalidator.IsPortMapping)
+	validate.RegisterTranslation("portmap", trans, func(ut ut.Translator) error {
+		return ut.Add("portmap", "{0} must be a valid port mapping. Eg: 80 or 80:80", false)
 	}, func(ut ut.Translator, fe validator.FieldError) string {
-		t, _ := ut.T("port", fe.Field(), namespacePrefix)
+		t, _ := ut.T("portmap", fe.Field(), namespacePrefix)
 		return t
 	})
 	validate.RegisterValidation("domain", xvalidator.IsDomainName)

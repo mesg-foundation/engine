@@ -55,7 +55,7 @@ type Dependency struct {
 	VolumesFrom []string `yaml:"volumesfrom" json:"volumesFrom,omitempty" validate:"unique,dive,printascii"`
 
 	// Ports holds ports configuration for container.
-	Ports []string `yaml:"ports" json:"ports,omitempty" validate:"unique,dive,port"`
+	Ports []string `yaml:"ports" json:"ports,omitempty" validate:"unique,dive,portmap"`
 
 	// Command is the Docker command which will be executed when container started.
 	Command string `yaml:"command" json:"command,omitempty" validate:"printascii"`
