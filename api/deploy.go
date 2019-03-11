@@ -1,12 +1,15 @@
 package api
 
 import (
+	"archive/tar"
+	"compress/gzip"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
 	"sync"
+	"time"
 
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/service"
@@ -86,61 +89,120 @@ func newServiceDeployer(api *API, env map[string]string, options ...DeployServic
 
 // FromURL deploys a service from git or tarball url.
 func (d *serviceDeployer) FromURL(url string) (*service.Service, *importer.ValidationError, error) {
+	return d.importWithProcess(func(path string) error {
+		if xgit.IsGitURL(url) {
+			return d.preprocessGit(url, path)
+		}
+		return d.preprocessURL(url, path)
+	})
+}
+
+// FromArchive deploys a service from a gzipped tarball.
+func (d *serviceDeployer) FromArchive(r io.Reader) (*service.Service, *importer.ValidationError, error) {
+	return d.importWithProcess(func(path string) error {
+		return d.preprocessArchive(r, path)
+	})
+}
+
+func (d *serviceDeployer) importWithProcess(processing func(path string) error) (*service.Service, *importer.ValidationError, error) {
 	path, err := d.createTempDir()
 	if err != nil {
 		return nil, nil, err
 	}
 	defer os.RemoveAll(path)
-	d.sendStatus("Downloading service...", Running)
-	defer d.closeStatus()
-	if xgit.IsGitURL(url) {
-		defer os.RemoveAll(path)
-		if err := xgit.Clone(url, path); err != nil {
-			return nil, nil, err
-		}
 
-	} else {
-		// if not git repo then it should be tarball
-		resp, err := http.Get(url)
-		if err != nil {
-			return nil, nil, err
-		}
-		defer resp.Body.Close()
-		if err := archive.Untar(resp.Body, path, nil); err != nil {
-			return nil, nil, err
-		}
+	d.sendStatus("Receiving service context...", Running)
+	defer d.closeStatus()
+
+	if err := processing(path); err != nil {
+		return nil, nil, err
 	}
 
+	reader, err := d.processPath(path)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	defer reader.Close()
+	return d.deploy(reader)
+}
+
+func (d *serviceDeployer) preprocessGit(url string, path string) error {
+	return xgit.Clone(url, path)
+}
+
+func (d *serviceDeployer) preprocessURL(url string, path string) error {
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	return d.preprocessArchive(resp.Body, path)
+}
+
+func (d *serviceDeployer) preprocessArchive(r io.Reader, path string) error {
+	gzr, err := gzip.NewReader(r)
+	if err != nil {
+		return err
+	}
+	defer gzr.Close()
+	tr := tar.NewReader(gzr)
+	for {
+		header, err := tr.Next()
+		switch {
+		case err == io.EOF:
+			return nil
+		case err != nil:
+			return err
+		case header == nil:
+			continue
+		}
+
+		target := filepath.Join(path, header.Name)
+		switch header.Typeflag {
+		case tar.TypeDir:
+			if _, err := os.Stat(target); err != nil {
+				if err := os.MkdirAll(target, 0755); err != nil {
+					return err
+				}
+			}
+		case tar.TypeReg:
+			f, err := os.OpenFile(target, os.O_CREATE|os.O_RDWR, os.FileMode(header.Mode))
+			if err != nil {
+				return err
+			}
+			if _, err := io.Copy(f, tr); err != nil {
+				return err
+			}
+			f.Close()
+		}
+	}
+	// return archive.Untar(r, path, &archive.TarOptions{NoLchown: true})
+}
+
+func (d *serviceDeployer) processPath(path string) (io.ReadCloser, error) {
 	// XXX: remove .git folder from repo.
 	// It makes docker build iamge id same between repo clones.
 	if err := os.RemoveAll(filepath.Join(path, ".git")); err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	// NOTE: this is check for tar repos, if there is only one
 	// directory inside untar archive set temp path to it.
 	dirs, err := ioutil.ReadDir(path)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	if len(dirs) == 1 && dirs[0].IsDir() {
 		path = filepath.Join(path, dirs[0].Name())
 	}
 
-	d.sendStatus("Service downloaded with success", DonePositive)
-	r, err := archive.Tar(path, archive.Uncompressed)
-	if err != nil {
-		return nil, nil, err
-	}
-	defer r.Close()
-	return d.deploy(r)
-}
+	// XXX: change the access and modification times of service to get constant hash
+	filepath.Walk(path, func(p string, fi os.FileInfo, _ error) error {
+		return os.Chtimes(p, time.Time{}, time.Time{})
+	})
 
-// FromArchive deploys a service from a gzipped tarball.
-func (d *serviceDeployer) FromArchive(r io.Reader) (*service.Service, *importer.ValidationError, error) {
-	d.sendStatus("Receiving service context...", Running)
-	defer d.closeStatus()
-	return d.deploy(r)
+	return archive.Tar(path, archive.Uncompressed)
 }
 
 // deploy deploys a service in path.

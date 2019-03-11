@@ -105,13 +105,8 @@ func TestDeployServiceFromURL(t *testing.T) {
 	}()
 
 	require.Equal(t, DeployStatus{
-		Message: "Downloading service...",
+		Message: "Receiving service context...",
 		Type:    Running,
-	}, <-statuses)
-
-	require.Equal(t, DeployStatus{
-		Message: "Service downloaded with success",
-		Type:    DonePositive,
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
