@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"crypto/sha256"
 	"fmt"
 	"strings"
 
@@ -55,17 +54,14 @@ func (c *marketplacePublishCmd) preRunE(cmd *cobra.Command, args []string) error
 		c.service, err = c.e.GetService(c.manifest.Definition.Sid)
 	})
 	outputError, isOutputError := err.(provider.ErrorOutput)
-	if isOutputError {
-		err = nil
-		if outputError.Code != "notFound" {
-			question = "a new version of service"
-			if !strings.EqualFold(c.service.Owner, c.account) {
-				return fmt.Errorf("the service's owner (%q) is different than the specified account", c.service.Owner)
-			}
-		}
-	}
-	if err != nil {
+	if err != nil && !isOutputError {
 		return err
+	}
+	if outputError.Code != "notFound" {
+		question = "a new version of service"
+		if !strings.EqualFold(c.service.Owner, c.account) {
+			return fmt.Errorf("the service's owner %q is different than the specified account", c.service.Owner)
+		}
 	}
 
 	var confirmed bool
@@ -85,12 +81,15 @@ func (c *marketplacePublishCmd) runE(cmd *cobra.Command, args []string) error {
 	var (
 		tx               *provider.Transaction
 		err              error
-		versionHash      string
 		manifestProtocol string
 		manifestSource   string
 	)
 
-	// TODO: the hash of the version should be the hash after deployment
+	sid, versionHash, err := deployService(c.e, c.path, map[string]string{})
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%s Service deployed with sid %s and hash %s\n", pretty.SuccessSign, pretty.Success(sid), pretty.Success(versionHash))
 
 	pretty.Progress("Uploading service source code on the marketplace...", func() {
 		// TODO: add a progress for the upload
@@ -100,9 +99,6 @@ func (c *marketplacePublishCmd) runE(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	pretty.Progress("Publishing service on the marketplace...", func() {
-		h := sha256.New()
-		h.Write([]byte(manifestSource))
-		versionHash = fmt.Sprintf("0x%x", h.Sum(nil))
 		tx, err = c.e.PublishServiceVersion(c.manifest.Definition.Sid, versionHash, manifestSource, manifestProtocol, c.account)
 		if err != nil {
 			return
@@ -115,7 +111,7 @@ func (c *marketplacePublishCmd) runE(cmd *cobra.Command, args []string) error {
 	fmt.Printf("%s Service published with success\n", pretty.SuccessSign)
 	fmt.Printf("%s See it on the marketplace: https://marketplace.mesg.com/services/%s/%s\n", pretty.SuccessSign, c.manifest.Definition.Sid, versionHash)
 
-	fmt.Printf("%s To create a service offer, execute the command:\n\tmesg-core marketplace create-offer %s\n", pretty.WarnSign, c.manifest.Definition.Sid)
+	fmt.Printf("%s To create a service offer, execute the command:\n\tmesg-core marketplace create-offer %s\n", pretty.SuccessSign, c.manifest.Definition.Sid)
 
 	return nil
 }
