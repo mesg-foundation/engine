@@ -24,6 +24,14 @@ const fromUnit = (x: string|BigNumber) => new BigNumber(x).dividedBy(1e18)
 
 const parseTimestamp = (x: string) => new Date(new BigNumber(x).times(1000).toNumber())
 
+const hashToHex = (x: string) => {
+  if (x.startsWith('0x')) {
+    return x
+  }
+  return '0x' + x
+}
+const hexToHash = (x: string) => x.replace(/^0x/g, '')//.replace(/0*$/g, '')
+
 interface CreateTransaction {
   (
     contract: Contract,
@@ -64,4 +72,6 @@ export {
   parseTimestamp,
   createTransactionTemplate,
   CreateTransaction,
+  hashToHex,
+  hexToHash,
 }

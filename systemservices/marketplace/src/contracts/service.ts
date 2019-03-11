@@ -5,7 +5,6 @@ import { getServiceVersions } from "./version";
 import { getServiceOffers } from "./offer";
 import { getServicePurchases } from "./purchase";
 import { hexToAscii, parseTimestamp, asciiToHex } from "./utils";
-import { POINT_CONVERSION_COMPRESSED } from "constants";
 
 const getAllServices = async (contract: Marketplace): Promise<Service[]> => {
   const servicesLength = new BigNumber(await contract.methods.servicesLength().call())
