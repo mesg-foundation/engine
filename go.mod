@@ -16,6 +16,7 @@ require (
 	github.com/docker/docker v0.0.0-20180803200506-eeea12db7a65
 	github.com/docker/go-connections v0.0.0-20180212134524-7beb39f0b969 // indirect
 	github.com/docker/go-units v0.3.3 // indirect
+	github.com/dsnet/compress v0.0.1 // indirect
 	github.com/emirpasic/gods v0.0.0-20180618112450-bba54c718c4e // indirect
 	github.com/fatih/color v0.0.0-20170926111411-5df930a27be2
 	github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568 // indirect
@@ -41,13 +42,16 @@ require (
 	github.com/mattn/go-isatty v0.0.3 // indirect
 	github.com/mesg-foundation/prefixer v0.0.0-20180907095533-d7dbe41616bd
 	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b // indirect
+	github.com/mholt/archiver v3.1.1+incompatible
 	github.com/mitchellh/go-homedir v0.0.0-20161203194507-b8bc1bf76747
+	github.com/nwaples/rardecode v1.0.0 // indirect
 	github.com/onsi/ginkgo v1.7.0 // indirect
 	github.com/onsi/gomega v1.4.3 // indirect
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/opencontainers/runc v0.1.1 // indirect
 	github.com/pelletier/go-buffruneio v0.0.0-20180119162133-e2f66f8164ca // indirect
+	github.com/pierrec/lz4 v2.0.5+incompatible // indirect
 	github.com/pkg/errors v0.8.0
 	github.com/pseudomuto/protoc-gen-doc v1.1.0
 	github.com/pseudomuto/protokit v0.1.0 // indirect
@@ -64,7 +68,8 @@ require (
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/xeipuuv/gojsonschema v0.0.0-20180618132009-1d523034197f
-	golang.org/x/crypto v0.0.0-20180621125126-a49355c7e3f8 // indirect
+	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
+	golang.org/x/crypto v0.0.0-20180621125126-a49355c7e3f8
 	golang.org/x/net v0.0.0-20180906233101-161cd47e91fd
 	golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4 // indirect
 	golang.org/x/time v0.0.0-20181108054448-85acf8d2951c // indirect
