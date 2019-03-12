@@ -34,6 +34,8 @@ func (api *API) DeployService(r io.Reader, env map[string]string, statusC chan D
 	if err != nil {
 		return "", err
 	}
+	defer os.RemoveAll(contextDir)
+
 	if err := archive.Untar(r, contextDir, nil); err != nil {
 		return "", err
 	}
@@ -49,9 +51,10 @@ func (api *API) DeployServiceFromURL(url string, env map[string]string, statusC 
 	if err != nil {
 		return "", err
 	}
+	defer os.RemoveAll(contextDir)
+
 	if xgit.IsGitURL(url) {
 		sendStatus(statusC, "Downloading service...", Running)
-		defer os.RemoveAll(contextDir)
 		if err := xgit.Clone(url, contextDir); err != nil {
 			return "", err
 		}
