@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
-	"time"
 
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/service"
@@ -158,11 +157,6 @@ func (d *serviceDeployer) processPath(path string) (io.ReadCloser, error) {
 	if len(dirs) == 1 && dirs[0].IsDir() {
 		path = filepath.Join(path, dirs[0].Name())
 	}
-
-	// XXX: change the access and modification times of service to get constant hash
-	filepath.Walk(path, func(p string, fi os.FileInfo, _ error) error {
-		return os.Chtimes(p, time.Time{}, time.Time{})
-	})
 
 	return archive.Tar(path, archive.Uncompressed)
 }
