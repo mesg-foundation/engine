@@ -19,136 +19,81 @@ func NewWalletProvider(c coreapi.CoreClient) *WalletProvider {
 
 // List return the accounts of this wallet
 func (p *WalletProvider) List() ([]string, error) {
-	serviceHash, err := p.client.GetServiceHash(walletServiceKey)
-	if err != nil {
-		return nil, err
-	}
-	r, err := p.client.ExecuteAndListen(serviceHash, "list", nil)
-	if err != nil {
-		return nil, err
-	}
 	var output walletListOutputSuccess
-	if err := p.parseResult(r, &output); err != nil {
-		return nil, err
-	}
-	return output.Addresses, nil
+	return output.Addresses, p.call(walletServiceKey, "list", nil, &output)
 }
 
 // Create creates a new account in the wallet
 func (p *WalletProvider) Create(passphrase string) (string, error) {
-	serviceHash, err := p.client.GetServiceHash(walletServiceKey)
-	if err != nil {
-		return "", err
-	}
-	r, err := p.client.ExecuteAndListen(serviceHash, "create", walletCreateInputs{
+	input := walletCreateInputs{
 		Passphrase: passphrase,
-	})
-	if err != nil {
-		return "", err
 	}
 	var output walletCreateOutputSuccess
-	if err := p.parseResult(r, &output); err != nil {
-		return "", err
-	}
-	return output.Address, nil
+	return output.Address, p.call(walletServiceKey, "create", &input, &output)
 }
 
 // Delete removes an account from the wallet
 func (p *WalletProvider) Delete(address string, passphrase string) (string, error) {
-	serviceHash, err := p.client.GetServiceHash(walletServiceKey)
-	if err != nil {
-		return "", err
-	}
-	r, err := p.client.ExecuteAndListen(serviceHash, "delete", walletDeleteInputs{
+	input := walletDeleteInputs{
 		Address:    address,
 		Passphrase: passphrase,
-	})
-	if err != nil {
-		return "", err
 	}
 	var output walletDeleteOutputSuccess
-	if err := p.parseResult(r, &output); err != nil {
-		return "", err
-	}
-	return output.Address, nil
+	return output.Address, p.call(walletServiceKey, "delete", &input, &output)
 }
 
 // Export exports an account
 func (p *WalletProvider) Export(address string, passphrase string) (EncryptedKeyJSONV3, error) {
-	var output EncryptedKeyJSONV3
-	serviceHash, err := p.client.GetServiceHash(walletServiceKey)
-	if err != nil {
-		return output, err
-	}
-	r, err := p.client.ExecuteAndListen(serviceHash, "export", walletExportInputs{
+	input := walletExportInputs{
 		Address:    address,
 		Passphrase: passphrase,
-	})
-	if err != nil {
-		return output, err
 	}
-	return output, p.parseResult(r, &output)
+	var output EncryptedKeyJSONV3
+	return output, p.call(walletServiceKey, "export", &input, &output)
 }
 
 // Import imports an account into the wallet
 func (p *WalletProvider) Import(account EncryptedKeyJSONV3, passphrase string) (string, error) {
-	serviceHash, err := p.client.GetServiceHash(walletServiceKey)
-	if err != nil {
-		return "", err
-	}
-	r, err := p.client.ExecuteAndListen(serviceHash, "import", &walletImportInputs{
+	input := walletImportInputs{
 		Account:    account,
 		Passphrase: passphrase,
-	})
-	if err != nil {
-		return "", err
 	}
 	var output walletImportOutputSuccess
-	if err := p.parseResult(r, &output); err != nil {
-		return "", err
-	}
-	return output.Address, nil
+	return output.Address, p.call(walletServiceKey, "import", &input, &output)
 }
 
 // ImportFromPrivateKey imports an account from a private key
 func (p *WalletProvider) ImportFromPrivateKey(privateKey string, passphrase string) (string, error) {
-	serviceHash, err := p.client.GetServiceHash(walletServiceKey)
-	if err != nil {
-		return "", err
-	}
-	r, err := p.client.ExecuteAndListen(serviceHash, "importFromPrivateKey", &walletImportFromPrivateKeyInputs{
+	input := walletImportFromPrivateKeyInputs{
 		PrivateKey: privateKey,
 		Passphrase: passphrase,
-	})
-	if err != nil {
-		return "", err
 	}
 	var output walletImportOutputSuccess
-	if err := p.parseResult(r, &output); err != nil {
-		return "", err
-	}
-	return output.Address, nil
+	return output.Address, p.call(walletServiceKey, "importFromPrivateKey", &input, &output)
+
 }
 
 // Sign signs a transaction
 func (p *WalletProvider) Sign(address string, passphrase string, transaction *Transaction) (string, error) {
-	serviceHash, err := p.client.GetServiceHash(walletServiceKey)
-	if err != nil {
-		return "", err
-	}
-	r, err := p.client.ExecuteAndListen(serviceHash, "sign", &walletSignInputs{
+	input := walletSignInputs{
 		Address:     address,
 		Passphrase:  passphrase,
 		Transaction: transaction,
-	})
-	if err != nil {
-		return "", err
 	}
 	var output walletSignOutputSuccess
-	if err := p.parseResult(r, &output); err != nil {
-		return "", err
+	return output.SignedTransaction, p.call(walletServiceKey, "sign", &input, &output)
+}
+
+func (p *WalletProvider) call(service string, task string, inputs interface{}, output interface{}) error {
+	serviceHash, err := p.client.GetServiceHash(service)
+	if err != nil {
+		return err
 	}
-	return output.SignedTransaction, nil
+	r, err := p.client.ExecuteAndListen(serviceHash, task, &inputs)
+	if err != nil {
+		return err
+	}
+	return p.parseResult(r, &output)
 }
 
 func (p *WalletProvider) parseResult(r *coreapi.ResultData, output interface{}) error {
