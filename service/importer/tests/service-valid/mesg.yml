@@ -25,3 +25,5 @@ tasks:
 dependencies:
   app:
     image: my-docker-image
+    ports:
+      - 80:80
