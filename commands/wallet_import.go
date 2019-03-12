@@ -48,10 +48,7 @@ func (c *walletImportCmd) preRunE(cmd *cobra.Command, args []string) error {
 			return err
 		}
 	}
-	if err := c.askPassphrase(); err != nil {
-		return err
-	}
-	return nil
+	return c.askPassphrase()
 }
 
 func (c *walletImportCmd) askImportType() error {

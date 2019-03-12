@@ -159,8 +159,5 @@ func (p *WalletProvider) parseResult(r *coreapi.ResultData, output interface{}) 
 		}
 		return errors.New(outputError.Message)
 	}
-	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
-		return err
-	}
-	return nil
+	return json.Unmarshal([]byte(r.OutputData), &output)
 }
