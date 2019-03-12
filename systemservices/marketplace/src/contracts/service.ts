@@ -17,8 +17,9 @@ const getAllServices = async (contract: Marketplace): Promise<Service[]> => {
 }
 
 const getServiceWithIndex = async (contract: Marketplace, serviceIndex: BigNumber): Promise<Service|undefined> => {
-  const sidHex = await contract.methods.servicesList(serviceIndex.toString()).call()
-  return getService(contract, hexToAscii(sidHex))
+  const sidHashed = await contract.methods.servicesList(serviceIndex.toString()).call()
+  const service = await contract.methods.services(sidHashed).call()
+  return getService(contract, hexToAscii(service.sid))
 }
 
 const getService = async (contract: Marketplace, sid: string): Promise<Service|undefined> => {
