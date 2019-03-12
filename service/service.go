@@ -106,7 +106,6 @@ func New(tarball io.Reader, env map[string]string, options ...Option) (*Service,
 	}
 	defer os.RemoveAll(s.tempPath)
 
-	// calculate the hash while untaring the archive
 	if err := archive.Untar(tarball, s.tempPath, nil); err != nil {
 		return nil, err
 	}
