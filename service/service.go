@@ -1,11 +1,11 @@
 package service
 
 import (
+	"encoding/hex"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"sort"
 	"strings"
 	"time"
@@ -13,8 +13,8 @@ import (
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/service/importer"
+	"github.com/mesg-foundation/core/utils/dirhash"
 	"github.com/mesg-foundation/core/x/xos"
-	"github.com/mesg-foundation/core/x/xstructhash"
 )
 
 // WARNING about hash tags on Service type and its inner types:
@@ -91,22 +91,36 @@ type DeployStatus struct {
 
 // New creates a new service from a gzipped tarball.
 func New(tarball io.Reader, env map[string]string, options ...Option) (*Service, error) {
+	var err error
 	s := &Service{}
-
 	defer s.closeStatus()
 
 	if err := s.setOptions(options...); err != nil {
 		return nil, err
 	}
-	if err := s.saveContext(tarball); err != nil {
+
+	// untar tarball to retrieve mesg.yml
+	s.tempPath, err = ioutil.TempDir("", "mesg-")
+	if err != nil {
 		return nil, err
 	}
 	defer os.RemoveAll(s.tempPath)
 
+	if err := archive.Untar(tarball, s.tempPath, nil); err != nil {
+		return nil, err
+	}
 	def, err := importer.From(s.tempPath)
 	if err != nil {
 		return nil, err
 	}
+
+	dh := dirhash.New(s.tempPath)
+	envbytes := []byte(xos.EnvMapToString(env))
+	hash, err := dh.Sum(envbytes)
+	if err != nil {
+		return nil, err
+	}
+	s.Hash = hex.EncodeToString(hash)
 
 	s.injectDefinition(def)
 
@@ -141,12 +155,11 @@ func (s *Service) setOptions(options ...Option) error {
 }
 
 // fromService upgrades service s by setting a calculated ID and cross-referencing its child fields.
+// TODO: this function should be deleted.
 func (s *Service) fromService() *Service {
 	for _, dep := range s.Dependencies {
 		dep.service = s
 	}
-
-	s.Hash = s.computeHash()
 	return s
 }
 
@@ -167,43 +180,6 @@ func DeployStatusOption(statuses chan DeployStatus) Option {
 	}
 }
 
-// computeHash computes a unique sha1 value for service.
-// changes on the names of constant configuration fields of mesg.yml will not
-// have effect on computation but extending or removing configurations or changing
-// values in mesg.yml will cause computeHash to generate a different value.
-func (s *Service) computeHash() string {
-	return xstructhash.Hash(s, 1)
-}
-
-// saveContext downloads service context to a temp dir.
-func (s *Service) saveContext(r io.Reader) error {
-	var err error
-	s.tempPath, err = ioutil.TempDir("", "mesg-")
-	if err != nil {
-		return err
-	}
-
-	s.sendStatus("Receiving service context...", DRunning)
-	defer s.sendStatus("Service context received with success", DDonePositive)
-
-	if err := archive.Untar(r, s.tempPath, &archive.TarOptions{
-		NoLchown: true,
-	}); err != nil {
-		return err
-	}
-
-	// NOTE: this is check for tar repos, if there is only one
-	// directory inside untar archive set temp path to it.
-	dirs, err := ioutil.ReadDir(s.tempPath)
-	if err != nil {
-		return err
-	}
-	if len(dirs) == 1 && dirs[0].IsDir() {
-		s.tempPath = filepath.Join(s.tempPath, dirs[0].Name())
-	}
-	return nil
-}
-
 // deploy deploys service.
 func (s *Service) deploy() error {
 	s.sendStatus("Building Docker image...", DRunning)
@@ -216,9 +192,10 @@ func (s *Service) deploy() error {
 	s.sendStatus("Image built with success", DDonePositive)
 
 	s.configuration().Image = imageHash
+	// TODO: the following test should be moved in New function
 	if s.Sid == "" {
 		// make sure that sid doesn't have the same length with id.
-		s.Sid = "_" + s.computeHash()
+		s.Sid = "_" + s.Hash
 	}
 	return nil
 }
