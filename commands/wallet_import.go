@@ -13,7 +13,6 @@ import (
 type walletImportCmd struct {
 	baseWalletCmd
 
-	importType string
 	privateKey string
 	jsonFile   string
 	account    provider.EncryptedKeyJSONV3
@@ -40,35 +39,49 @@ func newWalletImportCmd(e WalletExecutor) *walletImportCmd {
 
 func (c *walletImportCmd) preRunE(cmd *cobra.Command, args []string) error {
 	if c.jsonFile == "" && c.privateKey == "" {
-		var options = []string{"json file", "private key"}
-		if err := askSelect("How to import the account:", options, &c.importType); err != nil {
+		if err := c.askImportType(); err != nil {
 			return err
-		}
-		if c.importType == "private key" {
-			if err := askPass("Enter the private key to import", &c.privateKey); err != nil {
-				return err
-			}
-		} else {
-			if err := askInput("Enter the path to the json file to import", &c.jsonFile); err != nil {
-				return err
-			}
 		}
 	}
 	if c.jsonFile != "" {
-		content, err := xjson.ReadFile(c.jsonFile)
-		if err != nil {
-			return err
-		}
-		if err := json.Unmarshal(content, &c.account); err != nil {
+		if err := c.readJSONFile(c.jsonFile); err != nil {
 			return err
 		}
 	}
-	if !c.noPassphrase && c.passphrase == "" {
-		if err := askPass("Enter passphrase", &c.passphrase); err != nil {
+	if err := c.askPassphrase(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *walletImportCmd) askImportType() error {
+	importType := []string{
+		"json file",
+		"private key",
+	}
+	var selectedImportType string
+	if err := askSelect("How to import the account:", importType, &selectedImportType); err != nil {
+		return err
+	}
+	if selectedImportType == importType[1] {
+		if err := askPass("Enter the private key to import", &c.privateKey); err != nil {
+			return err
+		}
+	}
+	if selectedImportType == importType[0] {
+		if err := askInput("Enter the path to the json file to import", &c.jsonFile); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+func (c *walletImportCmd) readJSONFile(jsonFile string) error {
+	content, err := xjson.ReadFile(jsonFile)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(content, &c.account)
 }
 
 func (c *walletImportCmd) runE(cmd *cobra.Command, args []string) error {
