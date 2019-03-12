@@ -36,7 +36,7 @@ func NewHash(path string, newHash func() hash.Hash) *DirHash {
 	}
 }
 
-// Hash calculates the hash of directory.
+// Sum calculates the hash of directory.
 func (ds *DirHash) Sum(extra []byte) ([]byte, error) {
 	fhash := ds.newHash()
 	if err := filepath.Walk(ds.path, func(path string, fi os.FileInfo, err error) error {
