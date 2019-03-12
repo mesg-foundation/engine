@@ -24,7 +24,7 @@ func TestDirHash(t *testing.T) {
 			"regular file with read mode permissions",
 			"testdata/01_mode",
 			nil,
-			"9dd58ea13705d9b606c266955b80ac7f9de84348e54638a2aed5b25720568d16",
+			"7dfd06256cd04975545aa2488af3aac91b6e44b32c5f24fd9f0d508f9a194aa4",
 		},
 		{
 			"regular file with extra data",
