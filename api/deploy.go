@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 	"sync"
 
+	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/importer"
-	"github.com/mesg-foundation/core/x/xdocker/xarchive"
 	"github.com/mesg-foundation/core/x/xgit"
 	uuid "github.com/satori/go.uuid"
 )
@@ -86,46 +86,79 @@ func newServiceDeployer(api *API, env map[string]string, options ...DeployServic
 
 // FromURL deploys a service from git or tarball url.
 func (d *serviceDeployer) FromURL(url string) (*service.Service, *importer.ValidationError, error) {
-	defer d.closeStatus()
-	if xgit.IsGitURL(url) {
-		d.sendStatus("Downloading service...", Running)
-		path, err := d.createTempDir()
-		if err != nil {
-			return nil, nil, err
+	return d.importWithProcess(func(path string) error {
+		if xgit.IsGitURL(url) {
+			return d.preprocessGit(url, path)
 		}
-		defer os.RemoveAll(path)
-		if err := xgit.Clone(url, path); err != nil {
-			return nil, nil, err
-		}
-
-		// XXX: remove .git folder from repo.
-		// It makes docker build iamge id same between repo clones.
-		if err := os.RemoveAll(filepath.Join(path, ".git")); err != nil {
-			return nil, nil, err
-		}
-
-		d.sendStatus("Service downloaded with success", DonePositive)
-		r, err := xarchive.GzippedTar(path, nil)
-		if err != nil {
-			return nil, nil, err
-		}
-		defer r.Close()
-		return d.deploy(r)
-	}
-
-	// if not git repo then it should be tarball
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, nil, err
-	}
-	defer resp.Body.Close()
-	return d.deploy(resp.Body)
+		return d.preprocessURL(url, path)
+	})
 }
 
 // FromArchive deploys a service from a gzipped tarball.
 func (d *serviceDeployer) FromArchive(r io.Reader) (*service.Service, *importer.ValidationError, error) {
+	return d.importWithProcess(func(path string) error {
+		return d.preprocessArchive(r, path)
+	})
+}
+
+func (d *serviceDeployer) importWithProcess(processing func(path string) error) (*service.Service, *importer.ValidationError, error) {
+	path, err := d.createTempDir()
+	if err != nil {
+		return nil, nil, err
+	}
+	defer os.RemoveAll(path)
+
+	d.sendStatus("Receiving service context...", Running)
 	defer d.closeStatus()
-	return d.deploy(r)
+
+	if err := processing(path); err != nil {
+		return nil, nil, err
+	}
+
+	reader, err := d.processPath(path)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	defer reader.Close()
+	return d.deploy(reader)
+}
+
+func (d *serviceDeployer) preprocessGit(url string, path string) error {
+	return xgit.Clone(url, path)
+}
+
+func (d *serviceDeployer) preprocessURL(url string, path string) error {
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	return d.preprocessArchive(resp.Body, path)
+}
+
+func (d *serviceDeployer) preprocessArchive(r io.Reader, path string) error {
+	return archive.Untar(r, path, nil)
+}
+
+func (d *serviceDeployer) processPath(path string) (io.ReadCloser, error) {
+	// XXX: remove .git folder from repo.
+	// It makes docker build iamge id same between repo clones.
+	if err := os.RemoveAll(filepath.Join(path, ".git")); err != nil {
+		return nil, err
+	}
+
+	// NOTE: this is check for tar repos, if there is only one
+	// directory inside untar archive set temp path to it.
+	dirs, err := ioutil.ReadDir(path)
+	if err != nil {
+		return nil, err
+	}
+	if len(dirs) == 1 && dirs[0].IsDir() {
+		path = filepath.Join(path, dirs[0].Name())
+	}
+
+	return archive.Tar(path, archive.Uncompressed)
 }
 
 // deploy deploys a service in path.

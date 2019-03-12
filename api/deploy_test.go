@@ -33,17 +33,12 @@ func TestDeployService(t *testing.T) {
 		service, validationError, err := a.DeployService(archive, nil, DeployServiceStatusOption(statuses))
 		require.Nil(t, validationError)
 		require.NoError(t, err)
-		require.Len(t, service.Hash, 40)
+		require.Len(t, service.Hash, 64)
 	}()
 
 	require.Equal(t, DeployStatus{
 		Message: "Receiving service context...",
 		Type:    Running,
-	}, <-statuses)
-
-	require.Equal(t, DeployStatus{
-		Message: "Service context received with success",
-		Type:    DonePositive,
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
@@ -87,17 +82,6 @@ func TestDeployInvalidService(t *testing.T) {
 		Type:    Running,
 	}, <-statuses)
 
-	require.Equal(t, DeployStatus{
-		Message: "Service context received with success",
-		Type:    DonePositive,
-	}, <-statuses)
-
-	select {
-	case <-statuses:
-		t.Error("should not send further status messages")
-	default:
-	}
-
 	wg.Wait()
 }
 
@@ -117,27 +101,12 @@ func TestDeployServiceFromURL(t *testing.T) {
 		service, validationError, err := a.DeployServiceFromURL(url, nil, DeployServiceStatusOption(statuses))
 		require.Nil(t, validationError)
 		require.NoError(t, err)
-		require.Len(t, service.Hash, 40)
+		require.Len(t, service.Hash, 64)
 	}()
-
-	require.Equal(t, DeployStatus{
-		Message: "Downloading service...",
-		Type:    Running,
-	}, <-statuses)
-
-	require.Equal(t, DeployStatus{
-		Message: "Service downloaded with success",
-		Type:    DonePositive,
-	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
 		Message: "Receiving service context...",
 		Type:    Running,
-	}, <-statuses)
-
-	require.Equal(t, DeployStatus{
-		Message: "Service context received with success",
-		Type:    DonePositive,
 	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
