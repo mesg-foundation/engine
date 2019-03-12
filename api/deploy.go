@@ -1,7 +1,6 @@
 package api
 
 import (
-	"bufio"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -14,7 +13,6 @@ import (
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/importer"
 	"github.com/mesg-foundation/core/x/xgit"
-	"github.com/mholt/archiver"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -141,28 +139,7 @@ func (d *serviceDeployer) preprocessURL(url string, path string) error {
 }
 
 func (d *serviceDeployer) preprocessArchive(r io.Reader, path string) error {
-
-	// detect compresion to get the file extension
-	bf := bufio.NewReader(r)
-	header, err := bf.Peek(10)
-	if err != nil {
-		return err
-	}
-	compression := archive.DetectCompression(header)
-
-	tmpfile, err := ioutil.TempFile("", "service.*."+compression.Extension())
-	if err != nil {
-		return err
-	}
-	defer os.Remove(tmpfile.Name())
-	defer tmpfile.Close()
-
-	if _, err := io.Copy(tmpfile, bf); err != nil {
-		return err
-	}
-
-	// archiver unarchives based on extension
-	return archiver.Unarchive(tmpfile.Name(), path)
+	return archive.Untar(r, path, nil)
 }
 
 func (d *serviceDeployer) processPath(path string) (io.ReadCloser, error) {

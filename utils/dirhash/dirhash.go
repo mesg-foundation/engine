@@ -13,6 +13,9 @@ import (
 // DefaultHash is default DirHash hashing algorithm - "sha256".
 var DefaultHash = sha256.New
 
+// Unix permission bits for file owner
+const ownerPerm = 0700
+
 // DirHash is the struct for a tar hash calculation.
 type DirHash struct {
 	path    string
@@ -53,7 +56,9 @@ func (ds *DirHash) Sum(extra []byte) ([]byte, error) {
 		fm := fi.Mode()
 		// write mode in little endian to get constant hash
 		// across different cpu architeture.
-		binary.Write(fhash, binary.LittleEndian, fm)
+		// Use only type and owner permission bits, because group bits may be
+		// different based on permission inheritance.
+		binary.Write(fhash, binary.LittleEndian, fm&(os.ModeType|ownerPerm))
 
 		// git dosen't support socket, fifo, block and char devices
 		// so only dirs, files and symlinks can be processed.
