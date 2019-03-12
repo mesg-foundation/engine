@@ -27,17 +27,8 @@ func (p *WalletProvider) List() ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	if r.OutputKey == "error" {
-		var output walletErrorOutput
-		if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
-			return nil, err
-		}
-		return nil, errors.New(output.Message)
-	}
-
 	var output walletListOutputSuccess
-	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
+	if err := p.parseResult(r, &output); err != nil {
 		return nil, err
 	}
 	return output.Addresses, nil
@@ -55,17 +46,8 @@ func (p *WalletProvider) Create(passphrase string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	if r.OutputKey == "error" {
-		var output walletErrorOutput
-		if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
-			return "", err
-		}
-		return "", errors.New(output.Message)
-	}
-
 	var output walletCreateOutputSuccess
-	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
+	if err := p.parseResult(r, &output); err != nil {
 		return "", err
 	}
 	return output.Address, nil
@@ -84,17 +66,8 @@ func (p *WalletProvider) Delete(address string, passphrase string) (string, erro
 	if err != nil {
 		return "", err
 	}
-
-	if r.OutputKey == "error" {
-		var output walletErrorOutput
-		if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
-			return "", err
-		}
-		return "", errors.New(output.Message)
-	}
-
 	var output walletDeleteOutputSuccess
-	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
+	if err := p.parseResult(r, &output); err != nil {
 		return "", err
 	}
 	return output.Address, nil
@@ -114,19 +87,7 @@ func (p *WalletProvider) Export(address string, passphrase string) (EncryptedKey
 	if err != nil {
 		return output, err
 	}
-
-	if r.OutputKey == "error" {
-		var outputData walletErrorOutput
-		if err := json.Unmarshal([]byte(r.OutputData), &outputData); err != nil {
-			return output, err
-		}
-		return output, errors.New(outputData.Message)
-	}
-
-	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
-		return output, err
-	}
-	return output, nil
+	return output, p.parseResult(r, &output)
 }
 
 // Import imports an account into the wallet
@@ -142,17 +103,8 @@ func (p *WalletProvider) Import(account EncryptedKeyJSONV3, passphrase string) (
 	if err != nil {
 		return "", err
 	}
-
-	if r.OutputKey == "error" {
-		var output walletErrorOutput
-		if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
-			return "", err
-		}
-		return "", errors.New(output.Message)
-	}
-
 	var output walletImportOutputSuccess
-	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
+	if err := p.parseResult(r, &output); err != nil {
 		return "", err
 	}
 	return output.Address, nil
@@ -171,17 +123,8 @@ func (p *WalletProvider) ImportFromPrivateKey(privateKey string, passphrase stri
 	if err != nil {
 		return "", err
 	}
-
-	if r.OutputKey == "error" {
-		var output walletErrorOutput
-		if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
-			return "", err
-		}
-		return "", errors.New(output.Message)
-	}
-
 	var output walletImportOutputSuccess
-	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
+	if err := p.parseResult(r, &output); err != nil {
 		return "", err
 	}
 	return output.Address, nil
@@ -201,18 +144,23 @@ func (p *WalletProvider) Sign(address string, passphrase string, transaction *Tr
 	if err != nil {
 		return "", err
 	}
-
-	if r.OutputKey == "error" {
-		var output walletErrorOutput
-		if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
-			return "", err
-		}
-		return "", errors.New(output.Message)
-	}
-
 	var output walletSignOutputSuccess
-	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
+	if err := p.parseResult(r, &output); err != nil {
 		return "", err
 	}
 	return output.SignedTransaction, nil
+}
+
+func (p *WalletProvider) parseResult(r *coreapi.ResultData, output interface{}) error {
+	if r.OutputKey == "error" {
+		var outputError walletErrorOutput
+		if err := json.Unmarshal([]byte(r.OutputData), &outputError); err != nil {
+			return err
+		}
+		return errors.New(outputError.Message)
+	}
+	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
+		return err
+	}
+	return nil
 }
