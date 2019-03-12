@@ -20,7 +20,7 @@ func NewWalletProvider(c coreapi.CoreClient) *WalletProvider {
 // List return the accounts of this wallet
 func (p *WalletProvider) List() ([]string, error) {
 	var output walletListOutputSuccess
-	return output.Addresses, p.call(walletServiceKey, "list", nil, &output)
+	return output.Addresses, p.call("list", nil, &output)
 }
 
 // Create creates a new account in the wallet
@@ -29,7 +29,7 @@ func (p *WalletProvider) Create(passphrase string) (string, error) {
 		Passphrase: passphrase,
 	}
 	var output walletCreateOutputSuccess
-	return output.Address, p.call(walletServiceKey, "create", &input, &output)
+	return output.Address, p.call("create", &input, &output)
 }
 
 // Delete removes an account from the wallet
@@ -39,7 +39,7 @@ func (p *WalletProvider) Delete(address string, passphrase string) (string, erro
 		Passphrase: passphrase,
 	}
 	var output walletDeleteOutputSuccess
-	return output.Address, p.call(walletServiceKey, "delete", &input, &output)
+	return output.Address, p.call("delete", &input, &output)
 }
 
 // Export exports an account
@@ -49,7 +49,7 @@ func (p *WalletProvider) Export(address string, passphrase string) (EncryptedKey
 		Passphrase: passphrase,
 	}
 	var output EncryptedKeyJSONV3
-	return output, p.call(walletServiceKey, "export", &input, &output)
+	return output, p.call("export", &input, &output)
 }
 
 // Import imports an account into the wallet
@@ -59,7 +59,7 @@ func (p *WalletProvider) Import(account EncryptedKeyJSONV3, passphrase string) (
 		Passphrase: passphrase,
 	}
 	var output walletImportOutputSuccess
-	return output.Address, p.call(walletServiceKey, "import", &input, &output)
+	return output.Address, p.call("import", &input, &output)
 }
 
 // ImportFromPrivateKey imports an account from a private key
@@ -69,7 +69,7 @@ func (p *WalletProvider) ImportFromPrivateKey(privateKey string, passphrase stri
 		Passphrase: passphrase,
 	}
 	var output walletImportOutputSuccess
-	return output.Address, p.call(walletServiceKey, "importFromPrivateKey", &input, &output)
+	return output.Address, p.call("importFromPrivateKey", &input, &output)
 
 }
 
@@ -81,11 +81,11 @@ func (p *WalletProvider) Sign(address string, passphrase string, transaction *Tr
 		Transaction: transaction,
 	}
 	var output walletSignOutputSuccess
-	return output.SignedTransaction, p.call(walletServiceKey, "sign", &input, &output)
+	return output.SignedTransaction, p.call("sign", &input, &output)
 }
 
-func (p *WalletProvider) call(service string, task string, inputs interface{}, output interface{}) error {
-	serviceHash, err := p.client.GetServiceHash(service)
+func (p *WalletProvider) call(task string, inputs interface{}, output interface{}) error {
+	serviceHash, err := p.client.GetServiceHash(walletServiceKey)
 	if err != nil {
 		return err
 	}
