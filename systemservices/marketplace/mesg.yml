@@ -199,18 +199,6 @@ tasks:
     outputs:
       error: *outputError
       success: *outputTransaction
-  disableServiceOffer:
-    name: ""
-    description: ""
-    inputs:
-      sid: *sid
-      offerIndex: *offerIndex
-      from: *inputFrom
-      gas: *inputGas
-      gasPrice: *inputGasPrice
-    outputs:
-      error: *outputError
-      success: *outputTransaction
   purchase:
     name: ""
     description: ""
@@ -228,21 +216,6 @@ tasks:
             repeated: true
             type: Object
             object: *transaction
-  transferServiceOwnership:
-    name: ""
-    description: ""
-    inputs:
-      sid: *sid
-      newOwner:
-        name: ""
-        description: ""
-        type: String
-      from: *inputFrom
-      gas: *inputGas
-      gasPrice: *inputGasPrice
-    outputs:
-      error: *outputError
-      success: *outputTransaction
   sendSignedTransaction:
     name: ""
     description: ""
