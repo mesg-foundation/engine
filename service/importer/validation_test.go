@@ -63,7 +63,7 @@ func TestValidateFromInvalidServiceFile(t *testing.T) {
 	require.NoError(t, err)
 	require.False(t, validation.IsValid())
 	require.True(t, validation.ServiceFileExist)
-	require.Len(t, validation.ServiceFileWarnings, 1)
+	require.Len(t, validation.ServiceFileWarnings, 2)
 	require.True(t, validation.DockerfileExist)
 }
 
