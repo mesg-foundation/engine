@@ -18,26 +18,6 @@ func newFromServiceAndContainerMocks(t *testing.T, s *Service) (*Service, *mocks
 	return s, m
 }
 
-func TestGenerateId(t *testing.T) {
-	service, _ := FromService(&Service{
-		Name: "TestGenerateId",
-	})
-	hash := service.computeHash()
-	require.Equal(t, "32caba349ddb1569be576b5d53da5d6e0bcfd77e", hash)
-}
-
-func TestNoCollision(t *testing.T) {
-	service1, _ := FromService(&Service{
-		Name: "TestNoCollision",
-	})
-
-	service2, _ := FromService(&Service{
-		Name: "TestNoCollision2",
-	})
-
-	require.NotEqual(t, service1.Hash, service2.Hash)
-}
-
 func TestNew(t *testing.T) {
 	var (
 		path = "../service-test/task"
@@ -60,16 +40,6 @@ func TestNew(t *testing.T) {
 	require.Equal(t, "service", s.Dependencies[0].Key)
 	require.Equal(t, hash, s.Dependencies[0].Image)
 	require.Len(t, s.Dependencies[0].Env, 0)
-
-	require.Equal(t, DeployStatus{
-		Message: "Receiving service context...",
-		Type:    DRunning,
-	}, <-statuses)
-
-	require.Equal(t, DeployStatus{
-		Message: "Service context received with success",
-		Type:    DDonePositive,
-	}, <-statuses)
 
 	require.Equal(t, DeployStatus{
 		Message: "Building Docker image...",

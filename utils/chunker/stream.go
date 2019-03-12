@@ -20,7 +20,7 @@ type Stream struct {
 func NewStream() *Stream {
 	return &Stream{
 		recv: make(chan []byte),
-		done: make(chan struct{}),
+		done: make(chan struct{}, 1),
 	}
 }
 
@@ -60,6 +60,5 @@ func (s *Stream) Close() error {
 		return nil
 	}
 	s.done <- struct{}{}
-	s.done = nil
 	return nil
 }
