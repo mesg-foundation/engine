@@ -30,5 +30,5 @@ func TestValidateDefinition(t *testing.T) {
 	require.NoError(t, err)
 
 	err = ValidateDefinition(service)
-	require.Len(t, err.(xerrors.Errors), 25)
+	require.Len(t, err.(xerrors.Errors), 22)
 }

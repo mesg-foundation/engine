@@ -2,15 +2,13 @@ package service
 
 import (
 	"crypto/sha1"
-	"crypto/sha256"
 	"encoding/hex"
-	"io"
 	"strconv"
 	"sync"
 
-	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
+	"github.com/mesg-foundation/core/utils/dirhash"
 	"github.com/mesg-foundation/core/x/xerrors"
 	"github.com/mesg-foundation/core/x/xnet"
 	"github.com/mesg-foundation/core/x/xos"
@@ -285,18 +283,9 @@ func pickStatus(statuses map[container.StatusType]bool) Status {
 }
 
 func serviceHash(contextDir string, env map[string]string) ([]byte, error) {
-	// create stream to calculate hash
-	stream, err := archive.Tar(contextDir, archive.Uncompressed)
-	if err != nil {
-		return nil, err
-	}
-	h := sha256.New()
-	if _, err := io.Copy(h, stream); err != nil {
-		return nil, err
-	}
+	dh := dirhash.New(contextDir)
 	envbytes := []byte(xos.EnvMapToString(env))
-	hash := h.Sum(envbytes)
-	return hash, nil
+	return dh.Sum(envbytes)
 }
 
 func depNamespace(hash, key string) []string {

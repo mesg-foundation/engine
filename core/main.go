@@ -5,6 +5,7 @@ import (
 
 	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/config"
+	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/interface/grpc"
 	"github.com/mesg-foundation/core/logger"
@@ -40,10 +41,15 @@ func initDependencies() (*dependencies, error) {
 		return nil, err
 	}
 
+	c, err := container.New()
+	if err != nil {
+		return nil, err
+	}
+
 	sm := service.NewContainerManager(c, cfg)
 
 	// init api.
-	api := api.New(db, execDB, sm)
+	api := api.New(serviceDB, executionDB, sm)
 
 	return &dependencies{
 		cfg:         cfg,
@@ -56,15 +62,10 @@ func initDependencies() (*dependencies, error) {
 func deployCoreServices(cfg *config.Config, api *api.API) error {
 	for _, service := range cfg.Services() {
 		logrus.Infof("Deploying service %q from %q", service.Key, service.URL)
-		s, valid, err := api.DeployServiceFromURL(service.URL, service.Env)
-		if valid != nil {
-			return valid
-		}
+		s, err := api.DeployServiceFromURL(service.URL, service.Env, nil)
 		if err != nil {
 			return err
 		}
-		service.Sid = s.Sid
-		service.Hash = s.Hash
 		logrus.Infof("Service %q deployed", service.Key)
 		if err := api.StartService(s.Sid); err != nil {
 			return err

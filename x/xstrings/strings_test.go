@@ -46,3 +46,18 @@ func TestSliceIndex(t *testing.T) {
 		}
 	}
 }
+
+func TestFirstToLower(t *testing.T) {
+	for _, tt := range []struct {
+		s    string
+		want string
+	}{
+		{"", ""},
+		{"A", "a"},
+		{"Aa", "aa"},
+	} {
+		if got := FirstToLower(tt.s); got != tt.want {
+			t.Errorf("%s firt to lower - got %s, want %s", tt.s, got, tt.want)
+		}
+	}
+}

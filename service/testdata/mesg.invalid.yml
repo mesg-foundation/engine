@@ -21,7 +21,7 @@ configuration:
     - v1 # not unique
   volumesFrom:
     - dummy # not existing
-  ports:
+  ports: # invalid ports
     - 0
     - 65536
     - 1:a
@@ -36,11 +36,12 @@ dependencies:
       - v1 # not unique
     volumesFrom:
       - none # not existing
-    ports:
+    ports: # invalid ports
       - 0
       - 65536
       - 1:a
       - a:1
   dummy1:
+    image: image
     volumesFrom:
-      - dummy # cyclic import
+      - dummy1 # cyclic import

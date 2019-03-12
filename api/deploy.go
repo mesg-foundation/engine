@@ -29,15 +29,15 @@ type DeployStatus struct {
 }
 
 // DeployService deploys a service from a gzipped tarball.
-func (api *API) DeployService(r io.Reader, env map[string]string, statusC chan DeployStatus) (string, error) {
+func (api *API) DeployService(r io.Reader, env map[string]string, statusC chan DeployStatus) (*service.Service, error) {
 	contextDir, err := ioutil.TempDir("", "mesg-")
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer os.RemoveAll(contextDir)
 
 	if err := archive.Untar(r, contextDir, nil); err != nil {
-		return "", err
+		return nil, err
 	}
 	return api.deploy(contextDir, env)
 }
@@ -46,28 +46,28 @@ func (api *API) DeployService(r io.Reader, env map[string]string, statusC chan D
 // Supported URL types:
 // - https://github.com/mesg-foundation/service-ethereum
 // - https://github.com/mesg-foundation/service-ethereum#branchName
-func (api *API) DeployServiceFromURL(url string, env map[string]string, statusC chan DeployStatus) (string, error) {
+func (api *API) DeployServiceFromURL(url string, env map[string]string, statusC chan DeployStatus) (*service.Service, error) {
 	contextDir, err := ioutil.TempDir("", "mesg-")
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer os.RemoveAll(contextDir)
 
 	if xgit.IsGitURL(url) {
 		sendStatus(statusC, "Downloading service...", Running)
 		if err := xgit.Clone(url, contextDir); err != nil {
-			return "", err
+			return nil, err
 		}
 		sendStatus(statusC, "Service downloaded with success", DonePositive)
 	} else {
 		// if not git repo then it must be tarball
 		resp, err := http.Get(url)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 		defer resp.Body.Close()
 		if err := archive.Untar(resp.Body, contextDir, nil); err != nil {
-			return "", err
+			return nil, err
 		}
 	}
 
@@ -75,24 +75,24 @@ func (api *API) DeployServiceFromURL(url string, env map[string]string, statusC 
 }
 
 // deploy deploys a service in path.
-func (api *API) deploy(contextDir string, env map[string]string) (string, error) {
+func (api *API) deploy(contextDir string, env map[string]string) (*service.Service, error) {
 	var err error
 	contextDir, err = formalizeContextDir(contextDir)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	s, err := service.ReadDefinition(contextDir)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	if err := api.sm.Deploy(s, contextDir, env); err != nil {
-		return "", err
+		return nil, err
 	}
 	if err := api.db.Save(s); err != nil {
-		return "", err
+		return nil, err
 	}
-	return s.Hash, nil
+	return s, nil
 }
 
 func formalizeContextDir(contextDir string) (string, error) {

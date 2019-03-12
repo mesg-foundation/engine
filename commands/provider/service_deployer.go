@@ -9,7 +9,7 @@ import (
 	"github.com/docker/cli/cli/command/image/build"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
-	"github.com/opencontainers/runc/libcontainer/configs/validate"
+	validator "gopkg.in/go-playground/validator.v9"
 )
 
 // StatusType indicates the type of status message.
@@ -56,7 +56,7 @@ func (p *ServiceProvider) ServiceDeploy(path string, env map[string]string, stat
 	}()
 	go readDeployReply(stream, deployment, statuses)
 
-	if err := validate.New().Var(path, "url"); err == nil {
+	if err := validator.New().Var(path, "url"); err == nil {
 		if err := stream.Send(&coreapi.DeployServiceRequest{
 			Value: &coreapi.DeployServiceRequest_Url{Url: path},
 			Env:   env,

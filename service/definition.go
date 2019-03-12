@@ -5,23 +5,46 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 
+	"github.com/go-playground/locales/en"
+	ut "github.com/go-playground/universal-translator"
 	"github.com/mesg-foundation/core/x/xerrors"
+	"github.com/mesg-foundation/core/x/xstrings"
 	"github.com/mesg-foundation/core/x/xvalidator"
 	validator "gopkg.in/go-playground/validator.v9"
+	en_translations "gopkg.in/go-playground/validator.v9/translations/en"
 	yaml "gopkg.in/yaml.v2"
 )
 
 // DefaultServicefileName is the default config filename for mesg.
 const DefaultServicefileName = "mesg.yml"
 
-// validate is used for mesg service config.
-var validate = func() *validator.Validate {
+// service namespace prefix.
+const namespacePrefix = "Service."
+
+// validate is used for mesg service definition.
+var validate, translate = func() (*validator.Validate, ut.Translator) {
+	en := en.New()
+	uni := ut.New(en, en)
+	trans, _ := uni.GetTranslator("en")
 	validate := validator.New()
+	validate.RegisterValidation("portmap", xvalidator.IsPortMapping)
+	validate.RegisterTranslation("portmap", trans, func(ut ut.Translator) error {
+		return ut.Add("portmap", "{0} must be a valid port mapping. Eg: 80 or 80:80", false)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T("portmap", fe.Field(), namespacePrefix)
+		return t
+	})
 	validate.RegisterValidation("domain", xvalidator.IsDomainName)
-	return validate
+	validate.RegisterTranslation("domain", trans, func(ut ut.Translator) error {
+		return ut.Add("domain", "{0} must respect domain-style notation. Eg: author.name", false)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T("domain", fe.Field())
+		return t
+	})
+	en_translations.RegisterDefaultTranslations(validate, trans)
+	return validate, trans
 }()
 
 // ReadDefinition validates a service at a source.
@@ -66,8 +89,15 @@ func ValidateDefinition(service *Service) error {
 		switch verrs := err.(type) {
 		case validator.ValidationErrors:
 			for _, verr := range verrs {
-				e := fmt.Errorf("%s with value %q is invalid: %s %s", verr.Namespace(), verr.Value(), verr.Tag(), verr.Param())
-				errs = append(errs, e)
+				// Remove the name of the struct and the field from namespace
+				trimmedNamespace := strings.TrimPrefix(verr.Namespace(), namespacePrefix)
+				trimmedNamespace = strings.TrimSuffix(trimmedNamespace, verr.Field())
+				// Only use it when in-cascade field
+				namespace := ""
+				if verr.Field() != trimmedNamespace {
+					namespace = strings.ToLower(trimmedNamespace)
+				}
+				errs = append(errs, fmt.Errorf("%s%s", namespace, xstrings.FirstToLower(verr.Translate(translate))))
 			}
 		default:
 			errs = append(errs, err)
@@ -75,28 +105,11 @@ func ValidateDefinition(service *Service) error {
 	}
 
 	for key, dep := range service.Dependencies {
-		if key == MainServiceKey {
-			errs = append(errs, &validateError{msg: MainServiceKey + " as key is forbidden for dependency"})
+		if dep == nil {
+			continue
 		}
-		if dep == nil || dep.Image == "" {
+		if dep.Image == "" {
 			errs = append(errs, &validateError{key: key, msg: "image is empty"})
-		}
-	}
-
-	validatePorts := func(key string, ports []string) {
-		for _, port := range ports {
-			parts := strings.Split(port, ":")
-			if i, err := strconv.ParseUint(parts[0], 10, 64); err != nil || i == 0 || i > 65535 {
-				errs = append(errs, &validateError{key: key, msg: "port " + port + " is invalid"})
-				continue
-			}
-
-			if len(parts) > 1 {
-				if i, err := strconv.ParseUint(parts[1], 10, 64); err != nil || i == 0 || i > 65535 {
-					errs = append(errs, &validateError{key: key, msg: "port " + port + " is invalid"})
-					continue
-				}
-			}
 		}
 	}
 
@@ -104,7 +117,7 @@ func ValidateDefinition(service *Service) error {
 		if depVolumeKey == MainServiceKey {
 			errs = append(errs, &validateError{
 				key: MainServiceKey,
-				msg: "volumesFrom is invalid: " + depVolumeKey + " dependency dose not exist",
+				msg: "volumesFrom is invalid: cyclic volume import",
 			})
 		}
 		if _, ok := service.Dependencies[depVolumeKey]; depVolumeKey != MainServiceKey && !ok {
@@ -114,7 +127,6 @@ func ValidateDefinition(service *Service) error {
 			})
 		}
 	}
-	validatePorts(MainServiceKey, service.Configuration.Ports)
 
 	for key, dep := range service.Dependencies {
 		if dep == nil {
@@ -124,7 +136,7 @@ func ValidateDefinition(service *Service) error {
 			if depVolumeKey == key {
 				errs = append(errs, &validateError{
 					key: key,
-					msg: "volumesFrom is invalid: " + depVolumeKey + " dependency dose not exist",
+					msg: "volumesFrom is invalid: cyclic volume import",
 				})
 			}
 			if _, ok := service.Dependencies[depVolumeKey]; depVolumeKey != MainServiceKey && !ok {
@@ -134,8 +146,6 @@ func ValidateDefinition(service *Service) error {
 				})
 			}
 		}
-
-		validatePorts(key, dep.Ports)
 	}
 	return errs.ErrorOrNil()
 }
@@ -150,10 +160,10 @@ type validateError struct {
 func (e *validateError) Error() string {
 	switch e.key {
 	case MainServiceKey:
-		return fmt.Sprintf("configuration %s", e.msg)
+		return fmt.Sprintf("configuration.%s", e.msg)
 	case "":
 		return e.msg
 	default:
-		return fmt.Sprintf("dependency[%s] %s", e.key, e.msg)
+		return fmt.Sprintf("dependency[%s].%s", e.key, e.msg)
 	}
 }

@@ -1,5 +1,7 @@
 package xstrings
 
+import "strings"
+
 // SliceContains returns true if slice a contains e element, false otherwise.
 func SliceContains(a []string, e string) bool {
 	for _, s := range a {
@@ -29,4 +31,12 @@ func SliceIndex(a []string, e string) int {
 		}
 	}
 	return -1
+}
+
+// FirstToLower returns a copy of the s with first letter mpaped to its lower case.
+func FirstToLower(s string) string {
+	if s == "" {
+		return s
+	}
+	return strings.ToLower(s[:1]) + s[1:]
 }

@@ -5,6 +5,7 @@ import (
 
 	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
+	service "github.com/mesg-foundation/core/service"
 )
 
 // DeployService deploys a service from Git URL or service.tar.gz file. It'll send status
@@ -13,7 +14,7 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 	var (
 		statuses = make(chan api.DeployStatus)
 
-		service string
+		service *service.Service
 		err     error
 	)
 	defer close(statuses)
