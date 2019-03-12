@@ -1,0 +1,5 @@
+name: "Test service"
+dependencies:
+  app:
+    env:
+      - "ENV1=322"

@@ -3,3 +3,5 @@ description: "นี่เป็นคำอธิบายที่ไม่ถ
 dependencies:
   app:
     image: nginx
+    ports:
+      - 80-80

@@ -37,7 +37,7 @@ func TestValidateServiceFileMalFormatted(t *testing.T) {
 func TestValidateServiceFileWithErrors(t *testing.T) {
 	data, _ := readServiceFile("./tests/service-file-invalid")
 	warnings := validateServiceFile(data)
-	require.Equal(t, 1, len(warnings))
+	require.Equal(t, 2, len(warnings))
 }
 
 func TestValidateServiceFileWithMultipleErrors(t *testing.T) {
@@ -50,4 +50,16 @@ func TestValidateServiceSidTooLong(t *testing.T) {
 	data, _ := readServiceFile("./tests/sid-too-long")
 	warnings := validateServiceFile(data)
 	require.Equal(t, 1, len(warnings))
+}
+
+func TestValidateServiceDependencyImageMissing(t *testing.T) {
+	data, _ := readServiceFile("./tests/dependency-image-missing")
+	warnings := validateServiceFile(data)
+	require.Equal(t, 1, len(warnings))
+}
+
+func TestValidateServiceDependenciesVolumesFrom(t *testing.T) {
+	data, _ := readServiceFile("./tests/dependencies-volumesfrom")
+	warnings := validateServiceFile(data)
+	require.Equal(t, 2, len(warnings))
 }
