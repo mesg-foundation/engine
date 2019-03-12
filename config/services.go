@@ -41,6 +41,6 @@ func (c *Config) getServiceConfigGroup() ServiceConfigGroup {
 // Services returns all services that the configuration package is aware of
 func (c *Config) Services() []*ServiceConfigWithKey {
 	return []*ServiceConfigWithKey{
-		{&c.Service.Ethwallet, "Ethwallet"},
+		{&c.Service.Ethwallet, "ethwallet"},
 	}
 }
