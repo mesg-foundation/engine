@@ -9,7 +9,7 @@ type ServiceDefinition struct {
 	Name string `yaml:"name" json:"name,omitempty" validate:"required,printascii,min=1"`
 
 	// Sid is the service id. It must be unique.
-	Sid string `yaml:"sid" json:"sid,omitempty" validate:"printascii,max=63,domain"`
+	Sid string `yaml:"sid" json:"sid,omitempty" validate:"omitempty,printascii,max=63,domain"`
 
 	// Description is service description.
 	Description string `yaml:"description" json:"description,omitempty" validate:"printascii"`
