@@ -44,14 +44,14 @@ export class Marketplace {
       sid: string
     ): TransactionObject<string>;
 
-    serviceVersionHash(
+    serviceHash(
       sid: string,
       versionIndex: number | string
     ): TransactionObject<string>;
 
     serviceVersion(
       sid: string,
-      versionHash: string | number[]
+      hash: string | number[]
     ): TransactionObject<{
       createTime: string;
       manifest: string;
@@ -110,7 +110,7 @@ export class Marketplace {
 
     isServiceVersionExist(
       sid: string,
-      versionHash: string | number[]
+      hash: string | number[]
     ): TransactionObject<boolean>;
 
     isServiceOfferExist(
@@ -144,14 +144,14 @@ export class Marketplace {
 
     createServiceVersion(
       sid: string,
-      versionHash: string | number[],
+      hash: string | number[],
       manifest: string,
       manifestProtocol: string
     ): TransactionObject<void>;
 
     publishServiceVersion(
       sid: string,
-      versionHash: string | number[],
+      hash: string | number[],
       manifest: string,
       manifestProtocol: string
     ): TransactionObject<void>;

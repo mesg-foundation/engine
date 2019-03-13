@@ -9,7 +9,7 @@ export default (
   try {
     const transactionData = marketplace.methods.publishServiceVersion(
       asciiToHex(inputs.sid),
-      hashToHex(inputs.versionHash),
+      hashToHex(inputs.hash),
       asciiToHex(inputs.manifest),
       asciiToHex(inputs.manifestProtocol)
     ).encodeABI()

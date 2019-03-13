@@ -9,13 +9,13 @@ export default (
 ) => async (inputs: TaskInputs, outputs: TaskOutputs): Promise<void> => {
   try {
     let sid = ""
-    let versionHash = ""
-    if (inputs.versionHash) {
-      versionHash = inputs.versionHash
+    let hash = ""
+    if (inputs.hash) {
+      hash = inputs.hash
       // get service from version hash
-      const sidHash = await contract.methods.hashToService(hashToHex(versionHash)).call()
+      const sidHash = await contract.methods.hashToService(hashToHex(hash)).call()
       if (hexToAscii(sidHash) === "") {
-        throw new Error('version with hash ' + versionHash + ' does not exist')
+        throw new Error('version with hash ' + hash + ' does not exist')
       }
       const service = await contract.methods.services(sidHash).call()
       sid = hexToAscii(service.sid)
@@ -27,10 +27,10 @@ export default (
       if (versionsLength.isEqualTo(0)) {
         throw new Error('service with sid ' + sid + ' does not have any version')
       }
-      versionHash = hexToHash(await contract.methods.serviceVersionHash(asciiToHex(sid), versionsLength.minus(1).toString()).call())
+      hash = hexToHash(await contract.methods.serviceHash(asciiToHex(sid), versionsLength.minus(1).toString()).call())
     }
     else {
-      throw new Error('Input should have sid or versionHash set')
+      throw new Error('Input should have sid or hash set')
     }
 
     if (!await contract.methods.isServiceExist(asciiToHex(sid)).call()) {
@@ -50,12 +50,12 @@ export default (
     }
 
     // get version's manifest data
-    const version = await getServiceVersion(contract, sid, versionHash)
+    const version = await getServiceVersion(contract, sid, hash)
     if (version === undefined) {
-      throw new Error('version with hash ' + versionHash + ' does not exist')
+      throw new Error('version with hash ' + hash + ' does not exist')
     }
     if (version.manifestData === undefined) {
-      throw new Error('could not download manifest of version with hash ' + versionHash)
+      throw new Error('could not download manifest of version with hash ' + hash)
     }
 
     return outputs.success({

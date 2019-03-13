@@ -5,7 +5,7 @@ import { hexToAscii } from "../contracts/utils";
 export = (mesg: Service, event: EventLog): Promise<EmitEventReply | Error> => {
   return mesg.emitEvent('serviceVersionCreated', {
     sid: hexToAscii(event.returnValues.sid),
-    versionHash: event.returnValues.versionHash,
+    hash: event.returnValues.hash,
     manifest: hexToAscii(event.returnValues.manifest),
     manifestProtocol: hexToAscii(event.returnValues.manifestProtocol),
   })
