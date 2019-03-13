@@ -19,200 +19,90 @@ func NewWalletProvider(c coreapi.CoreClient) *WalletProvider {
 
 // List return the accounts of this wallet
 func (p *WalletProvider) List() ([]string, error) {
-	serviceHash, err := p.client.GetServiceHash(walletServiceKey)
-	if err != nil {
-		return nil, err
-	}
-	r, err := p.client.ExecuteAndListen(serviceHash, "list", nil)
-	if err != nil {
-		return nil, err
-	}
-
-	if r.OutputKey == "error" {
-		var output ErrorOutput
-		if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
-			return nil, err
-		}
-		return nil, errors.New(output.Message)
-	}
-
 	var output walletListOutputSuccess
-	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
-		return nil, err
-	}
-	return output.Addresses, nil
+	return output.Addresses, p.call("list", nil, &output)
 }
 
 // Create creates a new account in the wallet
 func (p *WalletProvider) Create(passphrase string) (string, error) {
-	serviceHash, err := p.client.GetServiceHash(walletServiceKey)
-	if err != nil {
-		return "", err
-	}
-	r, err := p.client.ExecuteAndListen(serviceHash, "create", walletCreateInputs{
+	input := walletCreateInputs{
 		Passphrase: passphrase,
-	})
-	if err != nil {
-		return "", err
 	}
-
-	if r.OutputKey == "error" {
-		var output ErrorOutput
-		if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
-			return "", err
-		}
-		return "", errors.New(output.Message)
-	}
-
 	var output walletCreateOutputSuccess
-	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
-		return "", err
-	}
-	return output.Address, nil
+	return output.Address, p.call("create", &input, &output)
 }
 
 // Delete removes an account from the wallet
 func (p *WalletProvider) Delete(address string, passphrase string) (string, error) {
-	serviceHash, err := p.client.GetServiceHash(walletServiceKey)
-	if err != nil {
-		return "", err
-	}
-	r, err := p.client.ExecuteAndListen(serviceHash, "delete", walletDeleteInputs{
+	input := walletDeleteInputs{
 		Address:    address,
 		Passphrase: passphrase,
-	})
-	if err != nil {
-		return "", err
 	}
-
-	if r.OutputKey == "error" {
-		var output ErrorOutput
-		if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
-			return "", err
-		}
-		return "", errors.New(output.Message)
-	}
-
 	var output walletDeleteOutputSuccess
-	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
-		return "", err
-	}
-	return output.Address, nil
+	return output.Address, p.call("delete", &input, &output)
 }
 
 // Export exports an account
 func (p *WalletProvider) Export(address string, passphrase string) (EncryptedKeyJSONV3, error) {
-	var output EncryptedKeyJSONV3
-	serviceHash, err := p.client.GetServiceHash(walletServiceKey)
-	if err != nil {
-		return output, err
-	}
-	r, err := p.client.ExecuteAndListen(serviceHash, "export", walletExportInputs{
+	input := walletExportInputs{
 		Address:    address,
 		Passphrase: passphrase,
-	})
-	if err != nil {
-		return output, err
 	}
-
-	if r.OutputKey == "error" {
-		var outputData ErrorOutput
-		if err := json.Unmarshal([]byte(r.OutputData), &outputData); err != nil {
-			return output, err
-		}
-		return output, errors.New(outputData.Message)
-	}
-
-	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
-		return output, err
-	}
-	return output, nil
+	var output EncryptedKeyJSONV3
+	return output, p.call("export", &input, &output)
 }
 
 // Import imports an account into the wallet
 func (p *WalletProvider) Import(account EncryptedKeyJSONV3, passphrase string) (string, error) {
-	serviceHash, err := p.client.GetServiceHash(walletServiceKey)
-	if err != nil {
-		return "", err
-	}
-	r, err := p.client.ExecuteAndListen(serviceHash, "import", &walletImportInputs{
+	input := walletImportInputs{
 		Account:    account,
 		Passphrase: passphrase,
-	})
-	if err != nil {
-		return "", err
 	}
-
-	if r.OutputKey == "error" {
-		var output ErrorOutput
-		if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
-			return "", err
-		}
-		return "", errors.New(output.Message)
-	}
-
 	var output walletImportOutputSuccess
-	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
-		return "", err
-	}
-	return output.Address, nil
+	return output.Address, p.call("import", &input, &output)
 }
 
 // ImportFromPrivateKey imports an account from a private key
 func (p *WalletProvider) ImportFromPrivateKey(privateKey string, passphrase string) (string, error) {
-	serviceHash, err := p.client.GetServiceHash(walletServiceKey)
-	if err != nil {
-		return "", err
-	}
-	r, err := p.client.ExecuteAndListen(serviceHash, "importFromPrivateKey", &walletImportFromPrivateKeyInputs{
+	input := walletImportFromPrivateKeyInputs{
 		PrivateKey: privateKey,
 		Passphrase: passphrase,
-	})
-	if err != nil {
-		return "", err
 	}
-
-	if r.OutputKey == "error" {
-		var output ErrorOutput
-		if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
-			return "", err
-		}
-		return "", errors.New(output.Message)
-	}
-
 	var output walletImportOutputSuccess
-	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
-		return "", err
-	}
-	return output.Address, nil
+	return output.Address, p.call("importFromPrivateKey", &input, &output)
+
 }
 
 // Sign signs a transaction
 func (p *WalletProvider) Sign(address string, passphrase string, transaction *Transaction) (string, error) {
-	serviceHash, err := p.client.GetServiceHash(walletServiceKey)
-	if err != nil {
-		return "", err
-	}
-	r, err := p.client.ExecuteAndListen(serviceHash, "sign", &walletSignInputs{
+	input := walletSignInputs{
 		Address:     address,
 		Passphrase:  passphrase,
 		Transaction: transaction,
-	})
-	if err != nil {
-		return "", err
 	}
-
-	if r.OutputKey == "error" {
-		var output ErrorOutput
-		if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
-			return "", err
-		}
-		return "", errors.New(output.Message)
-	}
-
 	var output walletSignOutputSuccess
-	if err := json.Unmarshal([]byte(r.OutputData), &output); err != nil {
-		return "", err
+	return output.SignedTransaction, p.call("sign", &input, &output)
+}
+
+func (p *WalletProvider) call(task string, inputs interface{}, output interface{}) error {
+	serviceHash, err := p.client.GetServiceHash(walletServiceKey)
+	if err != nil {
+		return err
 	}
-	return output.SignedTransaction, nil
+	r, err := p.client.ExecuteAndListen(serviceHash, task, &inputs)
+	if err != nil {
+		return err
+	}
+	return p.parseResult(r, &output)
+}
+
+func (p *WalletProvider) parseResult(r *coreapi.ResultData, output interface{}) error {
+	if r.OutputKey == "error" {
+		var outputError walletErrorOutput
+		if err := json.Unmarshal([]byte(r.OutputData), &outputError); err != nil {
+			return err
+		}
+		return errors.New(outputError.Message)
+	}
+	return json.Unmarshal([]byte(r.OutputData), &output)
 }

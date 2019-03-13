@@ -53,8 +53,9 @@ func TestValidateFromNonExistingPath(t *testing.T) {
 }
 
 func TestValidateFromMalFormattedServiceFile(t *testing.T) {
-	_, err := Validate("./tests/service-file-mal-formatted")
-	require.Error(t, err)
+	validation, err := Validate("./tests/service-file-mal-formatted")
+	require.NoError(t, err)
+	require.Len(t, validation.ServiceFileWarnings, 1)
 }
 
 func TestValidateFromInvalidServiceFile(t *testing.T) {
@@ -62,7 +63,7 @@ func TestValidateFromInvalidServiceFile(t *testing.T) {
 	require.NoError(t, err)
 	require.False(t, validation.IsValid())
 	require.True(t, validation.ServiceFileExist)
-	require.Len(t, validation.ServiceFileWarnings, 1)
+	require.Len(t, validation.ServiceFileWarnings, 2)
 	require.True(t, validation.DockerfileExist)
 }
 
@@ -75,8 +76,9 @@ func TestIsValid(t *testing.T) {
 }
 
 func TestIsValidMalFormattedServiceFile(t *testing.T) {
-	_, err := IsValid("./tests/service-file-mal-formatted")
-	require.Error(t, err)
+	validation, err := IsValid("./tests/service-file-mal-formatted")
+	require.NoError(t, err)
+	require.False(t, validation)
 }
 
 func TestInvalidDependencyName(t *testing.T) {

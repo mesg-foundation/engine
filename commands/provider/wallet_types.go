@@ -2,6 +2,15 @@ package provider
 
 const walletServiceKey = "ethwallet"
 
+// walletErrorOutput is the output for any task that fails.
+type walletErrorOutput struct {
+	Message string `json:"message"`
+}
+
+func (e walletErrorOutput) Error() string {
+	return e.Message
+}
+
 type walletListOutputSuccess struct {
 	Addresses []string `json:"addresses"`
 }

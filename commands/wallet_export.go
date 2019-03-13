@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/spf13/cobra"
 )
 
@@ -48,6 +49,6 @@ func (c *walletExportCmd) runE(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(string(b))
+	fmt.Println(string(pretty.ColorizeJSON(pretty.FgCyan, nil, true, b)))
 	return nil
 }

@@ -90,14 +90,17 @@ func (c *client) ListenResult(id, taskFilter, outputFilter string, tagFilters []
 }
 
 // ExecuteTask executes task on given service.
-func (c *client) ExecuteTask(id, taskKey, inputData string, tags []string) error {
-	_, err := c.CoreClient.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
+func (c *client) ExecuteTask(id, taskKey, inputData string, tags []string) (string, error) {
+	result, err := c.CoreClient.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
 		ServiceID:     id,
 		TaskKey:       taskKey,
 		InputData:     inputData,
 		ExecutionTags: tags,
 	})
-	return err
+	if err != nil {
+		return "", err
+	}
+	return result.ExecutionID, nil
 }
 
 // ExecuteAndListen executes task and listens for it's results.
@@ -114,12 +117,7 @@ func (c *client) ExecuteAndListen(id, taskKey string, inputData interface{}) (*c
 		return nil, err
 	}
 
-	if _, err := c.CoreClient.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
-		ServiceID:     id,
-		TaskKey:       taskKey,
-		InputData:     string(data),
-		ExecutionTags: tags,
-	}); err != nil {
+	if _, err := c.ExecuteTask(id, taskKey, string(data), tags); err != nil {
 		return nil, err
 	}
 

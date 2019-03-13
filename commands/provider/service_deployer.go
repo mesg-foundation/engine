@@ -9,10 +9,10 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/asaskevich/govalidator"
 	"github.com/docker/cli/cli/command/image/build"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
+	validator "gopkg.in/go-playground/validator.v9"
 )
 
 // StatusType indicates the type of status message.
@@ -62,7 +62,7 @@ func (p *ServiceProvider) ServiceDeploy(path string, env map[string]string, stat
 	switch {
 	case strings.HasPrefix(path, "mesg:"):
 		err = p.deployServiceFromMarketplace(path, env, stream)
-	case govalidator.IsURL(path):
+	case err := validator.New().Var(path, "url"); err == nil:
 		err = stream.Send(&coreapi.DeployServiceRequest{
 			Value: &coreapi.DeployServiceRequest_Url{Url: path},
 			Env:   env,
