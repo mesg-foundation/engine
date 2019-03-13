@@ -212,7 +212,8 @@ func (p *ServiceProvider) listenServiceLogs(stream coreapi.Core_ServiceLogsClien
 
 // ServiceExecuteTask executes task on given service.
 func (p *ServiceProvider) ServiceExecuteTask(id, taskKey, inputData string, tags []string) error {
-	return p.client.ExecuteTask(id, taskKey, inputData, tags)
+	_, err := p.client.ExecuteTask(id, taskKey, inputData, tags)
+	return err
 }
 
 // ServiceStart starts a service.

@@ -59,10 +59,11 @@ func (p *ServiceProvider) ServiceDeploy(path string, env map[string]string, stat
 	}()
 	go readDeployReply(stream, deployment, statuses)
 
+	isURL := validator.New().Var(path, "url")
 	switch {
 	case strings.HasPrefix(path, "mesg:"):
 		err = p.deployServiceFromMarketplace(path, env, stream)
-	case err := validator.New().Var(path, "url"); err == nil:
+	case isURL == nil:
 		err = stream.Send(&coreapi.DeployServiceRequest{
 			Value: &coreapi.DeployServiceRequest_Url{Url: path},
 			Env:   env,
@@ -90,7 +91,7 @@ func (p *ServiceProvider) deployServiceFromMarketplace(u string, env map[string]
 		return err
 	}
 	path := strings.Split(strings.Trim(urlParsed.EscapedPath(), "/"), "/")
-	if urlParsed.Hostname() != "marketplace" || len(path) != 2 || path[0] != "service" || len(path[1]) == 0 { //!service.IsValidSid(path[1])
+	if urlParsed.Hostname() != "marketplace" || len(path) != 2 || path[0] != "service" || len(path[1]) == 0 {
 		return fmt.Errorf("marketplace url %s invalid", u)
 	}
 

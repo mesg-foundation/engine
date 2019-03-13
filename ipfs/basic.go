@@ -54,9 +54,3 @@ func (ipfs *IPFS) Get(hash string) (io.Reader, error) {
 	}
 	return resp.Body, nil
 }
-
-// URL retrives the file's url from the ipfs node.
-func (ipfs *IPFS) URL(hash string) string {
-	query := url.Values{"arg": []string{hash}}
-	return ipfs.getAPIPath("get", query)
-}

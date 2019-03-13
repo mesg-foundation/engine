@@ -31,7 +31,7 @@ func newServiceExecuteCmd(e ServiceExecutor) *serviceExecuteCmd {
 	c.cmd = newCommand(&cobra.Command{
 		Use:     "execute",
 		Short:   "Execute a task of a service",
-		Example: "mesg-core service execute SERVICE",
+		Example: `mesg-core service execute SERVICE`,
 		Args:    cobra.ExactArgs(1),
 		PreRunE: c.preRunE,
 		RunE:    c.runE,

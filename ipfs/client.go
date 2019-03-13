@@ -23,9 +23,6 @@ func Add(name string, r io.Reader) (*AddResponse, error) { return DefaultClient.
 // Get retrives the file from the ipfs node.
 func Get(hash string) (io.Reader, error) { return DefaultClient.Get(hash) }
 
-// URL retrives the file's url from the ipfs node.
-func URL(hash string) string { return DefaultClient.URL(hash) }
-
 // IPFS handles communication with ipfs network.
 type IPFS struct {
 	client   *http.Client
