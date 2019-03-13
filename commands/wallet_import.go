@@ -23,7 +23,7 @@ type walletImportCmd struct {
 func newWalletImportCmd(e WalletExecutor) *walletImportCmd {
 	c := &walletImportCmd{e: e}
 	c.cmd = newCommand(&cobra.Command{
-		Use:     "import ",
+		Use:     "import",
 		Short:   "import an account",
 		Long:    "import an account to wallet",
 		Example: "mesg-core wallet import",
