@@ -2,6 +2,8 @@ package commands
 
 import (
 	"fmt"
+	"os"
+	"text/tabwriter"
 
 	"github.com/spf13/cobra"
 )
@@ -34,8 +36,11 @@ func (c *walletListCmd) runE(cmd *cobra.Command, args []string) error {
 		fmt.Println("No account")
 		return nil
 	}
+	w := tabwriter.NewWriter(os.Stdout, 0, 0, 4, ' ', 0)
+
+	fmt.Fprintf(w, "ID\tACCOUNT\t\n")
 	for i, account := range accounts {
-		fmt.Printf("Account #%d:\t%s\n", i+1, account)
+		fmt.Fprintf(w, "%d\t%s\t\n", i+1, account)
 	}
-	return nil
+	return w.Flush()
 }
