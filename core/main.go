@@ -66,6 +66,8 @@ func deployCoreServices(cfg *config.Config, api *api.API) error {
 		if err != nil {
 			return err
 		}
+		service.Hash = s.Hash
+		service.Sid = s.Sid
 		logrus.Infof("Service %q deployed", service.Key)
 		if err := api.StartService(s.Sid); err != nil {
 			return err
