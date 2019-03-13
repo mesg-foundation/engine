@@ -1,0 +1,147 @@
+package provider
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+
+	"github.com/mesg-foundation/core/protobuf/acknowledgement"
+	"github.com/mesg-foundation/core/protobuf/coreapi"
+	uuid "github.com/satori/go.uuid"
+)
+
+// client is a wrapper for core client that
+// sets up stream connection and provides more frienldy api.
+type client struct {
+	coreapi.CoreClient
+}
+
+// ListenEvents returns a channel with event data streaming.
+func (c *client) ListenEvents(id, eventFilter string) (chan *coreapi.EventData, chan error, error) {
+	stream, err := c.ListenEvent(context.Background(), &coreapi.ListenEventRequest{
+		ServiceID:   id,
+		EventFilter: eventFilter,
+	})
+	if err != nil {
+		return nil, nil, err
+	}
+
+	resultC := make(chan *coreapi.EventData)
+	errC := make(chan error)
+
+	go func() {
+		<-stream.Context().Done()
+		errC <- stream.Context().Err()
+	}()
+	go func() {
+		for {
+			if res, err := stream.Recv(); err != nil {
+				errC <- err
+				break
+			} else {
+				resultC <- res
+			}
+		}
+	}()
+
+	if err := acknowledgement.WaitForStreamToBeReady(stream); err != nil {
+		return nil, nil, err
+	}
+
+	return resultC, errC, nil
+}
+
+// ListenResults returns a channel with event results streaming..
+func (c *client) ListenResult(id, taskFilter, outputFilter string, tagFilters []string) (chan *coreapi.ResultData, chan error, error) {
+	resultC := make(chan *coreapi.ResultData)
+	errC := make(chan error)
+
+	stream, err := c.CoreClient.ListenResult(context.Background(), &coreapi.ListenResultRequest{
+		ServiceID:    id,
+		TaskFilter:   taskFilter,
+		OutputFilter: outputFilter,
+		TagFilters:   tagFilters,
+	})
+	if err != nil {
+		return nil, nil, err
+	}
+
+	go func() {
+		<-stream.Context().Done()
+		errC <- stream.Context().Err()
+	}()
+	go func() {
+		for {
+			if res, err := stream.Recv(); err != nil {
+				errC <- err
+				break
+			} else {
+				resultC <- res
+			}
+		}
+	}()
+
+	if err := acknowledgement.WaitForStreamToBeReady(stream); err != nil {
+		return nil, nil, err
+	}
+
+	return resultC, errC, nil
+}
+
+// ExecuteTask executes task on given service.
+func (c *client) ExecuteTask(id, taskKey, inputData string, tags []string) (string, error) {
+	result, err := c.CoreClient.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
+		ServiceID:     id,
+		TaskKey:       taskKey,
+		InputData:     inputData,
+		ExecutionTags: tags,
+	})
+	if err != nil {
+		return "", err
+	}
+	return result.ExecutionID, nil
+}
+
+// ExecuteAndListen executes task and listens for it's results.
+func (c *client) ExecuteAndListen(id, taskKey string, inputData interface{}) (*coreapi.ResultData, error) {
+	data, err := json.Marshal(inputData)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: the following ListenResult should be destroy after result is received
+	tags := []string{uuid.NewV4().String()}
+	resultC, errC, err := c.ListenResult(id, taskKey, "", tags)
+	if err != nil {
+		return nil, err
+	}
+
+	if _, err := c.ExecuteTask(id, taskKey, string(data), tags); err != nil {
+		return nil, err
+	}
+
+	select {
+	case r := <-resultC:
+		if r.Error != "" {
+			return nil, errors.New(r.Error)
+		}
+		return r, nil
+	case err := <-errC:
+		return nil, err
+	}
+}
+
+// GetServiceHash returns the service hash of the corresponding service key
+func (c *client) GetServiceHash(key string) (string, error) {
+	rep, err := c.Info(context.Background(), &coreapi.InfoRequest{})
+	if err != nil {
+		return "", err
+	}
+	for _, service := range rep.Services {
+		if service.Key == key {
+			return service.Hash, nil
+		}
+	}
+	return "", fmt.Errorf("no service found with key %q", key)
+}
