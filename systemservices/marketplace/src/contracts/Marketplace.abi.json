@@ -280,7 +280,7 @@
       },
       {
         "indexed": true,
-        "name": "versionHash",
+        "name": "hash",
         "type": "bytes32"
       },
       {
@@ -494,7 +494,7 @@
         "type": "bytes"
       },
       {
-        "name": "versionHash",
+        "name": "hash",
         "type": "bytes32"
       },
       {
@@ -521,7 +521,7 @@
         "type": "bytes"
       },
       {
-        "name": "versionHash",
+        "name": "hash",
         "type": "bytes32"
       },
       {
@@ -681,17 +681,17 @@
         "type": "uint256"
       }
     ],
-    "name": "serviceVersionHash",
+    "name": "serviceHash",
     "outputs": [
       {
-        "name": "versionHash",
+        "name": "hash",
         "type": "bytes32"
       }
     ],
     "payable": false,
     "stateMutability": "view",
     "type": "function",
-    "signature": "0x38f74cc0"
+    "signature": "0x8cd83f91"
   },
   {
     "constant": true,
@@ -701,7 +701,7 @@
         "type": "bytes"
       },
       {
-        "name": "versionHash",
+        "name": "hash",
         "type": "bytes32"
       }
     ],
@@ -929,7 +929,7 @@
         "type": "bytes"
       },
       {
-        "name": "versionHash",
+        "name": "hash",
         "type": "bytes32"
       }
     ],

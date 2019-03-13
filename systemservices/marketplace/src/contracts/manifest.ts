@@ -29,7 +29,7 @@ const getManifest = async (protocol: string, source: string): Promise<Manifest|u
     return
   }
   catch (error) {
-    console.warn('error while downloading manifest ', protocol, '::', source, error.toString())
+    console.warn('error while downloading manifest', protocol, '::', source, error.toString())
     return
   }
 }

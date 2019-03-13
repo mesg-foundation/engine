@@ -22,11 +22,9 @@ import servicePurchased from "./events/servicePurchased"
 import publishServiceVersion from "./tasks/publishServiceVersion"
 import getService from "./tasks/getService"
 import createServiceOffer from "./tasks/createServiceOffer"
-import disableServiceOffer from "./tasks/disableServiceOffer"
 import listServices from "./tasks/listServices"
 import purchase from "./tasks/purchase"
 import sendSignedTransaction from "./tasks/sendSignedTransaction"
-import transferServiceOwnership from "./tasks/transferServiceOwnership"
 import isAuthorized from "./tasks/isAuthorized"
 import { createTransactionTemplate } from "./contracts/utils";
 
@@ -64,9 +62,7 @@ const main = async () => {
     getService: getService(marketplace),
     publishServiceVersion: publishServiceVersion(marketplace, createTransaction),
     createServiceOffer: createServiceOffer(marketplace, createTransaction),
-    disableServiceOffer: disableServiceOffer(marketplace, createTransaction),
     purchase: purchase(marketplace, token, createTransaction),
-    transferServiceOwnership: transferServiceOwnership(marketplace, createTransaction),
     sendSignedTransaction: sendSignedTransaction(web3),
     isAuthorized: isAuthorized(marketplace),
   })

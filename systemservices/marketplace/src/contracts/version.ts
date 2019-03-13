@@ -19,20 +19,20 @@ const getServiceVersions = async (contract: Marketplace, sid: string): Promise<V
 }
 
 const getServiceVersionWithIndex = async (contract: Marketplace, sid: string, versionIndex: BigNumber): Promise<Version|undefined> => {
-  const versionHash = hexToHash(await contract.methods.serviceVersionHash(asciiToHex(sid), versionIndex.toString()).call())
-  return getServiceVersion(contract, sid, versionHash)
+  const hash = hexToHash(await contract.methods.serviceHash(asciiToHex(sid), versionIndex.toString()).call())
+  return getServiceVersion(contract, sid, hash)
 }
 
-const getServiceVersion = async (contract: Marketplace, sid: string, versionHash: string): Promise<Version|undefined> => {
+const getServiceVersion = async (contract: Marketplace, sid: string, hash: string): Promise<Version|undefined> => {
   const sidHex = asciiToHex(sid)
-  const versionHashHex = hashToHex(versionHash)
-  if (!await contract.methods.isServiceVersionExist(sidHex, versionHashHex).call()) {
+  const hashHex = hashToHex(hash)
+  if (!await contract.methods.isServiceVersionExist(sidHex, hashHex).call()) {
     return
   }
-  const version = await contract.methods.serviceVersion(sidHex, versionHashHex).call()
+  const version = await contract.methods.serviceVersion(sidHex, hashHex).call()
   const manifestData = await getManifest(hexToAscii(version.manifestProtocol), hexToAscii(version.manifest))
   return {
-    versionHash: versionHash,
+    hash: hash,
     manifest: hexToAscii(version.manifest),
     manifestProtocol: hexToAscii(version.manifestProtocol),
     manifestData: manifestData,
