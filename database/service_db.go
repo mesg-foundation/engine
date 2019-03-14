@@ -114,10 +114,12 @@ func (d *LevelDBServiceDB) delete(tx *leveldb.Transaction, hashOrSid string) err
 	if err != nil {
 		return err
 	}
-	if err := tx.Delete([]byte(hashKeyPrefix+s.Hash), nil); err != nil {
-		return err
+	if s.Sid != "" {
+		if err := tx.Delete([]byte(sidKeyPrefix+s.Sid), nil); err != nil {
+			return err
+		}
 	}
-	return tx.Delete([]byte(sidKeyPrefix+s.Sid), nil)
+	return tx.Delete([]byte(hashKeyPrefix+s.Hash), nil)
 }
 
 // Get retrives service from database.
@@ -187,10 +189,12 @@ func (d *LevelDBServiceDB) Save(s *service.Service) error {
 		return err
 	}
 
-	// save sid-hash pair of service.
-	if err := tx.Put([]byte(sidKeyPrefix+s.Sid), []byte(s.Hash), nil); err != nil {
-		tx.Discard()
-		return err
+	if s.Sid != "" {
+		// save sid-hash pair of service.
+		if err := tx.Put([]byte(sidKeyPrefix+s.Sid), []byte(s.Hash), nil); err != nil {
+			tx.Discard()
+			return err
+		}
 	}
 
 	return tx.Commit()
