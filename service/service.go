@@ -194,10 +194,15 @@ func (s *Service) volumes(depKey string) []container.Mount {
 	if depKey != MainServiceKey {
 		dep = s.Dependencies[depKey]
 	}
+	service := s.Sid
+	if s.Sid == "" {
+		service = s.Hash
+	}
 
 	for _, volume := range dep.Volumes {
+
 		volumes = append(volumes, container.Mount{
-			Source: volumeKey(s.Sid, depKey, volume),
+			Source: volumeKey(service, depKey, volume),
 			Target: volume,
 		})
 	}
@@ -210,7 +215,7 @@ func (s *Service) volumes(depKey string) []container.Mount {
 
 		for _, volume := range depVolumes {
 			volumes = append(volumes, container.Mount{
-				Source: volumeKey(s.Sid, depKey, volume),
+				Source: volumeKey(service, depKey, volume),
 				Target: volume,
 			})
 		}
@@ -379,11 +384,10 @@ func validateParametersSchema(parameters map[string]*Parameter, args map[string]
 	return nil
 }
 
-// volumeKey creates a key for service's volume based on the sid to make sure that the volume
-// will stay the same for different versions of the service.
-func volumeKey(sid, dependency, volume string) string {
+// volumeKey creates a key for service's volume based on the service sid or hash.
+func volumeKey(service, dependency, volume string) string {
 	h := sha1.New()
-	h.Write([]byte(sid))
+	h.Write([]byte(service))
 	h.Write([]byte(dependency))
 	sum := h.Sum([]byte(volume))
 	return hex.EncodeToString(sum)
