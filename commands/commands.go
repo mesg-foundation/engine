@@ -29,7 +29,7 @@ type ServiceExecutor interface {
 	ServiceListenEvents(id, eventFilter string) (chan *coreapi.EventData, chan error, error)
 	ServiceListenResults(id, taskFilter, outputFilter string, tagFilters []string) (chan *coreapi.ResultData, chan error, error)
 	ServiceLogs(id string, dependencies ...string) (logs []*provider.Log, closer func(), errC chan error, err error)
-	ServiceExecuteTask(id, taskKey, inputData string, tags []string) error
+	ServiceExecuteTask(id, taskKey, inputData string, tags []string) (string, error)
 	ServiceStart(id string) error
 	ServiceStop(id string) error
 	ServiceValidate(path string) (string, error)
