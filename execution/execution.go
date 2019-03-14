@@ -4,8 +4,8 @@ import (
 	"encoding/hex"
 	"time"
 
+	"github.com/cnf/structhash"
 	"github.com/mesg-foundation/core/service"
-	"github.com/mesg-foundation/core/utils/structhash"
 )
 
 // Status stores the state of an execution
@@ -36,6 +36,9 @@ func (s Status) String() (r string) {
 	return r
 }
 
+// hashVersion is version for calculate execution hash.
+const hashVersion = 1
+
 // Execution stores all informations about executions.
 type Execution struct {
 	ID                string                 `hash:"-"`
@@ -64,7 +67,8 @@ func New(service *service.Service, eventID string, taskKey string, inputs map[st
 		CreatedAt: time.Now(),
 		Status:    Created,
 	}
-	h := structhash.Sha1(exec)
+
+	h := structhash.Sha1(exec, hashVersion)
 	exec.ID = hex.EncodeToString(h[:])
 	return exec
 }
