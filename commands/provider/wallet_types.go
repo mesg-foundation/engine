@@ -38,8 +38,8 @@ type walletExportInputs struct {
 }
 
 type walletImportInputs struct {
-	Account    EncryptedKeyJSONV3 `json:"account"`
-	Passphrase string             `json:"passphrase"`
+	Account    WalletEncryptedKeyJSONV3 `json:"account"`
+	Passphrase string                   `json:"passphrase"`
 }
 
 type walletImportFromPrivateKeyInputs struct {
@@ -52,17 +52,17 @@ type walletImportOutputSuccess struct {
 }
 
 type walletSignInputs struct {
-	Address     string       `json:"address"`
-	Passphrase  string       `json:"passphrase"`
-	Transaction *Transaction `json:"transaction"`
+	Address     string      `json:"address"`
+	Passphrase  string      `json:"passphrase"`
+	Transaction Transaction `json:"transaction"`
 }
 
 type walletSignOutputSuccess struct {
 	SignedTransaction string `json:"signedTransaction"`
 }
 
-// EncryptedKeyJSONV3 represents an Ethereum JSON v3 encrypted wallet
-type EncryptedKeyJSONV3 struct {
+// WalletEncryptedKeyJSONV3 represents an Ethereum JSON v3 encrypted wallet
+type WalletEncryptedKeyJSONV3 struct {
 	Address string      `json:"address"`
 	Crypto  interface{} `json:"crypto"`
 	ID      string      `json:"id"`
@@ -78,4 +78,17 @@ type Transaction struct {
 	Gas      uint64 `json:"gas"`
 	GasPrice string `json:"gasPrice"`
 	Data     string `json:"data"`
+}
+
+// TransactionReceipt is the success output of task send signed transaction.
+type TransactionReceipt struct {
+	Receipt struct {
+		BlockNumber      uint   `json:"blockNumber"`
+		From             string `json:"from"`
+		GasUsed          uint   `json:"gasUsed"`
+		Status           bool   `json:"status"`
+		To               string `json:"to"`
+		TransactionHash  string `json:"transactionHash"`
+		TransactionIndex uint   `json:"transactionIndex"`
+	} `json:"receipt"`
 }
