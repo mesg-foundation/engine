@@ -48,7 +48,7 @@ require (
 	github.com/onsi/gomega v1.4.3 // indirect
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
-	github.com/opencontainers/runc v0.1.1
+	github.com/opencontainers/runc v0.1.1 // indirect
 	github.com/pelletier/go-buffruneio v0.0.0-20180119162133-e2f66f8164ca // indirect
 	github.com/pkg/errors v0.8.0
 	github.com/pseudomuto/protoc-gen-doc v1.1.0
@@ -63,7 +63,6 @@ require (
 	github.com/syndtr/goleveldb v0.0.0-20180708030551-c4c61651e9e3
 	github.com/vektra/mockery v0.0.0-20181123154057-e78b021dcbb5
 	github.com/xanzy/ssh-agent v0.2.0 // indirect
-	golang.org/x/crypto v0.0.0-20180904163835-0709b304e793
 	golang.org/x/net v0.0.0-20180906233101-161cd47e91fd
 	golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4 // indirect
 	golang.org/x/time v0.0.0-20181108054448-85acf8d2951c // indirect
@@ -71,8 +70,6 @@ require (
 	google.golang.org/genproto v0.0.0-20180709204101-e92b11657268 // indirect
 	google.golang.org/grpc v0.0.0-20180710012024-c491b25057c8
 	gopkg.in/AlecAivazis/survey.v1 v1.6.1
-	gopkg.in/airbrake/gobrake.v2 v2.0.9 // indirect
-	gopkg.in/gemnasium/logrus-airbrake-hook.v2 v2.1.2 // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.26.0
 	gopkg.in/src-d/go-billy.v4 v4.2.0 // indirect
