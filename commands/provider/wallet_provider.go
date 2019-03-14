@@ -2,7 +2,6 @@ package provider
 
 import (
 	"encoding/json"
-	"errors"
 
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 )
@@ -102,7 +101,7 @@ func (p *WalletProvider) parseResult(r *coreapi.ResultData, output interface{}) 
 		if err := json.Unmarshal([]byte(r.OutputData), &outputError); err != nil {
 			return err
 		}
-		return errors.New(outputError.Message)
+		return outputError
 	}
 	return json.Unmarshal([]byte(r.OutputData), &output)
 }
