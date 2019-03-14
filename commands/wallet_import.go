@@ -15,7 +15,7 @@ type walletImportCmd struct {
 
 	privateKey string
 	jsonFile   string
-	account    provider.EncryptedKeyJSONV3
+	account    provider.WalletEncryptedKeyJSONV3
 
 	e WalletExecutor
 }
