@@ -39,10 +39,22 @@ type ServiceExecutor interface {
 	ServiceInitDownloadTemplate(t *servicetemplate.Template, dst string) error
 }
 
+// WalletExecutor is an interface that handles wallet commands.
+type WalletExecutor interface {
+	List() ([]string, error)
+	Create(passphrase string) (string, error)
+	Delete(address string, passphrase string) (string, error)
+	Export(address string, passphrase string) (provider.EncryptedKeyJSONV3, error)
+	Import(account provider.EncryptedKeyJSONV3, passphrase string) (string, error)
+	ImportFromPrivateKey(privateKey string, passphrase string) (string, error)
+	Sign(address string, passphrase string, transaction *provider.Transaction) (string, error)
+}
+
 // Executor is an interface that keeps all commands interfaces.
 type Executor interface {
 	RootExecutor
 	ServiceExecutor
+	WalletExecutor
 }
 
 // Build constructs root command and returns it.
