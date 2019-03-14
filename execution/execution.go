@@ -69,7 +69,7 @@ func New(service *service.Service, eventID string, taskKey string, inputs map[st
 	}
 
 	h := structhash.Sha1(exec, hashVersion)
-	exec.ID = hex.EncodeToString(h[:])
+	exec.ID = hex.EncodeToString(h)
 	return exec
 }
 
