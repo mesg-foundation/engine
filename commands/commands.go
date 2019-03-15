@@ -44,10 +44,10 @@ type WalletExecutor interface {
 	List() ([]string, error)
 	Create(passphrase string) (string, error)
 	Delete(address string, passphrase string) (string, error)
-	Export(address string, passphrase string) (provider.EncryptedKeyJSONV3, error)
-	Import(account provider.EncryptedKeyJSONV3, passphrase string) (string, error)
+	Export(address string, passphrase string) (provider.WalletEncryptedKeyJSONV3, error)
+	Import(account provider.WalletEncryptedKeyJSONV3, passphrase string) (string, error)
 	ImportFromPrivateKey(privateKey string, passphrase string) (string, error)
-	Sign(address string, passphrase string, transaction *provider.Transaction) (string, error)
+	Sign(address string, passphrase string, transaction provider.Transaction) (string, error)
 }
 
 // Executor is an interface that keeps all commands interfaces.
