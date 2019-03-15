@@ -14,6 +14,134 @@ type Executor struct {
 	mock.Mock
 }
 
+// Create provides a mock function with given fields: passphrase
+func (_m *Executor) Create(passphrase string) (string, error) {
+	ret := _m.Called(passphrase)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(string) string); ok {
+		r0 = rf(passphrase)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(passphrase)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Delete provides a mock function with given fields: address, passphrase
+func (_m *Executor) Delete(address string, passphrase string) (string, error) {
+	ret := _m.Called(address, passphrase)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(string, string) string); ok {
+		r0 = rf(address, passphrase)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = rf(address, passphrase)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Export provides a mock function with given fields: address, passphrase
+func (_m *Executor) Export(address string, passphrase string) (provider.WalletEncryptedKeyJSONV3, error) {
+	ret := _m.Called(address, passphrase)
+
+	var r0 provider.WalletEncryptedKeyJSONV3
+	if rf, ok := ret.Get(0).(func(string, string) provider.WalletEncryptedKeyJSONV3); ok {
+		r0 = rf(address, passphrase)
+	} else {
+		r0 = ret.Get(0).(provider.WalletEncryptedKeyJSONV3)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = rf(address, passphrase)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Import provides a mock function with given fields: account, passphrase
+func (_m *Executor) Import(account provider.WalletEncryptedKeyJSONV3, passphrase string) (string, error) {
+	ret := _m.Called(account, passphrase)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(provider.WalletEncryptedKeyJSONV3, string) string); ok {
+		r0 = rf(account, passphrase)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(provider.WalletEncryptedKeyJSONV3, string) error); ok {
+		r1 = rf(account, passphrase)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ImportFromPrivateKey provides a mock function with given fields: privateKey, passphrase
+func (_m *Executor) ImportFromPrivateKey(privateKey string, passphrase string) (string, error) {
+	ret := _m.Called(privateKey, passphrase)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(string, string) string); ok {
+		r0 = rf(privateKey, passphrase)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = rf(privateKey, passphrase)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// List provides a mock function with given fields:
+func (_m *Executor) List() ([]string, error) {
+	ret := _m.Called()
+
+	var r0 []string
+	if rf, ok := ret.Get(0).(func() []string); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]string)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Logs provides a mock function with given fields:
 func (_m *Executor) Logs() (io.ReadCloser, error) {
 	ret := _m.Called()
@@ -131,17 +259,24 @@ func (_m *Executor) ServiceDeploy(path string, env map[string]string, statuses c
 }
 
 // ServiceExecuteTask provides a mock function with given fields: id, taskKey, inputData, tags
-func (_m *Executor) ServiceExecuteTask(id string, taskKey string, inputData string, tags []string) error {
+func (_m *Executor) ServiceExecuteTask(id string, taskKey string, inputData string, tags []string) (string, error) {
 	ret := _m.Called(id, taskKey, inputData, tags)
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(string, string, string, []string) error); ok {
+	var r0 string
+	if rf, ok := ret.Get(0).(func(string, string, string, []string) string); ok {
 		r0 = rf(id, taskKey, inputData, tags)
 	} else {
-		r0 = ret.Error(0)
+		r0 = ret.Get(0).(string)
 	}
 
-	return r0
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string, string, string, []string) error); ok {
+		r1 = rf(id, taskKey, inputData, tags)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // ServiceGenerateDocs provides a mock function with given fields: path
@@ -393,6 +528,27 @@ func (_m *Executor) ServiceValidate(path string) (string, error) {
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string) error); ok {
 		r1 = rf(path)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Sign provides a mock function with given fields: address, passphrase, transaction
+func (_m *Executor) Sign(address string, passphrase string, transaction provider.Transaction) (string, error) {
+	ret := _m.Called(address, passphrase, transaction)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(string, string, provider.Transaction) string); ok {
+		r0 = rf(address, passphrase, transaction)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string, string, provider.Transaction) error); ok {
+		r1 = rf(address, passphrase, transaction)
 	} else {
 		r1 = ret.Error(1)
 	}
