@@ -17,9 +17,9 @@ type client struct {
 	coreapi.CoreClient
 }
 
-// ListenEvents returns a channel with event data streaming.
-func (c *client) ListenEvents(id, eventFilter string) (chan *coreapi.EventData, chan error, error) {
-	stream, err := c.ListenEvent(context.Background(), &coreapi.ListenEventRequest{
+// ListenEvent returns a channel with event data streaming.
+func (c *client) ListenEvent(id, eventFilter string) (chan *coreapi.EventData, chan error, error) {
+	stream, err := c.CoreClient.ListenEvent(context.Background(), &coreapi.ListenEventRequest{
 		ServiceID:   id,
 		EventFilter: eventFilter,
 	})
