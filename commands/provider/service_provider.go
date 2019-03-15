@@ -22,11 +22,17 @@ import (
 // ServiceProvider is a struct that provides all methods required by service command.
 type ServiceProvider struct {
 	client client
+	mp     *MarketplaceProvider
+	wp     *WalletProvider
 }
 
 // NewServiceProvider creates new ServiceProvider.
-func NewServiceProvider(c coreapi.CoreClient) *ServiceProvider {
-	return &ServiceProvider{client: client{c}}
+func NewServiceProvider(c coreapi.CoreClient, mp *MarketplaceProvider, wp *WalletProvider) *ServiceProvider {
+	return &ServiceProvider{
+		client: client{c},
+		mp:     mp,
+		wp:     wp,
+	}
 }
 
 // ServiceByID finds service based on given id.
@@ -81,6 +87,7 @@ func (p *ServiceProvider) ServiceDelete(deleteData bool, ids ...string) error {
 	return errs.ErrorOrNil()
 }
 
+// TODO: this function should be removed in favor of client.ListenEvents
 // ServiceListenEvents returns a channel with event data streaming..
 func (p *ServiceProvider) ServiceListenEvents(id, eventFilter string) (chan *coreapi.EventData, chan error, error) {
 	return p.client.ListenEvent(id, eventFilter)
