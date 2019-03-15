@@ -2,7 +2,6 @@ package provider
 
 import (
 	"encoding/json"
-	"errors"
 
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 )
@@ -43,17 +42,17 @@ func (p *WalletProvider) Delete(address string, passphrase string) (string, erro
 }
 
 // Export exports an account
-func (p *WalletProvider) Export(address string, passphrase string) (EncryptedKeyJSONV3, error) {
+func (p *WalletProvider) Export(address string, passphrase string) (WalletEncryptedKeyJSONV3, error) {
 	input := walletExportInputs{
 		Address:    address,
 		Passphrase: passphrase,
 	}
-	var output EncryptedKeyJSONV3
+	var output WalletEncryptedKeyJSONV3
 	return output, p.call("export", &input, &output)
 }
 
 // Import imports an account into the wallet
-func (p *WalletProvider) Import(account EncryptedKeyJSONV3, passphrase string) (string, error) {
+func (p *WalletProvider) Import(account WalletEncryptedKeyJSONV3, passphrase string) (string, error) {
 	input := walletImportInputs{
 		Account:    account,
 		Passphrase: passphrase,
@@ -74,7 +73,7 @@ func (p *WalletProvider) ImportFromPrivateKey(privateKey string, passphrase stri
 }
 
 // Sign signs a transaction
-func (p *WalletProvider) Sign(address string, passphrase string, transaction *Transaction) (string, error) {
+func (p *WalletProvider) Sign(address string, passphrase string, transaction Transaction) (string, error) {
 	input := walletSignInputs{
 		Address:     address,
 		Passphrase:  passphrase,
@@ -102,7 +101,7 @@ func (p *WalletProvider) parseResult(r *coreapi.ResultData, output interface{}) 
 		if err := json.Unmarshal([]byte(r.OutputData), &outputError); err != nil {
 			return err
 		}
-		return errors.New(outputError.Message)
+		return outputError
 	}
 	return json.Unmarshal([]byte(r.OutputData), &output)
 }
