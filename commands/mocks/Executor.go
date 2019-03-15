@@ -57,14 +57,14 @@ func (_m *Executor) Delete(address string, passphrase string) (string, error) {
 }
 
 // Export provides a mock function with given fields: address, passphrase
-func (_m *Executor) Export(address string, passphrase string) (provider.EncryptedKeyJSONV3, error) {
+func (_m *Executor) Export(address string, passphrase string) (provider.WalletEncryptedKeyJSONV3, error) {
 	ret := _m.Called(address, passphrase)
 
-	var r0 provider.EncryptedKeyJSONV3
-	if rf, ok := ret.Get(0).(func(string, string) provider.EncryptedKeyJSONV3); ok {
+	var r0 provider.WalletEncryptedKeyJSONV3
+	if rf, ok := ret.Get(0).(func(string, string) provider.WalletEncryptedKeyJSONV3); ok {
 		r0 = rf(address, passphrase)
 	} else {
-		r0 = ret.Get(0).(provider.EncryptedKeyJSONV3)
+		r0 = ret.Get(0).(provider.WalletEncryptedKeyJSONV3)
 	}
 
 	var r1 error
@@ -78,18 +78,18 @@ func (_m *Executor) Export(address string, passphrase string) (provider.Encrypte
 }
 
 // Import provides a mock function with given fields: account, passphrase
-func (_m *Executor) Import(account provider.EncryptedKeyJSONV3, passphrase string) (string, error) {
+func (_m *Executor) Import(account provider.WalletEncryptedKeyJSONV3, passphrase string) (string, error) {
 	ret := _m.Called(account, passphrase)
 
 	var r0 string
-	if rf, ok := ret.Get(0).(func(provider.EncryptedKeyJSONV3, string) string); ok {
+	if rf, ok := ret.Get(0).(func(provider.WalletEncryptedKeyJSONV3, string) string); ok {
 		r0 = rf(account, passphrase)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(provider.EncryptedKeyJSONV3, string) error); ok {
+	if rf, ok := ret.Get(1).(func(provider.WalletEncryptedKeyJSONV3, string) error); ok {
 		r1 = rf(account, passphrase)
 	} else {
 		r1 = ret.Error(1)
@@ -536,18 +536,18 @@ func (_m *Executor) ServiceValidate(path string) (string, error) {
 }
 
 // Sign provides a mock function with given fields: address, passphrase, transaction
-func (_m *Executor) Sign(address string, passphrase string, transaction *provider.Transaction) (string, error) {
+func (_m *Executor) Sign(address string, passphrase string, transaction provider.Transaction) (string, error) {
 	ret := _m.Called(address, passphrase, transaction)
 
 	var r0 string
-	if rf, ok := ret.Get(0).(func(string, string, *provider.Transaction) string); ok {
+	if rf, ok := ret.Get(0).(func(string, string, provider.Transaction) string); ok {
 		r0 = rf(address, passphrase, transaction)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, string, *provider.Transaction) error); ok {
+	if rf, ok := ret.Get(1).(func(string, string, provider.Transaction) error); ok {
 		r1 = rf(address, passphrase, transaction)
 	} else {
 		r1 = ret.Error(1)
