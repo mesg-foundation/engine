@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/url"
+	"strings"
 
 	"github.com/docker/cli/cli/command/image/build"
 	"github.com/docker/docker/pkg/archive"
@@ -56,18 +58,20 @@ func (p *ServiceProvider) ServiceDeploy(path string, env map[string]string, stat
 	}()
 	go readDeployReply(stream, deployment, statuses)
 
-	validate := validator.New()
-	if err := validate.Var(path, "url"); err == nil {
-		if err := stream.Send(&coreapi.DeployServiceRequest{
+	isURL := validator.New().Var(path, "url")
+	switch {
+	case strings.HasPrefix(path, "mesg:"):
+		err = p.deployServiceFromMarketplace(path, env, stream)
+	case isURL == nil:
+		err = stream.Send(&coreapi.DeployServiceRequest{
 			Value: &coreapi.DeployServiceRequest_Url{Url: path},
 			Env:   env,
-		}); err != nil {
-			return "", "", nil, err
-		}
-	} else {
-		if err := deployServiceSendServiceContext(path, env, stream); err != nil {
-			return "", "", nil, err
-		}
+		})
+	default:
+		err = deployServiceSendServiceContext(path, env, stream)
+	}
+	if err != nil {
+		return "", "", nil, err
 	}
 
 	if err := stream.CloseSend(); err != nil {
@@ -77,6 +81,49 @@ func (p *ServiceProvider) ServiceDeploy(path string, env map[string]string, stat
 	result := <-deployment
 	close(statuses)
 	return result.sid, result.hash, result.validationError, result.err
+}
+
+func (p *ServiceProvider) deployServiceFromMarketplace(u string, env map[string]string, stream coreapi.Core_DeployServiceClient) error {
+
+	urlParsed, err := url.Parse(u)
+	if err != nil {
+		return err
+	}
+	path := strings.Split(strings.Trim(urlParsed.EscapedPath(), "/"), "/")
+	if urlParsed.Hostname() != "marketplace" || len(path) != 2 || path[0] != "service" || len(path[1]) == 0 {
+		return fmt.Errorf("marketplace url %s invalid", u)
+	}
+
+	// Get ALL address from wallet
+	addresses, err := p.wp.List()
+	if err != nil {
+		return err
+	}
+
+	// Check if one of them are is authorized
+	authorized, sid, source, sourceType, err := p.mp.IsAuthorized("", path[1], addresses)
+	if err != nil {
+		return err
+	}
+
+	if !authorized {
+		return fmt.Errorf("you are not authorized to deploy this service. Did you purchase it?\nExecute the following command to purchase it:\n\tmesg-core marketplace purchase %s", sid)
+	}
+
+	var url string
+	switch sourceType {
+	case "https", "http":
+		url = source
+	case "ipfs":
+		url = "https://gateway.ipfs.io/ipfs/" + source
+	default:
+		return fmt.Errorf("unknown protocol %s", sourceType)
+	}
+
+	return stream.Send(&coreapi.DeployServiceRequest{
+		Value: &coreapi.DeployServiceRequest_Url{Url: url},
+		Env:   env,
+	})
 }
 
 func deployServiceSendServiceContext(path string, env map[string]string, stream coreapi.Core_DeployServiceClient) error {
