@@ -40,7 +40,9 @@ If you get error like `error while downloading manifest ipfs :: QmUoE4fsthoirJRW
 
 ### Purchase
 
+```
 ./dev-cli service execute marketplace --task purchase --json ./systemservices/marketplace/test-data/purchase.json
+```
 
 ### Is Authorized
 
