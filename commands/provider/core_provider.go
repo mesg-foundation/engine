@@ -8,7 +8,6 @@ import (
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/daemon"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
-	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/x/xerrors"
 )
 
@@ -31,30 +30,30 @@ func (p *CoreProvider) Start() error {
 	return p.d.Start()
 }
 
-// Stop stops core daemon and all running services.
+// Stop stops all running services and core daemon.
 func (p *CoreProvider) Stop() error {
-	ids, err := service.ListRunning()
+	listReply, err := p.client.ListServices(context.Background(), &coreapi.ListServicesRequest{})
 	if err != nil {
 		return err
 	}
 
 	var (
-		idsLen = len(ids)
-		errC   = make(chan error, idsLen)
-		wg     sync.WaitGroup
+		serviceLen = len(listReply.Services)
+		errC       = make(chan error, serviceLen)
+		wg         sync.WaitGroup
 	)
 
-	wg.Add(idsLen)
-	for _, id := range ids {
-		go func(id string) {
+	wg.Add(serviceLen)
+	for _, service := range listReply.Services {
+		go func(hash string) {
 			defer wg.Done()
 			_, err := p.client.StopService(context.Background(), &coreapi.StopServiceRequest{
-				ServiceID: id,
+				ServiceID: hash,
 			})
 			if err != nil {
 				errC <- err
 			}
-		}(id)
+		}(service.Hash)
 	}
 
 	wg.Wait()
