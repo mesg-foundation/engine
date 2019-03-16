@@ -9,9 +9,7 @@ import (
 )
 
 func TestDeleteService(t *testing.T) {
-	var (
-		server, closer = newServer(t)
-	)
+	server, closer := newServer(t)
 	defer closer()
 
 	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath), nil)
