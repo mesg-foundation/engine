@@ -80,8 +80,6 @@ func (c *DockerContainer) StopService(namespace []string) error {
 }
 
 func (c *DockerContainer) deletePendingContainer(namespace []string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
-	defer cancel()
 	container, err := c.FindContainer(namespace)
 	if err != nil {
 		if docker.IsErrNotFound(err) {
@@ -96,8 +94,8 @@ func (c *DockerContainer) deletePendingContainer(namespace []string) error {
 	// See issue https://github.com/moby/moby/issues/32620
 	if container.ContainerJSONBase != nil {
 		timeout := 10 * time.Second
-		c.client.ContainerStop(ctx, container.ID, &timeout)
-		c.client.ContainerRemove(ctx, container.ID, types.ContainerRemoveOptions{})
+		c.client.ContainerStop(context.Background(), container.ID, &timeout)
+		c.client.ContainerRemove(context.Background(), container.ID, types.ContainerRemoveOptions{})
 	}
 	return c.deletePendingContainer(namespace)
 }
