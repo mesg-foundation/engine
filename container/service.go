@@ -86,7 +86,6 @@ func (c *DockerContainer) deletePendingContainer(namespace []string) error {
 	c.client.ContainerStop(context.Background(), container.ID, nil)
 	c.client.ContainerRemove(context.Background(), container.ID, types.ContainerRemoveOptions{})
 	time.Sleep(1 * time.Second)
-	// }
 	return c.deletePendingContainer(namespace)
 }
 
