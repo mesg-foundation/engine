@@ -87,7 +87,6 @@ func (c *DockerContainer) deletePendingContainer(namespace []string) error {
 		}
 		return err
 	}
-
 	// TOFIX: Hack to force Docker to remove the containers.
 	// Sometime, the ServiceRemove function doesn't remove the associated containers.
 	// This hack for Docker to stop and then remove the container.
