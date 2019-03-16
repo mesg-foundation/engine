@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/events"
 	"github.com/mesg-foundation/core/container/dockertest"
 	"github.com/stretchr/testify/require"
 )
@@ -74,18 +73,19 @@ func TestDeleteNetwork(t *testing.T) {
 	dt := dockertest.New()
 	c, _ := New(ClientOption(dt.Client()))
 
-	msgC := make(chan events.Message, 1)
-	errC := make(chan error)
-	dt.ProvideEvents(msgC, errC)
-	msgC <- events.Message{ID: id}
+	// msgC := make(chan events.Message, 1)
+	// errC := make(chan error)
+	// dt.ProvideEvents(msgC, errC)
+	// msgC <- events.Message{ID: id}
 
 	// discard network requests made from New.
 	<-dt.LastNetworkInspect()
 	<-dt.LastNetworkCreate()
 
 	dt.ProvideNetworkInspect(types.NetworkResource{ID: id}, nil)
+	dt.ProvideNetworkInspect(types.NetworkResource{}, dockertest.NotFoundErr{})
 
-	require.Nil(t, c.DeleteNetwork(namespace, EventRemove))
+	require.Nil(t, c.DeleteNetwork(namespace))
 
 	li := <-dt.LastNetworkInspect()
 	require.Equal(t, c.Namespace(namespace), li.Network)
@@ -106,7 +106,7 @@ func TestDeleteNotExistingNetwork(t *testing.T) {
 
 	dt.ProvideNetworkInspect(types.NetworkResource{}, dockertest.NotFoundErr{})
 
-	require.Nil(t, c.DeleteNetwork(namespace, EventRemove))
+	require.Nil(t, c.DeleteNetwork(namespace))
 
 	select {
 	case <-dt.LastNetworkRemove():
@@ -129,7 +129,7 @@ func TestDeleteNetworkError(t *testing.T) {
 
 	dt.ProvideNetworkInspect(types.NetworkResource{}, errNetworkDelete)
 
-	require.NotNil(t, c.DeleteNetwork(namespace, EventRemove))
+	require.NotNil(t, c.DeleteNetwork(namespace))
 }
 
 func TestFindNetwork(t *testing.T) {
