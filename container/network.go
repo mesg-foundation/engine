@@ -2,6 +2,7 @@ package container
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
@@ -73,6 +74,10 @@ func (c *DockerContainer) DeleteNetwork(namespace []string, event EventType) err
 	case <-messageChan:
 		return nil
 	case err := <-errChan:
+		if err == context.DeadlineExceeded {
+			fmt.Println("context.DeadlineExceeded")
+			return nil
+		}
 		return err
 	}
 }
