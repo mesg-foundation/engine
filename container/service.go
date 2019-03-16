@@ -3,6 +3,7 @@ package container
 import (
 	"context"
 	"io"
+	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
@@ -93,7 +94,8 @@ func (c *DockerContainer) deletePendingContainer(namespace []string) error {
 	// This hack for Docker to stop and then remove the container.
 	// See issue https://github.com/moby/moby/issues/32620
 	if container.ContainerJSONBase != nil {
-		c.client.ContainerStop(ctx, container.ID, nil)
+		timeout := 10 * time.Second
+		c.client.ContainerStop(ctx, container.ID, &timeout)
 		c.client.ContainerRemove(ctx, container.ID, types.ContainerRemoveOptions{})
 	}
 	return c.deletePendingContainer(namespace)
