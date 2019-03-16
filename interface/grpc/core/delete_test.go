@@ -2,7 +2,6 @@ package core
 
 import (
 	"context"
-	"path/filepath"
 	"testing"
 
 	"github.com/mesg-foundation/core/protobuf/coreapi"
@@ -11,12 +10,11 @@ import (
 
 func TestDeleteService(t *testing.T) {
 	var (
-		path           = filepath.Join("..", "..", "..", "service-test", "task")
 		server, closer = newServer(t)
 	)
 	defer closer()
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, path), nil)
+	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath), nil)
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
 
