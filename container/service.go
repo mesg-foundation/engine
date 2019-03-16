@@ -80,24 +80,21 @@ func (c *DockerContainer) StopService(namespace []string) error {
 }
 
 func (c *DockerContainer) deletePendingContainer(namespace []string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
-	defer cancel()
 	container, err := c.FindContainer(namespace)
+	if docker.IsErrNotFound(err) {
+		return nil
+	}
 	if err != nil {
-		if docker.IsErrNotFound(err) {
-			return nil
-		}
 		return err
 	}
 	// TOFIX: Hack to force Docker to remove the containers.
 	// Sometime, the ServiceRemove function doesn't remove the associated containers.
 	// This hack for Docker to stop and then remove the container.
 	// See issue https://github.com/moby/moby/issues/32620
-	if container.ContainerJSONBase != nil {
-		timeout := 1 * time.Second
-		c.client.ContainerStop(ctx, container.ID, &timeout)
-		c.client.ContainerRemove(ctx, container.ID, types.ContainerRemoveOptions{})
-	}
+	c.client.ContainerStop(context.Background(), container.ID, nil)
+	c.client.ContainerRemove(context.Background(), container.ID, types.ContainerRemoveOptions{})
+	time.Sleep(1 * time.Second)
+	// }
 	return c.deletePendingContainer(namespace)
 }
 
