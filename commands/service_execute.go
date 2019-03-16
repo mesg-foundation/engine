@@ -83,7 +83,7 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 			return
 		}
 
-		err = c.e.ServiceExecuteTask(args[0], c.taskKey, inputData, tags)
+		_, err = c.e.ServiceExecuteTask(args[0], c.taskKey, inputData, tags)
 	})
 	if err != nil {
 		return err

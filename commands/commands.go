@@ -29,7 +29,7 @@ type ServiceExecutor interface {
 	ServiceListenEvents(id, eventFilter string) (chan *coreapi.EventData, chan error, error)
 	ServiceListenResults(id, taskFilter, outputFilter string, tagFilters []string) (chan *coreapi.ResultData, chan error, error)
 	ServiceLogs(id string, dependencies ...string) (logs []*provider.Log, closer func(), errC chan error, err error)
-	ServiceExecuteTask(id, taskKey, inputData string, tags []string) error
+	ServiceExecuteTask(id, taskKey, inputData string, tags []string) (string, error)
 	ServiceStart(id string) error
 	ServiceStop(id string) error
 	ServiceValidate(path string) (string, error)
@@ -44,10 +44,10 @@ type WalletExecutor interface {
 	List() ([]string, error)
 	Create(passphrase string) (string, error)
 	Delete(address string, passphrase string) (string, error)
-	Export(address string, passphrase string) (provider.EncryptedKeyJSONV3, error)
-	Import(account provider.EncryptedKeyJSONV3, passphrase string) (string, error)
+	Export(address string, passphrase string) (provider.WalletEncryptedKeyJSONV3, error)
+	Import(account provider.WalletEncryptedKeyJSONV3, passphrase string) (string, error)
 	ImportFromPrivateKey(privateKey string, passphrase string) (string, error)
-	Sign(address string, passphrase string, transaction *provider.Transaction) (string, error)
+	Sign(address string, passphrase string, transaction provider.Transaction) (string, error)
 }
 
 // Executor is an interface that keeps all commands interfaces.

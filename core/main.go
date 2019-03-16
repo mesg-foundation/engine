@@ -2,6 +2,7 @@ package main
 
 import (
 	"path/filepath"
+	"sync"
 
 	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/config"
@@ -11,6 +12,7 @@ import (
 	"github.com/mesg-foundation/core/logger"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/version"
+	"github.com/mesg-foundation/core/x/xerrors"
 	"github.com/mesg-foundation/core/x/xsignal"
 	"github.com/sirupsen/logrus"
 )
@@ -66,9 +68,9 @@ func deployCoreServices(cfg *config.Config, api *api.API) error {
 		if err != nil {
 			return err
 		}
-		service.Hash = s.Hash
 		service.Sid = s.Sid
-		logrus.Infof("Service %q deployed with hash %s", service.Key, service.Hash)
+		service.Hash = s.Hash
+		logrus.Infof("Service %q deployed with hash %q", service.Key, service.Hash
 		if err := api.StartService(s.Sid); err != nil {
 			return err
 		}
@@ -81,12 +83,28 @@ func stopRunningServices(api *api.API) error {
 	if err != nil {
 		return err
 	}
-	for _, s := range services {
-		if err := api.StopService(s.Hash); err != nil {
-			return err
-		}
+	var (
+		serviceLen = len(services)
+		errC       = make(chan error, serviceLen)
+		wg         sync.WaitGroup
+	)
+	wg.Add(serviceLen)
+	for _, service := range services {
+		go func(hash string) {
+			defer wg.Done()
+			err := api.StopService(hash)
+			if err != nil {
+				errC <- err
+			}
+		}(service.Hash)
 	}
-	return nil
+	wg.Wait()
+	close(errC)
+	var errs xerrors.Errors
+	for err := range errC {
+		errs = append(errs, err)
+	}
+	return errs.ErrorOrNil()
 }
 
 func main() {
