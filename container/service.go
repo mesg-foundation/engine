@@ -20,18 +20,14 @@ func (c *DockerContainer) ListServices(labels ...string) ([]swarm.Service, error
 			Value: label,
 		}
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
-	defer cancel()
-	return c.client.ServiceList(ctx, types.ServiceListOptions{
+	return c.client.ServiceList(context.Background(), types.ServiceListOptions{
 		Filters: filters.NewArgs(args...),
 	})
 }
 
 // FindService returns the Docker Service or an error if not found.
 func (c *DockerContainer) FindService(namespace []string) (swarm.Service, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
-	defer cancel()
-	service, _, err := c.client.ServiceInspectWithRaw(ctx, c.Namespace(namespace),
+	service, _, err := c.client.ServiceInspectWithRaw(context.Background(), c.Namespace(namespace),
 		types.ServiceInspectOptions{},
 	)
 	return service, err
@@ -49,9 +45,7 @@ func (c *DockerContainer) StartService(options ServiceOptions) (serviceID string
 	}
 
 	service := options.toSwarmServiceSpec(c)
-	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
-	defer cancel()
-	response, err := c.client.ServiceCreate(ctx, service, types.ServiceCreateOptions{})
+	response, err := c.client.ServiceCreate(context.Background(), service, types.ServiceCreateOptions{})
 	if err != nil {
 		return "", err
 	}
@@ -68,9 +62,7 @@ func (c *DockerContainer) StopService(namespace []string) error {
 		return nil
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
-	defer cancel()
-	if err := c.client.ServiceRemove(ctx, c.Namespace(namespace)); err != nil && !docker.IsErrNotFound(err) {
+	if err := c.client.ServiceRemove(context.Background(), c.Namespace(namespace)); err != nil && !docker.IsErrNotFound(err) {
 		return err
 	}
 	if err := c.deletePendingContainer(namespace); err != nil {

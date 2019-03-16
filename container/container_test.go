@@ -53,7 +53,7 @@ func mockStatus(t *testing.T, m *mocks.CommonAPIClient, namespace string, wanted
 	var (
 		containerID            = "1"
 		containerListArguments = []interface{}{
-			mock.AnythingOfType("*context.timerCtx"),
+			mock.Anything,
 			types.ContainerListOptions{
 				Filters: filters.NewArgs(filters.KeyValuePair{
 					Key:   "label",
@@ -64,7 +64,7 @@ func mockStatus(t *testing.T, m *mocks.CommonAPIClient, namespace string, wanted
 		}
 		containerListResponse     = []types.Container{{ID: "1"}}
 		containerInspectArguments = []interface{}{
-			mock.AnythingOfType("*context.timerCtx"),
+			mock.Anything,
 			containerID,
 		}
 		serviceInspectArguments = []interface{}{

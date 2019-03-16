@@ -24,13 +24,9 @@ func (c *DockerContainer) createSharedNetworkIfNeeded() error {
 	if network.ID != "" {
 		return nil
 	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
-	defer cancel()
-
 	// Create the new network needed to run containers.
 	namespace := c.Namespace([]string{})
-	_, err = c.client.NetworkCreate(ctx, namespace, types.NetworkCreate{
+	_, err = c.client.NetworkCreate(context.Background(), namespace, types.NetworkCreate{
 		CheckDuplicate: true,
 		Driver:         "overlay",
 		Labels: map[string]string{
@@ -42,7 +38,5 @@ func (c *DockerContainer) createSharedNetworkIfNeeded() error {
 
 // sharedNetwork returns the shared network created to connect services and MESG Core.
 func (c *DockerContainer) sharedNetwork() (network types.NetworkResource, err error) {
-	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
-	defer cancel()
-	return c.client.NetworkInspect(ctx, c.Namespace([]string{}), types.NetworkInspectOptions{})
+	return c.client.NetworkInspect(context.Background(), c.Namespace([]string{}), types.NetworkInspectOptions{})
 }

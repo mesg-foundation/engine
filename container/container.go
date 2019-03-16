@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"io"
-	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
@@ -42,9 +41,6 @@ type DockerContainer struct {
 	// client is a Docker client.
 	client docker.CommonAPIClient
 
-	// callTimeout is the timeout value for Docker API calls.
-	callTimeout time.Duration
-
 	config *config.Config
 }
 
@@ -53,9 +49,7 @@ type Option func(*DockerContainer)
 
 // New creates a new Container with given options.
 func New(options ...Option) (*DockerContainer, error) {
-	c := &DockerContainer{
-		callTimeout: 10 * time.Second,
-	}
+	c := &DockerContainer{}
 	for _, option := range options {
 		option(c)
 	}
@@ -85,23 +79,12 @@ func ClientOption(client docker.CommonAPIClient) Option {
 	}
 }
 
-// TimeoutOption receives d which will be set as a timeout value for Docker API calls.
-func TimeoutOption(d time.Duration) Option {
-	return func(c *DockerContainer) {
-		c.callTimeout = d
-	}
-}
-
 func (c *DockerContainer) negotiateAPIVersion() {
-	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
-	defer cancel()
-	c.client.NegotiateAPIVersion(ctx)
+	c.client.NegotiateAPIVersion(context.Background())
 }
 
 func (c *DockerContainer) isSwarmInit() error {
-	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
-	defer cancel()
-	info, err := c.client.Info(ctx)
+	info, err := c.client.Info(context.Background())
 	if err != nil {
 		return err
 	}
@@ -113,9 +96,7 @@ func (c *DockerContainer) isSwarmInit() error {
 
 // FindContainer returns a docker container.
 func (c *DockerContainer) FindContainer(namespace []string) (types.ContainerJSON, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
-	defer cancel()
-	containers, err := c.client.ContainerList(ctx, types.ContainerListOptions{
+	containers, err := c.client.ContainerList(context.Background(), types.ContainerListOptions{
 		Filters: filters.NewArgs(filters.KeyValuePair{
 			Key:   "label",
 			Value: "com.docker.stack.namespace=" + c.Namespace(namespace),
@@ -129,9 +110,7 @@ func (c *DockerContainer) FindContainer(namespace []string) (types.ContainerJSON
 	if len(containers) == 1 {
 		containerID = containers[0].ID
 	}
-	ctx, cancel = context.WithTimeout(context.Background(), c.callTimeout)
-	defer cancel()
-	return c.client.ContainerInspect(ctx, containerID)
+	return c.client.ContainerInspect(context.Background(), containerID)
 }
 
 // Status returns the status of the container based on the docker container and docker service.

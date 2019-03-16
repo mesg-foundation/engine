@@ -18,9 +18,7 @@ func (c *DockerContainer) CreateNetwork(namespace []string) (id string, err erro
 		return network.ID, nil
 	}
 	namespaceFlat := c.Namespace(namespace)
-	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
-	defer cancel()
-	response, err := c.client.NetworkCreate(ctx, namespaceFlat, types.NetworkCreate{
+	response, err := c.client.NetworkCreate(context.Background(), namespaceFlat, types.NetworkCreate{
 		CheckDuplicate: true, // Cannot have 2 network with the same name
 		Driver:         "overlay",
 		Labels: map[string]string{
@@ -49,7 +47,5 @@ func (c *DockerContainer) DeleteNetwork(namespace []string) error {
 
 // FindNetwork finds a Docker Network by a namespace. If no network is found, an error is returned.
 func (c *DockerContainer) FindNetwork(namespace []string) (types.NetworkResource, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
-	defer cancel()
-	return c.client.NetworkInspect(ctx, c.Namespace(namespace), types.NetworkInspectOptions{})
+	return c.client.NetworkInspect(context.Background(), c.Namespace(namespace), types.NetworkInspectOptions{})
 }

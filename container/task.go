@@ -10,9 +10,7 @@ import (
 
 // ListTasks returns all the docker tasks.
 func (c *DockerContainer) ListTasks(namespace []string) ([]swarm.Task, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
-	defer cancel()
-	return c.client.TaskList(ctx, types.TaskListOptions{
+	return c.client.TaskList(context.Background(), types.TaskListOptions{
 		Filters: filters.NewArgs(filters.KeyValuePair{
 			Key:   "label",
 			Value: "com.docker.stack.namespace=" + c.Namespace(namespace),
