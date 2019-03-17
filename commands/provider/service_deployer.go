@@ -21,11 +21,11 @@ const (
 	// Running indicates that status message belongs to a continuous state.
 	Running
 
-	// DonePositive indicates that status message belongs to a positive noncontinuous state.
-	DonePositive
+	// Success indicates that status message belongs to a positive noncontinuous state.
+	Success
 
-	// DoneNegative indicates that status message belongs to a negative noncontinuous state.
-	DoneNegative
+	// Failed indicates that status message belongs to a negative noncontinuous state.
+	Failed
 )
 
 // DeployStatus represents the deployment status.
@@ -159,9 +159,9 @@ func readDeployReply(stream coreapi.Core_DeployServiceClient, deployment chan de
 			case coreapi.DeployServiceReply_Status_RUNNING:
 				s.Type = Running
 			case coreapi.DeployServiceReply_Status_DONE_POSITIVE:
-				s.Type = DonePositive
+				s.Type = Success
 			case coreapi.DeployServiceReply_Status_DONE_NEGATIVE:
-				s.Type = DoneNegative
+				s.Type = Failed
 			}
 
 			statuses <- s
