@@ -13,6 +13,7 @@ const (
 	maxPort = 65535
 
 	portSeparator = ":"
+	envSeparator  = "="
 )
 
 // IsDomainName validates if given field is valid domain name.
@@ -34,4 +35,9 @@ func IsPortMapping(fl validator.FieldLevel) bool {
 		}
 	}
 	return true
+}
+
+// IsEnv validates if given field is valid env variable declaration.
+func IsEnv(fl validator.FieldLevel) bool {
+	return len(strings.Split(fl.Field().String(), envSeparator)) == 2
 }

@@ -257,7 +257,7 @@ type Dependency struct {
 	Args []string `yaml:"args" json:"args,omitempty" validate:"dive,printascii"`
 
 	// Env is a slice of environment variables in key=value format.
-	Env []string `yaml:"env" json:"env,omitempty" validate:"unique,dive,printascii"`
+	Env []string `yaml:"env" json:"env,omitempty" validate:"unique,dive,printascii,env"`
 }
 
 // Task describes a service task.
