@@ -1,5 +1,5 @@
 name: # empty name
-sid: 0000000000000000000000000000000000000000000000000000000000000000 # too long
+sid: foo#$bar # not valid
 repository: ::// # invalid uri
 
 events:
@@ -21,11 +21,14 @@ configuration:
     - v1 # not unique
   volumesFrom:
     - dummy # not existing
+    - service # cyclic
   ports: # invalid ports
     - 0
     - 65536
     - 1:a
     - a:1
+  env: # invalid env
+    - foo
 
 dependencies:
   service: # forbidden key
@@ -41,6 +44,8 @@ dependencies:
       - 65536
       - 1:a
       - a:1
+    env: # invalid env
+      - foo
   dummy1:
     image: image
     volumesFrom:

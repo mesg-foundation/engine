@@ -70,7 +70,7 @@ configuration:
     - foo
     - bar
   env:
-    - foo
+    - foo=bar
 
 dependencies:
   dummy:
@@ -86,4 +86,4 @@ dependencies:
       - foo
       - bar
     env:
-      - foo
+      - foo=bar
