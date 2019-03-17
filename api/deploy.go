@@ -53,12 +53,11 @@ func (api *API) DeployServiceFromURL(url string, env map[string]string, statusC 
 	}
 	defer os.RemoveAll(contextDir)
 
+	sendStatus(statusC, "Downloading service...", Running)
 	if xgit.IsGitURL(url) {
-		sendStatus(statusC, "Downloading service...", Running)
 		if err := xgit.Clone(url, contextDir); err != nil {
 			return nil, err
 		}
-		sendStatus(statusC, "Service downloaded with success", Success)
 	} else {
 		// if not git repo then it must be tarball
 		resp, err := http.Get(url)
@@ -70,6 +69,7 @@ func (api *API) DeployServiceFromURL(url string, env map[string]string, statusC 
 			return nil, err
 		}
 	}
+	sendStatus(statusC, "Service downloaded with success", Success)
 
 	return api.deploy(contextDir, env)
 }
