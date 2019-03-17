@@ -29,7 +29,11 @@ func newAPI(t *testing.T) (*API, *service.Service, func()) {
 	}
 	require.NoError(t, db.Save(s))
 
-	return New(db, execdb, service.NewFakeManager()), s, func() { os.RemoveAll(name) }
+	return New(db, execdb, service.NewFakeManager()), s, func() {
+		db.Close()
+		execdb.Close()
+		os.RemoveAll(name)
+	}
 }
 
 func TestGetService(t *testing.T) {
