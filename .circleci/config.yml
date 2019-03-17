@@ -8,47 +8,65 @@ runOnDocker: &runOnDocker
   docker:
     - image: circleci/golang:1.11.4
 
+restoreGoModCache: &restoreGoModCache
+  - restore_cache:
+      keys:
+        - go-mod-cache-{{ checksum "go.sum" }}
+        - go-mod-cache
+saveGoModCache: &saveGoModCache
+  - save_cache:
+      key: gomod-cache-{{ checksum "go.sum" }}
+      paths:
+        - /go/pkg/mod
+
+goCacheDir: &goCacheDir /tmp/go/cache
+
+restoreGoCache: &restoreGoCache
+  - restore_cache:
+      keys:
+        - go-cache-{{ .Branch }}-{{ .Environment.CIRCLE_PREVIOUS_BUILD_NUM }}
+        - go-cache-{{ .Branch }}
+        - go-cache
+
+saveGoCache: &saveGoCache
+  - save_cache:
+      key: go-cache-{{ .Branch }}-{{ .BuildNum }}
+      paths:
+        - *goCacheDir
+
 jobs:
   "test":
     <<: *runOnDocker
     environment:
-      - GOCACHE: "/tmp/go/cache"
+      - GOCACHE: *goCacheDir
     steps:
       - checkout
       - setup_remote_docker
       - run: docker swarm init
       - run: docker build -t sleep docker-images/sleep/
       - run: docker build -t http-server docker-images/http-server/
-      - restore_cache:
-          keys:
-            - test-cache-{{ .Branch }}-{{ .Environment.CIRCLE_PREVIOUS_BUILD_NUM }}
-            - test-cache-{{ .Branch }}
-      - run: mkdir -p ~/.mesg
+      - <<: *restoreGoModCache
       - run: go mod download
+      - <<: *saveGoModCache
+      - run: mkdir -p ~/.mesg
+      - <<: *restoreGoCache
       - run: go test -v -timeout 300s -p 1 -tags=integration -coverprofile=coverage.txt ./...
-      - save_cache:
-          key: test-cache-{{ .Branch }}-{{ .BuildNum }}
-          paths:
-            - /tmp/go/cache
+      - <<: *saveGoCache
       - run: bash <(curl -s https://codecov.io/bash)
 
   "lint":
     docker:
       - image: golangci/golangci-lint:v1.12
     environment:
-      - GOCACHE: "/tmp/go/cache"
+      - GOCACHE: *goCacheDir
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - test-cache-{{ .Branch }}-{{ .Environment.CIRCLE_PREVIOUS_BUILD_NUM }}
-            - test-cache-{{ .Branch }}
+      - <<: *restoreGoModCache
       - run: go mod download
+      - <<: *saveGoModCache
+      - <<: *restoreGoCache
       - run: golangci-lint run
-      - save_cache:
-          key: test-cache-{{ .Branch }}-{{ .BuildNum }}
-          paths:
-            - /tmp/go/cache
+      - <<: *saveGoCache
 
   "publish_docker_dev":
     <<: *runOnMachine
