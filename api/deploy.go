@@ -97,7 +97,7 @@ func (api *API) deploy(contextDir string, env map[string]string) (*service.Servi
 
 func formalizeContextDir(contextDir string) (string, error) {
 	// NOTE: remove .git folder from repo.
-	// It makes docker build iamge id same between repo clones.
+	// It makes docker build image id same between repo clones.
 	if err := os.RemoveAll(filepath.Join(contextDir, ".git")); err != nil {
 		return "", err
 	}

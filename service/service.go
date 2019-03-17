@@ -336,7 +336,7 @@ const (
 	paramStringType  = "String"
 	paramNumberType  = "Number"
 	paramBooleanType = "Boolean"
-	paramOjbectType  = "Object"
+	paramObjectType  = "Object"
 	paramAnyType     = "Any"
 )
 
@@ -355,7 +355,7 @@ func (p *Parameter) validateType(arg interface{}) error {
 		if _, ok := arg.(bool); !ok {
 			return errors.New("not a boolean")
 		}
-	case paramOjbectType:
+	case paramObjectType:
 		obj, ok := arg.(map[string]interface{})
 		if !ok {
 			return errors.New("not an object")

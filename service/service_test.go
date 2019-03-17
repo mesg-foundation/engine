@@ -217,14 +217,14 @@ func TestParametrValidate(t *testing.T) {
 		},
 		{
 			Parameter{
-				Type: paramOjbectType,
+				Type: paramObjectType,
 			},
 			map[string]interface{}{},
 			nil,
 		},
 		{
 			Parameter{
-				Type: paramOjbectType,
+				Type: paramObjectType,
 			},
 			[]interface{}{},
 			errors.New("not an object"),
