@@ -15,7 +15,7 @@ restoreGoModCache: &restoreGoModCache
         - go-mod-cache
 saveGoModCache: &saveGoModCache
   - save_cache:
-      key: gomod-cache-{{ checksum "go.sum" }}
+      key: go-mod-cache-{{ checksum "go.sum" }}
       paths:
         - /go/pkg/mod
 
