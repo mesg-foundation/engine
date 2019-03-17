@@ -257,7 +257,7 @@ type Dependency struct {
 	Args []string `yaml:"args" json:"args,omitempty" validate:"dive,printascii"`
 
 	// Env is a slice of environment variables in key=value format.
-	Env []string `yaml:"env" json:"env,omitempty" validate:"unique,dive,printascii"`
+	Env []string `yaml:"env" json:"env,omitempty" validate:"unique,dive,printascii,env"`
 }
 
 // Task describes a service task.
@@ -336,7 +336,7 @@ const (
 	paramStringType  = "String"
 	paramNumberType  = "Number"
 	paramBooleanType = "Boolean"
-	paramOjbectType  = "Object"
+	paramObjectType  = "Object"
 	paramAnyType     = "Any"
 )
 
@@ -355,7 +355,7 @@ func (p *Parameter) validateType(arg interface{}) error {
 		if _, ok := arg.(bool); !ok {
 			return errors.New("not a boolean")
 		}
-	case paramOjbectType:
+	case paramObjectType:
 		obj, ok := arg.(map[string]interface{})
 		if !ok {
 			return errors.New("not an object")

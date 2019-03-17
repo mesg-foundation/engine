@@ -43,6 +43,13 @@ var validate, translate = func() (*validator.Validate, ut.Translator) {
 		t, _ := ut.T("domain", fe.Field())
 		return t
 	})
+	validate.RegisterValidation("env", xvalidator.IsEnv)
+	validate.RegisterTranslation("env", trans, func(ut ut.Translator) error {
+		return ut.Add("env", "{0} must respect env-style notation. Eg: KEY=VALUE", false)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T("env", fe.Field())
+		return t
+	})
 	en_translations.RegisterDefaultTranslations(validate, trans)
 	return validate, trans
 }()

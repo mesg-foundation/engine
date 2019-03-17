@@ -36,11 +36,11 @@ func TestServiceDeploy(t *testing.T) {
 			statuses := args.Get(2).(chan provider.DeployStatus)
 			statuses <- provider.DeployStatus{
 				Message: "5",
-				Type:    provider.DonePositive,
+				Type:    provider.Success,
 			}
 			statuses <- provider.DeployStatus{
 				Message: "6",
-				Type:    provider.DoneNegative,
+				Type:    provider.Failed,
 			}
 			close(statuses)
 		}

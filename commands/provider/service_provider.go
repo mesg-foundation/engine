@@ -201,7 +201,7 @@ func (p *ServiceProvider) ServiceStop(id string) error {
 // ServiceValidate validates a service configuration and Dockerfile.
 func (p *ServiceProvider) ServiceValidate(path string) (string, error) {
 	if _, err := service.ReadDefinition(path); err != nil {
-		return "", nil
+		return "", err
 	}
 	return fmt.Sprintf(`%s mesg.yml is valid`, pretty.SuccessSign), nil
 }

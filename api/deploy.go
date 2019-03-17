@@ -18,8 +18,8 @@ type StatusType int
 // Deploy Statuses.
 const (
 	Running StatusType = iota
-	DonePositive
-	DoneNegative
+	Success
+	Failed
 )
 
 // DeployStatus represents the deployment status.
@@ -53,12 +53,11 @@ func (api *API) DeployServiceFromURL(url string, env map[string]string, statusC 
 	}
 	defer os.RemoveAll(contextDir)
 
+	sendStatus(statusC, "Downloading service...", Running)
 	if xgit.IsGitURL(url) {
-		sendStatus(statusC, "Downloading service...", Running)
 		if err := xgit.Clone(url, contextDir); err != nil {
 			return nil, err
 		}
-		sendStatus(statusC, "Service downloaded with success", DonePositive)
 	} else {
 		// if not git repo then it must be tarball
 		resp, err := http.Get(url)
@@ -70,6 +69,7 @@ func (api *API) DeployServiceFromURL(url string, env map[string]string, statusC 
 			return nil, err
 		}
 	}
+	sendStatus(statusC, "Service downloaded with success", Success)
 
 	return api.deploy(contextDir, env)
 }
@@ -97,7 +97,7 @@ func (api *API) deploy(contextDir string, env map[string]string) (*service.Servi
 
 func formalizeContextDir(contextDir string) (string, error) {
 	// NOTE: remove .git folder from repo.
-	// It makes docker build iamge id same between repo clones.
+	// It makes docker build image id same between repo clones.
 	if err := os.RemoveAll(filepath.Join(contextDir, ".git")); err != nil {
 		return "", err
 	}
