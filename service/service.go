@@ -92,7 +92,7 @@ type Service struct {
 func (s *Service) ValidateEventData(eventKey string, eventData map[string]interface{}) error {
 	event, ok := s.Events[eventKey]
 	if !ok {
-		return fmt.Errorf("service %s - event %q not found", s.Name, eventKey)
+		return fmt.Errorf("service %q - event %q not found", s.Name, eventKey)
 	}
 	return validateParametersSchema(event.Data, eventData)
 }
@@ -101,7 +101,7 @@ func (s *Service) ValidateEventData(eventKey string, eventData map[string]interf
 func (s *Service) ValidateTaskInputs(taskKey string, inputs map[string]interface{}) error {
 	task, ok := s.Tasks[taskKey]
 	if !ok {
-		return fmt.Errorf("task %s not found", taskKey)
+		return fmt.Errorf("task %q not found", taskKey)
 	}
 	return validateParametersSchema(task.Inputs, inputs)
 }
@@ -110,11 +110,11 @@ func (s *Service) ValidateTaskInputs(taskKey string, inputs map[string]interface
 func (s *Service) ValidateTaskOutput(taskKey, outputKey string, outputData map[string]interface{}) error {
 	task, ok := s.Tasks[taskKey]
 	if !ok {
-		return fmt.Errorf("task %s not found", taskKey)
+		return fmt.Errorf("task %q not found", taskKey)
 	}
 	output, ok := task.Outputs[outputKey]
 	if !ok {
-		return fmt.Errorf("task %s output not found", taskKey)
+		return fmt.Errorf("task %q output not found", taskKey)
 	}
 	return validateParametersSchema(output.Data, outputData)
 }
