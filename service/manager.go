@@ -39,7 +39,7 @@ var containerToServiceStatus = map[container.StatusType]Status{
 }
 
 // ContainerManager is service manager that uses docker container
-// as platfor for deploy, start, ... services.
+// as platform for deploy, start, ... services.
 type ContainerManager struct {
 	c   container.Container
 	cfg *config.Config
