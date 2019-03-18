@@ -21,7 +21,7 @@ var (
 type Container interface {
 	Build(path string) (tag string, err error)
 	CreateNetwork(namespace []string) (id string, err error)
-	DeleteNetwork(namespace []string, event EventType) error
+	DeleteNetwork(namespace []string) error
 	FindContainer(namespace []string) (types.ContainerJSON, error)
 	FindNetwork(namespace []string) (types.NetworkResource, error)
 	FindService(namespace []string) (swarm.Service, error)
