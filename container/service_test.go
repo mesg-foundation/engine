@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io/ioutil"
 	"testing"
+	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
@@ -91,13 +92,36 @@ func TestStartServiceRunningStatus(t *testing.T) {
 
 func TestStopService(t *testing.T) {
 	var (
-		c, mc         = newTesting(t)
-		containerID   = "1"
-		namespace     = []string{"2"}
-		fullNamespace = c.Namespace(namespace)
+		c, mc                   = newTesting(t)
+		serviceID               = "1"
+		containerID             = "1"
+		namespace               = []string{"2"}
+		fullNamespace           = c.Namespace(namespace)
+		serviceInspectArguments = []interface{}{
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		}
+		stopGracePeriod        = 0 * time.Second
+		serviceInspectResponse = []interface{}{
+			swarm.Service{
+				ID: serviceID,
+				Spec: swarm.ServiceSpec{
+					TaskTemplate: swarm.TaskSpec{
+						ContainerSpec: &swarm.ContainerSpec{
+							StopGracePeriod: &stopGracePeriod,
+						},
+					},
+				},
+			},
+			nil,
+			nil,
+		}
 	)
 
 	mockStatus(t, mc, fullNamespace, RUNNING)
+
+	mc.On("ServiceInspectWithRaw", serviceInspectArguments...).Once().Return(serviceInspectResponse...)
 
 	// remove service:
 	serviceRemoveArguments := []interface{}{
@@ -137,17 +161,10 @@ func TestStopService(t *testing.T) {
 	)
 	mc.On("ContainerInspect", containerInspectArguments...).Once().Return(containerInspectResponse...)
 
-	containerStopArguments := []interface{}{
-		mock.Anything,
-		containerID,
-		mock.AnythingOfType("*time.Duration"),
-	}
-	mc.On("ContainerStop", containerStopArguments...).Once().Return(nil)
-
 	containerRemoveArguments := []interface{}{
 		mock.Anything,
 		containerID,
-		types.ContainerRemoveOptions{},
+		types.ContainerRemoveOptions{Force: true},
 	}
 	mc.On("ContainerRemove", containerRemoveArguments...).Once().Return(nil)
 
