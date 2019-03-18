@@ -45,7 +45,7 @@ func newServiceDevCmd(e ServiceExecutor) *serviceDevCmd {
 }
 
 func (c *serviceDevCmd) preRunE(cmd *cobra.Command, args []string) error {
-	c.path = getFirstOrDefault(args)
+	c.path = getFirstOrCurrentPath(args)
 	return nil
 }
 
