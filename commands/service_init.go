@@ -13,7 +13,6 @@ import (
 type serviceInitCmd struct {
 	baseCmd
 
-	name         string
 	templateURL  string
 	templateName string
 	path         string
