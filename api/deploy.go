@@ -9,6 +9,7 @@ import (
 
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/core/service/definition"
 	"github.com/mesg-foundation/core/x/xgit"
 )
 
@@ -82,7 +83,7 @@ func (api *API) deploy(contextDir string, env map[string]string) (*service.Servi
 		return nil, err
 	}
 
-	s, err := service.ReadDefinition(contextDir)
+	s, err := definition.Read(contextDir)
 	if err != nil {
 		return nil, err
 	}

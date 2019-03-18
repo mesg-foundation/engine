@@ -1,4 +1,4 @@
-package service
+package definition
 
 import (
 	"bytes"
@@ -10,25 +10,25 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestReadDefinition(t *testing.T) {
-	_, err := ReadDefinition("testdata")
+func TestRead(t *testing.T) {
+	_, err := Read("testdata")
 	require.NoError(t, err)
 }
 
-func TestDecodeStrictDefinition(t *testing.T) {
+func TestDecodeStrict(t *testing.T) {
 	buf := bytes.NewBufferString("unknown-filed:")
-	_, err := DecodeDefinition(buf)
+	_, err := Decode(buf)
 	require.Error(t, err)
 }
 
-func TestValidateDefinition(t *testing.T) {
+func TestValidate(t *testing.T) {
 	mesgfile := filepath.Join("testdata", "mesg.invalid.yml")
 	f, err := os.Open(mesgfile)
 	require.NoError(t, err)
 
-	service, err := DecodeDefinition(f)
+	service, err := Decode(f)
 	require.NoError(t, err)
 
-	err = ValidateDefinition(service)
+	err = Validate(service)
 	require.Len(t, err.(xerrors.Errors), 25)
 }

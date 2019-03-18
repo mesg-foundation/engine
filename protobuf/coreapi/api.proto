@@ -444,8 +444,8 @@ message LogData {
     Error = 1;     // Error represents error log output.
   }
 
-  Type type = 2;         // The log type.
   string dependency = 1; // Service dependency that data belongs.
+  Type type = 2;         // The log type.
   bytes data = 3;        // Log data chunk.
 }
 
@@ -463,52 +463,56 @@ message Service {
   string sid = 12;                          // Service's sid.
   string name = 1;                          // Service's name.
   string description = 2;                   // Service's description.
-  Dependency configuration = 13;             // The main service configuration.
-  map<string, Task> tasks = 5;              // The list of tasks this service can execute.
-  map<string, Event> events = 6;            // The list of events this service can emit.
-  map<string, Dependency> dependencies = 7; // The Docker dependencies this service requires.
+  repeated Task tasks = 5;                  // The list of tasks this service can execute.
+  repeated Event events = 6;                // The list of events this service can emit.
+  Dependency configuration = 13;            // The Docker Core.
+  repeated Dependency dependencies = 7;     // The Docker dependencies this service requires.
   string repository = 9;                    // Service's repository that contain its source code.
   Status status = 11;                       // Service's status.
 }
 
 // Events are emitted by the service whenever the service wants.
 message Event {
+  string key = 4;                   // Event's key.
   string name = 1;                  // Event's name.
   string description = 2;           // Event's description.
-  map<string, Parameter> data = 3;      // List of data of this event.
+  repeated Parameter data = 3;      // List of data of this event.
 }
 
 // A task is a function that requires inputs and returns output.
 message Task {
+  string key = 8;                     // Task's key.
   string name = 1;                    // Task's name.
   string description = 2;             // Task's description.
-  map<string, Parameter> inputs = 6;      // List inputs of this task.
-  map<string, Output> outputs = 7;        // List of outputs this task can return.
+  repeated Parameter inputs = 6;      // List inputs of this task.
+  repeated Output outputs = 7;        // List of outputs this task can return.
 }
 
 // A output is the data a task must return.
 message Output {
+  string key = 4;                   // Output's key.
   string name = 1;                  // Output's name.
   string description = 2;           // Output's description.
-  map<string, Parameter> data = 3;      // List of data of this output.
+  repeated Parameter data = 3;      // List of data of this output.
 }
 
 // A parameter is the definition of a specific value.
 message Parameter {
+  string key = 8;         // Parameter's key.
   string name = 1;        // Parameter's name.
   string description = 2; // Parameter's description.
   string type = 3;        // Parameter's type: `String`, `Number`, `Boolean`, `Object` or `Any`.
   bool optional = 4;      // Set the parameter as optional.
   bool repeated = 9;      // Mark a parameter as an array of the defined type
-  map<string, Parameter> object = 10; // Optional object structure definition when type is set to `Object`
+  repeated Parameter object = 10; // Optional object structure definition when type is set to `Object`
 }
 
 // A dependency is a configuration of an other Docker container that runs separately from the service.
 message Dependency {
+  string key = 8;                   // Dependency's key.
   string image = 1;                 // Image's name of the Docker.
   repeated string volumes = 2;      // List of volumes.
   repeated string volumesfrom = 3;  // List of volumes mounted from other dependencies.
   repeated string ports = 4;        // List of ports the container exposes.
   string command = 5;               // Command to run the container.
-  repeated string args = 6;         // Command arguments .
 }

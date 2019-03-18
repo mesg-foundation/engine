@@ -8,128 +8,111 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestValidateEventData(t *testing.T) {
-	s := &Service{
-		Events: map[string]*Event{
-			"test": {
-				Data: map[string]*Parameter{
-					"foo": {
-						Type: paramAnyType,
-					},
-				},
-			},
+var ts = &Service{
+	Name: "test-servcie",
+	Configuration: &Dependency{
+		Key:         mainServiceKey,
+		Env:         []string{"foo="},
+		Ports:       []string{"80:81", "443"},
+		Volumes:     []string{"v1"},
+		VolumesFrom: []string{"dummy"},
+	},
+	Dependencies: []*Dependency{
+		{
+			Key:         "dummy",
+			Volumes:     []string{"v2"},
+			VolumesFrom: []string{mainServiceKey},
+			Ports:       []string{"8080:8081", "8443"},
 		},
-	}
-	data := map[string]interface{}{"foo": "bar"}
-	assert.NoError(t, s.ValidateEventData("test", data))
-	assert.Error(t, s.ValidateEventData("not-found", data))
-}
-
-func TestValidateTaskInputs(t *testing.T) {
-	s := &Service{
-		Tasks: map[string]*Task{
-			"test": {
-				Inputs: map[string]*Parameter{
-					"foo": {
-						Type: paramAnyType,
-					},
-				},
-			},
-		},
-	}
-	data := map[string]interface{}{"foo": "bar"}
-	assert.NoError(t, s.ValidateTaskInputs("test", data))
-	assert.Error(t, s.ValidateTaskInputs("not-found", data))
-}
-
-func TestValidateTaskOutput(t *testing.T) {
-	s := &Service{
-		Tasks: map[string]*Task{
-			"test": {
-				Outputs: map[string]*Output{
-					"output": {
-						Data: map[string]*Parameter{
-							"foo": {
-								Type: paramAnyType,
-							},
+	},
+	Tasks: []*Task{
+		{
+			Key: "test",
+			Outputs: []*Output{
+				{
+					Key: "output",
+					Data: []*Parameter{
+						{
+							Key:  "foo",
+							Type: paramAnyType,
 						},
 					},
 				},
 			},
 		},
-	}
+	},
+	Events: []*Event{
+		{
+			Key: "test",
+			Data: []*Parameter{
+				{
+					Key:  "foo",
+					Type: paramAnyType,
+				},
+			},
+		},
+	},
+}
+
+func TestValidateEventData(t *testing.T) {
 	data := map[string]interface{}{"foo": "bar"}
-	assert.NoError(t, s.ValidateTaskOutput("test", "output", data))
-	assert.Error(t, s.ValidateTaskOutput("test", "not-found", data))
-	assert.Error(t, s.ValidateTaskOutput("not-found", "output", data))
+	assert.NoError(t, ts.ValidateEventData("test", data))
+	assert.Error(t, ts.ValidateEventData("not-found", data))
+}
+
+func TestValidateTaskInputs(t *testing.T) {
+	data := map[string]interface{}{"foo": "bar"}
+	assert.NoError(t, ts.ValidateTaskInputs("test", data))
+	assert.Error(t, ts.ValidateTaskInputs("not-found", data))
+}
+
+func TestValidateTaskOutput(t *testing.T) {
+	data := map[string]interface{}{"foo": "bar"}
+	assert.NoError(t, ts.ValidateTaskOutput("test", "output", data))
+	assert.Error(t, ts.ValidateTaskOutput("test", "not-found", data))
+	assert.Error(t, ts.ValidateTaskOutput("not-found", "output", data))
 }
 
 func TestValidateConfigurationEnv(t *testing.T) {
-	var s Service
-	s.Configuration.Env = []string{"foo="}
-	assert.NoError(t, s.validateConfigurationEnv(map[string]string{"foo": "bar"}))
-	assert.Error(t, s.validateConfigurationEnv(map[string]string{"bar": "foo"}))
+	assert.NoError(t, ts.validateConfigurationEnv(map[string]string{"foo": "bar"}))
+	assert.Error(t, ts.validateConfigurationEnv(map[string]string{"bar": "foo"}))
 
 }
 
 func TestSerivcePorts(t *testing.T) {
-	s := &Service{
-		Configuration: Dependency{
-			Ports: []string{"80:81", "443"},
-		},
-		Dependencies: map[string]*Dependency{
-			"dummy": {
-				Ports: []string{"8080:8081", "8443"},
-			},
-		},
-	}
-
 	assert.Equal(t, []container.Port{
 		{Target: 81, Published: 80},
 		{Target: 443, Published: 443},
-	}, s.ports(MainServiceKey))
+	}, ts.Configuration.ports())
 
 	assert.Equal(t, []container.Port{
 		{Target: 8081, Published: 8080},
 		{Target: 8443, Published: 8443},
-	}, s.ports("dummy"))
+	}, ts.Dependencies[0].ports())
 }
 
 func TestServiceVolumes(t *testing.T) {
-	s := &Service{
-		Configuration: Dependency{
-			Volumes:     []string{"v1"},
-			VolumesFrom: []string{"dummy"},
-		},
-		Dependencies: map[string]*Dependency{
-			"dummy": {
-				Volumes:     []string{"v2"},
-				VolumesFrom: []string{MainServiceKey},
-			},
-		},
-	}
-
 	assert.Equal(t, []container.Mount{
 		{
-			Source: "76314cf5bc59bee9e1c44c6254b5f84e7f066bd8e5fe",
+			Source: "7631f4220854bd51793cb48df1363bef29013e2cf4bc",
 			Target: "v1",
 		},
 		{
-			Source: "76324cf5bc59bee9e1c44c6254b5f84e7f066bd8e5fe",
+			Source: "7632e460dfba09369509b6946e9924e39e2afe9ddfa1",
 			Target: "v2",
 		},
-	}, s.volumes(MainServiceKey))
+	}, ts.volumes(mainServiceKey))
 
 	assert.Equal(t, []container.Mount{
 		{
-			Source: "7632829c3804401b0727f70f73d4415e162400cbe57b",
+			Source: "7632e460dfba09369509b6946e9924e39e2afe9ddfa1",
 			Target: "v2",
 		},
 		{
-			Source: "7631829c3804401b0727f70f73d4415e162400cbe57b",
+			Source: "7631f4220854bd51793cb48df1363bef29013e2cf4bc",
 			Target: "v1",
 		},
-	}, s.volumes("dummy"))
+	}, ts.volumes("dummy"))
 }
 
 func TestVolumeKey(t *testing.T) {

@@ -1,4 +1,4 @@
-package service
+package definition
 
 import (
 	"fmt"
@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
+	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/x/xerrors"
 	"github.com/mesg-foundation/core/x/xstrings"
 	"github.com/mesg-foundation/core/x/xvalidator"
@@ -54,29 +55,29 @@ var validate, translate = func() (*validator.Validate, ut.Translator) {
 	return validate, trans
 }()
 
-// ReadDefinition validates a service at a source.
-func ReadDefinition(contextDir string) (*Service, error) {
+// Read validates a service at a source.
+func Read(contextDir string) (*service.Service, error) {
 	mesgfile := filepath.Join(contextDir, DefaultServicefileName)
 	f, err := os.Open(mesgfile)
 	if err != nil {
 		return nil, fmt.Errorf("open mesg.yml error: %s", err)
 	}
 
-	service, err := DecodeDefinition(f)
+	service, err := Decode(f)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := ValidateDefinition(service); err != nil {
+	if err := Validate(service); err != nil {
 		return nil, err
 	}
 
-	return service, nil
+	return service.toService(), nil
 }
 
-// DecodeDefinition uses yaml parser to decode
+// Decode uses yaml parser to decode
 // service definition from given reader.
-func DecodeDefinition(r io.Reader) (*Service, error) {
+func Decode(r io.Reader) (*Service, error) {
 	var (
 		service Service
 		dec     = yaml.NewDecoder(r)
@@ -88,9 +89,9 @@ func DecodeDefinition(r io.Reader) (*Service, error) {
 	return &service, nil
 }
 
-// ValidateDefinition validates service definition.
+// Validate validates service definition.
 //nolint:gocyclo
-func ValidateDefinition(service *Service) error {
+func Validate(service *Service) error {
 	var errs xerrors.Errors
 	if err := validate.Struct(service); err != nil {
 		switch verrs := err.(type) {
@@ -121,15 +122,15 @@ func ValidateDefinition(service *Service) error {
 	}
 
 	for _, depVolumeKey := range service.Configuration.VolumesFrom {
-		if depVolumeKey == MainServiceKey {
+		if depVolumeKey == mainServiceKey {
 			errs = append(errs, &validateError{
-				key: MainServiceKey,
+				key: mainServiceKey,
 				msg: "volumesFrom is invalid: cyclic volume import",
 			})
 		}
-		if _, ok := service.Dependencies[depVolumeKey]; depVolumeKey != MainServiceKey && !ok {
+		if _, ok := service.Dependencies[depVolumeKey]; depVolumeKey != mainServiceKey && !ok {
 			errs = append(errs, &validateError{
-				key: MainServiceKey,
+				key: mainServiceKey,
 				msg: "volumesFrom is invalid: " + depVolumeKey + " dependency dose not exist",
 			})
 		}
@@ -146,7 +147,7 @@ func ValidateDefinition(service *Service) error {
 					msg: "volumesFrom is invalid: cyclic volume import",
 				})
 			}
-			if _, ok := service.Dependencies[depVolumeKey]; depVolumeKey != MainServiceKey && !ok {
+			if _, ok := service.Dependencies[depVolumeKey]; depVolumeKey != mainServiceKey && !ok {
 				errs = append(errs, &validateError{
 					key: key,
 					msg: "volumesFrom is invalid: " + depVolumeKey + " dependency dose not exist",
@@ -166,7 +167,7 @@ type validateError struct {
 
 func (e *validateError) Error() string {
 	switch e.key {
-	case MainServiceKey:
+	case mainServiceKey:
 		return fmt.Sprintf("configuration.%s", e.msg)
 	case "":
 		return e.msg

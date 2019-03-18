@@ -74,19 +74,19 @@ func (m *FakeManager) Logs(service *Service, dependencies []string) ([]*LogReade
 		all = len(dependencies) == 0
 	)
 
-	if all || xstrings.SliceContains(dependencies, MainServiceKey) {
+	if all || xstrings.SliceContains(dependencies, mainServiceKey) {
 		lrs = append(lrs, &LogReader{
-			key: MainServiceKey,
+			key: mainServiceKey,
 			r:   ioutil.NopCloser(&bytes.Buffer{}),
 		})
 	}
 
-	for key := range service.Dependencies {
-		if !all || !xstrings.SliceContains(dependencies, key) {
+	for _, dep := range service.Dependencies {
+		if !all || !xstrings.SliceContains(dependencies, dep.Key) {
 			continue
 		}
 		lrs = append(lrs, &LogReader{
-			key: key,
+			key: dep.Key,
 			r:   ioutil.NopCloser(&bytes.Buffer{}),
 		})
 	}

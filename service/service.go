@@ -12,8 +12,8 @@ import (
 	"github.com/mesg-foundation/core/container"
 )
 
-// MainServiceKey is key for main service.
-const MainServiceKey = "service"
+// mainServiceKey is key for main service.
+const mainServiceKey = "service"
 
 // Namespacees used for the docker services.
 const (
@@ -55,66 +55,97 @@ func (s Status) String() string {
 // Service represents MESG services configurations.
 type Service struct {
 	// Name is the service name.
-	Name string `yaml:"name" json:"name,omitempty" validate:"required,printascii,min=1"`
+	Name string
 
 	// Sid is the service id. It must be unique.
-	Sid string `yaml:"sid" json:"sid,omitempty" validate:"omitempty,printascii,max=63,domain"`
+	Sid string
 
 	// Description is service description.
-	Description string `yaml:"description" json:"description,omitempty" validate:"printascii"`
+	Description string
 
 	// Repository holds the service's repository url if it's living on a git host.
-	Repository string `yaml:"repository" json:"repository,omitempty" validate:"omitempty,uri"`
+	Repository string
 
 	// Tasks are the list of tasks that service can execute.
-	Tasks map[string]*Task `yaml:"tasks" json:"tasks,omitempty" validate:"dive,keys,printascii,endkeys,required"`
+	Tasks []*Task
 
 	// Events are the list of events that service can emit.
-	Events map[string]*Event `yaml:"events" json:"events,omitempty" validate:"dive,keys,printascii,endkeys,required"`
+	Events []*Event
 
 	// Configuration is the Docker container that service runs inside.
-	Configuration Dependency `yaml:"configuration" json:"configuration,omitempty"`
+	Configuration *Dependency
 
 	// Dependencies are the Docker containers that service can depend on.
-	Dependencies map[string]*Dependency `yaml:"dependencies" json:"dependencies,omitempty" validate:"dive,keys,printascii,ne=service,endkeys,required"`
+	Dependencies []*Dependency
 
 	// Hash is calculated from the combination of service's source and mesg.yml.
-	Hash string `yaml:"-"`
+	Hash string
 
 	// Status is service status.
-	Status Status `yaml:"-"`
+	Status Status
 
 	// DeployedAt holds the creation time of service.
-	DeployedAt time.Time `yaml:"-"`
+	DeployedAt time.Time
+}
+
+func (s *Service) Dependency(key string) (*Dependency, error) {
+	if key == mainServiceKey {
+		return s.Configuration, nil
+	}
+
+	for i := range s.Dependencies {
+		if s.Dependencies[i].Key == key {
+			return s.Dependencies[i], nil
+		}
+	}
+	return nil, fmt.Errorf("service %q - dependency %q not found", s.Name, key)
+}
+
+func (s *Service) Event(key string) (*Event, error) {
+	for i := range s.Events {
+		if s.Events[i].Key == key {
+			return s.Events[i], nil
+		}
+	}
+	return nil, fmt.Errorf("service %q - event %q not found", s.Name, key)
+}
+
+func (s *Service) Task(key string) (*Task, error) {
+	for i := range s.Tasks {
+		if s.Tasks[i].Key == key {
+			return s.Tasks[i], nil
+		}
+	}
+	return nil, fmt.Errorf("service %q - task %q not found", s.Name, key)
 }
 
 // ValidateEventData checks if event data is valid for given event key.
 func (s *Service) ValidateEventData(eventKey string, eventData map[string]interface{}) error {
-	event, ok := s.Events[eventKey]
-	if !ok {
-		return fmt.Errorf("service %q - event %q not found", s.Name, eventKey)
+	event, err := s.Event(eventKey)
+	if err != nil {
+		return err
 	}
 	return validateParametersSchema(event.Data, eventData)
 }
 
 // ValidateTaskInputs checks if task inputs is valid for given task key.
 func (s *Service) ValidateTaskInputs(taskKey string, inputs map[string]interface{}) error {
-	task, ok := s.Tasks[taskKey]
-	if !ok {
-		return fmt.Errorf("task %q not found", taskKey)
+	task, err := s.Task(taskKey)
+	if err != nil {
+		return err
 	}
 	return validateParametersSchema(task.Inputs, inputs)
 }
 
 // ValidateTaskOutput checks if task output is valid for given task and output key.
 func (s *Service) ValidateTaskOutput(taskKey, outputKey string, outputData map[string]interface{}) error {
-	task, ok := s.Tasks[taskKey]
-	if !ok {
-		return fmt.Errorf("task %q not found", taskKey)
+	task, err := s.Task(taskKey)
+	if err != nil {
+		return err
 	}
-	output, ok := task.Outputs[outputKey]
-	if !ok {
-		return fmt.Errorf("task %q output not found", taskKey)
+	output, err := task.Output(outputKey)
+	if err != nil {
+		return err
 	}
 	return validateParametersSchema(output.Data, outputData)
 }
@@ -163,15 +194,9 @@ func (s *Service) ResultSubscriptionChannel() string {
 	return calculate(append(s.namespace(), resultChannel))
 }
 
-func (s *Service) ports(depKey string) []container.Port {
-	var (
-		ports []container.Port
-		dep   = &s.Configuration
-	)
-	if depKey != MainServiceKey {
-		dep = s.Dependencies[depKey]
-	}
-	for _, port := range dep.Ports {
+func (d *Dependency) ports() []container.Port {
+	var ports []container.Port
+	for _, port := range d.Ports {
 		parts := strings.Split(port, ":")
 		published, _ := strconv.ParseUint(parts[0], 10, 64)
 		target := published
@@ -187,20 +212,14 @@ func (s *Service) ports(depKey string) []container.Port {
 }
 
 func (s *Service) volumes(depKey string) []container.Mount {
-	var (
-		volumes []container.Mount
-		dep     = &s.Configuration
-	)
-	if depKey != MainServiceKey {
-		dep = s.Dependencies[depKey]
-	}
+	var volumes []container.Mount
+	dep, _ := s.Dependency(depKey)
 	service := s.Sid
 	if s.Sid == "" {
 		service = s.Hash
 	}
 
 	for _, volume := range dep.Volumes {
-
 		volumes = append(volumes, container.Mount{
 			Source: volumeKey(service, depKey, volume),
 			Target: volume,
@@ -208,14 +227,10 @@ func (s *Service) volumes(depKey string) []container.Mount {
 	}
 
 	for _, key := range dep.VolumesFrom {
-		depVolumes := s.Configuration.Volumes
-		if key != MainServiceKey {
-			depVolumes = s.Dependencies[key].Volumes
-		}
-
-		for _, volume := range depVolumes {
+		vdep, _ := s.Dependency(key)
+		for _, volume := range vdep.Volumes {
 			volumes = append(volumes, container.Mount{
-				Source: volumeKey(service, depKey, volume),
+				Source: volumeKey(service, key, volume),
 				Target: volume,
 			})
 		}
@@ -225,88 +240,107 @@ func (s *Service) volumes(depKey string) []container.Mount {
 
 // Event describes a service task.
 type Event struct {
+	Key string
+
 	// Name is the name of event.
-	Name string `yaml:"name" json:"name,omitempty" validate:"printascii"`
+	Name string
 
 	// Description is the description of event.
-	Description string `yaml:"description" json:"description,omitempty" validate:"printascii"`
+	Description string
 
 	// Data holds the input inputs of event.
-	Data map[string]*Parameter `yaml:"data" json:"data,omitempty" validate:"required,dive,keys,printascii,endkeys,required"`
+	Data []*Parameter
 }
 
 // Dependency represents a Docker container and it holds instructions about
 // how it should run.
 type Dependency struct {
+	Key string
+
 	// Image is the Docker image.
-	Image string `yaml:"image" json:"image,omitempty" validate:"printascii"`
+	Image string
 
 	// Volumes are the Docker volumes.
-	Volumes []string `yaml:"volumes" json:"volumes,omitempty" validate:"unique,dive,printascii"`
+	Volumes []string
 
 	// VolumesFrom are the docker volumes-from from.
-	VolumesFrom []string `yaml:"volumesFrom" json:"volumesFrom,omitempty" validate:"unique,dive,printascii"`
+	VolumesFrom []string
 
 	// Ports holds ports configuration for container.
-	Ports []string `yaml:"ports" json:"ports,omitempty" validate:"unique,dive,portmap"`
+	Ports []string
 
 	// Command is the Docker command which will be executed when container started.
-	Command string `yaml:"command" json:"command,omitempty" validate:"printascii"`
+	Command string
 
 	// Args hold the args to pass to the Docker container
-	Args []string `yaml:"args" json:"args,omitempty" validate:"dive,printascii"`
+	Args []string
 
 	// Env is a slice of environment variables in key=value format.
-	Env []string `yaml:"env" json:"env,omitempty" validate:"unique,dive,printascii,env"`
+	Env []string
 }
 
 // Task describes a service task.
 type Task struct {
+	Key string
+
 	// Name is the name of task.
-	Name string `yaml:"name" json:"name,omitempty" validate:"printascii"`
+	Name string
 
 	// Description is the description of task.
-	Description string `yaml:"description" json:"description,omitempty" validate:"printascii"`
+	Description string
 
 	// Parameters are the definition of the execution inputs of task.
-	Inputs map[string]*Parameter `yaml:"inputs" json:"inputs,omitempty" validate:"dive,keys,printascii,endkeys,required"`
+	Inputs []*Parameter
 
 	// Outputs are the definition of the execution results of task.
-	Outputs map[string]*Output `yaml:"outputs" json:"outputs,omitempty" validate:"required,dive,keys,printascii,endkeys,required"`
+	Outputs []*Output
+}
+
+func (t *Task) Output(key string) (*Output, error) {
+	for i := range t.Outputs {
+		if t.Outputs[i].Key == key {
+			return t.Outputs[i], nil
+		}
+	}
+	return nil, fmt.Errorf("task %q - output %q not found", t.Key, key)
 }
 
 // Output describes task output.
 type Output struct {
+	Key string
+
 	// Name is the name of task output.
-	Name string `yaml:"name" json:"name,omitempty" validate:"printascii"`
+	Name string
 
 	// Description is the description of task output.
-	Description string `yaml:"description" json:"description,omitempty" validate:"printascii"`
+	Description string
 
 	// Data holds the output inputs of a task output.
-	Data map[string]*Parameter `yaml:"data" json:"data,omitempty" validate:"required,dive,keys,printascii,endkeys,required"`
+	Data []*Parameter
 }
 
 // Parameter describes task input inputs, output inputs of a task
 // output and input inputs of an event.
 type Parameter struct {
+	Key string
+
 	// Name is the name of input.
-	Name string `yaml:"name" json:"name,omitempty" validate:"printascii"`
+	Name string
 
 	// Description is the description of input.
-	Description string `yaml:"description" json:"description,omitempty" validate:"printascii"`
+	Description string
 
 	// Type is the data type of input.
-	Type string `yaml:"type" json:"type,omitempty" validate:"required,printascii,oneof=String Number Boolean Object Any"`
+	Type string
 
 	// Optional indicates if input is optional.
-	Optional bool `yaml:"optional" json:"optional,omitempty"`
+	Optional bool
 
 	// Repeated is to have an array of this input
-	Repeated bool `yaml:"repeated" json:"repeated,omitempty"`
+	Repeated bool
 
 	// Definition of the structure of the object when the type is object
-	Object map[string]*Parameter `yaml:"object" json:"object,omitempty" validate:"dive,keys,printascii,endkeys,required"`
+	Object []*Parameter
 }
 
 // Validate validates arg by comparing to its parameter schema.
@@ -375,10 +409,10 @@ func calculate(data []string) string {
 }
 
 // ValidateParametersSchema validates data to see if it matches with parameters schema.
-func validateParametersSchema(parameters map[string]*Parameter, args map[string]interface{}) error {
-	for key, param := range parameters {
-		if err := param.Validate(args[key]); err != nil {
-			return fmt.Errorf("argument %q is %s", key, err)
+func validateParametersSchema(parameters []*Parameter, args map[string]interface{}) error {
+	for _, param := range parameters {
+		if err := param.Validate(args[param.Key]); err != nil {
+			return fmt.Errorf("argument %q is %s", param.Key, err)
 		}
 	}
 	return nil

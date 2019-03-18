@@ -35,17 +35,17 @@ func toProtoServiceStatusType(s service.Status) coreapi.Service_Status {
 	}
 }
 
-func toProtoTasks(tasks map[string]*service.Task) map[string]*coreapi.Task {
-	ts := make(map[string]*coreapi.Task, len(tasks))
-	for key, task := range tasks {
-		ts[key] = &coreapi.Task{
+func toProtoTasks(tasks []*service.Task) []*coreapi.Task {
+	ts := make([]*coreapi.Task, len(tasks))
+	for i, task := range tasks {
+		ts[i] = &coreapi.Task{
 			Name:        task.Name,
 			Description: task.Description,
 			Inputs:      toProtoParameters(task.Inputs),
-			Outputs:     make(map[string]*coreapi.Output),
+			Outputs:     make([]*coreapi.Output, 0),
 		}
-		for okey, output := range task.Outputs {
-			ts[key].Outputs[okey] = &coreapi.Output{
+		for j, output := range task.Outputs {
+			ts[i].Outputs[j] = &coreapi.Output{
 				Name:        output.Name,
 				Description: output.Description,
 				Data:        toProtoParameters(output.Data),
@@ -55,10 +55,10 @@ func toProtoTasks(tasks map[string]*service.Task) map[string]*coreapi.Task {
 	return ts
 }
 
-func toProtoEvents(events map[string]*service.Event) map[string]*coreapi.Event {
-	es := make(map[string]*coreapi.Event, len(events))
-	for key, event := range events {
-		es[key] = &coreapi.Event{
+func toProtoEvents(events []*service.Event) []*coreapi.Event {
+	es := make([]*coreapi.Event, len(events))
+	for i, event := range events {
+		es[i] = &coreapi.Event{
 			Name:        event.Name,
 			Description: event.Description,
 			Data:        toProtoParameters(event.Data),
@@ -67,8 +67,8 @@ func toProtoEvents(events map[string]*service.Event) map[string]*coreapi.Event {
 	return es
 }
 
-func toProtoParameters(params map[string]*service.Parameter) map[string]*coreapi.Parameter {
-	ps := make(map[string]*coreapi.Parameter, len(params))
+func toProtoParameters(params []*service.Parameter) []*coreapi.Parameter {
+	ps := make([]*coreapi.Parameter, len(params))
 	for i, param := range params {
 		ps[i] = &coreapi.Parameter{
 			Name:        param.Name,
@@ -95,8 +95,8 @@ func toProtoDependency(dep *service.Dependency) *coreapi.Dependency {
 	}
 }
 
-func toProtoDependencies(deps map[string]*service.Dependency) map[string]*coreapi.Dependency {
-	ds := make(map[string]*coreapi.Dependency, len(deps))
+func toProtoDependencies(deps []*service.Dependency) []*coreapi.Dependency {
+	ds := make([]*coreapi.Dependency, len(deps))
 	for i, dep := range deps {
 		ds[i] = toProtoDependency(dep)
 	}

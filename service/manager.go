@@ -99,7 +99,7 @@ func (m *ContainerManager) Start(service *Service) error {
 	}
 	_, port, _ := xnet.SplitHostPort(m.cfg.Server.Address)
 	endpoint := m.cfg.Core.Name + ":" + strconv.Itoa(port)
-	start := func(key string, dep *Dependency, namespace []string) error {
+	start := func(dep *Dependency, namespace []string) error {
 		_, err := m.c.StartService(container.ServiceOptions{
 			Namespace: namespace,
 			Labels: map[string]string{
@@ -116,24 +116,24 @@ func (m *ContainerManager) Start(service *Service) error {
 				"MESG_ENDPOINT=" + endpoint,
 				"MESG_ENDPOINT_TCP=" + endpoint,
 			}),
-			Mounts: service.volumes(key),
-			Ports:  service.ports(key),
+			Mounts: service.volumes(dep.Key),
+			Ports:  dep.ports(),
 			Networks: []container.Network{
-				{ID: networkID, Alias: key},
+				{ID: networkID, Alias: dep.Key},
 				{ID: sharedNetworkID},
 			},
 		})
 		return err
 	}
 
-	if err := start(MainServiceKey, &service.Configuration, service.namespace()); err != nil {
+	if err := start(service.Configuration, service.namespace()); err != nil {
 		return err
 	}
 
 	// BUG: https://github.com/mesg-foundation/core/issues/382
 	// After solving this by docker, switch back to deploy in parallel
-	for key, dep := range service.Dependencies {
-		if err := start(key, dep, depNamespace(service.Hash, key)); err != nil {
+	for _, dep := range service.Dependencies {
+		if err := start(dep, depNamespace(service.Hash, dep.Key)); err != nil {
 			return err
 		}
 
@@ -161,8 +161,8 @@ func (m *ContainerManager) Stop(service *Service) error {
 	)
 
 	wg.Add(len(service.Dependencies) + 1)
-	for key := range service.Dependencies {
-		go stop(depNamespace(service.Hash, key))
+	for _, dep := range service.Dependencies {
+		go stop(depNamespace(service.Hash, dep.Key))
 	}
 	go stop(service.namespace())
 	wg.Wait()
@@ -180,24 +180,31 @@ func (m *ContainerManager) Stop(service *Service) error {
 // Delete see Manager.Delete.
 func (m *ContainerManager) Delete(service *Service) error {
 	var (
-		wg   sync.WaitGroup
-		errs xerrors.SyncErrors
-
-		delete = func(volumes []container.Mount) {
-			defer wg.Done()
-			for _, volume := range volumes {
-				if err := m.c.DeleteVolume(volume.Source); err != nil {
-					errs.Append(err)
-				}
-			}
-		}
+		wg      sync.WaitGroup
+		errs    xerrors.SyncErrors
+		sources = make(map[string]bool)
 	)
 
-	wg.Add(len(service.Dependencies) + 1)
-	for key := range service.Dependencies {
-		go delete(service.volumes(key))
+	// make map of all volumes, because it may occur more then
+	// once if volumesFrom were passed.
+	for _, dep := range service.Dependencies {
+		for _, volume := range service.volumes(dep.Key) {
+			sources[volume.Source] = true
+		}
 	}
-	go delete(service.volumes(MainServiceKey))
+	for _, volume := range service.volumes(mainServiceKey) {
+		sources[volume.Source] = true
+	}
+
+	wg.Add(len(sources))
+	for source := range sources {
+		go func(source string) {
+			defer wg.Done()
+			if err := m.c.DeleteVolume(source); err != nil {
+				errs.Append(err)
+			}
+		}(source)
+	}
 	wg.Wait()
 
 	if err := errs.ErrorOrNil(); err != nil {
@@ -226,8 +233,8 @@ func (m *ContainerManager) Status(service *Service) error {
 
 	wg.Add(len(service.Dependencies) + 1)
 	go status(service.namespace())
-	for key := range service.Dependencies {
-		go status(depNamespace(service.Hash, key))
+	for _, dep := range service.Dependencies {
+		go status(depNamespace(service.Hash, dep.Key))
 	}
 	wg.Wait()
 
@@ -246,24 +253,24 @@ func (m *ContainerManager) Logs(service *Service, dependencies []string) ([]*Log
 		all = len(dependencies) == 0
 	)
 
-	if all || xstrings.SliceContains(dependencies, MainServiceKey) {
+	if all || xstrings.SliceContains(dependencies, mainServiceKey) {
 		r, err := m.c.ServiceLogs(service.namespace())
 		if err != nil {
 			return nil, err
 		}
-		lrs = append(lrs, &LogReader{key: MainServiceKey, r: r})
+		lrs = append(lrs, &LogReader{key: mainServiceKey, r: r})
 	}
 
-	for key := range service.Dependencies {
-		if !all && !xstrings.SliceContains(dependencies, key) {
+	for _, dep := range service.Dependencies {
+		if !all && !xstrings.SliceContains(dependencies, dep.Key) {
 			continue
 		}
-		r, err := m.c.ServiceLogs(depNamespace(service.Hash, key))
+		r, err := m.c.ServiceLogs(depNamespace(service.Hash, dep.Key))
 		if err != nil {
 			return nil, err
 		}
 		lrs = append(lrs, &LogReader{
-			key: key,
+			key: dep.Key,
 			r:   r,
 		})
 	}

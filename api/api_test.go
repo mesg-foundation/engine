@@ -24,8 +24,8 @@ func newAPI(t *testing.T) (*API, *service.Service, func()) {
 
 	s := &service.Service{
 		Hash:   "0",
-		Events: map[string]*service.Event{"foo": {}},
-		Tasks:  map[string]*service.Task{"foo": {}},
+		Events: []*service.Event{{Key: "foo"}},
+		Tasks:  []*service.Task{{Key: "foo"}},
 	}
 	require.NoError(t, db.Save(s))
 

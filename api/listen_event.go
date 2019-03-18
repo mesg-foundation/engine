@@ -1,8 +1,6 @@
 package api
 
 import (
-	"fmt"
-
 	"github.com/mesg-foundation/core/event"
 	"github.com/mesg-foundation/core/pubsub"
 	"github.com/mesg-foundation/core/service"
@@ -104,10 +102,11 @@ func (l *EventListener) listenLoop(service *service.Service) {
 }
 
 func (l *EventListener) validateEventKey(service *service.Service) error {
-	if _, ok := service.Events[l.eventKey]; ok || l.eventKey == "" || l.eventKey == "*" {
+	if l.eventKey == "" || l.eventKey == "*" {
 		return nil
 	}
-	return fmt.Errorf("event %s not found", l.eventKey)
+	_, err := service.Event(l.eventKey)
+	return err
 }
 
 func (l *EventListener) isSubscribedEvent(e *event.Event) bool {
