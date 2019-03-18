@@ -67,8 +67,6 @@ func (c *DockerContainer) StopService(namespace []string) error {
 	if status == STOPPED {
 		return nil
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
-	defer cancel()
 	service, err := c.FindService(namespace)
 	if err != nil && !docker.IsErrNotFound(err) {
 		return err
@@ -77,7 +75,7 @@ func (c *DockerContainer) StopService(namespace []string) error {
 	if service.Spec.TaskTemplate.ContainerSpec != nil && service.Spec.TaskTemplate.ContainerSpec.StopGracePeriod != nil {
 		stopGracePeriod = *service.Spec.TaskTemplate.ContainerSpec.StopGracePeriod
 	}
-	ctx, cancel = context.WithTimeout(context.Background(), c.callTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
 	if err := c.client.ServiceRemove(ctx, c.Namespace(namespace)); err != nil && !docker.IsErrNotFound(err) {
 		return err
