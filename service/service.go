@@ -378,7 +378,7 @@ func calculate(data []string) string {
 func validateParametersSchema(parameters map[string]*Parameter, args map[string]interface{}) error {
 	for key, param := range parameters {
 		if err := param.Validate(args[key]); err != nil {
-			return fmt.Errorf("argument %s is %s", key, err)
+			return fmt.Errorf("argument %q is %s", key, err)
 		}
 	}
 	return nil
