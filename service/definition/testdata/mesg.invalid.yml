@@ -44,8 +44,8 @@ dependencies:
       - 65536
       - 1:a
       - a:1
-    env: # invalid env
-      - foo
+    env: 
+      - _foo # invalid env name
   dummy1:
     image: image
     volumesFrom:

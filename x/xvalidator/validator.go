@@ -1,6 +1,7 @@
 package xvalidator
 
 import (
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -15,6 +16,8 @@ const (
 	portSeparator = ":"
 	envSeparator  = "="
 )
+
+var envRegexp = regexp.MustCompile("^[a-zA-Z][a-zA-Z0-9_]*$")
 
 // IsDomainName validates if given field is valid domain name.
 func IsDomainName(fl validator.FieldLevel) bool {
@@ -39,5 +42,6 @@ func IsPortMapping(fl validator.FieldLevel) bool {
 
 // IsEnv validates if given field is valid env variable declaration.
 func IsEnv(fl validator.FieldLevel) bool {
-	return len(strings.Split(fl.Field().String(), envSeparator)) == 2
+	e := strings.Split(fl.Field().String(), envSeparator)
+	return len(e) == 2 && envRegexp.MatchString(e[0])
 }
