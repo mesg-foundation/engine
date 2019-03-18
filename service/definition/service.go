@@ -157,7 +157,7 @@ func toServiceTasks(tasks map[string]*Task) []*service.Task {
 }
 
 func toServiceEvents(events map[string]*Event) []*service.Event {
-	es := make([]*service.Event, len(events))
+	es := make([]*service.Event, 0, len(events))
 	for key, event := range events {
 		es = append(es, &service.Event{
 			Key:         key,
@@ -170,7 +170,7 @@ func toServiceEvents(events map[string]*Event) []*service.Event {
 }
 
 func toServiceParameters(params map[string]*Parameter) []*service.Parameter {
-	ps := make([]*service.Parameter, len(params))
+	ps := make([]*service.Parameter, 0, len(params))
 	for key, param := range params {
 		ps = append(ps, &service.Parameter{
 			Key:         key,
@@ -197,7 +197,7 @@ func toServiceDependency(key string, dep *Dependency) *service.Dependency {
 }
 
 func toServiceDependencies(deps map[string]*Dependency) []*service.Dependency {
-	ds := make([]*service.Dependency, len(deps))
+	ds := make([]*service.Dependency, 0, len(deps))
 	for key, dep := range deps {
 		ds = append(ds, toServiceDependency(key, dep))
 	}

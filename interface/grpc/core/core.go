@@ -39,13 +39,15 @@ func toProtoTasks(tasks []*service.Task) []*coreapi.Task {
 	ts := make([]*coreapi.Task, len(tasks))
 	for i, task := range tasks {
 		ts[i] = &coreapi.Task{
+			Key:         task.Key,
 			Name:        task.Name,
 			Description: task.Description,
 			Inputs:      toProtoParameters(task.Inputs),
-			Outputs:     make([]*coreapi.Output, 0),
+			Outputs:     make([]*coreapi.Output, len(task.Outputs)),
 		}
 		for j, output := range task.Outputs {
 			ts[i].Outputs[j] = &coreapi.Output{
+				Key:         output.Key,
 				Name:        output.Name,
 				Description: output.Description,
 				Data:        toProtoParameters(output.Data),
@@ -59,6 +61,7 @@ func toProtoEvents(events []*service.Event) []*coreapi.Event {
 	es := make([]*coreapi.Event, len(events))
 	for i, event := range events {
 		es[i] = &coreapi.Event{
+			Key:         event.Key,
 			Name:        event.Name,
 			Description: event.Description,
 			Data:        toProtoParameters(event.Data),
@@ -71,6 +74,7 @@ func toProtoParameters(params []*service.Parameter) []*coreapi.Parameter {
 	ps := make([]*coreapi.Parameter, len(params))
 	for i, param := range params {
 		ps[i] = &coreapi.Parameter{
+			Key:         param.Key,
 			Name:        param.Name,
 			Description: param.Description,
 			Type:        param.Type,
@@ -87,6 +91,7 @@ func toProtoDependency(dep *service.Dependency) *coreapi.Dependency {
 		return nil
 	}
 	return &coreapi.Dependency{
+		Key:         dep.Key,
 		Image:       dep.Image,
 		Volumes:     dep.Volumes,
 		Volumesfrom: dep.VolumesFrom,

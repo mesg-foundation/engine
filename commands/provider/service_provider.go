@@ -12,6 +12,7 @@ import (
 	"github.com/mesg-foundation/core/commands/provider/assets"
 	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
+	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/definition"
 	"github.com/mesg-foundation/core/utils/chunker"
 	"github.com/mesg-foundation/core/utils/pretty"
@@ -105,6 +106,19 @@ type Log struct {
 // ServiceLogs returns logs reader for all service dependencies.
 func (p *ServiceProvider) ServiceLogs(id string, dependencies ...string) (logs []*Log, close func(), errC chan error, err error) {
 	ctx, cancel := context.WithCancel(context.Background())
+	if len(dependencies) == 0 {
+		resp, err := p.client.GetService(context.Background(), &coreapi.GetServiceRequest{
+			ServiceID: id,
+		})
+		if err != nil {
+			return nil, nil, nil, err
+		}
+
+		for _, dep := range resp.Service.Dependencies {
+			dependencies = append(dependencies, dep.Key)
+		}
+		dependencies = append(dependencies, service.MainServiceKey)
+	}
 
 	stream, err := p.client.ServiceLogs(ctx, &coreapi.ServiceLogsRequest{
 		ServiceID:    id,
