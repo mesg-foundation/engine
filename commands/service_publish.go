@@ -29,7 +29,7 @@ func newServicePublishCmd(e ServiceExecutor) *servicePublishCmd {
 }
 
 func (c *servicePublishCmd) preRunE(cmd *cobra.Command, args []string) error {
-	c.path = getFirstOrDefault(args)
+	c.path = getFirstOrCurrentPath(args)
 	return nil
 }
 
