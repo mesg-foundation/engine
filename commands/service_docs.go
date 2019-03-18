@@ -26,10 +26,12 @@ func newServiceDocsCmd(e ServiceExecutor) *serviceDocsCmd {
 		Use:   "gen-doc",
 		Short: "Generate the documentation for the service in a README.md file",
 		Example: `mesg-core service gen-doc
-mesg-core service gen-doc ./PATH_TO_SERVICE`,
+mesg-core service gen-doc ./PATH_TO_SERVICE
+mesg-core service gen-doc --force`,
 		PreRunE: c.preRunE,
 		RunE:    c.runE,
 	})
+	c.cmd.Flags().BoolVarP(&c.force, "force", "f", c.force, "No confirmation. Will replace existing README.md file")
 	return c
 }
 
