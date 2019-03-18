@@ -10,6 +10,7 @@ import (
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/ipfs"
 	"github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/core/service/definition"
 	"github.com/mesg-foundation/core/utils/readme"
 )
 
@@ -75,7 +76,7 @@ func (p *ServiceProvider) getExcludeList(path string) ([]string, error) {
 }
 
 func (p *ServiceProvider) createDefinitionFile(path string, tarballHash string) ([]byte, error) {
-	definition, err := service.ReadDefinition(path)
+	definition, err := definition.Read(path)
 	if err != nil {
 		return nil, err
 	}

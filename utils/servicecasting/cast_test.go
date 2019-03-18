@@ -111,18 +111,19 @@ func TestServiceCast(t *testing.T) {
 // createTestServcieWithInputs creates test service with given inputs name and type under "test" task key.
 func createTestServcieWithInputs(inputs map[string]string) *coreapi.Service {
 	s := &coreapi.Service{
-		Tasks: map[string]*coreapi.Task{
-			"test": {
-				Inputs: make(map[string]*coreapi.Parameter),
+		Tasks: []*coreapi.Task{
+			{
+				Key: "test",
 			},
 		},
 	}
 
-	for name, itype := range inputs {
-		s.Tasks["test"].Inputs[name] = &coreapi.Parameter{
+	for key, itype := range inputs {
+		s.Tasks[0].Inputs = append(s.Tasks[0].Inputs, &coreapi.Parameter{
+			Key:      key,
 			Repeated: strings.HasPrefix(itype, "repeated"),
 			Type:     strings.TrimPrefix(itype, "repeated "),
-		}
+		})
 	}
 	return s
 }

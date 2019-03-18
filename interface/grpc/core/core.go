@@ -15,7 +15,7 @@ func toProtoService(s *service.Service) *coreapi.Service {
 		Tasks:         toProtoTasks(s.Tasks),
 		Events:        toProtoEvents(s.Events),
 		Status:        toProtoServiceStatusType(s.Status),
-		Configuration: toProtoDependency(&s.Configuration),
+		Configuration: toProtoDependency(s.Configuration),
 		Dependencies:  toProtoDependencies(s.Dependencies),
 	}
 }

@@ -74,9 +74,9 @@ func (m *FakeManager) Logs(service *Service, dependencies []string) ([]*LogReade
 		all = len(dependencies) == 0
 	)
 
-	if all || xstrings.SliceContains(dependencies, mainServiceKey) {
+	if all || xstrings.SliceContains(dependencies, MainServiceKey) {
 		lrs = append(lrs, &LogReader{
-			key: mainServiceKey,
+			key: MainServiceKey,
 			r:   ioutil.NopCloser(&bytes.Buffer{}),
 		})
 	}

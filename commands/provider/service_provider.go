@@ -12,7 +12,7 @@ import (
 	"github.com/mesg-foundation/core/commands/provider/assets"
 	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
-	"github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/core/service/definition"
 	"github.com/mesg-foundation/core/utils/chunker"
 	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/mesg-foundation/core/utils/servicetemplate"
@@ -104,20 +104,6 @@ type Log struct {
 
 // ServiceLogs returns logs reader for all service dependencies.
 func (p *ServiceProvider) ServiceLogs(id string, dependencies ...string) (logs []*Log, close func(), errC chan error, err error) {
-	if len(dependencies) == 0 {
-		resp, err := p.client.GetService(context.Background(), &coreapi.GetServiceRequest{
-			ServiceID: id,
-		})
-		if err != nil {
-			return nil, nil, nil, err
-		}
-
-		for key := range resp.Service.Dependencies {
-			dependencies = append(dependencies, key)
-		}
-		dependencies = append(dependencies, service.MainServiceKey)
-	}
-
 	ctx, cancel := context.WithCancel(context.Background())
 
 	stream, err := p.client.ServiceLogs(ctx, &coreapi.ServiceLogsRequest{
@@ -200,7 +186,7 @@ func (p *ServiceProvider) ServiceStop(id string) error {
 
 // ServiceValidate validates a service configuration and Dockerfile.
 func (p *ServiceProvider) ServiceValidate(path string) (string, error) {
-	if _, err := service.ReadDefinition(path); err != nil {
+	if _, err := definition.Read(path); err != nil {
 		return "", err
 	}
 	return fmt.Sprintf(`%s mesg.yml is valid`, pretty.SuccessSign), nil
@@ -209,7 +195,7 @@ func (p *ServiceProvider) ServiceValidate(path string) (string, error) {
 // ServiceGenerateDocs creates docs in given path.
 func (p *ServiceProvider) ServiceGenerateDocs(path string) error {
 	readmePath := filepath.Join(path, "README.md")
-	service, err := service.ReadDefinition(path)
+	service, err := definition.Read(path)
 	if err != nil {
 		return err
 	}

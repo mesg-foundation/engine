@@ -37,9 +37,12 @@ func TestExecute(t *testing.T) {
 func TestComplte(t *testing.T) {
 	var (
 		s = &service.Service{
-			Tasks: map[string]*service.Task{"foo": {
-				Outputs: map[string]*service.Output{
-					"output": {},
+			Tasks: []*service.Task{{
+				Key: "foo",
+				Outputs: []*service.Output{
+					{
+						Key: "output",
+					},
 				},
 			}},
 		}

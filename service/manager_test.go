@@ -69,7 +69,7 @@ func TestContainerManagerDelete(t *testing.T) {
 		m = NewContainerManager(c, nil)
 	)
 
-	c.On("DeleteVolume", ts.volumes(mainServiceKey)[0].Source).Return(nil)
+	c.On("DeleteVolume", ts.volumes(MainServiceKey)[0].Source).Return(nil)
 	c.On("DeleteVolume", ts.volumes("dummy")[0].Source).Return(nil)
 	assert.NoError(t, m.Delete(ts))
 
@@ -105,7 +105,7 @@ func TestContainerManagerLogs(t *testing.T) {
 	logs, err := m.Logs(ts, nil)
 	assert.NoError(t, err)
 
-	assert.Equal(t, mainServiceKey, logs[0].key)
+	assert.Equal(t, MainServiceKey, logs[0].key)
 	assert.Equal(t, l1, logs[0].r)
 	assert.Equal(t, "dummy", logs[1].key)
 	assert.Equal(t, l2, logs[1].r)

@@ -57,16 +57,28 @@ var casters = map[string]caster{
 
 // TaskInputs converts map[string]string to map[string]interface{} based on defined types in the service tasks map.
 func TaskInputs(s *coreapi.Service, taskKey string, taskData map[string]string) (map[string]interface{}, error) {
-	task, ok := s.Tasks[taskKey]
-	if !ok {
-		return nil, fmt.Errorf("task %q does not exists", taskKey)
+	var task *coreapi.Task
+	for i := range s.Tasks {
+		if s.Tasks[i].Key == taskKey {
+			task = s.Tasks[i]
+			break
+		}
+	}
+	if task == nil {
+		return nil, fmt.Errorf("service %q: task %q not found", s.Name, taskKey)
 	}
 
 	m := make(map[string]interface{}, len(taskData))
 	for key, value := range taskData {
-		param, ok := task.Inputs[key]
-		if !ok {
-			return nil, fmt.Errorf("task input %q does not exists", key)
+		var param *coreapi.Parameter
+		for i := range task.Inputs {
+			if task.Inputs[i].Key == key {
+				param = task.Inputs[i]
+				break
+			}
+		}
+		if param == nil {
+			return nil, fmt.Errorf("service %q: param %q not found", s.Name, key)
 		}
 
 		newValue, err := taskInputs(value, param.Type, param.Repeated)

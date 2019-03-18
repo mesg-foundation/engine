@@ -17,8 +17,8 @@ func TestServiceDetail(t *testing.T) {
 		service = &coreapi.Service{
 			Hash: "2",
 			Name: "3",
-			Events: map[string]*coreapi.Event{
-				"4": {},
+			Events: []*coreapi.Event{
+				{Key: "4"},
 			},
 		}
 		m = newMockExecutor()

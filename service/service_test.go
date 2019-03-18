@@ -11,7 +11,7 @@ import (
 var ts = &Service{
 	Name: "test-servcie",
 	Configuration: &Dependency{
-		Key:         mainServiceKey,
+		Key:         MainServiceKey,
 		Env:         []string{"foo="},
 		Ports:       []string{"80:81", "443"},
 		Volumes:     []string{"v1"},
@@ -21,7 +21,7 @@ var ts = &Service{
 		{
 			Key:         "dummy",
 			Volumes:     []string{"v2"},
-			VolumesFrom: []string{mainServiceKey},
+			VolumesFrom: []string{MainServiceKey},
 			Ports:       []string{"8080:8081", "8443"},
 		},
 	},
@@ -101,7 +101,7 @@ func TestServiceVolumes(t *testing.T) {
 			Source: "7632e460dfba09369509b6946e9924e39e2afe9ddfa1",
 			Target: "v2",
 		},
-	}, ts.volumes(mainServiceKey))
+	}, ts.volumes(MainServiceKey))
 
 	assert.Equal(t, []container.Mount{
 		{

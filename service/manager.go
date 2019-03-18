@@ -192,7 +192,7 @@ func (m *ContainerManager) Delete(service *Service) error {
 			sources[volume.Source] = true
 		}
 	}
-	for _, volume := range service.volumes(mainServiceKey) {
+	for _, volume := range service.volumes(MainServiceKey) {
 		sources[volume.Source] = true
 	}
 
@@ -253,12 +253,12 @@ func (m *ContainerManager) Logs(service *Service, dependencies []string) ([]*Log
 		all = len(dependencies) == 0
 	)
 
-	if all || xstrings.SliceContains(dependencies, mainServiceKey) {
+	if all || xstrings.SliceContains(dependencies, MainServiceKey) {
 		r, err := m.c.ServiceLogs(service.namespace())
 		if err != nil {
 			return nil, err
 		}
-		lrs = append(lrs, &LogReader{key: mainServiceKey, r: r})
+		lrs = append(lrs, &LogReader{key: MainServiceKey, r: r})
 	}
 
 	for _, dep := range service.Dependencies {

@@ -12,8 +12,8 @@ import (
 	"github.com/mesg-foundation/core/container"
 )
 
-// mainServiceKey is key for main service.
-const mainServiceKey = "service"
+// MainServiceKey is key for main service.
+const MainServiceKey = "service"
 
 // Namespacees used for the docker services.
 const (
@@ -88,8 +88,9 @@ type Service struct {
 	DeployedAt time.Time
 }
 
+// Dependency returns dependency for given key or error if not found.
 func (s *Service) Dependency(key string) (*Dependency, error) {
-	if key == mainServiceKey {
+	if key == MainServiceKey {
 		return s.Configuration, nil
 	}
 
@@ -101,6 +102,7 @@ func (s *Service) Dependency(key string) (*Dependency, error) {
 	return nil, fmt.Errorf("service %q - dependency %q not found", s.Name, key)
 }
 
+// Event returns event for given key or error if not found.
 func (s *Service) Event(key string) (*Event, error) {
 	for i := range s.Events {
 		if s.Events[i].Key == key {
@@ -110,6 +112,7 @@ func (s *Service) Event(key string) (*Event, error) {
 	return nil, fmt.Errorf("service %q - event %q not found", s.Name, key)
 }
 
+// Task returns task for given key or error if not found.
 func (s *Service) Task(key string) (*Task, error) {
 	for i := range s.Tasks {
 		if s.Tasks[i].Key == key {
@@ -296,6 +299,7 @@ type Task struct {
 	Outputs []*Output
 }
 
+// Output returns output for given key or error if not found.
 func (t *Task) Output(key string) (*Output, error) {
 	for i := range t.Outputs {
 		if t.Outputs[i].Key == key {

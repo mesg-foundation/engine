@@ -9,7 +9,6 @@ import (
 	casting "github.com/mesg-foundation/core/utils/servicecasting"
 	"github.com/mesg-foundation/core/x/xjson"
 	"github.com/mesg-foundation/core/x/xpflag"
-	"github.com/mesg-foundation/core/x/xstrings"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/cobra"
@@ -117,23 +116,22 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 }
 
 func (c *serviceExecuteCmd) getTaskKey(s *coreapi.Service) error {
-	keys := taskKeysFromService(s)
-
+	var task *coreapi.Task
 	if c.taskKey != "" {
-		if !xstrings.SliceContains(keys, c.taskKey) {
+		if task = taskByKey(s, c.taskKey); task == nil {
 			return fmt.Errorf("task %q does not exists on service", c.taskKey)
 		}
 		return nil
 	}
 
-	if len(keys) == 1 {
-		c.taskKey = keys[0]
+	if len(s.Tasks) == 1 {
+		c.taskKey = s.Tasks[0].Key
 		return nil
 	}
 
 	if survey.AskOne(&survey.Select{
 		Message: "Select the task to execute",
-		Options: keys,
+		Options: taskKeysFromService(s),
 	}, &c.taskKey, nil) != nil {
 		return errors.New("no task to execute")
 	}
@@ -145,7 +143,7 @@ func (c *serviceExecuteCmd) getData(s *coreapi.Service) (string, error) {
 		return c.readFile()
 	}
 
-	if len(s.Tasks[c.taskKey].Inputs) == 0 {
+	if len(taskByKey(s, c.taskKey).Inputs) == 0 {
 		if len(c.executeData) > 0 {
 			return "", fmt.Errorf("task %q has no input but --data flag was supplied", c.taskKey)
 		}
@@ -175,10 +173,19 @@ func (c *serviceExecuteCmd) readFile() (string, error) {
 	return string(content), err
 }
 
+func taskByKey(s *coreapi.Service, key string) *coreapi.Task {
+	for _, task := range s.Tasks {
+		if task.Key == key {
+			return task
+		}
+	}
+	return nil
+}
+
 func taskKeysFromService(s *coreapi.Service) []string {
 	var taskKeys []string
-	for key := range s.Tasks {
-		taskKeys = append(taskKeys, key)
+	for _, task := range s.Tasks {
+		taskKeys = append(taskKeys, task.Key)
 	}
 	return taskKeys
 }
