@@ -1,11 +1,8 @@
 package commands
 
 import (
-	"fmt"
-
 	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/spf13/cobra"
-	"golang.org/x/crypto/sha3"
 )
 
 type rootMarketplaceCmd struct {
@@ -62,10 +59,4 @@ func (c *baseMarketplaceCmd) signAndSendTransaction(e Executor, transaction prov
 		return provider.TransactionReceipt{}, err
 	}
 	return e.SendSignedTransaction(signedTransaction)
-}
-
-func (c *baseMarketplaceCmd) sha3(s string) string {
-	h := sha3.NewLegacyKeccak256()
-	h.Write([]byte(s))
-	return fmt.Sprintf("0x%x", h.Sum(nil))
 }

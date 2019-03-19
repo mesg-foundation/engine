@@ -99,7 +99,7 @@ func (c *marketplaceCreateOfferCmd) runE(cmd *cobra.Command, args []string) erro
 		return err
 	}
 	fmt.Printf("%s Offer created with success\n", pretty.SuccessSign)
-	fmt.Printf("%s See it on the marketplace: https://marketplace.mesg.com/services/%s\n", pretty.SuccessSign, c.sha3(args[0]))
+	fmt.Printf("%s See it on the marketplace: https://marketplace.mesg.com/services/%s\n", pretty.SuccessSign, c.service.Sid)
 
 	return nil
 }
