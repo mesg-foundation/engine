@@ -40,5 +40,5 @@ func TestIntegrationWaitForStatusTaskError(t *testing.T) {
 	defer c.StopService(namespace)
 	err = c.waitForStatus(namespace, RUNNING)
 	require.Error(t, err)
-	require.Contains(t, "No such image: awgdaywudaywudwa:latest", err.Error())
+	require.Contains(t, err.Error(), "No such image: awgdaywudaywudwa:latest")
 }
