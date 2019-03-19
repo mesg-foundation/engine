@@ -39,7 +39,7 @@ To get more information, see the [deploy page from the documentation](https://do
 }
 
 func (c *serviceDeployCmd) preRunE(cmd *cobra.Command, args []string) error {
-	c.path = getFirstOrDefault(args)
+	c.path = getFirstOrCurrentPath(args)
 	return nil
 }
 
