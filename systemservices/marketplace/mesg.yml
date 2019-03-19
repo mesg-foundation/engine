@@ -1,0 +1,320 @@
+name: Marketplace
+sid: marketplace
+description: ""
+configuration:
+  env:
+    - PROVIDER_ENDPOINT=https://ropsten.infura.io
+    - BLOCK_CONFIRMATIONS=0
+    - DEFAULT_GAS=1000000
+    - POLLING_TIME=1000
+    - MARKETPLACE_ADDRESS=0x94F4cB92Fe9f547574Aec617B1594B13aBd47Ad3
+    - TOKEN_ADDRESS=0x5861b3dc52339d4f976b7fa5d80db6cd6f477f1b
+tasks:
+  listServices:
+    name: ""
+    description: ""
+    inputs:
+    outputs:
+      success:
+        name: ""
+        description: ""
+        data:
+          services: &services
+            name: ""
+            description: ""
+            type: Object
+            repeated: true
+            object: &service
+              sid: &sid
+                name: ""
+                description: ""
+                type: String
+              createTime: &createTime
+                name: ""
+                description: ""
+                type: String
+              owner: &owner
+                name: ""
+                description: ""
+                type: String
+              versions: &versions
+                name: ""
+                description: ""
+                type: Object
+                repeated: true
+                optional: true
+                object: &version
+                  versionHash: &versionHash
+                    name: ""
+                    description: ""
+                    type: String
+                  manifest: &manifest
+                    name: ""
+                    description: ""
+                    type: String
+                  manifestProtocol: &manifestProtocol
+                    name: ""
+                    description: ""
+                    type: String
+                  manifestData: &manifestData
+                    name: ""
+                    description: ""
+                    type: Object
+                    optional: true
+                  createTime: *createTime
+              offers: &offers
+                name: ""
+                description: ""
+                type: Object
+                repeated: true
+                optional: true
+                object: &offer
+                  offerIndex: &offerIndex
+                    name: ""
+                    description: ""
+                    type: String
+                  price: &price
+                    name: ""
+                    description: ""
+                    type: String
+                  duration: &duration
+                    name: ""
+                    description: ""
+                    type: String
+                  active:
+                    name: ""
+                    description: ""
+                    type: Boolean
+                  createTime: *createTime
+              purchases: &purchases
+                name: ""
+                description: ""
+                type: Object
+                repeated: true
+                optional: true
+                object: &purchase
+                  purchaser: &purchaser
+                    name: ""
+                    description: ""
+                    type: String
+                  expire: &expire
+                    name: ""
+                    description: ""
+                    type: String
+                  createTime: *createTime
+      error: &outputError
+        name: "Error"
+        description: "Output when an error occurs"
+        data:
+          message:
+            name: "Message"
+            description: "The error message"
+            type: String
+          code:
+            name: "Error code"
+            description: "The error code"
+            type: String
+            optional: true
+  getService:
+    name: ""
+    description: ""
+    inputs:
+      sid: *sid
+    outputs:
+      success:
+        name: ""
+        description: ""
+        data: *service
+      error: *outputError
+  publishServiceVersion:
+    name: ""
+    description: ""
+    inputs:
+      sid: *sid
+      manifest: *manifest
+      manifestProtocol: *manifestProtocol
+      from: &inputFrom
+        name: ""
+        description: ""
+        type: String
+      gas: &inputGas
+        name: ""
+        description: ""
+        type: Number
+        optional: true
+      gasPrice: &inputGasPrice
+        name: ""
+        description: ""
+        type: String
+        optional: true
+    outputs:
+      error: *outputError
+      success: &outputTransaction
+        data: &transaction
+          chainID:
+            name: "Chain ID"
+            description: "The ID of the chain the transaction is for. See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md#list-of-chain-ids."
+            type: Number
+          nonce:
+            name: "Nonce"
+            description: "Nonce to use."
+            type: Number
+          to:
+            name: "To"
+            description: "The to address."
+            type: String
+          value:
+            name: "Value"
+            description: "The value in Wei."
+            type: String
+          gas:
+            name: "Gas"
+            description: "The maximum gas to use to execute this transaction"
+            type: Number
+          gasPrice:
+            name: "Gas price"
+            description: "The gas price in Wei."
+            type: String
+          data:
+            name: "Data"
+            description: "The data of the transaction."
+            type: String
+  createServiceOffer:
+    name: ""
+    description: ""
+    inputs:
+      sid: *sid
+      price:
+        name: ""
+        description: ""
+        type: String
+      duration:
+        name: ""
+        description: ""
+        type: String
+      from: *inputFrom
+      gas: *inputGas
+      gasPrice: *inputGasPrice
+    outputs:
+      error: *outputError
+      success: *outputTransaction
+  purchase:
+    name: ""
+    description: ""
+    inputs:
+      sid: *sid
+      offerIndex: *offerIndex
+      from: *inputFrom
+      gas: *inputGas
+      gasPrice: *inputGasPrice
+    outputs:
+      error: *outputError
+      success:
+        data:
+          transactions:
+            repeated: true
+            type: Object
+            object: *transaction
+  sendSignedTransaction:
+    name: ""
+    description: ""
+    inputs:
+      signedTransaction:
+        name: ""
+        description: ""
+        type: String
+    outputs:
+      error: *outputError
+      success:
+        data:
+          receipt:
+            type: Object
+  isAuthorized:
+    name: ""
+    description: ""
+    inputs:
+      sid:
+        optional: true
+        <<: *sid
+      versionHash:
+        optional: true
+        <<: *versionHash
+      addresses:
+        name: ""
+        description: ""
+        repeated: true
+        type: String
+    outputs:
+      error: *outputError
+      success:
+        name: ""
+        description: ""
+        data:
+          authorized:
+            name: ""
+            description: ""
+            type: Boolean
+          sid: *sid
+          source:
+            name: ""
+            description: ""
+            type: String
+            optional: true
+          type:
+            name: ""
+            description: ""
+            type: String
+            optional: true
+events:
+  serviceCreated:
+    name: ""
+    description: ""
+    data:
+      sid: *sid
+      owner: *owner
+  serviceOwnershipTransferred:
+    name: ""
+    description: ""
+    data:
+      sid: *sid
+      previousOwner:
+        name: ""
+        description: ""
+        type: String
+      newOwner:
+        name: ""
+        description: ""
+        type: String
+  serviceVersionCreated:
+    name: ""
+    description: ""
+    data:
+      sid: *sid
+      versionHash: *versionHash
+      manifest: *manifest
+      manifestProtocol: *manifestProtocol
+  serviceOfferCreated:
+    name: ""
+    description: ""
+    data:
+      sid: *sid
+      offerIndex: *offerIndex
+      price: *price
+      duration: *duration
+  serviceOfferDisabled:
+    name: ""
+    description: ""
+    data:
+      sid: *sid
+      offerIndex: *offerIndex
+  servicePurchased:
+    name: ""
+    description: ""
+    data:
+      sid: *sid
+      offerIndex: *offerIndex
+      purchaser: *purchaser
+      price: *price
+      duration: *duration
+      expire: *expire
+      
