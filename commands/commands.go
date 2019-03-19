@@ -90,8 +90,8 @@ func (c *baseCmd) discardOutput() {
 	c.cmd.SetOutput(ioutil.Discard)
 }
 
-// getFirstOrDefault returns directory if args len is gt 0 or current directory.
-func getFirstOrDefault(args []string) string {
+// getFirstOrCurrentPath returns directory if args len is gt 0 or current directory.
+func getFirstOrCurrentPath(args []string) string {
 	if len(args) > 0 {
 		return args[0]
 	}
