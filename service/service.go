@@ -52,39 +52,39 @@ func (s Status) String() string {
 	}
 }
 
-// Service represents MESG services configurations.
+// Service represents the service's definition.
 type Service struct {
-	// Name is the service name.
+	// Name of the service.
 	Name string
 
-	// Sid is the service id. It must be unique.
+	// Sid of the service. It must be unique.
 	Sid string
 
-	// Description is service description.
+	// Description of the service.
 	Description string
 
-	// Repository holds the service's repository url if it's living on a git host.
+	// Repository's url of the service.
 	Repository string
 
-	// Tasks are the list of tasks that service can execute.
+	// Tasks defined by the service.
 	Tasks []*Task
 
-	// Events are the list of events that service can emit.
+	// Events defined by the service.
 	Events []*Event
 
-	// Configuration is the Docker container that service runs inside.
+	// Configuration of the the service's container.
 	Configuration *Dependency
 
-	// Dependencies are the Docker containers that service can depend on.
+	// Dependencies are containers the service depends on. Dependencies will be started and stopped alongside the service.
 	Dependencies []*Dependency
 
-	// Hash is calculated from the combination of service's source and mesg.yml.
+	// Hash is a generated value that represents uniquely a service.
 	Hash string
 
-	// Status is service status.
+	// Status of the service.
 	Status Status
 
-	// DeployedAt holds the creation time of service.
+	// DeployedAt is the creation time of the service.
 	DeployedAt time.Time
 }
 
@@ -241,61 +241,63 @@ func (s *Service) volumes(depKey string) []container.Mount {
 	return volumes
 }
 
-// Event describes a service task.
+// Event describes a service event.
 type Event struct {
+	// Key of the event.
 	Key string
 
-	// Name is the name of event.
+	// Name of the event.
 	Name string
 
-	// Description is the description of event.
+	// Description of the event.
 	Description string
 
-	// Data holds the input inputs of event.
+	// Data holds the definition of the event.
 	Data []*Parameter
 }
 
-// Dependency represents a Docker container and it holds instructions about
-// how it should run.
+// Dependency describes a container configuration.
 type Dependency struct {
+	// Key of the dependency.
 	Key string
 
-	// Image is the Docker image.
+	// Image of the container to use.
 	Image string
 
-	// Volumes are the Docker volumes.
+	// Volumes required by the container.
 	Volumes []string
 
-	// VolumesFrom are the docker volumes-from from.
+	// VolumesFrom indicates to also mount other dependencies' volumes.
 	VolumesFrom []string
 
-	// Ports holds ports configuration for container.
+	// Ports to publish on the public network.
 	Ports []string
 
-	// Command is the Docker command which will be executed when container started.
+	// Command to execute when container starts.
 	Command string
 
-	// Args hold the args to pass to the Docker container
+	// Args to pass to the container.
 	Args []string
 
-	// Env is a slice of environment variables in key=value format.
+	// Env is the environment variables in key=value format to pass to the container.
 	Env []string
 }
 
 // Task describes a service task.
 type Task struct {
+	// Key of the task.
 	Key string
 
-	// Name is the name of task.
+	// Name of the task.
 	Name string
 
-	// Description is the description of task.
+	// Description of the task.
 	Description string
 
-	// Parameters are the definition of the execution inputs of task.
+	// Inputs is the definition of the task's inputs.
 	Inputs []*Parameter
 
-	// Outputs are the definition of the execution results of task.
+	// Outputs is the definition of the task's outputs.
 	Outputs []*Output
 }
 
@@ -311,39 +313,40 @@ func (t *Task) Output(key string) (*Output, error) {
 
 // Output describes task output.
 type Output struct {
+	// Key of the output.
 	Key string
 
-	// Name is the name of task output.
+	// Name of the output.
 	Name string
 
-	// Description is the description of task output.
+	// Description of the output.
 	Description string
 
-	// Data holds the output inputs of a task output.
+	// Data describes the parameters of the output.
 	Data []*Parameter
 }
 
-// Parameter describes task input inputs, output inputs of a task
-// output and input inputs of an event.
+// Parameter describes the task's inputs, the task's outputs, and the event's data.
 type Parameter struct {
+	// Key of the parameter.
 	Key string
 
-	// Name is the name of input.
+	// Name of the parameter.
 	Name string
 
-	// Description is the description of input.
+	// Description of the parameter.
 	Description string
 
-	// Type is the data type of input.
+	// Type of the parameter's data.
 	Type string
 
-	// Optional indicates if input is optional.
+	// Optional indicates the parameter is optional.
 	Optional bool
 
-	// Repeated is to have an array of this input
+	// Repeated indicates the parameter is an array.
 	Repeated bool
 
-	// Definition of the structure of the object when the type is object
+	// Definition of the structure of the object when the type is object.
 	Object []*Parameter
 }
 

@@ -19,7 +19,7 @@ configuration:
   volumes:
     - v1
     - v1 # not unique
-  volumesFrom:
+  volumesfrom:
     - dummy # not existing
     - service # cyclic
   ports: # invalid ports
@@ -37,7 +37,7 @@ dependencies:
     volumes:
       - v1
       - v1 # not unique
-    volumesFrom:
+    volumesfrom:
       - none # not existing
     ports: # invalid ports
       - 0
@@ -48,5 +48,5 @@ dependencies:
       - _foo # invalid env name
   dummy1:
     image: image
-    volumesFrom:
+    volumesfrom:
       - dummy1 # cyclic import

@@ -23,7 +23,7 @@ type Manager interface {
 	Start(service *Service) error
 	// Stop stops the proviously started service and all its Dependencies.
 	Stop(service *Service) error
-	// Delete deletes all persisent data used by service.
+	// Delete deletes all persistent data used by service.
 	Delete(service *Service) error
 	// Status returns the service running status.
 	Status(service *Service) error
