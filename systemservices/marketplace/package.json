@@ -1,0 +1,31 @@
+{
+  "name": "service-ethereum",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "@types/node": "^10.14.1",
+    "@types/request": "^2.48.1",
+    "@types/request-promise-native": "^1.0.15",
+    "@types/web3": "^1.0.18",
+    "bignumber.js": "^8.1.1",
+    "mesg-js": "^2.0.1",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.7",
+    "ts-node": "^7.0.1",
+    "typescript": "^3.3.3333",
+    "web3": "1.0.0-beta.37"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.10",
+    "tsc": "^1.20150623.0"
+  },
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "node": "ts-node",
+    "build": "tsc -p .",
+    "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts"
+  },
+  "author": "MESG",
+  "license": "ISC"
+}
