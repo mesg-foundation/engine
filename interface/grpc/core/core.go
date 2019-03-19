@@ -94,7 +94,7 @@ func toProtoDependency(dep *service.Dependency) *coreapi.Dependency {
 		Key:         dep.Key,
 		Image:       dep.Image,
 		Volumes:     dep.Volumes,
-		Volumesfrom: dep.VolumesFrom,
+		VolumesFrom: dep.VolumesFrom,
 		Ports:       dep.Ports,
 		Command:     dep.Command,
 	}
