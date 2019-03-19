@@ -113,9 +113,6 @@ func Validate(service *Service) error {
 	}
 
 	for key, dep := range service.Dependencies {
-		if dep == nil {
-			continue
-		}
 		if dep.Image == "" {
 			errs = append(errs, &validateError{key: key, msg: "image is empty"})
 		}
@@ -137,9 +134,6 @@ func Validate(service *Service) error {
 	}
 
 	for key, dep := range service.Dependencies {
-		if dep == nil {
-			continue
-		}
 		for _, depVolumeKey := range dep.VolumesFrom {
 			if depVolumeKey == key {
 				errs = append(errs, &validateError{

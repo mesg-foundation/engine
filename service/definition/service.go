@@ -22,16 +22,16 @@ type Service struct {
 	Repository string `yaml:"repository" json:"repository,omitempty" validate:"omitempty,uri"`
 
 	// Tasks are the list of tasks that service can execute.
-	Tasks map[string]*Task `yaml:"tasks" json:"tasks,omitempty" validate:"dive,keys,printascii,endkeys,required"`
+	Tasks map[string]Task `yaml:"tasks" json:"tasks,omitempty" validate:"dive,keys,printascii,endkeys,required"`
 
 	// Events are the list of events that service can emit.
-	Events map[string]*Event `yaml:"events" json:"events,omitempty" validate:"dive,keys,printascii,endkeys,required"`
+	Events map[string]Event `yaml:"events" json:"events,omitempty" validate:"dive,keys,printascii,endkeys,required"`
 
 	// Configuration is the Docker container that service runs inside.
 	Configuration Dependency `yaml:"configuration" json:"configuration,omitempty"`
 
 	// Dependencies are the Docker containers that service can depend on.
-	Dependencies map[string]*Dependency `yaml:"dependencies" json:"dependencies,omitempty" validate:"dive,keys,printascii,ne=service,endkeys,required"`
+	Dependencies map[string]Dependency `yaml:"dependencies" json:"dependencies,omitempty" validate:"dive,keys,printascii,ne=service,endkeys,required"`
 }
 
 // Event describes a service task.
@@ -43,7 +43,7 @@ type Event struct {
 	Description string `yaml:"description" json:"description,omitempty" validate:"printascii"`
 
 	// Data holds the input inputs of event.
-	Data map[string]*Parameter `yaml:"data" json:"data,omitempty" validate:"required,dive,keys,printascii,endkeys,required"`
+	Data map[string]Parameter `yaml:"data" json:"data,omitempty" validate:"required,dive,keys,printascii,endkeys,required"`
 }
 
 // Dependency represents a Docker container and it holds instructions about
@@ -80,10 +80,10 @@ type Task struct {
 	Description string `yaml:"description" json:"description,omitempty" validate:"printascii"`
 
 	// Parameters are the definition of the execution inputs of task.
-	Inputs map[string]*Parameter `yaml:"inputs" json:"inputs,omitempty" validate:"dive,keys,printascii,endkeys,required"`
+	Inputs map[string]Parameter `yaml:"inputs" json:"inputs,omitempty" validate:"dive,keys,printascii,endkeys,required"`
 
 	// Outputs are the definition of the execution results of task.
-	Outputs map[string]*Output `yaml:"outputs" json:"outputs,omitempty" validate:"required,dive,keys,printascii,endkeys,required"`
+	Outputs map[string]Output `yaml:"outputs" json:"outputs,omitempty" validate:"required,dive,keys,printascii,endkeys,required"`
 }
 
 // Output describes task output.
@@ -95,7 +95,7 @@ type Output struct {
 	Description string `yaml:"description" json:"description,omitempty" validate:"printascii"`
 
 	// Data holds the output inputs of a task output.
-	Data map[string]*Parameter `yaml:"data" json:"data,omitempty" validate:"required,dive,keys,printascii,endkeys,required"`
+	Data map[string]Parameter `yaml:"data" json:"data,omitempty" validate:"required,dive,keys,printascii,endkeys,required"`
 }
 
 // Parameter describes task input inputs, output inputs of a task
@@ -117,7 +117,7 @@ type Parameter struct {
 	Repeated bool `yaml:"repeated" json:"repeated,omitempty"`
 
 	// Definition of the structure of the object when the type is object
-	Object map[string]*Parameter `yaml:"object" json:"object,omitempty" validate:"dive,keys,printascii,endkeys,required"`
+	Object map[string]Parameter `yaml:"object" json:"object,omitempty" validate:"dive,keys,printascii,endkeys,required"`
 }
 
 func (s *Service) toService() *service.Service {
@@ -128,12 +128,12 @@ func (s *Service) toService() *service.Service {
 		Repository:    s.Repository,
 		Tasks:         toServiceTasks(s.Tasks),
 		Events:        toServiceEvents(s.Events),
-		Configuration: toServiceDependency(mainServiceKey, &s.Configuration),
+		Configuration: toServiceDependency(mainServiceKey, s.Configuration),
 		Dependencies:  toServiceDependencies(s.Dependencies),
 	}
 }
 
-func toServiceTasks(tasks map[string]*Task) []*service.Task {
+func toServiceTasks(tasks map[string]Task) []*service.Task {
 	ts := make([]*service.Task, 0, len(tasks))
 	for key, task := range tasks {
 		t := &service.Task{
@@ -156,7 +156,7 @@ func toServiceTasks(tasks map[string]*Task) []*service.Task {
 	return ts
 }
 
-func toServiceEvents(events map[string]*Event) []*service.Event {
+func toServiceEvents(events map[string]Event) []*service.Event {
 	es := make([]*service.Event, 0, len(events))
 	for key, event := range events {
 		es = append(es, &service.Event{
@@ -169,7 +169,7 @@ func toServiceEvents(events map[string]*Event) []*service.Event {
 	return es
 }
 
-func toServiceParameters(params map[string]*Parameter) []*service.Parameter {
+func toServiceParameters(params map[string]Parameter) []*service.Parameter {
 	ps := make([]*service.Parameter, 0, len(params))
 	for key, param := range params {
 		ps = append(ps, &service.Parameter{
@@ -185,7 +185,7 @@ func toServiceParameters(params map[string]*Parameter) []*service.Parameter {
 	return ps
 }
 
-func toServiceDependency(key string, dep *Dependency) *service.Dependency {
+func toServiceDependency(key string, dep Dependency) *service.Dependency {
 	return &service.Dependency{
 		Key:         key,
 		Image:       dep.Image,
@@ -196,7 +196,7 @@ func toServiceDependency(key string, dep *Dependency) *service.Dependency {
 	}
 }
 
-func toServiceDependencies(deps map[string]*Dependency) []*service.Dependency {
+func toServiceDependencies(deps map[string]Dependency) []*service.Dependency {
 	ds := make([]*service.Dependency, 0, len(deps))
 	for key, dep := range deps {
 		ds = append(ds, toServiceDependency(key, dep))
