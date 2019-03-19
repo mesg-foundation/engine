@@ -1,57 +1,75 @@
 version: 2
 
-runOnMachine: &runOnMachine
+run_on_machine: &run_on_machine
   machine:
     docker_layer_caching: true
 
-runOnDocker: &runOnDocker
+run_on_docker: &run_on_docker
   docker:
     - image: circleci/golang:1.11.4
 
+restore_go_mod_cache: &restore_go_mod_cache
+  - restore_cache:
+      keys:
+        - go-mod-cache-{{ checksum "go.sum" }}
+        - go-mod-cache
+save_go_mod_cache: &save_go_mod_cache
+  - save_cache:
+      key: go-mod-cache-{{ checksum "go.sum" }}
+      paths:
+        - /go/pkg/mod
+
+go_cache_dir: &go_cache_dir /tmp/go/cache
+
+restore_go_cache: &restore_go_cache
+  - restore_cache:
+      keys:
+        - go-cache-{{ .Branch }}-{{ .Environment.CIRCLE_PREVIOUS_BUILD_NUM }}
+        - go-cache-{{ .Branch }}
+        - go-cache
+
+save_go_cache: &save_go_cache
+  - save_cache:
+      key: go-cache-{{ .Branch }}-{{ .BuildNum }}
+      paths:
+        - *go_cache_dir
+
 jobs:
   "test":
-    <<: *runOnDocker
+    <<: *run_on_docker
     environment:
-      - GOCACHE: "/tmp/go/cache"
+      - GOCACHE: *go_cache_dir
     steps:
       - checkout
       - setup_remote_docker
       - run: docker swarm init
       - run: docker build -t sleep docker-images/sleep/
       - run: docker build -t http-server docker-images/http-server/
-      - restore_cache:
-          keys:
-            - test-cache-{{ .Branch }}-{{ .Environment.CIRCLE_PREVIOUS_BUILD_NUM }}
-            - test-cache-{{ .Branch }}
-      - run: mkdir -p ~/.mesg
+      - <<: *restore_go_mod_cache
       - run: go mod download
+      - <<: *save_go_mod_cache
+      - run: mkdir -p ~/.mesg
+      - <<: *restore_go_cache
       - run: go test -v -timeout 300s -p 1 -tags=integration -coverprofile=coverage.txt ./...
-      - save_cache:
-          key: test-cache-{{ .Branch }}-{{ .BuildNum }}
-          paths:
-            - /tmp/go/cache
+      - <<: *save_go_cache
       - run: bash <(curl -s https://codecov.io/bash)
 
   "lint":
     docker:
       - image: golangci/golangci-lint:v1.12
     environment:
-      - GOCACHE: "/tmp/go/cache"
+      - GOCACHE: *go_cache_dir
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - test-cache-{{ .Branch }}-{{ .Environment.CIRCLE_PREVIOUS_BUILD_NUM }}
-            - test-cache-{{ .Branch }}
+      - <<: *restore_go_mod_cache
       - run: go mod download
+      - <<: *save_go_mod_cache
+      - <<: *restore_go_cache
       - run: golangci-lint run
-      - save_cache:
-          key: test-cache-{{ .Branch }}-{{ .BuildNum }}
-          paths:
-            - /tmp/go/cache
+      - <<: *save_go_cache
 
   "publish_docker_dev":
-    <<: *runOnMachine
+    <<: *run_on_machine
     steps:
       - checkout
       - run: docker build -t mesg/core:dev --build-arg version="dev build `echo $CIRCLE_SHA1 | cut -c1-7`" .
@@ -59,7 +77,7 @@ jobs:
       - run: docker push mesg/core:dev
 
   "publish_docker_prod":
-    <<: *runOnMachine
+    <<: *run_on_machine
     steps:
       - checkout
       - run: docker build -t mesg/core:$CIRCLE_TAG -t mesg/core:latest --build-arg version=$CIRCLE_TAG .
@@ -68,7 +86,7 @@ jobs:
       - run: docker push mesg/core:latest
 
   "release_cli_dev":
-    <<: *runOnDocker
+    <<: *run_on_docker
     steps:
       - checkout
       - run: scripts/build-cli.sh "dev build `echo $CIRCLE_SHA1 | cut -c1-7`"
@@ -76,7 +94,7 @@ jobs:
       - run: ghr -u mesg-foundation -r core -delete -prerelease -n "Developer Release" -b "Warning - this is a developer release, use it only if you know what are doing. Make sure to pull the latest \`mesg/core:dev\` image. \`\`\`docker pull mesg/core:dev\`\`\`" release-dev ./bin
 
   "release_cli_prod":
-    <<: *runOnDocker
+    <<: *run_on_docker
     steps:
       - checkout
       - run: scripts/build-cli.sh $CIRCLE_TAG
