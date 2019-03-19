@@ -2,6 +2,7 @@ import Web3 from 'web3'
 import BigNumber from 'bignumber.js';
 import Contract from 'web3/eth/contract';
 import { TaskInputs } from 'mesg-js/lib/service';
+const base58 = require('base-x')('123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz')
 
 BigNumber.config({ EXPONENTIAL_AT: 100 })
 
@@ -24,13 +25,11 @@ const fromUnit = (x: string|BigNumber) => new BigNumber(x).dividedBy(1e18)
 
 const parseTimestamp = (x: string) => new Date(new BigNumber(x).times(1000).toNumber())
 
-const hashToHex = (x: string) => {
-  if (x.startsWith('0x')) {
-    return x
-  }
-  return '0x' + x
+const hashToHex = (x: string): string => {
+  if (x.startsWith('0x')) return x
+  return '0x' + base58.decode(x).toString('hex')
 }
-const hexToHash = (x: string) => x.replace(/^0x/g, '')//.replace(/0*$/g, '')
+const hexToHash = (x: string): string => base58.encode(Buffer.from(x.replace(/^0x/g, ''), 'hex'))
 
 interface CreateTransaction {
   (
