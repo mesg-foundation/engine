@@ -1,0 +1,21 @@
+name: benchmark-service
+sid: benchmark-service
+
+events:
+  foo:
+    data:
+      bar:
+        type: Any
+        optional: true
+
+tasks:
+  foo:
+    inputs:
+      bar:
+        type: Any
+        optional: true
+    outputs:
+      success:
+        data:
+          foo:
+            type: Any
