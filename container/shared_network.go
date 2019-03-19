@@ -24,11 +24,9 @@ func (c *DockerContainer) createSharedNetworkIfNeeded() error {
 	if network.ID != "" {
 		return nil
 	}
-
+	// Create the new network needed to run containers.
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
-
-	// Create the new network needed to run containers.
 	namespace := c.Namespace([]string{})
 	_, err = c.client.NetworkCreate(ctx, namespace, types.NetworkCreate{
 		CheckDuplicate: true,
