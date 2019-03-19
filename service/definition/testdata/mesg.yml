@@ -61,7 +61,7 @@ configuration:
   image: busybox
   volumes:
     - v1
-  volumesFrom:
+  volumesfrom:
     - dummy
   ports:
     - 8080:8080
@@ -77,7 +77,7 @@ dependencies:
     image: busybox
     volumes:
       - v1
-    volumesFrom:
+    volumesfrom:
       - service
     ports:
       - 8080:8080
