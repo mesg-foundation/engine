@@ -111,6 +111,7 @@ func (p *ServiceProvider) ServiceLogs(id string, dependencies ...string) (logs [
 			ServiceID: id,
 		})
 		if err != nil {
+			cancel()
 			return nil, nil, nil, err
 		}
 
