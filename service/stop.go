@@ -2,8 +2,6 @@ package service
 
 import (
 	"sync"
-
-	"github.com/mesg-foundation/core/container"
 )
 
 // Stop stops a service.
@@ -16,7 +14,7 @@ func (s *Service) Stop() error {
 	if err := s.StopDependencies(); err != nil {
 		return err
 	}
-	return s.container.DeleteNetwork(s.namespace(), container.EventDestroy)
+	return s.container.DeleteNetwork(s.namespace())
 }
 
 // StopDependencies stops all dependencies.
