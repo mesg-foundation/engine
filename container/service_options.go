@@ -4,6 +4,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/swarm"
@@ -11,15 +12,16 @@ import (
 
 // ServiceOptions is a simplify version of swarm.ServiceSpec.
 type ServiceOptions struct {
-	Image     string
-	Namespace []string
-	Ports     []Port
-	Mounts    []Mount
-	Env       []string // TODO: should be transform to  map[string]string and use the func mapToEnv
-	Args      []string
-	Command   string
-	Networks  []Network
-	Labels    map[string]string
+	Image           string
+	Namespace       []string
+	Ports           []Port
+	Mounts          []Mount
+	Env             []string // TODO: should be transform to  map[string]string and use the func mapToEnv
+	Args            []string
+	Command         string
+	Networks        []Network
+	Labels          map[string]string
+	StopGracePeriod *time.Duration
 }
 
 // Network keeps the network info for service.
@@ -61,10 +63,11 @@ func (options *ServiceOptions) toSwarmServiceSpec(c *DockerContainer) swarm.Serv
 				Labels: map[string]string{
 					"com.docker.stack.namespace": namespace,
 				},
-				Env:     options.Env,
-				Args:    options.Args,
-				Command: strings.Fields(options.Command),
-				Mounts:  options.swarmMounts(false),
+				Env:             options.Env,
+				Args:            options.Args,
+				Command:         strings.Fields(options.Command),
+				Mounts:          options.swarmMounts(false),
+				StopGracePeriod: options.StopGracePeriod,
 			},
 			Networks: options.swarmNetworks(),
 		},
