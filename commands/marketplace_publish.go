@@ -44,7 +44,7 @@ func (c *marketplacePublishCmd) preRunE(cmd *cobra.Command, args []string) error
 		return err
 	}
 
-	c.path = getFirstOrDefault(args)
+	c.path = getFirstOrCurrentPath(args)
 
 	sid, hash, err := deployService(c.e, c.path, map[string]string{})
 	if err != nil {
