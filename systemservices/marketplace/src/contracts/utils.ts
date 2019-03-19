@@ -1,12 +1,12 @@
-import Web3 from "web3"
-import BigNumber from "bignumber.js";
-import Contract from "web3/eth/contract";
-import { TaskInputs } from "mesg-js/lib/service";
+import Web3 from 'web3'
+import BigNumber from 'bignumber.js';
+import Contract from 'web3/eth/contract';
+import { TaskInputs } from 'mesg-js/lib/service';
 
 BigNumber.config({ EXPONENTIAL_AT: 100 })
 
 const hexToAscii = (x: string) => {
-  if (!x) return ""
+  if (!x) return ''
   return Web3.utils.hexToAscii(x).replace(/\u0000/g, '')
 }
 
@@ -58,7 +58,7 @@ const createTransactionTemplate = (
     nonce: (await web3.eth.getTransactionCount(inputs.from)) + (shiftNonce || 0),
     gas: inputs.gas || defaultGas,
     gasPrice: inputs.gasPrice || defaultGasPrice,
-    value: "0",
+    value: '0',
     data: data
   }
 }
