@@ -193,6 +193,8 @@ func toServiceDependency(key string, dep *Dependency) *service.Dependency {
 		VolumesFrom: dep.VolumesFrom,
 		Ports:       dep.Ports,
 		Command:     dep.Command,
+		Args:        dep.Args,
+		Env:         dep.Env,
 	}
 }
 
