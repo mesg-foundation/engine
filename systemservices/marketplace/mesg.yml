@@ -234,11 +234,11 @@ tasks:
     description: ""
     inputs:
       sid:
-        optional: true
         <<: *sid
-      versionHash:
         optional: true
+      versionHash:
         <<: *versionHash
+        optional: true
       addresses:
         name: ""
         description: ""
