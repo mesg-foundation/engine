@@ -170,7 +170,7 @@ func (m *ContainerManager) Stop(service *Service) error {
 	if err := errs.ErrorOrNil(); err != nil {
 		return err
 	}
-	if err := m.c.DeleteNetwork(service.namespace(), container.EventDestroy); err != nil {
+	if err := m.c.DeleteNetwork(service.namespace()); err != nil {
 		return err
 	}
 	service.Status = StatusStopped

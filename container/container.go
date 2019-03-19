@@ -21,7 +21,7 @@ var (
 type Container interface {
 	Build(path string) (tag string, err error)
 	CreateNetwork(namespace []string) (id string, err error)
-	DeleteNetwork(namespace []string, event EventType) error
+	DeleteNetwork(namespace []string) error
 	FindContainer(namespace []string) (types.ContainerJSON, error)
 	FindNetwork(namespace []string) (types.NetworkResource, error)
 	FindService(namespace []string) (swarm.Service, error)
@@ -45,6 +45,9 @@ type DockerContainer struct {
 	// callTimeout is the timeout value for Docker API calls.
 	callTimeout time.Duration
 
+	// defaultStopGracePeriod is the timeout value between stopping a container and killing it.
+	defaultStopGracePeriod time.Duration
+
 	config *config.Config
 }
 
@@ -54,7 +57,8 @@ type Option func(*DockerContainer)
 // New creates a new Container with given options.
 func New(options ...Option) (*DockerContainer, error) {
 	c := &DockerContainer{
-		callTimeout: 10 * time.Second,
+		callTimeout:            60 * time.Second,
+		defaultStopGracePeriod: 10 * time.Second, // default docker value
 	}
 	for _, option := range options {
 		option(c)

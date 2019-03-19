@@ -56,7 +56,7 @@ func TestContainerManagerStop(t *testing.T) {
 
 	c.On("StopService", ts.namespace()).Return(nil)
 	c.On("StopService", depNamespace(ts.Hash, "dummy")).Return(nil)
-	c.On("DeleteNetwork", ts.namespace(), container.EventDestroy).Return(nil)
+	c.On("DeleteNetwork", ts.namespace()).Return(nil)
 	assert.NoError(t, m.Stop(ts))
 
 	assert.Equal(t, StatusStopped, ts.Status)
