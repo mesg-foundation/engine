@@ -67,38 +67,44 @@ func (c *DockerContainer) StopService(namespace []string) error {
 	if status == STOPPED {
 		return nil
 	}
-
+	service, err := c.FindService(namespace)
+	if err != nil && !docker.IsErrNotFound(err) {
+		return err
+	}
+	stopGracePeriod := c.defaultStopGracePeriod
+	if service.Spec.TaskTemplate.ContainerSpec != nil && service.Spec.TaskTemplate.ContainerSpec.StopGracePeriod != nil {
+		stopGracePeriod = *service.Spec.TaskTemplate.ContainerSpec.StopGracePeriod
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
 	if err := c.client.ServiceRemove(ctx, c.Namespace(namespace)); err != nil && !docker.IsErrNotFound(err) {
 		return err
 	}
-	if err := c.deletePendingContainer(namespace); err != nil {
+	if err := c.deletePendingContainer(namespace, time.Now().Add(stopGracePeriod)); err != nil {
 		return err
 	}
 	return c.waitForStatus(namespace, STOPPED)
 }
 
-func (c *DockerContainer) deletePendingContainer(namespace []string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
-	defer cancel()
+func (c *DockerContainer) deletePendingContainer(namespace []string, maxGraceTime time.Time) error {
 	container, err := c.FindContainer(namespace)
+	if docker.IsErrNotFound(err) {
+		return nil
+	}
 	if err != nil {
-		if docker.IsErrNotFound(err) {
-			return nil
-		}
 		return err
 	}
-	// TOFIX: Hack to force Docker to remove the containers.
-	// Sometime, the ServiceRemove function doesn't remove the associated containers.
+	// Hack to force Docker to remove the containers.
+	// Sometime, the ServiceRemove function doesn't remove the associated containers, or too late and the Core cannot remove the associated networks.
 	// This hack for Docker to stop and then remove the container.
 	// See issue https://github.com/moby/moby/issues/32620
-	if container.ContainerJSONBase != nil {
-		timeout := 1 * time.Second
-		c.client.ContainerStop(ctx, container.ID, &timeout)
-		c.client.ContainerRemove(ctx, container.ID, types.ContainerRemoveOptions{})
+	if time.Now().After(maxGraceTime) {
+		ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
+		defer cancel()
+		c.client.ContainerRemove(ctx, container.ID, types.ContainerRemoveOptions{Force: true})
 	}
-	return c.deletePendingContainer(namespace)
+	time.Sleep(1 * time.Second)
+	return c.deletePendingContainer(namespace, maxGraceTime)
 }
 
 // ServiceLogs returns the logs of a service.
