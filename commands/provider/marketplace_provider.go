@@ -137,6 +137,7 @@ func (p *MarketplaceProvider) UploadServiceFiles(path string, manifest Marketpla
 	return marketplaceDeploymentType, definitionResponse.Hash, nil
 }
 
+// CreateManifest creates the manifest file for the service in path.
 func (p *MarketplaceProvider) CreateManifest(path string, hash string) (MarketplaceManifestData, error) {
 	var data MarketplaceManifestData
 	definition, err := importer.From(path)
