@@ -26,7 +26,7 @@ const fromUnit = (x: string|BigNumber) => new BigNumber(x).dividedBy(1e18)
 const parseTimestamp = (x: string) => new Date(new BigNumber(x).times(1000).toNumber())
 
 const hashToHex = (x: string): string => {
-  if (x.startsWith('0x')) return x
+  if (x.startsWith('0x')) throw new Error('hash format is invalid. it stats with 0x')
   return '0x' + base58.decode(x).toString('hex')
 }
 const hexToHash = (x: string): string => base58.encode(Buffer.from(x.replace(/^0x/g, ''), 'hex'))
