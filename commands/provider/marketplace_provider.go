@@ -124,7 +124,7 @@ func (p *MarketplaceProvider) CreateManifest(path string, hash string) (Marketpl
 	}
 	data.Version = marketplacePublishVersion
 	data.Service.Hash = hash
-	data.Service.HashVersion = "1" // hardcoded for now
+	data.Service.HashVersion = marketplaceServiceHashVersion
 	data.Service.Definition = *definition
 	data.Service.Readme, err = readme.Lookup(path)
 	return data, err

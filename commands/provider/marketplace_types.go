@@ -7,13 +7,16 @@ import (
 )
 
 const (
-	// marketplacePublishVersion is the version used to publish the services to the marketplace
+	// marketplacePublishVersion is the version used to publish the services to the marketplace.
 	marketplacePublishVersion = "1"
 
-	// marketplaceDeploymentType is the type of deployment used for the service
+	// marketplaceServiceHashVersion is the version of the service hash used by the core.
+	marketplaceServiceHashVersion = "1"
+
+	// marketplaceDeploymentType is the type of deployment used for the service.
 	marketplaceDeploymentType = "ipfs"
 
-	// marketplaceServiceKey is the key of the marketplace service
+	// marketplaceServiceKey is the key of the marketplace service.
 	marketplaceServiceKey = "marketplace"
 )
 
