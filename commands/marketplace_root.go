@@ -13,7 +13,7 @@ func newRootMarketplaceCmd(e Executor) *rootMarketplaceCmd {
 	c := &rootMarketplaceCmd{}
 	c.cmd = newCommand(&cobra.Command{
 		Use:   "marketplace",
-		Short: "Interact with the Marketplace",
+		Short: "Interact with the MESG Marketplace",
 	})
 
 	c.cmd.AddCommand(
