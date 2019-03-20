@@ -97,12 +97,6 @@ type marketplaceCreateServiceOfferTaskInputs struct {
 	Duration string `json:"duration"`
 }
 
-type marketplaceDisableServiceOfferTaskInputs struct {
-	marketplaceTransactionTaskInputs
-	Sid        string `json:"sid"`
-	OfferIndex string `json:"offerIndex"`
-}
-
 type marketplacePurchaseTaskInputs struct {
 	marketplaceTransactionTaskInputs
 	Sid        string `json:"sid"`
@@ -111,12 +105,6 @@ type marketplacePurchaseTaskInputs struct {
 
 type marketplacePurchaseTaskOutputs struct {
 	Transactions []Transaction `json:"transactions"`
-}
-
-type marketplaceTransferServiceOwnershipTaskInputs struct {
-	marketplaceTransactionTaskInputs
-	Sid      string `json:"sid"`
-	NewOwner string `json:"newOwner"`
 }
 
 type marketplaceSendSignedTransactionTaskInputs struct {
