@@ -21,15 +21,16 @@ type marketplacePurchaseCmd struct {
 func newMarketplacePurchaseCmd(e Executor) *marketplacePurchaseCmd {
 	c := &marketplacePurchaseCmd{e: e}
 	c.cmd = newCommand(&cobra.Command{
-		Use:     "purchase",
-		Short:   "Purchase a service on the MESG Marketplace",
-		Example: `mesg-core marketplace purchase SID`,
+		Use:   "purchase",
+		Short: "Purchase a service on the MESG Marketplace",
+		Example: `mesg-core marketplace purchase SID
+mesg-core marketplace purchase SID --offer-index 1`,
 		PreRunE: c.preRunE,
 		RunE:    c.runE,
 		Args:    cobra.ExactArgs(1),
 	})
 	c.setupFlags()
-	c.cmd.Flags().StringVarP(&c.offerIndex, "offerIndex", "i", c.offerIndex, "Offer index to purchase")
+	c.cmd.Flags().StringVarP(&c.offerIndex, "offer-index", "o", c.offerIndex, "Offer index to purchase")
 	return c
 }
 

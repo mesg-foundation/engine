@@ -23,9 +23,10 @@ type marketplaceCreateOfferCmd struct {
 func newMarketplaceCreateOfferCmd(e Executor) *marketplaceCreateOfferCmd {
 	c := &marketplaceCreateOfferCmd{e: e}
 	c.cmd = newCommand(&cobra.Command{
-		Use:     "create-offer",
-		Short:   "Create a new offer on a service on the MESG Marketplace",
-		Example: `mesg-core marketplace create-offer SID`,
+		Use:   "create-offer",
+		Short: "Create a new offer on a service on the MESG Marketplace",
+		Example: `mesg-core marketplace create-offer SID
+mesg-core marketplace create-offer SID --price 10 --duration 3600`,
 		PreRunE: c.preRunE,
 		RunE:    c.runE,
 		Args:    cobra.MinimumNArgs(1),
