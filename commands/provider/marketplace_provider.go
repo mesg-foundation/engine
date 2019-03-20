@@ -45,17 +45,6 @@ func (p *MarketplaceProvider) CreateServiceOffer(sid string, price string, durat
 	return output, p.call("createServiceOffer", input, &output)
 }
 
-// DisableServiceOffer executes the disable service offer task
-func (p *MarketplaceProvider) DisableServiceOffer(sid, offerIndex, from string) (Transaction, error) {
-	input := marketplaceDisableServiceOfferTaskInputs{
-		marketplaceTransactionTaskInputs: marketplaceTransactionTaskInputs{From: from},
-		Sid:                              sid,
-		OfferIndex:                       offerIndex,
-	}
-	var output Transaction
-	return output, p.call("disableServiceOffer", input, &output)
-}
-
 // Purchase executes the purchase task
 func (p *MarketplaceProvider) Purchase(sid, offerIndex, from string) ([]Transaction, error) {
 	input := marketplacePurchaseTaskInputs{
@@ -65,17 +54,6 @@ func (p *MarketplaceProvider) Purchase(sid, offerIndex, from string) ([]Transact
 	}
 	var output marketplacePurchaseTaskOutputs
 	return output.Transactions, p.call("purchase", input, &output)
-}
-
-// TransferServiceOwnership executes the task transfer service ownership.
-func (p *MarketplaceProvider) TransferServiceOwnership(sid, newOwner, from string) (Transaction, error) {
-	input := marketplaceTransferServiceOwnershipTaskInputs{
-		marketplaceTransactionTaskInputs: marketplaceTransactionTaskInputs{From: from},
-		Sid:                              sid,
-		NewOwner:                         newOwner,
-	}
-	var output Transaction
-	return output, p.call("transferServiceOwnership", input, &output)
 }
 
 // SendSignedTransaction executes the task send signed transaction.
