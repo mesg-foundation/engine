@@ -87,7 +87,6 @@ func (p *ServiceProvider) ServiceDelete(deleteData bool, ids ...string) error {
 	return errs.ErrorOrNil()
 }
 
-// TODO: this function should be removed in favor of client.ListenEvents
 // ServiceListenEvents returns a channel with event data streaming..
 func (p *ServiceProvider) ServiceListenEvents(id, eventFilter string) (chan *coreapi.EventData, chan error, error) {
 	return p.client.ListenEvent(id, eventFilter)
