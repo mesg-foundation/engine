@@ -226,9 +226,50 @@ tasks:
     outputs:
       error: *outputError
       success:
-        data:
-          receipt:
+        data: &transactionReceipt
+          status:
+            type: Boolean
+          transactionHash: &transactionHash
+            type: String
+          transactionIndex:
+            type: Number
+          blockHash:
+            type: String
+          blockNumber: &blockNumber
+            type: Number
+          contractAddress:
+            type: String
+            optional: true
+          cumulativeGasUsed:
+            type: Number
+          gasUsed:
+            type: Number
+          from:
+            type: String
+          to:
+            type: String
+            optional: true
+          logs:
+            optional: true
+            repeated: true
             type: Object
+            object: &log
+              address:
+                type: String
+              data:
+                type: String
+              topics:
+                type: String
+                repeated: true
+              logIndex:
+                type: Number
+              transactionHash: *transactionHash
+              transactionIndex:
+                type: Number
+              blockHash:
+                type: String
+                optional: true
+              blockNumber: *blockNumber
   isAuthorized:
     name: ""
     description: ""
