@@ -272,6 +272,8 @@ events:
     data:
       sid: *sid
       owner: *owner
+      transactionHash: *transactionHash
+      blockNumber: *blockNumber
   serviceOwnershipTransferred:
     name: ""
     description: ""
@@ -285,6 +287,8 @@ events:
         name: ""
         description: ""
         type: String
+      transactionHash: *transactionHash
+      blockNumber: *blockNumber
   serviceVersionCreated:
     name: ""
     description: ""
@@ -293,6 +297,8 @@ events:
       versionHash: *versionHash
       manifest: *manifest
       manifestProtocol: *manifestProtocol
+      transactionHash: *transactionHash
+      blockNumber: *blockNumber
   serviceOfferCreated:
     name: ""
     description: ""
@@ -301,12 +307,16 @@ events:
       offerIndex: *offerIndex
       price: *price
       duration: *duration
+      transactionHash: *transactionHash
+      blockNumber: *blockNumber
   serviceOfferDisabled:
     name: ""
     description: ""
     data:
       sid: *sid
       offerIndex: *offerIndex
+      transactionHash: *transactionHash
+      blockNumber: *blockNumber
   servicePurchased:
     name: ""
     description: ""
@@ -317,4 +327,6 @@ events:
       price: *price
       duration: *duration
       expire: *expire
+      transactionHash: *transactionHash
+      blockNumber: *blockNumber
       

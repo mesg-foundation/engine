@@ -7,5 +7,7 @@ export = (mesg: Service, event: EventLog): Promise<EmitEventReply | Error> => {
     sid: hexToAscii(event.returnValues.sid),
     previousOwner: event.returnValues.previousOwner,
     newOwner: event.returnValues.newOwner,
+    transactionHash: event.transactionHash,
+    blockNumber: event.blockNumber,
   })
 }

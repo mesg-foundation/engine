@@ -8,5 +8,7 @@ export = (mesg: Service, event: EventLog): Promise<EmitEventReply | Error> => {
     offerIndex: event.returnValues.offerIndex,
     price: fromUnit(event.returnValues.price),
     duration: event.returnValues.duration,
+    transactionHash: event.transactionHash,
+    blockNumber: event.blockNumber,
   })
 }

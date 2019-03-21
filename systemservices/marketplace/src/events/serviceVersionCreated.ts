@@ -8,5 +8,7 @@ export = (mesg: Service, event: EventLog): Promise<EmitEventReply | Error> => {
     versionHash: event.returnValues.versionHash,
     manifest: hexToAscii(event.returnValues.manifest),
     manifestProtocol: hexToAscii(event.returnValues.manifestProtocol),
+    transactionHash: event.transactionHash,
+    blockNumber: event.blockNumber,
   })
 }
