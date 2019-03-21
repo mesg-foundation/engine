@@ -17,6 +17,10 @@ import listServices from "./tasks/listServices"
 import purchase from "./tasks/purchase"
 import sendSignedTransaction from "./tasks/sendSignedTransaction"
 import isAuthorized from "./tasks/isAuthorized"
+import decodeLogCreateServiceOffer from "./tasks/decodeLogCreateServiceOffer"
+import decodeLogPublishServiceVersion from "./tasks/decodeLogPublishServiceVersion"
+import decodeLogPurchase from "./tasks/decodeLogPurchase"
+
 import { createTransactionTemplate } from "./contracts/utils";
 
 const providerEndpoint = process.env.PROVIDER_ENDPOINT as string
@@ -47,6 +51,9 @@ const main = async () => {
     purchase: purchase(marketplace, token, createTransaction),
     sendSignedTransaction: sendSignedTransaction(web3),
     isAuthorized: isAuthorized(marketplace),
+    decodeLogCreateServiceOffer: decodeLogCreateServiceOffer(web3),
+    decodeLogPublishServiceVersion: decodeLogPublishServiceVersion(web3),
+    decodeLogPurchase: decodeLogPurchase(web3),
   })
   .on('error', error => console.error('catch listenTask', error))
 

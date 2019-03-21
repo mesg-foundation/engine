@@ -87,3 +87,23 @@ Then, publish transaction, copy past after `signedTransaction=` the tx outputted
 ```
 ./dev-cli service execute marketplace --task sendSignedTransaction --data signedTransaction=
 ```
+
+### Decode transaction receipt
+
+#### decodeLogCreateServiceOffer
+
+```
+./dev-cli service execute marketplace --task decodeLogCreateServiceOffer --json ./systemservices/marketplace/test-data/decodeLogCreateServiceOffer.json
+```
+
+#### decodeLogPublishServiceVersion
+
+```
+./dev-cli service execute marketplace --task decodeLogPublishServiceVersion --json ./systemservices/marketplace/test-data/decodeLogPublishServiceVersion.json 
+```
+
+#### decodeLogPurchase
+
+```
+./dev-cli service execute marketplace --task decodeLogPurchase --json ./systemservices/marketplace/test-data/decodeLogPurchase.json
+```

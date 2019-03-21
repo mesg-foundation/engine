@@ -72,6 +72,15 @@ const findInAbi = (abi: ABIDefinition[], name: string): ABIDefinition => {
   return filter[0]
 }
 
+const decodeLog = (web3: Web3, abi: ABIDefinition, log: Log): any => {
+  if (abi.anonymous === false) {
+    // Remove first element because event is non-anonymous
+    // https://web3js.readthedocs.io/en/1.0/web3-eth-abi.html#decodelog
+    log.topics.splice(0, 1)
+  }
+  return web3.eth.abi.decodeLog(abi.inputs as object, log.data, log.topics)
+}
+
 export {
   hexToAscii,
   asciiToHex,
@@ -83,5 +92,6 @@ export {
   CreateTransaction,
   hashToHex,
   hexToHash,
+  decodeLog,
   findInAbi,
 }

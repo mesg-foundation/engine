@@ -249,7 +249,7 @@ tasks:
           to:
             type: String
             optional: true
-          logs:
+          logs: &logs
             optional: true
             repeated: true
             type: Object
@@ -270,6 +270,47 @@ tasks:
                 type: String
                 optional: true
               blockNumber: *blockNumber
+  decodeLogCreateServiceOffer:
+    name: ""
+    description: ""
+    inputs:
+      logs: *logs
+    outputs:
+      error: *outputError
+      success:
+        data:
+          sid: *sid
+          offerIndex: *offerIndex
+          price: *price
+          duration: *duration
+  decodeLogPublishServiceVersion:
+    name: ""
+    description: ""
+    inputs:
+      logs: *logs
+    outputs:
+      error: *outputError
+      success:
+        data:
+          sid: *sid
+          versionHash: *versionHash
+          manifest: *manifest
+          manifestProtocol: *manifestProtocol
+  decodeLogPurchase:
+    name: ""
+    description: ""
+    inputs:
+      logs: *logs
+    outputs:
+      error: *outputError
+      success:
+        data:
+          sid: *sid
+          offerIndex: *offerIndex
+          purchaser: *purchaser
+          price: *price
+          duration: *duration
+          expire: *expire
   isAuthorized:
     name: ""
     description: ""
