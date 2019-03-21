@@ -126,22 +126,20 @@ func (m *ContainerManager) Start(service *Service) error {
 		return err
 	}
 
-	if err := start(service.Configuration, service.namespace()); err != nil {
-		return err
-	}
-
 	// BUG: https://github.com/mesg-foundation/core/issues/382
 	// After solving this by docker, switch back to deploy in parallel
 	for _, dep := range service.Dependencies {
 		if err := start(dep, depNamespace(service.Hash, dep.Key)); err != nil {
-			return err
-		}
-
-		if err != nil {
 			m.Stop(service)
 			return err
 		}
 	}
+
+	if err := start(service.Configuration, service.namespace()); err != nil {
+		m.Stop(service)
+		return err
+	}
+
 	service.Status = StatusRunning
 	return nil
 }
