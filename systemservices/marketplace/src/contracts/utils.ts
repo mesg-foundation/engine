@@ -29,7 +29,7 @@ const hashToHex = (x: string): string => {
   if (x.startsWith('0x')) throw new Error('hash format is invalid. It starts with 0x')
   return '0x' + base58.decode(x).toString('hex')
 }
-const hexToHash = (x: string): string => base58.encode(Buffer.from(x.replace(/^0x/g, ''), 'hex'))
+const hexToHash = (x: string): string => base58.encode(Buffer.from(x.replace(/^0x/, ''), 'hex'))
 
 interface CreateTransaction {
   (
