@@ -1,5 +1,10 @@
+import { Validator } from "jsonschema"
 import Request from "request-promise-native"
-import { Manifest } from "../types/manifest";
+import { Manifest } from "../types/manifest"
+import manifestSchema from '../types/schema/manifest.json'
+import serviceSchema from '../types/schema/definition.json'
+
+const validator = new Validator();
 
 const getIpfs = async (source: string): Promise<any> => {
   return await Request.get('https://gateway.ipfs.io/ipfs/' + source, { json: true, timeout: 10000 })
@@ -21,12 +26,18 @@ const getManifest = async (protocol: string, source: string): Promise<Manifest|u
       console.warn('protocol', protocol, 'is not compatible with this service')
       return
     }
-    const manifest = await get[protocol](source)
-    if (typeof manifest === 'object') {
-      return manifest as Manifest
+    const manifest: Manifest = await get[protocol](source)
+    const validation = validator.validate(manifest, manifestSchema)
+    if (!validation.valid) {
+      console.warn('manifest', protocol, '::', source, 'is not a valid manifest')
+      return
     }
-    console.warn('manifest ', protocol, '::', source, 'is not a valid manifest')
-    return
+    const defValidation = validator.validate(manifest.service.definition, serviceSchema)
+    if (!defValidation.valid) {
+      console.warn('manifest', protocol, '::', source, 'doesn\'t have a valid service definition')
+      return
+    }
+    return manifest
   }
   catch (error) {
     console.warn('error while downloading manifest', protocol, '::', source, error.toString())

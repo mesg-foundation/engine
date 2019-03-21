@@ -1,0 +1,55 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "properties": {
+        "service": {
+            "properties": {
+                "definition": {
+                    "properties": {
+                    },
+                    "type": "object"
+                },
+                "deployment": {
+                    "properties": {
+                        "source": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "source",
+                        "type"
+                    ],
+                    "type": "object"
+                },
+                "hash": {
+                    "type": "string"
+                },
+                "hashVersion": {
+                    "type": "string"
+                },
+                "readme": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "definition",
+                "deployment",
+                "hash",
+                "hashVersion",
+                "readme"
+            ],
+            "type": "object"
+        },
+        "version": {
+            "type": "string"
+        }
+    },
+    "required": [
+        "service",
+        "version"
+    ],
+    "type": "object"
+}
+
