@@ -51,16 +51,22 @@ tasks:
                   manifest: &manifest
                     name: ""
                     description: ""
-                    type: String
-                  manifestProtocol: &manifestProtocol
-                    name: ""
-                    description: ""
-                    type: String
-                  manifestData: &manifestData
-                    name: ""
-                    description: ""
                     type: Object
                     optional: true
+                    object: 
+                      version: { type: String }
+                      service: &serviceInformation
+                        type: Object
+                        object:
+                          hash: { type: String }
+                          hashVersion: { type: String }
+                          deployment:
+                            type: Object
+                            object:
+                              type: { type: String }
+                              source: { type: String }
+                          definition: { type: Object }
+                          readme: { type: String }
                   createTime: *createTime
               offers: &offers
                 name: ""
@@ -130,9 +136,7 @@ tasks:
     name: ""
     description: ""
     inputs:
-      sid: *sid
-      manifest: *manifest
-      manifestProtocol: *manifestProtocol
+      service: *serviceInformation
       from: &inputFrom
         name: ""
         description: ""
@@ -292,7 +296,6 @@ events:
       sid: *sid
       versionHash: *versionHash
       manifest: *manifest
-      manifestProtocol: *manifestProtocol
   serviceOfferCreated:
     name: ""
     description: ""
