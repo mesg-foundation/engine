@@ -54,15 +54,15 @@ export default (
     if (version === undefined) {
       throw new Error('service with versionHash ' + versionHash + ' does not exist')
     }
-    if (version.manifestData === undefined) {
+    if (version.manifest === undefined) {
       throw new Error('could not download manifest of version with hash ' + versionHash)
     }
 
     return outputs.success({
       authorized: authorized,
       sid: sid,
-      type: version.manifestData.service.deployment.type,
-      source: version.manifestData.service.deployment.source,
+      type: version.manifest.service.deployment.type,
+      source: version.manifest.service.deployment.source,
     })
   }
   catch (error) {
