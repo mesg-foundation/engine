@@ -51,16 +51,18 @@ tasks:
                   manifest: &manifest
                     name: ""
                     description: ""
-                    type: String
-                  manifestProtocol: &manifestProtocol
-                    name: ""
-                    description: ""
-                    type: String
-                  manifestData: &manifestData
-                    name: ""
-                    description: ""
                     type: Object
                     optional: true
+                    object: 
+                      version: { type: String }
+                      service:
+                        hash: { type: String }
+                        hashVersion: { type: String }
+                        deployment:
+                          type: { type: String }
+                          source: { type: String }
+                        definition: { type: Object }
+                        readme: { type: String }
                   createTime: *createTime
               offers: &offers
                 name: ""
@@ -130,9 +132,14 @@ tasks:
     name: ""
     description: ""
     inputs:
-      sid: *sid
-      manifest: *manifest
-      manifestProtocol: *manifestProtocol
+      service:
+        hash: { type: String }
+        hashVersion: { type: String }
+        deployment:
+          type: { type: String }
+          source: { type: String }
+        definition: { type: Object }
+        readme: { type: String }
       from: &inputFrom
         name: ""
         description: ""
