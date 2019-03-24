@@ -22,11 +22,17 @@ import (
 // ServiceProvider is a struct that provides all methods required by service command.
 type ServiceProvider struct {
 	client client
+	mp     *MarketplaceProvider
+	wp     *WalletProvider
 }
 
 // NewServiceProvider creates new ServiceProvider.
-func NewServiceProvider(c coreapi.CoreClient) *ServiceProvider {
-	return &ServiceProvider{client: client{c}}
+func NewServiceProvider(c coreapi.CoreClient, mp *MarketplaceProvider, wp *WalletProvider) *ServiceProvider {
+	return &ServiceProvider{
+		client: client{c},
+		mp:     mp,
+		wp:     wp,
+	}
 }
 
 // ServiceByID finds service based on given id.
