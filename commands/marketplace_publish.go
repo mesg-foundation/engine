@@ -2,20 +2,26 @@ package commands
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/mesg-foundation/core/commands/provider"
+	"github.com/mesg-foundation/core/service/importer"
 	"github.com/mesg-foundation/core/utils/pretty"
+	"github.com/mesg-foundation/core/utils/readme"
 	"github.com/spf13/cobra"
 	survey "gopkg.in/AlecAivazis/survey.v1"
+)
+
+const (
+	// marketplaceServiceHashVersion is the version of the service hash used by the core.
+	marketplaceServiceHashVersion = "1"
 )
 
 type marketplacePublishCmd struct {
 	baseMarketplaceCmd
 
-	path     string
-	manifest provider.MarketplaceManifestData
-	service  provider.MarketplaceService
+	path string
+	sid  string
+	hash string
 
 	e Executor
 }
@@ -35,11 +41,6 @@ func newMarketplacePublishCmd(e Executor) *marketplacePublishCmd {
 }
 
 func (c *marketplacePublishCmd) preRunE(cmd *cobra.Command, args []string) error {
-	var (
-		err      error
-		question = "a new service"
-	)
-
 	if err := c.askAccountAndPassphrase(); err != nil {
 		return err
 	}
@@ -52,28 +53,9 @@ func (c *marketplacePublishCmd) preRunE(cmd *cobra.Command, args []string) error
 	}
 	fmt.Printf("%s Service deployed with sid %s and hash %s\n", pretty.SuccessSign, pretty.Success(sid), pretty.Success(hash))
 
-	c.manifest, err = c.e.CreateManifest(c.path, hash)
-	if err != nil {
-		return err
-	}
-
-	pretty.Progress("Getting service data...", func() {
-		c.service, err = c.e.GetService(c.manifest.Service.Definition.Sid)
-	})
-	outputError, isMarketplaceError := err.(provider.MarketplaceErrorOutput)
-	if err != nil && !isMarketplaceError {
-		return err
-	}
-	if outputError.Code != "notFound" {
-		question = "a new version of service"
-		if !strings.EqualFold(c.service.Owner, c.account) {
-			return fmt.Errorf("the service's owner %q is different than the specified account", c.service.Owner)
-		}
-	}
-
 	var confirmed bool
 	if err := survey.AskOne(&survey.Confirm{
-		Message: fmt.Sprintf("Are you sure to publish %s %q from path %q using account %q?", question, c.manifest.Service.Definition.Sid, c.path, c.account),
+		Message: fmt.Sprintf("Are you sure to publish a new version of service %q from path %q using account %q?", sid, c.path, c.account),
 	}, &confirmed, nil); err != nil {
 		return err
 	}
@@ -86,21 +68,35 @@ func (c *marketplacePublishCmd) preRunE(cmd *cobra.Command, args []string) error
 
 func (c *marketplacePublishCmd) runE(cmd *cobra.Command, args []string) error {
 	var (
-		tx               provider.Transaction
-		err              error
-		manifestProtocol string
-		manifestSource   string
+		tx         provider.Transaction
+		err        error
+		deployment provider.SourceDeployment
 	)
 
 	pretty.Progress("Uploading service source code on the marketplace...", func() {
 		// TODO: add a progress for the upload
-		manifestProtocol, manifestSource, err = c.e.UploadServiceFiles(c.path, c.manifest)
+		deployment, err = c.e.UploadSources(c.path)
 	})
 	if err != nil {
 		return err
 	}
+	definition, err := importer.From(c.path)
+	if err != nil {
+		return err
+	}
+	readme, err := readme.Lookup(c.path)
+	if err != nil {
+		return err
+	}
+	fmt.Println("readme", readme)
 	pretty.Progress("Publishing service on the marketplace...", func() {
-		tx, err = c.e.PublishServiceVersion(c.manifest.Service.Definition.Sid, manifestSource, manifestProtocol, c.account)
+		tx, err = c.e.PublishServiceVersion(provider.MarketplaceServiceData{
+			Definition:  *definition,
+			Hash:        c.hash,
+			HashVersion: marketplaceServiceHashVersion,
+			Readme:      readme,
+			Deployment:  deployment,
+		}, c.account)
 		if err != nil {
 			return
 		}
@@ -110,9 +106,9 @@ func (c *marketplacePublishCmd) runE(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	fmt.Printf("%s Service published with success\n", pretty.SuccessSign)
-	fmt.Printf("%s See it on the marketplace: https://marketplace.mesg.com/services/%s\n", pretty.SuccessSign, c.manifest.Service.Definition.Sid)
+	fmt.Printf("%s See it on the marketplace: https://marketplace.mesg.com/services/%s\n", pretty.SuccessSign, c.sid)
 
-	fmt.Printf("%s To create a service offer, execute the command:\n\tmesg-core marketplace create-offer %s\n", pretty.SuccessSign, c.manifest.Service.Definition.Sid)
+	fmt.Printf("%s To create a service offer, execute the command:\n\tmesg-core marketplace create-offer %s\n", pretty.SuccessSign, c.sid)
 
 	return nil
 }
