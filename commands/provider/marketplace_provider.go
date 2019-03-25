@@ -1,14 +1,11 @@
 package provider
 
 import (
-	"bytes"
 	"encoding/json"
 
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/ipfs"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
-	"github.com/mesg-foundation/core/service/importer"
-	"github.com/mesg-foundation/core/utils/readme"
 )
 
 // MarketplaceProvider is a struct that provides all methods required by service command.
@@ -22,12 +19,10 @@ func NewMarketplaceProvider(c coreapi.CoreClient) *MarketplaceProvider {
 }
 
 // PublishServiceVersion executes the create service version task
-func (p *MarketplaceProvider) PublishServiceVersion(sid, manifest, manifestProtocol, from string) (Transaction, error) {
+func (p *MarketplaceProvider) PublishServiceVersion(service MarketplaceServiceData, from string) (Transaction, error) {
 	input := marketplacePublishServiceVersionTaskInputs{
 		marketplaceTransactionTaskInputs: marketplaceTransactionTaskInputs{From: from},
-		Sid:                              sid,
-		Manifest:                         manifest,
-		ManifestProtocol:                 manifestProtocol,
+		Service: service,
 	}
 	var output Transaction
 	return output, p.call("publishServiceVersion", input, &output)
@@ -37,9 +32,9 @@ func (p *MarketplaceProvider) PublishServiceVersion(sid, manifest, manifestProto
 func (p *MarketplaceProvider) CreateServiceOffer(sid string, price string, duration string, from string) (Transaction, error) {
 	input := marketplaceCreateServiceOfferTaskInputs{
 		marketplaceTransactionTaskInputs: marketplaceTransactionTaskInputs{From: from},
-		Sid:                              sid,
-		Price:                            price,
-		Duration:                         duration,
+		Sid:      sid,
+		Price:    price,
+		Duration: duration,
 	}
 	var output Transaction
 	return output, p.call("createServiceOffer", input, &output)
@@ -49,8 +44,8 @@ func (p *MarketplaceProvider) CreateServiceOffer(sid string, price string, durat
 func (p *MarketplaceProvider) Purchase(sid, offerIndex, from string) ([]Transaction, error) {
 	input := marketplacePurchaseTaskInputs{
 		marketplaceTransactionTaskInputs: marketplaceTransactionTaskInputs{From: from},
-		Sid:                              sid,
-		OfferIndex:                       offerIndex,
+		Sid:        sid,
+		OfferIndex: offerIndex,
 	}
 	var output marketplacePurchaseTaskOutputs
 	return output.Transactions, p.call("purchase", input, &output)
@@ -85,49 +80,23 @@ func (p *MarketplaceProvider) IsAuthorized(sid string, versionHash string, addre
 	return output.Authorized, output.Sid, output.Source, output.Type, p.call("isAuthorized", input, &output)
 }
 
-// UploadServiceFiles upload the tarball and the definition file, and returns the address of the definition file
-func (p *MarketplaceProvider) UploadServiceFiles(path string, manifest MarketplaceManifestData) (protocol string, source string, err error) {
+// UploadSources upload the tarball, and returns the address of the uploaded sources
+func (p *MarketplaceProvider) UploadSources(path string) (SourceDeployment, error) {
 	// upload service source to IPFS
 	tar, err := archive.TarWithOptions(path, &archive.TarOptions{
 		Compression: archive.Gzip,
 	})
 	if err != nil {
-		return "", "", err
+		return SourceDeployment{}, err
 	}
 	tarballResponse, err := ipfs.Add("tarball", tar)
 	if err != nil {
-		return "", "", err
+		return SourceDeployment{}, err
 	}
-
-	manifest.Service.Deployment.Type = marketplaceDeploymentType
-	manifest.Service.Deployment.Source = tarballResponse.Hash
-
-	// upload manifest
-	manifestData, err := json.Marshal(manifest)
-	if err != nil {
-		return "", "", err
-	}
-	definitionResponse, err := ipfs.Add("manifest", bytes.NewReader(manifestData))
-	if err != nil {
-		return "", "", err
-	}
-
-	return marketplaceDeploymentType, definitionResponse.Hash, nil
-}
-
-// CreateManifest creates the manifest file for the service in path.
-func (p *MarketplaceProvider) CreateManifest(path string, hash string) (MarketplaceManifestData, error) {
-	var data MarketplaceManifestData
-	definition, err := importer.From(path)
-	if err != nil {
-		return data, err
-	}
-	data.Version = marketplacePublishVersion
-	data.Service.Hash = hash
-	data.Service.HashVersion = marketplaceServiceHashVersion
-	data.Service.Definition = *definition
-	data.Service.Readme, err = readme.Lookup(path)
-	return data, err
+	return SourceDeployment{
+		Type:   marketplaceDeploymentType,
+		Source: tarballResponse.Hash,
+	}, nil
 }
 
 func (p *MarketplaceProvider) call(task string, inputs interface{}, output interface{}) error {

@@ -7,12 +7,6 @@ import (
 )
 
 const (
-	// marketplacePublishVersion is the version used to publish the services to the marketplace.
-	marketplacePublishVersion = "1"
-
-	// marketplaceServiceHashVersion is the version of the service hash used by the core.
-	marketplaceServiceHashVersion = "1"
-
 	// marketplaceDeploymentType is the type of deployment used for the service.
 	marketplaceDeploymentType = "ipfs"
 
@@ -52,19 +46,25 @@ type MarketplaceService struct {
 	} `json:"purchases"`
 }
 
+// SourceDeployment is the information related to a deployment
+type SourceDeployment struct {
+	Type   string `json:"type"`
+	Source string `json:"source"`
+}
+
+// MarketplaceServiceData is the data present to the manifest and sent to create a new service's version
+type MarketplaceServiceData struct {
+	Definition  importer.ServiceDefinition `json:"definition"`
+	Readme      string                     `json:"readme,omitempty"`
+	Hash        string                     `json:"hash"`
+	HashVersion string                     `json:"hashVersion"`
+	Deployment  SourceDeployment           `json:"deployment"`
+}
+
 // MarketplaceManifestData struct {
 type MarketplaceManifestData struct {
-	Version string `json:"version"`
-	Service struct {
-		Definition  importer.ServiceDefinition `json:"definition"`
-		Readme      string                     `json:"readme,omitempty"`
-		Hash        string                     `json:"hash"`
-		HashVersion string                     `json:"hashVersion"`
-		Deployment  struct {
-			Type   string `json:"type"`
-			Source string `json:"source"`
-		} `json:"deployment"`
-	} `json:"service"`
+	Version string                 `json:"version"`
+	Service MarketplaceServiceData `json:"service"`
 }
 
 // UnmarshalJSON overrides the default one to allow parsing malformed manifest data without returning error to user.
@@ -85,9 +85,7 @@ type marketplaceTransactionTaskInputs struct {
 
 type marketplacePublishServiceVersionTaskInputs struct {
 	marketplaceTransactionTaskInputs
-	Sid              string `json:"sid"`
-	Manifest         string `json:"manifest"`
-	ManifestProtocol string `json:"manifestProtocol"`
+	Service MarketplaceServiceData `json:"service"`
 }
 
 type marketplaceCreateServiceOfferTaskInputs struct {
