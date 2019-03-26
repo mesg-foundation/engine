@@ -22,7 +22,7 @@ func NewMarketplaceProvider(c coreapi.CoreClient) *MarketplaceProvider {
 func (p *MarketplaceProvider) PublishServiceVersion(service MarketplaceServiceData, from string) (Transaction, error) {
 	input := marketplacePublishServiceVersionTaskInputs{
 		marketplaceTransactionTaskInputs: marketplaceTransactionTaskInputs{From: from},
-		Service: service,
+		Service:                          service,
 	}
 	var output Transaction
 	return output, p.call("publishServiceVersion", input, &output)
@@ -32,9 +32,9 @@ func (p *MarketplaceProvider) PublishServiceVersion(service MarketplaceServiceDa
 func (p *MarketplaceProvider) CreateServiceOffer(sid string, price string, duration string, from string) (Transaction, error) {
 	input := marketplaceCreateServiceOfferTaskInputs{
 		marketplaceTransactionTaskInputs: marketplaceTransactionTaskInputs{From: from},
-		Sid:      sid,
-		Price:    price,
-		Duration: duration,
+		Sid:                              sid,
+		Price:                            price,
+		Duration:                         duration,
 	}
 	var output Transaction
 	return output, p.call("createServiceOffer", input, &output)
@@ -44,8 +44,8 @@ func (p *MarketplaceProvider) CreateServiceOffer(sid string, price string, durat
 func (p *MarketplaceProvider) Purchase(sid, offerIndex, from string) ([]Transaction, error) {
 	input := marketplacePurchaseTaskInputs{
 		marketplaceTransactionTaskInputs: marketplaceTransactionTaskInputs{From: from},
-		Sid:        sid,
-		OfferIndex: offerIndex,
+		Sid:                              sid,
+		OfferIndex:                       offerIndex,
 	}
 	var output marketplacePurchaseTaskOutputs
 	return output.Transactions, p.call("purchase", input, &output)
