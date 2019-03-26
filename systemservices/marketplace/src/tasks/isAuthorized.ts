@@ -51,7 +51,7 @@ export default (
 
     // get version's manifest data
     const version = await getServiceVersion(contract, versionHash)
-    if (version === undefined) {
+    if (!version) {
       throw new Error('service with versionHash ' + versionHash + ' does not exist')
     }
     if (version.manifest === undefined) {
