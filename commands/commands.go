@@ -25,7 +25,6 @@ type ServiceExecutor interface {
 	ServiceDeleteAll(deleteData bool) error
 	ServiceDelete(deleteData bool, ids ...string) error
 	ServiceDeploy(path string, env map[string]string, statuses chan provider.DeployStatus) (sid string, hash string, validationError, err error)
-	ServicePublishDefinitionFile(path string) (string, error)
 	ServiceListenEvents(id, eventFilter string) (chan *coreapi.EventData, chan error, error)
 	ServiceListenResults(id, taskFilter, outputFilter string, tagFilters []string) (chan *coreapi.ResultData, chan error, error)
 	ServiceLogs(id string, dependencies ...string) (logs []*provider.Log, closer func(), errC chan error, err error)
@@ -37,6 +36,17 @@ type ServiceExecutor interface {
 	ServiceList() ([]*coreapi.Service, error)
 	ServiceInitTemplateList() ([]*servicetemplate.Template, error)
 	ServiceInitDownloadTemplate(t *servicetemplate.Template, dst string) error
+}
+
+// MarketplaceExecutor is an interface that handles marketplace commands.
+type MarketplaceExecutor interface {
+	CreateManifest(path string, hash string) (provider.MarketplaceManifestData, error)
+	UploadServiceFiles(path string, manifest provider.MarketplaceManifestData) (protocol string, source string, err error)
+	PublishServiceVersion(sid, manifest, manifestProtocol, from string) (provider.Transaction, error)
+	CreateServiceOffer(sid string, price string, duration string, from string) (provider.Transaction, error)
+	Purchase(sid, offerIndex, from string) ([]provider.Transaction, error)
+	SendSignedTransaction(signedTransaction string) (provider.TransactionReceipt, error)
+	GetService(sid string) (provider.MarketplaceService, error)
 }
 
 // WalletExecutor is an interface that handles wallet commands.
@@ -54,6 +64,7 @@ type WalletExecutor interface {
 type Executor interface {
 	RootExecutor
 	ServiceExecutor
+	MarketplaceExecutor
 	WalletExecutor
 }
 
