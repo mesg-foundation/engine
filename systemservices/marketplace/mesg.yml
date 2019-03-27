@@ -51,42 +51,16 @@ tasks:
                   manifest: &manifest
                     name: ""
                     description: ""
+                    type: String
+                  manifestProtocol: &manifestProtocol
+                    name: ""
+                    description: ""
+                    type: String
+                  manifestData: &manifestData
+                    name: ""
+                    description: ""
                     type: Object
                     optional: true
-                    object: 
-                      version: 
-                        name: ""
-                        description: ""
-                        type: String
-                      service: &manifestServiceData
-                        type: Object
-                        object:
-                          hash:
-                            name: ""
-                            description: ""
-                            type: String
-                          hashVersion: 
-                            name: ""
-                            description: ""
-                            type: String
-                          deployment:
-                            type: Object
-                            object:
-                              type: 
-                                name: ""
-                                description: ""
-                                type: String
-                              source: 
-                                name: ""
-                                description: ""
-                                type: String
-                          definition: 
-                            name: ""
-                            description: ""
-                            type: Object
-                          readme: 
-                            type: String
-                            optional: true
                   createTime: *createTime
               offers: &offers
                 name: ""
@@ -156,7 +130,25 @@ tasks:
     name: ""
     description: ""
     inputs:
-      service: *manifestServiceData
+      service:
+        type: Object
+        object:
+          hash:
+            type: String
+          hashVersion: 
+            type: String
+          deployment:
+            type: Object
+            object:
+              type: 
+                type: String
+              source: 
+                type: String
+          definition: 
+            type: Object
+          readme: 
+            type: String
+            optional: true
       from: &inputFrom
         name: ""
         description: ""
@@ -316,6 +308,7 @@ events:
       sid: *sid
       versionHash: *versionHash
       manifest: *manifest
+      manifestProtocol: *manifestProtocol
   serviceOfferCreated:
     name: ""
     description: ""
