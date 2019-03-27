@@ -88,7 +88,6 @@ func (c *marketplacePublishCmd) runE(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("readme", readme)
 	pretty.Progress("Publishing service on the marketplace...", func() {
 		tx, err = c.e.PublishServiceVersion(provider.MarketplaceManifestServiceData{
 			Definition:  *definition,
