@@ -54,18 +54,36 @@ tasks:
                     type: Object
                     optional: true
                     object: 
-                      version: { type: String }
+                      version: 
+                        name: ""
+                        description: ""
+                        type: String
                       service: &manifestServiceData
                         type: Object
                         object:
-                          hash: { type: String }
-                          hashVersion: { type: String }
+                          hash:
+                            name: ""
+                            description: ""
+                            type: String
+                          hashVersion: 
+                            name: ""
+                            description: ""
+                            type: String
                           deployment:
                             type: Object
                             object:
-                              type: { type: String }
-                              source: { type: String }
-                          definition: { type: Object }
+                              type: 
+                                name: ""
+                                description: ""
+                                type: String
+                              source: 
+                                name: ""
+                                description: ""
+                                type: String
+                          definition: 
+                            name: ""
+                            description: ""
+                            type: Object
                           readme: 
                             type: String
                             optional: true
