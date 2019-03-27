@@ -55,7 +55,7 @@ tasks:
                     optional: true
                     object: 
                       version: { type: String }
-                      service: &serviceInformation
+                      service: &manifestServiceData
                         type: Object
                         object:
                           hash: { type: String }
@@ -138,7 +138,7 @@ tasks:
     name: ""
     description: ""
     inputs:
-      service: *serviceInformation
+      service: *manifestServiceData
       from: &inputFrom
         name: ""
         description: ""

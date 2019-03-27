@@ -19,7 +19,7 @@ func NewMarketplaceProvider(c coreapi.CoreClient) *MarketplaceProvider {
 }
 
 // PublishServiceVersion executes the create service version task
-func (p *MarketplaceProvider) PublishServiceVersion(service MarketplaceServiceData, from string) (Transaction, error) {
+func (p *MarketplaceProvider) PublishServiceVersion(service MarketplaceManifestServiceData, from string) (Transaction, error) {
 	input := marketplacePublishServiceVersionTaskInputs{
 		marketplaceTransactionTaskInputs: marketplaceTransactionTaskInputs{From: from},
 		Service:                          service,
@@ -80,20 +80,20 @@ func (p *MarketplaceProvider) IsAuthorized(sid string, versionHash string, addre
 	return output.Authorized, output.Sid, output.Source, output.Type, p.call("isAuthorized", input, &output)
 }
 
-// UploadSources upload the tarball, and returns the address of the uploaded sources
-func (p *MarketplaceProvider) UploadSources(path string) (SourceDeployment, error) {
+// UploadSource upload the tarball, and returns the address of the uploaded sources
+func (p *MarketplaceProvider) UploadSource(path string) (MarketplaceDeployedSource, error) {
 	// upload service source to IPFS
 	tar, err := archive.TarWithOptions(path, &archive.TarOptions{
 		Compression: archive.Gzip,
 	})
 	if err != nil {
-		return SourceDeployment{}, err
+		return MarketplaceDeployedSource{}, err
 	}
 	tarballResponse, err := ipfs.Add("tarball", tar)
 	if err != nil {
-		return SourceDeployment{}, err
+		return MarketplaceDeployedSource{}, err
 	}
-	return SourceDeployment{
+	return MarketplaceDeployedSource{
 		Type:   marketplaceDeploymentType,
 		Source: tarballResponse.Hash,
 	}, nil
