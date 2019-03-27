@@ -66,13 +66,9 @@ const createTransactionTemplate = (
   }
 }
 
-const findInAbi = (abi: ABIDefinition[], name: string): ABIDefinition => {
-  const filter = abi.filter(a => a.name === name)
-  if (filter.length !== 1) throw new Error('Did not find definition "'+name+'" in abi')
-  return filter[0]
-}
-
-const decodeLog = (web3: Web3, abi: ABIDefinition, log: Log): any => {
+const decodeLog = (web3: Web3, contract: Contract, log: Log, eventName: string): any => {
+  const abi = contract.options.jsonInterface.filter(abi => abi.name === eventName)[0]
+  if (abi === undefined) throw new Error('Did not find event "'+eventName+'" in abi')
   if (abi.anonymous === false) {
     // Remove first element because event is non-anonymous
     // https://web3js.readthedocs.io/en/1.0/web3-eth-abi.html#decodelog
