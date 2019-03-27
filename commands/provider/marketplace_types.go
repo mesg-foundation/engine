@@ -46,25 +46,25 @@ type MarketplaceService struct {
 	} `json:"purchases"`
 }
 
-// SourceDeployment is the information related to a deployment
-type SourceDeployment struct {
+// MarketplaceDeployedSource is the information related to a deployment
+type MarketplaceDeployedSource struct {
 	Type   string `json:"type"`
 	Source string `json:"source"`
 }
 
-// MarketplaceServiceData is the data present to the manifest and sent to create a new service's version
-type MarketplaceServiceData struct {
+// MarketplaceManifestServiceData is the data present to the manifest and sent to create a new service's version
+type MarketplaceManifestServiceData struct {
 	Definition  importer.ServiceDefinition `json:"definition"`
 	Readme      string                     `json:"readme,omitempty"`
 	Hash        string                     `json:"hash"`
 	HashVersion string                     `json:"hashVersion"`
-	Deployment  SourceDeployment           `json:"deployment"`
+	Deployment  MarketplaceDeployedSource  `json:"deployment"`
 }
 
 // MarketplaceManifestData struct {
 type MarketplaceManifestData struct {
-	Version string                 `json:"version"`
-	Service MarketplaceServiceData `json:"service"`
+	Version string                         `json:"version"`
+	Service MarketplaceManifestServiceData `json:"service"`
 }
 
 // UnmarshalJSON overrides the default one to allow parsing malformed manifest data without returning error to user.
@@ -85,7 +85,7 @@ type marketplaceTransactionTaskInputs struct {
 
 type marketplacePublishServiceVersionTaskInputs struct {
 	marketplaceTransactionTaskInputs
-	Service MarketplaceServiceData `json:"service"`
+	Service MarketplaceManifestServiceData `json:"service"`
 }
 
 type marketplaceCreateServiceOfferTaskInputs struct {

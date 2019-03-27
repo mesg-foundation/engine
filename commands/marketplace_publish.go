@@ -70,12 +70,12 @@ func (c *marketplacePublishCmd) runE(cmd *cobra.Command, args []string) error {
 	var (
 		tx         provider.Transaction
 		err        error
-		deployment provider.SourceDeployment
+		deployment provider.MarketplaceDeployedSource
 	)
 
 	pretty.Progress("Uploading service source code on the marketplace...", func() {
 		// TODO: add a progress for the upload
-		deployment, err = c.e.UploadSources(c.path)
+		deployment, err = c.e.UploadSource(c.path)
 	})
 	if err != nil {
 		return err
@@ -90,7 +90,7 @@ func (c *marketplacePublishCmd) runE(cmd *cobra.Command, args []string) error {
 	}
 	fmt.Println("readme", readme)
 	pretty.Progress("Publishing service on the marketplace...", func() {
-		tx, err = c.e.PublishServiceVersion(provider.MarketplaceServiceData{
+		tx, err = c.e.PublishServiceVersion(provider.MarketplaceManifestServiceData{
 			Definition:  *definition,
 			Hash:        c.hash,
 			HashVersion: marketplaceServiceHashVersion,

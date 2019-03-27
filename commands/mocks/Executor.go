@@ -208,18 +208,18 @@ func (_m *Executor) Logs() (io.ReadCloser, error) {
 }
 
 // PublishServiceVersion provides a mock function with given fields: service, from
-func (_m *Executor) PublishServiceVersion(service provider.MarketplaceServiceData, from string) (provider.Transaction, error) {
+func (_m *Executor) PublishServiceVersion(service provider.MarketplaceManifestServiceData, from string) (provider.Transaction, error) {
 	ret := _m.Called(service, from)
 
 	var r0 provider.Transaction
-	if rf, ok := ret.Get(0).(func(provider.MarketplaceServiceData, string) provider.Transaction); ok {
+	if rf, ok := ret.Get(0).(func(provider.MarketplaceManifestServiceData, string) provider.Transaction); ok {
 		r0 = rf(service, from)
 	} else {
 		r0 = ret.Get(0).(provider.Transaction)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(provider.MarketplaceServiceData, string) error); ok {
+	if rf, ok := ret.Get(1).(func(provider.MarketplaceManifestServiceData, string) error); ok {
 		r1 = rf(service, from)
 	} else {
 		r1 = ret.Error(1)
@@ -691,15 +691,15 @@ func (_m *Executor) Stop() error {
 	return r0
 }
 
-// UploadSources provides a mock function with given fields: path
-func (_m *Executor) UploadSources(path string) (provider.SourceDeployment, error) {
+// UploadSource provides a mock function with given fields: path
+func (_m *Executor) UploadSource(path string) (provider.MarketplaceDeployedSource, error) {
 	ret := _m.Called(path)
 
-	var r0 provider.SourceDeployment
-	if rf, ok := ret.Get(0).(func(string) provider.SourceDeployment); ok {
+	var r0 provider.MarketplaceDeployedSource
+	if rf, ok := ret.Get(0).(func(string) provider.MarketplaceDeployedSource); ok {
 		r0 = rf(path)
 	} else {
-		r0 = ret.Get(0).(provider.SourceDeployment)
+		r0 = ret.Get(0).(provider.MarketplaceDeployedSource)
 	}
 
 	var r1 error
