@@ -2,7 +2,7 @@ import { Validator } from "jsonschema"
 import Request from "request-promise-native"
 import { Manifest } from "../types/manifest"
 import manifestSchema from '../types/schema/manifest.json'
-import serviceSchema from '../types/schema/definition.json'
+import serviceSchema from '../types/schema/service.json'
 
 const validator = new Validator();
 

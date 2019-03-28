@@ -12,7 +12,7 @@
     },
     "sid": {
       "type": "string",
-      "maxLength": 39,
+      "maxLength": 63,
       "pattern": "^[0-9a-zA-Z\\._-]+$"
     },
     "description": {
@@ -128,9 +128,6 @@
         "inputs": {
           "$ref": "#/definitions/parameters"
         },
-        "secrets": {
-          "$ref": "#/definitions/parameters"
-        },
         "outputs": {
           "type": "object",
           "additionalProperties": false,
@@ -180,8 +177,7 @@
       "additionalProperties": false,
       "properties": {
         "image": {
-          "type": "string",
-          "minLength": 1
+          "type": "string"
         },
         "command": {
           "type": "string"
