@@ -29,7 +29,13 @@ const getServiceVersion = async (contract: Marketplace, versionHash: string): Pr
     return
   }
   const version = await contract.methods.serviceVersion(versionHashHex).call()
-  const manifestData = await getManifest(hexToAscii(version.manifestProtocol), hexToAscii(version.manifest))
+  let manifestData = null
+  try {
+    manifestData = await getManifest(hexToAscii(version.manifestProtocol), hexToAscii(version.manifest))
+  }
+  catch (error) {
+    console.warn(error.toString())
+  }
   return {
     versionHash: versionHash,
     manifest: hexToAscii(version.manifest),
