@@ -4,8 +4,8 @@ export interface Manifest {
     hash: string
     hashVersion: '1'
     deployment: {
-      type: string
-      source: 'ipfs'|'http'|'https'
+      type: 'ipfs'|'http'|'https'
+      source: string
     }
     definition: any,
     readme?: string
