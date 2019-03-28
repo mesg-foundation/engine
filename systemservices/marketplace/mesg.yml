@@ -3,7 +3,7 @@ sid: marketplace
 description: ""
 configuration:
   env:
-    - PROVIDER_ENDPOINT=https://ropsten.infura.io
+    - PROVIDER_ENDPOINT=https://ropsten.infura.io/v3/6115ae2531f64c04a9a392cf500e5fbe
     - BLOCK_CONFIRMATIONS=0
     - DEFAULT_GAS=1000000
     - POLLING_TIME=1000
