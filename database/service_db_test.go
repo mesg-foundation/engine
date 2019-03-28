@@ -42,13 +42,13 @@ func TestServiceDBSave(t *testing.T) {
 	s2 := &service.Service{Hash: "01", Sid: "1", Name: "test-service"}
 	require.NoError(t, db.Save(s2))
 	_, err := db.Get(s1.Hash)
-	require.NoError(t, err)
+	require.IsType(t, &ErrNotFound{}, err)
 
 	// different hash, different sid. should not replace anything.
 	s3 := &service.Service{Hash: "02", Sid: "2", Name: "test-service"}
 	require.NoError(t, db.Save(s3))
 	ss, _ = db.All()
-	require.Len(t, ss, 3)
+	require.Len(t, ss, 2)
 
 	// test service without hash.
 	s := &service.Service{Name: "test-service", Sid: "Sid"}
@@ -191,4 +191,24 @@ func TestServiceDBAllWithDecodeError(t *testing.T) {
 func TestIsErrNotFound(t *testing.T) {
 	require.True(t, IsErrNotFound(&ErrNotFound{}))
 	require.False(t, IsErrNotFound(nil))
+}
+
+// Test to check behavior of one sid "has one" hash and ony hash "belongs to" one sid
+// This test can be replaced/deleted when we implement sid "has many" hashes
+func TestPairHashSid(t *testing.T) {
+	db, closer := openServiceDB(t)
+	defer closer()
+
+	s1 := &service.Service{Hash: "00", Sid: "Sid1"}
+	s2 := &service.Service{Hash: "01", Sid: "Sid1"}
+
+	require.NoError(t, db.Save(s1))
+	require.NoError(t, db.Save(s2))
+	defer db.Delete(s1.Hash)
+	defer db.Delete(s2.Hash)
+	_, err := db.Get(s1.Hash)
+	require.Error(t, err)
+	s, err := db.Get(s2.Hash)
+	require.NoError(t, err)
+	require.Equal(t, s.Hash, s2.Hash)
 }
