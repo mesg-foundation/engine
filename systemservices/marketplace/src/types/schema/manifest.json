@@ -8,14 +8,14 @@
                 "deployment": {
                     "properties": {
                         "source": {
+                            "type": "string"
+                        },
+                        "type": {
                             "enum": [
                                 "http",
                                 "https",
                                 "ipfs"
                             ],
-                            "type": "string"
-                        },
-                        "type": {
                             "type": "string"
                         }
                     },
