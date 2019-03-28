@@ -7,11 +7,11 @@ import serviceSchema from '../types/schema/definition.json'
 const validator = new Validator();
 
 const getIpfs = async (source: string): Promise<any> => {
-  return await Request.get('https://gateway.ipfs.io/ipfs/' + source, { json: true, timeout: 10000 })
+  return await Request.get('https://gateway.ipfs.io/ipfs/' + source, { json: true, timeout: 30000 })
 }
 
 const getHttp = async (source: string): Promise<any> => {
-  return await Request.get(source, { json: true, timeout: 10000 })
+  return await Request.get(source, { json: true, timeout: 30000 })
 }
 
 const get: {[key: string]: (source: string) => Promise<any>} = {
@@ -22,6 +22,7 @@ const get: {[key: string]: (source: string) => Promise<any>} = {
 
 const getManifest = async (protocol: string, source: string): Promise<Manifest|undefined> => {
   try {
+    protocol = protocol.toLowerCase()
     if (!get[protocol]) {
       console.warn('protocol', protocol, 'is not compatible with this service')
       return
