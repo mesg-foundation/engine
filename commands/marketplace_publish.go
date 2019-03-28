@@ -47,15 +47,16 @@ func (c *marketplacePublishCmd) preRunE(cmd *cobra.Command, args []string) error
 
 	c.path = getFirstOrCurrentPath(args)
 
-	sid, hash, err := deployService(c.e, c.path, map[string]string{})
+	var err error
+	c.sid, c.hash, err = deployService(c.e, c.path, map[string]string{})
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%s Service deployed with sid %s and hash %s\n", pretty.SuccessSign, pretty.Success(sid), pretty.Success(hash))
+	fmt.Printf("%s Service deployed with sid %s and hash %s\n", pretty.SuccessSign, pretty.Success(c.sid), pretty.Success(c.hash))
 
 	var confirmed bool
 	if err := survey.AskOne(&survey.Confirm{
-		Message: fmt.Sprintf("Are you sure to publish a new version of service %q from path %q using account %q?", sid, c.path, c.account),
+		Message: fmt.Sprintf("Are you sure to publish a new version of service %q from path %q using account %q?", c.sid, c.path, c.account),
 	}, &confirmed, nil); err != nil {
 		return err
 	}
