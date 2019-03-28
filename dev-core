@@ -24,7 +24,7 @@ for i in systemservices/* ; do
     echo "Creating archive for $i..."
     cd $i
     file=$(basename "$i")
-    tar -czf ../../tmp-systemservices/$file.tar.gz *
+    tar -czf ../../tmp-systemservices/$file.tar.gz --exclude-from=.dockerignore .
     varname="$(tr '[:lower:]' '[:upper:]' <<< ${file:0:1})${file:1}"
     LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.${varname}URL=http://$MESG_SERVICE_SERVER/$file.tar.gz'"
     cd ../..
