@@ -4,13 +4,15 @@
         "service": {
             "properties": {
                 "definition": {
-                    "properties": {
-                    },
-                    "type": "object"
                 },
                 "deployment": {
                     "properties": {
                         "source": {
+                            "enum": [
+                                "http",
+                                "https",
+                                "ipfs"
+                            ],
                             "type": "string"
                         },
                         "type": {
@@ -27,6 +29,9 @@
                     "type": "string"
                 },
                 "hashVersion": {
+                    "enum": [
+                        "1"
+                    ],
                     "type": "string"
                 },
                 "readme": {
@@ -37,12 +42,14 @@
                 "definition",
                 "deployment",
                 "hash",
-                "hashVersion",
-                "readme"
+                "hashVersion"
             ],
             "type": "object"
         },
         "version": {
+            "enum": [
+                "1"
+            ],
             "type": "string"
         }
     },
