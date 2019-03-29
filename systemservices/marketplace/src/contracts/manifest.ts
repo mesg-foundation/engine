@@ -2,7 +2,6 @@ import { Validator } from "jsonschema"
 import Request from "request-promise-native"
 import { Manifest } from "../types/manifest"
 import manifestSchema from '../types/schema/manifest.json'
-import serviceSchema from '../types/schema/service.json'
 
 const validator = new Validator();
 
@@ -26,8 +25,6 @@ const getManifest = async (protocol: string, source: string): Promise<Manifest> 
   const manifest: Manifest = await get[protocol](source)
   const validation = validator.validate(manifest, manifestSchema)
   if (!validation.valid) throw new Error(`manifest ${protocol} :: ${source} is not a valid manifest`)
-  const defValidation = validator.validate(manifest.service.definition, serviceSchema)
-  if (!defValidation.valid) throw new Error(`manifest ${protocol} :: ${source} doesn't have a valid service definition`)
   return manifest
 }
 
