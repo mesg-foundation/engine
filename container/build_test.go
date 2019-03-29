@@ -22,11 +22,12 @@ func newImageBuildResponse(body string) types.ImageBuildResponse {
 
 func TestBuild(t *testing.T) {
 	var (
-		expectedTag = "sha256:1f6359c933421f53a7ef9e417bfa51b1c313c54878fdeb16de827f427e16d836"
+		expectedTag = "foo:bar"
 		options     = types.ImageBuildOptions{
 			Remove:         true,
 			ForceRemove:    true,
 			SuppressOutput: true,
+			Tags:           []string{"foo:bar"},
 		}
 		c, m = newTesting(t)
 	)
