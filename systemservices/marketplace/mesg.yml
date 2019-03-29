@@ -279,6 +279,19 @@ tasks:
         data:
           receipt:
             type: Object
+  publishCreateServiceOffer:
+    name: ""
+    description: ""
+    inputs:
+      signedTransaction: *signedTransaction
+    outputs:
+      error: *outputError
+      success:
+        data:
+          sid: *sid
+          offerIndex: *offerIndex
+          price: *price
+          duration: *duration
   isAuthorized:
     name: ""
     description: ""
