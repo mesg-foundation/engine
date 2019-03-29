@@ -16,6 +16,7 @@ import createServiceOffer from "./tasks/createServiceOffer"
 import listServices from "./tasks/listServices"
 import purchase from "./tasks/purchase"
 import sendSignedTransaction from "./tasks/sendSignedTransaction"
+import publishCreateServiceOffer from "./tasks/publishCreateServiceOffer"
 import isAuthorized from "./tasks/isAuthorized"
 import { createTransactionTemplate } from "./contracts/utils";
 
@@ -46,6 +47,7 @@ const main = async () => {
     createServiceOffer: createServiceOffer(marketplace, createTransaction),
     purchase: purchase(marketplace, token, createTransaction),
     sendSignedTransaction: sendSignedTransaction(web3),
+    publishCreateServiceOffer: publishCreateServiceOffer(web3),
     isAuthorized: isAuthorized(marketplace),
   })
   .on('error', error => console.error('catch listenTask', error))
