@@ -20,7 +20,7 @@ export default (
     return outputs.success(await createTransaction(marketplace, inputs, transactionData))
   }
   catch (error) {
-    console.error('error in publishServiceVersion', error)
+    console.error('error in preparePublishServiceVersion', error)
     return outputs.error({ message: error.toString() })
   }
 }
