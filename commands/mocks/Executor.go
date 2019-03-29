@@ -35,27 +35,6 @@ func (_m *Executor) Create(passphrase string) (string, error) {
 	return r0, r1
 }
 
-// CreateManifest provides a mock function with given fields: path, hash
-func (_m *Executor) CreateManifest(path string, hash string) (provider.MarketplaceManifestData, error) {
-	ret := _m.Called(path, hash)
-
-	var r0 provider.MarketplaceManifestData
-	if rf, ok := ret.Get(0).(func(string, string) provider.MarketplaceManifestData); ok {
-		r0 = rf(path, hash)
-	} else {
-		r0 = ret.Get(0).(provider.MarketplaceManifestData)
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(string, string) error); ok {
-		r1 = rf(path, hash)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // CreateServiceOffer provides a mock function with given fields: sid, price, duration, from
 func (_m *Executor) CreateServiceOffer(sid string, price string, duration string, from string) (provider.Transaction, error) {
 	ret := _m.Called(sid, price, duration, from)
@@ -91,27 +70,6 @@ func (_m *Executor) Delete(address string, passphrase string) (string, error) {
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string, string) error); ok {
 		r1 = rf(address, passphrase)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// DisableServiceOffer provides a mock function with given fields: sid, offerIndex, from
-func (_m *Executor) DisableServiceOffer(sid string, offerIndex string, from string) (provider.Transaction, error) {
-	ret := _m.Called(sid, offerIndex, from)
-
-	var r0 provider.Transaction
-	if rf, ok := ret.Get(0).(func(string, string, string) provider.Transaction); ok {
-		r0 = rf(sid, offerIndex, from)
-	} else {
-		r0 = ret.Get(0).(provider.Transaction)
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(string, string, string) error); ok {
-		r1 = rf(sid, offerIndex, from)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -249,20 +207,20 @@ func (_m *Executor) Logs() (io.ReadCloser, error) {
 	return r0, r1
 }
 
-// PublishServiceVersion provides a mock function with given fields: sid, manifest, manifestProtocol, from
-func (_m *Executor) PublishServiceVersion(sid string, manifest string, manifestProtocol string, from string) (provider.Transaction, error) {
-	ret := _m.Called(sid, manifest, manifestProtocol, from)
+// PublishServiceVersion provides a mock function with given fields: service, from
+func (_m *Executor) PublishServiceVersion(service provider.MarketplaceManifestServiceData, from string) (provider.Transaction, error) {
+	ret := _m.Called(service, from)
 
 	var r0 provider.Transaction
-	if rf, ok := ret.Get(0).(func(string, string, string, string) provider.Transaction); ok {
-		r0 = rf(sid, manifest, manifestProtocol, from)
+	if rf, ok := ret.Get(0).(func(provider.MarketplaceManifestServiceData, string) provider.Transaction); ok {
+		r0 = rf(service, from)
 	} else {
 		r0 = ret.Get(0).(provider.Transaction)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, string, string, string) error); ok {
-		r1 = rf(sid, manifest, manifestProtocol, from)
+	if rf, ok := ret.Get(1).(func(provider.MarketplaceManifestServiceData, string) error); ok {
+		r1 = rf(service, from)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -733,51 +691,23 @@ func (_m *Executor) Stop() error {
 	return r0
 }
 
-// TransferServiceOwnership provides a mock function with given fields: sid, newOwner, from
-func (_m *Executor) TransferServiceOwnership(sid string, newOwner string, from string) (provider.Transaction, error) {
-	ret := _m.Called(sid, newOwner, from)
+// UploadSource provides a mock function with given fields: path
+func (_m *Executor) UploadSource(path string) (provider.MarketplaceDeployedSource, error) {
+	ret := _m.Called(path)
 
-	var r0 provider.Transaction
-	if rf, ok := ret.Get(0).(func(string, string, string) provider.Transaction); ok {
-		r0 = rf(sid, newOwner, from)
+	var r0 provider.MarketplaceDeployedSource
+	if rf, ok := ret.Get(0).(func(string) provider.MarketplaceDeployedSource); ok {
+		r0 = rf(path)
 	} else {
-		r0 = ret.Get(0).(provider.Transaction)
+		r0 = ret.Get(0).(provider.MarketplaceDeployedSource)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, string, string) error); ok {
-		r1 = rf(sid, newOwner, from)
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(path)
 	} else {
 		r1 = ret.Error(1)
 	}
 
 	return r0, r1
-}
-
-// UploadServiceFiles provides a mock function with given fields: path, manifest
-func (_m *Executor) UploadServiceFiles(path string, manifest provider.MarketplaceManifestData) (string, string, error) {
-	ret := _m.Called(path, manifest)
-
-	var r0 string
-	if rf, ok := ret.Get(0).(func(string, provider.MarketplaceManifestData) string); ok {
-		r0 = rf(path, manifest)
-	} else {
-		r0 = ret.Get(0).(string)
-	}
-
-	var r1 string
-	if rf, ok := ret.Get(1).(func(string, provider.MarketplaceManifestData) string); ok {
-		r1 = rf(path, manifest)
-	} else {
-		r1 = ret.Get(1).(string)
-	}
-
-	var r2 error
-	if rf, ok := ret.Get(2).(func(string, provider.MarketplaceManifestData) error); ok {
-		r2 = rf(path, manifest)
-	} else {
-		r2 = ret.Error(2)
-	}
-
-	return r0, r1, r2
 }

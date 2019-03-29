@@ -11,6 +11,7 @@
     "base-x": "^3.0.5",
     "bignumber.js": "^8.1.1",
     "jsonschema": "^1.2.4",
+    "ipfs-http-client": "^30.1.0",
     "mesg-js": "^2.0.1",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
