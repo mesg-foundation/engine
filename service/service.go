@@ -184,14 +184,14 @@ func DeployStatusOption(statuses chan DeployStatus) Option {
 func (s *Service) deploy() error {
 	s.sendStatus("Building Docker image...", DRunning)
 
-	imageHash, err := s.container.Build(s.tempPath)
+	imageTag, err := s.container.Build(s.tempPath, s.Sid, s.Hash)
 	if err != nil {
 		return err
 	}
 
 	s.sendStatus("Image built with success", DDonePositive)
 
-	s.configuration().Image = imageHash
+	s.configuration().Image = imageTag
 	// TODO: the following test should be moved in New function
 	if s.Sid == "" {
 		// make sure that sid doesn't have the same length with id.

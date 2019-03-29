@@ -13,20 +13,20 @@ type Container struct {
 	mock.Mock
 }
 
-// Build provides a mock function with given fields: path
-func (_m *Container) Build(path string) (string, error) {
-	ret := _m.Called(path)
+// Build provides a mock function with given fields: path, name, version
+func (_m *Container) Build(path string, name string, version string) (string, error) {
+	ret := _m.Called(path, name, version)
 
 	var r0 string
-	if rf, ok := ret.Get(0).(func(string) string); ok {
-		r0 = rf(path)
+	if rf, ok := ret.Get(0).(func(string, string, string) string); ok {
+		r0 = rf(path, name, version)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(path)
+	if rf, ok := ret.Get(1).(func(string, string, string) error); ok {
+		r1 = rf(path, name, version)
 	} else {
 		r1 = ret.Error(1)
 	}

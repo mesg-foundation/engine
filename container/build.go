@@ -22,7 +22,7 @@ type BuildResponse struct {
 }
 
 // Build builds a docker image.
-func (c *DockerContainer) Build(path string) (tag string, err error) {
+func (c *DockerContainer) Build(path, name, version string) (tag string, err error) {
 	excludeFiles, err := dockerignoreFiles(path)
 	if err != nil {
 		return "", err
@@ -33,15 +33,17 @@ func (c *DockerContainer) Build(path string) (tag string, err error) {
 		return "", err
 	}
 	defer buildContext.Close()
+	tag = name + ":" + version
 	response, err := c.client.ImageBuild(context.Background(), buildContext, types.ImageBuildOptions{
 		Remove:         true,
 		ForceRemove:    true,
 		SuppressOutput: true,
+		Tags:           []string{tag},
 	})
 	if err != nil {
 		return "", err
 	}
-	return parseBuildResponse(response)
+	return tag, parseBuildResponse(response)
 }
 
 // dockerignoreFiles reads excluded files from .dockerignore.
@@ -57,20 +59,20 @@ func dockerignoreFiles(path string) ([]string, error) {
 	return dockerignore.ReadAll(f)
 }
 
-func parseBuildResponse(response types.ImageBuildResponse) (tag string, err error) {
+func parseBuildResponse(response types.ImageBuildResponse) (err error) {
 	lastOutput, err := extractLastOutputFromBuildResponse(response)
 	if err != nil {
-		return "", err
+		return err
 	}
 	var buildResponse BuildResponse
 
 	if err := json.Unmarshal([]byte(lastOutput), &buildResponse); err != nil {
-		return "", fmt.Errorf("could not parse container build response. %s", err)
+		return fmt.Errorf("could not parse container build response. %s", err)
 	}
 	if buildResponse.Error != "" {
-		return "", fmt.Errorf("image build failed. %s", buildResponse.Error)
+		return fmt.Errorf("image build failed. %s", buildResponse.Error)
 	}
-	return strings.TrimSuffix(buildResponse.Stream, "\n"), nil
+	return nil
 }
 
 func extractLastOutputFromBuildResponse(response types.ImageBuildResponse) (lastOutput string, err error) {

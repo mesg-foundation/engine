@@ -19,7 +19,7 @@ var (
 
 // Container describes the API of container package.
 type Container interface {
-	Build(path string) (tag string, err error)
+	Build(path string, name string, version string) (tag string, err error)
 	CreateNetwork(namespace []string) (id string, err error)
 	DeleteNetwork(namespace []string) error
 	FindContainer(namespace []string) (types.ContainerJSON, error)

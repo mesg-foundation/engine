@@ -68,7 +68,7 @@ func TestBuild(t *testing.T) {
 
 	m.On("ImageBuild", imageBuildArguments...).Once().Return(imageBuildResponse...).Run(imageBuildRun)
 
-	tag, err := c.Build("test/")
+	tag, err := c.Build("test/", "test", "x")
 	require.NoError(t, err)
 	require.Equal(t, expectedTag, tag)
 
@@ -98,7 +98,7 @@ func TestBuildResponseError(t *testing.T) {
 
 	m.On("ImageBuild", imageBuildArguments...).Once().Return(imageBuildResponse...).Run(imageBuildRun)
 
-	tag, err := c.Build(path)
+	tag, err := c.Build(path, "test", "x")
 	require.Empty(t, tag)
 	require.Equal(t, "image build failed. invalid reference format: repository name must be lowercase", err.Error())
 
@@ -124,14 +124,13 @@ func TestBuildWrongPath(t *testing.T) {
 
 	m.On("ImageBuild", imageBuildArguments...).Once().Return(imageBuildResponse...).Run(imageBuildRun)
 
-	_, err := c.Build("testss/")
+	_, err := c.Build("testss/", "test", "x")
 	require.Equal(t, "could not parse container build response", err.Error())
 
 	m.AssertExpectations(t)
 }
 
 func TestParseBuildResponse(t *testing.T) {
-	tag, err := parseBuildResponse(newImageBuildResponse("{\"stream\":\"ok\\n\"}"))
+	err := parseBuildResponse(newImageBuildResponse("{\"stream\":\"ok\\n\"}"))
 	require.NoError(t, err)
-	require.Equal(t, tag, "ok")
 }
