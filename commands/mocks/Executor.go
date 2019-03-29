@@ -35,6 +35,27 @@ func (_m *Executor) Create(passphrase string) (string, error) {
 	return r0, r1
 }
 
+// CreateServiceOffer provides a mock function with given fields: sid, price, duration, from
+func (_m *Executor) CreateServiceOffer(sid string, price string, duration string, from string) (provider.Transaction, error) {
+	ret := _m.Called(sid, price, duration, from)
+
+	var r0 provider.Transaction
+	if rf, ok := ret.Get(0).(func(string, string, string, string) provider.Transaction); ok {
+		r0 = rf(sid, price, duration, from)
+	} else {
+		r0 = ret.Get(0).(provider.Transaction)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string, string, string, string) error); ok {
+		r1 = rf(sid, price, duration, from)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Delete provides a mock function with given fields: address, passphrase
 func (_m *Executor) Delete(address string, passphrase string) (string, error) {
 	ret := _m.Called(address, passphrase)
@@ -70,6 +91,27 @@ func (_m *Executor) Export(address string, passphrase string) (provider.WalletEn
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string, string) error); ok {
 		r1 = rf(address, passphrase)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetService provides a mock function with given fields: sid
+func (_m *Executor) GetService(sid string) (provider.MarketplaceService, error) {
+	ret := _m.Called(sid)
+
+	var r0 provider.MarketplaceService
+	if rf, ok := ret.Get(0).(func(string) provider.MarketplaceService); ok {
+		r0 = rf(sid)
+	} else {
+		r0 = ret.Get(0).(provider.MarketplaceService)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(sid)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -158,6 +200,71 @@ func (_m *Executor) Logs() (io.ReadCloser, error) {
 	var r1 error
 	if rf, ok := ret.Get(1).(func() error); ok {
 		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// PublishServiceVersion provides a mock function with given fields: service, from
+func (_m *Executor) PublishServiceVersion(service provider.MarketplaceManifestServiceData, from string) (provider.Transaction, error) {
+	ret := _m.Called(service, from)
+
+	var r0 provider.Transaction
+	if rf, ok := ret.Get(0).(func(provider.MarketplaceManifestServiceData, string) provider.Transaction); ok {
+		r0 = rf(service, from)
+	} else {
+		r0 = ret.Get(0).(provider.Transaction)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(provider.MarketplaceManifestServiceData, string) error); ok {
+		r1 = rf(service, from)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Purchase provides a mock function with given fields: sid, offerIndex, from
+func (_m *Executor) Purchase(sid string, offerIndex string, from string) ([]provider.Transaction, error) {
+	ret := _m.Called(sid, offerIndex, from)
+
+	var r0 []provider.Transaction
+	if rf, ok := ret.Get(0).(func(string, string, string) []provider.Transaction); ok {
+		r0 = rf(sid, offerIndex, from)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]provider.Transaction)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string, string, string) error); ok {
+		r1 = rf(sid, offerIndex, from)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// SendSignedTransaction provides a mock function with given fields: signedTransaction
+func (_m *Executor) SendSignedTransaction(signedTransaction string) (provider.TransactionReceipt, error) {
+	ret := _m.Called(signedTransaction)
+
+	var r0 provider.TransactionReceipt
+	if rf, ok := ret.Get(0).(func(string) provider.TransactionReceipt); ok {
+		r0 = rf(signedTransaction)
+	} else {
+		r0 = ret.Get(0).(provider.TransactionReceipt)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(signedTransaction)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -465,27 +572,6 @@ func (_m *Executor) ServiceLogs(id string, dependencies ...string) ([]*provider.
 	return r0, r1, r2, r3
 }
 
-// ServicePublishDefinitionFile provides a mock function with given fields: path
-func (_m *Executor) ServicePublishDefinitionFile(path string) (string, error) {
-	ret := _m.Called(path)
-
-	var r0 string
-	if rf, ok := ret.Get(0).(func(string) string); ok {
-		r0 = rf(path)
-	} else {
-		r0 = ret.Get(0).(string)
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(path)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // ServiceStart provides a mock function with given fields: id
 func (_m *Executor) ServiceStart(id string) error {
 	ret := _m.Called(id)
@@ -603,4 +689,25 @@ func (_m *Executor) Stop() error {
 	}
 
 	return r0
+}
+
+// UploadSource provides a mock function with given fields: path
+func (_m *Executor) UploadSource(path string) (provider.MarketplaceDeployedSource, error) {
+	ret := _m.Called(path)
+
+	var r0 provider.MarketplaceDeployedSource
+	if rf, ok := ret.Get(0).(func(string) provider.MarketplaceDeployedSource); ok {
+		r0 = rf(path)
+	} else {
+		r0 = ret.Get(0).(provider.MarketplaceDeployedSource)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(path)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }

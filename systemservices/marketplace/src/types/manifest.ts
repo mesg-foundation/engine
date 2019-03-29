@@ -1,22 +1,13 @@
 export interface Manifest {
-  version: string
+  version: '1'
   service: {
     hash: string
-    hashVersion: string
+    hashVersion: '1'
     deployment: {
-      type: string
+      type: 'ipfs'|'http'|'https'
       source: string
     }
-    definition: {
-      // basically mesg.yaml
-      // name
-      // description
-      // sid
-      // events
-      // tasks
-      // configuration
-      // dependencies
-    }
-    readme: string
+    definition: any,
+    readme?: string
   }
 }
