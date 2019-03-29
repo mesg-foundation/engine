@@ -10,7 +10,7 @@ import { ERC20 } from "./contracts/ERC20"
 
 import { eventHandlers } from "./events"
 
-import publishServiceVersion from "./tasks/publishServiceVersion"
+import preparePublishServiceVersion from "./tasks/preparePublishServiceVersion"
 import getService from "./tasks/getService"
 import prepareCreateServiceOffer from "./tasks/prepareCreateServiceOffer"
 import listServices from "./tasks/listServices"
@@ -43,7 +43,7 @@ const main = async () => {
   mesg.listenTask({
     listServices: listServices(marketplace),
     getService: getService(marketplace),
-    publishServiceVersion: publishServiceVersion(marketplace, createTransaction),
+    preparePublishServiceVersion: preparePublishServiceVersion(marketplace, createTransaction),
     prepareCreateServiceOffer: prepareCreateServiceOffer(marketplace, createTransaction),
     purchase: purchase(marketplace, token, createTransaction),
     sendSignedTransaction: sendSignedTransaction(web3),

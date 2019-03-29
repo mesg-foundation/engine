@@ -160,7 +160,7 @@ tasks:
         description: ""
         data: *service
       error: *outputError
-  publishServiceVersion:
+  preparePublishServiceVersion:
     name: ""
     description: ""
     inputs:
