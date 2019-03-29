@@ -1,7 +1,9 @@
-import Web3 from 'web3'
-import BigNumber from 'bignumber.js';
-import Contract from 'web3/eth/contract';
-import { TaskInputs } from 'mesg-js/lib/service';
+import Web3 from "web3"
+import BigNumber from "bignumber.js";
+import Contract from "web3/eth/contract";
+import { TaskInputs } from "mesg-js/lib/service";
+import { Tx } from "web3/eth/types";
+import { ABIDefinition } from "web3/eth/abi";
 const base58 = require('base-x')('123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz')
 
 BigNumber.config({ EXPONENTIAL_AT: 100 })
@@ -37,7 +39,7 @@ interface CreateTransaction {
     inputs: TaskInputs,
     data: string,
     shiftNonce?: number
-  ): Promise<any>;
+  ): Promise<Tx>;
 };
 
 const createTransactionTemplate = (
@@ -62,6 +64,12 @@ const createTransactionTemplate = (
   }
 }
 
+const findInAbi = (abi: ABIDefinition[], name: string): ABIDefinition => {
+  const filter = abi.filter(a => a.name === name)
+  if (filter.length !== 1) throw new Error('Did not find definition "'+name+'" in abi')
+  return filter[0]
+}
+
 export {
   hexToAscii,
   asciiToHex,
@@ -73,4 +81,5 @@ export {
   CreateTransaction,
   hashToHex,
   hexToHash,
+  findInAbi,
 }
