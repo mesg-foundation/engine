@@ -22,12 +22,12 @@ func newImageBuildResponse(body string) types.ImageBuildResponse {
 
 func TestBuild(t *testing.T) {
 	var (
-		expectedTag = "foo:bar"
+		expectedTag = "test:x"
 		options     = types.ImageBuildOptions{
 			Remove:         true,
 			ForceRemove:    true,
 			SuppressOutput: true,
-			Tags:           []string{"foo:bar"},
+			Tags:           []string{expectedTag},
 		}
 		c, m = newTesting(t)
 	)
@@ -99,8 +99,7 @@ func TestBuildResponseError(t *testing.T) {
 
 	m.On("ImageBuild", imageBuildArguments...).Once().Return(imageBuildResponse...).Run(imageBuildRun)
 
-	tag, err := c.Build(path, "test", "x")
-	require.Empty(t, tag)
+	_, err := c.Build(path, "test", "x")
 	require.Equal(t, "image build failed. invalid reference format: repository name must be lowercase", err.Error())
 
 	m.AssertExpectations(t)
