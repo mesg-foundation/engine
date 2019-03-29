@@ -130,9 +130,25 @@ tasks:
     name: ""
     description: ""
     inputs:
-      sid: *sid
-      manifest: *manifest
-      manifestProtocol: *manifestProtocol
+      service:
+        type: Object
+        object:
+          hash:
+            type: String
+          hashVersion: 
+            type: String
+          deployment:
+            type: Object
+            object:
+              type: 
+                type: String
+              source: 
+                type: String
+          definition: 
+            type: Object
+          readme: 
+            type: String
+            optional: true
       from: &inputFrom
         name: ""
         description: ""
