@@ -3,6 +3,7 @@ import BigNumber from "bignumber.js";
 import Contract from "web3/eth/contract";
 import { TaskInputs } from "mesg-js/lib/service";
 import { Tx } from "web3/eth/types";
+import { Log } from "web3/types";
 import { ABIDefinition } from "web3/eth/abi";
 const base58 = require('base-x')('123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz')
 
@@ -64,6 +65,15 @@ const createTransactionTemplate = (
   }
 }
 
+const decodeLog = (web3: Web3, abi: ABIDefinition, log: Log): any => {
+  if (abi.anonymous === false) {
+    // Remove first element because event is non-anonymous
+    // https://web3js.readthedocs.io/en/1.0/web3-eth-abi.html#decodelog
+    log.topics.splice(0, 1)
+  }
+  return web3.eth.abi.decodeLog(abi.inputs as object, log.data, log.topics)
+}
+
 const findInAbi = (abi: ABIDefinition[], name: string): ABIDefinition => {
   const filter = abi.filter(a => a.name === name)
   if (filter.length !== 1) throw new Error('Did not find definition "'+name+'" in abi')
@@ -81,5 +91,6 @@ export {
   CreateTransaction,
   hashToHex,
   hexToHash,
+  decodeLog,
   findInAbi,
 }

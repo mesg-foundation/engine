@@ -269,7 +269,7 @@ tasks:
     name: ""
     description: ""
     inputs:
-      signedTransaction:
+      signedTransaction: &signedTransaction
         name: ""
         description: ""
         type: String
