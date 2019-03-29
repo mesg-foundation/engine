@@ -40,9 +40,8 @@ type ServiceExecutor interface {
 
 // MarketplaceExecutor is an interface that handles marketplace commands.
 type MarketplaceExecutor interface {
-	CreateManifest(path string, hash string) (provider.MarketplaceManifestData, error)
-	UploadServiceFiles(path string, manifest provider.MarketplaceManifestData) (protocol string, source string, err error)
-	PublishServiceVersion(sid, manifest, manifestProtocol, from string) (provider.Transaction, error)
+	UploadSource(path string) (deployment provider.MarketplaceDeployedSource, err error)
+	PublishServiceVersion(service provider.MarketplaceManifestServiceData, from string) (provider.Transaction, error)
 	CreateServiceOffer(sid string, price string, duration string, from string) (provider.Transaction, error)
 	Purchase(sid, offerIndex, from string) ([]provider.Transaction, error)
 	SendSignedTransaction(signedTransaction string) (provider.TransactionReceipt, error)
