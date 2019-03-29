@@ -16,6 +16,7 @@ import getService from "./tasks/getService"
 import prepareCreateServiceOffer from "./tasks/prepareCreateServiceOffer"
 import listServices from "./tasks/listServices"
 import preparePurchase from "./tasks/preparePurchase"
+import publishPurchase from "./tasks/publishPurchase"
 import sendSignedTransaction from "./tasks/sendSignedTransaction"
 import publishCreateServiceOffer from "./tasks/publishCreateServiceOffer"
 import isAuthorized from "./tasks/isAuthorized"
@@ -48,6 +49,7 @@ const main = async () => {
     publishPublishServiceVersion: publishPublishServiceVersion(web3),
     prepareCreateServiceOffer: prepareCreateServiceOffer(marketplace, createTransaction),
     preparePurchase: preparePurchase(marketplace, token, createTransaction),
+    publishPurchase: publishPurchase(web3),
     sendSignedTransaction: sendSignedTransaction(web3),
     publishCreateServiceOffer: publishCreateServiceOffer(web3),
     isAuthorized: isAuthorized(marketplace),

@@ -291,6 +291,24 @@ tasks:
             repeated: true
             type: Object
             object: *transaction
+  publishPurchase:
+    name: ""
+    description: ""
+    inputs:
+      signedTransactions:
+        repeated: true
+        type: Object
+        object: *signedTransaction
+    outputs:
+      error: *outputError
+      success:
+        data:
+          sid: *sid
+          offerIndex: *offerIndex
+          purchaser: *purchaser
+          price: *price
+          duration: *duration
+          expire: *expire
   sendSignedTransaction:
     name: ""
     description: ""
