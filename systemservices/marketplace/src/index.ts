@@ -12,7 +12,7 @@ import { eventHandlers } from "./events"
 
 import publishServiceVersion from "./tasks/publishServiceVersion"
 import getService from "./tasks/getService"
-import createServiceOffer from "./tasks/createServiceOffer"
+import prepareCreateServiceOffer from "./tasks/prepareCreateServiceOffer"
 import listServices from "./tasks/listServices"
 import purchase from "./tasks/purchase"
 import sendSignedTransaction from "./tasks/sendSignedTransaction"
@@ -44,7 +44,7 @@ const main = async () => {
     listServices: listServices(marketplace),
     getService: getService(marketplace),
     publishServiceVersion: publishServiceVersion(marketplace, createTransaction),
-    createServiceOffer: createServiceOffer(marketplace, createTransaction),
+    prepareCreateServiceOffer: prepareCreateServiceOffer(marketplace, createTransaction),
     purchase: purchase(marketplace, token, createTransaction),
     sendSignedTransaction: sendSignedTransaction(web3),
     publishCreateServiceOffer: publishCreateServiceOffer(web3),

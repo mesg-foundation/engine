@@ -229,7 +229,7 @@ tasks:
             name: "Data"
             description: "The data of the transaction."
             type: String
-  createServiceOffer:
+  prepareCreateServiceOffer:
     name: ""
     description: ""
     inputs:
@@ -248,6 +248,19 @@ tasks:
     outputs:
       error: *outputError
       success: *outputTransaction
+  publishCreateServiceOffer:
+    name: ""
+    description: ""
+    inputs:
+      signedTransaction: *signedTransaction
+    outputs:
+      error: *outputError
+      success:
+        data:
+          sid: *sid
+          offerIndex: *offerIndex
+          price: *price
+          duration: *duration
   purchase:
     name: ""
     description: ""
@@ -279,19 +292,6 @@ tasks:
         data:
           receipt:
             type: Object
-  publishCreateServiceOffer:
-    name: ""
-    description: ""
-    inputs:
-      signedTransaction: *signedTransaction
-    outputs:
-      error: *outputError
-      success:
-        data:
-          sid: *sid
-          offerIndex: *offerIndex
-          price: *price
-          duration: *duration
   isAuthorized:
     name: ""
     description: ""
