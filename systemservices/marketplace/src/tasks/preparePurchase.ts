@@ -49,7 +49,7 @@ export default (
     })
   }
   catch (error) {
-    console.error('error in purchase', error)
+    console.error('error in preparePurchase', error)
     return outputs.error({ message: error.toString() })
   }
 }

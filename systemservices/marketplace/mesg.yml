@@ -274,7 +274,7 @@ tasks:
           offerIndex: *offerIndex
           price: *price
           duration: *duration
-  purchase:
+  preparePurchase:
     name: ""
     description: ""
     inputs:
