@@ -233,7 +233,10 @@ tasks:
     name: ""
     description: ""
     inputs:
-      signedTransaction: *signedTransaction
+      signedTransaction: &signedTransaction
+        name: ""
+        description: ""
+        type: String
     outputs:
       error: *outputError
       success:
@@ -296,9 +299,8 @@ tasks:
     description: ""
     inputs:
       signedTransactions:
+        <<: *signedTransaction
         repeated: true
-        type: Object
-        object: *signedTransaction
     outputs:
       error: *outputError
       success:
@@ -309,20 +311,6 @@ tasks:
           price: *price
           duration: *duration
           expire: *expire
-  sendSignedTransaction:
-    name: ""
-    description: ""
-    inputs:
-      signedTransaction: &signedTransaction
-        name: ""
-        description: ""
-        type: String
-    outputs:
-      error: *outputError
-      success:
-        data:
-          receipt:
-            type: Object
   isAuthorized:
     name: ""
     description: ""
