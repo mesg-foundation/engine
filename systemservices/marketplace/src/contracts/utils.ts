@@ -76,6 +76,12 @@ const decodeLog = (web3: Web3, contract: Contract, log: Log, eventName: string):
   return web3.eth.abi.decodeLog(abi.inputs as object, log.data, log.topics)
 }
 
+const findInAbi = (abi: ABIDefinition[], name: string): ABIDefinition => {
+  const filter = abi.filter(a => a.name === name)
+  if (filter.length !== 1) throw new Error('Did not find definition "'+name+'" in abi')
+  return filter[0]
+}
+
 export {
   hexToAscii,
   asciiToHex,
