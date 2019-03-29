@@ -1,23 +1,14 @@
 import { service as MESG } from "mesg-js"
-import { TaskInputs, Service, EmitEventReply } from "mesg-js/lib/service"
-
 import Web3 from "web3"
-import { EventLog } from "web3/types"
 
 import { newBlockEventEmitter } from "./newBlock"
 
 import marketplaceABI from "./contracts/Marketplace.abi.json"
 import { Marketplace } from "./contracts/Marketplace"
-
 import ERC20ABI from "./contracts/ERC20.abi.json"
 import { ERC20 } from "./contracts/ERC20"
 
-import serviceCreated from "./events/serviceCreated"
-import serviceOfferCreated from "./events/serviceOfferCreated"
-import serviceOfferDisabled from "./events/serviceOfferDisabled"
-import serviceOwnershipTransferred from "./events/serviceOwnershipTransferred"
-import serviceVersionCreated from "./events/serviceVersionCreated"
-import servicePurchased from "./events/servicePurchased"
+import { eventHandlers } from "./events"
 
 import publishServiceVersion from "./tasks/publishServiceVersion"
 import getService from "./tasks/getService"
@@ -34,15 +25,6 @@ const ERC20Address = process.env.TOKEN_ADDRESS
 const blockConfirmations = parseInt(<string>process.env.BLOCK_CONFIRMATIONS, 10)
 const defaultGas = parseInt(<string>process.env.DEFAULT_GAS, 10)
 const pollingTime = parseInt(<string>process.env.POLLING_TIME, 10)
-
-const eventHandlers: {[key: string]: (mesg: Service, event: EventLog) => Promise<EmitEventReply | Error>} = {
-  'ServiceCreated': serviceCreated,
-  'ServiceOfferCreated': serviceOfferCreated,
-  'ServiceOfferDisabled': serviceOfferDisabled,
-  'ServiceOwnershipTransferred': serviceOwnershipTransferred,
-  'ServicePurchased': servicePurchased,
-  'ServiceVersionCreated': serviceVersionCreated,
-}
 
 const main = async () => {
   const mesg = MESG()
@@ -71,7 +53,7 @@ const main = async () => {
   const newBlock = await newBlockEventEmitter(web3, blockConfirmations, null, pollingTime)
   newBlock.on('newBlock', async blockNumber => {
     try {
-      console.error('new block', blockNumber)
+      console.log('new block', blockNumber)
     
       const events = await marketplace.getPastEvents("allEvents", {
         fromBlock: blockNumber,
@@ -80,12 +62,13 @@ const main = async () => {
       events.forEach(async event => {
         // TODO: check if really async
         try {
-          if (!eventHandlers[event.event]) {
-            return console.error('Event not implemented', event.event)
+          const eventHandler = eventHandlers[event.event]
+          if (!eventHandler) {
+            throw new Error('Event "'+event.event+'" is not implemented')
           }
-          eventHandlers[event.event](mesg, event)
+          await mesg.emitEvent(eventHandler.mesgName, eventHandler.parse(event.returnValues))
         } catch(error) {
-          return console.error('An error occurred during processing of an event', event)
+          return console.error('An error occurred during processing of event "'+event+ '". Error:', error)
         }
       })
     }
