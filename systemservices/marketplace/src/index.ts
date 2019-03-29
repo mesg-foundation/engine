@@ -11,6 +11,7 @@ import { ERC20 } from "./contracts/ERC20"
 import { eventHandlers } from "./events"
 
 import preparePublishServiceVersion from "./tasks/preparePublishServiceVersion"
+import publishPublishServiceVersion from "./tasks/publishPublishServiceVersion"
 import getService from "./tasks/getService"
 import prepareCreateServiceOffer from "./tasks/prepareCreateServiceOffer"
 import listServices from "./tasks/listServices"
@@ -44,6 +45,7 @@ const main = async () => {
     listServices: listServices(marketplace),
     getService: getService(marketplace),
     preparePublishServiceVersion: preparePublishServiceVersion(marketplace, createTransaction),
+    publishPublishServiceVersion: publishPublishServiceVersion(web3),
     prepareCreateServiceOffer: prepareCreateServiceOffer(marketplace, createTransaction),
     purchase: purchase(marketplace, token, createTransaction),
     sendSignedTransaction: sendSignedTransaction(web3),
