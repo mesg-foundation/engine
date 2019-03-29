@@ -229,6 +229,19 @@ tasks:
             name: "Data"
             description: "The data of the transaction."
             type: String
+  publishPublishServiceVersion:
+    name: ""
+    description: ""
+    inputs:
+      signedTransaction: *signedTransaction
+    outputs:
+      error: *outputError
+      success:
+        data:
+          sid: *sid
+          versionHash: *versionHash
+          manifest: *manifest
+          manifestProtocol: *manifestProtocol
   prepareCreateServiceOffer:
     name: ""
     description: ""
