@@ -128,6 +128,11 @@ func New(tarball io.Reader, env map[string]string, options ...Option) (*Service,
 		return nil, err
 	}
 
+	if s.Sid == "" {
+		// make sure that sid doesn't have the same length with id.
+		s.Sid = "_" + s.Hash
+	}
+
 	// replace default env with new one.
 	defenv := xos.EnvSliceToMap(s.configuration().Env)
 	s.configuration().Env = xos.EnvMapToSlice(xos.EnvMergeMaps(defenv, env))
@@ -192,11 +197,6 @@ func (s *Service) deploy() error {
 	s.sendStatus("Image built with success", DDonePositive)
 
 	s.configuration().Image = imageTag
-	// TODO: the following test should be moved in New function
-	if s.Sid == "" {
-		// make sure that sid doesn't have the same length with id.
-		s.Sid = "_" + s.Hash
-	}
 	return nil
 }
 

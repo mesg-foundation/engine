@@ -25,7 +25,7 @@ func TestNew(t *testing.T) {
 	)
 
 	mc := &mocks.Container{}
-	mc.On("Build", mock.Anything).Once().Return(hash, nil)
+	mc.On("Build", mock.Anything, mock.Anything, mock.Anything).Once().Return(hash, nil)
 
 	archive, err := xarchive.GzippedTar(path, nil)
 	require.NoError(t, err)
@@ -62,7 +62,7 @@ func TestNewWithDefaultEnv(t *testing.T) {
 	)
 
 	mc := &mocks.Container{}
-	mc.On("Build", mock.Anything).Once().Return(hash, nil)
+	mc.On("Build", mock.Anything, mock.Anything, mock.Anything).Once().Return(hash, nil)
 
 	archive, err := xarchive.GzippedTar(path, nil)
 	require.NoError(t, err)
@@ -86,7 +86,7 @@ func TestNewWithOverwrittenEnv(t *testing.T) {
 	)
 
 	mc := &mocks.Container{}
-	mc.On("Build", mock.Anything).Once().Return(hash, nil)
+	mc.On("Build", mock.Anything, mock.Anything, mock.Anything).Once().Return(hash, nil)
 
 	archive, err := xarchive.GzippedTar(path, nil)
 	require.NoError(t, err)

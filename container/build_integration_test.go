@@ -14,7 +14,7 @@ func TestIntegrationBuild(t *testing.T) {
 	tag, err := c.Build("test/", "test", "x1")
 	require.NoError(t, err)
 	require.NotEqual(t, "", tag)
-	require.Equal(t, "test:x1", tag)
+	require.Equal(t, "mesg/test:x1", tag)
 }
 
 func TestIntegrationBuildNotWorking(t *testing.T) {

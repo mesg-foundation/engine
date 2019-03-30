@@ -22,7 +22,7 @@ type BuildResponse struct {
 }
 
 // Build builds a docker image.
-func (c *DockerContainer) Build(path, name, version string) (tag string, err error) {
+func (c *DockerContainer) Build(path, name, version string) (string, error) {
 	excludeFiles, err := dockerignoreFiles(path)
 	if err != nil {
 		return "", err
@@ -33,7 +33,7 @@ func (c *DockerContainer) Build(path, name, version string) (tag string, err err
 		return "", err
 	}
 	defer buildContext.Close()
-	tag = name + ":" + version
+	tag := generateTag(name, version)
 	response, err := c.client.ImageBuild(context.Background(), buildContext, types.ImageBuildOptions{
 		Remove:         true,
 		ForceRemove:    true,
@@ -67,10 +67,10 @@ func parseBuildResponse(response types.ImageBuildResponse) (err error) {
 	var buildResponse BuildResponse
 
 	if err := json.Unmarshal([]byte(lastOutput), &buildResponse); err != nil {
-		return fmt.Errorf("could not parse container build response. %s", err)
+		return fmt.Errorf("could not parse container build response: %s", err)
 	}
 	if buildResponse.Error != "" {
-		return fmt.Errorf("image build failed. %s", buildResponse.Error)
+		return fmt.Errorf("image build failed: %s", buildResponse.Error)
 	}
 	return nil
 }
@@ -92,4 +92,15 @@ func extractLastOutputFromBuildResponse(response types.ImageBuildResponse) (last
 		return "", errors.New("could not parse container build response")
 	}
 	return lastOutput, nil
+}
+
+func generateTag(name, version string) string {
+	tag := "mesg"
+	if name != "" {
+		tag += "/" + strings.Replace(name, "_", "", -1)
+	}
+	if version != "" {
+		tag += ":" + version
+	}
+	return tag
 }
