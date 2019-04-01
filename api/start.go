@@ -6,28 +6,11 @@ import (
 
 // StartService starts service serviceID.
 func (a *API) StartService(serviceID string) error {
-	return newServiceStarter(a).Start(serviceID)
-}
-
-// serviceStarter provides functionalities to start a MESG service.
-type serviceStarter struct {
-	api *API
-}
-
-// newServiceStarter creates a new serviceStarter with given api.
-func newServiceStarter(api *API) *serviceStarter {
-	return &serviceStarter{
-		api: api,
-	}
-}
-
-// Start starts service serviceID.
-func (s *serviceStarter) Start(serviceID string) error {
-	sr, err := s.api.db.Get(serviceID)
+	sr, err := a.db.Get(serviceID)
 	if err != nil {
 		return err
 	}
-	sr, err = service.FromService(sr, service.ContainerOption(s.api.container))
+	sr, err = service.FromService(sr, service.ContainerOption(a.container))
 	if err != nil {
 		return err
 	}
