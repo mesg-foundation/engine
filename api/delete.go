@@ -6,32 +6,13 @@ import (
 
 // DeleteService stops and deletes service serviceID.
 // when deleteData is enabled, any persistent data that belongs to
-// service and its dependencies also will be deleted.
+// the service and to its dependencies also will be deleted.
 func (a *API) DeleteService(serviceID string, deleteData bool) error {
-	return newServiceDeletor(a).Delete(serviceID, deleteData)
-}
-
-// serviceDeletor provides functionalities to delete a MESG service.
-type serviceDeletor struct {
-	api *API
-}
-
-// newServiceDeletor creates a new serviceDeletor with given.
-func newServiceDeletor(api *API) *serviceDeletor {
-	return &serviceDeletor{
-		api: api,
-	}
-}
-
-// Delete stops and deletes service serviceID.
-// when deleteData is enabled, any persistent data that belongs to
-// service and its dependencies also will be deleted.
-func (d *serviceDeletor) Delete(serviceID string, deleteData bool) error {
-	s, err := d.api.db.Get(serviceID)
+	s, err := a.db.Get(serviceID)
 	if err != nil {
 		return err
 	}
-	s, err = service.FromService(s, service.ContainerOption(d.api.container))
+	s, err = service.FromService(s, service.ContainerOption(a.container))
 	if err != nil {
 		return err
 	}
@@ -46,5 +27,5 @@ func (d *serviceDeletor) Delete(serviceID string, deleteData bool) error {
 			return err
 		}
 	}
-	return d.api.db.Delete(serviceID)
+	return a.db.Delete(serviceID)
 }

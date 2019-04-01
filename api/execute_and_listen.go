@@ -25,5 +25,4 @@ func (a *API) ExecuteAndListen(serviceID, task string, inputs map[string]interfa
 		return nil, err
 	}
 	return <-result.Executions, nil
-
 }

@@ -4,8 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/mesg-foundation/core/container"
-	"github.com/mesg-foundation/core/container/dockertest"
+	"github.com/mesg-foundation/core/container/mocks"
 	"github.com/mesg-foundation/core/database"
 	"github.com/stretchr/testify/require"
 )
@@ -15,11 +14,22 @@ const (
 	execdbname    = "exec.db.test"
 )
 
-func newAPIAndDockerTest(t *testing.T) (*API, *dockertest.Testing, func()) {
-	dt := dockertest.New()
+type apiTesting struct {
+	*testing.T
+	serviceDB   *database.LevelDBServiceDB
+	executionDB *database.LevelDBExecutionDB
+	cm          *mocks.Container
+}
 
-	container, err := container.New(container.ClientOption(dt.Client()))
-	require.NoError(t, err)
+func (t *apiTesting) close() {
+	require.NoError(t, t.serviceDB.Close())
+	require.NoError(t, t.executionDB.Close())
+	require.NoError(t, os.RemoveAll(servicedbname))
+	require.NoError(t, os.RemoveAll(execdbname))
+}
+
+func newTesting(t *testing.T) (*API, *apiTesting) {
+	cm := &mocks.Container{}
 
 	db, err := database.NewServiceDB(servicedbname)
 	require.NoError(t, err)
@@ -27,14 +37,13 @@ func newAPIAndDockerTest(t *testing.T) (*API, *dockertest.Testing, func()) {
 	execDB, err := database.NewExecutionDB(execdbname)
 	require.NoError(t, err)
 
-	a, err := New(db, execDB, ContainerOption(container))
+	a, err := New(db, execDB, ContainerOption(cm))
 	require.NoError(t, err)
 
-	closer := func() {
-		require.NoError(t, db.Close())
-		require.NoError(t, execDB.Close())
-		require.NoError(t, os.RemoveAll(servicedbname))
-		require.NoError(t, os.RemoveAll(execdbname))
+	return a, &apiTesting{
+		T:           t,
+		serviceDB:   db,
+		executionDB: execDB,
+		cm:          cm,
 	}
-	return a, dt, closer
 }

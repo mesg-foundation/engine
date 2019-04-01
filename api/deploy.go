@@ -15,31 +15,6 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-// DeployServiceOption is a configuration func for deploying services.
-type DeployServiceOption func(*serviceDeployer)
-
-// DeployServiceStatusOption receives chan statuses to send deploy statuses.
-func DeployServiceStatusOption(statuses chan DeployStatus) DeployServiceOption {
-	return func(deployer *serviceDeployer) {
-		deployer.statuses = statuses
-	}
-}
-
-// DeployService deploys a service from a gzipped tarball.
-func (a *API) DeployService(r io.Reader, env map[string]string, options ...DeployServiceOption) (*service.Service,
-	*importer.ValidationError, error) {
-	return newServiceDeployer(a, env, options...).FromArchive(r)
-}
-
-// DeployServiceFromURL deploys a service living at a Git host.
-// Supported URL types:
-// - https://github.com/mesg-foundation/service-ethereum
-// - https://github.com/mesg-foundation/service-ethereum#branchName
-func (a *API) DeployServiceFromURL(url string, env map[string]string, options ...DeployServiceOption) (*service.Service,
-	*importer.ValidationError, error) {
-	return newServiceDeployer(a, env, options...).FromURL(url)
-}
-
 // serviceDeployer provides functionalities to deploy a MESG service.
 type serviceDeployer struct {
 	// statuses receives status messages produced during deployment.
@@ -70,6 +45,31 @@ const (
 type DeployStatus struct {
 	Message string
 	Type    StatusType
+}
+
+// DeployServiceOption is a configuration func for deploying services.
+type DeployServiceOption func(*serviceDeployer)
+
+// DeployServiceStatusOption receives chan statuses to send deploy statuses.
+func DeployServiceStatusOption(statuses chan DeployStatus) DeployServiceOption {
+	return func(deployer *serviceDeployer) {
+		deployer.statuses = statuses
+	}
+}
+
+// DeployService deploys a service from a gzipped tarball.
+func (a *API) DeployService(r io.Reader, env map[string]string, options ...DeployServiceOption) (*service.Service,
+	*importer.ValidationError, error) {
+	return newServiceDeployer(a, env, options...).FromArchive(r)
+}
+
+// DeployServiceFromURL deploys a service living at a Git host.
+// Supported URL types:
+// - https://github.com/mesg-foundation/service-ethereum
+// - https://github.com/mesg-foundation/service-ethereum#branchName
+func (a *API) DeployServiceFromURL(url string, env map[string]string, options ...DeployServiceOption) (*service.Service,
+	*importer.ValidationError, error) {
+	return newServiceDeployer(a, env, options...).FromURL(url)
 }
 
 // newServiceDeployer creates a new serviceDeployer with given api and options.

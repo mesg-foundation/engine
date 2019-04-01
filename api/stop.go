@@ -6,28 +6,11 @@ import (
 
 // StopService stops service serviceID.
 func (a *API) StopService(serviceID string) error {
-	return newServiceStopper(a).Stop(serviceID)
-}
-
-// serviceStopper provides functionalities to stop a MESG service.
-type serviceStopper struct {
-	api *API
-}
-
-// newServiceStopper creates a new serviceStopper with given api.
-func newServiceStopper(api *API) *serviceStopper {
-	return &serviceStopper{
-		api: api,
-	}
-}
-
-// Stop stops service serviceID.
-func (s *serviceStopper) Stop(serviceID string) error {
-	sr, err := s.api.db.Get(serviceID)
+	sr, err := a.db.Get(serviceID)
 	if err != nil {
 		return err
 	}
-	sr, err = service.FromService(sr, service.ContainerOption(s.api.container))
+	sr, err = service.FromService(sr, service.ContainerOption(a.container))
 	if err != nil {
 		return err
 	}
