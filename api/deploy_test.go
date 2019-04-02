@@ -30,10 +30,9 @@ func TestDeployService(t *testing.T) {
 		archive, err := xarchive.GzippedTar(path, nil)
 		require.NoError(t, err)
 
-		service, validationError, err := a.DeployService(archive, nil, DeployServiceStatusOption(statuses))
+		_, validationError, err := a.DeployService(archive, nil, DeployServiceStatusOption(statuses))
 		require.Nil(t, validationError)
 		require.NoError(t, err)
-		require.Len(t, service.Hash, 64)
 	}()
 
 	require.Equal(t, DeployStatus{
@@ -71,8 +70,7 @@ func TestDeployInvalidService(t *testing.T) {
 		archive, err := xarchive.GzippedTar(path, nil)
 		require.NoError(t, err)
 
-		service, validationError, err := a.DeployService(archive, nil, DeployServiceStatusOption(statuses))
-		require.Nil(t, service)
+		_, validationError, err := a.DeployService(archive, nil, DeployServiceStatusOption(statuses))
 		require.NoError(t, err)
 		require.Equal(t, (&importer.ValidationError{}).Error(), validationError.Error())
 	}()
@@ -98,10 +96,9 @@ func TestDeployServiceFromURL(t *testing.T) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		service, validationError, err := a.DeployServiceFromURL(url, nil, DeployServiceStatusOption(statuses))
+		_, validationError, err := a.DeployServiceFromURL(url, nil, DeployServiceStatusOption(statuses))
 		require.Nil(t, validationError)
 		require.NoError(t, err)
-		require.Len(t, service.Hash, 64)
 	}()
 
 	require.Equal(t, DeployStatus{

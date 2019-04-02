@@ -17,6 +17,7 @@ func TestExecuteFunc(t *testing.T) {
 	defer closer()
 	executor := newTaskExecutor(a)
 	s, _ := service.FromService(&service.Service{
+		Hash: "1",
 		Name: "TestExecuteFunc",
 		Tasks: []*service.Task{
 			{
@@ -53,6 +54,7 @@ func TestCheckService(t *testing.T) {
 	defer closer()
 	executor := newTaskExecutor(a)
 	s, _ := service.FromService(&service.Service{
+		Hash: "1",
 		Name: "TestCheckService",
 		Dependencies: []*service.Dependency{
 			{

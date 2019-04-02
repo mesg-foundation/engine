@@ -11,7 +11,7 @@ import (
 
 func TestIntegrationStopRunningService(t *testing.T) {
 	service, _ := FromService(&Service{
-		Hash: "00",
+		Hash: "1",
 		Name: "TestStopRunningService",
 		Dependencies: []*Dependency{
 			{
@@ -29,7 +29,7 @@ func TestIntegrationStopRunningService(t *testing.T) {
 
 func TestIntegrationStopNonRunningService(t *testing.T) {
 	service, _ := FromService(&Service{
-		Hash: "00",
+		Hash: "1",
 		Name: "TestStopNonRunningService",
 		Dependencies: []*Dependency{
 			{
@@ -47,7 +47,7 @@ func TestIntegrationStopNonRunningService(t *testing.T) {
 func TestIntegrationStopDependency(t *testing.T) {
 	c := newIntegrationContainer(t)
 	service, _ := FromService(&Service{
-		Hash: "00",
+		Hash: "1",
 		Name: "TestStopDependency",
 		Dependencies: []*Dependency{
 			{
@@ -70,7 +70,7 @@ func TestIntegrationStopDependency(t *testing.T) {
 func TestIntegrationNetworkDeleted(t *testing.T) {
 	c := newIntegrationContainer(t)
 	service, _ := FromService(&Service{
-		Hash: "00",
+		Hash: "1",
 		Name: "TestNetworkDeleted",
 		Dependencies: []*Dependency{
 			{
