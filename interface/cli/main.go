@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"net"
-	"net/url"
 	"os"
 	"time"
 
@@ -32,12 +30,7 @@ func main() {
 	dialKeepaliveOpt := grpc.WithKeepaliveParams(keepalive.ClientParameters{
 		Time: 5 * time.Minute, // 5 minutes because it's the minimun time of gRPC enforcement policy.
 	})
-	address, err := coreAddress(cfg)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", pretty.Fail(clierrors.ErrorMessage(err)))
-		os.Exit(1)
-	}
-	connection, err := grpc.Dial(address, dialKeepaliveOpt, grpc.WithInsecure())
+	connection, err := grpc.Dial(cfg.Client.Address, dialKeepaliveOpt, grpc.WithInsecure())
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s\n", pretty.Fail(clierrors.ErrorMessage(err)))
 		os.Exit(1)
@@ -58,20 +51,4 @@ func main() {
 		fmt.Fprintf(os.Stderr, "%s\n", pretty.Fail(clierrors.ErrorMessage(err)))
 		os.Exit(1)
 	}
-}
-
-func coreAddress(cfg *config.Config) (string, error) {
-	address := cfg.Client.Address
-	if os.Getenv("DOCKER_HOST") == "" {
-		return address, nil
-	}
-	u, err := url.Parse(os.Getenv("DOCKER_HOST"))
-	if err != nil {
-		return "", err
-	}
-	host, _, err := net.SplitHostPort(u.Host)
-	if err != nil {
-		return "", err
-	}
-	return host + cfg.Server.Address, nil
 }
