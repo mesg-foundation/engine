@@ -18,7 +18,7 @@ func TestDeployService(t *testing.T) {
 	)
 	defer at.close()
 
-	at.cm.On("Build", mock.Anything).Once().Return("1", nil)
+	at.containerMock.On("Build", mock.Anything).Once().Return("1", nil)
 
 	statuses := make(chan DeployStatus)
 	var wg sync.WaitGroup
@@ -52,7 +52,7 @@ func TestDeployService(t *testing.T) {
 	}, <-statuses)
 
 	wg.Wait()
-	at.cm.AssertExpectations(t)
+	at.containerMock.AssertExpectations(t)
 }
 
 func TestDeployInvalidService(t *testing.T) {
@@ -84,7 +84,7 @@ func TestDeployInvalidService(t *testing.T) {
 	}, <-statuses)
 
 	wg.Wait()
-	at.cm.AssertExpectations(t)
+	at.containerMock.AssertExpectations(t)
 }
 
 func TestDeployServiceFromURL(t *testing.T) {
@@ -94,7 +94,7 @@ func TestDeployServiceFromURL(t *testing.T) {
 	)
 	defer at.close()
 
-	at.cm.On("Build", mock.Anything).Once().Return("1", nil)
+	at.containerMock.On("Build", mock.Anything).Once().Return("1", nil)
 
 	statuses := make(chan DeployStatus)
 	var wg sync.WaitGroup
@@ -124,5 +124,5 @@ func TestDeployServiceFromURL(t *testing.T) {
 	}, <-statuses)
 
 	wg.Wait()
-	at.cm.AssertExpectations(t)
+	at.containerMock.AssertExpectations(t)
 }

@@ -19,9 +19,9 @@ const (
 
 type apiTesting struct {
 	*testing.T
-	serviceDB   *database.LevelDBServiceDB
-	executionDB *database.LevelDBExecutionDB
-	cm          *mocks.Container
+	serviceDB     *database.LevelDBServiceDB
+	executionDB   *database.LevelDBExecutionDB
+	containerMock *mocks.Container
 }
 
 func (t *apiTesting) close() {
@@ -32,7 +32,7 @@ func (t *apiTesting) close() {
 }
 
 func newTesting(t *testing.T) (*API, *apiTesting) {
-	cm := &mocks.Container{}
+	containerMock := &mocks.Container{}
 
 	db, err := database.NewServiceDB(servicedbname)
 	require.NoError(t, err)
@@ -40,14 +40,14 @@ func newTesting(t *testing.T) (*API, *apiTesting) {
 	execDB, err := database.NewExecutionDB(execdbname)
 	require.NoError(t, err)
 
-	a, err := New(db, execDB, ContainerOption(cm))
+	a, err := New(db, execDB, ContainerOption(containerMock))
 	require.NoError(t, err)
 
 	return a, &apiTesting{
-		T:           t,
-		serviceDB:   db,
-		executionDB: execDB,
-		cm:          cm,
+		T:             t,
+		serviceDB:     db,
+		executionDB:   execDB,
+		containerMock: containerMock,
 	}
 }
 
@@ -77,13 +77,13 @@ func TestExecuteTask(t *testing.T) {
 	// in order to do this, create a testing helper to build service tarballs
 	// from yml definitions on the fly .
 	require.NoError(t, at.serviceDB.Save(testService))
-	at.cm.On("Status", mock.Anything).Once().Return(container.RUNNING, nil)
+	at.containerMock.On("Status", mock.Anything).Once().Return(container.RUNNING, nil)
 
 	id, err := a.ExecuteTask("2", "4", map[string]interface{}{}, []string{})
 	require.NoError(t, err)
 	require.NotNil(t, id)
 
-	at.cm.AssertExpectations(t)
+	at.containerMock.AssertExpectations(t)
 }
 
 func TestExecuteTaskWithInvalidTaskName(t *testing.T) {
@@ -91,7 +91,7 @@ func TestExecuteTaskWithInvalidTaskName(t *testing.T) {
 	defer at.close()
 
 	require.NoError(t, at.serviceDB.Save(testService))
-	at.cm.On("Status", mock.Anything).Once().Return(container.RUNNING, nil)
+	at.containerMock.On("Status", mock.Anything).Once().Return(container.RUNNING, nil)
 
 	_, err := a.ExecuteTask("2", "2a", map[string]interface{}{}, []string{})
 	require.Error(t, err)
@@ -102,7 +102,7 @@ func TestExecuteTaskForNotRunningService(t *testing.T) {
 	defer at.close()
 
 	require.NoError(t, at.serviceDB.Save(testService))
-	at.cm.On("Status", mock.Anything).Once().Return(container.STOPPED, nil)
+	at.containerMock.On("Status", mock.Anything).Once().Return(container.STOPPED, nil)
 
 	_, err := a.ExecuteTask("2", "4", map[string]interface{}{}, []string{})
 	_, notRunningError := err.(*NotRunningServiceError)
