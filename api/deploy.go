@@ -60,16 +60,25 @@ func DeployServiceStatusOption(statuses chan DeployStatus) DeployServiceOption {
 // DeployService deploys a service from a gzipped tarball.
 func (a *API) DeployService(r io.Reader, env map[string]string, options ...DeployServiceOption) (*service.Service,
 	*importer.ValidationError, error) {
-	return newServiceDeployer(a, env, options...).FromArchive(r)
+	d := newServiceDeployer(a, env, options...)
+	return d.importWithProcess(func(path string) error {
+		return d.preprocessArchive(r, path)
+	})
 }
 
-// DeployServiceFromURL deploys a service living at a Git host.
-// Supported URL types:
+// DeployServiceFromURL deploys a service from a Git or tarball url.
+// individual branch deployments are supported through Git, see:
 // - https://github.com/mesg-foundation/service-ethereum
 // - https://github.com/mesg-foundation/service-ethereum#branchName
 func (a *API) DeployServiceFromURL(url string, env map[string]string, options ...DeployServiceOption) (*service.Service,
 	*importer.ValidationError, error) {
-	return newServiceDeployer(a, env, options...).FromURL(url)
+	d := newServiceDeployer(a, env, options...)
+	return d.importWithProcess(func(path string) error {
+		if xgit.IsGitURL(url) {
+			return d.preprocessGit(url, path)
+		}
+		return d.preprocessURL(url, path)
+	})
 }
 
 // newServiceDeployer creates a new serviceDeployer with given api and options.
@@ -82,23 +91,6 @@ func newServiceDeployer(api *API, env map[string]string, options ...DeployServic
 		option(d)
 	}
 	return d
-}
-
-// FromURL deploys a service from git or tarball url.
-func (d *serviceDeployer) FromURL(url string) (*service.Service, *importer.ValidationError, error) {
-	return d.importWithProcess(func(path string) error {
-		if xgit.IsGitURL(url) {
-			return d.preprocessGit(url, path)
-		}
-		return d.preprocessURL(url, path)
-	})
-}
-
-// FromArchive deploys a service from a gzipped tarball.
-func (d *serviceDeployer) FromArchive(r io.Reader) (*service.Service, *importer.ValidationError, error) {
-	return d.importWithProcess(func(path string) error {
-		return d.preprocessArchive(r, path)
-	})
 }
 
 func (d *serviceDeployer) importWithProcess(processing func(path string) error) (*service.Service, *importer.ValidationError, error) {
