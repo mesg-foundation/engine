@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/utils/hash"
-	"github.com/mr-tron/base58"
 	"github.com/stretchr/testify/require"
 )
 
@@ -16,9 +15,7 @@ func TestServiceNamespace(t *testing.T) {
 		Name: "TestServiceNamespace",
 	})
 	namespace := service.namespace()
-	h, err := base58.Decode(service.Hash)
-	require.NoError(t, err)
-	sum := sha1.Sum(h)
+	sum := sha1.Sum([]byte(service.Hash))
 	require.Equal(t, namespace, []string{hex.EncodeToString(sum[:])})
 }
 
@@ -34,9 +31,7 @@ func TestDependencyNamespace(t *testing.T) {
 		},
 	})
 	dep := service.Dependencies[0]
-	h, err := base58.Decode(service.Hash)
-	require.NoError(t, err)
-	sum := sha1.Sum(h)
+	sum := sha1.Sum([]byte(service.Hash))
 	require.Equal(t, dep.namespace(), []string{hex.EncodeToString(sum[:]), "test"})
 }
 
