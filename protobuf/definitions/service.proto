@@ -1,7 +1,7 @@
 syntax = "proto3";
 
-package api;
-option go_package = "coreapi";
+package definitions;
+option go_package = "github.com/mesg-foundation/core/protobuf/definitions";
 
 // This is the definition of a MESG Service.
 message Service {
