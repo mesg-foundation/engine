@@ -26,18 +26,18 @@ func toProtoService(s *service.Service) *coreapi.Service {
 	}
 }
 
-func toProtoServiceStatusType(s service.StatusType) coreapi.Service_Status {
+func toProtoServiceStatusType(s service.StatusType) coreapi.ServiceDetail_Status {
 	switch s {
 	default:
-		return coreapi.Service_UNKNOWN
+		return coreapi.ServiceDetail_UNKNOWN
 	case service.STOPPED:
-		return coreapi.Service_STOPPED
+		return coreapi.ServiceDetail_STOPPED
 	case service.STARTING:
-		return coreapi.Service_STARTING
+		return coreapi.ServiceDetail_STARTING
 	case service.PARTIAL:
-		return coreapi.Service_PARTIAL
+		return coreapi.ServiceDetail_PARTIAL
 	case service.RUNNING:
-		return coreapi.Service_RUNNING
+		return coreapi.ServiceDetail_RUNNING
 	}
 }
 

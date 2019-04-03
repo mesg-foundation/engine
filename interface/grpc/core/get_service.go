@@ -12,11 +12,13 @@ func (s *Server) GetService(ctx context.Context, request *coreapi.GetServiceRequ
 	if err != nil {
 		return nil, err
 	}
-	protoService := toProtoService(ss)
 	status, err := ss.Status()
 	if err != nil {
 		return nil, err
 	}
-	protoService.Status = toProtoServiceStatusType(status)
-	return &coreapi.GetServiceReply{Service: protoService}, nil
+	details := &coreapi.ServiceDetail{
+		Service: toProtoService(ss),
+		Status:  toProtoServiceStatusType(status),
+	}
+	return &coreapi.GetServiceReply{Service: details}, nil
 }

@@ -22,5 +22,5 @@ func TestGetService(t *testing.T) {
 	})
 	require.NoError(t, err)
 	require.NotNil(t, reply)
-	require.Equal(t, reply.Service.Name, "Task")
+	require.Equal(t, reply.Service.Service.Name, "Task")
 }
