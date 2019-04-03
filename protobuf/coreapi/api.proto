@@ -278,6 +278,7 @@ message DeleteServiceReply {
 message ListServicesRequest {
 }
 
+// ServiceDetail return all information related to the service
 message ServiceDetail {
   enum Status {
     UNKNOWN = 0;
@@ -286,8 +287,8 @@ message ServiceDetail {
     PARTIAL = 3;
     RUNNING = 4;
   }
-  Status status = 1;
-  Service service = 2;
+  Status status = 1;   // Status of the service
+  Service service = 2; // Data of the service
 }
 
 // The reply's data of the `ListServices` API.
@@ -296,52 +297,55 @@ message ServiceDetail {
 // ```json
 // {
 //   "services": [{
-//     "id": "idX",
-//     "sid": "sidX",
-//     "name": "serviceX",
-//     "description": "descriptionX",
 //     "status": "statusX",
-//     "events": [{
-//       "key": "eventX",
-//       "name": "nameX",
+//     "service": {
+//       "id": "idX",
+//       "sid": "sidX",
+//       "name": "serviceX",
 //       "description": "descriptionX",
-//       "data": [{  
-//         "key": "dataX",
+//       "status": "statusX",
+//       "events": [{
+//         "key": "eventX",
 //         "name": "nameX",
 //         "description": "descriptionX",
-//         "type": "String",
-//         "optional": true
-//       }]
-//     }],
-//     "tasks": [{
-//       "key": "taskX",
-//       "name": "nameX",
-//       "description": "descriptionX",
-//       "inputs": [{
-//         "key": "foo",
-//         "name": "nameX",
-//         "description": "descriptionX",
-//         "type": "String",
-//         "optional": true
-//       }],
-//       "outputs": [{
-//         "key": "outputX",
-//         "name": "nameX",
-//         "description": "descriptionX",
-//         "data": [{  
-//           "key": "resX",
+//         "data": [{
+//           "key": "dataX",
 //           "name": "nameX",
 //           "description": "descriptionX",
 //           "type": "String",
-//           "optional": false
+//           "optional": true
+//         }]
+//       }],
+//       "tasks": [{
+//         "key": "taskX",
+//         "name": "nameX",
+//         "description": "descriptionX",
+//         "inputs": [{
+//           "key": "foo",
+//           "name": "nameX",
+//           "description": "descriptionX",
+//           "type": "String",
+//           "optional": true
+//         }],
+//         "outputs": [{
+//           "key": "outputX",
+//           "name": "nameX",
+//           "description": "descriptionX",
+//           "data": [{
+//             "key": "resX",
+//             "name": "nameX",
+//             "description": "descriptionX",
+//             "type": "String",
+//             "optional": false
+//           }]
 //         }]
 //       }]
-//     }]
+//     }
 //   }]
 // }
 // ```
 message ListServicesReply {
-  repeated ServiceDetail services = 1; // The list of previously-deployed services' definitions.
+  repeated ServiceDetail services = 1; // The list of previously-deployed services' detail.
 }
 
 // The request's data for the `GetService` API.
@@ -362,52 +366,54 @@ message GetServiceRequest {
 // ```json
 // {
 //   "service": {
-//     "id": "idX",
-//     "sid": "sidX",
-//     "name": "serviceX",
-//     "description": "descriptionX",
 //     "status": "statusX",
-//     "events": [{  
-//       "key": "eventX",
-//       "name": "nameX",
+//     "service": {
+//       "id": "idX",
+//       "sid": "sidX",
+//       "name": "serviceX",
 //       "description": "descriptionX",
-//       "data": [{  
-//         "key": "dataX",
+//       "events": [{
+//         "key": "eventX",
 //         "name": "nameX",
 //         "description": "descriptionX",
-//         "type": "String",
-//         "optional": true
-//       }]
-//     }],
-//     "tasks": [{
-//       "key": "taskX",
-//       "name": "nameX",
-//       "description": "descriptionX",
-//       "inputs": [{  
-//         "key": "foo",
-//         "name": "nameX",
-//         "description": "descriptionX",
-//         "type": "String",
-//         "optional": true
-//       }],
-//       "outputs": [{
-//         "key": "outputX",
-//         "name": "nameX",
-//         "description": "descriptionX",
-//         "data": [{  
-//           "key": "resX",
+//         "data": [{
+//           "key": "dataX",
 //           "name": "nameX",
 //           "description": "descriptionX",
 //           "type": "String",
-//           "optional": false
+//           "optional": true
+//         }]
+//       }],
+//       "tasks": [{
+//         "key": "taskX",
+//         "name": "nameX",
+//         "description": "descriptionX",
+//         "inputs": [{
+//           "key": "foo",
+//           "name": "nameX",
+//           "description": "descriptionX",
+//           "type": "String",
+//           "optional": true
+//         }],
+//         "outputs": [{
+//           "key": "outputX",
+//           "name": "nameX",
+//           "description": "descriptionX",
+//           "data": [{
+//             "key": "resX",
+//             "name": "nameX",
+//             "description": "descriptionX",
+//             "type": "String",
+//             "optional": false
+//           }]
 //         }]
 //       }]
-//     }]
+//     }
 //   }
 // }
 // ```
 message GetServiceReply {
-  ServiceDetail service = 1; // Service's definition.
+  ServiceDetail service = 1; // Service's detail.
 }
 
 // The request's data for `ServiceLogs` API.
