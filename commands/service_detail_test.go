@@ -14,7 +14,7 @@ import (
 func TestServiceDetail(t *testing.T) {
 	var (
 		id      = "1"
-		service = &coreapi.Service{Hash: "2", Name: "3", Events: []*coreapi.Event{{Key: "4"}}}
+		service = &coreapi.ServiceDetail{Service: &coreapi.Service{Hash: "2", Name: "3", Events: []*coreapi.Event{{Key: "4"}}}}
 		m       = newMockExecutor()
 		c       = newServiceDetailCmd(m)
 	)
