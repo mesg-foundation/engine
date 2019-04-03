@@ -21,7 +21,7 @@ type RootExecutor interface {
 
 // ServiceExecutor is an interface that handles services commands.
 type ServiceExecutor interface {
-	ServiceByID(id string) (*coreapi.ServiceDetail, error)
+	ServiceByID(id string) (*coreapi.Service, error)
 	ServiceDeleteAll(deleteData bool) error
 	ServiceDelete(deleteData bool, ids ...string) error
 	ServiceDeploy(path string, env map[string]string, statuses chan provider.DeployStatus) (sid string, hash string, validationError, err error)
@@ -33,7 +33,7 @@ type ServiceExecutor interface {
 	ServiceStop(id string) error
 	ServiceValidate(path string) (string, error)
 	ServiceGenerateDocs(path string) error
-	ServiceList() ([]*coreapi.ServiceDetail, error)
+	ServiceList() ([]*coreapi.Service, error)
 	ServiceInitTemplateList() ([]*servicetemplate.Template, error)
 	ServiceInitDownloadTemplate(t *servicetemplate.Template, dst string) error
 }

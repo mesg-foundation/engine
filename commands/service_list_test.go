@@ -8,14 +8,15 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/protobuf/coreapi"
+	"github.com/mesg-foundation/core/protobuf/definitions"
 	"github.com/stretchr/testify/require"
 )
 
 func TestServiceList(t *testing.T) {
 	var (
-		services = []*coreapi.ServiceDetail{
-			{Service: &coreapi.Service{Hash: "1", Name: "a"}, Status: coreapi.ServiceDetail_RUNNING},
-			{Service: &coreapi.Service{Hash: "2", Name: "b"}, Status: coreapi.ServiceDetail_PARTIAL},
+		services = []*coreapi.Service{
+			{Definition: &definitions.Service{Hash: "1", Name: "a"}, Status: coreapi.Service_RUNNING},
+			{Definition: &definitions.Service{Hash: "2", Name: "b"}, Status: coreapi.Service_PARTIAL},
 		}
 		m = newMockExecutor()
 		c = newServiceListCmd(m)
@@ -39,7 +40,7 @@ func TestServiceList(t *testing.T) {
 
 	for _, s := range services {
 		status := strings.ToLower(s.Status.String())
-		pattern := fmt.Sprintf(`^\s*%s\s+%s\s+%s\s+%s\s*$`, s.Service.Hash, s.Service.Sid, s.Service.Name, status)
+		pattern := fmt.Sprintf(`^\s*%s\s+%s\s+%s\s+%s\s*$`, s.Definition.Hash, s.Definition.Sid, s.Definition.Name, status)
 		matched, err := regexp.Match(pattern, readLine(t, r))
 		require.NoError(t, err)
 		require.True(t, matched)

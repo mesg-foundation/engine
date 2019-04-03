@@ -36,7 +36,7 @@ func NewServiceProvider(c coreapi.CoreClient, mp *MarketplaceProvider, wp *Walle
 }
 
 // ServiceByID finds service based on given id.
-func (p *ServiceProvider) ServiceByID(id string) (*coreapi.ServiceDetail, error) {
+func (p *ServiceProvider) ServiceByID(id string) (*coreapi.Service, error) {
 	serviceReply, err := p.client.GetService(context.Background(), &coreapi.GetServiceRequest{ServiceID: id})
 	if err != nil {
 		return nil, err
@@ -67,7 +67,7 @@ func (p *ServiceProvider) ServiceDeleteAll(deleteData bool) error {
 				errs.Append(err)
 			}
 			wg.Done()
-		}(s.Service.Hash)
+		}(s.Definition.Hash)
 	}
 	wg.Wait()
 	return errs.ErrorOrNil()
@@ -117,7 +117,7 @@ func (p *ServiceProvider) ServiceLogs(id string, dependencies ...string) (logs [
 		if err != nil {
 			return nil, nil, nil, err
 		}
-		for _, dep := range resp.Service.Service.Dependencies {
+		for _, dep := range resp.Service.Definition.Dependencies {
 			dependencies = append(dependencies, dep.Key)
 		}
 	}
@@ -266,7 +266,7 @@ func (p *ServiceProvider) ServiceGenerateDocs(path string) error {
 }
 
 // ServiceList lists all services.
-func (p *ServiceProvider) ServiceList() ([]*coreapi.ServiceDetail, error) {
+func (p *ServiceProvider) ServiceList() ([]*coreapi.Service, error) {
 	reply, err := p.client.ListServices(context.Background(), &coreapi.ListServicesRequest{})
 	if err != nil {
 		return nil, err
