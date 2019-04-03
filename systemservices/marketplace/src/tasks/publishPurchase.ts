@@ -9,10 +9,10 @@ export default (
   marketplace: Marketplace,
 ) => async (inputs: TaskInputs, outputs: TaskOutputs): Promise<void> => {
   try {
-    let receipt = null
-    for (let i=0; i<inputs.signedTransactions.length; i++) {
-      receipt = await web3.eth.sendSignedTransaction(inputs.signedTransactions[i])
+    if (inputs.signedTransactions.length === 2) {
+      await web3.eth.sendSignedTransaction(inputs.signedTransactions[0])
     }
+    const receipt = await web3.eth.sendSignedTransaction(inputs.signedTransactions[inputs.signedTransactions.length-1])
     if (receipt === null || receipt.logs === undefined) throw new Error('receipt does not contain logs')
     const decodedLog = extractEventFromLogs(web3, marketplace, 'ServicePurchased', receipt.logs)
     const event = servicePurchased(decodedLog)
