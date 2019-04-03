@@ -297,50 +297,51 @@ message Service {
 // ```json
 // {
 //   "services": [{
-//     "status": "statusX",
-//     "service": {
-//       "id": "idX",
-//       "sid": "sidX",
-//       "name": "serviceX",
-//       "description": "descriptionX",
-//       "status": "statusX",
-//       "events": [{
-//         "key": "eventX",
-//         "name": "nameX",
-//         "description": "descriptionX",
-//         "data": [{
-//           "key": "dataX",
-//           "name": "nameX",
-//           "description": "descriptionX",
-//           "type": "String",
-//           "optional": true
-//         }]
+//     "definition": {
+//       "dependencies": [{
+//         "image": "sha256:dfb1b6be0001c2f64822917ee8462585e43941376db887b83167413230117af9",
+//         "key": "service"
 //       }],
-//       "tasks": [{
-//         "key": "taskX",
-//         "name": "nameX",
-//         "description": "descriptionX",
-//         "inputs": [{
-//           "key": "foo",
-//           "name": "nameX",
-//           "description": "descriptionX",
-//           "type": "String",
-//           "optional": true
+//       "description": "Description of my service",
+//       "events": [{
+//         "data": [{
+//           "key": "x",
+//           "type": "Boolean"
 //         }],
+//         "key": "started"
+//       }],
+//       "hash": "e8de3872762ec68f22a82ddeecac49d07cef17dbf7f2dbdb1c97f36d7cfce91a",
+//       "name": "myservice",
+//       "sid": "myservice",
+//       "tasks": [{
+//         "inputs": [{
+//             "key": "bar",
+//             "type": "String"
+//           },
+//           {
+//             "key": "foo",
+//             "type": "String"
+//           }
+//         ],
+//         "key": "taskX",
 //         "outputs": [{
-//           "key": "outputX",
-//           "name": "nameX",
-//           "description": "descriptionX",
-//           "data": [{
-//             "key": "resX",
-//             "name": "nameX",
-//             "description": "descriptionX",
-//             "type": "String",
-//             "optional": false
-//           }]
-//         }]
+//             "data": [{
+//               "key": "error",
+//               "type": "String"
+//             }],
+//             "key": "error"
+//           },
+//           {
+//             "data": [{
+//               "key": "message",
+//               "type": "String"
+//             }],
+//             "key": "success"
+//           }
+//         ]
 //       }]
-//     }
+//     },
+//     "status": 1
 //   }]
 // }
 // ```
@@ -366,49 +367,51 @@ message GetServiceRequest {
 // ```json
 // {
 //   "service": {
-//     "status": "statusX",
-//     "service": {
-//       "id": "idX",
-//       "sid": "sidX",
-//       "name": "serviceX",
-//       "description": "descriptionX",
-//       "events": [{
-//         "key": "eventX",
-//         "name": "nameX",
-//         "description": "descriptionX",
-//         "data": [{
-//           "key": "dataX",
-//           "name": "nameX",
-//           "description": "descriptionX",
-//           "type": "String",
-//           "optional": true
-//         }]
+//     "definition": {
+//       "dependencies": [{
+//         "image": "sha256:dfb1b6be0001c2f64822917ee8462585e43941376db887b83167413230117af9",
+//         "key": "service"
 //       }],
-//       "tasks": [{
-//         "key": "taskX",
-//         "name": "nameX",
-//         "description": "descriptionX",
-//         "inputs": [{
-//           "key": "foo",
-//           "name": "nameX",
-//           "description": "descriptionX",
-//           "type": "String",
-//           "optional": true
+//       "description": "Description of my service",
+//       "events": [{
+//         "data": [{
+//           "key": "x",
+//           "type": "Boolean"
 //         }],
+//         "key": "started"
+//       }],
+//       "hash": "e8de3872762ec68f22a82ddeecac49d07cef17dbf7f2dbdb1c97f36d7cfce91a",
+//       "name": "myservice",
+//       "sid": "myservice",
+//       "tasks": [{
+//         "inputs": [{
+//             "key": "bar",
+//             "type": "String"
+//           },
+//           {
+//             "key": "foo",
+//             "type": "String"
+//           }
+//         ],
+//         "key": "taskX",
 //         "outputs": [{
-//           "key": "outputX",
-//           "name": "nameX",
-//           "description": "descriptionX",
-//           "data": [{
-//             "key": "resX",
-//             "name": "nameX",
-//             "description": "descriptionX",
-//             "type": "String",
-//             "optional": false
-//           }]
-//         }]
+//             "data": [{
+//               "key": "error",
+//               "type": "String"
+//             }],
+//             "key": "error"
+//           },
+//           {
+//             "data": [{
+//               "key": "message",
+//               "type": "String"
+//             }],
+//             "key": "success"
+//           }
+//         ]
 //       }]
-//     }
+//     },
+//     "status": 1
 //   }
 // }
 // ```
