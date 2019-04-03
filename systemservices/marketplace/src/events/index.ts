@@ -1,72 +1,54 @@
-import { hexToAscii, fromUnit, findInAbi, parseTimestamp } from "../contracts/utils";
-import { ABIDefinition } from "web3/eth/abi";
-import _marketplaceABI from "../contracts/Marketplace.abi.json"
-const marketplaceABI = _marketplaceABI as ABIDefinition[]
+import Web3 from "web3"
+import { EventLog } from "web3/types"
+import { Service, EmitEventReply } from "mesg-js/lib/service"
 
-const eventHandlers: {[ethName: string]: {
-  mesgName: string,
-  parse: (event: any) => any
-  abi: ABIDefinition
-}} = {
-  'ServiceCreated': {
-    mesgName: 'serviceCreated',
-    parse: (event: any) => ({
-      sid: hexToAscii(event.sid),
-      owner: event.owner,
-    }),
-    abi: findInAbi(marketplaceABI, 'ServiceCreated')
-  },
-  'ServiceOfferCreated': {
-    mesgName: 'serviceOfferCreated',
-    parse: (event: any) => ({
-      sid: hexToAscii(event.sid),
-      offerIndex: event.offerIndex,
-      price: fromUnit(event.price),
-      duration: event.duration,
-    }),
-    abi: findInAbi(marketplaceABI, 'ServiceOfferCreated')
-  },
-  'ServiceOfferDisabled': {
-    mesgName: 'serviceOfferDisabled',
-    parse: (event: any) => ({
-      sid: hexToAscii(event.sid),
-      offerIndex: event.offerIndex,
-    }),
-    abi: findInAbi(marketplaceABI, 'ServiceOfferDisabled')
-  },
-  'ServiceOwnershipTransferred': {
-    mesgName: 'serviceOwnershipTransferred',
-    parse: (event: any) => ({
-      sid: hexToAscii(event.sid),
-      previousOwner: event.previousOwner,
-      newOwner: event.newOwner,
-    }),
-    abi: findInAbi(marketplaceABI, 'ServiceOwnershipTransferred')
-  },
-  'ServicePurchased': {
-    mesgName: 'servicePurchased',
-    parse: (event: any) => ({
-      sid: hexToAscii(event.sid),
-      offerIndex: event.offerIndex,
-      purchaser: event.purchaser,
-      price: fromUnit(event.price),
-      duration: event.duration,
-      expire: parseTimestamp(event.expire),
-    }),
-    abi: findInAbi(marketplaceABI, 'ServicePurchased')
-  },
-  'ServiceVersionCreated': {
-    mesgName: 'serviceVersionCreated',
-    parse: (event: any) => ({
-      sid: hexToAscii(event.sid),
-      versionHash: event.versionHash,
-      manifest: hexToAscii(event.manifest),
-      manifestProtocol: hexToAscii(event.manifestProtocol),
-    }),
-    abi: findInAbi(marketplaceABI, 'ServiceVersionCreated')
-  },
+import { newBlockEventEmitter } from "../newBlock"
+import { Marketplace } from "../contracts/Marketplace";
+
+import serviceCreated from "./serviceCreated"
+import serviceOfferCreated from "./serviceOfferCreated"
+import serviceOfferDisabled from "./serviceOfferDisabled"
+import serviceOwnershipTransferred from "./serviceOwnershipTransferred"
+import serviceVersionCreated from "./serviceVersionCreated"
+import servicePurchased from "./servicePurchased"
+
+const eventHandlers: {[eventName: string]: (mesg: Service, event: EventLog) => Promise<EmitEventReply | Error>} = {
+  'ServiceCreated': serviceCreated,
+  'ServiceOfferCreated': serviceOfferCreated,
+  'ServiceOfferDisabled': serviceOfferDisabled,
+  'ServiceOwnershipTransferred': serviceOwnershipTransferred,
+  'ServicePurchased': servicePurchased,
+  'ServiceVersionCreated': serviceVersionCreated,
 }
 
-export {
-  eventHandlers
+export default async (
+  mesg: Service,
+  web3: Web3,
+  marketplace: Marketplace,
+  blockConfirmations: number,
+  pollingTime: number
+) => {
+  const newBlock = await newBlockEventEmitter(web3, blockConfirmations, null, pollingTime)
+  newBlock.on('newBlock', async blockNumber => {
+    try {
+      console.log('new block', blockNumber)
+      const events = await marketplace.getPastEvents("allEvents", {
+        fromBlock: blockNumber,
+        toBlock: blockNumber,
+      })
+      events.forEach(async event => {
+        try {
+          if (!eventHandlers[event.event]) {
+            throw new Error(`Event '${event.event}' not implemented`)
+          }
+          eventHandlers[event.event](mesg, event)
+        } catch(error) {
+          console.error(`An error occurred during processing of event '${event.event}'.`, error)
+        }
+      })
+    }
+    catch (error) {
+      console.error('catch newBlock on', error)
+    }
+  })
 }

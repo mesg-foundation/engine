@@ -1,10 +1,10 @@
-import Web3 from "web3"
-import BigNumber from "bignumber.js";
-import Contract from "web3/eth/contract";
-import { TaskInputs } from "mesg-js/lib/service";
-import { Tx } from "web3/eth/types";
-import { Log } from "web3/types";
-import { ABIDefinition } from "web3/eth/abi";
+import Web3 from 'web3'
+import BigNumber from 'bignumber.js';
+import Contract from 'web3/eth/contract';
+import { TaskInputs } from 'mesg-js/lib/service';
+import { Tx } from 'web3/eth/types';
+import { ABIDefinition } from 'web3/eth/abi';
+import { Log } from 'web3/types';
 const base58 = require('base-x')('123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz')
 
 BigNumber.config({ EXPONENTIAL_AT: 100 })
