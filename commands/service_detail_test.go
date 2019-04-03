@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/protobuf/coreapi"
+	"github.com/mesg-foundation/core/protobuf/definitions"
 	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/stretchr/testify/require"
 )
@@ -14,7 +15,7 @@ import (
 func TestServiceDetail(t *testing.T) {
 	var (
 		id      = "1"
-		service = &coreapi.ServiceDetail{Service: &coreapi.Service{Hash: "2", Name: "3", Events: []*coreapi.Event{{Key: "4"}}}}
+		service = &coreapi.Service{Definition: &definitions.Service{Hash: "2", Name: "3", Events: []*definitions.Event{{Key: "4"}}}}
 		m       = newMockExecutor()
 		c       = newServiceDetailCmd(m)
 	)

@@ -273,15 +273,15 @@ func (_m *Executor) SendSignedTransaction(signedTransaction string) (provider.Tr
 }
 
 // ServiceByID provides a mock function with given fields: id
-func (_m *Executor) ServiceByID(id string) (*coreapi.ServiceDetail, error) {
+func (_m *Executor) ServiceByID(id string) (*coreapi.Service, error) {
 	ret := _m.Called(id)
 
-	var r0 *coreapi.ServiceDetail
-	if rf, ok := ret.Get(0).(func(string) *coreapi.ServiceDetail); ok {
+	var r0 *coreapi.Service
+	if rf, ok := ret.Get(0).(func(string) *coreapi.Service); ok {
 		r0 = rf(id)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*coreapi.ServiceDetail)
+			r0 = ret.Get(0).(*coreapi.Service)
 		}
 	}
 
@@ -438,15 +438,15 @@ func (_m *Executor) ServiceInitTemplateList() ([]*servicetemplate.Template, erro
 }
 
 // ServiceList provides a mock function with given fields:
-func (_m *Executor) ServiceList() ([]*coreapi.ServiceDetail, error) {
+func (_m *Executor) ServiceList() ([]*coreapi.Service, error) {
 	ret := _m.Called()
 
-	var r0 []*coreapi.ServiceDetail
-	if rf, ok := ret.Get(0).(func() []*coreapi.ServiceDetail); ok {
+	var r0 []*coreapi.Service
+	if rf, ok := ret.Get(0).(func() []*coreapi.Service); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*coreapi.ServiceDetail)
+			r0 = ret.Get(0).([]*coreapi.Service)
 		}
 	}
 

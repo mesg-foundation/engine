@@ -29,7 +29,7 @@ func newServiceDetailCmd(e ServiceExecutor) *serviceDetailCmd {
 func (c *serviceDetailCmd) runE(cmd *cobra.Command, args []string) error {
 	var (
 		err     error
-		service *coreapi.ServiceDetail
+		service *coreapi.Service
 	)
 	pretty.Progress("Loading the service...", func() {
 		service, err = c.e.ServiceByID(args[0])

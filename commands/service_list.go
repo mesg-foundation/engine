@@ -35,7 +35,7 @@ To have more details, see the [detail command](mesg-core_service_detail.md).`,
 
 func (c *serviceListCmd) runE(cmd *cobra.Command, args []string) error {
 	var (
-		services []*coreapi.ServiceDetail
+		services []*coreapi.Service
 		err      error
 	)
 	pretty.Progress("Listing services...", func() {
@@ -49,7 +49,7 @@ func (c *serviceListCmd) runE(cmd *cobra.Command, args []string) error {
 
 	fmt.Fprintf(w, "HASH\tSID\tNAME\tSTATUS\t\n")
 	for _, s := range services {
-		service := s.Service
+		service := s.Definition
 		status := strings.ToLower(s.Status.String())
 		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t\n", service.Hash, service.Sid, service.Name, status)
 	}
