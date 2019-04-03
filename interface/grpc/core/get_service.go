@@ -16,9 +16,9 @@ func (s *Server) GetService(ctx context.Context, request *coreapi.GetServiceRequ
 	if err != nil {
 		return nil, err
 	}
-	details := &coreapi.ServiceDetail{
-		Service: toProtoService(ss),
-		Status:  toProtoServiceStatusType(status),
+	details := &coreapi.Service{
+		Definition: toProtoService(ss),
+		Status:     toProtoServiceStatusType(status),
 	}
 	return &coreapi.GetServiceReply{Service: details}, nil
 }
