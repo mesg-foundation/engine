@@ -6,21 +6,20 @@ import { fromUnit, parseTimestamp, asciiToHex } from "./utils";
 const getServiceOffers = async (contract: Marketplace, sid: string): Promise<Offer[]> => {
   const sidHex = asciiToHex(sid)
   if (!await contract.methods.isServiceExist(sidHex).call()) {
-    return []
+    throw new Error(`service ${sid} does not exist`)
   }
   const offersLength = new BigNumber(await contract.methods.serviceOffersLength(sidHex).call())
-  const offersPromise: Promise<Offer|undefined>[] = []
+  const offersPromise: Promise<Offer>[] = []
   for (let j = new BigNumber(0); offersLength.isGreaterThan(j); j = j.plus(1)) {
     offersPromise.push(getServiceOffer(contract, sid, j))
   }
-  const offers = await Promise.all(offersPromise)
-  return offers.filter(offer => offer !== undefined) as Offer[]
+  return Promise.all(offersPromise)
 }
 
-const getServiceOffer = async (contract: Marketplace, sid: string, offerIndex: BigNumber): Promise<Offer|undefined> => {
+const getServiceOffer = async (contract: Marketplace, sid: string, offerIndex: BigNumber): Promise<Offer> => {
   const sidHex = asciiToHex(sid)
   if (!await contract.methods.isServiceOfferExist(sidHex, offerIndex.toString()).call()) {
-    return
+    throw new Error(`offer for service '${sid}' with offer index '${offerIndex.toString()}' does not exist`)
   }
   const offer = await contract.methods.serviceOffer(sidHex, offerIndex.toString()).call()
   return {
