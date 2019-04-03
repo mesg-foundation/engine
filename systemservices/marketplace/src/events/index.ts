@@ -31,7 +31,7 @@ export default async (
   const newBlock = await newBlockEventEmitter(web3, blockConfirmations, null, pollingTime)
   newBlock.on('newBlock', async blockNumber => {
     try {
-      console.error('new block', blockNumber)
+      console.log('new block', blockNumber)
       const events = await marketplace.getPastEvents("allEvents", {
         fromBlock: blockNumber,
         toBlock: blockNumber,
