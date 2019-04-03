@@ -7,5 +7,6 @@ PROJECT=/project
 GRPC=$PROJECT/protobuf
 GRPC_PLUGIN="--go_out=plugins=grpc:./"
 
-protoc $GRPC_PLUGIN --proto_path=$PROJECT $GRPC/coreapi/api.proto $GRPC/coreapi/service.proto
+protoc $GRPC_PLUGIN --proto_path=$PROJECT $GRPC/definitions/service.proto
+protoc $GRPC_PLUGIN --proto_path=$PROJECT $GRPC/coreapi/api.proto
 protoc $GRPC_PLUGIN --proto_path=$PROJECT $GRPC/serviceapi/api.proto

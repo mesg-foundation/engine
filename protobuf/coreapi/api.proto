@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import "protobuf/coreapi/service.proto";
+import "protobuf/definitions/service.proto";
 
 package api;
 option go_package = "coreapi";
@@ -278,8 +278,8 @@ message DeleteServiceReply {
 message ListServicesRequest {
 }
 
-// ServiceDetail return all information related to the service
-message ServiceDetail {
+// Service return all information related to the service
+message Service {
   enum Status {
     UNKNOWN = 0;
     STOPPED = 1;
@@ -288,7 +288,7 @@ message ServiceDetail {
     RUNNING = 4;
   }
   Status status = 1;   // Status of the service
-  Service service = 2; // Data of the service
+  definitions.Service definition = 2; // Definition of the service
 }
 
 // The reply's data of the `ListServices` API.
@@ -345,7 +345,7 @@ message ServiceDetail {
 // }
 // ```
 message ListServicesReply {
-  repeated ServiceDetail services = 1; // The list of previously-deployed services' detail.
+  repeated Service services = 1; // The list of previously-deployed services' detail.
 }
 
 // The request's data for the `GetService` API.
@@ -413,7 +413,7 @@ message GetServiceRequest {
 // }
 // ```
 message GetServiceReply {
-  ServiceDetail service = 1; // Service's detail.
+  Service service = 1; // Service's detail.
 }
 
 // The request's data for `ServiceLogs` API.
