@@ -17,7 +17,7 @@ func (s *Server) ListServices(ctx context.Context, request *coreapi.ListServices
 	}
 
 	var (
-		protoServices []*coreapi.ServiceDetail
+		protoServices []*coreapi.Service
 		mp            sync.Mutex
 
 		servicesLen = len(services)
@@ -34,9 +34,9 @@ func (s *Server) ListServices(ctx context.Context, request *coreapi.ListServices
 				errC <- err
 				return
 			}
-			details := &coreapi.ServiceDetail{
-				Service: toProtoService(s),
-				Status:  toProtoServiceStatusType(status),
+			details := &coreapi.Service{
+				Definition: toProtoService(s),
+				Status:     toProtoServiceStatusType(status),
 			}
 			mp.Lock()
 			protoServices = append(protoServices, details)

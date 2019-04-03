@@ -2,19 +2,20 @@ package core
 
 import (
 	"github.com/mesg-foundation/core/protobuf/coreapi"
+	"github.com/mesg-foundation/core/protobuf/definitions"
 	service "github.com/mesg-foundation/core/service"
 )
 
-func toProtoServices(ss []*service.Service) []*coreapi.Service {
-	services := make([]*coreapi.Service, len(ss))
+func toProtoServices(ss []*service.Service) []*definitions.Service {
+	services := make([]*definitions.Service, len(ss))
 	for i, s := range ss {
 		services[i] = toProtoService(s)
 	}
 	return services
 }
 
-func toProtoService(s *service.Service) *coreapi.Service {
-	return &coreapi.Service{
+func toProtoService(s *service.Service) *definitions.Service {
+	return &definitions.Service{
 		Hash:         s.Hash,
 		Sid:          s.Sid,
 		Name:         s.Name,
@@ -26,33 +27,33 @@ func toProtoService(s *service.Service) *coreapi.Service {
 	}
 }
 
-func toProtoServiceStatusType(s service.StatusType) coreapi.ServiceDetail_Status {
+func toProtoServiceStatusType(s service.StatusType) coreapi.Service_Status {
 	switch s {
 	default:
-		return coreapi.ServiceDetail_UNKNOWN
+		return coreapi.Service_UNKNOWN
 	case service.STOPPED:
-		return coreapi.ServiceDetail_STOPPED
+		return coreapi.Service_STOPPED
 	case service.STARTING:
-		return coreapi.ServiceDetail_STARTING
+		return coreapi.Service_STARTING
 	case service.PARTIAL:
-		return coreapi.ServiceDetail_PARTIAL
+		return coreapi.Service_PARTIAL
 	case service.RUNNING:
-		return coreapi.ServiceDetail_RUNNING
+		return coreapi.Service_RUNNING
 	}
 }
 
-func toProtoTasks(tasks []*service.Task) []*coreapi.Task {
-	ts := make([]*coreapi.Task, len(tasks))
+func toProtoTasks(tasks []*service.Task) []*definitions.Task {
+	ts := make([]*definitions.Task, len(tasks))
 	for i, task := range tasks {
-		t := &coreapi.Task{
+		t := &definitions.Task{
 			Key:         task.Key,
 			Name:        task.Name,
 			Description: task.Description,
 			Inputs:      toProtoParameters(task.Inputs),
-			Outputs:     []*coreapi.Output{},
+			Outputs:     []*definitions.Output{},
 		}
 		for _, output := range task.Outputs {
-			o := &coreapi.Output{
+			o := &definitions.Output{
 				Key:         output.Key,
 				Name:        output.Name,
 				Description: output.Description,
@@ -65,10 +66,10 @@ func toProtoTasks(tasks []*service.Task) []*coreapi.Task {
 	return ts
 }
 
-func toProtoEvents(events []*service.Event) []*coreapi.Event {
-	es := make([]*coreapi.Event, len(events))
+func toProtoEvents(events []*service.Event) []*definitions.Event {
+	es := make([]*definitions.Event, len(events))
 	for i, event := range events {
-		es[i] = &coreapi.Event{
+		es[i] = &definitions.Event{
 			Key:         event.Key,
 			Name:        event.Name,
 			Description: event.Description,
@@ -78,10 +79,10 @@ func toProtoEvents(events []*service.Event) []*coreapi.Event {
 	return es
 }
 
-func toProtoParameters(params []*service.Parameter) []*coreapi.Parameter {
-	ps := make([]*coreapi.Parameter, len(params))
+func toProtoParameters(params []*service.Parameter) []*definitions.Parameter {
+	ps := make([]*definitions.Parameter, len(params))
 	for i, param := range params {
-		ps[i] = &coreapi.Parameter{
+		ps[i] = &definitions.Parameter{
 			Key:         param.Key,
 			Name:        param.Name,
 			Description: param.Description,
@@ -94,11 +95,11 @@ func toProtoParameters(params []*service.Parameter) []*coreapi.Parameter {
 	return ps
 }
 
-func toProtoDependency(dep *service.Dependency) *coreapi.Dependency {
+func toProtoDependency(dep *service.Dependency) *definitions.Dependency {
 	if dep == nil {
 		return nil
 	}
-	return &coreapi.Dependency{
+	return &definitions.Dependency{
 		Key:         dep.Key,
 		Image:       dep.Image,
 		Volumes:     dep.Volumes,
@@ -108,8 +109,8 @@ func toProtoDependency(dep *service.Dependency) *coreapi.Dependency {
 	}
 }
 
-func toProtoDependencies(deps []*service.Dependency) []*coreapi.Dependency {
-	ds := make([]*coreapi.Dependency, len(deps))
+func toProtoDependencies(deps []*service.Dependency) []*definitions.Dependency {
+	ds := make([]*definitions.Dependency, len(deps))
 	for i, dep := range deps {
 		ds[i] = toProtoDependency(dep)
 	}
