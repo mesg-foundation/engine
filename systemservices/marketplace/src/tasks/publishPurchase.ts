@@ -1,10 +1,12 @@
 import { TaskInputs, TaskOutputs } from "mesg-js/lib/service"
 import Web3 from "web3"
-import { decodeLog } from "../contracts/utils";
-import { eventHandlers } from "../events";
+import { extractEventFromLogs } from "../contracts/utils";
+import { Marketplace } from "../contracts/Marketplace";
+import { servicePurchased } from "../contracts/parseEvents";
 
 export default (
   web3: Web3,
+  marketplace: Marketplace,
 ) => async (inputs: TaskInputs, outputs: TaskOutputs): Promise<void> => {
   try {
     let receipt = null
@@ -12,9 +14,8 @@ export default (
       receipt = await web3.eth.sendSignedTransaction(inputs.signedTransactions[i])
     }
     if (receipt === null || receipt.logs === undefined) throw new Error('receipt does not contain logs')
-    const eventHandler = eventHandlers['ServicePurchased']
-    const decodedLog = decodeLog(web3, eventHandler.abi, receipt.logs[receipt.logs.length - 1])
-    const event = eventHandler.parse(decodedLog)
+    const decodedLog = extractEventFromLogs(web3, marketplace, 'ServicePurchased', receipt.logs)
+    const event = servicePurchased(decodedLog)
     return outputs.success(event)
   }
   catch (error) {

@@ -65,6 +65,19 @@ const createTransactionTemplate = (
   }
 }
 
+const extractEventFromLogs = (web3: Web3, contract: Contract, eventName: string, logs: Log[]): any => {
+  const abi = findInAbi(contract.options.jsonInterface, eventName)
+  const log = findInLogs(web3, abi, logs)
+  return decodeLog(web3, abi, log)
+}
+
+const findInLogs = (web3: Web3, abi: ABIDefinition, logs: Log[]) => {
+  const eventSignature = web3.eth.abi.encodeEventSignature(abi)
+  const index = logs.findIndex(log => log.topics[0] === eventSignature)
+  if (index === -1) throw new Error(`Did not find event '${abi.name}' in logs`)
+  return logs[index]
+}
+
 const decodeLog = (web3: Web3, abi: ABIDefinition, log: Log): any => {
   if (abi.anonymous === false) {
     // Remove first element because event is non-anonymous
@@ -74,10 +87,10 @@ const decodeLog = (web3: Web3, abi: ABIDefinition, log: Log): any => {
   return web3.eth.abi.decodeLog(abi.inputs as object, log.data, log.topics)
 }
 
-const findInAbi = (abi: ABIDefinition[], name: string): ABIDefinition => {
-  const filter = abi.filter(a => a.name === name)
-  if (filter.length !== 1) throw new Error('Did not find definition "'+name+'" in abi')
-  return filter[0]
+const findInAbi = (abi: ABIDefinition[], eventName: string): ABIDefinition => {
+  const index = abi.findIndex(a => a.name === eventName)
+  if (index === -1) throw new Error(`Did not find definition '${eventName}' in abi`)
+  return abi[index]
 }
 
 export {
@@ -93,4 +106,6 @@ export {
   hexToHash,
   decodeLog,
   findInAbi,
+  findInLogs,
+  extractEventFromLogs,
 }
