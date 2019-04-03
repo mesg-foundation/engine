@@ -13,9 +13,9 @@ import (
 
 func TestServiceList(t *testing.T) {
 	var (
-		services = []*coreapi.Service{
-			{Hash: "1", Name: "a", Status: coreapi.Service_RUNNING},
-			{Hash: "2", Name: "b", Status: coreapi.Service_PARTIAL},
+		services = []*coreapi.ServiceDetail{
+			{Service: &coreapi.Service{Hash: "1", Name: "a"}, Status: coreapi.ServiceDetail_RUNNING},
+			{Service: &coreapi.Service{Hash: "2", Name: "b"}, Status: coreapi.ServiceDetail_PARTIAL},
 		}
 		m = newMockExecutor()
 		c = newServiceListCmd(m)
@@ -39,7 +39,7 @@ func TestServiceList(t *testing.T) {
 
 	for _, s := range services {
 		status := strings.ToLower(s.Status.String())
-		pattern := fmt.Sprintf(`^\s*%s\s+%s\s+%s\s+%s\s*$`, s.Hash, s.Sid, s.Name, status)
+		pattern := fmt.Sprintf(`^\s*%s\s+%s\s+%s\s+%s\s*$`, s.Service.Hash, s.Service.Sid, s.Service.Name, status)
 		matched, err := regexp.Match(pattern, readLine(t, r))
 		require.NoError(t, err)
 		require.True(t, matched)

@@ -51,7 +51,7 @@ func (c *serviceExecuteCmd) preRunE(cmd *cobra.Command, args []string) error {
 
 func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 	var (
-		s              *coreapi.Service
+		s              *coreapi.ServiceDetail
 		result         *coreapi.ResultData
 		listenResultsC chan *coreapi.ResultData
 		inputData      string
@@ -66,11 +66,11 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err = c.getTaskKey(s); err != nil {
+	if err = c.getTaskKey(s.Service); err != nil {
 		return err
 	}
 
-	inputData, err = c.getData(s)
+	inputData, err = c.getData(s.Service)
 	if err != nil {
 		return err
 	}
