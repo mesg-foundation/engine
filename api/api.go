@@ -19,29 +19,12 @@ type API struct {
 	container container.Container
 }
 
-// Option is a configuration func for MESG.
-type Option func(*API)
-
 // New creates a new API with given options.
-func New(db database.ServiceDB, execDB database.ExecutionDB, options ...Option) (*API, error) {
-	a := &API{db: db, execDB: execDB}
-	for _, option := range options {
-		option(a)
-	}
-	if a.container == nil {
-		var err error
-		a.container, err = container.New()
-		if err != nil {
-			return nil, err
-		}
-	}
-	return a, nil
-}
-
-// ContainerOption configures underlying container access API.
-func ContainerOption(container container.Container) Option {
-	return func(a *API) {
-		a.container = container
+func New(c container.Container, db database.ServiceDB, execDB database.ExecutionDB) *API {
+	return &API{
+		db:        db,
+		execDB:    execDB,
+		container: c,
 	}
 }
 

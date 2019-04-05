@@ -50,10 +50,7 @@ func initDependencies() (*dependencies, error) {
 	}
 
 	// init api.
-	api, err := api.New(serviceDB, executionDB, api.ContainerOption(c))
-	if err != nil {
-		return nil, err
-	}
+	api := api.New(c, serviceDB, executionDB)
 
 	return &dependencies{
 		config:      config,
