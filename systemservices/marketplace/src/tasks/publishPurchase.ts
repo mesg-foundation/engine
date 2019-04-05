@@ -9,10 +9,13 @@ export default (
   marketplace: Marketplace,
 ) => async (inputs: TaskInputs, outputs: TaskOutputs): Promise<void> => {
   try {
-    if (inputs.signedTransactions.length === 2) {
-      await web3.eth.sendSignedTransaction(inputs.signedTransactions[0])
+    const txs = [...inputs.signedTransactions]
+    // extract last transaction because we only want to get its logs
+    const lastTransaction = txs.pop()
+    for(const index in txs) {
+      await web3.eth.sendSignedTransaction(txs[index])
     }
-    const receipt = await web3.eth.sendSignedTransaction(inputs.signedTransactions[inputs.signedTransactions.length-1])
+    const receipt = await web3.eth.sendSignedTransaction(lastTransaction)
     if (receipt === null || receipt.logs === undefined) throw new Error('receipt does not contain logs')
     const decodedLog = extractEventFromLogs(web3, marketplace, 'ServicePurchased', receipt.logs)
     const event = servicePurchased(decodedLog)
