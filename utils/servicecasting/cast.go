@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mesg-foundation/core/protobuf/definitions"
+	"github.com/mesg-foundation/core/protobuf/definition"
 )
 
 type caster func(value string) (interface{}, error)
@@ -56,7 +56,7 @@ var casters = map[string]caster{
 }
 
 // TaskInputs converts map[string]string to map[string]interface{} based on defined types in the service tasks map.
-func TaskInputs(s *definitions.Service, taskKey string, taskData map[string]string) (map[string]interface{}, error) {
+func TaskInputs(s *definition.Service, taskKey string, taskData map[string]string) (map[string]interface{}, error) {
 	for _, task := range s.Tasks {
 		if task.Key == taskKey {
 			m := make(map[string]interface{}, len(taskData))
@@ -81,7 +81,7 @@ func TaskInputs(s *definitions.Service, taskKey string, taskData map[string]stri
 }
 
 // findParam return a param based on the key from a list of parameter
-func findParam(parameters []*definitions.Parameter, key string) (*definitions.Parameter, error) {
+func findParam(parameters []*definition.Parameter, key string) (*definition.Parameter, error) {
 	for _, p := range parameters {
 		if p.Key == key {
 			return p, nil
