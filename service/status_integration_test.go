@@ -11,7 +11,7 @@ import (
 
 func TestIntegrationStatusService(t *testing.T) {
 	service, _ := FromService(&Service{
-		Hash: "00",
+		Hash: "1",
 		Name: "TestStatusService",
 		Dependencies: []*Dependency{
 			{
@@ -34,7 +34,7 @@ func TestIntegrationStatusService(t *testing.T) {
 
 func TestIntegrationStatusDependency(t *testing.T) {
 	service, _ := FromService(&Service{
-		Hash: "00",
+		Hash: "1",
 		Name: "TestStatusDependency",
 		Dependencies: []*Dependency{
 			{
@@ -58,7 +58,7 @@ func TestIntegrationStatusDependency(t *testing.T) {
 
 func TestIntegrationListRunning(t *testing.T) {
 	service, _ := FromService(&Service{
-		Hash: "00",
+		Hash: "1",
 		Name: "TestList",
 		Dependencies: []*Dependency{
 			{
@@ -77,7 +77,7 @@ func TestIntegrationListRunning(t *testing.T) {
 
 func TestIntegrationListRunningMultipleDependencies(t *testing.T) {
 	service, _ := FromService(&Service{
-		Hash: "00",
+		Hash: "1",
 		Name: "TestListMultipleDependencies",
 		Dependencies: []*Dependency{
 			{
