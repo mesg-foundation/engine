@@ -52,7 +52,7 @@ func (s *resultSubmitter) processExecution(executionID string, outputKey string,
 		return nil, false, err
 	}
 
-	exec.Service, err = service.FromService(exec.Service, service.ContainerOption(s.api.container))
+	exec.Service, err = service.FromService(exec.Service)
 	if err != nil {
 		return s.saveExecution(tx, exec, err)
 	}

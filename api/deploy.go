@@ -164,10 +164,7 @@ func (d *serviceDeployer) deploy(path string) (*service.Service, *importer.Valid
 		d.forwardDeployStatuses(statuses)
 	}()
 
-	s, err := service.New(path, d.env,
-		service.ContainerOption(d.api.container),
-		service.DeployStatusOption(statuses),
-	)
+	s, err := service.New(path, d.api.container, statuses, d.env)
 	wg.Wait()
 
 	validationErr, err := d.assertValidationError(err)

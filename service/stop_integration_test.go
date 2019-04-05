@@ -19,11 +19,12 @@ func TestIntegrationStopRunningService(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	}, ContainerOption(newIntegrationContainer(t)))
-	service.Start()
-	err := service.Stop()
+	})
+	c := newIntegrationContainer(t)
+	service.Start(c)
+	err := service.Stop(c)
 	require.NoError(t, err)
-	status, _ := service.Status()
+	status, _ := service.Status(c)
 	require.Equal(t, STOPPED, status)
 }
 
@@ -37,15 +38,15 @@ func TestIntegrationStopNonRunningService(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	}, ContainerOption(newIntegrationContainer(t)))
-	err := service.Stop()
+	})
+	c := newIntegrationContainer(t)
+	err := service.Stop(c)
 	require.NoError(t, err)
-	status, _ := service.Status()
+	status, _ := service.Status(c)
 	require.Equal(t, STOPPED, status)
 }
 
 func TestIntegrationStopDependency(t *testing.T) {
-	c := newIntegrationContainer(t)
 	service, _ := FromService(&Service{
 		Hash: "00",
 		Name: "TestStopDependency",
@@ -55,20 +56,20 @@ func TestIntegrationStopDependency(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	}, ContainerOption(c))
+	})
+	c := newIntegrationContainer(t)
 	networkID, err := c.CreateNetwork(service.namespace())
 	require.NoError(t, err)
 	defer c.DeleteNetwork(service.namespace())
 	dep := service.Dependencies[0]
-	dep.Start(networkID)
-	err = dep.Stop()
+	dep.Start(c, networkID)
+	err = dep.Stop(c)
 	require.NoError(t, err)
-	status, _ := dep.Status()
+	status, _ := dep.Status(c)
 	require.Equal(t, container.STOPPED, status)
 }
 
 func TestIntegrationNetworkDeleted(t *testing.T) {
-	c := newIntegrationContainer(t)
 	service, _ := FromService(&Service{
 		Hash: "00",
 		Name: "TestNetworkDeleted",
@@ -78,9 +79,10 @@ func TestIntegrationNetworkDeleted(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	}, ContainerOption(c))
-	service.Start()
-	service.Stop()
+	})
+	c := newIntegrationContainer(t)
+	service.Start(c)
+	service.Stop(c)
 	n, err := c.FindNetwork(service.namespace())
 	require.Empty(t, n)
 	require.Error(t, err)

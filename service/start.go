@@ -12,18 +12,18 @@ import (
 )
 
 // Start starts the service.
-func (s *Service) Start() (serviceIDs []string, err error) {
-	status, err := s.Status()
+func (s *Service) Start(c container.Container) (serviceIDs []string, err error) {
+	status, err := s.Status(c)
 	if err != nil || status == RUNNING {
 		return nil, err //TODO: if the service is already running, serviceIDs should be returned.
 	}
 	// If there is one but not all services running stop to restart all
 	if status == PARTIAL {
-		if err := s.StopDependencies(); err != nil {
+		if err := s.StopDependencies(c); err != nil {
 			return nil, err
 		}
 	}
-	networkID, err := s.container.CreateNetwork(s.namespace())
+	networkID, err := c.CreateNetwork(s.namespace())
 	if err != nil {
 		return nil, err
 	}
@@ -31,9 +31,9 @@ func (s *Service) Start() (serviceIDs []string, err error) {
 	// After solving this by docker, switch back to deploy in parallel
 	serviceIDs = make([]string, len(s.Dependencies))
 	for i, dep := range s.Dependencies {
-		serviceID, err := dep.Start(networkID)
+		serviceID, err := dep.Start(c, networkID)
 		if err != nil {
-			s.Stop()
+			s.Stop(c)
 			return nil, err
 		}
 		serviceIDs[i] = serviceID
@@ -42,8 +42,8 @@ func (s *Service) Start() (serviceIDs []string, err error) {
 }
 
 // Start starts a dependency container.
-func (d *Dependency) Start(networkID string) (containerServiceID string, err error) {
-	sharedNetworkID, err := d.service.container.SharedNetworkID()
+func (d *Dependency) Start(ct container.Container, networkID string) (containerServiceID string, err error) {
+	sharedNetworkID, err := ct.SharedNetworkID()
 	if err != nil {
 		return "", err
 	}
@@ -58,7 +58,7 @@ func (d *Dependency) Start(networkID string) (containerServiceID string, err err
 	}
 	_, port, _ := xnet.SplitHostPort(c.Server.Address)
 	endpoint := c.Core.Name + ":" + strconv.Itoa(port)
-	return d.service.container.StartService(container.ServiceOptions{
+	return ct.StartService(container.ServiceOptions{
 		Namespace: d.namespace(),
 		Labels: map[string]string{
 			"mesg.service": d.service.Name,

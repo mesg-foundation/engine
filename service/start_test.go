@@ -105,7 +105,7 @@ func TestStartService(t *testing.T) {
 	mc.On("SharedNetworkID").Once().Return(sharedNetworkID, nil)
 	mockStartService(d, mc, networkID, sharedNetworkID, containerServiceID, nil)
 
-	serviceIDs, err := s.Start()
+	serviceIDs, err := s.Start(mc)
 	require.NoError(t, err)
 	require.Len(t, serviceIDs, 1)
 	require.Equal(t, containerServiceID, serviceIDs[0])
@@ -153,7 +153,7 @@ func TestStartWith2Dependencies(t *testing.T) {
 		mockStartService(d, mc, networkID, sharedNetworkID, containerServiceIDs[i], nil)
 	}
 
-	serviceIDs, err := s.Start()
+	serviceIDs, err := s.Start(mc)
 	require.NoError(t, err)
 	require.Len(t, serviceIDs, len(s.Dependencies))
 
@@ -180,7 +180,7 @@ func TestStartServiceRunning(t *testing.T) {
 	d, _ := s.getDependency(dependencyKey)
 	mc.On("Status", d.namespace()).Once().Return(container.RUNNING, nil)
 
-	dockerServices, err := s.Start()
+	dockerServices, err := s.Start(mc)
 	require.NoError(t, err)
 	require.Len(t, dockerServices, 0)
 
@@ -226,7 +226,7 @@ func TestPartiallyRunningService(t *testing.T) {
 		mockStartService(d, mc, networkID, sharedNetworkID, containerServiceIDs[i], nil)
 	}
 
-	serviceIDs, err := s.Start()
+	serviceIDs, err := s.Start(mc)
 	require.NoError(t, err)
 	require.Len(t, serviceIDs, len(s.Dependencies))
 
@@ -259,7 +259,7 @@ func TestStartDependency(t *testing.T) {
 	mc.On("SharedNetworkID").Once().Return(sharedNetworkID, nil)
 	mockStartService(d, mc, networkID, sharedNetworkID, containerServiceID, nil)
 
-	serviceID, err := d.Start(networkID)
+	serviceID, err := d.Start(mc, networkID)
 	require.NoError(t, err)
 	require.Equal(t, containerServiceID, serviceID)
 
@@ -291,7 +291,7 @@ func TestServiceStartError(t *testing.T) {
 	mockStartService(d, mc, networkID, sharedNetworkID, "", startErr)
 	mc.On("Status", d.namespace()).Once().Return(container.STOPPED, nil)
 
-	serviceIDs, err := s.Start()
+	serviceIDs, err := s.Start(mc)
 	require.Equal(t, startErr, err)
 	require.Len(t, serviceIDs, 0)
 

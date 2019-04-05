@@ -8,6 +8,7 @@ import (
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	"github.com/mesg-foundation/core/api"
+	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/interface/grpc/core"
 	"github.com/mesg-foundation/core/interface/grpc/service"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
@@ -20,7 +21,8 @@ import (
 
 // Server contains the server config.
 type Server struct {
-	api *api.API
+	container container.Container
+	api       *api.API
 
 	instance *grpc.Server
 	closed   bool
@@ -31,11 +33,12 @@ type Server struct {
 }
 
 // New returns a new gRPC server.
-func New(address string, api *api.API) *Server {
+func New(address string, c container.Container, api *api.API) *Server {
 	return &Server{
-		api:     api,
-		address: address,
-		network: "tcp",
+		container: c,
+		api:       api,
+		address:   address,
+		network:   "tcp",
 	}
 }
 
@@ -101,7 +104,7 @@ func (s *Server) Close() {
 
 // register all server
 func (s *Server) register() error {
-	coreServer := core.NewServer(s.api)
+	coreServer := core.NewServer(s.container, s.api)
 	serviceServer := service.NewServer(s.api)
 
 	serviceapi.RegisterServiceServer(s.instance, serviceServer)

@@ -51,7 +51,7 @@ func (a *API) GetService(serviceID string) (*service.Service, error) {
 	if err != nil {
 		return nil, err
 	}
-	return service.FromService(s, service.ContainerOption(a.container))
+	return service.FromService(s)
 }
 
 // ListServices returns all services.
@@ -63,7 +63,7 @@ func (a *API) ListServices() ([]*service.Service, error) {
 
 	var services []*service.Service
 	for _, s := range ss {
-		s, err = service.FromService(s, service.ContainerOption(a.container))
+		s, err = service.FromService(s)
 		if err != nil {
 			return nil, err
 		}
@@ -79,11 +79,11 @@ func (a *API) StartService(serviceID string) error {
 	if err != nil {
 		return err
 	}
-	sr, err = service.FromService(sr, service.ContainerOption(a.container))
+	sr, err = service.FromService(sr)
 	if err != nil {
 		return err
 	}
-	_, err = sr.Start()
+	_, err = sr.Start(a.container)
 	return err
 }
 
@@ -93,11 +93,11 @@ func (a *API) StopService(serviceID string) error {
 	if err != nil {
 		return err
 	}
-	sr, err = service.FromService(sr, service.ContainerOption(a.container))
+	sr, err = service.FromService(sr)
 	if err != nil {
 		return err
 	}
-	return sr.Stop()
+	return sr.Stop(a.container)
 }
 
 // DeleteService stops and deletes service serviceID.
@@ -108,18 +108,18 @@ func (a *API) DeleteService(serviceID string, deleteData bool) error {
 	if err != nil {
 		return err
 	}
-	s, err = service.FromService(s, service.ContainerOption(a.container))
+	s, err = service.FromService(s)
 	if err != nil {
 		return err
 	}
-	if err := s.Stop(); err != nil {
+	if err := s.Stop(a.container); err != nil {
 		return err
 	}
 	// delete volumes first before the service. this way if
 	// deleting volumes fails, process can be retried by the user again
 	// because service still will be in the db.
 	if deleteData {
-		if err := s.DeleteVolumes(); err != nil {
+		if err := s.DeleteVolumes(a.container); err != nil {
 			return err
 		}
 	}
@@ -147,13 +147,13 @@ func (a *API) ExecuteTask(serviceID, taskKey string, inputData map[string]interf
 	if err != nil {
 		return "", err
 	}
-	s, err = service.FromService(s, service.ContainerOption(a.container))
+	s, err = service.FromService(s)
 	if err != nil {
 		return "", err
 	}
 
 	// a task should be executed only if task's service is running.
-	status, err := s.Status()
+	status, err := s.Status(a.container)
 	if err != nil {
 		return "", err
 	}

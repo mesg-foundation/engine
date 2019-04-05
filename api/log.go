@@ -31,9 +31,9 @@ func (a *API) ServiceLogs(serviceID string, filters ...ServiceLogsFilter) ([]*se
 	if err != nil {
 		return nil, err
 	}
-	s, err = service.FromService(s, service.ContainerOption(a.container))
+	s, err = service.FromService(s)
 	if err != nil {
 		return nil, err
 	}
-	return s.Logs(f.dependencies...)
+	return s.Logs(a.container, f.dependencies...)
 }

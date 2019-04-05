@@ -28,7 +28,7 @@ func TestStopService(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	status, err := s.Status()
+	status, err := s.Status(server.container)
 	require.NoError(t, err)
 	require.Equal(t, service.STOPPED, status)
 	require.NoError(t, err)
