@@ -10,16 +10,18 @@ import (
 )
 
 func TestServiceNamespace(t *testing.T) {
-	service, _ := FromService(&Service{Name: "TestServiceNamespace"})
+	service, _ := FromService(&Service{
+		Hash: "1",
+		Name: "TestServiceNamespace",
+	})
 	namespace := service.namespace()
-	h, err := hex.DecodeString(service.Hash)
-	require.NoError(t, err)
-	sum := sha1.Sum(h)
+	sum := sha1.Sum([]byte(service.Hash))
 	require.Equal(t, namespace, []string{hex.EncodeToString(sum[:])})
 }
 
 func TestDependencyNamespace(t *testing.T) {
 	service, _ := FromService(&Service{
+		Hash: "1",
 		Name: "TestDependencyNamespace",
 		Dependencies: []*Dependency{
 			{
@@ -29,14 +31,15 @@ func TestDependencyNamespace(t *testing.T) {
 		},
 	})
 	dep := service.Dependencies[0]
-	h, err := hex.DecodeString(service.Hash)
-	require.NoError(t, err)
-	sum := sha1.Sum(h)
+	sum := sha1.Sum([]byte(service.Hash))
 	require.Equal(t, dep.namespace(), []string{hex.EncodeToString(sum[:]), "test"})
 }
 
 func TestEventSubscriptionChannel(t *testing.T) {
-	service, _ := FromService(&Service{Name: "TestEventSubscriptionChannel"})
+	service, _ := FromService(&Service{
+		Hash: "1",
+		Name: "TestEventSubscriptionChannel",
+	})
 	require.Equal(t, service.EventSubscriptionChannel(), hash.Calculate(append(
 		service.namespace(),
 		eventChannel,
@@ -44,7 +47,10 @@ func TestEventSubscriptionChannel(t *testing.T) {
 }
 
 func TestTaskSubscriptionChannel(t *testing.T) {
-	service, _ := FromService(&Service{Name: "TaskSubscriptionChannel"})
+	service, _ := FromService(&Service{
+		Hash: "1",
+		Name: "TaskSubscriptionChannel",
+	})
 	require.Equal(t, service.TaskSubscriptionChannel(), hash.Calculate(append(
 		service.namespace(),
 		taskChannel,
@@ -52,7 +58,10 @@ func TestTaskSubscriptionChannel(t *testing.T) {
 }
 
 func TestResultSubscriptionChannel(t *testing.T) {
-	service, _ := FromService(&Service{Name: "ResultSubscriptionChannel"})
+	service, _ := FromService(&Service{
+		Hash: "1",
+		Name: "ResultSubscriptionChannel",
+	})
 	require.Equal(t, service.ResultSubscriptionChannel(), hash.Calculate(append(
 		service.namespace(),
 		resultChannel,
