@@ -1,7 +1,6 @@
 package service
 
 import (
-	"encoding/hex"
 	"fmt"
 	"sort"
 	"strings"
@@ -11,6 +10,7 @@ import (
 	"github.com/mesg-foundation/core/service/importer"
 	"github.com/mesg-foundation/core/utils/dirhash"
 	"github.com/mesg-foundation/core/x/xos"
+	"github.com/mr-tron/base58"
 )
 
 // WARNING about hash tags on Service type and its inner types:
@@ -93,7 +93,7 @@ func New(contextDir string, c container.Container, statuses chan DeployStatus, e
 	if err != nil {
 		return nil, err
 	}
-	s.Hash = hex.EncodeToString(hash)
+	s.Hash = base58.Encode(hash)
 
 	s.injectDefinition(def)
 

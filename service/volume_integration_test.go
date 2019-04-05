@@ -18,7 +18,7 @@ func TestIntegrationDeleteVolumes(t *testing.T) {
 		volumeA        = "/a"
 		volumeB        = "/b"
 		s              = &Service{
-			Hash: "00",
+			Hash: "1",
 			Name: "TestIntegrationDeleteVolumes",
 			Dependencies: []*Dependency{
 				{

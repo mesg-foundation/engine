@@ -87,6 +87,7 @@ func TestStartService(t *testing.T) {
 		networkID          = "3"
 		sharedNetworkID    = "4"
 		s, mc              = newFromServiceAndContainerMocks(t, &Service{
+			Hash: "1",
 			Name: serviceName,
 			Sid:  Sid,
 			Dependencies: []*Dependency{
@@ -124,6 +125,7 @@ func TestStartWith2Dependencies(t *testing.T) {
 		sharedNetworkID     = "8"
 		serviceName         = "TestStartWith2Dependencies"
 		s, mc               = newFromServiceAndContainerMocks(t, &Service{
+			Hash: "1",
 			Name: serviceName,
 			Dependencies: []*Dependency{
 				{
@@ -168,6 +170,7 @@ func TestStartServiceRunning(t *testing.T) {
 	var (
 		dependencyKey = "1"
 		s, mc         = newFromServiceAndContainerMocks(t, &Service{
+			Hash: "1",
 			Dependencies: []*Dependency{
 				{
 					Key:   dependencyKey,
@@ -195,6 +198,7 @@ func TestPartiallyRunningService(t *testing.T) {
 		sharedNetworkID     = "4"
 		containerServiceIDs = []string{"5", "6"}
 		s, mc               = newFromServiceAndContainerMocks(t, &Service{
+			Hash: "1",
 			Name: "TestPartiallyRunningService",
 			Dependencies: []*Dependency{
 				{
@@ -244,6 +248,7 @@ func TestStartDependency(t *testing.T) {
 		sharedNetworkID    = "4"
 		containerServiceID = "5"
 		s, mc              = newFromServiceAndContainerMocks(t, &Service{
+			Hash: "1",
 			Name: "TestStartDependency",
 			Dependencies: []*Dependency{
 				{
@@ -273,6 +278,7 @@ func TestServiceStartError(t *testing.T) {
 		sharedNetworkID = "4"
 		startErr        = errors.New("ops")
 		s, mc           = newFromServiceAndContainerMocks(t, &Service{
+			Hash: "1",
 			Name: "TestNetworkCreated",
 			Dependencies: []*Dependency{
 				{
