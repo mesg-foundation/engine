@@ -11,6 +11,7 @@ import (
 )
 
 func newFromServiceAndContainerMocks(t *testing.T, s *Service) (*Service, *mocks.Container) {
+	_ = t
 	return s, &mocks.Container{}
 }
 
