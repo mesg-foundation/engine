@@ -10,17 +10,19 @@ import (
 )
 
 func TestIntegrationStopRunningService(t *testing.T) {
-	service := &Service{
-		Hash: "00",
-		Name: "TestStopRunningService",
-		Dependencies: []*Dependency{
-			{
-				Key:   "test",
-				Image: "http-server",
+	var (
+		service = &Service{
+			Hash: "00",
+			Name: "TestStopRunningService",
+			Dependencies: []*Dependency{
+				{
+					Key:   "test",
+					Image: "http-server",
+				},
 			},
-		},
-	}
-	c := newIntegrationContainer(t)
+		}
+		c = newIntegrationContainer(t)
+	)
 	service.Start(c)
 	err := service.Stop(c)
 	require.NoError(t, err)
@@ -29,17 +31,19 @@ func TestIntegrationStopRunningService(t *testing.T) {
 }
 
 func TestIntegrationStopNonRunningService(t *testing.T) {
-	service := &Service{
-		Hash: "00",
-		Name: "TestStopNonRunningService",
-		Dependencies: []*Dependency{
-			{
-				Key:   "test",
-				Image: "http-server",
+	var (
+		service = &Service{
+			Hash: "00",
+			Name: "TestStopNonRunningService",
+			Dependencies: []*Dependency{
+				{
+					Key:   "test",
+					Image: "http-server",
+				},
 			},
-		},
-	}
-	c := newIntegrationContainer(t)
+		}
+		c = newIntegrationContainer(t)
+	)
 	err := service.Stop(c)
 	require.NoError(t, err)
 	status, _ := service.Status(c)
@@ -47,17 +51,19 @@ func TestIntegrationStopNonRunningService(t *testing.T) {
 }
 
 func TestIntegrationStopDependency(t *testing.T) {
-	service := &Service{
-		Hash: "00",
-		Name: "TestStopDependency",
-		Dependencies: []*Dependency{
-			{
-				Key:   "test",
-				Image: "http-server",
+	var (
+		service = &Service{
+			Hash: "00",
+			Name: "TestStopDependency",
+			Dependencies: []*Dependency{
+				{
+					Key:   "test",
+					Image: "http-server",
+				},
 			},
-		},
-	}
-	c := newIntegrationContainer(t)
+		}
+		c = newIntegrationContainer(t)
+	)
 	networkID, err := c.CreateNetwork(service.namespace())
 	require.NoError(t, err)
 	defer c.DeleteNetwork(service.namespace())
@@ -70,17 +76,19 @@ func TestIntegrationStopDependency(t *testing.T) {
 }
 
 func TestIntegrationNetworkDeleted(t *testing.T) {
-	service := &Service{
-		Hash: "00",
-		Name: "TestNetworkDeleted",
-		Dependencies: []*Dependency{
-			{
-				Key:   "test",
-				Image: "http-server",
+	var (
+		service = &Service{
+			Hash: "00",
+			Name: "TestNetworkDeleted",
+			Dependencies: []*Dependency{
+				{
+					Key:   "test",
+					Image: "http-server",
+				},
 			},
-		},
-	}
-	c := newIntegrationContainer(t)
+		}
+		c = newIntegrationContainer(t)
+	)
 	service.Start(c)
 	service.Stop(c)
 	n, err := c.FindNetwork(service.namespace())
