@@ -9,47 +9,45 @@ import (
 )
 
 func TestValidateEventKey(t *testing.T) {
-	a, _, closer := newAPIAndDockerTest(t)
-	defer closer()
-	ln := newEventListener(a)
-
-	s, _ := service.FromService(&service.Service{
-		Events: []*service.Event{
-			{
-				Key: "test",
+	var (
+		l = &EventListener{}
+		s = &service.Service{
+			Events: []*service.Event{
+				{
+					Key: "test",
+				},
 			},
-		},
-	}, service.ContainerOption(a.container))
+		}
+	)
 
-	ln.eventKey = ""
-	require.Nil(t, ln.validateEventKey(s))
+	l.eventKey = ""
+	require.Nil(t, l.validateEventKey(s))
 
-	ln.eventKey = "*"
-	require.Nil(t, ln.validateEventKey(s))
+	l.eventKey = "*"
+	require.Nil(t, l.validateEventKey(s))
 
-	ln.eventKey = "test"
-	require.Nil(t, ln.validateEventKey(s))
+	l.eventKey = "test"
+	require.Nil(t, l.validateEventKey(s))
 
-	ln.eventKey = "xxx"
-	require.NotNil(t, ln.validateEventKey(s))
+	l.eventKey = "xxx"
+	require.NotNil(t, l.validateEventKey(s))
 }
 
 func TestIsSubscribedEvent(t *testing.T) {
-	a, _, closer := newAPIAndDockerTest(t)
-	defer closer()
-	ln := newEventListener(a)
+	var (
+		l = &EventListener{}
+		e = &event.Event{Key: "test"}
+	)
 
-	e := &event.Event{Key: "test"}
+	l.eventKey = ""
+	require.True(t, l.isSubscribedEvent(e))
 
-	ln.eventKey = ""
-	require.True(t, ln.isSubscribedEvent(e))
+	l.eventKey = "*"
+	require.True(t, l.isSubscribedEvent(e))
 
-	ln.eventKey = "*"
-	require.True(t, ln.isSubscribedEvent(e))
+	l.eventKey = "test"
+	require.True(t, l.isSubscribedEvent(e))
 
-	ln.eventKey = "test"
-	require.True(t, ln.isSubscribedEvent(e))
-
-	ln.eventKey = "xxx"
-	require.False(t, ln.isSubscribedEvent(e))
+	l.eventKey = "xxx"
+	require.False(t, l.isSubscribedEvent(e))
 }

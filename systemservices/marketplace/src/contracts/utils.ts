@@ -2,6 +2,7 @@ import Web3 from 'web3'
 import BigNumber from 'bignumber.js';
 import Contract from 'web3/eth/contract';
 import { TaskInputs } from 'mesg-js/lib/service';
+import { Tx } from 'web3/eth/types';
 const base58 = require('base-x')('123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz')
 
 BigNumber.config({ EXPONENTIAL_AT: 100 })
@@ -37,7 +38,7 @@ interface CreateTransaction {
     inputs: TaskInputs,
     data: string,
     shiftNonce?: number
-  ): Promise<any>;
+  ): Promise<Tx>;
 };
 
 const createTransactionTemplate = (
