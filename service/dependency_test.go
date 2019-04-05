@@ -34,6 +34,7 @@ func testDependencyLogs(t *testing.T, do func(s *Service, dependencyKey string) 
 	go werr.Write(errData)
 
 	s, mc := newFromServiceAndContainerMocks(t, &Service{
+		Hash: "1",
 		Dependencies: []*Dependency{
 			{Key: dependencyKey},
 		},
