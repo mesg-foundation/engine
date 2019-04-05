@@ -53,17 +53,15 @@ const createTransactionTemplate = (
   inputs: TaskInputs,
   data: string,
   shiftNonce?: number
-) => {
-  return {
-    chainID: chainID,
-    to: contract.options.address,
-    nonce: (await web3.eth.getTransactionCount(inputs.from)) + (shiftNonce || 0),
-    gas: inputs.gas || defaultGas,
-    gasPrice: inputs.gasPrice || defaultGasPrice,
-    value: '0',
-    data: data
-  }
-}
+) => ({
+  chainID: chainID,
+  to: contract.options.address,
+  nonce: (await web3.eth.getTransactionCount(inputs.from)) + (shiftNonce || 0),
+  gas: inputs.gas || defaultGas,
+  gasPrice: inputs.gasPrice || defaultGasPrice,
+  value: '0',
+  data: data
+})
 
 const extractEventFromLogs = (web3: Web3, contract: Contract, eventName: string, logs: Log[]): any => {
   const abi = findInAbi(contract.options.jsonInterface, eventName)
@@ -79,11 +77,9 @@ const findInLogs = (web3: Web3, abi: ABIDefinition, logs: Log[]) => {
 }
 
 const decodeLog = (web3: Web3, abi: ABIDefinition, log: Log): any => {
-  if (abi.anonymous === false) {
-    // Remove first element because event is non-anonymous
-    // https://web3js.readthedocs.io/en/1.0/web3-eth-abi.html#decodelog
-    log.topics.splice(0, 1)
-  }
+  // Remove first element because event is non-anonymous
+  // https://web3js.readthedocs.io/en/1.0/web3-eth-abi.html#decodelog
+  if (abi.anonymous === false) log.topics.splice(0, 1)
   return web3.eth.abi.decodeLog(abi.inputs as object, log.data, log.topics)
 }
 
