@@ -5,7 +5,6 @@ import (
 
 	"github.com/mesg-foundation/core/container/mocks"
 	"github.com/mesg-foundation/core/service/importer"
-	"github.com/mesg-foundation/core/x/xdocker/xarchive"
 	"github.com/mesg-foundation/core/x/xos"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -27,12 +26,9 @@ func TestNew(t *testing.T) {
 	mc := &mocks.Container{}
 	mc.On("Build", mock.Anything).Once().Return(hash, nil)
 
-	archive, err := xarchive.GzippedTar(path, nil)
-	require.NoError(t, err)
-
 	statuses := make(chan DeployStatus, 4)
 
-	s, err := New(archive, nil,
+	s, err := New(path, nil,
 		ContainerOption(mc),
 		DeployStatusOption(statuses),
 	)
@@ -64,10 +60,7 @@ func TestNewWithDefaultEnv(t *testing.T) {
 	mc := &mocks.Container{}
 	mc.On("Build", mock.Anything).Once().Return(hash, nil)
 
-	archive, err := xarchive.GzippedTar(path, nil)
-	require.NoError(t, err)
-
-	s, err := New(archive, nil,
+	s, err := New(path, nil,
 		ContainerOption(mc),
 	)
 	require.NoError(t, err)
@@ -88,10 +81,7 @@ func TestNewWithOverwrittenEnv(t *testing.T) {
 	mc := &mocks.Container{}
 	mc.On("Build", mock.Anything).Once().Return(hash, nil)
 
-	archive, err := xarchive.GzippedTar(path, nil)
-	require.NoError(t, err)
-
-	s, err := New(archive, xos.EnvSliceToMap(env),
+	s, err := New(path, xos.EnvSliceToMap(env),
 		ContainerOption(mc),
 	)
 	require.NoError(t, err)
@@ -109,10 +99,7 @@ func TestNewWitNotDefinedEnv(t *testing.T) {
 
 	mc := &mocks.Container{}
 
-	archive, err := xarchive.GzippedTar(path, nil)
-	require.NoError(t, err)
-
-	_, err = New(archive, xos.EnvSliceToMap([]string{"A=1", "B=2"}),
+	_, err := New(path, xos.EnvSliceToMap([]string{"A=1", "B=2"}),
 		ContainerOption(mc),
 	)
 	require.Equal(t, ErrNotDefinedEnv{[]string{"A", "B"}}, err)

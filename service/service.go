@@ -3,14 +3,10 @@ package service
 import (
 	"encoding/hex"
 	"fmt"
-	"io"
-	"io/ioutil"
-	"os"
 	"sort"
 	"strings"
 	"time"
 
-	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/service/importer"
 	"github.com/mesg-foundation/core/utils/dirhash"
@@ -60,9 +56,6 @@ type Service struct {
 	// statuses receives status messages produced during deployment.
 	statuses chan DeployStatus `hash:"-"`
 
-	// tempPath is the temporary path that service is hosted in file system.
-	tempPath string `hash:"-"`
-
 	// container is the underlying container API.
 	container container.Container `hash:"-"`
 }
@@ -89,8 +82,8 @@ type DeployStatus struct {
 	Type    DStatusType
 }
 
-// New creates a new service from a gzipped tarball.
-func New(tarball io.Reader, env map[string]string, options ...Option) (*Service, error) {
+// New creates a new service from contextDir.
+func New(contextDir string, env map[string]string, options ...Option) (*Service, error) {
 	var err error
 	s := &Service{}
 	defer s.closeStatus()
@@ -99,22 +92,12 @@ func New(tarball io.Reader, env map[string]string, options ...Option) (*Service,
 		return nil, err
 	}
 
-	// untar tarball to retrieve mesg.yml
-	s.tempPath, err = ioutil.TempDir("", "mesg-")
-	if err != nil {
-		return nil, err
-	}
-	defer os.RemoveAll(s.tempPath)
-
-	if err := archive.Untar(tarball, s.tempPath, nil); err != nil {
-		return nil, err
-	}
-	def, err := importer.From(s.tempPath)
+	def, err := importer.From(contextDir)
 	if err != nil {
 		return nil, err
 	}
 
-	dh := dirhash.New(s.tempPath)
+	dh := dirhash.New(contextDir)
 	envbytes := []byte(xos.EnvMapToString(env))
 	hash, err := dh.Sum(envbytes)
 	if err != nil {
@@ -132,7 +115,7 @@ func New(tarball io.Reader, env map[string]string, options ...Option) (*Service,
 	defenv := xos.EnvSliceToMap(s.configuration().Env)
 	s.configuration().Env = xos.EnvMapToSlice(xos.EnvMergeMaps(defenv, env))
 
-	if err := s.deploy(); err != nil {
+	if err := s.deploy(contextDir); err != nil {
 		return nil, err
 	}
 
@@ -181,10 +164,10 @@ func DeployStatusOption(statuses chan DeployStatus) Option {
 }
 
 // deploy deploys service.
-func (s *Service) deploy() error {
+func (s *Service) deploy(contextDir string) error {
 	s.sendStatus("Building Docker image...", DRunning)
 
-	imageHash, err := s.container.Build(s.tempPath)
+	imageHash, err := s.container.Build(contextDir)
 	if err != nil {
 		return err
 	}
