@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/mesg-foundation/core/protobuf/coreapi"
-	"github.com/mesg-foundation/core/protobuf/definitions"
+	"github.com/mesg-foundation/core/protobuf/definition"
 	"github.com/mesg-foundation/core/utils/pretty"
 	casting "github.com/mesg-foundation/core/utils/servicecasting"
 	"github.com/mesg-foundation/core/x/xjson"
@@ -117,7 +117,7 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func (c *serviceExecuteCmd) getTaskKey(s *definitions.Service) error {
+func (c *serviceExecuteCmd) getTaskKey(s *definition.Service) error {
 	keys := taskKeysFromService(s)
 
 	if c.taskKey != "" {
@@ -141,7 +141,7 @@ func (c *serviceExecuteCmd) getTaskKey(s *definitions.Service) error {
 	return nil
 }
 
-func (c *serviceExecuteCmd) getData(s *definitions.Service) (string, error) {
+func (c *serviceExecuteCmd) getData(s *definition.Service) (string, error) {
 	if c.jsonFile != "" {
 		return c.readFile()
 	}
@@ -187,7 +187,7 @@ func (c *serviceExecuteCmd) readFile() (string, error) {
 	return string(content), err
 }
 
-func taskKeysFromService(s *definitions.Service) []string {
+func taskKeysFromService(s *definition.Service) []string {
 	var taskKeys []string
 	for _, task := range s.Tasks {
 		taskKeys = append(taskKeys, task.Key)

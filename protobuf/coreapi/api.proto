@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import "protobuf/definitions/service.proto";
+import "protobuf/definition/service.proto";
 
 package api;
 option go_package = "github.com/mesg-foundation/core/protobuf/coreapi";
@@ -288,7 +288,7 @@ message Service {
     RUNNING = 4;
   }
   Status status = 1;   // Status of the service
-  definitions.Service definition = 2; // Definition of the service
+  definition.Service definition = 2; // Definition of the service
 }
 
 // The reply's data of the `ListServices` API.
