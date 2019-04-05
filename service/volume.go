@@ -8,7 +8,7 @@ import (
 )
 
 // DeleteVolumes deletes the data volumes of service and its dependencies.
-func (s *Service) DeleteVolumes(c container.Container) error {
+func (s *Service) DeleteVolumes(c container.Container, ss *Service) error {
 	var (
 		wg   sync.WaitGroup
 		errs xerrors.SyncErrors
@@ -17,7 +17,7 @@ func (s *Service) DeleteVolumes(c container.Container) error {
 		wg.Add(1)
 		go func(d *Dependency) {
 			defer wg.Done()
-			if err := d.DeleteVolumes(c); err != nil {
+			if err := d.DeleteVolumes(c, ss); err != nil {
 				errs.Append(err)
 			}
 		}(d)
@@ -27,8 +27,8 @@ func (s *Service) DeleteVolumes(c container.Container) error {
 }
 
 // DeleteVolumes deletes the data volumes of service's dependency.
-func (d *Dependency) DeleteVolumes(c container.Container) error {
-	volumes := d.extractVolumes()
+func (d *Dependency) DeleteVolumes(c container.Container, s *Service) error {
+	volumes := d.extractVolumes(s)
 	var (
 		wg   sync.WaitGroup
 		errs xerrors.SyncErrors

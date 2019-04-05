@@ -10,7 +10,7 @@ import (
 )
 
 func TestServiceNamespace(t *testing.T) {
-	service, _ := FromService(&Service{Name: "TestServiceNamespace"})
+	service := &Service{Name: "TestServiceNamespace"}
 	namespace := service.namespace()
 	h, err := hex.DecodeString(service.Hash)
 	require.NoError(t, err)
@@ -19,7 +19,7 @@ func TestServiceNamespace(t *testing.T) {
 }
 
 func TestDependencyNamespace(t *testing.T) {
-	service, _ := FromService(&Service{
+	service := &Service{
 		Name: "TestDependencyNamespace",
 		Dependencies: []*Dependency{
 			{
@@ -27,16 +27,16 @@ func TestDependencyNamespace(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	})
+	}
 	dep := service.Dependencies[0]
 	h, err := hex.DecodeString(service.Hash)
 	require.NoError(t, err)
 	sum := sha1.Sum(h)
-	require.Equal(t, dep.namespace(), []string{hex.EncodeToString(sum[:]), "test"})
+	require.Equal(t, dep.namespace(service.namespace()), []string{hex.EncodeToString(sum[:]), "test"})
 }
 
 func TestEventSubscriptionChannel(t *testing.T) {
-	service, _ := FromService(&Service{Name: "TestEventSubscriptionChannel"})
+	service := &Service{Name: "TestEventSubscriptionChannel"}
 	require.Equal(t, service.EventSubscriptionChannel(), hash.Calculate(append(
 		service.namespace(),
 		eventChannel,
@@ -44,7 +44,7 @@ func TestEventSubscriptionChannel(t *testing.T) {
 }
 
 func TestTaskSubscriptionChannel(t *testing.T) {
-	service, _ := FromService(&Service{Name: "TaskSubscriptionChannel"})
+	service := &Service{Name: "TaskSubscriptionChannel"}
 	require.Equal(t, service.TaskSubscriptionChannel(), hash.Calculate(append(
 		service.namespace(),
 		taskChannel,
@@ -52,7 +52,7 @@ func TestTaskSubscriptionChannel(t *testing.T) {
 }
 
 func TestResultSubscriptionChannel(t *testing.T) {
-	service, _ := FromService(&Service{Name: "ResultSubscriptionChannel"})
+	service := &Service{Name: "ResultSubscriptionChannel"}
 	require.Equal(t, service.ResultSubscriptionChannel(), hash.Calculate(append(
 		service.namespace(),
 		resultChannel,

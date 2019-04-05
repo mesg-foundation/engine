@@ -31,7 +31,7 @@ func (s *Service) Start(c container.Container) (serviceIDs []string, err error) 
 	// After solving this by docker, switch back to deploy in parallel
 	serviceIDs = make([]string, len(s.Dependencies))
 	for i, dep := range s.Dependencies {
-		serviceID, err := dep.Start(c, networkID)
+		serviceID, err := dep.Start(c, s, networkID)
 		if err != nil {
 			s.Stop(c)
 			return nil, err
@@ -42,13 +42,13 @@ func (s *Service) Start(c container.Container) (serviceIDs []string, err error) 
 }
 
 // Start starts a dependency container.
-func (d *Dependency) Start(ct container.Container, networkID string) (containerServiceID string, err error) {
+func (d *Dependency) Start(ct container.Container, s *Service, networkID string) (containerServiceID string, err error) {
 	sharedNetworkID, err := ct.SharedNetworkID()
 	if err != nil {
 		return "", err
 	}
-	volumes := d.extractVolumes()
-	volumesFrom, err := d.extractVolumesFrom()
+	volumes := d.extractVolumes(s)
+	volumesFrom, err := d.extractVolumesFrom(s)
 	if err != nil {
 		return "", err
 	}
@@ -59,18 +59,18 @@ func (d *Dependency) Start(ct container.Container, networkID string) (containerS
 	_, port, _ := xnet.SplitHostPort(c.Server.Address)
 	endpoint := c.Core.Name + ":" + strconv.Itoa(port)
 	return ct.StartService(container.ServiceOptions{
-		Namespace: d.namespace(),
+		Namespace: d.namespace(s.namespace()),
 		Labels: map[string]string{
-			"mesg.service": d.service.Name,
-			"mesg.hash":    d.service.Hash,
-			"mesg.sid":     d.service.Sid,
+			"mesg.service": s.Name,
+			"mesg.hash":    s.Hash,
+			"mesg.sid":     s.Sid,
 			"mesg.core":    c.Core.Name,
 		},
 		Image:   d.Image,
 		Args:    d.Args,
 		Command: d.Command,
 		Env: xos.EnvMergeSlices(d.Env, []string{
-			"MESG_TOKEN=" + d.service.Hash,
+			"MESG_TOKEN=" + s.Hash,
 			"MESG_ENDPOINT=" + endpoint,
 			"MESG_ENDPOINT_TCP=" + endpoint,
 		}),
@@ -101,27 +101,27 @@ func (d *Dependency) extractPorts() []container.Port {
 }
 
 // TODO: add test and hack for MkDir in CircleCI
-func (d *Dependency) extractVolumes() []container.Mount {
+func (d *Dependency) extractVolumes(s *Service) []container.Mount {
 	volumes := make([]container.Mount, 0)
 	for _, volume := range d.Volumes {
 		volumes = append(volumes, container.Mount{
-			Source: volumeKey(d.service, d.Key, volume),
+			Source: volumeKey(s, d.Key, volume),
 			Target: volume,
 		})
 	}
 	return volumes
 }
 
-func (d *Dependency) extractVolumesFrom() ([]container.Mount, error) {
+func (d *Dependency) extractVolumesFrom(s *Service) ([]container.Mount, error) {
 	volumesFrom := make([]container.Mount, 0)
 	for _, depName := range d.VolumesFrom {
-		dep, err := d.service.getDependency(depName)
+		dep, err := s.getDependency(depName)
 		if err != nil {
 			return nil, err
 		}
 		for _, volume := range dep.Volumes {
 			volumesFrom = append(volumesFrom, container.Mount{
-				Source: volumeKey(d.service, depName, volume),
+				Source: volumeKey(s, depName, volume),
 				Target: volume,
 			})
 		}

@@ -9,7 +9,7 @@ import (
 )
 
 func TestIntegrationLogs(t *testing.T) {
-	service, _ := FromService(&Service{
+	service := &Service{
 		Hash: "00",
 		Name: "TestLogs",
 		Dependencies: []*Dependency{
@@ -22,7 +22,7 @@ func TestIntegrationLogs(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	})
+	}
 	c := newIntegrationContainer(t)
 	service.Start(c)
 	defer service.Stop(c)
@@ -32,7 +32,7 @@ func TestIntegrationLogs(t *testing.T) {
 }
 
 func TestIntegrationLogsOnlyOneDependency(t *testing.T) {
-	service, _ := FromService(&Service{
+	service := &Service{
 		Hash: "00",
 		Name: "TestLogsOnlyOneDependency",
 		Dependencies: []*Dependency{
@@ -45,7 +45,7 @@ func TestIntegrationLogsOnlyOneDependency(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	})
+	}
 	c := newIntegrationContainer(t)
 	service.Start(c)
 	defer service.Stop(c)

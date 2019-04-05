@@ -10,7 +10,7 @@ import (
 )
 
 func TestIntegrationStopRunningService(t *testing.T) {
-	service, _ := FromService(&Service{
+	service := &Service{
 		Hash: "00",
 		Name: "TestStopRunningService",
 		Dependencies: []*Dependency{
@@ -19,7 +19,7 @@ func TestIntegrationStopRunningService(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	})
+	}
 	c := newIntegrationContainer(t)
 	service.Start(c)
 	err := service.Stop(c)
@@ -29,7 +29,7 @@ func TestIntegrationStopRunningService(t *testing.T) {
 }
 
 func TestIntegrationStopNonRunningService(t *testing.T) {
-	service, _ := FromService(&Service{
+	service := &Service{
 		Hash: "00",
 		Name: "TestStopNonRunningService",
 		Dependencies: []*Dependency{
@@ -38,7 +38,7 @@ func TestIntegrationStopNonRunningService(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	})
+	}
 	c := newIntegrationContainer(t)
 	err := service.Stop(c)
 	require.NoError(t, err)
@@ -47,7 +47,7 @@ func TestIntegrationStopNonRunningService(t *testing.T) {
 }
 
 func TestIntegrationStopDependency(t *testing.T) {
-	service, _ := FromService(&Service{
+	service := &Service{
 		Hash: "00",
 		Name: "TestStopDependency",
 		Dependencies: []*Dependency{
@@ -56,21 +56,21 @@ func TestIntegrationStopDependency(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	})
+	}
 	c := newIntegrationContainer(t)
 	networkID, err := c.CreateNetwork(service.namespace())
 	require.NoError(t, err)
 	defer c.DeleteNetwork(service.namespace())
 	dep := service.Dependencies[0]
-	dep.Start(c, networkID)
-	err = dep.Stop(c)
+	dep.Start(c, service, networkID)
+	err = dep.Stop(c, service)
 	require.NoError(t, err)
-	status, _ := dep.Status(c)
+	status, _ := dep.Status(c, service)
 	require.Equal(t, container.STOPPED, status)
 }
 
 func TestIntegrationNetworkDeleted(t *testing.T) {
-	service, _ := FromService(&Service{
+	service := &Service{
 		Hash: "00",
 		Name: "TestNetworkDeleted",
 		Dependencies: []*Dependency{
@@ -79,7 +79,7 @@ func TestIntegrationNetworkDeleted(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	})
+	}
 	c := newIntegrationContainer(t)
 	service.Start(c)
 	service.Stop(c)

@@ -11,10 +11,7 @@ import (
 )
 
 func newFromServiceAndContainerMocks(t *testing.T, s *Service) (*Service, *mocks.Container) {
-	m := &mocks.Container{}
-	s, err := FromService(s)
-	require.NoError(t, err)
-	return s, m
+	return s, &mocks.Container{}
 }
 
 func TestNew(t *testing.T) {

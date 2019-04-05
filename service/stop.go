@@ -28,7 +28,7 @@ func (s *Service) StopDependencies(c container.Container) error {
 		wg.Add(1)
 		go func(d *Dependency) {
 			defer wg.Done()
-			errStop := d.Stop(c)
+			errStop := d.Stop(c, s)
 			mutex.Lock()
 			defer mutex.Unlock()
 			if errStop != nil && err == nil {
@@ -41,6 +41,6 @@ func (s *Service) StopDependencies(c container.Container) error {
 }
 
 // Stop stops a dependency.
-func (d *Dependency) Stop(c container.Container) error {
-	return c.StopService(d.namespace())
+func (d *Dependency) Stop(c container.Container, s *Service) error {
+	return c.StopService(d.namespace(s.namespace()))
 }
