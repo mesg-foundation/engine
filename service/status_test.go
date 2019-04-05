@@ -27,7 +27,7 @@ func TestUnknownServiceStatus(t *testing.T) {
 
 	mc.On("Status", d.namespace()).Once().Return(container.UNKNOWN, statusErr)
 
-	status, err := s.Status()
+	status, err := s.Status(mc)
 	require.Equal(t, statusErr, err)
 	require.Equal(t, UNKNOWN, status)
 
@@ -52,7 +52,7 @@ func TestStoppedServiceStatus(t *testing.T) {
 
 	mc.On("Status", d.namespace()).Once().Return(container.STOPPED, nil)
 
-	status, err := s.Status()
+	status, err := s.Status(mc)
 	require.NoError(t, err)
 	require.Equal(t, STOPPED, status)
 
@@ -77,7 +77,7 @@ func TestRunningServiceStatus(t *testing.T) {
 
 	mc.On("Status", d.namespace()).Once().Return(container.RUNNING, nil)
 
-	status, err := s.Status()
+	status, err := s.Status(mc)
 	require.NoError(t, err)
 	require.Equal(t, RUNNING, status)
 
@@ -111,7 +111,7 @@ func TestPartialServiceStatus(t *testing.T) {
 	mc.On("Status", d.namespace()).Once().Return(container.RUNNING, nil)
 	mc.On("Status", d2.namespace()).Once().Return(container.STOPPED, nil)
 
-	status, err := s.Status()
+	status, err := s.Status(mc)
 	require.NoError(t, err)
 	require.Equal(t, PARTIAL, status)
 
@@ -136,7 +136,7 @@ func TestDependencyStatus(t *testing.T) {
 
 	mc.On("Status", d.namespace()).Once().Return(container.RUNNING, nil)
 
-	status, err := d.Status()
+	status, err := d.Status(mc)
 	require.NoError(t, err)
 	require.Equal(t, container.RUNNING, status)
 

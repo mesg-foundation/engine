@@ -80,7 +80,7 @@ func (l *ResultListener) listen(serviceID string) error {
 	if err != nil {
 		return err
 	}
-	s, err = service.FromService(s, service.ContainerOption(l.api.container))
+	s, err = service.FromService(s)
 	if err != nil {
 		return err
 	}

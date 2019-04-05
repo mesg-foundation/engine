@@ -52,12 +52,6 @@ type Service struct {
 
 	// DeployedAt holds the creation time of service.
 	DeployedAt time.Time `hash:"-"`
-
-	// statuses receives status messages produced during deployment.
-	statuses chan DeployStatus `hash:"-"`
-
-	// container is the underlying container API.
-	container container.Container `hash:"-"`
 }
 
 // DStatusType indicates the type of status message.
@@ -83,14 +77,10 @@ type DeployStatus struct {
 }
 
 // New creates a new service from contextDir.
-func New(contextDir string, env map[string]string, options ...Option) (*Service, error) {
+func New(contextDir string, c container.Container, statuses chan DeployStatus, env map[string]string) (*Service, error) {
 	var err error
 	s := &Service{}
-	defer s.closeStatus()
-
-	if err := s.setOptions(options...); err != nil {
-		return nil, err
-	}
+	defer s.closeStatus(statuses)
 
 	def, err := importer.From(contextDir)
 	if err != nil {
@@ -115,7 +105,7 @@ func New(contextDir string, env map[string]string, options ...Option) (*Service,
 	defenv := xos.EnvSliceToMap(s.configuration().Env)
 	s.configuration().Env = xos.EnvMapToSlice(xos.EnvMergeMaps(defenv, env))
 
-	if err := s.deploy(contextDir); err != nil {
+	if err := s.deploy(contextDir, c, statuses); err != nil {
 		return nil, err
 	}
 
@@ -123,18 +113,8 @@ func New(contextDir string, env map[string]string, options ...Option) (*Service,
 }
 
 // FromService upgrades service s by setting its options and private fields.
-func FromService(s *Service, options ...Option) (*Service, error) {
-	if err := s.setOptions(options...); err != nil {
-		return nil, err
-	}
+func FromService(s *Service) (*Service, error) {
 	return s.fromService(), nil
-}
-
-func (s *Service) setOptions(options ...Option) error {
-	for _, option := range options {
-		option(s)
-	}
-	return nil
 }
 
 // fromService upgrades service s by setting a calculated ID and cross-referencing its child fields.
@@ -146,33 +126,16 @@ func (s *Service) fromService() *Service {
 	return s
 }
 
-// Option is the configuration func of Service.
-type Option func(*Service)
-
-// ContainerOption returns an option for customized container.
-func ContainerOption(container container.Container) Option {
-	return func(s *Service) {
-		s.container = container
-	}
-}
-
-// DeployStatusOption receives chan statuses to send deploy statuses.
-func DeployStatusOption(statuses chan DeployStatus) Option {
-	return func(s *Service) {
-		s.statuses = statuses
-	}
-}
-
 // deploy deploys service.
-func (s *Service) deploy(contextDir string) error {
-	s.sendStatus("Building Docker image...", DRunning)
+func (s *Service) deploy(contextDir string, c container.Container, statuses chan DeployStatus) error {
+	s.sendStatus(statuses, "Building Docker image...", DRunning)
 
-	imageHash, err := s.container.Build(contextDir)
+	imageHash, err := c.Build(contextDir)
 	if err != nil {
 		return err
 	}
 
-	s.sendStatus("Image built with success", DDonePositive)
+	s.sendStatus(statuses, "Image built with success", DDonePositive)
 
 	s.configuration().Image = imageHash
 	// TODO: the following test should be moved in New function
@@ -184,9 +147,9 @@ func (s *Service) deploy(contextDir string) error {
 }
 
 // sendStatus sends a status message.
-func (s *Service) sendStatus(message string, typ DStatusType) {
-	if s.statuses != nil {
-		s.statuses <- DeployStatus{
+func (s *Service) sendStatus(statuses chan DeployStatus, message string, typ DStatusType) {
+	if statuses != nil {
+		statuses <- DeployStatus{
 			Message: message,
 			Type:    typ,
 		}
@@ -194,9 +157,9 @@ func (s *Service) sendStatus(message string, typ DStatusType) {
 }
 
 // closeStatus closes statuses chan.
-func (s *Service) closeStatus() {
-	if s.statuses != nil {
-		close(s.statuses)
+func (s *Service) closeStatus(statuses chan DeployStatus) {
+	if statuses != nil {
+		close(statuses)
 	}
 }
 

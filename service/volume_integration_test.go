@@ -32,12 +32,13 @@ func TestIntegrationDeleteVolumes(t *testing.T) {
 					VolumesFrom: []string{dependencyKey1},
 				},
 			},
-		}, ContainerOption(newIntegrationContainer(t)))
+		})
+		c = newIntegrationContainer(t)
 	)
-	_, err := s.Start()
+	_, err := s.Start(c)
 	require.NoError(t, err)
-	err = s.Stop()
+	err = s.Stop(c)
 	require.NoError(t, err)
-	err = s.DeleteVolumes()
+	err = s.DeleteVolumes(c)
 	require.NoError(t, err)
 }

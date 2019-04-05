@@ -12,7 +12,7 @@ const (
 )
 
 func TestServerServe(t *testing.T) {
-	s := New("localhost:50052", nil)
+	s := New("localhost:50052", nil, nil)
 	go func() {
 		time.Sleep(waitForServe)
 		s.Close()
@@ -32,7 +32,7 @@ func TestServerServeNoAddress(t *testing.T) {
 }
 
 func TestServerListenAfterClose(t *testing.T) {
-	s := New("localhost:50052", nil)
+	s := New("localhost:50052", nil, nil)
 	go s.Serve()
 	time.Sleep(waitForServe)
 	s.Close()

@@ -12,7 +12,7 @@ import (
 
 func newFromServiceAndContainerMocks(t *testing.T, s *Service) (*Service, *mocks.Container) {
 	m := &mocks.Container{}
-	s, err := FromService(s, ContainerOption(m))
+	s, err := FromService(s)
 	require.NoError(t, err)
 	return s, m
 }
@@ -28,10 +28,7 @@ func TestNew(t *testing.T) {
 
 	statuses := make(chan DeployStatus, 4)
 
-	s, err := New(path, nil,
-		ContainerOption(mc),
-		DeployStatusOption(statuses),
-	)
+	s, err := New(path, mc, statuses, nil)
 	require.NoError(t, err)
 	require.Equal(t, "service", s.Dependencies[0].Key)
 	require.Equal(t, hash, s.Dependencies[0].Image)
@@ -60,9 +57,7 @@ func TestNewWithDefaultEnv(t *testing.T) {
 	mc := &mocks.Container{}
 	mc.On("Build", mock.Anything).Once().Return(hash, nil)
 
-	s, err := New(path, nil,
-		ContainerOption(mc),
-	)
+	s, err := New(path, mc, nil, nil)
 	require.NoError(t, err)
 	require.Equal(t, "service", s.Dependencies[0].Key)
 	require.Equal(t, hash, s.Dependencies[0].Image)
@@ -81,9 +76,7 @@ func TestNewWithOverwrittenEnv(t *testing.T) {
 	mc := &mocks.Container{}
 	mc.On("Build", mock.Anything).Once().Return(hash, nil)
 
-	s, err := New(path, xos.EnvSliceToMap(env),
-		ContainerOption(mc),
-	)
+	s, err := New(path, mc, nil, xos.EnvSliceToMap(env))
 	require.NoError(t, err)
 	require.Equal(t, "service", s.Dependencies[0].Key)
 	require.Equal(t, hash, s.Dependencies[0].Image)
@@ -99,9 +92,7 @@ func TestNewWitNotDefinedEnv(t *testing.T) {
 
 	mc := &mocks.Container{}
 
-	_, err := New(path, xos.EnvSliceToMap([]string{"A=1", "B=2"}),
-		ContainerOption(mc),
-	)
+	_, err := New(path, mc, nil, xos.EnvSliceToMap([]string{"A=1", "B=2"}))
 	require.Equal(t, ErrNotDefinedEnv{[]string{"A", "B"}}, err)
 
 	mc.AssertExpectations(t)

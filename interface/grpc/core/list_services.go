@@ -26,20 +26,20 @@ func (s *Server) ListServices(ctx context.Context, request *coreapi.ListServices
 	)
 
 	wg.Add(servicesLen)
-	for _, s := range services {
-		go func(s *service.Service) {
+	for _, ss := range services {
+		go func(ss *service.Service) {
 			defer wg.Done()
-			status, err := s.Status()
+			status, err := ss.Status(s.container)
 			if err != nil {
 				errC <- err
 				return
 			}
-			protoService := toProtoService(s)
+			protoService := toProtoService(ss)
 			protoService.Status = toProtoServiceStatusType(status)
 			mp.Lock()
 			protoServices = append(protoServices, protoService)
 			mp.Unlock()
-		}(s)
+		}(ss)
 	}
 
 	wg.Wait()

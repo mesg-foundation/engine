@@ -27,7 +27,7 @@ func TestStartService(t *testing.T) {
 	require.NoError(t, err)
 	defer server.api.StopService(s.Hash)
 
-	status, err := s.Status()
+	status, err := s.Status(server.container)
 	require.NoError(t, err)
 	require.Equal(t, service.RUNNING, status)
 }
