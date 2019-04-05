@@ -59,4 +59,6 @@ message Dependency {
   repeated string volumesfrom = 3;  // List of volumes mounted from other dependencies.
   repeated string ports = 4;        // List of ports the container exposes.
   string command = 5;               // Command to run the container.
+  repeated string args = 6;         // Args to pass to the container.
+  repeated string env = 7;          // Env is the environment variables in key=value format to pass to the container.
 }
