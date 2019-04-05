@@ -8,15 +8,15 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/protobuf/coreapi"
-	"github.com/mesg-foundation/core/protobuf/definitions"
+	"github.com/mesg-foundation/core/protobuf/definition"
 	"github.com/stretchr/testify/require"
 )
 
 func TestServiceList(t *testing.T) {
 	var (
 		services = []*coreapi.Service{
-			{Definition: &definitions.Service{Hash: "1", Name: "a"}, Status: coreapi.Service_RUNNING},
-			{Definition: &definitions.Service{Hash: "2", Name: "b"}, Status: coreapi.Service_PARTIAL},
+			{Definition: &definition.Service{Hash: "1", Name: "a"}, Status: coreapi.Service_RUNNING},
+			{Definition: &definition.Service{Hash: "2", Name: "b"}, Status: coreapi.Service_PARTIAL},
 		}
 		m = newMockExecutor()
 		c = newServiceListCmd(m)
