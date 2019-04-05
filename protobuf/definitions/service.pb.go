@@ -18,7 +18,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-// This is the definition of a MESG Service.
+// Service represents the service's definition.
 type Service struct {
 	Hash                 string        `protobuf:"bytes,10,opt,name=hash,proto3" json:"hash,omitempty"`
 	Sid                  string        `protobuf:"bytes,12,opt,name=sid,proto3" json:"sid,omitempty"`
@@ -37,7 +37,7 @@ func (m *Service) Reset()         { *m = Service{} }
 func (m *Service) String() string { return proto.CompactTextString(m) }
 func (*Service) ProtoMessage()    {}
 func (*Service) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_94a7248b9caff2ae, []int{0}
+	return fileDescriptor_service_c8eba2c1a81be720, []int{0}
 }
 func (m *Service) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Service.Unmarshal(m, b)
@@ -128,7 +128,7 @@ func (m *Event) Reset()         { *m = Event{} }
 func (m *Event) String() string { return proto.CompactTextString(m) }
 func (*Event) ProtoMessage()    {}
 func (*Event) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_94a7248b9caff2ae, []int{1}
+	return fileDescriptor_service_c8eba2c1a81be720, []int{1}
 }
 func (m *Event) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Event.Unmarshal(m, b)
@@ -176,7 +176,7 @@ func (m *Event) GetData() []*Parameter {
 	return nil
 }
 
-// A task is a function that requires inputs and returns output.
+// Task is a function that requires inputs and returns output.
 type Task struct {
 	Key                  string       `protobuf:"bytes,8,opt,name=key,proto3" json:"key,omitempty"`
 	Name                 string       `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -192,7 +192,7 @@ func (m *Task) Reset()         { *m = Task{} }
 func (m *Task) String() string { return proto.CompactTextString(m) }
 func (*Task) ProtoMessage()    {}
 func (*Task) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_94a7248b9caff2ae, []int{2}
+	return fileDescriptor_service_c8eba2c1a81be720, []int{2}
 }
 func (m *Task) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Task.Unmarshal(m, b)
@@ -247,7 +247,7 @@ func (m *Task) GetOutputs() []*Output {
 	return nil
 }
 
-// A output is the data a task must return.
+// Output is the data a task returns.
 type Output struct {
 	Key                  string       `protobuf:"bytes,4,opt,name=key,proto3" json:"key,omitempty"`
 	Name                 string       `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -262,7 +262,7 @@ func (m *Output) Reset()         { *m = Output{} }
 func (m *Output) String() string { return proto.CompactTextString(m) }
 func (*Output) ProtoMessage()    {}
 func (*Output) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_94a7248b9caff2ae, []int{3}
+	return fileDescriptor_service_c8eba2c1a81be720, []int{3}
 }
 func (m *Output) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Output.Unmarshal(m, b)
@@ -310,7 +310,7 @@ func (m *Output) GetData() []*Parameter {
 	return nil
 }
 
-// A parameter is the definition of a specific value.
+// Parameter describes the task's inputs, the task's outputs, and the event's data.
 type Parameter struct {
 	Key                  string       `protobuf:"bytes,8,opt,name=key,proto3" json:"key,omitempty"`
 	Name                 string       `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -328,7 +328,7 @@ func (m *Parameter) Reset()         { *m = Parameter{} }
 func (m *Parameter) String() string { return proto.CompactTextString(m) }
 func (*Parameter) ProtoMessage()    {}
 func (*Parameter) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_94a7248b9caff2ae, []int{4}
+	return fileDescriptor_service_c8eba2c1a81be720, []int{4}
 }
 func (m *Parameter) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Parameter.Unmarshal(m, b)
@@ -397,7 +397,7 @@ func (m *Parameter) GetObject() []*Parameter {
 	return nil
 }
 
-// A dependency is a configuration of an other Docker container that runs separately from the service.
+// A dependency is a configuration of an other container that runs separately from the service.
 type Dependency struct {
 	Key                  string   `protobuf:"bytes,8,opt,name=key,proto3" json:"key,omitempty"`
 	Image                string   `protobuf:"bytes,1,opt,name=image,proto3" json:"image,omitempty"`
@@ -414,7 +414,7 @@ func (m *Dependency) Reset()         { *m = Dependency{} }
 func (m *Dependency) String() string { return proto.CompactTextString(m) }
 func (*Dependency) ProtoMessage()    {}
 func (*Dependency) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_94a7248b9caff2ae, []int{5}
+	return fileDescriptor_service_c8eba2c1a81be720, []int{5}
 }
 func (m *Dependency) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Dependency.Unmarshal(m, b)
@@ -486,10 +486,10 @@ func init() {
 }
 
 func init() {
-	proto.RegisterFile("protobuf/definitions/service.proto", fileDescriptor_service_94a7248b9caff2ae)
+	proto.RegisterFile("protobuf/definitions/service.proto", fileDescriptor_service_c8eba2c1a81be720)
 }
 
-var fileDescriptor_service_94a7248b9caff2ae = []byte{
+var fileDescriptor_service_c8eba2c1a81be720 = []byte{
 	// 475 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xc4, 0x54, 0xcd, 0x8e, 0xd3, 0x30,
 	0x10, 0x56, 0x9a, 0x9f, 0x36, 0xd3, 0x3d, 0x80, 0x41, 0x60, 0x71, 0x40, 0x55, 0x2e, 0x54, 0x2b,
