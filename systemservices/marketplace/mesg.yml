@@ -250,14 +250,8 @@ tasks:
     description: ""
     inputs:
       sid: *sid
-      price:
-        name: ""
-        description: ""
-        type: String
-      duration:
-        name: ""
-        description: ""
-        type: String
+      price: *price
+      duration: *duration
       from: *inputFrom
       gas: *inputGas
       gasPrice: *inputGasPrice
