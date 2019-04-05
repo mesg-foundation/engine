@@ -13,6 +13,7 @@ func TestUnknownServiceStatus(t *testing.T) {
 		dependencyKey = "1"
 		statusErr     = errors.New("ops")
 		s, mc         = newFromServiceAndContainerMocks(t, &Service{
+			Hash: "1",
 			Name: "TestUnknownServiceStatus",
 			Dependencies: []*Dependency{
 				{
@@ -38,6 +39,7 @@ func TestStoppedServiceStatus(t *testing.T) {
 	var (
 		dependencyKey = "1"
 		s, mc         = newFromServiceAndContainerMocks(t, &Service{
+			Hash: "1",
 			Name: "TestStoppedServiceStatus",
 			Dependencies: []*Dependency{
 				{
@@ -63,6 +65,7 @@ func TestRunningServiceStatus(t *testing.T) {
 	var (
 		dependencyKey = "1"
 		s, mc         = newFromServiceAndContainerMocks(t, &Service{
+			Hash: "1",
 			Name: "TestRunningServiceStatus",
 			Dependencies: []*Dependency{
 				{
@@ -89,6 +92,7 @@ func TestPartialServiceStatus(t *testing.T) {
 		dependencyKey  = "1"
 		dependencyKey2 = "2"
 		s, mc          = newFromServiceAndContainerMocks(t, &Service{
+			Hash: "1",
 			Name: "TestPartialServiceStatus",
 			Dependencies: []*Dependency{
 				{
@@ -122,6 +126,7 @@ func TestDependencyStatus(t *testing.T) {
 	var (
 		dependencyKey = "1"
 		s, mc         = newFromServiceAndContainerMocks(t, &Service{
+			Hash: "1",
 			Name: "TestDependencyStatus",
 			Dependencies: []*Dependency{
 				{
