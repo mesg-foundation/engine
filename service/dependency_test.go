@@ -15,7 +15,7 @@ func TestDependencyLogs(t *testing.T) {
 		err error) {
 		dep, err := s.getDependency(dependencyKey)
 		require.NoError(t, err)
-		return dep.Logs(c)
+		return dep.Logs(c, s.namespace())
 	})
 }
 
@@ -41,7 +41,7 @@ func testDependencyLogs(t *testing.T, do func(s *Service, c container.Container,
 	})
 
 	d, _ := s.getDependency(dependencyKey)
-	mc.On("ServiceLogs", d.namespace()).Once().Return(rp, nil)
+	mc.On("ServiceLogs", d.namespace(s.namespace())).Once().Return(rp, nil)
 
 	rstd, rerr, err := do(s, mc, dependencyKey)
 	require.NoError(t, err)

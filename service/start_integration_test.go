@@ -10,7 +10,7 @@ import (
 )
 
 func TestIntegrationStartServiceIntegration(t *testing.T) {
-	service, _ := FromService(&Service{
+	service := &Service{
 		Hash: "00",
 		Name: "TestStartService",
 		Dependencies: []*Dependency{
@@ -19,7 +19,7 @@ func TestIntegrationStartServiceIntegration(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	})
+	}
 	c := newIntegrationContainer(t)
 	dockerServices, err := service.Start(c)
 	defer service.Stop(c)
@@ -30,7 +30,7 @@ func TestIntegrationStartServiceIntegration(t *testing.T) {
 }
 
 func TestIntegrationStartWith2DependenciesIntegration(t *testing.T) {
-	service, _ := FromService(&Service{
+	service := &Service{
 		Hash: "00",
 		Name: "TestStartWith2Dependencies",
 		Dependencies: []*Dependency{
@@ -43,15 +43,15 @@ func TestIntegrationStartWith2DependenciesIntegration(t *testing.T) {
 				Image: "sleep:latest",
 			},
 		},
-	})
+	}
 	c := newIntegrationContainer(t)
 	servicesID, err := service.Start(c)
 	defer service.Stop(c)
 	require.NoError(t, err)
 	require.Equal(t, 2, len(servicesID))
 	deps := service.Dependencies
-	container1, err1 := c.FindContainer(deps[0].namespace())
-	container2, err2 := c.FindContainer(deps[1].namespace())
+	container1, err1 := c.FindContainer(deps[0].namespace(service.namespace()))
+	container2, err2 := c.FindContainer(deps[1].namespace(service.namespace()))
 	require.Nil(t, err1)
 	require.Nil(t, err2)
 	require.Equal(t, "http-server:latest", container1.Config.Image)
@@ -59,7 +59,7 @@ func TestIntegrationStartWith2DependenciesIntegration(t *testing.T) {
 }
 
 func TestIntegrationStartAgainService(t *testing.T) {
-	service, _ := FromService(&Service{
+	service := &Service{
 		Hash: "00",
 		Name: "TestStartAgainService",
 		Dependencies: []*Dependency{
@@ -68,7 +68,7 @@ func TestIntegrationStartAgainService(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	})
+	}
 	c := newIntegrationContainer(t)
 	service.Start(c)
 	defer service.Stop(c)
@@ -81,7 +81,7 @@ func TestIntegrationStartAgainService(t *testing.T) {
 
 // // TODO: Disable this test in order to have the CI working
 // func TestIntegrationPartiallyRunningService(t *testing.T) {
-// 	service, _ := FromService(&Service{
+// 	service := &Service{
 // 		Name: "TestPartiallyRunningService",
 // 		Dependencies: []*Dependency{
 // 			{
@@ -93,7 +93,7 @@ func TestIntegrationStartAgainService(t *testing.T) {
 // 				Image: "http-server",
 // 			},
 // 		},
-// 	})
+// 	}
 // 	c := newIntegrationContainer(t)
 // 	service.Start(c)
 // 	defer service.Stop(c)
@@ -108,7 +108,7 @@ func TestIntegrationStartAgainService(t *testing.T) {
 // }
 
 func TestIntegrationStartDependency(t *testing.T) {
-	service, _ := FromService(&Service{
+	service := &Service{
 		Hash: "00",
 		Name: "TestStartDependency",
 		Dependencies: []*Dependency{
@@ -117,22 +117,22 @@ func TestIntegrationStartDependency(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	})
+	}
 	c := newIntegrationContainer(t)
 	networkID, err := c.CreateNetwork(service.namespace())
 	require.NoError(t, err)
 	defer c.DeleteNetwork(service.namespace())
 	dep := service.Dependencies[0]
-	serviceID, err := dep.Start(c, networkID)
-	defer dep.Stop(c)
+	serviceID, err := dep.Start(c, service, networkID)
+	defer dep.Stop(c, service)
 	require.NoError(t, err)
 	require.NotEqual(t, "", serviceID)
-	status, _ := dep.Status(c)
+	status, _ := dep.Status(c, service)
 	require.Equal(t, container.RUNNING, status)
 }
 
 func TestIntegrationNetworkCreated(t *testing.T) {
-	service, _ := FromService(&Service{
+	service := &Service{
 		Hash: "00",
 		Name: "TestNetworkCreated",
 		Dependencies: []*Dependency{
@@ -141,7 +141,7 @@ func TestIntegrationNetworkCreated(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	})
+	}
 	c := newIntegrationContainer(t)
 	service.Start(c)
 	defer service.Stop(c)
@@ -152,7 +152,7 @@ func TestIntegrationNetworkCreated(t *testing.T) {
 
 // Test for https://github.com/mesg-foundation/core/issues/88
 func TestIntegrationStartStopStart(t *testing.T) {
-	service, _ := FromService(&Service{
+	service := &Service{
 		Hash: "00",
 		Name: "TestStartStopStart",
 		Dependencies: []*Dependency{
@@ -161,7 +161,7 @@ func TestIntegrationStartStopStart(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	})
+	}
 	c := newIntegrationContainer(t)
 	service.Start(c)
 	service.Stop(c)
@@ -174,7 +174,7 @@ func TestIntegrationStartStopStart(t *testing.T) {
 }
 
 func TestIntegrationServiceDependenciesListensFromSamePort(t *testing.T) {
-	service, _ := FromService(&Service{
+	service := &Service{
 		Hash: "00",
 		Name: "TestServiceDependenciesListensFromSamePort",
 		Dependencies: []*Dependency{
@@ -184,8 +184,8 @@ func TestIntegrationServiceDependenciesListensFromSamePort(t *testing.T) {
 				Ports: []string{"80"},
 			},
 		},
-	})
-	service1, _ := FromService(&Service{
+	}
+	service1 := &Service{
 		Hash: "01",
 		Name: "TestServiceDependenciesListensFromSamePort1",
 		Dependencies: []*Dependency{
@@ -195,7 +195,7 @@ func TestIntegrationServiceDependenciesListensFromSamePort(t *testing.T) {
 				Ports: []string{"80"},
 			},
 		},
-	})
+	}
 	c := newIntegrationContainer(t)
 	_, err := service.Start(c)
 	require.NoError(t, err)
@@ -207,7 +207,7 @@ func TestIntegrationServiceDependenciesListensFromSamePort(t *testing.T) {
 }
 
 func TestStartWithSamePorts(t *testing.T) {
-	service, _ := FromService(&Service{
+	service := &Service{
 		Hash: "00",
 		Name: "TestStartWithSamePorts",
 		Dependencies: []*Dependency{
@@ -222,7 +222,7 @@ func TestStartWithSamePorts(t *testing.T) {
 				Ports: []string{"80"},
 			},
 		},
-	})
+	}
 	c := newIntegrationContainer(t)
 	_, err := service.Start(c)
 	require.Error(t, err)

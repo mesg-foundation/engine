@@ -109,21 +109,7 @@ func New(contextDir string, c container.Container, statuses chan DeployStatus, e
 		return nil, err
 	}
 
-	return s.fromService(), nil
-}
-
-// FromService upgrades service s by setting its options and private fields.
-func FromService(s *Service) (*Service, error) {
-	return s.fromService(), nil
-}
-
-// fromService upgrades service s by setting a calculated ID and cross-referencing its child fields.
-// TODO: this function should be deleted.
-func (s *Service) fromService() *Service {
-	for _, dep := range s.Dependencies {
-		dep.service = s
-	}
-	return s
+	return s, nil
 }
 
 // deploy deploys service.
@@ -167,7 +153,6 @@ func (s *Service) closeStatus(statuses chan DeployStatus) {
 func (s *Service) getDependency(dependencyKey string) (*Dependency, error) {
 	for _, dep := range s.Dependencies {
 		if dep.Key == dependencyKey {
-			dep.service = s
 			return dep, nil
 		}
 	}

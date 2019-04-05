@@ -23,8 +23,8 @@ func TestStopRunningService(t *testing.T) {
 
 	d, _ := s.getDependency(dependencyKey)
 
-	mc.On("Status", d.namespace()).Once().Return(container.RUNNING, nil)
-	mc.On("StopService", d.namespace()).Once().Return(nil)
+	mc.On("Status", d.namespace(s.namespace())).Once().Return(container.RUNNING, nil)
+	mc.On("StopService", d.namespace(s.namespace())).Once().Return(nil)
 	mc.On("DeleteNetwork", s.namespace()).Once().Return(nil)
 
 	err := s.Stop(mc)
@@ -48,7 +48,7 @@ func TestStopDependency(t *testing.T) {
 	)
 
 	d, _ := s.getDependency(dependencyKey)
-	mc.On("StopService", d.namespace()).Once().Return(nil)
-	require.NoError(t, d.Stop(mc))
+	mc.On("StopService", d.namespace(s.namespace())).Once().Return(nil)
+	require.NoError(t, d.Stop(mc, s))
 	mc.AssertExpectations(t)
 }

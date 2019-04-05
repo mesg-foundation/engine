@@ -22,9 +22,9 @@ func (service *Service) namespace() []string {
 	return []string{hex.EncodeToString(sum[:])}
 }
 
-// namespace returns the namespace of a dependency.
-func (d *Dependency) namespace() []string {
-	return append(d.service.namespace(), d.Key)
+// namespace builds the namespace of a dependency.
+func (d *Dependency) namespace(serviceNamespace []string) []string {
+	return append(serviceNamespace, d.Key)
 }
 
 // EventSubscriptionChannel returns the channel to listen for events from this service.

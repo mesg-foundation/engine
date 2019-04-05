@@ -10,7 +10,7 @@ import (
 )
 
 func TestIntegrationStatusService(t *testing.T) {
-	service, _ := FromService(&Service{
+	service := &Service{
 		Hash: "00",
 		Name: "TestStatusService",
 		Dependencies: []*Dependency{
@@ -19,7 +19,7 @@ func TestIntegrationStatusService(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	})
+	}
 	c := newIntegrationContainer(t)
 	status, err := service.Status(c)
 	require.NoError(t, err)
@@ -34,7 +34,7 @@ func TestIntegrationStatusService(t *testing.T) {
 }
 
 func TestIntegrationStatusDependency(t *testing.T) {
-	service, _ := FromService(&Service{
+	service := &Service{
 		Hash: "00",
 		Name: "TestStatusDependency",
 		Dependencies: []*Dependency{
@@ -43,23 +43,23 @@ func TestIntegrationStatusDependency(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	})
+	}
 	c := newIntegrationContainer(t)
 	dep := service.Dependencies[0]
-	status, err := dep.Status(c)
+	status, err := dep.Status(c, service)
 	require.NoError(t, err)
 	require.Equal(t, container.STOPPED, status)
 	dockerServices, err := service.Start(c)
 	require.NoError(t, err)
 	require.Equal(t, len(dockerServices), len(service.Dependencies))
-	status, err = dep.Status(c)
+	status, err = dep.Status(c, service)
 	require.NoError(t, err)
 	require.Equal(t, container.RUNNING, status)
 	service.Stop(c)
 }
 
 func TestIntegrationListRunning(t *testing.T) {
-	service, _ := FromService(&Service{
+	service := &Service{
 		Hash: "00",
 		Name: "TestList",
 		Dependencies: []*Dependency{
@@ -68,7 +68,7 @@ func TestIntegrationListRunning(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	})
+	}
 	c := newIntegrationContainer(t)
 	service.Start(c)
 	defer service.Stop(c)
@@ -79,7 +79,7 @@ func TestIntegrationListRunning(t *testing.T) {
 }
 
 func TestIntegrationListRunningMultipleDependencies(t *testing.T) {
-	service, _ := FromService(&Service{
+	service := &Service{
 		Hash: "00",
 		Name: "TestListMultipleDependencies",
 		Dependencies: []*Dependency{
@@ -92,7 +92,7 @@ func TestIntegrationListRunningMultipleDependencies(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	})
+	}
 	c := newIntegrationContainer(t)
 	service.Start(c)
 	defer service.Stop(c)
