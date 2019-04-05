@@ -107,13 +107,11 @@ func (d *serviceDeployer) importWithProcess(processing func(path string) error) 
 		return nil, nil, err
 	}
 
-	reader, err := d.processPath(path)
+	contextDir, err := d.processPath(path)
 	if err != nil {
 		return nil, nil, err
 	}
-
-	defer reader.Close()
-	return d.deploy(reader)
+	return d.deploy(contextDir)
 }
 
 func (d *serviceDeployer) preprocessGit(url string, path string) error {
@@ -133,28 +131,28 @@ func (d *serviceDeployer) preprocessArchive(r io.Reader, path string) error {
 	return archive.Untar(r, path, nil)
 }
 
-func (d *serviceDeployer) processPath(path string) (io.ReadCloser, error) {
+func (d *serviceDeployer) processPath(path string) (string, error) {
 	// XXX: remove .git folder from repo.
 	// It makes docker build iamge id same between repo clones.
 	if err := os.RemoveAll(filepath.Join(path, ".git")); err != nil {
-		return nil, err
+		return "", err
 	}
 
 	// NOTE: this is check for tar repos, if there is only one
 	// directory inside untar archive set temp path to it.
 	dirs, err := ioutil.ReadDir(path)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	if len(dirs) == 1 && dirs[0].IsDir() {
 		path = filepath.Join(path, dirs[0].Name())
 	}
 
-	return archive.Tar(path, archive.Uncompressed)
+	return path, nil
 }
 
 // deploy deploys a service in path.
-func (d *serviceDeployer) deploy(r io.Reader) (*service.Service, *importer.ValidationError, error) {
+func (d *serviceDeployer) deploy(path string) (*service.Service, *importer.ValidationError, error) {
 	var (
 		statuses = make(chan service.DeployStatus)
 		wg       sync.WaitGroup
@@ -166,7 +164,7 @@ func (d *serviceDeployer) deploy(r io.Reader) (*service.Service, *importer.Valid
 		d.forwardDeployStatuses(statuses)
 	}()
 
-	s, err := service.New(r, d.env,
+	s, err := service.New(path, d.env,
 		service.ContainerOption(d.api.container),
 		service.DeployStatusOption(statuses),
 	)
