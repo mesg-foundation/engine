@@ -12,7 +12,6 @@ import (
 func (s *Server) ListenResult(request *coreapi.ListenResultRequest, stream coreapi.Core_ListenResultServer) error {
 	ln, err := s.api.ListenResult(request.ServiceID,
 		api.ListenResultTaskFilter(request.TaskFilter),
-		api.ListenResultOutputFilter(request.OutputFilter),
 		api.ListenResultTagFilters(request.TagFilters))
 	if err != nil {
 		return err
@@ -34,15 +33,14 @@ func (s *Server) ListenResult(request *coreapi.ListenResultRequest, stream corea
 			return err
 
 		case execution := <-ln.Executions:
-			outputs, err := json.Marshal(execution.OutputData)
+			outputs, err := json.Marshal(execution.Outputs)
 			if err != nil {
 				return err
 			}
 			if err := stream.Send(&coreapi.ResultData{
 				ExecutionID:   execution.ID,
 				TaskKey:       execution.TaskKey,
-				OutputKey:     execution.OutputKey,
-				OutputData:    string(outputs),
+				Data:          string(outputs),
 				ExecutionTags: execution.Tags,
 				Error:         execution.Error,
 			}); err != nil {

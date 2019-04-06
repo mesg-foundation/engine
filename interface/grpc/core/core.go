@@ -50,16 +50,7 @@ func toProtoTasks(tasks []*service.Task) []*definition.Task {
 			Name:        task.Name,
 			Description: task.Description,
 			Inputs:      toProtoParameters(task.Inputs),
-			Outputs:     []*definition.Output{},
-		}
-		for _, output := range task.Outputs {
-			o := &definition.Output{
-				Key:         output.Key,
-				Name:        output.Name,
-				Description: output.Description,
-				Data:        toProtoParameters(output.Data),
-			}
-			t.Outputs = append(t.Outputs, o)
+			Outputs:     toProtoParameters(task.Outputs),
 		}
 		ts[i] = t
 	}
