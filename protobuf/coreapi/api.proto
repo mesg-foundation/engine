@@ -102,8 +102,7 @@ message ListenResultRequest {
 // {
 //   "executionID":   "__EXECUTION_ID__",
 //   "taskKey":       "__TASK_KEY__",
-//   "outputKey":     "__OUTPUT_KEY__",
-//   "outputData":    "{\"foo\":\"bar\"}",
+//   "data":          "{\"foo\":\"bar\"}",
 //   "executionTags": ["executionX", "test"],
 //   "error":         "error from the execution if something went wrong",
 // }

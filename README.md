@@ -110,11 +110,6 @@ mesg.listenEvent({
         taskKey: 'send',
         inputData: JSON.stringify({ email, sendgridAPIKey })
       })
-      if (result.outputKey !== 'success') {
-        const message = JSON.parse(result.outputData).message
-        console.error('an error occurred while sending the invitation: ', message)
-        return
-      }
       console.log('discord invitation send to:', email)
     } catch (error) {
       console.error('an error occurred while executing the send task:', error.message)
