@@ -83,14 +83,12 @@ message TaskData {
 // ```json
 // {
 //   "executionID": "__EXECUTION_ID__",
-//   "outputKey":   "__OUTPUT_KEY__",
-//   "outputData":  "{\"foo\":\"super result\",\"bar\":true}"
+//   "data":  "{\"foo\":\"super result\",\"bar\":true}"
 // }
 // ```
 message SubmitResultRequest {
   string executionID = 1; // The `executionID` received from the [`ListenTask` stream](#listentask).
-  string outputKey = 2;   // The output's key as defined in the [service file](../guide/service/service-file.md).
-  string outputData = 3;  // The result's data encoded in JSON as defined in the [service file](../guide/service/service-file.md).
+  string data = 3;        // The result's data encoded in JSON as defined in the [service file](../guide/service/service-file.md).
 }
 
 // Reply of `SubmitResult` API doesn't contain any data.
