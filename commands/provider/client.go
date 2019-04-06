@@ -58,10 +58,9 @@ func (c *client) ListenResult(id, taskFilter, outputFilter string, tagFilters []
 	errC := make(chan error)
 
 	stream, err := c.CoreClient.ListenResult(context.Background(), &coreapi.ListenResultRequest{
-		ServiceID:    id,
-		TaskFilter:   taskFilter,
-		OutputFilter: outputFilter,
-		TagFilters:   tagFilters,
+		ServiceID:  id,
+		TaskFilter: taskFilter,
+		TagFilters: tagFilters,
 	})
 	if err != nil {
 		return nil, nil, err

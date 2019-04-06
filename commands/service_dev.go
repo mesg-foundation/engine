@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/fatih/color"
 	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/mesg-foundation/core/x/xpflag"
 	"github.com/mesg-foundation/core/x/xsignal"
@@ -113,16 +112,14 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 
 		case r := <-listenResultsC:
 			if r.Error != "" {
-				fmt.Printf("Receive execution error on %s task %s: %s\n",
+				fmt.Printf("Receive execution error on %s task: %s\n",
 					pretty.Fail(r.TaskKey),
-					pretty.Fail(r.OutputKey),
 					pretty.Fail(r.Error),
 				)
 			} else {
-				fmt.Printf("Receive execution result on %s task %s: %s\n",
+				fmt.Printf("Receive execution result on %s task: %s\n",
 					pretty.Success(r.TaskKey),
-					pretty.Colorize(color.New(color.FgCyan), r.OutputKey),
-					pretty.ColorizeJSON(pretty.FgCyan, nil, false, []byte(r.OutputData)),
+					pretty.ColorizeJSON(pretty.FgCyan, nil, false, []byte(r.Data)),
 				)
 			}
 
