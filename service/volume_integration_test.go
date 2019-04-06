@@ -39,6 +39,6 @@ func TestIntegrationDeleteVolumes(t *testing.T) {
 	require.NoError(t, err)
 	err = s.Stop(c)
 	require.NoError(t, err)
-	err = s.DeleteVolumes(c, s)
+	err = s.DeleteVolumes(c)
 	require.NoError(t, err)
 }

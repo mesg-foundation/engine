@@ -89,7 +89,7 @@ func (a *API) DeleteService(serviceID string, deleteData bool) error {
 	// deleting volumes fails, process can be retried by the user again
 	// because service still will be in the db.
 	if deleteData {
-		if err := s.DeleteVolumes(a.container, s); err != nil {
+		if err := s.DeleteVolumes(a.container); err != nil {
 			return err
 		}
 	}
