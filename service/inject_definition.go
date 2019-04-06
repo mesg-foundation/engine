@@ -49,33 +49,10 @@ func (s *Service) defTasksToService(tasks map[string]*importer.Task) []*Task {
 			Name:        task.Name,
 			Description: task.Description,
 			Inputs:      s.defParametersToService(task.Inputs),
-			Outputs:     s.defOutputsToService(task.Outputs),
+			Outputs:     s.defParametersToService(task.Outputs),
 		}
 	}
 	return ts
-}
-
-func (s *Service) defOutputsToService(outputs map[string]*importer.Output) []*Output {
-	var (
-		keys []string
-		ots  = make([]*Output, len(outputs))
-	)
-
-	for key := range outputs {
-		keys = append(keys, key)
-	}
-	sort.Strings(keys)
-
-	for key, output := range outputs {
-		i := xstrings.SliceIndex(keys, key)
-		ots[i] = &Output{
-			Key:         key,
-			Name:        output.Name,
-			Description: output.Description,
-			Data:        s.defParametersToService(output.Data),
-		}
-	}
-	return ots
 }
 
 func (s *Service) defEventsToService(events map[string]*importer.Event) []*Event {
