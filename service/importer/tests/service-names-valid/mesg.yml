@@ -18,10 +18,7 @@ tasks:
       outputs:
         Name1-_:
           name: "name"
-          data:
-            Name1-_:
-              name: "name"
-              type: String
+          type: String
 
 dependencies:
   Name1-_:

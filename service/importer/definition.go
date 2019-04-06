@@ -78,20 +78,8 @@ type Task struct {
 	// Inputs are the definition of the execution inputs of task.
 	Inputs map[string]*Parameter `yaml:"inputs" json:"inputs,omitempty" validate:"dive,keys,printascii,endkeys,required"`
 
-	// Outputs are the definition of the execution results of task.
-	Outputs map[string]*Output `yaml:"outputs" json:"outputs,omitempty" validate:"required,dive,keys,printascii,endkeys,required"`
-}
-
-// Output describes task output.
-type Output struct {
-	// Name is the name of task output.
-	Name string `yaml:"name" json:"name,omitempty" validate:"printascii"`
-
-	// Description is the description of task output.
-	Description string `yaml:"description" json:"description,omitempty" validate:"printascii"`
-
-	// Data holds the output parameters of a task output.
-	Data map[string]*Parameter `yaml:"data" json:"data,omitempty" validate:"required,dive,keys,printascii,endkeys,required"`
+	// Outputs holds the output parameters of a task output.
+	Outputs map[string]*Parameter `yaml:"outputs" json:"outputs,omitempty" validate:"required,dive,keys,printascii,endkeys,required"`
 }
 
 // Parameter describes task input parameters, output parameters of a task
