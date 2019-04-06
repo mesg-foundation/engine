@@ -11,11 +11,5 @@ tasks:
         description: 'data to log'
         type: Object
     outputs:
-      success:
-        data:
-          ok:
-            type: Boolean
-      error:
-        data:
-          message:
-            type: String
+      ok:
+        type: Boolean

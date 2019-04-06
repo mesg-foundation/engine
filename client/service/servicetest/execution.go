@@ -6,17 +6,11 @@ import "encoding/json"
 type Execution struct {
 	id   string
 	data string
-	key  string
 }
 
 // ID returns the execution id of task.
 func (e *Execution) ID() string {
 	return e.id
-}
-
-// Key returns the output key of task.
-func (e *Execution) Key() string {
-	return e.key
 }
 
 // Data decodes task output to out.
