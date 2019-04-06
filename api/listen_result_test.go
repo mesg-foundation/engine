@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/mesg-foundation/core/execution"
@@ -100,19 +101,10 @@ func TestIsSubscribedToTags(t *testing.T) {
 }
 
 func TestIsSubscribed(t *testing.T) {
-	l := &ResultListener{}
-
 	type test struct {
 		taskFilter, outputFilter string
 		tagFilters               []string
 		e                        execution.Execution
-	}
-	subscribeToOutput := func(x *test) *test {
-		return x
-	}
-	notSubscribeToOutput := func(x *test) *test {
-		x.outputFilter = "foo"
-		return x
 	}
 	subscribeToTask := func(x *test) *test {
 		return x
@@ -133,19 +125,17 @@ func TestIsSubscribed(t *testing.T) {
 		valid bool
 		msg   string
 	}{
-		{notSubscribeToTags(notSubscribeToTask(notSubscribeToOutput(&test{}))), false, "[]"},
-		{notSubscribeToTags(notSubscribeToTask(subscribeToOutput(&test{}))), false, "[output]"},
-		{notSubscribeToTags(subscribeToTask(notSubscribeToOutput(&test{}))), false, "[task]"},
-		{notSubscribeToTags(subscribeToTask(subscribeToOutput(&test{}))), false, "[task, output]"},
-		{subscribeToTags(notSubscribeToTask(notSubscribeToOutput(&test{}))), false, "[tags]"},
-		{subscribeToTags(notSubscribeToTask(subscribeToOutput(&test{}))), false, "[tags, output]"},
-		{subscribeToTags(subscribeToTask(notSubscribeToOutput(&test{}))), false, "[tags, task]"},
-		{subscribeToTags(subscribeToTask(subscribeToOutput(&test{}))), true, "[tags, task, output]"},
+		{notSubscribeToTags(notSubscribeToTask(&test{})), false, "[]"},
+		{notSubscribeToTags(subscribeToTask(&test{})), false, "[task]"},
+		{subscribeToTags(notSubscribeToTask(&test{})), false, "[tags]"},
+		{subscribeToTags(subscribeToTask(&test{})), true, "[tags, task]"},
 	}
 	for _, test := range tests {
-		l.taskKey = test.t.taskFilter
-		l.outputKey = test.t.outputFilter
-		l.tagFilters = test.t.tagFilters
+		l := &ResultListener{
+			taskKey:    test.t.taskFilter,
+			tagFilters: test.t.tagFilters,
+		}
+		fmt.Println(l.taskKey, l.tagFilters)
 		require.Equal(t, test.valid, l.isSubscribed(&test.t.e), test.msg)
 	}
 }

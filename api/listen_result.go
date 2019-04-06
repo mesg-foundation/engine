@@ -38,7 +38,6 @@ type ResultListener struct {
 
 	// filters.
 	taskKey    string
-	outputKey  string
 	tagFilters []string
 
 	api *API
@@ -51,13 +50,6 @@ type ListenResultFilter func(*ResultListener)
 func ListenResultTaskFilter(taskKey string) ListenResultFilter {
 	return func(ln *ResultListener) {
 		ln.taskKey = taskKey
-	}
-}
-
-// ListenResultOutputFilter returns an outputKey filter.
-func ListenResultOutputFilter(outputKey string) ListenResultFilter {
-	return func(ln *ResultListener) {
-		ln.outputKey = outputKey
 	}
 }
 
