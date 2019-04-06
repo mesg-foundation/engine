@@ -9,126 +9,120 @@ import (
 )
 
 func TestValidateTaskKey(t *testing.T) {
-	a, _, closer := newAPIAndDockerTest(t)
-	defer closer()
-	ln := newResultListener(a)
-
-	s, _ := service.FromService(&service.Service{
-		Tasks: []*service.Task{
-			{
-				Key: "test",
+	var (
+		l = &ResultListener{}
+		s = &service.Service{
+			Tasks: []*service.Task{
+				{
+					Key: "test",
+				},
 			},
-		},
-	}, service.ContainerOption(a.container))
+		}
+	)
 
-	ln.taskKey = ""
-	require.Nil(t, ln.validateTaskKey(s))
+	l.taskKey = ""
+	require.Nil(t, l.validateTaskKey(s))
 
-	ln.taskKey = "*"
-	require.Nil(t, ln.validateTaskKey(s))
+	l.taskKey = "*"
+	require.Nil(t, l.validateTaskKey(s))
 
-	ln.taskKey = "test"
-	require.Nil(t, ln.validateTaskKey(s))
+	l.taskKey = "test"
+	require.Nil(t, l.validateTaskKey(s))
 
-	ln.taskKey = "xxx"
-	require.NotNil(t, ln.validateTaskKey(s))
+	l.taskKey = "xxx"
+	require.NotNil(t, l.validateTaskKey(s))
 }
 
 func TestValidateOutputKey(t *testing.T) {
-	a, _, closer := newAPIAndDockerTest(t)
-	defer closer()
-	ln := newResultListener(a)
-
-	s, _ := service.FromService(&service.Service{
-		Tasks: []*service.Task{
-			{
-				Key: "test",
-				Outputs: []*service.Output{
-					{
-						Key: "outputx",
+	var (
+		l = &ResultListener{}
+		s = &service.Service{
+			Tasks: []*service.Task{
+				{
+					Key: "test",
+					Outputs: []*service.Output{
+						{
+							Key: "outputx",
+						},
 					},
 				},
 			},
-		},
-	}, service.ContainerOption(a.container))
+		}
+	)
 
-	ln.taskKey = "test"
-	ln.outputKey = ""
-	require.Nil(t, ln.validateOutputKey(s))
+	l.taskKey = "test"
+	l.outputKey = ""
+	require.Nil(t, l.validateOutputKey(s))
 
-	ln.taskKey = "test"
-	ln.outputKey = "*"
-	require.Nil(t, ln.validateOutputKey(s))
+	l.taskKey = "test"
+	l.outputKey = "*"
+	require.Nil(t, l.validateOutputKey(s))
 
-	ln.taskKey = "test"
-	ln.outputKey = "outputx"
-	require.Nil(t, ln.validateOutputKey(s))
+	l.taskKey = "test"
+	l.outputKey = "outputx"
+	require.Nil(t, l.validateOutputKey(s))
 
-	ln.taskKey = "test"
-	ln.outputKey = "xxx"
-	require.NotNil(t, ln.validateOutputKey(s))
+	l.taskKey = "test"
+	l.outputKey = "xxx"
+	require.NotNil(t, l.validateOutputKey(s))
 
-	ln.taskKey = "xxx"
-	ln.outputKey = ""
-	require.Nil(t, ln.validateOutputKey(s))
+	l.taskKey = "xxx"
+	l.outputKey = ""
+	require.Nil(t, l.validateOutputKey(s))
 
-	ln.taskKey = "xxx"
-	ln.outputKey = "*"
-	require.Nil(t, ln.validateOutputKey(s))
+	l.taskKey = "xxx"
+	l.outputKey = "*"
+	require.Nil(t, l.validateOutputKey(s))
 
-	ln.taskKey = "xxx"
-	ln.outputKey = "outputX"
-	require.NotNil(t, ln.validateOutputKey(s))
+	l.taskKey = "xxx"
+	l.outputKey = "outputX"
+	require.NotNil(t, l.validateOutputKey(s))
 
-	ln.taskKey = "xxx"
-	ln.outputKey = "xxx"
-	require.NotNil(t, ln.validateOutputKey(s))
+	l.taskKey = "xxx"
+	l.outputKey = "xxx"
+	require.NotNil(t, l.validateOutputKey(s))
 }
 
 func TestIsSubscribedToTask(t *testing.T) {
-	a, _, closer := newAPIAndDockerTest(t)
-	defer closer()
-	ln := newResultListener(a)
+	var (
+		l = &ResultListener{}
+		x = &execution.Execution{TaskKey: "task"}
+	)
 
-	x := &execution.Execution{TaskKey: "task"}
+	l.taskKey = ""
+	require.True(t, l.isSubscribedToTask(x))
 
-	ln.taskKey = ""
-	require.True(t, ln.isSubscribedToTask(x))
+	l.taskKey = "*"
+	require.True(t, l.isSubscribedToTask(x))
 
-	ln.taskKey = "*"
-	require.True(t, ln.isSubscribedToTask(x))
+	l.taskKey = "task"
+	require.True(t, l.isSubscribedToTask(x))
 
-	ln.taskKey = "task"
-	require.True(t, ln.isSubscribedToTask(x))
-
-	ln.taskKey = "xxx"
-	require.False(t, ln.isSubscribedToTask(x))
+	l.taskKey = "xxx"
+	require.False(t, l.isSubscribedToTask(x))
 }
 
 func TestIsSubscribedToOutput(t *testing.T) {
-	a, _, closer := newAPIAndDockerTest(t)
-	defer closer()
-	ln := newResultListener(a)
+	var (
+		l = &ResultListener{}
+		x = &execution.Execution{OutputKey: "output"}
+	)
 
-	x := &execution.Execution{OutputKey: "output"}
+	l.outputKey = ""
+	require.True(t, l.isSubscribedToOutput(x))
 
-	ln.outputKey = ""
-	require.True(t, ln.isSubscribedToOutput(x))
+	l.outputKey = "*"
+	require.True(t, l.isSubscribedToOutput(x))
 
-	ln.outputKey = "*"
-	require.True(t, ln.isSubscribedToOutput(x))
+	l.outputKey = "output"
+	require.True(t, l.isSubscribedToOutput(x))
 
-	ln.outputKey = "output"
-	require.True(t, ln.isSubscribedToOutput(x))
-
-	ln.outputKey = "xxx"
-	require.False(t, ln.isSubscribedToOutput(x))
+	l.outputKey = "xxx"
+	require.False(t, l.isSubscribedToOutput(x))
 }
 
 func TestIsSubscribedToTags(t *testing.T) {
-	a, _, closer := newAPIAndDockerTest(t)
-	defer closer()
-	ln := newResultListener(a)
+	l := &ResultListener{}
 
 	type result struct {
 		execution *execution.Execution
@@ -168,16 +162,14 @@ func TestIsSubscribedToTags(t *testing.T) {
 	}
 	for _, test := range tests {
 		for _, r := range test.results {
-			ln.tagFilters = test.tags
-			require.Equal(t, r.valid, ln.isSubscribedToTags(r.execution))
+			l.tagFilters = test.tags
+			require.Equal(t, r.valid, l.isSubscribedToTags(r.execution))
 		}
 	}
 }
 
 func TestIsSubscribed(t *testing.T) {
-	a, _, closer := newAPIAndDockerTest(t)
-	defer closer()
-	ln := newResultListener(a)
+	l := &ResultListener{}
 
 	type test struct {
 		taskFilter, outputFilter string
@@ -220,9 +212,9 @@ func TestIsSubscribed(t *testing.T) {
 		{subscribeToTags(subscribeToTask(subscribeToOutput(&test{}))), true, "[tags, task, output]"},
 	}
 	for _, test := range tests {
-		ln.taskKey = test.t.taskFilter
-		ln.outputKey = test.t.outputFilter
-		ln.tagFilters = test.t.tagFilters
-		require.Equal(t, test.valid, ln.isSubscribed(&test.t.e), test.msg)
+		l.taskKey = test.t.taskFilter
+		l.outputKey = test.t.outputFilter
+		l.tagFilters = test.t.tagFilters
+		require.Equal(t, test.valid, l.isSubscribed(&test.t.e), test.msg)
 	}
 }
