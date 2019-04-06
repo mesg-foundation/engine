@@ -37,7 +37,7 @@ func TestDeleteVolumes(t *testing.T) {
 	mc.On("DeleteVolume", volumes1[0].Source).Once().Return(nil)
 	mc.On("DeleteVolume", volumes1[1].Source).Once().Return(nil)
 
-	require.NoError(t, s.DeleteVolumes(mc, s))
+	require.NoError(t, s.DeleteVolumes(mc))
 
 	mc.AssertExpectations(t)
 }
