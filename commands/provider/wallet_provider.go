@@ -2,6 +2,7 @@ package provider
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 )
@@ -96,12 +97,8 @@ func (p *WalletProvider) call(task string, inputs interface{}, output interface{
 }
 
 func (p *WalletProvider) parseResult(r *coreapi.ResultData, output interface{}) error {
-	if r.OutputKey == "error" {
-		var outputError walletErrorOutput
-		if err := json.Unmarshal([]byte(r.OutputData), &outputError); err != nil {
-			return err
-		}
-		return outputError
+	if r.Error != "" {
+		return fmt.Errorf(r.Error)
 	}
-	return json.Unmarshal([]byte(r.OutputData), &output)
+	return json.Unmarshal([]byte(r.Data), &output)
 }

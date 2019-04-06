@@ -2,6 +2,7 @@ package provider
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/ipfs"
@@ -112,12 +113,8 @@ func (p *MarketplaceProvider) call(task string, inputs interface{}, output inter
 }
 
 func (p *MarketplaceProvider) parseResult(r *coreapi.ResultData, output interface{}) error {
-	if r.OutputKey == "error" {
-		var outputError MarketplaceErrorOutput
-		if err := json.Unmarshal([]byte(r.OutputData), &outputError); err != nil {
-			return err
-		}
-		return outputError
+	if r.Error != "" {
+		return fmt.Errorf(r.Error)
 	}
-	return json.Unmarshal([]byte(r.OutputData), &output)
+	return json.Unmarshal([]byte(r.Data), &output)
 }

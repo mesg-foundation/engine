@@ -14,16 +14,6 @@ const (
 	marketplaceServiceKey = "marketplace"
 )
 
-// MarketplaceErrorOutput is the output for any task that fails.
-type MarketplaceErrorOutput struct {
-	Message string `json:"message"`
-	Code    string `json:"code"`
-}
-
-func (e MarketplaceErrorOutput) Error() string {
-	return e.Message
-}
-
 // MarketplaceService is the success output of task service exist.
 type MarketplaceService struct {
 	Sid      string `json:"sid"`
