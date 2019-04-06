@@ -106,6 +106,7 @@ func toProtoDependency(dep *service.Dependency) *definition.Dependency {
 		Volumesfrom: dep.VolumesFrom,
 		Ports:       dep.Ports,
 		Command:     dep.Command,
+		Args:        dep.Args,
 	}
 }
 
