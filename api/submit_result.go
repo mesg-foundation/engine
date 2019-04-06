@@ -11,8 +11,8 @@ import (
 )
 
 // SubmitResult submits results for executionID.
-func (a *API) SubmitResult(executionID string, outputKey string, outputData []byte) error {
-	return newResultSubmitter(a).Submit(executionID, outputKey, outputData)
+func (a *API) SubmitResult(executionID string, outputData []byte) error {
+	return newResultSubmitter(a).Submit(executionID, outputData)
 }
 
 // resultSubmitter provides functionalities to submit a MESG task result.
@@ -28,8 +28,8 @@ func newResultSubmitter(api *API) *resultSubmitter {
 }
 
 // Submit submits results for executionID.
-func (s *resultSubmitter) Submit(executionID string, outputKey string, outputData []byte) error {
-	exec, stateChanged, err := s.processExecution(executionID, outputKey, outputData)
+func (s *resultSubmitter) Submit(executionID string, outputData []byte) error {
+	exec, stateChanged, err := s.processExecution(executionID, outputData)
 	if stateChanged {
 		// only publish to listeners when the execution's state changed.
 		go pubsub.Publish(exec.Service.ResultSubscriptionChannel(), exec)
@@ -39,7 +39,7 @@ func (s *resultSubmitter) Submit(executionID string, outputKey string, outputDat
 }
 
 // processExecution processes execution and marks it as complated or failed.
-func (s *resultSubmitter) processExecution(executionID string, outputKey string, outputData []byte) (exec *execution.Execution, stateChanged bool, err error) {
+func (s *resultSubmitter) processExecution(executionID string, outputData []byte) (exec *execution.Execution, stateChanged bool, err error) {
 	stateChanged = false
 	tx, err := s.api.execDB.OpenTransaction()
 	if err != nil {
@@ -62,7 +62,7 @@ func (s *resultSubmitter) processExecution(executionID string, outputKey string,
 		return s.saveExecution(tx, exec, fmt.Errorf("invalid output data error: %s", err))
 	}
 
-	if err := exec.Complete(outputKey, outputDataMap); err != nil {
+	if err := exec.Complete(outputDataMap); err != nil {
 		return s.saveExecution(tx, exec, err)
 	}
 

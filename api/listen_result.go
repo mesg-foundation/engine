@@ -84,7 +84,7 @@ func (l *ResultListener) listen(serviceID string) error {
 	if err != nil {
 		return err
 	}
-	if err := l.validateTask(s); err != nil {
+	if err := l.validateTaskKey(s); err != nil {
 		return err
 	}
 	go l.listenLoop(s)
@@ -115,13 +115,6 @@ func (l *ResultListener) listenLoop(service *service.Service) {
 	}
 }
 
-func (l *ResultListener) validateTask(service *service.Service) error {
-	if err := l.validateTaskKey(service); err != nil {
-		return err
-	}
-	return l.validateOutputKey(service)
-}
-
 func (l *ResultListener) validateTaskKey(service *service.Service) error {
 	if l.taskKey == "" || l.taskKey == "*" {
 		return nil
@@ -130,30 +123,13 @@ func (l *ResultListener) validateTaskKey(service *service.Service) error {
 	return err
 }
 
-func (l *ResultListener) validateOutputKey(service *service.Service) error {
-	if l.outputKey == "" || l.outputKey == "*" {
-		return nil
-	}
-	task, err := service.GetTask(l.taskKey)
-	if err != nil {
-		return err
-	}
-	_, err = task.GetOutput(l.outputKey)
-	return err
-}
-
 func (l *ResultListener) isSubscribed(e *execution.Execution) bool {
 	return l.isSubscribedToTags(e) &&
-		l.isSubscribedToTask(e) &&
-		l.isSubscribedToOutput(e)
+		l.isSubscribedToTask(e)
 }
 
 func (l *ResultListener) isSubscribedToTask(e *execution.Execution) bool {
 	return xstrings.SliceContains([]string{"", "*", e.TaskKey}, l.taskKey)
-}
-
-func (l *ResultListener) isSubscribedToOutput(e *execution.Execution) bool {
-	return xstrings.SliceContains([]string{"", "*", e.OutputKey}, l.outputKey)
 }
 
 func (l *ResultListener) isSubscribedToTags(e *execution.Execution) bool {

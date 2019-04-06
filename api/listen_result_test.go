@@ -33,56 +33,6 @@ func TestValidateTaskKey(t *testing.T) {
 	require.NotNil(t, l.validateTaskKey(s))
 }
 
-func TestValidateOutputKey(t *testing.T) {
-	var (
-		l = &ResultListener{}
-		s = &service.Service{
-			Tasks: []*service.Task{
-				{
-					Key: "test",
-					Outputs: []*service.Output{
-						{
-							Key: "outputx",
-						},
-					},
-				},
-			},
-		}
-	)
-
-	l.taskKey = "test"
-	l.outputKey = ""
-	require.Nil(t, l.validateOutputKey(s))
-
-	l.taskKey = "test"
-	l.outputKey = "*"
-	require.Nil(t, l.validateOutputKey(s))
-
-	l.taskKey = "test"
-	l.outputKey = "outputx"
-	require.Nil(t, l.validateOutputKey(s))
-
-	l.taskKey = "test"
-	l.outputKey = "xxx"
-	require.NotNil(t, l.validateOutputKey(s))
-
-	l.taskKey = "xxx"
-	l.outputKey = ""
-	require.Nil(t, l.validateOutputKey(s))
-
-	l.taskKey = "xxx"
-	l.outputKey = "*"
-	require.Nil(t, l.validateOutputKey(s))
-
-	l.taskKey = "xxx"
-	l.outputKey = "outputX"
-	require.NotNil(t, l.validateOutputKey(s))
-
-	l.taskKey = "xxx"
-	l.outputKey = "xxx"
-	require.NotNil(t, l.validateOutputKey(s))
-}
-
 func TestIsSubscribedToTask(t *testing.T) {
 	var (
 		l = &ResultListener{}
@@ -100,25 +50,6 @@ func TestIsSubscribedToTask(t *testing.T) {
 
 	l.taskKey = "xxx"
 	require.False(t, l.isSubscribedToTask(x))
-}
-
-func TestIsSubscribedToOutput(t *testing.T) {
-	var (
-		l = &ResultListener{}
-		x = &execution.Execution{OutputKey: "output"}
-	)
-
-	l.outputKey = ""
-	require.True(t, l.isSubscribedToOutput(x))
-
-	l.outputKey = "*"
-	require.True(t, l.isSubscribedToOutput(x))
-
-	l.outputKey = "output"
-	require.True(t, l.isSubscribedToOutput(x))
-
-	l.outputKey = "xxx"
-	require.False(t, l.isSubscribedToOutput(x))
 }
 
 func TestIsSubscribedToTags(t *testing.T) {
