@@ -10,7 +10,5 @@ tasks:
       headers:
         type: Object
     outputs:
-      result:
-        data:
-          foo:
-            type: Object
+      foo:
+        type: Object
