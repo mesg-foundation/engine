@@ -37,27 +37,31 @@ func (e *Execution) Data(out interface{}) error {
 }
 
 // reply sends task results to core.
-func (e *Execution) reply(key string, data interface{}) error {
-	if err := e.validateTaskOutputs(key, data); err != nil {
+func (e *Execution) reply(data interface{}, taskError error) error {
+	if err := e.validateTaskOutputs(data); err != nil {
 		return err
 	}
-	dataBytes, err := json.Marshal(data)
-	if err != nil {
-		return err
+	req := serviceapi.SubmitResultRequest{
+		ExecutionID: e.id,
+	}
+	if taskError != nil {
+		req.Result = &serviceapi.SubmitResultRequest_Error{Error: taskError.Error()}
+	} else {
+		dataBytes, err := json.Marshal(data)
+		if err != nil {
+			return err
+		}
+		req.Result = &serviceapi.SubmitResultRequest_Data{Data: string(dataBytes)}
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), e.service.callTimeout)
 	defer cancel()
-	_, err = e.service.client.SubmitResult(ctx, &serviceapi.SubmitResultRequest{
-		ExecutionID: e.id,
-		OutputKey:   key,
-		OutputData:  string(dataBytes),
-	})
+	_, err := e.service.client.SubmitResult(ctx, &req)
 	return err
 }
 
 // validateTaskOutputs validates output key and data of task as described in mesg.yml.
 // TODO(ilgooz) use validation handlers of core server to do this?
-func (e *Execution) validateTaskOutputs(key string, data interface{}) error { return nil }
+func (e *Execution) validateTaskOutputs(data interface{}) error { return nil }
 
 // type errTaskOutput struct{}
 
