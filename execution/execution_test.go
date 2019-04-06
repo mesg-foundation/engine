@@ -26,15 +26,10 @@ var (
 					{Key: "foo", Type: "String"},
 					{Key: "bar", Type: "String"},
 				},
-				Outputs: []*service.Output{
+				Outputs: []*service.Parameter{
 					{
-						Key: "OUTPUT_KEY_1",
-						Data: []*service.Parameter{
-							{
-								Key:  "foo",
-								Type: "String",
-							},
-						},
+						Key:  "foo",
+						Type: "String",
 					},
 				},
 			},
@@ -43,15 +38,10 @@ var (
 				Inputs: []*service.Parameter{
 					{Key: "foo", Type: "String"},
 				},
-				Outputs: []*service.Output{
+				Outputs: []*service.Parameter{
 					{
-						Key: "OUTPUT_KEY_1",
-						Data: []*service.Parameter{
-							{
-								Key:  "foo",
-								Type: "String",
-							},
-						},
+						Key:  "foo",
+						Type: "String",
 					},
 				},
 			},
@@ -150,38 +140,15 @@ func TestComplete(t *testing.T) {
 	e.Execute()
 	tests := []struct {
 		name string
-		key  string
 		data map[string]interface{}
 		err  error
 	}{
 		{
-			name: "task output not found because of empty output key",
-			key:  "",
-			data: map[string]interface{}{},
-			err: &service.TaskOutputNotFoundError{
-				TaskKey:       taskKey,
-				TaskOutputKey: "",
-				ServiceName:   serviceName,
-			},
-		},
-		{
-			name: "task output not found because wrong output key",
-			key:  "output",
-			data: map[string]interface{}{"foo": "bar"},
-			err: &service.TaskOutputNotFoundError{
-				TaskKey:       taskKey,
-				TaskOutputKey: "output",
-				ServiceName:   serviceName,
-			},
-		},
-		{
 			name: "invalid task output",
-			key:  "OUTPUT_KEY_1",
 			data: map[string]interface{}{},
 			err: &service.InvalidTaskOutputError{
-				TaskKey:       taskKey,
-				TaskOutputKey: "OUTPUT_KEY_1",
-				ServiceName:   serviceName,
+				TaskKey:     taskKey,
+				ServiceName: serviceName,
 				Warnings: []*service.ParameterWarning{
 					{
 						Key:       "foo",
@@ -193,13 +160,11 @@ func TestComplete(t *testing.T) {
 		},
 		{
 			name: "success",
-			key:  "OUTPUT_KEY_1",
 			data: map[string]interface{}{"foo": "bar"},
 			err:  nil,
 		},
 		{ // this one is already proccessed
 			name: "already executed",
-			key:  "OUTPUT_KEY_1",
 			data: map[string]interface{}{"foo": "bar"},
 			err: StatusError{
 				ExpectedStatus: InProgress,
@@ -208,7 +173,7 @@ func TestComplete(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
-		err := e.Complete(test.key, test.data)
+		err := e.Complete(test.data)
 		require.Equal(t, test.err, err, test.name)
 		if test.err != nil {
 			continue
