@@ -88,7 +88,10 @@ message TaskData {
 // ```
 message SubmitResultRequest {
   string executionID = 1; // The `executionID` received from the [`ListenTask` stream](#listentask).
-  string data = 3;        // The result's data encoded in JSON as defined in the [service file](../guide/service/service-file.md).
+  oneof result {
+    string data = 3;      // The result's data encoded in JSON as defined in the [service file](../guide/service/service-file.md).
+    string error = 4;     // Error that the task triggered
+  }
 }
 
 // Reply of `SubmitResult` API doesn't contain any data.

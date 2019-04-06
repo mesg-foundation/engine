@@ -11,8 +11,8 @@ import (
 )
 
 // SubmitResult submits results for executionID.
-func (a *API) SubmitResult(executionID string, outputData []byte) error {
-	return newResultSubmitter(a).Submit(executionID, outputData)
+func (a *API) SubmitResult(executionID string, outputData []byte, outputError error) error {
+	return newResultSubmitter(a).Submit(executionID, outputData, outputError)
 }
 
 // resultSubmitter provides functionalities to submit a MESG task result.
@@ -28,8 +28,8 @@ func newResultSubmitter(api *API) *resultSubmitter {
 }
 
 // Submit submits results for executionID.
-func (s *resultSubmitter) Submit(executionID string, outputData []byte) error {
-	exec, stateChanged, err := s.processExecution(executionID, outputData)
+func (s *resultSubmitter) Submit(executionID string, outputData []byte, outputError error) error {
+	exec, stateChanged, err := s.processExecution(executionID, outputData, outputError)
 	if stateChanged {
 		// only publish to listeners when the execution's state changed.
 		go pubsub.Publish(exec.Service.ResultSubscriptionChannel(), exec)
@@ -39,8 +39,7 @@ func (s *resultSubmitter) Submit(executionID string, outputData []byte) error {
 }
 
 // processExecution processes execution and marks it as complated or failed.
-func (s *resultSubmitter) processExecution(executionID string, outputData []byte) (exec *execution.Execution, stateChanged bool, err error) {
-	stateChanged = false
+func (s *resultSubmitter) processExecution(executionID string, outputData []byte, outputError error) (exec *execution.Execution, stateChanged bool, err error) {
 	tx, err := s.api.execDB.OpenTransaction()
 	if err != nil {
 		return nil, false, err
@@ -55,6 +54,10 @@ func (s *resultSubmitter) processExecution(executionID string, outputData []byte
 	exec.Service, err = service.FromService(exec.Service, service.ContainerOption(s.api.container))
 	if err != nil {
 		return s.saveExecution(tx, exec, err)
+	}
+
+	if outputError != nil {
+		return s.saveExecution(tx, exec, outputError)
 	}
 
 	var outputDataMap map[string]interface{}
