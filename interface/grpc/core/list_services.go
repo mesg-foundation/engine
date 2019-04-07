@@ -29,7 +29,7 @@ func (s *Server) ListServices(ctx context.Context, request *coreapi.ListServices
 	for _, ss := range services {
 		go func(ss *service.Service) {
 			defer wg.Done()
-			status, err := ss.Status(s.container)
+			status, err := s.api.Status(ss)
 			if err != nil {
 				errC <- err
 				return
