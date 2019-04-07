@@ -4,13 +4,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mesg-foundation/core/protobuf/coreapi"
+	"github.com/mesg-foundation/core/protobuf/definition"
 	"github.com/stretchr/testify/require"
 )
 
 func TestServiceCast(t *testing.T) {
 	var tests = []struct {
-		service   *coreapi.Service
+		service   *definition.Service
 		data      map[string]string
 		expected  map[string]interface{}
 		expectErr bool
@@ -109,15 +109,15 @@ func TestServiceCast(t *testing.T) {
 }
 
 // createTestServcieWithInputs creates test service with given inputs name and type under "test" task key.
-func createTestServcieWithInputs(inputs map[string]string) *coreapi.Service {
-	s := &coreapi.Service{
-		Tasks: []*coreapi.Task{
+func createTestServcieWithInputs(inputs map[string]string) *definition.Service {
+	s := &definition.Service{
+		Tasks: []*definition.Task{
 			{Key: "test"},
 		},
 	}
 
 	for name, itype := range inputs {
-		s.Tasks[0].Inputs = append(s.Tasks[0].Inputs, &coreapi.Parameter{
+		s.Tasks[0].Inputs = append(s.Tasks[0].Inputs, &definition.Parameter{
 			Key:      name,
 			Repeated: strings.HasPrefix(itype, "repeated"),
 			Type:     strings.TrimPrefix(itype, "repeated "),
