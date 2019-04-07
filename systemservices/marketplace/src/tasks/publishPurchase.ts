@@ -16,7 +16,7 @@ export default (
       await web3.eth.sendSignedTransaction(txs[index])
     }
     const receipt = await web3.eth.sendSignedTransaction(lastTransaction)
-    if (receipt === null || receipt.logs === undefined) throw new Error('receipt does not contain logs')
+    if (receipt.logs === undefined) throw new Error('receipt does not contain logs')
     const decodedLog = extractEventFromLogs(web3, marketplace, 'ServicePurchased', receipt.logs)
     const event = servicePurchased(decodedLog)
     return outputs.success(event)
