@@ -55,6 +55,11 @@ func (a *API) ListServices() ([]*service.Service, error) {
 	return a.db.All()
 }
 
+// Status returns the status of a service
+func (a *API) Status(service *service.Service) (service.StatusType, error) {
+	return service.Status(a.container)
+}
+
 // StartService starts service serviceID.
 func (a *API) StartService(serviceID string) error {
 	sr, err := a.db.Get(serviceID)

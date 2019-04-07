@@ -128,7 +128,7 @@ func main() {
 	}
 
 	// init gRPC server.
-	server := grpc.New(dep.config.Server.Address, dep.container, dep.api)
+	server := grpc.New(dep.config.Server.Address, dep.api)
 
 	logrus.Infof("starting MESG Core version %s", version.Version)
 

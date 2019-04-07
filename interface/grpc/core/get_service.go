@@ -13,7 +13,7 @@ func (s *Server) GetService(ctx context.Context, request *coreapi.GetServiceRequ
 		return nil, err
 	}
 	protoService := toProtoService(ss)
-	status, err := ss.Status(s.container)
+	status, err := s.api.Status(ss)
 	if err != nil {
 		return nil, err
 	}
