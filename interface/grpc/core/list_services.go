@@ -34,10 +34,12 @@ func (s *Server) ListServices(ctx context.Context, request *coreapi.ListServices
 				errC <- err
 				return
 			}
-			protoService := toProtoService(s)
-			protoService.Status = toProtoServiceStatusType(status)
+			details := &coreapi.Service{
+				Definition: toProtoService(s),
+				Status:     toProtoServiceStatusType(status),
+			}
 			mp.Lock()
-			protoServices = append(protoServices, protoService)
+			protoServices = append(protoServices, details)
 			mp.Unlock()
 		}(s)
 	}
