@@ -15,10 +15,6 @@ export default (
   try {
     // get offer data
     const offer = await getServiceOffer(marketplace, inputs.sid, new BigNumber(inputs.offerIndex))
-    if (offer === undefined) {
-      throw new Error('Offer with index ' + inputs.offerIndex + ' and sid ' + inputs.sid + ' does not exist')
-    }
-
     // check user balance
     const balance = fromUnit(await token.methods.balanceOf(inputs.from).call())
     if (offer.price.isGreaterThan(balance)) {
@@ -49,7 +45,7 @@ export default (
     })
   }
   catch (error) {
-    console.error('error in purchase', error)
+    console.error('error in preparePurchase', error)
     return outputs.error({ message: error.toString() })
   }
 }

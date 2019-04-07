@@ -43,7 +43,7 @@ export default async (
           }
           eventHandlers[event.event](mesg, event)
         } catch(error) {
-          console.error('An error occurred during processing of an event', event)
+          console.error(`An error occurred during processing of event '${event.event}'.`, error)
         }
       })
     }
