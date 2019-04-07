@@ -8,24 +8,23 @@ import { hexToAscii, parseTimestamp, asciiToHex } from "./utils";
 
 const getAllServices = async (contract: Marketplace): Promise<Service[]> => {
   const servicesLength = new BigNumber(await contract.methods.servicesLength().call())
-  const servicesPromise: Promise<Service|undefined>[] = []
+  const servicesPromise: Promise<Service>[] = []
   for (let i = new BigNumber(0); servicesLength.isGreaterThan(i); i = i.plus(1)) {
     servicesPromise.push(getServiceWithIndex(contract, i))
   }
-  const services = await Promise.all(servicesPromise)
-  return services.filter(service => service !== undefined) as Service[]
+  return Promise.all(servicesPromise)
 }
 
-const getServiceWithIndex = async (contract: Marketplace, serviceIndex: BigNumber): Promise<Service|undefined> => {
+const getServiceWithIndex = async (contract: Marketplace, serviceIndex: BigNumber): Promise<Service> => {
   const sidHashed = await contract.methods.servicesList(serviceIndex.toString()).call()
   const service = await contract.methods.services(sidHashed).call()
   return getService(contract, hexToAscii(service.sid))
 }
 
-const getService = async (contract: Marketplace, sid: string): Promise<Service|undefined> => {
+const getService = async (contract: Marketplace, sid: string): Promise<Service> => {
   const sidHex = asciiToHex(sid)
   if (!await contract.methods.isServiceExist(sidHex).call()) {
-    return
+    throw new Error(`service ${sid} does not exist`)
   }
   const service = await contract.methods.service(sidHex).call()
   const [ versions, offers, purchases ] = await Promise.all([
