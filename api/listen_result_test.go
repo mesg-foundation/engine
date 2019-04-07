@@ -102,9 +102,9 @@ func TestIsSubscribedToTags(t *testing.T) {
 
 func TestIsSubscribed(t *testing.T) {
 	type test struct {
-		taskFilter, outputFilter string
-		tagFilters               []string
-		e                        execution.Execution
+		taskFilter string
+		tagFilters []string
+		e          execution.Execution
 	}
 	subscribeToTask := func(x *test) *test {
 		return x
