@@ -106,7 +106,7 @@ func TestInvalidOutputDataError(t *testing.T) {
 		Warnings: validateParametersSchema(tests.parameterTestsToSliceParameters(),
 			tests.parameterTestsToMapData()),
 	}
-	require.Contains(t, err.Error(), `Output of task "TaskKey" are invalid in service "TestInvalidOutputDataError"`)
+	require.Contains(t, err.Error(), `Outputs of task "TaskKey" are invalid in service "TestInvalidOutputDataError"`)
 	tests.assert(t, err.Error())
 }
 

@@ -72,7 +72,7 @@ type InvalidTaskOutputError struct {
 }
 
 func (e *InvalidTaskOutputError) Error() string {
-	s := fmt.Sprintf("Output of task %q are invalid in service %q", e.TaskKey,
+	s := fmt.Sprintf("Outputs of task %q are invalid in service %q", e.TaskKey,
 		e.ServiceName)
 	for _, warning := range e.Warnings {
 		s = fmt.Sprintf("%s. %s", s, warning)
