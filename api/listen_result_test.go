@@ -135,7 +135,6 @@ func TestIsSubscribed(t *testing.T) {
 			taskKey:    test.t.taskFilter,
 			tagFilters: test.t.tagFilters,
 		}
-		fmt.Println(l.taskKey, l.tagFilters)
 		require.Equal(t, test.valid, l.isSubscribed(&test.t.e), test.msg)
 	}
 }
