@@ -2,19 +2,20 @@ package core
 
 import (
 	"github.com/mesg-foundation/core/protobuf/coreapi"
+	"github.com/mesg-foundation/core/protobuf/definition"
 	service "github.com/mesg-foundation/core/service"
 )
 
-func toProtoServices(ss []*service.Service) []*coreapi.Service {
-	services := make([]*coreapi.Service, len(ss))
+func toProtoServices(ss []*service.Service) []*definition.Service {
+	services := make([]*definition.Service, len(ss))
 	for i, s := range ss {
 		services[i] = toProtoService(s)
 	}
 	return services
 }
 
-func toProtoService(s *service.Service) *coreapi.Service {
-	return &coreapi.Service{
+func toProtoService(s *service.Service) *definition.Service {
+	return &definition.Service{
 		Hash:         s.Hash,
 		Sid:          s.Sid,
 		Name:         s.Name,
@@ -41,18 +42,18 @@ func toProtoServiceStatusType(s service.StatusType) coreapi.Service_Status {
 	}
 }
 
-func toProtoTasks(tasks []*service.Task) []*coreapi.Task {
-	ts := make([]*coreapi.Task, len(tasks))
+func toProtoTasks(tasks []*service.Task) []*definition.Task {
+	ts := make([]*definition.Task, len(tasks))
 	for i, task := range tasks {
-		t := &coreapi.Task{
+		t := &definition.Task{
 			Key:         task.Key,
 			Name:        task.Name,
 			Description: task.Description,
 			Inputs:      toProtoParameters(task.Inputs),
-			Outputs:     []*coreapi.Output{},
+			Outputs:     []*definition.Output{},
 		}
 		for _, output := range task.Outputs {
-			o := &coreapi.Output{
+			o := &definition.Output{
 				Key:         output.Key,
 				Name:        output.Name,
 				Description: output.Description,
@@ -65,10 +66,10 @@ func toProtoTasks(tasks []*service.Task) []*coreapi.Task {
 	return ts
 }
 
-func toProtoEvents(events []*service.Event) []*coreapi.Event {
-	es := make([]*coreapi.Event, len(events))
+func toProtoEvents(events []*service.Event) []*definition.Event {
+	es := make([]*definition.Event, len(events))
 	for i, event := range events {
-		es[i] = &coreapi.Event{
+		es[i] = &definition.Event{
 			Key:         event.Key,
 			Name:        event.Name,
 			Description: event.Description,
@@ -78,10 +79,10 @@ func toProtoEvents(events []*service.Event) []*coreapi.Event {
 	return es
 }
 
-func toProtoParameters(params []*service.Parameter) []*coreapi.Parameter {
-	ps := make([]*coreapi.Parameter, len(params))
+func toProtoParameters(params []*service.Parameter) []*definition.Parameter {
+	ps := make([]*definition.Parameter, len(params))
 	for i, param := range params {
-		ps[i] = &coreapi.Parameter{
+		ps[i] = &definition.Parameter{
 			Key:         param.Key,
 			Name:        param.Name,
 			Description: param.Description,
@@ -94,22 +95,23 @@ func toProtoParameters(params []*service.Parameter) []*coreapi.Parameter {
 	return ps
 }
 
-func toProtoDependency(dep *service.Dependency) *coreapi.Dependency {
+func toProtoDependency(dep *service.Dependency) *definition.Dependency {
 	if dep == nil {
 		return nil
 	}
-	return &coreapi.Dependency{
+	return &definition.Dependency{
 		Key:         dep.Key,
 		Image:       dep.Image,
 		Volumes:     dep.Volumes,
 		Volumesfrom: dep.VolumesFrom,
 		Ports:       dep.Ports,
 		Command:     dep.Command,
+		Args:        dep.Args,
 	}
 }
 
-func toProtoDependencies(deps []*service.Dependency) []*coreapi.Dependency {
-	ds := make([]*coreapi.Dependency, len(deps))
+func toProtoDependencies(deps []*service.Dependency) []*definition.Dependency {
+	ds := make([]*definition.Dependency, len(deps))
 	for i, dep := range deps {
 		ds[i] = toProtoDependency(dep)
 	}
