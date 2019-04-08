@@ -10,7 +10,7 @@ import (
 
 func TestIntegrationLogs(t *testing.T) {
 	service, _ := FromService(&Service{
-		Hash: "00",
+		Hash: "1",
 		Name: "TestLogs",
 		Dependencies: []*Dependency{
 			{
@@ -32,7 +32,7 @@ func TestIntegrationLogs(t *testing.T) {
 
 func TestIntegrationLogsOnlyOneDependency(t *testing.T) {
 	service, _ := FromService(&Service{
-		Hash: "00",
+		Hash: "1",
 		Name: "TestLogsOnlyOneDependency",
 		Dependencies: []*Dependency{
 			{

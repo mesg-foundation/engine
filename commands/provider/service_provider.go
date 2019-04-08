@@ -67,7 +67,7 @@ func (p *ServiceProvider) ServiceDeleteAll(deleteData bool) error {
 				errs.Append(err)
 			}
 			wg.Done()
-		}(s.Sid)
+		}(s.Definition.Hash)
 	}
 	wg.Wait()
 	return errs.ErrorOrNil()
@@ -117,7 +117,7 @@ func (p *ServiceProvider) ServiceLogs(id string, dependencies ...string) (logs [
 		if err != nil {
 			return nil, nil, nil, err
 		}
-		for _, dep := range resp.Service.Dependencies {
+		for _, dep := range resp.Service.Definition.Dependencies {
 			dependencies = append(dependencies, dep.Key)
 		}
 	}

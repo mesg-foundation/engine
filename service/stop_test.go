@@ -11,6 +11,7 @@ func TestStopRunningService(t *testing.T) {
 	var (
 		dependencyKey = "1"
 		s, mc         = newFromServiceAndContainerMocks(t, &Service{
+			Hash: "1",
 			Name: "TestStopRunningService",
 			Dependencies: []*Dependency{
 				{
@@ -37,6 +38,7 @@ func TestStopDependency(t *testing.T) {
 	var (
 		dependencyKey = "1"
 		s, mc         = newFromServiceAndContainerMocks(t, &Service{
+			Hash: "1",
 			Name: "TestStopService",
 			Dependencies: []*Dependency{
 				{
