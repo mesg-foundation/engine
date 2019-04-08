@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/mesg-foundation/core/commands/provider"
-	"github.com/mesg-foundation/core/service/importer"
+	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/mesg-foundation/core/utils/readme"
 	"github.com/spf13/cobra"
@@ -19,9 +19,8 @@ const (
 type marketplacePublishCmd struct {
 	baseMarketplaceCmd
 
-	path string
-	sid  string
-	hash string
+	path    string
+	service *coreapi.Service
 
 	e Executor
 }
@@ -48,15 +47,19 @@ func (c *marketplacePublishCmd) preRunE(cmd *cobra.Command, args []string) error
 	c.path = getFirstOrCurrentPath(args)
 
 	var err error
-	c.sid, c.hash, err = deployService(c.e, c.path, map[string]string{})
+	_, hash, err := deployService(c.e, c.path, map[string]string{})
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%s Service deployed with sid %s and hash %s\n", pretty.SuccessSign, pretty.Success(c.sid), pretty.Success(c.hash))
+	c.service, err = c.e.ServiceByID(hash)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%s Service deployed with sid %s and hash %s\n", pretty.SuccessSign, pretty.Success(c.service.Sid), pretty.Success(c.service.Hash))
 
 	var confirmed bool
 	if err := survey.AskOne(&survey.Confirm{
-		Message: fmt.Sprintf("Are you sure to publish a new version of service %q from path %q using account %q?", c.sid, c.path, c.account),
+		Message: fmt.Sprintf("Are you sure to publish a new version of service %q from path %q using account %q?", c.service.Sid, c.path, c.account),
 	}, &confirmed, nil); err != nil {
 		return err
 	}
@@ -81,18 +84,14 @@ func (c *marketplacePublishCmd) runE(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	definition, err := importer.From(c.path)
-	if err != nil {
-		return err
-	}
 	readme, err := readme.Lookup(c.path)
 	if err != nil {
 		return err
 	}
 	pretty.Progress("Publishing service on the marketplace...", func() {
 		tx, err = c.e.PublishServiceVersion(provider.MarketplaceManifestServiceData{
-			Definition:  *definition,
-			Hash:        c.hash,
+			Definition:  c.service,
+			Hash:        c.service.Hash,
 			HashVersion: marketplaceServiceHashVersion,
 			Readme:      readme,
 			Deployment:  deployment,
@@ -106,9 +105,9 @@ func (c *marketplacePublishCmd) runE(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	fmt.Printf("%s Service published with success\n", pretty.SuccessSign)
-	fmt.Printf("%s See it on the marketplace: https://marketplace.mesg.com/services/%s\n", pretty.SuccessSign, c.sid)
+	fmt.Printf("%s See it on the marketplace: https://marketplace.mesg.com/services/%s\n", pretty.SuccessSign, c.service.Sid)
 
-	fmt.Printf("%s To create a service offer, execute the command:\n\tmesg-core marketplace create-offer %s\n", pretty.SuccessSign, c.sid)
+	fmt.Printf("%s To create a service offer, execute the command:\n\tmesg-core marketplace create-offer %s\n", pretty.SuccessSign, c.service.Sid)
 
 	return nil
 }
