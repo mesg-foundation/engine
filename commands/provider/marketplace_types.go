@@ -3,7 +3,7 @@ package provider
 import (
 	"encoding/json"
 
-	"github.com/mesg-foundation/core/protobuf/coreapi"
+	"github.com/mesg-foundation/core/protobuf/definition"
 )
 
 const (
@@ -54,7 +54,7 @@ type MarketplaceDeployedSource struct {
 
 // MarketplaceManifestServiceData is the data present to the manifest and sent to create a new service's version
 type MarketplaceManifestServiceData struct {
-	Definition  *coreapi.Service          `json:"definition"`
+	Definition  *definition.Service       `json:"definition"`
 	Readme      string                    `json:"readme,omitempty"`
 	Hash        string                    `json:"hash"`
 	HashVersion string                    `json:"hashVersion"`

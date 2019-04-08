@@ -55,11 +55,11 @@ func (c *marketplacePublishCmd) preRunE(cmd *cobra.Command, args []string) error
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%s Service deployed with sid %s and hash %s\n", pretty.SuccessSign, pretty.Success(c.service.Sid), pretty.Success(c.service.Hash))
+	fmt.Printf("%s Service deployed with sid %s and hash %s\n", pretty.SuccessSign, pretty.Success(c.service.Definition.Sid), pretty.Success(c.service.Definition.Hash))
 
 	var confirmed bool
 	if err := survey.AskOne(&survey.Confirm{
-		Message: fmt.Sprintf("Are you sure to publish a new version of service %q from path %q using account %q?", c.service.Sid, c.path, c.account),
+		Message: fmt.Sprintf("Are you sure to publish a new version of service %q from path %q using account %q?", c.service.Definition.Sid, c.path, c.account),
 	}, &confirmed, nil); err != nil {
 		return err
 	}
@@ -90,8 +90,8 @@ func (c *marketplacePublishCmd) runE(cmd *cobra.Command, args []string) error {
 	}
 	pretty.Progress("Publishing service on the marketplace...", func() {
 		tx, err = c.e.PublishServiceVersion(provider.MarketplaceManifestServiceData{
-			Definition:  c.service,
-			Hash:        c.service.Hash,
+			Definition:  c.service.Definition,
+			Hash:        c.service.Definition.Hash,
 			HashVersion: marketplaceServiceHashVersion,
 			Readme:      readme,
 			Deployment:  deployment,
@@ -105,9 +105,9 @@ func (c *marketplacePublishCmd) runE(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	fmt.Printf("%s Service published with success\n", pretty.SuccessSign)
-	fmt.Printf("%s See it on the marketplace: https://marketplace.mesg.com/services/%s\n", pretty.SuccessSign, c.service.Sid)
+	fmt.Printf("%s See it on the marketplace: https://marketplace.mesg.com/services/%s\n", pretty.SuccessSign, c.service.Definition.Sid)
 
-	fmt.Printf("%s To create a service offer, execute the command:\n\tmesg-core marketplace create-offer %s\n", pretty.SuccessSign, c.service.Sid)
+	fmt.Printf("%s To create a service offer, execute the command:\n\tmesg-core marketplace create-offer %s\n", pretty.SuccessSign, c.service.Definition.Sid)
 
 	return nil
 }
