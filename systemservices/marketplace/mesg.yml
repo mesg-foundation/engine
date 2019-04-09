@@ -160,7 +160,7 @@ tasks:
         description: ""
         data: *service
       error: *outputError
-  publishServiceVersion:
+  preparePublishServiceVersion:
     name: ""
     description: ""
     inputs:
@@ -229,26 +229,49 @@ tasks:
             name: "Data"
             description: "The data of the transaction."
             type: String
-  createServiceOffer:
+  publishPublishServiceVersion:
+    name: ""
+    description: ""
+    inputs:
+      signedTransaction: &signedTransaction
+        name: ""
+        description: ""
+        type: String
+    outputs:
+      error: *outputError
+      success:
+        data:
+          sid: *sid
+          versionHash: *versionHash
+          manifest: *manifest
+          manifestProtocol: *manifestProtocol
+  prepareCreateServiceOffer:
     name: ""
     description: ""
     inputs:
       sid: *sid
-      price:
-        name: ""
-        description: ""
-        type: String
-      duration:
-        name: ""
-        description: ""
-        type: String
+      price: *price
+      duration: *duration
       from: *inputFrom
       gas: *inputGas
       gasPrice: *inputGasPrice
     outputs:
       error: *outputError
       success: *outputTransaction
-  purchase:
+  publishCreateServiceOffer:
+    name: ""
+    description: ""
+    inputs:
+      signedTransaction: *signedTransaction
+    outputs:
+      error: *outputError
+      success:
+        data:
+          sid: *sid
+          offerIndex: *offerIndex
+          price: *price
+          duration: *duration
+  preparePurchase:
     name: ""
     description: ""
     inputs:
@@ -265,20 +288,23 @@ tasks:
             repeated: true
             type: Object
             object: *transaction
-  sendSignedTransaction:
+  publishPurchase:
     name: ""
     description: ""
     inputs:
-      signedTransaction:
-        name: ""
-        description: ""
-        type: String
+      signedTransactions:
+        <<: *signedTransaction
+        repeated: true
     outputs:
       error: *outputError
       success:
         data:
-          receipt:
-            type: Object
+          sid: *sid
+          offerIndex: *offerIndex
+          purchaser: *purchaser
+          price: *price
+          duration: *duration
+          expire: *expire
   isAuthorized:
     name: ""
     description: ""
