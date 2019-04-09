@@ -3,6 +3,7 @@ package commands
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/utils/pretty"
@@ -72,7 +73,7 @@ func (c *marketplacePurchaseCmd) preRunE(cmd *cobra.Command, args []string) erro
 
 	var confirmed bool
 	if err := survey.AskOne(&survey.Confirm{
-		Message: fmt.Sprintf("Are you sure to purchase service %q for price %q and duration %q?", args[0], offer.Price, offer.Duration),
+		Message: fmt.Sprintf("Are you sure to purchase service %q for %s MESG Tokens and for a duration of %s seconds?", args[0], offer.Price, offer.Duration),
 	}, &confirmed, nil); err != nil {
 		return err
 	}
@@ -85,25 +86,31 @@ func (c *marketplacePurchaseCmd) preRunE(cmd *cobra.Command, args []string) erro
 
 func (c *marketplacePurchaseCmd) runE(cmd *cobra.Command, args []string) error {
 	var (
-		transactions []provider.Transaction
-		err          error
+		txs       []provider.Transaction
+		signedTxs []string
+		signedTx  string
+		err       error
+		sid       string
+		expire    time.Time
 	)
 	pretty.Progress("Purchasing offer on the marketplace...", func() {
-		transactions, err = c.e.Purchase(args[0], c.offerIndex, c.account)
+		txs, err = c.e.PreparePurchase(args[0], c.offerIndex, c.account)
 		if err != nil {
 			return
 		}
-		for _, tx := range transactions {
-			_, err = c.signAndSendTransaction(c.e, tx)
+		for _, tx := range txs {
+			signedTx, err = c.e.Sign(c.account, c.passphrase, tx)
 			if err != nil {
 				return
 			}
+			signedTxs = append(signedTxs, signedTx)
 		}
+		sid, _, _, _, _, expire, err = c.e.PublishPurchase(signedTxs)
 	})
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%s Offer purchased with success\n", pretty.SuccessSign)
+	fmt.Printf("%s Offer of service %q purchased with success and will expire on %s\n", pretty.SuccessSign, sid, expire.Local())
 
 	return nil
 }
