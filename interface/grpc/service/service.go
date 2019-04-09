@@ -1,11 +1,32 @@
 package service
 
 import (
+	"context"
 	"encoding/json"
 
+	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
 )
+
+// Server binds all api functions.
+type Server struct {
+	api *api.API
+}
+
+// NewServer creates a new Server.
+func NewServer(api *api.API) *Server {
+	return &Server{api: api}
+}
+
+// EmitEvent permits to send and event to anyone who subscribed to it.
+func (s *Server) EmitEvent(context context.Context, request *serviceapi.EmitEventRequest) (*serviceapi.EmitEventReply, error) {
+	var data map[string]interface{}
+	if err := json.Unmarshal([]byte(request.EventData), &data); err != nil {
+		return nil, err
+	}
+	return &serviceapi.EmitEventReply{}, s.api.EmitEvent(request.Token, request.EventKey, data)
+}
 
 // ListenTask creates a stream that will send data for every task to execute.
 func (s *Server) ListenTask(request *serviceapi.ListenTaskRequest, stream serviceapi.Service_ListenTaskServer) error {
@@ -44,4 +65,9 @@ func (s *Server) ListenTask(request *serviceapi.ListenTaskRequest, stream servic
 			}
 		}
 	}
+}
+
+// SubmitResult submits results of an execution.
+func (s *Server) SubmitResult(context context.Context, request *serviceapi.SubmitResultRequest) (*serviceapi.SubmitResultReply, error) {
+	return &serviceapi.SubmitResultReply{}, s.api.SubmitResult(request.ExecutionID, request.OutputKey, []byte(request.OutputData))
 }
