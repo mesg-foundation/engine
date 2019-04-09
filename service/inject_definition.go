@@ -28,7 +28,6 @@ func (s *Service) injectDefinition(def *importer.ServiceDefinition) {
 		s.Configuration.VolumesFrom = def.Configuration.VolumesFrom
 		s.Configuration.Env = def.Configuration.Env
 	}
-	s.Dependencies = s.Dependencies
 }
 
 func (s *Service) defTasksToService(tasks map[string]*importer.Task) []*Task {
