@@ -1,117 +1,221 @@
 package core
 
 import (
+	"context"
+	"encoding/json"
+	"sync"
+
+	"github.com/mesg-foundation/core/api"
+	"github.com/mesg-foundation/core/config"
+	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
-	service "github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/core/version"
+	"github.com/mesg-foundation/core/x/xerrors"
 )
 
-func toProtoServices(ss []*service.Service) []*coreapi.Service {
-	services := make([]*coreapi.Service, len(ss))
-	for i, s := range ss {
-		services[i] = toProtoService(s)
-	}
-	return services
+// Server is the type to aggregate all the APIs.
+type Server struct {
+	api *api.API
 }
 
-func toProtoService(s *service.Service) *coreapi.Service {
-	return &coreapi.Service{
-		Hash:         s.Hash,
-		Sid:          s.Sid,
-		Name:         s.Name,
-		Description:  s.Description,
-		Repository:   s.Repository,
-		Tasks:        toProtoTasks(s.Tasks),
-		Events:       toProtoEvents(s.Events),
-		Dependencies: toProtoDependencies(s.Dependencies),
-	}
+// NewServer creates a new Server.
+func NewServer(api *api.API) *Server {
+	return &Server{api: api}
 }
 
-func toProtoServiceStatusType(s service.StatusType) coreapi.Service_Status {
-	switch s {
-	default:
-		return coreapi.Service_UNKNOWN
-	case service.STOPPED:
-		return coreapi.Service_STOPPED
-	case service.STARTING:
-		return coreapi.Service_STARTING
-	case service.PARTIAL:
-		return coreapi.Service_PARTIAL
-	case service.RUNNING:
-		return coreapi.Service_RUNNING
+// GetService returns service serviceID.
+func (s *Server) GetService(ctx context.Context, request *coreapi.GetServiceRequest) (*coreapi.GetServiceReply, error) {
+	ss, err := s.api.GetService(request.ServiceID)
+	if err != nil {
+		return nil, err
 	}
+	status, err := ss.Status()
+	if err != nil {
+		return nil, err
+	}
+	details := &coreapi.Service{
+		Definition: toProtoService(ss),
+		Status:     toProtoServiceStatusType(status),
+	}
+	return &coreapi.GetServiceReply{Service: details}, nil
 }
 
-func toProtoTasks(tasks []*service.Task) []*coreapi.Task {
-	ts := make([]*coreapi.Task, len(tasks))
-	for i, task := range tasks {
-		t := &coreapi.Task{
-			Key:         task.Key,
-			Name:        task.Name,
-			Description: task.Description,
-			Inputs:      toProtoParameters(task.Inputs),
-			Outputs:     []*coreapi.Output{},
-		}
-		for _, output := range task.Outputs {
-			o := &coreapi.Output{
-				Key:         output.Key,
-				Name:        output.Name,
-				Description: output.Description,
-				Data:        toProtoParameters(output.Data),
+// ListServices lists services.
+func (s *Server) ListServices(ctx context.Context, request *coreapi.ListServicesRequest) (*coreapi.ListServicesReply, error) {
+	services, err := s.api.ListServices()
+	if err != nil {
+		return nil, err
+	}
+
+	var (
+		protoServices []*coreapi.Service
+		mp            sync.Mutex
+
+		servicesLen = len(services)
+		errC        = make(chan error, servicesLen)
+		wg          sync.WaitGroup
+	)
+
+	wg.Add(servicesLen)
+	for _, s := range services {
+		go func(s *service.Service) {
+			defer wg.Done()
+			status, err := s.Status()
+			if err != nil {
+				errC <- err
+				return
 			}
-			t.Outputs = append(t.Outputs, o)
+			details := &coreapi.Service{
+				Definition: toProtoService(s),
+				Status:     toProtoServiceStatusType(status),
+			}
+			mp.Lock()
+			protoServices = append(protoServices, details)
+			mp.Unlock()
+		}(s)
+	}
+
+	wg.Wait()
+	close(errC)
+
+	var errs xerrors.Errors
+	for err := range errC {
+		errs = append(errs, err)
+	}
+
+	return &coreapi.ListServicesReply{Services: protoServices}, errs.ErrorOrNil()
+}
+
+// StartService starts a service.
+func (s *Server) StartService(ctx context.Context, request *coreapi.StartServiceRequest) (*coreapi.StartServiceReply, error) {
+	return &coreapi.StartServiceReply{}, s.api.StartService(request.ServiceID)
+}
+
+// StopService stops a service.
+func (s *Server) StopService(ctx context.Context, request *coreapi.StopServiceRequest) (*coreapi.StopServiceReply, error) {
+	return &coreapi.StopServiceReply{}, s.api.StopService(request.ServiceID)
+}
+
+// DeleteService stops and deletes service serviceID.
+func (s *Server) DeleteService(ctx context.Context, request *coreapi.DeleteServiceRequest) (*coreapi.DeleteServiceReply, error) {
+	return &coreapi.DeleteServiceReply{}, s.api.DeleteService(request.ServiceID, request.DeleteData)
+}
+
+// ListenEvent listens events matches with eventFilter on serviceID.
+func (s *Server) ListenEvent(request *coreapi.ListenEventRequest, stream coreapi.Core_ListenEventServer) error {
+	ln, err := s.api.ListenEvent(request.ServiceID, api.ListenEventKeyFilter(request.EventFilter))
+	if err != nil {
+		return err
+	}
+	defer ln.Close()
+
+	// send header to notify client that the stream is ready.
+	if err := acknowledgement.SetStreamReady(stream); err != nil {
+		return err
+	}
+
+	ctx := stream.Context()
+	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+
+		case err := <-ln.Err:
+			return err
+
+		case ev := <-ln.Events:
+			evData, err := json.Marshal(ev.Data)
+			if err != nil {
+				return err
+			}
+
+			if err := stream.Send(&coreapi.EventData{
+				EventKey:  ev.Key,
+				EventData: string(evData),
+			}); err != nil {
+				return err
+			}
 		}
-		ts[i] = t
 	}
-	return ts
 }
 
-func toProtoEvents(events []*service.Event) []*coreapi.Event {
-	es := make([]*coreapi.Event, len(events))
-	for i, event := range events {
-		es[i] = &coreapi.Event{
-			Key:         event.Key,
-			Name:        event.Name,
-			Description: event.Description,
-			Data:        toProtoParameters(event.Data),
+// ListenResult listens for results from a services.
+func (s *Server) ListenResult(request *coreapi.ListenResultRequest, stream coreapi.Core_ListenResultServer) error {
+	ln, err := s.api.ListenResult(request.ServiceID,
+		api.ListenResultTaskFilter(request.TaskFilter),
+		api.ListenResultOutputFilter(request.OutputFilter),
+		api.ListenResultTagFilters(request.TagFilters))
+	if err != nil {
+		return err
+	}
+	defer ln.Close()
+
+	// send header to notify client that the stream is ready.
+	if err := acknowledgement.SetStreamReady(stream); err != nil {
+		return err
+	}
+
+	ctx := stream.Context()
+	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+
+		case err := <-ln.Err:
+			return err
+
+		case execution := <-ln.Executions:
+			outputs, err := json.Marshal(execution.OutputData)
+			if err != nil {
+				return err
+			}
+			if err := stream.Send(&coreapi.ResultData{
+				ExecutionID:   execution.ID,
+				TaskKey:       execution.TaskKey,
+				OutputKey:     execution.OutputKey,
+				OutputData:    string(outputs),
+				ExecutionTags: execution.Tags,
+				Error:         execution.Error,
+			}); err != nil {
+				return err
+			}
 		}
 	}
-	return es
 }
 
-func toProtoParameters(params []*service.Parameter) []*coreapi.Parameter {
-	ps := make([]*coreapi.Parameter, len(params))
-	for i, param := range params {
-		ps[i] = &coreapi.Parameter{
-			Key:         param.Key,
-			Name:        param.Name,
-			Description: param.Description,
-			Type:        param.Type,
-			Repeated:    param.Repeated,
-			Optional:    param.Optional,
-			Object:      toProtoParameters(param.Object),
+// ExecuteTask executes a task for a given service.
+func (s *Server) ExecuteTask(ctx context.Context, request *coreapi.ExecuteTaskRequest) (*coreapi.ExecuteTaskReply, error) {
+	var inputs map[string]interface{}
+	if err := json.Unmarshal([]byte(request.InputData), &inputs); err != nil {
+		return nil, err
+	}
+
+	executionID, err := s.api.ExecuteTask(request.ServiceID, request.TaskKey, inputs, request.ExecutionTags)
+	return &coreapi.ExecuteTaskReply{
+		ExecutionID: executionID,
+	}, err
+}
+
+// Info returns all necessary information from the core.
+func (s *Server) Info(ctx context.Context, request *coreapi.InfoRequest) (*coreapi.InfoReply, error) {
+	c, err := config.Global()
+	if err != nil {
+		return nil, err
+	}
+	services := make([]*coreapi.InfoReply_CoreService, len(c.Services()))
+	for i, s := range c.Services() {
+		services[i] = &coreapi.InfoReply_CoreService{
+			Sid:  s.Sid,
+			Hash: s.Hash,
+			Url:  s.URL,
+			Key:  s.Key,
 		}
 	}
-	return ps
-}
-
-func toProtoDependency(dep *service.Dependency) *coreapi.Dependency {
-	if dep == nil {
-		return nil
-	}
-	return &coreapi.Dependency{
-		Key:         dep.Key,
-		Image:       dep.Image,
-		Volumes:     dep.Volumes,
-		Volumesfrom: dep.VolumesFrom,
-		Ports:       dep.Ports,
-		Command:     dep.Command,
-	}
-}
-
-func toProtoDependencies(deps []*service.Dependency) []*coreapi.Dependency {
-	ds := make([]*coreapi.Dependency, len(deps))
-	for i, dep := range deps {
-		ds[i] = toProtoDependency(dep)
-	}
-	return ds
+	return &coreapi.InfoReply{
+		Address:  c.Client.Address,
+		Image:    c.Core.Image,
+		Version:  version.Version,
+		Services: services,
+	}, nil
 }

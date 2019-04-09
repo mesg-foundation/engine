@@ -1,4 +1,4 @@
-import { hexToAscii, fromUnit, parseTimestamp } from "./utils";
+import { hexToAscii, fromUnit, parseTimestamp, hexToHash } from "./utils";
 
 const serviceCreated = (data: any) => ({
   sid: hexToAscii(data.sid),
@@ -29,7 +29,7 @@ const servicePurchased = (data: any) => ({
 })
 const serviceVersionCreated = (data: any) => ({
     sid: hexToAscii(data.sid),
-    versionHash: data.versionHash,
+    versionHash: hexToHash(data.versionHash),
     manifest: hexToAscii(data.manifest),
     manifestProtocol: hexToAscii(data.manifestProtocol),
 })

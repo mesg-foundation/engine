@@ -15,7 +15,7 @@ export default (
     return outputs.success(await createTransaction(marketplace, inputs, transactionData))
   }
   catch (error) {
-    console.error('error in createServiceOffer', error)
+    console.error('error in prepareCreateServiceOffer', error)
     return outputs.error({ message: error.toString() })
   }
 }
