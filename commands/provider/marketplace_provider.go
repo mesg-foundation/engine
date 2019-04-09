@@ -2,6 +2,7 @@ package provider
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/ipfs"
@@ -18,46 +19,67 @@ func NewMarketplaceProvider(c coreapi.CoreClient) *MarketplaceProvider {
 	return &MarketplaceProvider{client: client{c}}
 }
 
-// PublishServiceVersion executes the create service version task
-func (p *MarketplaceProvider) PublishServiceVersion(service MarketplaceManifestServiceData, from string) (Transaction, error) {
-	input := marketplacePublishServiceVersionTaskInputs{
-		marketplaceTransactionTaskInputs: marketplaceTransactionTaskInputs{From: from},
-		Service:                          service,
+// PreparePublishServiceVersion executes the create service version task
+func (p *MarketplaceProvider) PreparePublishServiceVersion(service MarketplaceManifestServiceData, from string) (Transaction, error) {
+	input := marketplacePreparePublishServiceVersionTaskInputs{
+		marketplacePrepareTaskInputs: marketplacePrepareTaskInputs{From: from},
+		Service:                      service,
 	}
 	var output Transaction
-	return output, p.call("publishServiceVersion", input, &output)
+	return output, p.call("preparePublishServiceVersion", input, &output)
 }
 
-// CreateServiceOffer executes the create service offer task
-func (p *MarketplaceProvider) CreateServiceOffer(sid string, price string, duration string, from string) (Transaction, error) {
-	input := marketplaceCreateServiceOfferTaskInputs{
-		marketplaceTransactionTaskInputs: marketplaceTransactionTaskInputs{From: from},
-		Sid:                              sid,
-		Price:                            price,
-		Duration:                         duration,
-	}
-	var output Transaction
-	return output, p.call("createServiceOffer", input, &output)
-}
-
-// Purchase executes the purchase task
-func (p *MarketplaceProvider) Purchase(sid, offerIndex, from string) ([]Transaction, error) {
-	input := marketplacePurchaseTaskInputs{
-		marketplaceTransactionTaskInputs: marketplaceTransactionTaskInputs{From: from},
-		Sid:                              sid,
-		OfferIndex:                       offerIndex,
-	}
-	var output marketplacePurchaseTaskOutputs
-	return output.Transactions, p.call("purchase", input, &output)
-}
-
-// SendSignedTransaction executes the task send signed transaction.
-func (p *MarketplaceProvider) SendSignedTransaction(signedTransaction string) (TransactionReceipt, error) {
-	input := marketplaceSendSignedTransactionTaskInputs{
+// PublishPublishServiceVersion executes the task publish service version task
+func (p *MarketplaceProvider) PublishPublishServiceVersion(signedTransaction string) (sid, versionHash, manifest, manifestProtocol string, err error) {
+	input := marketplacePublishTaskInputs{
 		SignedTransaction: signedTransaction,
 	}
-	var output TransactionReceipt
-	return output, p.call("sendSignedTransaction", input, &output)
+	var o marketplacePublishPublishServiceVersionTaskOutputs
+	err = p.call("publishPublishServiceVersion", input, &o)
+	return o.Sid, o.VersionHash, o.Manifest, o.ManifestProtocol, err
+}
+
+// PrepareCreateServiceOffer executes the create service offer task
+func (p *MarketplaceProvider) PrepareCreateServiceOffer(sid string, price string, duration string, from string) (Transaction, error) {
+	input := marketplacePrepareCreateServiceOfferTaskInputs{
+		marketplacePrepareTaskInputs: marketplacePrepareTaskInputs{From: from},
+		Sid:                          sid,
+		Price:                        price,
+		Duration:                     duration,
+	}
+	var output Transaction
+	return output, p.call("prepareCreateServiceOffer", input, &output)
+}
+
+// PublishCreateServiceOffer executes the task publish service offer task
+func (p *MarketplaceProvider) PublishCreateServiceOffer(signedTransaction string) (sid, offerIndex, price, duration string, err error) {
+	input := marketplacePublishTaskInputs{
+		SignedTransaction: signedTransaction,
+	}
+	var o marketplacePublishCreateServiceOfferTaskOutputs
+	err = p.call("publishCreateServiceOffer", input, &o)
+	return o.Sid, o.OfferIndex, o.Price, o.Duration, err
+}
+
+// PreparePurchase executes the purchase task
+func (p *MarketplaceProvider) PreparePurchase(sid, offerIndex, from string) ([]Transaction, error) {
+	input := marketplacePreparePurchaseTaskInputs{
+		marketplacePrepareTaskInputs: marketplacePrepareTaskInputs{From: from},
+		Sid:                          sid,
+		OfferIndex:                   offerIndex,
+	}
+	var output marketplacePreparePurchaseTaskOutputs
+	return output.Transactions, p.call("preparePurchase", input, &output)
+}
+
+// PublishPurchase executes the task publish service version task
+func (p *MarketplaceProvider) PublishPurchase(signedTransactions []string) (sid, offerIndex, purchaser, price, duration string, expire time.Time, err error) {
+	input := marketplacePublishPurchaseTaskInputs{
+		SignedTransactions: signedTransactions,
+	}
+	var o marketplacePublishPurchaseTaskOutputs
+	err = p.call("publishPurchase", input, &o)
+	return o.Sid, o.OfferIndex, o.Purchaser, o.Price, o.Duration, o.Expire, err
 }
 
 // GetService executes the task get service.

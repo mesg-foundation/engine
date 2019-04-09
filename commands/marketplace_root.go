@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/spf13/cobra"
 )
 
@@ -51,12 +50,4 @@ func (c *baseMarketplaceCmd) askAccountAndPassphrase() error {
 		}
 	}
 	return nil
-}
-
-func (c *baseMarketplaceCmd) signAndSendTransaction(e Executor, transaction provider.Transaction) (provider.TransactionReceipt, error) {
-	signedTransaction, err := e.Sign(c.account, c.passphrase, transaction)
-	if err != nil {
-		return provider.TransactionReceipt{}, err
-	}
-	return e.SendSignedTransaction(signedTransaction)
 }
