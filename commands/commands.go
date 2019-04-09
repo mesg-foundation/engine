@@ -3,6 +3,7 @@ package commands
 import (
 	"io"
 	"io/ioutil"
+	"time"
 
 	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/container"
@@ -41,10 +42,12 @@ type ServiceExecutor interface {
 // MarketplaceExecutor is an interface that handles marketplace commands.
 type MarketplaceExecutor interface {
 	UploadSource(path string) (deployment provider.MarketplaceDeployedSource, err error)
-	PublishServiceVersion(service provider.MarketplaceManifestServiceData, from string) (provider.Transaction, error)
-	CreateServiceOffer(sid string, price string, duration string, from string) (provider.Transaction, error)
-	Purchase(sid, offerIndex, from string) ([]provider.Transaction, error)
-	SendSignedTransaction(signedTransaction string) (provider.TransactionReceipt, error)
+	PreparePublishServiceVersion(service provider.MarketplaceManifestServiceData, from string) (provider.Transaction, error)
+	PublishPublishServiceVersion(signedTransaction string) (sid, versionHash, manifest, manifestProtocol string, err error)
+	PrepareCreateServiceOffer(sid string, price string, duration string, from string) (provider.Transaction, error)
+	PublishCreateServiceOffer(signedTransaction string) (sid, offerIndex, price, duration string, err error)
+	PreparePurchase(sid, offerIndex, from string) ([]provider.Transaction, error)
+	PublishPurchase(signedTransactions []string) (sid, offerIndex, purchaser, price, duration string, expire time.Time, err error)
 	GetService(sid string) (provider.MarketplaceService, error)
 }
 
