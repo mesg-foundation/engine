@@ -39,27 +39,27 @@ tasks:
                   manifestData: &manifestData
                     type: Object
                     optional: true
-                    object: 	
-                      version: 	
-                        type: String	
-                      service: &manifestServiceData	
-                        type: Object	
-                        object:	
-                          hash:	
-                            type: String	
-                          hashVersion: 	
-                            type: String	
-                          deployment:	
-                            type: Object	
-                            object:	
-                              type: 	
-                                type: String	
-                              source: 	
-                                type: String	
-                          definition: 	
-                            type: Object	
-                          readme: 	
-                            type: String	
+                    object:
+                      version:
+                        type: String
+                      service: &serviceDefinition
+                        type: Object
+                        object:
+                          hash:
+                            type: String
+                          hashVersion:
+                            type: String
+                          deployment:
+                            type: Object
+                            object:
+                              type:
+                                type: String
+                              source:
+                                type: String
+                          definition:
+                            type: Object
+                          readme:
+                            type: String
                             optional: true
                   createTime: *createTime
               offers: &offers
@@ -108,25 +108,7 @@ tasks:
       error: *outputError
   preparePublishServiceVersion:
     inputs:
-      service:
-        type: Object
-        object:
-          hash:
-            type: String
-          hashVersion: 
-            type: String
-          deployment:
-            type: Object
-            object:
-              type: 
-                type: String
-              source: 
-                type: String
-          definition: 
-            type: Object
-          readme: 
-            type: String
-            optional: true
+      service: *serviceDefinition
       from: &inputFrom
         type: String
       gas: &inputGas
