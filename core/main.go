@@ -6,6 +6,7 @@ import (
 
 	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/config"
+	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/interface/grpc"
 	"github.com/mesg-foundation/core/logger"
@@ -19,6 +20,7 @@ type dependencies struct {
 	config      *config.Config
 	serviceDB   database.ServiceDB
 	executionDB database.ExecutionDB
+	container   container.Container
 	api         *api.API
 }
 
@@ -41,8 +43,14 @@ func initDependencies() (*dependencies, error) {
 		return nil, err
 	}
 
+	// init container.
+	c, err := container.New()
+	if err != nil {
+		return nil, err
+	}
+
 	// init api.
-	api, err := api.New(serviceDB, executionDB)
+	api, err := api.New(serviceDB, executionDB, api.ContainerOption(c))
 	if err != nil {
 		return nil, err
 	}
@@ -51,6 +59,7 @@ func initDependencies() (*dependencies, error) {
 		config:      config,
 		serviceDB:   serviceDB,
 		executionDB: executionDB,
+		container:   c,
 		api:         api,
 	}, nil
 }

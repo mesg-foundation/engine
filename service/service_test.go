@@ -5,17 +5,14 @@ import (
 
 	"github.com/mesg-foundation/core/container/mocks"
 	"github.com/mesg-foundation/core/service/importer"
-	"github.com/mesg-foundation/core/x/xdocker/xarchive"
 	"github.com/mesg-foundation/core/x/xos"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
 func newFromServiceAndContainerMocks(t *testing.T, s *Service) (*Service, *mocks.Container) {
-	m := &mocks.Container{}
-	s, err := FromService(s, ContainerOption(m))
-	require.NoError(t, err)
-	return s, m
+	_ = t
+	return s, &mocks.Container{}
 }
 
 func TestNew(t *testing.T) {
@@ -27,15 +24,9 @@ func TestNew(t *testing.T) {
 	mc := &mocks.Container{}
 	mc.On("Build", mock.Anything).Once().Return(hash, nil)
 
-	archive, err := xarchive.GzippedTar(path, nil)
-	require.NoError(t, err)
-
 	statuses := make(chan DeployStatus, 4)
 
-	s, err := New(archive, nil,
-		ContainerOption(mc),
-		DeployStatusOption(statuses),
-	)
+	s, err := New(path, mc, statuses, nil)
 	require.NoError(t, err)
 	require.Equal(t, "service", s.Dependencies[0].Key)
 	require.Equal(t, hash, s.Dependencies[0].Image)
@@ -64,12 +55,7 @@ func TestNewWithDefaultEnv(t *testing.T) {
 	mc := &mocks.Container{}
 	mc.On("Build", mock.Anything).Once().Return(hash, nil)
 
-	archive, err := xarchive.GzippedTar(path, nil)
-	require.NoError(t, err)
-
-	s, err := New(archive, nil,
-		ContainerOption(mc),
-	)
+	s, err := New(path, mc, nil, nil)
 	require.NoError(t, err)
 	require.Equal(t, "service", s.Dependencies[0].Key)
 	require.Equal(t, hash, s.Dependencies[0].Image)
@@ -88,12 +74,7 @@ func TestNewWithOverwrittenEnv(t *testing.T) {
 	mc := &mocks.Container{}
 	mc.On("Build", mock.Anything).Once().Return(hash, nil)
 
-	archive, err := xarchive.GzippedTar(path, nil)
-	require.NoError(t, err)
-
-	s, err := New(archive, xos.EnvSliceToMap(env),
-		ContainerOption(mc),
-	)
+	s, err := New(path, mc, nil, xos.EnvSliceToMap(env))
 	require.NoError(t, err)
 	require.Equal(t, "service", s.Dependencies[0].Key)
 	require.Equal(t, hash, s.Dependencies[0].Image)
@@ -109,12 +90,7 @@ func TestNewWitNotDefinedEnv(t *testing.T) {
 
 	mc := &mocks.Container{}
 
-	archive, err := xarchive.GzippedTar(path, nil)
-	require.NoError(t, err)
-
-	_, err = New(archive, xos.EnvSliceToMap([]string{"A=1", "B=2"}),
-		ContainerOption(mc),
-	)
+	_, err := New(path, mc, nil, xos.EnvSliceToMap([]string{"A=1", "B=2"}))
 	require.Equal(t, ErrNotDefinedEnv{[]string{"A", "B"}}, err)
 
 	mc.AssertExpectations(t)

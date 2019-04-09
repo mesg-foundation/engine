@@ -2,14 +2,10 @@ package service
 
 import (
 	"fmt"
-	"io"
-	"io/ioutil"
-	"os"
 	"sort"
 	"strings"
 	"time"
 
-	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/service/importer"
 	"github.com/mesg-foundation/core/utils/dirhash"
@@ -56,15 +52,6 @@ type Service struct {
 
 	// DeployedAt holds the creation time of service.
 	DeployedAt time.Time `hash:"-"`
-
-	// statuses receives status messages produced during deployment.
-	statuses chan DeployStatus `hash:"-"`
-
-	// tempPath is the temporary path that service is hosted in file system.
-	tempPath string `hash:"-"`
-
-	// container is the underlying container API.
-	container container.Container `hash:"-"`
 }
 
 // DStatusType indicates the type of status message.
@@ -89,32 +76,18 @@ type DeployStatus struct {
 	Type    DStatusType
 }
 
-// New creates a new service from a gzipped tarball.
-func New(tarball io.Reader, env map[string]string, options ...Option) (*Service, error) {
+// New creates a new service from contextDir.
+func New(contextDir string, c container.Container, statuses chan DeployStatus, env map[string]string) (*Service, error) {
 	var err error
 	s := &Service{}
-	defer s.closeStatus()
+	defer s.closeStatus(statuses)
 
-	if err := s.setOptions(options...); err != nil {
-		return nil, err
-	}
-
-	// untar tarball to retrieve mesg.yml
-	s.tempPath, err = ioutil.TempDir("", "mesg-")
-	if err != nil {
-		return nil, err
-	}
-	defer os.RemoveAll(s.tempPath)
-
-	if err := archive.Untar(tarball, s.tempPath, nil); err != nil {
-		return nil, err
-	}
-	def, err := importer.From(s.tempPath)
+	def, err := importer.From(contextDir)
 	if err != nil {
 		return nil, err
 	}
 
-	dh := dirhash.New(s.tempPath)
+	dh := dirhash.New(contextDir)
 	envbytes := []byte(xos.EnvMapToString(env))
 	hash, err := dh.Sum(envbytes)
 	if err != nil {
@@ -132,64 +105,23 @@ func New(tarball io.Reader, env map[string]string, options ...Option) (*Service,
 	defenv := xos.EnvSliceToMap(s.configuration().Env)
 	s.configuration().Env = xos.EnvMapToSlice(xos.EnvMergeMaps(defenv, env))
 
-	if err := s.deploy(); err != nil {
+	if err := s.deploy(contextDir, c, statuses); err != nil {
 		return nil, err
 	}
 
-	return s.fromService(), nil
-}
-
-// FromService upgrades service s by setting its options and private fields.
-func FromService(s *Service, options ...Option) (*Service, error) {
-	if err := s.setOptions(options...); err != nil {
-		return nil, err
-	}
-	return s.fromService(), nil
-}
-
-func (s *Service) setOptions(options ...Option) error {
-	for _, option := range options {
-		option(s)
-	}
-	return nil
-}
-
-// fromService upgrades service s by setting a calculated ID and cross-referencing its child fields.
-// TODO: this function should be deleted.
-func (s *Service) fromService() *Service {
-	for _, dep := range s.Dependencies {
-		dep.service = s
-	}
-	return s
-}
-
-// Option is the configuration func of Service.
-type Option func(*Service)
-
-// ContainerOption returns an option for customized container.
-func ContainerOption(container container.Container) Option {
-	return func(s *Service) {
-		s.container = container
-	}
-}
-
-// DeployStatusOption receives chan statuses to send deploy statuses.
-func DeployStatusOption(statuses chan DeployStatus) Option {
-	return func(s *Service) {
-		s.statuses = statuses
-	}
+	return s, nil
 }
 
 // deploy deploys service.
-func (s *Service) deploy() error {
-	s.sendStatus("Building Docker image...", DRunning)
+func (s *Service) deploy(contextDir string, c container.Container, statuses chan DeployStatus) error {
+	s.sendStatus(statuses, "Building Docker image...", DRunning)
 
-	imageHash, err := s.container.Build(s.tempPath)
+	imageHash, err := c.Build(contextDir)
 	if err != nil {
 		return err
 	}
 
-	s.sendStatus("Image built with success", DDonePositive)
+	s.sendStatus(statuses, "Image built with success", DDonePositive)
 
 	s.configuration().Image = imageHash
 	// TODO: the following test should be moved in New function
@@ -201,9 +133,9 @@ func (s *Service) deploy() error {
 }
 
 // sendStatus sends a status message.
-func (s *Service) sendStatus(message string, typ DStatusType) {
-	if s.statuses != nil {
-		s.statuses <- DeployStatus{
+func (s *Service) sendStatus(statuses chan DeployStatus, message string, typ DStatusType) {
+	if statuses != nil {
+		statuses <- DeployStatus{
 			Message: message,
 			Type:    typ,
 		}
@@ -211,9 +143,9 @@ func (s *Service) sendStatus(message string, typ DStatusType) {
 }
 
 // closeStatus closes statuses chan.
-func (s *Service) closeStatus() {
-	if s.statuses != nil {
-		close(s.statuses)
+func (s *Service) closeStatus(statuses chan DeployStatus) {
+	if statuses != nil {
+		close(statuses)
 	}
 }
 
@@ -221,7 +153,6 @@ func (s *Service) closeStatus() {
 func (s *Service) getDependency(dependencyKey string) (*Dependency, error) {
 	for _, dep := range s.Dependencies {
 		if dep.Key == dependencyKey {
-			dep.service = s
 			return dep, nil
 		}
 	}

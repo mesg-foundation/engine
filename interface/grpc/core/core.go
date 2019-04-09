@@ -30,7 +30,7 @@ func (s *Server) GetService(ctx context.Context, request *coreapi.GetServiceRequ
 	if err != nil {
 		return nil, err
 	}
-	status, err := ss.Status()
+	status, err := s.api.Status(ss)
 	if err != nil {
 		return nil, err
 	}
@@ -58,22 +58,22 @@ func (s *Server) ListServices(ctx context.Context, request *coreapi.ListServices
 	)
 
 	wg.Add(servicesLen)
-	for _, s := range services {
-		go func(s *service.Service) {
+	for _, ss := range services {
+		go func(ss *service.Service) {
 			defer wg.Done()
-			status, err := s.Status()
+			status, err := s.api.Status(ss)
 			if err != nil {
 				errC <- err
 				return
 			}
 			details := &coreapi.Service{
-				Definition: toProtoService(s),
+				Definition: toProtoService(ss),
 				Status:     toProtoServiceStatusType(status),
 			}
 			mp.Lock()
 			protoServices = append(protoServices, details)
 			mp.Unlock()
-		}(s)
+		}(ss)
 	}
 
 	wg.Wait()

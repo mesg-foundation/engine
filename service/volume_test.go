@@ -31,13 +31,13 @@ func TestDeleteVolumes(t *testing.T) {
 
 	var (
 		d1, _    = s.getDependency(dependencyKey1)
-		volumes1 = d1.extractVolumes()
+		volumes1 = d1.extractVolumes(s)
 	)
 
 	mc.On("DeleteVolume", volumes1[0].Source).Once().Return(nil)
 	mc.On("DeleteVolume", volumes1[1].Source).Once().Return(nil)
 
-	require.NoError(t, s.DeleteVolumes())
+	require.NoError(t, s.DeleteVolumes(mc))
 
 	mc.AssertExpectations(t)
 }
