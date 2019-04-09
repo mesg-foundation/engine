@@ -2,6 +2,7 @@ package provider
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/mesg-foundation/core/protobuf/definition"
 )
@@ -41,8 +42,8 @@ type MarketplaceService struct {
 		Active     bool   `json:"active"`
 	} `json:"offers"`
 	Purchases []struct {
-		Purchaser string `json:"purchaser"`
-		Expire    string `json:"expire"`
+		Purchaser string    `json:"purchaser"`
+		Expire    time.Time `json:"expire"`
 	} `json:"purchases"`
 }
 
@@ -77,36 +78,63 @@ func (d *MarketplaceManifestData) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-type marketplaceTransactionTaskInputs struct {
+type marketplacePrepareTaskInputs struct {
 	From     string `json:"from"`
 	Gas      string `json:"gas,omitempty"`
 	GasPrice string `json:"gasPrice,omitempty"`
 }
 
-type marketplacePublishServiceVersionTaskInputs struct {
-	marketplaceTransactionTaskInputs
+type marketplacePublishTaskInputs struct {
+	SignedTransaction string `json:"signedTransaction"`
+}
+
+type marketplacePreparePublishServiceVersionTaskInputs struct {
+	marketplacePrepareTaskInputs
 	Service MarketplaceManifestServiceData `json:"service"`
 }
 
-type marketplaceCreateServiceOfferTaskInputs struct {
-	marketplaceTransactionTaskInputs
+type marketplacePublishPublishServiceVersionTaskOutputs struct {
+	Sid              string `json:"sid"`
+	VersionHash      string `json:"versionHash"`
+	Manifest         string `json:"manifest"`
+	ManifestProtocol string `json:"manifestProtocol"`
+}
+
+type marketplacePrepareCreateServiceOfferTaskInputs struct {
+	marketplacePrepareTaskInputs
 	Sid      string `json:"sid"`
 	Price    string `json:"price"`
 	Duration string `json:"duration"`
 }
 
-type marketplacePurchaseTaskInputs struct {
-	marketplaceTransactionTaskInputs
+type marketplacePublishCreateServiceOfferTaskOutputs struct {
+	Sid        string `json:"sid"`
+	OfferIndex string `json:"offerIndex"`
+	Price      string `json:"price"`
+	Duration   string `json:"duration"`
+}
+
+type marketplacePreparePurchaseTaskInputs struct {
+	marketplacePrepareTaskInputs
 	Sid        string `json:"sid"`
 	OfferIndex string `json:"offerIndex"`
 }
 
-type marketplacePurchaseTaskOutputs struct {
+type marketplacePreparePurchaseTaskOutputs struct {
 	Transactions []Transaction `json:"transactions"`
 }
 
-type marketplaceSendSignedTransactionTaskInputs struct {
-	SignedTransaction string `json:"signedTransaction"`
+type marketplacePublishPurchaseTaskInputs struct {
+	SignedTransactions []string `json:"signedTransactions"`
+}
+
+type marketplacePublishPurchaseTaskOutputs struct {
+	Sid        string    `json:"sid"`
+	OfferIndex string    `json:"offerIndex"`
+	Purchaser  string    `json:"purchaser"`
+	Price      string    `json:"price"`
+	Duration   string    `json:"duration"`
+	Expire     time.Time `json:"expire"`
 }
 
 type marketplaceGetServiceTaskInputs struct {

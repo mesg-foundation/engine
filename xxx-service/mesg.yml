@@ -1,0 +1,24 @@
+name: myservice
+sid: myservice
+description: "Description of my service"
+tasks:
+  taskX:
+    inputs:
+      foo:
+        type: String
+      bar:
+        type: String
+    outputs:
+      success:
+        data:
+          message:
+            type: String
+      error:
+        data:
+          error:
+            type: String
+events:
+  started:
+    data:
+      x:
+        type: Boolean

@@ -4,4 +4,10 @@ VERSION="local"
 LDFLAGS="-X 'github.com/mesg-foundation/core/version.Version=$VERSION'"
 
 go build -o ./bin/cli -ldflags="$LDFLAGS" interface/cli/main.go
-./bin/cli $@
+
+mesg_port=50052
+endpoint="localhost:$mesg_port"
+if [[ $DOCKER_HOST != "" ]]; then
+  endpoint="$(docker-machine ip $(docker-machine active)):$mesg_port"
+fi
+MESG_CLIENT_ADDRESS=$endpoint ./bin/cli $@
