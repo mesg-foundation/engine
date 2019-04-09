@@ -11,129 +11,79 @@ configuration:
     - TOKEN_ADDRESS=0x5861b3dc52339d4f976b7fa5d80db6cd6f477f1b
 tasks:
   listServices:
-    name: ""
-    description: ""
     inputs:
     outputs:
       success:
-        name: ""
-        description: ""
         data:
           services: &services
-            name: ""
-            description: ""
             type: Object
             repeated: true
             object: &service
               sid: &sid
-                name: ""
-                description: ""
                 type: String
               createTime: &createTime
-                name: ""
-                description: ""
                 type: String
               owner: &owner
-                name: ""
-                description: ""
                 type: String
               versions: &versions
-                name: ""
-                description: ""
                 type: Object
                 repeated: true
                 optional: true
                 object: &version
                   versionHash: &versionHash
-                    name: ""
-                    description: ""
                     type: String
                   manifest: &manifest
-                    name: ""
-                    description: ""
                     type: String
                   manifestProtocol: &manifestProtocol
-                    name: ""
-                    description: ""
                     type: String
                   manifestData: &manifestData
-                    name: ""
-                    description: ""
                     type: Object
                     optional: true
                     object: 	
                       version: 	
-                        name: ""	
-                        description: ""	
                         type: String	
                       service: &manifestServiceData	
                         type: Object	
                         object:	
                           hash:	
-                            name: ""	
-                            description: ""	
                             type: String	
                           hashVersion: 	
-                            name: ""	
-                            description: ""	
                             type: String	
                           deployment:	
                             type: Object	
                             object:	
                               type: 	
-                                name: ""	
-                                description: ""	
                                 type: String	
                               source: 	
-                                name: ""	
-                                description: ""	
                                 type: String	
                           definition: 	
-                            name: ""	
-                            description: ""	
                             type: Object	
                           readme: 	
                             type: String	
                             optional: true
                   createTime: *createTime
               offers: &offers
-                name: ""
-                description: ""
                 type: Object
                 repeated: true
                 optional: true
                 object: &offer
                   offerIndex: &offerIndex
-                    name: ""
-                    description: ""
                     type: String
                   price: &price
-                    name: ""
-                    description: ""
                     type: String
                   duration: &duration
-                    name: ""
-                    description: ""
                     type: String
                   active:
-                    name: ""
-                    description: ""
                     type: Boolean
                   createTime: *createTime
               purchases: &purchases
-                name: ""
-                description: ""
                 type: Object
                 repeated: true
                 optional: true
                 object: &purchase
                   purchaser: &purchaser
-                    name: ""
-                    description: ""
                     type: String
                   expire: &expire
-                    name: ""
-                    description: ""
                     type: String
                   createTime: *createTime
       error: &outputError
@@ -150,19 +100,13 @@ tasks:
             type: String
             optional: true
   getService:
-    name: ""
-    description: ""
     inputs:
       sid: *sid
     outputs:
       success:
-        name: ""
-        description: ""
         data: *service
       error: *outputError
   preparePublishServiceVersion:
-    name: ""
-    description: ""
     inputs:
       service:
         type: Object
@@ -184,17 +128,11 @@ tasks:
             type: String
             optional: true
       from: &inputFrom
-        name: ""
-        description: ""
         type: String
       gas: &inputGas
-        name: ""
-        description: ""
         type: Number
         optional: true
       gasPrice: &inputGasPrice
-        name: ""
-        description: ""
         type: String
         optional: true
     outputs:
@@ -230,12 +168,8 @@ tasks:
             description: "The data of the transaction."
             type: String
   publishPublishServiceVersion:
-    name: ""
-    description: ""
     inputs:
       signedTransaction: &signedTransaction
-        name: ""
-        description: ""
         type: String
     outputs:
       error: *outputError
@@ -246,8 +180,6 @@ tasks:
           manifest: *manifest
           manifestProtocol: *manifestProtocol
   prepareCreateServiceOffer:
-    name: ""
-    description: ""
     inputs:
       sid: *sid
       price: *price
@@ -259,8 +191,6 @@ tasks:
       error: *outputError
       success: *outputTransaction
   publishCreateServiceOffer:
-    name: ""
-    description: ""
     inputs:
       signedTransaction: *signedTransaction
     outputs:
@@ -272,8 +202,6 @@ tasks:
           price: *price
           duration: *duration
   preparePurchase:
-    name: ""
-    description: ""
     inputs:
       sid: *sid
       offerIndex: *offerIndex
@@ -289,8 +217,6 @@ tasks:
             type: Object
             object: *transaction
   publishPurchase:
-    name: ""
-    description: ""
     inputs:
       signedTransactions:
         <<: *signedTransaction
@@ -306,8 +232,6 @@ tasks:
           duration: *duration
           expire: *expire
   isAuthorized:
-    name: ""
-    description: ""
     inputs:
       sid:
         <<: *sid
@@ -316,76 +240,50 @@ tasks:
         <<: *versionHash
         optional: true
       addresses:
-        name: ""
-        description: ""
         repeated: true
         type: String
     outputs:
       error: *outputError
       success:
-        name: ""
-        description: ""
         data:
           authorized:
-            name: ""
-            description: ""
             type: Boolean
           sid: *sid
           source:
-            name: ""
-            description: ""
             type: String
             optional: true
           type:
-            name: ""
-            description: ""
             type: String
             optional: true
 events:
   serviceCreated:
-    name: ""
-    description: ""
     data:
       sid: *sid
       owner: *owner
   serviceOwnershipTransferred:
-    name: ""
-    description: ""
     data:
       sid: *sid
       previousOwner:
-        name: ""
-        description: ""
         type: String
       newOwner:
-        name: ""
-        description: ""
         type: String
   serviceVersionCreated:
-    name: ""
-    description: ""
     data:
       sid: *sid
       versionHash: *versionHash
       manifest: *manifest
       manifestProtocol: *manifestProtocol
   serviceOfferCreated:
-    name: ""
-    description: ""
     data:
       sid: *sid
       offerIndex: *offerIndex
       price: *price
       duration: *duration
   serviceOfferDisabled:
-    name: ""
-    description: ""
     data:
       sid: *sid
       offerIndex: *offerIndex
   servicePurchased:
-    name: ""
-    description: ""
     data:
       sid: *sid
       offerIndex: *offerIndex
@@ -393,4 +291,3 @@ events:
       price: *price
       duration: *duration
       expire: *expire
-      
