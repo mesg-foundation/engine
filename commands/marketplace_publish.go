@@ -69,9 +69,11 @@ func (c *marketplacePublishCmd) preRunE(cmd *cobra.Command, args []string) error
 
 func (c *marketplacePublishCmd) runE(cmd *cobra.Command, args []string) error {
 	var (
-		tx         provider.Transaction
-		err        error
-		deployment provider.MarketplaceDeployedSource
+		tx                provider.Transaction
+		err               error
+		deployment        provider.MarketplaceDeployedSource
+		signedTransaction string
+		sid, versionHash  string
 	)
 
 	pretty.Progress("Uploading service source code on the marketplace...", func() {
@@ -90,25 +92,27 @@ func (c *marketplacePublishCmd) runE(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	pretty.Progress("Publishing service on the marketplace...", func() {
-		tx, err = c.e.PublishServiceVersion(provider.MarketplaceManifestServiceData{
+		if tx, err = c.e.PreparePublishServiceVersion(provider.MarketplaceManifestServiceData{
 			Definition:  *definition,
 			Hash:        c.hash,
 			HashVersion: marketplaceServiceHashVersion,
 			Readme:      readme,
 			Deployment:  deployment,
-		}, c.account)
-		if err != nil {
+		}, c.account); err != nil {
 			return
 		}
-		_, err = c.signAndSendTransaction(c.e, tx)
+		if signedTransaction, err = c.e.Sign(c.account, c.passphrase, tx); err != nil {
+			return
+		}
+		sid, versionHash, _, _, err = c.e.PublishPublishServiceVersion(signedTransaction)
 	})
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%s Service published with success\n", pretty.SuccessSign)
-	fmt.Printf("%s See it on the marketplace: https://marketplace.mesg.com/services/%s\n", pretty.SuccessSign, c.sid)
+	fmt.Printf("%s Service published with success with sid %q and marketplace hash %q\n", pretty.SuccessSign, sid, versionHash)
+	fmt.Printf("%s See it on the marketplace: https://marketplace.mesg.com/services/%s/%s\n", pretty.SuccessSign, sid, versionHash)
 
-	fmt.Printf("%s To create a service offer, execute the command:\n\tmesg-core marketplace create-offer %s\n", pretty.SuccessSign, c.sid)
+	fmt.Printf("%s To create a service offer, execute the command:\n\tmesg-core marketplace create-offer %s\n", pretty.SuccessSign, sid)
 
 	return nil
 }

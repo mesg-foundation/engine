@@ -73,7 +73,7 @@ func (c *marketplaceCreateOfferCmd) preRunE(cmd *cobra.Command, args []string) e
 
 	var confirmed bool
 	if err := survey.AskOne(&survey.Confirm{
-		Message: fmt.Sprintf("Are you sure to create offer on service %q with price %q and duration %q?", args[0], c.price, c.duration),
+		Message: fmt.Sprintf("Are you sure to create offer for service %q with a price of %s MESG Tokens and a duration of %s seconds?", args[0], c.price, c.duration),
 	}, &confirmed, nil); err != nil {
 		return err
 	}
@@ -86,21 +86,25 @@ func (c *marketplaceCreateOfferCmd) preRunE(cmd *cobra.Command, args []string) e
 
 func (c *marketplaceCreateOfferCmd) runE(cmd *cobra.Command, args []string) error {
 	var (
-		tx  provider.Transaction
-		err error
+		tx                provider.Transaction
+		signedTransaction string
+		err               error
+		sid, offerIndex   string
 	)
 	pretty.Progress("Creating offer on the marketplace...", func() {
-		tx, err = c.e.CreateServiceOffer(args[0], c.price, c.duration, c.account)
-		if err != nil {
+		if tx, err = c.e.PrepareCreateServiceOffer(args[0], c.price, c.duration, c.account); err != nil {
 			return
 		}
-		_, err = c.signAndSendTransaction(c.e, tx)
+		if signedTransaction, err = c.e.Sign(c.account, c.passphrase, tx); err != nil {
+			return
+		}
+		sid, offerIndex, _, _, err = c.e.PublishCreateServiceOffer(signedTransaction)
 	})
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%s Offer created with success\n", pretty.SuccessSign)
-	fmt.Printf("%s See it on the marketplace: https://marketplace.mesg.com/services/%s\n", pretty.SuccessSign, c.service.Sid)
+	fmt.Printf("%s Offer created with success with index %q\n", pretty.SuccessSign, offerIndex)
+	fmt.Printf("%s See it on the marketplace: https://marketplace.mesg.com/services/%s#offers\n", pretty.SuccessSign, sid)
 
 	return nil
 }
