@@ -4,6 +4,7 @@ import (
 	"io"
 
 	"github.com/docker/docker/pkg/stdcopy"
+	"github.com/mesg-foundation/core/container"
 	"github.com/sirupsen/logrus"
 )
 
@@ -33,16 +34,13 @@ type Dependency struct {
 
 	// Env is a slice of environment variables in key=value format.
 	Env []string `hash:"name:8"`
-
-	// service is the dependency's service.
-	service *Service `hash:"-"`
 }
 
 // Logs gives the dependency logs. rstd stands for standard logs and rerr stands for
 // error logs.
-func (d *Dependency) Logs() (rstd, rerr io.ReadCloser, err error) {
+func (d *Dependency) Logs(c container.Container, serviceNamespace []string) (rstd, rerr io.ReadCloser, err error) {
 	var reader io.ReadCloser
-	reader, err = d.service.container.ServiceLogs(d.namespace())
+	reader, err = c.ServiceLogs(d.namespace(serviceNamespace))
 	if err != nil {
 		return nil, nil, err
 	}

@@ -68,7 +68,7 @@ func TestStartService(t *testing.T) {
 	require.NoError(t, err)
 	defer server.api.StopService(s.Hash)
 
-	status, err := s.Status()
+	status, err := server.api.Status(s)
 	require.NoError(t, err)
 	require.Equal(t, service.RUNNING, status)
 }
@@ -92,7 +92,7 @@ func TestStopService(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	status, err := s.Status()
+	status, err := server.api.Status(s)
 	require.NoError(t, err)
 	require.Equal(t, service.STOPPED, status)
 	require.NoError(t, err)
