@@ -1,60 +1,316 @@
 package service
 
 import (
-	"encoding/json"
-	"io"
-	"os"
-	"path/filepath"
+	"context"
 	"testing"
 
-	"github.com/docker/docker/pkg/archive"
-	"github.com/mesg-foundation/core/api"
-	"github.com/mesg-foundation/core/database"
+	"github.com/mesg-foundation/core/protobuf/serviceapi"
+	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
 )
 
-var (
-	eventServicePath = filepath.Join("..", "..", "..", "service-test", "event")
-	taskServicePath  = filepath.Join("..", "..", "..", "service-test", "task")
-)
+func TestEmit(t *testing.T) {
+	var (
+		eventKey       = "request"
+		eventData      = `{"data":{}}`
+		server, closer = newServer(t)
+	)
+	defer closer()
 
-const (
-	servicedbname = "service.db.test"
-	execdbname    = "exec.db.test"
-)
-
-func newServer(t *testing.T) (*Server, func()) {
-	db, err := database.NewServiceDB(servicedbname)
+	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath), nil)
+	require.Zero(t, validationErr)
 	require.NoError(t, err)
+	defer server.api.DeleteService(s.Hash, false)
 
-	execDB, err := database.NewExecutionDB(execdbname)
+	ln, err := server.api.ListenEvent(s.Hash)
 	require.NoError(t, err)
+	defer ln.Close()
 
-	a, err := api.New(db, execDB)
-	require.NoError(t, err)
-
-	server := NewServer(a)
-
-	closer := func() {
-		require.NoError(t, db.Close())
-		require.NoError(t, execDB.Close())
-		require.NoError(t, os.RemoveAll(servicedbname))
-		require.NoError(t, os.RemoveAll(execdbname))
-	}
-
-	return server, closer
-}
-
-func serviceTar(t *testing.T, path string) io.Reader {
-	reader, err := archive.TarWithOptions(path, &archive.TarOptions{
-		Compression: archive.Gzip,
+	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
+		Token:     s.Hash,
+		EventKey:  eventKey,
+		EventData: eventData,
 	})
 	require.NoError(t, err)
-	return reader
+
+	select {
+	case err := <-ln.Err:
+		t.Error(err)
+
+	case event := <-ln.Events:
+		require.Equal(t, eventKey, event.Key)
+		require.Equal(t, eventData, jsonMarshal(t, event.Data))
+	}
+
 }
 
-func jsonMarshal(t *testing.T, data interface{}) string {
-	bytes, err := json.Marshal(data)
+func TestEmitNoData(t *testing.T) {
+	var (
+		eventKey       = "request"
+		server, closer = newServer(t)
+	)
+	defer closer()
+
+	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath), nil)
+	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	return string(bytes)
+	defer server.api.DeleteService(s.Hash, false)
+
+	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
+		Token:    s.Hash,
+		EventKey: eventKey,
+	})
+	require.Equal(t, err.Error(), "unexpected end of JSON input")
+}
+
+func TestEmitWrongData(t *testing.T) {
+	var (
+		eventKey       = "request"
+		server, closer = newServer(t)
+	)
+	defer closer()
+
+	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath), nil)
+	require.Zero(t, validationErr)
+	require.NoError(t, err)
+	defer server.api.DeleteService(s.Hash, false)
+
+	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
+		Token:     s.Hash,
+		EventKey:  eventKey,
+		EventData: "",
+	})
+	require.Equal(t, err.Error(), "unexpected end of JSON input")
+}
+
+func TestEmitWrongEvent(t *testing.T) {
+	var (
+		eventKey       = "test"
+		server, closer = newServer(t)
+	)
+	defer closer()
+
+	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath), nil)
+	require.Zero(t, validationErr)
+	require.NoError(t, err)
+	defer server.api.DeleteService(s.Hash, false)
+
+	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
+		Token:     s.Hash,
+		EventKey:  eventKey,
+		EventData: "{}",
+	})
+	require.Error(t, err)
+	notFoundErr, ok := err.(*service.EventNotFoundError)
+	require.True(t, ok)
+	require.Equal(t, eventKey, notFoundErr.EventKey)
+	require.Equal(t, s.Name, notFoundErr.ServiceName)
+}
+
+func TestEmitInvalidData(t *testing.T) {
+	var (
+		eventKey       = "request"
+		eventData      = `{"body":{}}`
+		server, closer = newServer(t)
+	)
+	defer closer()
+
+	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath), nil)
+	require.Zero(t, validationErr)
+	require.NoError(t, err)
+	defer server.api.DeleteService(s.Hash, false)
+
+	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
+		Token:     s.Hash,
+		EventKey:  eventKey,
+		EventData: eventData,
+	})
+	require.Error(t, err)
+	invalidErr, ok := err.(*service.InvalidEventDataError)
+	require.True(t, ok)
+	require.Equal(t, eventKey, invalidErr.EventKey)
+	require.Equal(t, s.Name, invalidErr.ServiceName)
+}
+
+func TestServiceNotExists(t *testing.T) {
+	server, closer := newServer(t)
+	defer closer()
+
+	_, err := server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
+		Token:     "TestServiceNotExists",
+		EventKey:  "test",
+		EventData: "{}",
+	})
+	require.Error(t, err)
+}
+
+func TestSubmit(t *testing.T) {
+	var (
+		taskKey  = "call"
+		taskData = map[string]interface{}{
+			"url":     "https://mesg.com",
+			"data":    map[string]interface{}{},
+			"headers": map[string]interface{}{},
+		}
+		outputKey      = "result"
+		outputData     = `{"foo":{}}`
+		server, closer = newServer(t)
+	)
+	defer closer()
+
+	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath), nil)
+	require.Zero(t, validationErr)
+	require.NoError(t, err)
+	defer server.api.DeleteService(s.Hash, false)
+
+	require.NoError(t, server.api.StartService(s.Hash))
+	defer server.api.StopService(s.Hash)
+
+	executionID, err := server.api.ExecuteTask(s.Hash, taskKey, taskData, nil)
+	require.NoError(t, err)
+
+	ln, err := server.api.ListenResult(s.Hash)
+	require.NoError(t, err)
+	defer ln.Close()
+
+	_, err = server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
+		ExecutionID: executionID,
+		OutputKey:   outputKey,
+		OutputData:  outputData,
+	})
+	require.NoError(t, err)
+
+	select {
+	case err := <-ln.Err:
+		t.Error(err)
+
+	case execution := <-ln.Executions:
+		require.Equal(t, executionID, execution.ID)
+		require.Equal(t, outputKey, execution.OutputKey)
+		require.Equal(t, outputData, jsonMarshal(t, execution.OutputData))
+	}
+}
+
+func TestSubmitWithInvalidJSON(t *testing.T) {
+	var (
+		taskKey  = "call"
+		taskData = map[string]interface{}{
+			"url":     "https://mesg.com",
+			"data":    map[string]interface{}{},
+			"headers": map[string]interface{}{},
+		}
+		outputKey      = "result"
+		server, closer = newServer(t)
+	)
+	defer closer()
+
+	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath), nil)
+	require.Zero(t, validationErr)
+	require.NoError(t, err)
+	defer server.api.DeleteService(s.Hash, false)
+
+	require.NoError(t, server.api.StartService(s.Hash))
+	defer server.api.StopService(s.Hash)
+
+	executionID, err := server.api.ExecuteTask(s.Hash, taskKey, taskData, nil)
+	require.NoError(t, err)
+
+	_, err = server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
+		ExecutionID: executionID,
+		OutputKey:   outputKey,
+		OutputData:  "",
+	})
+	require.Equal(t, "invalid output data error: unexpected end of JSON input", err.Error())
+}
+
+func TestSubmitWithInvalidID(t *testing.T) {
+	var (
+		outputKey      = "output"
+		outputData     = "{}"
+		executionID    = "1"
+		server, closer = newServer(t)
+	)
+	defer closer()
+
+	_, err := server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
+		ExecutionID: executionID,
+		OutputKey:   outputKey,
+		OutputData:  outputData,
+	})
+	require.Error(t, err)
+}
+
+func TestSubmitWithNonExistentOutputKey(t *testing.T) {
+	var (
+		taskKey  = "call"
+		taskData = map[string]interface{}{
+			"url":     "https://mesg.com",
+			"data":    map[string]interface{}{},
+			"headers": map[string]interface{}{},
+		}
+		outputKey      = "nonExistent"
+		outputData     = `{"foo":{}}`
+		server, closer = newServer(t)
+	)
+	defer closer()
+
+	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath), nil)
+	require.Zero(t, validationErr)
+	require.NoError(t, err)
+	defer server.api.DeleteService(s.Hash, false)
+
+	require.NoError(t, server.api.StartService(s.Hash))
+	defer server.api.StopService(s.Hash)
+
+	executionID, err := server.api.ExecuteTask(s.Hash, taskKey, taskData, nil)
+	require.NoError(t, err)
+
+	_, err = server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
+		ExecutionID: executionID,
+		OutputKey:   outputKey,
+		OutputData:  outputData,
+	})
+	require.Error(t, err)
+	notFoundErr, ok := err.(*service.TaskOutputNotFoundError)
+	require.True(t, ok)
+	require.Equal(t, outputKey, notFoundErr.TaskOutputKey)
+	require.Equal(t, s.Name, notFoundErr.ServiceName)
+}
+
+func TestSubmitWithInvalidTaskOutputs(t *testing.T) {
+	var (
+		taskKey  = "call"
+		taskData = map[string]interface{}{
+			"url":     "https://mesg.com",
+			"data":    map[string]interface{}{},
+			"headers": map[string]interface{}{},
+		}
+		outputKey      = "result"
+		outputData     = `{"foo":1}`
+		server, closer = newServer(t)
+	)
+	defer closer()
+
+	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath), nil)
+	require.Zero(t, validationErr)
+	require.NoError(t, err)
+	defer server.api.DeleteService(s.Hash, false)
+
+	require.NoError(t, server.api.StartService(s.Hash))
+	defer server.api.StopService(s.Hash)
+
+	executionID, err := server.api.ExecuteTask(s.Hash, taskKey, taskData, nil)
+	require.NoError(t, err)
+
+	_, err = server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
+		ExecutionID: executionID,
+		OutputKey:   outputKey,
+		OutputData:  outputData,
+	})
+	require.Error(t, err)
+	invalidErr, ok := err.(*service.InvalidTaskOutputError)
+	require.True(t, ok)
+	require.Equal(t, taskKey, invalidErr.TaskKey)
+	require.Equal(t, outputKey, invalidErr.TaskOutputKey)
+	require.Equal(t, s.Name, invalidErr.ServiceName)
 }
