@@ -42,7 +42,7 @@ tasks:
                     object:
                       version:
                         type: String
-                      service: &serviceDefinition
+                      service: &manifestServiceData	
                         type: Object
                         object:
                           hash:
@@ -133,7 +133,7 @@ tasks:
       error: *outputError
   preparePublishServiceVersion:
     inputs:
-      service: *serviceDefinition
+      service: *manifestServiceData
       from: &inputFrom
         type: String
       gas: &inputGas
