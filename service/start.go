@@ -19,7 +19,7 @@ func (s *Service) Start(c container.Container) (serviceIDs []string, err error) 
 	}
 	// If there is one but not all services running stop to restart all
 	if status == PARTIAL {
-		if err := s.StopDependencies(c); err != nil {
+		if err := s.Stop(c); err != nil {
 			return nil, err
 		}
 	}
@@ -29,14 +29,22 @@ func (s *Service) Start(c container.Container) (serviceIDs []string, err error) 
 	}
 	// BUG: https://github.com/mesg-foundation/core/issues/382
 	// After solving this by docker, switch back to deploy in parallel
-	serviceIDs = make([]string, len(s.Dependencies))
-	for i, dep := range s.Dependencies {
+	serviceIDs = make([]string, 0)
+	for _, dep := range s.Dependencies {
 		serviceID, err := dep.Start(c, s, networkID)
 		if err != nil {
 			s.Stop(c)
 			return nil, err
 		}
-		serviceIDs[i] = serviceID
+		serviceIDs = append(serviceIDs, serviceID)
+	}
+	if s.Configuration != nil {
+		serviceID, err := s.Configuration.Start(c, s, networkID)
+		if err != nil {
+			s.Stop(c)
+			return nil, err
+		}
+		serviceIDs = append(serviceIDs, serviceID)
 	}
 	return serviceIDs, err
 }
