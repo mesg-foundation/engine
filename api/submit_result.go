@@ -7,7 +7,6 @@ import (
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/pubsub"
-	"github.com/mesg-foundation/core/service"
 )
 
 // SubmitResult submits results for executionID.
@@ -50,11 +49,6 @@ func (s *resultSubmitter) processExecution(executionID string, outputKey string,
 	if err != nil {
 		tx.Discard()
 		return nil, false, err
-	}
-
-	exec.Service, err = service.FromService(exec.Service, service.ContainerOption(s.api.container))
-	if err != nil {
-		return s.saveExecution(tx, exec, err)
 	}
 
 	var outputDataMap map[string]interface{}
