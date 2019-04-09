@@ -9,11 +9,11 @@ import (
 func TestGetEvent(t *testing.T) {
 	var (
 		eventKey = "1"
-		s, _     = FromService(&Service{
+		s        = &Service{
 			Events: []*Event{
 				{Key: eventKey},
 			},
-		})
+		}
 	)
 	e, err := s.GetEvent(eventKey)
 	require.NoError(t, err)
@@ -24,12 +24,12 @@ func TestGetEventNonExistent(t *testing.T) {
 	var (
 		serviceName = "1"
 		eventKey    = "2"
-		s, _        = FromService(&Service{
+		s           = &Service{
 			Name: serviceName,
 			Events: []*Event{
 				{Key: "3"},
 			},
-		})
+		}
 	)
 	e, err := s.GetEvent(eventKey)
 	require.Zero(t, e)
@@ -50,7 +50,7 @@ func TestEventValidateAndRequireData(t *testing.T) {
 		inValidEventData = map[string]interface{}{
 			paramKey: 4,
 		}
-		s, _ = FromService(&Service{
+		s = &Service{
 			Name: serviceName,
 			Events: []*Event{
 				{
@@ -63,7 +63,7 @@ func TestEventValidateAndRequireData(t *testing.T) {
 					},
 				},
 			},
-		})
+		}
 	)
 
 	e, _ := s.GetEvent(eventKey)

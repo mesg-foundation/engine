@@ -8,12 +8,12 @@ import (
 )
 
 func TestCreate(t *testing.T) {
-	s, _ := service.FromService(&service.Service{
+	s := &service.Service{
 		Name: "TestCreate",
 		Events: []*service.Event{
 			{Key: "test"},
 		},
-	})
+	}
 	var data map[string]interface{}
 	exec, err := Create(s, "test", data)
 	require.NoError(t, err)
@@ -28,15 +28,15 @@ func TestCreateNotPresentEvent(t *testing.T) {
 		serviceName      = "TestCreateNotPresentEvent"
 		eventKey         = "test"
 		invalidEventName = "testInvalid"
-	)
-	s, _ := service.FromService(&service.Service{
-		Name: serviceName,
-		Events: []*service.Event{
-			{
-				Key: eventKey,
+		s                = &service.Service{
+			Name: serviceName,
+			Events: []*service.Event{
+				{
+					Key: eventKey,
+				},
 			},
-		},
-	})
+		}
+	)
 	var data map[string]interface{}
 	_, err := Create(s, invalidEventName, data)
 	require.Error(t, err)
@@ -50,18 +50,18 @@ func TestCreateInvalidData(t *testing.T) {
 	var (
 		eventKey    = "test"
 		serviceName = "TestCreateInvalidData"
-	)
-	s, _ := service.FromService(&service.Service{
-		Name: serviceName,
-		Events: []*service.Event{
-			{
-				Key: eventKey,
-				Data: []*service.Parameter{
-					{Key: "xxx"},
+		s           = &service.Service{
+			Name: serviceName,
+			Events: []*service.Event{
+				{
+					Key: eventKey,
+					Data: []*service.Parameter{
+						{Key: "xxx"},
+					},
 				},
 			},
-		},
-	})
+		}
+	)
 	var data map[string]interface{}
 	_, err := Create(s, "test", data)
 	require.Error(t, err)

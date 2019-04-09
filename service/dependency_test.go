@@ -6,19 +6,20 @@ import (
 	"testing"
 
 	"github.com/docker/docker/pkg/stdcopy"
+	"github.com/mesg-foundation/core/container"
 	"github.com/stretchr/testify/require"
 )
 
 func TestDependencyLogs(t *testing.T) {
-	testDependencyLogs(t, func(s *Service, dependencyKey string) (rstd, rerr io.ReadCloser,
+	testDependencyLogs(t, func(s *Service, c container.Container, dependencyKey string) (rstd, rerr io.ReadCloser,
 		err error) {
 		dep, err := s.getDependency(dependencyKey)
 		require.NoError(t, err)
-		return dep.Logs()
+		return dep.Logs(c, s.namespace())
 	})
 }
 
-func testDependencyLogs(t *testing.T, do func(s *Service, dependencyKey string) (rstd, rerr io.ReadCloser,
+func testDependencyLogs(t *testing.T, do func(s *Service, c container.Container, dependencyKey string) (rstd, rerr io.ReadCloser,
 	err error)) {
 	var (
 		dependencyKey = "1"
@@ -41,9 +42,9 @@ func testDependencyLogs(t *testing.T, do func(s *Service, dependencyKey string) 
 	})
 
 	d, _ := s.getDependency(dependencyKey)
-	mc.On("ServiceLogs", d.namespace()).Once().Return(rp, nil)
+	mc.On("ServiceLogs", d.namespace(s.namespace())).Once().Return(rp, nil)
 
-	rstd, rerr, err := do(s, dependencyKey)
+	rstd, rerr, err := do(s, mc, dependencyKey)
 	require.NoError(t, err)
 
 	var wg sync.WaitGroup

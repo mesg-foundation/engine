@@ -17,7 +17,7 @@ func TestIntegrationDeleteVolumes(t *testing.T) {
 		dependencyKey2 = "2"
 		volumeA        = "/a"
 		volumeB        = "/b"
-		s, _           = FromService(&Service{
+		s              = &Service{
 			Hash: "1",
 			Name: "TestIntegrationDeleteVolumes",
 			Dependencies: []*Dependency{
@@ -32,12 +32,13 @@ func TestIntegrationDeleteVolumes(t *testing.T) {
 					VolumesFrom: []string{dependencyKey1},
 				},
 			},
-		}, ContainerOption(newIntegrationContainer(t)))
+		}
+		c = newIntegrationContainer(t)
 	)
-	_, err := s.Start()
+	_, err := s.Start(c)
 	require.NoError(t, err)
-	err = s.Stop()
+	err = s.Stop(c)
 	require.NoError(t, err)
-	err = s.DeleteVolumes()
+	err = s.DeleteVolumes(c)
 	require.NoError(t, err)
 }

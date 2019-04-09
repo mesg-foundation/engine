@@ -47,30 +47,17 @@ func ContainerOption(container container.Container) Option {
 
 // GetService returns service serviceID.
 func (a *API) GetService(serviceID string) (*service.Service, error) {
-	s, err := a.db.Get(serviceID)
-	if err != nil {
-		return nil, err
-	}
-	return service.FromService(s, service.ContainerOption(a.container))
+	return a.db.Get(serviceID)
 }
 
 // ListServices returns all services.
 func (a *API) ListServices() ([]*service.Service, error) {
-	ss, err := a.db.All()
-	if err != nil {
-		return nil, err
-	}
+	return a.db.All()
+}
 
-	var services []*service.Service
-	for _, s := range ss {
-		s, err = service.FromService(s, service.ContainerOption(a.container))
-		if err != nil {
-			return nil, err
-		}
-		services = append(services, s)
-	}
-
-	return services, nil
+// Status returns the status of a service
+func (a *API) Status(service *service.Service) (service.StatusType, error) {
+	return service.Status(a.container)
 }
 
 // StartService starts service serviceID.
@@ -79,11 +66,7 @@ func (a *API) StartService(serviceID string) error {
 	if err != nil {
 		return err
 	}
-	sr, err = service.FromService(sr, service.ContainerOption(a.container))
-	if err != nil {
-		return err
-	}
-	_, err = sr.Start()
+	_, err = sr.Start(a.container)
 	return err
 }
 
@@ -93,11 +76,7 @@ func (a *API) StopService(serviceID string) error {
 	if err != nil {
 		return err
 	}
-	sr, err = service.FromService(sr, service.ContainerOption(a.container))
-	if err != nil {
-		return err
-	}
-	return sr.Stop()
+	return sr.Stop(a.container)
 }
 
 // DeleteService stops and deletes service serviceID.
@@ -108,18 +87,14 @@ func (a *API) DeleteService(serviceID string, deleteData bool) error {
 	if err != nil {
 		return err
 	}
-	s, err = service.FromService(s, service.ContainerOption(a.container))
-	if err != nil {
-		return err
-	}
-	if err := s.Stop(); err != nil {
+	if err := s.Stop(a.container); err != nil {
 		return err
 	}
 	// delete volumes first before the service. this way if
 	// deleting volumes fails, process can be retried by the user again
 	// because service still will be in the db.
 	if deleteData {
-		if err := s.DeleteVolumes(); err != nil {
+		if err := s.DeleteVolumes(a.container); err != nil {
 			return err
 		}
 	}
@@ -147,13 +122,8 @@ func (a *API) ExecuteTask(serviceID, taskKey string, inputData map[string]interf
 	if err != nil {
 		return "", err
 	}
-	s, err = service.FromService(s, service.ContainerOption(a.container))
-	if err != nil {
-		return "", err
-	}
-
 	// a task should be executed only if task's service is running.
-	status, err := s.Status()
+	status, err := s.Status(a.container)
 	if err != nil {
 		return "", err
 	}

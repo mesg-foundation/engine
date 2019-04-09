@@ -9,7 +9,7 @@ import (
 )
 
 func TestIntegrationLogs(t *testing.T) {
-	service, _ := FromService(&Service{
+	service := &Service{
 		Hash: "1",
 		Name: "TestLogs",
 		Dependencies: []*Dependency{
@@ -22,16 +22,17 @@ func TestIntegrationLogs(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	}, ContainerOption(newIntegrationContainer(t)))
-	service.Start()
-	defer service.Stop()
-	readers, err := service.Logs()
+	}
+	c := newIntegrationContainer(t)
+	service.Start(c)
+	defer service.Stop(c)
+	readers, err := service.Logs(c)
 	require.NoError(t, err)
 	require.Equal(t, 2, len(readers))
 }
 
 func TestIntegrationLogsOnlyOneDependency(t *testing.T) {
-	service, _ := FromService(&Service{
+	service := &Service{
 		Hash: "1",
 		Name: "TestLogsOnlyOneDependency",
 		Dependencies: []*Dependency{
@@ -44,10 +45,11 @@ func TestIntegrationLogsOnlyOneDependency(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	}, ContainerOption(newIntegrationContainer(t)))
-	service.Start()
-	defer service.Stop()
-	readers, err := service.Logs("test2")
+	}
+	c := newIntegrationContainer(t)
+	service.Start(c)
+	defer service.Stop(c)
+	readers, err := service.Logs(c, "test2")
 	require.NoError(t, err)
 	require.Equal(t, 1, len(readers))
 }
