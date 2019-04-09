@@ -16,14 +16,15 @@ func toProtoServices(ss []*service.Service) []*definition.Service {
 
 func toProtoService(s *service.Service) *definition.Service {
 	return &definition.Service{
-		Hash:         s.Hash,
-		Sid:          s.Sid,
-		Name:         s.Name,
-		Description:  s.Description,
-		Repository:   s.Repository,
-		Tasks:        toProtoTasks(s.Tasks),
-		Events:       toProtoEvents(s.Events),
-		Dependencies: toProtoDependencies(s.Dependencies),
+		Hash:          s.Hash,
+		Sid:           s.Sid,
+		Name:          s.Name,
+		Description:   s.Description,
+		Repository:    s.Repository,
+		Tasks:         toProtoTasks(s.Tasks),
+		Events:        toProtoEvents(s.Events),
+		Configuration: toProtoConfiguration(s.Configuration),
+		Dependencies:  toProtoDependencies(s.Dependencies),
 	}
 }
 
@@ -93,6 +94,19 @@ func toProtoParameters(params []*service.Parameter) []*definition.Parameter {
 		}
 	}
 	return ps
+}
+
+func toProtoConfiguration(configuration *service.Dependency) *definition.Configuration {
+	if configuration == nil {
+		return nil
+	}
+	return &definition.Configuration{
+		Args:        configuration.Args,
+		Command:     configuration.Command,
+		Ports:       configuration.Ports,
+		Volumes:     configuration.Volumes,
+		Volumesfrom: configuration.VolumesFrom,
+	}
 }
 
 func toProtoDependency(dep *service.Dependency) *definition.Dependency {
