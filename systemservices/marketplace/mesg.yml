@@ -58,6 +58,31 @@ tasks:
                                 type: String
                           definition:
                             type: Object
+                            object:
+                              hash:
+                                type: String
+                              sid:
+                                type: String
+                              name:
+                                type: String
+                              description:
+                                type: String
+                                optional: true
+                              tasks:
+                                type: Object
+                                repeated: true
+                                optional: true
+                              events:
+                                type: Object
+                                repeated: true
+                                optional: true
+                              dependencies:
+                                type: Object
+                                repeated: true
+                                optional: true
+                              repository:
+                                type: String
+                                optional: true
                           readme:
                             type: String
                             optional: true
