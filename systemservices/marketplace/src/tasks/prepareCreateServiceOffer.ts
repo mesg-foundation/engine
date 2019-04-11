@@ -1,16 +1,28 @@
 import { TaskInputs, TaskOutputs } from "mesg-js/lib/service"
 import { Marketplace } from "../contracts/Marketplace"
 import { toUnit, asciiToHex, CreateTransaction } from "../contracts/utils";
+import BigNumber from "bignumber.js";
+import { getService } from "../contracts/service";
 
 export default (
   marketplace: Marketplace,
   createTransaction: CreateTransaction
 ) => async (inputs: TaskInputs, outputs: TaskOutputs): Promise<void> => {
   try {
+    // check inputs
+    const duration = new BigNumber(inputs.duration)
+    if (duration.isNegative() || duration.isZero()) throw new Error('Duration cannot be negative or equal to zero')
+
+    // check service
+    const service = await getService(marketplace, inputs.sid)
+    if (service.owner.toLowerCase() !== inputs.from.toLowerCase()) throw new Error(`Service's owner is different that the specified 'from'`)
+    if (service.versions.length === 0) throw new Error('Cannot create an offer on a service with 0 version')
+
+    // create transaction
     const transactionData = marketplace.methods.createServiceOffer(
       asciiToHex(inputs.sid),
       toUnit(inputs.price),
-      inputs.duration
+      duration.toString()
     ).encodeABI()
     return outputs.success(await createTransaction(marketplace, inputs, transactionData))
   }
