@@ -3,7 +3,7 @@ import { Marketplace } from "../contracts/Marketplace"
 import { getServiceVersion } from "../contracts/version";
 import { hexToAscii, asciiToHex, hashToHex, hexToHash } from "../contracts/utils";
 import BigNumber from "bignumber.js";
-import { isServiceExist } from "../contracts/service";
+import { requireServiceExist } from "../contracts/service";
 
 export default (
   contract: Marketplace,
@@ -34,9 +34,7 @@ export default (
       throw new Error('Input should have sid or hash set')
     }
 
-    if (!await isServiceExist(contract, sid)) {
-      throw new Error('service with sid ' + sid + ' does not exist')
-    }
+    await requireServiceExist(contract, sid)
 
     // check if at least one of the provided addresses is authorized
     const authorizations = await Promise.all(inputs.addresses.map((address: string) => {
