@@ -15,7 +15,9 @@ export default (
     // TODO: add check on SID is domain name (see go implementation)
 
     if(await isServiceExist(marketplace, sid)) {
+      // get service
       const service = await getService(marketplace, sid)
+
       // check ownership
       if (service.owner.toLowerCase() !== inputs.from.toLowerCase()) throw new Error(`Service's owner is different that the specified 'from'`)
     }
