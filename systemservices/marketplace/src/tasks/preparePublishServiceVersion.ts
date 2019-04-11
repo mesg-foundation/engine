@@ -1,6 +1,6 @@
 import { TaskInputs, TaskOutputs } from "mesg-js/lib/service"
 import { Marketplace } from "../contracts/Marketplace"
-import { asciiToHex, CreateTransaction, computeVersionHash } from "../contracts/utils";
+import { asciiToHex, CreateTransaction } from "../contracts/utils";
 import { Manifest } from "../types/manifest";
 import { getService, isServiceExist } from "../contracts/service";
 
