@@ -6,12 +6,14 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"sync"
 
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/importer"
+	"github.com/mesg-foundation/core/utils/dirhash"
 	"github.com/mesg-foundation/core/x/xgit"
+	"github.com/mesg-foundation/core/x/xos"
+	"github.com/mr-tron/base58"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -151,28 +153,51 @@ func (d *serviceDeployer) processPath(path string) (string, error) {
 	return path, nil
 }
 
-// deploy deploys a service in path.
-func (d *serviceDeployer) deploy(path string) (*service.Service, *importer.ValidationError, error) {
-	var (
-		statuses = make(chan service.DeployStatus)
-		wg       sync.WaitGroup
-	)
+// deploy deploys a service in contextDir.
+func (d *serviceDeployer) deploy(contextDir string) (*service.Service, *importer.ValidationError, error) {
+	s := &service.Service{}
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		d.forwardDeployStatuses(statuses)
-	}()
-
-	s, err := service.New(path, d.api.container, statuses, d.env)
-	wg.Wait()
-
+	def, err := importer.From(contextDir)
 	validationErr, err := d.assertValidationError(err)
 	if err != nil {
 		return nil, nil, err
 	}
 	if validationErr != nil {
 		return nil, validationErr, nil
+	}
+
+	dh := dirhash.New(contextDir)
+	envbytes := []byte(xos.EnvMapToString(d.env))
+	hash, err := dh.Sum(envbytes)
+	if err != nil {
+		return nil, nil, err
+	}
+	s.Hash = base58.Encode(hash)
+
+	s.InjectDefinition(def)
+
+	if err := s.ValidateConfigurationEnv(d.env); err != nil {
+		return nil, nil, err
+	}
+
+	// replace default env with new one.
+	defenv := xos.EnvSliceToMap(s.Configuration().Env)
+	s.Configuration().Env = xos.EnvMapToSlice(xos.EnvMergeMaps(defenv, d.env))
+
+	d.sendStatus("Building Docker image...", Running)
+
+	imageHash, err := d.api.container.Build(contextDir)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	d.sendStatus("Image built with success", DonePositive)
+
+	s.Configuration().Image = imageHash
+	// TODO: the following test should be moved in New function
+	if s.Sid == "" {
+		// make sure that sid doesn't have the same length with id.
+		s.Sid = "_" + s.Hash
 	}
 
 	return s, nil, d.api.db.Save(s)
@@ -196,22 +221,6 @@ func (d *serviceDeployer) sendStatus(message string, typ StatusType) {
 func (d *serviceDeployer) closeStatus() {
 	if d.statuses != nil {
 		close(d.statuses)
-	}
-}
-
-// forwardStatuses forwards status messages.
-func (d *serviceDeployer) forwardDeployStatuses(statuses chan service.DeployStatus) {
-	for status := range statuses {
-		var t StatusType
-		switch status.Type {
-		case service.DRunning:
-			t = Running
-		case service.DDonePositive:
-			t = DonePositive
-		case service.DDoneNegative:
-			t = DoneNegative
-		}
-		d.sendStatus(status.Message, t)
 	}
 }
 
