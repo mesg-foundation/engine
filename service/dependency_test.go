@@ -35,13 +35,15 @@ func testDependencyLogs(t *testing.T, do func(s *Service, c container.Container,
 	go wstd.Write(stdData)
 	go werr.Write(errData)
 
-	s := &Service{
-		Hash: "1",
-		Dependencies: []*Dependency{
-			{Key: dependencyKey},
-		},
-	}
-	mc := &mocks.Container{}
+	var (
+		s = &Service{
+			Hash: "1",
+			Dependencies: []*Dependency{
+				{Key: dependencyKey},
+			},
+		}
+		mc = &mocks.Container{}
+	)
 
 	d, _ := s.getDependency(dependencyKey)
 	mc.On("ServiceLogs", d.namespace(s.namespace())).Once().Return(rp, nil)

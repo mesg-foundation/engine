@@ -14,9 +14,9 @@ func TestNew(t *testing.T) {
 	var (
 		path = "../service-test/task"
 		hash = "1"
+		mc   = &mocks.Container{}
 	)
 
-	mc := &mocks.Container{}
 	mc.On("Build", mock.Anything).Once().Return(hash, nil)
 
 	statuses := make(chan DeployStatus, 4)
@@ -45,9 +45,9 @@ func TestNewWithDefaultEnv(t *testing.T) {
 		path = "../service-test/env"
 		hash = "1"
 		env  = []string{"A=1", "B=2"}
+		mc   = &mocks.Container{}
 	)
 
-	mc := &mocks.Container{}
 	mc.On("Build", mock.Anything).Once().Return(hash, nil)
 
 	s, err := New(path, mc, nil, nil)
@@ -64,9 +64,9 @@ func TestNewWithOverwrittenEnv(t *testing.T) {
 		path = "../service-test/env"
 		hash = "1"
 		env  = []string{"A=3", "B=4"}
+		mc   = &mocks.Container{}
 	)
 
-	mc := &mocks.Container{}
 	mc.On("Build", mock.Anything).Once().Return(hash, nil)
 
 	s, err := New(path, mc, nil, xos.EnvSliceToMap(env))
@@ -81,9 +81,8 @@ func TestNewWithOverwrittenEnv(t *testing.T) {
 func TestNewWitNotDefinedEnv(t *testing.T) {
 	var (
 		path = "../service-test/task"
+		mc   = &mocks.Container{}
 	)
-
-	mc := &mocks.Container{}
 
 	_, err := New(path, mc, nil, xos.EnvSliceToMap([]string{"A=1", "B=2"}))
 	require.Equal(t, ErrNotDefinedEnv{[]string{"A", "B"}}, err)
@@ -97,8 +96,11 @@ func TestErrNotDefinedEnv(t *testing.T) {
 }
 
 func TestInjectDefinitionWithConfig(t *testing.T) {
-	command := "xxx"
-	s := &Service{}
+	var (
+		command = "xxx"
+		s       = &Service{}
+	)
+
 	s.injectDefinition(&importer.ServiceDefinition{
 		Configuration: &importer.Dependency{
 			Command: command,
@@ -112,6 +114,7 @@ func TestInjectDefinitionWithDependency(t *testing.T) {
 		s     = &Service{}
 		image = "xxx"
 	)
+
 	s.injectDefinition(&importer.ServiceDefinition{
 		Dependencies: map[string]*importer.Dependency{
 			"test": {
