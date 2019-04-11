@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/container"
+	"github.com/mesg-foundation/core/container/mocks"
 	"github.com/stretchr/testify/require"
 )
 
@@ -12,7 +13,7 @@ func TestUnknownServiceStatus(t *testing.T) {
 	var (
 		dependencyKey = "1"
 		statusErr     = errors.New("ops")
-		s, mc         = newFromServiceAndContainerMocks(t, &Service{
+		s             = &Service{
 			Hash: "1",
 			Name: "TestUnknownServiceStatus",
 			Dependencies: []*Dependency{
@@ -21,7 +22,8 @@ func TestUnknownServiceStatus(t *testing.T) {
 					Image: "http-server",
 				},
 			},
-		})
+		}
+		mc = &mocks.Container{}
 	)
 
 	d, _ := s.getDependency(dependencyKey)
@@ -38,7 +40,7 @@ func TestUnknownServiceStatus(t *testing.T) {
 func TestStoppedServiceStatus(t *testing.T) {
 	var (
 		dependencyKey = "1"
-		s, mc         = newFromServiceAndContainerMocks(t, &Service{
+		s             = &Service{
 			Hash: "1",
 			Name: "TestStoppedServiceStatus",
 			Dependencies: []*Dependency{
@@ -47,7 +49,8 @@ func TestStoppedServiceStatus(t *testing.T) {
 					Image: "http-server",
 				},
 			},
-		})
+		}
+		mc = &mocks.Container{}
 	)
 
 	d, _ := s.getDependency(dependencyKey)
@@ -64,7 +67,7 @@ func TestStoppedServiceStatus(t *testing.T) {
 func TestRunningServiceStatus(t *testing.T) {
 	var (
 		dependencyKey = "1"
-		s, mc         = newFromServiceAndContainerMocks(t, &Service{
+		s             = &Service{
 			Hash: "1",
 			Name: "TestRunningServiceStatus",
 			Dependencies: []*Dependency{
@@ -73,7 +76,8 @@ func TestRunningServiceStatus(t *testing.T) {
 					Image: "http-server",
 				},
 			},
-		})
+		}
+		mc = &mocks.Container{}
 	)
 
 	d, _ := s.getDependency(dependencyKey)
@@ -91,7 +95,7 @@ func TestPartialServiceStatus(t *testing.T) {
 	var (
 		dependencyKey  = "1"
 		dependencyKey2 = "2"
-		s, mc          = newFromServiceAndContainerMocks(t, &Service{
+		s              = &Service{
 			Hash: "1",
 			Name: "TestPartialServiceStatus",
 			Dependencies: []*Dependency{
@@ -104,7 +108,8 @@ func TestPartialServiceStatus(t *testing.T) {
 					Image: "http-server",
 				},
 			},
-		})
+		}
+		mc = &mocks.Container{}
 	)
 
 	var (
@@ -125,7 +130,7 @@ func TestPartialServiceStatus(t *testing.T) {
 func TestDependencyStatus(t *testing.T) {
 	var (
 		dependencyKey = "1"
-		s, mc         = newFromServiceAndContainerMocks(t, &Service{
+		s             = &Service{
 			Hash: "1",
 			Name: "TestDependencyStatus",
 			Dependencies: []*Dependency{
@@ -134,7 +139,8 @@ func TestDependencyStatus(t *testing.T) {
 					Image: "http-server",
 				},
 			},
-		})
+		}
+		mc = &mocks.Container{}
 	)
 
 	d, _ := s.getDependency(dependencyKey)
