@@ -7,8 +7,8 @@ import (
 	"github.com/mesg-foundation/core/x/xstrings"
 )
 
-// injectDefinition applies service definition to Service type.
-func (s *Service) injectDefinition(def *importer.ServiceDefinition) {
+// InjectDefinition applies service definition to Service type.
+func (s *Service) InjectDefinition(def *importer.ServiceDefinition) {
 	s.Name = def.Name
 	s.Sid = def.Sid
 	s.Description = def.Description
