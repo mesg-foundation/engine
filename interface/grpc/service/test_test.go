@@ -30,9 +30,7 @@ func newServer(t *testing.T) (*Server, func()) {
 	execDB, err := database.NewExecutionDB(execdbname)
 	require.NoError(t, err)
 
-	a, err := api.New(db, execDB)
-	require.NoError(t, err)
-
+	a := api.New(nil, db, execDB)
 	server := NewServer(a)
 
 	closer := func() {
