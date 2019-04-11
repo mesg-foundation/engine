@@ -52,24 +52,17 @@ func (c *marketplacePurchaseCmd) preRunE(cmd *cobra.Command, args []string) erro
 		}
 	}
 
-	pretty.Progress("Getting service data...", func() {
+	pretty.Progress("Getting offer data...", func() {
 		service, err = c.e.GetService(args[0])
 	})
 	if err != nil {
 		return err
 	}
-
 	offerIndex, err := strconv.Atoi(c.offerIndex)
 	if err != nil {
 		return err
 	}
-	if offerIndex >= len(service.Offers) {
-		return fmt.Errorf("offer index %d doesn't exist", offerIndex)
-	}
 	offer := service.Offers[offerIndex]
-	if !offer.Active {
-		return fmt.Errorf("cannot purchase this offer because it is not active")
-	}
 
 	var confirmed bool
 	if err := survey.AskOne(&survey.Confirm{
