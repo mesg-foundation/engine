@@ -22,11 +22,10 @@ const getServiceWithIndex = async (contract: Marketplace, serviceIndex: BigNumbe
 }
 
 const getService = async (contract: Marketplace, sid: string): Promise<Service> => {
-  const sidHex = asciiToHex(sid)
-  if (!await contract.methods.isServiceExist(sidHex).call()) {
+  if (!await isServiceExist(contract, sid)) {
     throw new Error(`service ${sid} does not exist`)
   }
-  const service = await contract.methods.service(sidHex).call()
+  const service = await contract.methods.service(asciiToHex(sid)).call()
   const [ versions, offers, purchases ] = await Promise.all([
     getServiceVersions(contract, sid),
     getServiceOffers(contract, sid),
@@ -42,4 +41,8 @@ const getService = async (contract: Marketplace, sid: string): Promise<Service> 
   }
 }
 
-export { getAllServices, getService }
+const isServiceExist = async (contract: Marketplace, sid: string): Promise<boolean> => {
+  return contract.methods.isServiceExist(asciiToHex(sid)).call()
+}
+
+export { getAllServices, getService, isServiceExist }
