@@ -108,7 +108,7 @@ func newValidator() (*validator.Validate, ut.Translator) {
 
 	validate.RegisterValidation("env", xvalidator.IsEnv)
 	validate.RegisterTranslation("env", trans, func(ut ut.Translator) error {
-		return ut.Add("portmap", "{0} must be a valid env variable name", false)
+		return ut.Add("env", "{0} must be a valid env variable name", false)
 	}, func(ut ut.Translator, fe validator.FieldError) string {
 		t, _ := ut.T("env", fe.Field(), namespacePrefix)
 		return t
