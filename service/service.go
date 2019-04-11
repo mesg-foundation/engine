@@ -185,10 +185,10 @@ func (s *Service) configuration() *Dependency {
 // ErrNotDefinedEnv error returned when optionally given env variables
 // are not defined in the mesg.yml file.
 type ErrNotDefinedEnv struct {
-	env []string
+	Env []string
 }
 
 func (e ErrNotDefinedEnv) Error() string {
 	return fmt.Sprintf("environment variable(s) %q not defined in mesg.yml (under configuration.env key)",
-		strings.Join(e.env, ", "))
+		strings.Join(e.Env, ", "))
 }
