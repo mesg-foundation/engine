@@ -3,7 +3,7 @@ import { Marketplace } from "../contracts/Marketplace"
 import { asciiToHex, CreateTransaction, fromUnit, toUnit } from "../contracts/utils";
 import { ERC20 } from "../contracts/ERC20";
 import BigNumber from "bignumber.js";
-import { getServiceOffer } from "../contracts/offer";
+import { getService } from "../contracts/service";
 
 export default (
   marketplace: Marketplace,
@@ -13,12 +13,26 @@ export default (
   const transactions: Promise<any>[] = []
   let shiftNonce = 0
   try {
+    // get service
+    const service = await getService(marketplace, inputs.sid)
+    
+    // check ownership
+    if (service.owner.toLowerCase() !== inputs.from.toLowerCase()) throw new Error(`service's owner is different that the specified 'from'`)
+
     // get offer data
-    const offer = await getServiceOffer(marketplace, inputs.sid, new BigNumber(inputs.offerIndex))
+    const offerIndex = new BigNumber(inputs.offerIndex).toNumber()
+    if (offerIndex >= service.offers.length) {
+      throw new Error('offer index is out of range')
+    }
+    const offer = service.offers[offerIndex]
+
+    // check if offer is active
+    if (!offer.active) throw new Error('offer cannot be purchase because it is not active')
+
     // check user balance
     const balance = fromUnit(await token.methods.balanceOf(inputs.from).call())
     if (offer.price.isGreaterThan(balance)) {
-      throw new Error('Purchaser does not have enough balance')
+      throw new Error('purchaser does not have enough balance')
     }
 
     // check allowance balance
