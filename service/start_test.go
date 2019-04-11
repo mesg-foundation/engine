@@ -225,6 +225,7 @@ func TestPartiallyRunningService(t *testing.T) {
 	mc.On("StopService", d2.namespace(s.namespace())).Once().Return(nil)
 	mc.On("CreateNetwork", s.namespace()).Once().Return(networkID, nil)
 	mc.On("SharedNetworkID").Twice().Return(sharedNetworkID, nil)
+	mc.On("DeleteNetwork", s.namespace()).Return(nil)
 
 	for i, d := range ds {
 		mockStartService(s, d, mc, networkID, sharedNetworkID, containerServiceIDs[i], nil)
