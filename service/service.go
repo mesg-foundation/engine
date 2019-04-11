@@ -105,20 +105,11 @@ func New(contextDir string, c container.Container, statuses chan DeployStatus, e
 	defenv := xos.EnvSliceToMap(s.configuration().Env)
 	s.configuration().Env = xos.EnvMapToSlice(xos.EnvMergeMaps(defenv, env))
 
-	if err := s.deploy(contextDir, c, statuses); err != nil {
-		return nil, err
-	}
-
-	return s, nil
-}
-
-// deploy deploys service.
-func (s *Service) deploy(contextDir string, c container.Container, statuses chan DeployStatus) error {
 	s.sendStatus(statuses, "Building Docker image...", DRunning)
 
 	imageHash, err := c.Build(contextDir)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	s.sendStatus(statuses, "Image built with success", DDonePositive)
@@ -129,7 +120,7 @@ func (s *Service) deploy(contextDir string, c container.Container, statuses chan
 		// make sure that sid doesn't have the same length with id.
 		s.Sid = "_" + s.Hash
 	}
-	return nil
+	return s, nil
 }
 
 // sendStatus sends a status message.
