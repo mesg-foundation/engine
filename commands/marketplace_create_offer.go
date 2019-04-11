@@ -2,7 +2,6 @@ package commands
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/utils/pretty"
@@ -38,10 +37,6 @@ mesg-core marketplace create-offer SID --price 10 --duration 3600`,
 }
 
 func (c *marketplaceCreateOfferCmd) preRunE(cmd *cobra.Command, args []string) error {
-	var (
-		err error
-	)
-
 	if err := c.askAccountAndPassphrase(); err != nil {
 		return err
 	}
@@ -51,24 +46,10 @@ func (c *marketplaceCreateOfferCmd) preRunE(cmd *cobra.Command, args []string) e
 			return err
 		}
 	}
-	// if c.price < 0 {
-	// 	return fmt.Errorf("Price cannot be negative")
-	// }
 	if c.duration == "" {
 		if err := askInput("Enter the duration (in second) of the offer", &c.duration); err != nil {
 			return err
 		}
-	}
-
-	pretty.Progress("Getting service data...", func() {
-		c.service, err = c.e.GetService(args[0])
-	})
-	if err != nil {
-		return err
-	}
-
-	if !strings.EqualFold(c.service.Owner, c.account) {
-		return fmt.Errorf("the service's owner %q is different than the specified account", c.service.Owner)
 	}
 
 	var confirmed bool
