@@ -2,12 +2,10 @@ import BigNumber from "bignumber.js"
 import { Marketplace } from "./Marketplace"
 import { Purchase } from "../types/purchase";
 import { parseTimestamp, asciiToHex } from "./utils";
-import { isServiceExist } from "./service";
+import { requireServiceExist } from "./service";
 
 const getServicePurchases = async (contract: Marketplace, sid: string): Promise<Purchase[]> => {
-  if (!await isServiceExist(contract, sid)) {
-    throw new Error(`service ${sid} does not exist`)
-  }
+  await requireServiceExist(contract, sid)
   const purchasesLength = new BigNumber(await contract.methods.servicePurchasesLength(asciiToHex(sid)).call())
   const purchasesPromise: Promise<Purchase>[] = []
   for (let j = new BigNumber(0); purchasesLength.isGreaterThan(j); j = j.plus(1)) {
