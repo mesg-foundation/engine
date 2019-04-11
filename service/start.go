@@ -19,7 +19,7 @@ func (s *Service) Start(c container.Container) (serviceIDs []string, err error) 
 	}
 	// If there is one but not all services running stop to restart all
 	if status == PARTIAL {
-		if err := s.StopDependencies(c); err != nil {
+		if err := s.Stop(c); err != nil {
 			return nil, err
 		}
 	}
