@@ -10,11 +10,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func newFromServiceAndContainerMocks(t *testing.T, s *Service) (*Service, *mocks.Container) {
-	_ = t
-	return s, &mocks.Container{}
-}
-
 func TestNew(t *testing.T) {
 	var (
 		path = "../service-test/task"

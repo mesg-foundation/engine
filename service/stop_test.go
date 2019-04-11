@@ -4,13 +4,14 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/container"
+	"github.com/mesg-foundation/core/container/mocks"
 	"github.com/stretchr/testify/require"
 )
 
 func TestStopRunningService(t *testing.T) {
 	var (
 		dependencyKey = "1"
-		s, mc         = newFromServiceAndContainerMocks(t, &Service{
+		s             = &Service{
 			Hash: "1",
 			Name: "TestStopRunningService",
 			Dependencies: []*Dependency{
@@ -19,7 +20,8 @@ func TestStopRunningService(t *testing.T) {
 					Image: "http-server",
 				},
 			},
-		})
+		}
+		mc = &mocks.Container{}
 	)
 
 	d, _ := s.getDependency(dependencyKey)
@@ -37,7 +39,7 @@ func TestStopRunningService(t *testing.T) {
 func TestStopDependency(t *testing.T) {
 	var (
 		dependencyKey = "1"
-		s, mc         = newFromServiceAndContainerMocks(t, &Service{
+		s             = &Service{
 			Hash: "1",
 			Name: "TestStopService",
 			Dependencies: []*Dependency{
@@ -46,7 +48,8 @@ func TestStopDependency(t *testing.T) {
 					Image: "http-server",
 				},
 			},
-		})
+		}
+		mc = &mocks.Container{}
 	)
 
 	d, _ := s.getDependency(dependencyKey)
