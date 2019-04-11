@@ -19,9 +19,8 @@ const sha3 = (x: string) => Web3.utils.sha3(x)
 
 const toUnit = (x: string|BigNumber): string => {
   const n = new BigNumber(x).times(1e18)
-  if (!n.integerValue().eq(n)) {
-    throw new Error('Number of decimals of ' + x + ' is higher than 18')
-  }
+  if (!n.integerValue().eq(n)) throw new Error('Number of decimals of ' + x + ' is higher than 18')
+  if (n.isNegative()) throw new Error('Number cannot be negative')
   return n.toString()
 }
 const fromUnit = (x: string|BigNumber) => new BigNumber(x).dividedBy(1e18)
