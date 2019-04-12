@@ -157,13 +157,13 @@ func (s *Service) closeStatus(statuses chan DeployStatus) {
 
 // getDependency returns dependency dependencyKey or a not found error.
 func (s *Service) getDependency(dependencyKey string) (*Dependency, error) {
-	if dependencyKey == MainServiceKey {
-		return s.Configuration, nil
-	}
 	for _, dep := range s.Dependencies {
 		if dep.Key == dependencyKey {
 			return dep, nil
 		}
+	}
+	if dependencyKey == MainServiceKey {
+		return s.Configuration, nil
 	}
 	return nil, fmt.Errorf("dependency %s do not exist", dependencyKey)
 }
