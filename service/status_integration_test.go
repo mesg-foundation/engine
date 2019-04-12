@@ -10,17 +10,20 @@ import (
 )
 
 func TestIntegrationStatusService(t *testing.T) {
-	service := &Service{
-		Hash: "1",
-		Name: "TestStatusService",
-		Dependencies: []*Dependency{
-			{
-				Key:   "test",
-				Image: "http-server",
+	var (
+		service = &Service{
+			Hash: "1",
+			Name: "TestStatusService",
+			Dependencies: []*Dependency{
+				{
+					Key:   "test",
+					Image: "http-server",
+				},
 			},
-		},
-	}
-	c := newIntegrationContainer(t)
+		}
+		c = newIntegrationContainer(t)
+	)
+
 	status, err := service.Status(c)
 	require.NoError(t, err)
 	require.Equal(t, STOPPED, status)
@@ -34,17 +37,20 @@ func TestIntegrationStatusService(t *testing.T) {
 }
 
 func TestIntegrationStatusDependency(t *testing.T) {
-	service := &Service{
-		Hash: "1",
-		Name: "TestStatusDependency",
-		Dependencies: []*Dependency{
-			{
-				Key:   "test",
-				Image: "http-server",
+	var (
+		service = &Service{
+			Hash: "1",
+			Name: "TestStatusDependency",
+			Dependencies: []*Dependency{
+				{
+					Key:   "test",
+					Image: "http-server",
+				},
 			},
-		},
-	}
-	c := newIntegrationContainer(t)
+		}
+		c = newIntegrationContainer(t)
+	)
+
 	dep := service.Dependencies[0]
 	status, err := dep.Status(c, service)
 	require.NoError(t, err)
@@ -59,17 +65,20 @@ func TestIntegrationStatusDependency(t *testing.T) {
 }
 
 func TestIntegrationListRunning(t *testing.T) {
-	service := &Service{
-		Hash: "1",
-		Name: "TestList",
-		Dependencies: []*Dependency{
-			{
-				Key:   "test",
-				Image: "http-server",
+	var (
+		service = &Service{
+			Hash: "1",
+			Name: "TestList",
+			Dependencies: []*Dependency{
+				{
+					Key:   "test",
+					Image: "http-server",
+				},
 			},
-		},
-	}
-	c := newIntegrationContainer(t)
+		}
+		c = newIntegrationContainer(t)
+	)
+
 	service.Start(c)
 	defer service.Stop(c)
 	list, err := ListRunning()
@@ -79,21 +88,24 @@ func TestIntegrationListRunning(t *testing.T) {
 }
 
 func TestIntegrationListRunningMultipleDependencies(t *testing.T) {
-	service := &Service{
-		Hash: "1",
-		Name: "TestListMultipleDependencies",
-		Dependencies: []*Dependency{
-			{
-				Key:   "test",
-				Image: "http-server",
+	var (
+		service = &Service{
+			Hash: "1",
+			Name: "TestListMultipleDependencies",
+			Dependencies: []*Dependency{
+				{
+					Key:   "test",
+					Image: "http-server",
+				},
+				{
+					Key:   "test2",
+					Image: "http-server",
+				},
 			},
-			{
-				Key:   "test2",
-				Image: "http-server",
-			},
-		},
-	}
-	c := newIntegrationContainer(t)
+		}
+		c = newIntegrationContainer(t)
+	)
+
 	service.Start(c)
 	defer service.Stop(c)
 	list, err := ListRunning()
