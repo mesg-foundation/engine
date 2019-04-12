@@ -27,24 +27,29 @@ func (s *Service) Start(c container.Container) (serviceIDs []string, err error) 
 	if err != nil {
 		return nil, err
 	}
+
+	start := func(dep *Dependency) error {
+		serviceID, err := dep.Start(c, s, networkID)
+		if err != nil {
+			s.Stop(c)
+			return err
+		}
+		serviceIDs = append(serviceIDs, serviceID)
+		return nil
+	}
+
 	// BUG: https://github.com/mesg-foundation/core/issues/382
 	// After solving this by docker, switch back to deploy in parallel
 	serviceIDs = make([]string, 0)
 	for _, dep := range s.Dependencies {
-		serviceID, err := dep.Start(c, s, networkID)
-		if err != nil {
-			s.Stop(c)
+		if err := start(dep); err != nil {
 			return nil, err
 		}
-		serviceIDs = append(serviceIDs, serviceID)
 	}
 	if s.Configuration != nil {
-		serviceID, err := s.Configuration.Start(c, s, networkID)
-		if err != nil {
-			s.Stop(c)
+		if err := start(s.Configuration); err != nil {
 			return nil, err
 		}
-		serviceIDs = append(serviceIDs, serviceID)
 	}
 	return serviceIDs, err
 }
@@ -125,7 +130,11 @@ func (d *Dependency) extractVolumesFrom(s *Service) ([]container.Mount, error) {
 	for _, depName := range d.VolumesFrom {
 		dep, err := s.getDependency(depName)
 		if err != nil {
-			return nil, err
+			if depName == MainServiceKey {
+				dep = s.Configuration
+			} else {
+				return nil, err
+			}
 		}
 		for _, volume := range dep.Volumes {
 			volumesFrom = append(volumesFrom, container.Mount{
