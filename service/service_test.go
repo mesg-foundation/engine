@@ -3,15 +3,9 @@ package service
 import (
 	"testing"
 
-	"github.com/mesg-foundation/core/container/mocks"
 	"github.com/mesg-foundation/core/service/importer"
 	"github.com/stretchr/testify/require"
 )
-
-func newFromServiceAndContainerMocks(t *testing.T, s *Service) (*Service, *mocks.Container) {
-	_ = t
-	return s, &mocks.Container{}
-}
 
 func TestErrNotDefinedEnv(t *testing.T) {
 	require.Equal(t, ErrNotDefinedEnv{[]string{"A", "B"}}.Error(),
@@ -19,8 +13,11 @@ func TestErrNotDefinedEnv(t *testing.T) {
 }
 
 func TestInjectDefinitionWithConfig(t *testing.T) {
-	command := "xxx"
-	s := &Service{}
+	var (
+		command = "xxx"
+		s       = &Service{}
+	)
+
 	s.InjectDefinition(&importer.ServiceDefinition{
 		Configuration: &importer.Dependency{
 			Command: command,
@@ -34,6 +31,7 @@ func TestInjectDefinitionWithDependency(t *testing.T) {
 		s     = &Service{}
 		image = "xxx"
 	)
+
 	s.InjectDefinition(&importer.ServiceDefinition{
 		Dependencies: map[string]*importer.Dependency{
 			"test": {
