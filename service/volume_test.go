@@ -3,6 +3,7 @@ package service
 import (
 	"testing"
 
+	"github.com/mesg-foundation/core/container/mocks"
 	"github.com/stretchr/testify/require"
 )
 
@@ -12,7 +13,7 @@ func TestDeleteVolumes(t *testing.T) {
 		dependencyKey2 = "2"
 		volumeA        = "a"
 		volumeB        = "b"
-		s, mc          = newFromServiceAndContainerMocks(t, &Service{
+		s              = &Service{
 			Name: "TestCreateVolumes",
 			Dependencies: []*Dependency{
 				{
@@ -26,7 +27,8 @@ func TestDeleteVolumes(t *testing.T) {
 					VolumesFrom: []string{dependencyKey1},
 				},
 			},
-		})
+		}
+		mc = &mocks.Container{}
 	)
 
 	var (
