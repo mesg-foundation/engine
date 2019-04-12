@@ -162,9 +162,6 @@ func (s *Service) getDependency(dependencyKey string) (*Dependency, error) {
 			return dep, nil
 		}
 	}
-	if dependencyKey == MainServiceKey {
-		return s.Configuration, nil
-	}
 	return nil, fmt.Errorf("dependency %s do not exist", dependencyKey)
 }
 

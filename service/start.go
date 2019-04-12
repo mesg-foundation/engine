@@ -130,7 +130,11 @@ func (d *Dependency) extractVolumesFrom(s *Service) ([]container.Mount, error) {
 	for _, depName := range d.VolumesFrom {
 		dep, err := s.getDependency(depName)
 		if err != nil {
-			return nil, err
+			if depName == MainServiceKey {
+				dep = s.Configuration
+			} else {
+				return nil, err
+			}
 		}
 		for _, volume := range dep.Volumes {
 			volumesFrom = append(volumesFrom, container.Mount{
