@@ -12,7 +12,6 @@ import (
 type marketplaceCreateOfferCmd struct {
 	baseMarketplaceCmd
 
-	service  provider.MarketplaceService
 	price    string // in MESG token
 	duration string
 
