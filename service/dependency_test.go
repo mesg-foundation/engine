@@ -7,6 +7,7 @@ import (
 
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/mesg-foundation/core/container"
+	"github.com/mesg-foundation/core/container/mocks"
 	"github.com/stretchr/testify/require"
 )
 
@@ -34,12 +35,15 @@ func testDependencyLogs(t *testing.T, do func(s *Service, c container.Container,
 	go wstd.Write(stdData)
 	go werr.Write(errData)
 
-	s, mc := newFromServiceAndContainerMocks(t, &Service{
-		Hash: "1",
-		Dependencies: []*Dependency{
-			{Key: dependencyKey},
-		},
-	})
+	var (
+		s = &Service{
+			Hash: "1",
+			Dependencies: []*Dependency{
+				{Key: dependencyKey},
+			},
+		}
+		mc = &mocks.Container{}
+	)
 
 	d, _ := s.getDependency(dependencyKey)
 	mc.On("ServiceLogs", d.namespace(s.namespace())).Once().Return(rp, nil)
