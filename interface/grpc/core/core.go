@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"sync"
 
 	"github.com/mesg-foundation/core/api"
@@ -188,7 +189,7 @@ func (s *Server) ListenResult(request *coreapi.ListenResultRequest, stream corea
 func (s *Server) ExecuteTask(ctx context.Context, request *coreapi.ExecuteTaskRequest) (*coreapi.ExecuteTaskReply, error) {
 	var inputs map[string]interface{}
 	if err := json.Unmarshal([]byte(request.InputData), &inputs); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cannot parse execution's inputs (JSON format): %s", err)
 	}
 
 	executionID, err := s.api.ExecuteTask(request.ServiceID, request.TaskKey, inputs, request.ExecutionTags)
