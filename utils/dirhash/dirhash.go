@@ -92,5 +92,6 @@ func (ds *DirHash) Sum(extra []byte) ([]byte, error) {
 		return nil, fmt.Errorf("dirhash: %s", err)
 	}
 
-	return fhash.Sum(extra), nil
+	fhash.Write(extra)
+	return fhash.Sum(nil), nil
 }
