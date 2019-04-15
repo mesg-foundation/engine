@@ -13,14 +13,19 @@ func (s *Service) DeleteVolumes(c container.Container) error {
 		wg   sync.WaitGroup
 		errs xerrors.SyncErrors
 	)
+	delete := func(d *Dependency) {
+		defer wg.Done()
+		if err := d.DeleteVolumes(c, s); err != nil {
+			errs.Append(err)
+		}
+	}
 	for _, d := range s.Dependencies {
 		wg.Add(1)
-		go func(d *Dependency) {
-			defer wg.Done()
-			if err := d.DeleteVolumes(c, s); err != nil {
-				errs.Append(err)
-			}
-		}(d)
+		go delete(d)
+	}
+	if s.Configuration != nil {
+		wg.Add(1)
+		go delete(s.Configuration)
 	}
 	wg.Wait()
 	return errs.ErrorOrNil()

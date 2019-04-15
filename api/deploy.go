@@ -181,8 +181,8 @@ func (d *serviceDeployer) deploy(contextDir string) (*service.Service, *importer
 	}
 
 	// replace default env with new one.
-	defenv := xos.EnvSliceToMap(s.Configuration().Env)
-	s.Configuration().Env = xos.EnvMapToSlice(xos.EnvMergeMaps(defenv, d.env))
+	defenv := xos.EnvSliceToMap(s.Configuration.Env)
+	s.Configuration.Env = xos.EnvMapToSlice(xos.EnvMergeMaps(defenv, d.env))
 
 	d.sendStatus("Building Docker image...", Running)
 
@@ -193,7 +193,7 @@ func (d *serviceDeployer) deploy(contextDir string) (*service.Service, *importer
 
 	d.sendStatus("Image built with success", DonePositive)
 
-	s.Configuration().Image = imageHash
+	s.Configuration.Image = imageHash
 	// TODO: the following test should be moved in New function
 	if s.Sid == "" {
 		// make sure that sid doesn't have the same length with id.
