@@ -1,23 +1,24 @@
-package service
+package api
 
 import (
 	"sort"
 
+	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/importer"
 	"github.com/mesg-foundation/core/x/xstrings"
 )
 
-// InjectDefinition applies service definition to Service type.
-func (s *Service) InjectDefinition(def *importer.ServiceDefinition) {
+// injectDefinition applies service definition to Service type.
+func injectDefinition(s *service.Service, def *importer.ServiceDefinition) {
 	s.Name = def.Name
 	s.Sid = def.Sid
 	s.Description = def.Description
 	s.Repository = def.Repository
-	s.Events = s.defEventsToService(def.Events)
-	s.Tasks = s.defTasksToService(def.Tasks)
-	s.Dependencies = s.defDependenciesToService(def.Dependencies)
+	s.Events = defEventsToService(def.Events)
+	s.Tasks = defTasksToService(def.Tasks)
+	s.Dependencies = defDependenciesToService(def.Dependencies)
 
-	configuration := &Dependency{
+	configuration := &service.Dependency{
 		Key: importer.ConfigurationDependencyKey,
 	}
 	if def.Configuration != nil {
@@ -31,10 +32,10 @@ func (s *Service) InjectDefinition(def *importer.ServiceDefinition) {
 	s.Dependencies = append(s.Dependencies, configuration)
 }
 
-func (s *Service) defTasksToService(tasks map[string]*importer.Task) []*Task {
+func defTasksToService(tasks map[string]*importer.Task) []*service.Task {
 	var (
 		keys []string
-		ts   = make([]*Task, len(tasks))
+		ts   = make([]*service.Task, len(tasks))
 	)
 
 	for key := range tasks {
@@ -44,21 +45,21 @@ func (s *Service) defTasksToService(tasks map[string]*importer.Task) []*Task {
 
 	for key, task := range tasks {
 		i := xstrings.SliceIndex(keys, key)
-		ts[i] = &Task{
+		ts[i] = &service.Task{
 			Key:         key,
 			Name:        task.Name,
 			Description: task.Description,
-			Inputs:      s.defParametersToService(task.Inputs),
-			Outputs:     s.defOutputsToService(task.Outputs),
+			Inputs:      defParametersToService(task.Inputs),
+			Outputs:     defOutputsToService(task.Outputs),
 		}
 	}
 	return ts
 }
 
-func (s *Service) defOutputsToService(outputs map[string]*importer.Output) []*Output {
+func defOutputsToService(outputs map[string]*importer.Output) []*service.Output {
 	var (
 		keys []string
-		ots  = make([]*Output, len(outputs))
+		ots  = make([]*service.Output, len(outputs))
 	)
 
 	for key := range outputs {
@@ -68,20 +69,20 @@ func (s *Service) defOutputsToService(outputs map[string]*importer.Output) []*Ou
 
 	for key, output := range outputs {
 		i := xstrings.SliceIndex(keys, key)
-		ots[i] = &Output{
+		ots[i] = &service.Output{
 			Key:         key,
 			Name:        output.Name,
 			Description: output.Description,
-			Data:        s.defParametersToService(output.Data),
+			Data:        defParametersToService(output.Data),
 		}
 	}
 	return ots
 }
 
-func (s *Service) defEventsToService(events map[string]*importer.Event) []*Event {
+func defEventsToService(events map[string]*importer.Event) []*service.Event {
 	var (
 		keys []string
-		es   = make([]*Event, len(events))
+		es   = make([]*service.Event, len(events))
 	)
 
 	for key := range events {
@@ -91,20 +92,20 @@ func (s *Service) defEventsToService(events map[string]*importer.Event) []*Event
 
 	for key, event := range events {
 		i := xstrings.SliceIndex(keys, key)
-		es[i] = &Event{
+		es[i] = &service.Event{
 			Key:         key,
 			Name:        event.Name,
 			Description: event.Description,
-			Data:        s.defParametersToService(event.Data),
+			Data:        defParametersToService(event.Data),
 		}
 	}
 	return es
 }
 
-func (s *Service) defDependenciesToService(dependencies map[string]*importer.Dependency) []*Dependency {
+func defDependenciesToService(dependencies map[string]*importer.Dependency) []*service.Dependency {
 	var (
 		keys []string
-		deps = make([]*Dependency, len(dependencies))
+		deps = make([]*service.Dependency, len(dependencies))
 	)
 
 	for key := range dependencies {
@@ -114,7 +115,7 @@ func (s *Service) defDependenciesToService(dependencies map[string]*importer.Dep
 
 	for key, dep := range dependencies {
 		i := xstrings.SliceIndex(keys, key)
-		deps[i] = &Dependency{
+		deps[i] = &service.Dependency{
 			Key:         key,
 			Image:       dep.Image,
 			Volumes:     dep.Volumes,
@@ -128,10 +129,10 @@ func (s *Service) defDependenciesToService(dependencies map[string]*importer.Dep
 	return deps
 }
 
-func (s *Service) defParametersToService(params map[string]*importer.Parameter) []*Parameter {
+func defParametersToService(params map[string]*importer.Parameter) []*service.Parameter {
 	var (
 		keys []string
-		ps   = make([]*Parameter, len(params))
+		ps   = make([]*service.Parameter, len(params))
 	)
 
 	for key := range params {
@@ -141,14 +142,14 @@ func (s *Service) defParametersToService(params map[string]*importer.Parameter) 
 
 	for key, param := range params {
 		i := xstrings.SliceIndex(keys, key)
-		ps[i] = &Parameter{
+		ps[i] = &service.Parameter{
 			Key:         key,
 			Name:        param.Name,
 			Description: param.Description,
 			Type:        param.Type,
 			Optional:    param.Optional,
 			Repeated:    param.Repeated,
-			Object:      s.defParametersToService(param.Object),
+			Object:      defParametersToService(param.Object),
 		}
 	}
 	return ps
