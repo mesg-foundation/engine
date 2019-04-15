@@ -174,7 +174,7 @@ func (d *serviceDeployer) deploy(contextDir string) (*service.Service, *importer
 	}
 	s.Hash = base58.Encode(hash)
 
-	s.InjectDefinition(def)
+	injectDefinition(s, def)
 
 	if err := s.ValidateConfigurationEnv(d.env); err != nil {
 		return nil, nil, err
