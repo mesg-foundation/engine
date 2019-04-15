@@ -19,7 +19,7 @@ func TestInjectDefinitionWithConfig(t *testing.T) {
 			Command: command,
 		},
 	})
-	require.Equal(t, command, s.Configuration().Command)
+	require.Equal(t, command, s.Configuration.Command)
 }
 
 func TestInjectDefinitionWithDependency(t *testing.T) {

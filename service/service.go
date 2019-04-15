@@ -17,6 +17,9 @@ import (
 // * this is required for not breaking Service IDs unless there is a behavioral
 // change.
 
+// MainServiceKey is key for main service.
+const MainServiceKey = importer.ConfigurationDependencyKey
+
 // Service represents a MESG service.
 type Service struct {
 	// Hash is calculated from the combination of service's source and mesg.yml.
@@ -42,6 +45,9 @@ type Service struct {
 	// Dependencies are the Docker containers that service can depend on.
 	Dependencies []*Dependency `hash:"name:6"`
 
+	// Configuration of the service
+	Configuration *Dependency `hash:"name:8"`
+
 	// Repository holds the service's repository url if it's living on
 	// a Git host.
 	Repository string `hash:"name:7"`
@@ -66,7 +72,7 @@ func (s *Service) ValidateConfigurationEnv(env map[string]string) error {
 	for key := range env {
 		exists := false
 		// check if "key=" exists in configuration
-		for _, env := range s.Configuration().Env {
+		for _, env := range s.Configuration.Env {
 			if strings.HasPrefix(env, key+"=") {
 				exists = true
 			}
@@ -78,16 +84,6 @@ func (s *Service) ValidateConfigurationEnv(env map[string]string) error {
 	if len(nonDefined) > 0 {
 		sort.Strings(nonDefined)
 		return ErrNotDefinedEnv{nonDefined}
-	}
-	return nil
-}
-
-// Configuration returns the configuration of the service from the dependencies array.
-func (s *Service) Configuration() *Dependency {
-	for _, dep := range s.Dependencies {
-		if dep.Key == importer.ConfigurationDependencyKey {
-			return dep
-		}
 	}
 	return nil
 }

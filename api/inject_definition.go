@@ -18,18 +18,17 @@ func injectDefinition(s *service.Service, def *importer.ServiceDefinition) {
 	s.Tasks = defTasksToService(def.Tasks)
 	s.Dependencies = defDependenciesToService(def.Dependencies)
 
-	configuration := &service.Dependency{
-		Key: importer.ConfigurationDependencyKey,
+	s.Configuration = &service.Dependency{
+		Key: service.MainServiceKey,
 	}
 	if def.Configuration != nil {
-		configuration.Command = def.Configuration.Command
-		configuration.Args = def.Configuration.Args
-		configuration.Ports = def.Configuration.Ports
-		configuration.Volumes = def.Configuration.Volumes
-		configuration.VolumesFrom = def.Configuration.VolumesFrom
-		configuration.Env = def.Configuration.Env
+		s.Configuration.Command = def.Configuration.Command
+		s.Configuration.Args = def.Configuration.Args
+		s.Configuration.Ports = def.Configuration.Ports
+		s.Configuration.Volumes = def.Configuration.Volumes
+		s.Configuration.VolumesFrom = def.Configuration.VolumesFrom
+		s.Configuration.Env = def.Configuration.Env
 	}
-	s.Dependencies = append(s.Dependencies, configuration)
 }
 
 func defTasksToService(tasks map[string]*importer.Task) []*service.Task {

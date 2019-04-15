@@ -36,9 +36,9 @@ func TestDeployService(t *testing.T) {
 		s, validationError, err := a.DeployService(archive, nil, DeployServiceStatusOption(statuses))
 		require.Nil(t, validationError)
 		require.NoError(t, err)
-		require.Equal(t, "service", s.Dependencies[0].Key)
-		require.Equal(t, hash, s.Dependencies[0].Image)
-		require.Len(t, s.Dependencies[0].Env, 0)
+		require.Equal(t, "service", s.Configuration.Key)
+		require.Equal(t, hash, s.Configuration.Image)
+		require.Len(t, s.Configuration.Env, 0)
 	}()
 
 	require.Equal(t, DeployStatus{
@@ -77,9 +77,9 @@ func TestDeployWithDefaultEnv(t *testing.T) {
 	s, validationError, err := a.DeployService(archive, nil)
 	require.Nil(t, validationError)
 	require.NoError(t, err)
-	require.Equal(t, "service", s.Dependencies[0].Key)
-	require.Equal(t, hash, s.Dependencies[0].Image)
-	require.Equal(t, env, s.Dependencies[0].Env)
+	require.Equal(t, "service", s.Configuration.Key)
+	require.Equal(t, hash, s.Configuration.Image)
+	require.Equal(t, env, s.Configuration.Env)
 
 	at.containerMock.AssertExpectations(t)
 }
@@ -101,9 +101,9 @@ func TestDeployWithOverwrittenEnv(t *testing.T) {
 	s, validationError, err := a.DeployService(archive, xos.EnvSliceToMap(env))
 	require.Nil(t, validationError)
 	require.NoError(t, err)
-	require.Equal(t, "service", s.Dependencies[0].Key)
-	require.Equal(t, hash, s.Dependencies[0].Image)
-	require.Equal(t, env, s.Dependencies[0].Env)
+	require.Equal(t, "service", s.Configuration.Key)
+	require.Equal(t, hash, s.Configuration.Image)
+	require.Equal(t, env, s.Configuration.Env)
 
 	at.containerMock.AssertExpectations(t)
 }
