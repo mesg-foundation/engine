@@ -31,7 +31,7 @@ export default (
       versionHash = hexToHash(await contract.methods.serviceVersionHash(stringToHex(sid), versionsLength.minus(1).toString()).call())
     }
     else {
-      throw new Error('Input should have sid or hash set')
+      throw new Error('input should have sid or hash set')
     }
 
     await requireServiceExist(contract, sid)
