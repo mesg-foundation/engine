@@ -126,30 +126,3 @@ func TestPartialServiceStatus(t *testing.T) {
 
 	mc.AssertExpectations(t)
 }
-
-func TestDependencyStatus(t *testing.T) {
-	var (
-		dependencyKey = "1"
-		s             = &Service{
-			Hash: "1",
-			Name: "TestDependencyStatus",
-			Dependencies: []*Dependency{
-				{
-					Key:   dependencyKey,
-					Image: "http-server",
-				},
-			},
-		}
-		mc = &mocks.Container{}
-	)
-
-	d, _ := s.getDependency(dependencyKey)
-
-	mc.On("Status", d.namespace(s.namespace())).Once().Return(container.RUNNING, nil)
-
-	status, err := d.Status(mc, s)
-	require.NoError(t, err)
-	require.Equal(t, container.RUNNING, status)
-
-	mc.AssertExpectations(t)
-}
