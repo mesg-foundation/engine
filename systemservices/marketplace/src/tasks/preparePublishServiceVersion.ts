@@ -19,7 +19,7 @@ export default (
       const service = await getService(marketplace, sid)
 
       // check ownership
-      if (service.owner.toLowerCase() !== inputs.from.toLowerCase()) throw new Error(`service's owner is different that the specified 'from'`)
+      if (service.owner.toLowerCase() !== inputs.from.toLowerCase()) throw new Error(`service's owner is different`)
     }
 
     // TODO: check if version already exist on marketplace

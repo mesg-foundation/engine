@@ -17,7 +17,7 @@ export default (
     const service = await getService(marketplace, inputs.sid)
 
     // check ownership
-    if (service.owner.toLowerCase() !== inputs.from.toLowerCase()) throw new Error(`service's owner is different that the specified 'from'`)
+    if (service.owner.toLowerCase() !== inputs.from.toLowerCase()) throw new Error(`service's owner is different`)
 
     // check service version
     if (service.versions.length === 0) throw new Error('cannot create an offer on a service with 0 version')
