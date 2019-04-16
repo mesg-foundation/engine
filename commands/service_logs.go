@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/mesg-foundation/core/commands/provider"
+	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/mesg-foundation/core/x/xsignal"
 	"github.com/mesg-foundation/core/x/xstrings"
@@ -69,6 +70,7 @@ func showLogs(e ServiceExecutor, serviceID string, dependencies ...string) (clos
 	// if there was no dependencies copy all returned
 	// by service logs.
 	if len(dependencies) == 0 {
+		dependencies = append(dependencies, service.MainServiceKey)
 		for _, log := range logs {
 			dependencies = append(dependencies, log.Dependency)
 		}

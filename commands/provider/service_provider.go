@@ -12,6 +12,7 @@ import (
 	"github.com/mesg-foundation/core/commands/provider/assets"
 	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
+	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/importer"
 	"github.com/mesg-foundation/core/utils/chunker"
 	"github.com/mesg-foundation/core/utils/pretty"
@@ -117,6 +118,7 @@ func (p *ServiceProvider) ServiceLogs(id string, dependencies ...string) (logs [
 		if err != nil {
 			return nil, nil, nil, err
 		}
+		dependencies = append(dependencies, service.MainServiceKey)
 		for _, dep := range resp.Service.Definition.Dependencies {
 			dependencies = append(dependencies, dep.Key)
 		}
