@@ -17,22 +17,22 @@ export default (
     const service = await getService(marketplace, inputs.sid)
     
     // check ownership
-    if (service.owner.toLowerCase() !== inputs.from.toLowerCase()) throw new Error(`service's owner is different that the specified 'from'`)
+    if (service.owner.toLowerCase() === inputs.from.toLowerCase()) throw new Error(`service's owner cannot purchase its own service`)
 
     // get offer data
     const offerIndex = new BigNumber(inputs.offerIndex).toNumber()
-    if (offerIndex >= service.offers.length) {
+    if (offerIndex < 0 || offerIndex >= service.offers.length) {
       throw new Error('offer index is out of range')
     }
     const offer = service.offers[offerIndex]
 
     // check if offer is active
-    if (!offer.active) throw new Error('offer cannot be purchase because it is not active')
+    if (!offer.active) throw new Error('offer is not active')
 
     // check user balance
     const balance = fromUnit(await token.methods.balanceOf(inputs.from).call())
     if (offer.price.isGreaterThan(balance)) {
-      throw new Error('purchaser does not have enough balance')
+      throw new Error(`purchaser does not have enough balance, needs ${offer.price.toString()} MESG Token`)
     }
 
     // check allowance balance
