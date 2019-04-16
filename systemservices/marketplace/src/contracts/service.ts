@@ -4,7 +4,7 @@ import { Service } from "../types/service";
 import { getServiceVersions } from "./version";
 import { getServiceOffers } from "./offer";
 import { getServicePurchases } from "./purchase";
-import { hexToAscii, parseTimestamp, asciiToHex } from "./utils";
+import { hexToString, parseTimestamp, stringToHex } from "./utils";
 
 const getAllServices = async (contract: Marketplace): Promise<Service[]> => {
   const servicesLength = new BigNumber(await contract.methods.servicesLength().call())
@@ -18,11 +18,11 @@ const getAllServices = async (contract: Marketplace): Promise<Service[]> => {
 const getServiceWithIndex = async (contract: Marketplace, serviceIndex: BigNumber): Promise<Service> => {
   const sidHashed = await contract.methods.servicesList(serviceIndex.toString()).call()
   const service = await contract.methods.services(sidHashed).call()
-  return getService(contract, hexToAscii(service.sid))
+  return getService(contract, hexToString(service.sid))
 }
 
 const getService = async (contract: Marketplace, sid: string): Promise<Service> => {
-  const sidHex = asciiToHex(sid)
+  const sidHex = stringToHex(sid)
   if (!await contract.methods.isServiceExist(sidHex).call()) {
     throw new Error(`service ${sid} does not exist`)
   }
