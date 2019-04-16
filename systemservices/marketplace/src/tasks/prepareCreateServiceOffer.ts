@@ -11,16 +11,16 @@ export default (
   try {
     // check inputs
     const duration = new BigNumber(inputs.duration)
-    if (duration.isNegative() || duration.isZero()) throw new Error('Duration cannot be negative or equal to zero')
+    if (duration.isNegative() || duration.isZero()) throw new Error('duration cannot be negative or equal to zero')
 
     // check service
     const service = await getService(marketplace, inputs.sid)
 
     // check ownership
-    if (service.owner.toLowerCase() !== inputs.from.toLowerCase()) throw new Error(`Service's owner is different that the specified 'from'`)
+    if (service.owner.toLowerCase() !== inputs.from.toLowerCase()) throw new Error(`service's owner is different that the specified 'from'`)
 
     // check service version
-    if (service.versions.length === 0) throw new Error('Cannot create an offer on a service with 0 version')
+    if (service.versions.length === 0) throw new Error('cannot create an offer on a service with 0 version')
 
     // create transaction
     const transactionData = marketplace.methods.createServiceOffer(

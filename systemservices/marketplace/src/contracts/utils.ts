@@ -15,8 +15,8 @@ const sha3 = Web3.utils.sha3
 
 const toUnit = (x: string|BigNumber): string => {
   const n = new BigNumber(x).times(1e18)
-  if (!n.integerValue().eq(n)) throw new Error('Number of decimals of ' + x + ' is higher than 18')
-  if (n.isNegative()) throw new Error('Number cannot be negative')
+  if (!n.integerValue().eq(n)) throw new Error('number of decimals of ' + x + ' is higher than 18')
+  if (n.isNegative()) throw new Error('number cannot be negative')
   return n.toString()
 }
 const fromUnit = (x: string|BigNumber) => new BigNumber(x).dividedBy(1e18)
@@ -67,7 +67,7 @@ const extractEventFromLogs = (web3: Web3, contract: Contract, eventName: string,
 const findInLogs = (web3: Web3, abi: ABIDefinition, logs: Log[]) => {
   const eventSignature = web3.eth.abi.encodeEventSignature(abi)
   const index = logs.findIndex(log => log.topics[0] === eventSignature)
-  if (index === -1) throw new Error(`Did not find event '${abi.name}' in logs`)
+  if (index === -1) throw new Error(`event '${abi.name}' not found in logs`)
   return logs[index]
 }
 
@@ -80,7 +80,7 @@ const decodeLog = (web3: Web3, abi: ABIDefinition, log: Log): any => {
 
 const findInAbi = (abi: ABIDefinition[], eventName: string): ABIDefinition => {
   const index = abi.findIndex(a => a.name === eventName)
-  if (index === -1) throw new Error(`Did not find definition '${eventName}' in abi`)
+  if (index === -1) throw new Error(`definition '${eventName}' not found in abi`)
   return abi[index]
 }
 

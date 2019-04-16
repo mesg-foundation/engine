@@ -11,7 +11,7 @@ export default (
   try {
     // check inputs
     const sid = inputs.service.definition.sid
-    if (!(1 <= sid.length() && sid.length() <= 63)) throw new Error('Sid must have a length between 1 and 63')
+    if (!(1 <= sid.length() && sid.length() <= 63)) throw new Error('sid must have a length between 1 and 63')
     // TODO: add check on SID is domain name (see go implementation)
 
     if(await isServiceExist(marketplace, sid)) {
@@ -19,7 +19,7 @@ export default (
       const service = await getService(marketplace, sid)
 
       // check ownership
-      if (service.owner.toLowerCase() !== inputs.from.toLowerCase()) throw new Error(`Service's owner is different that the specified 'from'`)
+      if (service.owner.toLowerCase() !== inputs.from.toLowerCase()) throw new Error(`service's owner is different that the specified 'from'`)
     }
 
     // upload manifest
@@ -48,7 +48,7 @@ const uploadManifest = async (manifest: Manifest): Promise<string> => {
   const buffer = Buffer.from(JSON.stringify(manifest))
   const res = await IPFS.add(buffer, {pin: false})
   if (!res.length) {
-    throw new Error('Error while uploading manifest')
+    throw new Error('error while uploading manifest')
   }
   return res[0].hash
 }
