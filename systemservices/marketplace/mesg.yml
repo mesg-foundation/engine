@@ -76,6 +76,9 @@ tasks:
                                 type: Object
                                 repeated: true
                                 optional: true
+                              configuration:
+                                type: Object
+                                optional: true
                               dependencies:
                                 type: Object
                                 repeated: true
