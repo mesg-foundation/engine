@@ -22,6 +22,8 @@ export default (
       if (service.owner.toLowerCase() !== inputs.from.toLowerCase()) throw new Error(`service's owner is different that the specified 'from'`)
     }
 
+    // TODO: check if version already exist on marketplace
+
     // upload manifest
     const manifestHash = await uploadManifest({
       version: '1',
