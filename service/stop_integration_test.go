@@ -5,7 +5,6 @@ package service
 import (
 	"testing"
 
-	"github.com/mesg-foundation/core/container"
 	"github.com/stretchr/testify/require"
 )
 
@@ -74,8 +73,8 @@ func TestIntegrationStopDependency(t *testing.T) {
 	dep.Start(c, service, networkID)
 	err = dep.Stop(c, service)
 	require.NoError(t, err)
-	status, _ := dep.Status(c, service)
-	require.Equal(t, container.STOPPED, status)
+	status, _ := service.Status(c)
+	require.Equal(t, STOPPED, status)
 }
 
 func TestIntegrationNetworkDeleted(t *testing.T) {
