@@ -9,13 +9,9 @@ const base58 = require('base-x')('123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmn
 
 BigNumber.config({ EXPONENTIAL_AT: 100 })
 
-const hexToAscii = (x: string) => {
-  if (!x) return ''
-  return Web3.utils.hexToAscii(x).replace(/\u0000/g, '')
-}
-
-const asciiToHex = (x: string) => Web3.utils.asciiToHex(x)
-const sha3 = (x: string) => Web3.utils.sha3(x)
+const hexToString = Web3.utils.hexToString
+const stringToHex = Web3.utils.stringToHex
+const sha3 = Web3.utils.sha3
 
 const toUnit = (x: string|BigNumber): string => {
   const n = new BigNumber(x).times(1e18)
@@ -89,8 +85,8 @@ const findInAbi = (abi: ABIDefinition[], eventName: string): ABIDefinition => {
 }
 
 export {
-  hexToAscii,
-  asciiToHex,
+  hexToString,
+  stringToHex,
   sha3,
   toUnit,
   fromUnit,

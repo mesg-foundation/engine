@@ -1,6 +1,6 @@
 import { TaskInputs, TaskOutputs } from "mesg-js/lib/service"
 import { Marketplace } from "../contracts/Marketplace"
-import { asciiToHex, CreateTransaction } from "../contracts/utils";
+import { stringToHex, CreateTransaction } from "../contracts/utils";
 import { Manifest } from "../types/manifest";
 import { getService, isServiceExist } from "../contracts/service";
 
@@ -30,9 +30,9 @@ export default (
 
     // create transaction
     const transactionData = marketplace.methods.publishServiceVersion(
-      asciiToHex(sid),
-      asciiToHex(manifestHash),
-      asciiToHex('ipfs')
+      stringToHex(sid),
+      stringToHex(manifestHash),
+      stringToHex('ipfs')
     ).encodeABI()
     return outputs.success(await createTransaction(marketplace, inputs, transactionData))
   }

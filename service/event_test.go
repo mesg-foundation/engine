@@ -15,6 +15,7 @@ func TestGetEvent(t *testing.T) {
 			},
 		}
 	)
+
 	e, err := s.GetEvent(eventKey)
 	require.NoError(t, err)
 	require.Equal(t, eventKey, e.Key)
@@ -31,6 +32,7 @@ func TestGetEventNonExistent(t *testing.T) {
 			},
 		}
 	)
+
 	e, err := s.GetEvent(eventKey)
 	require.Zero(t, e)
 	require.Equal(t, &EventNotFoundError{

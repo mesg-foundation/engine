@@ -1,12 +1,12 @@
 import BigNumber from "bignumber.js"
 import { Marketplace } from "./Marketplace"
 import { Purchase } from "../types/purchase";
-import { parseTimestamp, asciiToHex } from "./utils";
+import { parseTimestamp, stringToHex } from "./utils";
 import { requireServiceExist } from "./service";
 
 const getServicePurchases = async (contract: Marketplace, sid: string): Promise<Purchase[]> => {
   await requireServiceExist(contract, sid)
-  const purchasesLength = new BigNumber(await contract.methods.servicePurchasesLength(asciiToHex(sid)).call())
+  const purchasesLength = new BigNumber(await contract.methods.servicePurchasesLength(stringToHex(sid)).call())
   const purchasesPromise: Promise<Purchase>[] = []
   for (let j = new BigNumber(0); purchasesLength.isGreaterThan(j); j = j.plus(1)) {
     purchasesPromise.push(getServicePurchaseWithIndex(contract, sid, j))
@@ -15,12 +15,12 @@ const getServicePurchases = async (contract: Marketplace, sid: string): Promise<
 }
 
 const getServicePurchaseWithIndex = async (contract: Marketplace, sid: string, purchaseIndex: BigNumber): Promise<Purchase> => {
-  const purchaser = await contract.methods.servicePurchaseAddress(asciiToHex(sid), purchaseIndex.toString()).call()
+  const purchaser = await contract.methods.servicePurchaseAddress(stringToHex(sid), purchaseIndex.toString()).call()
   return getServicePurchase(contract, sid, purchaser)
 }
 
 const getServicePurchase = async (contract: Marketplace, sid: string, purchaser: string): Promise<Purchase> => {
-  const sidHex = asciiToHex(sid)
+  const sidHex = stringToHex(sid)
   if (!await contract.methods.isServicesPurchaseExist(sidHex, purchaser).call()) {
     throw new Error(`purchase for service '${sid}' with purchase '${purchaser}' does not exist`)
   }

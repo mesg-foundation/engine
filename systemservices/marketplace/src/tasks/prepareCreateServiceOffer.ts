@@ -1,6 +1,6 @@
 import { TaskInputs, TaskOutputs } from "mesg-js/lib/service"
 import { Marketplace } from "../contracts/Marketplace"
-import { toUnit, asciiToHex, CreateTransaction } from "../contracts/utils";
+import { toUnit, stringToHex, CreateTransaction } from "../contracts/utils";
 import BigNumber from "bignumber.js";
 import { getService } from "../contracts/service";
 
@@ -24,7 +24,7 @@ export default (
 
     // create transaction
     const transactionData = marketplace.methods.createServiceOffer(
-      asciiToHex(inputs.sid),
+      stringToHex(inputs.sid),
       toUnit(inputs.price),
       duration.toString()
     ).encodeABI()
