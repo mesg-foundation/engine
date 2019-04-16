@@ -21,17 +21,28 @@ func (s *Service) Logs(c container.Container, dependencies ...string) ([]*Log, e
 		logs       []*Log
 		isNoFilter = len(dependencies) == 0
 	)
-	for _, dep := range s.Dependencies {
-		if isNoFilter || xstrings.SliceContains(dependencies, dep.Key) {
+	addLog := func(dep *Dependency, name string) error {
+		if isNoFilter || xstrings.SliceContains(dependencies, name) {
 			rstd, rerr, err := dep.Logs(c, s.namespace())
 			if err != nil {
-				return nil, err
+				return err
 			}
 			logs = append(logs, &Log{
-				Dependency: dep.Key,
+				Dependency: name,
 				Standard:   rstd,
 				Error:      rerr,
 			})
+		}
+		return nil
+	}
+	if s.Configuration != nil {
+		if err := addLog(s.Configuration, MainServiceKey); err != nil {
+			return nil, err
+		}
+	}
+	for _, dep := range s.Dependencies {
+		if err := addLog(dep, dep.Key); err != nil {
+			return nil, err
 		}
 	}
 	return logs, nil
