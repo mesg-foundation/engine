@@ -22,18 +22,6 @@ func (e *TaskNotFoundError) Error() string {
 	return fmt.Sprintf("Task %q not found in service %q", e.TaskKey, e.ServiceName)
 }
 
-// TaskInputNotFoundError is an error returned when service doesn't contain corresponding input.
-type TaskInputNotFoundError struct {
-	TaskKey      string
-	TaskInputKey string
-	ServiceName  string
-}
-
-func (e *TaskInputNotFoundError) Error() string {
-	return fmt.Sprintf("Input %q of task %q not found in service %q", e.TaskInputKey, e.TaskKey,
-		e.ServiceName)
-}
-
 // TaskOutputNotFoundError is an error returned when service doesn't contain corresponding output.
 type TaskOutputNotFoundError struct {
 	TaskKey       string
