@@ -151,7 +151,7 @@ func TestStartWith2Dependencies(t *testing.T) {
 	mc.On("Status", d.namespace(s.namespace())).Once().Return(container.STOPPED, nil)
 	mc.On("Status", d2.namespace(s.namespace())).Once().Return(container.STOPPED, nil)
 	mc.On("CreateNetwork", s.namespace()).Once().Return(networkID, nil)
-	mc.On("SharedNetworkID").Twice().Return(sharedNetworkID, nil)
+	mc.On("SharedNetworkID").Once().Return(sharedNetworkID, nil)
 
 	for i, d := range ds {
 		mockStartService(s, d, mc, networkID, sharedNetworkID, containerServiceIDs[i], nil)
@@ -228,7 +228,7 @@ func TestPartiallyRunningService(t *testing.T) {
 	mc.On("Status", d2.namespace(s.namespace())).Return(container.RUNNING, nil)
 	mc.On("StopService", d2.namespace(s.namespace())).Once().Return(nil)
 	mc.On("CreateNetwork", s.namespace()).Once().Return(networkID, nil)
-	mc.On("SharedNetworkID").Twice().Return(sharedNetworkID, nil)
+	mc.On("SharedNetworkID").Once().Return(sharedNetworkID, nil)
 	mc.On("DeleteNetwork", s.namespace()).Return(nil)
 
 	for i, d := range ds {
