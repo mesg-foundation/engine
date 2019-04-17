@@ -3,6 +3,7 @@ import { Marketplace } from "../contracts/Marketplace"
 import { stringToHex, CreateTransaction } from "../contracts/utils";
 import { Manifest } from "../types/manifest";
 import { getService, isServiceExist } from "../contracts/service";
+import * as assert from "assert";
 
 export default (
   marketplace: Marketplace,
@@ -11,7 +12,7 @@ export default (
   try {
     // check inputs
     const sid = inputs.service.definition.sid
-    if (sid.length < 1 || sid.length > 63) throw new Error('sid must have a length between 1 and 63') // See Core service validation (https://github.com/mesg-foundation/core)
+    assert.ok(sid.length >= 1 && sid.length <= 63, 'sid must have a length between 1 and 63') // See Core service validation (https://github.com/mesg-foundation/core)
     // TODO: add check on SID is domain name (see go implementation)
 
     if(await isServiceExist(marketplace, sid)) {
@@ -19,7 +20,7 @@ export default (
       const service = await getService(marketplace, sid)
 
       // check ownership
-      if (service.owner.toLowerCase() !== inputs.from.toLowerCase()) throw new Error(`service's owner is different`)
+      assert.strictEqual(inputs.from.toLowerCase(), service.owner.toLowerCase(), `service's owner is different`)
     }
 
     // TODO: check if version already exist on marketplace

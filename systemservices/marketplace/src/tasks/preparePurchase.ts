@@ -4,6 +4,7 @@ import { stringToHex, CreateTransaction, fromUnit, toUnit } from "../contracts/u
 import { ERC20 } from "../contracts/ERC20";
 import BigNumber from "bignumber.js";
 import { getService } from "../contracts/service";
+import * as assert from "assert";
 
 export default (
   marketplace: Marketplace,
@@ -17,23 +18,19 @@ export default (
     const service = await getService(marketplace, inputs.sid)
     
     // check ownership
-    if (service.owner.toLowerCase() === inputs.from.toLowerCase()) throw new Error(`service's owner cannot purchase its own service`)
+    assert.notStrictEqual(inputs.from.toLowerCase(), service.owner.toLowerCase(), `service's owner cannot purchase its own service`)
 
     // get offer data
     const offerIndex = new BigNumber(inputs.offerIndex).toNumber()
-    if (offerIndex < 0 || offerIndex >= service.offers.length) {
-      throw new Error('offer index is out of range')
-    }
+    assert.ok(offerIndex >= 0 && offerIndex < service.offers.length, 'offer index is out of range')
     const offer = service.offers[offerIndex]
 
     // check if offer is active
-    if (!offer.active) throw new Error('offer is not active')
+    assert.ok(offer.active, 'offer is not active')
 
     // check user balance
     const balance = fromUnit(await token.methods.balanceOf(inputs.from).call())
-    if (offer.price.isGreaterThan(balance)) {
-      throw new Error(`purchaser does not have enough balance, needs ${offer.price.toString()} MESG Token`)
-    }
+    assert.ok(balance.isGreaterThanOrEqualTo(offer.price), `purchaser does not have enough balance, needs ${offer.price.toString()} MESG Token`)
 
     // check allowance balance
     const allowance = fromUnit(await token.methods.allowance(inputs.from, marketplace.options.address).call())
