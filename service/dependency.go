@@ -1,13 +1,5 @@
 package service
 
-import (
-	"io"
-
-	"github.com/docker/docker/pkg/stdcopy"
-	"github.com/mesg-foundation/core/container"
-	"github.com/sirupsen/logrus"
-)
-
 // Dependency represents a Docker container and it holds instructions about
 // how it should run.
 type Dependency struct {
@@ -34,23 +26,4 @@ type Dependency struct {
 
 	// Env is a slice of environment variables in key=value format.
 	Env []string `hash:"name:8"`
-}
-
-// Logs gives the dependency logs. rstd stands for standard logs and rerr stands for
-// error logs.
-func (d *Dependency) Logs(c container.Container, serviceNamespace []string) (rstd, rerr io.ReadCloser, err error) {
-	var reader io.ReadCloser
-	reader, err = c.ServiceLogs(d.namespace(serviceNamespace))
-	if err != nil {
-		return nil, nil, err
-	}
-	sr, sw := io.Pipe()
-	er, ew := io.Pipe()
-	go func() {
-		if _, err := stdcopy.StdCopy(sw, ew, reader); err != nil {
-			reader.Close()
-			logrus.Errorln(err)
-		}
-	}()
-	return sr, er, nil
 }
