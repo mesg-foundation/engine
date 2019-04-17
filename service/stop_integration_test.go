@@ -5,7 +5,6 @@ package service
 import (
 	"testing"
 
-	"github.com/mesg-foundation/core/container"
 	"github.com/stretchr/testify/require"
 )
 
@@ -50,32 +49,6 @@ func TestIntegrationStopNonRunningService(t *testing.T) {
 	require.NoError(t, err)
 	status, _ := service.Status(c)
 	require.Equal(t, STOPPED, status)
-}
-
-func TestIntegrationStopDependency(t *testing.T) {
-	var (
-		service = &Service{
-			Hash: "1",
-			Name: "TestStopDependency",
-			Dependencies: []*Dependency{
-				{
-					Key:   "test",
-					Image: "http-server",
-				},
-			},
-		}
-		c = newIntegrationContainer(t)
-	)
-
-	networkID, err := c.CreateNetwork(service.namespace())
-	require.NoError(t, err)
-	defer c.DeleteNetwork(service.namespace())
-	dep := service.Dependencies[0]
-	dep.Start(c, service, networkID)
-	err = dep.Stop(c, service)
-	require.NoError(t, err)
-	status, _ := dep.Status(c, service)
-	require.Equal(t, container.STOPPED, status)
 }
 
 func TestIntegrationNetworkDeleted(t *testing.T) {
