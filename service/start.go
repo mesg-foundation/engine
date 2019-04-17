@@ -27,7 +27,16 @@ func (s *Service) Start(c container.Container) (serviceIDs []string, err error) 
 	if err != nil {
 		return nil, err
 	}
-
+	sharedNetworkID, err := c.SharedNetworkID()
+	if err != nil {
+		return nil, err
+	}
+	conf, err := config.Global()
+	if err != nil {
+		return nil, err
+	}
+	_, port, _ := xnet.SplitHostPort(conf.Server.Address)
+	endpoint := conf.Core.Name + ":" + strconv.Itoa(port)
 	// BUG: https://github.com/mesg-foundation/core/issues/382
 	// After solving this by docker, switch back to deploy in parallel
 	serviceIDs = make([]string, 0)
@@ -36,21 +45,11 @@ func (s *Service) Start(c container.Container) (serviceIDs []string, err error) 
 		if d == nil {
 			continue
 		}
-		sharedNetworkID, err := c.SharedNetworkID()
-		if err != nil {
-			return nil, err
-		}
 		volumes := d.extractVolumes(s)
 		volumesFrom, err := d.extractVolumesFrom(s)
 		if err != nil {
 			return nil, err
 		}
-		conf, err := config.Global()
-		if err != nil {
-			return nil, err
-		}
-		_, port, _ := xnet.SplitHostPort(conf.Server.Address)
-		endpoint := conf.Core.Name + ":" + strconv.Itoa(port)
 		serviceID, err := c.StartService(container.ServiceOptions{
 			Namespace: d.namespace(s.namespace()),
 			Labels: map[string]string{
