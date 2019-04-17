@@ -246,37 +246,6 @@ func TestPartiallyRunningService(t *testing.T) {
 	mc.AssertExpectations(t)
 }
 
-func TestStartDependency(t *testing.T) {
-	var (
-		dependencyKey      = "1"
-		networkID          = "3"
-		sharedNetworkID    = "4"
-		containerServiceID = "5"
-		s                  = &Service{
-			Hash: "1",
-			Name: "TestStartDependency",
-			Dependencies: []*Dependency{
-				{
-					Key:   dependencyKey,
-					Image: "http-server",
-				},
-			},
-		}
-		mc = &mocks.Container{}
-	)
-
-	d, _ := s.getDependency(dependencyKey)
-
-	mc.On("SharedNetworkID").Once().Return(sharedNetworkID, nil)
-	mockStartService(s, d, mc, networkID, sharedNetworkID, containerServiceID, nil)
-
-	serviceID, err := d.Start(mc, s, networkID)
-	require.NoError(t, err)
-	require.Equal(t, containerServiceID, serviceID)
-
-	mc.AssertExpectations(t)
-}
-
 func TestServiceStartError(t *testing.T) {
 	var (
 		dependencyKey   = "1"
