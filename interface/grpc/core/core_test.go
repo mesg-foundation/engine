@@ -160,7 +160,7 @@ func TestExecuteWithInvalidJSON(t *testing.T) {
 		InputData: "",
 	})
 	require.Error(t, err)
-	require.Equal(t, err.Error(), "unexpected end of JSON input")
+	require.Equal(t, err.Error(), "cannot parse execution's inputs (JSON format): unexpected end of JSON input")
 }
 
 func TestExecuteWithInvalidTask(t *testing.T) {
