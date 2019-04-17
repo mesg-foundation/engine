@@ -35,25 +35,3 @@ func TestStopRunningService(t *testing.T) {
 
 	mc.AssertExpectations(t)
 }
-
-func TestStopDependency(t *testing.T) {
-	var (
-		dependencyKey = "1"
-		s             = &Service{
-			Hash: "1",
-			Name: "TestStopService",
-			Dependencies: []*Dependency{
-				{
-					Key:   dependencyKey,
-					Image: "http-server",
-				},
-			},
-		}
-		mc = &mocks.Container{}
-	)
-
-	d, _ := s.getDependency(dependencyKey)
-	mc.On("StopService", d.namespace(s.namespace())).Once().Return(nil)
-	require.NoError(t, d.Stop(mc, s))
-	mc.AssertExpectations(t)
-}
