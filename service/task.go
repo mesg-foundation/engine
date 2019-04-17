@@ -56,20 +56,6 @@ func (s *Service) GetTask(taskKey string) (*Task, error) {
 	}
 }
 
-// GetInputParameter returns input inputKey parameter of task.
-func (t *Task) GetInputParameter(inputKey string) (*Parameter, error) {
-	for _, input := range t.Inputs {
-		if input.Key == inputKey {
-			return input, nil
-		}
-	}
-	return nil, &TaskInputNotFoundError{
-		TaskKey:      t.Key,
-		TaskInputKey: inputKey,
-		ServiceName:  t.serviceName,
-	}
-}
-
 // ValidateInputs produces warnings for task inputs that doesn't satisfy their parameter schemas.
 func (t *Task) ValidateInputs(taskInputs map[string]interface{}) []*ParameterWarning {
 	return validateParametersSchema(t.Inputs, taskInputs)
