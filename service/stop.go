@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"github.com/mesg-foundation/core/container"
+	"github.com/mesg-foundation/core/x/xerrors"
 )
 
 // Stop stops a service.
@@ -13,39 +14,27 @@ func (s *Service) Stop(c container.Container) error {
 		return err
 	}
 
-	if err := s.StopDependencies(c); err != nil {
-		return err
-	}
-	return c.DeleteNetwork(s.namespace())
-}
-
-// StopDependencies stops all dependencies.
-func (s *Service) StopDependencies(c container.Container) error {
-	var mutex sync.Mutex
-	var wg sync.WaitGroup
-	var err error
-	stop := func(d *Dependency) {
-		defer wg.Done()
-		errStop := d.Stop(c, s)
-		mutex.Lock()
-		defer mutex.Unlock()
-		if errStop != nil && err == nil {
-			err = errStop
+	var (
+		wg   sync.WaitGroup
+		errs xerrors.SyncErrors
+	)
+	for _, d := range append(s.Dependencies, s.Configuration) {
+		// Service.Configuration can be nil so, here is a check for it.
+		if d == nil {
+			continue
 		}
-	}
-	if s.Configuration != nil {
 		wg.Add(1)
-		go stop(s.Configuration)
-	}
-	for _, dep := range s.Dependencies {
-		wg.Add(1)
-		go stop(dep)
+		go func(namespace []string) {
+			defer wg.Done()
+			if err := c.StopService(namespace); err != nil {
+				errs.Append(err)
+			}
+		}(d.namespace(s.namespace()))
 	}
 	wg.Wait()
-	return err
-}
+	if err := errs.ErrorOrNil(); err != nil {
+		return err
+	}
 
-// Stop stops a dependency.
-func (d *Dependency) Stop(c container.Container, s *Service) error {
-	return c.StopService(d.namespace(s.namespace()))
+	return c.DeleteNetwork(s.namespace())
 }
