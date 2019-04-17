@@ -6,11 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/service/importer"
-	"github.com/mesg-foundation/core/utils/dirhash"
-	"github.com/mesg-foundation/core/x/xos"
-	"github.com/mr-tron/base58"
 )
 
 // WARNING about hash tags on Service type and its inner types:
@@ -60,101 +56,6 @@ type Service struct {
 	DeployedAt time.Time `hash:"-"`
 }
 
-// DStatusType indicates the type of status message.
-type DStatusType int
-
-const (
-	_ DStatusType = iota // skip zero value.
-
-	// DRunning indicates that status message belongs to a continuous state.
-	DRunning
-
-	// DDonePositive indicates that status message belongs to a positive noncontinuous state.
-	DDonePositive
-
-	// DDoneNegative indicates that status message belongs to a negative noncontinuous state.
-	DDoneNegative
-)
-
-// DeployStatus represents the deployment status.
-type DeployStatus struct {
-	Message string
-	Type    DStatusType
-}
-
-// New creates a new service from contextDir.
-func New(contextDir string, c container.Container, statuses chan DeployStatus, env map[string]string) (*Service, error) {
-	var err error
-	s := &Service{}
-	defer s.closeStatus(statuses)
-
-	def, err := importer.From(contextDir)
-	if err != nil {
-		return nil, err
-	}
-
-	dh := dirhash.New(contextDir)
-	envbytes := []byte(xos.EnvMapToString(env))
-	hash, err := dh.Sum(envbytes)
-	if err != nil {
-		return nil, err
-	}
-	s.Hash = base58.Encode(hash)
-
-	s.injectDefinition(def)
-
-	if err := s.validateConfigurationEnv(env); err != nil {
-		return nil, err
-	}
-
-	// replace default env with new one.
-	defenv := xos.EnvSliceToMap(s.Configuration.Env)
-	s.Configuration.Env = xos.EnvMapToSlice(xos.EnvMergeMaps(defenv, env))
-
-	if err := s.deploy(contextDir, c, statuses); err != nil {
-		return nil, err
-	}
-
-	return s, nil
-}
-
-// deploy deploys service.
-func (s *Service) deploy(contextDir string, c container.Container, statuses chan DeployStatus) error {
-	s.sendStatus(statuses, "Building Docker image...", DRunning)
-
-	imageHash, err := c.Build(contextDir)
-	if err != nil {
-		return err
-	}
-
-	s.sendStatus(statuses, "Image built with success", DDonePositive)
-
-	s.Configuration.Image = imageHash
-	// TODO: the following test should be moved in New function
-	if s.Sid == "" {
-		// make sure that sid doesn't have the same length with id.
-		s.Sid = "_" + s.Hash
-	}
-	return nil
-}
-
-// sendStatus sends a status message.
-func (s *Service) sendStatus(statuses chan DeployStatus, message string, typ DStatusType) {
-	if statuses != nil {
-		statuses <- DeployStatus{
-			Message: message,
-			Type:    typ,
-		}
-	}
-}
-
-// closeStatus closes statuses chan.
-func (s *Service) closeStatus(statuses chan DeployStatus) {
-	if statuses != nil {
-		close(statuses)
-	}
-}
-
 // getDependency returns dependency dependencyKey or a not found error.
 func (s *Service) getDependency(dependencyKey string) (*Dependency, error) {
 	for _, dep := range s.Dependencies {
@@ -165,8 +66,8 @@ func (s *Service) getDependency(dependencyKey string) (*Dependency, error) {
 	return nil, fmt.Errorf("dependency %s do not exist", dependencyKey)
 }
 
-// validateConfigurationEnv checks presence of env variables in mesg.yml under env section.
-func (s *Service) validateConfigurationEnv(env map[string]string) error {
+// ValidateConfigurationEnv checks presence of env variables in mesg.yml under env section.
+func (s *Service) ValidateConfigurationEnv(env map[string]string) error {
 	var nonDefined []string
 	for key := range env {
 		exists := false
@@ -190,10 +91,10 @@ func (s *Service) validateConfigurationEnv(env map[string]string) error {
 // ErrNotDefinedEnv error returned when optionally given env variables
 // are not defined in the mesg.yml file.
 type ErrNotDefinedEnv struct {
-	env []string
+	Env []string
 }
 
 func (e ErrNotDefinedEnv) Error() string {
 	return fmt.Sprintf("environment variable(s) %q not defined in mesg.yml (under configuration.env key)",
-		strings.Join(e.env, ", "))
+		strings.Join(e.Env, ", "))
 }
