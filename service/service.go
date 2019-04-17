@@ -21,6 +21,9 @@ import (
 // * this is required for not breaking Service IDs unless there is a behavioral
 // change.
 
+// MainServiceKey is key for main service.
+const MainServiceKey = importer.ConfigurationDependencyKey
+
 // Service represents a MESG service.
 type Service struct {
 	// Hash is calculated from the combination of service's source and mesg.yml.
@@ -45,6 +48,9 @@ type Service struct {
 
 	// Dependencies are the Docker containers that service can depend on.
 	Dependencies []*Dependency `hash:"name:6"`
+
+	// Configuration of the service
+	Configuration *Dependency `hash:"name:8"`
 
 	// Repository holds the service's repository url if it's living on
 	// a Git host.
@@ -102,8 +108,8 @@ func New(contextDir string, c container.Container, statuses chan DeployStatus, e
 	}
 
 	// replace default env with new one.
-	defenv := xos.EnvSliceToMap(s.configuration().Env)
-	s.configuration().Env = xos.EnvMapToSlice(xos.EnvMergeMaps(defenv, env))
+	defenv := xos.EnvSliceToMap(s.Configuration.Env)
+	s.Configuration.Env = xos.EnvMapToSlice(xos.EnvMergeMaps(defenv, env))
 
 	if err := s.deploy(contextDir, c, statuses); err != nil {
 		return nil, err
@@ -123,7 +129,7 @@ func (s *Service) deploy(contextDir string, c container.Container, statuses chan
 
 	s.sendStatus(statuses, "Image built with success", DDonePositive)
 
-	s.configuration().Image = imageHash
+	s.Configuration.Image = imageHash
 	// TODO: the following test should be moved in New function
 	if s.Sid == "" {
 		// make sure that sid doesn't have the same length with id.
@@ -165,7 +171,7 @@ func (s *Service) validateConfigurationEnv(env map[string]string) error {
 	for key := range env {
 		exists := false
 		// check if "key=" exists in configuration
-		for _, env := range s.configuration().Env {
+		for _, env := range s.Configuration.Env {
 			if strings.HasPrefix(env, key+"=") {
 				exists = true
 			}
@@ -177,16 +183,6 @@ func (s *Service) validateConfigurationEnv(env map[string]string) error {
 	if len(nonDefined) > 0 {
 		sort.Strings(nonDefined)
 		return ErrNotDefinedEnv{nonDefined}
-	}
-	return nil
-}
-
-// helper to return the configuration of the service from the dependencies array
-func (s *Service) configuration() *Dependency {
-	for _, dep := range s.Dependencies {
-		if dep.Key == importer.ConfigurationDependencyKey {
-			return dep
-		}
 	}
 	return nil
 }

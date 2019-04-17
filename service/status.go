@@ -42,7 +42,10 @@ var containerStatusTypeMappings = map[container.StatusType]StatusType{
 // Status returns StatusType of all dependency.
 func (s *Service) Status(c container.Container) (StatusType, error) {
 	statuses := make(map[container.StatusType]bool)
-	for _, dep := range s.Dependencies {
+	for _, dep := range append(s.Dependencies, s.Configuration) {
+		if dep == nil {
+			continue
+		}
 		status, err := dep.Status(c, s)
 		if err != nil {
 			return UNKNOWN, err

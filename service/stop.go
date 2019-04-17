@@ -24,17 +24,22 @@ func (s *Service) StopDependencies(c container.Container) error {
 	var mutex sync.Mutex
 	var wg sync.WaitGroup
 	var err error
+	stop := func(d *Dependency) {
+		defer wg.Done()
+		errStop := d.Stop(c, s)
+		mutex.Lock()
+		defer mutex.Unlock()
+		if errStop != nil && err == nil {
+			err = errStop
+		}
+	}
+	if s.Configuration != nil {
+		wg.Add(1)
+		go stop(s.Configuration)
+	}
 	for _, dep := range s.Dependencies {
 		wg.Add(1)
-		go func(d *Dependency) {
-			defer wg.Done()
-			errStop := d.Stop(c, s)
-			mutex.Lock()
-			defer mutex.Unlock()
-			if errStop != nil && err == nil {
-				err = errStop
-			}
-		}(dep)
+		go stop(dep)
 	}
 	wg.Wait()
 	return err

@@ -9,21 +9,24 @@ import (
 )
 
 func TestIntegrationLogs(t *testing.T) {
-	service := &Service{
-		Hash: "1",
-		Name: "TestLogs",
-		Dependencies: []*Dependency{
-			{
-				Key:   "test",
-				Image: "http-server",
+	var (
+		service = &Service{
+			Hash: "1",
+			Name: "TestLogs",
+			Dependencies: []*Dependency{
+				{
+					Key:   "test",
+					Image: "http-server",
+				},
+				{
+					Key:   "test2",
+					Image: "http-server",
+				},
 			},
-			{
-				Key:   "test2",
-				Image: "http-server",
-			},
-		},
-	}
-	c := newIntegrationContainer(t)
+		}
+		c = newIntegrationContainer(t)
+	)
+
 	service.Start(c)
 	defer service.Stop(c)
 	readers, err := service.Logs(c)
@@ -32,21 +35,24 @@ func TestIntegrationLogs(t *testing.T) {
 }
 
 func TestIntegrationLogsOnlyOneDependency(t *testing.T) {
-	service := &Service{
-		Hash: "1",
-		Name: "TestLogsOnlyOneDependency",
-		Dependencies: []*Dependency{
-			{
-				Key:   "test",
-				Image: "http-server",
+	var (
+		service = &Service{
+			Hash: "1",
+			Name: "TestLogsOnlyOneDependency",
+			Dependencies: []*Dependency{
+				{
+					Key:   "test",
+					Image: "http-server",
+				},
+				{
+					Key:   "test2",
+					Image: "http-server",
+				},
 			},
-			{
-				Key:   "test2",
-				Image: "http-server",
-			},
-		},
-	}
-	c := newIntegrationContainer(t)
+		}
+		c = newIntegrationContainer(t)
+	)
+
 	service.Start(c)
 	defer service.Stop(c)
 	readers, err := service.Logs(c, "test2")
