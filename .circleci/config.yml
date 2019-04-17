@@ -54,6 +54,24 @@ jobs:
       - <<: *save_go_cache
       - run: bash <(curl -s https://codecov.io/bash)
 
+  "testNoCoverage":
+    <<: *run_on_docker
+    environment:
+      - GOCACHE: *go_cache_dir
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run: docker swarm init
+      - run: docker build -t sleep docker-images/sleep/
+      - run: docker build -t http-server docker-images/http-server/
+      - <<: *restore_go_mod_cache
+      - run: go mod download
+      - <<: *save_go_mod_cache
+      - run: mkdir -p ~/.mesg
+      - <<: *restore_go_cache
+      - run: go test -v -timeout 300s -p 1 -tags=integration ./...
+      - <<: *save_go_cache
+
   "lint":
     docker:
       - image: golangci/golangci-lint:v1.12
@@ -122,6 +140,14 @@ workflows:
               ignore:
                 - "dev"
                 - "master"
+      - "testNoCoverage":
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              ignore:
+                - "dev"
+                - "master"
 
   release_dev:
     jobs:
@@ -148,6 +174,12 @@ workflows:
   test_prod:
     jobs:
       - "test":
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              only: master
+      - "testNoCoverage":
           filters:
             tags:
               ignore: /.*/
