@@ -5,6 +5,7 @@ import { TaskInputs } from 'mesg-js/lib/service';
 import { Tx } from 'web3/eth/types';
 import { ABIDefinition } from 'web3/eth/abi';
 import { Log } from 'web3/types';
+import * as assert from "assert";
 const base58 = require('base-x')('123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz')
 
 BigNumber.config({ EXPONENTIAL_AT: 100 })
@@ -15,8 +16,8 @@ const sha3 = Web3.utils.sha3
 
 const toUnit = (x: string|BigNumber): string => {
   const n = new BigNumber(x).times(1e18)
-  if (!n.integerValue().eq(n)) throw new Error('number of decimals of ' + x + ' is higher than 18')
-  if (n.isNegative()) throw new Error('number cannot be negative')
+  assert.ok(n.integerValue().eq(n), 'number cannot have more than 18 decimals')
+  assert.ok(n.isPositive() || n.isZero(), 'number must be positive or null')
   return n.toString()
 }
 const fromUnit = (x: string|BigNumber) => new BigNumber(x).dividedBy(1e18)
@@ -24,7 +25,7 @@ const fromUnit = (x: string|BigNumber) => new BigNumber(x).dividedBy(1e18)
 const parseTimestamp = (x: string) => new Date(new BigNumber(x).times(1000).toNumber())
 
 const hashToHex = (x: string): string => {
-  if (x.startsWith('0x')) throw new Error('hash format is invalid. It starts with 0x')
+  assert.ok(!x.startsWith('0x'), 'hash format is invalid, it starts with 0x')
   return '0x' + base58.decode(x).toString('hex')
 }
 const hexToHash = (x: string): string => base58.encode(Buffer.from(x.replace(/^0x/, ''), 'hex'))
@@ -67,7 +68,7 @@ const extractEventFromLogs = (web3: Web3, contract: Contract, eventName: string,
 const findInLogs = (web3: Web3, abi: ABIDefinition, logs: Log[]) => {
   const eventSignature = web3.eth.abi.encodeEventSignature(abi)
   const index = logs.findIndex(log => log.topics[0] === eventSignature)
-  if (index === -1) throw new Error(`event '${abi.name}' not found in logs`)
+  assert.notStrictEqual(index, -1, `event '${abi.name}' not found in logs`)
   return logs[index]
 }
 
@@ -80,7 +81,7 @@ const decodeLog = (web3: Web3, abi: ABIDefinition, log: Log): any => {
 
 const findInAbi = (abi: ABIDefinition[], eventName: string): ABIDefinition => {
   const index = abi.findIndex(a => a.name === eventName)
-  if (index === -1) throw new Error(`definition '${eventName}' not found in abi`)
+  assert.notStrictEqual(index, -1, `definition '${eventName}' not found in abi`)
   return abi[index]
 }
 
