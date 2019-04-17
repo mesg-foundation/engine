@@ -62,6 +62,9 @@ func (c *marketplacePurchaseCmd) preRunE(cmd *cobra.Command, args []string) erro
 	if err != nil {
 		return err
 	}
+	if offerIndex < 0 || offerIndex >= len(service.Offers) {
+		return fmt.Errorf("offer with index %d doesn't exist", offerIndex)
+	}
 	offer := service.Offers[offerIndex]
 
 	var confirmed bool
