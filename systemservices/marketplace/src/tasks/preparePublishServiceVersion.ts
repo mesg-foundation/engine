@@ -11,7 +11,7 @@ export default (
   try {
     // check inputs
     const sid = inputs.service.definition.sid
-    if (!(1 <= sid.length && sid.length <= 63)) throw new Error('sid must have a length between 1 and 63')
+    if (sid.length < 1 || sid.length > 63) throw new Error('sid must have a length between 1 and 63')
     // TODO: add check on SID is domain name (see go implementation)
 
     if(await isServiceExist(marketplace, sid)) {
