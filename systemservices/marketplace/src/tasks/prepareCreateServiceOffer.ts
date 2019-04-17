@@ -20,7 +20,7 @@ export default (
     if (service.owner.toLowerCase() !== inputs.from.toLowerCase()) throw new Error(`service's owner is different`)
 
     // check service version
-    if (service.versions.length === 0) throw new Error('cannot create an offer on a service with 0 version')
+    if (service.versions.length === 0) throw new Error('cannot create an offer on a service with no version')
 
     // create transaction
     const transactionData = marketplace.methods.createServiceOffer(
