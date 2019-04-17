@@ -136,7 +136,7 @@ func TestIntegrationStartDependency(t *testing.T) {
 	defer c.DeleteNetwork(service.namespace())
 	dep := service.Dependencies[0]
 	serviceID, err := dep.Start(c, service, networkID)
-	defer dep.Stop(c, service)
+	defer service.Stop(c)
 	require.NoError(t, err)
 	require.NotEqual(t, "", serviceID)
 	status, _ := service.Status(c)

@@ -12,7 +12,7 @@ import (
 )
 
 // DefaultEndpoint is endpoint used to access ipfs network.
-const DefaultEndpoint = "https://ipfs.infura.io:5001/api/v0"
+const DefaultEndpoint = "http://ipfs.app.mesg.com:5001/api/v0"
 
 // DefaultClient is global client used for communication with ipfs network.
 var DefaultClient = NewClient(DefaultEndpoint)
