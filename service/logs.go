@@ -44,9 +44,6 @@ func (s *Service) Logs(c container.Container, dependencies ...string) ([]*Log, e
 					logrus.Errorln(err)
 				}
 			}(sw, ew, r)
-			if err != nil {
-				return nil, err
-			}
 			logs = append(logs, &Log{
 				Dependency: d.Key,
 				Standard:   rstd,
