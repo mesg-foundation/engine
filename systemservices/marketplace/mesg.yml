@@ -84,6 +84,9 @@ tasks:
                             name: ""	
                             description: ""	
                             type: Object	
+                            object:
+                              hashVersion:
+                                type: String
                           readme: 	
                             type: String	
                             optional: true
@@ -168,6 +171,9 @@ tasks:
                 type: String
           definition: 
             type: Object
+            object:
+              hashVersion:
+                type: String
           readme: 
             type: String
             optional: true

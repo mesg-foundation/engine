@@ -19,6 +19,7 @@ func toProtoService(s *service.Service) *definition.Service {
 		Hash:          s.Hash,
 		Sid:           s.Sid,
 		Name:          s.Name,
+		HashVersion:   s.HashVersion,
 		Description:   s.Description,
 		Repository:    s.Repository,
 		Tasks:         toProtoTasks(s.Tasks),

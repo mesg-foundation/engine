@@ -26,6 +26,9 @@ type Service struct {
 	// It represents the service uniquely.
 	Hash string `hash:"-"`
 
+	// HashVersion is the version of the algorithm used to calculate the of the hash
+	HashVersion string `hash:"-"`
+
 	// Sid is the service id.
 	// It needs to be unique and can be used to access to service.
 	Sid string `hash:"name:1"`

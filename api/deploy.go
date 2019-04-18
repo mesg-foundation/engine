@@ -43,6 +43,8 @@ const (
 	DoneNegative
 )
 
+const currentHashVersion = "0"
+
 // DeployStatus represents the deployment status.
 type DeployStatus struct {
 	Message string
@@ -173,6 +175,7 @@ func (d *serviceDeployer) deploy(contextDir string) (*service.Service, *importer
 		return nil, nil, err
 	}
 	s.Hash = base58.Encode(hash)
+	s.HashVersion = currentHashVersion
 
 	injectDefinition(s, def)
 
