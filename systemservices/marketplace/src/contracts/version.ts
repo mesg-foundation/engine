@@ -1,11 +1,11 @@
 import BigNumber from "bignumber.js"
 import { Marketplace } from "./Marketplace"
 import { Version } from "../types/version";
-import { hexToAscii, parseTimestamp, asciiToHex, hexToHash, hashToHex } from "./utils";
+import { hexToString, parseTimestamp, stringToHex, hexToHash, hashToHex } from "./utils";
 import { getManifest } from "./manifest";
 
 const getServiceVersions = async (contract: Marketplace, sid: string): Promise<Version[]> => {
-  const sidHex = asciiToHex(sid)
+  const sidHex = stringToHex(sid)
   if (!await contract.methods.isServiceExist(sidHex).call()) {
     throw new Error(`service ${sid} does not exist`)
   }
@@ -18,7 +18,7 @@ const getServiceVersions = async (contract: Marketplace, sid: string): Promise<V
 }
 
 const getServiceVersionWithIndex = async (contract: Marketplace, sid: string, versionIndex: BigNumber): Promise<Version> => {
-  const versionHash = hexToHash(await contract.methods.serviceVersionHash(asciiToHex(sid), versionIndex.toString()).call())
+  const versionHash = hexToHash(await contract.methods.serviceVersionHash(stringToHex(sid), versionIndex.toString()).call())
   return getServiceVersion(contract, versionHash)
 }
 
@@ -30,15 +30,15 @@ const getServiceVersion = async (contract: Marketplace, versionHash: string): Pr
   const version = await contract.methods.serviceVersion(versionHashHex).call()
   let manifestData = null
   try {
-    manifestData = await getManifest(hexToAscii(version.manifestProtocol), hexToAscii(version.manifest))
+    manifestData = await getManifest(hexToString(version.manifestProtocol), hexToString(version.manifest))
   }
   catch (error) {
     console.warn('error getManifest', error.toString())
   }
   return {
     versionHash: versionHash,
-    manifest: hexToAscii(version.manifest),
-    manifestProtocol: hexToAscii(version.manifestProtocol),
+    manifest: hexToString(version.manifest),
+    manifestProtocol: hexToString(version.manifestProtocol),
     manifestData: manifestData,
     createTime: parseTimestamp(version.createTime),
   }

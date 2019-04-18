@@ -5,7 +5,6 @@ package service
 import (
 	"testing"
 
-	"github.com/mesg-foundation/core/container"
 	"github.com/stretchr/testify/require"
 )
 
@@ -34,34 +33,6 @@ func TestIntegrationStatusService(t *testing.T) {
 	status, err = service.Status(c)
 	require.NoError(t, err)
 	require.Equal(t, RUNNING, status)
-}
-
-func TestIntegrationStatusDependency(t *testing.T) {
-	var (
-		service = &Service{
-			Hash: "1",
-			Name: "TestStatusDependency",
-			Dependencies: []*Dependency{
-				{
-					Key:   "test",
-					Image: "http-server",
-				},
-			},
-		}
-		c = newIntegrationContainer(t)
-	)
-
-	dep := service.Dependencies[0]
-	status, err := dep.Status(c, service)
-	require.NoError(t, err)
-	require.Equal(t, container.STOPPED, status)
-	dockerServices, err := service.Start(c)
-	require.NoError(t, err)
-	require.Equal(t, len(dockerServices), len(service.Dependencies))
-	status, err = dep.Status(c, service)
-	require.NoError(t, err)
-	require.Equal(t, container.RUNNING, status)
-	service.Stop(c)
 }
 
 func TestIntegrationListRunning(t *testing.T) {
