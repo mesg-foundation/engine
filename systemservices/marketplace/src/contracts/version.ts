@@ -2,7 +2,6 @@ import BigNumber from "bignumber.js"
 import { Marketplace } from "./Marketplace"
 import { Version } from "../types/version";
 import { hexToString, parseTimestamp, stringToHex, hexToHash, hashToHex } from "./utils";
-import { getManifest } from "./manifest";
 
 const getServiceVersions = async (contract: Marketplace, sid: string): Promise<Version[]> => {
   const sidHex = stringToHex(sid)
@@ -28,18 +27,10 @@ const getServiceVersion = async (contract: Marketplace, versionHash: string): Pr
     throw new Error(`version ${versionHash} does not exist`)
   }
   const version = await contract.methods.serviceVersion(versionHashHex).call()
-  let manifestData = null
-  try {
-    manifestData = await getManifest(hexToString(version.manifestProtocol), hexToString(version.manifest))
-  }
-  catch (error) {
-    console.warn('error getManifest', error.toString())
-  }
   return {
     versionHash: versionHash,
     manifest: hexToString(version.manifest),
     manifestProtocol: hexToString(version.manifestProtocol),
-    manifestData: manifestData,
     createTime: parseTimestamp(version.createTime),
   }
 }
