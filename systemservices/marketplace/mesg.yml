@@ -69,10 +69,6 @@ tasks:
                       service: &manifestServiceData	
                         type: Object	
                         object:
-                          hashVersion: 	
-                            name: ""	
-                            description: ""	
-                            type: String	
                           deployment:	
                             type: Object	
                             object:	
@@ -163,8 +159,6 @@ tasks:
       service:
         type: Object
         object:
-          hashVersion: 
-            type: String
           deployment:
             type: Object
             object:
