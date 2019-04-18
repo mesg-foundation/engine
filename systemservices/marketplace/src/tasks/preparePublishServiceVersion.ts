@@ -12,7 +12,7 @@ export default (
   try {
     // check inputs
     const sid = inputs.service.definition.sid
-    assert.ok(sid.length >= 1 && sid.length <= 63, 'sid must have a length between 1 and 63') // See Core service validation (https://github.com/mesg-foundation/core)
+    assert.ok(sid.length >= 1 && sid.length <= 63, 'sid\'s length must be 1 at min and 63 at max') // See Core service validation (https://github.com/mesg-foundation/core)
     // TODO: add check on SID is domain name (see go implementation)
 
     if(await isServiceExist(marketplace, sid)) {
