@@ -8,6 +8,7 @@ import (
 
 	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/config"
+	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/service"
@@ -105,7 +106,7 @@ func (s *Server) DeleteService(ctx context.Context, request *coreapi.DeleteServi
 
 // ListenEvent listens events matches with eventFilter on serviceID.
 func (s *Server) ListenEvent(request *coreapi.ListenEventRequest, stream coreapi.Core_ListenEventServer) error {
-	ln, err := s.api.ListenEvent(request.ServiceID, api.ListenEventKeyFilter(request.EventFilter))
+	ln, err := s.api.ListenEvent(request.ServiceID, &api.EventFilter{Key: request.EventFilter})
 	if err != nil {
 		return err
 	}
@@ -122,10 +123,7 @@ func (s *Server) ListenEvent(request *coreapi.ListenEventRequest, stream coreapi
 		case <-ctx.Done():
 			return ctx.Err()
 
-		case err := <-ln.Err:
-			return err
-
-		case ev := <-ln.Events:
+		case ev := <-ln.C:
 			evData, err := json.Marshal(ev.Data)
 			if err != nil {
 				return err
@@ -143,10 +141,13 @@ func (s *Server) ListenEvent(request *coreapi.ListenEventRequest, stream coreapi
 
 // ListenResult listens for results from a services.
 func (s *Server) ListenResult(request *coreapi.ListenResultRequest, stream coreapi.Core_ListenResultServer) error {
-	ln, err := s.api.ListenResult(request.ServiceID,
-		api.ListenResultTaskFilter(request.TaskFilter),
-		api.ListenResultOutputFilter(request.OutputFilter),
-		api.ListenResultTagFilters(request.TagFilters))
+	filter := &api.ExecutionFilter{
+		Status:    execution.Completed,
+		TaskKey:   request.TaskFilter,
+		OutputKey: request.OutputFilter,
+		Tags:      request.TagFilters,
+	}
+	ln, err := s.api.ListenExecution(request.ServiceID, filter)
 	if err != nil {
 		return err
 	}
@@ -163,10 +164,7 @@ func (s *Server) ListenResult(request *coreapi.ListenResultRequest, stream corea
 		case <-ctx.Done():
 			return ctx.Err()
 
-		case err := <-ln.Err:
-			return err
-
-		case execution := <-ln.Executions:
+		case execution := <-ln.C:
 			outputs, err := json.Marshal(execution.OutputData)
 			if err != nil {
 				return err
