@@ -18,7 +18,7 @@ func (s *Service) Stop(c container.Container) error {
 		wg   sync.WaitGroup
 		errs xerrors.SyncErrors
 	)
-	for _, d := range append(s.Dependencies, s.Configuration) {
+	for _, d := range append([]*Dependency{s.Configuration}, s.Dependencies...) {
 		// Service.Configuration can be nil so, here is a check for it.
 		if d == nil {
 			continue
