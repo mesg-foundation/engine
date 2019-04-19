@@ -5,6 +5,7 @@ import { Manifest } from "../types/manifest";
 import { getService, isServiceExist } from "../contracts/service";
 import * as assert from "assert";
 import { computeVersionHash, isVersionExist } from "../contracts/version";
+import isDomainName from "../contracts/isDomainName";
 
 const manifestProtocol = 'ipfs'
 
@@ -16,7 +17,7 @@ export default (
     // check inputs
     const sid = inputs.service.definition.sid
     assert.ok(sid.length >= 1 && sid.length <= 63, 'sid\'s length must be 1 at min and 63 at max') // See Core service validation (https://github.com/mesg-foundation/core)
-    // TODO: add check on SID is domain name (see go implementation)
+    assert.ok(isDomainName(sid), 'sid must respect domain-style notation, eg author.name')
 
     if(await isServiceExist(marketplace, sid)) {
       // get service
