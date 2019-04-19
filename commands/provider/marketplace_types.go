@@ -57,7 +57,6 @@ type MarketplaceDeployedSource struct {
 type MarketplaceManifestServiceData struct {
 	Definition  *definition.Service       `json:"definition"`
 	Readme      string                    `json:"readme,omitempty"`
-	Hash        string                    `json:"hash"`
 	HashVersion string                    `json:"hashVersion"`
 	Deployment  MarketplaceDeployedSource `json:"deployment"`
 }
