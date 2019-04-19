@@ -3,6 +3,7 @@
 // license that can be found in the LICENSE file.
 package xnet
 
+// Source: https://golang.org/src/net/dnsclient.go
 // IsDomainName checks if a string is a presentation-format domain name
 // (currently restricted to hostname-compatible "preferred name" LDH labels and
 // SRV-like "underscore labels"; see golang.org/issue/12421).
