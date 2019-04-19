@@ -15,7 +15,7 @@ type Status int
 // InProgress => The execution is being processed
 // Completed  => The execution is completed
 const (
-	Created Status = iota
+	Created Status = iota + 1
 	InProgress
 	Completed
 	Failed
