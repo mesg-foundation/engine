@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/cskr/pubsub"
@@ -132,6 +133,59 @@ func (a *API) ExecuteTask(serviceID, taskKey string, inputData map[string]interf
 	}
 	go a.ps.Pub(exec, s.TaskSubscriptionChannel())
 	return exec.ID, nil
+}
+
+// SubmitResult submits results for executionID.
+func (a *API) SubmitResult(executionID string, outputKey string, outputs []byte) error {
+	exec, stateChanged, err := a.processExecution(executionID, outputKey, outputs)
+	if stateChanged {
+		// only publish to listeners when the execution's state changed.
+		go a.ps.Pub(exec, exec.Service.ExecutionSubTopic())
+	}
+	return err
+}
+
+// processExecution processes execution and marks it as complated or failed.
+func (a *API) processExecution(executionID string, outputKey string, outputData []byte) (exec *execution.Execution, stateChanged bool, err error) {
+	stateChanged = false
+	tx, err := a.execDB.OpenTransaction()
+	if err != nil {
+		return nil, false, err
+	}
+
+	exec, err = tx.Find(executionID)
+	if err != nil {
+		tx.Discard()
+		return nil, false, err
+	}
+
+	var outputDataMap map[string]interface{}
+	if err := json.Unmarshal(outputData, &outputDataMap); err != nil {
+		return a.saveExecution(tx, exec, fmt.Errorf("invalid output data error: %s", err))
+	}
+
+	if err := exec.Complete(outputKey, outputDataMap); err != nil {
+		return a.saveExecution(tx, exec, err)
+	}
+
+	return a.saveExecution(tx, exec, nil)
+}
+
+func (a *API) saveExecution(tx database.ExecutionTransaction, exec *execution.Execution, err error) (execOut *execution.Execution, stateChanged bool, errOut error) {
+	if err != nil {
+		if errFailed := exec.Failed(err); errFailed != nil {
+			tx.Discard()
+			return exec, false, errFailed
+		}
+	}
+	if errSave := tx.Save(exec); errSave != nil {
+		tx.Discard()
+		return exec, true, errSave
+	}
+	if errCommit := tx.Commit(); errCommit != nil {
+		return exec, true, errCommit
+	}
+	return exec, true, err
 }
 
 // NotRunningServiceError is an error returned when the service is not running that
