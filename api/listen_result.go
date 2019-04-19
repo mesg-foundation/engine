@@ -2,7 +2,6 @@ package api
 
 import (
 	"github.com/mesg-foundation/core/execution"
-	"github.com/mesg-foundation/core/pubsub"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/x/xstrings"
 )
@@ -89,9 +88,9 @@ func (l *ResultListener) listen(serviceID string) error {
 }
 
 func (l *ResultListener) listenLoop(service *service.Service) {
-	channel := service.ResultSubscriptionChannel()
-	subscription := pubsub.Subscribe(channel)
-	defer pubsub.Unsubscribe(channel, subscription)
+	topic := service.ResultSubscriptionChannel()
+	subscription := l.api.ps.Sub(topic)
+	defer l.api.ps.Unsub(subscription, topic)
 	close(l.listening)
 
 	for {
