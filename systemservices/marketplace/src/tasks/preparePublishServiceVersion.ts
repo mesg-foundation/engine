@@ -4,6 +4,9 @@ import { stringToHex, CreateTransaction } from "../contracts/utils";
 import { Manifest } from "../types/manifest";
 import { getService, isServiceExist } from "../contracts/service";
 import * as assert from "assert";
+import { computeVersionHash, isVersionExist } from "../contracts/version";
+
+const manifestProtocol = 'ipfs'
 
 export default (
   marketplace: Marketplace,
@@ -23,25 +26,27 @@ export default (
       assert.strictEqual(inputs.from.toLowerCase(), service.owner.toLowerCase(), `service's owner is different`)
     }
 
-    // TODO: check if version already exist on marketplace
-
     // upload manifest
     const manifestHash = await uploadManifest({
       version: '1',
       service: inputs.service
     })
 
+    // check if version already exist on marketplace
+    const versionHash = computeVersionHash(inputs.from, sid, manifestHash, manifestProtocol)
+    assert.ok(!(await isVersionExist(marketplace, versionHash)), `service version already exist`)
+
     // create transaction
     const transactionData = marketplace.methods.publishServiceVersion(
       stringToHex(sid),
       stringToHex(manifestHash),
-      stringToHex('ipfs')
+      stringToHex(manifestProtocol)
     ).encodeABI()
     return outputs.success(await createTransaction(marketplace, inputs, transactionData))
   }
   catch (error) {
     console.error('error in preparePublishServiceVersion', error)
-    return outputs.error({ message: error.toString() })
+    return outputs.error({ message: error.message })
   }
 }
 
