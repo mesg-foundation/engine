@@ -3,17 +3,19 @@ package api
 import (
 	"fmt"
 
+	"github.com/cskr/pubsub"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/event"
 	"github.com/mesg-foundation/core/execution"
-	"github.com/mesg-foundation/core/pubsub"
 	"github.com/mesg-foundation/core/service"
 	uuid "github.com/satori/go.uuid"
 )
 
 // API exposes all functionalities of MESG core.
 type API struct {
+	ps *pubsub.PubSub
+
 	db        database.ServiceDB
 	execDB    database.ExecutionDB
 	container container.Container
@@ -22,6 +24,7 @@ type API struct {
 // New creates a new API with given options.
 func New(c container.Container, db database.ServiceDB, execDB database.ExecutionDB) *API {
 	return &API{
+		ps:        pubsub.New(0),
 		container: c,
 		db:        db,
 		execDB:    execDB,
@@ -94,7 +97,8 @@ func (a *API) EmitEvent(token, eventKey string, eventData map[string]interface{}
 	if err != nil {
 		return err
 	}
-	event.Publish()
+
+	go a.ps.Pub(event, s.EventSubscriptionChannel())
 	return nil
 }
 
@@ -126,7 +130,7 @@ func (a *API) ExecuteTask(serviceID, taskKey string, inputData map[string]interf
 	if err = a.execDB.Save(exec); err != nil {
 		return "", err
 	}
-	go pubsub.Publish(s.TaskSubscriptionChannel(), exec)
+	go a.ps.Pub(exec, s.TaskSubscriptionChannel())
 	return exec.ID, nil
 }
 
