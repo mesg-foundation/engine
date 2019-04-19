@@ -116,33 +116,6 @@ func TestIntegrationStartAgainService(t *testing.T) {
 // 	require.Equal(t, RUNNING, status)
 // }
 
-func TestIntegrationStartDependency(t *testing.T) {
-	var (
-		service = &Service{
-			Hash: "1",
-			Name: "TestStartDependency",
-			Dependencies: []*Dependency{
-				{
-					Key:   "test",
-					Image: "http-server",
-				},
-			},
-		}
-		c = newIntegrationContainer(t)
-	)
-
-	networkID, err := c.CreateNetwork(service.namespace())
-	require.NoError(t, err)
-	defer c.DeleteNetwork(service.namespace())
-	dep := service.Dependencies[0]
-	serviceID, err := dep.Start(c, service, networkID)
-	defer service.Stop(c)
-	require.NoError(t, err)
-	require.NotEqual(t, "", serviceID)
-	status, _ := service.Status(c)
-	require.Equal(t, RUNNING, status)
-}
-
 func TestIntegrationNetworkCreated(t *testing.T) {
 	var (
 		service = &Service{
