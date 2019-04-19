@@ -2,13 +2,11 @@ import BigNumber from "bignumber.js"
 import { Marketplace } from "./Marketplace"
 import { Offer } from "../types/offer";
 import { fromUnit, parseTimestamp, stringToHex } from "./utils";
+import { requireServiceExist } from "./service";
 
 const getServiceOffers = async (contract: Marketplace, sid: string): Promise<Offer[]> => {
-  const sidHex = stringToHex(sid)
-  if (!await contract.methods.isServiceExist(sidHex).call()) {
-    throw new Error(`service ${sid} does not exist`)
-  }
-  const offersLength = new BigNumber(await contract.methods.serviceOffersLength(sidHex).call())
+  await requireServiceExist(contract, sid)
+  const offersLength = new BigNumber(await contract.methods.serviceOffersLength(stringToHex(sid)).call())
   const offersPromise: Promise<Offer>[] = []
   for (let j = new BigNumber(0); offersLength.isGreaterThan(j); j = j.plus(1)) {
     offersPromise.push(getServiceOffer(contract, sid, j))

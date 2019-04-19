@@ -39,7 +39,7 @@ export default async (
       events.forEach(async event => {
         try {
           if (!eventHandlers[event.event]) {
-            throw new Error(`Event '${event.event}' not implemented`)
+            throw new Error(`event '${event.event}' not implemented`)
           }
           eventHandlers[event.event](mesg, event)
         } catch(error) {
