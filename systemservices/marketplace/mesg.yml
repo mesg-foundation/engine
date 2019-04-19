@@ -57,6 +57,8 @@ tasks:
                             object:
                               hash:
                                 type: String
+                              hashVersion:
+                                type: String
                               sid:
                                 type: String
                               name:
