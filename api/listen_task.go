@@ -2,7 +2,6 @@ package api
 
 import (
 	"github.com/mesg-foundation/core/execution"
-	"github.com/mesg-foundation/core/pubsub"
 	"github.com/mesg-foundation/core/service"
 )
 
@@ -53,9 +52,9 @@ func (l *TaskListener) listen(token string) error {
 }
 
 func (l *TaskListener) listenLoop(service *service.Service) {
-	channel := service.TaskSubscriptionChannel()
-	subscription := pubsub.Subscribe(channel)
-	defer pubsub.Unsubscribe(channel, subscription)
+	topic := service.TaskSubscriptionChannel()
+	subscription := l.api.ps.Sub(topic)
+	defer l.api.ps.Unsub(subscription, topic)
 	close(l.listening)
 
 	for {
