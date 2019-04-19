@@ -3,7 +3,6 @@ package event
 import (
 	"time"
 
-	"github.com/mesg-foundation/core/pubsub"
 	"github.com/mesg-foundation/core/service"
 )
 
@@ -30,10 +29,4 @@ func Create(s *service.Service, eventKey string, eventData map[string]interface{
 		Data:      eventData,
 		CreatedAt: time.Now(),
 	}, nil
-}
-
-// Publish publishes an event for every listener.
-func (event *Event) Publish() {
-	channel := event.Service.EventSubscriptionChannel()
-	go pubsub.Publish(channel, event)
 }
