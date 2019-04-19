@@ -36,34 +36,17 @@ func TestDependencyNamespace(t *testing.T) {
 }
 
 func TestEventSubscriptionChannel(t *testing.T) {
-	service := &Service{
-		Hash: "1",
-		Name: "TestEventSubscriptionChannel",
-	}
-	require.Equal(t, service.EventSubscriptionChannel(), hash.Calculate(append(
+	service := &Service{Hash: "1"}
+	require.Equal(t, service.EventSubTopic(), hash.Calculate(append(
 		service.namespace(),
-		eventChannel,
+		eventTopic,
 	)))
 }
 
 func TestTaskSubscriptionChannel(t *testing.T) {
-	service := &Service{
-		Hash: "1",
-		Name: "TaskSubscriptionChannel",
-	}
-	require.Equal(t, service.TaskSubscriptionChannel(), hash.Calculate(append(
+	service := &Service{Hash: "1"}
+	require.Equal(t, service.ExecutionSubTopic(), hash.Calculate(append(
 		service.namespace(),
-		taskChannel,
-	)))
-}
-
-func TestResultSubscriptionChannel(t *testing.T) {
-	service := &Service{
-		Hash: "1",
-		Name: "ResultSubscriptionChannel",
-	}
-	require.Equal(t, service.ResultSubscriptionChannel(), hash.Calculate(append(
-		service.namespace(),
-		resultChannel,
+		executionTopic,
 	)))
 }
