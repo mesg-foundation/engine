@@ -12,7 +12,7 @@ BigNumber.config({ EXPONENTIAL_AT: 100 })
 
 const hexToString = Web3.utils.hexToString
 const stringToHex = Web3.utils.stringToHex
-const sha3 = Web3.utils.sha3
+const keccak256 = Web3.utils.soliditySha3
 
 const toUnit = (x: string|BigNumber): string => {
   const n = new BigNumber(x).times(1e18)
@@ -88,7 +88,7 @@ const findInAbi = (abi: ABIDefinition[], eventName: string): ABIDefinition => {
 export {
   hexToString,
   stringToHex,
-  sha3,
+  keccak256,
   toUnit,
   fromUnit,
   parseTimestamp,
