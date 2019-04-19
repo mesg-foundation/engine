@@ -1,13 +1,12 @@
 export interface Manifest {
   version: '1'
   service: {
-    hash: string
     hashVersion: '1'
     deployment: {
       type: 'ipfs'|'http'|'https'
       source: string
     }
-    definition: any,
+    definition: any, // TODO: add ts definition or json schema validation
     readme?: string
   }
 }
