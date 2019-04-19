@@ -99,7 +99,7 @@ func (a *API) EmitEvent(token, eventKey string, eventData map[string]interface{}
 		return err
 	}
 
-	go a.ps.Pub(event, s.EventSubscriptionChannel())
+	go a.ps.Pub(event, s.EventSubTopic())
 	return nil
 }
 
@@ -131,7 +131,7 @@ func (a *API) ExecuteTask(serviceID, taskKey string, inputData map[string]interf
 	if err = a.execDB.Save(exec); err != nil {
 		return "", err
 	}
-	go a.ps.Pub(exec, s.TaskSubscriptionChannel())
+	go a.ps.Pub(exec, s.ExecutionSubTopic())
 	return exec.ID, nil
 }
 
