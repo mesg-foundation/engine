@@ -42,22 +42,26 @@ interface CreateTransaction {
 const createTransactionTemplate = (
   chainID: number,
   web3: Web3,
-  defaultGas: number,
   defaultGasPrice: number
 ): CreateTransaction => async (
   contract: Contract,
   inputs: TaskInputs,
   data: string,
   shiftNonce?: number
-) => ({
-  chainID: chainID,
-  to: contract.options.address,
-  nonce: (await web3.eth.getTransactionCount(inputs.from)) + (shiftNonce || 0),
-  gas: inputs.gas || defaultGas,
-  gasPrice: inputs.gasPrice || defaultGasPrice,
-  value: '0',
-  data: data
-})
+) => {
+  const tx = {
+    chainID: chainID,
+    to: contract.options.address,
+    value: '0',
+    data: data
+  }
+  return {
+    ...tx,
+    nonce: (await web3.eth.getTransactionCount(inputs.from)) + (shiftNonce || 0),
+    gasPrice: inputs.gasPrice || defaultGasPrice,
+    gas: inputs.gas || await web3.eth.estimateGas({...tx, from: inputs.from})
+  }
+}
 
 const extractEventFromLogs = (web3: Web3, contract: Contract, eventName: string, logs: Log[]): any => {
   const abi = findInAbi(contract.options.jsonInterface, eventName)
