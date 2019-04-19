@@ -21,9 +21,9 @@ export default (
     assert.notStrictEqual(inputs.from.toLowerCase(), service.owner.toLowerCase(), `service's owner cannot purchase its own service`)
 
     // get offer data
-    const offerIndex = new BigNumber(inputs.offerIndex).toNumber()
-    assert.ok(offerIndex >= 0 && offerIndex < service.offers.length, 'offer index is out of range')
-    const offer = service.offers[offerIndex]
+    const offerIndex = new BigNumber(inputs.offerIndex)
+    assert.ok(offerIndex.isInteger() && offerIndex.isGreaterThanOrEqualTo(0) && offerIndex.isLessThan(service.offers.length), 'offer index is out of range')
+    const offer = service.offers[offerIndex.toNumber()]
 
     // check if offer is active
     assert.ok(offer.active, 'offer is not active')
