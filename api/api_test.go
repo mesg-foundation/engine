@@ -4,6 +4,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/mesg-foundation/core/service/manager/dockermanager"
+
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/container/mocks"
 	"github.com/mesg-foundation/core/database"
@@ -33,6 +35,7 @@ func (t *apiTesting) close() {
 
 func newTesting(t *testing.T) (*API, *apiTesting) {
 	containerMock := &mocks.Container{}
+	m := dockermanager.New(containerMock) // TODO(ilgooz): create mocks from manager.Manager and use instead.
 
 	db, err := database.NewServiceDB(servicedbname)
 	require.NoError(t, err)
@@ -40,7 +43,7 @@ func newTesting(t *testing.T) (*API, *apiTesting) {
 	execDB, err := database.NewExecutionDB(execdbname)
 	require.NoError(t, err)
 
-	a := New(containerMock, db, execDB)
+	a := New(m, containerMock, db, execDB)
 
 	return a, &apiTesting{
 		T:             t,
