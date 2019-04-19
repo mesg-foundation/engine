@@ -27,73 +27,59 @@ func (s *Service) Start(c container.Container) (serviceIDs []string, err error) 
 	if err != nil {
 		return nil, err
 	}
-
-	start := func(dep *Dependency) error {
-		serviceID, err := dep.Start(c, s, networkID)
-		if err != nil {
-			s.Stop(c)
-			return err
-		}
-		serviceIDs = append(serviceIDs, serviceID)
-		return nil
+	sharedNetworkID, err := c.SharedNetworkID()
+	if err != nil {
+		return nil, err
 	}
-
+	conf, err := config.Global()
+	if err != nil {
+		return nil, err
+	}
+	_, port, _ := xnet.SplitHostPort(conf.Server.Address)
+	endpoint := conf.Core.Name + ":" + strconv.Itoa(port)
 	// BUG: https://github.com/mesg-foundation/core/issues/382
 	// After solving this by docker, switch back to deploy in parallel
 	serviceIDs = make([]string, 0)
-	for _, dep := range s.Dependencies {
-		if err := start(dep); err != nil {
+	for _, d := range append(s.Dependencies, s.Configuration) {
+		// Service.Configuration can be nil so, here is a check for it.
+		if d == nil {
+			continue
+		}
+		volumes := d.extractVolumes(s)
+		volumesFrom, err := d.extractVolumesFrom(s)
+		if err != nil {
 			return nil, err
 		}
-	}
-	if s.Configuration != nil {
-		if err := start(s.Configuration); err != nil {
+		serviceID, err := c.StartService(container.ServiceOptions{
+			Namespace: d.namespace(s.namespace()),
+			Labels: map[string]string{
+				"mesg.service": s.Name,
+				"mesg.hash":    s.Hash,
+				"mesg.sid":     s.Sid,
+				"mesg.core":    conf.Core.Name,
+			},
+			Image:   d.Image,
+			Args:    d.Args,
+			Command: d.Command,
+			Env: xos.EnvMergeSlices(d.Env, []string{
+				"MESG_TOKEN=" + s.Hash,
+				"MESG_ENDPOINT=" + endpoint,
+				"MESG_ENDPOINT_TCP=" + endpoint,
+			}),
+			Mounts: append(volumes, volumesFrom...),
+			Ports:  d.extractPorts(),
+			Networks: []container.Network{
+				{ID: networkID, Alias: d.Key},
+				{ID: sharedNetworkID},
+			},
+		})
+		if err != nil {
+			s.Stop(c)
 			return nil, err
 		}
+		serviceIDs = append(serviceIDs, serviceID)
 	}
-	return serviceIDs, err
-}
-
-// Start starts a dependency container.
-func (d *Dependency) Start(ct container.Container, s *Service, networkID string) (containerServiceID string, err error) {
-	sharedNetworkID, err := ct.SharedNetworkID()
-	if err != nil {
-		return "", err
-	}
-	volumes := d.extractVolumes(s)
-	volumesFrom, err := d.extractVolumesFrom(s)
-	if err != nil {
-		return "", err
-	}
-	c, err := config.Global()
-	if err != nil {
-		return "", err
-	}
-	_, port, _ := xnet.SplitHostPort(c.Server.Address)
-	endpoint := c.Core.Name + ":" + strconv.Itoa(port)
-	return ct.StartService(container.ServiceOptions{
-		Namespace: d.namespace(s.namespace()),
-		Labels: map[string]string{
-			"mesg.service": s.Name,
-			"mesg.hash":    s.Hash,
-			"mesg.sid":     s.Sid,
-			"mesg.core":    c.Core.Name,
-		},
-		Image:   d.Image,
-		Args:    d.Args,
-		Command: d.Command,
-		Env: xos.EnvMergeSlices(d.Env, []string{
-			"MESG_TOKEN=" + s.Hash,
-			"MESG_ENDPOINT=" + endpoint,
-			"MESG_ENDPOINT_TCP=" + endpoint,
-		}),
-		Mounts: append(volumes, volumesFrom...),
-		Ports:  d.extractPorts(),
-		Networks: []container.Network{
-			{ID: networkID, Alias: d.Key},
-			{ID: sharedNetworkID},
-		},
-	})
+	return serviceIDs, nil
 }
 
 func (d *Dependency) extractPorts() []container.Port {
