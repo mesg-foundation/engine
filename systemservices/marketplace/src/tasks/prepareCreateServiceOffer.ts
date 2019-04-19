@@ -33,6 +33,6 @@ export default (
   }
   catch (error) {
     console.error('error in prepareCreateServiceOffer', error)
-    return outputs.error({ message: error.toString() })
+    return outputs.error({ message: error.message })
   }
 }
