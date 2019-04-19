@@ -1,19 +1,39 @@
 import { TaskInputs, TaskOutputs } from "mesg-js/lib/service"
 import { Marketplace } from "../contracts/Marketplace"
-import { stringToHex, CreateTransaction, hashToHex } from "../contracts/utils";
+import { stringToHex, CreateTransaction } from "../contracts/utils";
 import { Manifest } from "../types/manifest";
+import { getService, isServiceExist } from "../contracts/service";
+import * as assert from "assert";
 
 export default (
   marketplace: Marketplace,
   createTransaction: CreateTransaction
 ) => async (inputs: TaskInputs, outputs: TaskOutputs): Promise<void> => {
   try {
+    // check inputs
+    const sid = inputs.service.definition.sid
+    assert.ok(sid.length >= 1 && sid.length <= 63, 'sid\'s length must be 1 at min and 63 at max') // See Core service validation (https://github.com/mesg-foundation/core)
+    // TODO: add check on SID is domain name (see go implementation)
+
+    if(await isServiceExist(marketplace, sid)) {
+      // get service
+      const service = await getService(marketplace, sid)
+
+      // check ownership
+      assert.strictEqual(inputs.from.toLowerCase(), service.owner.toLowerCase(), `service's owner is different`)
+    }
+
+    // TODO: check if version already exist on marketplace
+
+    // upload manifest
     const manifestHash = await uploadManifest({
       version: '1',
       service: inputs.service
     })
+
+    // create transaction
     const transactionData = marketplace.methods.publishServiceVersion(
-      stringToHex(inputs.service.definition.sid),
+      stringToHex(sid),
       stringToHex(manifestHash),
       stringToHex('ipfs')
     ).encodeABI()
@@ -31,7 +51,7 @@ const uploadManifest = async (manifest: Manifest): Promise<string> => {
   const buffer = Buffer.from(JSON.stringify(manifest))
   const res = await IPFS.add(buffer, {pin: false})
   if (!res.length) {
-    throw new Error('Error while uploading manifest')
+    throw new Error('error while uploading manifest')
   }
   return res[0].hash
 }
