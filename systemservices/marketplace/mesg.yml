@@ -45,8 +45,6 @@ tasks:
                       service: &manifestServiceData	
                         type: Object
                         object:
-                          hash:
-                            type: String
                           hashVersion:
                             type: String
                           deployment:
