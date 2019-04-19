@@ -31,7 +31,7 @@ const getServiceVersion = async (contract: Marketplace, versionHash: string): Pr
     manifestData = await getManifest(hexToString(version.manifestProtocol), hexToString(version.manifest))
   }
   catch (error) {
-    console.warn('error getManifest', error.toString())
+    console.warn('error getManifest', error.message)
   }
   return {
     versionHash: versionHash,

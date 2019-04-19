@@ -17,6 +17,6 @@ export default (
   }
   catch (error) {
     console.error('error in publishPublishServiceVersion', error)
-    return outputs.error({ message: error.toString() })
+    return outputs.error({ message: error.message })
   }
 }

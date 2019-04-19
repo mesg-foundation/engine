@@ -57,6 +57,6 @@ export default (
   }
   catch (error) {
     console.error('error in preparePurchase', error)
-    return outputs.error({ message: error.toString() })
+    return outputs.error({ message: error.message })
   }
 }
