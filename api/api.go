@@ -135,6 +135,51 @@ func (a *API) ExecuteTask(serviceID, taskKey string, inputData map[string]interf
 	return exec.ID, nil
 }
 
+// ListenEvent listens events matches with eventFilter on serviceID.
+func (a *API) ListenEvent(service string, f *EventFilter) (*EventListener, error) {
+	s, err := a.db.Get(service)
+	if err != nil {
+		return nil, err
+	}
+
+	if f != nil && f.Key != "" {
+		if _, err := s.GetEvent(f.Key); err != nil {
+			return nil, err
+		}
+	}
+
+	l := NewEventListener(a.ps, s.EventSubTopic(), f)
+	go l.Listen()
+	return l, nil
+}
+
+// ListenExecution listens executions on service.
+func (a *API) ListenExecution(service string, f *ExecutionFilter) (*ExecutionListener, error) {
+	s, err := a.db.Get(service)
+	if err != nil {
+		return nil, err
+	}
+
+	if f != nil {
+		if f.TaskKey == "" && f.OutputKey != "" {
+			return nil, fmt.Errorf("execution filter: output key given without task key")
+		}
+		if f.TaskKey != "" {
+			task, err := s.GetTask(f.TaskKey)
+			if err != nil {
+				return nil, err
+			}
+			if _, err := task.GetOutput(f.OutputKey); f.OutputKey != "" && err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	l := NewExecutionListener(a.ps, s.ExecutionSubTopic(), f)
+	go l.Listen()
+	return l, nil
+}
+
 // SubmitResult submits results for executionID.
 func (a *API) SubmitResult(executionID string, outputKey string, outputs []byte) error {
 	exec, stateChanged, err := a.processExecution(executionID, outputKey, outputs)
