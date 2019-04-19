@@ -93,7 +93,6 @@ func (c *marketplacePublishCmd) runE(cmd *cobra.Command, args []string) error {
 	pretty.Progress("Publishing service on the marketplace...", func() {
 		if tx, err = c.e.PreparePublishServiceVersion(provider.MarketplaceManifestServiceData{
 			Definition:  c.service.Definition,
-			Hash:        c.service.Definition.Hash,
 			HashVersion: marketplaceServiceHashVersion,
 			Readme:      readme,
 			Deployment:  deployment,
