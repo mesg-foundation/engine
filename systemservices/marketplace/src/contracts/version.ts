@@ -3,13 +3,11 @@ import { Marketplace } from "./Marketplace"
 import { Version } from "../types/version";
 import { hexToString, parseTimestamp, stringToHex, hexToHash, hashToHex } from "./utils";
 import { getManifest } from "./manifest";
+import { requireServiceExist } from "./service";
 
 const getServiceVersions = async (contract: Marketplace, sid: string): Promise<Version[]> => {
-  const sidHex = stringToHex(sid)
-  if (!await contract.methods.isServiceExist(sidHex).call()) {
-    throw new Error(`service ${sid} does not exist`)
-  }
-  const versionsLength = new BigNumber(await contract.methods.serviceVersionsLength(sidHex).call())
+  await requireServiceExist(contract, sid)
+  const versionsLength = new BigNumber(await contract.methods.serviceVersionsLength(stringToHex(sid)).call())
   const versionsPromise: Promise<Version>[] = []
   for (let j = new BigNumber(0); versionsLength.isGreaterThan(j); j = j.plus(1)) {
     versionsPromise.push(getServiceVersionWithIndex(contract, sid, j))

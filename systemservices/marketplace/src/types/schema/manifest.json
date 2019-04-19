@@ -25,9 +25,6 @@
                     ],
                     "type": "object"
                 },
-                "hash": {
-                    "type": "string"
-                },
                 "hashVersion": {
                     "enum": [
                         "1"
@@ -41,7 +38,6 @@
             "required": [
                 "definition",
                 "deployment",
-                "hash",
                 "hashVersion"
             ],
             "type": "object"
