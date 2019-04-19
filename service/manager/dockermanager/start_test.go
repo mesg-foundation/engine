@@ -1,4 +1,4 @@
-package service
+package dockermanager
 
 import (
 	"errors"
@@ -8,24 +8,25 @@ import (
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/container/mocks"
+	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/x/xnet"
 	"github.com/stretchr/testify/require"
 )
 
 func TestExtractPortEmpty(t *testing.T) {
-	dep := Dependency{}
-	ports := dep.extractPorts()
+	dep := &service.Dependency{}
+	ports := extractPorts(dep)
 	require.Equal(t, len(ports), 0)
 }
 
 func TestExtractPorts(t *testing.T) {
-	dep := &Dependency{
+	dep := &service.Dependency{
 		Ports: []string{
 			"80",
 			"3000:8080",
 		},
 	}
-	ports := dep.extractPorts()
+	ports := extractPorts(dep)
 	require.Equal(t, len(ports), 2)
 	require.Equal(t, ports[0].Target, uint32(80))
 	require.Equal(t, ports[0].Published, uint32(80))
@@ -34,13 +35,13 @@ func TestExtractPorts(t *testing.T) {
 }
 
 func TestExtractVolumes(t *testing.T) {
-	s := &Service{
-		Dependencies: []*Dependency{{
+	s := &service.Service{
+		Dependencies: []*service.Dependency{{
 			Key:     "test",
 			Volumes: []string{"foo", "bar"},
 		}},
 	}
-	volumes := s.Dependencies[0].extractVolumes(s)
+	volumes := extractVolumes(s, s.Dependencies[0])
 	require.Len(t, volumes, 2)
 	require.Equal(t, volumeKey(s, "test", "foo"), volumes[0].Source)
 	require.Equal(t, "foo", volumes[0].Target)
@@ -49,16 +50,16 @@ func TestExtractVolumes(t *testing.T) {
 	require.Equal(t, "bar", volumes[1].Target)
 	require.Equal(t, false, volumes[1].Bind)
 
-	s = &Service{
-		Dependencies: []*Dependency{{
+	s = &service.Service{
+		Dependencies: []*service.Dependency{{
 			VolumesFrom: []string{"test"},
 		}},
 	}
-	_, err := s.Dependencies[0].extractVolumesFrom(s)
+	_, err := extractVolumesFrom(s, s.Dependencies[0])
 	require.Error(t, err)
 
-	s = &Service{
-		Dependencies: []*Dependency{
+	s = &service.Service{
+		Dependencies: []*service.Dependency{
 			{
 				Key:     "test",
 				Volumes: []string{"foo", "bar"},
@@ -67,7 +68,7 @@ func TestExtractVolumes(t *testing.T) {
 				VolumesFrom: []string{"test"},
 			}},
 	}
-	volumes, err = s.Dependencies[1].extractVolumesFrom(s)
+	volumes, err = extractVolumesFrom(s, s.Dependencies[1])
 	require.NoError(t, err)
 	require.Len(t, volumes, 2)
 	require.Equal(t, volumeKey(s, "test", "foo"), volumes[0].Source)
@@ -86,11 +87,11 @@ func TestStartService(t *testing.T) {
 		Sid                = "SidStartService"
 		networkID          = "3"
 		sharedNetworkID    = "4"
-		s                  = &Service{
+		s                  = &service.Service{
 			Hash: "1",
 			Name: serviceName,
 			Sid:  Sid,
-			Dependencies: []*Dependency{
+			Dependencies: []*service.Dependency{
 				{
 					Key:   dependencyKey,
 					Image: "http-server",
@@ -98,16 +99,17 @@ func TestStartService(t *testing.T) {
 			},
 		}
 		mc = &mocks.Container{}
+		m  = New(mc)
 	)
 
-	d, _ := s.getDependency(dependencyKey)
+	d, _ := s.GetDependency(dependencyKey)
 
-	mc.On("Status", d.namespace(s.namespace())).Once().Return(container.STOPPED, nil)
-	mc.On("CreateNetwork", s.namespace()).Once().Return(networkID, nil)
+	mc.On("Status", d.Namespace(s.Namespace())).Once().Return(container.STOPPED, nil)
+	mc.On("CreateNetwork", s.Namespace()).Once().Return(networkID, nil)
 	mc.On("SharedNetworkID").Once().Return(sharedNetworkID, nil)
 	mockStartService(s, d, mc, networkID, sharedNetworkID, containerServiceID, nil)
 
-	serviceIDs, err := s.Start(mc)
+	serviceIDs, err := m.Start(s)
 	require.NoError(t, err)
 	require.Len(t, serviceIDs, 1)
 	require.Equal(t, containerServiceID, serviceIDs[0])
@@ -125,10 +127,10 @@ func TestStartWith2Dependencies(t *testing.T) {
 		networkID           = "7"
 		sharedNetworkID     = "8"
 		serviceName         = "TestStartWith2Dependencies"
-		s                   = &Service{
+		s                   = &service.Service{
 			Hash: "1",
 			Name: serviceName,
-			Dependencies: []*Dependency{
+			Dependencies: []*service.Dependency{
 				{
 					Key:   dependencyKey,
 					Image: dependencyImage,
@@ -140,24 +142,25 @@ func TestStartWith2Dependencies(t *testing.T) {
 			},
 		}
 		mc = &mocks.Container{}
+		m  = New(mc)
 	)
 
 	var (
-		d, _  = s.getDependency(dependencyKey)
-		d2, _ = s.getDependency(dependencyKey2)
-		ds    = []*Dependency{d, d2}
+		d, _  = s.GetDependency(dependencyKey)
+		d2, _ = s.GetDependency(dependencyKey2)
+		ds    = []*service.Dependency{d, d2}
 	)
 
-	mc.On("Status", d.namespace(s.namespace())).Once().Return(container.STOPPED, nil)
-	mc.On("Status", d2.namespace(s.namespace())).Once().Return(container.STOPPED, nil)
-	mc.On("CreateNetwork", s.namespace()).Once().Return(networkID, nil)
+	mc.On("Status", d.Namespace(s.Namespace())).Once().Return(container.STOPPED, nil)
+	mc.On("Status", d2.Namespace(s.Namespace())).Once().Return(container.STOPPED, nil)
+	mc.On("CreateNetwork", s.Namespace()).Once().Return(networkID, nil)
 	mc.On("SharedNetworkID").Once().Return(sharedNetworkID, nil)
 
 	for i, d := range ds {
 		mockStartService(s, d, mc, networkID, sharedNetworkID, containerServiceIDs[i], nil)
 	}
 
-	serviceIDs, err := s.Start(mc)
+	serviceIDs, err := m.Start(s)
 	require.NoError(t, err)
 	require.Len(t, serviceIDs, len(s.Dependencies))
 
@@ -171,9 +174,9 @@ func TestStartWith2Dependencies(t *testing.T) {
 func TestStartServiceRunning(t *testing.T) {
 	var (
 		dependencyKey = "1"
-		s             = &Service{
+		s             = &service.Service{
 			Hash: "1",
-			Dependencies: []*Dependency{
+			Dependencies: []*service.Dependency{
 				{
 					Key:   dependencyKey,
 					Image: "2",
@@ -181,12 +184,13 @@ func TestStartServiceRunning(t *testing.T) {
 			},
 		}
 		mc = &mocks.Container{}
+		m  = New(mc)
 	)
 
-	d, _ := s.getDependency(dependencyKey)
-	mc.On("Status", d.namespace(s.namespace())).Once().Return(container.RUNNING, nil)
+	d, _ := s.GetDependency(dependencyKey)
+	mc.On("Status", d.Namespace(s.Namespace())).Once().Return(container.RUNNING, nil)
 
-	dockerServices, err := s.Start(mc)
+	dockerServices, err := m.Start(s)
 	require.NoError(t, err)
 	require.Len(t, dockerServices, 0)
 
@@ -200,10 +204,10 @@ func TestPartiallyRunningService(t *testing.T) {
 		networkID           = "3"
 		sharedNetworkID     = "4"
 		containerServiceIDs = []string{"5", "6"}
-		s                   = &Service{
+		s                   = &service.Service{
 			Hash: "1",
 			Name: "TestPartiallyRunningService",
-			Dependencies: []*Dependency{
+			Dependencies: []*service.Dependency{
 				{
 					Key:   dependencyKey,
 					Image: "http-server",
@@ -215,27 +219,28 @@ func TestPartiallyRunningService(t *testing.T) {
 			},
 		}
 		mc = &mocks.Container{}
+		m  = New(mc)
 	)
 
 	var (
-		d, _  = s.getDependency(dependencyKey)
-		d2, _ = s.getDependency(dependencyKey2)
-		ds    = []*Dependency{d, d2}
+		d, _  = s.GetDependency(dependencyKey)
+		d2, _ = s.GetDependency(dependencyKey2)
+		ds    = []*service.Dependency{d, d2}
 	)
 
-	mc.On("Status", d.namespace(s.namespace())).Return(container.STOPPED, nil)
-	mc.On("StopService", d.namespace(s.namespace())).Once().Return(nil)
-	mc.On("Status", d2.namespace(s.namespace())).Return(container.RUNNING, nil)
-	mc.On("StopService", d2.namespace(s.namespace())).Once().Return(nil)
-	mc.On("CreateNetwork", s.namespace()).Once().Return(networkID, nil)
+	mc.On("Status", d.Namespace(s.Namespace())).Return(container.STOPPED, nil)
+	mc.On("StopService", d.Namespace(s.Namespace())).Once().Return(nil)
+	mc.On("Status", d2.Namespace(s.Namespace())).Return(container.RUNNING, nil)
+	mc.On("StopService", d2.Namespace(s.Namespace())).Once().Return(nil)
+	mc.On("CreateNetwork", s.Namespace()).Once().Return(networkID, nil)
 	mc.On("SharedNetworkID").Once().Return(sharedNetworkID, nil)
-	mc.On("DeleteNetwork", s.namespace()).Return(nil)
+	mc.On("DeleteNetwork", s.Namespace()).Return(nil)
 
 	for i, d := range ds {
 		mockStartService(s, d, mc, networkID, sharedNetworkID, containerServiceIDs[i], nil)
 	}
 
-	serviceIDs, err := s.Start(mc)
+	serviceIDs, err := m.Start(s)
 	require.NoError(t, err)
 	require.Len(t, serviceIDs, len(s.Dependencies))
 
@@ -252,10 +257,10 @@ func TestServiceStartError(t *testing.T) {
 		networkID       = "3"
 		sharedNetworkID = "4"
 		startErr        = errors.New("ops")
-		s               = &Service{
+		s               = &service.Service{
 			Hash: "1",
 			Name: "TestNetworkCreated",
-			Dependencies: []*Dependency{
+			Dependencies: []*service.Dependency{
 				{
 					Key:   dependencyKey,
 					Image: "http-server",
@@ -263,34 +268,35 @@ func TestServiceStartError(t *testing.T) {
 			},
 		}
 		mc = &mocks.Container{}
+		m  = New(mc)
 	)
 
-	d, _ := s.getDependency(dependencyKey)
+	d, _ := s.GetDependency(dependencyKey)
 
-	mc.On("Status", d.namespace(s.namespace())).Once().Return(container.STOPPED, nil)
-	mc.On("CreateNetwork", s.namespace()).Once().Return(networkID, nil)
+	mc.On("Status", d.Namespace(s.Namespace())).Once().Return(container.STOPPED, nil)
+	mc.On("CreateNetwork", s.Namespace()).Once().Return(networkID, nil)
 	mc.On("SharedNetworkID").Once().Return(sharedNetworkID, nil)
 	mockStartService(s, d, mc, networkID, sharedNetworkID, "", startErr)
-	mc.On("Status", d.namespace(s.namespace())).Once().Return(container.STOPPED, nil)
+	mc.On("Status", d.Namespace(s.Namespace())).Once().Return(container.STOPPED, nil)
 
-	serviceIDs, err := s.Start(mc)
+	serviceIDs, err := m.Start(s)
 	require.Equal(t, startErr, err)
 	require.Len(t, serviceIDs, 0)
 
 	mc.AssertExpectations(t)
 }
 
-func mockStartService(s *Service, d *Dependency, mc *mocks.Container,
+func mockStartService(s *service.Service, d *service.Dependency, mc *mocks.Container,
 	networkID, sharedNetworkID, containerServiceID string, err error) {
 	var (
 		c, _           = config.Global()
 		_, port, _     = xnet.SplitHostPort(c.Server.Address)
 		endpoint       = c.Core.Name + ":" + strconv.Itoa(port)
-		volumes        = d.extractVolumes(s)
-		volumesFrom, _ = d.extractVolumesFrom(s)
+		volumes        = extractVolumes(s, d)
+		volumesFrom, _ = extractVolumesFrom(s, d)
 	)
 	mc.On("StartService", container.ServiceOptions{
-		Namespace: d.namespace(s.namespace()),
+		Namespace: d.Namespace(s.Namespace()),
 		Labels: map[string]string{
 			"mesg.core":    c.Core.Name,
 			"mesg.sid":     s.Sid,
@@ -306,7 +312,7 @@ func mockStartService(s *Service, d *Dependency, mc *mocks.Container,
 			"MESG_ENDPOINT_TCP=" + endpoint,
 		},
 		Mounts: append(volumes, volumesFrom...),
-		Ports:  d.extractPorts(),
+		Ports:  extractPorts(d),
 		Networks: []container.Network{
 			{ID: networkID, Alias: d.Key},
 			{ID: sharedNetworkID},
