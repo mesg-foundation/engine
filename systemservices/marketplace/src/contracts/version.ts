@@ -1,9 +1,10 @@
 import BigNumber from "bignumber.js"
 import { Marketplace } from "./Marketplace"
 import { Version } from "../types/version";
-import { hexToString, parseTimestamp, stringToHex, hexToHash, hashToHex } from "./utils";
+import { hexToString, parseTimestamp, stringToHex, hexToHash, hashToHex, keccak256 } from "./utils";
 import { getManifest } from "./manifest";
 import { requireServiceExist } from "./service";
+import * as assert from "assert";
 
 const getServiceVersions = async (contract: Marketplace, sid: string): Promise<Version[]> => {
   await requireServiceExist(contract, sid)
@@ -21,11 +22,8 @@ const getServiceVersionWithIndex = async (contract: Marketplace, sid: string, ve
 }
 
 const getServiceVersion = async (contract: Marketplace, versionHash: string): Promise<Version> => {
-  const versionHashHex = hashToHex(versionHash)
-  if (!await contract.methods.isServiceVersionExist(versionHashHex).call()) {
-    throw new Error(`version ${versionHash} does not exist`)
-  }
-  const version = await contract.methods.serviceVersion(versionHashHex).call()
+  assert.ok(await isVersionExist(contract, versionHash), `version does not exist`)
+  const version = await contract.methods.serviceVersion(hashToHex(versionHash)).call()
   let manifestData = null
   try {
     manifestData = await getManifest(hexToString(version.manifestProtocol), hexToString(version.manifest))
@@ -42,4 +40,17 @@ const getServiceVersion = async (contract: Marketplace, versionHash: string): Pr
   }
 }
 
-export { getServiceVersions, getServiceVersion }
+const isVersionExist = async (contract: Marketplace, versionHash: string): Promise<boolean> => {
+  return contract.methods.isServiceVersionExist(hashToHex(versionHash)).call()
+}
+
+const computeVersionHash = (from: string, sid: string, manifest: string, manifestProtocol: string) => {
+  return hexToHash(keccak256(from, stringToHex(sid), stringToHex(manifest), stringToHex(manifestProtocol)))
+}
+
+export {
+  getServiceVersions,
+  getServiceVersion,
+  isVersionExist,
+  computeVersionHash,
+}
