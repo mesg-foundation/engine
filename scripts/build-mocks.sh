@@ -7,7 +7,7 @@ source $(dirname $0)/require-mesg-tools.sh
 mockery -name=Container -dir ./container -output ./container/mocks
 
 # generate mocks for docker.CommonAPIClient that used by container package.
-mockery -name CommonAPIClient -dir . -output ./utils/docker/mocks
+mockery -name CommonAPIClient -dir ./internal/mocks -output ./utils/docker/mocks
 
 # generate mocks for database package.
 mockery -name=ServiceDB -dir ./database -output ./database/mocks
