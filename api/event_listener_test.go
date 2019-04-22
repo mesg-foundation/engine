@@ -30,6 +30,11 @@ func TestEventFilter(t *testing.T) {
 			true,
 		},
 		{
+			&EventFilter{Key: "*"},
+			&event.Event{Key: "0"},
+			true,
+		},
+		{
 			&EventFilter{Key: "0"},
 			&event.Event{Key: "1"},
 			false,

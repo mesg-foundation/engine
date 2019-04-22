@@ -12,7 +12,7 @@ type EventFilter struct {
 
 // Match matches event.
 func (f *EventFilter) Match(e *event.Event) bool {
-	return f == nil || f.Key == "" || f.Key == e.Key
+	return f == nil || f.Key == "" || f.Key == "*" || f.Key == e.Key
 }
 
 // EventListener provides functionalities to listen MESG events.
