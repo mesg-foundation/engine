@@ -19,10 +19,10 @@ func (f *ExecutionFilter) Match(e *execution.Execution) bool {
 	if f == nil {
 		return true
 	}
-	if f.TaskKey != "" && f.TaskKey != e.TaskKey {
+	if f.TaskKey != "" && f.TaskKey != "*" && f.TaskKey != e.TaskKey {
 		return false
 	}
-	if f.OutputKey != "" && f.OutputKey != e.OutputKey {
+	if f.OutputKey != "" && f.OutputKey != "*" && f.OutputKey != e.OutputKey {
 		return false
 	}
 	if f.Status != 0 && f.Status != e.Status {
