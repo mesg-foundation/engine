@@ -5,33 +5,6 @@ import (
 	"github.com/mesg-foundation/core/container"
 )
 
-// StatusType of the service.
-type StatusType uint
-
-// Possible statuses for service.
-const (
-	UNKNOWN StatusType = iota
-	STOPPED
-	STARTING
-	PARTIAL
-	RUNNING
-)
-
-func (s StatusType) String() string {
-	switch s {
-	case STOPPED:
-		return "STOPPED"
-	case STARTING:
-		return "STARTING"
-	case PARTIAL:
-		return "PARTIAL"
-	case RUNNING:
-		return "RUNNING"
-	default:
-		return "UNKNOWN"
-	}
-}
-
 var containerStatusTypeMappings = map[container.StatusType]StatusType{
 	container.UNKNOWN:  UNKNOWN,
 	container.STOPPED:  STOPPED,

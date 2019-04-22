@@ -61,6 +61,6 @@ export default (
   }
   catch (error) {
     console.error('error in isAuthorized', error)
-    return outputs.error({ message: error.toString() })
+    return outputs.error({ message: error.message })
   }
 }
