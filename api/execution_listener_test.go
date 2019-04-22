@@ -40,12 +40,22 @@ func TestExecutionFilter(t *testing.T) {
 			true,
 		},
 		{
+			&ExecutionFilter{TaskKey: "*"},
+			&execution.Execution{TaskKey: "0"},
+			true,
+		},
+		{
 			&ExecutionFilter{TaskKey: "0"},
 			&execution.Execution{TaskKey: "1"},
 			false,
 		},
 		{
 			&ExecutionFilter{OutputKey: "0"},
+			&execution.Execution{OutputKey: "0"},
+			true,
+		},
+		{
+			&ExecutionFilter{OutputKey: "*"},
 			&execution.Execution{OutputKey: "0"},
 			true,
 		},
