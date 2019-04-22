@@ -15,7 +15,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const envPrefix = "mesg"
+const (
+	envPrefix = "mesg"
+
+	serviceDBVersion   = "v1"
+	executionDBVersion = "v1"
+)
 
 var (
 	instance *Config
@@ -75,8 +80,8 @@ func New() (*Config, error) {
 	c.Core.Image = "mesg/core:" + strings.Split(version.Version, " ")[0]
 	c.Core.Name = "core"
 	c.Core.Path = filepath.Join(home, ".mesg")
-	c.Core.Database.ServiceRelativePath = filepath.Join("database", "services")
-	c.Core.Database.ExecutionRelativePath = filepath.Join("database", "executions")
+	c.Core.Database.ServiceRelativePath = filepath.Join("database", "services", serviceDBVersion)
+	c.Core.Database.ExecutionRelativePath = filepath.Join("database", "executions", executionDBVersion)
 	c.Docker.Core.Path = "/mesg"
 	c.Docker.Socket = "/var/run/docker.sock"
 	c.Service = c.getServiceConfigGroup()
