@@ -9,9 +9,8 @@ RUN go mod download
 
 COPY . .
 ARG version
-RUN go build -o mesg-core \
-      -ldflags="-X 'github.com/mesg-foundation/core/version.Version=$version'" \
-      core/main.go
+ENV version=${version}
+RUN ./scripts/build-core.sh
 
 FROM ubuntu:18.04
 RUN apt-get update && \
