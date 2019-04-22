@@ -1,7 +1,6 @@
 export interface Manifest {
   version: '1'
   service: {
-    hashVersion: '1'
     deployment: {
       type: 'ipfs'|'http'|'https'
       source: string
