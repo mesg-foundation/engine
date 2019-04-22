@@ -9,13 +9,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Log holds log streams of dependency.
-type Log struct {
-	Dependency string
-	Standard   io.ReadCloser
-	Error      io.ReadCloser
-}
-
 // Logs gives service's logs streams. when dependencies filter is not provided, it'll give
 // logs for all dependencies otherwise it'll only give logs for specified dependencies.
 // note that, service itself is also a dependency defined with special "service" key.
