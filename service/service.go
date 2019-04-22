@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"io"
 	"sort"
 	"strings"
 	"time"
@@ -57,6 +58,40 @@ type Service struct {
 
 	// DeployedAt holds the creation time of service.
 	DeployedAt time.Time `hash:"-"`
+}
+
+// StatusType of the service.
+type StatusType uint
+
+// Possible statuses for service.
+const (
+	UNKNOWN StatusType = iota
+	STOPPED
+	STARTING
+	PARTIAL
+	RUNNING
+)
+
+func (s StatusType) String() string {
+	switch s {
+	case STOPPED:
+		return "STOPPED"
+	case STARTING:
+		return "STARTING"
+	case PARTIAL:
+		return "PARTIAL"
+	case RUNNING:
+		return "RUNNING"
+	default:
+		return "UNKNOWN"
+	}
+}
+
+// Log holds log streams of dependency.
+type Log struct {
+	Dependency string
+	Standard   io.ReadCloser
+	Error      io.ReadCloser
 }
 
 // getDependency returns dependency dependencyKey or a not found error.
