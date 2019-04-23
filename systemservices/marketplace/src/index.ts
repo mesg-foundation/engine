@@ -13,7 +13,6 @@ const providerEndpoint = process.env.PROVIDER_ENDPOINT as string
 const marketplaceAddress = process.env.MARKETPLACE_ADDRESS
 const ERC20Address = process.env.TOKEN_ADDRESS
 const blockConfirmations = parseInt(<string>process.env.BLOCK_CONFIRMATIONS, 10)
-const defaultGas = parseInt(<string>process.env.DEFAULT_GAS, 10)
 const pollingTime = parseInt(<string>process.env.POLLING_TIME, 10)
 
 const main = async () => {
@@ -27,7 +26,7 @@ const main = async () => {
   const defaultGasPrice = await web3.eth.getGasPrice()
   console.log('defaultGasPrice', defaultGasPrice)
 
-  listenTasks(mesg, web3, marketplace, token, chainID, defaultGas, defaultGasPrice)
+  listenTasks(mesg, web3, marketplace, token, chainID, defaultGasPrice)
   await listenEvents(mesg, web3, marketplace, blockConfirmations, pollingTime)
 
   console.log('service is ready and running')

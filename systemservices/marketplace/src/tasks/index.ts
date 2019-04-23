@@ -21,10 +21,9 @@ export default async (
   marketplace: Marketplace,
   token: ERC20,
   chainID: number,
-  defaultGas: number,
   defaultGasPrice: number
 ) => {
-  const createTransaction = createTransactionTemplate(chainID, web3, defaultGas, defaultGasPrice)
+  const createTransaction = createTransactionTemplate(chainID, web3, defaultGasPrice)
   mesg.listenTask({
     listServices: listServices(marketplace),
     getService: getService(marketplace),
