@@ -2,7 +2,6 @@ import BigNumber from "bignumber.js"
 import { Marketplace } from "./Marketplace"
 import { Version } from "../types/version";
 import { hexToString, parseTimestamp, stringToHex, hexToHash, hashToHex, keccak256 } from "./utils";
-import { getManifest } from "./manifest";
 import { requireServiceExist } from "./service";
 import * as assert from "assert";
 
@@ -24,18 +23,10 @@ const getServiceVersionWithIndex = async (contract: Marketplace, sid: string, ve
 const getServiceVersion = async (contract: Marketplace, versionHash: string): Promise<Version> => {
   assert.ok(await isVersionExist(contract, versionHash), `version does not exist`)
   const version = await contract.methods.serviceVersion(hashToHex(versionHash)).call()
-  let manifestData = null
-  try {
-    manifestData = await getManifest(hexToString(version.manifestProtocol), hexToString(version.manifest))
-  }
-  catch (error) {
-    console.warn('error getManifest', error.message)
-  }
   return {
     versionHash: versionHash,
     manifest: hexToString(version.manifest),
     manifestProtocol: hexToString(version.manifestProtocol),
-    manifestData: manifestData,
     createTime: parseTimestamp(version.createTime),
   }
 }

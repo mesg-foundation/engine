@@ -36,137 +36,6 @@ tasks:
                     type: String
                   manifestProtocol: &manifestProtocol
                     type: String
-                  manifestData: &manifestData
-                    type: Object
-                    optional: true
-                    object:
-                      version:
-                        type: String
-                      service: &manifestServiceData	
-                        type: Object
-                        object:
-                          deployment:
-                            type: Object
-                            object:
-                              type:
-                                type: String
-                              source:
-                                type: String
-                          definition:
-                            type: Object
-                            object:
-                              hash:
-                                type: String
-                              sid:
-                                type: String
-                              name:
-                                type: String
-                              description:
-                                type: String
-                                optional: true
-                              tasks:
-                                type: Object
-                                repeated: true
-                                optional: true
-                                object:
-                                  key:
-                                    type: String
-                                  name:
-                                    type: String
-                                    optional: true
-                                  description:
-                                    type: String
-                                    optional: true
-                                  inputs: &manifestServiceDataParameters
-                                    type: Object
-                                    optional: true
-                                    repeated: true
-                                    object: 
-                                      key:
-                                        type: String
-                                      name:
-                                        type: String
-                                        optional: true
-                                      description:
-                                        type: String
-                                        optional: true
-                                      type:
-                                        type: String
-                                      optional:
-                                        type: Boolean
-                                        optional: true
-                                      repeated:
-                                        type: Boolean
-                                        optional: true
-                                      object:
-                                        type: Object
-                                        optional: true
-                                  outputs:
-                                    type: Object
-                                    repeated: true
-                                    object:
-                                      key:
-                                        type: String
-                                      name:
-                                        type: String
-                                        optional: true
-                                      description:
-                                        type: String
-                                        optional: true
-                                      data: *manifestServiceDataParameters
-                              events:
-                                type: Object
-                                repeated: true
-                                optional: true
-                                object:
-                                  key:
-                                    type: String
-                                  name:
-                                    type: String
-                                    optional: true
-                                  description:
-                                    type: String
-                                    optional: true
-                                  data: *manifestServiceDataParameters
-                              configuration:
-                                type: Object
-                                optional: true
-                                object: &manifestServiceDataConfiguration
-                                  volumes:
-                                    type: String
-                                    repeated: true
-                                    optional: true
-                                  volumesFrom:
-                                    type: String
-                                    repeated: true
-                                    optional: true
-                                  ports:
-                                    type: String
-                                    repeated: true
-                                    optional: true
-                                  args:
-                                    type: String
-                                    repeated: true
-                                    optional: true
-                                  command:
-                                    type: String
-                                    optional: true
-                              dependencies:
-                                type: Object
-                                repeated: true
-                                optional: true
-                                object:
-                                  <<: *manifestServiceDataConfiguration
-                                  key:
-                                    type: String
-                                  image:
-                                    type: String
-                              repository:
-                                type: String
-                                optional: true
-                          readme:
-                            type: String
-                            optional: true
                   createTime: *createTime
               offers: &offers
                 type: Object
@@ -209,9 +78,151 @@ tasks:
     inputs:
       sid: *sid
     outputs:
-      success:
-        data: *service
       error: *outputError
+      success:
+        data:
+          sid: *sid
+          createTime: *createTime
+          owner: *owner
+          offers: *offers
+          purchases: *purchases
+          versions:
+            type: Object
+            repeated: true
+            optional: true
+            object:
+              <<: *version
+              manifestData: &manifestData
+                type: Object
+                optional: true
+                object:
+                  version:
+                    type: String
+                  service: &manifestServiceData	
+                    type: Object
+                    object:
+                      deployment:
+                        type: Object
+                        object:
+                          type:
+                            type: String
+                          source:
+                            type: String
+                      definition:
+                        type: Object
+                        object:
+                          hash:
+                            type: String
+                          sid:
+                            type: String
+                          name:
+                            type: String
+                          description:
+                            type: String
+                            optional: true
+                          tasks:
+                            type: Object
+                            repeated: true
+                            optional: true
+                            object:
+                              key:
+                                type: String
+                              name:
+                                type: String
+                                optional: true
+                              description:
+                                type: String
+                                optional: true
+                              inputs: &manifestServiceDataParameters
+                                type: Object
+                                optional: true
+                                repeated: true
+                                object: 
+                                  key:
+                                    type: String
+                                  name:
+                                    type: String
+                                    optional: true
+                                  description:
+                                    type: String
+                                    optional: true
+                                  type:
+                                    type: String
+                                  optional:
+                                    type: Boolean
+                                    optional: true
+                                  repeated:
+                                    type: Boolean
+                                    optional: true
+                                  object:
+                                    type: Object
+                                    optional: true
+                              outputs:
+                                type: Object
+                                repeated: true
+                                object:
+                                  key:
+                                    type: String
+                                  name:
+                                    type: String
+                                    optional: true
+                                  description:
+                                    type: String
+                                    optional: true
+                                  data: *manifestServiceDataParameters
+                          events:
+                            type: Object
+                            repeated: true
+                            optional: true
+                            object:
+                              key:
+                                type: String
+                              name:
+                                type: String
+                                optional: true
+                              description:
+                                type: String
+                                optional: true
+                              data: *manifestServiceDataParameters
+                          configuration:
+                            type: Object
+                            optional: true
+                            object: &manifestServiceDataConfiguration
+                              volumes:
+                                type: String
+                                repeated: true
+                                optional: true
+                              volumesFrom:
+                                type: String
+                                repeated: true
+                                optional: true
+                              ports:
+                                type: String
+                                repeated: true
+                                optional: true
+                              args:
+                                type: String
+                                repeated: true
+                                optional: true
+                              command:
+                                type: String
+                                optional: true
+                          dependencies:
+                            type: Object
+                            repeated: true
+                            optional: true
+                            object:
+                              <<: *manifestServiceDataConfiguration
+                              key:
+                                type: String
+                              image:
+                                type: String
+                          repository:
+                            type: String
+                            optional: true
+                      readme:
+                        type: String
+                        optional: true
   preparePublishServiceVersion:
     inputs:
       service: *manifestServiceData
