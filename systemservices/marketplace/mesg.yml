@@ -8,6 +8,7 @@ configuration:
     - POLLING_TIME=1000
     - MARKETPLACE_ADDRESS=0x94F4cB92Fe9f547574Aec617B1594B13aBd47Ad3
     - TOKEN_ADDRESS=0x5861b3dc52339d4f976b7fa5d80db6cd6f477f1b
+    - IPFS_PROVIDER=ipfs.app.mesg.com
 tasks:
   listServices:
     inputs:
