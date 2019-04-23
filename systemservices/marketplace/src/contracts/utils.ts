@@ -53,14 +53,15 @@ const createTransactionTemplate = (
     chainID: chainID,
     to: contract.options.address,
     value: '0',
-    data: data
-  }
-  return {
-    ...tx,
-    nonce: (await web3.eth.getTransactionCount(inputs.from)) + (shiftNonce || 0),
+    data: data,
+    gas: inputs.gas,
     gasPrice: inputs.gasPrice || defaultGasPrice,
-    gas: inputs.gas || await web3.eth.estimateGas({...tx, from: inputs.from})
+    nonce: (await web3.eth.getTransactionCount(inputs.from)) + (shiftNonce || 0),
   }
+  if (!tx.gas) {
+    tx.gas = await web3.eth.estimateGas({...tx, from: inputs.from})
+  }
+  return tx
 }
 
 const extractEventFromLogs = (web3: Web3, contract: Contract, eventName: string, logs: Log[]): any => {
