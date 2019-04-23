@@ -1,9 +1,6 @@
 import BigNumber from "bignumber.js"
 import { Marketplace } from "./Marketplace"
 import { Service } from "../types/service";
-import { getServiceVersions } from "./version";
-import { getServiceOffers } from "./offer";
-import { getServicePurchases } from "./purchase";
 import { hexToString, parseTimestamp, stringToHex } from "./utils";
 
 const getAllServices = async (contract: Marketplace): Promise<Service[]> => {
@@ -24,18 +21,10 @@ const getServiceWithIndex = async (contract: Marketplace, serviceIndex: BigNumbe
 const getService = async (contract: Marketplace, sid: string): Promise<Service> => {
   await requireServiceExist(contract, sid)
   const service = await contract.methods.service(stringToHex(sid)).call()
-  const [ versions, offers, purchases ] = await Promise.all([
-    getServiceVersions(contract, sid),
-    getServiceOffers(contract, sid),
-    getServicePurchases(contract, sid),
-  ])
   return {
     owner: service.owner,
     sid: sid,
     createTime: parseTimestamp(service.createTime),
-    versions: versions,
-    offers: offers,
-    purchases: purchases,
   }
 }
 
