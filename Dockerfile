@@ -1,6 +1,11 @@
 # base Go image version.
 FROM golang:1.11.4-stretch AS build
 
+RUN apt-get update && \
+      apt-get install -y jq && \
+      apt-get clean && \
+      rm -rf /var/lib/apt/lists/*
+
 WORKDIR /project
 
 # install dependencies
