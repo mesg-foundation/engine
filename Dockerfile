@@ -1,6 +1,11 @@
 # base Go image version.
 FROM golang:1.11.4-stretch AS build
 
+RUN apt-get update && \
+      apt-get install -y jq && \
+      apt-get clean && \
+      rm -rf /var/lib/apt/lists/*
+
 WORKDIR /project
 
 # install dependencies
@@ -9,9 +14,8 @@ RUN go mod download
 
 COPY . .
 ARG version
-RUN go build -o mesg-core \
-      -ldflags="-X 'github.com/mesg-foundation/core/version.Version=$version'" \
-      core/main.go
+ENV version=${version}
+RUN ./scripts/build-core.sh
 
 FROM ubuntu:18.04
 RUN apt-get update && \
