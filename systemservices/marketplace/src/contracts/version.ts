@@ -7,7 +7,7 @@ import * as assert from "assert";
 
 const getServiceVersions = async (contract: Marketplace, sid: string): Promise<Version[]> => {
   await requireServiceExist(contract, sid)
-  const versionsLength = new BigNumber(await contract.methods.serviceVersionsLength(stringToHex(sid)).call())
+  const versionsLength = await getServiceVersionCount(contract, sid)
   const versionsPromise: Promise<Version>[] = []
   for (let j = new BigNumber(0); versionsLength.isGreaterThan(j); j = j.plus(1)) {
     versionsPromise.push(getServiceVersionWithIndex(contract, sid, j))
@@ -35,6 +35,10 @@ const isVersionExist = async (contract: Marketplace, versionHash: string): Promi
   return contract.methods.isServiceVersionExist(hashToHex(versionHash)).call()
 }
 
+const getServiceVersionCount = async (contract: Marketplace, sid: string): Promise<BigNumber> => {
+  return new BigNumber(await contract.methods.serviceVersionsLength(stringToHex(sid)).call())
+}
+
 const computeVersionHash = (from: string, sid: string, manifest: string, manifestProtocol: string) => {
   return hexToHash(keccak256(from, stringToHex(sid), stringToHex(manifest), stringToHex(manifestProtocol)))
 }
@@ -43,5 +47,6 @@ export {
   getServiceVersions,
   getServiceVersion,
   isVersionExist,
+  getServiceVersionCount,
   computeVersionHash,
 }
