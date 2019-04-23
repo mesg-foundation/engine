@@ -53,7 +53,7 @@ export default (
 
 const uploadManifest = async (manifest: Manifest): Promise<string> => {
   const ipfsClient = require('ipfs-http-client')
-  const IPFS = ipfsClient('ipfs.app.mesg.com', '5001', {protocol: 'http'})
+  const IPFS = ipfsClient(process.env.IPFS_PROVIDER)
   const buffer = Buffer.from(JSON.stringify(manifest))
   const res = await IPFS.add(buffer, {pin: false})
   if (!res.length) {
