@@ -101,8 +101,6 @@ tasks:
                   service: &manifestServiceData	
                     type: Object
                     object:
-                      hashVersion:
-                        type: String
                       deployment:
                         type: Object
                         object:

@@ -55,10 +55,9 @@ type MarketplaceDeployedSource struct {
 
 // MarketplaceManifestServiceData is the data present to the manifest and sent to create a new service's version
 type MarketplaceManifestServiceData struct {
-	Definition  *definition.Service       `json:"definition"`
-	Readme      string                    `json:"readme,omitempty"`
-	HashVersion string                    `json:"hashVersion"`
-	Deployment  MarketplaceDeployedSource `json:"deployment"`
+	Definition *definition.Service       `json:"definition"`
+	Readme     string                    `json:"readme,omitempty"`
+	Deployment MarketplaceDeployedSource `json:"deployment"`
 }
 
 // MarketplaceManifestData struct {
