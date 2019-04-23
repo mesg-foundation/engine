@@ -25,20 +25,13 @@
                     ],
                     "type": "object"
                 },
-                "hashVersion": {
-                    "enum": [
-                        "1"
-                    ],
-                    "type": "string"
-                },
                 "readme": {
                     "type": "string"
                 }
             },
             "required": [
                 "definition",
-                "deployment",
-                "hashVersion"
+                "deployment"
             ],
             "type": "object"
         },
