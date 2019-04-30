@@ -127,23 +127,17 @@ func (p *ServiceProvider) deployServiceFromMarketplace(u string, env map[string]
 }
 
 func deployServiceSendServiceContext(path string, env map[string]string, stream coreapi.Core_DeployServiceClient) error {
-	contextDir, relDockerfile, err := build.GetContextFromLocalDir(path, build.DefaultDockerfileName)
+	excludes, err := build.ReadDockerignore(path)
 	if err != nil {
 		return err
 	}
 
-	excludes, err := build.ReadDockerignore(contextDir)
-	if err != nil {
-		return err
-	}
-
-	if err := build.ValidateContextDirectory(contextDir, excludes); err != nil {
+	if err := build.ValidateContextDirectory(path, excludes); err != nil {
 		return fmt.Errorf("error checking context: %s", err)
 	}
 
 	// And canonicalize dockerfile name to a platform-independent one
-	relDockerfile = archive.CanonicalTarNameForPath(relDockerfile)
-	excludes = build.TrimBuildFilesFromExcludes(excludes, relDockerfile, false)
+	excludes = build.TrimBuildFilesFromExcludes(excludes, build.DefaultDockerfileName, false)
 
 	archive, err := archive.TarWithOptions(path, &archive.TarOptions{
 		Compression:     archive.Gzip,
