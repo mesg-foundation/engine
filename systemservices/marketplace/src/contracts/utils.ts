@@ -12,7 +12,7 @@ BigNumber.config({ EXPONENTIAL_AT: 100 })
 
 const hexToString = Web3.utils.hexToString
 const stringToHex = Web3.utils.stringToHex
-const sha3 = Web3.utils.sha3
+const keccak256 = Web3.utils.soliditySha3
 
 const toUnit = (x: string|BigNumber): string => {
   const n = new BigNumber(x).times(1e18)
@@ -42,22 +42,27 @@ interface CreateTransaction {
 const createTransactionTemplate = (
   chainID: number,
   web3: Web3,
-  defaultGas: number,
   defaultGasPrice: number
 ): CreateTransaction => async (
   contract: Contract,
   inputs: TaskInputs,
   data: string,
   shiftNonce?: number
-) => ({
-  chainID: chainID,
-  to: contract.options.address,
-  nonce: (await web3.eth.getTransactionCount(inputs.from)) + (shiftNonce || 0),
-  gas: inputs.gas || defaultGas,
-  gasPrice: inputs.gasPrice || defaultGasPrice,
-  value: '0',
-  data: data
-})
+) => {
+  const tx = {
+    chainID: chainID,
+    to: contract.options.address,
+    value: '0',
+    data: data,
+    gas: inputs.gas,
+    gasPrice: inputs.gasPrice || defaultGasPrice,
+    nonce: (await web3.eth.getTransactionCount(inputs.from)) + (shiftNonce || 0),
+  }
+  if (!tx.gas) {
+    tx.gas = await web3.eth.estimateGas({...tx, from: inputs.from})
+  }
+  return tx
+}
 
 const extractEventFromLogs = (web3: Web3, contract: Contract, eventName: string, logs: Log[]): any => {
   const abi = findInAbi(contract.options.jsonInterface, eventName)
@@ -88,7 +93,7 @@ const findInAbi = (abi: ABIDefinition[], eventName: string): ABIDefinition => {
 export {
   hexToString,
   stringToHex,
-  sha3,
+  keccak256,
   toUnit,
   fromUnit,
   parseTimestamp,
