@@ -1,5 +1,6 @@
 import { service as MESG } from "mesg-js"
 import Web3 from "web3"
+const HttpProvider = require('web3-providers-http') // Wrong ts definition
 
 import marketplaceABI from "./contracts/Marketplace.abi.json"
 import { Marketplace } from "./contracts/Marketplace"
@@ -11,13 +12,14 @@ import listenEvents from "./events"
 
 const providerEndpoint = process.env.PROVIDER_ENDPOINT as string
 const marketplaceAddress = process.env.MARKETPLACE_ADDRESS
+const timeout = process.env.TIMEOUT
 const ERC20Address = process.env.TOKEN_ADDRESS
 const blockConfirmations = parseInt(<string>process.env.BLOCK_CONFIRMATIONS, 10)
 const pollingTime = parseInt(<string>process.env.POLLING_TIME, 10)
 
 const main = async () => {
   const mesg = MESG()
-  const web3 = new Web3(providerEndpoint)
+  const web3 = new Web3(new HttpProvider(providerEndpoint, { timeout }))
   const marketplace = new web3.eth.Contract(marketplaceABI, marketplaceAddress) as Marketplace
   const token = new web3.eth.Contract(ERC20ABI, ERC20Address) as ERC20
 
