@@ -3,6 +3,7 @@ import { Marketplace } from "../contracts/Marketplace"
 import { getServiceVersion } from "../contracts/version";
 import { hexToString, stringToHex, hashToHex, hexToHash } from "../contracts/utils";
 import BigNumber from "bignumber.js";
+import { getManifest } from "../contracts/manifest";
 import { requireServiceExist } from "../contracts/service";
 
 export default (
@@ -50,19 +51,16 @@ export default (
 
     // get version's manifest data
     const version = await getServiceVersion(contract, versionHash)
-    if (version.manifestData === null) {
-      throw new Error('could not download manifest of version with hash ' + versionHash)
-    }
-
+    const manifest = await getManifest(version.manifestProtocol, version.manifest)
     return outputs.success({
       authorized: authorized,
       sid: sid,
-      type: version.manifestData.service.deployment.type,
-      source: version.manifestData.service.deployment.source,
+      type: manifest.service.deployment.type,
+      source: manifest.service.deployment.source,
     })
   }
   catch (error) {
     console.error('error in isAuthorized', error)
-    return outputs.error({ message: error.toString() })
+    return outputs.error({ message: error.message })
   }
 }

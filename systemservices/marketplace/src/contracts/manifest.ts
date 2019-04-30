@@ -6,7 +6,7 @@ import manifestSchema from '../types/schema/manifest.json'
 const validator = new Validator();
 
 const getIpfs = async (source: string): Promise<any> => {
-  return await Request.get('https://gateway.ipfs.io/ipfs/' + source, { json: true, timeout: 30000 })
+  return await Request.get(`http://${process.env.IPFS_PROVIDER}:8080/ipfs/${source}`, { json: true, timeout: 30000 })
 }
 
 const getHttp = async (source: string): Promise<any> => {
