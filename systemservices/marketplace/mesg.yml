@@ -1,11 +1,9 @@
 name: Marketplace
-sid: marketplace
+sid: com.mesg.marketplace.tasks
 description: ""
 configuration:
   env:
     - PROVIDER_ENDPOINT=https://ropsten.infura.io/v3/6115ae2531f64c04a9a392cf500e5fbe
-    - BLOCK_CONFIRMATIONS=0
-    - POLLING_TIME=1000
     - TIMEOUT=30000
     - MARKETPLACE_ADDRESS=0xeCC1A867F871323350A1A89FcAf69629a2d5085e
     - TOKEN_ADDRESS=0x5861b3dc52339d4f976b7fa5d80db6cd6f477f1b
@@ -345,39 +343,3 @@ tasks:
           type:
             type: String
             optional: true
-events:
-  serviceCreated:
-    data:
-      sid: *sid
-      owner: *owner
-  serviceOwnershipTransferred:
-    data:
-      sid: *sid
-      previousOwner:
-        type: String
-      newOwner:
-        type: String
-  serviceVersionCreated:
-    data:
-      sid: *sid
-      versionHash: *versionHash
-      manifest: *manifest
-      manifestProtocol: *manifestProtocol
-  serviceOfferCreated:
-    data:
-      sid: *sid
-      offerIndex: *offerIndex
-      price: *price
-      duration: *duration
-  serviceOfferDisabled:
-    data:
-      sid: *sid
-      offerIndex: *offerIndex
-  servicePurchased:
-    data:
-      sid: *sid
-      offerIndex: *offerIndex
-      purchaser: *purchaser
-      price: *price
-      duration: *duration
-      expire: *expire
