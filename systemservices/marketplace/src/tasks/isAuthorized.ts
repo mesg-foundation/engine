@@ -16,7 +16,7 @@ export default (
       versionHash = inputs.versionHash
       // get service from version hash
       const sidHash = await contract.methods.versionHashToService(hashToHex(versionHash)).call()
-      if (hexToString(sidHash) === "") {
+      if (Number(sidHash) === 0) {
         throw new Error('service with hash ' + versionHash + ' does not exist')
       }
       const service = await contract.methods.services(sidHash).call()
