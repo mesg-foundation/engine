@@ -29,7 +29,7 @@ bash <(curl -fsSL https://mesg.com/install)
 ```bash
 mesg-core service deploy {{.Repository}}
 ```
-{{else}}Download the source code of this service, and then in the service's folder, run the following command:
+{{else}}Download the source code of this service, and then in the service's direcotry, run the following command:
 ```bash
 mesg-core service deploy
 ```
