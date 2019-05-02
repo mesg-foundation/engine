@@ -14,7 +14,7 @@ export default (
     // check inputs
     const sid = inputs.sid
     const duration = new BigNumber(inputs.duration)
-    assert.ok(duration.isPositive(), 'duration must be strictly positive')
+    assert.ok(duration.isPositive() && !duration.isZero(), 'duration must be strictly positive')
 
     // check service
     const service = await getService(marketplace, sid)
