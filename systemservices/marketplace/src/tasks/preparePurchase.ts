@@ -53,6 +53,8 @@ export default (
       stringToHex(inputs.sid),
       inputs.offerIndex
     ).encodeABI()
+    // QUICK FIX: set a default value to inputs.gas to avoid calling web3.eth.estimateGas that failed if the user's wallet didn't approve the marketplace to spend its token.
+    inputs.gas = inputs.gas || 200000
     transactions.push(createTransaction(marketplace, inputs, purchaseTransactionData, shiftNonce))
 
     return outputs.success({
