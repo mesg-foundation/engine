@@ -3,6 +3,9 @@
 MESG_SERVICE_SERVER=ipfs.app.mesg.com
 
 LDFLAGS="-X 'github.com/mesg-foundation/core/version.Version=$version'"
+LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceEndpoint='"
+LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceAddress='"
+LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceToken='"
 
 # upload system services
 for s in systemservices/* ; do
