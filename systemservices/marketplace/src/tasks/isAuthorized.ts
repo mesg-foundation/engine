@@ -37,8 +37,13 @@ export default (
 
     await requireServiceExist(contract, sid)
 
+    // Hack to allow user with no address to have access to services with free offers
+    const addresses = inputs.addresses.length > 0
+      ? [...inputs.addresses]
+      : ['0x0000000000000000000000000000000000000000'] // Service with free offer will always return true for whatever address
+
     // check if at least one of the provided addresses is authorized
-    const authorizations = await Promise.all(inputs.addresses.map((address: string) => {
+    const authorizations = await Promise.all(addresses.map((address: string) => {
       return contract.methods.isAuthorized(stringToHex(sid), address).call()
     }) as Promise<boolean>[])
     const authorized = authorizations.reduce((p, c) => p || c, false)
