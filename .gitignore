@@ -17,9 +17,8 @@ debug
 
 /bin
 /test
-/node_modules
-/docs/node_modules
-/docs/.vuepress/dist
+node_modules
 
 # do not store vendor dir
-/vendor/
+vendor
+tmp-systemservices

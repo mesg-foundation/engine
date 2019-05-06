@@ -1,6 +1,8 @@
 package service
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
 	"testing"
 
 	"github.com/mesg-foundation/core/utils/hash"
@@ -8,13 +10,18 @@ import (
 )
 
 func TestServiceNamespace(t *testing.T) {
-	service, _ := FromService(&Service{Name: "TestServiceNamespace"})
+	service := &Service{
+		Hash: "1",
+		Name: "TestServiceNamespace",
+	}
 	namespace := service.namespace()
-	require.Equal(t, namespace, []string{service.Hash})
+	sum := sha1.Sum([]byte(service.Hash))
+	require.Equal(t, namespace, []string{hex.EncodeToString(sum[:])})
 }
 
 func TestDependencyNamespace(t *testing.T) {
-	service, _ := FromService(&Service{
+	service := &Service{
+		Hash: "1",
 		Name: "TestDependencyNamespace",
 		Dependencies: []*Dependency{
 			{
@@ -22,13 +29,17 @@ func TestDependencyNamespace(t *testing.T) {
 				Image: "http-server",
 			},
 		},
-	})
+	}
 	dep := service.Dependencies[0]
-	require.Equal(t, dep.namespace(), []string{service.Hash, "test"})
+	sum := sha1.Sum([]byte(service.Hash))
+	require.Equal(t, dep.namespace(service.namespace()), []string{hex.EncodeToString(sum[:]), "test"})
 }
 
 func TestEventSubscriptionChannel(t *testing.T) {
-	service, _ := FromService(&Service{Name: "TestEventSubscriptionChannel"})
+	service := &Service{
+		Hash: "1",
+		Name: "TestEventSubscriptionChannel",
+	}
 	require.Equal(t, service.EventSubscriptionChannel(), hash.Calculate(append(
 		service.namespace(),
 		eventChannel,
@@ -36,7 +47,10 @@ func TestEventSubscriptionChannel(t *testing.T) {
 }
 
 func TestTaskSubscriptionChannel(t *testing.T) {
-	service, _ := FromService(&Service{Name: "TaskSubscriptionChannel"})
+	service := &Service{
+		Hash: "1",
+		Name: "TaskSubscriptionChannel",
+	}
 	require.Equal(t, service.TaskSubscriptionChannel(), hash.Calculate(append(
 		service.namespace(),
 		taskChannel,
@@ -44,7 +58,10 @@ func TestTaskSubscriptionChannel(t *testing.T) {
 }
 
 func TestResultSubscriptionChannel(t *testing.T) {
-	service, _ := FromService(&Service{Name: "ResultSubscriptionChannel"})
+	service := &Service{
+		Hash: "1",
+		Name: "ResultSubscriptionChannel",
+	}
 	require.Equal(t, service.ResultSubscriptionChannel(), hash.Calculate(append(
 		service.namespace(),
 		resultChannel,

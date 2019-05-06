@@ -1,0 +1,9 @@
+name: "Test service"
+configuration:
+  volumesfrom:
+    - notExistingDependence
+dependencies:
+  app:
+    image: nginx
+    volumesfrom:
+      - notExistingDependence

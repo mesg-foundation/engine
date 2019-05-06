@@ -20,7 +20,8 @@ func TestDeployService(t *testing.T) {
 
 	stream := newTestDeployStream(url)
 	require.Nil(t, server.DeployService(stream))
-	require.Len(t, stream.serviceID, 7)
+	require.Len(t, stream.sid, 7)
+	require.NotEmpty(t, stream.hash)
 
 	require.Contains(t, stream.statuses, api.DeployStatus{
 		Message: "Image built with success",
@@ -30,10 +31,11 @@ func TestDeployService(t *testing.T) {
 
 // TODO(ilgooz) also add tests for receiving chunks.
 type testDeployStream struct {
-	url       string // Git repo url.
-	err       error
-	serviceID string
-	statuses  []api.DeployStatus
+	url      string // Git repo url.
+	err      error
+	sid      string
+	hash     string
+	statuses []api.DeployStatus
 	grpc.ServerStream
 }
 
@@ -42,7 +44,8 @@ func newTestDeployStream(url string) *testDeployStream {
 }
 
 func (s *testDeployStream) Send(m *coreapi.DeployServiceReply) error {
-	s.serviceID = m.GetServiceID()
+	s.sid = m.GetService().GetSid()
+	s.hash = m.GetService().GetHash()
 
 	status := m.GetStatus()
 	if status != nil {

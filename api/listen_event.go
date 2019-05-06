@@ -2,26 +2,9 @@ package api
 
 import (
 	"github.com/mesg-foundation/core/event"
-	"github.com/mesg-foundation/core/pubsub"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/x/xstrings"
 )
-
-// ListenEventFilter is a filter func for filtering events.
-type ListenEventFilter func(*EventListener)
-
-// ListenEventKeyFilter returns an eventKey filter.
-func ListenEventKeyFilter(eventKey string) ListenEventFilter {
-	return func(ln *EventListener) {
-		ln.eventKey = eventKey
-	}
-}
-
-// ListenEvent listens events matches with eventFilter on serviceID.
-func (a *API) ListenEvent(serviceID string, filters ...ListenEventFilter) (*EventListener, error) {
-	l := newEventListener(a, filters...)
-	return l, l.listen(serviceID)
-}
 
 // EventListener provides functionalities to listen MESG events.
 type EventListener struct {
@@ -43,19 +26,29 @@ type EventListener struct {
 	api *API
 }
 
-// newEventListener creates a new EventListener with given api and filters.
-func newEventListener(api *API, filters ...ListenEventFilter) *EventListener {
-	ln := &EventListener{
+// ListenEventFilter is a filter func for filtering events.
+type ListenEventFilter func(*EventListener)
+
+// ListenEventKeyFilter returns an eventKey filter.
+func ListenEventKeyFilter(eventKey string) ListenEventFilter {
+	return func(ln *EventListener) {
+		ln.eventKey = eventKey
+	}
+}
+
+// ListenEvent listens events that matches with filters on service serviceID.
+func (a *API) ListenEvent(serviceID string, filters ...ListenEventFilter) (*EventListener, error) {
+	l := &EventListener{
 		Events:    make(chan *event.Event),
 		Err:       make(chan error, 1),
 		cancel:    make(chan struct{}),
 		listening: make(chan struct{}),
-		api:       api,
+		api:       a,
 	}
 	for _, filter := range filters {
-		filter(ln)
+		filter(l)
 	}
-	return ln
+	return l, l.listen(serviceID)
 }
 
 // Close stops listening for events.
@@ -70,10 +63,6 @@ func (l *EventListener) listen(serviceID string) error {
 	if err != nil {
 		return err
 	}
-	s, err = service.FromService(s, service.ContainerOption(l.api.container))
-	if err != nil {
-		return err
-	}
 	if err := l.validateEventKey(s); err != nil {
 		return err
 	}
@@ -83,9 +72,9 @@ func (l *EventListener) listen(serviceID string) error {
 }
 
 func (l *EventListener) listenLoop(service *service.Service) {
-	channel := service.EventSubscriptionChannel()
-	subscription := pubsub.Subscribe(channel)
-	defer pubsub.Unsubscribe(channel, subscription)
+	topic := service.EventSubscriptionChannel()
+	subscription := l.api.ps.Sub(topic)
+	defer l.api.ps.Unsub(subscription, topic)
 	close(l.listening)
 
 	for {

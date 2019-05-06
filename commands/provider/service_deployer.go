@@ -3,11 +3,15 @@ package provider
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
+	"net/url"
+	"strings"
 
-	"github.com/asaskevich/govalidator"
+	"github.com/docker/cli/cli/command/image/build"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
+	validator "gopkg.in/go-playground/validator.v9"
 )
 
 // StatusType indicates the type of status message.
@@ -34,47 +38,110 @@ type DeployStatus struct {
 
 // deploymentResult keeps information about deployment result.
 type deploymentResult struct {
-	serviceID       string
+	sid             string
+	hash            string
 	err             error
 	validationError error
 }
 
 // ServiceDeploy deploys service from given path.
-func (p *ServiceProvider) ServiceDeploy(path string, env map[string]string, statuses chan DeployStatus) (id string,
-	validationError, err error) {
+func (p *ServiceProvider) ServiceDeploy(path string, env map[string]string, statuses chan DeployStatus) (sid string, hash string, validationError, err error) {
 	stream, err := p.client.DeployService(context.Background())
 	if err != nil {
-		return "", nil, err
+		return "", "", nil, err
 	}
 
 	deployment := make(chan deploymentResult)
+	go func() {
+		<-stream.Context().Done()
+		deployment <- deploymentResult{err: stream.Context().Err()}
+	}()
 	go readDeployReply(stream, deployment, statuses)
 
-	if govalidator.IsURL(path) {
-		if err := stream.Send(&coreapi.DeployServiceRequest{
+	isURL := validator.New().Var(path, "url")
+	switch {
+	case strings.HasPrefix(path, "mesg:"):
+		err = p.deployServiceFromMarketplace(path, env, stream)
+	case isURL == nil:
+		err = stream.Send(&coreapi.DeployServiceRequest{
 			Value: &coreapi.DeployServiceRequest_Url{Url: path},
 			Env:   env,
-		}); err != nil {
-			return "", nil, err
-		}
-	} else {
-		if err := deployServiceSendServiceContext(path, env, stream); err != nil {
-			return "", nil, err
-		}
+		})
+	default:
+		err = deployServiceSendServiceContext(path, env, stream)
+	}
+	if err != nil {
+		return "", "", nil, err
 	}
 
 	if err := stream.CloseSend(); err != nil {
-		return "", nil, err
+		return "", "", nil, err
 	}
 
 	result := <-deployment
 	close(statuses)
-	return result.serviceID, result.validationError, result.err
+	return result.sid, result.hash, result.validationError, result.err
+}
+
+func (p *ServiceProvider) deployServiceFromMarketplace(u string, env map[string]string, stream coreapi.Core_DeployServiceClient) error {
+
+	urlParsed, err := url.Parse(u)
+	if err != nil {
+		return err
+	}
+	path := strings.Split(strings.Trim(urlParsed.EscapedPath(), "/"), "/")
+	if urlParsed.Hostname() != "marketplace" || len(path) != 2 || path[0] != "service" || len(path[1]) == 0 {
+		return fmt.Errorf("marketplace url %s invalid", u)
+	}
+
+	// Get ALL address from wallet
+	addresses, err := p.wp.List()
+	if err != nil {
+		return err
+	}
+
+	// Check if one of them are is authorized
+	authorized, sid, source, sourceType, err := p.mp.IsAuthorized("", path[1], addresses)
+	if err != nil {
+		return err
+	}
+
+	if !authorized {
+		return fmt.Errorf("you are not authorized to deploy this service. Did you purchase it?\nExecute the following command to purchase it:\n\tmesg-core marketplace purchase %s", sid)
+	}
+
+	var url string
+	switch sourceType {
+	case "https", "http":
+		url = source
+	case "ipfs":
+		url = "https://gateway.ipfs.io/ipfs/" + source
+	default:
+		return fmt.Errorf("unknown protocol %s", sourceType)
+	}
+
+	return stream.Send(&coreapi.DeployServiceRequest{
+		Value: &coreapi.DeployServiceRequest_Url{Url: url},
+		Env:   env,
+	})
 }
 
 func deployServiceSendServiceContext(path string, env map[string]string, stream coreapi.Core_DeployServiceClient) error {
+	excludes, err := build.ReadDockerignore(path)
+	if err != nil {
+		return err
+	}
+
+	if err := build.ValidateContextDirectory(path, excludes); err != nil {
+		return fmt.Errorf("error checking context: %s", err)
+	}
+
+	// And canonicalize dockerfile name to a platform-independent one
+	excludes = build.TrimBuildFilesFromExcludes(excludes, build.DefaultDockerfileName, false)
+
 	archive, err := archive.TarWithOptions(path, &archive.TarOptions{
-		Compression: archive.Gzip,
+		Compression:     archive.Gzip,
+		ExcludePatterns: excludes,
 	})
 	if err != nil {
 		return err
@@ -120,7 +187,7 @@ func readDeployReply(stream coreapi.Core_DeployServiceClient, deployment chan de
 
 		var (
 			status          = message.GetStatus()
-			serviceID       = message.GetServiceID()
+			service         = message.GetService()
 			validationError = message.GetValidationError()
 		)
 
@@ -141,8 +208,9 @@ func readDeployReply(stream coreapi.Core_DeployServiceClient, deployment chan de
 
 			statuses <- s
 
-		case serviceID != "":
-			result.serviceID = serviceID
+		case service != nil:
+			result.sid = service.Sid
+			result.hash = service.Hash
 			deployment <- result
 			return
 

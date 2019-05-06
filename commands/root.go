@@ -30,6 +30,8 @@ func newRootCmd(e Executor) *rootCmd {
 		newStopCmd(e).cmd,
 		newLogsCmd(e).cmd,
 		newRootServiceCmd(e).cmd,
+		newRootWalletCmd(e).cmd,
+		newRootMarketplaceCmd(e).cmd,
 	)
 	return c
 }

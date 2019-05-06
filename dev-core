@@ -7,7 +7,40 @@ MESG_LOG_LEVEL=${MESG_LOG_LEVEL:-debug}
 MESG_LOG_FORCECOLORS=${MESG_LOG_FORCECOLORS:-false}
 VERSION=local
 LDFLAGS="-X 'github.com/mesg-foundation/core/version.Version=$VERSION'"
+LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceEndpoint=https://ropsten.infura.io/v3/6115ae2531f64c04a9a392cf500e5fbe'"
+LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceAddress=0xeCC1A867F871323350A1A89FcAf69629a2d5085e'"
+LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceToken=0x5861b3dc52339d4f976b7fa5d80db6cd6f477f1b'"
 CLIFLAGS=""
+MESG_SERVICE_SERVER="core-service-server"
+
+function deleteServiceServer {
+  rm -rf tmp-systemservices
+  if docker service list | grep -q core-service-server; then
+    docker service rm $MESG_SERVICE_SERVER
+  fi
+}
+
+deleteServiceServer
+mkdir -p tmp-systemservices
+for i in systemservices/* ; do
+  if [ -d "$i" ]; then
+    echo "Creating archive for $i..."
+    cd $i
+    file=$(basename "$i")
+    tar -czf ../../tmp-systemservices/$file.tar.gz --exclude-from=.dockerignore .
+    varname="$(tr '[:lower:]' '[:upper:]' <<< ${file:0:1})${file:1}"
+    LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.${varname}URL=http://$MESG_SERVICE_SERVER/$file.tar.gz'"
+    cd ../..
+  fi
+done
+echo "FROM nginx:alpine" >> tmp-systemservices/Dockerfile
+echo "COPY . /usr/share/nginx/html" >> tmp-systemservices/Dockerfile
+docker build tmp-systemservices -t $MESG_SERVICE_SERVER
+docker service create -d \
+  -p 8080:8080 \
+  --name $MESG_SERVICE_SERVER \
+  --network core \
+  $MESG_SERVICE_SERVER
 
 echo "compile cli and core"
 GOOS=linux GOARCH=amd64 go build -o ./bin/core -ldflags="$LDFLAGS" core/main.go
@@ -51,6 +84,7 @@ trap onexit EXIT INT
 
 function onexit {
   ./bin/cli stop
+  deleteServiceServer
 }
 
 if [[ "$MESG_LOG_FORCECOLORS" = true ]]; then

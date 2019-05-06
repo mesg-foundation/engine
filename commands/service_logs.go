@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/mesg-foundation/core/commands/provider"
+	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/utils/pretty"
 	"github.com/mesg-foundation/core/x/xsignal"
 	"github.com/mesg-foundation/core/x/xstrings"
@@ -41,30 +42,35 @@ mesg-core service logs SERVICE --dependencies DEPENDENCY_NAME,DEPENDENCY_NAME,..
 }
 
 func (c *serviceLogsCmd) runE(cmd *cobra.Command, args []string) error {
-	closer, err := showLogs(c.e, args[0], c.dependencies...)
+	closer, errC, err := showLogs(c.e, args[0], c.dependencies...)
 	if err != nil {
 		return err
 	}
 	defer closer()
 
-	<-xsignal.WaitForInterrupt()
-	return nil
+	select {
+	case err := <-errC:
+		return err
+	case <-xsignal.WaitForInterrupt():
+		return nil
+	}
 }
 
-func showLogs(e ServiceExecutor, serviceID string, dependencies ...string) (closer func(), err error) {
+func showLogs(e ServiceExecutor, serviceID string, dependencies ...string) (closer func(), errC chan error, err error) {
 	var (
 		logs []*provider.Log
 	)
 	pretty.Progress("Loading logs...", func() {
-		logs, closer, err = e.ServiceLogs(serviceID, dependencies...)
+		logs, closer, errC, err = e.ServiceLogs(serviceID, dependencies...)
 	})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// if there was no dependencies copy all returned
 	// by service logs.
 	if len(dependencies) == 0 {
+		dependencies = append(dependencies, service.MainServiceKey)
 		for _, log := range logs {
 			dependencies = append(dependencies, log.Dependency)
 		}
@@ -77,7 +83,7 @@ func showLogs(e ServiceExecutor, serviceID string, dependencies ...string) (clos
 		go prefixedCopy(os.Stderr, log.Error, prefixes[log.Dependency])
 	}
 
-	return closer, nil
+	return closer, errC, nil
 }
 
 // dependencyPrefixes returns colored dependency name prefixes.

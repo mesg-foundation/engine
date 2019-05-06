@@ -1,7 +1,9 @@
 syntax = "proto3";
 
+import "protobuf/definition/service.proto";
+
 package api;
-option go_package = "coreapi";
+option go_package = "github.com/mesg-foundation/core/protobuf/coreapi";
 
 // This is the primary API to interact with MESG Core functionalities.
 // It can be consumed by any applications or tools that you'd like to interact with MESG Core.
@@ -42,6 +44,9 @@ service Core {
 
   // ServiceLogs gives a stream for dependency logs of a service.
   rpc ServiceLogs (ServiceLogsRequest) returns (stream LogData) {}
+
+  // Info returns all necessary information from the core.
+  rpc Info(InfoRequest) returns (InfoReply) {}
 }
 
 // The request's data for the `ListenEvent` stream's API.
@@ -240,10 +245,15 @@ message DeployServiceReply {
     Type type = 2;      // Type of status message.
   }
 
+  message Service {
+    string sid = 1;   // `sid` is the service ID.
+    string hash = 2;  // `hash` is the service hash.
+  }
+
   oneof value {
     Status status = 2;          // `status` will be sent after each status change.
-    string serviceID = 3;       // `serviceID` will be sent as the last message of stream when service deployed successfully.
     string validationError = 4; // `validationError` will be sent as the last message of stream when there is a validation error.
+    Service service = 5;        // `service` will be sent as the last message of stream when service deployed successfully.
   }
 }
 
@@ -268,58 +278,75 @@ message DeleteServiceReply {
 message ListServicesRequest {
 }
 
+// Service return all information related to the service
+message Service {
+  enum Status {
+    UNKNOWN = 0;
+    STOPPED = 1;
+    STARTING = 2;
+    PARTIAL = 3;
+    RUNNING = 4;
+  }
+  Status status = 1;   // Status of the service
+  definition.Service definition = 2; // Definition of the service
+}
+
 // The reply's data of the `ListServices` API.
 //
 // **Example**
 // ```json
 // {
 //   "services": [{
-//     "id": "idX",
-//     "sid": "sidX",
-//     "name": "serviceX",
-//     "description": "descriptionX",
-//     "status": "statusX",
-//     "events": [{
-//       "key": "eventX",
-//       "name": "nameX",
-//       "description": "descriptionX",
-//       "data": [{  
-//         "key": "dataX",
-//         "name": "nameX",
-//         "description": "descriptionX",
-//         "type": "String",
-//         "optional": true
-//       }]
-//     }],
-//     "tasks": [{
-//       "key": "taskX",
-//       "name": "nameX",
-//       "description": "descriptionX",
-//       "inputs": [{
-//         "key": "foo",
-//         "name": "nameX",
-//         "description": "descriptionX",
-//         "type": "String",
-//         "optional": true
+//     "definition": {
+//       "dependencies": [{
+//         "image": "sha256:dfb1b6be0001c2f64822917ee8462585e43941376db887b83167413230117af9",
+//         "key": "service"
 //       }],
-//       "outputs": [{
-//         "key": "outputX",
-//         "name": "nameX",
-//         "description": "descriptionX",
-//         "data": [{  
-//           "key": "resX",
-//           "name": "nameX",
-//           "description": "descriptionX",
-//           "type": "String",
-//           "optional": false
-//         }]
+//       "description": "Description of my service",
+//       "events": [{
+//         "data": [{
+//           "key": "x",
+//           "type": "Boolean"
+//         }],
+//         "key": "started"
+//       }],
+//       "hash": "e8de3872762ec68f22a82ddeecac49d07cef17dbf7f2dbdb1c97f36d7cfce91a",
+//       "name": "myservice",
+//       "sid": "myservice",
+//       "tasks": [{
+//         "inputs": [{
+//             "key": "bar",
+//             "type": "String"
+//           },
+//           {
+//             "key": "foo",
+//             "type": "String"
+//           }
+//         ],
+//         "key": "taskX",
+//         "outputs": [{
+//             "data": [{
+//               "key": "error",
+//               "type": "String"
+//             }],
+//             "key": "error"
+//           },
+//           {
+//             "data": [{
+//               "key": "message",
+//               "type": "String"
+//             }],
+//             "key": "success"
+//           }
+//         ]
 //       }]
-//     }]
+//     },
+//     "status": 1
 //   }]
 // }
 // ```
 message ListServicesReply {
-  repeated Service services = 1; // The list of previously-deployed services' definitions.
+  repeated Service services = 1; // The list of previously-deployed services' detail.
 }
 
 // The request's data for the `GetService` API.
@@ -340,52 +367,56 @@ message GetServiceRequest {
 // ```json
 // {
 //   "service": {
-//     "id": "idX",
-//     "sid": "sidX",
-//     "name": "serviceX",
-//     "description": "descriptionX",
-//     "status": "statusX",
-//     "events": [{  
-//       "key": "eventX",
-//       "name": "nameX",
-//       "description": "descriptionX",
-//       "data": [{  
-//         "key": "dataX",
-//         "name": "nameX",
-//         "description": "descriptionX",
-//         "type": "String",
-//         "optional": true
-//       }]
-//     }],
-//     "tasks": [{
-//       "key": "taskX",
-//       "name": "nameX",
-//       "description": "descriptionX",
-//       "inputs": [{  
-//         "key": "foo",
-//         "name": "nameX",
-//         "description": "descriptionX",
-//         "type": "String",
-//         "optional": true
+//     "definition": {
+//       "dependencies": [{
+//         "image": "sha256:dfb1b6be0001c2f64822917ee8462585e43941376db887b83167413230117af9",
+//         "key": "service"
 //       }],
-//       "outputs": [{
-//         "key": "outputX",
-//         "name": "nameX",
-//         "description": "descriptionX",
-//         "data": [{  
-//           "key": "resX",
-//           "name": "nameX",
-//           "description": "descriptionX",
-//           "type": "String",
-//           "optional": false
-//         }]
+//       "description": "Description of my service",
+//       "events": [{
+//         "data": [{
+//           "key": "x",
+//           "type": "Boolean"
+//         }],
+//         "key": "started"
+//       }],
+//       "hash": "e8de3872762ec68f22a82ddeecac49d07cef17dbf7f2dbdb1c97f36d7cfce91a",
+//       "name": "myservice",
+//       "sid": "myservice",
+//       "tasks": [{
+//         "inputs": [{
+//             "key": "bar",
+//             "type": "String"
+//           },
+//           {
+//             "key": "foo",
+//             "type": "String"
+//           }
+//         ],
+//         "key": "taskX",
+//         "outputs": [{
+//             "data": [{
+//               "key": "error",
+//               "type": "String"
+//             }],
+//             "key": "error"
+//           },
+//           {
+//             "data": [{
+//               "key": "message",
+//               "type": "String"
+//             }],
+//             "key": "success"
+//           }
+//         ]
 //       }]
-//     }]
+//     },
+//     "status": 1
 //   }
 // }
 // ```
 message GetServiceReply {
-  Service service = 1; // Service's definition.
+  Service service = 1; // Service's detail.
 }
 
 // The request's data for `ServiceLogs` API.
@@ -400,6 +431,23 @@ message GetServiceReply {
 message ServiceLogsRequest {
   string serviceID = 1;             // The Service ID. Generated when using the [`DeployService` API](#deployservice).
   repeated string dependencies = 2; // __Optional.__ List of dependencies to filter service logs. All by default.
+}
+
+// The request to fetch all informations of the Core
+message InfoRequest {}
+
+// Information concerning the Core from the `info` API.
+message InfoReply {
+  message CoreService {
+    string sid = 1;   // sid of the service
+    string hash = 2;  // hash of the service
+    string url = 3;   // url used to deploy the service
+    string key = 4;   // key to identify the core service
+  }
+  repeated CoreService services = 1; // List of services that the core is running as core service
+  string address = 2; // Address to reach the core
+  string image = 3;   // Docker image used
+  string version = 4; // Version of the core
 }
 
 // The data received from the stream of the `ServiceLogs` API.
@@ -424,69 +472,3 @@ message LogData {
   bytes data = 3;        // Log data chunk.
 }
 
-// This is the definition of a MESG Service.
-message Service {
-  enum Status {
-    UNKNOWN = 0;
-    STOPPED = 1;
-    STARTING = 2;
-    PARTIAL = 3;
-    RUNNING = 4;
-  }
-  
-  string hash = 10;                         // Service's hash.
-  string sid = 12;                          // Service's sid.
-  string name = 1;                          // Service's name.
-  string description = 2;                   // Service's description.
-  repeated Task tasks = 5;                  // The list of tasks this service can execute.
-  repeated Event events = 6;                // The list of events this service can emit.
-  repeated Dependency dependencies = 7;     // The Docker dependencies this service requires.
-  string repository = 9;                    // Service's repository that contain its source code.
-  Status status = 11;                       // Service's status.
-}
-
-// Events are emitted by the service whenever the service wants.
-message Event {
-  string key = 4;                   // Event's key.
-  string name = 1;                  // Event's name.
-  string description = 2;           // Event's description.
-  repeated Parameter data = 3;      // List of data of this event.
-}
-
-// A task is a function that requires inputs and returns output.
-message Task {
-  string key = 8;                     // Task's key.
-  string name = 1;                    // Task's name.
-  string description = 2;             // Task's description.
-  repeated Parameter inputs = 6;      // List inputs of this task.
-  repeated Output outputs = 7;        // List of outputs this task can return.
-}
-
-// A output is the data a task must return.
-message Output {
-  string key = 4;                   // Output's key.
-  string name = 1;                  // Output's name.
-  string description = 2;           // Output's description.
-  repeated Parameter data = 3;      // List of data of this output.
-}
-
-// A parameter is the definition of a specific value.
-message Parameter {
-  string key = 8;         // Parameter's key.
-  string name = 1;        // Parameter's name.
-  string description = 2; // Parameter's description.
-  string type = 3;        // Parameter's type: `String`, `Number`, `Boolean`, `Object` or `Any`.
-  bool optional = 4;      // Set the parameter as optional.
-  bool repeated = 9;      // Mark a parameter as an array of the defined type
-  repeated Parameter object = 10; // Optional object structure definition when type is set to `Object`
-}
-
-// A dependency is a configuration of an other Docker container that runs separately from the service.
-message Dependency {
-  string key = 8;                   // Dependency's key.
-  string image = 1;                 // Image's name of the Docker.
-  repeated string volumes = 2;      // List of volumes.
-  repeated string volumesfrom = 3;  // List of volumes mounted from other dependencies.
-  repeated string ports = 4;        // List of ports the container exposes.
-  string command = 5;               // Command to run the container.
-}

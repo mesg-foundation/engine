@@ -1,0 +1,13 @@
+{
+    "address": "0xf3C21FD07B1D4c40d3cE6EfaC81a3E49f6c04592",
+    "passphrase": "1",
+    "transaction": {
+        "chainID": 3,
+        "data": "0x5d03323c7465737432000000000000000000000000000000000000000000000000000000",
+        "gas": 1000000,
+        "gasPrice": "1000000000",
+        "nonce": 12,
+        "to": "0x4b013d9bb4c50CE183A79094cb6626dEB7e009e1",
+        "value": "0"
+    }
+}

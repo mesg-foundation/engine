@@ -1,0 +1,324 @@
+{
+  "version": "1",
+  "service": {
+    "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "hashVersion": "1",
+    "deployment": {
+      "type": "https",
+      "source": "https://github.com/mesg-foundation/service-ethereum/archive/v0.1.tar.gz"
+    },
+    "definition": {
+      "name": "Ethereum",
+      "sid": "com.mesg.ethereum",
+      "description": "Ethereum Service to interact with any Smart Contract",
+      "configuration": {
+        "env": [
+          "PROVIDER_ENDPOINT=https://mainnet.infura.io/",
+          "BLOCK_CONFIRMATIONS=4",
+          "DEFAULT_GAS=1000000",
+          "POLLING_TIME=1000"
+        ]
+      },
+      "tasks": {
+        "executeSmartContractMethod": {
+          "name": "Execute a Smart Contract Method",
+          "description": "This task executes a method on any Smart Contract",
+          "inputs": {
+            "methodAbi": {
+              "name": "Method ABI",
+              "description": "The ABI of the method to execute. Only pass the ABI of the method and NOT all the Smart Contract's ABI.",
+              "type": "Any"
+            },
+            "inputs": {
+              "name": "Inputs",
+              "description": "The inputs to use during the execution of the method. Pass an Object with parameter's name as key and parameter's value as value.",
+              "type": "Any"
+            },
+            "contractAddress": {
+              "name": "Contract address",
+              "description": "The address of the contract",
+              "type": "String"
+            },
+            "privateKey": {
+              "name": "Signer private key",
+              "description": "The private key to sign the transaction",
+              "type": "String"
+            },
+            "value": {
+              "type": "String",
+              "optional": true
+            },
+            "gasPrice": {
+              "name": "Gas Price",
+              "description": "The gas price in wei to use for this transaction",
+              "type": "String",
+              "optional": true
+            },
+            "gas": {
+              "name": "Gas Limit",
+              "description": "The maximum gas provided for this transaction",
+              "type": "Number",
+              "optional": true
+            }
+          },
+          "outputs": {
+            "success": {
+              "name": "Success",
+              "description": "Output when the task executes successfully",
+              "data": {
+                "transactionHash": {
+                  "name": "Transaction hash",
+                  "description": "Hash of the transaction",
+                  "type": "String"
+                }
+              }
+            },
+            "error": {
+              "name": "Error",
+              "description": "Output when an error occurs",
+              "data": {
+                "message": {
+                  "name": "Message",
+                  "description": "The error message",
+                  "type": "String"
+                }
+              }
+            }
+          }
+        },
+        "callSmartContractMethod": {
+          "name": "Call a Smart Contract Method",
+          "description": "This task call a 'constant' method on any Smart Contract. It does not require fees.",
+          "inputs": {
+            "methodAbi": {
+              "name": "Method ABI",
+              "description": "The ABI of the method to execute. Only pass the ABI of the method and NOT all the Smart Contract's ABI.",
+              "type": "Any"
+            },
+            "inputs": {
+              "name": "Inputs",
+              "description": "The inputs to use during the execution of the method. Pass an Object with parameter's name as key and parameter's value as value.",
+              "type": "Any"
+            },
+            "contractAddress": {
+              "name": "Contract address",
+              "description": "The address of the contract",
+              "type": "String"
+            }
+          },
+          "outputs": {
+            "success": {
+              "name": "Success",
+              "description": "Output when the task executes successfully",
+              "data": {
+                "outputs": {
+                  "type": "Any"
+                }
+              }
+            },
+            "error": {
+              "name": "Error",
+              "description": "Output when an error occurs",
+              "data": {
+                "message": {
+                  "name": "Message",
+                  "description": "The error message",
+                  "type": "String"
+                }
+              }
+            }
+          }
+        },
+        "decodeLog": {
+          "inputs": {
+            "abi": {
+              "type": "Any"
+            },
+            "address": {
+              "type": "String"
+            },
+            "data": {
+              "type": "String"
+            },
+            "topics": {
+              "type": "Any"
+            },
+            "logIndex": {
+              "type": "Number"
+            },
+            "transactionHash": {
+              "type": "String"
+            },
+            "transactionIndex": {
+              "type": "Number"
+            },
+            "blockHash": {
+              "type": "String"
+            },
+            "blockNumber": {
+              "type": "Number"
+            }
+          },
+          "outputs": {
+            "success": {
+              "data": {
+                "decodedData": {
+                  "type": "Any"
+                },
+                "address": {
+                  "type": "String"
+                },
+                "data": {
+                  "type": "String"
+                },
+                "topics": {
+                  "type": "Any"
+                },
+                "logIndex": {
+                  "type": "Number"
+                },
+                "transactionHash": {
+                  "type": "String"
+                },
+                "transactionIndex": {
+                  "type": "Number"
+                },
+                "blockHash": {
+                  "type": "String"
+                },
+                "blockNumber": {
+                  "type": "Number"
+                }
+              }
+            },
+            "error": {
+              "name": "Error",
+              "description": "Output when an error occurs",
+              "data": {
+                "message": {
+                  "name": "Message",
+                  "description": "The error message",
+                  "type": "String"
+                }
+              }
+            }
+          }
+        }
+      },
+      "events": {
+        "log": {
+          "data": {
+            "address": {
+              "type": "String"
+            },
+            "data": {
+              "type": "String"
+            },
+            "topics": {
+              "type": "Any"
+            },
+            "logIndex": {
+              "type": "Number"
+            },
+            "transactionHash": {
+              "type": "String"
+            },
+            "transactionIndex": {
+              "type": "Number"
+            },
+            "blockHash": {
+              "type": "String"
+            },
+            "blockNumber": {
+              "type": "Number"
+            }
+          }
+        },
+        "block": {
+          "data": {
+            "number": {
+              "type": "Number"
+            },
+            "hash": {
+              "type": "String"
+            },
+            "parentHash": {
+              "type": "String"
+            },
+            "sha3Uncles": {
+              "type": "String"
+            },
+            "logsBloom": {
+              "type": "String"
+            },
+            "stateRoot": {
+              "type": "String"
+            },
+            "miner": {
+              "type": "String"
+            },
+            "extraData": {
+              "type": "String"
+            },
+            "gasLimit": {
+              "type": "Number"
+            },
+            "gasUsed": {
+              "type": "Number"
+            },
+            "timestamp": {
+              "type": "Number"
+            },
+            "size": {
+              "type": "Number"
+            },
+            "difficulty": {
+              "type": "String"
+            }
+          }
+        },
+        "transaction": {
+          "data": {
+            "transactionHash": {
+              "type": "String"
+            },
+            "transactionIndex": {
+              "type": "Number"
+            },
+            "blockHash": {
+              "type": "String"
+            },
+            "blockNumber": {
+              "type": "Number"
+            },
+            "from": {
+              "type": "String"
+            },
+            "to": {
+              "type": "String"
+            },
+            "status": {
+              "type": "Boolean"
+            },
+            "value": {
+              "type": "String"
+            },
+            "gasPrice": {
+              "type": "String"
+            },
+            "gas": {
+              "type": "Number"
+            },
+            "gasUsed": {
+              "type": "Number"
+            },
+            "input": {
+              "type": "String"
+            }
+          }
+        }
+      }
+    },
+    "readme": "hello word"
+  }
+}

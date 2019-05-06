@@ -8,39 +8,25 @@ import (
 )
 
 // DeleteVolumes deletes the data volumes of service and its dependencies.
-func (s *Service) DeleteVolumes() error {
+func (s *Service) DeleteVolumes(c container.Container) error {
 	var (
 		wg   sync.WaitGroup
 		errs xerrors.SyncErrors
 	)
-	for _, d := range s.Dependencies {
-		wg.Add(1)
-		go func(d *Dependency) {
-			defer wg.Done()
-			if err := d.DeleteVolumes(); err != nil {
-				errs.Append(err)
-			}
-		}(d)
-	}
-	wg.Wait()
-	return errs.ErrorOrNil()
-}
-
-// DeleteVolumes deletes the data volumes of service's dependency.
-func (d *Dependency) DeleteVolumes() error {
-	volumes := d.extractVolumes()
-	var (
-		wg   sync.WaitGroup
-		errs xerrors.SyncErrors
-	)
-	for _, mount := range volumes {
-		wg.Add(1)
-		go func(mount container.Mount) {
-			defer wg.Done()
-			if err := d.service.container.DeleteVolume(mount.Source); err != nil {
-				errs.Append(err)
-			}
-		}(mount)
+	for _, d := range append(s.Dependencies, s.Configuration) {
+		// Service.Configuration can be nil so, here is a check for it.
+		if d == nil {
+			continue
+		}
+		for _, volume := range d.extractVolumes(s) {
+			wg.Add(1)
+			go func(source string) {
+				defer wg.Done()
+				if err := c.DeleteVolume(source); err != nil {
+					errs.Append(err)
+				}
+			}(volume.Source)
+		}
 	}
 	wg.Wait()
 	return errs.ErrorOrNil()

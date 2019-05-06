@@ -3,6 +3,7 @@ package commands
 import (
 	"io"
 	"io/ioutil"
+	"time"
 
 	"github.com/mesg-foundation/core/commands/provider"
 	"github.com/mesg-foundation/core/container"
@@ -24,11 +25,11 @@ type ServiceExecutor interface {
 	ServiceByID(id string) (*coreapi.Service, error)
 	ServiceDeleteAll(deleteData bool) error
 	ServiceDelete(deleteData bool, ids ...string) error
-	ServiceDeploy(path string, env map[string]string, statuses chan provider.DeployStatus) (id string, validationError, err error)
+	ServiceDeploy(path string, env map[string]string, statuses chan provider.DeployStatus) (sid string, hash string, validationError, err error)
 	ServiceListenEvents(id, eventFilter string) (chan *coreapi.EventData, chan error, error)
 	ServiceListenResults(id, taskFilter, outputFilter string, tagFilters []string) (chan *coreapi.ResultData, chan error, error)
-	ServiceLogs(id string, dependencies ...string) (logs []*provider.Log, closer func(), err error)
-	ServiceExecuteTask(id, taskKey, inputData string, tags []string) error
+	ServiceLogs(id string, dependencies ...string) (logs []*provider.Log, closer func(), errC chan error, err error)
+	ServiceExecuteTask(id, taskKey, inputData string, tags []string) (string, error)
 	ServiceStart(id string) error
 	ServiceStop(id string) error
 	ServiceValidate(path string) (string, error)
@@ -38,10 +39,35 @@ type ServiceExecutor interface {
 	ServiceInitDownloadTemplate(t *servicetemplate.Template, dst string) error
 }
 
+// MarketplaceExecutor is an interface that handles marketplace commands.
+type MarketplaceExecutor interface {
+	UploadSource(path string) (deployment provider.MarketplaceDeployedSource, err error)
+	PreparePublishServiceVersion(service provider.MarketplaceManifestServiceData, from string) (provider.Transaction, error)
+	PublishPublishServiceVersion(signedTransaction string) (sid, versionHash, manifest, manifestProtocol string, err error)
+	PrepareCreateServiceOffer(sid string, price string, duration string, from string) (provider.Transaction, error)
+	PublishCreateServiceOffer(signedTransaction string) (sid, offerIndex, price, duration string, err error)
+	PreparePurchase(sid, offerIndex, from string) ([]provider.Transaction, error)
+	PublishPurchase(signedTransactions []string) (sid, offerIndex, purchaser, price, duration string, expire time.Time, err error)
+	GetService(sid string) (provider.MarketplaceService, error)
+}
+
+// WalletExecutor is an interface that handles wallet commands.
+type WalletExecutor interface {
+	List() ([]string, error)
+	Create(passphrase string) (string, error)
+	Delete(address string, passphrase string) (string, error)
+	Export(address string, passphrase string) (provider.WalletEncryptedKeyJSONV3, error)
+	Import(account provider.WalletEncryptedKeyJSONV3, passphrase string) (string, error)
+	ImportFromPrivateKey(privateKey string, passphrase string) (string, error)
+	Sign(address string, passphrase string, transaction provider.Transaction) (string, error)
+}
+
 // Executor is an interface that keeps all commands interfaces.
 type Executor interface {
 	RootExecutor
 	ServiceExecutor
+	MarketplaceExecutor
+	WalletExecutor
 }
 
 // Build constructs root command and returns it.
@@ -64,8 +90,8 @@ func (c *baseCmd) discardOutput() {
 	c.cmd.SetOutput(ioutil.Discard)
 }
 
-// getFirstOrDefault returns directory if args len is gt 0 or current directory.
-func getFirstOrDefault(args []string) string {
+// getFirstOrCurrentPath returns directory if args len is gt 0 or current directory.
+func getFirstOrCurrentPath(args []string) string {
 	if len(args) > 0 {
 		return args[0]
 	}

@@ -13,10 +13,9 @@ import (
 type serviceInitCmd struct {
 	baseCmd
 
-	name         string
 	templateURL  string
 	templateName string
-	dir          string
+	path         string
 
 	e ServiceExecutor
 }
@@ -36,22 +35,21 @@ func newServiceInitCmd(e ServiceExecutor) *serviceInitCmd {
 	
 To get more information, see the page [service file from the documentation](https://docs.mesg.com/guide/service/service-file.html)`,
 		Example: `mesg-core service init
-mesg-core service init --name NAME
-mesg-core service init --current`,
-		Args:    cobra.NoArgs,
+mesg-core service init ./PATH_TO_SERVICE
+mesg-core service init --template TEMPLATE_URL`,
 		PreRunE: c.preRunE,
 		RunE:    c.runE,
 	})
-	c.cmd.Flags().StringVar(&c.dir, "dir", c.dir, "Create the service in the directory")
 	c.cmd.Flags().StringVarP(&c.templateURL, "template", "t", c.templateURL, "Specify the template URL to use")
 	return c
 }
 
 func (c *serviceInitCmd) preRunE(cmd *cobra.Command, args []string) error {
-	if err := c.selectOutputDirectory(); err != nil {
-		return err
-	}
+	c.path = getFirstOrCurrentPath(args)
+	return c.getTemplateURL()
+}
 
+func (c *serviceInitCmd) getTemplateURL() error {
 	if c.templateURL != "" {
 		c.templateName = c.templateURL
 		return nil
@@ -107,28 +105,13 @@ func (c *serviceInitCmd) runE(cmd *cobra.Command, args []string) error {
 		err = c.e.ServiceInitDownloadTemplate(&servicetemplate.Template{
 			Name: c.templateName,
 			URL:  c.templateURL,
-		}, c.dir)
+		}, c.path)
 	})
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%s Service initialized in %q\n", pretty.SuccessSign, c.dir)
+	fmt.Printf("%s Service initialized in %q\n", pretty.SuccessSign, c.path)
 	return nil
-}
-
-func (c *serviceInitCmd) selectOutputDirectory() error {
-	if c.dir != "" {
-		return nil
-	}
-	defval := c.name
-	if defval == "" {
-		defval = "."
-	}
-
-	return survey.AskOne(&survey.Input{
-		Message: "Enter the output directory",
-		Default: defval,
-	}, &c.dir, nil)
 }
 
 func templatesToOptions(templates []*servicetemplate.Template) []string {

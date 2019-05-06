@@ -2,6 +2,7 @@ package daemon
 
 import (
 	"io"
+	"time"
 
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
@@ -58,6 +59,7 @@ func (d *ContainerDaemon) Logs() (io.ReadCloser, error) {
 
 func (d *ContainerDaemon) buildServiceOptions(sharedNetworkID string) container.ServiceOptions {
 	_, port, _ := xnet.SplitHostPort(d.cfg.Server.Address)
+	stopGracePeriod := 60 * time.Second
 	return container.ServiceOptions{
 		Namespace: []string{},
 		Image:     d.cfg.Core.Image,
@@ -83,5 +85,6 @@ func (d *ContainerDaemon) buildServiceOptions(sharedNetworkID string) container.
 		Networks: []container.Network{
 			{ID: sharedNetworkID},
 		},
+		StopGracePeriod: &stopGracePeriod,
 	}
 }
