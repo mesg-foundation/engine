@@ -6,8 +6,6 @@ import (
 
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/execution"
-	"github.com/mesg-foundation/core/pubsub"
-	"github.com/mesg-foundation/core/service"
 )
 
 // SubmitResult submits results for executionID.
@@ -32,7 +30,7 @@ func (s *resultSubmitter) Submit(executionID string, outputKey string, outputDat
 	exec, stateChanged, err := s.processExecution(executionID, outputKey, outputData)
 	if stateChanged {
 		// only publish to listeners when the execution's state changed.
-		go pubsub.Publish(exec.Service.ResultSubscriptionChannel(), exec)
+		go s.api.ps.Pub(exec, exec.Service.ResultSubscriptionChannel())
 	}
 	// always return any error to the service.
 	return err
@@ -50,11 +48,6 @@ func (s *resultSubmitter) processExecution(executionID string, outputKey string,
 	if err != nil {
 		tx.Discard()
 		return nil, false, err
-	}
-
-	exec.Service, err = service.FromService(exec.Service, service.ContainerOption(s.api.container))
-	if err != nil {
-		return s.saveExecution(tx, exec, err)
 	}
 
 	var outputDataMap map[string]interface{}

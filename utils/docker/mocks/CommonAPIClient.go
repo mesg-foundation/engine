@@ -10,6 +10,7 @@ import http "net/http"
 import image "github.com/docker/docker/api/types/image"
 import io "io"
 import mock "github.com/stretchr/testify/mock"
+
 import net "net"
 import network "github.com/docker/docker/api/types/network"
 import registry "github.com/docker/docker/api/types/registry"

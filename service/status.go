@@ -5,33 +5,6 @@ import (
 	"github.com/mesg-foundation/core/container"
 )
 
-// StatusType of the service.
-type StatusType uint
-
-// Possible statuses for service.
-const (
-	UNKNOWN StatusType = iota
-	STOPPED
-	STARTING
-	PARTIAL
-	RUNNING
-)
-
-func (s StatusType) String() string {
-	switch s {
-	case STOPPED:
-		return "STOPPED"
-	case STARTING:
-		return "STARTING"
-	case PARTIAL:
-		return "PARTIAL"
-	case RUNNING:
-		return "RUNNING"
-	default:
-		return "UNKNOWN"
-	}
-}
-
 var containerStatusTypeMappings = map[container.StatusType]StatusType{
 	container.UNKNOWN:  UNKNOWN,
 	container.STOPPED:  STOPPED,
@@ -40,10 +13,13 @@ var containerStatusTypeMappings = map[container.StatusType]StatusType{
 }
 
 // Status returns StatusType of all dependency.
-func (s *Service) Status() (StatusType, error) {
+func (s *Service) Status(c container.Container) (StatusType, error) {
 	statuses := make(map[container.StatusType]bool)
-	for _, dep := range s.Dependencies {
-		status, err := dep.Status()
+	for _, d := range append(s.Dependencies, s.Configuration) {
+		if d == nil {
+			continue
+		}
+		status, err := c.Status(d.namespace(s.namespace()))
 		if err != nil {
 			return UNKNOWN, err
 		}
@@ -61,11 +37,6 @@ func (s *Service) Status() (StatusType, error) {
 		return PARTIAL, nil
 	}
 	panic("not reached")
-}
-
-// Status returns StatusType of dependency's container.
-func (d *Dependency) Status() (container.StatusType, error) {
-	return d.service.container.Status(d.namespace())
 }
 
 // ListRunning returns all the running services.2

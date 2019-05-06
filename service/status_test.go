@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/container"
+	"github.com/mesg-foundation/core/container/mocks"
 	"github.com/stretchr/testify/require"
 )
 
@@ -12,7 +13,8 @@ func TestUnknownServiceStatus(t *testing.T) {
 	var (
 		dependencyKey = "1"
 		statusErr     = errors.New("ops")
-		s, mc         = newFromServiceAndContainerMocks(t, &Service{
+		s             = &Service{
+			Hash: "1",
 			Name: "TestUnknownServiceStatus",
 			Dependencies: []*Dependency{
 				{
@@ -20,14 +22,15 @@ func TestUnknownServiceStatus(t *testing.T) {
 					Image: "http-server",
 				},
 			},
-		})
+		}
+		mc = &mocks.Container{}
 	)
 
 	d, _ := s.getDependency(dependencyKey)
 
-	mc.On("Status", d.namespace()).Once().Return(container.UNKNOWN, statusErr)
+	mc.On("Status", d.namespace(s.namespace())).Once().Return(container.UNKNOWN, statusErr)
 
-	status, err := s.Status()
+	status, err := s.Status(mc)
 	require.Equal(t, statusErr, err)
 	require.Equal(t, UNKNOWN, status)
 
@@ -37,7 +40,8 @@ func TestUnknownServiceStatus(t *testing.T) {
 func TestStoppedServiceStatus(t *testing.T) {
 	var (
 		dependencyKey = "1"
-		s, mc         = newFromServiceAndContainerMocks(t, &Service{
+		s             = &Service{
+			Hash: "1",
 			Name: "TestStoppedServiceStatus",
 			Dependencies: []*Dependency{
 				{
@@ -45,14 +49,15 @@ func TestStoppedServiceStatus(t *testing.T) {
 					Image: "http-server",
 				},
 			},
-		})
+		}
+		mc = &mocks.Container{}
 	)
 
 	d, _ := s.getDependency(dependencyKey)
 
-	mc.On("Status", d.namespace()).Once().Return(container.STOPPED, nil)
+	mc.On("Status", d.namespace(s.namespace())).Once().Return(container.STOPPED, nil)
 
-	status, err := s.Status()
+	status, err := s.Status(mc)
 	require.NoError(t, err)
 	require.Equal(t, STOPPED, status)
 
@@ -62,7 +67,8 @@ func TestStoppedServiceStatus(t *testing.T) {
 func TestRunningServiceStatus(t *testing.T) {
 	var (
 		dependencyKey = "1"
-		s, mc         = newFromServiceAndContainerMocks(t, &Service{
+		s             = &Service{
+			Hash: "1",
 			Name: "TestRunningServiceStatus",
 			Dependencies: []*Dependency{
 				{
@@ -70,14 +76,15 @@ func TestRunningServiceStatus(t *testing.T) {
 					Image: "http-server",
 				},
 			},
-		})
+		}
+		mc = &mocks.Container{}
 	)
 
 	d, _ := s.getDependency(dependencyKey)
 
-	mc.On("Status", d.namespace()).Once().Return(container.RUNNING, nil)
+	mc.On("Status", d.namespace(s.namespace())).Once().Return(container.RUNNING, nil)
 
-	status, err := s.Status()
+	status, err := s.Status(mc)
 	require.NoError(t, err)
 	require.Equal(t, RUNNING, status)
 
@@ -88,7 +95,8 @@ func TestPartialServiceStatus(t *testing.T) {
 	var (
 		dependencyKey  = "1"
 		dependencyKey2 = "2"
-		s, mc          = newFromServiceAndContainerMocks(t, &Service{
+		s              = &Service{
+			Hash: "1",
 			Name: "TestPartialServiceStatus",
 			Dependencies: []*Dependency{
 				{
@@ -100,7 +108,8 @@ func TestPartialServiceStatus(t *testing.T) {
 					Image: "http-server",
 				},
 			},
-		})
+		}
+		mc = &mocks.Container{}
 	)
 
 	var (
@@ -108,37 +117,12 @@ func TestPartialServiceStatus(t *testing.T) {
 		d2, _ = s.getDependency(dependencyKey2)
 	)
 
-	mc.On("Status", d.namespace()).Once().Return(container.RUNNING, nil)
-	mc.On("Status", d2.namespace()).Once().Return(container.STOPPED, nil)
+	mc.On("Status", d.namespace(s.namespace())).Once().Return(container.RUNNING, nil)
+	mc.On("Status", d2.namespace(s.namespace())).Once().Return(container.STOPPED, nil)
 
-	status, err := s.Status()
+	status, err := s.Status(mc)
 	require.NoError(t, err)
 	require.Equal(t, PARTIAL, status)
-
-	mc.AssertExpectations(t)
-}
-
-func TestDependencyStatus(t *testing.T) {
-	var (
-		dependencyKey = "1"
-		s, mc         = newFromServiceAndContainerMocks(t, &Service{
-			Name: "TestDependencyStatus",
-			Dependencies: []*Dependency{
-				{
-					Key:   dependencyKey,
-					Image: "http-server",
-				},
-			},
-		})
-	)
-
-	d, _ := s.getDependency(dependencyKey)
-
-	mc.On("Status", d.namespace()).Once().Return(container.RUNNING, nil)
-
-	status, err := d.Status()
-	require.NoError(t, err)
-	require.Equal(t, container.RUNNING, status)
 
 	mc.AssertExpectations(t)
 }

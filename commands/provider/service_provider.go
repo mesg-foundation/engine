@@ -12,6 +12,7 @@ import (
 	"github.com/mesg-foundation/core/commands/provider/assets"
 	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
+	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/importer"
 	"github.com/mesg-foundation/core/utils/chunker"
 	"github.com/mesg-foundation/core/utils/pretty"
@@ -21,12 +22,18 @@ import (
 
 // ServiceProvider is a struct that provides all methods required by service command.
 type ServiceProvider struct {
-	client coreapi.CoreClient
+	client client
+	mp     *MarketplaceProvider
+	wp     *WalletProvider
 }
 
 // NewServiceProvider creates new ServiceProvider.
-func NewServiceProvider(c coreapi.CoreClient) *ServiceProvider {
-	return &ServiceProvider{client: c}
+func NewServiceProvider(c coreapi.CoreClient, mp *MarketplaceProvider, wp *WalletProvider) *ServiceProvider {
+	return &ServiceProvider{
+		client: client{c},
+		mp:     mp,
+		wp:     wp,
+	}
 }
 
 // ServiceByID finds service based on given id.
@@ -61,7 +68,7 @@ func (p *ServiceProvider) ServiceDeleteAll(deleteData bool) error {
 				errs.Append(err)
 			}
 			wg.Done()
-		}(s.Sid)
+		}(s.Definition.Hash)
 	}
 	wg.Wait()
 	return errs.ErrorOrNil()
@@ -83,65 +90,17 @@ func (p *ServiceProvider) ServiceDelete(deleteData bool, ids ...string) error {
 
 // ServiceListenEvents returns a channel with event data streaming..
 func (p *ServiceProvider) ServiceListenEvents(id, eventFilter string) (chan *coreapi.EventData, chan error, error) {
-	stream, err := p.client.ListenEvent(context.Background(), &coreapi.ListenEventRequest{
-		ServiceID:   id,
-		EventFilter: eventFilter,
-	})
-	if err != nil {
-		return nil, nil, err
-	}
-
-	resultC := make(chan *coreapi.EventData)
-	errC := make(chan error)
-
-	go func() {
-		for {
-			if res, err := stream.Recv(); err != nil {
-				errC <- err
-				break
-			} else {
-				resultC <- res
-			}
-		}
-	}()
-
-	if err := acknowledgement.WaitForStreamToBeReady(stream); err != nil {
-		return nil, nil, err
-	}
-
-	return resultC, errC, nil
+	return p.client.ListenEvent(id, eventFilter)
 }
 
 // ServiceListenResults returns a channel with event results streaming..
 func (p *ServiceProvider) ServiceListenResults(id, taskFilter, outputFilter string, tagFilters []string) (chan *coreapi.ResultData, chan error, error) {
-	stream, err := p.client.ListenResult(context.Background(), &coreapi.ListenResultRequest{
-		ServiceID:    id,
-		TaskFilter:   taskFilter,
-		OutputFilter: outputFilter,
-		TagFilters:   tagFilters,
-	})
-	if err != nil {
-		return nil, nil, err
-	}
-	resultC := make(chan *coreapi.ResultData)
-	errC := make(chan error)
+	return p.client.ListenResult(id, taskFilter, outputFilter, tagFilters)
+}
 
-	go func() {
-		for {
-			if res, err := stream.Recv(); err != nil {
-				errC <- err
-				break
-			} else {
-				resultC <- res
-			}
-		}
-	}()
-
-	if err := acknowledgement.WaitForStreamToBeReady(stream); err != nil {
-		return nil, nil, err
-	}
-
-	return resultC, errC, nil
+// ServiceExecuteTask executes task on given service.
+func (p *ServiceProvider) ServiceExecuteTask(id, taskKey, inputData string, tags []string) (string, error) {
+	return p.client.ExecuteTask(id, taskKey, inputData, tags)
 }
 
 // Log keeps dependency logs of service.
@@ -151,15 +110,16 @@ type Log struct {
 }
 
 // ServiceLogs returns logs reader for all service dependencies.
-func (p *ServiceProvider) ServiceLogs(id string, dependencies ...string) (logs []*Log, close func(), err error) {
+func (p *ServiceProvider) ServiceLogs(id string, dependencies ...string) (logs []*Log, close func(), errC chan error, err error) {
 	if len(dependencies) == 0 {
 		resp, err := p.client.GetService(context.Background(), &coreapi.GetServiceRequest{
 			ServiceID: id,
 		})
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, nil, err
 		}
-		for _, dep := range resp.Service.Dependencies {
+		dependencies = append(dependencies, service.MainServiceKey)
+		for _, dep := range resp.Service.Definition.Dependencies {
 			dependencies = append(dependencies, dep.Key)
 		}
 	}
@@ -172,7 +132,7 @@ func (p *ServiceProvider) ServiceLogs(id string, dependencies ...string) (logs [
 	})
 	if err != nil {
 		cancel()
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	for _, key := range dependencies {
@@ -192,18 +152,19 @@ func (p *ServiceProvider) ServiceLogs(id string, dependencies ...string) (logs [
 		}
 	}
 
-	errC := make(chan error, len(logs))
-	go p.listenServiceLogs(stream, logs, errC)
+	errC = make(chan error)
 	go func() {
-		<-errC
-		closer()
+		<-stream.Context().Done()
+		errC <- stream.Context().Err()
 	}()
+	go p.listenServiceLogs(stream, logs, errC)
 
 	if err := acknowledgement.WaitForStreamToBeReady(stream); err != nil {
-		return nil, nil, err
+		closer()
+		return nil, nil, nil, err
 	}
 
-	return logs, closer, nil
+	return logs, closer, errC, nil
 }
 
 // listenServiceLogs listen gRPC stream to get service logs.
@@ -229,17 +190,6 @@ func (p *ServiceProvider) listenServiceLogs(stream coreapi.Core_ServiceLogsClien
 			}
 		}
 	}
-}
-
-// ServiceExecuteTask executes task on given service.
-func (p *ServiceProvider) ServiceExecuteTask(id, taskKey, inputData string, tags []string) error {
-	_, err := p.client.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
-		ServiceID:     id,
-		TaskKey:       taskKey,
-		InputData:     inputData,
-		ExecutionTags: tags,
-	})
-	return err
 }
 
 // ServiceStart starts a service.

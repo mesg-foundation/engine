@@ -1,6 +1,9 @@
 package service
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
+
 	"github.com/mesg-foundation/core/utils/hash"
 )
 
@@ -11,12 +14,13 @@ const resultChannel string = "Result"
 
 // namespace returns the namespace of the service.
 func (service *Service) namespace() []string {
-	return []string{service.Hash}
+	sum := sha1.Sum([]byte(service.Hash))
+	return []string{hex.EncodeToString(sum[:])}
 }
 
-// namespace returns the namespace of a dependency.
-func (d *Dependency) namespace() []string {
-	return append(d.service.namespace(), d.Key)
+// namespace builds the namespace of a dependency.
+func (d *Dependency) namespace(serviceNamespace []string) []string {
+	return append(serviceNamespace, d.Key)
 }
 
 // EventSubscriptionChannel returns the channel to listen for events from this service.

@@ -4,49 +4,32 @@ import (
 	"github.com/mesg-foundation/core/service"
 )
 
+// serviceLogFilters keeps log filters.
+type serviceLogFilters struct {
+	// dependencies list is used to provide logs for only requested dependencies.
+	dependencies []string
+}
+
 // ServiceLogsFilter is a filter func for filtering service logs.
-type ServiceLogsFilter func(*logLogger)
+type ServiceLogsFilter func(*serviceLogFilters)
 
 // ServiceLogsDependenciesFilter returns a dependency filter.
 func ServiceLogsDependenciesFilter(dependencies ...string) ServiceLogsFilter {
-	return func(s *logLogger) {
+	return func(s *serviceLogFilters) {
 		s.dependencies = dependencies
 	}
 }
 
-// ServiceLogs gives logs for all dependencies or one when specified with filters of service serviceID.
+// ServiceLogs provides logs for dependencies of service serviceID that matches with filters.
+// when no dependency filters are set, all the dependencies' logs will be provided.
 func (a *API) ServiceLogs(serviceID string, filters ...ServiceLogsFilter) ([]*service.Log, error) {
-	return newLogLogger(a, filters...).logs(serviceID)
-}
-
-// logLogger provides functionalities to get service logs.
-type logLogger struct {
-	// dependencies used to get only logs from requested dependencies.
-	dependencies []string
-
-	api *API
-}
-
-// newLogLogger creates a new logLogger with given api and dependency filters.
-func newLogLogger(api *API, filters ...ServiceLogsFilter) *logLogger {
-	l := &logLogger{
-		api: api,
-	}
+	f := &serviceLogFilters{}
 	for _, filter := range filters {
-		filter(l)
+		filter(f)
 	}
-	return l
-}
-
-// logs gives logs of service serviceID and applies dependency filters to filter logs.
-func (l *logLogger) logs(serviceID string) ([]*service.Log, error) {
-	s, err := l.api.db.Get(serviceID)
+	s, err := a.db.Get(serviceID)
 	if err != nil {
 		return nil, err
 	}
-	s, err = service.FromService(s, service.ContainerOption(l.api.container))
-	if err != nil {
-		return nil, err
-	}
-	return s.Logs(l.dependencies...)
+	return s.Logs(a.container, f.dependencies...)
 }

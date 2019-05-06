@@ -22,7 +22,8 @@ func TestServiceDeployCmdFlags(t *testing.T) {
 func TestServiceDeploy(t *testing.T) {
 	var (
 		url                     = "1"
-		id                      = "2"
+		sid                     = "2"
+		hash                    = "3"
 		env                     = map[string]string{"A": "3", "B": "4"}
 		m                       = newMockExecutor()
 		c                       = newServiceDeployCmd(m)
@@ -47,7 +48,7 @@ func TestServiceDeploy(t *testing.T) {
 	c.cmd.SetArgs([]string{url})
 	c.env = env
 
-	m.On("ServiceDeploy", serviceDeployParameters...).Return(id, nil, nil).Run(serviceDeployRunFunction)
+	m.On("ServiceDeploy", serviceDeployParameters...).Return(sid, hash, nil, nil).Run(serviceDeployRunFunction)
 
 	closeStd := captureStd(t)
 	c.cmd.Execute()
@@ -56,7 +57,7 @@ func TestServiceDeploy(t *testing.T) {
 
 	require.Equal(t, "✔ 5", string(readLine(t, r)))
 	require.Equal(t, "⨯ 6", string(readLine(t, r)))
-	require.Equal(t, "✔ Service deployed with id: 2", string(readLine(t, r)))
+	require.Equal(t, "✔ Service deployed with sid 2 and hash 3", string(readLine(t, r)))
 	require.Equal(t, "To start it, run the command:", string(readLine(t, r)))
 	require.Equal(t, "	mesg-core service start 2", string(readLine(t, r)))
 

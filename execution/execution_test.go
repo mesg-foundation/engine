@@ -17,7 +17,7 @@ var (
 	taskKey          = "TASK_KEY"
 	taskKeyWithError = "TASK_KEY_ERROR"
 	tags             = []string{"tag1", "tag2"}
-	srv, _           = service.FromService(&service.Service{
+	srv              = &service.Service{
 		Name: serviceName,
 		Tasks: []*service.Task{
 			{
@@ -56,7 +56,7 @@ var (
 				},
 			},
 		},
-	})
+	}
 )
 
 func TestNewFromService(t *testing.T) {
