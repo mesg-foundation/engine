@@ -21,6 +21,7 @@ func newServiceStartCmd(e ServiceExecutor) *serviceStartCmd {
 		Long:    "Start a service previously published services",
 		Example: `mesg-core service start SERVICE [SERVICE...]`,
 		RunE:    c.runE,
+		Args:    cobra.MinimumNArgs(1),
 	})
 	return c
 }
