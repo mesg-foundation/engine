@@ -12,7 +12,7 @@ import listenEvents from "./events"
 
 const providerEndpoint = process.env.PROVIDER_ENDPOINT as string
 const marketplaceAddress = process.env.MARKETPLACE_ADDRESS
-const timeout = process.env.TIMEOUT
+const timeout = parseInt(<string>process.env.TIMEOUT, 10)
 const ERC20Address = process.env.TOKEN_ADDRESS
 const blockConfirmations = parseInt(<string>process.env.BLOCK_CONFIRMATIONS, 10)
 const pollingTime = parseInt(<string>process.env.POLLING_TIME, 10)
@@ -34,9 +34,8 @@ const main = async () => {
   console.log('service is ready and running')
 }
 
-try {
-  main()
-    .catch(error => console.error('catch promise', error))
-} catch (error) {
-  console.error('catch try', error)
-}
+main()
+.catch(error => {
+  console.error('catch main', error)
+  process.exit(1)
+})
