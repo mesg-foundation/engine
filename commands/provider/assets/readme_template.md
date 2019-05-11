@@ -1,4 +1,4 @@
-# {{.Name}}
+# {{.Name}} {{if .Sid}}(ID: {{.Sid}}){{end}}
 
 {{.Description}}
 
