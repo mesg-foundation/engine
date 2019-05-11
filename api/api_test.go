@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/service/manager/dockermanager"
-
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/container/mocks"
 	"github.com/mesg-foundation/core/database"
