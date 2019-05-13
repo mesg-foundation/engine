@@ -23,9 +23,24 @@ You can install MESG Core by running the following command or [follow the instal
 bash <(curl -fsSL https://mesg.com/install)
 ```
 
-## Service
+{{if .Sid}}
+## Purchase the service
 
-{{if .Repository}}To deploy this service, run the following command:
+To deploy this service, you first need to purchase one of its offers from the MESG Marketplace.
+
+To do so, go to the service's page on the MESG Marketplace and check the offers tab: https://marketplace.mesg.com/services/{{.Sid}}#offers
+{{end}}
+
+## Deploy the service
+
+{{if .Sid}}To deploy this service, run the following command:
+```bash
+mesg-core service deploy mesg://marketplace/service/VERSION_HASH
+```
+You can explore service's versions on MESG Marketplace to replace `VERSION_HASH` with your desired one:
+https://marketplace.mesg.com/services/{{.Sid}}#versions
+
+{{else if .Repository}}To deploy this service, run the following command:
 ```bash
 mesg-core service deploy {{.Repository}}
 ```
@@ -34,6 +49,7 @@ mesg-core service deploy {{.Repository}}
 mesg-core service deploy
 ```
 {{end}}
+
 # Definitions
 
 {{if .Events}}# Events
