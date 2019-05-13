@@ -15,16 +15,15 @@ import publishPurchase from "./publishPurchase"
 import publishCreateServiceOffer from "./publishCreateServiceOffer"
 import isAuthorized from "./isAuthorized"
 
-export default async (
+export default (
   mesg: Service,
   web3: Web3,
   marketplace: Marketplace,
   token: ERC20,
   chainID: number,
-  defaultGas: number,
   defaultGasPrice: number
 ) => {
-  const createTransaction = createTransactionTemplate(chainID, web3, defaultGas, defaultGasPrice)
+  const createTransaction = createTransactionTemplate(chainID, web3, defaultGasPrice)
   mesg.listenTask({
     listServices: listServices(marketplace),
     getService: getService(marketplace),
@@ -36,5 +35,8 @@ export default async (
     publishCreateServiceOffer: publishCreateServiceOffer(web3, marketplace),
     isAuthorized: isAuthorized(marketplace),
   })
-  .on('error', error => console.error('catch listenTask', error))
+  .on('error', error => {
+    console.error('catch listenTask', error)
+    process.exit(1)
+  })
 }

@@ -4,11 +4,43 @@
 
 #### Breaking Changes
 #### Added
-
-- ([#535](https://github.com/mesg-foundation/core/pull/535)) Run MESG with MESG! A base logic implemented to have system services for core. In future, core will be split to system services and only act as a proxy to them. System services are placed under `~/.mesg/systemservices`. [\#567](https://github.com/mesg-foundation/core/pull/567).
-
 #### Changed
 #### Fixed
+#### Removed
+#### Documentation
+
+
+## [v0.9.0](https://github.com/mesg-foundation/core/releases/tag/v0.9.0)
+
+#### Breaking Changes
+
+- ([#731](https://github.com/mesg-foundation/core/pull/731)) Deterministic service hash. ([#804](https://github.com/mesg-foundation/core/pull/804)). ([#877](https://github.com/mesg-foundation/core/pull/877)).
+- ([#801](https://github.com/mesg-foundation/core/pull/801)) Add Service's hash to reply of Deploy API
+- ([#849](https://github.com/mesg-foundation/core/pull/849)) Use base58 to encode service hash.
+- ([#860](https://github.com/mesg-foundation/core/pull/860)) Separate service's configuration from service's dependencies. ([#880](https://github.com/mesg-foundation/core/pull/880)).
+- ([#866](https://github.com/mesg-foundation/core/pull/866)) Rename service's `volumesfrom` property.
+- ([#905](https://github.com/mesg-foundation/core/pull/905)) Add version to database path to prevent decoding error and loss of data.
+
+#### Added
+
+- ([#535](https://github.com/mesg-foundation/core/pull/535)) Run MESG with MESG Services! [\#567](https://github.com/mesg-foundation/core/pull/567).
+- ([#755](https://github.com/mesg-foundation/core/pull/755)) Implementation of the MESG Marketplace. The Marketplace allows the distribution and reutilization of MESG Services. Check `mesg-core marketplace` commands. ([#778](https://github.com/mesg-foundation/core/pull/778)). ([#788](https://github.com/mesg-foundation/core/pull/788)). ([#810](https://github.com/mesg-foundation/core/pull/810)). ([#817](https://github.com/mesg-foundation/core/pull/817)). ([#826](https://github.com/mesg-foundation/core/pull/826)). ([#828](https://github.com/mesg-foundation/core/pull/828)). ([#829](https://github.com/mesg-foundation/core/pull/829)). ([#837](https://github.com/mesg-foundation/core/pull/837)). ([#843](https://github.com/mesg-foundation/core/pull/843)). ([#844](https://github.com/mesg-foundation/core/pull/844)). ([#845](https://github.com/mesg-foundation/core/pull/845)). ([#853](https://github.com/mesg-foundation/core/pull/853)). ([#854](https://github.com/mesg-foundation/core/pull/854)). ([#863](https://github.com/mesg-foundation/core/pull/863)). ([#864](https://github.com/mesg-foundation/core/pull/864)). ([#868](https://github.com/mesg-foundation/core/pull/868)). ([#874](https://github.com/mesg-foundation/core/pull/874)). ([#883](https://github.com/mesg-foundation/core/pull/883)). ([#899](https://github.com/mesg-foundation/core/pull/899)). ([#898](https://github.com/mesg-foundation/core/pull/898)). ([#897](https://github.com/mesg-foundation/core/pull/897)). ([#896](https://github.com/mesg-foundation/core/pull/896)). ([#902](https://github.com/mesg-foundation/core/pull/902)). ([#901](https://github.com/mesg-foundation/core/pull/901)). ([#906](https://github.com/mesg-foundation/core/pull/906)). ([#907](https://github.com/mesg-foundation/core/pull/907)). ([#908](https://github.com/mesg-foundation/core/pull/908)). ([#909](https://github.com/mesg-foundation/core/pull/909)). ([#924](https://github.com/mesg-foundation/core/pull/924)). ([#926](https://github.com/mesg-foundation/core/pull/926)). ([#927](https://github.com/mesg-foundation/core/pull/927)). ([#936](https://github.com/mesg-foundation/core/pull/936)). ([#938](https://github.com/mesg-foundation/core/pull/938)). ([#939](https://github.com/mesg-foundation/core/pull/939)). ([#942](https://github.com/mesg-foundation/core/pull/942)). ([#943](https://github.com/mesg-foundation/core/pull/943)).
+- ([#757](https://github.com/mesg-foundation/core/pull/757)) Read `.dockerignore` in dev and deploy commands.
+- ([#779](https://github.com/mesg-foundation/core/pull/779)) Implementation of the MESG Wallet. Check `mesg-core wallet`. ([#807](https://github.com/mesg-foundation/core/pull/807)). ([#809](https://github.com/mesg-foundation/core/pull/809)). ([#812](https://github.com/mesg-foundation/core/pull/812)). ([#937](https://github.com/mesg-foundation/core/pull/937)).
+- ([#781](https://github.com/mesg-foundation/core/pull/781)) Improve validation of service definition. ([#869](https://github.com/mesg-foundation/core/pull/869)).
+
+#### Changed
+
+- ([#823](https://github.com/mesg-foundation/core/pull/823)) Improve commands `service init` and `service gendoc`.
+- ([#875](https://github.com/mesg-foundation/core/pull/875)) Improve JSON parsing error message.
+- ([#790](https://github.com/mesg-foundation/core/pull/790)) Refactor. ([#792](https://github.com/mesg-foundation/core/pull/792)). ([#816](https://github.com/mesg-foundation/core/pull/816)). ([#805](https://github.com/mesg-foundation/core/pull/805)). ([#813](https://github.com/mesg-foundation/core/pull/813)). ([#839](https://github.com/mesg-foundation/core/pull/839)). ([#847](https://github.com/mesg-foundation/core/pull/847)). ([#850](https://github.com/mesg-foundation/core/pull/850)). ([#852](https://github.com/mesg-foundation/core/pull/852)). ([#855](https://github.com/mesg-foundation/core/pull/855)). ([#858](https://github.com/mesg-foundation/core/pull/858)). ([#867](https://github.com/mesg-foundation/core/pull/867)). ([#859](https://github.com/mesg-foundation/core/pull/859)). ([#870](https://github.com/mesg-foundation/core/pull/870)). ([#871](https://github.com/mesg-foundation/core/pull/871)). ([#872](https://github.com/mesg-foundation/core/pull/872)). ([#873](https://github.com/mesg-foundation/core/pull/873)). ([#881](https://github.com/mesg-foundation/core/pull/881)). ([#893](https://github.com/mesg-foundation/core/pull/893)). ([#892](https://github.com/mesg-foundation/core/pull/892)). ([#891](https://github.com/mesg-foundation/core/pull/891)). ([#890](https://github.com/mesg-foundation/core/pull/890)). ([#889](https://github.com/mesg-foundation/core/pull/889)). ([#888](https://github.com/mesg-foundation/core/pull/888)). ([#886](https://github.com/mesg-foundation/core/pull/886)). ([#885](https://github.com/mesg-foundation/core/pull/885)). ([#884](https://github.com/mesg-foundation/core/pull/884)). ([#903](https://github.com/mesg-foundation/core/pull/903)). ([#919](https://github.com/mesg-foundation/core/pull/919)).
+
+#### Fixed
+
+- ([#771](https://github.com/mesg-foundation/core/pull/771)) Fix gRPC stream acknowledgement.
+- ([#772](https://github.com/mesg-foundation/core/pull/772)) Improve command logs errors.
+- ([#820](https://github.com/mesg-foundation/core/pull/820)) Fix container package.
+
 #### Removed
 #### Documentation
 

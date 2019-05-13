@@ -3,6 +3,7 @@ import { Marketplace } from "../contracts/Marketplace"
 import { getServiceVersion } from "../contracts/version";
 import { hexToString, stringToHex, hashToHex, hexToHash } from "../contracts/utils";
 import BigNumber from "bignumber.js";
+import { getManifest } from "../contracts/manifest";
 import { requireServiceExist } from "../contracts/service";
 
 export default (
@@ -15,7 +16,7 @@ export default (
       versionHash = inputs.versionHash
       // get service from version hash
       const sidHash = await contract.methods.versionHashToService(hashToHex(versionHash)).call()
-      if (hexToString(sidHash) === "") {
+      if (Number(sidHash) === 0) {
         throw new Error('service with hash ' + versionHash + ' does not exist')
       }
       const service = await contract.methods.services(sidHash).call()
@@ -36,8 +37,13 @@ export default (
 
     await requireServiceExist(contract, sid)
 
+    // Hack to allow user with no address to have access to services with free offers
+    const addresses = inputs.addresses.length > 0
+      ? [...inputs.addresses]
+      : ['0x0000000000000000000000000000000000000000'] // Service with free offer will always return true for whatever address
+
     // check if at least one of the provided addresses is authorized
-    const authorizations = await Promise.all(inputs.addresses.map((address: string) => {
+    const authorizations = await Promise.all(addresses.map((address: string) => {
       return contract.methods.isAuthorized(stringToHex(sid), address).call()
     }) as Promise<boolean>[])
     const authorized = authorizations.reduce((p, c) => p || c, false)
@@ -50,15 +56,12 @@ export default (
 
     // get version's manifest data
     const version = await getServiceVersion(contract, versionHash)
-    if (version.manifestData === null) {
-      throw new Error('could not download manifest of version with hash ' + versionHash)
-    }
-
+    const manifest = await getManifest(version.manifestProtocol, version.manifest)
     return outputs.success({
       authorized: authorized,
       sid: sid,
-      type: version.manifestData.service.deployment.type,
-      source: version.manifestData.service.deployment.source,
+      type: manifest.service.deployment.type,
+      source: manifest.service.deployment.source,
     })
   }
   catch (error) {

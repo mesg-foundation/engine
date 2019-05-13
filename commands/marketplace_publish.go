@@ -11,11 +11,6 @@ import (
 	survey "gopkg.in/AlecAivazis/survey.v1"
 )
 
-const (
-	// marketplaceServiceHashVersion is the version of the service hash used by the core.
-	marketplaceServiceHashVersion = "1"
-)
-
 type marketplacePublishCmd struct {
 	baseMarketplaceCmd
 
@@ -92,10 +87,9 @@ func (c *marketplacePublishCmd) runE(cmd *cobra.Command, args []string) error {
 	}
 	pretty.Progress("Publishing service on the marketplace...", func() {
 		if tx, err = c.e.PreparePublishServiceVersion(provider.MarketplaceManifestServiceData{
-			Definition:  c.service.Definition,
-			HashVersion: marketplaceServiceHashVersion,
-			Readme:      readme,
-			Deployment:  deployment,
+			Definition: c.service.Definition,
+			Readme:     readme,
+			Deployment: deployment,
 		}, c.account); err != nil {
 			return
 		}
