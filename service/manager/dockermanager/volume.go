@@ -3,6 +3,7 @@ package dockermanager
 import (
 	"sync"
 
+	"github.com/docker/docker/client"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/x/xerrors"
 )
@@ -22,7 +23,9 @@ func (m *DockerManager) Delete(s *service.Service) error {
 			wg.Add(1)
 			go func(source string) {
 				defer wg.Done()
-				if err := m.c.DeleteVolume(source); err != nil {
+				// if service is never started before, data volume won't be created and Docker Engine
+				// will return with the not found error. therefore, we can safely ignore it.
+				if err := m.c.DeleteVolume(source); err != nil && !client.IsErrNotFound(err) {
 					errs.Append(err)
 				}
 			}(volume.Source)
