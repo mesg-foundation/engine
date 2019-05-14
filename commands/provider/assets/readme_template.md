@@ -17,7 +17,7 @@
 
 This service requires [MESG Core](https://github.com/mesg-foundation/core) to be installed first.
 
-You can install MESG Core by running the following command or [follow the installation guide](https://docs.mesg.com/guide/start-here/installation.html).
+You can install MESG Core by running the following command or [follow the installation guide](https://docs.mesg.com/guide/installation.html).
 
 ```bash
 bash <(curl -fsSL https://mesg.com/install)
@@ -29,7 +29,7 @@ bash <(curl -fsSL https://mesg.com/install)
 ```bash
 mesg-core service deploy {{.Repository}}
 ```
-{{else}}Download the source code of this service, and then in the service's folder, run the following command:
+{{else}}Download the source code of this service, and then in the service's directory, run the following command:
 ```bash
 mesg-core service deploy
 ```
