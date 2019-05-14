@@ -34,9 +34,8 @@ const main = async () => {
   console.log('service is ready and running')
 }
 
-try {
-  main()
-    .catch(error => console.error('catch promise', error))
-} catch (error) {
-  console.error('catch try', error)
-}
+main()
+.catch(error => {
+  console.error('catch main', error)
+  process.exit(1)
+})

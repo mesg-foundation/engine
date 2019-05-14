@@ -12,6 +12,13 @@ var (
 	MarketplaceURL string
 )
 
+// Env to override on the system services
+var (
+	EnvMarketplaceAddress  string
+	EnvMarketplaceToken    string
+	EnvMarketplaceEndpoint string
+)
+
 // ServiceConfig contains information related to services that the config knows about
 type ServiceConfig struct {
 	URL  string
@@ -36,8 +43,12 @@ type ServiceConfigGroup struct {
 // DO NOT USE STRING HERE but variable defined on top of this file `XxxURL` for config injection
 func (c *Config) getServiceConfigGroup() ServiceConfigGroup {
 	return ServiceConfigGroup{
-		Ethwallet:   ServiceConfig{URL: EthwalletURL},
-		Marketplace: ServiceConfig{URL: MarketplaceURL},
+		Ethwallet: ServiceConfig{URL: EthwalletURL},
+		Marketplace: ServiceConfig{URL: MarketplaceURL, Env: map[string]string{
+			"MARKETPLACE_ADDRESS": EnvMarketplaceAddress,
+			"TOKEN_ADDRESS":       EnvMarketplaceToken,
+			"PROVIDER_ENDPOINT":   EnvMarketplaceEndpoint,
+		}},
 	}
 }
 
