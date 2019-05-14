@@ -21,7 +21,7 @@ Manage Ethereum accounts and sign transactions.
 
 This service requires [MESG Core](https://github.com/mesg-foundation/core) to be installed first.
 
-You can install MESG Core by running the following command or [follow the installation guide](https://docs.mesg.com/guide/start-here/installation.html).
+You can install MESG Core by running the following command or [follow the installation guide](https://docs.mesg.com/guide/installation.html).
 
 ```bash
 bash <(curl -fsSL https://mesg.com/install)
