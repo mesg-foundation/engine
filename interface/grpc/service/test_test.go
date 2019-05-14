@@ -7,11 +7,11 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/mesg-foundation/core/service/manager/dockermanager"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/database"
+	"github.com/mesg-foundation/core/service/manager/dockermanager"
 	"github.com/stretchr/testify/require"
 )
 
