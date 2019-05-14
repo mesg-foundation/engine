@@ -1,6 +1,7 @@
 package importer
 
 import (
+	"fmt"
 	"os"
 )
 
@@ -20,6 +21,15 @@ func Validate(source string) (*ValidationResult, error) {
 
 // validateFromPath validates a service at a given path.
 func validateFromPath(path string) (*ValidationResult, error) {
+	fi, err := os.Stat(path)
+	if err != nil {
+		return nil, err
+	}
+
+	if !fi.IsDir() {
+		return nil, fmt.Errorf("%s is not a directory", path)
+	}
+
 	// Service file
 	data, err := readServiceFile(path)
 	serviceFileExist := err == nil || !os.IsNotExist(err)
