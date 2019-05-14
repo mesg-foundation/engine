@@ -142,7 +142,7 @@ func (a *API) ListenEvent(service string, f *EventFilter) (*EventListener, error
 		return nil, err
 	}
 
-	if f != nil && f.Key != "" {
+	if f.HasKey() {
 		if _, err := s.GetEvent(f.Key); err != nil {
 			return nil, err
 		}
@@ -164,7 +164,7 @@ func (a *API) ListenExecution(service string, f *ExecutionFilter) (*ExecutionLis
 		if f.TaskKey == "" && f.OutputKey != "" {
 			return nil, fmt.Errorf("execution filter: output key given without task key")
 		}
-		if f.TaskKey != "" {
+		if f.HasTaskKey() {
 			task, err := s.GetTask(f.TaskKey)
 			if err != nil {
 				return nil, err
