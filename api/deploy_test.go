@@ -5,9 +5,9 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/importer"
-	"github.com/mesg-foundation/core/x/xdocker/xarchive"
 	"github.com/mesg-foundation/core/x/xos"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -30,7 +30,9 @@ func TestDeployService(t *testing.T) {
 	go func() {
 		defer wg.Done()
 
-		archive, err := xarchive.GzippedTar(path, nil)
+		archive, err := archive.TarWithOptions(path, &archive.TarOptions{
+			Compression: archive.Gzip,
+		})
 		require.NoError(t, err)
 
 		s, validationError, err := a.DeployService(archive, nil, DeployServiceStatusOption(statuses))
@@ -71,7 +73,9 @@ func TestDeployWithDefaultEnv(t *testing.T) {
 
 	at.containerMock.On("Build", mock.Anything).Once().Return(hash, nil)
 
-	archive, err := xarchive.GzippedTar(path, nil)
+	archive, err := archive.TarWithOptions(path, &archive.TarOptions{
+		Compression: archive.Gzip,
+	})
 	require.NoError(t, err)
 
 	s, validationError, err := a.DeployService(archive, nil)
@@ -95,7 +99,9 @@ func TestDeployWithOverwrittenEnv(t *testing.T) {
 
 	at.containerMock.On("Build", mock.Anything).Once().Return(hash, nil)
 
-	archive, err := xarchive.GzippedTar(path, nil)
+	archive, err := archive.TarWithOptions(path, &archive.TarOptions{
+		Compression: archive.Gzip,
+	})
 	require.NoError(t, err)
 
 	s, validationError, err := a.DeployService(archive, xos.EnvSliceToMap(env))
@@ -115,7 +121,9 @@ func TestDeployWitNotDefinedEnv(t *testing.T) {
 	)
 	defer at.close()
 
-	archive, err := xarchive.GzippedTar(path, nil)
+	archive, err := archive.TarWithOptions(path, &archive.TarOptions{
+		Compression: archive.Gzip,
+	})
 	require.NoError(t, err)
 
 	_, validationError, err := a.DeployService(archive, xos.EnvSliceToMap([]string{"A=1", "B=2"}))
@@ -139,7 +147,9 @@ func TestDeployInvalidService(t *testing.T) {
 	go func() {
 		defer wg.Done()
 
-		archive, err := xarchive.GzippedTar(path, nil)
+		archive, err := archive.TarWithOptions(path, &archive.TarOptions{
+			Compression: archive.Gzip,
+		})
 		require.NoError(t, err)
 
 		_, validationError, err := a.DeployService(archive, nil, DeployServiceStatusOption(statuses))
