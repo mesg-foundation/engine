@@ -15,6 +15,11 @@ func (f *EventFilter) Match(e *event.Event) bool {
 	return f == nil || f.Key == "" || f.Key == "*" || f.Key == e.Key
 }
 
+// HasKey returns true if key is set to specified value.
+func (f *EventFilter) HasKey() bool {
+	return f != nil && f.Key != "" && f.Key != "*"
+}
+
 // EventListener provides functionalities to listen MESG events.
 type EventListener struct {
 	C chan *event.Event

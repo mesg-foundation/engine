@@ -36,6 +36,11 @@ func (f *ExecutionFilter) Match(e *execution.Execution) bool {
 	return true
 }
 
+// HasTaskKey returns true if task key is set to specified value.
+func (f *ExecutionFilter) HasTaskKey() bool {
+	return f != nil && f.TaskKey != "" && f.TaskKey != "*"
+}
+
 // ExecutionListener provides functionalities to listen MESG tasks.
 type ExecutionListener struct {
 	// Channel receives matching executions for tasks.
