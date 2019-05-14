@@ -58,6 +58,12 @@ func TestValidateFromMalFormattedServiceFile(t *testing.T) {
 	require.Len(t, validation.ServiceFileWarnings, 1)
 }
 
+func TestValidateConfiguratioinImage(t *testing.T) {
+	validation, err := Validate("./tests/service-configuration-with-image")
+	require.NoError(t, err)
+	require.Len(t, validation.ServiceFileWarnings, 1)
+}
+
 func TestValidateFromInvalidServiceFile(t *testing.T) {
 	validation, err := Validate("./tests/service-file-invalid")
 	require.NoError(t, err)
