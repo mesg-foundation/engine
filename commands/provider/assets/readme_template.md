@@ -26,7 +26,7 @@ bash <(curl -fsSL https://mesg.com/install)
 {{if .Sid}}
 ## Purchase the service
 
-To deploy this service, you first need to purchase one of its offers from the MESG Marketplace.
+To deploy this service, you first need to purchase one of its offers from the [MESG Marketplace](https://marketplace.mesg.com/).
 
 To do so, go to the service's page on the MESG Marketplace and check the offers tab: https://marketplace.mesg.com/services/{{.Sid}}#offers
 {{end}}
