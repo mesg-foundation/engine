@@ -14,7 +14,7 @@ func TestServiceNamespace(t *testing.T) {
 		Hash: "1",
 		Name: "TestServiceNamespace",
 	}
-	namespace := service.namespace()
+	namespace := service.Namespace()
 	sum := sha1.Sum([]byte(service.Hash))
 	require.Equal(t, namespace, []string{hex.EncodeToString(sum[:])})
 }
@@ -32,10 +32,10 @@ func TestDependencyNamespace(t *testing.T) {
 	}
 	dep := service.Dependencies[0]
 	sum := sha1.Sum([]byte(service.Hash))
-	require.Equal(t, dep.namespace(service.namespace()), []string{hex.EncodeToString(sum[:]), "test"})
+	require.Equal(t, dep.Namespace(service.Namespace()), []string{hex.EncodeToString(sum[:]), "test"})
 }
 
-func TestEventSubscriptionChannel(t *testing.T) {
+func TestEventSubTopic(t *testing.T) {
 	service := &Service{Hash: "1"}
 	require.Equal(t, service.EventSubTopic(), hash.Calculate(append(
 		service.namespace(),
@@ -43,7 +43,7 @@ func TestEventSubscriptionChannel(t *testing.T) {
 	)))
 }
 
-func TestTaskSubscriptionChannel(t *testing.T) {
+func TestExecutionSubTopic(t *testing.T) {
 	service := &Service{Hash: "1"}
 	require.Equal(t, service.ExecutionSubTopic(), hash.Calculate(append(
 		service.namespace(),

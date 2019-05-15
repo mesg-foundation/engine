@@ -1,15 +1,15 @@
-package service
+package dockermanager
 
 import (
 	"sync"
 
 	"github.com/docker/docker/client"
-	"github.com/mesg-foundation/core/container"
+	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/x/xerrors"
 )
 
-// DeleteVolumes deletes the data volumes of service and its dependencies.
-func (s *Service) DeleteVolumes(c container.Container) error {
+// Delete deletes the data volumes of service and its dependencies.
+func (m *DockerManager) Delete(s *service.Service) error {
 	var (
 		wg   sync.WaitGroup
 		errs xerrors.SyncErrors
@@ -19,13 +19,13 @@ func (s *Service) DeleteVolumes(c container.Container) error {
 		if d == nil {
 			continue
 		}
-		for _, volume := range d.extractVolumes(s) {
+		for _, volume := range extractVolumes(s, d) {
 			wg.Add(1)
 			go func(source string) {
 				defer wg.Done()
 				// if service is never started before, data volume won't be created and Docker Engine
 				// will return with the not found error. therefore, we can safely ignore it.
-				if err := c.DeleteVolume(source); err != nil && !client.IsErrNotFound(err) {
+				if err := m.c.DeleteVolume(source); err != nil && !client.IsErrNotFound(err) {
 					errs.Append(err)
 				}
 			}(volume.Source)
