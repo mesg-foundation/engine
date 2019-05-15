@@ -169,8 +169,10 @@ func (a *API) ListenExecution(service string, f *ExecutionFilter) (*ExecutionLis
 			if err != nil {
 				return nil, err
 			}
-			if _, err := task.GetOutput(f.OutputKey); f.OutputKey != "" && err != nil {
-				return nil, err
+			if f.HasOutputKey() {
+				if _, err := task.GetOutput(f.OutputKey); f.OutputKey != "" && err != nil {
+					return nil, err
+				}
 			}
 		}
 	}
