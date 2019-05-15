@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/mesg-foundation/core/service/manager/dockermanager"
+
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/container"
@@ -25,13 +27,15 @@ const (
 )
 
 func newServerWithContainer(t *testing.T, c container.Container) (*Server, func()) {
+	m := dockermanager.New(c) // TODO(ilgooz): create mocks from manager.Manager and use instead.
+
 	db, err := database.NewServiceDB(servicedbname)
 	require.NoError(t, err)
 
 	execDB, err := database.NewExecutionDB(execdbname)
 	require.NoError(t, err)
 
-	a := api.New(c, db, execDB)
+	a := api.New(m, c, db, execDB)
 
 	server := NewServer(a)
 

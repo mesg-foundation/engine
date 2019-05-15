@@ -1,6 +1,6 @@
 // +build integration
 
-package service
+package dockermanager
 
 import (
 	"testing"
