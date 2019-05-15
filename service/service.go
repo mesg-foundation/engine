@@ -91,8 +91,8 @@ type Log struct {
 	Error      io.ReadCloser
 }
 
-// getDependency returns dependency dependencyKey or a not found error.
-func (s *Service) getDependency(dependencyKey string) (*Dependency, error) {
+// GetDependency returns dependency dependencyKey or a not found error.
+func (s *Service) GetDependency(dependencyKey string) (*Dependency, error) {
 	for _, dep := range s.Dependencies {
 		if dep.Key == dependencyKey {
 			return dep, nil

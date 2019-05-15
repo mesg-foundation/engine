@@ -31,5 +31,5 @@ func (a *API) ServiceLogs(serviceID string, filters ...ServiceLogsFilter) ([]*se
 	if err != nil {
 		return nil, err
 	}
-	return s.Logs(a.container, f.dependencies...)
+	return a.m.Logs(s, f.dependencies...)
 }
