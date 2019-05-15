@@ -10,6 +10,7 @@ import (
 	"github.com/mesg-foundation/core/event"
 	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/core/service/manager"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -17,15 +18,17 @@ import (
 type API struct {
 	ps *pubsub.PubSub
 
+	m         manager.Manager
+	container container.Container
 	db        database.ServiceDB
 	execDB    database.ExecutionDB
-	container container.Container
 }
 
 // New creates a new API with given options.
-func New(c container.Container, db database.ServiceDB, execDB database.ExecutionDB) *API {
+func New(m manager.Manager, c container.Container, db database.ServiceDB, execDB database.ExecutionDB) *API {
 	return &API{
 		ps:        pubsub.New(0),
+		m:         m,
 		container: c,
 		db:        db,
 		execDB:    execDB,
@@ -44,26 +47,26 @@ func (a *API) ListServices() ([]*service.Service, error) {
 
 // Status returns the status of a service
 func (a *API) Status(service *service.Service) (service.StatusType, error) {
-	return service.Status(a.container)
+	return a.m.Status(service)
 }
 
 // StartService starts service serviceID.
 func (a *API) StartService(serviceID string) error {
-	sr, err := a.db.Get(serviceID)
+	s, err := a.db.Get(serviceID)
 	if err != nil {
 		return err
 	}
-	_, err = sr.Start(a.container)
+	_, err = a.m.Start(s)
 	return err
 }
 
 // StopService stops service serviceID.
 func (a *API) StopService(serviceID string) error {
-	sr, err := a.db.Get(serviceID)
+	s, err := a.db.Get(serviceID)
 	if err != nil {
 		return err
 	}
-	return sr.Stop(a.container)
+	return a.m.Stop(s)
 }
 
 // DeleteService stops and deletes service serviceID.
@@ -74,14 +77,14 @@ func (a *API) DeleteService(serviceID string, deleteData bool) error {
 	if err != nil {
 		return err
 	}
-	if err := s.Stop(a.container); err != nil {
+	if err := a.m.Stop(s); err != nil {
 		return err
 	}
 	// delete volumes first before the service. this way if
 	// deleting volumes fails, process can be retried by the user again
 	// because service still will be in the db.
 	if deleteData {
-		if err := s.DeleteVolumes(a.container); err != nil {
+		if err := a.m.Delete(s); err != nil {
 			return err
 		}
 	}
@@ -111,7 +114,7 @@ func (a *API) ExecuteTask(serviceID, taskKey string, inputData map[string]interf
 		return "", err
 	}
 	// a task should be executed only if task's service is running.
-	status, err := s.Status(a.container)
+	status, err := a.m.Status(s)
 	if err != nil {
 		return "", err
 	}

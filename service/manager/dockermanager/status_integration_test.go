@@ -1,19 +1,20 @@
 // +build integration
 
-package service
+package dockermanager
 
 import (
 	"testing"
 
+	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
 )
 
 func TestIntegrationStatusService(t *testing.T) {
 	var (
-		service = &Service{
+		s = &service.Service{
 			Hash: "1",
 			Name: "TestStatusService",
-			Dependencies: []*Dependency{
+			Dependencies: []*service.Dependency{
 				{
 					Key:   "test",
 					Image: "http-server",
@@ -21,26 +22,27 @@ func TestIntegrationStatusService(t *testing.T) {
 			},
 		}
 		c = newIntegrationContainer(t)
+		m = New(c)
 	)
 
-	status, err := service.Status(c)
+	status, err := m.Status(s)
 	require.NoError(t, err)
-	require.Equal(t, STOPPED, status)
-	dockerServices, err := service.Start(c)
-	defer service.Stop(c)
+	require.Equal(t, service.STOPPED, status)
+	dockerServices, err := m.Start(s)
+	defer m.Stop(s)
 	require.NoError(t, err)
-	require.Equal(t, len(dockerServices), len(service.Dependencies))
-	status, err = service.Status(c)
+	require.Equal(t, len(dockerServices), len(s.Dependencies))
+	status, err = m.Status(s)
 	require.NoError(t, err)
-	require.Equal(t, RUNNING, status)
+	require.Equal(t, service.RUNNING, status)
 }
 
 func TestIntegrationListRunning(t *testing.T) {
 	var (
-		service = &Service{
+		service = &service.Service{
 			Hash: "1",
 			Name: "TestList",
-			Dependencies: []*Dependency{
+			Dependencies: []*service.Dependency{
 				{
 					Key:   "test",
 					Image: "http-server",
@@ -48,10 +50,11 @@ func TestIntegrationListRunning(t *testing.T) {
 			},
 		}
 		c = newIntegrationContainer(t)
+		m = New(c)
 	)
 
-	service.Start(c)
-	defer service.Stop(c)
+	m.Start(service)
+	defer m.Stop(service)
 	list, err := ListRunning()
 	require.NoError(t, err)
 	require.Equal(t, len(list), 1)
@@ -60,10 +63,10 @@ func TestIntegrationListRunning(t *testing.T) {
 
 func TestIntegrationListRunningMultipleDependencies(t *testing.T) {
 	var (
-		service = &Service{
+		service = &service.Service{
 			Hash: "1",
 			Name: "TestListMultipleDependencies",
-			Dependencies: []*Dependency{
+			Dependencies: []*service.Dependency{
 				{
 					Key:   "test",
 					Image: "http-server",
@@ -75,10 +78,11 @@ func TestIntegrationListRunningMultipleDependencies(t *testing.T) {
 			},
 		}
 		c = newIntegrationContainer(t)
+		m = New(c)
 	)
 
-	service.Start(c)
-	defer service.Stop(c)
+	m.Start(service)
+	defer m.Stop(service)
 	list, err := ListRunning()
 	require.NoError(t, err)
 	require.Equal(t, len(list), 1)
