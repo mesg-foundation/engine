@@ -28,9 +28,9 @@ func TestStopRunningService(t *testing.T) {
 
 	d, _ := s.GetDependency(dependencyKey)
 
-	mc.On("Status", d.Namespace(s.Namespace())).Once().Return(container.RUNNING, nil)
-	mc.On("StopService", d.Namespace(s.Namespace())).Once().Return(nil)
-	mc.On("DeleteNetwork", s.Namespace()).Once().Return(nil)
+	mc.On("Status", dependencyNamespace(serviceNamespace(s.Hash), d.Key)).Once().Return(container.RUNNING, nil)
+	mc.On("StopService", dependencyNamespace(serviceNamespace(s.Hash), d.Key)).Once().Return(nil)
+	mc.On("DeleteNetwork", serviceNamespace(s.Hash)).Once().Return(nil)
 
 	err := m.Stop(s)
 	require.NoError(t, err)

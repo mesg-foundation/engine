@@ -25,7 +25,7 @@ func (m *DockerManager) Logs(s *service.Service, dependencies ...string) ([]*ser
 		}
 		if isNoFilter || xstrings.SliceContains(dependencies, d.Key) {
 			var r io.ReadCloser
-			r, err := m.c.ServiceLogs(d.Namespace(s.Namespace()))
+			r, err := m.c.ServiceLogs(dependencyNamespace(serviceNamespace(s.Hash), d.Key))
 			if err != nil {
 				return nil, err
 			}
