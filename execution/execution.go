@@ -98,18 +98,6 @@ func (execution *Execution) Complete(outputKey string, outputData map[string]int
 		}
 	}
 
-	task, err := execution.Service.GetTask(execution.TaskKey)
-	if err != nil {
-		return err
-	}
-	output, err := task.GetOutput(outputKey)
-	if err != nil {
-		return err
-	}
-	if err := output.RequireData(outputData); err != nil {
-		return err
-	}
-
 	execution.ExecutionDuration = time.Since(execution.ExecutedAt)
 	execution.OutputKey = outputKey
 	execution.OutputData = outputData
