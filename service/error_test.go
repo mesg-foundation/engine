@@ -97,16 +97,6 @@ func TestInvalidTaskInputError(t *testing.T) {
 	tests.assert(t, err.Error())
 }
 
-// Test OutputNotFoundError
-func TestOutputNotFoundError(t *testing.T) {
-	err := TaskOutputNotFoundError{
-		TaskKey:       "TaskKey",
-		TaskOutputKey: "OutputKey",
-		ServiceName:   "TestOutputNotFoundError",
-	}
-	require.Equal(t, `Output "OutputKey" of task "TaskKey" not found in service "TestOutputNotFoundError"`, err.Error())
-}
-
 // Test InvalidOutputDataError
 func TestInvalidOutputDataError(t *testing.T) {
 	tests := newParameterTestCases()

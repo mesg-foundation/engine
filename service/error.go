@@ -22,18 +22,6 @@ func (e *TaskNotFoundError) Error() string {
 	return fmt.Sprintf("Task %q not found in service %q", e.TaskKey, e.ServiceName)
 }
 
-// TaskOutputNotFoundError is an error returned when service doesn't contain corresponding output.
-type TaskOutputNotFoundError struct {
-	TaskKey       string
-	TaskOutputKey string
-	ServiceName   string
-}
-
-func (e *TaskOutputNotFoundError) Error() string {
-	return fmt.Sprintf("Output %q of task %q not found in service %q", e.TaskOutputKey, e.TaskKey,
-		e.ServiceName)
-}
-
 // InvalidEventDataError is an error returned when the data of corresponding event is not valid.
 type InvalidEventDataError struct {
 	EventKey    string
