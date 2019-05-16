@@ -15,30 +15,9 @@ type Task struct {
 	Inputs []*Parameter `hash:"name:4"`
 
 	// Outputs are the definition of the execution results of task.
-	Outputs []*Output `hash:"name:5"`
+	Outputs []*Parameter `hash:"name:5"`
 
 	// serviceName is the task's service's name.
-	serviceName string `hash:"-"`
-}
-
-// Output describes task output.
-type Output struct {
-	// Key is the key of output.
-	Key string `hash:"name:1"`
-
-	// Name is the name of task output.
-	Name string `hash:"name:2"`
-
-	// Description is the description of task output.
-	Description string `hash:"name:3"`
-
-	// Data holds the output parameters of a task output.
-	Data []*Parameter `hash:"name:4"`
-
-	// taskKey is the output's task's key.
-	taskKey string `hash:"-"`
-
-	// serviceName is the output's service's name.
 	serviceName string `hash:"-"`
 }
 
@@ -69,41 +48,6 @@ func (t *Task) RequireInputs(taskInputs map[string]interface{}) error {
 			TaskKey:     t.Key,
 			ServiceName: t.serviceName,
 			Warnings:    warnings,
-		}
-	}
-	return nil
-}
-
-// GetOutput returns output outputKey of task.
-func (t *Task) GetOutput(outputKey string) (*Output, error) {
-	for _, output := range t.Outputs {
-		if output.Key == outputKey {
-			output.taskKey = t.Key
-			output.serviceName = t.serviceName
-			return output, nil
-		}
-	}
-	return nil, &TaskOutputNotFoundError{
-		TaskKey:       t.Key,
-		TaskOutputKey: outputKey,
-		ServiceName:   t.serviceName,
-	}
-}
-
-// ValidateData produces warnings for task outputs that doesn't satisfy their parameter schemas.
-func (o *Output) ValidateData(outputData map[string]interface{}) []*ParameterWarning {
-	return validateParametersSchema(o.Data, outputData)
-}
-
-// RequireData requires task outputs to be matched with parameter schemas.
-func (o *Output) RequireData(outputData map[string]interface{}) error {
-	warnings := o.ValidateData(outputData)
-	if len(warnings) > 0 {
-		return &InvalidTaskOutputError{
-			TaskKey:       o.taskKey,
-			TaskOutputKey: o.Key,
-			ServiceName:   o.serviceName,
-			Warnings:      warnings,
 		}
 	}
 	return nil
