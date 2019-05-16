@@ -15,8 +15,9 @@ func (m *DockerManager) Stop(s *service.Service) error {
 	}
 
 	var (
-		wg   sync.WaitGroup
-		errs xerrors.SyncErrors
+		wg         sync.WaitGroup
+		errs       xerrors.SyncErrors
+		sNamespace = serviceNamespace(s.Hash)
 	)
 	for _, d := range append([]*service.Dependency{s.Configuration}, s.Dependencies...) {
 		// Service.Configuration can be nil so, here is a check for it.
@@ -29,12 +30,12 @@ func (m *DockerManager) Stop(s *service.Service) error {
 			if err := m.c.StopService(namespace); err != nil {
 				errs.Append(err)
 			}
-		}(d.Namespace(s.Namespace()))
+		}(dependencyNamespace(sNamespace, d.Key))
 	}
 	wg.Wait()
 	if err := errs.ErrorOrNil(); err != nil {
 		return err
 	}
 
-	return m.c.DeleteNetwork(s.Namespace())
+	return m.c.DeleteNetwork(sNamespace)
 }

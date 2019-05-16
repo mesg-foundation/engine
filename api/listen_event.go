@@ -72,7 +72,7 @@ func (l *EventListener) listen(serviceID string) error {
 }
 
 func (l *EventListener) listenLoop(service *service.Service) {
-	topic := service.EventSubscriptionChannel()
+	topic := eventTopic(service.Hash)
 	subscription := l.api.ps.Sub(topic)
 	defer l.api.ps.Unsub(subscription, topic)
 	close(l.listening)

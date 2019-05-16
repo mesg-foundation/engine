@@ -104,8 +104,8 @@ func TestStartService(t *testing.T) {
 
 	d, _ := s.GetDependency(dependencyKey)
 
-	mc.On("Status", d.Namespace(s.Namespace())).Once().Return(container.STOPPED, nil)
-	mc.On("CreateNetwork", s.Namespace()).Once().Return(networkID, nil)
+	mc.On("Status", dependencyNamespace(serviceNamespace(s.Hash), d.Key)).Once().Return(container.STOPPED, nil)
+	mc.On("CreateNetwork", serviceNamespace(s.Hash)).Once().Return(networkID, nil)
 	mc.On("SharedNetworkID").Once().Return(sharedNetworkID, nil)
 	mockStartService(s, d, mc, networkID, sharedNetworkID, containerServiceID, nil)
 
@@ -151,9 +151,9 @@ func TestStartWith2Dependencies(t *testing.T) {
 		ds    = []*service.Dependency{d, d2}
 	)
 
-	mc.On("Status", d.Namespace(s.Namespace())).Once().Return(container.STOPPED, nil)
-	mc.On("Status", d2.Namespace(s.Namespace())).Once().Return(container.STOPPED, nil)
-	mc.On("CreateNetwork", s.Namespace()).Once().Return(networkID, nil)
+	mc.On("Status", dependencyNamespace(serviceNamespace(s.Hash), d.Key)).Once().Return(container.STOPPED, nil)
+	mc.On("Status", dependencyNamespace(serviceNamespace(s.Hash), d2.Key)).Once().Return(container.STOPPED, nil)
+	mc.On("CreateNetwork", serviceNamespace(s.Hash)).Once().Return(networkID, nil)
 	mc.On("SharedNetworkID").Once().Return(sharedNetworkID, nil)
 
 	for i, d := range ds {
@@ -188,7 +188,7 @@ func TestStartServiceRunning(t *testing.T) {
 	)
 
 	d, _ := s.GetDependency(dependencyKey)
-	mc.On("Status", d.Namespace(s.Namespace())).Once().Return(container.RUNNING, nil)
+	mc.On("Status", dependencyNamespace(serviceNamespace(s.Hash), d.Key)).Once().Return(container.RUNNING, nil)
 
 	dockerServices, err := m.Start(s)
 	require.NoError(t, err)
@@ -228,13 +228,13 @@ func TestPartiallyRunningService(t *testing.T) {
 		ds    = []*service.Dependency{d, d2}
 	)
 
-	mc.On("Status", d.Namespace(s.Namespace())).Return(container.STOPPED, nil)
-	mc.On("StopService", d.Namespace(s.Namespace())).Once().Return(nil)
-	mc.On("Status", d2.Namespace(s.Namespace())).Return(container.RUNNING, nil)
-	mc.On("StopService", d2.Namespace(s.Namespace())).Once().Return(nil)
-	mc.On("CreateNetwork", s.Namespace()).Once().Return(networkID, nil)
+	mc.On("Status", dependencyNamespace(serviceNamespace(s.Hash), d.Key)).Return(container.STOPPED, nil)
+	mc.On("StopService", dependencyNamespace(serviceNamespace(s.Hash), d.Key)).Once().Return(nil)
+	mc.On("Status", dependencyNamespace(serviceNamespace(s.Hash), d2.Key)).Return(container.RUNNING, nil)
+	mc.On("StopService", dependencyNamespace(serviceNamespace(s.Hash), d2.Key)).Once().Return(nil)
+	mc.On("CreateNetwork", serviceNamespace(s.Hash)).Once().Return(networkID, nil)
 	mc.On("SharedNetworkID").Once().Return(sharedNetworkID, nil)
-	mc.On("DeleteNetwork", s.Namespace()).Return(nil)
+	mc.On("DeleteNetwork", serviceNamespace(s.Hash)).Return(nil)
 
 	for i, d := range ds {
 		mockStartService(s, d, mc, networkID, sharedNetworkID, containerServiceIDs[i], nil)
@@ -273,11 +273,11 @@ func TestServiceStartError(t *testing.T) {
 
 	d, _ := s.GetDependency(dependencyKey)
 
-	mc.On("Status", d.Namespace(s.Namespace())).Once().Return(container.STOPPED, nil)
-	mc.On("CreateNetwork", s.Namespace()).Once().Return(networkID, nil)
+	mc.On("Status", dependencyNamespace(serviceNamespace(s.Hash), d.Key)).Once().Return(container.STOPPED, nil)
+	mc.On("CreateNetwork", serviceNamespace(s.Hash)).Once().Return(networkID, nil)
 	mc.On("SharedNetworkID").Once().Return(sharedNetworkID, nil)
 	mockStartService(s, d, mc, networkID, sharedNetworkID, "", startErr)
-	mc.On("Status", d.Namespace(s.Namespace())).Once().Return(container.STOPPED, nil)
+	mc.On("Status", dependencyNamespace(serviceNamespace(s.Hash), d.Key)).Once().Return(container.STOPPED, nil)
 
 	serviceIDs, err := m.Start(s)
 	require.Equal(t, startErr, err)
@@ -296,7 +296,7 @@ func mockStartService(s *service.Service, d *service.Dependency, mc *mocks.Conta
 		volumesFrom, _ = extractVolumesFrom(s, d)
 	)
 	mc.On("StartService", container.ServiceOptions{
-		Namespace: d.Namespace(s.Namespace()),
+		Namespace: dependencyNamespace(serviceNamespace(s.Hash), d.Key),
 		Labels: map[string]string{
 			"mesg.core":    c.Core.Name,
 			"mesg.sid":     s.Sid,

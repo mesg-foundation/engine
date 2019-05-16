@@ -56,8 +56,8 @@ func TestIntegrationStartWith2DependenciesIntegration(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 2, len(servicesID))
 	deps := service.Dependencies
-	container1, err1 := c.FindContainer(deps[0].Namespace(service.Namespace()))
-	container2, err2 := c.FindContainer(deps[1].Namespace(service.Namespace()))
+	container1, err1 := c.FindContainer(dependencyNamespace(serviceNamespace(service.Hash), deps[0].Key))
+	container2, err2 := c.FindContainer(dependencyNamespace(serviceNamespace(service.Hash), deps[1].Key))
 	require.Nil(t, err1)
 	require.Nil(t, err2)
 	require.Equal(t, "http-server:latest", container1.Config.Image)
@@ -139,7 +139,7 @@ func TestIntegrationNetworkCreated(t *testing.T) {
 
 	m.Start(service)
 	defer m.Stop(service)
-	network, err := c.FindNetwork(service.Namespace())
+	network, err := c.FindNetwork(serviceNamespace(service.Hash))
 	require.NoError(t, err)
 	require.NotEqual(t, "", network.ID)
 }

@@ -30,7 +30,7 @@ func (s *resultSubmitter) Submit(executionID string, outputKey string, outputDat
 	exec, stateChanged, err := s.processExecution(executionID, outputKey, outputData)
 	if stateChanged {
 		// only publish to listeners when the execution's state changed.
-		go s.api.ps.Pub(exec, exec.Service.ResultSubscriptionChannel())
+		go s.api.ps.Pub(exec, resultTopic(exec.Service.Hash))
 	}
 	// always return any error to the service.
 	return err
