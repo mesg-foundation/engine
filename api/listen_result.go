@@ -111,10 +111,7 @@ func (l *ResultListener) listenLoop(service *service.Service) {
 }
 
 func (l *ResultListener) validateTask(service *service.Service) error {
-	if err := l.validateTaskKey(service); err != nil {
-		return err
-	}
-	return l.validateOutputKey(service)
+	return l.validateTaskKey(service)
 }
 
 func (l *ResultListener) validateTaskKey(service *service.Service) error {
@@ -122,18 +119,6 @@ func (l *ResultListener) validateTaskKey(service *service.Service) error {
 		return nil
 	}
 	_, err := service.GetTask(l.taskKey)
-	return err
-}
-
-func (l *ResultListener) validateOutputKey(service *service.Service) error {
-	if l.outputKey == "" || l.outputKey == "*" {
-		return nil
-	}
-	task, err := service.GetTask(l.taskKey)
-	if err != nil {
-		return err
-	}
-	_, err = task.GetOutput(l.outputKey)
 	return err
 }
 
