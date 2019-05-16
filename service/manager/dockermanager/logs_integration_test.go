@@ -1,19 +1,20 @@
 // +build integration
 
-package service
+package dockermanager
 
 import (
 	"testing"
 
+	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
 )
 
 func TestIntegrationLogs(t *testing.T) {
 	var (
-		service = &Service{
+		service = &service.Service{
 			Hash: "1",
 			Name: "TestLogs",
-			Dependencies: []*Dependency{
+			Dependencies: []*service.Dependency{
 				{
 					Key:   "test",
 					Image: "http-server",
@@ -25,21 +26,22 @@ func TestIntegrationLogs(t *testing.T) {
 			},
 		}
 		c = newIntegrationContainer(t)
+		m = New(c)
 	)
 
-	service.Start(c)
-	defer service.Stop(c)
-	readers, err := service.Logs(c)
+	m.Start(service)
+	defer m.Stop(service)
+	readers, err := m.Logs(service)
 	require.NoError(t, err)
 	require.Equal(t, 2, len(readers))
 }
 
 func TestIntegrationLogsOnlyOneDependency(t *testing.T) {
 	var (
-		service = &Service{
+		service = &service.Service{
 			Hash: "1",
 			Name: "TestLogsOnlyOneDependency",
-			Dependencies: []*Dependency{
+			Dependencies: []*service.Dependency{
 				{
 					Key:   "test",
 					Image: "http-server",
@@ -51,11 +53,12 @@ func TestIntegrationLogsOnlyOneDependency(t *testing.T) {
 			},
 		}
 		c = newIntegrationContainer(t)
+		m = New(c)
 	)
 
-	service.Start(c)
-	defer service.Stop(c)
-	readers, err := service.Logs(c, "test2")
+	m.Start(service)
+	defer m.Stop(service)
+	readers, err := m.Logs(service, "test2")
 	require.NoError(t, err)
 	require.Equal(t, 1, len(readers))
 }
