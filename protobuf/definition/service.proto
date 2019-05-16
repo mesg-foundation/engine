@@ -30,15 +30,7 @@ message Task {
   string name = 1;                    // Task's name.
   string description = 2;             // Task's description.
   repeated Parameter inputs = 6;      // List inputs of this task.
-  repeated Output outputs = 7;        // List of outputs this task can return.
-}
-
-// Output is the data a task returns.
-message Output {
-  string key = 4;                   // Output's key.
-  string name = 1;                  // Output's name.
-  string description = 2;           // Output's description.
-  repeated Parameter data = 3;      // List of data of this output.
+  repeated Parameter outputs = 7;     // List of outputs this task can return.
 }
 
 // Parameter describes the task's inputs, the task's outputs, and the event's data.
