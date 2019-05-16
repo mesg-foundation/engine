@@ -38,7 +38,7 @@ func TestDependencyNamespace(t *testing.T) {
 func TestEventSubTopic(t *testing.T) {
 	service := &Service{Hash: "1"}
 	require.Equal(t, service.EventSubTopic(), hash.Calculate(append(
-		service.namespace(),
+		service.Namespace(),
 		eventTopic,
 	)))
 }
@@ -46,7 +46,7 @@ func TestEventSubTopic(t *testing.T) {
 func TestExecutionSubTopic(t *testing.T) {
 	service := &Service{Hash: "1"}
 	require.Equal(t, service.ExecutionSubTopic(), hash.Calculate(append(
-		service.namespace(),
+		service.Namespace(),
 		executionTopic,
 	)))
 }
