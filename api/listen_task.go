@@ -52,7 +52,7 @@ func (l *TaskListener) listen(token string) error {
 }
 
 func (l *TaskListener) listenLoop(service *service.Service) {
-	topic := service.TaskSubscriptionChannel()
+	topic := taskTopic(service.Hash)
 	subscription := l.api.ps.Sub(topic)
 	defer l.api.ps.Unsub(subscription, topic)
 	close(l.listening)

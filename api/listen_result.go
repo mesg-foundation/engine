@@ -88,7 +88,7 @@ func (l *ResultListener) listen(serviceID string) error {
 }
 
 func (l *ResultListener) listenLoop(service *service.Service) {
-	topic := service.ResultSubscriptionChannel()
+	topic := resultTopic(service.Hash)
 	subscription := l.api.ps.Sub(topic)
 	defer l.api.ps.Unsub(subscription, topic)
 	close(l.listening)
