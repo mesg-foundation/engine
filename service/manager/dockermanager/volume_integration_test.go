@@ -1,10 +1,11 @@
 // +build integration
 
-package service
+package dockermanager
 
 import (
 	"testing"
 
+	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
 )
 
@@ -17,10 +18,10 @@ func TestIntegrationDeleteVolumes(t *testing.T) {
 		dependencyKey2 = "2"
 		volumeA        = "/a"
 		volumeB        = "/b"
-		s              = &Service{
+		s              = &service.Service{
 			Hash: "1",
 			Name: "TestIntegrationDeleteVolumes",
-			Dependencies: []*Dependency{
+			Dependencies: []*service.Dependency{
 				{
 					Key:     dependencyKey1,
 					Image:   "http-server",
@@ -34,12 +35,13 @@ func TestIntegrationDeleteVolumes(t *testing.T) {
 			},
 		}
 		c = newIntegrationContainer(t)
+		m = New(c)
 	)
 
-	_, err := s.Start(c)
+	_, err := m.Start(s)
 	require.NoError(t, err)
-	err = s.Stop(c)
+	err = m.Stop(s)
 	require.NoError(t, err)
-	err = s.DeleteVolumes(c)
+	err = m.Delete(s)
 	require.NoError(t, err)
 }

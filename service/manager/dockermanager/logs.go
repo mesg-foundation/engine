@@ -1,10 +1,10 @@
-package service
+package dockermanager
 
 import (
 	"io"
 
 	"github.com/docker/docker/pkg/stdcopy"
-	"github.com/mesg-foundation/core/container"
+	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/x/xstrings"
 	"github.com/sirupsen/logrus"
 )
@@ -13,9 +13,9 @@ import (
 // logs for all dependencies otherwise it'll only give logs for specified dependencies.
 // note that, service itself is also a dependency defined with special "service" key.
 // in order to get service's own logs, "service" key must be included to dependencies filter.
-func (s *Service) Logs(c container.Container, dependencies ...string) ([]*Log, error) {
+func (m *DockerManager) Logs(s *service.Service, dependencies ...string) ([]*service.Log, error) {
 	var (
-		logs       []*Log
+		logs       []*service.Log
 		isNoFilter = len(dependencies) == 0
 	)
 	for _, d := range append(s.Dependencies, s.Configuration) {
@@ -25,7 +25,7 @@ func (s *Service) Logs(c container.Container, dependencies ...string) ([]*Log, e
 		}
 		if isNoFilter || xstrings.SliceContains(dependencies, d.Key) {
 			var r io.ReadCloser
-			r, err := c.ServiceLogs(d.namespace(s.namespace()))
+			r, err := m.c.ServiceLogs(d.Namespace(s.Namespace()))
 			if err != nil {
 				return nil, err
 			}
@@ -37,7 +37,7 @@ func (s *Service) Logs(c container.Container, dependencies ...string) ([]*Log, e
 					logrus.Errorln(err)
 				}
 			}(sw, ew, r)
-			logs = append(logs, &Log{
+			logs = append(logs, &service.Log{
 				Dependency: d.Key,
 				Standard:   rstd,
 				Error:      rerr,

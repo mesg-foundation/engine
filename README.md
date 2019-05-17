@@ -46,7 +46,7 @@ Run the following command in a console to install MESG Core:
 bash <(curl -fsSL https://mesg.com/install)
 ```
 
-You can also install it manually by following [this guide](https://docs.mesg.com/guide/start-here/installation.html).
+You can also install it manually by following [this guide](https://docs.mesg.com/guide/installation.html).
 
 ### 2. Run MESG Core
 

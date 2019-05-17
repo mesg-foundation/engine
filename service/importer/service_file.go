@@ -55,6 +55,10 @@ func validateServiceStruct(service *ServiceDefinition) []string {
 		}
 	}
 
+	if service.Configuration != nil && service.Configuration.Image != "" {
+		warnings = append(warnings, "configuration.image is not allowed")
+	}
+
 	for key, dep := range service.Dependencies {
 		if dep == nil {
 			continue
