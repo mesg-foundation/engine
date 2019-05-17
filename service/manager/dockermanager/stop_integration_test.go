@@ -72,7 +72,7 @@ func TestIntegrationNetworkDeleted(t *testing.T) {
 
 	m.Start(service)
 	m.Stop(service)
-	n, err := c.FindNetwork(service.Namespace())
+	n, err := c.FindNetwork(serviceNamespace(service.Hash))
 	require.Empty(t, n)
 	require.Error(t, err)
 }
