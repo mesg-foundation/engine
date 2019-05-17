@@ -26,15 +26,10 @@ var (
 					{Key: "foo", Type: "String"},
 					{Key: "bar", Type: "String"},
 				},
-				Outputs: []*service.Output{
+				Outputs: []*service.Parameter{
 					{
-						Key: "OUTPUT_KEY_1",
-						Data: []*service.Parameter{
-							{
-								Key:  "foo",
-								Type: "String",
-							},
-						},
+						Key:  "foo",
+						Type: "String",
 					},
 				},
 			},
@@ -43,15 +38,10 @@ var (
 				Inputs: []*service.Parameter{
 					{Key: "foo", Type: "String"},
 				},
-				Outputs: []*service.Output{
+				Outputs: []*service.Parameter{
 					{
-						Key: "OUTPUT_KEY_1",
-						Data: []*service.Parameter{
-							{
-								Key:  "foo",
-								Type: "String",
-							},
-						},
+						Key:  "success",
+						Type: "String",
 					},
 				},
 			},
@@ -166,22 +156,20 @@ func TestComplete(t *testing.T) {
 		},
 		{
 			name: "task output not found because wrong output key",
-			key:  "output",
+			key:  "notfound",
 			data: map[string]interface{}{"foo": "bar"},
 			err: &service.TaskOutputNotFoundError{
 				TaskKey:       taskKey,
-				TaskOutputKey: "output",
+				TaskOutputKey: "notfound",
 				ServiceName:   serviceName,
 			},
 		},
 		{
 			name: "invalid task output",
-			key:  "OUTPUT_KEY_1",
+			key:  "success",
 			data: map[string]interface{}{},
 			err: &service.InvalidTaskOutputError{
-				TaskKey:       taskKey,
-				TaskOutputKey: "OUTPUT_KEY_1",
-				ServiceName:   serviceName,
+				TaskOutputKey: "success",
 				Warnings: []*service.ParameterWarning{
 					{
 						Key:       "foo",
@@ -193,13 +181,13 @@ func TestComplete(t *testing.T) {
 		},
 		{
 			name: "success",
-			key:  "OUTPUT_KEY_1",
+			key:  "success",
 			data: map[string]interface{}{"foo": "bar"},
 			err:  nil,
 		},
 		{ // this one is already proccessed
 			name: "already executed",
-			key:  "OUTPUT_KEY_1",
+			key:  "success",
 			data: map[string]interface{}{"foo": "bar"},
 			err: StatusError{
 				ExpectedStatus: InProgress,
