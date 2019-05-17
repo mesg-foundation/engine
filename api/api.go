@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/cskr/pubsub"
@@ -102,7 +103,7 @@ func (a *API) EmitEvent(token, eventKey string, eventData map[string]interface{}
 		return err
 	}
 
-	go a.ps.Pub(e, eventTopic(s.Hash))
+	go a.ps.Pub(e, eventSubTopic(s.Hash))
 	return nil
 }
 
@@ -134,8 +135,108 @@ func (a *API) ExecuteTask(serviceID, taskKey string, inputData map[string]interf
 	if err = a.execDB.Save(exec); err != nil {
 		return "", err
 	}
-	go a.ps.Pub(exec, taskTopic(s.Hash))
+	go a.ps.Pub(exec, executionSubTopic(s.Hash))
 	return exec.ID, nil
+}
+
+// ListenEvent listens events matches with eventFilter on serviceID.
+func (a *API) ListenEvent(service string, f *EventFilter) (*EventListener, error) {
+	s, err := a.db.Get(service)
+	if err != nil {
+		return nil, err
+	}
+
+	if f.HasKey() {
+		if _, err := s.GetEvent(f.Key); err != nil {
+			return nil, err
+		}
+	}
+
+	l := NewEventListener(a.ps, eventSubTopic(s.Hash), f)
+	go l.Listen()
+	return l, nil
+}
+
+// ListenExecution listens executions on service.
+func (a *API) ListenExecution(service string, f *ExecutionFilter) (*ExecutionListener, error) {
+	s, err := a.db.Get(service)
+	if err != nil {
+		return nil, err
+	}
+
+	if f != nil {
+		if f.TaskKey == "" && f.OutputKey != "" {
+			return nil, fmt.Errorf("execution filter: output key given without task key")
+		}
+		if f.HasTaskKey() {
+			task, err := s.GetTask(f.TaskKey)
+			if err != nil {
+				return nil, err
+			}
+			if f.HasOutputKey() {
+				if _, err := task.GetOutput(f.OutputKey); err != nil {
+					return nil, err
+				}
+			}
+		}
+	}
+
+	l := NewExecutionListener(a.ps, executionSubTopic(s.Hash), f)
+	go l.Listen()
+	return l, nil
+}
+
+// SubmitResult submits results for executionID.
+func (a *API) SubmitResult(executionID string, outputKey string, outputs []byte) error {
+	exec, stateChanged, err := a.processExecution(executionID, outputKey, outputs)
+	if stateChanged {
+		// only publish to listeners when the execution's state changed.
+		go a.ps.Pub(exec, executionSubTopic(exec.Service.Hash))
+	}
+	return err
+}
+
+// processExecution processes execution and marks it as complated or failed.
+func (a *API) processExecution(executionID string, outputKey string, outputData []byte) (exec *execution.Execution, stateChanged bool, err error) {
+	stateChanged = false
+	tx, err := a.execDB.OpenTransaction()
+	if err != nil {
+		return nil, false, err
+	}
+
+	exec, err = tx.Find(executionID)
+	if err != nil {
+		tx.Discard()
+		return nil, false, err
+	}
+
+	var outputDataMap map[string]interface{}
+	if err := json.Unmarshal(outputData, &outputDataMap); err != nil {
+		return a.saveExecution(tx, exec, fmt.Errorf("invalid output data error: %s", err))
+	}
+
+	if err := exec.Complete(outputKey, outputDataMap); err != nil {
+		return a.saveExecution(tx, exec, err)
+	}
+
+	return a.saveExecution(tx, exec, nil)
+}
+
+func (a *API) saveExecution(tx database.ExecutionTransaction, exec *execution.Execution, err error) (execOut *execution.Execution, stateChanged bool, errOut error) {
+	if err != nil {
+		if errFailed := exec.Failed(err); errFailed != nil {
+			tx.Discard()
+			return exec, false, errFailed
+		}
+	}
+	if errSave := tx.Save(exec); errSave != nil {
+		tx.Discard()
+		return exec, true, errSave
+	}
+	if errCommit := tx.Commit(); errCommit != nil {
+		return exec, true, errCommit
+	}
+	return exec, true, err
 }
 
 // NotRunningServiceError is an error returned when the service is not running that
@@ -149,22 +250,16 @@ func (e *NotRunningServiceError) Error() string {
 }
 
 const (
-	eventParentTopic  = "Event"
-	taskParentTopic   = "Task"
-	resultParentTopic = "Result"
+	eventTopic     = "Event"
+	executionTopic = "Execution"
 )
 
-// eventTopic returns the topic to listen for events from this service.
-func eventTopic(serviceHash string) string {
-	return hash.Calculate([]string{serviceHash, eventParentTopic})
+// eventSubTopic returns the topic to listen for events from this service.
+func eventSubTopic(serviceHash string) string {
+	return hash.Calculate([]string{serviceHash, eventTopic})
 }
 
-// taskTopic returns the topic to listen for tasks from this service.
-func taskTopic(serviceHash string) string {
-	return hash.Calculate([]string{serviceHash, taskParentTopic})
-}
-
-// resultTopic returns the topic to listen for tasks from this service.
-func resultTopic(serviceHash string) string {
-	return hash.Calculate([]string{serviceHash, resultParentTopic})
+// executionSubTopic returns the topic to listen for tasks from this service.
+func executionSubTopic(serviceHash string) string {
+	return hash.Calculate([]string{serviceHash, executionTopic})
 }
