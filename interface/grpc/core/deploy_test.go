@@ -1,33 +1,10 @@
 package core
 
 import (
-	"io/ioutil"
-	"strings"
-	"testing"
-
 	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
-	"github.com/stretchr/testify/require"
 	grpc "google.golang.org/grpc"
 )
-
-func TestDeployService(t *testing.T) {
-	url := "https://github.com/mesg-foundation/service-webhook"
-
-	server, dt, closer := newServerAndDockerTest(t)
-	defer closer()
-	dt.ProvideImageBuild(ioutil.NopCloser(strings.NewReader(`{"stream":"sha256:x"}`)), nil)
-
-	stream := newTestDeployStream(url)
-	require.Nil(t, server.DeployService(stream))
-	require.Len(t, stream.sid, 7)
-	require.NotEmpty(t, stream.hash)
-
-	require.Contains(t, stream.statuses, api.DeployStatus{
-		Message: "Image built with success",
-		Type:    api.DonePositive,
-	})
-}
 
 // TODO(ilgooz) also add tests for receiving chunks.
 type testDeployStream struct {
