@@ -152,7 +152,7 @@ func (a *API) ListenEvent(service string, f *EventFilter) (*EventListener, error
 		}
 	}
 
-	l := NewEventListener(a.ps, s.EventSubTopic(), f)
+	l := NewEventListener(a.ps, eventSubTopic(s.Hash), f)
 	go l.Listen()
 	return l, nil
 }
@@ -181,7 +181,7 @@ func (a *API) ListenExecution(service string, f *ExecutionFilter) (*ExecutionLis
 		}
 	}
 
-	l := NewExecutionListener(a.ps, s.ExecutionSubTopic(), f)
+	l := NewExecutionListener(a.ps, executionSubTopic(s.Hash), f)
 	go l.Listen()
 	return l, nil
 }
@@ -191,7 +191,7 @@ func (a *API) SubmitResult(executionID string, outputKey string, outputs []byte)
 	exec, stateChanged, err := a.processExecution(executionID, outputKey, outputs)
 	if stateChanged {
 		// only publish to listeners when the execution's state changed.
-		go a.ps.Pub(exec, exec.Service.ExecutionSubTopic())
+		go a.ps.Pub(exec, executionSubTopic(exec.Service.Hash))
 	}
 	return err
 }
