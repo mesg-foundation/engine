@@ -7,6 +7,9 @@ MESG_LOG_LEVEL=${MESG_LOG_LEVEL:-debug}
 MESG_LOG_FORCECOLORS=${MESG_LOG_FORCECOLORS:-false}
 VERSION=local
 LDFLAGS="-X 'github.com/mesg-foundation/core/version.Version=$VERSION'"
+LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceEndpoint=https://ropsten.infura.io/v3/6115ae2531f64c04a9a392cf500e5fbe'"
+LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceAddress=0xeCC1A867F871323350A1A89FcAf69629a2d5085e'"
+LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceToken=0x5861b3dc52339d4f976b7fa5d80db6cd6f477f1b'"
 CLIFLAGS=""
 MESG_SERVICE_SERVER="core-service-server"
 

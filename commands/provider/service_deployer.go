@@ -115,7 +115,7 @@ func (p *ServiceProvider) deployServiceFromMarketplace(u string, env map[string]
 	case "https", "http":
 		url = source
 	case "ipfs":
-		url = "https://gateway.ipfs.io/ipfs/" + source
+		url = "http://ipfs.app.mesg.com:8080/ipfs/" + source
 	default:
 		return fmt.Errorf("unknown protocol %s", sourceType)
 	}

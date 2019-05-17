@@ -1,19 +1,20 @@
 // +build integration
 
-package service
+package dockermanager
 
 import (
 	"testing"
 
+	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
 )
 
 func TestIntegrationStopRunningService(t *testing.T) {
 	var (
-		service = &Service{
+		s = &service.Service{
 			Hash: "1",
 			Name: "TestStopRunningService",
-			Dependencies: []*Dependency{
+			Dependencies: []*service.Dependency{
 				{
 					Key:   "test",
 					Image: "http-server",
@@ -21,21 +22,22 @@ func TestIntegrationStopRunningService(t *testing.T) {
 			},
 		}
 		c = newIntegrationContainer(t)
+		m = New(c)
 	)
 
-	service.Start(c)
-	err := service.Stop(c)
+	m.Start(s)
+	err := m.Stop(s)
 	require.NoError(t, err)
-	status, _ := service.Status(c)
-	require.Equal(t, STOPPED, status)
+	status, _ := m.Status(s)
+	require.Equal(t, service.STOPPED, status)
 }
 
 func TestIntegrationStopNonRunningService(t *testing.T) {
 	var (
-		service = &Service{
+		s = &service.Service{
 			Hash: "1",
 			Name: "TestStopNonRunningService",
-			Dependencies: []*Dependency{
+			Dependencies: []*service.Dependency{
 				{
 					Key:   "test",
 					Image: "http-server",
@@ -43,20 +45,21 @@ func TestIntegrationStopNonRunningService(t *testing.T) {
 			},
 		}
 		c = newIntegrationContainer(t)
+		m = New(c)
 	)
 
-	err := service.Stop(c)
+	err := m.Stop(s)
 	require.NoError(t, err)
-	status, _ := service.Status(c)
-	require.Equal(t, STOPPED, status)
+	status, _ := m.Status(s)
+	require.Equal(t, service.STOPPED, status)
 }
 
 func TestIntegrationNetworkDeleted(t *testing.T) {
 	var (
-		service = &Service{
+		service = &service.Service{
 			Hash: "1",
 			Name: "TestNetworkDeleted",
-			Dependencies: []*Dependency{
+			Dependencies: []*service.Dependency{
 				{
 					Key:   "test",
 					Image: "http-server",
@@ -64,11 +67,12 @@ func TestIntegrationNetworkDeleted(t *testing.T) {
 			},
 		}
 		c = newIntegrationContainer(t)
+		m = New(c)
 	)
 
-	service.Start(c)
-	service.Stop(c)
-	n, err := c.FindNetwork(service.namespace())
+	m.Start(service)
+	m.Stop(service)
+	n, err := c.FindNetwork(service.Namespace())
 	require.Empty(t, n)
 	require.Error(t, err)
 }

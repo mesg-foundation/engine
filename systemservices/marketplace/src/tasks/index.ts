@@ -15,7 +15,7 @@ import publishPurchase from "./publishPurchase"
 import publishCreateServiceOffer from "./publishCreateServiceOffer"
 import isAuthorized from "./isAuthorized"
 
-export default async (
+export default (
   mesg: Service,
   web3: Web3,
   marketplace: Marketplace,
@@ -35,5 +35,8 @@ export default async (
     publishCreateServiceOffer: publishCreateServiceOffer(web3, marketplace),
     isAuthorized: isAuthorized(marketplace),
   })
-  .on('error', error => console.error('catch listenTask', error))
+  .on('error', error => {
+    console.error('catch listenTask', error)
+    process.exit(1)
+  })
 }
