@@ -113,10 +113,10 @@ func TestExecuteTaskForNotRunningService(t *testing.T) {
 
 func TestEventSubTopic(t *testing.T) {
 	serviceHash := "1"
-	require.Equal(t, eventSubTopic(serviceHash), hash.Calculate([]string{serviceHash, eventParentTopic}))
+	require.Equal(t, eventSubTopic(serviceHash), hash.Calculate([]string{serviceHash, eventTopic}))
 }
 
 func TestExecutionSubTopic(t *testing.T) {
 	serviceHash := "1"
-	require.Equal(t, executionSubTopic(serviceHash), hash.Calculate([]string{serviceHash, taskParentTopic}))
+	require.Equal(t, executionSubTopic(serviceHash), hash.Calculate([]string{serviceHash, executionTopic}))
 }
