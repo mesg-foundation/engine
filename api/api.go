@@ -10,6 +10,7 @@ import (
 	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/manager"
+	"github.com/mesg-foundation/core/utils/hash"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -96,12 +97,12 @@ func (a *API) EmitEvent(token, eventKey string, eventData map[string]interface{}
 	if err != nil {
 		return err
 	}
-	event, err := event.Create(s, eventKey, eventData)
+	e, err := event.Create(s, eventKey, eventData)
 	if err != nil {
 		return err
 	}
 
-	go a.ps.Pub(event, s.EventSubscriptionChannel())
+	go a.ps.Pub(e, eventTopic(s.Hash))
 	return nil
 }
 
@@ -133,7 +134,7 @@ func (a *API) ExecuteTask(serviceID, taskKey string, inputData map[string]interf
 	if err = a.execDB.Save(exec); err != nil {
 		return "", err
 	}
-	go a.ps.Pub(exec, s.TaskSubscriptionChannel())
+	go a.ps.Pub(exec, taskTopic(s.Hash))
 	return exec.ID, nil
 }
 
@@ -145,4 +146,25 @@ type NotRunningServiceError struct {
 
 func (e *NotRunningServiceError) Error() string {
 	return fmt.Sprintf("Service %q is not running", e.ServiceID)
+}
+
+const (
+	eventParentTopic  = "Event"
+	taskParentTopic   = "Task"
+	resultParentTopic = "Result"
+)
+
+// eventTopic returns the topic to listen for events from this service.
+func eventTopic(serviceHash string) string {
+	return hash.Calculate([]string{serviceHash, eventParentTopic})
+}
+
+// taskTopic returns the topic to listen for tasks from this service.
+func taskTopic(serviceHash string) string {
+	return hash.Calculate([]string{serviceHash, taskParentTopic})
+}
+
+// resultTopic returns the topic to listen for tasks from this service.
+func resultTopic(serviceHash string) string {
+	return hash.Calculate([]string{serviceHash, resultParentTopic})
 }

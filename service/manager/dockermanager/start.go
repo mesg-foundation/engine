@@ -24,7 +24,8 @@ func (m *DockerManager) Start(s *service.Service) (serviceIDs []string, err erro
 			return nil, err
 		}
 	}
-	networkID, err := m.c.CreateNetwork(s.Namespace())
+	sNamespace := serviceNamespace(s.Hash)
+	networkID, err := m.c.CreateNetwork(sNamespace)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +53,7 @@ func (m *DockerManager) Start(s *service.Service) (serviceIDs []string, err erro
 			return nil, err
 		}
 		serviceID, err := m.c.StartService(container.ServiceOptions{
-			Namespace: d.Namespace(s.Namespace()),
+			Namespace: dependencyNamespace(sNamespace, d.Key),
 			Labels: map[string]string{
 				"mesg.service": s.Name,
 				"mesg.hash":    s.Hash,

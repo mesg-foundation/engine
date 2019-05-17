@@ -20,7 +20,7 @@ func (m *DockerManager) Status(s *service.Service) (service.StatusType, error) {
 		if d == nil {
 			continue
 		}
-		status, err := m.c.Status(d.Namespace(s.Namespace()))
+		status, err := m.c.Status(dependencyNamespace(serviceNamespace(s.Hash), d.Key))
 		if err != nil {
 			return service.UNKNOWN, err
 		}
