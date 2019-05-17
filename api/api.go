@@ -250,17 +250,16 @@ func (e *NotRunningServiceError) Error() string {
 }
 
 const (
-	eventParentTopic  = "Event"
-	taskParentTopic   = "Task"
-	resultParentTopic = "Result"
+	eventTopic     = "Event"
+	executionTopic = "Execution"
 )
 
 // eventSubTopic returns the topic to listen for events from this service.
 func eventSubTopic(serviceHash string) string {
-	return hash.Calculate([]string{serviceHash, eventParentTopic})
+	return hash.Calculate([]string{serviceHash, eventTopic})
 }
 
 // executionSubTopic returns the topic to listen for tasks from this service.
 func executionSubTopic(serviceHash string) string {
-	return hash.Calculate([]string{serviceHash, taskParentTopic})
+	return hash.Calculate([]string{serviceHash, executionTopic})
 }
