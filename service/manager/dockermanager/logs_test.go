@@ -37,7 +37,7 @@ func TestServiceLogs(t *testing.T) {
 	)
 
 	d, _ := s.GetDependency(dependencyKey)
-	mc.On("ServiceLogs", d.Namespace(s.Namespace())).Once().Return(rp, nil)
+	mc.On("ServiceLogs", dependencyNamespace(serviceNamespace(s.Hash), d.Key)).Once().Return(rp, nil)
 
 	l, err := m.Logs(s, dependencyKey)
 	require.NoError(t, err)

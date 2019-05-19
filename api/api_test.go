@@ -9,6 +9,7 @@ import (
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/manager/dockermanager"
+	"github.com/mesg-foundation/core/utils/hash"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
@@ -108,4 +109,14 @@ func TestExecuteTaskForNotRunningService(t *testing.T) {
 	_, err := a.ExecuteTask("2", "4", map[string]interface{}{}, []string{})
 	_, notRunningError := err.(*NotRunningServiceError)
 	require.True(t, notRunningError)
+}
+
+func TestEventSubTopic(t *testing.T) {
+	serviceHash := "1"
+	require.Equal(t, eventSubTopic(serviceHash), hash.Calculate([]string{serviceHash, eventTopic}))
+}
+
+func TestExecutionSubTopic(t *testing.T) {
+	serviceHash := "1"
+	require.Equal(t, executionSubTopic(serviceHash), hash.Calculate([]string{serviceHash, executionTopic}))
 }
