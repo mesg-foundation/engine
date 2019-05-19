@@ -5,9 +5,12 @@ import (
 	"encoding/json"
 
 	"github.com/mesg-foundation/core/api"
+	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
 )
+
+var inProgressFilter = &api.ExecutionFilter{Status: execution.InProgress}
 
 // Server binds all api functions.
 type Server struct {
@@ -30,7 +33,7 @@ func (s *Server) EmitEvent(context context.Context, request *serviceapi.EmitEven
 
 // ListenTask creates a stream that will send data for every task to execute.
 func (s *Server) ListenTask(request *serviceapi.ListenTaskRequest, stream serviceapi.Service_ListenTaskServer) error {
-	ln, err := s.api.ListenTask(request.Token)
+	ln, err := s.api.ListenExecution(request.Token, inProgressFilter)
 	if err != nil {
 		return err
 	}
@@ -47,10 +50,7 @@ func (s *Server) ListenTask(request *serviceapi.ListenTaskRequest, stream servic
 		case <-ctx.Done():
 			return ctx.Err()
 
-		case err := <-ln.Err:
-			return err
-
-		case execution := <-ln.Executions:
+		case execution := <-ln.C:
 			inputs, err := json.Marshal(execution.Inputs)
 			if err != nil {
 				return err

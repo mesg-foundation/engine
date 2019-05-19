@@ -30,7 +30,7 @@ func TestUnknownServiceStatus(t *testing.T) {
 
 	d, _ := s.GetDependency(dependencyKey)
 
-	mc.On("Status", d.Namespace(s.Namespace())).Once().Return(container.UNKNOWN, statusErr)
+	mc.On("Status", dependencyNamespace(serviceNamespace(s.Hash), d.Key)).Once().Return(container.UNKNOWN, statusErr)
 
 	status, err := m.Status(s)
 	require.Equal(t, statusErr, err)
@@ -58,7 +58,7 @@ func TestStoppedServiceStatus(t *testing.T) {
 
 	d, _ := s.GetDependency(dependencyKey)
 
-	mc.On("Status", d.Namespace(s.Namespace())).Once().Return(container.STOPPED, nil)
+	mc.On("Status", dependencyNamespace(serviceNamespace(s.Hash), d.Key)).Once().Return(container.STOPPED, nil)
 
 	status, err := m.Status(s)
 	require.NoError(t, err)
@@ -86,7 +86,7 @@ func TestRunningServiceStatus(t *testing.T) {
 
 	d, _ := s.GetDependency(dependencyKey)
 
-	mc.On("Status", d.Namespace(s.Namespace())).Once().Return(container.RUNNING, nil)
+	mc.On("Status", dependencyNamespace(serviceNamespace(s.Hash), d.Key)).Once().Return(container.RUNNING, nil)
 
 	status, err := m.Status(s)
 	require.NoError(t, err)
@@ -122,8 +122,8 @@ func TestPartialServiceStatus(t *testing.T) {
 		d2, _ = s.GetDependency(dependencyKey2)
 	)
 
-	mc.On("Status", d.Namespace(s.Namespace())).Once().Return(container.RUNNING, nil)
-	mc.On("Status", d2.Namespace(s.Namespace())).Once().Return(container.STOPPED, nil)
+	mc.On("Status", dependencyNamespace(serviceNamespace(s.Hash), d.Key)).Once().Return(container.RUNNING, nil)
+	mc.On("Status", dependencyNamespace(serviceNamespace(s.Hash), d2.Key)).Once().Return(container.STOPPED, nil)
 
 	status, err := m.Status(s)
 	require.NoError(t, err)
