@@ -11,6 +11,7 @@ import (
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/container"
+	"github.com/mesg-foundation/core/container/dockertest"
 	"github.com/mesg-foundation/core/database"
 	"github.com/stretchr/testify/require"
 )
@@ -51,6 +52,14 @@ func newServer(t *testing.T) (*Server, func()) {
 	c, err := container.New()
 	require.NoError(t, err)
 	return newServerWithContainer(t, c)
+}
+
+func newServerAndDockerTest(t *testing.T) (*Server, *dockertest.Testing, func()) {
+	dt := dockertest.New()
+	c, err := container.New(container.ClientOption(dt.Client()))
+	require.NoError(t, err)
+	s, closer := newServerWithContainer(t, c)
+	return s, dt, closer
 }
 
 func serviceTar(t *testing.T, path string) io.Reader {
