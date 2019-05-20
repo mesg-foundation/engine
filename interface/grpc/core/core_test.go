@@ -29,6 +29,27 @@ func TestGetService(t *testing.T) {
 	require.Equal(t, reply.Service.Definition.Name, "Task")
 }
 
+func TestListServices(t *testing.T) {
+	url := "git://github.com/mesg-foundation/service-webhook#single-outputs"
+	server, closer := newServer(t)
+	defer closer()
+
+	stream := newTestDeployStream(url)
+	require.NoError(t, server.DeployService(stream))
+	defer server.api.DeleteService(stream.hash, false)
+
+	reply, err := server.ListServices(context.Background(), &coreapi.ListServicesRequest{})
+	require.NoError(t, err)
+
+	services, err := server.api.ListServices()
+	require.NoError(t, err)
+
+	apiProtoServices := toProtoServices(services)
+
+	require.Len(t, apiProtoServices, 1)
+	require.Equal(t, reply.Services[0].Definition.Hash, apiProtoServices[0].Hash)
+}
+
 func TestStartService(t *testing.T) {
 	server, closer := newServer(t)
 	defer closer()
