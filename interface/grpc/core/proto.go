@@ -6,6 +6,14 @@ import (
 	service "github.com/mesg-foundation/core/service"
 )
 
+func toProtoServices(ss []*service.Service) []*definition.Service {
+	services := make([]*definition.Service, len(ss))
+	for i, s := range ss {
+		services[i] = toProtoService(s)
+	}
+	return services
+}
+
 func toProtoService(s *service.Service) *definition.Service {
 	return &definition.Service{
 		Hash:          s.Hash,

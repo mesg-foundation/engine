@@ -52,7 +52,7 @@ type Dependency struct {
 	Volumes []string `yaml:"volumes" json:"volumes,omitempty" validate:"unique,dive,printascii"`
 
 	// VolumesFrom are the docker volumes-from from.
-	VolumesFrom []string `yaml:"volumesfrom" json:"volumesFrom,omitempty" validate:"unique,dive,printascii"`
+	VolumesFrom []string `yaml:"volumesFrom" json:"volumesFrom,omitempty" validate:"unique,dive,printascii"`
 
 	// Ports holds ports configuration for container.
 	Ports []string `yaml:"ports" json:"ports,omitempty" validate:"unique,dive,portmap"`
