@@ -148,7 +148,7 @@ func TestSubmit(t *testing.T) {
 			"data":    map[string]interface{}{},
 			"headers": map[string]interface{}{},
 		}
-		outputKey      = "result"
+		outputKey      = "success"
 		outputData     = `{"foo":{}}`
 		server, closer = newServer(t)
 	)
@@ -276,7 +276,7 @@ func TestSubmitWithInvalidTaskOutputs(t *testing.T) {
 			"data":    map[string]interface{}{},
 			"headers": map[string]interface{}{},
 		}
-		outputKey      = "result"
+		outputKey      = "success"
 		outputData     = `{"foo":1}`
 		server, closer = newServer(t)
 	)
