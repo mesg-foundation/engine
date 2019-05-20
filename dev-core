@@ -73,9 +73,9 @@ fi
 # create mesg data folder on host machine
 mkdir -p "$HOME/.mesg/"
 
-echo "build mesg/core image"
+echo "build mesg/engine image"
 if [[ ! $BINCACHED ]] || [[ ! $DOCKERCACHED ]]; then
-  docker build -f Dockerfile.dev -t "mesg/core:$VERSION" .
+  docker build -f Dockerfile.dev -t "mesg/engine:$VERSION" .
 fi
 
 ./bin/cli stop

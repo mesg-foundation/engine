@@ -72,18 +72,18 @@ jobs:
     <<: *run_on_machine
     steps:
       - checkout
-      - run: docker build -t mesg/core:dev --build-arg version="dev build `echo $CIRCLE_SHA1 | cut -c1-7`" .
+      - run: docker build -t mesg/engine:dev --build-arg version="dev build `echo $CIRCLE_SHA1 | cut -c1-7`" .
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
-      - run: docker push mesg/core:dev
+      - run: docker push mesg/engine:dev
 
   "publish_docker_prod":
     <<: *run_on_machine
     steps:
       - checkout
-      - run: docker build -t mesg/core:$CIRCLE_TAG -t mesg/core:latest --build-arg version=$CIRCLE_TAG .
+      - run: docker build -t mesg/engine:$CIRCLE_TAG -t mesg/engine:latest --build-arg version=$CIRCLE_TAG .
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
-      - run: docker push mesg/core:$CIRCLE_TAG
-      - run: docker push mesg/core:latest
+      - run: docker push mesg/engine:$CIRCLE_TAG
+      - run: docker push mesg/engine:latest
 
   "release_cli_dev":
     <<: *run_on_docker
@@ -91,7 +91,7 @@ jobs:
       - checkout
       - run: scripts/build-cli.sh "dev build `echo $CIRCLE_SHA1 | cut -c1-7`"
       - run: go get -u github.com/tcnksm/ghr
-      - run: ghr -u mesg-foundation -r core -delete -prerelease -n "Developer Release" -b "Warning - this is a developer release, use it only if you know what are doing. Make sure to pull the latest \`mesg/core:dev\` image. \`\`\`docker pull mesg/core:dev\`\`\`" release-dev ./bin
+      - run: ghr -u mesg-foundation -r core -delete -prerelease -n "Developer Release" -b "Warning - this is a developer release, use it only if you know what are doing. Make sure to pull the latest \`mesg/engine:dev\` image. \`\`\`docker pull mesg/engine:dev\`\`\`" release-dev ./bin
 
   "release_cli_prod":
     <<: *run_on_docker

@@ -26,7 +26,7 @@ func TestDefaultValue(t *testing.T) {
 	require.Equal(t, "core", c.Core.Name)
 	require.Equal(t, "/mesg", c.Docker.Core.Path)
 	require.Equal(t, "/var/run/docker.sock", c.Docker.Socket)
-	require.True(t, strings.HasPrefix(c.Core.Image, "mesg/core:"))
+	require.True(t, strings.HasPrefix(c.Core.Image, "mesg/engine:"))
 }
 
 func TestGlobal(t *testing.T) {
