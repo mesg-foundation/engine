@@ -23,7 +23,7 @@ func TestDefaultValue(t *testing.T) {
 	require.Equal(t, filepath.Join(home, ".mesg"), c.Core.Path)
 	require.Equal(t, filepath.Join("database", "services", serviceDBVersion), c.Core.Database.ServiceRelativePath)
 	require.Equal(t, filepath.Join("database", "executions", executionDBVersion), c.Core.Database.ExecutionRelativePath)
-	require.Equal(t, "core", c.Core.Name)
+	require.Equal(t, "engine", c.Core.Name)
 	require.Equal(t, "/mesg", c.Docker.Core.Path)
 	require.Equal(t, "/var/run/docker.sock", c.Docker.Socket)
 	require.True(t, strings.HasPrefix(c.Core.Image, "mesg/engine:"))

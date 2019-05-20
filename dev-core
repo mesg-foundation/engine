@@ -39,7 +39,7 @@ docker build tmp-systemservices -t $MESG_SERVICE_SERVER
 docker service create -d \
   -p 8080:8080 \
   --name $MESG_SERVICE_SERVER \
-  --network core \
+  --network engine \
   $MESG_SERVICE_SERVER
 
 echo "compile cli and core"
