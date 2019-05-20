@@ -168,7 +168,7 @@ func TestDeployInvalidService(t *testing.T) {
 
 func TestDeployServiceFromURL(t *testing.T) {
 	var (
-		url   = "https://github.com/mesg-foundation/service-webhook.git"
+		url   = "git://github.com/mesg-foundation/service-webhook#single-outputs"
 		a, at = newTesting(t)
 	)
 	defer at.close()
