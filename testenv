@@ -1,1 +1,1 @@
-MESG_CORE_IMAGE=mesg/core:local
+MESG_CORE_IMAGE=mesg/engine:local
