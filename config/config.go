@@ -78,7 +78,7 @@ func New() (*Config, error) {
 	c.Log.Level = "info"
 	c.Log.ForceColors = false
 	c.Core.Image = "mesg/core:" + strings.Split(version.Version, " ")[0]
-	c.Core.Name = "core"
+	c.Core.Name = "engine"
 	c.Core.Path = filepath.Join(home, ".mesg")
 	c.Core.Database.ServiceRelativePath = filepath.Join("database", "services", serviceDBVersion)
 	c.Core.Database.ExecutionRelativePath = filepath.Join("database", "executions", executionDBVersion)
