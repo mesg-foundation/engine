@@ -79,7 +79,7 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 		// Create an unique tag that will be used to listen to the result of this exact execution
 		tags := []string{uuid.NewV4().String()}
 
-		listenResultsC, resultsErrC, err = c.e.ServiceListenResults(args[0], c.taskKey, "", tags)
+		listenResultsC, resultsErrC, err = c.e.ServiceListenResults(args[0], c.taskKey, tags)
 		if err != nil {
 			return
 		}
