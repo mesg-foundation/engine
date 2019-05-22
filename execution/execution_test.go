@@ -144,33 +144,12 @@ func TestComplete(t *testing.T) {
 		err  error
 	}{
 		{
-			name: "task output not found because of empty output key",
-			key:  "",
-			data: map[string]interface{}{},
-			err: &service.TaskOutputNotFoundError{
-				TaskKey:       taskKey,
-				TaskOutputKey: "",
-				ServiceName:   serviceName,
-			},
-		},
-		{
-			name: "task output not found because wrong output key",
-			key:  "notfound",
-			data: map[string]interface{}{"foo": "bar"},
-			err: &service.TaskOutputNotFoundError{
-				TaskKey:       taskKey,
-				TaskOutputKey: "notfound",
-				ServiceName:   serviceName,
-			},
-		},
-		{
 			name: "invalid task output",
 			key:  "success",
 			data: map[string]interface{}{},
 			err: &service.InvalidTaskOutputError{
-				TaskKey:       taskKey,
-				ServiceName:   serviceName,
-				TaskOutputKey: "success",
+				TaskKey:     taskKey,
+				ServiceName: serviceName,
 				Warnings: []*service.ParameterWarning{
 					{
 						Key:       "foo",

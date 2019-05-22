@@ -21,27 +21,6 @@ type Task struct {
 	serviceName string `hash:"-"`
 }
 
-// Output describes task output.
-type Output struct {
-	// Key is the key of output.
-	Key string `hash:"name:1"`
-
-	// Name is the name of task output.
-	Name string `hash:"name:2"`
-
-	// Description is the description of task output.
-	Description string `hash:"name:3"`
-
-	// Data holds the output parameters of a task output.
-	Data []*Parameter `hash:"name:4"`
-
-	// taskKey is the output's task's key.
-	taskKey string `hash:"-"`
-
-	// serviceName is the output's service's name.
-	serviceName string `hash:"-"`
-}
-
 // GetTask returns task taskKey of service.
 func (s *Service) GetTask(taskKey string) (*Task, error) {
 	for _, task := range s.Tasks {
@@ -61,7 +40,12 @@ func (t *Task) ValidateInputs(taskInputs map[string]interface{}) []*ParameterWar
 	return validateParametersSchema(t.Inputs, taskInputs)
 }
 
-// RequireInputs requires task inputs to be matched with parameter schemas.
+// ValidateOutputs produces warnings for task outputs that doesn't satisfy their parameter schemas.
+func (t *Task) ValidateOutputs(taskOutputs map[string]interface{}) []*ParameterWarning {
+	return validateParametersSchema(t.Outputs, taskOutputs)
+}
+
+// RequireInputs requires task inputs to match with parameter schemas.
 func (t *Task) RequireInputs(taskInputs map[string]interface{}) error {
 	warnings := t.ValidateInputs(taskInputs)
 	if len(warnings) > 0 {
@@ -74,51 +58,14 @@ func (t *Task) RequireInputs(taskInputs map[string]interface{}) error {
 	return nil
 }
 
-// GetOutput returns output outputKey of task.
-func (t *Task) GetOutput(outputKey string) (*Output, error) {
-	switch outputKey {
-	case "success":
-		return &Output{
-			Key:         "success",
-			Data:        t.Outputs,
-			taskKey:     t.Key,
-			serviceName: t.serviceName,
-		}, nil
-	case "error":
-		return &Output{
-			Key: "error",
-			Data: []*Parameter{
-				{
-					Key:  "message",
-					Type: "String",
-				},
-			},
-			taskKey:     t.Key,
-			serviceName: t.serviceName,
-		}, nil
-	default:
-		return nil, &TaskOutputNotFoundError{
-			TaskKey:       t.Key,
-			TaskOutputKey: outputKey,
-			ServiceName:   t.serviceName,
-		}
-	}
-}
-
-// ValidateData produces warnings for task outputs that doesn't satisfy their parameter schemas.
-func (o *Output) ValidateData(outputData map[string]interface{}) []*ParameterWarning {
-	return validateParametersSchema(o.Data, outputData)
-}
-
-// RequireData requires task outputs to be matched with parameter schemas.
-func (o *Output) RequireData(outputData map[string]interface{}) error {
-	warnings := o.ValidateData(outputData)
+// RequireOutputs requires task outputs to match with parameter schemas.
+func (t *Task) RequireOutputs(taskOutputs map[string]interface{}) error {
+	warnings := t.ValidateOutputs(taskOutputs)
 	if len(warnings) > 0 {
 		return &InvalidTaskOutputError{
-			TaskKey:       o.taskKey,
-			TaskOutputKey: o.Key,
-			ServiceName:   o.serviceName,
-			Warnings:      warnings,
+			TaskKey:     t.Key,
+			ServiceName: t.serviceName,
+			Warnings:    warnings,
 		}
 	}
 	return nil
