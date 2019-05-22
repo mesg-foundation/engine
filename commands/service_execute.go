@@ -107,10 +107,9 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 			pretty.Fail(result.Error),
 		)
 	} else {
-		fmt.Printf("%s Task %s returned output %s with data:\n%s\n",
+		fmt.Printf("%s Task %s succeed with output:\n%s\n",
 			pretty.SuccessSign,
 			pretty.Success(result.TaskKey),
-			pretty.Colorize(pretty.FgCyan, result.OutputKey),
 			pretty.ColorizeJSON(pretty.FgCyan, nil, false, []byte(result.OutputData)),
 		)
 	}
