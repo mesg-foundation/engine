@@ -8,9 +8,9 @@ import (
 
 // ExecutionFilter store fileds for matching executions.
 type ExecutionFilter struct {
-	Status  execution.Status
-	TaskKey string
-	Tags    []string
+	Statuses []execution.Status
+	TaskKey  string
+	Tags     []string
 }
 
 // Match matches execution.
@@ -21,9 +21,19 @@ func (f *ExecutionFilter) Match(e *execution.Execution) bool {
 	if f.TaskKey != "" && f.TaskKey != "*" && f.TaskKey != e.TaskKey {
 		return false
 	}
-	if f.Status != 0 && f.Status != e.Status {
+
+	match := len(f.Statuses) == 0
+	for _, status := range f.Statuses {
+		if status == e.Status {
+			match = true
+			break
+		}
+	}
+
+	if !match {
 		return false
 	}
+
 	for _, tag := range f.Tags {
 		if !xstrings.SliceContains(e.Tags, tag) {
 			return false

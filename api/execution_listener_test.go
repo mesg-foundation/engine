@@ -25,12 +25,12 @@ func TestExecutionFilter(t *testing.T) {
 			true,
 		},
 		{
-			&ExecutionFilter{Status: execution.Created},
+			&ExecutionFilter{Statuses: []execution.Status{execution.Created}},
 			&execution.Execution{Status: execution.Created},
 			true,
 		},
 		{
-			&ExecutionFilter{Status: execution.Created},
+			&ExecutionFilter{Statuses: []execution.Status{execution.Created}},
 			&execution.Execution{Status: execution.InProgress},
 			false,
 		},
