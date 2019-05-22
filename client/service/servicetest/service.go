@@ -58,8 +58,7 @@ func (s *serviceServer) SubmitResult(context context.Context,
 	request *serviceapi.SubmitResultRequest) (reply *serviceapi.SubmitResultReply, err error) {
 	s.submitC <- &Execution{
 		id:   request.ExecutionID,
-		key:  request.OutputKey,
-		data: request.OutputData,
+		data: request.Result.(*serviceapi.SubmitResultRequest_Outputs).Outputs,
 	}
 	return &serviceapi.SubmitResultReply{}, nil
 }
