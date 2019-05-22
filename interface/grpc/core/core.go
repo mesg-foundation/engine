@@ -164,7 +164,7 @@ func (s *Server) ListenResult(request *coreapi.ListenResultRequest, stream corea
 			return ctx.Err()
 
 		case execution := <-ln.C:
-			outputs, err := json.Marshal(execution.OutputData)
+			outputs, err := json.Marshal(execution.Outputs)
 			if err != nil {
 				return err
 			}
