@@ -164,20 +164,9 @@ func (a *API) ListenExecution(service string, f *ExecutionFilter) (*ExecutionLis
 		return nil, err
 	}
 
-	if f != nil {
-		if f.TaskKey == "" && f.OutputKey != "" {
-			return nil, fmt.Errorf("execution filter: output key given without task key")
-		}
-		if f.HasTaskKey() {
-			task, err := s.GetTask(f.TaskKey)
-			if err != nil {
-				return nil, err
-			}
-			if f.HasOutputKey() {
-				if _, err := task.GetOutput(f.OutputKey); err != nil {
-					return nil, err
-				}
-			}
+	if f != nil && f.HasTaskKey() {
+		if _, err := s.GetTask(f.TaskKey); err != nil {
+			return nil, err
 		}
 	}
 
