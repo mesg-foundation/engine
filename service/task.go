@@ -79,8 +79,10 @@ func (t *Task) GetOutput(outputKey string) (*Output, error) {
 	switch outputKey {
 	case "success":
 		return &Output{
-			Key:  "success",
-			Data: t.Outputs,
+			Key:         "success",
+			Data:        t.Outputs,
+			taskKey:     t.Key,
+			serviceName: t.serviceName,
 		}, nil
 	case "error":
 		return &Output{
@@ -91,6 +93,8 @@ func (t *Task) GetOutput(outputKey string) (*Output, error) {
 					Type: "String",
 				},
 			},
+			taskKey:     t.Key,
+			serviceName: t.serviceName,
 		}, nil
 	default:
 		return nil, &TaskOutputNotFoundError{

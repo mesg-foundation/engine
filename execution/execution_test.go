@@ -5,10 +5,9 @@ import (
 	"testing"
 	"testing/quick"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/x/xstructhash"
+	"github.com/stretchr/testify/require"
 )
 
 var (
@@ -169,6 +168,8 @@ func TestComplete(t *testing.T) {
 			key:  "success",
 			data: map[string]interface{}{},
 			err: &service.InvalidTaskOutputError{
+				TaskKey:       taskKey,
+				ServiceName:   serviceName,
 				TaskOutputKey: "success",
 				Warnings: []*service.ParameterWarning{
 					{
