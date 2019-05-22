@@ -14,11 +14,10 @@ import (
 type serviceDevCmd struct {
 	baseCmd
 
-	eventFilter  string
-	taskFilter   string
-	outputFilter string
-	path         string
-	env          map[string]string
+	eventFilter string
+	taskFilter  string
+	path        string
+	env         map[string]string
 
 	e ServiceExecutor
 }
@@ -39,7 +38,6 @@ func newServiceDevCmd(e ServiceExecutor) *serviceDevCmd {
 	})
 	c.cmd.Flags().StringVarP(&c.eventFilter, "event-filter", "e", c.eventFilter, "Only log the data of the given event")
 	c.cmd.Flags().StringVarP(&c.taskFilter, "task-filter", "t", "", "Only log the result of the given task")
-	c.cmd.Flags().StringVarP(&c.outputFilter, "output-filter", "o", "", "Only log the data of the given output of a task result. If set, you also need to set the task in --task-filter")
 	c.cmd.Flags().Var(xpflag.NewStringToStringValue(&c.env, nil), "env", "set env defined in mesg.yml (configuration.env)")
 	return c
 }
@@ -79,7 +77,7 @@ func (c *serviceDevCmd) runE(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	listenResultsC, resultsErrC, err := c.e.ServiceListenResults(hash, c.taskFilter, c.outputFilter, nil)
+	listenResultsC, resultsErrC, err := c.e.ServiceListenResults(hash, c.taskFilter, nil)
 	if err != nil {
 		return err
 	}

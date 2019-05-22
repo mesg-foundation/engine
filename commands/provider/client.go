@@ -53,15 +53,14 @@ func (c *client) ListenEvent(id, eventFilter string) (chan *coreapi.EventData, c
 }
 
 // ListenResults returns a channel with event results streaming..
-func (c *client) ListenResult(id, taskFilter, outputFilter string, tagFilters []string) (chan *coreapi.ResultData, chan error, error) {
+func (c *client) ListenResult(id, taskFilter string, tagFilters []string) (chan *coreapi.ResultData, chan error, error) {
 	resultC := make(chan *coreapi.ResultData)
 	errC := make(chan error)
 
 	stream, err := c.CoreClient.ListenResult(context.Background(), &coreapi.ListenResultRequest{
-		ServiceID:    id,
-		TaskFilter:   taskFilter,
-		OutputFilter: outputFilter,
-		TagFilters:   tagFilters,
+		ServiceID:  id,
+		TaskFilter: taskFilter,
+		TagFilters: tagFilters,
 	})
 	if err != nil {
 		return nil, nil, err
@@ -112,7 +111,7 @@ func (c *client) ExecuteAndListen(id, taskKey string, inputData interface{}) (*c
 
 	// TODO: the following ListenResult should be destroy after result is received
 	tags := []string{uuid.NewV4().String()}
-	resultC, errC, err := c.ListenResult(id, taskKey, "", tags)
+	resultC, errC, err := c.ListenResult(id, taskKey, tags)
 	if err != nil {
 		return nil, err
 	}
