@@ -176,8 +176,8 @@ func (a *API) ListenExecution(service string, f *ExecutionFilter) (*ExecutionLis
 }
 
 // SubmitResult submits results for executionID.
-func (a *API) SubmitResult(executionID string, outputs []byte) error {
-	exec, stateChanged, err := a.processExecution(executionID, outputs)
+func (a *API) SubmitResult(executionID string, outputs []byte, reterr error) error {
+	exec, stateChanged, err := a.processExecution(executionID, outputs, reterr)
 	if stateChanged {
 		// only publish to listeners when the execution's state changed.
 		go a.ps.Pub(exec, executionSubTopic(exec.Service.Hash))
@@ -186,8 +186,7 @@ func (a *API) SubmitResult(executionID string, outputs []byte) error {
 }
 
 // processExecution processes execution and marks it as complated or failed.
-func (a *API) processExecution(executionID string, outputData []byte) (exec *execution.Execution, stateChanged bool, err error) {
-	stateChanged = false
+func (a *API) processExecution(executionID string, outputData []byte, reterr error) (exec *execution.Execution, stateChanged bool, err error) {
 	tx, err := a.execDB.OpenTransaction()
 	if err != nil {
 		return nil, false, err
@@ -197,6 +196,9 @@ func (a *API) processExecution(executionID string, outputData []byte) (exec *exe
 	if err != nil {
 		tx.Discard()
 		return nil, false, err
+	}
+	if reterr != nil {
+		return a.saveExecution(tx, exec, reterr)
 	}
 
 	var outputDataMap map[string]interface{}
