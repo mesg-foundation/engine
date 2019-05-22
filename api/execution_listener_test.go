@@ -50,21 +50,6 @@ func TestExecutionFilter(t *testing.T) {
 			false,
 		},
 		{
-			&ExecutionFilter{OutputKey: "0"},
-			&execution.Execution{OutputKey: "0"},
-			true,
-		},
-		{
-			&ExecutionFilter{OutputKey: "*"},
-			&execution.Execution{OutputKey: "0"},
-			true,
-		},
-		{
-			&ExecutionFilter{OutputKey: "0"},
-			&execution.Execution{OutputKey: "1"},
-			false,
-		},
-		{
 			&ExecutionFilter{Tags: []string{"0"}},
 			&execution.Execution{Tags: []string{"0"}},
 			true,

@@ -142,10 +142,9 @@ func (s *Server) ListenEvent(request *coreapi.ListenEventRequest, stream coreapi
 // ListenResult listens for results from a services.
 func (s *Server) ListenResult(request *coreapi.ListenResultRequest, stream coreapi.Core_ListenResultServer) error {
 	filter := &api.ExecutionFilter{
-		Status:    execution.Completed,
-		TaskKey:   request.TaskFilter,
-		OutputKey: request.OutputFilter,
-		Tags:      request.TagFilters,
+		Status:  execution.Completed,
+		TaskKey: request.TaskFilter,
+		Tags:    request.TagFilters,
 	}
 	ln, err := s.api.ListenExecution(request.ServiceID, filter)
 	if err != nil {
@@ -172,7 +171,6 @@ func (s *Server) ListenResult(request *coreapi.ListenResultRequest, stream corea
 			if err := stream.Send(&coreapi.ResultData{
 				ExecutionID:   execution.ID,
 				TaskKey:       execution.TaskKey,
-				OutputKey:     execution.OutputKey,
 				OutputData:    string(outputs),
 				ExecutionTags: execution.Tags,
 				Error:         execution.Error,
