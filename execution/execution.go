@@ -102,11 +102,7 @@ func (execution *Execution) Complete(outputKey string, outputData map[string]int
 	if err != nil {
 		return err
 	}
-	output, err := task.GetOutput(outputKey)
-	if err != nil {
-		return err
-	}
-	if err := output.RequireData(outputData); err != nil {
+	if err := task.RequireOutputs(outputData); err != nil {
 		return err
 	}
 
