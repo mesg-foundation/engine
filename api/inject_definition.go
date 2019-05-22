@@ -49,28 +49,10 @@ func defTasksToService(tasks map[string]*importer.Task) []*service.Task {
 			Name:        task.Name,
 			Description: task.Description,
 			Inputs:      defParametersToService(task.Inputs),
-			Outputs:     defOutputsToService(task.Outputs),
+			Outputs:     defParametersToService(task.Outputs),
 		}
 	}
 	return ts
-}
-
-func defOutputsToService(outputs map[string]*importer.Parameter) []*service.Output {
-	return []*service.Output{
-		{
-			Key:  "success",
-			Data: defParametersToService(outputs),
-		},
-		{
-			Key: "error",
-			Data: []*service.Parameter{
-				{
-					Key:  "message",
-					Type: "String",
-				},
-			},
-		},
-	}
 }
 
 func defEventsToService(events map[string]*importer.Event) []*service.Event {

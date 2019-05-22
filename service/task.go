@@ -15,7 +15,7 @@ type Task struct {
 	Inputs []*Parameter `hash:"name:4"`
 
 	// Outputs are the definition of the execution results of task.
-	Outputs []*Output `hash:"name:5"`
+	Outputs []*Parameter `hash:"name:5"`
 
 	// serviceName is the task's service's name.
 	serviceName string `hash:"-"`
@@ -76,17 +76,32 @@ func (t *Task) RequireInputs(taskInputs map[string]interface{}) error {
 
 // GetOutput returns output outputKey of task.
 func (t *Task) GetOutput(outputKey string) (*Output, error) {
-	for _, output := range t.Outputs {
-		if output.Key == outputKey {
-			output.taskKey = t.Key
-			output.serviceName = t.serviceName
-			return output, nil
+	switch outputKey {
+	case "success":
+		return &Output{
+			Key:         "success",
+			Data:        t.Outputs,
+			taskKey:     t.Key,
+			serviceName: t.serviceName,
+		}, nil
+	case "error":
+		return &Output{
+			Key: "error",
+			Data: []*Parameter{
+				{
+					Key:  "message",
+					Type: "String",
+				},
+			},
+			taskKey:     t.Key,
+			serviceName: t.serviceName,
+		}, nil
+	default:
+		return nil, &TaskOutputNotFoundError{
+			TaskKey:       t.Key,
+			TaskOutputKey: outputKey,
+			ServiceName:   t.serviceName,
 		}
-	}
-	return nil, &TaskOutputNotFoundError{
-		TaskKey:       t.Key,
-		TaskOutputKey: outputKey,
-		ServiceName:   t.serviceName,
 	}
 }
 
