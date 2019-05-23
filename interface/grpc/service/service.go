@@ -11,7 +11,9 @@ import (
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
 )
 
-var inProgressFilter = &api.ExecutionFilter{Status: execution.InProgress}
+var inProgressFilter = &api.ExecutionFilter{
+	Statuses: []execution.Status{execution.InProgress},
+}
 
 // Server binds all api functions.
 type Server struct {
