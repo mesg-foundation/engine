@@ -170,7 +170,9 @@ func TestSubmit(t *testing.T) {
 
 	_, err = server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
 		ExecutionID: executionID,
-		Result:      &serviceapi.SubmitResultRequest_Outputs{Outputs: outputData},
+		Result: &serviceapi.SubmitResultRequest_OutputData{
+			OutputData: outputData,
+		},
 	})
 	require.NoError(t, err)
 
@@ -204,7 +206,7 @@ func TestSubmitWithInvalidJSON(t *testing.T) {
 
 	_, err = server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
 		ExecutionID: executionID,
-		Result:      &serviceapi.SubmitResultRequest_Outputs{},
+		Result:      &serviceapi.SubmitResultRequest_OutputData{},
 	})
 	require.Equal(t, "invalid output data error: unexpected end of JSON input", err.Error())
 }
@@ -219,7 +221,9 @@ func TestSubmitWithInvalidID(t *testing.T) {
 
 	_, err := server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
 		ExecutionID: executionID,
-		Result:      &serviceapi.SubmitResultRequest_Outputs{Outputs: outputData},
+		Result: &serviceapi.SubmitResultRequest_OutputData{
+			OutputData: outputData,
+		},
 	})
 	require.Error(t, err)
 }
@@ -250,7 +254,9 @@ func TestSubmitWithInvalidTaskOutputs(t *testing.T) {
 
 	_, err = server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
 		ExecutionID: executionID,
-		Result:      &serviceapi.SubmitResultRequest_Outputs{Outputs: outputData},
+		Result: &serviceapi.SubmitResultRequest_OutputData{
+			OutputData: outputData,
+		},
 	})
 	require.Error(t, err)
 	invalidErr, ok := err.(*service.InvalidTaskOutputError)
