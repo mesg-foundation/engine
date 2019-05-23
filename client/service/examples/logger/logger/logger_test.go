@@ -56,9 +56,8 @@ func TestListenError(t *testing.T) {
 	_, execution, err := server.Execute("log", data)
 	require.NoError(t, err)
 
-	var resp errorResponse
-	require.Nil(t, execution.Data(&resp))
-	require.Contains(t, resp.Message, "json")
+	var resp map[string]interface{}
+	require.Error(t, execution.Data(&resp))
 }
 
 func TestClose(t *testing.T) {
