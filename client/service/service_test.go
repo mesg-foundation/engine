@@ -66,7 +66,6 @@ type taskResponse struct {
 func TestListen(t *testing.T) {
 	var (
 		task    = "send"
-		key     = "success"
 		reqData = taskRequest{"https://mesg.com"}
 		resData = taskResponse{"ok"}
 	)
@@ -85,7 +84,7 @@ func TestListen(t *testing.T) {
 				var data2 taskRequest
 				require.Nil(t, execution.Data(&data2))
 				require.Equal(t, reqData.URL, data2.URL)
-				return key, resData
+				return "", resData
 			}),
 		)
 		require.True(t, err == nil || err == context.Canceled)
@@ -94,7 +93,6 @@ func TestListen(t *testing.T) {
 	id, execution, err := server.Execute(task, reqData)
 	require.NoError(t, err)
 	require.Equal(t, id, execution.ID())
-	require.Equal(t, key, execution.Key())
 	require.Equal(t, token, server.ListenToken())
 
 	var data1 taskResponse
