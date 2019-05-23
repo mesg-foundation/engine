@@ -164,7 +164,10 @@ func TestSubmit(t *testing.T) {
 	executionID, err := server.api.ExecuteTask(s.Hash, taskKey, taskData, nil)
 	require.NoError(t, err)
 
-	ln, err := server.api.ListenExecution(s.Hash, &api.ExecutionFilter{Status: execution.Completed})
+	ef := &api.ExecutionFilter{
+		Statuses: []execution.Status{execution.Completed},
+	}
+	ln, err := server.api.ListenExecution(s.Hash, ef)
 	require.NoError(t, err)
 	defer ln.Close()
 
