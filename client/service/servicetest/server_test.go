@@ -107,7 +107,9 @@ func TestExecute(t *testing.T) {
 
 	_, err := server.service.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
 		ExecutionID: executionID,
-		Result:      &serviceapi.SubmitResultRequest_Outputs{Outputs: resDataStr},
+		Result: &serviceapi.SubmitResultRequest_OutputData{
+			OutputData: resDataStr,
+		},
 	})
 	require.NoError(t, err)
 

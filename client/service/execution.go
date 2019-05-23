@@ -49,7 +49,9 @@ func (e *Execution) reply(key string, data interface{}) error {
 	defer cancel()
 	_, err = e.service.client.SubmitResult(ctx, &serviceapi.SubmitResultRequest{
 		ExecutionID: e.id,
-		Result:      &serviceapi.SubmitResultRequest_Outputs{Outputs: string(dataBytes)},
+		Result: &serviceapi.SubmitResultRequest_OutputData{
+			OutputData: string(dataBytes),
+		},
 	})
 	return err
 }

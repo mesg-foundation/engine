@@ -90,7 +90,7 @@ message TaskData {
 message SubmitResultRequest {
   string executionID = 1; // The `executionID` received from the [`ListenTask` stream](#listentask).
   oneof result {
-    string outputs = 3;  // The result's data encoded in JSON as defined in the [service file](../guide/service/service-file.md).
+    string outputData = 3;  // The result's data encoded in JSON as defined in the [service file](../guide/service/service-file.md).
     string error = 4;       // The error message.
   }
 }
