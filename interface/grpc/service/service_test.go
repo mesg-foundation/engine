@@ -176,7 +176,7 @@ func TestSubmit(t *testing.T) {
 
 	execution := <-ln.C
 	require.Equal(t, executionID, execution.ID)
-	require.Equal(t, outputData, jsonMarshal(t, execution.OutputData))
+	require.Equal(t, outputData, jsonMarshal(t, execution.Outputs))
 }
 
 func TestSubmitWithInvalidJSON(t *testing.T) {
