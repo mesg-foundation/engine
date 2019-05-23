@@ -51,21 +51,7 @@ func toProtoTasks(tasks []*service.Task) []*definition.Task {
 			Name:        task.Name,
 			Description: task.Description,
 			Inputs:      toProtoParameters(task.Inputs),
-			Outputs: []*definition.Output{
-				{
-					Key:  "sucess",
-					Data: toProtoParameters(task.Outputs),
-				},
-				{
-					Key: "error",
-					Data: []*definition.Parameter{
-						{
-							Key:  "message",
-							Type: "String",
-						},
-					},
-				},
-			},
+			Outputs:     toProtoParameters(task.Outputs),
 		}
 	}
 	return ts
