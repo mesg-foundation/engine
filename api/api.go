@@ -176,8 +176,8 @@ func (a *API) ListenExecution(service string, f *ExecutionFilter) (*ExecutionLis
 }
 
 // SubmitResult submits results for executionID.
-func (a *API) SubmitResult(executionID string, outputKey string, outputs []byte) error {
-	exec, stateChanged, err := a.processExecution(executionID, outputKey, outputs)
+func (a *API) SubmitResult(executionID string, outputs []byte, reterr error) error {
+	exec, stateChanged, err := a.processExecution(executionID, outputs, reterr)
 	if stateChanged {
 		// only publish to listeners when the execution's state changed.
 		go a.ps.Pub(exec, executionSubTopic(exec.Service.Hash))
@@ -186,8 +186,7 @@ func (a *API) SubmitResult(executionID string, outputKey string, outputs []byte)
 }
 
 // processExecution processes execution and marks it as complated or failed.
-func (a *API) processExecution(executionID string, outputKey string, outputData []byte) (exec *execution.Execution, stateChanged bool, err error) {
-	stateChanged = false
+func (a *API) processExecution(executionID string, outputData []byte, reterr error) (exec *execution.Execution, stateChanged bool, err error) {
 	tx, err := a.execDB.OpenTransaction()
 	if err != nil {
 		return nil, false, err
@@ -198,13 +197,16 @@ func (a *API) processExecution(executionID string, outputKey string, outputData 
 		tx.Discard()
 		return nil, false, err
 	}
+	if reterr != nil {
+		return a.saveExecution(tx, exec, reterr)
+	}
 
 	var outputDataMap map[string]interface{}
 	if err := json.Unmarshal(outputData, &outputDataMap); err != nil {
 		return a.saveExecution(tx, exec, fmt.Errorf("invalid output data error: %s", err))
 	}
 
-	if err := exec.Complete(outputKey, outputDataMap); err != nil {
+	if err := exec.Complete(outputDataMap); err != nil {
 		return a.saveExecution(tx, exec, err)
 	}
 

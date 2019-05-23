@@ -148,7 +148,6 @@ func TestSubmit(t *testing.T) {
 			"data":    map[string]interface{}{},
 			"headers": map[string]interface{}{},
 		}
-		outputKey      = "success"
 		outputData     = `{"foo":{}}`
 		server, closer = newServer(t)
 	)
@@ -171,14 +170,12 @@ func TestSubmit(t *testing.T) {
 
 	_, err = server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
 		ExecutionID: executionID,
-		OutputKey:   outputKey,
 		OutputData:  outputData,
 	})
 	require.NoError(t, err)
 
 	execution := <-ln.C
 	require.Equal(t, executionID, execution.ID)
-	require.Equal(t, outputKey, execution.OutputKey)
 	require.Equal(t, outputData, jsonMarshal(t, execution.OutputData))
 }
 
@@ -190,7 +187,6 @@ func TestSubmitWithInvalidJSON(t *testing.T) {
 			"data":    map[string]interface{}{},
 			"headers": map[string]interface{}{},
 		}
-		outputKey      = "result"
 		server, closer = newServer(t)
 	)
 	defer closer()
@@ -208,7 +204,6 @@ func TestSubmitWithInvalidJSON(t *testing.T) {
 
 	_, err = server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
 		ExecutionID: executionID,
-		OutputKey:   outputKey,
 		OutputData:  "",
 	})
 	require.Equal(t, "invalid output data error: unexpected end of JSON input", err.Error())
@@ -216,7 +211,6 @@ func TestSubmitWithInvalidJSON(t *testing.T) {
 
 func TestSubmitWithInvalidID(t *testing.T) {
 	var (
-		outputKey      = "output"
 		outputData     = "{}"
 		executionID    = "1"
 		server, closer = newServer(t)
@@ -225,7 +219,6 @@ func TestSubmitWithInvalidID(t *testing.T) {
 
 	_, err := server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
 		ExecutionID: executionID,
-		OutputKey:   outputKey,
 		OutputData:  outputData,
 	})
 	require.Error(t, err)
@@ -239,7 +232,6 @@ func TestSubmitWithInvalidTaskOutputs(t *testing.T) {
 			"data":    map[string]interface{}{},
 			"headers": map[string]interface{}{},
 		}
-		outputKey      = "success"
 		outputData     = `{"foo":1}`
 		server, closer = newServer(t)
 	)
@@ -258,7 +250,6 @@ func TestSubmitWithInvalidTaskOutputs(t *testing.T) {
 
 	_, err = server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
 		ExecutionID: executionID,
-		OutputKey:   outputKey,
 		OutputData:  outputData,
 	})
 	require.Error(t, err)
