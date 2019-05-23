@@ -139,13 +139,11 @@ func TestComplete(t *testing.T) {
 	e.Execute()
 	tests := []struct {
 		name string
-		key  string
 		data map[string]interface{}
 		err  error
 	}{
 		{
 			name: "invalid task output",
-			key:  "success",
 			data: map[string]interface{}{},
 			err: &service.InvalidTaskOutputError{
 				TaskKey:     taskKey,
@@ -161,13 +159,10 @@ func TestComplete(t *testing.T) {
 		},
 		{
 			name: "success",
-			key:  "success",
 			data: map[string]interface{}{"foo": "bar"},
-			err:  nil,
 		},
 		{ // this one is already proccessed
 			name: "already executed",
-			key:  "success",
 			data: map[string]interface{}{"foo": "bar"},
 			err: StatusError{
 				ExpectedStatus: InProgress,
@@ -176,7 +171,7 @@ func TestComplete(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
-		err := e.Complete(test.key, test.data)
+		err := e.Complete(test.data)
 		require.Equal(t, test.err, err, test.name)
 		if test.err != nil {
 			continue
