@@ -96,7 +96,7 @@ func (p *WalletProvider) call(task string, inputs interface{}, output interface{
 }
 
 func (p *WalletProvider) parseResult(r *coreapi.ResultData, output interface{}) error {
-	if r.Error != "error" {
+	if r.Error != "" {
 		var outputError walletErrorOutput
 		if err := json.Unmarshal([]byte(r.Error), &outputError); err != nil {
 			return err
