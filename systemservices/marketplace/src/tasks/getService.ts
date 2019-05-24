@@ -6,24 +6,18 @@ import { getServiceVersions } from "../contracts/version";
 import { getServiceOffers } from "../contracts/offer";
 import { getServicePurchases } from "../contracts/purchase";
 
-export default (contract: Marketplace) => async (inputs: TaskInputs, outputs: TaskOutputs): Promise<void> => {
-  try {
-    const [ service, versions, offers, purchases ] = await Promise.all([
-      getService(contract, inputs.sid),
-      getServiceVersionWithManifest(contract, inputs.sid),
-      getServiceOffers(contract, inputs.sid),
-      getServicePurchases(contract, inputs.sid),
-    ])
-    return outputs.success({
-      ...service,
-      offers,
-      purchases,
-      versions,
-    })
-  }
-  catch (error) {
-    console.error('error in getService', error)
-    return outputs.error({ message: error.message })
+export default (contract: Marketplace) => async (inputs: TaskInputs): Promise<TaskOutputs> => {
+  const [ service, versions, offers, purchases ] = await Promise.all([
+    getService(contract, inputs.sid),
+    getServiceVersionWithManifest(contract, inputs.sid),
+    getServiceOffers(contract, inputs.sid),
+    getServicePurchases(contract, inputs.sid),
+  ])
+  return {
+    ...service,
+    offers,
+    purchases,
+    versions,
   }
 }
 

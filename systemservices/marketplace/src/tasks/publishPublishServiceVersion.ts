@@ -7,16 +7,9 @@ import { Marketplace } from "../contracts/Marketplace";
 export default (
   web3: Web3,
   marketplace: Marketplace,
-) => async (inputs: TaskInputs, outputs: TaskOutputs): Promise<void> => {
-  try {
-    const receipt = await web3.eth.sendSignedTransaction(inputs.signedTransaction)
-    if (receipt.logs === undefined) throw new Error('receipt does not contain logs')
-    const decodedLog = extractEventFromLogs(web3, marketplace, 'ServiceVersionCreated', receipt.logs)
-    const event = serviceVersionCreated(decodedLog)
-    return outputs.success(event)
-  }
-  catch (error) {
-    console.error('error in publishPublishServiceVersion', error)
-    return outputs.error({ message: error.message })
-  }
+) => async (inputs: TaskInputs): Promise<TaskOutputs> => {
+  const receipt = await web3.eth.sendSignedTransaction(inputs.signedTransaction)
+  if (receipt.logs === undefined) throw new Error('receipt does not contain logs')
+  const decodedLog = extractEventFromLogs(web3, marketplace, 'ServiceVersionCreated', receipt.logs)
+  return serviceVersionCreated(decodedLog)
 }
