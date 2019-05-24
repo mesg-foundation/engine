@@ -8,16 +8,9 @@ import { serviceOfferCreated } from "../contracts/parseEvents";
 export default (
   web3: Web3,
   marketplace: Marketplace,
-) => async (inputs: TaskInputs, outputs: TaskOutputs): Promise<void> => {
-  try {
-    const receipt = await web3.eth.sendSignedTransaction(inputs.signedTransaction)
-    if (receipt.logs === undefined) throw new Error('receipt does not contain logs')
-    const decodedLog = extractEventFromLogs(web3, marketplace, 'ServiceOfferCreated', receipt.logs)
-    const event = serviceOfferCreated(decodedLog)
-    return outputs.success(event)
-  }
-  catch (error) {
-    console.error('error in publishCreateServiceOffer', error)
-    return outputs.error({ message: error.message })
-  }
+) => async (inputs: TaskInputs): Promise<TaskOutputs> => {
+  const receipt = await web3.eth.sendSignedTransaction(inputs.signedTransaction)
+  if (receipt.logs === undefined) throw new Error('receipt does not contain logs')
+  const decodedLog = extractEventFromLogs(web3, marketplace, 'ServiceOfferCreated', receipt.logs)
+  return serviceOfferCreated(decodedLog)
 }
