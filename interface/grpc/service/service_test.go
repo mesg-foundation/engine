@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/mesg-foundation/core/api"
+	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
@@ -22,7 +24,7 @@ func TestEmit(t *testing.T) {
 	require.NoError(t, err)
 	defer server.api.DeleteService(s.Hash, false)
 
-	ln, err := server.api.ListenEvent(s.Hash)
+	ln, err := server.api.ListenEvent(s.Hash, nil)
 	require.NoError(t, err)
 	defer ln.Close()
 
@@ -33,15 +35,9 @@ func TestEmit(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	select {
-	case err := <-ln.Err:
-		t.Error(err)
-
-	case event := <-ln.Events:
-		require.Equal(t, eventKey, event.Key)
-		require.Equal(t, eventData, jsonMarshal(t, event.Data))
-	}
-
+	event := <-ln.C
+	require.Equal(t, eventKey, event.Key)
+	require.Equal(t, eventData, jsonMarshal(t, event.Data))
 }
 
 func TestEmitNoData(t *testing.T) {
@@ -169,7 +165,7 @@ func TestSubmit(t *testing.T) {
 	executionID, err := server.api.ExecuteTask(s.Hash, taskKey, taskData, nil)
 	require.NoError(t, err)
 
-	ln, err := server.api.ListenResult(s.Hash)
+	ln, err := server.api.ListenExecution(s.Hash, &api.ExecutionFilter{Status: execution.Completed})
 	require.NoError(t, err)
 	defer ln.Close()
 
@@ -180,15 +176,10 @@ func TestSubmit(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	select {
-	case err := <-ln.Err:
-		t.Error(err)
-
-	case execution := <-ln.Executions:
-		require.Equal(t, executionID, execution.ID)
-		require.Equal(t, outputKey, execution.OutputKey)
-		require.Equal(t, outputData, jsonMarshal(t, execution.OutputData))
-	}
+	execution := <-ln.C
+	require.Equal(t, executionID, execution.ID)
+	require.Equal(t, outputKey, execution.OutputKey)
+	require.Equal(t, outputData, jsonMarshal(t, execution.OutputData))
 }
 
 func TestSubmitWithInvalidJSON(t *testing.T) {

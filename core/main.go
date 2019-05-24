@@ -10,6 +10,7 @@ import (
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/interface/grpc"
 	"github.com/mesg-foundation/core/logger"
+	"github.com/mesg-foundation/core/service/manager/dockermanager"
 	"github.com/mesg-foundation/core/version"
 	"github.com/mesg-foundation/core/x/xerrors"
 	"github.com/mesg-foundation/core/x/xsignal"
@@ -49,14 +50,17 @@ func initDependencies() (*dependencies, error) {
 		return nil, err
 	}
 
+	// init Docker Manager.
+	m := dockermanager.New(c)
+
 	// init api.
-	api := api.New(c, serviceDB, executionDB)
+	api := api.New(m, c, serviceDB, executionDB)
 
 	return &dependencies{
 		config:      config,
+		container:   c,
 		serviceDB:   serviceDB,
 		executionDB: executionDB,
-		container:   c,
 		api:         api,
 	}, nil
 }

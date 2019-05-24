@@ -12,7 +12,7 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/builder/dockerignore"
-	"github.com/mesg-foundation/core/x/xdocker/xarchive"
+	"github.com/docker/docker/pkg/archive"
 )
 
 // BuildResponse is the object that is returned by the docker api in json
@@ -28,7 +28,10 @@ func (c *DockerContainer) Build(path string) (tag string, err error) {
 		return "", err
 	}
 
-	buildContext, err := xarchive.GzippedTar(path, excludeFiles)
+	buildContext, err := archive.TarWithOptions(path, &archive.TarOptions{
+		Compression:     archive.Gzip,
+		ExcludePatterns: excludeFiles,
+	})
 	if err != nil {
 		return "", err
 	}

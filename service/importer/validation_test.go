@@ -44,16 +44,18 @@ func TestValidateFromMissingServiceFile(t *testing.T) {
 }
 
 func TestValidateFromNonExistingPath(t *testing.T) {
-	validation, err := Validate("./tests/service-non-existing")
-	require.NoError(t, err)
-	require.False(t, validation.IsValid())
-	require.False(t, validation.ServiceFileExist)
-	require.Len(t, validation.ServiceFileWarnings, 1)
-	require.False(t, validation.DockerfileExist)
+	_, err := Validate("./tests/service-non-existing")
+	require.Error(t, err)
 }
 
 func TestValidateFromMalFormattedServiceFile(t *testing.T) {
 	validation, err := Validate("./tests/service-file-mal-formatted")
+	require.NoError(t, err)
+	require.Len(t, validation.ServiceFileWarnings, 1)
+}
+
+func TestValidateConfiguratioinImage(t *testing.T) {
+	validation, err := Validate("./tests/service-configuration-with-image")
 	require.NoError(t, err)
 	require.Len(t, validation.ServiceFileWarnings, 1)
 }
