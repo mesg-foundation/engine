@@ -1,4 +1,4 @@
-package service
+package dockermanager
 
 import (
 	"strconv"
@@ -6,28 +6,30 @@ import (
 
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
+	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/x/xnet"
 	"github.com/mesg-foundation/core/x/xos"
 	"github.com/mesg-foundation/core/x/xstructhash"
 )
 
 // Start starts the service.
-func (s *Service) Start(c container.Container) (serviceIDs []string, err error) {
-	status, err := s.Status(c)
-	if err != nil || status == RUNNING {
+func (m *DockerManager) Start(s *service.Service) (serviceIDs []string, err error) {
+	status, err := m.Status(s)
+	if err != nil || status == service.RUNNING {
 		return nil, err //TODO: if the service is already running, serviceIDs should be returned.
 	}
 	// If there is one but not all services running stop to restart all
-	if status == PARTIAL {
-		if err := s.Stop(c); err != nil {
+	if status == service.PARTIAL {
+		if err := m.Stop(s); err != nil {
 			return nil, err
 		}
 	}
-	networkID, err := c.CreateNetwork(s.namespace())
+	sNamespace := serviceNamespace(s.Hash)
+	networkID, err := m.c.CreateNetwork(sNamespace)
 	if err != nil {
 		return nil, err
 	}
-	sharedNetworkID, err := c.SharedNetworkID()
+	sharedNetworkID, err := m.c.SharedNetworkID()
 	if err != nil {
 		return nil, err
 	}
@@ -45,13 +47,13 @@ func (s *Service) Start(c container.Container) (serviceIDs []string, err error) 
 		if d == nil {
 			continue
 		}
-		volumes := d.extractVolumes(s)
-		volumesFrom, err := d.extractVolumesFrom(s)
+		volumes := extractVolumes(s, d)
+		volumesFrom, err := extractVolumesFrom(s, d)
 		if err != nil {
 			return nil, err
 		}
-		serviceID, err := c.StartService(container.ServiceOptions{
-			Namespace: d.namespace(s.namespace()),
+		serviceID, err := m.c.StartService(container.ServiceOptions{
+			Namespace: dependencyNamespace(sNamespace, d.Key),
 			Labels: map[string]string{
 				"mesg.service": s.Name,
 				"mesg.hash":    s.Hash,
@@ -67,14 +69,14 @@ func (s *Service) Start(c container.Container) (serviceIDs []string, err error) 
 				"MESG_ENDPOINT_TCP=" + endpoint,
 			}),
 			Mounts: append(volumes, volumesFrom...),
-			Ports:  d.extractPorts(),
+			Ports:  extractPorts(d),
 			Networks: []container.Network{
 				{ID: networkID, Alias: d.Key},
 				{ID: sharedNetworkID},
 			},
 		})
 		if err != nil {
-			s.Stop(c)
+			m.Stop(s)
 			return nil, err
 		}
 		serviceIDs = append(serviceIDs, serviceID)
@@ -82,7 +84,7 @@ func (s *Service) Start(c container.Container) (serviceIDs []string, err error) 
 	return serviceIDs, nil
 }
 
-func (d *Dependency) extractPorts() []container.Port {
+func extractPorts(d *service.Dependency) []container.Port {
 	ports := make([]container.Port, len(d.Ports))
 	for i, p := range d.Ports {
 		split := strings.Split(p, ":")
@@ -100,7 +102,7 @@ func (d *Dependency) extractPorts() []container.Port {
 }
 
 // TODO: add test and hack for MkDir in CircleCI
-func (d *Dependency) extractVolumes(s *Service) []container.Mount {
+func extractVolumes(s *service.Service, d *service.Dependency) []container.Mount {
 	volumes := make([]container.Mount, 0)
 	for _, volume := range d.Volumes {
 		volumes = append(volumes, container.Mount{
@@ -111,12 +113,12 @@ func (d *Dependency) extractVolumes(s *Service) []container.Mount {
 	return volumes
 }
 
-func (d *Dependency) extractVolumesFrom(s *Service) ([]container.Mount, error) {
+func extractVolumesFrom(s *service.Service, d *service.Dependency) ([]container.Mount, error) {
 	volumesFrom := make([]container.Mount, 0)
 	for _, depName := range d.VolumesFrom {
-		dep, err := s.getDependency(depName)
+		dep, err := s.GetDependency(depName)
 		if err != nil {
-			if depName == MainServiceKey {
+			if depName == service.MainServiceKey {
 				dep = s.Configuration
 			} else {
 				return nil, err
@@ -134,7 +136,7 @@ func (d *Dependency) extractVolumesFrom(s *Service) ([]container.Mount, error) {
 
 // volumeKey creates a key for service's volume based on the sid to make sure that the volume
 // will stay the same for different versions of the service.
-func volumeKey(s *Service, dependency string, volume string) string {
+func volumeKey(s *service.Service, dependency string, volume string) string {
 	return xstructhash.Hash([]string{
 		s.Sid,
 		dependency,

@@ -1,4 +1,4 @@
-package service
+package dockermanager
 
 import (
 	"io"
@@ -7,6 +7,7 @@ import (
 
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/mesg-foundation/core/container/mocks"
+	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
 )
 
@@ -25,19 +26,20 @@ func TestServiceLogs(t *testing.T) {
 	go werr.Write(errData)
 
 	var (
-		s = &Service{
+		s = &service.Service{
 			Hash: "1",
-			Dependencies: []*Dependency{
+			Dependencies: []*service.Dependency{
 				{Key: dependencyKey},
 			},
 		}
 		mc = &mocks.Container{}
+		m  = New(mc)
 	)
 
-	d, _ := s.getDependency(dependencyKey)
-	mc.On("ServiceLogs", d.namespace(s.namespace())).Once().Return(rp, nil)
+	d, _ := s.GetDependency(dependencyKey)
+	mc.On("ServiceLogs", dependencyNamespace(serviceNamespace(s.Hash), d.Key)).Once().Return(rp, nil)
 
-	l, err := s.Logs(mc, dependencyKey)
+	l, err := m.Logs(s, dependencyKey)
 	require.NoError(t, err)
 	require.Len(t, l, 1)
 	rstd, rerr := l[0].Standard, l[0].Error

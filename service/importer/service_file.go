@@ -55,6 +55,10 @@ func validateServiceStruct(service *ServiceDefinition) []string {
 		}
 	}
 
+	if service.Configuration != nil && service.Configuration.Image != "" {
+		warnings = append(warnings, "configuration.image is not allowed")
+	}
+
 	for key, dep := range service.Dependencies {
 		if dep == nil {
 			continue
@@ -79,7 +83,7 @@ func validateServiceStructVolumesFrom(service *ServiceDefinition) []string {
 			if _, ok := service.Dependencies[depVolumeKey]; !ok {
 				warnings = append(
 					warnings,
-					fmt.Sprintf("configuration.volumesfrom is invalid: dependency %q does not exist", depVolumeKey),
+					fmt.Sprintf("configuration.volumesFrom is invalid: dependency %q does not exist", depVolumeKey),
 				)
 			}
 		}
@@ -92,7 +96,7 @@ func validateServiceStructVolumesFrom(service *ServiceDefinition) []string {
 			if _, ok := service.Dependencies[depVolumeKey]; !ok && depVolumeKey != ConfigurationDependencyKey {
 				warnings = append(
 					warnings,
-					fmt.Sprintf("dependencies[%s].volumesfrom is invalid: dependency %q does not exist", key, depVolumeKey),
+					fmt.Sprintf("dependencies[%s].volumesFrom is invalid: dependency %q does not exist", key, depVolumeKey),
 				)
 			}
 		}

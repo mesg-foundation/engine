@@ -8,6 +8,8 @@ import (
 	"github.com/mesg-foundation/core/container/mocks"
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/core/service/manager/dockermanager"
+	"github.com/mesg-foundation/core/utils/hash"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
@@ -33,6 +35,7 @@ func (t *apiTesting) close() {
 
 func newTesting(t *testing.T) (*API, *apiTesting) {
 	containerMock := &mocks.Container{}
+	m := dockermanager.New(containerMock) // TODO(ilgooz): create mocks from manager.Manager and use instead.
 
 	db, err := database.NewServiceDB(servicedbname)
 	require.NoError(t, err)
@@ -40,7 +43,7 @@ func newTesting(t *testing.T) (*API, *apiTesting) {
 	execDB, err := database.NewExecutionDB(execdbname)
 	require.NoError(t, err)
 
-	a := New(containerMock, db, execDB)
+	a := New(m, containerMock, db, execDB)
 
 	return a, &apiTesting{
 		T:             t,
@@ -106,4 +109,14 @@ func TestExecuteTaskForNotRunningService(t *testing.T) {
 	_, err := a.ExecuteTask("2", "4", map[string]interface{}{}, []string{})
 	_, notRunningError := err.(*NotRunningServiceError)
 	require.True(t, notRunningError)
+}
+
+func TestEventSubTopic(t *testing.T) {
+	serviceHash := "1"
+	require.Equal(t, eventSubTopic(serviceHash), hash.Calculate([]string{serviceHash, eventTopic}))
+}
+
+func TestExecutionSubTopic(t *testing.T) {
+	serviceHash := "1"
+	require.Equal(t, executionSubTopic(serviceHash), hash.Calculate([]string{serviceHash, executionTopic}))
 }

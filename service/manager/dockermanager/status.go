@@ -1,40 +1,41 @@
-package service
+package dockermanager
 
 import (
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
+	"github.com/mesg-foundation/core/service"
 )
 
-var containerStatusTypeMappings = map[container.StatusType]StatusType{
-	container.UNKNOWN:  UNKNOWN,
-	container.STOPPED:  STOPPED,
-	container.STARTING: STARTING,
-	container.RUNNING:  RUNNING,
+var containerStatusTypeMappings = map[container.StatusType]service.StatusType{
+	container.UNKNOWN:  service.UNKNOWN,
+	container.STOPPED:  service.STOPPED,
+	container.STARTING: service.STARTING,
+	container.RUNNING:  service.RUNNING,
 }
 
 // Status returns StatusType of all dependency.
-func (s *Service) Status(c container.Container) (StatusType, error) {
+func (m *DockerManager) Status(s *service.Service) (service.StatusType, error) {
 	statuses := make(map[container.StatusType]bool)
 	for _, d := range append(s.Dependencies, s.Configuration) {
 		if d == nil {
 			continue
 		}
-		status, err := c.Status(d.namespace(s.namespace()))
+		status, err := m.c.Status(dependencyNamespace(serviceNamespace(s.Hash), d.Key))
 		if err != nil {
-			return UNKNOWN, err
+			return service.UNKNOWN, err
 		}
 		statuses[status] = true
 	}
 
 	switch len(statuses) {
 	case 0:
-		return STOPPED, nil
+		return service.STOPPED, nil
 	case 1:
 		for status := range statuses {
 			return containerStatusTypeMappings[status], nil
 		}
 	default:
-		return PARTIAL, nil
+		return service.PARTIAL, nil
 	}
 	panic("not reached")
 }

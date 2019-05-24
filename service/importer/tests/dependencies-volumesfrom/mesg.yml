@@ -1,9 +1,11 @@
 name: "Test service"
+
 configuration:
-  volumesfrom:
+  volumesFrom:
     - notExistingDependence
+
 dependencies:
   app:
     image: nginx
-    volumesfrom:
+    volumesFrom:
       - notExistingDependence
