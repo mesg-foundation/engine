@@ -57,7 +57,7 @@ func (s *serviceServer) ListenTask(request *serviceapi.ListenTaskRequest,
 func (s *serviceServer) SubmitResult(context context.Context,
 	request *serviceapi.SubmitResultRequest) (reply *serviceapi.SubmitResultReply, err error) {
 	s.submitC <- &Execution{
-		id:   request.ExecutionID,
+		hash: request.ExecutionHash,
 		key:  request.OutputKey,
 		data: request.OutputData,
 	}

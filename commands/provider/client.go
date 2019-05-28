@@ -100,7 +100,7 @@ func (c *client) ExecuteTask(id, taskKey, inputData string, tags []string) (stri
 	if err != nil {
 		return "", err
 	}
-	return result.ExecutionID, nil
+	return result.ExecutionHash, nil
 }
 
 // ExecuteAndListen executes task and listens for it's results.

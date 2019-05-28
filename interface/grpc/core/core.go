@@ -170,7 +170,7 @@ func (s *Server) ListenResult(request *coreapi.ListenResultRequest, stream corea
 				return err
 			}
 			if err := stream.Send(&coreapi.ResultData{
-				ExecutionID:   execution.ID,
+				ExecutionHash: execution.Hash,
 				TaskKey:       execution.TaskKey,
 				OutputKey:     execution.OutputKey,
 				OutputData:    string(outputs),
@@ -190,9 +190,9 @@ func (s *Server) ExecuteTask(ctx context.Context, request *coreapi.ExecuteTaskRe
 		return nil, fmt.Errorf("cannot parse execution's inputs (JSON format): %s", err)
 	}
 
-	executionID, err := s.api.ExecuteTask(request.ServiceID, request.TaskKey, inputs, request.ExecutionTags)
+	executionHash, err := s.api.ExecuteTask(request.ServiceID, request.TaskKey, inputs, request.ExecutionTags)
 	return &coreapi.ExecuteTaskReply{
-		ExecutionID: executionID,
+		ExecutionHash: executionHash,
 	}, err
 }
 

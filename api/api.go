@@ -109,7 +109,7 @@ func (a *API) EmitEvent(token, eventKey string, eventData map[string]interface{}
 
 // ExecuteTask executes a task tasKey with inputData and tags for service serviceID.
 func (a *API) ExecuteTask(serviceID, taskKey string, inputData map[string]interface{},
-	tags []string) (executionID string, err error) {
+	tags []string) (executionHash string, err error) {
 	s, err := a.db.Get(serviceID)
 	if err != nil {
 		return "", err
@@ -136,7 +136,7 @@ func (a *API) ExecuteTask(serviceID, taskKey string, inputData map[string]interf
 		return "", err
 	}
 	go a.ps.Pub(exec, executionSubTopic(s.Hash))
-	return exec.ID, nil
+	return exec.Hash, nil
 }
 
 // ListenEvent listens events matches with eventFilter on serviceID.
@@ -186,9 +186,9 @@ func (a *API) ListenExecution(service string, f *ExecutionFilter) (*ExecutionLis
 	return l, nil
 }
 
-// SubmitResult submits results for executionID.
-func (a *API) SubmitResult(executionID string, outputKey string, outputs []byte) error {
-	exec, stateChanged, err := a.processExecution(executionID, outputKey, outputs)
+// SubmitResult submits results for executionHash.
+func (a *API) SubmitResult(executionHash string, outputKey string, outputs []byte) error {
+	exec, stateChanged, err := a.processExecution(executionHash, outputKey, outputs)
 	if stateChanged {
 		// only publish to listeners when the execution's state changed.
 		go a.ps.Pub(exec, executionSubTopic(exec.Service.Hash))
@@ -197,14 +197,14 @@ func (a *API) SubmitResult(executionID string, outputKey string, outputs []byte)
 }
 
 // processExecution processes execution and marks it as complated or failed.
-func (a *API) processExecution(executionID string, outputKey string, outputData []byte) (exec *execution.Execution, stateChanged bool, err error) {
+func (a *API) processExecution(executionHash string, outputKey string, outputData []byte) (exec *execution.Execution, stateChanged bool, err error) {
 	stateChanged = false
 	tx, err := a.execDB.OpenTransaction()
 	if err != nil {
 		return nil, false, err
 	}
 
-	exec, err = tx.Find(executionID)
+	exec, err = tx.Find(executionHash)
 	if err != nil {
 		tx.Discard()
 		return nil, false, err

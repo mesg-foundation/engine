@@ -102,7 +102,7 @@ message ListenResultRequest {
 // **Example**
 // ```json
 // {
-//   "executionID":   "__EXECUTION_ID__",
+//   "executionHash":   "__EXECUTION_HASH__",
 //   "taskKey":       "__TASK_KEY__",
 //   "outputKey":     "__OUTPUT_KEY__",
 //   "outputData":    "{\"foo\":\"bar\"}",
@@ -111,7 +111,7 @@ message ListenResultRequest {
 // }
 // ```
 message ResultData {
-  string executionID = 1;             // The unique identifier of the execution.
+  string executionHash = 1;             // The unique identifier of the execution.
   string taskKey = 2;                 // The key of the executed task.
   string outputKey = 3;               // The output's key from the returned task.
   string outputData = 4;              // The output's data from the returned task, encoded in JSON.
@@ -142,11 +142,11 @@ message ExecuteTaskRequest {
 // **Example**
 // ```json
 // {
-//   "executionID": "__EXECUTION_ID__"
+//   "executionHash": "__EXECUTION_HASH__"
 // }
 // ```
 message ExecuteTaskReply {
-  string executionID = 1; // The unique identifier of the execution.
+  string executionHash = 1; // The unique identifier of the execution.
 }
 
 // The request's data for the `StartService` API.

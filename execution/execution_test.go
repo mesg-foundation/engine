@@ -258,7 +258,7 @@ func TestStatus(t *testing.T) {
 	require.Equal(t, "failed", Failed.String())
 }
 
-func TestExecutionIDHash(t *testing.T) {
+func TestExecutionHash(t *testing.T) {
 	ids := make(map[string]bool)
 
 	f := func(eventID, taskKey, inputs string, tags []string) bool {

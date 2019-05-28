@@ -37,7 +37,7 @@ func (s Status) String() (r string) {
 
 // Execution stores all informations about executions.
 type Execution struct {
-	ID                string                 `hash:"-"`
+	Hash              string                 `hash:"-"`
 	EventID           string                 `hash:"name:eventID"`
 	Status            Status                 `hash:"-"`
 	Service           *service.Service       `hash:"name:service"`
@@ -70,7 +70,7 @@ func New(service *service.Service, eventID string, taskKey string, inputs map[st
 		CreatedAt: time.Now(),
 		Status:    Created,
 	}
-	exec.ID = xstructhash.Hash(exec, 1)
+	exec.Hash = xstructhash.Hash(exec, 1)
 	return exec, nil
 }
 
