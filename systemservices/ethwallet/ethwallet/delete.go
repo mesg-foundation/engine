@@ -15,22 +15,22 @@ type deleteOutputSuccess struct {
 	Address common.Address `json:"address"`
 }
 
-func (s *Ethwallet) delete(execution *service.Execution) (string, interface{}) {
+func (s *Ethwallet) delete(execution *service.Execution) (interface{}, error) {
 	var inputs deleteInputs
 	if err := execution.Data(&inputs); err != nil {
-		return OutputError(err)
+		return nil, err
 	}
 
 	account, err := xaccounts.GetAccount(s.keystore, inputs.Address)
 	if err != nil {
-		return OutputError(errAccountNotFound)
+		return nil, errAccountNotFound
 	}
 
 	if err := s.keystore.Delete(account, inputs.Passphrase); err != nil {
-		return OutputError(err)
+		return nil, err
 	}
 
-	return "success", deleteOutputSuccess{
+	return deleteOutputSuccess{
 		Address: account.Address,
-	}
+	}, nil
 }
