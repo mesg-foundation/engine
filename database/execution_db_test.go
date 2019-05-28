@@ -20,24 +20,24 @@ func TestFind(t *testing.T) {
 	defer os.RemoveAll(dir)
 	db := db(t, dir)
 	defer db.Close()
-	e := &execution.Execution{ID: "xxx"}
+	e := &execution.Execution{Hash: "xxx"}
 	db.Save(e)
 	tests := []struct {
-		id       string
+		hash     string
 		hasError bool
 	}{
-		{id: e.ID, hasError: false},
-		{id: "doesn't exists", hasError: true},
+		{hash: e.Hash, hasError: false},
+		{hash: "doesn't exists", hasError: true},
 	}
 	for _, test := range tests {
-		execution, err := db.Find(test.id)
+		execution, err := db.Find(test.hash)
 		if test.hasError {
 			require.Error(t, err)
 			continue
 		}
 		require.NoError(t, err)
 		require.NotNil(t, execution)
-		e, err := db.Find(execution.ID)
+		e, err := db.Find(execution.Hash)
 		require.NoError(t, err)
 		require.NotNil(t, e)
 	}
@@ -52,7 +52,7 @@ func TestSave(t *testing.T) {
 		execution *execution.Execution
 		hasError  bool
 	}{
-		{&execution.Execution{ID: "xxx"}, false},
+		{&execution.Execution{Hash: "xxx"}, false},
 		{&execution.Execution{}, true},
 	}
 	for _, test := range tests {

@@ -60,35 +60,35 @@ message ListenTaskRequest {
 
 // The data received from the stream of the `ListenTask` API.
 // The data will be received over time as long as the stream is open.
-// The `executionID` value must be kept and sent with the result when calling the [`SubmitResult` API](#submitresult).
+// The `executionHash` value must be kept and sent with the result when calling the [`SubmitResult` API](#submitresult).
 //
 // **Example:**
 // ```json
 // {
-//   "executionID": "__EXECUTION_ID__",
+//   "executionHash": "__EXECUTION_HASH__",
 //   "taskKey":     "__TASK_KEY__",
 //   "inputData":   "{\"inputX\":\"Hello world!\",\"inputY\":true}"
 // }
 // ```
 message TaskData {
-  string executionID = 1; // The unique identifier of the execution. Must be kept and sent with the result when calling the [`SubmitResult` API](#submitresult).
+  string executionHash = 1; // The unique identifier of the execution. Must be kept and sent with the result when calling the [`SubmitResult` API](#submitresult).
   string taskKey = 2;     // The key from the task to execute as defined in the [service file](../guide/service/service-file.md).
   string inputData = 3;   // The task's input encoded in JSON as defined in the [service file](../guide/service/service-file.md).
 }
 
 // The request's data for the `SubmitResult` API.
-// The data must contain the `executionID` of the executed task received from the stream of [`ListenTask` API](#listentask).
+// The data must contain the `executionHash` of the executed task received from the stream of [`ListenTask` API](#listentask).
 //
 // **Example:**
 // ```json
 // {
-//   "executionID": "__EXECUTION_ID__",
+//   "executionHash": "__EXECUTION_HASH__",
 //   "outputKey":   "__OUTPUT_KEY__",
 //   "outputData":  "{\"foo\":\"super result\",\"bar\":true}"
 // }
 // ```
 message SubmitResultRequest {
-  string executionID = 1; // The `executionID` received from the [`ListenTask` stream](#listentask).
+  string executionHash = 1; // The `executionHash` received from the [`ListenTask` stream](#listentask).
   string outputKey = 2;   // The output's key as defined in the [service file](../guide/service/service-file.md).
   string outputData = 3;  // The result's data encoded in JSON as defined in the [service file](../guide/service/service-file.md).
 }

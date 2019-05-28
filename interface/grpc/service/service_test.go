@@ -162,7 +162,7 @@ func TestSubmit(t *testing.T) {
 	require.NoError(t, server.api.StartService(s.Hash))
 	defer server.api.StopService(s.Hash)
 
-	executionID, err := server.api.ExecuteTask(s.Hash, taskKey, taskData, nil)
+	executionHash, err := server.api.ExecuteTask(s.Hash, taskKey, taskData, nil)
 	require.NoError(t, err)
 
 	ln, err := server.api.ListenExecution(s.Hash, &api.ExecutionFilter{Status: execution.Completed})
@@ -170,14 +170,14 @@ func TestSubmit(t *testing.T) {
 	defer ln.Close()
 
 	_, err = server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
-		ExecutionID: executionID,
-		OutputKey:   outputKey,
-		OutputData:  outputData,
+		ExecutionHash: executionHash,
+		OutputKey:     outputKey,
+		OutputData:    outputData,
 	})
 	require.NoError(t, err)
 
 	execution := <-ln.C
-	require.Equal(t, executionID, execution.ID)
+	require.Equal(t, executionHash, execution.Hash)
 	require.Equal(t, outputKey, execution.OutputKey)
 	require.Equal(t, outputData, jsonMarshal(t, execution.OutputData))
 }
@@ -203,13 +203,13 @@ func TestSubmitWithInvalidJSON(t *testing.T) {
 	require.NoError(t, server.api.StartService(s.Hash))
 	defer server.api.StopService(s.Hash)
 
-	executionID, err := server.api.ExecuteTask(s.Hash, taskKey, taskData, nil)
+	executionHash, err := server.api.ExecuteTask(s.Hash, taskKey, taskData, nil)
 	require.NoError(t, err)
 
 	_, err = server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
-		ExecutionID: executionID,
-		OutputKey:   outputKey,
-		OutputData:  "",
+		ExecutionHash: executionHash,
+		OutputKey:     outputKey,
+		OutputData:    "",
 	})
 	require.Equal(t, "invalid output data error: unexpected end of JSON input", err.Error())
 }
@@ -218,15 +218,15 @@ func TestSubmitWithInvalidID(t *testing.T) {
 	var (
 		outputKey      = "output"
 		outputData     = "{}"
-		executionID    = "1"
+		executionHash  = "1"
 		server, closer = newServer(t)
 	)
 	defer closer()
 
 	_, err := server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
-		ExecutionID: executionID,
-		OutputKey:   outputKey,
-		OutputData:  outputData,
+		ExecutionHash: executionHash,
+		OutputKey:     outputKey,
+		OutputData:    outputData,
 	})
 	require.Error(t, err)
 }
@@ -253,13 +253,13 @@ func TestSubmitWithNonExistentOutputKey(t *testing.T) {
 	require.NoError(t, server.api.StartService(s.Hash))
 	defer server.api.StopService(s.Hash)
 
-	executionID, err := server.api.ExecuteTask(s.Hash, taskKey, taskData, nil)
+	executionHash, err := server.api.ExecuteTask(s.Hash, taskKey, taskData, nil)
 	require.NoError(t, err)
 
 	_, err = server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
-		ExecutionID: executionID,
-		OutputKey:   outputKey,
-		OutputData:  outputData,
+		ExecutionHash: executionHash,
+		OutputKey:     outputKey,
+		OutputData:    outputData,
 	})
 	require.Error(t, err)
 	notFoundErr, ok := err.(*service.TaskOutputNotFoundError)
@@ -290,13 +290,13 @@ func TestSubmitWithInvalidTaskOutputs(t *testing.T) {
 	require.NoError(t, server.api.StartService(s.Hash))
 	defer server.api.StopService(s.Hash)
 
-	executionID, err := server.api.ExecuteTask(s.Hash, taskKey, taskData, nil)
+	executionHash, err := server.api.ExecuteTask(s.Hash, taskKey, taskData, nil)
 	require.NoError(t, err)
 
 	_, err = server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
-		ExecutionID: executionID,
-		OutputKey:   outputKey,
-		OutputData:  outputData,
+		ExecutionHash: executionHash,
+		OutputKey:     outputKey,
+		OutputData:    outputData,
 	})
 	require.Error(t, err)
 	invalidErr, ok := err.(*service.InvalidTaskOutputError)
