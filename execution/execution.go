@@ -37,19 +37,18 @@ func (s Status) String() (r string) {
 
 // Execution stores all informations about executions.
 type Execution struct {
-	Hash              string                 `hash:"-"`
-	EventID           string                 `hash:"name:eventID"`
-	Status            Status                 `hash:"-"`
-	Service           *service.Service       `hash:"name:service"`
-	TaskKey           string                 `hash:"name:taskKey"`
-	Tags              []string               `hash:"name:tags"`
-	Inputs            map[string]interface{} `hash:"name:inputs"`
-	OutputKey         string                 `hash:"-"`
-	OutputData        map[string]interface{} `hash:"-"`
-	Error             string                 `hash:"-"`
-	CreatedAt         time.Time              `hash:"-"`
-	ExecutedAt        time.Time              `hash:"-"`
-	ExecutionDuration time.Duration          `hash:"-"`
+	Hash       string                 `hash:"-"`
+	EventID    string                 `hash:"name:eventID"`
+	Status     Status                 `hash:"-"`
+	Service    *service.Service       `hash:"name:service"`
+	TaskKey    string                 `hash:"name:taskKey"`
+	Tags       []string               `hash:"name:tags"`
+	Inputs     map[string]interface{} `hash:"name:inputs"`
+	OutputKey  string                 `hash:"-"`
+	OutputData map[string]interface{} `hash:"-"`
+	Error      string                 `hash:"-"`
+	CreatedAt  time.Time              `hash:"-"`
+	ExecutedAt time.Time              `hash:"-"`
 }
 
 // New returns a new execution. It returns an error if inputs are invalid.
@@ -110,7 +109,6 @@ func (execution *Execution) Complete(outputKey string, outputData map[string]int
 		return err
 	}
 
-	execution.ExecutionDuration = time.Since(execution.ExecutedAt)
 	execution.OutputKey = outputKey
 	execution.OutputData = outputData
 	execution.Status = Completed
@@ -128,7 +126,6 @@ func (execution *Execution) Failed(err error) error {
 	}
 
 	execution.Error = err.Error()
-	execution.ExecutionDuration = time.Since(execution.ExecutedAt)
 	execution.Status = Failed
 	return nil
 }
