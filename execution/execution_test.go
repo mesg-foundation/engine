@@ -5,10 +5,9 @@ import (
 	"testing"
 	"testing/quick"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/x/xstructhash"
+	"github.com/stretchr/testify/require"
 )
 
 var (
@@ -214,7 +213,6 @@ func TestComplete(t *testing.T) {
 			continue
 		}
 		require.Equal(t, Completed, e.Status, test.name)
-		require.NotZero(t, e.ExecutionDuration, test.name)
 		require.Zero(t, e.Error, test.name)
 	}
 }
@@ -246,7 +244,6 @@ func TestFailed(t *testing.T) {
 			continue
 		}
 		require.Equal(t, Failed, e.Status, test.name)
-		require.NotZero(t, e.ExecutionDuration, test.name)
 		require.Equal(t, test.xerr.Error(), e.Error, test.name)
 	}
 }
