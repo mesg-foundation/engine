@@ -8,7 +8,7 @@
     "bignumber.js": "^8.1.1",
     "ipfs-http-client": "^30.1.3",
     "jsonschema": "^1.2.4",
-    "mesg-js": "github:mesg-foundation/mesg-js#next",
+    "mesg-js": "^3.0.0-beta.0",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
     "web3": "1.0.0-beta.37"
