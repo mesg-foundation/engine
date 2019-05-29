@@ -1,4 +1,4 @@
-import { TaskInputs, TaskOutputs } from "mesg-js/lib/service"
+import { TaskInputs } from "mesg-js/lib/service"
 import { Marketplace } from "../contracts/Marketplace"
 import { stringToHex, CreateTransaction, fromUnit, toUnit } from "../contracts/utils";
 import { ERC20 } from "../contracts/ERC20";
@@ -11,7 +11,7 @@ export default (
   marketplace: Marketplace,
   token: ERC20,
   createTransaction: CreateTransaction
-) => async (inputs: TaskInputs): Promise<TaskOutputs> => {
+) => async (inputs: TaskInputs): Promise<object> => {
   const transactions: Promise<any>[] = []
   let shiftNonce = 0
   // inputs
@@ -21,7 +21,7 @@ export default (
 
   // get service
   const service = await getService(marketplace, sid)
-  
+
   // check ownership
   assert.notStrictEqual(from.toLowerCase(), service.owner.toLowerCase(), `service's owner cannot purchase its own service`)
 
@@ -40,7 +40,7 @@ export default (
   if (offer.price.isGreaterThan(allowance)) {
     // approve marketplace to spend purchaser token
     const approveTransactionData = token.methods.approve(
-      marketplace.options.address, 
+      marketplace.options.address,
       toUnit(offer.price)
     ).encodeABI()
     transactions.push(createTransaction(token, inputs, approveTransactionData))

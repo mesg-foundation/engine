@@ -1,4 +1,4 @@
-import { TaskInputs, TaskOutputs } from "mesg-js/lib/service"
+import { TaskInputs } from "mesg-js/lib/service"
 import { Marketplace } from "../contracts/Marketplace"
 import { stringToHex, CreateTransaction } from "../contracts/utils";
 import { Manifest } from "../types/manifest";
@@ -12,13 +12,13 @@ const manifestProtocol = 'ipfs'
 export default (
   marketplace: Marketplace,
   createTransaction: CreateTransaction
-) => async (inputs: TaskInputs): Promise<TaskOutputs> => {
+) => async (inputs: TaskInputs): Promise<object> => {
   // check inputs
   const sid = inputs.service.definition.sid
   assert.ok(sid.length >= 1 && sid.length <= 63, 'sid\'s length must be 1 at min and 63 at max') // See Core service validation (https://github.com/mesg-foundation/core)
   assert.ok(isDomainName(sid), 'sid must respect domain-style notation, eg author.name')
 
-  if(await isServiceExist(marketplace, sid)) {
+  if (await isServiceExist(marketplace, sid)) {
     // get service
     const service = await getService(marketplace, sid)
 
@@ -49,7 +49,7 @@ const uploadManifest = async (manifest: Manifest): Promise<string> => {
   const ipfsClient = require('ipfs-http-client')
   const IPFS = ipfsClient(process.env.IPFS_PROVIDER)
   const buffer = Buffer.from(JSON.stringify(manifest))
-  const res = await IPFS.add(buffer, {pin: false})
+  const res = await IPFS.add(buffer, { pin: false })
   if (!res.length) {
     throw new Error('error while uploading manifest')
   }
