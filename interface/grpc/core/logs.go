@@ -1,9 +1,9 @@
 package core
 
 import (
-	"github.com/mesg-foundation/core/sdk"
 	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
+	"github.com/mesg-foundation/core/sdk"
 	"github.com/mesg-foundation/core/utils/chunker"
 )
 
