@@ -1,4 +1,4 @@
-import { TaskInputs, TaskOutputs } from "mesg-js/lib/service"
+import { TaskInputs } from "mesg-js/lib/service"
 import { Marketplace } from "../contracts/Marketplace"
 import { getServiceVersion } from "../contracts/version";
 import { hexToString, stringToHex, hashToHex, hexToHash } from "../contracts/utils";
@@ -8,7 +8,7 @@ import { requireServiceExist } from "../contracts/service";
 
 export default (
   contract: Marketplace,
-) => async (inputs: TaskInputs): Promise<TaskOutputs> => {
+) => async (inputs: TaskInputs): Promise<object> => {
   let sid = ""
   let versionHash = ""
   if (inputs.versionHash) {

@@ -1,4 +1,4 @@
-import { TaskInputs, TaskOutputs } from "mesg-js/lib/service"
+import { TaskInputs } from "mesg-js/lib/service"
 import { Marketplace } from "../contracts/Marketplace"
 import { toUnit, stringToHex, CreateTransaction } from "../contracts/utils";
 import BigNumber from "bignumber.js";
@@ -9,7 +9,7 @@ import { getServiceVersionCount } from "../contracts/version";
 export default (
   marketplace: Marketplace,
   createTransaction: CreateTransaction
-) => async (inputs: TaskInputs): Promise<TaskOutputs> => {
+) => async (inputs: TaskInputs): Promise<object> => {
   // check inputs
   const sid = inputs.sid
   const duration = new BigNumber(inputs.duration)

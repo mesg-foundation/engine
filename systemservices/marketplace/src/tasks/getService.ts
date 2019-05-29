@@ -1,4 +1,4 @@
-import { TaskInputs, TaskOutputs } from "mesg-js/lib/service"
+import { TaskInputs } from "mesg-js/lib/service"
 import { Marketplace } from "../contracts/Marketplace"
 import { getService } from "../contracts/service";
 import { getManifest } from "../contracts/manifest";
@@ -6,8 +6,8 @@ import { getServiceVersions } from "../contracts/version";
 import { getServiceOffers } from "../contracts/offer";
 import { getServicePurchases } from "../contracts/purchase";
 
-export default (contract: Marketplace) => async (inputs: TaskInputs): Promise<TaskOutputs> => {
-  const [ service, versions, offers, purchases ] = await Promise.all([
+export default (contract: Marketplace) => async (inputs: TaskInputs): Promise<object> => {
+  const [service, versions, offers, purchases] = await Promise.all([
     getService(contract, inputs.sid),
     getServiceVersionWithManifest(contract, inputs.sid),
     getServiceOffers(contract, inputs.sid),
