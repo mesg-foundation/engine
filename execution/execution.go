@@ -1,8 +1,6 @@
 package execution
 
 import (
-	"time"
-
 	"github.com/mesg-foundation/core/x/xstructhash"
 )
 
@@ -47,7 +45,6 @@ type Execution struct {
 	OutputKey   string                 `hash:"-"`
 	OutputData  map[string]interface{} `hash:"-"`
 	Error       string                 `hash:"-"`
-	ExecutedAt  time.Time              `hash:"-"`
 }
 
 // New returns a new execution. It returns an error if inputs are invalid.
@@ -74,7 +71,6 @@ func (execution *Execution) Execute() error {
 			ActualStatus:   execution.Status,
 		}
 	}
-	execution.ExecutedAt = time.Now()
 	execution.Status = InProgress
 	return nil
 }
