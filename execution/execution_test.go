@@ -69,10 +69,10 @@ func TestExecutionHash(t *testing.T) {
 
 	f := func(service, parentService, eventID, taskKey, input string, tags []string) bool {
 		e := New(service, parentService, eventID, taskKey, map[string]interface{}{"input": input}, tags)
-		if ids[e.Hash] {
+		if ids[string(e.Hash)] {
 			return false
 		}
-		ids[e.Hash] = true
+		ids[string(e.Hash)] = true
 		return true
 	}
 

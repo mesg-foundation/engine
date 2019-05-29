@@ -36,7 +36,7 @@ func (s Status) String() (r string) {
 
 // Execution stores all informations about executions.
 type Execution struct {
-	Hash              string                 `hash:"-"`
+	Hash              []byte                 `hash:"-"`
 	EventID           string                 `hash:"name:eventID"`
 	Status            Status                 `hash:"-"`
 	ServiceHash       string                 `hash:"name:serviceHash"`

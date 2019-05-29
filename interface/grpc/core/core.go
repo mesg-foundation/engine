@@ -170,7 +170,7 @@ func (s *Server) ListenResult(request *coreapi.ListenResultRequest, stream corea
 				return err
 			}
 			if err := stream.Send(&coreapi.ResultData{
-				ExecutionHash: execution.Hash,
+				ExecutionHash: string(execution.Hash),
 				TaskKey:       execution.TaskKey,
 				OutputKey:     execution.OutputKey,
 				OutputData:    string(outputs),
@@ -192,7 +192,7 @@ func (s *Server) ExecuteTask(ctx context.Context, request *coreapi.ExecuteTaskRe
 
 	executionHash, err := s.api.ExecuteTask(request.ServiceID, request.TaskKey, inputs, request.ExecutionTags)
 	return &coreapi.ExecuteTaskReply{
-		ExecutionHash: executionHash,
+		ExecutionHash: string(executionHash),
 	}, err
 }
 

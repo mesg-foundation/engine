@@ -108,37 +108,36 @@ func (a *API) EmitEvent(token, eventKey string, eventData map[string]interface{}
 }
 
 // ExecuteTask executes a task tasKey with inputData and tags for service serviceID.
-func (a *API) ExecuteTask(serviceID, taskKey string, inputData map[string]interface{},
-	tags []string) (executionHash string, err error) {
+func (a *API) ExecuteTask(serviceID, taskKey string, inputData map[string]interface{}, tags []string) (executionHash []byte, err error) {
 	s, err := a.db.Get(serviceID)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	// a task should be executed only if task's service is running.
 	status, err := a.m.Status(s)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	if status != service.RUNNING {
-		return "", &NotRunningServiceError{ServiceID: s.Sid}
+		return nil, &NotRunningServiceError{ServiceID: s.Sid}
 	}
 
 	task, err := s.GetTask(taskKey)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	if err := task.RequireInputs(inputData); err != nil {
-		return "", err
+		return nil, err
 	}
 
 	// execute the task.
 	eventID := uuid.NewV4().String()
 	exec := execution.New(s.Hash, "", eventID, taskKey, inputData, tags)
 	if err := exec.Execute(); err != nil {
-		return "", err
+		return nil, err
 	}
 	if err = a.execDB.Save(exec); err != nil {
-		return "", err
+		return nil, err
 	}
 	go a.ps.Pub(exec, executionSubTopic(s.Hash))
 	return exec.Hash, nil
@@ -192,7 +191,7 @@ func (a *API) ListenExecution(service string, f *ExecutionFilter) (*ExecutionLis
 }
 
 // SubmitResult submits results for executionHash.
-func (a *API) SubmitResult(executionHash string, outputKey string, outputs []byte) error {
+func (a *API) SubmitResult(executionHash []byte, outputKey string, outputs []byte) error {
 	exec, stateChanged, err := a.processExecution(executionHash, outputKey, outputs)
 	if stateChanged {
 		// only publish to listeners when the execution's state changed.
@@ -202,7 +201,7 @@ func (a *API) SubmitResult(executionHash string, outputKey string, outputs []byt
 }
 
 // processExecution processes execution and marks it as complated or failed.
-func (a *API) processExecution(executionHash string, outputKey string, outputData []byte) (exec *execution.Execution, stateChanged bool, err error) {
+func (a *API) processExecution(executionHash []byte, outputKey string, outputData []byte) (exec *execution.Execution, stateChanged bool, err error) {
 	stateChanged = false
 	tx, err := a.execDB.OpenTransaction()
 	if err != nil {

@@ -170,7 +170,7 @@ func TestSubmit(t *testing.T) {
 	defer ln.Close()
 
 	_, err = server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
-		ExecutionHash: executionHash,
+		ExecutionHash: string(executionHash),
 		OutputKey:     outputKey,
 		OutputData:    outputData,
 	})
@@ -207,7 +207,7 @@ func TestSubmitWithInvalidJSON(t *testing.T) {
 	require.NoError(t, err)
 
 	_, err = server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
-		ExecutionHash: executionHash,
+		ExecutionHash: string(executionHash),
 		OutputKey:     outputKey,
 		OutputData:    "",
 	})
@@ -257,7 +257,7 @@ func TestSubmitWithNonExistentOutputKey(t *testing.T) {
 	require.NoError(t, err)
 
 	_, err = server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
-		ExecutionHash: executionHash,
+		ExecutionHash: string(executionHash),
 		OutputKey:     outputKey,
 		OutputData:    outputData,
 	})
@@ -294,7 +294,7 @@ func TestSubmitWithInvalidTaskOutputs(t *testing.T) {
 	require.NoError(t, err)
 
 	_, err = server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
-		ExecutionHash: executionHash,
+		ExecutionHash: string(executionHash),
 		OutputKey:     outputKey,
 		OutputData:    outputData,
 	})
