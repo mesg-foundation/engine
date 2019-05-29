@@ -1,4 +1,4 @@
-package api
+package sdk
 
 import (
 	"encoding/json"
@@ -15,8 +15,8 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-// API exposes all functionalities of MESG core.
-type API struct {
+// SDK exposes all functionalities of MESG core.
+type SDK struct {
 	ps *pubsub.PubSub
 
 	m         manager.Manager
@@ -25,9 +25,9 @@ type API struct {
 	execDB    database.ExecutionDB
 }
 
-// New creates a new API with given options.
-func New(m manager.Manager, c container.Container, db database.ServiceDB, execDB database.ExecutionDB) *API {
-	return &API{
+// New creates a new SDK with given options.
+func New(m manager.Manager, c container.Container, db database.ServiceDB, execDB database.ExecutionDB) *SDK {
+	return &SDK{
 		ps:        pubsub.New(0),
 		m:         m,
 		container: c,
@@ -37,22 +37,22 @@ func New(m manager.Manager, c container.Container, db database.ServiceDB, execDB
 }
 
 // GetService returns service serviceID.
-func (a *API) GetService(serviceID string) (*service.Service, error) {
+func (a *SDK) GetService(serviceID string) (*service.Service, error) {
 	return a.db.Get(serviceID)
 }
 
 // ListServices returns all services.
-func (a *API) ListServices() ([]*service.Service, error) {
+func (a *SDK) ListServices() ([]*service.Service, error) {
 	return a.db.All()
 }
 
 // Status returns the status of a service
-func (a *API) Status(service *service.Service) (service.StatusType, error) {
+func (a *SDK) Status(service *service.Service) (service.StatusType, error) {
 	return a.m.Status(service)
 }
 
 // StartService starts service serviceID.
-func (a *API) StartService(serviceID string) error {
+func (a *SDK) StartService(serviceID string) error {
 	s, err := a.db.Get(serviceID)
 	if err != nil {
 		return err
@@ -62,7 +62,7 @@ func (a *API) StartService(serviceID string) error {
 }
 
 // StopService stops service serviceID.
-func (a *API) StopService(serviceID string) error {
+func (a *SDK) StopService(serviceID string) error {
 	s, err := a.db.Get(serviceID)
 	if err != nil {
 		return err
@@ -73,7 +73,7 @@ func (a *API) StopService(serviceID string) error {
 // DeleteService stops and deletes service serviceID.
 // when deleteData is enabled, any persistent data that belongs to
 // the service and to its dependencies also will be deleted.
-func (a *API) DeleteService(serviceID string, deleteData bool) error {
+func (a *SDK) DeleteService(serviceID string, deleteData bool) error {
 	s, err := a.db.Get(serviceID)
 	if err != nil {
 		return err
@@ -93,7 +93,7 @@ func (a *API) DeleteService(serviceID string, deleteData bool) error {
 }
 
 // EmitEvent emits a MESG event eventKey with eventData for service token.
-func (a *API) EmitEvent(token, eventKey string, eventData map[string]interface{}) error {
+func (a *SDK) EmitEvent(token, eventKey string, eventData map[string]interface{}) error {
 	s, err := a.db.Get(token)
 	if err != nil {
 		return err
@@ -108,7 +108,7 @@ func (a *API) EmitEvent(token, eventKey string, eventData map[string]interface{}
 }
 
 // ExecuteTask executes a task tasKey with inputData and tags for service serviceID.
-func (a *API) ExecuteTask(serviceID, taskKey string, inputData map[string]interface{},
+func (a *SDK) ExecuteTask(serviceID, taskKey string, inputData map[string]interface{},
 	tags []string) (executionID string, err error) {
 	s, err := a.db.Get(serviceID)
 	if err != nil {
@@ -140,7 +140,7 @@ func (a *API) ExecuteTask(serviceID, taskKey string, inputData map[string]interf
 }
 
 // ListenEvent listens events matches with eventFilter on serviceID.
-func (a *API) ListenEvent(service string, f *EventFilter) (*EventListener, error) {
+func (a *SDK) ListenEvent(service string, f *EventFilter) (*EventListener, error) {
 	s, err := a.db.Get(service)
 	if err != nil {
 		return nil, err
@@ -158,7 +158,7 @@ func (a *API) ListenEvent(service string, f *EventFilter) (*EventListener, error
 }
 
 // ListenExecution listens executions on service.
-func (a *API) ListenExecution(service string, f *ExecutionFilter) (*ExecutionListener, error) {
+func (a *SDK) ListenExecution(service string, f *ExecutionFilter) (*ExecutionListener, error) {
 	s, err := a.db.Get(service)
 	if err != nil {
 		return nil, err
@@ -176,7 +176,7 @@ func (a *API) ListenExecution(service string, f *ExecutionFilter) (*ExecutionLis
 }
 
 // SubmitResult submits results for executionID.
-func (a *API) SubmitResult(executionID string, outputs []byte, reterr error) error {
+func (a *SDK) SubmitResult(executionID string, outputs []byte, reterr error) error {
 	exec, err := a.processExecution(executionID, outputs, reterr)
 	if err != nil {
 		return err
@@ -187,7 +187,7 @@ func (a *API) SubmitResult(executionID string, outputs []byte, reterr error) err
 }
 
 // processExecution processes execution and marks it as complated or failed.
-func (a *API) processExecution(executionID string, outputData []byte, reterr error) (*execution.Execution, error) {
+func (a *SDK) processExecution(executionID string, outputData []byte, reterr error) (*execution.Execution, error) {
 	tx, err := a.execDB.OpenTransaction()
 	if err != nil {
 		return nil, err
