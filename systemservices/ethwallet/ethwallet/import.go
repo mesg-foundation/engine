@@ -16,23 +16,23 @@ type importOutputSuccess struct {
 	Address common.Address `json:"address"`
 }
 
-func (s *Ethwallet) importA(execution *service.Execution) (string, interface{}) {
+func (s *Ethwallet) importA(execution *service.Execution) (interface{}, error) {
 	var inputs importInputs
 	if err := execution.Data(&inputs); err != nil {
-		return OutputError(err)
+		return nil, err
 	}
 
 	accountJSON, err := json.Marshal(inputs.Account)
 	if err != nil {
-		return OutputError(err)
+		return nil, err
 	}
 
 	account, err := s.keystore.Import(accountJSON, inputs.Passphrase, inputs.Passphrase)
 	if err != nil {
-		return OutputError(err)
+		return nil, err
 	}
 
-	return "success", importOutputSuccess{
+	return importOutputSuccess{
 		Address: account.Address,
-	}
+	}, nil
 }

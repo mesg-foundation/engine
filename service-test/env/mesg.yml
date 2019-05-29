@@ -9,7 +9,5 @@ tasks:
       bar:
         type: String
     outputs:
-      bar:
-        data:
-          baz:
-            type: Object
+      baz:
+        type: Object
