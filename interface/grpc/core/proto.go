@@ -46,23 +46,13 @@ func toProtoServiceStatusType(s service.StatusType) coreapi.Service_Status {
 func toProtoTasks(tasks []*service.Task) []*definition.Task {
 	ts := make([]*definition.Task, len(tasks))
 	for i, task := range tasks {
-		t := &definition.Task{
+		ts[i] = &definition.Task{
 			Key:         task.Key,
 			Name:        task.Name,
 			Description: task.Description,
 			Inputs:      toProtoParameters(task.Inputs),
-			Outputs:     []*definition.Output{},
+			Outputs:     toProtoParameters(task.Outputs),
 		}
-		for _, output := range task.Outputs {
-			o := &definition.Output{
-				Key:         output.Key,
-				Name:        output.Name,
-				Description: output.Description,
-				Data:        toProtoParameters(output.Data),
-			}
-			t.Outputs = append(t.Outputs, o)
-		}
-		ts[i] = t
 	}
 	return ts
 }
