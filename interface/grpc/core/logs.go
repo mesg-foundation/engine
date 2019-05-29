@@ -1,7 +1,7 @@
 package core
 
 import (
-	"github.com/mesg-foundation/core/api"
+	"github.com/mesg-foundation/core/sdk"
 	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/utils/chunker"
@@ -9,8 +9,8 @@ import (
 
 // ServiceLogs gives logs of service with the applied dependency filters.
 func (s *Server) ServiceLogs(request *coreapi.ServiceLogsRequest, stream coreapi.Core_ServiceLogsServer) error {
-	sl, err := s.api.ServiceLogs(request.ServiceID,
-		api.ServiceLogsDependenciesFilter(request.Dependencies...))
+	sl, err := s.sdk.ServiceLogs(request.ServiceID,
+		sdk.ServiceLogsDependenciesFilter(request.Dependencies...))
 	if err != nil {
 		return err
 	}

@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/docker/docker/pkg/archive"
-	"github.com/mesg-foundation/core/api"
+	"github.com/mesg-foundation/core/sdk"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/service/manager/dockermanager"
@@ -37,7 +37,7 @@ func newServer(t *testing.T) (*Server, func()) {
 
 	m := dockermanager.New(c) // TODO(ilgooz): create mocks from manager.Manager and use instead.
 
-	a := api.New(m, c, db, execDB)
+	a := sdk.New(m, c, db, execDB)
 	server := NewServer(a)
 
 	closer := func() {

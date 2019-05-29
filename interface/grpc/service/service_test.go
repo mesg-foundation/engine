@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/mesg-foundation/core/api"
+	"github.com/mesg-foundation/core/sdk"
 	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
 	"github.com/mesg-foundation/core/service"
@@ -19,12 +19,12 @@ func TestEmit(t *testing.T) {
 	)
 	defer closer()
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath), nil)
+	s, validationErr, err := server.sdk.DeployService(serviceTar(t, eventServicePath), nil)
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Hash, false)
+	defer server.sdk.DeleteService(s.Hash, false)
 
-	ln, err := server.api.ListenEvent(s.Hash, nil)
+	ln, err := server.sdk.ListenEvent(s.Hash, nil)
 	require.NoError(t, err)
 	defer ln.Close()
 
@@ -47,10 +47,10 @@ func TestEmitNoData(t *testing.T) {
 	)
 	defer closer()
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath), nil)
+	s, validationErr, err := server.sdk.DeployService(serviceTar(t, eventServicePath), nil)
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Hash, false)
+	defer server.sdk.DeleteService(s.Hash, false)
 
 	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
 		Token:    s.Hash,
@@ -66,10 +66,10 @@ func TestEmitWrongData(t *testing.T) {
 	)
 	defer closer()
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath), nil)
+	s, validationErr, err := server.sdk.DeployService(serviceTar(t, eventServicePath), nil)
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Hash, false)
+	defer server.sdk.DeleteService(s.Hash, false)
 
 	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
 		Token:     s.Hash,
@@ -86,10 +86,10 @@ func TestEmitWrongEvent(t *testing.T) {
 	)
 	defer closer()
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath), nil)
+	s, validationErr, err := server.sdk.DeployService(serviceTar(t, eventServicePath), nil)
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Hash, false)
+	defer server.sdk.DeleteService(s.Hash, false)
 
 	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
 		Token:     s.Hash,
@@ -111,10 +111,10 @@ func TestEmitInvalidData(t *testing.T) {
 	)
 	defer closer()
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath), nil)
+	s, validationErr, err := server.sdk.DeployService(serviceTar(t, eventServicePath), nil)
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Hash, false)
+	defer server.sdk.DeleteService(s.Hash, false)
 
 	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
 		Token:     s.Hash,
@@ -153,21 +153,21 @@ func TestSubmit(t *testing.T) {
 	)
 	defer closer()
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath), nil)
+	s, validationErr, err := server.sdk.DeployService(serviceTar(t, taskServicePath), nil)
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Hash, false)
+	defer server.sdk.DeleteService(s.Hash, false)
 
-	require.NoError(t, server.api.StartService(s.Hash))
-	defer server.api.StopService(s.Hash)
+	require.NoError(t, server.sdk.StartService(s.Hash))
+	defer server.sdk.StopService(s.Hash)
 
-	executionID, err := server.api.ExecuteTask(s.Hash, taskKey, taskData, nil)
+	executionID, err := server.sdk.ExecuteTask(s.Hash, taskKey, taskData, nil)
 	require.NoError(t, err)
 
-	ef := &api.ExecutionFilter{
+	ef := &sdk.ExecutionFilter{
 		Statuses: []execution.Status{execution.Completed},
 	}
-	ln, err := server.api.ListenExecution(s.Hash, ef)
+	ln, err := server.sdk.ListenExecution(s.Hash, ef)
 	require.NoError(t, err)
 	defer ln.Close()
 
@@ -196,15 +196,15 @@ func TestSubmitWithInvalidJSON(t *testing.T) {
 	)
 	defer closer()
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath), nil)
+	s, validationErr, err := server.sdk.DeployService(serviceTar(t, taskServicePath), nil)
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Hash, false)
+	defer server.sdk.DeleteService(s.Hash, false)
 
-	require.NoError(t, server.api.StartService(s.Hash))
-	defer server.api.StopService(s.Hash)
+	require.NoError(t, server.sdk.StartService(s.Hash))
+	defer server.sdk.StopService(s.Hash)
 
-	executionID, err := server.api.ExecuteTask(s.Hash, taskKey, taskData, nil)
+	executionID, err := server.sdk.ExecuteTask(s.Hash, taskKey, taskData, nil)
 	require.NoError(t, err)
 
 	_, err = server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
@@ -244,15 +244,15 @@ func TestSubmitWithInvalidTaskOutputs(t *testing.T) {
 	)
 	defer closer()
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath), nil)
+	s, validationErr, err := server.sdk.DeployService(serviceTar(t, taskServicePath), nil)
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Hash, false)
+	defer server.sdk.DeleteService(s.Hash, false)
 
-	require.NoError(t, server.api.StartService(s.Hash))
-	defer server.api.StopService(s.Hash)
+	require.NoError(t, server.sdk.StartService(s.Hash))
+	defer server.sdk.StopService(s.Hash)
 
-	executionID, err := server.api.ExecuteTask(s.Hash, taskKey, taskData, nil)
+	executionID, err := server.sdk.ExecuteTask(s.Hash, taskKey, taskData, nil)
 	require.NoError(t, err)
 
 	_, err = server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
