@@ -1,6 +1,8 @@
 package servicetest
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 // Execution is a testing task execution result.
 type Execution struct {

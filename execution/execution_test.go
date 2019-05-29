@@ -40,11 +40,10 @@ func TestComplete(t *testing.T) {
 	e := New("", nil, "", "", nil, nil)
 
 	e.Execute()
-	require.NoError(t, e.Complete("test", output))
+	require.NoError(t, e.Complete(output))
 	require.Equal(t, Completed, e.Status)
-	require.Equal(t, output, e.OutputData)
-	require.Equal(t, "test", e.OutputKey)
-	require.Error(t, e.Complete("", nil))
+	require.Equal(t, output, e.Outputs)
+	require.Error(t, e.Complete(nil))
 }
 
 func TestFailed(t *testing.T) {

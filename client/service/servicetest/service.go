@@ -56,10 +56,17 @@ func (s *serviceServer) ListenTask(request *serviceapi.ListenTaskRequest,
 
 func (s *serviceServer) SubmitResult(context context.Context,
 	request *serviceapi.SubmitResultRequest) (reply *serviceapi.SubmitResultReply, err error) {
-	s.submitC <- &Execution{
-		hash: request.ExecutionHash,
-		key:  request.OutputKey,
-		data: request.OutputData,
+	switch res := request.Result.(type) {
+	case *serviceapi.SubmitResultRequest_OutputData:
+		s.submitC <- &Execution{
+			hash: request.ExecutionHash,
+			data: res.OutputData,
+		}
+	case *serviceapi.SubmitResultRequest_Error:
+		s.submitC <- &Execution{
+			hash: request.ExecutionHash,
+			data: res.Error,
+		}
 	}
 	return &serviceapi.SubmitResultReply{}, nil
 }

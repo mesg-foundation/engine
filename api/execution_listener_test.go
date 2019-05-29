@@ -25,12 +25,12 @@ func TestExecutionFilter(t *testing.T) {
 			true,
 		},
 		{
-			&ExecutionFilter{Status: execution.Created},
+			&ExecutionFilter{Statuses: []execution.Status{execution.Created}},
 			&execution.Execution{Status: execution.Created},
 			true,
 		},
 		{
-			&ExecutionFilter{Status: execution.Created},
+			&ExecutionFilter{Statuses: []execution.Status{execution.Created}},
 			&execution.Execution{Status: execution.InProgress},
 			false,
 		},
@@ -47,21 +47,6 @@ func TestExecutionFilter(t *testing.T) {
 		{
 			&ExecutionFilter{TaskKey: "0"},
 			&execution.Execution{TaskKey: "1"},
-			false,
-		},
-		{
-			&ExecutionFilter{OutputKey: "0"},
-			&execution.Execution{OutputKey: "0"},
-			true,
-		},
-		{
-			&ExecutionFilter{OutputKey: "*"},
-			&execution.Execution{OutputKey: "0"},
-			true,
-		},
-		{
-			&ExecutionFilter{OutputKey: "0"},
-			&execution.Execution{OutputKey: "1"},
 			false,
 		},
 		{

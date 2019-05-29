@@ -6,20 +6,19 @@ import (
 	"github.com/mesg-foundation/core/client/service"
 )
 
-func (l *Logger) handler(execution *service.Execution) (string, interface{}) {
+func (l *Logger) handler(execution *service.Execution) (interface{}, error) {
 	var data logRequest
 	if err := execution.Data(&data); err != nil {
-		return "error", errorResponse{err.Error()}
+		return nil, err
 	}
 
 	bytes, err := json.Marshal(data.Data)
 	if err != nil {
-		return "error", errorResponse{err.Error()}
+		return nil, err
 	}
 
 	l.log.Printf("%s: %s", data.ServiceID, string(bytes))
-
-	return "success", successResponse{"ok"}
+	return successResponse{"ok"}, nil
 }
 
 type logRequest struct {
@@ -28,9 +27,5 @@ type logRequest struct {
 }
 
 type successResponse struct {
-	Message string `json:"message"`
-}
-
-type errorResponse struct {
 	Message string `json:"message"`
 }
