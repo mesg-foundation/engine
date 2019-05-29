@@ -36,30 +36,30 @@ func (s Status) String() (r string) {
 
 // Execution stores all informations about executions.
 type Execution struct {
-	Hash              []byte                 `hash:"-"`
-	EventID           string                 `hash:"name:eventID"`
-	Status            Status                 `hash:"-"`
-	ServiceHash       string                 `hash:"name:serviceHash"`
-	ServiceParentHash string                 `hash:"name:serviceHash"`
-	TaskKey           string                 `hash:"name:taskKey"`
-	Tags              []string               `hash:"name:tags"`
-	Inputs            map[string]interface{} `hash:"name:inputs"`
-	OutputKey         string                 `hash:"-"`
-	OutputData        map[string]interface{} `hash:"-"`
-	Error             string                 `hash:"-"`
-	ExecutedAt        time.Time              `hash:"-"`
+	Hash        []byte                 `hash:"-"`
+	ParentHash  []byte                 `hash:"name:parentHash"`
+	EventID     string                 `hash:"name:eventID"`
+	Status      Status                 `hash:"-"`
+	ServiceHash string                 `hash:"name:serviceHash"`
+	TaskKey     string                 `hash:"name:taskKey"`
+	Tags        []string               `hash:"name:tags"`
+	Inputs      map[string]interface{} `hash:"name:inputs"`
+	OutputKey   string                 `hash:"-"`
+	OutputData  map[string]interface{} `hash:"-"`
+	Error       string                 `hash:"-"`
+	ExecutedAt  time.Time              `hash:"-"`
 }
 
 // New returns a new execution. It returns an error if inputs are invalid.
-func New(service, parentService, eventID, taskKey string, inputs map[string]interface{}, tags []string) *Execution {
+func New(service string, parentHash []byte, eventID, taskKey string, inputs map[string]interface{}, tags []string) *Execution {
 	exec := &Execution{
-		EventID:           eventID,
-		ServiceHash:       service,
-		ServiceParentHash: parentService,
-		Inputs:            inputs,
-		TaskKey:           taskKey,
-		Tags:              tags,
-		Status:            Created,
+		EventID:     eventID,
+		ServiceHash: service,
+		ParentHash:  parentHash,
+		Inputs:      inputs,
+		TaskKey:     taskKey,
+		Tags:        tags,
+		Status:      Created,
 	}
 	exec.Hash = xstructhash.Hash(exec, 1)
 	return exec
