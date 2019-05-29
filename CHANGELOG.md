@@ -9,6 +9,25 @@
 #### Removed
 #### Documentation
 
+## [v0.9.1](https://github.com/mesg-foundation/core/releases/tag/v0.9.1)
+
+#### Added
+
+- ([#993](https://github.com/mesg-foundation/engine/pull/993)) Display web3 http request logs in Marketplace
+
+#### Changed
+
+- ([#949](https://github.com/mesg-foundation/engine/pull/949)) Use MESG's IPFS node in CLI
+
+#### Fixed
+
+- ([#930](https://github.com/mesg-foundation/engine/pull/930)) Improve generated README when using command `service gen-doc`. ([#948](https://github.com/mesg-foundation/engine/pull/948)). ([#960](https://github.com/mesg-foundation/engine/pull/960)).
+- ([#934](https://github.com/mesg-foundation/engine/pull/934)) Return error when image is passed in configuration in mesg.yml
+- ([#929](https://github.com/mesg-foundation/engine/pull/929)) Show better error when deploying service
+
+#### Documentation
+
+- ([#953](https://github.com/mesg-foundation/engine/pull/953)) Fix links to docs
 
 ## [v0.9.0](https://github.com/mesg-foundation/core/releases/tag/v0.9.0)
 
