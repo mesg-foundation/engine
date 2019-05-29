@@ -8,10 +8,11 @@
     "bignumber.js": "^8.1.1",
     "ipfs-http-client": "^30.1.3",
     "jsonschema": "^1.2.4",
-    "mesg-js": "^2.0.1",
+    "mesg-js": "^3.0.0-beta.0",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
-    "web3": "1.0.0-beta.37"
+    "web3": "1.0.0-beta.37",
+    "web3-providers-http": "git+https://github.com/NicolasMahe/web3-providers-http.git"
   },
   "devDependencies": {
     "@types/node": "^10.14.4",

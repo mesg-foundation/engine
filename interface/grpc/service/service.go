@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"errors"
 
 	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/execution"
@@ -10,7 +11,9 @@ import (
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
 )
 
-var inProgressFilter = &api.ExecutionFilter{Status: execution.InProgress}
+var inProgressFilter = &api.ExecutionFilter{
+	Statuses: []execution.Status{execution.InProgress},
+}
 
 // Server binds all api functions.
 type Server struct {
@@ -69,5 +72,11 @@ func (s *Server) ListenTask(request *serviceapi.ListenTaskRequest, stream servic
 
 // SubmitResult submits results of an execution.
 func (s *Server) SubmitResult(context context.Context, request *serviceapi.SubmitResultRequest) (*serviceapi.SubmitResultReply, error) {
-	return &serviceapi.SubmitResultReply{}, s.api.SubmitResult(request.ExecutionID, request.OutputKey, []byte(request.OutputData))
+	switch res := request.Result.(type) {
+	case *serviceapi.SubmitResultRequest_OutputData:
+		return &serviceapi.SubmitResultReply{}, s.api.SubmitResult(request.ExecutionID, []byte(res.OutputData), nil)
+	case *serviceapi.SubmitResultRequest_Error:
+		return &serviceapi.SubmitResultReply{}, s.api.SubmitResult(request.ExecutionID, nil, errors.New(res.Error))
+	}
+	return &serviceapi.SubmitResultReply{}, nil
 }

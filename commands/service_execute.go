@@ -79,7 +79,7 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 		// Create an unique tag that will be used to listen to the result of this exact execution
 		tags := []string{uuid.NewV4().String()}
 
-		listenResultsC, resultsErrC, err = c.e.ServiceListenResults(args[0], c.taskKey, "", tags)
+		listenResultsC, resultsErrC, err = c.e.ServiceListenResults(args[0], c.taskKey, tags)
 		if err != nil {
 			return
 		}
@@ -107,10 +107,9 @@ func (c *serviceExecuteCmd) runE(cmd *cobra.Command, args []string) error {
 			pretty.Fail(result.Error),
 		)
 	} else {
-		fmt.Printf("%s Task %s returned output %s with data:\n%s\n",
+		fmt.Printf("%s Task %s succeed with output:\n%s\n",
 			pretty.SuccessSign,
 			pretty.Success(result.TaskKey),
-			pretty.Colorize(pretty.FgCyan, result.OutputKey),
 			pretty.ColorizeJSON(pretty.FgCyan, nil, false, []byte(result.OutputData)),
 		)
 	}
