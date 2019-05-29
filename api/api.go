@@ -123,12 +123,17 @@ func (a *API) ExecuteTask(serviceID, taskKey string, inputData map[string]interf
 		return "", &NotRunningServiceError{ServiceID: s.Sid}
 	}
 
-	// execute the task.
-	eventID := uuid.NewV4().String()
-	exec, err := execution.New(s, eventID, taskKey, inputData, tags)
+	task, err := s.GetTask(taskKey)
 	if err != nil {
 		return "", err
 	}
+	if err := task.RequireInputs(inputData); err != nil {
+		return "", err
+	}
+
+	// execute the task.
+	eventID := uuid.NewV4().String()
+	exec := execution.New(s.Hash, eventID, taskKey, inputData, tags)
 	if err := exec.Execute(); err != nil {
 		return "", err
 	}
@@ -191,7 +196,7 @@ func (a *API) SubmitResult(executionHash string, outputKey string, outputs []byt
 	exec, stateChanged, err := a.processExecution(executionHash, outputKey, outputs)
 	if stateChanged {
 		// only publish to listeners when the execution's state changed.
-		go a.ps.Pub(exec, executionSubTopic(exec.Service.Hash))
+		go a.ps.Pub(exec, executionSubTopic(exec.ServiceHash))
 	}
 	return err
 }
@@ -210,12 +215,12 @@ func (a *API) processExecution(executionHash string, outputKey string, outputDat
 		return nil, false, err
 	}
 
-	var outputDataMap map[string]interface{}
-	if err := json.Unmarshal(outputData, &outputDataMap); err != nil {
-		return a.saveExecution(tx, exec, fmt.Errorf("invalid output data error: %s", err))
+	output, err := a.validateExecutionOutput(exec.ServiceHash, exec.TaskKey, outputKey, outputData)
+	if err != nil {
+		return a.saveExecution(tx, exec, err)
 	}
 
-	if err := exec.Complete(outputKey, outputDataMap); err != nil {
+	if err := exec.Complete(outputKey, output); err != nil {
 		return a.saveExecution(tx, exec, err)
 	}
 
@@ -237,6 +242,28 @@ func (a *API) saveExecution(tx database.ExecutionTransaction, exec *execution.Ex
 		return exec, true, errCommit
 	}
 	return exec, true, err
+}
+
+func (a *API) validateExecutionOutput(service, taskKey, outputKey string, jsonout []byte) (map[string]interface{}, error) {
+	var output map[string]interface{}
+	if err := json.Unmarshal(jsonout, &output); err != nil {
+		return nil, fmt.Errorf("invalid output: %s", err)
+	}
+
+	s, err := a.db.Get(service)
+	if err != nil {
+		return nil, err
+	}
+
+	task, err := s.GetTask(taskKey)
+	if err != nil {
+		return nil, err
+	}
+	o, err := task.GetOutput(outputKey)
+	if err != nil {
+		return nil, err
+	}
+	return output, o.RequireData(output)
 }
 
 // NotRunningServiceError is an error returned when the service is not running that
