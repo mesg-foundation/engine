@@ -133,7 +133,7 @@ func (a *API) ExecuteTask(serviceID, taskKey string, inputData map[string]interf
 
 	// execute the task.
 	eventID := uuid.NewV4().String()
-	exec := execution.New(s.Hash, eventID, taskKey, inputData, tags)
+	exec := execution.New(s.Hash, "", eventID, taskKey, inputData, tags)
 	if err := exec.Execute(); err != nil {
 		return "", err
 	}

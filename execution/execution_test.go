@@ -10,15 +10,17 @@ import (
 
 func TestNewFromService(t *testing.T) {
 	var (
-		hash    = "a"
-		eventID = "1"
-		taskKey = "key"
-		tags    = []string{"tag"}
+		hash       = "a"
+		parentHash = "b"
+		eventID    = "1"
+		taskKey    = "key"
+		tags       = []string{"tag"}
 	)
 
-	execution := New(hash, eventID, taskKey, nil, tags)
+	execution := New(hash, parentHash, eventID, taskKey, nil, tags)
 	require.NotNil(t, execution)
 	require.Equal(t, hash, execution.ServiceHash)
+	require.Equal(t, parentHash, execution.ServiceParentHash)
 	require.Equal(t, eventID, execution.EventID)
 	require.Equal(t, taskKey, execution.TaskKey)
 	require.Equal(t, map[string]interface{}(nil), execution.Inputs)
@@ -28,7 +30,7 @@ func TestNewFromService(t *testing.T) {
 }
 
 func TestExecute(t *testing.T) {
-	e := New("", "", "", nil, nil)
+	e := New("", "", "", "", nil, nil)
 	require.NoError(t, e.Execute())
 	require.Equal(t, InProgress, e.Status)
 	require.Error(t, e.Execute())
@@ -36,7 +38,7 @@ func TestExecute(t *testing.T) {
 
 func TestComplete(t *testing.T) {
 	output := map[string]interface{}{"foo": "bar"}
-	e := New("", "", "", nil, nil)
+	e := New("", "", "", "", nil, nil)
 
 	e.Execute()
 	require.NoError(t, e.Complete("test", output))
@@ -48,7 +50,7 @@ func TestComplete(t *testing.T) {
 
 func TestFailed(t *testing.T) {
 	err := errors.New("test")
-	e := New("", "", "", nil, nil)
+	e := New("", "", "", "", nil, nil)
 	e.Execute()
 	require.NoError(t, e.Failed(err))
 	require.Equal(t, Failed, e.Status)
@@ -66,8 +68,8 @@ func TestStatus(t *testing.T) {
 func TestExecutionHash(t *testing.T) {
 	ids := make(map[string]bool)
 
-	f := func(service, eventID, taskKey, input string, tags []string) bool {
-		e := New(service, eventID, taskKey, map[string]interface{}{"input": input}, tags)
+	f := func(service, parentService, eventID, taskKey, input string, tags []string) bool {
+		e := New(service, parentService, eventID, taskKey, map[string]interface{}{"input": input}, tags)
 		if ids[e.Hash] {
 			return false
 		}
