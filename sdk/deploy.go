@@ -60,9 +60,9 @@ func DeployServiceStatusOption(statuses chan DeployStatus) DeployServiceOption {
 }
 
 // DeployService deploys a service from a gzipped tarball.
-func (a *SDK) DeployService(r io.Reader, env map[string]string, options ...DeployServiceOption) (*service.Service,
+func (sdk *SDK) DeployService(r io.Reader, env map[string]string, options ...DeployServiceOption) (*service.Service,
 	*importer.ValidationError, error) {
-	d := newServiceDeployer(a, env, options...)
+	d := newServiceDeployer(sdk, env, options...)
 	return d.importWithProcess(func(path string) error {
 		return d.preprocessArchive(r, path)
 	})
@@ -72,9 +72,9 @@ func (a *SDK) DeployService(r io.Reader, env map[string]string, options ...Deplo
 // individual branch deployments are supported through Git, see:
 // - https://github.com/mesg-foundation/service-ethereum
 // - https://github.com/mesg-foundation/service-ethereum#branchName
-func (a *SDK) DeployServiceFromURL(url string, env map[string]string, options ...DeployServiceOption) (*service.Service,
+func (sdk *SDK) DeployServiceFromURL(url string, env map[string]string, options ...DeployServiceOption) (*service.Service,
 	*importer.ValidationError, error) {
-	d := newServiceDeployer(a, env, options...)
+	d := newServiceDeployer(sdk, env, options...)
 	return d.importWithProcess(func(path string) error {
 		if xgit.IsGitURL(url) {
 			return d.preprocessGit(url, path)

@@ -37,64 +37,64 @@ func New(m manager.Manager, c container.Container, db database.ServiceDB, execDB
 }
 
 // GetService returns service serviceID.
-func (a *SDK) GetService(serviceID string) (*service.Service, error) {
-	return a.db.Get(serviceID)
+func (sdk *SDK) GetService(serviceID string) (*service.Service, error) {
+	return sdk.db.Get(serviceID)
 }
 
 // ListServices returns all services.
-func (a *SDK) ListServices() ([]*service.Service, error) {
-	return a.db.All()
+func (sdk *SDK) ListServices() ([]*service.Service, error) {
+	return sdk.db.All()
 }
 
 // Status returns the status of a service
-func (a *SDK) Status(service *service.Service) (service.StatusType, error) {
-	return a.m.Status(service)
+func (sdk *SDK) Status(service *service.Service) (service.StatusType, error) {
+	return sdk.m.Status(service)
 }
 
 // StartService starts service serviceID.
-func (a *SDK) StartService(serviceID string) error {
-	s, err := a.db.Get(serviceID)
+func (sdk *SDK) StartService(serviceID string) error {
+	s, err := sdk.db.Get(serviceID)
 	if err != nil {
 		return err
 	}
-	_, err = a.m.Start(s)
+	_, err = sdk.m.Start(s)
 	return err
 }
 
 // StopService stops service serviceID.
-func (a *SDK) StopService(serviceID string) error {
-	s, err := a.db.Get(serviceID)
+func (sdk *SDK) StopService(serviceID string) error {
+	s, err := sdk.db.Get(serviceID)
 	if err != nil {
 		return err
 	}
-	return a.m.Stop(s)
+	return sdk.m.Stop(s)
 }
 
 // DeleteService stops and deletes service serviceID.
 // when deleteData is enabled, any persistent data that belongs to
 // the service and to its dependencies also will be deleted.
-func (a *SDK) DeleteService(serviceID string, deleteData bool) error {
-	s, err := a.db.Get(serviceID)
+func (sdk *SDK) DeleteService(serviceID string, deleteData bool) error {
+	s, err := sdk.db.Get(serviceID)
 	if err != nil {
 		return err
 	}
-	if err := a.m.Stop(s); err != nil {
+	if err := sdk.m.Stop(s); err != nil {
 		return err
 	}
 	// delete volumes first before the service. this way if
 	// deleting volumes fails, process can be retried by the user again
 	// because service still will be in the db.
 	if deleteData {
-		if err := a.m.Delete(s); err != nil {
+		if err := sdk.m.Delete(s); err != nil {
 			return err
 		}
 	}
-	return a.db.Delete(serviceID)
+	return sdk.db.Delete(serviceID)
 }
 
 // EmitEvent emits a MESG event eventKey with eventData for service token.
-func (a *SDK) EmitEvent(token, eventKey string, eventData map[string]interface{}) error {
-	s, err := a.db.Get(token)
+func (sdk *SDK) EmitEvent(token, eventKey string, eventData map[string]interface{}) error {
+	s, err := sdk.db.Get(token)
 	if err != nil {
 		return err
 	}
@@ -103,19 +103,19 @@ func (a *SDK) EmitEvent(token, eventKey string, eventData map[string]interface{}
 		return err
 	}
 
-	go a.ps.Pub(e, eventSubTopic(s.Hash))
+	go sdk.ps.Pub(e, eventSubTopic(s.Hash))
 	return nil
 }
 
 // ExecuteTask executes a task tasKey with inputData and tags for service serviceID.
-func (a *SDK) ExecuteTask(serviceID, taskKey string, inputData map[string]interface{},
+func (sdk *SDK) ExecuteTask(serviceID, taskKey string, inputData map[string]interface{},
 	tags []string) (executionID string, err error) {
-	s, err := a.db.Get(serviceID)
+	s, err := sdk.db.Get(serviceID)
 	if err != nil {
 		return "", err
 	}
 	// a task should be executed only if task's service is running.
-	status, err := a.m.Status(s)
+	status, err := sdk.m.Status(s)
 	if err != nil {
 		return "", err
 	}
@@ -132,16 +132,16 @@ func (a *SDK) ExecuteTask(serviceID, taskKey string, inputData map[string]interf
 	if err := exec.Execute(); err != nil {
 		return "", err
 	}
-	if err = a.execDB.Save(exec); err != nil {
+	if err = sdk.execDB.Save(exec); err != nil {
 		return "", err
 	}
-	go a.ps.Pub(exec, executionSubTopic(s.Hash))
+	go sdk.ps.Pub(exec, executionSubTopic(s.Hash))
 	return exec.ID, nil
 }
 
 // ListenEvent listens events matches with eventFilter on serviceID.
-func (a *SDK) ListenEvent(service string, f *EventFilter) (*EventListener, error) {
-	s, err := a.db.Get(service)
+func (sdk *SDK) ListenEvent(service string, f *EventFilter) (*EventListener, error) {
+	s, err := sdk.db.Get(service)
 	if err != nil {
 		return nil, err
 	}
@@ -152,14 +152,14 @@ func (a *SDK) ListenEvent(service string, f *EventFilter) (*EventListener, error
 		}
 	}
 
-	l := NewEventListener(a.ps, eventSubTopic(s.Hash), f)
+	l := NewEventListener(sdk.ps, eventSubTopic(s.Hash), f)
 	go l.Listen()
 	return l, nil
 }
 
 // ListenExecution listens executions on service.
-func (a *SDK) ListenExecution(service string, f *ExecutionFilter) (*ExecutionListener, error) {
-	s, err := a.db.Get(service)
+func (sdk *SDK) ListenExecution(service string, f *ExecutionFilter) (*ExecutionListener, error) {
+	s, err := sdk.db.Get(service)
 	if err != nil {
 		return nil, err
 	}
@@ -170,25 +170,25 @@ func (a *SDK) ListenExecution(service string, f *ExecutionFilter) (*ExecutionLis
 		}
 	}
 
-	l := NewExecutionListener(a.ps, executionSubTopic(s.Hash), f)
+	l := NewExecutionListener(sdk.ps, executionSubTopic(s.Hash), f)
 	go l.Listen()
 	return l, nil
 }
 
 // SubmitResult submits results for executionID.
-func (a *SDK) SubmitResult(executionID string, outputs []byte, reterr error) error {
-	exec, err := a.processExecution(executionID, outputs, reterr)
+func (sdk *SDK) SubmitResult(executionID string, outputs []byte, reterr error) error {
+	exec, err := sdk.processExecution(executionID, outputs, reterr)
 	if err != nil {
 		return err
 	}
 
-	go a.ps.Pub(exec, executionSubTopic(exec.Service.Hash))
+	go sdk.ps.Pub(exec, executionSubTopic(exec.Service.Hash))
 	return nil
 }
 
 // processExecution processes execution and marks it as complated or failed.
-func (a *SDK) processExecution(executionID string, outputData []byte, reterr error) (*execution.Execution, error) {
-	tx, err := a.execDB.OpenTransaction()
+func (sdk *SDK) processExecution(executionID string, outputData []byte, reterr error) (*execution.Execution, error) {
+	tx, err := sdk.execDB.OpenTransaction()
 	if err != nil {
 		return nil, err
 	}
