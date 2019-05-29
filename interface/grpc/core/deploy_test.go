@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mesg-foundation/core/sdk"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
+	"github.com/mesg-foundation/core/sdk"
 	"github.com/stretchr/testify/require"
 	grpc "google.golang.org/grpc"
 )

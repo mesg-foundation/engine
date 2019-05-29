@@ -4,8 +4,8 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/mesg-foundation/core/sdk"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
+	"github.com/mesg-foundation/core/sdk"
 	service "github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/importer"
 )
