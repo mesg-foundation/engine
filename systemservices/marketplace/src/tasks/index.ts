@@ -35,8 +35,8 @@ export default (
     publishCreateServiceOffer: publishCreateServiceOffer(web3, marketplace),
     isAuthorized: isAuthorized(marketplace),
   })
-  .on('error', error => {
-    console.error('catch listenTask', error)
-    process.exit(1)
-  })
+    .on('error', error => {
+      console.error('catch listenTask', error)
+      process.exit(1)
+    })
 }

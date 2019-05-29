@@ -85,14 +85,12 @@ message EventData {
 // {
 //   "serviceID":     "__SERVICE_ID__",
 //   "taskFilter":    "__TASK_KEY_TO_MATCH__",
-//   "outputFilter":  "__OUTPUT_KEY_TO_MATCH__",
 //   "tagFilters":     ["tagX"]
 // }
 // ```
 message ListenResultRequest {
   string serviceID = 1;           // The Service ID. Generated when using the [`DeployService` API](#deployservice).
   string taskFilter = 2;          // __Optional.__  The task's key to filter. The task must match this key. The default is `*` which matches any task.
-  string outputFilter = 3;        // __Optional.__ The output's key from the task to filter. The task must return this output's key. The default is `*` which matches any output.
   repeated string tagFilters = 4; // __Optional.__ The list of tags to filter. This is a "match all" list. All tags in parameters should be included in the execution to match.
 }
 
@@ -104,7 +102,6 @@ message ListenResultRequest {
 // {
 //   "executionID":   "__EXECUTION_ID__",
 //   "taskKey":       "__TASK_KEY__",
-//   "outputKey":     "__OUTPUT_KEY__",
 //   "outputData":    "{\"foo\":\"bar\"}",
 //   "executionTags": ["executionX", "test"],
 //   "error":         "error from the execution if something went wrong",
@@ -113,7 +110,6 @@ message ListenResultRequest {
 message ResultData {
   string executionID = 1;             // The unique identifier of the execution.
   string taskKey = 2;                 // The key of the executed task.
-  string outputKey = 3;               // The output's key from the returned task.
   string outputData = 4;              // The output's data from the returned task, encoded in JSON.
   repeated string executionTags = 5;  // The list of tags associated with the execution.
   string error = 6;                   // The execution's error if something went wrong.

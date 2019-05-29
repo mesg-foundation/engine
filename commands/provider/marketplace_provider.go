@@ -134,9 +134,9 @@ func (p *MarketplaceProvider) call(task string, inputs interface{}, output inter
 }
 
 func (p *MarketplaceProvider) parseResult(r *coreapi.ResultData, output interface{}) error {
-	if r.OutputKey == "error" {
+	if r.Error != "" {
 		var outputError MarketplaceErrorOutput
-		if err := json.Unmarshal([]byte(r.OutputData), &outputError); err != nil {
+		if err := json.Unmarshal([]byte(r.Error), &outputError); err != nil {
 			return err
 		}
 		return outputError
