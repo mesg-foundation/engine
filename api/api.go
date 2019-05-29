@@ -164,20 +164,9 @@ func (a *API) ListenExecution(service string, f *ExecutionFilter) (*ExecutionLis
 		return nil, err
 	}
 
-	if f != nil {
-		if f.TaskKey == "" && f.OutputKey != "" {
-			return nil, fmt.Errorf("execution filter: output key given without task key")
-		}
-		if f.HasTaskKey() {
-			task, err := s.GetTask(f.TaskKey)
-			if err != nil {
-				return nil, err
-			}
-			if f.HasOutputKey() {
-				if _, err := task.GetOutput(f.OutputKey); err != nil {
-					return nil, err
-				}
-			}
+	if f != nil && f.HasTaskKey() {
+		if _, err := s.GetTask(f.TaskKey); err != nil {
+			return nil, err
 		}
 	}
 
@@ -187,56 +176,56 @@ func (a *API) ListenExecution(service string, f *ExecutionFilter) (*ExecutionLis
 }
 
 // SubmitResult submits results for executionID.
-func (a *API) SubmitResult(executionID string, outputKey string, outputs []byte) error {
-	exec, stateChanged, err := a.processExecution(executionID, outputKey, outputs)
-	if stateChanged {
-		// only publish to listeners when the execution's state changed.
-		go a.ps.Pub(exec, executionSubTopic(exec.Service.Hash))
+func (a *API) SubmitResult(executionID string, outputs []byte, reterr error) error {
+	exec, err := a.processExecution(executionID, outputs, reterr)
+	if err != nil {
+		return err
 	}
-	return err
+
+	go a.ps.Pub(exec, executionSubTopic(exec.Service.Hash))
+	return nil
 }
 
 // processExecution processes execution and marks it as complated or failed.
-func (a *API) processExecution(executionID string, outputKey string, outputData []byte) (exec *execution.Execution, stateChanged bool, err error) {
-	stateChanged = false
+func (a *API) processExecution(executionID string, outputData []byte, reterr error) (*execution.Execution, error) {
 	tx, err := a.execDB.OpenTransaction()
 	if err != nil {
-		return nil, false, err
+		return nil, err
 	}
 
-	exec, err = tx.Find(executionID)
+	exec, err := tx.Find(executionID)
 	if err != nil {
 		tx.Discard()
-		return nil, false, err
+		return nil, err
 	}
 
-	var outputDataMap map[string]interface{}
-	if err := json.Unmarshal(outputData, &outputDataMap); err != nil {
-		return a.saveExecution(tx, exec, fmt.Errorf("invalid output data error: %s", err))
-	}
-
-	if err := exec.Complete(outputKey, outputDataMap); err != nil {
-		return a.saveExecution(tx, exec, err)
-	}
-
-	return a.saveExecution(tx, exec, nil)
-}
-
-func (a *API) saveExecution(tx database.ExecutionTransaction, exec *execution.Execution, err error) (execOut *execution.Execution, stateChanged bool, errOut error) {
-	if err != nil {
-		if errFailed := exec.Failed(err); errFailed != nil {
+	if reterr != nil {
+		if err := exec.Failed(reterr); err != nil {
 			tx.Discard()
-			return exec, false, errFailed
+			return nil, err
+		}
+	} else {
+		var o map[string]interface{}
+		if err := json.Unmarshal(outputData, &o); err != nil {
+			return nil, err
+		}
+
+		if err := exec.Complete(o); err != nil {
+			return nil, err
 		}
 	}
-	if errSave := tx.Save(exec); errSave != nil {
+
+	if err := tx.Save(exec); err != nil {
 		tx.Discard()
-		return exec, true, errSave
+		return nil, err
 	}
-	if errCommit := tx.Commit(); errCommit != nil {
-		return exec, true, errCommit
+
+	if err := tx.Commit(); err != nil {
+		tx.Discard()
+		return nil, err
 	}
-	return exec, true, err
+
+	return exec, nil
 }
 
 // NotRunningServiceError is an error returned when the service is not running that

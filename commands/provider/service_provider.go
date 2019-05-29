@@ -94,8 +94,8 @@ func (p *ServiceProvider) ServiceListenEvents(id, eventFilter string) (chan *cor
 }
 
 // ServiceListenResults returns a channel with event results streaming..
-func (p *ServiceProvider) ServiceListenResults(id, taskFilter, outputFilter string, tagFilters []string) (chan *coreapi.ResultData, chan error, error) {
-	return p.client.ListenResult(id, taskFilter, outputFilter, tagFilters)
+func (p *ServiceProvider) ServiceListenResults(id, taskFilter string, tagFilters []string) (chan *coreapi.ResultData, chan error, error) {
+	return p.client.ListenResult(id, taskFilter, tagFilters)
 }
 
 // ServiceExecuteTask executes task on given service.

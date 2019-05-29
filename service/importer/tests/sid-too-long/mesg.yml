@@ -17,12 +17,10 @@ tasks:
       argB:
         type: String
     outputs:
-      outputX:
-        data:
-          resX:
-            type: String
-          resY:
-            type: String
+      resX:
+        type: String
+      resY:
+        type: String
 dependencies:
   app:
     image: my-docker-image

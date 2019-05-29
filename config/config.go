@@ -18,7 +18,7 @@ import (
 const (
 	envPrefix = "mesg"
 
-	serviceDBVersion   = "v1"
+	serviceDBVersion   = "v2"
 	executionDBVersion = "v1"
 )
 

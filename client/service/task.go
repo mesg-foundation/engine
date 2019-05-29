@@ -8,25 +8,25 @@ type Taskable interface {
 	// Execute called when a task execution request arrived with the same key
 	// returned by Name().
 	// outputKey is the output key and data is the output data of task.
-	Execute(execution *Execution) (outputKey string, outputData interface{})
+	Execute(execution *Execution) (interface{}, error)
 }
 
 // defaultTask implements Task.
 type defaultTask struct {
 	name    string
-	handler func(execution *Execution) (outputKey string, outputData interface{})
+	handler func(execution *Execution) (interface{}, error)
 }
 
 func (t *defaultTask) Key() string {
 	return t.name
 }
 
-func (t *defaultTask) Execute(execution *Execution) (outputKey string, outputData interface{}) {
+func (t *defaultTask) Execute(execution *Execution) (interface{}, error) {
 	return t.handler(execution)
 }
 
 // Task creates an executable task for given task key, handler called when a
 // matching task execution request arrived.
-func Task(key string, handler func(*Execution) (outputKey string, outputData interface{})) Taskable {
+func Task(key string, handler func(*Execution) (interface{}, error)) Taskable {
 	return &defaultTask{key, handler}
 }
