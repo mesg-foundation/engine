@@ -3,7 +3,6 @@ package execution
 import (
 	"time"
 
-	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/x/xstructhash"
 )
 
@@ -37,40 +36,33 @@ func (s Status) String() (r string) {
 
 // Execution stores all informations about executions.
 type Execution struct {
-	Hash       string                 `hash:"-"`
-	EventID    string                 `hash:"name:eventID"`
-	Status     Status                 `hash:"-"`
-	Service    *service.Service       `hash:"name:service"`
-	TaskKey    string                 `hash:"name:taskKey"`
-	Tags       []string               `hash:"name:tags"`
-	Inputs     map[string]interface{} `hash:"name:inputs"`
-	OutputKey  string                 `hash:"-"`
-	OutputData map[string]interface{} `hash:"-"`
-	Error      string                 `hash:"-"`
-	CreatedAt  time.Time              `hash:"-"`
-	ExecutedAt time.Time              `hash:"-"`
+	Hash        string                 `hash:"-"`
+	EventID     string                 `hash:"name:eventID"`
+	Status      Status                 `hash:"-"`
+	ServiceHash string                 `hash:"name:serviceHash"`
+	TaskKey     string                 `hash:"name:taskKey"`
+	Tags        []string               `hash:"name:tags"`
+	Inputs      map[string]interface{} `hash:"name:inputs"`
+	OutputKey   string                 `hash:"-"`
+	OutputData  map[string]interface{} `hash:"-"`
+	Error       string                 `hash:"-"`
+	CreatedAt   time.Time              `hash:"-"`
+	ExecutedAt  time.Time              `hash:"-"`
 }
 
 // New returns a new execution. It returns an error if inputs are invalid.
-func New(service *service.Service, eventID string, taskKey string, inputs map[string]interface{}, tags []string) (*Execution, error) {
-	task, err := service.GetTask(taskKey)
-	if err != nil {
-		return nil, err
-	}
-	if err := task.RequireInputs(inputs); err != nil {
-		return nil, err
-	}
+func New(service, eventID, taskKey string, inputs map[string]interface{}, tags []string) *Execution {
 	exec := &Execution{
-		EventID:   eventID,
-		Service:   service,
-		Inputs:    inputs,
-		TaskKey:   taskKey,
-		Tags:      tags,
-		CreatedAt: time.Now(),
-		Status:    Created,
+		EventID:     eventID,
+		ServiceHash: service,
+		Inputs:      inputs,
+		TaskKey:     taskKey,
+		Tags:        tags,
+		CreatedAt:   time.Now(),
+		Status:      Created,
 	}
 	exec.Hash = xstructhash.Hash(exec, 1)
-	return exec, nil
+	return exec
 }
 
 // Execute changes executions status to in progres and update its execute time.
@@ -95,18 +87,6 @@ func (execution *Execution) Complete(outputKey string, outputData map[string]int
 			ExpectedStatus: InProgress,
 			ActualStatus:   execution.Status,
 		}
-	}
-
-	task, err := execution.Service.GetTask(execution.TaskKey)
-	if err != nil {
-		return err
-	}
-	output, err := task.GetOutput(outputKey)
-	if err != nil {
-		return err
-	}
-	if err := output.RequireData(outputData); err != nil {
-		return err
 	}
 
 	execution.OutputKey = outputKey
