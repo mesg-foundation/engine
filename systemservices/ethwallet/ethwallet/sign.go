@@ -32,39 +32,39 @@ type signOutputSuccess struct {
 	SignedTransaction string `json:"signedTransaction"`
 }
 
-func (s *Ethwallet) sign(execution *service.Execution) (string, interface{}) {
+func (s *Ethwallet) sign(execution *service.Execution) (interface{}, error) {
 	var inputs signInputs
 	if err := execution.Data(&inputs); err != nil {
-		return OutputError(err)
+		return nil, err
 	}
 
 	account, err := xaccounts.GetAccount(s.keystore, inputs.Address)
 	if err != nil {
-		return OutputError(errAccountNotFound)
+		return nil, errAccountNotFound
 	}
 
 	value := new(big.Int)
 	if _, ok := value.SetString(inputs.Transaction.Value, 0); !ok {
-		return OutputError(errCannotParseValue)
+		return nil, errCannotParseValue
 	}
 
 	gasPrice := new(big.Int)
 	if _, ok := gasPrice.SetString(inputs.Transaction.GasPrice, 0); !ok {
-		return OutputError(errCannotParseGasPrice)
+		return nil, errCannotParseGasPrice
 	}
 
 	transaction := types.NewTransaction(inputs.Transaction.Nonce, inputs.Transaction.To, value, inputs.Transaction.Gas, gasPrice, inputs.Transaction.Data)
 
 	signedTransaction, err := s.keystore.SignTxWithPassphrase(account, inputs.Passphrase, transaction, big.NewInt(inputs.Transaction.ChainID))
 	if err != nil {
-		return OutputError(err)
+		return nil, err
 	}
 
 	var buff bytes.Buffer
 	signedTransaction.EncodeRLP(&buff)
 	rawTx := fmt.Sprintf("0x%x", buff.Bytes())
 
-	return "success", signOutputSuccess{
+	return signOutputSuccess{
 		SignedTransaction: rawTx,
-	}
+	}, nil
 }
