@@ -26,7 +26,6 @@ func TestNewFromService(t *testing.T) {
 	require.Equal(t, map[string]interface{}(nil), execution.Inputs)
 	require.Equal(t, tags, execution.Tags)
 	require.Equal(t, Created, execution.Status)
-	require.NotZero(t, execution.CreatedAt)
 }
 
 func TestExecute(t *testing.T) {
