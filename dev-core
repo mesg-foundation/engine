@@ -10,7 +10,6 @@ LDFLAGS="-X 'github.com/mesg-foundation/core/version.Version=$VERSION'"
 LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceEndpoint=https://ropsten.infura.io/v3/6115ae2531f64c04a9a392cf500e5fbe'"
 LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceAddress=0xeCC1A867F871323350A1A89FcAf69629a2d5085e'"
 LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceToken=0x5861b3dc52339d4f976b7fa5d80db6cd6f477f1b'"
-CLIFLAGS=""
 MESG_SERVICE_SERVER="core-service-server"
 
 function deleteServiceServer {
@@ -42,9 +41,8 @@ docker service create -d \
   --network engine \
   $MESG_SERVICE_SERVER
 
-echo "compile cli and core"
+echo "compile core"
 GOOS=linux GOARCH=amd64 go build -o ./bin/core -ldflags="$LDFLAGS" core/main.go
-go build -o ./bin/cli -ldflags="$LDFLAGS" interface/cli/main.go
 
 CORE_SUM_PATH="./bin/.core.sum"
 touch "$CORE_SUM_PATH"
@@ -78,18 +76,25 @@ if [[ ! $BINCACHED ]] || [[ ! $DOCKERCACHED ]]; then
   docker build -f Dockerfile.dev -t "mesg/engine:$VERSION" .
 fi
 
-./bin/cli stop
+# docker service rm core
 
 trap onexit EXIT INT
 
 function onexit {
-  ./bin/cli stop
   deleteServiceServer
+  docker service rm core
 }
 
-if [[ "$MESG_LOG_FORCECOLORS" = true ]]; then
-  CLIFLAGS+="--log-force-colors"
+networkExists=$(docker network list -f name=^core$ -f driver=overlay -q)
+if [ "$networkExists" == "" ]; then
+  docker network create --driver overlay core --label com.docker.stack.namespace=core
 fi
+docker service create \
+  --name core \
+  --tty \
+  --label com.docker.stack.namespace=core --label com.docker.stack.image=mesg/core:$VERSION \
+  --mount type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock --mount type=bind,source=$HOME/.mesg,destination=/mesg \
+  --network core --publish 50052:50052 \
+  mesg/core:$VERSION
 
-./bin/cli start --log-level "$MESG_LOG_LEVEL" "$CLIFLAGS"
-./bin/cli logs
+docker service logs --follow --raw core
