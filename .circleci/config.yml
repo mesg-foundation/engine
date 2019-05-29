@@ -85,22 +85,6 @@ jobs:
       - run: docker push mesg/engine:$CIRCLE_TAG
       - run: docker push mesg/engine:latest
 
-  "release_cli_dev":
-    <<: *run_on_docker
-    steps:
-      - checkout
-      - run: scripts/build-cli.sh "dev build `echo $CIRCLE_SHA1 | cut -c1-7`"
-      - run: go get -u github.com/tcnksm/ghr
-      - run: ghr -u mesg-foundation -r engine -delete -prerelease -n "Developer Release" -b "Warning - this is a developer release, use it only if you know what are doing. Make sure to pull the latest \`mesg/engine:dev\` image. \`\`\`docker pull mesg/engine:dev\`\`\`" release-dev ./bin
-
-  "release_cli_prod":
-    <<: *run_on_docker
-    steps:
-      - checkout
-      - run: scripts/build-cli.sh $CIRCLE_TAG
-      - run: go get -u github.com/tcnksm/ghr
-      - run: ghr -u mesg-foundation -r engine -delete $CIRCLE_TAG ./bin
-
 workflows:
   version: 2
 
@@ -141,9 +125,6 @@ workflows:
           requires:
             - "test"
             - "lint"
-      - "release_cli_dev":
-          requires:
-            - "publish_docker_dev"
 
   test_prod:
     jobs:
@@ -178,14 +159,6 @@ workflows:
           requires:
             - "test"
             - "lint"
-          filters:
-            tags:
-              only: /^v.*/
-            branches:
-              ignore: /.*/
-      - "release_cli_prod":
-          requires:
-            - "publish_docker_prod"
           filters:
             tags:
               only: /^v.*/
