@@ -42,8 +42,7 @@ type Execution struct {
 	TaskKey     string                 `hash:"name:taskKey"`
 	Tags        []string               `hash:"name:tags"`
 	Inputs      map[string]interface{} `hash:"name:inputs"`
-	OutputKey   string                 `hash:"-"`
-	OutputData  map[string]interface{} `hash:"-"`
+	Outputs     map[string]interface{} `hash:"-"`
 	Error       string                 `hash:"-"`
 }
 
@@ -77,7 +76,7 @@ func (execution *Execution) Execute() error {
 
 // Complete changes execution status to completed. It verifies the output.
 // It returns an error if the status is different then InProgress or verification fails.
-func (execution *Execution) Complete(outputKey string, outputData map[string]interface{}) error {
+func (execution *Execution) Complete(outputs map[string]interface{}) error {
 	if execution.Status != InProgress {
 		return StatusError{
 			ExpectedStatus: InProgress,
@@ -85,8 +84,7 @@ func (execution *Execution) Complete(outputKey string, outputData map[string]int
 		}
 	}
 
-	execution.OutputKey = outputKey
-	execution.OutputData = outputData
+	execution.Outputs = outputs
 	execution.Status = Completed
 	return nil
 }

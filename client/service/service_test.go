@@ -66,7 +66,6 @@ type taskResponse struct {
 func TestListen(t *testing.T) {
 	var (
 		task    = "send"
-		key     = "success"
 		reqData = taskRequest{"https://mesg.com"}
 		resData = taskResponse{"ok"}
 	)
@@ -81,11 +80,11 @@ func TestListen(t *testing.T) {
 		defer wg.Done()
 
 		err := service.Listen(
-			Task(task, func(execution *Execution) (string, interface{}) {
+			Task(task, func(execution *Execution) (interface{}, error) {
 				var data2 taskRequest
 				require.Nil(t, execution.Data(&data2))
 				require.Equal(t, reqData.URL, data2.URL)
-				return key, resData
+				return resData, nil
 			}),
 		)
 		require.True(t, err == nil || err == context.Canceled)
@@ -94,7 +93,6 @@ func TestListen(t *testing.T) {
 	hash, execution, err := server.Execute(task, reqData)
 	require.NoError(t, err)
 	require.Equal(t, hash, execution.Hash())
-	require.Equal(t, key, execution.Key())
 	require.Equal(t, token, server.ListenToken())
 
 	var data1 taskResponse
@@ -115,9 +113,9 @@ func TestMultipleListenCall(t *testing.T) {
 	go server.Start()
 
 	makeSureListeningC := make(chan struct{})
-	taskable := Task(taskKey, func(*Execution) (string, interface{}) {
+	taskable := Task(taskKey, func(*Execution) (interface{}, error) {
 		close(makeSureListeningC)
-		return "", ""
+		return "", nil
 	})
 
 	go service.Listen(taskable)
@@ -145,7 +143,7 @@ func TestNonExistentTaskExecutionRequest(t *testing.T) {
 		LogOutputOption(writer),
 	)
 
-	go service.Listen(Task(taskKey, func(*Execution) (string, interface{}) { return "", "" }))
+	go service.Listen(Task(taskKey, func(*Execution) (interface{}, error) { return "", nil }))
 	go server.Execute(nonExistentTaskKey, data)
 
 	line, _, err := bufio.NewReader(reader).ReadLine()

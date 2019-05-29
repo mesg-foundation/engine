@@ -65,7 +65,6 @@ type taskResponse struct {
 func TestExecute(t *testing.T) {
 	var (
 		task       = "task"
-		key        = "success"
 		reqData    = taskRequest{"https://mesg.com"}
 		resData    = taskResponse{"ok"}
 		reqDataStr = jsonMarshal(t, reqData)
@@ -86,7 +85,6 @@ func TestExecute(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, executionHash, execution.Hash())
 		require.Equal(t, executionHash, executionHash1)
-		require.Equal(t, key, execution.Key())
 
 		var data taskResponse
 		require.Nil(t, execution.Data(&data))
@@ -109,8 +107,9 @@ func TestExecute(t *testing.T) {
 
 	_, err := server.service.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
 		ExecutionHash: executionHash,
-		OutputKey:     key,
-		OutputData:    resDataStr,
+		Result: &serviceapi.SubmitResultRequest_OutputData{
+			OutputData: resDataStr,
+		},
 	})
 	require.NoError(t, err)
 

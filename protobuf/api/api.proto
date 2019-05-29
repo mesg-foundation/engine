@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package api;
+option go_package = "github.com/mesg-foundation/core/protobuf/api";
+
+service Exeuction {
+  rpc (EmitEventRequest) returns (EmitEventReply) {}
+
+  rpc ListenTask (ListenTaskRequest) returns (stream TaskData) {}
+
+  rpc SubmitResult (SubmitResultRequest) returns (SubmitResultReply) {}
+}

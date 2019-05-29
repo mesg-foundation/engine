@@ -168,20 +168,9 @@ func (a *API) ListenExecution(service string, f *ExecutionFilter) (*ExecutionLis
 		return nil, err
 	}
 
-	if f != nil {
-		if f.TaskKey == "" && f.OutputKey != "" {
-			return nil, fmt.Errorf("execution filter: output key given without task key")
-		}
-		if f.HasTaskKey() {
-			task, err := s.GetTask(f.TaskKey)
-			if err != nil {
-				return nil, err
-			}
-			if f.HasOutputKey() {
-				if _, err := task.GetOutput(f.OutputKey); err != nil {
-					return nil, err
-				}
-			}
+	if f != nil && f.HasTaskKey() {
+		if _, err := s.GetTask(f.TaskKey); err != nil {
+			return nil, err
 		}
 	}
 
@@ -190,60 +179,60 @@ func (a *API) ListenExecution(service string, f *ExecutionFilter) (*ExecutionLis
 	return l, nil
 }
 
-// SubmitResult submits results for executionHash.
-func (a *API) SubmitResult(executionHash []byte, outputKey string, outputs []byte) error {
-	exec, stateChanged, err := a.processExecution(executionHash, outputKey, outputs)
-	if stateChanged {
-		// only publish to listeners when the execution's state changed.
-		go a.ps.Pub(exec, executionSubTopic(exec.ServiceHash))
+// SubmitResult submits results for executionID.
+func (a *API) SubmitResult(executionHash []byte, outputs []byte, reterr error) error {
+	exec, err := a.processExecution(executionHash, outputs, reterr)
+	if err != nil {
+		return err
 	}
-	return err
+
+	go a.ps.Pub(exec, executionSubTopic(exec.ServiceHash))
+	return nil
 }
 
 // processExecution processes execution and marks it as complated or failed.
-func (a *API) processExecution(executionHash []byte, outputKey string, outputData []byte) (exec *execution.Execution, stateChanged bool, err error) {
-	stateChanged = false
+func (a *API) processExecution(executionHash []byte, outputData []byte, reterr error) (*execution.Execution, error) {
 	tx, err := a.execDB.OpenTransaction()
 	if err != nil {
-		return nil, false, err
+		return nil, err
 	}
 
-	exec, err = tx.Find(executionHash)
+	exec, err := tx.Find(executionHash)
 	if err != nil {
 		tx.Discard()
-		return nil, false, err
+		return nil, err
 	}
 
-	output, err := a.validateExecutionOutput(exec.ServiceHash, exec.TaskKey, outputKey, outputData)
-	if err != nil {
-		return a.saveExecution(tx, exec, err)
-	}
-
-	if err := exec.Complete(outputKey, output); err != nil {
-		return a.saveExecution(tx, exec, err)
-	}
-
-	return a.saveExecution(tx, exec, nil)
-}
-
-func (a *API) saveExecution(tx database.ExecutionTransaction, exec *execution.Execution, err error) (execOut *execution.Execution, stateChanged bool, errOut error) {
-	if err != nil {
-		if errFailed := exec.Failed(err); errFailed != nil {
+	if reterr != nil {
+		if err := exec.Failed(reterr); err != nil {
 			tx.Discard()
-			return exec, false, errFailed
+			return nil, err
+		}
+	} else {
+		o, err := a.validateExecutionOutput(exec.ServiceHash, exec.TaskKey, outputData)
+		if err != nil {
+			return nil, err
+		}
+
+		if err := exec.Complete(o); err != nil {
+			return nil, err
 		}
 	}
-	if errSave := tx.Save(exec); errSave != nil {
+
+	if err := tx.Save(exec); err != nil {
 		tx.Discard()
-		return exec, true, errSave
+		return nil, err
 	}
-	if errCommit := tx.Commit(); errCommit != nil {
-		return exec, true, errCommit
+
+	if err := tx.Commit(); err != nil {
+		tx.Discard()
+		return nil, err
 	}
-	return exec, true, err
+
+	return exec, nil
 }
 
-func (a *API) validateExecutionOutput(service, taskKey, outputKey string, jsonout []byte) (map[string]interface{}, error) {
+func (a *API) validateExecutionOutput(service, taskKey string, jsonout []byte) (map[string]interface{}, error) {
 	var output map[string]interface{}
 	if err := json.Unmarshal(jsonout, &output); err != nil {
 		return nil, fmt.Errorf("invalid output: %s", err)
@@ -258,11 +247,11 @@ func (a *API) validateExecutionOutput(service, taskKey, outputKey string, jsonou
 	if err != nil {
 		return nil, err
 	}
-	o, err := task.GetOutput(outputKey)
-	if err != nil {
+
+	if err := task.RequireOutputs(output); err != nil {
 		return nil, err
 	}
-	return output, o.RequireData(output)
+	return output, nil
 }
 
 // NotRunningServiceError is an error returned when the service is not running that

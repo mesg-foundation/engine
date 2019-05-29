@@ -97,26 +97,15 @@ func TestInvalidTaskInputError(t *testing.T) {
 	tests.assert(t, err.Error())
 }
 
-// Test OutputNotFoundError
-func TestOutputNotFoundError(t *testing.T) {
-	err := TaskOutputNotFoundError{
-		TaskKey:       "TaskKey",
-		TaskOutputKey: "OutputKey",
-		ServiceName:   "TestOutputNotFoundError",
-	}
-	require.Equal(t, `Output "OutputKey" of task "TaskKey" not found in service "TestOutputNotFoundError"`, err.Error())
-}
-
 // Test InvalidOutputDataError
 func TestInvalidOutputDataError(t *testing.T) {
 	tests := newParameterTestCases()
 	err := InvalidTaskOutputError{
-		TaskKey:       "TaskKey",
-		TaskOutputKey: "OutputKey",
-		ServiceName:   "TestInvalidOutputDataError",
+		TaskKey:     "TaskKey",
+		ServiceName: "TestInvalidOutputDataError",
 		Warnings: validateParametersSchema(tests.parameterTestsToSliceParameters(),
 			tests.parameterTestsToMapData()),
 	}
-	require.Contains(t, err.Error(), `Outputs "OutputKey" of task "TaskKey" are invalid in service "TestInvalidOutputDataError"`)
+	require.Contains(t, err.Error(), `Outputs of task "TaskKey" are invalid in service "TestInvalidOutputDataError"`)
 	tests.assert(t, err.Error())
 }
