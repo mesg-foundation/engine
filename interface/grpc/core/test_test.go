@@ -9,7 +9,7 @@ import (
 	"github.com/mesg-foundation/core/service/manager/dockermanager"
 
 	"github.com/docker/docker/pkg/archive"
-	"github.com/mesg-foundation/core/api"
+	"github.com/mesg-foundation/core/sdk"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/container/dockertest"
 	"github.com/mesg-foundation/core/database"
@@ -35,7 +35,7 @@ func newServerWithContainer(t *testing.T, c container.Container) (*Server, func(
 	execDB, err := database.NewExecutionDB(execdbname)
 	require.NoError(t, err)
 
-	a := api.New(m, c, db, execDB)
+	a := sdk.New(m, c, db, execDB)
 
 	server := NewServer(a)
 
