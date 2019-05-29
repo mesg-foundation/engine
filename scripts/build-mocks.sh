@@ -11,6 +11,3 @@ mockery -name CommonAPIClient -dir ./internal/mocks -output ./utils/docker/mocks
 
 # generate mocks for database package.
 mockery -name=ServiceDB -dir ./database -output ./database/mocks
-
-# generate mocks for commands package.
-mockery -name=Executor -dir ./commands -output ./commands/mocks
