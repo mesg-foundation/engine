@@ -8,10 +8,9 @@ import (
 
 // ExecutionFilter store fileds for matching executions.
 type ExecutionFilter struct {
-	Status    execution.Status
-	TaskKey   string
-	OutputKey string
-	Tags      []string
+	Statuses []execution.Status
+	TaskKey  string
+	Tags     []string
 }
 
 // Match matches execution.
@@ -22,12 +21,19 @@ func (f *ExecutionFilter) Match(e *execution.Execution) bool {
 	if f.TaskKey != "" && f.TaskKey != "*" && f.TaskKey != e.TaskKey {
 		return false
 	}
-	if f.OutputKey != "" && f.OutputKey != "*" && f.OutputKey != e.OutputKey {
+
+	match := len(f.Statuses) == 0
+	for _, status := range f.Statuses {
+		if status == e.Status {
+			match = true
+			break
+		}
+	}
+
+	if !match {
 		return false
 	}
-	if f.Status != 0 && f.Status != e.Status {
-		return false
-	}
+
 	for _, tag := range f.Tags {
 		if !xstrings.SliceContains(e.Tags, tag) {
 			return false
@@ -39,11 +45,6 @@ func (f *ExecutionFilter) Match(e *execution.Execution) bool {
 // HasTaskKey returns true if task key is set to specified value.
 func (f *ExecutionFilter) HasTaskKey() bool {
 	return f != nil && f.TaskKey != "" && f.TaskKey != "*"
-}
-
-// HasOutputKey returns true if output key is set to specified value.
-func (f *ExecutionFilter) HasOutputKey() bool {
-	return f != nil && f.OutputKey != "" && f.OutputKey != "*"
 }
 
 // ExecutionListener provides functionalities to listen MESG tasks.

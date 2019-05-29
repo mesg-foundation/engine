@@ -14,107 +14,102 @@ tasks:
   listServices:
     inputs:
     outputs:
-      success:
-        data:
-          services: &services
-            type: Object
-            repeated: true
-            object: &service
-              sid: &sid
-                type: String
-              createTime: &createTime
-                type: String
-              owner: &owner
-                type: String
-      error: &outputError
-        name: "Error"
-        description: "Output when an error occurs"
-        data:
-          message:
-            name: "Message"
-            description: "The error message"
+      services: &services
+        type: Object
+        repeated: true
+        object: &service
+          sid: &sid
             type: String
-          code:
-            name: "Error code"
-            description: "The error code"
+          createTime: &createTime
             type: String
-            optional: true
+          owner: &owner
+            type: String
   getService:
     inputs:
       sid: *sid
     outputs:
-      error: *outputError
-      success:
-        data:
-          <<: *service
-          offers: &offers
+      <<: *service
+      offers: &offers
+        type: Object
+        repeated: true
+        optional: true
+        object: &offer
+          offerIndex: &offerIndex
+            type: String
+          price: &price
+            type: String
+          duration: &duration
+            type: String
+          active:
+            type: Boolean
+          createTime: *createTime
+      purchases: &purchases
+        type: Object
+        repeated: true
+        optional: true
+        object: &purchase
+          purchaser: &purchaser
+            type: String
+          expire: &expire
+            type: String
+          createTime: *createTime
+      versions: &versions
+        type: Object
+        repeated: true
+        optional: true
+        object: &version
+          versionHash: &versionHash
+            type: String
+          manifest: &manifest
+            type: String
+          manifestProtocol: &manifestProtocol
+            type: String
+          createTime: *createTime
+          manifestData: &manifestData
             type: Object
-            repeated: true
             optional: true
-            object: &offer
-              offerIndex: &offerIndex
+            object:
+              version:
                 type: String
-              price: &price
-                type: String
-              duration: &duration
-                type: String
-              active:
-                type: Boolean
-              createTime: *createTime
-          purchases: &purchases
-            type: Object
-            repeated: true
-            optional: true
-            object: &purchase
-              purchaser: &purchaser
-                type: String
-              expire: &expire
-                type: String
-              createTime: *createTime
-          versions: &versions
-            type: Object
-            repeated: true
-            optional: true
-            object: &version
-              versionHash: &versionHash
-                type: String
-              manifest: &manifest
-                type: String
-              manifestProtocol: &manifestProtocol
-                type: String
-              createTime: *createTime
-              manifestData: &manifestData
+              service: &manifestServiceData
                 type: Object
-                optional: true
                 object:
-                  version:
-                    type: String
-                  service: &manifestServiceData
+                  deployment:
                     type: Object
                     object:
-                      deployment:
+                      type:
+                        type: String
+                      source:
+                        type: String
+                  definition:
+                    type: Object
+                    object:
+                      hash:
+                        type: String
+                      sid:
+                        type: String
+                      name:
+                        type: String
+                      description:
+                        type: String
+                        optional: true
+                      tasks:
                         type: Object
+                        repeated: true
+                        optional: true
                         object:
-                          type:
-                            type: String
-                          source:
-                            type: String
-                      definition:
-                        type: Object
-                        object:
-                          hash:
-                            type: String
-                          sid:
+                          key:
                             type: String
                           name:
                             type: String
+                            optional: true
                           description:
                             type: String
                             optional: true
-                          tasks:
+                          inputs: &manifestServiceDataParameters
                             type: Object
-                            repeated: true
                             optional: true
+                            repeated: true
                             object:
                               key:
                                 type: String
@@ -124,47 +119,20 @@ tasks:
                               description:
                                 type: String
                                 optional: true
-                              inputs: &manifestServiceDataParameters
+                              type:
+                                type: String
+                              optional:
+                                type: Boolean
+                                optional: true
+                              repeated:
+                                type: Boolean
+                                optional: true
+                              object:
                                 type: Object
                                 optional: true
-                                repeated: true
-                                object:
-                                  key:
-                                    type: String
-                                  name:
-                                    type: String
-                                    optional: true
-                                  description:
-                                    type: String
-                                    optional: true
-                                  type:
-                                    type: String
-                                  optional:
-                                    type: Boolean
-                                    optional: true
-                                  repeated:
-                                    type: Boolean
-                                    optional: true
-                                  object:
-                                    type: Object
-                                    optional: true
-                              outputs:
-                                type: Object
-                                repeated: true
-                                object:
-                                  key:
-                                    type: String
-                                  name:
-                                    type: String
-                                    optional: true
-                                  description:
-                                    type: String
-                                    optional: true
-                                  data: *manifestServiceDataParameters
-                          events:
+                          outputs:
                             type: Object
                             repeated: true
-                            optional: true
                             object:
                               key:
                                 type: String
@@ -175,45 +143,59 @@ tasks:
                                 type: String
                                 optional: true
                               data: *manifestServiceDataParameters
-                          configuration:
-                            type: Object
-                            optional: true
-                            object: &manifestServiceDataConfiguration
-                              volumes:
-                                type: String
-                                repeated: true
-                                optional: true
-                              volumesFrom:
-                                type: String
-                                repeated: true
-                                optional: true
-                              ports:
-                                type: String
-                                repeated: true
-                                optional: true
-                              args:
-                                type: String
-                                repeated: true
-                                optional: true
-                              command:
-                                type: String
-                                optional: true
-                          dependencies:
-                            type: Object
-                            repeated: true
-                            optional: true
-                            object:
-                              <<: *manifestServiceDataConfiguration
-                              key:
-                                type: String
-                              image:
-                                type: String
-                          repository:
+                      events:
+                        type: Object
+                        repeated: true
+                        optional: true
+                        object:
+                          key:
+                            type: String
+                          name:
                             type: String
                             optional: true
-                      readme:
+                          description:
+                            type: String
+                            optional: true
+                          data: *manifestServiceDataParameters
+                      configuration:
+                        type: Object
+                        optional: true
+                        object: &manifestServiceDataConfiguration
+                          volumes:
+                            type: String
+                            repeated: true
+                            optional: true
+                          volumesFrom:
+                            type: String
+                            repeated: true
+                            optional: true
+                          ports:
+                            type: String
+                            repeated: true
+                            optional: true
+                          args:
+                            type: String
+                            repeated: true
+                            optional: true
+                          command:
+                            type: String
+                            optional: true
+                      dependencies:
+                        type: Object
+                        repeated: true
+                        optional: true
+                        object:
+                          <<: *manifestServiceDataConfiguration
+                          key:
+                            type: String
+                          image:
+                            type: String
+                      repository:
                         type: String
                         optional: true
+                  readme:
+                    type: String
+                    optional: true
   preparePublishServiceVersion:
     inputs:
       service: *manifestServiceData
@@ -225,50 +207,44 @@ tasks:
       gasPrice: &inputGasPrice
         type: String
         optional: true
-    outputs:
-      error: *outputError
-      success: &outputTransaction
-        data: &transaction
-          chainID:
-            name: "Chain ID"
-            description: "The ID of the chain the transaction is for. See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md#list-of-chain-ids."
-            type: Number
-          nonce:
-            name: "Nonce"
-            description: "Nonce to use."
-            type: Number
-          to:
-            name: "To"
-            description: "The to address."
-            type: String
-          value:
-            name: "Value"
-            description: "The value in Wei."
-            type: String
-          gas:
-            name: "Gas"
-            description: "The maximum gas to use to execute this transaction"
-            type: Number
-          gasPrice:
-            name: "Gas price"
-            description: "The gas price in Wei."
-            type: String
-          data:
-            name: "Data"
-            description: "The data of the transaction."
-            type: String
+    outputs: &transaction
+      chainID:
+        name: "Chain ID"
+        description: "The ID of the chain the transaction is for. See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md#list-of-chain-ids."
+        type: Number
+      nonce:
+        name: "Nonce"
+        description: "Nonce to use."
+        type: Number
+      to:
+        name: "To"
+        description: "The to address."
+        type: String
+      value:
+        name: "Value"
+        description: "The value in Wei."
+        type: String
+      gas:
+        name: "Gas"
+        description: "The maximum gas to use to execute this transaction"
+        type: Number
+      gasPrice:
+        name: "Gas price"
+        description: "The gas price in Wei."
+        type: String
+      data:
+        name: "Data"
+        description: "The data of the transaction."
+        type: String
   publishPublishServiceVersion:
     inputs:
       signedTransaction: &signedTransaction
         type: String
     outputs:
-      error: *outputError
-      success:
-        data:
-          sid: *sid
-          versionHash: *versionHash
-          manifest: *manifest
-          manifestProtocol: *manifestProtocol
+      sid: *sid
+      versionHash: *versionHash
+      manifest: *manifest
+      manifestProtocol: *manifestProtocol
   prepareCreateServiceOffer:
     inputs:
       sid: *sid
@@ -278,19 +254,15 @@ tasks:
       gas: *inputGas
       gasPrice: *inputGasPrice
     outputs:
-      error: *outputError
-      success: *outputTransaction
+      <<: *transaction
   publishCreateServiceOffer:
     inputs:
       signedTransaction: *signedTransaction
     outputs:
-      error: *outputError
-      success:
-        data:
-          sid: *sid
-          offerIndex: *offerIndex
-          price: *price
-          duration: *duration
+      sid: *sid
+      offerIndex: *offerIndex
+      price: *price
+      duration: *duration
   preparePurchase:
     inputs:
       sid: *sid
@@ -299,28 +271,22 @@ tasks:
       gas: *inputGas
       gasPrice: *inputGasPrice
     outputs:
-      error: *outputError
-      success:
-        data:
-          transactions:
-            repeated: true
-            type: Object
-            object: *transaction
+      transactions:
+        repeated: true
+        type: Object
+        object: *transaction
   publishPurchase:
     inputs:
       signedTransactions:
         <<: *signedTransaction
         repeated: true
     outputs:
-      error: *outputError
-      success:
-        data:
-          sid: *sid
-          offerIndex: *offerIndex
-          purchaser: *purchaser
-          price: *price
-          duration: *duration
-          expire: *expire
+      sid: *sid
+      offerIndex: *offerIndex
+      purchaser: *purchaser
+      price: *price
+      duration: *duration
+      expire: *expire
   isAuthorized:
     inputs:
       sid:
@@ -333,18 +299,15 @@ tasks:
         repeated: true
         type: String
     outputs:
-      error: *outputError
-      success:
-        data:
-          authorized:
-            type: Boolean
-          sid: *sid
-          source:
-            type: String
-            optional: true
-          type:
-            type: String
-            optional: true
+      authorized:
+        type: Boolean
+      sid: *sid
+      source:
+        type: String
+        optional: true
+      type:
+        type: String
+        optional: true
 events:
   serviceCreated:
     data:
