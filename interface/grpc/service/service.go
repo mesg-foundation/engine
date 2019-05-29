@@ -57,7 +57,7 @@ func (s *Server) ListenTask(request *serviceapi.ListenTaskRequest, stream servic
 			}
 
 			if err := stream.Send(&serviceapi.TaskData{
-				ExecutionHash: execution.Hash,
+				ExecutionHash: string(execution.Hash),
 				TaskKey:       execution.TaskKey,
 				InputData:     string(inputs),
 			}); err != nil {
@@ -69,5 +69,5 @@ func (s *Server) ListenTask(request *serviceapi.ListenTaskRequest, stream servic
 
 // SubmitResult submits results of an execution.
 func (s *Server) SubmitResult(context context.Context, request *serviceapi.SubmitResultRequest) (*serviceapi.SubmitResultReply, error) {
-	return &serviceapi.SubmitResultReply{}, s.api.SubmitResult(request.ExecutionHash, request.OutputKey, []byte(request.OutputData))
+	return &serviceapi.SubmitResultReply{}, s.api.SubmitResult([]byte(request.ExecutionHash), request.OutputKey, []byte(request.OutputData))
 }
