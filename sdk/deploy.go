@@ -1,4 +1,4 @@
-package api
+package sdk
 
 import (
 	"io"
@@ -24,7 +24,7 @@ type serviceDeployer struct {
 
 	env map[string]string
 
-	api *API
+	sdk *SDK
 }
 
 // StatusType indicates the type of status message.
@@ -60,7 +60,7 @@ func DeployServiceStatusOption(statuses chan DeployStatus) DeployServiceOption {
 }
 
 // DeployService deploys a service from a gzipped tarball.
-func (a *API) DeployService(r io.Reader, env map[string]string, options ...DeployServiceOption) (*service.Service,
+func (a *SDK) DeployService(r io.Reader, env map[string]string, options ...DeployServiceOption) (*service.Service,
 	*importer.ValidationError, error) {
 	d := newServiceDeployer(a, env, options...)
 	return d.importWithProcess(func(path string) error {
@@ -72,7 +72,7 @@ func (a *API) DeployService(r io.Reader, env map[string]string, options ...Deplo
 // individual branch deployments are supported through Git, see:
 // - https://github.com/mesg-foundation/service-ethereum
 // - https://github.com/mesg-foundation/service-ethereum#branchName
-func (a *API) DeployServiceFromURL(url string, env map[string]string, options ...DeployServiceOption) (*service.Service,
+func (a *SDK) DeployServiceFromURL(url string, env map[string]string, options ...DeployServiceOption) (*service.Service,
 	*importer.ValidationError, error) {
 	d := newServiceDeployer(a, env, options...)
 	return d.importWithProcess(func(path string) error {
@@ -83,10 +83,10 @@ func (a *API) DeployServiceFromURL(url string, env map[string]string, options ..
 	})
 }
 
-// newServiceDeployer creates a new serviceDeployer with given api and options.
-func newServiceDeployer(api *API, env map[string]string, options ...DeployServiceOption) *serviceDeployer {
+// newServiceDeployer creates a new serviceDeployer with given sdk and options.
+func newServiceDeployer(sdk *SDK, env map[string]string, options ...DeployServiceOption) *serviceDeployer {
 	d := &serviceDeployer{
-		api: api,
+		sdk: sdk,
 		env: env,
 	}
 	for _, option := range options {
@@ -186,7 +186,7 @@ func (d *serviceDeployer) deploy(contextDir string) (*service.Service, *importer
 
 	d.sendStatus("Building Docker image...", Running)
 
-	imageHash, err := d.api.container.Build(contextDir)
+	imageHash, err := d.sdk.container.Build(contextDir)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -200,7 +200,7 @@ func (d *serviceDeployer) deploy(contextDir string) (*service.Service, *importer
 		s.Sid = "_" + s.Hash
 	}
 
-	return s, nil, d.api.db.Save(s)
+	return s, nil, d.sdk.db.Save(s)
 }
 
 func (d *serviceDeployer) createTempDir() (path string, err error) {

@@ -1,4 +1,4 @@
-package api
+package sdk
 
 import (
 	"sort"
