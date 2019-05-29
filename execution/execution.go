@@ -47,7 +47,6 @@ type Execution struct {
 	OutputKey         string                 `hash:"-"`
 	OutputData        map[string]interface{} `hash:"-"`
 	Error             string                 `hash:"-"`
-	CreatedAt         time.Time              `hash:"-"`
 	ExecutedAt        time.Time              `hash:"-"`
 }
 
@@ -60,7 +59,6 @@ func New(service, parentService, eventID, taskKey string, inputs map[string]inte
 		Inputs:            inputs,
 		TaskKey:           taskKey,
 		Tags:              tags,
-		CreatedAt:         time.Now(),
 		Status:            Created,
 	}
 	exec.Hash = xstructhash.Hash(exec, 1)
