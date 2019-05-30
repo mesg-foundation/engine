@@ -209,7 +209,7 @@ func TestSubmitWithInvalidJSON(t *testing.T) {
 	require.NoError(t, err)
 
 	_, err = server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
-		ExecutionHash: string(executionHash),
+		ExecutionHash: hex.EncodeToString(executionHash),
 		Result:        &serviceapi.SubmitResultRequest_OutputData{},
 	})
 	require.Contains(t, err.Error(), "unexpected end of JSON input")
@@ -257,7 +257,7 @@ func TestSubmitWithInvalidTaskOutputs(t *testing.T) {
 	require.NoError(t, err)
 
 	_, err = server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
-		ExecutionHash: string(executionHash),
+		ExecutionHash: hex.EncodeToString(executionHash),
 		Result: &serviceapi.SubmitResultRequest_OutputData{
 			OutputData: outputData,
 		},
