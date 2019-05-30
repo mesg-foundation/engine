@@ -73,11 +73,15 @@ func (s *Server) ListenTask(request *serviceapi.ListenTaskRequest, stream servic
 
 // SubmitResult submits results of an execution.
 func (s *Server) SubmitResult(context context.Context, request *serviceapi.SubmitResultRequest) (*serviceapi.SubmitResultReply, error) {
+	hash, err := hex.DecodeString(request.ExecutionHash)
+	if err != nil {
+		return nil, err
+	}
 	switch res := request.Result.(type) {
 	case *serviceapi.SubmitResultRequest_OutputData:
-		return &serviceapi.SubmitResultReply{}, s.sdk.SubmitResult([]byte(request.ExecutionHash), []byte(res.OutputData), nil)
+		return &serviceapi.SubmitResultReply{}, s.sdk.SubmitResult(hash, []byte(res.OutputData), nil)
 	case *serviceapi.SubmitResultRequest_Error:
-		return &serviceapi.SubmitResultReply{}, s.sdk.SubmitResult([]byte(request.ExecutionHash), nil, errors.New(res.Error))
+		return &serviceapi.SubmitResultReply{}, s.sdk.SubmitResult(hash, nil, errors.New(res.Error))
 	}
 	return &serviceapi.SubmitResultReply{}, nil
 }
