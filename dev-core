@@ -12,6 +12,11 @@ LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceAddress=0xeC
 LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceToken=0x5861b3dc52339d4f976b7fa5d80db6cd6f477f1b'"
 MESG_SERVICE_SERVER="core-service-server"
 
+networkExists=$(docker network list -f name=^engine$ -f driver=overlay -q)
+if [ "$networkExists" == "" ]; then
+  docker network create --driver overlay engine --label com.docker.stack.namespace=engine
+fi
+
 function deleteServiceServer {
   rm -rf tmp-systemservices
   if docker service list | grep -q core-service-server; then
@@ -85,10 +90,6 @@ function onexit {
   docker service rm engine
 }
 
-networkExists=$(docker network list -f name=^engine$ -f driver=overlay -q)
-if [ "$networkExists" == "" ]; then
-  docker network create --driver overlay engine --label com.docker.stack.namespace=engine
-fi
 docker service create \
   --name engine \
   --tty \
