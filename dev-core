@@ -10,7 +10,7 @@ LDFLAGS="-X 'github.com/mesg-foundation/core/version.Version=$VERSION'"
 LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceEndpoint=https://ropsten.infura.io/v3/6115ae2531f64c04a9a392cf500e5fbe'"
 LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceAddress=0xeCC1A867F871323350A1A89FcAf69629a2d5085e'"
 LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceToken=0x5861b3dc52339d4f976b7fa5d80db6cd6f477f1b'"
-MESG_SERVICE_SERVER="core-service-server"
+MESG_SERVICE_SERVER="engine-service-server"
 
 networkExists=$(docker network list -f name=^engine$ -f driver=overlay -q)
 if [ "$networkExists" == "" ]; then
@@ -19,7 +19,7 @@ fi
 
 function deleteServiceServer {
   rm -rf tmp-systemservices
-  if docker service list | grep -q core-service-server; then
+  if docker service list | grep -q engine-service-server; then
     docker service rm $MESG_SERVICE_SERVER
   fi
 }
