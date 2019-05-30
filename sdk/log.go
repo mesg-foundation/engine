@@ -1,4 +1,4 @@
-package api
+package sdk
 
 import (
 	"github.com/mesg-foundation/core/service"
@@ -22,14 +22,14 @@ func ServiceLogsDependenciesFilter(dependencies ...string) ServiceLogsFilter {
 
 // ServiceLogs provides logs for dependencies of service serviceID that matches with filters.
 // when no dependency filters are set, all the dependencies' logs will be provided.
-func (a *API) ServiceLogs(serviceID string, filters ...ServiceLogsFilter) ([]*service.Log, error) {
+func (sdk *SDK) ServiceLogs(serviceID string, filters ...ServiceLogsFilter) ([]*service.Log, error) {
 	f := &serviceLogFilters{}
 	for _, filter := range filters {
 		filter(f)
 	}
-	s, err := a.db.Get(serviceID)
+	s, err := sdk.db.Get(serviceID)
 	if err != nil {
 		return nil, err
 	}
-	return a.m.Logs(s, f.dependencies...)
+	return sdk.m.Logs(s, f.dependencies...)
 }
