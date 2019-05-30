@@ -1,4 +1,4 @@
-package api
+package sdk
 
 import (
 	"github.com/cskr/pubsub"
@@ -31,7 +31,7 @@ type EventListener struct {
 	filter *EventFilter
 }
 
-// NewEventListener creates a new EventListener with given api and filters.
+// NewEventListener creates a new EventListener with given sdk and filters.
 func NewEventListener(ps *pubsub.PubSub, topic string, f *EventFilter) *EventListener {
 	return &EventListener{
 		C:      make(chan *event.Event, 1),
