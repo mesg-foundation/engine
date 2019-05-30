@@ -6,24 +6,24 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
+	"github.com/mesg-foundation/core/sdk"
 )
 
-var inProgressFilter = &api.ExecutionFilter{
+var inProgressFilter = &sdk.ExecutionFilter{
 	Statuses: []execution.Status{execution.InProgress},
 }
 
-// Server binds all api functions.
+// Server binds all sdk functions.
 type Server struct {
-	api *api.API
+	sdk *sdk.SDK
 }
 
 // NewServer creates a new Server.
-func NewServer(api *api.API) *Server {
-	return &Server{api: api}
+func NewServer(sdk *sdk.SDK) *Server {
+	return &Server{sdk: sdk}
 }
 
 // EmitEvent permits to send and event to anyone who subscribed to it.
@@ -32,12 +32,12 @@ func (s *Server) EmitEvent(context context.Context, request *serviceapi.EmitEven
 	if err := json.Unmarshal([]byte(request.EventData), &data); err != nil {
 		return nil, err
 	}
-	return &serviceapi.EmitEventReply{}, s.api.EmitEvent(request.Token, request.EventKey, data)
+	return &serviceapi.EmitEventReply{}, s.sdk.EmitEvent(request.Token, request.EventKey, data)
 }
 
 // ListenTask creates a stream that will send data for every task to execute.
 func (s *Server) ListenTask(request *serviceapi.ListenTaskRequest, stream serviceapi.Service_ListenTaskServer) error {
-	ln, err := s.api.ListenExecution(request.Token, inProgressFilter)
+	ln, err := s.sdk.ListenExecution(request.Token, inProgressFilter)
 	if err != nil {
 		return err
 	}
@@ -75,9 +75,9 @@ func (s *Server) ListenTask(request *serviceapi.ListenTaskRequest, stream servic
 func (s *Server) SubmitResult(context context.Context, request *serviceapi.SubmitResultRequest) (*serviceapi.SubmitResultReply, error) {
 	switch res := request.Result.(type) {
 	case *serviceapi.SubmitResultRequest_OutputData:
-		return &serviceapi.SubmitResultReply{}, s.api.SubmitResult([]byte(request.ExecutionHash), []byte(res.OutputData), nil)
+		return &serviceapi.SubmitResultReply{}, s.sdk.SubmitResult([]byte(request.ExecutionHash), []byte(res.OutputData), nil)
 	case *serviceapi.SubmitResultRequest_Error:
-		return &serviceapi.SubmitResultReply{}, s.api.SubmitResult([]byte(request.ExecutionHash), nil, errors.New(res.Error))
+		return &serviceapi.SubmitResultReply{}, s.sdk.SubmitResult([]byte(request.ExecutionHash), nil, errors.New(res.Error))
 	}
 	return &serviceapi.SubmitResultReply{}, nil
 }

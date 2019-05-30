@@ -7,11 +7,11 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
+	"github.com/mesg-foundation/core/sdk"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/version"
 	"github.com/mesg-foundation/core/x/xerrors"
@@ -19,21 +19,21 @@ import (
 
 // Server is the type to aggregate all the APIs.
 type Server struct {
-	api *api.API
+	sdk *sdk.SDK
 }
 
 // NewServer creates a new Server.
-func NewServer(api *api.API) *Server {
-	return &Server{api: api}
+func NewServer(sdk *sdk.SDK) *Server {
+	return &Server{sdk: sdk}
 }
 
 // GetService returns service serviceID.
 func (s *Server) GetService(ctx context.Context, request *coreapi.GetServiceRequest) (*coreapi.GetServiceReply, error) {
-	ss, err := s.api.GetService(request.ServiceID)
+	ss, err := s.sdk.GetService(request.ServiceID)
 	if err != nil {
 		return nil, err
 	}
-	status, err := s.api.Status(ss)
+	status, err := s.sdk.Status(ss)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (s *Server) GetService(ctx context.Context, request *coreapi.GetServiceRequ
 
 // ListServices lists services.
 func (s *Server) ListServices(ctx context.Context, request *coreapi.ListServicesRequest) (*coreapi.ListServicesReply, error) {
-	services, err := s.api.ListServices()
+	services, err := s.sdk.ListServices()
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +64,7 @@ func (s *Server) ListServices(ctx context.Context, request *coreapi.ListServices
 	for _, ss := range services {
 		go func(ss *service.Service) {
 			defer wg.Done()
-			status, err := s.api.Status(ss)
+			status, err := s.sdk.Status(ss)
 			if err != nil {
 				errC <- err
 				return
@@ -92,22 +92,22 @@ func (s *Server) ListServices(ctx context.Context, request *coreapi.ListServices
 
 // StartService starts a service.
 func (s *Server) StartService(ctx context.Context, request *coreapi.StartServiceRequest) (*coreapi.StartServiceReply, error) {
-	return &coreapi.StartServiceReply{}, s.api.StartService(request.ServiceID)
+	return &coreapi.StartServiceReply{}, s.sdk.StartService(request.ServiceID)
 }
 
 // StopService stops a service.
 func (s *Server) StopService(ctx context.Context, request *coreapi.StopServiceRequest) (*coreapi.StopServiceReply, error) {
-	return &coreapi.StopServiceReply{}, s.api.StopService(request.ServiceID)
+	return &coreapi.StopServiceReply{}, s.sdk.StopService(request.ServiceID)
 }
 
 // DeleteService stops and deletes service serviceID.
 func (s *Server) DeleteService(ctx context.Context, request *coreapi.DeleteServiceRequest) (*coreapi.DeleteServiceReply, error) {
-	return &coreapi.DeleteServiceReply{}, s.api.DeleteService(request.ServiceID, request.DeleteData)
+	return &coreapi.DeleteServiceReply{}, s.sdk.DeleteService(request.ServiceID, request.DeleteData)
 }
 
 // ListenEvent listens events matches with eventFilter on serviceID.
 func (s *Server) ListenEvent(request *coreapi.ListenEventRequest, stream coreapi.Core_ListenEventServer) error {
-	ln, err := s.api.ListenEvent(request.ServiceID, &api.EventFilter{Key: request.EventFilter})
+	ln, err := s.sdk.ListenEvent(request.ServiceID, &sdk.EventFilter{Key: request.EventFilter})
 	if err != nil {
 		return err
 	}
@@ -142,7 +142,7 @@ func (s *Server) ListenEvent(request *coreapi.ListenEventRequest, stream coreapi
 
 // ListenResult listens for results from a services.
 func (s *Server) ListenResult(request *coreapi.ListenResultRequest, stream coreapi.Core_ListenResultServer) error {
-	filter := &api.ExecutionFilter{
+	filter := &sdk.ExecutionFilter{
 		Statuses: []execution.Status{
 			execution.Completed,
 			execution.Failed,
@@ -151,7 +151,7 @@ func (s *Server) ListenResult(request *coreapi.ListenResultRequest, stream corea
 		Tags:    request.TagFilters,
 	}
 
-	ln, err := s.api.ListenExecution(request.ServiceID, filter)
+	ln, err := s.sdk.ListenExecution(request.ServiceID, filter)
 	if err != nil {
 		return err
 	}
@@ -193,7 +193,7 @@ func (s *Server) ExecuteTask(ctx context.Context, request *coreapi.ExecuteTaskRe
 		return nil, fmt.Errorf("cannot parse execution's inputs (JSON format): %s", err)
 	}
 
-	executionHash, err := s.api.ExecuteTask(request.ServiceID, request.TaskKey, inputs, request.ExecutionTags)
+	executionHash, err := s.sdk.ExecuteTask(request.ServiceID, request.TaskKey, inputs, request.ExecutionTags)
 	return &coreapi.ExecuteTaskReply{
 		ExecutionHash: hex.EncodeToString(executionHash),
 	}, err

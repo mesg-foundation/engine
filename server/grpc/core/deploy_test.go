@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
+	"github.com/mesg-foundation/core/sdk"
 	"github.com/stretchr/testify/require"
 	grpc "google.golang.org/grpc"
 )
@@ -23,9 +23,9 @@ func TestDeployService(t *testing.T) {
 	require.Len(t, stream.sid, 7)
 	require.NotEmpty(t, stream.hash)
 
-	require.Contains(t, stream.statuses, api.DeployStatus{
+	require.Contains(t, stream.statuses, sdk.DeployStatus{
 		Message: "Image built with success",
-		Type:    api.DonePositive,
+		Type:    sdk.DonePositive,
 	})
 }
 
@@ -35,7 +35,7 @@ type testDeployStream struct {
 	err      error
 	sid      string
 	hash     string
-	statuses []api.DeployStatus
+	statuses []sdk.DeployStatus
 	grpc.ServerStream
 }
 
@@ -49,16 +49,16 @@ func (s *testDeployStream) Send(m *coreapi.DeployServiceReply) error {
 
 	status := m.GetStatus()
 	if status != nil {
-		var typ api.StatusType
+		var typ sdk.StatusType
 		switch status.Type {
 		case coreapi.DeployServiceReply_Status_RUNNING:
-			typ = api.Running
+			typ = sdk.Running
 		case coreapi.DeployServiceReply_Status_DONE_POSITIVE:
-			typ = api.DonePositive
+			typ = sdk.DonePositive
 		case coreapi.DeployServiceReply_Status_DONE_NEGATIVE:
-			typ = api.DoneNegative
+			typ = sdk.DoneNegative
 		}
-		s.statuses = append(s.statuses, api.DeployStatus{
+		s.statuses = append(s.statuses, sdk.DeployStatus{
 			Message: status.Message,
 			Type:    typ,
 		})
