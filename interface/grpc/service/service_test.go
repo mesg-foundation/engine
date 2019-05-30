@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"encoding/hex"
 	"testing"
 
 	"github.com/mesg-foundation/core/api"
@@ -172,7 +173,7 @@ func TestSubmit(t *testing.T) {
 	defer ln.Close()
 
 	_, err = server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
-		ExecutionHash: string(executionHash),
+		ExecutionHash: hex.EncodeToString(executionHash),
 		Result: &serviceapi.SubmitResultRequest_OutputData{
 			OutputData: outputData,
 		},
