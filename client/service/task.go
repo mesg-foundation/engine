@@ -7,7 +7,6 @@ type Taskable interface {
 
 	// Execute called when a task execution request arrived with the same key
 	// returned by Name().
-	// outputKey is the output key and data is the output data of task.
 	Execute(execution *Execution) (interface{}, error)
 }
 
