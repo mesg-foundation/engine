@@ -90,9 +90,9 @@ func TestListen(t *testing.T) {
 		require.True(t, err == nil || err == context.Canceled)
 	}()
 
-	id, execution, err := server.Execute(task, reqData)
+	hash, execution, err := server.Execute(task, reqData)
 	require.NoError(t, err)
-	require.Equal(t, id, execution.ID())
+	require.Equal(t, hash, execution.Hash())
 	require.Equal(t, token, server.ListenToken())
 
 	var data1 taskResponse

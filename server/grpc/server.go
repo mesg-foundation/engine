@@ -7,11 +7,11 @@ import (
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
-	"github.com/mesg-foundation/core/api"
-	"github.com/mesg-foundation/core/interface/grpc/core"
-	"github.com/mesg-foundation/core/interface/grpc/service"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
+	"github.com/mesg-foundation/core/sdk"
+	"github.com/mesg-foundation/core/server/grpc/core"
+	"github.com/mesg-foundation/core/server/grpc/service"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
@@ -20,7 +20,7 @@ import (
 
 // Server contains the server config.
 type Server struct {
-	api *api.API
+	sdk *sdk.SDK
 
 	instance *grpc.Server
 	closed   bool
@@ -31,9 +31,9 @@ type Server struct {
 }
 
 // New returns a new gRPC server.
-func New(address string, api *api.API) *Server {
+func New(address string, sdk *sdk.SDK) *Server {
 	return &Server{
-		api:     api,
+		sdk:     sdk,
 		address: address,
 		network: "tcp",
 	}
@@ -101,8 +101,8 @@ func (s *Server) Close() {
 
 // register all server
 func (s *Server) register() error {
-	coreServer := core.NewServer(s.api)
-	serviceServer := service.NewServer(s.api)
+	coreServer := core.NewServer(s.sdk)
+	serviceServer := service.NewServer(s.sdk)
 
 	serviceapi.RegisterServiceServer(s.instance, serviceServer)
 	coreapi.RegisterCoreServer(s.instance, coreServer)

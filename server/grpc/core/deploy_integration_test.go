@@ -5,7 +5,7 @@ package core
 import (
 	"testing"
 
-	"github.com/mesg-foundation/core/api"
+	"github.com/mesg-foundation/core/sdk"
 	"github.com/stretchr/testify/require"
 )
 
@@ -17,12 +17,12 @@ func TestIntegrationDeployService(t *testing.T) {
 	stream := newTestDeployStream(url)
 
 	require.Nil(t, server.DeployService(stream))
-	defer server.api.DeleteService(stream.hash, false)
+	defer server.sdk.DeleteService(stream.hash, false)
 
 	require.Len(t, stream.sid, 7)
 	require.NotEmpty(t, stream.hash)
-	require.Contains(t, stream.statuses, api.DeployStatus{
+	require.Contains(t, stream.statuses, sdk.DeployStatus{
 		Message: "Image built with success",
-		Type:    api.DonePositive,
+		Type:    sdk.DonePositive,
 	})
 }

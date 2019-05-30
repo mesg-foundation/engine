@@ -5,9 +5,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
+	"github.com/mesg-foundation/core/sdk"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
 )
@@ -16,10 +16,10 @@ func TestGetService(t *testing.T) {
 	server, closer := newServer(t)
 	defer closer()
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath), nil)
+	s, validationErr, err := server.sdk.DeployService(serviceTar(t, taskServicePath), nil)
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Hash, false)
+	defer server.sdk.DeleteService(s.Hash, false)
 
 	reply, err := server.GetService(context.Background(), &coreapi.GetServiceRequest{
 		ServiceID: s.Hash,
@@ -36,12 +36,12 @@ func TestListServices(t *testing.T) {
 
 	stream := newTestDeployStream(url)
 	require.NoError(t, server.DeployService(stream))
-	defer server.api.DeleteService(stream.hash, false)
+	defer server.sdk.DeleteService(stream.hash, false)
 
 	reply, err := server.ListServices(context.Background(), &coreapi.ListServicesRequest{})
 	require.NoError(t, err)
 
-	services, err := server.api.ListServices()
+	services, err := server.sdk.ListServices()
 	require.NoError(t, err)
 
 	apiProtoServices := toProtoServices(services)
@@ -57,18 +57,18 @@ func TestStartService(t *testing.T) {
 	// we use a test service without tasks definition here otherwise we need to
 	// spin up the gRPC server in order to prevent service exit with a failure
 	// because it'll try to listen for tasks.
-	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath), nil)
+	s, validationErr, err := server.sdk.DeployService(serviceTar(t, eventServicePath), nil)
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Hash, false)
+	defer server.sdk.DeleteService(s.Hash, false)
 
 	_, err = server.StartService(context.Background(), &coreapi.StartServiceRequest{
 		ServiceID: s.Hash,
 	})
 	require.NoError(t, err)
-	defer server.api.StopService(s.Hash)
+	defer server.sdk.StopService(s.Hash)
 
-	status, err := server.api.Status(s)
+	status, err := server.sdk.Status(s)
 	require.NoError(t, err)
 	require.Equal(t, service.RUNNING, status)
 }
@@ -80,19 +80,19 @@ func TestStopService(t *testing.T) {
 	// we use a test service without tasks definition here otherwise we need to
 	// spin up the gRPC server in order to prevent service exit with a failure
 	// because it'll try to listen for tasks.
-	s, validationErr, err := server.api.DeployService(serviceTar(t, eventServicePath), nil)
+	s, validationErr, err := server.sdk.DeployService(serviceTar(t, eventServicePath), nil)
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Hash, false)
+	defer server.sdk.DeleteService(s.Hash, false)
 
-	require.NoError(t, server.api.StartService(s.Hash))
+	require.NoError(t, server.sdk.StartService(s.Hash))
 
 	reply, err := server.StopService(context.Background(), &coreapi.StopServiceRequest{
 		ServiceID: s.Hash,
 	})
 	require.NoError(t, err)
 
-	status, err := server.api.Status(s)
+	status, err := server.sdk.Status(s)
 	require.NoError(t, err)
 	require.Equal(t, service.STOPPED, status)
 	require.NoError(t, err)
@@ -106,7 +106,7 @@ func TestDeleteService(t *testing.T) {
 	)
 	defer closer()
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, path), nil)
+	s, validationErr, err := server.sdk.DeployService(serviceTar(t, path), nil)
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
 
@@ -116,7 +116,7 @@ func TestDeleteService(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, reply)
 
-	_, err = server.api.GetService(s.Hash)
+	_, err = server.sdk.GetService(s.Hash)
 	require.Error(t, err)
 }
 
@@ -128,13 +128,13 @@ func TestExecute(t *testing.T) {
 	)
 	defer closer()
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath), nil)
+	s, validationErr, err := server.sdk.DeployService(serviceTar(t, taskServicePath), nil)
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Hash, false)
+	defer server.sdk.DeleteService(s.Hash, false)
 
-	require.NoError(t, server.api.StartService(s.Hash))
-	defer server.api.StopService(s.Hash)
+	require.NoError(t, server.sdk.StartService(s.Hash))
+	defer server.sdk.StopService(s.Hash)
 
 	reply, err := server.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
 		ServiceID: s.Sid,
@@ -142,17 +142,17 @@ func TestExecute(t *testing.T) {
 		InputData: data,
 	})
 	require.NoError(t, err)
-	require.NotEqual(t, "", reply.ExecutionID)
+	require.NotEqual(t, "", reply.ExecutionHash)
 }
 
 func TestExecuteWithInvalidJSON(t *testing.T) {
 	server, closer := newServer(t)
 	defer closer()
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath), nil)
+	s, validationErr, err := server.sdk.DeployService(serviceTar(t, taskServicePath), nil)
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Hash, false)
+	defer server.sdk.DeleteService(s.Hash, false)
 
 	_, err = server.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
 		ServiceID: s.Sid,
@@ -170,13 +170,13 @@ func TestExecuteWithInvalidTask(t *testing.T) {
 	)
 	defer closer()
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath), nil)
+	s, validationErr, err := server.sdk.DeployService(serviceTar(t, taskServicePath), nil)
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Hash, false)
+	defer server.sdk.DeleteService(s.Hash, false)
 
-	require.NoError(t, server.api.StartService(s.Hash))
-	defer server.api.StopService(s.Hash)
+	require.NoError(t, server.sdk.StartService(s.Hash))
+	defer server.sdk.StopService(s.Hash)
 
 	_, err = server.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
 		ServiceID: s.Sid,
@@ -198,13 +198,13 @@ func TestExecuteWithInvalidTaskInput(t *testing.T) {
 	)
 	defer closer()
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath), nil)
+	s, validationErr, err := server.sdk.DeployService(serviceTar(t, taskServicePath), nil)
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Hash, false)
+	defer server.sdk.DeleteService(s.Hash, false)
 
-	require.NoError(t, server.api.StartService(s.Hash))
-	defer server.api.StopService(s.Hash)
+	require.NoError(t, server.sdk.StartService(s.Hash))
+	defer server.sdk.StopService(s.Hash)
 
 	_, err = server.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
 		ServiceID: s.Sid,
@@ -222,17 +222,17 @@ func TestExecuteWithNonRunningService(t *testing.T) {
 	server, closer := newServer(t)
 	defer closer()
 
-	s, validationErr, err := server.api.DeployService(serviceTar(t, taskServicePath), nil)
+	s, validationErr, err := server.sdk.DeployService(serviceTar(t, taskServicePath), nil)
 	require.Zero(t, validationErr)
 	require.NoError(t, err)
-	defer server.api.DeleteService(s.Hash, false)
+	defer server.sdk.DeleteService(s.Hash, false)
 
 	_, err = server.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
 		ServiceID: s.Sid,
 		TaskKey:   "test",
 		InputData: "{}",
 	})
-	require.Equal(t, &api.NotRunningServiceError{ServiceID: s.Sid}, err)
+	require.Equal(t, &sdk.NotRunningServiceError{ServiceID: s.Sid}, err)
 }
 
 func TestExecuteWithNonExistingService(t *testing.T) {

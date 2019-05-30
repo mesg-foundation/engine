@@ -59,12 +59,12 @@ func (s *serviceServer) SubmitResult(context context.Context,
 	switch res := request.Result.(type) {
 	case *serviceapi.SubmitResultRequest_OutputData:
 		s.submitC <- &Execution{
-			id:   request.ExecutionID,
+			hash: request.ExecutionHash,
 			data: res.OutputData,
 		}
 	case *serviceapi.SubmitResultRequest_Error:
 		s.submitC <- &Execution{
-			id:   request.ExecutionID,
+			hash: request.ExecutionHash,
 			data: res.Error,
 		}
 	}
