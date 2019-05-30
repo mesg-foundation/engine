@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"encoding/hex"
 	"testing"
 
 	"github.com/mesg-foundation/core/execution"
@@ -161,7 +162,7 @@ func TestSubmit(t *testing.T) {
 	require.NoError(t, server.sdk.StartService(s.Hash))
 	defer server.sdk.StopService(s.Hash)
 
-	executionID, err := server.sdk.ExecuteTask(s.Hash, taskKey, taskData, nil)
+	executionHash, err := server.sdk.ExecuteTask(s.Hash, taskKey, taskData, nil)
 	require.NoError(t, err)
 
 	ef := &sdk.ExecutionFilter{
@@ -172,7 +173,7 @@ func TestSubmit(t *testing.T) {
 	defer ln.Close()
 
 	_, err = server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
-		ExecutionID: executionID,
+		ExecutionHash: hex.EncodeToString(executionHash),
 		Result: &serviceapi.SubmitResultRequest_OutputData{
 			OutputData: outputData,
 		},
@@ -180,7 +181,7 @@ func TestSubmit(t *testing.T) {
 	require.NoError(t, err)
 
 	execution := <-ln.C
-	require.Equal(t, executionID, execution.ID)
+	require.Equal(t, executionHash, execution.Hash)
 	require.Equal(t, outputData, jsonMarshal(t, execution.Outputs))
 }
 
@@ -204,12 +205,12 @@ func TestSubmitWithInvalidJSON(t *testing.T) {
 	require.NoError(t, server.sdk.StartService(s.Hash))
 	defer server.sdk.StopService(s.Hash)
 
-	executionID, err := server.sdk.ExecuteTask(s.Hash, taskKey, taskData, nil)
+	executionHash, err := server.sdk.ExecuteTask(s.Hash, taskKey, taskData, nil)
 	require.NoError(t, err)
 
 	_, err = server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
-		ExecutionID: executionID,
-		Result:      &serviceapi.SubmitResultRequest_OutputData{},
+		ExecutionHash: hex.EncodeToString(executionHash),
+		Result:        &serviceapi.SubmitResultRequest_OutputData{},
 	})
 	require.Contains(t, err.Error(), "unexpected end of JSON input")
 }
@@ -217,13 +218,13 @@ func TestSubmitWithInvalidJSON(t *testing.T) {
 func TestSubmitWithInvalidID(t *testing.T) {
 	var (
 		outputData     = "{}"
-		executionID    = "1"
+		executionHash  = "1"
 		server, closer = newServer(t)
 	)
 	defer closer()
 
 	_, err := server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
-		ExecutionID: executionID,
+		ExecutionHash: executionHash,
 		Result: &serviceapi.SubmitResultRequest_OutputData{
 			OutputData: outputData,
 		},
@@ -252,11 +253,11 @@ func TestSubmitWithInvalidTaskOutputs(t *testing.T) {
 	require.NoError(t, server.sdk.StartService(s.Hash))
 	defer server.sdk.StopService(s.Hash)
 
-	executionID, err := server.sdk.ExecuteTask(s.Hash, taskKey, taskData, nil)
+	executionHash, err := server.sdk.ExecuteTask(s.Hash, taskKey, taskData, nil)
 	require.NoError(t, err)
 
 	_, err = server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
-		ExecutionID: executionID,
+		ExecutionHash: hex.EncodeToString(executionHash),
 		Result: &serviceapi.SubmitResultRequest_OutputData{
 			OutputData: outputData,
 		},

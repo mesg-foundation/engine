@@ -6,14 +6,14 @@ import (
 
 // Execution is a testing task execution result.
 type Execution struct {
-	id   string
+	hash string
 	data string
 	key  string
 }
 
-// ID returns the execution id of task.
-func (e *Execution) ID() string {
-	return e.id
+// Hash returns the execution id of task.
+func (e *Execution) Hash() string {
+	return e.hash
 }
 
 // Key returns the output key of task.

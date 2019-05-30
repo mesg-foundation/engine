@@ -11,7 +11,7 @@ import (
 
 // ExecutionDB exposes all the functionalities
 type ExecutionDB interface {
-	Find(executionID string) (*execution.Execution, error)
+	Find(executionHash []byte) (*execution.Execution, error)
 	Save(execution *execution.Execution) error
 	OpenTransaction() (ExecutionTransaction, error)
 	io.Closer
@@ -19,7 +19,7 @@ type ExecutionDB interface {
 
 // ExecutionTransaction is the transaction handle.
 type ExecutionTransaction interface {
-	Find(executionID string) (*execution.Execution, error)
+	Find(executionHash []byte) (*execution.Execution, error)
 	Save(execution *execution.Execution) error
 	Commit() error
 	Discard()
@@ -40,9 +40,9 @@ func NewExecutionDB(path string) (*LevelDBExecutionDB, error) {
 	return &LevelDBExecutionDB{db: db}, nil
 }
 
-// Find the execution based on an executionID, returns an error if not found
-func (db *LevelDBExecutionDB) Find(executionID string) (*execution.Execution, error) {
-	return executionFind(db.db, executionID)
+// Find the execution based on an executionHash, returns an error if not found
+func (db *LevelDBExecutionDB) Find(executionHash []byte) (*execution.Execution, error) {
+	return executionFind(db.db, executionHash)
 }
 
 // Save an instance of executable in the database
@@ -71,9 +71,9 @@ type LevelDBExecutionTransaction struct {
 	tx *leveldb.Transaction
 }
 
-// Find the execution based on an executionID, returns an error if not found
-func (tx *LevelDBExecutionTransaction) Find(executionID string) (*execution.Execution, error) {
-	return executionFind(tx.tx, executionID)
+// Find the execution based on an executionHash, returns an error if not found
+func (tx *LevelDBExecutionTransaction) Find(executionHash []byte) (*execution.Execution, error) {
+	return executionFind(tx.tx, executionHash)
 }
 
 // Save an instance of executable in the database
@@ -92,9 +92,9 @@ func (tx *LevelDBExecutionTransaction) Discard() {
 	tx.tx.Discard()
 }
 
-// Find the execution based on an executionID, returns an error if not found
-func executionFind(db leveldbTxDB, executionID string) (*execution.Execution, error) {
-	data, err := db.Get([]byte(executionID), nil)
+// Find the execution based on an executionHash, returns an error if not found
+func executionFind(db leveldbTxDB, executionHash []byte) (*execution.Execution, error) {
+	data, err := db.Get(executionHash, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -108,12 +108,12 @@ func executionFind(db leveldbTxDB, executionID string) (*execution.Execution, er
 // Save an instance of executable in the database
 // Returns an error if anything from marshaling to database saving goes wrong
 func executionSave(db leveldbTxDB, execution *execution.Execution) error {
-	if execution.ID == "" {
-		return errors.New("database: can't save service without id")
+	if len(execution.Hash) == 0 {
+		return errors.New("database: can't save execution without hash")
 	}
 	data, err := json.Marshal(execution)
 	if err != nil {
 		return err
 	}
-	return db.Put([]byte(execution.ID), data, nil)
+	return db.Put(execution.Hash, data, nil)
 }
