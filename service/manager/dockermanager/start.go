@@ -1,7 +1,7 @@
 package dockermanager
 
 import (
-	"fmt"
+	"encoding/hex"
 	"strconv"
 	"strings"
 
@@ -138,7 +138,7 @@ func extractVolumesFrom(s *service.Service, d *service.Dependency) ([]container.
 // volumeKey creates a key for service's volume based on the sid to make sure that the volume
 // will stay the same for different versions of the service.
 func volumeKey(s *service.Service, dependency string, volume string) string {
-	return fmt.Sprintf("%x", xstructhash.Hash([]string{
+	return hex.EncodeToString(xstructhash.Hash([]string{
 		s.Sid,
 		dependency,
 		volume,

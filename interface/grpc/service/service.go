@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 
@@ -60,7 +61,7 @@ func (s *Server) ListenTask(request *serviceapi.ListenTaskRequest, stream servic
 			}
 
 			if err := stream.Send(&serviceapi.TaskData{
-				ExecutionHash: string(execution.Hash),
+				ExecutionHash: hex.EncodeToString(execution.Hash),
 				TaskKey:       execution.TaskKey,
 				InputData:     string(inputs),
 			}); err != nil {

@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"sync"
@@ -173,7 +174,7 @@ func (s *Server) ListenResult(request *coreapi.ListenResultRequest, stream corea
 				return err
 			}
 			if err := stream.Send(&coreapi.ResultData{
-				ExecutionHash: string(execution.Hash),
+				ExecutionHash: hex.EncodeToString(execution.Hash),
 				TaskKey:       execution.TaskKey,
 				OutputData:    string(outputs),
 				ExecutionTags: execution.Tags,
@@ -194,7 +195,7 @@ func (s *Server) ExecuteTask(ctx context.Context, request *coreapi.ExecuteTaskRe
 
 	executionHash, err := s.api.ExecuteTask(request.ServiceID, request.TaskKey, inputs, request.ExecutionTags)
 	return &coreapi.ExecuteTaskReply{
-		ExecutionHash: string(executionHash),
+		ExecutionHash: hex.EncodeToString(executionHash),
 	}, err
 }
 
