@@ -76,25 +76,25 @@ if [[ ! $BINCACHED ]] || [[ ! $DOCKERCACHED ]]; then
   docker build -f Dockerfile.dev -t "mesg/engine:$VERSION" .
 fi
 
-# docker service rm core
+# docker service rm engine
 
 trap onexit EXIT INT
 
 function onexit {
   deleteServiceServer
-  docker service rm core
+  docker service rm engine
 }
 
-networkExists=$(docker network list -f name=^core$ -f driver=overlay -q)
+networkExists=$(docker network list -f name=^engine$ -f driver=overlay -q)
 if [ "$networkExists" == "" ]; then
-  docker network create --driver overlay core --label com.docker.stack.namespace=core
+  docker network create --driver overlay engine --label com.docker.stack.namespace=engine
 fi
 docker service create \
-  --name core \
+  --name engine \
   --tty \
-  --label com.docker.stack.namespace=core --label com.docker.stack.image=mesg/core:$VERSION \
+  --label com.docker.stack.namespace=engine --label com.docker.stack.image=mesg/engine:$VERSION \
   --mount type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock --mount type=bind,source=$HOME/.mesg,destination=/mesg \
-  --network core --publish 50052:50052 \
-  mesg/core:$VERSION
+  --network engine --publish 50052:50052 \
+  mesg/engine:$VERSION
 
-docker service logs --follow --raw core
+docker service logs --follow --raw engine
