@@ -12,6 +12,11 @@ LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceAddress=0xeC
 LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceToken=0x5861b3dc52339d4f976b7fa5d80db6cd6f477f1b'"
 MESG_SERVICE_SERVER="core-service-server"
 
+networkExists=$(docker network list -f name=engine -f driver=overlay -q)
+if [ "$networkExists" == "" ]; then
+  docker network create --driver overlay engine --label com.docker.stack.namespace=engine
+fi
+
 function deleteServiceServer {
   rm -rf tmp-systemservices
   if docker service list | grep -q core-service-server; then
@@ -41,22 +46,22 @@ docker service create -d \
   --network engine \
   $MESG_SERVICE_SERVER
 
-echo "compile core"
-GOOS=linux GOARCH=amd64 go build -o ./bin/core -ldflags="$LDFLAGS" core/main.go
+echo "compile engine"
+GOOS=linux GOARCH=amd64 go build -o ./bin/engine -ldflags="$LDFLAGS" core/main.go
 
-CORE_SUM_PATH="./bin/.core.sum"
-touch "$CORE_SUM_PATH"
+ENGINE_SUM_PATH="./bin/.engine.sum"
+touch "$ENGINE_SUM_PATH"
 
 DOCKER_SUM_PATH="./bin/.Dockerfile.dev.sum"
 touch "$DOCKER_SUM_PATH"
 
-# check if core bin was cached
-CORE_SUM="$(openssl md5 ./bin/core)"
-CORE_SUM_PREV="$(cat $CORE_SUM_PATH)"
-if [[ "$CORE_SUM" == "$CORE_SUM_PREV" ]]; then
+# check if engine bin was cached
+ENGINE_SUM="$(openssl md5 ./bin/engine)"
+ENGINE_SUM_PREV="$(cat $ENGINE_SUM_PATH)"
+if [[ "$ENGINE_SUM" == "$ENGINE_SUM_PREV" ]]; then
   BINCACHED=true
 else
-  echo "$CORE_SUM" > "$CORE_SUM_PATH"
+  echo "$ENGINE_SUM" > "$ENGINE_SUM_PATH"
 fi
 
 # check if dockerfile was cached
@@ -76,25 +81,21 @@ if [[ ! $BINCACHED ]] || [[ ! $DOCKERCACHED ]]; then
   docker build -f Dockerfile.dev -t "mesg/engine:$VERSION" .
 fi
 
-# docker service rm core
+# docker service rm engine
 
 trap onexit EXIT INT
 
 function onexit {
   deleteServiceServer
-  docker service rm core
+  docker service rm engine
 }
 
-networkExists=$(docker network list -f name=^core$ -f driver=overlay -q)
-if [ "$networkExists" == "" ]; then
-  docker network create --driver overlay core --label com.docker.stack.namespace=core
-fi
 docker service create \
-  --name core \
+  --name engine \
   --tty \
-  --label com.docker.stack.namespace=core --label com.docker.stack.image=mesg/core:$VERSION \
+  --label com.docker.stack.namespace=engine --label com.docker.stack.image=mesg/engine:$VERSION \
   --mount type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock --mount type=bind,source=$HOME/.mesg,destination=/mesg \
-  --network core --publish 50052:50052 \
-  mesg/core:$VERSION
+  --network engine --publish 50052:50052 \
+  mesg/engine:$VERSION
 
-docker service logs --follow --raw core
+docker service logs --follow --raw engine
