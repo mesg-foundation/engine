@@ -1,4 +1,4 @@
-package api
+package sdk
 
 import (
 	"github.com/cskr/pubsub"
@@ -59,7 +59,7 @@ type ExecutionListener struct {
 	filter *ExecutionFilter
 }
 
-// NewExecutionListener creates a new ExecutionListener with given api.
+// NewExecutionListener creates a new ExecutionListener with given sdk.
 func NewExecutionListener(ps *pubsub.PubSub, topic string, f *ExecutionFilter) *ExecutionListener {
 	return &ExecutionListener{
 		C:      make(chan *execution.Execution, 1),

@@ -4,8 +4,8 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
+	"github.com/mesg-foundation/core/sdk"
 	service "github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/importer"
 )
@@ -14,8 +14,8 @@ import (
 // events during the process and finish with sending service id or validation error.
 func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 	var (
-		statuses = make(chan api.DeployStatus)
-		option   = api.DeployServiceStatusOption(statuses)
+		statuses = make(chan sdk.DeployStatus)
+		option   = sdk.DeployServiceStatusOption(statuses)
 		wg       sync.WaitGroup
 
 		service         *service.Service
@@ -39,14 +39,14 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 	env := in.GetEnv()
 
 	if url := in.GetUrl(); url != "" {
-		service, validationError, err = s.api.DeployServiceFromURL(url, env, option)
+		service, validationError, err = s.sdk.DeployServiceFromURL(url, env, option)
 	} else {
 		// create tarball reader with first chunk of bytes
 		tarball := &deployChunkReader{
 			stream: stream,
 			buf:    in.GetChunk(),
 		}
-		service, validationError, err = s.api.DeployService(tarball, env, option)
+		service, validationError, err = s.sdk.DeployService(tarball, env, option)
 	}
 
 	// wait for statuses to be sent first, otherwise sending multiple messages at the
@@ -74,15 +74,15 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 	})
 }
 
-func sendDeployStatus(statuses chan api.DeployStatus, stream coreapi.Core_DeployServiceServer) {
+func sendDeployStatus(statuses chan sdk.DeployStatus, stream coreapi.Core_DeployServiceServer) {
 	for status := range statuses {
 		var typ coreapi.DeployServiceReply_Status_Type
 		switch status.Type {
-		case api.Running:
+		case sdk.Running:
 			typ = coreapi.DeployServiceReply_Status_RUNNING
-		case api.DonePositive:
+		case sdk.DonePositive:
 			typ = coreapi.DeployServiceReply_Status_DONE_POSITIVE
-		case api.DoneNegative:
+		case sdk.DoneNegative:
 			typ = coreapi.DeployServiceReply_Status_DONE_NEGATIVE
 		}
 		stream.Send(&coreapi.DeployServiceReply{

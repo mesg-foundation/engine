@@ -4,12 +4,12 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/mesg-foundation/core/api"
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/interface/grpc"
 	"github.com/mesg-foundation/core/logger"
+	"github.com/mesg-foundation/core/sdk"
 	"github.com/mesg-foundation/core/service/manager/dockermanager"
 	"github.com/mesg-foundation/core/version"
 	"github.com/mesg-foundation/core/x/xerrors"
@@ -22,7 +22,7 @@ type dependencies struct {
 	serviceDB   database.ServiceDB
 	executionDB database.ExecutionDB
 	container   container.Container
-	api         *api.API
+	sdk         *sdk.SDK
 }
 
 func initDependencies() (*dependencies, error) {
@@ -53,22 +53,22 @@ func initDependencies() (*dependencies, error) {
 	// init Docker Manager.
 	m := dockermanager.New(c)
 
-	// init api.
-	api := api.New(m, c, serviceDB, executionDB)
+	// init sdk.
+	sdk := sdk.New(m, c, serviceDB, executionDB)
 
 	return &dependencies{
 		config:      config,
 		container:   c,
 		serviceDB:   serviceDB,
 		executionDB: executionDB,
-		api:         api,
+		sdk:         sdk,
 	}, nil
 }
 
-func deployCoreServices(config *config.Config, api *api.API) error {
+func deployCoreServices(config *config.Config, sdk *sdk.SDK) error {
 	for _, service := range config.Services() {
 		logrus.Infof("Deploying service %q from %q", service.Key, service.URL)
-		s, valid, err := api.DeployServiceFromURL(service.URL, service.Env)
+		s, valid, err := sdk.DeployServiceFromURL(service.URL, service.Env)
 		if valid != nil {
 			return valid
 		}
@@ -78,15 +78,15 @@ func deployCoreServices(config *config.Config, api *api.API) error {
 		service.Sid = s.Sid
 		service.Hash = s.Hash
 		logrus.Infof("Service %q deployed with hash %q", service.Key, service.Hash)
-		if err := api.StartService(s.Sid); err != nil {
+		if err := sdk.StartService(s.Sid); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func stopRunningServices(api *api.API) error {
-	services, err := api.ListServices()
+func stopRunningServices(sdk *sdk.SDK) error {
+	services, err := sdk.ListServices()
 	if err != nil {
 		return err
 	}
@@ -99,7 +99,7 @@ func stopRunningServices(api *api.API) error {
 	for _, service := range services {
 		go func(hash string) {
 			defer wg.Done()
-			err := api.StopService(hash)
+			err := sdk.StopService(hash)
 			if err != nil {
 				errC <- err
 			}
@@ -124,12 +124,12 @@ func main() {
 	logger.Init(dep.config.Log.Format, dep.config.Log.Level, dep.config.Log.ForceColors)
 
 	// init system services.
-	if err := deployCoreServices(dep.config, dep.api); err != nil {
+	if err := deployCoreServices(dep.config, dep.sdk); err != nil {
 		logrus.Fatalln(err)
 	}
 
 	// init gRPC server.
-	server := grpc.New(dep.config.Server.Address, dep.api)
+	server := grpc.New(dep.config.Server.Address, dep.sdk)
 
 	logrus.Infof("starting MESG Core version %s", version.Version)
 
@@ -140,7 +140,7 @@ func main() {
 	}()
 
 	<-xsignal.WaitForInterrupt()
-	if err := stopRunningServices(dep.api); err != nil {
+	if err := stopRunningServices(dep.sdk); err != nil {
 		logrus.Fatalln(err)
 	}
 	server.Close()

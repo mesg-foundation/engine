@@ -1,4 +1,4 @@
-package api
+package sdk
 
 import (
 	"os"
@@ -33,7 +33,7 @@ func (t *apiTesting) close() {
 	require.NoError(t, os.RemoveAll(execdbname))
 }
 
-func newTesting(t *testing.T) (*API, *apiTesting) {
+func newTesting(t *testing.T) (*SDK, *apiTesting) {
 	containerMock := &mocks.Container{}
 	m := dockermanager.New(containerMock) // TODO(ilgooz): create mocks from manager.Manager and use instead.
 
@@ -74,7 +74,7 @@ func TestExecuteTask(t *testing.T) {
 	a, at := newTesting(t)
 	defer at.close()
 
-	// TODO(ilgooz): use api.Deploy() instead of manually saving the service
+	// TODO(ilgooz): use sdk.Deploy() instead of manually saving the service
 	// and do the same improvement in the similar places.
 	// in order to do this, create a testing helper to build service tarballs
 	// from yml definitions on the fly .
