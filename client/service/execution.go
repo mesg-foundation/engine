@@ -9,8 +9,8 @@ import (
 
 // Execution holds information about a Task execution.
 type Execution struct {
-	// ID is the execution id of task.
-	ID, id string
+	// Hash is the execution id of task.
+	Hash, hash string
 
 	// Key is the name of task.
 	Key string
@@ -23,9 +23,9 @@ type Execution struct {
 
 func newExecution(service *Service, data *serviceapi.TaskData) *Execution {
 	return &Execution{
-		ID:      data.ExecutionID,
+		Hash:    data.ExecutionHash,
 		Key:     data.TaskKey,
-		id:      data.ExecutionID,
+		hash:    data.ExecutionHash,
 		inputs:  data.InputData,
 		service: service,
 	}
@@ -42,7 +42,7 @@ func (e *Execution) reply(data interface{}, reterr error) (err error) {
 	defer cancel()
 	if reterr != nil {
 		_, err = e.service.client.SubmitResult(ctx, &serviceapi.SubmitResultRequest{
-			ExecutionID: e.id,
+			ExecutionHash: e.hash,
 			Result: &serviceapi.SubmitResultRequest_Error{
 				Error: reterr.Error(),
 			},
@@ -53,7 +53,7 @@ func (e *Execution) reply(data interface{}, reterr error) (err error) {
 			return err1
 		}
 		_, err = e.service.client.SubmitResult(ctx, &serviceapi.SubmitResultRequest{
-			ExecutionID: e.id,
+			ExecutionHash: e.hash,
 			Result: &serviceapi.SubmitResultRequest_OutputData{
 				OutputData: string(resp),
 			},

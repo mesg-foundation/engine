@@ -12,7 +12,7 @@ LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceAddress=0xeC
 LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceToken=0x5861b3dc52339d4f976b7fa5d80db6cd6f477f1b'"
 MESG_SERVICE_SERVER="engine-service-server"
 
-networkExists=$(docker network list -f name=^engine$ -f driver=overlay -q)
+networkExists=$(docker network list -f name=engine -f driver=overlay -q)
 if [ "$networkExists" == "" ]; then
   docker network create --driver overlay engine --label com.docker.stack.namespace=engine
 fi
