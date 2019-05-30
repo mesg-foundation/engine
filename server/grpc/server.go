@@ -7,11 +7,11 @@ import (
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
-	"github.com/mesg-foundation/core/interface/grpc/core"
-	"github.com/mesg-foundation/core/interface/grpc/service"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
 	"github.com/mesg-foundation/core/sdk"
+	"github.com/mesg-foundation/core/server/grpc/core"
+	"github.com/mesg-foundation/core/server/grpc/service"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
