@@ -41,22 +41,22 @@ docker service create -d \
   --network engine \
   $MESG_SERVICE_SERVER
 
-echo "compile core"
-GOOS=linux GOARCH=amd64 go build -o ./bin/core -ldflags="$LDFLAGS" core/main.go
+echo "compile engine"
+GOOS=linux GOARCH=amd64 go build -o ./bin/engine -ldflags="$LDFLAGS" core/main.go
 
-CORE_SUM_PATH="./bin/.core.sum"
-touch "$CORE_SUM_PATH"
+ENGINE_SUM_PATH="./bin/.engine.sum"
+touch "$ENGINE_SUM_PATH"
 
 DOCKER_SUM_PATH="./bin/.Dockerfile.dev.sum"
 touch "$DOCKER_SUM_PATH"
 
-# check if core bin was cached
-CORE_SUM="$(openssl md5 ./bin/core)"
-CORE_SUM_PREV="$(cat $CORE_SUM_PATH)"
-if [[ "$CORE_SUM" == "$CORE_SUM_PREV" ]]; then
+# check if engine bin was cached
+ENGINE_SUM="$(openssl md5 ./bin/engine)"
+ENGINE_SUM_PREV="$(cat $ENGINE_SUM_PATH)"
+if [[ "$ENGINE_SUM" == "$ENGINE_SUM_PREV" ]]; then
   BINCACHED=true
 else
-  echo "$CORE_SUM" > "$CORE_SUM_PATH"
+  echo "$ENGINE_SUM" > "$ENGINE_SUM_PATH"
 fi
 
 # check if dockerfile was cached
