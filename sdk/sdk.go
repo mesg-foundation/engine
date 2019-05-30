@@ -108,35 +108,39 @@ func (sdk *SDK) EmitEvent(token, eventKey string, eventData map[string]interface
 }
 
 // ExecuteTask executes a task tasKey with inputData and tags for service serviceID.
-func (sdk *SDK) ExecuteTask(serviceID, taskKey string, inputData map[string]interface{},
-	tags []string) (executionID string, err error) {
+func (sdk *SDK) ExecuteTask(serviceID, taskKey string, inputData map[string]interface{}, tags []string) (executionHash []byte, err error) {
 	s, err := sdk.db.Get(serviceID)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	// a task should be executed only if task's service is running.
 	status, err := sdk.m.Status(s)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	if status != service.RUNNING {
-		return "", &NotRunningServiceError{ServiceID: s.Sid}
+		return nil, &NotRunningServiceError{ServiceID: s.Sid}
+	}
+
+	task, err := s.GetTask(taskKey)
+	if err != nil {
+		return nil, err
+	}
+	if err := task.RequireInputs(inputData); err != nil {
+		return nil, err
 	}
 
 	// execute the task.
 	eventID := uuid.NewV4().String()
-	exec, err := execution.New(s, eventID, taskKey, inputData, tags)
-	if err != nil {
-		return "", err
-	}
+	exec := execution.New(s.Hash, nil, eventID, taskKey, inputData, tags)
 	if err := exec.Execute(); err != nil {
-		return "", err
+		return nil, err
 	}
 	if err = sdk.execDB.Save(exec); err != nil {
-		return "", err
+		return nil, err
 	}
 	go sdk.ps.Pub(exec, executionSubTopic(s.Hash))
-	return exec.ID, nil
+	return exec.Hash, nil
 }
 
 // ListenEvent listens events matches with eventFilter on serviceID.
@@ -176,24 +180,24 @@ func (sdk *SDK) ListenExecution(service string, f *ExecutionFilter) (*ExecutionL
 }
 
 // SubmitResult submits results for executionID.
-func (sdk *SDK) SubmitResult(executionID string, outputs []byte, reterr error) error {
-	exec, err := sdk.processExecution(executionID, outputs, reterr)
+func (sdk *SDK) SubmitResult(executionHash []byte, outputs []byte, reterr error) error {
+	exec, err := sdk.processExecution(executionHash, outputs, reterr)
 	if err != nil {
 		return err
 	}
 
-	go sdk.ps.Pub(exec, executionSubTopic(exec.Service.Hash))
+	go sdk.ps.Pub(exec, executionSubTopic(exec.ServiceHash))
 	return nil
 }
 
 // processExecution processes execution and marks it as complated or failed.
-func (sdk *SDK) processExecution(executionID string, outputData []byte, reterr error) (*execution.Execution, error) {
+func (sdk *SDK) processExecution(executionHash []byte, outputData []byte, reterr error) (*execution.Execution, error) {
 	tx, err := sdk.execDB.OpenTransaction()
 	if err != nil {
 		return nil, err
 	}
 
-	exec, err := tx.Find(executionID)
+	exec, err := tx.Find(executionHash)
 	if err != nil {
 		tx.Discard()
 		return nil, err
@@ -205,8 +209,8 @@ func (sdk *SDK) processExecution(executionID string, outputData []byte, reterr e
 			return nil, err
 		}
 	} else {
-		var o map[string]interface{}
-		if err := json.Unmarshal(outputData, &o); err != nil {
+		o, err := sdk.validateExecutionOutput(exec.ServiceHash, exec.TaskKey, outputData)
+		if err != nil {
 			return nil, err
 		}
 
@@ -226,6 +230,28 @@ func (sdk *SDK) processExecution(executionID string, outputData []byte, reterr e
 	}
 
 	return exec, nil
+}
+
+func (sdk *SDK) validateExecutionOutput(service, taskKey string, jsonout []byte) (map[string]interface{}, error) {
+	var output map[string]interface{}
+	if err := json.Unmarshal(jsonout, &output); err != nil {
+		return nil, fmt.Errorf("invalid output: %s", err)
+	}
+
+	s, err := sdk.db.Get(service)
+	if err != nil {
+		return nil, err
+	}
+
+	task, err := s.GetTask(taskKey)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := task.RequireOutputs(output); err != nil {
+		return nil, err
+	}
+	return output, nil
 }
 
 // NotRunningServiceError is an error returned when the service is not running that

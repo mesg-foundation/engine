@@ -142,7 +142,7 @@ func TestExecute(t *testing.T) {
 		InputData: data,
 	})
 	require.NoError(t, err)
-	require.NotEqual(t, "", reply.ExecutionID)
+	require.NotEqual(t, "", reply.ExecutionHash)
 }
 
 func TestExecuteWithInvalidJSON(t *testing.T) {
