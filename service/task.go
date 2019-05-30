@@ -16,16 +16,12 @@ type Task struct {
 
 	// Outputs are the definition of the execution results of task.
 	Outputs []*Parameter `hash:"name:5"`
-
-	// serviceName is the task's service's name.
-	serviceName string `hash:"-"`
 }
 
 // GetTask returns task taskKey of service.
 func (s *Service) GetTask(taskKey string) (*Task, error) {
 	for _, task := range s.Tasks {
 		if task.Key == taskKey {
-			task.serviceName = s.Name
 			return task, nil
 		}
 	}
@@ -35,36 +31,50 @@ func (s *Service) GetTask(taskKey string) (*Task, error) {
 	}
 }
 
-// ValidateInputs produces warnings for task inputs that doesn't satisfy their parameter schemas.
-func (t *Task) ValidateInputs(taskInputs map[string]interface{}) []*ParameterWarning {
-	return validateParametersSchema(t.Inputs, taskInputs)
+// ValidateTaskInputs produces warnings for task inputs that doesn't satisfy their parameter schemas.
+func (s *Service) ValidateTaskInputs(taskKey string, taskInputs map[string]interface{}) ([]*ParameterWarning, error) {
+	t, err := s.GetTask(taskKey)
+	if err != nil {
+		return nil, err
+	}
+	return validateParametersSchema(t.Inputs, taskInputs), nil
 }
 
-// ValidateOutputs produces warnings for task outputs that doesn't satisfy their parameter schemas.
-func (t *Task) ValidateOutputs(taskOutputs map[string]interface{}) []*ParameterWarning {
-	return validateParametersSchema(t.Outputs, taskOutputs)
+// ValidateTaskOutputs produces warnings for task outputs that doesn't satisfy their parameter schemas.
+func (s *Service) ValidateTaskOutputs(taskKey string, taskOutputs map[string]interface{}) ([]*ParameterWarning, error) {
+	t, err := s.GetTask(taskKey)
+	if err != nil {
+		return nil, err
+	}
+	return validateParametersSchema(t.Outputs, taskOutputs), nil
 }
 
-// RequireInputs requires task inputs to match with parameter schemas.
-func (t *Task) RequireInputs(taskInputs map[string]interface{}) error {
-	warnings := t.ValidateInputs(taskInputs)
+// RequireTaskInputs requires task inputs to match with parameter schemas.
+func (s *Service) RequireTaskInputs(taskKey string, taskInputs map[string]interface{}) error {
+	warnings, err := s.ValidateTaskInputs(taskKey, taskInputs)
+	if err != nil {
+		return err
+	}
 	if len(warnings) > 0 {
 		return &InvalidTaskInputError{
-			TaskKey:     t.Key,
-			ServiceName: t.serviceName,
+			TaskKey:     taskKey,
+			ServiceName: s.Name,
 			Warnings:    warnings,
 		}
 	}
 	return nil
 }
 
-// RequireOutputs requires task outputs to match with parameter schemas.
-func (t *Task) RequireOutputs(taskOutputs map[string]interface{}) error {
-	warnings := t.ValidateOutputs(taskOutputs)
+// RequireTaskOutputs requires task outputs to match with parameter schemas.
+func (s *Service) RequireTaskOutputs(taskKey string, taskOutputs map[string]interface{}) error {
+	warnings, err := s.ValidateTaskOutputs(taskKey, taskOutputs)
+	if err != nil {
+		return err
+	}
 	if len(warnings) > 0 {
 		return &InvalidTaskOutputError{
-			TaskKey:     t.Key,
-			ServiceName: t.serviceName,
+			TaskKey:     taskKey,
+			ServiceName: s.Name,
 			Warnings:    warnings,
 		}
 	}

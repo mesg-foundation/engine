@@ -122,11 +122,7 @@ func (sdk *SDK) ExecuteTask(serviceID, taskKey string, inputData map[string]inte
 		return nil, &NotRunningServiceError{ServiceID: s.Sid}
 	}
 
-	task, err := s.GetTask(taskKey)
-	if err != nil {
-		return nil, err
-	}
-	if err := task.RequireInputs(inputData); err != nil {
+	if err := s.RequireTaskInputs(taskKey, inputData); err != nil {
 		return nil, err
 	}
 
@@ -243,12 +239,7 @@ func (sdk *SDK) validateExecutionOutput(service, taskKey string, jsonout []byte)
 		return nil, err
 	}
 
-	task, err := s.GetTask(taskKey)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := task.RequireOutputs(output); err != nil {
+	if err := s.RequireTaskOutputs(taskKey, output); err != nil {
 		return nil, err
 	}
 	return output, nil
