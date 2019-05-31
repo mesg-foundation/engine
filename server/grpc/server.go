@@ -8,9 +8,12 @@ import (
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
+	newcoreapi "github.com/mesg-foundation/core/protobuf/service"
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
 	"github.com/mesg-foundation/core/sdk"
+	servicesdk "github.com/mesg-foundation/core/sdk/service"
 	"github.com/mesg-foundation/core/server/grpc/core"
+	"github.com/mesg-foundation/core/server/grpc/newcore"
 	"github.com/mesg-foundation/core/server/grpc/service"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -20,7 +23,8 @@ import (
 
 // Server contains the server config.
 type Server struct {
-	sdk *sdk.SDK
+	sdk        *sdk.SDK
+	serviceSDK *servicesdk.ServiceSDK
 
 	instance *grpc.Server
 	closed   bool
@@ -31,11 +35,12 @@ type Server struct {
 }
 
 // New returns a new gRPC server.
-func New(address string, sdk *sdk.SDK) *Server {
+func New(address string, sdk *sdk.SDK, serviceSDK *servicesdk.ServiceSDK) *Server {
 	return &Server{
-		sdk:     sdk,
-		address: address,
-		network: "tcp",
+		sdk:        sdk,
+		serviceSDK: serviceSDK,
+		address:    address,
+		network:    "tcp",
 	}
 }
 
@@ -102,10 +107,12 @@ func (s *Server) Close() {
 // register all server
 func (s *Server) register() error {
 	coreServer := core.NewServer(s.sdk)
+	newCoreServer := newcore.NewServer(s.serviceSDK)
 	serviceServer := service.NewServer(s.sdk)
 
 	serviceapi.RegisterServiceServer(s.instance, serviceServer)
 	coreapi.RegisterCoreServer(s.instance, coreServer)
+	newcoreapi.RegisterServiceServer(s.instance, newCoreServer)
 
 	reflection.Register(s.instance)
 	return nil
