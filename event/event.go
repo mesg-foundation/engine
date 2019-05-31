@@ -16,11 +16,7 @@ type Event struct {
 
 // Create creates an event eventKey with eventData for service s.
 func Create(s *service.Service, eventKey string, eventData map[string]interface{}) (*Event, error) {
-	event, err := s.GetEvent(eventKey)
-	if err != nil {
-		return nil, err
-	}
-	if err := event.RequireData(eventData); err != nil {
+	if err := s.RequireEventData(eventKey, eventData); err != nil {
 		return nil, err
 	}
 	return &Event{
