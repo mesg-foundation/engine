@@ -53,6 +53,9 @@ type Service struct {
 	// a Git host.
 	Repository string `hash:"name:7"`
 
+	// Source is the hash id of service's source code on IPFS.
+	Source string
+
 	// DeployedAt holds the creation time of service.
 	DeployedAt time.Time `hash:"-"`
 }
