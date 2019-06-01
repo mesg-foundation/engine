@@ -57,7 +57,7 @@ require (
 	github.com/pseudomuto/protokit v0.1.0 // indirect
 	github.com/satori/go.uuid v1.2.0
 	github.com/sergi/go-diff v0.0.0-20180205163309-da645544ed44 // indirect
-	github.com/sirupsen/logrus v1.0.6
+	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/cobra v0.0.0-20171207074935-ccaecb155a21
 	github.com/spf13/pflag v0.0.0-20180601132542-3ebe029320b2
 	github.com/src-d/gcfg v1.3.0 // indirect
