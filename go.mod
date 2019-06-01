@@ -72,7 +72,7 @@ require (
 	golang.org/x/tools v0.0.0-20190111214448-fc1d57b08d7b // indirect
 	google.golang.org/genproto v0.0.0-20180709204101-e92b11657268 // indirect
 	google.golang.org/grpc v0.0.0-20180710012024-c491b25057c8
-	gopkg.in/AlecAivazis/survey.v1 v1.6.1
+	gopkg.in/AlecAivazis/survey.v1 v1.8.5
 	gopkg.in/airbrake/gobrake.v2 v2.0.9 // indirect
 	gopkg.in/gemnasium/logrus-airbrake-hook.v2 v2.1.2 // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
