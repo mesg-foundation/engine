@@ -9,7 +9,6 @@ import (
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/logger"
 	"github.com/mesg-foundation/core/sdk"
-	servicesdk "github.com/mesg-foundation/core/sdk/service"
 	"github.com/mesg-foundation/core/server/grpc"
 	"github.com/mesg-foundation/core/service/manager/dockermanager"
 	"github.com/mesg-foundation/core/version"
@@ -24,7 +23,6 @@ type dependencies struct {
 	executionDB database.ExecutionDB
 	container   container.Container
 	sdk         *sdk.SDK
-	serviceSDK  *servicesdk.ServiceSDK
 }
 
 func initDependencies() (*dependencies, error) {
@@ -58,16 +56,12 @@ func initDependencies() (*dependencies, error) {
 	// init sdk.
 	sdk := sdk.New(m, c, serviceDB, executionDB)
 
-	// init service sdk.
-	serviceSDK := servicesdk.New(m, c, serviceDB, executionDB)
-
 	return &dependencies{
 		config:      config,
 		container:   c,
 		serviceDB:   serviceDB,
 		executionDB: executionDB,
 		sdk:         sdk,
-		serviceSDK:  serviceSDK,
 	}, nil
 }
 
@@ -135,7 +129,7 @@ func main() {
 	}
 
 	// init gRPC server.
-	server := grpc.New(dep.config.Server.Address, dep.sdk, dep.serviceSDK)
+	server := grpc.New(dep.config.Server.Address, dep.sdk)
 
 	logrus.Infof("starting MESG Core version %s", version.Version)
 

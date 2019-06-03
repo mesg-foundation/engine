@@ -9,6 +9,7 @@ import (
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/event"
 	"github.com/mesg-foundation/core/execution"
+	servicesdk "github.com/mesg-foundation/core/sdk/service"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/manager"
 	"github.com/mesg-foundation/core/utils/hash"
@@ -17,6 +18,8 @@ import (
 
 // SDK exposes all functionalities of MESG core.
 type SDK struct {
+	ServiceSDK *servicesdk.Service
+
 	ps *pubsub.PubSub
 
 	m         manager.Manager
@@ -28,11 +31,12 @@ type SDK struct {
 // New creates a new SDK with given options.
 func New(m manager.Manager, c container.Container, db database.ServiceDB, execDB database.ExecutionDB) *SDK {
 	return &SDK{
-		ps:        pubsub.New(0),
-		m:         m,
-		container: c,
-		db:        db,
-		execDB:    execDB,
+		ServiceSDK: servicesdk.New(m, c, db, execDB),
+		ps:         pubsub.New(0),
+		m:          m,
+		container:  c,
+		db:         db,
+		execDB:     execDB,
 	}
 }
 

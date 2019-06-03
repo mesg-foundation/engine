@@ -1,11 +1,11 @@
-package newcore
+package api
 
 import (
 	"github.com/mesg-foundation/core/protobuf/definition"
 	"github.com/mesg-foundation/core/service"
 )
 
-func fromProtoService(s *definition.Service) *service.Service {
+func FromProtoService(s *definition.Service) *service.Service {
 	return &service.Service{
 		Hash:          s.Hash,
 		Sid:           s.Sid,
@@ -13,41 +13,41 @@ func fromProtoService(s *definition.Service) *service.Service {
 		Description:   s.Description,
 		Repository:    s.Repository,
 		Source:        s.Source,
-		Tasks:         fromProtoTasks(s.Tasks),
-		Events:        fromProtoEvents(s.Events),
-		Configuration: fromProtoConfiguration(s.Configuration),
-		Dependencies:  fromProtoDependencies(s.Dependencies),
+		Tasks:         FromProtoTasks(s.Tasks),
+		Events:        FromProtoEvents(s.Events),
+		Configuration: FromProtoConfiguration(s.Configuration),
+		Dependencies:  FromProtoDependencies(s.Dependencies),
 	}
 }
 
-func fromProtoTasks(tasks []*definition.Task) []*service.Task {
+func FromProtoTasks(tasks []*definition.Task) []*service.Task {
 	ts := make([]*service.Task, len(tasks))
 	for i, task := range tasks {
 		ts[i] = &service.Task{
 			Key:         task.Key,
 			Name:        task.Name,
 			Description: task.Description,
-			Inputs:      fromProtoParameters(task.Inputs),
-			Outputs:     fromProtoParameters(task.Outputs),
+			Inputs:      FromProtoParameters(task.Inputs),
+			Outputs:     FromProtoParameters(task.Outputs),
 		}
 	}
 	return ts
 }
 
-func fromProtoEvents(events []*definition.Event) []*service.Event {
+func FromProtoEvents(events []*definition.Event) []*service.Event {
 	es := make([]*service.Event, len(events))
 	for i, event := range events {
 		es[i] = &service.Event{
 			Key:         event.Key,
 			Name:        event.Name,
 			Description: event.Description,
-			Data:        fromProtoParameters(event.Data),
+			Data:        FromProtoParameters(event.Data),
 		}
 	}
 	return es
 }
 
-func fromProtoParameters(params []*definition.Parameter) []*service.Parameter {
+func FromProtoParameters(params []*definition.Parameter) []*service.Parameter {
 	ps := make([]*service.Parameter, len(params))
 	for i, param := range params {
 		ps[i] = &service.Parameter{
@@ -57,13 +57,13 @@ func fromProtoParameters(params []*definition.Parameter) []*service.Parameter {
 			Type:        param.Type,
 			Repeated:    param.Repeated,
 			Optional:    param.Optional,
-			Object:      fromProtoParameters(param.Object),
+			Object:      FromProtoParameters(param.Object),
 		}
 	}
 	return ps
 }
 
-func fromProtoConfiguration(configuration *definition.Configuration) *service.Dependency {
+func FromProtoConfiguration(configuration *definition.Configuration) *service.Dependency {
 	if configuration == nil {
 		return nil
 	}
@@ -76,7 +76,7 @@ func fromProtoConfiguration(configuration *definition.Configuration) *service.De
 	}
 }
 
-func fromProtoDependency(dep *definition.Dependency) *service.Dependency {
+func FromProtoDependency(dep *definition.Dependency) *service.Dependency {
 	if dep == nil {
 		return nil
 	}
@@ -91,10 +91,10 @@ func fromProtoDependency(dep *definition.Dependency) *service.Dependency {
 	}
 }
 
-func fromProtoDependencies(deps []*definition.Dependency) []*service.Dependency {
+func FromProtoDependencies(deps []*definition.Dependency) []*service.Dependency {
 	ds := make([]*service.Dependency, len(deps))
 	for i, dep := range deps {
-		ds[i] = fromProtoDependency(dep)
+		ds[i] = FromProtoDependency(dep)
 	}
 	return ds
 }
