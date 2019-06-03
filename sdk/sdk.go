@@ -15,6 +15,9 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+// executionStreamTopic is topic used to broadcast executions.
+const executionStreamTopic = "execution-stream"
+
 // SDK exposes all functionalities of MESG core.
 type SDK struct {
 	ps *pubsub.PubSub
@@ -34,6 +37,18 @@ func New(m manager.Manager, c container.Container, db database.ServiceDB, execDB
 		db:        db,
 		execDB:    execDB,
 	}
+}
+
+// GetExecution returns execution that matches given hash.
+func (sdk *SDK) GetExecution(hash []byte) (*execution.Execution, error) {
+	return sdk.execDB.Find(hash)
+}
+
+// GetExecutionStream returns execution that matches given hash.
+func (sdk *SDK) GetExecutionStream(f *ExecutionFilter) *ExecutionListener {
+	l := NewExecutionListener(sdk.ps, executionStreamTopic, f)
+	go l.Listen()
+	return l
 }
 
 // GetService returns service serviceID.
@@ -135,6 +150,8 @@ func (sdk *SDK) ExecuteTask(serviceID, taskKey string, inputData map[string]inte
 	if err = sdk.execDB.Save(exec); err != nil {
 		return nil, err
 	}
+
+	go sdk.ps.Pub(exec, executionStreamTopic)
 	go sdk.ps.Pub(exec, executionSubTopic(s.Hash))
 	return exec.Hash, nil
 }
@@ -182,6 +199,7 @@ func (sdk *SDK) SubmitResult(executionHash []byte, outputs []byte, reterr error)
 		return err
 	}
 
+	go sdk.ps.Pub(exec, executionStreamTopic)
 	go sdk.ps.Pub(exec, executionSubTopic(exec.ServiceHash))
 	return nil
 }
