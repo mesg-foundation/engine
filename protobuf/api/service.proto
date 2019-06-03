@@ -4,6 +4,8 @@ import "protobuf/definition/service.proto";
 
 package api;
 
+// TODO(ilgooz): FIXME: this should be renamed to Service.
+// right now we have conflicts with api.Service.
 service ServiceX {
   rpc Create (CreateServiceRequest) returns (CreateServiceResponse) {}
 }
