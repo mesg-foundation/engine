@@ -21,12 +21,16 @@ var (
 )
 
 const (
-	servicedbname = "service.db.test"
-	execdbname    = "exec.db.test"
+	servicedbname  = "service.db.test"
+	instancedbname = "instance.db.test"
+	execdbname     = "exec.db.test"
 )
 
 func newServer(t *testing.T) (*Server, func()) {
 	db, err := database.NewServiceDB(servicedbname)
+	require.NoError(t, err)
+
+	instanceDB, err := database.NewInstanceDB(instancedbname)
 	require.NoError(t, err)
 
 	execDB, err := database.NewExecutionDB(execdbname)
@@ -37,13 +41,15 @@ func newServer(t *testing.T) (*Server, func()) {
 
 	m := dockermanager.New(c) // TODO(ilgooz): create mocks from manager.Manager and use instead.
 
-	a := sdk.New(m, c, db, execDB)
+	a := sdk.New(m, c, db, instanceDB, execDB)
 	server := NewServer(a)
 
 	closer := func() {
 		require.NoError(t, db.Close())
+		require.NoError(t, instanceDB.Close())
 		require.NoError(t, execDB.Close())
 		require.NoError(t, os.RemoveAll(servicedbname))
+		require.NoError(t, os.RemoveAll(instancedbname))
 		require.NoError(t, os.RemoveAll(execdbname))
 	}
 

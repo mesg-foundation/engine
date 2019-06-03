@@ -14,29 +14,29 @@ import (
 )
 
 // Start starts the service.
-func (m *DockerManager) Start(s *service.Service) (serviceIDs []string, err error) {
+func (m *DockerManager) Start(s *service.Service) (serviceIDs []string, networkID string, err error) {
 	status, err := m.Status(s)
 	if err != nil || status == service.RUNNING {
-		return nil, err //TODO: if the service is already running, serviceIDs should be returned.
+		return nil, "", err //TODO: if the service is already running, serviceIDs should be returned.
 	}
 	// If there is one but not all services running stop to restart all
 	if status == service.PARTIAL {
 		if err := m.Stop(s); err != nil {
-			return nil, err
+			return nil, "", err
 		}
 	}
 	sNamespace := serviceNamespace(s.Hash)
-	networkID, err := m.c.CreateNetwork(sNamespace)
+	networkID, err = m.c.CreateNetwork(sNamespace)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	sharedNetworkID, err := m.c.SharedNetworkID()
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	conf, err := config.Global()
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	_, port, _ := xnet.SplitHostPort(conf.Server.Address)
 	endpoint := conf.Core.Name + ":" + strconv.Itoa(port)
@@ -51,7 +51,7 @@ func (m *DockerManager) Start(s *service.Service) (serviceIDs []string, err erro
 		volumes := extractVolumes(s, d)
 		volumesFrom, err := extractVolumesFrom(s, d)
 		if err != nil {
-			return nil, err
+			return nil, "", err
 		}
 		serviceID, err := m.c.StartService(container.ServiceOptions{
 			Namespace: dependencyNamespace(sNamespace, d.Key),
@@ -78,11 +78,11 @@ func (m *DockerManager) Start(s *service.Service) (serviceIDs []string, err erro
 		})
 		if err != nil {
 			m.Stop(s)
-			return nil, err
+			return nil, "", err
 		}
 		serviceIDs = append(serviceIDs, serviceID)
 	}
-	return serviceIDs, nil
+	return serviceIDs, networkID, nil
 }
 
 func extractPorts(d *service.Dependency) []container.Port {

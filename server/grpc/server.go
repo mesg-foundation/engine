@@ -104,11 +104,13 @@ func (s *Server) Close() {
 func (s *Server) register() error {
 	coreServer := core.NewServer(s.sdk)
 	coreServiceServer := NewServiceServer(s.sdk)
+	coreInstanceServer := NewInstanceServer(s.sdk)
 	serviceServer := service.NewServer(s.sdk)
 
 	serviceapi.RegisterServiceServer(s.instance, serviceServer)
 	coreapi.RegisterCoreServer(s.instance, coreServer)
 	protobuf_api.RegisterServiceXServer(s.instance, coreServiceServer)
+	protobuf_api.RegisterInstanceServer(s.instance, coreInstanceServer)
 
 	reflection.Register(s.instance)
 	return nil

@@ -50,6 +50,7 @@ type Config struct {
 
 		Database struct {
 			ServiceRelativePath   string
+			InstanceRelativePath  string
 			ExecutionRelativePath string
 		}
 	}
@@ -81,6 +82,7 @@ func New() (*Config, error) {
 	c.Core.Name = "engine"
 	c.Core.Path = filepath.Join(home, ".mesg")
 	c.Core.Database.ServiceRelativePath = filepath.Join("database", "services", serviceDBVersion)
+	c.Core.Database.InstanceRelativePath = filepath.Join("database", "instances", serviceDBVersion)
 	c.Core.Database.ExecutionRelativePath = filepath.Join("database", "executions", executionDBVersion)
 	c.Docker.Core.Path = "/mesg"
 	c.Docker.Socket = "/var/run/docker.sock"

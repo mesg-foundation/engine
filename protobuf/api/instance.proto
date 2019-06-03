@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package api;
+
+service Instance {
+  rpc Create (CreateInstanceRequest) returns (CreateInstanceResponse) {}
+}
+
+message CreateInstanceRequest {
+  string id = 1;               // Service's sid or hash.
+  repeated string env = 2;     // Env vars to apply to service's instance on runtime.
+}
+
+message CreateInstanceResponse {
+  string sid = 1;         // Service's id.
+  string hash = 2;        // Service's instance hash.
+  string serviceHash = 3; // Service's bare hash.
+}

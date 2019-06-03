@@ -6,9 +6,11 @@ import (
 
 // Manager is responsible for managing Docker Containers of MESG services.
 // it can be implemented for any container orchestration tool.
+// TODO(ilgooz): discuss if these should accept service.Instance instead of service.Service.
 type Manager interface {
-	// Start starts service and returns service ids related to service.
-	Start(s *service.Service) (serviceIDs []string, err error)
+	// Start starts service and returns related info provided by the underlying container
+	// orchestration tool.
+	Start(s *service.Service) (serviceIDs []string, networkID string, err error)
 
 	// Stop stops service.
 	Stop(s *service.Service) error

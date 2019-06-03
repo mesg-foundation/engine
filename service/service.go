@@ -60,6 +60,16 @@ type Service struct {
 	DeployedAt time.Time `hash:"-"`
 }
 
+// Instance represents a running instance of service.
+type Instance struct {
+	Sid         string
+	Hash        string
+	ServiceHash string
+	ImageHash   string
+	COType      string
+	COInfo      interface{}
+}
+
 // StatusType of the service.
 type StatusType uint
 

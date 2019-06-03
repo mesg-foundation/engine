@@ -24,7 +24,7 @@ func TestIntegrationStartServiceIntegration(t *testing.T) {
 		c = newIntegrationContainer(t)
 		m = New(c)
 	)
-	dockerServices, err := m.Start(s)
+	dockerServices, _, err := m.Start(s)
 	defer m.Stop(s)
 	require.NoError(t, err)
 	require.Equal(t, len(s.Dependencies), len(dockerServices))
@@ -51,7 +51,7 @@ func TestIntegrationStartWith2DependenciesIntegration(t *testing.T) {
 		c = newIntegrationContainer(t)
 		m = New(c)
 	)
-	servicesID, err := m.Start(service)
+	servicesID, _, err := m.Start(service)
 	defer m.Stop(service)
 	require.NoError(t, err)
 	require.Equal(t, 2, len(servicesID))
@@ -82,7 +82,7 @@ func TestIntegrationStartAgainService(t *testing.T) {
 
 	m.Start(s)
 	defer m.Stop(s)
-	dockerServices, err := m.Start(s)
+	dockerServices, _, err := m.Start(s)
 	require.NoError(t, err)
 	require.Equal(t, len(dockerServices), 0) // 0 because already started so no new one to start
 	status, _ := m.Status(s)
@@ -163,7 +163,7 @@ func TestIntegrationStartStopStart(t *testing.T) {
 
 	m.Start(s)
 	m.Stop(s)
-	dockerServices, err := m.Start(s)
+	dockerServices, _, err := m.Start(s)
 	defer m.Stop(s)
 	require.NoError(t, err)
 	require.Equal(t, len(dockerServices), 1)
@@ -199,11 +199,11 @@ func TestIntegrationServiceDependenciesListensFromSamePort(t *testing.T) {
 		m = New(c)
 	)
 
-	_, err := m.Start(s)
+	_, _, err := m.Start(s)
 	require.NoError(t, err)
 	defer m.Stop(s)
 
-	_, err = m.Start(s1)
+	_, _, err = m.Start(s1)
 	require.NotZero(t, err)
 	require.Contains(t, err.Error(), `port '80' is already in use`)
 }
@@ -230,6 +230,6 @@ func TestStartWithSamePorts(t *testing.T) {
 		m = New(c)
 	)
 
-	_, err := m.Start(service)
+	_, _, err := m.Start(service)
 	require.Error(t, err)
 }

@@ -28,7 +28,7 @@ func TestIntegrationStatusService(t *testing.T) {
 	status, err := m.Status(s)
 	require.NoError(t, err)
 	require.Equal(t, service.STOPPED, status)
-	dockerServices, err := m.Start(s)
+	dockerServices, _, err := m.Start(s)
 	defer m.Stop(s)
 	require.NoError(t, err)
 	require.Equal(t, len(dockerServices), len(s.Dependencies))
