@@ -14,11 +14,10 @@ import (
 	"github.com/mesg-foundation/core/service/manager"
 	"github.com/mesg-foundation/core/utils/dirhash"
 	"github.com/mr-tron/base58"
-	uuid "github.com/satori/go.uuid"
 )
 
-// ServiceSDK exposes service APIs of MESG.
-type ServiceSDK struct {
+// Service exposes service APIs of MESG.
+type Service struct {
 	ps *pubsub.PubSub
 
 	m         manager.Manager
@@ -27,9 +26,9 @@ type ServiceSDK struct {
 	execDB    database.ExecutionDB
 }
 
-// New creates a new ServiceSDK with given options.
-func New(m manager.Manager, c container.Container, db database.ServiceDB, execDB database.ExecutionDB) *ServiceSDK {
-	return &ServiceSDK{
+// New creates a new Service SDK with given options.
+func New(m manager.Manager, c container.Container, db database.ServiceDB, execDB database.ExecutionDB) *Service {
+	return &Service{
 		ps:        pubsub.New(0),
 		m:         m,
 		container: c,
@@ -39,9 +38,9 @@ func New(m manager.Manager, c container.Container, db database.ServiceDB, execDB
 }
 
 // Create creates a new service from definition.
-func (s *ServiceSDK) Create(srv *service.Service) error {
+func (s *Service) Create(srv *service.Service) error {
 	// download and untar service context into path.
-	path, err := ioutil.TempDir("", "mesg-"+uuid.NewV4().String())
+	path, err := ioutil.TempDir("", "mesg")
 	if err != nil {
 		return err
 	}
@@ -52,7 +51,7 @@ func (s *ServiceSDK) Create(srv *service.Service) error {
 		return err
 	}
 	if resp.StatusCode != 200 {
-		return errors.New("service's ource code is not reachable")
+		return errors.New("service's source code is not reachable")
 	}
 	defer resp.Body.Close()
 
@@ -68,9 +67,9 @@ func (s *ServiceSDK) Create(srv *service.Service) error {
 	}
 	srv.Hash = base58.Encode(h)
 
-	// check if already deployed.
+	// check if service is already deployed.
 	if _, err := s.db.Get(srv.Hash); err == nil {
-		return errors.New("service is already exists")
+		return errors.New("service is already deployed")
 	}
 
 	// build service's Docker image and apply to service.

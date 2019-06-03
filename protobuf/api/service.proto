@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+import "protobuf/definition/service.proto";
+
+package api;
+
+service ServiceX {
+  rpc Create (CreateServiceRequest) returns (CreateServiceResponse) {}
+}
+
+message CreateServiceRequest {
+  definition.Service definition = 1;
+}
+
+message CreateServiceResponse {
+  string sid = 1;
+  string hash = 2;
+}
