@@ -18,7 +18,7 @@ import (
 
 // SDK exposes all functionalities of MESG core.
 type SDK struct {
-	ServiceSDK *servicesdk.Service
+	Service *servicesdk.Service
 
 	ps *pubsub.PubSub
 
@@ -31,12 +31,12 @@ type SDK struct {
 // New creates a new SDK with given options.
 func New(m manager.Manager, c container.Container, db database.ServiceDB, execDB database.ExecutionDB) *SDK {
 	return &SDK{
-		ServiceSDK: servicesdk.New(m, c, db, execDB),
-		ps:         pubsub.New(0),
-		m:          m,
-		container:  c,
-		db:         db,
-		execDB:     execDB,
+		Service:   servicesdk.New(m, c, db, execDB),
+		ps:        pubsub.New(0),
+		m:         m,
+		container: c,
+		db:        db,
+		execDB:    execDB,
 	}
 }
 

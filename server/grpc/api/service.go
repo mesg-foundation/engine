@@ -13,41 +13,41 @@ func FromProtoService(s *definition.Service) *service.Service {
 		Description:   s.Description,
 		Repository:    s.Repository,
 		Source:        s.Source,
-		Tasks:         FromProtoTasks(s.Tasks),
-		Events:        FromProtoEvents(s.Events),
-		Configuration: FromProtoConfiguration(s.Configuration),
-		Dependencies:  FromProtoDependencies(s.Dependencies),
+		Tasks:         fromProtoTasks(s.Tasks),
+		Events:        fromProtoEvents(s.Events),
+		Configuration: fromProtoConfiguration(s.Configuration),
+		Dependencies:  fromProtoDependencies(s.Dependencies),
 	}
 }
 
-func FromProtoTasks(tasks []*definition.Task) []*service.Task {
+func fromProtoTasks(tasks []*definition.Task) []*service.Task {
 	ts := make([]*service.Task, len(tasks))
 	for i, task := range tasks {
 		ts[i] = &service.Task{
 			Key:         task.Key,
 			Name:        task.Name,
 			Description: task.Description,
-			Inputs:      FromProtoParameters(task.Inputs),
-			Outputs:     FromProtoParameters(task.Outputs),
+			Inputs:      fromProtoParameters(task.Inputs),
+			Outputs:     fromProtoParameters(task.Outputs),
 		}
 	}
 	return ts
 }
 
-func FromProtoEvents(events []*definition.Event) []*service.Event {
+func fromProtoEvents(events []*definition.Event) []*service.Event {
 	es := make([]*service.Event, len(events))
 	for i, event := range events {
 		es[i] = &service.Event{
 			Key:         event.Key,
 			Name:        event.Name,
 			Description: event.Description,
-			Data:        FromProtoParameters(event.Data),
+			Data:        fromProtoParameters(event.Data),
 		}
 	}
 	return es
 }
 
-func FromProtoParameters(params []*definition.Parameter) []*service.Parameter {
+func fromProtoParameters(params []*definition.Parameter) []*service.Parameter {
 	ps := make([]*service.Parameter, len(params))
 	for i, param := range params {
 		ps[i] = &service.Parameter{
@@ -57,13 +57,13 @@ func FromProtoParameters(params []*definition.Parameter) []*service.Parameter {
 			Type:        param.Type,
 			Repeated:    param.Repeated,
 			Optional:    param.Optional,
-			Object:      FromProtoParameters(param.Object),
+			Object:      fromProtoParameters(param.Object),
 		}
 	}
 	return ps
 }
 
-func FromProtoConfiguration(configuration *definition.Configuration) *service.Dependency {
+func fromProtoConfiguration(configuration *definition.Configuration) *service.Dependency {
 	if configuration == nil {
 		return nil
 	}
@@ -76,7 +76,7 @@ func FromProtoConfiguration(configuration *definition.Configuration) *service.De
 	}
 }
 
-func FromProtoDependency(dep *definition.Dependency) *service.Dependency {
+func fromProtoDependency(dep *definition.Dependency) *service.Dependency {
 	if dep == nil {
 		return nil
 	}
@@ -91,10 +91,10 @@ func FromProtoDependency(dep *definition.Dependency) *service.Dependency {
 	}
 }
 
-func FromProtoDependencies(deps []*definition.Dependency) []*service.Dependency {
+func fromProtoDependencies(deps []*definition.Dependency) []*service.Dependency {
 	ds := make([]*service.Dependency, len(deps))
 	for i, dep := range deps {
-		ds[i] = FromProtoDependency(dep)
+		ds[i] = fromProtoDependency(dep)
 	}
 	return ds
 }
