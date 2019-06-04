@@ -3,9 +3,9 @@ syntax = "proto3";
 package api;
 option go_package = "github.com/mesg-foundation/core/protobuf/serviceapi";
 
-// This is the API for MESG Services to interact with MESG Core.
+// This is the API for MESG Services to interact with MESG Engine.
 // It is to be consumed only by MESG Services.
-// It provides all necessary functions that MESG Services need in order to interact with MESG Core.
+// It provides all necessary functions that MESG Services need in order to interact with MESG Engine.
 //
 // This API is only accessible through [gRPC](https://grpc.io/).
 //
