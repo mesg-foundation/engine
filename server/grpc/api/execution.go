@@ -10,7 +10,6 @@ import (
 	"github.com/mesg-foundation/core/protobuf/api"
 	"github.com/mesg-foundation/core/protobuf/definition"
 	"github.com/mesg-foundation/core/sdk"
-	uuid "github.com/satori/go.uuid"
 )
 
 // Server serve execution functions.
@@ -69,25 +68,15 @@ func toProtoExecution(exec *execution.Execution) (*definition.Execution, error) 
 		return nil, err
 	}
 
-	serviceHash, err := hex.DecodeString(exec.ServiceHash)
-	if err != nil {
-		return nil, err
-	}
-
-	eventID, err := uuid.FromString(exec.EventID)
-	if err != nil {
-		return nil, err
-	}
-
 	return &definition.Execution{
-		Hash:        exec.Hash,
-		ParentHash:  exec.ParentHash,
-		EventID:     eventID.Bytes(),
+		Hash:        hex.EncodeToString(exec.Hash),
+		ParentHash:  hex.EncodeToString(exec.ParentHash),
+		EventID:     exec.EventID,
 		Status:      definition.Status(exec.Status),
-		ServiceHash: serviceHash,
+		ServiceHash: exec.ServiceHash,
 		TaskKey:     exec.TaskKey,
-		Inputs:      inputs,
-		Outputs:     outputs,
+		Inputs:      string(inputs),
+		Outputs:     string(outputs),
 		Tags:        exec.Tags,
 		Error:       exec.Error,
 	}, nil
