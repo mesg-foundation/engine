@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/cnf/structhash"
 	"github.com/cskr/pubsub"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/container"
@@ -61,7 +62,7 @@ func (s *Service) Create(srv *service.Service) error {
 
 	// calculate and apply hash to service.
 	dh := dirhash.New(path)
-	h, err := dh.Sum(nil)
+	h, err := dh.Sum(structhash.Sha1(srv, 1))
 	if err != nil {
 		return err
 	}
