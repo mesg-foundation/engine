@@ -3,7 +3,6 @@ syntax = "proto3";
 import "protobuf/definition/execution.proto";
 
 package api;
-option go_package = "github.com/mesg-foundation/core/protobuf/api";
 
 // Execution is the service for handle operations on Execution
 // such as get or stream.
