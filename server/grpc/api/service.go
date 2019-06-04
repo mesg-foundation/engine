@@ -73,6 +73,7 @@ func fromProtoConfiguration(configuration *definition.Configuration) *service.De
 		Ports:       configuration.Ports,
 		Volumes:     configuration.Volumes,
 		VolumesFrom: configuration.VolumesFrom,
+		Env:         configuration.Env,
 	}
 }
 

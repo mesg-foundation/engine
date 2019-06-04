@@ -35,7 +35,7 @@ func (m *CreateServiceRequest) Reset()         { *m = CreateServiceRequest{} }
 func (m *CreateServiceRequest) String() string { return proto.CompactTextString(m) }
 func (*CreateServiceRequest) ProtoMessage()    {}
 func (*CreateServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_cdb2d5a31910dd99, []int{0}
+	return fileDescriptor_service_e517ed1dd58135c7, []int{0}
 }
 func (m *CreateServiceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateServiceRequest.Unmarshal(m, b)
@@ -74,7 +74,7 @@ func (m *CreateServiceResponse) Reset()         { *m = CreateServiceResponse{} }
 func (m *CreateServiceResponse) String() string { return proto.CompactTextString(m) }
 func (*CreateServiceResponse) ProtoMessage()    {}
 func (*CreateServiceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_cdb2d5a31910dd99, []int{1}
+	return fileDescriptor_service_e517ed1dd58135c7, []int{1}
 }
 func (m *CreateServiceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateServiceResponse.Unmarshal(m, b)
@@ -185,9 +185,9 @@ var _ServiceX_serviceDesc = grpc.ServiceDesc{
 	Metadata: "protobuf/api/service.proto",
 }
 
-func init() { proto.RegisterFile("protobuf/api/service.proto", fileDescriptor_service_cdb2d5a31910dd99) }
+func init() { proto.RegisterFile("protobuf/api/service.proto", fileDescriptor_service_e517ed1dd58135c7) }
 
-var fileDescriptor_service_cdb2d5a31910dd99 = []byte{
+var fileDescriptor_service_e517ed1dd58135c7 = []byte{
 	// 187 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x92, 0x2a, 0x28, 0xca, 0x2f,
 	0xc9, 0x4f, 0x2a, 0x4d, 0xd3, 0x4f, 0x2c, 0xc8, 0xd4, 0x2f, 0x4e, 0x2d, 0x2a, 0xcb, 0x4c, 0x4e,
