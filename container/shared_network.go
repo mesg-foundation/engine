@@ -38,7 +38,7 @@ func (c *DockerContainer) createSharedNetworkIfNeeded() error {
 	return err
 }
 
-// sharedNetwork returns the shared network created to connect services and MESG Core.
+// sharedNetwork returns the shared network created to connect services and MESG Engine.
 func (c *DockerContainer) sharedNetwork() (network types.NetworkResource, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://cdn.rawgit.com/mesg-foundation/core/dev/logo.svg" alt="MESG Core" height="120">
+  <img src="https://cdn.rawgit.com/mesg-foundation/core/dev/logo.svg" alt="MESG Engine" height="120">
   <br/><br/>
 </p>
 
@@ -15,13 +15,13 @@
 
 MESG is a platform for the creation of efficient and easy-to-maintain applications that connect any and all technologies. 
 
-MESG Core is a communication and connection layer which manages the interaction of all connected services and applications so they can remain lightweight, yet feature packed.
+MESG Engine is a communication and connection layer which manages the interaction of all connected services and applications so they can remain lightweight, yet feature packed.
 
 To build an application, follow the [Quick Start Guide](#quick-start-guide)
 
 If you'd like to build Services and share them with the community, go to the [Services](#services) section.
 
-To help us build and maintain MESG Core, refer to the [Contribute](#contribute) section below.
+To help us build and maintain MESG Engine, refer to the [Contribute](#contribute) section below.
 
 # Contents
 
@@ -40,7 +40,7 @@ This guide will show you step-by-step how to create an application that sends a 
 
 ### 1. Installation
 
-Run the following command in a console to install MESG Core:
+Run the following command in a console to install MESG Engine:
 
 ```bash
 bash <(curl -fsSL https://mesg.com/install)
@@ -48,9 +48,9 @@ bash <(curl -fsSL https://mesg.com/install)
 
 You can also install it manually by following [this guide](https://docs.mesg.com/guide/installation.html).
 
-### 2. Run MESG Core
+### 2. Run MESG Engine
 
-MESG Core runs as a daemon. To start it, execute:
+MESG Engine runs as a daemon. To start it, execute:
 
 ```bash
 mesg-core start
@@ -74,7 +74,7 @@ Deploy the [invite discord service](https://github.com/mesg-foundation/service-d
 mesg-core service deploy https://github.com/mesg-foundation/service-discord-invitation
 ```
 
-Once the service is deployed, the console displays its id. This id is a unique way for the application to connect to the right service through MESG Core. You'll need to use them inside the application.
+Once the service is deployed, the console displays its id. This id is a unique way for the application to connect to the right service through MESG Engine. You'll need to use them inside the application.
 
 ### 4. Create the application
 
@@ -189,7 +189,7 @@ Check out the documentation for more information on [how to create tasks](https:
 
 ### Submitting Events
 
-Services can also submit events to MESG Core. They allow two-way communication with MESG Core and Applications.
+Services can also submit events to MESG Engine. They allow two-way communication with MESG Engine and Applications.
 
 Let's say the service is an HTTP web server. An event could be submitted when the web server receives a request with the request's payload as the event's data. The service could also submit a specific event for every route of your HTTP API.
 
