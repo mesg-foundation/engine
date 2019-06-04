@@ -30,7 +30,7 @@ func TestGet(t *testing.T) {
 	sdk := sdk.New(nil, nil, nil, db)
 	s := NewServer(sdk)
 
-	got, err := s.Get(context.Background(), &api.GetRequest{Hash: exec.Hash})
+	got, err := s.Get(context.Background(), &api.GetExecutionRequest{Hash: exec.Hash})
 	require.NoError(t, err)
 	require.Equal(t, got, want)
 }

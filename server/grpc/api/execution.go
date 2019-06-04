@@ -23,7 +23,7 @@ func NewServer(sdk *sdk.SDK) *Server {
 }
 
 // Get returns execution from given hash.
-func (s *Server) Get(ctx context.Context, req *api.GetRequest) (*definition.Execution, error) {
+func (s *Server) Get(ctx context.Context, req *api.GetExecutionRequest) (*definition.Execution, error) {
 	exec, err := s.sdk.GetExecution(req.Hash)
 	if err != nil {
 		return nil, err
@@ -32,7 +32,7 @@ func (s *Server) Get(ctx context.Context, req *api.GetRequest) (*definition.Exec
 }
 
 // Stream returns stream of executions.
-func (s *Server) Stream(req *api.StreamRequest, resp api.Execution_StreamServer) error {
+func (s *Server) Stream(req *api.StreamExecutionRequest, resp api.Execution_StreamServer) error {
 	stream := s.sdk.GetExecutionStream(&sdk.ExecutionFilter{
 		Statuses: []execution.Status{execution.Status(req.Filter.Status)},
 	})
