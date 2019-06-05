@@ -115,3 +115,25 @@ func (i *Instance) Create(id string, env []string) (*service.Instance, error) {
 
 	return o, i.instanceDB.Save(o)
 }
+
+// Delete deletes a running instance by instance hash.
+func (i *Instance) Delete(hash string) (*service.Instance, error) {
+	// get the instance from db.
+	o, err := i.instanceDB.Get(hash)
+	if err != nil {
+		return nil, err
+	}
+
+	// get instance's service from db.
+	srv, err := i.db.Get(o.ServiceHash)
+	if err != nil {
+		return nil, err
+	}
+
+	// stop the instance and delete it
+	srv.Hash = o.Hash
+	if err := i.m.Stop(srv); err != nil {
+		return nil, err
+	}
+	return o, i.instanceDB.Delete(o.Hash)
+}

@@ -15,6 +15,9 @@ type InstanceDB interface {
 	// Save saves instance to database.
 	Save(i *service.Instance) error
 
+	// Delete deletes instance from database by hash.
+	Delete(hash string) error
+
 	// Close closes underlying database connection.
 	Close() error
 }
@@ -95,6 +98,19 @@ func (d *LevelDBInstanceDB) Save(i *service.Instance) error {
 		return err
 	}
 
+	return tx.Commit()
+}
+
+// Delete deletes instance from database by hash.
+func (d *LevelDBInstanceDB) Delete(hash string) error {
+	tx, err := d.db.OpenTransaction()
+	if err != nil {
+		return err
+	}
+	if err := tx.Delete([]byte(hash), nil); err != nil {
+		tx.Discard()
+		return err
+	}
 	return tx.Commit()
 }
 
