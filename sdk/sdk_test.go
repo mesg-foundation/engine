@@ -1,12 +1,14 @@
 package sdk
 
 import (
+	"errors"
 	"os"
 	"testing"
 
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/container/mocks"
 	"github.com/mesg-foundation/core/database"
+	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/manager/dockermanager"
 	"github.com/mesg-foundation/core/utils/hash"
@@ -63,6 +65,36 @@ var testService = &service.Service{
 	Dependencies: []*service.Dependency{
 		{Key: "5"},
 	},
+}
+
+func TestGetExecution(t *testing.T) {
+	sdk, at := newTesting(t)
+	defer at.close()
+	exec := execution.New("", nil, "", "", nil, nil)
+	require.NoError(t, sdk.execDB.Save(exec))
+	got, err := sdk.GetExecution(exec.Hash)
+	require.NoError(t, err)
+	require.Equal(t, exec, got)
+}
+
+func TestGetExecutionStream(t *testing.T) {
+	sdk, at := newTesting(t)
+	defer at.close()
+
+	execErr := errors.New("exec-error")
+	exec := execution.New("", nil, "", "", nil, nil)
+	exec.Status = execution.InProgress
+
+	require.NoError(t, sdk.execDB.Save(exec))
+	require.NoError(t, sdk.db.Save(testService))
+
+	stream := sdk.GetExecutionStream(nil)
+	defer stream.Close()
+
+	require.NoError(t, sdk.SubmitResult(exec.Hash, nil, execErr))
+	exec.Status = execution.Failed
+	exec.Error = execErr.Error()
+	require.Equal(t, exec, <-stream.C)
 }
 
 func TestNotRunningServiceError(t *testing.T) {
