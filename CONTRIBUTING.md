@@ -10,7 +10,7 @@ To report a bug, please [check for existing issues, then if you can't find your 
 
 For contributions to Services and Applications, we have a [curated list of Awesome Services and Applications](https://github.com/mesg-foundation/awesome) that we'd love for you to participate in.
 
-For contribution to MESG Core, be sure to subscribe to the development/core category on the [forum](https://forum.mesg.com/c/development/core) and reach out to us. We would love to include you in the development process.
+For contribution to MESG Engine, be sure to subscribe to the development/core category on the [forum](https://forum.mesg.com/c/development/core) and reach out to us. We would love to include you in the development process.
 
 # Start Developing Core
 
