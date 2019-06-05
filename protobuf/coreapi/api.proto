@@ -5,8 +5,8 @@ import "protobuf/definition/service.proto";
 package api;
 option go_package = "github.com/mesg-foundation/core/protobuf/coreapi";
 
-// This is the primary API to interact with MESG Core functionalities.
-// It can be consumed by any applications or tools that you'd like to interact with MESG Core.
+// This is the primary API to interact with MESG Engine functionalities.
+// It can be consumed by any applications or tools that you'd like to interact with MESG Engine.
 // It is actually used by the MESG CLI and MESG Application libraries.
 //
 // This API is only accessible through [gRPC](https://grpc.io/).
