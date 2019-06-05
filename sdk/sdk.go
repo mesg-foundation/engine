@@ -2,6 +2,7 @@ package sdk
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/cskr/pubsub"
@@ -85,6 +86,16 @@ func (sdk *SDK) DeleteService(serviceID string, deleteData bool) error {
 	if err != nil {
 		return err
 	}
+
+	// check if service hash a running instance.
+	_, err = sdk.Instance.GetByService(s.Hash)
+	if err == nil {
+		return errors.New("stop service's instance before deleting")
+	}
+	if !database.IsErrNotFound(err) {
+		return err
+	}
+
 	if err := sdk.m.Stop(s); err != nil {
 		return err
 	}

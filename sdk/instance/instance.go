@@ -137,3 +137,8 @@ func (i *Instance) Delete(hash string) (*service.Instance, error) {
 	}
 	return o, i.instanceDB.Delete(o.Hash)
 }
+
+// GetByService retrives instance by its service's hash.
+func (i *Instance) GetByService(hash string) (*service.Instance, error) {
+	return i.instanceDB.GetByService(hash)
+}

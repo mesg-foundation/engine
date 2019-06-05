@@ -12,6 +12,9 @@ type InstanceDB interface {
 	// Get retrives instance by instance hash.
 	Get(hash string) (*service.Instance, error)
 
+	// GetByService retrives instance by service hash.
+	GetByService(hash string) (*service.Instance, error)
+
 	// Save saves instance to database.
 	Save(i *service.Instance) error
 
@@ -70,6 +73,28 @@ func (d *LevelDBInstanceDB) Get(hash string) (*service.Instance, error) {
 		return nil, err
 	}
 	return i, tx.Commit()
+}
+
+// GetByService retrives instance by its service's hash.
+func (d *LevelDBInstanceDB) GetByService(hash string) (*service.Instance, error) {
+	iter := d.db.NewIterator(nil, nil)
+	for iter.Next() {
+		instanceHash := string(iter.Key())
+		i, err := d.unmarshal(instanceHash, iter.Value())
+		if err != nil {
+			iter.Release()
+			return nil, err
+		}
+		if i.ServiceHash == hash {
+			iter.Release()
+			return i, nil
+		}
+	}
+	iter.Release()
+	if iter.Error() != nil {
+		return nil, iter.Error()
+	}
+	return nil, &ErrNotFound{ID: hash}
 }
 
 // Save saves instance to database.
