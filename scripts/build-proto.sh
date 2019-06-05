@@ -10,5 +10,5 @@ protoc $GRPC_PLUGIN --proto_path=$PROJECT $GRPC/definition/execution.proto
 protoc $GRPC_PLUGIN --proto_path=$PROJECT $GRPC/definition/service.proto
 protoc $GRPC_PLUGIN --proto_path=$PROJECT $GRPC/api/service.proto
 protoc $GRPC_PLUGIN --proto_path=$PROJECT $GRPC/coreapi/api.proto
-protoc $GRPC_PLUGIN --proto_path=$PROJECT $GRPC/api/api.proto
+protoc $GRPC_PLUGIN --proto_path=$PROJECT $GRPC/api/execution.proto
 protoc $GRPC_PLUGIN --proto_path=$PROJECT $GRPC/serviceapi/api.proto
