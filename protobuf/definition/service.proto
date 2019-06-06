@@ -14,6 +14,7 @@ message Service {
   repeated Event events = 6;                // The list of events this service can emit.
   repeated Dependency dependencies = 7;     // The container dependencies this service requires.
   string repository = 9;                    // Service's repository url.
+  string source = 13;                       // The hash id of service's source code on IPFS.
 }
 
 // Events are emitted by the service whenever the service wants.

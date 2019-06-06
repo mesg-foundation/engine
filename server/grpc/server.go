@@ -7,6 +7,7 @@ import (
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
+	protobuf_api "github.com/mesg-foundation/core/protobuf/api"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
 	"github.com/mesg-foundation/core/sdk"
@@ -102,10 +103,12 @@ func (s *Server) Close() {
 // register all server
 func (s *Server) register() error {
 	coreServer := core.NewServer(s.sdk)
+	coreServiceServer := NewServiceServer(s.sdk)
 	serviceServer := service.NewServer(s.sdk)
 
 	serviceapi.RegisterServiceServer(s.instance, serviceServer)
 	coreapi.RegisterCoreServer(s.instance, coreServer)
+	protobuf_api.RegisterServiceXServer(s.instance, coreServiceServer)
 
 	reflection.Register(s.instance)
 	return nil
