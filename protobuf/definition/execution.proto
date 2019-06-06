@@ -26,28 +26,28 @@ enum Status {
 // Execution represents a single execution run in engine.
 message Execution {
   // Hash is a unique hash that represents given execution.
-  bytes hash = 1;
+  string hash = 1;
 
   // parentHash is unique hash that represents that triggerd current execution.
-  bytes parentHash = 2;
+  string parentHash = 2;
 
   // eventID is unique event id.
-  bytes eventID = 3;
+  string eventID = 3;
 
   // Status is the current status of execution.
   Status status = 4;
 
   // serviceHash is hash of service that can proceed an execution
-  bytes serviceHash = 5;
+  string serviceHash = 5;
 
   // taskKey is a task key from a service definition.
   string taskKey = 6;
 
   // inputs is an inptut of execution.
-  bytes inputs = 7;
+  string inputs = 7;
 
   // outputs is an output of successful execution.
-  bytes outputs = 8;
+  string outputs = 8;
 
   // error is an output of a failed execution.
   string error = 9;
