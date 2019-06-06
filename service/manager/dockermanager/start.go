@@ -39,7 +39,7 @@ func (m *DockerManager) Start(s *service.Service) (serviceIDs []string, err erro
 		return nil, err
 	}
 	_, port, _ := xnet.SplitHostPort(conf.Server.Address)
-	endpoint := conf.Core.Name + ":" + strconv.Itoa(port)
+	endpoint := conf.Name + ":" + strconv.Itoa(port)
 	// BUG: https://github.com/mesg-foundation/core/issues/382
 	// After solving this by docker, switch back to deploy in parallel
 	serviceIDs = make([]string, 0)

@@ -291,7 +291,7 @@ func mockStartService(s *service.Service, d *service.Dependency, mc *mocks.Conta
 	var (
 		c, _           = config.Global()
 		_, port, _     = xnet.SplitHostPort(c.Server.Address)
-		endpoint       = c.Core.Name + ":" + strconv.Itoa(port)
+		endpoint       = c.Name + ":" + strconv.Itoa(port)
 		volumes        = extractVolumes(s, d)
 		volumesFrom, _ = extractVolumesFrom(s, d)
 	)
