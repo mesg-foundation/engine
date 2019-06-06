@@ -67,7 +67,6 @@ func (m *DockerManager) Start(s *service.Service) (serviceIDs []string, err erro
 			Env: xos.EnvMergeSlices(d.Env, []string{
 				"MESG_TOKEN=" + s.Hash,
 				"MESG_ENDPOINT=" + endpoint,
-				"MESG_ENDPOINT_TCP=" + endpoint,
 			}),
 			Mounts: append(volumes, volumesFrom...),
 			Ports:  extractPorts(d),
