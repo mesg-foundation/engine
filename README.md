@@ -1,7 +1,4 @@
-<p align="center">
-  <img src="https://cdn.rawgit.com/mesg-foundation/core/dev/logo.svg" alt="MESG Engine" height="120">
-  <br/><br/>
-</p>
+# MESG Engine
 
 [Website](https://mesg.com/) - [Docs](https://docs.mesg.com/) - [Forum](https://forum.mesg.com/) - [Chat](https://discordapp.com/invite/SaZ5HcE) - [Blog](https://medium.com/mesg)
 
