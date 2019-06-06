@@ -33,13 +33,13 @@ func initDependencies() (*dependencies, error) {
 	}
 
 	// init services db.
-	serviceDB, err := database.NewServiceDB(filepath.Join(config.Core.Path, config.Core.Database.ServiceRelativePath))
+	serviceDB, err := database.NewServiceDB(filepath.Join(config.Path, config.Database.ServiceRelativePath))
 	if err != nil {
 		return nil, err
 	}
 
 	// init execution db.
-	executionDB, err := database.NewExecutionDB(filepath.Join(config.Core.Path, config.Core.Database.ExecutionRelativePath))
+	executionDB, err := database.NewExecutionDB(filepath.Join(config.Path, config.Database.ExecutionRelativePath))
 	if err != nil {
 		return nil, err
 	}
