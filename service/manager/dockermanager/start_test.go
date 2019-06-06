@@ -298,7 +298,7 @@ func mockStartService(s *service.Service, d *service.Dependency, mc *mocks.Conta
 	mc.On("StartService", container.ServiceOptions{
 		Namespace: dependencyNamespace(serviceNamespace(s.Hash), d.Key),
 		Labels: map[string]string{
-			"mesg.core":    c.Core.Name,
+			"mesg.engine":  c.Name,
 			"mesg.sid":     s.Sid,
 			"mesg.service": s.Name,
 			"mesg.hash":    s.Hash,

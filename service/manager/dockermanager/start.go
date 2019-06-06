@@ -59,7 +59,7 @@ func (m *DockerManager) Start(s *service.Service) (serviceIDs []string, err erro
 				"mesg.service": s.Name,
 				"mesg.hash":    s.Hash,
 				"mesg.sid":     s.Sid,
-				"mesg.core":    conf.Core.Name,
+				"mesg.engine":  conf.Name,
 			},
 			Image:   d.Image,
 			Args:    d.Args,
