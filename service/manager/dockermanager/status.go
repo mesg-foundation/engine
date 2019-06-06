@@ -53,7 +53,7 @@ func ListRunning() ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	services, err := c.ListServices("mesg.hash", "mesg.core="+cfg.Core.Name)
+	services, err := c.ListServices("mesg.hash", "mesg.engine="+cfg.Name)
 	if err != nil {
 		return nil, err
 	}
