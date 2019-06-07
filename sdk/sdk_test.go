@@ -17,15 +17,13 @@ import (
 )
 
 const (
-	servicedbname  = "service.db.test"
-	instancedbname = "instance.db.test"
-	execdbname     = "exec.db.test"
+	servicedbname = "service.db.test"
+	execdbname    = "exec.db.test"
 )
 
 type apiTesting struct {
 	*testing.T
 	serviceDB     *database.LevelDBServiceDB
-	instanceDB    *database.LevelDBInstanceDB
 	executionDB   *database.LevelDBExecutionDB
 	containerMock *mocks.Container
 }
@@ -44,18 +42,14 @@ func newTesting(t *testing.T) (*SDK, *apiTesting) {
 	db, err := database.NewServiceDB(servicedbname)
 	require.NoError(t, err)
 
-	instanceDB, err := database.NewInstanceDB(instancedbname)
-	require.NoError(t, err)
-
 	execDB, err := database.NewExecutionDB(execdbname)
 	require.NoError(t, err)
 
-	a := New(m, containerMock, db, instanceDB, execDB)
+	a := New(m, containerMock, db, nil, execDB)
 
 	return a, &apiTesting{
 		T:             t,
 		serviceDB:     db,
-		instanceDB:    instanceDB,
 		executionDB:   execDB,
 		containerMock: containerMock,
 	}
