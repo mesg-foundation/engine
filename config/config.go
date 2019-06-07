@@ -17,6 +17,7 @@ const (
 
 	serviceDBVersion   = "v2"
 	executionDBVersion = "v1"
+	instanceDBVersion  = "v1'"
 )
 
 var (
@@ -41,6 +42,7 @@ type Config struct {
 
 	Database struct {
 		ServiceRelativePath   string
+		InstanceRelativePath  string
 		ExecutionRelativePath string
 	}
 
@@ -62,6 +64,7 @@ func New() (*Config, error) {
 	c.Name = "engine"
 	c.Path = filepath.Join(home, ".mesg")
 	c.Database.ServiceRelativePath = filepath.Join("database", "services", serviceDBVersion)
+	c.Database.InstanceRelativePath = filepath.Join("database", "instance", instanceDBVersion)
 	c.Database.ExecutionRelativePath = filepath.Join("database", "executions", executionDBVersion)
 	c.Service = c.getServiceConfigGroup()
 	return &c, nil
