@@ -17,7 +17,7 @@ const (
 
 	serviceDBVersion   = "v2"
 	executionDBVersion = "v1"
-	instanceDBVersion  = "v1'"
+	instanceDBVersion  = "v1"
 )
 
 var (
