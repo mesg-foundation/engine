@@ -27,7 +27,7 @@ func TestGet(t *testing.T) {
 	want, err := toProtoExecution(exec)
 	require.NoError(t, err)
 
-	sdk := sdk.New(nil, nil, nil, db)
+	sdk := sdk.New(nil, nil, nil, nil, db)
 	s := NewServer(sdk)
 
 	got, err := s.Get(context.Background(), &api.GetExecutionRequest{Hash: exec.Hash})

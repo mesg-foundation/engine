@@ -38,6 +38,12 @@ func initDependencies() (*dependencies, error) {
 		return nil, err
 	}
 
+	// init instance db.
+	instanceDB, err := database.NewInstanceDB(filepath.Join(config.Path, config.Database.InstanceRelativePath))
+	if err != nil {
+		return nil, err
+	}
+
 	// init execution db.
 	executionDB, err := database.NewExecutionDB(filepath.Join(config.Path, config.Database.ExecutionRelativePath))
 	if err != nil {
@@ -54,7 +60,7 @@ func initDependencies() (*dependencies, error) {
 	m := dockermanager.New(c)
 
 	// init sdk.
-	sdk := sdk.New(m, c, serviceDB, executionDB)
+	sdk := sdk.New(m, c, serviceDB, instanceDB, executionDB)
 
 	return &dependencies{
 		config:      config,
