@@ -92,7 +92,6 @@ func (i *Instance) Create(id string, env []string) (*instance.Instance, error) {
 		return nil, err
 	}
 
-	// TODO: Start the container
-
-	return o, nil
+	_, err = i.start(o)
+	return o, err
 }
