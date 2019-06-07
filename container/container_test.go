@@ -117,7 +117,7 @@ func TestNew(t *testing.T) {
 	}
 
 	ln := <-dt.LastNetworkCreate()
-	require.Equal(t, cfg.Core.Name, ln.Name)
+	require.Equal(t, cfg.Name, ln.Name)
 	require.Equal(t, types.NetworkCreate{
 		CheckDuplicate: true,
 		Driver:         "overlay",

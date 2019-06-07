@@ -441,8 +441,6 @@ message InfoReply {
     string key = 4;   // key to identify the core service
   }
   repeated CoreService services = 1; // List of services that the core is running as core service
-  string address = 2; // Address to reach the core
-  string image = 3;   // Docker image used
   string version = 4; // Version of the core
 }
 

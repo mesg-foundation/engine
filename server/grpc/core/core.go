@@ -215,8 +215,6 @@ func (s *Server) Info(ctx context.Context, request *coreapi.InfoRequest) (*corea
 		}
 	}
 	return &coreapi.InfoReply{
-		Address:  c.Client.Address,
-		Image:    c.Core.Image,
 		Version:  version.Version,
 		Services: services,
 	}, nil

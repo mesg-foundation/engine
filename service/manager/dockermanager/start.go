@@ -39,7 +39,7 @@ func (m *DockerManager) Start(s *service.Service) (serviceIDs []string, err erro
 		return nil, err
 	}
 	_, port, _ := xnet.SplitHostPort(conf.Server.Address)
-	endpoint := conf.Core.Name + ":" + strconv.Itoa(port)
+	endpoint := conf.Name + ":" + strconv.Itoa(port)
 	// BUG: https://github.com/mesg-foundation/core/issues/382
 	// After solving this by docker, switch back to deploy in parallel
 	serviceIDs = make([]string, 0)
@@ -59,7 +59,7 @@ func (m *DockerManager) Start(s *service.Service) (serviceIDs []string, err erro
 				"mesg.service": s.Name,
 				"mesg.hash":    s.Hash,
 				"mesg.sid":     s.Sid,
-				"mesg.core":    conf.Core.Name,
+				"mesg.engine":  conf.Name,
 			},
 			Image:   d.Image,
 			Args:    d.Args,
@@ -67,7 +67,6 @@ func (m *DockerManager) Start(s *service.Service) (serviceIDs []string, err erro
 			Env: xos.EnvMergeSlices(d.Env, []string{
 				"MESG_TOKEN=" + s.Hash,
 				"MESG_ENDPOINT=" + endpoint,
-				"MESG_ENDPOINT_TCP=" + endpoint,
 			}),
 			Mounts: append(volumes, volumesFrom...),
 			Ports:  extractPorts(d),
