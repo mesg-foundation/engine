@@ -130,19 +130,7 @@ tasks:
                               object:
                                 type: Object
                                 optional: true
-                          outputs:
-                            type: Object
-                            repeated: true
-                            object:
-                              key:
-                                type: String
-                              name:
-                                type: String
-                                optional: true
-                              description:
-                                type: String
-                                optional: true
-                              data: *manifestServiceDataParameters
+                          outputs: *manifestServiceDataParameters
                       events:
                         type: Object
                         repeated: true
