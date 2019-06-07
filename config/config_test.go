@@ -15,7 +15,7 @@ func TestDefaultValue(t *testing.T) {
 	require.Equal(t, "text", c.Log.Format)
 	require.Equal(t, "info", c.Log.Level)
 	require.Equal(t, false, c.Log.ForceColors)
-	require.Equal(t, filepath.Join("mesg"), c.Path)
+	require.Equal(t, "/mesg", c.Path)
 	require.Equal(t, filepath.Join("database", "services", serviceDBVersion), c.Database.ServiceRelativePath)
 	require.Equal(t, filepath.Join("database", "executions", executionDBVersion), c.Database.ExecutionRelativePath)
 	require.Equal(t, "engine", c.Name)

@@ -54,7 +54,7 @@ func New() (*Config, error) {
 	c.Log.Level = "info"
 	c.Log.ForceColors = false
 	c.Name = "engine"
-	c.Path = filepath.Join("mesg")
+	c.Path = "/mesg"
 	c.Database.ServiceRelativePath = filepath.Join("database", "services", serviceDBVersion)
 	c.Database.ExecutionRelativePath = filepath.Join("database", "executions", executionDBVersion)
 	c.Service = c.getServiceConfigGroup()
