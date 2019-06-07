@@ -14,6 +14,9 @@ type InstanceDB interface {
 
 	// Save saves instance to database.
 	Save(i *instance.Instance) error
+	
+	// Delete an instance by instance hash.
+	Delete(hash string) error
 
 	// Close closes underlying database connection.
 	Close() error
