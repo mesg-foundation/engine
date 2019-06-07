@@ -94,7 +94,7 @@ docker service create \
   --name engine \
   --tty \
   --label com.docker.stack.namespace=engine --label com.docker.stack.image=mesg/engine:$VERSION \
-  --mount type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock --mount type=bind,source=$HOME/.mesg,destination=/home/root/.mesg \
+  --mount type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock --mount type=bind,source=$HOME/.mesg,destination=/root/.mesg \
   --network engine --publish 50052:50052 \
   mesg/engine:$VERSION
 
