@@ -21,9 +21,9 @@ var (
 )
 
 const (
-	servicedbname = "service.db.test"
+	servicedbname  = "service.db.test"
 	instancedbname = "instance.db.test"
-	execdbname    = "exec.db.test"
+	execdbname     = "exec.db.test"
 )
 
 func newServer(t *testing.T) (*Server, func()) {
