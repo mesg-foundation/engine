@@ -28,3 +28,14 @@ func (s *InstanceServer) Create(ctx context.Context, request *protobuf_api.Creat
 		ServiceHash: i.ServiceHash,
 	}, nil
 }
+
+// Delete an instance
+func (s *InstanceServer) Delete(ctx context.Context, request *protobuf_api.DeleteInstanceRequest) (*protobuf_api.DeleteInstanceResponse, error) {
+	i, err := s.sdk.Instance.Delete(request.Hash)
+	if err != nil {
+		return nil, err
+	}
+	return &protobuf_api.DeleteInstanceResponse{
+		Hash: i.Hash,
+	}, nil
+}
