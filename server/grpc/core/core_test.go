@@ -259,6 +259,4 @@ func TestInfo(t *testing.T) {
 	for i, s := range reply.Services {
 		require.Equal(t, s.Sid, c.Services()[i].Sid)
 	}
-	require.Equal(t, reply.Address, c.Client.Address)
-	require.Equal(t, reply.Image, c.Core.Image)
 }

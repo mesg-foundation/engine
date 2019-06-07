@@ -291,14 +291,14 @@ func mockStartService(s *service.Service, d *service.Dependency, mc *mocks.Conta
 	var (
 		c, _           = config.Global()
 		_, port, _     = xnet.SplitHostPort(c.Server.Address)
-		endpoint       = c.Core.Name + ":" + strconv.Itoa(port)
+		endpoint       = c.Name + ":" + strconv.Itoa(port)
 		volumes        = extractVolumes(s, d)
 		volumesFrom, _ = extractVolumesFrom(s, d)
 	)
 	mc.On("StartService", container.ServiceOptions{
 		Namespace: dependencyNamespace(serviceNamespace(s.Hash), d.Key),
 		Labels: map[string]string{
-			"mesg.core":    c.Core.Name,
+			"mesg.engine":  c.Name,
 			"mesg.sid":     s.Sid,
 			"mesg.service": s.Name,
 			"mesg.hash":    s.Hash,
@@ -309,7 +309,6 @@ func mockStartService(s *service.Service, d *service.Dependency, mc *mocks.Conta
 		Env: []string{
 			"MESG_TOKEN=" + s.Hash,
 			"MESG_ENDPOINT=" + endpoint,
-			"MESG_ENDPOINT_TCP=" + endpoint,
 		},
 		Mounts: append(volumes, volumesFrom...),
 		Ports:  extractPorts(d),
