@@ -5,17 +5,19 @@ import (
 	"path/filepath"
 	"testing"
 
+	homedir "github.com/mitchellh/go-homedir"
 	"github.com/stretchr/testify/require"
 )
 
 func TestDefaultValue(t *testing.T) {
+	home, _ := homedir.Dir()
 	c, err := New()
 	require.NoError(t, err)
 	require.Equal(t, ":50052", c.Server.Address)
 	require.Equal(t, "text", c.Log.Format)
 	require.Equal(t, "info", c.Log.Level)
 	require.Equal(t, false, c.Log.ForceColors)
-	require.Equal(t, "/mesg", c.Path)
+	require.Equal(t, filepath.Join(home, ".mesg"), c.Path)
 	require.Equal(t, filepath.Join("database", "services", serviceDBVersion), c.Database.ServiceRelativePath)
 	require.Equal(t, filepath.Join("database", "executions", executionDBVersion), c.Database.ExecutionRelativePath)
 	require.Equal(t, "engine", c.Name)

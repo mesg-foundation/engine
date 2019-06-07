@@ -8,6 +8,7 @@ import (
 
 	"github.com/kelseyhightower/envconfig"
 	"github.com/mesg-foundation/core/x/xstrings"
+	homedir "github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
 )
 
@@ -48,13 +49,18 @@ type Config struct {
 
 // New creates a new config with default values.
 func New() (*Config, error) {
+	home, err := homedir.Dir()
+	if err != nil {
+		return nil, err
+	}
+
 	var c Config
 	c.Server.Address = ":50052"
 	c.Log.Format = "text"
 	c.Log.Level = "info"
 	c.Log.ForceColors = false
 	c.Name = "engine"
-	c.Path = "/mesg"
+	c.Path = filepath.Join(home, ".mesg")
 	c.Database.ServiceRelativePath = filepath.Join("database", "services", serviceDBVersion)
 	c.Database.ExecutionRelativePath = filepath.Join("database", "executions", executionDBVersion)
 	c.Service = c.getServiceConfigGroup()
