@@ -50,7 +50,7 @@ func (i *Instance) start(inst *instance.Instance) (serviceIDs []string, err erro
 				"mesg.service": srv.Name,
 				"mesg.hash":    inst.Hash,
 				"mesg.sid":     srv.Sid,
-				"mesg.core":    conf.Name,
+				"mesg.engine":  conf.Name,
 			},
 			Image:   d.Image,
 			Args:    d.Args,
