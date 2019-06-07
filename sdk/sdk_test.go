@@ -17,9 +17,9 @@ import (
 )
 
 const (
-	servicedbname = "service.db.test"
+	servicedbname  = "service.db.test"
 	instancedbname = "instance.db.test"
-	execdbname    = "exec.db.test"
+	execdbname     = "exec.db.test"
 )
 
 type apiTesting struct {
@@ -55,7 +55,7 @@ func newTesting(t *testing.T) (*SDK, *apiTesting) {
 	return a, &apiTesting{
 		T:             t,
 		serviceDB:     db,
-		instanceDB: instanceDB,
+		instanceDB:    instanceDB,
 		executionDB:   execDB,
 		containerMock: containerMock,
 	}
