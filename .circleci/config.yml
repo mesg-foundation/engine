@@ -43,6 +43,22 @@ jobs:
       - checkout
       - setup_remote_docker
       - run: docker swarm init
+      - <<: *restore_go_mod_cache
+      - run: go mod download
+      - <<: *save_go_mod_cache
+      - run: mkdir -p ~/.mesg
+      - <<: *restore_go_cache
+      - run: go test -v -timeout 300s ./...
+      - <<: *save_go_cache
+
+  "test_integration":
+    <<: *run_on_docker
+    environment:
+      - GOCACHE: *go_cache_dir
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run: docker swarm init
       - run: docker build -t sleep docker-images/sleep/
       - run: docker build -t http-server docker-images/http-server/
       - <<: *restore_go_mod_cache
@@ -99,6 +115,14 @@ workflows:
                 - "dev"
                 - "master"
       - "test":
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              ignore:
+                - "dev"
+                - "master"
+      - "test_integration":
           filters:
             tags:
               ignore: /.*/
