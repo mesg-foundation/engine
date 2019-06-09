@@ -143,14 +143,27 @@ workflows:
               ignore: /.*/
             branches:
               only: dev
+      - "test_integration":
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              only: dev
       - "publish_docker_dev":
           requires:
             - "test"
+            - "test_integration"
             - "lint"
 
   test_prod:
     jobs:
       - "test":
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              only: master
+      - "test_integration":
           filters:
             tags:
               ignore: /.*/
@@ -177,10 +190,17 @@ workflows:
               only: /^v.*/
             branches:
               ignore: /.*/
+      - "test_integration":
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
       - "publish_docker_prod":
           requires:
             - "test"
             - "lint"
+            - "test_integration"
           filters:
             tags:
               only: /^v.*/
