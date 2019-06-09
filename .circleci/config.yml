@@ -65,9 +65,9 @@ jobs:
       - run: go mod download
       - <<: *save_go_mod_cache
       - run: mkdir -p ~/.mesg
-      - <<: *restore_go_cache
+      # - <<: *restore_go_cache
       - run: go test -v -timeout 300s -p 1 -tags=integration -coverprofile=coverage.txt ./...
-      - <<: *save_go_cache
+      # - <<: *save_go_cache
       - run: bash <(curl -s https://codecov.io/bash)
 
   "lint":
@@ -80,9 +80,9 @@ jobs:
       - <<: *restore_go_mod_cache
       - run: go mod download
       - <<: *save_go_mod_cache
-      - <<: *restore_go_cache
+      # - <<: *restore_go_cache
       - run: golangci-lint run
-      - <<: *save_go_cache
+      # - <<: *save_go_cache
 
   "publish_docker_dev":
     <<: *run_on_machine
