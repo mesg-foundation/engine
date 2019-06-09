@@ -33,8 +33,10 @@ type apiTesting struct {
 func (t *apiTesting) close() {
 	require.NoError(t, t.serviceDB.Close())
 	require.NoError(t, t.executionDB.Close())
+	require.NoError(t, t.instanceDB.Close())
 	require.NoError(t, os.RemoveAll(servicedbname))
 	require.NoError(t, os.RemoveAll(execdbname))
+	require.NoError(t, os.RemoveAll(instancedbname))
 }
 
 func newTesting(t *testing.T) (*SDK, *apiTesting) {
@@ -50,7 +52,7 @@ func newTesting(t *testing.T) (*SDK, *apiTesting) {
 	execDB, err := database.NewExecutionDB(execdbname)
 	require.NoError(t, err)
 
-	a := New(m, containerMock, db, instanceDB, execDB)
+	a := New(m, containerMock, db, nil, execDB)
 
 	return a, &apiTesting{
 		T:             t,
