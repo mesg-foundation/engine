@@ -12,6 +12,6 @@ message CreateInstanceRequest {
 }
 
 message CreateInstanceResponse {
-  string hash = 2;        // Service's instance hash.
-  string serviceHash = 3; // Service's bare hash.
+  string hash = 1;        // Service's instance hash.
+  string serviceHash = 2; // Service's bare hash.
 }
