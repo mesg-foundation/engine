@@ -78,9 +78,7 @@ jobs:
       - <<: *restore_go_mod_cache
       - run: go mod download
       - <<: *save_go_mod_cache
-      # - <<: *restore_go_cache
       - run: golangci-lint run
-      # - <<: *save_go_cache
 
   "publish_docker_dev":
     <<: *run_on_machine
