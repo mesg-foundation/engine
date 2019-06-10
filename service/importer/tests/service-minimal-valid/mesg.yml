@@ -1,4 +1,0 @@
-name: "minimal-valid"
-dependencies:
-  app:
-    image: nginx

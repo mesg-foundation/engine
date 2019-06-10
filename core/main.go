@@ -12,6 +12,7 @@ import (
 	"github.com/mesg-foundation/core/server/grpc"
 	"github.com/mesg-foundation/core/service/manager/dockermanager"
 	"github.com/mesg-foundation/core/version"
+	"github.com/mesg-foundation/core/workflow"
 	"github.com/mesg-foundation/core/x/xerrors"
 	"github.com/mesg-foundation/core/x/xsignal"
 	"github.com/sirupsen/logrus"
@@ -56,11 +57,14 @@ func initDependencies() (*dependencies, error) {
 	// init sdk.
 	sdk := sdk.New(m, c, serviceDB, executionDB)
 
+	workflow := workflow.New(sdk)
+
 	return &dependencies{
 		config:      config,
 		container:   c,
 		serviceDB:   serviceDB,
 		executionDB: executionDB,
+		workflow: workflow,
 		sdk:         sdk,
 	}, nil
 }
@@ -127,6 +131,8 @@ func main() {
 	if err := deployCoreServices(dep.config, dep.sdk); err != nil {
 		logrus.Fatalln(err)
 	}
+
+	dep.Workflow.Start()
 
 	// init gRPC server.
 	server := grpc.New(dep.config.Server.Address, dep.sdk)
