@@ -96,6 +96,7 @@ func toProtoConfiguration(configuration *service.Dependency) *definition.Configu
 		Ports:       configuration.Ports,
 		Volumes:     configuration.Volumes,
 		VolumesFrom: configuration.VolumesFrom,
+		Env:         configuration.Env,
 	}
 }
 

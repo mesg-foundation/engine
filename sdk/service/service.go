@@ -85,8 +85,5 @@ func (s *Service) Create(srv *service.Service) error {
 		srv.Sid = "_" + srv.Hash
 	}
 
-	// apply main service key to service.
-	srv.Configuration.Key = service.MainServiceKey
-
 	return s.db.Save(srv)
 }
