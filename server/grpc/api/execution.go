@@ -28,7 +28,12 @@ func NewServer(sdk *sdk.SDK) *Server {
 
 // Get returns execution from given hash.
 func (s *Server) Get(ctx context.Context, req *api.GetExecutionRequest) (*definition.Execution, error) {
-	exec, err := s.sdk.GetExecution(req.Hash)
+	hash, err := hex.DecodeString(req.Hash)
+	if err != nil {
+		return nil, err
+	}
+
+	exec, err := s.sdk.GetExecution(hash)
 	if err != nil {
 		return nil, err
 	}

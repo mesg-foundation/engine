@@ -20,7 +20,7 @@ service Execution {
 
 // GetRequest defines request to retrive a single execution.
 message GetExecutionRequest {
-  bytes hash = 1;
+  string hash = 1;
 }
 
 // StreamRequest defines request to retrive a stream of executions.
