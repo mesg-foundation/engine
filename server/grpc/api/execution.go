@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 
 	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/protobuf/acknowledgement"
@@ -11,6 +12,9 @@ import (
 	"github.com/mesg-foundation/core/protobuf/definition"
 	"github.com/mesg-foundation/core/sdk"
 )
+
+// ErrNoOutput is an error when there is no output for updating execution.
+var ErrNoOutput = errors.New("output not supplied")
 
 // Server serve execution functions.
 type Server struct {
@@ -55,6 +59,28 @@ func (s *Server) Stream(req *api.StreamExecutionRequest, resp api.Execution_Stre
 	}
 
 	return nil
+}
+
+// Update updates execution from given hash.
+func (s *Server) Update(ctx context.Context, req *api.UpdateExecutionRequest) (*api.UpdateExecutionResponse, error) {
+	hash, err := hex.DecodeString(req.Hash)
+	if err != nil {
+		return nil, err
+	}
+	switch res := req.Result.(type) {
+	case *api.UpdateExecutionRequest_Outputs:
+		err = s.sdk.UpdateExecution(hash, []byte(res.Outputs), nil)
+	case *api.UpdateExecutionRequest_Error:
+		err = s.sdk.UpdateExecution(hash, nil, errors.New(res.Error))
+	default:
+		err = ErrNoOutput
+	}
+
+	if err != nil {
+		return nil, err
+	}
+	return &api.UpdateExecutionResponse{}, nil
+
 }
 
 func toProtoExecution(exec *execution.Execution) (*definition.Execution, error) {

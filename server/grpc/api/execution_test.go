@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"encoding/hex"
 	"os"
 	"testing"
 
@@ -33,4 +34,20 @@ func TestGet(t *testing.T) {
 	got, err := s.Get(context.Background(), &api.GetExecutionRequest{Hash: exec.Hash})
 	require.NoError(t, err)
 	require.Equal(t, got, want)
+}
+
+func TestUpdate(t *testing.T) {
+	db, err := database.NewExecutionDB(execdbname)
+	require.NoError(t, err)
+	defer db.Close()
+	defer os.RemoveAll(execdbname)
+
+	exec := execution.New("", nil, uuid.NewV4().String(), "", nil, nil)
+	require.NoError(t, db.Save(exec))
+
+	sdk := sdk.New(nil, nil, nil, db)
+	s := NewServer(sdk)
+
+	_, err = s.Update(context.Background(), &api.UpdateExecutionRequest{Hash: hex.EncodeToString(exec.Hash)})
+	require.Equal(t, ErrNoOutput, err)
 }
