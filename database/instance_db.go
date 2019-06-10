@@ -86,13 +86,5 @@ func (d *LevelDBInstanceDB) Close() error {
 
 // Delete deletes service from database.
 func (d *LevelDBInstanceDB) Delete(hash string) error {
-	tx, err := d.db.OpenTransaction()
-	if err != nil {
-		return err
-	}
-	if err := tx.Delete([]byte(hash), nil); err != nil {
-		tx.Discard()
-		return err
-	}
-	return tx.Commit()
+	return d.db.Delete([]byte(hash), nil)
 }
