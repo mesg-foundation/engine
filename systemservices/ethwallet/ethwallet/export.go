@@ -13,25 +13,25 @@ type exportInputs struct {
 	Passphrase string         `json:"passphrase"`
 }
 
-func (s *Ethwallet) export(execution *service.Execution) (string, interface{}) {
+func (s *Ethwallet) export(execution *service.Execution) (interface{}, error) {
 	var inputs exportInputs
 	if err := execution.Data(&inputs); err != nil {
-		return OutputError(err)
+		return nil, err
 	}
 
 	account, err := xaccounts.GetAccount(s.keystore, inputs.Address)
 	if err != nil {
-		return OutputError(errAccountNotFound)
+		return nil, errAccountNotFound
 	}
 
 	keyJSON, err := s.keystore.Export(account, inputs.Passphrase, inputs.Passphrase)
 	if err != nil {
-		return OutputError(err)
+		return nil, err
 	}
 
 	var accountJSON encryptedKeyJSONV3
 	if err = json.Unmarshal(keyJSON, &accountJSON); err != nil {
-		return OutputError(err)
+		return nil, err
 	}
-	return "success", accountJSON
+	return accountJSON, nil
 }

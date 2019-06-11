@@ -68,19 +68,19 @@ func TestEventValidateAndRequireData(t *testing.T) {
 		}
 	)
 
-	e, _ := s.GetEvent(eventKey)
-
-	warnings := e.ValidateData(validEventData)
+	warnings, err := s.ValidateEventData(eventKey, validEventData)
+	require.NoError(t, err)
 	require.Len(t, warnings, 0)
 
-	err := e.RequireData(validEventData)
+	err = s.RequireEventData(eventKey, validEventData)
 	require.NoError(t, err)
 
-	warnings = e.ValidateData(inValidEventData)
+	warnings, err = s.ValidateEventData(eventKey, inValidEventData)
+	require.NoError(t, err)
 	require.Len(t, warnings, 1)
 	require.Equal(t, paramKey, warnings[0].Key)
 
-	err = e.RequireData(inValidEventData)
+	err = s.RequireEventData(eventKey, inValidEventData)
 	require.Equal(t, &InvalidEventDataError{
 		EventKey:    eventKey,
 		ServiceName: serviceName,

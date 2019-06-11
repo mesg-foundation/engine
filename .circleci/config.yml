@@ -43,16 +43,30 @@ jobs:
       - checkout
       - setup_remote_docker
       - run: docker swarm init
+      - <<: *restore_go_mod_cache
+      - run: go mod download
+      - <<: *save_go_mod_cache
+      - run: mkdir -p ~/.mesg
+      - <<: *restore_go_cache
+      - run: go test -v -timeout 300s -coverprofile=coverage.txt ./...
+      - <<: *save_go_cache
+      - run: bash <(curl -s https://codecov.io/bash)
+
+  "test_integration":
+    <<: *run_on_docker
+    environment:
+      - GOCACHE: *go_cache_dir
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run: docker swarm init
       - run: docker build -t sleep docker-images/sleep/
       - run: docker build -t http-server docker-images/http-server/
       - <<: *restore_go_mod_cache
       - run: go mod download
       - <<: *save_go_mod_cache
       - run: mkdir -p ~/.mesg
-      - <<: *restore_go_cache
-      - run: go test -v -timeout 300s -p 1 -tags=integration -coverprofile=coverage.txt ./...
-      - <<: *save_go_cache
-      - run: bash <(curl -s https://codecov.io/bash)
+      - run: go test -v -timeout 300s -p 1 -tags=integration ./...
 
   "lint":
     docker:
@@ -64,42 +78,24 @@ jobs:
       - <<: *restore_go_mod_cache
       - run: go mod download
       - <<: *save_go_mod_cache
-      - <<: *restore_go_cache
       - run: golangci-lint run
-      - <<: *save_go_cache
 
   "publish_docker_dev":
     <<: *run_on_machine
     steps:
       - checkout
-      - run: docker build -t mesg/core:dev --build-arg version="dev build `echo $CIRCLE_SHA1 | cut -c1-7`" .
+      - run: docker build -t mesg/engine:dev --build-arg version="dev build `echo $CIRCLE_SHA1 | cut -c1-7`" .
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
-      - run: docker push mesg/core:dev
+      - run: docker push mesg/engine:dev
 
   "publish_docker_prod":
     <<: *run_on_machine
     steps:
       - checkout
-      - run: docker build -t mesg/core:$CIRCLE_TAG -t mesg/core:latest --build-arg version=$CIRCLE_TAG .
+      - run: docker build -t mesg/engine:$CIRCLE_TAG -t mesg/engine:latest --build-arg version=$CIRCLE_TAG .
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
-      - run: docker push mesg/core:$CIRCLE_TAG
-      - run: docker push mesg/core:latest
-
-  "release_cli_dev":
-    <<: *run_on_docker
-    steps:
-      - checkout
-      - run: scripts/build-cli.sh "dev build `echo $CIRCLE_SHA1 | cut -c1-7`"
-      - run: go get -u github.com/tcnksm/ghr
-      - run: ghr -u mesg-foundation -r engine -delete -prerelease -n "Developer Release" -b "Warning - this is a developer release, use it only if you know what are doing. Make sure to pull the latest \`mesg/core:dev\` image. \`\`\`docker pull mesg/core:dev\`\`\`" release-dev ./bin
-
-  "release_cli_prod":
-    <<: *run_on_docker
-    steps:
-      - checkout
-      - run: scripts/build-cli.sh $CIRCLE_TAG
-      - run: go get -u github.com/tcnksm/ghr
-      - run: ghr -u mesg-foundation -r engine -delete $CIRCLE_TAG ./bin
+      - run: docker push mesg/engine:$CIRCLE_TAG
+      - run: docker push mesg/engine:latest
 
 workflows:
   version: 2
@@ -122,6 +118,14 @@ workflows:
               ignore:
                 - "dev"
                 - "master"
+      - "test_integration":
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              ignore:
+                - "dev"
+                - "master"
 
   release_dev:
     jobs:
@@ -137,17 +141,27 @@ workflows:
               ignore: /.*/
             branches:
               only: dev
+      - "test_integration":
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              only: dev
       - "publish_docker_dev":
           requires:
             - "test"
+            - "test_integration"
             - "lint"
-      - "release_cli_dev":
-          requires:
-            - "publish_docker_dev"
 
   test_prod:
     jobs:
       - "test":
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              only: master
+      - "test_integration":
           filters:
             tags:
               ignore: /.*/
@@ -174,18 +188,17 @@ workflows:
               only: /^v.*/
             branches:
               ignore: /.*/
-      - "publish_docker_prod":
-          requires:
-            - "test"
-            - "lint"
+      - "test_integration":
           filters:
             tags:
               only: /^v.*/
             branches:
               ignore: /.*/
-      - "release_cli_prod":
+      - "publish_docker_prod":
           requires:
-            - "publish_docker_prod"
+            - "test"
+            - "lint"
+            - "test_integration"
           filters:
             tags:
               only: /^v.*/

@@ -14,6 +14,7 @@ message Service {
   repeated Event events = 6;                // The list of events this service can emit.
   repeated Dependency dependencies = 7;     // The container dependencies this service requires.
   string repository = 9;                    // Service's repository url.
+  string source = 13;                       // The hash id of service's source code on IPFS.
 }
 
 // Events are emitted by the service whenever the service wants.
@@ -30,15 +31,7 @@ message Task {
   string name = 1;                    // Task's name.
   string description = 2;             // Task's description.
   repeated Parameter inputs = 6;      // List inputs of this task.
-  repeated Output outputs = 7;        // List of outputs this task can return.
-}
-
-// Output is the data a task returns.
-message Output {
-  string key = 4;                   // Output's key.
-  string name = 1;                  // Output's name.
-  string description = 2;           // Output's description.
-  repeated Parameter data = 3;      // List of data of this output.
+  repeated Parameter outputs = 7;     // List of tasks outputs.
 }
 
 // Parameter describes the task's inputs, the task's outputs, and the event's data.

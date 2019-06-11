@@ -7,23 +7,50 @@
 #### Changed
 #### Fixed
 #### Removed
-#### Documentation
+
+## [v0.10.0](https://github.com/mesg-foundation/core/releases/tag/v0.10.0)
+
+#### Breaking Changes
+
+- ([#928](https://github.com/mesg-foundation/engine/pull/928)) Rename `volumesfrom` to `volumesFrom` in services' `mesg.yml`.
+- ([#974](https://github.com/mesg-foundation/engine/pull/974)) Reduce the number of service outputs to one. An output can still contain multiple parameters. ([#963](https://github.com/mesg-foundation/engine/pull/963)). ([#964](https://github.com/mesg-foundation/engine/pull/964)). ([#965](https://github.com/mesg-foundation/engine/pull/965)). ([#967](https://github.com/mesg-foundation/engine/pull/967)). ([#971](https://github.com/mesg-foundation/engine/pull/971)). ([#972](https://github.com/mesg-foundation/engine/pull/972)). ([#973](https://github.com/mesg-foundation/engine/pull/973)). ([#975](https://github.com/mesg-foundation/engine/pull/975)). ([#976](https://github.com/mesg-foundation/engine/pull/976)). ([#977](https://github.com/mesg-foundation/engine/pull/977)). ([#978](https://github.com/mesg-foundation/engine/pull/978)). ([#979](https://github.com/mesg-foundation/engine/pull/979)). ([#980](https://github.com/mesg-foundation/engine/pull/980)). ([#981](https://github.com/mesg-foundation/engine/pull/981)). ([#982](https://github.com/mesg-foundation/engine/pull/982)). ([#983](https://github.com/mesg-foundation/engine/pull/983)). ([#984](https://github.com/mesg-foundation/engine/pull/984)). ([#987](https://github.com/mesg-foundation/engine/pull/987)). ([#988](https://github.com/mesg-foundation/engine/pull/988)). ([#1028](https://github.com/mesg-foundation/engine/pull/1028)).
+- ([#791](https://github.com/mesg-foundation/engine/pull/791)) Remove CLI from the repository. The new cli is available on a [dedicated repository](https://github.com/mesg-foundation/cli). ([#995](https://github.com/mesg-foundation/engine/pull/995)). ([#996](https://github.com/mesg-foundation/engine/pull/996)).
+- ([#991](https://github.com/mesg-foundation/engine/pull/991)) Rename Core to Engine. ([#968](https://github.com/mesg-foundation/engine/pull/968)). ([#970](https://github.com/mesg-foundation/engine/pull/970)). ([#1002](https://github.com/mesg-foundation/engine/pull/1002)). ([#1003](https://github.com/mesg-foundation/engine/pull/1003)). ([#1004](https://github.com/mesg-foundation/engine/pull/1004)). ([#1020](https://github.com/mesg-foundation/engine/pull/1020)).
+- ([#1032](https://github.com/mesg-foundation/engine/pull/1032)) Simplify Engine configs. ([#1038](https://github.com/mesg-foundation/engine/pull/1038)).
+
+#### Added
+
+- ([#1014](https://github.com/mesg-foundation/engine/pull/1014)) Introduce new deployment api. Only available for development purpose.
+
+#### Changed
+
+- ([#994](https://github.com/mesg-foundation/engine/pull/994)) Update execution database and api. ([#1006](https://github.com/mesg-foundation/engine/pull/1006)). ([#1007](https://github.com/mesg-foundation/engine/pull/1007)). ([#1041](https://github.com/mesg-foundation/engine/pull/1041)).
+- ([#997](https://github.com/mesg-foundation/engine/pull/997)) Rename package `api` to `sdk`.
+- ([#998](https://github.com/mesg-foundation/engine/pull/998)) Rename package `interface` to `server`.
+
+#### Fixed
+
+- ([#955](https://github.com/mesg-foundation/engine/pull/955)) Catch error when the volume is deleted and it did not exist.
+
+#### Removed
+
+- [#1001](https://github.com/mesg-foundation/engine/pull/1001) Remove web3 http request logs from Marketplace.
 
 ## [v0.9.1](https://github.com/mesg-foundation/core/releases/tag/v0.9.1)
 
 #### Added
 
-- ([#993](https://github.com/mesg-foundation/engine/pull/993)) Display web3 http request logs in Marketplace
+- ([#993](https://github.com/mesg-foundation/engine/pull/993)) Display web3 http request logs in Marketplace.
 
 #### Changed
 
-- ([#949](https://github.com/mesg-foundation/engine/pull/949)) Use MESG's IPFS node in CLI
+- ([#949](https://github.com/mesg-foundation/engine/pull/949)) Use MESG's IPFS node in CLI.
 
 #### Fixed
 
 - ([#930](https://github.com/mesg-foundation/engine/pull/930)) Improve generated README when using command `service gen-doc`. ([#948](https://github.com/mesg-foundation/engine/pull/948)). ([#960](https://github.com/mesg-foundation/engine/pull/960)).
-- ([#934](https://github.com/mesg-foundation/engine/pull/934)) Return error when image is passed in configuration in mesg.yml
-- ([#929](https://github.com/mesg-foundation/engine/pull/929)) Show better error when deploying service
+- ([#934](https://github.com/mesg-foundation/engine/pull/934)) Return error when an image is passed on a mesg.yml definition.
+- ([#929](https://github.com/mesg-foundation/engine/pull/929)) Show more verbose error when deploying service.
 
 #### Documentation
 
@@ -59,9 +86,6 @@
 - ([#771](https://github.com/mesg-foundation/core/pull/771)) Fix gRPC stream acknowledgement.
 - ([#772](https://github.com/mesg-foundation/core/pull/772)) Improve command logs errors.
 - ([#820](https://github.com/mesg-foundation/core/pull/820)) Fix container package.
-
-#### Removed
-#### Documentation
 
 ## [v0.8.1](https://github.com/mesg-foundation/core/releases/tag/v0.8.1)
 

@@ -1,9 +1,6 @@
 package execution
 
 import (
-	"time"
-
-	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/x/xstructhash"
 )
 
@@ -15,7 +12,7 @@ type Status int
 // InProgress => The execution is being processed
 // Completed  => The execution is completed
 const (
-	Created Status = iota
+	Created Status = iota + 1
 	InProgress
 	Completed
 	Failed
@@ -37,41 +34,31 @@ func (s Status) String() (r string) {
 
 // Execution stores all informations about executions.
 type Execution struct {
-	ID                string                 `hash:"-"`
-	EventID           string                 `hash:"name:eventID"`
-	Status            Status                 `hash:"-"`
-	Service           *service.Service       `hash:"name:service"`
-	TaskKey           string                 `hash:"name:taskKey"`
-	Tags              []string               `hash:"name:tags"`
-	Inputs            map[string]interface{} `hash:"name:inputs"`
-	OutputKey         string                 `hash:"-"`
-	OutputData        map[string]interface{} `hash:"-"`
-	Error             string                 `hash:"-"`
-	CreatedAt         time.Time              `hash:"-"`
-	ExecutedAt        time.Time              `hash:"-"`
-	ExecutionDuration time.Duration          `hash:"-"`
+	Hash        []byte                 `hash:"-"`
+	ParentHash  []byte                 `hash:"name:parentHash"`
+	EventID     string                 `hash:"name:eventID"`
+	Status      Status                 `hash:"-"`
+	ServiceHash string                 `hash:"name:serviceHash"`
+	TaskKey     string                 `hash:"name:taskKey"`
+	Tags        []string               `hash:"name:tags"`
+	Inputs      map[string]interface{} `hash:"name:inputs"`
+	Outputs     map[string]interface{} `hash:"-"`
+	Error       string                 `hash:"-"`
 }
 
 // New returns a new execution. It returns an error if inputs are invalid.
-func New(service *service.Service, eventID string, taskKey string, inputs map[string]interface{}, tags []string) (*Execution, error) {
-	task, err := service.GetTask(taskKey)
-	if err != nil {
-		return nil, err
-	}
-	if err := task.RequireInputs(inputs); err != nil {
-		return nil, err
-	}
+func New(service string, parentHash []byte, eventID, taskKey string, inputs map[string]interface{}, tags []string) *Execution {
 	exec := &Execution{
-		EventID:   eventID,
-		Service:   service,
-		Inputs:    inputs,
-		TaskKey:   taskKey,
-		Tags:      tags,
-		CreatedAt: time.Now(),
-		Status:    Created,
+		EventID:     eventID,
+		ServiceHash: service,
+		ParentHash:  parentHash,
+		Inputs:      inputs,
+		TaskKey:     taskKey,
+		Tags:        tags,
+		Status:      Created,
 	}
-	exec.ID = xstructhash.Hash(exec, 1)
-	return exec, nil
+	exec.Hash = xstructhash.Hash(exec, 1)
+	return exec
 }
 
 // Execute changes executions status to in progres and update its execute time.
@@ -83,14 +70,13 @@ func (execution *Execution) Execute() error {
 			ActualStatus:   execution.Status,
 		}
 	}
-	execution.ExecutedAt = time.Now()
 	execution.Status = InProgress
 	return nil
 }
 
 // Complete changes execution status to completed. It verifies the output.
 // It returns an error if the status is different then InProgress or verification fails.
-func (execution *Execution) Complete(outputKey string, outputData map[string]interface{}) error {
+func (execution *Execution) Complete(outputs map[string]interface{}) error {
 	if execution.Status != InProgress {
 		return StatusError{
 			ExpectedStatus: InProgress,
@@ -98,21 +84,7 @@ func (execution *Execution) Complete(outputKey string, outputData map[string]int
 		}
 	}
 
-	task, err := execution.Service.GetTask(execution.TaskKey)
-	if err != nil {
-		return err
-	}
-	output, err := task.GetOutput(outputKey)
-	if err != nil {
-		return err
-	}
-	if err := output.RequireData(outputData); err != nil {
-		return err
-	}
-
-	execution.ExecutionDuration = time.Since(execution.ExecutedAt)
-	execution.OutputKey = outputKey
-	execution.OutputData = outputData
+	execution.Outputs = outputs
 	execution.Status = Completed
 	return nil
 }
@@ -128,7 +100,6 @@ func (execution *Execution) Failed(err error) error {
 	}
 
 	execution.Error = err.Error()
-	execution.ExecutionDuration = time.Since(execution.ExecutedAt)
 	execution.Status = Failed
 	return nil
 }

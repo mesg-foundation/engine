@@ -46,12 +46,12 @@ func (s *Server) Execute(task string, data interface{}) (string, *Execution, err
 	}
 
 	uuidV4 := uuid.NewV4()
-	id := uuidV4.String()
+	hash := uuidV4.String()
 
 	taskData := &serviceapi.TaskData{
-		ExecutionID: id,
-		TaskKey:     task,
-		InputData:   string(bytes),
+		ExecutionHash: hash,
+		TaskKey:       task,
+		InputData:     string(bytes),
 	}
 
 	select {
@@ -64,7 +64,7 @@ func (s *Server) Execute(task string, data interface{}) (string, *Execution, err
 	case <-s.service.closingC:
 		return "", nil, ErrConnectionClosed{}
 	case resp := <-s.service.submitC:
-		return id, resp, nil
+		return hash, resp, nil
 	}
 }
 
