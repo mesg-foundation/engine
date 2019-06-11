@@ -16,8 +16,6 @@
 - ([#974](https://github.com/mesg-foundation/engine/pull/974)) Reduce the number of service outputs to one. An output can still contain multiple parameters. ([#963](https://github.com/mesg-foundation/engine/pull/963)). ([#964](https://github.com/mesg-foundation/engine/pull/964)). ([#965](https://github.com/mesg-foundation/engine/pull/965)). ([#967](https://github.com/mesg-foundation/engine/pull/967)). ([#971](https://github.com/mesg-foundation/engine/pull/971)). ([#972](https://github.com/mesg-foundation/engine/pull/972)). ([#973](https://github.com/mesg-foundation/engine/pull/973)). ([#975](https://github.com/mesg-foundation/engine/pull/975)). ([#976](https://github.com/mesg-foundation/engine/pull/976)). ([#977](https://github.com/mesg-foundation/engine/pull/977)). ([#978](https://github.com/mesg-foundation/engine/pull/978)). ([#979](https://github.com/mesg-foundation/engine/pull/979)). ([#980](https://github.com/mesg-foundation/engine/pull/980)). ([#981](https://github.com/mesg-foundation/engine/pull/981)). ([#982](https://github.com/mesg-foundation/engine/pull/982)). ([#983](https://github.com/mesg-foundation/engine/pull/983)). ([#984](https://github.com/mesg-foundation/engine/pull/984)). ([#987](https://github.com/mesg-foundation/engine/pull/987)). ([#988](https://github.com/mesg-foundation/engine/pull/988)). ([#1028](https://github.com/mesg-foundation/engine/pull/1028)).
 - ([#791](https://github.com/mesg-foundation/engine/pull/791)) Remove CLI from the repository. The new cli is available on a [dedicated repository](https://github.com/mesg-foundation/cli). ([#995](https://github.com/mesg-foundation/engine/pull/995)). ([#996](https://github.com/mesg-foundation/engine/pull/996)).
 - ([#991](https://github.com/mesg-foundation/engine/pull/991)) Rename Core to Engine. ([#968](https://github.com/mesg-foundation/engine/pull/968)). ([#970](https://github.com/mesg-foundation/engine/pull/970)). ([#1002](https://github.com/mesg-foundation/engine/pull/1002)). ([#1003](https://github.com/mesg-foundation/engine/pull/1003)). ([#1004](https://github.com/mesg-foundation/engine/pull/1004)). ([#1020](https://github.com/mesg-foundation/engine/pull/1020)).
-- ([#997](https://github.com/mesg-foundation/engine/pull/997)) Rename package `api` to `sdk`.
-- ([#998](https://github.com/mesg-foundation/engine/pull/998)) Rename package `interface` to `server`.
 - ([#1032](https://github.com/mesg-foundation/engine/pull/1032)) Simplify Engine configs. ([#1038](https://github.com/mesg-foundation/engine/pull/1038)).
 
 #### Added
@@ -27,6 +25,8 @@
 #### Changed
 
 - ([#994](https://github.com/mesg-foundation/engine/pull/994)) Update execution database and api. ([#1006](https://github.com/mesg-foundation/engine/pull/1006)). ([#1007](https://github.com/mesg-foundation/engine/pull/1007)). ([#1041](https://github.com/mesg-foundation/engine/pull/1041)).
+- ([#997](https://github.com/mesg-foundation/engine/pull/997)) Rename package `api` to `sdk`.
+- ([#998](https://github.com/mesg-foundation/engine/pull/998)) Rename package `interface` to `server`.
 
 #### Fixed
 
