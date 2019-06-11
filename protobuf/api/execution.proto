@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+import "protobuf/definition/execution.proto";
+
+package api;
+
+// Execution is the service for handle operations on Execution
+// such as get or stream.
+service Execution {
+  // Get returns a single Execution specified in a request.
+  rpc Get(GetExecutionRequest) returns (definition.Execution) {}
+
+  // Stream returns a stream of exeuction that satisfy createria
+  // specified in a request.
+  rpc Stream(StreamExecutionRequest) returns (stream definition.Execution) {}
+}
+
+// GetRequest defines request to retrive a single execution.
+message GetExecutionRequest {
+  bytes hash = 1;
+}
+
+// StreamRequest defines request to retrive a stream of executions.
+message StreamExecutionRequest{
+  // Filter contains filtering cryteria.
+  message Filter {
+    // Status for filtering execution by status.
+    // Note: to filter multiple statues or flags, eg:
+    // Failed | Completed
+    definition.Status status = 1;
+  }
+
+  // Filter used to filter a stream of executions.
+  Filter filter = 1;
+}

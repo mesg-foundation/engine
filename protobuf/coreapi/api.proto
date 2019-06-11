@@ -5,8 +5,8 @@ import "protobuf/definition/service.proto";
 package api;
 option go_package = "github.com/mesg-foundation/core/protobuf/coreapi";
 
-// This is the primary API to interact with MESG Core functionalities.
-// It can be consumed by any applications or tools that you'd like to interact with MESG Core.
+// This is the primary API to interact with MESG Engine functionalities.
+// It can be consumed by any applications or tools that you'd like to interact with MESG Engine.
 // It is actually used by the MESG CLI and MESG Application libraries.
 //
 // This API is only accessible through [gRPC](https://grpc.io/).
@@ -85,14 +85,12 @@ message EventData {
 // {
 //   "serviceID":     "__SERVICE_ID__",
 //   "taskFilter":    "__TASK_KEY_TO_MATCH__",
-//   "outputFilter":  "__OUTPUT_KEY_TO_MATCH__",
 //   "tagFilters":     ["tagX"]
 // }
 // ```
 message ListenResultRequest {
   string serviceID = 1;           // The Service ID. Generated when using the [`DeployService` API](#deployservice).
   string taskFilter = 2;          // __Optional.__  The task's key to filter. The task must match this key. The default is `*` which matches any task.
-  string outputFilter = 3;        // __Optional.__ The output's key from the task to filter. The task must return this output's key. The default is `*` which matches any output.
   repeated string tagFilters = 4; // __Optional.__ The list of tags to filter. This is a "match all" list. All tags in parameters should be included in the execution to match.
 }
 
@@ -102,18 +100,16 @@ message ListenResultRequest {
 // **Example**
 // ```json
 // {
-//   "executionID":   "__EXECUTION_ID__",
+//   "executionHash":   "__EXECUTION_HASH__",
 //   "taskKey":       "__TASK_KEY__",
-//   "outputKey":     "__OUTPUT_KEY__",
 //   "outputData":    "{\"foo\":\"bar\"}",
 //   "executionTags": ["executionX", "test"],
 //   "error":         "error from the execution if something went wrong",
 // }
 // ```
 message ResultData {
-  string executionID = 1;             // The unique identifier of the execution.
+  string executionHash = 1;             // The unique identifier of the execution.
   string taskKey = 2;                 // The key of the executed task.
-  string outputKey = 3;               // The output's key from the returned task.
   string outputData = 4;              // The output's data from the returned task, encoded in JSON.
   repeated string executionTags = 5;  // The list of tags associated with the execution.
   string error = 6;                   // The execution's error if something went wrong.
@@ -142,11 +138,11 @@ message ExecuteTaskRequest {
 // **Example**
 // ```json
 // {
-//   "executionID": "__EXECUTION_ID__"
+//   "executionHash": "__EXECUTION_HASH__"
 // }
 // ```
 message ExecuteTaskReply {
-  string executionID = 1; // The unique identifier of the execution.
+  string executionHash = 1; // The unique identifier of the execution.
 }
 
 // The request's data for the `StartService` API.
@@ -445,8 +441,6 @@ message InfoReply {
     string key = 4;   // key to identify the core service
   }
   repeated CoreService services = 1; // List of services that the core is running as core service
-  string address = 2; // Address to reach the core
-  string image = 3;   // Docker image used
   string version = 4; // Version of the core
 }
 

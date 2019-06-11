@@ -13,16 +13,12 @@ type Event struct {
 
 	// Data holds the input parameters of event.
 	Data []*Parameter `hash:"name:4"`
-
-	// serviceName is the event's service's name.
-	serviceName string `hash:"-"`
 }
 
 // GetEvent returns event eventKey of service.
 func (s *Service) GetEvent(eventKey string) (*Event, error) {
 	for _, event := range s.Events {
 		if event.Key == eventKey {
-			event.serviceName = s.Name
 			return event, nil
 		}
 	}
@@ -32,18 +28,25 @@ func (s *Service) GetEvent(eventKey string) (*Event, error) {
 	}
 }
 
-// ValidateData produces warnings for event datas that doesn't satisfy their parameter schemas.
-func (e *Event) ValidateData(eventData map[string]interface{}) []*ParameterWarning {
-	return validateParametersSchema(e.Data, eventData)
+// ValidateEventData produces warnings for event datas that doesn't satisfy their parameter schemas.
+func (s *Service) ValidateEventData(eventKey string, eventData map[string]interface{}) ([]*ParameterWarning, error) {
+	e, err := s.GetEvent(eventKey)
+	if err != nil {
+		return nil, err
+	}
+	return validateParametersSchema(e.Data, eventData), nil
 }
 
-// RequireData requires event datas to be matched with parameter schemas.
-func (e *Event) RequireData(eventData map[string]interface{}) error {
-	warnings := e.ValidateData(eventData)
+// RequireEventData requires event datas to be matched with parameter schemas.
+func (s *Service) RequireEventData(eventKey string, eventData map[string]interface{}) error {
+	warnings, err := s.ValidateEventData(eventKey, eventData)
+	if err != nil {
+		return err
+	}
 	if len(warnings) > 0 {
 		return &InvalidEventDataError{
-			EventKey:    e.Key,
-			ServiceName: e.serviceName,
+			EventKey:    eventKey,
+			ServiceName: s.Name,
 			Warnings:    warnings,
 		}
 	}

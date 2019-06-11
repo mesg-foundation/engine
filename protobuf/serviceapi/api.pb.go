@@ -46,7 +46,7 @@ func (m *EmitEventRequest) Reset()         { *m = EmitEventRequest{} }
 func (m *EmitEventRequest) String() string { return proto.CompactTextString(m) }
 func (*EmitEventRequest) ProtoMessage()    {}
 func (*EmitEventRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_eb2188454ca6dc1d, []int{0}
+	return fileDescriptor_api_60cb18f506704739, []int{0}
 }
 func (m *EmitEventRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_EmitEventRequest.Unmarshal(m, b)
@@ -98,7 +98,7 @@ func (m *EmitEventReply) Reset()         { *m = EmitEventReply{} }
 func (m *EmitEventReply) String() string { return proto.CompactTextString(m) }
 func (*EmitEventReply) ProtoMessage()    {}
 func (*EmitEventReply) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_eb2188454ca6dc1d, []int{1}
+	return fileDescriptor_api_60cb18f506704739, []int{1}
 }
 func (m *EmitEventReply) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_EmitEventReply.Unmarshal(m, b)
@@ -137,7 +137,7 @@ func (m *ListenTaskRequest) Reset()         { *m = ListenTaskRequest{} }
 func (m *ListenTaskRequest) String() string { return proto.CompactTextString(m) }
 func (*ListenTaskRequest) ProtoMessage()    {}
 func (*ListenTaskRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_eb2188454ca6dc1d, []int{2}
+	return fileDescriptor_api_60cb18f506704739, []int{2}
 }
 func (m *ListenTaskRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListenTaskRequest.Unmarshal(m, b)
@@ -166,18 +166,18 @@ func (m *ListenTaskRequest) GetToken() string {
 
 // The data received from the stream of the `ListenTask` API.
 // The data will be received over time as long as the stream is open.
-// The `executionID` value must be kept and sent with the result when calling the [`SubmitResult` API](#submitresult).
+// The `executionHash` value must be kept and sent with the result when calling the [`SubmitResult` API](#submitresult).
 //
 // **Example:**
 // ```json
 // {
-//   "executionID": "__EXECUTION_ID__",
+//   "executionHash": "__EXECUTION_HASH__",
 //   "taskKey":     "__TASK_KEY__",
 //   "inputData":   "{\"inputX\":\"Hello world!\",\"inputY\":true}"
 // }
 // ```
 type TaskData struct {
-	ExecutionID          string   `protobuf:"bytes,1,opt,name=executionID,proto3" json:"executionID,omitempty"`
+	ExecutionHash        string   `protobuf:"bytes,1,opt,name=executionHash,proto3" json:"executionHash,omitempty"`
 	TaskKey              string   `protobuf:"bytes,2,opt,name=taskKey,proto3" json:"taskKey,omitempty"`
 	InputData            string   `protobuf:"bytes,3,opt,name=inputData,proto3" json:"inputData,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -189,7 +189,7 @@ func (m *TaskData) Reset()         { *m = TaskData{} }
 func (m *TaskData) String() string { return proto.CompactTextString(m) }
 func (*TaskData) ProtoMessage()    {}
 func (*TaskData) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_eb2188454ca6dc1d, []int{3}
+	return fileDescriptor_api_60cb18f506704739, []int{3}
 }
 func (m *TaskData) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_TaskData.Unmarshal(m, b)
@@ -209,9 +209,9 @@ func (m *TaskData) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_TaskData proto.InternalMessageInfo
 
-func (m *TaskData) GetExecutionID() string {
+func (m *TaskData) GetExecutionHash() string {
 	if m != nil {
-		return m.ExecutionID
+		return m.ExecutionHash
 	}
 	return ""
 }
@@ -231,30 +231,32 @@ func (m *TaskData) GetInputData() string {
 }
 
 // The request's data for the `SubmitResult` API.
-// The data must contain the `executionID` of the executed task received from the stream of [`ListenTask` API](#listentask).
+// The data must contain the `executionHash` of the executed task received from the stream of [`ListenTask` API](#listentask).
 //
 // **Example:**
 // ```json
 // {
-//   "executionID": "__EXECUTION_ID__",
-//   "outputKey":   "__OUTPUT_KEY__",
+//   "executionHash": "__EXECUTION_HASH__",
 //   "outputData":  "{\"foo\":\"super result\",\"bar\":true}"
+//   "error":  "{\"message\":\"some error\"}"
 // }
 // ```
 type SubmitResultRequest struct {
-	ExecutionID          string   `protobuf:"bytes,1,opt,name=executionID,proto3" json:"executionID,omitempty"`
-	OutputKey            string   `protobuf:"bytes,2,opt,name=outputKey,proto3" json:"outputKey,omitempty"`
-	OutputData           string   `protobuf:"bytes,3,opt,name=outputData,proto3" json:"outputData,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+	ExecutionHash string `protobuf:"bytes,1,opt,name=executionHash,proto3" json:"executionHash,omitempty"`
+	// Types that are valid to be assigned to Result:
+	//	*SubmitResultRequest_OutputData
+	//	*SubmitResultRequest_Error
+	Result               isSubmitResultRequest_Result `protobuf_oneof:"result"`
+	XXX_NoUnkeyedLiteral struct{}                     `json:"-"`
+	XXX_unrecognized     []byte                       `json:"-"`
+	XXX_sizecache        int32                        `json:"-"`
 }
 
 func (m *SubmitResultRequest) Reset()         { *m = SubmitResultRequest{} }
 func (m *SubmitResultRequest) String() string { return proto.CompactTextString(m) }
 func (*SubmitResultRequest) ProtoMessage()    {}
 func (*SubmitResultRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_eb2188454ca6dc1d, []int{4}
+	return fileDescriptor_api_60cb18f506704739, []int{4}
 }
 func (m *SubmitResultRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SubmitResultRequest.Unmarshal(m, b)
@@ -274,25 +276,114 @@ func (m *SubmitResultRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_SubmitResultRequest proto.InternalMessageInfo
 
-func (m *SubmitResultRequest) GetExecutionID() string {
+func (m *SubmitResultRequest) GetExecutionHash() string {
 	if m != nil {
-		return m.ExecutionID
+		return m.ExecutionHash
 	}
 	return ""
 }
 
-func (m *SubmitResultRequest) GetOutputKey() string {
+type isSubmitResultRequest_Result interface {
+	isSubmitResultRequest_Result()
+}
+
+type SubmitResultRequest_OutputData struct {
+	OutputData string `protobuf:"bytes,3,opt,name=outputData,proto3,oneof"`
+}
+
+type SubmitResultRequest_Error struct {
+	Error string `protobuf:"bytes,4,opt,name=error,proto3,oneof"`
+}
+
+func (*SubmitResultRequest_OutputData) isSubmitResultRequest_Result() {}
+
+func (*SubmitResultRequest_Error) isSubmitResultRequest_Result() {}
+
+func (m *SubmitResultRequest) GetResult() isSubmitResultRequest_Result {
 	if m != nil {
-		return m.OutputKey
+		return m.Result
 	}
-	return ""
+	return nil
 }
 
 func (m *SubmitResultRequest) GetOutputData() string {
-	if m != nil {
-		return m.OutputData
+	if x, ok := m.GetResult().(*SubmitResultRequest_OutputData); ok {
+		return x.OutputData
 	}
 	return ""
+}
+
+func (m *SubmitResultRequest) GetError() string {
+	if x, ok := m.GetResult().(*SubmitResultRequest_Error); ok {
+		return x.Error
+	}
+	return ""
+}
+
+// XXX_OneofFuncs is for the internal use of the proto package.
+func (*SubmitResultRequest) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
+	return _SubmitResultRequest_OneofMarshaler, _SubmitResultRequest_OneofUnmarshaler, _SubmitResultRequest_OneofSizer, []interface{}{
+		(*SubmitResultRequest_OutputData)(nil),
+		(*SubmitResultRequest_Error)(nil),
+	}
+}
+
+func _SubmitResultRequest_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
+	m := msg.(*SubmitResultRequest)
+	// result
+	switch x := m.Result.(type) {
+	case *SubmitResultRequest_OutputData:
+		b.EncodeVarint(3<<3 | proto.WireBytes)
+		b.EncodeStringBytes(x.OutputData)
+	case *SubmitResultRequest_Error:
+		b.EncodeVarint(4<<3 | proto.WireBytes)
+		b.EncodeStringBytes(x.Error)
+	case nil:
+	default:
+		return fmt.Errorf("SubmitResultRequest.Result has unexpected type %T", x)
+	}
+	return nil
+}
+
+func _SubmitResultRequest_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
+	m := msg.(*SubmitResultRequest)
+	switch tag {
+	case 3: // result.outputData
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		x, err := b.DecodeStringBytes()
+		m.Result = &SubmitResultRequest_OutputData{x}
+		return true, err
+	case 4: // result.error
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		x, err := b.DecodeStringBytes()
+		m.Result = &SubmitResultRequest_Error{x}
+		return true, err
+	default:
+		return false, nil
+	}
+}
+
+func _SubmitResultRequest_OneofSizer(msg proto.Message) (n int) {
+	m := msg.(*SubmitResultRequest)
+	// result
+	switch x := m.Result.(type) {
+	case *SubmitResultRequest_OutputData:
+		n += 1 // tag and wire
+		n += proto.SizeVarint(uint64(len(x.OutputData)))
+		n += len(x.OutputData)
+	case *SubmitResultRequest_Error:
+		n += 1 // tag and wire
+		n += proto.SizeVarint(uint64(len(x.Error)))
+		n += len(x.Error)
+	case nil:
+	default:
+		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
+	}
+	return n
 }
 
 // Reply of `SubmitResult` API doesn't contain any data.
@@ -306,7 +397,7 @@ func (m *SubmitResultReply) Reset()         { *m = SubmitResultReply{} }
 func (m *SubmitResultReply) String() string { return proto.CompactTextString(m) }
 func (*SubmitResultReply) ProtoMessage()    {}
 func (*SubmitResultReply) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_eb2188454ca6dc1d, []int{5}
+	return fileDescriptor_api_60cb18f506704739, []int{5}
 }
 func (m *SubmitResultReply) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SubmitResultReply.Unmarshal(m, b)
@@ -513,30 +604,31 @@ var _Service_serviceDesc = grpc.ServiceDesc{
 	Metadata: "protobuf/serviceapi/api.proto",
 }
 
-func init() { proto.RegisterFile("protobuf/serviceapi/api.proto", fileDescriptor_api_eb2188454ca6dc1d) }
+func init() { proto.RegisterFile("protobuf/serviceapi/api.proto", fileDescriptor_api_60cb18f506704739) }
 
-var fileDescriptor_api_eb2188454ca6dc1d = []byte{
-	// 346 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x92, 0x4f, 0x4f, 0xf2, 0x40,
-	0x10, 0x87, 0xe9, 0x4b, 0x5e, 0xa1, 0xe3, 0x9f, 0xc0, 0xa2, 0xa4, 0x69, 0xd0, 0x90, 0x9e, 0xf4,
-	0x20, 0x35, 0x12, 0x63, 0xbc, 0x12, 0x38, 0x18, 0x3d, 0x81, 0x27, 0x6f, 0xdb, 0x32, 0xe0, 0x06,
-	0xda, 0x5d, 0xd9, 0x5d, 0x22, 0x1f, 0xcf, 0x6f, 0x66, 0x76, 0x91, 0xb6, 0x20, 0xd1, 0x5b, 0xe7,
-	0x99, 0x49, 0x7f, 0x93, 0x67, 0x16, 0xce, 0xc5, 0x82, 0x2b, 0x1e, 0xe9, 0x49, 0x28, 0x71, 0xb1,
-	0x64, 0x31, 0x52, 0xc1, 0x42, 0x2a, 0x58, 0xc7, 0x72, 0x52, 0xa6, 0x82, 0x05, 0x11, 0xd4, 0x06,
-	0x09, 0x53, 0x83, 0x25, 0xa6, 0x6a, 0x88, 0xef, 0x1a, 0xa5, 0x22, 0xa7, 0xf0, 0x5f, 0xf1, 0x19,
-	0xa6, 0x9e, 0xd3, 0x76, 0x2e, 0xdd, 0xe1, 0xba, 0x20, 0x3e, 0x54, 0xd1, 0x4c, 0x3d, 0xe1, 0xca,
-	0xfb, 0x67, 0x1b, 0x59, 0x4d, 0x5a, 0xe0, 0xda, 0xef, 0x3e, 0x55, 0xd4, 0x2b, 0xdb, 0x66, 0x0e,
-	0x82, 0x1a, 0x9c, 0x14, 0x32, 0xc4, 0x7c, 0x15, 0x5c, 0x41, 0xfd, 0x99, 0x49, 0x85, 0xe9, 0x0b,
-	0x95, 0xb3, 0x5f, 0x63, 0x83, 0x31, 0x54, 0xcd, 0x90, 0xf9, 0x11, 0x69, 0xc3, 0x21, 0x7e, 0x60,
-	0xac, 0x15, 0xe3, 0xe9, 0x63, 0xff, 0x7b, 0xae, 0x88, 0x88, 0x07, 0x15, 0x45, 0xe5, 0x2c, 0xdf,
-	0x71, 0x53, 0x9a, 0x15, 0x59, 0x2a, 0xf4, 0xd6, 0x8a, 0x19, 0x08, 0x34, 0x34, 0x46, 0x3a, 0x4a,
-	0x98, 0x1a, 0xa2, 0xd4, 0xf3, 0xcc, 0xc4, 0xdf, 0x81, 0x2d, 0x70, 0xb9, 0x56, 0x42, 0x17, 0xb4,
-	0xe4, 0x80, 0x5c, 0x00, 0xac, 0x8b, 0x42, 0x6a, 0x81, 0x04, 0x0d, 0xa8, 0x6f, 0xc7, 0x8a, 0xf9,
-	0xea, 0xf6, 0xd3, 0x81, 0xca, 0x68, 0x7d, 0x30, 0xf2, 0x00, 0x6e, 0xa6, 0x8e, 0x9c, 0x75, 0xcc,
-	0xf1, 0x76, 0xcf, 0xe5, 0x37, 0x76, 0xb1, 0x31, 0x5c, 0x22, 0xf7, 0x00, 0xb9, 0x63, 0xd2, 0xb4,
-	0x43, 0x3f, 0xa4, 0xfb, 0xc7, 0x96, 0x6f, 0x0c, 0x07, 0xa5, 0x1b, 0x87, 0xf4, 0xe0, 0xa8, 0xb8,
-	0x14, 0xf1, 0xec, 0xc8, 0x1e, 0x3d, 0x7e, 0x73, 0x4f, 0xc7, 0x86, 0xf7, 0xee, 0x5e, 0xbb, 0x53,
-	0xa6, 0xde, 0x74, 0xd4, 0x89, 0x79, 0x12, 0x26, 0x28, 0xa7, 0xd7, 0x13, 0xae, 0xd3, 0x31, 0x35,
-	0xda, 0xc2, 0x98, 0x2f, 0x30, 0xdc, 0xf3, 0x38, 0xa3, 0x03, 0x0b, 0xbb, 0x5f, 0x01, 0x00, 0x00,
-	0xff, 0xff, 0x35, 0x35, 0x01, 0xe0, 0xba, 0x02, 0x00, 0x00,
+var fileDescriptor_api_60cb18f506704739 = []byte{
+	// 361 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x92, 0xcf, 0x4e, 0xf2, 0x40,
+	0x14, 0xc5, 0xe9, 0xc7, 0xc7, 0xbf, 0x1b, 0x31, 0x30, 0x28, 0x69, 0x1a, 0x4d, 0x48, 0xe3, 0x42,
+	0x17, 0x52, 0x23, 0x31, 0xc6, 0x2d, 0x91, 0x84, 0x44, 0x57, 0xc5, 0x95, 0xbb, 0x69, 0xbd, 0xc0,
+	0x04, 0xda, 0xa9, 0x9d, 0x19, 0x22, 0x2b, 0x9f, 0xcd, 0x37, 0x33, 0x33, 0x40, 0xa1, 0x48, 0x8c,
+	0xbb, 0xde, 0xdf, 0x3d, 0x99, 0x73, 0x72, 0x6e, 0xe1, 0x3c, 0x49, 0xb9, 0xe4, 0x81, 0x1a, 0x7b,
+	0x02, 0xd3, 0x05, 0x0b, 0x91, 0x26, 0xcc, 0xa3, 0x09, 0xeb, 0x1a, 0x4e, 0x8a, 0x34, 0x61, 0x6e,
+	0x00, 0x8d, 0x41, 0xc4, 0xe4, 0x60, 0x81, 0xb1, 0xf4, 0xf1, 0x5d, 0xa1, 0x90, 0xe4, 0x04, 0x4a,
+	0x92, 0xcf, 0x30, 0xb6, 0xad, 0x8e, 0x75, 0x59, 0xf3, 0x57, 0x03, 0x71, 0xa0, 0x8a, 0x5a, 0xf5,
+	0x84, 0x4b, 0xfb, 0x9f, 0x59, 0x64, 0x33, 0x39, 0x83, 0x9a, 0xf9, 0x7e, 0xa4, 0x92, 0xda, 0x45,
+	0xb3, 0xdc, 0x02, 0xb7, 0x01, 0xc7, 0x3b, 0x1e, 0xc9, 0x7c, 0xe9, 0x5e, 0x41, 0xf3, 0x99, 0x09,
+	0x89, 0xf1, 0x0b, 0x15, 0xb3, 0x5f, 0x6d, 0xdd, 0x29, 0x54, 0xb5, 0x48, 0x3f, 0x44, 0x2e, 0xa0,
+	0x8e, 0x1f, 0x18, 0x2a, 0xc9, 0x78, 0x3c, 0xa4, 0x62, 0xba, 0x56, 0xe6, 0x21, 0xb1, 0xa1, 0x22,
+	0xa9, 0x98, 0x6d, 0x73, 0x6e, 0x46, 0x1d, 0x93, 0xc5, 0x89, 0xca, 0xc5, 0xcc, 0x80, 0xfb, 0x09,
+	0xad, 0x91, 0x0a, 0x22, 0x26, 0x7d, 0x14, 0x6a, 0x9e, 0xb5, 0xf1, 0x37, 0xd3, 0x0e, 0x00, 0x57,
+	0x32, 0xf7, 0xf6, 0xb0, 0xe0, 0xef, 0x30, 0xd2, 0x86, 0x12, 0xa6, 0x29, 0x4f, 0xed, 0xff, 0xeb,
+	0xe5, 0x6a, 0xec, 0x57, 0xa1, 0x9c, 0x1a, 0x43, 0xb7, 0x05, 0xcd, 0x7c, 0x80, 0x64, 0xbe, 0xbc,
+	0xfd, 0xb2, 0xa0, 0x32, 0x5a, 0x9d, 0x8f, 0x3c, 0x40, 0x2d, 0x2b, 0x92, 0x9c, 0x76, 0xf5, 0x29,
+	0xf7, 0x8f, 0xe7, 0xb4, 0xf6, 0xb1, 0xee, 0xbb, 0x40, 0xee, 0x01, 0xb6, 0x8d, 0x93, 0xb6, 0x11,
+	0xfd, 0x38, 0x81, 0x53, 0x37, 0x7c, 0xd3, 0xb7, 0x5b, 0xb8, 0xb1, 0x48, 0x1f, 0x8e, 0x76, 0x43,
+	0x11, 0xdb, 0x48, 0x0e, 0x14, 0xe5, 0xb4, 0x0f, 0x6c, 0x8c, 0x79, 0xff, 0xee, 0xb5, 0x37, 0x61,
+	0x72, 0xaa, 0x82, 0x6e, 0xc8, 0x23, 0x2f, 0x42, 0x31, 0xb9, 0x1e, 0x73, 0x15, 0xbf, 0x51, 0x5d,
+	0x9f, 0x17, 0xf2, 0x14, 0xbd, 0x03, 0xbf, 0x6a, 0x50, 0x36, 0xb0, 0xf7, 0x1d, 0x00, 0x00, 0xff,
+	0xff, 0x6f, 0xd0, 0x56, 0x3e, 0xc8, 0x02, 0x00, 0x00,
 }

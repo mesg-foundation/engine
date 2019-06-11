@@ -1,0 +1,101 @@
+#!/bin/bash
+
+set -e
+
+DIR=$(pwd)
+MESG_LOG_LEVEL=${MESG_LOG_LEVEL:-debug}
+MESG_LOG_FORCECOLORS=${MESG_LOG_FORCECOLORS:-false}
+VERSION=local
+LDFLAGS="-X 'github.com/mesg-foundation/core/version.Version=$VERSION'"
+LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceEndpoint=https://ropsten.infura.io/v3/6115ae2531f64c04a9a392cf500e5fbe'"
+LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceAddress=0xeCC1A867F871323350A1A89FcAf69629a2d5085e'"
+LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceToken=0x5861b3dc52339d4f976b7fa5d80db6cd6f477f1b'"
+MESG_SERVICE_SERVER="engine-service-server"
+
+networkExists=$(docker network list -f name=engine -f driver=overlay -q)
+if [ "$networkExists" == "" ]; then
+  docker network create --driver overlay engine --label com.docker.stack.namespace=engine
+fi
+
+function deleteServiceServer {
+  rm -rf tmp-systemservices
+  if docker service list | grep -q engine-service-server; then
+    docker service rm $MESG_SERVICE_SERVER
+  fi
+}
+
+deleteServiceServer
+mkdir -p tmp-systemservices
+for i in systemservices/* ; do
+  if [ -d "$i" ]; then
+    echo "Creating archive for $i..."
+    cd $i
+    file=$(basename "$i")
+    tar -czf ../../tmp-systemservices/$file.tar.gz --exclude-from=.dockerignore .
+    varname="$(tr '[:lower:]' '[:upper:]' <<< ${file:0:1})${file:1}"
+    LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.${varname}URL=http://$MESG_SERVICE_SERVER/$file.tar.gz'"
+    cd ../..
+  fi
+done
+echo "FROM nginx:alpine" >> tmp-systemservices/Dockerfile
+echo "COPY . /usr/share/nginx/html" >> tmp-systemservices/Dockerfile
+docker build tmp-systemservices -t $MESG_SERVICE_SERVER
+docker service create -d \
+  -p 8080:8080 \
+  --name $MESG_SERVICE_SERVER \
+  --network engine \
+  $MESG_SERVICE_SERVER
+
+echo "compile engine"
+GOOS=linux GOARCH=amd64 go build -o ./bin/engine -ldflags="$LDFLAGS" core/main.go
+
+ENGINE_SUM_PATH="./bin/.engine.sum"
+touch "$ENGINE_SUM_PATH"
+
+DOCKER_SUM_PATH="./bin/.Dockerfile.dev.sum"
+touch "$DOCKER_SUM_PATH"
+
+# check if engine bin was cached
+ENGINE_SUM="$(openssl md5 ./bin/engine)"
+ENGINE_SUM_PREV="$(cat $ENGINE_SUM_PATH)"
+if [[ "$ENGINE_SUM" == "$ENGINE_SUM_PREV" ]]; then
+  BINCACHED=true
+else
+  echo "$ENGINE_SUM" > "$ENGINE_SUM_PATH"
+fi
+
+# check if dockerfile was cached
+DOCKER_SUM="$(openssl md5 ./Dockerfile.dev)"
+DOCKER_SUM_PREV="$(cat $DOCKER_SUM_PATH)"
+if [[ "$DOCKER_SUM" == "$DOCKER_SUM_PREV" ]]; then
+  DOCKERCACHED=true
+else
+  echo "$DOCKER_SUM" > "$DOCKER_SUM_PATH"
+fi
+
+# create mesg data folder on host machine
+mkdir -p "$HOME/.mesg/"
+
+echo "build mesg/engine image"
+if [[ ! $BINCACHED ]] || [[ ! $DOCKERCACHED ]]; then
+  docker build -f Dockerfile.dev -t "mesg/engine:$VERSION" .
+fi
+
+# docker service rm engine
+
+trap onexit EXIT INT
+
+function onexit {
+  deleteServiceServer
+  docker service rm engine
+}
+
+docker service create \
+  --name engine \
+  --tty \
+  --label com.docker.stack.namespace=engine --label com.docker.stack.image=mesg/engine:$VERSION \
+  --mount type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock --mount type=bind,source=$HOME/.mesg,destination=/root/.mesg \
+  --network engine --publish 50052:50052 \
+  mesg/engine:$VERSION
+
+docker service logs --follow --raw engine
