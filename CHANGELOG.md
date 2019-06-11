@@ -49,7 +49,7 @@
 #### Fixed
 
 - ([#930](https://github.com/mesg-foundation/engine/pull/930)) Improve generated README when using command `service gen-doc`. ([#948](https://github.com/mesg-foundation/engine/pull/948)). ([#960](https://github.com/mesg-foundation/engine/pull/960)).
-- ([#934](https://github.com/mesg-foundation/engine/pull/934)) Return error when image is passed in configuration in mesg.yml.
+- ([#934](https://github.com/mesg-foundation/engine/pull/934)) Return error when an image is passed on a mesg.yml definition.
 - ([#929](https://github.com/mesg-foundation/engine/pull/929)) Show more verbose error when deploying service.
 
 #### Documentation
