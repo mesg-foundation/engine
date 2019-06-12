@@ -3,14 +3,28 @@
 set -e
 
 DIR=$(pwd)
-MESG_LOG_LEVEL=${MESG_LOG_LEVEL:-debug}
+
+# mesg config variables
+MESG_NAME=${MESG_NAME:-engine}
+MESG_PATH=${MESG_PATH:-$HOME/.mesg}
+MESG_SERVER_ADDRESS=${MESG_SERVER_ADDRESS:-:50052}
+MESG_LOG_FORMAT=${MESG_LOG_FORMAT:-text}
 MESG_LOG_FORCECOLORS=${MESG_LOG_FORCECOLORS:-false}
+MESG_LOG_LEVEL=${MESG_LOG_LEVEL:-debug}
+
 VERSION=local
 LDFLAGS="-X 'github.com/mesg-foundation/core/version.Version=$VERSION'"
 LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceEndpoint=https://ropsten.infura.io/v3/6115ae2531f64c04a9a392cf500e5fbe'"
 LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceAddress=0xeCC1A867F871323350A1A89FcAf69629a2d5085e'"
 LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceToken=0x5861b3dc52339d4f976b7fa5d80db6cd6f477f1b'"
+
+# if set to true the docker with system services will be started.
+MESG_SERVICE_SERVER_ON=${MESG_SERVICE_SERVER_ON:-true}
+
+MESG_SERVICE_NAME=${MESG_SERVICE_NAME:-engine}
+
 MESG_SERVICE_SERVER="engine-service-server"
+MESG_SERVER_PORT=${MESG_SERVER_PORT:-50052}
 
 networkExists=$(docker network list -f name=engine -f driver=overlay -q)
 if [ "$networkExists" == "" ]; then
@@ -19,8 +33,10 @@ fi
 
 function deleteServiceServer {
   rm -rf tmp-systemservices
-  if docker service list | grep -q engine-service-server; then
-    docker service rm $MESG_SERVICE_SERVER
+  if [ "$MESG_SERVICE_SERVER_ON" = true ]; then
+    if docker service list | grep -q engine-service-server; then
+      docker service rm $MESG_SERVICE_SERVER
+    fi
   fi
 }
 
@@ -39,12 +55,17 @@ for i in systemservices/* ; do
 done
 echo "FROM nginx:alpine" >> tmp-systemservices/Dockerfile
 echo "COPY . /usr/share/nginx/html" >> tmp-systemservices/Dockerfile
-docker build tmp-systemservices -t $MESG_SERVICE_SERVER
-docker service create -d \
-  -p 8080:8080 \
-  --name $MESG_SERVICE_SERVER \
-  --network engine \
-  $MESG_SERVICE_SERVER
+
+if [ "$MESG_SERVICE_SERVER_ON" = true ]; then
+  echo "set up system services server"
+  docker build tmp-systemservices -t $MESG_SERVICE_SERVER
+
+  docker service create -d \
+    -p 8080:8080 \
+    --name $MESG_SERVICE_SERVER \
+    --network engine \
+    $MESG_SERVICE_SERVER
+fi
 
 echo "compile engine"
 GOOS=linux GOARCH=amd64 go build -o ./bin/engine -ldflags="$LDFLAGS" core/main.go
@@ -74,10 +95,10 @@ else
 fi
 
 # create mesg data folder on host machine
-mkdir -p "$HOME/.mesg/"
+mkdir -p $MESG_PATH
 
-echo "build mesg/engine image"
 if [[ ! $BINCACHED ]] || [[ ! $DOCKERCACHED ]]; then
+  echo "build mesg/engine image"
   docker build -f Dockerfile.dev -t "mesg/engine:$VERSION" .
 fi
 
@@ -87,15 +108,21 @@ trap onexit EXIT INT
 
 function onexit {
   deleteServiceServer
-  docker service rm engine
+  docker service rm $MESG_SERVICE_NAME
 }
 
 docker service create \
-  --name engine \
+  --name $MESG_SERVICE_NAME \
   --tty \
   --label com.docker.stack.namespace=engine --label com.docker.stack.image=mesg/engine:$VERSION \
-  --mount type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock --mount type=bind,source=$HOME/.mesg,destination=/root/.mesg \
-  --network engine --publish 50052:50052 \
+  --env MESG_NAME=$MESG_NAME \
+  --env MESG_PATH=$MESG_PATH \
+  --env MESG_SERVER_ADDRESS=$MESG_SERVER_ADDRESS \
+  --env MESG_LOG_FORMAT=$MESG_LOG_FORMAT \
+  --env MESG_LOG_FORCECOLORS=$MESG_LOG_FORCECOLORS \
+  --env MESG_LOG_LEVEL=$MESG_LOG_LEVEL \
+  --mount type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock --mount type=bind,source=$MESG_PATH,destination=/root/.mesg \
+  --network engine --publish $MESG_SERVER_PORT:$MESG_SERVER_PORT \
   mesg/engine:$VERSION
 
-docker service logs --follow --raw engine
+docker service logs --follow --raw $MESG_SERVICE_NAME
