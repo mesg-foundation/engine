@@ -9,6 +9,9 @@ type Workflow struct {
 	// Hash of the workflow.
 	Hash string
 
+	// Key of the workflow.
+	Key string
+
 	// Trigger of the workflow.
 	Trigger Trigger
 

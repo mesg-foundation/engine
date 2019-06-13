@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/mesg-foundation/core/protobuf/definition"
 	"github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/core/workflow"
 )
 
 func FromProtoService(s *definition.Service) *service.Service {
@@ -17,6 +18,7 @@ func FromProtoService(s *definition.Service) *service.Service {
 		Events:        fromProtoEvents(s.Events),
 		Configuration: fromProtoConfiguration(s.Configuration),
 		Dependencies:  fromProtoDependencies(s.Dependencies),
+		Workflows:     fromProtoWorkflows(s.Workflows),
 	}
 }
 
@@ -97,4 +99,30 @@ func fromProtoDependencies(deps []*definition.Dependency) []*service.Dependency 
 		ds[i] = fromProtoDependency(dep)
 	}
 	return ds
+}
+
+func fromProtoWorkflow(w definition.Workflow) workflow.Workflow {
+	ww := workflow.Workflow{Key: w.Key}
+	if w.Trigger != nil {
+		ww.Trigger.InstanceHash = w.Trigger.InstanceHash
+		ww.Trigger.EventKey = w.Trigger.EventKey
+		if w.Trigger.Filter != nil {
+			ww.Trigger.Filter.TaskKey = w.Trigger.Filter.TaskKey
+		}
+	}
+	for _, t := range w.Tasks {
+		ww.Tasks = append(ww.Tasks, workflow.Task{
+			InstanceHash: t.InstanceHash,
+			Key:          t.Key,
+		})
+	}
+	return ww
+}
+
+func fromProtoWorkflows(workflows []*definition.Workflow) []workflow.Workflow {
+	ws := make([]workflow.Workflow, len(workflows))
+	for i, w := range workflows {
+		ws[i] = fromProtoWorkflow(*w)
+	}
+	return ws
 }
