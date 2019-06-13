@@ -51,6 +51,7 @@ message Configuration {
   repeated string ports = 3;        // List of ports the container exposes.
   repeated string args = 4;         // Args to pass to the container.
   string command = 5;               // Command to run the container.
+  repeated string env = 6;          // Default env vars to apply to service's instance on runtime.
 }
 
 // A dependency is a configuration of an other container that runs separately from the service.
