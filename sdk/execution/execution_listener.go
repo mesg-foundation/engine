@@ -1,4 +1,4 @@
-package sdk
+package executionsdk
 
 import (
 	"github.com/cskr/pubsub"
@@ -6,15 +6,15 @@ import (
 	"github.com/mesg-foundation/core/x/xstrings"
 )
 
-// ExecutionFilter store fileds for matching executions.
-type ExecutionFilter struct {
+// Filter store fileds for matching executions.
+type Filter struct {
 	Statuses []execution.Status
 	TaskKey  string
 	Tags     []string
 }
 
 // Match matches execution.
-func (f *ExecutionFilter) Match(e *execution.Execution) bool {
+func (f *Filter) Match(e *execution.Execution) bool {
 	if f == nil {
 		return true
 	}
@@ -43,12 +43,12 @@ func (f *ExecutionFilter) Match(e *execution.Execution) bool {
 }
 
 // HasTaskKey returns true if task key is set to specified value.
-func (f *ExecutionFilter) HasTaskKey() bool {
+func (f *Filter) HasTaskKey() bool {
 	return f != nil && f.TaskKey != "" && f.TaskKey != "*"
 }
 
-// ExecutionListener provides functionalities to listen MESG tasks.
-type ExecutionListener struct {
+// Listener provides functionalities to listen MESG tasks.
+type Listener struct {
 	// Channel receives matching executions for tasks.
 	C chan *execution.Execution
 
@@ -56,12 +56,12 @@ type ExecutionListener struct {
 	topic string
 	c     chan interface{}
 
-	filter *ExecutionFilter
+	filter *Filter
 }
 
-// NewExecutionListener creates a new ExecutionListener with given sdk.
-func NewExecutionListener(ps *pubsub.PubSub, topic string, f *ExecutionFilter) *ExecutionListener {
-	return &ExecutionListener{
+// NewListener creates a new Listener with given sdk.
+func NewListener(ps *pubsub.PubSub, topic string, f *Filter) *Listener {
+	return &Listener{
 		C:      make(chan *execution.Execution, 1),
 		ps:     ps,
 		topic:  topic,
@@ -71,7 +71,7 @@ func NewExecutionListener(ps *pubsub.PubSub, topic string, f *ExecutionFilter) *
 }
 
 // Close stops listening for events.
-func (l *ExecutionListener) Close() {
+func (l *Listener) Close() {
 	go func() {
 		l.ps.Unsub(l.c, l.topic)
 		close(l.C)
@@ -79,7 +79,7 @@ func (l *ExecutionListener) Close() {
 }
 
 // Listen listens executions that match filter.
-func (l *ExecutionListener) Listen() {
+func (l *Listener) Listen() {
 	for v := range l.c {
 		if e := v.(*execution.Execution); l.filter.Match(e) {
 			l.C <- e

@@ -10,9 +10,10 @@ import (
 	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
 	"github.com/mesg-foundation/core/sdk"
+	executionsdk "github.com/mesg-foundation/core/sdk/execution"
 )
 
-var inProgressFilter = &sdk.ExecutionFilter{
+var inProgressFilter = &executionsdk.Filter{
 	Statuses: []execution.Status{execution.InProgress},
 }
 
@@ -37,7 +38,7 @@ func (s *Server) EmitEvent(context context.Context, request *serviceapi.EmitEven
 
 // ListenTask creates a stream that will send data for every task to execute.
 func (s *Server) ListenTask(request *serviceapi.ListenTaskRequest, stream serviceapi.Service_ListenTaskServer) error {
-	ln, err := s.sdk.ListenExecution(request.Token, inProgressFilter)
+	ln, err := s.sdk.Execution.Listen(request.Token, inProgressFilter)
 	if err != nil {
 		return err
 	}
