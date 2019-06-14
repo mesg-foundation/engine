@@ -12,6 +12,7 @@ import (
 	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/sdk"
+	eventsdk "github.com/mesg-foundation/core/sdk/event"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/version"
 	"github.com/mesg-foundation/core/x/xerrors"
@@ -107,7 +108,7 @@ func (s *Server) DeleteService(ctx context.Context, request *coreapi.DeleteServi
 
 // ListenEvent listens events matches with eventFilter on serviceID.
 func (s *Server) ListenEvent(request *coreapi.ListenEventRequest, stream coreapi.Core_ListenEventServer) error {
-	ln, err := s.sdk.ListenEvent(request.ServiceID, &sdk.EventFilter{Key: request.EventFilter})
+	ln, err := s.sdk.Event.Listen(request.ServiceID, &eventsdk.Filter{Key: request.EventFilter})
 	if err != nil {
 		return err
 	}
