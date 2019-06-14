@@ -8,6 +8,13 @@
 #### Fixed
 #### Removed
 
+
+## [v0.10.1](https://github.com/mesg-foundation/core/releases/tag/v0.10.1)
+
+#### Fixed
+
+- ([#1050](https://github.com/mesg-foundation/engine/pull/1050)) Fix service Marketplace backward compatibility
+
 ## [v0.10.0](https://github.com/mesg-foundation/core/releases/tag/v0.10.0)
 
 #### Breaking Changes
