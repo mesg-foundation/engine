@@ -1,4 +1,4 @@
-package sdk
+package eventsdk
 
 import (
 	"testing"
@@ -8,9 +8,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestEventFilter(t *testing.T) {
+func TestFilter(t *testing.T) {
 	var tests = []struct {
-		f     *EventFilter
+		f     *Filter
 		e     *event.Event
 		match bool
 	}{
@@ -20,22 +20,22 @@ func TestEventFilter(t *testing.T) {
 			true,
 		},
 		{
-			&EventFilter{},
+			&Filter{},
 			&event.Event{},
 			true,
 		},
 		{
-			&EventFilter{Key: "0"},
+			&Filter{Key: "0"},
 			&event.Event{Key: "0"},
 			true,
 		},
 		{
-			&EventFilter{Key: "*"},
+			&Filter{Key: "*"},
 			&event.Event{Key: "0"},
 			true,
 		},
 		{
-			&EventFilter{Key: "0"},
+			&Filter{Key: "0"},
 			&event.Event{Key: "1"},
 			false,
 		},
@@ -50,7 +50,7 @@ func TestEventListener(t *testing.T) {
 	topic := "test-topic"
 	testEvent := &event.Event{Key: "0"}
 	ps := pubsub.New(0)
-	el := NewEventListener(ps, topic, &EventFilter{Key: "0"})
+	el := NewListener(ps, topic, &Filter{Key: "0"})
 
 	go func() {
 		ps.Pub(&event.Event{Key: "1"}, topic)
