@@ -128,11 +128,6 @@ func (sdk *SDK) ListenEvent(service string, f *EventFilter) (*EventListener, err
 	return l, nil
 }
 
-// SubmitResult submits results for executionID.
-func (sdk *SDK) SubmitResult(executionHash []byte, outputs []byte, reterr error) error {
-	return sdk.Execution.Update(executionHash, outputs, reterr)
-}
-
 const (
 	eventTopic = "Event"
 )
