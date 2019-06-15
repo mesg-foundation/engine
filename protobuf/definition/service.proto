@@ -15,6 +15,7 @@ message Service {
   repeated Dependency dependencies = 7;     // The container dependencies this service requires.
   string repository = 9;                    // Service's repository url.
   string source = 13;                       // The hash id of service's source code on IPFS.
+  repeated Workflow workflows = 14;         // Service's workflows.
 }
 
 // Events are emitted by the service whenever the service wants.
@@ -63,4 +64,29 @@ message Dependency {
   repeated string ports = 4;        // List of ports the container exposes.
   repeated string args = 6;         // Args to pass to the container.
   string command = 5;               // Command to run the container.
+}
+
+// Workflow represents the workflow's definition.
+message Workflow {
+  // Trigger keeps the conditions to match in order to start workflow.
+  message Trigger {
+    string instanceHash = 1;  // instanceHash is the hash of instance to match.
+    string eventKey = 2;      // evenkey is the event key on instance to match.
+    Filter filter = 3;        // filter keeps additional conditions to match.
+  }
+
+  // Filter keeps additional conditions for trigger.
+  message Filter {
+    string taskKey = 1;
+  }
+
+  // Task represents a task to execute when conditions are met.
+  message Task {
+    string instanceHash = 1;  // instanceHash is the hash of instance to execute a task on.
+    string key = 2;           // key is the key of task to execute on instance.
+  }
+
+  string key = 1;           // Workflow's key.
+  Trigger trigger = 2;      // trigger keeps the conditions to match in order to start workflow.
+  repeated Task tasks = 3;  // tasks to execute in order by using previous one's outputs as next one's inputs.
 }

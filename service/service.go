@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/mesg-foundation/core/service/importer"
+	"github.com/mesg-foundation/core/workflow"
 )
 
 // WARNING about hash tags on Service type and its inner types:
@@ -55,6 +56,9 @@ type Service struct {
 
 	// Source is the hash id of service's source code on IPFS.
 	Source string `hash:"name:9"`
+
+	// Workflows keeps the workflows of service and is optional.
+	Workflows []workflow.Workflow `hash:"name:10"`
 
 	// DeployedAt holds the creation time of service.
 	DeployedAt time.Time `hash:"-"`
