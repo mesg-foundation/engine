@@ -12,7 +12,7 @@ import (
 )
 
 func TestDeployService(t *testing.T) {
-	url := "git://github.com/mesg-foundation/service-webhook#single-outputs"
+	url := "git://github.com/mesg-foundation/service-webhook"
 
 	server, dt, closer := newServerAndDockerTest(t)
 	defer closer()
