@@ -7,8 +7,8 @@ import (
 	"github.com/cskr/pubsub"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/database"
-	"github.com/mesg-foundation/core/event"
 	"github.com/mesg-foundation/core/execution"
+	eventsdk "github.com/mesg-foundation/core/sdk/event"
 	instancesdk "github.com/mesg-foundation/core/sdk/instance"
 	servicesdk "github.com/mesg-foundation/core/sdk/service"
 	"github.com/mesg-foundation/core/service"
@@ -24,6 +24,7 @@ const executionStreamTopic = "execution-stream"
 type SDK struct {
 	Service  *servicesdk.Service
 	Instance *instancesdk.Instance
+	Event    *eventsdk.Event
 
 	ps *pubsub.PubSub
 
@@ -35,10 +36,12 @@ type SDK struct {
 
 // New creates a new SDK with given options.
 func New(m manager.Manager, c container.Container, db database.ServiceDB, instanceDB database.InstanceDB, execDB database.ExecutionDB) *SDK {
+	ps := pubsub.New(0)
 	return &SDK{
 		Service:   servicesdk.New(m, c, db, execDB),
 		Instance:  instancesdk.New(c, db, instanceDB),
-		ps:        pubsub.New(0),
+		Event:     eventsdk.New(ps, db),
+		ps:        ps,
 		m:         m,
 		container: c,
 		db:        db,
@@ -119,21 +122,6 @@ func (sdk *SDK) DeleteService(serviceID string, deleteData bool) error {
 	return sdk.db.Delete(serviceID)
 }
 
-// EmitEvent emits a MESG event eventKey with eventData for service token.
-func (sdk *SDK) EmitEvent(token, eventKey string, eventData map[string]interface{}) error {
-	s, err := sdk.db.Get(token)
-	if err != nil {
-		return err
-	}
-	e, err := event.Create(s, eventKey, eventData)
-	if err != nil {
-		return err
-	}
-
-	go sdk.ps.Pub(e, eventSubTopic(s.Hash))
-	return nil
-}
-
 // ExecuteTask executes a task tasKey with inputData and tags for service serviceID.
 func (sdk *SDK) ExecuteTask(serviceID, taskKey string, inputData map[string]interface{}, tags []string) (executionHash []byte, err error) {
 	s, err := sdk.db.Get(serviceID)
@@ -166,24 +154,6 @@ func (sdk *SDK) ExecuteTask(serviceID, taskKey string, inputData map[string]inte
 	go sdk.ps.Pub(exec, executionStreamTopic)
 	go sdk.ps.Pub(exec, executionSubTopic(s.Hash))
 	return exec.Hash, nil
-}
-
-// ListenEvent listens events matches with eventFilter on serviceID.
-func (sdk *SDK) ListenEvent(service string, f *EventFilter) (*EventListener, error) {
-	s, err := sdk.db.Get(service)
-	if err != nil {
-		return nil, err
-	}
-
-	if f.HasKey() {
-		if _, err := s.GetEvent(f.Key); err != nil {
-			return nil, err
-		}
-	}
-
-	l := NewEventListener(sdk.ps, eventSubTopic(s.Hash), f)
-	go l.Listen()
-	return l, nil
 }
 
 // ListenExecution listens executions on service.
@@ -288,14 +258,8 @@ func (e *NotRunningServiceError) Error() string {
 }
 
 const (
-	eventTopic     = "Event"
 	executionTopic = "Execution"
 )
-
-// eventSubTopic returns the topic to listen for events from this service.
-func eventSubTopic(serviceHash string) string {
-	return hash.Calculate([]string{serviceHash, eventTopic})
-}
 
 // executionSubTopic returns the topic to listen for tasks from this service.
 func executionSubTopic(serviceHash string) string {
