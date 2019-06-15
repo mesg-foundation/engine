@@ -49,24 +49,15 @@ func (d *LevelDBInstanceDB) unmarshal(id string, value []byte) (*instance.Instan
 
 // Get retrives instance by instance hash.
 func (d *LevelDBInstanceDB) Get(hash string) (*instance.Instance, error) {
-	tx, err := d.db.OpenTransaction()
+
+	b, err := d.db.Get([]byte(hash), nil)
 	if err != nil {
-		return nil, err
-	}
-	b, err := tx.Get([]byte(hash), nil)
-	if err != nil {
-		tx.Discard()
 		if err == leveldb.ErrNotFound {
 			return nil, &ErrNotFound{ID: hash}
 		}
 		return nil, err
 	}
-	i, err := d.unmarshal(hash, b)
-	if err != nil {
-		tx.Discard()
-		return nil, err
-	}
-	return i, tx.Commit()
+	return d.unmarshal(hash, b)
 }
 
 // Save saves instance to database.
@@ -76,26 +67,13 @@ func (d *LevelDBInstanceDB) Save(i *instance.Instance) error {
 		return errCannotSaveWithoutHash
 	}
 
-	// open database transaction
-	tx, err := d.db.OpenTransaction()
-	if err != nil {
-		return err
-	}
-
 	// encode service
 	b, err := d.marshal(i)
 	if err != nil {
-		tx.Discard()
 		return err
 	}
 
-	// save instance with hash.
-	if err := tx.Put([]byte(i.Hash), b, nil); err != nil {
-		tx.Discard()
-		return err
-	}
-
-	return tx.Commit()
+	return d.db.Put([]byte(i.Hash), b, nil)
 }
 
 // Close closes database.
