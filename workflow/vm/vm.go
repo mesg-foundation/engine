@@ -1,6 +1,7 @@
 package workflowvm
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/mesg-foundation/core/workflow"
@@ -78,6 +79,7 @@ func (v *VM) Add(w workflow.Workflow) {
 		return
 	}
 	v.workflows = append(v.workflows, w)
+	fmt.Println("vm added:", w.Key)
 }
 
 // Remove removes workflow and all of its execution chains from VM.
@@ -90,7 +92,7 @@ func (v *VM) Remove(hash string) {
 	for i, w := range v.workflows {
 		if w.Hash == hash {
 			v.workflows = append(v.workflows[:i], v.workflows[i+1:]...)
-			for ii := len(v.executionChains) - 1; i >= 0; i-- {
+			for ii := len(v.executionChains) - 1; i > 0; i-- {
 				if v.executionChains[ii].w.Hash == hash {
 					v.executionChains = append(v.executionChains[:ii], v.executionChains[ii+1:]...)
 				}

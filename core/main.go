@@ -12,17 +12,19 @@ import (
 	"github.com/mesg-foundation/core/server/grpc"
 	"github.com/mesg-foundation/core/service/manager/dockermanager"
 	"github.com/mesg-foundation/core/version"
+	workflowvm "github.com/mesg-foundation/core/workflow/vm"
 	"github.com/mesg-foundation/core/x/xerrors"
 	"github.com/mesg-foundation/core/x/xsignal"
 	"github.com/sirupsen/logrus"
 )
 
 type dependencies struct {
-	config      *config.Config
-	serviceDB   database.ServiceDB
-	executionDB database.ExecutionDB
-	container   container.Container
-	sdk         *sdk.SDK
+	config         *config.Config
+	serviceDB      database.ServiceDB
+	executionDB    database.ExecutionDB
+	container      container.Container
+	sdk            *sdk.SDK
+	workflowCloser func()
 }
 
 func initDependencies() (*dependencies, error) {
@@ -59,15 +61,21 @@ func initDependencies() (*dependencies, error) {
 	// init Docker Manager.
 	m := dockermanager.New(c)
 
+	// init workflow vm.
+	vm := workflowvm.New()
+
 	// init sdk.
-	sdk := sdk.New(m, c, serviceDB, instanceDB, executionDB)
+	sdk := sdk.New(m, c, vm, serviceDB, instanceDB, executionDB)
+
+	workflowCloser := setupWorkflow(vm, sdk)
 
 	return &dependencies{
-		config:      config,
-		container:   c,
-		serviceDB:   serviceDB,
-		executionDB: executionDB,
-		sdk:         sdk,
+		config:         config,
+		container:      c,
+		serviceDB:      serviceDB,
+		executionDB:    executionDB,
+		sdk:            sdk,
+		workflowCloser: workflowCloser,
 	}, nil
 }
 
@@ -146,6 +154,7 @@ func main() {
 	}()
 
 	<-xsignal.WaitForInterrupt()
+	dep.workflowCloser()
 	if err := stopRunningServices(dep.sdk); err != nil {
 		logrus.Fatalln(err)
 	}

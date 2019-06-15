@@ -15,31 +15,37 @@ const (
 
 // Event exposes event APIs of MESG.
 type Event struct {
-	ps *pubsub.PubSub
-	db database.ServiceDB
+	ps         *pubsub.PubSub
+	db         database.ServiceDB
+	instanceDB database.InstanceDB
 }
 
 // New creates a new Event SDK with given options.
-func New(ps *pubsub.PubSub, db database.ServiceDB) *Event {
+func New(ps *pubsub.PubSub, db database.ServiceDB, instanceDB database.InstanceDB) *Event {
 	return &Event{
-		ps: ps,
-		db: db,
+		ps:         ps,
+		db:         db,
+		instanceDB: instanceDB,
 	}
 }
 
-// Emit emits a MESG event eventKey with eventData for service token.
-func (e *Event) Emit(token, eventKey string, eventData map[string]interface{}) error {
-	s, err := e.db.Get(token)
+// Emit emits a MESG event eventKey with eventData for instanceHash.
+func (e *Event) Emit(instanceHash, eventKey string, eventData map[string]interface{}) error {
+	i, err := e.instanceDB.Get(instanceHash)
 	if err != nil {
 		return err
 	}
-	ev, err := event.Create(s, eventKey, eventData)
+	s, err := e.db.Get(i.ServiceHash)
+	if err != nil {
+		return err
+	}
+	ev, err := event.Create(s, i, eventKey, eventData)
 	if err != nil {
 		return err
 	}
 
 	go e.ps.Pub(ev, streamTopic)
-	go e.ps.Pub(ev, subTopic(s.Hash))
+	go e.ps.Pub(ev, subTopic(instanceHash))
 	return nil
 }
 
@@ -50,9 +56,13 @@ func (e *Event) GetStream(f *Filter) *Listener {
 	return l
 }
 
-// Listen listens events matches with eventFilter on serviceID.
-func (e *Event) Listen(service string, f *Filter) (*Listener, error) {
-	s, err := e.db.Get(service)
+// Listen listens events matches with eventFilter on instanceHash.
+func (e *Event) Listen(instanceHash string, f *Filter) (*Listener, error) {
+	i, err := e.instanceDB.Get(instanceHash)
+	if err != nil {
+		return nil, err
+	}
+	s, err := e.db.Get(i.ServiceHash)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +73,7 @@ func (e *Event) Listen(service string, f *Filter) (*Listener, error) {
 		}
 	}
 
-	l := NewListener(e.ps, subTopic(s.Hash), f)
+	l := NewListener(e.ps, subTopic(instanceHash), f)
 	go l.Listen()
 	return l, nil
 }

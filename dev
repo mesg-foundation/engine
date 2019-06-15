@@ -47,7 +47,7 @@ docker service create -d \
   $MESG_SERVICE_SERVER
 
 echo "compile engine"
-GOOS=linux GOARCH=amd64 go build -o ./bin/engine -ldflags="$LDFLAGS" core/main.go
+GOOS=linux GOARCH=amd64 go build -o ./bin/engine -ldflags="$LDFLAGS" core/*.go
 
 ENGINE_SUM_PATH="./bin/.engine.sum"
 touch "$ENGINE_SUM_PATH"

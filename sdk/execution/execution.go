@@ -7,7 +7,6 @@ import (
 	"github.com/cskr/pubsub"
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/execution"
-	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/manager"
 	"github.com/mesg-foundation/core/utils/hash"
 	uuid "github.com/satori/go.uuid"
@@ -21,19 +20,21 @@ const (
 
 // Execution exposes execution APIs of MESG.
 type Execution struct {
-	ps     *pubsub.PubSub
-	m      manager.Manager
-	db     database.ServiceDB
-	execDB database.ExecutionDB
+	ps         *pubsub.PubSub
+	m          manager.Manager
+	db         database.ServiceDB
+	execDB     database.ExecutionDB
+	instanceDB database.InstanceDB
 }
 
 // New creates a new Execution SDK with given options.
-func New(m manager.Manager, ps *pubsub.PubSub, db database.ServiceDB, execDB database.ExecutionDB) *Execution {
+func New(m manager.Manager, ps *pubsub.PubSub, db database.ServiceDB, execDB database.ExecutionDB, instanceDB database.InstanceDB) *Execution {
 	return &Execution{
-		m:      m,
-		ps:     ps,
-		db:     db,
-		execDB: execDB,
+		m:          m,
+		ps:         ps,
+		db:         db,
+		execDB:     execDB,
+		instanceDB: instanceDB,
 	}
 }
 
@@ -122,20 +123,24 @@ func (e *Execution) validateExecutionOutput(service, taskKey string, jsonout []b
 	return output, nil
 }
 
-// Execute executes a task tasKey with inputData and tags for service serviceID.
-func (e *Execution) Execute(serviceID, taskKey string, inputData map[string]interface{}, tags []string) (executionHash []byte, err error) {
-	s, err := e.db.Get(serviceID)
+// Execute executes a task tasKey with inputData and tags for instance instanceHash.
+func (e *Execution) Execute(instanceHash, taskKey string, inputData map[string]interface{}, tags []string) (executionHash []byte, err error) {
+	i, err := e.instanceDB.Get(instanceHash)
+	if err != nil {
+		return nil, err
+	}
+	s, err := e.db.Get(i.ServiceHash)
 	if err != nil {
 		return nil, err
 	}
 	// a task should be executed only if task's service is running.
-	status, err := e.m.Status(s)
-	if err != nil {
-		return nil, err
-	}
-	if status != service.RUNNING {
-		return nil, &NotRunningServiceError{ServiceID: s.Sid}
-	}
+	// status, err := e.m.Status(s)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// if status != service.RUNNING {
+	// 	return nil, &NotRunningServiceError{ServiceID: s.Sid}
+	// }
 
 	if err := s.RequireTaskInputs(taskKey, inputData); err != nil {
 		return nil, err
@@ -143,7 +148,7 @@ func (e *Execution) Execute(serviceID, taskKey string, inputData map[string]inte
 
 	// execute the task.
 	eventID := uuid.NewV4().String()
-	exec := execution.New(s.Hash, nil, eventID, taskKey, inputData, tags)
+	exec := execution.New(instanceHash, nil, eventID, taskKey, inputData, tags)
 	if err := exec.Execute(); err != nil {
 		return nil, err
 	}
@@ -152,13 +157,18 @@ func (e *Execution) Execute(serviceID, taskKey string, inputData map[string]inte
 	}
 
 	go e.ps.Pub(exec, streamTopic)
-	go e.ps.Pub(exec, subTopic(s.Hash))
+	go e.ps.Pub(exec, subTopic(instanceHash))
 	return exec.Hash, nil
 }
 
-// Listen listens executions on service.
-func (e *Execution) Listen(service string, f *Filter) (*Listener, error) {
-	s, err := e.db.Get(service)
+// Listen listens executions on instance.
+func (e *Execution) Listen(instanceHash string, f *Filter) (*Listener, error) {
+	i, err := e.instanceDB.Get(instanceHash)
+	if err != nil {
+		return nil, err
+	}
+
+	s, err := e.db.Get(i.ServiceHash)
 	if err != nil {
 		return nil, err
 	}
@@ -169,7 +179,7 @@ func (e *Execution) Listen(service string, f *Filter) (*Listener, error) {
 		}
 	}
 
-	l := NewListener(e.ps, subTopic(s.Hash), f)
+	l := NewListener(e.ps, subTopic(instanceHash), f)
 	go l.Listen()
 	return l, nil
 }
