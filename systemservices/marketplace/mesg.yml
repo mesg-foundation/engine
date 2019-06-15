@@ -121,6 +121,7 @@ tasks:
                                 optional: true
                               type:
                                 type: String
+                                optional: true
                               optional:
                                 type: Boolean
                                 optional: true
