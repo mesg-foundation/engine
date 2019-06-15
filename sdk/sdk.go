@@ -55,6 +55,11 @@ func (sdk *SDK) GetExecutionStream(f *ExecutionFilter) *ExecutionListener {
 	return l
 }
 
+// UpdateExecution udpate execution that matches given hash.
+func (sdk *SDK) UpdateExecution(execHash, outputs []byte, reterr error) error {
+	return sdk.SubmitResult(execHash, outputs, reterr)
+}
+
 // GetService returns service serviceID.
 func (sdk *SDK) GetService(serviceID string) (*service.Service, error) {
 	return sdk.db.Get(serviceID)
@@ -229,10 +234,12 @@ func (sdk *SDK) processExecution(executionHash []byte, outputData []byte, reterr
 	} else {
 		o, err := sdk.validateExecutionOutput(exec.ServiceHash, exec.TaskKey, outputData)
 		if err != nil {
+			tx.Discard()
 			return nil, err
 		}
 
 		if err := exec.Complete(o); err != nil {
+			tx.Discard()
 			return nil, err
 		}
 	}
