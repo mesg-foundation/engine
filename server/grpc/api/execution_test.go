@@ -45,7 +45,7 @@ func TestUpdate(t *testing.T) {
 	exec := execution.New("", nil, uuid.NewV4().String(), "", nil, nil)
 	require.NoError(t, db.Save(exec))
 
-	sdk := sdk.New(nil, nil, nil, db)
+	sdk := sdk.New(nil, nil, nil, nil, db)
 	s := NewServer(sdk)
 
 	_, err = s.Update(context.Background(), &api.UpdateExecutionRequest{Hash: hex.EncodeToString(exec.Hash)})
