@@ -1,3 +1,5 @@
+// +build integration
+
 package core
 
 import (
@@ -30,7 +32,7 @@ func TestGetService(t *testing.T) {
 }
 
 func TestListServices(t *testing.T) {
-	url := "git://github.com/mesg-foundation/service-webhook#single-outputs"
+	url := "git://github.com/mesg-foundation/service-webhook"
 	server, closer := newServer(t)
 	defer closer()
 
