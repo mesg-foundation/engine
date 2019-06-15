@@ -80,9 +80,9 @@ func (s *Server) SubmitResult(context context.Context, request *serviceapi.Submi
 	}
 	switch res := request.Result.(type) {
 	case *serviceapi.SubmitResultRequest_OutputData:
-		return &serviceapi.SubmitResultReply{}, s.sdk.SubmitResult(hash, []byte(res.OutputData), nil)
+		return &serviceapi.SubmitResultReply{}, s.sdk.Execution.Update(hash, []byte(res.OutputData), nil)
 	case *serviceapi.SubmitResultRequest_Error:
-		return &serviceapi.SubmitResultReply{}, s.sdk.SubmitResult(hash, nil, errors.New(res.Error))
+		return &serviceapi.SubmitResultReply{}, s.sdk.Execution.Update(hash, nil, errors.New(res.Error))
 	}
 	return &serviceapi.SubmitResultReply{}, nil
 }
