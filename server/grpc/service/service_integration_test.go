@@ -9,7 +9,7 @@ import (
 
 	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
-	"github.com/mesg-foundation/core/sdk"
+	executionsdk "github.com/mesg-foundation/core/sdk/execution"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
 )
@@ -164,13 +164,13 @@ func TestSubmit(t *testing.T) {
 	require.NoError(t, server.sdk.StartService(s.Hash))
 	defer server.sdk.StopService(s.Hash)
 
-	executionHash, err := server.sdk.ExecuteTask(s.Hash, taskKey, taskData, nil)
+	executionHash, err := server.sdk.Execution.Execute(s.Hash, taskKey, taskData, nil)
 	require.NoError(t, err)
 
-	ef := &sdk.ExecutionFilter{
+	ef := &executionsdk.Filter{
 		Statuses: []execution.Status{execution.Completed},
 	}
-	ln, err := server.sdk.ListenExecution(s.Hash, ef)
+	ln, err := server.sdk.Execution.Listen(s.Hash, ef)
 	require.NoError(t, err)
 	defer ln.Close()
 
@@ -207,7 +207,7 @@ func TestSubmitWithInvalidJSON(t *testing.T) {
 	require.NoError(t, server.sdk.StartService(s.Hash))
 	defer server.sdk.StopService(s.Hash)
 
-	executionHash, err := server.sdk.ExecuteTask(s.Hash, taskKey, taskData, nil)
+	executionHash, err := server.sdk.Execution.Execute(s.Hash, taskKey, taskData, nil)
 	require.NoError(t, err)
 
 	_, err = server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
@@ -255,7 +255,7 @@ func TestSubmitWithInvalidTaskOutputs(t *testing.T) {
 	require.NoError(t, server.sdk.StartService(s.Hash))
 	defer server.sdk.StopService(s.Hash)
 
-	executionHash, err := server.sdk.ExecuteTask(s.Hash, taskKey, taskData, nil)
+	executionHash, err := server.sdk.Execution.Execute(s.Hash, taskKey, taskData, nil)
 	require.NoError(t, err)
 
 	_, err = server.SubmitResult(context.Background(), &serviceapi.SubmitResultRequest{
