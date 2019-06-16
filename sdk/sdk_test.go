@@ -52,7 +52,7 @@ func newTesting(t *testing.T) (*SDK, *apiTesting) {
 	execDB, err := database.NewExecutionDB(execdbname)
 	require.NoError(t, err)
 
-	a := New(m, containerMock, db, nil, execDB)
+	a := New(m, containerMock, db, instanceDB, execDB)
 
 	return a, &apiTesting{
 		T:             t,
