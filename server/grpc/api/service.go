@@ -68,11 +68,13 @@ func fromProtoConfiguration(configuration *definition.Configuration) *service.De
 		return nil
 	}
 	return &service.Dependency{
+		Key:         service.MainServiceKey,
 		Args:        configuration.Args,
 		Command:     configuration.Command,
 		Ports:       configuration.Ports,
 		Volumes:     configuration.Volumes,
 		VolumesFrom: configuration.VolumesFrom,
+		Env:         configuration.Env,
 	}
 }
 
