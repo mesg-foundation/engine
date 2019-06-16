@@ -13,11 +13,14 @@ service Execution {
   // Stream returns a stream of exeuction that satisfy createria
   // specified in a request.
   rpc Stream(StreamExecutionRequest) returns (stream definition.Execution) {}
+
+  // Update updates exeuction with new inputs or state.
+  rpc Update(UpdateExecutionRequest) returns (UpdateExecutionResponse) {}
 }
 
 // GetRequest defines request to retrive a single execution.
 message GetExecutionRequest {
-  bytes hash = 1;
+  string hash = 1;
 }
 
 // StreamRequest defines request to retrive a stream of executions.
@@ -33,3 +36,19 @@ message StreamExecutionRequest{
   // Filter used to filter a stream of executions.
   Filter filter = 1;
 }
+
+// UpdateExecutionRequest defines request for execution update.
+message UpdateExecutionRequest {
+  // Hash represents execution.
+  string hash = 1;
+  // result pass to execution
+  oneof result {
+    // outputs is a success result.
+    string outputs = 2;
+    // error is an error result.
+    string error = 3;
+  }
+}
+
+// UpdateExecutionResponse defines response for execution update.
+message UpdateExecutionResponse {}
