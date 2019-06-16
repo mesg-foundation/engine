@@ -9,6 +9,7 @@ import (
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/event"
 	"github.com/mesg-foundation/core/execution"
+	instancesdk "github.com/mesg-foundation/core/sdk/instance"
 	servicesdk "github.com/mesg-foundation/core/sdk/service"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/manager"
@@ -21,7 +22,8 @@ const executionStreamTopic = "execution-stream"
 
 // SDK exposes all functionalities of MESG core.
 type SDK struct {
-	Service *servicesdk.Service
+	Service  *servicesdk.Service
+	Instance *instancesdk.Instance
 
 	ps *pubsub.PubSub
 
@@ -35,6 +37,7 @@ type SDK struct {
 func New(m manager.Manager, c container.Container, db database.ServiceDB, instanceDB database.InstanceDB, execDB database.ExecutionDB) *SDK {
 	return &SDK{
 		Service:   servicesdk.New(m, c, db, execDB),
+		Instance:  instancesdk.New(c, db, instanceDB),
 		ps:        pubsub.New(0),
 		m:         m,
 		container: c,
