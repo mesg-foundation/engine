@@ -44,7 +44,7 @@ func TestFindInstance(t *testing.T) {
 }
 
 func TestSaveInstance(t *testing.T) {
-	dir, _ := ioutil.TempDir("", "TestSave")
+	dir, _ := ioutil.TempDir("", "TestSaveInstance")
 	defer os.RemoveAll(dir)
 	db := instancedb(t, dir)
 	defer db.Close()
@@ -63,4 +63,19 @@ func TestSaveInstance(t *testing.T) {
 		}
 		require.NoError(t, err)
 	}
+}
+
+func TestDeleteInstance(t *testing.T) {
+	dir, _ := ioutil.TempDir("", "TestDeleteInstance")
+	defer os.RemoveAll(dir)
+	db := instancedb(t, dir)
+	defer db.Close()
+	i := &instance.Instance{Hash: "xxx", ServiceHash: "yyy"}
+	db.Save(i)
+	require.NoError(t, db.Delete("xxx"))
+	inst, err := db.Get("xxx")
+	require.Nil(t, inst)
+	require.Error(t, err)
+
+	require.NoError(t, db.Delete("yyy"))
 }

@@ -35,7 +35,7 @@ func (m *CreateInstanceRequest) Reset()         { *m = CreateInstanceRequest{} }
 func (m *CreateInstanceRequest) String() string { return proto.CompactTextString(m) }
 func (*CreateInstanceRequest) ProtoMessage()    {}
 func (*CreateInstanceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_instance_aee72542d277f35e, []int{0}
+	return fileDescriptor_instance_800a3899a6d6108b, []int{0}
 }
 func (m *CreateInstanceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateInstanceRequest.Unmarshal(m, b)
@@ -81,7 +81,7 @@ func (m *CreateInstanceResponse) Reset()         { *m = CreateInstanceResponse{}
 func (m *CreateInstanceResponse) String() string { return proto.CompactTextString(m) }
 func (*CreateInstanceResponse) ProtoMessage()    {}
 func (*CreateInstanceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_instance_aee72542d277f35e, []int{1}
+	return fileDescriptor_instance_800a3899a6d6108b, []int{1}
 }
 func (m *CreateInstanceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateInstanceResponse.Unmarshal(m, b)
@@ -115,9 +115,87 @@ func (m *CreateInstanceResponse) GetServiceHash() string {
 	return ""
 }
 
+type DeleteInstanceRequest struct {
+	Hash                 string   `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *DeleteInstanceRequest) Reset()         { *m = DeleteInstanceRequest{} }
+func (m *DeleteInstanceRequest) String() string { return proto.CompactTextString(m) }
+func (*DeleteInstanceRequest) ProtoMessage()    {}
+func (*DeleteInstanceRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_instance_800a3899a6d6108b, []int{2}
+}
+func (m *DeleteInstanceRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DeleteInstanceRequest.Unmarshal(m, b)
+}
+func (m *DeleteInstanceRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DeleteInstanceRequest.Marshal(b, m, deterministic)
+}
+func (dst *DeleteInstanceRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeleteInstanceRequest.Merge(dst, src)
+}
+func (m *DeleteInstanceRequest) XXX_Size() int {
+	return xxx_messageInfo_DeleteInstanceRequest.Size(m)
+}
+func (m *DeleteInstanceRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_DeleteInstanceRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DeleteInstanceRequest proto.InternalMessageInfo
+
+func (m *DeleteInstanceRequest) GetHash() string {
+	if m != nil {
+		return m.Hash
+	}
+	return ""
+}
+
+type DeleteInstanceResponse struct {
+	Hash                 string   `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *DeleteInstanceResponse) Reset()         { *m = DeleteInstanceResponse{} }
+func (m *DeleteInstanceResponse) String() string { return proto.CompactTextString(m) }
+func (*DeleteInstanceResponse) ProtoMessage()    {}
+func (*DeleteInstanceResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_instance_800a3899a6d6108b, []int{3}
+}
+func (m *DeleteInstanceResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DeleteInstanceResponse.Unmarshal(m, b)
+}
+func (m *DeleteInstanceResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DeleteInstanceResponse.Marshal(b, m, deterministic)
+}
+func (dst *DeleteInstanceResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeleteInstanceResponse.Merge(dst, src)
+}
+func (m *DeleteInstanceResponse) XXX_Size() int {
+	return xxx_messageInfo_DeleteInstanceResponse.Size(m)
+}
+func (m *DeleteInstanceResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_DeleteInstanceResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DeleteInstanceResponse proto.InternalMessageInfo
+
+func (m *DeleteInstanceResponse) GetHash() string {
+	if m != nil {
+		return m.Hash
+	}
+	return ""
+}
+
 func init() {
 	proto.RegisterType((*CreateInstanceRequest)(nil), "api.CreateInstanceRequest")
 	proto.RegisterType((*CreateInstanceResponse)(nil), "api.CreateInstanceResponse")
+	proto.RegisterType((*DeleteInstanceRequest)(nil), "api.DeleteInstanceRequest")
+	proto.RegisterType((*DeleteInstanceResponse)(nil), "api.DeleteInstanceResponse")
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -133,6 +211,7 @@ const _ = grpc.SupportPackageIsVersion4
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type InstanceClient interface {
 	Create(ctx context.Context, in *CreateInstanceRequest, opts ...grpc.CallOption) (*CreateInstanceResponse, error)
+	Delete(ctx context.Context, in *DeleteInstanceRequest, opts ...grpc.CallOption) (*DeleteInstanceResponse, error)
 }
 
 type instanceClient struct {
@@ -152,9 +231,19 @@ func (c *instanceClient) Create(ctx context.Context, in *CreateInstanceRequest, 
 	return out, nil
 }
 
+func (c *instanceClient) Delete(ctx context.Context, in *DeleteInstanceRequest, opts ...grpc.CallOption) (*DeleteInstanceResponse, error) {
+	out := new(DeleteInstanceResponse)
+	err := c.cc.Invoke(ctx, "/api.Instance/Delete", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // InstanceServer is the server API for Instance service.
 type InstanceServer interface {
 	Create(context.Context, *CreateInstanceRequest) (*CreateInstanceResponse, error)
+	Delete(context.Context, *DeleteInstanceRequest) (*DeleteInstanceResponse, error)
 }
 
 func RegisterInstanceServer(s *grpc.Server, srv InstanceServer) {
@@ -179,6 +268,24 @@ func _Instance_Create_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Instance_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteInstanceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InstanceServer).Delete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.Instance/Delete",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InstanceServer).Delete(ctx, req.(*DeleteInstanceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Instance_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "api.Instance",
 	HandlerType: (*InstanceServer)(nil),
@@ -187,17 +294,21 @@ var _Instance_serviceDesc = grpc.ServiceDesc{
 			MethodName: "Create",
 			Handler:    _Instance_Create_Handler,
 		},
+		{
+			MethodName: "Delete",
+			Handler:    _Instance_Delete_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "protobuf/api/instance.proto",
 }
 
 func init() {
-	proto.RegisterFile("protobuf/api/instance.proto", fileDescriptor_instance_aee72542d277f35e)
+	proto.RegisterFile("protobuf/api/instance.proto", fileDescriptor_instance_800a3899a6d6108b)
 }
 
-var fileDescriptor_instance_aee72542d277f35e = []byte{
-	// 177 bytes of a gzipped FileDescriptorProto
+var fileDescriptor_instance_800a3899a6d6108b = []byte{
+	// 215 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x92, 0x2e, 0x28, 0xca, 0x2f,
 	0xc9, 0x4f, 0x2a, 0x4d, 0xd3, 0x4f, 0x2c, 0xc8, 0xd4, 0xcf, 0xcc, 0x2b, 0x2e, 0x49, 0xcc, 0x4b,
 	0x4e, 0xd5, 0x03, 0x8b, 0x0a, 0x31, 0x27, 0x16, 0x64, 0x2a, 0x79, 0x73, 0x89, 0x3a, 0x17, 0xa5,
@@ -205,9 +316,11 @@ var fileDescriptor_instance_aee72542d277f35e = []byte{
 	0xb8, 0x8b, 0x53, 0x8b, 0xca, 0x32, 0x93, 0x53, 0x3d, 0x12, 0x8b, 0x33, 0x24, 0x18, 0x15, 0x18,
 	0x35, 0x38, 0x83, 0x90, 0x85, 0x84, 0x04, 0xb8, 0x98, 0x53, 0xf3, 0xca, 0x24, 0x98, 0x14, 0x98,
 	0x35, 0x38, 0x83, 0x40, 0x4c, 0x25, 0x3f, 0x2e, 0x31, 0x74, 0xc3, 0x8a, 0x0b, 0xf2, 0xf3, 0x8a,
-	0x53, 0x85, 0x84, 0xb8, 0x58, 0x32, 0x10, 0xc6, 0x80, 0xd9, 0xe8, 0x36, 0x30, 0x61, 0xd8, 0x60,
-	0xe4, 0xcf, 0xc5, 0x01, 0x33, 0x49, 0xc8, 0x99, 0x8b, 0x0d, 0x62, 0xb6, 0x90, 0x94, 0x5e, 0x62,
-	0x41, 0xa6, 0x1e, 0x56, 0x57, 0x4b, 0x49, 0x63, 0x95, 0x83, 0x38, 0x42, 0x89, 0x21, 0x89, 0x0d,
-	0xec, 0x73, 0x63, 0x40, 0x00, 0x00, 0x00, 0xff, 0xff, 0x2c, 0x04, 0x58, 0x71, 0x18, 0x01, 0x00,
-	0x00,
+	0x53, 0x85, 0x84, 0xb8, 0x58, 0x32, 0x10, 0xc6, 0x80, 0xd9, 0xe8, 0x36, 0x30, 0x61, 0xd8, 0xa0,
+	0xa4, 0xcd, 0x25, 0xea, 0x92, 0x9a, 0x93, 0x8a, 0xe9, 0x38, 0x2c, 0xc6, 0x29, 0xe9, 0x70, 0x89,
+	0xa1, 0x2b, 0xc6, 0x6d, 0xb9, 0xd1, 0x14, 0x46, 0x2e, 0x0e, 0x98, 0x42, 0x21, 0x67, 0x2e, 0x36,
+	0x88, 0xbb, 0x85, 0xa4, 0xf4, 0x12, 0x0b, 0x32, 0xf5, 0xb0, 0x86, 0x88, 0x94, 0x34, 0x56, 0x39,
+	0x88, 0x1d, 0x4a, 0x0c, 0x20, 0x43, 0x20, 0xf6, 0x43, 0x0d, 0xc1, 0xea, 0x72, 0xa8, 0x21, 0xd8,
+	0x1d, 0xaa, 0xc4, 0x90, 0xc4, 0x06, 0x8e, 0x1a, 0x63, 0x40, 0x00, 0x00, 0x00, 0xff, 0xff, 0xc5,
+	0xf5, 0xfe, 0x21, 0xb9, 0x01, 0x00, 0x00,
 }

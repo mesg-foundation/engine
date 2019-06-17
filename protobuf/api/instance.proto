@@ -4,6 +4,7 @@ package api;
 
 service Instance {
   rpc Create (CreateInstanceRequest) returns (CreateInstanceResponse) {}
+  rpc Delete (DeleteInstanceRequest) returns (DeleteInstanceResponse) {}
 }
 
 message CreateInstanceRequest {
@@ -14,4 +15,12 @@ message CreateInstanceRequest {
 message CreateInstanceResponse {
   string hash = 1;        // Service's instance hash.
   string serviceHash = 2; // Service's bare hash.
+}
+
+message DeleteInstanceRequest {
+  string hash = 1;      // Instance hash
+}
+
+message DeleteInstanceResponse {
+  string hash = 1;      // Instance hash
 }

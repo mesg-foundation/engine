@@ -95,3 +95,15 @@ func (i *Instance) Create(id string, env []string) (*instance.Instance, error) {
 	_, err = i.start(o)
 	return o, err
 }
+
+// Delete an instance
+func (i *Instance) Delete(hash string) error {
+	inst, err := i.instanceDB.Get(hash)
+	if err != nil {
+		return err
+	}
+	if err := i.stop(inst); err != nil {
+		return err
+	}
+	return i.instanceDB.Delete(hash)
+}
