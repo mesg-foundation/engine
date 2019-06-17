@@ -9,7 +9,7 @@ import (
 
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
-	"github.com/mesg-foundation/core/sdk"
+	executionsdk "github.com/mesg-foundation/core/sdk/execution"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
 )
@@ -234,7 +234,7 @@ func TestExecuteWithNonRunningService(t *testing.T) {
 		TaskKey:   "test",
 		InputData: "{}",
 	})
-	require.Equal(t, &sdk.NotRunningServiceError{ServiceID: s.Sid}, err)
+	require.Equal(t, &executionsdk.NotRunningServiceError{ServiceID: s.Sid}, err)
 }
 
 func TestExecuteWithNonExistingService(t *testing.T) {

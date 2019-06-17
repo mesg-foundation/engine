@@ -13,6 +13,7 @@ import (
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/sdk"
 	eventsdk "github.com/mesg-foundation/core/sdk/event"
+	executionsdk "github.com/mesg-foundation/core/sdk/execution"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/version"
 	"github.com/mesg-foundation/core/x/xerrors"
@@ -143,7 +144,7 @@ func (s *Server) ListenEvent(request *coreapi.ListenEventRequest, stream coreapi
 
 // ListenResult listens for results from a services.
 func (s *Server) ListenResult(request *coreapi.ListenResultRequest, stream coreapi.Core_ListenResultServer) error {
-	filter := &sdk.ExecutionFilter{
+	filter := &executionsdk.Filter{
 		Statuses: []execution.Status{
 			execution.Completed,
 			execution.Failed,
@@ -152,7 +153,7 @@ func (s *Server) ListenResult(request *coreapi.ListenResultRequest, stream corea
 		Tags:    request.TagFilters,
 	}
 
-	ln, err := s.sdk.ListenExecution(request.ServiceID, filter)
+	ln, err := s.sdk.Execution.Listen(request.ServiceID, filter)
 	if err != nil {
 		return err
 	}
@@ -194,7 +195,7 @@ func (s *Server) ExecuteTask(ctx context.Context, request *coreapi.ExecuteTaskRe
 		return nil, fmt.Errorf("cannot parse execution's inputs (JSON format): %s", err)
 	}
 
-	executionHash, err := s.sdk.ExecuteTask(request.ServiceID, request.TaskKey, inputs, request.ExecutionTags)
+	executionHash, err := s.sdk.Execution.Execute(request.ServiceID, request.TaskKey, inputs, request.ExecutionTags)
 	return &coreapi.ExecuteTaskReply{
 		ExecutionHash: hex.EncodeToString(executionHash),
 	}, err
