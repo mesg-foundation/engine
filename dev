@@ -17,7 +17,6 @@ LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceEndpoint=htt
 LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceAddress=0xeCC1A867F871323350A1A89FcAf69629a2d5085e'"
 LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceToken=0x5861b3dc52339d4f976b7fa5d80db6cd6f477f1b'"
 
-MESG_SERVICE_NAME=${MESG_SERVICE_NAME:-engine}
 MESG_SERVER_PORT=${MESG_SERVER_PORT:-50052}
 
 # if set to true the docker with system services will be started.
@@ -107,11 +106,11 @@ trap onexit EXIT INT
 
 function onexit {
   deleteServiceServer
-  docker service rm $MESG_SERVICE_NAME
+  docker service rm $MESG_NAME
 }
 
 docker service create \
-  --name $MESG_SERVICE_NAME \
+  --name $MESG_NAME \
   --tty \
   --label com.docker.stack.namespace=engine --label com.docker.stack.image=mesg/engine:$VERSION \
   --env MESG_NAME=$MESG_NAME \
@@ -122,4 +121,4 @@ docker service create \
   --network engine --publish $MESG_SERVER_PORT:50052 \
   mesg/engine:$VERSION
 
-docker service logs --follow --raw $MESG_SERVICE_NAME
+docker service logs --follow --raw $MESG_NAME
