@@ -36,7 +36,7 @@ require (
 	github.com/hokaccha/go-prettyjson v0.0.0-20180920040306-f579f869bbfe // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
-	github.com/kelseyhightower/envconfig v1.3.0
+	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/kevinburke/ssh_config v0.0.0-20180711164746-82cf3f926438 // indirect
 	github.com/kr/pty v1.1.3 // indirect
 	github.com/leodido/go-urn v1.1.0 // indirect
