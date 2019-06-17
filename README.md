@@ -35,7 +35,7 @@ To help us build and maintain MESG Engine, refer to the [Contribute](#contribute
 
 This step-by-step guide will show you how to create an application that get the ERC20 token balance of a Ethereum account every 10 seconds and send it to a Webhook.
 
-[Checkout the Quick Start](https://docs.mesg.com/guide/quick-start-guide.html)
+[Check out the Quick Start](https://docs.mesg.com/guide/quick-start-guide.html)
 
 # Services
 
