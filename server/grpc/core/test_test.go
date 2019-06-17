@@ -22,8 +22,9 @@ var (
 )
 
 const (
-	servicedbname = "service.db.test"
-	execdbname    = "exec.db.test"
+	servicedbname  = "service.db.test"
+	instancedbname = "instance.db.test"
+	execdbname     = "exec.db.test"
 )
 
 func newServerWithContainer(t *testing.T, c container.Container) (*Server, func()) {
@@ -32,10 +33,13 @@ func newServerWithContainer(t *testing.T, c container.Container) (*Server, func(
 	db, err := database.NewServiceDB(servicedbname)
 	require.NoError(t, err)
 
+	instanceDB, err := database.NewInstanceDB(instancedbname)
+	require.NoError(t, err)
+
 	execDB, err := database.NewExecutionDB(execdbname)
 	require.NoError(t, err)
 
-	a := sdk.New(m, c, db, execDB)
+	a := sdk.New(m, c, db, instanceDB, execDB)
 
 	server := NewServer(a)
 
@@ -43,6 +47,7 @@ func newServerWithContainer(t *testing.T, c container.Container) (*Server, func(
 		db.Close()
 		execDB.Close()
 		os.RemoveAll(servicedbname)
+		os.RemoveAll(instancedbname)
 		os.RemoveAll(execdbname)
 	}
 	return server, closer
