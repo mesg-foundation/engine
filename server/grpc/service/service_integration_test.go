@@ -27,7 +27,7 @@ func TestEmit(t *testing.T) {
 	require.NoError(t, err)
 	defer server.sdk.DeleteService(s.Hash, false)
 
-	ln, err := server.sdk.ListenEvent(s.Hash, nil)
+	ln, err := server.sdk.Event.Listen(s.Hash, nil)
 	require.NoError(t, err)
 	defer ln.Close()
 

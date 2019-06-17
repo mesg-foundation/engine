@@ -1,39 +1,39 @@
-package sdk
+package eventsdk
 
 import (
 	"github.com/cskr/pubsub"
 	"github.com/mesg-foundation/core/event"
 )
 
-// EventFilter store fileds for matching events.
-type EventFilter struct {
+// Filter store fileds for matching events.
+type Filter struct {
 	Key string
 }
 
 // Match matches event.
-func (f *EventFilter) Match(e *event.Event) bool {
+func (f *Filter) Match(e *event.Event) bool {
 	return f == nil || f.Key == "" || f.Key == "*" || f.Key == e.Key
 }
 
 // HasKey returns true if key is set to specified value.
-func (f *EventFilter) HasKey() bool {
+func (f *Filter) HasKey() bool {
 	return f != nil && f.Key != "" && f.Key != "*"
 }
 
-// EventListener provides functionalities to listen MESG events.
-type EventListener struct {
+// Listener provides functionalities to listen MESG events.
+type Listener struct {
 	C chan *event.Event
 
 	ps    *pubsub.PubSub
 	topic string
 	c     chan interface{}
 
-	filter *EventFilter
+	filter *Filter
 }
 
-// NewEventListener creates a new EventListener with given sdk and filters.
-func NewEventListener(ps *pubsub.PubSub, topic string, f *EventFilter) *EventListener {
-	return &EventListener{
+// NewListener creates a new Listener with given sdk and filters.
+func NewListener(ps *pubsub.PubSub, topic string, f *Filter) *Listener {
+	return &Listener{
 		C:      make(chan *event.Event, 1),
 		ps:     ps,
 		topic:  topic,
@@ -43,7 +43,7 @@ func NewEventListener(ps *pubsub.PubSub, topic string, f *EventFilter) *EventLis
 }
 
 // Close stops listening for events.
-func (l *EventListener) Close() {
+func (l *Listener) Close() {
 	go func() {
 		l.ps.Unsub(l.c, l.topic)
 		close(l.C)
@@ -51,7 +51,7 @@ func (l *EventListener) Close() {
 }
 
 // Listen listens events that match filter.
-func (l *EventListener) Listen() {
+func (l *Listener) Listen() {
 	for v := range l.c {
 		if e := v.(*event.Event); l.filter.Match(e) {
 			l.C <- e

@@ -4,13 +4,12 @@ import (
 	"github.com/cskr/pubsub"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/database"
-	"github.com/mesg-foundation/core/event"
+	eventsdk "github.com/mesg-foundation/core/sdk/event"
 	executionsdk "github.com/mesg-foundation/core/sdk/execution"
 	instancesdk "github.com/mesg-foundation/core/sdk/instance"
 	servicesdk "github.com/mesg-foundation/core/sdk/service"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/manager"
-	"github.com/mesg-foundation/core/utils/hash"
 )
 
 // SDK exposes all functionalities of MESG core.
@@ -18,6 +17,7 @@ type SDK struct {
 	Service   *servicesdk.Service
 	Instance  *instancesdk.Instance
 	Execution *executionsdk.Execution
+	Event     *eventsdk.Event
 
 	ps *pubsub.PubSub
 
@@ -34,6 +34,7 @@ func New(m manager.Manager, c container.Container, db database.ServiceDB, instan
 		Service:   servicesdk.New(m, c, db, execDB),
 		Instance:  instancesdk.New(c, db, instanceDB),
 		Execution: executionsdk.New(m, ps, db, execDB),
+		Event:     eventsdk.New(ps, db),
 		ps:        ps,
 		m:         m,
 		container: c,
@@ -96,46 +97,4 @@ func (sdk *SDK) DeleteService(serviceID string, deleteData bool) error {
 		}
 	}
 	return sdk.db.Delete(serviceID)
-}
-
-// EmitEvent emits a MESG event eventKey with eventData for service token.
-func (sdk *SDK) EmitEvent(token, eventKey string, eventData map[string]interface{}) error {
-	s, err := sdk.db.Get(token)
-	if err != nil {
-		return err
-	}
-	e, err := event.Create(s, eventKey, eventData)
-	if err != nil {
-		return err
-	}
-
-	go sdk.ps.Pub(e, eventSubTopic(s.Hash))
-	return nil
-}
-
-// ListenEvent listens events matches with eventFilter on serviceID.
-func (sdk *SDK) ListenEvent(service string, f *EventFilter) (*EventListener, error) {
-	s, err := sdk.db.Get(service)
-	if err != nil {
-		return nil, err
-	}
-
-	if f.HasKey() {
-		if _, err := s.GetEvent(f.Key); err != nil {
-			return nil, err
-		}
-	}
-
-	l := NewEventListener(sdk.ps, eventSubTopic(s.Hash), f)
-	go l.Listen()
-	return l, nil
-}
-
-const (
-	eventTopic = "Event"
-)
-
-// eventSubTopic returns the topic to listen for events from this service.
-func eventSubTopic(serviceHash string) string {
-	return hash.Calculate([]string{serviceHash, eventTopic})
 }
