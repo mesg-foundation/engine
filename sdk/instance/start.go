@@ -31,6 +31,7 @@ func (i *Instance) start(inst *instance.Instance) (serviceIDs []string, err erro
 	}
 	_, port, _ := xnet.SplitHostPort(conf.Server.Address)
 	endpoint := conf.Name + ":" + strconv.Itoa(port)
+	env := xos.EnvMapToSlice(xos.EnvMergeMaps(xos.EnvSliceToMap(srv.Configuration.Env), xos.EnvSliceToMap(inst.Env)))
 	// BUG: https://github.com/mesg-foundation/core/issues/382
 	// After solving this by docker, switch back to deploy in parallel
 	serviceIDs = make([]string, 0)
@@ -55,7 +56,7 @@ func (i *Instance) start(inst *instance.Instance) (serviceIDs []string, err erro
 			Image:   d.Image,
 			Args:    d.Args,
 			Command: d.Command,
-			Env: xos.EnvMergeSlices(d.Env, []string{
+			Env: xos.EnvMergeSlices(env, []string{
 				"MESG_TOKEN=" + inst.Hash,
 				"MESG_ENDPOINT=" + endpoint,
 				"MESG_ENDPOINT_TCP=" + endpoint,
