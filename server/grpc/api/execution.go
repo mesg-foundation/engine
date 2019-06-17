@@ -11,6 +11,7 @@ import (
 	"github.com/mesg-foundation/core/protobuf/api"
 	"github.com/mesg-foundation/core/protobuf/definition"
 	"github.com/mesg-foundation/core/sdk"
+	executionsdk "github.com/mesg-foundation/core/sdk/execution"
 )
 
 // ErrNoOutput is an error when there is no output for updating execution.
@@ -33,7 +34,7 @@ func (s *Server) Get(ctx context.Context, req *api.GetExecutionRequest) (*defini
 		return nil, err
 	}
 
-	exec, err := s.sdk.GetExecution(hash)
+	exec, err := s.sdk.Execution.Get(hash)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +43,7 @@ func (s *Server) Get(ctx context.Context, req *api.GetExecutionRequest) (*defini
 
 // Stream returns stream of executions.
 func (s *Server) Stream(req *api.StreamExecutionRequest, resp api.Execution_StreamServer) error {
-	stream := s.sdk.GetExecutionStream(&sdk.ExecutionFilter{
+	stream := s.sdk.Execution.GetStream(&executionsdk.Filter{
 		Statuses: []execution.Status{execution.Status(req.Filter.Status)},
 	})
 	defer stream.Close()
@@ -74,9 +75,9 @@ func (s *Server) Update(ctx context.Context, req *api.UpdateExecutionRequest) (*
 	}
 	switch res := req.Result.(type) {
 	case *api.UpdateExecutionRequest_Outputs:
-		err = s.sdk.UpdateExecution(hash, []byte(res.Outputs), nil)
+		err = s.sdk.Execution.Update(hash, []byte(res.Outputs), nil)
 	case *api.UpdateExecutionRequest_Error:
-		err = s.sdk.UpdateExecution(hash, nil, errors.New(res.Error))
+		err = s.sdk.Execution.Update(hash, nil, errors.New(res.Error))
 	default:
 		err = ErrNoOutput
 	}
