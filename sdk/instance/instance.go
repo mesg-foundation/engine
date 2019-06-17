@@ -65,7 +65,7 @@ func (i *Instance) Create(id string, env []string) (*instance.Instance, error) {
 		return nil, err
 	}
 
-	// overwrite default env vars with user defined ones.
+	// calculate env vars by overwriting user defined one's with defaults.
 	instanceEnv := xos.EnvMergeMaps(xos.EnvSliceToMap(srv.Configuration.Env), xos.EnvSliceToMap(env))
 
 	// calculate instance's hash.
@@ -87,6 +87,7 @@ func (i *Instance) Create(id string, env []string) (*instance.Instance, error) {
 	o := &instance.Instance{
 		Hash:        instanceHash,
 		ServiceHash: srv.Hash,
+		Env:         xos.EnvMapToSlice(instanceEnv),
 	}
 	if err := i.instanceDB.Save(o); err != nil {
 		return nil, err
