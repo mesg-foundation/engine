@@ -7,7 +7,6 @@ DIR=$(pwd)
 # mesg config variables
 MESG_NAME=${MESG_NAME:-engine}
 MESG_PATH=${MESG_PATH:-$HOME/.mesg}
-MESG_SERVER_ADDRESS=${MESG_SERVER_ADDRESS:-:50052}
 MESG_LOG_FORMAT=${MESG_LOG_FORMAT:-text}
 MESG_LOG_FORCECOLORS=${MESG_LOG_FORCECOLORS:-false}
 MESG_LOG_LEVEL=${MESG_LOG_LEVEL:-debug}
@@ -18,13 +17,13 @@ LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceEndpoint=htt
 LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceAddress=0xeCC1A867F871323350A1A89FcAf69629a2d5085e'"
 LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceToken=0x5861b3dc52339d4f976b7fa5d80db6cd6f477f1b'"
 
+MESG_SERVICE_NAME=${MESG_SERVICE_NAME:-engine}
+MESG_SERVER_PORT=${MESG_SERVER_PORT:-50052}
+
 # if set to true the docker with system services will be started.
 MESG_SERVICE_SERVER_ON=${MESG_SERVICE_SERVER_ON:-true}
-
-MESG_SERVICE_NAME=${MESG_SERVICE_NAME:-engine}
-
 MESG_SERVICE_SERVER="engine-service-server"
-MESG_SERVER_PORT=${MESG_SERVER_PORT:-50052}
+
 
 networkExists=$(docker network list -f name=engine -f driver=overlay -q)
 if [ "$networkExists" == "" ]; then
@@ -116,13 +115,11 @@ docker service create \
   --tty \
   --label com.docker.stack.namespace=engine --label com.docker.stack.image=mesg/engine:$VERSION \
   --env MESG_NAME=$MESG_NAME \
-  --env MESG_PATH=$MESG_PATH \
-  --env MESG_SERVER_ADDRESS=$MESG_SERVER_ADDRESS \
   --env MESG_LOG_FORMAT=$MESG_LOG_FORMAT \
   --env MESG_LOG_FORCECOLORS=$MESG_LOG_FORCECOLORS \
   --env MESG_LOG_LEVEL=$MESG_LOG_LEVEL \
   --mount type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock --mount type=bind,source=$MESG_PATH,destination=/root/.mesg \
-  --network engine --publish $MESG_SERVER_PORT:$MESG_SERVER_PORT \
+  --network engine --publish $MESG_SERVER_PORT:50052 \
   mesg/engine:$VERSION
 
 docker service logs --follow --raw $MESG_SERVICE_NAME
