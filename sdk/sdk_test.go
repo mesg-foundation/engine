@@ -7,7 +7,6 @@ import (
 	"github.com/mesg-foundation/core/container/mocks"
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/service/manager/dockermanager"
-	"github.com/mesg-foundation/core/utils/hash"
 	"github.com/stretchr/testify/require"
 )
 
@@ -56,9 +55,4 @@ func newTesting(t *testing.T) (*SDK, *apiTesting) {
 		executionDB:   execDB,
 		containerMock: containerMock,
 	}
-}
-
-func TestEventSubTopic(t *testing.T) {
-	serviceHash := "1"
-	require.Equal(t, eventSubTopic(serviceHash), hash.Calculate([]string{serviceHash, eventTopic}))
 }
