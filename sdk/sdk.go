@@ -1,6 +1,8 @@
 package sdk
 
 import (
+	"errors"
+
 	"github.com/cskr/pubsub"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/database"
@@ -85,6 +87,16 @@ func (sdk *SDK) DeleteService(serviceID string, deleteData bool) error {
 	if err != nil {
 		return err
 	}
+
+	// check if service has any running instances.
+	instances, err := sdk.Instance.GetAllByService(s.Hash)
+	if err != nil {
+		return err
+	}
+	if len(instances) > 0 {
+		return errors.New("service has running instances. in order to delete the service, stop its instances first")
+	}
+
 	if err := sdk.m.Stop(s); err != nil {
 		return err
 	}
