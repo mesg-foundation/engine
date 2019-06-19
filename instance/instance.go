@@ -6,7 +6,4 @@ package instance
 type Instance struct {
 	Hash        string
 	ServiceHash string
-
-	// Env keeps runtime env vars.
-	Env []string
 }

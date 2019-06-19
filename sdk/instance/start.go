@@ -11,7 +11,7 @@ import (
 )
 
 // Start starts the service.
-func (i *Instance) start(inst *instance.Instance) (serviceIDs []string, err error) {
+func (i *Instance) start(inst *instance.Instance, env []string) (serviceIDs []string, err error) {
 	srv, err := i.serviceDB.Get(inst.ServiceHash)
 	if err != nil {
 		return nil, err
@@ -31,7 +31,6 @@ func (i *Instance) start(inst *instance.Instance) (serviceIDs []string, err erro
 	}
 	_, port, _ := xnet.SplitHostPort(conf.Server.Address)
 	endpoint := conf.Name + ":" + strconv.Itoa(port)
-	env := xos.EnvMapToSlice(xos.EnvMergeMaps(xos.EnvSliceToMap(srv.Configuration.Env), xos.EnvSliceToMap(inst.Env)))
 	// BUG: https://github.com/mesg-foundation/core/issues/382
 	// After solving this by docker, switch back to deploy in parallel
 	serviceIDs = make([]string, 0)
