@@ -31,6 +31,11 @@ func New(c container.Container, serviceDB database.ServiceDB, instanceDB databas
 	}
 }
 
+// List instances by service hash.
+func (i *Instance) List(serviceHash string) ([]*instance.Instance, error) {
+	return i.instanceDB.GetAllByService(serviceHash)
+}
+
 // Create creates a new service instance for service with id(sid/hash) and applies given env vars.
 func (i *Instance) Create(id string, env []string) (*instance.Instance, error) {
 	// get the service from service db.
