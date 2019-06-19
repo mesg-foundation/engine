@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased](https://github.com/mesg-foundation/core/releases/tag/)
+## [Unreleased](https://github.com/mesg-foundation/engine/compare/master...dev)
 
 #### Breaking Changes
 #### Added
@@ -8,14 +8,17 @@
 #### Fixed
 #### Removed
 
-
 ## [v0.10.1](https://github.com/mesg-foundation/core/releases/tag/v0.10.1)
+
+### [Click here to see the release notes](https://forum.mesg.com/t/mesg-engine-v0-10-js-cli-and-js-library-v3-0-0-release-notes/317)
 
 #### Fixed
 
 - ([#1050](https://github.com/mesg-foundation/engine/pull/1050)) Fix service Marketplace backward compatibility
 
 ## [v0.10.0](https://github.com/mesg-foundation/core/releases/tag/v0.10.0)
+
+### [Click here to see the release notes](https://forum.mesg.com/t/mesg-engine-v0-10-js-cli-and-js-library-v3-0-0-release-notes/317)
 
 #### Breaking Changes
 
@@ -45,6 +48,8 @@
 
 ## [v0.9.1](https://github.com/mesg-foundation/core/releases/tag/v0.9.1)
 
+### [Click here to see the release notes](https://forum.mesg.com/t/mesg-core-v0-9-1-release-notes/293)
+
 #### Added
 
 - ([#993](https://github.com/mesg-foundation/engine/pull/993)) Display web3 http request logs in Marketplace.
@@ -64,6 +69,8 @@
 - ([#953](https://github.com/mesg-foundation/engine/pull/953)) Fix links to docs
 
 ## [v0.9.0](https://github.com/mesg-foundation/core/releases/tag/v0.9.0)
+
+### [Click here to see the release notes](https://forum.mesg.com/t/mesg-core-v0-9-release-notes/273)
 
 #### Breaking Changes
 
@@ -96,6 +103,8 @@
 
 ## [v0.8.1](https://github.com/mesg-foundation/core/releases/tag/v0.8.1)
 
+### [Click here to see the release notes](https://forum.mesg.com/t/mesg-core-v0-8-1-release-notes/249)
+
 #### Fixed
 
 - ([#774](https://github.com/mesg-foundation/core/pull/774)) Update keep alive of client to 5min to prevent spamming the server.
@@ -105,6 +114,8 @@
 - ([#762](https://github.com/mesg-foundation/core/pull/762)) Fix and improve guide start. ([#763](https://github.com/mesg-foundation/core/pull/763)).
 
 ## [v0.8.0](https://github.com/mesg-foundation/core/releases/tag/v0.8.0)
+
+### [Click here to see the release notes](https://forum.mesg.com/t/mesg-core-v0-8-release-notes/239/2)
 
 #### Added
 
@@ -126,6 +137,8 @@
 - ([#721](https://github.com/mesg-foundation/core/pull/721)) Move documentation to [dedicated repository](https://github.com/mesg-foundation/docs).
 
 ## [v0.7.0](https://github.com/mesg-foundation/core/releases/tag/v0.7.0)
+
+### [Click here to see the release notes](https://forum.mesg.com/t/mesg-core-v0-7-release-notes/197)
 
 #### Added
 
@@ -153,6 +166,8 @@
 
 ## [v0.6.0](https://github.com/mesg-foundation/core/releases/tag/v0.6.0)
 
+### [Click here to see the release notes](https://forum.mesg.com/t/mesg-core-v0-6-release-notes/166)
+
 #### Added
 
 - ([\#641](https://github.com/mesg-foundation/core/pull/641)) Services definition accept env variables. Users can override them on deploy. [\#660](https://github.com/mesg-foundation/core/pull/660). [\#666](https://github.com/mesg-foundation/core/pull/666).
@@ -172,6 +187,8 @@
 - ([\#665](https://github.com/mesg-foundation/core/pull/665)) Add favicon
 
 ## [v0.5.0](https://github.com/mesg-foundation/core/releases/tag/v0.5.0)
+
+### [Click here to see the release notes](https://forum.mesg.com/t/mesg-core-v0-5-release-notes/136)
 
 #### Breaking Changes
 
@@ -204,6 +221,8 @@
 
 ## [v0.4.0](https://github.com/mesg-foundation/core/releases/tag/v0.4.0)
 
+### [Click here to see the release notes](https://forum.mesg.com/t/mesg-core-v0-4-0-release-notes/116)
+
 #### Added
 
 - ([#534](https://github.com/mesg-foundation/core/pull/534)) Access service dependencies based on the name of the dependency through the network.
@@ -221,6 +240,8 @@
 - ([#524](https://github.com/mesg-foundation/core/pull/524)) Fix sync issue on status send chans and sync issue on gRPC deploy stream sends.
 
 ## [v0.3.0](https://github.com/mesg-foundation/core/releases/tag/v0.3.0)
+
+### [Click here to see the release notes](https://forum.mesg.com/t/mesg-core-v0-3-0-release-notes/88)
 
 #### Added
 
