@@ -31,6 +31,9 @@ message StreamExecutionRequest{
     // Note: to filter multiple statues or flags, eg:
     // Failed | Completed
     definition.Status status = 1;
+
+    // serviceHash is a hash for filtering execution by service hash.
+    string serviceHash = 2;
   }
 
   // Filter used to filter a stream of executions.
