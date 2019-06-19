@@ -1,13 +1,12 @@
 # Changelog
 
-## [Unreleased](https://github.com/mesg-foundation/core/releases/tag/)
+## [Unreleased](https://github.com/mesg-foundation/engine/compare/master...dev)
 
 #### Breaking Changes
 #### Added
 #### Changed
 #### Fixed
 #### Removed
-
 
 ## [v0.10.1](https://github.com/mesg-foundation/core/releases/tag/v0.10.1)
 
