@@ -103,3 +103,101 @@ func fromProtoDependencies(deps []*definition.Dependency) []*service.Dependency 
 	}
 	return ds
 }
+
+// ToProtoService converts an internal service struct to the protobuf definition
+// TODO: should not be public. Need to move server/grpc/service.go to server/grpc/api/service.go
+func ToProtoService(s *service.Service) *definition.Service {
+	return &definition.Service{
+		Hash:          s.Hash,
+		Sid:           s.Sid,
+		Name:          s.Name,
+		Description:   s.Description,
+		Repository:    s.Repository,
+		Source:        s.Source,
+		Tasks:         toProtoTasks(s.Tasks),
+		Events:        toProtoEvents(s.Events),
+		Configuration: toProtoConfiguration(s.Configuration),
+		Dependencies:  toProtoDependencies(s.Dependencies),
+	}
+}
+
+func toProtoTasks(tasks []*service.Task) []*definition.Task {
+	ts := make([]*definition.Task, len(tasks))
+	for i, task := range tasks {
+		ts[i] = &definition.Task{
+			Key:         task.Key,
+			Name:        task.Name,
+			Description: task.Description,
+			Inputs:      toProtoParameters(task.Inputs),
+			Outputs:     toProtoParameters(task.Outputs),
+		}
+	}
+	return ts
+}
+
+func toProtoEvents(events []*service.Event) []*definition.Event {
+	es := make([]*definition.Event, len(events))
+	for i, event := range events {
+		es[i] = &definition.Event{
+			Key:         event.Key,
+			Name:        event.Name,
+			Description: event.Description,
+			Data:        toProtoParameters(event.Data),
+		}
+	}
+	return es
+}
+
+func toProtoParameters(params []*service.Parameter) []*definition.Parameter {
+	ps := make([]*definition.Parameter, len(params))
+	for i, param := range params {
+		ps[i] = &definition.Parameter{
+			Key:         param.Key,
+			Name:        param.Name,
+			Description: param.Description,
+			Type:        param.Type,
+			Repeated:    param.Repeated,
+			Optional:    param.Optional,
+			Object:      toProtoParameters(param.Object),
+		}
+	}
+	return ps
+}
+
+func toProtoConfiguration(configuration *service.Dependency) *definition.Configuration {
+	if configuration == nil {
+		return nil
+	}
+	return &definition.Configuration{
+		Args:        configuration.Args,
+		Command:     configuration.Command,
+		Ports:       configuration.Ports,
+		Volumes:     configuration.Volumes,
+		VolumesFrom: configuration.VolumesFrom,
+		Env:         configuration.Env,
+	}
+}
+
+func toProtoDependency(dep *service.Dependency) *definition.Dependency {
+	if dep == nil {
+		return nil
+	}
+	return &definition.Dependency{
+		Key:         dep.Key,
+		Image:       dep.Image,
+		Volumes:     dep.Volumes,
+		VolumesFrom: dep.VolumesFrom,
+		Ports:       dep.Ports,
+		Command:     dep.Command,
+		Args:        dep.Args,
+		Env:         dep.Env,
+	}
+}
+
+func toProtoDependencies(deps []*service.Dependency) []*definition.Dependency {
+	ds := make([]*definition.Dependency, len(deps))
+	for i, dep := range deps {
+		ds[i] = toProtoDependency(dep)
+	}
+	return ds
+}
