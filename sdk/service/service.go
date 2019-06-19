@@ -87,3 +87,8 @@ func (s *Service) Create(srv *service.Service) error {
 
 	return s.db.Save(srv)
 }
+
+// Get returns the service that matches given hash.
+func (s *Service) Get(hash string) (*service.Service, error) {
+	return s.db.Get(hash)
+}
