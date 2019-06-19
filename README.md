@@ -14,7 +14,7 @@ MESG is a platform for the creation of efficient and easy-to-maintain applicatio
 
 MESG Engine is a communication and connection layer which manages the interaction of all connected services and applications so they can remain lightweight, yet feature packed.
 
-To build an application, follow the [Quick Start Guide](#quick-start-guide)
+To build an application, follow the [Quick Start Guide](https://docs.mesg.com/guide/quick-start-guide.html)
 
 If you'd like to build Services and share them with the community, go to the [Services](#services) section.
 
@@ -33,134 +33,13 @@ To help us build and maintain MESG Engine, refer to the [Contribute](#contribute
 
 # Quick Start Guide
 
-This guide will show you step-by-step how to create an application that sends a Discord invitation email when a webhook is called.
+This step-by-step guide will show you how to create an application that gets the ERC20 token balance of an Ethereum account every 10 seconds and send it to a Webhook.
 
-### 1. Installation
-
-Run the following command in a console to install MESG Engine:
-
-```bash
-bash <(curl -fsSL https://mesg.com/install)
-```
-
-You can also install it manually by following [this guide](https://docs.mesg.com/guide/installation.html).
-
-### 2. Run MESG Engine
-
-MESG Engine runs as a daemon. To start it, execute:
-
-```bash
-mesg-core start
-```
-
-### 3. Deploy the services
-
-You need to deploy every service your application is using.
-
-In this guide, the application is using 2 services.
-
-Start by deploying the [webhook service](https://github.com/mesg-foundation/service-webhook):
-
-```bash
-mesg-core service deploy https://github.com/mesg-foundation/service-webhook
-```
-
-Deploy the [invite discord service](https://github.com/mesg-foundation/service-discord-invitation):
-
-```bash
-mesg-core service deploy https://github.com/mesg-foundation/service-discord-invitation
-```
-
-Once the service is deployed, the console displays its id. This id is a unique way for the application to connect to the right service through MESG Engine. You'll need to use them inside the application.
-
-### 4. Create the application
-
-Now when the services are up and running, let's create the application.
-
-The application is using [NodeJS](https://nodejs.org) and [NPM](https://www.npmjs.com/).
-
-Let's init the app and install the [MESG JS library](https://github.com/mesg-foundation/mesg-js).
-
-Create and move your terminal to a folder that will contain the application. Then run:
-
-```bash
-npm init && npm install --save mesg-js
-```
-
-Now, create an `index.js` file and with the following code:
-
-```javascript
-const mesg = require('mesg-js').application()
-
-const email = '__YOUR_EMAIL_HERE__' // To replace by your email
-const sendgridAPIKey = '__SENDGRID_API_KEY__' // To replace by your SendGrid API key. See https://app.sendgrid.com/settings/api_keys
-
-mesg.listenEvent({
-  serviceID: 'webhook',
-  eventFilter: 'request'
-})
-  .on('data', async (event) => {
-    console.log('webhook event received')
-    try {
-      const result = await mesg.executeTaskAndWaitResult({
-        serviceID: 'discord-invitation',
-        taskKey: 'send',
-        inputData: JSON.stringify({ email, sendgridAPIKey })
-      })
-      if (result.outputKey !== 'success') {
-        const message = JSON.parse(result.outputData).message
-        console.error('an error occurred while sending the invitation: ', message)
-        return
-      }
-      console.log('discord invitation send to:', email)
-    } catch (error) {
-      console.error('an error occurred while executing the send task:', error.message)
-    }
-  })
-  .on('error', (error) => {
-    console.error('an error occurred while listening the request events:', error.message)
-  })
-
-console.log('application is running and listening for events')
-```
-
-Don't forget to replace the values `__YOUR_EMAIL_HERE__` and `__SENDGRID_API_KEY__`.
-
-### 5. Start the services
-
-Start the webhook service:
-```bash
-mesg-core service start webhook
-```
-
-Start discord invitation service:
-```bash
-mesg-core service start discord-invitation
-```
-
-### 6. Start the application
-
-Start your application like any node application:
-
-```bash
-node index.js
-```
-
-### 7. Test the application
-
-Now let's give this super simple application a try.
-
-Trigger the webhook with the following command:
-
-```bash
-curl -XPOST http://localhost:3000/webhook
-```
-
-:tada: You should have received an email in your inbox with your invitation to our Discord. Come join our community.
+[Check out the Quick Start](https://docs.mesg.com/guide/quick-start-guide.html)
 
 # Services
 
-Services are build and [shared by the community](https://github.com/mesg-foundation/awesome). They are small and reusable pieces of code that, when grouped together, allow developers to build incredible applications with ease.
+Services are build and shared on the [Marketplace](https://marketplace.mesg.com/). They are small and reusable pieces of code that, when grouped together, allow developers to build incredible applications with ease.
 
 You can develop a service for absolutely anything you want, as long as it can run inside Docker. Check the [documentation to create your own services](https://docs.mesg.com/guide/service/what-is-a-service.html).
 
@@ -168,19 +47,15 @@ Services implement two types of communication: executing tasks and submitting ev
 
 ### Executing Tasks
 
-Tasks have multiple input parameters and multiple outputs with varying data. A task is like a function with inputs and outputs.
+Tasks have input parameters and outputs with varying data. A task is like a function with inputs and outputs.
 
-Let's take an example of a task that sends an email:
+Let's take an example of a task that takes 2 number and add them (a sum):
 
-The task accepts as inputs: `receiver`, `subject` and `body`.
+The task accepts as inputs: `a` and `b`.
 
-The task could return 2 different outputs.
+The task will return the following output: `{ result: xx }`.
 
-The first possible output is `success` with an empty object `{}` as data, meaning that the email has been sent with success
-
-The second possible output is `error` with for eg, `{ "reason": "email invalid" }` as data.
-
-This way, the application can easily check the type of output and react appropriately.
+Where `result = a + b`
 
 Check out the documentation for more information on [how to create tasks](https://docs.mesg.com/guide/service/listen-for-tasks.html).
 
@@ -199,9 +74,7 @@ For more info on how to create your events, visit the [Emit an Event](https://do
 
 # Marketplace
 
-We have a common place to post all community-developed Services and Applications. Check out the [curated list of Awesome Services and Applications](https://github.com/mesg-foundation/awesome) to participate.
-
-Alternatively, you can also check out the [https://github.com/mesg-foundation/awesome#readme](Marketplace).
+We have a common place to post all community-developed Services and Applications. Check out the [Marketplace](https://marketplace.mesg.com).
 
 # Community
 
@@ -213,7 +86,7 @@ Also, be sure to check out the [blog](https://medium.com/mesg) to stay up-to-dat
 
 Contributions are more than welcome. For more details on how to contribute, please check out the [contribution guide](/CONTRIBUTING.md).
 
-If you have any questions, please reach out to us directly on [Discord](https://discordapp.com/invite/SaZ5HcE).
+If you have any questions, please reach out to us directly on [Discord](https://discordapp.com/invite/5tVTHJC).
 
 [![0](https://sourcerer.io/fame/antho1404/mesg-foundation/core/images/0)](https://sourcerer.io/fame/antho1404/mesg-foundation/core/links/0)
 [![1](https://sourcerer.io/fame/antho1404/mesg-foundation/core/images/1)](https://sourcerer.io/fame/antho1404/mesg-foundation/core/links/1)
