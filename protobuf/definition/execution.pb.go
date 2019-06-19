@@ -55,14 +55,14 @@ func (x Status) String() string {
 	return proto.EnumName(Status_name, int32(x))
 }
 func (Status) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_execution_0d7ea75fa03f8c91, []int{0}
+	return fileDescriptor_execution_9b16f82bee1a6b77, []int{0}
 }
 
 // Execution represents a single execution run in engine.
 type Execution struct {
-	// Hash is a unique hash that represents given execution.
+	// Hash is a unique hash that identify a given execution.
 	Hash string `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
-	// parentHash is unique hash that represents that triggerd current execution.
+	// parentHash is the hash of the execution that triggered this current execution.
 	ParentHash string `protobuf:"bytes,2,opt,name=parentHash,proto3" json:"parentHash,omitempty"`
 	// eventID is unique event id.
 	EventID string `protobuf:"bytes,3,opt,name=eventID,proto3" json:"eventID,omitempty"`
@@ -70,15 +70,15 @@ type Execution struct {
 	Status Status `protobuf:"varint,4,opt,name=status,proto3,enum=definition.Status" json:"status,omitempty"`
 	// serviceHash is hash of service that can proceed an execution
 	ServiceHash string `protobuf:"bytes,5,opt,name=serviceHash,proto3" json:"serviceHash,omitempty"`
-	// taskKey is a task key from a service definition.
+	// taskKey is the key of the task of this execution.
 	TaskKey string `protobuf:"bytes,6,opt,name=taskKey,proto3" json:"taskKey,omitempty"`
-	// inputs is an inptut of execution.
+	// inputs data of the execution.
 	Inputs string `protobuf:"bytes,7,opt,name=inputs,proto3" json:"inputs,omitempty"`
-	// outputs is an output of successful execution.
+	// outputs are the returned data of successful execution.
 	Outputs string `protobuf:"bytes,8,opt,name=outputs,proto3" json:"outputs,omitempty"`
-	// error is an output of a failed execution.
+	// error message of a failed execution.
 	Error string `protobuf:"bytes,9,opt,name=error,proto3" json:"error,omitempty"`
-	// tags contains custom tags attached to execution.
+	// tags contain custom tags attached to execution.
 	Tags                 []string `protobuf:"bytes,10,rep,name=tags,proto3" json:"tags,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -89,7 +89,7 @@ func (m *Execution) Reset()         { *m = Execution{} }
 func (m *Execution) String() string { return proto.CompactTextString(m) }
 func (*Execution) ProtoMessage()    {}
 func (*Execution) Descriptor() ([]byte, []int) {
-	return fileDescriptor_execution_0d7ea75fa03f8c91, []int{0}
+	return fileDescriptor_execution_9b16f82bee1a6b77, []int{0}
 }
 func (m *Execution) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Execution.Unmarshal(m, b)
@@ -185,10 +185,10 @@ func init() {
 }
 
 func init() {
-	proto.RegisterFile("protobuf/definition/execution.proto", fileDescriptor_execution_0d7ea75fa03f8c91)
+	proto.RegisterFile("protobuf/definition/execution.proto", fileDescriptor_execution_9b16f82bee1a6b77)
 }
 
-var fileDescriptor_execution_0d7ea75fa03f8c91 = []byte{
+var fileDescriptor_execution_9b16f82bee1a6b77 = []byte{
 	// 321 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x6c, 0x91, 0x4f, 0x4b, 0xeb, 0x40,
 	0x14, 0xc5, 0x5f, 0xfa, 0x27, 0x7d, 0xb9, 0xe5, 0x95, 0x70, 0x79, 0xc8, 0xac, 0x24, 0xe8, 0xa6,

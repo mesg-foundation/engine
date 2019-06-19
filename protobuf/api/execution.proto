@@ -18,12 +18,12 @@ service Execution {
   rpc Update(UpdateExecutionRequest) returns (UpdateExecutionResponse) {}
 }
 
-// GetRequest defines request to retrieve a single execution.
+// GetExecutionRequest defines request to retrieve a single execution.
 message GetExecutionRequest {
   string hash = 1;
 }
 
-// StreamRequest defines request to retrieve a stream of executions.
+// StreamExecutionRequest defines request to retrieve a stream of executions.
 message StreamExecutionRequest{
   // Filter contains filtering criteria.
   message Filter {
