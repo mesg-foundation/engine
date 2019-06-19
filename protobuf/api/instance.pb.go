@@ -6,6 +6,7 @@ package api
 import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
 import math "math"
+import definition "github.com/mesg-foundation/core/protobuf/definition"
 
 import (
 	context "golang.org/x/net/context"
@@ -23,6 +24,82 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
+type GetInstanceRequest struct {
+	Hash                 string   `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *GetInstanceRequest) Reset()         { *m = GetInstanceRequest{} }
+func (m *GetInstanceRequest) String() string { return proto.CompactTextString(m) }
+func (*GetInstanceRequest) ProtoMessage()    {}
+func (*GetInstanceRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_instance_8bc02edd14f93c99, []int{0}
+}
+func (m *GetInstanceRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetInstanceRequest.Unmarshal(m, b)
+}
+func (m *GetInstanceRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetInstanceRequest.Marshal(b, m, deterministic)
+}
+func (dst *GetInstanceRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetInstanceRequest.Merge(dst, src)
+}
+func (m *GetInstanceRequest) XXX_Size() int {
+	return xxx_messageInfo_GetInstanceRequest.Size(m)
+}
+func (m *GetInstanceRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetInstanceRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetInstanceRequest proto.InternalMessageInfo
+
+func (m *GetInstanceRequest) GetHash() string {
+	if m != nil {
+		return m.Hash
+	}
+	return ""
+}
+
+type GetInstanceResponse struct {
+	Instance             *definition.Instance `protobuf:"bytes,1,opt,name=instance,proto3" json:"instance,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
+	XXX_unrecognized     []byte               `json:"-"`
+	XXX_sizecache        int32                `json:"-"`
+}
+
+func (m *GetInstanceResponse) Reset()         { *m = GetInstanceResponse{} }
+func (m *GetInstanceResponse) String() string { return proto.CompactTextString(m) }
+func (*GetInstanceResponse) ProtoMessage()    {}
+func (*GetInstanceResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_instance_8bc02edd14f93c99, []int{1}
+}
+func (m *GetInstanceResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetInstanceResponse.Unmarshal(m, b)
+}
+func (m *GetInstanceResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetInstanceResponse.Marshal(b, m, deterministic)
+}
+func (dst *GetInstanceResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetInstanceResponse.Merge(dst, src)
+}
+func (m *GetInstanceResponse) XXX_Size() int {
+	return xxx_messageInfo_GetInstanceResponse.Size(m)
+}
+func (m *GetInstanceResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetInstanceResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetInstanceResponse proto.InternalMessageInfo
+
+func (m *GetInstanceResponse) GetInstance() *definition.Instance {
+	if m != nil {
+		return m.Instance
+	}
+	return nil
+}
+
 type CreateInstanceRequest struct {
 	ServiceHash          string   `protobuf:"bytes,1,opt,name=serviceHash,proto3" json:"serviceHash,omitempty"`
 	Env                  []string `protobuf:"bytes,2,rep,name=env,proto3" json:"env,omitempty"`
@@ -35,7 +112,7 @@ func (m *CreateInstanceRequest) Reset()         { *m = CreateInstanceRequest{} }
 func (m *CreateInstanceRequest) String() string { return proto.CompactTextString(m) }
 func (*CreateInstanceRequest) ProtoMessage()    {}
 func (*CreateInstanceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_instance_800a3899a6d6108b, []int{0}
+	return fileDescriptor_instance_8bc02edd14f93c99, []int{2}
 }
 func (m *CreateInstanceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateInstanceRequest.Unmarshal(m, b)
@@ -81,7 +158,7 @@ func (m *CreateInstanceResponse) Reset()         { *m = CreateInstanceResponse{}
 func (m *CreateInstanceResponse) String() string { return proto.CompactTextString(m) }
 func (*CreateInstanceResponse) ProtoMessage()    {}
 func (*CreateInstanceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_instance_800a3899a6d6108b, []int{1}
+	return fileDescriptor_instance_8bc02edd14f93c99, []int{3}
 }
 func (m *CreateInstanceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateInstanceResponse.Unmarshal(m, b)
@@ -126,7 +203,7 @@ func (m *DeleteInstanceRequest) Reset()         { *m = DeleteInstanceRequest{} }
 func (m *DeleteInstanceRequest) String() string { return proto.CompactTextString(m) }
 func (*DeleteInstanceRequest) ProtoMessage()    {}
 func (*DeleteInstanceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_instance_800a3899a6d6108b, []int{2}
+	return fileDescriptor_instance_8bc02edd14f93c99, []int{4}
 }
 func (m *DeleteInstanceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteInstanceRequest.Unmarshal(m, b)
@@ -164,7 +241,7 @@ func (m *DeleteInstanceResponse) Reset()         { *m = DeleteInstanceResponse{}
 func (m *DeleteInstanceResponse) String() string { return proto.CompactTextString(m) }
 func (*DeleteInstanceResponse) ProtoMessage()    {}
 func (*DeleteInstanceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_instance_800a3899a6d6108b, []int{3}
+	return fileDescriptor_instance_8bc02edd14f93c99, []int{5}
 }
 func (m *DeleteInstanceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteInstanceResponse.Unmarshal(m, b)
@@ -192,6 +269,8 @@ func (m *DeleteInstanceResponse) GetHash() string {
 }
 
 func init() {
+	proto.RegisterType((*GetInstanceRequest)(nil), "api.GetInstanceRequest")
+	proto.RegisterType((*GetInstanceResponse)(nil), "api.GetInstanceResponse")
 	proto.RegisterType((*CreateInstanceRequest)(nil), "api.CreateInstanceRequest")
 	proto.RegisterType((*CreateInstanceResponse)(nil), "api.CreateInstanceResponse")
 	proto.RegisterType((*DeleteInstanceRequest)(nil), "api.DeleteInstanceRequest")
@@ -210,6 +289,7 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type InstanceClient interface {
+	Get(ctx context.Context, in *GetInstanceRequest, opts ...grpc.CallOption) (*GetInstanceResponse, error)
 	Create(ctx context.Context, in *CreateInstanceRequest, opts ...grpc.CallOption) (*CreateInstanceResponse, error)
 	Delete(ctx context.Context, in *DeleteInstanceRequest, opts ...grpc.CallOption) (*DeleteInstanceResponse, error)
 }
@@ -220,6 +300,15 @@ type instanceClient struct {
 
 func NewInstanceClient(cc *grpc.ClientConn) InstanceClient {
 	return &instanceClient{cc}
+}
+
+func (c *instanceClient) Get(ctx context.Context, in *GetInstanceRequest, opts ...grpc.CallOption) (*GetInstanceResponse, error) {
+	out := new(GetInstanceResponse)
+	err := c.cc.Invoke(ctx, "/api.Instance/Get", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *instanceClient) Create(ctx context.Context, in *CreateInstanceRequest, opts ...grpc.CallOption) (*CreateInstanceResponse, error) {
@@ -242,12 +331,31 @@ func (c *instanceClient) Delete(ctx context.Context, in *DeleteInstanceRequest, 
 
 // InstanceServer is the server API for Instance service.
 type InstanceServer interface {
+	Get(context.Context, *GetInstanceRequest) (*GetInstanceResponse, error)
 	Create(context.Context, *CreateInstanceRequest) (*CreateInstanceResponse, error)
 	Delete(context.Context, *DeleteInstanceRequest) (*DeleteInstanceResponse, error)
 }
 
 func RegisterInstanceServer(s *grpc.Server, srv InstanceServer) {
 	s.RegisterService(&_Instance_serviceDesc, srv)
+}
+
+func _Instance_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetInstanceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InstanceServer).Get(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.Instance/Get",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InstanceServer).Get(ctx, req.(*GetInstanceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Instance_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -291,6 +399,10 @@ var _Instance_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*InstanceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "Get",
+			Handler:    _Instance_Get_Handler,
+		},
+		{
 			MethodName: "Create",
 			Handler:    _Instance_Create_Handler,
 		},
@@ -304,23 +416,27 @@ var _Instance_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("protobuf/api/instance.proto", fileDescriptor_instance_800a3899a6d6108b)
+	proto.RegisterFile("protobuf/api/instance.proto", fileDescriptor_instance_8bc02edd14f93c99)
 }
 
-var fileDescriptor_instance_800a3899a6d6108b = []byte{
-	// 215 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x92, 0x2e, 0x28, 0xca, 0x2f,
-	0xc9, 0x4f, 0x2a, 0x4d, 0xd3, 0x4f, 0x2c, 0xc8, 0xd4, 0xcf, 0xcc, 0x2b, 0x2e, 0x49, 0xcc, 0x4b,
-	0x4e, 0xd5, 0x03, 0x8b, 0x0a, 0x31, 0x27, 0x16, 0x64, 0x2a, 0x79, 0x73, 0x89, 0x3a, 0x17, 0xa5,
-	0x26, 0x96, 0xa4, 0x7a, 0x42, 0x25, 0x83, 0x52, 0x0b, 0x4b, 0x53, 0x8b, 0x4b, 0x84, 0x14, 0xb8,
-	0xb8, 0x8b, 0x53, 0x8b, 0xca, 0x32, 0x93, 0x53, 0x3d, 0x12, 0x8b, 0x33, 0x24, 0x18, 0x15, 0x18,
-	0x35, 0x38, 0x83, 0x90, 0x85, 0x84, 0x04, 0xb8, 0x98, 0x53, 0xf3, 0xca, 0x24, 0x98, 0x14, 0x98,
-	0x35, 0x38, 0x83, 0x40, 0x4c, 0x25, 0x3f, 0x2e, 0x31, 0x74, 0xc3, 0x8a, 0x0b, 0xf2, 0xf3, 0x8a,
-	0x53, 0x85, 0x84, 0xb8, 0x58, 0x32, 0x10, 0xc6, 0x80, 0xd9, 0xe8, 0x36, 0x30, 0x61, 0xd8, 0xa0,
-	0xa4, 0xcd, 0x25, 0xea, 0x92, 0x9a, 0x93, 0x8a, 0xe9, 0x38, 0x2c, 0xc6, 0x29, 0xe9, 0x70, 0x89,
-	0xa1, 0x2b, 0xc6, 0x6d, 0xb9, 0xd1, 0x14, 0x46, 0x2e, 0x0e, 0x98, 0x42, 0x21, 0x67, 0x2e, 0x36,
-	0x88, 0xbb, 0x85, 0xa4, 0xf4, 0x12, 0x0b, 0x32, 0xf5, 0xb0, 0x86, 0x88, 0x94, 0x34, 0x56, 0x39,
-	0x88, 0x1d, 0x4a, 0x0c, 0x20, 0x43, 0x20, 0xf6, 0x43, 0x0d, 0xc1, 0xea, 0x72, 0xa8, 0x21, 0xd8,
-	0x1d, 0xaa, 0xc4, 0x90, 0xc4, 0x06, 0x8e, 0x1a, 0x63, 0x40, 0x00, 0x00, 0x00, 0xff, 0xff, 0xc5,
-	0xf5, 0xfe, 0x21, 0xb9, 0x01, 0x00, 0x00,
+var fileDescriptor_instance_8bc02edd14f93c99 = []byte{
+	// 279 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x74, 0x92, 0x41, 0x4e, 0xf3, 0x30,
+	0x10, 0x85, 0x9b, 0xe6, 0x57, 0xd5, 0x4e, 0x37, 0xbf, 0x06, 0x5a, 0xa2, 0x74, 0x13, 0x79, 0x15,
+	0x09, 0xe4, 0xa2, 0xb2, 0x63, 0x5b, 0xa4, 0x80, 0x90, 0x58, 0xe4, 0x06, 0x6e, 0x99, 0xaa, 0x96,
+	0x90, 0x63, 0x62, 0xb7, 0xe7, 0xe4, 0x48, 0x08, 0x27, 0x4d, 0x8b, 0x63, 0x76, 0xa3, 0x99, 0x4f,
+	0xef, 0xcd, 0x1b, 0x1b, 0x16, 0xba, 0xae, 0x6c, 0xb5, 0x39, 0xec, 0x96, 0x42, 0xcb, 0xa5, 0x54,
+	0xc6, 0x0a, 0xb5, 0x25, 0xee, 0xba, 0x18, 0x0b, 0x2d, 0x53, 0xd6, 0x11, 0xef, 0xb4, 0x93, 0x4a,
+	0x5a, 0x59, 0x29, 0x0f, 0x64, 0x39, 0x60, 0x41, 0xf6, 0xa5, 0x6d, 0x96, 0xf4, 0x79, 0x20, 0x63,
+	0x11, 0xe1, 0xdf, 0x5e, 0x98, 0x7d, 0x12, 0x65, 0x51, 0x3e, 0x29, 0x5d, 0xcd, 0x0a, 0xb8, 0xfa,
+	0x45, 0x1a, 0x5d, 0x29, 0x43, 0x78, 0x0f, 0xe3, 0x93, 0xa4, 0xc3, 0xa7, 0xab, 0x6b, 0x7e, 0xb6,
+	0xe3, 0x1d, 0xdf, 0x51, 0xec, 0x15, 0x66, 0xeb, 0x9a, 0x84, 0x25, 0xdf, 0x35, 0x83, 0xa9, 0xa1,
+	0xfa, 0x28, 0xb7, 0xf4, 0x7c, 0x36, 0xbf, 0x6c, 0xe1, 0x7f, 0x88, 0x49, 0x1d, 0x93, 0x61, 0x16,
+	0xe7, 0x93, 0xf2, 0xa7, 0x64, 0x6f, 0x30, 0xf7, 0xc5, 0xda, 0xc5, 0x02, 0x19, 0x7c, 0x87, 0x61,
+	0xcf, 0x81, 0xdd, 0xc2, 0xec, 0x89, 0x3e, 0xa8, 0xbf, 0x5c, 0xe8, 0x24, 0x77, 0x30, 0xf7, 0xe1,
+	0xbf, 0xcd, 0x57, 0x5f, 0x11, 0x8c, 0x4f, 0x20, 0x3e, 0x42, 0x5c, 0x90, 0xc5, 0x1b, 0x2e, 0xb4,
+	0xe4, 0xfd, 0x17, 0x48, 0x93, 0xfe, 0xa0, 0x91, 0x66, 0x03, 0x5c, 0xc3, 0xa8, 0xc9, 0x8c, 0xa9,
+	0xa3, 0x82, 0xd7, 0x4c, 0x17, 0xc1, 0xd9, 0xa5, 0x48, 0xb3, 0x7b, 0x2b, 0x12, 0x4c, 0xdd, 0x8a,
+	0x84, 0x43, 0xb2, 0xc1, 0x66, 0xe4, 0x3e, 0xd1, 0xc3, 0x77, 0x00, 0x00, 0x00, 0xff, 0xff, 0xfc,
+	0xf0, 0xbc, 0xab, 0x8c, 0x02, 0x00, 0x00,
 }
