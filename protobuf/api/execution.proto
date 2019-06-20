@@ -10,22 +10,22 @@ service Execution {
   // Get returns a single Execution specified in a request.
   rpc Get(GetExecutionRequest) returns (definition.Execution) {}
 
-  // Stream returns a stream of exeuction that satisfy createria
+  // Stream returns a stream of executions that satisfy criteria
   // specified in a request.
   rpc Stream(StreamExecutionRequest) returns (stream definition.Execution) {}
 
-  // Update updates exeuction with new inputs or state.
+  // Update updates execution with outputs or an error.
   rpc Update(UpdateExecutionRequest) returns (UpdateExecutionResponse) {}
 }
 
-// GetRequest defines request to retrive a single execution.
+// GetExecutionRequest defines request to retrieve a single execution.
 message GetExecutionRequest {
   string hash = 1;
 }
 
-// StreamRequest defines request to retrive a stream of executions.
+// StreamExecutionRequest defines request to retrieve a stream of executions.
 message StreamExecutionRequest{
-  // Filter contains filtering cryteria.
+  // Filter contains filtering criteria.
   message Filter {
     // Status for filtering execution by status.
     // Note: to filter multiple statues or flags, eg:
