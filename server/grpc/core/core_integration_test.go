@@ -8,9 +8,9 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/config"
-	"github.com/mesg-foundation/core/server/grpc/api"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	executionsdk "github.com/mesg-foundation/core/sdk/execution"
+	"github.com/mesg-foundation/core/server/grpc/api"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
 )
