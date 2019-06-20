@@ -10,7 +10,7 @@ service Execution {
   // Get returns a single Execution specified in a request.
   rpc Get(GetExecutionRequest) returns (definition.Execution) {}
 
-  // Stream returns a stream of execution that satisfy criteria
+  // Stream returns a stream of executions that satisfy criteria
   // specified in a request.
   rpc Stream(StreamExecutionRequest) returns (stream definition.Execution) {}
 
