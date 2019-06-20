@@ -5,7 +5,6 @@ import (
 	"io"
 	"sort"
 	"strings"
-	"time"
 
 	"github.com/mesg-foundation/core/service/importer"
 )
@@ -55,9 +54,6 @@ type Service struct {
 
 	// Source is the hash id of service's source code on IPFS.
 	Source string `hash:"name:9"`
-
-	// DeployedAt holds the creation time of service.
-	DeployedAt time.Time `hash:"-"`
 }
 
 // StatusType of the service.
