@@ -24,7 +24,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-// GetRequest defines request to retrive a single execution.
+// GetExecutionRequest defines request to retrieve a single execution.
 type GetExecutionRequest struct {
 	Hash                 string   `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -36,7 +36,7 @@ func (m *GetExecutionRequest) Reset()         { *m = GetExecutionRequest{} }
 func (m *GetExecutionRequest) String() string { return proto.CompactTextString(m) }
 func (*GetExecutionRequest) ProtoMessage()    {}
 func (*GetExecutionRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_execution_fb16738743891d65, []int{0}
+	return fileDescriptor_execution_ddb122528a69d1bd, []int{0}
 }
 func (m *GetExecutionRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetExecutionRequest.Unmarshal(m, b)
@@ -63,7 +63,7 @@ func (m *GetExecutionRequest) GetHash() string {
 	return ""
 }
 
-// StreamRequest defines request to retrive a stream of executions.
+// StreamExecutionRequest defines request to retrieve a stream of executions.
 type StreamExecutionRequest struct {
 	// Filter used to filter a stream of executions.
 	Filter               *StreamExecutionRequest_Filter `protobuf:"bytes,1,opt,name=filter,proto3" json:"filter,omitempty"`
@@ -76,7 +76,7 @@ func (m *StreamExecutionRequest) Reset()         { *m = StreamExecutionRequest{}
 func (m *StreamExecutionRequest) String() string { return proto.CompactTextString(m) }
 func (*StreamExecutionRequest) ProtoMessage()    {}
 func (*StreamExecutionRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_execution_fb16738743891d65, []int{1}
+	return fileDescriptor_execution_ddb122528a69d1bd, []int{1}
 }
 func (m *StreamExecutionRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_StreamExecutionRequest.Unmarshal(m, b)
@@ -103,7 +103,7 @@ func (m *StreamExecutionRequest) GetFilter() *StreamExecutionRequest_Filter {
 	return nil
 }
 
-// Filter contains filtering cryteria.
+// Filter contains filtering criteria.
 type StreamExecutionRequest_Filter struct {
 	// Status for filtering execution by status.
 	// Note: to filter multiple statues or flags, eg:
@@ -120,7 +120,7 @@ func (m *StreamExecutionRequest_Filter) Reset()         { *m = StreamExecutionRe
 func (m *StreamExecutionRequest_Filter) String() string { return proto.CompactTextString(m) }
 func (*StreamExecutionRequest_Filter) ProtoMessage()    {}
 func (*StreamExecutionRequest_Filter) Descriptor() ([]byte, []int) {
-	return fileDescriptor_execution_fb16738743891d65, []int{1, 0}
+	return fileDescriptor_execution_ddb122528a69d1bd, []int{1, 0}
 }
 func (m *StreamExecutionRequest_Filter) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_StreamExecutionRequest_Filter.Unmarshal(m, b)
@@ -173,7 +173,7 @@ func (m *UpdateExecutionRequest) Reset()         { *m = UpdateExecutionRequest{}
 func (m *UpdateExecutionRequest) String() string { return proto.CompactTextString(m) }
 func (*UpdateExecutionRequest) ProtoMessage()    {}
 func (*UpdateExecutionRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_execution_fb16738743891d65, []int{2}
+	return fileDescriptor_execution_ddb122528a69d1bd, []int{2}
 }
 func (m *UpdateExecutionRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UpdateExecutionRequest.Unmarshal(m, b)
@@ -314,7 +314,7 @@ func (m *UpdateExecutionResponse) Reset()         { *m = UpdateExecutionResponse
 func (m *UpdateExecutionResponse) String() string { return proto.CompactTextString(m) }
 func (*UpdateExecutionResponse) ProtoMessage()    {}
 func (*UpdateExecutionResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_execution_fb16738743891d65, []int{3}
+	return fileDescriptor_execution_ddb122528a69d1bd, []int{3}
 }
 func (m *UpdateExecutionResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UpdateExecutionResponse.Unmarshal(m, b)
@@ -356,10 +356,10 @@ const _ = grpc.SupportPackageIsVersion4
 type ExecutionClient interface {
 	// Get returns a single Execution specified in a request.
 	Get(ctx context.Context, in *GetExecutionRequest, opts ...grpc.CallOption) (*definition.Execution, error)
-	// Stream returns a stream of exeuction that satisfy createria
+	// Stream returns a stream of executions that satisfy criteria
 	// specified in a request.
 	Stream(ctx context.Context, in *StreamExecutionRequest, opts ...grpc.CallOption) (Execution_StreamClient, error)
-	// Update updates exeuction with new inputs or state.
+	// Update updates execution with outputs or an error.
 	Update(ctx context.Context, in *UpdateExecutionRequest, opts ...grpc.CallOption) (*UpdateExecutionResponse, error)
 }
 
@@ -425,10 +425,10 @@ func (c *executionClient) Update(ctx context.Context, in *UpdateExecutionRequest
 type ExecutionServer interface {
 	// Get returns a single Execution specified in a request.
 	Get(context.Context, *GetExecutionRequest) (*definition.Execution, error)
-	// Stream returns a stream of exeuction that satisfy createria
+	// Stream returns a stream of executions that satisfy criteria
 	// specified in a request.
 	Stream(*StreamExecutionRequest, Execution_StreamServer) error
-	// Update updates exeuction with new inputs or state.
+	// Update updates execution with outputs or an error.
 	Update(context.Context, *UpdateExecutionRequest) (*UpdateExecutionResponse, error)
 }
 
@@ -517,10 +517,10 @@ var _Execution_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("protobuf/api/execution.proto", fileDescriptor_execution_fb16738743891d65)
+	proto.RegisterFile("protobuf/api/execution.proto", fileDescriptor_execution_ddb122528a69d1bd)
 }
 
-var fileDescriptor_execution_fb16738743891d65 = []byte{
+var fileDescriptor_execution_ddb122528a69d1bd = []byte{
 	// 315 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x52, 0x41, 0x4f, 0x32, 0x31,
 	0x10, 0x65, 0x3f, 0x3e, 0xab, 0x0c, 0x89, 0x87, 0x31, 0x22, 0xae, 0x1c, 0x48, 0xbd, 0xa8, 0x87,
