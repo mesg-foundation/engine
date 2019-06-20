@@ -12,7 +12,7 @@ import (
 func TestIntegrationStartServiceIntegration(t *testing.T) {
 	var (
 		s = &service.Service{
-			Hash: "1",
+			Hash: []byte{0},
 			Name: "TestStartService",
 			Dependencies: []*service.Dependency{
 				{
@@ -35,7 +35,7 @@ func TestIntegrationStartServiceIntegration(t *testing.T) {
 func TestIntegrationStartWith2DependenciesIntegration(t *testing.T) {
 	var (
 		service = &service.Service{
-			Hash: "1",
+			Hash: []byte{0},
 			Name: "TestStartWith2Dependencies",
 			Dependencies: []*service.Dependency{
 				{
@@ -67,7 +67,7 @@ func TestIntegrationStartWith2DependenciesIntegration(t *testing.T) {
 func TestIntegrationStartAgainService(t *testing.T) {
 	var (
 		s = &service.Service{
-			Hash: "1",
+			Hash: []byte{0},
 			Name: "TestStartAgainService",
 			Dependencies: []*service.Dependency{
 				{
@@ -124,7 +124,7 @@ func TestIntegrationStartAgainService(t *testing.T) {
 func TestIntegrationNetworkCreated(t *testing.T) {
 	var (
 		service = &service.Service{
-			Hash: "1",
+			Hash: []byte{0},
 			Name: "TestNetworkCreated",
 			Dependencies: []*service.Dependency{
 				{
@@ -148,7 +148,7 @@ func TestIntegrationNetworkCreated(t *testing.T) {
 func TestIntegrationStartStopStart(t *testing.T) {
 	var (
 		s = &service.Service{
-			Hash: "1",
+			Hash: []byte{0},
 			Name: "TestStartStopStart",
 			Dependencies: []*service.Dependency{
 				{
@@ -174,7 +174,7 @@ func TestIntegrationStartStopStart(t *testing.T) {
 func TestIntegrationServiceDependenciesListensFromSamePort(t *testing.T) {
 	var (
 		s = &service.Service{
-			Hash: "1",
+			Hash: []byte{0},
 			Name: "TestServiceDependenciesListensFromSamePort",
 			Dependencies: []*service.Dependency{
 				{
@@ -185,7 +185,7 @@ func TestIntegrationServiceDependenciesListensFromSamePort(t *testing.T) {
 			},
 		}
 		s1 = &service.Service{
-			Hash: "2",
+			Hash: []byte{1},
 			Name: "TestServiceDependenciesListensFromSamePort1",
 			Dependencies: []*service.Dependency{
 				{
@@ -211,7 +211,7 @@ func TestIntegrationServiceDependenciesListensFromSamePort(t *testing.T) {
 func TestStartWithSamePorts(t *testing.T) {
 	var (
 		service = &service.Service{
-			Hash: "1",
+			Hash: []byte{0},
 			Name: "TestStartWithSamePorts",
 			Dependencies: []*service.Dependency{
 				{

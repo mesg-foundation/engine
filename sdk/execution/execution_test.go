@@ -12,7 +12,6 @@ import (
 	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/manager/dockermanager"
-	"github.com/mesg-foundation/core/utils/hash"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
@@ -59,7 +58,7 @@ func newTesting(t *testing.T) (*Execution, *apiTesting) {
 var testService = &service.Service{
 	Name: "1",
 	Sid:  "2",
-	Hash: "33",
+	Hash: []byte{0},
 	Tasks: []*service.Task{
 		{Key: "4"},
 	},
@@ -71,7 +70,7 @@ var testService = &service.Service{
 func TestGet(t *testing.T) {
 	sdk, at := newTesting(t)
 	defer at.close()
-	exec := execution.New("", nil, "", "", nil, nil)
+	exec := execution.New(nil, nil, "", "", nil, nil)
 	require.NoError(t, sdk.execDB.Save(exec))
 	got, err := sdk.Get(exec.Hash)
 	require.NoError(t, err)
@@ -83,7 +82,7 @@ func TestGetsream(t *testing.T) {
 	defer at.close()
 
 	execErr := errors.New("exec-error")
-	exec := execution.New("", nil, "", "", nil, nil)
+	exec := execution.New(nil, nil, "", "", nil, nil)
 	exec.Status = execution.InProgress
 
 	require.NoError(t, sdk.execDB.Save(exec))
@@ -114,7 +113,7 @@ func TestExecute(t *testing.T) {
 	require.NoError(t, at.serviceDB.Save(testService))
 	at.containerMock.On("Status", mock.Anything).Once().Return(container.RUNNING, nil)
 
-	id, err := sdk.Execute("2", "4", map[string]interface{}{}, []string{})
+	id, err := sdk.Execute(testService.Hash, testService.Tasks[0].Key, map[string]interface{}{}, []string{})
 	require.NoError(t, err)
 	require.NotNil(t, id)
 
@@ -128,7 +127,7 @@ func TestExecuteWithInvalidTaskName(t *testing.T) {
 	require.NoError(t, at.serviceDB.Save(testService))
 	at.containerMock.On("Status", mock.Anything).Once().Return(container.RUNNING, nil)
 
-	_, err := sdk.Execute("2", "2a", map[string]interface{}{}, []string{})
+	_, err := sdk.Execute(testService.Hash, "-", map[string]interface{}{}, []string{})
 	require.Error(t, err)
 }
 
@@ -139,12 +138,12 @@ func TestExecuteForNotRunningService(t *testing.T) {
 	require.NoError(t, at.serviceDB.Save(testService))
 	at.containerMock.On("Status", mock.Anything).Once().Return(container.STOPPED, nil)
 
-	_, err := sdk.Execute("2", "4", map[string]interface{}{}, []string{})
+	_, err := sdk.Execute(testService.Hash, testService.Tasks[0].Key, map[string]interface{}{}, []string{})
 	_, notRunningError := err.(*NotRunningServiceError)
 	require.True(t, notRunningError)
 }
 
 func TestSubTopic(t *testing.T) {
-	serviceHash := "1"
-	require.Equal(t, subTopic(serviceHash), hash.Calculate([]string{serviceHash, topic}))
+	serviceHash := []byte{0}
+	require.Equal(t, subTopic(serviceHash), "1.Execution")
 }

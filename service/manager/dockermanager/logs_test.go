@@ -27,7 +27,7 @@ func TestServiceLogs(t *testing.T) {
 
 	var (
 		s = &service.Service{
-			Hash: "1",
+			Hash: []byte{0},
 			Dependencies: []*service.Dependency{
 				{Key: dependencyKey},
 			},

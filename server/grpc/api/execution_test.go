@@ -22,7 +22,7 @@ func TestGet(t *testing.T) {
 	defer db.Close()
 	defer os.RemoveAll(execdbname)
 
-	exec := execution.New("", nil, uuid.NewV4().String(), "", nil, nil)
+	exec := execution.New(nil, nil, uuid.NewV4().String(), "", nil, nil)
 	require.NoError(t, db.Save(exec))
 
 	want, err := toProtoExecution(exec)
@@ -42,7 +42,7 @@ func TestUpdate(t *testing.T) {
 	defer db.Close()
 	defer os.RemoveAll(execdbname)
 
-	exec := execution.New("", nil, uuid.NewV4().String(), "", nil, nil)
+	exec := execution.New(nil, nil, uuid.NewV4().String(), "", nil, nil)
 	require.NoError(t, db.Save(exec))
 
 	sdk := sdk.New(nil, nil, nil, nil, db)

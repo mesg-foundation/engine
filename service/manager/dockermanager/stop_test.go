@@ -13,7 +13,7 @@ func TestStopRunningService(t *testing.T) {
 	var (
 		dependencyKey = "1"
 		s             = &service.Service{
-			Hash: "1",
+			Hash: []byte{0},
 			Name: "TestStopRunningService",
 			Dependencies: []*service.Dependency{
 				{

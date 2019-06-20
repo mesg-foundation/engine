@@ -11,6 +11,7 @@ import (
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
 	executionsdk "github.com/mesg-foundation/core/sdk/execution"
 	"github.com/mesg-foundation/core/service"
+	"github.com/mr-tron/base58"
 	"github.com/stretchr/testify/require"
 )
 
@@ -32,7 +33,7 @@ func TestEmit(t *testing.T) {
 	defer ln.Close()
 
 	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
-		Token:     s.Hash,
+		Token:     base58.Encode(s.Hash),
 		EventKey:  eventKey,
 		EventData: eventData,
 	})
@@ -56,7 +57,7 @@ func TestEmitNoData(t *testing.T) {
 	defer server.sdk.DeleteService(s.Hash, false)
 
 	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
-		Token:    s.Hash,
+		Token:    base58.Encode(s.Hash),
 		EventKey: eventKey,
 	})
 	require.Equal(t, err.Error(), "unexpected end of JSON input")
@@ -75,7 +76,7 @@ func TestEmitWrongData(t *testing.T) {
 	defer server.sdk.DeleteService(s.Hash, false)
 
 	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
-		Token:     s.Hash,
+		Token:     base58.Encode(s.Hash),
 		EventKey:  eventKey,
 		EventData: "",
 	})
@@ -95,7 +96,7 @@ func TestEmitWrongEvent(t *testing.T) {
 	defer server.sdk.DeleteService(s.Hash, false)
 
 	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
-		Token:     s.Hash,
+		Token:     base58.Encode(s.Hash),
 		EventKey:  eventKey,
 		EventData: "{}",
 	})
@@ -120,7 +121,7 @@ func TestEmitInvalidData(t *testing.T) {
 	defer server.sdk.DeleteService(s.Hash, false)
 
 	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
-		Token:     s.Hash,
+		Token:     base58.Encode(s.Hash),
 		EventKey:  eventKey,
 		EventData: eventData,
 	})

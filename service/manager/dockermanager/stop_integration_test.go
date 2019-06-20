@@ -12,7 +12,7 @@ import (
 func TestIntegrationStopRunningService(t *testing.T) {
 	var (
 		s = &service.Service{
-			Hash: "1",
+			Hash: []byte{0},
 			Name: "TestStopRunningService",
 			Dependencies: []*service.Dependency{
 				{
@@ -35,7 +35,7 @@ func TestIntegrationStopRunningService(t *testing.T) {
 func TestIntegrationStopNonRunningService(t *testing.T) {
 	var (
 		s = &service.Service{
-			Hash: "1",
+			Hash: []byte{0},
 			Name: "TestStopNonRunningService",
 			Dependencies: []*service.Dependency{
 				{
@@ -57,7 +57,7 @@ func TestIntegrationStopNonRunningService(t *testing.T) {
 func TestIntegrationNetworkDeleted(t *testing.T) {
 	var (
 		service = &service.Service{
-			Hash: "1",
+			Hash: []byte{0},
 			Name: "TestNetworkDeleted",
 			Dependencies: []*service.Dependency{
 				{
