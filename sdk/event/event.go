@@ -8,7 +8,9 @@ import (
 )
 
 const (
-	topic = "Event"
+	// streamTopic is topic used to broadcast events.
+	streamTopic = "event-stream"
+	topic       = "Event"
 )
 
 // Event exposes event APIs of MESG.
@@ -36,8 +38,16 @@ func (e *Event) Emit(token, eventKey string, eventData map[string]interface{}) e
 		return err
 	}
 
+	go e.ps.Pub(ev, streamTopic)
 	go e.ps.Pub(ev, subTopic(s.Hash))
 	return nil
+}
+
+// GetStream broadcasts all events.
+func (e *Event) GetStream(f *Filter) *Listener {
+	l := NewListener(e.ps, streamTopic, f)
+	go l.Listen()
+	return l
 }
 
 // Listen listens events matches with eventFilter on serviceID.
