@@ -12,6 +12,7 @@ import (
 	executionsdk "github.com/mesg-foundation/core/sdk/execution"
 	"github.com/mesg-foundation/core/server/grpc/api"
 	"github.com/mesg-foundation/core/service"
+	"github.com/mr-tron/base58"
 	"github.com/stretchr/testify/require"
 )
 
@@ -25,7 +26,7 @@ func TestGetService(t *testing.T) {
 	defer server.sdk.DeleteService(s.Hash, false)
 
 	reply, err := server.GetService(context.Background(), &coreapi.GetServiceRequest{
-		ServiceID: s.Hash,
+		ServiceID: base58.Encode(s.Hash),
 	})
 	require.NoError(t, err)
 	require.NotNil(t, reply)
@@ -66,7 +67,7 @@ func TestStartService(t *testing.T) {
 	defer server.sdk.DeleteService(s.Hash, false)
 
 	_, err = server.StartService(context.Background(), &coreapi.StartServiceRequest{
-		ServiceID: s.Hash,
+		ServiceID: base58.Encode(s.Hash),
 	})
 	require.NoError(t, err)
 	defer server.sdk.StopService(s.Hash)
@@ -91,7 +92,7 @@ func TestStopService(t *testing.T) {
 	require.NoError(t, server.sdk.StartService(s.Hash))
 
 	reply, err := server.StopService(context.Background(), &coreapi.StopServiceRequest{
-		ServiceID: s.Hash,
+		ServiceID: base58.Encode(s.Hash),
 	})
 	require.NoError(t, err)
 
@@ -114,7 +115,7 @@ func TestDeleteService(t *testing.T) {
 	require.NoError(t, err)
 
 	reply, err := server.DeleteService(context.Background(), &coreapi.DeleteServiceRequest{
-		ServiceID: s.Hash,
+		ServiceID: base58.Encode(s.Hash),
 	})
 	require.NoError(t, err)
 	require.NotNil(t, reply)
@@ -140,7 +141,7 @@ func TestExecute(t *testing.T) {
 	defer server.sdk.StopService(s.Hash)
 
 	reply, err := server.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
-		ServiceID: s.Sid,
+		ServiceID: base58.Encode(s.Hash),
 		TaskKey:   taskKey,
 		InputData: data,
 	})
@@ -158,7 +159,7 @@ func TestExecuteWithInvalidJSON(t *testing.T) {
 	defer server.sdk.DeleteService(s.Hash, false)
 
 	_, err = server.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
-		ServiceID: s.Sid,
+		ServiceID: base58.Encode(s.Hash),
 		TaskKey:   "test",
 		InputData: "",
 	})
@@ -182,7 +183,7 @@ func TestExecuteWithInvalidTask(t *testing.T) {
 	defer server.sdk.StopService(s.Hash)
 
 	_, err = server.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
-		ServiceID: s.Sid,
+		ServiceID: base58.Encode(s.Hash),
 		TaskKey:   taskKey,
 		InputData: "{}",
 	})
@@ -210,7 +211,7 @@ func TestExecuteWithInvalidTaskInput(t *testing.T) {
 	defer server.sdk.StopService(s.Hash)
 
 	_, err = server.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
-		ServiceID: s.Sid,
+		ServiceID: base58.Encode(s.Hash),
 		TaskKey:   taskKey,
 		InputData: data,
 	})
@@ -231,11 +232,11 @@ func TestExecuteWithNonRunningService(t *testing.T) {
 	defer server.sdk.DeleteService(s.Hash, false)
 
 	_, err = server.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
-		ServiceID: s.Sid,
+		ServiceID: base58.Encode(s.Hash),
 		TaskKey:   "test",
 		InputData: "{}",
 	})
-	require.Equal(t, &executionsdk.NotRunningServiceError{ServiceID: s.Sid}, err)
+	require.Equal(t, &executionsdk.NotRunningServiceError{ServiceID: base58.Encode(s.Hash)}, err)
 }
 
 func TestExecuteWithNonExistingService(t *testing.T) {
@@ -243,7 +244,7 @@ func TestExecuteWithNonExistingService(t *testing.T) {
 	defer closer()
 
 	_, err := server.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
-		ServiceID: "service that doesnt exists",
+		ServiceID: "-",
 		TaskKey:   "error",
 		InputData: "{}",
 	})

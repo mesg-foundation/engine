@@ -15,7 +15,7 @@ func TestUnknownServiceStatus(t *testing.T) {
 		dependencyKey = "1"
 		statusErr     = errors.New("ops")
 		s             = &service.Service{
-			Hash: "1",
+			Hash: []byte{0},
 			Name: "TestUnknownServiceStatus",
 			Dependencies: []*service.Dependency{
 				{
@@ -43,7 +43,7 @@ func TestStoppedServiceStatus(t *testing.T) {
 	var (
 		dependencyKey = "1"
 		s             = &service.Service{
-			Hash: "1",
+			Hash: []byte{0},
 			Name: "TestStoppedServiceStatus",
 			Dependencies: []*service.Dependency{
 				{
@@ -71,7 +71,7 @@ func TestRunningServiceStatus(t *testing.T) {
 	var (
 		dependencyKey = "1"
 		s             = &service.Service{
-			Hash: "1",
+			Hash: []byte{0},
 			Name: "TestRunningServiceStatus",
 			Dependencies: []*service.Dependency{
 				{
@@ -100,7 +100,7 @@ func TestPartialServiceStatus(t *testing.T) {
 		dependencyKey  = "1"
 		dependencyKey2 = "2"
 		s              = &service.Service{
-			Hash: "1",
+			Hash: []byte{0},
 			Name: "TestPartialServiceStatus",
 			Dependencies: []*service.Dependency{
 				{

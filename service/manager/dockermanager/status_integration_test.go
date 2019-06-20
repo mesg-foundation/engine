@@ -6,13 +6,14 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/service"
+	"github.com/mr-tron/base58"
 	"github.com/stretchr/testify/require"
 )
 
 func TestIntegrationStatusService(t *testing.T) {
 	var (
 		s = &service.Service{
-			Hash: "1",
+			Hash: []byte{0},
 			Name: "TestStatusService",
 			Dependencies: []*service.Dependency{
 				{
@@ -40,7 +41,7 @@ func TestIntegrationStatusService(t *testing.T) {
 func TestIntegrationListRunning(t *testing.T) {
 	var (
 		service = &service.Service{
-			Hash: "1",
+			Hash: []byte{0},
 			Name: "TestList",
 			Dependencies: []*service.Dependency{
 				{
@@ -58,13 +59,13 @@ func TestIntegrationListRunning(t *testing.T) {
 	list, err := ListRunning()
 	require.NoError(t, err)
 	require.Equal(t, len(list), 1)
-	require.Equal(t, list[0], service.Hash)
+	require.Equal(t, list[0], base58.Encode(service.Hash))
 }
 
 func TestIntegrationListRunningMultipleDependencies(t *testing.T) {
 	var (
 		service = &service.Service{
-			Hash: "1",
+			Hash: []byte{0},
 			Name: "TestListMultipleDependencies",
 			Dependencies: []*service.Dependency{
 				{
@@ -86,5 +87,5 @@ func TestIntegrationListRunningMultipleDependencies(t *testing.T) {
 	list, err := ListRunning()
 	require.NoError(t, err)
 	require.Equal(t, len(list), 1)
-	require.Equal(t, list[0], service.Hash)
+	require.Equal(t, list[0], base58.Encode(service.Hash))
 }

@@ -9,18 +9,18 @@ import (
 )
 
 func TestServiceNamespace(t *testing.T) {
-	hash := "1"
+	hash := []byte{0}
 	namespace := serviceNamespace(hash)
-	sum := sha1.Sum([]byte(hash))
+	sum := sha1.Sum(hash)
 	require.Equal(t, namespace, []string{hex.EncodeToString(sum[:])})
 }
 
 func TestDependencyNamespace(t *testing.T) {
 	var (
-		hash          = "1"
+		hash          = []byte{0}
 		dependencyKey = "test"
 	)
 	sNamespace := serviceNamespace(hash)
-	sum := sha1.Sum([]byte(hash))
+	sum := sha1.Sum(hash)
 	require.Equal(t, dependencyNamespace(sNamespace, dependencyKey), []string{hex.EncodeToString(sum[:]), dependencyKey})
 }

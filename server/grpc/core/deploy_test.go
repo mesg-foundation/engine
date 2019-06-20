@@ -7,6 +7,7 @@ import (
 
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/sdk"
+	"github.com/mr-tron/base58"
 	"github.com/stretchr/testify/require"
 	grpc "google.golang.org/grpc"
 )
@@ -34,7 +35,7 @@ type testDeployStream struct {
 	url      string // Git repo url.
 	err      error
 	sid      string
-	hash     string
+	hash     []byte
 	statuses []sdk.DeployStatus
 	grpc.ServerStream
 }
@@ -45,7 +46,7 @@ func newTestDeployStream(url string) *testDeployStream {
 
 func (s *testDeployStream) Send(m *coreapi.DeployServiceReply) error {
 	s.sid = m.GetService().GetSid()
-	s.hash = m.GetService().GetHash()
+	s.hash, _ = base58.Decode(m.GetService().GetHash())
 
 	status := m.GetStatus()
 	if status != nil {
@@ -63,7 +64,6 @@ func (s *testDeployStream) Send(m *coreapi.DeployServiceReply) error {
 			Type:    typ,
 		})
 	}
-
 	return nil
 }
 
