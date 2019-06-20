@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/core/config"
+	"github.com/mesg-foundation/core/server/grpc/api"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	executionsdk "github.com/mesg-foundation/core/sdk/execution"
 	"github.com/mesg-foundation/core/service"
@@ -46,7 +47,7 @@ func TestListServices(t *testing.T) {
 	services, err := server.sdk.ListServices()
 	require.NoError(t, err)
 
-	apiProtoServices := toProtoServices(services)
+	apiProtoServices := api.ToProtoServices(services)
 
 	require.Len(t, apiProtoServices, 1)
 	require.Equal(t, reply.Services[0].Definition.Hash, apiProtoServices[0].Hash)
