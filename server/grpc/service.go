@@ -3,7 +3,6 @@ package grpc
 import (
 	"context"
 
-	protoApi "github.com/mesg-foundation/core/protobuf/api"
 	protobuf_api "github.com/mesg-foundation/core/protobuf/api"
 	"github.com/mesg-foundation/core/protobuf/definition"
 	"github.com/mesg-foundation/core/sdk"
@@ -30,7 +29,7 @@ func (s *ServiceServer) Create(ctx context.Context, request *protobuf_api.Create
 }
 
 // Get returns service from given hash.
-func (s *ServiceServer) Get(ctx context.Context, req *protoApi.GetServiceRequest) (*definition.Service, error) {
+func (s *ServiceServer) Get(ctx context.Context, req *protobuf_api.GetServiceRequest) (*definition.Service, error) {
 	exec, err := s.sdk.Service.Get(req.Hash)
 	if err != nil {
 		return nil, err
