@@ -55,14 +55,14 @@ func (x Status) String() string {
 	return proto.EnumName(Status_name, int32(x))
 }
 func (Status) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_execution_9b16f82bee1a6b77, []int{0}
+	return fileDescriptor_execution_d954434747f29be3, []int{0}
 }
 
 // Execution represents a single execution run in engine.
 type Execution struct {
-	// Hash is a unique hash that identify a given execution.
+	// Hash is a unique hash to identify execution.
 	Hash string `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
-	// parentHash is the hash of the execution that triggered this current execution.
+	// parentHash is the unique hash of parent execution. if execution is triggered by another one, dependency execution considered as the parent.
 	ParentHash string `protobuf:"bytes,2,opt,name=parentHash,proto3" json:"parentHash,omitempty"`
 	// eventID is unique event id.
 	EventID string `protobuf:"bytes,3,opt,name=eventID,proto3" json:"eventID,omitempty"`
@@ -78,7 +78,7 @@ type Execution struct {
 	Outputs string `protobuf:"bytes,8,opt,name=outputs,proto3" json:"outputs,omitempty"`
 	// error message of a failed execution.
 	Error string `protobuf:"bytes,9,opt,name=error,proto3" json:"error,omitempty"`
-	// tags contain custom tags attached to execution.
+	// tags are optionally associated with execution by the user.
 	Tags                 []string `protobuf:"bytes,10,rep,name=tags,proto3" json:"tags,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -89,7 +89,7 @@ func (m *Execution) Reset()         { *m = Execution{} }
 func (m *Execution) String() string { return proto.CompactTextString(m) }
 func (*Execution) ProtoMessage()    {}
 func (*Execution) Descriptor() ([]byte, []int) {
-	return fileDescriptor_execution_9b16f82bee1a6b77, []int{0}
+	return fileDescriptor_execution_d954434747f29be3, []int{0}
 }
 func (m *Execution) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Execution.Unmarshal(m, b)
@@ -185,10 +185,10 @@ func init() {
 }
 
 func init() {
-	proto.RegisterFile("protobuf/definition/execution.proto", fileDescriptor_execution_9b16f82bee1a6b77)
+	proto.RegisterFile("protobuf/definition/execution.proto", fileDescriptor_execution_d954434747f29be3)
 }
 
-var fileDescriptor_execution_9b16f82bee1a6b77 = []byte{
+var fileDescriptor_execution_d954434747f29be3 = []byte{
 	// 321 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x6c, 0x91, 0x4f, 0x4b, 0xeb, 0x40,
 	0x14, 0xc5, 0x5f, 0xfa, 0x27, 0x7d, 0xb9, 0xe5, 0x95, 0x70, 0x79, 0xc8, 0xac, 0x24, 0xe8, 0xa6,
