@@ -7,6 +7,7 @@ import (
 	protobuf_api "github.com/mesg-foundation/core/protobuf/api"
 	"github.com/mesg-foundation/core/protobuf/definition"
 	"github.com/mesg-foundation/core/sdk"
+	instancesdk "github.com/mesg-foundation/core/sdk/instance"
 )
 
 // InstanceServer is the type to aggregate all Instance APIs.
@@ -21,7 +22,7 @@ func NewInstanceServer(sdk *sdk.SDK) *InstanceServer {
 
 // List instances.
 func (s *InstanceServer) List(ctx context.Context, request *protobuf_api.ListInstancesRequest) (*protobuf_api.ListInstancesResponse, error) {
-	instances, err := s.sdk.Instance.List(request.ServiceHash)
+	instances, err := s.sdk.Instance.List(&instancesdk.Filter{ServiceHash: request.ServiceHash})
 	if err != nil {
 		return nil, err
 	}
