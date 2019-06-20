@@ -24,8 +24,7 @@ message CreateInstanceRequest {
 }
 
 message CreateInstanceResponse {
-  string hash = 1;        // Service's instance hash.
-  string serviceHash = 2; // Service's bare hash.
+  definition.Instance instance = 1;
 }
 
 message DeleteInstanceRequest {
