@@ -14,6 +14,7 @@ import (
 	"github.com/mesg-foundation/core/sdk"
 	eventsdk "github.com/mesg-foundation/core/sdk/event"
 	executionsdk "github.com/mesg-foundation/core/sdk/execution"
+	"github.com/mesg-foundation/core/server/grpc/api"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/version"
 	"github.com/mesg-foundation/core/x/xerrors"
@@ -40,7 +41,7 @@ func (s *Server) GetService(ctx context.Context, request *coreapi.GetServiceRequ
 		return nil, err
 	}
 	details := &coreapi.Service{
-		Definition: toProtoService(ss),
+		Definition: api.ToProtoService(ss),
 		Status:     toProtoServiceStatusType(status),
 	}
 	return &coreapi.GetServiceReply{Service: details}, nil
@@ -72,7 +73,7 @@ func (s *Server) ListServices(ctx context.Context, request *coreapi.ListServices
 				return
 			}
 			details := &coreapi.Service{
-				Definition: toProtoService(ss),
+				Definition: api.ToProtoService(ss),
 				Status:     toProtoServiceStatusType(status),
 			}
 			mp.Lock()
