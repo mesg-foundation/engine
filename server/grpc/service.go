@@ -4,6 +4,7 @@ import (
 	"context"
 
 	protobuf_api "github.com/mesg-foundation/core/protobuf/api"
+	"github.com/mesg-foundation/core/protobuf/definition"
 	"github.com/mesg-foundation/core/sdk"
 	"github.com/mesg-foundation/core/server/grpc/api"
 )
@@ -25,4 +26,13 @@ func (s *ServiceServer) Create(ctx context.Context, request *protobuf_api.Create
 		return nil, err
 	}
 	return &protobuf_api.CreateServiceResponse{Sid: srv.Sid, Hash: srv.Hash}, nil
+}
+
+// Get returns service from given hash.
+func (s *ServiceServer) Get(ctx context.Context, req *protobuf_api.GetServiceRequest) (*definition.Service, error) {
+	exec, err := s.sdk.Service.Get(req.Hash)
+	if err != nil {
+		return nil, err
+	}
+	return api.ToProtoService(exec), nil
 }
