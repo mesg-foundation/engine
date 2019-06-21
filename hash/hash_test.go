@@ -33,6 +33,10 @@ func TestDecode(t *testing.T) {
 	assert.Equal(t, "hash: invalid length string", err.Error())
 }
 
+func TestIsZero(t *testing.T) {
+	assert.True(t, Hash{}.IsZero())
+}
+
 func TestString(t *testing.T) {
 	assert.Equal(t, Int(1).String(), "4uQeVj5tqViQh7yWWGStvkEG1Zmhx6uasJtWCJziofM")
 }
