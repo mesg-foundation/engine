@@ -32,7 +32,7 @@ func (s Status) String() (r string) {
 	return r
 }
 
-// Execution stores all informations about executions.
+// Execution stores all information about executions.
 type Execution struct {
 	Hash        []byte                 `hash:"-"`
 	ParentHash  []byte                 `hash:"name:parentHash"`

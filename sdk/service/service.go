@@ -87,3 +87,13 @@ func (s *Service) Create(srv *service.Service) error {
 
 	return s.db.Save(srv)
 }
+
+// Delete deletes the service by hashOrSid.
+func (s *Service) Delete(hashOrSid string) error {
+	return s.db.Delete(hashOrSid)
+}
+
+// Get returns the service that matches given hash.
+func (s *Service) Get(hash string) (*service.Service, error) {
+	return s.db.Get(hash)
+}
