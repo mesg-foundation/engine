@@ -10,7 +10,7 @@ import (
 type Event struct {
 	Service   *service.Service
 	Key       string
-	Data      interface{}
+	Data      map[string]interface{}
 	CreatedAt time.Time
 }
 
