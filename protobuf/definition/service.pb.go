@@ -39,7 +39,7 @@ func (m *Service) Reset()         { *m = Service{} }
 func (m *Service) String() string { return proto.CompactTextString(m) }
 func (*Service) ProtoMessage()    {}
 func (*Service) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_b2f340b0800c6d58, []int{0}
+	return fileDescriptor_service_2bc3af6681bfa119, []int{0}
 }
 func (m *Service) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Service.Unmarshal(m, b)
@@ -144,7 +144,7 @@ func (m *Event) Reset()         { *m = Event{} }
 func (m *Event) String() string { return proto.CompactTextString(m) }
 func (*Event) ProtoMessage()    {}
 func (*Event) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_b2f340b0800c6d58, []int{1}
+	return fileDescriptor_service_2bc3af6681bfa119, []int{1}
 }
 func (m *Event) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Event.Unmarshal(m, b)
@@ -208,7 +208,7 @@ func (m *Task) Reset()         { *m = Task{} }
 func (m *Task) String() string { return proto.CompactTextString(m) }
 func (*Task) ProtoMessage()    {}
 func (*Task) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_b2f340b0800c6d58, []int{2}
+	return fileDescriptor_service_2bc3af6681bfa119, []int{2}
 }
 func (m *Task) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Task.Unmarshal(m, b)
@@ -281,7 +281,7 @@ func (m *Parameter) Reset()         { *m = Parameter{} }
 func (m *Parameter) String() string { return proto.CompactTextString(m) }
 func (*Parameter) ProtoMessage()    {}
 func (*Parameter) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_b2f340b0800c6d58, []int{3}
+	return fileDescriptor_service_2bc3af6681bfa119, []int{3}
 }
 func (m *Parameter) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Parameter.Unmarshal(m, b)
@@ -367,7 +367,7 @@ func (m *Configuration) Reset()         { *m = Configuration{} }
 func (m *Configuration) String() string { return proto.CompactTextString(m) }
 func (*Configuration) ProtoMessage()    {}
 func (*Configuration) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_b2f340b0800c6d58, []int{4}
+	return fileDescriptor_service_2bc3af6681bfa119, []int{4}
 }
 func (m *Configuration) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Configuration.Unmarshal(m, b)
@@ -448,7 +448,7 @@ func (m *Dependency) Reset()         { *m = Dependency{} }
 func (m *Dependency) String() string { return proto.CompactTextString(m) }
 func (*Dependency) ProtoMessage()    {}
 func (*Dependency) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_b2f340b0800c6d58, []int{5}
+	return fileDescriptor_service_2bc3af6681bfa119, []int{5}
 }
 func (m *Dependency) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Dependency.Unmarshal(m, b)
@@ -534,10 +534,10 @@ func init() {
 }
 
 func init() {
-	proto.RegisterFile("protobuf/definition/service.proto", fileDescriptor_service_b2f340b0800c6d58)
+	proto.RegisterFile("protobuf/definition/service.proto", fileDescriptor_service_2bc3af6681bfa119)
 }
 
-var fileDescriptor_service_b2f340b0800c6d58 = []byte{
+var fileDescriptor_service_2bc3af6681bfa119 = []byte{
 	// 546 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x54, 0xcd, 0x6e, 0xd3, 0x40,
 	0x10, 0x96, 0xe3, 0x9f, 0xc4, 0xd3, 0x56, 0x2a, 0xab, 0x52, 0x2d, 0x1c, 0x50, 0xf0, 0x01, 0xa5,
