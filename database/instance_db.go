@@ -12,10 +12,10 @@ type InstanceDB interface {
 	// Get retrives instance by instance hash.
 	Get(hash string) (*instance.Instance, error)
 
-	// GetAll retrives all instances.
+	// GetAll retrieves all instances.
 	GetAll() ([]*instance.Instance, error)
 
-	// GetAllByService retrives all instances of service by service's hash.
+	// GetAllByService retrieves all instances of service by service's hash.
 	GetAllByService(serviceHash string) ([]*instance.Instance, error)
 
 	// Save saves instance to database.
@@ -69,7 +69,7 @@ func (d *LevelDBInstanceDB) Get(hash string) (*instance.Instance, error) {
 	return d.unmarshal(hash, b)
 }
 
-// GetAll retrives all instances.
+// GetAll retrieves all instances.
 func (d *LevelDBInstanceDB) GetAll() ([]*instance.Instance, error) {
 	instances := []*instance.Instance{}
 	iter := d.db.NewIterator(nil, nil)
@@ -86,7 +86,7 @@ func (d *LevelDBInstanceDB) GetAll() ([]*instance.Instance, error) {
 	return instances, iter.Error()
 }
 
-// GetAllByService retrives all instances of service by service's hash.
+// GetAllByService retrieves all instances of service by service's hash.
 func (d *LevelDBInstanceDB) GetAllByService(serviceHash string) ([]*instance.Instance, error) {
 	instances, err := d.GetAll()
 	if err != nil {
