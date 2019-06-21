@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	protobuf_api "github.com/mesg-foundation/core/protobuf/api"
+	"github.com/mesg-foundation/core/protobuf/definition"
 	"github.com/mesg-foundation/core/sdk"
 	"github.com/mesg-foundation/core/server/grpc/api"
 )
@@ -37,10 +38,19 @@ func (s *ServiceServer) Delete(ctx context.Context, request *protobuf_api.Delete
 	// first, check if service has any running instances.
 	instances, err := s.sdk.Instance.GetAllByService(srv.Hash)
 	if err != nil {
-		return nil, err
+		return nil, err 
 	}
 	if len(instances) > 0 {
 		return nil, errors.New("service has running instances. in order to delete the service, stop its instances first")
 	}
 	return &protobuf_api.DeleteServiceResponse{}, s.sdk.Service.Delete(request.HashOrSid)
+}
+
+// Get returns service from given hash.
+func (s *ServiceServer) Get(ctx context.Context, req *protobuf_api.GetServiceRequest) (*definition.Service, error) {
+	exec, err := s.sdk.Service.Get(req.Hash)
+	if err != nil {
+		return nil, err
+	}
+	return api.ToProtoService(exec), nil
 }
