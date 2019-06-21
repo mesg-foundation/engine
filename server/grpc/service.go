@@ -38,7 +38,7 @@ func (s *ServiceServer) Delete(ctx context.Context, request *protobuf_api.Delete
 	// first, check if service has any running instances.
 	instances, err := s.sdk.Instance.GetAllByService(srv.Hash)
 	if err != nil {
-		return nil, err 
+		return nil, err
 	}
 	if len(instances) > 0 {
 		return nil, errors.New("service has running instances. in order to delete the service, stop its instances first")
