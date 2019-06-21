@@ -23,7 +23,12 @@ func NewInstanceServer(sdk *sdk.SDK) *InstanceServer {
 
 // List instances.
 func (s *InstanceServer) List(ctx context.Context, request *protobuf_api.ListInstancesRequest) (*protobuf_api.ListInstancesResponse, error) {
-	instances, err := s.sdk.Instance.List(&instancesdk.Filter{ServiceHash: request.ServiceHash})
+	hash, err := base58.Decode(request.ServiceHash)
+	if err != nil {
+		return nil, err
+	}
+
+	instances, err := s.sdk.Instance.List(&instancesdk.Filter{ServiceHash: hash})
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +76,7 @@ func toProtoInstances(instances []*instance.Instance) []*definition.Instance {
 
 func toProtoInstance(i *instance.Instance) *definition.Instance {
 	return &definition.Instance{
-		Hash:        i.Hash,
-		ServiceHash: i.ServiceHash,
+		Hash:        base58.Encode(i.Hash),
+		ServiceHash: base58.Encode(i.ServiceHash),
 	}
 }

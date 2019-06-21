@@ -36,7 +36,12 @@ func (s *ServiceServer) Create(ctx context.Context, request *protobuf_api.Create
 
 // Delete deletes service by hash or sid.
 func (s *ServiceServer) Delete(ctx context.Context, request *protobuf_api.DeleteServiceRequest) (*protobuf_api.DeleteServiceResponse, error) {
-	srv, err := s.sdk.GetService(request.HashOrSid)
+	hash, err := base58.Decode(request.Hash)
+	if err != nil {
+		return nil, err
+	}
+
+	srv, err := s.sdk.GetService(hash)
 	if err != nil {
 		return nil, err
 	}
@@ -48,12 +53,17 @@ func (s *ServiceServer) Delete(ctx context.Context, request *protobuf_api.Delete
 	if len(instances) > 0 {
 		return nil, errors.New("service has running instances. in order to delete the service, stop its instances first")
 	}
-	return &protobuf_api.DeleteServiceResponse{}, s.sdk.Service.Delete(request.HashOrSid)
+	return &protobuf_api.DeleteServiceResponse{}, s.sdk.Service.Delete(hash)
 }
 
 // Get returns service from given hash.
 func (s *ServiceServer) Get(ctx context.Context, req *protobuf_api.GetServiceRequest) (*definition.Service, error) {
-	exec, err := s.sdk.Service.Get(req.Hash)
+	hash, err := base58.Decode(req.Hash)
+	if err != nil {
+		return nil, err
+	}
+
+	exec, err := s.sdk.Service.Get(hash)
 	if err != nil {
 		return nil, err
 	}
