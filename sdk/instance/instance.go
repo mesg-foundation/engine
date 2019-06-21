@@ -12,7 +12,6 @@ import (
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/instance"
 	"github.com/mesg-foundation/core/x/xos"
-	"github.com/mr-tron/base58"
 )
 
 // Instance exposes service instance APIs of MESG.
@@ -45,9 +44,9 @@ func (i *Instance) List(f *Filter) ([]*instance.Instance, error) {
 }
 
 // Create creates a new service instance for service with id(sid/hash) and applies given env vars.
-func (i *Instance) Create(id string, env []string) (*instance.Instance, error) {
+func (i *Instance) Create(serviceHash []byte, env []string) (*instance.Instance, error) {
 	// get the service from service db.
-	srv, err := i.serviceDB.Get(id)
+	srv, err := i.serviceDB.Get(serviceHash)
 	if err != nil {
 		return nil, err
 	}
@@ -83,9 +82,9 @@ func (i *Instance) Create(id string, env []string) (*instance.Instance, error) {
 
 	// calculate instance's hash.
 	h := sha256.New()
-	h.Write([]byte(srv.Hash))
+	h.Write(srv.Hash)
 	h.Write([]byte(xos.EnvMapToString(instanceEnv)))
-	instanceHash := base58.Encode(h.Sum(nil))
+	instanceHash := h.Sum(nil)
 
 	// check if instance is already running.
 	_, err = i.instanceDB.Get(instanceHash)
@@ -115,7 +114,7 @@ func (i *Instance) GetAllByService(serviceHash string) ([]*instance.Instance, er
 }
 
 // Delete an instance
-func (i *Instance) Delete(hash string) error {
+func (i *Instance) Delete(hash []byte) error {
 	inst, err := i.instanceDB.Get(hash)
 	if err != nil {
 		return err

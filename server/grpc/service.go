@@ -8,6 +8,7 @@ import (
 	"github.com/mesg-foundation/core/protobuf/definition"
 	"github.com/mesg-foundation/core/sdk"
 	"github.com/mesg-foundation/core/server/grpc/api"
+	"github.com/mr-tron/base58"
 )
 
 // ServiceServer is the type to aggregate all Service APIs.
@@ -22,11 +23,15 @@ func NewServiceServer(sdk *sdk.SDK) *ServiceServer {
 
 // Create creates a new service from definition.
 func (s *ServiceServer) Create(ctx context.Context, request *protobuf_api.CreateServiceRequest) (*protobuf_api.CreateServiceResponse, error) {
-	srv := api.FromProtoService(request.Definition)
+	srv, err := api.FromProtoService(request.Definition)
+	if err != nil {
+		return nil, err
+	}
+
 	if err := s.sdk.Service.Create(srv); err != nil {
 		return nil, err
 	}
-	return &protobuf_api.CreateServiceResponse{Sid: srv.Sid, Hash: srv.Hash}, nil
+	return &protobuf_api.CreateServiceResponse{Sid: srv.Sid, Hash: base58.Encode(srv.Hash)}, nil
 }
 
 // Delete deletes service by hash or sid.
