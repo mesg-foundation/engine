@@ -36,6 +36,19 @@ func (i *Instance) Get(hash string) (*instance.Instance, error) {
 	return i.instanceDB.Get(hash)
 }
 
+// Filter to apply while listing instances.
+type Filter struct {
+	ServiceHash string
+}
+
+// List instances by f filter.
+func (i *Instance) List(f *Filter) ([]*instance.Instance, error) {
+	if f != nil && f.ServiceHash != "" {
+		return i.instanceDB.GetAllByService(f.ServiceHash)
+	}
+	return i.instanceDB.GetAll()
+}
+
 // Create creates a new service instance for service with id(sid/hash) and applies given env vars.
 func (i *Instance) Create(id string, env []string) (*instance.Instance, error) {
 	// get the service from service db.
@@ -70,7 +83,7 @@ func (i *Instance) Create(id string, env []string) (*instance.Instance, error) {
 		return nil, err
 	}
 
-	// overwrite default env vars with user defined ones.
+	// calculate the final env vars by overwriting user defined one's with defaults.
 	instanceEnv := xos.EnvMergeMaps(xos.EnvSliceToMap(srv.Configuration.Env), xos.EnvSliceToMap(env))
 
 	// calculate instance's hash.
@@ -97,8 +110,13 @@ func (i *Instance) Create(id string, env []string) (*instance.Instance, error) {
 		return nil, err
 	}
 
-	_, err = i.start(o)
+	_, err = i.start(o, xos.EnvMapToSlice(instanceEnv))
 	return o, err
+}
+
+// GetAllByService retrives all instances of service by service's hash.
+func (i *Instance) GetAllByService(serviceHash string) ([]*instance.Instance, error) {
+	return i.instanceDB.GetAllByService(serviceHash)
 }
 
 // Delete an instance

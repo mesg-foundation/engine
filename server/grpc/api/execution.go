@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
 
@@ -12,6 +11,7 @@ import (
 	"github.com/mesg-foundation/core/protobuf/definition"
 	"github.com/mesg-foundation/core/sdk"
 	executionsdk "github.com/mesg-foundation/core/sdk/execution"
+	"github.com/mr-tron/base58"
 )
 
 // ErrNoOutput is an error when there is no output for updating execution.
@@ -29,7 +29,7 @@ func NewServer(sdk *sdk.SDK) *Server {
 
 // Get returns execution from given hash.
 func (s *Server) Get(ctx context.Context, req *api.GetExecutionRequest) (*definition.Execution, error) {
-	hash, err := hex.DecodeString(req.Hash)
+	hash, err := base58.Decode(req.Hash)
 	if err != nil {
 		return nil, err
 	}
@@ -43,8 +43,14 @@ func (s *Server) Get(ctx context.Context, req *api.GetExecutionRequest) (*defini
 
 // Stream returns stream of executions.
 func (s *Server) Stream(req *api.StreamExecutionRequest, resp api.Execution_StreamServer) error {
+	hash, err := base58.Decode(req.Filter.ServiceHash)
+	if err != nil {
+		return err
+	}
+
 	stream := s.sdk.Execution.GetStream(&executionsdk.Filter{
-		Statuses: []execution.Status{execution.Status(req.Filter.Status)},
+		ServiceHash: hash,
+		Statuses:    []execution.Status{execution.Status(req.Filter.Status)},
 	})
 	defer stream.Close()
 
@@ -69,7 +75,7 @@ func (s *Server) Stream(req *api.StreamExecutionRequest, resp api.Execution_Stre
 
 // Update updates execution from given hash.
 func (s *Server) Update(ctx context.Context, req *api.UpdateExecutionRequest) (*api.UpdateExecutionResponse, error) {
-	hash, err := hex.DecodeString(req.Hash)
+	hash, err := base58.Decode(req.Hash)
 	if err != nil {
 		return nil, err
 	}
@@ -101,8 +107,8 @@ func toProtoExecution(exec *execution.Execution) (*definition.Execution, error) 
 	}
 
 	return &definition.Execution{
-		Hash:        hex.EncodeToString(exec.Hash),
-		ParentHash:  hex.EncodeToString(exec.ParentHash),
+		Hash:        base58.Encode(exec.Hash),
+		ParentHash:  base58.Encode(exec.ParentHash),
 		EventID:     exec.EventID,
 		Status:      definition.Status(exec.Status),
 		ServiceHash: exec.ServiceHash,

@@ -12,6 +12,12 @@ type InstanceDB interface {
 	// Get retrives instance by instance hash.
 	Get(hash string) (*instance.Instance, error)
 
+	// GetAll retrieves all instances.
+	GetAll() ([]*instance.Instance, error)
+
+	// GetAllByService retrieves all instances of service by service's hash.
+	GetAllByService(serviceHash string) ([]*instance.Instance, error)
+
 	// Save saves instance to database.
 	Save(i *instance.Instance) error
 
@@ -61,6 +67,38 @@ func (d *LevelDBInstanceDB) Get(hash string) (*instance.Instance, error) {
 		return nil, err
 	}
 	return d.unmarshal(hash, b)
+}
+
+// GetAll retrieves all instances.
+func (d *LevelDBInstanceDB) GetAll() ([]*instance.Instance, error) {
+	instances := []*instance.Instance{}
+	iter := d.db.NewIterator(nil, nil)
+	for iter.Next() {
+		instanceHash := string(iter.Key())
+		i, err := d.unmarshal(instanceHash, iter.Value())
+		if err != nil {
+			iter.Release()
+			return nil, err
+		}
+		instances = append(instances, i)
+	}
+	iter.Release()
+	return instances, iter.Error()
+}
+
+// GetAllByService retrieves all instances of service by service's hash.
+func (d *LevelDBInstanceDB) GetAllByService(serviceHash string) ([]*instance.Instance, error) {
+	instances, err := d.GetAll()
+	if err != nil {
+		return nil, err
+	}
+	someInstances := []*instance.Instance{}
+	for _, instance := range instances {
+		if instance.ServiceHash == serviceHash {
+			someInstances = append(someInstances, instance)
+		}
+	}
+	return someInstances, nil
 }
 
 // Save saves instance to database.
