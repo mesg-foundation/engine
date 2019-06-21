@@ -1,6 +1,7 @@
 package database
 
 import (
+	"bytes"
 	"encoding/json"
 
 	"github.com/mesg-foundation/core/instance"
@@ -17,7 +18,7 @@ type InstanceDB interface {
 	GetAll() ([]*instance.Instance, error)
 
 	// GetAllByService retrieves all instances of service by service's hash.
-	GetAllByService(serviceHash string) ([]*instance.Instance, error)
+	GetAllByService(serviceHash []byte) ([]*instance.Instance, error)
 
 	// Save saves instance to database.
 	Save(i *instance.Instance) error
@@ -74,8 +75,7 @@ func (d *LevelDBInstanceDB) GetAll() ([]*instance.Instance, error) {
 	instances := []*instance.Instance{}
 	iter := d.db.NewIterator(nil, nil)
 	for iter.Next() {
-		instanceHash := string(iter.Key())
-		i, err := d.unmarshal(instanceHash, iter.Value())
+		i, err := d.unmarshal(iter.Key(), iter.Value())
 		if err != nil {
 			iter.Release()
 			return nil, err
@@ -87,14 +87,14 @@ func (d *LevelDBInstanceDB) GetAll() ([]*instance.Instance, error) {
 }
 
 // GetAllByService retrieves all instances of service by service's hash.
-func (d *LevelDBInstanceDB) GetAllByService(serviceHash string) ([]*instance.Instance, error) {
+func (d *LevelDBInstanceDB) GetAllByService(serviceHash []byte) ([]*instance.Instance, error) {
 	instances, err := d.GetAll()
 	if err != nil {
 		return nil, err
 	}
 	someInstances := []*instance.Instance{}
 	for _, instance := range instances {
-		if instance.ServiceHash == serviceHash {
+		if bytes.Equal(instance.ServiceHash, serviceHash) {
 			someInstances = append(someInstances, instance)
 		}
 	}

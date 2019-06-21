@@ -124,7 +124,7 @@ func ToProtoServices(ss []*service.Service) []*definition.Service {
 // TODO: should not be public. Need to move server/grpc/service.go to server/grpc/api/service.go and delete server/grpc/core package
 func ToProtoService(s *service.Service) *definition.Service {
 	return &definition.Service{
-		Hash:          s.Hash,
+		Hash:          base58.Encode(s.Hash),
 		Sid:           s.Sid,
 		Name:          s.Name,
 		Description:   s.Description,

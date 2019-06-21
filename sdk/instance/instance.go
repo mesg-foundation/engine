@@ -32,12 +32,12 @@ func New(c container.Container, serviceDB database.ServiceDB, instanceDB databas
 
 // Filter to apply while listing instances.
 type Filter struct {
-	ServiceHash string
+	ServiceHash []byte
 }
 
 // List instances by f filter.
 func (i *Instance) List(f *Filter) ([]*instance.Instance, error) {
-	if f != nil && f.ServiceHash != "" {
+	if f != nil && len(f.ServiceHash) > 0 {
 		return i.instanceDB.GetAllByService(f.ServiceHash)
 	}
 	return i.instanceDB.GetAll()
@@ -109,7 +109,7 @@ func (i *Instance) Create(serviceHash []byte, env []string) (*instance.Instance,
 }
 
 // GetAllByService retrives all instances of service by service's hash.
-func (i *Instance) GetAllByService(serviceHash string) ([]*instance.Instance, error) {
+func (i *Instance) GetAllByService(serviceHash []byte) ([]*instance.Instance, error) {
 	return i.instanceDB.GetAllByService(serviceHash)
 }
 
