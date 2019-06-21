@@ -7,6 +7,7 @@ import (
 
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/mesg-foundation/core/container/mocks"
+	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
 )
@@ -27,7 +28,7 @@ func TestServiceLogs(t *testing.T) {
 
 	var (
 		s = &service.Service{
-			Hash: []byte{0},
+			Hash: hash.Int(1),
 			Dependencies: []*service.Dependency{
 				{Key: dependencyKey},
 			},

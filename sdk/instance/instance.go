@@ -1,7 +1,6 @@
 package instancesdk
 
 import (
-	"crypto/sha256"
 	"errors"
 	"io/ioutil"
 	"net/http"
@@ -10,6 +9,7 @@ import (
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/database"
+	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/instance"
 	"github.com/mesg-foundation/core/x/xos"
 )
@@ -32,19 +32,19 @@ func New(c container.Container, serviceDB database.ServiceDB, instanceDB databas
 
 // Filter to apply while listing instances.
 type Filter struct {
-	ServiceHash []byte
+	ServiceHash hash.Hash
 }
 
 // List instances by f filter.
 func (i *Instance) List(f *Filter) ([]*instance.Instance, error) {
-	if f != nil && len(f.ServiceHash) > 0 {
+	if f != nil && !f.ServiceHash.IsZero() {
 		return i.instanceDB.GetAllByService(f.ServiceHash)
 	}
 	return i.instanceDB.GetAll()
 }
 
 // Create creates a new service instance for service with id(sid/hash) and applies given env vars.
-func (i *Instance) Create(serviceHash []byte, env []string) (*instance.Instance, error) {
+func (i *Instance) Create(serviceHash hash.Hash, env []string) (*instance.Instance, error) {
 	// get the service from service db.
 	srv, err := i.serviceDB.Get(serviceHash)
 	if err != nil {
@@ -81,7 +81,7 @@ func (i *Instance) Create(serviceHash []byte, env []string) (*instance.Instance,
 	instanceEnv := xos.EnvMergeMaps(xos.EnvSliceToMap(srv.Configuration.Env), xos.EnvSliceToMap(env))
 
 	// calculate instance's hash.
-	h := sha256.New()
+	h := hash.New()
 	h.Write(srv.Hash)
 	h.Write([]byte(xos.EnvMapToString(instanceEnv)))
 	instanceHash := h.Sum(nil)
@@ -109,12 +109,12 @@ func (i *Instance) Create(serviceHash []byte, env []string) (*instance.Instance,
 }
 
 // GetAllByService retrives all instances of service by service's hash.
-func (i *Instance) GetAllByService(serviceHash []byte) ([]*instance.Instance, error) {
+func (i *Instance) GetAllByService(serviceHash hash.Hash) ([]*instance.Instance, error) {
 	return i.instanceDB.GetAllByService(serviceHash)
 }
 
 // Delete an instance
-func (i *Instance) Delete(hash []byte) error {
+func (i *Instance) Delete(hash hash.Hash) error {
 	inst, err := i.instanceDB.Get(hash)
 	if err != nil {
 		return err

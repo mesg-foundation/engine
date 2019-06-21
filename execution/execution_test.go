@@ -5,13 +5,14 @@ import (
 	"testing"
 	"testing/quick"
 
+	"github.com/mesg-foundation/core/hash"
 	"github.com/stretchr/testify/require"
 )
 
 func TestNewFromService(t *testing.T) {
 	var (
-		hash       = []byte{0}
-		parentHash = []byte{1}
+		parentHash = hash.Int(2)
+		hash       = hash.Int(1)
 		eventID    = "1"
 		taskKey    = "key"
 		tags       = []string{"tag"}

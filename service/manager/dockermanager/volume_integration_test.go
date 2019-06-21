@@ -5,6 +5,7 @@ package dockermanager
 import (
 	"testing"
 
+	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
 )
@@ -19,7 +20,7 @@ func TestIntegrationDeleteVolumes(t *testing.T) {
 		volumeA        = "/a"
 		volumeB        = "/b"
 		s              = &service.Service{
-			Hash: []byte{0},
+			Hash: hash.Int(1),
 			Name: "TestIntegrationDeleteVolumes",
 			Dependencies: []*service.Dependency{
 				{

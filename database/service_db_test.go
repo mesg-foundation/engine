@@ -5,6 +5,7 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
 )
@@ -29,7 +30,7 @@ func TestServiceDBSave(t *testing.T) {
 	db, closer := openServiceDB(t)
 	defer closer()
 
-	s1 := &service.Service{Hash: []byte{0}}
+	s1 := &service.Service{Hash: hash.Int(1)}
 	require.NoError(t, db.Save(s1))
 
 	// save same service. should replace
@@ -37,11 +38,11 @@ func TestServiceDBSave(t *testing.T) {
 	ss, _ := db.All()
 	require.Len(t, ss, 1)
 
-	_, err := db.Get([]byte{2})
+	_, err := db.Get(hash.Int(2))
 	require.IsType(t, &ErrNotFound{}, err)
 
 	// different hash, different sid. should not replace anything.
-	s3 := &service.Service{Hash: []byte{1}}
+	s3 := &service.Service{Hash: hash.Int(2)}
 	require.NoError(t, db.Save(s3))
 	ss, _ = db.All()
 	require.Len(t, ss, 2)
@@ -54,7 +55,7 @@ func TestServiceDBGet(t *testing.T) {
 	db, closer := openServiceDB(t)
 	defer closer()
 
-	want := &service.Service{Hash: []byte{0}}
+	want := &service.Service{Hash: hash.Int(1)}
 	require.NoError(t, db.Save(want))
 	defer db.Delete(want.Hash)
 
@@ -64,7 +65,7 @@ func TestServiceDBGet(t *testing.T) {
 	require.Equal(t, want, got)
 
 	// test return err not found
-	_, err = db.Get([]byte{1})
+	_, err = db.Get(hash.Int(2))
 	require.Error(t, err)
 	require.True(t, IsErrNotFound(err))
 }
@@ -74,7 +75,7 @@ func TestServiceDBDelete(t *testing.T) {
 	defer closer()
 
 	// hash.
-	s := &service.Service{Hash: []byte{0}}
+	s := &service.Service{Hash: hash.Int(1)}
 	require.NoError(t, db.Save(s))
 	require.NoError(t, db.Delete(s.Hash))
 	_, err := db.Get(s.Hash)
@@ -85,7 +86,7 @@ func TestServiceDBDeleteConcurrency(t *testing.T) {
 	db, closer := openServiceDB(t)
 	defer closer()
 
-	s := &service.Service{Hash: []byte{0}}
+	s := &service.Service{Hash: hash.Int(1)}
 	db.Save(s)
 
 	var wg sync.WaitGroup
@@ -116,8 +117,8 @@ func TestServiceDBAll(t *testing.T) {
 	db, closer := openServiceDB(t)
 	defer closer()
 
-	s1 := &service.Service{Hash: []byte{0}}
-	s2 := &service.Service{Hash: []byte{1}}
+	s1 := &service.Service{Hash: hash.Int(1)}
+	s2 := &service.Service{Hash: hash.Int(2)}
 
 	require.NoError(t, db.Save(s1))
 	require.NoError(t, db.Save(s2))
@@ -135,8 +136,7 @@ func TestServiceDBAllWithDecodeError(t *testing.T) {
 	db, closer := openServiceDB(t)
 	defer closer()
 
-	hash := []byte{0}
-	require.NoError(t, db.db.Put(hash, []byte("-"), nil))
+	require.NoError(t, db.db.Put(hash.Int(1), []byte("-"), nil))
 
 	services, err := db.All()
 	require.NoError(t, err)

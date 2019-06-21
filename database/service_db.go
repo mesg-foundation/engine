@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/service"
-	"github.com/mr-tron/base58"
 	"github.com/sirupsen/logrus"
 	"github.com/syndtr/goleveldb/leveldb"
 )
@@ -22,10 +22,10 @@ type ServiceDB interface {
 	Save(s *service.Service) error
 
 	// Get gets a service from database by its unique hash.
-	Get(hash []byte) (*service.Service, error)
+	Get(hash hash.Hash) (*service.Service, error)
 
 	// Delete deletes a service from database by its unique hash.
-	Delete(hash []byte) error
+	Delete(hash hash.Hash) error
 
 	// All returns all services from database.
 	All() ([]*service.Service, error)
@@ -57,7 +57,7 @@ func (d *LevelDBServiceDB) marshal(s *service.Service) ([]byte, error) {
 func (d *LevelDBServiceDB) unmarshal(hash, value []byte) (*service.Service, error) {
 	var s service.Service
 	if err := json.Unmarshal(value, &s); err != nil {
-		return nil, &DecodeError{ID: base58.Encode(hash)}
+		return nil, &DecodeError{hash: hash}
 	}
 	return &s, nil
 }
@@ -74,7 +74,7 @@ func (d *LevelDBServiceDB) All() ([]*service.Service, error) {
 			// NOTE: Ignore all decode errors (possibly due to a service
 			// structure change or database corruption)
 			if decodeErr, ok := err.(*DecodeError); ok {
-				logrus.WithField("service", decodeErr.ID).Warning(decodeErr.Error())
+				logrus.WithField("service", decodeErr.hash.String()).Warning(decodeErr.Error())
 				continue
 			}
 			iter.Release()
@@ -87,7 +87,7 @@ func (d *LevelDBServiceDB) All() ([]*service.Service, error) {
 }
 
 // Delete deletes service from database.
-func (d *LevelDBServiceDB) Delete(hash []byte) error {
+func (d *LevelDBServiceDB) Delete(hash hash.Hash) error {
 	tx, err := d.db.OpenTransaction()
 	if err != nil {
 		return err
@@ -95,7 +95,7 @@ func (d *LevelDBServiceDB) Delete(hash []byte) error {
 	if _, err := tx.Get(hash, nil); err != nil {
 		tx.Discard()
 		if err == leveldb.ErrNotFound {
-			return &ErrNotFound{ID: base58.Encode(hash)}
+			return &ErrNotFound{hash: hash}
 		}
 		return err
 	}
@@ -108,11 +108,11 @@ func (d *LevelDBServiceDB) Delete(hash []byte) error {
 }
 
 // Get retrives service from database.
-func (d *LevelDBServiceDB) Get(hash []byte) (*service.Service, error) {
+func (d *LevelDBServiceDB) Get(hash hash.Hash) (*service.Service, error) {
 	b, err := d.db.Get(hash, nil)
 	if err != nil {
 		if err == leveldb.ErrNotFound {
-			return nil, &ErrNotFound{ID: base58.Encode(hash)}
+			return nil, &ErrNotFound{hash: hash}
 		}
 		return nil, err
 	}
@@ -122,7 +122,7 @@ func (d *LevelDBServiceDB) Get(hash []byte) (*service.Service, error) {
 // Save stores service in database.
 // If there is an another service that uses the same sid, it'll be deleted.
 func (d *LevelDBServiceDB) Save(s *service.Service) error {
-	if len(s.Hash) == 0 {
+	if s.Hash.IsZero() {
 		return errCannotSaveWithoutHash
 	}
 
@@ -140,20 +140,20 @@ func (d *LevelDBServiceDB) Close() error {
 
 // ErrNotFound is an not found error.
 type ErrNotFound struct {
-	ID string
+	hash hash.Hash
 }
 
 func (e *ErrNotFound) Error() string {
-	return fmt.Sprintf("database: service %s not found", e.ID)
+	return fmt.Sprintf("database: service %q not found", e.hash)
 }
 
 // DecodeError represents a service impossible to decode.
 type DecodeError struct {
-	ID string
+	hash hash.Hash
 }
 
 func (e *DecodeError) Error() string {
-	return fmt.Sprintf("database: could not decode service %q", e.ID)
+	return fmt.Sprintf("database: could not decode service %q", e.hash)
 }
 
 // IsErrNotFound returns true if err is type of ErrNotFound, false otherwise.

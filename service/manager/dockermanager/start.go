@@ -11,7 +11,6 @@ import (
 	"github.com/mesg-foundation/core/x/xnet"
 	"github.com/mesg-foundation/core/x/xos"
 	"github.com/mesg-foundation/core/x/xstructhash"
-	"github.com/mr-tron/base58"
 )
 
 // Start starts the service.
@@ -58,7 +57,7 @@ func (m *DockerManager) Start(s *service.Service) (serviceIDs []string, err erro
 			Namespace: dependencyNamespace(sNamespace, d.Key),
 			Labels: map[string]string{
 				"mesg.service": s.Name,
-				"mesg.hash":    base58.Encode(s.Hash),
+				"mesg.hash":    s.Hash.String(),
 				"mesg.sid":     s.Sid,
 				"mesg.engine":  conf.Name,
 			},
@@ -66,7 +65,7 @@ func (m *DockerManager) Start(s *service.Service) (serviceIDs []string, err erro
 			Args:    d.Args,
 			Command: d.Command,
 			Env: xos.EnvMergeSlices(d.Env, []string{
-				"MESG_TOKEN=" + base58.Encode(s.Hash),
+				"MESG_TOKEN=" + s.Hash.String(),
 				"MESG_ENDPOINT=" + endpoint,
 			}),
 			Mounts: append(volumes, volumesFrom...),

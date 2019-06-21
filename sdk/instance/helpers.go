@@ -7,13 +7,14 @@ import (
 	"strings"
 
 	"github.com/mesg-foundation/core/container"
+	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/x/xstructhash"
 	"github.com/mr-tron/base58"
 )
 
 // instanceNamespace returns the namespace of the service.
-func instanceNamespace(hash []byte) []string {
+func instanceNamespace(hash hash.Hash) []string {
 	sum := sha1.Sum(hash)
 	return []string{base58.Encode(sum[:])}
 }

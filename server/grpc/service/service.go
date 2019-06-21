@@ -7,11 +7,11 @@ import (
 	"errors"
 
 	"github.com/mesg-foundation/core/execution"
+	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
 	"github.com/mesg-foundation/core/sdk"
 	executionsdk "github.com/mesg-foundation/core/sdk/execution"
-	"github.com/mr-tron/base58"
 )
 
 var inProgressFilter = &executionsdk.Filter{
@@ -30,7 +30,7 @@ func NewServer(sdk *sdk.SDK) *Server {
 
 // EmitEvent permits to send and event to anyone who subscribed to it.
 func (s *Server) EmitEvent(context context.Context, request *serviceapi.EmitEventRequest) (*serviceapi.EmitEventReply, error) {
-	serviceHash, err := base58.Decode(request.Token)
+	serviceHash, err := hash.Decode(request.Token)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func (s *Server) EmitEvent(context context.Context, request *serviceapi.EmitEven
 
 // ListenTask creates a stream that will send data for every task to execute.
 func (s *Server) ListenTask(request *serviceapi.ListenTaskRequest, stream serviceapi.Service_ListenTaskServer) error {
-	serviceHash, err := base58.Decode(request.Token)
+	serviceHash, err := hash.Decode(request.Token)
 	if err != nil {
 		return err
 	}

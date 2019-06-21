@@ -6,6 +6,7 @@ import (
 
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/container/mocks"
+	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
 )
@@ -15,7 +16,7 @@ func TestUnknownServiceStatus(t *testing.T) {
 		dependencyKey = "1"
 		statusErr     = errors.New("ops")
 		s             = &service.Service{
-			Hash: []byte{0},
+			Hash: hash.Int(1),
 			Name: "TestUnknownServiceStatus",
 			Dependencies: []*service.Dependency{
 				{
@@ -43,7 +44,7 @@ func TestStoppedServiceStatus(t *testing.T) {
 	var (
 		dependencyKey = "1"
 		s             = &service.Service{
-			Hash: []byte{0},
+			Hash: hash.Int(1),
 			Name: "TestStoppedServiceStatus",
 			Dependencies: []*service.Dependency{
 				{
@@ -71,7 +72,7 @@ func TestRunningServiceStatus(t *testing.T) {
 	var (
 		dependencyKey = "1"
 		s             = &service.Service{
-			Hash: []byte{0},
+			Hash: hash.Int(1),
 			Name: "TestRunningServiceStatus",
 			Dependencies: []*service.Dependency{
 				{
@@ -100,7 +101,7 @@ func TestPartialServiceStatus(t *testing.T) {
 		dependencyKey  = "1"
 		dependencyKey2 = "2"
 		s              = &service.Service{
-			Hash: []byte{0},
+			Hash: hash.Int(1),
 			Name: "TestPartialServiceStatus",
 			Dependencies: []*service.Dependency{
 				{

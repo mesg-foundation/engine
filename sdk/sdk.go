@@ -4,6 +4,7 @@ import (
 	"github.com/cskr/pubsub"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/database"
+	"github.com/mesg-foundation/core/hash"
 	eventsdk "github.com/mesg-foundation/core/sdk/event"
 	executionsdk "github.com/mesg-foundation/core/sdk/execution"
 	instancesdk "github.com/mesg-foundation/core/sdk/instance"
@@ -44,7 +45,7 @@ func New(m manager.Manager, c container.Container, db database.ServiceDB, instan
 }
 
 // GetService returns service serviceID.
-func (sdk *SDK) GetService(serviceHash []byte) (*service.Service, error) {
+func (sdk *SDK) GetService(serviceHash hash.Hash) (*service.Service, error) {
 	return sdk.db.Get(serviceHash)
 }
 
@@ -59,7 +60,7 @@ func (sdk *SDK) Status(service *service.Service) (service.StatusType, error) {
 }
 
 // StartService starts service serviceID.
-func (sdk *SDK) StartService(serviceHash []byte) error {
+func (sdk *SDK) StartService(serviceHash hash.Hash) error {
 	s, err := sdk.db.Get(serviceHash)
 	if err != nil {
 		return err
@@ -69,7 +70,7 @@ func (sdk *SDK) StartService(serviceHash []byte) error {
 }
 
 // StopService stops service serviceID.
-func (sdk *SDK) StopService(serviceHash []byte) error {
+func (sdk *SDK) StopService(serviceHash hash.Hash) error {
 	s, err := sdk.db.Get(serviceHash)
 	if err != nil {
 		return err
@@ -80,7 +81,7 @@ func (sdk *SDK) StopService(serviceHash []byte) error {
 // DeleteService stops and deletes service serviceID.
 // when deleteData is enabled, any persistent data that belongs to
 // the service and to its dependencies also will be deleted.
-func (sdk *SDK) DeleteService(serviceHash []byte, deleteData bool) error {
+func (sdk *SDK) DeleteService(serviceHash hash.Hash, deleteData bool) error {
 	s, err := sdk.db.Get(serviceHash)
 	if err != nil {
 		return err

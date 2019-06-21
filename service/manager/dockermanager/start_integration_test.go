@@ -5,6 +5,7 @@ package dockermanager
 import (
 	"testing"
 
+	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
 )
@@ -12,7 +13,7 @@ import (
 func TestIntegrationStartServiceIntegration(t *testing.T) {
 	var (
 		s = &service.Service{
-			Hash: []byte{0},
+			Hash: hash.Int(1),
 			Name: "TestStartService",
 			Dependencies: []*service.Dependency{
 				{
@@ -35,7 +36,7 @@ func TestIntegrationStartServiceIntegration(t *testing.T) {
 func TestIntegrationStartWith2DependenciesIntegration(t *testing.T) {
 	var (
 		service = &service.Service{
-			Hash: []byte{0},
+			Hash: hash.Int(1),
 			Name: "TestStartWith2Dependencies",
 			Dependencies: []*service.Dependency{
 				{
@@ -67,7 +68,7 @@ func TestIntegrationStartWith2DependenciesIntegration(t *testing.T) {
 func TestIntegrationStartAgainService(t *testing.T) {
 	var (
 		s = &service.Service{
-			Hash: []byte{0},
+			Hash: hash.Int(1),
 			Name: "TestStartAgainService",
 			Dependencies: []*service.Dependency{
 				{
@@ -124,7 +125,7 @@ func TestIntegrationStartAgainService(t *testing.T) {
 func TestIntegrationNetworkCreated(t *testing.T) {
 	var (
 		service = &service.Service{
-			Hash: []byte{0},
+			Hash: hash.Int(1),
 			Name: "TestNetworkCreated",
 			Dependencies: []*service.Dependency{
 				{
@@ -148,7 +149,7 @@ func TestIntegrationNetworkCreated(t *testing.T) {
 func TestIntegrationStartStopStart(t *testing.T) {
 	var (
 		s = &service.Service{
-			Hash: []byte{0},
+			Hash: hash.Int(1),
 			Name: "TestStartStopStart",
 			Dependencies: []*service.Dependency{
 				{
@@ -174,7 +175,7 @@ func TestIntegrationStartStopStart(t *testing.T) {
 func TestIntegrationServiceDependenciesListensFromSamePort(t *testing.T) {
 	var (
 		s = &service.Service{
-			Hash: []byte{0},
+			Hash: hash.Int(1),
 			Name: "TestServiceDependenciesListensFromSamePort",
 			Dependencies: []*service.Dependency{
 				{
@@ -185,7 +186,7 @@ func TestIntegrationServiceDependenciesListensFromSamePort(t *testing.T) {
 			},
 		}
 		s1 = &service.Service{
-			Hash: []byte{1},
+			Hash: hash.Int(2),
 			Name: "TestServiceDependenciesListensFromSamePort1",
 			Dependencies: []*service.Dependency{
 				{
@@ -211,7 +212,7 @@ func TestIntegrationServiceDependenciesListensFromSamePort(t *testing.T) {
 func TestStartWithSamePorts(t *testing.T) {
 	var (
 		service = &service.Service{
-			Hash: []byte{0},
+			Hash: hash.Int(1),
 			Name: "TestStartWithSamePorts",
 			Dependencies: []*service.Dependency{
 				{

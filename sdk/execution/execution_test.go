@@ -10,6 +10,7 @@ import (
 	"github.com/mesg-foundation/core/container/mocks"
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/execution"
+	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/manager/dockermanager"
 	"github.com/stretchr/testify/mock"
@@ -58,7 +59,7 @@ func newTesting(t *testing.T) (*Execution, *apiTesting) {
 var testService = &service.Service{
 	Name: "1",
 	Sid:  "2",
-	Hash: []byte{0},
+	Hash: hash.Int(1),
 	Tasks: []*service.Task{
 		{Key: "4"},
 	},
@@ -144,6 +145,5 @@ func TestExecuteForNotRunningService(t *testing.T) {
 }
 
 func TestSubTopic(t *testing.T) {
-	serviceHash := []byte{0}
-	require.Equal(t, subTopic(serviceHash), "1.Execution")
+	require.Equal(t, subTopic(hash.Hash{0}), "1.Execution")
 }
