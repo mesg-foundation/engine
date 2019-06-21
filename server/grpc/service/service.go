@@ -11,6 +11,7 @@ import (
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
 	"github.com/mesg-foundation/core/sdk"
 	executionsdk "github.com/mesg-foundation/core/sdk/execution"
+	"github.com/mr-tron/base58"
 )
 
 var inProgressFilter = &executionsdk.Filter{
@@ -29,16 +30,26 @@ func NewServer(sdk *sdk.SDK) *Server {
 
 // EmitEvent permits to send and event to anyone who subscribed to it.
 func (s *Server) EmitEvent(context context.Context, request *serviceapi.EmitEventRequest) (*serviceapi.EmitEventReply, error) {
+	serviceHash, err := base58.Decode(request.Token)
+	if err != nil {
+		return nil, err
+	}
+
 	var data map[string]interface{}
 	if err := json.Unmarshal([]byte(request.EventData), &data); err != nil {
 		return nil, err
 	}
-	return &serviceapi.EmitEventReply{}, s.sdk.Event.Emit(request.Token, request.EventKey, data)
+	return &serviceapi.EmitEventReply{}, s.sdk.Event.Emit(serviceHash, request.EventKey, data)
 }
 
 // ListenTask creates a stream that will send data for every task to execute.
 func (s *Server) ListenTask(request *serviceapi.ListenTaskRequest, stream serviceapi.Service_ListenTaskServer) error {
-	ln, err := s.sdk.Execution.Listen(request.Token, inProgressFilter)
+	serviceHash, err := base58.Decode(request.Token)
+	if err != nil {
+		return err
+	}
+
+	ln, err := s.sdk.Execution.Listen(serviceHash, inProgressFilter)
 	if err != nil {
 		return err
 	}

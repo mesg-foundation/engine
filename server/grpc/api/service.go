@@ -3,13 +3,19 @@ package api
 import (
 	"github.com/mesg-foundation/core/protobuf/definition"
 	"github.com/mesg-foundation/core/service"
+	"github.com/mr-tron/base58"
 )
 
 // FromProtoService converts a the protobuf definition to the internal service struct
 // TODO: should not be public. Need to move server/grpc/service.go to server/grpc/api/service.go
-func FromProtoService(s *definition.Service) *service.Service {
+func FromProtoService(s *definition.Service) (*service.Service, error) {
+	hash, err := base58.Decode(s.Hash)
+	if err != nil {
+		return nil, err
+	}
+
 	return &service.Service{
-		Hash:          s.Hash,
+		Hash:          hash,
 		Sid:           s.Sid,
 		Name:          s.Name,
 		Description:   s.Description,
@@ -19,7 +25,7 @@ func FromProtoService(s *definition.Service) *service.Service {
 		Events:        fromProtoEvents(s.Events),
 		Configuration: fromProtoConfiguration(s.Configuration),
 		Dependencies:  fromProtoDependencies(s.Dependencies),
-	}
+	}, nil
 }
 
 func fromProtoTasks(tasks []*definition.Task) []*service.Task {

@@ -8,6 +8,7 @@ import (
 	"github.com/mesg-foundation/core/sdk"
 	service "github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/importer"
+	"github.com/mr-tron/base58"
 )
 
 // DeployService deploys a service from Git URL or service.tar.gz file. It'll send status
@@ -68,7 +69,7 @@ func (s *Server) DeployService(stream coreapi.Core_DeployServiceServer) error {
 		Value: &coreapi.DeployServiceReply_Service_{
 			Service: &coreapi.DeployServiceReply_Service{
 				Sid:  service.Sid,
-				Hash: service.Hash,
+				Hash: base58.Encode(service.Hash),
 			},
 		},
 	})

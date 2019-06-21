@@ -14,6 +14,7 @@ import (
 	"github.com/mesg-foundation/core/version"
 	"github.com/mesg-foundation/core/x/xerrors"
 	"github.com/mesg-foundation/core/x/xsignal"
+	"github.com/mr-tron/base58"
 	"github.com/sirupsen/logrus"
 )
 
@@ -83,8 +84,8 @@ func deployCoreServices(config *config.Config, sdk *sdk.SDK) error {
 		}
 		service.Sid = s.Sid
 		service.Hash = s.Hash
-		logrus.Infof("Service %q deployed with hash %q", service.Key, service.Hash)
-		if err := sdk.StartService(s.Sid); err != nil {
+		logrus.Infof("Service %q deployed with hash %q", service.Key, base58.Encode(service.Hash))
+		if err := sdk.StartService(s.Hash); err != nil {
 			return err
 		}
 	}
@@ -103,7 +104,7 @@ func stopRunningServices(sdk *sdk.SDK) error {
 	)
 	wg.Add(serviceLen)
 	for _, service := range services {
-		go func(hash string) {
+		go func(hash []byte) {
 			defer wg.Done()
 			err := sdk.StopService(hash)
 			if err != nil {

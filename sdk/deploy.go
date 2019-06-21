@@ -172,7 +172,7 @@ func (d *serviceDeployer) deploy(contextDir string) (*service.Service, *importer
 	if err != nil {
 		return nil, nil, err
 	}
-	s.Hash = base58.Encode(hash)
+	s.Hash = hash
 
 	injectDefinition(s, def)
 
@@ -197,7 +197,7 @@ func (d *serviceDeployer) deploy(contextDir string) (*service.Service, *importer
 	// TODO: the following test should be moved in New function
 	if s.Sid == "" {
 		// make sure that sid doesn't have the same length with id.
-		s.Sid = "_" + s.Hash
+		s.Sid = "_" + base58.Encode(s.Hash)
 	}
 
 	return s, nil, d.sdk.db.Save(s)

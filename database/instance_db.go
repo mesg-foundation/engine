@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 
 	"github.com/mesg-foundation/core/instance"
+	"github.com/mr-tron/base58"
 	"github.com/syndtr/goleveldb/leveldb"
 )
 
 // InstanceDB describes the API of Instance database.
 type InstanceDB interface {
 	// Get retrives instance by instance hash.
-	Get(hash string) (*instance.Instance, error)
+	Get(hash []byte) (*instance.Instance, error)
 
 	// GetAll retrieves all instances.
 	GetAll() ([]*instance.Instance, error)
@@ -22,7 +23,7 @@ type InstanceDB interface {
 	Save(i *instance.Instance) error
 
 	// Delete an instance by instance hash.
-	Delete(hash string) error
+	Delete(hash []byte) error
 
 	// Close closes underlying database connection.
 	Close() error
@@ -48,21 +49,20 @@ func (d *LevelDBInstanceDB) marshal(i *instance.Instance) ([]byte, error) {
 }
 
 // unmarshal returns the service from byte slice.
-func (d *LevelDBInstanceDB) unmarshal(id string, value []byte) (*instance.Instance, error) {
+func (d *LevelDBInstanceDB) unmarshal(hash, value []byte) (*instance.Instance, error) {
 	var s instance.Instance
 	if err := json.Unmarshal(value, &s); err != nil {
-		return nil, &DecodeError{ID: id}
+		return nil, &DecodeError{ID: base58.Encode(hash)}
 	}
 	return &s, nil
 }
 
 // Get retrives instance by instance hash.
-func (d *LevelDBInstanceDB) Get(hash string) (*instance.Instance, error) {
-
-	b, err := d.db.Get([]byte(hash), nil)
+func (d *LevelDBInstanceDB) Get(hash []byte) (*instance.Instance, error) {
+	b, err := d.db.Get(hash, nil)
 	if err != nil {
 		if err == leveldb.ErrNotFound {
-			return nil, &ErrNotFound{ID: hash}
+			return nil, &ErrNotFound{ID: base58.Encode(hash)}
 		}
 		return nil, err
 	}
@@ -103,9 +103,8 @@ func (d *LevelDBInstanceDB) GetAllByService(serviceHash string) ([]*instance.Ins
 
 // Save saves instance to database.
 func (d *LevelDBInstanceDB) Save(i *instance.Instance) error {
-	// check service
-	if i.Hash == "" {
-		return errCannotSaveWithoutHash
+	if len(i.Hash) == 0 {
+		return errSaveInstanceWithoutHash
 	}
 
 	// encode service
@@ -114,7 +113,7 @@ func (d *LevelDBInstanceDB) Save(i *instance.Instance) error {
 		return err
 	}
 
-	return d.db.Put([]byte(i.Hash), b, nil)
+	return d.db.Put(i.Hash, b, nil)
 }
 
 // Close closes database.
@@ -123,6 +122,6 @@ func (d *LevelDBInstanceDB) Close() error {
 }
 
 // Delete deletes service from database.
-func (d *LevelDBInstanceDB) Delete(hash string) error {
-	return d.db.Delete([]byte(hash), nil)
+func (d *LevelDBInstanceDB) Delete(hash []byte) error {
+	return d.db.Delete(hash, nil)
 }

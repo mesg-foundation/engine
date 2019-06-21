@@ -8,6 +8,7 @@ import (
 	"github.com/mesg-foundation/core/protobuf/definition"
 	"github.com/mesg-foundation/core/sdk"
 	instancesdk "github.com/mesg-foundation/core/sdk/instance"
+	"github.com/mr-tron/base58"
 )
 
 // InstanceServer is the type to aggregate all Instance APIs.
@@ -31,20 +32,28 @@ func (s *InstanceServer) List(ctx context.Context, request *protobuf_api.ListIns
 
 // Create creates a new instance from service.
 func (s *InstanceServer) Create(ctx context.Context, request *protobuf_api.CreateInstanceRequest) (*protobuf_api.CreateInstanceResponse, error) {
-	i, err := s.sdk.Instance.Create(request.ServiceHash, request.Env)
+	hash, err := base58.Decode(request.ServiceHash)
+	if err != nil {
+		return nil, err
+	}
+
+	i, err := s.sdk.Instance.Create(hash, request.Env)
 	if err != nil {
 		return nil, err
 	}
 	return &protobuf_api.CreateInstanceResponse{
-		Hash:        i.Hash,
-		ServiceHash: i.ServiceHash,
+		Hash:        base58.Encode(i.Hash),
+		ServiceHash: base58.Encode(i.ServiceHash),
 	}, nil
 }
 
 // Delete an instance
 func (s *InstanceServer) Delete(ctx context.Context, request *protobuf_api.DeleteInstanceRequest) (*protobuf_api.DeleteInstanceResponse, error) {
-	err := s.sdk.Instance.Delete(request.Hash)
+	hash, err := base58.Decode(request.Hash)
 	if err != nil {
+		return nil, err
+	}
+	if err := s.sdk.Instance.Delete(hash); err != nil {
 		return nil, err
 	}
 	return &protobuf_api.DeleteInstanceResponse{

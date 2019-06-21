@@ -8,6 +8,7 @@ import (
 	"github.com/mesg-foundation/core/instance"
 	"github.com/mesg-foundation/core/x/xnet"
 	"github.com/mesg-foundation/core/x/xos"
+	"github.com/mr-tron/base58"
 )
 
 // Start starts the service.
@@ -44,11 +45,13 @@ func (i *Instance) start(inst *instance.Instance, env []string) (serviceIDs []st
 		if err != nil {
 			return nil, err
 		}
+
+		instHashStr := base58.Encode(inst.Hash)
 		serviceID, err := i.container.StartService(container.ServiceOptions{
 			Namespace: dependencyNamespace(sNamespace, d.Key),
 			Labels: map[string]string{
 				"mesg.service": srv.Name,
-				"mesg.hash":    inst.Hash,
+				"mesg.hash":    instHashStr,
 				"mesg.sid":     srv.Sid,
 				"mesg.engine":  conf.Name,
 			},
@@ -56,7 +59,7 @@ func (i *Instance) start(inst *instance.Instance, env []string) (serviceIDs []st
 			Args:    d.Args,
 			Command: d.Command,
 			Env: xos.EnvMergeSlices(env, []string{
-				"MESG_TOKEN=" + inst.Hash,
+				"MESG_TOKEN=" + instHashStr,
 				"MESG_ENDPOINT=" + endpoint,
 				"MESG_ENDPOINT_TCP=" + endpoint,
 			}),

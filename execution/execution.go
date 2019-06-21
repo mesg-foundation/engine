@@ -38,7 +38,7 @@ type Execution struct {
 	ParentHash  []byte                 `hash:"name:parentHash"`
 	EventID     string                 `hash:"name:eventID"`
 	Status      Status                 `hash:"-"`
-	ServiceHash string                 `hash:"name:serviceHash"`
+	ServiceHash []byte                 `hash:"name:serviceHash"`
 	TaskKey     string                 `hash:"name:taskKey"`
 	Tags        []string               `hash:"name:tags"`
 	Inputs      map[string]interface{} `hash:"name:inputs"`
@@ -47,10 +47,10 @@ type Execution struct {
 }
 
 // New returns a new execution. It returns an error if inputs are invalid.
-func New(service string, parentHash []byte, eventID, taskKey string, inputs map[string]interface{}, tags []string) *Execution {
+func New(serviceHash, parentHash []byte, eventID, taskKey string, inputs map[string]interface{}, tags []string) *Execution {
 	exec := &Execution{
 		EventID:     eventID,
-		ServiceHash: service,
+		ServiceHash: serviceHash,
 		ParentHash:  parentHash,
 		Inputs:      inputs,
 		TaskKey:     taskKey,

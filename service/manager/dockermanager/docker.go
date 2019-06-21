@@ -21,8 +21,8 @@ func New(c container.Container) *DockerManager {
 }
 
 // serviceNamespace returns the namespace of the service.
-func serviceNamespace(hash string) []string {
-	sum := sha1.Sum([]byte(hash))
+func serviceNamespace(hash []byte) []string {
+	sum := sha1.Sum(hash)
 	return []string{hex.EncodeToString(sum[:])}
 }
 

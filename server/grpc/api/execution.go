@@ -111,7 +111,7 @@ func toProtoExecution(exec *execution.Execution) (*definition.Execution, error) 
 		ParentHash:  base58.Encode(exec.ParentHash),
 		EventID:     exec.EventID,
 		Status:      definition.Status(exec.Status),
-		ServiceHash: exec.ServiceHash,
+		ServiceHash: base58.Encode(exec.ServiceHash),
 		TaskKey:     exec.TaskKey,
 		Inputs:      string(inputs),
 		Outputs:     string(outputs),

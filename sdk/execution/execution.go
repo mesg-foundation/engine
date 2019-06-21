@@ -10,6 +10,7 @@ import (
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/manager"
 	"github.com/mesg-foundation/core/utils/hash"
+	"github.com/mr-tron/base58"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -105,13 +106,13 @@ func (e *Execution) processExecution(executionHash []byte, outputData []byte, re
 	return exec, nil
 }
 
-func (e *Execution) validateExecutionOutput(service, taskKey string, jsonout []byte) (map[string]interface{}, error) {
+func (e *Execution) validateExecutionOutput(serviceHash []byte, taskKey string, jsonout []byte) (map[string]interface{}, error) {
 	var output map[string]interface{}
 	if err := json.Unmarshal(jsonout, &output); err != nil {
 		return nil, fmt.Errorf("invalid output: %s", err)
 	}
 
-	s, err := e.db.Get(service)
+	s, err := e.db.Get(serviceHash)
 	if err != nil {
 		return nil, err
 	}
@@ -123,8 +124,8 @@ func (e *Execution) validateExecutionOutput(service, taskKey string, jsonout []b
 }
 
 // Execute executes a task tasKey with inputData and tags for service serviceID.
-func (e *Execution) Execute(serviceID, taskKey string, inputData map[string]interface{}, tags []string) (executionHash []byte, err error) {
-	s, err := e.db.Get(serviceID)
+func (e *Execution) Execute(serviceHash []byte, taskKey string, inputData map[string]interface{}, tags []string) (executionHash []byte, err error) {
+	s, err := e.db.Get(serviceHash)
 	if err != nil {
 		return nil, err
 	}
@@ -134,7 +135,7 @@ func (e *Execution) Execute(serviceID, taskKey string, inputData map[string]inte
 		return nil, err
 	}
 	if status != service.RUNNING {
-		return nil, &NotRunningServiceError{ServiceID: s.Sid}
+		return nil, &NotRunningServiceError{ServiceID: base58.Encode(s.Hash)}
 	}
 
 	if err := s.RequireTaskInputs(taskKey, inputData); err != nil {
@@ -157,8 +158,8 @@ func (e *Execution) Execute(serviceID, taskKey string, inputData map[string]inte
 }
 
 // Listen listens executions on service.
-func (e *Execution) Listen(service string, f *Filter) (*Listener, error) {
-	s, err := e.db.Get(service)
+func (e *Execution) Listen(serviceHash []byte, f *Filter) (*Listener, error) {
+	s, err := e.db.Get(serviceHash)
 	if err != nil {
 		return nil, err
 	}
@@ -175,8 +176,8 @@ func (e *Execution) Listen(service string, f *Filter) (*Listener, error) {
 }
 
 // subTopic returns the topic to listen for tasks from this service.
-func subTopic(serviceHash string) string {
-	return hash.Calculate([]string{serviceHash, topic})
+func subTopic(serviceHash []byte) string {
+	return hash.Calculate([]string{base58.Encode(serviceHash), topic})
 }
 
 // NotRunningServiceError is an error returned when the service is not running that

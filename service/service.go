@@ -24,7 +24,7 @@ const MainServiceKey = importer.ConfigurationDependencyKey
 type Service struct {
 	// Hash is calculated from the combination of service's source and mesg.yml.
 	// It represents the service uniquely.
-	Hash string `hash:"-"`
+	Hash []byte `hash:"-"`
 
 	// Sid is the service id.
 	// It needs to be unique and can be used to access to service.

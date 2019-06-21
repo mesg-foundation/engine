@@ -66,7 +66,7 @@ func (s *Service) Create(srv *service.Service) error {
 	if err != nil {
 		return err
 	}
-	srv.Hash = base58.Encode(h)
+	srv.Hash = h
 
 	// check if service is already deployed.
 	if _, err := s.db.Get(srv.Hash); err == nil {
@@ -82,7 +82,7 @@ func (s *Service) Create(srv *service.Service) error {
 	// TODO: the following test should be moved in New function
 	if srv.Sid == "" {
 		// make sure that sid doesn't have the same length with id.
-		srv.Sid = "_" + srv.Hash
+		srv.Sid = "_" + base58.Encode(srv.Hash)
 	}
 
 	return s.db.Save(srv)

@@ -24,7 +24,7 @@ type ServiceConfig struct {
 	URL  string
 	Env  map[string]string
 	Sid  string
-	Hash string
+	Hash []byte
 }
 
 // ServiceConfigWithKey contains information related to services that the config knows about and their key
