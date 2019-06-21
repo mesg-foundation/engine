@@ -8,6 +8,7 @@ package api;
 // right now we have conflicts with api.Service.
 service ServiceX {
   rpc Create (CreateServiceRequest) returns (CreateServiceResponse) {}
+  rpc Delete (DeleteServiceRequest) returns (DeleteServiceResponse) {}
 
   // Get returns a single Service specified in a request.
   rpc Get(GetServiceRequest) returns (definition.Service) {}
@@ -20,6 +21,13 @@ message CreateServiceRequest {
 message CreateServiceResponse {
   string sid = 1;
   string hash = 2;
+}
+
+message DeleteServiceRequest {
+  string hashOrSid = 1;
+}
+
+message DeleteServiceResponse {
 }
 
 // GetServiceRequest defines request to retrieve a single service.
