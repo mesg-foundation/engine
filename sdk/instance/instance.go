@@ -30,6 +30,11 @@ func New(c container.Container, serviceDB database.ServiceDB, instanceDB databas
 	}
 }
 
+// Get retrieves instance by hash.
+func (i *Instance) Get(hash hash.Hash) (*instance.Instance, error) {
+	return i.instanceDB.Get(hash)
+}
+
 // Filter to apply while listing instances.
 type Filter struct {
 	ServiceHash hash.Hash

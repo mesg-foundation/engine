@@ -46,10 +46,20 @@ func (s *InstanceServer) Create(ctx context.Context, request *protobuf_api.Creat
 	if err != nil {
 		return nil, err
 	}
-	return &protobuf_api.CreateInstanceResponse{
-		Hash:        i.Hash.String(),
-		ServiceHash: i.ServiceHash.String(),
-	}, nil
+	return &protobuf_api.CreateInstanceResponse{Instance: toProtoInstance(i)}, nil
+}
+
+// Get retrives instance.
+func (s *InstanceServer) Get(ctx context.Context, request *protobuf_api.GetInstanceRequest) (*protobuf_api.GetInstanceResponse, error) {
+	hash, err := hash.Decode(request.Hash)
+	if err != nil {
+		return nil, err
+	}
+	i, err := s.sdk.Instance.Get(hash)
+	if err != nil {
+		return nil, err
+	}
+	return &protobuf_api.GetInstanceResponse{Instance: toProtoInstance(i)}, nil
 }
 
 // Delete an instance
