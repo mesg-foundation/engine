@@ -6,6 +6,7 @@ package api;
 
 service Instance {
   rpc Get (GetInstanceRequest) returns (GetInstanceResponse) {}
+  rpc List (ListInstancesRequest) returns (ListInstancesResponse) {}
   rpc Create (CreateInstanceRequest) returns (CreateInstanceResponse) {}
   rpc Delete (DeleteInstanceRequest) returns (DeleteInstanceResponse) {}
 }
@@ -16,6 +17,14 @@ message GetInstanceRequest {
 
 message GetInstanceResponse {
   definition.Instance instance = 1;
+}
+
+message ListInstancesRequest {
+  string serviceHash = 1;   // service hash of instance to filter by service (optional).
+}
+
+message ListInstancesResponse {
+  repeated definition.Instance instances = 1;
 }
 
 message CreateInstanceRequest {
