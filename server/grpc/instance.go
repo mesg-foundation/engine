@@ -49,7 +49,7 @@ func (s *InstanceServer) Get(ctx context.Context, request *protobuf_api.GetInsta
 
 // Delete an instance
 func (s *InstanceServer) Delete(ctx context.Context, request *protobuf_api.DeleteInstanceRequest) (*protobuf_api.DeleteInstanceResponse, error) {
-	err := s.sdk.Instance.Delete(request.Hash)
+	err := s.sdk.Instance.Delete(request.Hash, request.DeleteData)
 	if err != nil {
 		return nil, err
 	}
