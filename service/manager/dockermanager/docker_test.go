@@ -5,11 +5,12 @@ import (
 	"encoding/hex"
 	"testing"
 
+	"github.com/mesg-foundation/core/hash"
 	"github.com/stretchr/testify/require"
 )
 
 func TestServiceNamespace(t *testing.T) {
-	hash := []byte{0}
+	hash := hash.Int(1)
 	namespace := serviceNamespace(hash)
 	sum := sha1.Sum(hash)
 	require.Equal(t, namespace, []string{hex.EncodeToString(sum[:])})
@@ -17,7 +18,7 @@ func TestServiceNamespace(t *testing.T) {
 
 func TestDependencyNamespace(t *testing.T) {
 	var (
-		hash          = []byte{0}
+		hash          = hash.Int(1)
 		dependencyKey = "test"
 	)
 	sNamespace := serviceNamespace(hash)

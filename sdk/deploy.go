@@ -8,12 +8,12 @@ import (
 	"path/filepath"
 
 	"github.com/docker/docker/pkg/archive"
+	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/importer"
 	"github.com/mesg-foundation/core/utils/dirhash"
 	"github.com/mesg-foundation/core/x/xgit"
 	"github.com/mesg-foundation/core/x/xos"
-	"github.com/mr-tron/base58"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -168,11 +168,11 @@ func (d *serviceDeployer) deploy(contextDir string) (*service.Service, *importer
 
 	dh := dirhash.New(contextDir)
 	envbytes := []byte(xos.EnvMapToString(d.env))
-	hash, err := dh.Sum(envbytes)
+	h, err := dh.Sum(envbytes)
 	if err != nil {
 		return nil, nil, err
 	}
-	s.Hash = hash
+	s.Hash = hash.Hash(h)
 
 	injectDefinition(s, def)
 
@@ -197,7 +197,7 @@ func (d *serviceDeployer) deploy(contextDir string) (*service.Service, *importer
 	// TODO: the following test should be moved in New function
 	if s.Sid == "" {
 		// make sure that sid doesn't have the same length with id.
-		s.Sid = "_" + base58.Encode(s.Hash)
+		s.Sid = "_" + s.Hash.String()
 	}
 
 	return s, nil, d.sdk.db.Save(s)

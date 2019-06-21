@@ -1,16 +1,16 @@
 package core
 
 import (
+	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/sdk"
 	"github.com/mesg-foundation/core/utils/chunker"
-	"github.com/mr-tron/base58"
 )
 
 // ServiceLogs gives logs of service with the applied dependency filters.
 func (s *Server) ServiceLogs(request *coreapi.ServiceLogsRequest, stream coreapi.Core_ServiceLogsServer) error {
-	hash, err := base58.Decode(request.ServiceID)
+	hash, err := hash.Decode(request.ServiceID)
 	if err != nil {
 		return err
 	}

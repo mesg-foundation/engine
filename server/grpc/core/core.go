@@ -9,6 +9,7 @@ import (
 
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/execution"
+	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/sdk"
@@ -18,7 +19,6 @@ import (
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/version"
 	"github.com/mesg-foundation/core/x/xerrors"
-	"github.com/mr-tron/base58"
 )
 
 // Server is the type to aggregate all the APIs.
@@ -33,7 +33,7 @@ func NewServer(sdk *sdk.SDK) *Server {
 
 // GetService returns service serviceID.
 func (s *Server) GetService(ctx context.Context, request *coreapi.GetServiceRequest) (*coreapi.GetServiceReply, error) {
-	hash, err := base58.Decode(request.ServiceID)
+	hash, err := hash.Decode(request.ServiceID)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +101,7 @@ func (s *Server) ListServices(ctx context.Context, request *coreapi.ListServices
 
 // StartService starts a service.
 func (s *Server) StartService(ctx context.Context, request *coreapi.StartServiceRequest) (*coreapi.StartServiceReply, error) {
-	hash, err := base58.Decode(request.ServiceID)
+	hash, err := hash.Decode(request.ServiceID)
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +110,7 @@ func (s *Server) StartService(ctx context.Context, request *coreapi.StartService
 
 // StopService stops a service.
 func (s *Server) StopService(ctx context.Context, request *coreapi.StopServiceRequest) (*coreapi.StopServiceReply, error) {
-	hash, err := base58.Decode(request.ServiceID)
+	hash, err := hash.Decode(request.ServiceID)
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +119,7 @@ func (s *Server) StopService(ctx context.Context, request *coreapi.StopServiceRe
 
 // DeleteService stops and deletes service serviceID.
 func (s *Server) DeleteService(ctx context.Context, request *coreapi.DeleteServiceRequest) (*coreapi.DeleteServiceReply, error) {
-	hash, err := base58.Decode(request.ServiceID)
+	hash, err := hash.Decode(request.ServiceID)
 	if err != nil {
 		return nil, err
 	}
@@ -128,7 +128,7 @@ func (s *Server) DeleteService(ctx context.Context, request *coreapi.DeleteServi
 
 // ListenEvent listens events matches with eventFilter on serviceID.
 func (s *Server) ListenEvent(request *coreapi.ListenEventRequest, stream coreapi.Core_ListenEventServer) error {
-	hash, err := base58.Decode(request.ServiceID)
+	hash, err := hash.Decode(request.ServiceID)
 	if err != nil {
 		return err
 	}
@@ -167,7 +167,7 @@ func (s *Server) ListenEvent(request *coreapi.ListenEventRequest, stream coreapi
 
 // ListenResult listens for results from a services.
 func (s *Server) ListenResult(request *coreapi.ListenResultRequest, stream coreapi.Core_ListenResultServer) error {
-	hash, err := base58.Decode(request.ServiceID)
+	hash, err := hash.Decode(request.ServiceID)
 	if err != nil {
 		return err
 	}
@@ -218,7 +218,7 @@ func (s *Server) ListenResult(request *coreapi.ListenResultRequest, stream corea
 
 // ExecuteTask executes a task for a given service.
 func (s *Server) ExecuteTask(ctx context.Context, request *coreapi.ExecuteTaskRequest) (*coreapi.ExecuteTaskReply, error) {
-	hash, err := base58.Decode(request.ServiceID)
+	hash, err := hash.Decode(request.ServiceID)
 	if err != nil {
 		return nil, err
 	}
@@ -243,7 +243,7 @@ func (s *Server) Info(ctx context.Context, request *coreapi.InfoRequest) (*corea
 	for i, s := range c.Services() {
 		services[i] = &coreapi.InfoReply_CoreService{
 			Sid:  s.Sid,
-			Hash: base58.Encode(s.Hash),
+			Hash: s.Hash.String(),
 			Url:  s.URL,
 			Key:  s.Key,
 		}

@@ -1,17 +1,16 @@
 package executionsdk
 
 import (
-	"bytes"
-
 	"github.com/cskr/pubsub"
 	"github.com/mesg-foundation/core/execution"
+	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/x/xstrings"
 )
 
 // Filter store fileds for matching executions.
 type Filter struct {
 	Statuses    []execution.Status
-	ServiceHash []byte
+	ServiceHash hash.Hash
 	TaskKey     string
 	Tags        []string
 }
@@ -22,7 +21,7 @@ func (f *Filter) Match(e *execution.Execution) bool {
 		return true
 	}
 
-	if len(f.ServiceHash) > 0 && !bytes.Equal(f.ServiceHash, e.ServiceHash) {
+	if !f.ServiceHash.IsZero() && !f.ServiceHash.Equal(e.ServiceHash) {
 		return false
 	}
 

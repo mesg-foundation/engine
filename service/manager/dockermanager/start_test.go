@@ -8,9 +8,9 @@ import (
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/container/mocks"
+	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/x/xnet"
-	"github.com/mr-tron/base58"
 	"github.com/stretchr/testify/require"
 )
 
@@ -89,7 +89,7 @@ func TestStartService(t *testing.T) {
 		networkID          = "3"
 		sharedNetworkID    = "4"
 		s                  = &service.Service{
-			Hash: []byte{0},
+			Hash: hash.Int(1),
 			Name: serviceName,
 			Sid:  Sid,
 			Dependencies: []*service.Dependency{
@@ -129,7 +129,7 @@ func TestStartWith2Dependencies(t *testing.T) {
 		sharedNetworkID     = "8"
 		serviceName         = "TestStartWith2Dependencies"
 		s                   = &service.Service{
-			Hash: []byte{0},
+			Hash: hash.Int(1),
 			Name: serviceName,
 			Dependencies: []*service.Dependency{
 				{
@@ -176,7 +176,7 @@ func TestStartServiceRunning(t *testing.T) {
 	var (
 		dependencyKey = "1"
 		s             = &service.Service{
-			Hash: []byte{0},
+			Hash: hash.Int(1),
 			Dependencies: []*service.Dependency{
 				{
 					Key:   dependencyKey,
@@ -206,7 +206,7 @@ func TestPartiallyRunningService(t *testing.T) {
 		sharedNetworkID     = "4"
 		containerServiceIDs = []string{"5", "6"}
 		s                   = &service.Service{
-			Hash: []byte{0},
+			Hash: hash.Int(1),
 			Name: "TestPartiallyRunningService",
 			Dependencies: []*service.Dependency{
 				{
@@ -259,7 +259,7 @@ func TestServiceStartError(t *testing.T) {
 		sharedNetworkID = "4"
 		startErr        = errors.New("ops")
 		s               = &service.Service{
-			Hash: []byte{0},
+			Hash: hash.Int(1),
 			Name: "TestNetworkCreated",
 			Dependencies: []*service.Dependency{
 				{
@@ -302,13 +302,13 @@ func mockStartService(s *service.Service, d *service.Dependency, mc *mocks.Conta
 			"mesg.engine":  c.Name,
 			"mesg.sid":     s.Sid,
 			"mesg.service": s.Name,
-			"mesg.hash":    base58.Encode(s.Hash),
+			"mesg.hash":    s.Hash.String(),
 		},
 		Image:   d.Image,
 		Command: d.Command,
 		Args:    d.Args,
 		Env: []string{
-			"MESG_TOKEN=" + base58.Encode(s.Hash),
+			"MESG_TOKEN=" + s.Hash.String(),
 			"MESG_ENDPOINT=" + endpoint,
 		},
 		Mounts: append(volumes, volumesFrom...),

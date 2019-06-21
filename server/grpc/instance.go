@@ -3,12 +3,12 @@ package grpc
 import (
 	"context"
 
+	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/instance"
 	protobuf_api "github.com/mesg-foundation/core/protobuf/api"
 	"github.com/mesg-foundation/core/protobuf/definition"
 	"github.com/mesg-foundation/core/sdk"
 	instancesdk "github.com/mesg-foundation/core/sdk/instance"
-	"github.com/mr-tron/base58"
 )
 
 // InstanceServer is the type to aggregate all Instance APIs.
@@ -23,7 +23,7 @@ func NewInstanceServer(sdk *sdk.SDK) *InstanceServer {
 
 // List instances.
 func (s *InstanceServer) List(ctx context.Context, request *protobuf_api.ListInstancesRequest) (*protobuf_api.ListInstancesResponse, error) {
-	hash, err := base58.Decode(request.ServiceHash)
+	hash, err := hash.Decode(request.ServiceHash)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +37,7 @@ func (s *InstanceServer) List(ctx context.Context, request *protobuf_api.ListIns
 
 // Create creates a new instance from service.
 func (s *InstanceServer) Create(ctx context.Context, request *protobuf_api.CreateInstanceRequest) (*protobuf_api.CreateInstanceResponse, error) {
-	hash, err := base58.Decode(request.ServiceHash)
+	hash, err := hash.Decode(request.ServiceHash)
 	if err != nil {
 		return nil, err
 	}
@@ -47,14 +47,14 @@ func (s *InstanceServer) Create(ctx context.Context, request *protobuf_api.Creat
 		return nil, err
 	}
 	return &protobuf_api.CreateInstanceResponse{
-		Hash:        base58.Encode(i.Hash),
-		ServiceHash: base58.Encode(i.ServiceHash),
+		Hash:        i.Hash.String(),
+		ServiceHash: i.ServiceHash.String(),
 	}, nil
 }
 
 // Delete an instance
 func (s *InstanceServer) Delete(ctx context.Context, request *protobuf_api.DeleteInstanceRequest) (*protobuf_api.DeleteInstanceResponse, error) {
-	hash, err := base58.Decode(request.Hash)
+	hash, err := hash.Decode(request.Hash)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +76,7 @@ func toProtoInstances(instances []*instance.Instance) []*definition.Instance {
 
 func toProtoInstance(i *instance.Instance) *definition.Instance {
 	return &definition.Instance{
-		Hash:        base58.Encode(i.Hash),
-		ServiceHash: base58.Encode(i.ServiceHash),
+		Hash:        i.Hash.String(),
+		ServiceHash: i.ServiceHash.String(),
 	}
 }

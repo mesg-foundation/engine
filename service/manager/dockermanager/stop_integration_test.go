@@ -5,6 +5,7 @@ package dockermanager
 import (
 	"testing"
 
+	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
 )
@@ -12,7 +13,7 @@ import (
 func TestIntegrationStopRunningService(t *testing.T) {
 	var (
 		s = &service.Service{
-			Hash: []byte{0},
+			Hash: hash.Int(1),
 			Name: "TestStopRunningService",
 			Dependencies: []*service.Dependency{
 				{
@@ -35,7 +36,7 @@ func TestIntegrationStopRunningService(t *testing.T) {
 func TestIntegrationStopNonRunningService(t *testing.T) {
 	var (
 		s = &service.Service{
-			Hash: []byte{0},
+			Hash: hash.Int(1),
 			Name: "TestStopNonRunningService",
 			Dependencies: []*service.Dependency{
 				{
@@ -57,7 +58,7 @@ func TestIntegrationStopNonRunningService(t *testing.T) {
 func TestIntegrationNetworkDeleted(t *testing.T) {
 	var (
 		service = &service.Service{
-			Hash: []byte{0},
+			Hash: hash.Int(1),
 			Name: "TestNetworkDeleted",
 			Dependencies: []*service.Dependency{
 				{

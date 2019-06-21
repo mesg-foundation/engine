@@ -11,10 +11,10 @@ import (
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/database"
+	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/manager"
 	"github.com/mesg-foundation/core/utils/dirhash"
-	"github.com/mr-tron/base58"
 )
 
 // Service exposes service APIs of MESG.
@@ -66,7 +66,7 @@ func (s *Service) Create(srv *service.Service) error {
 	if err != nil {
 		return err
 	}
-	srv.Hash = h
+	srv.Hash = hash.Hash(h)
 
 	// check if service is already deployed.
 	if _, err := s.db.Get(srv.Hash); err == nil {
@@ -82,18 +82,18 @@ func (s *Service) Create(srv *service.Service) error {
 	// TODO: the following test should be moved in New function
 	if srv.Sid == "" {
 		// make sure that sid doesn't have the same length with id.
-		srv.Sid = "_" + base58.Encode(srv.Hash)
+		srv.Sid = "_" + srv.Hash.String()
 	}
 
 	return s.db.Save(srv)
 }
 
 // Delete deletes the service by hash.
-func (s *Service) Delete(hash []byte) error {
+func (s *Service) Delete(hash hash.Hash) error {
 	return s.db.Delete(hash)
 }
 
 // Get returns the service that matches given hash.
-func (s *Service) Get(hash []byte) (*service.Service, error) {
+func (s *Service) Get(hash hash.Hash) (*service.Service, error) {
 	return s.db.Get(hash)
 }
