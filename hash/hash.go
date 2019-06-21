@@ -37,6 +37,7 @@ func New() *Digest {
 }
 
 // Int returns a new hash from a given integer.
+// NOTE: This method is for tests purpose only.
 func Int(h int) Hash {
 	hash := make(Hash, size)
 	binary.PutUvarint(hash, uint64(h))
@@ -54,6 +55,11 @@ func Decode(h string) (Hash, error) {
 		return nil, fmt.Errorf("hash: invalid length string")
 	}
 	return Hash(hash), nil
+}
+
+// IsZero reports whethere h represents empty hash.
+func (h Hash) IsZero() bool {
+	return len(h) == 0
 }
 
 // String returns the base58 hash representation.
