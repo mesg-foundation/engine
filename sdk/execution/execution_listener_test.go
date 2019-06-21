@@ -5,6 +5,7 @@ import (
 
 	"github.com/cskr/pubsub"
 	"github.com/mesg-foundation/core/execution"
+	"github.com/mr-tron/base58"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -23,6 +24,16 @@ func TestFilter(t *testing.T) {
 			&Filter{},
 			&execution.Execution{},
 			true,
+		},
+		{
+			&Filter{ServiceHash: []byte{0}},
+			&execution.Execution{ServiceHash: base58.Encode([]byte{0})},
+			true,
+		},
+		{
+			&Filter{ServiceHash: []byte{0}},
+			&execution.Execution{ServiceHash: base58.Encode([]byte{1})},
+			false,
 		},
 		{
 			&Filter{Statuses: []execution.Status{execution.Created}},

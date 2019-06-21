@@ -11,7 +11,7 @@ import (
 )
 
 // Start starts the service.
-func (i *Instance) start(inst *instance.Instance) (serviceIDs []string, err error) {
+func (i *Instance) start(inst *instance.Instance, env []string) (serviceIDs []string, err error) {
 	srv, err := i.serviceDB.Get(inst.ServiceHash)
 	if err != nil {
 		return nil, err
@@ -55,7 +55,7 @@ func (i *Instance) start(inst *instance.Instance) (serviceIDs []string, err erro
 			Image:   d.Image,
 			Args:    d.Args,
 			Command: d.Command,
-			Env: xos.EnvMergeSlices(d.Env, []string{
+			Env: xos.EnvMergeSlices(env, []string{
 				"MESG_TOKEN=" + inst.Hash,
 				"MESG_ENDPOINT=" + endpoint,
 				"MESG_ENDPOINT_TCP=" + endpoint,
