@@ -17,6 +17,10 @@ func TestDigest(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+func TestDump(t *testing.T) {
+	assert.Equal(t, Dump(struct{}{}).String(), "5ajuwjHoLj33yG5t5UFsJtUb3vnRaJQEMPqSLz6VyoHK")
+}
+
 func TestInt(t *testing.T) {
 	assert.Len(t, Int(1), size)
 }
