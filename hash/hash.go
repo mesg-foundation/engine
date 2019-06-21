@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"hash"
 
+	"github.com/cnf/structhash"
 	"github.com/mr-tron/base58"
 )
 
@@ -34,6 +35,13 @@ func New() *Digest {
 	return &Digest{
 		Hash: DefaultHash(),
 	}
+}
+
+// Dump takes an interface and returns its hash representation.
+func Dump(v interface{}) Hash {
+	d := New()
+	d.Write(structhash.Dump(v, 0))
+	return d.Sum(nil)
 }
 
 // Int returns a new hash from a given integer.
