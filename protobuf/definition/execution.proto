@@ -25,10 +25,10 @@ enum Status {
 
 // Execution represents a single execution run in engine.
 message Execution {
-  // Hash is a unique hash that represents given execution.
+  // Hash is a unique hash to identify execution.
   string hash = 1;
 
-  // parentHash is unique hash that represents that triggerd current execution.
+  // parentHash is the unique hash of parent execution. if execution is triggered by another one, dependency execution considered as the parent.
   string parentHash = 2;
 
   // eventID is unique event id.
@@ -40,18 +40,18 @@ message Execution {
   // serviceHash is hash of service that can proceed an execution
   string serviceHash = 5;
 
-  // taskKey is a task key from a service definition.
+  // taskKey is the key of the task of this execution.
   string taskKey = 6;
 
-  // inputs is an inptut of execution.
+  // inputs data of the execution.
   string inputs = 7;
 
-  // outputs is an output of successful execution.
+  // outputs are the returned data of successful execution.
   string outputs = 8;
 
-  // error is an output of a failed execution.
+  // error message of a failed execution.
   string error = 9;
 
-  // tags contains custom tags attached to execution.
+  // tags are optionally associated with execution by the user.
   repeated string tags = 10;
 }

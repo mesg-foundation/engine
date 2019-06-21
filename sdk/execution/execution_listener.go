@@ -4,13 +4,15 @@ import (
 	"github.com/cskr/pubsub"
 	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/x/xstrings"
+	"github.com/mr-tron/base58"
 )
 
 // Filter store fileds for matching executions.
 type Filter struct {
-	Statuses []execution.Status
-	TaskKey  string
-	Tags     []string
+	Statuses    []execution.Status
+	ServiceHash []byte
+	TaskKey     string
+	Tags        []string
 }
 
 // Match matches execution.
@@ -18,6 +20,11 @@ func (f *Filter) Match(e *execution.Execution) bool {
 	if f == nil {
 		return true
 	}
+
+	if len(f.ServiceHash) > 0 && base58.Encode(f.ServiceHash) != e.ServiceHash {
+		return false
+	}
+
 	if f.TaskKey != "" && f.TaskKey != "*" && f.TaskKey != e.TaskKey {
 		return false
 	}
