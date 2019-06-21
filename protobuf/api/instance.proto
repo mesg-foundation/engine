@@ -1,10 +1,21 @@
 syntax = "proto3";
 
+import "protobuf/definition/instance.proto";
+
 package api;
 
 service Instance {
+  rpc List (ListInstancesRequest) returns (ListInstancesResponse) {}
   rpc Create (CreateInstanceRequest) returns (CreateInstanceResponse) {}
   rpc Delete (DeleteInstanceRequest) returns (DeleteInstanceResponse) {}
+}
+
+message ListInstancesRequest {
+  string serviceHash = 1;   // service hash of instance to filter by service (optional).
+}
+
+message ListInstancesResponse {
+  repeated definition.Instance instances = 1;
 }
 
 message CreateInstanceRequest {
