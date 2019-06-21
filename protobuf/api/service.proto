@@ -9,6 +9,9 @@ package api;
 service ServiceX {
   rpc Create (CreateServiceRequest) returns (CreateServiceResponse) {}
   rpc Delete (DeleteServiceRequest) returns (DeleteServiceResponse) {}
+
+  // Get returns a single Service specified in a request.
+  rpc Get(GetServiceRequest) returns (definition.Service) {}
 }
 
 message CreateServiceRequest {
@@ -25,4 +28,9 @@ message DeleteServiceRequest {
 }
 
 message DeleteServiceResponse {
+}
+
+// GetServiceRequest defines request to retrieve a single service.
+message GetServiceRequest {
+  string hash = 1;
 }

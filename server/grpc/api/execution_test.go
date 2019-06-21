@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"encoding/hex"
 	"os"
 	"testing"
 
@@ -10,6 +9,7 @@ import (
 	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/protobuf/api"
 	"github.com/mesg-foundation/core/sdk"
+	"github.com/mr-tron/base58"
 	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/require"
 )
@@ -31,7 +31,7 @@ func TestGet(t *testing.T) {
 	sdk := sdk.New(nil, nil, nil, nil, db)
 	s := NewServer(sdk)
 
-	got, err := s.Get(context.Background(), &api.GetExecutionRequest{Hash: hex.EncodeToString(exec.Hash)})
+	got, err := s.Get(context.Background(), &api.GetExecutionRequest{Hash: base58.Encode(exec.Hash)})
 	require.NoError(t, err)
 	require.Equal(t, got, want)
 }
@@ -48,6 +48,6 @@ func TestUpdate(t *testing.T) {
 	sdk := sdk.New(nil, nil, nil, nil, db)
 	s := NewServer(sdk)
 
-	_, err = s.Update(context.Background(), &api.UpdateExecutionRequest{Hash: hex.EncodeToString(exec.Hash)})
+	_, err = s.Update(context.Background(), &api.UpdateExecutionRequest{Hash: base58.Encode(exec.Hash)})
 	require.Equal(t, ErrNoOutput, err)
 }
