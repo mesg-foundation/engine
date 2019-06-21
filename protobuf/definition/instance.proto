@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package definition;
+option go_package = "github.com/mesg-foundation/core/protobuf/definition";
+
+// Instance represents service's instance.
+message Instance {
+  string hash = 1;
+  string serviceHash = 2;
+}
