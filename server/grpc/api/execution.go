@@ -17,18 +17,18 @@ import (
 // ErrNoOutput is an error when there is no output for updating execution.
 var ErrNoOutput = errors.New("output not supplied")
 
-// Server serve execution functions.
-type Server struct {
+// ExecutionServer serve execution functions.
+type ExecutionServer struct {
 	sdk *sdk.SDK
 }
 
-// NewServer creates a new Server.
-func NewServer(sdk *sdk.SDK) *Server {
-	return &Server{sdk: sdk}
+// NewExecutionServer creates a new ExecutionServer.
+func NewExecutionServer(sdk *sdk.SDK) *ExecutionServer {
+	return &ExecutionServer{sdk: sdk}
 }
 
 // Get returns execution from given hash.
-func (s *Server) Get(ctx context.Context, req *api.GetExecutionRequest) (*definition.Execution, error) {
+func (s *ExecutionServer) Get(ctx context.Context, req *api.GetExecutionRequest) (*definition.Execution, error) {
 	hash, err := hash.Decode(req.Hash)
 	if err != nil {
 		return nil, err
@@ -42,7 +42,7 @@ func (s *Server) Get(ctx context.Context, req *api.GetExecutionRequest) (*defini
 }
 
 // Stream returns stream of executions.
-func (s *Server) Stream(req *api.StreamExecutionRequest, resp api.Execution_StreamServer) error {
+func (s *ExecutionServer) Stream(req *api.StreamExecutionRequest, resp api.Execution_StreamServer) error {
 	hash, err := hash.Decode(req.Filter.ServiceHash)
 	if err != nil {
 		return err
@@ -74,7 +74,7 @@ func (s *Server) Stream(req *api.StreamExecutionRequest, resp api.Execution_Stre
 }
 
 // Update updates execution from given hash.
-func (s *Server) Update(ctx context.Context, req *api.UpdateExecutionRequest) (*api.UpdateExecutionResponse, error) {
+func (s *ExecutionServer) Update(ctx context.Context, req *api.UpdateExecutionRequest) (*api.UpdateExecutionResponse, error) {
 	hash, err := hash.Decode(req.Hash)
 	if err != nil {
 		return nil, err
