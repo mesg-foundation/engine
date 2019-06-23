@@ -113,11 +113,6 @@ func (i *Instance) Create(serviceHash hash.Hash, env []string) (*instance.Instan
 	return o, err
 }
 
-// GetAllByService retrives all instances of service by service's hash.
-func (i *Instance) GetAllByService(serviceHash hash.Hash) ([]*instance.Instance, error) {
-	return i.instanceDB.GetAllByService(serviceHash)
-}
-
 // Delete an instance
 func (i *Instance) Delete(hash hash.Hash) error {
 	inst, err := i.instanceDB.Get(hash)

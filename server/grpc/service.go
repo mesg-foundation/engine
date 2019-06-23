@@ -8,6 +8,7 @@ import (
 	protobuf_api "github.com/mesg-foundation/core/protobuf/api"
 	"github.com/mesg-foundation/core/protobuf/definition"
 	"github.com/mesg-foundation/core/sdk"
+	instancesdk "github.com/mesg-foundation/core/sdk/instance"
 	"github.com/mesg-foundation/core/server/grpc/api"
 )
 
@@ -46,7 +47,7 @@ func (s *ServiceServer) Delete(ctx context.Context, request *protobuf_api.Delete
 		return nil, err
 	}
 	// first, check if service has any running instances.
-	instances, err := s.sdk.Instance.GetAllByService(srv.Hash)
+	instances, err := s.sdk.Instance.List(&instancesdk.Filter{ServiceHash: srv.Hash})
 	if err != nil {
 		return nil, err
 	}
