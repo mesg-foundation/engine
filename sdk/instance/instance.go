@@ -114,11 +114,6 @@ func (i *Instance) Create(id string, env []string) (*instance.Instance, error) {
 	return o, err
 }
 
-// GetAllByService retrives all instances of service by service's hash.
-func (i *Instance) GetAllByService(serviceHash string) ([]*instance.Instance, error) {
-	return i.instanceDB.GetAllByService(serviceHash)
-}
-
 // Delete deletes an instance.
 // if deleteData is enabled, any persistent data that belongs to
 // the instance and to its dependencies will also be deleted.
