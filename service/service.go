@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/mesg-foundation/core/hash"
-	"github.com/mesg-foundation/core/service/importer"
 )
 
 // WARNING about hash tags on Service type and its inner types:
@@ -19,7 +18,7 @@ import (
 // change.
 
 // MainServiceKey is key for main service.
-const MainServiceKey = importer.ConfigurationDependencyKey
+const MainServiceKey = "service"
 
 // Service represents a MESG service.
 type Service struct {
