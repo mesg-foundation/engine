@@ -32,7 +32,7 @@ func New(m manager.Manager, c container.Container, db database.ServiceDB, instan
 	return &SDK{
 		Service:   servicesdk.New(m, c, db, execDB),
 		Instance:  instancesdk.New(c, db, instanceDB),
-		Execution: executionsdk.New(m, ps, db, execDB),
+		Execution: executionsdk.New(ps, db, execDB, instanceDB),
 		Event:     eventsdk.New(ps, db),
 		ps:        ps,
 		m:         m,
