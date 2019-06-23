@@ -13,7 +13,6 @@ import (
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/service"
-	"github.com/mesg-foundation/core/service/manager"
 	"github.com/mesg-foundation/core/utils/dirhash"
 )
 
@@ -21,17 +20,15 @@ import (
 type Service struct {
 	ps *pubsub.PubSub
 
-	m         manager.Manager
 	container container.Container
 	db        database.ServiceDB
 	execDB    database.ExecutionDB
 }
 
 // New creates a new Service SDK with given options.
-func New(m manager.Manager, c container.Container, db database.ServiceDB, execDB database.ExecutionDB) *Service {
+func New(c container.Container, db database.ServiceDB, execDB database.ExecutionDB) *Service {
 	return &Service{
 		ps:        pubsub.New(0),
-		m:         m,
 		container: c,
 		db:        db,
 		execDB:    execDB,

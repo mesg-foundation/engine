@@ -11,7 +11,6 @@ import (
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/sdk"
-	"github.com/mesg-foundation/core/service/manager/dockermanager"
 	"github.com/stretchr/testify/require"
 )
 
@@ -39,9 +38,7 @@ func newServer(t *testing.T) (*Server, func()) {
 	c, err := container.New()
 	require.NoError(t, err)
 
-	m := dockermanager.New(c) // TODO(ilgooz): create mocks from manager.Manager and use instead.
-
-	a := sdk.New(m, c, db, instanceDB, execDB)
+	a := sdk.New(c, db, instanceDB, execDB)
 	server := NewServer(a)
 
 	closer := func() {

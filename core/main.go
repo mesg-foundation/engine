@@ -11,7 +11,6 @@ import (
 	"github.com/mesg-foundation/core/logger"
 	"github.com/mesg-foundation/core/sdk"
 	"github.com/mesg-foundation/core/server/grpc"
-	"github.com/mesg-foundation/core/service/manager/dockermanager"
 	"github.com/mesg-foundation/core/version"
 	"github.com/mesg-foundation/core/x/xerrors"
 	"github.com/mesg-foundation/core/x/xsignal"
@@ -57,11 +56,8 @@ func initDependencies() (*dependencies, error) {
 		return nil, err
 	}
 
-	// init Docker Manager.
-	m := dockermanager.New(c)
-
 	// init sdk.
-	sdk := sdk.New(m, c, serviceDB, instanceDB, executionDB)
+	sdk := sdk.New(c, serviceDB, instanceDB, executionDB)
 
 	return &dependencies{
 		config:      config,
