@@ -104,16 +104,14 @@ func (s *Server) Close() {
 // register all server
 func (s *Server) register() error {
 	coreServer := core.NewServer(s.sdk)
-	coreServiceServer := NewServiceServer(s.sdk)
-	instanceServer := NewInstanceServer(s.sdk)
 	serviceServer := service.NewServer(s.sdk)
-	apiServer := api.NewServer(s.sdk)
 
 	serviceapi.RegisterServiceServer(s.instance, serviceServer)
 	coreapi.RegisterCoreServer(s.instance, coreServer)
-	protobuf_api.RegisterServiceXServer(s.instance, coreServiceServer)
-	protobuf_api.RegisterInstanceServer(s.instance, instanceServer)
-	protobuf_api.RegisterExecutionServer(s.instance, apiServer)
+
+	protobuf_api.RegisterServiceXServer(s.instance, api.NewServiceServer(s.sdk))
+	protobuf_api.RegisterInstanceServer(s.instance, api.NewInstanceServer(s.sdk))
+	protobuf_api.RegisterExecutionServer(s.instance, api.NewExecutionServer(s.sdk))
 
 	reflection.Register(s.instance)
 	return nil
