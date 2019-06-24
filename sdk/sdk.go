@@ -24,7 +24,7 @@ func New(c container.Container, serviceDB database.ServiceDB, instanceDB databas
 	serviceSDK := servicesdk.New(c, serviceDB)
 	instanceSDK := instancesdk.New(c, serviceDB, instanceDB)
 	executionSDK := executionsdk.New(ps, serviceDB, execDB, instanceDB)
-	eventSDK := eventsdk.New(ps, serviceDB)
+	eventSDK := eventsdk.New(ps, serviceSDK)
 	return &SDK{
 		Service:   serviceSDK,
 		Instance:  instanceSDK,
