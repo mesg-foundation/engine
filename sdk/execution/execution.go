@@ -8,8 +8,6 @@ import (
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/hash"
-	"github.com/mesg-foundation/core/service"
-	"github.com/mesg-foundation/core/service/manager"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -22,18 +20,18 @@ const (
 // Execution exposes execution APIs of MESG.
 type Execution struct {
 	ps     *pubsub.PubSub
-	m      manager.Manager
 	db     database.ServiceDB
 	execDB database.ExecutionDB
+	instDB database.InstanceDB
 }
 
 // New creates a new Execution SDK with given options.
-func New(m manager.Manager, ps *pubsub.PubSub, db database.ServiceDB, execDB database.ExecutionDB) *Execution {
+func New(ps *pubsub.PubSub, db database.ServiceDB, execDB database.ExecutionDB, instDB database.InstanceDB) *Execution {
 	return &Execution{
-		m:      m,
 		ps:     ps,
 		db:     db,
 		execDB: execDB,
+		instDB: instDB,
 	}
 }
 
@@ -129,11 +127,11 @@ func (e *Execution) Execute(serviceHash hash.Hash, taskKey string, inputData map
 		return nil, err
 	}
 	// a task should be executed only if task's service is running.
-	status, err := e.m.Status(s)
+	instances, err := e.instDB.GetAllByService(s.Hash)
 	if err != nil {
 		return nil, err
 	}
-	if status != service.RUNNING {
+	if len(instances) == 0 {
 		return nil, &NotRunningServiceError{ServiceID: s.Hash.String()}
 	}
 

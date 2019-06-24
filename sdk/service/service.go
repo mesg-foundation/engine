@@ -13,7 +13,6 @@ import (
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/service"
-	"github.com/mesg-foundation/core/service/manager"
 	"github.com/mesg-foundation/core/utils/dirhash"
 )
 
@@ -21,17 +20,15 @@ import (
 type Service struct {
 	ps *pubsub.PubSub
 
-	m         manager.Manager
 	container container.Container
 	db        database.ServiceDB
 	execDB    database.ExecutionDB
 }
 
 // New creates a new Service SDK with given options.
-func New(m manager.Manager, c container.Container, db database.ServiceDB, execDB database.ExecutionDB) *Service {
+func New(c container.Container, db database.ServiceDB, execDB database.ExecutionDB) *Service {
 	return &Service{
 		ps:        pubsub.New(0),
-		m:         m,
 		container: c,
 		db:        db,
 		execDB:    execDB,
@@ -39,44 +36,44 @@ func New(m manager.Manager, c container.Container, db database.ServiceDB, execDB
 }
 
 // Create creates a new service from definition.
-func (s *Service) Create(srv *service.Service) error {
+func (s *Service) Create(srv *service.Service) (*service.Service, error) {
 	// download and untar service context into path.
 	path, err := ioutil.TempDir("", "mesg")
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer os.RemoveAll(path)
 
 	resp, err := http.Get("http://ipfs.app.mesg.com:8080/ipfs/" + srv.Source)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if resp.StatusCode != 200 {
-		return errors.New("service's source code is not reachable")
+		return nil, errors.New("service's source code is not reachable")
 	}
 	defer resp.Body.Close()
 
 	if err := archive.Untar(resp.Body, path, nil); err != nil {
-		return err
+		return nil, err
 	}
 
 	// calculate and apply hash to service.
 	dh := dirhash.New(path)
 	h, err := dh.Sum(structhash.Sha1(srv, 1))
 	if err != nil {
-		return err
+		return nil, err
 	}
 	srv.Hash = hash.Hash(h)
 
 	// check if service is already deployed.
 	if _, err := s.db.Get(srv.Hash); err == nil {
-		return errors.New("service is already deployed")
+		return nil, errors.New("service is already deployed")
 	}
 
 	// build service's Docker image and apply to service.
 	imageHash, err := s.container.Build(path)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	srv.Configuration.Image = imageHash
 	// TODO: the following test should be moved in New function
@@ -85,7 +82,7 @@ func (s *Service) Create(srv *service.Service) error {
 		srv.Sid = "_" + srv.Hash.String()
 	}
 
-	return s.db.Save(srv)
+	return srv, s.db.Save(srv)
 }
 
 // Delete deletes the service by hash.
