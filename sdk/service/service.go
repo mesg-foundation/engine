@@ -97,3 +97,8 @@ func (s *Service) Delete(hash hash.Hash) error {
 func (s *Service) Get(hash hash.Hash) (*service.Service, error) {
 	return s.db.Get(hash)
 }
+
+// List returns all services.
+func (s *Service) List() ([]*service.Service, error) {
+	return s.db.All()
+}
