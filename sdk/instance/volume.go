@@ -13,7 +13,7 @@ import (
 // service since extractVolumes() accepts service, not instance. same applies in the start
 // api as well. make it work with multiple instances.
 func (i *Instance) deleteData(inst *instance.Instance) error {
-	s, err := i.serviceDB.Get(inst.ServiceHash)
+	s, err := i.service.Get(inst.ServiceHash)
 	if err != nil {
 		return err
 	}
