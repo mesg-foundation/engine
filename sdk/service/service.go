@@ -95,5 +95,5 @@ func (s *Service) Get(hash hash.Hash) (*service.Service, error) {
 
 // List returns all services.
 func (s *Service) List() ([]*service.Service, error) {
-	return s.db.All()
+	return s.serviceDB.All()
 }
