@@ -11,21 +11,22 @@ import (
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/instance"
+	servicesdk "github.com/mesg-foundation/core/sdk/service"
 	"github.com/mesg-foundation/core/x/xos"
 )
 
 // Instance exposes service instance APIs of MESG.
 type Instance struct {
 	container  container.Container
-	serviceDB  database.ServiceDB
+	service    *servicesdk.Service
 	instanceDB database.InstanceDB
 }
 
 // New creates a new Instance SDK with given options.
-func New(c container.Container, serviceDB database.ServiceDB, instanceDB database.InstanceDB) *Instance {
+func New(c container.Container, service *servicesdk.Service, instanceDB database.InstanceDB) *Instance {
 	return &Instance{
 		container:  c,
-		serviceDB:  serviceDB,
+		service:    service,
 		instanceDB: instanceDB,
 	}
 }
@@ -51,7 +52,7 @@ func (i *Instance) List(f *Filter) ([]*instance.Instance, error) {
 // Create creates a new service instance for service with id(sid/hash) and applies given env vars.
 func (i *Instance) Create(serviceHash hash.Hash, env []string) (*instance.Instance, error) {
 	// get the service from service db.
-	srv, err := i.serviceDB.Get(serviceHash)
+	srv, err := i.service.Get(serviceHash)
 	if err != nil {
 		return nil, err
 	}
