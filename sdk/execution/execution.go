@@ -8,6 +8,8 @@ import (
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/hash"
+	instancesdk "github.com/mesg-foundation/core/sdk/instance"
+	servicesdk "github.com/mesg-foundation/core/sdk/service"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -19,19 +21,19 @@ const (
 
 // Execution exposes execution APIs of MESG.
 type Execution struct {
-	ps        *pubsub.PubSub
-	serviceDB database.ServiceDB
-	execDB    database.ExecutionDB
-	instDB    database.InstanceDB
+	ps       *pubsub.PubSub
+	service  *servicesdk.Service
+	instance *instancesdk.Instance
+	execDB   database.ExecutionDB
 }
 
 // New creates a new Execution SDK with given options.
-func New(ps *pubsub.PubSub, serviceDB database.ServiceDB, execDB database.ExecutionDB, instDB database.InstanceDB) *Execution {
+func New(ps *pubsub.PubSub, service *servicesdk.Service, instance *instancesdk.Instance, execDB database.ExecutionDB) *Execution {
 	return &Execution{
-		ps:        ps,
-		serviceDB: serviceDB,
-		execDB:    execDB,
-		instDB:    instDB,
+		ps:       ps,
+		service:  service,
+		instance: instance,
+		execDB:   execDB,
 	}
 }
 
@@ -109,7 +111,7 @@ func (e *Execution) validateExecutionOutput(serviceHash hash.Hash, taskKey strin
 		return nil, fmt.Errorf("invalid output: %s", err)
 	}
 
-	s, err := e.serviceDB.Get(serviceHash)
+	s, err := e.service.Get(serviceHash)
 	if err != nil {
 		return nil, err
 	}
@@ -122,12 +124,12 @@ func (e *Execution) validateExecutionOutput(serviceHash hash.Hash, taskKey strin
 
 // Execute executes a task tasKey with inputData and tags for service serviceID.
 func (e *Execution) Execute(serviceHash hash.Hash, taskKey string, inputData map[string]interface{}, tags []string) (executionHash hash.Hash, err error) {
-	s, err := e.serviceDB.Get(serviceHash)
+	s, err := e.service.Get(serviceHash)
 	if err != nil {
 		return nil, err
 	}
 	// a task should be executed only if task's service is running.
-	instances, err := e.instDB.GetAllByService(s.Hash)
+	instances, err := e.instance.List(&instancesdk.Filter{ServiceHash: s.Hash})
 	if err != nil {
 		return nil, err
 	}
@@ -156,7 +158,7 @@ func (e *Execution) Execute(serviceHash hash.Hash, taskKey string, inputData map
 
 // Listen listens executions on service.
 func (e *Execution) Listen(serviceHash hash.Hash, f *Filter) (*Listener, error) {
-	s, err := e.serviceDB.Get(serviceHash)
+	s, err := e.service.Get(serviceHash)
 	if err != nil {
 		return nil, err
 	}

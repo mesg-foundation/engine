@@ -12,7 +12,7 @@ import (
 
 // Start starts the service.
 func (i *Instance) start(inst *instance.Instance, env []string) (serviceIDs []string, err error) {
-	srv, err := i.serviceDB.Get(inst.ServiceHash)
+	srv, err := i.service.Get(inst.ServiceHash)
 	if err != nil {
 		return nil, err
 	}
