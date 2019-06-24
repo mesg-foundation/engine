@@ -63,9 +63,24 @@ func (s *ServiceServer) Get(ctx context.Context, req *protobuf_api.GetServiceReq
 		return nil, err
 	}
 
-	exec, err := s.sdk.Service.Get(hash)
+	service, err := s.sdk.Service.Get(hash)
 	if err != nil {
 		return nil, err
 	}
-	return ToProtoService(exec), nil
+	return ToProtoService(service), nil
+}
+
+// List returns all services.
+func (s *ServiceServer) List(ctx context.Context, req *protobuf_api.ListServiceRequest) (*protobuf_api.ListServiceResponse, error) {
+	services, err := s.sdk.Service.List()
+	if err != nil {
+		return nil, err
+	}
+
+	resp := &protobuf_api.ListServiceResponse{}
+	for _, service := range services {
+		resp.Services = append(resp.Services, ToProtoService(service))
+	}
+
+	return resp, nil
 }
