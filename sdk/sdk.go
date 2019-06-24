@@ -16,25 +16,19 @@ type SDK struct {
 	Instance  *instancesdk.Instance
 	Execution *executionsdk.Execution
 	Event     *eventsdk.Event
-
-	ps *pubsub.PubSub
-
-	container container.Container
-	db        database.ServiceDB
-	execDB    database.ExecutionDB
 }
 
 // New creates a new SDK with given options.
 func New(c container.Container, serviceDB database.ServiceDB, instanceDB database.InstanceDB, execDB database.ExecutionDB) *SDK {
 	ps := pubsub.New(0)
+	serviceSDK := servicesdk.New(c, serviceDB)
+	instanceSDK := instancesdk.New(c, serviceDB, instanceDB)
+	executionSDK := executionsdk.New(ps, serviceDB, execDB, instanceDB)
+	eventSDK := eventsdk.New(ps, serviceDB)
 	return &SDK{
-		Service:   servicesdk.New(c, db, execDB),
-		Instance:  instancesdk.New(c, db, instanceDB),
-		Execution: executionsdk.New(ps, db, execDB, instanceDB),
-		Event:     eventsdk.New(ps, db),
-		ps:        ps,
-		container: c,
-		db:        db,
-		execDB:    execDB,
+		Service:   serviceSDK,
+		Instance:  instanceSDK,
+		Execution: executionSDK,
+		Event:     eventSDK,
 	}
 }
