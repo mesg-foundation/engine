@@ -6,10 +6,13 @@ import (
 	"testing"
 
 	"github.com/cskr/pubsub"
+	"github.com/mesg-foundation/core/container/mocks"
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/instance"
+	instancesdk "github.com/mesg-foundation/core/sdk/instance"
+	servicesdk "github.com/mesg-foundation/core/sdk/service"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
 )
@@ -37,16 +40,19 @@ func (t *apiTesting) close() {
 }
 
 func newTesting(t *testing.T) (*Execution, *apiTesting) {
+	container := &mocks.Container{}
 	db, err := database.NewServiceDB(servicedbname)
 	require.NoError(t, err)
+	service := servicesdk.New(container, db)
+
+	instDB, err := database.NewInstanceDB(instdbname)
+	require.NoError(t, err)
+	instance := instancesdk.New(container, service, instDB)
 
 	execDB, err := database.NewExecutionDB(execdbname)
 	require.NoError(t, err)
 
-	instDB, err := database.NewInstanceDB(instdbname)
-	require.NoError(t, err)
-
-	sdk := New(pubsub.New(0), db, execDB, instDB)
+	sdk := New(pubsub.New(0), service, instance, execDB)
 
 	return sdk, &apiTesting{
 		T:           t,
@@ -92,7 +98,6 @@ func TestGetsream(t *testing.T) {
 	exec.Status = execution.InProgress
 
 	require.NoError(t, sdk.execDB.Save(exec))
-	require.NoError(t, sdk.serviceDB.Save(testService))
 
 	stream := sdk.GetStream(nil)
 	defer stream.Close()
