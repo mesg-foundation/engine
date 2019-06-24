@@ -2,9 +2,9 @@ package eventsdk
 
 import (
 	"github.com/cskr/pubsub"
-	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/event"
 	"github.com/mesg-foundation/core/hash"
+	servicesdk "github.com/mesg-foundation/core/sdk/service"
 )
 
 const (
@@ -15,21 +15,21 @@ const (
 
 // Event exposes event APIs of MESG.
 type Event struct {
-	ps        *pubsub.PubSub
-	serviceDB database.ServiceDB
+	ps      *pubsub.PubSub
+	service *servicesdk.Service
 }
 
 // New creates a new Event SDK with given options.
-func New(ps *pubsub.PubSub, serviceDB database.ServiceDB) *Event {
+func New(ps *pubsub.PubSub, service *servicesdk.Service) *Event {
 	return &Event{
-		ps:        ps,
-		serviceDB: serviceDB,
+		ps:      ps,
+		service: service,
 	}
 }
 
 // Emit emits a MESG event eventKey with eventData for service token.
 func (e *Event) Emit(serviceHash hash.Hash, eventKey string, eventData map[string]interface{}) error {
-	s, err := e.serviceDB.Get(serviceHash)
+	s, err := e.service.Get(serviceHash)
 	if err != nil {
 		return err
 	}
@@ -52,7 +52,7 @@ func (e *Event) GetStream(f *Filter) *Listener {
 
 // Listen listens events matches with eventFilter on serviceID.
 func (e *Event) Listen(serviceHash hash.Hash, f *Filter) (*Listener, error) {
-	s, err := e.serviceDB.Get(serviceHash)
+	s, err := e.service.Get(serviceHash)
 	if err != nil {
 		return nil, err
 	}
