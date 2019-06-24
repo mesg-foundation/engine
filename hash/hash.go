@@ -27,6 +27,12 @@ func (d *Digest) Sum(b []byte) Hash {
 	return Hash(d.Hash.Sum(b))
 }
 
+// WriteObject  adds an interface data to the running hash.
+// It never retruns an error.
+func (d *Digest) WriteObject(v interface{}) (int, error) {
+	return d.Write(structhash.Dump(v, 0))
+}
+
 // A Hash is a type for representing hash with base58 encode and decode functions.
 type Hash []byte
 
@@ -40,7 +46,7 @@ func New() *Digest {
 // Dump takes an interface and returns its hash representation.
 func Dump(v interface{}) Hash {
 	d := New()
-	d.Write(structhash.Dump(v, 0))
+	d.WriteObject(v)
 	return d.Sum(nil)
 }
 
