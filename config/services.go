@@ -1,5 +1,7 @@
 package config
 
+import "github.com/mesg-foundation/core/hash"
+
 // Default endpoints to access services. These endpoints are overritten by the build
 // Use the following format for the variable name: "[Service]URL" (where Service is the name of the service capitalized)
 // The service name should be the name of the directory inside `systemservices` but capitalized
@@ -24,7 +26,7 @@ type ServiceConfig struct {
 	URL  string
 	Env  map[string]string
 	Sid  string
-	Hash string
+	Hash hash.Hash
 }
 
 // ServiceConfigWithKey contains information related to services that the config knows about and their key

@@ -44,11 +44,12 @@ func (i *Instance) start(inst *instance.Instance, env []string) (serviceIDs []st
 		if err != nil {
 			return nil, err
 		}
+
 		serviceID, err := i.container.StartService(container.ServiceOptions{
 			Namespace: dependencyNamespace(sNamespace, d.Key),
 			Labels: map[string]string{
 				"mesg.service": srv.Name,
-				"mesg.hash":    inst.Hash,
+				"mesg.hash":    inst.Hash.String(),
 				"mesg.sid":     srv.Sid,
 				"mesg.engine":  conf.Name,
 			},
@@ -56,7 +57,7 @@ func (i *Instance) start(inst *instance.Instance, env []string) (serviceIDs []st
 			Args:    d.Args,
 			Command: d.Command,
 			Env: xos.EnvMergeSlices(env, []string{
-				"MESG_TOKEN=" + inst.Hash,
+				"MESG_TOKEN=" + inst.Hash.String(),
 				"MESG_ENDPOINT=" + endpoint,
 				"MESG_ENDPOINT_TCP=" + endpoint,
 			}),

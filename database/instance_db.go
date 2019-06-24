@@ -3,6 +3,7 @@ package database
 import (
 	"encoding/json"
 
+	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/instance"
 	"github.com/syndtr/goleveldb/leveldb"
 )
@@ -10,19 +11,19 @@ import (
 // InstanceDB describes the API of Instance database.
 type InstanceDB interface {
 	// Get retrives instance by instance hash.
-	Get(hash string) (*instance.Instance, error)
+	Get(hash hash.Hash) (*instance.Instance, error)
 
 	// GetAll retrieves all instances.
 	GetAll() ([]*instance.Instance, error)
 
 	// GetAllByService retrieves all instances of service by service's hash.
-	GetAllByService(serviceHash string) ([]*instance.Instance, error)
+	GetAllByService(serviceHash hash.Hash) ([]*instance.Instance, error)
 
 	// Save saves instance to database.
 	Save(i *instance.Instance) error
 
 	// Delete an instance by instance hash.
-	Delete(hash string) error
+	Delete(hash hash.Hash) error
 
 	// Close closes underlying database connection.
 	Close() error
@@ -48,21 +49,20 @@ func (d *LevelDBInstanceDB) marshal(i *instance.Instance) ([]byte, error) {
 }
 
 // unmarshal returns the service from byte slice.
-func (d *LevelDBInstanceDB) unmarshal(id string, value []byte) (*instance.Instance, error) {
+func (d *LevelDBInstanceDB) unmarshal(hash, value []byte) (*instance.Instance, error) {
 	var s instance.Instance
 	if err := json.Unmarshal(value, &s); err != nil {
-		return nil, &DecodeError{ID: id}
+		return nil, &DecodeError{hash: hash}
 	}
 	return &s, nil
 }
 
 // Get retrives instance by instance hash.
-func (d *LevelDBInstanceDB) Get(hash string) (*instance.Instance, error) {
-
-	b, err := d.db.Get([]byte(hash), nil)
+func (d *LevelDBInstanceDB) Get(hash hash.Hash) (*instance.Instance, error) {
+	b, err := d.db.Get(hash, nil)
 	if err != nil {
 		if err == leveldb.ErrNotFound {
-			return nil, &ErrNotFound{ID: hash}
+			return nil, &ErrNotFound{hash: hash}
 		}
 		return nil, err
 	}
@@ -74,8 +74,7 @@ func (d *LevelDBInstanceDB) GetAll() ([]*instance.Instance, error) {
 	instances := []*instance.Instance{}
 	iter := d.db.NewIterator(nil, nil)
 	for iter.Next() {
-		instanceHash := string(iter.Key())
-		i, err := d.unmarshal(instanceHash, iter.Value())
+		i, err := d.unmarshal(iter.Key(), iter.Value())
 		if err != nil {
 			iter.Release()
 			return nil, err
@@ -87,14 +86,14 @@ func (d *LevelDBInstanceDB) GetAll() ([]*instance.Instance, error) {
 }
 
 // GetAllByService retrieves all instances of service by service's hash.
-func (d *LevelDBInstanceDB) GetAllByService(serviceHash string) ([]*instance.Instance, error) {
+func (d *LevelDBInstanceDB) GetAllByService(serviceHash hash.Hash) ([]*instance.Instance, error) {
 	instances, err := d.GetAll()
 	if err != nil {
 		return nil, err
 	}
 	someInstances := []*instance.Instance{}
 	for _, instance := range instances {
-		if instance.ServiceHash == serviceHash {
+		if instance.ServiceHash.Equal(serviceHash) {
 			someInstances = append(someInstances, instance)
 		}
 	}
@@ -103,9 +102,8 @@ func (d *LevelDBInstanceDB) GetAllByService(serviceHash string) ([]*instance.Ins
 
 // Save saves instance to database.
 func (d *LevelDBInstanceDB) Save(i *instance.Instance) error {
-	// check service
-	if i.Hash == "" {
-		return errCannotSaveWithoutHash
+	if i.Hash.IsZero() {
+		return errSaveInstanceWithoutHash
 	}
 
 	// encode service
@@ -114,7 +112,7 @@ func (d *LevelDBInstanceDB) Save(i *instance.Instance) error {
 		return err
 	}
 
-	return d.db.Put([]byte(i.Hash), b, nil)
+	return d.db.Put(i.Hash, b, nil)
 }
 
 // Close closes database.
@@ -123,6 +121,6 @@ func (d *LevelDBInstanceDB) Close() error {
 }
 
 // Delete deletes service from database.
-func (d *LevelDBInstanceDB) Delete(hash string) error {
-	return d.db.Delete([]byte(hash), nil)
+func (d *LevelDBInstanceDB) Delete(hash hash.Hash) error {
+	return d.db.Delete(hash, nil)
 }

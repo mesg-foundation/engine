@@ -32,7 +32,7 @@ func TestEmit(t *testing.T) {
 	defer ln.Close()
 
 	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
-		Token:     s.Hash,
+		Token:     s.Hash.String(),
 		EventKey:  eventKey,
 		EventData: eventData,
 	})
@@ -56,7 +56,7 @@ func TestEmitNoData(t *testing.T) {
 	defer server.sdk.DeleteService(s.Hash, false)
 
 	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
-		Token:    s.Hash,
+		Token:    s.Hash.String(),
 		EventKey: eventKey,
 	})
 	require.Equal(t, err.Error(), "unexpected end of JSON input")
@@ -75,7 +75,7 @@ func TestEmitWrongData(t *testing.T) {
 	defer server.sdk.DeleteService(s.Hash, false)
 
 	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
-		Token:     s.Hash,
+		Token:     s.Hash.String(),
 		EventKey:  eventKey,
 		EventData: "",
 	})
@@ -95,7 +95,7 @@ func TestEmitWrongEvent(t *testing.T) {
 	defer server.sdk.DeleteService(s.Hash, false)
 
 	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
-		Token:     s.Hash,
+		Token:     s.Hash.String(),
 		EventKey:  eventKey,
 		EventData: "{}",
 	})
@@ -120,7 +120,7 @@ func TestEmitInvalidData(t *testing.T) {
 	defer server.sdk.DeleteService(s.Hash, false)
 
 	_, err = server.EmitEvent(context.Background(), &serviceapi.EmitEventRequest{
-		Token:     s.Hash,
+		Token:     s.Hash.String(),
 		EventKey:  eventKey,
 		EventData: eventData,
 	})

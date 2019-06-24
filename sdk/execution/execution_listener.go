@@ -3,14 +3,14 @@ package executionsdk
 import (
 	"github.com/cskr/pubsub"
 	"github.com/mesg-foundation/core/execution"
+	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/x/xstrings"
-	"github.com/mr-tron/base58"
 )
 
 // Filter store fileds for matching executions.
 type Filter struct {
 	Statuses    []execution.Status
-	ServiceHash []byte
+	ServiceHash hash.Hash
 	TaskKey     string
 	Tags        []string
 }
@@ -21,7 +21,7 @@ func (f *Filter) Match(e *execution.Execution) bool {
 		return true
 	}
 
-	if len(f.ServiceHash) > 0 && base58.Encode(f.ServiceHash) != e.ServiceHash {
+	if !f.ServiceHash.IsZero() && !f.ServiceHash.Equal(e.ServiceHash) {
 		return false
 	}
 

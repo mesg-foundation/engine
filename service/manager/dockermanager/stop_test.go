@@ -5,6 +5,7 @@ import (
 
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/container/mocks"
+	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
 )
@@ -13,7 +14,7 @@ func TestStopRunningService(t *testing.T) {
 	var (
 		dependencyKey = "1"
 		s             = &service.Service{
-			Hash: "1",
+			Hash: hash.Int(1),
 			Name: "TestStopRunningService",
 			Dependencies: []*service.Dependency{
 				{

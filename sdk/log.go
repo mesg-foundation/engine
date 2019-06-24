@@ -1,6 +1,7 @@
 package sdk
 
 import (
+	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/service"
 )
 
@@ -22,12 +23,12 @@ func ServiceLogsDependenciesFilter(dependencies ...string) ServiceLogsFilter {
 
 // ServiceLogs provides logs for dependencies of service serviceID that matches with filters.
 // when no dependency filters are set, all the dependencies' logs will be provided.
-func (sdk *SDK) ServiceLogs(serviceID string, filters ...ServiceLogsFilter) ([]*service.Log, error) {
+func (sdk *SDK) ServiceLogs(serviceHash hash.Hash, filters ...ServiceLogsFilter) ([]*service.Log, error) {
 	f := &serviceLogFilters{}
 	for _, filter := range filters {
 		filter(f)
 	}
-	s, err := sdk.db.Get(serviceID)
+	s, err := sdk.db.Get(serviceHash)
 	if err != nil {
 		return nil, err
 	}
