@@ -22,7 +22,7 @@ type SDK struct {
 func New(c container.Container, serviceDB database.ServiceDB, instanceDB database.InstanceDB, execDB database.ExecutionDB) *SDK {
 	ps := pubsub.New(0)
 	serviceSDK := servicesdk.New(c, serviceDB)
-	instanceSDK := instancesdk.New(c, serviceDB, instanceDB)
+	instanceSDK := instancesdk.New(c, serviceSDK, instanceDB)
 	executionSDK := executionsdk.New(ps, serviceDB, execDB, instanceDB)
 	eventSDK := eventsdk.New(ps, serviceSDK)
 	return &SDK{
