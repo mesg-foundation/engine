@@ -4,8 +4,12 @@ import "protobuf/definition/execution.proto";
 
 package api;
 
-// Execution is the service for handle operations on Execution
-// such as get or stream.
+// This is the API to interact with the Executions.
+//
+// This API is a [gRPC](https://grpc.io/) API.
+//
+// The source file of this API is hosted on [GitHub](https://github.com/mesg-foundation/engine/blob/master/protobuf/api/execution.proto).
+
 service Execution {
   // Get returns a single Execution specified in a request.
   rpc Get(GetExecutionRequest) returns (definition.Execution) {}
@@ -18,38 +22,33 @@ service Execution {
   rpc Update(UpdateExecutionRequest) returns (UpdateExecutionResponse) {}
 }
 
-// GetExecutionRequest defines request to retrieve a single execution.
+// GetExecutionRequest defines request to retrieve a single execution.//
+// **Example**	
+// TODO: add JSON example
 message GetExecutionRequest {
-  string hash = 1;
+  string hash = 1;  // Execution's hash to fetch.
 }
 
-// StreamExecutionRequest defines request to retrieve a stream of executions.
+// StreamExecutionRequest defines request to retrieve a stream of executions.//
+// **Example**	
+// TODO: add JSON example
 message StreamExecutionRequest{
   // Filter contains filtering criteria.
   message Filter {
-    // Status for filtering execution by status.
-    // Note: to filter multiple statues or flags, eg:
-    // Failed | Completed
-    definition.Status status = 1;
-
-    // serviceHash is a hash for filtering execution by service hash.
-    string serviceHash = 2;
+    definition.Status status = 1; // Status to filter executions.
+    string serviceHash = 2;       // Service's hash to filter executions.
   }
-
-  // Filter used to filter a stream of executions.
-  Filter filter = 1;
+  Filter filter = 1;  // Filter used to filter a stream of executions.
 }
 
-// UpdateExecutionRequest defines request for execution update.
+// UpdateExecutionRequest defines request for execution update.//
+// **Example**	
+// TODO: add JSON example
 message UpdateExecutionRequest {
-  // Hash represents execution.
-  string hash = 1;
-  // result pass to execution
-  oneof result {
-    // outputs is a success result.
-    string outputs = 2;
-    // error is an error result.
-    string error = 3;
+  string hash = 1;      // Hash represents execution.
+  oneof result {        // result pass to execution
+    string outputs = 2; // outputs is a success result.
+    string error = 3;   // error is an error result.
   }
 }
 
