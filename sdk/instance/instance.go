@@ -114,14 +114,24 @@ func (i *Instance) Create(id string, env []string) (*instance.Instance, error) {
 	return o, err
 }
 
-// Delete an instance
-func (i *Instance) Delete(hash string) error {
+// Delete deletes an instance.
+// if deleteData is enabled, any persistent data that belongs to
+// the instance and to its dependencies will also be deleted.
+func (i *Instance) Delete(hash string, deleteData bool) error {
 	inst, err := i.instanceDB.Get(hash)
 	if err != nil {
 		return err
 	}
 	if err := i.stop(inst); err != nil {
 		return err
+	}
+	// delete volumes first before the instance. this way if
+	// deleting volumes fails, process can be retried by the user again
+	// because instance still will be in the db.
+	if deleteData {
+		if err := i.deleteData(inst); err != nil {
+			return err
+		}
 	}
 	return i.instanceDB.Delete(hash)
 }
