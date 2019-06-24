@@ -38,6 +38,7 @@ message CreateInstanceResponse {
 
 message DeleteInstanceRequest {
   string hash = 1;      // Instance hash
+  bool deleteData = 2;   // if enabled, any persistent data (volumes) that belongs to instance and its dependencies will also be deleted.
 }
 
 message DeleteInstanceResponse {
