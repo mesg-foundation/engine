@@ -22,14 +22,14 @@ service Execution {
   rpc Update(UpdateExecutionRequest) returns (UpdateExecutionResponse) {}
 }
 
-// GetExecutionRequest defines request to retrieve a single execution.//
+// GetExecutionRequest defines request to retrieve a single execution.
 // **Example**	
 // TODO: add JSON example
 message GetExecutionRequest {
   string hash = 1;  // Execution's hash to fetch.
 }
 
-// StreamExecutionRequest defines request to retrieve a stream of executions.//
+// StreamExecutionRequest defines request to retrieve a stream of executions.
 // **Example**	
 // TODO: add JSON example
 message StreamExecutionRequest{
@@ -41,7 +41,7 @@ message StreamExecutionRequest{
   Filter filter = 1;  // Filter used to filter a stream of executions.
 }
 
-// UpdateExecutionRequest defines request for execution update.//
+// UpdateExecutionRequest defines request for execution update.
 // **Example**	
 // TODO: add JSON example
 message UpdateExecutionRequest {
