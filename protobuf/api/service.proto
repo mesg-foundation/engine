@@ -12,6 +12,9 @@ service ServiceX {
 
   // Get returns a single Service specified in a request.
   rpc Get(GetServiceRequest) returns (definition.Service) {}
+
+  // List returns services specified in a request.
+  rpc List(ListServiceRequest) returns (ListServiceResponse) {}
 }
 
 message CreateServiceRequest {
@@ -33,4 +36,10 @@ message DeleteServiceResponse {
 // GetServiceRequest defines request to retrieve a single service.
 message GetServiceRequest {
   string hash = 1;
+}
+
+message ListServiceRequest {}
+
+message ListServiceResponse {
+  repeated definition.Service services = 1;
 }
