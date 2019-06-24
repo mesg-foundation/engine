@@ -9,7 +9,6 @@ import (
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/service"
-	"github.com/mesg-foundation/core/x/xstructhash"
 	"github.com/mr-tron/base58"
 )
 
@@ -77,9 +76,9 @@ func extractVolumesFrom(s *service.Service, d *service.Dependency) ([]container.
 // volumeKey creates a key for service's volume based on the sid to make sure that the volume
 // will stay the same for different versions of the service.
 func volumeKey(s *service.Service, dependency string, volume string) string {
-	return hex.EncodeToString(xstructhash.Hash([]string{
-		s.Sid,
-		dependency,
-		volume,
-	}, 1))
+	d := sha1.New()
+	d.Write([]byte(s.Sid))
+	d.Write([]byte(dependency))
+	d.Write([]byte(volume))
+	return hex.EncodeToString(d.Sum(nil))
 }
