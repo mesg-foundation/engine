@@ -90,9 +90,9 @@ func (s *Server) Info(ctx context.Context, request *coreapi.InfoRequest) (*corea
 	services := make([]*coreapi.InfoReply_CoreService, len(c.Services()))
 	for i, s := range c.Services() {
 		services[i] = &coreapi.InfoReply_CoreService{
-			Sid:  s.Sid,
-			Hash: s.Hash.String(),
-			Url:  s.URL,
+			Sid:  s.Definition.Sid,
+			Hash: s.Instance.Hash.String(),
+			Url:  s.Definition.Source,
 			Key:  s.Key,
 		}
 	}
