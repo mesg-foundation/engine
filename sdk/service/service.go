@@ -21,8 +21,7 @@ type Service struct {
 	ps *pubsub.PubSub
 
 	container container.Container
-	db        database.ServiceDB
-	execDB    database.ExecutionDB
+	serviceDB database.ServiceDB
 }
 
 // New creates a new Service SDK with given options.
@@ -30,8 +29,7 @@ func New(c container.Container, db database.ServiceDB, execDB database.Execution
 	return &Service{
 		ps:        pubsub.New(0),
 		container: c,
-		db:        db,
-		execDB:    execDB,
+		serviceDB: db,
 	}
 }
 
@@ -66,7 +64,7 @@ func (s *Service) Create(srv *service.Service) (*service.Service, error) {
 	srv.Hash = hash.Hash(h)
 
 	// check if service is already deployed.
-	if _, err := s.db.Get(srv.Hash); err == nil {
+	if _, err := s.serviceDB.Get(srv.Hash); err == nil {
 		return nil, errors.New("service is already deployed")
 	}
 
@@ -82,15 +80,15 @@ func (s *Service) Create(srv *service.Service) (*service.Service, error) {
 		srv.Sid = "_" + srv.Hash.String()
 	}
 
-	return srv, s.db.Save(srv)
+	return srv, s.serviceDB.Save(srv)
 }
 
 // Delete deletes the service by hash.
 func (s *Service) Delete(hash hash.Hash) error {
-	return s.db.Delete(hash)
+	return s.serviceDB.Delete(hash)
 }
 
 // Get returns the service that matches given hash.
 func (s *Service) Get(hash hash.Hash) (*service.Service, error) {
-	return s.db.Get(hash)
+	return s.serviceDB.Get(hash)
 }
