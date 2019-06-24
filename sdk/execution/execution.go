@@ -19,19 +19,19 @@ const (
 
 // Execution exposes execution APIs of MESG.
 type Execution struct {
-	ps     *pubsub.PubSub
-	db     database.ServiceDB
-	execDB database.ExecutionDB
-	instDB database.InstanceDB
+	ps        *pubsub.PubSub
+	serviceDB database.ServiceDB
+	execDB    database.ExecutionDB
+	instDB    database.InstanceDB
 }
 
 // New creates a new Execution SDK with given options.
-func New(ps *pubsub.PubSub, db database.ServiceDB, execDB database.ExecutionDB, instDB database.InstanceDB) *Execution {
+func New(ps *pubsub.PubSub, serviceDB database.ServiceDB, execDB database.ExecutionDB, instDB database.InstanceDB) *Execution {
 	return &Execution{
-		ps:     ps,
-		db:     db,
-		execDB: execDB,
-		instDB: instDB,
+		ps:        ps,
+		serviceDB: serviceDB,
+		execDB:    execDB,
+		instDB:    instDB,
 	}
 }
 
@@ -109,7 +109,7 @@ func (e *Execution) validateExecutionOutput(serviceHash hash.Hash, taskKey strin
 		return nil, fmt.Errorf("invalid output: %s", err)
 	}
 
-	s, err := e.db.Get(serviceHash)
+	s, err := e.serviceDB.Get(serviceHash)
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +122,7 @@ func (e *Execution) validateExecutionOutput(serviceHash hash.Hash, taskKey strin
 
 // Execute executes a task tasKey with inputData and tags for service serviceID.
 func (e *Execution) Execute(serviceHash hash.Hash, taskKey string, inputData map[string]interface{}, tags []string) (executionHash hash.Hash, err error) {
-	s, err := e.db.Get(serviceHash)
+	s, err := e.serviceDB.Get(serviceHash)
 	if err != nil {
 		return nil, err
 	}
@@ -156,7 +156,7 @@ func (e *Execution) Execute(serviceHash hash.Hash, taskKey string, inputData map
 
 // Listen listens executions on service.
 func (e *Execution) Listen(serviceHash hash.Hash, f *Filter) (*Listener, error) {
-	s, err := e.db.Get(serviceHash)
+	s, err := e.serviceDB.Get(serviceHash)
 	if err != nil {
 		return nil, err
 	}

@@ -92,7 +92,7 @@ func TestGetsream(t *testing.T) {
 	exec.Status = execution.InProgress
 
 	require.NoError(t, sdk.execDB.Save(exec))
-	require.NoError(t, sdk.db.Save(testService))
+	require.NoError(t, sdk.serviceDB.Save(testService))
 
 	stream := sdk.GetStream(nil)
 	defer stream.Close()

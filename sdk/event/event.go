@@ -15,21 +15,21 @@ const (
 
 // Event exposes event APIs of MESG.
 type Event struct {
-	ps *pubsub.PubSub
-	db database.ServiceDB
+	ps        *pubsub.PubSub
+	serviceDB database.ServiceDB
 }
 
 // New creates a new Event SDK with given options.
-func New(ps *pubsub.PubSub, db database.ServiceDB) *Event {
+func New(ps *pubsub.PubSub, serviceDB database.ServiceDB) *Event {
 	return &Event{
-		ps: ps,
-		db: db,
+		ps:        ps,
+		serviceDB: serviceDB,
 	}
 }
 
 // Emit emits a MESG event eventKey with eventData for service token.
 func (e *Event) Emit(serviceHash hash.Hash, eventKey string, eventData map[string]interface{}) error {
-	s, err := e.db.Get(serviceHash)
+	s, err := e.serviceDB.Get(serviceHash)
 	if err != nil {
 		return err
 	}
@@ -52,7 +52,7 @@ func (e *Event) GetStream(f *Filter) *Listener {
 
 // Listen listens events matches with eventFilter on serviceID.
 func (e *Event) Listen(serviceHash hash.Hash, f *Filter) (*Listener, error) {
-	s, err := e.db.Get(serviceHash)
+	s, err := e.serviceDB.Get(serviceHash)
 	if err != nil {
 		return nil, err
 	}
