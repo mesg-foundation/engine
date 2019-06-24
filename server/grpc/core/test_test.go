@@ -1,20 +1,13 @@
 package core
 
 import (
-	"io"
 	"os"
-	"path/filepath"
 	"testing"
 
-	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/sdk"
 	"github.com/stretchr/testify/require"
-)
-
-var (
-	taskServicePath = filepath.Join("..", "..", "..", "service-test", "task")
 )
 
 const (
@@ -51,12 +44,4 @@ func newServer(t *testing.T) (*Server, func()) {
 	c, err := container.New()
 	require.NoError(t, err)
 	return newServerWithContainer(t, c)
-}
-
-func serviceTar(t *testing.T, path string) io.Reader {
-	reader, err := archive.TarWithOptions(path, &archive.TarOptions{
-		Compression: archive.Gzip,
-	})
-	require.NoError(t, err)
-	return reader
 }
