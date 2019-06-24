@@ -68,7 +68,7 @@ func (s *InstanceServer) Delete(ctx context.Context, request *protobuf_api.Delet
 	if err != nil {
 		return nil, err
 	}
-	if err := s.sdk.Instance.Delete(hash); err != nil {
+	if err := s.sdk.Instance.Delete(hash, request.DeleteData); err != nil {
 		return nil, err
 	}
 	return &protobuf_api.DeleteInstanceResponse{
