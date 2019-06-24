@@ -7,6 +7,7 @@ import (
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/database"
+	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/logger"
 	"github.com/mesg-foundation/core/sdk"
 	"github.com/mesg-foundation/core/server/grpc"
@@ -84,7 +85,7 @@ func deployCoreServices(config *config.Config, sdk *sdk.SDK) error {
 		service.Sid = s.Sid
 		service.Hash = s.Hash
 		logrus.Infof("Service %q deployed with hash %q", service.Key, service.Hash)
-		if err := sdk.StartService(s.Sid); err != nil {
+		if err := sdk.StartService(s.Hash); err != nil {
 			return err
 		}
 	}
@@ -103,7 +104,7 @@ func stopRunningServices(sdk *sdk.SDK) error {
 	)
 	wg.Add(serviceLen)
 	for _, service := range services {
-		go func(hash string) {
+		go func(hash hash.Hash) {
 			defer wg.Done()
 			err := sdk.StopService(hash)
 			if err != nil {

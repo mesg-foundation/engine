@@ -7,9 +7,9 @@ import (
 	"github.com/cskr/pubsub"
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/execution"
+	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/service"
 	"github.com/mesg-foundation/core/service/manager"
-	"github.com/mesg-foundation/core/utils/hash"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -38,7 +38,7 @@ func New(m manager.Manager, ps *pubsub.PubSub, db database.ServiceDB, execDB dat
 }
 
 // Get returns execution that matches given hash.
-func (e *Execution) Get(hash []byte) (*execution.Execution, error) {
+func (e *Execution) Get(hash hash.Hash) (*execution.Execution, error) {
 	return e.execDB.Find(hash)
 }
 
@@ -50,7 +50,7 @@ func (e *Execution) GetStream(f *Filter) *Listener {
 }
 
 // Update updates execution that matches given hash.
-func (e *Execution) Update(executionHash, outputs []byte, reterr error) error {
+func (e *Execution) Update(executionHash hash.Hash, outputs []byte, reterr error) error {
 	exec, err := e.processExecution(executionHash, outputs, reterr)
 	if err != nil {
 		return err
@@ -62,7 +62,7 @@ func (e *Execution) Update(executionHash, outputs []byte, reterr error) error {
 }
 
 // processExecution processes execution and marks it as complated or failed.
-func (e *Execution) processExecution(executionHash []byte, outputData []byte, reterr error) (*execution.Execution, error) {
+func (e *Execution) processExecution(executionHash hash.Hash, outputData []byte, reterr error) (*execution.Execution, error) {
 	tx, err := e.execDB.OpenTransaction()
 	if err != nil {
 		return nil, err
@@ -105,13 +105,13 @@ func (e *Execution) processExecution(executionHash []byte, outputData []byte, re
 	return exec, nil
 }
 
-func (e *Execution) validateExecutionOutput(service, taskKey string, jsonout []byte) (map[string]interface{}, error) {
+func (e *Execution) validateExecutionOutput(serviceHash hash.Hash, taskKey string, jsonout []byte) (map[string]interface{}, error) {
 	var output map[string]interface{}
 	if err := json.Unmarshal(jsonout, &output); err != nil {
 		return nil, fmt.Errorf("invalid output: %s", err)
 	}
 
-	s, err := e.db.Get(service)
+	s, err := e.db.Get(serviceHash)
 	if err != nil {
 		return nil, err
 	}
@@ -123,8 +123,8 @@ func (e *Execution) validateExecutionOutput(service, taskKey string, jsonout []b
 }
 
 // Execute executes a task tasKey with inputData and tags for service serviceID.
-func (e *Execution) Execute(serviceID, taskKey string, inputData map[string]interface{}, tags []string) (executionHash []byte, err error) {
-	s, err := e.db.Get(serviceID)
+func (e *Execution) Execute(serviceHash hash.Hash, taskKey string, inputData map[string]interface{}, tags []string) (executionHash hash.Hash, err error) {
+	s, err := e.db.Get(serviceHash)
 	if err != nil {
 		return nil, err
 	}
@@ -134,7 +134,7 @@ func (e *Execution) Execute(serviceID, taskKey string, inputData map[string]inte
 		return nil, err
 	}
 	if status != service.RUNNING {
-		return nil, &NotRunningServiceError{ServiceID: s.Sid}
+		return nil, &NotRunningServiceError{ServiceID: s.Hash.String()}
 	}
 
 	if err := s.RequireTaskInputs(taskKey, inputData); err != nil {
@@ -157,8 +157,8 @@ func (e *Execution) Execute(serviceID, taskKey string, inputData map[string]inte
 }
 
 // Listen listens executions on service.
-func (e *Execution) Listen(service string, f *Filter) (*Listener, error) {
-	s, err := e.db.Get(service)
+func (e *Execution) Listen(serviceHash hash.Hash, f *Filter) (*Listener, error) {
+	s, err := e.db.Get(serviceHash)
 	if err != nil {
 		return nil, err
 	}
@@ -175,8 +175,8 @@ func (e *Execution) Listen(service string, f *Filter) (*Listener, error) {
 }
 
 // subTopic returns the topic to listen for tasks from this service.
-func subTopic(serviceHash string) string {
-	return hash.Calculate([]string{serviceHash, topic})
+func subTopic(serviceHash hash.Hash) string {
+	return serviceHash.String() + "." + topic
 }
 
 // NotRunningServiceError is an error returned when the service is not running that

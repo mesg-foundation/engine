@@ -5,6 +5,7 @@ package dockermanager
 import (
 	"testing"
 
+	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
 )
@@ -12,7 +13,7 @@ import (
 func TestIntegrationLogs(t *testing.T) {
 	var (
 		service = &service.Service{
-			Hash: "1",
+			Hash: hash.Int(1),
 			Name: "TestLogs",
 			Dependencies: []*service.Dependency{
 				{
@@ -39,7 +40,7 @@ func TestIntegrationLogs(t *testing.T) {
 func TestIntegrationLogsOnlyOneDependency(t *testing.T) {
 	var (
 		service = &service.Service{
-			Hash: "1",
+			Hash: hash.Int(1),
 			Name: "TestLogsOnlyOneDependency",
 			Dependencies: []*service.Dependency{
 				{

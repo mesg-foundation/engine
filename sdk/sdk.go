@@ -4,6 +4,7 @@ import (
 	"github.com/cskr/pubsub"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/database"
+	"github.com/mesg-foundation/core/hash"
 	eventsdk "github.com/mesg-foundation/core/sdk/event"
 	executionsdk "github.com/mesg-foundation/core/sdk/execution"
 	instancesdk "github.com/mesg-foundation/core/sdk/instance"
@@ -44,8 +45,8 @@ func New(m manager.Manager, c container.Container, db database.ServiceDB, instan
 }
 
 // GetService returns service serviceID.
-func (sdk *SDK) GetService(serviceID string) (*service.Service, error) {
-	return sdk.db.Get(serviceID)
+func (sdk *SDK) GetService(serviceHash hash.Hash) (*service.Service, error) {
+	return sdk.db.Get(serviceHash)
 }
 
 // ListServices returns all services.
@@ -59,8 +60,8 @@ func (sdk *SDK) Status(service *service.Service) (service.StatusType, error) {
 }
 
 // StartService starts service serviceID.
-func (sdk *SDK) StartService(serviceID string) error {
-	s, err := sdk.db.Get(serviceID)
+func (sdk *SDK) StartService(serviceHash hash.Hash) error {
+	s, err := sdk.db.Get(serviceHash)
 	if err != nil {
 		return err
 	}
@@ -69,8 +70,8 @@ func (sdk *SDK) StartService(serviceID string) error {
 }
 
 // StopService stops service serviceID.
-func (sdk *SDK) StopService(serviceID string) error {
-	s, err := sdk.db.Get(serviceID)
+func (sdk *SDK) StopService(serviceHash hash.Hash) error {
+	s, err := sdk.db.Get(serviceHash)
 	if err != nil {
 		return err
 	}
@@ -80,8 +81,8 @@ func (sdk *SDK) StopService(serviceID string) error {
 // DeleteService stops and deletes service serviceID.
 // when deleteData is enabled, any persistent data that belongs to
 // the service and to its dependencies also will be deleted.
-func (sdk *SDK) DeleteService(serviceID string, deleteData bool) error {
-	s, err := sdk.db.Get(serviceID)
+func (sdk *SDK) DeleteService(serviceHash hash.Hash, deleteData bool) error {
+	s, err := sdk.db.Get(serviceHash)
 	if err != nil {
 		return err
 	}
@@ -96,5 +97,5 @@ func (sdk *SDK) DeleteService(serviceID string, deleteData bool) error {
 			return err
 		}
 	}
-	return sdk.db.Delete(serviceID)
+	return sdk.db.Delete(serviceHash)
 }

@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 
+	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/instance"
 	protobuf_api "github.com/mesg-foundation/core/protobuf/api"
 	"github.com/mesg-foundation/core/protobuf/definition"
@@ -22,7 +23,12 @@ func NewInstanceServer(sdk *sdk.SDK) *InstanceServer {
 
 // List instances.
 func (s *InstanceServer) List(ctx context.Context, request *protobuf_api.ListInstancesRequest) (*protobuf_api.ListInstancesResponse, error) {
-	instances, err := s.sdk.Instance.List(&instancesdk.Filter{ServiceHash: request.ServiceHash})
+	hash, err := hash.Decode(request.ServiceHash)
+	if err != nil {
+		return nil, err
+	}
+
+	instances, err := s.sdk.Instance.List(&instancesdk.Filter{ServiceHash: hash})
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +37,12 @@ func (s *InstanceServer) List(ctx context.Context, request *protobuf_api.ListIns
 
 // Create creates a new instance from service.
 func (s *InstanceServer) Create(ctx context.Context, request *protobuf_api.CreateInstanceRequest) (*protobuf_api.CreateInstanceResponse, error) {
-	i, err := s.sdk.Instance.Create(request.ServiceHash, request.Env)
+	hash, err := hash.Decode(request.ServiceHash)
+	if err != nil {
+		return nil, err
+	}
+
+	i, err := s.sdk.Instance.Create(hash, request.Env)
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +51,11 @@ func (s *InstanceServer) Create(ctx context.Context, request *protobuf_api.Creat
 
 // Get retrives instance.
 func (s *InstanceServer) Get(ctx context.Context, request *protobuf_api.GetInstanceRequest) (*protobuf_api.GetInstanceResponse, error) {
-	i, err := s.sdk.Instance.Get(request.Hash)
+	hash, err := hash.Decode(request.Hash)
+	if err != nil {
+		return nil, err
+	}
+	i, err := s.sdk.Instance.Get(hash)
 	if err != nil {
 		return nil, err
 	}
@@ -49,8 +64,11 @@ func (s *InstanceServer) Get(ctx context.Context, request *protobuf_api.GetInsta
 
 // Delete an instance
 func (s *InstanceServer) Delete(ctx context.Context, request *protobuf_api.DeleteInstanceRequest) (*protobuf_api.DeleteInstanceResponse, error) {
-	err := s.sdk.Instance.Delete(request.Hash, request.DeleteData)
+	hash, err := hash.Decode(request.Hash)
 	if err != nil {
+		return nil, err
+	}
+	if err := s.sdk.Instance.Delete(hash, request.DeleteData); err != nil {
 		return nil, err
 	}
 	return &protobuf_api.DeleteInstanceResponse{
@@ -68,7 +86,7 @@ func toProtoInstances(instances []*instance.Instance) []*definition.Instance {
 
 func toProtoInstance(i *instance.Instance) *definition.Instance {
 	return &definition.Instance{
-		Hash:        i.Hash,
-		ServiceHash: i.ServiceHash,
+		Hash:        i.Hash.String(),
+		ServiceHash: i.ServiceHash.String(),
 	}
 }
