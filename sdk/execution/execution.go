@@ -124,17 +124,18 @@ func (e *Execution) validateExecutionOutput(instanceHash hash.Hash, taskKey stri
 
 // Execute executes a task tasKey with inputData and tags for service serviceID.
 func (e *Execution) Execute(instanceHash hash.Hash, taskKey string, inputData map[string]interface{}, tags []string) (executionHash hash.Hash, err error) {
-	s, err := e.service.Get(instanceHash)
-	if err != nil {
-		return nil, err
-	}
 	// a task should be executed only if task's service is running.
-	instances, err := e.instance.List(&instancesdk.Filter{InstanceHash: s.Hash})
+	instances, err := e.instance.List(&instancesdk.Filter{InstanceHash: instanceHash})
 	if err != nil {
 		return nil, err
 	}
-	if len(instances) == 0 {
-		return nil, &NotRunningServiceError{ServiceID: s.Hash.String()}
+	if len(instances) != 1 {
+		return nil, fmt.Errorf("instance %q is not running", instanceHash)
+	}
+
+	s, err := e.service.Get(instances[0].ServiceHash)
+	if err != nil {
+		return nil, err
 	}
 
 	if err := s.RequireTaskInputs(taskKey, inputData); err != nil {
@@ -182,14 +183,4 @@ func (e *Execution) Listen(instanceHash hash.Hash, f *Filter) (*Listener, error)
 // subTopic returns the topic to listen for tasks from this service.
 func subTopic(instanceHash hash.Hash) string {
 	return instanceHash.String() + "." + topic
-}
-
-// NotRunningServiceError is an error returned when the service is not running that
-// a task needed to be executed on.
-type NotRunningServiceError struct {
-	ServiceID string
-}
-
-func (e *NotRunningServiceError) Error() string {
-	return fmt.Sprintf("Service %q is not running", e.ServiceID)
 }
