@@ -23,32 +23,38 @@ service Execution {
 }
 
 // GetExecutionRequest defines request to retrieve a single execution.
-// **Example**	
-// TODO: add JSON example
 message GetExecutionRequest {
-  string hash = 1;  // Execution's hash to fetch.
+  // Execution's hash to fetch.
+  string hash = 1;
 }
 
 // StreamExecutionRequest defines request to retrieve a stream of executions.
-// **Example**	
-// TODO: add JSON example
 message StreamExecutionRequest{
   // Filter contains filtering criteria.
   message Filter {
-    definition.Status status = 1; // Status to filter executions.
-    string serviceHash = 2;       // Service's hash to filter executions.
+    // Status to filter executions.
+    definition.Status status = 1;
+
+    // Service's hash to filter executions.
+    string serviceHash = 2;
   }
-  Filter filter = 1;  // Filter used to filter a stream of executions.
+
+  // Filter used to filter a stream of executions.
+  Filter filter = 1;
 }
 
 // UpdateExecutionRequest defines request for execution update.
-// **Example**	
-// TODO: add JSON example
 message UpdateExecutionRequest {
-  string hash = 1;      // Hash represents execution.
-  oneof result {        // result pass to execution
-    string outputs = 2; // outputs is a success result.
-    string error = 3;   // error is an error result.
+  // Hash represents execution.
+  string hash = 1;
+
+  // result pass to execution
+  oneof result {
+    // outputs is a success result.
+    string outputs = 2;
+
+    // error is an error result.
+    string error = 3;
   }
 }
 
