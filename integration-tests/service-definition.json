@@ -1,0 +1,26 @@
+{
+  "definition": {
+    "sid": "emit-event-interval",
+    "name": "Service Emit Event Interval",
+    "description": "Emits events on regular intervals",
+    "tasks": [],
+    "events": [
+      {
+        "key": "every_1_second",
+        "name": "Every 1 second",
+        "description": "Emits an event every 1 second",
+        "data": [
+          {
+            "key": "timestamp",
+            "name": "Timestamp (ms)",
+            "description": "The timestamp in milliseconds elapsed since January 1, 1970 00:00:00 UTC",
+            "type": "Number",
+            "object": []
+          }
+        ]
+      }
+    ],
+    "dependencies": [],
+    "source": "QmWwYqsFr6kQBgmXGm9m7Hgg54qNQqpLQLRvwTBdNVHogX"
+  }
+}
