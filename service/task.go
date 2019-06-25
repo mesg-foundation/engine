@@ -3,13 +3,13 @@ package service
 // Task describes a service task.
 type Task struct {
 	// Key is the key of task.
-	Key string `hash:"name:1"`
+	Key string `hash:"name:1" validate:"printascii"`
 
 	// Name is the name of task.
-	Name string `hash:"name:2"`
+	Name string `hash:"name:2" validate:"printascii"`
 
 	// Description is the description of task.
-	Description string `hash:"name:3"`
+	Description string `hash:"name:3" validate:"printascii"`
 
 	// Inputs are the definition of the execution inputs of task.
 	Inputs []*Parameter `hash:"name:4"`

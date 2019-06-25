@@ -227,6 +227,7 @@ func (m *GetServiceRequest) GetHash() string {
 	return ""
 }
 
+// The request's data for the `List` API.
 type ListServiceRequest struct {
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -258,6 +259,7 @@ func (m *ListServiceRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ListServiceRequest proto.InternalMessageInfo
 
+// The response's data for the `List` API.
 type ListServiceResponse struct {
 	// List of services that match the request's filters.
 	Services             []*definition.Service `protobuf:"bytes,1,rep,name=services,proto3" json:"services,omitempty"`
