@@ -24,6 +24,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
+// The request's data for the `Get` API.
 type GetInstanceRequest struct {
 	Hash                 string   `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -35,7 +36,7 @@ func (m *GetInstanceRequest) Reset()         { *m = GetInstanceRequest{} }
 func (m *GetInstanceRequest) String() string { return proto.CompactTextString(m) }
 func (*GetInstanceRequest) ProtoMessage()    {}
 func (*GetInstanceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_instance_2701e6acce0e6202, []int{0}
+	return fileDescriptor_instance_c980a3efb0643df6, []int{0}
 }
 func (m *GetInstanceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetInstanceRequest.Unmarshal(m, b)
@@ -73,7 +74,7 @@ func (m *GetInstanceResponse) Reset()         { *m = GetInstanceResponse{} }
 func (m *GetInstanceResponse) String() string { return proto.CompactTextString(m) }
 func (*GetInstanceResponse) ProtoMessage()    {}
 func (*GetInstanceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_instance_2701e6acce0e6202, []int{1}
+	return fileDescriptor_instance_c980a3efb0643df6, []int{1}
 }
 func (m *GetInstanceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetInstanceResponse.Unmarshal(m, b)
@@ -100,7 +101,9 @@ func (m *GetInstanceResponse) GetInstance() *definition.Instance {
 	return nil
 }
 
+// The request's data for the `List` API.
 type ListInstancesRequest struct {
+	// Filter by Services' hash.
 	ServiceHash          string   `protobuf:"bytes,1,opt,name=serviceHash,proto3" json:"serviceHash,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -111,7 +114,7 @@ func (m *ListInstancesRequest) Reset()         { *m = ListInstancesRequest{} }
 func (m *ListInstancesRequest) String() string { return proto.CompactTextString(m) }
 func (*ListInstancesRequest) ProtoMessage()    {}
 func (*ListInstancesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_instance_2701e6acce0e6202, []int{2}
+	return fileDescriptor_instance_c980a3efb0643df6, []int{2}
 }
 func (m *ListInstancesRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListInstancesRequest.Unmarshal(m, b)
@@ -138,7 +141,9 @@ func (m *ListInstancesRequest) GetServiceHash() string {
 	return ""
 }
 
+// The response's data for the `List` API.
 type ListInstancesResponse struct {
+	// List of instances that match the request's filters.
 	Instances            []*definition.Instance `protobuf:"bytes,1,rep,name=instances,proto3" json:"instances,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}               `json:"-"`
 	XXX_unrecognized     []byte                 `json:"-"`
@@ -149,7 +154,7 @@ func (m *ListInstancesResponse) Reset()         { *m = ListInstancesResponse{} }
 func (m *ListInstancesResponse) String() string { return proto.CompactTextString(m) }
 func (*ListInstancesResponse) ProtoMessage()    {}
 func (*ListInstancesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_instance_2701e6acce0e6202, []int{3}
+	return fileDescriptor_instance_c980a3efb0643df6, []int{3}
 }
 func (m *ListInstancesResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListInstancesResponse.Unmarshal(m, b)
@@ -176,8 +181,11 @@ func (m *ListInstancesResponse) GetInstances() []*definition.Instance {
 	return nil
 }
 
+// The request's data for the `Create` API.
 type CreateInstanceRequest struct {
-	ServiceHash          string   `protobuf:"bytes,1,opt,name=serviceHash,proto3" json:"serviceHash,omitempty"`
+	// Service's hash.
+	ServiceHash string `protobuf:"bytes,1,opt,name=serviceHash,proto3" json:"serviceHash,omitempty"`
+	// Environmental variables to apply to the Instance.
 	Env                  []string `protobuf:"bytes,2,rep,name=env,proto3" json:"env,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -188,7 +196,7 @@ func (m *CreateInstanceRequest) Reset()         { *m = CreateInstanceRequest{} }
 func (m *CreateInstanceRequest) String() string { return proto.CompactTextString(m) }
 func (*CreateInstanceRequest) ProtoMessage()    {}
 func (*CreateInstanceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_instance_2701e6acce0e6202, []int{4}
+	return fileDescriptor_instance_c980a3efb0643df6, []int{4}
 }
 func (m *CreateInstanceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateInstanceRequest.Unmarshal(m, b)
@@ -222,7 +230,9 @@ func (m *CreateInstanceRequest) GetEnv() []string {
 	return nil
 }
 
+// The response's data for the `Create` API.
 type CreateInstanceResponse struct {
+	// The instance created.
 	Instance             *definition.Instance `protobuf:"bytes,1,opt,name=instance,proto3" json:"instance,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
 	XXX_unrecognized     []byte               `json:"-"`
@@ -233,7 +243,7 @@ func (m *CreateInstanceResponse) Reset()         { *m = CreateInstanceResponse{}
 func (m *CreateInstanceResponse) String() string { return proto.CompactTextString(m) }
 func (*CreateInstanceResponse) ProtoMessage()    {}
 func (*CreateInstanceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_instance_2701e6acce0e6202, []int{5}
+	return fileDescriptor_instance_c980a3efb0643df6, []int{5}
 }
 func (m *CreateInstanceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateInstanceResponse.Unmarshal(m, b)
@@ -260,8 +270,11 @@ func (m *CreateInstanceResponse) GetInstance() *definition.Instance {
 	return nil
 }
 
+// The request's data for the `Delete` API.
 type DeleteInstanceRequest struct {
-	Hash                 string   `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
+	// Instance's hash
+	Hash string `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
+	// If true, any persistent data (volumes) that belongs to the instance and its dependencies will also be deleted.
 	DeleteData           bool     `protobuf:"varint,2,opt,name=deleteData,proto3" json:"deleteData,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -272,7 +285,7 @@ func (m *DeleteInstanceRequest) Reset()         { *m = DeleteInstanceRequest{} }
 func (m *DeleteInstanceRequest) String() string { return proto.CompactTextString(m) }
 func (*DeleteInstanceRequest) ProtoMessage()    {}
 func (*DeleteInstanceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_instance_2701e6acce0e6202, []int{6}
+	return fileDescriptor_instance_c980a3efb0643df6, []int{6}
 }
 func (m *DeleteInstanceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteInstanceRequest.Unmarshal(m, b)
@@ -306,7 +319,9 @@ func (m *DeleteInstanceRequest) GetDeleteData() bool {
 	return false
 }
 
+// The response's data for the `Delete` API.
 type DeleteInstanceResponse struct {
+	// Instance's hash deleted.
 	Hash                 string   `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -317,7 +332,7 @@ func (m *DeleteInstanceResponse) Reset()         { *m = DeleteInstanceResponse{}
 func (m *DeleteInstanceResponse) String() string { return proto.CompactTextString(m) }
 func (*DeleteInstanceResponse) ProtoMessage()    {}
 func (*DeleteInstanceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_instance_2701e6acce0e6202, []int{7}
+	return fileDescriptor_instance_c980a3efb0643df6, []int{7}
 }
 func (m *DeleteInstanceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteInstanceResponse.Unmarshal(m, b)
@@ -367,9 +382,14 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type InstanceClient interface {
+	// Get returns an Instance matching the criteria of the request.
 	Get(ctx context.Context, in *GetInstanceRequest, opts ...grpc.CallOption) (*GetInstanceResponse, error)
+	// List returns all Instances matching the criteria of the request.
 	List(ctx context.Context, in *ListInstancesRequest, opts ...grpc.CallOption) (*ListInstancesResponse, error)
+	// Create an Instance from a Service's hash and custom environmental variables.
+	// It will return an unique identifier which is used to interact with the Instance.
 	Create(ctx context.Context, in *CreateInstanceRequest, opts ...grpc.CallOption) (*CreateInstanceResponse, error)
+	// Delete an Instance.
 	Delete(ctx context.Context, in *DeleteInstanceRequest, opts ...grpc.CallOption) (*DeleteInstanceResponse, error)
 }
 
@@ -419,9 +439,14 @@ func (c *instanceClient) Delete(ctx context.Context, in *DeleteInstanceRequest, 
 
 // InstanceServer is the server API for Instance service.
 type InstanceServer interface {
+	// Get returns an Instance matching the criteria of the request.
 	Get(context.Context, *GetInstanceRequest) (*GetInstanceResponse, error)
+	// List returns all Instances matching the criteria of the request.
 	List(context.Context, *ListInstancesRequest) (*ListInstancesResponse, error)
+	// Create an Instance from a Service's hash and custom environmental variables.
+	// It will return an unique identifier which is used to interact with the Instance.
 	Create(context.Context, *CreateInstanceRequest) (*CreateInstanceResponse, error)
+	// Delete an Instance.
 	Delete(context.Context, *DeleteInstanceRequest) (*DeleteInstanceResponse, error)
 }
 
@@ -527,10 +552,10 @@ var _Instance_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("protobuf/api/instance.proto", fileDescriptor_instance_2701e6acce0e6202)
+	proto.RegisterFile("protobuf/api/instance.proto", fileDescriptor_instance_c980a3efb0643df6)
 }
 
-var fileDescriptor_instance_2701e6acce0e6202 = []byte{
+var fileDescriptor_instance_c980a3efb0643df6 = []byte{
 	// 337 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x93, 0xcf, 0x4e, 0xf2, 0x40,
 	0x10, 0xc0, 0x29, 0x25, 0x04, 0x86, 0xcb, 0x97, 0xf9, 0x00, 0x6b, 0x49, 0x4c, 0xb3, 0xa7, 0x1e,
