@@ -67,12 +67,11 @@ func (s *Service) Create(srv *service.Service) (*service.Service, error) {
 		return nil, errors.New("service is already deployed")
 	}
 
-	// build service's Docker image and apply to service.
-	imageHash, err := s.container.Build(path)
+	// build service's Docker image.
+	_, err = s.container.Build(path)
 	if err != nil {
 		return nil, err
 	}
-	srv.Configuration.Image = imageHash
 	// TODO: the following test should be moved in New function
 	if srv.Sid == "" {
 		// make sure that sid doesn't have the same length with id.
