@@ -2,14 +2,12 @@ package instancesdk
 
 import (
 	"crypto/sha1"
-	"encoding/hex"
 	"strconv"
 	"strings"
 
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/service"
-	"github.com/mesg-foundation/core/x/xstructhash"
 	"github.com/mr-tron/base58"
 )
 
@@ -76,10 +74,10 @@ func extractVolumesFrom(s *service.Service, d *service.Dependency) ([]container.
 
 // volumeKey creates a key for service's volume based on the sid to make sure that the volume
 // will stay the same for different versions of the service.
-func volumeKey(s *service.Service, dependency string, volume string) string {
-	return hex.EncodeToString(xstructhash.Hash([]string{
+func volumeKey(s *service.Service, dependency, volume string) string {
+	return hash.Dump([]string{
 		s.Sid,
 		dependency,
 		volume,
-	}, 1))
+	}).String()
 }
