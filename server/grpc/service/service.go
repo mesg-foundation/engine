@@ -30,7 +30,12 @@ func NewServer(sdk *sdk.SDK) *Server {
 
 // EmitEvent permits to send and event to anyone who subscribed to it.
 func (s *Server) EmitEvent(context context.Context, request *serviceapi.EmitEventRequest) (*serviceapi.EmitEventReply, error) {
-	serviceHash, err := hash.Decode(request.Token)
+	instanceHash, err := hash.Decode(request.Token)
+	if err != nil {
+		return nil, err
+	}
+
+	instance, err := s.sdk.Instance.Get(instanceHash)
 	if err != nil {
 		return nil, err
 	}
@@ -39,17 +44,22 @@ func (s *Server) EmitEvent(context context.Context, request *serviceapi.EmitEven
 	if err := json.Unmarshal([]byte(request.EventData), &data); err != nil {
 		return nil, err
 	}
-	return &serviceapi.EmitEventReply{}, s.sdk.Event.Emit(serviceHash, request.EventKey, data)
+	return &serviceapi.EmitEventReply{}, s.sdk.Event.Emit(instance.ServiceHash, request.EventKey, data)
 }
 
 // ListenTask creates a stream that will send data for every task to execute.
 func (s *Server) ListenTask(request *serviceapi.ListenTaskRequest, stream serviceapi.Service_ListenTaskServer) error {
-	serviceHash, err := hash.Decode(request.Token)
+	instanceHash, err := hash.Decode(request.Token)
 	if err != nil {
 		return err
 	}
 
-	ln, err := s.sdk.Execution.Listen(serviceHash, inProgressFilter)
+	instance, err := s.sdk.Instance.Get(instanceHash)
+	if err != nil {
+		return err
+	}
+
+	ln, err := s.sdk.Execution.Listen(instance.ServiceHash, inProgressFilter)
 	if err != nil {
 		return err
 	}
