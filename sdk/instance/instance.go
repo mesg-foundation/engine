@@ -2,7 +2,6 @@ package instancesdk
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -85,10 +84,7 @@ func (i *Instance) Create(serviceHash hash.Hash, env []string) (*instance.Instan
 	}
 
 	// calculate the final env vars by overwriting user defined one's with defaults.
-	instanceEnv := xos.EnvSliceToMap(env)
-	if srv.Configuration != nil {
-		instanceEnv = xos.EnvMergeMaps(xos.EnvSliceToMap(srv.Configuration.Env), instanceEnv)
-	}
+	instanceEnv := xos.EnvMergeMaps(xos.EnvSliceToMap(srv.Configuration.Env), xos.EnvSliceToMap(env))
 
 	// calculate instance's hash.
 	h := hash.New()

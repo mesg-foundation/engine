@@ -36,7 +36,7 @@ func ValidateService(service *Service) error {
 	}
 
 	// validate configuration image
-	if service.Configuration != nil && service.Configuration.Image != "" {
+	if service.Configuration.Image != "" {
 		errs = append(errs, errors.New("configuration.image is not allowed"))
 	}
 
@@ -49,19 +49,17 @@ func ValidateService(service *Service) error {
 	}
 
 	// validate configuration volumes
-	if service.Configuration != nil {
-		for _, depVolumeKey := range service.Configuration.VolumesFrom {
-			found := false
-			for _, s := range service.Dependencies {
-				if s.Key == depVolumeKey {
-					found = true
-					break
-				}
+	for _, depVolumeKey := range service.Configuration.VolumesFrom {
+		found := false
+		for _, s := range service.Dependencies {
+			if s.Key == depVolumeKey {
+				found = true
+				break
 			}
-			if !found {
-				err := fmt.Errorf("configuration.volumesFrom is invalid: dependency %q does not exist", depVolumeKey)
-				errs = append(errs, err)
-			}
+		}
+		if !found {
+			err := fmt.Errorf("configuration.volumesFrom is invalid: dependency %q does not exist", depVolumeKey)
+			errs = append(errs, err)
 		}
 	}
 
