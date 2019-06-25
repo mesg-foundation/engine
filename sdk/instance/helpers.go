@@ -2,7 +2,6 @@ package instancesdk
 
 import (
 	"crypto/sha1"
-	"encoding/hex"
 	"strconv"
 	"strings"
 
@@ -75,10 +74,10 @@ func extractVolumesFrom(s *service.Service, d *service.Dependency) ([]container.
 
 // volumeKey creates a key for service's volume based on the sid to make sure that the volume
 // will stay the same for different versions of the service.
-func volumeKey(s *service.Service, dependency string, volume string) string {
-	d := sha1.New()
-	d.Write([]byte(s.Sid))
-	d.Write([]byte(dependency))
-	d.Write([]byte(volume))
-	return hex.EncodeToString(d.Sum(nil))
+func volumeKey(s *service.Service, dependency, volume string) string {
+	return hash.Dump([]string{
+		s.Sid,
+		dependency,
+		volume,
+	}).String()
 }
