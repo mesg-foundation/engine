@@ -1,7 +1,6 @@
 package instancesdk
 
 import (
-	"crypto/sha256"
 	"errors"
 	"io/ioutil"
 	"net/http"
@@ -10,31 +9,50 @@ import (
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/database"
+	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/instance"
+	servicesdk "github.com/mesg-foundation/core/sdk/service"
 	"github.com/mesg-foundation/core/x/xos"
-	"github.com/mr-tron/base58"
 )
 
 // Instance exposes service instance APIs of MESG.
 type Instance struct {
 	container  container.Container
-	serviceDB  database.ServiceDB
+	service    *servicesdk.Service
 	instanceDB database.InstanceDB
 }
 
 // New creates a new Instance SDK with given options.
-func New(c container.Container, serviceDB database.ServiceDB, instanceDB database.InstanceDB) *Instance {
+func New(c container.Container, service *servicesdk.Service, instanceDB database.InstanceDB) *Instance {
 	return &Instance{
 		container:  c,
-		serviceDB:  serviceDB,
+		service:    service,
 		instanceDB: instanceDB,
 	}
 }
 
+// Get retrieves instance by hash.
+func (i *Instance) Get(hash hash.Hash) (*instance.Instance, error) {
+	return i.instanceDB.Get(hash)
+}
+
+// Filter to apply while listing instances.
+type Filter struct {
+	ServiceHash hash.Hash
+}
+
+// List instances by f filter.
+func (i *Instance) List(f *Filter) ([]*instance.Instance, error) {
+	if f != nil && !f.ServiceHash.IsZero() {
+		return i.instanceDB.GetAllByService(f.ServiceHash)
+	}
+	return i.instanceDB.GetAll()
+}
+
 // Create creates a new service instance for service with id(sid/hash) and applies given env vars.
-func (i *Instance) Create(id string, env []string) (*instance.Instance, error) {
+func (i *Instance) Create(serviceHash hash.Hash, env []string) (*instance.Instance, error) {
 	// get the service from service db.
-	srv, err := i.serviceDB.Get(id)
+	srv, err := i.service.Get(serviceHash)
 	if err != nil {
 		return nil, err
 	}
@@ -65,14 +83,14 @@ func (i *Instance) Create(id string, env []string) (*instance.Instance, error) {
 		return nil, err
 	}
 
-	// overwrite default env vars with user defined ones.
+	// calculate the final env vars by overwriting user defined one's with defaults.
 	instanceEnv := xos.EnvMergeMaps(xos.EnvSliceToMap(srv.Configuration.Env), xos.EnvSliceToMap(env))
 
 	// calculate instance's hash.
-	h := sha256.New()
-	h.Write([]byte(srv.Hash))
+	h := hash.New()
+	h.Write(srv.Hash)
 	h.Write([]byte(xos.EnvMapToString(instanceEnv)))
-	instanceHash := base58.Encode(h.Sum(nil))
+	instanceHash := h.Sum(nil)
 
 	// check if instance is already running.
 	_, err = i.instanceDB.Get(instanceHash)
@@ -92,18 +110,28 @@ func (i *Instance) Create(id string, env []string) (*instance.Instance, error) {
 		return nil, err
 	}
 
-	_, err = i.start(o)
+	_, err = i.start(o, xos.EnvMapToSlice(instanceEnv))
 	return o, err
 }
 
-// Delete an instance
-func (i *Instance) Delete(hash string) error {
+// Delete deletes an instance.
+// if deleteData is enabled, any persistent data that belongs to
+// the instance and to its dependencies will also be deleted.
+func (i *Instance) Delete(hash hash.Hash, deleteData bool) error {
 	inst, err := i.instanceDB.Get(hash)
 	if err != nil {
 		return err
 	}
 	if err := i.stop(inst); err != nil {
 		return err
+	}
+	// delete volumes first before the instance. this way if
+	// deleting volumes fails, process can be retried by the user again
+	// because instance still will be in the db.
+	if deleteData {
+		if err := i.deleteData(inst); err != nil {
+			return err
+		}
 	}
 	return i.instanceDB.Delete(hash)
 }

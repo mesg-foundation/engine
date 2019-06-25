@@ -11,6 +11,7 @@ import (
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/protobuf/serviceapi"
 	"github.com/mesg-foundation/core/sdk"
+	"github.com/mesg-foundation/core/server/grpc/api"
 	"github.com/mesg-foundation/core/server/grpc/core"
 	"github.com/mesg-foundation/core/server/grpc/service"
 	"github.com/sirupsen/logrus"
@@ -103,14 +104,14 @@ func (s *Server) Close() {
 // register all server
 func (s *Server) register() error {
 	coreServer := core.NewServer(s.sdk)
-	coreServiceServer := NewServiceServer(s.sdk)
-	instanceServer := NewInstanceServer(s.sdk)
 	serviceServer := service.NewServer(s.sdk)
 
 	serviceapi.RegisterServiceServer(s.instance, serviceServer)
 	coreapi.RegisterCoreServer(s.instance, coreServer)
-	protobuf_api.RegisterServiceXServer(s.instance, coreServiceServer)
-	protobuf_api.RegisterInstanceServer(s.instance, instanceServer)
+
+	protobuf_api.RegisterServiceXServer(s.instance, api.NewServiceServer(s.sdk))
+	protobuf_api.RegisterInstanceServer(s.instance, api.NewInstanceServer(s.sdk))
+	protobuf_api.RegisterExecutionServer(s.instance, api.NewExecutionServer(s.sdk))
 
 	reflection.Register(s.instance)
 	return nil

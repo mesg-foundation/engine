@@ -5,6 +5,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/instance"
 	"github.com/stretchr/testify/require"
 )
@@ -20,26 +21,26 @@ func TestFindInstance(t *testing.T) {
 	defer os.RemoveAll(dir)
 	db := instancedb(t, dir)
 	defer db.Close()
-	i := &instance.Instance{Hash: "xxx", ServiceHash: "yyy"}
+
+	i := &instance.Instance{Hash: hash.Int(1)}
 	db.Save(i)
 	tests := []struct {
-		hash     string
+		hash     hash.Hash
 		hasError bool
 	}{
 		{hash: i.Hash, hasError: false},
-		{hash: "yyy", hasError: true},
+		{hash: hash.Int(2), hasError: true},
 	}
+
 	for _, test := range tests {
 		instance, err := db.Get(test.hash)
 		if test.hasError {
 			require.Error(t, err)
 			continue
 		}
+
 		require.NoError(t, err)
-		require.NotNil(t, instance)
-		e, err := db.Get(instance.Hash)
-		require.NoError(t, err)
-		require.NotNil(t, e)
+		require.Equal(t, instance, i)
 	}
 }
 
@@ -52,7 +53,7 @@ func TestSaveInstance(t *testing.T) {
 		instance *instance.Instance
 		hasError bool
 	}{
-		{&instance.Instance{Hash: "xxx"}, false},
+		{&instance.Instance{Hash: hash.Int(1)}, false},
 		{&instance.Instance{}, true},
 	}
 	for _, test := range tests {
@@ -70,12 +71,11 @@ func TestDeleteInstance(t *testing.T) {
 	defer os.RemoveAll(dir)
 	db := instancedb(t, dir)
 	defer db.Close()
-	i := &instance.Instance{Hash: "xxx", ServiceHash: "yyy"}
+	i := &instance.Instance{Hash: hash.Int(1)}
 	db.Save(i)
-	require.NoError(t, db.Delete("xxx"))
-	inst, err := db.Get("xxx")
-	require.Nil(t, inst)
+	require.NoError(t, db.Delete(i.Hash))
+	_, err := db.Get(i.Hash)
 	require.Error(t, err)
 
-	require.NoError(t, db.Delete("yyy"))
+	require.NoError(t, db.Delete(i.Hash))
 }

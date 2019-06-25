@@ -1,7 +1,0 @@
-name: "non-valid"
-description: "นี่เป็นคำอธิบายที่ไม่ถูกต้อง"
-dependencies:
-  app:
-    image: nginx
-    ports:
-      - 80-80

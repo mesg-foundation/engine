@@ -2,11 +2,11 @@ package api
 
 import (
 	"context"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
 
 	"github.com/mesg-foundation/core/execution"
+	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/api"
 	"github.com/mesg-foundation/core/protobuf/definition"
@@ -17,19 +17,19 @@ import (
 // ErrNoOutput is an error when there is no output for updating execution.
 var ErrNoOutput = errors.New("output not supplied")
 
-// Server serve execution functions.
-type Server struct {
+// ExecutionServer serve execution functions.
+type ExecutionServer struct {
 	sdk *sdk.SDK
 }
 
-// NewServer creates a new Server.
-func NewServer(sdk *sdk.SDK) *Server {
-	return &Server{sdk: sdk}
+// NewExecutionServer creates a new ExecutionServer.
+func NewExecutionServer(sdk *sdk.SDK) *ExecutionServer {
+	return &ExecutionServer{sdk: sdk}
 }
 
 // Get returns execution from given hash.
-func (s *Server) Get(ctx context.Context, req *api.GetExecutionRequest) (*definition.Execution, error) {
-	hash, err := hex.DecodeString(req.Hash)
+func (s *ExecutionServer) Get(ctx context.Context, req *api.GetExecutionRequest) (*definition.Execution, error) {
+	hash, err := hash.Decode(req.Hash)
 	if err != nil {
 		return nil, err
 	}
@@ -42,9 +42,15 @@ func (s *Server) Get(ctx context.Context, req *api.GetExecutionRequest) (*defini
 }
 
 // Stream returns stream of executions.
-func (s *Server) Stream(req *api.StreamExecutionRequest, resp api.Execution_StreamServer) error {
+func (s *ExecutionServer) Stream(req *api.StreamExecutionRequest, resp api.Execution_StreamServer) error {
+	hash, err := hash.Decode(req.Filter.ServiceHash)
+	if err != nil {
+		return err
+	}
+
 	stream := s.sdk.Execution.GetStream(&executionsdk.Filter{
-		Statuses: []execution.Status{execution.Status(req.Filter.Status)},
+		ServiceHash: hash,
+		Statuses:    []execution.Status{execution.Status(req.Filter.Status)},
 	})
 	defer stream.Close()
 
@@ -68,8 +74,8 @@ func (s *Server) Stream(req *api.StreamExecutionRequest, resp api.Execution_Stre
 }
 
 // Update updates execution from given hash.
-func (s *Server) Update(ctx context.Context, req *api.UpdateExecutionRequest) (*api.UpdateExecutionResponse, error) {
-	hash, err := hex.DecodeString(req.Hash)
+func (s *ExecutionServer) Update(ctx context.Context, req *api.UpdateExecutionRequest) (*api.UpdateExecutionResponse, error) {
+	hash, err := hash.Decode(req.Hash)
 	if err != nil {
 		return nil, err
 	}
@@ -101,11 +107,11 @@ func toProtoExecution(exec *execution.Execution) (*definition.Execution, error) 
 	}
 
 	return &definition.Execution{
-		Hash:        hex.EncodeToString(exec.Hash),
-		ParentHash:  hex.EncodeToString(exec.ParentHash),
+		Hash:        exec.Hash.String(),
+		ParentHash:  exec.ParentHash.String(),
 		EventID:     exec.EventID,
 		Status:      definition.Status(exec.Status),
-		ServiceHash: exec.ServiceHash,
+		ServiceHash: exec.ServiceHash.String(),
 		TaskKey:     exec.TaskKey,
 		Inputs:      string(inputs),
 		Outputs:     string(outputs),

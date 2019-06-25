@@ -5,9 +5,9 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
-	"github.com/syndtr/goleveldb/leveldb"
 )
 
 const testdbname = "db.test"
@@ -30,7 +30,7 @@ func TestServiceDBSave(t *testing.T) {
 	db, closer := openServiceDB(t)
 	defer closer()
 
-	s1 := &service.Service{Hash: "00", Sid: "1", Name: "test-service"}
+	s1 := &service.Service{Hash: hash.Int(1)}
 	require.NoError(t, db.Save(s1))
 
 	// save same service. should replace
@@ -38,36 +38,24 @@ func TestServiceDBSave(t *testing.T) {
 	ss, _ := db.All()
 	require.Len(t, ss, 1)
 
-	// different hash, same sid. should replace s1.
-	s2 := &service.Service{Hash: "01", Sid: "1", Name: "test-service"}
-	require.NoError(t, db.Save(s2))
-	_, err := db.Get(s1.Hash)
+	_, err := db.Get(hash.Int(2))
 	require.IsType(t, &ErrNotFound{}, err)
 
 	// different hash, different sid. should not replace anything.
-	s3 := &service.Service{Hash: "02", Sid: "2", Name: "test-service"}
+	s3 := &service.Service{Hash: hash.Int(2)}
 	require.NoError(t, db.Save(s3))
 	ss, _ = db.All()
 	require.Len(t, ss, 2)
 
 	// test service without hash.
-	s := &service.Service{Name: "test-service", Sid: "Sid"}
-	require.EqualError(t, db.Save(s), errCannotSaveWithoutHash.Error())
-
-	// test service without sid.
-	s = &service.Service{Name: "test-service", Hash: "id"}
-	require.EqualError(t, db.Save(s), errCannotSaveWithoutSid.Error())
-
-	// test service where hash has the same length as sid.
-	s = &service.Service{Name: "test-service", Hash: "sameLength", Sid: "sameLength"}
-	require.EqualError(t, db.Save(s), errSidSameLen.Error())
+	require.EqualError(t, db.Save(&service.Service{}), errCannotSaveWithoutHash.Error())
 }
 
 func TestServiceDBGet(t *testing.T) {
 	db, closer := openServiceDB(t)
 	defer closer()
 
-	want := &service.Service{Hash: "00", Sid: "2", Name: "test-service"}
+	want := &service.Service{Hash: hash.Int(1)}
 	require.NoError(t, db.Save(want))
 	defer db.Delete(want.Hash)
 
@@ -76,13 +64,8 @@ func TestServiceDBGet(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, want, got)
 
-	// sid.
-	got, err = db.Get(want.Sid)
-	require.NoError(t, err)
-	require.Equal(t, want, got)
-
 	// test return err not found
-	_, err = db.Get("3")
+	_, err = db.Get(hash.Int(2))
 	require.Error(t, err)
 	require.True(t, IsErrNotFound(err))
 }
@@ -92,39 +75,18 @@ func TestServiceDBDelete(t *testing.T) {
 	defer closer()
 
 	// hash.
-	s := &service.Service{Hash: "00", Sid: "2", Name: "test-service"}
+	s := &service.Service{Hash: hash.Int(1)}
 	require.NoError(t, db.Save(s))
 	require.NoError(t, db.Delete(s.Hash))
 	_, err := db.Get(s.Hash)
 	require.IsType(t, &ErrNotFound{}, err)
-	_, err = db.Get(s.Sid)
-	require.IsType(t, &ErrNotFound{}, err)
-
-	_, err = db.db.Get([]byte(hashKeyPrefix+s.Hash), nil)
-	require.Equal(t, leveldb.ErrNotFound, err)
-	_, err = db.db.Get([]byte(sidKeyPrefix+s.Sid), nil)
-	require.Equal(t, leveldb.ErrNotFound, err)
-
-	// sid.
-	s = &service.Service{Hash: "11", Sid: "3", Name: "test-service"}
-	require.NoError(t, db.Save(s))
-	require.NoError(t, db.Delete(s.Sid))
-	_, err = db.Get(s.Sid)
-	require.IsType(t, &ErrNotFound{}, err)
-	_, err = db.Get(s.Hash)
-	require.IsType(t, &ErrNotFound{}, err)
-
-	_, err = db.db.Get([]byte(hashKeyPrefix+s.Hash), nil)
-	require.Equal(t, leveldb.ErrNotFound, err)
-	_, err = db.db.Get([]byte(sidKeyPrefix+s.Sid), nil)
-	require.Equal(t, leveldb.ErrNotFound, err)
 }
 
 func TestServiceDBDeleteConcurrency(t *testing.T) {
 	db, closer := openServiceDB(t)
 	defer closer()
 
-	s := &service.Service{Hash: "00", Sid: "2", Name: "test-service"}
+	s := &service.Service{Hash: hash.Int(1)}
 	db.Save(s)
 
 	var wg sync.WaitGroup
@@ -155,8 +117,8 @@ func TestServiceDBAll(t *testing.T) {
 	db, closer := openServiceDB(t)
 	defer closer()
 
-	s1 := &service.Service{Hash: "00", Sid: "Sid1", Name: "test-service"}
-	s2 := &service.Service{Hash: "01", Sid: "Sid2", Name: "test-service"}
+	s1 := &service.Service{Hash: hash.Int(1)}
+	s2 := &service.Service{Hash: hash.Int(2)}
 
 	require.NoError(t, db.Save(s1))
 	require.NoError(t, db.Save(s2))
@@ -174,41 +136,14 @@ func TestServiceDBAllWithDecodeError(t *testing.T) {
 	db, closer := openServiceDB(t)
 	defer closer()
 
-	id := "idtest"
-	require.NoError(t, db.db.Put([]byte(id), []byte("oaiwdhhiodoihwaiohwa"), nil))
-	defer db.db.Delete([]byte(id), nil)
-
-	s1 := &service.Service{Hash: "00", Sid: "2", Name: "test-service"}
-	require.NoError(t, db.Save(s1))
-	defer db.Delete(s1.Hash)
+	require.NoError(t, db.db.Put(hash.Int(1), []byte("-"), nil))
 
 	services, err := db.All()
 	require.NoError(t, err)
-	require.Len(t, services, 1)
-	require.Contains(t, services, s1)
+	require.Len(t, services, 0)
 }
 
 func TestIsErrNotFound(t *testing.T) {
 	require.True(t, IsErrNotFound(&ErrNotFound{}))
 	require.False(t, IsErrNotFound(nil))
-}
-
-// Test to check behavior of one sid "has one" hash and ony hash "belongs to" one sid
-// This test can be replaced/deleted when we implement sid "has many" hashes
-func TestPairHashSid(t *testing.T) {
-	db, closer := openServiceDB(t)
-	defer closer()
-
-	s1 := &service.Service{Hash: "00", Sid: "Sid1"}
-	s2 := &service.Service{Hash: "01", Sid: "Sid1"}
-
-	require.NoError(t, db.Save(s1))
-	require.NoError(t, db.Save(s2))
-	defer db.Delete(s1.Hash)
-	defer db.Delete(s2.Hash)
-	_, err := db.Get(s1.Hash)
-	require.Error(t, err)
-	s, err := db.Get(s2.Hash)
-	require.NoError(t, err)
-	require.Equal(t, s.Hash, s2.Hash)
 }

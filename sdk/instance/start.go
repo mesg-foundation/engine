@@ -11,8 +11,8 @@ import (
 )
 
 // Start starts the service.
-func (i *Instance) start(inst *instance.Instance) (serviceIDs []string, err error) {
-	srv, err := i.serviceDB.Get(inst.ServiceHash)
+func (i *Instance) start(inst *instance.Instance, env []string) (serviceIDs []string, err error) {
+	srv, err := i.service.Get(inst.ServiceHash)
 	if err != nil {
 		return nil, err
 	}
@@ -44,19 +44,20 @@ func (i *Instance) start(inst *instance.Instance) (serviceIDs []string, err erro
 		if err != nil {
 			return nil, err
 		}
+
 		serviceID, err := i.container.StartService(container.ServiceOptions{
 			Namespace: dependencyNamespace(sNamespace, d.Key),
 			Labels: map[string]string{
 				"mesg.service": srv.Name,
-				"mesg.hash":    inst.Hash,
+				"mesg.hash":    inst.Hash.String(),
 				"mesg.sid":     srv.Sid,
 				"mesg.engine":  conf.Name,
 			},
 			Image:   d.Image,
 			Args:    d.Args,
 			Command: d.Command,
-			Env: xos.EnvMergeSlices(d.Env, []string{
-				"MESG_TOKEN=" + inst.Hash,
+			Env: xos.EnvMergeSlices(env, []string{
+				"MESG_TOKEN=" + inst.Hash.String(),
 				"MESG_ENDPOINT=" + endpoint,
 				"MESG_ENDPOINT_TCP=" + endpoint,
 			}),

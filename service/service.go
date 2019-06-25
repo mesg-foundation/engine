@@ -5,9 +5,8 @@ import (
 	"io"
 	"sort"
 	"strings"
-	"time"
 
-	"github.com/mesg-foundation/core/service/importer"
+	"github.com/mesg-foundation/core/hash"
 )
 
 // WARNING about hash tags on Service type and its inner types:
@@ -19,13 +18,13 @@ import (
 // change.
 
 // MainServiceKey is key for main service.
-const MainServiceKey = importer.ConfigurationDependencyKey
+const MainServiceKey = "service"
 
 // Service represents a MESG service.
 type Service struct {
 	// Hash is calculated from the combination of service's source and mesg.yml.
 	// It represents the service uniquely.
-	Hash string `hash:"-"`
+	Hash hash.Hash `hash:"-"`
 
 	// Sid is the service id.
 	// It needs to be unique and can be used to access to service.
@@ -55,9 +54,6 @@ type Service struct {
 
 	// Source is the hash id of service's source code on IPFS.
 	Source string `hash:"name:9"`
-
-	// DeployedAt holds the creation time of service.
-	DeployedAt time.Time `hash:"-"`
 }
 
 // StatusType of the service.

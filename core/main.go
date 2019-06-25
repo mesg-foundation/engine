@@ -2,7 +2,6 @@ package main
 
 import (
 	"path/filepath"
-	"sync"
 
 	"github.com/mesg-foundation/core/config"
 	"github.com/mesg-foundation/core/container"
@@ -10,9 +9,7 @@ import (
 	"github.com/mesg-foundation/core/logger"
 	"github.com/mesg-foundation/core/sdk"
 	"github.com/mesg-foundation/core/server/grpc"
-	"github.com/mesg-foundation/core/service/manager/dockermanager"
 	"github.com/mesg-foundation/core/version"
-	"github.com/mesg-foundation/core/x/xerrors"
 	"github.com/mesg-foundation/core/x/xsignal"
 	"github.com/sirupsen/logrus"
 )
@@ -56,11 +53,8 @@ func initDependencies() (*dependencies, error) {
 		return nil, err
 	}
 
-	// init Docker Manager.
-	m := dockermanager.New(c)
-
 	// init sdk.
-	sdk := sdk.New(m, c, serviceDB, instanceDB, executionDB)
+	sdk := sdk.New(c, serviceDB, instanceDB, executionDB)
 
 	return &dependencies{
 		config:      config,
@@ -71,54 +65,54 @@ func initDependencies() (*dependencies, error) {
 	}, nil
 }
 
-func deployCoreServices(config *config.Config, sdk *sdk.SDK) error {
-	for _, service := range config.Services() {
-		logrus.Infof("Deploying service %q from %q", service.Key, service.URL)
-		s, valid, err := sdk.DeployServiceFromURL(service.URL, service.Env)
-		if valid != nil {
-			return valid
-		}
-		if err != nil {
-			return err
-		}
-		service.Sid = s.Sid
-		service.Hash = s.Hash
-		logrus.Infof("Service %q deployed with hash %q", service.Key, service.Hash)
-		if err := sdk.StartService(s.Sid); err != nil {
-			return err
-		}
-	}
-	return nil
-}
+// func deployCoreServices(config *config.Config, sdk *sdk.SDK) error {
+// 	for _, service := range config.Services() {
+// 		logrus.Infof("Deploying service %q from %q", service.Key, service.URL)
+// 		s, valid, err := sdk.DeployServiceFromURL(service.URL, service.Env)
+// 		if valid != nil {
+// 			return valid
+// 		}
+// 		if err != nil {
+// 			return err
+// 		}
+// 		service.Sid = s.Sid
+// 		service.Hash = s.Hash
+// 		logrus.Infof("Service %q deployed with hash %q", service.Key, service.Hash)
+// 		if err := sdk.StartService(s.Hash); err != nil {
+// 			return err
+// 		}
+// 	}
+// 	return nil
+// }
 
-func stopRunningServices(sdk *sdk.SDK) error {
-	services, err := sdk.ListServices()
-	if err != nil {
-		return err
-	}
-	var (
-		serviceLen = len(services)
-		errC       = make(chan error, serviceLen)
-		wg         sync.WaitGroup
-	)
-	wg.Add(serviceLen)
-	for _, service := range services {
-		go func(hash string) {
-			defer wg.Done()
-			err := sdk.StopService(hash)
-			if err != nil {
-				errC <- err
-			}
-		}(service.Hash)
-	}
-	wg.Wait()
-	close(errC)
-	var errs xerrors.Errors
-	for err := range errC {
-		errs = append(errs, err)
-	}
-	return errs.ErrorOrNil()
-}
+// func stopRunningServices(sdk *sdk.SDK) error {
+// 	services, err := sdk.ListServices()
+// 	if err != nil {
+// 		return err
+// 	}
+// 	var (
+// 		serviceLen = len(services)
+// 		errC       = make(chan error, serviceLen)
+// 		wg         sync.WaitGroup
+// 	)
+// 	wg.Add(serviceLen)
+// 	for _, service := range services {
+// 		go func(hash hash.Hash) {
+// 			defer wg.Done()
+// 			err := sdk.StopService(hash)
+// 			if err != nil {
+// 				errC <- err
+// 			}
+// 		}(service.Hash)
+// 	}
+// 	wg.Wait()
+// 	close(errC)
+// 	var errs xerrors.Errors
+// 	for err := range errC {
+// 		errs = append(errs, err)
+// 	}
+// 	return errs.ErrorOrNil()
+// }
 
 func main() {
 	dep, err := initDependencies()
@@ -130,9 +124,9 @@ func main() {
 	logger.Init(dep.config.Log.Format, dep.config.Log.Level, dep.config.Log.ForceColors)
 
 	// init system services.
-	if err := deployCoreServices(dep.config, dep.sdk); err != nil {
-		logrus.Fatalln(err)
-	}
+	// if err := deployCoreServices(dep.config, dep.sdk); err != nil {
+	// 	logrus.Fatalln(err)
+	// }
 
 	// init gRPC server.
 	server := grpc.New(dep.config.Server.Address, dep.sdk)
@@ -146,8 +140,8 @@ func main() {
 	}()
 
 	<-xsignal.WaitForInterrupt()
-	if err := stopRunningServices(dep.sdk); err != nil {
-		logrus.Fatalln(err)
-	}
+	// if err := stopRunningServices(dep.sdk); err != nil {
+	// 	logrus.Fatalln(err)
+	// }
 	server.Close()
 }

@@ -5,6 +5,7 @@ import (
 
 	"github.com/cskr/pubsub"
 	"github.com/mesg-foundation/core/execution"
+	"github.com/mesg-foundation/core/hash"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -23,6 +24,16 @@ func TestFilter(t *testing.T) {
 			&Filter{},
 			&execution.Execution{},
 			true,
+		},
+		{
+			&Filter{ServiceHash: hash.Int(1)},
+			&execution.Execution{ServiceHash: hash.Int(1)},
+			true,
+		},
+		{
+			&Filter{ServiceHash: hash.Int(1)},
+			&execution.Execution{ServiceHash: hash.Int(2)},
+			false,
 		},
 		{
 			&Filter{Statuses: []execution.Status{execution.Created}},

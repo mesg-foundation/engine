@@ -2,9 +2,9 @@ package eventsdk
 
 import (
 	"github.com/cskr/pubsub"
-	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/event"
-	"github.com/mesg-foundation/core/utils/hash"
+	"github.com/mesg-foundation/core/hash"
+	servicesdk "github.com/mesg-foundation/core/sdk/service"
 )
 
 const (
@@ -15,21 +15,21 @@ const (
 
 // Event exposes event APIs of MESG.
 type Event struct {
-	ps *pubsub.PubSub
-	db database.ServiceDB
+	ps      *pubsub.PubSub
+	service *servicesdk.Service
 }
 
 // New creates a new Event SDK with given options.
-func New(ps *pubsub.PubSub, db database.ServiceDB) *Event {
+func New(ps *pubsub.PubSub, service *servicesdk.Service) *Event {
 	return &Event{
-		ps: ps,
-		db: db,
+		ps:      ps,
+		service: service,
 	}
 }
 
 // Emit emits a MESG event eventKey with eventData for service token.
-func (e *Event) Emit(token, eventKey string, eventData map[string]interface{}) error {
-	s, err := e.db.Get(token)
+func (e *Event) Emit(serviceHash hash.Hash, eventKey string, eventData map[string]interface{}) error {
+	s, err := e.service.Get(serviceHash)
 	if err != nil {
 		return err
 	}
@@ -51,8 +51,8 @@ func (e *Event) GetStream(f *Filter) *Listener {
 }
 
 // Listen listens events matches with eventFilter on serviceID.
-func (e *Event) Listen(service string, f *Filter) (*Listener, error) {
-	s, err := e.db.Get(service)
+func (e *Event) Listen(serviceHash hash.Hash, f *Filter) (*Listener, error) {
+	s, err := e.service.Get(serviceHash)
 	if err != nil {
 		return nil, err
 	}
@@ -69,6 +69,6 @@ func (e *Event) Listen(service string, f *Filter) (*Listener, error) {
 }
 
 // subTopic returns the topic to listen for events from this service.
-func subTopic(serviceHash string) string {
-	return hash.Calculate([]string{serviceHash, topic})
+func subTopic(serviceHash hash.Hash) string {
+	return serviceHash.String() + "." + topic
 }
