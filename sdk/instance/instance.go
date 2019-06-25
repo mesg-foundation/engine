@@ -2,6 +2,7 @@ package instancesdk
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -78,7 +79,7 @@ func (i *Instance) Create(serviceHash hash.Hash, env []string) (*instance.Instan
 	}
 
 	// build service's Docker image and apply to service.
-	_, err = i.container.Build(path)
+	imageHash, err := i.container.Build(path)
 	if err != nil {
 		return nil, err
 	}
@@ -105,16 +106,17 @@ func (i *Instance) Create(serviceHash hash.Hash, env []string) (*instance.Instan
 	}
 
 	// save & start instance.
-	o := &instance.Instance{
+	inst := &instance.Instance{
 		Hash:        instanceHash,
 		ServiceHash: srv.Hash,
 	}
-	if err := i.instanceDB.Save(o); err != nil {
+	if err := i.instanceDB.Save(inst); err != nil {
 		return nil, err
 	}
 
-	_, err = i.start(o, xos.EnvMapToSlice(instanceEnv))
-	return o, err
+	_, err = i.start(inst, imageHash, xos.EnvMapToSlice(instanceEnv))
+	fmt.Println("err start", err)
+	return inst, err
 }
 
 // Delete deletes an instance.
