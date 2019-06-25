@@ -23,7 +23,7 @@ func NewServiceServer(sdk *sdk.SDK) *ServiceServer {
 
 // Create creates a new service from definition.
 func (s *ServiceServer) Create(ctx context.Context, request *protobuf_api.CreateServiceRequest) (*protobuf_api.CreateServiceResponse, error) {
-	definition, err := FromProtoService(request.Definition)
+	definition, err := fromProtoService(request.Definition)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +68,7 @@ func (s *ServiceServer) Get(ctx context.Context, req *protobuf_api.GetServiceReq
 	if err != nil {
 		return nil, err
 	}
-	return ToProtoService(service), nil
+	return toProtoService(service), nil
 }
 
 // List returns all services.
@@ -80,7 +80,7 @@ func (s *ServiceServer) List(ctx context.Context, req *protobuf_api.ListServiceR
 
 	resp := &protobuf_api.ListServiceResponse{}
 	for _, service := range services {
-		resp.Services = append(resp.Services, ToProtoService(service))
+		resp.Services = append(resp.Services, toProtoService(service))
 	}
 
 	return resp, nil
