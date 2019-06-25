@@ -55,7 +55,7 @@ func (s *InstanceServer) Create(ctx context.Context, request *protobuf_api.Creat
 }
 
 // Get retrives instance.
-func (s *InstanceServer) Get(ctx context.Context, request *protobuf_api.GetInstanceRequest) (*protobuf_api.GetInstanceResponse, error) {
+func (s *InstanceServer) Get(ctx context.Context, request *protobuf_api.GetInstanceRequest) (*definition.Instance, error) {
 	hash, err := hash.Decode(request.Hash)
 	if err != nil {
 		return nil, err
@@ -64,7 +64,7 @@ func (s *InstanceServer) Get(ctx context.Context, request *protobuf_api.GetInsta
 	if err != nil {
 		return nil, err
 	}
-	return &protobuf_api.GetInstanceResponse{Instance: toProtoInstance(i)}, nil
+	return toProtoInstance(i), nil
 }
 
 // Delete an instance
@@ -76,9 +76,7 @@ func (s *InstanceServer) Delete(ctx context.Context, request *protobuf_api.Delet
 	if err := s.sdk.Instance.Delete(hash, request.DeleteData); err != nil {
 		return nil, err
 	}
-	return &protobuf_api.DeleteInstanceResponse{
-		Hash: request.Hash,
-	}, nil
+	return &protobuf_api.DeleteInstanceResponse{}, nil
 }
 
 func toProtoInstances(instances []*instance.Instance) []*definition.Instance {
