@@ -65,7 +65,9 @@ func fromProtoParameters(params []*definition.Parameter) []*service.Parameter {
 
 func fromProtoConfiguration(configuration *definition.Configuration) *service.Dependency {
 	if configuration == nil {
-		return nil
+		return &service.Dependency{
+			Key: service.MainServiceKey,
+		}
 	}
 	return &service.Dependency{
 		Key:         service.MainServiceKey,
@@ -79,9 +81,6 @@ func fromProtoConfiguration(configuration *definition.Configuration) *service.De
 }
 
 func fromProtoDependency(dep *definition.Dependency) *service.Dependency {
-	if dep == nil {
-		return nil
-	}
 	return &service.Dependency{
 		Key:         dep.Key,
 		Image:       dep.Image,
@@ -162,9 +161,6 @@ func toProtoParameters(params []*service.Parameter) []*definition.Parameter {
 }
 
 func toProtoConfiguration(configuration *service.Dependency) *definition.Configuration {
-	if configuration == nil {
-		return nil
-	}
 	return &definition.Configuration{
 		Args:        configuration.Args,
 		Command:     configuration.Command,
@@ -176,9 +172,6 @@ func toProtoConfiguration(configuration *service.Dependency) *definition.Configu
 }
 
 func toProtoDependency(dep *service.Dependency) *definition.Dependency {
-	if dep == nil {
-		return nil
-	}
 	return &definition.Dependency{
 		Key:         dep.Key,
 		Image:       dep.Image,
