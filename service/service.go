@@ -28,13 +28,13 @@ type Service struct {
 
 	// Sid is the service id.
 	// It needs to be unique and can be used to access to service.
-	Sid string `hash:"name:1"`
+	Sid string `hash:"name:1"  validate:"omitempty,printascii,max=63,domain"`
 
 	// Name is the service name.
-	Name string `hash:"name:2"`
+	Name string `hash:"name:2" validate:"required,printascii,min=1"`
 
 	// Description is service description.
-	Description string `hash:"name:3"`
+	Description string `hash:"name:3" validate:"printascii"`
 
 	// Tasks are the list of tasks that service can execute.
 	Tasks []*Task `hash:"name:4"`
@@ -50,7 +50,7 @@ type Service struct {
 
 	// Repository holds the service's repository url if it's living on
 	// a Git host.
-	Repository string `hash:"name:7"`
+	Repository string `hash:"name:7" validate:"omitempty,uri"`
 
 	// Source is the hash id of service's source code on IPFS.
 	Source string `hash:"name:9"`
