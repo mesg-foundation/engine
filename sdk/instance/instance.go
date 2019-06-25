@@ -55,7 +55,7 @@ func (i *Instance) List(f *Filter) ([]*instance.Instance, error) {
 	ret := make([]*instance.Instance, 0)
 	for _, instance := range instances {
 		if (f.ServiceHash.IsZero() || instance.ServiceHash.Equal(f.ServiceHash)) &&
-			(f.InstanceHash.IsZero() && instance.Hash.Equal(f.InstanceHash)) {
+			(f.InstanceHash.IsZero() || instance.Hash.Equal(f.InstanceHash)) {
 			ret = append(ret, instance)
 		}
 	}
