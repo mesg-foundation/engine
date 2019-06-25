@@ -115,7 +115,6 @@ func (i *Instance) Create(serviceHash hash.Hash, env []string) (*instance.Instan
 	}
 
 	_, err = i.start(inst, imageHash, xos.EnvMapToSlice(instanceEnv))
-	fmt.Println("err start", err)
 	return inst, err
 }
 
