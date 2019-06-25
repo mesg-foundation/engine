@@ -103,16 +103,6 @@ func fromProtoDependencies(deps []*definition.Dependency) []*service.Dependency 
 	return ds
 }
 
-// ToProtoServices converts internal services struct to their protobuf definition
-// TODO: should not be public. Need to move server/grpc/service.go to server/grpc/api/service.go and delete server/grpc/core package
-func ToProtoServices(ss []*service.Service) []*definition.Service {
-	services := make([]*definition.Service, len(ss))
-	for i, s := range ss {
-		services[i] = ToProtoService(s)
-	}
-	return services
-}
-
 // ToProtoService converts an internal service struct to the protobuf definition
 // TODO: should not be public. Need to move server/grpc/service.go to server/grpc/api/service.go and delete server/grpc/core package
 func ToProtoService(s *service.Service) *definition.Service {
