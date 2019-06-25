@@ -3,14 +3,13 @@
 
 package api
 
-import proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
-import math "math"
-import definition "github.com/mesg-foundation/core/protobuf/definition"
-
 import (
-	context "golang.org/x/net/context"
+	context "context"
+	fmt "fmt"
+	proto "github.com/golang/protobuf/proto"
+	definition "github.com/mesg-foundation/core/protobuf/definition"
 	grpc "google.golang.org/grpc"
+	math "math"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -22,7 +21,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 // The request's data for the `Create` API.
 type CreateServiceRequest struct {
@@ -36,16 +35,17 @@ func (m *CreateServiceRequest) Reset()         { *m = CreateServiceRequest{} }
 func (m *CreateServiceRequest) String() string { return proto.CompactTextString(m) }
 func (*CreateServiceRequest) ProtoMessage()    {}
 func (*CreateServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_2916d70627fa57e8, []int{0}
+	return fileDescriptor_0615fe53b372bcb1, []int{0}
 }
+
 func (m *CreateServiceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateServiceRequest.Unmarshal(m, b)
 }
 func (m *CreateServiceRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_CreateServiceRequest.Marshal(b, m, deterministic)
 }
-func (dst *CreateServiceRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CreateServiceRequest.Merge(dst, src)
+func (m *CreateServiceRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateServiceRequest.Merge(m, src)
 }
 func (m *CreateServiceRequest) XXX_Size() int {
 	return xxx_messageInfo_CreateServiceRequest.Size(m)
@@ -78,16 +78,17 @@ func (m *CreateServiceResponse) Reset()         { *m = CreateServiceResponse{} }
 func (m *CreateServiceResponse) String() string { return proto.CompactTextString(m) }
 func (*CreateServiceResponse) ProtoMessage()    {}
 func (*CreateServiceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_2916d70627fa57e8, []int{1}
+	return fileDescriptor_0615fe53b372bcb1, []int{1}
 }
+
 func (m *CreateServiceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateServiceResponse.Unmarshal(m, b)
 }
 func (m *CreateServiceResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_CreateServiceResponse.Marshal(b, m, deterministic)
 }
-func (dst *CreateServiceResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CreateServiceResponse.Merge(dst, src)
+func (m *CreateServiceResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateServiceResponse.Merge(m, src)
 }
 func (m *CreateServiceResponse) XXX_Size() int {
 	return xxx_messageInfo_CreateServiceResponse.Size(m)
@@ -125,16 +126,17 @@ func (m *DeleteServiceRequest) Reset()         { *m = DeleteServiceRequest{} }
 func (m *DeleteServiceRequest) String() string { return proto.CompactTextString(m) }
 func (*DeleteServiceRequest) ProtoMessage()    {}
 func (*DeleteServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_2916d70627fa57e8, []int{2}
+	return fileDescriptor_0615fe53b372bcb1, []int{2}
 }
+
 func (m *DeleteServiceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteServiceRequest.Unmarshal(m, b)
 }
 func (m *DeleteServiceRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_DeleteServiceRequest.Marshal(b, m, deterministic)
 }
-func (dst *DeleteServiceRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DeleteServiceRequest.Merge(dst, src)
+func (m *DeleteServiceRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeleteServiceRequest.Merge(m, src)
 }
 func (m *DeleteServiceRequest) XXX_Size() int {
 	return xxx_messageInfo_DeleteServiceRequest.Size(m)
@@ -163,16 +165,17 @@ func (m *DeleteServiceResponse) Reset()         { *m = DeleteServiceResponse{} }
 func (m *DeleteServiceResponse) String() string { return proto.CompactTextString(m) }
 func (*DeleteServiceResponse) ProtoMessage()    {}
 func (*DeleteServiceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_2916d70627fa57e8, []int{3}
+	return fileDescriptor_0615fe53b372bcb1, []int{3}
 }
+
 func (m *DeleteServiceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteServiceResponse.Unmarshal(m, b)
 }
 func (m *DeleteServiceResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_DeleteServiceResponse.Marshal(b, m, deterministic)
 }
-func (dst *DeleteServiceResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DeleteServiceResponse.Merge(dst, src)
+func (m *DeleteServiceResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeleteServiceResponse.Merge(m, src)
 }
 func (m *DeleteServiceResponse) XXX_Size() int {
 	return xxx_messageInfo_DeleteServiceResponse.Size(m)
@@ -196,16 +199,17 @@ func (m *GetServiceRequest) Reset()         { *m = GetServiceRequest{} }
 func (m *GetServiceRequest) String() string { return proto.CompactTextString(m) }
 func (*GetServiceRequest) ProtoMessage()    {}
 func (*GetServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_2916d70627fa57e8, []int{4}
+	return fileDescriptor_0615fe53b372bcb1, []int{4}
 }
+
 func (m *GetServiceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetServiceRequest.Unmarshal(m, b)
 }
 func (m *GetServiceRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_GetServiceRequest.Marshal(b, m, deterministic)
 }
-func (dst *GetServiceRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetServiceRequest.Merge(dst, src)
+func (m *GetServiceRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetServiceRequest.Merge(m, src)
 }
 func (m *GetServiceRequest) XXX_Size() int {
 	return xxx_messageInfo_GetServiceRequest.Size(m)
@@ -233,16 +237,17 @@ func (m *ListServiceRequest) Reset()         { *m = ListServiceRequest{} }
 func (m *ListServiceRequest) String() string { return proto.CompactTextString(m) }
 func (*ListServiceRequest) ProtoMessage()    {}
 func (*ListServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_2916d70627fa57e8, []int{5}
+	return fileDescriptor_0615fe53b372bcb1, []int{5}
 }
+
 func (m *ListServiceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListServiceRequest.Unmarshal(m, b)
 }
 func (m *ListServiceRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_ListServiceRequest.Marshal(b, m, deterministic)
 }
-func (dst *ListServiceRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ListServiceRequest.Merge(dst, src)
+func (m *ListServiceRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListServiceRequest.Merge(m, src)
 }
 func (m *ListServiceRequest) XXX_Size() int {
 	return xxx_messageInfo_ListServiceRequest.Size(m)
@@ -265,16 +270,17 @@ func (m *ListServiceResponse) Reset()         { *m = ListServiceResponse{} }
 func (m *ListServiceResponse) String() string { return proto.CompactTextString(m) }
 func (*ListServiceResponse) ProtoMessage()    {}
 func (*ListServiceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_2916d70627fa57e8, []int{6}
+	return fileDescriptor_0615fe53b372bcb1, []int{6}
 }
+
 func (m *ListServiceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListServiceResponse.Unmarshal(m, b)
 }
 func (m *ListServiceResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_ListServiceResponse.Marshal(b, m, deterministic)
 }
-func (dst *ListServiceResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ListServiceResponse.Merge(dst, src)
+func (m *ListServiceResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListServiceResponse.Merge(m, src)
 }
 func (m *ListServiceResponse) XXX_Size() int {
 	return xxx_messageInfo_ListServiceResponse.Size(m)
@@ -300,6 +306,31 @@ func init() {
 	proto.RegisterType((*GetServiceRequest)(nil), "api.GetServiceRequest")
 	proto.RegisterType((*ListServiceRequest)(nil), "api.ListServiceRequest")
 	proto.RegisterType((*ListServiceResponse)(nil), "api.ListServiceResponse")
+}
+
+func init() { proto.RegisterFile("protobuf/api/service.proto", fileDescriptor_0615fe53b372bcb1) }
+
+var fileDescriptor_0615fe53b372bcb1 = []byte{
+	// 292 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x92, 0xb1, 0x4e, 0xc3, 0x30,
+	0x10, 0x86, 0x93, 0xa6, 0xaa, 0xca, 0xb1, 0xc0, 0x35, 0xa5, 0xc1, 0x53, 0xf1, 0x02, 0x62, 0x48,
+	0xa4, 0x96, 0x0d, 0x31, 0x20, 0x10, 0x1d, 0x60, 0x2a, 0x0b, 0xab, 0x4b, 0xaf, 0xaa, 0x25, 0x94,
+	0x98, 0xd8, 0xe5, 0x05, 0x78, 0x71, 0x14, 0xc7, 0x6d, 0x69, 0x62, 0x24, 0x36, 0xeb, 0xf7, 0x77,
+	0xbf, 0x73, 0x9f, 0x02, 0x4c, 0x95, 0x85, 0x29, 0x16, 0x9b, 0x55, 0x26, 0x94, 0xcc, 0x34, 0x95,
+	0x5f, 0xf2, 0x9d, 0x52, 0x1b, 0x62, 0x24, 0x94, 0x64, 0x17, 0x3b, 0x60, 0x49, 0x2b, 0x99, 0x4b,
+	0x23, 0x8b, 0xfc, 0x90, 0xe3, 0xcf, 0x10, 0x3f, 0x94, 0x24, 0x0c, 0xbd, 0xd6, 0xf1, 0x9c, 0x3e,
+	0x37, 0xa4, 0x0d, 0x4e, 0x01, 0xf6, 0x33, 0x49, 0x38, 0x0e, 0xaf, 0x8e, 0x27, 0x83, 0x74, 0x1f,
+	0xa5, 0x5b, 0xfe, 0x17, 0xc6, 0xef, 0x60, 0xd8, 0x28, 0xd3, 0xaa, 0xc8, 0x35, 0x21, 0x42, 0x77,
+	0x2d, 0xf4, 0xda, 0xf6, 0x1c, 0xcd, 0xed, 0x19, 0x4f, 0x20, 0xd2, 0x72, 0x99, 0x74, 0x6c, 0x54,
+	0x1d, 0xf9, 0x35, 0xc4, 0x8f, 0xf4, 0x41, 0xad, 0x6f, 0xf1, 0x4c, 0xf3, 0x11, 0x0c, 0x1b, 0x6c,
+	0xfd, 0x14, 0xbf, 0x84, 0xd3, 0x19, 0x99, 0x7f, 0x34, 0xc4, 0x80, 0x2f, 0x52, 0x37, 0x48, 0xfe,
+	0x04, 0x83, 0x83, 0xd4, 0x2d, 0x90, 0x41, 0xdf, 0x79, 0xd3, 0x49, 0x38, 0x8e, 0xfe, 0x92, 0xb1,
+	0x83, 0x26, 0xdf, 0x1d, 0xe8, 0xbb, 0xf4, 0x0d, 0xef, 0xa1, 0x57, 0x7b, 0xc1, 0xf3, 0x54, 0x28,
+	0x99, 0xfa, 0x8c, 0x33, 0xe6, 0xbb, 0x72, 0x4b, 0x05, 0x55, 0x45, 0xbd, 0xaf, 0xab, 0xf0, 0x89,
+	0x72, 0x15, 0x7e, 0x2f, 0x01, 0xde, 0x40, 0x34, 0x23, 0x83, 0x67, 0x16, 0x6a, 0x39, 0x62, 0xbe,
+	0x85, 0x78, 0x80, 0xb7, 0xd0, 0xad, 0x84, 0xe0, 0xc8, 0x8e, 0xb5, 0x8d, 0xb1, 0xa4, 0x7d, 0xb1,
+	0x7d, 0x72, 0xd1, 0xb3, 0x3f, 0xd9, 0xf4, 0x27, 0x00, 0x00, 0xff, 0xff, 0x20, 0x4a, 0xdb, 0x71,
+	0xaa, 0x02, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -483,29 +514,4 @@ var _ServiceX_serviceDesc = grpc.ServiceDesc{
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "protobuf/api/service.proto",
-}
-
-func init() { proto.RegisterFile("protobuf/api/service.proto", fileDescriptor_service_2916d70627fa57e8) }
-
-var fileDescriptor_service_2916d70627fa57e8 = []byte{
-	// 292 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x92, 0xb1, 0x4e, 0xc3, 0x30,
-	0x10, 0x86, 0x93, 0xa6, 0xaa, 0xca, 0xb1, 0xc0, 0x35, 0xa5, 0xc1, 0x53, 0xf1, 0x02, 0x62, 0x48,
-	0xa4, 0x96, 0x0d, 0x31, 0x20, 0x10, 0x1d, 0x60, 0x2a, 0x0b, 0xab, 0x4b, 0xaf, 0xaa, 0x25, 0x94,
-	0x98, 0xd8, 0xe5, 0x05, 0x78, 0x71, 0x14, 0xc7, 0x6d, 0x69, 0x62, 0x24, 0x36, 0xeb, 0xf7, 0x77,
-	0xbf, 0x73, 0x9f, 0x02, 0x4c, 0x95, 0x85, 0x29, 0x16, 0x9b, 0x55, 0x26, 0x94, 0xcc, 0x34, 0x95,
-	0x5f, 0xf2, 0x9d, 0x52, 0x1b, 0x62, 0x24, 0x94, 0x64, 0x17, 0x3b, 0x60, 0x49, 0x2b, 0x99, 0x4b,
-	0x23, 0x8b, 0xfc, 0x90, 0xe3, 0xcf, 0x10, 0x3f, 0x94, 0x24, 0x0c, 0xbd, 0xd6, 0xf1, 0x9c, 0x3e,
-	0x37, 0xa4, 0x0d, 0x4e, 0x01, 0xf6, 0x33, 0x49, 0x38, 0x0e, 0xaf, 0x8e, 0x27, 0x83, 0x74, 0x1f,
-	0xa5, 0x5b, 0xfe, 0x17, 0xc6, 0xef, 0x60, 0xd8, 0x28, 0xd3, 0xaa, 0xc8, 0x35, 0x21, 0x42, 0x77,
-	0x2d, 0xf4, 0xda, 0xf6, 0x1c, 0xcd, 0xed, 0x19, 0x4f, 0x20, 0xd2, 0x72, 0x99, 0x74, 0x6c, 0x54,
-	0x1d, 0xf9, 0x35, 0xc4, 0x8f, 0xf4, 0x41, 0xad, 0x6f, 0xf1, 0x4c, 0xf3, 0x11, 0x0c, 0x1b, 0x6c,
-	0xfd, 0x14, 0xbf, 0x84, 0xd3, 0x19, 0x99, 0x7f, 0x34, 0xc4, 0x80, 0x2f, 0x52, 0x37, 0x48, 0xfe,
-	0x04, 0x83, 0x83, 0xd4, 0x2d, 0x90, 0x41, 0xdf, 0x79, 0xd3, 0x49, 0x38, 0x8e, 0xfe, 0x92, 0xb1,
-	0x83, 0x26, 0xdf, 0x1d, 0xe8, 0xbb, 0xf4, 0x0d, 0xef, 0xa1, 0x57, 0x7b, 0xc1, 0xf3, 0x54, 0x28,
-	0x99, 0xfa, 0x8c, 0x33, 0xe6, 0xbb, 0x72, 0x4b, 0x05, 0x55, 0x45, 0xbd, 0xaf, 0xab, 0xf0, 0x89,
-	0x72, 0x15, 0x7e, 0x2f, 0x01, 0xde, 0x40, 0x34, 0x23, 0x83, 0x67, 0x16, 0x6a, 0x39, 0x62, 0xbe,
-	0x85, 0x78, 0x80, 0xb7, 0xd0, 0xad, 0x84, 0xe0, 0xc8, 0x8e, 0xb5, 0x8d, 0xb1, 0xa4, 0x7d, 0xb1,
-	0x7d, 0x72, 0xd1, 0xb3, 0x3f, 0xd9, 0xf4, 0x27, 0x00, 0x00, 0xff, 0xff, 0x20, 0x4a, 0xdb, 0x71,
-	0xaa, 0x02, 0x00, 0x00,
 }
