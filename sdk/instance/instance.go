@@ -38,13 +38,13 @@ func (i *Instance) Get(hash hash.Hash) (*instance.Instance, error) {
 
 // Filter to apply while listing instances.
 type Filter struct {
-	ServiceHash hash.Hash
+	InstanceHash hash.Hash
 }
 
 // List instances by f filter.
 func (i *Instance) List(f *Filter) ([]*instance.Instance, error) {
-	if f != nil && !f.ServiceHash.IsZero() {
-		return i.instanceDB.GetAllByService(f.ServiceHash)
+	if f != nil && !f.InstanceHash.IsZero() {
+		return i.instanceDB.GetAllByService(f.InstanceHash)
 	}
 	return i.instanceDB.GetAll()
 }

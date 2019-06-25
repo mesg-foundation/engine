@@ -26,13 +26,13 @@ func TestFilter(t *testing.T) {
 			true,
 		},
 		{
-			&Filter{ServiceHash: hash.Int(1)},
-			&execution.Execution{ServiceHash: hash.Int(1)},
+			&Filter{InstanceHash: hash.Int(1)},
+			&execution.Execution{InstanceHash: hash.Int(1)},
 			true,
 		},
 		{
-			&Filter{ServiceHash: hash.Int(1)},
-			&execution.Execution{ServiceHash: hash.Int(2)},
+			&Filter{InstanceHash: hash.Int(1)},
+			&execution.Execution{InstanceHash: hash.Int(2)},
 			false,
 		},
 		{
