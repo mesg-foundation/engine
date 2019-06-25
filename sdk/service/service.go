@@ -6,14 +6,13 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/cnf/structhash"
 	"github.com/cskr/pubsub"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/hash"
+	"github.com/mesg-foundation/core/hash/dirhash"
 	"github.com/mesg-foundation/core/service"
-	"github.com/mesg-foundation/core/utils/dirhash"
 )
 
 // Service exposes service APIs of MESG.
@@ -57,7 +56,7 @@ func (s *Service) Create(srv *service.Service) (*service.Service, error) {
 
 	// calculate and apply hash to service.
 	dh := dirhash.New(path)
-	h, err := dh.Sum(structhash.Sha1(srv, 1))
+	h, err := dh.Sum(hash.Dump(srv))
 	if err != nil {
 		return nil, err
 	}
@@ -68,12 +67,11 @@ func (s *Service) Create(srv *service.Service) (*service.Service, error) {
 		return nil, errors.New("service is already deployed")
 	}
 
-	// build service's Docker image and apply to service.
-	imageHash, err := s.container.Build(path)
+	// build service's Docker image.
+	_, err = s.container.Build(path)
 	if err != nil {
 		return nil, err
 	}
-	srv.Configuration.Image = imageHash
 	// TODO: the following test should be moved in New function
 	if srv.Sid == "" {
 		// make sure that sid doesn't have the same length with id.
