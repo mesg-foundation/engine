@@ -10,6 +10,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"net"
 	"os"
 	"sync"
 	"time"
@@ -134,7 +135,14 @@ func LogOutputOption(out io.Writer) Option {
 // DialOption used to mock socket communication for unit testing.
 func DialOption(dialer Dialer) Option {
 	return func(s *Service) {
-		s.dialOptions = append(s.dialOptions, grpc.WithDialer(newGRPCDialer(dialer).Dial))
+		f := newGRPCDialer(dialer).Dial
+		s.dialOptions = append(s.dialOptions, grpc.WithContextDialer(
+			func(ctx context.Context, addr string) (net.Conn, error) {
+				if deadline, ok := ctx.Deadline(); ok {
+					return f(addr, time.Until(deadline))
+				}
+				return f(addr, 0)
+			}))
 	}
 }
 

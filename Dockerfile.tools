@@ -15,7 +15,7 @@ RUN apt-get update -y && \
     rm -rf /var/lib/apt/lists/*
 
 # protobuf(protoc) version.
-ARG protobuf=3.6.1
+ARG protobuf=3.8.0
 
 # install protobuf(protoc).
 RUN wget -q https://github.com/protocolbuffers/protobuf/releases/download/v$protobuf/protoc-$protobuf-linux-x86_64.zip -O /tmp/protobuf.zip && \
