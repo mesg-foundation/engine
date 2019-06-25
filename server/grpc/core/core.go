@@ -12,6 +12,7 @@ import (
 	"github.com/mesg-foundation/core/protobuf/coreapi"
 	"github.com/mesg-foundation/core/sdk"
 	eventsdk "github.com/mesg-foundation/core/sdk/event"
+	instancesdk "github.com/mesg-foundation/core/sdk/instance"
 	"github.com/mesg-foundation/core/version"
 )
 
@@ -70,6 +71,15 @@ func (s *Server) ExecuteTask(ctx context.Context, request *coreapi.ExecuteTaskRe
 	if err != nil {
 		return nil, err
 	}
+
+	instances, err := s.sdk.Instance.List(&instancesdk.Filter{ServiceHash: hash})
+	if err != nil {
+		return nil, err
+	}
+	if len(instances) != 1 {
+		return nil, fmt.Errorf("you should have exactly one instance running to execute this service")
+	}
+
 	var inputs map[string]interface{}
 	if err := json.Unmarshal([]byte(request.InputData), &inputs); err != nil {
 		return nil, fmt.Errorf("cannot parse execution's inputs (JSON format): %s", err)
