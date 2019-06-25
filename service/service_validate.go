@@ -81,7 +81,7 @@ func ValidateService(service *Service) error {
 			}
 		}
 	}
-	return errs
+	return errs.ErrorOrNil()
 }
 
 func newValidator() (*validator.Validate, ut.Translator) {
