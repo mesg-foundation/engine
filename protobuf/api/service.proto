@@ -4,42 +4,61 @@ import "protobuf/definition/service.proto";
 
 package api;
 
-// TODO(ilgooz): FIXME: this should be renamed to Service.
-// right now we have conflicts with api.Service.
-service ServiceX {
+// This is the API to interact with the Services.
+//
+// This API is a [gRPC](https://grpc.io/) API.
+//
+// The source file of this API is hosted on [GitHub](https://github.com/mesg-foundation/engine/blob/master/protobuf/api/service.proto).
+service ServiceX { // TODO(ilgooz): FIXME: this should be renamed to Service.
+
+  // Create a Service from a Service Definition.
+  // It will return an unique identifier which is used to interact with the Service.
   rpc Create (CreateServiceRequest) returns (CreateServiceResponse) {}
+
+  // Delete a Service.
+  // An error is returned if one or more Instances of the Service are running.
   rpc Delete (DeleteServiceRequest) returns (DeleteServiceResponse) {}
 
-  // Get returns a single Service specified in a request.
+  // Get returns a Service matching the criteria of the request.
   rpc Get(GetServiceRequest) returns (definition.Service) {}
 
   // List returns services specified in a request.
   rpc List(ListServiceRequest) returns (ListServiceResponse) {}
 }
 
+// The request's data for the `Create` API.
 message CreateServiceRequest {
-  definition.Service definition = 1;
+  definition.Service definition = 1; // The service definition to use to create the Service.
 }
 
+// The response's data for the `Create` API.
 message CreateServiceResponse {
+  // The service's hash created.
   string hash = 1;
+
+  // The service's sid.
   string sid = 2;
 }
 
+// The request's data for the `Delete` API.
 message DeleteServiceRequest {
+  // The service's hash to delete.
   string hash = 1;
 }
 
+// The response's data for the `Delete` API, doesn't contain anything.
 message DeleteServiceResponse {
 }
 
-// GetServiceRequest defines request to retrieve a single service.
+// The request's data for the `Get` API.
 message GetServiceRequest {
+  // The service's hash to fetch.
   string hash = 1;
 }
 
 message ListServiceRequest {}
 
 message ListServiceResponse {
+  // List of services that match the request's filters.
   repeated definition.Service services = 1;
 }
