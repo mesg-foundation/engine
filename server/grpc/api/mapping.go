@@ -5,9 +5,8 @@ import (
 	"github.com/mesg-foundation/core/service"
 )
 
-// FromProtoService converts a the protobuf definition to the internal service struct
-// TODO: should not be public. Need to move server/grpc/service.go to server/grpc/api/service.go
-func FromProtoService(s *definition.Service) (*service.Service, error) {
+// fromProtoService converts a the protobuf definition to the internal service struct
+func fromProtoService(s *definition.Service) (*service.Service, error) {
 	return &service.Service{
 		Sid:           s.Sid,
 		Name:          s.Name,
@@ -103,9 +102,8 @@ func fromProtoDependencies(deps []*definition.Dependency) []*service.Dependency 
 	return ds
 }
 
-// ToProtoService converts an internal service struct to the protobuf definition
-// TODO: should not be public. Need to move server/grpc/service.go to server/grpc/api/service.go and delete server/grpc/core package
-func ToProtoService(s *service.Service) *definition.Service {
+// toProtoService converts an internal service struct to the protobuf definition
+func toProtoService(s *service.Service) *definition.Service {
 	return &definition.Service{
 		Hash:          s.Hash.String(),
 		Sid:           s.Sid,
