@@ -56,8 +56,11 @@ message GetServiceRequest {
   string hash = 1;
 }
 
+// The request's data for the `List` API.
 message ListServiceRequest {}
 
+
+// The response's data for the `List` API.
 message ListServiceResponse {
   // List of services that match the request's filters.
   repeated definition.Service services = 1;
