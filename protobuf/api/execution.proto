@@ -35,8 +35,8 @@ message StreamExecutionRequest{
     // Status to filter executions.
     definition.Status status = 1;
 
-    // Service's hash to filter executions.
-    string serviceHash = 2;
+    // Instance's hash to filter executions.
+    string instanceHash = 2;
   }
 
   // Filter used to filter a stream of executions.
