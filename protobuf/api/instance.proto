@@ -26,9 +26,6 @@ service Instance {
 }
 
 // The request's data for the `Get` API.
-//
-// **Example**	
-// TODO: add JSON example
 message GetInstanceRequest {
   string hash = 1;
 }
@@ -38,51 +35,43 @@ message GetInstanceResponse {
 }
 
 // The request's data for the `List` API.
-//
-// **Example**	
-// TODO: add JSON example
 message ListInstancesRequest {
-  string serviceHash = 1;   // Filter by Services' hash.
+  // Filter by Services' hash.
+  string serviceHash = 1;
 }
 
 // The response's data for the `List` API.
-//
-// **Example**	
-// TODO: add JSON example
 message ListInstancesResponse {
-  repeated definition.Instance instances = 1; // List of instances that match the request's filters.
+  // List of instances that match the request's filters.
+  repeated definition.Instance instances = 1;
 }
 
 // The request's data for the `Create` API.
-//
-// **Example**	
-// TODO: add JSON example
 message CreateInstanceRequest {
-  string serviceHash = 1;   // Service's hash.
-  repeated string env = 2;  // Environmental variables to apply to the Instance.
+  // Service's hash.
+  string serviceHash = 1;
+
+  // Environmental variables to apply to the Instance.
+  repeated string env = 2;
 }
 
 // The response's data for the `Create` API.
-//
-// **Example**	
-// TODO: add JSON example
 message CreateInstanceResponse {
+  // The instance created.
   definition.Instance instance = 1;
 }
 
 // The request's data for the `Delete` API.
-//
-// **Example**	
-// TODO: add JSON example
 message DeleteInstanceRequest {
-  string hash = 1;      // Instance's hash
-  bool deleteData = 2;  // If true, any persistent data (volumes) that belongs to the instance and its dependencies will also be deleted.
+  // Instance's hash
+  string hash = 1;
+
+  // If true, any persistent data (volumes) that belongs to the instance and its dependencies will also be deleted.
+  bool deleteData = 2;
 }
 
 // The response's data for the `Delete` API.
-//
-// **Example**	
-// TODO: add JSON example
 message DeleteInstanceResponse {
-  string hash = 1;  // Instance's hash deleted.
+  // Instance's hash deleted.
+  string hash = 1;
 }
