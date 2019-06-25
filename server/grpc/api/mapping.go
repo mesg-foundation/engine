@@ -1,6 +1,8 @@
 package api
 
 import (
+	"fmt"
+
 	"github.com/mesg-foundation/core/protobuf/definition"
 	"github.com/mesg-foundation/core/service"
 )
@@ -8,6 +10,9 @@ import (
 // FromProtoService converts a the protobuf definition to the internal service struct
 // TODO: should not be public. Need to move server/grpc/service.go to server/grpc/api/service.go
 func FromProtoService(s *definition.Service) (*service.Service, error) {
+	if s == nil {
+		return nil, fmt.Errorf("definition.Service is nil")
+	}
 	return &service.Service{
 		Sid:           s.Sid,
 		Name:          s.Name,
