@@ -1,20 +1,17 @@
 package instancesdk
 
 import (
-	"crypto/sha1"
 	"strconv"
 	"strings"
 
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/service"
-	"github.com/mr-tron/base58"
 )
 
 // instanceNamespace returns the namespace of the service.
 func instanceNamespace(hash hash.Hash) []string {
-	sum := sha1.Sum(hash)
-	return []string{base58.Encode(sum[:])}
+	return []string{hash.String()}
 }
 
 // dependencyNamespace builds the namespace of a dependency.

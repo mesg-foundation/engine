@@ -11,13 +11,13 @@ import (
 )
 
 // Start starts the service.
-func (i *Instance) start(inst *instance.Instance, env []string) (serviceIDs []string, err error) {
+func (i *Instance) start(inst *instance.Instance, imageHash string, env []string) (serviceIDs []string, err error) {
 	srv, err := i.service.Get(inst.ServiceHash)
 	if err != nil {
 		return nil, err
 	}
-	sNamespace := instanceNamespace(inst.Hash)
-	networkID, err := i.container.CreateNetwork(sNamespace)
+	instNamespace := instanceNamespace(inst.Hash)
+	networkID, err := i.container.CreateNetwork(instNamespace)
 	if err != nil {
 		return nil, err
 	}
@@ -33,47 +33,73 @@ func (i *Instance) start(inst *instance.Instance, env []string) (serviceIDs []st
 	endpoint := conf.Name + ":" + strconv.Itoa(port)
 	// BUG: https://github.com/mesg-foundation/core/issues/382
 	// After solving this by docker, switch back to deploy in parallel
-	serviceIDs = make([]string, 0)
-	for _, d := range append(srv.Dependencies, srv.Configuration) {
-		// Service.Configuration can be nil so, here is a check for it.
-		if d == nil {
-			continue
-		}
+	configs := make([]container.ServiceOptions, 0)
+
+	labels := map[string]string{
+		"mesg.service": srv.Name,
+		"mesg.hash":    inst.Hash.String(),
+		"mesg.sid":     srv.Sid,
+		"mesg.engine":  conf.Name,
+	}
+
+	// Create dependency container configs
+	for _, d := range srv.Dependencies {
 		volumes := extractVolumes(srv, d)
 		volumesFrom, err := extractVolumesFrom(srv, d)
 		if err != nil {
 			return nil, err
 		}
-
-		serviceID, err := i.container.StartService(container.ServiceOptions{
-			Namespace: dependencyNamespace(sNamespace, d.Key),
-			Labels: map[string]string{
-				"mesg.service": srv.Name,
-				"mesg.hash":    inst.Hash.String(),
-				"mesg.sid":     srv.Sid,
-				"mesg.engine":  conf.Name,
-			},
-			Image:   d.Image,
-			Args:    d.Args,
-			Command: d.Command,
-			Env: xos.EnvMergeSlices(env, []string{
-				"MESG_TOKEN=" + inst.Hash.String(),
-				"MESG_ENDPOINT=" + endpoint,
-				"MESG_ENDPOINT_TCP=" + endpoint,
-			}),
-			Mounts: append(volumes, volumesFrom...),
-			Ports:  extractPorts(d),
+		configs = append(configs, container.ServiceOptions{
+			Namespace: dependencyNamespace(instNamespace, d.Key),
+			Labels:    labels,
+			Image:     d.Image,
+			Args:      d.Args,
+			Command:   d.Command,
+			Env:       d.Env,
+			Mounts:    append(volumes, volumesFrom...),
+			Ports:     extractPorts(d),
 			Networks: []container.Network{
 				{ID: networkID, Alias: d.Key},
-				{ID: sharedNetworkID},
+				{ID: sharedNetworkID}, // TODO: to remove
 			},
 		})
-		if err != nil {
+	}
 
+	// Create configuration container config
+	volumes := extractVolumes(srv, srv.Configuration)
+	volumesFrom, err := extractVolumesFrom(srv, srv.Configuration)
+	if err != nil {
+		return nil, err
+	}
+	configs = append(configs, container.ServiceOptions{
+		Namespace: dependencyNamespace(instNamespace, srv.Configuration.Key),
+		Labels:    labels,
+		Image:     imageHash,
+		Args:      srv.Configuration.Args,
+		Command:   srv.Configuration.Command,
+		Env: xos.EnvMergeSlices(env, []string{
+			"MESG_TOKEN=" + inst.Hash.String(),
+			"MESG_ENDPOINT=" + endpoint,
+			"MESG_ENDPOINT_TCP=" + endpoint,
+		}),
+		Mounts: append(volumes, volumesFrom...),
+		Ports:  extractPorts(srv.Configuration),
+		Networks: []container.Network{
+			{ID: networkID, Alias: srv.Configuration.Key},
+			{ID: sharedNetworkID},
+		},
+	})
+
+	// Start
+	serviceIDs = make([]string, 0)
+	for _, c := range configs {
+		serviceID, err := i.container.StartService(c)
+		if err != nil {
 			i.stop(inst)
 			return nil, err
 		}
 		serviceIDs = append(serviceIDs, serviceID)
 	}
+
 	return serviceIDs, nil
 }
