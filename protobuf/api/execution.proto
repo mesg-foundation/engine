@@ -4,8 +4,12 @@ import "protobuf/definition/execution.proto";
 
 package api;
 
-// Execution is the service for handle operations on Execution
-// such as get or stream.
+// This is the API to interact with the Executions.
+//
+// This API is a [gRPC](https://grpc.io/) API.
+//
+// The source file of this API is hosted on [GitHub](https://github.com/mesg-foundation/engine/blob/master/protobuf/api/execution.proto).
+
 service Execution {
   // Get returns a single Execution specified in a request.
   rpc Get(GetExecutionRequest) returns (definition.Execution) {}
@@ -20,6 +24,7 @@ service Execution {
 
 // GetExecutionRequest defines request to retrieve a single execution.
 message GetExecutionRequest {
+  // Execution's hash to fetch.
   string hash = 1;
 }
 
@@ -27,12 +32,10 @@ message GetExecutionRequest {
 message StreamExecutionRequest{
   // Filter contains filtering criteria.
   message Filter {
-    // Status for filtering execution by status.
-    // Note: to filter multiple statues or flags, eg:
-    // Failed | Completed
+    // Status to filter executions.
     definition.Status status = 1;
 
-    // serviceHash is a hash for filtering execution by service hash.
+    // Service's hash to filter executions.
     string serviceHash = 2;
   }
 
@@ -44,10 +47,12 @@ message StreamExecutionRequest{
 message UpdateExecutionRequest {
   // Hash represents execution.
   string hash = 1;
+
   // result pass to execution
   oneof result {
     // outputs is a success result.
     string outputs = 2;
+
     // error is an error result.
     string error = 3;
   }
