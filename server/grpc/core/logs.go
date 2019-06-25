@@ -4,7 +4,7 @@ import (
 	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
-	"github.com/mesg-foundation/core/sdk"
+	servicesdk "github.com/mesg-foundation/core/sdk/service"
 	"github.com/mesg-foundation/core/utils/chunker"
 )
 
@@ -15,8 +15,7 @@ func (s *Server) ServiceLogs(request *coreapi.ServiceLogsRequest, stream coreapi
 		return err
 	}
 
-	sl, err := s.sdk.ServiceLogs(hash,
-		sdk.ServiceLogsDependenciesFilter(request.Dependencies...))
+	sl, err := s.sdk.Service.Logs(hash, servicesdk.LogsDependenciesFilter(request.Dependencies...))
 	if err != nil {
 		return err
 	}
