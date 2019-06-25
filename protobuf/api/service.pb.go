@@ -24,6 +24,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
+// The request's data for the `Create` API.
 type CreateServiceRequest struct {
 	Definition           *definition.Service `protobuf:"bytes,1,opt,name=definition,proto3" json:"definition,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}            `json:"-"`
@@ -35,7 +36,7 @@ func (m *CreateServiceRequest) Reset()         { *m = CreateServiceRequest{} }
 func (m *CreateServiceRequest) String() string { return proto.CompactTextString(m) }
 func (*CreateServiceRequest) ProtoMessage()    {}
 func (*CreateServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_afdde4112cd99e91, []int{0}
+	return fileDescriptor_service_2916d70627fa57e8, []int{0}
 }
 func (m *CreateServiceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateServiceRequest.Unmarshal(m, b)
@@ -62,8 +63,11 @@ func (m *CreateServiceRequest) GetDefinition() *definition.Service {
 	return nil
 }
 
+// The response's data for the `Create` API.
 type CreateServiceResponse struct {
-	Hash                 string   `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
+	// The service's hash created.
+	Hash string `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
+	// The service's sid.
 	Sid                  string   `protobuf:"bytes,2,opt,name=sid,proto3" json:"sid,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -74,7 +78,7 @@ func (m *CreateServiceResponse) Reset()         { *m = CreateServiceResponse{} }
 func (m *CreateServiceResponse) String() string { return proto.CompactTextString(m) }
 func (*CreateServiceResponse) ProtoMessage()    {}
 func (*CreateServiceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_afdde4112cd99e91, []int{1}
+	return fileDescriptor_service_2916d70627fa57e8, []int{1}
 }
 func (m *CreateServiceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateServiceResponse.Unmarshal(m, b)
@@ -108,7 +112,9 @@ func (m *CreateServiceResponse) GetSid() string {
 	return ""
 }
 
+// The request's data for the `Delete` API.
 type DeleteServiceRequest struct {
+	// The service's hash to delete.
 	Hash                 string   `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -119,7 +125,7 @@ func (m *DeleteServiceRequest) Reset()         { *m = DeleteServiceRequest{} }
 func (m *DeleteServiceRequest) String() string { return proto.CompactTextString(m) }
 func (*DeleteServiceRequest) ProtoMessage()    {}
 func (*DeleteServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_afdde4112cd99e91, []int{2}
+	return fileDescriptor_service_2916d70627fa57e8, []int{2}
 }
 func (m *DeleteServiceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteServiceRequest.Unmarshal(m, b)
@@ -146,6 +152,7 @@ func (m *DeleteServiceRequest) GetHash() string {
 	return ""
 }
 
+// The response's data for the `Delete` API, doesn't contain anything.
 type DeleteServiceResponse struct {
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -156,7 +163,7 @@ func (m *DeleteServiceResponse) Reset()         { *m = DeleteServiceResponse{} }
 func (m *DeleteServiceResponse) String() string { return proto.CompactTextString(m) }
 func (*DeleteServiceResponse) ProtoMessage()    {}
 func (*DeleteServiceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_afdde4112cd99e91, []int{3}
+	return fileDescriptor_service_2916d70627fa57e8, []int{3}
 }
 func (m *DeleteServiceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteServiceResponse.Unmarshal(m, b)
@@ -176,8 +183,9 @@ func (m *DeleteServiceResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_DeleteServiceResponse proto.InternalMessageInfo
 
-// GetServiceRequest defines request to retrieve a single service.
+// The request's data for the `Get` API.
 type GetServiceRequest struct {
+	// The service's hash to fetch.
 	Hash                 string   `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -188,7 +196,7 @@ func (m *GetServiceRequest) Reset()         { *m = GetServiceRequest{} }
 func (m *GetServiceRequest) String() string { return proto.CompactTextString(m) }
 func (*GetServiceRequest) ProtoMessage()    {}
 func (*GetServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_afdde4112cd99e91, []int{4}
+	return fileDescriptor_service_2916d70627fa57e8, []int{4}
 }
 func (m *GetServiceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetServiceRequest.Unmarshal(m, b)
@@ -225,7 +233,7 @@ func (m *ListServiceRequest) Reset()         { *m = ListServiceRequest{} }
 func (m *ListServiceRequest) String() string { return proto.CompactTextString(m) }
 func (*ListServiceRequest) ProtoMessage()    {}
 func (*ListServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_afdde4112cd99e91, []int{5}
+	return fileDescriptor_service_2916d70627fa57e8, []int{5}
 }
 func (m *ListServiceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListServiceRequest.Unmarshal(m, b)
@@ -246,6 +254,7 @@ func (m *ListServiceRequest) XXX_DiscardUnknown() {
 var xxx_messageInfo_ListServiceRequest proto.InternalMessageInfo
 
 type ListServiceResponse struct {
+	// List of services that match the request's filters.
 	Services             []*definition.Service `protobuf:"bytes,1,rep,name=services,proto3" json:"services,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
 	XXX_unrecognized     []byte                `json:"-"`
@@ -256,7 +265,7 @@ func (m *ListServiceResponse) Reset()         { *m = ListServiceResponse{} }
 func (m *ListServiceResponse) String() string { return proto.CompactTextString(m) }
 func (*ListServiceResponse) ProtoMessage()    {}
 func (*ListServiceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_afdde4112cd99e91, []int{6}
+	return fileDescriptor_service_2916d70627fa57e8, []int{6}
 }
 func (m *ListServiceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListServiceResponse.Unmarshal(m, b)
@@ -305,9 +314,13 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type ServiceXClient interface {
+	// Create a Service from a Service Definition.
+	// It will return an unique identifier which is used to interact with the Service.
 	Create(ctx context.Context, in *CreateServiceRequest, opts ...grpc.CallOption) (*CreateServiceResponse, error)
+	// Delete a Service.
+	// An error is returned if one or more Instances of the Service are running.
 	Delete(ctx context.Context, in *DeleteServiceRequest, opts ...grpc.CallOption) (*DeleteServiceResponse, error)
-	// Get returns a single Service specified in a request.
+	// Get returns a Service matching the criteria of the request.
 	Get(ctx context.Context, in *GetServiceRequest, opts ...grpc.CallOption) (*definition.Service, error)
 	// List returns services specified in a request.
 	List(ctx context.Context, in *ListServiceRequest, opts ...grpc.CallOption) (*ListServiceResponse, error)
@@ -359,9 +372,13 @@ func (c *serviceXClient) List(ctx context.Context, in *ListServiceRequest, opts 
 
 // ServiceXServer is the server API for ServiceX service.
 type ServiceXServer interface {
+	// Create a Service from a Service Definition.
+	// It will return an unique identifier which is used to interact with the Service.
 	Create(context.Context, *CreateServiceRequest) (*CreateServiceResponse, error)
+	// Delete a Service.
+	// An error is returned if one or more Instances of the Service are running.
 	Delete(context.Context, *DeleteServiceRequest) (*DeleteServiceResponse, error)
-	// Get returns a single Service specified in a request.
+	// Get returns a Service matching the criteria of the request.
 	Get(context.Context, *GetServiceRequest) (*definition.Service, error)
 	// List returns services specified in a request.
 	List(context.Context, *ListServiceRequest) (*ListServiceResponse, error)
@@ -468,9 +485,9 @@ var _ServiceX_serviceDesc = grpc.ServiceDesc{
 	Metadata: "protobuf/api/service.proto",
 }
 
-func init() { proto.RegisterFile("protobuf/api/service.proto", fileDescriptor_service_afdde4112cd99e91) }
+func init() { proto.RegisterFile("protobuf/api/service.proto", fileDescriptor_service_2916d70627fa57e8) }
 
-var fileDescriptor_service_afdde4112cd99e91 = []byte{
+var fileDescriptor_service_2916d70627fa57e8 = []byte{
 	// 292 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x92, 0xb1, 0x4e, 0xc3, 0x30,
 	0x10, 0x86, 0x93, 0xa6, 0xaa, 0xca, 0xb1, 0xc0, 0x35, 0xa5, 0xc1, 0x53, 0xf1, 0x02, 0x62, 0x48,
