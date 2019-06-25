@@ -5,13 +5,14 @@ import (
 	"testing"
 	"testing/quick"
 
+	"github.com/mesg-foundation/core/hash"
 	"github.com/stretchr/testify/require"
 )
 
 func TestNewFromService(t *testing.T) {
 	var (
-		hash       = "a"
-		parentHash = []byte("b")
+		parentHash = hash.Int(2)
+		hash       = hash.Int(1)
 		eventID    = "1"
 		taskKey    = "key"
 		tags       = []string{"tag"}
@@ -29,7 +30,7 @@ func TestNewFromService(t *testing.T) {
 }
 
 func TestExecute(t *testing.T) {
-	e := New("", nil, "", "", nil, nil)
+	e := New(nil, nil, "", "", nil, nil)
 	require.NoError(t, e.Execute())
 	require.Equal(t, InProgress, e.Status)
 	require.Error(t, e.Execute())
@@ -37,7 +38,7 @@ func TestExecute(t *testing.T) {
 
 func TestComplete(t *testing.T) {
 	output := map[string]interface{}{"foo": "bar"}
-	e := New("", nil, "", "", nil, nil)
+	e := New(nil, nil, "", "", nil, nil)
 
 	e.Execute()
 	require.NoError(t, e.Complete(output))
@@ -48,7 +49,7 @@ func TestComplete(t *testing.T) {
 
 func TestFailed(t *testing.T) {
 	err := errors.New("test")
-	e := New("", nil, "", "", nil, nil)
+	e := New(nil, nil, "", "", nil, nil)
 	e.Execute()
 	require.NoError(t, e.Failed(err))
 	require.Equal(t, Failed, e.Status)
@@ -66,8 +67,8 @@ func TestStatus(t *testing.T) {
 func TestExecutionHash(t *testing.T) {
 	ids := make(map[string]bool)
 
-	f := func(service string, parentHash []byte, eventID, taskKey, input string, tags []string) bool {
-		e := New(service, parentHash, eventID, taskKey, map[string]interface{}{"input": input}, tags)
+	f := func(serviceHash, parentHash []byte, eventID, taskKey, input string, tags []string) bool {
+		e := New(serviceHash, parentHash, eventID, taskKey, map[string]interface{}{"input": input}, tags)
 		if ids[string(e.Hash)] {
 			return false
 		}

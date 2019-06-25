@@ -6,7 +6,6 @@ package coreapi // import "github.com/mesg-foundation/core/protobuf/coreapi"
 import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
 import math "math"
-import definition "github.com/mesg-foundation/core/protobuf/definition"
 
 import (
 	context "golang.org/x/net/context"
@@ -23,64 +22,6 @@ var _ = math.Inf
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
-
-type DeployServiceReply_Status_Type int32
-
-const (
-	DeployServiceReply_Status_RUNNING       DeployServiceReply_Status_Type = 0
-	DeployServiceReply_Status_DONE_POSITIVE DeployServiceReply_Status_Type = 1
-	DeployServiceReply_Status_DONE_NEGATIVE DeployServiceReply_Status_Type = 2
-)
-
-var DeployServiceReply_Status_Type_name = map[int32]string{
-	0: "RUNNING",
-	1: "DONE_POSITIVE",
-	2: "DONE_NEGATIVE",
-}
-var DeployServiceReply_Status_Type_value = map[string]int32{
-	"RUNNING":       0,
-	"DONE_POSITIVE": 1,
-	"DONE_NEGATIVE": 2,
-}
-
-func (x DeployServiceReply_Status_Type) String() string {
-	return proto.EnumName(DeployServiceReply_Status_Type_name, int32(x))
-}
-func (DeployServiceReply_Status_Type) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_api_9fcf4c0cb5a30e9b, []int{11, 0, 0}
-}
-
-type Service_Status int32
-
-const (
-	Service_UNKNOWN  Service_Status = 0
-	Service_STOPPED  Service_Status = 1
-	Service_STARTING Service_Status = 2
-	Service_PARTIAL  Service_Status = 3
-	Service_RUNNING  Service_Status = 4
-)
-
-var Service_Status_name = map[int32]string{
-	0: "UNKNOWN",
-	1: "STOPPED",
-	2: "STARTING",
-	3: "PARTIAL",
-	4: "RUNNING",
-}
-var Service_Status_value = map[string]int32{
-	"UNKNOWN":  0,
-	"STOPPED":  1,
-	"STARTING": 2,
-	"PARTIAL":  3,
-	"RUNNING":  4,
-}
-
-func (x Service_Status) String() string {
-	return proto.EnumName(Service_Status_name, int32(x))
-}
-func (Service_Status) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_api_9fcf4c0cb5a30e9b, []int{15, 0}
-}
 
 type LogData_Type int32
 
@@ -102,7 +43,7 @@ func (x LogData_Type) String() string {
 	return proto.EnumName(LogData_Type_name, int32(x))
 }
 func (LogData_Type) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_api_9fcf4c0cb5a30e9b, []int{22, 0}
+	return fileDescriptor_api_73768311691a8e01, []int{7, 0}
 }
 
 // The request's data for the `ListenEvent` stream's API.
@@ -126,7 +67,7 @@ func (m *ListenEventRequest) Reset()         { *m = ListenEventRequest{} }
 func (m *ListenEventRequest) String() string { return proto.CompactTextString(m) }
 func (*ListenEventRequest) ProtoMessage()    {}
 func (*ListenEventRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_9fcf4c0cb5a30e9b, []int{0}
+	return fileDescriptor_api_73768311691a8e01, []int{0}
 }
 func (m *ListenEventRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListenEventRequest.Unmarshal(m, b)
@@ -182,7 +123,7 @@ func (m *EventData) Reset()         { *m = EventData{} }
 func (m *EventData) String() string { return proto.CompactTextString(m) }
 func (*EventData) ProtoMessage()    {}
 func (*EventData) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_9fcf4c0cb5a30e9b, []int{1}
+	return fileDescriptor_api_73768311691a8e01, []int{1}
 }
 func (m *EventData) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_EventData.Unmarshal(m, b)
@@ -216,153 +157,6 @@ func (m *EventData) GetEventData() string {
 	return ""
 }
 
-// The request's data for the `ListenResult` stream API.
-//
-// **Example**
-// ```json
-// {
-//   "serviceID":     "__SERVICE_ID__",
-//   "taskFilter":    "__TASK_KEY_TO_MATCH__",
-//   "tagFilters":     ["tagX"]
-// }
-// ```
-type ListenResultRequest struct {
-	ServiceID            string   `protobuf:"bytes,1,opt,name=serviceID,proto3" json:"serviceID,omitempty"`
-	TaskFilter           string   `protobuf:"bytes,2,opt,name=taskFilter,proto3" json:"taskFilter,omitempty"`
-	TagFilters           []string `protobuf:"bytes,4,rep,name=tagFilters,proto3" json:"tagFilters,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *ListenResultRequest) Reset()         { *m = ListenResultRequest{} }
-func (m *ListenResultRequest) String() string { return proto.CompactTextString(m) }
-func (*ListenResultRequest) ProtoMessage()    {}
-func (*ListenResultRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_9fcf4c0cb5a30e9b, []int{2}
-}
-func (m *ListenResultRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ListenResultRequest.Unmarshal(m, b)
-}
-func (m *ListenResultRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ListenResultRequest.Marshal(b, m, deterministic)
-}
-func (dst *ListenResultRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ListenResultRequest.Merge(dst, src)
-}
-func (m *ListenResultRequest) XXX_Size() int {
-	return xxx_messageInfo_ListenResultRequest.Size(m)
-}
-func (m *ListenResultRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_ListenResultRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_ListenResultRequest proto.InternalMessageInfo
-
-func (m *ListenResultRequest) GetServiceID() string {
-	if m != nil {
-		return m.ServiceID
-	}
-	return ""
-}
-
-func (m *ListenResultRequest) GetTaskFilter() string {
-	if m != nil {
-		return m.TaskFilter
-	}
-	return ""
-}
-
-func (m *ListenResultRequest) GetTagFilters() []string {
-	if m != nil {
-		return m.TagFilters
-	}
-	return nil
-}
-
-// The data received from the stream of the `ListenResult` API.
-// The data will be received over time as long as the stream is open.
-//
-// **Example**
-// ```json
-// {
-//   "executionHash":   "__EXECUTION_HASH__",
-//   "taskKey":       "__TASK_KEY__",
-//   "outputData":    "{\"foo\":\"bar\"}",
-//   "executionTags": ["executionX", "test"],
-//   "error":         "error from the execution if something went wrong",
-// }
-// ```
-type ResultData struct {
-	ExecutionHash        string   `protobuf:"bytes,1,opt,name=executionHash,proto3" json:"executionHash,omitempty"`
-	TaskKey              string   `protobuf:"bytes,2,opt,name=taskKey,proto3" json:"taskKey,omitempty"`
-	OutputData           string   `protobuf:"bytes,4,opt,name=outputData,proto3" json:"outputData,omitempty"`
-	ExecutionTags        []string `protobuf:"bytes,5,rep,name=executionTags,proto3" json:"executionTags,omitempty"`
-	Error                string   `protobuf:"bytes,6,opt,name=error,proto3" json:"error,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *ResultData) Reset()         { *m = ResultData{} }
-func (m *ResultData) String() string { return proto.CompactTextString(m) }
-func (*ResultData) ProtoMessage()    {}
-func (*ResultData) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_9fcf4c0cb5a30e9b, []int{3}
-}
-func (m *ResultData) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ResultData.Unmarshal(m, b)
-}
-func (m *ResultData) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ResultData.Marshal(b, m, deterministic)
-}
-func (dst *ResultData) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ResultData.Merge(dst, src)
-}
-func (m *ResultData) XXX_Size() int {
-	return xxx_messageInfo_ResultData.Size(m)
-}
-func (m *ResultData) XXX_DiscardUnknown() {
-	xxx_messageInfo_ResultData.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_ResultData proto.InternalMessageInfo
-
-func (m *ResultData) GetExecutionHash() string {
-	if m != nil {
-		return m.ExecutionHash
-	}
-	return ""
-}
-
-func (m *ResultData) GetTaskKey() string {
-	if m != nil {
-		return m.TaskKey
-	}
-	return ""
-}
-
-func (m *ResultData) GetOutputData() string {
-	if m != nil {
-		return m.OutputData
-	}
-	return ""
-}
-
-func (m *ResultData) GetExecutionTags() []string {
-	if m != nil {
-		return m.ExecutionTags
-	}
-	return nil
-}
-
-func (m *ResultData) GetError() string {
-	if m != nil {
-		return m.Error
-	}
-	return ""
-}
-
 // The request's data for the `ExecuteTask` API.
 //
 // **Example**
@@ -388,7 +182,7 @@ func (m *ExecuteTaskRequest) Reset()         { *m = ExecuteTaskRequest{} }
 func (m *ExecuteTaskRequest) String() string { return proto.CompactTextString(m) }
 func (*ExecuteTaskRequest) ProtoMessage()    {}
 func (*ExecuteTaskRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_9fcf4c0cb5a30e9b, []int{4}
+	return fileDescriptor_api_73768311691a8e01, []int{2}
 }
 func (m *ExecuteTaskRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ExecuteTaskRequest.Unmarshal(m, b)
@@ -455,7 +249,7 @@ func (m *ExecuteTaskReply) Reset()         { *m = ExecuteTaskReply{} }
 func (m *ExecuteTaskReply) String() string { return proto.CompactTextString(m) }
 func (*ExecuteTaskReply) ProtoMessage()    {}
 func (*ExecuteTaskReply) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_9fcf4c0cb5a30e9b, []int{5}
+	return fileDescriptor_api_73768311691a8e01, []int{3}
 }
 func (m *ExecuteTaskReply) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ExecuteTaskReply.Unmarshal(m, b)
@@ -482,1009 +276,6 @@ func (m *ExecuteTaskReply) GetExecutionHash() string {
 	return ""
 }
 
-// The request's data for the `StartService` API.
-//
-// **Example**
-// ```json
-// {
-//   "serviceID": "__SERVICE_ID__"
-// }
-// ```
-type StartServiceRequest struct {
-	ServiceID            string   `protobuf:"bytes,1,opt,name=serviceID,proto3" json:"serviceID,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *StartServiceRequest) Reset()         { *m = StartServiceRequest{} }
-func (m *StartServiceRequest) String() string { return proto.CompactTextString(m) }
-func (*StartServiceRequest) ProtoMessage()    {}
-func (*StartServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_9fcf4c0cb5a30e9b, []int{6}
-}
-func (m *StartServiceRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_StartServiceRequest.Unmarshal(m, b)
-}
-func (m *StartServiceRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_StartServiceRequest.Marshal(b, m, deterministic)
-}
-func (dst *StartServiceRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_StartServiceRequest.Merge(dst, src)
-}
-func (m *StartServiceRequest) XXX_Size() int {
-	return xxx_messageInfo_StartServiceRequest.Size(m)
-}
-func (m *StartServiceRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_StartServiceRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_StartServiceRequest proto.InternalMessageInfo
-
-func (m *StartServiceRequest) GetServiceID() string {
-	if m != nil {
-		return m.ServiceID
-	}
-	return ""
-}
-
-// Reply of `StartService` API doesn't contain any data.
-type StartServiceReply struct {
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *StartServiceReply) Reset()         { *m = StartServiceReply{} }
-func (m *StartServiceReply) String() string { return proto.CompactTextString(m) }
-func (*StartServiceReply) ProtoMessage()    {}
-func (*StartServiceReply) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_9fcf4c0cb5a30e9b, []int{7}
-}
-func (m *StartServiceReply) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_StartServiceReply.Unmarshal(m, b)
-}
-func (m *StartServiceReply) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_StartServiceReply.Marshal(b, m, deterministic)
-}
-func (dst *StartServiceReply) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_StartServiceReply.Merge(dst, src)
-}
-func (m *StartServiceReply) XXX_Size() int {
-	return xxx_messageInfo_StartServiceReply.Size(m)
-}
-func (m *StartServiceReply) XXX_DiscardUnknown() {
-	xxx_messageInfo_StartServiceReply.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_StartServiceReply proto.InternalMessageInfo
-
-// The request's data for the `StopService` API.
-//
-// **Example**
-// ```json
-// {
-//   "serviceID": "__SERVICE_ID__"
-// }
-// ```
-type StopServiceRequest struct {
-	ServiceID            string   `protobuf:"bytes,1,opt,name=serviceID,proto3" json:"serviceID,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *StopServiceRequest) Reset()         { *m = StopServiceRequest{} }
-func (m *StopServiceRequest) String() string { return proto.CompactTextString(m) }
-func (*StopServiceRequest) ProtoMessage()    {}
-func (*StopServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_9fcf4c0cb5a30e9b, []int{8}
-}
-func (m *StopServiceRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_StopServiceRequest.Unmarshal(m, b)
-}
-func (m *StopServiceRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_StopServiceRequest.Marshal(b, m, deterministic)
-}
-func (dst *StopServiceRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_StopServiceRequest.Merge(dst, src)
-}
-func (m *StopServiceRequest) XXX_Size() int {
-	return xxx_messageInfo_StopServiceRequest.Size(m)
-}
-func (m *StopServiceRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_StopServiceRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_StopServiceRequest proto.InternalMessageInfo
-
-func (m *StopServiceRequest) GetServiceID() string {
-	if m != nil {
-		return m.ServiceID
-	}
-	return ""
-}
-
-// Reply of `StopService` API doesn't contain any data.
-type StopServiceReply struct {
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *StopServiceReply) Reset()         { *m = StopServiceReply{} }
-func (m *StopServiceReply) String() string { return proto.CompactTextString(m) }
-func (*StopServiceReply) ProtoMessage()    {}
-func (*StopServiceReply) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_9fcf4c0cb5a30e9b, []int{9}
-}
-func (m *StopServiceReply) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_StopServiceReply.Unmarshal(m, b)
-}
-func (m *StopServiceReply) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_StopServiceReply.Marshal(b, m, deterministic)
-}
-func (dst *StopServiceReply) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_StopServiceReply.Merge(dst, src)
-}
-func (m *StopServiceReply) XXX_Size() int {
-	return xxx_messageInfo_StopServiceReply.Size(m)
-}
-func (m *StopServiceReply) XXX_DiscardUnknown() {
-	xxx_messageInfo_StopServiceReply.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_StopServiceReply proto.InternalMessageInfo
-
-// The data sent to the request stream of the `DeployService` API.
-// Stream should be closed after url or all chunks sent to server.
-//
-// **Example**
-// ```json
-// {
-//   "env": {
-//     "key": "value"
-//   },
-//   "url": "__SERVICE_GIT_URL__"
-// }
-// ```
-// or
-// ```json
-// {
-//   "env": {
-//     "key": "value"
-//   },
-//   "chunk": "__SERVICE_GZIPPED_TAR_FILE_CHUNK__"
-// }
-// ```
-type DeployServiceRequest struct {
-	// Types that are valid to be assigned to Value:
-	//	*DeployServiceRequest_Url
-	//	*DeployServiceRequest_Chunk
-	Value                isDeployServiceRequest_Value `protobuf_oneof:"value"`
-	Env                  map[string]string            `protobuf:"bytes,4,rep,name=env,proto3" json:"env,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	XXX_NoUnkeyedLiteral struct{}                     `json:"-"`
-	XXX_unrecognized     []byte                       `json:"-"`
-	XXX_sizecache        int32                        `json:"-"`
-}
-
-func (m *DeployServiceRequest) Reset()         { *m = DeployServiceRequest{} }
-func (m *DeployServiceRequest) String() string { return proto.CompactTextString(m) }
-func (*DeployServiceRequest) ProtoMessage()    {}
-func (*DeployServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_9fcf4c0cb5a30e9b, []int{10}
-}
-func (m *DeployServiceRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_DeployServiceRequest.Unmarshal(m, b)
-}
-func (m *DeployServiceRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_DeployServiceRequest.Marshal(b, m, deterministic)
-}
-func (dst *DeployServiceRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DeployServiceRequest.Merge(dst, src)
-}
-func (m *DeployServiceRequest) XXX_Size() int {
-	return xxx_messageInfo_DeployServiceRequest.Size(m)
-}
-func (m *DeployServiceRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_DeployServiceRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_DeployServiceRequest proto.InternalMessageInfo
-
-type isDeployServiceRequest_Value interface {
-	isDeployServiceRequest_Value()
-}
-
-type DeployServiceRequest_Url struct {
-	Url string `protobuf:"bytes,2,opt,name=url,proto3,oneof"`
-}
-
-type DeployServiceRequest_Chunk struct {
-	Chunk []byte `protobuf:"bytes,3,opt,name=chunk,proto3,oneof"`
-}
-
-func (*DeployServiceRequest_Url) isDeployServiceRequest_Value() {}
-
-func (*DeployServiceRequest_Chunk) isDeployServiceRequest_Value() {}
-
-func (m *DeployServiceRequest) GetValue() isDeployServiceRequest_Value {
-	if m != nil {
-		return m.Value
-	}
-	return nil
-}
-
-func (m *DeployServiceRequest) GetUrl() string {
-	if x, ok := m.GetValue().(*DeployServiceRequest_Url); ok {
-		return x.Url
-	}
-	return ""
-}
-
-func (m *DeployServiceRequest) GetChunk() []byte {
-	if x, ok := m.GetValue().(*DeployServiceRequest_Chunk); ok {
-		return x.Chunk
-	}
-	return nil
-}
-
-func (m *DeployServiceRequest) GetEnv() map[string]string {
-	if m != nil {
-		return m.Env
-	}
-	return nil
-}
-
-// XXX_OneofFuncs is for the internal use of the proto package.
-func (*DeployServiceRequest) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
-	return _DeployServiceRequest_OneofMarshaler, _DeployServiceRequest_OneofUnmarshaler, _DeployServiceRequest_OneofSizer, []interface{}{
-		(*DeployServiceRequest_Url)(nil),
-		(*DeployServiceRequest_Chunk)(nil),
-	}
-}
-
-func _DeployServiceRequest_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
-	m := msg.(*DeployServiceRequest)
-	// value
-	switch x := m.Value.(type) {
-	case *DeployServiceRequest_Url:
-		b.EncodeVarint(2<<3 | proto.WireBytes)
-		b.EncodeStringBytes(x.Url)
-	case *DeployServiceRequest_Chunk:
-		b.EncodeVarint(3<<3 | proto.WireBytes)
-		b.EncodeRawBytes(x.Chunk)
-	case nil:
-	default:
-		return fmt.Errorf("DeployServiceRequest.Value has unexpected type %T", x)
-	}
-	return nil
-}
-
-func _DeployServiceRequest_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
-	m := msg.(*DeployServiceRequest)
-	switch tag {
-	case 2: // value.url
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		x, err := b.DecodeStringBytes()
-		m.Value = &DeployServiceRequest_Url{x}
-		return true, err
-	case 3: // value.chunk
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		x, err := b.DecodeRawBytes(true)
-		m.Value = &DeployServiceRequest_Chunk{x}
-		return true, err
-	default:
-		return false, nil
-	}
-}
-
-func _DeployServiceRequest_OneofSizer(msg proto.Message) (n int) {
-	m := msg.(*DeployServiceRequest)
-	// value
-	switch x := m.Value.(type) {
-	case *DeployServiceRequest_Url:
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(len(x.Url)))
-		n += len(x.Url)
-	case *DeployServiceRequest_Chunk:
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(len(x.Chunk)))
-		n += len(x.Chunk)
-	case nil:
-	default:
-		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
-	}
-	return n
-}
-
-// The data received from the reply stream of the `DeployService` API.
-// Stream will be closed by server after deployment is done.
-//
-// **Example**
-// ```json
-// {
-//   "status": {
-//     "message": "__STATUS_MESSAGE__",
-//     "type": "__STATUS_TYPE__",
-//   }
-// }
-// ```
-// or
-// ```json
-// {
-//   "serviceID": "__SERVICE_ID__"
-// }
-// ```
-// or
-// ```json
-// {
-//   "validationError": "__SERVICE_VALIDATION_ERROR__"
-// }
-// ```
-type DeployServiceReply struct {
-	// Types that are valid to be assigned to Value:
-	//	*DeployServiceReply_Status_
-	//	*DeployServiceReply_ValidationError
-	//	*DeployServiceReply_Service_
-	Value                isDeployServiceReply_Value `protobuf_oneof:"value"`
-	XXX_NoUnkeyedLiteral struct{}                   `json:"-"`
-	XXX_unrecognized     []byte                     `json:"-"`
-	XXX_sizecache        int32                      `json:"-"`
-}
-
-func (m *DeployServiceReply) Reset()         { *m = DeployServiceReply{} }
-func (m *DeployServiceReply) String() string { return proto.CompactTextString(m) }
-func (*DeployServiceReply) ProtoMessage()    {}
-func (*DeployServiceReply) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_9fcf4c0cb5a30e9b, []int{11}
-}
-func (m *DeployServiceReply) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_DeployServiceReply.Unmarshal(m, b)
-}
-func (m *DeployServiceReply) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_DeployServiceReply.Marshal(b, m, deterministic)
-}
-func (dst *DeployServiceReply) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DeployServiceReply.Merge(dst, src)
-}
-func (m *DeployServiceReply) XXX_Size() int {
-	return xxx_messageInfo_DeployServiceReply.Size(m)
-}
-func (m *DeployServiceReply) XXX_DiscardUnknown() {
-	xxx_messageInfo_DeployServiceReply.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_DeployServiceReply proto.InternalMessageInfo
-
-type isDeployServiceReply_Value interface {
-	isDeployServiceReply_Value()
-}
-
-type DeployServiceReply_Status_ struct {
-	Status *DeployServiceReply_Status `protobuf:"bytes,2,opt,name=status,proto3,oneof"`
-}
-
-type DeployServiceReply_ValidationError struct {
-	ValidationError string `protobuf:"bytes,4,opt,name=validationError,proto3,oneof"`
-}
-
-type DeployServiceReply_Service_ struct {
-	Service *DeployServiceReply_Service `protobuf:"bytes,5,opt,name=service,proto3,oneof"`
-}
-
-func (*DeployServiceReply_Status_) isDeployServiceReply_Value() {}
-
-func (*DeployServiceReply_ValidationError) isDeployServiceReply_Value() {}
-
-func (*DeployServiceReply_Service_) isDeployServiceReply_Value() {}
-
-func (m *DeployServiceReply) GetValue() isDeployServiceReply_Value {
-	if m != nil {
-		return m.Value
-	}
-	return nil
-}
-
-func (m *DeployServiceReply) GetStatus() *DeployServiceReply_Status {
-	if x, ok := m.GetValue().(*DeployServiceReply_Status_); ok {
-		return x.Status
-	}
-	return nil
-}
-
-func (m *DeployServiceReply) GetValidationError() string {
-	if x, ok := m.GetValue().(*DeployServiceReply_ValidationError); ok {
-		return x.ValidationError
-	}
-	return ""
-}
-
-func (m *DeployServiceReply) GetService() *DeployServiceReply_Service {
-	if x, ok := m.GetValue().(*DeployServiceReply_Service_); ok {
-		return x.Service
-	}
-	return nil
-}
-
-// XXX_OneofFuncs is for the internal use of the proto package.
-func (*DeployServiceReply) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
-	return _DeployServiceReply_OneofMarshaler, _DeployServiceReply_OneofUnmarshaler, _DeployServiceReply_OneofSizer, []interface{}{
-		(*DeployServiceReply_Status_)(nil),
-		(*DeployServiceReply_ValidationError)(nil),
-		(*DeployServiceReply_Service_)(nil),
-	}
-}
-
-func _DeployServiceReply_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
-	m := msg.(*DeployServiceReply)
-	// value
-	switch x := m.Value.(type) {
-	case *DeployServiceReply_Status_:
-		b.EncodeVarint(2<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.Status); err != nil {
-			return err
-		}
-	case *DeployServiceReply_ValidationError:
-		b.EncodeVarint(4<<3 | proto.WireBytes)
-		b.EncodeStringBytes(x.ValidationError)
-	case *DeployServiceReply_Service_:
-		b.EncodeVarint(5<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.Service); err != nil {
-			return err
-		}
-	case nil:
-	default:
-		return fmt.Errorf("DeployServiceReply.Value has unexpected type %T", x)
-	}
-	return nil
-}
-
-func _DeployServiceReply_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
-	m := msg.(*DeployServiceReply)
-	switch tag {
-	case 2: // value.status
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(DeployServiceReply_Status)
-		err := b.DecodeMessage(msg)
-		m.Value = &DeployServiceReply_Status_{msg}
-		return true, err
-	case 4: // value.validationError
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		x, err := b.DecodeStringBytes()
-		m.Value = &DeployServiceReply_ValidationError{x}
-		return true, err
-	case 5: // value.service
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(DeployServiceReply_Service)
-		err := b.DecodeMessage(msg)
-		m.Value = &DeployServiceReply_Service_{msg}
-		return true, err
-	default:
-		return false, nil
-	}
-}
-
-func _DeployServiceReply_OneofSizer(msg proto.Message) (n int) {
-	m := msg.(*DeployServiceReply)
-	// value
-	switch x := m.Value.(type) {
-	case *DeployServiceReply_Status_:
-		s := proto.Size(x.Status)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *DeployServiceReply_ValidationError:
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(len(x.ValidationError)))
-		n += len(x.ValidationError)
-	case *DeployServiceReply_Service_:
-		s := proto.Size(x.Service)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case nil:
-	default:
-		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
-	}
-	return n
-}
-
-type DeployServiceReply_Status struct {
-	Message              string                         `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
-	Type                 DeployServiceReply_Status_Type `protobuf:"varint,2,opt,name=type,proto3,enum=api.DeployServiceReply_Status_Type" json:"type,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}                       `json:"-"`
-	XXX_unrecognized     []byte                         `json:"-"`
-	XXX_sizecache        int32                          `json:"-"`
-}
-
-func (m *DeployServiceReply_Status) Reset()         { *m = DeployServiceReply_Status{} }
-func (m *DeployServiceReply_Status) String() string { return proto.CompactTextString(m) }
-func (*DeployServiceReply_Status) ProtoMessage()    {}
-func (*DeployServiceReply_Status) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_9fcf4c0cb5a30e9b, []int{11, 0}
-}
-func (m *DeployServiceReply_Status) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_DeployServiceReply_Status.Unmarshal(m, b)
-}
-func (m *DeployServiceReply_Status) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_DeployServiceReply_Status.Marshal(b, m, deterministic)
-}
-func (dst *DeployServiceReply_Status) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DeployServiceReply_Status.Merge(dst, src)
-}
-func (m *DeployServiceReply_Status) XXX_Size() int {
-	return xxx_messageInfo_DeployServiceReply_Status.Size(m)
-}
-func (m *DeployServiceReply_Status) XXX_DiscardUnknown() {
-	xxx_messageInfo_DeployServiceReply_Status.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_DeployServiceReply_Status proto.InternalMessageInfo
-
-func (m *DeployServiceReply_Status) GetMessage() string {
-	if m != nil {
-		return m.Message
-	}
-	return ""
-}
-
-func (m *DeployServiceReply_Status) GetType() DeployServiceReply_Status_Type {
-	if m != nil {
-		return m.Type
-	}
-	return DeployServiceReply_Status_RUNNING
-}
-
-type DeployServiceReply_Service struct {
-	Sid                  string   `protobuf:"bytes,1,opt,name=sid,proto3" json:"sid,omitempty"`
-	Hash                 string   `protobuf:"bytes,2,opt,name=hash,proto3" json:"hash,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *DeployServiceReply_Service) Reset()         { *m = DeployServiceReply_Service{} }
-func (m *DeployServiceReply_Service) String() string { return proto.CompactTextString(m) }
-func (*DeployServiceReply_Service) ProtoMessage()    {}
-func (*DeployServiceReply_Service) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_9fcf4c0cb5a30e9b, []int{11, 1}
-}
-func (m *DeployServiceReply_Service) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_DeployServiceReply_Service.Unmarshal(m, b)
-}
-func (m *DeployServiceReply_Service) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_DeployServiceReply_Service.Marshal(b, m, deterministic)
-}
-func (dst *DeployServiceReply_Service) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DeployServiceReply_Service.Merge(dst, src)
-}
-func (m *DeployServiceReply_Service) XXX_Size() int {
-	return xxx_messageInfo_DeployServiceReply_Service.Size(m)
-}
-func (m *DeployServiceReply_Service) XXX_DiscardUnknown() {
-	xxx_messageInfo_DeployServiceReply_Service.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_DeployServiceReply_Service proto.InternalMessageInfo
-
-func (m *DeployServiceReply_Service) GetSid() string {
-	if m != nil {
-		return m.Sid
-	}
-	return ""
-}
-
-func (m *DeployServiceReply_Service) GetHash() string {
-	if m != nil {
-		return m.Hash
-	}
-	return ""
-}
-
-// Request's data of the `DeleteService` API.
-//
-// **Example**
-// ```json
-// {
-//   "serviceID": "__SERVICE_ID__"
-// }
-// ```
-type DeleteServiceRequest struct {
-	ServiceID            string   `protobuf:"bytes,1,opt,name=serviceID,proto3" json:"serviceID,omitempty"`
-	DeleteData           bool     `protobuf:"varint,2,opt,name=deleteData,proto3" json:"deleteData,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *DeleteServiceRequest) Reset()         { *m = DeleteServiceRequest{} }
-func (m *DeleteServiceRequest) String() string { return proto.CompactTextString(m) }
-func (*DeleteServiceRequest) ProtoMessage()    {}
-func (*DeleteServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_9fcf4c0cb5a30e9b, []int{12}
-}
-func (m *DeleteServiceRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_DeleteServiceRequest.Unmarshal(m, b)
-}
-func (m *DeleteServiceRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_DeleteServiceRequest.Marshal(b, m, deterministic)
-}
-func (dst *DeleteServiceRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DeleteServiceRequest.Merge(dst, src)
-}
-func (m *DeleteServiceRequest) XXX_Size() int {
-	return xxx_messageInfo_DeleteServiceRequest.Size(m)
-}
-func (m *DeleteServiceRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_DeleteServiceRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_DeleteServiceRequest proto.InternalMessageInfo
-
-func (m *DeleteServiceRequest) GetServiceID() string {
-	if m != nil {
-		return m.ServiceID
-	}
-	return ""
-}
-
-func (m *DeleteServiceRequest) GetDeleteData() bool {
-	if m != nil {
-		return m.DeleteData
-	}
-	return false
-}
-
-// Reply of `DeleteService` API doesn't contain any data.
-type DeleteServiceReply struct {
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *DeleteServiceReply) Reset()         { *m = DeleteServiceReply{} }
-func (m *DeleteServiceReply) String() string { return proto.CompactTextString(m) }
-func (*DeleteServiceReply) ProtoMessage()    {}
-func (*DeleteServiceReply) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_9fcf4c0cb5a30e9b, []int{13}
-}
-func (m *DeleteServiceReply) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_DeleteServiceReply.Unmarshal(m, b)
-}
-func (m *DeleteServiceReply) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_DeleteServiceReply.Marshal(b, m, deterministic)
-}
-func (dst *DeleteServiceReply) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DeleteServiceReply.Merge(dst, src)
-}
-func (m *DeleteServiceReply) XXX_Size() int {
-	return xxx_messageInfo_DeleteServiceReply.Size(m)
-}
-func (m *DeleteServiceReply) XXX_DiscardUnknown() {
-	xxx_messageInfo_DeleteServiceReply.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_DeleteServiceReply proto.InternalMessageInfo
-
-// Reply of `ListServices` API doesn't contain any data.
-type ListServicesRequest struct {
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *ListServicesRequest) Reset()         { *m = ListServicesRequest{} }
-func (m *ListServicesRequest) String() string { return proto.CompactTextString(m) }
-func (*ListServicesRequest) ProtoMessage()    {}
-func (*ListServicesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_9fcf4c0cb5a30e9b, []int{14}
-}
-func (m *ListServicesRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ListServicesRequest.Unmarshal(m, b)
-}
-func (m *ListServicesRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ListServicesRequest.Marshal(b, m, deterministic)
-}
-func (dst *ListServicesRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ListServicesRequest.Merge(dst, src)
-}
-func (m *ListServicesRequest) XXX_Size() int {
-	return xxx_messageInfo_ListServicesRequest.Size(m)
-}
-func (m *ListServicesRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_ListServicesRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_ListServicesRequest proto.InternalMessageInfo
-
-// Service return all information related to the service
-type Service struct {
-	Status               Service_Status      `protobuf:"varint,1,opt,name=status,proto3,enum=api.Service_Status" json:"status,omitempty"`
-	Definition           *definition.Service `protobuf:"bytes,2,opt,name=definition,proto3" json:"definition,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}            `json:"-"`
-	XXX_unrecognized     []byte              `json:"-"`
-	XXX_sizecache        int32               `json:"-"`
-}
-
-func (m *Service) Reset()         { *m = Service{} }
-func (m *Service) String() string { return proto.CompactTextString(m) }
-func (*Service) ProtoMessage()    {}
-func (*Service) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_9fcf4c0cb5a30e9b, []int{15}
-}
-func (m *Service) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_Service.Unmarshal(m, b)
-}
-func (m *Service) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_Service.Marshal(b, m, deterministic)
-}
-func (dst *Service) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Service.Merge(dst, src)
-}
-func (m *Service) XXX_Size() int {
-	return xxx_messageInfo_Service.Size(m)
-}
-func (m *Service) XXX_DiscardUnknown() {
-	xxx_messageInfo_Service.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_Service proto.InternalMessageInfo
-
-func (m *Service) GetStatus() Service_Status {
-	if m != nil {
-		return m.Status
-	}
-	return Service_UNKNOWN
-}
-
-func (m *Service) GetDefinition() *definition.Service {
-	if m != nil {
-		return m.Definition
-	}
-	return nil
-}
-
-// The reply's data of the `ListServices` API.
-//
-// **Example**
-// ```json
-// {
-//   "services": [{
-//     "definition": {
-//       "dependencies": [{
-//         "image": "sha256:dfb1b6be0001c2f64822917ee8462585e43941376db887b83167413230117af9",
-//         "key": "service"
-//       }],
-//       "description": "Description of my service",
-//       "events": [{
-//         "data": [{
-//           "key": "x",
-//           "type": "Boolean"
-//         }],
-//         "key": "started"
-//       }],
-//       "hash": "e8de3872762ec68f22a82ddeecac49d07cef17dbf7f2dbdb1c97f36d7cfce91a",
-//       "name": "myservice",
-//       "sid": "myservice",
-//       "tasks": [{
-//         "inputs": [{
-//             "key": "bar",
-//             "type": "String"
-//           },
-//           {
-//             "key": "foo",
-//             "type": "String"
-//           }
-//         ],
-//         "key": "taskX",
-//         "outputs": [{
-//             "data": [{
-//               "key": "error",
-//               "type": "String"
-//             }],
-//             "key": "error"
-//           },
-//           {
-//             "data": [{
-//               "key": "message",
-//               "type": "String"
-//             }],
-//             "key": "success"
-//           }
-//         ]
-//       }]
-//     },
-//     "status": 1
-//   }]
-// }
-// ```
-type ListServicesReply struct {
-	Services             []*Service `protobuf:"bytes,1,rep,name=services,proto3" json:"services,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
-	XXX_unrecognized     []byte     `json:"-"`
-	XXX_sizecache        int32      `json:"-"`
-}
-
-func (m *ListServicesReply) Reset()         { *m = ListServicesReply{} }
-func (m *ListServicesReply) String() string { return proto.CompactTextString(m) }
-func (*ListServicesReply) ProtoMessage()    {}
-func (*ListServicesReply) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_9fcf4c0cb5a30e9b, []int{16}
-}
-func (m *ListServicesReply) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ListServicesReply.Unmarshal(m, b)
-}
-func (m *ListServicesReply) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ListServicesReply.Marshal(b, m, deterministic)
-}
-func (dst *ListServicesReply) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ListServicesReply.Merge(dst, src)
-}
-func (m *ListServicesReply) XXX_Size() int {
-	return xxx_messageInfo_ListServicesReply.Size(m)
-}
-func (m *ListServicesReply) XXX_DiscardUnknown() {
-	xxx_messageInfo_ListServicesReply.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_ListServicesReply proto.InternalMessageInfo
-
-func (m *ListServicesReply) GetServices() []*Service {
-	if m != nil {
-		return m.Services
-	}
-	return nil
-}
-
-// The request's data for the `GetService` API.
-//
-// **Example**
-// ```json
-// {
-//   "serviceID": "__SERVICE_ID__"
-// }
-// ```
-type GetServiceRequest struct {
-	ServiceID            string   `protobuf:"bytes,1,opt,name=serviceID,proto3" json:"serviceID,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *GetServiceRequest) Reset()         { *m = GetServiceRequest{} }
-func (m *GetServiceRequest) String() string { return proto.CompactTextString(m) }
-func (*GetServiceRequest) ProtoMessage()    {}
-func (*GetServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_9fcf4c0cb5a30e9b, []int{17}
-}
-func (m *GetServiceRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_GetServiceRequest.Unmarshal(m, b)
-}
-func (m *GetServiceRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_GetServiceRequest.Marshal(b, m, deterministic)
-}
-func (dst *GetServiceRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetServiceRequest.Merge(dst, src)
-}
-func (m *GetServiceRequest) XXX_Size() int {
-	return xxx_messageInfo_GetServiceRequest.Size(m)
-}
-func (m *GetServiceRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_GetServiceRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_GetServiceRequest proto.InternalMessageInfo
-
-func (m *GetServiceRequest) GetServiceID() string {
-	if m != nil {
-		return m.ServiceID
-	}
-	return ""
-}
-
-// The reply's data of the `GetService` API.
-//
-// **Example**
-// ```json
-// {
-//   "service": {
-//     "definition": {
-//       "dependencies": [{
-//         "image": "sha256:dfb1b6be0001c2f64822917ee8462585e43941376db887b83167413230117af9",
-//         "key": "service"
-//       }],
-//       "description": "Description of my service",
-//       "events": [{
-//         "data": [{
-//           "key": "x",
-//           "type": "Boolean"
-//         }],
-//         "key": "started"
-//       }],
-//       "hash": "e8de3872762ec68f22a82ddeecac49d07cef17dbf7f2dbdb1c97f36d7cfce91a",
-//       "name": "myservice",
-//       "sid": "myservice",
-//       "tasks": [{
-//         "inputs": [{
-//             "key": "bar",
-//             "type": "String"
-//           },
-//           {
-//             "key": "foo",
-//             "type": "String"
-//           }
-//         ],
-//         "key": "taskX",
-//         "outputs": [{
-//             "data": [{
-//               "key": "error",
-//               "type": "String"
-//             }],
-//             "key": "error"
-//           },
-//           {
-//             "data": [{
-//               "key": "message",
-//               "type": "String"
-//             }],
-//             "key": "success"
-//           }
-//         ]
-//       }]
-//     },
-//     "status": 1
-//   }
-// }
-// ```
-type GetServiceReply struct {
-	Service              *Service `protobuf:"bytes,1,opt,name=service,proto3" json:"service,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *GetServiceReply) Reset()         { *m = GetServiceReply{} }
-func (m *GetServiceReply) String() string { return proto.CompactTextString(m) }
-func (*GetServiceReply) ProtoMessage()    {}
-func (*GetServiceReply) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_9fcf4c0cb5a30e9b, []int{18}
-}
-func (m *GetServiceReply) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_GetServiceReply.Unmarshal(m, b)
-}
-func (m *GetServiceReply) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_GetServiceReply.Marshal(b, m, deterministic)
-}
-func (dst *GetServiceReply) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetServiceReply.Merge(dst, src)
-}
-func (m *GetServiceReply) XXX_Size() int {
-	return xxx_messageInfo_GetServiceReply.Size(m)
-}
-func (m *GetServiceReply) XXX_DiscardUnknown() {
-	xxx_messageInfo_GetServiceReply.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_GetServiceReply proto.InternalMessageInfo
-
-func (m *GetServiceReply) GetService() *Service {
-	if m != nil {
-		return m.Service
-	}
-	return nil
-}
-
 // The request's data for `ServiceLogs` API.
 //
 // **Example**
@@ -1506,7 +297,7 @@ func (m *ServiceLogsRequest) Reset()         { *m = ServiceLogsRequest{} }
 func (m *ServiceLogsRequest) String() string { return proto.CompactTextString(m) }
 func (*ServiceLogsRequest) ProtoMessage()    {}
 func (*ServiceLogsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_9fcf4c0cb5a30e9b, []int{19}
+	return fileDescriptor_api_73768311691a8e01, []int{4}
 }
 func (m *ServiceLogsRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ServiceLogsRequest.Unmarshal(m, b)
@@ -1551,7 +342,7 @@ func (m *InfoRequest) Reset()         { *m = InfoRequest{} }
 func (m *InfoRequest) String() string { return proto.CompactTextString(m) }
 func (*InfoRequest) ProtoMessage()    {}
 func (*InfoRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_9fcf4c0cb5a30e9b, []int{20}
+	return fileDescriptor_api_73768311691a8e01, []int{5}
 }
 func (m *InfoRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_InfoRequest.Unmarshal(m, b)
@@ -1584,7 +375,7 @@ func (m *InfoReply) Reset()         { *m = InfoReply{} }
 func (m *InfoReply) String() string { return proto.CompactTextString(m) }
 func (*InfoReply) ProtoMessage()    {}
 func (*InfoReply) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_9fcf4c0cb5a30e9b, []int{21}
+	return fileDescriptor_api_73768311691a8e01, []int{6}
 }
 func (m *InfoReply) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_InfoReply.Unmarshal(m, b)
@@ -1632,7 +423,7 @@ func (m *InfoReply_CoreService) Reset()         { *m = InfoReply_CoreService{} }
 func (m *InfoReply_CoreService) String() string { return proto.CompactTextString(m) }
 func (*InfoReply_CoreService) ProtoMessage()    {}
 func (*InfoReply_CoreService) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_9fcf4c0cb5a30e9b, []int{21, 0}
+	return fileDescriptor_api_73768311691a8e01, []int{6, 0}
 }
 func (m *InfoReply_CoreService) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_InfoReply_CoreService.Unmarshal(m, b)
@@ -1704,7 +495,7 @@ func (m *LogData) Reset()         { *m = LogData{} }
 func (m *LogData) String() string { return proto.CompactTextString(m) }
 func (*LogData) ProtoMessage()    {}
 func (*LogData) Descriptor() ([]byte, []int) {
-	return fileDescriptor_api_9fcf4c0cb5a30e9b, []int{22}
+	return fileDescriptor_api_73768311691a8e01, []int{7}
 }
 func (m *LogData) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_LogData.Unmarshal(m, b)
@@ -1748,33 +539,13 @@ func (m *LogData) GetData() []byte {
 func init() {
 	proto.RegisterType((*ListenEventRequest)(nil), "api.ListenEventRequest")
 	proto.RegisterType((*EventData)(nil), "api.EventData")
-	proto.RegisterType((*ListenResultRequest)(nil), "api.ListenResultRequest")
-	proto.RegisterType((*ResultData)(nil), "api.ResultData")
 	proto.RegisterType((*ExecuteTaskRequest)(nil), "api.ExecuteTaskRequest")
 	proto.RegisterType((*ExecuteTaskReply)(nil), "api.ExecuteTaskReply")
-	proto.RegisterType((*StartServiceRequest)(nil), "api.StartServiceRequest")
-	proto.RegisterType((*StartServiceReply)(nil), "api.StartServiceReply")
-	proto.RegisterType((*StopServiceRequest)(nil), "api.StopServiceRequest")
-	proto.RegisterType((*StopServiceReply)(nil), "api.StopServiceReply")
-	proto.RegisterType((*DeployServiceRequest)(nil), "api.DeployServiceRequest")
-	proto.RegisterMapType((map[string]string)(nil), "api.DeployServiceRequest.EnvEntry")
-	proto.RegisterType((*DeployServiceReply)(nil), "api.DeployServiceReply")
-	proto.RegisterType((*DeployServiceReply_Status)(nil), "api.DeployServiceReply.Status")
-	proto.RegisterType((*DeployServiceReply_Service)(nil), "api.DeployServiceReply.Service")
-	proto.RegisterType((*DeleteServiceRequest)(nil), "api.DeleteServiceRequest")
-	proto.RegisterType((*DeleteServiceReply)(nil), "api.DeleteServiceReply")
-	proto.RegisterType((*ListServicesRequest)(nil), "api.ListServicesRequest")
-	proto.RegisterType((*Service)(nil), "api.Service")
-	proto.RegisterType((*ListServicesReply)(nil), "api.ListServicesReply")
-	proto.RegisterType((*GetServiceRequest)(nil), "api.GetServiceRequest")
-	proto.RegisterType((*GetServiceReply)(nil), "api.GetServiceReply")
 	proto.RegisterType((*ServiceLogsRequest)(nil), "api.ServiceLogsRequest")
 	proto.RegisterType((*InfoRequest)(nil), "api.InfoRequest")
 	proto.RegisterType((*InfoReply)(nil), "api.InfoReply")
 	proto.RegisterType((*InfoReply_CoreService)(nil), "api.InfoReply.CoreService")
 	proto.RegisterType((*LogData)(nil), "api.LogData")
-	proto.RegisterEnum("api.DeployServiceReply_Status_Type", DeployServiceReply_Status_Type_name, DeployServiceReply_Status_Type_value)
-	proto.RegisterEnum("api.Service_Status", Service_Status_name, Service_Status_value)
 	proto.RegisterEnum("api.LogData_Type", LogData_Type_name, LogData_Type_value)
 }
 
@@ -1792,22 +563,8 @@ const _ = grpc.SupportPackageIsVersion4
 type CoreClient interface {
 	// Subscribe to a stream that listens for events from a service.
 	ListenEvent(ctx context.Context, in *ListenEventRequest, opts ...grpc.CallOption) (Core_ListenEventClient, error)
-	// Subscribe to a stream that listens for task's result from a service.
-	ListenResult(ctx context.Context, in *ListenResultRequest, opts ...grpc.CallOption) (Core_ListenResultClient, error)
 	// Execute a service's task through Core.
 	ExecuteTask(ctx context.Context, in *ExecuteTaskRequest, opts ...grpc.CallOption) (*ExecuteTaskReply, error)
-	// Start a service. The service must be already deployed to Core.
-	StartService(ctx context.Context, in *StartServiceRequest, opts ...grpc.CallOption) (*StartServiceReply, error)
-	// Stop a service. The service must be already deployed to Core.
-	StopService(ctx context.Context, in *StopServiceRequest, opts ...grpc.CallOption) (*StopServiceReply, error)
-	// Deploy a service to Core. This will give you an unique identifier which is used to interact with the service.
-	DeployService(ctx context.Context, opts ...grpc.CallOption) (Core_DeployServiceClient, error)
-	// Delete a service from Core. This function only deletes a deployed service in Core. If the service's code is on your computer, the source code will not be deleted.
-	DeleteService(ctx context.Context, in *DeleteServiceRequest, opts ...grpc.CallOption) (*DeleteServiceReply, error)
-	// List all services already deployed in Core.
-	ListServices(ctx context.Context, in *ListServicesRequest, opts ...grpc.CallOption) (*ListServicesReply, error)
-	// Get the definition of an already-deployed service from its ID.
-	GetService(ctx context.Context, in *GetServiceRequest, opts ...grpc.CallOption) (*GetServiceReply, error)
 	// ServiceLogs gives a stream for dependency logs of a service.
 	ServiceLogs(ctx context.Context, in *ServiceLogsRequest, opts ...grpc.CallOption) (Core_ServiceLogsClient, error)
 	// Info returns all necessary information from the core.
@@ -1854,38 +611,6 @@ func (x *coreListenEventClient) Recv() (*EventData, error) {
 	return m, nil
 }
 
-func (c *coreClient) ListenResult(ctx context.Context, in *ListenResultRequest, opts ...grpc.CallOption) (Core_ListenResultClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_Core_serviceDesc.Streams[1], "/api.Core/ListenResult", opts...)
-	if err != nil {
-		return nil, err
-	}
-	x := &coreListenResultClient{stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
-		return nil, err
-	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	return x, nil
-}
-
-type Core_ListenResultClient interface {
-	Recv() (*ResultData, error)
-	grpc.ClientStream
-}
-
-type coreListenResultClient struct {
-	grpc.ClientStream
-}
-
-func (x *coreListenResultClient) Recv() (*ResultData, error) {
-	m := new(ResultData)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
-}
-
 func (c *coreClient) ExecuteTask(ctx context.Context, in *ExecuteTaskRequest, opts ...grpc.CallOption) (*ExecuteTaskReply, error) {
 	out := new(ExecuteTaskReply)
 	err := c.cc.Invoke(ctx, "/api.Core/ExecuteTask", in, out, opts...)
@@ -1895,84 +620,8 @@ func (c *coreClient) ExecuteTask(ctx context.Context, in *ExecuteTaskRequest, op
 	return out, nil
 }
 
-func (c *coreClient) StartService(ctx context.Context, in *StartServiceRequest, opts ...grpc.CallOption) (*StartServiceReply, error) {
-	out := new(StartServiceReply)
-	err := c.cc.Invoke(ctx, "/api.Core/StartService", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *coreClient) StopService(ctx context.Context, in *StopServiceRequest, opts ...grpc.CallOption) (*StopServiceReply, error) {
-	out := new(StopServiceReply)
-	err := c.cc.Invoke(ctx, "/api.Core/StopService", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *coreClient) DeployService(ctx context.Context, opts ...grpc.CallOption) (Core_DeployServiceClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_Core_serviceDesc.Streams[2], "/api.Core/DeployService", opts...)
-	if err != nil {
-		return nil, err
-	}
-	x := &coreDeployServiceClient{stream}
-	return x, nil
-}
-
-type Core_DeployServiceClient interface {
-	Send(*DeployServiceRequest) error
-	Recv() (*DeployServiceReply, error)
-	grpc.ClientStream
-}
-
-type coreDeployServiceClient struct {
-	grpc.ClientStream
-}
-
-func (x *coreDeployServiceClient) Send(m *DeployServiceRequest) error {
-	return x.ClientStream.SendMsg(m)
-}
-
-func (x *coreDeployServiceClient) Recv() (*DeployServiceReply, error) {
-	m := new(DeployServiceReply)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
-}
-
-func (c *coreClient) DeleteService(ctx context.Context, in *DeleteServiceRequest, opts ...grpc.CallOption) (*DeleteServiceReply, error) {
-	out := new(DeleteServiceReply)
-	err := c.cc.Invoke(ctx, "/api.Core/DeleteService", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *coreClient) ListServices(ctx context.Context, in *ListServicesRequest, opts ...grpc.CallOption) (*ListServicesReply, error) {
-	out := new(ListServicesReply)
-	err := c.cc.Invoke(ctx, "/api.Core/ListServices", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *coreClient) GetService(ctx context.Context, in *GetServiceRequest, opts ...grpc.CallOption) (*GetServiceReply, error) {
-	out := new(GetServiceReply)
-	err := c.cc.Invoke(ctx, "/api.Core/GetService", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *coreClient) ServiceLogs(ctx context.Context, in *ServiceLogsRequest, opts ...grpc.CallOption) (Core_ServiceLogsClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_Core_serviceDesc.Streams[3], "/api.Core/ServiceLogs", opts...)
+	stream, err := c.cc.NewStream(ctx, &_Core_serviceDesc.Streams[1], "/api.Core/ServiceLogs", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -2016,22 +665,8 @@ func (c *coreClient) Info(ctx context.Context, in *InfoRequest, opts ...grpc.Cal
 type CoreServer interface {
 	// Subscribe to a stream that listens for events from a service.
 	ListenEvent(*ListenEventRequest, Core_ListenEventServer) error
-	// Subscribe to a stream that listens for task's result from a service.
-	ListenResult(*ListenResultRequest, Core_ListenResultServer) error
 	// Execute a service's task through Core.
 	ExecuteTask(context.Context, *ExecuteTaskRequest) (*ExecuteTaskReply, error)
-	// Start a service. The service must be already deployed to Core.
-	StartService(context.Context, *StartServiceRequest) (*StartServiceReply, error)
-	// Stop a service. The service must be already deployed to Core.
-	StopService(context.Context, *StopServiceRequest) (*StopServiceReply, error)
-	// Deploy a service to Core. This will give you an unique identifier which is used to interact with the service.
-	DeployService(Core_DeployServiceServer) error
-	// Delete a service from Core. This function only deletes a deployed service in Core. If the service's code is on your computer, the source code will not be deleted.
-	DeleteService(context.Context, *DeleteServiceRequest) (*DeleteServiceReply, error)
-	// List all services already deployed in Core.
-	ListServices(context.Context, *ListServicesRequest) (*ListServicesReply, error)
-	// Get the definition of an already-deployed service from its ID.
-	GetService(context.Context, *GetServiceRequest) (*GetServiceReply, error)
 	// ServiceLogs gives a stream for dependency logs of a service.
 	ServiceLogs(*ServiceLogsRequest, Core_ServiceLogsServer) error
 	// Info returns all necessary information from the core.
@@ -2063,27 +698,6 @@ func (x *coreListenEventServer) Send(m *EventData) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func _Core_ListenResult_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(ListenResultRequest)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
-	}
-	return srv.(CoreServer).ListenResult(m, &coreListenResultServer{stream})
-}
-
-type Core_ListenResultServer interface {
-	Send(*ResultData) error
-	grpc.ServerStream
-}
-
-type coreListenResultServer struct {
-	grpc.ServerStream
-}
-
-func (x *coreListenResultServer) Send(m *ResultData) error {
-	return x.ServerStream.SendMsg(m)
-}
-
 func _Core_ExecuteTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ExecuteTaskRequest)
 	if err := dec(in); err != nil {
@@ -2098,122 +712,6 @@ func _Core_ExecuteTask_Handler(srv interface{}, ctx context.Context, dec func(in
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CoreServer).ExecuteTask(ctx, req.(*ExecuteTaskRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Core_StartService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(StartServiceRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CoreServer).StartService(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/api.Core/StartService",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CoreServer).StartService(ctx, req.(*StartServiceRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Core_StopService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(StopServiceRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CoreServer).StopService(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/api.Core/StopService",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CoreServer).StopService(ctx, req.(*StopServiceRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Core_DeployService_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(CoreServer).DeployService(&coreDeployServiceServer{stream})
-}
-
-type Core_DeployServiceServer interface {
-	Send(*DeployServiceReply) error
-	Recv() (*DeployServiceRequest, error)
-	grpc.ServerStream
-}
-
-type coreDeployServiceServer struct {
-	grpc.ServerStream
-}
-
-func (x *coreDeployServiceServer) Send(m *DeployServiceReply) error {
-	return x.ServerStream.SendMsg(m)
-}
-
-func (x *coreDeployServiceServer) Recv() (*DeployServiceRequest, error) {
-	m := new(DeployServiceRequest)
-	if err := x.ServerStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
-}
-
-func _Core_DeleteService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteServiceRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CoreServer).DeleteService(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/api.Core/DeleteService",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CoreServer).DeleteService(ctx, req.(*DeleteServiceRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Core_ListServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListServicesRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CoreServer).ListServices(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/api.Core/ListServices",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CoreServer).ListServices(ctx, req.(*ListServicesRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Core_GetService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetServiceRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CoreServer).GetService(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/api.Core/GetService",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CoreServer).GetService(ctx, req.(*GetServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2266,26 +764,6 @@ var _Core_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Core_ExecuteTask_Handler,
 		},
 		{
-			MethodName: "StartService",
-			Handler:    _Core_StartService_Handler,
-		},
-		{
-			MethodName: "StopService",
-			Handler:    _Core_StopService_Handler,
-		},
-		{
-			MethodName: "DeleteService",
-			Handler:    _Core_DeleteService_Handler,
-		},
-		{
-			MethodName: "ListServices",
-			Handler:    _Core_ListServices_Handler,
-		},
-		{
-			MethodName: "GetService",
-			Handler:    _Core_GetService_Handler,
-		},
-		{
 			MethodName: "Info",
 			Handler:    _Core_Info_Handler,
 		},
@@ -2297,17 +775,6 @@ var _Core_serviceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 		{
-			StreamName:    "ListenResult",
-			Handler:       _Core_ListenResult_Handler,
-			ServerStreams: true,
-		},
-		{
-			StreamName:    "DeployService",
-			Handler:       _Core_DeployService_Handler,
-			ServerStreams: true,
-			ClientStreams: true,
-		},
-		{
 			StreamName:    "ServiceLogs",
 			Handler:       _Core_ServiceLogs_Handler,
 			ServerStreams: true,
@@ -2316,82 +783,42 @@ var _Core_serviceDesc = grpc.ServiceDesc{
 	Metadata: "protobuf/coreapi/api.proto",
 }
 
-func init() { proto.RegisterFile("protobuf/coreapi/api.proto", fileDescriptor_api_9fcf4c0cb5a30e9b) }
+func init() { proto.RegisterFile("protobuf/coreapi/api.proto", fileDescriptor_api_73768311691a8e01) }
 
-var fileDescriptor_api_9fcf4c0cb5a30e9b = []byte{
-	// 1172 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x57, 0xdd, 0x4e, 0x1b, 0xc7,
-	0x17, 0xdf, 0xc5, 0x36, 0xc6, 0xc7, 0x26, 0x2c, 0x03, 0x49, 0xfc, 0x5f, 0x45, 0x09, 0xff, 0xe9,
-	0x87, 0x50, 0xaa, 0xda, 0xd4, 0x54, 0x29, 0x49, 0x1b, 0x45, 0x50, 0xb6, 0xe0, 0x06, 0x19, 0xb4,
-	0x76, 0x12, 0xa9, 0x37, 0xd5, 0x62, 0x0f, 0x66, 0x85, 0xd9, 0xdd, 0xee, 0x87, 0x55, 0x3f, 0x40,
-	0x6f, 0x7a, 0xd5, 0xab, 0x3e, 0x43, 0x9f, 0xa0, 0x55, 0x2f, 0xfb, 0x66, 0xd5, 0x99, 0x99, 0x5d,
-	0xcf, 0xb2, 0x50, 0x99, 0x3b, 0x9f, 0xef, 0x33, 0xe7, 0xe3, 0x77, 0xd6, 0x60, 0x06, 0xa1, 0x1f,
-	0xfb, 0xe7, 0xc9, 0x45, 0x7b, 0xe8, 0x87, 0xcc, 0x09, 0xdc, 0xb6, 0x13, 0xb8, 0x2d, 0xce, 0x24,
-	0x25, 0x27, 0x70, 0xcd, 0xff, 0x67, 0x0a, 0x23, 0x76, 0xe1, 0x7a, 0x6e, 0xec, 0xfa, 0x5e, 0x3b,
-	0x62, 0xe1, 0xd4, 0x1d, 0x32, 0xa1, 0x47, 0x07, 0x40, 0x4e, 0xdc, 0x28, 0x66, 0x9e, 0x35, 0x65,
-	0x5e, 0x6c, 0xb3, 0x9f, 0x12, 0x16, 0xc5, 0xe4, 0x09, 0xd4, 0xa4, 0x5a, 0xf7, 0xb0, 0xa9, 0x6f,
-	0xe9, 0xdb, 0x35, 0x7b, 0xce, 0x20, 0x5b, 0x50, 0x67, 0xa8, 0xfd, 0x9d, 0x3b, 0x89, 0x59, 0xd8,
-	0x5c, 0xe2, 0x72, 0x95, 0x45, 0x2d, 0xa8, 0x71, 0x7f, 0x87, 0x4e, 0xec, 0x10, 0x13, 0x56, 0xb8,
-	0xec, 0x2d, 0x9b, 0x49, 0x5f, 0x19, 0x8d, 0x81, 0x58, 0xaa, 0x28, 0x1d, 0xcd, 0x19, 0x34, 0x82,
-	0x0d, 0x91, 0x9c, 0xcd, 0xa2, 0x64, 0xb2, 0x60, 0x76, 0x4f, 0x01, 0x62, 0x27, 0xba, 0xca, 0x25,
-	0xa7, 0x70, 0x84, 0x7c, 0x2c, 0x88, 0xa8, 0x59, 0xde, 0x2a, 0x09, 0x79, 0xca, 0xa1, 0x7f, 0xe8,
-	0x00, 0x22, 0x1e, 0xcf, 0xfe, 0x63, 0x58, 0x65, 0x3f, 0xb3, 0x61, 0x82, 0xb5, 0x3b, 0x76, 0xa2,
-	0x4b, 0x19, 0x30, 0xcf, 0x24, 0x4d, 0xa8, 0x62, 0x08, 0x7c, 0xa2, 0x88, 0x98, 0x92, 0x18, 0xce,
-	0x4f, 0xe2, 0x20, 0x11, 0x4f, 0x2c, 0x8b, 0x74, 0xe6, 0x9c, 0x9c, 0xff, 0x81, 0x33, 0x8e, 0x9a,
-	0x15, 0x9e, 0x51, 0x9e, 0x49, 0x36, 0xa1, 0xc2, 0xc2, 0xd0, 0x0f, 0x9b, 0xcb, 0xdc, 0x81, 0x20,
-	0xe8, 0x6f, 0x3a, 0x10, 0x8b, 0xeb, 0xb1, 0x81, 0x13, 0x5d, 0x2d, 0x56, 0x9f, 0xbb, 0x53, 0x7d,
-	0x02, 0x35, 0xd7, 0x4b, 0x33, 0x2d, 0x09, 0xbb, 0x8c, 0x51, 0x4c, 0xb4, 0x7c, 0x4b, 0xa2, 0x74,
-	0x0f, 0x8c, 0x5c, 0x46, 0xc1, 0x64, 0xb6, 0x58, 0x09, 0xe9, 0x2e, 0x6c, 0xf4, 0x63, 0x27, 0x8c,
-	0xfb, 0x22, 0xd3, 0x85, 0x1e, 0x43, 0x37, 0x60, 0x3d, 0x6f, 0x14, 0x4c, 0x66, 0xb4, 0x03, 0xa4,
-	0x1f, 0xfb, 0xc1, 0xbd, 0x1c, 0x11, 0x30, 0x72, 0x36, 0xe8, 0xe7, 0x6f, 0x1d, 0x36, 0x0f, 0x59,
-	0x30, 0xf1, 0x67, 0x37, 0x5c, 0x11, 0x28, 0x25, 0xe1, 0x44, 0x94, 0xef, 0x58, 0xb3, 0x91, 0x20,
-	0x8f, 0xa0, 0x32, 0xbc, 0x4c, 0xbc, 0x2b, 0x5e, 0xb8, 0xc6, 0xb1, 0x66, 0x0b, 0x92, 0x7c, 0x09,
-	0x25, 0xe6, 0x4d, 0x79, 0xb1, 0xea, 0x1d, 0xda, 0xc2, 0x0d, 0xbd, 0xcd, 0x67, 0xcb, 0xf2, 0xa6,
-	0x96, 0x17, 0x87, 0x33, 0x1b, 0xd5, 0xcd, 0x17, 0xb0, 0x92, 0x32, 0x88, 0x01, 0xa5, 0xab, 0x6c,
-	0x75, 0xf0, 0x27, 0x4e, 0xc3, 0xd4, 0x99, 0x24, 0x4c, 0x36, 0x50, 0x10, 0xaf, 0x96, 0xf6, 0xf4,
-	0x83, 0xaa, 0x94, 0xd0, 0x5f, 0x4b, 0x40, 0x6e, 0xc4, 0xc1, 0x56, 0xec, 0xc1, 0x72, 0x14, 0x3b,
-	0x71, 0x12, 0x71, 0xd3, 0x7a, 0xe7, 0xe9, 0x6d, 0x09, 0x05, 0x93, 0x59, 0xab, 0xcf, 0xb5, 0x8e,
-	0x35, 0x5b, 0xea, 0x93, 0xe7, 0xb0, 0x36, 0x75, 0x26, 0xee, 0xc8, 0xc1, 0x86, 0x59, 0x7c, 0x16,
-	0xcb, 0xf2, 0xfd, 0x37, 0x05, 0xe4, 0x6b, 0xa8, 0xca, 0xca, 0x36, 0x2b, 0x3c, 0xcc, 0xb3, 0x3b,
-	0xc3, 0x08, 0xe2, 0x58, 0xb3, 0x53, 0x0b, 0xf3, 0x77, 0x1d, 0x96, 0x45, 0x74, 0x1c, 0xd5, 0x6b,
-	0x16, 0x45, 0xce, 0x98, 0xc9, 0xd7, 0xa7, 0x24, 0xf9, 0x0a, 0xca, 0xf1, 0x2c, 0x10, 0x05, 0x78,
-	0xd0, 0xf9, 0xe8, 0xbf, 0x5f, 0xd1, 0x1a, 0xcc, 0x02, 0x66, 0x73, 0x03, 0xfa, 0x12, 0xca, 0x48,
-	0x91, 0x3a, 0x54, 0xed, 0x77, 0xbd, 0x5e, 0xb7, 0x77, 0x64, 0x68, 0x64, 0x1d, 0x56, 0x0f, 0x4f,
-	0x7b, 0xd6, 0x8f, 0x67, 0xa7, 0xfd, 0xee, 0xa0, 0xfb, 0xde, 0x32, 0xf4, 0x8c, 0xd5, 0xb3, 0x8e,
-	0xf6, 0x39, 0x6b, 0xc9, 0x6c, 0x43, 0x55, 0x3a, 0xc7, 0x96, 0x44, 0xee, 0x28, 0x6d, 0x49, 0xe4,
-	0x8e, 0x08, 0x81, 0xf2, 0x25, 0x8e, 0xb6, 0xe8, 0x08, 0xff, 0x3d, 0x6f, 0xc6, 0x00, 0xe7, 0x68,
-	0xc2, 0x62, 0x76, 0x9f, 0x91, 0x44, 0xe4, 0x18, 0x71, 0xab, 0x0c, 0x1c, 0x57, 0x6c, 0x85, 0x43,
-	0x37, 0xb1, 0xc3, 0x39, 0xaf, 0x38, 0xb4, 0x0f, 0x05, 0x66, 0x4a, 0x5e, 0x24, 0x43, 0xd1, 0xbf,
-	0xf4, 0x79, 0xf6, 0x9f, 0x65, 0x43, 0xa0, 0xf3, 0xf2, 0x6d, 0xf0, 0xf2, 0x49, 0xa9, 0xac, 0x59,
-	0xd6, 0xf7, 0x5d, 0xcc, 0x22, 0x3d, 0x1e, 0x72, 0x6a, 0x36, 0x5a, 0x73, 0x56, 0x6a, 0x67, 0x2b,
-	0x6a, 0xf4, 0xfb, 0xac, 0x85, 0x75, 0xa8, 0xbe, 0xeb, 0xbd, 0xed, 0x9d, 0x7e, 0xe8, 0x19, 0x1a,
-	0x12, 0xfd, 0xc1, 0xe9, 0xd9, 0x99, 0x75, 0x68, 0xe8, 0xa4, 0x01, 0x2b, 0xfd, 0xc1, 0xbe, 0x3d,
-	0xc0, 0x16, 0x2c, 0xa1, 0xe8, 0x0c, 0x89, 0xfd, 0x13, 0xa3, 0xa4, 0x36, 0xa7, 0x4c, 0x5f, 0xc3,
-	0x7a, 0xfe, 0x41, 0x38, 0xc7, 0xdb, 0xb0, 0x22, 0x0b, 0x85, 0x8f, 0xc0, 0xd5, 0x6a, 0xa8, 0x8f,
-	0xb0, 0x33, 0x29, 0xfd, 0x02, 0xd6, 0x8f, 0xd8, 0xfd, 0x40, 0xe5, 0x25, 0xac, 0xa9, 0x26, 0x18,
-	0xef, 0xd3, 0xf9, 0x44, 0xeb, 0xbc, 0x04, 0xf9, 0x70, 0xa9, 0x90, 0xbe, 0x07, 0x22, 0x79, 0x27,
-	0xfe, 0x38, 0x5a, 0xac, 0xcf, 0x14, 0x1a, 0x23, 0x16, 0x30, 0x6f, 0xc4, 0xbc, 0xa1, 0xcb, 0x70,
-	0x33, 0x11, 0x57, 0x73, 0x3c, 0xba, 0x0a, 0xf5, 0xae, 0x77, 0xe1, 0xa7, 0xdd, 0xfc, 0x53, 0x87,
-	0x9a, 0xa0, 0x31, 0xb9, 0x17, 0x85, 0x62, 0x98, 0x3c, 0xbb, 0x4c, 0xa3, 0xf5, 0xad, 0x1f, 0xb2,
-	0x42, 0x69, 0x70, 0xbd, 0xa6, 0x2c, 0x8c, 0xb0, 0xaf, 0xe2, 0x2e, 0xa5, 0xa4, 0xf9, 0x01, 0xea,
-	0x8a, 0xc9, 0x62, 0xe3, 0x8e, 0x5a, 0x88, 0x8a, 0xe2, 0x70, 0x70, 0x4c, 0x94, 0xc8, 0x55, 0xce,
-	0x90, 0x8b, 0xfe, 0xa2, 0x43, 0xf5, 0xc4, 0x1f, 0xf3, 0x83, 0xc2, 0xe7, 0x5b, 0xbe, 0x31, 0x85,
-	0x37, 0x85, 0x43, 0x3e, 0xc9, 0xed, 0xf8, 0x3a, 0x7f, 0x92, 0xb4, 0x55, 0x36, 0x1a, 0x53, 0x19,
-	0xa5, 0x07, 0xab, 0x61, 0xf3, 0xdf, 0xf4, 0x99, 0xdc, 0x72, 0x9c, 0xb1, 0xd8, 0xf1, 0x46, 0x4e,
-	0x38, 0x32, 0x34, 0x52, 0x83, 0x0a, 0xc7, 0x27, 0x43, 0xef, 0xfc, 0x53, 0x81, 0x32, 0xbe, 0x90,
-	0xbc, 0x82, 0xba, 0xf2, 0xfd, 0x43, 0x1e, 0x8b, 0x28, 0x85, 0x2f, 0x22, 0xf3, 0x01, 0x17, 0x64,
-	0x1f, 0x35, 0x54, 0xdb, 0xd1, 0xc9, 0x6b, 0x68, 0xa8, 0x9f, 0x27, 0xa4, 0xa9, 0x18, 0xe7, 0xbe,
-	0x58, 0xcc, 0x35, 0x2e, 0x99, 0x7f, 0x55, 0x70, 0xf3, 0x37, 0x50, 0x57, 0x4e, 0xa5, 0x0c, 0x5d,
-	0x3c, 0xe7, 0xe6, 0xc3, 0xa2, 0x00, 0x17, 0x5d, 0x23, 0x07, 0xd0, 0x50, 0x8f, 0x9f, 0x8c, 0x7f,
-	0xcb, 0x11, 0x35, 0x1f, 0xdd, 0x22, 0x11, 0x3e, 0xde, 0x40, 0x5d, 0xb9, 0x7b, 0x32, 0x89, 0xe2,
-	0xf5, 0x94, 0x49, 0x14, 0x4e, 0xa4, 0x46, 0xba, 0xb0, 0x9a, 0x03, 0x5e, 0xf2, 0xbf, 0x3b, 0x6f,
-	0x9c, 0xf9, 0xf8, 0x0e, 0x9c, 0xa6, 0xda, 0xb6, 0xbe, 0xa3, 0x13, 0x0b, 0x5d, 0x29, 0x80, 0x96,
-	0xb9, 0x2a, 0x42, 0x67, 0xe6, 0xaa, 0x80, 0x7f, 0xbc, 0x2c, 0x2a, 0x60, 0x28, 0x6d, 0xb9, 0x01,
-	0x8a, 0xb2, 0x2c, 0x05, 0x74, 0xa1, 0x1a, 0xf9, 0x06, 0x60, 0x0e, 0x01, 0x44, 0xe8, 0x15, 0x60,
-	0xc4, 0xdc, 0x2c, 0xf0, 0x85, 0xf5, 0x1e, 0xd4, 0x15, 0x14, 0x48, 0x8b, 0x5a, 0xc0, 0x05, 0xb3,
-	0xa1, 0xce, 0x34, 0x9f, 0x89, 0xe7, 0x50, 0xc6, 0xad, 0x25, 0x86, 0xb2, 0xc0, 0xea, 0x00, 0x66,
-	0x2b, 0x4d, 0xb5, 0x83, 0xce, 0x0f, 0x3b, 0x63, 0x37, 0xbe, 0x4c, 0xce, 0x5b, 0x43, 0xff, 0xba,
-	0x7d, 0xcd, 0xa2, 0xf1, 0xe7, 0x17, 0x7e, 0xe2, 0x89, 0x43, 0xcc, 0xff, 0x12, 0xb4, 0x6f, 0xfe,
-	0x41, 0x38, 0x5f, 0xe6, 0x9c, 0xdd, 0x7f, 0x03, 0x00, 0x00, 0xff, 0xff, 0xc9, 0x22, 0x90, 0xe2,
-	0x3b, 0x0c, 0x00, 0x00,
+var fileDescriptor_api_73768311691a8e01 = []byte{
+	// 542 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x54, 0xdd, 0x8a, 0xd3, 0x40,
+	0x14, 0x6e, 0xb6, 0xd1, 0x6d, 0x4e, 0xba, 0x4b, 0x1d, 0x10, 0x43, 0x10, 0x2d, 0x83, 0x42, 0x11,
+	0x6c, 0x97, 0x0a, 0xb2, 0x78, 0x23, 0xe8, 0x56, 0x5c, 0xec, 0x55, 0xb6, 0x28, 0x78, 0x37, 0x6d,
+	0x4e, 0xdb, 0xa1, 0xdd, 0x4c, 0x9c, 0x99, 0x14, 0xf3, 0x00, 0xde, 0xfb, 0x34, 0xbe, 0x93, 0x6f,
+	0x21, 0x33, 0x99, 0x66, 0x53, 0x7b, 0xb3, 0x77, 0x67, 0xbe, 0xf3, 0xf7, 0x9d, 0x73, 0xbe, 0x04,
+	0xe2, 0x5c, 0x0a, 0x2d, 0xe6, 0xc5, 0x72, 0xb4, 0x10, 0x12, 0x59, 0xce, 0x47, 0x2c, 0xe7, 0x43,
+	0x0b, 0x92, 0x36, 0xcb, 0x39, 0x9d, 0x01, 0x99, 0x72, 0xa5, 0x31, 0x9b, 0xec, 0x30, 0xd3, 0x09,
+	0xfe, 0x28, 0x50, 0x69, 0xf2, 0x14, 0x02, 0x85, 0x72, 0xc7, 0x17, 0x78, 0x7d, 0x15, 0x79, 0x7d,
+	0x6f, 0x10, 0x24, 0x77, 0x00, 0xe9, 0x43, 0x88, 0x26, 0xfa, 0x13, 0xdf, 0x6a, 0x94, 0xd1, 0x89,
+	0xf5, 0x37, 0x21, 0x3a, 0x81, 0xc0, 0xd6, 0xbb, 0x62, 0x9a, 0x91, 0x18, 0x3a, 0xd6, 0xf7, 0x05,
+	0x4b, 0x57, 0xab, 0x7e, 0x9b, 0x46, 0xb8, 0x0f, 0x74, 0x85, 0xee, 0x00, 0xfa, 0xdb, 0x03, 0x32,
+	0xf9, 0x89, 0x8b, 0x42, 0xe3, 0x8c, 0xa9, 0xcd, 0xfd, 0xd8, 0x45, 0x70, 0xaa, 0x99, 0xda, 0x98,
+	0x6e, 0x55, 0xc1, 0xfd, 0xd3, 0xe4, 0xf1, 0x2c, 0x2f, 0xaa, 0x66, 0xed, 0x2a, 0xaf, 0x06, 0xc8,
+	0x0b, 0x38, 0x43, 0xdb, 0x8b, 0x8b, 0x6c, 0xc6, 0x56, 0x2a, 0xf2, 0xfb, 0xed, 0x41, 0x90, 0x1c,
+	0x82, 0xf4, 0x12, 0x7a, 0x07, 0x8c, 0xf2, 0x6d, 0x79, 0x90, 0xf9, 0x99, 0xa9, 0xb5, 0xe3, 0x74,
+	0x08, 0xd2, 0xaf, 0x40, 0x6e, 0x2a, 0x92, 0x53, 0xb1, 0x52, 0xf7, 0x9b, 0x85, 0x42, 0x37, 0xc5,
+	0x1c, 0xb3, 0x14, 0xb3, 0x05, 0x47, 0x15, 0x9d, 0x58, 0x4a, 0x07, 0x18, 0x3d, 0x83, 0xf0, 0x3a,
+	0x5b, 0x0a, 0x57, 0x90, 0xfe, 0xf1, 0x20, 0xa8, 0xde, 0x86, 0xda, 0x5b, 0xe8, 0xb8, 0x6a, 0x2a,
+	0xf2, 0xfa, 0xed, 0x41, 0x38, 0x8e, 0x87, 0x46, 0x01, 0x75, 0xc4, 0xf0, 0xa3, 0x90, 0xe8, 0x78,
+	0x25, 0x75, 0xac, 0x59, 0xe2, 0x0e, 0xa5, 0xe2, 0x22, 0x8b, 0xfc, 0x6a, 0x89, 0xee, 0x19, 0x7f,
+	0x83, 0xb0, 0x91, 0x42, 0x7a, 0xd0, 0x56, 0x3c, 0x75, 0xcc, 0x8d, 0x49, 0x08, 0xf8, 0x6b, 0xb3,
+	0x84, 0x6a, 0xf9, 0xd6, 0x36, 0x51, 0x85, 0xdc, 0xba, 0x9d, 0x1b, 0xd3, 0x20, 0x1b, 0x2c, 0x5d,
+	0x71, 0x63, 0xd2, 0x5f, 0x1e, 0x9c, 0x4e, 0xc5, 0xca, 0xde, 0xe2, 0x19, 0x40, 0x3d, 0xe3, 0x5e,
+	0x34, 0x0d, 0x84, 0xbc, 0x04, 0x5f, 0x97, 0x39, 0xda, 0x1e, 0xe7, 0xe3, 0x47, 0x76, 0x24, 0x97,
+	0x3b, 0x9c, 0x95, 0x39, 0x26, 0xd6, 0x6d, 0xa8, 0xa4, 0xfb, 0x5b, 0x77, 0x13, 0x6b, 0xd3, 0xe7,
+	0xe0, 0x9b, 0x08, 0xd2, 0x85, 0xce, 0x8d, 0x66, 0x59, 0xca, 0x64, 0xda, 0x6b, 0x91, 0x00, 0x1e,
+	0x4c, 0xa4, 0x14, 0xb2, 0xe7, 0x8d, 0xff, 0x7a, 0xe0, 0x9b, 0x09, 0xc9, 0x3b, 0x08, 0x1b, 0x9f,
+	0x06, 0x79, 0x52, 0x75, 0x39, 0xfa, 0x58, 0xe2, 0x73, 0xeb, 0xa8, 0xf5, 0x4e, 0x5b, 0x17, 0x1e,
+	0x79, 0x0f, 0x61, 0x43, 0x26, 0x2e, 0xf7, 0x58, 0xca, 0xf1, 0xe3, 0x63, 0x47, 0xbe, 0x2d, 0x69,
+	0x8b, 0x5c, 0x42, 0xd8, 0x50, 0x8b, 0x2b, 0x70, 0xac, 0x9f, 0xb8, 0xdb, 0x9c, 0xdd, 0xb6, 0x7e,
+	0x05, 0xbe, 0xb9, 0x2e, 0xe9, 0x35, 0x0e, 0xdd, 0x24, 0x5a, 0x9f, 0x9e, 0xb6, 0x3e, 0x8c, 0xbf,
+	0x5f, 0xac, 0xb8, 0x5e, 0x17, 0xf3, 0xe1, 0x42, 0xdc, 0x8e, 0x6e, 0x51, 0xad, 0x5e, 0x2f, 0x45,
+	0x91, 0xa5, 0xcc, 0xa8, 0xd6, 0xfe, 0x32, 0x46, 0xff, 0xff, 0x40, 0xe6, 0x0f, 0x2d, 0xf2, 0xe6,
+	0x5f, 0x00, 0x00, 0x00, 0xff, 0xff, 0x4c, 0x50, 0xb2, 0xc9, 0x5b, 0x04, 0x00, 0x00,
 }

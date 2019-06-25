@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"encoding/hex"
 	"os"
 	"testing"
 
@@ -22,16 +21,16 @@ func TestGet(t *testing.T) {
 	defer db.Close()
 	defer os.RemoveAll(execdbname)
 
-	exec := execution.New("", nil, uuid.NewV4().String(), "", nil, nil)
+	exec := execution.New(nil, nil, uuid.NewV4().String(), "", nil, nil)
 	require.NoError(t, db.Save(exec))
 
 	want, err := toProtoExecution(exec)
 	require.NoError(t, err)
 
-	sdk := sdk.New(nil, nil, nil, nil, db)
-	s := NewServer(sdk)
+	sdk := sdk.New(nil, nil, nil, db)
+	s := NewExecutionServer(sdk)
 
-	got, err := s.Get(context.Background(), &api.GetExecutionRequest{Hash: hex.EncodeToString(exec.Hash)})
+	got, err := s.Get(context.Background(), &api.GetExecutionRequest{Hash: exec.Hash.String()})
 	require.NoError(t, err)
 	require.Equal(t, got, want)
 }
@@ -42,12 +41,12 @@ func TestUpdate(t *testing.T) {
 	defer db.Close()
 	defer os.RemoveAll(execdbname)
 
-	exec := execution.New("", nil, uuid.NewV4().String(), "", nil, nil)
+	exec := execution.New(nil, nil, uuid.NewV4().String(), "", nil, nil)
 	require.NoError(t, db.Save(exec))
 
-	sdk := sdk.New(nil, nil, nil, nil, db)
-	s := NewServer(sdk)
+	sdk := sdk.New(nil, nil, nil, db)
+	s := NewExecutionServer(sdk)
 
-	_, err = s.Update(context.Background(), &api.UpdateExecutionRequest{Hash: hex.EncodeToString(exec.Hash)})
+	_, err = s.Update(context.Background(), &api.UpdateExecutionRequest{Hash: exec.Hash.String()})
 	require.Equal(t, ErrNoOutput, err)
 }

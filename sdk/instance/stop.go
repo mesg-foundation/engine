@@ -10,7 +10,7 @@ import (
 
 // Stop stops an instance.
 func (i *Instance) stop(inst *instance.Instance) error {
-	srv, err := i.serviceDB.Get(inst.ServiceHash)
+	srv, err := i.service.Get(inst.ServiceHash)
 	if err != nil {
 		return err
 	}

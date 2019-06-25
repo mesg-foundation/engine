@@ -1,102 +1,87 @@
 package api
 
 import (
+	"context"
+	"errors"
+
+	"github.com/mesg-foundation/core/hash"
+	protobuf_api "github.com/mesg-foundation/core/protobuf/api"
 	"github.com/mesg-foundation/core/protobuf/definition"
-	"github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/core/sdk"
+	instancesdk "github.com/mesg-foundation/core/sdk/instance"
 )
 
-func FromProtoService(s *definition.Service) *service.Service {
-	return &service.Service{
-		Hash:          s.Hash,
-		Sid:           s.Sid,
-		Name:          s.Name,
-		Description:   s.Description,
-		Repository:    s.Repository,
-		Source:        s.Source,
-		Tasks:         fromProtoTasks(s.Tasks),
-		Events:        fromProtoEvents(s.Events),
-		Configuration: fromProtoConfiguration(s.Configuration),
-		Dependencies:  fromProtoDependencies(s.Dependencies),
-	}
+// ServiceServer is the type to aggregate all Service APIs.
+type ServiceServer struct {
+	sdk *sdk.SDK
 }
 
-func fromProtoTasks(tasks []*definition.Task) []*service.Task {
-	ts := make([]*service.Task, len(tasks))
-	for i, task := range tasks {
-		ts[i] = &service.Task{
-			Key:         task.Key,
-			Name:        task.Name,
-			Description: task.Description,
-			Inputs:      fromProtoParameters(task.Inputs),
-			Outputs:     fromProtoParameters(task.Outputs),
-		}
-	}
-	return ts
+// NewServiceServer creates a new ServiceServer.
+func NewServiceServer(sdk *sdk.SDK) *ServiceServer {
+	return &ServiceServer{sdk: sdk}
 }
 
-func fromProtoEvents(events []*definition.Event) []*service.Event {
-	es := make([]*service.Event, len(events))
-	for i, event := range events {
-		es[i] = &service.Event{
-			Key:         event.Key,
-			Name:        event.Name,
-			Description: event.Description,
-			Data:        fromProtoParameters(event.Data),
-		}
+// Create creates a new service from definition.
+func (s *ServiceServer) Create(ctx context.Context, request *protobuf_api.CreateServiceRequest) (*protobuf_api.CreateServiceResponse, error) {
+	definition, err := FromProtoService(request.Definition)
+	if err != nil {
+		return nil, err
 	}
-	return es
+
+	srv, err := s.sdk.Service.Create(definition)
+	if err != nil {
+		return nil, err
+	}
+	return &protobuf_api.CreateServiceResponse{Sid: srv.Sid, Hash: srv.Hash.String()}, nil
 }
 
-func fromProtoParameters(params []*definition.Parameter) []*service.Parameter {
-	ps := make([]*service.Parameter, len(params))
-	for i, param := range params {
-		ps[i] = &service.Parameter{
-			Key:         param.Key,
-			Name:        param.Name,
-			Description: param.Description,
-			Type:        param.Type,
-			Repeated:    param.Repeated,
-			Optional:    param.Optional,
-			Object:      fromProtoParameters(param.Object),
-		}
+// Delete deletes service by hash or sid.
+func (s *ServiceServer) Delete(ctx context.Context, request *protobuf_api.DeleteServiceRequest) (*protobuf_api.DeleteServiceResponse, error) {
+	hash, err := hash.Decode(request.Hash)
+	if err != nil {
+		return nil, err
 	}
-	return ps
+
+	srv, err := s.sdk.Service.Get(hash)
+	if err != nil {
+		return nil, err
+	}
+	// first, check if service has any running instances.
+	instances, err := s.sdk.Instance.List(&instancesdk.Filter{ServiceHash: srv.Hash})
+	if err != nil {
+		return nil, err
+	}
+	if len(instances) > 0 {
+		return nil, errors.New("service has running instances. in order to delete the service, stop its instances first")
+	}
+	return &protobuf_api.DeleteServiceResponse{}, s.sdk.Service.Delete(hash)
 }
 
-func fromProtoConfiguration(configuration *definition.Configuration) *service.Dependency {
-	if configuration == nil {
-		return nil
+// Get returns service from given hash.
+func (s *ServiceServer) Get(ctx context.Context, req *protobuf_api.GetServiceRequest) (*definition.Service, error) {
+	hash, err := hash.Decode(req.Hash)
+	if err != nil {
+		return nil, err
 	}
-	return &service.Dependency{
-		Key:         service.MainServiceKey,
-		Args:        configuration.Args,
-		Command:     configuration.Command,
-		Ports:       configuration.Ports,
-		Volumes:     configuration.Volumes,
-		VolumesFrom: configuration.VolumesFrom,
-		Env:         configuration.Env,
+
+	service, err := s.sdk.Service.Get(hash)
+	if err != nil {
+		return nil, err
 	}
+	return ToProtoService(service), nil
 }
 
-func fromProtoDependency(dep *definition.Dependency) *service.Dependency {
-	if dep == nil {
-		return nil
+// List returns all services.
+func (s *ServiceServer) List(ctx context.Context, req *protobuf_api.ListServiceRequest) (*protobuf_api.ListServiceResponse, error) {
+	services, err := s.sdk.Service.List()
+	if err != nil {
+		return nil, err
 	}
-	return &service.Dependency{
-		Key:         dep.Key,
-		Image:       dep.Image,
-		Volumes:     dep.Volumes,
-		VolumesFrom: dep.VolumesFrom,
-		Ports:       dep.Ports,
-		Command:     dep.Command,
-		Args:        dep.Args,
-	}
-}
 
-func fromProtoDependencies(deps []*definition.Dependency) []*service.Dependency {
-	ds := make([]*service.Dependency, len(deps))
-	for i, dep := range deps {
-		ds[i] = fromProtoDependency(dep)
+	resp := &protobuf_api.ListServiceResponse{}
+	for _, service := range services {
+		resp.Services = append(resp.Services, ToProtoService(service))
 	}
-	return ds
+
+	return resp, nil
 }
