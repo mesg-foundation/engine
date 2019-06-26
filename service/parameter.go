@@ -22,5 +22,5 @@ type Parameter struct {
 	Repeated bool `hash:"name:6"`
 
 	// Definition of the structure of the object when the type is object
-	Object []*Parameter `hash:"name:7"`
+	Object []*Parameter `hash:"name:7" validate:"unique,dive,required"`
 }

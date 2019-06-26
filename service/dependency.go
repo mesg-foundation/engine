@@ -16,7 +16,7 @@ type Dependency struct {
 	VolumesFrom []string `hash:"name:4" validate:"unique,dive,printascii"`
 
 	// Ports holds ports configuration for container.
-	Ports []string `hash:"name:5"`
+	Ports []string `hash:"name:5" validate:"unique,dive,portmap"`
 
 	// Command is the Docker command which will be executed when container started.
 	Command string `hash:"name:6" validate:"printascii"`
@@ -25,5 +25,5 @@ type Dependency struct {
 	Args []string `hash:"name:7" validate:"dive,printascii"`
 
 	// Env is a slice of environment variables in key=value format.
-	Env []string `hash:"name:8" validate:"unique,dive,printascii"`
+	Env []string `hash:"name:8" validate:"unique,dive,env"`
 }

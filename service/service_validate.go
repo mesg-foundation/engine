@@ -38,6 +38,10 @@ func ValidateService(service *Service) error {
 		return errs.ErrorOrNil()
 	}
 
+	if err := isServiceKeysUnique(service); err != nil {
+		errs = append(errs, err)
+	}
+
 	// validate configuration image
 	if service.Configuration.Image != "" {
 		errs = append(errs, errors.New("configuration.image is not allowed"))
@@ -80,6 +84,59 @@ func ValidateService(service *Service) error {
 				err := fmt.Errorf("dependencies[%s].volumesFrom is invalid: dependency %q does not exist", dep.Key, depVolumeKey)
 				errs = append(errs, err)
 			}
+		}
+	}
+	return errs.ErrorOrNil()
+}
+
+// isServiceKeysUnique checks uniqueness of service deps/tasks/events/params keys.
+func isServiceKeysUnique(service *Service) error {
+	var errs xerrors.Errors
+	exist := make(map[string]bool)
+	for _, dep := range service.Dependencies {
+		if exist[dep.Key] {
+			errs = append(errs, fmt.Errorf("dependencies[%s] already exist", dep.Key))
+		}
+		exist[dep.Key] = true
+	}
+
+	exist = make(map[string]bool)
+	for _, task := range service.Tasks {
+		if exist[task.Key] {
+			errs = append(errs, fmt.Errorf("tasks[%s] already exist", task.Key))
+		}
+		exist[task.Key] = true
+
+		existparam := make(map[string]bool)
+		for _, param := range task.Inputs {
+			if existparam[param.Key] {
+				errs = append(errs, fmt.Errorf("tasks[%s].inputs[%s] already exist", task.Key, param.Key))
+			}
+			existparam[param.Key] = true
+		}
+
+		existparam = make(map[string]bool)
+		for _, param := range task.Outputs {
+			if existparam[param.Key] {
+				errs = append(errs, fmt.Errorf("tasks[%s].outputs[%s] already exist", task.Key, param.Key))
+			}
+			existparam[param.Key] = true
+		}
+	}
+
+	exist = make(map[string]bool)
+	for _, event := range service.Events {
+		if exist[event.Key] {
+			errs = append(errs, fmt.Errorf("events[%s] already exist", event.Key))
+		}
+		exist[event.Key] = true
+
+		existparam := make(map[string]bool)
+		for _, param := range event.Data {
+			if existparam[param.Key] {
+				errs = append(errs, fmt.Errorf("events[%s].data[%s] already exist", event.Key, param.Key))
+			}
+			existparam[param.Key] = true
 		}
 	}
 	return errs.ErrorOrNil()
