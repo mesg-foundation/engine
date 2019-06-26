@@ -34,6 +34,9 @@ func ValidateService(service *Service) error {
 			errs = append(errs, fmt.Errorf("%s%s", namespace, e.Translate(translator)))
 		}
 	}
+	if errs.ErrorOrNil() != nil {
+		return errs.ErrorOrNil()
+	}
 
 	// validate configuration image
 	if service.Configuration.Image != "" {
