@@ -12,10 +12,10 @@ type Task struct {
 	Description string `hash:"name:3" validate:"printascii"`
 
 	// Inputs are the definition of the execution inputs of task.
-	Inputs []*Parameter `hash:"name:4"`
+	Inputs []*Parameter `hash:"name:4" validate:"dive,required"`
 
 	// Outputs are the definition of the execution results of task.
-	Outputs []*Parameter `hash:"name:5"`
+	Outputs []*Parameter `hash:"name:5" validate:"dive,required"`
 }
 
 // GetTask returns task taskKey of service.
