@@ -109,9 +109,10 @@ func (s *Server) register() error {
 	serviceapi.RegisterServiceServer(s.instance, serviceServer)
 	coreapi.RegisterCoreServer(s.instance, coreServer)
 
-	protobuf_api.RegisterServiceXServer(s.instance, api.NewServiceServer(s.sdk))
-	protobuf_api.RegisterInstanceServer(s.instance, api.NewInstanceServer(s.sdk))
+	protobuf_api.RegisterEventServer(s.instance, api.NewEventServer(s.sdk))
 	protobuf_api.RegisterExecutionServer(s.instance, api.NewExecutionServer(s.sdk))
+	protobuf_api.RegisterInstanceServer(s.instance, api.NewInstanceServer(s.sdk))
+	protobuf_api.RegisterServiceXServer(s.instance, api.NewServiceServer(s.sdk))
 
 	reflection.Register(s.instance)
 	return nil
