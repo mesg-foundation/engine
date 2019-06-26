@@ -20,7 +20,7 @@ func TestNewFromService(t *testing.T) {
 
 	execution := New(hash, parentHash, eventID, taskKey, nil, tags)
 	require.NotNil(t, execution)
-	require.Equal(t, hash, execution.ServiceHash)
+	require.Equal(t, hash, execution.InstanceHash)
 	require.Equal(t, parentHash, execution.ParentHash)
 	require.Equal(t, eventID, execution.EventID)
 	require.Equal(t, taskKey, execution.TaskKey)
@@ -67,8 +67,8 @@ func TestStatus(t *testing.T) {
 func TestExecutionHash(t *testing.T) {
 	ids := make(map[string]bool)
 
-	f := func(serviceHash, parentHash []byte, eventID, taskKey, input string, tags []string) bool {
-		e := New(serviceHash, parentHash, eventID, taskKey, map[string]interface{}{"input": input}, tags)
+	f := func(instanceHash, parentHash []byte, eventID, taskKey, input string, tags []string) bool {
+		e := New(instanceHash, parentHash, eventID, taskKey, map[string]interface{}{"input": input}, tags)
 		if ids[string(e.Hash)] {
 			return false
 		}
