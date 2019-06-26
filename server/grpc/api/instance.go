@@ -51,7 +51,7 @@ func (s *InstanceServer) Create(ctx context.Context, request *protobuf_api.Creat
 	if err != nil {
 		return nil, err
 	}
-	return &protobuf_api.CreateInstanceResponse{Instance: toProtoInstance(i)}, nil
+	return &protobuf_api.CreateInstanceResponse{Hash: i.Hash.String()}, nil
 }
 
 // Get retrives instance.
