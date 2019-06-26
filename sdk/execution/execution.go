@@ -125,15 +125,12 @@ func (e *Execution) validateExecutionOutput(instanceHash hash.Hash, taskKey stri
 // Execute executes a task tasKey with inputData and tags for service serviceID.
 func (e *Execution) Execute(instanceHash hash.Hash, taskKey string, inputData map[string]interface{}, tags []string) (executionHash hash.Hash, err error) {
 	// a task should be executed only if task's service is running.
-	instances, err := e.instance.List(&instancesdk.Filter{InstanceHash: instanceHash})
+	instance, err := e.instance.Get(instanceHash)
 	if err != nil {
 		return nil, err
 	}
-	if len(instances) != 1 {
-		return nil, fmt.Errorf("instance %q is not running", instanceHash)
-	}
 
-	s, err := e.service.Get(instances[0].ServiceHash)
+	s, err := e.service.Get(instance.ServiceHash)
 	if err != nil {
 		return nil, err
 	}
