@@ -46,7 +46,7 @@ type Service struct {
 	Dependencies []*Dependency `hash:"name:6"`
 
 	// Configuration of the service
-	Configuration *Dependency `hash:"name:8"`
+	Configuration *Dependency `hash:"name:8" validate:"required"`
 
 	// Repository holds the service's repository url if it's living on
 	// a Git host.
