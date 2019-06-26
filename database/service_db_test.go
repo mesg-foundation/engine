@@ -39,7 +39,7 @@ func TestServiceDBSave(t *testing.T) {
 	require.Len(t, ss, 1)
 
 	_, err := db.Get(hash.Int(2))
-	require.IsType(t, &ErrNotFound{}, err)
+	require.IsType(t, &ErrServiceNotFound{}, err)
 
 	// different hash, different sid. should not replace anything.
 	s3 := &service.Service{Hash: hash.Int(2)}
@@ -48,7 +48,7 @@ func TestServiceDBSave(t *testing.T) {
 	require.Len(t, ss, 2)
 
 	// test service without hash.
-	require.EqualError(t, db.Save(&service.Service{}), errCannotSaveWithoutHash.Error())
+	require.EqualError(t, db.Save(&service.Service{}), errSaveServiceWithoutHash.Error())
 }
 
 func TestServiceDBGet(t *testing.T) {
@@ -67,7 +67,7 @@ func TestServiceDBGet(t *testing.T) {
 	// test return err not found
 	_, err = db.Get(hash.Int(2))
 	require.Error(t, err)
-	require.True(t, IsErrNotFound(err))
+	require.True(t, IsErrServiceNotFound(err))
 }
 
 func TestServiceDBDelete(t *testing.T) {
@@ -79,7 +79,7 @@ func TestServiceDBDelete(t *testing.T) {
 	require.NoError(t, db.Save(s))
 	require.NoError(t, db.Delete(s.Hash))
 	_, err := db.Get(s.Hash)
-	require.IsType(t, &ErrNotFound{}, err)
+	require.IsType(t, &ErrServiceNotFound{}, err)
 }
 
 func TestServiceDBDeleteConcurrency(t *testing.T) {
@@ -109,7 +109,7 @@ func TestServiceDBDeleteConcurrency(t *testing.T) {
 	wg.Wait()
 	require.Len(t, errs, n-1)
 	for i := 0; i < len(errs); i++ {
-		require.IsType(t, &ErrNotFound{}, errs[i])
+		require.IsType(t, &ErrServiceNotFound{}, errs[i])
 	}
 }
 
@@ -143,7 +143,7 @@ func TestServiceDBAllWithDecodeError(t *testing.T) {
 	require.Len(t, services, 0)
 }
 
-func TestIsErrNotFound(t *testing.T) {
-	require.True(t, IsErrNotFound(&ErrNotFound{}))
-	require.False(t, IsErrNotFound(nil))
+func TestIsErrServiceNotFound(t *testing.T) {
+	require.True(t, IsErrServiceNotFound(&ErrServiceNotFound{}))
+	require.False(t, IsErrServiceNotFound(nil))
 }

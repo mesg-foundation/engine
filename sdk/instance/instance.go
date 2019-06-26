@@ -110,7 +110,7 @@ func (i *Instance) Create(serviceHash hash.Hash, env []string) (*instance.Instan
 	if err == nil {
 		return nil, errors.New("instance already exists")
 	}
-	if !database.IsErrNotFound(err) {
+	if !database.IsErrInstanceNotFound(err) {
 		return nil, err
 	}
 

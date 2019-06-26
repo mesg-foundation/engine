@@ -79,3 +79,8 @@ func TestDeleteInstance(t *testing.T) {
 
 	require.NoError(t, db.Delete(i.Hash))
 }
+
+func TestIsErrInstanceNotFound(t *testing.T) {
+	require.True(t, IsErrInstanceNotFound(&ErrInstanceNotFound{}))
+	require.False(t, IsErrInstanceNotFound(nil))
+}

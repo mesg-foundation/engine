@@ -2,10 +2,16 @@ package database
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 
 	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/instance"
 	"github.com/syndtr/goleveldb/leveldb"
+)
+
+var (
+	errSaveInstanceWithoutHash = errors.New("database: can't save instance without hash")
 )
 
 // InstanceDB describes the API of Instance database.
@@ -52,7 +58,7 @@ func (d *LevelDBInstanceDB) marshal(i *instance.Instance) ([]byte, error) {
 func (d *LevelDBInstanceDB) unmarshal(hash, value []byte) (*instance.Instance, error) {
 	var s instance.Instance
 	if err := json.Unmarshal(value, &s); err != nil {
-		return nil, &DecodeError{hash: hash}
+		return nil, &InstanceDecodeError{hash: hash}
 	}
 	return &s, nil
 }
@@ -62,7 +68,7 @@ func (d *LevelDBInstanceDB) Get(hash hash.Hash) (*instance.Instance, error) {
 	b, err := d.db.Get(hash, nil)
 	if err != nil {
 		if err == leveldb.ErrNotFound {
-			return nil, &ErrNotFound{hash: hash}
+			return nil, &ErrInstanceNotFound{hash: hash}
 		}
 		return nil, err
 	}
@@ -120,7 +126,31 @@ func (d *LevelDBInstanceDB) Close() error {
 	return d.db.Close()
 }
 
-// Delete deletes service from database.
+// Delete deletes an instance from database.
 func (d *LevelDBInstanceDB) Delete(hash hash.Hash) error {
 	return d.db.Delete(hash, nil)
+}
+
+// ErrInstanceNotFound is an not found error.
+type ErrInstanceNotFound struct {
+	hash hash.Hash
+}
+
+func (e *ErrInstanceNotFound) Error() string {
+	return fmt.Sprintf("database: instance %q not found", e.hash)
+}
+
+// InstanceDecodeError represents a resource impossible to decode.
+type InstanceDecodeError struct {
+	hash hash.Hash
+}
+
+func (e *InstanceDecodeError) Error() string {
+	return fmt.Sprintf("database: could not instance service %q", e.hash)
+}
+
+// IsErrInstanceNotFound returns true if err is type of ErrInstanceNotFound, false otherwise.
+func IsErrInstanceNotFound(err error) bool {
+	_, ok := err.(*ErrInstanceNotFound)
+	return ok
 }
