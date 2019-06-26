@@ -44,7 +44,10 @@ func (s *Server) EmitEvent(context context.Context, request *serviceapi.EmitEven
 	if err := json.Unmarshal([]byte(request.EventData), &data); err != nil {
 		return nil, err
 	}
-	return &serviceapi.EmitEventReply{}, s.sdk.Event.Emit(instance.ServiceHash, request.EventKey, data)
+	if err := s.sdk.Event.Emit(instance.Hash, request.EventKey, data); err != nil {
+		return nil, err
+	}
+	return &serviceapi.EmitEventReply{}, nil
 }
 
 // ListenTask creates a stream that will send data for every task to execute.
