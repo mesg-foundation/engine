@@ -53,8 +53,8 @@ message CreateInstanceRequest {
 
 // The response's data for the `Create` API.
 message CreateInstanceResponse {
-  // The instance created.
-  definition.Instance instance = 1;
+  // The instance's hash created.
+  string hash = 1;
 }
 
 // The request's data for the `Delete` API.
