@@ -62,9 +62,9 @@ func (s *Service) Create(srv *service.Service) (*service.Service, error) {
 	}
 	srv.Hash = hash.Hash(h)
 
-	// check if service is already deployed.
+	// check if service already exists.
 	if _, err := s.serviceDB.Get(srv.Hash); err == nil {
-		return nil, errors.New("service is already deployed")
+		return nil, errors.New("service already exists")
 	}
 
 	// build service's Docker image.
