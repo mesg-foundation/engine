@@ -62,9 +62,9 @@ func (s *Service) Create(srv *service.Service) (*service.Service, error) {
 	}
 	srv.Hash = hash.Hash(h)
 
-	// check if service is already deployed.
+	// check if service already exists.
 	if _, err := s.serviceDB.Get(srv.Hash); err == nil {
-		return nil, errors.New("service is already deployed")
+		return nil, errors.New("service already exists")
 	}
 
 	// build service's Docker image.
@@ -76,6 +76,10 @@ func (s *Service) Create(srv *service.Service) (*service.Service, error) {
 	if srv.Sid == "" {
 		// make sure that sid doesn't have the same length with id.
 		srv.Sid = "_" + srv.Hash.String()
+	}
+
+	if err := service.ValidateService(srv); err != nil {
+		return nil, err
 	}
 
 	return srv, s.serviceDB.Save(srv)

@@ -31,19 +31,19 @@ type Service struct {
 	Sid string `hash:"name:1"  validate:"omitempty,printascii,max=63,domain"`
 
 	// Name is the service name.
-	Name string `hash:"name:2" validate:"required,printascii,min=1"`
+	Name string `hash:"name:2" validate:"required,printascii"`
 
 	// Description is service description.
 	Description string `hash:"name:3" validate:"printascii"`
 
 	// Tasks are the list of tasks that service can execute.
-	Tasks []*Task `hash:"name:4"`
+	Tasks []*Task `hash:"name:4" validate:"dive,required"`
 
 	// Events are the list of events that service can emit.
-	Events []*Event `hash:"name:5"`
+	Events []*Event `hash:"name:5" validate:"dive,required"`
 
 	// Dependencies are the Docker containers that service can depend on.
-	Dependencies []*Dependency `hash:"name:6"`
+	Dependencies []*Dependency `hash:"name:6" validate:"dive,required"`
 
 	// Configuration of the service
 	Configuration *Dependency `hash:"name:8"`
@@ -53,7 +53,7 @@ type Service struct {
 	Repository string `hash:"name:7" validate:"omitempty,uri"`
 
 	// Source is the hash id of service's source code on IPFS.
-	Source string `hash:"name:9"`
+	Source string `hash:"name:9" validate:"required,printascii"`
 }
 
 // StatusType of the service.
