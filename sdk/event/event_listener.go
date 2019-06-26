@@ -3,16 +3,35 @@ package eventsdk
 import (
 	"github.com/cskr/pubsub"
 	"github.com/mesg-foundation/core/event"
+	"github.com/mesg-foundation/core/hash"
 )
 
 // Filter store fileds for matching events.
 type Filter struct {
-	Key string
+	Hash         hash.Hash
+	InstanceHash hash.Hash
+	Key          string
 }
 
 // Match matches event.
 func (f *Filter) Match(e *event.Event) bool {
-	return f == nil || f.Key == "" || f.Key == "*" || f.Key == e.Key
+	if f == nil {
+		return true
+	}
+
+	if !f.Hash.IsZero() && !f.Hash.Equal(e.Hash) {
+		return false
+	}
+
+	if !f.InstanceHash.IsZero() && !f.InstanceHash.Equal(e.InstanceHash) {
+		return false
+	}
+
+	if f.Key != "" && f.Key != "*" && f.Key != e.Key {
+		return false
+	}
+
+	return true
 }
 
 // HasKey returns true if key is set to specified value.
