@@ -78,6 +78,10 @@ func (s *Service) Create(srv *service.Service) (*service.Service, error) {
 		srv.Sid = "_" + srv.Hash.String()
 	}
 
+	if err := service.ValidateService(srv); err != nil {
+		return nil, err
+	}
+
 	return srv, s.serviceDB.Save(srv)
 }
 
