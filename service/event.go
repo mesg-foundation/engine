@@ -12,7 +12,7 @@ type Event struct {
 	Description string `hash:"name:3" validate:"printascii"`
 
 	// Data holds the input parameters of event.
-	Data []*Parameter `hash:"name:4"`
+	Data []*Parameter `hash:"name:4" validate:"dive,required"`
 }
 
 // GetEvent returns event eventKey of service.
