@@ -105,10 +105,10 @@ func (i *Instance) Create(serviceHash hash.Hash, env []string) (*instance.Instan
 	h.Write([]byte(xos.EnvMapToString(instanceEnv)))
 	instanceHash := h.Sum(nil)
 
-	// check if instance is already running.
+	// check if instance already exists
 	_, err = i.instanceDB.Get(instanceHash)
 	if err == nil {
-		return nil, errors.New("service's instance is already running")
+		return nil, errors.New("instance already exists")
 	}
 	if !database.IsErrNotFound(err) {
 		return nil, err

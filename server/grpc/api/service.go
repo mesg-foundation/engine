@@ -28,7 +28,7 @@ func (s *ServiceServer) Create(ctx context.Context, request *protobuf_api.Create
 	if err != nil {
 		return nil, err
 	}
-	return &protobuf_api.CreateServiceResponse{Sid: srv.Sid, Hash: srv.Hash.String()}, nil
+	return &protobuf_api.CreateServiceResponse{Hash: srv.Hash.String()}, nil
 }
 
 // Delete deletes service by hash or sid.
