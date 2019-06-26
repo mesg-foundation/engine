@@ -18,7 +18,7 @@ service Event {
   rpc Stream(StreamEventRequest) returns (stream definition.Event) {}
 }
 
-// StreamEventRequest defines request to retrieve a stream of executions.
+// StreamEventRequest defines request to retrieve a stream of events.
 message StreamEventRequest {
   // Filter contains filtering criteria.
   message Filter {
@@ -44,6 +44,6 @@ message CreateEventRequest {
 
 // CreateEventResponse defines response for execution update.
 message CreateEventResponse {
-  // Hash represents execution.
+  // Hash represents event.
   string hash = 1;
 }

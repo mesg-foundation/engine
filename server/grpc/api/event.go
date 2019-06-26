@@ -31,7 +31,7 @@ func (s *EventServer) Create(ctx context.Context, req *api.CreateEventRequest) (
 		return nil, errors.New("create event: hash not allowed")
 	}
 
-	if req.Event.Key != "" {
+	if req.Event.Key == "" {
 		return nil, errors.New("create event: key missing")
 	}
 
