@@ -113,11 +113,15 @@ func TestExecute(t *testing.T) {
 	require.NoError(t, at.serviceDB.Save(testService))
 	require.NoError(t, at.instanceDB.Save(testInstance))
 
-	_, err := sdk.Execute(testInstance.Hash, testService.Tasks[0].Key, map[string]interface{}{}, []string{})
+	_, err := sdk.Execute(testInstance.Hash, testService.Tasks[0].Key, nil, nil)
 	require.NoError(t, err)
+
+	// not existing instance
+	_, err = sdk.Execute(hash.Int(3), testService.Tasks[0].Key, nil, nil)
+	require.Error(t, err)
 }
 
-func TestExecuteWithInvalidTaskName(t *testing.T) {
+func TestExecuteInvalidTaskKey(t *testing.T) {
 	sdk, at := newTesting(t)
 	defer at.close()
 
