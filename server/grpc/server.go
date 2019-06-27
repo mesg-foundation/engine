@@ -1,9 +1,7 @@
 package grpc
 
 import (
-	"errors"
 	"net"
-	"sync"
 	"time"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
@@ -21,37 +19,20 @@ import (
 
 // Server contains the server config.
 type Server struct {
-	sdk *sdk.SDK
-
 	instance *grpc.Server
-	closed   bool
-	mi       sync.Mutex // protects startup.
-
-	network string
-	address string
+	sdk      *sdk.SDK
 }
 
 // New returns a new gRPC server.
-func New(address string, sdk *sdk.SDK) *Server {
-	return &Server{
-		sdk:     sdk,
-		address: address,
-		network: "tcp",
-	}
+func New(sdk *sdk.SDK) *Server {
+	return &Server{sdk: sdk}
 }
 
 // listen listens for connections.
-func (s *Server) listen() (net.Listener, error) {
-	s.mi.Lock()
-	defer s.mi.Unlock()
-
-	if s.closed {
-		return nil, errors.New("already closed")
-	}
-
-	ln, err := net.Listen(s.network, s.address)
+func (s *Server) Serve(address string) error {
+	ln, err := net.Listen("tcp", address)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// Keep alive prevents Docker network to drop TCP idle connections after 15 minutes.
@@ -70,31 +51,12 @@ func (s *Server) listen() (net.Listener, error) {
 	)
 	s.register()
 	logrus.Info("server listens on ", ln.Addr())
-	return ln, nil
-}
-
-// Serve starts the server and listens for client connections.
-func (s *Server) Serve() error {
-	ln, err := s.listen()
-	if err != nil {
-		return err
-	}
-
-	// TODO: check if server still on after a connection throw an error. otherwise, add a for around serve
 	return s.instance.Serve(ln)
 }
 
 // Close gracefully closes the server.
 func (s *Server) Close() {
-	s.mi.Lock()
-	defer s.mi.Unlock()
-	if s.closed {
-		return
-	}
-	if s.instance != nil {
-		s.instance.GracefulStop()
-	}
-	s.closed = true
+	s.instance.GracefulStop()
 }
 
 // register all server
