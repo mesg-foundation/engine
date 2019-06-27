@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/hash"
@@ -25,6 +26,29 @@ type ExecutionServer struct {
 // NewExecutionServer creates a new ExecutionServer.
 func NewExecutionServer(sdk *sdk.SDK) *ExecutionServer {
 	return &ExecutionServer{sdk: sdk}
+}
+
+// Create creates an execution.
+func (s *ExecutionServer) Create(ctx context.Context, req *api.CreateExecutionRequest) (*api.CreateExecutionResponse, error) {
+	hash, err := hash.Decode(req.InstanceHash)
+	if err != nil {
+		return nil, err
+	}
+
+	var inputs map[string]interface{}
+	if err := json.Unmarshal([]byte(req.Inputs), &inputs); err != nil {
+		return nil, fmt.Errorf("cannot parse execution's inputs (JSON format): %s", err)
+	}
+
+	executionHash, err := s.sdk.Execution.Execute(hash, req.TaskKey, inputs, req.Tags)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.CreateExecutionResponse{
+		Hash: executionHash.String(),
+	}, nil
+
 }
 
 // Get returns execution from given hash.
