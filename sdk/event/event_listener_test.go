@@ -5,6 +5,7 @@ import (
 
 	"github.com/cskr/pubsub"
 	"github.com/mesg-foundation/core/event"
+	"github.com/mesg-foundation/core/hash"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -22,6 +23,26 @@ func TestFilter(t *testing.T) {
 		{
 			&Filter{},
 			&event.Event{},
+			true,
+		},
+		{
+			&Filter{Hash: hash.Int(1)},
+			&event.Event{Hash: hash.Int(1)},
+			true,
+		},
+		{
+			&Filter{Hash: hash.Int(1)},
+			&event.Event{Hash: hash.Int(2)},
+			false,
+		},
+		{
+			&Filter{InstanceHash: hash.Int(1)},
+			&event.Event{InstanceHash: hash.Int(1)},
+			true,
+		},
+		{
+			&Filter{InstanceHash: hash.Int(1)},
+			&event.Event{InstanceHash: hash.Int(1)},
 			true,
 		},
 		{
