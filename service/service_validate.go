@@ -19,6 +19,13 @@ var validate, translator = newValidator()
 
 // ValidateService validates if service contains proper data.
 func ValidateService(service *Service) error {
+	if err := validateServiceStruct(service); err != nil {
+		return err
+	}
+	return validateServiceData(service)
+}
+
+func validateServiceStruct(service *Service) error {
 	var errs xerrors.Errors
 	// validate service struct based on tag
 	if err := validate.Struct(service); err != nil {
@@ -34,7 +41,11 @@ func ValidateService(service *Service) error {
 			errs = append(errs, fmt.Errorf("%s%s", namespace, e.Translate(translator)))
 		}
 	}
+	return errs.ErrorOrNil()
+}
 
+func validateServiceData(service *Service) error {
+	var errs xerrors.Errors
 	if err := isServiceKeysUnique(service); err != nil {
 		errs = append(errs, err)
 	}
