@@ -1,6 +1,7 @@
 package grpc
 
 import (
+	"errors"
 	"net"
 	"sync"
 	"time"
@@ -9,11 +10,9 @@ import (
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	protobuf_api "github.com/mesg-foundation/core/protobuf/api"
 	"github.com/mesg-foundation/core/protobuf/coreapi"
-	"github.com/mesg-foundation/core/protobuf/serviceapi"
 	"github.com/mesg-foundation/core/sdk"
 	"github.com/mesg-foundation/core/server/grpc/api"
 	"github.com/mesg-foundation/core/server/grpc/core"
-	"github.com/mesg-foundation/core/server/grpc/service"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
@@ -47,7 +46,7 @@ func (s *Server) listen() (net.Listener, error) {
 	defer s.mi.Unlock()
 
 	if s.closed {
-		return nil, &alreadyClosedError{}
+		return nil, errors.New("already closed")
 	}
 
 	ln, err := net.Listen(s.network, s.address)
@@ -69,10 +68,7 @@ func (s *Server) listen() (net.Listener, error) {
 			grpc_logrus.UnaryServerInterceptor(logrus.NewEntry(logrus.StandardLogger())),
 		)),
 	)
-	if err := s.register(); err != nil {
-		return nil, err
-	}
-
+	s.register()
 	logrus.Info("server listens on ", ln.Addr())
 	return ln, nil
 }
@@ -102,12 +98,8 @@ func (s *Server) Close() {
 }
 
 // register all server
-func (s *Server) register() error {
-	coreServer := core.NewServer(s.sdk)
-	serviceServer := service.NewServer(s.sdk)
-
-	serviceapi.RegisterServiceServer(s.instance, serviceServer)
-	coreapi.RegisterCoreServer(s.instance, coreServer)
+func (s *Server) register() {
+	coreapi.RegisterCoreServer(s.instance, core.NewServer(s.sdk))
 
 	protobuf_api.RegisterEventServer(s.instance, api.NewEventServer(s.sdk))
 	protobuf_api.RegisterExecutionServer(s.instance, api.NewExecutionServer(s.sdk))
@@ -115,11 +107,4 @@ func (s *Server) register() error {
 	protobuf_api.RegisterServiceXServer(s.instance, api.NewServiceServer(s.sdk))
 
 	reflection.Register(s.instance)
-	return nil
-}
-
-type alreadyClosedError struct{}
-
-func (e *alreadyClosedError) Error() string {
-	return "already closed"
 }
