@@ -44,8 +44,8 @@ func (s *EventServer) Create(ctx context.Context, req *api.CreateEventRequest) (
 	if err := json.Unmarshal([]byte(req.Event.Data), &data); err != nil {
 		return nil, fmt.Errorf("create event: data %s", err)
 	}
-	event := event.Create(instanceHash, req.Event.Key, data)
-	if err := s.sdk.Event.Create(event); err != nil {
+	event, err := s.sdk.Event.Create(instanceHash, req.Event.Key, data)
+	if err != nil {
 		return nil, fmt.Errorf("create event: data %s", err)
 	}
 

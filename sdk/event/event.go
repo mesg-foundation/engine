@@ -3,6 +3,7 @@ package eventsdk
 import (
 	"github.com/cskr/pubsub"
 	"github.com/mesg-foundation/core/event"
+	"github.com/mesg-foundation/core/hash"
 	instancesdk "github.com/mesg-foundation/core/sdk/instance"
 	servicesdk "github.com/mesg-foundation/core/sdk/service"
 )
@@ -29,23 +30,25 @@ func New(ps *pubsub.PubSub, service *servicesdk.Service, instance *instancesdk.I
 }
 
 // Emit emits a MESG event eventKey with eventData for service token.
-func (e *Event) Create(event *event.Event) error {
+func (e *Event) Create(instanceHash hash.Hash, eventKey string, eventData map[string]interface{}) (*event.Event, error) {
+	event := event.Create(instanceHash, eventKey, eventData)
+
 	instance, err := e.instance.Get(event.InstanceHash)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	service, err := e.service.Get(instance.ServiceHash)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if err := service.RequireEventData(event.Key, event.Data); err != nil {
-		return err
+		return nil, err
 	}
 
 	go e.ps.Pub(event, streamTopic)
-	return nil
+	return event, nil
 }
 
 // GetStream broadcasts all events.
