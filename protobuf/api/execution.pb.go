@@ -23,6 +23,111 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
+// CreateExecutionRequest defines request to create a single execution.
+type CreateExecutionRequest struct {
+	InstanceHash         string   `protobuf:"bytes,1,opt,name=instanceHash,proto3" json:"instanceHash,omitempty"`
+	TaskKey              string   `protobuf:"bytes,2,opt,name=taskKey,proto3" json:"taskKey,omitempty"`
+	Inputs               string   `protobuf:"bytes,3,opt,name=inputs,proto3" json:"inputs,omitempty"`
+	Tags                 []string `protobuf:"bytes,4,rep,name=tags,proto3" json:"tags,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *CreateExecutionRequest) Reset()         { *m = CreateExecutionRequest{} }
+func (m *CreateExecutionRequest) String() string { return proto.CompactTextString(m) }
+func (*CreateExecutionRequest) ProtoMessage()    {}
+func (*CreateExecutionRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_96e2c86581f82f05, []int{0}
+}
+
+func (m *CreateExecutionRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CreateExecutionRequest.Unmarshal(m, b)
+}
+func (m *CreateExecutionRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CreateExecutionRequest.Marshal(b, m, deterministic)
+}
+func (m *CreateExecutionRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateExecutionRequest.Merge(m, src)
+}
+func (m *CreateExecutionRequest) XXX_Size() int {
+	return xxx_messageInfo_CreateExecutionRequest.Size(m)
+}
+func (m *CreateExecutionRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_CreateExecutionRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CreateExecutionRequest proto.InternalMessageInfo
+
+func (m *CreateExecutionRequest) GetInstanceHash() string {
+	if m != nil {
+		return m.InstanceHash
+	}
+	return ""
+}
+
+func (m *CreateExecutionRequest) GetTaskKey() string {
+	if m != nil {
+		return m.TaskKey
+	}
+	return ""
+}
+
+func (m *CreateExecutionRequest) GetInputs() string {
+	if m != nil {
+		return m.Inputs
+	}
+	return ""
+}
+
+func (m *CreateExecutionRequest) GetTags() []string {
+	if m != nil {
+		return m.Tags
+	}
+	return nil
+}
+
+// CreateExecutionResponse defines response for execution creation.
+type CreateExecutionResponse struct {
+	// Execution's hash.
+	Hash                 string   `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *CreateExecutionResponse) Reset()         { *m = CreateExecutionResponse{} }
+func (m *CreateExecutionResponse) String() string { return proto.CompactTextString(m) }
+func (*CreateExecutionResponse) ProtoMessage()    {}
+func (*CreateExecutionResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_96e2c86581f82f05, []int{1}
+}
+
+func (m *CreateExecutionResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CreateExecutionResponse.Unmarshal(m, b)
+}
+func (m *CreateExecutionResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CreateExecutionResponse.Marshal(b, m, deterministic)
+}
+func (m *CreateExecutionResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateExecutionResponse.Merge(m, src)
+}
+func (m *CreateExecutionResponse) XXX_Size() int {
+	return xxx_messageInfo_CreateExecutionResponse.Size(m)
+}
+func (m *CreateExecutionResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_CreateExecutionResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CreateExecutionResponse proto.InternalMessageInfo
+
+func (m *CreateExecutionResponse) GetHash() string {
+	if m != nil {
+		return m.Hash
+	}
+	return ""
+}
+
 // GetExecutionRequest defines request to retrieve a single execution.
 type GetExecutionRequest struct {
 	// Execution's hash to fetch.
@@ -36,7 +141,7 @@ func (m *GetExecutionRequest) Reset()         { *m = GetExecutionRequest{} }
 func (m *GetExecutionRequest) String() string { return proto.CompactTextString(m) }
 func (*GetExecutionRequest) ProtoMessage()    {}
 func (*GetExecutionRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_96e2c86581f82f05, []int{0}
+	return fileDescriptor_96e2c86581f82f05, []int{2}
 }
 
 func (m *GetExecutionRequest) XXX_Unmarshal(b []byte) error {
@@ -77,7 +182,7 @@ func (m *StreamExecutionRequest) Reset()         { *m = StreamExecutionRequest{}
 func (m *StreamExecutionRequest) String() string { return proto.CompactTextString(m) }
 func (*StreamExecutionRequest) ProtoMessage()    {}
 func (*StreamExecutionRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_96e2c86581f82f05, []int{1}
+	return fileDescriptor_96e2c86581f82f05, []int{3}
 }
 
 func (m *StreamExecutionRequest) XXX_Unmarshal(b []byte) error {
@@ -120,7 +225,7 @@ func (m *StreamExecutionRequest_Filter) Reset()         { *m = StreamExecutionRe
 func (m *StreamExecutionRequest_Filter) String() string { return proto.CompactTextString(m) }
 func (*StreamExecutionRequest_Filter) ProtoMessage()    {}
 func (*StreamExecutionRequest_Filter) Descriptor() ([]byte, []int) {
-	return fileDescriptor_96e2c86581f82f05, []int{1, 0}
+	return fileDescriptor_96e2c86581f82f05, []int{3, 0}
 }
 
 func (m *StreamExecutionRequest_Filter) XXX_Unmarshal(b []byte) error {
@@ -174,7 +279,7 @@ func (m *UpdateExecutionRequest) Reset()         { *m = UpdateExecutionRequest{}
 func (m *UpdateExecutionRequest) String() string { return proto.CompactTextString(m) }
 func (*UpdateExecutionRequest) ProtoMessage()    {}
 func (*UpdateExecutionRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_96e2c86581f82f05, []int{2}
+	return fileDescriptor_96e2c86581f82f05, []int{4}
 }
 
 func (m *UpdateExecutionRequest) XXX_Unmarshal(b []byte) error {
@@ -258,7 +363,7 @@ func (m *UpdateExecutionResponse) Reset()         { *m = UpdateExecutionResponse
 func (m *UpdateExecutionResponse) String() string { return proto.CompactTextString(m) }
 func (*UpdateExecutionResponse) ProtoMessage()    {}
 func (*UpdateExecutionResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_96e2c86581f82f05, []int{3}
+	return fileDescriptor_96e2c86581f82f05, []int{5}
 }
 
 func (m *UpdateExecutionResponse) XXX_Unmarshal(b []byte) error {
@@ -280,6 +385,8 @@ func (m *UpdateExecutionResponse) XXX_DiscardUnknown() {
 var xxx_messageInfo_UpdateExecutionResponse proto.InternalMessageInfo
 
 func init() {
+	proto.RegisterType((*CreateExecutionRequest)(nil), "api.CreateExecutionRequest")
+	proto.RegisterType((*CreateExecutionResponse)(nil), "api.CreateExecutionResponse")
 	proto.RegisterType((*GetExecutionRequest)(nil), "api.GetExecutionRequest")
 	proto.RegisterType((*StreamExecutionRequest)(nil), "api.StreamExecutionRequest")
 	proto.RegisterType((*StreamExecutionRequest_Filter)(nil), "api.StreamExecutionRequest.Filter")
@@ -290,27 +397,32 @@ func init() {
 func init() { proto.RegisterFile("protobuf/api/execution.proto", fileDescriptor_96e2c86581f82f05) }
 
 var fileDescriptor_96e2c86581f82f05 = []byte{
-	// 311 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x52, 0xdd, 0x4a, 0x33, 0x31,
-	0x10, 0xed, 0x7e, 0xfd, 0x8c, 0x76, 0xfc, 0x41, 0x46, 0xa8, 0x75, 0x2d, 0x22, 0x01, 0x41, 0x6f,
-	0xb6, 0xd2, 0xde, 0xe9, 0x9d, 0x50, 0xdb, 0xeb, 0x2d, 0x3e, 0x40, 0x5a, 0xa7, 0x74, 0xa5, 0x6e,
-	0x62, 0x32, 0x01, 0x7d, 0x24, 0xdf, 0xc3, 0x07, 0x13, 0x93, 0x6d, 0x41, 0xbb, 0x88, 0x77, 0xc9,
-	0xf9, 0x99, 0x9c, 0x39, 0x04, 0xba, 0xc6, 0x6a, 0xd6, 0x53, 0x3f, 0xef, 0x29, 0x53, 0xf4, 0xe8,
-	0x95, 0x66, 0x9e, 0x0b, 0x5d, 0x66, 0x01, 0xc6, 0xa6, 0x32, 0x45, 0x7a, 0xb6, 0x96, 0xf0, 0x9b,
-	0x21, 0xf7, 0x53, 0x24, 0xaf, 0xe0, 0x68, 0x44, 0x3c, 0x5c, 0xa1, 0x39, 0xbd, 0x78, 0x72, 0x8c,
-	0x08, 0xff, 0x17, 0xca, 0x2d, 0x3a, 0xc9, 0x79, 0x72, 0xd9, 0xca, 0xc3, 0x59, 0xbe, 0x27, 0xd0,
-	0x9e, 0xb0, 0x25, 0xf5, 0xbc, 0x21, 0xbf, 0x01, 0x31, 0x2f, 0x96, 0x4c, 0x36, 0x18, 0x76, 0xfb,
-	0x32, 0x53, 0xa6, 0xc8, 0xea, 0xc5, 0xd9, 0x7d, 0x50, 0xe6, 0x95, 0x23, 0x9d, 0x80, 0x88, 0x08,
-	0x5e, 0x80, 0x70, 0xac, 0xd8, 0xbb, 0x30, 0xe5, 0xa0, 0xbf, 0x9f, 0x85, 0xcc, 0xd9, 0x24, 0x80,
-	0x79, 0x45, 0xa2, 0x84, 0xbd, 0xa2, 0x74, 0xac, 0xca, 0x19, 0x8d, 0xbf, 0x32, 0xfe, 0x0b, 0x19,
-	0xbf, 0x61, 0xf2, 0x09, 0xda, 0x0f, 0xe6, 0x51, 0x31, 0xfd, 0x65, 0x33, 0x4c, 0x61, 0x5b, 0x7b,
-	0x36, 0x9e, 0x5d, 0x1c, 0x36, 0x6e, 0xe4, 0x2b, 0x00, 0xdb, 0xb0, 0x45, 0xd6, 0x6a, 0xdb, 0x69,
-	0x56, 0x4c, 0xbc, 0xde, 0xed, 0x80, 0xb0, 0xe4, 0xfc, 0x92, 0xe5, 0x09, 0x1c, 0x6f, 0xbc, 0xe5,
-	0x8c, 0x2e, 0x1d, 0xf5, 0x3f, 0x12, 0x68, 0xad, 0x51, 0x1c, 0x40, 0x73, 0x44, 0x8c, 0x9d, 0x50,
-	0x4e, 0x4d, 0xeb, 0xe9, 0x61, 0xb5, 0xf0, 0x9a, 0x90, 0x0d, 0xbc, 0x05, 0x11, 0x7b, 0xc4, 0xd3,
-	0x5f, 0x4a, 0xad, 0xb3, 0x5e, 0x27, 0x38, 0x04, 0x11, 0xa3, 0x55, 0xe6, 0xfa, 0x4e, 0xd2, 0x6e,
-	0x3d, 0x19, 0x97, 0x90, 0x8d, 0xa9, 0x08, 0x7f, 0x65, 0xf0, 0x19, 0x00, 0x00, 0xff, 0xff, 0x88,
-	0x69, 0xb3, 0xe1, 0x70, 0x02, 0x00, 0x00,
+	// 392 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x74, 0x53, 0x4d, 0x8f, 0xda, 0x30,
+	0x14, 0x4c, 0x08, 0x35, 0xe5, 0xf5, 0x43, 0x95, 0x2b, 0x85, 0x34, 0x45, 0x15, 0xb2, 0x54, 0x89,
+	0x1e, 0x1a, 0x2a, 0xb8, 0xb5, 0xb7, 0x56, 0x14, 0xa4, 0xde, 0x82, 0xfa, 0x03, 0x0c, 0x7d, 0x94,
+	0xb4, 0x6c, 0xe2, 0xb5, 0x5f, 0xa4, 0xe5, 0xba, 0xd7, 0xfd, 0x25, 0xfb, 0x2f, 0x57, 0xd8, 0x81,
+	0xd5, 0x6e, 0xbc, 0x37, 0x7b, 0x66, 0xde, 0x87, 0x67, 0x12, 0x18, 0x2a, 0x5d, 0x51, 0xb5, 0xae,
+	0xb7, 0x13, 0xa9, 0x8a, 0x09, 0x5e, 0xe1, 0xa6, 0xa6, 0xa2, 0x2a, 0x33, 0x0b, 0xf3, 0x48, 0xaa,
+	0x22, 0xfd, 0x70, 0x96, 0xd0, 0x41, 0xa1, 0x79, 0x2c, 0x12, 0xd7, 0x21, 0xc4, 0x3f, 0x34, 0x4a,
+	0xc2, 0xf9, 0x89, 0xc9, 0xf1, 0xb2, 0x46, 0x43, 0x5c, 0xc0, 0xcb, 0xa2, 0x34, 0x24, 0xcb, 0x0d,
+	0x2e, 0xa5, 0xd9, 0x25, 0xe1, 0x28, 0x1c, 0xf7, 0xf3, 0x07, 0x18, 0x4f, 0xa0, 0x47, 0xd2, 0xfc,
+	0xff, 0x85, 0x87, 0xa4, 0x63, 0xe9, 0xd3, 0x95, 0xc7, 0xc0, 0x8a, 0x52, 0xd5, 0x64, 0x92, 0xc8,
+	0x12, 0xcd, 0x8d, 0x73, 0xe8, 0x92, 0xfc, 0x6b, 0x92, 0xee, 0x28, 0x1a, 0xf7, 0x73, 0x7b, 0x16,
+	0x9f, 0x61, 0xd0, 0xda, 0xc1, 0xa8, 0xaa, 0x34, 0x78, 0x94, 0xef, 0xee, 0x87, 0xdb, 0xb3, 0xf8,
+	0x04, 0x6f, 0x17, 0x48, 0xad, 0x7d, 0x7d, 0xd2, 0xdb, 0x10, 0xe2, 0x15, 0x69, 0x94, 0x17, 0x2d,
+	0xf9, 0x57, 0x60, 0xdb, 0x62, 0x4f, 0xa8, 0x6d, 0xc1, 0x8b, 0xa9, 0xc8, 0xa4, 0x2a, 0x32, 0xbf,
+	0x38, 0xfb, 0x69, 0x95, 0x79, 0x53, 0x91, 0xae, 0x80, 0x39, 0x84, 0x7f, 0x04, 0x66, 0x48, 0x52,
+	0x6d, 0x6c, 0x97, 0xd7, 0xd3, 0x57, 0x99, 0xf5, 0x39, 0x5b, 0x59, 0x30, 0x6f, 0xc8, 0x96, 0x97,
+	0x9d, 0xb6, 0x97, 0xe2, 0x1f, 0xc4, 0xbf, 0xd5, 0x1f, 0x5f, 0x12, 0x9e, 0x97, 0xf1, 0x14, 0x7a,
+	0x55, 0x4d, 0xd6, 0x60, 0xdb, 0x6c, 0x19, 0xe4, 0x27, 0x80, 0xc7, 0xf0, 0x0c, 0xb5, 0xae, 0xb4,
+	0xb3, 0x7e, 0x19, 0xe4, 0xee, 0xfa, 0xfd, 0x39, 0x30, 0x8d, 0xa6, 0xde, 0x93, 0x78, 0x07, 0x83,
+	0xd6, 0x2c, 0xe7, 0xf8, 0xf4, 0xa6, 0x03, 0xfd, 0x33, 0xca, 0xe7, 0xc0, 0x5c, 0x34, 0xfc, 0xbd,
+	0xf5, 0xc7, 0xff, 0xad, 0xa4, 0x43, 0x3f, 0xe9, 0x5a, 0x8a, 0x80, 0xcf, 0x20, 0x5a, 0x20, 0xf1,
+	0xc4, 0xca, 0x3c, 0xe1, 0xa5, 0x6f, 0x1a, 0xdf, 0xce, 0x84, 0x08, 0xf8, 0x37, 0x60, 0x2e, 0x8e,
+	0x66, 0xb6, 0x3f, 0x1b, 0x5f, 0xe9, 0x97, 0xf0, 0xb8, 0xb8, 0x7b, 0x61, 0x53, 0xec, 0xb7, 0xb6,
+	0x59, 0xfc, 0x09, 0x2f, 0x44, 0xb0, 0x66, 0xf6, 0x37, 0x99, 0xdd, 0x05, 0x00, 0x00, 0xff, 0xff,
+	0x64, 0x6d, 0x5d, 0xea, 0x6b, 0x03, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -325,6 +437,8 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type ExecutionClient interface {
+	// Create creates a single Execution specified in a request.
+	Create(ctx context.Context, in *CreateExecutionRequest, opts ...grpc.CallOption) (*CreateExecutionResponse, error)
 	// Get returns a single Execution specified in a request.
 	Get(ctx context.Context, in *GetExecutionRequest, opts ...grpc.CallOption) (*types.Execution, error)
 	// Stream returns a stream of executions that satisfy criteria
@@ -340,6 +454,15 @@ type executionClient struct {
 
 func NewExecutionClient(cc *grpc.ClientConn) ExecutionClient {
 	return &executionClient{cc}
+}
+
+func (c *executionClient) Create(ctx context.Context, in *CreateExecutionRequest, opts ...grpc.CallOption) (*CreateExecutionResponse, error) {
+	out := new(CreateExecutionResponse)
+	err := c.cc.Invoke(ctx, "/api.Execution/Create", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *executionClient) Get(ctx context.Context, in *GetExecutionRequest, opts ...grpc.CallOption) (*types.Execution, error) {
@@ -394,6 +517,8 @@ func (c *executionClient) Update(ctx context.Context, in *UpdateExecutionRequest
 
 // ExecutionServer is the server API for Execution service.
 type ExecutionServer interface {
+	// Create creates a single Execution specified in a request.
+	Create(context.Context, *CreateExecutionRequest) (*CreateExecutionResponse, error)
 	// Get returns a single Execution specified in a request.
 	Get(context.Context, *GetExecutionRequest) (*types.Execution, error)
 	// Stream returns a stream of executions that satisfy criteria
@@ -405,6 +530,24 @@ type ExecutionServer interface {
 
 func RegisterExecutionServer(s *grpc.Server, srv ExecutionServer) {
 	s.RegisterService(&_Execution_serviceDesc, srv)
+}
+
+func _Execution_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateExecutionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ExecutionServer).Create(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.Execution/Create",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ExecutionServer).Create(ctx, req.(*CreateExecutionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Execution_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -468,6 +611,10 @@ var _Execution_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "api.Execution",
 	HandlerType: (*ExecutionServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Create",
+			Handler:    _Execution_Create_Handler,
+		},
 		{
 			MethodName: "Get",
 			Handler:    _Execution_Get_Handler,
