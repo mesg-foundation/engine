@@ -6,7 +6,7 @@ import (
 
 	"github.com/mesg-foundation/core/hash"
 	protobuf_api "github.com/mesg-foundation/core/protobuf/api"
-	"github.com/mesg-foundation/core/protobuf/definition"
+	"github.com/mesg-foundation/core/protobuf/types"
 	"github.com/mesg-foundation/core/sdk"
 	instancesdk "github.com/mesg-foundation/core/sdk/instance"
 )
@@ -54,7 +54,7 @@ func (s *ServiceServer) Delete(ctx context.Context, request *protobuf_api.Delete
 }
 
 // Get returns service from given hash.
-func (s *ServiceServer) Get(ctx context.Context, req *protobuf_api.GetServiceRequest) (*definition.Service, error) {
+func (s *ServiceServer) Get(ctx context.Context, req *protobuf_api.GetServiceRequest) (*types.Service, error) {
 	hash, err := hash.Decode(req.Hash)
 	if err != nil {
 		return nil, err

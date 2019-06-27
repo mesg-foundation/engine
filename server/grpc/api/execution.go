@@ -9,7 +9,7 @@ import (
 	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/api"
-	"github.com/mesg-foundation/core/protobuf/definition"
+	"github.com/mesg-foundation/core/protobuf/types"
 	"github.com/mesg-foundation/core/sdk"
 	executionsdk "github.com/mesg-foundation/core/sdk/execution"
 )
@@ -28,7 +28,7 @@ func NewExecutionServer(sdk *sdk.SDK) *ExecutionServer {
 }
 
 // Get returns execution from given hash.
-func (s *ExecutionServer) Get(ctx context.Context, req *api.GetExecutionRequest) (*definition.Execution, error) {
+func (s *ExecutionServer) Get(ctx context.Context, req *api.GetExecutionRequest) (*types.Execution, error) {
 	hash, err := hash.Decode(req.Hash)
 	if err != nil {
 		return nil, err
@@ -52,7 +52,7 @@ func (s *ExecutionServer) Stream(req *api.StreamExecutionRequest, resp api.Execu
 		}
 
 		var statuses []execution.Status
-		if req.Filter.Status != definition.Status_Unknown {
+		if req.Filter.Status != types.Status_Unknown {
 			statuses = []execution.Status{execution.Status(req.Filter.Status)}
 		}
 
@@ -106,7 +106,7 @@ func (s *ExecutionServer) Update(ctx context.Context, req *api.UpdateExecutionRe
 
 }
 
-func toProtoExecution(exec *execution.Execution) (*definition.Execution, error) {
+func toProtoExecution(exec *execution.Execution) (*types.Execution, error) {
 	inputs, err := json.Marshal(exec.Inputs)
 	if err != nil {
 		return nil, err
@@ -117,11 +117,11 @@ func toProtoExecution(exec *execution.Execution) (*definition.Execution, error) 
 		return nil, err
 	}
 
-	return &definition.Execution{
+	return &types.Execution{
 		Hash:         exec.Hash.String(),
 		ParentHash:   exec.ParentHash.String(),
 		EventID:      exec.EventID,
-		Status:       definition.Status(exec.Status),
+		Status:       types.Status(exec.Status),
 		InstanceHash: exec.InstanceHash.String(),
 		TaskKey:      exec.TaskKey,
 		Inputs:       string(inputs),
