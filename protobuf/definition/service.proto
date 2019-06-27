@@ -5,6 +5,56 @@ option go_package = "github.com/mesg-foundation/core/protobuf/definition";
 
 // Service represents the service's definition.
 message Service {
+  // Events are emitted by the service whenever the service wants.
+  message Event {
+    string key = 4;                   // Event's key.
+    string name = 1;                  // Event's name.
+    string description = 2;           // Event's description.
+    repeated Parameter data = 3;      // List of data of this event.
+  }
+
+  // Task is a function that requires inputs and returns output.
+  message Task {
+    string key = 8;                     // Task's key.
+    string name = 1;                    // Task's name.
+    string description = 2;             // Task's description.
+    repeated Parameter inputs = 6;      // List inputs of this task.
+    repeated Parameter outputs = 7;     // List of tasks outputs.
+  }
+  
+  // Parameter describes the task's inputs, the task's outputs, and the event's data.
+  message Parameter {
+    string key = 8;         // Parameter's key.
+    string name = 1;        // Parameter's name.
+    string description = 2; // Parameter's description.
+    string type = 3;        // Parameter's type: `String`, `Number`, `Boolean`, `Object` or `Any`.
+    bool optional = 4;      // Set the parameter as optional.
+    bool repeated = 9;      // Mark a parameter as an array of the defined type
+    repeated Parameter object = 10; // Optional object structure definition when type is set to `Object`
+  }
+  
+  // A configuration is the configuration of the main container of the service's instance.
+  message Configuration {
+    repeated string volumes = 1;      // List of volumes.
+    repeated string volumesFrom = 2;  // List of volumes mounted from other dependencies.
+    repeated string ports = 3;        // List of ports the container exposes.
+    repeated string args = 4;         // Args to pass to the container.
+    string command = 5;               // Command to run the container.
+    repeated string env = 6;          // Default env vars to apply to service's instance on runtime.
+  }
+  
+  // A dependency is a configuration of an other container that runs separately from the service.
+  message Dependency {
+    string key = 8;                   // Dependency's key.
+    string image = 1;                 // Image's name of the container.
+    repeated string volumes = 2;      // List of volumes.
+    repeated string volumesFrom = 3;  // List of volumes mounted from other dependencies.
+    repeated string ports = 4;        // List of ports the container exposes.
+    repeated string args = 6;         // Args to pass to the container.
+    string command = 5;               // Command to run the container.
+    repeated string env = 9;          // Default env vars to apply to dependency on runtime.
+  }
+  
   string hash = 10;                         // Service's hash.
   string sid = 12;                          // Service's sid.
   string name = 1;                          // Service's name.
@@ -17,52 +67,4 @@ message Service {
   string source = 13;                       // The hash id of service's source code on IPFS.
 }
 
-// Events are emitted by the service whenever the service wants.
-message Event {
-  string key = 4;                   // Event's key.
-  string name = 1;                  // Event's name.
-  string description = 2;           // Event's description.
-  repeated Parameter data = 3;      // List of data of this event.
-}
 
-// Task is a function that requires inputs and returns output.
-message Task {
-  string key = 8;                     // Task's key.
-  string name = 1;                    // Task's name.
-  string description = 2;             // Task's description.
-  repeated Parameter inputs = 6;      // List inputs of this task.
-  repeated Parameter outputs = 7;     // List of tasks outputs.
-}
-
-// Parameter describes the task's inputs, the task's outputs, and the event's data.
-message Parameter {
-  string key = 8;         // Parameter's key.
-  string name = 1;        // Parameter's name.
-  string description = 2; // Parameter's description.
-  string type = 3;        // Parameter's type: `String`, `Number`, `Boolean`, `Object` or `Any`.
-  bool optional = 4;      // Set the parameter as optional.
-  bool repeated = 9;      // Mark a parameter as an array of the defined type
-  repeated Parameter object = 10; // Optional object structure definition when type is set to `Object`
-}
-
-// A configuration is the configuration of the main container of the service's instance.
-message Configuration {
-  repeated string volumes = 1;      // List of volumes.
-  repeated string volumesFrom = 2;  // List of volumes mounted from other dependencies.
-  repeated string ports = 3;        // List of ports the container exposes.
-  repeated string args = 4;         // Args to pass to the container.
-  string command = 5;               // Command to run the container.
-  repeated string env = 6;          // Default env vars to apply to service's instance on runtime.
-}
-
-// A dependency is a configuration of an other container that runs separately from the service.
-message Dependency {
-  string key = 8;                   // Dependency's key.
-  string image = 1;                 // Image's name of the container.
-  repeated string volumes = 2;      // List of volumes.
-  repeated string volumesFrom = 3;  // List of volumes mounted from other dependencies.
-  repeated string ports = 4;        // List of ports the container exposes.
-  repeated string args = 6;         // Args to pass to the container.
-  string command = 5;               // Command to run the container.
-  repeated string env = 9;          // Default env vars to apply to dependency on runtime.
-}
