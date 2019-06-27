@@ -9,7 +9,6 @@ import (
 	"github.com/mesg-foundation/core/protobuf/definition"
 	"github.com/mesg-foundation/core/sdk"
 	instancesdk "github.com/mesg-foundation/core/sdk/instance"
-	"github.com/mesg-foundation/core/service"
 )
 
 // ServiceServer is the type to aggregate all Service APIs.
@@ -25,9 +24,6 @@ func NewServiceServer(sdk *sdk.SDK) *ServiceServer {
 // Create creates a new service from definition.
 func (s *ServiceServer) Create(ctx context.Context, request *protobuf_api.CreateServiceRequest) (*protobuf_api.CreateServiceResponse, error) {
 	definition := fromProtoService(request.Definition)
-	if err := service.ValidateService(definition); err != nil {
-		return nil, err
-	}
 	srv, err := s.sdk.Service.Create(definition)
 	if err != nil {
 		return nil, err
