@@ -31,26 +31,25 @@ func New(ps *pubsub.PubSub, service *servicesdk.Service, instance *instancesdk.I
 }
 
 // Emit emits a MESG event eventKey with eventData for service token.
-func (e *Event) Emit(instanceHash hash.Hash, eventKey string, eventData map[string]interface{}) error {
+func (e *Event) Emit(instanceHash hash.Hash, eventKey string, eventData map[string]interface{}) (*event.Event, error) {
 	instance, err := e.instance.Get(instanceHash)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	service, err := e.service.Get(instance.ServiceHash)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if err := service.RequireEventData(eventKey, eventData); err != nil {
-		return err
+		return nil, err
 	}
 
 	event := event.Create(instanceHash, eventKey, eventData)
-
 	go e.ps.Pub(event, streamTopic)
 	go e.ps.Pub(event, subTopic(instanceHash))
-	return nil
+	return event, nil
 }
 
 // GetStream broadcasts all events.
