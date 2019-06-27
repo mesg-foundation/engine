@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import "protobuf/definition/instance.proto";
+import "protobuf/types/instance.proto";
 
 package api;
 
@@ -12,7 +12,7 @@ package api;
 service Instance {
 
   // Get returns an Instance matching the criteria of the request.
-  rpc Get (GetInstanceRequest) returns (definition.Instance) {}
+  rpc Get (GetInstanceRequest) returns (types.Instance) {}
 
   // List returns all Instances matching the criteria of the request.
   rpc List (ListInstancesRequest) returns (ListInstancesResponse) {}
@@ -39,7 +39,7 @@ message ListInstancesRequest {
 // The response's data for the `List` API.
 message ListInstancesResponse {
   // List of instances that match the request's filters.
-  repeated definition.Instance instances = 1;
+  repeated types.Instance instances = 1;
 }
 
 // The request's data for the `Create` API.
