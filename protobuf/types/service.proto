@@ -1,9 +1,9 @@
 syntax = "proto3";
 
-package definition;
-option go_package = "github.com/mesg-foundation/core/protobuf/definition";
+package types;
+option go_package = "github.com/mesg-foundation/core/protobuf/types";
 
-// Service represents the service's definition.
+// Service represents the service's type.
 message Service {
   // Events are emitted by the service whenever the service wants.
   message Event {
@@ -30,7 +30,7 @@ message Service {
     string type = 3;        // Parameter's type: `String`, `Number`, `Boolean`, `Object` or `Any`.
     bool optional = 4;      // Set the parameter as optional.
     bool repeated = 9;      // Mark a parameter as an array of the defined type
-    repeated Parameter object = 10; // Optional object structure definition when type is set to `Object`
+    repeated Parameter object = 10; // Optional object structure type when type is set to `Object`
   }
   
   // A configuration is the configuration of the main container of the service's instance.
