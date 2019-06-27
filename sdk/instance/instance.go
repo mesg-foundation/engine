@@ -38,15 +38,28 @@ func (i *Instance) Get(hash hash.Hash) (*instance.Instance, error) {
 
 // Filter to apply while listing instances.
 type Filter struct {
-	ServiceHash hash.Hash
+	ServiceHash  hash.Hash
+	InstanceHash hash.Hash
 }
 
 // List instances by f filter.
 func (i *Instance) List(f *Filter) ([]*instance.Instance, error) {
-	if f != nil && !f.ServiceHash.IsZero() {
-		return i.instanceDB.GetAllByService(f.ServiceHash)
+	instances, err := i.instanceDB.GetAll()
+	if err != nil {
+		return nil, err
 	}
-	return i.instanceDB.GetAll()
+	if f == nil {
+		return instances, nil
+	}
+
+	ret := make([]*instance.Instance, 0)
+	for _, instance := range instances {
+		if (f.ServiceHash.IsZero() || instance.ServiceHash.Equal(f.ServiceHash)) &&
+			(f.InstanceHash.IsZero() || instance.Hash.Equal(f.InstanceHash)) {
+			ret = append(ret, instance)
+		}
+	}
+	return ret, nil
 }
 
 // Create creates a new service instance for service with id(sid/hash) and applies given env vars.
@@ -92,10 +105,10 @@ func (i *Instance) Create(serviceHash hash.Hash, env []string) (*instance.Instan
 	h.Write([]byte(xos.EnvMapToString(instanceEnv)))
 	instanceHash := h.Sum(nil)
 
-	// check if instance is already running.
+	// check if instance already exists
 	_, err = i.instanceDB.Get(instanceHash)
 	if err == nil {
-		return nil, errors.New("service's instance is already running")
+		return nil, errors.New("instance already exists")
 	}
 	if !database.IsErrNotFound(err) {
 		return nil, err
