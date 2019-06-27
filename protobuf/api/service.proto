@@ -9,7 +9,7 @@ package api;
 // This API is a [gRPC](https://grpc.io/) API.
 //
 // The source file of this API is hosted on [GitHub](https://github.com/mesg-foundation/engine/blob/master/protobuf/api/service.proto).
-service ServiceX { // TODO(ilgooz): FIXME: this should be renamed to Service.
+service Service {
 
   // Create a Service from a Service Definition.
   // It will return an unique identifier which is used to interact with the Service.
