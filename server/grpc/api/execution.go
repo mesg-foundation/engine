@@ -43,15 +43,26 @@ func (s *ExecutionServer) Get(ctx context.Context, req *api.GetExecutionRequest)
 
 // Stream returns stream of executions.
 func (s *ExecutionServer) Stream(req *api.StreamExecutionRequest, resp api.Execution_StreamServer) error {
-	hash, err := hash.Decode(req.Filter.ServiceHash)
-	if err != nil {
-		return err
+	var f *executionsdk.Filter
+
+	if req.Filter != nil {
+		instanceHash, err := hash.Decode(req.Filter.InstanceHash)
+		if req.Filter.InstanceHash != "" && err != nil {
+			return err
+		}
+
+		var statuses []execution.Status
+		if req.Filter.Status != definition.Status_Unknown {
+			statuses = []execution.Status{execution.Status(req.Filter.Status)}
+		}
+
+		f = &executionsdk.Filter{
+			InstanceHash: instanceHash,
+			Statuses:     statuses,
+		}
 	}
 
-	stream := s.sdk.Execution.GetStream(&executionsdk.Filter{
-		ServiceHash: hash,
-		Statuses:    []execution.Status{execution.Status(req.Filter.Status)},
-	})
+	stream := s.sdk.Execution.GetStream(f)
 	defer stream.Close()
 
 	// send header to notify client that the stream is ready.
@@ -107,15 +118,15 @@ func toProtoExecution(exec *execution.Execution) (*definition.Execution, error) 
 	}
 
 	return &definition.Execution{
-		Hash:        exec.Hash.String(),
-		ParentHash:  exec.ParentHash.String(),
-		EventID:     exec.EventID,
-		Status:      definition.Status(exec.Status),
-		ServiceHash: exec.ServiceHash.String(),
-		TaskKey:     exec.TaskKey,
-		Inputs:      string(inputs),
-		Outputs:     string(outputs),
-		Tags:        exec.Tags,
-		Error:       exec.Error,
+		Hash:         exec.Hash.String(),
+		ParentHash:   exec.ParentHash.String(),
+		EventID:      exec.EventID,
+		Status:       definition.Status(exec.Status),
+		InstanceHash: exec.InstanceHash.String(),
+		TaskKey:      exec.TaskKey,
+		Inputs:       string(inputs),
+		Outputs:      string(outputs),
+		Tags:         exec.Tags,
+		Error:        exec.Error,
 	}, nil
 }

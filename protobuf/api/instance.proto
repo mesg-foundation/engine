@@ -12,7 +12,7 @@ package api;
 service Instance {
 
   // Get returns an Instance matching the criteria of the request.
-  rpc Get (GetInstanceRequest) returns (GetInstanceResponse) {}
+  rpc Get (GetInstanceRequest) returns (definition.Instance) {}
 
   // List returns all Instances matching the criteria of the request.
   rpc List (ListInstancesRequest) returns (ListInstancesResponse) {}
@@ -28,10 +28,6 @@ service Instance {
 // The request's data for the `Get` API.
 message GetInstanceRequest {
   string hash = 1;
-}
-
-message GetInstanceResponse {
-  definition.Instance instance = 1;
 }
 
 // The request's data for the `List` API.
@@ -57,8 +53,8 @@ message CreateInstanceRequest {
 
 // The response's data for the `Create` API.
 message CreateInstanceResponse {
-  // The instance created.
-  definition.Instance instance = 1;
+  // The instance's hash created.
+  string hash = 1;
 }
 
 // The request's data for the `Delete` API.
@@ -71,7 +67,4 @@ message DeleteInstanceRequest {
 }
 
 // The response's data for the `Delete` API.
-message DeleteInstanceResponse {
-  // Instance's hash deleted.
-  string hash = 1;
-}
+message DeleteInstanceResponse {}

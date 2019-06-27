@@ -35,9 +35,6 @@ message CreateServiceRequest {
 message CreateServiceResponse {
   // The service's hash created.
   string hash = 1;
-
-  // The service's sid.
-  string sid = 2;
 }
 
 // The request's data for the `Delete` API.
@@ -58,7 +55,6 @@ message GetServiceRequest {
 
 // The request's data for the `List` API.
 message ListServiceRequest {}
-
 
 // The response's data for the `List` API.
 message ListServiceResponse {
