@@ -65,9 +65,7 @@ func fromProtoParameters(params []*types.Service_Parameter) []*service.Parameter
 
 func fromProtoConfiguration(configuration *types.Service_Configuration) *service.Dependency {
 	if configuration == nil {
-		return &service.Dependency{
-			Key: service.MainServiceKey,
-		}
+		return nil
 	}
 	return &service.Dependency{
 		Key:         service.MainServiceKey,
