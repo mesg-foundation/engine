@@ -24,11 +24,11 @@ const MainServiceKey = "service"
 type Service struct {
 	// Hash is calculated from the combination of service's source and mesg.yml.
 	// It represents the service uniquely.
-	Hash hash.Hash `hash:"-"`
+	Hash hash.Hash `hash:"-" validate:"required"`
 
 	// Sid is the service id.
 	// It needs to be unique and can be used to access to service.
-	Sid string `hash:"name:1"  validate:"omitempty,printascii,max=63,domain"`
+	Sid string `hash:"name:1"  validate:"required,printascii,max=63,domain"`
 
 	// Name is the service name.
 	Name string `hash:"name:2" validate:"required,printascii"`
