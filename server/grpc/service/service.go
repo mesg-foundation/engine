@@ -44,7 +44,7 @@ func (s *Server) EmitEvent(context context.Context, request *serviceapi.EmitEven
 	if err := json.Unmarshal([]byte(request.EventData), &data); err != nil {
 		return nil, err
 	}
-	if err := s.sdk.Event.Emit(instance.Hash, request.EventKey, data); err != nil {
+	if _, err := s.sdk.Event.Emit(instance.Hash, request.EventKey, data); err != nil {
 		return nil, err
 	}
 	return &serviceapi.EmitEventReply{}, nil
