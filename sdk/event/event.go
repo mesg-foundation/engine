@@ -4,6 +4,7 @@ import (
 	"github.com/cskr/pubsub"
 	"github.com/mesg-foundation/core/event"
 	"github.com/mesg-foundation/core/hash"
+	instancesdk "github.com/mesg-foundation/core/sdk/instance"
 	servicesdk "github.com/mesg-foundation/core/sdk/service"
 )
 
@@ -15,32 +16,40 @@ const (
 
 // Event exposes event APIs of MESG.
 type Event struct {
-	ps      *pubsub.PubSub
-	service *servicesdk.Service
+	ps       *pubsub.PubSub
+	instance *instancesdk.Instance
+	service  *servicesdk.Service
 }
 
 // New creates a new Event SDK with given options.
-func New(ps *pubsub.PubSub, service *servicesdk.Service) *Event {
+func New(ps *pubsub.PubSub, service *servicesdk.Service, instance *instancesdk.Instance) *Event {
 	return &Event{
-		ps:      ps,
-		service: service,
+		ps:       ps,
+		service:  service,
+		instance: instance,
 	}
 }
 
 // Emit emits a MESG event eventKey with eventData for service token.
-func (e *Event) Emit(serviceHash hash.Hash, eventKey string, eventData map[string]interface{}) error {
-	s, err := e.service.Get(serviceHash)
+func (e *Event) Emit(instanceHash hash.Hash, eventKey string, eventData map[string]interface{}) (*event.Event, error) {
+	instance, err := e.instance.Get(instanceHash)
 	if err != nil {
-		return err
-	}
-	ev, err := event.Create(s, eventKey, eventData)
-	if err != nil {
-		return err
+		return nil, err
 	}
 
-	go e.ps.Pub(ev, streamTopic)
-	go e.ps.Pub(ev, subTopic(s.Hash))
-	return nil
+	service, err := e.service.Get(instance.ServiceHash)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := service.RequireEventData(eventKey, eventData); err != nil {
+		return nil, err
+	}
+
+	event := event.Create(instanceHash, eventKey, eventData)
+	go e.ps.Pub(event, streamTopic)
+	go e.ps.Pub(event, subTopic(instanceHash))
+	return event, nil
 }
 
 // GetStream broadcasts all events.
