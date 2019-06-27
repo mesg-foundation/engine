@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# generate relative path of script from core's root.
+# generate relative path of script from the engine root.
 # scripts can be called from any path including the scripts dir so,
 # we need to remove parent paths to get the naked script name.
 SCRIPT_PATH=$0
@@ -9,7 +9,7 @@ SCRIPT_PATH=./scripts/${SCRIPT_PATH#./}
 
 if [ "$MESG_DEV" != "true" ]; then
    echo "you must run scripts via ./mesg-tools script"
-   echo "try executing the following command from the root of core:"
+   echo "try executing the following command from the engine root:"
    echo -e "\t./mesg-tools $SCRIPT_PATH $*"
    exit 1
 fi
