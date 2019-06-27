@@ -12,10 +12,10 @@ MESG_LOG_FORCECOLORS=${MESG_LOG_FORCECOLORS:-false}
 MESG_LOG_LEVEL=${MESG_LOG_LEVEL:-debug}
 
 VERSION=local
-LDFLAGS="-X 'github.com/mesg-foundation/core/version.Version=$VERSION'"
-LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceEndpoint=https://ropsten.infura.io/v3/6115ae2531f64c04a9a392cf500e5fbe'"
-LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceAddress=0xeCC1A867F871323350A1A89FcAf69629a2d5085e'"
-LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceToken=0x5861b3dc52339d4f976b7fa5d80db6cd6f477f1b'"
+LDFLAGS="-X 'github.com/mesg-foundation/engine/version.Version=$VERSION'"
+LDFLAGS+=" -X 'github.com/mesg-foundation/engine/config.EnvMarketplaceEndpoint=https://ropsten.infura.io/v3/6115ae2531f64c04a9a392cf500e5fbe'"
+LDFLAGS+=" -X 'github.com/mesg-foundation/engine/config.EnvMarketplaceAddress=0xeCC1A867F871323350A1A89FcAf69629a2d5085e'"
+LDFLAGS+=" -X 'github.com/mesg-foundation/engine/config.EnvMarketplaceToken=0x5861b3dc52339d4f976b7fa5d80db6cd6f477f1b'"
 
 MESG_SERVER_PORT=${MESG_SERVER_PORT:-50052}
 
@@ -47,7 +47,7 @@ for i in systemservices/* ; do
     file=$(basename "$i")
     tar -czf ../../tmp-systemservices/$file.tar.gz --exclude-from=.dockerignore .
     varname="$(tr '[:lower:]' '[:upper:]' <<< ${file:0:1})${file:1}"
-    LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.${varname}URL=http://$MESG_SERVICE_SERVER/$file.tar.gz'"
+    LDFLAGS+=" -X 'github.com/mesg-foundation/engine/config.${varname}URL=http://$MESG_SERVICE_SERVER/$file.tar.gz'"
     cd ../..
   fi
 done
