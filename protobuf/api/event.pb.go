@@ -23,7 +23,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
-// StreamEventRequest defines request to retrieve a stream of executions.
+// StreamEventRequest defines request to retrieve a stream of events.
 type StreamEventRequest struct {
 	// Filter used to filter a stream of events.
 	Filter               *StreamEventRequest_Filter `protobuf:"bytes,1,opt,name=filter,proto3" json:"filter,omitempty"`
@@ -166,7 +166,7 @@ func (m *CreateEventRequest) GetEvent() *definition.Event {
 
 // CreateEventResponse defines response for execution update.
 type CreateEventResponse struct {
-	// Hash represents execution.
+	// Hash represents event.
 	Hash                 string   `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
