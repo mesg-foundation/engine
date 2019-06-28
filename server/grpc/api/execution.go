@@ -48,7 +48,6 @@ func (s *ExecutionServer) Create(ctx context.Context, req *api.CreateExecutionRe
 	return &api.CreateExecutionResponse{
 		Hash: executionHash.String(),
 	}, nil
-
 }
 
 // Get returns execution from given hash.
