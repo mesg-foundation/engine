@@ -12,8 +12,7 @@ import (
 )
 
 var (
-	errSaveInstanceWithoutHash = errors.New("database: can't save instance without hash")
-	errCannotSaveWithoutHash   = errors.New("database: can't save service without hash")
+	errCannotSaveWithoutHash = errors.New("database: can't save service without hash")
 )
 
 // ServiceDB describes the API of database package.
@@ -54,10 +53,10 @@ func (d *LevelDBServiceDB) marshal(s *service.Service) ([]byte, error) {
 }
 
 // unmarshal returns the service from byte slice.
-func (d *LevelDBServiceDB) unmarshal(hash, value []byte) (*service.Service, error) {
+func (d *LevelDBServiceDB) unmarshal(hash hash.Hash, value []byte) (*service.Service, error) {
 	var s service.Service
 	if err := json.Unmarshal(value, &s); err != nil {
-		return nil, &DecodeError{hash: hash}
+		return nil, fmt.Errorf("database: could not decode service %q: %s", hash, err)
 	}
 	return &s, nil
 }
@@ -69,16 +68,13 @@ func (d *LevelDBServiceDB) All() ([]*service.Service, error) {
 		iter     = d.db.NewIterator(nil, nil)
 	)
 	for iter.Next() {
-		s, err := d.unmarshal(iter.Key(), iter.Value())
+		hash := hash.Hash(iter.Key())
+		s, err := d.unmarshal(hash, iter.Value())
 		if err != nil {
 			// NOTE: Ignore all decode errors (possibly due to a service
 			// structure change or database corruption)
-			if decodeErr, ok := err.(*DecodeError); ok {
-				logrus.WithField("service", decodeErr.hash.String()).Warning(decodeErr.Error())
-				continue
-			}
-			iter.Release()
-			return nil, err
+			logrus.WithField("service", hash.String()).Warning(err.Error())
+			continue
 		}
 		services = append(services, s)
 	}
@@ -95,7 +91,7 @@ func (d *LevelDBServiceDB) Delete(hash hash.Hash) error {
 	if _, err := tx.Get(hash, nil); err != nil {
 		tx.Discard()
 		if err == leveldb.ErrNotFound {
-			return &ErrNotFound{hash: hash}
+			return &ErrNotFound{resource: "service", hash: hash}
 		}
 		return err
 	}
@@ -112,7 +108,7 @@ func (d *LevelDBServiceDB) Get(hash hash.Hash) (*service.Service, error) {
 	b, err := d.db.Get(hash, nil)
 	if err != nil {
 		if err == leveldb.ErrNotFound {
-			return nil, &ErrNotFound{hash: hash}
+			return nil, &ErrNotFound{resource: "service", hash: hash}
 		}
 		return nil, err
 	}
@@ -140,20 +136,12 @@ func (d *LevelDBServiceDB) Close() error {
 
 // ErrNotFound is an not found error.
 type ErrNotFound struct {
-	hash hash.Hash
+	hash     hash.Hash
+	resource string
 }
 
 func (e *ErrNotFound) Error() string {
-	return fmt.Sprintf("database: service %q not found", e.hash)
-}
-
-// DecodeError represents a service impossible to decode.
-type DecodeError struct {
-	hash hash.Hash
-}
-
-func (e *DecodeError) Error() string {
-	return fmt.Sprintf("database: could not decode service %q", e.hash)
+	return fmt.Sprintf("database: %s %q not found", e.resource, e.hash)
 }
 
 // IsErrNotFound returns true if err is type of ErrNotFound, false otherwise.
