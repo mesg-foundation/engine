@@ -49,11 +49,17 @@ message GetExecutionRequest {
 message StreamExecutionRequest{
   // Filter contains filtering criteria.
   message Filter {
-    // Status to filter executions.
-    types.Status status = 1;
+    // Statuses to filter executions. One status needs to be present in the execution.
+    repeated types.Status statuses = 1;
 
     // Instance's hash to filter executions.
     string instanceHash = 2;
+
+    // taskKey to filter executions.
+    string taskKey = 3;
+
+    // tags to filter executions. All tags needs to be present in the execution.
+    repeated string tags = 4;
   }
 
   // Filter used to filter a stream of executions.
