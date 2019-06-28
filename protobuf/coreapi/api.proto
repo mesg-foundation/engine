@@ -13,25 +13,8 @@ option go_package = "github.com/mesg-foundation/engine/protobuf/coreapi";
 //
 // The source file of this API is hosted on [GitHub](https://github.com/mesg-foundation/engine/blob/master/protobuf/coreapi/api.proto).
 service Core {
-  // ServiceLogs gives a stream for dependency logs of a service.
-  rpc ServiceLogs (ServiceLogsRequest) returns (stream LogData) {}
-
   // Info returns all necessary information from the core.
   rpc Info(InfoRequest) returns (InfoReply) {}
-}
-
-// The request's data for `ServiceLogs` API.
-//
-// **Example**
-// ```json
-// {
-//   "serviceID": "__SERVICE_ID__",
-//   "dependencies": ["__SERVICE_DEPENDENCY__"]
-// }
-// ```
-message ServiceLogsRequest {
-  string serviceID = 1;             // The Service ID. Generated when using the [`DeployService` API](#deployservice).
-  repeated string dependencies = 2; // __Optional.__ List of dependencies to filter service logs. All by default.
 }
 
 // The request to fetch all informations of the Core
@@ -48,26 +31,3 @@ message InfoReply {
   repeated CoreService services = 1; // List of services that the core is running as core service
   string version = 4; // Version of the core
 }
-
-// The data received from the stream of the `ServiceLogs` API.
-// The data will be received over time as long as the stream is open.
-//
-// **Example**
-// ```json
-// {
-//   "dependency":  "__SERVICE_DEPENDENCY__",
-//   "type": "__LOG_TYPE__",
-//   "data":  "__LOG_CHUNK__",
-// }
-// ```
-message LogData {
-  enum Type {
-    Standard = 0;  // Standard represents standard log output.
-    Error = 1;     // Error represents error log output.
-  }
-
-  string dependency = 1; // Service dependency that data belongs.
-  Type type = 2;         // The log type.
-  bytes data = 3;        // Log data chunk.
-}
-
