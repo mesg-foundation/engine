@@ -78,11 +78,6 @@ func (t *Testing) ProvideServiceInspectWithRaw(service swarm.Service, data []byt
 	t.client.responses.serviceInspectWithRaw <- serviceInspectWithRawResponse{service, data, err}
 }
 
-// ProvideServiceLogs sets fake return values for the next call to *Client.ServiceLogs.
-func (t *Testing) ProvideServiceLogs(rc io.ReadCloser, err error) {
-	t.client.responses.serviceLogs <- serviceLogsResponse{rc, err}
-}
-
 // ProvideTaskList sets fake return values for the next call to *Client.TaskList.
 func (t *Testing) ProvideTaskList(tasks []swarm.Task, err error) {
 	t.client.responses.taskList <- taskListResponse{tasks, err}
@@ -190,11 +185,6 @@ func (t *Testing) LastServiceInspectWithRaw() <-chan ServiceInspectWithRawReques
 // LastServiceRemove returns a channel that receives call arguments of last *Client.ServiceRemove call.
 func (t *Testing) LastServiceRemove() <-chan ServiceRemoveRequest {
 	return t.client.requests.serviceRemove
-}
-
-// LastServiceLogs returns a channel that receives call arguments of last *Client.ServiceLogs call.
-func (t *Testing) LastServiceLogs() <-chan ServiceLogsRequest {
-	return t.client.requests.serviceLogs
 }
 
 // LastEvents returns a channel that receives call arguments of last *Client.ServiceLogs call.
