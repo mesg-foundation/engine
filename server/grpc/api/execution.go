@@ -75,13 +75,15 @@ func (s *ExecutionServer) Stream(req *api.StreamExecutionRequest, resp api.Execu
 		}
 
 		var statuses []execution.Status
-		if req.Filter.Status != types.Status_Unknown {
-			statuses = []execution.Status{execution.Status(req.Filter.Status)}
+		for _, status := range req.Filter.Statuses {
+			statuses = append(statuses, execution.Status(status))
 		}
 
 		f = &executionsdk.Filter{
 			InstanceHash: instanceHash,
 			Statuses:     statuses,
+			Tags:         req.Filter.Tags,
+			TaskKey:      req.Filter.TaskKey,
 		}
 	}
 
