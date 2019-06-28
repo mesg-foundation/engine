@@ -6,13 +6,13 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/mesg-foundation/core/event"
-	"github.com/mesg-foundation/core/hash"
-	"github.com/mesg-foundation/core/protobuf/acknowledgement"
-	"github.com/mesg-foundation/core/protobuf/api"
-	"github.com/mesg-foundation/core/protobuf/types"
-	"github.com/mesg-foundation/core/sdk"
-	eventsdk "github.com/mesg-foundation/core/sdk/event"
+	"github.com/mesg-foundation/engine/event"
+	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
+	"github.com/mesg-foundation/engine/protobuf/api"
+	"github.com/mesg-foundation/engine/protobuf/types"
+	"github.com/mesg-foundation/engine/sdk"
+	eventsdk "github.com/mesg-foundation/engine/sdk/event"
 )
 
 // EventServer serve event functions.

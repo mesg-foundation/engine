@@ -7,12 +7,12 @@ import (
 	"os"
 
 	"github.com/docker/docker/pkg/archive"
-	"github.com/mesg-foundation/core/container"
-	"github.com/mesg-foundation/core/database"
-	"github.com/mesg-foundation/core/hash"
-	"github.com/mesg-foundation/core/instance"
-	servicesdk "github.com/mesg-foundation/core/sdk/service"
-	"github.com/mesg-foundation/core/x/xos"
+	"github.com/mesg-foundation/engine/container"
+	"github.com/mesg-foundation/engine/database"
+	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/instance"
+	servicesdk "github.com/mesg-foundation/engine/sdk/service"
+	"github.com/mesg-foundation/engine/x/xos"
 )
 
 // Instance exposes service instance APIs of MESG.

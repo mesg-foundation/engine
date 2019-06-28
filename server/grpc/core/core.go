@@ -3,10 +3,10 @@ package core
 import (
 	"context"
 
-	"github.com/mesg-foundation/core/config"
-	"github.com/mesg-foundation/core/protobuf/coreapi"
-	"github.com/mesg-foundation/core/sdk"
-	"github.com/mesg-foundation/core/version"
+	"github.com/mesg-foundation/engine/config"
+	"github.com/mesg-foundation/engine/protobuf/coreapi"
+	"github.com/mesg-foundation/engine/sdk"
+	"github.com/mesg-foundation/engine/version"
 )
 
 // Server is the type to aggregate all the APIs.

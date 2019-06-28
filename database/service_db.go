@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/mesg-foundation/core/hash"
-	"github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/service"
 	"github.com/sirupsen/logrus"
 	"github.com/syndtr/goleveldb/leveldb"
 )

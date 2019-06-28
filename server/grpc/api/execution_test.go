@@ -5,10 +5,10 @@ import (
 	"os"
 	"testing"
 
-	"github.com/mesg-foundation/core/database"
-	"github.com/mesg-foundation/core/execution"
-	"github.com/mesg-foundation/core/protobuf/api"
-	"github.com/mesg-foundation/core/sdk"
+	"github.com/mesg-foundation/engine/database"
+	"github.com/mesg-foundation/engine/execution"
+	"github.com/mesg-foundation/engine/protobuf/api"
+	"github.com/mesg-foundation/engine/sdk"
 	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/require"
 )

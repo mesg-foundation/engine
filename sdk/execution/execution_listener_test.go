@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/cskr/pubsub"
-	"github.com/mesg-foundation/core/execution"
-	"github.com/mesg-foundation/core/hash"
+	"github.com/mesg-foundation/engine/execution"
+	"github.com/mesg-foundation/engine/hash"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -1,6 +1,6 @@
 package config
 
-import "github.com/mesg-foundation/core/hash"
+import "github.com/mesg-foundation/engine/hash"
 
 // Default endpoints to access services. These endpoints are overritten by the build
 // Use the following format for the variable name: "[Service]URL" (where Service is the name of the service capitalized)

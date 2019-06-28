@@ -2,7 +2,7 @@ package ethwallet
 
 import (
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/mesg-foundation/core/client/service"
+	"github.com/mesg-foundation/engine/client/service"
 )
 
 type listOutputSuccess struct {

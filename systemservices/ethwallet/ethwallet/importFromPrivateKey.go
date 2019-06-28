@@ -5,7 +5,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/mesg-foundation/core/client/service"
+	"github.com/mesg-foundation/engine/client/service"
 )
 
 type importFromPrivateKeyInputs struct {
