@@ -141,7 +141,7 @@ func (e *Execution) Execute(instanceHash hash.Hash, taskKey string, inputData ma
 
 	// execute the task.
 	eventID := uuid.NewV4().String()
-	exec := execution.New(s.Hash, nil, eventID, taskKey, inputData, tags)
+	exec := execution.New(instance.Hash, nil, eventID, taskKey, inputData, tags)
 	if err := exec.Execute(); err != nil {
 		return nil, err
 	}
