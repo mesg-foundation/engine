@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import "protobuf/definition/service.proto";
+import "protobuf/types/service.proto";
 
 package api;
 
@@ -9,7 +9,7 @@ package api;
 // This API is a [gRPC](https://grpc.io/) API.
 //
 // The source file of this API is hosted on [GitHub](https://github.com/mesg-foundation/engine/blob/master/protobuf/api/service.proto).
-service ServiceX { // TODO(ilgooz): FIXME: this should be renamed to Service.
+service Service {
 
   // Create a Service from a Service Definition.
   // It will return an unique identifier which is used to interact with the Service.
@@ -20,7 +20,7 @@ service ServiceX { // TODO(ilgooz): FIXME: this should be renamed to Service.
   rpc Delete (DeleteServiceRequest) returns (DeleteServiceResponse) {}
 
   // Get returns a Service matching the criteria of the request.
-  rpc Get(GetServiceRequest) returns (definition.Service) {}
+  rpc Get(GetServiceRequest) returns (types.Service) {}
 
   // List returns services specified in a request.
   rpc List(ListServiceRequest) returns (ListServiceResponse) {}
@@ -28,7 +28,8 @@ service ServiceX { // TODO(ilgooz): FIXME: this should be renamed to Service.
 
 // The request's data for the `Create` API.
 message CreateServiceRequest {
-  definition.Service definition = 1; // The service definition to use to create the Service.
+  // The service definition to use to create the Service.
+  types.Service definition = 1;
 }
 
 // The response's data for the `Create` API.
@@ -59,5 +60,5 @@ message ListServiceRequest {}
 // The response's data for the `List` API.
 message ListServiceResponse {
   // List of services that match the request's filters.
-  repeated definition.Service services = 1;
+  repeated types.Service services = 1;
 }

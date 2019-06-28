@@ -1,12 +1,12 @@
 package api
 
 import (
-	"github.com/mesg-foundation/core/protobuf/definition"
+	"github.com/mesg-foundation/core/protobuf/types"
 	"github.com/mesg-foundation/core/service"
 )
 
-// fromProtoService converts a the protobuf definition to the internal service struct
-func fromProtoService(s *definition.Service) *service.Service {
+// fromProtoService converts a the protobuf types to the internal service struct
+func fromProtoService(s *types.Service) *service.Service {
 	return &service.Service{
 		Sid:           s.Sid,
 		Name:          s.Name,
@@ -20,7 +20,7 @@ func fromProtoService(s *definition.Service) *service.Service {
 	}
 }
 
-func fromProtoTasks(tasks []*definition.Service_Task) []*service.Task {
+func fromProtoTasks(tasks []*types.Service_Task) []*service.Task {
 	ts := make([]*service.Task, len(tasks))
 	for i, task := range tasks {
 		ts[i] = &service.Task{
@@ -34,7 +34,7 @@ func fromProtoTasks(tasks []*definition.Service_Task) []*service.Task {
 	return ts
 }
 
-func fromProtoEvents(events []*definition.Service_Event) []*service.Event {
+func fromProtoEvents(events []*types.Service_Event) []*service.Event {
 	es := make([]*service.Event, len(events))
 	for i, event := range events {
 		es[i] = &service.Event{
@@ -47,7 +47,7 @@ func fromProtoEvents(events []*definition.Service_Event) []*service.Event {
 	return es
 }
 
-func fromProtoParameters(params []*definition.Service_Parameter) []*service.Parameter {
+func fromProtoParameters(params []*types.Service_Parameter) []*service.Parameter {
 	ps := make([]*service.Parameter, len(params))
 	for i, param := range params {
 		ps[i] = &service.Parameter{
@@ -63,7 +63,7 @@ func fromProtoParameters(params []*definition.Service_Parameter) []*service.Para
 	return ps
 }
 
-func fromProtoConfiguration(configuration *definition.Service_Configuration) *service.Dependency {
+func fromProtoConfiguration(configuration *types.Service_Configuration) *service.Dependency {
 	if configuration == nil {
 		return nil
 	}
@@ -78,7 +78,7 @@ func fromProtoConfiguration(configuration *definition.Service_Configuration) *se
 	}
 }
 
-func fromProtoDependency(dep *definition.Service_Dependency) *service.Dependency {
+func fromProtoDependency(dep *types.Service_Dependency) *service.Dependency {
 	return &service.Dependency{
 		Key:         dep.Key,
 		Image:       dep.Image,
@@ -91,7 +91,7 @@ func fromProtoDependency(dep *definition.Service_Dependency) *service.Dependency
 	}
 }
 
-func fromProtoDependencies(deps []*definition.Service_Dependency) []*service.Dependency {
+func fromProtoDependencies(deps []*types.Service_Dependency) []*service.Dependency {
 	ds := make([]*service.Dependency, len(deps))
 	for i, dep := range deps {
 		ds[i] = fromProtoDependency(dep)
@@ -99,9 +99,9 @@ func fromProtoDependencies(deps []*definition.Service_Dependency) []*service.Dep
 	return ds
 }
 
-// toProtoService converts an internal service struct to the protobuf definition
-func toProtoService(s *service.Service) *definition.Service {
-	return &definition.Service{
+// toProtoService converts an internal service struct to the protobuf types
+func toProtoService(s *service.Service) *types.Service {
+	return &types.Service{
 		Hash:          s.Hash.String(),
 		Sid:           s.Sid,
 		Name:          s.Name,
@@ -115,10 +115,10 @@ func toProtoService(s *service.Service) *definition.Service {
 	}
 }
 
-func toProtoTasks(tasks []*service.Task) []*definition.Service_Task {
-	ts := make([]*definition.Service_Task, len(tasks))
+func toProtoTasks(tasks []*service.Task) []*types.Service_Task {
+	ts := make([]*types.Service_Task, len(tasks))
 	for i, task := range tasks {
-		ts[i] = &definition.Service_Task{
+		ts[i] = &types.Service_Task{
 			Key:         task.Key,
 			Name:        task.Name,
 			Description: task.Description,
@@ -129,10 +129,10 @@ func toProtoTasks(tasks []*service.Task) []*definition.Service_Task {
 	return ts
 }
 
-func toProtoEvents(events []*service.Event) []*definition.Service_Event {
-	es := make([]*definition.Service_Event, len(events))
+func toProtoEvents(events []*service.Event) []*types.Service_Event {
+	es := make([]*types.Service_Event, len(events))
 	for i, event := range events {
-		es[i] = &definition.Service_Event{
+		es[i] = &types.Service_Event{
 			Key:         event.Key,
 			Name:        event.Name,
 			Description: event.Description,
@@ -142,10 +142,10 @@ func toProtoEvents(events []*service.Event) []*definition.Service_Event {
 	return es
 }
 
-func toProtoParameters(params []*service.Parameter) []*definition.Service_Parameter {
-	ps := make([]*definition.Service_Parameter, len(params))
+func toProtoParameters(params []*service.Parameter) []*types.Service_Parameter {
+	ps := make([]*types.Service_Parameter, len(params))
 	for i, param := range params {
-		ps[i] = &definition.Service_Parameter{
+		ps[i] = &types.Service_Parameter{
 			Key:         param.Key,
 			Name:        param.Name,
 			Description: param.Description,
@@ -158,8 +158,8 @@ func toProtoParameters(params []*service.Parameter) []*definition.Service_Parame
 	return ps
 }
 
-func toProtoConfiguration(configuration *service.Dependency) *definition.Service_Configuration {
-	return &definition.Service_Configuration{
+func toProtoConfiguration(configuration *service.Dependency) *types.Service_Configuration {
+	return &types.Service_Configuration{
 		Args:        configuration.Args,
 		Command:     configuration.Command,
 		Ports:       configuration.Ports,
@@ -169,8 +169,8 @@ func toProtoConfiguration(configuration *service.Dependency) *definition.Service
 	}
 }
 
-func toProtoDependency(dep *service.Dependency) *definition.Service_Dependency {
-	return &definition.Service_Dependency{
+func toProtoDependency(dep *service.Dependency) *types.Service_Dependency {
+	return &types.Service_Dependency{
 		Key:         dep.Key,
 		Image:       dep.Image,
 		Volumes:     dep.Volumes,
@@ -182,8 +182,8 @@ func toProtoDependency(dep *service.Dependency) *definition.Service_Dependency {
 	}
 }
 
-func toProtoDependencies(deps []*service.Dependency) []*definition.Service_Dependency {
-	ds := make([]*definition.Service_Dependency, len(deps))
+func toProtoDependencies(deps []*service.Dependency) []*types.Service_Dependency {
+	ds := make([]*types.Service_Dependency, len(deps))
 	for i, dep := range deps {
 		ds[i] = toProtoDependency(dep)
 	}

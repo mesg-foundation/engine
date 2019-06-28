@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import "protobuf/definition/event.proto";
+import "protobuf/types/event.proto";
 
 package api;
 
@@ -15,7 +15,7 @@ service Event {
 
   // Stream returns a stream of events that satisfy criteria
   // specified in a request.
-  rpc Stream(StreamEventRequest) returns (stream definition.Event) {}
+  rpc Stream(StreamEventRequest) returns (stream types.Event) {}
 }
 
 // StreamEventRequest defines request to retrieve a stream of events.
@@ -38,8 +38,8 @@ message StreamEventRequest {
 
 // CreateEventRequest defines request for execution update.
 message CreateEventRequest {
-  // The event definition to use to create the Event.
-  definition.Event event = 1;
+  // The event type to use to create the Event.
+  types.Event event = 1;
 }
 
 // CreateEventResponse defines response for execution update.
