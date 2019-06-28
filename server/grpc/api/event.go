@@ -10,7 +10,7 @@ import (
 	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/protobuf/acknowledgement"
 	"github.com/mesg-foundation/core/protobuf/api"
-	"github.com/mesg-foundation/core/protobuf/definition"
+	"github.com/mesg-foundation/core/protobuf/types"
 	"github.com/mesg-foundation/core/sdk"
 	eventsdk "github.com/mesg-foundation/core/sdk/event"
 )
@@ -44,8 +44,7 @@ func (s *EventServer) Create(ctx context.Context, req *api.CreateEventRequest) (
 	if err := json.Unmarshal([]byte(req.Event.Data), &data); err != nil {
 		return nil, fmt.Errorf("create event: data %s", err)
 	}
-
-	event, err := s.sdk.Event.Emit(instanceHash, req.Event.Key, data)
+	event, err := s.sdk.Event.Create(instanceHash, req.Event.Key, data)
 	if err != nil {
 		return nil, fmt.Errorf("create event: data %s", err)
 	}
@@ -93,13 +92,13 @@ func (s *EventServer) Stream(req *api.StreamEventRequest, resp api.Event_StreamS
 	return nil
 }
 
-func toProtoEvent(e *event.Event) (*definition.Event, error) {
+func toProtoEvent(e *event.Event) (*types.Event, error) {
 	data, err := json.Marshal(e.Data)
 	if err != nil {
 		return nil, err
 	}
 
-	return &definition.Event{
+	return &types.Event{
 		Hash:         e.Hash.String(),
 		InstanceHash: e.InstanceHash.String(),
 		Key:          e.Key,

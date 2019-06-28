@@ -7,7 +7,7 @@ import (
 	context "context"
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
-	definition "github.com/mesg-foundation/core/protobuf/definition"
+	types "github.com/mesg-foundation/core/protobuf/types"
 	grpc "google.golang.org/grpc"
 	math "math"
 )
@@ -25,10 +25,11 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 // The request's data for the `Create` API.
 type CreateServiceRequest struct {
-	Definition           *definition.Service `protobuf:"bytes,1,opt,name=definition,proto3" json:"definition,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}            `json:"-"`
-	XXX_unrecognized     []byte              `json:"-"`
-	XXX_sizecache        int32               `json:"-"`
+	// The service definition to use to create the Service.
+	Definition           *types.Service `protobuf:"bytes,1,opt,name=definition,proto3" json:"definition,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
+	XXX_unrecognized     []byte         `json:"-"`
+	XXX_sizecache        int32          `json:"-"`
 }
 
 func (m *CreateServiceRequest) Reset()         { *m = CreateServiceRequest{} }
@@ -56,7 +57,7 @@ func (m *CreateServiceRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_CreateServiceRequest proto.InternalMessageInfo
 
-func (m *CreateServiceRequest) GetDefinition() *definition.Service {
+func (m *CreateServiceRequest) GetDefinition() *types.Service {
 	if m != nil {
 		return m.Definition
 	}
@@ -253,10 +254,10 @@ var xxx_messageInfo_ListServiceRequest proto.InternalMessageInfo
 // The response's data for the `List` API.
 type ListServiceResponse struct {
 	// List of services that match the request's filters.
-	Services             []*definition.Service `protobuf:"bytes,1,rep,name=services,proto3" json:"services,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
-	XXX_unrecognized     []byte                `json:"-"`
-	XXX_sizecache        int32                 `json:"-"`
+	Services             []*types.Service `protobuf:"bytes,1,rep,name=services,proto3" json:"services,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
+	XXX_unrecognized     []byte           `json:"-"`
+	XXX_sizecache        int32            `json:"-"`
 }
 
 func (m *ListServiceResponse) Reset()         { *m = ListServiceResponse{} }
@@ -284,7 +285,7 @@ func (m *ListServiceResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ListServiceResponse proto.InternalMessageInfo
 
-func (m *ListServiceResponse) GetServices() []*definition.Service {
+func (m *ListServiceResponse) GetServices() []*types.Service {
 	if m != nil {
 		return m.Services
 	}
@@ -304,25 +305,25 @@ func init() {
 func init() { proto.RegisterFile("protobuf/api/service.proto", fileDescriptor_0615fe53b372bcb1) }
 
 var fileDescriptor_0615fe53b372bcb1 = []byte{
-	// 281 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x92, 0x41, 0x4f, 0xc2, 0x30,
-	0x14, 0xc7, 0x37, 0x47, 0x08, 0x3e, 0x4f, 0x3e, 0x86, 0xcc, 0x9e, 0xb0, 0x17, 0x8d, 0x26, 0x5d,
-	0x02, 0xde, 0x3c, 0x19, 0x8d, 0x1c, 0xf4, 0x84, 0x17, 0xaf, 0x45, 0x1f, 0xa1, 0x89, 0xd9, 0xea,
-	0x5a, 0xfc, 0x02, 0x7e, 0x71, 0x43, 0x57, 0x40, 0xb6, 0x9a, 0x70, 0x5b, 0xfe, 0xfd, 0xf5, 0xff,
-	0xf6, 0x7e, 0x29, 0x30, 0x5d, 0x95, 0xb6, 0x9c, 0xaf, 0x16, 0xb9, 0xd4, 0x2a, 0x37, 0x54, 0x7d,
-	0xab, 0x77, 0x12, 0x2e, 0xc4, 0x44, 0x6a, 0xc5, 0x2e, 0xb6, 0xc0, 0x07, 0x2d, 0x54, 0xa1, 0xac,
-	0x2a, 0x8b, 0x7d, 0x8e, 0x3f, 0x43, 0xfa, 0x50, 0x91, 0xb4, 0xf4, 0x5a, 0xc7, 0x33, 0xfa, 0x5a,
-	0x91, 0xb1, 0x38, 0x01, 0xd8, 0xdd, 0xc9, 0xe2, 0x51, 0x7c, 0x75, 0x32, 0xee, 0x8b, 0x5d, 0x24,
-	0x36, 0xfc, 0x1f, 0x8c, 0xdf, 0xc0, 0xa0, 0x51, 0x66, 0x74, 0x59, 0x18, 0x42, 0x84, 0xce, 0x52,
-	0x9a, 0xa5, 0xeb, 0x39, 0x9e, 0xb9, 0x6f, 0x7e, 0x0d, 0xe9, 0x23, 0x7d, 0x52, 0x6b, 0x72, 0x88,
-	0x1d, 0xc2, 0xa0, 0xc1, 0xd6, 0xc5, 0xfc, 0x12, 0x4e, 0xa7, 0x64, 0x0f, 0x68, 0x48, 0x01, 0x5f,
-	0x94, 0x69, 0x90, 0xfc, 0x09, 0xfa, 0x7b, 0xa9, 0xff, 0xdd, 0x1c, 0x7a, 0xde, 0x92, 0xc9, 0xe2,
-	0x51, 0xf2, 0xdf, 0xea, 0x5b, 0x68, 0xfc, 0x73, 0x04, 0x3d, 0x9f, 0xbe, 0xe1, 0x3d, 0x74, 0x6b,
-	0x0b, 0x78, 0x2e, 0xa4, 0x56, 0x22, 0xe4, 0x97, 0xb1, 0xd0, 0x91, 0x5f, 0x2a, 0x5a, 0x57, 0xd4,
-	0xfb, 0xfa, 0x8a, 0x90, 0x28, 0x5f, 0x11, 0xf6, 0x12, 0xe1, 0x2d, 0x24, 0x53, 0xb2, 0x78, 0xe6,
-	0xa0, 0x96, 0x23, 0x16, 0x5a, 0x88, 0x47, 0x78, 0x07, 0x9d, 0xb5, 0x10, 0x1c, 0xba, 0x6b, 0x6d,
-	0x63, 0x2c, 0x6b, 0x1f, 0x6c, 0x46, 0xce, 0xbb, 0xee, 0x49, 0x4d, 0x7e, 0x03, 0x00, 0x00, 0xff,
-	0xff, 0x34, 0x56, 0x77, 0x4d, 0x98, 0x02, 0x00, 0x00,
+	// 280 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x92, 0x41, 0x4b, 0xc3, 0x30,
+	0x14, 0xc7, 0x5b, 0x3a, 0xa6, 0x3e, 0x41, 0xf0, 0xd9, 0xb9, 0x1a, 0x3c, 0x8c, 0x5c, 0x94, 0x09,
+	0x29, 0xcc, 0xa3, 0xa7, 0xa1, 0xb8, 0x8b, 0xa7, 0xf9, 0x09, 0x32, 0x7d, 0x63, 0x01, 0x69, 0x63,
+	0x93, 0x09, 0x7e, 0x78, 0x41, 0x96, 0x66, 0xc3, 0x36, 0x39, 0x78, 0x2b, 0xef, 0xfd, 0xfa, 0x7b,
+	0xfd, 0xff, 0x29, 0x30, 0xdd, 0xd4, 0xb6, 0x5e, 0x6d, 0xd7, 0xa5, 0xd4, 0xaa, 0x34, 0xd4, 0x7c,
+	0xa9, 0x37, 0x12, 0x6e, 0x88, 0x99, 0xd4, 0x8a, 0x5d, 0x1f, 0x00, 0xfb, 0xad, 0xc9, 0x74, 0x11,
+	0xfe, 0x0c, 0xf9, 0x63, 0x43, 0xd2, 0xd2, 0x6b, 0x3b, 0x5e, 0xd2, 0xe7, 0x96, 0x8c, 0x45, 0x01,
+	0xf0, 0x4e, 0x6b, 0x55, 0x29, 0xab, 0xea, 0xaa, 0x48, 0x27, 0xe9, 0xed, 0xe9, 0xec, 0x4c, 0x38,
+	0x83, 0xd8, 0xa3, 0x7f, 0x08, 0x7e, 0x07, 0xa3, 0x9e, 0xc7, 0xe8, 0xba, 0x32, 0x84, 0x08, 0x83,
+	0x8d, 0x34, 0x1b, 0xa7, 0x38, 0x59, 0xba, 0x67, 0x3e, 0x85, 0xfc, 0x89, 0x3e, 0x28, 0x38, 0x1a,
+	0x63, 0xc7, 0x30, 0xea, 0xb1, 0xad, 0x98, 0xdf, 0xc0, 0xf9, 0x82, 0xec, 0x3f, 0x0c, 0x39, 0xe0,
+	0x8b, 0x32, 0x3d, 0x92, 0xcf, 0xe1, 0xa2, 0x33, 0xf5, 0x9f, 0x3b, 0x85, 0x63, 0x5f, 0x90, 0x29,
+	0xd2, 0x49, 0x16, 0x49, 0x7d, 0xd8, 0xcf, 0x7e, 0x52, 0x38, 0xf2, 0x53, 0x9c, 0xc3, 0xb0, 0xcd,
+	0x8f, 0x57, 0x42, 0x6a, 0x25, 0x62, 0xa5, 0x32, 0x16, 0x5b, 0xf9, 0x38, 0xc9, 0x4e, 0xd1, 0x26,
+	0xf5, 0x8a, 0x58, 0x45, 0x5e, 0x11, 0x6f, 0x24, 0xc1, 0x12, 0xb2, 0x05, 0x59, 0xbc, 0x74, 0x50,
+	0xd0, 0x0e, 0xeb, 0x45, 0xe1, 0x09, 0x3e, 0xc0, 0x60, 0xd7, 0x02, 0x8e, 0xdd, 0x1b, 0x61, 0x4d,
+	0xac, 0x08, 0x17, 0xfb, 0x6b, 0xab, 0xa1, 0xfb, 0x85, 0xee, 0x7f, 0x03, 0x00, 0x00, 0xff, 0xff,
+	0x96, 0x7f, 0x64, 0x89, 0x83, 0x02, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -333,10 +334,10 @@ var _ grpc.ClientConn
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion4
 
-// ServiceXClient is the client API for ServiceX service.
+// ServiceClient is the client API for Service service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
-type ServiceXClient interface {
+type ServiceClient interface {
 	// Create a Service from a Service Definition.
 	// It will return an unique identifier which is used to interact with the Service.
 	Create(ctx context.Context, in *CreateServiceRequest, opts ...grpc.CallOption) (*CreateServiceResponse, error)
@@ -344,57 +345,57 @@ type ServiceXClient interface {
 	// An error is returned if one or more Instances of the Service are running.
 	Delete(ctx context.Context, in *DeleteServiceRequest, opts ...grpc.CallOption) (*DeleteServiceResponse, error)
 	// Get returns a Service matching the criteria of the request.
-	Get(ctx context.Context, in *GetServiceRequest, opts ...grpc.CallOption) (*definition.Service, error)
+	Get(ctx context.Context, in *GetServiceRequest, opts ...grpc.CallOption) (*types.Service, error)
 	// List returns services specified in a request.
 	List(ctx context.Context, in *ListServiceRequest, opts ...grpc.CallOption) (*ListServiceResponse, error)
 }
 
-type serviceXClient struct {
+type serviceClient struct {
 	cc *grpc.ClientConn
 }
 
-func NewServiceXClient(cc *grpc.ClientConn) ServiceXClient {
-	return &serviceXClient{cc}
+func NewServiceClient(cc *grpc.ClientConn) ServiceClient {
+	return &serviceClient{cc}
 }
 
-func (c *serviceXClient) Create(ctx context.Context, in *CreateServiceRequest, opts ...grpc.CallOption) (*CreateServiceResponse, error) {
+func (c *serviceClient) Create(ctx context.Context, in *CreateServiceRequest, opts ...grpc.CallOption) (*CreateServiceResponse, error) {
 	out := new(CreateServiceResponse)
-	err := c.cc.Invoke(ctx, "/api.ServiceX/Create", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.Service/Create", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serviceXClient) Delete(ctx context.Context, in *DeleteServiceRequest, opts ...grpc.CallOption) (*DeleteServiceResponse, error) {
+func (c *serviceClient) Delete(ctx context.Context, in *DeleteServiceRequest, opts ...grpc.CallOption) (*DeleteServiceResponse, error) {
 	out := new(DeleteServiceResponse)
-	err := c.cc.Invoke(ctx, "/api.ServiceX/Delete", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.Service/Delete", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serviceXClient) Get(ctx context.Context, in *GetServiceRequest, opts ...grpc.CallOption) (*definition.Service, error) {
-	out := new(definition.Service)
-	err := c.cc.Invoke(ctx, "/api.ServiceX/Get", in, out, opts...)
+func (c *serviceClient) Get(ctx context.Context, in *GetServiceRequest, opts ...grpc.CallOption) (*types.Service, error) {
+	out := new(types.Service)
+	err := c.cc.Invoke(ctx, "/api.Service/Get", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serviceXClient) List(ctx context.Context, in *ListServiceRequest, opts ...grpc.CallOption) (*ListServiceResponse, error) {
+func (c *serviceClient) List(ctx context.Context, in *ListServiceRequest, opts ...grpc.CallOption) (*ListServiceResponse, error) {
 	out := new(ListServiceResponse)
-	err := c.cc.Invoke(ctx, "/api.ServiceX/List", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.Service/List", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// ServiceXServer is the server API for ServiceX service.
-type ServiceXServer interface {
+// ServiceServer is the server API for Service service.
+type ServiceServer interface {
 	// Create a Service from a Service Definition.
 	// It will return an unique identifier which is used to interact with the Service.
 	Create(context.Context, *CreateServiceRequest) (*CreateServiceResponse, error)
@@ -402,106 +403,106 @@ type ServiceXServer interface {
 	// An error is returned if one or more Instances of the Service are running.
 	Delete(context.Context, *DeleteServiceRequest) (*DeleteServiceResponse, error)
 	// Get returns a Service matching the criteria of the request.
-	Get(context.Context, *GetServiceRequest) (*definition.Service, error)
+	Get(context.Context, *GetServiceRequest) (*types.Service, error)
 	// List returns services specified in a request.
 	List(context.Context, *ListServiceRequest) (*ListServiceResponse, error)
 }
 
-func RegisterServiceXServer(s *grpc.Server, srv ServiceXServer) {
-	s.RegisterService(&_ServiceX_serviceDesc, srv)
+func RegisterServiceServer(s *grpc.Server, srv ServiceServer) {
+	s.RegisterService(&_Service_serviceDesc, srv)
 }
 
-func _ServiceX_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Service_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServiceXServer).Create(ctx, in)
+		return srv.(ServiceServer).Create(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api.ServiceX/Create",
+		FullMethod: "/api.Service/Create",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceXServer).Create(ctx, req.(*CreateServiceRequest))
+		return srv.(ServiceServer).Create(ctx, req.(*CreateServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ServiceX_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Service_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServiceXServer).Delete(ctx, in)
+		return srv.(ServiceServer).Delete(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api.ServiceX/Delete",
+		FullMethod: "/api.Service/Delete",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceXServer).Delete(ctx, req.(*DeleteServiceRequest))
+		return srv.(ServiceServer).Delete(ctx, req.(*DeleteServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ServiceX_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Service_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServiceXServer).Get(ctx, in)
+		return srv.(ServiceServer).Get(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api.ServiceX/Get",
+		FullMethod: "/api.Service/Get",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceXServer).Get(ctx, req.(*GetServiceRequest))
+		return srv.(ServiceServer).Get(ctx, req.(*GetServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ServiceX_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Service_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServiceXServer).List(ctx, in)
+		return srv.(ServiceServer).List(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api.ServiceX/List",
+		FullMethod: "/api.Service/List",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceXServer).List(ctx, req.(*ListServiceRequest))
+		return srv.(ServiceServer).List(ctx, req.(*ListServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-var _ServiceX_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "api.ServiceX",
-	HandlerType: (*ServiceXServer)(nil),
+var _Service_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "api.Service",
+	HandlerType: (*ServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Create",
-			Handler:    _ServiceX_Create_Handler,
+			Handler:    _Service_Create_Handler,
 		},
 		{
 			MethodName: "Delete",
-			Handler:    _ServiceX_Delete_Handler,
+			Handler:    _Service_Delete_Handler,
 		},
 		{
 			MethodName: "Get",
-			Handler:    _ServiceX_Get_Handler,
+			Handler:    _Service_Get_Handler,
 		},
 		{
 			MethodName: "List",
-			Handler:    _ServiceX_List_Handler,
+			Handler:    _Service_List_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

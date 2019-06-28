@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import "protobuf/definition/execution.proto";
+import "protobuf/types/execution.proto";
 
 package api;
 
@@ -12,11 +12,11 @@ package api;
 
 service Execution {
   // Get returns a single Execution specified in a request.
-  rpc Get(GetExecutionRequest) returns (definition.Execution) {}
+  rpc Get(GetExecutionRequest) returns (types.Execution) {}
 
   // Stream returns a stream of executions that satisfy criteria
   // specified in a request.
-  rpc Stream(StreamExecutionRequest) returns (stream definition.Execution) {}
+  rpc Stream(StreamExecutionRequest) returns (stream types.Execution) {}
 
   // Update updates execution with outputs or an error.
   rpc Update(UpdateExecutionRequest) returns (UpdateExecutionResponse) {}
@@ -33,7 +33,7 @@ message StreamExecutionRequest{
   // Filter contains filtering criteria.
   message Filter {
     // Status to filter executions.
-    definition.Status status = 1;
+    types.Status status = 1;
 
     // Instance's hash to filter executions.
     string instanceHash = 2;
