@@ -9,13 +9,13 @@ import (
 	"github.com/mesg-foundation/engine/service"
 )
 
-// instanceNamespace returns the namespace of the service.
-func instanceNamespace(hash hash.Hash) string {
+// InstanceNamespace returns the namespace of the service.
+func InstanceNamespace(hash hash.Hash) string {
 	return hash.String()
 }
 
 // dependencyNamespace builds the namespace of a dependency.
-func dependencyNamespace(instanceNamespace string, dependencyKey string) string {
+func DependencyNamespace(instanceNamespace string, dependencyKey string) string {
 	return hash.Dump(instanceNamespace + dependencyKey).String()
 }
 

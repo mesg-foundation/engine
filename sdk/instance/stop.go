@@ -18,7 +18,7 @@ func (i *Instance) stop(inst *instance.Instance) error {
 	var (
 		wg         sync.WaitGroup
 		errs       xerrors.SyncErrors
-		sNamespace = instanceNamespace(inst.Hash)
+		sNamespace = InstanceNamespace(inst.Hash)
 	)
 	for _, d := range append([]*service.Dependency{srv.Configuration}, srv.Dependencies...) {
 		// Service.Configuration can be nil so, here is a check for it.
@@ -31,7 +31,7 @@ func (i *Instance) stop(inst *instance.Instance) error {
 			if err := i.container.StopService(namespace); err != nil {
 				errs.Append(err)
 			}
-		}(dependencyNamespace(sNamespace, d.Key))
+		}(DependencyNamespace(sNamespace, d.Key))
 	}
 	wg.Wait()
 	if err := errs.ErrorOrNil(); err != nil {
