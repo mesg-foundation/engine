@@ -3,9 +3,9 @@ package instancesdk
 import (
 	"sync"
 
-	"github.com/mesg-foundation/core/instance"
-	"github.com/mesg-foundation/core/service"
-	"github.com/mesg-foundation/core/x/xerrors"
+	"github.com/mesg-foundation/engine/instance"
+	"github.com/mesg-foundation/engine/service"
+	"github.com/mesg-foundation/engine/x/xerrors"
 )
 
 // Stop stops an instance.

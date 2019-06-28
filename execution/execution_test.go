@@ -5,7 +5,7 @@ import (
 	"testing"
 	"testing/quick"
 
-	"github.com/mesg-foundation/core/hash"
+	"github.com/mesg-foundation/engine/hash"
 	"github.com/stretchr/testify/require"
 )
 

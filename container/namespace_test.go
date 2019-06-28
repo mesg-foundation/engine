@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mesg-foundation/core/config"
+	"github.com/mesg-foundation/engine/config"
 	"github.com/stretchr/testify/require"
 )
 

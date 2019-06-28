@@ -1,11 +1,11 @@
 package core
 
 import (
-	"github.com/mesg-foundation/core/hash"
-	"github.com/mesg-foundation/core/protobuf/acknowledgement"
-	"github.com/mesg-foundation/core/protobuf/coreapi"
-	servicesdk "github.com/mesg-foundation/core/sdk/service"
-	"github.com/mesg-foundation/core/utils/chunker"
+	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
+	"github.com/mesg-foundation/engine/protobuf/coreapi"
+	servicesdk "github.com/mesg-foundation/engine/sdk/service"
+	"github.com/mesg-foundation/engine/utils/chunker"
 )
 
 // ServiceLogs gives logs of service with the applied dependency filters.

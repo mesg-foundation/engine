@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 
-	"github.com/mesg-foundation/core/hash"
-	protobuf_api "github.com/mesg-foundation/core/protobuf/api"
-	"github.com/mesg-foundation/core/protobuf/types"
-	"github.com/mesg-foundation/core/sdk"
-	instancesdk "github.com/mesg-foundation/core/sdk/instance"
+	"github.com/mesg-foundation/engine/hash"
+	protobuf_api "github.com/mesg-foundation/engine/protobuf/api"
+	"github.com/mesg-foundation/engine/protobuf/types"
+	"github.com/mesg-foundation/engine/sdk"
+	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 )
 
 // ServiceServer is the type to aggregate all Service APIs.

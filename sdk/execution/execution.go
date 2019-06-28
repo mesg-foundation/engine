@@ -5,11 +5,11 @@ import (
 	"fmt"
 
 	"github.com/cskr/pubsub"
-	"github.com/mesg-foundation/core/database"
-	"github.com/mesg-foundation/core/execution"
-	"github.com/mesg-foundation/core/hash"
-	instancesdk "github.com/mesg-foundation/core/sdk/instance"
-	servicesdk "github.com/mesg-foundation/core/sdk/service"
+	"github.com/mesg-foundation/engine/database"
+	"github.com/mesg-foundation/engine/execution"
+	"github.com/mesg-foundation/engine/hash"
+	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
+	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	uuid "github.com/satori/go.uuid"
 )
 

@@ -2,12 +2,12 @@ package sdk
 
 import (
 	"github.com/cskr/pubsub"
-	"github.com/mesg-foundation/core/container"
-	"github.com/mesg-foundation/core/database"
-	eventsdk "github.com/mesg-foundation/core/sdk/event"
-	executionsdk "github.com/mesg-foundation/core/sdk/execution"
-	instancesdk "github.com/mesg-foundation/core/sdk/instance"
-	servicesdk "github.com/mesg-foundation/core/sdk/service"
+	"github.com/mesg-foundation/engine/container"
+	"github.com/mesg-foundation/engine/database"
+	eventsdk "github.com/mesg-foundation/engine/sdk/event"
+	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
+	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
+	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 )
 
 // SDK exposes all functionalities of MESG core.

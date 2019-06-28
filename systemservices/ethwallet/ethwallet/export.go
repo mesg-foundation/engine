@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/mesg-foundation/core/client/service"
-	"github.com/mesg-foundation/core/systemservices/ethwallet/x/xgo-ethereum/xaccounts"
+	"github.com/mesg-foundation/engine/client/service"
+	"github.com/mesg-foundation/engine/systemservices/ethwallet/x/xgo-ethereum/xaccounts"
 )
 
 type exportInputs struct {

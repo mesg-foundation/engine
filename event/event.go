@@ -1,7 +1,7 @@
 package event
 
 import (
-	"github.com/mesg-foundation/core/hash"
+	"github.com/mesg-foundation/engine/hash"
 )
 
 // Event stores all informations about Events.
