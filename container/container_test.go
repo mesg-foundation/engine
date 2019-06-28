@@ -34,7 +34,7 @@ func mockNew(m *mocks.CommonAPIClient) {
 		}
 		networkInspectArguments = []interface{}{
 			mock.Anything,
-			"engine",
+			"engine-",
 			types.NetworkInspectOptions{},
 		}
 		networkInspectResponse = types.NetworkResource{
@@ -133,7 +133,7 @@ func TestNewSwarmError(t *testing.T) {
 }
 
 func TestFindContainerNonExistent(t *testing.T) {
-	namespace := []string{"namespace"}
+	namespace := "namespace"
 
 	dt := dockertest.New()
 	c, _ := New(ClientOption(dt.Client()))
@@ -153,7 +153,7 @@ func TestFindContainerNonExistent(t *testing.T) {
 }
 
 func TestFindContainer(t *testing.T) {
-	namespace := []string{"TestFindContainer"}
+	namespace := "namespace"
 	containerID := "1"
 	containerData := []types.Container{
 		{ID: containerID},
@@ -186,7 +186,7 @@ func TestFindContainer(t *testing.T) {
 }
 
 func TestNonExistentContainerStatus(t *testing.T) {
-	namespace := []string{"namespace"}
+	namespace := "namespace"
 
 	dt := dockertest.New()
 	c, _ := New(ClientOption(dt.Client()))
@@ -204,7 +204,7 @@ func TestNonExistentContainerStatus(t *testing.T) {
 }
 
 func TestExistentContainerStatus(t *testing.T) {
-	namespace := []string{"namespace"}
+	namespace := "namespace"
 	containerID := "1"
 	containerData := []types.Container{
 		{ID: containerID},
@@ -229,7 +229,7 @@ func TestExistentContainerStatus(t *testing.T) {
 }
 
 func TestExistentContainerRunningStatus(t *testing.T) {
-	namespace := []string{"namespace"}
+	namespace := "namespace"
 	containerID := "1"
 	containerData := []types.Container{
 		{ID: containerID},

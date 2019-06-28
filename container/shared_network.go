@@ -27,7 +27,7 @@ func (c *DockerContainer) createSharedNetworkIfNeeded() error {
 	// Create the new network needed to run containers.
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
-	namespace := c.Namespace([]string{})
+	namespace := c.Namespace("")
 	_, err = c.client.NetworkCreate(ctx, namespace, types.NetworkCreate{
 		CheckDuplicate: true,
 		Driver:         "overlay",
@@ -42,5 +42,5 @@ func (c *DockerContainer) createSharedNetworkIfNeeded() error {
 func (c *DockerContainer) sharedNetwork() (network types.NetworkResource, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
-	return c.client.NetworkInspect(ctx, c.Namespace([]string{}), types.NetworkInspectOptions{})
+	return c.client.NetworkInspect(ctx, c.Namespace(""), types.NetworkInspectOptions{})
 }

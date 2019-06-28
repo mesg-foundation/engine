@@ -7,7 +7,7 @@ import (
 )
 
 func TestServiceOptionNamespace(t *testing.T) {
-	namespace := []string{"name1", "name2"}
+	namespace := "namespace"
 	options := &ServiceOptions{
 		Namespace: namespace,
 	}

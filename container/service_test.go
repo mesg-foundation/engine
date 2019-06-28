@@ -16,7 +16,7 @@ import (
 
 func TestStartService(t *testing.T) {
 	var (
-		namespace = []string{"1"}
+		namespace = "namespace"
 		serviceID = "2"
 		options   = ServiceOptions{
 			Image:     "3",
@@ -55,7 +55,7 @@ func TestStartService(t *testing.T) {
 
 func TestStartServiceRunningStatus(t *testing.T) {
 	var (
-		namespace = []string{"1"}
+		namespace = "namespace"
 		serviceID = "2"
 		options   = ServiceOptions{
 			Image:     "3",
@@ -95,7 +95,7 @@ func TestStopService(t *testing.T) {
 		c, mc                   = newTesting(t)
 		serviceID               = "1"
 		containerID             = "1"
-		namespace               = []string{"2"}
+		namespace               = "namespace"
 		fullNamespace           = c.Namespace(namespace)
 		serviceInspectArguments = []interface{}{
 			mock.Anything,
@@ -179,7 +179,7 @@ func TestStopService(t *testing.T) {
 }
 
 func TestStopNotExistingService(t *testing.T) {
-	namespace := []string{"namespace"}
+	namespace := "namespace"
 
 	dt := dockertest.New()
 	c, _ := New(ClientOption(dt.Client()))
@@ -194,7 +194,7 @@ func TestStopNotExistingService(t *testing.T) {
 }
 
 func TestFindService(t *testing.T) {
-	namespace := []string{"namespace"}
+	namespace := "namespace"
 	swarmService := swarm.Service{ID: "1"}
 
 	dt := dockertest.New()
@@ -212,7 +212,7 @@ func TestFindService(t *testing.T) {
 }
 
 func TestFindServiceNotExisting(t *testing.T) {
-	namespace := []string{"namespace"}
+	namespace := "namespace"
 
 	dt := dockertest.New()
 	c, _ := New(ClientOption(dt.Client()))
@@ -228,14 +228,13 @@ func TestFindServiceNotExisting(t *testing.T) {
 }
 
 func TestListServices(t *testing.T) {
-	namespace := []string{"namespace"}
-	namespace1 := []string{"namespace"}
+	namespace := "namespace"
 	label := "1"
 	dt := dockertest.New()
 	c, _ := New(ClientOption(dt.Client()))
 	swarmServices := []swarm.Service{
 		{Spec: swarm.ServiceSpec{Annotations: swarm.Annotations{Name: c.Namespace(namespace)}}},
-		{Spec: swarm.ServiceSpec{Annotations: swarm.Annotations{Name: c.Namespace(namespace1)}}},
+		{Spec: swarm.ServiceSpec{Annotations: swarm.Annotations{Name: c.Namespace(namespace)}}},
 	}
 
 	dt.ProvideServiceList(swarmServices, nil)
@@ -244,7 +243,7 @@ func TestListServices(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 2, len(services))
 	require.Equal(t, c.Namespace(namespace), services[0].Spec.Name)
-	require.Equal(t, c.Namespace(namespace1), services[1].Spec.Name)
+	require.Equal(t, c.Namespace(namespace), services[1].Spec.Name)
 
 	require.Equal(t, types.ServiceListOptions{
 		Filters: filters.NewArgs(filters.KeyValuePair{
@@ -255,7 +254,7 @@ func TestListServices(t *testing.T) {
 }
 
 func TestServiceLogs(t *testing.T) {
-	namespace := []string{"namespace"}
+	namespace := "namespace"
 	data := []byte{1, 2}
 
 	dt := dockertest.New()

@@ -19,20 +19,20 @@ var (
 // Container describes the API of container package.
 type Container interface {
 	Build(path string) (tag string, err error)
-	CreateNetwork(namespace []string) (id string, err error)
-	DeleteNetwork(namespace []string) error
-	FindContainer(namespace []string) (types.ContainerJSON, error)
-	FindNetwork(namespace []string) (types.NetworkResource, error)
-	FindService(namespace []string) (swarm.Service, error)
+	CreateNetwork(namespace string) (id string, err error)
+	DeleteNetwork(namespace string) error
+	FindContainer(namespace string) (types.ContainerJSON, error)
+	FindNetwork(namespace string) (types.NetworkResource, error)
+	FindService(namespace string) (swarm.Service, error)
 	ListServices(labels ...string) ([]swarm.Service, error)
-	ListTasks(namespace []string) ([]swarm.Task, error)
-	Namespace(ss []string) string
-	ServiceLogs(namespace []string) (io.ReadCloser, error)
+	ListTasks(namespace string) ([]swarm.Task, error)
+	Namespace(namespace string) string
+	ServiceLogs(namespace string) (io.ReadCloser, error)
 	SharedNetworkID() (networkID string, err error)
 	StartService(options ServiceOptions) (serviceID string, err error)
-	Status(namespace []string) (StatusType, error)
-	StopService(namespace []string) (err error)
-	TasksError(namespace []string) ([]string, error)
+	Status(namespace string) (StatusType, error)
+	StopService(namespace string) (err error)
+	TasksError(namespace string) ([]string, error)
 	DeleteVolume(name string) error
 }
 
@@ -108,7 +108,7 @@ func (c *DockerContainer) isSwarmInit() error {
 }
 
 // FindContainer returns a docker container.
-func (c *DockerContainer) FindContainer(namespace []string) (types.ContainerJSON, error) {
+func (c *DockerContainer) FindContainer(namespace string) (types.ContainerJSON, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
 	containers, err := c.client.ContainerList(ctx, types.ContainerListOptions{
@@ -136,7 +136,7 @@ func (c *DockerContainer) FindContainer(namespace []string) (types.ContainerJSON
 //  - RUNNING: when the container is running in docker regardless of the status of the service.
 //  - STARTING: when the service is running but the container is not yet started.
 //  - STOPPED: when the container and the service is not running in docker.
-func (c *DockerContainer) Status(namespace []string) (StatusType, error) {
+func (c *DockerContainer) Status(namespace string) (StatusType, error) {
 	container, err := c.containerExists(namespace)
 	if err != nil {
 		return UNKNOWN, err
@@ -166,13 +166,13 @@ func (c *DockerContainer) Status(namespace []string) (StatusType, error) {
 }
 
 // containerExists checks if container with namespace can be found.
-func (c *DockerContainer) containerExists(namespace []string) (bool, error) {
+func (c *DockerContainer) containerExists(namespace string) (bool, error) {
 	_, err := c.FindContainer(namespace)
 	return presenceHandling(err)
 }
 
 // serviceExists checks if corresponding container for service namespace can be found.
-func (c *DockerContainer) serviceExists(namespace []string) (bool, error) {
+func (c *DockerContainer) serviceExists(namespace string) (bool, error) {
 	_, err := c.FindService(namespace)
 	return presenceHandling(err)
 }

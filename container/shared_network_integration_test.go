@@ -17,7 +17,7 @@ func removeSharedNetworkIfExist(c *DockerContainer) error {
 		}
 		return err
 	}
-	return c.client.NetworkRemove(context.Background(), c.Namespace([]string{}))
+	return c.client.NetworkRemove(context.Background(), c.Namespace(""))
 }
 
 func TestIntegrationCreateSharedNetworkIfNeeded(t *testing.T) {

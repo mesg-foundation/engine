@@ -12,7 +12,7 @@ import (
 func TestIntegrationListTasks(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
-	namespace := []string{"TestListTasks"}
+	namespace := "TestListTasks"
 	startTestService(namespace)
 	defer c.StopService(namespace)
 	tasks, err := c.ListTasks(namespace)
@@ -24,7 +24,7 @@ func TestIntegrationListTasks(t *testing.T) {
 func TestIntegrationTasksError(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
-	namespace := []string{"TestTasksError"}
+	namespace := "TestTasksError"
 	c.StartService(ServiceOptions{
 		Image:     "fiifioewifewiewfifewijopwjeokpfeo",
 		Namespace: namespace,

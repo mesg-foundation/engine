@@ -11,14 +11,14 @@ import (
 func TestIntegrationFindContainerNotExisting(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
-	_, err = c.FindContainer([]string{"TestFindContainerNotExisting"})
+	_, err = c.FindContainer("TestFindContainerNotExisting")
 	require.Error(t, err)
 }
 
 func TestIntegrationFindContainer(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
-	namespace := []string{"TestFindContainer"}
+	namespace := "TestFindContainer"
 	startTestService(namespace)
 	defer c.StopService(namespace)
 	c.waitForStatus(namespace, RUNNING)
@@ -30,7 +30,7 @@ func TestIntegrationFindContainer(t *testing.T) {
 func TestIntegrationFindContainerStopped(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
-	namespace := []string{"TestFindContainerStopped"}
+	namespace := "TestFindContainerStopped"
 	startTestService(namespace)
 	c.StopService(namespace)
 	_, err = c.FindContainer(namespace)
@@ -40,7 +40,7 @@ func TestIntegrationFindContainerStopped(t *testing.T) {
 func TestIntegrationContainerStatusNeverStarted(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
-	namespace := []string{"TestContainerStatusNeverStarted"}
+	namespace := "TestContainerStatusNeverStarted"
 	status, err := c.Status(namespace)
 	require.NoError(t, err)
 	require.Equal(t, status, STOPPED)
@@ -49,7 +49,7 @@ func TestIntegrationContainerStatusNeverStarted(t *testing.T) {
 func TestIntegrationContainerStatusRunning(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
-	namespace := []string{"TestContainerStatusRunning"}
+	namespace := "TestContainerStatusRunning"
 	startTestService(namespace)
 	defer c.StopService(namespace)
 	c.waitForStatus(namespace, RUNNING)
@@ -61,7 +61,7 @@ func TestIntegrationContainerStatusRunning(t *testing.T) {
 func TestIntegrationContainerStatusStopped(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
-	namespace := []string{"TestContainerStatusStopped"}
+	namespace := "TestContainerStatusStopped"
 	startTestService(namespace)
 	c.waitForStatus(namespace, RUNNING)
 	c.StopService(namespace)

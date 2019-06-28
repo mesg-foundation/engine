@@ -11,7 +11,7 @@ import (
 func TestIntegrationWaitForStatusRunning(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
-	namespace := []string{"TestWaitForStatusRunning"}
+	namespace := "TestWaitForStatusRunning"
 	startTestService(namespace)
 	defer c.StopService(namespace)
 	err = c.waitForStatus(namespace, RUNNING)
@@ -21,7 +21,7 @@ func TestIntegrationWaitForStatusRunning(t *testing.T) {
 func TestIntegrationWaitForStatusStopped(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
-	namespace := []string{"TestWaitForStatusStopped"}
+	namespace := "TestWaitForStatusStopped"
 	startTestService(namespace)
 	c.waitForStatus(namespace, RUNNING)
 	c.StopService(namespace)
@@ -32,7 +32,7 @@ func TestIntegrationWaitForStatusStopped(t *testing.T) {
 func TestIntegrationWaitForStatusTaskError(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
-	namespace := []string{"TestWaitForStatusTaskError"}
+	namespace := "TestWaitForStatusTaskError"
 	c.StartService(ServiceOptions{
 		Image:     "awgdaywudaywudwa",
 		Namespace: namespace,

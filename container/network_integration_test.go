@@ -11,8 +11,8 @@ import (
 func TestIntegrationCreateNetwork(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
-	networkID, err := c.CreateNetwork([]string{"TestCreateNetwork"})
-	defer c.DeleteNetwork([]string{"TestCreateNetwork"})
+	networkID, err := c.CreateNetwork("TestCreateNetwork")
+	defer c.DeleteNetwork("TestCreateNetwork")
 	require.NoError(t, err)
 	require.NotEqual(t, "", networkID)
 }
@@ -20,9 +20,9 @@ func TestIntegrationCreateNetwork(t *testing.T) {
 func TestIntegrationCreateAlreadyExistingNetwork(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
-	c.CreateNetwork([]string{"TestCreateAlreadyExistingNetwork"})
-	networkID, err := c.CreateNetwork([]string{"TestCreateAlreadyExistingNetwork"})
-	defer c.DeleteNetwork([]string{"TestCreateAlreadyExistingNetwork"})
+	c.CreateNetwork("TestCreateAlreadyExistingNetwork")
+	networkID, err := c.CreateNetwork("TestCreateAlreadyExistingNetwork")
+	defer c.DeleteNetwork("TestCreateAlreadyExistingNetwork")
 	require.NoError(t, err)
 	require.NotEqual(t, "", networkID)
 }
@@ -30,24 +30,24 @@ func TestIntegrationCreateAlreadyExistingNetwork(t *testing.T) {
 func TestIntegrationDeleteNetwork(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
-	c.CreateNetwork([]string{"TestDeleteNetwork"})
-	err = c.DeleteNetwork([]string{"TestDeleteNetwork"})
+	c.CreateNetwork("TestDeleteNetwork")
+	err = c.DeleteNetwork("TestDeleteNetwork")
 	require.NoError(t, err)
 }
 
 func TestIntegrationDeleteNotExistingNetwork(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
-	err = c.DeleteNetwork([]string{"TestDeleteNotExistingNetwork"})
+	err = c.DeleteNetwork("TestDeleteNotExistingNetwork")
 	require.NoError(t, err)
 }
 
 func TestIntegrationFindNetwork(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
-	c.CreateNetwork([]string{"TestFindNetwork"})
-	defer c.DeleteNetwork([]string{"TestFindNetwork"})
-	network, err := c.FindNetwork([]string{"TestFindNetwork"})
+	c.CreateNetwork("TestFindNetwork")
+	defer c.DeleteNetwork("TestFindNetwork")
+	network, err := c.FindNetwork("TestFindNetwork")
 	require.NoError(t, err)
 	require.NotEqual(t, "", network.ID)
 }
@@ -55,15 +55,15 @@ func TestIntegrationFindNetwork(t *testing.T) {
 func TestIntegrationFindNotExistingNetwork(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
-	_, err = c.FindNetwork([]string{"TestFindNotExistingNetwork"})
+	_, err = c.FindNetwork("TestFindNotExistingNetwork")
 	require.Error(t, err)
 }
 
 func TestIntegrationFindDeletedNetwork(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
-	c.CreateNetwork([]string{"TestFindDeletedNetwork"})
-	c.DeleteNetwork([]string{"TestFindDeletedNetwork"})
-	_, err = c.FindNetwork([]string{"TestFindDeletedNetwork"})
+	c.CreateNetwork("TestFindDeletedNetwork")
+	c.DeleteNetwork("TestFindDeletedNetwork")
+	_, err = c.FindNetwork("TestFindDeletedNetwork")
 	require.Error(t, err)
 }

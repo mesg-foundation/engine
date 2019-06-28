@@ -12,7 +12,7 @@ import (
 )
 
 func TestListTasks(t *testing.T) {
-	namespace := []string{"namespace"}
+	namespace := "namespace"
 	tasks := []swarm.Task{
 		{ID: "1"},
 		{ID: "2"},
@@ -39,7 +39,7 @@ func TestListTasks(t *testing.T) {
 var errTaskList = errors.New("task list")
 
 func TestListTasksError(t *testing.T) {
-	namespace := []string{"namespace"}
+	namespace := "namespace"
 
 	dt := dockertest.New()
 	c, _ := New(ClientOption(dt.Client()))
@@ -51,7 +51,7 @@ func TestListTasksError(t *testing.T) {
 }
 
 func TestTasksError(t *testing.T) {
-	namespace := []string{"namespace"}
+	namespace := "namespace"
 	tasks := []swarm.Task{
 		{
 			ID:     "1",

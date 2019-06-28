@@ -8,21 +8,21 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func startTestService(name []string) (string, error) {
+func startTestService(namespace string) (string, error) {
 	c, err := New()
 	if err != nil {
 		return "", err
 	}
 	return c.StartService(ServiceOptions{
 		Image:     "http-server",
-		Namespace: name,
+		Namespace: namespace,
 	})
 }
 
 func TestIntegrationStartService(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
-	namespace := []string{"TestStartService"}
+	namespace := "TestStartService"
 	serviceID, err := startTestService(namespace)
 	defer c.StopService(namespace)
 	require.NoError(t, err)
@@ -32,7 +32,7 @@ func TestIntegrationStartService(t *testing.T) {
 func TestIntegrationStartServiceTwice(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
-	namespace := []string{"TestStartServiceTwice"}
+	namespace := "TestStartServiceTwice"
 	id1, err := startTestService(namespace)
 	require.NoError(t, err)
 	defer c.StopService(namespace)
@@ -44,7 +44,7 @@ func TestIntegrationStartServiceTwice(t *testing.T) {
 func TestIntegrationStopService(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
-	namespace := []string{"TestStopService"}
+	namespace := "TestStopService"
 	startTestService(namespace)
 	err = c.StopService(namespace)
 	require.NoError(t, err)
@@ -53,7 +53,7 @@ func TestIntegrationStopService(t *testing.T) {
 func TestIntegrationStopNotExistingService(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
-	namespace := []string{"TestStopNotExistingService"}
+	namespace := "TestStopNotExistingService"
 	err = c.StopService(namespace)
 	require.NoError(t, err)
 }
@@ -61,7 +61,7 @@ func TestIntegrationStopNotExistingService(t *testing.T) {
 func TestIntegrationStatusNeverStarted(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
-	namespace := []string{"TestStatusNeverStarted"}
+	namespace := "TestStatusNeverStarted"
 	status, err := c.Status(namespace)
 	require.NoError(t, err)
 	require.NotEqual(t, RUNNING, status)
@@ -71,7 +71,7 @@ func TestIntegrationStatusNeverStarted(t *testing.T) {
 func TestIntegrationStatusRunning(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
-	namespace := []string{"TestStatusRunning"}
+	namespace := "TestStatusRunning"
 	startTestService(namespace)
 	defer c.StopService(namespace)
 	status, err := c.Status(namespace)
@@ -83,7 +83,7 @@ func TestIntegrationStatusRunning(t *testing.T) {
 func TestIntegrationStatusStopped(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
-	namespace := []string{"TestStatusStopped"}
+	namespace := "TestStatusStopped"
 	startTestService(namespace)
 	c.StopService(namespace)
 	status, err := c.Status(namespace)
@@ -95,14 +95,14 @@ func TestIntegrationStatusStopped(t *testing.T) {
 func TestIntegrationFindServiceNotExisting(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
-	_, err = c.FindService([]string{"TestFindServiceNotExisting"})
+	_, err = c.FindService("TestFindServiceNotExisting")
 	require.Error(t, err)
 }
 
 func TestIntegrationFindService(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
-	namespace := []string{"TestFindService"}
+	namespace := "TestFindService"
 	startTestService(namespace)
 	defer c.StopService(namespace)
 	service, err := c.FindService(namespace)
@@ -113,8 +113,8 @@ func TestIntegrationFindService(t *testing.T) {
 func TestIntegrationFindServiceCloseName(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
-	namespace := []string{"TestFindServiceCloseName", "name"}
-	namespace1 := []string{"TestFindServiceCloseName", "name2"}
+	namespace := "TestFindServiceCloseName"
+	namespace1 := "TestFindServiceCloseName1"
 	startTestService(namespace)
 	defer c.StopService(namespace)
 	startTestService(namespace1)
@@ -127,7 +127,7 @@ func TestIntegrationFindServiceCloseName(t *testing.T) {
 func TestIntegrationFindServiceStopped(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
-	namespace := []string{"TestFindServiceStopped"}
+	namespace := "TestFindServiceStopped"
 	startTestService(namespace)
 	c.StopService(namespace)
 	_, err = c.FindService(namespace)
@@ -139,30 +139,30 @@ func TestIntegrationListServices(t *testing.T) {
 	require.NoError(t, err)
 	c.StartService(ServiceOptions{
 		Image:     "http-server",
-		Namespace: []string{"TestListServices"},
+		Namespace: "TestListServices",
 		Labels: map[string]string{
 			"label_name": "value_1",
 		},
 	})
 	c.StartService(ServiceOptions{
 		Image:     "http-server",
-		Namespace: []string{"TestListServiceswithValue2"},
+		Namespace: "TestListServiceswithValue2",
 		Labels: map[string]string{
 			"label_name_2": "value_2",
 		},
 	})
-	defer c.StopService([]string{"TestListServices"})
-	defer c.StopService([]string{"TestListServiceswithValue2"})
+	defer c.StopService("TestListServices")
+	defer c.StopService("TestListServiceswithValue2")
 	services, err := c.ListServices("label_name")
 	require.NoError(t, err)
 	require.Equal(t, 1, len(services))
-	require.Equal(t, c.Namespace([]string{"TestListServices"}), services[0].Spec.Name)
+	require.Equal(t, c.Namespace("TestListServices"), services[0].Spec.Name)
 }
 
 func TestIntegrationServiceLogs(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
-	namespace := []string{"TestServiceLogs"}
+	namespace := "TestServiceLogs"
 	startTestService(namespace)
 	defer c.StopService(namespace)
 	reader, err := c.ServiceLogs(namespace)

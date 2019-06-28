@@ -29,7 +29,7 @@ func mockWaitForStatus(t *testing.T, m *mocks.CommonAPIClient, namespace string,
 }
 
 func TestWaitForStatusRunning(t *testing.T) {
-	namespace := []string{"namespace"}
+	namespace := "namespace"
 	containerID := "1"
 	containerData := []types.Container{
 		{ID: containerID},
@@ -51,7 +51,7 @@ func TestWaitForStatusRunning(t *testing.T) {
 }
 
 func TestWaitForStatusStopped(t *testing.T) {
-	namespace := []string{"namespace"}
+	namespace := "namespace"
 
 	dt := dockertest.New()
 	c, _ := New(ClientOption(dt.Client()))
@@ -62,7 +62,7 @@ func TestWaitForStatusStopped(t *testing.T) {
 }
 
 func TestWaitForStatusTaskError(t *testing.T) {
-	namespace := []string{"namespace"}
+	namespace := "namespace"
 	tasks := []swarm.Task{
 		{
 			ID:     "1",
