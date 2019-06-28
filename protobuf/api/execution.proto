@@ -11,6 +11,9 @@ package api;
 // The source file of this API is hosted on [GitHub](https://github.com/mesg-foundation/engine/blob/master/protobuf/api/execution.proto).
 
 service Execution {
+  // Create creates a single Execution specified in a request.
+  rpc Create(CreateExecutionRequest) returns (CreateExecutionResponse) {}
+
   // Get returns a single Execution specified in a request.
   rpc Get(GetExecutionRequest) returns (types.Execution) {}
 
@@ -20,6 +23,20 @@ service Execution {
 
   // Update updates execution with outputs or an error.
   rpc Update(UpdateExecutionRequest) returns (UpdateExecutionResponse) {}
+}
+
+// CreateExecutionRequest defines request to create a single execution.
+message CreateExecutionRequest {
+  string instanceHash = 1;
+  string taskKey = 2;
+  string inputs = 3;
+  repeated string tags = 4;
+}
+
+// CreateExecutionResponse defines response for execution creation.
+message CreateExecutionResponse {
+  // Execution's hash.
+  string hash = 1;
 }
 
 // GetExecutionRequest defines request to retrieve a single execution.
