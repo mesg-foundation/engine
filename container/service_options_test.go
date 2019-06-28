@@ -7,11 +7,11 @@ import (
 )
 
 func TestServiceOptionNamespace(t *testing.T) {
-	namespace := []string{"name1", "name2"}
+	namespace := "namespace"
 	options := &ServiceOptions{
 		Namespace: namespace,
 	}
-	c, _ := New()
+	c, _ := New(nstestprefix)
 	expectedNamespace := c.Namespace(namespace)
 	service := options.toSwarmServiceSpec(c)
 	require.Equal(t, expectedNamespace, service.Annotations.Name)
@@ -24,7 +24,7 @@ func TestServiceOptionImage(t *testing.T) {
 	options := &ServiceOptions{
 		Image: image,
 	}
-	c, _ := New()
+	c, _ := New(nstestprefix)
 	service := options.toSwarmServiceSpec(c)
 	require.Equal(t, image, service.Annotations.Labels["com.docker.stack.image"])
 	require.Equal(t, image, service.TaskTemplate.ContainerSpec.Image)
@@ -54,7 +54,7 @@ func TestServiceOptionLabels(t *testing.T) {
 			"label2": "bar",
 		},
 	}
-	c, _ := New()
+	c, _ := New(nstestprefix)
 	service := options.toSwarmServiceSpec(c)
 	require.Equal(t, "foo", service.Annotations.Labels["label1"])
 	require.Equal(t, "bar", service.Annotations.Labels["label2"])
@@ -100,7 +100,7 @@ func TestServiceOptionEnv(t *testing.T) {
 	options := &ServiceOptions{
 		Env: []string{"env1", "env2"},
 	}
-	c, _ := New()
+	c, _ := New(nstestprefix)
 	service := options.toSwarmServiceSpec(c)
 	env := service.TaskTemplate.ContainerSpec.Env
 	require.Equal(t, 2, len(env))
