@@ -1,8 +1,6 @@
 package servicesdk
 
 import (
-	"crypto/sha1"
-	"encoding/hex"
 	"io"
 
 	"github.com/docker/docker/pkg/stdcopy"
@@ -73,12 +71,11 @@ func (s *Service) Logs(serviceHash hash.Hash, filters ...LogsFilter) ([]*service
 }
 
 // serviceNamespace returns the namespace of the service.
-func serviceNamespace(hash hash.Hash) []string {
-	sum := sha1.Sum(hash)
-	return []string{hex.EncodeToString(sum[:])}
+func serviceNamespace(hash hash.Hash) string {
+	return hash.String()
 }
 
 // dependencyNamespace builds the namespace of a dependency.
-func dependencyNamespace(serviceNamespace []string, dependencyKey string) []string {
-	return append(serviceNamespace, dependencyKey)
+func dependencyNamespace(serviceNamespace string, dependencyKey string) string {
+	return serviceNamespace + "-" + dependencyKey
 }

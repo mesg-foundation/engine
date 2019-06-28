@@ -48,7 +48,7 @@ func initDependencies() (*dependencies, error) {
 	}
 
 	// init container.
-	c, err := container.New()
+	c, err := container.New(config.Name)
 	if err != nil {
 		return nil, err
 	}
