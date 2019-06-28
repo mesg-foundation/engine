@@ -10,7 +10,6 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
 	docker "github.com/docker/docker/client"
-	"github.com/mesg-foundation/engine/config"
 )
 
 var (
@@ -47,8 +46,6 @@ type DockerContainer struct {
 
 	// defaultStopGracePeriod is the timeout value between stopping a container and killing it.
 	defaultStopGracePeriod time.Duration
-
-	config *config.Config
 }
 
 // Option is a configuration func for Container.
@@ -64,11 +61,6 @@ func New(options ...Option) (*DockerContainer, error) {
 		option(c)
 	}
 	var err error
-	cfg, err := config.Global()
-	if err != nil {
-		return nil, err
-	}
-	c.config = cfg
 	if c.client == nil {
 		c.client, err = docker.NewClientWithOpts(docker.FromEnv)
 		if err != nil {

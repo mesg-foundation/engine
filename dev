@@ -113,7 +113,6 @@ docker service create \
   --name $MESG_NAME \
   --tty \
   --label com.docker.stack.namespace=engine --label com.docker.stack.image=mesg/engine:$VERSION \
-  --env MESG_NAME=$MESG_NAME \
   --env MESG_LOG_FORMAT=$MESG_LOG_FORMAT \
   --env MESG_LOG_FORCECOLORS=$MESG_LOG_FORCECOLORS \
   --env MESG_LOG_LEVEL=$MESG_LOG_LEVEL \

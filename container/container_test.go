@@ -8,7 +8,6 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
 
-	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container/dockertest"
 	"github.com/mesg-foundation/engine/utils/docker/mocks"
 	"github.com/stretchr/testify/mock"
@@ -100,7 +99,6 @@ func mockStatus(t *testing.T, m *mocks.CommonAPIClient, namespace string, wanted
 func TestNew(t *testing.T) {
 	dt := dockertest.New()
 	c, err := New(ClientOption(dt.Client()))
-	cfg, _ := config.Global()
 	require.NoError(t, err)
 	require.NotNil(t, c)
 
@@ -117,7 +115,6 @@ func TestNew(t *testing.T) {
 	}
 
 	ln := <-dt.LastNetworkCreate()
-	require.Equal(t, cfg.Name, ln.Name)
 	require.Equal(t, types.NetworkCreate{
 		CheckDuplicate: true,
 		Driver:         "overlay",
