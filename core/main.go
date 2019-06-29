@@ -102,7 +102,7 @@ func stopRunningServices(sdk *sdk.SDK) error {
 	for _, instance := range instances {
 		go func(hash hash.Hash) {
 			defer wg.Done()
-			err := sdk.Instance.Delete(hash)
+			err := sdk.Instance.Delete(hash, false)
 			if err != nil {
 				errC <- err
 			}
