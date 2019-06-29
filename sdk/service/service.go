@@ -2,6 +2,7 @@ package servicesdk
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -64,7 +65,7 @@ func (s *Service) Create(srv *service.Service) (*service.Service, error) {
 
 	// check if service already exists.
 	if _, err := s.serviceDB.Get(srv.Hash); err == nil {
-		return nil, errors.New("service already exists")
+		return nil, &AlreadyExistsError{Hash: srv.Hash}
 	}
 
 	// build service's Docker image.
@@ -98,4 +99,13 @@ func (s *Service) Get(hash hash.Hash) (*service.Service, error) {
 // List returns all services.
 func (s *Service) List() ([]*service.Service, error) {
 	return s.serviceDB.All()
+}
+
+// AlreadyExistsError is an not found error.
+type AlreadyExistsError struct {
+	Hash hash.Hash
+}
+
+func (e *AlreadyExistsError) Error() string {
+	return fmt.Sprintf("service already exists")
 }

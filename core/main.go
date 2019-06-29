@@ -11,6 +11,7 @@ import (
 	"github.com/mesg-foundation/core/logger"
 	"github.com/mesg-foundation/core/sdk"
 	instancesdk "github.com/mesg-foundation/core/sdk/instance"
+	servicesdk "github.com/mesg-foundation/core/sdk/service"
 	"github.com/mesg-foundation/core/server/grpc"
 	"github.com/mesg-foundation/core/version"
 	"github.com/mesg-foundation/core/x/xerrors"
@@ -71,16 +72,36 @@ func initDependencies() (*dependencies, error) {
 }
 
 func deployCoreServices(config *config.Config, sdk *sdk.SDK) error {
-	for _, serviceConfig := range config.Services() {
+	services, err := config.Services()
+	if err != nil {
+		return err
+	}
+	for _, serviceConfig := range services {
 		logrus.Infof("Deploying service %q", serviceConfig.Definition.Sid)
 		srv, err := sdk.Service.Create(serviceConfig.Definition)
 		if err != nil {
-			return err
+			existsError, ok := err.(*servicesdk.AlreadyExistsError)
+			if ok {
+				srv, err = sdk.Service.Get(existsError.Hash)
+				if err != nil {
+					return err
+				}
+			} else {
+				return err
+			}
 		}
 		logrus.Infof("Service %q deployed with hash %q", srv.Sid, srv.Hash)
 		instance, err := sdk.Instance.Create(srv.Hash, xos.EnvMapToSlice(serviceConfig.Env))
 		if err != nil {
-			return err
+			existsError, ok := err.(*instancesdk.AlreadyExistsError)
+			if ok {
+				instance, err = sdk.Instance.Get(existsError.Hash)
+				if err != nil {
+					return err
+				}
+			} else {
+				return err
+			}
 		}
 		serviceConfig.Instance = instance
 		logrus.Infof("Instance started with hash %q", instance.Hash)
