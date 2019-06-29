@@ -6,14 +6,13 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/cnf/structhash"
 	"github.com/cskr/pubsub"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/core/container"
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/hash"
+	"github.com/mesg-foundation/core/hash/dirhash"
 	"github.com/mesg-foundation/core/service"
-	"github.com/mesg-foundation/core/utils/dirhash"
 )
 
 // Service exposes service APIs of MESG.
@@ -21,17 +20,15 @@ type Service struct {
 	ps *pubsub.PubSub
 
 	container container.Container
-	db        database.ServiceDB
-	execDB    database.ExecutionDB
+	serviceDB database.ServiceDB
 }
 
 // New creates a new Service SDK with given options.
-func New(c container.Container, db database.ServiceDB, execDB database.ExecutionDB) *Service {
+func New(c container.Container, serviceDB database.ServiceDB) *Service {
 	return &Service{
 		ps:        pubsub.New(0),
 		container: c,
-		db:        db,
-		execDB:    execDB,
+		serviceDB: serviceDB,
 	}
 }
 
@@ -59,38 +56,46 @@ func (s *Service) Create(srv *service.Service) (*service.Service, error) {
 
 	// calculate and apply hash to service.
 	dh := dirhash.New(path)
-	h, err := dh.Sum(structhash.Sha1(srv, 1))
+	h, err := dh.Sum(hash.Dump(srv))
 	if err != nil {
 		return nil, err
 	}
 	srv.Hash = hash.Hash(h)
 
-	// check if service is already deployed.
-	if _, err := s.db.Get(srv.Hash); err == nil {
-		return nil, errors.New("service is already deployed")
+	// check if service already exists.
+	if _, err := s.serviceDB.Get(srv.Hash); err == nil {
+		return nil, errors.New("service already exists")
 	}
 
-	// build service's Docker image and apply to service.
-	imageHash, err := s.container.Build(path)
+	// build service's Docker image.
+	_, err = s.container.Build(path)
 	if err != nil {
 		return nil, err
 	}
-	srv.Configuration.Image = imageHash
 	// TODO: the following test should be moved in New function
 	if srv.Sid == "" {
 		// make sure that sid doesn't have the same length with id.
 		srv.Sid = "_" + srv.Hash.String()
 	}
 
-	return srv, s.db.Save(srv)
+	if err := service.ValidateService(srv); err != nil {
+		return nil, err
+	}
+
+	return srv, s.serviceDB.Save(srv)
 }
 
 // Delete deletes the service by hash.
 func (s *Service) Delete(hash hash.Hash) error {
-	return s.db.Delete(hash)
+	return s.serviceDB.Delete(hash)
 }
 
 // Get returns the service that matches given hash.
 func (s *Service) Get(hash hash.Hash) (*service.Service, error) {
-	return s.db.Get(hash)
+	return s.serviceDB.Get(hash)
+}
+
+// List returns all services.
+func (s *Service) List() ([]*service.Service, error) {
+	return s.serviceDB.All()
 }

@@ -1,15 +1,17 @@
 package executionsdk
 
 import (
-	"errors"
 	"os"
 	"testing"
 
 	"github.com/cskr/pubsub"
+	"github.com/mesg-foundation/core/container/mocks"
 	"github.com/mesg-foundation/core/database"
 	"github.com/mesg-foundation/core/execution"
 	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/instance"
+	instancesdk "github.com/mesg-foundation/core/sdk/instance"
+	servicesdk "github.com/mesg-foundation/core/sdk/service"
 	"github.com/mesg-foundation/core/service"
 	"github.com/stretchr/testify/require"
 )
@@ -37,16 +39,19 @@ func (t *apiTesting) close() {
 }
 
 func newTesting(t *testing.T) (*Execution, *apiTesting) {
+	container := &mocks.Container{}
 	db, err := database.NewServiceDB(servicedbname)
 	require.NoError(t, err)
+	service := servicesdk.New(container, db)
+
+	instDB, err := database.NewInstanceDB(instdbname)
+	require.NoError(t, err)
+	instance := instancesdk.New(container, service, instDB)
 
 	execDB, err := database.NewExecutionDB(execdbname)
 	require.NoError(t, err)
 
-	instDB, err := database.NewInstanceDB(instdbname)
-	require.NoError(t, err)
-
-	sdk := New(pubsub.New(0), db, execDB, instDB)
+	sdk := New(pubsub.New(0), service, instance, execDB)
 
 	return sdk, &apiTesting{
 		T:           t,
@@ -83,29 +88,22 @@ func TestGet(t *testing.T) {
 	require.Equal(t, exec, got)
 }
 
-func TestGetsream(t *testing.T) {
+func TestGetStream(t *testing.T) {
 	sdk, at := newTesting(t)
 	defer at.close()
 
-	execErr := errors.New("exec-error")
 	exec := execution.New(nil, nil, "", "", nil, nil)
 	exec.Status = execution.InProgress
 
 	require.NoError(t, sdk.execDB.Save(exec))
-	require.NoError(t, sdk.db.Save(testService))
 
 	stream := sdk.GetStream(nil)
 	defer stream.Close()
 
 	go sdk.ps.Pub(exec, streamTopic)
 	exec.Status = execution.Failed
-	exec.Error = execErr.Error()
+	exec.Error = "exec-error"
 	require.Equal(t, exec, <-stream.C)
-}
-
-func TestNotRunningServiceError(t *testing.T) {
-	e := NotRunningServiceError{ServiceID: "test"}
-	require.Equal(t, `Service "test" is not running`, e.Error())
 }
 
 func TestExecute(t *testing.T) {
@@ -115,30 +113,22 @@ func TestExecute(t *testing.T) {
 	require.NoError(t, at.serviceDB.Save(testService))
 	require.NoError(t, at.instanceDB.Save(testInstance))
 
-	id, err := sdk.Execute(testService.Hash, testService.Tasks[0].Key, map[string]interface{}{}, []string{})
+	_, err := sdk.Execute(testInstance.Hash, testService.Tasks[0].Key, nil, nil)
 	require.NoError(t, err)
-	require.NotNil(t, id)
-}
 
-func TestExecuteWithInvalidTaskName(t *testing.T) {
-	sdk, at := newTesting(t)
-	defer at.close()
-
-	require.NoError(t, at.serviceDB.Save(testService))
-
-	_, err := sdk.Execute(testService.Hash, "-", map[string]interface{}{}, []string{})
+	// not existing instance
+	_, err = sdk.Execute(hash.Int(3), testService.Tasks[0].Key, nil, nil)
 	require.Error(t, err)
 }
 
-func TestExecuteForNotRunningService(t *testing.T) {
+func TestExecuteInvalidTaskKey(t *testing.T) {
 	sdk, at := newTesting(t)
 	defer at.close()
 
 	require.NoError(t, at.serviceDB.Save(testService))
 
-	_, err := sdk.Execute(testService.Hash, testService.Tasks[0].Key, map[string]interface{}{}, []string{})
-	_, notRunningError := err.(*NotRunningServiceError)
-	require.True(t, notRunningError)
+	_, err := sdk.Execute(testService.Hash, "-", nil, nil)
+	require.Error(t, err)
 }
 
 func TestSubTopic(t *testing.T) {

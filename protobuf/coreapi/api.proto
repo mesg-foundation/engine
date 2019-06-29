@@ -13,76 +13,11 @@ option go_package = "github.com/mesg-foundation/core/protobuf/coreapi";
 //
 // The source file of this API is hosted on [GitHub](https://github.com/mesg-foundation/core/blob/master/protobuf/coreapi/api.proto).
 service Core {
-  // Subscribe to a stream that listens for events from a service.
-  rpc ListenEvent (ListenEventRequest) returns (stream EventData) {}
-
-  // Execute a service's task through Core.
-  rpc ExecuteTask (ExecuteTaskRequest) returns (ExecuteTaskReply) {}
-
   // ServiceLogs gives a stream for dependency logs of a service.
   rpc ServiceLogs (ServiceLogsRequest) returns (stream LogData) {}
 
   // Info returns all necessary information from the core.
   rpc Info(InfoRequest) returns (InfoReply) {}
-}
-
-// The request's data for the `ListenEvent` stream's API.
-//
-// **Example**
-// ```json
-// {
-//   "serviceID":   "__SERVICE_ID__",
-//   "eventFilter": "__EVENT_KEY_TO_MATCH__"
-// }
-// ```
-message ListenEventRequest {
-  string serviceID = 1;   // The Service ID. Generated when using the [`DeployService` API](#deployservice).
-  string eventFilter = 2; // __Optional.__ Event's key to filter. The event must match this key. The default is `*` which matches any event.
-}
-
-// The data received from the stream of the `ListenEvent` API.
-// The data will be received over time as long as the stream is open.
-//
-// **Example**
-// ```json
-// {
-//   "eventKey":  "__EVENT_KEY__",
-//   "eventData": "{\"foo\":\"bar\"}"
-// }
-// ```
-message EventData {
-  string eventKey = 1;  // The event's key.
-  string eventData = 2; // The event's data encoded in JSON.
-}
-
-// The request's data for the `ExecuteTask` API.
-//
-// **Example**
-// ```json
-// {
-//   "serviceID":     "__SERVICE_ID__",
-//   "taskKey":       "__TASK_KEY__",
-//   "inputData":     "{\"foo\":\"bar\"}",
-//   "executionTags": ["executionX", "test"]
-// }
-// ```
-message ExecuteTaskRequest {
-  string serviceID = 1;               // The Service ID. Generated when using the [`DeployService` API](#deployservice).
-  string taskKey = 2;                 // The task's key to execute.
-  string inputData = 3;               // The inputs of the task to execute, encoded in JSON.
-  repeated string executionTags = 4;  // __Optional.__ The list of tags to associate with the execution
-}
-
-// The reply's data of the `ExecuteTask` API.
-//
-// **Example**
-// ```json
-// {
-//   "executionHash": "__EXECUTION_HASH__"
-// }
-// ```
-message ExecuteTaskReply {
-  string executionHash = 1; // The unique identifier of the execution.
 }
 
 // The request's data for `ServiceLogs` API.

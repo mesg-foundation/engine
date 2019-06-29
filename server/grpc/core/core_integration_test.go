@@ -11,18 +11,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestExecuteWithNonExistingService(t *testing.T) {
-	server, closer := newServer(t)
-	defer closer()
-
-	_, err := server.ExecuteTask(context.Background(), &coreapi.ExecuteTaskRequest{
-		ServiceID: "-",
-		TaskKey:   "error",
-		InputData: "{}",
-	})
-	require.Error(t, err)
-}
-
 func TestInfo(t *testing.T) {
 	server, closer := newServer(t)
 	defer closer()

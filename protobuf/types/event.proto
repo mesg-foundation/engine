@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package types;
+option go_package = "github.com/mesg-foundation/core/protobuf/types";
+
+// Event represents a single event run in engine.
+message Event {
+  // Hash is a unique hash to identify event.
+  string hash = 1;
+
+  // instanceHash is hash of instance that can proceed an execution.
+  string instanceHash = 2;
+
+  // key is the key of the event.
+  string key = 3;
+
+  // data is the data for the event.
+  string data = 4;
+}

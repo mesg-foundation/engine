@@ -34,28 +34,28 @@ func (s Status) String() (r string) {
 
 // Execution stores all information about executions.
 type Execution struct {
-	Hash        hash.Hash              `hash:"-"`
-	ParentHash  hash.Hash              `hash:"name:parentHash"`
-	EventID     string                 `hash:"name:eventID"`
-	Status      Status                 `hash:"-"`
-	ServiceHash hash.Hash              `hash:"name:serviceHash"`
-	TaskKey     string                 `hash:"name:taskKey"`
-	Tags        []string               `hash:"name:tags"`
-	Inputs      map[string]interface{} `hash:"name:inputs"`
-	Outputs     map[string]interface{} `hash:"-"`
-	Error       string                 `hash:"-"`
+	Hash         hash.Hash              `hash:"-"`
+	ParentHash   hash.Hash              `hash:"name:parentHash"`
+	EventID      string                 `hash:"name:eventID"`
+	Status       Status                 `hash:"-"`
+	InstanceHash hash.Hash              `hash:"name:instanceHash"`
+	TaskKey      string                 `hash:"name:taskKey"`
+	Tags         []string               `hash:"name:tags"`
+	Inputs       map[string]interface{} `hash:"name:inputs"`
+	Outputs      map[string]interface{} `hash:"-"`
+	Error        string                 `hash:"-"`
 }
 
 // New returns a new execution. It returns an error if inputs are invalid.
-func New(serviceHash, parentHash hash.Hash, eventID, taskKey string, inputs map[string]interface{}, tags []string) *Execution {
+func New(instanceHash, parentHash hash.Hash, eventID, taskKey string, inputs map[string]interface{}, tags []string) *Execution {
 	exec := &Execution{
-		EventID:     eventID,
-		ServiceHash: serviceHash,
-		ParentHash:  parentHash,
-		Inputs:      inputs,
-		TaskKey:     taskKey,
-		Tags:        tags,
-		Status:      Created,
+		EventID:      eventID,
+		InstanceHash: instanceHash,
+		ParentHash:   parentHash,
+		Inputs:       inputs,
+		TaskKey:      taskKey,
+		Tags:         tags,
+		Status:       Created,
 	}
 	exec.Hash = hash.Dump(exec)
 	return exec

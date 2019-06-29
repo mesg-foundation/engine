@@ -1,7 +1,7 @@
 syntax = "proto3";
 
-package definition;
-option go_package = "github.com/mesg-foundation/core/protobuf/definition";
+package types;
+option go_package = "github.com/mesg-foundation/core/protobuf/types";
 
 // Status represents the status of a single execution.
 // Note that a valid execution must have only one status
@@ -37,8 +37,8 @@ message Execution {
   // Status is the current status of execution.
   Status status = 4;
 
-  // serviceHash is hash of service that can proceed an execution
-  string serviceHash = 5;
+  // instanceHash is hash of the instance that can proceed an execution
+  string instanceHash = 5;
 
   // taskKey is the key of the task of this execution.
   string taskKey = 6;
