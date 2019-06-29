@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+import "protobuf/types/event.proto";
+
+package api;
+
+// This is the API to interact with the Events.
+//
+// This API is a [gRPC](https://grpc.io/) API.
+//
+// The source file of this API is hosted on [GitHub](https://github.com/mesg-foundation/engine/blob/master/protobuf/api/event.proto).
+service Event {
+  // Create creates event with data.
+  rpc Create(CreateEventRequest) returns (CreateEventResponse) {}
+
+  // Stream returns a stream of events that satisfy criteria
+  // specified in a request.
+  rpc Stream(StreamEventRequest) returns (stream types.Event) {}
+}
+
+// StreamEventRequest defines request to retrieve a stream of events.
+message StreamEventRequest {
+  // Filter contains filtering criteria.
+  message Filter {
+    // hash to filter events.
+    string hash = 1;
+
+    // instance's hash to filter events.
+    string instanceHash = 2;
+
+    // key is the key of the event.
+    string key = 3;
+  }
+
+  // Filter used to filter a stream of events.
+  Filter filter = 1;
+}
+
+// CreateEventRequest defines request for execution update.
+message CreateEventRequest {
+  // The event type to use to create the Event.
+  types.Event event = 1;
+}
+
+// CreateEventResponse defines response for execution update.
+message CreateEventResponse {
+  // Hash represents event.
+  string hash = 1;
+}

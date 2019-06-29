@@ -1,28 +1,24 @@
 package event
 
 import (
-	"time"
-
-	"github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/core/hash"
 )
 
 // Event stores all informations about Events.
 type Event struct {
-	Service   *service.Service
-	Key       string
-	Data      map[string]interface{}
-	CreatedAt time.Time
+	Hash         hash.Hash              `hash:"-"`
+	InstanceHash hash.Hash              `hash:"name:instanceHash"`
+	Key          string                 `hash:"name:key"`
+	Data         map[string]interface{} `hash:"name:data"`
 }
 
 // Create creates an event eventKey with eventData for service s.
-func Create(s *service.Service, eventKey string, eventData map[string]interface{}) (*Event, error) {
-	if err := s.RequireEventData(eventKey, eventData); err != nil {
-		return nil, err
+func Create(instanceHash hash.Hash, eventKey string, eventData map[string]interface{}) *Event {
+	e := &Event{
+		InstanceHash: instanceHash,
+		Key:          eventKey,
+		Data:         eventData,
 	}
-	return &Event{
-		Service:   s,
-		Key:       eventKey,
-		Data:      eventData,
-		CreatedAt: time.Now(),
-	}, nil
+	e.Hash = hash.Dump(e)
+	return e
 }

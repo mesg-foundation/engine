@@ -6,7 +6,7 @@ import (
 
 	"github.com/mesg-foundation/core/hash"
 	protobuf_api "github.com/mesg-foundation/core/protobuf/api"
-	"github.com/mesg-foundation/core/protobuf/definition"
+	"github.com/mesg-foundation/core/protobuf/types"
 	"github.com/mesg-foundation/core/sdk"
 	instancesdk "github.com/mesg-foundation/core/sdk/instance"
 )
@@ -23,16 +23,12 @@ func NewServiceServer(sdk *sdk.SDK) *ServiceServer {
 
 // Create creates a new service from definition.
 func (s *ServiceServer) Create(ctx context.Context, request *protobuf_api.CreateServiceRequest) (*protobuf_api.CreateServiceResponse, error) {
-	definition, err := FromProtoService(request.Definition)
-	if err != nil {
-		return nil, err
-	}
-
+	definition := fromProtoService(request.Definition)
 	srv, err := s.sdk.Service.Create(definition)
 	if err != nil {
 		return nil, err
 	}
-	return &protobuf_api.CreateServiceResponse{Sid: srv.Sid, Hash: srv.Hash.String()}, nil
+	return &protobuf_api.CreateServiceResponse{Hash: srv.Hash.String()}, nil
 }
 
 // Delete deletes service by hash or sid.
@@ -58,15 +54,30 @@ func (s *ServiceServer) Delete(ctx context.Context, request *protobuf_api.Delete
 }
 
 // Get returns service from given hash.
-func (s *ServiceServer) Get(ctx context.Context, req *protobuf_api.GetServiceRequest) (*definition.Service, error) {
+func (s *ServiceServer) Get(ctx context.Context, req *protobuf_api.GetServiceRequest) (*types.Service, error) {
 	hash, err := hash.Decode(req.Hash)
 	if err != nil {
 		return nil, err
 	}
 
-	exec, err := s.sdk.Service.Get(hash)
+	service, err := s.sdk.Service.Get(hash)
 	if err != nil {
 		return nil, err
 	}
-	return ToProtoService(exec), nil
+	return toProtoService(service), nil
+}
+
+// List returns all services.
+func (s *ServiceServer) List(ctx context.Context, req *protobuf_api.ListServiceRequest) (*protobuf_api.ListServiceResponse, error) {
+	services, err := s.sdk.Service.List()
+	if err != nil {
+		return nil, err
+	}
+
+	resp := &protobuf_api.ListServiceResponse{}
+	for _, service := range services {
+		resp.Services = append(resp.Services, toProtoService(service))
+	}
+
+	return resp, nil
 }

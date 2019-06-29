@@ -6,7 +6,7 @@ import (
 	"github.com/mesg-foundation/core/hash"
 	"github.com/mesg-foundation/core/instance"
 	protobuf_api "github.com/mesg-foundation/core/protobuf/api"
-	"github.com/mesg-foundation/core/protobuf/definition"
+	"github.com/mesg-foundation/core/protobuf/types"
 	"github.com/mesg-foundation/core/sdk"
 	instancesdk "github.com/mesg-foundation/core/sdk/instance"
 )
@@ -23,12 +23,17 @@ func NewInstanceServer(sdk *sdk.SDK) *InstanceServer {
 
 // List instances.
 func (s *InstanceServer) List(ctx context.Context, request *protobuf_api.ListInstancesRequest) (*protobuf_api.ListInstancesResponse, error) {
-	hash, err := hash.Decode(request.ServiceHash)
-	if err != nil {
-		return nil, err
+	var (
+		h   hash.Hash
+		err error
+	)
+	if request.ServiceHash != "" {
+		h, err = hash.Decode(request.ServiceHash)
+		if err != nil {
+			return nil, err
+		}
 	}
-
-	instances, err := s.sdk.Instance.List(&instancesdk.Filter{ServiceHash: hash})
+	instances, err := s.sdk.Instance.List(&instancesdk.Filter{ServiceHash: h})
 	if err != nil {
 		return nil, err
 	}
@@ -46,11 +51,11 @@ func (s *InstanceServer) Create(ctx context.Context, request *protobuf_api.Creat
 	if err != nil {
 		return nil, err
 	}
-	return &protobuf_api.CreateInstanceResponse{Instance: toProtoInstance(i)}, nil
+	return &protobuf_api.CreateInstanceResponse{Hash: i.Hash.String()}, nil
 }
 
 // Get retrives instance.
-func (s *InstanceServer) Get(ctx context.Context, request *protobuf_api.GetInstanceRequest) (*protobuf_api.GetInstanceResponse, error) {
+func (s *InstanceServer) Get(ctx context.Context, request *protobuf_api.GetInstanceRequest) (*types.Instance, error) {
 	hash, err := hash.Decode(request.Hash)
 	if err != nil {
 		return nil, err
@@ -59,7 +64,7 @@ func (s *InstanceServer) Get(ctx context.Context, request *protobuf_api.GetInsta
 	if err != nil {
 		return nil, err
 	}
-	return &protobuf_api.GetInstanceResponse{Instance: toProtoInstance(i)}, nil
+	return toProtoInstance(i), nil
 }
 
 // Delete an instance
@@ -68,24 +73,22 @@ func (s *InstanceServer) Delete(ctx context.Context, request *protobuf_api.Delet
 	if err != nil {
 		return nil, err
 	}
-	if err := s.sdk.Instance.Delete(hash); err != nil {
+	if err := s.sdk.Instance.Delete(hash, request.DeleteData); err != nil {
 		return nil, err
 	}
-	return &protobuf_api.DeleteInstanceResponse{
-		Hash: request.Hash,
-	}, nil
+	return &protobuf_api.DeleteInstanceResponse{}, nil
 }
 
-func toProtoInstances(instances []*instance.Instance) []*definition.Instance {
-	inst := make([]*definition.Instance, len(instances))
+func toProtoInstances(instances []*instance.Instance) []*types.Instance {
+	inst := make([]*types.Instance, len(instances))
 	for i, instance := range instances {
 		inst[i] = toProtoInstance(instance)
 	}
 	return inst
 }
 
-func toProtoInstance(i *instance.Instance) *definition.Instance {
-	return &definition.Instance{
+func toProtoInstance(i *instance.Instance) *types.Instance {
+	return &types.Instance{
 		Hash:        i.Hash.String(),
 		ServiceHash: i.ServiceHash.String(),
 	}

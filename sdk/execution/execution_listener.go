@@ -9,10 +9,10 @@ import (
 
 // Filter store fileds for matching executions.
 type Filter struct {
-	Statuses    []execution.Status
-	ServiceHash hash.Hash
-	TaskKey     string
-	Tags        []string
+	Statuses     []execution.Status
+	InstanceHash hash.Hash
+	TaskKey      string
+	Tags         []string
 }
 
 // Match matches execution.
@@ -21,7 +21,7 @@ func (f *Filter) Match(e *execution.Execution) bool {
 		return true
 	}
 
-	if !f.ServiceHash.IsZero() && !f.ServiceHash.Equal(e.ServiceHash) {
+	if !f.InstanceHash.IsZero() && !f.InstanceHash.Equal(e.InstanceHash) {
 		return false
 	}
 
