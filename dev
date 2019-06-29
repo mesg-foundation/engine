@@ -32,15 +32,7 @@ for s in systemservices/* ; do
     pushd $s > /dev/null
     name=$(basename "$s")
     varname="${name}"
-    archive="$name.tar.gz"
-    echo "Uploading system service $varname"
-
-    id=$(
-      tar -czf - --exclude-from=.dockerignore . |
-      curl -s -F "file=@-;filename=${archive}" http://$MESG_SERVICE_SERVER:5001/api/v0/add |
-      jq -r .Hash
-    )
-    LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.${varname}URL=$id'"
+    LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.${varname}Compiled=$(cat compiled.json)'"
     popd > /dev/null
   fi
 done

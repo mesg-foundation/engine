@@ -2,6 +2,7 @@ package instancesdk
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -108,7 +109,7 @@ func (i *Instance) Create(serviceHash hash.Hash, env []string) (*instance.Instan
 	// check if instance already exists
 	_, err = i.instanceDB.Get(instanceHash)
 	if err == nil {
-		return nil, errors.New("instance already exists")
+		return nil, &AlreadyExistsError{Hash: instanceHash}
 	}
 	if !database.IsErrNotFound(err) {
 		return nil, err
@@ -147,4 +148,13 @@ func (i *Instance) Delete(hash hash.Hash, deleteData bool) error {
 		}
 	}
 	return i.instanceDB.Delete(hash)
+}
+
+// AlreadyExistsError is an not found error.
+type AlreadyExistsError struct {
+	Hash hash.Hash
+}
+
+func (e *AlreadyExistsError) Error() string {
+	return fmt.Sprintf("instance already exists")
 }
