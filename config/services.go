@@ -36,27 +36,30 @@ type ServiceConfig struct {
 
 // Services return the config for all services.
 func (c *Config) Services() ([]ServiceConfig, error) {
-	var marketplace service.Service
-	var ethwallet service.Service
-	if err := json.Unmarshal([]byte(marketplaceCompiled), &marketplace); err != nil {
-		return nil, err
+	serviceConfigs := make([]ServiceConfig, 0)
+	if marketplaceCompiled != "" {
+		marketplace, err := c.createServiceConfig("Marketplace", marketplaceCompiled, map[string]string{
+			"MARKETPLACE_ADDRESS": EnvMarketplaceAddress,
+			"TOKEN_ADDRESS":       EnvMarketplaceToken,
+			"PROVIDER_ENDPOINT":   EnvMarketplaceEndpoint,
+		})
+		if err != nil {
+			return nil, err
+		}
+		serviceConfigs = append(serviceConfigs, marketplace)
 	}
-	if err := json.Unmarshal([]byte(ethwalletCompiled), &ethwallet); err != nil {
-		return nil, err
+	return serviceConfigs, nil
+}
+
+func (c *Config) createServiceConfig(key string, compilatedJSON string, env map[string]string) (ServiceConfig, error) {
+	var srv service.Service
+	if err := json.Unmarshal([]byte(compilatedJSON), &srv); err != nil {
+		return ServiceConfig{}, err
 	}
-	return []ServiceConfig{
-		{
-			Key:        "Marketplace",
-			Definition: &marketplace,
-			Env: map[string]string{
-				"MARKETPLACE_ADDRESS": EnvMarketplaceAddress,
-				"TOKEN_ADDRESS":       EnvMarketplaceToken,
-				"PROVIDER_ENDPOINT":   EnvMarketplaceEndpoint,
-			},
-		},
-		// {
-		// 	Key:        "Ethwallet",
-		// 	Definition: &ethwallet,
-		// },
+	srv.Configuration.Key = service.MainServiceKey
+	return ServiceConfig{
+		Key:        key,
+		Definition: &srv,
+		Env:        env,
 	}, nil
 }
