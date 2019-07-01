@@ -8,9 +8,9 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
 
-	"github.com/mesg-foundation/core/config"
-	"github.com/mesg-foundation/core/container/dockertest"
-	"github.com/mesg-foundation/core/utils/docker/mocks"
+	"github.com/mesg-foundation/engine/config"
+	"github.com/mesg-foundation/engine/container/dockertest"
+	"github.com/mesg-foundation/engine/utils/docker/mocks"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )

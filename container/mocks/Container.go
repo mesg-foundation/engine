@@ -2,7 +2,7 @@
 
 package mocks
 
-import container "github.com/mesg-foundation/core/container"
+import container "github.com/mesg-foundation/engine/container"
 import io "io"
 import mock "github.com/stretchr/testify/mock"
 import swarm "github.com/docker/docker/api/types/swarm"

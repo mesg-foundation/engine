@@ -4,9 +4,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/mesg-foundation/core/container"
-	"github.com/mesg-foundation/core/database"
-	"github.com/mesg-foundation/core/sdk"
+	"github.com/mesg-foundation/engine/container"
+	"github.com/mesg-foundation/engine/database"
+	"github.com/mesg-foundation/engine/sdk"
 	"github.com/stretchr/testify/require"
 )
 

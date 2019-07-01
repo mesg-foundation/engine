@@ -7,8 +7,8 @@ import (
 
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
-	"github.com/mesg-foundation/core/x/xerrors"
-	"github.com/mesg-foundation/core/x/xvalidator"
+	"github.com/mesg-foundation/engine/x/xerrors"
+	"github.com/mesg-foundation/engine/x/xvalidator"
 	validator "gopkg.in/go-playground/validator.v9"
 	en_translations "gopkg.in/go-playground/validator.v9/translations/en"
 )

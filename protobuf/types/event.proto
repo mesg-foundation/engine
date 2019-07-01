@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package types;
-option go_package = "github.com/mesg-foundation/core/protobuf/types";
+option go_package = "github.com/mesg-foundation/engine/protobuf/types";
 
 // Event represents a single event run in engine.
 message Event {

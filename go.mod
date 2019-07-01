@@ -1,4 +1,4 @@
-module github.com/mesg-foundation/core
+module github.com/mesg-foundation/engine
 
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78 // indirect

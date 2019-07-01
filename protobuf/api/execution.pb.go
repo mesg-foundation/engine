@@ -7,7 +7,7 @@ import (
 	context "context"
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
-	types "github.com/mesg-foundation/core/protobuf/types"
+	types "github.com/mesg-foundation/engine/protobuf/types"
 	grpc "google.golang.org/grpc"
 	math "math"
 )

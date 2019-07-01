@@ -2,9 +2,9 @@ package executionsdk
 
 import (
 	"github.com/cskr/pubsub"
-	"github.com/mesg-foundation/core/execution"
-	"github.com/mesg-foundation/core/hash"
-	"github.com/mesg-foundation/core/x/xstrings"
+	"github.com/mesg-foundation/engine/execution"
+	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/x/xstrings"
 )
 
 // Filter store fileds for matching executions.
