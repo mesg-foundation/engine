@@ -15,7 +15,7 @@ import (
 // 			barCompiled string
 // 		)
 var (
-	ethwalletCompiled   string
+	// ethwalletCompiled   string
 	marketplaceCompiled string
 )
 
