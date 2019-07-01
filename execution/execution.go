@@ -36,7 +36,7 @@ func (s Status) String() (r string) {
 type Execution struct {
 	Hash         hash.Hash              `hash:"-"`
 	ParentHash   hash.Hash              `hash:"name:parentHash"`
-	EventHash    hash.Hash              `hash:"name:eventID"`
+	EventHash    hash.Hash              `hash:"name:eventHash"`
 	Status       Status                 `hash:"-"`
 	InstanceHash hash.Hash              `hash:"name:instanceHash"`
 	TaskKey      string                 `hash:"name:taskKey"`
