@@ -5,8 +5,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/mesg-foundation/core/hash"
-	"github.com/mesg-foundation/core/instance"
+	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/instance"
 	"github.com/stretchr/testify/require"
 )
 

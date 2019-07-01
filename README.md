@@ -3,11 +3,11 @@
 [Website](https://mesg.com/) - [Docs](https://docs.mesg.com/) - [Forum](https://forum.mesg.com/) - [Chat](https://discordapp.com/invite/SaZ5HcE) - [Blog](https://medium.com/mesg)
 
 
-[![GoDoc](https://godoc.org/github.com/mesg-foundation/core?status.svg)](https://godoc.org/github.com/mesg-foundation/core)
-[![CircleCI](https://img.shields.io/circleci/project/github/mesg-foundation/core.svg)](https://github.com/mesg-foundation/core)
-[![Docker Pulls](https://img.shields.io/docker/pulls/mesg/core.svg)](https://hub.docker.com/r/mesg/core/)
-[![Maintainability](https://api.codeclimate.com/v1/badges/86ad77f7c13cde40807e/maintainability)](https://codeclimate.com/github/mesg-foundation/core/maintainability)
-[![codecov](https://codecov.io/gh/mesg-foundation/core/branch/dev/graph/badge.svg)](https://codecov.io/gh/mesg-foundation/core)
+[![GoDoc](https://godoc.org/github.com/mesg-foundation/engine?status.svg)](https://godoc.org/github.com/mesg-foundation/engine)
+[![CircleCI](https://img.shields.io/circleci/project/github/mesg-foundation/engine.svg)](https://github.com/mesg-foundation/engine)
+[![Docker Pulls](https://img.shields.io/docker/pulls/mesg/engine.svg)](https://hub.docker.com/r/mesg/engine/)
+[![Maintainability](https://api.codeclimate.com/v1/badges/86ad77f7c13cde40807e/maintainability)](https://codeclimate.com/github/mesg-foundation/engine/maintainability)
+[![codecov](https://codecov.io/gh/mesg-foundation/engine/branch/dev/graph/badge.svg)](https://codecov.io/gh/mesg-foundation/engine)
 
 
 MESG is a platform for the creation of efficient and easy-to-maintain applications that connect any and all technologies. 

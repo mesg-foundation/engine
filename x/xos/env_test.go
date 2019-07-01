@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/mesg-foundation/core/x/xstrings"
+	"github.com/mesg-foundation/engine/x/xstrings"
 )
 
 func TestGetenvDefault(t *testing.T) {

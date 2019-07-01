@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/docker/docker/api/types"
-	"github.com/mesg-foundation/core/container/dockertest"
+	"github.com/mesg-foundation/engine/container/dockertest"
 	"github.com/stretchr/testify/require"
 )
 

@@ -1,6 +1,6 @@
 package instance
 
-import "github.com/mesg-foundation/core/hash"
+import "github.com/mesg-foundation/engine/hash"
 
 // Instance is an instance of a service.
 // This contains a reference to a service that is running.

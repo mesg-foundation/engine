@@ -2,8 +2,8 @@ package eventsdk
 
 import (
 	"github.com/cskr/pubsub"
-	"github.com/mesg-foundation/core/event"
-	"github.com/mesg-foundation/core/hash"
+	"github.com/mesg-foundation/engine/event"
+	"github.com/mesg-foundation/engine/hash"
 )
 
 // Filter store fileds for matching events.

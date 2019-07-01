@@ -4,8 +4,8 @@ import (
 	"sync"
 
 	"github.com/docker/docker/client"
-	"github.com/mesg-foundation/core/instance"
-	"github.com/mesg-foundation/core/x/xerrors"
+	"github.com/mesg-foundation/engine/instance"
+	"github.com/mesg-foundation/engine/x/xerrors"
 )
 
 // deleteData deletes the data volumes of instance and its dependencies.

@@ -3,14 +3,14 @@ package main
 import (
 	"path/filepath"
 
-	"github.com/mesg-foundation/core/config"
-	"github.com/mesg-foundation/core/container"
-	"github.com/mesg-foundation/core/database"
-	"github.com/mesg-foundation/core/logger"
-	"github.com/mesg-foundation/core/sdk"
-	"github.com/mesg-foundation/core/server/grpc"
-	"github.com/mesg-foundation/core/version"
-	"github.com/mesg-foundation/core/x/xsignal"
+	"github.com/mesg-foundation/engine/config"
+	"github.com/mesg-foundation/engine/container"
+	"github.com/mesg-foundation/engine/database"
+	"github.com/mesg-foundation/engine/logger"
+	"github.com/mesg-foundation/engine/sdk"
+	"github.com/mesg-foundation/engine/server/grpc"
+	"github.com/mesg-foundation/engine/version"
+	"github.com/mesg-foundation/engine/x/xsignal"
 	"github.com/sirupsen/logrus"
 )
 

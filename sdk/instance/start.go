@@ -3,11 +3,11 @@ package instancesdk
 import (
 	"strconv"
 
-	"github.com/mesg-foundation/core/config"
-	"github.com/mesg-foundation/core/container"
-	"github.com/mesg-foundation/core/instance"
-	"github.com/mesg-foundation/core/x/xnet"
-	"github.com/mesg-foundation/core/x/xos"
+	"github.com/mesg-foundation/engine/config"
+	"github.com/mesg-foundation/engine/container"
+	"github.com/mesg-foundation/engine/instance"
+	"github.com/mesg-foundation/engine/x/xnet"
+	"github.com/mesg-foundation/engine/x/xos"
 )
 
 // Start starts the service.
@@ -31,7 +31,7 @@ func (i *Instance) start(inst *instance.Instance, imageHash string, env []string
 	}
 	_, port, _ := xnet.SplitHostPort(conf.Server.Address)
 	endpoint := conf.Name + ":" + strconv.Itoa(port)
-	// BUG: https://github.com/mesg-foundation/core/issues/382
+	// BUG: https://github.com/mesg-foundation/engine/issues/382
 	// After solving this by docker, switch back to deploy in parallel
 	configs := make([]container.ServiceOptions, 0)
 

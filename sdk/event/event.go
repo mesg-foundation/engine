@@ -2,10 +2,10 @@ package eventsdk
 
 import (
 	"github.com/cskr/pubsub"
-	"github.com/mesg-foundation/core/event"
-	"github.com/mesg-foundation/core/hash"
-	instancesdk "github.com/mesg-foundation/core/sdk/instance"
-	servicesdk "github.com/mesg-foundation/core/sdk/service"
+	"github.com/mesg-foundation/engine/event"
+	"github.com/mesg-foundation/engine/hash"
+	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
+	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 )
 
 const (

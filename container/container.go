@@ -10,7 +10,7 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
 	docker "github.com/docker/docker/client"
-	"github.com/mesg-foundation/core/config"
+	"github.com/mesg-foundation/engine/config"
 )
 
 var (
