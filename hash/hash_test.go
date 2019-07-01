@@ -27,7 +27,7 @@ func TestInt(t *testing.T) {
 	assert.Len(t, Int(1), size)
 }
 
-func TestRnadom(t *testing.T) {
+func TestRandom(t *testing.T) {
 	hash, _ := Random()
 	assert.Len(t, hash, size)
 
