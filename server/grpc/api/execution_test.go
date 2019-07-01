@@ -9,7 +9,6 @@ import (
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/sdk"
-	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/require"
 )
 
@@ -21,7 +20,7 @@ func TestGet(t *testing.T) {
 	defer db.Close()
 	defer os.RemoveAll(execdbname)
 
-	exec := execution.New(nil, nil, uuid.NewV4().String(), "", nil, nil)
+	exec := execution.New(nil, nil, nil, "", nil, nil)
 	require.NoError(t, db.Save(exec))
 
 	want, err := toProtoExecution(exec)
@@ -41,7 +40,7 @@ func TestUpdate(t *testing.T) {
 	defer db.Close()
 	defer os.RemoveAll(execdbname)
 
-	exec := execution.New(nil, nil, uuid.NewV4().String(), "", nil, nil)
+	exec := execution.New(nil, nil, nil, "", nil, nil)
 	require.NoError(t, db.Save(exec))
 
 	sdk := sdk.New(nil, nil, nil, db)

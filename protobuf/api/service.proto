@@ -28,8 +28,33 @@ service Service {
 
 // The request's data for the `Create` API.
 message CreateServiceRequest {
-  // The service definition to use to create the Service.
-  types.Service definition = 1;
+  // Service's sid.
+  string sid = 1;
+
+  // Service's name.
+  string name = 2;
+
+  // Service's description.
+  string description = 3;
+
+  // Configurations related to the service
+  types.Service.Configuration configuration = 4;
+
+  // The list of tasks this service can execute.
+  repeated types.Service.Task tasks = 5;
+
+  // The list of events this service can emit.
+  repeated types.Service.Event events = 6; 
+
+  // The container dependencies this service requires.
+  repeated types.Service.Dependency dependencies = 7;
+
+  // Service's repository url.
+  string repository = 8;
+
+  // The hash id of service's source code on IPFS.
+  string source = 9;
+
 }
 
 // The response's data for the `Create` API.
