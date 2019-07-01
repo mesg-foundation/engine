@@ -31,8 +31,8 @@ message Execution {
   // parentHash is the unique hash of parent execution. if execution is triggered by another one, dependency execution considered as the parent.
   string parentHash = 2;
 
-  // eventID is unique event id.
-  string eventID = 3;
+  // eventHash is unique event hash.
+  string eventHash = 3;
 
   // Status is the current status of execution.
   Status status = 4;
