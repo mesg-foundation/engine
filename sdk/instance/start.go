@@ -16,7 +16,7 @@ func (i *Instance) start(inst *instance.Instance, imageHash string, env []string
 	if err != nil {
 		return nil, err
 	}
-	instNamespace := InstanceNamespace(inst.Hash)
+	instNamespace := instanceNamespace(inst.Hash)
 	networkID, err := i.container.CreateNetwork(instNamespace)
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func (i *Instance) start(inst *instance.Instance, imageHash string, env []string
 			return nil, err
 		}
 		configs = append(configs, container.ServiceOptions{
-			Namespace: DependencyNamespace(instNamespace, d.Key),
+			Namespace: dependencyNamespace(instNamespace, d.Key),
 			Labels:    labels,
 			Image:     d.Image,
 			Args:      d.Args,
@@ -72,7 +72,7 @@ func (i *Instance) start(inst *instance.Instance, imageHash string, env []string
 		return nil, err
 	}
 	configs = append(configs, container.ServiceOptions{
-		Namespace: DependencyNamespace(instNamespace, srv.Configuration.Key),
+		Namespace: dependencyNamespace(instNamespace, srv.Configuration.Key),
 		Labels:    labels,
 		Image:     imageHash,
 		Args:      srv.Configuration.Args,

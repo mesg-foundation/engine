@@ -1,7 +1,6 @@
 package instancesdk
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -10,13 +9,13 @@ import (
 	"github.com/mesg-foundation/engine/service"
 )
 
-// InstanceNamespace returns the namespace of the service.
-func InstanceNamespace(hash fmt.Stringer) string {
+// instanceNamespace returns the namespace of the service.
+func instanceNamespace(hash hash.Hash) string {
 	return hash.String()
 }
 
 // dependencyNamespace builds the namespace of a dependency.
-func DependencyNamespace(instanceNamespace string, dependencyKey string) string {
+func dependencyNamespace(instanceNamespace string, dependencyKey string) string {
 	return hash.Dump(instanceNamespace + dependencyKey).String()
 }
 
