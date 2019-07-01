@@ -12,17 +12,17 @@ import (
 func TestNewFromService(t *testing.T) {
 	var (
 		parentHash = hash.Int(2)
+		eventHash  = hash.Int(3)
 		hash       = hash.Int(1)
-		eventID    = "1"
 		taskKey    = "key"
 		tags       = []string{"tag"}
 	)
 
-	execution := New(hash, parentHash, eventID, taskKey, nil, tags)
+	execution := New(hash, parentHash, eventHash, taskKey, nil, tags)
 	require.NotNil(t, execution)
 	require.Equal(t, hash, execution.InstanceHash)
 	require.Equal(t, parentHash, execution.ParentHash)
-	require.Equal(t, eventID, execution.EventID)
+	require.Equal(t, eventHash, execution.EventHash)
 	require.Equal(t, taskKey, execution.TaskKey)
 	require.Equal(t, map[string]interface{}(nil), execution.Inputs)
 	require.Equal(t, tags, execution.Tags)
@@ -30,7 +30,7 @@ func TestNewFromService(t *testing.T) {
 }
 
 func TestExecute(t *testing.T) {
-	e := New(nil, nil, "", "", nil, nil)
+	e := New(nil, nil, nil, "", nil, nil)
 	require.NoError(t, e.Execute())
 	require.Equal(t, InProgress, e.Status)
 	require.Error(t, e.Execute())
@@ -38,7 +38,7 @@ func TestExecute(t *testing.T) {
 
 func TestComplete(t *testing.T) {
 	output := map[string]interface{}{"foo": "bar"}
-	e := New(nil, nil, "", "", nil, nil)
+	e := New(nil, nil, nil, "", nil, nil)
 
 	e.Execute()
 	require.NoError(t, e.Complete(output))
@@ -49,7 +49,7 @@ func TestComplete(t *testing.T) {
 
 func TestFailed(t *testing.T) {
 	err := errors.New("test")
-	e := New(nil, nil, "", "", nil, nil)
+	e := New(nil, nil, nil, "", nil, nil)
 	e.Execute()
 	require.NoError(t, e.Failed(err))
 	require.Equal(t, Failed, e.Status)
@@ -67,7 +67,7 @@ func TestStatus(t *testing.T) {
 func TestExecutionHash(t *testing.T) {
 	ids := make(map[string]bool)
 
-	f := func(instanceHash, parentHash []byte, eventID, taskKey, input string, tags []string) bool {
+	f := func(instanceHash, parentHash, eventID []byte, taskKey, input string, tags []string) bool {
 		e := New(instanceHash, parentHash, eventID, taskKey, map[string]interface{}{"input": input}, tags)
 		if ids[string(e.Hash)] {
 			return false
