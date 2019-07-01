@@ -95,7 +95,7 @@ func (c *DockerContainer) deletePendingContainer(namespace []string, maxGraceTim
 		return err
 	}
 	// Hack to force Docker to remove the containers.
-	// Sometime, the ServiceRemove function doesn't remove the associated containers, or too late and the Core cannot remove the associated networks.
+	// Sometime, the ServiceRemove function doesn't remove the associated containers, or too late and the associated networks cannot be removed.
 	// This hack for Docker to stop and then remove the container.
 	// See issue https://github.com/moby/moby/issues/32620
 	if time.Now().After(maxGraceTime) {

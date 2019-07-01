@@ -10,7 +10,7 @@ import (
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 )
 
-// SDK exposes all functionalities of MESG core.
+// SDK exposes all functionalities of MESG Engine.
 type SDK struct {
 	Service   *servicesdk.Service
 	Instance  *instancesdk.Instance
