@@ -4,8 +4,7 @@ Dockerfile-dev
 .vscode
 /examples
 /test
-dev-core
-dev-cli
+dev
 mesg-dev
 .git
 **/*.test
