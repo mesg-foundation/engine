@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package api;
-option go_package = "github.com/mesg-foundation/core/protobuf/coreapi";
+option go_package = "github.com/mesg-foundation/engine/protobuf/coreapi";
 
 // This is the primary API to interact with MESG Engine functionalities.
 // It can be consumed by any applications or tools that you'd like to interact with MESG Engine.
@@ -11,7 +11,7 @@ option go_package = "github.com/mesg-foundation/core/protobuf/coreapi";
 //
 // Services must not use this API, but rather use the [Service API](./service.md).
 //
-// The source file of this API is hosted on [GitHub](https://github.com/mesg-foundation/core/blob/master/protobuf/coreapi/api.proto).
+// The source file of this API is hosted on [GitHub](https://github.com/mesg-foundation/engine/blob/master/protobuf/coreapi/api.proto).
 service Core {
   // ServiceLogs gives a stream for dependency logs of a service.
   rpc ServiceLogs (ServiceLogsRequest) returns (stream LogData) {}
