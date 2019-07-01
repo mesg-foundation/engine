@@ -27,24 +27,20 @@ func NewEventServer(sdk *sdk.SDK) *EventServer {
 
 // Create creates a new event.
 func (s *EventServer) Create(ctx context.Context, req *api.CreateEventRequest) (*api.CreateEventResponse, error) {
-	if req.Event.Hash != "" {
-		return nil, errors.New("create event: hash not allowed")
-	}
-
-	if req.Event.Key == "" {
-		return nil, errors.New("create event: key missing")
-	}
-
-	instanceHash, err := hash.Decode(req.Event.InstanceHash)
+	instanceHash, err := hash.Decode(req.InstanceHash)
 	if err != nil {
 		return nil, fmt.Errorf("create event: instance %s", err)
 	}
 
+	if req.Key == "" {
+		return nil, errors.New("create event: key missing")
+	}
+
 	var data map[string]interface{}
-	if err := json.Unmarshal([]byte(req.Event.Data), &data); err != nil {
+	if err := json.Unmarshal([]byte(req.Data), &data); err != nil {
 		return nil, fmt.Errorf("create event: data %s", err)
 	}
-	event, err := s.sdk.Event.Create(instanceHash, req.Event.Key, data)
+	event, err := s.sdk.Event.Create(instanceHash, req.Key, data)
 	if err != nil {
 		return nil, fmt.Errorf("create event: data %s", err)
 	}
