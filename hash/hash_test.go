@@ -2,8 +2,10 @@ package hash
 
 import (
 	"testing"
+	"testing/quick"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestDigest(t *testing.T) {
@@ -23,6 +25,27 @@ func TestDump(t *testing.T) {
 
 func TestInt(t *testing.T) {
 	assert.Len(t, Int(1), size)
+}
+
+func TestRandom(t *testing.T) {
+	hash, _ := Random()
+	assert.Len(t, hash, size)
+
+	seen := make(map[string]bool)
+
+	f := func() bool {
+		hash, err := Random()
+		if err != nil {
+			return false
+		}
+
+		if seen[hash.String()] {
+			return false
+		}
+		seen[hash.String()] = true
+		return true
+	}
+	require.NoError(t, quick.Check(f, nil))
 }
 
 func TestDecode(t *testing.T) {

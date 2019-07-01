@@ -38,8 +38,14 @@ message StreamEventRequest {
 
 // CreateEventRequest defines request for execution update.
 message CreateEventRequest {
-  // The event type to use to create the Event.
-  types.Event event = 1;
+  // instanceHash is hash of instance that can proceed an execution.
+  string instanceHash = 1;
+
+  // key is the key of the event.
+  string key = 2;
+
+  // data is the data for the event.
+  string data = 3;
 }
 
 // CreateEventResponse defines response for execution update.
