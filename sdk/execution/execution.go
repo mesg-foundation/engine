@@ -111,7 +111,12 @@ func (e *Execution) validateExecutionOutput(instanceHash hash.Hash, taskKey stri
 		return nil, fmt.Errorf("invalid output: %s", err)
 	}
 
-	s, err := e.service.Get(instanceHash)
+	i, err := e.instance.Get(instanceHash)
+	if err != nil {
+		return nil, err
+	}
+
+	s, err := e.service.Get(i.ServiceHash)
 	if err != nil {
 		return nil, err
 	}
@@ -150,7 +155,7 @@ func (e *Execution) Execute(instanceHash hash.Hash, taskKey string, inputData ma
 	}
 
 	go e.ps.Pub(exec, streamTopic)
-	go e.ps.Pub(exec, subTopic(s.Hash))
+	go e.ps.Pub(exec, subTopic(instance.Hash))
 	return exec.Hash, nil
 }
 
