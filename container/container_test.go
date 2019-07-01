@@ -34,7 +34,7 @@ func mockNew(m *mocks.CommonAPIClient) {
 		}
 		networkInspectArguments = []interface{}{
 			mock.Anything,
-			"engine-",
+			"engine",
 			types.NetworkInspectOptions{},
 		}
 		networkInspectResponse = types.NetworkResource{
