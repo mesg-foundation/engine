@@ -10,7 +10,6 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
-	uuid "github.com/satori/go.uuid"
 )
 
 const (
@@ -145,8 +144,12 @@ func (e *Execution) Execute(instanceHash hash.Hash, taskKey string, inputData ma
 	}
 
 	// execute the task.
-	eventID := uuid.NewV4().String()
-	exec := execution.New(instance.Hash, nil, eventID, taskKey, inputData, tags)
+	eventHash, err := hash.Random()
+	if err != nil {
+		return nil, err
+	}
+
+	exec := execution.New(instance.Hash, nil, eventHash, taskKey, inputData, tags)
 	if err := exec.Execute(); err != nil {
 		return nil, err
 	}

@@ -2,6 +2,7 @@ package hash
 
 import (
 	"bytes"
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/binary"
 	"fmt"
@@ -56,6 +57,21 @@ func Int(h int) Hash {
 	hash := make(Hash, size)
 	binary.PutUvarint(hash, uint64(h))
 	return hash
+}
+
+// Random returns a new random hash.
+func Random() (Hash, error) {
+	hash := make(Hash, size)
+	n, err := rand.Reader.Read(hash)
+	if err != nil {
+		return nil, fmt.Errorf("hash generate random error: %s", err)
+	}
+
+	if n != size {
+		return nil, fmt.Errorf("hash generate random error: invalid hash length")
+	}
+
+	return hash, nil
 }
 
 // Decode decodes the base58 encoded hash. It returns error

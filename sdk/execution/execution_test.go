@@ -81,7 +81,7 @@ var testInstance = &instance.Instance{
 func TestGet(t *testing.T) {
 	sdk, at := newTesting(t)
 	defer at.close()
-	exec := execution.New(nil, nil, "", "", nil, nil)
+	exec := execution.New(nil, nil, nil, "", nil, nil)
 	require.NoError(t, sdk.execDB.Save(exec))
 	got, err := sdk.Get(exec.Hash)
 	require.NoError(t, err)
@@ -92,7 +92,7 @@ func TestGetStream(t *testing.T) {
 	sdk, at := newTesting(t)
 	defer at.close()
 
-	exec := execution.New(nil, nil, "", "", nil, nil)
+	exec := execution.New(nil, nil, nil, "", nil, nil)
 	exec.Status = execution.InProgress
 
 	require.NoError(t, sdk.execDB.Save(exec))
