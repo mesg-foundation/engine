@@ -10,7 +10,6 @@ require (
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/kr/pretty v0.1.0 // indirect
-	github.com/mesg-foundation/core v0.10.1 // indirect
 	github.com/mesg-foundation/engine v0.10.1
 	github.com/pborman/uuid v1.2.0 // indirect
 	github.com/rjeczalik/notify v0.9.2 // indirect
@@ -23,5 +22,3 @@ require (
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/yaml.v2 v2.2.2 // indirect
 )
-
-replace github.com/mesg-foundation/engine => github.com/mesg-foundation/core v0.10.1
