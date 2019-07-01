@@ -9,14 +9,14 @@ import (
 )
 
 func TestIntegrationFindContainerNotExisting(t *testing.T) {
-	c, err := New()
+	c, err := New(nstestprefix)
 	require.NoError(t, err)
 	_, err = c.FindContainer("TestFindContainerNotExisting")
 	require.Error(t, err)
 }
 
 func TestIntegrationFindContainer(t *testing.T) {
-	c, err := New()
+	c, err := New(nstestprefix)
 	require.NoError(t, err)
 	namespace := "TestFindContainer"
 	startTestService(namespace)
@@ -28,7 +28,7 @@ func TestIntegrationFindContainer(t *testing.T) {
 }
 
 func TestIntegrationFindContainerStopped(t *testing.T) {
-	c, err := New()
+	c, err := New(nstestprefix)
 	require.NoError(t, err)
 	namespace := "TestFindContainerStopped"
 	startTestService(namespace)
@@ -38,7 +38,7 @@ func TestIntegrationFindContainerStopped(t *testing.T) {
 }
 
 func TestIntegrationContainerStatusNeverStarted(t *testing.T) {
-	c, err := New()
+	c, err := New(nstestprefix)
 	require.NoError(t, err)
 	namespace := "TestContainerStatusNeverStarted"
 	status, err := c.Status(namespace)
@@ -47,7 +47,7 @@ func TestIntegrationContainerStatusNeverStarted(t *testing.T) {
 }
 
 func TestIntegrationContainerStatusRunning(t *testing.T) {
-	c, err := New()
+	c, err := New(nstestprefix)
 	require.NoError(t, err)
 	namespace := "TestContainerStatusRunning"
 	startTestService(namespace)
@@ -59,7 +59,7 @@ func TestIntegrationContainerStatusRunning(t *testing.T) {
 }
 
 func TestIntegrationContainerStatusStopped(t *testing.T) {
-	c, err := New()
+	c, err := New(nstestprefix)
 	require.NoError(t, err)
 	namespace := "TestContainerStatusStopped"
 	startTestService(namespace)

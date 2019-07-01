@@ -9,7 +9,7 @@ import (
 )
 
 func TestIntegrationBuild(t *testing.T) {
-	c, err := New()
+	c, err := New(nstestprefix)
 	require.NoError(t, err)
 	tag, err := c.Build("test/")
 	require.NoError(t, err)
@@ -17,7 +17,7 @@ func TestIntegrationBuild(t *testing.T) {
 }
 
 func TestIntegrationBuildNotWorking(t *testing.T) {
-	c, err := New()
+	c, err := New(nstestprefix)
 	require.NoError(t, err)
 	tag, err := c.Build("test-not-valid/")
 	require.Error(t, err)
@@ -25,7 +25,7 @@ func TestIntegrationBuildNotWorking(t *testing.T) {
 }
 
 func TestIntegrationBuildWrongPath(t *testing.T) {
-	c, err := New()
+	c, err := New(nstestprefix)
 	require.NoError(t, err)
 	_, err = c.Build("testss/")
 	require.Error(t, err)

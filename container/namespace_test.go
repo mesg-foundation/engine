@@ -7,7 +7,7 @@ import (
 )
 
 func TestNamespace(t *testing.T) {
-	c, _ := New()
+	c, _ := New("engine")
 	namespace := c.Namespace("foo")
 	require.Equal(t, namespace, "engine-foo")
 }

@@ -42,7 +42,7 @@ func TestWaitForStatusRunning(t *testing.T) {
 	}
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	dt.ProvideContainerList(containerData, nil)
 	dt.ProvideContainerInspect(containerJSONData, nil)
@@ -54,7 +54,7 @@ func TestWaitForStatusStopped(t *testing.T) {
 	namespace := "namespace"
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
 	dt.ProvideContainerInspect(types.ContainerJSON{}, dockertest.NotFoundErr{})
@@ -75,7 +75,7 @@ func TestWaitForStatusTaskError(t *testing.T) {
 	}
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	dt.ProvideTaskList(tasks, nil)
 

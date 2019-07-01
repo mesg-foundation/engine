@@ -46,16 +46,20 @@ type DockerContainer struct {
 
 	// defaultStopGracePeriod is the timeout value between stopping a container and killing it.
 	defaultStopGracePeriod time.Duration
+
+	// namespace prefix.
+	nsprefix string
 }
 
 // Option is a configuration func for Container.
 type Option func(*DockerContainer)
 
 // New creates a new Container with given options.
-func New(options ...Option) (*DockerContainer, error) {
+func New(nsprefix string, options ...Option) (*DockerContainer, error) {
 	c := &DockerContainer{
 		callTimeout:            60 * time.Second,
 		defaultStopGracePeriod: 10 * time.Second, // default docker value
+		nsprefix:               nsprefix,
 	}
 	for _, option := range options {
 		option(c)

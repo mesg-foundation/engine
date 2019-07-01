@@ -10,7 +10,7 @@ import (
 )
 
 func TestIntegrationListTasks(t *testing.T) {
-	c, err := New()
+	c, err := New(nstestprefix)
 	require.NoError(t, err)
 	namespace := "TestListTasks"
 	startTestService(namespace)
@@ -22,7 +22,7 @@ func TestIntegrationListTasks(t *testing.T) {
 }
 
 func TestIntegrationTasksError(t *testing.T) {
-	c, err := New()
+	c, err := New(nstestprefix)
 	require.NoError(t, err)
 	namespace := "TestTasksError"
 	c.StartService(ServiceOptions{

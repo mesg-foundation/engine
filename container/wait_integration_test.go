@@ -9,7 +9,7 @@ import (
 )
 
 func TestIntegrationWaitForStatusRunning(t *testing.T) {
-	c, err := New()
+	c, err := New(nstestprefix)
 	require.NoError(t, err)
 	namespace := "TestWaitForStatusRunning"
 	startTestService(namespace)
@@ -19,7 +19,7 @@ func TestIntegrationWaitForStatusRunning(t *testing.T) {
 }
 
 func TestIntegrationWaitForStatusStopped(t *testing.T) {
-	c, err := New()
+	c, err := New(nstestprefix)
 	require.NoError(t, err)
 	namespace := "TestWaitForStatusStopped"
 	startTestService(namespace)
@@ -30,7 +30,7 @@ func TestIntegrationWaitForStatusStopped(t *testing.T) {
 }
 
 func TestIntegrationWaitForStatusTaskError(t *testing.T) {
-	c, err := New()
+	c, err := New(nstestprefix)
 	require.NoError(t, err)
 	namespace := "TestWaitForStatusTaskError"
 	c.StartService(ServiceOptions{

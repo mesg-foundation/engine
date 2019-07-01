@@ -14,11 +14,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const nstestprefix = "enginetest"
+
 func newTesting(t *testing.T) (*DockerContainer, *mocks.CommonAPIClient) {
 	m := &mocks.CommonAPIClient{}
 	mockNew(m)
 
-	c, err := New(ClientOption(m))
+	c, err := New(nstestprefix, ClientOption(m))
 	require.NoError(t, err)
 	require.NotZero(t, c)
 
@@ -34,7 +36,7 @@ func mockNew(m *mocks.CommonAPIClient) {
 		}
 		networkInspectArguments = []interface{}{
 			mock.Anything,
-			"engine",
+			nstestprefix,
 			types.NetworkInspectOptions{},
 		}
 		networkInspectResponse = types.NetworkResource{
@@ -98,7 +100,7 @@ func mockStatus(t *testing.T, m *mocks.CommonAPIClient, namespace string, wanted
 
 func TestNew(t *testing.T) {
 	dt := dockertest.New()
-	c, err := New(ClientOption(dt.Client()))
+	c, err := New(nstestprefix, ClientOption(dt.Client()))
 	require.NoError(t, err)
 	require.NotNil(t, c)
 
@@ -115,6 +117,7 @@ func TestNew(t *testing.T) {
 	}
 
 	ln := <-dt.LastNetworkCreate()
+	require.Equal(t, nstestprefix, ln.Name)
 	require.Equal(t, types.NetworkCreate{
 		CheckDuplicate: true,
 		Driver:         "overlay",
@@ -128,7 +131,7 @@ func TestNewSwarmError(t *testing.T) {
 	dt := dockertest.New()
 	dt.ProvideInfo(types.Info{Swarm: swarm.Info{NodeID: ""}}, nil)
 
-	_, err := New(ClientOption(dt.Client()))
+	_, err := New(nstestprefix, ClientOption(dt.Client()))
 	require.Equal(t, err, errSwarmNotInit)
 }
 
@@ -136,7 +139,7 @@ func TestFindContainerNonExistent(t *testing.T) {
 	namespace := "namespace"
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	dt.ProvideContainerList(nil, dockertest.NotFoundErr{})
 
@@ -165,7 +168,7 @@ func TestFindContainer(t *testing.T) {
 	}
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	dt.ProvideContainerList(containerData, nil)
 	dt.ProvideContainerInspect(containerJSONData, nil)
@@ -189,7 +192,7 @@ func TestNonExistentContainerStatus(t *testing.T) {
 	namespace := "namespace"
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
 	dt.ProvideContainerInspect(types.ContainerJSON{}, dockertest.NotFoundErr{})
@@ -217,7 +220,7 @@ func TestExistentContainerStatus(t *testing.T) {
 	}
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, nil)
 	dt.ProvideContainerList(containerData, nil)
@@ -242,7 +245,7 @@ func TestExistentContainerRunningStatus(t *testing.T) {
 	}
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	dt.ProvideContainerList(containerData, nil)
 	dt.ProvideContainerInspect(containerJSONData, nil)

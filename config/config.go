@@ -27,6 +27,7 @@ var (
 
 // Config contains all the configuration needed.
 type Config struct {
+	Name string
 	Path string
 
 	Server struct {
@@ -60,6 +61,7 @@ func New() (*Config, error) {
 	c.Log.Format = "text"
 	c.Log.Level = "info"
 	c.Log.ForceColors = false
+	c.Name = "engine"
 	c.Path = filepath.Join(home, ".mesg")
 	c.Database.ServiceRelativePath = filepath.Join("database", "services", serviceDBVersion)
 	c.Database.InstanceRelativePath = filepath.Join("database", "instance", instanceDBVersion)

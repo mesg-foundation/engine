@@ -182,7 +182,7 @@ func TestStopNotExistingService(t *testing.T) {
 	namespace := "namespace"
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	dt.ProvideContainerList([]types.Container{}, nil)
 	dt.ProvideContainerInspect(types.ContainerJSON{}, dockertest.NotFoundErr{})
@@ -198,7 +198,7 @@ func TestFindService(t *testing.T) {
 	swarmService := swarm.Service{ID: "1"}
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	dt.ProvideServiceInspectWithRaw(swarmService, nil, nil)
 
@@ -215,7 +215,7 @@ func TestFindServiceNotExisting(t *testing.T) {
 	namespace := "namespace"
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
 
@@ -231,7 +231,7 @@ func TestListServices(t *testing.T) {
 	namespace := "namespace"
 	label := "1"
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 	swarmServices := []swarm.Service{
 		{Spec: swarm.ServiceSpec{Annotations: swarm.Annotations{Name: c.Namespace(namespace)}}},
 		{Spec: swarm.ServiceSpec{Annotations: swarm.Annotations{Name: c.Namespace(namespace)}}},
@@ -258,7 +258,7 @@ func TestServiceLogs(t *testing.T) {
 	data := []byte{1, 2}
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	dt.ProvideServiceLogs(ioutil.NopCloser(bytes.NewReader(data)), nil)
 

@@ -20,6 +20,7 @@ func TestDefaultValue(t *testing.T) {
 	require.Equal(t, filepath.Join(home, ".mesg"), c.Path)
 	require.Equal(t, filepath.Join("database", "services", serviceDBVersion), c.Database.ServiceRelativePath)
 	require.Equal(t, filepath.Join("database", "executions", executionDBVersion), c.Database.ExecutionRelativePath)
+	require.Equal(t, "engine", c.Name)
 }
 
 func TestGlobal(t *testing.T) {

@@ -6,7 +6,6 @@ import (
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/instance"
-	"github.com/mesg-foundation/engine/version"
 	"github.com/mesg-foundation/engine/x/xnet"
 	"github.com/mesg-foundation/engine/x/xos"
 )
@@ -31,7 +30,7 @@ func (i *Instance) start(inst *instance.Instance, imageHash string, env []string
 		return nil, err
 	}
 	_, port, _ := xnet.SplitHostPort(conf.Server.Address)
-	endpoint := version.Name + ":" + strconv.Itoa(port)
+	endpoint := conf.Name + ":" + strconv.Itoa(port)
 	// BUG: https://github.com/mesg-foundation/engine/issues/382
 	// After solving this by docker, switch back to deploy in parallel
 	configs := make([]container.ServiceOptions, 0)
@@ -40,7 +39,7 @@ func (i *Instance) start(inst *instance.Instance, imageHash string, env []string
 		"mesg.service": srv.Name,
 		"mesg.hash":    inst.Hash.String(),
 		"mesg.sid":     srv.Sid,
-		"mesg.engine":  version.Name,
+		"mesg.engine":  conf.Name,
 	}
 
 	// Create dependency container configs

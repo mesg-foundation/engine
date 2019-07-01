@@ -12,7 +12,7 @@ func TestSharedNetwork(t *testing.T) {
 	id := "id"
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	// discard network requests made from New.
 	<-dt.LastNetworkInspect()
@@ -31,7 +31,7 @@ func TestSharedNetwork(t *testing.T) {
 
 func TestCreateSharedNetworkIfNeeded(t *testing.T) {
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	// discard network requests made from New.
 	<-dt.LastNetworkInspect()
@@ -56,7 +56,7 @@ func TestCreateSharedNetworkIfNeededExists(t *testing.T) {
 	id := "id"
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	// discard network requests made from New.
 	<-dt.LastNetworkInspect()
@@ -76,7 +76,7 @@ func TestCreateSharedNetworkIfNeededExists(t *testing.T) {
 func TestSharedNetworkID(t *testing.T) {
 	id := "1"
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	// discard network requests made from New.
 	<-dt.LastNetworkInspect()

@@ -19,7 +19,7 @@ func TestListTasks(t *testing.T) {
 	}
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	dt.ProvideTaskList(tasks, nil)
 
@@ -42,7 +42,7 @@ func TestListTasksError(t *testing.T) {
 	namespace := "namespace"
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	dt.ProvideTaskList(nil, errTaskList)
 
@@ -64,7 +64,7 @@ func TestTasksError(t *testing.T) {
 	}
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	dt.ProvideTaskList(tasks, nil)
 
