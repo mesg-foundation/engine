@@ -2,7 +2,7 @@ package ethwallet
 
 import (
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/mesg-foundation/engine/client/service"
+	"github.com/mesg-foundation/engine/systemservices/ethwallet/client"
 	"github.com/mesg-foundation/engine/systemservices/ethwallet/x/xgo-ethereum/xaccounts"
 )
 
@@ -15,9 +15,9 @@ type deleteOutputSuccess struct {
 	Address common.Address `json:"address"`
 }
 
-func (s *Ethwallet) delete(execution *service.Execution) (interface{}, error) {
+func (s *Ethwallet) delete(input []byte) ([]byte, error) {
 	var inputs deleteInputs
-	if err := execution.Data(&inputs); err != nil {
+	if err := client.Unmarshal(input, &inputs); err != nil {
 		return nil, err
 	}
 
@@ -30,7 +30,7 @@ func (s *Ethwallet) delete(execution *service.Execution) (interface{}, error) {
 		return nil, err
 	}
 
-	return deleteOutputSuccess{
+	return client.Marshal(deleteOutputSuccess{
 		Address: account.Address,
-	}, nil
+	})
 }
