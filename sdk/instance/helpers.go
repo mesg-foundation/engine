@@ -1,6 +1,7 @@
 package instancesdk
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -10,7 +11,7 @@ import (
 )
 
 // InstanceNamespace returns the namespace of the service.
-func InstanceNamespace(hash hash.Hash) string {
+func InstanceNamespace(hash fmt.Stringer) string {
 	return hash.String()
 }
 
