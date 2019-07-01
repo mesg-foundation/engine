@@ -36,7 +36,7 @@ func (s Status) String() (r string) {
 type Execution struct {
 	Hash         hash.Hash              `hash:"-"`
 	ParentHash   hash.Hash              `hash:"name:parentHash"`
-	EventID      string                 `hash:"name:eventID"`
+	EventHash    hash.Hash              `hash:"name:eventHash"`
 	Status       Status                 `hash:"-"`
 	InstanceHash hash.Hash              `hash:"name:instanceHash"`
 	TaskKey      string                 `hash:"name:taskKey"`
@@ -47,9 +47,9 @@ type Execution struct {
 }
 
 // New returns a new execution. It returns an error if inputs are invalid.
-func New(instanceHash, parentHash hash.Hash, eventID, taskKey string, inputs map[string]interface{}, tags []string) *Execution {
+func New(instanceHash, parentHash, eventHash hash.Hash, taskKey string, inputs map[string]interface{}, tags []string) *Execution {
 	exec := &Execution{
-		EventID:      eventID,
+		EventHash:    eventHash,
 		InstanceHash: instanceHash,
 		ParentHash:   parentHash,
 		Inputs:       inputs,
