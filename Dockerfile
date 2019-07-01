@@ -15,7 +15,7 @@ RUN go mod download
 COPY . .
 ARG version
 ENV version=${version}
-RUN ./scripts/build-core.sh
+RUN ./scripts/build-engine.sh
 
 FROM ubuntu:18.04
 RUN apt-get update && \
@@ -23,5 +23,5 @@ RUN apt-get update && \
       apt-get clean && \
       rm -rf /var/lib/apt/lists/*
 WORKDIR /app
-COPY --from=build /project/mesg-core .
-CMD ["./mesg-core"]
+COPY --from=build /project/engine .
+CMD ["./engine"]

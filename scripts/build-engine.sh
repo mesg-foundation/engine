@@ -25,4 +25,4 @@ for s in systemservices/* ; do
   fi
 done
 
-go build -o mesg-engine -ldflags="$LDFLAGS" core/main.go
+go build -o engine -ldflags="$LDFLAGS" core/main.go
