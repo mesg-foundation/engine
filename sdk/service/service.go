@@ -9,11 +9,11 @@ import (
 
 	"github.com/cskr/pubsub"
 	"github.com/docker/docker/pkg/archive"
-	"github.com/mesg-foundation/core/container"
-	"github.com/mesg-foundation/core/database"
-	"github.com/mesg-foundation/core/hash"
-	"github.com/mesg-foundation/core/hash/dirhash"
-	"github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/engine/container"
+	"github.com/mesg-foundation/engine/database"
+	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/hash/dirhash"
+	"github.com/mesg-foundation/engine/service"
 )
 
 // Service exposes service APIs of MESG.

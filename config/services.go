@@ -3,8 +3,8 @@ package config
 import (
 	"encoding/json"
 
-	"github.com/mesg-foundation/core/instance"
-	"github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/engine/instance"
+	"github.com/mesg-foundation/engine/service"
 )
 
 // Default compiled version of the service. These compiled versions are overritten by the build

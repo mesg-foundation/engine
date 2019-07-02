@@ -10,13 +10,12 @@ MESG_PATH=${MESG_PATH:-$HOME/.mesg}
 MESG_LOG_FORMAT=${MESG_LOG_FORMAT:-text}
 MESG_LOG_FORCECOLORS=${MESG_LOG_FORCECOLORS:-false}
 MESG_LOG_LEVEL=${MESG_LOG_LEVEL:-debug}
-MESG_SERVICE_SERVER=ipfs.app.mesg.com
 
 VERSION=local
-LDFLAGS="-X 'github.com/mesg-foundation/core/version.Version=$VERSION'"
-LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceEndpoint=https://ropsten.infura.io/v3/6115ae2531f64c04a9a392cf500e5fbe'"
-LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceAddress=0xeCC1A867F871323350A1A89FcAf69629a2d5085e'"
-LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.EnvMarketplaceToken=0x5861b3dc52339d4f976b7fa5d80db6cd6f477f1b'"
+LDFLAGS="-X 'github.com/mesg-foundation/engine/version.Version=$VERSION'"
+LDFLAGS+=" -X 'github.com/mesg-foundation/engine/config.EnvMarketplaceEndpoint=https://ropsten.infura.io/v3/6115ae2531f64c04a9a392cf500e5fbe'"
+LDFLAGS+=" -X 'github.com/mesg-foundation/engine/config.EnvMarketplaceAddress=0xeCC1A867F871323350A1A89FcAf69629a2d5085e'"
+LDFLAGS+=" -X 'github.com/mesg-foundation/engine/config.EnvMarketplaceToken=0x5861b3dc52339d4f976b7fa5d80db6cd6f477f1b'"
 
 MESG_SERVER_PORT=${MESG_SERVER_PORT:-50052}
 
@@ -25,14 +24,14 @@ if [ "$networkExists" == "" ]; then
   docker network create --driver overlay engine --label com.docker.stack.namespace=engine
 fi
 
-# from scripts/build-core.sh
+# from scripts/build-engine.sh
 # upload system services
 for s in systemservices/* ; do
   if [ -d "$s" ]; then
     pushd $s > /dev/null
     name=$(basename "$s")
     varname="${name}"
-    LDFLAGS+=" -X 'github.com/mesg-foundation/core/config.${varname}Compiled=$(cat compiled.json)'"
+    LDFLAGS+=" -X 'github.com/mesg-foundation/engine/config.${varname}Compiled=$(cat compiled.json)'"
     popd > /dev/null
   fi
 done

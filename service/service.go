@@ -6,7 +6,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/mesg-foundation/core/hash"
+	"github.com/mesg-foundation/engine/hash"
 )
 
 // WARNING about hash tags on Service type and its inner types:

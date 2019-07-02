@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/kelseyhightower/envconfig"
-	"github.com/mesg-foundation/core/x/xstrings"
+	"github.com/mesg-foundation/engine/x/xstrings"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
 )

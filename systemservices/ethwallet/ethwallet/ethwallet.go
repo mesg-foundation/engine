@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/ethereum/go-ethereum/accounts/keystore"
-	"github.com/mesg-foundation/core/client/service"
+	"github.com/mesg-foundation/engine/client/service"
 )
 
 const (

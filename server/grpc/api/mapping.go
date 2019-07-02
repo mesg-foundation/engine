@@ -1,8 +1,8 @@
 package api
 
 import (
-	"github.com/mesg-foundation/core/protobuf/types"
-	"github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/engine/protobuf/types"
+	"github.com/mesg-foundation/engine/service"
 )
 
 // fromProtoService converts a the protobuf types to the internal service struct
