@@ -17,11 +17,11 @@ func removeSharedNetworkIfExist(c *DockerContainer) error {
 		}
 		return err
 	}
-	return c.client.NetworkRemove(context.Background(), c.Namespace([]string{}))
+	return c.client.NetworkRemove(context.Background(), c.Namespace(""))
 }
 
 func TestIntegrationCreateSharedNetworkIfNeeded(t *testing.T) {
-	c, err := New()
+	c, err := New(nstestprefix)
 	require.NoError(t, err)
 	err = removeSharedNetworkIfExist(c)
 	require.NoError(t, err)
@@ -30,7 +30,7 @@ func TestIntegrationCreateSharedNetworkIfNeeded(t *testing.T) {
 }
 
 func TestIntegrationSharedNetwork(t *testing.T) {
-	c, err := New()
+	c, err := New(nstestprefix)
 	require.NoError(t, err)
 	network, err := c.sharedNetwork()
 	require.NoError(t, err)
@@ -38,7 +38,7 @@ func TestIntegrationSharedNetwork(t *testing.T) {
 }
 
 func TestIntegrationSharedNetworkID(t *testing.T) {
-	c, err := New()
+	c, err := New(nstestprefix)
 	require.NoError(t, err)
 	networkID, err := c.SharedNetworkID()
 	require.NoError(t, err)
