@@ -34,8 +34,8 @@ type ServiceConfig struct {
 	Instance   *instance.Instance
 }
 
-// Services return the config for all services.
-func (c *Config) Services() ([]ServiceConfig, error) {
+// setupServices initialize all services for this config
+func (c *Config) setupServices() ([]ServiceConfig, error) {
 	serviceConfigs := make([]ServiceConfig, 0)
 	if marketplaceCompiled != "" {
 		marketplace, err := c.createServiceConfig("Marketplace", marketplaceCompiled, map[string]string{
@@ -46,18 +46,18 @@ func (c *Config) Services() ([]ServiceConfig, error) {
 		if err != nil {
 			return nil, err
 		}
-		serviceConfigs = append(serviceConfigs, marketplace)
+		c.SystemServices = append(c.SystemServices, marketplace)
 	}
 	return serviceConfigs, nil
 }
 
-func (c *Config) createServiceConfig(key string, compilatedJSON string, env map[string]string) (ServiceConfig, error) {
+func (c *Config) createServiceConfig(key string, compilatedJSON string, env map[string]string) (*ServiceConfig, error) {
 	var srv service.Service
 	if err := json.Unmarshal([]byte(compilatedJSON), &srv); err != nil {
-		return ServiceConfig{}, err
+		return nil, err
 	}
 	srv.Configuration.Key = service.MainServiceKey
-	return ServiceConfig{
+	return &ServiceConfig{
 		Key:        key,
 		Definition: &srv,
 		Env:        env,
