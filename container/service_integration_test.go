@@ -158,14 +158,3 @@ func TestIntegrationListServices(t *testing.T) {
 	require.Equal(t, 1, len(services))
 	require.Equal(t, c.Namespace([]string{"TestListServices"}), services[0].Spec.Name)
 }
-
-func TestIntegrationServiceLogs(t *testing.T) {
-	c, err := New()
-	require.NoError(t, err)
-	namespace := []string{"TestServiceLogs"}
-	startTestService(namespace)
-	defer c.StopService(namespace)
-	reader, err := c.ServiceLogs(namespace)
-	require.NoError(t, err)
-	require.NotNil(t, reader)
-}
