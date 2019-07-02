@@ -1,18 +1,10 @@
 package dockertest
 
 import (
-	"io"
-
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/events"
 	"github.com/docker/docker/api/types/swarm"
 )
-
-// serviceLogsResponse holds fake return values of *Client.ServiceLogs.
-type serviceLogsResponse struct {
-	rc  io.ReadCloser
-	err error
-}
 
 // serviceRemoveResponse holds fake return values of *Client.ServiceRemove.
 type serviceRemoveResponse struct {

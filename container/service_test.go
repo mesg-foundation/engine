@@ -1,8 +1,6 @@
 package container
 
 import (
-	"bytes"
-	"io/ioutil"
 	"testing"
 	"time"
 
@@ -252,31 +250,4 @@ func TestListServices(t *testing.T) {
 			Value: label,
 		}),
 	}, (<-dt.LastServiceList()).Options)
-}
-
-func TestServiceLogs(t *testing.T) {
-	namespace := []string{"namespace"}
-	data := []byte{1, 2}
-
-	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
-
-	dt.ProvideServiceLogs(ioutil.NopCloser(bytes.NewReader(data)), nil)
-
-	reader, err := c.ServiceLogs(namespace)
-	require.NoError(t, err)
-	defer reader.Close()
-
-	bytes, err := ioutil.ReadAll(reader)
-	require.NoError(t, err)
-	require.Equal(t, data, bytes)
-
-	ll := <-dt.LastServiceLogs()
-	require.Equal(t, c.Namespace(namespace), ll.ServiceID)
-	require.Equal(t, types.ContainerLogsOptions{
-		ShowStdout: true,
-		ShowStderr: true,
-		Timestamps: false,
-		Follow:     true,
-	}, ll.Options)
 }

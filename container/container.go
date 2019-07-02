@@ -3,7 +3,6 @@ package container
 import (
 	"context"
 	"errors"
-	"io"
 	"time"
 
 	"github.com/docker/docker/api/types"
@@ -28,7 +27,6 @@ type Container interface {
 	ListServices(labels ...string) ([]swarm.Service, error)
 	ListTasks(namespace []string) ([]swarm.Task, error)
 	Namespace(ss []string) string
-	ServiceLogs(namespace []string) (io.ReadCloser, error)
 	SharedNetworkID() (networkID string, err error)
 	StartService(options ServiceOptions) (serviceID string, err error)
 	Status(namespace []string) (StatusType, error)
