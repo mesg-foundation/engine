@@ -25,10 +25,7 @@ func (s *Server) Info(ctx context.Context, request *coreapi.InfoRequest) (*corea
 	if err != nil {
 		return nil, err
 	}
-	servicesFromConfig, err := c.Services()
-	if err != nil {
-		return nil, err
-	}
+	servicesFromConfig := c.SystemServices
 	services := make([]*coreapi.InfoReply_CoreService, len(servicesFromConfig))
 	for i, s := range servicesFromConfig {
 		services[i] = &coreapi.InfoReply_CoreService{
