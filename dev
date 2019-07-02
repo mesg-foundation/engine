@@ -19,51 +19,22 @@ LDFLAGS+=" -X 'github.com/mesg-foundation/engine/config.EnvMarketplaceToken=0x58
 
 MESG_SERVER_PORT=${MESG_SERVER_PORT:-50052}
 
-# if set to true the docker with system services will be started.
-MESG_SERVICE_SERVER_ON=${MESG_SERVICE_SERVER_ON:-true}
-MESG_SERVICE_SERVER="engine-service-server"
-
-
 networkExists=$(docker network list -f name=engine -f driver=overlay -q)
 if [ "$networkExists" == "" ]; then
   docker network create --driver overlay engine --label com.docker.stack.namespace=engine
 fi
 
-function deleteServiceServer {
-  rm -rf tmp-systemservices
-  if [ "$MESG_SERVICE_SERVER_ON" = true ]; then
-    if docker service list | grep -q engine-service-server; then
-      docker service rm $MESG_SERVICE_SERVER
-    fi
-  fi
-}
-
-deleteServiceServer
-mkdir -p tmp-systemservices
-for i in systemservices/* ; do
-  if [ -d "$i" ]; then
-    echo "Creating archive for $i..."
-    cd $i
-    file=$(basename "$i")
-    tar -czf ../../tmp-systemservices/$file.tar.gz --exclude-from=.dockerignore .
-    varname="$(tr '[:lower:]' '[:upper:]' <<< ${file:0:1})${file:1}"
-    LDFLAGS+=" -X 'github.com/mesg-foundation/engine/config.${varname}URL=http://$MESG_SERVICE_SERVER/$file.tar.gz'"
-    cd ../..
+# from scripts/build-engine.sh
+# upload system services
+for s in systemservices/* ; do
+  if [ -d "$s" ]; then
+    pushd $s > /dev/null
+    name=$(basename "$s")
+    varname="${name}"
+    LDFLAGS+=" -X 'github.com/mesg-foundation/engine/config.${varname}Compiled=$(cat compiled.json)'"
+    popd > /dev/null
   fi
 done
-echo "FROM nginx:alpine" >> tmp-systemservices/Dockerfile
-echo "COPY . /usr/share/nginx/html" >> tmp-systemservices/Dockerfile
-
-if [ "$MESG_SERVICE_SERVER_ON" = true ]; then
-  echo "set up system services server"
-  docker build tmp-systemservices -t $MESG_SERVICE_SERVER
-
-  docker service create -d \
-    -p 8080:8080 \
-    --name $MESG_SERVICE_SERVER \
-    --network engine \
-    $MESG_SERVICE_SERVER
-fi
 
 echo "compile engine"
 GOOS=linux GOARCH=amd64 go build -o ./bin/engine -ldflags="$LDFLAGS" core/main.go
@@ -105,7 +76,6 @@ fi
 trap onexit EXIT INT
 
 function onexit {
-  deleteServiceServer
   docker service rm $MESG_NAME
 }
 
