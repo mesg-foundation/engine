@@ -244,27 +244,6 @@ func TestServiceRemove(t *testing.T) {
 	require.Equal(t, serviceID, ll.ServiceID)
 }
 
-func TestServiceLogs(t *testing.T) {
-	serviceID := "1"
-	data := []byte{1, 2}
-	options := types.ContainerLogsOptions{ShowStdout: true}
-
-	dt := New()
-	dt.ProvideServiceLogs(ioutil.NopCloser(bytes.NewReader(data)), errGeneric)
-
-	rc, err := dt.Client().ServiceLogs(context.Background(), serviceID, options)
-	require.Equal(t, errGeneric, err)
-	defer rc.Close()
-
-	data1, err := ioutil.ReadAll(rc)
-	require.NoError(t, err)
-	require.Equal(t, data, data1)
-
-	ll := <-dt.LastServiceLogs()
-	require.Equal(t, serviceID, ll.ServiceID)
-	require.Equal(t, options, ll.Options)
-}
-
 func TestEvents(t *testing.T) {
 	dt := New()
 	msgC := make(chan events.Message)

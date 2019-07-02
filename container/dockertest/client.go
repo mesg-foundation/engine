@@ -42,7 +42,6 @@ type requests struct {
 	serviceList           chan ServiceListRequest
 	serviceInspectWithRaw chan ServiceInspectWithRawRequest
 	serviceRemove         chan ServiceRemoveRequest
-	serviceLogs           chan ServiceLogsRequest
 	events                chan EventsRequest
 }
 
@@ -62,7 +61,6 @@ type responses struct {
 	serviceList           chan serviceListResponse
 	serviceInspectWithRaw chan serviceInspectWithRawResponse
 	serviceRemove         chan serviceRemoveResponse
-	serviceLogs           chan serviceLogsResponse
 	containerInspect      chan containerInspectResponse
 	containerList         chan containerListResponse
 	containerStop         chan containerStopResponse
@@ -92,7 +90,6 @@ func newClient() *Client {
 			serviceList:           make(chan ServiceListRequest, 20),
 			serviceInspectWithRaw: make(chan ServiceInspectWithRawRequest, 20),
 			serviceRemove:         make(chan ServiceRemoveRequest, 20),
-			serviceLogs:           make(chan ServiceLogsRequest, 20),
 			events:                make(chan EventsRequest, 20),
 		},
 
@@ -108,7 +105,6 @@ func newClient() *Client {
 			serviceList:           make(chan serviceListResponse, 20),
 			serviceInspectWithRaw: make(chan serviceInspectWithRawResponse, 20),
 			serviceRemove:         make(chan serviceRemoveResponse, 20),
-			serviceLogs:           make(chan serviceLogsResponse, 20),
 			containerInspect:      make(chan containerInspectResponse, 20),
 			containerList:         make(chan containerListResponse, 20),
 			containerStop:         make(chan containerStopResponse, 20),
@@ -288,18 +284,6 @@ func (c *Client) ServiceRemove(ctx context.Context, serviceID string) error {
 		return resp.err
 	default:
 		return nil
-	}
-}
-
-// ServiceLogs is the mock version of the actual method.
-func (c *Client) ServiceLogs(ctx context.Context,
-	serviceID string, options types.ContainerLogsOptions) (io.ReadCloser, error) {
-	c.requests.serviceLogs <- ServiceLogsRequest{serviceID, options}
-	select {
-	case resp := <-c.responses.serviceLogs:
-		return resp.rc, resp.err
-	default:
-		return nil, nil
 	}
 }
 
