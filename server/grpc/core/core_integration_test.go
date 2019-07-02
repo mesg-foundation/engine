@@ -20,7 +20,9 @@ func TestInfo(t *testing.T) {
 	reply, err := server.Info(context.Background(), &coreapi.InfoRequest{})
 	require.NoError(t, err)
 	require.NotNil(t, reply)
+	services, err := c.Services()
+	require.NoError(t, err)
 	for i, s := range reply.Services {
-		require.Equal(t, s.Sid, c.Services()[i].Sid)
+		require.Equal(t, s.Sid, services[i].Definition.Sid)
 	}
 }

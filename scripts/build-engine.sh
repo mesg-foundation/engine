@@ -1,7 +1,5 @@
 #!/bin/bash -e
 
-MESG_SERVICE_SERVER=ipfs.app.mesg.com
-
 LDFLAGS="-X 'github.com/mesg-foundation/engine/version.Version=$version'"
 LDFLAGS+=" -X 'github.com/mesg-foundation/engine/config.EnvMarketplaceEndpoint=https://mainnet.infura.io/v3/7690bc6d35e140d2be4e771a1237f636'"
 LDFLAGS+=" -X 'github.com/mesg-foundation/engine/config.EnvMarketplaceAddress=0x0C6e8d0eC4770fDa8A56CD912392d2ff14822952'"
@@ -13,14 +11,8 @@ for s in systemservices/* ; do
     pushd $s > /dev/null
     name=$(basename "$s")
     varname="${name^}"
-    archive="$name.tar.gz"
-
-    id=$(
-      tar -czf - --exclude-from=.dockerignore . |
-      curl -s -F "file=@-;filename=${archive}" http://$MESG_SERVICE_SERVER:5001/api/v0/add |
-      jq -r .Hash
-    )
-    LDFLAGS+=" -X 'github.com/mesg-foundation/engine/config.${varname}URL=http://$MESG_SERVICE_SERVER:8080/ipfs/$id'"
+    mesg-cli service:compile | jq -c . > compiled.json
+    LDFLAGS+=" -X 'github.com/mesg-foundation/engine/config.${varname}Compiled=$(cat compiled.json)'"
     popd > /dev/null
   fi
 done
