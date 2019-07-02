@@ -12,7 +12,7 @@ func TestSharedNetwork(t *testing.T) {
 	id := "id"
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	// discard network requests made from New.
 	<-dt.LastNetworkInspect()
@@ -25,13 +25,13 @@ func TestSharedNetwork(t *testing.T) {
 	require.Equal(t, id, network.ID)
 
 	li := <-dt.LastNetworkInspect()
-	require.Equal(t, c.Namespace([]string{}), li.Network)
+	require.Equal(t, c.Namespace(""), li.Network)
 	require.Equal(t, types.NetworkInspectOptions{}, li.Options)
 }
 
 func TestCreateSharedNetworkIfNeeded(t *testing.T) {
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	// discard network requests made from New.
 	<-dt.LastNetworkInspect()
@@ -42,12 +42,12 @@ func TestCreateSharedNetworkIfNeeded(t *testing.T) {
 	require.Nil(t, c.createSharedNetworkIfNeeded())
 
 	lc := <-dt.LastNetworkCreate()
-	require.Equal(t, c.Namespace([]string{}), lc.Name)
+	require.Equal(t, c.Namespace(""), lc.Name)
 	require.Equal(t, types.NetworkCreate{
 		CheckDuplicate: true,
 		Driver:         "overlay",
 		Labels: map[string]string{
-			"com.docker.stack.namespace": c.Namespace([]string{}),
+			"com.docker.stack.namespace": c.Namespace(""),
 		},
 	}, lc.Options)
 }
@@ -56,7 +56,7 @@ func TestCreateSharedNetworkIfNeededExists(t *testing.T) {
 	id := "id"
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	// discard network requests made from New.
 	<-dt.LastNetworkInspect()
@@ -76,7 +76,7 @@ func TestCreateSharedNetworkIfNeededExists(t *testing.T) {
 func TestSharedNetworkID(t *testing.T) {
 	id := "1"
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	// discard network requests made from New.
 	<-dt.LastNetworkInspect()
@@ -89,6 +89,6 @@ func TestSharedNetworkID(t *testing.T) {
 	require.Equal(t, network, id)
 
 	li := <-dt.LastNetworkInspect()
-	require.Equal(t, c.Namespace([]string{}), li.Network)
+	require.Equal(t, c.Namespace(""), li.Network)
 	require.Equal(t, types.NetworkInspectOptions{}, li.Options)
 }
