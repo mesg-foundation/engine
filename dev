@@ -19,9 +19,9 @@ LDFLAGS+=" -X 'github.com/mesg-foundation/engine/config.EnvMarketplaceToken=0x58
 
 MESG_SERVER_PORT=${MESG_SERVER_PORT:-50052}
 
-networkExists=$(docker network list -f name=engine -f driver=overlay -q)
+networkExists=$(docker network list -f name=$MESG_NAME -f driver=overlay -q)
 if [ "$networkExists" == "" ]; then
-  docker network create --driver overlay engine --label com.docker.stack.namespace=engine
+  docker network create --driver overlay $MESG_NAME --label com.docker.stack.namespace=$MESG_NAME
 fi
 
 # from scripts/build-engine.sh
@@ -82,13 +82,13 @@ function onexit {
 docker service create \
   --name $MESG_NAME \
   --tty \
-  --label com.docker.stack.namespace=engine --label com.docker.stack.image=mesg/engine:$VERSION \
+  --label com.docker.stack.namespace=$MESG_NAME --label com.docker.stack.image=mesg/engine:$VERSION \
   --env MESG_NAME=$MESG_NAME \
   --env MESG_LOG_FORMAT=$MESG_LOG_FORMAT \
   --env MESG_LOG_FORCECOLORS=$MESG_LOG_FORCECOLORS \
   --env MESG_LOG_LEVEL=$MESG_LOG_LEVEL \
   --mount type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock --mount type=bind,source=$MESG_PATH,destination=/root/.mesg \
-  --network engine --publish $MESG_SERVER_PORT:50052 \
+  --network $MESG_NAME --publish $MESG_SERVER_PORT:50052 \
   mesg/engine:$VERSION
 
 docker service logs --follow --raw $MESG_NAME
