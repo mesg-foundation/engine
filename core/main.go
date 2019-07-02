@@ -72,11 +72,7 @@ func initDependencies() (*dependencies, error) {
 }
 
 func deployCoreServices(config *config.Config, sdk *sdk.SDK) error {
-	services, err := config.Services()
-	if err != nil {
-		return err
-	}
-	for _, serviceConfig := range services {
+	for _, serviceConfig := range config.SystemServices {
 		logrus.Infof("Deploying service %q", serviceConfig.Definition.Sid)
 		srv, err := sdk.Service.Create(serviceConfig.Definition)
 		if err != nil {
