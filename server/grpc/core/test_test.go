@@ -41,7 +41,7 @@ func newServerWithContainer(t *testing.T, c container.Container) (*Server, func(
 }
 
 func newServer(t *testing.T) (*Server, func()) {
-	c, err := container.New()
+	c, err := container.New("enginetest")
 	require.NoError(t, err)
 	return newServerWithContainer(t, c)
 }
