@@ -107,5 +107,5 @@ type AlreadyExistsError struct {
 }
 
 func (e *AlreadyExistsError) Error() string {
-	return fmt.Sprintf("service already exists")
+	return fmt.Sprintf("service %q already exists", e.Hash.ToString())
 }
