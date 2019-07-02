@@ -5,14 +5,14 @@ import (
 	"testing"
 
 	"github.com/cskr/pubsub"
-	"github.com/mesg-foundation/core/container/mocks"
-	"github.com/mesg-foundation/core/database"
-	"github.com/mesg-foundation/core/execution"
-	"github.com/mesg-foundation/core/hash"
-	"github.com/mesg-foundation/core/instance"
-	instancesdk "github.com/mesg-foundation/core/sdk/instance"
-	servicesdk "github.com/mesg-foundation/core/sdk/service"
-	"github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/engine/container/mocks"
+	"github.com/mesg-foundation/engine/database"
+	"github.com/mesg-foundation/engine/execution"
+	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/instance"
+	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
+	servicesdk "github.com/mesg-foundation/engine/sdk/service"
+	"github.com/mesg-foundation/engine/service"
 	"github.com/stretchr/testify/require"
 )
 

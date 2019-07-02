@@ -6,13 +6,13 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/mesg-foundation/core/execution"
-	"github.com/mesg-foundation/core/hash"
-	"github.com/mesg-foundation/core/protobuf/acknowledgement"
-	"github.com/mesg-foundation/core/protobuf/api"
-	"github.com/mesg-foundation/core/protobuf/types"
-	"github.com/mesg-foundation/core/sdk"
-	executionsdk "github.com/mesg-foundation/core/sdk/execution"
+	"github.com/mesg-foundation/engine/execution"
+	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
+	"github.com/mesg-foundation/engine/protobuf/api"
+	"github.com/mesg-foundation/engine/protobuf/types"
+	"github.com/mesg-foundation/engine/sdk"
+	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
 )
 
 // ErrNoOutput is an error when there is no output for updating execution.

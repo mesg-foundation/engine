@@ -6,8 +6,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/mesg-foundation/core/config"
-	"github.com/mesg-foundation/core/protobuf/coreapi"
+	"github.com/mesg-foundation/engine/config"
+	"github.com/mesg-foundation/engine/protobuf/coreapi"
 	"github.com/stretchr/testify/require"
 )
 

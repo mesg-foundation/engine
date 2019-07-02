@@ -1,7 +1,7 @@
 package execution
 
 import (
-	"github.com/mesg-foundation/core/hash"
+	"github.com/mesg-foundation/engine/hash"
 )
 
 // Status stores the state of an execution

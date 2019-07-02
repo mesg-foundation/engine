@@ -3,12 +3,12 @@ package api
 import (
 	"context"
 
-	"github.com/mesg-foundation/core/hash"
-	"github.com/mesg-foundation/core/instance"
-	protobuf_api "github.com/mesg-foundation/core/protobuf/api"
-	"github.com/mesg-foundation/core/protobuf/types"
-	"github.com/mesg-foundation/core/sdk"
-	instancesdk "github.com/mesg-foundation/core/sdk/instance"
+	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/instance"
+	protobuf_api "github.com/mesg-foundation/engine/protobuf/api"
+	"github.com/mesg-foundation/engine/protobuf/types"
+	"github.com/mesg-foundation/engine/sdk"
+	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 )
 
 // InstanceServer is the type to aggregate all Instance APIs.

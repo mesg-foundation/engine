@@ -15,7 +15,7 @@ export default (
 ) => async (inputs: TaskInputs): Promise<object> => {
   // check inputs
   const sid = inputs.service.definition.sid
-  assert.ok(sid.length >= 1 && sid.length <= 63, 'sid\'s length must be 1 at min and 63 at max') // See Core service validation (https://github.com/mesg-foundation/core)
+  assert.ok(sid.length >= 1 && sid.length <= 63, 'sid\'s length must be 1 at min and 63 at max') // See Engine service validation (https://github.com/mesg-foundation/engine)
   assert.ok(isDomainName(sid), 'sid must respect domain-style notation, eg author.name')
 
   if (await isServiceExist(marketplace, sid)) {
