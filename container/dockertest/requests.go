@@ -35,12 +35,6 @@ type ServiceInspectWithRawRequest struct {
 	Options   types.ServiceInspectOptions
 }
 
-// ServiceLogsRequest holds call arguments of *Client.ServiceLogs.
-type ServiceLogsRequest struct {
-	ServiceID string
-	Options   types.ContainerLogsOptions
-}
-
 // NegotiateAPIVersionRequest holds call arguments of *Client.NegotiateAPIVersion.
 type NegotiateAPIVersionRequest struct {
 }

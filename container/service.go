@@ -2,7 +2,6 @@ package container
 
 import (
 	"context"
-	"io"
 	"time"
 
 	"github.com/docker/docker/api/types"
@@ -105,16 +104,4 @@ func (c *DockerContainer) deletePendingContainer(namespace []string, maxGraceTim
 	}
 	time.Sleep(1 * time.Second)
 	return c.deletePendingContainer(namespace, maxGraceTime)
-}
-
-// ServiceLogs returns the logs of a service.
-func (c *DockerContainer) ServiceLogs(namespace []string) (io.ReadCloser, error) {
-	return c.client.ServiceLogs(context.Background(), c.Namespace(namespace),
-		types.ContainerLogsOptions{
-			ShowStdout: true,
-			ShowStderr: true,
-			Timestamps: false,
-			Follow:     true,
-		},
-	)
 }
