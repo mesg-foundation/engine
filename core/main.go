@@ -2,14 +2,20 @@ package main
 
 import (
 	"path/filepath"
+	"sync"
 
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/database"
+	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/logger"
 	"github.com/mesg-foundation/engine/sdk"
+	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
+	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	"github.com/mesg-foundation/engine/server/grpc"
 	"github.com/mesg-foundation/engine/version"
+	"github.com/mesg-foundation/engine/x/xerrors"
+	"github.com/mesg-foundation/engine/x/xos"
 	"github.com/mesg-foundation/engine/x/xsignal"
 	"github.com/sirupsen/logrus"
 )
@@ -65,54 +71,72 @@ func initDependencies() (*dependencies, error) {
 	}, nil
 }
 
-// func deployCoreServices(config *config.Config, sdk *sdk.SDK) error {
-// 	for _, service := range config.Services() {
-// 		logrus.Infof("Deploying service %q from %q", service.Key, service.URL)
-// 		s, valid, err := sdk.DeployServiceFromURL(service.URL, service.Env)
-// 		if valid != nil {
-// 			return valid
-// 		}
-// 		if err != nil {
-// 			return err
-// 		}
-// 		service.Sid = s.Sid
-// 		service.Hash = s.Hash
-// 		logrus.Infof("Service %q deployed with hash %q", service.Key, service.Hash)
-// 		if err := sdk.StartService(s.Hash); err != nil {
-// 			return err
-// 		}
-// 	}
-// 	return nil
-// }
+func deployCoreServices(config *config.Config, sdk *sdk.SDK) error {
+	services, err := config.Services()
+	if err != nil {
+		return err
+	}
+	for _, serviceConfig := range services {
+		logrus.Infof("Deploying service %q", serviceConfig.Definition.Sid)
+		srv, err := sdk.Service.Create(serviceConfig.Definition)
+		if err != nil {
+			existsError, ok := err.(*servicesdk.AlreadyExistsError)
+			if ok {
+				srv, err = sdk.Service.Get(existsError.Hash)
+				if err != nil {
+					return err
+				}
+			} else {
+				return err
+			}
+		}
+		logrus.Infof("Service %q deployed with hash %q", srv.Sid, srv.Hash)
+		instance, err := sdk.Instance.Create(srv.Hash, xos.EnvMapToSlice(serviceConfig.Env))
+		if err != nil {
+			existsError, ok := err.(*instancesdk.AlreadyExistsError)
+			if ok {
+				instance, err = sdk.Instance.Get(existsError.Hash)
+				if err != nil {
+					return err
+				}
+			} else {
+				return err
+			}
+		}
+		serviceConfig.Instance = instance
+		logrus.Infof("Instance started with hash %q", instance.Hash)
+	}
+	return nil
+}
 
-// func stopRunningServices(sdk *sdk.SDK) error {
-// 	services, err := sdk.ListServices()
-// 	if err != nil {
-// 		return err
-// 	}
-// 	var (
-// 		serviceLen = len(services)
-// 		errC       = make(chan error, serviceLen)
-// 		wg         sync.WaitGroup
-// 	)
-// 	wg.Add(serviceLen)
-// 	for _, service := range services {
-// 		go func(hash hash.Hash) {
-// 			defer wg.Done()
-// 			err := sdk.StopService(hash)
-// 			if err != nil {
-// 				errC <- err
-// 			}
-// 		}(service.Hash)
-// 	}
-// 	wg.Wait()
-// 	close(errC)
-// 	var errs xerrors.Errors
-// 	for err := range errC {
-// 		errs = append(errs, err)
-// 	}
-// 	return errs.ErrorOrNil()
-// }
+func stopRunningServices(sdk *sdk.SDK) error {
+	instances, err := sdk.Instance.List(&instancesdk.Filter{})
+	if err != nil {
+		return err
+	}
+	var (
+		instancesLen = len(instances)
+		errC         = make(chan error, instancesLen)
+		wg           sync.WaitGroup
+	)
+	wg.Add(instancesLen)
+	for _, instance := range instances {
+		go func(hash hash.Hash) {
+			defer wg.Done()
+			err := sdk.Instance.Delete(hash, false)
+			if err != nil {
+				errC <- err
+			}
+		}(instance.Hash)
+	}
+	wg.Wait()
+	close(errC)
+	var errs xerrors.Errors
+	for err := range errC {
+		errs = append(errs, err)
+	}
+	return errs.ErrorOrNil()
+}
 
 func main() {
 	dep, err := initDependencies()
@@ -124,9 +148,9 @@ func main() {
 	logger.Init(dep.config.Log.Format, dep.config.Log.Level, dep.config.Log.ForceColors)
 
 	// init system services.
-	// if err := deployCoreServices(dep.config, dep.sdk); err != nil {
-	// 	logrus.Fatalln(err)
-	// }
+	if err := deployCoreServices(dep.config, dep.sdk); err != nil {
+		logrus.Fatalln(err)
+	}
 
 	// init gRPC server.
 	server := grpc.New(dep.sdk)
@@ -140,8 +164,8 @@ func main() {
 	}()
 
 	<-xsignal.WaitForInterrupt()
-	// if err := stopRunningServices(dep.sdk); err != nil {
-	// 	logrus.Fatalln(err)
-	// }
+	if err := stopRunningServices(dep.sdk); err != nil {
+		logrus.Fatalln(err)
+	}
 	server.Close()
 }
