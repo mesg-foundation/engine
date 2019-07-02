@@ -13,7 +13,7 @@ import (
 // ServiceOptions is a simplify version of swarm.ServiceSpec.
 type ServiceOptions struct {
 	Image           string
-	Namespace       []string
+	Namespace       string
 	Ports           []Port
 	Mounts          []Mount
 	Env             []string // TODO: should be transform to  map[string]string and use the func mapToEnv

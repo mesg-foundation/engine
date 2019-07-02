@@ -10,13 +10,13 @@ import (
 )
 
 // instanceNamespace returns the namespace of the service.
-func instanceNamespace(hash hash.Hash) []string {
-	return []string{hash.String()}
+func instanceNamespace(hash hash.Hash) string {
+	return hash.String()
 }
 
 // dependencyNamespace builds the namespace of a dependency.
-func dependencyNamespace(instanceNamespace []string, dependencyKey string) []string {
-	return append(instanceNamespace, dependencyKey)
+func dependencyNamespace(instanceNamespace string, dependencyKey string) string {
+	return hash.Dump(instanceNamespace + dependencyKey).String()
 }
 
 func extractPorts(d *service.Dependency) []container.Port {

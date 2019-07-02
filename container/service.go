@@ -27,7 +27,7 @@ func (c *DockerContainer) ListServices(labels ...string) ([]swarm.Service, error
 }
 
 // FindService returns the Docker Service or an error if not found.
-func (c *DockerContainer) FindService(namespace []string) (swarm.Service, error) {
+func (c *DockerContainer) FindService(namespace string) (swarm.Service, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
 	service, _, err := c.client.ServiceInspectWithRaw(ctx, c.Namespace(namespace),
@@ -58,7 +58,7 @@ func (c *DockerContainer) StartService(options ServiceOptions) (serviceID string
 }
 
 // StopService stops a docker service.
-func (c *DockerContainer) StopService(namespace []string) error {
+func (c *DockerContainer) StopService(namespace string) error {
 	status, err := c.Status(namespace)
 	if err != nil {
 		return err
@@ -85,7 +85,7 @@ func (c *DockerContainer) StopService(namespace []string) error {
 	return c.waitForStatus(namespace, STOPPED)
 }
 
-func (c *DockerContainer) deletePendingContainer(namespace []string, maxGraceTime time.Time) error {
+func (c *DockerContainer) deletePendingContainer(namespace string, maxGraceTime time.Time) error {
 	container, err := c.FindContainer(namespace)
 	if docker.IsErrNotFound(err) {
 		return nil

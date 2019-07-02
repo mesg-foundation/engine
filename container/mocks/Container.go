@@ -34,18 +34,18 @@ func (_m *Container) Build(path string) (string, error) {
 }
 
 // CreateNetwork provides a mock function with given fields: namespace
-func (_m *Container) CreateNetwork(namespace []string) (string, error) {
+func (_m *Container) CreateNetwork(namespace string) (string, error) {
 	ret := _m.Called(namespace)
 
 	var r0 string
-	if rf, ok := ret.Get(0).(func([]string) string); ok {
+	if rf, ok := ret.Get(0).(func(string) string); ok {
 		r0 = rf(namespace)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func([]string) error); ok {
+	if rf, ok := ret.Get(1).(func(string) error); ok {
 		r1 = rf(namespace)
 	} else {
 		r1 = ret.Error(1)
@@ -55,11 +55,11 @@ func (_m *Container) CreateNetwork(namespace []string) (string, error) {
 }
 
 // DeleteNetwork provides a mock function with given fields: namespace
-func (_m *Container) DeleteNetwork(namespace []string) error {
+func (_m *Container) DeleteNetwork(namespace string) error {
 	ret := _m.Called(namespace)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func([]string) error); ok {
+	if rf, ok := ret.Get(0).(func(string) error); ok {
 		r0 = rf(namespace)
 	} else {
 		r0 = ret.Error(0)
@@ -83,18 +83,18 @@ func (_m *Container) DeleteVolume(name string) error {
 }
 
 // FindContainer provides a mock function with given fields: namespace
-func (_m *Container) FindContainer(namespace []string) (types.ContainerJSON, error) {
+func (_m *Container) FindContainer(namespace string) (types.ContainerJSON, error) {
 	ret := _m.Called(namespace)
 
 	var r0 types.ContainerJSON
-	if rf, ok := ret.Get(0).(func([]string) types.ContainerJSON); ok {
+	if rf, ok := ret.Get(0).(func(string) types.ContainerJSON); ok {
 		r0 = rf(namespace)
 	} else {
 		r0 = ret.Get(0).(types.ContainerJSON)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func([]string) error); ok {
+	if rf, ok := ret.Get(1).(func(string) error); ok {
 		r1 = rf(namespace)
 	} else {
 		r1 = ret.Error(1)
@@ -104,18 +104,18 @@ func (_m *Container) FindContainer(namespace []string) (types.ContainerJSON, err
 }
 
 // FindNetwork provides a mock function with given fields: namespace
-func (_m *Container) FindNetwork(namespace []string) (types.NetworkResource, error) {
+func (_m *Container) FindNetwork(namespace string) (types.NetworkResource, error) {
 	ret := _m.Called(namespace)
 
 	var r0 types.NetworkResource
-	if rf, ok := ret.Get(0).(func([]string) types.NetworkResource); ok {
+	if rf, ok := ret.Get(0).(func(string) types.NetworkResource); ok {
 		r0 = rf(namespace)
 	} else {
 		r0 = ret.Get(0).(types.NetworkResource)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func([]string) error); ok {
+	if rf, ok := ret.Get(1).(func(string) error); ok {
 		r1 = rf(namespace)
 	} else {
 		r1 = ret.Error(1)
@@ -125,18 +125,18 @@ func (_m *Container) FindNetwork(namespace []string) (types.NetworkResource, err
 }
 
 // FindService provides a mock function with given fields: namespace
-func (_m *Container) FindService(namespace []string) (swarm.Service, error) {
+func (_m *Container) FindService(namespace string) (swarm.Service, error) {
 	ret := _m.Called(namespace)
 
 	var r0 swarm.Service
-	if rf, ok := ret.Get(0).(func([]string) swarm.Service); ok {
+	if rf, ok := ret.Get(0).(func(string) swarm.Service); ok {
 		r0 = rf(namespace)
 	} else {
 		r0 = ret.Get(0).(swarm.Service)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func([]string) error); ok {
+	if rf, ok := ret.Get(1).(func(string) error); ok {
 		r1 = rf(namespace)
 	} else {
 		r1 = ret.Error(1)
@@ -175,11 +175,11 @@ func (_m *Container) ListServices(labels ...string) ([]swarm.Service, error) {
 }
 
 // ListTasks provides a mock function with given fields: namespace
-func (_m *Container) ListTasks(namespace []string) ([]swarm.Task, error) {
+func (_m *Container) ListTasks(namespace string) ([]swarm.Task, error) {
 	ret := _m.Called(namespace)
 
 	var r0 []swarm.Task
-	if rf, ok := ret.Get(0).(func([]string) []swarm.Task); ok {
+	if rf, ok := ret.Get(0).(func(string) []swarm.Task); ok {
 		r0 = rf(namespace)
 	} else {
 		if ret.Get(0) != nil {
@@ -188,7 +188,7 @@ func (_m *Container) ListTasks(namespace []string) ([]swarm.Task, error) {
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func([]string) error); ok {
+	if rf, ok := ret.Get(1).(func(string) error); ok {
 		r1 = rf(namespace)
 	} else {
 		r1 = ret.Error(1)
@@ -197,13 +197,13 @@ func (_m *Container) ListTasks(namespace []string) ([]swarm.Task, error) {
 	return r0, r1
 }
 
-// Namespace provides a mock function with given fields: ss
-func (_m *Container) Namespace(ss []string) string {
-	ret := _m.Called(ss)
+// Namespace provides a mock function with given fields: namespace
+func (_m *Container) Namespace(namespace string) string {
+	ret := _m.Called(namespace)
 
 	var r0 string
-	if rf, ok := ret.Get(0).(func([]string) string); ok {
-		r0 = rf(ss)
+	if rf, ok := ret.Get(0).(func(string) string); ok {
+		r0 = rf(namespace)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
@@ -254,18 +254,18 @@ func (_m *Container) StartService(options container.ServiceOptions) (string, err
 }
 
 // Status provides a mock function with given fields: namespace
-func (_m *Container) Status(namespace []string) (container.StatusType, error) {
+func (_m *Container) Status(namespace string) (container.StatusType, error) {
 	ret := _m.Called(namespace)
 
 	var r0 container.StatusType
-	if rf, ok := ret.Get(0).(func([]string) container.StatusType); ok {
+	if rf, ok := ret.Get(0).(func(string) container.StatusType); ok {
 		r0 = rf(namespace)
 	} else {
 		r0 = ret.Get(0).(container.StatusType)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func([]string) error); ok {
+	if rf, ok := ret.Get(1).(func(string) error); ok {
 		r1 = rf(namespace)
 	} else {
 		r1 = ret.Error(1)
@@ -275,11 +275,11 @@ func (_m *Container) Status(namespace []string) (container.StatusType, error) {
 }
 
 // StopService provides a mock function with given fields: namespace
-func (_m *Container) StopService(namespace []string) error {
+func (_m *Container) StopService(namespace string) error {
 	ret := _m.Called(namespace)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func([]string) error); ok {
+	if rf, ok := ret.Get(0).(func(string) error); ok {
 		r0 = rf(namespace)
 	} else {
 		r0 = ret.Error(0)
@@ -289,11 +289,11 @@ func (_m *Container) StopService(namespace []string) error {
 }
 
 // TasksError provides a mock function with given fields: namespace
-func (_m *Container) TasksError(namespace []string) ([]string, error) {
+func (_m *Container) TasksError(namespace string) ([]string, error) {
 	ret := _m.Called(namespace)
 
 	var r0 []string
-	if rf, ok := ret.Get(0).(func([]string) []string); ok {
+	if rf, ok := ret.Get(0).(func(string) []string); ok {
 		r0 = rf(namespace)
 	} else {
 		if ret.Get(0) != nil {
@@ -302,7 +302,7 @@ func (_m *Container) TasksError(namespace []string) ([]string, error) {
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func([]string) error); ok {
+	if rf, ok := ret.Get(1).(func(string) error); ok {
 		r1 = rf(namespace)
 	} else {
 		r1 = ret.Error(1)

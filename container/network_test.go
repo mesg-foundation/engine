@@ -10,11 +10,11 @@ import (
 )
 
 func TestCreateNetwork(t *testing.T) {
-	namespace := []string{"namespace"}
+	namespace := "namespace"
 	id := "id"
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	// discard network requests made from New.
 	<-dt.LastNetworkInspect()
@@ -39,11 +39,11 @@ func TestCreateNetwork(t *testing.T) {
 }
 
 func TestCreateAlreadyExistingNetwork(t *testing.T) {
-	namespace := []string{"namespace"}
+	namespace := "namespace"
 	id := "id"
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	// discard network requests made from New.
 	<-dt.LastNetworkInspect()
@@ -67,11 +67,11 @@ func TestCreateAlreadyExistingNetwork(t *testing.T) {
 }
 
 func TestDeleteNetwork(t *testing.T) {
-	namespace := []string{"namespace"}
+	namespace := "namespace"
 	id := "id"
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	// discard network requests made from New.
 	<-dt.LastNetworkInspect()
@@ -80,7 +80,7 @@ func TestDeleteNetwork(t *testing.T) {
 	dt.ProvideNetworkInspect(types.NetworkResource{ID: id}, nil)
 	dt.ProvideNetworkInspect(types.NetworkResource{}, dockertest.NotFoundErr{})
 
-	require.Nil(t, c.DeleteNetwork(namespace))
+	require.Zero(t, c.DeleteNetwork(namespace))
 
 	li := <-dt.LastNetworkInspect()
 	require.Equal(t, c.Namespace(namespace), li.Network)
@@ -90,10 +90,10 @@ func TestDeleteNetwork(t *testing.T) {
 }
 
 func TestDeleteNotExistingNetwork(t *testing.T) {
-	namespace := []string{"namespace"}
+	namespace := "namespace"
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	// discard network requests made from New.
 	<-dt.LastNetworkInspect()
@@ -113,10 +113,10 @@ func TestDeleteNotExistingNetwork(t *testing.T) {
 var errNetworkDelete = errors.New("network delete")
 
 func TestDeleteNetworkError(t *testing.T) {
-	namespace := []string{"namespace"}
+	namespace := "namespace"
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	// discard network requests made from New.
 	<-dt.LastNetworkInspect()
@@ -128,11 +128,11 @@ func TestDeleteNetworkError(t *testing.T) {
 }
 
 func TestFindNetwork(t *testing.T) {
-	namespace := []string{"namespace"}
+	namespace := "namespace"
 	id := "id"
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	// discard network requests made from New.
 	<-dt.LastNetworkInspect()
@@ -150,10 +150,10 @@ func TestFindNetwork(t *testing.T) {
 }
 
 func TestFindNotExistingNetwork(t *testing.T) {
-	namespace := []string{"namespace"}
+	namespace := "namespace"
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	// discard network requests made from New.
 	<-dt.LastNetworkInspect()

@@ -26,7 +26,7 @@ func (i *Instance) stop(inst *instance.Instance) error {
 			continue
 		}
 		wg.Add(1)
-		go func(namespace []string) {
+		go func(namespace string) {
 			defer wg.Done()
 			if err := i.container.StopService(namespace); err != nil {
 				errs.Append(err)
