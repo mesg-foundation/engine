@@ -211,32 +211,6 @@ func (_m *Container) Namespace(namespace string) string {
 	return r0
 }
 
-<<<<<<< HEAD
-// ServiceLogs provides a mock function with given fields: namespace
-func (_m *Container) ServiceLogs(namespace string) (io.ReadCloser, error) {
-	ret := _m.Called(namespace)
-
-	var r0 io.ReadCloser
-	if rf, ok := ret.Get(0).(func(string) io.ReadCloser); ok {
-		r0 = rf(namespace)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(io.ReadCloser)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(namespace)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-=======
->>>>>>> dev
 // SharedNetworkID provides a mock function with given fields:
 func (_m *Container) SharedNetworkID() (string, error) {
 	ret := _m.Called()
