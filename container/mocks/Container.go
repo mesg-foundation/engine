@@ -3,7 +3,6 @@
 package mocks
 
 import container "github.com/mesg-foundation/engine/container"
-import io "io"
 import mock "github.com/stretchr/testify/mock"
 import swarm "github.com/docker/docker/api/types/swarm"
 import types "github.com/docker/docker/api/types"
@@ -212,6 +211,7 @@ func (_m *Container) Namespace(namespace string) string {
 	return r0
 }
 
+<<<<<<< HEAD
 // ServiceLogs provides a mock function with given fields: namespace
 func (_m *Container) ServiceLogs(namespace string) (io.ReadCloser, error) {
 	ret := _m.Called(namespace)
@@ -235,6 +235,8 @@ func (_m *Container) ServiceLogs(namespace string) (io.ReadCloser, error) {
 	return r0, r1
 }
 
+=======
+>>>>>>> dev
 // SharedNetworkID provides a mock function with given fields:
 func (_m *Container) SharedNetworkID() (string, error) {
 	ret := _m.Called()
