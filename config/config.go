@@ -45,6 +45,8 @@ type Config struct {
 		InstanceRelativePath  string
 		ExecutionRelativePath string
 	}
+
+	SystemServices []*ServiceConfig
 }
 
 // New creates a new config with default values.
@@ -64,6 +66,7 @@ func New() (*Config, error) {
 	c.Database.ServiceRelativePath = filepath.Join("database", "services", serviceDBVersion)
 	c.Database.InstanceRelativePath = filepath.Join("database", "instance", instanceDBVersion)
 	c.Database.ExecutionRelativePath = filepath.Join("database", "executions", executionDBVersion)
+	c.setupServices()
 	return &c, nil
 }
 
