@@ -5,7 +5,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/mesg-foundation/engine/client/service"
+	"github.com/mesg-foundation/engine/systemservices/ethwallet/client"
 )
 
 type importFromPrivateKeyInputs struct {
@@ -17,9 +17,9 @@ type importFromPrivateKeyOutputSuccess struct {
 	Address common.Address `json:"address"`
 }
 
-func (s *Ethwallet) importFromPrivateKey(execution *service.Execution) (interface{}, error) {
+func (s *Ethwallet) importFromPrivateKey(input []byte) ([]byte, error) {
 	var inputs importFromPrivateKeyInputs
-	if err := execution.Data(&inputs); err != nil {
+	if err := client.Unmarshal(input, &inputs); err != nil {
 		return nil, err
 	}
 
@@ -33,7 +33,7 @@ func (s *Ethwallet) importFromPrivateKey(execution *service.Execution) (interfac
 		return nil, err
 	}
 
-	return importOutputSuccess{
+	return client.Marshal(importOutputSuccess{
 		Address: account.Address,
-	}, nil
+	})
 }
