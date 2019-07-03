@@ -24,8 +24,6 @@ if [ "$networkExists" == "" ]; then
   docker network create --driver overlay $MESG_NAME --label com.docker.stack.namespace=$MESG_NAME
 fi
 
-# from scripts/build-engine.sh
-# upload system services
 for s in systemservices/* ; do
   if [ -d "$s" ]; then
     pushd $s > /dev/null
