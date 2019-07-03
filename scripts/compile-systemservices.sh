@@ -7,7 +7,6 @@ for s in systemservices/* ; do
     name=$(basename "$s")
     varname="${name}"
     mesg-cli service:compile | jq -c . > compiled.json
-    # LDFLAGS+=" -X 'github.com/mesg-foundation/engine/config.${varname}Compiled=$(cat compiled.json)'"
     popd > /dev/null
   fi
 done
