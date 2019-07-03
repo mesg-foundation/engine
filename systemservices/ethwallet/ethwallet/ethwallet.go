@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/ethereum/go-ethereum/accounts/keystore"
-	"github.com/mesg-foundation/engine/client/service"
+	"github.com/mesg-foundation/engine/systemservices/ethwallet/client"
 )
 
 const (
@@ -13,34 +13,33 @@ const (
 
 // Ethwallet is a Ethereum Wallet
 type Ethwallet struct {
-	service  *service.Service
+	client   *client.Client
 	keystore *keystore.KeyStore
 }
 
 // New creates a new instance of EthWallet
 func New() (*Ethwallet, error) {
-	service, err := service.New()
+	client, err := client.New()
 	if err != nil {
 		return nil, err
 	}
 
-	ks := keystore.NewKeyStore(os.Getenv(keystoreEnv), keystore.StandardScryptN, keystore.StandardScryptP)
-
+	keystore := keystore.NewKeyStore(os.Getenv(keystoreEnv), keystore.StandardScryptN, keystore.StandardScryptP)
 	return &Ethwallet{
-		service:  service,
-		keystore: ks,
+		client:   client,
+		keystore: keystore,
 	}, nil
 }
 
 // Listen listens for tasks from MESG
-func (ethwallet *Ethwallet) Listen() error {
-	return ethwallet.service.Listen(
-		service.Task("list", ethwallet.list),
-		service.Task("create", ethwallet.create),
-		service.Task("delete", ethwallet.delete),
-		service.Task("export", ethwallet.export),
-		service.Task("import", ethwallet.importA),
-		service.Task("sign", ethwallet.sign),
-		service.Task("importFromPrivateKey", ethwallet.importFromPrivateKey),
-	)
+func (e *Ethwallet) Listen() error {
+	t := e.client.TaskRunner()
+	t.Add("list", e.list)
+	t.Add("create", e.create)
+	t.Add("delete", e.delete)
+	t.Add("export", e.export)
+	t.Add("import", e.importA)
+	t.Add("sign", e.sign)
+	t.Add("importFromPrivateKey", e.importFromPrivateKey)
+	return t.Run()
 }
