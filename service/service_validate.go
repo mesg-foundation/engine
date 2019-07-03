@@ -19,6 +19,9 @@ var validate, translator = newValidator()
 
 // ValidateService validates if service contains proper data.
 func ValidateService(service *Service) error {
+	if service.Configuration == nil {
+		service.Configuration = &Dependency{}
+	}
 	if err := validateServiceStruct(service); err != nil {
 		return err
 	}
