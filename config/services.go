@@ -15,7 +15,7 @@ import (
 // 			barCompiled string
 // 		)
 var (
-	// ethwalletCompiled   string
+	ethwalletCompiled   string
 	marketplaceCompiled string
 )
 
@@ -47,6 +47,13 @@ func (c *Config) setupServices() ([]ServiceConfig, error) {
 			return nil, err
 		}
 		c.SystemServices = append(c.SystemServices, marketplace)
+	}
+	if ethwalletCompiled != "" {
+		ethwallet, err := c.createServiceConfig("EthWallet", ethwalletCompiled, nil)
+		if err != nil {
+			return nil, err
+		}
+		c.SystemServices = append(c.SystemServices, ethwallet)
 	}
 	return serviceConfigs, nil
 }

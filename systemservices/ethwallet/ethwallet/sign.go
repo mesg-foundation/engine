@@ -8,7 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/mesg-foundation/engine/client/service"
+	"github.com/mesg-foundation/engine/systemservices/ethwallet/client"
 	"github.com/mesg-foundation/engine/systemservices/ethwallet/x/xgo-ethereum/xaccounts"
 )
 
@@ -32,9 +32,9 @@ type signOutputSuccess struct {
 	SignedTransaction string `json:"signedTransaction"`
 }
 
-func (s *Ethwallet) sign(execution *service.Execution) (interface{}, error) {
+func (s *Ethwallet) sign(input []byte) ([]byte, error) {
 	var inputs signInputs
-	if err := execution.Data(&inputs); err != nil {
+	if err := client.Unmarshal(input, &inputs); err != nil {
 		return nil, err
 	}
 
@@ -64,7 +64,7 @@ func (s *Ethwallet) sign(execution *service.Execution) (interface{}, error) {
 	signedTransaction.EncodeRLP(&buff)
 	rawTx := fmt.Sprintf("0x%x", buff.Bytes())
 
-	return signOutputSuccess{
+	return client.Marshal(signOutputSuccess{
 		SignedTransaction: rawTx,
-	}, nil
+	})
 }
