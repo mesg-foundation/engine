@@ -8,13 +8,33 @@
 #### Fixed
 #### Removed
 
+## [v0.11.0](https://github.com/mesg-foundation/engine/releases/tag/v0.11.0)
+
+#### Breaking Changes
+
+- ([\#1083](https://github.com/mesg-foundation/engine/pull/1083)) Remove old gRPC APIs.
+
+#### Added
+
+- ([\#1023](https://github.com/mesg-foundation/engine/pull/1023)) New gRPC Service APIs and SDK. ([\#1066](https://github.com/mesg-foundation/engine/pull/1066)). ([\#1067](https://github.com/mesg-foundation/engine/pull/1067)). ([\#1068](https://github.com/mesg-foundation/engine/pull/1068)). ([\#1071](https://github.com/mesg-foundation/engine/pull/1071)). ([\#1077](https://github.com/mesg-foundation/engine/pull/1077)). ([\#1097](https://github.com/mesg-foundation/engine/pull/1097)). ([\#1099](https://github.com/mesg-foundation/engine/pull/1099)). ([\#1105](https://github.com/mesg-foundation/engine/pull/1105)). ([\#1107](https://github.com/mesg-foundation/engine/pull/1107)). ([\#1110](https://github.com/mesg-foundation/engine/pull/1110)). ([\#1112](https://github.com/mesg-foundation/engine/pull/1112)). ([\#1113](https://github.com/mesg-foundation/engine/pull/1113)). ([\#1128](https://github.com/mesg-foundation/engine/pull/1128)). ([\#1153](https://github.com/mesg-foundation/engine/pull/1153)).
+- ([\#1033](https://github.com/mesg-foundation/engine/pull/1033)) New gRPC Instance APIs and SDK. ([\#1034](https://github.com/mesg-foundation/engine/pull/1034)). ([\#1035](https://github.com/mesg-foundation/engine/pull/1035)). ([\#1036](https://github.com/mesg-foundation/engine/pull/1036)). ([\#1037](https://github.com/mesg-foundation/engine/pull/1037)). ([\#1060](https://github.com/mesg-foundation/engine/pull/1060)). ([\#1074](https://github.com/mesg-foundation/engine/pull/1074)). ([\#1075](https://github.com/mesg-foundation/engine/pull/1075)). ([\#1076](https://github.com/mesg-foundation/engine/pull/1076)). ([\#1078](https://github.com/mesg-foundation/engine/pull/1078)). ([\#1079](https://github.com/mesg-foundation/engine/pull/1079)). ([\#1087](https://github.com/mesg-foundation/engine/pull/1087)). ([\#1102](https://github.com/mesg-foundation/engine/pull/1102)). ([\#1106](https://github.com/mesg-foundation/engine/pull/1106)). ([\#1109](https://github.com/mesg-foundation/engine/pull/1109)). ([\#1117](https://github.com/mesg-foundation/engine/pull/1117)). ([\#1122](https://github.com/mesg-foundation/engine/pull/1122)). ([\#1137](https://github.com/mesg-foundation/engine/pull/1137)). ([\#1138](https://github.com/mesg-foundation/engine/pull/1138)). ([\#1156](https://github.com/mesg-foundation/engine/pull/1156)).
+- ([\#1043](https://github.com/mesg-foundation/engine/pull/1043)) New gRPC Execution APIs and SDK. ([\#1052](https://github.com/mesg-foundation/engine/pull/1052)). ([\#1064](https://github.com/mesg-foundation/engine/pull/1064)). ([\#1065](https://github.com/mesg-foundation/engine/pull/1065)). ([\#1070](https://github.com/mesg-foundation/engine/pull/1070)). ([\#1124](https://github.com/mesg-foundation/engine/pull/1124)). ([\#1132](https://github.com/mesg-foundation/engine/pull/1132)). ([\#1135](https://github.com/mesg-foundation/engine/pull/1135)).
+- ([\#1053](https://github.com/mesg-foundation/engine/pull/1053)) New gRPC Event APIs and SDK. ([\#1054](https://github.com/mesg-foundation/engine/pull/1054)). ([\#1073](https://github.com/mesg-foundation/engine/pull/1073)). ([\#1126](https://github.com/mesg-foundation/engine/pull/1126)). ([\#1144](https://github.com/mesg-foundation/engine/pull/1144)). ([\#1141](https://github.com/mesg-foundation/engine/pull/1141)).
+
+#### Changed
+
+- ([\#1082](https://github.com/mesg-foundation/engine/pull/1082)) Server and SDK package cleanup. ([\#1085](https://github.com/mesg-foundation/engine/pull/1085)). ([\#1096](https://github.com/mesg-foundation/engine/pull/1096)).
+- ([\#1151](https://github.com/mesg-foundation/engine/pull/1151)) Namespace simplification in package Container.
+- ([\#1094](https://github.com/mesg-foundation/engine/pull/1094)) Introduction of a Hash type to manage all encoding and decoding of hashes. ([\#1072](https://github.com/mesg-foundation/engine/pull/1072)). ([\#1098](https://github.com/mesg-foundation/engine/pull/1098)).
+- ([\#1148](https://github.com/mesg-foundation/engine/pull/1148)) Update EthWallet to use new gRPC APIs.
+
 ## [v0.10.1](https://github.com/mesg-foundation/engine/releases/tag/v0.10.1)
 
 ### [Click here to see the release notes](https://forum.mesg.com/t/mesg-engine-v0-10-js-cli-and-js-library-v3-0-0-release-notes/317)
 
 #### Fixed
 
-- ([#1050](https://github.com/mesg-foundation/engine/pull/1050)) Fix service Marketplace backward compatibility
+- ([#1050](https://github.com/mesg-foundation/engine/pull/1050)) Fix service Marketplace backward compatibility.
 
 ## [v0.10.0](https://github.com/mesg-foundation/engine/releases/tag/v0.10.0)
 
