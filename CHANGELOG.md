@@ -26,8 +26,8 @@
 - ([#1082](https://github.com/mesg-foundation/engine/pull/1082)) Server and SDK package cleanup. ([#1085](https://github.com/mesg-foundation/engine/pull/1085)). ([#1096](https://github.com/mesg-foundation/engine/pull/1096)).
 - ([#1087](https://github.com/mesg-foundation/engine/pull/1087)) Update system service deployment system. ([#1156](https://github.com/mesg-foundation/engine/pull/1156)). ([#1160](https://github.com/mesg-foundation/engine/pull/1160)).
 - ([#1094](https://github.com/mesg-foundation/engine/pull/1094)) Introduction of a Hash type to manage all encoding and decoding of hashes. ([#1072](https://github.com/mesg-foundation/engine/pull/1072)). ([#1098](https://github.com/mesg-foundation/engine/pull/1098)).
-- ([#1045](https://github.com/mesg-foundation/engine/pull/1045)) Update system service Marketplace to use new gRPC APIs.
-- ([#1148](https://github.com/mesg-foundation/engine/pull/1148)) Update system service EthWallet to use new gRPC APIs.
+- ([#1045](https://github.com/mesg-foundation/engine/pull/1045)) Update system service Marketplace to use new gRPC APIs. ([#1166](https://github.com/mesg-foundation/engine/pull/1166)).
+- ([#1148](https://github.com/mesg-foundation/engine/pull/1148)) Update system service EthWallet to use new gRPC APIs. ([#1167](https://github.com/mesg-foundation/engine/pull/1167)).
 - ([#1151](https://github.com/mesg-foundation/engine/pull/1151)) Namespace simplification in package Container.
 
 ## [v0.10.1](https://github.com/mesg-foundation/engine/releases/tag/v0.10.1)
