@@ -4,8 +4,7 @@
 for s in systemservices/* ; do
   if [ -d "$s" ]; then
     pushd $s > /dev/null
-    name=$(basename "$s")
-    varname="${name}"
+    echo "Compiling $s"
     mesg-cli service:compile | jq -c . > compiled.json
     popd > /dev/null
   fi
