@@ -61,7 +61,7 @@ require (
 	golang.org/x/text v0.3.2 // indirect
 	golang.org/x/time v0.0.0-20190308202827-9d24e82272b4 // indirect
 	google.golang.org/genproto v0.0.0-20190620144150-6af8c5fc6601 // indirect
-	google.golang.org/grpc v1.19.0
+	google.golang.org/grpc v1.22.0
 	gopkg.in/airbrake/gobrake.v2 v2.0.9 // indirect
 	gopkg.in/gemnasium/logrus-airbrake-hook.v2 v2.1.2 // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
