@@ -29,7 +29,7 @@ func New(ps *pubsub.PubSub, service *servicesdk.Service, instance *instancesdk.I
 	}
 }
 
-// Emit emits a MESG event eventKey with eventData for service token.
+// Create a MESG event eventKey with eventData for service token.
 func (e *Event) Create(instanceHash hash.Hash, eventKey string, eventData map[string]interface{}) (*event.Event, error) {
 	event := event.Create(instanceHash, eventKey, eventData)
 
