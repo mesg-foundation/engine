@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/kelseyhightower/envconfig"
-	"github.com/mesg-foundation/core/x/xstrings"
+	"github.com/mesg-foundation/engine/x/xstrings"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
 )
@@ -15,13 +15,14 @@ import (
 const (
 	envPrefix = "mesg"
 
-	serviceDBVersion   = "v2"
-	executionDBVersion = "v1"
+	serviceDBVersion   = "v3"
+	executionDBVersion = "v2"
+	instanceDBVersion  = "v1"
 )
 
 var (
-	instance *Config
-	once     sync.Once
+	_instance *Config
+	once      sync.Once
 )
 
 // Config contains all the configuration needed.
@@ -41,10 +42,11 @@ type Config struct {
 
 	Database struct {
 		ServiceRelativePath   string
+		InstanceRelativePath  string
 		ExecutionRelativePath string
 	}
 
-	Service ServiceConfigGroup
+	SystemServices []*ServiceConfig
 }
 
 // New creates a new config with default values.
@@ -62,8 +64,9 @@ func New() (*Config, error) {
 	c.Name = "engine"
 	c.Path = filepath.Join(home, ".mesg")
 	c.Database.ServiceRelativePath = filepath.Join("database", "services", serviceDBVersion)
+	c.Database.InstanceRelativePath = filepath.Join("database", "instance", instanceDBVersion)
 	c.Database.ExecutionRelativePath = filepath.Join("database", "executions", executionDBVersion)
-	c.Service = c.getServiceConfigGroup()
+	c.setupServices()
 	return &c, nil
 }
 
@@ -71,24 +74,24 @@ func New() (*Config, error) {
 func Global() (*Config, error) {
 	var err error
 	once.Do(func() {
-		instance, err = New()
+		_instance, err = New()
 		if err != nil {
 			return
 		}
-		if err = instance.Load(); err != nil {
+		if err = _instance.Load(); err != nil {
 			return
 		}
-		if err = instance.Prepare(); err != nil {
+		if err = _instance.Prepare(); err != nil {
 			return
 		}
 	})
 	if err != nil {
 		return nil, err
 	}
-	if err := instance.Validate(); err != nil {
+	if err := _instance.Validate(); err != nil {
 		return nil, err
 	}
-	return instance, nil
+	return _instance, nil
 }
 
 // Load reads config from environmental variables.

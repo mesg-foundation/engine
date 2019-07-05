@@ -3,14 +3,13 @@
 
 package api
 
-import proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
-import math "math"
-import definition "github.com/mesg-foundation/core/protobuf/definition"
-
 import (
-	context "golang.org/x/net/context"
+	context "context"
+	fmt "fmt"
+	proto "github.com/golang/protobuf/proto"
+	types "github.com/mesg-foundation/engine/protobuf/types"
 	grpc "google.golang.org/grpc"
+	math "math"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -22,29 +21,48 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
+// The request's data for the `Create` API.
 type CreateServiceRequest struct {
-	Definition           *definition.Service `protobuf:"bytes,1,opt,name=definition,proto3" json:"definition,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}            `json:"-"`
-	XXX_unrecognized     []byte              `json:"-"`
-	XXX_sizecache        int32               `json:"-"`
+	// Service's sid.
+	Sid string `protobuf:"bytes,1,opt,name=sid,proto3" json:"sid,omitempty"`
+	// Service's name.
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// Service's description.
+	Description string `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	// Configurations related to the service
+	Configuration *types.Service_Configuration `protobuf:"bytes,4,opt,name=configuration,proto3" json:"configuration,omitempty"`
+	// The list of tasks this service can execute.
+	Tasks []*types.Service_Task `protobuf:"bytes,5,rep,name=tasks,proto3" json:"tasks,omitempty"`
+	// The list of events this service can emit.
+	Events []*types.Service_Event `protobuf:"bytes,6,rep,name=events,proto3" json:"events,omitempty"`
+	// The container dependencies this service requires.
+	Dependencies []*types.Service_Dependency `protobuf:"bytes,7,rep,name=dependencies,proto3" json:"dependencies,omitempty"`
+	// Service's repository url.
+	Repository string `protobuf:"bytes,8,opt,name=repository,proto3" json:"repository,omitempty"`
+	// The hash id of service's source code on IPFS.
+	Source               string   `protobuf:"bytes,9,opt,name=source,proto3" json:"source,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *CreateServiceRequest) Reset()         { *m = CreateServiceRequest{} }
 func (m *CreateServiceRequest) String() string { return proto.CompactTextString(m) }
 func (*CreateServiceRequest) ProtoMessage()    {}
 func (*CreateServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_cdb2d5a31910dd99, []int{0}
+	return fileDescriptor_0615fe53b372bcb1, []int{0}
 }
+
 func (m *CreateServiceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateServiceRequest.Unmarshal(m, b)
 }
 func (m *CreateServiceRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_CreateServiceRequest.Marshal(b, m, deterministic)
 }
-func (dst *CreateServiceRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CreateServiceRequest.Merge(dst, src)
+func (m *CreateServiceRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateServiceRequest.Merge(m, src)
 }
 func (m *CreateServiceRequest) XXX_Size() int {
 	return xxx_messageInfo_CreateServiceRequest.Size(m)
@@ -55,16 +73,73 @@ func (m *CreateServiceRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_CreateServiceRequest proto.InternalMessageInfo
 
-func (m *CreateServiceRequest) GetDefinition() *definition.Service {
+func (m *CreateServiceRequest) GetSid() string {
 	if m != nil {
-		return m.Definition
+		return m.Sid
+	}
+	return ""
+}
+
+func (m *CreateServiceRequest) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *CreateServiceRequest) GetDescription() string {
+	if m != nil {
+		return m.Description
+	}
+	return ""
+}
+
+func (m *CreateServiceRequest) GetConfiguration() *types.Service_Configuration {
+	if m != nil {
+		return m.Configuration
 	}
 	return nil
 }
 
+func (m *CreateServiceRequest) GetTasks() []*types.Service_Task {
+	if m != nil {
+		return m.Tasks
+	}
+	return nil
+}
+
+func (m *CreateServiceRequest) GetEvents() []*types.Service_Event {
+	if m != nil {
+		return m.Events
+	}
+	return nil
+}
+
+func (m *CreateServiceRequest) GetDependencies() []*types.Service_Dependency {
+	if m != nil {
+		return m.Dependencies
+	}
+	return nil
+}
+
+func (m *CreateServiceRequest) GetRepository() string {
+	if m != nil {
+		return m.Repository
+	}
+	return ""
+}
+
+func (m *CreateServiceRequest) GetSource() string {
+	if m != nil {
+		return m.Source
+	}
+	return ""
+}
+
+// The response's data for the `Create` API.
 type CreateServiceResponse struct {
-	Sid                  string   `protobuf:"bytes,1,opt,name=sid,proto3" json:"sid,omitempty"`
-	Hash                 string   `protobuf:"bytes,2,opt,name=hash,proto3" json:"hash,omitempty"`
+	// The service's hash created.
+	Hash                 string   `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -74,16 +149,17 @@ func (m *CreateServiceResponse) Reset()         { *m = CreateServiceResponse{} }
 func (m *CreateServiceResponse) String() string { return proto.CompactTextString(m) }
 func (*CreateServiceResponse) ProtoMessage()    {}
 func (*CreateServiceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_cdb2d5a31910dd99, []int{1}
+	return fileDescriptor_0615fe53b372bcb1, []int{1}
 }
+
 func (m *CreateServiceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateServiceResponse.Unmarshal(m, b)
 }
 func (m *CreateServiceResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_CreateServiceResponse.Marshal(b, m, deterministic)
 }
-func (dst *CreateServiceResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CreateServiceResponse.Merge(dst, src)
+func (m *CreateServiceResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateServiceResponse.Merge(m, src)
 }
 func (m *CreateServiceResponse) XXX_Size() int {
 	return xxx_messageInfo_CreateServiceResponse.Size(m)
@@ -94,13 +170,6 @@ func (m *CreateServiceResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_CreateServiceResponse proto.InternalMessageInfo
 
-func (m *CreateServiceResponse) GetSid() string {
-	if m != nil {
-		return m.Sid
-	}
-	return ""
-}
-
 func (m *CreateServiceResponse) GetHash() string {
 	if m != nil {
 		return m.Hash
@@ -108,9 +177,234 @@ func (m *CreateServiceResponse) GetHash() string {
 	return ""
 }
 
+// The request's data for the `Delete` API.
+type DeleteServiceRequest struct {
+	// The service's hash to delete.
+	Hash                 string   `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *DeleteServiceRequest) Reset()         { *m = DeleteServiceRequest{} }
+func (m *DeleteServiceRequest) String() string { return proto.CompactTextString(m) }
+func (*DeleteServiceRequest) ProtoMessage()    {}
+func (*DeleteServiceRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0615fe53b372bcb1, []int{2}
+}
+
+func (m *DeleteServiceRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DeleteServiceRequest.Unmarshal(m, b)
+}
+func (m *DeleteServiceRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DeleteServiceRequest.Marshal(b, m, deterministic)
+}
+func (m *DeleteServiceRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeleteServiceRequest.Merge(m, src)
+}
+func (m *DeleteServiceRequest) XXX_Size() int {
+	return xxx_messageInfo_DeleteServiceRequest.Size(m)
+}
+func (m *DeleteServiceRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_DeleteServiceRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DeleteServiceRequest proto.InternalMessageInfo
+
+func (m *DeleteServiceRequest) GetHash() string {
+	if m != nil {
+		return m.Hash
+	}
+	return ""
+}
+
+// The response's data for the `Delete` API, doesn't contain anything.
+type DeleteServiceResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *DeleteServiceResponse) Reset()         { *m = DeleteServiceResponse{} }
+func (m *DeleteServiceResponse) String() string { return proto.CompactTextString(m) }
+func (*DeleteServiceResponse) ProtoMessage()    {}
+func (*DeleteServiceResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0615fe53b372bcb1, []int{3}
+}
+
+func (m *DeleteServiceResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DeleteServiceResponse.Unmarshal(m, b)
+}
+func (m *DeleteServiceResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DeleteServiceResponse.Marshal(b, m, deterministic)
+}
+func (m *DeleteServiceResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeleteServiceResponse.Merge(m, src)
+}
+func (m *DeleteServiceResponse) XXX_Size() int {
+	return xxx_messageInfo_DeleteServiceResponse.Size(m)
+}
+func (m *DeleteServiceResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_DeleteServiceResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DeleteServiceResponse proto.InternalMessageInfo
+
+// The request's data for the `Get` API.
+type GetServiceRequest struct {
+	// The service's hash to fetch.
+	Hash                 string   `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *GetServiceRequest) Reset()         { *m = GetServiceRequest{} }
+func (m *GetServiceRequest) String() string { return proto.CompactTextString(m) }
+func (*GetServiceRequest) ProtoMessage()    {}
+func (*GetServiceRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0615fe53b372bcb1, []int{4}
+}
+
+func (m *GetServiceRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetServiceRequest.Unmarshal(m, b)
+}
+func (m *GetServiceRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetServiceRequest.Marshal(b, m, deterministic)
+}
+func (m *GetServiceRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetServiceRequest.Merge(m, src)
+}
+func (m *GetServiceRequest) XXX_Size() int {
+	return xxx_messageInfo_GetServiceRequest.Size(m)
+}
+func (m *GetServiceRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetServiceRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetServiceRequest proto.InternalMessageInfo
+
+func (m *GetServiceRequest) GetHash() string {
+	if m != nil {
+		return m.Hash
+	}
+	return ""
+}
+
+// The request's data for the `List` API.
+type ListServiceRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ListServiceRequest) Reset()         { *m = ListServiceRequest{} }
+func (m *ListServiceRequest) String() string { return proto.CompactTextString(m) }
+func (*ListServiceRequest) ProtoMessage()    {}
+func (*ListServiceRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0615fe53b372bcb1, []int{5}
+}
+
+func (m *ListServiceRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ListServiceRequest.Unmarshal(m, b)
+}
+func (m *ListServiceRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ListServiceRequest.Marshal(b, m, deterministic)
+}
+func (m *ListServiceRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListServiceRequest.Merge(m, src)
+}
+func (m *ListServiceRequest) XXX_Size() int {
+	return xxx_messageInfo_ListServiceRequest.Size(m)
+}
+func (m *ListServiceRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListServiceRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ListServiceRequest proto.InternalMessageInfo
+
+// The response's data for the `List` API.
+type ListServiceResponse struct {
+	// List of services that match the request's filters.
+	Services             []*types.Service `protobuf:"bytes,1,rep,name=services,proto3" json:"services,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
+	XXX_unrecognized     []byte           `json:"-"`
+	XXX_sizecache        int32            `json:"-"`
+}
+
+func (m *ListServiceResponse) Reset()         { *m = ListServiceResponse{} }
+func (m *ListServiceResponse) String() string { return proto.CompactTextString(m) }
+func (*ListServiceResponse) ProtoMessage()    {}
+func (*ListServiceResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0615fe53b372bcb1, []int{6}
+}
+
+func (m *ListServiceResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ListServiceResponse.Unmarshal(m, b)
+}
+func (m *ListServiceResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ListServiceResponse.Marshal(b, m, deterministic)
+}
+func (m *ListServiceResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListServiceResponse.Merge(m, src)
+}
+func (m *ListServiceResponse) XXX_Size() int {
+	return xxx_messageInfo_ListServiceResponse.Size(m)
+}
+func (m *ListServiceResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListServiceResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ListServiceResponse proto.InternalMessageInfo
+
+func (m *ListServiceResponse) GetServices() []*types.Service {
+	if m != nil {
+		return m.Services
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterType((*CreateServiceRequest)(nil), "api.CreateServiceRequest")
 	proto.RegisterType((*CreateServiceResponse)(nil), "api.CreateServiceResponse")
+	proto.RegisterType((*DeleteServiceRequest)(nil), "api.DeleteServiceRequest")
+	proto.RegisterType((*DeleteServiceResponse)(nil), "api.DeleteServiceResponse")
+	proto.RegisterType((*GetServiceRequest)(nil), "api.GetServiceRequest")
+	proto.RegisterType((*ListServiceRequest)(nil), "api.ListServiceRequest")
+	proto.RegisterType((*ListServiceResponse)(nil), "api.ListServiceResponse")
+}
+
+func init() { proto.RegisterFile("protobuf/api/service.proto", fileDescriptor_0615fe53b372bcb1) }
+
+var fileDescriptor_0615fe53b372bcb1 = []byte{
+	// 424 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x93, 0x4f, 0x6f, 0xd3, 0x40,
+	0x10, 0xc5, 0xe3, 0x3a, 0x75, 0xdb, 0x09, 0x20, 0x98, 0xa6, 0xed, 0xd6, 0xaa, 0x50, 0xe4, 0x0b,
+	0xa1, 0x20, 0x47, 0x0a, 0x47, 0xc4, 0xa1, 0xb4, 0xa8, 0x17, 0x4e, 0x86, 0x2f, 0xb0, 0x75, 0xa6,
+	0x74, 0x55, 0xf0, 0x2e, 0x3b, 0x9b, 0x4a, 0xf9, 0xda, 0xdc, 0x91, 0x90, 0xd7, 0xdb, 0x2a, 0xfe,
+	0x73, 0xe0, 0x36, 0x79, 0xef, 0x37, 0xb3, 0x3b, 0x2f, 0x6b, 0x48, 0x8d, 0xd5, 0x4e, 0xdf, 0xac,
+	0x6f, 0x17, 0xd2, 0xa8, 0x05, 0x93, 0x7d, 0x50, 0x25, 0xe5, 0x5e, 0xc4, 0x58, 0x1a, 0x95, 0x9e,
+	0x3d, 0x01, 0x6e, 0x63, 0x88, 0xdb, 0x48, 0xf6, 0x67, 0x07, 0xa6, 0x97, 0x96, 0xa4, 0xa3, 0x6f,
+	0x8d, 0x5e, 0xd0, 0xef, 0x35, 0xb1, 0xc3, 0x97, 0x10, 0xb3, 0x5a, 0x89, 0x68, 0x16, 0xcd, 0x0f,
+	0x8a, 0xba, 0x44, 0x84, 0x71, 0x25, 0x7f, 0x91, 0xd8, 0xf1, 0x92, 0xaf, 0x71, 0x06, 0x93, 0x15,
+	0x71, 0x69, 0x95, 0x71, 0x4a, 0x57, 0x22, 0xf6, 0xd6, 0xb6, 0x84, 0x9f, 0xe1, 0x79, 0xa9, 0xab,
+	0x5b, 0xf5, 0x63, 0x6d, 0xa5, 0x67, 0xc6, 0xb3, 0x68, 0x3e, 0x59, 0x9e, 0xe5, 0xfe, 0x36, 0x79,
+	0x38, 0x35, 0xbf, 0xdc, 0x66, 0x8a, 0x76, 0x0b, 0xbe, 0x85, 0x5d, 0x27, 0xf9, 0x9e, 0xc5, 0xee,
+	0x2c, 0x9e, 0x4f, 0x96, 0x87, 0x9d, 0xde, 0xef, 0x92, 0xef, 0x8b, 0x86, 0xc0, 0xf7, 0x90, 0xd0,
+	0x03, 0x55, 0x8e, 0x45, 0xe2, 0xd9, 0x69, 0x87, 0xfd, 0x52, 0x9b, 0x45, 0x60, 0xf0, 0x13, 0x3c,
+	0x5b, 0x91, 0xa1, 0x6a, 0x45, 0x55, 0xa9, 0x88, 0xc5, 0x9e, 0xef, 0x39, 0xed, 0xf4, 0x5c, 0x3d,
+	0x22, 0x9b, 0xa2, 0x85, 0xe3, 0x6b, 0x00, 0x4b, 0x46, 0xb3, 0x72, 0xda, 0x6e, 0xc4, 0xbe, 0x5f,
+	0x7e, 0x4b, 0xc1, 0x63, 0x48, 0x58, 0xaf, 0x6d, 0x49, 0xe2, 0xc0, 0x7b, 0xe1, 0x57, 0xf6, 0x0e,
+	0x8e, 0x3a, 0x99, 0xb3, 0xd1, 0x15, 0x53, 0x1d, 0xf1, 0x9d, 0xe4, 0xbb, 0x90, 0xba, 0xaf, 0xb3,
+	0x73, 0x98, 0x5e, 0xd1, 0x4f, 0xea, 0xfd, 0x41, 0x43, 0xec, 0x09, 0x1c, 0x75, 0xd8, 0x66, 0x70,
+	0xf6, 0x06, 0x5e, 0x5d, 0x93, 0xfb, 0x8f, 0x09, 0x53, 0xc0, 0xaf, 0x8a, 0x3b, 0x64, 0x76, 0x01,
+	0x87, 0x2d, 0x35, 0x5c, 0xf7, 0x1c, 0xf6, 0xc3, 0x6b, 0x62, 0x11, 0xf9, 0xe8, 0x5e, 0xb4, 0xa3,
+	0x2b, 0x9e, 0xfc, 0xe5, 0xdf, 0x08, 0xf6, 0x82, 0x8a, 0x17, 0x90, 0x34, 0xfb, 0xe3, 0x69, 0x2e,
+	0x8d, 0xca, 0x87, 0x1e, 0x60, 0x9a, 0x0e, 0x59, 0x61, 0x9d, 0x51, 0x3d, 0xa2, 0xd9, 0x34, 0x8c,
+	0x18, 0x8a, 0x28, 0x8c, 0x18, 0x4e, 0x64, 0x84, 0x0b, 0x88, 0xaf, 0xc9, 0xe1, 0xb1, 0x87, 0x7a,
+	0xe9, 0xa4, 0x9d, 0x55, 0xb2, 0x11, 0x7e, 0x84, 0x71, 0x9d, 0x02, 0x9e, 0xf8, 0x8e, 0x7e, 0x4c,
+	0xa9, 0xe8, 0x1b, 0x8f, 0xa7, 0xdd, 0x24, 0xfe, 0x7b, 0xfb, 0xf0, 0x2f, 0x00, 0x00, 0xff, 0xff,
+	0x08, 0x1c, 0xaf, 0x2d, 0xb0, 0x03, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -121,84 +415,177 @@ var _ grpc.ClientConn
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion4
 
-// ServiceXClient is the client API for ServiceX service.
+// ServiceClient is the client API for Service service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
-type ServiceXClient interface {
+type ServiceClient interface {
+	// Create a Service from a Service Definition.
+	// It will return an unique identifier which is used to interact with the Service.
 	Create(ctx context.Context, in *CreateServiceRequest, opts ...grpc.CallOption) (*CreateServiceResponse, error)
+	// Delete a Service.
+	// An error is returned if one or more Instances of the Service are running.
+	Delete(ctx context.Context, in *DeleteServiceRequest, opts ...grpc.CallOption) (*DeleteServiceResponse, error)
+	// Get returns a Service matching the criteria of the request.
+	Get(ctx context.Context, in *GetServiceRequest, opts ...grpc.CallOption) (*types.Service, error)
+	// List returns services specified in a request.
+	List(ctx context.Context, in *ListServiceRequest, opts ...grpc.CallOption) (*ListServiceResponse, error)
 }
 
-type serviceXClient struct {
+type serviceClient struct {
 	cc *grpc.ClientConn
 }
 
-func NewServiceXClient(cc *grpc.ClientConn) ServiceXClient {
-	return &serviceXClient{cc}
+func NewServiceClient(cc *grpc.ClientConn) ServiceClient {
+	return &serviceClient{cc}
 }
 
-func (c *serviceXClient) Create(ctx context.Context, in *CreateServiceRequest, opts ...grpc.CallOption) (*CreateServiceResponse, error) {
+func (c *serviceClient) Create(ctx context.Context, in *CreateServiceRequest, opts ...grpc.CallOption) (*CreateServiceResponse, error) {
 	out := new(CreateServiceResponse)
-	err := c.cc.Invoke(ctx, "/api.ServiceX/Create", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.Service/Create", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// ServiceXServer is the server API for ServiceX service.
-type ServiceXServer interface {
+func (c *serviceClient) Delete(ctx context.Context, in *DeleteServiceRequest, opts ...grpc.CallOption) (*DeleteServiceResponse, error) {
+	out := new(DeleteServiceResponse)
+	err := c.cc.Invoke(ctx, "/api.Service/Delete", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) Get(ctx context.Context, in *GetServiceRequest, opts ...grpc.CallOption) (*types.Service, error) {
+	out := new(types.Service)
+	err := c.cc.Invoke(ctx, "/api.Service/Get", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) List(ctx context.Context, in *ListServiceRequest, opts ...grpc.CallOption) (*ListServiceResponse, error) {
+	out := new(ListServiceResponse)
+	err := c.cc.Invoke(ctx, "/api.Service/List", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// ServiceServer is the server API for Service service.
+type ServiceServer interface {
+	// Create a Service from a Service Definition.
+	// It will return an unique identifier which is used to interact with the Service.
 	Create(context.Context, *CreateServiceRequest) (*CreateServiceResponse, error)
+	// Delete a Service.
+	// An error is returned if one or more Instances of the Service are running.
+	Delete(context.Context, *DeleteServiceRequest) (*DeleteServiceResponse, error)
+	// Get returns a Service matching the criteria of the request.
+	Get(context.Context, *GetServiceRequest) (*types.Service, error)
+	// List returns services specified in a request.
+	List(context.Context, *ListServiceRequest) (*ListServiceResponse, error)
 }
 
-func RegisterServiceXServer(s *grpc.Server, srv ServiceXServer) {
-	s.RegisterService(&_ServiceX_serviceDesc, srv)
+func RegisterServiceServer(s *grpc.Server, srv ServiceServer) {
+	s.RegisterService(&_Service_serviceDesc, srv)
 }
 
-func _ServiceX_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Service_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServiceXServer).Create(ctx, in)
+		return srv.(ServiceServer).Create(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api.ServiceX/Create",
+		FullMethod: "/api.Service/Create",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceXServer).Create(ctx, req.(*CreateServiceRequest))
+		return srv.(ServiceServer).Create(ctx, req.(*CreateServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-var _ServiceX_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "api.ServiceX",
-	HandlerType: (*ServiceXServer)(nil),
+func _Service_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteServiceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).Delete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.Service/Delete",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).Delete(ctx, req.(*DeleteServiceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetServiceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).Get(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.Service/Get",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).Get(ctx, req.(*GetServiceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListServiceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).List(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.Service/List",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).List(ctx, req.(*ListServiceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _Service_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "api.Service",
+	HandlerType: (*ServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Create",
-			Handler:    _ServiceX_Create_Handler,
+			Handler:    _Service_Create_Handler,
+		},
+		{
+			MethodName: "Delete",
+			Handler:    _Service_Delete_Handler,
+		},
+		{
+			MethodName: "Get",
+			Handler:    _Service_Get_Handler,
+		},
+		{
+			MethodName: "List",
+			Handler:    _Service_List_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "protobuf/api/service.proto",
-}
-
-func init() { proto.RegisterFile("protobuf/api/service.proto", fileDescriptor_service_cdb2d5a31910dd99) }
-
-var fileDescriptor_service_cdb2d5a31910dd99 = []byte{
-	// 187 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x92, 0x2a, 0x28, 0xca, 0x2f,
-	0xc9, 0x4f, 0x2a, 0x4d, 0xd3, 0x4f, 0x2c, 0xc8, 0xd4, 0x2f, 0x4e, 0x2d, 0x2a, 0xcb, 0x4c, 0x4e,
-	0xd5, 0x03, 0x0b, 0x0a, 0x31, 0x27, 0x16, 0x64, 0x4a, 0x29, 0xc2, 0x15, 0xa4, 0xa4, 0xa6, 0x65,
-	0xe6, 0x65, 0x96, 0x64, 0xe6, 0xe7, 0xa1, 0xaa, 0x53, 0xf2, 0xe6, 0x12, 0x71, 0x2e, 0x4a, 0x4d,
-	0x2c, 0x49, 0x0d, 0x86, 0x08, 0x07, 0xa5, 0x16, 0x96, 0xa6, 0x16, 0x97, 0x08, 0x19, 0x73, 0x71,
-	0x21, 0xf4, 0x48, 0x30, 0x2a, 0x30, 0x6a, 0x70, 0x1b, 0x09, 0xeb, 0x21, 0x84, 0xf4, 0x60, 0xea,
-	0x91, 0x94, 0x29, 0xd9, 0x72, 0x89, 0xa2, 0x19, 0x56, 0x5c, 0x90, 0x9f, 0x57, 0x9c, 0x2a, 0x24,
-	0xc0, 0xc5, 0x5c, 0x9c, 0x99, 0x02, 0x36, 0x86, 0x33, 0x08, 0xc4, 0x14, 0x12, 0xe2, 0x62, 0xc9,
-	0x48, 0x2c, 0xce, 0x90, 0x60, 0x02, 0x0b, 0x81, 0xd9, 0x46, 0xbe, 0x5c, 0x1c, 0x50, 0x8d, 0x11,
-	0x42, 0x8e, 0x5c, 0x6c, 0x10, 0xa3, 0x84, 0x24, 0xf5, 0x12, 0x0b, 0x32, 0xf5, 0xb0, 0x39, 0x52,
-	0x4a, 0x0a, 0x9b, 0x14, 0xc4, 0x4a, 0x25, 0x86, 0x24, 0x36, 0xb0, 0x0f, 0x8d, 0x01, 0x01, 0x00,
-	0x00, 0xff, 0xff, 0x2b, 0xb6, 0x9f, 0xac, 0x27, 0x01, 0x00, 0x00,
 }

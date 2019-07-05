@@ -1,15 +1,22 @@
 package config
 
-// Default endpoints to access services. These endpoints are overritten by the build
-// Use the following format for the variable name: "[Service]URL" (where Service is the name of the service capitalized)
-// The service name should be the name of the directory inside `systemservices` but capitalized
+import (
+	"encoding/json"
+
+	"github.com/mesg-foundation/engine/instance"
+	"github.com/mesg-foundation/engine/service"
+)
+
+// Default compiled version of the service. These compiled versions are overritten by the build
+// Use the following format for the variable name: "[service]Compiled" (where service is the name of the service)
+// The service name should be the name of the directory inside `systemservices`
 // example:
 // 		var (
-// 			BarURL string
+// 			barCompiled string
 // 		)
 var (
-	EthwalletURL   string
-	MarketplaceURL string
+	ethwalletCompiled   string
+	marketplaceCompiled string
 )
 
 // Env to override on the system services
@@ -21,41 +28,45 @@ var (
 
 // ServiceConfig contains information related to services that the config knows about
 type ServiceConfig struct {
-	URL  string
-	Env  map[string]string
-	Sid  string
-	Hash string
+	Key        string
+	Env        map[string]string
+	Definition *service.Service
+	Instance   *instance.Instance
 }
 
-// ServiceConfigWithKey contains information related to services that the config knows about and their key
-type ServiceConfigWithKey struct {
-	*ServiceConfig
-	Key string
-}
-
-// ServiceConfigGroup is the struct that contains all the `ServiceConfig` related to the config
-type ServiceConfigGroup struct {
-	Ethwallet   ServiceConfig
-	Marketplace ServiceConfig
-}
-
-// getServiceConfigGroup return the config for all services.
-// DO NOT USE STRING HERE but variable defined on top of this file `XxxURL` for config injection
-func (c *Config) getServiceConfigGroup() ServiceConfigGroup {
-	return ServiceConfigGroup{
-		Ethwallet: ServiceConfig{URL: EthwalletURL},
-		Marketplace: ServiceConfig{URL: MarketplaceURL, Env: map[string]string{
+// setupServices initialize all services for this config
+func (c *Config) setupServices() ([]ServiceConfig, error) {
+	serviceConfigs := make([]ServiceConfig, 0)
+	if marketplaceCompiled != "" {
+		marketplace, err := c.createServiceConfig("Marketplace", marketplaceCompiled, map[string]string{
 			"MARKETPLACE_ADDRESS": EnvMarketplaceAddress,
 			"TOKEN_ADDRESS":       EnvMarketplaceToken,
 			"PROVIDER_ENDPOINT":   EnvMarketplaceEndpoint,
-		}},
+		})
+		if err != nil {
+			return nil, err
+		}
+		c.SystemServices = append(c.SystemServices, marketplace)
 	}
+	if ethwalletCompiled != "" {
+		ethwallet, err := c.createServiceConfig("EthWallet", ethwalletCompiled, nil)
+		if err != nil {
+			return nil, err
+		}
+		c.SystemServices = append(c.SystemServices, ethwallet)
+	}
+	return serviceConfigs, nil
 }
 
-// Services returns all services that the configuration package is aware of
-func (c *Config) Services() []*ServiceConfigWithKey {
-	return []*ServiceConfigWithKey{
-		{&c.Service.Ethwallet, "ethwallet"},
-		{&c.Service.Marketplace, "marketplace"},
+func (c *Config) createServiceConfig(key string, compilatedJSON string, env map[string]string) (*ServiceConfig, error) {
+	var srv service.Service
+	if err := json.Unmarshal([]byte(compilatedJSON), &srv); err != nil {
+		return nil, err
 	}
+	srv.Configuration.Key = service.MainServiceKey
+	return &ServiceConfig{
+		Key:        key,
+		Definition: &srv,
+		Env:        env,
+	}, nil
 }

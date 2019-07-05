@@ -1,6 +1,6 @@
 import Web3 from "web3"
 import { EventLog } from "web3/types"
-import { Service, EmitEventReply } from "mesg-js/lib/service"
+import { Service } from "mesg-js/lib/service"
 
 import { newBlockEventEmitter } from "../newBlock"
 import { Marketplace } from "../contracts/Marketplace";
@@ -11,8 +11,9 @@ import serviceOfferDisabled from "./serviceOfferDisabled"
 import serviceOwnershipTransferred from "./serviceOwnershipTransferred"
 import serviceVersionCreated from "./serviceVersionCreated"
 import servicePurchased from "./servicePurchased"
+import { EventCreateOutputs } from "mesg-js/lib/api";
 
-const eventHandlers: {[eventName: string]: (mesg: Service, event: EventLog) => Promise<EmitEventReply | Error>} = {
+const eventHandlers: {[eventName: string]: (mesg: Service, event: EventLog) => EventCreateOutputs } = {
   'ServiceCreated': serviceCreated,
   'ServiceOfferCreated': serviceOfferCreated,
   'ServiceOfferDisabled': serviceOfferDisabled,

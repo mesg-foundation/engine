@@ -2,7 +2,6 @@ package container
 
 import (
 	"context"
-	"io"
 	"time"
 
 	"github.com/docker/docker/api/types"
@@ -28,7 +27,7 @@ func (c *DockerContainer) ListServices(labels ...string) ([]swarm.Service, error
 }
 
 // FindService returns the Docker Service or an error if not found.
-func (c *DockerContainer) FindService(namespace []string) (swarm.Service, error) {
+func (c *DockerContainer) FindService(namespace string) (swarm.Service, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.callTimeout)
 	defer cancel()
 	service, _, err := c.client.ServiceInspectWithRaw(ctx, c.Namespace(namespace),
@@ -59,7 +58,7 @@ func (c *DockerContainer) StartService(options ServiceOptions) (serviceID string
 }
 
 // StopService stops a docker service.
-func (c *DockerContainer) StopService(namespace []string) error {
+func (c *DockerContainer) StopService(namespace string) error {
 	status, err := c.Status(namespace)
 	if err != nil {
 		return err
@@ -86,7 +85,7 @@ func (c *DockerContainer) StopService(namespace []string) error {
 	return c.waitForStatus(namespace, STOPPED)
 }
 
-func (c *DockerContainer) deletePendingContainer(namespace []string, maxGraceTime time.Time) error {
+func (c *DockerContainer) deletePendingContainer(namespace string, maxGraceTime time.Time) error {
 	container, err := c.FindContainer(namespace)
 	if docker.IsErrNotFound(err) {
 		return nil
@@ -95,7 +94,7 @@ func (c *DockerContainer) deletePendingContainer(namespace []string, maxGraceTim
 		return err
 	}
 	// Hack to force Docker to remove the containers.
-	// Sometime, the ServiceRemove function doesn't remove the associated containers, or too late and the Core cannot remove the associated networks.
+	// Sometime, the ServiceRemove function doesn't remove the associated containers, or too late and the associated networks cannot be removed.
 	// This hack for Docker to stop and then remove the container.
 	// See issue https://github.com/moby/moby/issues/32620
 	if time.Now().After(maxGraceTime) {
@@ -105,16 +104,4 @@ func (c *DockerContainer) deletePendingContainer(namespace []string, maxGraceTim
 	}
 	time.Sleep(1 * time.Second)
 	return c.deletePendingContainer(namespace, maxGraceTime)
-}
-
-// ServiceLogs returns the logs of a service.
-func (c *DockerContainer) ServiceLogs(namespace []string) (io.ReadCloser, error) {
-	return c.client.ServiceLogs(context.Background(), c.Namespace(namespace),
-		types.ContainerLogsOptions{
-			ShowStdout: true,
-			ShowStderr: true,
-			Timestamps: false,
-			Follow:     true,
-		},
-	)
 }

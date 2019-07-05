@@ -6,8 +6,8 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
-	"github.com/mesg-foundation/core/container/dockertest"
-	"github.com/mesg-foundation/core/utils/docker/mocks"
+	"github.com/mesg-foundation/engine/container/dockertest"
+	"github.com/mesg-foundation/engine/utils/docker/mocks"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
@@ -29,7 +29,7 @@ func mockWaitForStatus(t *testing.T, m *mocks.CommonAPIClient, namespace string,
 }
 
 func TestWaitForStatusRunning(t *testing.T) {
-	namespace := []string{"namespace"}
+	namespace := "namespace"
 	containerID := "1"
 	containerData := []types.Container{
 		{ID: containerID},
@@ -42,7 +42,7 @@ func TestWaitForStatusRunning(t *testing.T) {
 	}
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	dt.ProvideContainerList(containerData, nil)
 	dt.ProvideContainerInspect(containerJSONData, nil)
@@ -51,10 +51,10 @@ func TestWaitForStatusRunning(t *testing.T) {
 }
 
 func TestWaitForStatusStopped(t *testing.T) {
-	namespace := []string{"namespace"}
+	namespace := "namespace"
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
 	dt.ProvideContainerInspect(types.ContainerJSON{}, dockertest.NotFoundErr{})
@@ -62,7 +62,7 @@ func TestWaitForStatusStopped(t *testing.T) {
 }
 
 func TestWaitForStatusTaskError(t *testing.T) {
-	namespace := []string{"namespace"}
+	namespace := "namespace"
 	tasks := []swarm.Task{
 		{
 			ID:     "1",
@@ -75,7 +75,7 @@ func TestWaitForStatusTaskError(t *testing.T) {
 	}
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	dt.ProvideTaskList(tasks, nil)
 

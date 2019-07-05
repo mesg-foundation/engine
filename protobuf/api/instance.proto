@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+import "protobuf/types/instance.proto";
+
+package api;
+
+// This is the API to interact with the Instances.
+//
+// This API is a [gRPC](https://grpc.io/) API.
+//
+// The source file of this API is hosted on [GitHub](https://github.com/mesg-foundation/engine/blob/master/protobuf/api/instance.proto).
+service Instance {
+
+  // Get returns an Instance matching the criteria of the request.
+  rpc Get (GetInstanceRequest) returns (types.Instance) {}
+
+  // List returns all Instances matching the criteria of the request.
+  rpc List (ListInstancesRequest) returns (ListInstancesResponse) {}
+
+  // Create an Instance from a Service's hash and custom environmental variables.
+  // It will return an unique identifier which is used to interact with the Instance.
+  rpc Create (CreateInstanceRequest) returns (CreateInstanceResponse) {}
+
+  // Delete an Instance.
+  rpc Delete (DeleteInstanceRequest) returns (DeleteInstanceResponse) {}
+}
+
+// The request's data for the `Get` API.
+message GetInstanceRequest {
+  string hash = 1;
+}
+
+// The request's data for the `List` API.
+message ListInstancesRequest {
+  // Filter by Services' hash.
+  string serviceHash = 1;
+}
+
+// The response's data for the `List` API.
+message ListInstancesResponse {
+  // List of instances that match the request's filters.
+  repeated types.Instance instances = 1;
+}
+
+// The request's data for the `Create` API.
+message CreateInstanceRequest {
+  // Service's hash.
+  string serviceHash = 1;
+
+  // Environmental variables to apply to the Instance.
+  repeated string env = 2;
+}
+
+// The response's data for the `Create` API.
+message CreateInstanceResponse {
+  // The instance's hash created.
+  string hash = 1;
+}
+
+// The request's data for the `Delete` API.
+message DeleteInstanceRequest {
+  // Instance's hash
+  string hash = 1;
+
+  // If true, any persistent data (volumes) that belongs to the instance and its dependencies will also be deleted.
+  bool deleteData = 2;
+}
+
+// The response's data for the `Delete` API.
+message DeleteInstanceResponse {}

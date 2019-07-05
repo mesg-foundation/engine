@@ -1,7 +1,7 @@
 package execution
 
 import (
-	"github.com/mesg-foundation/core/x/xstructhash"
+	"github.com/mesg-foundation/engine/hash"
 )
 
 // Status stores the state of an execution
@@ -32,32 +32,32 @@ func (s Status) String() (r string) {
 	return r
 }
 
-// Execution stores all informations about executions.
+// Execution stores all information about executions.
 type Execution struct {
-	Hash        []byte                 `hash:"-"`
-	ParentHash  []byte                 `hash:"name:parentHash"`
-	EventID     string                 `hash:"name:eventID"`
-	Status      Status                 `hash:"-"`
-	ServiceHash string                 `hash:"name:serviceHash"`
-	TaskKey     string                 `hash:"name:taskKey"`
-	Tags        []string               `hash:"name:tags"`
-	Inputs      map[string]interface{} `hash:"name:inputs"`
-	Outputs     map[string]interface{} `hash:"-"`
-	Error       string                 `hash:"-"`
+	Hash         hash.Hash              `hash:"-"`
+	ParentHash   hash.Hash              `hash:"name:parentHash"`
+	EventHash    hash.Hash              `hash:"name:eventHash"`
+	Status       Status                 `hash:"-"`
+	InstanceHash hash.Hash              `hash:"name:instanceHash"`
+	TaskKey      string                 `hash:"name:taskKey"`
+	Tags         []string               `hash:"name:tags"`
+	Inputs       map[string]interface{} `hash:"name:inputs"`
+	Outputs      map[string]interface{} `hash:"-"`
+	Error        string                 `hash:"-"`
 }
 
 // New returns a new execution. It returns an error if inputs are invalid.
-func New(service string, parentHash []byte, eventID, taskKey string, inputs map[string]interface{}, tags []string) *Execution {
+func New(instanceHash, parentHash, eventHash hash.Hash, taskKey string, inputs map[string]interface{}, tags []string) *Execution {
 	exec := &Execution{
-		EventID:     eventID,
-		ServiceHash: service,
-		ParentHash:  parentHash,
-		Inputs:      inputs,
-		TaskKey:     taskKey,
-		Tags:        tags,
-		Status:      Created,
+		EventHash:    eventHash,
+		InstanceHash: instanceHash,
+		ParentHash:   parentHash,
+		Inputs:       inputs,
+		TaskKey:      taskKey,
+		Tags:         tags,
+		Status:       Created,
 	}
-	exec.Hash = xstructhash.Hash(exec, 1)
+	exec.Hash = hash.Dump(exec)
 	return exec
 }
 

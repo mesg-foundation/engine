@@ -5,13 +5,14 @@ import (
 	"errors"
 	"io"
 
-	"github.com/mesg-foundation/core/execution"
+	"github.com/mesg-foundation/engine/execution"
+	"github.com/mesg-foundation/engine/hash"
 	"github.com/syndtr/goleveldb/leveldb"
 )
 
 // ExecutionDB exposes all the functionalities
 type ExecutionDB interface {
-	Find(executionHash []byte) (*execution.Execution, error)
+	Find(executionHash hash.Hash) (*execution.Execution, error)
 	Save(execution *execution.Execution) error
 	OpenTransaction() (ExecutionTransaction, error)
 	io.Closer
@@ -19,7 +20,7 @@ type ExecutionDB interface {
 
 // ExecutionTransaction is the transaction handle.
 type ExecutionTransaction interface {
-	Find(executionHash []byte) (*execution.Execution, error)
+	Find(executionHash hash.Hash) (*execution.Execution, error)
 	Save(execution *execution.Execution) error
 	Commit() error
 	Discard()
@@ -41,7 +42,7 @@ func NewExecutionDB(path string) (*LevelDBExecutionDB, error) {
 }
 
 // Find the execution based on an executionHash, returns an error if not found
-func (db *LevelDBExecutionDB) Find(executionHash []byte) (*execution.Execution, error) {
+func (db *LevelDBExecutionDB) Find(executionHash hash.Hash) (*execution.Execution, error) {
 	return executionFind(db.db, executionHash)
 }
 
@@ -72,7 +73,7 @@ type LevelDBExecutionTransaction struct {
 }
 
 // Find the execution based on an executionHash, returns an error if not found
-func (tx *LevelDBExecutionTransaction) Find(executionHash []byte) (*execution.Execution, error) {
+func (tx *LevelDBExecutionTransaction) Find(executionHash hash.Hash) (*execution.Execution, error) {
 	return executionFind(tx.tx, executionHash)
 }
 
@@ -93,7 +94,7 @@ func (tx *LevelDBExecutionTransaction) Discard() {
 }
 
 // Find the execution based on an executionHash, returns an error if not found
-func executionFind(db leveldbTxDB, executionHash []byte) (*execution.Execution, error) {
+func executionFind(db leveldbTxDB, executionHash hash.Hash) (*execution.Execution, error) {
 	data, err := db.Get(executionHash, nil)
 	if err != nil {
 		return nil, err

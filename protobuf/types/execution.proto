@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package types;
+option go_package = "github.com/mesg-foundation/engine/protobuf/types";
+
+// Status represents the status of a single execution.
+// Note that a valid execution must have only one status
+// flag at time.
+enum Status {
+  // Unknown status represents any status unknown to execution.
+  Unknown = 0;
+
+  // Created is an initial status after execution creation.
+  Created = 1;
+
+  // InProgress informs that processing of execution has been started.
+  InProgress = 2;
+
+  // Completed is a success status after execution was processed.
+  Completed = 3;
+
+  // Failed is an error status after execution was processed.
+  Failed = 4;
+}
+
+// Execution represents a single execution run in engine.
+message Execution {
+  // Hash is a unique hash to identify execution.
+  string hash = 1;
+
+  // parentHash is the unique hash of parent execution. if execution is triggered by another one, dependency execution considered as the parent.
+  string parentHash = 2;
+
+  // eventHash is unique event hash.
+  string eventHash = 3;
+
+  // Status is the current status of execution.
+  Status status = 4;
+
+  // instanceHash is hash of the instance that can proceed an execution
+  string instanceHash = 5;
+
+  // taskKey is the key of the task of this execution.
+  string taskKey = 6;
+
+  // inputs data of the execution.
+  string inputs = 7;
+
+  // outputs are the returned data of successful execution.
+  string outputs = 8;
+
+  // error message of a failed execution.
+  string error = 9;
+
+  // tags are optionally associated with execution by the user.
+  repeated string tags = 10;
+}

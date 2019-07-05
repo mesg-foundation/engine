@@ -12,9 +12,9 @@ func TestIsGitURL(t *testing.T) {
 	tests := []struct {
 		url string
 	}{
-		{"git://github.com/mesg-foundation/core"},
-		{"https://github.com/mesg-foundation/core.git"},
-		{"file://github.com/mesg-foundation/core.git"},
+		{"git://github.com/mesg-foundation/engine"},
+		{"https://github.com/mesg-foundation/engine.git"},
+		{"file://github.com/mesg-foundation/engine.git"},
 	}
 
 	for _, tt := range tests {

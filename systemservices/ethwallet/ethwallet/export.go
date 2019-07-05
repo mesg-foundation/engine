@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/mesg-foundation/core/client/service"
-	"github.com/mesg-foundation/core/systemservices/ethwallet/x/xgo-ethereum/xaccounts"
+	"github.com/mesg-foundation/engine/systemservices/ethwallet/client"
+	"github.com/mesg-foundation/engine/systemservices/ethwallet/x/xgo-ethereum/xaccounts"
 )
 
 type exportInputs struct {
@@ -13,9 +13,9 @@ type exportInputs struct {
 	Passphrase string         `json:"passphrase"`
 }
 
-func (s *Ethwallet) export(execution *service.Execution) (interface{}, error) {
+func (s *Ethwallet) export(input []byte) ([]byte, error) {
 	var inputs exportInputs
-	if err := execution.Data(&inputs); err != nil {
+	if err := client.Unmarshal(input, &inputs); err != nil {
 		return nil, err
 	}
 
@@ -33,5 +33,5 @@ func (s *Ethwallet) export(execution *service.Execution) (interface{}, error) {
 	if err = json.Unmarshal(keyJSON, &accountJSON); err != nil {
 		return nil, err
 	}
-	return accountJSON, nil
+	return client.Marshal(accountJSON)
 }

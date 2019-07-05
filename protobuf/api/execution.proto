@@ -1,35 +1,85 @@
 syntax = "proto3";
 
-import "protobuf/definition/execution.proto";
+import "protobuf/types/execution.proto";
 
 package api;
 
-// Execution is the service for handle operations on Execution
-// such as get or stream.
+// This is the API to interact with the Executions.
+//
+// This API is a [gRPC](https://grpc.io/) API.
+//
+// The source file of this API is hosted on [GitHub](https://github.com/mesg-foundation/engine/blob/master/protobuf/api/execution.proto).
+
 service Execution {
+  // Create creates a single Execution specified in a request.
+  rpc Create(CreateExecutionRequest) returns (CreateExecutionResponse) {}
+
   // Get returns a single Execution specified in a request.
-  rpc Get(GetExecutionRequest) returns (definition.Execution) {}
+  rpc Get(GetExecutionRequest) returns (types.Execution) {}
 
-  // Stream returns a stream of exeuction that satisfy createria
+  // Stream returns a stream of executions that satisfy criteria
   // specified in a request.
-  rpc Stream(StreamExecutionRequest) returns (stream definition.Execution) {}
+  rpc Stream(StreamExecutionRequest) returns (stream types.Execution) {}
+
+  // Update updates execution with outputs or an error.
+  rpc Update(UpdateExecutionRequest) returns (UpdateExecutionResponse) {}
 }
 
-// GetRequest defines request to retrive a single execution.
+// CreateExecutionRequest defines request to create a single execution.
+message CreateExecutionRequest {
+  string instanceHash = 1;
+  string taskKey = 2;
+  string inputs = 3;
+  repeated string tags = 4;
+}
+
+// CreateExecutionResponse defines response for execution creation.
+message CreateExecutionResponse {
+  // Execution's hash.
+  string hash = 1;
+}
+
+// GetExecutionRequest defines request to retrieve a single execution.
 message GetExecutionRequest {
-  bytes hash = 1;
+  // Execution's hash to fetch.
+  string hash = 1;
 }
 
-// StreamRequest defines request to retrive a stream of executions.
+// StreamExecutionRequest defines request to retrieve a stream of executions.
 message StreamExecutionRequest{
-  // Filter contains filtering cryteria.
+  // Filter contains filtering criteria.
   message Filter {
-    // Status for filtering execution by status.
-    // Note: to filter multiple statues or flags, eg:
-    // Failed | Completed
-    definition.Status status = 1;
+    // Statuses to filter executions. One status needs to be present in the execution.
+    repeated types.Status statuses = 1;
+
+    // Instance's hash to filter executions.
+    string instanceHash = 2;
+
+    // taskKey to filter executions.
+    string taskKey = 3;
+
+    // tags to filter executions. All tags needs to be present in the execution.
+    repeated string tags = 4;
   }
 
   // Filter used to filter a stream of executions.
   Filter filter = 1;
 }
+
+// UpdateExecutionRequest defines request for execution update.
+message UpdateExecutionRequest {
+  // Hash represents execution.
+  string hash = 1;
+
+  // result pass to execution
+  oneof result {
+    // outputs is a success result.
+    string outputs = 2;
+
+    // error is an error result.
+    string error = 3;
+  }
+}
+
+// UpdateExecutionResponse defines response for execution update.
+message UpdateExecutionResponse {}

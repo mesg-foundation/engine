@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mesg-foundation/core/x/xnet"
+	"github.com/mesg-foundation/engine/x/xnet"
 	validator "gopkg.in/go-playground/validator.v9"
 )
 

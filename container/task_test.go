@@ -7,19 +7,19 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
-	"github.com/mesg-foundation/core/container/dockertest"
+	"github.com/mesg-foundation/engine/container/dockertest"
 	"github.com/stretchr/testify/require"
 )
 
 func TestListTasks(t *testing.T) {
-	namespace := []string{"namespace"}
+	namespace := "namespace"
 	tasks := []swarm.Task{
 		{ID: "1"},
 		{ID: "2"},
 	}
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	dt.ProvideTaskList(tasks, nil)
 
@@ -39,10 +39,10 @@ func TestListTasks(t *testing.T) {
 var errTaskList = errors.New("task list")
 
 func TestListTasksError(t *testing.T) {
-	namespace := []string{"namespace"}
+	namespace := "namespace"
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	dt.ProvideTaskList(nil, errTaskList)
 
@@ -51,7 +51,7 @@ func TestListTasksError(t *testing.T) {
 }
 
 func TestTasksError(t *testing.T) {
-	namespace := []string{"namespace"}
+	namespace := "namespace"
 	tasks := []swarm.Task{
 		{
 			ID:     "1",
@@ -64,7 +64,7 @@ func TestTasksError(t *testing.T) {
 	}
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	dt.ProvideTaskList(tasks, nil)
 

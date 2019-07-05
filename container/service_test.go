@@ -1,22 +1,20 @@
 package container
 
 import (
-	"bytes"
-	"io/ioutil"
 	"testing"
 	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
-	"github.com/mesg-foundation/core/container/dockertest"
+	"github.com/mesg-foundation/engine/container/dockertest"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
 func TestStartService(t *testing.T) {
 	var (
-		namespace = []string{"1"}
+		namespace = "namespace"
 		serviceID = "2"
 		options   = ServiceOptions{
 			Image:     "3",
@@ -55,7 +53,7 @@ func TestStartService(t *testing.T) {
 
 func TestStartServiceRunningStatus(t *testing.T) {
 	var (
-		namespace = []string{"1"}
+		namespace = "namespace"
 		serviceID = "2"
 		options   = ServiceOptions{
 			Image:     "3",
@@ -95,7 +93,7 @@ func TestStopService(t *testing.T) {
 		c, mc                   = newTesting(t)
 		serviceID               = "1"
 		containerID             = "1"
-		namespace               = []string{"2"}
+		namespace               = "namespace"
 		fullNamespace           = c.Namespace(namespace)
 		serviceInspectArguments = []interface{}{
 			mock.Anything,
@@ -179,10 +177,10 @@ func TestStopService(t *testing.T) {
 }
 
 func TestStopNotExistingService(t *testing.T) {
-	namespace := []string{"namespace"}
+	namespace := "namespace"
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	dt.ProvideContainerList([]types.Container{}, nil)
 	dt.ProvideContainerInspect(types.ContainerJSON{}, dockertest.NotFoundErr{})
@@ -194,11 +192,11 @@ func TestStopNotExistingService(t *testing.T) {
 }
 
 func TestFindService(t *testing.T) {
-	namespace := []string{"namespace"}
+	namespace := "namespace"
 	swarmService := swarm.Service{ID: "1"}
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	dt.ProvideServiceInspectWithRaw(swarmService, nil, nil)
 
@@ -212,10 +210,10 @@ func TestFindService(t *testing.T) {
 }
 
 func TestFindServiceNotExisting(t *testing.T) {
-	namespace := []string{"namespace"}
+	namespace := "namespace"
 
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 
 	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
 
@@ -228,14 +226,13 @@ func TestFindServiceNotExisting(t *testing.T) {
 }
 
 func TestListServices(t *testing.T) {
-	namespace := []string{"namespace"}
-	namespace1 := []string{"namespace"}
+	namespace := "namespace"
 	label := "1"
 	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
+	c, _ := New(nstestprefix, ClientOption(dt.Client()))
 	swarmServices := []swarm.Service{
 		{Spec: swarm.ServiceSpec{Annotations: swarm.Annotations{Name: c.Namespace(namespace)}}},
-		{Spec: swarm.ServiceSpec{Annotations: swarm.Annotations{Name: c.Namespace(namespace1)}}},
+		{Spec: swarm.ServiceSpec{Annotations: swarm.Annotations{Name: c.Namespace(namespace)}}},
 	}
 
 	dt.ProvideServiceList(swarmServices, nil)
@@ -244,7 +241,7 @@ func TestListServices(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 2, len(services))
 	require.Equal(t, c.Namespace(namespace), services[0].Spec.Name)
-	require.Equal(t, c.Namespace(namespace1), services[1].Spec.Name)
+	require.Equal(t, c.Namespace(namespace), services[1].Spec.Name)
 
 	require.Equal(t, types.ServiceListOptions{
 		Filters: filters.NewArgs(filters.KeyValuePair{
@@ -252,31 +249,4 @@ func TestListServices(t *testing.T) {
 			Value: label,
 		}),
 	}, (<-dt.LastServiceList()).Options)
-}
-
-func TestServiceLogs(t *testing.T) {
-	namespace := []string{"namespace"}
-	data := []byte{1, 2}
-
-	dt := dockertest.New()
-	c, _ := New(ClientOption(dt.Client()))
-
-	dt.ProvideServiceLogs(ioutil.NopCloser(bytes.NewReader(data)), nil)
-
-	reader, err := c.ServiceLogs(namespace)
-	require.NoError(t, err)
-	defer reader.Close()
-
-	bytes, err := ioutil.ReadAll(reader)
-	require.NoError(t, err)
-	require.Equal(t, data, bytes)
-
-	ll := <-dt.LastServiceLogs()
-	require.Equal(t, c.Namespace(namespace), ll.ServiceID)
-	require.Equal(t, types.ContainerLogsOptions{
-		ShowStdout: true,
-		ShowStderr: true,
-		Timestamps: false,
-		Follow:     true,
-	}, ll.Options)
 }
