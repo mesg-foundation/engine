@@ -28,7 +28,7 @@ func New(sdk *sdk.SDK) *Server {
 	return &Server{sdk: sdk}
 }
 
-// listen listens for connections.
+// Serve listens for connections.
 func (s *Server) Serve(address string) error {
 	ln, err := net.Listen("tcp", address)
 	if err != nil {
