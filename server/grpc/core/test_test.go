@@ -26,7 +26,7 @@ func newServerWithContainer(t *testing.T, c container.Container) (*Server, func(
 	execDB, err := database.NewExecutionDB(execdbname)
 	require.NoError(t, err)
 
-	a := sdk.New(c, db, instanceDB, execDB)
+	a := sdk.New(c, db, instanceDB, execDB, "", "")
 
 	server := NewServer(a)
 

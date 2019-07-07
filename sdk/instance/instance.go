@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"os"
 
@@ -21,14 +22,19 @@ type Instance struct {
 	container  container.Container
 	service    *servicesdk.Service
 	instanceDB database.InstanceDB
+
+	endpoint   string
+	engineName string
 }
 
 // New creates a new Instance SDK with given options.
-func New(c container.Container, service *servicesdk.Service, instanceDB database.InstanceDB) *Instance {
+func New(c container.Container, service *servicesdk.Service, instanceDB database.InstanceDB, engineName, port string) *Instance {
 	return &Instance{
 		container:  c,
 		service:    service,
 		instanceDB: instanceDB,
+		endpoint:   net.JoinHostPort(engineName, port),
+		engineName: engineName,
 	}
 }
 
