@@ -13,6 +13,7 @@
 #### Breaking Changes
 
 - ([#1083](https://github.com/mesg-foundation/engine/pull/1083)) Remove old gRPC APIs.
+- ([#1170](https://github.com/mesg-foundation/engine/pull/1170)) Change Service and Execution database version. You'll need to redeploy your services.
 
 #### Added
 
