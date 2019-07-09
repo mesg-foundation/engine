@@ -46,7 +46,7 @@ func (w *Workflow) processEvent(event *event.Event) {
 		w.ErrC <- err
 	}
 	for _, workflow := range workflows {
-		_, err := w.execution.Execute(workflow.Task.InstanceHash, workflow.Task.TaskKey, event.Data, []string{})
+		_, err := w.execution.Execute(workflow.Task.InstanceHash, event, workflow.Task.TaskKey, []string{})
 		if err != nil {
 			w.ErrC <- err
 			continue
