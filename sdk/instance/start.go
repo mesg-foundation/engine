@@ -35,13 +35,6 @@ func (i *Instance) start(inst *instance.Instance, imageHash string, env []string
 	// After solving this by docker, switch back to deploy in parallel
 	configs := make([]container.ServiceOptions, 0)
 
-	labels := map[string]string{
-		"mesg.service": srv.Name,
-		"mesg.hash":    inst.Hash.String(),
-		"mesg.sid":     srv.Sid,
-		"mesg.engine":  conf.Name,
-	}
-
 	// Create dependency container configs
 	for _, d := range srv.Dependencies {
 		volumes := extractVolumes(srv, d)
@@ -51,13 +44,19 @@ func (i *Instance) start(inst *instance.Instance, imageHash string, env []string
 		}
 		configs = append(configs, container.ServiceOptions{
 			Namespace: dependencyNamespace(instNamespace, d.Key),
-			Labels:    labels,
-			Image:     d.Image,
-			Args:      d.Args,
-			Command:   d.Command,
-			Env:       d.Env,
-			Mounts:    append(volumes, volumesFrom...),
-			Ports:     extractPorts(d),
+			Labels: map[string]string{
+				"mesg.engine":     conf.Name,
+				"mesg.sid":        srv.Sid,
+				"mesg.service":    srv.Hash.String(),
+				"mesg.instance":   inst.Hash.String(),
+				"mesg.dependency": d.Key,
+			},
+			Image:   d.Image,
+			Args:    d.Args,
+			Command: d.Command,
+			Env:     d.Env,
+			Mounts:  append(volumes, volumesFrom...),
+			Ports:   extractPorts(d),
 			Networks: []container.Network{
 				{ID: networkID, Alias: d.Key},
 				{ID: sharedNetworkID}, // TODO: to remove
@@ -73,10 +72,16 @@ func (i *Instance) start(inst *instance.Instance, imageHash string, env []string
 	}
 	configs = append(configs, container.ServiceOptions{
 		Namespace: dependencyNamespace(instNamespace, srv.Configuration.Key),
-		Labels:    labels,
-		Image:     imageHash,
-		Args:      srv.Configuration.Args,
-		Command:   srv.Configuration.Command,
+		Labels: map[string]string{
+			"mesg.engine":     conf.Name,
+			"mesg.sid":        srv.Sid,
+			"mesg.service":    srv.Hash.String(),
+			"mesg.instance":   inst.Hash.String(),
+			"mesg.dependency": srv.Configuration.Key,
+		},
+		Image:   imageHash,
+		Args:    srv.Configuration.Args,
+		Command: srv.Configuration.Command,
 		Env: xos.EnvMergeSlices(env, []string{
 			"MESG_TOKEN=" + inst.Hash.String(),
 			"MESG_ENDPOINT=" + endpoint,
