@@ -1,12 +1,8 @@
 package instancesdk
 
 import (
-	"strconv"
-
-	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/instance"
-	"github.com/mesg-foundation/engine/x/xnet"
 	"github.com/mesg-foundation/engine/x/xos"
 )
 
@@ -25,12 +21,6 @@ func (i *Instance) start(inst *instance.Instance, imageHash string, env []string
 	if err != nil {
 		return nil, err
 	}
-	conf, err := config.Global()
-	if err != nil {
-		return nil, err
-	}
-	_, port, _ := xnet.SplitHostPort(conf.Server.Address)
-	endpoint := conf.Name + ":" + strconv.Itoa(port)
 	// BUG: https://github.com/mesg-foundation/engine/issues/382
 	// After solving this by docker, switch back to deploy in parallel
 	configs := make([]container.ServiceOptions, 0)
@@ -45,7 +35,7 @@ func (i *Instance) start(inst *instance.Instance, imageHash string, env []string
 		configs = append(configs, container.ServiceOptions{
 			Namespace: dependencyNamespace(instNamespace, d.Key),
 			Labels: map[string]string{
-				"mesg.engine":     conf.Name,
+				"mesg.engine":     i.engineName,
 				"mesg.sid":        srv.Sid,
 				"mesg.service":    srv.Hash.String(),
 				"mesg.instance":   inst.Hash.String(),
@@ -73,7 +63,7 @@ func (i *Instance) start(inst *instance.Instance, imageHash string, env []string
 	configs = append(configs, container.ServiceOptions{
 		Namespace: dependencyNamespace(instNamespace, srv.Configuration.Key),
 		Labels: map[string]string{
-			"mesg.engine":     conf.Name,
+			"mesg.engine":     i.engineName,
 			"mesg.sid":        srv.Sid,
 			"mesg.service":    srv.Hash.String(),
 			"mesg.instance":   inst.Hash.String(),
@@ -84,8 +74,8 @@ func (i *Instance) start(inst *instance.Instance, imageHash string, env []string
 		Command: srv.Configuration.Command,
 		Env: xos.EnvMergeSlices(env, []string{
 			"MESG_TOKEN=" + inst.Hash.String(),
-			"MESG_ENDPOINT=" + endpoint,
-			"MESG_ENDPOINT_TCP=" + endpoint,
+			"MESG_ENDPOINT=" + i.endpoint,
+			"MESG_ENDPOINT_TCP=" + i.endpoint,
 		}),
 		Mounts: append(volumes, volumesFrom...),
 		Ports:  extractPorts(srv.Configuration),
