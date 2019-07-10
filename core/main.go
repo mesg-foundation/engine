@@ -2,6 +2,7 @@ package main
 
 import (
 	"path/filepath"
+	"strconv"
 	"sync"
 
 	"github.com/mesg-foundation/engine/config"
@@ -15,6 +16,7 @@ import (
 	"github.com/mesg-foundation/engine/server/grpc"
 	"github.com/mesg-foundation/engine/version"
 	"github.com/mesg-foundation/engine/x/xerrors"
+	"github.com/mesg-foundation/engine/x/xnet"
 	"github.com/mesg-foundation/engine/x/xos"
 	"github.com/mesg-foundation/engine/x/xsignal"
 	"github.com/sirupsen/logrus"
@@ -59,8 +61,10 @@ func initDependencies() (*dependencies, error) {
 		return nil, err
 	}
 
+	_, port, _ := xnet.SplitHostPort(config.Server.Address)
+
 	// init sdk.
-	sdk := sdk.New(c, serviceDB, instanceDB, executionDB)
+	sdk := sdk.New(c, serviceDB, instanceDB, executionDB, config.Name, strconv.Itoa(port))
 
 	return &dependencies{
 		config:      config,
