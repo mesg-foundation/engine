@@ -10,9 +10,12 @@
 
 ## [v0.11.0](https://github.com/mesg-foundation/engine/releases/tag/v0.11.0)
 
+### [Click here to see the release notes](https://forum.mesg.com/t/release-notes-of-engine-v0-11-cli-v1-1-and-js-library-v4/339)
+
 #### Breaking Changes
 
 - ([#1083](https://github.com/mesg-foundation/engine/pull/1083)) Remove old gRPC APIs.
+- ([#1170](https://github.com/mesg-foundation/engine/pull/1170)) Change Service and Execution database version. You'll need to redeploy your services.
 
 #### Added
 
