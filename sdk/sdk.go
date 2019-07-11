@@ -19,10 +19,10 @@ type SDK struct {
 }
 
 // New creates a new SDK with given options.
-func New(c container.Container, serviceDB database.ServiceDB, instanceDB database.InstanceDB, execDB database.ExecutionDB) *SDK {
+func New(c container.Container, serviceDB database.ServiceDB, instanceDB database.InstanceDB, execDB database.ExecutionDB, engineName, port string) *SDK {
 	ps := pubsub.New(0)
 	serviceSDK := servicesdk.New(c, serviceDB)
-	instanceSDK := instancesdk.New(c, serviceSDK, instanceDB)
+	instanceSDK := instancesdk.New(c, serviceSDK, instanceDB, engineName, port)
 	executionSDK := executionsdk.New(ps, serviceSDK, instanceSDK, execDB)
 	eventSDK := eventsdk.New(ps, serviceSDK, instanceSDK)
 	return &SDK{
