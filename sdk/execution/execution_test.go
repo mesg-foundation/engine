@@ -47,7 +47,7 @@ func newTesting(t *testing.T) (*Execution, *apiTesting) {
 
 	instDB, err := database.NewInstanceDB(instdbname)
 	require.NoError(t, err)
-	instance := instancesdk.New(container, service, instDB)
+	instance := instancesdk.New(container, service, instDB, "", "")
 
 	execDB, err := database.NewExecutionDB(execdbname)
 	require.NoError(t, err)

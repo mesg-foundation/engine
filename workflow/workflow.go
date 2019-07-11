@@ -34,10 +34,10 @@ func (w *Workflow) Start() error {
 		return fmt.Errorf("workflow engine already running")
 	}
 	w.eventStream = w.event.GetStream(nil)
-	for {
-		event := <-w.eventStream.C
+	for event := range w.eventStream.C {
 		go w.processEvent(event)
 	}
+	return nil
 }
 
 func (w *Workflow) processEvent(event *event.Event) {
