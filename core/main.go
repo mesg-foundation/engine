@@ -15,6 +15,7 @@ import (
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	"github.com/mesg-foundation/engine/server/grpc"
 	"github.com/mesg-foundation/engine/version"
+	"github.com/mesg-foundation/engine/workflow"
 	"github.com/mesg-foundation/engine/x/xerrors"
 	"github.com/mesg-foundation/engine/x/xnet"
 	"github.com/mesg-foundation/engine/x/xos"
@@ -159,6 +160,14 @@ func main() {
 
 	go func() {
 		if err := server.Serve(dep.config.Server.Address); err != nil {
+			logrus.Fatalln(err)
+		}
+	}()
+
+	go func() {
+		logrus.Info("starting workflow engine")
+		wf := workflow.New(dep.sdk.Event, dep.sdk.Execution)
+		if err := wf.Start(); err != nil {
 			logrus.Fatalln(err)
 		}
 	}()
