@@ -7,11 +7,11 @@ type EngineEventType string
 
 const (
 	// EngineAPIExecution This event is triggered when the `execution/create` API is called
-	EngineAPIExecution EngineEventType = "engine-api-execution"
+	EngineAPIExecution EngineEventType = "mesg:engine-api-execution"
 )
 
 // EngineEvent creates an engine event.
 // Engine event does not have any instance hash and are prefixed by mesg:
 func EngineEvent(evtType EngineEventType, data map[string]interface{}) *Event {
-	return Create(nil, "mesg:"+string(evtType), data)
+	return Create(nil, string(evtType), data)
 }
