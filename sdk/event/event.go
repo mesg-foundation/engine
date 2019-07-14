@@ -51,6 +51,13 @@ func (e *Event) Create(instanceHash hash.Hash, eventKey string, eventData map[st
 	return event, nil
 }
 
+// CreateEngineEvent creates and publishes an engine event
+func (e *Event) CreateEngineEvent(eventType event.EngineEventType, data map[string]interface{}) *event.Event {
+	evt := event.EngineEvent(eventType, data)
+	go e.ps.Pub(evt, streamTopic)
+	return evt
+}
+
 // GetStream broadcasts all events.
 func (e *Event) GetStream(f *Filter) *Listener {
 	l := NewListener(e.ps, streamTopic, f)
