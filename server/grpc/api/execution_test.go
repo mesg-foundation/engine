@@ -9,6 +9,7 @@ import (
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/sdk"
+	"github.com/mesg-foundation/engine/hash"
 	"github.com/stretchr/testify/require"
 )
 
@@ -32,6 +33,28 @@ func TestGet(t *testing.T) {
 	got, err := s.Get(context.Background(), &api.GetExecutionRequest{Hash: exec.Hash.String()})
 	require.NoError(t, err)
 	require.Equal(t, got, want)
+}
+
+func TestCreateWithInvalidHash(t *testing.T) {
+	sdk := sdk.New(nil, nil, nil, nil, "", "")
+	s := NewExecutionServer(sdk)
+
+	_, err := s.Create(context.Background(), &api.CreateExecutionRequest{
+		InstanceHash: "xx",
+	})
+	require.Error(t, err)
+}
+
+func TestCreateWithInvalidInputs(t *testing.T) {
+	sdk := sdk.New(nil, nil, nil, nil, "", "")
+	s := NewExecutionServer(sdk)
+
+	h, _ := hash.Random()
+	_, err := s.Create(context.Background(), &api.CreateExecutionRequest{
+		InstanceHash: h.String(),
+		Inputs: "xx",
+	})
+	require.Error(t, err)
 }
 
 func TestUpdate(t *testing.T) {
