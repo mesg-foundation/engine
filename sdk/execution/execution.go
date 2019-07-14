@@ -6,6 +6,7 @@ import (
 
 	"github.com/cskr/pubsub"
 	"github.com/mesg-foundation/engine/database"
+	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
@@ -127,7 +128,7 @@ func (e *Execution) validateExecutionOutput(instanceHash hash.Hash, taskKey stri
 }
 
 // Execute executes a task tasKey with inputData and tags for service serviceID.
-func (e *Execution) Execute(instanceHash hash.Hash, taskKey string, inputData map[string]interface{}, tags []string) (executionHash hash.Hash, err error) {
+func (e *Execution) Execute(instanceHash hash.Hash, evt *event.Event, taskKey string, tags []string) (executionHash hash.Hash, err error) {
 	// a task should be executed only if task's service is running.
 	instance, err := e.instance.Get(instanceHash)
 	if err != nil {
@@ -139,17 +140,11 @@ func (e *Execution) Execute(instanceHash hash.Hash, taskKey string, inputData ma
 		return nil, err
 	}
 
-	if err := s.RequireTaskInputs(taskKey, inputData); err != nil {
+	if err := s.RequireTaskInputs(taskKey, evt.Data); err != nil {
 		return nil, err
 	}
 
-	// execute the task.
-	eventHash, err := hash.Random()
-	if err != nil {
-		return nil, err
-	}
-
-	exec := execution.New(instance.Hash, nil, eventHash, taskKey, inputData, tags)
+	exec := execution.New(instance.Hash, nil, evt.Hash, taskKey, evt.Data, tags)
 	if err := exec.Execute(); err != nil {
 		return nil, err
 	}

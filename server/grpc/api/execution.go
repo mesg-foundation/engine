@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
@@ -30,7 +31,7 @@ func NewExecutionServer(sdk *sdk.SDK) *ExecutionServer {
 
 // Create creates an execution.
 func (s *ExecutionServer) Create(ctx context.Context, req *api.CreateExecutionRequest) (*api.CreateExecutionResponse, error) {
-	hash, err := hash.Decode(req.InstanceHash)
+	instanceHash, err := hash.Decode(req.InstanceHash)
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +41,24 @@ func (s *ExecutionServer) Create(ctx context.Context, req *api.CreateExecutionRe
 		return nil, fmt.Errorf("cannot parse execution's inputs (JSON format): %s", err)
 	}
 
-	executionHash, err := s.sdk.Execution.Execute(hash, req.TaskKey, inputs, req.Tags)
+	eventHash, err := hash.Random()
+	if err != nil {
+		return nil, err
+	}
+	evt := &event.Event{
+		Hash:         eventHash,
+		InstanceHash: instanceHash,
+		Data:         inputs,
+	}
+	// Or the following but it needs to create a hack to skip the validation
+	// because the event is not present in the service. We could have an additional
+	// parameter `skipValidation` but I'm not a huge fan
+	// evt, err := s.sdk.Event.Create(hash, "api-call", inputs)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	executionHash, err := s.sdk.Execution.Execute(instanceHash, evt, req.TaskKey, req.Tags)
 	if err != nil {
 		return nil, err
 	}
