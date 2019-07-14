@@ -7,6 +7,7 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 	eventsdk "github.com/mesg-foundation/engine/sdk/event"
 	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
+	"github.com/sirupsen/logrus"
 )
 
 // Workflow exposes functions of the workflow
@@ -33,6 +34,11 @@ func (w *Workflow) Start() error {
 	if w.eventStream != nil {
 		return fmt.Errorf("workflow engine already running")
 	}
+	go func() {
+		for err := range w.ErrC {
+			logrus.Error(err)
+		}
+	}()
 	w.eventStream = w.event.GetStream(nil)
 	for event := range w.eventStream.C {
 		go w.processEvent(event)
@@ -61,7 +67,11 @@ func (w *Workflow) findMatchingWorkflows(event *event.Event) ([]*workflow, error
 	}
 	workflows := make([]*workflow, 0)
 	for _, wf := range all {
-		if wf.Trigger.InstanceHash.Equal(event.InstanceHash) && wf.Trigger.EventKey == event.Key {
+		match, err := wf.Trigger.Match(event)
+		if err != nil {
+			return nil, err
+		}
+		if match {
 			workflows = append(workflows, wf)
 		}
 	}
@@ -82,6 +92,9 @@ func all() ([]*workflow, error) {
 		Trigger: trigger{
 			EventKey:     "eventX",
 			InstanceHash: instanceHash,
+			Filters: []*filter{
+				{Key: "bar", Predicate: EQ, Value: "world-2"},
+			},
 		},
 		Task: task{
 			InstanceHash: instanceHash,
