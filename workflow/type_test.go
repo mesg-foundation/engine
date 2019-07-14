@@ -15,7 +15,7 @@ func TestMatch(t *testing.T) {
 		match   bool
 	}{
 		{ // matching event
-			&trigger{InstanceHash: hash.Int(1), EventKey: "xx"},
+			&trigger{InstanceHash: hash.Int(1), Key: "xx"},
 			&event.Event{InstanceHash: hash.Int(1), Key: "xx"},
 			true,
 		},
@@ -25,26 +25,26 @@ func TestMatch(t *testing.T) {
 			false,
 		},
 		{ // not matching event
-			&trigger{InstanceHash: hash.Int(1), EventKey: "xx"},
+			&trigger{InstanceHash: hash.Int(1), Key: "xx"},
 			&event.Event{InstanceHash: hash.Int(1), Key: "yy"},
 			false,
 		},
 		{ // matching filter
-			&trigger{InstanceHash: hash.Int(1), EventKey: "xx", Filters: []*filter{
+			&trigger{InstanceHash: hash.Int(1), Key: "xx", Filters: []*filter{
 				{Key: "foo", Predicate: EQ, Value: "bar"},
 			}},
 			&event.Event{InstanceHash: hash.Int(1), Key: "xx", Data: map[string]interface{}{"foo": "bar"}},
 			true,
 		},
 		{ // not matching filter
-			&trigger{InstanceHash: hash.Int(1), EventKey: "xx", Filters: []*filter{
+			&trigger{InstanceHash: hash.Int(1), Key: "xx", Filters: []*filter{
 				{Key: "foo", Predicate: EQ, Value: "xx"},
 			}},
 			&event.Event{InstanceHash: hash.Int(1), Key: "xx", Data: map[string]interface{}{"foo": "bar"}},
 			false,
 		},
 		{ // matching multiple filters
-			&trigger{InstanceHash: hash.Int(1), EventKey: "xx", Filters: []*filter{
+			&trigger{InstanceHash: hash.Int(1), Key: "xx", Filters: []*filter{
 				{Key: "foo", Predicate: EQ, Value: "bar"},
 				{Key: "xxx", Predicate: EQ, Value: "yyy"},
 			}},
@@ -56,7 +56,7 @@ func TestMatch(t *testing.T) {
 			true,
 		},
 		{ // non matching multiple filters
-			&trigger{InstanceHash: hash.Int(1), EventKey: "xx", Filters: []*filter{
+			&trigger{InstanceHash: hash.Int(1), Key: "xx", Filters: []*filter{
 				{Key: "foo", Predicate: EQ, Value: "bar"},
 				{Key: "xxx", Predicate: EQ, Value: "aaa"},
 			}},
@@ -69,7 +69,7 @@ func TestMatch(t *testing.T) {
 		},
 	}
 	for i, test := range tests {
-		match := test.trigger.Match(test.event)
+		match := test.trigger.MatchEvent(test.event)
 		assert.Equal(t, test.match, match, i)
 	}
 }

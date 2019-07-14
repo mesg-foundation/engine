@@ -14,6 +14,14 @@ type predicate uint
 const (
 	EQ predicate = iota
 )
+type triggerType uint
+
+const (
+	// Event is an event emitted by a service
+	Event triggerType = iota
+	// Result is the result of a task execution
+	Result
+)
 
 type workflow struct {
 	Trigger trigger
@@ -34,16 +42,17 @@ type filter struct {
 // Trigger is an event that triggers a workflow
 type trigger struct {
 	InstanceHash hash.Hash
-	EventKey     string
+	Key          string
+	Type         triggerType
 	Filters      []*filter
 }
 
-func (t *trigger) Match(evt *event.Event) bool {
+func (t *trigger) MatchEvent(evt *event.Event) bool {
 	if !t.InstanceHash.Equal(evt.InstanceHash) {
 		return false
 	}
 
-	if t.EventKey != evt.Key {
+	if t.Key != evt.Key {
 		return false
 	}
 
