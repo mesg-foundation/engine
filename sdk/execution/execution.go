@@ -9,6 +9,7 @@ import (
 	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
+	eventsdk "github.com/mesg-foundation/engine/sdk/event"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 )
@@ -24,15 +25,17 @@ type Execution struct {
 	ps       *pubsub.PubSub
 	service  *servicesdk.Service
 	instance *instancesdk.Instance
+	event    *eventsdk.Event
 	execDB   database.ExecutionDB
 }
 
 // New creates a new Execution SDK with given options.
-func New(ps *pubsub.PubSub, service *servicesdk.Service, instance *instancesdk.Instance, execDB database.ExecutionDB) *Execution {
+func New(ps *pubsub.PubSub, service *servicesdk.Service, instance *instancesdk.Instance, event *eventsdk.Event, execDB database.ExecutionDB) *Execution {
 	return &Execution{
 		ps:       ps,
 		service:  service,
 		instance: instance,
+		event:    event,
 		execDB:   execDB,
 	}
 }
@@ -58,6 +61,18 @@ func (e *Execution) Update(executionHash hash.Hash, outputs []byte, reterr error
 
 	go e.ps.Pub(exec, streamTopic)
 	go e.ps.Pub(exec, subTopic(exec.InstanceHash))
+	e.event.CreateEngineEvent(event.EndOfExecution, map[string]interface{}{
+		"Hash":         exec.Hash,
+		"ParentHash":   exec.ParentHash,
+		"EventHash":    exec.EventHash,
+		"Status":       exec.Status,
+		"InstanceHash": exec.InstanceHash,
+		"TaskKey":      exec.TaskKey,
+		"Tags":         exec.Tags,
+		"Inputs":       exec.Inputs,
+		"Outputs":      exec.Outputs,
+		"Error":        exec.Error,
+	})
 	return nil
 }
 

@@ -11,6 +11,7 @@ import (
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/instance"
+	eventsdk "github.com/mesg-foundation/engine/sdk/event"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	"github.com/mesg-foundation/engine/service"
@@ -40,10 +41,12 @@ func (t *apiTesting) close() {
 }
 
 func newTesting(t *testing.T) (*Execution, *apiTesting) {
+	ps := pubsub.New(0)
 	container := &mocks.Container{}
 	db, err := database.NewServiceDB(servicedbname)
 	require.NoError(t, err)
 	service := servicesdk.New(container, db)
+	event := eventsdk.New(ps, nil, nil)
 
 	instDB, err := database.NewInstanceDB(instdbname)
 	require.NoError(t, err)
@@ -52,7 +55,7 @@ func newTesting(t *testing.T) (*Execution, *apiTesting) {
 	execDB, err := database.NewExecutionDB(execdbname)
 	require.NoError(t, err)
 
-	sdk := New(pubsub.New(0), service, instance, execDB)
+	sdk := New(ps, service, instance, event, execDB)
 
 	return sdk, &apiTesting{
 		T:           t,

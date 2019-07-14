@@ -8,6 +8,8 @@ type EngineEventType string
 const (
 	// EngineAPIExecution This event is triggered when the `execution/create` API is called
 	EngineAPIExecution EngineEventType = "mesg:engine-api-execution"
+	// EndOfExecution This event is triggered when an execution is completed
+	EndOfExecution EngineEventType = "mesg:engine-end-of-execution"
 )
 
 // EngineEvent creates an engine event.
