@@ -7,9 +7,9 @@ import (
 
 	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/execution"
+	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/sdk"
-	"github.com/mesg-foundation/engine/hash"
 	"github.com/stretchr/testify/require"
 )
 
@@ -52,7 +52,7 @@ func TestCreateWithInvalidInputs(t *testing.T) {
 	h, _ := hash.Random()
 	_, err := s.Create(context.Background(), &api.CreateExecutionRequest{
 		InstanceHash: h.String(),
-		Inputs: "xx",
+		Inputs:       "xx",
 	})
 	require.Error(t, err)
 }
