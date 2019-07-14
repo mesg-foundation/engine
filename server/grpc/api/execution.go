@@ -41,7 +41,7 @@ func (s *ExecutionServer) Create(ctx context.Context, req *api.CreateExecutionRe
 		return nil, fmt.Errorf("cannot parse execution's inputs (JSON format): %s", err)
 	}
 
-	evt := event.EngineEvent(event.EngineAPIExecution, inputs)
+	evt := s.sdk.Event.CreateEngineEvent(event.EngineAPIExecution, inputs)
 
 	executionHash, err := s.sdk.Execution.Execute(instanceHash, evt, req.TaskKey, req.Tags)
 	if err != nil {
