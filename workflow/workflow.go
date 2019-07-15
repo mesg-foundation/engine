@@ -34,11 +34,6 @@ func (w *Workflow) Start() error {
 	if w.eventStream != nil {
 		return fmt.Errorf("workflow engine already running")
 	}
-	go func() {
-		for err := range w.ErrC {
-			logrus.Error(err)
-		}
-	}()
 	w.eventStream = w.event.GetStream(nil)
 	for event := range w.eventStream.C {
 		go w.processEvent(event)
