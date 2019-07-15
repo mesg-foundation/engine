@@ -42,49 +42,45 @@ func (w *Workflow) Start() error {
 	for {
 		select {
 		case event := <-w.eventStream.C:
-			go w.processEvent(event, Event)
+			go w.processEvent(event)
 		case execution := <-w.executionStream.C:
-			eventHash, err := hash.Random()
-			if err != nil {
-				w.ErrC <- err
+			go w.processExecution(execution)
 			}
-			event := &event.Event{
-				Hash:         eventHash,
-				InstanceHash: execution.InstanceHash,
-				Key:          execution.TaskKey,
-				Data:         execution.Outputs,
 			}
-			go w.processEvent(event, Result)
 		}
-	}
-}
 
-func (w *Workflow) processEvent(event *event.Event, trigger triggerType) {
-	workflows, err := w.findMatchingWorkflows(event, trigger)
+func (w *Workflow) processEvent(event *event.Event) {
+	all, err := all()
 	if err != nil {
 		w.ErrC <- err
+		return
 	}
-	for _, workflow := range workflows {
-		_, err := w.execution.Execute(workflow.Task.InstanceHash, event, workflow.Task.TaskKey, []string{})
+	for _, wf := range all {
+		if wf.Trigger.Type == Event && wf.Trigger.InstanceHash.Equal(event.InstanceHash) && wf.Trigger.Key == event.Key {
+			_, err := w.execution.Execute(wf.Task.InstanceHash, event.Hash, nil, wf.Task.TaskKey, event.Data, []string{})
 		if err != nil {
 			w.ErrC <- err
 			continue
 		}
 	}
 }
+}
 
-func (w *Workflow) findMatchingWorkflows(event *event.Event, trigger triggerType) ([]*workflow, error) {
+func (w *Workflow) processExecution(execution *execution.Execution) {
 	all, err := all()
 	if err != nil {
-		return nil, err
+		w.ErrC <- err
+		return
 	}
-	workflows := make([]*workflow, 0)
 	for _, wf := range all {
 		if wf.Trigger.MatchEvent(event) {
-			workflows = append(workflows, wf)
+			_, err := w.execution.Execute(wf.Task.InstanceHash, nil, execution.Hash, wf.Task.TaskKey, execution.Outputs, []string{})
+			if err != nil {
+				w.ErrC <- err
+				continue
+			}
 		}
 	}
-	return workflows, nil
 }
 
 // All returns a fake set of data
