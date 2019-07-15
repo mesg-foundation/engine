@@ -7,7 +7,6 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 	eventsdk "github.com/mesg-foundation/engine/sdk/event"
 	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
-	"github.com/sirupsen/logrus"
 )
 
 // Workflow exposes functions of the workflow
@@ -62,11 +61,7 @@ func (w *Workflow) findMatchingWorkflows(event *event.Event) ([]*workflow, error
 	}
 	workflows := make([]*workflow, 0)
 	for _, wf := range all {
-		match, err := wf.Trigger.Match(event)
-		if err != nil {
-			return nil, err
-		}
-		if match {
+		if wf.Trigger.Match(event) {
 			workflows = append(workflows, wf)
 		}
 	}

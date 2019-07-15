@@ -38,23 +38,22 @@ type trigger struct {
 	Filters      []*filter
 }
 
-func (t *trigger) Match(evt *event.Event) (bool, error) {
-	instanceHash := evt.InstanceHash
-	if !t.InstanceHash.Equal(instanceHash) {
-		return false, nil
+func (t *trigger) Match(evt *event.Event) bool {
+	if !t.InstanceHash.Equal(evt.InstanceHash) {
+		return false
 	}
 
 	if t.EventKey != evt.Key {
-		return false, nil
+		return false
 	}
 
 	for _, filter := range t.Filters {
 		if !filter.Match(evt.Data) {
-			return false, nil
+			return false
 		}
 	}
 
-	return true, nil
+	return true
 }
 
 func (f *filter) Match(inputs map[string]interface{}) bool {
