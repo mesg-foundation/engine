@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
@@ -45,20 +44,7 @@ func (s *ExecutionServer) Create(ctx context.Context, req *api.CreateExecutionRe
 	if err != nil {
 		return nil, err
 	}
-	evt := &event.Event{
-		Hash:         eventHash,
-		InstanceHash: instanceHash,
-		Data:         inputs,
-	}
-	// Or the following but it needs to create a hack to skip the validation
-	// because the event is not present in the service. We could have an additional
-	// parameter `skipValidation` but I'm not a huge fan
-	// evt, err := s.sdk.Event.Create(hash, "api-call", inputs)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	executionHash, err := s.sdk.Execution.Execute(instanceHash, evt, req.TaskKey, req.Tags)
+	executionHash, err := s.sdk.Execution.Execute(instanceHash, eventHash, nil, req.TaskKey, inputs, req.Tags)
 	if err != nil {
 		return nil, err
 	}
