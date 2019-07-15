@@ -45,9 +45,9 @@ func (w *Workflow) Start() error {
 			go w.processEvent(event)
 		case execution := <-w.executionStream.C:
 			go w.processExecution(execution)
-			}
-			}
 		}
+	}
+}
 
 func (w *Workflow) processEvent(event *event.Event) {
 	all, err := all()
@@ -58,12 +58,12 @@ func (w *Workflow) processEvent(event *event.Event) {
 	for _, wf := range all {
 		if wf.Trigger.Type == Event && wf.Trigger.InstanceHash.Equal(event.InstanceHash) && wf.Trigger.Key == event.Key {
 			_, err := w.execution.Execute(wf.Task.InstanceHash, event.Hash, nil, wf.Task.TaskKey, event.Data, []string{})
-		if err != nil {
-			w.ErrC <- err
-			continue
+			if err != nil {
+				w.ErrC <- err
+				continue
+			}
 		}
 	}
-}
 }
 
 func (w *Workflow) processExecution(execution *execution.Execution) {
@@ -86,26 +86,20 @@ func (w *Workflow) processExecution(execution *execution.Execution) {
 // All returns a fake set of data
 // This is what can be called a system workflow and need to be removed when moved to services
 // The hash of this instance correspond to the following service
-// {"sid":"test-workflow","name":"Test workflow","tasks":[{"key":"taskX","inputs":[{"key":"foo","type":"String","object":[]},{"key":"bar","type":"String","object":[]}],"outputs":[{"key":"res","type":"Any","object":[]}]}],"events":[{"key":"eventX","data":[{"key":"foo","type":"String","object":[]},{"key":"bar","type":"String","object":[]}]}],"dependencies":[],"source":"QmQvRzJPFDhyBGK2rQP5mAeMrgp1XsTB8WYK2c7FHvyAB8"}
+// {"sid":"test-workflow","name":"test-workflow","tasks":[{"key":"taskA","inputs":[{"key":"a","type":"String","object":[]}],"outputs":[{"key":"a","type":"String","object":[]},{"key":"b","type":"Boolean","object":[]}]},{"key":"taskB","inputs":[{"key":"a","type":"String","object":[]},{"key":"b","type":"Boolean","object":[]}],"outputs":[{"key":"a","type":"Boolean","object":[]}]}],"events":[{"key":"started","data":[{"key":"a","type":"String","object":[]}]},{"key":"interval","data":[{"key":"i","type":"Number","object":[]}]}],"dependencies":[],"configuration":{"env":["EVENT_INTERVAL=1000"]},"source":"QmVvDmnTWnUd4EmWT3qUoBiv8gym4EYkTkwfBmfvYs7WFS"}
 func all() ([]*workflow, error) {
-	workflows := make([]*workflow, 0)
-	instanceHash, err := hash.Decode("4fJs16kSV23Sc8CZ4nEJKoaQj1FogqWGrU2vpXT6vcbD")
+	instanceHash, err := hash.Decode("FtxZoLSD4M8w4v3ZfY8s6tY4bAc9B3Wy1TiqGq8iP3Tt")
 	if err != nil {
 		return nil, err
 	}
-	workflows = append(workflows, &workflow{
-		Trigger: trigger{
-			Key:          "taskX",
-			Type:         Result,
-			InstanceHash: instanceHash,
-			Filters: []*filter{
-				{Key: "bar", Predicate: EQ, Value: "world-2"},
-			},
+	return []*workflow{
+		{ // When result of taskA() -> (a string, b string), execute taskB(a string, b bool)
+			Trigger: trigger{InstanceHash: instanceHash, Type: Result, Key: "taskA"},
+			Task:    task{InstanceHash: instanceHash, TaskKey: "taskB"},
 		},
-		Task: task{
-			InstanceHash: instanceHash,
-			TaskKey:      "taskX",
+		{ // When event started(a string), execute taskA(a string)
+			Trigger: trigger{InstanceHash: instanceHash, Type: Event, Key: "started"},
+			Task:    task{InstanceHash: instanceHash, TaskKey: "taskA"},
 		},
-	})
-	return workflows, nil
+	}, nil
 }
