@@ -1,7 +1,6 @@
 package workflow
 
 import (
-	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/hash"
 )
 
@@ -13,6 +12,15 @@ type predicate uint
 // Possible status for services.
 const (
 	EQ predicate = iota
+)
+
+type triggerType uint
+
+const (
+	// Event is an event emitted by a service
+	Event triggerType = iota
+	// Result is the result of a task execution
+	Result
 )
 
 type workflow struct {
@@ -34,21 +42,25 @@ type filter struct {
 // Trigger is an event that triggers a workflow
 type trigger struct {
 	InstanceHash hash.Hash
-	EventKey     string
+	Key          string
+	Type         triggerType
 	Filters      []*filter
 }
 
-func (t *trigger) Match(evt *event.Event) bool {
-	if !t.InstanceHash.Equal(evt.InstanceHash) {
+func (t *trigger) Match(trigger triggerType, instanceHash hash.Hash, key string, data map[string]interface{}) bool {
+	if t.Type != trigger {
+		return false
+	}
+	if !t.InstanceHash.Equal(instanceHash) {
 		return false
 	}
 
-	if t.EventKey != evt.Key {
+	if t.Key != key {
 		return false
 	}
 
 	for _, filter := range t.Filters {
-		if !filter.Match(evt.Data) {
+		if !filter.Match(data) {
 			return false
 		}
 	}

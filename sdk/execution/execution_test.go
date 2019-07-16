@@ -7,7 +7,6 @@ import (
 	"github.com/cskr/pubsub"
 	"github.com/mesg-foundation/engine/container/mocks"
 	"github.com/mesg-foundation/engine/database"
-	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/instance"
@@ -114,11 +113,11 @@ func TestExecute(t *testing.T) {
 	require.NoError(t, at.serviceDB.Save(testService))
 	require.NoError(t, at.instanceDB.Save(testInstance))
 
-	_, err := sdk.Execute(testInstance.Hash, &event.Event{}, testService.Tasks[0].Key, nil)
+	_, err := sdk.Execute(testInstance.Hash, hash.Int(1), nil, testService.Tasks[0].Key, map[string]interface{}{}, nil)
 	require.NoError(t, err)
 
 	// not existing instance
-	_, err = sdk.Execute(hash.Int(3), &event.Event{}, testService.Tasks[0].Key, nil)
+	_, err = sdk.Execute(hash.Int(3), hash.Int(1), nil, testService.Tasks[0].Key, map[string]interface{}{}, nil)
 	require.Error(t, err)
 }
 
@@ -128,7 +127,7 @@ func TestExecuteInvalidTaskKey(t *testing.T) {
 
 	require.NoError(t, at.serviceDB.Save(testService))
 
-	_, err := sdk.Execute(testService.Hash, &event.Event{}, "-", nil)
+	_, err := sdk.Execute(testService.Hash, hash.Int(1), nil, "-", map[string]interface{}{}, nil)
 	require.Error(t, err)
 }
 
