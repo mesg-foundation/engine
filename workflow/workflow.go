@@ -61,7 +61,7 @@ func (w *Workflow) findMatchingWorkflows(event *event.Event) ([]*workflow, error
 	}
 	workflows := make([]*workflow, 0)
 	for _, wf := range all {
-		if wf.Trigger.InstanceHash.Equal(event.InstanceHash) && wf.Trigger.EventKey == event.Key {
+		if wf.Trigger.Match(event) {
 			workflows = append(workflows, wf)
 		}
 	}
@@ -82,6 +82,9 @@ func all() ([]*workflow, error) {
 		Trigger: trigger{
 			EventKey:     "eventX",
 			InstanceHash: instanceHash,
+			Filters: []*filter{
+				{Key: "bar", Predicate: EQ, Value: "world-2"},
+			},
 		},
 		Task: task{
 			InstanceHash: instanceHash,
