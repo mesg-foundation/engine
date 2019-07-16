@@ -14,7 +14,7 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/hash/dirhash"
 	"github.com/mesg-foundation/engine/service"
-	validator "github.com/mesg-foundation/engine/service/validator"
+	"github.com/mesg-foundation/engine/service/validator"
 )
 
 // Service exposes service APIs of MESG.

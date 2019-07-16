@@ -1,4 +1,4 @@
-package service
+package validator
 
 import (
 	"errors"
@@ -19,17 +19,17 @@ const namespacePrefix = "service."
 var validate, translator = newValidator()
 
 // ValidateService validates if service contains proper data.
-func ValidateService(srv *service.Service) error {
-	if err := validateServiceStruct(srv); err != nil {
+func ValidateService(s *service.Service) error {
+	if err := validateServiceStruct(s); err != nil {
 		return err
 	}
-	return validateServiceData(srv)
+	return validateServiceData(s)
 }
 
-func validateServiceStruct(srv *service.Service) error {
+func validateServiceStruct(s *service.Service) error {
 	var errs xerrors.Errors
 	// validate service struct based on tag
-	if err := validate.Struct(srv); err != nil {
+	if err := validate.Struct(s); err != nil {
 		for _, e := range err.(validator.ValidationErrors) {
 			// Remove the name of the struct and the field from namespace
 			trimmedNamespace := strings.TrimPrefix(e.Namespace(), namespacePrefix)
@@ -45,19 +45,19 @@ func validateServiceStruct(srv *service.Service) error {
 	return errs.ErrorOrNil()
 }
 
-func validateServiceData(srv *service.Service) error {
+func validateServiceData(s *service.Service) error {
 	var errs xerrors.Errors
-	if err := isServiceKeysUnique(srv); err != nil {
+	if err := isServiceKeysUnique(s); err != nil {
 		errs = append(errs, err)
 	}
 
 	// validate configuration image
-	if srv.Configuration.Image != "" {
+	if s.Configuration.Image != "" {
 		errs = append(errs, errors.New("configuration.image is not allowed"))
 	}
 
 	// validate dependencies image
-	for _, dep := range srv.Dependencies {
+	for _, dep := range s.Dependencies {
 		if dep.Image == "" {
 			err := fmt.Errorf("dependencies[%s].image is a required field", dep.Key)
 			errs = append(errs, err)
@@ -65,9 +65,9 @@ func validateServiceData(srv *service.Service) error {
 	}
 
 	// validate configuration volumes
-	for _, depVolumeKey := range srv.Configuration.VolumesFrom {
+	for _, depVolumeKey := range s.Configuration.VolumesFrom {
 		found := false
-		for _, s := range srv.Dependencies {
+		for _, s := range s.Dependencies {
 			if s.Key == depVolumeKey {
 				found = true
 				break
@@ -80,10 +80,10 @@ func validateServiceData(srv *service.Service) error {
 	}
 
 	// validate dependencies volumes
-	for _, dep := range srv.Dependencies {
+	for _, dep := range s.Dependencies {
 		for _, depVolumeKey := range dep.VolumesFrom {
 			found := false
-			for _, s := range srv.Dependencies {
+			for _, s := range s.Dependencies {
 				if s.Key == depVolumeKey {
 					found = true
 					break
@@ -99,10 +99,10 @@ func validateServiceData(srv *service.Service) error {
 }
 
 // isServiceKeysUnique checks uniqueness of service deps/tasks/events/params keys.
-func isServiceKeysUnique(srv *service.Service) error {
+func isServiceKeysUnique(s *service.Service) error {
 	var errs xerrors.Errors
 	exist := make(map[string]bool)
-	for _, dep := range srv.Dependencies {
+	for _, dep := range s.Dependencies {
 		if exist[dep.Key] {
 			errs = append(errs, fmt.Errorf("dependencies[%s] already exist", dep.Key))
 		}
@@ -110,7 +110,7 @@ func isServiceKeysUnique(srv *service.Service) error {
 	}
 
 	exist = make(map[string]bool)
-	for _, task := range srv.Tasks {
+	for _, task := range s.Tasks {
 		if exist[task.Key] {
 			errs = append(errs, fmt.Errorf("tasks[%s] already exist", task.Key))
 		}
@@ -134,7 +134,7 @@ func isServiceKeysUnique(srv *service.Service) error {
 	}
 
 	exist = make(map[string]bool)
-	for _, event := range srv.Events {
+	for _, event := range s.Events {
 		if exist[event.Key] {
 			errs = append(errs, fmt.Errorf("events[%s] already exist", event.Key))
 		}
