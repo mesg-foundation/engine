@@ -14,6 +14,7 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/hash/dirhash"
 	"github.com/mesg-foundation/engine/service"
+	"github.com/mesg-foundation/engine/service/validator"
 )
 
 // Service exposes service APIs of MESG.
@@ -82,7 +83,7 @@ func (s *Service) Create(srv *service.Service) (*service.Service, error) {
 		srv.Sid = "_" + srv.Hash.String()
 	}
 
-	if err := service.ValidateService(srv); err != nil {
+	if err := validator.ValidateService(srv); err != nil {
 		return nil, err
 	}
 

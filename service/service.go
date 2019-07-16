@@ -2,93 +2,7 @@ package service
 
 import (
 	"fmt"
-	"io"
-	"sort"
-	"strings"
-
-	"github.com/mesg-foundation/engine/hash"
 )
-
-// WARNING about hash tags on Service type and its inner types:
-// * never change the name attr of hash tag. use an incremented value for
-// name attr when a new configuration field added to Service.
-// * don't increment the value of name attr if corresponding field's name
-// changed but its behavior remains the same.
-// * this is required for not breaking Service IDs unless there is a behavioral
-// change.
-
-// MainServiceKey is key for main service.
-const MainServiceKey = "service"
-
-// Service represents a MESG service.
-type Service struct {
-	// Hash is calculated from the combination of service's source and mesg.yml.
-	// It represents the service uniquely.
-	Hash hash.Hash `hash:"-" validate:"required"`
-
-	// Sid is the service id.
-	// It needs to be unique and can be used to access to service.
-	Sid string `hash:"name:1"  validate:"required,printascii,max=63,domain"`
-
-	// Name is the service name.
-	Name string `hash:"name:2" validate:"required,printascii"`
-
-	// Description is service description.
-	Description string `hash:"name:3" validate:"printascii"`
-
-	// Tasks are the list of tasks that service can execute.
-	Tasks []*Task `hash:"name:4" validate:"dive,required"`
-
-	// Events are the list of events that service can emit.
-	Events []*Event `hash:"name:5" validate:"dive,required"`
-
-	// Dependencies are the Docker containers that service can depend on.
-	Dependencies []*Dependency `hash:"name:6" validate:"dive,required"`
-
-	// Configuration of the service
-	Configuration *Dependency `hash:"name:8" validate:"required"`
-
-	// Repository holds the service's repository url if it's living on
-	// a Git host.
-	Repository string `hash:"name:7" validate:"omitempty,uri"`
-
-	// Source is the hash id of service's source code on IPFS.
-	Source string `hash:"name:9" validate:"required,printascii"`
-}
-
-// StatusType of the service.
-type StatusType uint
-
-// Possible statuses for service.
-const (
-	UNKNOWN StatusType = iota
-	STOPPED
-	STARTING
-	PARTIAL
-	RUNNING
-)
-
-func (s StatusType) String() string {
-	switch s {
-	case STOPPED:
-		return "STOPPED"
-	case STARTING:
-		return "STARTING"
-	case PARTIAL:
-		return "PARTIAL"
-	case RUNNING:
-		return "RUNNING"
-	default:
-		return "UNKNOWN"
-	}
-}
-
-// Log holds log streams of dependency.
-type Log struct {
-	Dependency string
-	Standard   io.ReadCloser
-	Error      io.ReadCloser
-}
 
 // GetDependency returns dependency dependencyKey or a not found error.
 func (s *Service) GetDependency(dependencyKey string) (*Dependency, error) {
@@ -100,35 +14,103 @@ func (s *Service) GetDependency(dependencyKey string) (*Dependency, error) {
 	return nil, fmt.Errorf("dependency %s do not exist", dependencyKey)
 }
 
-// ValidateConfigurationEnv checks presence of env variables in mesg.yml under env section.
-func (s *Service) ValidateConfigurationEnv(env map[string]string) error {
-	var nonDefined []string
-	for key := range env {
-		exists := false
-		// check if "key=" exists in configuration
-		for _, env := range s.Configuration.Env {
-			if strings.HasPrefix(env, key+"=") {
-				exists = true
-			}
-		}
-		if !exists {
-			nonDefined = append(nonDefined, key)
+// GetTask returns task taskKey of service.
+func (s *Service) GetTask(taskKey string) (*Task, error) {
+	for _, task := range s.Tasks {
+		if task.Key == taskKey {
+			return task, nil
 		}
 	}
-	if len(nonDefined) > 0 {
-		sort.Strings(nonDefined)
-		return ErrNotDefinedEnv{nonDefined}
+	return nil, &TaskNotFoundError{
+		TaskKey:     taskKey,
+		ServiceName: s.Name,
+	}
+}
+
+// GetEvent returns event eventKey of service.
+func (s *Service) GetEvent(eventKey string) (*Event, error) {
+	for _, event := range s.Events {
+		if event.Key == eventKey {
+			return event, nil
+		}
+	}
+	return nil, &EventNotFoundError{
+		EventKey:    eventKey,
+		ServiceName: s.Name,
+	}
+}
+
+// ValidateTaskInputs produces warnings for task inputs that doesn't satisfy their parameter schemas.
+func (s *Service) ValidateTaskInputs(taskKey string, taskInputs map[string]interface{}) ([]*ParameterWarning, error) {
+	t, err := s.GetTask(taskKey)
+	if err != nil {
+		return nil, err
+	}
+	return validateParametersSchema(t.Inputs, taskInputs), nil
+}
+
+// ValidateTaskOutputs produces warnings for task outputs that doesn't satisfy their parameter schemas.
+func (s *Service) ValidateTaskOutputs(taskKey string, taskOutputs map[string]interface{}) ([]*ParameterWarning, error) {
+	t, err := s.GetTask(taskKey)
+	if err != nil {
+		return nil, err
+	}
+	return validateParametersSchema(t.Outputs, taskOutputs), nil
+}
+
+// ValidateEventData produces warnings for event datas that doesn't satisfy their parameter schemas.
+func (s *Service) ValidateEventData(eventKey string, eventData map[string]interface{}) ([]*ParameterWarning, error) {
+	e, err := s.GetEvent(eventKey)
+	if err != nil {
+		return nil, err
+	}
+	return validateParametersSchema(e.Data, eventData), nil
+}
+
+// RequireTaskInputs requires task inputs to match with parameter schemas.
+func (s *Service) RequireTaskInputs(taskKey string, taskInputs map[string]interface{}) error {
+	warnings, err := s.ValidateTaskInputs(taskKey, taskInputs)
+	if err != nil {
+		return err
+	}
+	if len(warnings) > 0 {
+		return &InvalidTaskInputError{
+			TaskKey:     taskKey,
+			ServiceName: s.Name,
+			Warnings:    warnings,
+		}
 	}
 	return nil
 }
 
-// ErrNotDefinedEnv error returned when optionally given env variables
-// are not defined in the mesg.yml file.
-type ErrNotDefinedEnv struct {
-	Env []string
+// RequireTaskOutputs requires task outputs to match with parameter schemas.
+func (s *Service) RequireTaskOutputs(taskKey string, taskOutputs map[string]interface{}) error {
+	warnings, err := s.ValidateTaskOutputs(taskKey, taskOutputs)
+	if err != nil {
+		return err
+	}
+	if len(warnings) > 0 {
+		return &InvalidTaskOutputError{
+			TaskKey:     taskKey,
+			ServiceName: s.Name,
+			Warnings:    warnings,
+		}
+	}
+	return nil
 }
 
-func (e ErrNotDefinedEnv) Error() string {
-	return fmt.Sprintf("environment variable(s) %q not defined in mesg.yml (under configuration.env key)",
-		strings.Join(e.Env, ", "))
+// RequireEventData requires event datas to be matched with parameter schemas.
+func (s *Service) RequireEventData(eventKey string, eventData map[string]interface{}) error {
+	warnings, err := s.ValidateEventData(eventKey, eventData)
+	if err != nil {
+		return err
+	}
+	if len(warnings) > 0 {
+		return &InvalidEventDataError{
+			EventKey:    eventKey,
+			ServiceName: s.Name,
+			Warnings:    warnings,
+		}
+	}
+	return nil
 }
