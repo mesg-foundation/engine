@@ -80,7 +80,7 @@ type Service struct {
 // how it should run.
 type Dependency struct {
 	// Key is the key of dependency.
-	Key string `hash:"1" validate:"printascii"`
+	Key string `hash:"name:1" validate:"printascii"`
 
 	// Image is the Docker image.
 	Image string `hash:"name:2" validate:"printascii"`
