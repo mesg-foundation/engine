@@ -69,7 +69,7 @@ func TestMatch(t *testing.T) {
 		},
 	}
 	for i, test := range tests {
-		match := test.trigger.MatchEvent(test.event)
+		match := test.trigger.Match(Event, test.event.InstanceHash, test.event.Key, test.event.Data)
 		assert.Equal(t, test.match, match, i)
 	}
 }

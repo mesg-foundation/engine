@@ -3,7 +3,6 @@ package workflow
 import (
 	"fmt"
 
-	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	eventsdk "github.com/mesg-foundation/engine/sdk/event"
@@ -42,39 +41,22 @@ func (w *Workflow) Start() error {
 	for {
 		select {
 		case event := <-w.eventStream.C:
-			go w.processEvent(event)
+			go w.process(Event, event.InstanceHash, event.Key, event.Data, event.Hash, nil)
 		case execution := <-w.executionStream.C:
-			go w.processExecution(execution)
+			go w.process(Result, execution.InstanceHash, execution.TaskKey, execution.Outputs, nil, execution.Hash)
 		}
 	}
 }
 
-func (w *Workflow) processEvent(event *event.Event) {
+func (w *Workflow) process(trigger triggerType, instanceHash hash.Hash, key string, data map[string]interface{}, eventHash hash.Hash, executionHash hash.Hash) {
 	all, err := all()
 	if err != nil {
 		w.ErrC <- err
 		return
 	}
 	for _, wf := range all {
-		if wf.Trigger.Type == Event && wf.Trigger.InstanceHash.Equal(event.InstanceHash) && wf.Trigger.Key == event.Key {
-			_, err := w.execution.Execute(wf.Task.InstanceHash, event.Hash, nil, wf.Task.TaskKey, event.Data, []string{})
-			if err != nil {
-				w.ErrC <- err
-				continue
-			}
-		}
-	}
-}
-
-func (w *Workflow) processExecution(execution *execution.Execution) {
-	all, err := all()
-	if err != nil {
-		w.ErrC <- err
-		return
-	}
-	for _, wf := range all {
-		if wf.Trigger.MatchEvent(event) {
-			_, err := w.execution.Execute(wf.Task.InstanceHash, nil, execution.Hash, wf.Task.TaskKey, execution.Outputs, []string{})
+		if wf.Trigger.Match(trigger, instanceHash, key, data) {
+			_, err := w.execution.Execute(wf.Task.InstanceHash, eventHash, executionHash, wf.Task.TaskKey, data, []string{})
 			if err != nil {
 				w.ErrC <- err
 				continue

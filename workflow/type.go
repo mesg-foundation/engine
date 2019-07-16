@@ -1,7 +1,6 @@
 package workflow
 
 import (
-	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/hash"
 )
 
@@ -14,6 +13,7 @@ type predicate uint
 const (
 	EQ predicate = iota
 )
+
 type triggerType uint
 
 const (
@@ -47,17 +47,20 @@ type trigger struct {
 	Filters      []*filter
 }
 
-func (t *trigger) MatchEvent(evt *event.Event) bool {
-	if !t.InstanceHash.Equal(evt.InstanceHash) {
+func (t *trigger) Match(trigger triggerType, instanceHash hash.Hash, key string, data map[string]interface{}) bool {
+	if t.Type != trigger {
+		return false
+	}
+	if !t.InstanceHash.Equal(instanceHash) {
 		return false
 	}
 
-	if t.Key != evt.Key {
+	if t.Key != key {
 		return false
 	}
 
 	for _, filter := range t.Filters {
-		if !filter.Match(evt.Data) {
+		if !filter.Match(data) {
 			return false
 		}
 	}
