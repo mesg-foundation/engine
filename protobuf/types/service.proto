@@ -21,7 +21,7 @@ message Service {
     repeated Parameter inputs = 6;      // List inputs of this task.
     repeated Parameter outputs = 7;     // List of tasks outputs.
   }
-  
+
   // Parameter describes the task's inputs, the task's outputs, and the event's data.
   message Parameter {
     string key = 8;         // Parameter's key.
@@ -32,7 +32,7 @@ message Service {
     bool repeated = 9;      // Mark a parameter as an array of the defined type
     repeated Parameter object = 10; // Optional object structure type when type is set to `Object`
   }
-  
+
   // A configuration is the configuration of the main container of the service's instance.
   message Configuration {
     repeated string volumes = 1;      // List of volumes.
@@ -42,7 +42,7 @@ message Service {
     string command = 5;               // Command to run the container.
     repeated string env = 6;          // Default env vars to apply to service's instance on runtime.
   }
-  
+
   // A dependency is a configuration of an other container that runs separately from the service.
   message Dependency {
     string key = 8;                   // Dependency's key.
@@ -54,7 +54,48 @@ message Service {
     string command = 5;               // Command to run the container.
     repeated string env = 9;          // Default env vars to apply to dependency on runtime.
   }
-  
+
+  // A workflow is a configuration to trigger a specific task when certains conditions of a trigger are valid.
+  message Workflow {
+
+    // Trigger is the configuration that will trigger a workflow.
+    message Trigger {
+
+      // Type of trigger available. Event to react to an event. Result to react to a result of an execution.
+      enum TriggerType {
+        Event = 0;  // React to event.
+        Result = 1; // React to result of an execution.
+      }
+
+      // Filter is applied on the data of the event/result.
+      message Filter {
+
+        // Type of condition available to compare the values.
+        enum Predicate {
+          EQ = 0; // Equal
+        }
+
+        string key = 1;           // Key to check.
+        Predicate predicate = 2;  // Type of condition to apply.
+        string value = 3;         // Value of the filter
+      }
+
+      TriggerType type = 1;         // Type of trigger.
+      string instanceHash = 2;      // Hash of the instance that triggers the workflow.
+      string key = 3;               // Key that triggers the workflow (event key or task key).
+      repeated Filter filters = 4;  // List of filters to apply on the data of the event/result.
+    }
+
+    // Definition of the task to execute when the workflow is triggered.
+    message Task {
+      string instanceHash = 1;  // Hash of the instance to execute.
+      string taskKey = 2;       // Task of the instance to execute.
+    }
+
+    Trigger trigger = 1;  // Trigger for the workflow.
+    Task task = 2;        // Task to execute when the trigger is valid.
+  }
+
   string hash = 10;                         // Service's hash.
   string sid = 12;                          // Service's sid.
   string name = 1;                          // Service's name.
@@ -65,6 +106,5 @@ message Service {
   repeated Dependency dependencies = 7;     // The container dependencies this service requires.
   string repository = 9;                    // Service's repository url.
   string source = 13;                       // The hash id of service's source code on IPFS.
+  repeated Workflow workflows = 14;         // List of workflows implemented for this service.
 }
-
-

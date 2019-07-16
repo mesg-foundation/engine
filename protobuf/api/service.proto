@@ -44,7 +44,7 @@ message CreateServiceRequest {
   repeated types.Service.Task tasks = 5;
 
   // The list of events this service can emit.
-  repeated types.Service.Event events = 6; 
+  repeated types.Service.Event events = 6;
 
   // The container dependencies this service requires.
   repeated types.Service.Dependency dependencies = 7;
@@ -54,6 +54,9 @@ message CreateServiceRequest {
 
   // The hash id of service's source code on IPFS.
   string source = 9;
+
+  // List of workflows associated to the service
+  repeated types.Service.Workflow workflows = 10;
 
 }
 
