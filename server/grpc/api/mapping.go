@@ -109,8 +109,8 @@ func fromProtoFilters(filters []*types.Service_Workflow_Trigger_Filter) []*servi
 	fs := make([]*service.WorkflowTriggerFilter, len(filters))
 	for i, filter := range filters {
 		var predicate service.WorkflowPredicate
-		switch filter.Predicate {
-		case types.Service_Workflow_Trigger_Filter_EQ:
+		// switch filter.Predicate {
+		if filter.Predicate == types.Service_Workflow_Trigger_Filter_EQ {
 			predicate = service.EQ
 		}
 		fs[i] = &service.WorkflowTriggerFilter{
@@ -257,8 +257,8 @@ func toProtoFilters(filters []*service.WorkflowTriggerFilter) []*types.Service_W
 	fs := make([]*types.Service_Workflow_Trigger_Filter, len(filters))
 	for i, filter := range filters {
 		var predicate types.Service_Workflow_Trigger_Filter_Predicate
-		switch filter.Predicate {
-		case service.EQ:
+		// switch filter.Predicate {
+		if filter.Predicate == service.EQ {
 			predicate = types.Service_Workflow_Trigger_Filter_EQ
 		}
 		fs[i] = &types.Service_Workflow_Trigger_Filter{
