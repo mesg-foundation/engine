@@ -6,7 +6,6 @@ import (
 
 	"github.com/cskr/pubsub"
 	"github.com/mesg-foundation/engine/database"
-	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
@@ -128,7 +127,13 @@ func (e *Execution) validateExecutionOutput(instanceHash hash.Hash, taskKey stri
 }
 
 // Execute executes a task tasKey with inputData and tags for service serviceID.
-func (e *Execution) Execute(instanceHash hash.Hash, evt *event.Event, taskKey string, tags []string) (executionHash hash.Hash, err error) {
+func (e *Execution) Execute(instanceHash hash.Hash, eventHash hash.Hash, parentHash hash.Hash, taskKey string, inputData map[string]interface{}, tags []string) (executionHash hash.Hash, err error) {
+	if parentHash != nil && eventHash != nil {
+		return nil, fmt.Errorf("cannot have both parent and event hash")
+	}
+	if parentHash == nil && eventHash == nil {
+		return nil, fmt.Errorf("should have at least an event hash or parent hash")
+	}
 	// a task should be executed only if task's service is running.
 	instance, err := e.instance.Get(instanceHash)
 	if err != nil {
@@ -140,11 +145,11 @@ func (e *Execution) Execute(instanceHash hash.Hash, evt *event.Event, taskKey st
 		return nil, err
 	}
 
-	if err := s.RequireTaskInputs(taskKey, evt.Data); err != nil {
+	if err := s.RequireTaskInputs(taskKey, inputData); err != nil {
 		return nil, err
 	}
 
-	exec := execution.New(instance.Hash, nil, evt.Hash, taskKey, evt.Data, tags)
+	exec := execution.New(instance.Hash, parentHash, eventHash, taskKey, inputData, tags)
 	if err := exec.Execute(); err != nil {
 		return nil, err
 	}
