@@ -165,7 +165,7 @@ func main() {
 	}()
 
 	logrus.Info("starting workflow engine")
-	wf := workflow.New(dep.sdk.Event, dep.sdk.Execution)
+	wf := workflow.New(dep.sdk.Event, dep.sdk.Execution, dep.sdk.Service)
 	go func() {
 		if err := wf.Start(); err != nil {
 			logrus.Fatalln(err)
