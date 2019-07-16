@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
+	"github.com/mesg-foundation/engine/service"
 	"github.com/mesg-foundation/engine/x/xerrors"
 	"github.com/mesg-foundation/engine/x/xvalidator"
 	validator "gopkg.in/go-playground/validator.v9"
@@ -18,17 +19,17 @@ const namespacePrefix = "service."
 var validate, translator = newValidator()
 
 // ValidateService validates if service contains proper data.
-func ValidateService(service *Service) error {
-	if err := validateServiceStruct(service); err != nil {
+func ValidateService(srv *service.Service) error {
+	if err := validateServiceStruct(srv); err != nil {
 		return err
 	}
-	return validateServiceData(service)
+	return validateServiceData(srv)
 }
 
-func validateServiceStruct(service *Service) error {
+func validateServiceStruct(srv *service.Service) error {
 	var errs xerrors.Errors
 	// validate service struct based on tag
-	if err := validate.Struct(service); err != nil {
+	if err := validate.Struct(srv); err != nil {
 		for _, e := range err.(validator.ValidationErrors) {
 			// Remove the name of the struct and the field from namespace
 			trimmedNamespace := strings.TrimPrefix(e.Namespace(), namespacePrefix)
@@ -44,19 +45,19 @@ func validateServiceStruct(service *Service) error {
 	return errs.ErrorOrNil()
 }
 
-func validateServiceData(service *Service) error {
+func validateServiceData(srv *service.Service) error {
 	var errs xerrors.Errors
-	if err := isServiceKeysUnique(service); err != nil {
+	if err := isServiceKeysUnique(srv); err != nil {
 		errs = append(errs, err)
 	}
 
 	// validate configuration image
-	if service.Configuration.Image != "" {
+	if srv.Configuration.Image != "" {
 		errs = append(errs, errors.New("configuration.image is not allowed"))
 	}
 
 	// validate dependencies image
-	for _, dep := range service.Dependencies {
+	for _, dep := range srv.Dependencies {
 		if dep.Image == "" {
 			err := fmt.Errorf("dependencies[%s].image is a required field", dep.Key)
 			errs = append(errs, err)
@@ -64,9 +65,9 @@ func validateServiceData(service *Service) error {
 	}
 
 	// validate configuration volumes
-	for _, depVolumeKey := range service.Configuration.VolumesFrom {
+	for _, depVolumeKey := range srv.Configuration.VolumesFrom {
 		found := false
-		for _, s := range service.Dependencies {
+		for _, s := range srv.Dependencies {
 			if s.Key == depVolumeKey {
 				found = true
 				break
@@ -79,16 +80,16 @@ func validateServiceData(service *Service) error {
 	}
 
 	// validate dependencies volumes
-	for _, dep := range service.Dependencies {
+	for _, dep := range srv.Dependencies {
 		for _, depVolumeKey := range dep.VolumesFrom {
 			found := false
-			for _, s := range service.Dependencies {
+			for _, s := range srv.Dependencies {
 				if s.Key == depVolumeKey {
 					found = true
 					break
 				}
 			}
-			if !found && depVolumeKey != MainServiceKey {
+			if !found && depVolumeKey != service.MainServiceKey {
 				err := fmt.Errorf("dependencies[%s].volumesFrom is invalid: dependency %q does not exist", dep.Key, depVolumeKey)
 				errs = append(errs, err)
 			}
@@ -98,10 +99,10 @@ func validateServiceData(service *Service) error {
 }
 
 // isServiceKeysUnique checks uniqueness of service deps/tasks/events/params keys.
-func isServiceKeysUnique(service *Service) error {
+func isServiceKeysUnique(srv *service.Service) error {
 	var errs xerrors.Errors
 	exist := make(map[string]bool)
-	for _, dep := range service.Dependencies {
+	for _, dep := range srv.Dependencies {
 		if exist[dep.Key] {
 			errs = append(errs, fmt.Errorf("dependencies[%s] already exist", dep.Key))
 		}
@@ -109,7 +110,7 @@ func isServiceKeysUnique(service *Service) error {
 	}
 
 	exist = make(map[string]bool)
-	for _, task := range service.Tasks {
+	for _, task := range srv.Tasks {
 		if exist[task.Key] {
 			errs = append(errs, fmt.Errorf("tasks[%s] already exist", task.Key))
 		}
@@ -133,7 +134,7 @@ func isServiceKeysUnique(service *Service) error {
 	}
 
 	exist = make(map[string]bool)
-	for _, event := range service.Events {
+	for _, event := range srv.Events {
 		if exist[event.Key] {
 			errs = append(errs, fmt.Errorf("events[%s] already exist", event.Key))
 		}
