@@ -122,7 +122,7 @@ func fromProtoFilters(filters []*types.Service_Workflow_Trigger_Filter) []*servi
 	return fs
 }
 
-func fromProtoWorkflowTasks(task *types.Service_Workflow_Task) (*service.WorkflowTask, error) {
+func fromProtoWorkflowTask(task *types.Service_Workflow_Task) (*service.WorkflowTask, error) {
 	instanceHash, err := hash.Decode(task.InstanceHash)
 	if err != nil {
 		return nil, err
@@ -144,7 +144,7 @@ func fromProtoWorkflows(workflows []*types.Service_Workflow) ([]*service.Workflo
 		if err != nil {
 			return nil, err
 		}
-		task, err := fromProtoWorkflowTasks(wf.Task)
+		task, err := fromProtoWorkflowTask(wf.Task)
 		if err != nil {
 			return nil, err
 		}
@@ -174,6 +174,7 @@ func toProtoService(s *service.Service) *types.Service {
 		Events:        toProtoEvents(s.Events),
 		Configuration: toProtoConfiguration(s.Configuration),
 		Dependencies:  toProtoDependencies(s.Dependencies),
+		Workflows:     toProtoWorkflows(s.Workflows),
 	}
 }
 
@@ -250,4 +251,51 @@ func toProtoDependencies(deps []*service.Dependency) []*types.Service_Dependency
 		ds[i] = toProtoDependency(dep)
 	}
 	return ds
+}
+
+func toProtoFilters(filters []*service.WorkflowTriggerFilter) []*types.Service_Workflow_Trigger_Filter {
+	fs := make([]*types.Service_Workflow_Trigger_Filter, len(filters))
+	for i, filter := range filters {
+		var predicate types.Service_Workflow_Trigger_Filter_Predicate
+		switch filter.Predicate {
+		case service.EQ:
+			predicate = types.Service_Workflow_Trigger_Filter_EQ
+		}
+		fs[i] = &types.Service_Workflow_Trigger_Filter{
+			Key:       filter.Key,
+			Predicate: predicate,
+			Value:     filter.Value.(string),
+		}
+	}
+	return fs
+}
+
+func toProtoWorkflowTask(task *service.WorkflowTask) *types.Service_Workflow_Task {
+	return &types.Service_Workflow_Task{
+		InstanceHash: task.InstanceHash.String(),
+		TaskKey:      task.TaskKey,
+	}
+}
+
+func toProtoWorkflows(workflows []*service.Workflow) []*types.Service_Workflow {
+	wfs := make([]*types.Service_Workflow, len(workflows))
+	for i, wf := range workflows {
+		var triggerType types.Service_Workflow_Trigger_TriggerType
+		switch wf.Trigger.Type {
+		case service.EVENT:
+			triggerType = types.Service_Workflow_Trigger_Event
+		case service.RESULT:
+			triggerType = types.Service_Workflow_Trigger_Result
+		}
+		wfs[i] = &types.Service_Workflow{
+			Trigger: &types.Service_Workflow_Trigger{
+				Type:         triggerType,
+				InstanceHash: wf.Trigger.InstanceHash.String(),
+				Key:          wf.Trigger.Key,
+				Filters:      toProtoFilters(wf.Trigger.Filters),
+			},
+			Task: toProtoWorkflowTask(wf.Task),
+		}
+	}
+	return wfs
 }
