@@ -1,12 +1,17 @@
 package api
 
 import (
+	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/service"
 )
 
 // fromProtoService converts a the protobuf types to the internal service struct
-func fromProtoService(s *types.Service) *service.Service {
+func fromProtoService(s *types.Service) (*service.Service, error) {
+	workflows, err := fromProtoWorkflows(s.Workflows)
+	if err != nil {
+		return nil, err
+	}
 	return &service.Service{
 		Sid:           s.Sid,
 		Name:          s.Name,
@@ -17,7 +22,8 @@ func fromProtoService(s *types.Service) *service.Service {
 		Events:        fromProtoEvents(s.Events),
 		Configuration: fromProtoConfiguration(s.Configuration),
 		Dependencies:  fromProtoDependencies(s.Dependencies),
-	}
+		Workflows:     workflows,
+	}, nil
 }
 
 func fromProtoTasks(tasks []*types.Service_Task) []*service.Task {
@@ -97,6 +103,62 @@ func fromProtoDependencies(deps []*types.Service_Dependency) []*service.Dependen
 		ds[i] = fromProtoDependency(dep)
 	}
 	return ds
+}
+
+func fromProtoFilters(filters []*types.Service_Workflow_Trigger_Filter) []*service.WorkflowTriggerFilter {
+	fs := make([]*service.WorkflowTriggerFilter, len(filters))
+	for i, filter := range filters {
+		var predicate service.WorkflowPredicate
+		switch filter.Predicate {
+		case types.Service_Workflow_Trigger_Filter_EQ:
+			predicate = service.EQ
+		}
+		fs[i] = &service.WorkflowTriggerFilter{
+			Key:       filter.Key,
+			Predicate: predicate,
+			Value:     filter.Value,
+		}
+	}
+	return fs
+}
+
+func fromProtoWorkflowTasks(task *types.Service_Workflow_Task) (*service.WorkflowTask, error) {
+	instanceHash, err := hash.Decode(task.InstanceHash)
+	if err != nil {
+		return nil, err
+	}
+	return &service.WorkflowTask{
+		InstanceHash: instanceHash,
+		TaskKey:      task.TaskKey,
+	}, nil
+}
+
+func fromProtoWorkflows(workflows []*types.Service_Workflow) ([]*service.Workflow, error) {
+	wfs := make([]*service.Workflow, len(workflows))
+	for i, wf := range workflows {
+		triggerType := service.EVENT
+		if wf.Trigger.Type == types.Service_Workflow_Trigger_Result {
+			triggerType = service.RESULT
+		}
+		instanceHash, err := hash.Decode(wf.Trigger.InstanceHash)
+		if err != nil {
+			return nil, err
+		}
+		task, err := fromProtoWorkflowTasks(wf.Task)
+		if err != nil {
+			return nil, err
+		}
+		wfs[i] = &service.Workflow{
+			Trigger: &service.WorkflowTrigger{
+				Type:         triggerType,
+				InstanceHash: instanceHash,
+				Key:          wf.Trigger.Key,
+				Filters:      fromProtoFilters(wf.Trigger.Filters),
+			},
+			Task: task,
+		}
+	}
+	return wfs, nil
 }
 
 // toProtoService converts an internal service struct to the protobuf types
