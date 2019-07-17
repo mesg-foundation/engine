@@ -106,5 +106,5 @@ message Service {
   repeated Dependency dependencies = 7;     // The container dependencies this service requires.
   string repository = 9;                    // Service's repository url.
   string source = 13;                       // The hash id of service's source code on IPFS.
-  repeated Workflow workflows = 14;         // List of workflows implemented for this service.
+  repeated Workflow workflows = 14;         // List of workflows defined by this service.
 }
