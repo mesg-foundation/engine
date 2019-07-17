@@ -37,7 +37,7 @@ type TriggerType uint
 
 // List of possible triggers for a workflow
 const (
-	EVENT TriggerType = iota
+	EVENT TriggerType = iota + 1
 	RESULT
 )
 
@@ -198,7 +198,7 @@ type WorkflowTask struct {
 type WorkflowTrigger struct {
 	InstanceHash hash.Hash                `hash:"name:1" validate:"required"`
 	Key          string                   `hash:"name:2" validate:"printascii,printascii"`
-	Type         TriggerType              `hash:"name:3"`
+	Type         TriggerType              `hash:"name:3" validate:"required"`
 	Filters      []*WorkflowTriggerFilter `hash:"name:4" validate:"dive,required"`
 }
 
