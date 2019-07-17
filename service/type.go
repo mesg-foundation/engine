@@ -46,7 +46,7 @@ type WorkflowPredicate uint
 
 // List of possible conditions for workflow's filter
 const (
-	EQ WorkflowPredicate = iota
+	EQ WorkflowPredicate = iota + 1
 )
 
 // WARNING about hash tags on Service type and its inner types:
@@ -205,6 +205,6 @@ type WorkflowTrigger struct {
 // WorkflowTriggerFilter is the filter definition that can be applied to a workflow trigger
 type WorkflowTriggerFilter struct {
 	Key       string            `hash:"name:1" validate:"required,printascii"`
-	Predicate WorkflowPredicate `hash:"name:2"`
+	Predicate WorkflowPredicate `hash:"name:2" validate:"required"`
 	Value     interface{}       `hash:"name:3"`
 }
