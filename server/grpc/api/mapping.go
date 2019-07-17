@@ -136,9 +136,12 @@ func fromProtoWorkflowTask(task *types.Service_Workflow_Task) (*service.Workflow
 func fromProtoWorkflows(workflows []*types.Service_Workflow) ([]*service.Workflow, error) {
 	wfs := make([]*service.Workflow, len(workflows))
 	for i, wf := range workflows {
-		triggerType := service.EVENT
-		if wf.Trigger.Type == types.Service_Workflow_Trigger_Result {
+		var triggerType service.TriggerType
+		switch wf.Trigger.Type {
+		case types.Service_Workflow_Trigger_Result:
 			triggerType = service.RESULT
+		case types.Service_Workflow_Trigger_Event:
+			triggerType = service.EVENT
 		}
 		instanceHash, err := hash.Decode(wf.Trigger.InstanceHash)
 		if err != nil {
