@@ -198,13 +198,13 @@ type WorkflowTask struct {
 type WorkflowTrigger struct {
 	InstanceHash hash.Hash                `hash:"name:1" validate:"required"`
 	Key          string                   `hash:"name:2" validate:"printascii,printascii"`
-	Type         TriggerType              `hash:"name:3" validate:"required"`
+	Type         TriggerType              `hash:"name:3"`
 	Filters      []*WorkflowTriggerFilter `hash:"name:4" validate:"dive,required"`
 }
 
 // WorkflowTriggerFilter is the filter definition that can be applied to a workflow trigger
 type WorkflowTriggerFilter struct {
 	Key       string            `hash:"name:1" validate:"required,printascii"`
-	Predicate WorkflowPredicate `hash:"name:2" validate:"required"`
+	Predicate WorkflowPredicate `hash:"name:2"`
 	Value     interface{}       `hash:"name:3"`
 }
