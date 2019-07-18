@@ -62,7 +62,7 @@ message Service {
     message Trigger {
 
       // Type of trigger available. Event to react to an event. Result to react to a result of an execution.
-      enum TriggerType {
+      enum Type {
         Event = 0;  // React to event.
         Result = 1; // React to result of an execution.
       }
@@ -80,7 +80,7 @@ message Service {
         string value = 3;         // Value of the filter
       }
 
-      TriggerType type = 1;         // Type of trigger.
+      Type type = 1;         // Type of trigger.
       string instanceHash = 2;      // Hash of the instance that triggers the workflow.
       string key = 3;               // Key that triggers the workflow (event key or task key).
       repeated Filter filters = 4;  // List of filters to apply on the data of the event/result.
