@@ -283,7 +283,7 @@ func toProtoWorkflowTask(task *service.WorkflowTask) *types.Service_Workflow_Tas
 func toProtoWorkflows(workflows []*service.Workflow) []*types.Service_Workflow {
 	wfs := make([]*types.Service_Workflow, len(workflows))
 	for i, wf := range workflows {
-		var triggerType types.Service_Workflow_Trigger_TriggerType
+		var triggerType types.Service_Workflow_Trigger_Type
 		switch wf.Trigger.Type {
 		case service.EVENT:
 			triggerType = types.Service_Workflow_Trigger_Event
