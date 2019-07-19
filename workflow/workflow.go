@@ -7,6 +7,8 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 	eventsdk "github.com/mesg-foundation/engine/sdk/event"
 	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
+	servicesdk "github.com/mesg-foundation/engine/sdk/service"
+	"github.com/mesg-foundation/engine/service"
 )
 
 // Workflow exposes functions of the workflow
@@ -17,14 +19,17 @@ type Workflow struct {
 	execution       *executionsdk.Execution
 	executionStream *executionsdk.Listener
 
+	service *servicesdk.Service
+
 	ErrC chan error
 }
 
 // New creates a new Workflow instance
-func New(event *eventsdk.Event, execution *executionsdk.Execution) *Workflow {
+func New(event *eventsdk.Event, execution *executionsdk.Execution, service *servicesdk.Service) *Workflow {
 	return &Workflow{
 		event:     event,
 		execution: execution,
+		service:   service,
 		ErrC:      make(chan error),
 	}
 }
@@ -41,47 +46,28 @@ func (w *Workflow) Start() error {
 	for {
 		select {
 		case event := <-w.eventStream.C:
-			go w.process(Event, event.InstanceHash, event.Key, event.Data, event.Hash, nil)
+			go w.process(service.EVENT, event.InstanceHash, event.Key, event.Data, event.Hash, nil)
 		case execution := <-w.executionStream.C:
-			go w.process(Result, execution.InstanceHash, execution.TaskKey, execution.Outputs, nil, execution.Hash)
+			go w.process(service.RESULT, execution.InstanceHash, execution.TaskKey, execution.Outputs, nil, execution.Hash)
 		}
 	}
 }
 
-func (w *Workflow) process(trigger triggerType, instanceHash hash.Hash, key string, data map[string]interface{}, eventHash hash.Hash, executionHash hash.Hash) {
-	all, err := all()
+func (w *Workflow) process(trigger service.TriggerType, instanceHash hash.Hash, key string, data map[string]interface{}, eventHash hash.Hash, executionHash hash.Hash) {
+	services, err := w.service.List()
 	if err != nil {
 		w.ErrC <- err
 		return
 	}
-	for _, wf := range all {
-		if wf.Trigger.Match(trigger, instanceHash, key, data) {
-			_, err := w.execution.Execute(wf.Task.InstanceHash, eventHash, executionHash, wf.Task.TaskKey, data, []string{})
-			if err != nil {
-				w.ErrC <- err
-				continue
+	for _, service := range services {
+		for _, wf := range service.Workflows {
+			if wf.Trigger.Match(trigger, instanceHash, key, data) {
+				_, err := w.execution.Execute(wf.Task.InstanceHash, eventHash, executionHash, wf.Task.TaskKey, data, []string{})
+				if err != nil {
+					w.ErrC <- err
+					continue
+				}
 			}
 		}
 	}
-}
-
-// All returns a fake set of data
-// This is what can be called a system workflow and need to be removed when moved to services
-// The hash of this instance correspond to the following service
-// {"sid":"test-workflow","name":"test-workflow","tasks":[{"key":"taskA","inputs":[{"key":"a","type":"String","object":[]}],"outputs":[{"key":"a","type":"String","object":[]},{"key":"b","type":"Boolean","object":[]}]},{"key":"taskB","inputs":[{"key":"a","type":"String","object":[]},{"key":"b","type":"Boolean","object":[]}],"outputs":[{"key":"a","type":"Boolean","object":[]}]}],"events":[{"key":"started","data":[{"key":"a","type":"String","object":[]}]},{"key":"interval","data":[{"key":"i","type":"Number","object":[]}]}],"dependencies":[],"configuration":{"env":["EVENT_INTERVAL=1000"]},"source":"QmVvDmnTWnUd4EmWT3qUoBiv8gym4EYkTkwfBmfvYs7WFS"}
-func all() ([]*workflow, error) {
-	instanceHash, err := hash.Decode("FtxZoLSD4M8w4v3ZfY8s6tY4bAc9B3Wy1TiqGq8iP3Tt")
-	if err != nil {
-		return nil, err
-	}
-	return []*workflow{
-		{ // When result of taskA() -> (a string, b string), execute taskB(a string, b bool)
-			Trigger: trigger{InstanceHash: instanceHash, Type: Result, Key: "taskA"},
-			Task:    task{InstanceHash: instanceHash, TaskKey: "taskB"},
-		},
-		{ // When event started(a string), execute taskA(a string)
-			Trigger: trigger{InstanceHash: instanceHash, Type: Event, Key: "started"},
-			Task:    task{InstanceHash: instanceHash, TaskKey: "taskA"},
-		},
-	}, nil
 }
