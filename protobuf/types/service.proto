@@ -63,8 +63,9 @@ message Service {
 
       // Type of trigger available. Event to react to an event. Result to react to a result of an execution.
       enum Type {
-        Event = 0;  // React to event.
-        Result = 1; // React to result of an execution.
+        Unknown = 0;  // Event type not defined.
+        Event = 1;    // React to event.
+        Result = 2;   // React to result of an execution.
       }
 
       // Filter is applied on the data of the event/result.
@@ -72,7 +73,8 @@ message Service {
 
         // Type of condition available to compare the values.
         enum Predicate {
-          EQ = 0; // Equal
+          Unknown = 0;  // Predicate not defined.
+          EQ = 1;       // Equal
         }
 
         string key = 1;           // Key to check.
