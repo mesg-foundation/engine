@@ -7,6 +7,8 @@ PROJECT=/project
 GRPC=$PROJECT/protobuf
 GRPC_PLUGIN="--go_out=plugins=grpc,paths=source_relative:."
 
+protoc $GRPC_PLUGIN --proto_path=$PROJECT $GRPC/types/struct.proto
+
 protoc $GRPC_PLUGIN --proto_path=$PROJECT $GRPC/types/event.proto
 protoc $GRPC_PLUGIN --proto_path=$PROJECT $GRPC/types/execution.proto
 protoc $GRPC_PLUGIN --proto_path=$PROJECT $GRPC/types/instance.proto
