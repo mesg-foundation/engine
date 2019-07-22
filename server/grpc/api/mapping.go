@@ -152,6 +152,7 @@ func fromProtoWorkflows(workflows []*types.Service_Workflow) ([]*service.Workflo
 			return nil, err
 		}
 		wfs[i] = &service.Workflow{
+			Key: wf.Key,
 			Trigger: &service.WorkflowTrigger{
 				Type:         triggerType,
 				InstanceHash: instanceHash,
@@ -291,6 +292,7 @@ func toProtoWorkflows(workflows []*service.Workflow) []*types.Service_Workflow {
 			triggerType = types.Service_Workflow_Trigger_Result
 		}
 		wfs[i] = &types.Service_Workflow{
+			Key: wf.Key,
 			Trigger: &types.Service_Workflow_Trigger{
 				Type:         triggerType,
 				InstanceHash: wf.Trigger.InstanceHash.String(),

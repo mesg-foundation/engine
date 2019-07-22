@@ -186,6 +186,7 @@ type Parameter struct {
 type Workflow struct {
 	Trigger *WorkflowTrigger `hash:"name:1" validate:"required"`
 	Task    *WorkflowTask    `hash:"name:2" validate:"required"`
+	Key     string           `hash:"name:3" validate:"required"`
 }
 
 // WorkflowTask describes the instructions for the workflow to execute a task
