@@ -1,5 +1,6 @@
 syntax = "proto3";
 
+import "protobuf/types/struct.proto";
 import "protobuf/types/event.proto";
 
 package api;
@@ -45,7 +46,7 @@ message CreateEventRequest {
   string key = 2;
 
   // data is the data for the event.
-  string data = 3;
+  types.Struct data = 3;
 }
 
 // CreateEventResponse defines response for execution update.
