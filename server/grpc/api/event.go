@@ -74,13 +74,8 @@ func (s *EventServer) Stream(req *api.StreamEventRequest, resp api.Event_StreamS
 		return err
 	}
 
-	for exec := range stream.C {
-		pexec, err := toProtoEvent(exec)
-		if err != nil {
-			return err
-		}
-
-		if err := resp.Send(pexec); err != nil {
+	for event := range stream.C {
+		if err := resp.Send(toProtoEvent(event)); err != nil {
 			return err
 		}
 	}
@@ -88,16 +83,11 @@ func (s *EventServer) Stream(req *api.StreamEventRequest, resp api.Event_StreamS
 	return nil
 }
 
-func toProtoEvent(e *event.Event) (*types.Event, error) {
-	data, err := json.Marshal(e.Data)
-	if err != nil {
-		return nil, err
-	}
-
+func toProtoEvent(e *event.Event) *types.Event {
 	return &types.Event{
 		Hash:         e.Hash.String(),
 		InstanceHash: e.InstanceHash.String(),
 		Key:          e.Key,
-		Data:         string(data),
-	}, nil
+		Data:         toProtoStruct(e.Data),
+	}
 }

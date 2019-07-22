@@ -65,7 +65,7 @@ func (s *ExecutionServer) Get(ctx context.Context, req *api.GetExecutionRequest)
 	if err != nil {
 		return nil, err
 	}
-	return toProtoExecution(exec)
+	return toProtoExecution(exec), nil
 }
 
 // Stream returns stream of executions.
@@ -100,12 +100,7 @@ func (s *ExecutionServer) Stream(req *api.StreamExecutionRequest, resp api.Execu
 	}
 
 	for exec := range stream.C {
-		pexec, err := toProtoExecution(exec)
-		if err != nil {
-			return err
-		}
-
-		if err := resp.Send(pexec); err != nil {
+		if err := resp.Send(toProtoExecution(exec)); err != nil {
 			return err
 		}
 	}
@@ -135,17 +130,7 @@ func (s *ExecutionServer) Update(ctx context.Context, req *api.UpdateExecutionRe
 
 }
 
-func toProtoExecution(exec *execution.Execution) (*types.Execution, error) {
-	inputs, err := json.Marshal(exec.Inputs)
-	if err != nil {
-		return nil, err
-	}
-
-	outputs, err := json.Marshal(exec.Outputs)
-	if err != nil {
-		return nil, err
-	}
-
+func toProtoExecution(exec *execution.Execution) *types.Execution {
 	return &types.Execution{
 		Hash:         exec.Hash.String(),
 		ParentHash:   exec.ParentHash.String(),
@@ -153,9 +138,9 @@ func toProtoExecution(exec *execution.Execution) (*types.Execution, error) {
 		Status:       types.Status(exec.Status),
 		InstanceHash: exec.InstanceHash.String(),
 		TaskKey:      exec.TaskKey,
-		Inputs:       string(inputs),
-		Outputs:      string(outputs),
+		Inputs:       toProtoStruct(exec.Inputs),
+		Outputs:      toProtoStruct(exec.Outputs),
 		Tags:         exec.Tags,
 		Error:        exec.Error,
-	}, nil
+	}
 }
