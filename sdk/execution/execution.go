@@ -81,11 +81,11 @@ func (e *Execution) processExecution(executionHash hash.Hash, outputData []byte,
 	} else {
 		o, err := e.validateExecutionOutput(exec.InstanceHash, exec.TaskKey, outputData)
 		if err != nil {
-			tx.Discard()
-			return nil, err
-		}
-
-		if err := exec.Complete(o); err != nil {
+			if err1 := exec.Failed(err); err1 != nil {
+				tx.Discard()
+				return nil, err1
+			}
+		} else if err := exec.Complete(o); err != nil {
 			tx.Discard()
 			return nil, err
 		}
