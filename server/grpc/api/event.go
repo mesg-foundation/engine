@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -36,10 +35,7 @@ func (s *EventServer) Create(ctx context.Context, req *api.CreateEventRequest) (
 		return nil, errors.New("create event: key missing")
 	}
 
-	var data map[string]interface{}
-	if err := json.Unmarshal([]byte(req.Data), &data); err != nil {
-		return nil, fmt.Errorf("create event: data %s", err)
-	}
+	data := fromProtoStruct(req.Data)
 	event, err := s.sdk.Event.Create(instanceHash, req.Key, data)
 	if err != nil {
 		return nil, fmt.Errorf("create event: data %s", err)

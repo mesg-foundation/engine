@@ -423,7 +423,7 @@ func toProtoValue(v interface{}) *types.Value {
 	case float64:
 		return &types.Value{
 			Kind: &types.Value_NumberValue{
-				NumberValue: float64(v),
+				NumberValue: v,
 			},
 		}
 	case string:

@@ -2,9 +2,7 @@ package api
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
-	"fmt"
 
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
@@ -35,11 +33,7 @@ func (s *ExecutionServer) Create(ctx context.Context, req *api.CreateExecutionRe
 		return nil, err
 	}
 
-	var inputs map[string]interface{}
-	if err := json.Unmarshal([]byte(req.Inputs), &inputs); err != nil {
-		return nil, fmt.Errorf("cannot parse execution's inputs (JSON format): %s", err)
-	}
-
+	inputs := fromProtoStruct(req.Inputs)
 	eventHash, err := hash.Random()
 	if err != nil {
 		return nil, err
@@ -116,7 +110,7 @@ func (s *ExecutionServer) Update(ctx context.Context, req *api.UpdateExecutionRe
 	}
 	switch res := req.Result.(type) {
 	case *api.UpdateExecutionRequest_Outputs:
-		err = s.sdk.Execution.Update(hash, []byte(res.Outputs), nil)
+		err = s.sdk.Execution.Update(hash, fromProtoStruct(res.Outputs), nil)
 	case *api.UpdateExecutionRequest_Error:
 		err = s.sdk.Execution.Update(hash, nil, errors.New(res.Error))
 	default:
