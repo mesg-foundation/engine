@@ -9,6 +9,7 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	"github.com/mesg-foundation/engine/protobuf/api"
+	"github.com/mesg-foundation/engine/protobuf/convert"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/sdk"
 	eventsdk "github.com/mesg-foundation/engine/sdk/event"
@@ -35,7 +36,7 @@ func (s *EventServer) Create(ctx context.Context, req *api.CreateEventRequest) (
 		return nil, errors.New("create event: key missing")
 	}
 
-	data := fromProtoStruct(req.Data)
+	data := convert.PbStructToMap(req.Data)
 	event, err := s.sdk.Event.Create(instanceHash, req.Key, data)
 	if err != nil {
 		return nil, fmt.Errorf("create event: data %s", err)
@@ -84,6 +85,6 @@ func toProtoEvent(e *event.Event) *types.Event {
 		Hash:         e.Hash.String(),
 		InstanceHash: e.InstanceHash.String(),
 		Key:          e.Key,
-		Data:         toProtoStruct(e.Data),
+		Data:         convert.MapToPbStruct(e.Data),
 	}
 }
