@@ -15,7 +15,7 @@ type deleteOutputSuccess struct {
 	Address common.Address `json:"address"`
 }
 
-func (s *Ethwallet) delete(input []byte) ([]byte, error) {
+func (s *Ethwallet) delete(input map[string]interface{}) (map[string]interface{}, error) {
 	var inputs deleteInputs
 	if err := client.Unmarshal(input, &inputs); err != nil {
 		return nil, err
