@@ -8,6 +8,7 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	"github.com/mesg-foundation/engine/protobuf/api"
+	"github.com/mesg-foundation/engine/protobuf/convert"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/sdk"
 	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
@@ -33,7 +34,7 @@ func (s *ExecutionServer) Create(ctx context.Context, req *api.CreateExecutionRe
 		return nil, err
 	}
 
-	inputs := fromProtoStruct(req.Inputs)
+	inputs := convert.PbStructToMap(req.Inputs)
 	eventHash, err := hash.Random()
 	if err != nil {
 		return nil, err
@@ -110,7 +111,7 @@ func (s *ExecutionServer) Update(ctx context.Context, req *api.UpdateExecutionRe
 	}
 	switch res := req.Result.(type) {
 	case *api.UpdateExecutionRequest_Outputs:
-		err = s.sdk.Execution.Update(hash, fromProtoStruct(res.Outputs), nil)
+		err = s.sdk.Execution.Update(hash, convert.PbStructToMap(res.Outputs), nil)
 	case *api.UpdateExecutionRequest_Error:
 		err = s.sdk.Execution.Update(hash, nil, errors.New(res.Error))
 	default:
@@ -132,8 +133,8 @@ func toProtoExecution(exec *execution.Execution) *types.Execution {
 		Status:       types.Status(exec.Status),
 		InstanceHash: exec.InstanceHash.String(),
 		TaskKey:      exec.TaskKey,
-		Inputs:       toProtoStruct(exec.Inputs),
-		Outputs:      toProtoStruct(exec.Outputs),
+		Inputs:       convert.MapToPbStruct(exec.Inputs),
+		Outputs:      convert.MapToPbStruct(exec.Outputs),
 		Tags:         exec.Tags,
 		Error:        exec.Error,
 	}
