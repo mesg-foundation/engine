@@ -16,7 +16,7 @@ type importOutputSuccess struct {
 	Address common.Address `json:"address"`
 }
 
-func (s *Ethwallet) importA(input []byte) ([]byte, error) {
+func (s *Ethwallet) importA(input map[string]interface{}) (map[string]interface{}, error) {
 	var inputs importInputs
 	if err := client.Unmarshal(input, &inputs); err != nil {
 		return nil, err

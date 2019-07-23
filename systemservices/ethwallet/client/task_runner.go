@@ -4,11 +4,12 @@ import (
 	"context"
 
 	pb "github.com/mesg-foundation/engine/protobuf/api"
+	"github.com/mesg-foundation/engine/protobuf/convert"
 	"github.com/mesg-foundation/engine/protobuf/types"
 )
 
 // TaskFn is a task function handler prototype.
-type TaskFn func(inputs []byte) ([]byte, error)
+type TaskFn func(inputs map[string]interface{}) (map[string]interface{}, error)
 
 // TaskRunner handles running task in a loop.
 type TaskRunner struct {
@@ -43,11 +44,11 @@ func (r *TaskRunner) Run() error {
 			return err
 		}
 
-		output, err := r.defs[exec.TaskKey]([]byte(exec.Inputs))
+		output, err := r.defs[exec.TaskKey](convert.PbStructToMap(exec.Inputs))
 		req := &pb.UpdateExecutionRequest{
 			Hash: exec.Hash,
 			Result: &pb.UpdateExecutionRequest_Outputs{
-				Outputs: string(output),
+				Outputs: convert.MapToPbStruct(output),
 			},
 		}
 		if err != nil {

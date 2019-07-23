@@ -13,7 +13,7 @@ type exportInputs struct {
 	Passphrase string         `json:"passphrase"`
 }
 
-func (s *Ethwallet) export(input []byte) ([]byte, error) {
+func (s *Ethwallet) export(input map[string]interface{}) (map[string]interface{}, error) {
 	var inputs exportInputs
 	if err := client.Unmarshal(input, &inputs); err != nil {
 		return nil, err
