@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import "protobuf/types/struct.proto";
+import "google/protobuf/struct.proto";
 import "protobuf/types/execution.proto";
 
 package api;
@@ -30,7 +30,7 @@ service Execution {
 message CreateExecutionRequest {
   string instanceHash = 1;
   string taskKey = 2;
-  types.Struct inputs = 3;
+  google.protobuf.Struct inputs = 3;
   repeated string tags = 4;
 }
 
@@ -75,7 +75,7 @@ message UpdateExecutionRequest {
   // result pass to execution
   oneof result {
     // outputs is a success result.
-    types.Struct outputs = 2;
+    google.protobuf.Struct outputs = 2;
 
     // error is an error result.
     string error = 3;

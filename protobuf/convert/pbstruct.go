@@ -3,11 +3,11 @@ package convert
 import (
 	"reflect"
 
-	"github.com/mesg-foundation/engine/protobuf/types"
+	structpb "github.com/golang/protobuf/ptypes/struct"
 )
 
 // PbStructToMap converts protobuf struct to map[string]interface{}.
-func PbStructToMap(s *types.Struct) map[string]interface{} {
+func PbStructToMap(s *structpb.Struct) map[string]interface{} {
 	m := make(map[string]interface{})
 	for k, v := range s.Fields {
 		m[k] = PbValueToInterface(v)
@@ -16,19 +16,19 @@ func PbStructToMap(s *types.Struct) map[string]interface{} {
 }
 
 // PbValueToInterface converts protobuf value to interface{}.
-func PbValueToInterface(v *types.Value) interface{} {
+func PbValueToInterface(v *structpb.Value) interface{} {
 	switch v.Kind.(type) {
-	case *types.Value_NullValue:
+	case *structpb.Value_NullValue:
 		return nil
-	case *types.Value_NumberValue:
+	case *structpb.Value_NumberValue:
 		return v.GetNumberValue()
-	case *types.Value_StringValue:
+	case *structpb.Value_StringValue:
 		return v.GetStringValue()
-	case *types.Value_BoolValue:
+	case *structpb.Value_BoolValue:
 		return v.GetBoolValue()
-	case *types.Value_StructValue:
+	case *structpb.Value_StructValue:
 		return PbStructToMap(v.GetStructValue())
-	case *types.Value_ListValue:
+	case *structpb.Value_ListValue:
 		lv := v.GetListValue()
 		if len(lv.Values) == 0 {
 			return nil
@@ -43,13 +43,13 @@ func PbValueToInterface(v *types.Value) interface{} {
 }
 
 // MapToPbStruct converts map[string]interface{} to protobuf struct.
-func MapToPbStruct(m map[string]interface{}) *types.Struct {
+func MapToPbStruct(m map[string]interface{}) *structpb.Struct {
 	if len(m) == 0 {
 		return nil
 	}
 
-	s := &types.Struct{
-		Fields: make(map[string]*types.Value, len(m)),
+	s := &structpb.Struct{
+		Fields: make(map[string]*structpb.Value, len(m)),
 	}
 
 	for k, v := range m {
@@ -59,97 +59,97 @@ func MapToPbStruct(m map[string]interface{}) *types.Struct {
 }
 
 // InterfaceToPbValue converts interface{} to protobuf value.
-func InterfaceToPbValue(v interface{}) *types.Value {
+func InterfaceToPbValue(v interface{}) *structpb.Value {
 	switch v := v.(type) {
 	case nil:
 		return nil
 	case bool:
-		return &types.Value{
-			Kind: &types.Value_BoolValue{
+		return &structpb.Value{
+			Kind: &structpb.Value_BoolValue{
 				BoolValue: v,
 			},
 		}
 	case int:
-		return &types.Value{
-			Kind: &types.Value_NumberValue{
+		return &structpb.Value{
+			Kind: &structpb.Value_NumberValue{
 				NumberValue: float64(v),
 			},
 		}
 	case int8:
-		return &types.Value{
-			Kind: &types.Value_NumberValue{
+		return &structpb.Value{
+			Kind: &structpb.Value_NumberValue{
 				NumberValue: float64(v),
 			},
 		}
 	case int16:
-		return &types.Value{
-			Kind: &types.Value_NumberValue{
+		return &structpb.Value{
+			Kind: &structpb.Value_NumberValue{
 				NumberValue: float64(v),
 			},
 		}
 	case int32:
-		return &types.Value{
-			Kind: &types.Value_NumberValue{
+		return &structpb.Value{
+			Kind: &structpb.Value_NumberValue{
 				NumberValue: float64(v),
 			},
 		}
 	case int64:
-		return &types.Value{
-			Kind: &types.Value_NumberValue{
+		return &structpb.Value{
+			Kind: &structpb.Value_NumberValue{
 				NumberValue: float64(v),
 			},
 		}
 	case uint:
-		return &types.Value{
-			Kind: &types.Value_NumberValue{
+		return &structpb.Value{
+			Kind: &structpb.Value_NumberValue{
 				NumberValue: float64(v),
 			},
 		}
 	case uint8:
-		return &types.Value{
-			Kind: &types.Value_NumberValue{
+		return &structpb.Value{
+			Kind: &structpb.Value_NumberValue{
 				NumberValue: float64(v),
 			},
 		}
 	case uint16:
-		return &types.Value{
-			Kind: &types.Value_NumberValue{
+		return &structpb.Value{
+			Kind: &structpb.Value_NumberValue{
 				NumberValue: float64(v),
 			},
 		}
 	case uint32:
-		return &types.Value{
-			Kind: &types.Value_NumberValue{
+		return &structpb.Value{
+			Kind: &structpb.Value_NumberValue{
 				NumberValue: float64(v),
 			},
 		}
 	case uint64:
-		return &types.Value{
-			Kind: &types.Value_NumberValue{
+		return &structpb.Value{
+			Kind: &structpb.Value_NumberValue{
 				NumberValue: float64(v),
 			},
 		}
 	case float32:
-		return &types.Value{
-			Kind: &types.Value_NumberValue{
+		return &structpb.Value{
+			Kind: &structpb.Value_NumberValue{
 				NumberValue: float64(v),
 			},
 		}
 	case float64:
-		return &types.Value{
-			Kind: &types.Value_NumberValue{
+		return &structpb.Value{
+			Kind: &structpb.Value_NumberValue{
 				NumberValue: v,
 			},
 		}
 	case string:
-		return &types.Value{
-			Kind: &types.Value_StringValue{
+		return &structpb.Value{
+			Kind: &structpb.Value_StringValue{
 				StringValue: v,
 			},
 		}
 	case error:
-		return &types.Value{
-			Kind: &types.Value_StringValue{
+		return &structpb.Value{
+			Kind: &structpb.Value_StringValue{
 				StringValue: v.Error(),
 			},
 		}
@@ -159,7 +159,7 @@ func InterfaceToPbValue(v interface{}) *types.Value {
 }
 
 // reflectValueToPbValue converts reflect.Value to protobuf value.
-func reflectValueToPbValue(v reflect.Value) *types.Value {
+func reflectValueToPbValue(v reflect.Value) *structpb.Value {
 	switch v.Kind() {
 	case reflect.Ptr:
 		if v.IsNil() {
@@ -170,13 +170,13 @@ func reflectValueToPbValue(v reflect.Value) *types.Value {
 		if v.Len() == 0 {
 			return nil
 		}
-		values := make([]*types.Value, v.Len())
+		values := make([]*structpb.Value, v.Len())
 		for i := 0; i < v.Len(); i++ {
 			values[i] = reflectValueToPbValue(v.Index(i))
 		}
-		return &types.Value{
-			Kind: &types.Value_ListValue{
-				ListValue: &types.ListValue{
+		return &structpb.Value{
+			Kind: &structpb.Value_ListValue{
+				ListValue: &structpb.ListValue{
 					Values: values,
 				},
 			},
@@ -187,10 +187,9 @@ func reflectValueToPbValue(v reflect.Value) *types.Value {
 		if size == 0 {
 			return nil
 		}
-		fields := make(map[string]*types.Value, size)
+		fields := make(map[string]*structpb.Value, size)
 		for i := 0; i < size; i++ {
 			name := t.Field(i).Name
-			// Better way?
 			if len(name) > 0 && 'A' <= name[0] && name[0] <= 'Z' {
 				fields[name] = reflectValueToPbValue(v.Field(i))
 			}
@@ -198,9 +197,9 @@ func reflectValueToPbValue(v reflect.Value) *types.Value {
 		if len(fields) == 0 {
 			return nil
 		}
-		return &types.Value{
-			Kind: &types.Value_StructValue{
-				StructValue: &types.Struct{
+		return &structpb.Value{
+			Kind: &structpb.Value_StructValue{
+				StructValue: &structpb.Struct{
 					Fields: fields,
 				},
 			},
@@ -210,7 +209,7 @@ func reflectValueToPbValue(v reflect.Value) *types.Value {
 		if len(keys) == 0 {
 			return nil
 		}
-		fields := make(map[string]*types.Value, len(keys))
+		fields := make(map[string]*structpb.Value, len(keys))
 		for _, k := range keys {
 			if k.Kind() == reflect.String {
 				fields[k.String()] = reflectValueToPbValue(v.MapIndex(k))
@@ -219,9 +218,9 @@ func reflectValueToPbValue(v reflect.Value) *types.Value {
 		if len(fields) == 0 {
 			return nil
 		}
-		return &types.Value{
-			Kind: &types.Value_StructValue{
-				StructValue: &types.Struct{
+		return &structpb.Value{
+			Kind: &structpb.Value_StructValue{
+				StructValue: &structpb.Struct{
 					Fields: fields,
 				},
 			},
