@@ -17,5 +17,5 @@ message Event {
   string key = 3;
 
   // data is the data for the event.
-  struct.Struct data = 4;
+  google.protobuf.Struct data = 4;
 }
