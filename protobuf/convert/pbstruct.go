@@ -1,6 +1,7 @@
 package convert
 
 import (
+	"fmt"
 	"reflect"
 
 	structpb "github.com/golang/protobuf/ptypes/struct"
@@ -17,6 +18,9 @@ func PbStructToMap(s *structpb.Struct) map[string]interface{} {
 
 // PbValueToInterface converts protobuf value to interface{}.
 func PbValueToInterface(v *structpb.Value) interface{} {
+	if v == nil {
+		return nil
+	}
 	switch v.Kind.(type) {
 	case *structpb.Value_NullValue:
 		return nil
@@ -33,6 +37,7 @@ func PbValueToInterface(v *structpb.Value) interface{} {
 		if len(lv.Values) == 0 {
 			return nil
 		}
+
 		a := make([]interface{}, len(lv.Values))
 		for i, v := range lv.Values {
 			a[i] = PbValueToInterface(v)
@@ -166,6 +171,38 @@ func reflectValueToPbValue(v reflect.Value) *structpb.Value {
 			return nil
 		}
 		return reflectValueToPbValue(reflect.Indirect(v))
+	case reflect.Interface:
+		return InterfaceToPbValue(v.Interface())
+	case reflect.Bool:
+		return &structpb.Value{
+			Kind: &structpb.Value_BoolValue{
+				BoolValue: v.Bool(),
+			},
+		}
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return &structpb.Value{
+			Kind: &structpb.Value_NumberValue{
+				NumberValue: float64(v.Int()),
+			},
+		}
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+		return &structpb.Value{
+			Kind: &structpb.Value_NumberValue{
+				NumberValue: float64(v.Uint()),
+			},
+		}
+	case reflect.Float32, reflect.Float64:
+		return &structpb.Value{
+			Kind: &structpb.Value_NumberValue{
+				NumberValue: v.Float(),
+			},
+		}
+	case reflect.String:
+		return &structpb.Value{
+			Kind: &structpb.Value_StringValue{
+				StringValue: v.String(),
+			},
+		}
 	case reflect.Array, reflect.Slice:
 		if v.Len() == 0 {
 			return nil
@@ -226,6 +263,10 @@ func reflectValueToPbValue(v reflect.Value) *structpb.Value {
 			},
 		}
 	default:
-		return nil
+		return &structpb.Value{
+			Kind: &structpb.Value_StringValue{
+				StringValue: fmt.Sprint(v),
+			},
+		}
 	}
 }
