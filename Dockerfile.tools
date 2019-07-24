@@ -21,7 +21,8 @@ ARG protobuf=3.8.0
 RUN wget -q https://github.com/protocolbuffers/protobuf/releases/download/v$protobuf/protoc-$protobuf-linux-x86_64.zip -O /tmp/protobuf.zip && \
     mkdir /tmp/protobuf && \
     unzip /tmp/protobuf.zip -d /tmp/protobuf && \
-    mv /tmp/protobuf/bin/protoc /usr/local/bin/protoc && \
+    mv /tmp/protobuf/bin/* /usr/local/bin/ && \
+    mv /tmp/protobuf/include/* /usr/local/include/ && \
     rm -rf /tmp/*
 
 RUN go install github.com/go-bindata/go-bindata/go-bindata
