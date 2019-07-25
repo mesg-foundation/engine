@@ -2,8 +2,6 @@ package client
 
 import (
 	"encoding/json"
-
-	"github.com/mitchellh/mapstructure"
 )
 
 // Marshal returns the MESG format encoding of v.
@@ -23,5 +21,10 @@ func Marshal(input interface{}) (map[string]interface{}, error) {
 
 // Unmarshal parses the MESG-encoded data input and stores the result in the value pointed to by v.
 func Unmarshal(input map[string]interface{}, output interface{}) error {
-	return mapstructure.Decode(input, output)
+	b, err := json.Marshal(input)
+	if err != nil {
+		return err
+	}
+
+	return json.Unmarshal(b, output)
 }
