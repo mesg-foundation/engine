@@ -23,7 +23,8 @@ func TestGet(t *testing.T) {
 	exec := execution.New(nil, nil, nil, "", nil, nil)
 	require.NoError(t, db.Save(exec))
 
-	want := toProtoExecution(exec)
+	want, err := toProtoExecution(exec)
+	require.NoError(t, err)
 
 	sdk := sdk.New(nil, nil, nil, db, "", "")
 	s := NewExecutionServer(sdk)
