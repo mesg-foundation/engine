@@ -84,7 +84,7 @@ func (e *Execution) processExecution(executionHash hash.Hash, outputs map[string
 				tx.Discard()
 				return nil, err1
 			}
-		} else if err := exec.Complete(o); err != nil {
+		} else if err := exec.Complete(outputs); err != nil {
 			tx.Discard()
 			return nil, err
 		}
