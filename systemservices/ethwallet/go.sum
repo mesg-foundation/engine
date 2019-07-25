@@ -105,6 +105,8 @@ github.com/mesg-foundation/engine v0.5.1-0.20190723134654-1f96efe67b8f h1:vlWi61
 github.com/mesg-foundation/engine v0.5.1-0.20190723134654-1f96efe67b8f/go.mod h1:KiMM6s34FwClc1niXN9NO/QG7VKPh4bS/PxBO0b0H48=
 github.com/mesg-foundation/engine v0.5.1-0.20190724163552-ca83914685bb h1:S/CY8lw1DiHgCZx7NRXbC+2HzncVQQAXdocviaxOElg=
 github.com/mesg-foundation/engine v0.5.1-0.20190724163552-ca83914685bb/go.mod h1:KiMM6s34FwClc1niXN9NO/QG7VKPh4bS/PxBO0b0H48=
+github.com/mesg-foundation/engine v0.5.1-0.20190725113935-3e817175f412 h1:pltHBuy2yeuf83rg2QsbB7YXk1dCnxTXll1mbmTk47w=
+github.com/mesg-foundation/engine v0.5.1-0.20190725113935-3e817175f412/go.mod h1:KiMM6s34FwClc1niXN9NO/QG7VKPh4bS/PxBO0b0H48=
 github.com/mesg-foundation/engine v0.11.0 h1:Fmdy+3Gqa4XyVQcRbf0wE8pk/CtYpW8xop6VWECV10E=
 github.com/mitchellh/go-homedir v0.0.0-20161203194507-b8bc1bf76747 h1:eQox4Rh4ewJF+mqYPxCkmBAirRnPaHEB26UkNuPyjlk=
 github.com/mitchellh/go-homedir v0.0.0-20161203194507-b8bc1bf76747/go.mod h1:SfyaCUpYCn1Vlf4IUYiD9fPX4A5wJrkLzIz1N1q0pr0=
