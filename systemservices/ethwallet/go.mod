@@ -10,7 +10,7 @@ require (
 	github.com/deckarep/golang-set v1.7.1 // indirect
 	github.com/ethereum/go-ethereum v1.8.27
 	github.com/go-stack/stack v1.8.0 // indirect
-	github.com/mesg-foundation/engine v0.5.1-0.20190724163552-ca83914685bb
+	github.com/mesg-foundation/engine v0.5.1-0.20190725113935-3e817175f412
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/pborman/uuid v1.2.0 // indirect
 	github.com/rjeczalik/notify v0.9.2 // indirect
