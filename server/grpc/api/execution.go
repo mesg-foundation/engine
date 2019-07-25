@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	structpb "github.com/golang/protobuf/ptypes/struct"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
@@ -34,7 +35,10 @@ func (s *ExecutionServer) Create(ctx context.Context, req *api.CreateExecutionRe
 		return nil, err
 	}
 
-	inputs := convert.PbStructToMap(req.Inputs)
+	inputs := make(map[string]interface{})
+	if err := convert.Marshal(req.Inputs, &inputs); err != nil {
+		return nil, err
+	}
 	eventHash, err := hash.Random()
 	if err != nil {
 		return nil, err
@@ -60,7 +64,7 @@ func (s *ExecutionServer) Get(ctx context.Context, req *api.GetExecutionRequest)
 	if err != nil {
 		return nil, err
 	}
-	return toProtoExecution(exec), nil
+	return toProtoExecution(exec)
 }
 
 // Stream returns stream of executions.
@@ -95,7 +99,12 @@ func (s *ExecutionServer) Stream(req *api.StreamExecutionRequest, resp api.Execu
 	}
 
 	for exec := range stream.C {
-		if err := resp.Send(toProtoExecution(exec)); err != nil {
+		e, err := toProtoExecution(exec)
+		if err != nil {
+			return err
+		}
+
+		if err := resp.Send(e); err != nil {
 			return err
 		}
 	}
@@ -111,7 +120,12 @@ func (s *ExecutionServer) Update(ctx context.Context, req *api.UpdateExecutionRe
 	}
 	switch res := req.Result.(type) {
 	case *api.UpdateExecutionRequest_Outputs:
-		err = s.sdk.Execution.Update(hash, convert.PbStructToMap(res.Outputs), nil)
+		outputs := make(map[string]interface{})
+		if err := convert.Marshal(res.Outputs, &outputs); err != nil {
+			return nil, err
+		}
+
+		err = s.sdk.Execution.Update(hash, outputs, nil)
 	case *api.UpdateExecutionRequest_Error:
 		err = s.sdk.Execution.Update(hash, nil, errors.New(res.Error))
 	default:
@@ -125,7 +139,17 @@ func (s *ExecutionServer) Update(ctx context.Context, req *api.UpdateExecutionRe
 
 }
 
-func toProtoExecution(exec *execution.Execution) *types.Execution {
+func toProtoExecution(exec *execution.Execution) (*types.Execution, error) {
+	inputs := &structpb.Struct{}
+	if err := convert.Unmarshal(exec.Inputs, inputs); err != nil {
+		return nil, err
+	}
+
+	outputs := &structpb.Struct{}
+	if err := convert.Unmarshal(exec.Outputs, outputs); err != nil {
+		return nil, err
+	}
+
 	return &types.Execution{
 		Hash:         exec.Hash.String(),
 		ParentHash:   exec.ParentHash.String(),
@@ -133,9 +157,9 @@ func toProtoExecution(exec *execution.Execution) *types.Execution {
 		Status:       types.Status(exec.Status),
 		InstanceHash: exec.InstanceHash.String(),
 		TaskKey:      exec.TaskKey,
-		Inputs:       convert.MapToPbStruct(exec.Inputs),
-		Outputs:      convert.MapToPbStruct(exec.Outputs),
+		Inputs:       inputs,
+		Outputs:      outputs,
 		Tags:         exec.Tags,
 		Error:        exec.Error,
-	}
+	}, nil
 }

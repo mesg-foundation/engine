@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	structpb "github.com/golang/protobuf/ptypes/struct"
 	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
@@ -36,7 +37,11 @@ func (s *EventServer) Create(ctx context.Context, req *api.CreateEventRequest) (
 		return nil, errors.New("create event: key missing")
 	}
 
-	data := convert.PbStructToMap(req.Data)
+	data := make(map[string]interface{})
+	if err := convert.Marshal(req.Data, &data); err != nil {
+		return nil, err
+	}
+
 	event, err := s.sdk.Event.Create(instanceHash, req.Key, data)
 	if err != nil {
 		return nil, fmt.Errorf("create event: data %s", err)
@@ -72,7 +77,12 @@ func (s *EventServer) Stream(req *api.StreamEventRequest, resp api.Event_StreamS
 	}
 
 	for event := range stream.C {
-		if err := resp.Send(toProtoEvent(event)); err != nil {
+		e, err := toProtoEvent(event)
+		if err != nil {
+			return err
+		}
+
+		if err := resp.Send(e); err != nil {
 			return err
 		}
 	}
@@ -80,11 +90,16 @@ func (s *EventServer) Stream(req *api.StreamEventRequest, resp api.Event_StreamS
 	return nil
 }
 
-func toProtoEvent(e *event.Event) *types.Event {
+func toProtoEvent(e *event.Event) (*types.Event, error) {
+	data := &structpb.Struct{}
+	if err := convert.Unmarshal(e.Data, data); err != nil {
+		return nil, err
+	}
+
 	return &types.Event{
 		Hash:         e.Hash.String(),
 		InstanceHash: e.InstanceHash.String(),
 		Key:          e.Key,
-		Data:         convert.MapToPbStruct(e.Data),
-	}
+		Data:         data,
+	}, nil
 }
