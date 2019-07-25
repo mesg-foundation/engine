@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	structpb "github.com/golang/protobuf/ptypes/struct"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/convert"
 	"github.com/mesg-foundation/engine/protobuf/types"
@@ -57,7 +58,7 @@ func (r *TaskRunner) Run() error {
 		if err == nil {
 			outputs := &structpb.Struct{}
 			if err := convert.Unmarshal(output, outputs); err != nil {
-				return nil, err
+				return err
 			}
 			req.Result = &pb.UpdateExecutionRequest_Outputs{
 				Outputs: outputs,
