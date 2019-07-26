@@ -2,13 +2,16 @@ package client
 
 import (
 	"context"
+	"fmt"
 
+	structpb "github.com/golang/protobuf/ptypes/struct"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
+	"github.com/mesg-foundation/engine/protobuf/convert"
 	"github.com/mesg-foundation/engine/protobuf/types"
 )
 
 // TaskFn is a task function handler prototype.
-type TaskFn func(inputs []byte) ([]byte, error)
+type TaskFn func(inputs map[string]interface{}) (map[string]interface{}, error)
 
 // TaskRunner handles running task in a loop.
 type TaskRunner struct {
@@ -40,17 +43,27 @@ func (r *TaskRunner) Run() error {
 		}
 
 		if _, ok := r.defs[exec.TaskKey]; !ok {
+			return fmt.Errorf("servic has no %s task", exec.TaskKey)
+		}
+
+		inputs := make(map[string]interface{})
+		if err := convert.Marshal(exec.Inputs, &inputs); err != nil {
 			return err
 		}
 
-		output, err := r.defs[exec.TaskKey]([]byte(exec.Inputs))
+		output, err := r.defs[exec.TaskKey](inputs)
 		req := &pb.UpdateExecutionRequest{
 			Hash: exec.Hash,
-			Result: &pb.UpdateExecutionRequest_Outputs{
-				Outputs: string(output),
-			},
 		}
-		if err != nil {
+		if err == nil {
+			outputs := &structpb.Struct{}
+			if err := convert.Unmarshal(output, outputs); err != nil {
+				return err
+			}
+			req.Result = &pb.UpdateExecutionRequest_Outputs{
+				Outputs: outputs,
+			}
+		} else {
 			req.Result = &pb.UpdateExecutionRequest_Error{
 				Error: err.Error(),
 			}

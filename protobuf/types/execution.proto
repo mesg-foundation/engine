@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+import "google/protobuf/struct.proto";
+
 package types;
 option go_package = "github.com/mesg-foundation/engine/protobuf/types";
 
@@ -44,10 +46,10 @@ message Execution {
   string taskKey = 6;
 
   // inputs data of the execution.
-  string inputs = 7;
+  google.protobuf.Struct inputs = 7;
 
   // outputs are the returned data of successful execution.
-  string outputs = 8;
+  google.protobuf.Struct outputs = 8;
 
   // error message of a failed execution.
   string error = 9;
