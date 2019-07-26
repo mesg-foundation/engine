@@ -2,14 +2,15 @@ package api
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 
+	structpb "github.com/golang/protobuf/ptypes/struct"
 	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	"github.com/mesg-foundation/engine/protobuf/api"
+	"github.com/mesg-foundation/engine/protobuf/convert"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/sdk"
 	eventsdk "github.com/mesg-foundation/engine/sdk/event"
@@ -36,10 +37,11 @@ func (s *EventServer) Create(ctx context.Context, req *api.CreateEventRequest) (
 		return nil, errors.New("create event: key missing")
 	}
 
-	var data map[string]interface{}
-	if err := json.Unmarshal([]byte(req.Data), &data); err != nil {
-		return nil, fmt.Errorf("create event: data %s", err)
+	data := make(map[string]interface{})
+	if err := convert.Marshal(req.Data, &data); err != nil {
+		return nil, err
 	}
+
 	event, err := s.sdk.Event.Create(instanceHash, req.Key, data)
 	if err != nil {
 		return nil, fmt.Errorf("create event: data %s", err)
@@ -74,13 +76,13 @@ func (s *EventServer) Stream(req *api.StreamEventRequest, resp api.Event_StreamS
 		return err
 	}
 
-	for exec := range stream.C {
-		pexec, err := toProtoEvent(exec)
+	for event := range stream.C {
+		e, err := toProtoEvent(event)
 		if err != nil {
 			return err
 		}
 
-		if err := resp.Send(pexec); err != nil {
+		if err := resp.Send(e); err != nil {
 			return err
 		}
 	}
@@ -89,8 +91,8 @@ func (s *EventServer) Stream(req *api.StreamEventRequest, resp api.Event_StreamS
 }
 
 func toProtoEvent(e *event.Event) (*types.Event, error) {
-	data, err := json.Marshal(e.Data)
-	if err != nil {
+	data := &structpb.Struct{}
+	if err := convert.Unmarshal(e.Data, data); err != nil {
 		return nil, err
 	}
 
@@ -98,6 +100,6 @@ func toProtoEvent(e *event.Event) (*types.Event, error) {
 		Hash:         e.Hash.String(),
 		InstanceHash: e.InstanceHash.String(),
 		Key:          e.Key,
-		Data:         string(data),
+		Data:         data,
 	}, nil
 }

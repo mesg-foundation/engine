@@ -17,7 +17,7 @@ type importFromPrivateKeyOutputSuccess struct {
 	Address common.Address `json:"address"`
 }
 
-func (s *Ethwallet) importFromPrivateKey(input []byte) ([]byte, error) {
+func (s *Ethwallet) importFromPrivateKey(input map[string]interface{}) (map[string]interface{}, error) {
 	var inputs importFromPrivateKeyInputs
 	if err := client.Unmarshal(input, &inputs); err != nil {
 		return nil, err

@@ -9,7 +9,7 @@ type listOutputSuccess struct {
 	Addresses []common.Address `json:"addresses"`
 }
 
-func (s *Ethwallet) list(input []byte) ([]byte, error) {
+func (s *Ethwallet) list(input map[string]interface{}) (map[string]interface{}, error) {
 	addresses := make([]common.Address, 0)
 	for _, account := range s.keystore.Accounts() {
 		addresses = append(addresses, account.Address)
