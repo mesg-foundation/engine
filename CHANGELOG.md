@@ -13,7 +13,7 @@
 #### Breaking Changes
 
 - ([#1173](https://github.com/mesg-foundation/engine/pull/1173)) `mesg.hash` has been removed and replaced by `mesg.service` and `mesg.instance` in the docker labels.
-- ([#1192](https://github.com/mesg-foundation/engine/pull/1192)) Replace JSON format with protobuf Struct on gRPC APIs for `inputs`, `outputs` and `data` parameters.
+- ([#1192](https://github.com/mesg-foundation/engine/pull/1192)) Replace JSON format with protobuf Struct on gRPC APIs for `inputs`, `outputs` and `data` parameters. ([#1198](https://github.com/mesg-foundation/engine/pull/1198)).
 
 #### Features
 
