@@ -2,6 +2,7 @@ package main
 
 import (
 	"path/filepath"
+	"strconv"
 	"sync"
 
 	"github.com/mesg-foundation/engine/config"
@@ -14,7 +15,9 @@ import (
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	"github.com/mesg-foundation/engine/server/grpc"
 	"github.com/mesg-foundation/engine/version"
+	"github.com/mesg-foundation/engine/workflow"
 	"github.com/mesg-foundation/engine/x/xerrors"
+	"github.com/mesg-foundation/engine/x/xnet"
 	"github.com/mesg-foundation/engine/x/xos"
 	"github.com/mesg-foundation/engine/x/xsignal"
 	"github.com/sirupsen/logrus"
@@ -59,8 +62,10 @@ func initDependencies() (*dependencies, error) {
 		return nil, err
 	}
 
+	_, port, _ := xnet.SplitHostPort(config.Server.Address)
+
 	// init sdk.
-	sdk := sdk.New(c, serviceDB, instanceDB, executionDB)
+	sdk := sdk.New(c, serviceDB, instanceDB, executionDB, config.Name, strconv.Itoa(port))
 
 	return &dependencies{
 		config:      config,
@@ -156,6 +161,19 @@ func main() {
 	go func() {
 		if err := server.Serve(dep.config.Server.Address); err != nil {
 			logrus.Fatalln(err)
+		}
+	}()
+
+	logrus.Info("starting workflow engine")
+	wf := workflow.New(dep.sdk.Event, dep.sdk.Execution, dep.sdk.Service)
+	go func() {
+		if err := wf.Start(); err != nil {
+			logrus.Fatalln(err)
+		}
+	}()
+	go func() {
+		for err := range wf.ErrC {
+			logrus.Warn(err)
 		}
 	}()
 

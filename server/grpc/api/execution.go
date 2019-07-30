@@ -2,14 +2,14 @@ package api
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
-	"fmt"
 
+	structpb "github.com/golang/protobuf/ptypes/struct"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	"github.com/mesg-foundation/engine/protobuf/api"
+	"github.com/mesg-foundation/engine/protobuf/convert"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/sdk"
 	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
@@ -30,17 +30,20 @@ func NewExecutionServer(sdk *sdk.SDK) *ExecutionServer {
 
 // Create creates an execution.
 func (s *ExecutionServer) Create(ctx context.Context, req *api.CreateExecutionRequest) (*api.CreateExecutionResponse, error) {
-	hash, err := hash.Decode(req.InstanceHash)
+	instanceHash, err := hash.Decode(req.InstanceHash)
 	if err != nil {
 		return nil, err
 	}
 
-	var inputs map[string]interface{}
-	if err := json.Unmarshal([]byte(req.Inputs), &inputs); err != nil {
-		return nil, fmt.Errorf("cannot parse execution's inputs (JSON format): %s", err)
+	inputs := make(map[string]interface{})
+	if err := convert.Marshal(req.Inputs, &inputs); err != nil {
+		return nil, err
 	}
-
-	executionHash, err := s.sdk.Execution.Execute(hash, req.TaskKey, inputs, req.Tags)
+	eventHash, err := hash.Random()
+	if err != nil {
+		return nil, err
+	}
+	executionHash, err := s.sdk.Execution.Execute(instanceHash, eventHash, nil, req.TaskKey, inputs, req.Tags)
 	if err != nil {
 		return nil, err
 	}
@@ -96,12 +99,12 @@ func (s *ExecutionServer) Stream(req *api.StreamExecutionRequest, resp api.Execu
 	}
 
 	for exec := range stream.C {
-		pexec, err := toProtoExecution(exec)
+		e, err := toProtoExecution(exec)
 		if err != nil {
 			return err
 		}
 
-		if err := resp.Send(pexec); err != nil {
+		if err := resp.Send(e); err != nil {
 			return err
 		}
 	}
@@ -117,7 +120,12 @@ func (s *ExecutionServer) Update(ctx context.Context, req *api.UpdateExecutionRe
 	}
 	switch res := req.Result.(type) {
 	case *api.UpdateExecutionRequest_Outputs:
-		err = s.sdk.Execution.Update(hash, []byte(res.Outputs), nil)
+		outputs := make(map[string]interface{})
+		if err := convert.Marshal(res.Outputs, &outputs); err != nil {
+			return nil, err
+		}
+
+		err = s.sdk.Execution.Update(hash, outputs, nil)
 	case *api.UpdateExecutionRequest_Error:
 		err = s.sdk.Execution.Update(hash, nil, errors.New(res.Error))
 	default:
@@ -132,13 +140,13 @@ func (s *ExecutionServer) Update(ctx context.Context, req *api.UpdateExecutionRe
 }
 
 func toProtoExecution(exec *execution.Execution) (*types.Execution, error) {
-	inputs, err := json.Marshal(exec.Inputs)
-	if err != nil {
+	inputs := &structpb.Struct{}
+	if err := convert.Unmarshal(exec.Inputs, inputs); err != nil {
 		return nil, err
 	}
 
-	outputs, err := json.Marshal(exec.Outputs)
-	if err != nil {
+	outputs := &structpb.Struct{}
+	if err := convert.Unmarshal(exec.Outputs, outputs); err != nil {
 		return nil, err
 	}
 
@@ -149,8 +157,8 @@ func toProtoExecution(exec *execution.Execution) (*types.Execution, error) {
 		Status:       types.Status(exec.Status),
 		InstanceHash: exec.InstanceHash.String(),
 		TaskKey:      exec.TaskKey,
-		Inputs:       string(inputs),
-		Outputs:      string(outputs),
+		Inputs:       inputs,
+		Outputs:      outputs,
 		Tags:         exec.Tags,
 		Error:        exec.Error,
 	}, nil

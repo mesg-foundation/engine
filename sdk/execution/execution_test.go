@@ -46,7 +46,7 @@ func newTesting(t *testing.T) (*Execution, *apiTesting) {
 
 	instDB, err := database.NewInstanceDB(instdbname)
 	require.NoError(t, err)
-	instance := instancesdk.New(container, service, instDB)
+	instance := instancesdk.New(container, service, instDB, "", "")
 
 	execDB, err := database.NewExecutionDB(execdbname)
 	require.NoError(t, err)
@@ -113,11 +113,11 @@ func TestExecute(t *testing.T) {
 	require.NoError(t, at.serviceDB.Save(testService))
 	require.NoError(t, at.instanceDB.Save(testInstance))
 
-	_, err := sdk.Execute(testInstance.Hash, testService.Tasks[0].Key, nil, nil)
+	_, err := sdk.Execute(testInstance.Hash, hash.Int(1), nil, testService.Tasks[0].Key, map[string]interface{}{}, nil)
 	require.NoError(t, err)
 
 	// not existing instance
-	_, err = sdk.Execute(hash.Int(3), testService.Tasks[0].Key, nil, nil)
+	_, err = sdk.Execute(hash.Int(3), hash.Int(1), nil, testService.Tasks[0].Key, map[string]interface{}{}, nil)
 	require.Error(t, err)
 }
 
@@ -127,7 +127,7 @@ func TestExecuteInvalidTaskKey(t *testing.T) {
 
 	require.NoError(t, at.serviceDB.Save(testService))
 
-	_, err := sdk.Execute(testService.Hash, "-", nil, nil)
+	_, err := sdk.Execute(testService.Hash, hash.Int(1), nil, "-", map[string]interface{}{}, nil)
 	require.Error(t, err)
 }
 

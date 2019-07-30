@@ -1,12 +1,8 @@
 package instancesdk
 
 import (
-	"strconv"
-
-	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/instance"
-	"github.com/mesg-foundation/engine/x/xnet"
 	"github.com/mesg-foundation/engine/x/xos"
 )
 
@@ -25,22 +21,9 @@ func (i *Instance) start(inst *instance.Instance, imageHash string, env []string
 	if err != nil {
 		return nil, err
 	}
-	conf, err := config.Global()
-	if err != nil {
-		return nil, err
-	}
-	_, port, _ := xnet.SplitHostPort(conf.Server.Address)
-	endpoint := conf.Name + ":" + strconv.Itoa(port)
 	// BUG: https://github.com/mesg-foundation/engine/issues/382
 	// After solving this by docker, switch back to deploy in parallel
 	configs := make([]container.ServiceOptions, 0)
-
-	labels := map[string]string{
-		"mesg.service": srv.Name,
-		"mesg.hash":    inst.Hash.String(),
-		"mesg.sid":     srv.Sid,
-		"mesg.engine":  conf.Name,
-	}
 
 	// Create dependency container configs
 	for _, d := range srv.Dependencies {
@@ -51,13 +34,19 @@ func (i *Instance) start(inst *instance.Instance, imageHash string, env []string
 		}
 		configs = append(configs, container.ServiceOptions{
 			Namespace: dependencyNamespace(instNamespace, d.Key),
-			Labels:    labels,
-			Image:     d.Image,
-			Args:      d.Args,
-			Command:   d.Command,
-			Env:       d.Env,
-			Mounts:    append(volumes, volumesFrom...),
-			Ports:     extractPorts(d),
+			Labels: map[string]string{
+				"mesg.engine":     i.engineName,
+				"mesg.sid":        srv.Sid,
+				"mesg.service":    srv.Hash.String(),
+				"mesg.instance":   inst.Hash.String(),
+				"mesg.dependency": d.Key,
+			},
+			Image:   d.Image,
+			Args:    d.Args,
+			Command: d.Command,
+			Env:     d.Env,
+			Mounts:  append(volumes, volumesFrom...),
+			Ports:   extractPorts(d),
 			Networks: []container.Network{
 				{ID: networkID, Alias: d.Key},
 				{ID: sharedNetworkID}, // TODO: to remove
@@ -73,14 +62,20 @@ func (i *Instance) start(inst *instance.Instance, imageHash string, env []string
 	}
 	configs = append(configs, container.ServiceOptions{
 		Namespace: dependencyNamespace(instNamespace, srv.Configuration.Key),
-		Labels:    labels,
-		Image:     imageHash,
-		Args:      srv.Configuration.Args,
-		Command:   srv.Configuration.Command,
+		Labels: map[string]string{
+			"mesg.engine":     i.engineName,
+			"mesg.sid":        srv.Sid,
+			"mesg.service":    srv.Hash.String(),
+			"mesg.instance":   inst.Hash.String(),
+			"mesg.dependency": srv.Configuration.Key,
+		},
+		Image:   imageHash,
+		Args:    srv.Configuration.Args,
+		Command: srv.Configuration.Command,
 		Env: xos.EnvMergeSlices(env, []string{
 			"MESG_TOKEN=" + inst.Hash.String(),
-			"MESG_ENDPOINT=" + endpoint,
-			"MESG_ENDPOINT_TCP=" + endpoint,
+			"MESG_ENDPOINT=" + i.endpoint,
+			"MESG_ENDPOINT_TCP=" + i.endpoint,
 		}),
 		Mounts: append(volumes, volumesFrom...),
 		Ports:  extractPorts(srv.Configuration),

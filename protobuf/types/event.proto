@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+import "google/protobuf/struct.proto";
+
 package types;
 option go_package = "github.com/mesg-foundation/engine/protobuf/types";
 
@@ -15,5 +17,5 @@ message Event {
   string key = 3;
 
   // data is the data for the event.
-  string data = 4;
+  google.protobuf.Struct data = 4;
 }

@@ -1,7 +1,6 @@
 package executionsdk
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/cskr/pubsub"
@@ -49,7 +48,7 @@ func (e *Execution) GetStream(f *Filter) *Listener {
 }
 
 // Update updates execution that matches given hash.
-func (e *Execution) Update(executionHash hash.Hash, outputs []byte, reterr error) error {
+func (e *Execution) Update(executionHash hash.Hash, outputs map[string]interface{}, reterr error) error {
 	exec, err := e.processExecution(executionHash, outputs, reterr)
 	if err != nil {
 		return err
@@ -61,7 +60,7 @@ func (e *Execution) Update(executionHash hash.Hash, outputs []byte, reterr error
 }
 
 // processExecution processes execution and marks it as complated or failed.
-func (e *Execution) processExecution(executionHash hash.Hash, outputData []byte, reterr error) (*execution.Execution, error) {
+func (e *Execution) processExecution(executionHash hash.Hash, outputs map[string]interface{}, reterr error) (*execution.Execution, error) {
 	tx, err := e.execDB.OpenTransaction()
 	if err != nil {
 		return nil, err
@@ -79,13 +78,13 @@ func (e *Execution) processExecution(executionHash hash.Hash, outputData []byte,
 			return nil, err
 		}
 	} else {
-		o, err := e.validateExecutionOutput(exec.InstanceHash, exec.TaskKey, outputData)
+		err := e.validateExecutionOutput(exec.InstanceHash, exec.TaskKey, outputs)
 		if err != nil {
-			tx.Discard()
-			return nil, err
-		}
-
-		if err := exec.Complete(o); err != nil {
+			if err1 := exec.Failed(err); err1 != nil {
+				tx.Discard()
+				return nil, err1
+			}
+		} else if err := exec.Complete(outputs); err != nil {
 			tx.Discard()
 			return nil, err
 		}
@@ -104,30 +103,28 @@ func (e *Execution) processExecution(executionHash hash.Hash, outputData []byte,
 	return exec, nil
 }
 
-func (e *Execution) validateExecutionOutput(instanceHash hash.Hash, taskKey string, jsonout []byte) (map[string]interface{}, error) {
-	var output map[string]interface{}
-	if err := json.Unmarshal(jsonout, &output); err != nil {
-		return nil, fmt.Errorf("invalid output: %s", err)
-	}
-
+func (e *Execution) validateExecutionOutput(instanceHash hash.Hash, taskKey string, outputs map[string]interface{}) error {
 	i, err := e.instance.Get(instanceHash)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	s, err := e.service.Get(i.ServiceHash)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	if err := s.RequireTaskOutputs(taskKey, output); err != nil {
-		return nil, err
-	}
-	return output, nil
+	return s.RequireTaskOutputs(taskKey, outputs)
 }
 
 // Execute executes a task tasKey with inputData and tags for service serviceID.
-func (e *Execution) Execute(instanceHash hash.Hash, taskKey string, inputData map[string]interface{}, tags []string) (executionHash hash.Hash, err error) {
+func (e *Execution) Execute(instanceHash hash.Hash, eventHash hash.Hash, parentHash hash.Hash, taskKey string, inputData map[string]interface{}, tags []string) (executionHash hash.Hash, err error) {
+	if parentHash != nil && eventHash != nil {
+		return nil, fmt.Errorf("cannot have both parent and event hash")
+	}
+	if parentHash == nil && eventHash == nil {
+		return nil, fmt.Errorf("should have at least an event hash or parent hash")
+	}
 	// a task should be executed only if task's service is running.
 	instance, err := e.instance.Get(instanceHash)
 	if err != nil {
@@ -143,13 +140,7 @@ func (e *Execution) Execute(instanceHash hash.Hash, taskKey string, inputData ma
 		return nil, err
 	}
 
-	// execute the task.
-	eventHash, err := hash.Random()
-	if err != nil {
-		return nil, err
-	}
-
-	exec := execution.New(instance.Hash, nil, eventHash, taskKey, inputData, tags)
+	exec := execution.New(instance.Hash, parentHash, eventHash, taskKey, inputData, tags)
 	if err := exec.Execute(); err != nil {
 		return nil, err
 	}
