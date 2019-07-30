@@ -8,6 +8,18 @@
 #### Fixed
 #### Removed
 
+## [v0.12.0](https://github.com/mesg-foundation/engine/release/tag/v0.12.0)
+
+#### Breaking Changes
+
+- ([#1173](https://github.com/mesg-foundation/engine/pull/1173)) `mesg.hash` has been removed and replaced by `mesg.service` and `mesg.instance` in the docker labels.
+- ([#1192](https://github.com/mesg-foundation/engine/pull/1192)) Replace JSON format with protobuf Struct on gRPC APIs for `inputs`, `outputs` and `data` parameters. ([#1198](https://github.com/mesg-foundation/engine/pull/1198)).
+
+#### Features
+
+- ([#1172](https://github.com/mesg-foundation/engine/pull/1172)) Implementation of workflow engine foundation. ([#1175](https://github.com/mesg-foundation/engine/pull/1175)). ([#1184](https://github.com/mesg-foundation/engine/pull/1184)). ([#1181](https://github.com/mesg-foundation/engine/pull/1181)). ([#1182](https://github.com/mesg-foundation/engine/pull/1182)). ([#1185](https://github.com/mesg-foundation/engine/pull/1185)). ([#1188](https://github.com/mesg-foundation/engine/pull/1188)). ([#1190](https://github.com/mesg-foundation/engine/pull/1190)).
+- ([#1191](https://github.com/mesg-foundation/engine/pull/1191)) Put executions as failed when a service emits the wrong outputs.
+
 ## [v0.11.0](https://github.com/mesg-foundation/engine/releases/tag/v0.11.0)
 
 ### [Click here to see the release notes](https://forum.mesg.com/t/release-notes-of-engine-v0-11-cli-v1-1-and-js-library-v4/339)
