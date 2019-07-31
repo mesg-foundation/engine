@@ -300,7 +300,8 @@ func toProtoWorkflows(workflows []*service.Workflow) []*types.Service_Workflow {
 			triggerType = types.Service_Workflow_Trigger_Result
 		}
 		wfs[i] = &types.Service_Workflow{
-			Key: wf.Key,
+			Hash: wf.Hash.String(),
+			Key:  wf.Key,
 			Trigger: &types.Service_Workflow_Trigger{
 				Type:         triggerType,
 				InstanceHash: wf.Trigger.InstanceHash.String(),
