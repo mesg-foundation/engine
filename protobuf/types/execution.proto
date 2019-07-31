@@ -30,6 +30,9 @@ message Execution {
   // Hash is a unique hash to identify execution.
   string hash = 1;
 
+  // wokflowHash is the unique hash of the workflow associated to this execution.
+  string workflowHash = 11;
+
   // parentHash is the unique hash of parent execution. if execution is triggered by another one, dependency execution considered as the parent.
   string parentHash = 2;
 

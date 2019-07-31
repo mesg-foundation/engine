@@ -35,6 +35,7 @@ func (s Status) String() (r string) {
 // Execution stores all information about executions.
 type Execution struct {
 	Hash         hash.Hash              `hash:"-"`
+	WorkflowHash hash.Hash              `hash:"name:workflowHash"`
 	ParentHash   hash.Hash              `hash:"name:parentHash"`
 	EventHash    hash.Hash              `hash:"name:eventHash"`
 	Status       Status                 `hash:"-"`
