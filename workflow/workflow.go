@@ -62,7 +62,7 @@ func (w *Workflow) process(trigger service.TriggerType, instanceHash hash.Hash, 
 	for _, service := range services {
 		for _, wf := range service.Workflows {
 			if wf.Trigger.Match(trigger, instanceHash, key, data) {
-				_, err := w.execution.Execute(wf.Task.InstanceHash, eventHash, executionHash, wf.Task.TaskKey, data, []string{})
+				_, err := w.execution.Execute(wf.Tasks[0].InstanceHash, eventHash, executionHash, wf.Tasks[0].TaskKey, data, []string{})
 				if err != nil {
 					w.ErrC <- err
 					continue
