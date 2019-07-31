@@ -94,6 +94,7 @@ message Service {
       string taskKey = 2;       // Task of the instance to execute.
     }
 
+    string hash = 4;          // Workflow's hash    
     string key = 3;           // Workflow's key
     Trigger trigger = 1;      // Trigger for the workflow.
     repeated Task tasks = 2;  // Task to execute when the trigger is valid.

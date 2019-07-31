@@ -59,6 +59,10 @@ func (s *Service) Create(srv *service.Service) (*service.Service, error) {
 		return nil, err
 	}
 
+	for _, wf := range srv.Workflows {
+		wf.Hash = hash.Dump(wf)
+	}
+
 	// calculate and apply hash to service.
 	dh := dirhash.New(path)
 	h, err := dh.Sum(hash.Dump(srv))

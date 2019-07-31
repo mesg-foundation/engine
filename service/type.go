@@ -184,6 +184,7 @@ type Parameter struct {
 
 // Workflow describes a workflow of a service
 type Workflow struct {
+	Hash    hash.Hash        `hash:"-" validate:"required"`
 	Trigger *WorkflowTrigger `hash:"name:1" validate:"required"`
 	Tasks   []*WorkflowTask  `hash:"name:2" validate:"required"`
 	Key     string           `hash:"name:3" validate:"required"`
