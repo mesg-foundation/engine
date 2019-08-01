@@ -137,12 +137,9 @@ func (e *Execution) Execute(workflowHash hash.Hash, instanceHash hash.Hash, even
 	}
 
 	if !workflowHash.IsZero() {
-		wf, err := e.service.FindWorkflow(workflowHash)
+		_, err := e.service.FindWorkflow(workflowHash)
 		if err != nil {
 			return nil, err
-		}
-		if wf == nil {
-			return nil, fmt.Errorf("workflow %q doesn't exists", workflowHash.String())
 		}
 	}
 
