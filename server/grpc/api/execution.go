@@ -43,7 +43,7 @@ func (s *ExecutionServer) Create(ctx context.Context, req *api.CreateExecutionRe
 	if err != nil {
 		return nil, err
 	}
-	executionHash, err := s.sdk.Execution.Execute(instanceHash, eventHash, nil, req.TaskKey, inputs, req.Tags)
+	executionHash, err := s.sdk.Execution.Execute(nil, instanceHash, eventHash, nil, req.TaskKey, inputs, req.Tags)
 	if err != nil {
 		return nil, err
 	}
@@ -152,7 +152,7 @@ func toProtoExecution(exec *execution.Execution) (*types.Execution, error) {
 
 	return &types.Execution{
 		Hash:         exec.Hash.String(),
-		WorkflowHash: exec.Hash.String(),
+		WorkflowHash: exec.WorkflowHash.String(),
 		ParentHash:   exec.ParentHash.String(),
 		EventHash:    exec.EventHash.String(),
 		Status:       types.Status(exec.Status),
