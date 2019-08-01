@@ -49,13 +49,13 @@ func (w *Workflow) Start() error {
 		case event := <-w.eventStream.C:
 			go w.processTrigger(service.EVENT, event.InstanceHash, event.Key, event.Data, event.Hash, nil)
 		case execution := <-w.executionStream.C:
+			go w.processTrigger(service.RESULT, execution.InstanceHash, execution.TaskKey, execution.Outputs, nil, execution)
 			go w.processExecution(execution)
-			go w.processTrigger(service.RESULT, execution.InstanceHash, execution.TaskKey, execution.Outputs, nil, execution.Hash)
 		}
 	}
 }
 
-func (w *Workflow) processTrigger(trigger service.TriggerType, instanceHash hash.Hash, key string, data map[string]interface{}, eventHash hash.Hash, executionHash hash.Hash) {
+func (w *Workflow) processTrigger(trigger service.TriggerType, instanceHash hash.Hash, key string, data map[string]interface{}, eventHash hash.Hash, exec *execution.Execution) {
 	services, err := w.service.List()
 	if err != nil {
 		w.ErrC <- err
@@ -64,55 +64,52 @@ func (w *Workflow) processTrigger(trigger service.TriggerType, instanceHash hash
 	for _, service := range services {
 		for _, wf := range service.Workflows {
 			if wf.Trigger.Match(trigger, instanceHash, key, data) {
-				hash, err := w.execution.Execute(wf.Hash, wf.Tasks[0].InstanceHash, eventHash, executionHash, wf.Tasks[0].TaskKey, data, []string{})
-				if err != nil {
+				if err := w.triggerExecution(wf, exec, eventHash, data); err != nil {
 					w.ErrC <- err
-					continue
 				}
-				logrus.WithFields(logrus.Fields{
-					"workflow": wf.Key,
-					"task":     wf.Tasks[0].TaskKey,
-					"exec":     hash.String(),
-					"parent":   executionHash.String(),
-				}).Debug("trigger execution")
 			}
 		}
 	}
 }
 
-func (w *Workflow) processExecution(exec *execution.Execution) {
+func (w *Workflow) processExecution(exec *execution.Execution) error {
 	if exec.WorkflowHash.IsZero() {
-		return
+		return nil
 	}
 	wf, err := w.service.FindWorkflow(exec.WorkflowHash)
 	if err != nil {
-		w.ErrC <- err
-		return
+		return err
 	}
-	height, err := w.getHeight(exec)
+	return w.triggerExecution(wf, exec, nil, exec.Outputs)
+}
+
+func (w *Workflow) triggerExecution(wf *service.Workflow, prev *execution.Execution, eventHash hash.Hash, data map[string]interface{}) error {
+	height, err := w.getHeight(prev)
 	if err != nil {
-		w.ErrC <- err
-		return
+		return err
 	}
 	if len(wf.Tasks) <= height {
 		// end of workflow
-		return
+		return nil
 	}
 	task := wf.Tasks[height]
-	hash, err := w.execution.Execute(wf.Hash, task.InstanceHash, nil, exec.Hash, task.TaskKey, exec.Outputs, []string{})
+	hash, err := w.execution.Execute(wf.Hash, task.InstanceHash, eventHash, prev.Hash, task.TaskKey, data, []string{})
 	if err != nil {
-		w.ErrC <- err
-		return
+		return err
 	}
 	logrus.WithFields(logrus.Fields{
 		"workflow": wf.Key,
 		"task":     task.TaskKey,
 		"exec":     hash.String(),
-		"parent":   exec.ParentHash.String(),
-	}).Debug("step execution")
+		"parent":   prev.Hash.String(),
+	}).Debug("workflow execution")
+	return nil
 }
 
 func (w *Workflow) getHeight(exec *execution.Execution) (int, error) {
+	if exec == nil {
+		return 0, nil
+	}
 	if exec.ParentHash == nil {
 		return 0, nil
 	}
