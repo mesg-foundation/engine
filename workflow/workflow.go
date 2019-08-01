@@ -46,14 +46,14 @@ func (w *Workflow) Start() error {
 	for {
 		select {
 		case event := <-w.eventStream.C:
-			go w.process(service.EVENT, event.InstanceHash, event.Key, event.Data, event.Hash, nil)
+			go w.processTrigger(service.EVENT, event.InstanceHash, event.Key, event.Data, event.Hash, nil)
 		case execution := <-w.executionStream.C:
-			go w.process(service.RESULT, execution.InstanceHash, execution.TaskKey, execution.Outputs, nil, execution.Hash)
+			go w.processTrigger(service.RESULT, execution.InstanceHash, execution.TaskKey, execution.Outputs, nil, execution.Hash)
 		}
 	}
 }
 
-func (w *Workflow) process(trigger service.TriggerType, instanceHash hash.Hash, key string, data map[string]interface{}, eventHash hash.Hash, executionHash hash.Hash) {
+func (w *Workflow) processTrigger(trigger service.TriggerType, instanceHash hash.Hash, key string, data map[string]interface{}, eventHash hash.Hash, executionHash hash.Hash) {
 	services, err := w.service.List()
 	if err != nil {
 		w.ErrC <- err
