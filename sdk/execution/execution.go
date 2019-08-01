@@ -118,7 +118,7 @@ func (e *Execution) validateExecutionOutput(instanceHash hash.Hash, taskKey stri
 }
 
 // Execute executes a task tasKey with inputData and tags for service serviceID.
-func (e *Execution) Execute(instanceHash hash.Hash, eventHash hash.Hash, parentHash hash.Hash, taskKey string, inputData map[string]interface{}, tags []string) (executionHash hash.Hash, err error) {
+func (e *Execution) Execute(workflowHash hash.Hash, instanceHash hash.Hash, eventHash hash.Hash, parentHash hash.Hash, taskKey string, inputData map[string]interface{}, tags []string) (executionHash hash.Hash, err error) {
 	if parentHash != nil && eventHash != nil {
 		return nil, fmt.Errorf("cannot have both parent and event hash")
 	}
@@ -136,11 +136,21 @@ func (e *Execution) Execute(instanceHash hash.Hash, eventHash hash.Hash, parentH
 		return nil, err
 	}
 
+	if !workflowHash.IsZero() {
+		wf, err := e.service.FindWorkflow(workflowHash)
+		if err != nil {
+			return nil, err
+		}
+		if wf == nil {
+			return nil, fmt.Errorf("workflow %q doesn't exists", workflowHash.String())
+		}
+	}
+
 	if err := s.RequireTaskInputs(taskKey, inputData); err != nil {
 		return nil, err
 	}
 
-	exec := execution.New(instance.Hash, parentHash, eventHash, taskKey, inputData, tags)
+	exec := execution.New(workflowHash, instance.Hash, parentHash, eventHash, taskKey, inputData, tags)
 	if err := exec.Execute(); err != nil {
 		return nil, err
 	}
