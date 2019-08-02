@@ -118,7 +118,7 @@ func (e *Execution) validateExecutionOutput(instanceHash hash.Hash, taskKey stri
 }
 
 // Execute executes a task tasKey with inputData and tags for service serviceID.
-func (e *Execution) Execute(workflowHash hash.Hash, instanceHash hash.Hash, eventHash hash.Hash, parentHash hash.Hash, taskKey string, inputData map[string]interface{}, tags []string) (executionHash hash.Hash, err error) {
+func (e *Execution) Execute(workflowHash, instanceHash, eventHash, parentHash hash.Hash, taskKey string, inputData map[string]interface{}, tags []string) (executionHash hash.Hash, err error) {
 	if parentHash != nil && eventHash != nil {
 		return nil, fmt.Errorf("cannot have both parent and event hash")
 	}
