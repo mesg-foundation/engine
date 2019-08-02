@@ -83,7 +83,7 @@ func (w *Workflow) processExecution(exec *execution.Execution) error {
 }
 
 func (w *Workflow) triggerExecution(wf *service.Workflow, prev *execution.Execution, eventHash hash.Hash, data map[string]interface{}) error {
-	height, err := w.getHeight(prev)
+	height, err := w.getHeight(wf, prev)
 	if err != nil {
 		return err
 	}
@@ -91,28 +91,39 @@ func (w *Workflow) triggerExecution(wf *service.Workflow, prev *execution.Execut
 		// end of workflow
 		return nil
 	}
+	var parentHash hash.Hash
+	if prev != nil {
+		parentHash = prev.Hash
+	}
 	task := wf.Tasks[height]
-	if _, err := w.execution.Execute(wf.Hash, task.InstanceHash, eventHash, prev.Hash, task.TaskKey, data, []string{}); err != nil {
+	if _, err := w.execution.Execute(wf.Hash, task.InstanceHash, eventHash, parentHash, task.TaskKey, data, []string{}); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (w *Workflow) getHeight(exec *execution.Execution) (int, error) {
-	if exec.Hash.Equal(exec.ParentHash) {
-		// By design, this should never happen so let's panic if it does
-		panic("parent hash and execution hash cannot be the same")
-	}
+func (w *Workflow) getHeight(wf *service.Workflow, exec *execution.Execution) (int, error) {
 	if exec == nil {
 		return 0, nil
 	}
-	if exec.ParentHash == nil {
+	// Result from other workflow
+	if !exec.WorkflowHash.Equal(wf.Hash) {
 		return 0, nil
+	}
+	// Execution triggered by an event
+	if !exec.EventHash.IsZero() {
+		return 1, nil
+	}
+	if exec.ParentHash.IsZero() {
+		panic("parent hash should be present if event is not")
+	}
+	if exec.ParentHash.Equal(exec.Hash) {
+		panic("parent hash cannot be equal to execution hash")
 	}
 	parent, err := w.execution.Get(exec.ParentHash)
 	if err != nil {
 		return 0, err
 	}
-	parentHeight, err := w.getHeight(parent)
+	parentHeight, err := w.getHeight(wf, parent)
 	return parentHeight + 1, err
 }
