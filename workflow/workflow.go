@@ -9,7 +9,6 @@ import (
 	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	"github.com/mesg-foundation/engine/service"
-	"github.com/sirupsen/logrus"
 )
 
 // Workflow exposes functions of the workflow
@@ -93,20 +92,17 @@ func (w *Workflow) triggerExecution(wf *service.Workflow, prev *execution.Execut
 		return nil
 	}
 	task := wf.Tasks[height]
-	hash, err := w.execution.Execute(wf.Hash, task.InstanceHash, eventHash, prev.Hash, task.TaskKey, data, []string{})
-	if err != nil {
+	if _, err := w.execution.Execute(wf.Hash, task.InstanceHash, eventHash, prev.Hash, task.TaskKey, data, []string{}); err != nil {
 		return err
 	}
-	logrus.WithFields(logrus.Fields{
-		"workflow": wf.Key,
-		"task":     task.TaskKey,
-		"exec":     hash.String(),
-		"parent":   prev.Hash.String(),
-	}).Debug("workflow execution")
 	return nil
 }
 
 func (w *Workflow) getHeight(exec *execution.Execution) (int, error) {
+	if exec.Hash.Equal(exec.ParentHash) {
+		// By design, this should never happen so let's panic if it does
+		panic("parent hash and execution hash cannot be the same")
+	}
 	if exec == nil {
 		return 0, nil
 	}
