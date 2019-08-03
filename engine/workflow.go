@@ -1,4 +1,4 @@
-package workflow
+package engine
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 	eventsdk "github.com/mesg-foundation/engine/sdk/event"
 	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
-	servicesdk "github.com/mesg-foundation/engine/sdk/service"
+	workflowsdk "github.com/mesg-foundation/engine/sdk/workflow"
 	"github.com/mesg-foundation/engine/workflow"
 )
 
@@ -19,17 +19,17 @@ type Workflow struct {
 	execution       *executionsdk.Execution
 	executionStream *executionsdk.Listener
 
-	service *servicesdk.Service
+	workflow *workflowsdk.Workflow
 
 	ErrC chan error
 }
 
 // New creates a new Workflow instance
-func New(event *eventsdk.Event, execution *executionsdk.Execution, service *servicesdk.Service) *Workflow {
+func New(event *eventsdk.Event, execution *executionsdk.Execution, workflow *workflowsdk.Workflow) *Workflow {
 	return &Workflow{
 		event:     event,
 		execution: execution,
-		service:   service,
+		workflow:  workflow,
 		ErrC:      make(chan error),
 	}
 }
@@ -55,17 +55,15 @@ func (w *Workflow) Start() error {
 }
 
 func (w *Workflow) processTrigger(trigger workflow.TriggerType, instanceHash hash.Hash, key string, data map[string]interface{}, eventHash hash.Hash, exec *execution.Execution) {
-	services, err := w.service.List()
+	workflows, err := w.workflow.List()
 	if err != nil {
 		w.ErrC <- err
 		return
 	}
-	for _, service := range services {
-		for _, wf := range service.Workflows {
-			if wf.Trigger.Match(trigger, instanceHash, key, data) {
-				if err := w.triggerExecution(wf, exec, eventHash, data); err != nil {
-					w.ErrC <- err
-				}
+	for _, wf := range workflows {
+		if wf.Trigger.Match(trigger, instanceHash, key, data) {
+			if err := w.triggerExecution(wf, exec, eventHash, data); err != nil {
+				w.ErrC <- err
 			}
 		}
 	}
@@ -75,7 +73,7 @@ func (w *Workflow) processExecution(exec *execution.Execution) error {
 	if exec.WorkflowHash.IsZero() {
 		return nil
 	}
-	wf, err := w.service.FindWorkflow(exec.WorkflowHash)
+	wf, err := w.workflow.Get(exec.WorkflowHash)
 	if err != nil {
 		return err
 	}

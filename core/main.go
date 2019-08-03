@@ -8,6 +8,7 @@ import (
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/database"
+	"github.com/mesg-foundation/engine/engine"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/logger"
 	"github.com/mesg-foundation/engine/sdk"
@@ -15,7 +16,6 @@ import (
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	"github.com/mesg-foundation/engine/server/grpc"
 	"github.com/mesg-foundation/engine/version"
-	"github.com/mesg-foundation/engine/workflow"
 	"github.com/mesg-foundation/engine/x/xerrors"
 	"github.com/mesg-foundation/engine/x/xnet"
 	"github.com/mesg-foundation/engine/x/xos"
@@ -27,6 +27,7 @@ type dependencies struct {
 	config      *config.Config
 	serviceDB   database.ServiceDB
 	executionDB database.ExecutionDB
+	workflowDB  database.WorkflowDB
 	container   container.Container
 	sdk         *sdk.SDK
 }
@@ -56,6 +57,12 @@ func initDependencies() (*dependencies, error) {
 		return nil, err
 	}
 
+	// init workflow db.
+	workflowDB, err := database.NewWorkflowDB(filepath.Join(config.Path, config.Database.WorkflowRelativePath))
+	if err != nil {
+		return nil, err
+	}
+
 	// init container.
 	c, err := container.New(config.Name)
 	if err != nil {
@@ -65,13 +72,14 @@ func initDependencies() (*dependencies, error) {
 	_, port, _ := xnet.SplitHostPort(config.Server.Address)
 
 	// init sdk.
-	sdk := sdk.New(c, serviceDB, instanceDB, executionDB, config.Name, strconv.Itoa(port))
+	sdk := sdk.New(c, serviceDB, instanceDB, executionDB, workflowDB, config.Name, strconv.Itoa(port))
 
 	return &dependencies{
 		config:      config,
 		container:   c,
 		serviceDB:   serviceDB,
 		executionDB: executionDB,
+		workflowDB:  workflowDB,
 		sdk:         sdk,
 	}, nil
 }
@@ -165,7 +173,7 @@ func main() {
 	}()
 
 	logrus.Info("starting workflow engine")
-	wf := workflow.New(dep.sdk.Event, dep.sdk.Execution, dep.sdk.Service)
+	wf := engine.New(dep.sdk.Event, dep.sdk.Execution, dep.sdk.Workflow)
 	go func() {
 		if err := wf.Start(); err != nil {
 			logrus.Fatalln(err)

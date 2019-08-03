@@ -59,10 +59,6 @@ func (s *Service) Create(srv *service.Service) (*service.Service, error) {
 		return nil, err
 	}
 
-	for _, wf := range srv.Workflows {
-		wf.Hash = hash.Dump(wf)
-	}
-
 	// calculate and apply hash to service.
 	dh := dirhash.New(path)
 	h, err := dh.Sum(hash.Dump(srv))
@@ -109,21 +105,6 @@ func (s *Service) List() ([]*service.Service, error) {
 	return s.serviceDB.All()
 }
 
-// FindWorkflow will return the workflow or an error
-func (s *Service) FindWorkflow(hash hash.Hash) (*service.Workflow, error) {
-	services, err := s.List()
-	if err != nil {
-		return nil, err
-	}
-	for _, srv := range services {
-		for _, wf := range srv.Workflows {
-			if wf.Hash.Equal(hash) {
-				return wf, nil
-			}
-		}
-	}
-	return nil, fmt.Errorf("not exists")
-}
 
 // AlreadyExistsError is an not found error.
 type AlreadyExistsError struct {
