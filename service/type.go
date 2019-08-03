@@ -32,23 +32,6 @@ func (s StatusType) String() string {
 	}
 }
 
-// TriggerType is the type for the possible triggers for a workflow
-type TriggerType uint
-
-// List of possible triggers for a workflow
-const (
-	EVENT TriggerType = iota + 1
-	RESULT
-)
-
-// WorkflowPredicate is the type of conditions that can be applied in a filter of a workflow trigger
-type WorkflowPredicate uint
-
-// List of possible conditions for workflow's filter
-const (
-	EQ WorkflowPredicate = iota + 1
-)
-
 // WARNING about hash tags on Service type and its inner types:
 // * never change the name attr of hash tag. use an incremented value for
 // name attr when a new configuration field added to Service.
@@ -91,9 +74,6 @@ type Service struct {
 
 	// Source is the hash id of service's source code on IPFS.
 	Source string `hash:"name:9" validate:"required,printascii"`
-
-	// Workflows is a list of workflows that the service implements
-	Workflows []*Workflow `hash:"name:10" validate:"dive,required"`
 }
 
 // Dependency represents a Docker container and it holds instructions about
@@ -180,33 +160,4 @@ type Parameter struct {
 
 	// Definition of the structure of the object when the type is object
 	Object []*Parameter `hash:"name:7" validate:"unique,dive,required"`
-}
-
-// Workflow describes a workflow of a service
-type Workflow struct {
-	Hash    hash.Hash        `hash:"-" validate:"required"`
-	Trigger *WorkflowTrigger `hash:"name:1" validate:"required"`
-	Tasks   []*WorkflowTask  `hash:"name:2" validate:"required"`
-	Key     string           `hash:"name:3" validate:"required"`
-}
-
-// WorkflowTask describes the instructions for the workflow to execute a task
-type WorkflowTask struct {
-	InstanceHash hash.Hash `hash:"name:1" validate:"required"`
-	TaskKey      string    `hash:"name:2" validate:"printascii"`
-}
-
-// WorkflowTrigger is an event that triggers a workflow
-type WorkflowTrigger struct {
-	InstanceHash hash.Hash                `hash:"name:1" validate:"required"`
-	Key          string                   `hash:"name:2" validate:"printascii,printascii"`
-	Type         TriggerType              `hash:"name:3" validate:"required"`
-	Filters      []*WorkflowTriggerFilter `hash:"name:4" validate:"dive,required"`
-}
-
-// WorkflowTriggerFilter is the filter definition that can be applied to a workflow trigger
-type WorkflowTriggerFilter struct {
-	Key       string            `hash:"name:1" validate:"required,printascii"`
-	Predicate WorkflowPredicate `hash:"name:2" validate:"required"`
-	Value     interface{}       `hash:"name:3"`
 }
