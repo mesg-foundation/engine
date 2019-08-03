@@ -105,7 +105,6 @@ func (s *Service) List() ([]*service.Service, error) {
 	return s.serviceDB.All()
 }
 
-
 // AlreadyExistsError is an not found error.
 type AlreadyExistsError struct {
 	Hash hash.Hash
