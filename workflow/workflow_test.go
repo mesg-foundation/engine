@@ -1,4 +1,4 @@
-package service
+package workflow
 
 import (
 	"testing"
@@ -9,31 +9,31 @@ import (
 
 func TestMatch(t *testing.T) {
 	var tests = []struct {
-		trigger      *WorkflowTrigger
+		trigger      *Trigger
 		instanceHash hash.Hash
 		key          string
 		data         map[string]interface{}
 		match        bool
 	}{
 		{ // matching event
-			trigger:      &WorkflowTrigger{InstanceHash: hash.Int(1), Key: "xx", Type: EVENT},
+			trigger:      &Trigger{InstanceHash: hash.Int(1), Key: "xx", Type: EVENT},
 			instanceHash: hash.Int(1),
 			key:          "xx",
 			match:        true,
 		},
 		{ // not matching instance
-			trigger:      &WorkflowTrigger{InstanceHash: hash.Int(1), Type: EVENT},
+			trigger:      &Trigger{InstanceHash: hash.Int(1), Type: EVENT},
 			instanceHash: hash.Int(2),
 			match:        false,
 		},
 		{ // not matching event
-			trigger:      &WorkflowTrigger{InstanceHash: hash.Int(1), Key: "xx", Type: EVENT},
+			trigger:      &Trigger{InstanceHash: hash.Int(1), Key: "xx", Type: EVENT},
 			instanceHash: hash.Int(1),
 			key:          "yy",
 			match:        false,
 		},
 		{ // matching filter
-			trigger: &WorkflowTrigger{InstanceHash: hash.Int(1), Key: "xx", Type: EVENT, Filters: []*WorkflowTriggerFilter{
+			trigger: &Trigger{InstanceHash: hash.Int(1), Key: "xx", Type: EVENT, Filters: []*TriggerFilter{
 				{Key: "foo", Predicate: EQ, Value: "bar"},
 			}},
 			instanceHash: hash.Int(1),
@@ -42,7 +42,7 @@ func TestMatch(t *testing.T) {
 			match:        true,
 		},
 		{ // not matching filter
-			trigger: &WorkflowTrigger{InstanceHash: hash.Int(1), Key: "xx", Type: EVENT, Filters: []*WorkflowTriggerFilter{
+			trigger: &Trigger{InstanceHash: hash.Int(1), Key: "xx", Type: EVENT, Filters: []*TriggerFilter{
 				{Key: "foo", Predicate: EQ, Value: "xx"},
 			}},
 			instanceHash: hash.Int(1),
@@ -51,7 +51,7 @@ func TestMatch(t *testing.T) {
 			match:        false,
 		},
 		{ // matching multiple filters
-			trigger: &WorkflowTrigger{InstanceHash: hash.Int(1), Key: "xx", Type: EVENT, Filters: []*WorkflowTriggerFilter{
+			trigger: &Trigger{InstanceHash: hash.Int(1), Key: "xx", Type: EVENT, Filters: []*TriggerFilter{
 				{Key: "foo", Predicate: EQ, Value: "bar"},
 				{Key: "xxx", Predicate: EQ, Value: "yyy"},
 			}},
@@ -65,7 +65,7 @@ func TestMatch(t *testing.T) {
 			match: true,
 		},
 		{ // non matching multiple filters
-			trigger: &WorkflowTrigger{InstanceHash: hash.Int(1), Key: "xx", Type: EVENT, Filters: []*WorkflowTriggerFilter{
+			trigger: &Trigger{InstanceHash: hash.Int(1), Key: "xx", Type: EVENT, Filters: []*TriggerFilter{
 				{Key: "foo", Predicate: EQ, Value: "bar"},
 				{Key: "xxx", Predicate: EQ, Value: "aaa"},
 			}},
