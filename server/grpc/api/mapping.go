@@ -6,7 +6,7 @@ import (
 )
 
 // fromProtoService converts a the protobuf types to the internal service struct
-func fromProtoService(s *types.Service) (*service.Service, error) {
+func fromProtoService(s *types.Service) *service.Service {
 	return &service.Service{
 		Sid:           s.Sid,
 		Name:          s.Name,
@@ -17,7 +17,7 @@ func fromProtoService(s *types.Service) (*service.Service, error) {
 		Events:        fromProtoEvents(s.Events),
 		Configuration: fromProtoConfiguration(s.Configuration),
 		Dependencies:  fromProtoDependencies(s.Dependencies),
-	}, nil
+	}
 }
 
 func fromProtoTasks(tasks []*types.Service_Task) []*service.Task {

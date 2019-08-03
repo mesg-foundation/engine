@@ -23,7 +23,7 @@ func NewServiceServer(sdk *sdk.SDK) *ServiceServer {
 
 // Create creates a new service from definition.
 func (s *ServiceServer) Create(ctx context.Context, req *protobuf_api.CreateServiceRequest) (*protobuf_api.CreateServiceResponse, error) {
-	definition, err := fromProtoService(&types.Service{
+	definition := fromProtoService(&types.Service{
 		Sid:           req.Sid,
 		Name:          req.Name,
 		Description:   req.Description,
@@ -34,9 +34,6 @@ func (s *ServiceServer) Create(ctx context.Context, req *protobuf_api.CreateServ
 		Repository:    req.Repository,
 		Source:        req.Source,
 	})
-	if err != nil {
-		return nil, err
-	}
 	srv, err := s.sdk.Service.Create(definition)
 	if err != nil {
 		return nil, err

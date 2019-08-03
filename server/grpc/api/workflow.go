@@ -27,6 +27,9 @@ func (s *WorkflowServer) Create(ctx context.Context, req *api.CreateWorkflowRequ
 		Trigger: req.Trigger,
 		Tasks:   req.Tasks,
 	})
+	if err != nil {
+		return nil, err
+	}
 	srv, err := s.sdk.Workflow.Create(wf)
 	if err != nil {
 		return nil, err
@@ -127,18 +130,6 @@ func fromProtoWorkflow(wf *types.Workflow) (*workflow.Workflow, error) {
 		},
 		Tasks: tasks,
 	}, nil
-}
-
-func fromProtoWorkflows(workflows []*types.Workflow) ([]*workflow.Workflow, error) {
-	wfs := make([]*workflow.Workflow, len(workflows))
-	for i, wf := range workflows {
-		w, err := fromProtoWorkflow(wf)
-		if err != nil {
-			return nil, err
-		}
-		wfs[i] = w
-	}
-	return wfs, nil
 }
 
 func toProtoFilters(filters []*workflow.TriggerFilter) []*types.Workflow_Trigger_Filter {
