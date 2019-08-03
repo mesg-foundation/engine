@@ -55,51 +55,6 @@ message Service {
     repeated string env = 9;          // Default env vars to apply to dependency on runtime.
   }
 
-  // A workflow is a configuration to trigger a specific task when certains conditions of a trigger are valid.
-  message Workflow {
-
-    // Trigger is the configuration that will trigger a workflow.
-    message Trigger {
-
-      // Type of trigger available. Event to react to an event. Result to react to a result of an execution.
-      enum Type {
-        Unknown = 0;  // Event type not defined.
-        Event = 1;    // React to event.
-        Result = 2;   // React to result of an execution.
-      }
-
-      // Filter is applied on the data of the event/result.
-      message Filter {
-
-        // Type of condition available to compare the values.
-        enum Predicate {
-          Unknown = 0;  // Predicate not defined.
-          EQ = 1;       // Equal
-        }
-
-        string key = 1;           // Key to check.
-        Predicate predicate = 2;  // Type of condition to apply.
-        string value = 3;         // Value of the filter
-      }
-
-      Type type = 1;         // Type of trigger.
-      string instanceHash = 2;      // Hash of the instance that triggers the workflow.
-      string key = 3;               // Key that triggers the workflow (event key or task key).
-      repeated Filter filters = 4;  // List of filters to apply on the data of the event/result.
-    }
-
-    // Definition of the task to execute when the workflow is triggered.
-    message Task {
-      string instanceHash = 1;  // Hash of the instance to execute.
-      string taskKey = 2;       // Task of the instance to execute.
-    }
-
-    string hash = 4;          // Workflow's hash    
-    string key = 3;           // Workflow's key
-    Trigger trigger = 1;      // Trigger for the workflow.
-    repeated Task tasks = 2;  // Task to execute when the trigger is valid.
-  }
-
   string hash = 10;                         // Service's hash.
   string sid = 12;                          // Service's sid.
   string name = 1;                          // Service's name.
@@ -110,5 +65,4 @@ message Service {
   repeated Dependency dependencies = 7;     // The container dependencies this service requires.
   string repository = 9;                    // Service's repository url.
   string source = 13;                       // The hash id of service's source code on IPFS.
-  repeated Workflow workflows = 14;         // List of workflows defined by this service.
 }
