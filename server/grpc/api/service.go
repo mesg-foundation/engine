@@ -33,7 +33,6 @@ func (s *ServiceServer) Create(ctx context.Context, req *protobuf_api.CreateServ
 		Dependencies:  req.Dependencies,
 		Repository:    req.Repository,
 		Source:        req.Source,
-		Workflows:     req.Workflows,
 	})
 	if err != nil {
 		return nil, err
