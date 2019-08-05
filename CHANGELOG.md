@@ -12,7 +12,7 @@
 
 #### Fixed
 
-- ([#1199](https://github.com/mesg-foundation/engine/pull/1199)) Fix issue with the `marketplace#getService` task
+- ([#1199](https://github.com/mesg-foundation/engine/pull/1199)) Fix issue with the `marketplace#getService` task.
 
 ## [v0.12.0](https://github.com/mesg-foundation/engine/release/tag/v0.12.0)
 
