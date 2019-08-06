@@ -46,6 +46,12 @@ type Config struct {
 		ExecutionRelativePath string
 	}
 
+	Tendermint struct {
+		P2P struct {
+			Seeds string
+		}
+	}
+
 	SystemServices []*ServiceConfig
 }
 
