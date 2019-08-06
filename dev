@@ -4,6 +4,9 @@ set -e
 
 DIR=$(pwd)
 
+# network to connect multiple engine instances
+TENDERMINT_NETWORK="mesg-tendermint"
+
 # mesg config variables
 MESG_NAME=${MESG_NAME:-engine}
 MESG_PATH=${MESG_PATH:-$HOME/.mesg}
@@ -19,10 +22,32 @@ LDFLAGS+=" -X 'github.com/mesg-foundation/engine/config.EnvMarketplaceToken=0x58
 
 MESG_SERVER_PORT=${MESG_SERVER_PORT:-50052}
 
-networkExists=$(docker network list -f name=$MESG_NAME -f driver=overlay -q)
-if [ "$networkExists" == "" ]; then
-  docker network create --driver overlay $MESG_NAME --label com.docker.stack.namespace=$MESG_NAME
-fi
+function onexit {
+  set +e
+  echo -e "\nshuting down, please wait..."
+  docker_service_remove "$MESG_NAME"
+  docker_network_remove "$MESG_NAME"
+  docker_network_remove "$TENDERMINT_NETWORK"
+}
+
+function docker_service_remove {
+  docker service rm $1
+  docker wait $(docker ps -f name="$1" -q) 2> /dev/null
+}
+
+function docker_network_exist {
+  [ ! -z $(docker network list -f name="$1" -f driver=overlay -q) ]
+}
+
+function docker_network_create {
+  echo -ne "create docker network $1: "
+  docker network create --driver overlay "$1" --label com.docker.stack.namespace="$1"
+}
+
+function docker_network_remove {
+  echo -ne "remove docker network: "
+  docker network remove "$1"
+}
 
 for s in systemservices/* ; do
   if [ -d "$s" ]; then
@@ -68,24 +93,33 @@ if [[ ! $BINCACHED ]] || [[ ! $DOCKERCACHED ]]; then
   docker build -f Dockerfile.dev -t "mesg/engine:$VERSION" .
 fi
 
-# docker service rm engine
 
-trap onexit EXIT INT
+trap onexit EXIT
 
-function onexit {
-  docker service rm $MESG_NAME
-}
+if ! docker_network_exist "$MESG_NAME"; then
+  docker_network_create "$MESG_NAME"
+fi
 
+if ! docker_network_exist "$TENDERMINT_NETWORK"; then
+  docker_network_create "$TENDERMINT_NETWORK"
+fi
+
+echo "create docker service: "
 docker service create \
   --name $MESG_NAME \
   --tty \
-  --label com.docker.stack.namespace=$MESG_NAME --label com.docker.stack.image=mesg/engine:$VERSION \
+  --label com.docker.stack.namespace=$MESG_NAME \
+  --label com.docker.stack.image=mesg/engine:$VERSION \
   --env MESG_NAME=$MESG_NAME \
+  --env MESG_TENDERMINT_P2P_SEEDS=$MESG_TENDERMINT_P2P_SEEDS \
   --env MESG_LOG_FORMAT=$MESG_LOG_FORMAT \
   --env MESG_LOG_FORCECOLORS=$MESG_LOG_FORCECOLORS \
   --env MESG_LOG_LEVEL=$MESG_LOG_LEVEL \
-  --mount type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock --mount type=bind,source=$MESG_PATH,destination=/root/.mesg \
-  --network $MESG_NAME --publish $MESG_SERVER_PORT:50052 \
+  --mount type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock \
+  --mount type=bind,source=$MESG_PATH,destination=/root/.mesg \
+  --network $MESG_NAME \
+  --network $TENDERMINT_NETWORK \
+  --publish $MESG_SERVER_PORT:50052 \
   mesg/engine:$VERSION
 
 docker service logs --follow --raw $MESG_NAME
