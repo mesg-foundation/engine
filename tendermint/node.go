@@ -2,6 +2,7 @@ package tendermint
 
 import (
 	"os"
+	"path/filepath"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/config"
@@ -16,14 +17,18 @@ import (
 )
 
 // NewNode retruns new tendermint node that runs the app.
-func NewNode(logger log.Logger, app abci.Application, root string, seeds string, validator string) (*node.Node, error) {
+func NewNode(logger log.Logger, app abci.Application, root, seeds, validator string) (*node.Node, error) {
+	if err := os.MkdirAll(filepath.Join(root, "config"), 0755); err != nil {
+		return nil, err
+	}
 
-	os.MkdirAll(root+"/config", os.FileMode(0755))
 	cfg := config.DefaultConfig()
 	cfg.P2P.Seeds = seeds
 	cfg.SetRoot(root)
 
-	os.MkdirAll(root+"/data", os.FileMode(0755))
+	if err := os.MkdirAll(filepath.Join(root, "data"), 0755); err != nil {
+		return nil, err
+	}
 	var me = privval.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile())
 	nodeKey := &p2p.NodeKey{
 		PrivKey: ed25519.GenPrivKey(),
