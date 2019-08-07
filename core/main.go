@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"sync"
 
+	app "github.com/cosmos/sdk-application-tutorial"
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/database"
@@ -16,8 +17,6 @@ import (
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	"github.com/mesg-foundation/engine/server/grpc"
 	"github.com/mesg-foundation/engine/tendermint"
-	"github.com/mesg-foundation/engine/tendermint/app"
-	tmclient "github.com/mesg-foundation/engine/tendermint/client"
 	"github.com/mesg-foundation/engine/version"
 	"github.com/mesg-foundation/engine/workflow"
 	"github.com/mesg-foundation/engine/x/xerrors"
@@ -26,7 +25,6 @@ import (
 	"github.com/mesg-foundation/engine/x/xsignal"
 	"github.com/sirupsen/logrus"
 	"github.com/tendermint/tendermint/libs/db"
-	rpcclient "github.com/tendermint/tendermint/rpc/client"
 )
 
 type dependencies struct {
@@ -156,15 +154,13 @@ func main() {
 	// init app
 	db := db.NewMemDB()
 	logger := logger.TendermintLogger()
-	app, cdc := app.New(logger, db)
+	app := app.NewNameServiceApp(logger, db)
 
 	// create tendermint node
 	node, err := tendermint.NewNode(logger, app, os.ExpandEnv("$HOME/.tendermint/app"), cfg.Tendermint.P2P.Seeds)
 	if err != nil {
 		logrus.Fatalln(err)
 	}
-
-	_ = tmclient.New(rpcclient.NewLocal(node), cdc)
 
 	// init system services.
 	if err := deployCoreServices(dep.cfg, dep.sdk); err != nil {
