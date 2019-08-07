@@ -25,9 +25,8 @@ func NewNode(logger log.Logger, app abci.Application, root string, seeds string,
 
 	os.MkdirAll(root+"/data", os.FileMode(0755))
 	var me = privval.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile())
-	nodeKey, err := p2p.LoadOrGenNodeKey(cfg.NodeKeyFile())
-	if err != nil {
-		return nil, err
+	nodeKey := &p2p.NodeKey{
+		PrivKey: ed25519.GenPrivKey(),
 	}
 
 	validatorPubKey := me.GetPubKey()
