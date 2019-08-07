@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/hex"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,6 +11,7 @@ import (
 	"github.com/mesg-foundation/engine/x/xstrings"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
+	"github.com/tendermint/tendermint/crypto/ed25519"
 )
 
 const (
@@ -47,7 +49,7 @@ type Config struct {
 	}
 
 	Tendermint struct {
-		ValidatorPubKey string
+		ValidatorPubKey PubKeyEd25519
 		P2P             struct {
 			Seeds string
 		}
@@ -103,8 +105,7 @@ func Global() (*Config, error) {
 
 // Load reads config from environmental variables.
 func (c *Config) Load() error {
-	envconfig.MustProcess(envPrefix, c)
-	return nil
+	return envconfig.Process(envPrefix, c)
 }
 
 // Prepare setups local directories or any other required thing based on config
@@ -120,5 +121,22 @@ func (c *Config) Validate() error {
 	if _, err := logrus.ParseLevel(c.Log.Level); err != nil {
 		return err
 	}
+	return nil
+}
+
+// PubKeyEd25519 is type used to parse value provided by envconfig.
+type PubKeyEd25519 ed25519.PubKeyEd25519
+
+func (key *PubKeyEd25519) Decode(value string) error {
+	dec, err := hex.DecodeString(value)
+	if err != nil {
+		return fmt.Errorf("validator public key decode error: %s", err)
+	}
+
+	if len(dec) != ed25519.PubKeyEd25519Size {
+		return fmt.Errorf("validator public key %s has invalid size", value)
+	}
+
+	copy(key[:], dec)
 	return nil
 }
