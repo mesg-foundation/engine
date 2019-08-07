@@ -17,8 +17,11 @@ import (
 )
 
 // NewNode retruns new tendermint node that runs the app.
-func NewNode(logger log.Logger, app abci.Application, root, seeds, validator string) (*node.Node, error) {
+func NewNode(logger log.Logger, app abci.Application, root, seeds string, validatorPubKey crypto.PubKey) (*node.Node, error) {
 	if err := os.MkdirAll(filepath.Join(root, "config"), 0755); err != nil {
+		return nil, err
+	}
+	if err := os.MkdirAll(filepath.Join(root, "data"), 0755); err != nil {
 		return nil, err
 	}
 
@@ -26,22 +29,13 @@ func NewNode(logger log.Logger, app abci.Application, root, seeds, validator str
 	cfg.P2P.Seeds = seeds
 	cfg.SetRoot(root)
 
-	if err := os.MkdirAll(filepath.Join(root, "data"), 0755); err != nil {
-		return nil, err
-	}
-	var me = privval.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile())
 	nodeKey := &p2p.NodeKey{
 		PrivKey: ed25519.GenPrivKey(),
 	}
 
-	validatorPubKey := me.GetPubKey()
-	if validator != "" {
-		// TOFIX: this is not working
-		// TODO: convert string to pubkey
-		var pubTmp ed25519.PubKeyEd25519
-		copy(pubTmp[:], validator)
-		validatorPubKey = pubTmp
-		logger.Error("will use validator", validatorPubKey)
+	me := privval.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile())
+	if len(validatorPubKey.Bytes()) == 0 {
+		validatorPubKey = me.GetPubKey()
 	}
 
 	return node.NewNode(cfg,

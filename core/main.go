@@ -24,6 +24,7 @@ import (
 	"github.com/mesg-foundation/engine/x/xos"
 	"github.com/mesg-foundation/engine/x/xsignal"
 	"github.com/sirupsen/logrus"
+	"github.com/tendermint/tendermint/crypto/ed25519"
 	"github.com/tendermint/tendermint/libs/db"
 )
 
@@ -159,7 +160,14 @@ func main() {
 	// create tendermint node
 	tendermintPath := os.ExpandEnv("$HOME/.mesg/tendermint")
 	os.MkdirAll(tendermintPath, os.FileMode(0755))
-	node, err := tendermint.NewNode(logger, app, tendermintPath, cfg.Tendermint.P2P.Seeds, cfg.Tendermint.ValidatorPubKey)
+
+	node, err := tendermint.NewNode(
+		logger,
+		app,
+		tendermintPath,
+		cfg.Tendermint.P2P.Seeds,
+		ed25519.PubKeyEd25519(cfg.Tendermint.ValidatorPubKey),
+	)
 	if err != nil {
 		logrus.Fatalln(err)
 	}
