@@ -47,7 +47,8 @@ type Config struct {
 	}
 
 	Tendermint struct {
-		P2P struct {
+		ValidatorPubKey string
+		P2P             struct {
 			Seeds string
 		}
 	}

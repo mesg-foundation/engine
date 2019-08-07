@@ -1,11 +1,12 @@
 package tendermint
 
 import (
-	"encoding/json"
 	"os"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/config"
+	"github.com/tendermint/tendermint/crypto"
+	"github.com/tendermint/tendermint/crypto/ed25519"
 	"github.com/tendermint/tendermint/libs/log"
 	"github.com/tendermint/tendermint/node"
 	"github.com/tendermint/tendermint/p2p"
@@ -15,7 +16,7 @@ import (
 )
 
 // NewNode retruns new tendermint node that runs the app.
-func NewNode(logger log.Logger, app abci.Application, root string, seeds string, appState json.RawMessage) (*node.Node, error) {
+func NewNode(logger log.Logger, app abci.Application, root string, seeds string, validator string) (*node.Node, error) {
 
 	os.MkdirAll(root+"/config", os.FileMode(0755))
 	cfg := config.DefaultConfig()
@@ -23,38 +24,48 @@ func NewNode(logger log.Logger, app abci.Application, root string, seeds string,
 	cfg.SetRoot(root)
 
 	os.MkdirAll(root+"/data", os.FileMode(0755))
-	var validator = privval.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile())
+	var me = privval.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile())
 	nodeKey, err := p2p.LoadOrGenNodeKey(cfg.NodeKeyFile())
 	if err != nil {
 		return nil, err
 	}
 
+	validatorPubKey := me.GetPubKey()
+	if validator != "" {
+		// TOFIX: this is not working
+		// TODO: convert string to pubkey
+		var pubTmp ed25519.PubKeyEd25519
+		copy(pubTmp[:], validator)
+		validatorPubKey = pubTmp
+		logger.Error("will use validator", validatorPubKey)
+	}
+
 	return node.NewNode(cfg,
-		validator,
+		me,
 		nodeKey,
 		proxy.NewLocalClientCreator(app),
-		node.DefaultGenesisDocProviderFunc(cfg),
-		// genesisLoader(appState, validator),
+		// node.DefaultGenesisDocProviderFunc(cfg),
+		genesisLoader(validatorPubKey),
 		node.DefaultDBProvider,
 		node.DefaultMetricsProvider(cfg.Instrumentation),
 		logger,
 	)
 }
 
-func genesisLoader(appState json.RawMessage, validator types.PrivValidator) func() (*types.GenesisDoc, error) {
+func genesisLoader(validator crypto.PubKey) func() (*types.GenesisDoc, error) {
 	return func() (*types.GenesisDoc, error) {
 		genesis := &types.GenesisDoc{
 			ChainID:         "xxx",
 			ConsensusParams: types.DefaultConsensusParams(),
-			Validators:      []types.GenesisValidator{
-				// types.GenesisValidator{
-				// 	Address: validator.GetPubKey().Address(),
-				// 	PubKey:  validator.GetPubKey(),
-				// 	Power:   1,
-				// 	Name:    "validator",
-				// },
+			Validators: []types.GenesisValidator{
+				types.GenesisValidator{
+					Address: validator.Address(),
+					PubKey:  validator,
+					Power:   1,
+					Name:    "validator",
+				},
 			},
-			AppState: appState,
+			AppState: []byte("{}"),
 		}
 		if err := genesis.ValidateAndComplete(); err != nil {
 			panic(err)

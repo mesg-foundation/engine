@@ -6,8 +6,6 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/cosmos/cosmos-sdk/x/genutil"
-	app "github.com/cosmos/sdk-application-tutorial"
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/database"
@@ -18,6 +16,7 @@ import (
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	"github.com/mesg-foundation/engine/server/grpc"
 	"github.com/mesg-foundation/engine/tendermint"
+	"github.com/mesg-foundation/engine/tendermint/app"
 	"github.com/mesg-foundation/engine/version"
 	"github.com/mesg-foundation/engine/workflow"
 	"github.com/mesg-foundation/engine/x/xerrors"
@@ -155,24 +154,12 @@ func main() {
 	// init app
 	db := db.NewMemDB()
 	logger := logger.TendermintLogger()
-	// genState := app.NewDefaultGenesisState()
-
-	app := app.NewNameServiceApp(logger, db)
-
-	// appState, err := codec.MarshalJSONIndent(app.GetCDC(), genState)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// ctx := app.NewContext(true, abci.Header{Height: app.LastBlockHeight()})
-	// staking.WriteValidators(ctx, app.stakingKeeper)
-
-	// appState, _, err := app.ExportAppStateAndValidators(true, []string{})
-	// appState, _, err := app.ExportGenesisStateAndValidators()
+	app, _ := app.New(logger, db)
 
 	// create tendermint node
 	tendermintPath := os.ExpandEnv("$HOME/.mesg/tendermint")
 	os.MkdirAll(tendermintPath, os.FileMode(0755))
-	node, err := tendermint.NewNode(logger, app, tendermintPath, cfg.Tendermint.P2P.Seeds, app.Genesis())
+	node, err := tendermint.NewNode(logger, app, tendermintPath, cfg.Tendermint.P2P.Seeds, cfg.Tendermint.ValidatorPubKey)
 	if err != nil {
 		logrus.Fatalln(err)
 	}
