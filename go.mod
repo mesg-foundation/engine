@@ -14,7 +14,7 @@ require (
 	github.com/containerd/continuity v0.0.0-20190426062206-aaeac12a7ffc // indirect
 	github.com/cosmos/cosmos-sdk v0.36.0-rc1
 	github.com/cosmos/go-bip39 v0.0.0-20180819234021-555e2067c45d // indirect
-	github.com/cosmos/sdk-application-tutorial v0.0.0-20190714091954-680cc25100c5
+	github.com/cosmos/sdk-application-tutorial v0.0.0-20190806083653-879a19843c67
 	github.com/cskr/pubsub v1.0.2
 	github.com/docker/distribution v2.7.1+incompatible // indirect
 	github.com/docker/docker v0.0.0-20180803200506-eeea12db7a65
@@ -74,7 +74,6 @@ require (
 	golang.org/x/sys v0.0.0-20190712062909-fae7ac547cb7 // indirect
 	golang.org/x/text v0.3.2 // indirect
 	golang.org/x/tools v0.0.0-20190712213246-8b927904ee0d // indirect
-	google.golang.org/appengine v1.4.0 // indirect
 	google.golang.org/genproto v0.0.0-20190708153700-3bdd9d9f5532 // indirect
 	google.golang.org/grpc v1.22.0
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect

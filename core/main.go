@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"sync"
 
+	"github.com/cosmos/cosmos-sdk/x/genutil"
 	app "github.com/cosmos/sdk-application-tutorial"
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
@@ -154,10 +155,24 @@ func main() {
 	// init app
 	db := db.NewMemDB()
 	logger := logger.TendermintLogger()
+	// genState := app.NewDefaultGenesisState()
+
 	app := app.NewNameServiceApp(logger, db)
 
+	// appState, err := codec.MarshalJSONIndent(app.GetCDC(), genState)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// ctx := app.NewContext(true, abci.Header{Height: app.LastBlockHeight()})
+	// staking.WriteValidators(ctx, app.stakingKeeper)
+
+	// appState, _, err := app.ExportAppStateAndValidators(true, []string{})
+	// appState, _, err := app.ExportGenesisStateAndValidators()
+
 	// create tendermint node
-	node, err := tendermint.NewNode(logger, app, os.ExpandEnv("$HOME/.tendermint/app"), cfg.Tendermint.P2P.Seeds)
+	tendermintPath := os.ExpandEnv("$HOME/.mesg/tendermint")
+	os.MkdirAll(tendermintPath, os.FileMode(0755))
+	node, err := tendermint.NewNode(logger, app, tendermintPath, cfg.Tendermint.P2P.Seeds, app.Genesis())
 	if err != nil {
 		logrus.Fatalln(err)
 	}
