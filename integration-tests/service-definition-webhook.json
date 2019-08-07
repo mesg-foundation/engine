@@ -1,0 +1,76 @@
+{
+  "definition": {
+    "sid": "webhook",
+    "name": "Webhook",
+    "description": "Receive HTTP connections and emit events with the data",
+    "tasks": [
+      {
+        "key": "call",
+        "description": "This task will call a webhook and return the result of the call",
+        "inputs": [
+          {
+            "key": "url",
+            "description": "URL that you want to call",
+            "type": "String",
+            "object": []
+          },
+          {
+            "key": "data",
+            "description": "Data the you want to send",
+            "type": "Object",
+            "optional": true,
+            "object": []
+          },
+          {
+            "key": "headers",
+            "description": "Additional headers that you want to send",
+            "type": "Object",
+            "optional": true,
+            "object": []
+          }
+        ],
+        "outputs": [
+          {
+            "key": "status",
+            "description": "Status code returned by the request",
+            "type": "Number",
+            "object": []
+          },
+          {
+            "key": "data",
+            "description": "Date returned by the request",
+            "type": "Any",
+            "object": []
+          }
+        ]
+      }
+    ],
+    "events": [
+      {
+        "key": "request",
+        "description": "This even is emitted every time the server receive a `POST` request on the URL `/webhook`.",
+        "data": [
+          {
+            "key": "data",
+            "description": "All the data contained in the request data",
+            "type": "Object",
+            "object": []
+          },
+          {
+            "key": "headers",
+            "description": "All the headers contained in the request",
+            "type": "Object",
+            "object": []
+          }
+        ]
+      }
+    ],
+    "dependencies": [],
+    "configuration": {
+      "ports": [
+        "3000"
+      ]
+    },
+    "source": "QmQyHUzFyKQz7VL38PJJxpBqr4RgCha9zYmn8jNiCNPrjH"
+  }
+}
