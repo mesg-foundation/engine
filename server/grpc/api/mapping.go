@@ -122,15 +122,19 @@ func fromProtoFilters(filters []*types.Service_Workflow_Trigger_Filter) []*servi
 	return fs
 }
 
-func fromProtoWorkflowTask(task *types.Service_Workflow_Task) (*service.WorkflowTask, error) {
-	instanceHash, err := hash.Decode(task.InstanceHash)
-	if err != nil {
-		return nil, err
+func fromProtoWorkflowTasks(tasks []*types.Service_Workflow_Task) ([]*service.WorkflowTask, error) {
+	res := make([]*service.WorkflowTask, len(tasks))
+	for i, task := range tasks {
+		instanceHash, err := hash.Decode(task.InstanceHash)
+		if err != nil {
+			return nil, err
+		}
+		res[i] = &service.WorkflowTask{
+			InstanceHash: instanceHash,
+			TaskKey:      task.TaskKey,
+		}
 	}
-	return &service.WorkflowTask{
-		InstanceHash: instanceHash,
-		TaskKey:      task.TaskKey,
-	}, nil
+	return res, nil
 }
 
 func fromProtoWorkflows(workflows []*types.Service_Workflow) ([]*service.Workflow, error) {
@@ -147,7 +151,7 @@ func fromProtoWorkflows(workflows []*types.Service_Workflow) ([]*service.Workflo
 		if err != nil {
 			return nil, err
 		}
-		task, err := fromProtoWorkflowTask(wf.Task)
+		tasks, err := fromProtoWorkflowTasks(wf.Tasks)
 		if err != nil {
 			return nil, err
 		}
@@ -159,7 +163,7 @@ func fromProtoWorkflows(workflows []*types.Service_Workflow) ([]*service.Workflo
 				Key:          wf.Trigger.Key,
 				Filters:      fromProtoFilters(wf.Trigger.Filters),
 			},
-			Task: task,
+			Tasks: tasks,
 		}
 	}
 	return wfs, nil
@@ -274,11 +278,15 @@ func toProtoFilters(filters []*service.WorkflowTriggerFilter) []*types.Service_W
 	return fs
 }
 
-func toProtoWorkflowTask(task *service.WorkflowTask) *types.Service_Workflow_Task {
-	return &types.Service_Workflow_Task{
-		InstanceHash: task.InstanceHash.String(),
-		TaskKey:      task.TaskKey,
+func toProtoWorkflowTasks(tasks []*service.WorkflowTask) []*types.Service_Workflow_Task {
+	res := make([]*types.Service_Workflow_Task, len(tasks))
+	for i, task := range tasks {
+		res[i] = &types.Service_Workflow_Task{
+			InstanceHash: task.InstanceHash.String(),
+			TaskKey:      task.TaskKey,
+		}
 	}
+	return res
 }
 
 func toProtoWorkflows(workflows []*service.Workflow) []*types.Service_Workflow {
@@ -292,14 +300,15 @@ func toProtoWorkflows(workflows []*service.Workflow) []*types.Service_Workflow {
 			triggerType = types.Service_Workflow_Trigger_Result
 		}
 		wfs[i] = &types.Service_Workflow{
-			Key: wf.Key,
+			Hash: wf.Hash.String(),
+			Key:  wf.Key,
 			Trigger: &types.Service_Workflow_Trigger{
 				Type:         triggerType,
 				InstanceHash: wf.Trigger.InstanceHash.String(),
 				Key:          wf.Trigger.Key,
 				Filters:      toProtoFilters(wf.Trigger.Filters),
 			},
-			Task: toProtoWorkflowTask(wf.Task),
+			Tasks: toProtoWorkflowTasks(wf.Tasks),
 		}
 	}
 	return wfs
