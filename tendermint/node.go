@@ -60,14 +60,12 @@ func genesisLoader(validator crypto.PubKey) func() (*types.GenesisDoc, error) {
 			GenesisTime:     time.Date(2019, 8, 8, 0, 0, 0, 0, time.UTC),
 			ChainID:         "xxx",
 			ConsensusParams: types.DefaultConsensusParams(),
-			Validators: []types.GenesisValidator{
-				types.GenesisValidator{
-					Address: validator.Address(),
-					PubKey:  validator,
-					Power:   1,
-					Name:    "validator",
-				},
-			},
+			Validators: []types.GenesisValidator{{
+				Address: validator.Address(),
+				PubKey:  validator,
+				Power:   1,
+				Name:    "validator",
+			}},
 			AppState: []byte("{}"),
 		}
 		if err := genesis.ValidateAndComplete(); err != nil {
