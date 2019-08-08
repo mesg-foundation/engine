@@ -28,9 +28,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("MESG_TENDERMINT_P2P_SEEDS=%s@%s:%s\n", nodeKey.ID(), "engine", "26656")
+	fmt.Printf("NODE_PUBKEY=%s@%s:%s\n", nodeKey.ID(), "engine", "26656")
 
 	me := privval.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile())
 	pk := me.GetPubKey().(ed25519.PubKeyEd25519)
-	fmt.Printf("MESG_TENDERMINT_VALIDATORPUBKEY=%X\n", pk[:])
+	fmt.Printf("VALIDATOR_PUBKEY=%X\n", pk[:])
 }

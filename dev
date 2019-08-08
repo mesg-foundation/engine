@@ -14,7 +14,14 @@ MESG_LOG_FORMAT=${MESG_LOG_FORMAT:-text}
 MESG_LOG_FORCECOLORS=${MESG_LOG_FORCECOLORS:-false}
 MESG_LOG_LEVEL=${MESG_LOG_LEVEL:-debug}
 
+# TODO:
+# - gen if doesn't exist validator and node private key in project folder
+# - read those to extract the public keys and pass then as env to engine
+# - if flag `--validator`, then copy node key and validator files to $MESG_PATH
+
 eval $(go run internal/tools/gen_tm_identity.go)
+MESG_TENDERMINT_P2P_SEEDS=${MESG_TENDERMINT_P2P_SEEDS:-$NODE_PUBKEY}
+MESG_TENDERMINT_VALIDATORPUBKEY=${MESG_TENDERMINT_VALIDATORPUBKEY:-$VALIDATOR_PUBKEY}
 
 VERSION=local
 LDFLAGS="-X 'github.com/mesg-foundation/engine/version.Version=$VERSION'"
@@ -26,7 +33,7 @@ MESG_SERVER_PORT=${MESG_SERVER_PORT:-50052}
 
 function onexit {
   set +e
-  echo -e "\nshuting down, please wait..."
+  echo -e "\nshutting down, please wait..."
   docker_service_remove "$MESG_NAME"
   docker_network_remove "$MESG_NAME"
   docker_network_remove "$TENDERMINT_NETWORK"

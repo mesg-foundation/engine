@@ -26,7 +26,12 @@ func NewNode(logger log.Logger, app abci.Application, root, seeds string, valida
 	}
 
 	cfg := config.DefaultConfig()
-	cfg.P2P.Seeds = seeds
+	cfg.P2P.PersistentPeers = seeds
+	// cfg.P2P.Seeds = seeds
+	// cfg.P2P.SeedMode = true
+	cfg.P2P.AddrBookStrict = false
+	cfg.P2P.AllowDuplicateIP = true
+	// cfg.P2P.ExternalAddress = "engine:26656"
 	cfg.Consensus.TimeoutCommit = 10 * time.Second
 	cfg.SetRoot(root)
 
