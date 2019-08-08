@@ -8,9 +8,9 @@ import (
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/database"
-	"github.com/mesg-foundation/engine/engine"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/logger"
+	"github.com/mesg-foundation/engine/scheduler"
 	"github.com/mesg-foundation/engine/sdk"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
@@ -173,14 +173,14 @@ func main() {
 	}()
 
 	logrus.Info("starting workflow engine")
-	wf := engine.New(dep.sdk.Event, dep.sdk.Execution, dep.sdk.Workflow)
+	s := scheduler.New(dep.sdk.Event, dep.sdk.Execution, dep.sdk.Workflow)
 	go func() {
-		if err := wf.Start(); err != nil {
+		if err := s.Start(); err != nil {
 			logrus.Fatalln(err)
 		}
 	}()
 	go func() {
-		for err := range wf.ErrC {
+		for err := range s.ErrC {
 			logrus.Warn(err)
 		}
 	}()
