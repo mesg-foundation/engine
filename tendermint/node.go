@@ -57,6 +57,7 @@ func NewNode(logger log.Logger, app abci.Application, root, seeds string, valida
 func genesisLoader(validator crypto.PubKey) func() (*types.GenesisDoc, error) {
 	return func() (*types.GenesisDoc, error) {
 		genesis := &types.GenesisDoc{
+			GenesisTime:     time.Date(2019, 8, 8, 0, 0, 0, 0, time.UTC),
 			ChainID:         "xxx",
 			ConsensusParams: types.DefaultConsensusParams(),
 			Validators: []types.GenesisValidator{
