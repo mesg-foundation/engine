@@ -49,6 +49,7 @@ type Config struct {
 	}
 
 	Tendermint struct {
+		Path            string
 		ValidatorPubKey PubKeyEd25519
 		P2P             struct {
 			Seeds string
@@ -75,6 +76,7 @@ func New() (*Config, error) {
 	c.Database.ServiceRelativePath = filepath.Join("database", "services", serviceDBVersion)
 	c.Database.InstanceRelativePath = filepath.Join("database", "instance", instanceDBVersion)
 	c.Database.ExecutionRelativePath = filepath.Join("database", "executions", executionDBVersion)
+	c.Tendermint.Path = "tendermint"
 	c.setupServices()
 	return &c, nil
 }
@@ -110,7 +112,10 @@ func (c *Config) Load() error {
 
 // Prepare setups local directories or any other required thing based on config
 func (c *Config) Prepare() error {
-	return os.MkdirAll(c.Path, os.FileMode(0755))
+	if err := os.MkdirAll(c.Path, os.FileMode(0755)); err != nil {
+		return err
+	}
+	return os.MkdirAll(filepath.Join(c.Path, c.Tendermint.Path), os.FileMode(0755))
 }
 
 // Validate checks values and return an error if any validation failed.
@@ -129,7 +134,7 @@ type PubKeyEd25519 ed25519.PubKeyEd25519
 
 func (key *PubKeyEd25519) Decode(value string) error {
 	if value == "" {
-		return nil
+		return fmt.Errorf("validator public key is empty")
 	}
 
 	dec, err := hex.DecodeString(value)

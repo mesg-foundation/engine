@@ -1,7 +1,6 @@
 package main
 
 import (
-	"os"
 	"path/filepath"
 	"strconv"
 	"sync"
@@ -158,13 +157,10 @@ func main() {
 	app, _ := app.New(logger, db)
 
 	// create tendermint node
-	tendermintPath := os.ExpandEnv("$HOME/.mesg/tendermint")
-	os.MkdirAll(tendermintPath, os.FileMode(0755))
-
 	node, err := tendermint.NewNode(
 		logger,
 		app,
-		tendermintPath,
+		filepath.Join(cfg.Path, cfg.Tendermint.Path),
 		cfg.Tendermint.P2P.Seeds,
 		ed25519.PubKeyEd25519(cfg.Tendermint.ValidatorPubKey),
 	)
