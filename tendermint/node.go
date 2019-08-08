@@ -8,7 +8,6 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/config"
 	"github.com/tendermint/tendermint/crypto"
-	"github.com/tendermint/tendermint/crypto/ed25519"
 	"github.com/tendermint/tendermint/libs/log"
 	"github.com/tendermint/tendermint/node"
 	"github.com/tendermint/tendermint/p2p"
@@ -37,16 +36,10 @@ func NewNode(logger log.Logger, app abci.Application, root, seeds string, valida
 
 	me := privval.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile())
 
-	if validatorPubKey.Equals(ed25519.PubKeyEd25519{}) {
-		validatorPubKey = me.GetPubKey()
-		logger.Error("Me will be validator", validatorPubKey)
-	}
-
 	return node.NewNode(cfg,
 		me,
 		nodeKey,
 		proxy.NewLocalClientCreator(app),
-		// node.DefaultGenesisDocProviderFunc(cfg),
 		genesisLoader(validatorPubKey),
 		node.DefaultDBProvider,
 		node.DefaultMetricsProvider(cfg.Instrumentation),

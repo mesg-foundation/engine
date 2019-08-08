@@ -14,6 +14,8 @@ MESG_LOG_FORMAT=${MESG_LOG_FORMAT:-text}
 MESG_LOG_FORCECOLORS=${MESG_LOG_FORCECOLORS:-false}
 MESG_LOG_LEVEL=${MESG_LOG_LEVEL:-debug}
 
+eval $(go run internal/tools/gen_tm_identity.go)
+
 VERSION=local
 LDFLAGS="-X 'github.com/mesg-foundation/engine/version.Version=$VERSION'"
 LDFLAGS+=" -X 'github.com/mesg-foundation/engine/config.EnvMarketplaceEndpoint=https://ropsten.infura.io/v3/6115ae2531f64c04a9a392cf500e5fbe'"
