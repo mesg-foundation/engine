@@ -128,6 +128,10 @@ func (c *Config) Validate() error {
 type PubKeyEd25519 ed25519.PubKeyEd25519
 
 func (key *PubKeyEd25519) Decode(value string) error {
+	if value == "" {
+		return nil
+	}
+
 	dec, err := hex.DecodeString(value)
 	if err != nil {
 		return fmt.Errorf("validator public key decode error: %s", err)
