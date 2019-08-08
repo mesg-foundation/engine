@@ -27,6 +27,7 @@ func NewNode(logger log.Logger, app abci.Application, root, seeds string, valida
 
 	cfg := config.DefaultConfig()
 	cfg.P2P.Seeds = seeds
+	cfg.Consensus.TimeoutCommit = 10 * time.Second
 	cfg.SetRoot(root)
 
 	nodeKey, err := p2p.LoadOrGenNodeKey(cfg.NodeKeyFile())
