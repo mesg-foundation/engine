@@ -7,7 +7,6 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/config"
 	"github.com/tendermint/tendermint/crypto"
-	"github.com/tendermint/tendermint/crypto/ed25519"
 	"github.com/tendermint/tendermint/libs/log"
 	"github.com/tendermint/tendermint/node"
 	"github.com/tendermint/tendermint/p2p"
@@ -29,11 +28,13 @@ func NewNode(logger log.Logger, app abci.Application, root, seeds string, valida
 	cfg.P2P.Seeds = seeds
 	cfg.SetRoot(root)
 
-	nodeKey := &p2p.NodeKey{
-		PrivKey: ed25519.GenPrivKey(),
+	nodeKey, err := p2p.LoadOrGenNodeKey(cfg.NodeKeyFile())
+	if err != nil {
+		return nil, err
 	}
 
 	me := privval.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile())
+
 	if len(validatorPubKey.Bytes()) == 0 {
 		validatorPubKey = me.GetPubKey()
 	}
