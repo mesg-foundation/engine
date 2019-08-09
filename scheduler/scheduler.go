@@ -62,12 +62,12 @@ func (s *Scheduler) processTrigger(trigger workflow.TriggerType, instanceHash ha
 	}
 	for _, wf := range workflows {
 		if wf.Trigger.Match(trigger, instanceHash, key, data) {
-			nextStep, err := wf.FindNode(wf.Trigger.InitialNode)
+			nextStep, err := wf.FindNode(wf.Trigger.NodeKey)
 			if err != nil {
 				s.ErrC <- err
 				continue
 			}
-			if _, err := s.execution.Execute(wf.Hash, nextStep.InstanceHash, eventHash, execHash, wf.Trigger.InitialNode, nextStep.TaskKey, data, []string{}); err != nil {
+			if _, err := s.execution.Execute(wf.Hash, nextStep.InstanceHash, eventHash, execHash, wf.Trigger.NodeKey, nextStep.TaskKey, data, []string{}); err != nil {
 				s.ErrC <- err
 			}
 		}
