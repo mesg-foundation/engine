@@ -18,6 +18,7 @@ const (
 	serviceDBVersion   = "v3"
 	executionDBVersion = "v2"
 	instanceDBVersion  = "v1"
+	workflowDBVersion  = "v1"
 )
 
 var (
@@ -44,6 +45,7 @@ type Config struct {
 		ServiceRelativePath   string
 		InstanceRelativePath  string
 		ExecutionRelativePath string
+		WorkflowRelativePath  string
 	}
 
 	SystemServices []*ServiceConfig
@@ -66,6 +68,7 @@ func New() (*Config, error) {
 	c.Database.ServiceRelativePath = filepath.Join("database", "services", serviceDBVersion)
 	c.Database.InstanceRelativePath = filepath.Join("database", "instance", instanceDBVersion)
 	c.Database.ExecutionRelativePath = filepath.Join("database", "executions", executionDBVersion)
+	c.Database.WorkflowRelativePath = filepath.Join("database", "workflows", workflowDBVersion)
 	c.setupServices()
 	return &c, nil
 }
