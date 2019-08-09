@@ -30,20 +30,28 @@ message Workflow {
       string value = 3;         // Value of the filter
     }
 
-    Type type = 1;         // Type of trigger.
+    Type type = 1;                // Type of trigger.
     string instanceHash = 2;      // Hash of the instance that triggers the workflow.
     string key = 3;               // Key that triggers the workflow (event key or task key).
     repeated Filter filters = 4;  // List of filters to apply on the data of the event/result.
+    string initialNode = 5;       // First node to trigger when the workflow starts
   }
 
-  // Definition of the task to execute when the workflow is triggered.
-  message Task {
-    string instanceHash = 1;  // Hash of the instance to execute.
-    string taskKey = 2;       // Task of the instance to execute.
+  // Definition of the node to execute when the workflow is triggered.
+  message Node {
+    string key = 1;           // Key that identify the node
+    string instanceHash = 2;  // Hash of the instance to execute.
+    string taskKey = 3;       // Task of the instance to execute.
+  }
+
+  message Edge {
+    string src = 1; // Source of the edge
+    string dst = 2; // Destination of the edge
   }
 
   string hash = 1;          // Workflow's hash    
   string key = 2;           // Workflow's key
   Trigger trigger = 3;      // Trigger for the workflow.
-  repeated Task tasks = 4;  // Task to execute when the trigger is valid.
+  repeated Node nodes = 4;  // Nodes with information related to the execution to trigger.
+  repeated Edge edges = 5;  // Edges to create the link between the nodes.
 }

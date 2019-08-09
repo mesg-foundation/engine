@@ -30,7 +30,8 @@ service Workflow {
 message CreateWorkflowRequest {
   string key = 2;           // Workflow's key
   types.Workflow.Trigger trigger = 3;      // Trigger for the workflow.
-  repeated types.Workflow.Task tasks = 4;  // Task to execute when the trigger is valid.
+  repeated types.Workflow.Node nodes = 4;  // List of nodes in the workflow
+  repeated types.Workflow.Edge edges = 5;  // List of edges in the workflow
 }
 
 // The response's data for the `Create` API.
