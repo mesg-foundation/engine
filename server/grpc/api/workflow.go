@@ -203,6 +203,7 @@ func toProtoWorkflow(wf *workflow.Workflow) *types.Workflow {
 			InstanceHash: wf.Trigger.InstanceHash.String(),
 			Key:          wf.Trigger.Key,
 			Filters:      toProtoFilters(wf.Trigger.Filters),
+			InitialNode:  wf.Trigger.InitialNode,
 		},
 		Nodes: toProtoWorkflowNodes(wf.Nodes),
 		Edges: toProtoWorkflowEdges(wf.Edges),
