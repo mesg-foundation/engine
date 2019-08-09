@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -12,23 +13,39 @@ import (
 )
 
 func main() {
-	root := os.ExpandEnv("$HOME/.mesg/tendermint")
+	path := flag.String("path", "", "")
+	name := flag.String("name", "", "")
+	port := flag.String("port", "", "")
 
-	if err := os.MkdirAll(filepath.Join(root, "config"), 0755); err != nil {
+	flag.Parse()
+
+	if path == nil || *path == "" {
+		panic("path is required")
+	}
+
+	if name == nil || *name == "" {
+		panic("name is required")
+	}
+
+	if port == nil || *port == "" {
+		panic("port is required")
+	}
+
+	if err := os.MkdirAll(filepath.Join(*path, "config"), 0755); err != nil {
 		panic(err)
 	}
-	if err := os.MkdirAll(filepath.Join(root, "data"), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Join(*path, "data"), 0755); err != nil {
 		panic(err)
 	}
 
 	cfg := config.DefaultConfig()
-	cfg.SetRoot(root)
+	cfg.SetRoot(*path)
 
 	nodeKey, err := p2p.LoadOrGenNodeKey(cfg.NodeKeyFile())
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("NODE_PUBKEY=%s@%s:%s\n", nodeKey.ID(), "engine", "26656")
+	fmt.Printf("NODE_PUBKEY=%s@%s:%s\n", nodeKey.ID(), *name, *port)
 
 	me := privval.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile())
 	pk := me.GetPubKey().(ed25519.PubKeyEd25519)
