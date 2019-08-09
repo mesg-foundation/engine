@@ -75,7 +75,7 @@ func (s *Scheduler) processTrigger(trigger workflow.TriggerType, instanceHash ha
 }
 
 func (s *Scheduler) processExecution(exec *execution.Execution) {
-	if (exec.WorkflowHash.IsZero()) {
+	if exec.WorkflowHash.IsZero() {
 		return
 	}
 	wf, err := s.workflow.Get(exec.WorkflowHash)
