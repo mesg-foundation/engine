@@ -54,10 +54,6 @@ message CreateServiceRequest {
 
   // The hash id of service's source code on IPFS.
   string source = 9;
-
-  // List of workflows associated to the service
-  repeated types.Service.Workflow workflows = 10;
-
 }
 
 // The response's data for the `Create` API.
