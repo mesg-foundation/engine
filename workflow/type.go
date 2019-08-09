@@ -31,8 +31,8 @@ type Workflow struct {
 // Node describes the instructions for the workflow to execute a task
 type Node struct {
 	Key          string    `hash:"name:1" validate:"required"`
-	InstanceHash hash.Hash `hash:"name:1" validate:"required"`
-	TaskKey      string    `hash:"name:2" validate:"required,printascii"`
+	InstanceHash hash.Hash `hash:"name:2" validate:"required"`
+	TaskKey      string    `hash:"name:3" validate:"required,printascii"`
 }
 
 // Edge describes the instructions for the workflow to execute a task
@@ -47,7 +47,7 @@ type Trigger struct {
 	Key          string           `hash:"name:2" validate:"required,printascii"`
 	Type         TriggerType      `hash:"name:3" validate:"required"`
 	Filters      []*TriggerFilter `hash:"name:4" validate:"dive,required"`
-	InitialNode  string           `hash:"name:5" validate:"required"`
+	NodeKey  string           `hash:"name:5" validate:"required"`
 }
 
 // TriggerFilter is the filter definition that can be applied to a workflow trigger
