@@ -23,8 +23,12 @@
 
 #### Features
 
-- ([#1172](https://github.com/mesg-foundation/engine/pull/1172)) Implementation of workflow engine foundation. ([#1175](https://github.com/mesg-foundation/engine/pull/1175)). ([#1184](https://github.com/mesg-foundation/engine/pull/1184)). ([#1181](https://github.com/mesg-foundation/engine/pull/1181)). ([#1182](https://github.com/mesg-foundation/engine/pull/1182)). ([#1185](https://github.com/mesg-foundation/engine/pull/1185)). ([#1188](https://github.com/mesg-foundation/engine/pull/1188)). ([#1190](https://github.com/mesg-foundation/engine/pull/1190)).
 - ([#1191](https://github.com/mesg-foundation/engine/pull/1191)) Put executions as failed when a service emits the wrong outputs.
+
+#### Experimental
+
+ - ([#1172](https://github.com/mesg-foundation/engine/pull/1172)) Implementation of workflow engine foundation. ([#1175](https://github.com/mesg-foundation/engine/pull/1175)). ([#1184](https://github.com/mesg-foundation/engine/pull/1184)). ([#1181](https://github.com/mesg-foundation/engine/pull/1181)). ([#1182](https://github.com/mesg-foundation/engine/pull/1182)). ([#1185](https://github.com/mesg-foundation/engine/pull/1185)). ([#1188](https://github.com/mesg-foundation/engine/pull/1188)). ([#1190](https://github.com/mesg-foundation/engine/pull/1190)).
+
 
 ## [v0.11.0](https://github.com/mesg-foundation/engine/releases/tag/v0.11.0)
 

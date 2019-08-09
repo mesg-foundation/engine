@@ -9,6 +9,7 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
+	workflowsdk "github.com/mesg-foundation/engine/sdk/workflow"
 )
 
 const (
@@ -22,15 +23,17 @@ type Execution struct {
 	ps       *pubsub.PubSub
 	service  *servicesdk.Service
 	instance *instancesdk.Instance
+	workflow *workflowsdk.Workflow
 	execDB   database.ExecutionDB
 }
 
 // New creates a new Execution SDK with given options.
-func New(ps *pubsub.PubSub, service *servicesdk.Service, instance *instancesdk.Instance, execDB database.ExecutionDB) *Execution {
+func New(ps *pubsub.PubSub, service *servicesdk.Service, instance *instancesdk.Instance, workflow *workflowsdk.Workflow, execDB database.ExecutionDB) *Execution {
 	return &Execution{
 		ps:       ps,
 		service:  service,
 		instance: instance,
+		workflow: workflow,
 		execDB:   execDB,
 	}
 }
@@ -118,7 +121,7 @@ func (e *Execution) validateExecutionOutput(instanceHash hash.Hash, taskKey stri
 }
 
 // Execute executes a task tasKey with inputData and tags for service serviceID.
-func (e *Execution) Execute(instanceHash hash.Hash, eventHash hash.Hash, parentHash hash.Hash, taskKey string, inputData map[string]interface{}, tags []string) (executionHash hash.Hash, err error) {
+func (e *Execution) Execute(workflowHash, instanceHash, eventHash, parentHash hash.Hash, taskKey string, inputData map[string]interface{}, tags []string) (executionHash hash.Hash, err error) {
 	if parentHash != nil && eventHash != nil {
 		return nil, fmt.Errorf("cannot have both parent and event hash")
 	}
@@ -136,11 +139,18 @@ func (e *Execution) Execute(instanceHash hash.Hash, eventHash hash.Hash, parentH
 		return nil, err
 	}
 
+	if !workflowHash.IsZero() {
+		_, err := e.workflow.Get(workflowHash)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	if err := s.RequireTaskInputs(taskKey, inputData); err != nil {
 		return nil, err
 	}
 
-	exec := execution.New(instance.Hash, parentHash, eventHash, taskKey, inputData, tags)
+	exec := execution.New(workflowHash, instance.Hash, parentHash, eventHash, taskKey, inputData, tags)
 	if err := exec.Execute(); err != nil {
 		return nil, err
 	}

@@ -1,17 +1,12 @@
 package api
 
 import (
-	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/service"
 )
 
 // fromProtoService converts a the protobuf types to the internal service struct
-func fromProtoService(s *types.Service) (*service.Service, error) {
-	workflows, err := fromProtoWorkflows(s.Workflows)
-	if err != nil {
-		return nil, err
-	}
+func fromProtoService(s *types.Service) *service.Service {
 	return &service.Service{
 		Sid:           s.Sid,
 		Name:          s.Name,
@@ -22,8 +17,7 @@ func fromProtoService(s *types.Service) (*service.Service, error) {
 		Events:        fromProtoEvents(s.Events),
 		Configuration: fromProtoConfiguration(s.Configuration),
 		Dependencies:  fromProtoDependencies(s.Dependencies),
-		Workflows:     workflows,
-	}, nil
+	}
 }
 
 func fromProtoTasks(tasks []*types.Service_Task) []*service.Task {
@@ -105,66 +99,6 @@ func fromProtoDependencies(deps []*types.Service_Dependency) []*service.Dependen
 	return ds
 }
 
-func fromProtoFilters(filters []*types.Service_Workflow_Trigger_Filter) []*service.WorkflowTriggerFilter {
-	fs := make([]*service.WorkflowTriggerFilter, len(filters))
-	for i, filter := range filters {
-		var predicate service.WorkflowPredicate
-		// switch filter.Predicate {
-		if filter.Predicate == types.Service_Workflow_Trigger_Filter_EQ {
-			predicate = service.EQ
-		}
-		fs[i] = &service.WorkflowTriggerFilter{
-			Key:       filter.Key,
-			Predicate: predicate,
-			Value:     filter.Value,
-		}
-	}
-	return fs
-}
-
-func fromProtoWorkflowTask(task *types.Service_Workflow_Task) (*service.WorkflowTask, error) {
-	instanceHash, err := hash.Decode(task.InstanceHash)
-	if err != nil {
-		return nil, err
-	}
-	return &service.WorkflowTask{
-		InstanceHash: instanceHash,
-		TaskKey:      task.TaskKey,
-	}, nil
-}
-
-func fromProtoWorkflows(workflows []*types.Service_Workflow) ([]*service.Workflow, error) {
-	wfs := make([]*service.Workflow, len(workflows))
-	for i, wf := range workflows {
-		var triggerType service.TriggerType
-		switch wf.Trigger.Type {
-		case types.Service_Workflow_Trigger_Result:
-			triggerType = service.RESULT
-		case types.Service_Workflow_Trigger_Event:
-			triggerType = service.EVENT
-		}
-		instanceHash, err := hash.Decode(wf.Trigger.InstanceHash)
-		if err != nil {
-			return nil, err
-		}
-		task, err := fromProtoWorkflowTask(wf.Task)
-		if err != nil {
-			return nil, err
-		}
-		wfs[i] = &service.Workflow{
-			Key: wf.Key,
-			Trigger: &service.WorkflowTrigger{
-				Type:         triggerType,
-				InstanceHash: instanceHash,
-				Key:          wf.Trigger.Key,
-				Filters:      fromProtoFilters(wf.Trigger.Filters),
-			},
-			Task: task,
-		}
-	}
-	return wfs, nil
-}
-
 // toProtoService converts an internal service struct to the protobuf types
 func toProtoService(s *service.Service) *types.Service {
 	return &types.Service{
@@ -178,7 +112,6 @@ func toProtoService(s *service.Service) *types.Service {
 		Events:        toProtoEvents(s.Events),
 		Configuration: toProtoConfiguration(s.Configuration),
 		Dependencies:  toProtoDependencies(s.Dependencies),
-		Workflows:     toProtoWorkflows(s.Workflows),
 	}
 }
 
@@ -255,52 +188,4 @@ func toProtoDependencies(deps []*service.Dependency) []*types.Service_Dependency
 		ds[i] = toProtoDependency(dep)
 	}
 	return ds
-}
-
-func toProtoFilters(filters []*service.WorkflowTriggerFilter) []*types.Service_Workflow_Trigger_Filter {
-	fs := make([]*types.Service_Workflow_Trigger_Filter, len(filters))
-	for i, filter := range filters {
-		var predicate types.Service_Workflow_Trigger_Filter_Predicate
-		// switch filter.Predicate {
-		if filter.Predicate == service.EQ {
-			predicate = types.Service_Workflow_Trigger_Filter_EQ
-		}
-		fs[i] = &types.Service_Workflow_Trigger_Filter{
-			Key:       filter.Key,
-			Predicate: predicate,
-			Value:     filter.Value.(string),
-		}
-	}
-	return fs
-}
-
-func toProtoWorkflowTask(task *service.WorkflowTask) *types.Service_Workflow_Task {
-	return &types.Service_Workflow_Task{
-		InstanceHash: task.InstanceHash.String(),
-		TaskKey:      task.TaskKey,
-	}
-}
-
-func toProtoWorkflows(workflows []*service.Workflow) []*types.Service_Workflow {
-	wfs := make([]*types.Service_Workflow, len(workflows))
-	for i, wf := range workflows {
-		var triggerType types.Service_Workflow_Trigger_Type
-		switch wf.Trigger.Type {
-		case service.EVENT:
-			triggerType = types.Service_Workflow_Trigger_Event
-		case service.RESULT:
-			triggerType = types.Service_Workflow_Trigger_Result
-		}
-		wfs[i] = &types.Service_Workflow{
-			Key: wf.Key,
-			Trigger: &types.Service_Workflow_Trigger{
-				Type:         triggerType,
-				InstanceHash: wf.Trigger.InstanceHash.String(),
-				Key:          wf.Trigger.Key,
-				Filters:      toProtoFilters(wf.Trigger.Filters),
-			},
-			Task: toProtoWorkflowTask(wf.Task),
-		}
-	}
-	return wfs
 }

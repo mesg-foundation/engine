@@ -10,6 +10,7 @@ import (
 	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/logger"
+	"github.com/mesg-foundation/engine/scheduler"
 	"github.com/mesg-foundation/engine/sdk"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
@@ -17,7 +18,6 @@ import (
 	"github.com/mesg-foundation/engine/tendermint"
 	"github.com/mesg-foundation/engine/tendermint/app"
 	"github.com/mesg-foundation/engine/version"
-	"github.com/mesg-foundation/engine/workflow"
 	"github.com/mesg-foundation/engine/x/xerrors"
 	"github.com/mesg-foundation/engine/x/xnet"
 	"github.com/mesg-foundation/engine/x/xos"
@@ -31,6 +31,7 @@ type dependencies struct {
 	cfg         *config.Config
 	serviceDB   database.ServiceDB
 	executionDB database.ExecutionDB
+	workflowDB  database.WorkflowDB
 	container   container.Container
 	sdk         *sdk.SDK
 }
@@ -54,6 +55,12 @@ func initDependencies(cfg *config.Config) (*dependencies, error) {
 		return nil, err
 	}
 
+	// init workflow db.
+	workflowDB, err := database.NewWorkflowDB(filepath.Join(config.Path, config.Database.WorkflowRelativePath))
+	if err != nil {
+		return nil, err
+	}
+
 	// init container.
 	c, err := container.New(cfg.Name)
 	if err != nil {
@@ -63,13 +70,14 @@ func initDependencies(cfg *config.Config) (*dependencies, error) {
 	_, port, _ := xnet.SplitHostPort(cfg.Server.Address)
 
 	// init sdk.
-	sdk := sdk.New(c, serviceDB, instanceDB, executionDB, cfg.Name, strconv.Itoa(port))
+	sdk := sdk.New(c, serviceDB, instanceDB, executionDB, workflowDB, cfg.Name, strconv.Itoa(port))
 
 	return &dependencies{
 		cfg:         cfg,
 		container:   c,
 		serviceDB:   serviceDB,
 		executionDB: executionDB,
+		workflowDB:  workflowDB,
 		sdk:         sdk,
 	}, nil
 }
@@ -194,14 +202,14 @@ func main() {
 	}()
 
 	logrus.Info("starting workflow engine")
-	wf := workflow.New(dep.sdk.Event, dep.sdk.Execution, dep.sdk.Service)
+	s := scheduler.New(dep.sdk.Event, dep.sdk.Execution, dep.sdk.Workflow)
 	go func() {
-		if err := wf.Start(); err != nil {
+		if err := s.Start(); err != nil {
 			logrus.Fatalln(err)
 		}
 	}()
 	go func() {
-		for err := range wf.ErrC {
+		for err := range s.ErrC {
 			logrus.Warn(err)
 		}
 	}()
