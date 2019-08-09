@@ -37,8 +37,8 @@ type Node struct {
 
 // Edge describes the instructions for the workflow to execute a task
 type Edge struct {
-	Src string `hash:"name:1"`
-	Dst string `hash:"name:2"`
+	Src string `hash:"name:1" validate:"required"`
+	Dst string `hash:"name:2" validate:"required"`
 }
 
 // Trigger is an event that triggers a workflow
@@ -47,7 +47,7 @@ type Trigger struct {
 	Key          string           `hash:"name:2" validate:"required,printascii"`
 	Type         TriggerType      `hash:"name:3" validate:"required"`
 	Filters      []*TriggerFilter `hash:"name:4" validate:"dive,required"`
-	InitialNode  string           `hash:"name:5"`
+	InitialNode  string           `hash:"name:5" validate:"required"`
 }
 
 // TriggerFilter is the filter definition that can be applied to a workflow trigger
