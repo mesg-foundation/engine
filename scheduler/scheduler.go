@@ -48,13 +48,13 @@ func (s *Scheduler) Start() error {
 		case event := <-s.eventStream.C:
 			go s.processTrigger(workflow.EVENT, event.InstanceHash, event.Key, event.Data, event.Hash, nil)
 		case execution := <-s.executionStream.C:
-			go s.processTrigger(workflow.RESULT, execution.InstanceHash, execution.TaskKey, execution.Outputs, nil, execution)
+			go s.processTrigger(workflow.RESULT, execution.InstanceHash, execution.TaskKey, execution.Outputs, nil, execution.Hash)
 			go s.processExecution(execution)
 		}
 	}
 }
 
-func (s *Scheduler) processTrigger(trigger workflow.TriggerType, instanceHash hash.Hash, key string, data map[string]interface{}, eventHash hash.Hash, exec *execution.Execution) {
+func (s *Scheduler) processTrigger(trigger workflow.TriggerType, instanceHash hash.Hash, key string, data map[string]interface{}, eventHash hash.Hash, execHash hash.Hash) {
 	workflows, err := s.workflow.List()
 	if err != nil {
 		s.ErrC <- err
@@ -62,66 +62,35 @@ func (s *Scheduler) processTrigger(trigger workflow.TriggerType, instanceHash ha
 	}
 	for _, wf := range workflows {
 		if wf.Trigger.Match(trigger, instanceHash, key, data) {
-			if err := s.triggerExecution(wf, exec, eventHash, data); err != nil {
+			nextStep, err := wf.FindNode(wf.Trigger.InitialNode)
+			if err != nil {
+				s.ErrC <- err
+				continue
+			}
+			if _, err := s.execution.Execute(wf.Hash, nextStep.InstanceHash, eventHash, execHash, wf.Trigger.InitialNode, nextStep.TaskKey, data, []string{}); err != nil {
 				s.ErrC <- err
 			}
 		}
 	}
 }
 
-func (s *Scheduler) processExecution(exec *execution.Execution) error {
-	if exec.WorkflowHash.IsZero() {
-		return nil
+func (s *Scheduler) processExecution(exec *execution.Execution) {
+	if (exec.WorkflowHash.IsZero()) {
+		return
 	}
 	wf, err := s.workflow.Get(exec.WorkflowHash)
 	if err != nil {
-		return err
+		s.ErrC <- err
+		return
 	}
-	return s.triggerExecution(wf, exec, nil, exec.Outputs)
-}
-
-func (s *Scheduler) triggerExecution(wf *workflow.Workflow, prev *execution.Execution, eventHash hash.Hash, data map[string]interface{}) error {
-	height, err := s.getHeight(wf, prev)
-	if err != nil {
-		return err
+	for _, nextStepID := range wf.ChildrenIDs(exec.StepID) {
+		nextStep, err := wf.FindNode(nextStepID)
+		if err != nil {
+			s.ErrC <- err
+			continue
+		}
+		if _, err := s.execution.Execute(wf.Hash, nextStep.InstanceHash, nil, exec.Hash, nextStepID, nextStep.TaskKey, exec.Outputs, []string{}); err != nil {
+			s.ErrC <- err
+		}
 	}
-	if len(wf.Tasks) <= height {
-		// end of workflow
-		return nil
-	}
-	var parentHash hash.Hash
-	if prev != nil {
-		parentHash = prev.Hash
-	}
-	task := wf.Tasks[height]
-	if _, err := s.execution.Execute(wf.Hash, task.InstanceHash, eventHash, parentHash, task.TaskKey, data, []string{}); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (s *Scheduler) getHeight(wf *workflow.Workflow, exec *execution.Execution) (int, error) {
-	if exec == nil {
-		return 0, nil
-	}
-	// Result from other workflow
-	if !exec.WorkflowHash.Equal(wf.Hash) {
-		return 0, nil
-	}
-	// Execution triggered by an event
-	if !exec.EventHash.IsZero() {
-		return 1, nil
-	}
-	if exec.ParentHash.IsZero() {
-		panic("parent hash should be present if event is not")
-	}
-	if exec.ParentHash.Equal(exec.Hash) {
-		panic("parent hash cannot be equal to execution hash")
-	}
-	parent, err := s.execution.Get(exec.ParentHash)
-	if err != nil {
-		return 0, err
-	}
-	parentHeight, err := s.getHeight(wf, parent)
-	return parentHeight + 1, err
 }
