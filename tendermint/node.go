@@ -17,7 +17,7 @@ import (
 )
 
 // NewNode retruns new tendermint node that runs the app.
-func NewNode(logger log.Logger, app abci.Application, root, seeds string, validatorPubKey crypto.PubKey) (*node.Node, error) {
+func NewNode(logger log.Logger, app abci.Application, root, seeds, externalAddress string, validatorPubKey crypto.PubKey) (*node.Node, error) {
 	if err := os.MkdirAll(filepath.Join(root, "config"), 0755); err != nil {
 		return nil, err
 	}
@@ -31,7 +31,7 @@ func NewNode(logger log.Logger, app abci.Application, root, seeds string, valida
 	// cfg.P2P.SeedMode = true
 	cfg.P2P.AddrBookStrict = false
 	cfg.P2P.AllowDuplicateIP = true
-	// cfg.P2P.ExternalAddress = "engine:26656"
+	cfg.P2P.ExternalAddress = externalAddress
 	cfg.Consensus.TimeoutCommit = 10 * time.Second
 	cfg.SetRoot(root)
 

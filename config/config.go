@@ -52,7 +52,8 @@ type Config struct {
 		Path            string
 		ValidatorPubKey PubKeyEd25519
 		P2P             struct {
-			Seeds string
+			Seeds           string
+			ExternalAddress string
 		}
 	}
 

@@ -132,12 +132,13 @@ docker service create \
   --label com.docker.stack.namespace=$MESG_NAME \
   --label com.docker.stack.image=mesg/engine:$VERSION \
   --env MESG_NAME=$MESG_NAME \
-  --env MESG_TENDERMINT_P2P_SEEDS=$MESG_TENDERMINT_P2P_SEEDS \
-  --env MESG_TENDERMINT_VALIDATORPUBKEY=$MESG_TENDERMINT_VALIDATORPUBKEY \
   --env MESG_LOG_FORMAT=$MESG_LOG_FORMAT \
   --env MESG_LOG_FORCECOLORS=$MESG_LOG_FORCECOLORS \
   --env MESG_LOG_LEVEL=$MESG_LOG_LEVEL \
   --env MESG_TENDERMINT_PATH=$MESG_TENDERMINT_PATH \
+  --env MESG_TENDERMINT_VALIDATORPUBKEY=$MESG_TENDERMINT_VALIDATORPUBKEY \
+  --env MESG_TENDERMINT_P2P_SEEDS=$MESG_TENDERMINT_P2P_SEEDS \
+  --env MESG_TENDERMINT_P2P_EXTERNALADDRESS=$MESG_TENDERMINT_P2P_EXTERNALADDRESS \
   --mount type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock \
   --mount type=bind,source=$MESG_PATH,destination=/root/.mesg \
   --network $MESG_NAME \
