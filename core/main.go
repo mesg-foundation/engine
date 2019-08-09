@@ -56,7 +56,7 @@ func initDependencies(cfg *config.Config) (*dependencies, error) {
 	}
 
 	// init workflow db.
-	workflowDB, err := database.NewWorkflowDB(filepath.Join(config.Path, config.Database.WorkflowRelativePath))
+	workflowDB, err := database.NewWorkflowDB(filepath.Join(cfg.Path, cfg.Database.WorkflowRelativePath))
 	if err != nil {
 		return nil, err
 	}
