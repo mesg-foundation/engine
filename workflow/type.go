@@ -36,7 +36,7 @@ type Task struct {
 // Trigger is an event that triggers a workflow
 type Trigger struct {
 	InstanceHash hash.Hash        `hash:"name:1" validate:"required"`
-	Key          string           `hash:"name:2" validate:"printascii,printascii"`
+	Key          string           `hash:"name:2" validate:"printascii"`
 	Type         TriggerType      `hash:"name:3" validate:"required"`
 	Filters      []*TriggerFilter `hash:"name:4" validate:"dive,required"`
 }
