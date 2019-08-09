@@ -4,12 +4,37 @@ set -e
 
 DIR=$(pwd)
 
+# network to connect multiple engine instances
+TENDERMINT_NETWORK="mesg-tendermint"
+
 # mesg config variables
 MESG_NAME=${MESG_NAME:-engine}
 MESG_PATH=${MESG_PATH:-$HOME/.mesg}
 MESG_LOG_FORMAT=${MESG_LOG_FORMAT:-text}
 MESG_LOG_FORCECOLORS=${MESG_LOG_FORCECOLORS:-false}
 MESG_LOG_LEVEL=${MESG_LOG_LEVEL:-debug}
+MESG_SERVER_PORT=${MESG_SERVER_PORT:-50052}
+MESG_TENDERMINT_PATH=${MESG_TENDERMINT_PATH:-"tendermint"}
+
+TENDERMINT_NETWORK_ALIAS=${TENDERMINT_NETWORK_ALIAS:-$MESG_NAME}
+TENDERMINT_VALIDATOR_NAME=${TENDERMINT_VALIDATOR_NAME:-validator}
+TENDERMINT_VALIDATOR_PORT=${TENDERMINT_VALIDATOR_PORT:-26656}
+TENDERMINT_VALIDATOR_PATH=${TENDERMINT_VALIDATOR_PATH:-".tendermint-validator"}
+
+# Init and read validator identity
+eval $(go run internal/tools/gen_tm_identity.go -name=$TENDERMINT_VALIDATOR_NAME -port=$TENDERMINT_VALIDATOR_PORT -path=$TENDERMINT_VALIDATOR_PATH)
+MESG_TENDERMINT_P2P_SEEDS=${MESG_TENDERMINT_P2P_SEEDS:-$NODE_PUBKEY}
+MESG_TENDERMINT_VALIDATORPUBKEY=${MESG_TENDERMINT_VALIDATORPUBKEY:-$VALIDATOR_PUBKEY}
+
+# Setup the validator private keys
+if [[ $* == *--validator* ]]; then
+  TENDERMINT_HOME_CONFIG=$MESG_PATH/$MESG_TENDERMINT_PATH
+  echo "Validator flag passed. Copy validator private keys to $TENDERMINT_HOME_CONFIG"
+  mkdir -p $TENDERMINT_HOME_CONFIG
+  cp -R $TENDERMINT_VALIDATOR_PATH/ $TENDERMINT_HOME_CONFIG
+  TENDERMINT_NETWORK_ALIAS=$TENDERMINT_VALIDATOR_NAME
+  TENDERMINT_VALIDATOR_PORT_PUBLISH="--publish $TENDERMINT_VALIDATOR_PORT:$TENDERMINT_VALIDATOR_PORT"
+fi
 
 VERSION=local
 LDFLAGS="-X 'github.com/mesg-foundation/engine/version.Version=$VERSION'"
@@ -17,13 +42,13 @@ LDFLAGS+=" -X 'github.com/mesg-foundation/engine/config.EnvMarketplaceEndpoint=h
 LDFLAGS+=" -X 'github.com/mesg-foundation/engine/config.EnvMarketplaceAddress=0xeCC1A867F871323350A1A89FcAf69629a2d5085e'"
 LDFLAGS+=" -X 'github.com/mesg-foundation/engine/config.EnvMarketplaceToken=0x5861b3dc52339d4f976b7fa5d80db6cd6f477f1b'"
 
-MESG_SERVER_PORT=${MESG_SERVER_PORT:-50052}
 
 function onexit {
   set +e
-  echo -e "\nshuting down, please wait..."
+  echo -e "\nshutting down, please wait..."
   docker_service_remove "$MESG_NAME"
   docker_network_remove "$MESG_NAME"
+  docker_network_remove "$TENDERMINT_NETWORK"
 }
 
 function docker_service_remove {
@@ -96,6 +121,10 @@ if ! docker_network_exist "$MESG_NAME"; then
   docker_network_create "$MESG_NAME"
 fi
 
+if ! docker_network_exist "$TENDERMINT_NETWORK"; then
+  docker_network_create "$TENDERMINT_NETWORK"
+fi
+
 echo "create docker service: "
 docker service create \
   --name $MESG_NAME \
@@ -106,10 +135,16 @@ docker service create \
   --env MESG_LOG_FORMAT=$MESG_LOG_FORMAT \
   --env MESG_LOG_FORCECOLORS=$MESG_LOG_FORCECOLORS \
   --env MESG_LOG_LEVEL=$MESG_LOG_LEVEL \
+  --env MESG_TENDERMINT_PATH=$MESG_TENDERMINT_PATH \
+  --env MESG_TENDERMINT_VALIDATORPUBKEY=$MESG_TENDERMINT_VALIDATORPUBKEY \
+  --env MESG_TENDERMINT_P2P_SEEDS=$MESG_TENDERMINT_P2P_SEEDS \
+  --env MESG_TENDERMINT_P2P_EXTERNALADDRESS=$MESG_TENDERMINT_P2P_EXTERNALADDRESS \
   --mount type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock \
   --mount type=bind,source=$MESG_PATH,destination=/root/.mesg \
   --network $MESG_NAME \
+  --network name=$TENDERMINT_NETWORK,alias=$TENDERMINT_NETWORK_ALIAS \
   --publish $MESG_SERVER_PORT:50052 \
+  $TENDERMINT_VALIDATOR_PORT_PUBLISH \
   mesg/engine:$VERSION
 
 docker service logs --follow --raw $MESG_NAME

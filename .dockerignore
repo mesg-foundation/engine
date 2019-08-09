@@ -13,3 +13,4 @@ mesg-dev
 bin/cli
 docs/
 docker-images/
+.tendermint-validator/
