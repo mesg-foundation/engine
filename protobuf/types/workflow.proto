@@ -34,7 +34,7 @@ message Workflow {
     string instanceHash = 2;      // Hash of the instance that triggers the workflow.
     string key = 3;               // Key that triggers the workflow (event key or task key).
     repeated Filter filters = 4;  // List of filters to apply on the data of the event/result.
-    string nodeKey = 5;       // First node to trigger when the workflow starts.
+    string nodeKey = 5;           // First node to trigger when the workflow starts.
   }
 
   // Definition of the node to execute when the workflow is triggered.

@@ -85,9 +85,9 @@ type Execution struct {
 	Error string `protobuf:"bytes,9,opt,name=error,proto3" json:"error,omitempty"`
 	// tags are optionally associated with execution by the user.
 	Tags []string `protobuf:"bytes,10,rep,name=tags,proto3" json:"tags,omitempty"`
-	// wokflowHash is the unique hash of the workflow associated to this execution.
+	// workflowHash is the unique hash of the workflow associated to this execution.
 	WorkflowHash string `protobuf:"bytes,11,opt,name=workflowHash,proto3" json:"workflowHash,omitempty"`
-	// step in the workflow
+	// step of the workflow.
 	StepID               string   `protobuf:"bytes,12,opt,name=stepID,proto3" json:"stepID,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`

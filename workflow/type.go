@@ -47,7 +47,7 @@ type Trigger struct {
 	Key          string           `hash:"name:2" validate:"required,printascii"`
 	Type         TriggerType      `hash:"name:3" validate:"required"`
 	Filters      []*TriggerFilter `hash:"name:4" validate:"dive,required"`
-	NodeKey  string           `hash:"name:5" validate:"required"`
+	NodeKey      string           `hash:"name:5" validate:"required"`
 }
 
 // TriggerFilter is the filter definition that can be applied to a workflow trigger
