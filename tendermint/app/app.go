@@ -93,7 +93,7 @@ type nameServiceApp struct {
 }
 
 // NewNameServiceApp is a constructor function for nameServiceApp
-func NewNameServiceApp(logger log.Logger, db dbm.DB) *nameServiceApp {
+func NewNameServiceApp(logger log.Logger, db dbm.DB) (*nameServiceApp, *codec.Codec) {
 
 	// First define the top level codec that will be shared by the different modules
 	cdc := MakeCodec()
@@ -259,7 +259,7 @@ func NewNameServiceApp(logger log.Logger, db dbm.DB) *nameServiceApp {
 		cmn.Exit(err.Error())
 	}
 
-	return app
+	return app, cdc
 }
 
 // GenesisState represents chain state at the start of the chain. Any initial state (account balances) are stored here.
@@ -307,13 +307,4 @@ func (app *nameServiceApp) ExportAppStateAndValidators(forZeroHeight bool, jailW
 	validators = staking.WriteValidators(ctx, app.stakingKeeper)
 
 	return appState, validators, nil
-}
-
-func (app *nameServiceApp) ExportInitialAppState() map[string]json.RawMessage {
-	return ModuleBasics.DefaultGenesis()
-	// return codec.MarshalJSONIndent(app.cdc, genState)
-}
-
-func (app *nameServiceApp) GetCodec() *codec.Codec {
-	return app.cdc
 }
