@@ -28,11 +28,11 @@ function onexit {
 
 function docker_service_remove {
   docker service rm $1
-  docker wait $(docker ps -f name="^$1$" -q) 2> /dev/null
+  docker wait $(docker ps -f label=com.docker.swarm.service.name=$1 -q) 2> /dev/null
 }
 
 function docker_network_exist {
-  [ ! -z $(docker network list -f name="^$1$" -f driver=overlay -q) ]
+  [[ ! -z $(docker network list -f name="$1" -f driver=overlay -q) ]]
 }
 
 function docker_network_create {
