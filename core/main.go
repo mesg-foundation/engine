@@ -86,7 +86,7 @@ func initDependencies() (*dependencies, error) {
 
 func deployCoreServices(config *config.Config, sdk *sdk.SDK) error {
 	for _, serviceConfig := range config.SystemServices {
-		logrus.Infof("Deploying service %q", serviceConfig.Definition.Sid)
+		logrus.WithField("module", "main").Infof("Deploying service %q", serviceConfig.Definition.Sid)
 		srv, err := sdk.Service.Create(serviceConfig.Definition)
 		if err != nil {
 			existsError, ok := err.(*servicesdk.AlreadyExistsError)
@@ -99,7 +99,7 @@ func deployCoreServices(config *config.Config, sdk *sdk.SDK) error {
 				return err
 			}
 		}
-		logrus.Infof("Service %q deployed with hash %q", srv.Sid, srv.Hash)
+		logrus.WithField("module", "main").Infof("Service %q deployed with hash %q", srv.Sid, srv.Hash)
 		instance, err := sdk.Instance.Create(srv.Hash, xos.EnvMapToSlice(serviceConfig.Env))
 		if err != nil {
 			existsError, ok := err.(*instancesdk.AlreadyExistsError)
@@ -113,7 +113,7 @@ func deployCoreServices(config *config.Config, sdk *sdk.SDK) error {
 			}
 		}
 		serviceConfig.Instance = instance
-		logrus.Infof("Instance started with hash %q", instance.Hash)
+		logrus.WithField("module", "main").Infof("Instance started with hash %q", instance.Hash)
 	}
 	return nil
 }
@@ -150,7 +150,7 @@ func stopRunningServices(sdk *sdk.SDK) error {
 func main() {
 	dep, err := initDependencies()
 	if err != nil {
-		logrus.Fatalln(err)
+		logrus.WithField("module", "main").Fatalln(err)
 	}
 
 	// init logger.
@@ -158,36 +158,36 @@ func main() {
 
 	// init system services.
 	if err := deployCoreServices(dep.config, dep.sdk); err != nil {
-		logrus.Fatalln(err)
+		logrus.WithField("module", "main").Fatalln(err)
 	}
 
 	// init gRPC server.
 	server := grpc.New(dep.sdk)
 
-	logrus.Infof("starting MESG Engine version %s", version.Version)
+	logrus.WithField("module", "main").Infof("starting MESG Engine version %s", version.Version)
 
 	go func() {
 		if err := server.Serve(dep.config.Server.Address); err != nil {
-			logrus.Fatalln(err)
+			logrus.WithField("module", "main").Fatalln(err)
 		}
 	}()
 
-	logrus.Info("starting workflow engine")
+	logrus.WithField("module", "main").Info("starting workflow engine")
 	s := scheduler.New(dep.sdk.Event, dep.sdk.Execution, dep.sdk.Workflow)
 	go func() {
 		if err := s.Start(); err != nil {
-			logrus.Fatalln(err)
+			logrus.WithField("module", "main").Fatalln(err)
 		}
 	}()
 	go func() {
 		for err := range s.ErrC {
-			logrus.Warn(err)
+			logrus.WithField("module", "main").Warn(err)
 		}
 	}()
 
 	<-xsignal.WaitForInterrupt()
 	if err := stopRunningServices(dep.sdk); err != nil {
-		logrus.Fatalln(err)
+		logrus.WithField("module", "main").Fatalln(err)
 	}
 	server.Close()
 }
