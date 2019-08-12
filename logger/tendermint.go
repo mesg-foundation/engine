@@ -21,6 +21,7 @@ type tendermintLogger struct {
 	logrusLogger
 }
 
+// Debug logs a message at level Debug on the standard logger.
 func (l *tendermintLogger) Debug(msg string, keyvals ...interface{}) {
 	if len(keyvals) == 0 {
 		l.logrusLogger.Debug(msg)
@@ -29,6 +30,7 @@ func (l *tendermintLogger) Debug(msg string, keyvals ...interface{}) {
 	}
 }
 
+// Info logs a message at level Info on the standard logger.
 func (l *tendermintLogger) Info(msg string, keyvals ...interface{}) {
 	if len(keyvals) == 0 {
 		l.logrusLogger.Info(msg)
@@ -37,6 +39,7 @@ func (l *tendermintLogger) Info(msg string, keyvals ...interface{}) {
 	}
 }
 
+// Error logs a message at level Error on the standard logger.
 func (l *tendermintLogger) Error(msg string, keyvals ...interface{}) {
 	if len(keyvals) == 0 {
 		l.logrusLogger.Error(msg)
@@ -45,6 +48,7 @@ func (l *tendermintLogger) Error(msg string, keyvals ...interface{}) {
 	}
 }
 
+// With creates an entry from the logger and adds a key values to it.
 func (l *tendermintLogger) With(keyvals ...interface{}) log.Logger {
 	fields := logrus.Fields{}
 	for i := 0; i < len(keyvals); i += 2 {

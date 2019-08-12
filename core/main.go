@@ -162,7 +162,7 @@ func main() {
 	// init app
 	db := db.NewMemDB()
 	logger := logger.TendermintLogger()
-	app, _ := app.New(logger, db)
+	app := app.New(logger, db)
 
 	// create tendermint node
 	node, err := tendermint.NewNode(
