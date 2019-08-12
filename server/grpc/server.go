@@ -43,14 +43,14 @@ func (s *Server) Serve(address string) error {
 	s.instance = grpc.NewServer(
 		keepaliveOpt,
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
-			grpc_logrus.StreamServerInterceptor(logrus.NewEntry(logrus.StandardLogger())),
+			grpc_logrus.StreamServerInterceptor(logrus.StandardLogger().WithField("module", "grpc")),
 		)),
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-			grpc_logrus.UnaryServerInterceptor(logrus.NewEntry(logrus.StandardLogger())),
+			grpc_logrus.UnaryServerInterceptor(logrus.StandardLogger().WithField("module", "grpc")),
 		)),
 	)
 	s.register()
-	logrus.Info("server listens on ", ln.Addr())
+	logrus.WithField("module", "grpc").Info("server listens on ", ln.Addr())
 	return s.instance.Serve(ln)
 }
 
