@@ -7,10 +7,16 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	keybase "github.com/cosmos/cosmos-sdk/client/keys"
+	"github.com/cosmos/cosmos-sdk/crypto/keys"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/keyerror"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	authutils "github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/cosmos/cosmos-sdk/x/genaccounts"
+	"github.com/cosmos/cosmos-sdk/x/genutil"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/cosmos/go-bip39"
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/logger"
 	"github.com/mesg-foundation/engine/tendermint/app"
@@ -26,15 +32,22 @@ import (
 )
 
 var (
-	chainId = "xxx"
+	chainId         = "xxx"
+	accountName     = "bob"
+	accountPassword = "12345678"
 )
 
 // NewNode retruns new tendermint node that runs the app.
 func NewNode(root, seeds, externalAddress string, validatorPukKey config.PubKeyEd25519) (*node.Node, error) {
-	if err := os.MkdirAll(filepath.Join(root, "config"), 0755); err != nil {
+
+	logrus.WithField("validator", validatorPukKey).WithField("address", ed25519.PubKeyEd25519(validatorPukKey).Address()).Info("validator")
+
+	tendermintPath := filepath.Join(root, "tendermint")
+	cosmosPath := filepath.Join(root, "cosmos")
+	if err := os.MkdirAll(filepath.Join(tendermintPath, "config"), 0755); err != nil {
 		return nil, err
 	}
-	if err := os.MkdirAll(filepath.Join(root, "data"), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Join(tendermintPath, "data"), 0755); err != nil {
 		return nil, err
 	}
 
@@ -46,7 +59,7 @@ func NewNode(root, seeds, externalAddress string, validatorPukKey config.PubKeyE
 	cfg.P2P.AllowDuplicateIP = true
 	cfg.P2P.ExternalAddress = externalAddress
 	cfg.Consensus.TimeoutCommit = 10 * time.Second
-	cfg.SetRoot(root)
+	cfg.SetRoot(tendermintPath)
 
 	nodeKey, err := p2p.LoadOrGenNodeKey(cfg.NodeKeyFile())
 	if err != nil {
@@ -55,19 +68,63 @@ func NewNode(root, seeds, externalAddress string, validatorPukKey config.PubKeyE
 
 	me := privval.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile())
 
-	// init app
-	db := db.NewMemDB()
-	logger := logger.TendermintLogger()
-	app := app.NewNameServiceApp(logger, db)
-
-	appState, err := app.ExportInitialAppState()
+	kb, err := keybase.NewKeyBaseFromDir(filepath.Join(cosmosPath, "keybase"))
 	if err != nil {
 		return nil, err
 	}
-	logrus.WithField("state", string(appState)).Info("state")
+	// read entropy seed straight from crypto.Rand and convert to mnemonic
+	mnemonicEntropySize := 256
+	entropySeed, err := bip39.NewEntropy(mnemonicEntropySize)
+	if err != nil {
+		return nil, err
+	}
+	mnemonic, err := bip39.NewMnemonic(entropySeed[:])
+	if err != nil {
+		return nil, err
+	}
+	account, err := kb.Get(accountName)
+	if keyerror.IsErrKeyNotFound(err) {
+		account, err = kb.CreateAccount(accountName, mnemonic, "", accountPassword, 0, 0)
+		if err != nil {
+			return nil, err
+		}
+	} else if err != nil {
+		return nil, err
+	}
+	logrus.WithField("account", account).Info("account")
+
+	// init app
+	db, err := db.NewGoLevelDB("app", cosmosPath)
+	if err != nil {
+		return nil, err
+	}
+	logger := logger.TendermintLogger()
+	app := app.NewNameServiceApp(logger, db)
+
+	appState := app.ExportInitialAppState()
+	state, _ := json.Marshal(appState)
+	logrus.WithField("state", string(state)).Info("state initial")
+
+	// create account
+	genAcc := genaccounts.NewGenesisAccountRaw(
+		account.GetAddress(),
+		sdktypes.NewCoins(sdktypes.NewCoin("stake", sdktypes.NewInt(100000000))),
+		sdktypes.NewCoins(),
+		0,
+		0,
+		"",
+		"",
+	)
+	if err := genAcc.Validate(); err != nil {
+		return nil, err
+	}
+	appState[genaccounts.ModuleName] = app.GetCodec().MustMarshalJSON(genaccounts.GenesisState([]genaccounts.GenesisAccount{genAcc}))
+
+	state, _ = json.Marshal(appState)
+	logrus.WithField("state", string(state)).Info("state with account")
 
 	// gen validator tx
-	msg, err := newValidatorTx(validatorPukKey)
+	msg, err := newValidatorTx(account, validatorPukKey)
 	if err != nil {
 		return nil, err
 	}
@@ -88,14 +145,22 @@ func NewNode(root, seeds, externalAddress string, validatorPukKey config.PubKeyE
 		sdktypes.NewCoins(),
 		gasPrices,
 	)
-	signedTx, err := txBldr.SignStdTx("bob", "1", stdTx, true)
+	txBldr = txBldr.WithKeybase(kb)
+	signedTx, err := txBldr.SignStdTx(accountName, accountPassword, stdTx, false)
 	if err != nil {
 		return nil, err
 	}
 	logrus.WithField("signedTx", signedTx).Info("signed tx")
 
+	appState, err = genutil.SetGenTxsInAppGenesisState(app.GetCodec(), appState, []authtypes.StdTx{signedTx})
+	if err != nil {
+		return nil, err
+	}
 	// appMessage, err := genutil.GenAppStateFromConfig(cdc, config, initCfg, *genDoc, genAccIterator)
 	// logrus.WithField("appMessage", appMessage).Info()
+
+	state, _ = json.Marshal(appState)
+	logrus.WithField("state", string(state)).Info("state with genutils")
 
 	return node.NewNode(cfg,
 		me,
@@ -108,22 +173,19 @@ func NewNode(root, seeds, externalAddress string, validatorPukKey config.PubKeyE
 	)
 }
 
-func genesisLoader(appState json.RawMessage) func() (*types.GenesisDoc, error) {
+func genesisLoader(appState map[string]json.RawMessage) func() (*types.GenesisDoc, error) {
 	return func() (*types.GenesisDoc, error) {
+		appStateEncoded, err := json.Marshal(appState)
+		if err != nil {
+			return nil, err
+		}
 		genesis := &types.GenesisDoc{
 			GenesisTime:     time.Date(2019, 8, 8, 0, 0, 0, 0, time.UTC),
 			ChainID:         chainId,
 			ConsensusParams: types.DefaultConsensusParams(),
-			Validators:      []types.GenesisValidator{
-				// 	{
-				// 	Address: validator.Address(),
-				// 	PubKey:  validator,
-				// 	Power:   1,
-				// 	Name:    "validator",
-				// }
-			},
-			// AppState: []byte("{}"),
-			AppState: appState,
+			// Validators:      []types.GenesisValidator{
+			// },
+			AppState: appStateEncoded,
 		}
 		if err := genesis.ValidateAndComplete(); err != nil {
 			return nil, err
@@ -132,7 +194,7 @@ func genesisLoader(appState json.RawMessage) func() (*types.GenesisDoc, error) {
 	}
 }
 
-func newValidatorTx(validatorPukKey config.PubKeyEd25519) (sdktypes.Msg, error) {
+func newValidatorTx(account keys.Info, validatorPukKey config.PubKeyEd25519) (sdktypes.Msg, error) {
 	emptyReturn := stakingtypes.MsgCreateValidator{}
 	// default value see github.com/cosmos/cosmos-sdk@v0.36.0-rc1/x/staking/client/cli/tx.go
 
@@ -165,8 +227,10 @@ func newValidatorTx(validatorPukKey config.PubKeyEd25519) (sdktypes.Msg, error) 
 	}
 	commissionRates := stakingtypes.NewCommissionRates(rate, maxRate, maxChangeRate)
 
+	logrus.WithField("validator", validator).WithField("address", validator.Address()).Info("validator")
+
 	msg := stakingtypes.NewMsgCreateValidator(
-		sdktypes.ValAddress(validator.Address()),
+		sdktypes.ValAddress(account.GetAddress()),
 		validator,
 		amount,
 		description,

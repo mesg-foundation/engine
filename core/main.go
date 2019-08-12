@@ -158,7 +158,7 @@ func main() {
 
 	// create tendermint node
 	node, err := tendermint.NewNode(
-		filepath.Join(cfg.Path, cfg.Tendermint.Path),
+		cfg.Path,
 		cfg.Tendermint.P2P.Seeds,
 		cfg.Tendermint.P2P.ExternalAddress,
 		cfg.Tendermint.ValidatorPubKey,
