@@ -6,11 +6,13 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+	"time"
 
 	"github.com/kelseyhightower/envconfig"
 	"github.com/mesg-foundation/engine/x/xstrings"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
+	"github.com/tendermint/tendermint/config"
 	"github.com/tendermint/tendermint/crypto/ed25519"
 )
 
@@ -51,12 +53,9 @@ type Config struct {
 	}
 
 	Tendermint struct {
+		*config.Config
 		Path            string
 		ValidatorPubKey PubKeyEd25519
-		P2P             struct {
-			Seeds           string
-			ExternalAddress string
-		}
 	}
 
 	SystemServices []*ServiceConfig
@@ -81,6 +80,10 @@ func New() (*Config, error) {
 	c.Database.ExecutionRelativePath = filepath.Join("database", "executions", executionDBVersion)
 	c.Database.WorkflowRelativePath = filepath.Join("database", "workflows", workflowDBVersion)
 	c.Tendermint.Path = "tendermint"
+	c.Tendermint.Config = config.DefaultConfig()
+	c.Tendermint.Config.P2P.AddrBookStrict = false
+	c.Tendermint.Config.P2P.AllowDuplicateIP = true
+	c.Tendermint.Config.Consensus.TimeoutCommit = 10 * time.Second
 	c.setupServices()
 	return &c, nil
 }
@@ -111,7 +114,12 @@ func Global() (*Config, error) {
 
 // Load reads config from environmental variables.
 func (c *Config) Load() error {
-	return envconfig.Process(envPrefix, c)
+	if err := envconfig.Process(envPrefix, c); err != nil {
+		return err
+	}
+
+	c.Tendermint.Config.SetRoot(filepath.Join(c.Path, c.Tendermint.Path))
+	return nil
 }
 
 // Prepare setups local directories or any other required thing based on config
@@ -119,7 +127,13 @@ func (c *Config) Prepare() error {
 	if err := os.MkdirAll(c.Path, os.FileMode(0755)); err != nil {
 		return err
 	}
-	return os.MkdirAll(filepath.Join(c.Path, c.Tendermint.Path), os.FileMode(0755))
+	if err := os.MkdirAll(filepath.Join(c.Path, c.Tendermint.Path, "config"), os.FileMode(0755)); err != nil {
+		return err
+	}
+	if err := os.MkdirAll(filepath.Join(c.Path, c.Tendermint.Path, "data"), os.FileMode(0755)); err != nil {
+		return err
+	}
+	return nil
 }
 
 // Validate checks values and return an error if any validation failed.
