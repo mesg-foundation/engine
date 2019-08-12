@@ -309,10 +309,8 @@ func (app *nameServiceApp) ExportAppStateAndValidators(forZeroHeight bool, jailW
 	return appState, validators, nil
 }
 
-func (app *nameServiceApp) ExportInitialAppState() (json.RawMessage, error) {
-	// as if they could withdraw from the start of the next block
-	genState := ModuleBasics.DefaultGenesis()
-	return json.Marshal(genState)
+func (app *nameServiceApp) ExportInitialAppState() map[string]json.RawMessage {
+	return ModuleBasics.DefaultGenesis()
 	// return codec.MarshalJSONIndent(app.cdc, genState)
 }
 
