@@ -136,6 +136,7 @@ func (c *Config) Validate() error {
 // PubKeyEd25519 is type used to parse value provided by envconfig.
 type PubKeyEd25519 ed25519.PubKeyEd25519
 
+// Decode parses string value as hex ed25519 key.
 func (key *PubKeyEd25519) Decode(value string) error {
 	if value == "" {
 		return fmt.Errorf("validator public key is empty")
