@@ -69,8 +69,7 @@ func New() (*Config, error) {
 	c.Database.InstanceRelativePath = filepath.Join("database", "instance", instanceDBVersion)
 	c.Database.ExecutionRelativePath = filepath.Join("database", "executions", executionDBVersion)
 	c.Database.WorkflowRelativePath = filepath.Join("database", "workflows", workflowDBVersion)
-	c.setupServices()
-	return &c, nil
+	return &c, c.setupServices()
 }
 
 // Global returns a singleton of a Config after loaded ENV and validate the values.
