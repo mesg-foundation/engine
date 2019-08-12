@@ -50,7 +50,7 @@ func (s *Server) Serve(address string) error {
 		)),
 	)
 	s.register()
-	logrus.Info("server listens on ", ln.Addr())
+	logrus.WithField("module", "grpc").Info("server listens on ", ln.Addr())
 	return s.instance.Serve(ln)
 }
 
