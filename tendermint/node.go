@@ -126,7 +126,7 @@ func genesisLoader(appState json.RawMessage) func() (*types.GenesisDoc, error) {
 			AppState: appState,
 		}
 		if err := genesis.ValidateAndComplete(); err != nil {
-			panic(err)
+			return nil, err
 		}
 		return genesis, nil
 	}
