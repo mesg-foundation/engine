@@ -23,7 +23,7 @@ var (
 	mainStoreKey = sdk.NewKVStoreKey(baseapp.MainStoreKey)
 )
 
-// custom tx codec
+// MakeCodec returns a new codec for the app.
 func MakeCodec() *codec.Codec {
 	var cdc = codec.New()
 	ModuleBasics.RegisterCodec(cdc)
@@ -32,7 +32,7 @@ func MakeCodec() *codec.Codec {
 	return cdc
 }
 
-// Extended ABCI application
+// App is the struct that implements a dead simple Extended ABCI application.
 type App struct {
 	*bam.BaseApp
 	cdc *codec.Codec
@@ -41,8 +41,8 @@ type App struct {
 	mm *module.Manager
 }
 
-// New returns a reference to an initialized App.
-func New(logger log.Logger, db dbm.DB) (*App, *codec.Codec) {
+// New returns a reference to an initialized empty App.
+func New(logger log.Logger, db dbm.DB) *App {
 	cdc := MakeCodec()
 
 	bApp := bam.NewBaseApp(appName, logger, db, auth.DefaultTxDecoder(cdc))
@@ -58,5 +58,5 @@ func New(logger log.Logger, db dbm.DB) (*App, *codec.Codec) {
 	app.MountStores(mainStoreKey)
 	app.LoadLatestVersion(mainStoreKey)
 
-	return app, cdc
+	return app
 }
