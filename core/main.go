@@ -194,12 +194,9 @@ func main() {
 	}()
 
 	logrus.WithField("seeds", cfg.Tendermint.P2P.Seeds).Info("starting tendermint node")
-	go func() {
-		if err := node.Start(); err != nil {
-			logrus.Fatalln(err)
-		}
-		select {}
-	}()
+	if err := node.Start(); err != nil {
+		logrus.Fatalln(err)
+	}
 
 	logrus.Info("starting workflow engine")
 	s := scheduler.New(dep.sdk.Event, dep.sdk.Execution, dep.sdk.Workflow)
