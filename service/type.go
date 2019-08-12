@@ -66,7 +66,7 @@ type Service struct {
 	Dependencies []*Dependency `hash:"name:6" validate:"dive,required"`
 
 	// Configuration of the service
-	Configuration *Dependency `hash:"name:8" validate:"required"`
+	Configuration *Configuration `hash:"name:8" validate:"required"`
 
 	// Repository holds the service's repository url if it's living on
 	// a Git host.
@@ -76,32 +76,38 @@ type Service struct {
 	Source string `hash:"name:9" validate:"required,printascii"`
 }
 
+// Configuration represents the main Docker container and it holds instructions about
+// how it should run. Similar to Dependency.
+type Configuration struct {
+	// Volumes are the Docker volumes.
+	Volumes []string `hash:"name:1" validate:"unique,dive,printascii"`
+
+	// VolumesFrom are the docker volumes-from from.
+	VolumesFrom []string `hash:"name:2" validate:"unique,dive,printascii"`
+
+	// Ports holds ports configuration for container.
+	Ports []string `hash:"name:3" validate:"unique,dive,portmap"`
+
+	// Command is the Docker command which will be executed when container started.
+	Command string `hash:"name:4" validate:"printascii"`
+
+	// Argument holds the args to pass to the Docker container
+	Args []string `hash:"name:5" validate:"dive,printascii"`
+
+	// Env is a slice of environment variables in key=value format.
+	Env []string `hash:"name:6" validate:"unique,dive,env"`
+}
+
 // Dependency represents a Docker container and it holds instructions about
 // how it should run.
 type Dependency struct {
+	*Configuration
+
 	// Key is the key of dependency.
-	Key string `hash:"name:1" validate:"printascii"`
+	Key string `hash:"name:d1" validate:"printascii"`
 
 	// Image is the Docker image.
-	Image string `hash:"name:2" validate:"printascii"`
-
-	// Volumes are the Docker volumes.
-	Volumes []string `hash:"name:3" validate:"unique,dive,printascii"`
-
-	// VolumesFrom are the docker volumes-from from.
-	VolumesFrom []string `hash:"name:4" validate:"unique,dive,printascii"`
-
-	// Ports holds ports configuration for container.
-	Ports []string `hash:"name:5" validate:"unique,dive,portmap"`
-
-	// Command is the Docker command which will be executed when container started.
-	Command string `hash:"name:6" validate:"printascii"`
-
-	// Argument holds the args to pass to the Docker container
-	Args []string `hash:"name:7" validate:"dive,printascii"`
-
-	// Env is a slice of environment variables in key=value format.
-	Env []string `hash:"name:8" validate:"unique,dive,env"`
+	Image string `hash:"name:d2" validate:"printascii"`
 }
 
 // Task describes a service task.

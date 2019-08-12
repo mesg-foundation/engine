@@ -63,7 +63,6 @@ func (c *Config) createServiceConfig(key string, compilatedJSON string, env map[
 	if err := json.Unmarshal([]byte(compilatedJSON), &srv); err != nil {
 		return nil, err
 	}
-	srv.Configuration.Key = service.MainServiceKey
 	return &ServiceConfig{
 		Key:        key,
 		Definition: &srv,
