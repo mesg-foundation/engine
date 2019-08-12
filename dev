@@ -57,7 +57,7 @@ function docker_service_remove {
 }
 
 function docker_network_exist {
-  [[ ! -z $(docker network list -f name="^$1$" -f driver=overlay -q) ]]
+  [[ ! -z $(docker network list -f name="$1" -f driver=overlay -q) ]]
 }
 
 function docker_network_create {
