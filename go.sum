@@ -195,6 +195,7 @@ github.com/kr/text v0.1.0 h1:45sCR5RtlFHMR4UwH9sdQ5TC8v0qDQCHnXt+kaKSTVE=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
 github.com/leodido/go-urn v1.1.0 h1:Sm1gr51B1kKyfD2BlRcLSiEkffoG96g6TPv6eRoEiB8=
 github.com/leodido/go-urn v1.1.0/go.mod h1:+cyI34gQWZcE1eQU7NVgKkkzdXDQHr1dBMtdAPozLkw=
+github.com/libp2p/go-buffer-pool v0.0.1/go.mod h1:xtyIz9PMobb13WaxR6Zo1Pd1zXJKYg0a8KiIvDp3TzQ=
 github.com/lyft/protoc-gen-validate v0.1.0 h1:NytKd9K7UW7Szxn+9PYNsaJ/98TL/WsDq4ro4ZVuh5o=
 github.com/lyft/protoc-gen-validate v0.1.0/go.mod h1:XbGvPuh87YZc5TdIa2/I4pLk0QoUACkjt2znoq26NVQ=
 github.com/magiconair/properties v1.8.0 h1:LLgXmsheXeRoUOBOjtwPQCWIYqM/LU1ayDtDePerRcY=
@@ -340,6 +341,9 @@ github.com/tendermint/iavl v0.12.3-0.20190712145259-c834d3192b52/go.mod h1:A9IoW
 github.com/tendermint/tendermint v0.31.7/go.mod h1:ymcPyWblXCplCPQjbOYbrF1fWnpslATMVqiGgWbZrlc=
 github.com/tendermint/tendermint v0.32.1 h1:J8ddXMbCmG6GZjdCl/N1wgdXDU9uO91J2Y5CA9xYfGo=
 github.com/tendermint/tendermint v0.32.1/go.mod h1:jmPDAKuNkev9793/ivn/fTBnfpA9mGBww8MPRNPNxnU=
+github.com/tendermint/tendermint v0.32.2 h1:FvZWdksfDg/65vKKr5Lgo57keARFnmhrUEXHwyrV1QY=
+github.com/tendermint/tendermint v0.32.2/go.mod h1:NwMyx58S8VJ7tEpFKqRVlVWKO9N9zjTHu+Dx96VsnOE=
+github.com/tendermint/tm-db v0.1.1/go.mod h1:0cPKWu2Mou3IlxecH+MEUSYc1Ch537alLe6CpFrKzgw=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
 github.com/ugorji/go v1.1.4/go.mod h1:uQMGLiO92mf5W77hV/PUCpI3pbzQx3CRekS0kk+RGrc=
 github.com/ugorji/go/codec v0.0.0-20181204163529-d75b2dcb6bc8/go.mod h1:VFNgLljTbGfSG7qAOspJ7OScBnGdDN/yBr0sguwnwf0=

@@ -65,7 +65,7 @@ require (
 	github.com/stretchr/objx v0.2.0 // indirect
 	github.com/stretchr/testify v1.3.0
 	github.com/syndtr/goleveldb v1.0.1-0.20190318030020-c3a204f8e965
-	github.com/tendermint/tendermint v0.32.1
+	github.com/tendermint/tendermint v0.32.2
 	github.com/vektra/mockery v0.0.0-20181123154057-e78b021dcbb5
 	github.com/xanzy/ssh-agent v0.2.1 // indirect
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4 // indirect
