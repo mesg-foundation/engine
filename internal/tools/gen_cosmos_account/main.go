@@ -6,7 +6,7 @@ import (
 	"log"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
-	"github.com/cosmos/go-bip39"
+	bip39 "github.com/cosmos/go-bip39"
 	"github.com/tendermint/tendermint/crypto/secp256k1"
 )
 
@@ -31,7 +31,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	mnemonic, err := bip39.NewMnemonic(entropySeed[:])
+	mnemonic, err := bip39.NewMnemonic(entropySeed)
 	if err != nil {
 		log.Fatalln(err)
 	}

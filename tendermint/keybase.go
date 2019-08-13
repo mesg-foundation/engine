@@ -3,26 +3,27 @@ package tendermint
 import (
 	clientkey "github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
-	"github.com/cosmos/go-bip39"
+	bip39 "github.com/cosmos/go-bip39"
 )
 
 const mnemonicEntropySize = 256
 
-type keybase struct {
+// Keybase is a standard cosmos keybase.
+type Keybase struct {
 	keys.Keybase
 }
 
-// NewFSKeybas initializes a filesystem keybase at a particular dir.
-func NewFSKeybase(dir string) (*keybase, error) {
+// NewFSKeybase initializes a filesystem keybase at a particular dir.
+func NewFSKeybase(dir string) (*Keybase, error) {
 	kb, err := clientkey.NewKeyBaseFromDir(dir)
 	if err != nil {
 		return nil, err
 	}
-	return &keybase{kb}, nil
+	return &Keybase{kb}, nil
 }
 
-// CreateAccount creates an account.
-func (kb *keybase) GenerateAccount(name, mnemonic, password string) (keys.Info, error) {
+// GenerateAccount creates an account.
+func (kb *Keybase) GenerateAccount(name, mnemonic, password string) (keys.Info, error) {
 	// read entropy seed straight from crypto.Rand and convert to mnemonic
 	entropySeed, err := bip39.NewEntropy(mnemonicEntropySize)
 	if err != nil {
@@ -30,7 +31,7 @@ func (kb *keybase) GenerateAccount(name, mnemonic, password string) (keys.Info, 
 	}
 
 	if mnemonic == "" {
-		mnemonic, err = bip39.NewMnemonic(entropySeed[:])
+		mnemonic, err = bip39.NewMnemonic(entropySeed)
 		if err != nil {
 			return nil, err
 		}
