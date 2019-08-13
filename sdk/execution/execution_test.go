@@ -91,7 +91,7 @@ var testInstance = &instance.Instance{
 func TestGet(t *testing.T) {
 	sdk, at := newTesting(t)
 	defer at.close()
-	exec := execution.New(nil, nil, nil, nil, "", nil, nil)
+	exec := execution.New(nil, nil, nil, nil, "", "", nil, nil)
 	require.NoError(t, sdk.execDB.Save(exec))
 	got, err := sdk.Get(exec.Hash)
 	require.NoError(t, err)
@@ -102,7 +102,7 @@ func TestGetStream(t *testing.T) {
 	sdk, at := newTesting(t)
 	defer at.close()
 
-	exec := execution.New(nil, nil, nil, nil, "", nil, nil)
+	exec := execution.New(nil, nil, nil, nil, "", "", nil, nil)
 	exec.Status = execution.InProgress
 
 	require.NoError(t, sdk.execDB.Save(exec))
@@ -123,11 +123,11 @@ func TestExecute(t *testing.T) {
 	require.NoError(t, at.serviceDB.Save(testService))
 	require.NoError(t, at.instanceDB.Save(testInstance))
 
-	_, err := sdk.Execute(nil, testInstance.Hash, hash.Int(1), nil, testService.Tasks[0].Key, map[string]interface{}{}, nil)
+	_, err := sdk.Execute(nil, testInstance.Hash, hash.Int(1), nil, "", testService.Tasks[0].Key, map[string]interface{}{}, nil)
 	require.NoError(t, err)
 
 	// not existing instance
-	_, err = sdk.Execute(nil, hash.Int(3), hash.Int(1), nil, testService.Tasks[0].Key, map[string]interface{}{}, nil)
+	_, err = sdk.Execute(nil, hash.Int(3), hash.Int(1), nil, "", testService.Tasks[0].Key, map[string]interface{}{}, nil)
 	require.Error(t, err)
 }
 
@@ -137,7 +137,7 @@ func TestExecuteInvalidTaskKey(t *testing.T) {
 
 	require.NoError(t, at.serviceDB.Save(testService))
 
-	_, err := sdk.Execute(nil, testService.Hash, hash.Int(1), nil, "-", map[string]interface{}{}, nil)
+	_, err := sdk.Execute(nil, testService.Hash, hash.Int(1), nil, "", "-", map[string]interface{}{}, nil)
 	require.Error(t, err)
 }
 
