@@ -33,7 +33,7 @@ const (
 )
 
 // NewNode retruns new tendermint node that runs the app.
-func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig, validatorPubKey config.PubKeyEd25519) (*node.Node, error) {
+func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error) {
 	nodeKey, err := p2p.LoadOrGenNodeKey(cfg.NodeKeyFile())
 	if err != nil {
 		return nil, err
@@ -62,7 +62,7 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig, validatorPubKey co
 	app, cdc := app.NewNameServiceApp(logger, db)
 
 	// build a message to create validator
-	msg := newMsgCreateValidator(sdktypes.ValAddress(account.GetAddress()), ed25519.PubKeyEd25519(validatorPubKey))
+	msg := newMsgCreateValidator(sdktypes.ValAddress(account.GetAddress()), ed25519.PubKeyEd25519(ccfg.ValidatorPubKey))
 	logrus.WithField("msg", msg).Info("validator tx")
 
 	// sign the message

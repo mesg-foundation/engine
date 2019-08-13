@@ -54,8 +54,7 @@ type Config struct {
 
 	Tendermint struct {
 		*tmconfig.Config
-		Path            string `ignored:"true"`
-		ValidatorPubKey PubKeyEd25519
+		Path string `ignored:"true"`
 	}
 
 	Cosmos CosmosConfig
@@ -64,7 +63,8 @@ type Config struct {
 }
 
 type CosmosConfig struct {
-	Path string `ignored:"true"`
+	Path            string        `ignored:"true"`
+	ValidatorPubKey PubKeyEd25519 `split_words:"true"`
 }
 
 // New creates a new config with default values.

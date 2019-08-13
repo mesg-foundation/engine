@@ -7,6 +7,7 @@ import (
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/stretchr/testify/require"
+	"github.com/tendermint/tendermint/crypto/ed25519"
 )
 
 func TestDefaultValue(t *testing.T) {
@@ -36,6 +37,7 @@ func TestLoad(t *testing.T) {
 		"MESG_LOG_LEVEL":                      "",
 		"MESG_LOG_FORCECOLORS":                "",
 		"MESG_TENDERMINT_P2P_PERSISTENTPEERS": "",
+		"MESG_COSMOS_VALIDATOR_PUB_KEY":       "",
 	}
 	for key := range snapsnot {
 		snapsnot[key] = os.Getenv(key)
@@ -51,6 +53,7 @@ func TestLoad(t *testing.T) {
 	os.Setenv("MESG_LOG_LEVEL", "test_log_level")
 	os.Setenv("MESG_LOG_FORCECOLORS", "true")
 	os.Setenv("MESG_TENDERMINT_P2P_PERSISTENTPEERS", "localhost")
+	os.Setenv("MESG_COSMOS_VALIDATOR_PUB_KEY", "0000000000000000000000000000000000000000000000000000000000000001")
 
 	c, _ := New()
 	c.Load()
@@ -59,6 +62,7 @@ func TestLoad(t *testing.T) {
 	require.Equal(t, "test_log_level", c.Log.Level)
 	require.Equal(t, true, c.Log.ForceColors)
 	require.Equal(t, "localhost", c.Tendermint.P2P.PersistentPeers)
+	require.Equal(t, "PubKeyEd25519{0000000000000000000000000000000000000000000000000000000000000001}", ed25519.PubKeyEd25519(c.Cosmos.ValidatorPubKey).String())
 }
 
 func TestValidate(t *testing.T) {
