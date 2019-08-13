@@ -12,8 +12,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genaccounts"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/mesg-foundation/engine/logger"
 	"github.com/mesg-foundation/engine/config"
+	"github.com/mesg-foundation/engine/logger"
 	"github.com/mesg-foundation/engine/tendermint/app"
 	"github.com/sirupsen/logrus"
 	tmconfig "github.com/tendermint/tendermint/config"
@@ -110,7 +110,8 @@ func NewNode(cfg *tmconfig.Config, rootPath string, validatorPubKey config.PubKe
 func createAppState(cdc *codec.Codec, address sdktypes.AccAddress, signedStdTx authtypes.StdTx) (map[string]json.RawMessage, error) {
 	appState := app.ModuleBasics.DefaultGenesis()
 
-	genAcc := genaccounts.NewGenesisAccountRaw(address, sdktypes.NewCoins(), sdktypes.NewCoins(), 0, 0, "", "")
+	stakes := sdktypes.NewCoin(sdktypes.DefaultBondDenom, sdktypes.NewInt(100000000))
+	genAcc := genaccounts.NewGenesisAccountRaw(address, sdktypes.NewCoins(stakes), sdktypes.NewCoins(), 0, 0, "", "")
 	if err := genAcc.Validate(); err != nil {
 		return nil, err
 	}
@@ -146,7 +147,7 @@ func newMsgCreateValidator(valAddr sdktypes.ValAddress, validatorPubKey ed25519.
 	return stakingtypes.NewMsgCreateValidator(
 		valAddr,
 		validatorPubKey,
-		sdktypes.NewCoin(sdktypes.DefaultBondDenom, sdktypes.NewInt(0)),
+		sdktypes.NewCoin(sdktypes.DefaultBondDenom, sdktypes.TokensFromConsensusPower(100)),
 		stakingtypes.Description{
 			Moniker: accountName,
 			Details: "create-first-validator",
