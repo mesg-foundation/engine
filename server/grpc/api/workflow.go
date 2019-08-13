@@ -25,16 +25,17 @@ func (s *WorkflowServer) Create(ctx context.Context, req *api.CreateWorkflowRequ
 	wf, err := fromProtoWorkflow(&types.Workflow{
 		Key:     req.Key,
 		Trigger: req.Trigger,
-		Tasks:   req.Tasks,
+		Nodes:   req.Nodes,
+		Edges:   req.Edges,
 	})
 	if err != nil {
 		return nil, err
 	}
-	srv, err := s.sdk.Workflow.Create(wf)
+	wf, err = s.sdk.Workflow.Create(wf)
 	if err != nil {
 		return nil, err
 	}
-	return &api.CreateWorkflowResponse{Hash: srv.Hash.String()}, nil
+	return &api.CreateWorkflowResponse{Hash: wf.Hash.String()}, nil
 }
 
 // Delete deletes service by hash or sid.
@@ -89,19 +90,31 @@ func fromProtoFilters(filters []*types.Workflow_Trigger_Filter) []*workflow.Trig
 	return fs
 }
 
-func fromProtoWorkflowTasks(tasks []*types.Workflow_Task) ([]*workflow.Task, error) {
-	res := make([]*workflow.Task, len(tasks))
-	for i, task := range tasks {
-		instanceHash, err := hash.Decode(task.InstanceHash)
+func fromProtoWorkflowNodes(nodes []*types.Workflow_Node) ([]workflow.Node, error) {
+	res := make([]workflow.Node, len(nodes))
+	for i, node := range nodes {
+		instanceHash, err := hash.Decode(node.InstanceHash)
 		if err != nil {
 			return nil, err
 		}
-		res[i] = &workflow.Task{
+		res[i] = workflow.Node{
+			Key:          node.Key,
 			InstanceHash: instanceHash,
-			TaskKey:      task.TaskKey,
+			TaskKey:      node.TaskKey,
 		}
 	}
 	return res, nil
+}
+
+func fromProtoWorkflowEdges(edges []*types.Workflow_Edge) []workflow.Edge {
+	res := make([]workflow.Edge, len(edges))
+	for i, edge := range edges {
+		res[i] = workflow.Edge{
+			Src: edge.Src,
+			Dst: edge.Dst,
+		}
+	}
+	return res
 }
 
 func fromProtoWorkflow(wf *types.Workflow) (*workflow.Workflow, error) {
@@ -116,19 +129,21 @@ func fromProtoWorkflow(wf *types.Workflow) (*workflow.Workflow, error) {
 	if err != nil {
 		return nil, err
 	}
-	tasks, err := fromProtoWorkflowTasks(wf.Tasks)
+	nodes, err := fromProtoWorkflowNodes(wf.Nodes)
 	if err != nil {
 		return nil, err
 	}
 	return &workflow.Workflow{
 		Key: wf.Key,
-		Trigger: &workflow.Trigger{
+		Trigger: workflow.Trigger{
 			Type:         triggerType,
 			InstanceHash: instanceHash,
 			Key:          wf.Trigger.Key,
+			NodeKey:      wf.Trigger.NodeKey,
 			Filters:      fromProtoFilters(wf.Trigger.Filters),
 		},
-		Tasks: tasks,
+		Nodes: nodes,
+		Edges: fromProtoWorkflowEdges(wf.Edges),
 	}, nil
 }
 
@@ -149,12 +164,24 @@ func toProtoFilters(filters []*workflow.TriggerFilter) []*types.Workflow_Trigger
 	return fs
 }
 
-func toProtoWorkflowTasks(tasks []*workflow.Task) []*types.Workflow_Task {
-	res := make([]*types.Workflow_Task, len(tasks))
-	for i, task := range tasks {
-		res[i] = &types.Workflow_Task{
-			InstanceHash: task.InstanceHash.String(),
-			TaskKey:      task.TaskKey,
+func toProtoWorkflowNodes(nodes []workflow.Node) []*types.Workflow_Node {
+	res := make([]*types.Workflow_Node, len(nodes))
+	for i, node := range nodes {
+		res[i] = &types.Workflow_Node{
+			Key:          node.Key,
+			InstanceHash: node.InstanceHash.String(),
+			TaskKey:      node.TaskKey,
+		}
+	}
+	return res
+}
+
+func toProtoWorkflowEdges(edges []workflow.Edge) []*types.Workflow_Edge {
+	res := make([]*types.Workflow_Edge, len(edges))
+	for i, edge := range edges {
+		res[i] = &types.Workflow_Edge{
+			Src: edge.Src,
+			Dst: edge.Dst,
 		}
 	}
 	return res
@@ -176,8 +203,10 @@ func toProtoWorkflow(wf *workflow.Workflow) *types.Workflow {
 			InstanceHash: wf.Trigger.InstanceHash.String(),
 			Key:          wf.Trigger.Key,
 			Filters:      toProtoFilters(wf.Trigger.Filters),
+			NodeKey:      wf.Trigger.NodeKey,
 		},
-		Tasks: toProtoWorkflowTasks(wf.Tasks),
+		Nodes: toProtoWorkflowNodes(wf.Nodes),
+		Edges: toProtoWorkflowEdges(wf.Edges),
 	}
 }
 
