@@ -84,3 +84,88 @@ func TestMatch(t *testing.T) {
 		assert.Equal(t, test.match, match, i)
 	}
 }
+
+func TestValidateWorkflow(t *testing.T) {
+
+	trigger := Trigger{
+		InstanceHash: hash.Int(2),
+		Key:          "-",
+		Type:         RESULT,
+		NodeKey:      "nodeKey1",
+	}
+
+	nodes := []Node{
+		{
+			Key:          "nodeKey1",
+			InstanceHash: hash.Int(2),
+			TaskKey:      "-",
+		},
+		{
+			Key:          "nodeKey2",
+			InstanceHash: hash.Int(3),
+			TaskKey:      "-",
+		},
+	}
+
+	edges := []Edge{
+		{
+			Src: "nodeKey1",
+			Dst: "nodeKey2",
+		},
+	}
+
+	var tests = []struct {
+		w     *Workflow
+		valid bool
+		err   string
+	}{
+		{w: &Workflow{
+			Hash: hash.Int(1),
+			Key:  "invalid-struct",
+		}, err: "Error:Field validation"},
+		{w: &Workflow{
+			Hash:    hash.Int(1),
+			Key:     "trigger-missing-node",
+			Trigger: trigger,
+		}, err: "node \"nodeKey1\" not found"},
+		{w: &Workflow{
+			Hash:    hash.Int(1),
+			Key:     "trigger-valid-node",
+			Trigger: trigger,
+			Nodes:   nodes,
+		}, valid: true},
+		{w: &Workflow{
+			Hash:    hash.Int(1),
+			Key:     "edge-src-missing-node",
+			Trigger: trigger,
+			Nodes:   nodes,
+			Edges: []Edge{
+				{Src: "-", Dst: "nodeKey2"},
+			},
+		}, err: "node \"-\" not found"},
+		{w: &Workflow{
+			Hash:    hash.Int(1),
+			Key:     "edge-dst-missing-node",
+			Trigger: trigger,
+			Nodes:   nodes,
+			Edges: []Edge{
+				{Src: "nodeKey1", Dst: "-"},
+			},
+		}, err: "node \"-\" not found"},
+		{w: &Workflow{
+			Hash:    hash.Int(1),
+			Key:     "valid-edges",
+			Trigger: trigger,
+			Nodes:   nodes,
+			Edges:   edges,
+		}, valid: true},
+	}
+	for _, test := range tests {
+		err := test.w.Validate()
+		if test.valid {
+			assert.Nil(t, err)
+		} else {
+			assert.Contains(t, test.w.Validate().Error(), test.err)
+		}
+	}
+}
