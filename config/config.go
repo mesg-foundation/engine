@@ -54,7 +54,7 @@ type Config struct {
 
 	Tendermint struct {
 		*tmconfig.Config
-		Path string `ignored:"true"`
+		Path string
 	}
 
 	Cosmos CosmosConfig
@@ -62,22 +62,19 @@ type Config struct {
 	SystemServices []*ServiceConfig
 }
 
+// CosmosConfig is the struct to hold cosmos related configs.
 type CosmosConfig struct {
-	Path        string `ignored:"true"`
-	ChainID     string `split_words:"true"`
+	Path        string
+	ChainID     string
 	GenesisTime time.Time
-
-	Keybase struct {
-		Path string
-	}
 
 	GenesisAccount struct {
 		Name     string
 		Password string
 		Mnemonic string
-	} `split_words:"true"`
+	}
 
-	ValidatorPubKey PubKeyEd25519 `split_words:"true"`
+	ValidatorPubKey PubKeyEd25519
 }
 
 // New creates a new config with default values.
@@ -100,14 +97,10 @@ func New() (*Config, error) {
 	c.Database.ExecutionRelativePath = filepath.Join("database", "executions", executionDBVersion)
 	c.Database.WorkflowRelativePath = filepath.Join("database", "workflows", workflowDBVersion)
 
-	c.Tendermint.Path = filepath.Join(c.Path, "tendermint")
 	c.Tendermint.Config = tmconfig.DefaultConfig()
 	c.Tendermint.Config.P2P.AddrBookStrict = false
 	c.Tendermint.Config.P2P.AllowDuplicateIP = true
 	c.Tendermint.Config.Consensus.TimeoutCommit = 10 * time.Second
-
-	c.Cosmos.Path = filepath.Join(c.Path, "cosmos")
-	c.Cosmos.Keybase.Path = filepath.Join(c.Cosmos.Path, "keybase")
 
 	return &c, c.setupServices()
 }
@@ -141,6 +134,9 @@ func (c *Config) Load() error {
 	if err := envconfig.Process(envPrefix, c); err != nil {
 		return err
 	}
+
+	c.Tendermint.Path = filepath.Join(c.Path, "tendermint")
+	c.Cosmos.Path = filepath.Join(c.Path, "cosmos")
 
 	c.Tendermint.SetRoot(c.Tendermint.Path)
 	return nil
