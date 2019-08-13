@@ -31,10 +31,11 @@ func TestGlobal(t *testing.T) {
 
 func TestLoad(t *testing.T) {
 	snapsnot := map[string]string{
-		"MESG_SERVER_ADDRESS":  "",
-		"MESG_LOG_FORMAT":      "",
-		"MESG_LOG_LEVEL":       "",
-		"MESG_LOG_FORCECOLORS": "",
+		"MESG_SERVER_ADDRESS":                 "",
+		"MESG_LOG_FORMAT":                     "",
+		"MESG_LOG_LEVEL":                      "",
+		"MESG_LOG_FORCECOLORS":                "",
+		"MESG_TENDERMINT_P2P_PERSISTENTPEERS": "",
 	}
 	for key := range snapsnot {
 		snapsnot[key] = os.Getenv(key)
@@ -49,12 +50,15 @@ func TestLoad(t *testing.T) {
 	os.Setenv("MESG_LOG_FORMAT", "test_log_format")
 	os.Setenv("MESG_LOG_LEVEL", "test_log_level")
 	os.Setenv("MESG_LOG_FORCECOLORS", "true")
+	os.Setenv("MESG_TENDERMINT_P2P_PERSISTENTPEERS", "localhost")
+
 	c, _ := New()
 	c.Load()
 	require.Equal(t, "test_server_address", c.Server.Address)
 	require.Equal(t, "test_log_format", c.Log.Format)
 	require.Equal(t, "test_log_level", c.Log.Level)
 	require.Equal(t, true, c.Log.ForceColors)
+	require.Equal(t, "localhost", c.Tendermint.P2P.PersistentPeers)
 }
 
 func TestValidate(t *testing.T) {
