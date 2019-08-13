@@ -34,6 +34,9 @@ func (w *Workflow) Validate() error {
 	if !w.isConnected(w.Trigger.NodeKey) {
 		return fmt.Errorf("non connected graph")
 	}
+	if !w.isMonoParental() {
+		return fmt.Errorf("non mono-parental graph")
+	}
 	return nil
 }
 
@@ -67,25 +70,4 @@ func (f *TriggerFilter) Match(inputs map[string]interface{}) bool {
 	default:
 		return false
 	}
-}
-
-// ChildrenIDs returns the list of node IDs with a dependency to the current node
-func (w Workflow) ChildrenIDs(nodeKey string) []string {
-	nodeKeys := make([]string, 0)
-	for _, edge := range w.Edges {
-		if edge.Src == nodeKey {
-			nodeKeys = append(nodeKeys, edge.Dst)
-		}
-	}
-	return nodeKeys
-}
-
-// FindNode returns the node matching the key in parameter or an error if not found
-func (w Workflow) FindNode(key string) (Node, error) {
-	for _, node := range w.Nodes {
-		if node.Key == key {
-			return node, nil
-		}
-	}
-	return Node{}, fmt.Errorf("node %q not found", key)
 }
