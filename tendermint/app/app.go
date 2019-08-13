@@ -3,11 +3,6 @@ package app
 import (
 	"encoding/json"
 
-	abci "github.com/tendermint/tendermint/abci/types"
-	cmn "github.com/tendermint/tendermint/libs/common"
-	dbm "github.com/tendermint/tendermint/libs/db"
-	"github.com/tendermint/tendermint/libs/log"
-
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -21,11 +16,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/supply"
-
-	"github.com/cosmos/sdk-application-tutorial/x/nameservice"
+	"github.com/mesg-foundation/engine/tendermint/app/serviceapp"
+	abci "github.com/tendermint/tendermint/abci/types"
+	cmn "github.com/tendermint/tendermint/libs/common"
+	dbm "github.com/tendermint/tendermint/libs/db"
+	"github.com/tendermint/tendermint/libs/log"
 )
 
-const appName = "nameservice"
+const appName = "serviceapp"
 
 var (
 	// ModuleBasics is in charge of setting up basic module elemnets
@@ -40,7 +38,7 @@ var (
 		slashing.AppModuleBasic{},
 		supply.AppModuleBasic{},
 
-		nameservice.AppModule{},
+		serviceapp.AppModule{},
 	)
 	// account permissions
 	maccPerms = map[string][]string{
@@ -60,7 +58,7 @@ func MakeCodec() *codec.Codec {
 	return cdc
 }
 
-type NameServiceApp struct {
+type ServiceApp struct {
 	*bam.BaseApp
 	cdc *codec.Codec
 
@@ -72,7 +70,7 @@ type NameServiceApp struct {
 	tkeyStaking *sdk.TransientStoreKey
 	keyDistr    *sdk.KVStoreKey
 	tkeyDistr   *sdk.TransientStoreKey
-	keyNS       *sdk.KVStoreKey
+	keySA       *sdk.KVStoreKey
 	keyParams   *sdk.KVStoreKey
 	tkeyParams  *sdk.TransientStoreKey
 	keySlashing *sdk.KVStoreKey
@@ -85,14 +83,14 @@ type NameServiceApp struct {
 	distrKeeper    distr.Keeper
 	supplyKeeper   supply.Keeper
 	paramsKeeper   params.Keeper
-	nsKeeper       nameservice.Keeper
+	saKeeper       serviceapp.Keeper
 
 	// Module Manager
 	mm *module.Manager
 }
 
-// NewNameServiceApp is a constructor function for NameServiceApp
-func NewNameServiceApp(logger log.Logger, db dbm.DB) (*NameServiceApp, *codec.Codec) {
+// NewServiceApp is a constructor function for ServiceApp
+func NewServiceApp(logger log.Logger, db dbm.DB) *ServiceApp {
 
 	// First define the top level codec that will be shared by the different modules
 	cdc := MakeCodec()
@@ -101,7 +99,7 @@ func NewNameServiceApp(logger log.Logger, db dbm.DB) (*NameServiceApp, *codec.Co
 	bApp := bam.NewBaseApp(appName, logger, db, auth.DefaultTxDecoder(cdc))
 
 	// Here you initialize your application with the store keys it requires
-	var app = &NameServiceApp{
+	var app = &ServiceApp{
 		BaseApp: bApp,
 		cdc:     cdc,
 
@@ -112,7 +110,7 @@ func NewNameServiceApp(logger log.Logger, db dbm.DB) (*NameServiceApp, *codec.Co
 		tkeyStaking: sdk.NewTransientStoreKey(staking.TStoreKey),
 		keyDistr:    sdk.NewKVStoreKey(distr.StoreKey),
 		tkeyDistr:   sdk.NewTransientStoreKey(distr.TStoreKey),
-		keyNS:       sdk.NewKVStoreKey(nameservice.StoreKey),
+		keySA:       sdk.NewKVStoreKey(serviceapp.StoreKey),
 		keyParams:   sdk.NewKVStoreKey(params.StoreKey),
 		tkeyParams:  sdk.NewTransientStoreKey(params.TStoreKey),
 		keySlashing: sdk.NewKVStoreKey(slashing.StoreKey),
@@ -187,11 +185,10 @@ func NewNameServiceApp(logger log.Logger, db dbm.DB) (*NameServiceApp, *codec.Co
 			app.slashingKeeper.Hooks()),
 	)
 
-	// The NameserviceKeeper is the Keeper from the module for this tutorial
+	// The serviceKeeper is the Keeper from the module for this tutorial
 	// It handles interactions with the namestore
-	app.nsKeeper = nameservice.NewKeeper(
-		app.bankKeeper,
-		app.keyNS,
+	app.saKeeper = serviceapp.NewKeeper(
+		app.keySA,
 		app.cdc,
 	)
 
@@ -200,7 +197,7 @@ func NewNameServiceApp(logger log.Logger, db dbm.DB) (*NameServiceApp, *codec.Co
 		genutil.NewAppModule(app.accountKeeper, app.stakingKeeper, app.BaseApp.DeliverTx),
 		auth.NewAppModule(app.accountKeeper),
 		bank.NewAppModule(app.bankKeeper, app.accountKeeper),
-		nameservice.NewAppModule(app.nsKeeper, app.bankKeeper),
+		serviceapp.NewAppModule(app.saKeeper),
 		supply.NewAppModule(app.supplyKeeper, app.accountKeeper),
 		distr.NewAppModule(app.distrKeeper, app.supplyKeeper),
 		slashing.NewAppModule(app.slashingKeeper, app.stakingKeeper),
@@ -218,9 +215,12 @@ func NewNameServiceApp(logger log.Logger, db dbm.DB) (*NameServiceApp, *codec.Co
 		auth.ModuleName,
 		bank.ModuleName,
 		slashing.ModuleName,
-		nameservice.ModuleName,
+		serviceapp.ModuleName,
 		genutil.ModuleName,
 	)
+	app.Router().AddRoute("serviceapp", serviceapp.NewHandler(app.saKeeper))
+
+	app.QueryRouter().AddRoute("serviceapp", serviceapp.NewQuerier(app.saKeeper))
 
 	// register all module routes and module queriers
 	app.mm.RegisterRoutes(app.Router(), app.QueryRouter())
@@ -248,7 +248,7 @@ func NewNameServiceApp(logger log.Logger, db dbm.DB) (*NameServiceApp, *codec.Co
 		app.keyDistr,
 		app.tkeyDistr,
 		app.keySlashing,
-		app.keyNS,
+		app.keySA,
 		app.keyParams,
 		app.tkeyParams,
 	)
@@ -258,13 +258,13 @@ func NewNameServiceApp(logger log.Logger, db dbm.DB) (*NameServiceApp, *codec.Co
 		cmn.Exit(err.Error())
 	}
 
-	return app, cdc
+	return app
 }
 
 // GenesisState represents chain state at the start of the chain. Any initial state (account balances) are stored here.
 type GenesisState map[string]json.RawMessage
 
-func (app *NameServiceApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
+func (app *ServiceApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 	var genesisState GenesisState
 
 	err := app.cdc.UnmarshalJSON(req.AppStateBytes, &genesisState)
@@ -275,12 +275,12 @@ func (app *NameServiceApp) InitChainer(ctx sdk.Context, req abci.RequestInitChai
 	return app.mm.InitGenesis(ctx, genesisState)
 }
 
-func (app *NameServiceApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+func (app *ServiceApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	return app.mm.BeginBlock(ctx, req)
 }
-func (app *NameServiceApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
+func (app *ServiceApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 	return app.mm.EndBlock(ctx, req)
 }
-func (app *NameServiceApp) LoadHeight(height int64) error {
+func (app *ServiceApp) LoadHeight(height int64) error {
 	return app.LoadVersion(height, app.keyMain)
 }

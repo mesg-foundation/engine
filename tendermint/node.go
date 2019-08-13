@@ -15,6 +15,7 @@ import (
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/logger"
 	"github.com/mesg-foundation/engine/tendermint/app"
+	tmclient "github.com/mesg-foundation/engine/tendermint/client"
 	"github.com/sirupsen/logrus"
 	tmconfig "github.com/tendermint/tendermint/config"
 	"github.com/tendermint/tendermint/crypto/ed25519"
@@ -23,6 +24,7 @@ import (
 	"github.com/tendermint/tendermint/p2p"
 	"github.com/tendermint/tendermint/privval"
 	"github.com/tendermint/tendermint/proxy"
+	rpcclient "github.com/tendermint/tendermint/rpc/client"
 	"github.com/tendermint/tendermint/types"
 )
 
@@ -53,7 +55,8 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 	}
 
 	logger := logger.TendermintLogger()
-	app, cdc := app.NewNameServiceApp(logger, db)
+	cdc := app.MakeCodec()
+	app := app.NewServiceApp(logger, db)
 
 	// build a message to create validator
 	msg := newMsgCreateValidator(
@@ -83,7 +86,7 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 		return nil, err
 	}
 
-	return node.NewNode(cfg,
+	node, err := node.NewNode(cfg,
 		me,
 		nodeKey,
 		proxy.NewLocalClientCreator(app),
@@ -92,6 +95,21 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 		node.DefaultMetricsProvider(cfg.Instrumentation),
 		logger,
 	)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: left only for tests
+	go func() {
+		client := tmclient.New(rpcclient.NewLocal(node), cdc)
+		if services, err := client.ListServices(); err != nil {
+			logrus.Error(err)
+		} else {
+			logrus.Info(services)
+		}
+	}()
+
+	return node, nil
 }
 
 func signTransaction(cdc *codec.Codec, kb *Keybase, msg sdktypes.Msg, chainID, accountName, accountPassword string) (authtypes.StdTx, error) {
