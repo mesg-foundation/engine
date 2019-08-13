@@ -157,11 +157,7 @@ func main() {
 	logger.Init(cfg.Log.Format, cfg.Log.Level, cfg.Log.ForceColors)
 
 	// create tendermint node
-	node, err := tendermint.NewNode(
-		cfg.Tendermint.Config,
-		cfg.Tendermint.Path,
-		cfg.Tendermint.ValidatorPubKey,
-	)
+	node, err := tendermint.NewNode(cfg.Tendermint.Config, &cfg.Cosmos, cfg.Tendermint.ValidatorPubKey)
 	if err != nil {
 		logrus.Fatalln(err)
 	}

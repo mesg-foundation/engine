@@ -54,11 +54,17 @@ type Config struct {
 
 	Tendermint struct {
 		*tmconfig.Config
-		Path            string
+		Path            string `ignored:"true"`
 		ValidatorPubKey PubKeyEd25519
 	}
 
+	Cosmos CosmosConfig
+
 	SystemServices []*ServiceConfig
+}
+
+type CosmosConfig struct {
+	Path string `ignored:"true"`
 }
 
 // New creates a new config with default values.
@@ -75,15 +81,20 @@ func New() (*Config, error) {
 	c.Log.ForceColors = false
 	c.Name = "engine"
 	c.Path = filepath.Join(home, ".mesg")
+
 	c.Database.ServiceRelativePath = filepath.Join("database", "services", serviceDBVersion)
 	c.Database.InstanceRelativePath = filepath.Join("database", "instance", instanceDBVersion)
 	c.Database.ExecutionRelativePath = filepath.Join("database", "executions", executionDBVersion)
 	c.Database.WorkflowRelativePath = filepath.Join("database", "workflows", workflowDBVersion)
-	c.Tendermint.Path = "tendermint"
+
+	c.Tendermint.Path = filepath.Join(c.Path, "tendermint")
 	c.Tendermint.Config = tmconfig.DefaultConfig()
 	c.Tendermint.Config.P2P.AddrBookStrict = false
 	c.Tendermint.Config.P2P.AllowDuplicateIP = true
 	c.Tendermint.Config.Consensus.TimeoutCommit = 10 * time.Second
+
+	c.Cosmos.Path = filepath.Join(c.Path, "cosmos")
+
 	return &c, c.setupServices()
 }
 
@@ -117,7 +128,7 @@ func (c *Config) Load() error {
 		return err
 	}
 
-	c.Tendermint.SetRoot(filepath.Join(c.Path, c.Tendermint.Path))
+	c.Tendermint.SetRoot(c.Tendermint.Path)
 	return nil
 }
 
@@ -126,10 +137,13 @@ func (c *Config) Prepare() error {
 	if err := os.MkdirAll(c.Path, os.FileMode(0755)); err != nil {
 		return err
 	}
-	if err := os.MkdirAll(filepath.Join(c.Path, c.Tendermint.Path, "config"), os.FileMode(0755)); err != nil {
+	if err := os.MkdirAll(filepath.Join(c.Tendermint.Path, "config"), os.FileMode(0755)); err != nil {
 		return err
 	}
-	if err := os.MkdirAll(filepath.Join(c.Path, c.Tendermint.Path, "data"), os.FileMode(0755)); err != nil {
+	if err := os.MkdirAll(filepath.Join(c.Tendermint.Path, "data"), os.FileMode(0755)); err != nil {
+		return err
+	}
+	if err := os.MkdirAll(c.Cosmos.Path, os.FileMode(0755)); err != nil {
 		return err
 	}
 	return nil
