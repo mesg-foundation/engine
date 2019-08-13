@@ -41,6 +41,7 @@ type Execution struct {
 	Status       Status                 `hash:"-"`
 	InstanceHash hash.Hash              `hash:"name:instanceHash"`
 	TaskKey      string                 `hash:"name:taskKey"`
+	StepID       string                 `hash:"name:stepID"`
 	Tags         []string               `hash:"name:tags"`
 	Inputs       map[string]interface{} `hash:"name:inputs"`
 	Outputs      map[string]interface{} `hash:"-"`
@@ -48,7 +49,7 @@ type Execution struct {
 }
 
 // New returns a new execution. It returns an error if inputs are invalid.
-func New(workflowHash, instanceHash, parentHash, eventHash hash.Hash, taskKey string, inputs map[string]interface{}, tags []string) *Execution {
+func New(workflowHash, instanceHash, parentHash, eventHash hash.Hash, stepID string, taskKey string, inputs map[string]interface{}, tags []string) *Execution {
 	exec := &Execution{
 		WorkflowHash: workflowHash,
 		EventHash:    eventHash,
@@ -56,6 +57,7 @@ func New(workflowHash, instanceHash, parentHash, eventHash hash.Hash, taskKey st
 		ParentHash:   parentHash,
 		Inputs:       inputs,
 		TaskKey:      taskKey,
+		StepID:       stepID,
 		Tags:         tags,
 		Status:       Created,
 	}
