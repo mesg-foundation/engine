@@ -104,10 +104,10 @@ type Dependency struct {
 	*Configuration
 
 	// Key is the key of dependency.
-	Key string `hash:"name:d1" validate:"printascii"`
+	Key string `hash:"name:1" validate:"printascii"`
 
 	// Image is the Docker image.
-	Image string `hash:"name:d2" validate:"printascii"`
+	Image string `hash:"name:2" validate:"printascii"`
 }
 
 // Task describes a service task.
