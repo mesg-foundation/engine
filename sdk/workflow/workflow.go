@@ -31,8 +31,8 @@ func (w *Workflow) Create(wf *workflow.Workflow) (*workflow.Workflow, error) {
 	if _, err := w.instance.Get(wf.Trigger.InstanceHash); err != nil {
 		return nil, err
 	}
-	for _, task := range wf.Tasks {
-		if _, err := w.instance.Get(task.InstanceHash); err != nil {
+	for _, node := range wf.Nodes {
+		if _, err := w.instance.Get(node.InstanceHash); err != nil {
 			return nil, err
 		}
 	}
