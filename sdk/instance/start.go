@@ -3,6 +3,7 @@ package instancesdk
 import (
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/instance"
+	"github.com/mesg-foundation/engine/service"
 	"github.com/mesg-foundation/engine/x/xos"
 )
 
@@ -27,8 +28,8 @@ func (i *Instance) start(inst *instance.Instance, imageHash string, env []string
 
 	// Create dependency container configs
 	for _, d := range srv.Dependencies {
-		volumes := extractVolumes(srv, d)
-		volumesFrom, err := extractVolumesFrom(srv, d)
+		volumes := extractVolumes(srv, d.Configuration, d.Key)
+		volumesFrom, err := extractVolumesFrom(srv, d.Configuration)
 		if err != nil {
 			return nil, err
 		}
@@ -46,7 +47,7 @@ func (i *Instance) start(inst *instance.Instance, imageHash string, env []string
 			Command: d.Command,
 			Env:     d.Env,
 			Mounts:  append(volumes, volumesFrom...),
-			Ports:   extractPorts(d),
+			Ports:   extractPorts(d.Configuration),
 			Networks: []container.Network{
 				{ID: networkID, Alias: d.Key},
 				{ID: sharedNetworkID}, // TODO: to remove
@@ -55,19 +56,19 @@ func (i *Instance) start(inst *instance.Instance, imageHash string, env []string
 	}
 
 	// Create configuration container config
-	volumes := extractVolumes(srv, srv.Configuration)
+	volumes := extractVolumes(srv, srv.Configuration, service.MainServiceKey)
 	volumesFrom, err := extractVolumesFrom(srv, srv.Configuration)
 	if err != nil {
 		return nil, err
 	}
 	configs = append(configs, container.ServiceOptions{
-		Namespace: dependencyNamespace(instNamespace, srv.Configuration.Key),
+		Namespace: dependencyNamespace(instNamespace, service.MainServiceKey),
 		Labels: map[string]string{
 			"mesg.engine":     i.engineName,
 			"mesg.sid":        srv.Sid,
 			"mesg.service":    srv.Hash.String(),
 			"mesg.instance":   inst.Hash.String(),
-			"mesg.dependency": srv.Configuration.Key,
+			"mesg.dependency": service.MainServiceKey,
 		},
 		Image:   imageHash,
 		Args:    srv.Configuration.Args,
@@ -80,7 +81,7 @@ func (i *Instance) start(inst *instance.Instance, imageHash string, env []string
 		Mounts: append(volumes, volumesFrom...),
 		Ports:  extractPorts(srv.Configuration),
 		Networks: []container.Network{
-			{ID: networkID, Alias: srv.Configuration.Key},
+			{ID: networkID, Alias: service.MainServiceKey},
 			{ID: sharedNetworkID},
 		},
 	})
