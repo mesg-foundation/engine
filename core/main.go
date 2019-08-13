@@ -81,7 +81,7 @@ func initDependencies(cfg *config.Config) (*dependencies, error) {
 
 func deployCoreServices(cfg *config.Config, sdk *sdk.SDK) error {
 	for _, serviceConfig := range cfg.SystemServices {
-		logrus.Infof("Deploying service %q", serviceConfig.Definition.Sid)
+		logrus.WithField("module", "main").Infof("Deploying service %q", serviceConfig.Definition.Sid)
 		srv, err := sdk.Service.Create(serviceConfig.Definition)
 		if err != nil {
 			existsError, ok := err.(*servicesdk.AlreadyExistsError)
@@ -94,7 +94,7 @@ func deployCoreServices(cfg *config.Config, sdk *sdk.SDK) error {
 				return err
 			}
 		}
-		logrus.Infof("Service %q deployed with hash %q", srv.Sid, srv.Hash)
+		logrus.WithField("module", "main").Infof("Service %q deployed with hash %q", srv.Sid, srv.Hash)
 		instance, err := sdk.Instance.Create(srv.Hash, xos.EnvMapToSlice(serviceConfig.Env))
 		if err != nil {
 			existsError, ok := err.(*instancesdk.AlreadyExistsError)
@@ -108,7 +108,7 @@ func deployCoreServices(cfg *config.Config, sdk *sdk.SDK) error {
 			}
 		}
 		serviceConfig.Instance = instance
-		logrus.Infof("Instance started with hash %q", instance.Hash)
+		logrus.WithField("module", "main").Infof("Instance started with hash %q", instance.Hash)
 	}
 	return nil
 }
@@ -150,7 +150,7 @@ func main() {
 
 	dep, err := initDependencies(cfg)
 	if err != nil {
-		logrus.Fatalln(err)
+		logrus.WithField("module", "main").Fatalln(err)
 	}
 
 	// init logger.
@@ -158,9 +158,8 @@ func main() {
 
 	// create tendermint node
 	node, err := tendermint.NewNode(
-		cfg.Path,
-		cfg.Tendermint.P2P.Seeds,
-		cfg.Tendermint.P2P.ExternalAddress,
+		cfg.Tendermint.Config,
+		cfg.Tendermint.Path,
 		cfg.Tendermint.ValidatorPubKey,
 	)
 	if err != nil {
@@ -169,41 +168,41 @@ func main() {
 
 	// init system services.
 	if err := deployCoreServices(dep.cfg, dep.sdk); err != nil {
-		logrus.Fatalln(err)
+		logrus.WithField("module", "main").Fatalln(err)
 	}
 
 	// init gRPC server.
 	server := grpc.New(dep.sdk)
 
-	logrus.Infof("starting MESG Engine version %s", version.Version)
+	logrus.WithField("module", "main").Infof("starting MESG Engine version %s", version.Version)
 
 	go func() {
 		if err := server.Serve(cfg.Server.Address); err != nil {
-			logrus.Fatalln(err)
+			logrus.WithField("module", "main").Fatalln(err)
 		}
 	}()
 
-	logrus.WithField("seeds", cfg.Tendermint.P2P.Seeds).Info("starting tendermint node")
+	logrus.WithField("module", "main").WithField("seeds", cfg.Tendermint.P2P.Seeds).Info("starting tendermint node")
 	if err := node.Start(); err != nil {
 		logrus.Fatalln(err)
 	}
 
-	logrus.Info("starting workflow engine")
+	logrus.WithField("module", "main").Info("starting workflow engine")
 	s := scheduler.New(dep.sdk.Event, dep.sdk.Execution, dep.sdk.Workflow)
 	go func() {
 		if err := s.Start(); err != nil {
-			logrus.Fatalln(err)
+			logrus.WithField("module", "main").Fatalln(err)
 		}
 	}()
 	go func() {
 		for err := range s.ErrC {
-			logrus.Warn(err)
+			logrus.WithField("module", "main").Warn(err)
 		}
 	}()
 
 	<-xsignal.WaitForInterrupt()
 	if err := stopRunningServices(dep.sdk); err != nil {
-		logrus.Fatalln(err)
+		logrus.WithField("module", "main").Fatalln(err)
 	}
 	server.Close()
 }

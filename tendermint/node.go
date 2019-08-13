@@ -2,9 +2,7 @@ package tendermint
 
 import (
 	"encoding/json"
-	"os"
 	"path/filepath"
-	"time"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -14,8 +12,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genaccounts"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/logger"
+	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/tendermint/app"
 	"github.com/sirupsen/logrus"
 	tmconfig "github.com/tendermint/tendermint/config"
@@ -35,30 +33,14 @@ const (
 )
 
 // NewNode retruns new tendermint node that runs the app.
-func NewNode(root, seeds, externalAddress string, validatorPukKey config.PubKeyEd25519) (*node.Node, error) {
-	tendermintPath := filepath.Join(root, "tendermint")
-	if err := os.MkdirAll(filepath.Join(tendermintPath, "config"), 0755); err != nil {
-		return nil, err
-	}
-	if err := os.MkdirAll(filepath.Join(tendermintPath, "data"), 0755); err != nil {
-		return nil, err
-	}
-
-	cfg := tmconfig.DefaultConfig()
-	cfg.P2P.PersistentPeers = seeds
-	cfg.P2P.AddrBookStrict = false
-	cfg.P2P.AllowDuplicateIP = true
-	cfg.P2P.ExternalAddress = externalAddress
-	cfg.Consensus.TimeoutCommit = 10 * time.Second
-	cfg.SetRoot(tendermintPath)
-
+func NewNode(cfg *tmconfig.Config, rootPath string, validatorPubKey config.PubKeyEd25519) (*node.Node, error) {
 	nodeKey, err := p2p.LoadOrGenNodeKey(cfg.NodeKeyFile())
 	if err != nil {
 		return nil, err
 	}
 
 	me := privval.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile())
-	cosmosPath := filepath.Join(root, "cosmos")
+	cosmosPath := filepath.Join(rootPath, "cosmos")
 
 	// create user database and generate first user
 	kb, err := NewFSKeybase(filepath.Join(cosmosPath, "keybase"))
@@ -81,7 +63,7 @@ func NewNode(root, seeds, externalAddress string, validatorPukKey config.PubKeyE
 	app, cdc := app.NewNameServiceApp(logger, db)
 
 	// build a message to create validator
-	msg := newMsgCreateValidator(sdktypes.ValAddress(account.GetAddress()), ed25519.PubKeyEd25519(validatorPukKey))
+	msg := newMsgCreateValidator(sdktypes.ValAddress(account.GetAddress()), ed25519.PubKeyEd25519(validatorPubKey))
 	logrus.WithField("msg", msg).Info("validator tx")
 
 	// sign the message
@@ -160,10 +142,10 @@ func genesisLoader(cdc *codec.Codec, appState map[string]json.RawMessage) func()
 	}
 }
 
-func newMsgCreateValidator(valAddr sdktypes.ValAddress, validatorPukKey ed25519.PubKeyEd25519) sdktypes.Msg {
+func newMsgCreateValidator(valAddr sdktypes.ValAddress, validatorPubKey ed25519.PubKeyEd25519) sdktypes.Msg {
 	return stakingtypes.NewMsgCreateValidator(
 		valAddr,
-		validatorPukKey,
+		validatorPubKey,
 		sdktypes.NewCoin(sdktypes.DefaultBondDenom, sdktypes.NewInt(0)),
 		stakingtypes.Description{
 			Moniker: accountName,
