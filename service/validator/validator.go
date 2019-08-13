@@ -1,7 +1,6 @@
 package validator
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -49,11 +48,6 @@ func validateServiceData(s *service.Service) error {
 	var errs xerrors.Errors
 	if err := isServiceKeysUnique(s); err != nil {
 		errs = append(errs, err)
-	}
-
-	// validate configuration image
-	if s.Configuration.Image != "" {
-		errs = append(errs, errors.New("configuration.image is not allowed"))
 	}
 
 	// validate dependencies image

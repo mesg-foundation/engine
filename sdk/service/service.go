@@ -37,7 +37,7 @@ func New(c container.Container, serviceDB database.ServiceDB) *Service {
 // Create creates a new service from definition.
 func (s *Service) Create(srv *service.Service) (*service.Service, error) {
 	if srv.Configuration == nil {
-		srv.Configuration = &service.Dependency{}
+		srv.Configuration = &service.Configuration{}
 	}
 	// download and untar service context into path.
 	path, err := ioutil.TempDir("", "mesg")
