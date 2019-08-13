@@ -84,8 +84,7 @@ func New() (*Config, error) {
 	c.Tendermint.Config.P2P.AddrBookStrict = false
 	c.Tendermint.Config.P2P.AllowDuplicateIP = true
 	c.Tendermint.Config.Consensus.TimeoutCommit = 10 * time.Second
-	c.setupServices()
-	return &c, nil
+	return &c, c.setupServices()
 }
 
 // Global returns a singleton of a Config after loaded ENV and validate the values.
