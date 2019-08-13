@@ -63,8 +63,9 @@ type Config struct {
 }
 
 type CosmosConfig struct {
-	Path    string `ignored:"true"`
-	ChainID string `split_words:"true"`
+	Path        string `ignored:"true"`
+	ChainID     string `split_words:"true"`
+	GenesisTime time.Time
 
 	Keybase struct {
 		Path string
