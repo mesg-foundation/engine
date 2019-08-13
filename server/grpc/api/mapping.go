@@ -63,12 +63,11 @@ func fromProtoParameters(params []*types.Service_Parameter) []*service.Parameter
 	return ps
 }
 
-func fromProtoConfiguration(configuration *types.Service_Configuration) *service.Dependency {
+func fromProtoConfiguration(configuration *types.Service_Configuration) *service.Configuration {
 	if configuration == nil {
 		return nil
 	}
-	return &service.Dependency{
-		Key:         service.MainServiceKey,
+	return &service.Configuration{
 		Args:        configuration.Args,
 		Command:     configuration.Command,
 		Ports:       configuration.Ports,
@@ -80,14 +79,16 @@ func fromProtoConfiguration(configuration *types.Service_Configuration) *service
 
 func fromProtoDependency(dep *types.Service_Dependency) *service.Dependency {
 	return &service.Dependency{
-		Key:         dep.Key,
-		Image:       dep.Image,
-		Volumes:     dep.Volumes,
-		VolumesFrom: dep.VolumesFrom,
-		Ports:       dep.Ports,
-		Command:     dep.Command,
-		Args:        dep.Args,
-		Env:         dep.Env,
+		Key:   dep.Key,
+		Image: dep.Image,
+		Configuration: &service.Configuration{
+			Volumes:     dep.Volumes,
+			VolumesFrom: dep.VolumesFrom,
+			Ports:       dep.Ports,
+			Command:     dep.Command,
+			Args:        dep.Args,
+			Env:         dep.Env,
+		},
 	}
 }
 
@@ -158,7 +159,7 @@ func toProtoParameters(params []*service.Parameter) []*types.Service_Parameter {
 	return ps
 }
 
-func toProtoConfiguration(configuration *service.Dependency) *types.Service_Configuration {
+func toProtoConfiguration(configuration *service.Configuration) *types.Service_Configuration {
 	return &types.Service_Configuration{
 		Args:        configuration.Args,
 		Command:     configuration.Command,
