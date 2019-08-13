@@ -15,16 +15,20 @@ import (
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	"github.com/mesg-foundation/engine/server/grpc"
+	"github.com/mesg-foundation/engine/tendermint"
+	"github.com/mesg-foundation/engine/tendermint/app"
 	"github.com/mesg-foundation/engine/version"
 	"github.com/mesg-foundation/engine/x/xerrors"
 	"github.com/mesg-foundation/engine/x/xnet"
 	"github.com/mesg-foundation/engine/x/xos"
 	"github.com/mesg-foundation/engine/x/xsignal"
 	"github.com/sirupsen/logrus"
+	"github.com/tendermint/tendermint/crypto/ed25519"
+	"github.com/tendermint/tendermint/libs/db"
 )
 
 type dependencies struct {
-	config      *config.Config
+	cfg         *config.Config
 	serviceDB   database.ServiceDB
 	executionDB database.ExecutionDB
 	workflowDB  database.WorkflowDB
@@ -32,50 +36,44 @@ type dependencies struct {
 	sdk         *sdk.SDK
 }
 
-func initDependencies() (*dependencies, error) {
-	// init configs.
-	config, err := config.Global()
-	if err != nil {
-		return nil, err
-	}
-
+func initDependencies(cfg *config.Config) (*dependencies, error) {
 	// init services db.
-	serviceDB, err := database.NewServiceDB(filepath.Join(config.Path, config.Database.ServiceRelativePath))
+	serviceDB, err := database.NewServiceDB(filepath.Join(cfg.Path, cfg.Database.ServiceRelativePath))
 	if err != nil {
 		return nil, err
 	}
 
 	// init instance db.
-	instanceDB, err := database.NewInstanceDB(filepath.Join(config.Path, config.Database.InstanceRelativePath))
+	instanceDB, err := database.NewInstanceDB(filepath.Join(cfg.Path, cfg.Database.InstanceRelativePath))
 	if err != nil {
 		return nil, err
 	}
 
 	// init execution db.
-	executionDB, err := database.NewExecutionDB(filepath.Join(config.Path, config.Database.ExecutionRelativePath))
+	executionDB, err := database.NewExecutionDB(filepath.Join(cfg.Path, cfg.Database.ExecutionRelativePath))
 	if err != nil {
 		return nil, err
 	}
 
 	// init workflow db.
-	workflowDB, err := database.NewWorkflowDB(filepath.Join(config.Path, config.Database.WorkflowRelativePath))
+	workflowDB, err := database.NewWorkflowDB(filepath.Join(cfg.Path, cfg.Database.WorkflowRelativePath))
 	if err != nil {
 		return nil, err
 	}
 
 	// init container.
-	c, err := container.New(config.Name)
+	c, err := container.New(cfg.Name)
 	if err != nil {
 		return nil, err
 	}
 
-	_, port, _ := xnet.SplitHostPort(config.Server.Address)
+	_, port, _ := xnet.SplitHostPort(cfg.Server.Address)
 
 	// init sdk.
-	sdk := sdk.New(c, serviceDB, instanceDB, executionDB, workflowDB, config.Name, strconv.Itoa(port))
+	sdk := sdk.New(c, serviceDB, instanceDB, executionDB, workflowDB, cfg.Name, strconv.Itoa(port))
 
 	return &dependencies{
-		config:      config,
+		cfg:         cfg,
 		container:   c,
 		serviceDB:   serviceDB,
 		executionDB: executionDB,
@@ -84,9 +82,9 @@ func initDependencies() (*dependencies, error) {
 	}, nil
 }
 
-func deployCoreServices(config *config.Config, sdk *sdk.SDK) error {
-	for _, serviceConfig := range config.SystemServices {
-		logrus.Infof("Deploying service %q", serviceConfig.Definition.Sid)
+func deployCoreServices(cfg *config.Config, sdk *sdk.SDK) error {
+	for _, serviceConfig := range cfg.SystemServices {
+		logrus.WithField("module", "main").Infof("Deploying service %q", serviceConfig.Definition.Sid)
 		srv, err := sdk.Service.Create(serviceConfig.Definition)
 		if err != nil {
 			existsError, ok := err.(*servicesdk.AlreadyExistsError)
@@ -99,7 +97,7 @@ func deployCoreServices(config *config.Config, sdk *sdk.SDK) error {
 				return err
 			}
 		}
-		logrus.Infof("Service %q deployed with hash %q", srv.Sid, srv.Hash)
+		logrus.WithField("module", "main").Infof("Service %q deployed with hash %q", srv.Sid, srv.Hash)
 		instance, err := sdk.Instance.Create(srv.Hash, xos.EnvMapToSlice(serviceConfig.Env))
 		if err != nil {
 			existsError, ok := err.(*instancesdk.AlreadyExistsError)
@@ -113,7 +111,7 @@ func deployCoreServices(config *config.Config, sdk *sdk.SDK) error {
 			}
 		}
 		serviceConfig.Instance = instance
-		logrus.Infof("Instance started with hash %q", instance.Hash)
+		logrus.WithField("module", "main").Infof("Instance started with hash %q", instance.Hash)
 	}
 	return nil
 }
@@ -148,46 +146,72 @@ func stopRunningServices(sdk *sdk.SDK) error {
 }
 
 func main() {
-	dep, err := initDependencies()
+	cfg, err := config.Global()
 	if err != nil {
 		logrus.Fatalln(err)
 	}
 
+	dep, err := initDependencies(cfg)
+	if err != nil {
+		logrus.WithField("module", "main").Fatalln(err)
+	}
+
 	// init logger.
-	logger.Init(dep.config.Log.Format, dep.config.Log.Level, dep.config.Log.ForceColors)
+	logger.Init(cfg.Log.Format, cfg.Log.Level, cfg.Log.ForceColors)
+
+	// init app
+	db := db.NewMemDB()
+	logger := logger.TendermintLogger()
+	app := app.New(logger, db)
+
+	// create tendermint node
+	node, err := tendermint.NewNode(
+		logger,
+		app,
+		cfg.Tendermint.Config,
+		ed25519.PubKeyEd25519(cfg.Tendermint.ValidatorPubKey),
+	)
+	if err != nil {
+		logrus.Fatalln(err)
+	}
 
 	// init system services.
-	if err := deployCoreServices(dep.config, dep.sdk); err != nil {
-		logrus.Fatalln(err)
+	if err := deployCoreServices(dep.cfg, dep.sdk); err != nil {
+		logrus.WithField("module", "main").Fatalln(err)
 	}
 
 	// init gRPC server.
 	server := grpc.New(dep.sdk)
 
-	logrus.Infof("starting MESG Engine version %s", version.Version)
+	logrus.WithField("module", "main").Infof("starting MESG Engine version %s", version.Version)
 
 	go func() {
-		if err := server.Serve(dep.config.Server.Address); err != nil {
-			logrus.Fatalln(err)
+		if err := server.Serve(cfg.Server.Address); err != nil {
+			logrus.WithField("module", "main").Fatalln(err)
 		}
 	}()
 
-	logrus.Info("starting workflow engine")
+	logrus.WithField("module", "main").WithField("seeds", cfg.Tendermint.P2P.Seeds).Info("starting tendermint node")
+	if err := node.Start(); err != nil {
+		logrus.Fatalln(err)
+	}
+
+	logrus.WithField("module", "main").Info("starting workflow engine")
 	s := scheduler.New(dep.sdk.Event, dep.sdk.Execution, dep.sdk.Workflow)
 	go func() {
 		if err := s.Start(); err != nil {
-			logrus.Fatalln(err)
+			logrus.WithField("module", "main").Fatalln(err)
 		}
 	}()
 	go func() {
 		for err := range s.ErrC {
-			logrus.Warn(err)
+			logrus.WithField("module", "main").Warn(err)
 		}
 	}()
 
 	<-xsignal.WaitForInterrupt()
 	if err := stopRunningServices(dep.sdk); err != nil {
-		logrus.Fatalln(err)
+		logrus.WithField("module", "main").Fatalln(err)
 	}
 	server.Close()
 }

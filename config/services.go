@@ -35,8 +35,7 @@ type ServiceConfig struct {
 }
 
 // setupServices initialize all services for this config
-func (c *Config) setupServices() ([]ServiceConfig, error) {
-	serviceConfigs := make([]ServiceConfig, 0)
+func (c *Config) setupServices() error {
 	if marketplaceCompiled != "" {
 		marketplace, err := c.createServiceConfig("Marketplace", marketplaceCompiled, map[string]string{
 			"MARKETPLACE_ADDRESS": EnvMarketplaceAddress,
@@ -44,18 +43,18 @@ func (c *Config) setupServices() ([]ServiceConfig, error) {
 			"PROVIDER_ENDPOINT":   EnvMarketplaceEndpoint,
 		})
 		if err != nil {
-			return nil, err
+			return err
 		}
 		c.SystemServices = append(c.SystemServices, marketplace)
 	}
 	if ethwalletCompiled != "" {
 		ethwallet, err := c.createServiceConfig("EthWallet", ethwalletCompiled, nil)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		c.SystemServices = append(c.SystemServices, ethwallet)
 	}
-	return serviceConfigs, nil
+	return nil
 }
 
 func (c *Config) createServiceConfig(key string, compilatedJSON string, env map[string]string) (*ServiceConfig, error) {
