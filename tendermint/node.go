@@ -2,7 +2,6 @@ package tendermint
 
 import (
 	"encoding/json"
-	"path/filepath"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -26,12 +25,6 @@ import (
 	"github.com/tendermint/tendermint/types"
 )
 
-const (
-	chainId         = "mesg-chain"
-	accountName     = "bob"
-	accountPassword = "12345678"
-)
-
 // NewNode retruns new tendermint node that runs the app.
 func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error) {
 	nodeKey, err := p2p.LoadOrGenNodeKey(cfg.NodeKeyFile())
@@ -42,12 +35,12 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 	me := privval.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile())
 
 	// create user database and generate first user
-	kb, err := NewFSKeybase(filepath.Join(ccfg.Path, "keybase"))
+	kb, err := NewFSKeybase(ccfg.Keybase.Path)
 	if err != nil {
 		return nil, err
 	}
 
-	account, err := kb.GenerateAccount(accountName, accountPassword)
+	account, err := kb.GenerateAccount(ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Mnemonic, ccfg.GenesisAccount.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +55,11 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 	app, cdc := app.NewNameServiceApp(logger, db)
 
 	// build a message to create validator
-	msg := newMsgCreateValidator(sdktypes.ValAddress(account.GetAddress()), ed25519.PubKeyEd25519(ccfg.ValidatorPubKey))
+	msg := newMsgCreateValidator(
+		sdktypes.ValAddress(account.GetAddress()),
+		ed25519.PubKeyEd25519(ccfg.ValidatorPubKey),
+		ccfg.GenesisAccount.Name,
+	)
 	logrus.WithField("msg", msg).Info("validator tx")
 
 	// sign the message
@@ -77,13 +74,13 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 		flags.DefaultGasLimit,
 		flags.DefaultGasAdjustment,
 		true,
-		chainId,
+		ccfg.ChainID,
 		"",
 		sdktypes.NewCoins(),
 		gasPrices,
 	).WithKeybase(kb)
 
-	signedTx, err := txBldr.SignStdTx(accountName, accountPassword, stdTx, false)
+	signedTx, err := txBldr.SignStdTx(ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Password, stdTx, false)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +96,7 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 		me,
 		nodeKey,
 		proxy.NewLocalClientCreator(app),
-		genesisLoader(cdc, appState),
+		genesisLoader(cdc, appState, ccfg.ChainID),
 		node.DefaultDBProvider,
 		node.DefaultMetricsProvider(cfg.Instrumentation),
 		logger,
@@ -124,14 +121,14 @@ func createAppState(cdc *codec.Codec, address sdktypes.AccAddress, signedStdTx a
 	return genutil.SetGenTxsInAppGenesisState(cdc, appState, []authtypes.StdTx{signedStdTx})
 }
 
-func genesisLoader(cdc *codec.Codec, appState map[string]json.RawMessage) func() (*types.GenesisDoc, error) {
+func genesisLoader(cdc *codec.Codec, appState map[string]json.RawMessage, chainID string) func() (*types.GenesisDoc, error) {
 	return func() (*types.GenesisDoc, error) {
 		appStateEncoded, err := cdc.MarshalJSON(appState)
 		if err != nil {
 			return nil, err
 		}
 		genesis := &types.GenesisDoc{
-			ChainID:         chainId,
+			ChainID:         chainID,
 			ConsensusParams: types.DefaultConsensusParams(),
 			AppState:        appStateEncoded,
 		}
@@ -142,13 +139,13 @@ func genesisLoader(cdc *codec.Codec, appState map[string]json.RawMessage) func()
 	}
 }
 
-func newMsgCreateValidator(valAddr sdktypes.ValAddress, validatorPubKey ed25519.PubKeyEd25519) sdktypes.Msg {
+func newMsgCreateValidator(valAddr sdktypes.ValAddress, validatorPubKey ed25519.PubKeyEd25519, moniker string) sdktypes.Msg {
 	return stakingtypes.NewMsgCreateValidator(
 		valAddr,
 		validatorPubKey,
 		sdktypes.NewCoin(sdktypes.DefaultBondDenom, sdktypes.TokensFromConsensusPower(100)),
 		stakingtypes.Description{
-			Moniker: accountName,
+			Moniker: moniker,
 			Details: "create-first-validator",
 		},
 		stakingtypes.NewCommissionRates(

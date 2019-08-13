@@ -63,7 +63,19 @@ type Config struct {
 }
 
 type CosmosConfig struct {
-	Path            string        `ignored:"true"`
+	Path    string `ignored:"true"`
+	ChainID string `split_words:"true"`
+
+	Keybase struct {
+		Path string
+	}
+
+	GenesisAccount struct {
+		Name     string
+		Password string
+		Mnemonic string
+	} `split_words:"true"`
+
 	ValidatorPubKey PubKeyEd25519 `split_words:"true"`
 }
 
@@ -94,6 +106,7 @@ func New() (*Config, error) {
 	c.Tendermint.Config.Consensus.TimeoutCommit = 10 * time.Second
 
 	c.Cosmos.Path = filepath.Join(c.Path, "cosmos")
+	c.Cosmos.Keybase.Path = filepath.Join(c.Cosmos.Path, "keybase")
 
 	return &c, c.setupServices()
 }
