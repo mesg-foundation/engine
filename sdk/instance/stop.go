@@ -19,19 +19,22 @@ func (i *Instance) stop(inst *instance.Instance) error {
 		wg         sync.WaitGroup
 		errs       xerrors.SyncErrors
 		sNamespace = instanceNamespace(inst.Hash)
+		namespaces = make([]string, 0)
 	)
-	for _, d := range append([]*service.Dependency{srv.Configuration}, srv.Dependencies...) {
-		// Service.Configuration can be nil so, here is a check for it.
-		if d == nil {
-			continue
-		}
+
+	for _, d := range srv.Dependencies {
+		namespaces = append(namespaces, dependencyNamespace(sNamespace, d.Key))
+	}
+	namespaces = append(namespaces, dependencyNamespace(sNamespace, service.MainServiceKey))
+
+	for _, namespace := range namespaces {
 		wg.Add(1)
 		go func(namespace string) {
 			defer wg.Done()
 			if err := i.container.StopService(namespace); err != nil {
 				errs.Append(err)
 			}
-		}(dependencyNamespace(sNamespace, d.Key))
+		}(namespace)
 	}
 	wg.Wait()
 	if err := errs.ErrorOrNil(); err != nil {

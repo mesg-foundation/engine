@@ -4,7 +4,9 @@ import (
 	"sync"
 
 	"github.com/docker/docker/client"
+	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/instance"
+	"github.com/mesg-foundation/engine/service"
 	"github.com/mesg-foundation/engine/x/xerrors"
 )
 
@@ -18,25 +20,27 @@ func (i *Instance) deleteData(inst *instance.Instance) error {
 		return err
 	}
 	var (
-		wg   sync.WaitGroup
-		errs xerrors.SyncErrors
+		wg      sync.WaitGroup
+		errs    xerrors.SyncErrors
+		volumes = make([]container.Mount, 0)
 	)
-	for _, d := range append(s.Dependencies, s.Configuration) {
-		// Service.Configuration can be nil so, here is a check for it.
-		if d == nil {
-			continue
-		}
-		for _, volume := range extractVolumes(s, d) {
-			wg.Add(1)
-			go func(source string) {
-				defer wg.Done()
-				// if service is never started before, data volume won't be created and Docker Engine
-				// will return with the not found error. therefore, we can safely ignore it.
-				if err := i.container.DeleteVolume(source); err != nil && !client.IsErrNotFound(err) {
-					errs.Append(err)
-				}
-			}(volume.Source)
-		}
+
+	for _, d := range s.Dependencies {
+		volumes = append(volumes, extractVolumes(s, d.Configuration, d.Key)...)
+	}
+	volumes = append(volumes, extractVolumes(s, s.Configuration, service.MainServiceKey)...)
+
+	for _, volume := range volumes {
+		// TODO: is it actually necessary to remvoe in parallel? I worry that some volume will be deleted at the same time and create side effect
+		wg.Add(1)
+		go func(source string) {
+			defer wg.Done()
+			// if service is never started before, data volume won't be created and Docker Engine
+			// will return with the not found error. therefore, we can safely ignore it.
+			if err := i.container.DeleteVolume(source); err != nil && !client.IsErrNotFound(err) {
+				errs.Append(err)
+			}
+		}(volume.Source)
 	}
 	wg.Wait()
 	return errs.ErrorOrNil()
