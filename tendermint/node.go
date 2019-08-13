@@ -4,10 +4,8 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	authutils "github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/genaccounts"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
@@ -24,6 +22,8 @@ import (
 	"github.com/tendermint/tendermint/privval"
 	"github.com/tendermint/tendermint/proxy"
 	"github.com/tendermint/tendermint/types"
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	authutils "github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 )
 
 // NewNode retruns new tendermint node that runs the app.
@@ -64,24 +64,14 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 	logrus.WithField("msg", msg).Info("validator tx")
 
 	// sign the message
-	fees := authtypes.NewStdFee(flags.DefaultGasLimit, sdktypes.NewCoins())
-	gasPrices := sdktypes.DecCoins{}
-	stdTx := authtypes.NewStdTx([]sdktypes.Msg{msg}, fees, []authtypes.StdSignature{}, "")
-
-	txBldr := authtypes.NewTxBuilder(
-		authutils.GetTxEncoder(cdc),
-		0,
-		0,
-		flags.DefaultGasLimit,
-		flags.DefaultGasAdjustment,
-		true,
+	signedTx, err := signTransaction(
+		cdc,
+		kb,
+		msg,
 		ccfg.ChainID,
-		"",
-		sdktypes.NewCoins(),
-		gasPrices,
-	).WithKeybase(kb)
-
-	signedTx, err := txBldr.SignStdTx(ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Password, stdTx, false)
+		ccfg.GenesisAccount.Name,
+		ccfg.GenesisAccount.Password,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -102,6 +92,27 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 		node.DefaultMetricsProvider(cfg.Instrumentation),
 		logger,
 	)
+}
+
+func signTransaction(cdc *codec.Codec, kb *Keybase, msg sdktypes.Msg, chainID, accountName, accountPassword string) (authtypes.StdTx, error) {
+	fees := authtypes.NewStdFee(flags.DefaultGasLimit, sdktypes.NewCoins())
+	gasPrices := sdktypes.DecCoins{}
+	stdTx := authtypes.NewStdTx([]sdktypes.Msg{msg}, fees, []authtypes.StdSignature{}, "")
+
+	txBldr := authtypes.NewTxBuilder(
+		authutils.GetTxEncoder(cdc),
+		0,
+		0,
+		flags.DefaultGasLimit,
+		flags.DefaultGasAdjustment,
+		true,
+		chainID,
+		"",
+		sdktypes.NewCoins(),
+		gasPrices,
+	).WithKeybase(kb)
+
+	return txBldr.SignStdTx(accountName, accountPassword, stdTx, false)
 }
 
 func createAppState(cdc *codec.Codec, address sdktypes.AccAddress, signedStdTx authtypes.StdTx) (map[string]json.RawMessage, error) {
