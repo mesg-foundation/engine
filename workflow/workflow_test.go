@@ -167,6 +167,60 @@ func TestValidateWorkflow(t *testing.T) {
 				{Src: "nodeKey3", Dst: "nodeKey4"},
 			},
 		}, err: "non connected graph"},
+		{w: &Workflow{
+			Hash:    hash.Int(1),
+			Key:     "multiple-parent-graph",
+			Trigger: trigger,
+			Nodes: append(nodes, Node{
+				Key:          "nodeKey3",
+				InstanceHash: hash.Int(2),
+				TaskKey:      "-",
+			}, Node{
+				Key:          "nodeKey4",
+				InstanceHash: hash.Int(2),
+				TaskKey:      "-",
+			}),
+			Edges: []Edge{
+				{Src: "nodeKey1", Dst: "nodeKey2"},
+				{Src: "nodeKey1", Dst: "nodeKey3"},
+				{Src: "nodeKey2", Dst: "nodeKey4"},
+				{Src: "nodeKey3", Dst: "nodeKey4"},
+			},
+		}, err: "non mono-parental graph"},
+		{w: &Workflow{
+			Hash:    hash.Int(1),
+			Key:     "multiple-parent-graph",
+			Trigger: trigger,
+			Nodes: append(nodes, Node{
+				Key:          "nodeKey3",
+				InstanceHash: hash.Int(2),
+				TaskKey:      "-",
+			}, Node{
+				Key:          "nodeKey4",
+				InstanceHash: hash.Int(2),
+				TaskKey:      "-",
+			}, Node{
+				Key:          "nodeKey5",
+				InstanceHash: hash.Int(2),
+				TaskKey:      "-",
+			}, Node{
+				Key:          "nodeKey6",
+				InstanceHash: hash.Int(2),
+				TaskKey:      "-",
+			}, Node{
+				Key:          "nodeKey7",
+				InstanceHash: hash.Int(2),
+				TaskKey:      "-",
+			}),
+			Edges: []Edge{
+				{Src: "nodeKey1", Dst: "nodeKey2"},
+				{Src: "nodeKey2", Dst: "nodeKey3"},
+				{Src: "nodeKey2", Dst: "nodeKey4"},
+				{Src: "nodeKey3", Dst: "nodeKey5"},
+				{Src: "nodeKey4", Dst: "nodeKey6"},
+				{Src: "nodeKey4", Dst: "nodeKey7"},
+			},
+		}, valid: true},
 	}
 	for _, test := range tests {
 		err := test.w.Validate()
