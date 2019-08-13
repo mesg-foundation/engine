@@ -168,9 +168,7 @@ func main() {
 	node, err := tendermint.NewNode(
 		logger,
 		app,
-		filepath.Join(cfg.Path, cfg.Tendermint.Path),
-		cfg.Tendermint.P2P.Seeds,
-		cfg.Tendermint.P2P.ExternalAddress,
+		cfg.Tendermint.Config,
 		ed25519.PubKeyEd25519(cfg.Tendermint.ValidatorPubKey),
 	)
 	if err != nil {

@@ -1,8 +1,6 @@
 package tendermint
 
 import (
-	"os"
-	"path/filepath"
 	"time"
 
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -17,24 +15,7 @@ import (
 )
 
 // NewNode retruns new tendermint node that runs the app.
-func NewNode(logger log.Logger, app abci.Application, root, seeds, externalAddress string, validatorPubKey crypto.PubKey) (*node.Node, error) {
-	if err := os.MkdirAll(filepath.Join(root, "config"), 0755); err != nil {
-		return nil, err
-	}
-	if err := os.MkdirAll(filepath.Join(root, "data"), 0755); err != nil {
-		return nil, err
-	}
-
-	cfg := config.DefaultConfig()
-	cfg.P2P.PersistentPeers = seeds
-	// cfg.P2P.Seeds = seeds
-	// cfg.P2P.SeedMode = true
-	cfg.P2P.AddrBookStrict = false
-	cfg.P2P.AllowDuplicateIP = true
-	cfg.P2P.ExternalAddress = externalAddress
-	cfg.Consensus.TimeoutCommit = 10 * time.Second
-	cfg.SetRoot(root)
-
+func NewNode(logger log.Logger, app abci.Application, cfg *config.Config, validatorPubKey crypto.PubKey) (*node.Node, error) {
 	nodeKey, err := p2p.LoadOrGenNodeKey(cfg.NodeKeyFile())
 	if err != nil {
 		return nil, err
