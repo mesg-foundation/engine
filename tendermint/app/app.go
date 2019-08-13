@@ -61,7 +61,7 @@ func MakeCodec() *codec.Codec {
 	return cdc
 }
 
-type nameServiceApp struct {
+type NameServiceApp struct {
 	*bam.BaseApp
 	cdc *codec.Codec
 
@@ -92,8 +92,8 @@ type nameServiceApp struct {
 	mm *module.Manager
 }
 
-// NewNameServiceApp is a constructor function for nameServiceApp
-func NewNameServiceApp(logger log.Logger, db dbm.DB) (*nameServiceApp, *codec.Codec) {
+// NewNameServiceApp is a constructor function for NameServiceApp
+func NewNameServiceApp(logger log.Logger, db dbm.DB) (*NameServiceApp, *codec.Codec) {
 
 	// First define the top level codec that will be shared by the different modules
 	cdc := MakeCodec()
@@ -102,7 +102,7 @@ func NewNameServiceApp(logger log.Logger, db dbm.DB) (*nameServiceApp, *codec.Co
 	bApp := bam.NewBaseApp(appName, logger, db, auth.DefaultTxDecoder(cdc))
 
 	// Here you initialize your application with the store keys it requires
-	var app = &nameServiceApp{
+	var app = &NameServiceApp{
 		BaseApp: bApp,
 		cdc:     cdc,
 
@@ -269,7 +269,7 @@ func NewDefaultGenesisState() GenesisState {
 	return ModuleBasics.DefaultGenesis()
 }
 
-func (app *nameServiceApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
+func (app *NameServiceApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 	var genesisState GenesisState
 
 	err := app.cdc.UnmarshalJSON(req.AppStateBytes, &genesisState)
@@ -280,19 +280,19 @@ func (app *nameServiceApp) InitChainer(ctx sdk.Context, req abci.RequestInitChai
 	return app.mm.InitGenesis(ctx, genesisState)
 }
 
-func (app *nameServiceApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+func (app *NameServiceApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	return app.mm.BeginBlock(ctx, req)
 }
-func (app *nameServiceApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
+func (app *NameServiceApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 	return app.mm.EndBlock(ctx, req)
 }
-func (app *nameServiceApp) LoadHeight(height int64) error {
+func (app *NameServiceApp) LoadHeight(height int64) error {
 	return app.LoadVersion(height, app.keyMain)
 }
 
 //_________________________________________________________
 
-func (app *nameServiceApp) ExportAppStateAndValidators(forZeroHeight bool, jailWhiteList []string,
+func (app *NameServiceApp) ExportAppStateAndValidators(forZeroHeight bool, jailWhiteList []string,
 ) (appState json.RawMessage, validators []tmtypes.GenesisValidator, err error) {
 
 	// as if they could withdraw from the start of the next block
