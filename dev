@@ -26,6 +26,7 @@ eval $(go run internal/tools/gen_tm_identity/main.go -name=$TENDERMINT_VALIDATOR
 MESG_TENDERMINT_P2P_PERSISTENTPEERS=${MESG_TENDERMINT_P2P_PERSISTENTPEERS:-$NODE_PUBKEY}
 
 MESG_COSMOS_CHAINID=${MESG_COSMOS_CHAINID:-"mesg-chain"}
+# TODO: do not share the genesis account to the client. implement same system as validator identity.
 MESG_COSMOS_GENESISACCOUNT_NAME=${MESG_COSMOS_GENESISACCOUNT_NAME:-"bob"}
 MESG_COSMOS_GENESISACCOUNT_PASSWORD=${MESG_COSMOS_GENESISACCOUNT_PASSWORD:-"pass"}
 MESG_COSMOS_GENESISACCOUNT_MNEMONIC=${MESG_COSMOS_GENESISACCOUNT_MNEMONIC:-"great vote seek inject fame special trust opera charge claim purpose appear hood surprise exact point chicken uphold butter fix grunt shield parent sting"}
