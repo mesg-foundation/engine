@@ -74,7 +74,7 @@ require (
 	golang.org/x/text v0.3.2 // indirect
 	golang.org/x/tools v0.0.0-20190712213246-8b927904ee0d // indirect
 	google.golang.org/genproto v0.0.0-20190708153700-3bdd9d9f5532 // indirect
-	google.golang.org/grpc v1.22.0
+	google.golang.org/grpc v1.22.1
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.26.0
 	gopkg.in/src-d/go-billy.v4 v4.3.0 // indirect
