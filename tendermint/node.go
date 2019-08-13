@@ -36,7 +36,7 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 	me := privval.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile())
 
 	// create user database and generate first user
-	kb, err := NewFSKeybase(ccfg.Keybase.Path)
+	kb, err := NewFSKeybase(ccfg.Path)
 	if err != nil {
 		return nil, err
 	}
