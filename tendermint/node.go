@@ -33,17 +33,16 @@ const (
 )
 
 // NewNode retruns new tendermint node that runs the app.
-func NewNode(cfg *tmconfig.Config, rootPath string, validatorPubKey config.PubKeyEd25519) (*node.Node, error) {
+func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig, validatorPubKey config.PubKeyEd25519) (*node.Node, error) {
 	nodeKey, err := p2p.LoadOrGenNodeKey(cfg.NodeKeyFile())
 	if err != nil {
 		return nil, err
 	}
 
 	me := privval.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile())
-	cosmosPath := filepath.Join(rootPath, "cosmos")
 
 	// create user database and generate first user
-	kb, err := NewFSKeybase(filepath.Join(cosmosPath, "keybase"))
+	kb, err := NewFSKeybase(filepath.Join(ccfg.Path, "keybase"))
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +53,7 @@ func NewNode(cfg *tmconfig.Config, rootPath string, validatorPubKey config.PubKe
 	}
 
 	// create app database and create an instance of the app
-	db, err := db.NewGoLevelDB("app", cosmosPath)
+	db, err := db.NewGoLevelDB("app", ccfg.Path)
 	if err != nil {
 		return nil, err
 	}
