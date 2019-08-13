@@ -9,13 +9,13 @@ import (
 func defaultGraph() *Workflow {
 	return &Workflow{
 		Nodes: []Node{
-			Node{Key: "nodeKey1"},
-			Node{Key: "nodeKey2"},
-			Node{Key: "nodeKey3"},
-			Node{Key: "nodeKey4"},
-			Node{Key: "nodeKey5"},
-			Node{Key: "nodeKey6"},
-			Node{Key: "nodeKey7"}},
+			{Key: "nodeKey1"},
+			{Key: "nodeKey2"},
+			{Key: "nodeKey3"},
+			{Key: "nodeKey4"},
+			{Key: "nodeKey5"},
+			{Key: "nodeKey6"},
+			{Key: "nodeKey7"}},
 		Edges: []Edge{
 			{Src: "nodeKey1", Dst: "nodeKey2"},
 			{Src: "nodeKey2", Dst: "nodeKey3"},
@@ -115,36 +115,36 @@ func TestIsAcyclic(t *testing.T) {
 		{graph: defaultGraph(), node: "nodeKey3", acyclic: true},
 		{graph: &Workflow{
 			Nodes: []Node{
-				Node{Key: "nodeKey1"},
-				Node{Key: "nodeKey2"},
+				{Key: "nodeKey1"},
+				{Key: "nodeKey2"},
 			},
 			Edges: []Edge{
-				Edge{Src: "nodeKey1", Dst: "nodeKey2"},
-				Edge{Src: "nodeKey2", Dst: "nodeKey1"},
+				{Src: "nodeKey1", Dst: "nodeKey2"},
+				{Src: "nodeKey2", Dst: "nodeKey1"},
 			},
 		}, node: "nodeKey1", acyclic: false},
 		{graph: &Workflow{
 			Nodes: []Node{
-				Node{Key: "nodeKey1"},
-				Node{Key: "nodeKey2"},
-				Node{Key: "nodeKey3"},
+				{Key: "nodeKey1"},
+				{Key: "nodeKey2"},
+				{Key: "nodeKey3"},
 			},
 			Edges: []Edge{
-				Edge{Src: "nodeKey1", Dst: "nodeKey2"},
-				Edge{Src: "nodeKey2", Dst: "nodeKey3"},
-				Edge{Src: "nodeKey3", Dst: "nodeKey1"},
+				{Src: "nodeKey1", Dst: "nodeKey2"},
+				{Src: "nodeKey2", Dst: "nodeKey3"},
+				{Src: "nodeKey3", Dst: "nodeKey1"},
 			},
 		}, node: "nodeKey1", acyclic: false},
 		{graph: &Workflow{
 			Nodes: []Node{
-				Node{Key: "nodeKey1"},
-				Node{Key: "nodeKey2"},
-				Node{Key: "nodeKey3"},
+				{Key: "nodeKey1"},
+				{Key: "nodeKey2"},
+				{Key: "nodeKey3"},
 			},
 			Edges: []Edge{
-				Edge{Src: "nodeKey1", Dst: "nodeKey2"},
-				Edge{Src: "nodeKey2", Dst: "nodeKey3"},
-				Edge{Src: "nodeKey3", Dst: "nodeKey2"},
+				{Src: "nodeKey1", Dst: "nodeKey2"},
+				{Src: "nodeKey2", Dst: "nodeKey3"},
+				{Src: "nodeKey3", Dst: "nodeKey2"},
 			},
 		}, node: "nodeKey1", acyclic: false},
 	}
@@ -164,14 +164,14 @@ func TestIsConnected(t *testing.T) {
 		{graph: defaultGraph(), node: "nodeKey3", connected: true},
 		{graph: &Workflow{
 			Nodes: []Node{
-				Node{Key: "nodeKey1"},
-				Node{Key: "nodeKey2"},
-				Node{Key: "nodeKey3"},
-				Node{Key: "nodeKey4"},
+				{Key: "nodeKey1"},
+				{Key: "nodeKey2"},
+				{Key: "nodeKey3"},
+				{Key: "nodeKey4"},
 			},
 			Edges: []Edge{
-				Edge{Src: "nodeKey1", Dst: "nodeKey2"},
-				Edge{Src: "nodeKey3", Dst: "nodeKey4"},
+				{Src: "nodeKey1", Dst: "nodeKey2"},
+				{Src: "nodeKey3", Dst: "nodeKey4"},
 			},
 		}, node: "nodeKey1", connected: false},
 	}
@@ -227,27 +227,27 @@ func TestIsMonoParental(t *testing.T) {
 		{graph: defaultGraph(), monoParent: true},
 		{graph: &Workflow{
 			Nodes: []Node{
-				Node{Key: "nodeKey1"},
-				Node{Key: "nodeKey2"},
-				Node{Key: "nodeKey3"},
+				{Key: "nodeKey1"},
+				{Key: "nodeKey2"},
+				{Key: "nodeKey3"},
 			},
 			Edges: []Edge{
-				Edge{Src: "nodeKey1", Dst: "nodeKey3"},
-				Edge{Src: "nodeKey2", Dst: "nodeKey3"},
+				{Src: "nodeKey1", Dst: "nodeKey3"},
+				{Src: "nodeKey2", Dst: "nodeKey3"},
 			},
 		}, monoParent: false},
 		{graph: &Workflow{
 			Nodes: []Node{
-				Node{Key: "nodeKey1"},
-				Node{Key: "nodeKey2"},
-				Node{Key: "nodeKey3"},
-				Node{Key: "nodeKey4"},
+				{Key: "nodeKey1"},
+				{Key: "nodeKey2"},
+				{Key: "nodeKey3"},
+				{Key: "nodeKey4"},
 			},
 			Edges: []Edge{
-				Edge{Src: "nodeKey1", Dst: "nodeKey2"},
-				Edge{Src: "nodeKey1", Dst: "nodeKey3"},
-				Edge{Src: "nodeKey2", Dst: "nodeKey4"},
-				Edge{Src: "nodeKey3", Dst: "nodeKey4"},
+				{Src: "nodeKey1", Dst: "nodeKey2"},
+				{Src: "nodeKey1", Dst: "nodeKey3"},
+				{Src: "nodeKey2", Dst: "nodeKey4"},
+				{Src: "nodeKey3", Dst: "nodeKey4"},
 			},
 		}, monoParent: false},
 	}
