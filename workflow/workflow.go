@@ -25,6 +25,15 @@ func (w *Workflow) Validate() error {
 			return err
 		}
 	}
+	if w.isNullGraph() {
+		return fmt.Errorf("null graph")
+	}
+	if !w.isAcyclic(w.Trigger.NodeKey, map[string]bool{}) {
+		return fmt.Errorf("non acyclic graph")
+	}
+	if !w.isConnected(w.Trigger.NodeKey) {
+		return fmt.Errorf("non connected graph")
+	}
 	return nil
 }
 

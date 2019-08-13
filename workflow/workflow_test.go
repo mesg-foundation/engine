@@ -107,13 +107,6 @@ func TestValidateWorkflow(t *testing.T) {
 		},
 	}
 
-	edges := []Edge{
-		{
-			Src: "nodeKey1",
-			Dst: "nodeKey2",
-		},
-	}
-
 	var tests = []struct {
 		w     *Workflow
 		valid bool
@@ -128,12 +121,6 @@ func TestValidateWorkflow(t *testing.T) {
 			Key:     "trigger-missing-node",
 			Trigger: trigger,
 		}, err: "node \"nodeKey1\" not found"},
-		{w: &Workflow{
-			Hash:    hash.Int(1),
-			Key:     "trigger-valid-node",
-			Trigger: trigger,
-			Nodes:   nodes,
-		}, valid: true},
 		{w: &Workflow{
 			Hash:    hash.Int(1),
 			Key:     "edge-src-missing-node",
@@ -154,18 +141,39 @@ func TestValidateWorkflow(t *testing.T) {
 		}, err: "node \"-\" not found"},
 		{w: &Workflow{
 			Hash:    hash.Int(1),
-			Key:     "valid-edges",
+			Key:     "cyclic-graph",
 			Trigger: trigger,
 			Nodes:   nodes,
-			Edges:   edges,
-		}, valid: true},
+			Edges: []Edge{
+				{Src: "nodeKey1", Dst: "nodeKey2"},
+				{Src: "nodeKey2", Dst: "nodeKey1"},
+			},
+		}, err: "non acyclic graph"},
+		{w: &Workflow{
+			Hash:    hash.Int(1),
+			Key:     "non-connected-graph",
+			Trigger: trigger,
+			Nodes: append(nodes, Node{
+				Key:          "nodeKey3",
+				InstanceHash: hash.Int(2),
+				TaskKey:      "-",
+			}, Node{
+				Key:          "nodeKey4",
+				InstanceHash: hash.Int(2),
+				TaskKey:      "-",
+			}),
+			Edges: []Edge{
+				{Src: "nodeKey1", Dst: "nodeKey2"},
+				{Src: "nodeKey3", Dst: "nodeKey4"},
+			},
+		}, err: "non connected graph"},
 	}
 	for _, test := range tests {
 		err := test.w.Validate()
 		if test.valid {
-			assert.Nil(t, err)
+			assert.Nil(t, err, test.w.Key)
 		} else {
-			assert.Contains(t, test.w.Validate().Error(), test.err)
+			assert.Contains(t, test.w.Validate().Error(), test.err, test.w.Key)
 		}
 	}
 }
