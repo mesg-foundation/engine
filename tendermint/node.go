@@ -2,6 +2,7 @@ package tendermint
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -96,7 +97,7 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 		me,
 		nodeKey,
 		proxy.NewLocalClientCreator(app),
-		genesisLoader(cdc, appState, ccfg.ChainID),
+		genesisLoader(cdc, appState, ccfg.ChainID, ccfg.GenesisTime),
 		node.DefaultDBProvider,
 		node.DefaultMetricsProvider(cfg.Instrumentation),
 		logger,
@@ -121,13 +122,14 @@ func createAppState(cdc *codec.Codec, address sdktypes.AccAddress, signedStdTx a
 	return genutil.SetGenTxsInAppGenesisState(cdc, appState, []authtypes.StdTx{signedStdTx})
 }
 
-func genesisLoader(cdc *codec.Codec, appState map[string]json.RawMessage, chainID string) func() (*types.GenesisDoc, error) {
+func genesisLoader(cdc *codec.Codec, appState map[string]json.RawMessage, chainID string, genesisTime time.Time) func() (*types.GenesisDoc, error) {
 	return func() (*types.GenesisDoc, error) {
 		appStateEncoded, err := cdc.MarshalJSON(appState)
 		if err != nil {
 			return nil, err
 		}
 		genesis := &types.GenesisDoc{
+			GenesisTime:     genesisTime,
 			ChainID:         chainID,
 			ConsensusParams: types.DefaultConsensusParams(),
 			AppState:        appStateEncoded,
