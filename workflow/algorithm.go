@@ -40,21 +40,31 @@ func (w *Workflow) hasNodes() bool {
 }
 
 // An acyclic graph is a graph that doesn't contain a cycle. If you walk through the graph you will go maximum one time on each node.
-func (w *Workflow) isAcyclic(node string, discovered map[string]bool) bool {
-	if discovered[node] {
-		return false
-	}
-	discovered[node] = true
-	for _, child := range w.ChildrenIDs(node) {
-		copyMap := make(map[string]bool)
-		for k, v := range discovered {
-			copyMap[k] = v
-		}
-		if !w.isAcyclic(child, copyMap) {
+func (w *Workflow) isAcyclic() bool {
+	visited := make(map[string]bool)
+	recursive := make(map[string]bool)
+	for _, node := range w.Nodes {
+		if w.hasCycle(node.Key, visited, recursive) {
 			return false
 		}
 	}
 	return true
+}
+
+// Check if the descendant of a node are creating any cycle. https://algorithms.tutorialhorizon.com/graph-detect-cycle-in-a-directed-graph/
+func (w *Workflow) hasCycle(node string, visited map[string]bool, recursive map[string]bool) bool {
+	visited[node] = true
+	recursive[node] = true
+	for _, child := range w.ChildrenIDs(node) {
+		if !visited[child] && w.hasCycle(child, visited, recursive) {
+			return true
+		}
+		if recursive[child] {
+			return true
+		}
+	}
+	recursive[node] = false
+	return false
 }
 
 // A connected graph is a graph where all the nodes are connected with each other through edges.
