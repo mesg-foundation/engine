@@ -28,7 +28,7 @@ func (w *Workflow) Validate() error {
 	if w.hasNodes() {
 		return fmt.Errorf("null graph")
 	}
-	if !w.isAcyclic(w.Trigger.NodeKey, map[string]bool{}) {
+	if !w.isAcyclic() {
 		return fmt.Errorf("non acyclic graph")
 	}
 	if !w.isConnected() {

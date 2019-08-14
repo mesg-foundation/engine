@@ -107,12 +107,9 @@ func TestHasNodes(t *testing.T) {
 func TestIsAcyclic(t *testing.T) {
 	var tests = []struct {
 		graph   *Workflow
-		node    string
 		acyclic bool
 	}{
-		{graph: defaultGraph(), node: "nodeKey1", acyclic: true},
-		{graph: defaultGraph(), node: "nodeKey2", acyclic: true},
-		{graph: defaultGraph(), node: "nodeKey3", acyclic: true},
+		{graph: defaultGraph(), acyclic: true},
 		{graph: &Workflow{
 			Nodes: []Node{
 				{Key: "nodeKey1"},
@@ -122,7 +119,7 @@ func TestIsAcyclic(t *testing.T) {
 				{Src: "nodeKey1", Dst: "nodeKey2"},
 				{Src: "nodeKey2", Dst: "nodeKey1"},
 			},
-		}, node: "nodeKey1", acyclic: false},
+		}, acyclic: false},
 		{graph: &Workflow{
 			Nodes: []Node{
 				{Key: "nodeKey1"},
@@ -134,7 +131,7 @@ func TestIsAcyclic(t *testing.T) {
 				{Src: "nodeKey2", Dst: "nodeKey3"},
 				{Src: "nodeKey3", Dst: "nodeKey1"},
 			},
-		}, node: "nodeKey1", acyclic: false},
+		}, acyclic: false},
 		{graph: &Workflow{
 			Nodes: []Node{
 				{Key: "nodeKey1"},
@@ -146,10 +143,24 @@ func TestIsAcyclic(t *testing.T) {
 				{Src: "nodeKey2", Dst: "nodeKey3"},
 				{Src: "nodeKey3", Dst: "nodeKey2"},
 			},
-		}, node: "nodeKey1", acyclic: false},
+		}, acyclic: false},
+		{graph: &Workflow{
+			Nodes: []Node{
+				{Key: "nodeKey1"},
+				{Key: "nodeKey2"},
+				{Key: "nodeKey3"},
+				{Key: "nodeKey4"},
+			},
+			Edges: []Edge{
+				{Src: "nodeKey1", Dst: "nodeKey2"},
+				{Src: "nodeKey1", Dst: "nodeKey3"},
+				{Src: "nodeKey2", Dst: "nodeKey4"},
+				{Src: "nodeKey3", Dst: "nodeKey4"},
+			},
+		}, acyclic: true},
 	}
 	for _, test := range tests {
-		assert.Equal(t, test.graph.isAcyclic(test.node, map[string]bool{}), test.acyclic)
+		assert.Equal(t, test.graph.isAcyclic(), test.acyclic)
 	}
 }
 
