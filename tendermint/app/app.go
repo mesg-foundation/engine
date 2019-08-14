@@ -1,29 +1,57 @@
 package app
 
 import (
-	"github.com/cosmos/cosmos-sdk/baseapp"
+	"encoding/json"
+
+	abci "github.com/tendermint/tendermint/abci/types"
+	cmn "github.com/tendermint/tendermint/libs/common"
+	"github.com/tendermint/tendermint/libs/log"
+	dbm "github.com/tendermint/tm-db"
+
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
-	dbm "github.com/tendermint/tendermint/libs/db"
-	"github.com/tendermint/tendermint/libs/log"
+	"github.com/cosmos/cosmos-sdk/x/bank"
+	distr "github.com/cosmos/cosmos-sdk/x/distribution"
+	"github.com/cosmos/cosmos-sdk/x/genaccounts"
+	"github.com/cosmos/cosmos-sdk/x/genutil"
+	"github.com/cosmos/cosmos-sdk/x/params"
+	"github.com/cosmos/cosmos-sdk/x/slashing"
+	"github.com/cosmos/cosmos-sdk/x/staking"
+	"github.com/cosmos/cosmos-sdk/x/supply"
+
+	"github.com/cosmos/sdk-application-tutorial/x/nameservice"
 )
 
-const appName = "mesg-app"
+const appName = "nameservice"
 
 var (
-	// ModuleBasics is BasicManager is in charge of setting up basic,
-	// non-dependant module elements, such as codec registration
-	// and genesis verification.
-	ModuleBasics = module.NewBasicManager()
+	// ModuleBasics is in charge of setting up basic module elemnets
+	ModuleBasics = module.NewBasicManager(
+		genaccounts.AppModuleBasic{},
+		genutil.AppModuleBasic{},
+		auth.AppModuleBasic{},
+		bank.AppModuleBasic{},
+		staking.AppModuleBasic{},
+		distr.AppModuleBasic{},
+		params.AppModuleBasic{},
+		slashing.AppModuleBasic{},
+		supply.AppModuleBasic{},
 
-	mainStoreKey = sdk.NewKVStoreKey(baseapp.MainStoreKey)
+		nameservice.AppModule{},
+	)
+	// account permissions
+	maccPerms = map[string][]string{
+		auth.FeeCollectorName:     nil,
+		distr.ModuleName:          nil,
+		staking.BondedPoolName:    {supply.Burner, supply.Staking},
+		staking.NotBondedPoolName: {supply.Burner, supply.Staking},
+	}
 )
 
-// MakeCodec returns a new codec for the app.
+// MakeCodec generates the necessary codecs for Amino
 func MakeCodec() *codec.Codec {
 	var cdc = codec.New()
 	ModuleBasics.RegisterCodec(cdc)
@@ -32,31 +60,225 @@ func MakeCodec() *codec.Codec {
 	return cdc
 }
 
-// App is the struct that implements a dead simple Extended ABCI application.
-type App struct {
+type NameServiceApp struct {
 	*bam.BaseApp
 	cdc *codec.Codec
 
-	// the module manager
+	// Keys to access the substores
+	keyMain     *sdk.KVStoreKey
+	keyAccount  *sdk.KVStoreKey
+	keySupply   *sdk.KVStoreKey
+	keyStaking  *sdk.KVStoreKey
+	tkeyStaking *sdk.TransientStoreKey
+	keyDistr    *sdk.KVStoreKey
+	keyNS       *sdk.KVStoreKey
+	keyParams   *sdk.KVStoreKey
+	tkeyParams  *sdk.TransientStoreKey
+	keySlashing *sdk.KVStoreKey
+
+	// Keepers
+	accountKeeper  auth.AccountKeeper
+	bankKeeper     bank.Keeper
+	stakingKeeper  staking.Keeper
+	slashingKeeper slashing.Keeper
+	distrKeeper    distr.Keeper
+	supplyKeeper   supply.Keeper
+	paramsKeeper   params.Keeper
+	nsKeeper       nameservice.Keeper
+
+	// Module Manager
 	mm *module.Manager
 }
 
-// New returns a reference to an initialized empty App.
-func New(logger log.Logger, db dbm.DB) *App {
+// NewNameServiceApp is a constructor function for NameServiceApp
+func NewNameServiceApp(logger log.Logger, db dbm.DB) (*NameServiceApp, *codec.Codec) {
+
+	// First define the top level codec that will be shared by the different modules
 	cdc := MakeCodec()
 
+	// BaseApp handles interactions with Tendermint through the ABCI protocol
 	bApp := bam.NewBaseApp(appName, logger, db, auth.DefaultTxDecoder(cdc))
-	bApp.SetAppVersion(version.Version)
 
-	var app = &App{
+	// Here you initialize your application with the store keys it requires
+	var app = &NameServiceApp{
 		BaseApp: bApp,
 		cdc:     cdc,
+
+		keyMain:     sdk.NewKVStoreKey(bam.MainStoreKey),
+		keyAccount:  sdk.NewKVStoreKey(auth.StoreKey),
+		keySupply:   sdk.NewKVStoreKey(supply.StoreKey),
+		keyStaking:  sdk.NewKVStoreKey(staking.StoreKey),
+		tkeyStaking: sdk.NewTransientStoreKey(staking.TStoreKey),
+		keyDistr:    sdk.NewKVStoreKey(distr.StoreKey),
+		keyNS:       sdk.NewKVStoreKey(nameservice.StoreKey),
+		keyParams:   sdk.NewKVStoreKey(params.StoreKey),
+		tkeyParams:  sdk.NewTransientStoreKey(params.TStoreKey),
+		keySlashing: sdk.NewKVStoreKey(slashing.StoreKey),
 	}
 
-	app.mm = module.NewManager()
+	// The ParamsKeeper handles parameter storage for the application
+	app.paramsKeeper = params.NewKeeper(app.cdc, app.keyParams, app.tkeyParams, params.DefaultCodespace)
+	// Set specific supspaces
+	authSubspace := app.paramsKeeper.Subspace(auth.DefaultParamspace)
+	bankSupspace := app.paramsKeeper.Subspace(bank.DefaultParamspace)
+	stakingSubspace := app.paramsKeeper.Subspace(staking.DefaultParamspace)
+	distrSubspace := app.paramsKeeper.Subspace(distr.DefaultParamspace)
+	slashingSubspace := app.paramsKeeper.Subspace(slashing.DefaultParamspace)
 
-	app.MountStores(mainStoreKey)
-	app.LoadLatestVersion(mainStoreKey)
+	// The AccountKeeper handles address -> account lookups
+	app.accountKeeper = auth.NewAccountKeeper(
+		app.cdc,
+		app.keyAccount,
+		authSubspace,
+		auth.ProtoBaseAccount,
+	)
 
-	return app
+	// The BankKeeper allows you perform sdk.Coins interactions
+	app.bankKeeper = bank.NewBaseKeeper(
+		app.accountKeeper,
+		bankSupspace,
+		bank.DefaultCodespace,
+		nil,
+	)
+
+	// The SupplyKeeper collects transaction fees and renders them to the fee distribution module
+	app.supplyKeeper = supply.NewKeeper(
+		app.cdc,
+		app.keySupply,
+		app.accountKeeper,
+		app.bankKeeper,
+		maccPerms)
+
+	// The staking keeper
+	stakingKeeper := staking.NewKeeper(
+		app.cdc,
+		app.keyStaking,
+		app.tkeyStaking,
+		app.supplyKeeper,
+		stakingSubspace,
+		staking.DefaultCodespace,
+	)
+
+	app.distrKeeper = distr.NewKeeper(
+		app.cdc,
+		app.keyDistr,
+		distrSubspace,
+		&stakingKeeper,
+		app.supplyKeeper,
+		distr.DefaultCodespace,
+		auth.FeeCollectorName,
+		nil,
+	)
+
+	app.slashingKeeper = slashing.NewKeeper(
+		app.cdc,
+		app.keySlashing,
+		&stakingKeeper,
+		slashingSubspace,
+		slashing.DefaultCodespace,
+	)
+
+	// register the staking hooks
+	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
+	app.stakingKeeper = *stakingKeeper.SetHooks(
+		staking.NewMultiStakingHooks(
+			app.distrKeeper.Hooks(),
+			app.slashingKeeper.Hooks()),
+	)
+
+	// The NameserviceKeeper is the Keeper from the module for this tutorial
+	// It handles interactions with the namestore
+	app.nsKeeper = nameservice.NewKeeper(
+		app.bankKeeper,
+		app.keyNS,
+		app.cdc,
+	)
+
+	app.mm = module.NewManager(
+		genaccounts.NewAppModule(app.accountKeeper),
+		genutil.NewAppModule(app.accountKeeper, app.stakingKeeper, app.BaseApp.DeliverTx),
+		auth.NewAppModule(app.accountKeeper),
+		bank.NewAppModule(app.bankKeeper, app.accountKeeper),
+		nameservice.NewAppModule(app.nsKeeper, app.bankKeeper),
+		supply.NewAppModule(app.supplyKeeper, app.accountKeeper),
+		distr.NewAppModule(app.distrKeeper, app.supplyKeeper),
+		slashing.NewAppModule(app.slashingKeeper, app.stakingKeeper),
+		staking.NewAppModule(app.stakingKeeper, app.distrKeeper, app.accountKeeper, app.supplyKeeper),
+	)
+
+	app.mm.SetOrderBeginBlockers(distr.ModuleName, slashing.ModuleName)
+	app.mm.SetOrderEndBlockers(staking.ModuleName)
+
+	// Sets the order of Genesis - Order matters, genutil is to always come last
+	app.mm.SetOrderInitGenesis(
+		genaccounts.ModuleName,
+		distr.ModuleName,
+		staking.ModuleName,
+		auth.ModuleName,
+		bank.ModuleName,
+		slashing.ModuleName,
+		nameservice.ModuleName,
+		genutil.ModuleName,
+	)
+
+	// register all module routes and module queriers
+	app.mm.RegisterRoutes(app.Router(), app.QueryRouter())
+
+	// The initChainer handles translating the genesis.json file into initial state for the network
+	app.SetInitChainer(app.InitChainer)
+	app.SetBeginBlocker(app.BeginBlocker)
+	app.SetEndBlocker(app.EndBlocker)
+
+	// The AnteHandler handles signature verification and transaction pre-processing
+	app.SetAnteHandler(
+		auth.NewAnteHandler(
+			app.accountKeeper,
+			app.supplyKeeper,
+			auth.DefaultSigVerificationGasConsumer,
+		),
+	)
+
+	app.MountStores(
+		app.keyMain,
+		app.keyAccount,
+		app.keySupply,
+		app.keyStaking,
+		app.tkeyStaking,
+		app.keyDistr,
+		app.keySlashing,
+		app.keyNS,
+		app.keyParams,
+		app.tkeyParams,
+	)
+
+	err := app.LoadLatestVersion(app.keyMain)
+	if err != nil {
+		cmn.Exit(err.Error())
+	}
+
+	return app, cdc
+}
+
+// GenesisState represents chain state at the start of the chain. Any initial state (account balances) are stored here.
+type GenesisState map[string]json.RawMessage
+
+func (app *NameServiceApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
+	var genesisState GenesisState
+
+	err := app.cdc.UnmarshalJSON(req.AppStateBytes, &genesisState)
+	if err != nil {
+		panic(err)
+	}
+
+	return app.mm.InitGenesis(ctx, genesisState)
+}
+
+func (app *NameServiceApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+	return app.mm.BeginBlock(ctx, req)
+}
+func (app *NameServiceApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
+	return app.mm.EndBlock(ctx, req)
+}
+func (app *NameServiceApp) LoadHeight(height int64) error {
+	return app.LoadVersion(height, app.keyMain)
 }

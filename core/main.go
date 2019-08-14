@@ -16,15 +16,12 @@ import (
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	"github.com/mesg-foundation/engine/server/grpc"
 	"github.com/mesg-foundation/engine/tendermint"
-	"github.com/mesg-foundation/engine/tendermint/app"
 	"github.com/mesg-foundation/engine/version"
 	"github.com/mesg-foundation/engine/x/xerrors"
 	"github.com/mesg-foundation/engine/x/xnet"
 	"github.com/mesg-foundation/engine/x/xos"
 	"github.com/mesg-foundation/engine/x/xsignal"
 	"github.com/sirupsen/logrus"
-	"github.com/tendermint/tendermint/crypto/ed25519"
-	"github.com/tendermint/tendermint/libs/db"
 )
 
 type dependencies struct {
@@ -159,18 +156,8 @@ func main() {
 	// init logger.
 	logger.Init(cfg.Log.Format, cfg.Log.Level, cfg.Log.ForceColors)
 
-	// init app
-	db := db.NewMemDB()
-	logger := logger.TendermintLogger()
-	app := app.New(logger, db)
-
 	// create tendermint node
-	node, err := tendermint.NewNode(
-		logger,
-		app,
-		cfg.Tendermint.Config,
-		ed25519.PubKeyEd25519(cfg.Tendermint.ValidatorPubKey),
-	)
+	node, err := tendermint.NewNode(cfg.Tendermint.Config, &cfg.Cosmos)
 	if err != nil {
 		logrus.Fatalln(err)
 	}

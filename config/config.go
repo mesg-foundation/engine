@@ -12,7 +12,7 @@ import (
 	"github.com/mesg-foundation/engine/x/xstrings"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
-	"github.com/tendermint/tendermint/config"
+	tmconfig "github.com/tendermint/tendermint/config"
 	"github.com/tendermint/tendermint/crypto/ed25519"
 )
 
@@ -53,12 +53,28 @@ type Config struct {
 	}
 
 	Tendermint struct {
-		*config.Config
-		Path            string
-		ValidatorPubKey PubKeyEd25519
+		*tmconfig.Config
+		Path string
 	}
 
+	Cosmos CosmosConfig
+
 	SystemServices []*ServiceConfig
+}
+
+// CosmosConfig is the struct to hold cosmos related configs.
+type CosmosConfig struct {
+	Path        string
+	ChainID     string
+	GenesisTime time.Time
+
+	GenesisAccount struct {
+		Name     string
+		Password string
+		Mnemonic string
+	}
+
+	ValidatorPubKey PubKeyEd25519
 }
 
 // New creates a new config with default values.
@@ -75,15 +91,17 @@ func New() (*Config, error) {
 	c.Log.ForceColors = false
 	c.Name = "engine"
 	c.Path = filepath.Join(home, ".mesg")
+
 	c.Database.ServiceRelativePath = filepath.Join("database", "services", serviceDBVersion)
 	c.Database.InstanceRelativePath = filepath.Join("database", "instance", instanceDBVersion)
 	c.Database.ExecutionRelativePath = filepath.Join("database", "executions", executionDBVersion)
 	c.Database.WorkflowRelativePath = filepath.Join("database", "workflows", workflowDBVersion)
-	c.Tendermint.Path = "tendermint"
-	c.Tendermint.Config = config.DefaultConfig()
+
+	c.Tendermint.Config = tmconfig.DefaultConfig()
 	c.Tendermint.Config.P2P.AddrBookStrict = false
 	c.Tendermint.Config.P2P.AllowDuplicateIP = true
 	c.Tendermint.Config.Consensus.TimeoutCommit = 10 * time.Second
+
 	return &c, c.setupServices()
 }
 
@@ -117,7 +135,10 @@ func (c *Config) Load() error {
 		return err
 	}
 
-	c.Tendermint.Config.SetRoot(filepath.Join(c.Path, c.Tendermint.Path))
+	c.Tendermint.Path = filepath.Join(c.Path, "tendermint")
+	c.Cosmos.Path = filepath.Join(c.Path, "cosmos")
+
+	c.Tendermint.SetRoot(c.Tendermint.Path)
 	return nil
 }
 
@@ -126,10 +147,13 @@ func (c *Config) Prepare() error {
 	if err := os.MkdirAll(c.Path, os.FileMode(0755)); err != nil {
 		return err
 	}
-	if err := os.MkdirAll(filepath.Join(c.Path, c.Tendermint.Path, "config"), os.FileMode(0755)); err != nil {
+	if err := os.MkdirAll(filepath.Join(c.Tendermint.Path, "config"), os.FileMode(0755)); err != nil {
 		return err
 	}
-	if err := os.MkdirAll(filepath.Join(c.Path, c.Tendermint.Path, "data"), os.FileMode(0755)); err != nil {
+	if err := os.MkdirAll(filepath.Join(c.Tendermint.Path, "data"), os.FileMode(0755)); err != nil {
+		return err
+	}
+	if err := os.MkdirAll(c.Cosmos.Path, os.FileMode(0755)); err != nil {
 		return err
 	}
 	return nil
