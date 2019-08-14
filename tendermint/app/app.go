@@ -19,7 +19,7 @@ import (
 	"github.com/mesg-foundation/engine/tendermint/app/serviceapp"
 	abci "github.com/tendermint/tendermint/abci/types"
 	cmn "github.com/tendermint/tendermint/libs/common"
-	dbm "github.com/tendermint/tendermint/libs/db"
+	dbm "github.com/tendermint/tm-db"
 	"github.com/tendermint/tendermint/libs/log"
 )
 
@@ -69,7 +69,6 @@ type ServiceApp struct {
 	keyStaking  *sdk.KVStoreKey
 	tkeyStaking *sdk.TransientStoreKey
 	keyDistr    *sdk.KVStoreKey
-	tkeyDistr   *sdk.TransientStoreKey
 	keySA       *sdk.KVStoreKey
 	keyParams   *sdk.KVStoreKey
 	tkeyParams  *sdk.TransientStoreKey
@@ -109,7 +108,6 @@ func NewServiceApp(logger log.Logger, db dbm.DB) *ServiceApp {
 		keyStaking:  sdk.NewKVStoreKey(staking.StoreKey),
 		tkeyStaking: sdk.NewTransientStoreKey(staking.TStoreKey),
 		keyDistr:    sdk.NewKVStoreKey(distr.StoreKey),
-		tkeyDistr:   sdk.NewTransientStoreKey(distr.TStoreKey),
 		keySA:       sdk.NewKVStoreKey(serviceapp.StoreKey),
 		keyParams:   sdk.NewKVStoreKey(params.StoreKey),
 		tkeyParams:  sdk.NewTransientStoreKey(params.TStoreKey),
@@ -138,6 +136,7 @@ func NewServiceApp(logger log.Logger, db dbm.DB) *ServiceApp {
 		app.accountKeeper,
 		bankSupspace,
 		bank.DefaultCodespace,
+		nil,
 	)
 
 	// The SupplyKeeper collects transaction fees and renders them to the fee distribution module
@@ -146,7 +145,6 @@ func NewServiceApp(logger log.Logger, db dbm.DB) *ServiceApp {
 		app.keySupply,
 		app.accountKeeper,
 		app.bankKeeper,
-		supply.DefaultCodespace,
 		maccPerms)
 
 	// The staking keeper
@@ -167,6 +165,7 @@ func NewServiceApp(logger log.Logger, db dbm.DB) *ServiceApp {
 		app.supplyKeeper,
 		distr.DefaultCodespace,
 		auth.FeeCollectorName,
+		nil,
 	)
 
 	app.slashingKeeper = slashing.NewKeeper(
@@ -246,7 +245,6 @@ func NewServiceApp(logger log.Logger, db dbm.DB) *ServiceApp {
 		app.keyStaking,
 		app.tkeyStaking,
 		app.keyDistr,
-		app.tkeyDistr,
 		app.keySlashing,
 		app.keySA,
 		app.keyParams,
