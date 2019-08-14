@@ -166,7 +166,7 @@ func TestValidateWorkflow(t *testing.T) {
 				{Src: "nodeKey1", Dst: "nodeKey2"},
 				{Src: "nodeKey3", Dst: "nodeKey4"},
 			},
-		}, err: "non connected graph"},
+		}, err: "workflow isn't a connected graph"},
 		{w: &Workflow{
 			Hash:    hash.Int(1),
 			Key:     "multiple-parent-graph",
@@ -186,7 +186,7 @@ func TestValidateWorkflow(t *testing.T) {
 				{Src: "nodeKey2", Dst: "nodeKey4"},
 				{Src: "nodeKey3", Dst: "nodeKey4"},
 			},
-		}, err: "non mono-parental graph"},
+		}, err: "an edge has two or more parents"},
 		{w: &Workflow{
 			Hash:    hash.Int(1),
 			Key:     "multiple-parent-graph",

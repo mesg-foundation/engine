@@ -35,10 +35,7 @@ func (w Workflow) FindNode(key string) (Node, error) {
 }
 
 // A null graph is a graph that contains no nodes
-func (w *Workflow) isNullGraph() bool {
-	if w.Nodes == nil {
-		return true
-	}
+func (w *Workflow) hasNodes() bool {
 	return len(w.Nodes) == 0
 }
 
@@ -62,18 +59,20 @@ func (w *Workflow) isAcyclic(node string, discovered map[string]bool) bool {
 
 // A connected graph is a graph where all the nodes are connected with each other through edges.
 // Warning: this function will have a stack overflow if the graph is not acyclic.
-func (w *Workflow) isConnected(node string) bool {
+func (w *Workflow) isConnected() bool {
+	root := w.getRoot(w.Nodes[0].Key)
 	visited := make(map[string]bool)
-	root := w.getRoot(node)
-	w.visitChildren(root, visited)
+	w.dfs(root, func(node string) {
+		visited[node] = true
+	})
 	return len(visited) == len(w.Nodes)
 }
 
 // walk through all the children of a node and populate a map of visited children.
-func (w *Workflow) visitChildren(node string, visited map[string]bool) {
-	visited[node] = true
+func (w *Workflow) dfs(node string, fn func(node string)) {
+	fn(node)
 	for _, n := range w.ChildrenIDs(node) {
-		w.visitChildren(n, visited)
+		w.dfs(n, fn)
 	}
 }
 
