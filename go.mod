@@ -12,7 +12,7 @@ require (
 	github.com/btcsuite/btcd v0.0.0-20190629003639-c26ffa870fd8 // indirect
 	github.com/cnf/structhash v0.0.0-20180104161610-62a607eb0224
 	github.com/containerd/continuity v0.0.0-20190426062206-aaeac12a7ffc // indirect
-	github.com/cosmos/cosmos-sdk v0.36.0-rc1
+	github.com/cosmos/cosmos-sdk v0.36.0
 	github.com/cosmos/go-bip39 v0.0.0-20180819234021-555e2067c45d // indirect
 	github.com/cskr/pubsub v1.0.2
 	github.com/docker/distribution v2.7.1+incompatible // indirect
