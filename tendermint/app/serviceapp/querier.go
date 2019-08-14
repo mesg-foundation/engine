@@ -1,7 +1,6 @@
 package serviceapp
 
 import (
-	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -33,14 +32,14 @@ func queryService(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk.Er
 		return []byte{}, sdk.ErrUnknownRequest("could not resolve service")
 	}
 
-	res, err := codec.MarshalJSONIndent(keeper.cdc, QueryServiceResolve{
+	res, err := keeper.cdc.MarshalJSON(QueryServiceResolve{
 		Service: QueryService{
 			Hash:       path[0],
 			Definition: service.Definition,
 		},
 	})
 	if err != nil {
-		return []byte{}, sdk.ErrInternal("could not unmarhsal service")
+		return []byte{}, sdk.ErrInternal("could not unmarshal service")
 	}
 
 	return res, nil
@@ -61,9 +60,9 @@ func queryServices(ctx sdk.Context, keeper Keeper) ([]byte, sdk.Error) {
 		})
 	}
 
-	res, err := codec.MarshalJSONIndent(keeper.cdc, qsr)
+	res, err := keeper.cdc.MarshalJSON(qsr)
 	if err != nil {
-		return []byte{}, sdk.ErrInternal("could not unmarhsal services")
+		return []byte{}, sdk.ErrInternal("could not unmarshal services")
 	}
 	return res, nil
 }

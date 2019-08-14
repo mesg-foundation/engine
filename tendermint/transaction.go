@@ -6,7 +6,6 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	authutils "github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/sirupsen/logrus"
 )
 
 type Signer struct {
@@ -44,12 +43,11 @@ func (s *Signer) signTransaction(msg sdktypes.Msg, accountName, accountPassword 
 	return txBldr.SignStdTx(accountName, accountPassword, stdTx, false)
 }
 
-func (s *Signer) signTransaction2(msg sdktypes.Msg, accountName, accountPassword string) ([]byte, error) {
-	logrus.Warning("chainId", s.chainID)
+func (s *Signer) signTransaction2(msg sdktypes.Msg, accountName, accountPassword string, accountNumber, accountSequence uint64) ([]byte, error) {
 	txBldr := authtypes.NewTxBuilder(
 		authutils.GetTxEncoder(s.cdc),
-		0,
-		1,
+		accountNumber,
+		accountSequence,
 		flags.DefaultGasLimit,
 		flags.DefaultGasAdjustment,
 		true,

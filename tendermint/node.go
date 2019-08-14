@@ -12,6 +12,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/logger"
+	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/tendermint/app"
 	servicetypes "github.com/mesg-foundation/engine/tendermint/app/serviceapp/types"
 	tmclient "github.com/mesg-foundation/engine/tendermint/client"
@@ -98,12 +99,17 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 		client := tmclient.New(rpcclient.NewLocal(node), cdc)
 
 		// add a service
-		time.Sleep(10 * time.Second)
-		msg := servicetypes.NewMsgSetService("superhash", "superdef", account.GetAddress())
+		time.Sleep(22 * time.Second)
+		msg := servicetypes.NewMsgSetService(hash.Int(2).String(), "{}", account.GetAddress())
 		logrus.WithField("msg", msg).Warning("set service msg")
 
+		accountNumber, accountSequence, err := authtypes.NewAccountRetriever(client).GetAccountNumberSequence(account.GetAddress())
+		if err != nil {
+			logrus.Error(err)
+		}
+
 		// sign the tx
-		signedTx, err := signer.signTransaction2(msg, ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Password)
+		signedTx, err := signer.signTransaction2(msg, ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Password, accountNumber, accountSequence)
 		if err != nil {
 			logrus.Error(err)
 		}
@@ -115,6 +121,29 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 			logrus.Error(err)
 		}
 		logrus.WithField("result", result).Warning("tx broadcasted")
+
+		msg = servicetypes.NewMsgSetService(hash.Int(1).String(), "{}", account.GetAddress())
+		logrus.WithField("msg", msg).Warning("set service msg")
+
+		accountNumber, accountSequence, err = authtypes.NewAccountRetriever(client).GetAccountNumberSequence(account.GetAddress())
+		if err != nil {
+			logrus.Error(err)
+		}
+
+		// sign the tx
+		signedTx, err = signer.signTransaction2(msg, ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Password, accountNumber, accountSequence+1)
+		if err != nil {
+			logrus.Error(err)
+		}
+		logrus.WithField("signedTx", signedTx).Warning("set service signed tx")
+
+		// broadcast the tx
+		result, err = client.BroadcastTxSync(signedTx)
+		if err != nil {
+			logrus.Error(err)
+		}
+		logrus.WithField("result", result).Warning("tx broadcasted")
+
 
 		// fetch the service
 		time.Sleep(12 * time.Second)

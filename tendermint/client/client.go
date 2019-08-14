@@ -25,6 +25,18 @@ func New(c rpcclient.Client, cdc *codec.Codec) *Client {
 	}
 }
 
+func (c *Client) QueryWithData(path string, data []byte) ([]byte, int64, error) {
+	result, err := c.c.ABCIQuery(path, data)
+	if err != nil {
+		return nil, 0, err
+	}
+	resp := result.Response
+	if !resp.IsOK() {
+		return nil, 0, errors.New(resp.Log)
+	}
+	return resp.Value, resp.Height, nil
+}
+
 func (c *Client) BroadcastTxSync(tx types.Tx) (*ctypes.ResultBroadcastTx, error) {
 	return c.c.BroadcastTxSync(tx)
 }
