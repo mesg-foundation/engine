@@ -12,7 +12,6 @@ restore_go_mod_cache: &restore_go_mod_cache
   - restore_cache:
       keys:
         - go-mod-cache-{{ checksum "go.sum" }}
-        - go-mod-cache
 save_go_mod_cache: &save_go_mod_cache
   - save_cache:
       key: go-mod-cache-{{ checksum "go.sum" }}
