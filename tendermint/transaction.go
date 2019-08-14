@@ -48,8 +48,8 @@ func (s *Signer) signTransaction2(msg sdktypes.Msg, accountName, accountPassword
 	logrus.Warning("chainId", s.chainID)
 	txBldr := authtypes.NewTxBuilder(
 		authutils.GetTxEncoder(s.cdc),
-		100,
 		0,
+		1,
 		flags.DefaultGasLimit,
 		flags.DefaultGasAdjustment,
 		true,
