@@ -97,11 +97,28 @@ func (w *Workflow) getRoot(node string) string {
 	return w.getRoot(parents[0])
 }
 
-func (w *Workflow) isMonoParental() bool {
+// Return true if all the nodes have less or equal to `max` parents.
+func (w *Workflow) maximumParentNode(max int) bool {
 	for _, node := range w.Nodes {
-		if len(w.ParentIDs(node.Key)) > 1 {
+		if len(w.ParentIDs(node.Key)) > max {
 			return false
 		}
 	}
 	return true
+}
+
+func (w *Workflow) shouldBeDirectedTree() error {
+	if w.hasNodes() {
+		return fmt.Errorf("workflow needs to have at least one node")
+	}
+	if !w.isAcyclic() {
+		return fmt.Errorf("workflow should not contain any cycles")
+	}
+	if !w.isConnected() {
+		return fmt.Errorf("workflow should be a connected graph")
+	}
+	if !w.maximumParentNode(1) {
+		return fmt.Errorf("workflow should contain edges with one parent maximum")
+	}
+	return nil
 }

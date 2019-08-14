@@ -263,6 +263,6 @@ func TestIsMonoParental(t *testing.T) {
 		}, monoParent: false},
 	}
 	for _, test := range tests {
-		assert.Equal(t, test.monoParent, test.graph.isMonoParental())
+		assert.Equal(t, test.monoParent, test.graph.maximumParentNode(1))
 	}
 }

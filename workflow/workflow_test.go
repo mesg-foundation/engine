@@ -148,7 +148,7 @@ func TestValidateWorkflow(t *testing.T) {
 				{Src: "nodeKey1", Dst: "nodeKey2"},
 				{Src: "nodeKey2", Dst: "nodeKey1"},
 			},
-		}, err: "non acyclic graph"},
+		}, err: "workflow should not contain any cycles"},
 		{w: &Workflow{
 			Hash:    hash.Int(1),
 			Key:     "non-connected-graph",
@@ -166,7 +166,7 @@ func TestValidateWorkflow(t *testing.T) {
 				{Src: "nodeKey1", Dst: "nodeKey2"},
 				{Src: "nodeKey3", Dst: "nodeKey4"},
 			},
-		}, err: "workflow isn't a connected graph"},
+		}, err: "workflow should be a connected graph"},
 		{w: &Workflow{
 			Hash:    hash.Int(1),
 			Key:     "multiple-parent-graph",
@@ -186,7 +186,7 @@ func TestValidateWorkflow(t *testing.T) {
 				{Src: "nodeKey2", Dst: "nodeKey4"},
 				{Src: "nodeKey3", Dst: "nodeKey4"},
 			},
-		}, err: "an edge has two or more parents"},
+		}, err: "workflow should contain edges with one parent maximum"},
 		{w: &Workflow{
 			Hash:    hash.Int(1),
 			Key:     "multiple-parent-graph",
