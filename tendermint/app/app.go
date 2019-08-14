@@ -62,17 +62,9 @@ type ServiceApp struct {
 	*bam.BaseApp
 	cdc *codec.Codec
 
-	// Keys to access the substores
-	keyMain     *sdk.KVStoreKey
-	keyAccount  *sdk.KVStoreKey
-	keySupply   *sdk.KVStoreKey
-	keyStaking  *sdk.KVStoreKey
-	tkeyStaking *sdk.TransientStoreKey
-	keyDistr    *sdk.KVStoreKey
-	keySA       *sdk.KVStoreKey
-	keyParams   *sdk.KVStoreKey
-	tkeyParams  *sdk.TransientStoreKey
-	keySlashing *sdk.KVStoreKey
+	// keys to access the substores
+	keys  map[string]*sdk.KVStoreKey
+	tkeys map[string]*sdk.TransientStoreKey
 
 	// Keepers
 	accountKeeper  auth.AccountKeeper
@@ -101,21 +93,21 @@ func NewServiceApp(logger log.Logger, db dbm.DB) *ServiceApp {
 	var app = &ServiceApp{
 		BaseApp: bApp,
 		cdc:     cdc,
-
-		keyMain:     sdk.NewKVStoreKey(bam.MainStoreKey),
-		keyAccount:  sdk.NewKVStoreKey(auth.StoreKey),
-		keySupply:   sdk.NewKVStoreKey(supply.StoreKey),
-		keyStaking:  sdk.NewKVStoreKey(staking.StoreKey),
-		tkeyStaking: sdk.NewTransientStoreKey(staking.TStoreKey),
-		keyDistr:    sdk.NewKVStoreKey(distr.StoreKey),
-		keySA:       sdk.NewKVStoreKey(serviceapp.StoreKey),
-		keyParams:   sdk.NewKVStoreKey(params.StoreKey),
-		tkeyParams:  sdk.NewTransientStoreKey(params.TStoreKey),
-		keySlashing: sdk.NewKVStoreKey(slashing.StoreKey),
+		keys: sdk.NewKVStoreKeys(
+			bam.MainStoreKey,
+			auth.StoreKey,
+			supply.StoreKey,
+			staking.StoreKey,
+			distr.StoreKey,
+			serviceapp.StoreKey,
+			params.StoreKey,
+			slashing.StoreKey,
+		),
+		tkeys: sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey),
 	}
 
 	// The ParamsKeeper handles parameter storage for the application
-	app.paramsKeeper = params.NewKeeper(app.cdc, app.keyParams, app.tkeyParams, params.DefaultCodespace)
+	app.paramsKeeper = params.NewKeeper(app.cdc, app.keys[params.StoreKey], app.tkeys[params.TStoreKey], params.DefaultCodespace)
 	// Set specific supspaces
 	authSubspace := app.paramsKeeper.Subspace(auth.DefaultParamspace)
 	bankSupspace := app.paramsKeeper.Subspace(bank.DefaultParamspace)
@@ -126,7 +118,7 @@ func NewServiceApp(logger log.Logger, db dbm.DB) *ServiceApp {
 	// The AccountKeeper handles address -> account lookups
 	app.accountKeeper = auth.NewAccountKeeper(
 		app.cdc,
-		app.keyAccount,
+		app.keys[params.StoreKey],
 		authSubspace,
 		auth.ProtoBaseAccount,
 	)
@@ -142,7 +134,7 @@ func NewServiceApp(logger log.Logger, db dbm.DB) *ServiceApp {
 	// The SupplyKeeper collects transaction fees and renders them to the fee distribution module
 	app.supplyKeeper = supply.NewKeeper(
 		app.cdc,
-		app.keySupply,
+		app.keys[supply.StoreKey],
 		app.accountKeeper,
 		app.bankKeeper,
 		maccPerms)
@@ -150,8 +142,8 @@ func NewServiceApp(logger log.Logger, db dbm.DB) *ServiceApp {
 	// The staking keeper
 	stakingKeeper := staking.NewKeeper(
 		app.cdc,
-		app.keyStaking,
-		app.tkeyStaking,
+		app.keys[staking.StoreKey],
+		app.keys[staking.TStoreKey],
 		app.supplyKeeper,
 		stakingSubspace,
 		staking.DefaultCodespace,
@@ -159,7 +151,7 @@ func NewServiceApp(logger log.Logger, db dbm.DB) *ServiceApp {
 
 	app.distrKeeper = distr.NewKeeper(
 		app.cdc,
-		app.keyDistr,
+		app.keys[distr.StoreKey],
 		distrSubspace,
 		&stakingKeeper,
 		app.supplyKeeper,
@@ -170,7 +162,7 @@ func NewServiceApp(logger log.Logger, db dbm.DB) *ServiceApp {
 
 	app.slashingKeeper = slashing.NewKeeper(
 		app.cdc,
-		app.keySlashing,
+		app.keys[slashing.StoreKey],
 		&stakingKeeper,
 		slashingSubspace,
 		slashing.DefaultCodespace,
@@ -187,7 +179,7 @@ func NewServiceApp(logger log.Logger, db dbm.DB) *ServiceApp {
 	// The serviceKeeper is the Keeper from the module for this tutorial
 	// It handles interactions with the namestore
 	app.saKeeper = serviceapp.NewKeeper(
-		app.keySA,
+		app.keys[serviceapp.StoreKey],
 		app.cdc,
 	)
 
@@ -238,39 +230,24 @@ func NewServiceApp(logger log.Logger, db dbm.DB) *ServiceApp {
 		),
 	)
 
-	app.MountStores(
-		app.keyMain,
-		app.keyAccount,
-		app.keySupply,
-		app.keyStaking,
-		app.tkeyStaking,
-		app.keyDistr,
-		app.keySlashing,
-		app.keySA,
-		app.keyParams,
-		app.tkeyParams,
-	)
+	// initialize stores
+	app.MountKVStores(app.keys)
+	app.MountTransientStores(app.tkeys)
 
-	err := app.LoadLatestVersion(app.keyMain)
-	if err != nil {
+	if err := app.LoadLatestVersion(app.keys[bam.MainStoreKey]); err != nil {
 		cmn.Exit(err.Error())
 	}
 
 	return app
 }
 
-// GenesisState represents chain state at the start of the chain. Any initial state (account balances) are stored here.
-type GenesisState map[string]json.RawMessage
-
 func (app *ServiceApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
-	var genesisState GenesisState
-
-	err := app.cdc.UnmarshalJSON(req.AppStateBytes, &genesisState)
-	if err != nil {
+	var genesisData map[string]json.RawMessage
+	if err := app.cdc.UnmarshalJSON(req.AppStateBytes, &genesisData); err != nil {
 		panic(err)
 	}
 
-	return app.mm.InitGenesis(ctx, genesisState)
+	return app.mm.InitGenesis(ctx, genesisData)
 }
 
 func (app *ServiceApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
@@ -280,5 +257,5 @@ func (app *ServiceApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abc
 	return app.mm.EndBlock(ctx, req)
 }
 func (app *ServiceApp) LoadHeight(height int64) error {
-	return app.LoadVersion(height, app.keyMain)
+	return app.LoadVersion(height, app.keys[bam.MainStoreKey])
 }

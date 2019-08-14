@@ -30,13 +30,6 @@ import (
 
 // NewNode retruns new tendermint node that runs the app.
 func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error) {
-	nodeKey, err := p2p.LoadOrGenNodeKey(cfg.NodeKeyFile())
-	if err != nil {
-		return nil, err
-	}
-
-	me := privval.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile())
-
 	// create user database and generate first user
 	kb, err := NewKeybase(ccfg.Path)
 	if err != nil {
@@ -48,15 +41,7 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 		return nil, err
 	}
 
-	// create app database and create an instance of the app
-	db, err := db.NewGoLevelDB("app", ccfg.Path)
-	if err != nil {
-		return nil, err
-	}
-
-	logger := logger.TendermintLogger()
 	cdc := app.MakeCodec()
-	app := app.NewServiceApp(logger, db)
 
 	// build a message to create validator
 	msg := newMsgCreateValidator(
@@ -64,16 +49,12 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 		ed25519.PubKeyEd25519(ccfg.ValidatorPubKey),
 		ccfg.GenesisAccount.Name,
 	)
-	logrus.WithField("msg", msg).Info("validator tx")
 
-	signer := NewSigner(cdc, kb, ccfg.ChainID)
-
-	// sign the message
-	signedTx, err := signer.signTransaction(msg, ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Password)
+	signedTx, err := NewTxBuilder(cdc, 0, 0, kb, ccfg.ChainID).
+		DefaultSignStdTx(msg, ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Password)
 	if err != nil {
 		return nil, err
 	}
-	logrus.WithField("signedTx", signedTx).Info("signed tx")
 
 	// initialize app state with first validator
 	appState, err := createAppState(cdc, account.GetAddress(), signedTx)
@@ -81,14 +62,27 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 		return nil, err
 	}
 
+	nodeKey, err := p2p.LoadOrGenNodeKey(cfg.NodeKeyFile())
+	if err != nil {
+		return nil, err
+	}
+
+	// create app database and create an instance of the app
+	db, err := db.NewGoLevelDB("app", ccfg.Path)
+	if err != nil {
+		return nil, err
+	}
+
+	app := app.NewServiceApp(logger.TendermintLogger(), db)
+
 	node, err := node.NewNode(cfg,
-		me,
+		privval.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile()),
 		nodeKey,
 		proxy.NewLocalClientCreator(app),
 		genesisLoader(cdc, appState, ccfg.ChainID, ccfg.GenesisTime),
 		node.DefaultDBProvider,
 		node.DefaultMetricsProvider(cfg.Instrumentation),
-		logger,
+		app.Logger(),
 	)
 	if err != nil {
 		return nil, err
@@ -103,16 +97,16 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 		msg := servicetypes.NewMsgSetService(hash.Int(2).String(), "{}", account.GetAddress())
 		logrus.WithField("msg", msg).Warning("set service msg")
 
-		accountNumber, accountSequence, err := authtypes.NewAccountRetriever(client).GetAccountNumberSequence(account.GetAddress())
+		accNumber, accSeq, err := authtypes.NewAccountRetriever(client).GetAccountNumberSequence(account.GetAddress())
+		if err != nil {
+			logrus.Error(err)
+		}
+		signedTx, err := NewTxBuilder(cdc, accNumber, accSeq, kb, ccfg.ChainID).
+			BuildAndSign(ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Password, []sdktypes.Msg{msg})
 		if err != nil {
 			logrus.Error(err)
 		}
 
-		// sign the tx
-		signedTx, err := signer.signTransaction2(msg, ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Password, accountNumber, accountSequence)
-		if err != nil {
-			logrus.Error(err)
-		}
 		logrus.WithField("signedTx", signedTx).Warning("set service signed tx")
 
 		// broadcast the tx
@@ -125,13 +119,8 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 		msg = servicetypes.NewMsgSetService(hash.Int(1).String(), "{}", account.GetAddress())
 		logrus.WithField("msg", msg).Warning("set service msg")
 
-		accountNumber, accountSequence, err = authtypes.NewAccountRetriever(client).GetAccountNumberSequence(account.GetAddress())
-		if err != nil {
-			logrus.Error(err)
-		}
-
-		// sign the tx
-		signedTx, err = signer.signTransaction2(msg, ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Password, accountNumber, accountSequence+1)
+		signedTx, err = NewTxBuilder(cdc, accNumber, accSeq+1, kb, ccfg.ChainID).
+			BuildAndSign(ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Password, []sdktypes.Msg{msg})
 		if err != nil {
 			logrus.Error(err)
 		}
@@ -145,7 +134,7 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 		logrus.WithField("result", result).Warning("tx broadcasted")
 
 		// fetch the service
-		time.Sleep(12 * time.Second)
+		time.Sleep(11 * time.Second)
 		if services, err := client.ListServices(); err != nil {
 			logrus.Error(err)
 		} else {

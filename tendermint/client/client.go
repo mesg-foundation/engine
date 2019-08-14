@@ -9,24 +9,22 @@ import (
 	"github.com/mesg-foundation/engine/service"
 	"github.com/mesg-foundation/engine/tendermint/app/serviceapp"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
-	"github.com/tendermint/tendermint/types"
 )
 
 type Client struct {
-	c   rpcclient.Client
+	rpcclient.Client
 	cdc *codec.Codec
 }
 
 func New(c rpcclient.Client, cdc *codec.Codec) *Client {
 	return &Client{
-		c:   c,
-		cdc: cdc,
+		Client: c,
+		cdc:    cdc,
 	}
 }
 
 func (c *Client) QueryWithData(path string, data []byte) ([]byte, int64, error) {
-	result, err := c.c.ABCIQuery(path, data)
+	result, err := c.ABCIQuery(path, data)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -35,10 +33,6 @@ func (c *Client) QueryWithData(path string, data []byte) ([]byte, int64, error) 
 		return nil, 0, errors.New(resp.Log)
 	}
 	return resp.Value, resp.Height, nil
-}
-
-func (c *Client) BroadcastTxSync(tx types.Tx) (*ctypes.ResultBroadcastTx, error) {
-	return c.c.BroadcastTxSync(tx)
 }
 
 func (c *Client) SetService(service *service.Service) error {
@@ -50,7 +44,7 @@ func (c *Client) RemoveService(hash hash.Hash) error {
 }
 
 func (c *Client) GetService(hash hash.Hash) (*service.Service, error) {
-	result, err := c.c.ABCIQuery("custom/serviceapp/service", nil)
+	result, err := c.ABCIQuery("custom/serviceapp/service", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +67,7 @@ func (c *Client) GetService(hash hash.Hash) (*service.Service, error) {
 }
 
 func (c *Client) ListServices() ([]*service.Service, error) {
-	result, err := c.c.ABCIQuery("custom/serviceapp/services", nil)
+	result, err := c.ABCIQuery("custom/serviceapp/services", nil)
 	if err != nil {
 		return nil, err
 	}
