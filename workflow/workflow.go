@@ -1,8 +1,6 @@
 package workflow
 
 import (
-	"fmt"
-
 	"github.com/mesg-foundation/engine/hash"
 	validator "gopkg.in/go-playground/validator.v9"
 )
@@ -25,17 +23,8 @@ func (w *Workflow) Validate() error {
 			return err
 		}
 	}
-	if w.hasNodes() {
-		return fmt.Errorf("null graph")
-	}
-	if !w.isAcyclic() {
-		return fmt.Errorf("non acyclic graph")
-	}
-	if !w.isConnected() {
-		return fmt.Errorf("workflow isn't a connected graph")
-	}
-	if !w.isMonoParental() {
-		return fmt.Errorf("an edge has two or more parents")
+	if err := w.shouldBeDirectedTree(); err != nil {
+		return err
 	}
 	return nil
 }
