@@ -32,10 +32,10 @@ func (w *Workflow) Validate() error {
 		return fmt.Errorf("non acyclic graph")
 	}
 	if !w.isConnected(w.Trigger.NodeKey) {
-		return fmt.Errorf("non connected graph")
+		return fmt.Errorf("workflow isn't a connected graph")
 	}
 	if !w.isMonoParental() {
-		return fmt.Errorf("non mono-parental graph")
+		return fmt.Errorf("the edge %s has to or more parents")
 	}
 	return nil
 }
