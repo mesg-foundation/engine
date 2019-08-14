@@ -5,8 +5,8 @@ import (
 
 	abci "github.com/tendermint/tendermint/abci/types"
 	cmn "github.com/tendermint/tendermint/libs/common"
-	dbm "github.com/tendermint/tendermint/libs/db"
 	"github.com/tendermint/tendermint/libs/log"
+	dbm "github.com/tendermint/tm-db"
 
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -71,7 +71,6 @@ type NameServiceApp struct {
 	keyStaking  *sdk.KVStoreKey
 	tkeyStaking *sdk.TransientStoreKey
 	keyDistr    *sdk.KVStoreKey
-	tkeyDistr   *sdk.TransientStoreKey
 	keyNS       *sdk.KVStoreKey
 	keyParams   *sdk.KVStoreKey
 	tkeyParams  *sdk.TransientStoreKey
@@ -111,7 +110,6 @@ func NewNameServiceApp(logger log.Logger, db dbm.DB) (*NameServiceApp, *codec.Co
 		keyStaking:  sdk.NewKVStoreKey(staking.StoreKey),
 		tkeyStaking: sdk.NewTransientStoreKey(staking.TStoreKey),
 		keyDistr:    sdk.NewKVStoreKey(distr.StoreKey),
-		tkeyDistr:   sdk.NewTransientStoreKey(distr.TStoreKey),
 		keyNS:       sdk.NewKVStoreKey(nameservice.StoreKey),
 		keyParams:   sdk.NewKVStoreKey(params.StoreKey),
 		tkeyParams:  sdk.NewTransientStoreKey(params.TStoreKey),
@@ -140,6 +138,7 @@ func NewNameServiceApp(logger log.Logger, db dbm.DB) (*NameServiceApp, *codec.Co
 		app.accountKeeper,
 		bankSupspace,
 		bank.DefaultCodespace,
+		nil,
 	)
 
 	// The SupplyKeeper collects transaction fees and renders them to the fee distribution module
@@ -148,7 +147,6 @@ func NewNameServiceApp(logger log.Logger, db dbm.DB) (*NameServiceApp, *codec.Co
 		app.keySupply,
 		app.accountKeeper,
 		app.bankKeeper,
-		supply.DefaultCodespace,
 		maccPerms)
 
 	// The staking keeper
@@ -169,6 +167,7 @@ func NewNameServiceApp(logger log.Logger, db dbm.DB) (*NameServiceApp, *codec.Co
 		app.supplyKeeper,
 		distr.DefaultCodespace,
 		auth.FeeCollectorName,
+		nil,
 	)
 
 	app.slashingKeeper = slashing.NewKeeper(
@@ -246,7 +245,6 @@ func NewNameServiceApp(logger log.Logger, db dbm.DB) (*NameServiceApp, *codec.Co
 		app.keyStaking,
 		app.tkeyStaking,
 		app.keyDistr,
-		app.tkeyDistr,
 		app.keySlashing,
 		app.keyNS,
 		app.keyParams,
