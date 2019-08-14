@@ -25,17 +25,17 @@ func (w *Workflow) Validate() error {
 			return err
 		}
 	}
-	if w.isNullGraph() {
+	if w.hasNodes() {
 		return fmt.Errorf("null graph")
 	}
 	if !w.isAcyclic(w.Trigger.NodeKey, map[string]bool{}) {
 		return fmt.Errorf("non acyclic graph")
 	}
-	if !w.isConnected(w.Trigger.NodeKey) {
+	if !w.isConnected() {
 		return fmt.Errorf("workflow isn't a connected graph")
 	}
 	if !w.isMonoParental() {
-		return fmt.Errorf("the edge %s has to or more parents")
+		return fmt.Errorf("an edge has two or more parents")
 	}
 	return nil
 }

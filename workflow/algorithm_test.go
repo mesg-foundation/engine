@@ -91,7 +91,7 @@ func TestFindNode(t *testing.T) {
 	}
 }
 
-func TestIsNullGraph(t *testing.T) {
+func TestHasNodes(t *testing.T) {
 	var tests = []struct {
 		graph *Workflow
 		null  bool
@@ -100,7 +100,7 @@ func TestIsNullGraph(t *testing.T) {
 		{graph: &Workflow{}, null: true},
 	}
 	for _, test := range tests {
-		assert.Equal(t, test.graph.isNullGraph(), test.null)
+		assert.Equal(t, test.graph.hasNodes(), test.null)
 	}
 }
 
@@ -159,9 +159,7 @@ func TestIsConnected(t *testing.T) {
 		node      string
 		connected bool
 	}{
-		{graph: defaultGraph(), node: "nodeKey1", connected: true},
-		{graph: defaultGraph(), node: "nodeKey2", connected: true},
-		{graph: defaultGraph(), node: "nodeKey3", connected: true},
+		{graph: defaultGraph(), connected: true},
 		{graph: &Workflow{
 			Nodes: []Node{
 				{Key: "nodeKey1"},
@@ -173,10 +171,10 @@ func TestIsConnected(t *testing.T) {
 				{Src: "nodeKey1", Dst: "nodeKey2"},
 				{Src: "nodeKey3", Dst: "nodeKey4"},
 			},
-		}, node: "nodeKey1", connected: false},
+		}, connected: false},
 	}
 	for i, test := range tests {
-		assert.Equal(t, test.graph.isConnected(test.node), test.connected, i)
+		assert.Equal(t, test.graph.isConnected(), test.connected, i)
 	}
 }
 
@@ -196,7 +194,9 @@ func TestVisitChildren(t *testing.T) {
 	}
 	for _, test := range tests {
 		visit := make(map[string]bool)
-		test.graph.visitChildren(test.node, visit)
+		test.graph.dfs(test.node, func(node string) {
+			visit[node] = true
+		})
 		for _, child := range test.children {
 			assert.True(t, visit[child])
 		}
