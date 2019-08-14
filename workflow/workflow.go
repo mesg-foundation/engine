@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/mesg-foundation/engine/hash"
-	"gopkg.in/go-playground/validator.v9"
+	validator "gopkg.in/go-playground/validator.v9"
 )
 
 // Validate returns an error if the workflow is invalid for whatever reason
