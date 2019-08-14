@@ -11,8 +11,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/mesg-foundation/engine/config"
-	"github.com/mesg-foundation/engine/logger"
 	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/logger"
 	"github.com/mesg-foundation/engine/tendermint/app"
 	servicetypes "github.com/mesg-foundation/engine/tendermint/app/serviceapp/types"
 	tmclient "github.com/mesg-foundation/engine/tendermint/client"
@@ -144,7 +144,6 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 		}
 		logrus.WithField("result", result).Warning("tx broadcasted")
 
-
 		// fetch the service
 		time.Sleep(12 * time.Second)
 		if services, err := client.ListServices(); err != nil {
@@ -171,6 +170,11 @@ func createAppState(cdc *codec.Codec, address sdktypes.AccAddress, signedStdTx a
 		return nil, err
 	}
 	appState[genaccounts.ModuleName] = genstate
+
+	// TODO: so we can use only one sign function
+	// genesisState := genutil.GetGenesisStateFromAppState(cdc, appState)
+	// genesisState.GenTxs = []json.RawMessage{}
+	// return genutil.SetGenesisStateInAppState(cdc, appState, genesisState), nil
 
 	return genutil.SetGenTxsInAppGenesisState(cdc, appState, []authtypes.StdTx{signedStdTx})
 }
