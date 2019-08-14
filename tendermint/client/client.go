@@ -32,7 +32,7 @@ func (c *Client) RemoveService(hash hash.Hash) error {
 }
 
 func (c *Client) GetService(hash hash.Hash) (*service.Service, error) {
-	result, err := c.c.ABCIQuery("custom/servcieapp/service", nil)
+	result, err := c.c.ABCIQuery("custom/serviceapp/service", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (c *Client) GetService(hash hash.Hash) (*service.Service, error) {
 }
 
 func (c *Client) ListServices() ([]*service.Service, error) {
-	result, err := c.c.ABCIQuery("custom/servcieapp/services", nil)
+	result, err := c.c.ABCIQuery("custom/serviceapp/services", nil)
 	if err != nil {
 		return nil, err
 	}
