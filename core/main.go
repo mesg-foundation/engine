@@ -1,8 +1,8 @@
 package main
 
 import (
-	"path/filepath"
 	"flag"
+	"path/filepath"
 	"strconv"
 	"sync"
 
@@ -166,7 +166,7 @@ func main() {
 		if err != nil {
 			logrus.WithField("module", "main").Fatalln(err)
 		}
-		log.WithField("seeds", cfg.Tendermint.P2P.Seeds).Info("starting tendermint node")
+		logrus.WithField("seeds", cfg.Tendermint.P2P.Seeds).Info("starting tendermint node")
 		if err := node.Start(); err != nil {
 			logrus.WithField("module", "main").Fatalln(err)
 		}
