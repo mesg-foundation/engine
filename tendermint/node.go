@@ -4,10 +4,8 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	authutils "github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/genaccounts"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
@@ -15,6 +13,7 @@ import (
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/logger"
 	"github.com/mesg-foundation/engine/tendermint/app"
+	servicetypes "github.com/mesg-foundation/engine/tendermint/app/serviceapp/types"
 	tmclient "github.com/mesg-foundation/engine/tendermint/client"
 	"github.com/sirupsen/logrus"
 	tmconfig "github.com/tendermint/tendermint/config"
@@ -38,7 +37,7 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 	me := privval.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile())
 
 	// create user database and generate first user
-	kb, err := NewFSKeybase(ccfg.Path)
+	kb, err := NewKeybase(ccfg.Path)
 	if err != nil {
 		return nil, err
 	}
@@ -66,15 +65,10 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 	)
 	logrus.WithField("msg", msg).Info("validator tx")
 
+	signer := NewSigner(cdc, kb, ccfg.ChainID)
+
 	// sign the message
-	signedTx, err := signTransaction(
-		cdc,
-		kb,
-		msg,
-		ccfg.ChainID,
-		ccfg.GenesisAccount.Name,
-		ccfg.GenesisAccount.Password,
-	)
+	signedTx, err := signer.signTransaction(msg, ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -102,35 +96,36 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 	// TODO: left only for tests
 	go func() {
 		client := tmclient.New(rpcclient.NewLocal(node), cdc)
+
+		// add a service
+		time.Sleep(10 * time.Second)
+		msg := servicetypes.NewMsgSetService("superhash", "superdef", account.GetAddress())
+		logrus.WithField("msg", msg).Warning("set service msg")
+
+		// sign the tx
+		signedTx, err := signer.signTransaction2(msg, ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Password)
+		if err != nil {
+			logrus.Error(err)
+		}
+		logrus.WithField("signedTx", signedTx).Warning("set service signed tx")
+
+		// broadcast the tx
+		result, err := client.BroadcastTxSync(signedTx)
+		if err != nil {
+			logrus.Error(err)
+		}
+		logrus.WithField("result", result).Warning("tx broadcasted")
+
+		// fetch the service
+		time.Sleep(12 * time.Second)
 		if services, err := client.ListServices(); err != nil {
 			logrus.Error(err)
 		} else {
-			logrus.Info(services)
+			logrus.Warning(services)
 		}
 	}()
 
 	return node, nil
-}
-
-func signTransaction(cdc *codec.Codec, kb *Keybase, msg sdktypes.Msg, chainID, accountName, accountPassword string) (authtypes.StdTx, error) {
-	fees := authtypes.NewStdFee(flags.DefaultGasLimit, sdktypes.NewCoins())
-	gasPrices := sdktypes.DecCoins{}
-	stdTx := authtypes.NewStdTx([]sdktypes.Msg{msg}, fees, []authtypes.StdSignature{}, "")
-
-	txBldr := authtypes.NewTxBuilder(
-		authutils.GetTxEncoder(cdc),
-		0,
-		0,
-		flags.DefaultGasLimit,
-		flags.DefaultGasAdjustment,
-		true,
-		chainID,
-		"",
-		sdktypes.NewCoins(),
-		gasPrices,
-	).WithKeybase(kb)
-
-	return txBldr.SignStdTx(accountName, accountPassword, stdTx, false)
 }
 
 func createAppState(cdc *codec.Codec, address sdktypes.AccAddress, signedStdTx authtypes.StdTx) (map[string]json.RawMessage, error) {

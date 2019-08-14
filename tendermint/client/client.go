@@ -9,6 +9,8 @@ import (
 	"github.com/mesg-foundation/engine/service"
 	"github.com/mesg-foundation/engine/tendermint/app/serviceapp"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
+	ctypes "github.com/tendermint/tendermint/rpc/core/types"
+	"github.com/tendermint/tendermint/types"
 )
 
 type Client struct {
@@ -21,6 +23,10 @@ func New(c rpcclient.Client, cdc *codec.Codec) *Client {
 		c:   c,
 		cdc: cdc,
 	}
+}
+
+func (c *Client) BroadcastTxSync(tx types.Tx) (*ctypes.ResultBroadcastTx, error) {
+	return c.c.BroadcastTxSync(tx)
 }
 
 func (c *Client) SetService(service *service.Service) error {

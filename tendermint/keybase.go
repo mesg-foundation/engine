@@ -13,8 +13,8 @@ type Keybase struct {
 	keys.Keybase
 }
 
-// NewFSKeybase initializes a filesystem keybase at a particular dir.
-func NewFSKeybase(dir string) (*Keybase, error) {
+// NewKeybase initializes a filesystem keybase at a particular dir.
+func NewKeybase(dir string) (*Keybase, error) {
 	kb, err := clientkey.NewKeyBaseFromDir(dir)
 	if err != nil {
 		return nil, err
