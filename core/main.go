@@ -166,7 +166,7 @@ func main() {
 		if err != nil {
 			logrus.WithField("module", "main").Fatalln(err)
 		}
-		logrus.WithField("seeds", cfg.Tendermint.P2P.Seeds).Info("starting tendermint node")
+		logrus.WithField("module", "main").WithField("seeds", cfg.Tendermint.P2P.Seeds).Info("starting tendermint node")
 		if err := node.Start(); err != nil {
 			logrus.WithField("module", "main").Fatalln(err)
 		}
