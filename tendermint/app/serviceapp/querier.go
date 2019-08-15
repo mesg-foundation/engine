@@ -27,6 +27,9 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 }
 
 func queryService(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk.Error) {
+	if len(path) == 0 {
+		return nil, sdk.ErrUnknownRequest("no hash specified")
+	}
 	h, err := hash.Decode(path[0])
 	if err != nil {
 		return nil, sdk.ErrUnknownRequest(err.Error())

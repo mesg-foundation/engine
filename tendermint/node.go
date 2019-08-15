@@ -11,13 +11,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/mesg-foundation/engine/config"
-	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/logger"
-	"github.com/mesg-foundation/engine/service"
 	"github.com/mesg-foundation/engine/tendermint/app"
 	tmclient "github.com/mesg-foundation/engine/tendermint/client"
 	"github.com/mesg-foundation/engine/tendermint/txbuilder"
-	"github.com/sirupsen/logrus"
 	tmconfig "github.com/tendermint/tendermint/config"
 	"github.com/tendermint/tendermint/crypto/ed25519"
 	"github.com/tendermint/tendermint/node"
@@ -30,16 +27,16 @@ import (
 )
 
 // NewNode retruns new tendermint node that runs the app.
-func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error) {
+func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, *tmclient.Client, error) {
 	// create user database and generate first user
 	kb, err := NewKeybase(ccfg.Path)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	account, err := kb.GenerateAccount(ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Mnemonic, ccfg.GenesisAccount.Password)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	cdc := app.MakeCodec()
@@ -54,24 +51,24 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 	signedTx, err := txbuilder.NewTxBuilder(cdc, 0, 0, kb, ccfg.ChainID).
 		Create(msg, ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Password)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// initialize app state with first validator
 	appState, err := createAppState(cdc, account.GetAddress(), signedTx)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	nodeKey, err := p2p.LoadOrGenNodeKey(cfg.NodeKeyFile())
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// create app database and create an instance of the app
 	db, err := db.NewGoLevelDB("app", ccfg.Path)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	app := app.NewServiceApp(logger.TendermintLogger(), db)
@@ -86,57 +83,19 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 		app.Logger(),
 	)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	// TODO: left only for tests
-	go func() {
-		client := tmclient.New(rpcclient.NewLocal(node), cdc, kb, ccfg.ChainID)
-
-		// add a service
-		time.Sleep(2 * time.Second)
-		if err := client.SetService(
-			&service.Service{Hash: hash.Int(1), Sid: "hub"},
-			account.GetAddress(),
-			ccfg.GenesisAccount.Name,
-			ccfg.GenesisAccount.Password,
-		); err != nil {
-			logrus.Error(err)
-		}
-		if err := client.SetService(
-			&service.Service{Hash: hash.Int(2), Sid: "nico"},
-			account.GetAddress(),
-			ccfg.GenesisAccount.Name,
-			ccfg.GenesisAccount.Password,
-		); err != nil {
-			logrus.Error(err)
-		}
-
-		// fetch the service
-		time.Sleep(2 * time.Second)
-		if services, err := client.ListServices(); err != nil {
-			logrus.Error(err)
-		} else {
-			logrus.Warning(services)
-		}
-		if err := client.RemoveService(
-			hash.Int(2),
-			account.GetAddress(),
-			ccfg.GenesisAccount.Name,
-			ccfg.GenesisAccount.Password,
-		); err != nil {
-			logrus.Error(err)
-		}
-		// fetch the service
-		time.Sleep(2 * time.Second)
-		if services, err := client.ListServices(); err != nil {
-			logrus.Error(err)
-		} else {
-			logrus.Warning(services)
-		}
-	}()
-
-	return node, nil
+	client := tmclient.New(
+		rpcclient.NewLocal(node),
+		cdc,
+		kb,
+		ccfg.ChainID,
+		account.GetAddress(),
+		ccfg.GenesisAccount.Name,
+		ccfg.GenesisAccount.Password,
+	)
+	return node, client, nil
 }
 
 func createAppState(cdc *codec.Codec, address sdktypes.AccAddress, signedStdTx authtypes.StdTx) (map[string]json.RawMessage, error) {

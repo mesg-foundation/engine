@@ -9,6 +9,7 @@ import (
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	workflowsdk "github.com/mesg-foundation/engine/sdk/workflow"
+	tmclient "github.com/mesg-foundation/engine/tendermint/client"
 )
 
 // SDK exposes all functionalities of MESG Engine.
@@ -21,9 +22,9 @@ type SDK struct {
 }
 
 // New creates a new SDK with given options.
-func New(c container.Container, serviceDB database.ServiceDB, instanceDB database.InstanceDB, execDB database.ExecutionDB, workflowDB database.WorkflowDB, engineName, port string) *SDK {
+func New(c container.Container, serviceDB database.ServiceDB, instanceDB database.InstanceDB, execDB database.ExecutionDB, workflowDB database.WorkflowDB, engineName, port string, client *tmclient.Client) *SDK {
 	ps := pubsub.New(0)
-	serviceSDK := servicesdk.New(c, serviceDB)
+	serviceSDK := servicesdk.New(c, client)
 	instanceSDK := instancesdk.New(c, serviceSDK, instanceDB, engineName, port)
 	workflowSDK := workflowsdk.New(instanceSDK, workflowDB)
 	executionSDK := executionsdk.New(ps, serviceSDK, instanceSDK, workflowSDK, execDB)

@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"path/filepath"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
@@ -16,6 +18,7 @@ import (
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	"github.com/mesg-foundation/engine/server/grpc"
 	"github.com/mesg-foundation/engine/tendermint"
+	tmclient "github.com/mesg-foundation/engine/tendermint/client"
 	"github.com/mesg-foundation/engine/version"
 	"github.com/mesg-foundation/engine/x/xerrors"
 	"github.com/mesg-foundation/engine/x/xnet"
@@ -33,7 +36,7 @@ type dependencies struct {
 	sdk         *sdk.SDK
 }
 
-func initDependencies(cfg *config.Config) (*dependencies, error) {
+func initDependencies(cfg *config.Config, client *tmclient.Client) (*dependencies, error) {
 	// init services db.
 	serviceDB, err := database.NewServiceDB(filepath.Join(cfg.Path, cfg.Database.ServiceRelativePath))
 	if err != nil {
@@ -67,7 +70,7 @@ func initDependencies(cfg *config.Config) (*dependencies, error) {
 	_, port, _ := xnet.SplitHostPort(cfg.Server.Address)
 
 	// init sdk.
-	sdk := sdk.New(c, serviceDB, instanceDB, executionDB, workflowDB, cfg.Name, strconv.Itoa(port))
+	sdk := sdk.New(c, serviceDB, instanceDB, executionDB, workflowDB, cfg.Name, strconv.Itoa(port), client)
 
 	return &dependencies{
 		cfg:         cfg,
@@ -88,10 +91,10 @@ func deployCoreServices(cfg *config.Config, sdk *sdk.SDK) error {
 			if ok {
 				srv, err = sdk.Service.Get(existsError.Hash)
 				if err != nil {
-					return err
+					return fmt.Errorf("get service failed: %s", err)
 				}
 			} else {
-				return err
+				return fmt.Errorf("create service failed: %s", err)
 			}
 		}
 		logrus.WithField("module", "main").Infof("Service %q deployed with hash %q", srv.Sid, srv.Hash)
@@ -101,10 +104,10 @@ func deployCoreServices(cfg *config.Config, sdk *sdk.SDK) error {
 			if ok {
 				instance, err = sdk.Instance.Get(existsError.Hash)
 				if err != nil {
-					return err
+					return fmt.Errorf("get instance failed: %s", err)
 				}
 			} else {
-				return err
+				return fmt.Errorf("create instance failed: %s", err)
 			}
 		}
 		serviceConfig.Instance = instance
@@ -148,18 +151,26 @@ func main() {
 		logrus.Fatalln(err)
 	}
 
-	dep, err := initDependencies(cfg)
-	if err != nil {
-		logrus.WithField("module", "main").Fatalln(err)
-	}
-
 	// init logger.
 	logger.Init(cfg.Log.Format, cfg.Log.Level, cfg.Log.ForceColors)
 
 	// create tendermint node
-	node, err := tendermint.NewNode(cfg.Tendermint.Config, &cfg.Cosmos)
+	node, client, err := tendermint.NewNode(cfg.Tendermint.Config, &cfg.Cosmos)
 	if err != nil {
 		logrus.Fatalln(err)
+	}
+
+	logrus.WithField("module", "main").WithField("seeds", cfg.Tendermint.P2P.Seeds).Info("starting tendermint node")
+	if err := node.Start(); err != nil {
+		logrus.Fatalln(err)
+	}
+
+	// wait for the first block
+	time.Sleep(2 * cfg.Tendermint.Config.Consensus.TimeoutCommit)
+
+	dep, err := initDependencies(cfg, client)
+	if err != nil {
+		logrus.WithField("module", "main").Fatalln(err)
 	}
 
 	// init system services.
@@ -177,11 +188,6 @@ func main() {
 			logrus.WithField("module", "main").Fatalln(err)
 		}
 	}()
-
-	logrus.WithField("module", "main").WithField("seeds", cfg.Tendermint.P2P.Seeds).Info("starting tendermint node")
-	if err := node.Start(); err != nil {
-		logrus.Fatalln(err)
-	}
 
 	logrus.WithField("module", "main").Info("starting workflow engine")
 	s := scheduler.New(dep.sdk.Event, dep.sdk.Execution, dep.sdk.Workflow)

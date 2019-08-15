@@ -10,11 +10,11 @@ import (
 	"github.com/cskr/pubsub"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/engine/container"
-	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/hash/dirhash"
 	"github.com/mesg-foundation/engine/service"
 	"github.com/mesg-foundation/engine/service/validator"
+	tmclient "github.com/mesg-foundation/engine/tendermint/client"
 )
 
 // Service exposes service APIs of MESG.
@@ -22,11 +22,11 @@ type Service struct {
 	ps *pubsub.PubSub
 
 	container container.Container
-	serviceDB database.ServiceDB
+	serviceDB *tmclient.Client
 }
 
 // New creates a new Service SDK with given options.
-func New(c container.Container, serviceDB database.ServiceDB) *Service {
+func New(c container.Container, serviceDB *tmclient.Client) *Service {
 	return &Service{
 		ps:        pubsub.New(0),
 		container: c,
@@ -68,7 +68,7 @@ func (s *Service) Create(srv *service.Service) (*service.Service, error) {
 	srv.Hash = hash.Hash(h)
 
 	// check if service already exists.
-	if _, err := s.serviceDB.Get(srv.Hash); err == nil {
+	if _, err := s.serviceDB.GetService(srv.Hash); err == nil {
 		return nil, &AlreadyExistsError{Hash: srv.Hash}
 	}
 
@@ -87,22 +87,22 @@ func (s *Service) Create(srv *service.Service) (*service.Service, error) {
 		return nil, err
 	}
 
-	return srv, s.serviceDB.Save(srv)
+	return srv, s.serviceDB.SetService(srv)
 }
 
 // Delete deletes the service by hash.
 func (s *Service) Delete(hash hash.Hash) error {
-	return s.serviceDB.Delete(hash)
+	return s.serviceDB.RemoveService(hash)
 }
 
 // Get returns the service that matches given hash.
 func (s *Service) Get(hash hash.Hash) (*service.Service, error) {
-	return s.serviceDB.Get(hash)
+	return s.serviceDB.GetService(hash)
 }
 
 // List returns all services.
 func (s *Service) List() ([]*service.Service, error) {
-	return s.serviceDB.All()
+	return s.serviceDB.ListServices()
 }
 
 // AlreadyExistsError is an not found error.

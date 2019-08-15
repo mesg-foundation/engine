@@ -2,6 +2,7 @@ package client
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
@@ -21,20 +22,26 @@ type account struct {
 
 type Client struct {
 	rpcclient.Client
-	cdc     *codec.Codec
-	kb      keys.Keybase
-	chainID string
+	cdc         *codec.Codec
+	kb          keys.Keybase
+	chainID     string
+	address     types.AccAddress
+	accName     string
+	accPassword string
 
 	accounts map[string]account
 }
 
-func New(c rpcclient.Client, cdc *codec.Codec, kb keys.Keybase, chainID string) *Client {
+func New(c rpcclient.Client, cdc *codec.Codec, kb keys.Keybase, chainID string, address types.AccAddress, accName, accPassword string) *Client {
 	return &Client{
-		Client:   c,
-		cdc:      cdc,
-		kb:       kb,
-		chainID:  chainID,
-		accounts: make(map[string]account),
+		Client:      c,
+		cdc:         cdc,
+		kb:          kb,
+		chainID:     chainID,
+		address:     address,
+		accName:     accName,
+		accPassword: accPassword,
+		accounts:    make(map[string]account),
 	}
 }
 
@@ -50,12 +57,12 @@ func (c *Client) QueryWithData(path string, data []byte) ([]byte, int64, error) 
 	return resp.Value, resp.Height, nil
 }
 
-func (c *Client) SetService(service *service.Service, address types.AccAddress, accName, accPassword string) error {
-	msg := serviceapp.NewMsgSetService(service, address)
+func (c *Client) SetService(service *service.Service) error {
+	msg := serviceapp.NewMsgSetService(service, c.address)
 
-	acc, ok := c.accounts[address.String()]
+	acc, ok := c.accounts[c.address.String()]
 	if !ok {
-		number, seq, err := authtypes.NewAccountRetriever(c).GetAccountNumberSequence(address)
+		number, seq, err := authtypes.NewAccountRetriever(c).GetAccountNumberSequence(c.address)
 		if err != nil {
 			return err
 		}
@@ -63,7 +70,7 @@ func (c *Client) SetService(service *service.Service, address types.AccAddress, 
 	}
 
 	txBuilder := txbuilder.NewTxBuilder(c.cdc, acc.number, acc.seq, c.kb, c.chainID)
-	signedTx, err := txBuilder.Create(msg, accName, accPassword)
+	signedTx, err := txBuilder.Create(msg, c.accName, c.accPassword)
 	if err != nil {
 		return err
 	}
@@ -78,16 +85,16 @@ func (c *Client) SetService(service *service.Service, address types.AccAddress, 
 	}
 
 	acc.seq++
-	c.accounts[address.String()] = acc
+	c.accounts[c.address.String()] = acc
 	return nil
 }
 
-func (c *Client) RemoveService(hash hash.Hash, address types.AccAddress, accName, accPassword string) error {
-	msg := serviceapp.NewMsgRemoveService(hash, address)
+func (c *Client) RemoveService(hash hash.Hash) error {
+	msg := serviceapp.NewMsgRemoveService(hash, c.address)
 
-	acc, ok := c.accounts[address.String()]
+	acc, ok := c.accounts[c.address.String()]
 	if !ok {
-		number, seq, err := authtypes.NewAccountRetriever(c).GetAccountNumberSequence(address)
+		number, seq, err := authtypes.NewAccountRetriever(c).GetAccountNumberSequence(c.address)
 		if err != nil {
 			return err
 		}
@@ -95,7 +102,7 @@ func (c *Client) RemoveService(hash hash.Hash, address types.AccAddress, accName
 	}
 
 	txBuilder := txbuilder.NewTxBuilder(c.cdc, acc.number, acc.seq, c.kb, c.chainID)
-	signedTx, err := txBuilder.Create(msg, accName, accPassword)
+	signedTx, err := txBuilder.Create(msg, c.accName, c.accPassword)
 	if err != nil {
 		return err
 	}
@@ -110,12 +117,12 @@ func (c *Client) RemoveService(hash hash.Hash, address types.AccAddress, accName
 	}
 
 	acc.seq++
-	c.accounts[address.String()] = acc
+	c.accounts[c.address.String()] = acc
 	return nil
 }
 
 func (c *Client) GetService(hash hash.Hash) (*service.Service, error) {
-	result, err := c.ABCIQuery("custom/serviceapp/service", nil)
+	result, err := c.ABCIQuery(fmt.Sprintf("custom/serviceapp/service/%s", hash), nil)
 	if err != nil {
 		return nil, err
 	}
