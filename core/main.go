@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"path/filepath"
 	"strconv"
 	"sync"
@@ -16,16 +17,15 @@ import (
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	"github.com/mesg-foundation/engine/server/grpc"
 	"github.com/mesg-foundation/engine/tendermint"
-	"github.com/mesg-foundation/engine/tendermint/app"
 	"github.com/mesg-foundation/engine/version"
 	"github.com/mesg-foundation/engine/x/xerrors"
 	"github.com/mesg-foundation/engine/x/xnet"
 	"github.com/mesg-foundation/engine/x/xos"
 	"github.com/mesg-foundation/engine/x/xsignal"
 	"github.com/sirupsen/logrus"
-	"github.com/tendermint/tendermint/crypto/ed25519"
-	"github.com/tendermint/tendermint/libs/db"
 )
+
+var network = flag.Bool("experimental-network", false, "start the engine with the network")
 
 type dependencies struct {
 	cfg         *config.Config
@@ -146,6 +146,7 @@ func stopRunningServices(sdk *sdk.SDK) error {
 }
 
 func main() {
+	flag.Parse()
 	cfg, err := config.Global()
 	if err != nil {
 		logrus.Fatalln(err)
@@ -159,20 +160,16 @@ func main() {
 	// init logger.
 	logger.Init(cfg.Log.Format, cfg.Log.Level, cfg.Log.ForceColors)
 
-	// init app
-	db := db.NewMemDB()
-	logger := logger.TendermintLogger()
-	app := app.New(logger, db)
-
-	// create tendermint node
-	node, err := tendermint.NewNode(
-		logger,
-		app,
-		cfg.Tendermint.Config,
-		ed25519.PubKeyEd25519(cfg.Tendermint.ValidatorPubKey),
-	)
-	if err != nil {
-		logrus.Fatalln(err)
+	if *network {
+		// create tendermint node
+		node, err := tendermint.NewNode(cfg.Tendermint.Config, &cfg.Cosmos)
+		if err != nil {
+			logrus.WithField("module", "main").Fatalln(err)
+		}
+		logrus.WithField("module", "main").WithField("seeds", cfg.Tendermint.P2P.Seeds).Info("starting tendermint node")
+		if err := node.Start(); err != nil {
+			logrus.WithField("module", "main").Fatalln(err)
+		}
 	}
 
 	// init system services.
@@ -190,11 +187,6 @@ func main() {
 			logrus.WithField("module", "main").Fatalln(err)
 		}
 	}()
-
-	logrus.WithField("module", "main").WithField("seeds", cfg.Tendermint.P2P.Seeds).Info("starting tendermint node")
-	if err := node.Start(); err != nil {
-		logrus.Fatalln(err)
-	}
 
 	logrus.WithField("module", "main").Info("starting workflow engine")
 	s := scheduler.New(dep.sdk.Event, dep.sdk.Execution, dep.sdk.Workflow)
