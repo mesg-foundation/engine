@@ -10,6 +10,8 @@ import (
 	_struct "github.com/golang/protobuf/ptypes/struct"
 	types "github.com/mesg-foundation/engine/protobuf/types"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -330,6 +332,17 @@ type EventServer interface {
 	// Stream returns a stream of events that satisfy criteria
 	// specified in a request.
 	Stream(*StreamEventRequest, Event_StreamServer) error
+}
+
+// UnimplementedEventServer can be embedded to have forward compatible implementations.
+type UnimplementedEventServer struct {
+}
+
+func (*UnimplementedEventServer) Create(ctx context.Context, req *CreateEventRequest) (*CreateEventResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+}
+func (*UnimplementedEventServer) Stream(req *StreamEventRequest, srv Event_StreamServer) error {
+	return status.Errorf(codes.Unimplemented, "method Stream not implemented")
 }
 
 func RegisterEventServer(s *grpc.Server, srv EventServer) {
