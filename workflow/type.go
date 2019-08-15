@@ -2,15 +2,6 @@ package workflow
 
 import "github.com/mesg-foundation/engine/hash"
 
-// TriggerType is the type for the possible triggers for a workflow
-type TriggerType uint
-
-// List of possible triggers for a workflow
-const (
-	EVENT TriggerType = iota + 1
-	RESULT
-)
-
 // Predicate is the type of conditions that can be applied in a filter of a workflow trigger
 type Predicate uint
 
@@ -44,8 +35,8 @@ type Edge struct {
 // Trigger is an event that triggers a workflow
 type Trigger struct {
 	InstanceHash hash.Hash        `hash:"name:1" validate:"required"`
-	Key          string           `hash:"name:2" validate:"required,printascii"`
-	Type         TriggerType      `hash:"name:3" validate:"required"`
+	TaskKey      string           `hash:"name:2" validate:"printascii"`
+	EventKey     string           `hash:"name:3" validate:"printascii"`
 	Filters      []*TriggerFilter `hash:"name:4" validate:"dive,required"`
 	NodeKey      string           `hash:"name:5" validate:"required"`
 }
