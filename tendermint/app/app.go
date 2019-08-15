@@ -16,7 +16,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/supply"
-	"github.com/mesg-foundation/engine/tendermint/app/serviceapp"
+	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	abci "github.com/tendermint/tendermint/abci/types"
 	cmn "github.com/tendermint/tendermint/libs/common"
 	"github.com/tendermint/tendermint/libs/log"
@@ -38,7 +38,8 @@ var (
 		slashing.AppModuleBasic{},
 		supply.AppModuleBasic{},
 
-		serviceapp.AppModule{},
+		// serviceapp.AppModuleBasic{},
+		servicesdk.AppModuleBasic{},
 	)
 	// account permissions
 	maccPerms = map[string][]string{
@@ -74,17 +75,19 @@ type ServiceApp struct {
 	distrKeeper    distr.Keeper
 	supplyKeeper   supply.Keeper
 	paramsKeeper   params.Keeper
-	saKeeper       serviceapp.Keeper
+	// saKeeper        serviceapp.Keeper
+	serviceKeeper servicesdk.Keeper
 
 	// Module Manager
 	mm *module.Manager
 }
 
 // NewServiceApp is a constructor function for ServiceApp
-func NewServiceApp(logger log.Logger, db dbm.DB) *ServiceApp {
+func NewServiceApp(logger log.Logger, db dbm.DB, serviceSDK *servicesdk.Service) *ServiceApp {
 
 	// First define the top level codec that will be shared by the different modules
 	cdc := MakeCodec()
+	serviceSDK.SetCodec(cdc)
 
 	// BaseApp handles interactions with Tendermint through the ABCI protocol
 	bApp := bam.NewBaseApp(appName, logger, db, auth.DefaultTxDecoder(cdc))
@@ -99,7 +102,8 @@ func NewServiceApp(logger log.Logger, db dbm.DB) *ServiceApp {
 			supply.StoreKey,
 			staking.StoreKey,
 			distr.StoreKey,
-			serviceapp.StoreKey,
+			// serviceapp.StoreKey,
+			"service",
 			params.StoreKey,
 			slashing.StoreKey,
 		),
@@ -178,17 +182,23 @@ func NewServiceApp(logger log.Logger, db dbm.DB) *ServiceApp {
 
 	// The serviceKeeper is the Keeper from the module for this tutorial
 	// It handles interactions with the namestore
-	app.saKeeper = serviceapp.NewKeeper(
-		app.keys[serviceapp.StoreKey],
+	// app.saKeeper = serviceapp.NewKeeper(
+	// 	app.keys[serviceapp.StoreKey],
+	// 	app.cdc,
+	// )
+	app.serviceKeeper = servicesdk.NewKeeper(
+		app.keys["service"],
 		app.cdc,
 	)
+	serviceSDK.SetKeeper(app.serviceKeeper)
 
 	app.mm = module.NewManager(
 		genaccounts.NewAppModule(app.accountKeeper),
 		genutil.NewAppModule(app.accountKeeper, app.stakingKeeper, app.BaseApp.DeliverTx),
 		auth.NewAppModule(app.accountKeeper),
 		bank.NewAppModule(app.bankKeeper, app.accountKeeper),
-		serviceapp.NewAppModule(app.saKeeper),
+		// serviceapp.NewAppModule(app.saKeeper),
+		serviceSDK,
 		supply.NewAppModule(app.supplyKeeper, app.accountKeeper),
 		distr.NewAppModule(app.distrKeeper, app.supplyKeeper),
 		slashing.NewAppModule(app.slashingKeeper, app.stakingKeeper),
@@ -206,12 +216,10 @@ func NewServiceApp(logger log.Logger, db dbm.DB) *ServiceApp {
 		auth.ModuleName,
 		bank.ModuleName,
 		slashing.ModuleName,
-		serviceapp.ModuleName,
+		// serviceapp.ModuleName,
+		"service",
 		genutil.ModuleName,
 	)
-	app.Router().AddRoute("serviceapp", serviceapp.NewHandler(app.saKeeper))
-
-	app.QueryRouter().AddRoute("serviceapp", serviceapp.NewQuerier(app.saKeeper))
 
 	// register all module routes and module queriers
 	app.mm.RegisterRoutes(app.Router(), app.QueryRouter())

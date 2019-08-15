@@ -157,15 +157,15 @@ func main() {
 	logger.Init(cfg.Log.Format, cfg.Log.Level, cfg.Log.ForceColors)
 
 	// create tendermint node
-	node, err := tendermint.NewNode(cfg.Tendermint.Config, &cfg.Cosmos)
+	node, err := tendermint.NewNode(cfg.Tendermint.Config, &cfg.Cosmos, dep.sdk.Service)
 	if err != nil {
 		logrus.Fatalln(err)
 	}
 
 	// init system services.
-	if err := deployCoreServices(dep.cfg, dep.sdk); err != nil {
-		logrus.WithField("module", "main").Fatalln(err)
-	}
+	// if err := deployCoreServices(dep.cfg, dep.sdk); err != nil {
+	// logrus.WithField("module", "main").Fatalln(err)
+	// }
 
 	// init gRPC server.
 	server := grpc.New(dep.sdk)

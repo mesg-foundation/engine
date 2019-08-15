@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/cosmos/cosmos-sdk/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cskr/pubsub"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/engine/container"
@@ -15,14 +17,58 @@ import (
 	"github.com/mesg-foundation/engine/hash/dirhash"
 	"github.com/mesg-foundation/engine/service"
 	"github.com/mesg-foundation/engine/service/validator"
+	abci "github.com/tendermint/tendermint/abci/types"
+	rpcclient "github.com/tendermint/tendermint/rpc/client"
 )
 
 // Service exposes service APIs of MESG.
 type Service struct {
+	AppModuleBasic
+
 	ps *pubsub.PubSub
 
 	container container.Container
 	serviceDB database.ServiceDB
+
+	keeper     Keeper
+	abciClient rpcclient.Client
+	cdc        *codec.Codec
+}
+
+const GetQueryPath = "get"
+
+type GetQuery struct {
+	Service service.Service `json:"service"`
+}
+
+func (s *Service) SetKeeper(keeper Keeper) {
+	s.keeper = keeper
+}
+func (s *Service) SetClient(abciClient rpcclient.Client) {
+	s.abciClient = abciClient
+}
+func (s *Service) SetCodec(cdc *codec.Codec) {
+	s.cdc = cdc
+}
+
+// NewQuerier is the module level router for state queries.
+func (s Service) NewQuerierHandler() sdk.Querier {
+	return func(ctx sdk.Context, path []string, req abci.RequestQuery) (res []byte, err sdk.Error) {
+		switch path[0] {
+		case GetQueryPath:
+			service, err := s.querierGet(ctx, path[1:])
+			if err != nil {
+				return nil, sdk.ErrInternal(err.Error())
+			}
+			res, err := s.keeper.cdc.MarshalJSON(GetQuery{service})
+			if err != nil {
+				return nil, sdk.ErrInternal(err.Error())
+			}
+			return res, nil
+		default:
+			return nil, sdk.ErrUnknownRequest("unknown nameservice query endpoint")
+		}
+	}
 }
 
 // New creates a new Service SDK with given options.
@@ -97,8 +143,35 @@ func (s *Service) Delete(hash hash.Hash) error {
 
 // Get returns the service that matches given hash.
 func (s *Service) Get(hash hash.Hash) (*service.Service, error) {
-	return s.serviceDB.Get(hash)
+	result, err := s.abciClient.ABCIQuery("custom/service/get/"+hash.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := result.Response
+	if !resp.IsOK() {
+		return nil, errors.New(resp.Log)
+	}
+
+	var out GetQuery
+	if err := s.cdc.UnmarshalJSON(resp.Value, &out); err != nil {
+		return nil, err
+	}
+
+	return &out.Service, err
 }
+
+func (s *Service) querierGet(ctx sdk.Context, path []string) (service.Service, error) {
+	srv := s.keeper.Get(ctx, path[0])
+	if srv.Hash.IsZero() {
+		return service.Service{}, sdk.ErrUnknownRequest("could not resolve service")
+	}
+	return srv, nil
+}
+
+// func (s *Service) querierGet(hash hash.Hash) (*service.Service, error) {
+// 	return s.serviceDB.Get(hash)
+// }
 
 // List returns all services.
 func (s *Service) List() ([]*service.Service, error) {
