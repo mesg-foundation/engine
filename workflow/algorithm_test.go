@@ -232,10 +232,10 @@ func TestGetRoot(t *testing.T) {
 
 func TestIsMonoParental(t *testing.T) {
 	var tests = []struct {
-		graph      *Workflow
-		monoParent bool
+		graph *Workflow
+		max   int
 	}{
-		{graph: defaultGraph(), monoParent: true},
+		{graph: defaultGraph(), max: 1},
 		{graph: &Workflow{
 			Nodes: []Node{
 				{Key: "nodeKey1"},
@@ -246,7 +246,7 @@ func TestIsMonoParental(t *testing.T) {
 				{Src: "nodeKey1", Dst: "nodeKey3"},
 				{Src: "nodeKey2", Dst: "nodeKey3"},
 			},
-		}, monoParent: false},
+		}, max: 2},
 		{graph: &Workflow{
 			Nodes: []Node{
 				{Key: "nodeKey1"},
@@ -260,9 +260,22 @@ func TestIsMonoParental(t *testing.T) {
 				{Src: "nodeKey2", Dst: "nodeKey4"},
 				{Src: "nodeKey3", Dst: "nodeKey4"},
 			},
-		}, monoParent: false},
+		}, max: 2},
+		{graph: &Workflow{
+			Nodes: []Node{
+				{Key: "nodeKey1"},
+				{Key: "nodeKey2"},
+				{Key: "nodeKey3"},
+				{Key: "nodeKey4"},
+			},
+			Edges: []Edge{
+				{Src: "nodeKey1", Dst: "nodeKey4"},
+				{Src: "nodeKey2", Dst: "nodeKey4"},
+				{Src: "nodeKey3", Dst: "nodeKey4"},
+			},
+		}, max: 3},
 	}
 	for _, test := range tests {
-		assert.Equal(t, test.monoParent, test.graph.maximumParentNode(1))
+		assert.Equal(t, test.max, test.graph.maximumParents())
 	}
 }
