@@ -71,6 +71,6 @@ require (
 	google.golang.org/genproto v0.0.0-20190801165951-fa694d86fc64 // indirect
 	google.golang.org/grpc v1.23.0
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
-	gopkg.in/go-playground/validator.v9 v9.26.0
+	gopkg.in/go-playground/validator.v9 v9.29.1
 	gotest.tools v2.2.0+incompatible // indirect
 )
