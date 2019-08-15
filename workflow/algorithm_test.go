@@ -93,14 +93,14 @@ func TestFindNode(t *testing.T) {
 
 func TestHasNodes(t *testing.T) {
 	var tests = []struct {
-		graph *Workflow
-		null  bool
+		graph    *Workflow
+		hasNodes bool
 	}{
-		{graph: defaultGraph(), null: false},
-		{graph: &Workflow{}, null: true},
+		{graph: defaultGraph(), hasNodes: true},
+		{graph: &Workflow{}, hasNodes: false},
 	}
 	for _, test := range tests {
-		assert.Equal(t, test.graph.hasNodes(), test.null)
+		assert.Equal(t, test.graph.hasNodes(), test.hasNodes)
 	}
 }
 

@@ -36,7 +36,7 @@ func (w Workflow) FindNode(key string) (Node, error) {
 
 // A null graph is a graph that contains no nodes
 func (w *Workflow) hasNodes() bool {
-	return len(w.Nodes) == 0
+	return len(w.Nodes) > 0
 }
 
 // An acyclic graph is a graph that doesn't contain a cycle. If you walk through the graph you will go maximum one time on each node.
@@ -108,7 +108,7 @@ func (w *Workflow) maximumParentNode(max int) bool {
 }
 
 func (w *Workflow) shouldBeDirectedTree() error {
-	if w.hasNodes() {
+	if !w.hasNodes() {
 		return fmt.Errorf("workflow needs to have at least one node")
 	}
 	if !w.isAcyclic() {
