@@ -9,6 +9,8 @@ import (
 	proto "github.com/golang/protobuf/proto"
 	types "github.com/mesg-foundation/engine/protobuf/types"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -487,6 +489,23 @@ type ServiceServer interface {
 	Get(context.Context, *GetServiceRequest) (*types.Service, error)
 	// List returns services specified in a request.
 	List(context.Context, *ListServiceRequest) (*ListServiceResponse, error)
+}
+
+// UnimplementedServiceServer can be embedded to have forward compatible implementations.
+type UnimplementedServiceServer struct {
+}
+
+func (*UnimplementedServiceServer) Create(ctx context.Context, req *CreateServiceRequest) (*CreateServiceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+}
+func (*UnimplementedServiceServer) Delete(ctx context.Context, req *DeleteServiceRequest) (*DeleteServiceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
+}
+func (*UnimplementedServiceServer) Get(ctx context.Context, req *GetServiceRequest) (*types.Service, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+}
+func (*UnimplementedServiceServer) List(ctx context.Context, req *ListServiceRequest) (*ListServiceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
 
 func RegisterServiceServer(s *grpc.Server, srv ServiceServer) {
