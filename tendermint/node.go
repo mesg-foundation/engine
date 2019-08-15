@@ -15,8 +15,8 @@ import (
 	"github.com/mesg-foundation/engine/logger"
 	"github.com/mesg-foundation/engine/service"
 	"github.com/mesg-foundation/engine/tendermint/app"
-	"github.com/mesg-foundation/engine/tendermint/app/serviceapp"
 	tmclient "github.com/mesg-foundation/engine/tendermint/client"
+	"github.com/mesg-foundation/engine/tendermint/txbuilder"
 	"github.com/sirupsen/logrus"
 	tmconfig "github.com/tendermint/tendermint/config"
 	"github.com/tendermint/tendermint/crypto/ed25519"
@@ -51,7 +51,7 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 		ccfg.GenesisAccount.Name,
 	)
 
-	signedTx, err := NewTxBuilder(cdc, 0, 0, kb, ccfg.ChainID).
+	signedTx, err := txbuilder.NewTxBuilder(cdc, 0, 0, kb, ccfg.ChainID).
 		Create(msg, ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Password)
 	if err != nil {
 		return nil, err
@@ -91,54 +91,28 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 
 	// TODO: left only for tests
 	go func() {
-		client := tmclient.New(rpcclient.NewLocal(node), cdc)
+		client := tmclient.New(rpcclient.NewLocal(node), cdc, kb)
 
 		// add a service
 		time.Sleep(22 * time.Second)
-		msg := serviceapp.NewMsgSetService(&service.Service{Hash: hash.Int(1), Sid: "hub"}, account.GetAddress())
-		logrus.WithField("msg", msg).Warning("set service msg")
-
-		accNumber, accSeq, err := authtypes.NewAccountRetriever(client).GetAccountNumberSequence(account.GetAddress())
-		if err != nil {
+		if err := client.SetService(
+			&service.Service{Hash: hash.Int(1), Sid: "hub"},
+			account.GetAddress(),
+			ccfg.GenesisAccount.Name,
+			ccfg.GenesisAccount.Password,
+			ccfg.ChainID,
+		); err != nil {
 			logrus.Error(err)
 		}
-		txBuilder := NewTxBuilder(cdc, accNumber, accSeq, kb, ccfg.ChainID)
-		signedTx, err := txBuilder.Create(msg, ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Password)
-		if err != nil {
+		if err := client.SetService(
+			&service.Service{Hash: hash.Int(2), Sid: "nico"},
+			account.GetAddress(),
+			ccfg.GenesisAccount.Name,
+			ccfg.GenesisAccount.Password,
+			ccfg.ChainID,
+		); err != nil {
 			logrus.Error(err)
 		}
-		logrus.WithField("signedTx", signedTx).Warning("set service signed tx")
-		encodedTx, err := txBuilder.Encode(signedTx)
-		if err != nil {
-			logrus.Error(err)
-		}
-		// broadcast the tx
-		result, err := client.BroadcastTxSync(encodedTx)
-		if err != nil {
-			logrus.Error(err)
-		}
-		logrus.WithField("result", result).Warning("tx broadcasted")
-
-		msg = serviceapp.NewMsgSetService(&service.Service{Hash: hash.Int(2), Sid: "nico"}, account.GetAddress())
-		logrus.WithField("msg", msg).Warning("set service msg")
-
-		txBuilder = NewTxBuilder(cdc, accNumber, accSeq+1, kb, ccfg.ChainID)
-		signedTx, err = txBuilder.Create(msg, ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Password)
-		if err != nil {
-			logrus.Error(err)
-		}
-		logrus.WithField("signedTx", signedTx).Warning("set service signed tx")
-		encodedTx, err = txBuilder.Encode(signedTx)
-		if err != nil {
-			logrus.Error(err)
-		}
-
-		// broadcast the tx
-		result, err = client.BroadcastTxSync(encodedTx)
-		if err != nil {
-			logrus.Error(err)
-		}
-		logrus.WithField("result", result).Warning("tx broadcasted")
 
 		// fetch the service
 		time.Sleep(12 * time.Second)
