@@ -13,8 +13,9 @@ import (
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/logger"
+	"github.com/mesg-foundation/engine/service"
 	"github.com/mesg-foundation/engine/tendermint/app"
-	servicetypes "github.com/mesg-foundation/engine/tendermint/app/serviceapp/types"
+	"github.com/mesg-foundation/engine/tendermint/app/serviceapp"
 	tmclient "github.com/mesg-foundation/engine/tendermint/client"
 	"github.com/sirupsen/logrus"
 	tmconfig "github.com/tendermint/tendermint/config"
@@ -94,7 +95,7 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 
 		// add a service
 		time.Sleep(22 * time.Second)
-		msg := servicetypes.NewMsgSetService(hash.Int(2).String(), "{}", account.GetAddress())
+		msg := serviceapp.NewMsgSetService(&service.Service{Hash: hash.Int(1), Sid: "hub"}, account.GetAddress())
 		logrus.WithField("msg", msg).Warning("set service msg")
 
 		accNumber, accSeq, err := authtypes.NewAccountRetriever(client).GetAccountNumberSequence(account.GetAddress())
@@ -118,7 +119,7 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 		}
 		logrus.WithField("result", result).Warning("tx broadcasted")
 
-		msg = servicetypes.NewMsgSetService(hash.Int(1).String(), "{}", account.GetAddress())
+		msg = serviceapp.NewMsgSetService(&service.Service{Hash: hash.Int(2), Sid: "nico"}, account.GetAddress())
 		logrus.WithField("msg", msg).Warning("set service msg")
 
 		txBuilder = NewTxBuilder(cdc, accNumber, accSeq+1, kb, ccfg.ChainID)
@@ -140,7 +141,7 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 		logrus.WithField("result", result).Warning("tx broadcasted")
 
 		// fetch the service
-		time.Sleep(11 * time.Second)
+		time.Sleep(12 * time.Second)
 		if services, err := client.ListServices(); err != nil {
 			logrus.Error(err)
 		} else {

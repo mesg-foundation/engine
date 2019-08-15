@@ -1,14 +1,14 @@
 package serviceapp
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/service"
+	"github.com/mesg-foundation/engine/service/validator"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
 type GenesisState struct {
-	Services []Service `json:"services"`
+	Services []*service.Service `json:"services"`
 }
 
 func NewGenesisState() GenesisState {
@@ -17,11 +17,8 @@ func NewGenesisState() GenesisState {
 
 func ValidateGenesis(gs GenesisState) error {
 	for _, service := range gs.Services {
-		if service.Owner == nil {
-			return fmt.Errorf("invalid service genesis: missing owner")
-		}
-		if service.Definition == "" {
-			return fmt.Errorf("invalid service genesis: missing definition")
+		if err := validator.ValidateService(service); err != nil {
+			return err
 		}
 	}
 	return nil
@@ -29,7 +26,7 @@ func ValidateGenesis(gs GenesisState) error {
 
 func DefaultGenesisState() GenesisState {
 	return GenesisState{
-		Services: []Service{},
+		Services: []*service.Service{},
 	}
 }
 
@@ -41,10 +38,5 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, gs GenesisState) []abci.Validat
 }
 
 func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
-	var services []Service
-	for it := keeper.GetHashesIterator(ctx); it.Valid(); it.Next() {
-		hash := string(it.Key())
-		services = append(services, keeper.GetService(ctx, hash))
-	}
-	return GenesisState{Services: services}
+	return GenesisState{Services: keeper.GetServices(ctx)}
 }

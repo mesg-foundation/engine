@@ -23,7 +23,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 
 // handleMsgSetService handles a message to set service.
 func handleMsgSetService(ctx sdk.Context, keeper Keeper, msg MsgSetService) sdk.Result {
-	keeper.SetService(ctx, Service(msg))
+	keeper.SetService(ctx, msg.Service)
 	return sdk.Result{}
 }
 

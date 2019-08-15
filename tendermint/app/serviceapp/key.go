@@ -1,4 +1,4 @@
-package types
+package serviceapp
 
 const (
 	// Module name.

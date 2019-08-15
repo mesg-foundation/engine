@@ -1,24 +1,25 @@
-package types
+package serviceapp
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/service"
+	"github.com/mesg-foundation/engine/service/validator"
 )
 
 const RouterKey = ModuleName
 
 // MsgSetService defines a SetService message.
 type MsgSetService struct {
-	Hash       string         `json:"hash"`
-	Definition string         `json:"definition"`
-	Owner      sdk.AccAddress `json:"owner"`
+	Service *service.Service
+	Owner   sdk.AccAddress `json:"owner"`
 }
 
 // NewMsgSetService is a constructor function for MsgSetService.
-func NewMsgSetService(hash, definition string, owner sdk.AccAddress) MsgSetService {
+func NewMsgSetService(servcie *service.Service, owner sdk.AccAddress) MsgSetService {
 	return MsgSetService{
-		Hash:       hash,
-		Definition: definition,
-		Owner:      owner,
+		Service: servcie,
+		Owner:   owner,
 	}
 }
 
@@ -37,11 +38,9 @@ func (msg MsgSetService) ValidateBasic() sdk.Error {
 	if msg.Owner.Empty() {
 		return sdk.ErrInvalidAddress(msg.Owner.String())
 	}
-	if msg.Hash == "" {
-		return sdk.ErrUnknownRequest("hash cannot be empty")
-	}
-	if msg.Definition == "" {
-		return sdk.ErrUnknownRequest("definition cannot be empty")
+
+	if err := validator.ValidateService(msg.Service); err != nil {
+		return sdk.ErrUnknownRequest(err.Error())
 	}
 	return nil
 }
@@ -58,12 +57,12 @@ func (msg MsgSetService) GetSigners() []sdk.AccAddress {
 
 // MsgRemoveService defines the RemoveService message.
 type MsgRemoveService struct {
-	Hash    string         `json:"hash"`
+	Hash    hash.Hash      `json:"hash"`
 	Remover sdk.AccAddress `json:"buyer"`
 }
 
 // NewMsgRemoveService is the constructor function for MsgRemoveService.
-func NewMsgRemoveService(hash string, remover sdk.AccAddress) MsgRemoveService {
+func NewMsgRemoveService(hash hash.Hash, remover sdk.AccAddress) MsgRemoveService {
 	return MsgRemoveService{
 		Hash:    hash,
 		Remover: remover,
@@ -85,7 +84,7 @@ func (msg MsgRemoveService) ValidateBasic() sdk.Error {
 	if msg.Remover.Empty() {
 		return sdk.ErrInvalidAddress(msg.Remover.String())
 	}
-	if msg.Hash == "" {
+	if msg.Hash.IsZero() {
 		return sdk.ErrUnknownRequest("hash cannot be empty")
 	}
 	return nil

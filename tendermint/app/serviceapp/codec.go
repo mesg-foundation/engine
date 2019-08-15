@@ -1,4 +1,4 @@
-package types
+package serviceapp
 
 import (
 	"github.com/cosmos/cosmos-sdk/codec"

@@ -2,6 +2,7 @@ package serviceapp
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/hash"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -26,43 +27,25 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 }
 
 func queryService(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk.Error) {
-	service := keeper.GetService(ctx, path[0])
-
-	if service.Hash == "" {
-		return []byte{}, sdk.ErrUnknownRequest("could not resolve service")
-	}
-
-	res, err := keeper.cdc.MarshalJSON(QueryServiceResolve{
-		Service: QueryService{
-			Hash:       path[0],
-			Definition: service.Definition,
-		},
-	})
+	h, err := hash.Decode(path[0])
 	if err != nil {
-		return []byte{}, sdk.ErrInternal("could not unmarshal service")
+		return nil, sdk.ErrUnknownRequest(err.Error())
 	}
 
+	service := keeper.GetService(ctx, h)
+	res, err := keeper.cdc.MarshalJSON(service)
+	if err != nil {
+		return nil, sdk.ErrInternal("could not unmarshal service")
+	}
 	return res, nil
 }
 
 func queryServices(ctx sdk.Context, keeper Keeper) ([]byte, sdk.Error) {
-	var services []Service
-	for it := keeper.GetHashesIterator(ctx); it.Valid(); it.Next() {
-		hash := string(it.Key())
-		services = append(services, keeper.GetService(ctx, hash))
-	}
+	services := keeper.GetServices(ctx)
 
-	var qsr QueryServicesResolve
-	for _, service := range services {
-		qsr.Services = append(qsr.Services, QueryService{
-			Hash:       service.Hash,
-			Definition: service.Definition,
-		})
-	}
-
-	res, err := keeper.cdc.MarshalJSON(qsr)
+	res, err := keeper.cdc.MarshalJSON(services)
 	if err != nil {
-		return []byte{}, sdk.ErrInternal("could not unmarshal services")
+		return nil, sdk.ErrInternal("could not unmarshal services")
 	}
 	return res, nil
 }
