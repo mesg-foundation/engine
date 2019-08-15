@@ -16,24 +16,24 @@ func TestMatch(t *testing.T) {
 		match        bool
 	}{
 		{ // matching event
-			trigger:      &Trigger{InstanceHash: hash.Int(1), Key: "xx", Type: EVENT},
+			trigger:      &Trigger{InstanceHash: hash.Int(1), EventKey: "xx"},
 			instanceHash: hash.Int(1),
 			key:          "xx",
 			match:        true,
 		},
 		{ // not matching instance
-			trigger:      &Trigger{InstanceHash: hash.Int(1), Type: EVENT},
+			trigger:      &Trigger{InstanceHash: hash.Int(1)},
 			instanceHash: hash.Int(2),
 			match:        false,
 		},
 		{ // not matching event
-			trigger:      &Trigger{InstanceHash: hash.Int(1), Key: "xx", Type: EVENT},
+			trigger:      &Trigger{InstanceHash: hash.Int(1), EventKey: "xx"},
 			instanceHash: hash.Int(1),
 			key:          "yy",
 			match:        false,
 		},
 		{ // matching filter
-			trigger: &Trigger{InstanceHash: hash.Int(1), Key: "xx", Type: EVENT, Filters: []*TriggerFilter{
+			trigger: &Trigger{InstanceHash: hash.Int(1), EventKey: "xx", Filters: []*TriggerFilter{
 				{Key: "foo", Predicate: EQ, Value: "bar"},
 			}},
 			instanceHash: hash.Int(1),
@@ -42,7 +42,7 @@ func TestMatch(t *testing.T) {
 			match:        true,
 		},
 		{ // not matching filter
-			trigger: &Trigger{InstanceHash: hash.Int(1), Key: "xx", Type: EVENT, Filters: []*TriggerFilter{
+			trigger: &Trigger{InstanceHash: hash.Int(1), EventKey: "xx", Filters: []*TriggerFilter{
 				{Key: "foo", Predicate: EQ, Value: "xx"},
 			}},
 			instanceHash: hash.Int(1),
@@ -51,7 +51,7 @@ func TestMatch(t *testing.T) {
 			match:        false,
 		},
 		{ // matching multiple filters
-			trigger: &Trigger{InstanceHash: hash.Int(1), Key: "xx", Type: EVENT, Filters: []*TriggerFilter{
+			trigger: &Trigger{InstanceHash: hash.Int(1), EventKey: "xx", Filters: []*TriggerFilter{
 				{Key: "foo", Predicate: EQ, Value: "bar"},
 				{Key: "xxx", Predicate: EQ, Value: "yyy"},
 			}},
@@ -65,7 +65,7 @@ func TestMatch(t *testing.T) {
 			match: true,
 		},
 		{ // non matching multiple filters
-			trigger: &Trigger{InstanceHash: hash.Int(1), Key: "xx", Type: EVENT, Filters: []*TriggerFilter{
+			trigger: &Trigger{InstanceHash: hash.Int(1), EventKey: "xx", Filters: []*TriggerFilter{
 				{Key: "foo", Predicate: EQ, Value: "bar"},
 				{Key: "xxx", Predicate: EQ, Value: "aaa"},
 			}},
@@ -80,7 +80,7 @@ func TestMatch(t *testing.T) {
 		},
 	}
 	for i, test := range tests {
-		match := test.trigger.Match(EVENT, test.instanceHash, test.key, test.data)
+		match := test.trigger.Match(test.instanceHash, test.key, test.data)
 		assert.Equal(t, test.match, match, i)
 	}
 }
@@ -89,8 +89,7 @@ func TestValidateWorkflow(t *testing.T) {
 
 	trigger := Trigger{
 		InstanceHash: hash.Int(2),
-		Key:          "-",
-		Type:         RESULT,
+		TaskKey:      "-",
 		NodeKey:      "nodeKey1",
 	}
 
@@ -116,6 +115,11 @@ func TestValidateWorkflow(t *testing.T) {
 			Hash: hash.Int(1),
 			Key:  "invalid-struct",
 		}, err: "Error:Field validation"},
+		{w: &Workflow{
+			Trigger: Trigger{InstanceHash: hash.Int(1), NodeKey: "-"},
+			Hash:    hash.Int(1),
+			Key:     "missing-key",
+		}, err: "eventKey or taskKey should be present"},
 		{w: &Workflow{
 			Hash:    hash.Int(1),
 			Key:     "trigger-missing-node",
