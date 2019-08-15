@@ -91,16 +91,15 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 
 	// TODO: left only for tests
 	go func() {
-		client := tmclient.New(rpcclient.NewLocal(node), cdc, kb)
+		client := tmclient.New(rpcclient.NewLocal(node), cdc, kb, ccfg.ChainID)
 
 		// add a service
-		time.Sleep(22 * time.Second)
+		time.Sleep(2 * time.Second)
 		if err := client.SetService(
 			&service.Service{Hash: hash.Int(1), Sid: "hub"},
 			account.GetAddress(),
 			ccfg.GenesisAccount.Name,
 			ccfg.GenesisAccount.Password,
-			ccfg.ChainID,
 		); err != nil {
 			logrus.Error(err)
 		}
@@ -109,13 +108,27 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 			account.GetAddress(),
 			ccfg.GenesisAccount.Name,
 			ccfg.GenesisAccount.Password,
-			ccfg.ChainID,
 		); err != nil {
 			logrus.Error(err)
 		}
 
 		// fetch the service
-		time.Sleep(12 * time.Second)
+		time.Sleep(2 * time.Second)
+		if services, err := client.ListServices(); err != nil {
+			logrus.Error(err)
+		} else {
+			logrus.Warning(services)
+		}
+		if err := client.RemoveService(
+			hash.Int(2),
+			account.GetAddress(),
+			ccfg.GenesisAccount.Name,
+			ccfg.GenesisAccount.Password,
+		); err != nil {
+			logrus.Error(err)
+		}
+		// fetch the service
+		time.Sleep(2 * time.Second)
 		if services, err := client.ListServices(); err != nil {
 			logrus.Error(err)
 		} else {

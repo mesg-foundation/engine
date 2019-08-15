@@ -21,17 +21,19 @@ type account struct {
 
 type Client struct {
 	rpcclient.Client
-	cdc *codec.Codec
-	kb  keys.Keybase
+	cdc     *codec.Codec
+	kb      keys.Keybase
+	chainID string
 
 	accounts map[string]account
 }
 
-func New(c rpcclient.Client, cdc *codec.Codec, kb keys.Keybase) *Client {
+func New(c rpcclient.Client, cdc *codec.Codec, kb keys.Keybase, chainID string) *Client {
 	return &Client{
 		Client:   c,
 		cdc:      cdc,
 		kb:       kb,
+		chainID:  chainID,
 		accounts: make(map[string]account),
 	}
 }
@@ -48,7 +50,7 @@ func (c *Client) QueryWithData(path string, data []byte) ([]byte, int64, error) 
 	return resp.Value, resp.Height, nil
 }
 
-func (c *Client) SetService(service *service.Service, address types.AccAddress, accName, accPassword, chainID string) error {
+func (c *Client) SetService(service *service.Service, address types.AccAddress, accName, accPassword string) error {
 	msg := serviceapp.NewMsgSetService(service, address)
 
 	acc, ok := c.accounts[address.String()]
@@ -60,7 +62,7 @@ func (c *Client) SetService(service *service.Service, address types.AccAddress, 
 		acc.number, acc.seq = number, seq
 	}
 
-	txBuilder := txbuilder.NewTxBuilder(c.cdc, acc.number, acc.seq, c.kb, chainID)
+	txBuilder := txbuilder.NewTxBuilder(c.cdc, acc.number, acc.seq, c.kb, c.chainID)
 	signedTx, err := txBuilder.Create(msg, accName, accPassword)
 	if err != nil {
 		return err
@@ -80,7 +82,35 @@ func (c *Client) SetService(service *service.Service, address types.AccAddress, 
 	return nil
 }
 
-func (c *Client) RemoveService(hash hash.Hash) error {
+func (c *Client) RemoveService(hash hash.Hash, address types.AccAddress, accName, accPassword string) error {
+	msg := serviceapp.NewMsgRemoveService(hash, address)
+
+	acc, ok := c.accounts[address.String()]
+	if !ok {
+		number, seq, err := authtypes.NewAccountRetriever(c).GetAccountNumberSequence(address)
+		if err != nil {
+			return err
+		}
+		acc.number, acc.seq = number, seq
+	}
+
+	txBuilder := txbuilder.NewTxBuilder(c.cdc, acc.number, acc.seq, c.kb, c.chainID)
+	signedTx, err := txBuilder.Create(msg, accName, accPassword)
+	if err != nil {
+		return err
+	}
+
+	encodedTx, err := txBuilder.Encode(signedTx)
+	if err != nil {
+		return err
+	}
+
+	if _, err := c.BroadcastTxSync(encodedTx); err != nil {
+		return err
+	}
+
+	acc.seq++
+	c.accounts[address.String()] = acc
 	return nil
 }
 
