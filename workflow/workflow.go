@@ -3,7 +3,6 @@ package workflow
 import (
 	"fmt"
 
-	"github.com/mesg-foundation/engine/hash"
 	validator "gopkg.in/go-playground/validator.v9"
 )
 
@@ -34,17 +33,10 @@ func (w *Workflow) Validate() error {
 	return nil
 }
 
-// Match returns true if a workflow trigger is matching the given parameters
-func (t *Trigger) Match(instanceHash hash.Hash, key string, data map[string]interface{}) bool {
-	if !t.InstanceHash.Equal(instanceHash) {
-		return false
-	}
-
-	if t.EventKey != key && t.TaskKey != key {
-		return false
-	}
-
-	for _, filter := range t.Filters {
+// Match returns true if the data match the current list of filters
+func (f TriggerFilters) Match(data map[string]interface{}) bool {
+	filters := []*TriggerFilter(f)
+	for _, filter := range filters {
 		if !filter.Match(data) {
 			return false
 		}
