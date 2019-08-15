@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"path/filepath"
 	"strconv"
 	"sync"
@@ -23,6 +24,8 @@ import (
 	"github.com/mesg-foundation/engine/x/xsignal"
 	"github.com/sirupsen/logrus"
 )
+
+var network = flag.Bool("experimental-network", false, "start the engine with the network")
 
 type dependencies struct {
 	cfg         *config.Config
@@ -143,6 +146,7 @@ func stopRunningServices(sdk *sdk.SDK) error {
 }
 
 func main() {
+	flag.Parse()
 	cfg, err := config.Global()
 	if err != nil {
 		logrus.Fatalln(err)
@@ -156,10 +160,16 @@ func main() {
 	// init logger.
 	logger.Init(cfg.Log.Format, cfg.Log.Level, cfg.Log.ForceColors)
 
-	// create tendermint node
-	node, err := tendermint.NewNode(cfg.Tendermint.Config, &cfg.Cosmos)
-	if err != nil {
-		logrus.Fatalln(err)
+	if *network {
+		// create tendermint node
+		node, err := tendermint.NewNode(cfg.Tendermint.Config, &cfg.Cosmos)
+		if err != nil {
+			logrus.WithField("module", "main").Fatalln(err)
+		}
+		logrus.WithField("module", "main").WithField("seeds", cfg.Tendermint.P2P.Seeds).Info("starting tendermint node")
+		if err := node.Start(); err != nil {
+			logrus.WithField("module", "main").Fatalln(err)
+		}
 	}
 
 	// init system services.
@@ -177,11 +187,6 @@ func main() {
 			logrus.WithField("module", "main").Fatalln(err)
 		}
 	}()
-
-	logrus.WithField("module", "main").WithField("seeds", cfg.Tendermint.P2P.Seeds).Info("starting tendermint node")
-	if err := node.Start(); err != nil {
-		logrus.Fatalln(err)
-	}
 
 	logrus.WithField("module", "main").Info("starting workflow engine")
 	s := scheduler.New(dep.sdk.Event, dep.sdk.Execution, dep.sdk.Workflow)

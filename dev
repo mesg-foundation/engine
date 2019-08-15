@@ -155,6 +155,6 @@ docker service create \
   --network name=$TENDERMINT_NETWORK,alias=$TENDERMINT_NETWORK_ALIAS \
   --publish $MESG_SERVER_PORT:50052 \
   $TENDERMINT_VALIDATOR_PORT_PUBLISH \
-  mesg/engine:$VERSION
+  mesg/engine:$VERSION ./engine --experimental-network
 
 docker service logs --follow --raw $MESG_NAME
