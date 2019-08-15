@@ -11,10 +11,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/mesg-foundation/engine/config"
+	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/logger"
+	"github.com/mesg-foundation/engine/service"
 	"github.com/mesg-foundation/engine/tendermint/app"
 	tmclient "github.com/mesg-foundation/engine/tendermint/client"
 	"github.com/mesg-foundation/engine/tendermint/txbuilder"
+	"github.com/sirupsen/logrus"
 	tmconfig "github.com/tendermint/tendermint/config"
 	"github.com/tendermint/tendermint/crypto/ed25519"
 	"github.com/tendermint/tendermint/node"
@@ -95,6 +98,16 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, *tmcl
 		ccfg.GenesisAccount.Name,
 		ccfg.GenesisAccount.Password,
 	)
+	go func() {
+		// XXX: This one works
+		time.Sleep(cfg.Consensus.TimeoutCommit + time.Second)
+		if err := client.SetService(&service.Service{Hash: hash.Int(1)}); err != nil {
+			logrus.Warning("SERVCIE  ", err)
+		}
+		if err := client.SetService(&service.Service{Hash: hash.Int(1)}); err != nil {
+			logrus.Warning("SERVCIE  ", err)
+		}
+	}()
 	return node, client, nil
 }
 

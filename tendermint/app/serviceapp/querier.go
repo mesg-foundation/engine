@@ -36,6 +36,10 @@ func queryService(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk.Er
 	}
 
 	service := keeper.GetService(ctx, h)
+	if service == nil {
+		return nil, sdk.ErrUnknownRequest("service dosen't exist")
+	}
+
 	res, err := keeper.cdc.MarshalJSON(service)
 	if err != nil {
 		return nil, sdk.ErrInternal("could not unmarshal service")

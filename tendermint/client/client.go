@@ -12,6 +12,7 @@ import (
 	"github.com/mesg-foundation/engine/service"
 	"github.com/mesg-foundation/engine/tendermint/app/serviceapp"
 	"github.com/mesg-foundation/engine/tendermint/txbuilder"
+	"github.com/sirupsen/logrus"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
 )
 
@@ -68,6 +69,7 @@ func (c *Client) SetService(service *service.Service) error {
 		}
 		acc.number, acc.seq = number, seq
 	}
+	logrus.Warning("SEQUENCE NUMBER >>>>>>>>> ", acc.seq, " | ", c.chainID)
 
 	txBuilder := txbuilder.NewTxBuilder(c.cdc, acc.number, acc.seq, c.kb, c.chainID)
 	signedTx, err := txBuilder.Create(msg, c.accName, c.accPassword)

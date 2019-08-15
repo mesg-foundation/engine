@@ -160,6 +160,9 @@ func toProtoParameters(params []*service.Parameter) []*types.Service_Parameter {
 }
 
 func toProtoConfiguration(configuration *service.Configuration) *types.Service_Configuration {
+	if configuration == nil {
+		return &types.Service_Configuration{}
+	}
 	return &types.Service_Configuration{
 		Args:        configuration.Args,
 		Command:     configuration.Command,
