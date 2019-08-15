@@ -7,7 +7,6 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	"github.com/mesg-foundation/engine/workflow"
-	validator "gopkg.in/go-playground/validator.v9"
 )
 
 // Workflow exposes workflow APIs of MESG.
@@ -42,7 +41,7 @@ func (w *Workflow) Create(wf *workflow.Workflow) (*workflow.Workflow, error) {
 		return nil, &AlreadyExistsError{Hash: wf.Hash}
 	}
 
-	if err := validator.New().Struct(wf); err != nil {
+	if err := wf.Validate(); err != nil {
 		return nil, err
 	}
 	return wf, w.workflowDB.Save(wf)
