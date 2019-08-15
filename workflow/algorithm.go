@@ -97,14 +97,15 @@ func (w *Workflow) getRoot(node string) string {
 	return w.getRoot(parents[0])
 }
 
-// Return true if all the nodes have less or equal to `max` parents.
-func (w *Workflow) maximumParentNode(max int) bool {
+// Return the maximum number of parent found in the graph.
+func (w *Workflow) maximumParents() int {
+	max := 0
 	for _, node := range w.Nodes {
-		if len(w.ParentIDs(node.Key)) > max {
-			return false
+		if max < len(w.ParentIDs(node.Key)) {
+			max = len(w.ParentIDs(node.Key))
 		}
 	}
-	return true
+	return max
 }
 
 func (w *Workflow) shouldBeDirectedTree() error {
@@ -117,7 +118,7 @@ func (w *Workflow) shouldBeDirectedTree() error {
 	if !w.isConnected() {
 		return fmt.Errorf("workflow should be a connected graph")
 	}
-	if !w.maximumParentNode(1) {
+	if w.maximumParents() > 1 {
 		return fmt.Errorf("workflow should contain edges with one parent maximum")
 	}
 	return nil
