@@ -34,12 +34,15 @@ type Edge struct {
 
 // Trigger is an event that triggers a workflow
 type Trigger struct {
-	InstanceHash hash.Hash        `hash:"name:1" validate:"required"`
-	TaskKey      string           `hash:"name:2" validate:"printascii"`
-	EventKey     string           `hash:"name:3" validate:"printascii"`
-	Filters      []*TriggerFilter `hash:"name:4" validate:"dive,required"`
-	NodeKey      string           `hash:"name:5" validate:"required"`
+	InstanceHash hash.Hash      `hash:"name:1" validate:"required"`
+	TaskKey      string         `hash:"name:2" validate:"printascii"`
+	EventKey     string         `hash:"name:3" validate:"printascii"`
+	Filters      TriggerFilters `hash:"name:4" validate:"dive,required"`
+	NodeKey      string         `hash:"name:5" validate:"required"`
 }
+
+// TriggerFilters is a list of filters to apply
+type TriggerFilters []*TriggerFilter
 
 // TriggerFilter is the filter definition that can be applied to a workflow trigger
 type TriggerFilter struct {
