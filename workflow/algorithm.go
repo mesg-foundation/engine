@@ -119,7 +119,7 @@ func (w *Workflow) shouldBeDirectedTree() error {
 		return fmt.Errorf("workflow should be a connected graph")
 	}
 	if w.maximumParents() > 1 {
-		return fmt.Errorf("workflow should contain edges with one parent maximum")
+		return fmt.Errorf("workflow should contain nodes with one parent maximum")
 	}
 	return nil
 }
