@@ -186,7 +186,7 @@ func TestValidateWorkflow(t *testing.T) {
 				{Src: "nodeKey2", Dst: "nodeKey4"},
 				{Src: "nodeKey3", Dst: "nodeKey4"},
 			},
-		}, err: "workflow should contain edges with one parent maximum"},
+		}, err: "workflow should contain nodes with one parent maximum"},
 		{w: &Workflow{
 			Hash:    hash.Int(1),
 			Key:     "multiple-parent-graph",
