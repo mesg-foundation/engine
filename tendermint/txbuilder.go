@@ -6,6 +6,7 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	authutils "github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/tendermint/tendermint/types"
 )
 
 // TxBuilder implements a transaction context created in SDK modules.
@@ -31,9 +32,17 @@ func NewTxBuilder(cdc *codec.Codec, accNumber, accSeq uint64, kb *Keybase, chain
 	}
 }
 
-// DefaultSignStdTx appends a signature to a StdTx with default gas limit and not fees.
-func (b txBuilder) DefaultSignStdTx(msg sdktypes.Msg, accountName, accountPassword string) (authtypes.StdTx, error) {
-	fees := authtypes.NewStdFee(flags.DefaultGasLimit, sdktypes.NewCoins())
-	stdTx := authtypes.NewStdTx([]sdktypes.Msg{msg}, fees, []authtypes.StdSignature{}, "")
+// Create a signed transaction from a message.
+func (b txBuilder) Create(msg sdktypes.Msg, accountName, accountPassword string) (authtypes.StdTx, error) {
+	signedMsg, err := b.BuildSignMsg([]sdktypes.Msg{msg})
+	if err != nil {
+		return authtypes.StdTx{}, err
+	}
+	stdTx := authtypes.NewStdTx(signedMsg.Msgs, signedMsg.Fee, []authtypes.StdSignature{}, signedMsg.Memo)
 	return b.SignStdTx(accountName, accountPassword, stdTx, false)
+}
+
+// Encode a transaction.
+func (b txBuilder) Encode(tx authtypes.StdTx) (types.Tx, error) {
+	return b.TxEncoder()(tx)
 }

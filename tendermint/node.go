@@ -51,7 +51,7 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 	)
 
 	signedTx, err := NewTxBuilder(cdc, 0, 0, kb, ccfg.ChainID).
-		DefaultSignStdTx(msg, ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Password)
+		Create(msg, ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -101,16 +101,18 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 		if err != nil {
 			logrus.Error(err)
 		}
-		signedTx, err := NewTxBuilder(cdc, accNumber, accSeq, kb, ccfg.ChainID).
-			BuildAndSign(ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Password, []sdktypes.Msg{msg})
+		txBuilder := NewTxBuilder(cdc, accNumber, accSeq, kb, ccfg.ChainID)
+		signedTx, err := txBuilder.Create(msg, ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Password)
 		if err != nil {
 			logrus.Error(err)
 		}
-
 		logrus.WithField("signedTx", signedTx).Warning("set service signed tx")
-
+		encodedTx, err := txBuilder.Encode(signedTx)
+		if err != nil {
+			logrus.Error(err)
+		}
 		// broadcast the tx
-		result, err := client.BroadcastTxSync(signedTx)
+		result, err := client.BroadcastTxSync(encodedTx)
 		if err != nil {
 			logrus.Error(err)
 		}
@@ -119,15 +121,19 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 		msg = servicetypes.NewMsgSetService(hash.Int(1).String(), "{}", account.GetAddress())
 		logrus.WithField("msg", msg).Warning("set service msg")
 
-		signedTx, err = NewTxBuilder(cdc, accNumber, accSeq+1, kb, ccfg.ChainID).
-			BuildAndSign(ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Password, []sdktypes.Msg{msg})
+		txBuilder = NewTxBuilder(cdc, accNumber, accSeq+1, kb, ccfg.ChainID)
+		signedTx, err = txBuilder.Create(msg, ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Password)
 		if err != nil {
 			logrus.Error(err)
 		}
 		logrus.WithField("signedTx", signedTx).Warning("set service signed tx")
+		encodedTx, err = txBuilder.Encode(signedTx)
+		if err != nil {
+			logrus.Error(err)
+		}
 
 		// broadcast the tx
-		result, err = client.BroadcastTxSync(signedTx)
+		result, err = client.BroadcastTxSync(encodedTx)
 		if err != nil {
 			logrus.Error(err)
 		}
@@ -159,11 +165,6 @@ func createAppState(cdc *codec.Codec, address sdktypes.AccAddress, signedStdTx a
 		return nil, err
 	}
 	appState[genaccounts.ModuleName] = genstate
-
-	// TODO: so we can use only one sign function
-	// genesisState := genutil.GetGenesisStateFromAppState(cdc, appState)
-	// genesisState.GenTxs = []json.RawMessage{}
-	// return genutil.SetGenesisStateInAppState(cdc, appState, genesisState), nil
 
 	return genutil.SetGenTxsInAppGenesisState(cdc, appState, []authtypes.StdTx{signedStdTx})
 }
