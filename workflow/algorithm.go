@@ -101,8 +101,8 @@ func (w *Workflow) getRoot(node string) string {
 func (w *Workflow) maximumParents() int {
 	max := 0
 	for _, node := range w.Nodes {
-		if max < len(w.ParentIDs(node.Key)) {
-			max = len(w.ParentIDs(node.Key))
+		if l := len(w.ParentIDs(node.Key)); max < l {
+			max = l
 		}
 	}
 	return max
