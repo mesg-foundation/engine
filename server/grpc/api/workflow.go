@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/api"
@@ -118,13 +119,6 @@ func fromProtoWorkflowEdges(edges []*types.Workflow_Edge) []workflow.Edge {
 }
 
 func fromProtoWorkflow(wf *types.Workflow) (*workflow.Workflow, error) {
-	var triggerType workflow.TriggerType
-	switch wf.Trigger.Type {
-	case types.Workflow_Trigger_Result:
-		triggerType = workflow.RESULT
-	case types.Workflow_Trigger_Event:
-		triggerType = workflow.EVENT
-	}
 	instanceHash, err := hash.Decode(wf.Trigger.InstanceHash)
 	if err != nil {
 		return nil, err
@@ -133,17 +127,24 @@ func fromProtoWorkflow(wf *types.Workflow) (*workflow.Workflow, error) {
 	if err != nil {
 		return nil, err
 	}
+	trigger := workflow.Trigger{
+		InstanceHash: instanceHash,
+		NodeKey:      wf.Trigger.NodeKey,
+		Filters:      fromProtoFilters(wf.Trigger.Filters),
+	}
+	switch x := wf.Trigger.Key.(type) {
+	case *types.Workflow_Trigger_EventKey:
+		trigger.EventKey = x.EventKey
+	case *types.Workflow_Trigger_TaskKey:
+		trigger.TaskKey = x.TaskKey
+	default:
+		return nil, fmt.Errorf("workflow trigger key has unexpected type %T", x)
+	}
 	return &workflow.Workflow{
-		Key: wf.Key,
-		Trigger: workflow.Trigger{
-			Type:         triggerType,
-			InstanceHash: instanceHash,
-			Key:          wf.Trigger.Key,
-			NodeKey:      wf.Trigger.NodeKey,
-			Filters:      fromProtoFilters(wf.Trigger.Filters),
-		},
-		Nodes: nodes,
-		Edges: fromProtoWorkflowEdges(wf.Edges),
+		Key:     wf.Key,
+		Trigger: trigger,
+		Nodes:   nodes,
+		Edges:   fromProtoWorkflowEdges(wf.Edges),
 	}, nil
 }
 
@@ -188,25 +189,23 @@ func toProtoWorkflowEdges(edges []workflow.Edge) []*types.Workflow_Edge {
 }
 
 func toProtoWorkflow(wf *workflow.Workflow) *types.Workflow {
-	var triggerType types.Workflow_Trigger_Type
-	switch wf.Trigger.Type {
-	case workflow.EVENT:
-		triggerType = types.Workflow_Trigger_Event
-	case workflow.RESULT:
-		triggerType = types.Workflow_Trigger_Result
+	trigger := &types.Workflow_Trigger{
+		InstanceHash: wf.Trigger.InstanceHash.String(),
+		Filters:      toProtoFilters(wf.Trigger.Filters),
+		NodeKey:      wf.Trigger.NodeKey,
+	}
+	if wf.Trigger.TaskKey != "" {
+		trigger.Key = &types.Workflow_Trigger_TaskKey{TaskKey: wf.Trigger.TaskKey}
+	}
+	if wf.Trigger.EventKey != "" {
+		trigger.Key = &types.Workflow_Trigger_EventKey{EventKey: wf.Trigger.EventKey}
 	}
 	return &types.Workflow{
-		Hash: wf.Hash.String(),
-		Key:  wf.Key,
-		Trigger: &types.Workflow_Trigger{
-			Type:         triggerType,
-			InstanceHash: wf.Trigger.InstanceHash.String(),
-			Key:          wf.Trigger.Key,
-			Filters:      toProtoFilters(wf.Trigger.Filters),
-			NodeKey:      wf.Trigger.NodeKey,
-		},
-		Nodes: toProtoWorkflowNodes(wf.Nodes),
-		Edges: toProtoWorkflowEdges(wf.Edges),
+		Hash:    wf.Hash.String(),
+		Key:     wf.Key,
+		Trigger: trigger,
+		Nodes:   toProtoWorkflowNodes(wf.Nodes),
+		Edges:   toProtoWorkflowEdges(wf.Edges),
 	}
 }
 
