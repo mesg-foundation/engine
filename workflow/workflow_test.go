@@ -85,7 +85,7 @@ func TestValidateWorkflow(t *testing.T) {
 			Trigger: Trigger{InstanceHash: hash.Int(1), NodeKey: "-"},
 			Hash:    hash.Int(1),
 			Key:     "missing-key",
-		}, err: "eventKey or taskKey should be present"},
+		}, err: "Key: 'Workflow.Trigger.TaskKey' Error:Field validation for 'TaskKey' failed on the 'required_without' tag"},
 		{w: &Workflow{
 			Hash:    hash.Int(1),
 			Key:     "trigger-missing-node",
