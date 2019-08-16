@@ -97,6 +97,10 @@ func deployCoreServices(cfg *config.Config, sdk *sdk.SDK) error {
 				return fmt.Errorf("create service failed: %s", err)
 			}
 		}
+
+		// wait for a block to commit the transaction about create service
+		time.Sleep(cfg.Tendermint.Config.Consensus.TimeoutCommit + 1*time.Second)
+
 		logrus.WithField("module", "main").Infof("Service %q deployed with hash %q", srv.Sid, srv.Hash)
 		instance, err := sdk.Instance.Create(srv.Hash, xos.EnvMapToSlice(serviceConfig.Env))
 		if err != nil {
@@ -165,13 +169,12 @@ func main() {
 		logrus.Fatalln(err)
 	}
 
-	// wait for the first block
-	time.Sleep(2 * cfg.Tendermint.Config.Consensus.TimeoutCommit)
-
 	dep, err := initDependencies(cfg, client)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
+
+	time.Sleep(cfg.Tendermint.Config.Consensus.TimeoutCommit)
 
 	// init system services.
 	if err := deployCoreServices(dep.cfg, dep.sdk); err != nil {

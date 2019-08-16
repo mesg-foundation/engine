@@ -3,20 +3,19 @@ package serviceapp
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/hash"
-	"github.com/mesg-foundation/engine/service"
-	"github.com/mesg-foundation/engine/service/validator"
+	pbtypes "github.com/mesg-foundation/engine/protobuf/types"
 )
 
 const RouterKey = ModuleName
 
 // MsgSetService defines a SetService message.
 type MsgSetService struct {
-	Service *service.Service
-	Owner   sdk.AccAddress `json:"owner"`
+	Service *pbtypes.Service `json:"service"`
+	Owner   sdk.AccAddress   `json:"owner"`
 }
 
 // NewMsgSetService is a constructor function for MsgSetService.
-func NewMsgSetService(servcie *service.Service, owner sdk.AccAddress) MsgSetService {
+func NewMsgSetService(servcie *pbtypes.Service, owner sdk.AccAddress) MsgSetService {
 	return MsgSetService{
 		Service: servcie,
 		Owner:   owner,
@@ -39,9 +38,9 @@ func (msg MsgSetService) ValidateBasic() sdk.Error {
 		return sdk.ErrInvalidAddress(msg.Owner.String())
 	}
 
-	if err := validator.ValidateService(msg.Service); err != nil {
-		return sdk.ErrUnknownRequest(err.Error())
-	}
+	// if err := validator.ValidateService(msg.Service); err != nil {
+	// 	return sdk.ErrUnknownRequest(err.Error())
+	// }
 	return nil
 }
 

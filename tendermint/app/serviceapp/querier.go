@@ -14,7 +14,7 @@ const (
 
 // NewQuerier is the module level router for state queries.
 func NewQuerier(keeper Keeper) sdk.Querier {
-	return func(ctx sdk.Context, path []string, req abci.RequestQuery) (res []byte, err sdk.Error) {
+	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, sdk.Error) {
 		switch path[0] {
 		case QueryServicePath:
 			return queryService(ctx, path[1:], keeper)
@@ -27,12 +27,13 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 }
 
 func queryService(ctx sdk.Context, path []string, keeper Keeper) ([]byte, sdk.Error) {
-	if len(path) == 0 {
+	if len(path) == 0 || path[0] == "" {
 		return nil, sdk.ErrUnknownRequest("no hash specified")
 	}
+
 	h, err := hash.Decode(path[0])
 	if err != nil {
-		return nil, sdk.ErrUnknownRequest(err.Error())
+		return nil, sdk.ErrUnknownRequest("invalid hash: " + path[0])
 	}
 
 	service := keeper.GetService(ctx, h)

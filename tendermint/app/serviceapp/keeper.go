@@ -4,7 +4,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/hash"
-	"github.com/mesg-foundation/engine/service"
+	pbtypes "github.com/mesg-foundation/engine/protobuf/types"
 )
 
 // Keeper maintains the link to data storage and exposes
@@ -23,22 +23,22 @@ func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec) Keeper {
 }
 
 // Gets the entire Whois metadata struct for a name
-func (k Keeper) GetService(ctx sdk.Context, hash hash.Hash) *service.Service {
+func (k Keeper) GetService(ctx sdk.Context, hash hash.Hash) *pbtypes.Service {
 	store := ctx.KVStore(k.storeKey)
-	if !store.Has(hash) {
+	if !store.Has([]byte(hash.String())) {
 		return nil
 	}
 
-	b := store.Get(hash)
-	var service service.Service
+	b := store.Get([]byte(hash.String()))
+	var service pbtypes.Service
 	k.cdc.MustUnmarshalBinaryBare(b, &service)
 	return &service
 }
 
 // Sets the entire Whois metadata struct for a name
-func (k Keeper) SetService(ctx sdk.Context, service *service.Service) {
+func (k Keeper) SetService(ctx sdk.Context, service *pbtypes.Service) {
 	store := ctx.KVStore(k.storeKey)
-	store.Set(service.Hash, k.cdc.MustMarshalBinaryBare(service))
+	store.Set([]byte(service.Hash), k.cdc.MustMarshalBinaryBare(service))
 }
 
 // RemoveService removes the entire service metadata struct for given hash.
@@ -48,11 +48,13 @@ func (k Keeper) RemoveService(ctx sdk.Context, hash hash.Hash) {
 }
 
 // GetServices retruns all services
-func (k Keeper) GetServices(ctx sdk.Context) []*service.Service {
+func (k Keeper) GetServices(ctx sdk.Context) []*pbtypes.Service {
 	store := ctx.KVStore(k.storeKey)
-	var services []*service.Service
+	var services []*pbtypes.Service
 	for it := sdk.KVStorePrefixIterator(store, nil); it.Valid(); it.Next() {
-		services = append(services, k.GetService(ctx, hash.Hash(it.Key())))
+		var service pbtypes.Service
+		k.cdc.MustUnmarshalBinaryBare(it.Value(), &service)
+		services = append(services, &service)
 	}
 	return services
 }

@@ -12,6 +12,7 @@ import (
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/hash/dirhash"
+	"github.com/mesg-foundation/engine/protobuf/convert"
 	"github.com/mesg-foundation/engine/service"
 	"github.com/mesg-foundation/engine/service/validator"
 	tmclient "github.com/mesg-foundation/engine/tendermint/client"
@@ -87,7 +88,7 @@ func (s *Service) Create(srv *service.Service) (*service.Service, error) {
 		return nil, err
 	}
 
-	return srv, s.serviceDB.SetService(srv)
+	return srv, s.serviceDB.SetService(convert.ToProtoService(srv))
 }
 
 // Delete deletes the service by hash.
@@ -97,12 +98,25 @@ func (s *Service) Delete(hash hash.Hash) error {
 
 // Get returns the service that matches given hash.
 func (s *Service) Get(hash hash.Hash) (*service.Service, error) {
-	return s.serviceDB.GetService(hash)
+	service, err := s.serviceDB.GetService(hash)
+	if err != nil {
+		return nil, err
+	}
+
+	return convert.FromProtoService(service), nil
 }
 
 // List returns all services.
 func (s *Service) List() ([]*service.Service, error) {
-	return s.serviceDB.ListServices()
+	services, err := s.serviceDB.ListServices()
+	if err != nil {
+		return nil, err
+	}
+	ss := make([]*service.Service, len(services))
+	for i := range services {
+		ss[i] = convert.FromProtoService(services[i])
+	}
+	return ss, nil
 }
 
 // AlreadyExistsError is an not found error.

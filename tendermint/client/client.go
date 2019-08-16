@@ -9,7 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/mesg-foundation/engine/hash"
-	"github.com/mesg-foundation/engine/service"
+	pbtypes "github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/tendermint/app/serviceapp"
 	"github.com/mesg-foundation/engine/tendermint/txbuilder"
 	"github.com/sirupsen/logrus"
@@ -58,7 +58,7 @@ func (c *Client) QueryWithData(path string, data []byte) ([]byte, int64, error) 
 	return resp.Value, resp.Height, nil
 }
 
-func (c *Client) SetService(service *service.Service) error {
+func (c *Client) SetService(service *pbtypes.Service) error {
 	msg := serviceapp.NewMsgSetService(service, c.address)
 
 	acc, ok := c.accounts[c.address.String()]
@@ -123,7 +123,7 @@ func (c *Client) RemoveService(hash hash.Hash) error {
 	return nil
 }
 
-func (c *Client) GetService(hash hash.Hash) (*service.Service, error) {
+func (c *Client) GetService(hash hash.Hash) (*pbtypes.Service, error) {
 	result, err := c.ABCIQuery(fmt.Sprintf("custom/serviceapp/service/%s", hash), nil)
 	if err != nil {
 		return nil, err
@@ -134,14 +134,14 @@ func (c *Client) GetService(hash hash.Hash) (*service.Service, error) {
 		return nil, errors.New(resp.Log)
 	}
 
-	var service service.Service
+	var service pbtypes.Service
 	if err := c.cdc.UnmarshalJSON(resp.Value, &service); err != nil {
 		return nil, err
 	}
 	return &service, nil
 }
 
-func (c *Client) ListServices() ([]*service.Service, error) {
+func (c *Client) ListServices() ([]*pbtypes.Service, error) {
 	result, err := c.ABCIQuery("custom/serviceapp/services", nil)
 	if err != nil {
 		return nil, err
@@ -152,7 +152,7 @@ func (c *Client) ListServices() ([]*service.Service, error) {
 		return nil, errors.New(resp.Log)
 	}
 
-	var services []*service.Service
+	var services []*pbtypes.Service
 	if err := c.cdc.UnmarshalJSON(resp.Value, &services); err != nil {
 		return nil, err
 	}

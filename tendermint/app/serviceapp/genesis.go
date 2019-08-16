@@ -2,13 +2,12 @@ package serviceapp
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/mesg-foundation/engine/service"
-	"github.com/mesg-foundation/engine/service/validator"
+	pbtypes "github.com/mesg-foundation/engine/protobuf/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
 type GenesisState struct {
-	Services []*service.Service `json:"services"`
+	Services []*pbtypes.Service `json:"services"`
 }
 
 func NewGenesisState() GenesisState {
@@ -16,17 +15,12 @@ func NewGenesisState() GenesisState {
 }
 
 func ValidateGenesis(gs GenesisState) error {
-	for _, service := range gs.Services {
-		if err := validator.ValidateService(service); err != nil {
-			return err
-		}
-	}
 	return nil
 }
 
 func DefaultGenesisState() GenesisState {
 	return GenesisState{
-		Services: []*service.Service{},
+		Services: []*pbtypes.Service{},
 	}
 }
 
