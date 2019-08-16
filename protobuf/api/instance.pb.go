@@ -9,6 +9,8 @@ import (
 	proto "github.com/golang/protobuf/proto"
 	types "github.com/mesg-foundation/engine/protobuf/types"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -432,6 +434,23 @@ type InstanceServer interface {
 	Create(context.Context, *CreateInstanceRequest) (*CreateInstanceResponse, error)
 	// Delete an Instance.
 	Delete(context.Context, *DeleteInstanceRequest) (*DeleteInstanceResponse, error)
+}
+
+// UnimplementedInstanceServer can be embedded to have forward compatible implementations.
+type UnimplementedInstanceServer struct {
+}
+
+func (*UnimplementedInstanceServer) Get(ctx context.Context, req *GetInstanceRequest) (*types.Instance, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+}
+func (*UnimplementedInstanceServer) List(ctx context.Context, req *ListInstancesRequest) (*ListInstancesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
+}
+func (*UnimplementedInstanceServer) Create(ctx context.Context, req *CreateInstanceRequest) (*CreateInstanceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+}
+func (*UnimplementedInstanceServer) Delete(ctx context.Context, req *DeleteInstanceRequest) (*DeleteInstanceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
 
 func RegisterInstanceServer(s *grpc.Server, srv InstanceServer) {

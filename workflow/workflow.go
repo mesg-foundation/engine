@@ -1,7 +1,8 @@
 package workflow
 
 import (
-	"github.com/mesg-foundation/engine/hash"
+	"fmt"
+
 	validator "gopkg.in/go-playground/validator.v9"
 )
 
@@ -9,6 +10,9 @@ import (
 func (w *Workflow) Validate() error {
 	if err := validator.New().Struct(w); err != nil {
 		return err
+	}
+	if w.Trigger.TaskKey != "" && w.Trigger.EventKey != "" {
+		return fmt.Errorf("cannot set TaskKey and EventKey at the same time")
 	}
 	// Check that the initial trigger connects to an existing node.
 	if _, err := w.FindNode(w.Trigger.NodeKey); err != nil {
@@ -29,20 +33,10 @@ func (w *Workflow) Validate() error {
 	return nil
 }
 
-// Match returns true if a workflow trigger is matching the given parameters
-func (t *Trigger) Match(trigger TriggerType, instanceHash hash.Hash, key string, data map[string]interface{}) bool {
-	if t.Type != trigger {
-		return false
-	}
-	if !t.InstanceHash.Equal(instanceHash) {
-		return false
-	}
-
-	if t.Key != key {
-		return false
-	}
-
-	for _, filter := range t.Filters {
+// Match returns true if the data match the current list of filters
+func (f TriggerFilters) Match(data map[string]interface{}) bool {
+	filters := []*TriggerFilter(f)
+	for _, filter := range filters {
 		if !filter.Match(data) {
 			return false
 		}

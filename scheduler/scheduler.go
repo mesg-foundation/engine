@@ -3,8 +3,8 @@ package scheduler
 import (
 	"fmt"
 
+	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/execution"
-	"github.com/mesg-foundation/engine/hash"
 	eventsdk "github.com/mesg-foundation/engine/sdk/event"
 	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
 	workflowsdk "github.com/mesg-foundation/engine/sdk/workflow"
@@ -46,32 +46,70 @@ func (s *Scheduler) Start() error {
 	for {
 		select {
 		case event := <-s.eventStream.C:
-			go s.processTrigger(workflow.EVENT, event.InstanceHash, event.Key, event.Data, event.Hash, nil)
+			go s.processTriggerFromEvent(event)
 		case execution := <-s.executionStream.C:
-			go s.processTrigger(workflow.RESULT, execution.InstanceHash, execution.TaskKey, execution.Outputs, nil, execution.Hash)
+			go s.processTriggerFromResult(execution)
 			go s.processExecution(execution)
 		}
 	}
 }
 
-func (s *Scheduler) processTrigger(trigger workflow.TriggerType, instanceHash hash.Hash, key string, data map[string]interface{}, eventHash hash.Hash, execHash hash.Hash) {
-	workflows, err := s.workflow.List()
+func (s *Scheduler) processTriggerFromEvent(event *event.Event) {
+	workflows, err := s.workflowsMatchingFilter(func(wf *workflow.Workflow) bool {
+		return wf.Trigger.InstanceHash.Equal(event.InstanceHash) &&
+			wf.Trigger.EventKey == event.Key &&
+			wf.Trigger.Filters.Match(event.Data)
+	})
 	if err != nil {
 		s.ErrC <- err
 		return
 	}
 	for _, wf := range workflows {
-		if wf.Trigger.Match(trigger, instanceHash, key, data) {
-			nextStep, err := wf.FindNode(wf.Trigger.NodeKey)
-			if err != nil {
-				s.ErrC <- err
-				continue
-			}
-			if _, err := s.execution.Execute(wf.Hash, nextStep.InstanceHash, eventHash, execHash, wf.Trigger.NodeKey, nextStep.TaskKey, data, []string{}); err != nil {
-				s.ErrC <- err
-			}
+		nextStep, err := wf.FindNode(wf.Trigger.NodeKey)
+		if err != nil {
+			s.ErrC <- err
+			continue
+		}
+		if _, err := s.execution.Execute(wf.Hash, nextStep.InstanceHash, event.Hash, nil, wf.Trigger.NodeKey, nextStep.TaskKey, event.Data, []string{}); err != nil {
+			s.ErrC <- err
 		}
 	}
+}
+
+func (s *Scheduler) processTriggerFromResult(result *execution.Execution) {
+	workflows, err := s.workflowsMatchingFilter(func(wf *workflow.Workflow) bool {
+		return wf.Trigger.InstanceHash.Equal(result.InstanceHash) &&
+			wf.Trigger.TaskKey == result.TaskKey &&
+			wf.Trigger.Filters.Match(result.Outputs)
+	})
+	if err != nil {
+		s.ErrC <- err
+		return
+	}
+	for _, wf := range workflows {
+		nextStep, err := wf.FindNode(wf.Trigger.NodeKey)
+		if err != nil {
+			s.ErrC <- err
+			continue
+		}
+		if _, err := s.execution.Execute(wf.Hash, nextStep.InstanceHash, nil, result.Hash, wf.Trigger.NodeKey, nextStep.TaskKey, result.Outputs, []string{}); err != nil {
+			s.ErrC <- err
+		}
+	}
+}
+
+func (s *Scheduler) workflowsMatchingFilter(filter func(wf *workflow.Workflow) bool) ([]*workflow.Workflow, error) {
+	workflows, err := s.workflow.List()
+	if err != nil {
+		return nil, err
+	}
+	wfs := make([]*workflow.Workflow, 0)
+	for _, wf := range workflows {
+		if filter(wf) {
+			wfs = append(wfs, wf)
+		}
+	}
+	return wfs, nil
 }
 
 func (s *Scheduler) processExecution(exec *execution.Execution) {
