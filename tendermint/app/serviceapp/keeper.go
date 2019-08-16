@@ -44,7 +44,7 @@ func (k Keeper) SetService(ctx sdk.Context, service *pbtypes.Service) {
 // RemoveService removes the entire service metadata struct for given hash.
 func (k Keeper) RemoveService(ctx sdk.Context, hash hash.Hash) {
 	store := ctx.KVStore(k.storeKey)
-	store.Delete(hash)
+	store.Delete([]byte(hash.String()))
 }
 
 // GetServices retruns all services

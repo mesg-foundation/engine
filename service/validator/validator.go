@@ -19,12 +19,10 @@ var validate, translator = newValidator()
 
 // ValidateService validates if service contains proper data.
 func ValidateService(s *service.Service) error {
-	// XXX, HACK, TODO: reutnru alwasy nil for service app test
-	return nil
-	// if err := validateServiceStruct(s); err != nil {
-	// 	return err
-	// }
-	// return validateServiceData(s)
+	if err := validateServiceStruct(s); err != nil {
+		return err
+	}
+	return validateServiceData(s)
 }
 
 func validateServiceStruct(s *service.Service) error {
