@@ -1,8 +1,6 @@
 package workflow
 
 import (
-	"fmt"
-
 	validator "gopkg.in/go-playground/validator.v9"
 )
 
@@ -10,9 +8,6 @@ import (
 func (w *Workflow) Validate() error {
 	if err := validator.New().Struct(w); err != nil {
 		return err
-	}
-	if w.Trigger.EventKey == "" && w.Trigger.TaskKey == "" {
-		return fmt.Errorf("eventKey or taskKey should be present")
 	}
 	// Check that the initial trigger connects to an existing node.
 	if _, err := w.FindNode(w.Trigger.NodeKey); err != nil {
