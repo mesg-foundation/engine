@@ -38,7 +38,6 @@ var (
 		slashing.AppModuleBasic{},
 		supply.AppModuleBasic{},
 
-		// serviceapp.AppModuleBasic{},
 		servicesdk.AppModuleBasic{},
 	)
 	// account permissions
@@ -75,8 +74,7 @@ type ServiceApp struct {
 	distrKeeper    distr.Keeper
 	supplyKeeper   supply.Keeper
 	paramsKeeper   params.Keeper
-	// saKeeper        serviceapp.Keeper
-	serviceKeeper servicesdk.Keeper
+	serviceKeeper  servicesdk.Keeper
 
 	// Module Manager
 	mm *module.Manager
@@ -102,7 +100,6 @@ func NewServiceApp(logger log.Logger, db dbm.DB, serviceSDK *servicesdk.Service)
 			supply.StoreKey,
 			staking.StoreKey,
 			distr.StoreKey,
-			// serviceapp.StoreKey,
 			"service",
 			params.StoreKey,
 			slashing.StoreKey,
@@ -182,10 +179,6 @@ func NewServiceApp(logger log.Logger, db dbm.DB, serviceSDK *servicesdk.Service)
 
 	// The serviceKeeper is the Keeper from the module for this tutorial
 	// It handles interactions with the namestore
-	// app.saKeeper = serviceapp.NewKeeper(
-	// 	app.keys[serviceapp.StoreKey],
-	// 	app.cdc,
-	// )
 	app.serviceKeeper = servicesdk.NewKeeper(
 		app.keys["service"],
 		app.cdc,
@@ -197,7 +190,6 @@ func NewServiceApp(logger log.Logger, db dbm.DB, serviceSDK *servicesdk.Service)
 		genutil.NewAppModule(app.accountKeeper, app.stakingKeeper, app.BaseApp.DeliverTx),
 		auth.NewAppModule(app.accountKeeper),
 		bank.NewAppModule(app.bankKeeper, app.accountKeeper),
-		// serviceapp.NewAppModule(app.saKeeper),
 		serviceSDK,
 		supply.NewAppModule(app.supplyKeeper, app.accountKeeper),
 		distr.NewAppModule(app.distrKeeper, app.supplyKeeper),
@@ -216,7 +208,6 @@ func NewServiceApp(logger log.Logger, db dbm.DB, serviceSDK *servicesdk.Service)
 		auth.ModuleName,
 		bank.ModuleName,
 		slashing.ModuleName,
-		// serviceapp.ModuleName,
 		"service",
 		genutil.ModuleName,
 	)
