@@ -12,7 +12,7 @@ import (
 	pbtypes "github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/tendermint/app/serviceapp"
 	"github.com/mesg-foundation/engine/tendermint/txbuilder"
-	"github.com/sirupsen/logrus"
+	abci "github.com/tendermint/tendermint/abci/types"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
 )
 
@@ -61,6 +61,7 @@ func (c *Client) QueryWithData(path string, data []byte) ([]byte, int64, error) 
 func (c *Client) SetService(service *pbtypes.Service) error {
 	msg := serviceapp.NewMsgSetService(service, c.address)
 
+	// TODO: handle inc seq in multiple go routines
 	acc, ok := c.accounts[c.address.String()]
 	if !ok {
 		number, seq, err := authtypes.NewAccountRetriever(c).GetAccountNumberSequence(c.address)
@@ -69,7 +70,6 @@ func (c *Client) SetService(service *pbtypes.Service) error {
 		}
 		acc.number, acc.seq = number, seq
 	}
-	logrus.Warning("SEQUENCE NUMBER >>>>>>>>> ", acc.seq, " | ", c.chainID)
 
 	txBuilder := txbuilder.NewTxBuilder(c.cdc, acc.number, acc.seq, c.kb, c.chainID)
 	signedTx, err := txBuilder.Create(msg, c.accName, c.accPassword)
@@ -82,10 +82,14 @@ func (c *Client) SetService(service *pbtypes.Service) error {
 		return err
 	}
 
-	if _, err := c.BroadcastTxSync(encodedTx); err != nil {
+	txres, err := c.BroadcastTxSync(encodedTx)
+	if err != nil {
 		return err
 	}
 
+	if txres.Code != abci.CodeTypeOK {
+		return fmt.Errorf("transaction returned with invalid code %d", txres.Code)
+	}
 	acc.seq++
 	c.accounts[c.address.String()] = acc
 	return nil
@@ -114,8 +118,13 @@ func (c *Client) RemoveService(hash hash.Hash) error {
 		return err
 	}
 
-	if _, err := c.BroadcastTxSync(encodedTx); err != nil {
+	txres, err := c.BroadcastTxSync(encodedTx)
+	if err != nil {
 		return err
+	}
+
+	if txres.Code != abci.CodeTypeOK {
+		return errors.New("transaction with invalid code")
 	}
 
 	acc.seq++
