@@ -3,23 +3,40 @@ package workflow
 import (
 	"fmt"
 
-	"github.com/mesg-foundation/engine/hash"
+	validator "gopkg.in/go-playground/validator.v9"
 )
 
-// Match returns true if a workflow trigger is matching the given parameters
-func (t *Trigger) Match(trigger TriggerType, instanceHash hash.Hash, key string, data map[string]interface{}) bool {
-	if t.Type != trigger {
-		return false
+// Validate returns an error if the workflow is invalid for whatever reason
+func (w *Workflow) Validate() error {
+	if err := validator.New().Struct(w); err != nil {
+		return err
 	}
-	if !t.InstanceHash.Equal(instanceHash) {
-		return false
+	if w.Trigger.TaskKey != "" && w.Trigger.EventKey != "" {
+		return fmt.Errorf("cannot set TaskKey and EventKey at the same time")
 	}
+	// Check that the initial trigger connects to an existing node.
+	if _, err := w.FindNode(w.Trigger.NodeKey); err != nil {
+		return err
+	}
+	// Check that all edges are associated to an existing node.
+	for _, edge := range w.Edges {
+		if _, err := w.FindNode(edge.Src); err != nil {
+			return err
+		}
+		if _, err := w.FindNode(edge.Dst); err != nil {
+			return err
+		}
+	}
+	if err := w.shouldBeDirectedTree(); err != nil {
+		return err
+	}
+	return nil
+}
 
-	if t.Key != key {
-		return false
-	}
-
-	for _, filter := range t.Filters {
+// Match returns true if the data match the current list of filters
+func (f TriggerFilters) Match(data map[string]interface{}) bool {
+	filters := []*TriggerFilter(f)
+	for _, filter := range filters {
 		if !filter.Match(data) {
 			return false
 		}
@@ -36,25 +53,4 @@ func (f *TriggerFilter) Match(inputs map[string]interface{}) bool {
 	default:
 		return false
 	}
-}
-
-// ChildrenIDs returns the list of node IDs with a dependency to the current node
-func (w Workflow) ChildrenIDs(nodeKey string) []string {
-	nodeKeys := make([]string, 0)
-	for _, edge := range w.Edges {
-		if edge.Src == nodeKey {
-			nodeKeys = append(nodeKeys, edge.Dst)
-		}
-	}
-	return nodeKeys
-}
-
-// FindNode returns the node matching the key in parameter or an error if not found
-func (w Workflow) FindNode(key string) (Node, error) {
-	for _, node := range w.Nodes {
-		if node.Key == key {
-			return node, nil
-		}
-	}
-	return Node{}, fmt.Errorf("%q not found", key)
 }

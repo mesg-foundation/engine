@@ -9,6 +9,8 @@ import (
 	proto "github.com/golang/protobuf/proto"
 	types "github.com/mesg-foundation/engine/protobuf/types"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -433,6 +435,23 @@ type WorkflowServer interface {
 	Get(context.Context, *GetWorkflowRequest) (*types.Workflow, error)
 	// List returns workflows specified in a request.
 	List(context.Context, *ListWorkflowRequest) (*ListWorkflowResponse, error)
+}
+
+// UnimplementedWorkflowServer can be embedded to have forward compatible implementations.
+type UnimplementedWorkflowServer struct {
+}
+
+func (*UnimplementedWorkflowServer) Create(ctx context.Context, req *CreateWorkflowRequest) (*CreateWorkflowResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+}
+func (*UnimplementedWorkflowServer) Delete(ctx context.Context, req *DeleteWorkflowRequest) (*DeleteWorkflowResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
+}
+func (*UnimplementedWorkflowServer) Get(ctx context.Context, req *GetWorkflowRequest) (*types.Workflow, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+}
+func (*UnimplementedWorkflowServer) List(ctx context.Context, req *ListWorkflowRequest) (*ListWorkflowResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
 
 func RegisterWorkflowServer(s *grpc.Server, srv WorkflowServer) {
