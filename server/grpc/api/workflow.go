@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/api"
@@ -131,11 +132,13 @@ func fromProtoWorkflow(wf *types.Workflow) (*workflow.Workflow, error) {
 		NodeKey:      wf.Trigger.NodeKey,
 		Filters:      fromProtoFilters(wf.Trigger.Filters),
 	}
-	if x, ok := wf.Trigger.Key.(*types.Workflow_Trigger_EventKey); ok {
+	switch x := wf.Trigger.Key.(type) {
+	case *types.Workflow_Trigger_EventKey:
 		trigger.EventKey = x.EventKey
-	}
-	if x, ok := wf.Trigger.Key.(*types.Workflow_Trigger_TaskKey); ok {
+	case *types.Workflow_Trigger_TaskKey:
 		trigger.TaskKey = x.TaskKey
+	default:
+		return nil, fmt.Errorf("workflow trigger key has unexpected type %T", x)
 	}
 	return &workflow.Workflow{
 		Key:     wf.Key,
