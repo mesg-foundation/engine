@@ -32,23 +32,6 @@ func (s StatusType) String() string {
 	}
 }
 
-// TriggerType is the type for the possible triggers for a workflow
-type TriggerType uint
-
-// List of possible triggers for a workflow
-const (
-	EVENT TriggerType = iota + 1
-	RESULT
-)
-
-// WorkflowPredicate is the type of conditions that can be applied in a filter of a workflow trigger
-type WorkflowPredicate uint
-
-// List of possible conditions for workflow's filter
-const (
-	EQ WorkflowPredicate = iota + 1
-)
-
 // WARNING about hash tags on Service type and its inner types:
 // * never change the name attr of hash tag. use an incremented value for
 // name attr when a new configuration field added to Service.
@@ -83,7 +66,7 @@ type Service struct {
 	Dependencies []*Dependency `hash:"name:6" validate:"dive,required"`
 
 	// Configuration of the service
-	Configuration *Dependency `hash:"name:8" validate:"required"`
+	Configuration *Configuration `hash:"name:8" validate:"required"`
 
 	// Repository holds the service's repository url if it's living on
 	// a Git host.
@@ -91,37 +74,40 @@ type Service struct {
 
 	// Source is the hash id of service's source code on IPFS.
 	Source string `hash:"name:9" validate:"required,printascii"`
+}
 
-	// Workflows is a list of workflows that the service implements
-	Workflows []*Workflow `hash:"name:10" validate:"dive,required"`
+// Configuration represents the main Docker container and it holds instructions about
+// how it should run. Similar to Dependency.
+type Configuration struct {
+	// Volumes are the Docker volumes.
+	Volumes []string `hash:"name:1" validate:"unique,dive,printascii"`
+
+	// VolumesFrom are the docker volumes-from from.
+	VolumesFrom []string `hash:"name:2" validate:"unique,dive,printascii"`
+
+	// Ports holds ports configuration for container.
+	Ports []string `hash:"name:3" validate:"unique,dive,portmap"`
+
+	// Command is the Docker command which will be executed when container started.
+	Command string `hash:"name:4" validate:"printascii"`
+
+	// Argument holds the args to pass to the Docker container
+	Args []string `hash:"name:5" validate:"dive,printascii"`
+
+	// Env is a slice of environment variables in key=value format.
+	Env []string `hash:"name:6" validate:"unique,dive,env"`
 }
 
 // Dependency represents a Docker container and it holds instructions about
 // how it should run.
 type Dependency struct {
+	*Configuration
+
 	// Key is the key of dependency.
 	Key string `hash:"name:1" validate:"printascii"`
 
 	// Image is the Docker image.
 	Image string `hash:"name:2" validate:"printascii"`
-
-	// Volumes are the Docker volumes.
-	Volumes []string `hash:"name:3" validate:"unique,dive,printascii"`
-
-	// VolumesFrom are the docker volumes-from from.
-	VolumesFrom []string `hash:"name:4" validate:"unique,dive,printascii"`
-
-	// Ports holds ports configuration for container.
-	Ports []string `hash:"name:5" validate:"unique,dive,portmap"`
-
-	// Command is the Docker command which will be executed when container started.
-	Command string `hash:"name:6" validate:"printascii"`
-
-	// Argument holds the args to pass to the Docker container
-	Args []string `hash:"name:7" validate:"dive,printascii"`
-
-	// Env is a slice of environment variables in key=value format.
-	Env []string `hash:"name:8" validate:"unique,dive,env"`
 }
 
 // Task describes a service task.
@@ -180,32 +166,4 @@ type Parameter struct {
 
 	// Definition of the structure of the object when the type is object
 	Object []*Parameter `hash:"name:7" validate:"unique,dive,required"`
-}
-
-// Workflow describes a workflow of a service
-type Workflow struct {
-	Trigger *WorkflowTrigger `hash:"name:1" validate:"required"`
-	Task    *WorkflowTask    `hash:"name:2" validate:"required"`
-	Key     string           `hash:"name:3" validate:"required"`
-}
-
-// WorkflowTask describes the instructions for the workflow to execute a task
-type WorkflowTask struct {
-	InstanceHash hash.Hash `hash:"name:1" validate:"required"`
-	TaskKey      string    `hash:"name:2" validate:"printascii"`
-}
-
-// WorkflowTrigger is an event that triggers a workflow
-type WorkflowTrigger struct {
-	InstanceHash hash.Hash                `hash:"name:1" validate:"required"`
-	Key          string                   `hash:"name:2" validate:"printascii,printascii"`
-	Type         TriggerType              `hash:"name:3" validate:"required"`
-	Filters      []*WorkflowTriggerFilter `hash:"name:4" validate:"dive,required"`
-}
-
-// WorkflowTriggerFilter is the filter definition that can be applied to a workflow trigger
-type WorkflowTriggerFilter struct {
-	Key       string            `hash:"name:1" validate:"required,printascii"`
-	Predicate WorkflowPredicate `hash:"name:2" validate:"required"`
-	Value     interface{}       `hash:"name:3"`
 }

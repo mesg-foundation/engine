@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package types;
+option go_package = "github.com/mesg-foundation/engine/protobuf/types";
+
+// A workflow is a configuration to trigger a specific task when certains conditions of a trigger are valid.
+message Workflow {
+
+  // Trigger is the configuration that will trigger a workflow.
+  message Trigger {
+    // Filter is applied on the data of the event/result.
+    message Filter {
+
+      // Type of condition available to compare the values.
+      enum Predicate {
+        Unknown = 0;  // Predicate not defined.
+        EQ = 1;       // Equal
+      }
+
+      string key = 1;           // Key to check.
+      Predicate predicate = 2;  // Type of condition to apply.
+      string value = 3;         // Value of the filter
+    }
+
+    string instanceHash = 1;      // Hash of the instance that triggers the workflow.
+    // Workflow can be trigger by either an Event or a Task (not both).
+    oneof key {
+      string taskKey = 2;         // Key of the task that triggers the workflow.
+      string eventKey = 3;        // Key of the event that triggers the workflow.
+    }
+    repeated Filter filters = 4;  // List of filters to apply on the data of the event/result.
+    string nodeKey = 5;           // First node to trigger when the workflow starts.
+  }
+
+  // Definition of the node to execute when the workflow is triggered.
+  message Node {
+    string key = 1;           // Key that identifies the node.
+    string instanceHash = 2;  // Hash of the instance to execute.
+    string taskKey = 3;       // Task of the instance to execute.
+  }
+
+  message Edge {
+    string src = 1; // Source of the edge.
+    string dst = 2; // Destination of the edge.
+  }
+
+  string hash = 1;          // Workflow's hash    
+  string key = 2;           // Workflow's key
+  Trigger trigger = 3;      // Trigger for the workflow.
+  repeated Node nodes = 4;  // Nodes with information related to the execution to trigger.
+  repeated Edge edges = 5;  // Edges to create the link between the nodes.
+}

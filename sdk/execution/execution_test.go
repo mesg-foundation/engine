@@ -12,14 +12,16 @@ import (
 	"github.com/mesg-foundation/engine/instance"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
+	workflowsdk "github.com/mesg-foundation/engine/sdk/workflow"
 	"github.com/mesg-foundation/engine/service"
 	"github.com/stretchr/testify/require"
 )
 
 const (
-	servicedbname = "service.db.test"
-	instdbname    = "instance.db.test"
-	execdbname    = "exec.db.test"
+	servicedbname  = "service.db.test"
+	instdbname     = "instance.db.test"
+	execdbname     = "exec.db.test"
+	workflowdbname = "workflow.db.test"
 )
 
 type apiTesting struct {
@@ -27,15 +29,18 @@ type apiTesting struct {
 	serviceDB   *database.LevelDBServiceDB
 	executionDB *database.LevelDBExecutionDB
 	instanceDB  *database.LevelDBInstanceDB
+	workflowDB  *database.LevelDBWorkflowDB
 }
 
 func (t *apiTesting) close() {
 	require.NoError(t, t.serviceDB.Close())
 	require.NoError(t, t.executionDB.Close())
 	require.NoError(t, t.instanceDB.Close())
+	require.NoError(t, t.workflowDB.Close())
 	require.NoError(t, os.RemoveAll(servicedbname))
 	require.NoError(t, os.RemoveAll(execdbname))
 	require.NoError(t, os.RemoveAll(instdbname))
+	require.NoError(t, os.RemoveAll(workflowdbname))
 }
 
 func newTesting(t *testing.T) (*Execution, *apiTesting) {
@@ -51,13 +56,18 @@ func newTesting(t *testing.T) (*Execution, *apiTesting) {
 	execDB, err := database.NewExecutionDB(execdbname)
 	require.NoError(t, err)
 
-	sdk := New(pubsub.New(0), service, instance, execDB)
+	workflowDB, err := database.NewWorkflowDB(workflowdbname)
+	require.NoError(t, err)
+	workflow := workflowsdk.New(instance, workflowDB)
+
+	sdk := New(pubsub.New(0), service, instance, workflow, execDB)
 
 	return sdk, &apiTesting{
 		T:           t,
 		serviceDB:   db,
 		executionDB: execDB,
 		instanceDB:  instDB,
+		workflowDB:  workflowDB,
 	}
 }
 
@@ -81,7 +91,7 @@ var testInstance = &instance.Instance{
 func TestGet(t *testing.T) {
 	sdk, at := newTesting(t)
 	defer at.close()
-	exec := execution.New(nil, nil, nil, "", nil, nil)
+	exec := execution.New(nil, nil, nil, nil, "", "", nil, nil)
 	require.NoError(t, sdk.execDB.Save(exec))
 	got, err := sdk.Get(exec.Hash)
 	require.NoError(t, err)
@@ -92,7 +102,7 @@ func TestGetStream(t *testing.T) {
 	sdk, at := newTesting(t)
 	defer at.close()
 
-	exec := execution.New(nil, nil, nil, "", nil, nil)
+	exec := execution.New(nil, nil, nil, nil, "", "", nil, nil)
 	exec.Status = execution.InProgress
 
 	require.NoError(t, sdk.execDB.Save(exec))
@@ -113,11 +123,11 @@ func TestExecute(t *testing.T) {
 	require.NoError(t, at.serviceDB.Save(testService))
 	require.NoError(t, at.instanceDB.Save(testInstance))
 
-	_, err := sdk.Execute(testInstance.Hash, hash.Int(1), nil, testService.Tasks[0].Key, map[string]interface{}{}, nil)
+	_, err := sdk.Execute(nil, testInstance.Hash, hash.Int(1), nil, "", testService.Tasks[0].Key, map[string]interface{}{}, nil)
 	require.NoError(t, err)
 
 	// not existing instance
-	_, err = sdk.Execute(hash.Int(3), hash.Int(1), nil, testService.Tasks[0].Key, map[string]interface{}{}, nil)
+	_, err = sdk.Execute(nil, hash.Int(3), hash.Int(1), nil, "", testService.Tasks[0].Key, map[string]interface{}{}, nil)
 	require.Error(t, err)
 }
 
@@ -127,7 +137,7 @@ func TestExecuteInvalidTaskKey(t *testing.T) {
 
 	require.NoError(t, at.serviceDB.Save(testService))
 
-	_, err := sdk.Execute(testService.Hash, hash.Int(1), nil, "-", map[string]interface{}{}, nil)
+	_, err := sdk.Execute(nil, testService.Hash, hash.Int(1), nil, "", "-", map[string]interface{}{}, nil)
 	require.Error(t, err)
 }
 

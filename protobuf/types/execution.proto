@@ -56,4 +56,10 @@ message Execution {
 
   // tags are optionally associated with execution by the user.
   repeated string tags = 10;
+
+  // workflowHash is the unique hash of the workflow associated to this execution.
+  string workflowHash = 11;
+
+  // step of the workflow.
+  string stepID = 12;
 }

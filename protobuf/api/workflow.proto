@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+import "protobuf/types/workflow.proto";
+
+package api;
+
+// This is the API to interact with the Workflows.
+//
+// This API is a [gRPC](https://grpc.io/) API.
+//
+// The source file of this API is hosted on [GitHub](https://github.com/mesg-foundation/engine/blob/master/protobuf/api/workflow.proto).
+service Workflow {
+
+  // Create a Workflow from a Workflow Definition.
+  // It will return an unique identifier which is used to interact with the Workflow.
+  rpc Create (CreateWorkflowRequest) returns (CreateWorkflowResponse) {}
+
+  // Delete a workflow.
+  // An error is returned if one or more Instances of the workflow are running.
+  rpc Delete (DeleteWorkflowRequest) returns (DeleteWorkflowResponse) {}
+
+  // Get returns a workflow matching the criteria of the request.
+  rpc Get(GetWorkflowRequest) returns (types.Workflow) {}
+
+  // List returns workflows specified in a request.
+  rpc List(ListWorkflowRequest) returns (ListWorkflowResponse) {}
+}
+
+// The request's data for the `Create` API.
+message CreateWorkflowRequest {
+  string key = 2;           // Workflow's key
+  types.Workflow.Trigger trigger = 3;      // Trigger for the workflow.
+  repeated types.Workflow.Node nodes = 4;  // List of nodes of the workflow.
+  repeated types.Workflow.Edge edges = 5;  // List of edges of the workflow.
+}
+
+// The response's data for the `Create` API.
+message CreateWorkflowResponse {
+  // The workflow's hash created.
+  string hash = 1;
+}
+
+// The request's data for the `Delete` API.
+message DeleteWorkflowRequest {
+  // The workflow's hash to delete.
+  string hash = 1;
+}
+
+// The response's data for the `Delete` API, doesn't contain anything.
+message DeleteWorkflowResponse {
+}
+
+// The request's data for the `Get` API.
+message GetWorkflowRequest {
+  // The workflow's hash to fetch.
+  string hash = 1;
+}
+
+// The request's data for the `List` API.
+message ListWorkflowRequest {}
+
+// The response's data for the `List` API.
+message ListWorkflowResponse {
+  // List of workflows that match the request's filters.
+  repeated types.Workflow workflows = 1;
+}

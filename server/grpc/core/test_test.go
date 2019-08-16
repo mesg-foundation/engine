@@ -14,6 +14,7 @@ const (
 	servicedbname  = "service.db.test"
 	instancedbname = "instance.db.test"
 	execdbname     = "exec.db.test"
+	workflowdbname = "workflow.db.test"
 )
 
 func newServerWithContainer(t *testing.T, c container.Container) (*Server, func()) {
@@ -26,7 +27,10 @@ func newServerWithContainer(t *testing.T, c container.Container) (*Server, func(
 	execDB, err := database.NewExecutionDB(execdbname)
 	require.NoError(t, err)
 
-	a := sdk.New(c, db, instanceDB, execDB, "", "")
+	workflowDB, err := database.NewWorkflowDB(workflowdbname)
+	require.NoError(t, err)
+
+	a := sdk.New(c, db, instanceDB, execDB, workflowDB, "", "")
 
 	server := NewServer(a)
 

@@ -8,6 +8,7 @@ import (
 	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
+	workflowsdk "github.com/mesg-foundation/engine/sdk/workflow"
 )
 
 // SDK exposes all functionalities of MESG Engine.
@@ -16,19 +17,22 @@ type SDK struct {
 	Instance  *instancesdk.Instance
 	Execution *executionsdk.Execution
 	Event     *eventsdk.Event
+	Workflow  *workflowsdk.Workflow
 }
 
 // New creates a new SDK with given options.
-func New(c container.Container, serviceDB database.ServiceDB, instanceDB database.InstanceDB, execDB database.ExecutionDB, engineName, port string) *SDK {
+func New(c container.Container, serviceDB database.ServiceDB, instanceDB database.InstanceDB, execDB database.ExecutionDB, workflowDB database.WorkflowDB, engineName, port string) *SDK {
 	ps := pubsub.New(0)
 	serviceSDK := servicesdk.New(c, serviceDB)
 	instanceSDK := instancesdk.New(c, serviceSDK, instanceDB, engineName, port)
-	executionSDK := executionsdk.New(ps, serviceSDK, instanceSDK, execDB)
+	workflowSDK := workflowsdk.New(instanceSDK, workflowDB)
+	executionSDK := executionsdk.New(ps, serviceSDK, instanceSDK, workflowSDK, execDB)
 	eventSDK := eventsdk.New(ps, serviceSDK, instanceSDK)
 	return &SDK{
 		Service:   serviceSDK,
 		Instance:  instanceSDK,
 		Execution: executionSDK,
 		Event:     eventSDK,
+		Workflow:  workflowSDK,
 	}
 }
