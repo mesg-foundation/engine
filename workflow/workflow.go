@@ -1,6 +1,8 @@
 package workflow
 
 import (
+	"fmt"
+
 	validator "gopkg.in/go-playground/validator.v9"
 )
 
@@ -8,6 +10,9 @@ import (
 func (w *Workflow) Validate() error {
 	if err := validator.New().Struct(w); err != nil {
 		return err
+	}
+	if w.Trigger.TaskKey != "" && w.Trigger.EventKey != "" {
+		return fmt.Errorf("cannot set TaskKey and EventKey at the same time")
 	}
 	// Check that the initial trigger connects to an existing node.
 	if _, err := w.FindNode(w.Trigger.NodeKey); err != nil {
