@@ -7,14 +7,52 @@
 #### Changed
 #### Fixed
 #### Removed
+#### Experimental
 
-## [v0.12.1](https://github.com/mesg-foundation/engine/release/tag/v0.12.1)
+## [v0.13.0](https://github.com/mesg-foundation/engine/releases/tag/v0.13.0)
+
+#### Added
+
+- ([#1201](https://github.com/mesg-foundation/engine/pull/1201)) Multi step workflow.
+- ([#1213](https://github.com/mesg-foundation/engine/pull/1213)) Add module name to logs.
+- ([#1223](https://github.com/mesg-foundation/engine/pull/1223)) Workflow validation.
+
+#### Changed
+
+- ([#1204](https://github.com/mesg-foundation/engine/pull/1204)) Move workflow to its own database/api.
+- ([#1208](https://github.com/mesg-foundation/engine/pull/1208)) Rename engine package to scheduler.
+- ([#1209](https://github.com/mesg-foundation/engine/pull/1209)) Workflow graph structure.
+- ([#1214](https://github.com/mesg-foundation/engine/pull/1214)) Create struct service.Configuration.
+- ([#1229](https://github.com/mesg-foundation/engine/pull/1229)) Remove trigger type for workflows.
+- ([#1231](https://github.com/mesg-foundation/engine/pull/1231)) Use required_without validation instead of manual one.
+
+#### Fixed
+
+- ([#1207](https://github.com/mesg-foundation/engine/pull/1207)) Clean dev script.
+- ([#1210](https://github.com/mesg-foundation/engine/pull/1210)) Improve regex used in dev script.
+- ([#1215](https://github.com/mesg-foundation/engine/pull/1215)) Remove unused variable and improve error handling of config.setupServices function.
+- ([#1217](https://github.com/mesg-foundation/engine/pull/1217)) Fix dev script.
+- ([#1220](https://github.com/mesg-foundation/engine/pull/1220)) Remove regexp network filter from dev script.
+
+#### Removed
+
+- ([#1230](https://github.com/mesg-foundation/engine/pull/1230)) Remove git related package.
+
+#### Experimental
+
+- ([#1211](https://github.com/mesg-foundation/engine/pull/1211)) Cosmos integration.
+- ([#1218](https://github.com/mesg-foundation/engine/pull/1218)) Set tm config in config package and pass it on node creation.
+- ([#1219](https://github.com/mesg-foundation/engine/pull/1219)) Add cosmos modules.
+- ([#1226](https://github.com/mesg-foundation/engine/pull/1226)) update Cosmos to v0.36.
+- ([#1227](https://github.com/mesg-foundation/engine/pull/1227)) Possibility to enable/disable network when running the engine.
+
+## [v0.12.1](https://github.com/mesg-foundation/engine/releases/tag/v0.12.1)
 
 #### Fixed
 
 - ([#1199](https://github.com/mesg-foundation/engine/pull/1199)) Fix issue with the `marketplace#getService` task.
 
-## [v0.12.0](https://github.com/mesg-foundation/engine/release/tag/v0.12.0)
+## [v0.12.0](https://github.com/mesg-foundation/engine/releases/tag/v0.12.0)
 
 #### Breaking Changes
 
