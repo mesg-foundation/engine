@@ -55,7 +55,7 @@ func (s *Scheduler) Start() error {
 }
 
 func (s *Scheduler) processTriggerFromEvent(event *event.Event) {
-	workflows, err := s.workflowWithFilter(func(wf *workflow.Workflow) bool {
+	workflows, err := s.workflowsMatchingFilter(func(wf *workflow.Workflow) bool {
 		return wf.Trigger.InstanceHash.Equal(event.InstanceHash) &&
 			wf.Trigger.EventKey == event.Key &&
 			wf.Trigger.Filters.Match(event.Data)
@@ -77,7 +77,7 @@ func (s *Scheduler) processTriggerFromEvent(event *event.Event) {
 }
 
 func (s *Scheduler) processTriggerFromResult(result *execution.Execution) {
-	workflows, err := s.workflowWithFilter(func(wf *workflow.Workflow) bool {
+	workflows, err := s.workflowsMatchingFilter(func(wf *workflow.Workflow) bool {
 		return wf.Trigger.InstanceHash.Equal(result.InstanceHash) &&
 			wf.Trigger.TaskKey == result.TaskKey &&
 			wf.Trigger.Filters.Match(result.Outputs)
@@ -98,7 +98,7 @@ func (s *Scheduler) processTriggerFromResult(result *execution.Execution) {
 	}
 }
 
-func (s *Scheduler) workflowWithFilter(filter func(wf *workflow.Workflow) bool) ([]*workflow.Workflow, error) {
+func (s *Scheduler) workflowsMatchingFilter(filter func(wf *workflow.Workflow) bool) ([]*workflow.Workflow, error) {
 	workflows, err := s.workflow.List()
 	if err != nil {
 		return nil, err
