@@ -23,6 +23,7 @@ import (
 	"github.com/mesg-foundation/engine/version"
 	"github.com/mesg-foundation/engine/x/xerrors"
 	"github.com/mesg-foundation/engine/x/xnet"
+	"github.com/mesg-foundation/engine/x/xos"
 	"github.com/mesg-foundation/engine/x/xsignal"
 	"github.com/sirupsen/logrus"
 )
@@ -87,11 +88,11 @@ func initDependencies(cfg *config.Config, client *tmclient.Client) (*dependencie
 func deployCoreServices(cfg *config.Config, sdk *sdk.SDK) error {
 	for _, serviceConfig := range cfg.SystemServices {
 		logrus.WithField("module", "main").Infof("Deploying service %q", serviceConfig.Definition.Sid)
-		_, err := sdk.Service.Create(serviceConfig.Definition)
+		srv, err := sdk.Service.Create(serviceConfig.Definition)
 		if err != nil {
 			existsError, ok := err.(*servicesdk.AlreadyExistsError)
 			if ok {
-				_, err = sdk.Service.Get(existsError.Hash)
+				srv, err = sdk.Service.Get(existsError.Hash)
 				if err != nil {
 					return fmt.Errorf("get service failed: %s", err)
 				}
@@ -101,23 +102,23 @@ func deployCoreServices(cfg *config.Config, sdk *sdk.SDK) error {
 		}
 
 		// wait for a block to commit the transaction about create service
-		//time.Sleep(cfg.Tendermint.Config.Consensus.TimeoutCommit + 1*time.Second)
+		time.Sleep(cfg.Tendermint.Config.Consensus.TimeoutCommit + 1*time.Second)
 
-		// logrus.WithField("module", "main").Infof("Service %q deployed with hash %q", srv.Sid, srv.Hash)
-		// instance, err := sdk.Instance.Create(srv.Hash, xos.EnvMapToSlice(serviceConfig.Env))
-		// if err != nil {
-		// 	existsError, ok := err.(*instancesdk.AlreadyExistsError)
-		// 	if ok {
-		// 		instance, err = sdk.Instance.Get(existsError.Hash)
-		// 		if err != nil {
-		// 			return fmt.Errorf("get instance failed: %s", err)
-		// 		}
-		// 	} else {
-		// 		return fmt.Errorf("create instance failed: %s", err)
-		// 	}
-		// }
-		// serviceConfig.Instance = instance
-		// logrus.WithField("module", "main").Infof("Instance started with hash %q", instance.Hash)
+		logrus.WithField("module", "main").Infof("Service %q deployed with hash %q", srv.Sid, srv.Hash)
+		instance, err := sdk.Instance.Create(srv.Hash, xos.EnvMapToSlice(serviceConfig.Env))
+		if err != nil {
+			existsError, ok := err.(*instancesdk.AlreadyExistsError)
+			if ok {
+				instance, err = sdk.Instance.Get(existsError.Hash)
+				if err != nil {
+					return fmt.Errorf("get instance failed: %s", err)
+				}
+			} else {
+				return fmt.Errorf("create instance failed: %s", err)
+			}
+		}
+		serviceConfig.Instance = instance
+		logrus.WithField("module", "main").Infof("Instance started with hash %q", instance.Hash)
 	}
 	return nil
 }
