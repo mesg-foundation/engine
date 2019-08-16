@@ -8,6 +8,8 @@ import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -230,6 +232,14 @@ func (c *coreClient) Info(ctx context.Context, in *InfoRequest, opts ...grpc.Cal
 type CoreServer interface {
 	// Info returns all necessary information from the core.
 	Info(context.Context, *InfoRequest) (*InfoReply, error)
+}
+
+// UnimplementedCoreServer can be embedded to have forward compatible implementations.
+type UnimplementedCoreServer struct {
+}
+
+func (*UnimplementedCoreServer) Info(ctx context.Context, req *InfoRequest) (*InfoReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Info not implemented")
 }
 
 func RegisterCoreServer(s *grpc.Server, srv CoreServer) {

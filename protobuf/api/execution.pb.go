@@ -10,6 +10,8 @@ import (
 	_struct "github.com/golang/protobuf/ptypes/struct"
 	types "github.com/mesg-foundation/engine/protobuf/types"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -548,6 +550,23 @@ type ExecutionServer interface {
 	Stream(*StreamExecutionRequest, Execution_StreamServer) error
 	// Update updates execution with outputs or an error.
 	Update(context.Context, *UpdateExecutionRequest) (*UpdateExecutionResponse, error)
+}
+
+// UnimplementedExecutionServer can be embedded to have forward compatible implementations.
+type UnimplementedExecutionServer struct {
+}
+
+func (*UnimplementedExecutionServer) Create(ctx context.Context, req *CreateExecutionRequest) (*CreateExecutionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+}
+func (*UnimplementedExecutionServer) Get(ctx context.Context, req *GetExecutionRequest) (*types.Execution, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+}
+func (*UnimplementedExecutionServer) Stream(req *StreamExecutionRequest, srv Execution_StreamServer) error {
+	return status.Errorf(codes.Unimplemented, "method Stream not implemented")
+}
+func (*UnimplementedExecutionServer) Update(ctx context.Context, req *UpdateExecutionRequest) (*UpdateExecutionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
 }
 
 func RegisterExecutionServer(s *grpc.Server, srv ExecutionServer) {
