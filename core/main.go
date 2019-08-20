@@ -2,14 +2,17 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"path/filepath"
 	"strconv"
 	"sync"
 
+	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/keeper"
 	"github.com/mesg-foundation/engine/logger"
 	"github.com/mesg-foundation/engine/scheduler"
 	"github.com/mesg-foundation/engine/sdk"
@@ -23,24 +26,38 @@ import (
 	"github.com/mesg-foundation/engine/x/xos"
 	"github.com/mesg-foundation/engine/x/xsignal"
 	"github.com/sirupsen/logrus"
+	"github.com/syndtr/goleveldb/leveldb"
 )
 
 var network = flag.Bool("experimental-network", false, "start the engine with the network")
 
 type dependencies struct {
-	cfg         *config.Config
-	serviceDB   database.ServiceDB
-	executionDB database.ExecutionDB
-	workflowDB  database.WorkflowDB
-	container   container.Container
-	sdk         *sdk.SDK
+	cfg *config.Config //TODO: to remove
+	sdk *sdk.SDK
 }
 
-func initDependencies(cfg *config.Config) (*dependencies, error) {
-	// init services db.
-	serviceDB, err := database.NewServiceDB(filepath.Join(cfg.Path, cfg.Database.ServiceRelativePath))
-	if err != nil {
-		return nil, err
+func initDependencies(cfg *config.Config, network bool) (*dependencies, error) {
+	var serviceKeeperFactory servicesdk.KeeperFactor
+	if network {
+		serviceKeeperFactory = func(context interface{}) (*database.ServiceKeeper, error) {
+			ctx, ok := context.(cosmostypes.Context)
+			if !ok {
+				return nil, fmt.Errorf("context is not a cosmos context")
+			}
+			return database.NewServiceKeeper(keeper.NewCosmosStore(ctx.KVStore(cosmostypes.NewKVStoreKey("service"))))
+		}
+	} else {
+		serviceDB, err := leveldb.OpenFile(filepath.Join(cfg.Path, cfg.Database.ServiceRelativePath), nil)
+		if err != nil {
+			return nil, err
+		}
+		serviceKeeper, err := database.NewServiceKeeper(keeper.NewLevelDBStore(serviceDB))
+		if err != nil {
+			return nil, err
+		}
+		serviceKeeperFactory = func(interface{}) (*database.ServiceKeeper, error) {
+			return serviceKeeper, nil
+		}
 	}
 
 	// init instance db.
@@ -70,15 +87,11 @@ func initDependencies(cfg *config.Config) (*dependencies, error) {
 	_, port, _ := xnet.SplitHostPort(cfg.Server.Address)
 
 	// init sdk.
-	sdk := sdk.New(c, serviceDB, instanceDB, executionDB, workflowDB, cfg.Name, strconv.Itoa(port))
+	sdk := sdk.New(c, serviceKeeperFactory, instanceDB, executionDB, workflowDB, cfg.Name, strconv.Itoa(port))
 
 	return &dependencies{
-		cfg:         cfg,
-		container:   c,
-		serviceDB:   serviceDB,
-		executionDB: executionDB,
-		workflowDB:  workflowDB,
-		sdk:         sdk,
+		cfg: cfg,
+		sdk: sdk,
 	}, nil
 }
 
@@ -152,7 +165,7 @@ func main() {
 		logrus.Fatalln(err)
 	}
 
-	dep, err := initDependencies(cfg)
+	dep, err := initDependencies(cfg, *network)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}

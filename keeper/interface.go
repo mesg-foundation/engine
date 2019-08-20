@@ -1,4 +1,4 @@
-package keeper
+package keeper //TODO: to rename to store
 
 // Store describes the API of keeper of Services.
 type Store interface {

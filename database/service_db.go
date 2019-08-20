@@ -17,11 +17,14 @@ var (
 
 // ServiceKeeper is a database for storing service definition.
 type ServiceKeeper struct {
+	s keeper.Store
 }
 
 // NewServiceKeeper returns the database which is located under given path.
-func NewServiceKeeper() (*ServiceKeeper, error) {
-	return &ServiceKeeper{}, nil
+func NewServiceKeeper(s keeper.Store) (*ServiceKeeper, error) {
+	return &ServiceKeeper{
+		s: s,
+	}, nil
 }
 
 // marshal returns the byte slice from service.
@@ -39,10 +42,10 @@ func (k *ServiceKeeper) unmarshal(hash hash.Hash, value []byte) (*service.Servic
 }
 
 // All returns every service in database.
-func (k *ServiceKeeper) All(s keeper.Store) ([]*service.Service, error) {
+func (k *ServiceKeeper) All() ([]*service.Service, error) {
 	var (
 		services []*service.Service
-		iter     = s.NewIterator()
+		iter     = k.s.NewIterator()
 	)
 	for iter.Next() {
 		hash := hash.Hash(iter.Key())
@@ -60,27 +63,27 @@ func (k *ServiceKeeper) All(s keeper.Store) ([]*service.Service, error) {
 }
 
 // Delete deletes service from database.
-func (k *ServiceKeeper) Delete(s keeper.Store, hash hash.Hash) error {
-	has, err := s.Has(hash)
+func (k *ServiceKeeper) Delete(hash hash.Hash) error {
+	has, err := k.s.Has(hash)
 	if err != nil {
 		return err
 	}
 	if !has {
 		return &ErrNotFound{resource: "service", hash: hash}
 	}
-	return s.Delete(hash)
+	return k.s.Delete(hash)
 }
 
 // Get retrives service from database.
-func (k *ServiceKeeper) Get(s keeper.Store, hash hash.Hash) (*service.Service, error) {
-	has, err := s.Has(hash)
+func (k *ServiceKeeper) Get(hash hash.Hash) (*service.Service, error) {
+	has, err := k.s.Has(hash)
 	if err != nil {
 		return nil, err
 	}
 	if !has {
 		return nil, &ErrNotFound{resource: "service", hash: hash}
 	}
-	b, err := s.Get(hash)
+	b, err := k.s.Get(hash)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +92,7 @@ func (k *ServiceKeeper) Get(s keeper.Store, hash hash.Hash) (*service.Service, e
 
 // Save stores service in database.
 // If there is an another service that uses the same sid, it'll be deleted.
-func (k *ServiceKeeper) Save(s keeper.Store, srv *service.Service) error {
+func (k *ServiceKeeper) Save(srv *service.Service) error {
 	if srv.Hash.IsZero() {
 		return errCannotSaveWithoutHash
 	}
@@ -97,12 +100,12 @@ func (k *ServiceKeeper) Save(s keeper.Store, srv *service.Service) error {
 	if err != nil {
 		return err
 	}
-	return s.Put(srv.Hash, b)
+	return k.s.Put(srv.Hash, b)
 }
 
 // Close closes database.
-func (k *ServiceKeeper) Close(s keeper.Store) error {
-	return s.Close()
+func (k *ServiceKeeper) Close() error {
+	return k.s.Close()
 }
 
 // ErrNotFound is an not found error.

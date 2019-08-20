@@ -18,15 +18,17 @@ import (
 
 // Service exposes service APIs of MESG.
 type Service struct {
-	container container.Container
-	serviceDB database.ServiceDB
+	container     container.Container
+	keeperFactory KeeperFactor
 }
 
+type KeeperFactor func(interface{}) (*database.ServiceKeeper, error)
+
 // New creates a new Service SDK with given options.
-func New(c container.Container, serviceDB database.ServiceDB) *Service {
+func New(c container.Container, keeperFactory KeeperFactor) *Service {
 	return &Service{
-		container: c,
-		serviceDB: serviceDB,
+		container:     c,
+		keeperFactory: keeperFactory,
 	}
 }
 
@@ -63,8 +65,13 @@ func (s *Service) Create(srv *service.Service) (*service.Service, error) {
 	}
 	srv.Hash = hash.Hash(h)
 
+	keeper, err := s.keeperFactory(nil)
+	if err != nil {
+		return nil, err
+	}
+
 	// check if service already exists.
-	if _, err := s.serviceDB.Get(srv.Hash); err == nil {
+	if _, err := keeper.Get(srv.Hash); err == nil {
 		return nil, &AlreadyExistsError{Hash: srv.Hash}
 	}
 
@@ -82,23 +89,34 @@ func (s *Service) Create(srv *service.Service) (*service.Service, error) {
 	if err := validator.ValidateService(srv); err != nil {
 		return nil, err
 	}
-
-	return srv, s.serviceDB.Save(srv)
+	return srv, keeper.Save(srv)
 }
 
 // Delete deletes the service by hash.
 func (s *Service) Delete(hash hash.Hash) error {
-	return s.serviceDB.Delete(hash)
+	keeper, err := s.keeperFactory(nil)
+	if err != nil {
+		return err
+	}
+	return keeper.Delete(hash)
 }
 
 // Get returns the service that matches given hash.
 func (s *Service) Get(hash hash.Hash) (*service.Service, error) {
-	return s.serviceDB.Get(hash)
+	keeper, err := s.keeperFactory(nil)
+	if err != nil {
+		return nil, err
+	}
+	return keeper.Get(hash)
 }
 
 // List returns all services.
 func (s *Service) List() ([]*service.Service, error) {
-	return s.serviceDB.All()
+	keeper, err := s.keeperFactory(nil)
+	if err != nil {
+		return nil, err
+	}
+	return keeper.All()
 }
 
 // AlreadyExistsError is an not found error.
