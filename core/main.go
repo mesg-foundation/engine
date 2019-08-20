@@ -10,6 +10,7 @@ import (
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
+	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/logger"
@@ -31,7 +32,7 @@ import (
 
 var network = flag.Bool("experimental-network", false, "start the engine with the network")
 
-func initSDK(cfg *config.Config, network bool) (*sdk.SDK, error) {
+func initialization(cfg *config.Config, network bool) (*sdk.SDK, error) {
 	// init container.
 	c, err := container.New(cfg.Name)
 	if err != nil {
@@ -40,6 +41,10 @@ func initSDK(cfg *config.Config, network bool) (*sdk.SDK, error) {
 
 	var serviceSDK servicesdk.Service
 	if network {
+		// init cosmos app
+		app := cosmos.New()
+
+		// init service sdk
 		serviceKeeperFactory := func(context interface{}) (*database.ServiceKeeper, error) {
 			ctx, ok := context.(cosmostypes.Context)
 			if !ok {
@@ -157,7 +162,7 @@ func main() {
 		logrus.Fatalln(err)
 	}
 
-	sdk, err := initSDK(cfg, *network)
+	sdk, err := initialization(cfg, *network)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
