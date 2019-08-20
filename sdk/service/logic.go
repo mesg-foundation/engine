@@ -2,7 +2,6 @@ package servicesdk
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -16,24 +15,21 @@ import (
 	"github.com/mesg-foundation/engine/service/validator"
 )
 
-// Service exposes service APIs of MESG.
-type Service struct {
+type logic struct {
 	container     container.Container
 	keeperFactory KeeperFactor
 }
 
 type KeeperFactor func(interface{}) (*database.ServiceKeeper, error)
 
-// New creates a new Service SDK with given options.
-func New(c container.Container, keeperFactory KeeperFactor) *Service {
-	return &Service{
+func NewLogic(c container.Container, keeperFactory KeeperFactor) *logic {
+	return &logic{
 		container:     c,
 		keeperFactory: keeperFactory,
 	}
 }
 
-// Create creates a new service from definition.
-func (s *Service) Create(srv *service.Service) (*service.Service, error) {
+func (s *logic) create(srv *service.Service) (*service.Service, error) {
 	if srv.Configuration == nil {
 		srv.Configuration = &service.Configuration{}
 	}
@@ -93,7 +89,7 @@ func (s *Service) Create(srv *service.Service) (*service.Service, error) {
 }
 
 // Delete deletes the service by hash.
-func (s *Service) Delete(hash hash.Hash) error {
+func (s *logic) delete(hash hash.Hash) error {
 	keeper, err := s.keeperFactory(nil)
 	if err != nil {
 		return err
@@ -102,7 +98,7 @@ func (s *Service) Delete(hash hash.Hash) error {
 }
 
 // Get returns the service that matches given hash.
-func (s *Service) Get(hash hash.Hash) (*service.Service, error) {
+func (s *logic) get(hash hash.Hash) (*service.Service, error) {
 	keeper, err := s.keeperFactory(nil)
 	if err != nil {
 		return nil, err
@@ -111,19 +107,10 @@ func (s *Service) Get(hash hash.Hash) (*service.Service, error) {
 }
 
 // List returns all services.
-func (s *Service) List() ([]*service.Service, error) {
+func (s *logic) list() ([]*service.Service, error) {
 	keeper, err := s.keeperFactory(nil)
 	if err != nil {
 		return nil, err
 	}
 	return keeper.All()
-}
-
-// AlreadyExistsError is an not found error.
-type AlreadyExistsError struct {
-	Hash hash.Hash
-}
-
-func (e *AlreadyExistsError) Error() string {
-	return fmt.Sprintf("service %q already exists", e.Hash.String())
 }

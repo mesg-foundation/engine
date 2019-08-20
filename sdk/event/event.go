@@ -17,11 +17,11 @@ const (
 type Event struct {
 	ps       *pubsub.PubSub
 	instance *instancesdk.Instance
-	service  *servicesdk.Service
+	service  servicesdk.Service
 }
 
 // New creates a new Event SDK with given options.
-func New(ps *pubsub.PubSub, service *servicesdk.Service, instance *instancesdk.Instance) *Event {
+func New(ps *pubsub.PubSub, service servicesdk.Service, instance *instancesdk.Instance) *Event {
 	return &Event{
 		ps:       ps,
 		service:  service,

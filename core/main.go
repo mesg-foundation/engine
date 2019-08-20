@@ -32,15 +32,23 @@ import (
 var network = flag.Bool("experimental-network", false, "start the engine with the network")
 
 func initSDK(cfg *config.Config, network bool) (*sdk.SDK, error) {
-	var serviceKeeperFactory servicesdk.KeeperFactor
+	// init container.
+	c, err := container.New(cfg.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	var serviceSDK servicesdk.Service
 	if network {
-		serviceKeeperFactory = func(context interface{}) (*database.ServiceKeeper, error) {
-			ctx, ok := context.(cosmostypes.Context)
-			if !ok {
-				return nil, fmt.Errorf("context is not a cosmos context")
-			}
-			return database.NewServiceKeeper(store.NewCosmosStore(ctx.KVStore(cosmostypes.NewKVStoreKey("service"))))
-		}
+		// serviceKeeperFactory := func(context interface{}) (*database.ServiceKeeper, error) {
+		// 	ctx, ok := context.(cosmostypes.Context)
+		// 	if !ok {
+		// 		return nil, fmt.Errorf("context is not a cosmos context")
+		// 	}
+		// 	return database.NewServiceKeeper(store.NewCosmosStore(ctx.KVStore(cosmostypes.NewKVStoreKey("service"))))
+		// }
+		// serviceModule := servicesdk.NewLogic(c, serviceKeeperFactory)
+		serviceSDK = servicesdk.NewCosmos()
 	} else {
 		serviceDB, err := leveldb.OpenFile(filepath.Join(cfg.Path, cfg.Database.ServiceRelativePath), nil)
 		if err != nil {
@@ -50,9 +58,10 @@ func initSDK(cfg *config.Config, network bool) (*sdk.SDK, error) {
 		if err != nil {
 			return nil, err
 		}
-		serviceKeeperFactory = func(interface{}) (*database.ServiceKeeper, error) {
+		serviceKeeperFactory := func(interface{}) (*database.ServiceKeeper, error) {
 			return serviceKeeper, nil
 		}
+		serviceSDK = servicesdk.NewClassic(servicesdk.NewLogic(c, serviceKeeperFactory))
 	}
 
 	// init instance db.
@@ -73,16 +82,10 @@ func initSDK(cfg *config.Config, network bool) (*sdk.SDK, error) {
 		return nil, err
 	}
 
-	// init container.
-	c, err := container.New(cfg.Name)
-	if err != nil {
-		return nil, err
-	}
-
 	_, port, _ := xnet.SplitHostPort(cfg.Server.Address)
 
 	// init sdk.
-	return sdk.New(c, serviceKeeperFactory, instanceDB, executionDB, workflowDB, cfg.Name, strconv.Itoa(port)), nil
+	return sdk.New(c, serviceSDK, instanceDB, executionDB, workflowDB, cfg.Name, strconv.Itoa(port)), nil
 }
 
 func deployCoreServices(cfg *config.Config, sdk *sdk.SDK) error {

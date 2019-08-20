@@ -21,14 +21,14 @@ const (
 // Execution exposes execution APIs of MESG.
 type Execution struct {
 	ps       *pubsub.PubSub
-	service  *servicesdk.Service
+	service  servicesdk.Service
 	instance *instancesdk.Instance
 	workflow *workflowsdk.Workflow
 	execDB   database.ExecutionDB
 }
 
 // New creates a new Execution SDK with given options.
-func New(ps *pubsub.PubSub, service *servicesdk.Service, instance *instancesdk.Instance, workflow *workflowsdk.Workflow, execDB database.ExecutionDB) *Execution {
+func New(ps *pubsub.PubSub, service servicesdk.Service, instance *instancesdk.Instance, workflow *workflowsdk.Workflow, execDB database.ExecutionDB) *Execution {
 	return &Execution{
 		ps:       ps,
 		service:  service,
