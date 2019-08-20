@@ -25,8 +25,6 @@ type GenesisState struct {
 	Services []serv.Service `json:"services"`
 }
 
-var ModuleCdc = codec.New()
-
 // app module Basics object
 type AppModuleBasic struct{}
 
@@ -38,7 +36,8 @@ func (AppModuleBasic) RegisterCodec(cdc *codec.Codec) {
 }
 
 func (AppModuleBasic) DefaultGenesis() json.RawMessage {
-	return ModuleCdc.MustMarshalJSON(GenesisState{
+	cdc := codec.New()
+	return cdc.MustMarshalJSON(GenesisState{
 		Services: []serv.Service{
 			serv.Service{
 				Hash:          hash.Int(1),
@@ -101,7 +100,8 @@ func (s Service) EndBlock(sdk.Context, abci.RequestEndBlock) []abci.ValidatorUpd
 
 func (s Service) InitGenesis(ctx sdk.Context, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState GenesisState
-	ModuleCdc.MustUnmarshalJSON(data, &genesisState)
+	cdc := codec.New()
+	cdc.MustUnmarshalJSON(data, &genesisState)
 	for _, service := range genesisState.Services {
 		s.keeper.Set(ctx, service)
 	}
@@ -110,5 +110,6 @@ func (s Service) InitGenesis(ctx sdk.Context, data json.RawMessage) []abci.Valid
 
 func (s Service) ExportGenesis(ctx sdk.Context) json.RawMessage {
 	gs := GenesisState{}
-	return ModuleCdc.MustMarshalJSON(gs)
+	cdc := codec.New()
+	return cdc.MustMarshalJSON(gs)
 }

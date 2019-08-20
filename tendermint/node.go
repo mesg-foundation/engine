@@ -6,6 +6,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/module"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/genaccounts"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
@@ -39,7 +40,7 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig, serviceSDK *servic
 		return nil, err
 	}
 
-	cdc := app.MakeCodec()
+	basicManager, cdc := app.BasicInit(serviceSDK)
 
 	// build a message to create validator
 	msg := newMsgCreateValidator(
@@ -55,7 +56,7 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig, serviceSDK *servic
 	}
 
 	// initialize app state with first validator
-	appState, err := createAppState(cdc, account.GetAddress(), signedTx)
+	appState, err := createAppState(basicManager, cdc, account.GetAddress(), signedTx)
 	if err != nil {
 		return nil, err
 	}
@@ -71,9 +72,10 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig, serviceSDK *servic
 		return nil, err
 	}
 
-	app := app.NewServiceApp(logger.TendermintLogger(), db, serviceSDK)
+	app := app.NewServiceApp(cdc, logger.TendermintLogger(), db, serviceSDK)
 
-	node, err := node.NewNode(cfg,
+	node, err := node.NewNode(
+		cfg,
 		privval.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile()),
 		nodeKey,
 		proxy.NewLocalClientCreator(app),
@@ -154,8 +156,8 @@ func sendAndQuery() {
 	// }()
 }
 
-func createAppState(cdc *codec.Codec, address sdktypes.AccAddress, signedStdTx authtypes.StdTx) (map[string]json.RawMessage, error) {
-	appState := app.ModuleBasics.DefaultGenesis()
+func createAppState(basicManager module.BasicManager, cdc *codec.Codec, address sdktypes.AccAddress, signedStdTx authtypes.StdTx) (map[string]json.RawMessage, error) {
+	appState := basicManager.DefaultGenesis()
 
 	stakes := sdktypes.NewCoin(sdktypes.DefaultBondDenom, sdktypes.NewInt(100000000))
 	genAcc := genaccounts.NewGenesisAccountRaw(address, sdktypes.NewCoins(stakes), sdktypes.NewCoins(), 0, 0, "", "")
