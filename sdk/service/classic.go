@@ -10,7 +10,7 @@ type Classic struct {
 	logic *logic
 }
 
-func NewClassic(c container.Container, keeperFactory KeeperFactor) *Classic {
+func NewClassic(c container.Container, keeperFactory KeeperFactory) *Classic {
 	return &Classic{
 		logic: newLogic(c, keeperFactory),
 	}

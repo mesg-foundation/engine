@@ -17,12 +17,12 @@ import (
 
 type logic struct {
 	container     container.Container
-	keeperFactory KeeperFactor
+	keeperFactory KeeperFactory
 }
 
-type KeeperFactor func(interface{}) (*database.ServiceKeeper, error)
+type KeeperFactory func(interface{}) (*database.ServiceKeeper, error)
 
-func newLogic(c container.Container, keeperFactory KeeperFactor) *logic {
+func newLogic(c container.Container, keeperFactory KeeperFactory) *logic {
 	return &logic{
 		container:     c,
 		keeperFactory: keeperFactory,

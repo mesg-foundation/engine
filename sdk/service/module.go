@@ -22,7 +22,7 @@ type appModule struct {
 	logic *logic
 }
 
-func newAppModule(c container.Container, keeperFactory KeeperFactor) *appModule {
+func newAppModule(c container.Container, keeperFactory KeeperFactory) *appModule {
 	return &appModule{
 		logic: newLogic(c, keeperFactory),
 	}
