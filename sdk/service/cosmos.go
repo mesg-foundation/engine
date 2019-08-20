@@ -3,14 +3,17 @@ package servicesdk
 import (
 	"fmt"
 
+	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/service"
+	"github.com/mesg-foundation/engine/cosmos"
 )
 
 type Cosmos struct {
 }
 
-func NewCosmos() *Cosmos {
+func NewCosmos(app *cosmos.App, c container.Container, keeperFactory KeeperFactor) *Cosmos {
+	app.RegisterModule(newAppModule(c, keeperFactory))
 	return &Cosmos{}
 }
 

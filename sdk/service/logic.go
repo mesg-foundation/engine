@@ -22,7 +22,7 @@ type logic struct {
 
 type KeeperFactor func(interface{}) (*database.ServiceKeeper, error)
 
-func NewLogic(c container.Container, keeperFactory KeeperFactor) *logic {
+func newLogic(c container.Container, keeperFactory KeeperFactor) *logic {
 	return &logic{
 		container:     c,
 		keeperFactory: keeperFactory,

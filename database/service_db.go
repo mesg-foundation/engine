@@ -1,13 +1,15 @@
 package database
 
+// TODO: this file could be move to service package
+
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
 
 	"github.com/mesg-foundation/engine/hash"
-	"github.com/mesg-foundation/engine/store"
 	"github.com/mesg-foundation/engine/service"
+	"github.com/mesg-foundation/engine/store"
 	"github.com/sirupsen/logrus"
 )
 

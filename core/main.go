@@ -40,15 +40,14 @@ func initSDK(cfg *config.Config, network bool) (*sdk.SDK, error) {
 
 	var serviceSDK servicesdk.Service
 	if network {
-		// serviceKeeperFactory := func(context interface{}) (*database.ServiceKeeper, error) {
-		// 	ctx, ok := context.(cosmostypes.Context)
-		// 	if !ok {
-		// 		return nil, fmt.Errorf("context is not a cosmos context")
-		// 	}
-		// 	return database.NewServiceKeeper(store.NewCosmosStore(ctx.KVStore(cosmostypes.NewKVStoreKey("service"))))
-		// }
-		// serviceModule := servicesdk.NewLogic(c, serviceKeeperFactory)
-		serviceSDK = servicesdk.NewCosmos()
+		serviceKeeperFactory := func(context interface{}) (*database.ServiceKeeper, error) {
+			ctx, ok := context.(cosmostypes.Context)
+			if !ok {
+				return nil, fmt.Errorf("context is not a cosmos context")
+			}
+			return database.NewServiceKeeper(store.NewCosmosStore(ctx.KVStore(cosmostypes.NewKVStoreKey("service"))))
+		}
+		serviceSDK = servicesdk.NewCosmos(app, c, serviceKeeperFactory)
 	} else {
 		serviceDB, err := leveldb.OpenFile(filepath.Join(cfg.Path, cfg.Database.ServiceRelativePath), nil)
 		if err != nil {
@@ -61,7 +60,7 @@ func initSDK(cfg *config.Config, network bool) (*sdk.SDK, error) {
 		serviceKeeperFactory := func(interface{}) (*database.ServiceKeeper, error) {
 			return serviceKeeper, nil
 		}
-		serviceSDK = servicesdk.NewClassic(servicesdk.NewLogic(c, serviceKeeperFactory))
+		serviceSDK = servicesdk.NewClassic(c, serviceKeeperFactory)
 	}
 
 	// init instance db.

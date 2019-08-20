@@ -1,6 +1,7 @@
 package servicesdk
 
 import (
+	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/service"
 )
@@ -9,9 +10,9 @@ type Classic struct {
 	logic *logic
 }
 
-func NewClassic(logic *logic) *Classic {
+func NewClassic(c container.Container, keeperFactory KeeperFactor) *Classic {
 	return &Classic{
-		logic: logic,
+		logic: newLogic(c, keeperFactory),
 	}
 }
 
