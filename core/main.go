@@ -12,13 +12,13 @@ import (
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/hash"
-	"github.com/mesg-foundation/engine/store"
 	"github.com/mesg-foundation/engine/logger"
 	"github.com/mesg-foundation/engine/scheduler"
 	"github.com/mesg-foundation/engine/sdk"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	"github.com/mesg-foundation/engine/server/grpc"
+	"github.com/mesg-foundation/engine/store"
 	"github.com/mesg-foundation/engine/tendermint"
 	"github.com/mesg-foundation/engine/version"
 	"github.com/mesg-foundation/engine/x/xerrors"
@@ -31,12 +31,7 @@ import (
 
 var network = flag.Bool("experimental-network", false, "start the engine with the network")
 
-type dependencies struct {
-	cfg *config.Config //TODO: to remove
-	sdk *sdk.SDK
-}
-
-func initDependencies(cfg *config.Config, network bool) (*dependencies, error) {
+func initSDK(cfg *config.Config, network bool) (*sdk.SDK, error) {
 	var serviceKeeperFactory servicesdk.KeeperFactor
 	if network {
 		serviceKeeperFactory = func(context interface{}) (*database.ServiceKeeper, error) {
@@ -87,12 +82,7 @@ func initDependencies(cfg *config.Config, network bool) (*dependencies, error) {
 	_, port, _ := xnet.SplitHostPort(cfg.Server.Address)
 
 	// init sdk.
-	sdk := sdk.New(c, serviceKeeperFactory, instanceDB, executionDB, workflowDB, cfg.Name, strconv.Itoa(port))
-
-	return &dependencies{
-		cfg: cfg,
-		sdk: sdk,
-	}, nil
+	return sdk.New(c, serviceKeeperFactory, instanceDB, executionDB, workflowDB, cfg.Name, strconv.Itoa(port)), nil
 }
 
 func deployCoreServices(cfg *config.Config, sdk *sdk.SDK) error {
@@ -165,7 +155,7 @@ func main() {
 		logrus.Fatalln(err)
 	}
 
-	dep, err := initDependencies(cfg, *network)
+	sdk, err := initSDK(cfg, *network)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
@@ -186,12 +176,12 @@ func main() {
 	}
 
 	// init system services.
-	if err := deployCoreServices(dep.cfg, dep.sdk); err != nil {
+	if err := deployCoreServices(cfg, sdk); err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 
 	// init gRPC server.
-	server := grpc.New(dep.sdk)
+	server := grpc.New(sdk)
 
 	logrus.WithField("module", "main").Infof("starting MESG Engine version %s", version.Version)
 
@@ -202,7 +192,7 @@ func main() {
 	}()
 
 	logrus.WithField("module", "main").Info("starting workflow engine")
-	s := scheduler.New(dep.sdk.Event, dep.sdk.Execution, dep.sdk.Workflow)
+	s := scheduler.New(sdk.Event, sdk.Execution, sdk.Workflow)
 	go func() {
 		if err := s.Start(); err != nil {
 			logrus.WithField("module", "main").Fatalln(err)
@@ -215,7 +205,7 @@ func main() {
 	}()
 
 	<-xsignal.WaitForInterrupt()
-	if err := stopRunningServices(dep.sdk); err != nil {
+	if err := stopRunningServices(sdk); err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 	server.Close()
