@@ -3,11 +3,7 @@ package app
 import (
 	"encoding/json"
 
-	abci "github.com/tendermint/tendermint/abci/types"
-	cmn "github.com/tendermint/tendermint/libs/common"
-	"github.com/tendermint/tendermint/libs/log"
-	dbm "github.com/tendermint/tm-db"
-
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -21,264 +17,207 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/supply"
-
-	"github.com/cosmos/sdk-application-tutorial/x/nameservice"
+	abci "github.com/tendermint/tendermint/abci/types"
+	cmn "github.com/tendermint/tendermint/libs/common"
+	"github.com/tendermint/tendermint/libs/log"
+	dbm "github.com/tendermint/tm-db"
 )
 
-const appName = "nameservice"
-
-var (
-	// ModuleBasics is in charge of setting up basic module elemnets
-	ModuleBasics = module.NewBasicManager(
-		genaccounts.AppModuleBasic{},
-		genutil.AppModuleBasic{},
-		auth.AppModuleBasic{},
-		bank.AppModuleBasic{},
-		staking.AppModuleBasic{},
-		distr.AppModuleBasic{},
-		params.AppModuleBasic{},
-		slashing.AppModuleBasic{},
-		supply.AppModuleBasic{},
-
-		nameservice.AppModule{},
+// TODO: sould be moved outside of app.gp
+func BasicInit(moduleBasics ...module.AppModuleBasic) (module.BasicManager, *codec.Codec) {
+	basicManager := module.NewBasicManager(
+		append([]module.AppModuleBasic{
+			genaccounts.AppModuleBasic{},
+			genutil.AppModuleBasic{},
+			auth.AppModuleBasic{},
+			bank.AppModuleBasic{},
+			staking.AppModuleBasic{},
+			distr.AppModuleBasic{},
+			params.AppModuleBasic{},
+			slashing.AppModuleBasic{},
+			supply.AppModuleBasic{},
+		}, moduleBasics...)...,
 	)
-	// account permissions
-	maccPerms = map[string][]string{
-		auth.FeeCollectorName:     nil,
-		distr.ModuleName:          nil,
-		staking.BondedPoolName:    {supply.Burner, supply.Staking},
-		staking.NotBondedPoolName: {supply.Burner, supply.Staking},
-	}
-)
 
-// MakeCodec generates the necessary codecs for Amino
-func MakeCodec() *codec.Codec {
-	var cdc = codec.New()
-	ModuleBasics.RegisterCodec(cdc)
+	cdc := codec.New()
+	basicManager.RegisterCodec(cdc)
 	sdk.RegisterCodec(cdc)
 	codec.RegisterCrypto(cdc)
-	return cdc
+
+	return basicManager, cdc
 }
 
-type NameServiceApp struct {
-	*bam.BaseApp
-	cdc *codec.Codec
-
-	// Keys to access the substores
-	keyMain     *sdk.KVStoreKey
-	keyAccount  *sdk.KVStoreKey
-	keySupply   *sdk.KVStoreKey
-	keyStaking  *sdk.KVStoreKey
-	tkeyStaking *sdk.TransientStoreKey
-	keyDistr    *sdk.KVStoreKey
-	keyNS       *sdk.KVStoreKey
-	keyParams   *sdk.KVStoreKey
-	tkeyParams  *sdk.TransientStoreKey
-	keySlashing *sdk.KVStoreKey
-
-	// Keepers
-	accountKeeper  auth.AccountKeeper
-	bankKeeper     bank.Keeper
-	stakingKeeper  staking.Keeper
-	slashingKeeper slashing.Keeper
-	distrKeeper    distr.Keeper
-	supplyKeeper   supply.Keeper
-	paramsKeeper   params.Keeper
-	nsKeeper       nameservice.Keeper
-
-	// Module Manager
-	mm *module.Manager
-}
-
-// NewNameServiceApp is a constructor function for NameServiceApp
-func NewNameServiceApp(logger log.Logger, db dbm.DB) (*NameServiceApp, *codec.Codec) {
+// NewServiceApp is a constructor function for ServiceApp
+func NewServiceApp(cdc *codec.Codec, logger log.Logger, db dbm.DB, modules ...module.AppModule) *baseapp.BaseApp {
 
 	// First define the top level codec that will be shared by the different modules
-	cdc := MakeCodec()
+	// TODO: to delete
+	// serviceSDK.SetCodec(cdc)
 
 	// BaseApp handles interactions with Tendermint through the ABCI protocol
-	bApp := bam.NewBaseApp(appName, logger, db, auth.DefaultTxDecoder(cdc))
+	bApp := bam.NewBaseApp("engine", logger, db, auth.DefaultTxDecoder(cdc))
 
-	// Here you initialize your application with the store keys it requires
-	var app = &NameServiceApp{
-		BaseApp: bApp,
-		cdc:     cdc,
-
-		keyMain:     sdk.NewKVStoreKey(bam.MainStoreKey),
-		keyAccount:  sdk.NewKVStoreKey(auth.StoreKey),
-		keySupply:   sdk.NewKVStoreKey(supply.StoreKey),
-		keyStaking:  sdk.NewKVStoreKey(staking.StoreKey),
-		tkeyStaking: sdk.NewTransientStoreKey(staking.TStoreKey),
-		keyDistr:    sdk.NewKVStoreKey(distr.StoreKey),
-		keyNS:       sdk.NewKVStoreKey(nameservice.StoreKey),
-		keyParams:   sdk.NewKVStoreKey(params.StoreKey),
-		tkeyParams:  sdk.NewTransientStoreKey(params.TStoreKey),
-		keySlashing: sdk.NewKVStoreKey(slashing.StoreKey),
+	// Create store keys array
+	storeKeys := []string{
+		bam.MainStoreKey,
+		auth.StoreKey,
+		supply.StoreKey,
+		staking.StoreKey,
+		distr.StoreKey,
+		params.StoreKey,
+		slashing.StoreKey,
+	}
+	for _, module := range modules {
+		storeKeys = append(storeKeys, module.Name())
 	}
 
+	keys := sdk.NewKVStoreKeys(storeKeys...)
+	tkeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
+
+	// Here you initialize your application with the store keys it requires
+
 	// The ParamsKeeper handles parameter storage for the application
-	app.paramsKeeper = params.NewKeeper(app.cdc, app.keyParams, app.tkeyParams, params.DefaultCodespace)
-	// Set specific supspaces
-	authSubspace := app.paramsKeeper.Subspace(auth.DefaultParamspace)
-	bankSupspace := app.paramsKeeper.Subspace(bank.DefaultParamspace)
-	stakingSubspace := app.paramsKeeper.Subspace(staking.DefaultParamspace)
-	distrSubspace := app.paramsKeeper.Subspace(distr.DefaultParamspace)
-	slashingSubspace := app.paramsKeeper.Subspace(slashing.DefaultParamspace)
+	paramsKeeper := params.NewKeeper(cdc, keys[params.StoreKey], tkeys[params.TStoreKey], params.DefaultCodespace)
 
 	// The AccountKeeper handles address -> account lookups
-	app.accountKeeper = auth.NewAccountKeeper(
-		app.cdc,
-		app.keyAccount,
-		authSubspace,
+	accountKeeper := auth.NewAccountKeeper(
+		cdc,
+		keys[params.StoreKey],
+		paramsKeeper.Subspace(auth.DefaultParamspace),
 		auth.ProtoBaseAccount,
 	)
 
 	// The BankKeeper allows you perform sdk.Coins interactions
-	app.bankKeeper = bank.NewBaseKeeper(
-		app.accountKeeper,
-		bankSupspace,
+	bankKeeper := bank.NewBaseKeeper(
+		accountKeeper,
+		paramsKeeper.Subspace(bank.DefaultParamspace),
 		bank.DefaultCodespace,
 		nil,
 	)
 
 	// The SupplyKeeper collects transaction fees and renders them to the fee distribution module
-	app.supplyKeeper = supply.NewKeeper(
-		app.cdc,
-		app.keySupply,
-		app.accountKeeper,
-		app.bankKeeper,
-		maccPerms)
+	supplyKeeper := supply.NewKeeper(
+		cdc,
+		keys[supply.StoreKey],
+		accountKeeper,
+		bankKeeper,
+		map[string][]string{
+			auth.FeeCollectorName:     nil,
+			distr.ModuleName:          nil,
+			staking.BondedPoolName:    {supply.Burner, supply.Staking},
+			staking.NotBondedPoolName: {supply.Burner, supply.Staking},
+		},
+	)
 
 	// The staking keeper
 	stakingKeeper := staking.NewKeeper(
-		app.cdc,
-		app.keyStaking,
-		app.tkeyStaking,
-		app.supplyKeeper,
-		stakingSubspace,
+		cdc,
+		keys[staking.StoreKey],
+		keys[staking.TStoreKey],
+		supplyKeeper,
+		paramsKeeper.Subspace(staking.DefaultParamspace),
 		staking.DefaultCodespace,
 	)
 
-	app.distrKeeper = distr.NewKeeper(
-		app.cdc,
-		app.keyDistr,
-		distrSubspace,
+	distrKeeper := distr.NewKeeper(
+		cdc,
+		keys[distr.StoreKey],
+		paramsKeeper.Subspace(distr.DefaultParamspace),
 		&stakingKeeper,
-		app.supplyKeeper,
+		supplyKeeper,
 		distr.DefaultCodespace,
 		auth.FeeCollectorName,
 		nil,
 	)
 
-	app.slashingKeeper = slashing.NewKeeper(
-		app.cdc,
-		app.keySlashing,
+	slashingKeeper := slashing.NewKeeper(
+		cdc,
+		keys[slashing.StoreKey],
 		&stakingKeeper,
-		slashingSubspace,
+		paramsKeeper.Subspace(slashing.DefaultParamspace),
 		slashing.DefaultCodespace,
 	)
 
 	// register the staking hooks
 	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
-	app.stakingKeeper = *stakingKeeper.SetHooks(
+	stakingKeeper = *stakingKeeper.SetHooks(
 		staking.NewMultiStakingHooks(
-			app.distrKeeper.Hooks(),
-			app.slashingKeeper.Hooks()),
+			distrKeeper.Hooks(),
+			slashingKeeper.Hooks()),
 	)
 
-	// The NameserviceKeeper is the Keeper from the module for this tutorial
+	// The serviceKeeper is the Keeper from the module for this tutorial
 	// It handles interactions with the namestore
-	app.nsKeeper = nameservice.NewKeeper(
-		app.bankKeeper,
-		app.keyNS,
-		app.cdc,
+	// serviceKeeper := servicesdk.NewKeeper(
+	// 	keys["service"],
+	// 	cdc,
+	// )
+
+	mm := module.NewManager(
+		genaccounts.NewAppModule(accountKeeper),
+		genutil.NewAppModule(accountKeeper, stakingKeeper, bApp.DeliverTx),
+		auth.NewAppModule(accountKeeper),
+		bank.NewAppModule(bankKeeper, accountKeeper),
+		//TODO: to finish: servicesdk.New(container, serviceKeeper),
+		supply.NewAppModule(supplyKeeper, accountKeeper),
+		distr.NewAppModule(distrKeeper, supplyKeeper),
+		slashing.NewAppModule(slashingKeeper, stakingKeeper),
+		staking.NewAppModule(stakingKeeper, distrKeeper, accountKeeper, supplyKeeper),
 	)
 
-	app.mm = module.NewManager(
-		genaccounts.NewAppModule(app.accountKeeper),
-		genutil.NewAppModule(app.accountKeeper, app.stakingKeeper, app.BaseApp.DeliverTx),
-		auth.NewAppModule(app.accountKeeper),
-		bank.NewAppModule(app.bankKeeper, app.accountKeeper),
-		nameservice.NewAppModule(app.nsKeeper, app.bankKeeper),
-		supply.NewAppModule(app.supplyKeeper, app.accountKeeper),
-		distr.NewAppModule(app.distrKeeper, app.supplyKeeper),
-		slashing.NewAppModule(app.slashingKeeper, app.stakingKeeper),
-		staking.NewAppModule(app.stakingKeeper, app.distrKeeper, app.accountKeeper, app.supplyKeeper),
-	)
-
-	app.mm.SetOrderBeginBlockers(distr.ModuleName, slashing.ModuleName)
-	app.mm.SetOrderEndBlockers(staking.ModuleName)
+	mm.SetOrderBeginBlockers(distr.ModuleName, slashing.ModuleName)
+	mm.SetOrderEndBlockers(staking.ModuleName)
 
 	// Sets the order of Genesis - Order matters, genutil is to always come last
-	app.mm.SetOrderInitGenesis(
+	mm.SetOrderInitGenesis(
 		genaccounts.ModuleName,
 		distr.ModuleName,
 		staking.ModuleName,
 		auth.ModuleName,
 		bank.ModuleName,
 		slashing.ModuleName,
-		nameservice.ModuleName,
+		// serviceSDK.Name(),
 		genutil.ModuleName,
 	)
 
 	// register all module routes and module queriers
-	app.mm.RegisterRoutes(app.Router(), app.QueryRouter())
+	mm.RegisterRoutes(bApp.Router(), bApp.QueryRouter())
 
 	// The initChainer handles translating the genesis.json file into initial state for the network
-	app.SetInitChainer(app.InitChainer)
-	app.SetBeginBlocker(app.BeginBlocker)
-	app.SetEndBlocker(app.EndBlocker)
+	bApp.SetInitChainer(func(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
+		var genesisData map[string]json.RawMessage
+		if err := cdc.UnmarshalJSON(req.AppStateBytes, &genesisData); err != nil {
+			panic(err)
+		}
+		return mm.InitGenesis(ctx, genesisData)
+	})
+	bApp.SetBeginBlocker(func(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+		return mm.BeginBlock(ctx, req)
+	})
+	bApp.SetEndBlocker(func(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
+		return mm.EndBlock(ctx, req)
+	})
 
 	// The AnteHandler handles signature verification and transaction pre-processing
-	app.SetAnteHandler(
+	bApp.SetAnteHandler(
 		auth.NewAnteHandler(
-			app.accountKeeper,
-			app.supplyKeeper,
+			accountKeeper,
+			supplyKeeper,
 			auth.DefaultSigVerificationGasConsumer,
 		),
 	)
 
-	app.MountStores(
-		app.keyMain,
-		app.keyAccount,
-		app.keySupply,
-		app.keyStaking,
-		app.tkeyStaking,
-		app.keyDistr,
-		app.keySlashing,
-		app.keyNS,
-		app.keyParams,
-		app.tkeyParams,
-	)
+	// initialize stores
+	bApp.MountKVStores(keys)
+	bApp.MountTransientStores(tkeys)
 
-	err := app.LoadLatestVersion(app.keyMain)
-	if err != nil {
+	if err := bApp.LoadLatestVersion(keys[bam.MainStoreKey]); err != nil {
 		cmn.Exit(err.Error())
 	}
 
-	return app, cdc
+	return bApp
 }
 
-// GenesisState represents chain state at the start of the chain. Any initial state (account balances) are stored here.
-type GenesisState map[string]json.RawMessage
-
-func (app *NameServiceApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
-	var genesisState GenesisState
-
-	err := app.cdc.UnmarshalJSON(req.AppStateBytes, &genesisState)
-	if err != nil {
-		panic(err)
-	}
-
-	return app.mm.InitGenesis(ctx, genesisState)
-}
-
-func (app *NameServiceApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
-	return app.mm.BeginBlock(ctx, req)
-}
-func (app *NameServiceApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
-	return app.mm.EndBlock(ctx, req)
-}
-func (app *NameServiceApp) LoadHeight(height int64) error {
-	return app.LoadVersion(height, app.keyMain)
-}
+// func (app *ServiceApp) LoadHeight(height int64) error {
+// 	return app.LoadVersion(height, keys[bam.MainStoreKey])
+// }

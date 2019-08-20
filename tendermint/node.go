@@ -4,10 +4,9 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	authutils "github.com/cosmos/cosmos-sdk/x/auth/client/utils"
+	"github.com/cosmos/cosmos-sdk/types/module"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/genaccounts"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
@@ -15,33 +14,53 @@ import (
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/logger"
 	"github.com/mesg-foundation/engine/tendermint/app"
-	"github.com/sirupsen/logrus"
 	tmconfig "github.com/tendermint/tendermint/config"
 	"github.com/tendermint/tendermint/crypto/ed25519"
 	"github.com/tendermint/tendermint/node"
 	"github.com/tendermint/tendermint/p2p"
 	"github.com/tendermint/tendermint/privval"
 	"github.com/tendermint/tendermint/proxy"
+
+	// rpcclient "github.com/tendermint/tendermint/rpc/client"
 	"github.com/tendermint/tendermint/types"
 	db "github.com/tendermint/tm-db"
 )
 
 // NewNode retruns new tendermint node that runs the app.
 func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error) {
-	nodeKey, err := p2p.LoadOrGenNodeKey(cfg.NodeKeyFile())
-	if err != nil {
-		return nil, err
-	}
-
-	me := privval.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile())
-
 	// create user database and generate first user
-	kb, err := NewFSKeybase(ccfg.Path)
+	kb, err := NewKeybase(ccfg.Path)
 	if err != nil {
 		return nil, err
 	}
 
 	account, err := kb.GenerateAccount(ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Mnemonic, ccfg.GenesisAccount.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	basicManager, cdc := app.BasicInit()
+
+	// build a message to create validator
+	msg := newMsgCreateValidator(
+		sdktypes.ValAddress(account.GetAddress()),
+		ed25519.PubKeyEd25519(ccfg.ValidatorPubKey),
+		ccfg.GenesisAccount.Name,
+	)
+
+	signedTx, err := NewTxBuilder(cdc, 0, 0, kb, ccfg.ChainID).
+		Create(msg, ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	// initialize app state with first validator
+	appState, err := createAppState(basicManager, cdc, account.GetAddress(), signedTx)
+	if err != nil {
+		return nil, err
+	}
+
+	nodeKey, err := p2p.LoadOrGenNodeKey(cfg.NodeKeyFile())
 	if err != nil {
 		return nil, err
 	}
@@ -52,71 +71,91 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 		return nil, err
 	}
 
-	logger := logger.TendermintLogger()
-	app, cdc := app.NewNameServiceApp(logger, db)
+	app := app.NewServiceApp(cdc, logger.TendermintLogger(), db)
 
-	// build a message to create validator
-	msg := newMsgCreateValidator(
-		sdktypes.ValAddress(account.GetAddress()),
-		ed25519.PubKeyEd25519(ccfg.ValidatorPubKey),
-		ccfg.GenesisAccount.Name,
-	)
-	logrus.WithField("msg", msg).Info("validator tx")
-
-	// sign the message
-	signedTx, err := signTransaction(
-		cdc,
-		kb,
-		msg,
-		ccfg.ChainID,
-		ccfg.GenesisAccount.Name,
-		ccfg.GenesisAccount.Password,
-	)
-	if err != nil {
-		return nil, err
-	}
-	logrus.WithField("signedTx", signedTx).Info("signed tx")
-
-	// initialize app state with first validator
-	appState, err := createAppState(cdc, account.GetAddress(), signedTx)
-	if err != nil {
-		return nil, err
-	}
-
-	return node.NewNode(cfg,
-		me,
+	node, err := node.NewNode(
+		cfg,
+		privval.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile()),
 		nodeKey,
 		proxy.NewLocalClientCreator(app),
 		genesisLoader(cdc, appState, ccfg.ChainID, ccfg.GenesisTime),
 		node.DefaultDBProvider,
 		node.DefaultMetricsProvider(cfg.Instrumentation),
-		logger,
+		app.Logger(),
 	)
+	if err != nil {
+		return nil, err
+	}
+
+	// client := tmclient.New(rpcclient.NewLocal(node), cdc)
+
+	return node, nil
 }
 
-func signTransaction(cdc *codec.Codec, kb *Keybase, msg sdktypes.Msg, chainID, accountName, accountPassword string) (authtypes.StdTx, error) {
-	fees := authtypes.NewStdFee(flags.DefaultGasLimit, sdktypes.NewCoins())
-	gasPrices := sdktypes.DecCoins{}
-	stdTx := authtypes.NewStdTx([]sdktypes.Msg{msg}, fees, []authtypes.StdSignature{}, "")
+func sendAndQuery() {
+	// TODO: left only for tests
+	// go func() {
+	// 	client := tmclient.New(rpcclient.NewLocal(node), cdc)
 
-	txBldr := authtypes.NewTxBuilder(
-		authutils.GetTxEncoder(cdc),
-		0,
-		0,
-		flags.DefaultGasLimit,
-		flags.DefaultGasAdjustment,
-		true,
-		chainID,
-		"",
-		sdktypes.NewCoins(),
-		gasPrices,
-	).WithKeybase(kb)
+	// add a service
+	// time.Sleep(22 * time.Second)
+	// msg := servicetypes.NewMsgSetService(hash.Int(2).String(), "{}", account.GetAddress())
+	// logrus.WithField("msg", msg).Warning("set service msg")
 
-	return txBldr.SignStdTx(accountName, accountPassword, stdTx, false)
+	// accNumber, accSeq, err := authtypes.NewAccountRetriever(client).GetAccountNumberSequence(account.GetAddress())
+	// if err != nil {
+	// 	logrus.Error(err)
+	// }
+	// txBuilder := NewTxBuilder(cdc, accNumber, accSeq, kb, ccfg.ChainID)
+	// signedTx, err := txBuilder.Create(msg, ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Password)
+	// if err != nil {
+	// 	logrus.Error(err)
+	// }
+	// logrus.WithField("signedTx", signedTx).Warning("set service signed tx")
+	// encodedTx, err := txBuilder.Encode(signedTx)
+	// if err != nil {
+	// 	logrus.Error(err)
+	// }
+	// // broadcast the tx
+	// result, err := client.BroadcastTxSync(encodedTx)
+	// if err != nil {
+	// 	logrus.Error(err)
+	// }
+	// logrus.WithField("result", result).Warning("tx broadcasted")
+
+	// msg = servicetypes.NewMsgSetService(hash.Int(1).String(), "{}", account.GetAddress())
+	// logrus.WithField("msg", msg).Warning("set service msg")
+
+	// txBuilder = NewTxBuilder(cdc, accNumber, accSeq+1, kb, ccfg.ChainID)
+	// signedTx, err = txBuilder.Create(msg, ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Password)
+	// if err != nil {
+	// 	logrus.Error(err)
+	// }
+	// logrus.WithField("signedTx", signedTx).Warning("set service signed tx")
+	// encodedTx, err = txBuilder.Encode(signedTx)
+	// if err != nil {
+	// 	logrus.Error(err)
+	// }
+
+	// // broadcast the tx
+	// result, err = client.BroadcastTxSync(encodedTx)
+	// if err != nil {
+	// 	logrus.Error(err)
+	// }
+	// logrus.WithField("result", result).Warning("tx broadcasted")
+
+	// fetch the service
+	// time.Sleep(11 * time.Second)
+	// if services, err := client.ListServices(); err != nil {
+	// 	logrus.Error(err)
+	// } else {
+	// 	logrus.Warning(services)
+	// }
+	// }()
 }
 
-func createAppState(cdc *codec.Codec, address sdktypes.AccAddress, signedStdTx authtypes.StdTx) (map[string]json.RawMessage, error) {
-	appState := app.ModuleBasics.DefaultGenesis()
+func createAppState(basicManager module.BasicManager, cdc *codec.Codec, address sdktypes.AccAddress, signedStdTx authtypes.StdTx) (map[string]json.RawMessage, error) {
+	appState := basicManager.DefaultGenesis()
 
 	stakes := sdktypes.NewCoin(sdktypes.DefaultBondDenom, sdktypes.NewInt(100000000))
 	genAcc := genaccounts.NewGenesisAccountRaw(address, sdktypes.NewCoins(stakes), sdktypes.NewCoins(), 0, 0, "", "")
