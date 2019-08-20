@@ -12,7 +12,7 @@ import (
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/hash"
-	"github.com/mesg-foundation/engine/keeper"
+	"github.com/mesg-foundation/engine/store"
 	"github.com/mesg-foundation/engine/logger"
 	"github.com/mesg-foundation/engine/scheduler"
 	"github.com/mesg-foundation/engine/sdk"
@@ -44,14 +44,14 @@ func initDependencies(cfg *config.Config, network bool) (*dependencies, error) {
 			if !ok {
 				return nil, fmt.Errorf("context is not a cosmos context")
 			}
-			return database.NewServiceKeeper(keeper.NewCosmosStore(ctx.KVStore(cosmostypes.NewKVStoreKey("service"))))
+			return database.NewServiceKeeper(store.NewCosmosStore(ctx.KVStore(cosmostypes.NewKVStoreKey("service"))))
 		}
 	} else {
 		serviceDB, err := leveldb.OpenFile(filepath.Join(cfg.Path, cfg.Database.ServiceRelativePath), nil)
 		if err != nil {
 			return nil, err
 		}
-		serviceKeeper, err := database.NewServiceKeeper(keeper.NewLevelDBStore(serviceDB))
+		serviceKeeper, err := database.NewServiceKeeper(store.NewLevelDBStore(serviceDB))
 		if err != nil {
 			return nil, err
 		}

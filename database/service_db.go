@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/mesg-foundation/engine/hash"
-	"github.com/mesg-foundation/engine/keeper"
+	"github.com/mesg-foundation/engine/store"
 	"github.com/mesg-foundation/engine/service"
 	"github.com/sirupsen/logrus"
 )
@@ -17,11 +17,11 @@ var (
 
 // ServiceKeeper is a database for storing service definition.
 type ServiceKeeper struct {
-	s keeper.Store
+	s store.Store
 }
 
 // NewServiceKeeper returns the database which is located under given path.
-func NewServiceKeeper(s keeper.Store) (*ServiceKeeper, error) {
+func NewServiceKeeper(s store.Store) (*ServiceKeeper, error) {
 	return &ServiceKeeper{
 		s: s,
 	}, nil
