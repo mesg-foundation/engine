@@ -29,7 +29,7 @@ func NewLogic(c container.Container, keeperFactory KeeperFactor) *logic {
 	}
 }
 
-func (s *logic) create(srv *service.Service) (*service.Service, error) {
+func (s *logic) create(ctx interface{}, srv *service.Service) (*service.Service, error) {
 	if srv.Configuration == nil {
 		srv.Configuration = &service.Configuration{}
 	}
@@ -61,7 +61,7 @@ func (s *logic) create(srv *service.Service) (*service.Service, error) {
 	}
 	srv.Hash = hash.Hash(h)
 
-	keeper, err := s.keeperFactory(nil)
+	keeper, err := s.keeperFactory(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -89,8 +89,8 @@ func (s *logic) create(srv *service.Service) (*service.Service, error) {
 }
 
 // Delete deletes the service by hash.
-func (s *logic) delete(hash hash.Hash) error {
-	keeper, err := s.keeperFactory(nil)
+func (s *logic) delete(ctx interface{}, hash hash.Hash) error {
+	keeper, err := s.keeperFactory(ctx)
 	if err != nil {
 		return err
 	}
@@ -98,8 +98,8 @@ func (s *logic) delete(hash hash.Hash) error {
 }
 
 // Get returns the service that matches given hash.
-func (s *logic) get(hash hash.Hash) (*service.Service, error) {
-	keeper, err := s.keeperFactory(nil)
+func (s *logic) get(ctx interface{}, hash hash.Hash) (*service.Service, error) {
+	keeper, err := s.keeperFactory(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -107,8 +107,8 @@ func (s *logic) get(hash hash.Hash) (*service.Service, error) {
 }
 
 // List returns all services.
-func (s *logic) list() ([]*service.Service, error) {
-	keeper, err := s.keeperFactory(nil)
+func (s *logic) list(ctx interface{}) ([]*service.Service, error) {
+	keeper, err := s.keeperFactory(ctx)
 	if err != nil {
 		return nil, err
 	}

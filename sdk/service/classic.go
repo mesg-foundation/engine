@@ -17,20 +17,20 @@ func NewClassic(logic *logic) *Classic {
 
 // Create creates a new service from definition.
 func (s *Classic) Create(srv *service.Service) (*service.Service, error) {
-	return s.logic.create(srv)
+	return s.logic.create(nil, srv)
 }
 
 // Delete deletes the service by hash.
 func (s *Classic) Delete(hash hash.Hash) error {
-	return s.logic.delete(hash)
+	return s.logic.delete(nil, hash)
 }
 
 // Get returns the service that matches given hash.
 func (s *Classic) Get(hash hash.Hash) (*service.Service, error) {
-	return s.logic.get(hash)
+	return s.logic.get(nil, hash)
 }
 
 // List returns all services.
 func (s *Classic) List() ([]*service.Service, error) {
-	return s.logic.list()
+	return s.logic.list(nil)
 }
