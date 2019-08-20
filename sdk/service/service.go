@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/cskr/pubsub"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/database"
@@ -19,8 +18,6 @@ import (
 
 // Service exposes service APIs of MESG.
 type Service struct {
-	ps *pubsub.PubSub
-
 	container container.Container
 	serviceDB database.ServiceDB
 }
@@ -28,7 +25,6 @@ type Service struct {
 // New creates a new Service SDK with given options.
 func New(c container.Container, serviceDB database.ServiceDB) *Service {
 	return &Service{
-		ps:        pubsub.New(0),
 		container: c,
 		serviceDB: serviceDB,
 	}
