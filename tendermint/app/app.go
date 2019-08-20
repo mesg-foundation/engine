@@ -23,36 +23,8 @@ import (
 	dbm "github.com/tendermint/tm-db"
 )
 
-// TODO: sould be moved outside of app.gp
-func BasicInit(moduleBasics ...module.AppModuleBasic) (module.BasicManager, *codec.Codec) {
-	basicManager := module.NewBasicManager(
-		append([]module.AppModuleBasic{
-			genaccounts.AppModuleBasic{},
-			genutil.AppModuleBasic{},
-			auth.AppModuleBasic{},
-			bank.AppModuleBasic{},
-			staking.AppModuleBasic{},
-			distr.AppModuleBasic{},
-			params.AppModuleBasic{},
-			slashing.AppModuleBasic{},
-			supply.AppModuleBasic{},
-		}, moduleBasics...)...,
-	)
-
-	cdc := codec.New()
-	basicManager.RegisterCodec(cdc)
-	sdk.RegisterCodec(cdc)
-	codec.RegisterCrypto(cdc)
-
-	return basicManager, cdc
-}
-
 // NewServiceApp is a constructor function for ServiceApp
 func NewServiceApp(cdc *codec.Codec, logger log.Logger, db dbm.DB, modules ...module.AppModule) *baseapp.BaseApp {
-
-	// First define the top level codec that will be shared by the different modules
-	// TODO: to delete
-	// serviceSDK.SetCodec(cdc)
 
 	// BaseApp handles interactions with Tendermint through the ABCI protocol
 	bApp := bam.NewBaseApp("engine", logger, db, auth.DefaultTxDecoder(cdc))

@@ -28,15 +28,18 @@ import (
 	"github.com/mesg-foundation/engine/x/xsignal"
 	"github.com/sirupsen/logrus"
 	"github.com/syndtr/goleveldb/leveldb"
+	"github.com/tendermint/tendermint/node"
 )
 
 var network = flag.Bool("experimental-network", false, "start the engine with the network")
 
-func initialization(cfg *config.Config, network bool) (*sdk.SDK, error) {
+func initialization(cfg *config.Config, network bool) (*sdk.SDK, *node.Node, error) {
+	var node *node.Node
+
 	// init container.
 	c, err := container.New(cfg.Name)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	var serviceSDK servicesdk.Service
@@ -53,14 +56,20 @@ func initialization(cfg *config.Config, network bool) (*sdk.SDK, error) {
 			return database.NewServiceKeeper(store.NewCosmosStore(ctx.KVStore(cosmostypes.NewKVStoreKey("service"))))
 		}
 		serviceSDK = servicesdk.NewCosmos(app, c, serviceKeeperFactory)
+
+		// create tendermint node
+		node, err = tendermint.NewNode(app, cfg.Tendermint.Config, &cfg.Cosmos)
+		if err != nil {
+			return nil, nil, err
+		}
 	} else {
 		serviceDB, err := leveldb.OpenFile(filepath.Join(cfg.Path, cfg.Database.ServiceRelativePath), nil)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		serviceKeeper, err := database.NewServiceKeeper(store.NewLevelDBStore(serviceDB))
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		serviceKeeperFactory := func(interface{}) (*database.ServiceKeeper, error) {
 			return serviceKeeper, nil
@@ -71,25 +80,25 @@ func initialization(cfg *config.Config, network bool) (*sdk.SDK, error) {
 	// init instance db.
 	instanceDB, err := database.NewInstanceDB(filepath.Join(cfg.Path, cfg.Database.InstanceRelativePath))
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// init execution db.
 	executionDB, err := database.NewExecutionDB(filepath.Join(cfg.Path, cfg.Database.ExecutionRelativePath))
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// init workflow db.
 	workflowDB, err := database.NewWorkflowDB(filepath.Join(cfg.Path, cfg.Database.WorkflowRelativePath))
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	_, port, _ := xnet.SplitHostPort(cfg.Server.Address)
 
 	// init sdk.
-	return sdk.New(c, serviceSDK, instanceDB, executionDB, workflowDB, cfg.Name, strconv.Itoa(port)), nil
+	return sdk.New(c, serviceSDK, instanceDB, executionDB, workflowDB, cfg.Name, strconv.Itoa(port)), node, nil
 }
 
 func deployCoreServices(cfg *config.Config, sdk *sdk.SDK) error {
@@ -162,7 +171,7 @@ func main() {
 		logrus.Fatalln(err)
 	}
 
-	sdk, err := initialization(cfg, *network)
+	sdk, node, err := initialization(cfg, *network)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
@@ -171,11 +180,7 @@ func main() {
 	logger.Init(cfg.Log.Format, cfg.Log.Level, cfg.Log.ForceColors)
 
 	if *network {
-		// create tendermint node
-		node, err := tendermint.NewNode(cfg.Tendermint.Config, &cfg.Cosmos)
-		if err != nil {
-			logrus.WithField("module", "main").Fatalln(err)
-		}
+		// start tendermint node
 		logrus.WithField("module", "main").WithField("seeds", cfg.Tendermint.P2P.Seeds).Info("starting tendermint node")
 		if err := node.Start(); err != nil {
 			logrus.WithField("module", "main").Fatalln(err)

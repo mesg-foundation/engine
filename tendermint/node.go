@@ -6,14 +6,13 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/module"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/genaccounts"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/mesg-foundation/engine/config"
+	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/logger"
-	"github.com/mesg-foundation/engine/tendermint/app"
 	tmconfig "github.com/tendermint/tendermint/config"
 	"github.com/tendermint/tendermint/crypto/ed25519"
 	"github.com/tendermint/tendermint/node"
@@ -23,11 +22,13 @@ import (
 
 	// rpcclient "github.com/tendermint/tendermint/rpc/client"
 	"github.com/tendermint/tendermint/types"
-	db "github.com/tendermint/tm-db"
+	// db "github.com/tendermint/tm-db"
 )
 
 // NewNode retruns new tendermint node that runs the app.
-func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error) {
+func NewNode(app *cosmos.App, cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error) {
+	cdc := app.Cdc()
+
 	// create user database and generate first user
 	kb, err := NewKeybase(ccfg.Path)
 	if err != nil {
@@ -39,7 +40,7 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 		return nil, err
 	}
 
-	basicManager, cdc := app.BasicInit()
+	// basicManager, cdc := app.BasicInit()
 
 	// build a message to create validator
 	msg := newMsgCreateValidator(
@@ -55,7 +56,7 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 	}
 
 	// initialize app state with first validator
-	appState, err := createAppState(basicManager, cdc, account.GetAddress(), signedTx)
+	appState, err := createAppState(app.DefaultGenesis(), cdc, account.GetAddress(), signedTx)
 	if err != nil {
 		return nil, err
 	}
@@ -66,22 +67,22 @@ func NewNode(cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error
 	}
 
 	// create app database and create an instance of the app
-	db, err := db.NewGoLevelDB("app", ccfg.Path)
-	if err != nil {
-		return nil, err
-	}
+	// db, err := db.NewGoLevelDB("app", ccfg.Path)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	app := app.NewServiceApp(cdc, logger.TendermintLogger(), db)
+	// app := app.NewServiceApp(cdc, logger.TendermintLogger(), db)
 
 	node, err := node.NewNode(
 		cfg,
 		privval.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile()),
 		nodeKey,
-		proxy.NewLocalClientCreator(app),
+		proxy.NewLocalClientCreator(app.BaseApp()),
 		genesisLoader(cdc, appState, ccfg.ChainID, ccfg.GenesisTime),
 		node.DefaultDBProvider,
 		node.DefaultMetricsProvider(cfg.Instrumentation),
-		app.Logger(),
+		logger.TendermintLogger(),
 	)
 	if err != nil {
 		return nil, err
@@ -154,9 +155,7 @@ func sendAndQuery() {
 	// }()
 }
 
-func createAppState(basicManager module.BasicManager, cdc *codec.Codec, address sdktypes.AccAddress, signedStdTx authtypes.StdTx) (map[string]json.RawMessage, error) {
-	appState := basicManager.DefaultGenesis()
-
+func createAppState(defaultGenesis map[string]json.RawMessage, cdc *codec.Codec, address sdktypes.AccAddress, signedStdTx authtypes.StdTx) (map[string]json.RawMessage, error) {
 	stakes := sdktypes.NewCoin(sdktypes.DefaultBondDenom, sdktypes.NewInt(100000000))
 	genAcc := genaccounts.NewGenesisAccountRaw(address, sdktypes.NewCoins(stakes), sdktypes.NewCoins(), 0, 0, "", "")
 	if err := genAcc.Validate(); err != nil {
@@ -167,9 +166,9 @@ func createAppState(basicManager module.BasicManager, cdc *codec.Codec, address 
 	if err != nil {
 		return nil, err
 	}
-	appState[genaccounts.ModuleName] = genstate
+	defaultGenesis[genaccounts.ModuleName] = genstate
 
-	return genutil.SetGenTxsInAppGenesisState(cdc, appState, []authtypes.StdTx{signedStdTx})
+	return genutil.SetGenTxsInAppGenesisState(cdc, defaultGenesis, []authtypes.StdTx{signedStdTx})
 }
 
 func genesisLoader(cdc *codec.Codec, appState map[string]json.RawMessage, chainID string, genesisTime time.Time) func() (*types.GenesisDoc, error) {
