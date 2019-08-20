@@ -1,6 +1,7 @@
 package servicesdk
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/mesg-foundation/engine/container"
@@ -9,30 +10,30 @@ import (
 	"github.com/mesg-foundation/engine/service"
 )
 
-type Cosmos struct {
+type CosmosClient struct {
 }
 
-func NewCosmos(app *cosmos.App, c container.Container, keeperFactory KeeperFactory) *Cosmos {
+func NewCosmosClient(app *cosmos.App, c container.Container, keeperFactory KeeperFactory) *CosmosClient {
 	app.RegisterModule(newAppModule(c, keeperFactory))
-	return &Cosmos{}
+	return &CosmosClient{}
 }
 
 // Create creates a new service from definition.
-func (s *Cosmos) Create(srv *service.Service) (*service.Service, error) {
+func (s *CosmosClient) Create(ctx context.Context, srv *service.Service) (*service.Service, error) {
 	return nil, fmt.Errorf("not implemented")
 }
 
 // Delete deletes the service by hash.
-func (s *Cosmos) Delete(hash hash.Hash) error {
+func (s *CosmosClient) Delete(ctx context.Context, hash hash.Hash) error {
 	return fmt.Errorf("not implemented")
 }
 
 // Get returns the service that matches given hash.
-func (s *Cosmos) Get(hash hash.Hash) (*service.Service, error) {
+func (s *CosmosClient) Get(ctx context.Context, hash hash.Hash) (*service.Service, error) {
 	return nil, fmt.Errorf("not implemented")
 }
 
 // List returns all services.
-func (s *Cosmos) List() ([]*service.Service, error) {
+func (s *CosmosClient) List(ctx context.Context) ([]*service.Service, error) {
 	return nil, fmt.Errorf("not implemented")
 }

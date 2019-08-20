@@ -1,8 +1,10 @@
 package servicesdk
 
 import (
+	"context"
 	"fmt"
 
+	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/service"
 )
@@ -17,8 +19,10 @@ func (e *AlreadyExistsError) Error() string {
 }
 
 type Service interface {
-	Create(srv *service.Service) (*service.Service, error)
-	Delete(hash hash.Hash) error
-	Get(hash hash.Hash) (*service.Service, error)
-	List() ([]*service.Service, error)
+	Create(ctx context.Context, srv *service.Service) (*service.Service, error)
+	Delete(ctx context.Context, hash hash.Hash) error
+	Get(ctx context.Context, hash hash.Hash) (*service.Service, error)
+	List(ctx context.Context) ([]*service.Service, error)
 }
+
+type KeeperFactory func(context.Context) (*database.ServiceKeeper, error)

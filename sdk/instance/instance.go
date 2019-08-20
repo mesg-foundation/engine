@@ -72,7 +72,7 @@ func (i *Instance) List(f *Filter) ([]*instance.Instance, error) {
 // Create creates a new service instance for service with id(sid/hash) and applies given env vars.
 func (i *Instance) Create(serviceHash hash.Hash, env []string) (*instance.Instance, error) {
 	// get the service from service db.
-	srv, err := i.service.Get(serviceHash)
+	srv, err := i.service.Get(nil, serviceHash)
 	if err != nil {
 		return nil, err
 	}

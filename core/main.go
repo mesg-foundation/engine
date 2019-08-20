@@ -1,8 +1,8 @@
 package main
 
 import (
+	"context"
 	"flag"
-	"fmt"
 	"path/filepath"
 	"strconv"
 	"sync"
@@ -24,7 +24,6 @@ import (
 	"github.com/mesg-foundation/engine/version"
 	"github.com/mesg-foundation/engine/x/xerrors"
 	"github.com/mesg-foundation/engine/x/xnet"
-	"github.com/mesg-foundation/engine/x/xos"
 	"github.com/mesg-foundation/engine/x/xsignal"
 	"github.com/sirupsen/logrus"
 	"github.com/syndtr/goleveldb/leveldb"
@@ -48,14 +47,14 @@ func initialization(cfg *config.Config, network bool) (*sdk.SDK, *node.Node, err
 		app := cosmos.New()
 
 		// init service sdk
-		serviceKeeperFactory := func(context interface{}) (*database.ServiceKeeper, error) {
-			ctx, ok := context.(cosmostypes.Context)
-			if !ok {
-				return nil, fmt.Errorf("context is not a cosmos context")
+		serviceKeeperFactory := func(context context.Context) (*database.ServiceKeeper, error) {
+			ctx, err := cosmos.FromContext(context)
+			if err != nil {
+				return nil, err
 			}
 			return database.NewServiceKeeper(store.NewCosmosStore(ctx.KVStore(cosmostypes.NewKVStoreKey("service"))))
 		}
-		serviceSDK = servicesdk.NewCosmos(app, c, serviceKeeperFactory)
+		serviceSDK = servicesdk.NewCosmosClient(app, c, serviceKeeperFactory)
 
 		// create tendermint node
 		node, err = tendermint.NewNode(app, cfg.Tendermint.Config, &cfg.Cosmos)
@@ -71,10 +70,10 @@ func initialization(cfg *config.Config, network bool) (*sdk.SDK, *node.Node, err
 		if err != nil {
 			return nil, nil, err
 		}
-		serviceKeeperFactory := func(interface{}) (*database.ServiceKeeper, error) {
+		serviceKeeperFactory := func(context.Context) (*database.ServiceKeeper, error) {
 			return serviceKeeper, nil
 		}
-		serviceSDK = servicesdk.NewClassic(c, serviceKeeperFactory)
+		serviceSDK = servicesdk.NewDefault(c, serviceKeeperFactory)
 	}
 
 	// init instance db.
@@ -101,39 +100,39 @@ func initialization(cfg *config.Config, network bool) (*sdk.SDK, *node.Node, err
 	return sdk.New(c, serviceSDK, instanceDB, executionDB, workflowDB, cfg.Name, strconv.Itoa(port)), node, nil
 }
 
-func deployCoreServices(cfg *config.Config, sdk *sdk.SDK) error {
-	for _, serviceConfig := range cfg.SystemServices {
-		logrus.WithField("module", "main").Infof("Deploying service %q", serviceConfig.Definition.Sid)
-		srv, err := sdk.Service.Create(serviceConfig.Definition)
-		if err != nil {
-			existsError, ok := err.(*servicesdk.AlreadyExistsError)
-			if ok {
-				srv, err = sdk.Service.Get(existsError.Hash)
-				if err != nil {
-					return err
-				}
-			} else {
-				return err
-			}
-		}
-		logrus.WithField("module", "main").Infof("Service %q deployed with hash %q", srv.Sid, srv.Hash)
-		instance, err := sdk.Instance.Create(srv.Hash, xos.EnvMapToSlice(serviceConfig.Env))
-		if err != nil {
-			existsError, ok := err.(*instancesdk.AlreadyExistsError)
-			if ok {
-				instance, err = sdk.Instance.Get(existsError.Hash)
-				if err != nil {
-					return err
-				}
-			} else {
-				return err
-			}
-		}
-		serviceConfig.Instance = instance
-		logrus.WithField("module", "main").Infof("Instance started with hash %q", instance.Hash)
-	}
-	return nil
-}
+// func deployCoreServices(cfg *config.Config, sdk *sdk.SDK) error {
+// 	for _, serviceConfig := range cfg.SystemServices {
+// 		logrus.WithField("module", "main").Infof("Deploying service %q", serviceConfig.Definition.Sid)
+// 		srv, err := sdk.Service.Create(serviceConfig.Definition)
+// 		if err != nil {
+// 			existsError, ok := err.(*servicesdk.AlreadyExistsError)
+// 			if ok {
+// 				srv, err = sdk.Service.Get(existsError.Hash)
+// 				if err != nil {
+// 					return err
+// 				}
+// 			} else {
+// 				return err
+// 			}
+// 		}
+// 		logrus.WithField("module", "main").Infof("Service %q deployed with hash %q", srv.Sid, srv.Hash)
+// 		instance, err := sdk.Instance.Create(srv.Hash, xos.EnvMapToSlice(serviceConfig.Env))
+// 		if err != nil {
+// 			existsError, ok := err.(*instancesdk.AlreadyExistsError)
+// 			if ok {
+// 				instance, err = sdk.Instance.Get(existsError.Hash)
+// 				if err != nil {
+// 					return err
+// 				}
+// 			} else {
+// 				return err
+// 			}
+// 		}
+// 		serviceConfig.Instance = instance
+// 		logrus.WithField("module", "main").Infof("Instance started with hash %q", instance.Hash)
+// 	}
+// 	return nil
+// }
 
 func stopRunningServices(sdk *sdk.SDK) error {
 	instances, err := sdk.Instance.List(&instancesdk.Filter{})
@@ -188,9 +187,9 @@ func main() {
 	}
 
 	// init system services.
-	if err := deployCoreServices(cfg, sdk); err != nil {
-		logrus.WithField("module", "main").Fatalln(err)
-	}
+	// if err := deployCoreServices(cfg, sdk); err != nil {
+	// 	logrus.WithField("module", "main").Fatalln(err)
+	// }
 
 	// init gRPC server.
 	server := grpc.New(sdk)

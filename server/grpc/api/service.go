@@ -34,7 +34,7 @@ func (s *ServiceServer) Create(ctx context.Context, req *protobuf_api.CreateServ
 		Repository:    req.Repository,
 		Source:        req.Source,
 	})
-	srv, err := s.sdk.Service.Create(definition)
+	srv, err := s.sdk.Service.Create(ctx, definition)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func (s *ServiceServer) Delete(ctx context.Context, request *protobuf_api.Delete
 		return nil, err
 	}
 
-	srv, err := s.sdk.Service.Get(hash)
+	srv, err := s.sdk.Service.Get(ctx, hash)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +60,7 @@ func (s *ServiceServer) Delete(ctx context.Context, request *protobuf_api.Delete
 	if len(instances) > 0 {
 		return nil, errors.New("service has running instances. in order to delete the service, stop its instances first")
 	}
-	return &protobuf_api.DeleteServiceResponse{}, s.sdk.Service.Delete(hash)
+	return &protobuf_api.DeleteServiceResponse{}, s.sdk.Service.Delete(ctx, hash)
 }
 
 // Get returns service from given hash.
@@ -70,7 +70,7 @@ func (s *ServiceServer) Get(ctx context.Context, req *protobuf_api.GetServiceReq
 		return nil, err
 	}
 
-	service, err := s.sdk.Service.Get(hash)
+	service, err := s.sdk.Service.Get(ctx, hash)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func (s *ServiceServer) Get(ctx context.Context, req *protobuf_api.GetServiceReq
 
 // List returns all services.
 func (s *ServiceServer) List(ctx context.Context, req *protobuf_api.ListServiceRequest) (*protobuf_api.ListServiceResponse, error) {
-	services, err := s.sdk.Service.List()
+	services, err := s.sdk.Service.List(ctx)
 	if err != nil {
 		return nil, err
 	}

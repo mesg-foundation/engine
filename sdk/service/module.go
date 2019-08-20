@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/cosmos/cosmos-sdk/client/context"
+	clicontext "github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/gorilla/mux"
 	"github.com/mesg-foundation/engine/container"
+	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/service"
 	"github.com/spf13/cobra"
@@ -19,12 +20,12 @@ import (
 type appModule struct {
 	appModuleBasic
 
-	logic *logic
+	sdk Service
 }
 
 func newAppModule(c container.Container, keeperFactory KeeperFactory) *appModule {
 	return &appModule{
-		logic: newLogic(c, keeperFactory),
+		sdk: NewDefault(c, keeperFactory),
 	}
 }
 
@@ -34,6 +35,7 @@ var (
 	_ module.AppModuleBasic = appModuleBasic{}
 )
 
+// TODO: could be simply removed?
 type genesisState struct {
 	Services []*service.Service `json:"services"`
 }
@@ -67,7 +69,7 @@ func (appModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 }
 
 // Register rest routes
-func (appModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router) {}
+func (appModuleBasic) RegisterRESTRoutes(ctx clicontext.CLIContext, rtr *mux.Router) {}
 
 // Get the root query command of this module
 func (appModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
@@ -108,7 +110,7 @@ func (s appModule) NewQuerierHandler() sdk.Querier {
 			if err != nil {
 				return nil, sdk.ErrInternal(err.Error())
 			}
-			service, err := s.logic.get(ctx, hash)
+			service, err := s.sdk.Get(cosmos.ToContext(ctx), hash)
 			if err != nil {
 				return nil, sdk.ErrInternal(err.Error())
 			}
@@ -135,7 +137,7 @@ func (s appModule) InitGenesis(ctx sdk.Context, data json.RawMessage) []abci.Val
 	cdc := codec.New()
 	cdc.MustUnmarshalJSON(data, &genesisState)
 	for _, service := range genesisState.Services {
-		s.logic.create(ctx, service)
+		s.sdk.Create(cosmos.ToContext(ctx), service)
 	}
 	return []abci.ValidatorUpdate{}
 }
