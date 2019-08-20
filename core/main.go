@@ -27,16 +27,7 @@ import (
 
 var network = flag.Bool("experimental-network", false, "start the engine with the network")
 
-type dependencies struct {
-	cfg         *config.Config
-	serviceDB   database.ServiceDB
-	executionDB database.ExecutionDB
-	workflowDB  database.WorkflowDB
-	container   container.Container
-	sdk         *sdk.SDK
-}
-
-func initDependencies(cfg *config.Config) (*dependencies, error) {
+func initSDK(cfg *config.Config) (*sdk.SDK, error) {
 	// init services db.
 	serviceDB, err := database.NewServiceDB(filepath.Join(cfg.Path, cfg.Database.ServiceRelativePath))
 	if err != nil {
@@ -70,16 +61,7 @@ func initDependencies(cfg *config.Config) (*dependencies, error) {
 	_, port, _ := xnet.SplitHostPort(cfg.Server.Address)
 
 	// init sdk.
-	sdk := sdk.New(c, serviceDB, instanceDB, executionDB, workflowDB, cfg.Name, strconv.Itoa(port))
-
-	return &dependencies{
-		cfg:         cfg,
-		container:   c,
-		serviceDB:   serviceDB,
-		executionDB: executionDB,
-		workflowDB:  workflowDB,
-		sdk:         sdk,
-	}, nil
+	return sdk.New(c, serviceDB, instanceDB, executionDB, workflowDB, cfg.Name, strconv.Itoa(port)), nil
 }
 
 func deployCoreServices(cfg *config.Config, sdk *sdk.SDK) error {
@@ -152,7 +134,7 @@ func main() {
 		logrus.Fatalln(err)
 	}
 
-	dep, err := initDependencies(cfg)
+	sdk, err := initSDK(cfg)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
@@ -173,12 +155,12 @@ func main() {
 	}
 
 	// init system services.
-	if err := deployCoreServices(dep.cfg, dep.sdk); err != nil {
+	if err := deployCoreServices(cfg, sdk); err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 
 	// init gRPC server.
-	server := grpc.New(dep.sdk)
+	server := grpc.New(sdk)
 
 	logrus.WithField("module", "main").Infof("starting MESG Engine version %s", version.Version)
 
@@ -189,7 +171,7 @@ func main() {
 	}()
 
 	logrus.WithField("module", "main").Info("starting workflow engine")
-	s := scheduler.New(dep.sdk.Event, dep.sdk.Execution, dep.sdk.Workflow)
+	s := scheduler.New(sdk.Event, sdk.Execution, sdk.Workflow)
 	go func() {
 		if err := s.Start(); err != nil {
 			logrus.WithField("module", "main").Fatalln(err)
@@ -202,7 +184,7 @@ func main() {
 	}()
 
 	<-xsignal.WaitForInterrupt()
-	if err := stopRunningServices(dep.sdk); err != nil {
+	if err := stopRunningServices(sdk); err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 	server.Close()
