@@ -1,7 +1,6 @@
 package servicesdk
 
 import (
-	"context"
 	"errors"
 	"io/ioutil"
 	"net/http"
@@ -9,13 +8,14 @@ import (
 
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/engine/container"
+	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/hash/dirhash"
 	"github.com/mesg-foundation/engine/service"
 	"github.com/mesg-foundation/engine/service/validator"
 )
 
-func create(ctx context.Context, container container.Container, keeperFactory KeeperFactory, srv *service.Service) (*service.Service, error) {
+func create(container container.Container, keeper *database.ServiceKeeper, srv *service.Service) (*service.Service, error) {
 	if srv.Configuration == nil {
 		srv.Configuration = &service.Configuration{}
 	}
@@ -46,11 +46,6 @@ func create(ctx context.Context, container container.Container, keeperFactory Ke
 		return nil, err
 	}
 	srv.Hash = hash.Hash(h)
-
-	keeper, err := keeperFactory(ctx)
-	if err != nil {
-		return nil, err
-	}
 
 	// check if service already exists.
 	if _, err := keeper.Get(srv.Hash); err == nil {

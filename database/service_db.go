@@ -23,10 +23,10 @@ type ServiceKeeper struct {
 }
 
 // NewServiceKeeper returns the database which is located under given path.
-func NewServiceKeeper(s store.Store) (*ServiceKeeper, error) {
+func NewServiceKeeper(s store.Store) *ServiceKeeper {
 	return &ServiceKeeper{
 		s: s,
-	}, nil
+	}
 }
 
 // marshal returns the byte slice from service.

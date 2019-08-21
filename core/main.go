@@ -1,13 +1,11 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"path/filepath"
 	"strconv"
 	"sync"
 
-	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/cosmos"
@@ -48,14 +46,7 @@ func initialization(cfg *config.Config, network bool) (*sdk.SDK, *node.Node, err
 		app := cosmos.New()
 
 		// init service sdk
-		serviceKeeperFactory := func(context context.Context) (*database.ServiceKeeper, error) {
-			ctx, err := cosmos.ToRequest(context)
-			if err != nil {
-				return nil, err
-			}
-			return database.NewServiceKeeper(store.NewCosmosStore(ctx.KVStore(cosmostypes.NewKVStoreKey("service"))))
-		}
-		serviceSDK = servicesdk.New(app, c, serviceKeeperFactory)
+		serviceSDK = servicesdk.New(app, c)
 
 		// create tendermint node
 		node, err = tendermint.NewNode(app, cfg.Tendermint.Config, &cfg.Cosmos)
@@ -67,14 +58,7 @@ func initialization(cfg *config.Config, network bool) (*sdk.SDK, *node.Node, err
 		if err != nil {
 			return nil, nil, err
 		}
-		serviceKeeper, err := database.NewServiceKeeper(store.NewLevelDBStore(serviceDB))
-		if err != nil {
-			return nil, nil, err
-		}
-		serviceKeeperFactory := func(context context.Context) (*database.ServiceKeeper, error) {
-			return serviceKeeper, nil
-		}
-		serviceSDK = servicesdk.NewDeprecated(c, serviceKeeperFactory)
+		serviceSDK = servicesdk.NewDeprecated(c, database.NewServiceKeeper(store.NewLevelDBStore(serviceDB)))
 	}
 
 	// init instance db.
