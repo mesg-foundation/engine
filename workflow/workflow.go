@@ -20,15 +20,30 @@ func (w *Workflow) Validate() error {
 	}
 	// Check that all edges are associated to an existing node.
 	for _, edge := range w.Edges {
-		if _, err := w.FindNode(edge.Src); err != nil {
-			return err
-		}
-		if _, err := w.FindNode(edge.Dst); err != nil {
+		if err := edge.validate(w); err != nil {
 			return err
 		}
 	}
 	if err := w.shouldBeDirectedTree(); err != nil {
 		return err
+	}
+	return nil
+}
+
+func (e *Edge) validate(w *Workflow) error {
+	if _, err := w.FindNode(e.Src); err != nil {
+		return err
+	}
+	if _, err := w.FindNode(e.Dst); err != nil {
+		return err
+	}
+	for _, input := range e.Inputs {
+		if input.Ref.NodeKey == "" {
+			continue
+		}
+		if _, err := w.FindNode(input.Ref.NodeKey); err != nil {
+			return err
+		}
 	}
 	return nil
 }

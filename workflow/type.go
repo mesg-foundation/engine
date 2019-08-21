@@ -26,10 +26,23 @@ type Node struct {
 	TaskKey      string    `hash:"name:3" validate:"required,printascii"`
 }
 
+// InputReference reference the value of another value
+type InputReference struct {
+	NodeKey string `hash:"name:1"` // connect to the src of the edge if empty
+	Key     string `hash:"name:2" validate:"required"`
+}
+
+// Input is the representation of an input for a task
+type Input struct {
+	Key string          `hash:"name:1" validate:"required"`
+	Ref *InputReference `hash:"name:2" validate:"required"`
+}
+
 // Edge describes the instructions for the workflow to execute a task
 type Edge struct {
-	Src string `hash:"name:1" validate:"required"`
-	Dst string `hash:"name:2" validate:"required"`
+	Src    string   `hash:"name:1" validate:"required"`
+	Dst    string   `hash:"name:2" validate:"required"`
+	Inputs []*Input `hash:"name:3" validate:"dive,required"`
 }
 
 // Trigger is an event that triggers a workflow

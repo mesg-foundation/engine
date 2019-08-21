@@ -191,6 +191,39 @@ func TestValidateWorkflow(t *testing.T) {
 				{Src: "nodeKey4", Dst: "nodeKey7"},
 			},
 		}, valid: true},
+		{w: &Workflow{
+			Hash:    hash.Int(1),
+			Key:     "inputs-with-invalid-node",
+			Trigger: trigger,
+			Nodes:   nodes,
+			Edges: []Edge{
+				{Src: "nodeKey1", Dst: "nodeKey2", Inputs: []*Input{
+					{Key: "-", Ref: &InputReference{Key: "-", NodeKey: "invalid"}},
+				}},
+			},
+		}, err: "node \"invalid\" not found"},
+		{w: &Workflow{
+			Hash:    hash.Int(1),
+			Key:     "inputs-with-valid-ref",
+			Trigger: trigger,
+			Nodes:   nodes,
+			Edges: []Edge{
+				{Src: "nodeKey1", Dst: "nodeKey2", Inputs: []*Input{
+					{Key: "-", Ref: &InputReference{Key: "-", NodeKey: "nodeKey1"}},
+				}},
+			},
+		}, valid: true},
+		{w: &Workflow{
+			Hash:    hash.Int(1),
+			Key:     "inputs-with-empty-ref-node",
+			Trigger: trigger,
+			Nodes:   nodes,
+			Edges: []Edge{
+				{Src: "nodeKey1", Dst: "nodeKey2", Inputs: []*Input{
+					{Key: "-", Ref: &InputReference{Key: "-"}},
+				}},
+			},
+		}, valid: true},
 	}
 	for _, test := range tests {
 		err := test.w.Validate()
