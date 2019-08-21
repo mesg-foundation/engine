@@ -23,6 +23,7 @@ type appModule struct {
 	sdk Service
 }
 
+// TODO: use a module constructor helper (see tendermint/module)
 func newAppModule(c container.Container, keeperFactory KeeperFactory) *appModule {
 	return &appModule{
 		sdk: NewDefault(c, keeperFactory),

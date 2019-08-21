@@ -16,6 +16,8 @@ import (
 )
 
 type Default struct {
+// TODO: rename to deprected
+// TODO: split it to deprected and utils
 	container     container.Container
 	keeperFactory KeeperFactory
 }

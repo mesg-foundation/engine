@@ -19,6 +19,7 @@ import (
 )
 
 type App struct {
+	// TODO: maybe it should inherit from baseapp in order to implement the right function for tendermint proxy client. let's try.
 	baseapp *baseapp.BaseApp
 
 	modules []module.AppModule
