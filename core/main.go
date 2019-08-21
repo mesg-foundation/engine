@@ -48,7 +48,7 @@ func initialization(cfg *config.Config, network bool) (*sdk.SDK, *node.Node, err
 
 		// init service sdk
 		serviceKeeperFactory := func(context context.Context) (*database.ServiceKeeper, error) {
-			ctx, err := cosmos.FromContext(context)
+			ctx, err := cosmos.ToRequest(context)
 			if err != nil {
 				return nil, err
 			}
