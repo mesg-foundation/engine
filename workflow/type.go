@@ -28,7 +28,7 @@ type Node struct {
 
 // InputReference reference the value of another value
 type InputReference struct {
-	NodeKey string `hash:"name:1"` // connect to the src of the edge if empty
+	NodeKey string `hash:"name:1" validate:"required"`
 	Key     string `hash:"name:2" validate:"required"`
 }
 
