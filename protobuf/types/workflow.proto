@@ -40,8 +40,20 @@ message Workflow {
   }
 
   message Edge {
-    string src = 1; // Source of the edge.
-    string dst = 2; // Destination of the edge.
+    message Input {
+      message Reference {
+        string nodeKey = 1; // Key of the node in the graph. If empty, will be using the src of the edge.
+        string key = 2;     // Data from the references node key as defined in the service definition.
+      }
+
+      string key = 1;       // Key of the input (as defined in the the service's task definition).
+      oneof value {
+        Reference ref = 2;  // Input defined as reference.
+      }
+    }
+    string src = 1;             // Source of the edge.
+    string dst = 2;             // Destination of the edge.
+    repeated Input inputs = 3;  // Inputs for the destination task.
   }
 
   string hash = 1;          // Workflow's hash    
