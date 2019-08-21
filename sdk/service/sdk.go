@@ -11,7 +11,6 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/service"
 	"github.com/mesg-foundation/engine/store"
-	"github.com/mesg-foundation/engine/tendermint"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -28,8 +27,8 @@ func New(app *cosmos.App, c container.Container) Service {
 		name:      "service",
 		cdc:       app.Cdc(),
 	}
-	appModuleBasic := tendermint.NewAppModuleBasic("service")
-	appModule := tendermint.NewAppModule(appModuleBasic, app.Cdc(), sdk.handler, sdk.querier)
+	appModuleBasic := cosmos.NewAppModuleBasic("service")
+	appModule := cosmos.NewAppModule(appModuleBasic, app.Cdc(), sdk.handler, sdk.querier)
 	app.RegisterModule(appModule)
 	return sdk
 }

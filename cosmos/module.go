@@ -1,4 +1,4 @@
-package tendermint
+package cosmos
 
 import (
 	"encoding/json"
