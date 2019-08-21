@@ -1,6 +1,7 @@
 package servicesdk
 
 import (
+	"context"
 	"errors"
 	"io/ioutil"
 	"net/http"
@@ -8,30 +9,13 @@ import (
 
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/engine/container"
-	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/hash/dirhash"
 	"github.com/mesg-foundation/engine/service"
 	"github.com/mesg-foundation/engine/service/validator"
 )
 
-// TODO: rename to deprected
-// TODO: split it to deprected and utils
-type logic struct {
-	container     container.Container
-	keeperFactory KeeperFactory
-}
-
-type KeeperFactory func(interface{}) (*database.ServiceKeeper, error)
-
-func newLogic(c container.Container, keeperFactory KeeperFactory) *logic {
-	return &logic{
-		container:     c,
-		keeperFactory: keeperFactory,
-	}
-}
-
-func (s *logic) create(ctx interface{}, srv *service.Service) (*service.Service, error) {
+func create(ctx context.Context, container container.Container, keeperFactory KeeperFactory, srv *service.Service) (*service.Service, error) {
 	if srv.Configuration == nil {
 		srv.Configuration = &service.Configuration{}
 	}
@@ -63,7 +47,7 @@ func (s *logic) create(ctx interface{}, srv *service.Service) (*service.Service,
 	}
 	srv.Hash = hash.Hash(h)
 
-	keeper, err := s.keeperFactory(ctx)
+	keeper, err := keeperFactory(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +58,7 @@ func (s *logic) create(ctx interface{}, srv *service.Service) (*service.Service,
 	}
 
 	// build service's Docker image.
-	_, err = s.container.Build(path)
+	_, err = container.Build(path)
 	if err != nil {
 		return nil, err
 	}
@@ -88,31 +72,4 @@ func (s *logic) create(ctx interface{}, srv *service.Service) (*service.Service,
 		return nil, err
 	}
 	return srv, keeper.Save(srv)
-}
-
-// Delete deletes the service by hash.
-func (s *logic) delete(ctx interface{}, hash hash.Hash) error {
-	keeper, err := s.keeperFactory(ctx)
-	if err != nil {
-		return err
-	}
-	return keeper.Delete(hash)
-}
-
-// Get returns the service that matches given hash.
-func (s *logic) get(ctx interface{}, hash hash.Hash) (*service.Service, error) {
-	keeper, err := s.keeperFactory(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return keeper.Get(hash)
-}
-
-// List returns all services.
-func (s *logic) list(ctx interface{}) ([]*service.Service, error) {
-	keeper, err := s.keeperFactory(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return keeper.All()
 }

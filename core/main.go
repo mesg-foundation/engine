@@ -55,7 +55,7 @@ func initialization(cfg *config.Config, network bool) (*sdk.SDK, *node.Node, err
 			}
 			return database.NewServiceKeeper(store.NewCosmosStore(ctx.KVStore(cosmostypes.NewKVStoreKey("service"))))
 		}
-		serviceSDK = servicesdk.NewCosmos(app, c, serviceKeeperFactory)
+		serviceSDK = servicesdk.New(app, c, serviceKeeperFactory)
 
 		// create tendermint node
 		node, err = tendermint.NewNode(app, cfg.Tendermint.Config, &cfg.Cosmos)
@@ -71,10 +71,10 @@ func initialization(cfg *config.Config, network bool) (*sdk.SDK, *node.Node, err
 		if err != nil {
 			return nil, nil, err
 		}
-		serviceKeeperFactory := func(interface{}) (*database.ServiceKeeper, error) {
+		serviceKeeperFactory := func(context context.Context) (*database.ServiceKeeper, error) {
 			return serviceKeeper, nil
 		}
-		serviceSDK = servicesdk.NewClassic(c, serviceKeeperFactory)
+		serviceSDK = servicesdk.NewDeprecated(c, serviceKeeperFactory)
 	}
 
 	// init instance db.
