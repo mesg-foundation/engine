@@ -29,7 +29,7 @@ func New(app *cosmos.App, c container.Container) Service {
 		cdc:       app.Cdc(),
 	}
 	appModuleBasic := tendermint.NewAppModuleBasic("service")
-	appModule := tendermint.NewAppModule(appModuleBasic, sdk.handler, sdk.querier)
+	appModule := tendermint.NewAppModule(appModuleBasic, app.Cdc(), sdk.handler, sdk.querier)
 	app.RegisterModule(appModule)
 	return sdk
 }
@@ -64,48 +64,39 @@ func (s *sdk) keeperFromRequest(request cosmostypes.Request) *database.ServiceKe
 
 func (s *sdk) handler(request cosmostypes.Request, msg cosmostypes.Msg) cosmostypes.Result {
 	panic("to implement")
-	return cosmostypes.Result{}
+	// keeper := s.keeperFromRequest(request)
+	switch msg := msg.(type) {
+	// case MsgCreateService:
+	// 	_, err := create(s.container, keeper, msg.Service)
+	// 	if err != nil {
+	// 		return cosmostypes.ErrInternal(err.Error()).Result()
+	// 	}
+	// 	return cosmostypes.Result{}
+	// case MsgRemoveService:
+	// 	err := keeper.Delete(msg.Hash)
+	// 	if err != nil {
+	// 		return cosmostypes.ErrInternal(err.Error()).Result()
+	// 	}
+	// 	return cosmostypes.Result{}
+	default:
+		errmsg := fmt.Sprintf("Unrecognized service Msg type: %v", msg.Type())
+		return cosmostypes.ErrUnknownRequest(errmsg).Result()
+	}
 }
 
-func (s *sdk) querier(request cosmostypes.Request, path []string, req abci.RequestQuery) (res []byte, err cosmostypes.Error) {
+func (s *sdk) querier(request cosmostypes.Request, path []string, req abci.RequestQuery) (interface{}, error) {
 	panic("to implement")
 	keeper := s.keeperFromRequest(request)
 	switch path[0] {
 	case "get":
 		hash, err := hash.Decode(path[1])
 		if err != nil {
-			return nil, cosmostypes.ErrInternal(err.Error())
+			return nil, err
 		}
-		service, err := keeper.Get(hash)
-		if err != nil {
-			return nil, cosmostypes.ErrInternal(err.Error())
-		}
-		res, err := s.cdc.MarshalJSON(service)
-		if err != nil {
-			return nil, cosmostypes.ErrInternal(err.Error())
-		}
-		return res, nil
+		return keeper.Get(hash)
 	case "list":
-		services, err := keeper.All()
-		if err != nil {
-			return nil, cosmostypes.ErrInternal(err.Error())
-		}
-		res, err := s.cdc.MarshalJSON(services)
-		if err != nil {
-			return nil, cosmostypes.ErrInternal(err.Error())
-		}
-		return res, nil
+		return keeper.All()
 	default:
-		return nil, cosmostypes.ErrUnknownRequest("unknown service query endpoint" + path[0])
+		return nil, fmt.Errorf("unknown service query endpoint %q", path[0])
 	}
-}
-
-// Create creates a new service from definition.
-func (s *sdk) create(request cosmostypes.Request, srv *service.Service) (*service.Service, error) {
-	return create(s.container, s.keeperFromRequest(request), srv)
-}
-
-// Delete deletes the service by hash.
-func (s *sdk) delete(request cosmostypes.Request, hash hash.Hash) error {
-	return s.keeperFromRequest(request).Delete(hash)
 }

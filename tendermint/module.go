@@ -18,17 +18,19 @@ var (
 	_ module.AppModuleBasic = AppModuleBasic{}
 )
 
+// TODO: is it really needed to split AppModule and AppModuleBasic
 func NewAppModuleBasic(name string) AppModuleBasic {
 	return AppModuleBasic{
 		name: name,
 	}
 }
 
-func NewAppModule(moduleBasic AppModuleBasic, handler sdk.Handler, querier sdk.Querier) AppModule {
+func NewAppModule(moduleBasic AppModuleBasic, cdc *codec.Codec, handler sdk.Handler, querier Querier) AppModule {
 	return AppModule{
 		AppModuleBasic: moduleBasic,
 		handler:        handler,
 		querier:        querier,
+		cdc:            cdc,
 	}
 }
 
@@ -65,10 +67,13 @@ func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
 	return nil
 }
 
+type Querier func(request sdk.Request, path []string, req abci.RequestQuery) (res interface{}, err error)
+
 type AppModule struct {
 	AppModuleBasic
 	handler sdk.Handler
-	querier sdk.Querier
+	querier Querier
+	cdc     *codec.Codec
 }
 
 func (m AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {}
@@ -79,29 +84,35 @@ func (m AppModule) Route() string {
 
 func (m AppModule) NewHandler() sdk.Handler {
 	return m.handler
-	// return func(ctx sdk.Context, msg sdk.Msg) sdk.Result {
-	// errmsg := fmt.Sprintf("Unrecognized service Msg type: %v", msg.Type())
-	// return sdk.ErrUnknownRequest(errmsg).Result()
-	// }
 }
 func (m AppModule) QuerierRoute() string {
 	return m.name
 }
 
 func (m AppModule) NewQuerierHandler() sdk.Querier {
-	return m.querier
+	return func(request sdk.Request, path []string, req abci.RequestQuery) ([]byte, sdk.Error) {
+		data, err := m.querier(request, path, req)
+		if err != nil {
+			return nil, sdk.ErrInternal(err.Error())
+		}
+		res, err := m.cdc.MarshalJSON(data)
+		if err != nil {
+			return nil, sdk.ErrInternal(err.Error())
+		}
+		return res, nil
+	}
 }
 
-func (m AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {}
+func (m AppModule) BeginBlock(_ sdk.Request, _ abci.RequestBeginBlock) {}
 
-func (m AppModule) EndBlock(sdk.Context, abci.RequestEndBlock) []abci.ValidatorUpdate {
+func (m AppModule) EndBlock(sdk.Request, abci.RequestEndBlock) []abci.ValidatorUpdate {
 	return []abci.ValidatorUpdate{}
 }
 
-func (m AppModule) InitGenesis(ctx sdk.Context, data json.RawMessage) []abci.ValidatorUpdate {
+func (m AppModule) InitGenesis(request sdk.Request, data json.RawMessage) []abci.ValidatorUpdate {
 	return []abci.ValidatorUpdate{}
 }
 
-func (m AppModule) ExportGenesis(ctx sdk.Context) json.RawMessage {
+func (m AppModule) ExportGenesis(request sdk.Request) json.RawMessage {
 	return []byte("{}")
 }
