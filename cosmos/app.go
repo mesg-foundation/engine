@@ -10,38 +10,25 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	abci "github.com/tendermint/tendermint/abci/types"
-	cmn "github.com/tendermint/tendermint/libs/common"
 	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
 )
 
-// List of defaultbasic app module
-// genaccounts.AppModuleBasic{},
-// genutil.AppModuleBasic{},
-// auth.AppModuleBasic{},
-// bank.AppModuleBasic{},
-// staking.AppModuleBasic{},
-// distr.AppModuleBasic{},
-// params.AppModuleBasic{},
-// slashing.AppModuleBasic{},
-// supply.AppModuleBasic{},
-
 type App struct {
-	// TODO: maybe it should inherit from baseapp in order to implement the right function for tendermint proxy client. let's try.
+	*baseapp.BaseApp //TODO: revert if not useful
 
 	logger log.Logger
 	db     dbm.DB
 
 	modulesBasic       []module.AppModuleBasic
 	modules            []module.AppModule
-	storeKeys          []string
-	transientStoreKeys []string
-	beginBlockers      []string
-	endBlockers        []string
-	modulesName        []string
+	storeKeys          map[string]*sdk.KVStoreKey
+	transientStoreKeys map[string]*sdk.TransientStoreKey
+	orderBeginBlockers []string
+	orderEndBlockers   []string
+	orderInitGenesis   []string
 	anteHandler        sdk.AnteHandler
 
-	baseapp      *baseapp.BaseApp
 	cdc          *codec.Codec
 	basicManager module.BasicManager
 }
@@ -52,15 +39,14 @@ func New(logger log.Logger, db dbm.DB) *App {
 	codec.RegisterCrypto(cdc)
 
 	return &App{
-		logger:  logger,
-		db:      db,
+		BaseApp: bam.NewBaseApp("engine", logger, db, auth.DefaultTxDecoder(cdc)),
 		modules: []module.AppModule{},
 		cdc:     cdc,
+		storeKeys: map[string]*sdk.KVStoreKey{
+			bam.MainStoreKey: sdk.NewKVStoreKey(bam.MainStoreKey),
+		},
+		transientStoreKeys: map[string]*sdk.TransientStoreKey{},
 	}
-}
-
-func (a *App) BaseApp() *baseapp.BaseApp {
-	return a.baseapp
 }
 
 func (a *App) DefaultGenesis() map[string]json.RawMessage {
@@ -69,23 +55,29 @@ func (a *App) DefaultGenesis() map[string]json.RawMessage {
 	return basicManager.DefaultGenesis()
 }
 
-func (a *App) RegisterModule(module module.AppModule, storeKey, transientStoreKey string, isBeginBlocker, isEndBlocker bool) {
-	moduleName := module.Name()
+func (a *App) RegisterModule(module module.AppModule) {
 	a.modulesBasic = append(a.modulesBasic, module)
 	a.modules = append(a.modules, module)
-	a.modulesName = append(a.modulesName, moduleName)
-	if storeKey != "" {
-		a.storeKeys = append(a.storeKeys, storeKey)
-	}
-	if transientStoreKey != "" {
-		a.transientStoreKeys = append(a.transientStoreKeys, transientStoreKey)
-	}
-	if isBeginBlocker {
-		a.beginBlockers = append(a.beginBlockers, moduleName)
-	}
-	if isEndBlocker {
-		a.endBlockers = append(a.endBlockers, moduleName)
-	}
+}
+
+func (a *App) RegisterOrderInitGenesis(moduleNames ...string) {
+	a.orderInitGenesis = moduleNames
+}
+
+func (a *App) RegisterOrderBeginBlocks(beginBlockers ...string) {
+	a.orderBeginBlockers = beginBlockers
+}
+
+func (a *App) RegisterOrderEndBlocks(endBlockers ...string) {
+	a.orderEndBlockers = endBlockers
+}
+
+func (a *App) RegisterStoreKey(storeKey *sdk.KVStoreKey) {
+	a.storeKeys[storeKey.Name()] = storeKey
+}
+
+func (a *App) RegisterTransientStoreKey(transientStoreKey *sdk.TransientStoreKey) {
+	a.transientStoreKeys[transientStoreKey.Name()] = transientStoreKey
 }
 
 func (a *App) SetAnteHandler(anteHandler sdk.AnteHandler) {
@@ -97,48 +89,41 @@ func (a *App) Cdc() *codec.Codec {
 	return a.cdc
 }
 
-func (a *App) Load() {
+func (a *App) Load() error {
 	// where all the magic happen
 	// basically register everything on baseapp and load it
 
-	baseapp := bam.NewBaseApp("engine", a.logger, a.db, auth.DefaultTxDecoder(a.cdc))
-	a.baseapp = baseapp
-
 	mm := module.NewManager(a.modules...)
-	mm.SetOrderBeginBlockers(a.beginBlockers...)
-	mm.SetOrderEndBlockers(a.endBlockers...)
+	mm.SetOrderBeginBlockers(a.orderBeginBlockers...)
+	mm.SetOrderEndBlockers(a.orderEndBlockers...)
 
 	// Sets the order of Genesis - Order matters, genutil is to always come last
-	mm.SetOrderInitGenesis(a.modulesName...)
+	mm.SetOrderInitGenesis(a.orderInitGenesis...)
 
 	// register all module routes and module queriers
-	mm.RegisterRoutes(baseapp.Router(), baseapp.QueryRouter())
+	mm.RegisterRoutes(a.BaseApp.Router(), a.BaseApp.QueryRouter())
 
 	// The initChainer handles translating the genesis.json file into initial state for the network
-	baseapp.SetInitChainer(func(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
+	a.BaseApp.SetInitChainer(func(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 		var genesisData map[string]json.RawMessage
 		if err := a.cdc.UnmarshalJSON(req.AppStateBytes, &genesisData); err != nil {
 			panic(err)
 		}
 		return mm.InitGenesis(ctx, genesisData)
 	})
-	baseapp.SetBeginBlocker(func(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+	a.BaseApp.SetBeginBlocker(func(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 		return mm.BeginBlock(ctx, req)
 	})
-	baseapp.SetEndBlocker(func(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
+	a.BaseApp.SetEndBlocker(func(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 		return mm.EndBlock(ctx, req)
 	})
 
 	// The AnteHandler handles signature verification and transaction pre-processing
-	baseapp.SetAnteHandler(a.anteHandler)
+	a.BaseApp.SetAnteHandler(a.anteHandler)
 
 	// initialize stores
-	storeKeys := sdk.NewKVStoreKeys(a.storeKeys...)
-	baseapp.MountKVStores(storeKeys)
-	transientStoreKeys := sdk.NewTransientStoreKeys(a.transientStoreKeys...)
-	baseapp.MountTransientStores(transientStoreKeys)
+	a.BaseApp.MountKVStores(a.storeKeys)
+	a.BaseApp.MountTransientStores(a.transientStoreKeys)
 
-	if err := baseapp.LoadLatestVersion(storeKeys[bam.MainStoreKey]); err != nil {
-		cmn.Exit(err.Error())
-	}
+	return a.BaseApp.LoadLatestVersion(a.storeKeys[bam.MainStoreKey])
 }
