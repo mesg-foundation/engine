@@ -112,7 +112,7 @@ func (e *Execution) validateExecutionOutput(instanceHash hash.Hash, taskKey stri
 		return err
 	}
 
-	s, err := e.service.Get(nil, i.ServiceHash)
+	s, err := e.service.Get(i.ServiceHash)
 	if err != nil {
 		return err
 	}
@@ -134,7 +134,7 @@ func (e *Execution) Execute(workflowHash, instanceHash, eventHash, parentHash ha
 		return nil, err
 	}
 
-	s, err := e.service.Get(nil, instance.ServiceHash)
+	s, err := e.service.Get(instance.ServiceHash)
 	if err != nil {
 		return nil, err
 	}
@@ -170,7 +170,7 @@ func (e *Execution) Listen(instanceHash hash.Hash, f *Filter) (*Listener, error)
 		return nil, err
 	}
 
-	service, err := e.service.Get(nil, inst.ServiceHash)
+	service, err := e.service.Get(inst.ServiceHash)
 	if err != nil {
 		return nil, err
 	}

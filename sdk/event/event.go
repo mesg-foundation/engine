@@ -38,7 +38,7 @@ func (e *Event) Create(instanceHash hash.Hash, eventKey string, eventData map[st
 		return nil, err
 	}
 
-	service, err := e.service.Get(nil, instance.ServiceHash)
+	service, err := e.service.Get(instance.ServiceHash)
 	if err != nil {
 		return nil, err
 	}
