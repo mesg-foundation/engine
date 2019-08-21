@@ -15,10 +15,7 @@ import (
 )
 
 type App struct {
-	*baseapp.BaseApp //TODO: revert if not useful
-
-	logger log.Logger
-	db     dbm.DB
+	baseapp *baseapp.BaseApp //TODO: revert if not useful
 
 	modulesBasic       []module.AppModuleBasic
 	modules            []module.AppModule
@@ -39,7 +36,7 @@ func New(logger log.Logger, db dbm.DB) *App {
 	codec.RegisterCrypto(cdc)
 
 	return &App{
-		BaseApp: bam.NewBaseApp("engine", logger, db, auth.DefaultTxDecoder(cdc)),
+		baseapp: bam.NewBaseApp("engine", logger, db, auth.DefaultTxDecoder(cdc)),
 		modules: []module.AppModule{},
 		cdc:     cdc,
 		storeKeys: map[string]*sdk.KVStoreKey{
@@ -101,29 +98,37 @@ func (a *App) Load() error {
 	mm.SetOrderInitGenesis(a.orderInitGenesis...)
 
 	// register all module routes and module queriers
-	mm.RegisterRoutes(a.BaseApp.Router(), a.BaseApp.QueryRouter())
+	mm.RegisterRoutes(a.baseapp.Router(), a.baseapp.QueryRouter())
 
 	// The initChainer handles translating the genesis.json file into initial state for the network
-	a.BaseApp.SetInitChainer(func(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
+	a.baseapp.SetInitChainer(func(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 		var genesisData map[string]json.RawMessage
 		if err := a.cdc.UnmarshalJSON(req.AppStateBytes, &genesisData); err != nil {
 			panic(err)
 		}
 		return mm.InitGenesis(ctx, genesisData)
 	})
-	a.BaseApp.SetBeginBlocker(func(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+	a.baseapp.SetBeginBlocker(func(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 		return mm.BeginBlock(ctx, req)
 	})
-	a.BaseApp.SetEndBlocker(func(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
+	a.baseapp.SetEndBlocker(func(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 		return mm.EndBlock(ctx, req)
 	})
 
 	// The AnteHandler handles signature verification and transaction pre-processing
-	a.BaseApp.SetAnteHandler(a.anteHandler)
+	a.baseapp.SetAnteHandler(a.anteHandler)
 
 	// initialize stores
-	a.BaseApp.MountKVStores(a.storeKeys)
-	a.BaseApp.MountTransientStores(a.transientStoreKeys)
+	a.baseapp.MountKVStores(a.storeKeys)
+	a.baseapp.MountTransientStores(a.transientStoreKeys)
 
-	return a.BaseApp.LoadLatestVersion(a.storeKeys[bam.MainStoreKey])
+	return a.baseapp.LoadLatestVersion(a.storeKeys[bam.MainStoreKey])
+}
+
+func (a *App) BaseApp() *baseapp.BaseApp {
+	return a.baseapp
+}
+
+func (a *App) DeliverTx(req abci.RequestDeliverTx) (res abci.ResponseDeliverTx) {
+	return a.baseapp.DeliverTx(req)
 }

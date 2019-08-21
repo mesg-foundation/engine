@@ -78,7 +78,7 @@ func NewNode(app *cosmos.App, cfg *tmconfig.Config, ccfg *config.CosmosConfig) (
 		cfg,
 		privval.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile()),
 		nodeKey,
-		proxy.NewLocalClientCreator(app),
+		proxy.NewLocalClientCreator(app.BaseApp()),
 		genesisLoader(cdc, appState, ccfg.ChainID, ccfg.GenesisTime),
 		node.DefaultDBProvider,
 		node.DefaultMetricsProvider(cfg.Instrumentation),
