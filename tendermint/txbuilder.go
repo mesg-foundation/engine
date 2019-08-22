@@ -10,13 +10,13 @@ import (
 )
 
 // TxBuilder implements a transaction context created in SDK modules.
-type txBuilder struct {
+type TxBuilder struct {
 	authtypes.TxBuilder
 }
 
 // NewTxBuilder returns a new initialized TxBuilder.
-func NewTxBuilder(cdc *codec.Codec, accNumber, accSeq uint64, kb *Keybase, chainID string) txBuilder {
-	return txBuilder{
+func NewTxBuilder(cdc *codec.Codec, accNumber, accSeq uint64, kb *Keybase, chainID string) TxBuilder {
+	return TxBuilder{
 		authtypes.NewTxBuilder(
 			authutils.GetTxEncoder(cdc),
 			accNumber,
@@ -33,7 +33,7 @@ func NewTxBuilder(cdc *codec.Codec, accNumber, accSeq uint64, kb *Keybase, chain
 }
 
 // Create a signed transaction from a message.
-func (b txBuilder) Create(msg sdktypes.Msg, accountName, accountPassword string) (authtypes.StdTx, error) {
+func (b TxBuilder) Create(msg sdktypes.Msg, accountName, accountPassword string) (authtypes.StdTx, error) {
 	signedMsg, err := b.BuildSignMsg([]sdktypes.Msg{msg})
 	if err != nil {
 		return authtypes.StdTx{}, err
@@ -43,6 +43,6 @@ func (b txBuilder) Create(msg sdktypes.Msg, accountName, accountPassword string)
 }
 
 // Encode a transaction.
-func (b txBuilder) Encode(tx authtypes.StdTx) (types.Tx, error) {
+func (b TxBuilder) Encode(tx sdktypes.Tx) (types.Tx, error) {
 	return b.TxEncoder()(tx)
 }

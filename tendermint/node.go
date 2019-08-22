@@ -93,67 +93,67 @@ func NewNode(app *cosmos.App, cfg *tmconfig.Config, ccfg *config.CosmosConfig) (
 	return node, nil
 }
 
-func sendAndQuery() {
-	// TODO: left only for tests
-	// go func() {
-	// 	client := tmclient.New(rpcclient.NewLocal(node), cdc)
+// func sendAndQuery() {
+// TODO: left only for tests
+// go func() {
+// 	client := tmclient.New(rpcclient.NewLocal(node), cdc)
 
-	// add a service
-	// time.Sleep(22 * time.Second)
-	// msg := servicetypes.NewMsgSetService(hash.Int(2).String(), "{}", account.GetAddress())
-	// logrus.WithField("msg", msg).Warning("set service msg")
+// add a service
+// time.Sleep(22 * time.Second)
+// msg := servicetypes.NewMsgSetService(hash.Int(2).String(), "{}", account.GetAddress())
+// logrus.WithField("msg", msg).Warning("set service msg")
 
-	// accNumber, accSeq, err := authtypes.NewAccountRetriever(client).GetAccountNumberSequence(account.GetAddress())
-	// if err != nil {
-	// 	logrus.Error(err)
-	// }
-	// txBuilder := NewTxBuilder(cdc, accNumber, accSeq, kb, ccfg.ChainID)
-	// signedTx, err := txBuilder.Create(msg, ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Password)
-	// if err != nil {
-	// 	logrus.Error(err)
-	// }
-	// logrus.WithField("signedTx", signedTx).Warning("set service signed tx")
-	// encodedTx, err := txBuilder.Encode(signedTx)
-	// if err != nil {
-	// 	logrus.Error(err)
-	// }
-	// // broadcast the tx
-	// result, err := client.BroadcastTxSync(encodedTx)
-	// if err != nil {
-	// 	logrus.Error(err)
-	// }
-	// logrus.WithField("result", result).Warning("tx broadcasted")
+// accNumber, accSeq, err := authtypes.NewAccountRetriever(client).GetAccountNumberSequence(account.GetAddress())
+// if err != nil {
+// 	logrus.Error(err)
+// }
+// txBuilder := NewTxBuilder(cdc, accNumber, accSeq, kb, ccfg.ChainID)
+// signedTx, err := txBuilder.Create(msg, ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Password)
+// if err != nil {
+// 	logrus.Error(err)
+// }
+// logrus.WithField("signedTx", signedTx).Warning("set service signed tx")
+// encodedTx, err := txBuilder.Encode(signedTx)
+// if err != nil {
+// 	logrus.Error(err)
+// }
+// // broadcast the tx
+// result, err := client.BroadcastTxSync(encodedTx)
+// if err != nil {
+// 	logrus.Error(err)
+// }
+// logrus.WithField("result", result).Warning("tx broadcasted")
 
-	// msg = servicetypes.NewMsgSetService(hash.Int(1).String(), "{}", account.GetAddress())
-	// logrus.WithField("msg", msg).Warning("set service msg")
+// msg = servicetypes.NewMsgSetService(hash.Int(1).String(), "{}", account.GetAddress())
+// logrus.WithField("msg", msg).Warning("set service msg")
 
-	// txBuilder = NewTxBuilder(cdc, accNumber, accSeq+1, kb, ccfg.ChainID)
-	// signedTx, err = txBuilder.Create(msg, ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Password)
-	// if err != nil {
-	// 	logrus.Error(err)
-	// }
-	// logrus.WithField("signedTx", signedTx).Warning("set service signed tx")
-	// encodedTx, err = txBuilder.Encode(signedTx)
-	// if err != nil {
-	// 	logrus.Error(err)
-	// }
+// txBuilder = NewTxBuilder(cdc, accNumber, accSeq+1, kb, ccfg.ChainID)
+// signedTx, err = txBuilder.Create(msg, ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Password)
+// if err != nil {
+// 	logrus.Error(err)
+// }
+// logrus.WithField("signedTx", signedTx).Warning("set service signed tx")
+// encodedTx, err = txBuilder.Encode(signedTx)
+// if err != nil {
+// 	logrus.Error(err)
+// }
 
-	// // broadcast the tx
-	// result, err = client.BroadcastTxSync(encodedTx)
-	// if err != nil {
-	// 	logrus.Error(err)
-	// }
-	// logrus.WithField("result", result).Warning("tx broadcasted")
+// // broadcast the tx
+// result, err = client.BroadcastTxSync(encodedTx)
+// if err != nil {
+// 	logrus.Error(err)
+// }
+// logrus.WithField("result", result).Warning("tx broadcasted")
 
-	// fetch the service
-	// time.Sleep(11 * time.Second)
-	// if services, err := client.ListServices(); err != nil {
-	// 	logrus.Error(err)
-	// } else {
-	// 	logrus.Warning(services)
-	// }
-	// }()
-}
+// fetch the service
+// time.Sleep(11 * time.Second)
+// if services, err := client.ListServices(); err != nil {
+// 	logrus.Error(err)
+// } else {
+// 	logrus.Warning(services)
+// }
+// }()
+// }
 
 func createAppState(defaultGenesis map[string]json.RawMessage, cdc *codec.Codec, address sdktypes.AccAddress, signedStdTx authtypes.StdTx) (map[string]json.RawMessage, error) {
 	stakes := sdktypes.NewCoin(sdktypes.DefaultBondDenom, sdktypes.NewInt(100000000))

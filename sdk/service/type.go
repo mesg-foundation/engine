@@ -7,6 +7,7 @@ import (
 	"github.com/mesg-foundation/engine/service"
 )
 
+// Service is the interface of this sdk
 type Service interface {
 	Create(srv *service.Service) (*service.Service, error)
 	Delete(hash hash.Hash) error

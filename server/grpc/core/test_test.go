@@ -7,7 +7,10 @@ import (
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/sdk"
+	servicesdk "github.com/mesg-foundation/engine/sdk/service"
+	"github.com/mesg-foundation/engine/store"
 	"github.com/stretchr/testify/require"
+	"github.com/syndtr/goleveldb/leveldb"
 )
 
 const (
@@ -18,8 +21,10 @@ const (
 )
 
 func newServerWithContainer(t *testing.T, c container.Container) (*Server, func()) {
-	db, err := database.NewServiceDB(servicedbname)
+	s, err := leveldb.OpenFile(servicedbname, nil)
 	require.NoError(t, err)
+	serviceDB := database.NewServiceDB(store.NewLevelDBStore(s))
+	serviceSDK := servicesdk.NewDeprecated(c, serviceDB)
 
 	instanceDB, err := database.NewInstanceDB(instancedbname)
 	require.NoError(t, err)
@@ -30,16 +35,19 @@ func newServerWithContainer(t *testing.T, c container.Container) (*Server, func(
 	workflowDB, err := database.NewWorkflowDB(workflowdbname)
 	require.NoError(t, err)
 
-	a := sdk.New(c, db, instanceDB, execDB, workflowDB, "", "")
+	a := sdk.New(c, serviceSDK, instanceDB, execDB, workflowDB, "", "")
 
 	server := NewServer(a)
 
 	closer := func() {
-		db.Close()
+		serviceDB.Close()
+		instanceDB.Close()
 		execDB.Close()
+		workflowDB.Close()
 		os.RemoveAll(servicedbname)
 		os.RemoveAll(instancedbname)
 		os.RemoveAll(execdbname)
+		os.RemoveAll(workflowdbname)
 	}
 	return server, closer
 }

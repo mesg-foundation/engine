@@ -14,7 +14,9 @@ import (
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	workflowsdk "github.com/mesg-foundation/engine/sdk/workflow"
 	"github.com/mesg-foundation/engine/service"
+	"github.com/mesg-foundation/engine/store"
 	"github.com/stretchr/testify/require"
+	"github.com/syndtr/goleveldb/leveldb"
 )
 
 const (
@@ -26,7 +28,7 @@ const (
 
 type apiTesting struct {
 	*testing.T
-	serviceDB   *database.LevelDBServiceDB
+	serviceDB   *database.ServiceDB
 	executionDB *database.LevelDBExecutionDB
 	instanceDB  *database.LevelDBInstanceDB
 	workflowDB  *database.LevelDBWorkflowDB
@@ -45,9 +47,10 @@ func (t *apiTesting) close() {
 
 func newTesting(t *testing.T) (*Execution, *apiTesting) {
 	container := &mocks.Container{}
-	db, err := database.NewServiceDB(servicedbname)
+	s, err := leveldb.OpenFile(servicedbname, nil)
 	require.NoError(t, err)
-	service := servicesdk.New(container, db)
+	db := database.NewServiceDB(store.NewLevelDBStore(s))
+	service := servicesdk.NewDeprecated(container, db)
 
 	instDB, err := database.NewInstanceDB(instdbname)
 	require.NoError(t, err)

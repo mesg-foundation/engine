@@ -16,6 +16,7 @@ import (
 
 type App struct {
 	baseapp *baseapp.BaseApp //TODO: revert if not useful
+	cdc     *codec.Codec
 
 	modulesBasic       []module.AppModuleBasic
 	modules            []module.AppModule
@@ -25,9 +26,6 @@ type App struct {
 	orderEndBlockers   []string
 	orderInitGenesis   []string
 	anteHandler        sdk.AnteHandler
-
-	cdc          *codec.Codec
-	basicManager module.BasicManager
 }
 
 func New(logger log.Logger, db dbm.DB) *App {
@@ -108,12 +106,8 @@ func (a *App) Load() error {
 		}
 		return mm.InitGenesis(ctx, genesisData)
 	})
-	a.baseapp.SetBeginBlocker(func(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
-		return mm.BeginBlock(ctx, req)
-	})
-	a.baseapp.SetEndBlocker(func(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
-		return mm.EndBlock(ctx, req)
-	})
+	a.baseapp.SetBeginBlocker(mm.BeginBlock)
+	a.baseapp.SetEndBlocker(mm.EndBlock()
 
 	// The AnteHandler handles signature verification and transaction pre-processing
 	a.baseapp.SetAnteHandler(a.anteHandler)

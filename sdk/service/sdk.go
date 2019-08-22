@@ -67,7 +67,7 @@ func (s *sdk) dbFromRequest(request cosmostypes.Request) *database.ServiceDB {
 func (s *sdk) handler(request cosmostypes.Request, msg cosmostypes.Msg) cosmostypes.Result {
 	panic("to implement")
 	// db := s.dbFromRequest(request)
-	switch msg := msg.(type) {
+	// switch msg := msg.(type) {
 	// case MsgCreateService:
 	// 	_, err := create(s.container, db, msg.Service)
 	// 	if err != nil {
@@ -80,25 +80,25 @@ func (s *sdk) handler(request cosmostypes.Request, msg cosmostypes.Msg) cosmosty
 	// 		return cosmostypes.ErrInternal(err.Error()).Result()
 	// 	}
 	// 	return cosmostypes.Result{}
-	default:
-		errmsg := fmt.Sprintf("Unrecognized service Msg type: %v", msg.Type())
-		return cosmostypes.ErrUnknownRequest(errmsg).Result()
-	}
+	// default:
+	// 	errmsg := fmt.Sprintf("Unrecognized service Msg type: %v", msg.Type())
+	// 	return cosmostypes.ErrUnknownRequest(errmsg).Result()
+	// }
 }
 
 func (s *sdk) querier(request cosmostypes.Request, path []string, req abci.RequestQuery) (interface{}, error) {
 	panic("to implement")
-	db := s.dbFromRequest(request)
-	switch path[0] {
-	case "get":
-		hash, err := hash.Decode(path[1])
-		if err != nil {
-			return nil, err
-		}
-		return db.Get(hash)
-	case "list":
-		return db.All()
-	default:
-		return nil, fmt.Errorf("unknown service query endpoint %q", path[0])
-	}
+	// db := s.dbFromRequest(request)
+	// switch path[0] {
+	// case "get":
+	// 	hash, err := hash.Decode(path[1])
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	return db.Get(hash)
+	// case "list":
+	// 	return db.All()
+	// default:
+	// 	return nil, fmt.Errorf("unknown service query endpoint %q", path[0])
+	// }
 }
