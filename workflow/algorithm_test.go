@@ -97,7 +97,6 @@ func TestFindEdge(t *testing.T) {
 		src     string
 		dst     string
 		present bool
-
 	}{
 		{graph: defaultGraph(), src: "nodeKey1", present: false},
 		{graph: defaultGraph(), src: "nodeKey1", dst: "nodeKey2", present: true},
