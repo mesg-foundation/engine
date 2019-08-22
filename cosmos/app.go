@@ -107,7 +107,7 @@ func (a *App) Load() error {
 		return mm.InitGenesis(ctx, genesisData)
 	})
 	a.baseapp.SetBeginBlocker(mm.BeginBlock)
-	a.baseapp.SetEndBlocker(mm.EndBlock()
+	a.baseapp.SetEndBlocker(mm.EndBlock)
 
 	// The AnteHandler handles signature verification and transaction pre-processing
 	a.baseapp.SetAnteHandler(a.anteHandler)
