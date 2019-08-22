@@ -7,6 +7,7 @@ import (
 	"github.com/cskr/pubsub"
 	"github.com/mesg-foundation/engine/container/mocks"
 	"github.com/mesg-foundation/engine/database"
+	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/instance"
@@ -14,7 +15,6 @@ import (
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	workflowsdk "github.com/mesg-foundation/engine/sdk/workflow"
 	"github.com/mesg-foundation/engine/service"
-	"github.com/mesg-foundation/engine/database/store"
 	"github.com/stretchr/testify/require"
 	"github.com/syndtr/goleveldb/leveldb"
 )
