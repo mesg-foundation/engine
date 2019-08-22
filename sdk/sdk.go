@@ -24,19 +24,15 @@ type SDK struct {
 // New creates a new SDK with given options.
 func New(app *cosmos.App, c container.Container, serviceDB *database.ServiceDB, instanceDB database.InstanceDB, execDB database.ExecutionDB, workflowDB database.WorkflowDB, engineName, port string) (*SDK, error) {
 	ps := pubsub.New(0)
-	if app != nil {
-		initDefaultAppModules(app)
-	}
+	initDefaultAppModules(app)
 	serviceSDK := servicesdk.New(c, serviceDB)
 	instanceSDK := instancesdk.New(c, serviceSDK, instanceDB, engineName, port)
 	workflowSDK := workflowsdk.New(instanceSDK, workflowDB)
 	executionSDK := executionsdk.New(ps, serviceSDK, instanceSDK, workflowSDK, execDB)
 	eventSDK := eventsdk.New(ps, serviceSDK, instanceSDK)
 	// TODO: is it the best place to load the app?
-	if app != nil {
-		if err := app.Load(); err != nil {
-			return nil, err
-		}
+	if err := app.Load(); err != nil {
+		return nil, err
 	}
 	return &SDK{
 		Service:   serviceSDK,
@@ -45,4 +41,21 @@ func New(app *cosmos.App, c container.Container, serviceDB *database.ServiceDB, 
 		Event:     eventSDK,
 		Workflow:  workflowSDK,
 	}, nil
+}
+
+// NewDeprecated creates a new SDK with given options.
+func NewDeprecated(c container.Container, serviceDB *database.ServiceDB, instanceDB database.InstanceDB, execDB database.ExecutionDB, workflowDB database.WorkflowDB, engineName, port string) *SDK {
+	ps := pubsub.New(0)
+	serviceSDK := servicesdk.New(c, serviceDB)
+	instanceSDK := instancesdk.New(c, serviceSDK, instanceDB, engineName, port)
+	workflowSDK := workflowsdk.New(instanceSDK, workflowDB)
+	executionSDK := executionsdk.New(ps, serviceSDK, instanceSDK, workflowSDK, execDB)
+	eventSDK := eventsdk.New(ps, serviceSDK, instanceSDK)
+	return &SDK{
+		Service:   serviceSDK,
+		Instance:  instanceSDK,
+		Execution: executionSDK,
+		Event:     eventSDK,
+		Workflow:  workflowSDK,
+	}
 }
