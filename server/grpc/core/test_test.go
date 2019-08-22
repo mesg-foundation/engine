@@ -6,6 +6,7 @@ import (
 
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/database"
+	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/sdk"
 	"github.com/stretchr/testify/require"
 )
@@ -18,8 +19,9 @@ const (
 )
 
 func newServerWithContainer(t *testing.T, c container.Container) (*Server, func()) {
-	db, err := database.NewServiceDB(servicedbname)
+	serviceStore, err := store.NewLevelDBStore(servicedbname)
 	require.NoError(t, err)
+	db := database.NewServiceDB(serviceStore)
 
 	instanceDB, err := database.NewInstanceDB(instancedbname)
 	require.NoError(t, err)

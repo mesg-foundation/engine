@@ -9,6 +9,7 @@ import (
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/database"
+	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/logger"
 	"github.com/mesg-foundation/engine/scheduler"
@@ -29,10 +30,11 @@ var network = flag.Bool("experimental-network", false, "start the engine with th
 
 func initSDK(cfg *config.Config) (*sdk.SDK, error) {
 	// init services db.
-	serviceDB, err := database.NewServiceDB(filepath.Join(cfg.Path, cfg.Database.ServiceRelativePath))
+	store, err := store.NewLevelDBStore(filepath.Join(cfg.Path, cfg.Database.ServiceRelativePath))
 	if err != nil {
 		return nil, err
 	}
+	serviceDB := database.NewServiceDB(store)
 
 	// init instance db.
 	instanceDB, err := database.NewInstanceDB(filepath.Join(cfg.Path, cfg.Database.InstanceRelativePath))

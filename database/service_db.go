@@ -5,55 +5,35 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/service"
 	"github.com/sirupsen/logrus"
-	"github.com/syndtr/goleveldb/leveldb"
 )
 
 var (
 	errCannotSaveWithoutHash = errors.New("database: can't save service without hash")
 )
 
-// ServiceDB describes the API of database package.
-type ServiceDB interface {
-	// Save saves a service to database.
-	Save(s *service.Service) error
-
-	// Get gets a service from database by its unique hash.
-	Get(hash hash.Hash) (*service.Service, error)
-
-	// Delete deletes a service from database by its unique hash.
-	Delete(hash hash.Hash) error
-
-	// All returns all services from database.
-	All() ([]*service.Service, error)
-
-	// Close closes underlying database connection.
-	Close() error
-}
-
-// LevelDBServiceDB is a database for storing service definition.
-type LevelDBServiceDB struct {
-	db *leveldb.DB
+// ServiceDB is a database for storing service definition.
+type ServiceDB struct {
+	s store.Store
 }
 
 // NewServiceDB returns the database which is located under given path.
-func NewServiceDB(path string) (*LevelDBServiceDB, error) {
-	db, err := leveldb.OpenFile(path, nil)
-	if err != nil {
-		return nil, err
+func NewServiceDB(s store.Store) *ServiceDB {
+	return &ServiceDB{
+		s: s,
 	}
-	return &LevelDBServiceDB{db: db}, nil
 }
 
 // marshal returns the byte slice from service.
-func (d *LevelDBServiceDB) marshal(s *service.Service) ([]byte, error) {
+func (d *ServiceDB) marshal(s *service.Service) ([]byte, error) {
 	return json.Marshal(s)
 }
 
 // unmarshal returns the service from byte slice.
-func (d *LevelDBServiceDB) unmarshal(hash hash.Hash, value []byte) (*service.Service, error) {
+func (d *ServiceDB) unmarshal(hash hash.Hash, value []byte) (*service.Service, error) {
 	var s service.Service
 	if err := json.Unmarshal(value, &s); err != nil {
 		return nil, fmt.Errorf("database: could not decode service %q: %s", hash, err)
@@ -62,10 +42,10 @@ func (d *LevelDBServiceDB) unmarshal(hash hash.Hash, value []byte) (*service.Ser
 }
 
 // All returns every service in database.
-func (d *LevelDBServiceDB) All() ([]*service.Service, error) {
+func (d *ServiceDB) All() ([]*service.Service, error) {
 	var (
 		services []*service.Service
-		iter     = d.db.NewIterator(nil, nil)
+		iter     = d.s.NewIterator()
 	)
 	for iter.Next() {
 		hash := hash.Hash(iter.Key())
@@ -83,33 +63,28 @@ func (d *LevelDBServiceDB) All() ([]*service.Service, error) {
 }
 
 // Delete deletes service from database.
-func (d *LevelDBServiceDB) Delete(hash hash.Hash) error {
-	tx, err := d.db.OpenTransaction()
+func (d *ServiceDB) Delete(hash hash.Hash) error {
+	has, err := d.s.Has(hash)
 	if err != nil {
 		return err
 	}
-	if _, err := tx.Get(hash, nil); err != nil {
-		tx.Discard()
-		if err == leveldb.ErrNotFound {
-			return &ErrNotFound{resource: "service", hash: hash}
-		}
-		return err
+	if !has {
+		return &ErrNotFound{resource: "service", hash: hash}
 	}
-	if err := tx.Delete(hash, nil); err != nil {
-		tx.Discard()
-		return err
-	}
-	return tx.Commit()
-
+	return d.s.Delete(hash)
 }
 
 // Get retrives service from database.
-func (d *LevelDBServiceDB) Get(hash hash.Hash) (*service.Service, error) {
-	b, err := d.db.Get(hash, nil)
+func (d *ServiceDB) Get(hash hash.Hash) (*service.Service, error) {
+	has, err := d.s.Has(hash)
 	if err != nil {
-		if err == leveldb.ErrNotFound {
-			return nil, &ErrNotFound{resource: "service", hash: hash}
-		}
+		return nil, err
+	}
+	if !has {
+		return nil, &ErrNotFound{resource: "service", hash: hash}
+	}
+	b, err := d.s.Get(hash)
+	if err != nil {
 		return nil, err
 	}
 	return d.unmarshal(hash, b)
@@ -117,21 +92,20 @@ func (d *LevelDBServiceDB) Get(hash hash.Hash) (*service.Service, error) {
 
 // Save stores service in database.
 // If there is an another service that uses the same sid, it'll be deleted.
-func (d *LevelDBServiceDB) Save(s *service.Service) error {
+func (d *ServiceDB) Save(s *service.Service) error {
 	if s.Hash.IsZero() {
 		return errCannotSaveWithoutHash
 	}
-
 	b, err := d.marshal(s)
 	if err != nil {
 		return err
 	}
-	return d.db.Put(s.Hash, b, nil)
+	return d.s.Put(s.Hash, b)
 }
 
 // Close closes database.
-func (d *LevelDBServiceDB) Close() error {
-	return d.db.Close()
+func (d *ServiceDB) Close() error {
+	return d.s.Close()
 }
 
 // ErrNotFound is an not found error.

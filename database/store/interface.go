@@ -1,0 +1,20 @@
+package store
+
+// Store describes the store's API of Services.
+type Store interface {
+	Get(key []byte) ([]byte, error)
+	Has(key []byte) (bool, error)
+	Delete(key []byte) error
+	Put(key []byte, value []byte) error
+	NewIterator() Iterator
+	Close() error
+}
+
+// Iterator
+type Iterator interface {
+	Next() bool
+	Key() []byte
+	Value() []byte
+	Release()
+	Error() error
+}
