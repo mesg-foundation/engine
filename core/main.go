@@ -147,7 +147,7 @@ func main() {
 		if err != nil {
 			logrus.WithField("module", "main").Fatalln(err)
 		}
-		app = cosmos.New(logger.TendermintLogger(), db)
+		app = cosmos.NewApp(logger.TendermintLogger(), db)
 	}
 
 	sdk, err := initSDK(app, cfg)
