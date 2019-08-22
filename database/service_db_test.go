@@ -5,9 +5,9 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/service"
-	"github.com/mesg-foundation/engine/database/store"
 	"github.com/stretchr/testify/require"
 	"github.com/syndtr/goleveldb/leveldb"
 )
