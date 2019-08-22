@@ -7,10 +7,8 @@ import (
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/cosmos"
-	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/service"
-	"github.com/mesg-foundation/engine/store"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -60,9 +58,9 @@ func (s *sdk) List() ([]*service.Service, error) {
 //   Handlers
 // ------------------------------------
 
-func (s *sdk) dbFromRequest(request cosmostypes.Request) *database.ServiceDB {
-	return database.NewServiceDB(store.NewCosmosStore(request.KVStore(s.storeKey)))
-}
+// func (s *sdk) dbFromRequest(request cosmostypes.Request) *database.ServiceDB {
+// 	return database.NewServiceDB(store.NewCosmosStore(request.KVStore(s.storeKey)))
+// }
 
 func (s *sdk) handler(request cosmostypes.Request, msg cosmostypes.Msg) cosmostypes.Result {
 	panic("to implement")
