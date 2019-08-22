@@ -28,7 +28,7 @@ type App struct {
 	anteHandler        sdk.AnteHandler
 }
 
-func New(logger log.Logger, db dbm.DB) *App {
+func NewApp(logger log.Logger, db dbm.DB) *App {
 	cdc := codec.New()
 	sdk.RegisterCodec(cdc)
 	codec.RegisterCrypto(cdc)
