@@ -32,7 +32,8 @@ func newServerWithContainer(t *testing.T, c container.Container) (*Server, func(
 	workflowDB, err := database.NewWorkflowDB(workflowdbname)
 	require.NoError(t, err)
 
-	a := sdk.New(c, db, instanceDB, execDB, workflowDB, "", "")
+	a, err := sdk.New(nil, c, db, instanceDB, execDB, workflowDB, "", "")
+	require.NoError(t, err)
 
 	server := NewServer(a)
 
