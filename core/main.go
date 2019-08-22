@@ -292,12 +292,12 @@ func main() {
 		if err := node.Start(); err != nil {
 			logrus.WithField("module", "main").Fatalln(err)
 		}
+	} else {
+		// init system services.
+		if err := deployCoreServices(cfg, sdk); err != nil {
+			logrus.WithField("module", "main").Fatalln(err)
+		}
 	}
-
-	// init system services.
-	// if err := deployCoreServices(cfg, sdk); err != nil {
-	// 	logrus.WithField("module", "main").Fatalln(err)
-	// }
 
 	// init gRPC server.
 	server := grpc.New(sdk)
