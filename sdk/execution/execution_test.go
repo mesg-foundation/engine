@@ -14,7 +14,7 @@ import (
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	workflowsdk "github.com/mesg-foundation/engine/sdk/workflow"
 	"github.com/mesg-foundation/engine/service"
-	"github.com/mesg-foundation/engine/store"
+	"github.com/mesg-foundation/engine/database/store"
 	"github.com/stretchr/testify/require"
 	"github.com/syndtr/goleveldb/leveldb"
 )

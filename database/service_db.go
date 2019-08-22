@@ -7,7 +7,7 @@ import (
 
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/service"
-	"github.com/mesg-foundation/engine/store"
+	"github.com/mesg-foundation/engine/database/store"
 	"github.com/sirupsen/logrus"
 )
 

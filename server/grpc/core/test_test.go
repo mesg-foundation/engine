@@ -8,7 +8,7 @@ import (
 	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/sdk"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
-	"github.com/mesg-foundation/engine/store"
+	"github.com/mesg-foundation/engine/database/store"
 	"github.com/stretchr/testify/require"
 	"github.com/syndtr/goleveldb/leveldb"
 )

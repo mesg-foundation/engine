@@ -18,7 +18,7 @@ import (
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	"github.com/mesg-foundation/engine/server/grpc"
-	"github.com/mesg-foundation/engine/store"
+	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/tendermint"
 	"github.com/mesg-foundation/engine/version"
 	"github.com/mesg-foundation/engine/x/xerrors"
