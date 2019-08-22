@@ -169,7 +169,7 @@ func initialization(cfg *config.Config, network bool) (*sdk.SDK, *cosmos.App, er
 		if err != nil {
 			return nil, nil, err
 		}
-		serviceSDK = servicesdk.NewDeprecated(c, database.NewServiceKeeper(store.NewLevelDBStore(serviceDB)))
+		serviceSDK = servicesdk.NewDeprecated(c, database.NewServiceDB(store.NewLevelDBStore(serviceDB)))
 	}
 
 	// init instance db.

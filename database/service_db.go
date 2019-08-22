@@ -17,25 +17,25 @@ var (
 	errCannotSaveWithoutHash = errors.New("database: can't save service without hash")
 )
 
-// ServiceKeeper is a database for storing service definition.
-type ServiceKeeper struct {
+// ServiceDB is a database for storing service definition.
+type ServiceDB struct {
 	s store.Store
 }
 
-// NewServiceKeeper returns the database which is located under given path.
-func NewServiceKeeper(s store.Store) *ServiceKeeper {
-	return &ServiceKeeper{
+// NewServiceDB returns the database which is located under given path.
+func NewServiceDB(s store.Store) *ServiceDB {
+	return &ServiceDB{
 		s: s,
 	}
 }
 
 // marshal returns the byte slice from service.
-func (k *ServiceKeeper) marshal(s *service.Service) ([]byte, error) {
+func (d *ServiceDB) marshal(s *service.Service) ([]byte, error) {
 	return json.Marshal(s)
 }
 
 // unmarshal returns the service from byte slice.
-func (k *ServiceKeeper) unmarshal(hash hash.Hash, value []byte) (*service.Service, error) {
+func (d *ServiceDB) unmarshal(hash hash.Hash, value []byte) (*service.Service, error) {
 	var s service.Service
 	if err := json.Unmarshal(value, &s); err != nil {
 		return nil, fmt.Errorf("database: could not decode service %q: %s", hash, err)
@@ -44,14 +44,14 @@ func (k *ServiceKeeper) unmarshal(hash hash.Hash, value []byte) (*service.Servic
 }
 
 // All returns every service in database.
-func (k *ServiceKeeper) All() ([]*service.Service, error) {
+func (d *ServiceDB) All() ([]*service.Service, error) {
 	var (
 		services []*service.Service
-		iter     = k.s.NewIterator()
+		iter     = d.s.NewIterator()
 	)
 	for iter.Next() {
 		hash := hash.Hash(iter.Key())
-		s, err := k.unmarshal(hash, iter.Value())
+		s, err := d.unmarshal(hash, iter.Value())
 		if err != nil {
 			// NOTE: Ignore all decode errors (possibly due to a service
 			// structure change or database corruption)
@@ -65,49 +65,49 @@ func (k *ServiceKeeper) All() ([]*service.Service, error) {
 }
 
 // Delete deletes service from database.
-func (k *ServiceKeeper) Delete(hash hash.Hash) error {
-	has, err := k.s.Has(hash)
+func (d *ServiceDB) Delete(hash hash.Hash) error {
+	has, err := d.s.Has(hash)
 	if err != nil {
 		return err
 	}
 	if !has {
 		return &ErrNotFound{resource: "service", hash: hash}
 	}
-	return k.s.Delete(hash)
+	return d.s.Delete(hash)
 }
 
 // Get retrives service from database.
-func (k *ServiceKeeper) Get(hash hash.Hash) (*service.Service, error) {
-	has, err := k.s.Has(hash)
+func (d *ServiceDB) Get(hash hash.Hash) (*service.Service, error) {
+	has, err := d.s.Has(hash)
 	if err != nil {
 		return nil, err
 	}
 	if !has {
 		return nil, &ErrNotFound{resource: "service", hash: hash}
 	}
-	b, err := k.s.Get(hash)
+	b, err := d.s.Get(hash)
 	if err != nil {
 		return nil, err
 	}
-	return k.unmarshal(hash, b)
+	return d.unmarshal(hash, b)
 }
 
 // Save stores service in database.
 // If there is an another service that uses the same sid, it'll be deleted.
-func (k *ServiceKeeper) Save(srv *service.Service) error {
+func (d *ServiceDB) Save(srv *service.Service) error {
 	if srv.Hash.IsZero() {
 		return errCannotSaveWithoutHash
 	}
-	b, err := k.marshal(srv)
+	b, err := d.marshal(srv)
 	if err != nil {
 		return err
 	}
-	return k.s.Put(srv.Hash, b)
+	return d.s.Put(srv.Hash, b)
 }
 
 // Close closes database.
-func (k *ServiceKeeper) Close() error {
-	return k.s.Close()
+func (d *ServiceDB) Close() error {
+	return d.s.Close()
 }
 
 // ErrNotFound is an not found error.

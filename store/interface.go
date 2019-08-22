@@ -1,6 +1,6 @@
 package store
 
-// Store describes the API of keeper of Services.
+// Store describes the store's API of Services.
 type Store interface {
 	Get(key []byte) ([]byte, error)
 	Has(key []byte) (bool, error)

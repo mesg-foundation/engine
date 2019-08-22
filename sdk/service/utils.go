@@ -15,7 +15,7 @@ import (
 	"github.com/mesg-foundation/engine/service/validator"
 )
 
-func create(container container.Container, keeper *database.ServiceKeeper, srv *service.Service) (*service.Service, error) {
+func create(container container.Container, db *database.ServiceDB, srv *service.Service) (*service.Service, error) {
 	if srv.Configuration == nil {
 		srv.Configuration = &service.Configuration{}
 	}
@@ -48,7 +48,7 @@ func create(container container.Container, keeper *database.ServiceKeeper, srv *
 	srv.Hash = hash.Hash(h)
 
 	// check if service already exists.
-	if _, err := keeper.Get(srv.Hash); err == nil {
+	if _, err := db.Get(srv.Hash); err == nil {
 		return nil, &AlreadyExistsError{Hash: srv.Hash}
 	}
 
@@ -66,5 +66,5 @@ func create(container container.Container, keeper *database.ServiceKeeper, srv *
 	if err := validator.ValidateService(srv); err != nil {
 		return nil, err
 	}
-	return srv, keeper.Save(srv)
+	return srv, db.Save(srv)
 }

@@ -9,32 +9,32 @@ import (
 
 type deprecated struct {
 	container container.Container
-	keeper    *database.ServiceKeeper
+	db        *database.ServiceDB
 }
 
-func NewDeprecated(c container.Container, keeper *database.ServiceKeeper) Service {
+func NewDeprecated(c container.Container, db *database.ServiceDB) Service {
 	return &deprecated{
 		container: c,
-		keeper:    keeper,
+		db:        db,
 	}
 }
 
 // Create creates a new service from definition.
 func (s *deprecated) Create(srv *service.Service) (*service.Service, error) {
-	return create(s.container, s.keeper, srv)
+	return create(s.container, s.db, srv)
 }
 
 // Delete deletes the service by hash.
 func (s *deprecated) Delete(hash hash.Hash) error {
-	return s.keeper.Delete(hash)
+	return s.db.Delete(hash)
 }
 
 // Get returns the service that matches given hash.
 func (s *deprecated) Get(hash hash.Hash) (*service.Service, error) {
-	return s.keeper.Get(hash)
+	return s.db.Get(hash)
 }
 
 // List returns all services.
 func (s *deprecated) List() ([]*service.Service, error) {
-	return s.keeper.All()
+	return s.db.All()
 }

@@ -60,22 +60,22 @@ func (s *sdk) List() ([]*service.Service, error) {
 //   Handlers
 // ------------------------------------
 
-func (s *sdk) keeperFromRequest(request cosmostypes.Request) *database.ServiceKeeper {
-	return database.NewServiceKeeper(store.NewCosmosStore(request.KVStore(s.storeKey)))
+func (s *sdk) dbFromRequest(request cosmostypes.Request) *database.ServiceDB {
+	return database.NewServiceDB(store.NewCosmosStore(request.KVStore(s.storeKey)))
 }
 
 func (s *sdk) handler(request cosmostypes.Request, msg cosmostypes.Msg) cosmostypes.Result {
 	panic("to implement")
-	// keeper := s.keeperFromRequest(request)
+	// db := s.dbFromRequest(request)
 	switch msg := msg.(type) {
 	// case MsgCreateService:
-	// 	_, err := create(s.container, keeper, msg.Service)
+	// 	_, err := create(s.container, db, msg.Service)
 	// 	if err != nil {
 	// 		return cosmostypes.ErrInternal(err.Error()).Result()
 	// 	}
 	// 	return cosmostypes.Result{}
 	// case MsgRemoveService:
-	// 	err := keeper.Delete(msg.Hash)
+	// 	err := db.Delete(msg.Hash)
 	// 	if err != nil {
 	// 		return cosmostypes.ErrInternal(err.Error()).Result()
 	// 	}
@@ -88,16 +88,16 @@ func (s *sdk) handler(request cosmostypes.Request, msg cosmostypes.Msg) cosmosty
 
 func (s *sdk) querier(request cosmostypes.Request, path []string, req abci.RequestQuery) (interface{}, error) {
 	panic("to implement")
-	keeper := s.keeperFromRequest(request)
+	db := s.dbFromRequest(request)
 	switch path[0] {
 	case "get":
 		hash, err := hash.Decode(path[1])
 		if err != nil {
 			return nil, err
 		}
-		return keeper.Get(hash)
+		return db.Get(hash)
 	case "list":
-		return keeper.All()
+		return db.All()
 	default:
 		return nil, fmt.Errorf("unknown service query endpoint %q", path[0])
 	}
