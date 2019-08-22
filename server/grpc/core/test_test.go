@@ -36,10 +36,13 @@ func newServerWithContainer(t *testing.T, c container.Container) (*Server, func(
 
 	closer := func() {
 		db.Close()
+		instanceDB.Close()
 		execDB.Close()
+		workflowDB.Close()
 		os.RemoveAll(servicedbname)
 		os.RemoveAll(instancedbname)
 		os.RemoveAll(execdbname)
+		os.RemoveAll(workflowdbname)
 	}
 	return server, closer
 }
