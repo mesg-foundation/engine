@@ -2,12 +2,10 @@ package servicesdk
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
 
-	"github.com/cskr/pubsub"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/database"
@@ -17,25 +15,22 @@ import (
 	"github.com/mesg-foundation/engine/service/validator"
 )
 
-// Service exposes service APIs of MESG.
-type Service struct {
-	ps *pubsub.PubSub
-
+// deprecated exposes service APIs of MESG.
+type deprecated struct {
 	container container.Container
 	serviceDB *database.ServiceDB
 }
 
-// New creates a new Service SDK with given options.
-func New(c container.Container, serviceDB *database.ServiceDB) *Service {
-	return &Service{
-		ps:        pubsub.New(0),
+// NewDeprecated creates a new Service SDK with given options.
+func NewDeprecated(c container.Container, serviceDB *database.ServiceDB) Service {
+	return &deprecated{
 		container: c,
 		serviceDB: serviceDB,
 	}
 }
 
 // Create creates a new service from definition.
-func (s *Service) Create(srv *service.Service) (*service.Service, error) {
+func (s *deprecated) Create(srv *service.Service) (*service.Service, error) {
 	if srv.Configuration == nil {
 		srv.Configuration = &service.Configuration{}
 	}
@@ -91,25 +86,16 @@ func (s *Service) Create(srv *service.Service) (*service.Service, error) {
 }
 
 // Delete deletes the service by hash.
-func (s *Service) Delete(hash hash.Hash) error {
+func (s *deprecated) Delete(hash hash.Hash) error {
 	return s.serviceDB.Delete(hash)
 }
 
 // Get returns the service that matches given hash.
-func (s *Service) Get(hash hash.Hash) (*service.Service, error) {
+func (s *deprecated) Get(hash hash.Hash) (*service.Service, error) {
 	return s.serviceDB.Get(hash)
 }
 
 // List returns all services.
-func (s *Service) List() ([]*service.Service, error) {
+func (s *deprecated) List() ([]*service.Service, error) {
 	return s.serviceDB.All()
-}
-
-// AlreadyExistsError is an not found error.
-type AlreadyExistsError struct {
-	Hash hash.Hash
-}
-
-func (e *AlreadyExistsError) Error() string {
-	return fmt.Sprintf("service %q already exists", e.Hash.String())
 }
