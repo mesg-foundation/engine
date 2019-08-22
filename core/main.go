@@ -8,6 +8,7 @@ import (
 
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
+	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/hash"
@@ -17,24 +18,24 @@ import (
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	"github.com/mesg-foundation/engine/server/grpc"
-	"github.com/mesg-foundation/engine/tendermint"
 	"github.com/mesg-foundation/engine/version"
 	"github.com/mesg-foundation/engine/x/xerrors"
 	"github.com/mesg-foundation/engine/x/xnet"
 	"github.com/mesg-foundation/engine/x/xos"
 	"github.com/mesg-foundation/engine/x/xsignal"
 	"github.com/sirupsen/logrus"
+	db "github.com/tendermint/tm-db"
 )
 
 var network = flag.Bool("experimental-network", false, "start the engine with the network")
 
-func initSDK(cfg *config.Config) (*sdk.SDK, error) {
+func initSDK(app *cosmos.App, cfg *config.Config) (*sdk.SDK, error) {
 	// init services db.
-	store, err := store.NewLevelDBStore(filepath.Join(cfg.Path, cfg.Database.ServiceRelativePath))
+	serviceStore, err := store.NewLevelDBStore(filepath.Join(cfg.Path, cfg.Database.ServiceRelativePath))
 	if err != nil {
 		return nil, err
 	}
-	serviceDB := database.NewServiceDB(store)
+	serviceDB := database.NewServiceDB(serviceStore)
 
 	// init instance db.
 	instanceDB, err := database.NewInstanceDB(filepath.Join(cfg.Path, cfg.Database.InstanceRelativePath))
@@ -63,7 +64,7 @@ func initSDK(cfg *config.Config) (*sdk.SDK, error) {
 	_, port, _ := xnet.SplitHostPort(cfg.Server.Address)
 
 	// init sdk.
-	return sdk.New(c, serviceDB, instanceDB, executionDB, workflowDB, cfg.Name, strconv.Itoa(port)), nil
+	return sdk.New(app, c, serviceDB, instanceDB, executionDB, workflowDB, cfg.Name, strconv.Itoa(port))
 }
 
 func deployCoreServices(cfg *config.Config, sdk *sdk.SDK) error {
@@ -136,20 +137,32 @@ func main() {
 		logrus.Fatalln(err)
 	}
 
-	sdk, err := initSDK(cfg)
+	// init logger.
+	logger.Init(cfg.Log.Format, cfg.Log.Level, cfg.Log.ForceColors)
+
+	var app *cosmos.App
+	if *network {
+		// init cosmos app
+		db, err := db.NewGoLevelDB("app", cfg.Cosmos.Path)
+		if err != nil {
+			logrus.WithField("module", "main").Fatalln(err)
+		}
+		app = cosmos.New(logger.TendermintLogger(), db)
+	}
+
+	sdk, err := initSDK(app, cfg)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 
-	// init logger.
-	logger.Init(cfg.Log.Format, cfg.Log.Level, cfg.Log.ForceColors)
-
 	if *network {
 		// create tendermint node
-		node, err := tendermint.NewNode(cfg.Tendermint.Config, &cfg.Cosmos)
+		node, err := cosmos.NewNode(app, cfg.Tendermint.Config, &cfg.Cosmos)
 		if err != nil {
 			logrus.WithField("module", "main").Fatalln(err)
 		}
+
+		// start tendermint node
 		logrus.WithField("module", "main").WithField("seeds", cfg.Tendermint.P2P.Seeds).Info("starting tendermint node")
 		if err := node.Start(); err != nil {
 			logrus.WithField("module", "main").Fatalln(err)
