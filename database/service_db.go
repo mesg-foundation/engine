@@ -1,7 +1,5 @@
 package database
 
-// TODO: this file could be move to service package
-
 import (
 	"encoding/json"
 	"errors"
@@ -94,15 +92,15 @@ func (d *ServiceDB) Get(hash hash.Hash) (*service.Service, error) {
 
 // Save stores service in database.
 // If there is an another service that uses the same sid, it'll be deleted.
-func (d *ServiceDB) Save(srv *service.Service) error {
-	if srv.Hash.IsZero() {
+func (d *ServiceDB) Save(s *service.Service) error {
+	if s.Hash.IsZero() {
 		return errCannotSaveWithoutHash
 	}
-	b, err := d.marshal(srv)
+	b, err := d.marshal(s)
 	if err != nil {
 		return err
 	}
-	return d.s.Put(srv.Hash, b)
+	return d.s.Put(s.Hash, b)
 }
 
 // Close closes database.
