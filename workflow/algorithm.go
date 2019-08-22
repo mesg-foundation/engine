@@ -34,6 +34,16 @@ func (w Workflow) FindNode(key string) (Node, error) {
 	return Node{}, fmt.Errorf("node %q not found", key)
 }
 
+// FindEdge returns the first edge found that match a src and dst
+func (w Workflow) FindEdge(src string, dst string) (Edge, error) {
+	for _, edge := range w.Edges {
+		if edge.Src == src && edge.Dst == dst {
+			return edge, nil
+		}
+	}
+	return Edge{}, fmt.Errorf("edge (%q, %q) not found", src, dst)
+}
+
 // A null graph is a graph that contains no nodes
 func (w *Workflow) hasNodes() bool {
 	return len(w.Nodes) > 0

@@ -91,6 +91,28 @@ func TestFindNode(t *testing.T) {
 	}
 }
 
+func TestFindEdge(t *testing.T) {
+	var tests = []struct {
+		graph   *Workflow
+		src     string
+		dst     string
+		present bool
+
+	}{
+		{graph: defaultGraph(), src: "nodeKey1", present: false},
+		{graph: defaultGraph(), src: "nodeKey1", dst: "nodeKey2", present: true},
+		{graph: defaultGraph(), src: "nodeKey4", dst: "nodeKey7", present: true},
+	}
+	for _, test := range tests {
+		_, err := test.graph.FindEdge(test.src, test.dst)
+		if test.present {
+			assert.NoError(t, err)
+		} else {
+			assert.Error(t, err)
+		}
+	}
+}
+
 func TestHasNodes(t *testing.T) {
 	var tests = []struct {
 		graph    *Workflow
