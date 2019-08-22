@@ -213,17 +213,6 @@ func TestValidateWorkflow(t *testing.T) {
 				}},
 			},
 		}, valid: true},
-		{w: &Workflow{
-			Hash:    hash.Int(1),
-			Key:     "inputs-with-empty-ref-node",
-			Trigger: trigger,
-			Nodes:   nodes,
-			Edges: []Edge{
-				{Src: "nodeKey1", Dst: "nodeKey2", Inputs: []*Input{
-					{Key: "-", Ref: &InputReference{Key: "-"}},
-				}},
-			},
-		}, valid: true},
 	}
 	for _, test := range tests {
 		err := test.w.Validate()
