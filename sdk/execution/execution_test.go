@@ -7,6 +7,7 @@ import (
 	"github.com/cskr/pubsub"
 	"github.com/mesg-foundation/engine/container/mocks"
 	"github.com/mesg-foundation/engine/database"
+	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/instance"
@@ -26,7 +27,7 @@ const (
 
 type apiTesting struct {
 	*testing.T
-	serviceDB   *database.LevelDBServiceDB
+	serviceDB   *database.ServiceDB
 	executionDB *database.LevelDBExecutionDB
 	instanceDB  *database.LevelDBInstanceDB
 	workflowDB  *database.LevelDBWorkflowDB
@@ -45,8 +46,9 @@ func (t *apiTesting) close() {
 
 func newTesting(t *testing.T) (*Execution, *apiTesting) {
 	container := &mocks.Container{}
-	db, err := database.NewServiceDB(servicedbname)
+	serviceStore, err := store.NewLevelDBStore(servicedbname)
 	require.NoError(t, err)
+	db := database.NewServiceDB(serviceStore)
 	service := servicesdk.New(container, db)
 
 	instDB, err := database.NewInstanceDB(instdbname)
