@@ -27,18 +27,20 @@ func (s *LevelDBStore) NewIterator() Iterator {
 
 // Has returns true if the key is set in the store.
 func (s *LevelDBStore) Has(key []byte) (bool, error) {
-	if _, err := s.db.Get(key, nil); err != nil {
-		if err == leveldb.ErrNotFound {
-			return false, nil
-		}
-		return false, err
-	}
-	return true, nil
+	value, err := s.Get(key)
+	return value != nil, err
 }
 
 // Get gets the value for the given key. It returns nil if the store does not contains the key.
 func (s *LevelDBStore) Get(key []byte) ([]byte, error) {
-	return s.db.Get(key, nil)
+	value, err := s.db.Get(key, nil)
+	if err == leveldb.ErrNotFound {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return value, nil
 }
 
 // Delete deletes the value for the given key. Delete will not returns error if key doesn't exist.
