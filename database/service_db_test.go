@@ -40,9 +40,6 @@ func TestServiceDBSave(t *testing.T) {
 	ss, _ := db.All()
 	require.Len(t, ss, 1)
 
-	_, err := db.Get(hash.Int(2))
-	require.IsType(t, &ErrNotFound{}, err)
-
 	// different hash, different sid. should not replace anything.
 	s3 := &service.Service{Hash: hash.Int(2)}
 	require.NoError(t, db.Save(s3))
@@ -69,7 +66,6 @@ func TestServiceDBGet(t *testing.T) {
 	// test return err not found
 	_, err = db.Get(hash.Int(2))
 	require.Error(t, err)
-	require.True(t, IsErrNotFound(err))
 }
 
 func TestServiceDBDelete(t *testing.T) {
@@ -81,7 +77,7 @@ func TestServiceDBDelete(t *testing.T) {
 	require.NoError(t, db.Save(s))
 	require.NoError(t, db.Delete(s.Hash))
 	_, err := db.Get(s.Hash)
-	require.IsType(t, &ErrNotFound{}, err)
+	require.Error(t, err)
 }
 
 // TOFIX: the database is not thread safe anymore...
@@ -114,7 +110,7 @@ func TestServiceDBDeleteConcurrency(t *testing.T) {
 	wg.Wait()
 	require.Len(t, errs, n-1)
 	for i := 0; i < len(errs); i++ {
-		require.IsType(t, &ErrNotFound{}, errs[i])
+		require.Error(t, errs[i])
 	}
 }
 
@@ -146,9 +142,4 @@ func TestServiceDBAllWithDecodeError(t *testing.T) {
 	services, err := db.All()
 	require.NoError(t, err)
 	require.Len(t, services, 0)
-}
-
-func TestIsErrNotFound(t *testing.T) {
-	require.True(t, IsErrNotFound(&ErrNotFound{}))
-	require.False(t, IsErrNotFound(nil))
 }

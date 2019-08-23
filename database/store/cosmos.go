@@ -1,6 +1,8 @@
 package store
 
 import (
+	"errors"
+
 	"github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -26,14 +28,14 @@ func (s *CosmosStore) Has(key []byte) (bool, error) {
 	return s.store.Has(key), nil
 }
 
-// Get retrives service from store. It returns ErrNotFound if the store does not contains the key.
+// Get retrives service from store. It returns an error if the store does not contains the key.
 func (s *CosmosStore) Get(key []byte) ([]byte, error) {
 	has, err := s.Has(key)
 	if err != nil {
 		return nil, err
 	}
 	if !has {
-		return nil, ErrNotFound
+		return nil, errors.New("not found")
 	}
 	return s.store.Get(key), nil
 }
