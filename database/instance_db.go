@@ -16,6 +16,9 @@ var (
 
 // InstanceDB describes the API of Instance database.
 type InstanceDB interface {
+	// Exist check if instance with given hash exist.
+	Exist(hash hash.Hash) (bool, error)
+
 	// Get retrives instance by instance hash.
 	Get(hash hash.Hash) (*instance.Instance, error)
 
@@ -60,13 +63,15 @@ func (d *LevelDBInstanceDB) unmarshal(hash hash.Hash, value []byte) (*instance.I
 	return &s, nil
 }
 
+// Exist check if instance with given hash exist.
+func (d *LevelDBInstanceDB) Exist(hash hash.Hash) (bool, error) {
+	return d.db.Has(hash, nil)
+}
+
 // Get retrives instance by instance hash.
 func (d *LevelDBInstanceDB) Get(hash hash.Hash) (*instance.Instance, error) {
 	b, err := d.db.Get(hash, nil)
 	if err != nil {
-		if err == leveldb.ErrNotFound {
-			return nil, &ErrNotFound{resource: "instance", hash: hash}
-		}
 		return nil, err
 	}
 	return d.unmarshal(hash, b)

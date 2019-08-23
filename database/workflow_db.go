@@ -85,9 +85,6 @@ func (d *LevelDBWorkflowDB) Delete(hash hash.Hash) error {
 	}
 	if _, err := tx.Get(hash, nil); err != nil {
 		tx.Discard()
-		if err == leveldb.ErrNotFound {
-			return &ErrNotFound{resource: "workflow", hash: hash}
-		}
 		return err
 	}
 	if err := tx.Delete(hash, nil); err != nil {
@@ -102,9 +99,6 @@ func (d *LevelDBWorkflowDB) Delete(hash hash.Hash) error {
 func (d *LevelDBWorkflowDB) Get(hash hash.Hash) (*workflow.Workflow, error) {
 	b, err := d.db.Get(hash, nil)
 	if err != nil {
-		if err == leveldb.ErrNotFound {
-			return nil, &ErrNotFound{resource: "workflow", hash: hash}
-		}
 		return nil, err
 	}
 	return d.unmarshal(hash, b)
