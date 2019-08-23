@@ -122,23 +122,18 @@ func (s *Scheduler) processExecution(exec *execution.Execution) {
 		s.ErrC <- err
 		return
 	}
-	for _, nextStepID := range wf.ChildrenIDs(exec.StepID) {
-		nextStep, err := wf.FindNode(nextStepID)
-		if err != nil {
-			s.ErrC <- err
-			continue
-		}
-		edge, err := wf.FindEdge(exec.StepID, nextStepID)
-		if err != nil {
-			s.ErrC <- err
-			return
-		}
+	for _, edge := range wf.EdgesFrom(exec.StepID) {
 		inputs, err := s.mapInputs(wf.Hash, exec, edge)
 		if err != nil {
 			s.ErrC <- err
 			return
 		}
-		if _, err := s.execution.Execute(wf.Hash, nextStep.InstanceHash, nil, exec.Hash, nextStepID, nextStep.TaskKey, inputs, []string{}); err != nil {
+		nextStep, err := wf.FindNode(edge.Dst)
+		if err != nil {
+			s.ErrC <- err
+			continue
+		}
+		if _, err := s.execution.Execute(wf.Hash, nextStep.InstanceHash, nil, exec.Hash, edge.Dst, nextStep.TaskKey, inputs, []string{}); err != nil {
 			s.ErrC <- err
 		}
 	}
