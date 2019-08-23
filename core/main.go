@@ -8,6 +8,7 @@ import (
 
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
+	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/hash"
@@ -17,13 +18,13 @@ import (
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	"github.com/mesg-foundation/engine/server/grpc"
-	"github.com/mesg-foundation/engine/tendermint"
 	"github.com/mesg-foundation/engine/version"
 	"github.com/mesg-foundation/engine/x/xerrors"
 	"github.com/mesg-foundation/engine/x/xnet"
 	"github.com/mesg-foundation/engine/x/xos"
 	"github.com/mesg-foundation/engine/x/xsignal"
 	"github.com/sirupsen/logrus"
+	db "github.com/tendermint/tm-db"
 )
 
 var network = flag.Bool("experimental-network", false, "start the engine with the network")
@@ -145,11 +146,25 @@ func main() {
 	logger.Init(cfg.Log.Format, cfg.Log.Level, cfg.Log.ForceColors)
 
 	if *network {
-		// create tendermint node
-		node, err := tendermint.NewNode(cfg.Tendermint.Config, &cfg.Cosmos)
+		// init cosmos app
+		db, err := db.NewGoLevelDB("app", cfg.Cosmos.Path)
 		if err != nil {
 			logrus.WithField("module", "main").Fatalln(err)
 		}
+		app := cosmos.NewApp(logger.TendermintLogger(), db)
+		cosmos.InitDefaultAppModules(app)
+		err = app.Load()
+		if err != nil {
+			logrus.WithField("module", "main").Fatalln(err)
+		}
+
+		// create tendermint node
+		node, err := cosmos.NewNode(app, cfg.Tendermint.Config, &cfg.Cosmos)
+		if err != nil {
+			logrus.WithField("module", "main").Fatalln(err)
+		}
+
+		// start tendermint node
 		logrus.WithField("module", "main").WithField("seeds", cfg.Tendermint.P2P.Seeds).Info("starting tendermint node")
 		if err := node.Start(); err != nil {
 			logrus.WithField("module", "main").Fatalln(err)
