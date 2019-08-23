@@ -156,7 +156,7 @@ func (s *Scheduler) mapInputs(wfHash hash.Hash, prevExec *execution.Execution, e
 
 func (s *Scheduler) resolveInput(wfHash hash.Hash, exec *execution.Execution, nodeKey string, outputKey string) (interface{}, error) {
 	if !wfHash.Equal(exec.WorkflowHash) {
-		return nil, nil
+		return nil, fmt.Errorf("reference's nodeKey not found")
 	}
 	if exec.StepID != nodeKey {
 		parent, err := s.execution.Get(exec.ParentHash)
