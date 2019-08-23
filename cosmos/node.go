@@ -60,7 +60,7 @@ func NewNode(app *App, cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.N
 	}
 
 	// init node
-	node, err := node.NewNode(
+	return node.NewNode(
 		cfg,
 		privval.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile()),
 		nodeKey,
@@ -70,11 +70,6 @@ func NewNode(app *App, cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.N
 		node.DefaultMetricsProvider(cfg.Instrumentation),
 		logger.TendermintLogger(),
 	)
-	if err != nil {
-		return nil, err
-	}
-
-	return node, nil
 }
 
 func createAppState(defaultGenesisŚtate map[string]json.RawMessage, cdc *codec.Codec, address sdktypes.AccAddress, signedStdTx authtypes.StdTx) (map[string]json.RawMessage, error) {
