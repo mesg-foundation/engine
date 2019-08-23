@@ -160,8 +160,8 @@ func TestValidateWorkflow(t *testing.T) {
 			Graph: Graph{
 				Nodes: append(nodes, Mapping{
 					Key: "mapping",
-					Inputs: []Input{
-						{Key: "-", Ref: InputReference{Key: "-", NodeKey: "invalid"}},
+					Outputs: []Output{
+						{Key: "-", Ref: &OutputReference{Key: "-", NodeKey: "invalid"}},
 					},
 				}),
 			},
@@ -172,8 +172,8 @@ func TestValidateWorkflow(t *testing.T) {
 			Graph: Graph{
 				Nodes: append(nodes, Mapping{
 					Key: "mapping",
-					Inputs: []Input{
-						{Key: "-", Ref: InputReference{Key: "-", NodeKey: "nodeKey1"}},
+					Outputs: []Output{
+						{Key: "-", Ref: &OutputReference{Key: "-", NodeKey: "nodeKey1"}},
 					},
 				}),
 				Edges: append(edges,

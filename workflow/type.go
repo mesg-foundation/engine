@@ -30,18 +30,18 @@ type Event struct {
 
 // Mapping is a type of Node that transform data
 type Mapping struct {
-	Key    string  `hash:"name:1" validate:"required"`
-	Inputs []Input `hash:"name:2" validate:"dive,required"`
+	Key     string   `hash:"name:1" validate:"required"`
+	Outputs []Output `hash:"name:2" validate:"dive,required"`
 }
 
-// Input as defined in a mapping node
-type Input struct {
-	Key string         `hash:"name:1" validate:"required"`
-	Ref InputReference `hash:"name:2" validate:"required"`
+// Output as defined in a mapping node
+type Output struct {
+	Key string           `hash:"name:1" validate:"required"`
+	Ref *OutputReference `hash:"name:2" validate:"required"`
 }
 
-// InputReference of a output value to define an input
-type InputReference struct {
+// OutputReference of a output value to define an output
+type OutputReference struct {
 	NodeKey string `hash:"name:1" validate:"required"`
 	Key     string `hash:"name:2" validate:"required"`
 }
