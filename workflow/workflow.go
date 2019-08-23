@@ -34,13 +34,8 @@ func (w *Workflow) Validate() error {
 	if err := w.Graph.validate(); err != nil {
 		return err
 	}
-	triggers := w.Graph.FindNodes(func(n Node) bool {
-		_, isResult := n.(Result)
-		_, isEvent := n.(Event)
-		return isResult || isEvent
-	})
-	if len(triggers) != 1 {
-		return fmt.Errorf("should contain exactly one trigger (result or event)")
+	if _, err := w.Trigger(); err != nil {
+		return err
 	}
 	for _, node := range w.Graph.Nodes {
 		switch n := node.(type) {
@@ -56,4 +51,17 @@ func (w *Workflow) Validate() error {
 		return err
 	}
 	return nil
+}
+
+// Trigger returns the trigger of the workflow
+func (w *Workflow) Trigger() (Node, error) {
+	triggers := w.Graph.FindNodes(func(n Node) bool {
+		_, isResult := n.(Result)
+		_, isEvent := n.(Event)
+		return isResult || isEvent
+	})
+	if len(triggers) != 1 {
+		return nil, fmt.Errorf("should contain exactly one trigger (result or event)")
+	}
+	return triggers[0], nil
 }
