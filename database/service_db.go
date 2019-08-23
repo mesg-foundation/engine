@@ -41,6 +41,11 @@ func (d *ServiceDB) unmarshal(hash hash.Hash, value []byte) (*service.Service, e
 	return &s, nil
 }
 
+// Exist check if service with given hash exist.
+func (d *ServiceDB) Exist(hash hash.Hash) (bool, error) {
+	return d.s.Has(hash)
+}
+
 // All returns every service in database.
 func (d *ServiceDB) All() ([]*service.Service, error) {
 	var (
@@ -64,25 +69,11 @@ func (d *ServiceDB) All() ([]*service.Service, error) {
 
 // Delete deletes service from database.
 func (d *ServiceDB) Delete(hash hash.Hash) error {
-	has, err := d.s.Has(hash)
-	if err != nil {
-		return err
-	}
-	if !has {
-		return &ErrNotFound{resource: "service", hash: hash}
-	}
 	return d.s.Delete(hash)
 }
 
 // Get retrives service from database.
 func (d *ServiceDB) Get(hash hash.Hash) (*service.Service, error) {
-	has, err := d.s.Has(hash)
-	if err != nil {
-		return nil, err
-	}
-	if !has {
-		return nil, &ErrNotFound{resource: "service", hash: hash}
-	}
 	b, err := d.s.Get(hash)
 	if err != nil {
 		return nil, err
@@ -106,20 +97,4 @@ func (d *ServiceDB) Save(s *service.Service) error {
 // Close closes database.
 func (d *ServiceDB) Close() error {
 	return d.s.Close()
-}
-
-// ErrNotFound is an not found error.
-type ErrNotFound struct {
-	hash     hash.Hash
-	resource string
-}
-
-func (e *ErrNotFound) Error() string {
-	return fmt.Sprintf("database: %s %q not found", e.resource, e.hash)
-}
-
-// IsErrNotFound returns true if err is type of ErrNotFound, false otherwise.
-func IsErrNotFound(err error) bool {
-	_, ok := err.(*ErrNotFound)
-	return ok
 }

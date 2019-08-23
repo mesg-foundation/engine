@@ -102,7 +102,6 @@ func (i *Instance) Create(serviceHash hash.Hash, env []string) (*instance.Instan
 	if err != nil {
 		return nil, err
 	}
-
 	// calculate the final env vars by overwriting user defined one's with defaults.
 	instanceEnv := xos.EnvMergeMaps(xos.EnvSliceToMap(srv.Configuration.Env), xos.EnvSliceToMap(env))
 
@@ -113,12 +112,10 @@ func (i *Instance) Create(serviceHash hash.Hash, env []string) (*instance.Instan
 	instanceHash := h.Sum(nil)
 
 	// check if instance already exists
-	_, err = i.instanceDB.Get(instanceHash)
-	if err == nil {
-		return nil, &AlreadyExistsError{Hash: instanceHash}
-	}
-	if !database.IsErrNotFound(err) {
+	if exist, err := i.instanceDB.Exist(instanceHash); err != nil {
 		return nil, err
+	} else if exist {
+		return nil, &AlreadyExistsError{Hash: instanceHash}
 	}
 
 	// save & start instance.
