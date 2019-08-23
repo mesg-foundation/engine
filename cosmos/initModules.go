@@ -13,6 +13,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/supply"
 )
 
+// InitDefaultAppModules initializes the default cosmos modules.
 func InitDefaultAppModules(app *App) {
 	// init cosmos stores
 	paramsStoreKey := cosmostypes.NewKVStoreKey(params.StoreKey)
