@@ -43,7 +43,7 @@ message Workflow {
     message Input {
       message Reference {
         string nodeKey = 1; // Key of the node in the graph. If empty, will be using the src of the edge.
-        string key = 2;     // Data from the references node key as defined in the service definition.
+        string key = 2;     // Key of a specific parameter of the referenced node's output data.
       }
 
       string key = 1;       // Key of the input (as defined in the the service's task definition).
