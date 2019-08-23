@@ -21,7 +21,7 @@ import (
 	"github.com/tendermint/tendermint/types"
 )
 
-// NewNode retruns new tendermint node that runs the app.
+// NewNode creates a new Tendermint node from an App.
 func NewNode(app *App, cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error) {
 	cdc := app.Cdc()
 
@@ -43,8 +43,7 @@ func NewNode(app *App, cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.N
 		ed25519.PubKeyEd25519(ccfg.ValidatorPubKey),
 		ccfg.GenesisAccount.Name,
 	)
-	signedTx, err := NewTxBuilder(cdc, 0, 0, kb, ccfg.ChainID).
-		Create(msg, ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Password)
+	signedTx, err := NewTxBuilder(cdc, 0, 0, kb, ccfg.ChainID).BuildAndSignStdTx(msg, ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -61,24 +60,19 @@ func NewNode(app *App, cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.N
 	}
 
 	// init node
-	node, err := node.NewNode(
+	return node.NewNode(
 		cfg,
 		privval.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile()),
 		nodeKey,
-		proxy.NewLocalClientCreator(app.BaseApp()),
+		proxy.NewLocalClientCreator(app),
 		genesisLoader(cdc, appState, ccfg.ChainID, ccfg.GenesisTime),
 		node.DefaultDBProvider,
 		node.DefaultMetricsProvider(cfg.Instrumentation),
 		logger.TendermintLogger(),
 	)
-	if err != nil {
-		return nil, err
-	}
-
-	return node, nil
 }
 
-func createAppState(defaultGenesis map[string]json.RawMessage, cdc *codec.Codec, address sdktypes.AccAddress, signedStdTx authtypes.StdTx) (map[string]json.RawMessage, error) {
+func createAppState(defaultGenesisŚtate map[string]json.RawMessage, cdc *codec.Codec, address sdktypes.AccAddress, signedStdTx authtypes.StdTx) (map[string]json.RawMessage, error) {
 	stakes := sdktypes.NewCoin(sdktypes.DefaultBondDenom, sdktypes.NewInt(100000000))
 	genAcc := genaccounts.NewGenesisAccountRaw(address, sdktypes.NewCoins(stakes), sdktypes.NewCoins(), 0, 0, "", "")
 	if err := genAcc.Validate(); err != nil {
@@ -89,9 +83,9 @@ func createAppState(defaultGenesis map[string]json.RawMessage, cdc *codec.Codec,
 	if err != nil {
 		return nil, err
 	}
-	defaultGenesis[genaccounts.ModuleName] = genstate
+	defaultGenesisŚtate[genaccounts.ModuleName] = genstate
 
-	return genutil.SetGenTxsInAppGenesisState(cdc, defaultGenesis, []authtypes.StdTx{signedStdTx})
+	return genutil.SetGenTxsInAppGenesisState(cdc, defaultGenesisŚtate, []authtypes.StdTx{signedStdTx})
 }
 
 func genesisLoader(cdc *codec.Codec, appState map[string]json.RawMessage, chainID string, genesisTime time.Time) func() (*types.GenesisDoc, error) {
