@@ -26,6 +26,14 @@ func (w *Workflow) Validate() error {
 		if _, err := w.FindNode(edge.Dst); err != nil {
 			return err
 		}
+		for _, input := range edge.Inputs {
+			if input.Ref.NodeKey == "" {
+				continue
+			}
+			if _, err := w.FindNode(input.Ref.NodeKey); err != nil {
+				return err
+			}
+		}
 	}
 	if err := w.shouldBeDirectedTree(); err != nil {
 		return err
