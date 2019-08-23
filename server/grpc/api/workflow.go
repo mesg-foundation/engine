@@ -107,15 +107,30 @@ func fromProtoWorkflowNodes(nodes []*types.Workflow_Node) ([]workflow.Node, erro
 	return res, nil
 }
 
-func fromProtoWorkflowEdges(edges []*types.Workflow_Edge) []workflow.Edge {
+func fromProtoWorkflowEdges(edges []*types.Workflow_Edge) ([]workflow.Edge, error) {
 	res := make([]workflow.Edge, len(edges))
 	for i, edge := range edges {
+		inputs := make([]*workflow.Input, len(edge.Inputs))
+		for j, input := range edge.Inputs {
+			in := &workflow.Input{Key: input.Key}
+			switch x := input.Value.(type) {
+			case *types.Workflow_Edge_Input_Ref:
+				in.Ref = &workflow.InputReference{
+					NodeKey: input.GetRef().NodeKey,
+					Key:     input.GetRef().Key,
+				}
+			default:
+				return nil, fmt.Errorf("input has unexpected type %T", x)
+			}
+			inputs[j] = in
+		}
 		res[i] = workflow.Edge{
-			Src: edge.Src,
-			Dst: edge.Dst,
+			Src:    edge.Src,
+			Dst:    edge.Dst,
+			Inputs: inputs,
 		}
 	}
-	return res
+	return res, nil
 }
 
 func fromProtoWorkflow(wf *types.Workflow) (*workflow.Workflow, error) {
@@ -124,6 +139,10 @@ func fromProtoWorkflow(wf *types.Workflow) (*workflow.Workflow, error) {
 		return nil, err
 	}
 	nodes, err := fromProtoWorkflowNodes(wf.Nodes)
+	if err != nil {
+		return nil, err
+	}
+	edges, err := fromProtoWorkflowEdges(wf.Edges)
 	if err != nil {
 		return nil, err
 	}
@@ -144,7 +163,7 @@ func fromProtoWorkflow(wf *types.Workflow) (*workflow.Workflow, error) {
 		Key:     wf.Key,
 		Trigger: trigger,
 		Nodes:   nodes,
-		Edges:   fromProtoWorkflowEdges(wf.Edges),
+		Edges:   edges,
 	}, nil
 }
 
@@ -180,9 +199,23 @@ func toProtoWorkflowNodes(nodes []workflow.Node) []*types.Workflow_Node {
 func toProtoWorkflowEdges(edges []workflow.Edge) []*types.Workflow_Edge {
 	res := make([]*types.Workflow_Edge, len(edges))
 	for i, edge := range edges {
+		inputs := make([]*types.Workflow_Edge_Input, len(edge.Inputs))
+		for j, input := range edge.Inputs {
+			in := &types.Workflow_Edge_Input{Key: input.Key}
+			if input.Ref != nil {
+				in.Value = &types.Workflow_Edge_Input_Ref{
+					Ref: &types.Workflow_Edge_Input_Reference{
+						NodeKey: input.Ref.NodeKey,
+						Key:     input.Ref.Key,
+					},
+				}
+			}
+			inputs[j] = in
+		}
 		res[i] = &types.Workflow_Edge{
-			Src: edge.Src,
-			Dst: edge.Dst,
+			Src:    edge.Src,
+			Dst:    edge.Dst,
+			Inputs: inputs,
 		}
 	}
 	return res
