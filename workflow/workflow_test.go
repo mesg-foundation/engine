@@ -7,69 +7,29 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestMatch(t *testing.T) {
-	var tests = []struct {
-		filters TriggerFilters
-		data    map[string]interface{}
-		match   bool
-	}{
-		{ // not matching filter
-			filters: []*TriggerFilter{
-				{Key: "foo", Predicate: EQ, Value: "xx"},
-			},
-			data:  map[string]interface{}{"foo": "bar"},
-			match: false,
-		},
-		{ // matching multiple filters
-			filters: []*TriggerFilter{
-				{Key: "foo", Predicate: EQ, Value: "bar"},
-				{Key: "xxx", Predicate: EQ, Value: "yyy"},
-			},
-			data: map[string]interface{}{
-				"foo": "bar",
-				"xxx": "yyy",
-				"aaa": "bbb",
-			},
-			match: true,
-		},
-		{ // non matching multiple filters
-			filters: []*TriggerFilter{
-				{Key: "foo", Predicate: EQ, Value: "bar"},
-				{Key: "xxx", Predicate: EQ, Value: "aaa"},
-			},
-			data: map[string]interface{}{
-				"foo": "bar",
-				"xxx": "yyy",
-				"aaa": "bbb",
-			},
-			match: false,
-		},
-	}
-	for i, test := range tests {
-		match := test.filters.Match(test.data)
-		assert.Equal(t, test.match, match, i)
-	}
-}
-
 func TestValidateWorkflow(t *testing.T) {
 
-	trigger := Trigger{
+	trigger := Result{
 		InstanceHash: hash.Int(2),
 		TaskKey:      "-",
-		NodeKey:      "nodeKey1",
 	}
 
 	nodes := []Node{
-		{
+		trigger,
+		Task{
 			Key:          "nodeKey1",
 			InstanceHash: hash.Int(2),
 			TaskKey:      "-",
 		},
-		{
+		Task{
 			Key:          "nodeKey2",
 			InstanceHash: hash.Int(3),
 			TaskKey:      "-",
 		},
+	}
+
+	edges := []Edge{
+		{Src: trigger.ID(), Dst: "nodeKey1"},
 	}
 
 	var tests = []struct {
@@ -80,137 +40,146 @@ func TestValidateWorkflow(t *testing.T) {
 		{w: &Workflow{
 			Hash: hash.Int(1),
 			Key:  "invalid-struct",
-		}, err: "Error:Field validation"},
+		}, err: "should contain exactly one trigger"},
 		{w: &Workflow{
-			Trigger: Trigger{InstanceHash: hash.Int(1), NodeKey: "-"},
-			Hash:    hash.Int(1),
-			Key:     "missing-key",
-		}, err: "Key: 'Workflow.Trigger.TaskKey' Error:Field validation for 'TaskKey' failed on the 'required_without' tag"},
+			Graph: Graph{
+				Nodes: []Node{Result{InstanceHash: hash.Int(1)}},
+			},
+			Hash: hash.Int(1),
+			Key:  "missing-key",
+		}, err: "Error:Field validation for 'TaskKey' failed on the 'required' tag"},
 		{w: &Workflow{
-			Hash:    hash.Int(1),
-			Key:     "trigger-missing-node",
-			Trigger: trigger,
-		}, err: "node \"nodeKey1\" not found"},
-		{w: &Workflow{
-			Hash:    hash.Int(1),
-			Key:     "edge-src-missing-node",
-			Trigger: trigger,
-			Nodes:   nodes,
-			Edges: []Edge{
-				{Src: "-", Dst: "nodeKey2"},
+			Hash: hash.Int(1),
+			Key:  "edge-src-missing-node",
+			Graph: Graph{
+				Nodes: nodes,
+				Edges: append(edges,
+					Edge{Src: "-", Dst: "nodeKey2"},
+				),
 			},
 		}, err: "node \"-\" not found"},
 		{w: &Workflow{
-			Hash:    hash.Int(1),
-			Key:     "edge-dst-missing-node",
-			Trigger: trigger,
-			Nodes:   nodes,
-			Edges: []Edge{
-				{Src: "nodeKey1", Dst: "-"},
+			Hash: hash.Int(1),
+			Key:  "edge-dst-missing-node",
+			Graph: Graph{
+				Nodes: nodes,
+				Edges: append(edges,
+					Edge{Src: "nodeKey1", Dst: "-"},
+				),
 			},
 		}, err: "node \"-\" not found"},
 		{w: &Workflow{
-			Hash:    hash.Int(1),
-			Key:     "cyclic-graph",
-			Trigger: trigger,
-			Nodes:   nodes,
-			Edges: []Edge{
-				{Src: "nodeKey1", Dst: "nodeKey2"},
-				{Src: "nodeKey2", Dst: "nodeKey1"},
+			Hash: hash.Int(1),
+			Key:  "cyclic-graph",
+			Graph: Graph{
+				Nodes: nodes,
+				Edges: append(edges,
+					Edge{Src: "nodeKey1", Dst: "nodeKey2"},
+					Edge{Src: "nodeKey2", Dst: "nodeKey1"},
+				),
 			},
 		}, err: "workflow should not contain any cycles"},
 		{w: &Workflow{
-			Hash:    hash.Int(1),
-			Key:     "non-connected-graph",
-			Trigger: trigger,
-			Nodes: append(nodes, Node{
-				Key:          "nodeKey3",
-				InstanceHash: hash.Int(2),
-				TaskKey:      "-",
-			}, Node{
-				Key:          "nodeKey4",
-				InstanceHash: hash.Int(2),
-				TaskKey:      "-",
-			}),
-			Edges: []Edge{
-				{Src: "nodeKey1", Dst: "nodeKey2"},
-				{Src: "nodeKey3", Dst: "nodeKey4"},
+			Hash: hash.Int(1),
+			Key:  "non-connected-graph",
+			Graph: Graph{
+				Nodes: append(nodes, Task{
+					Key:          "nodeKey3",
+					InstanceHash: hash.Int(2),
+					TaskKey:      "-",
+				}, Task{
+					Key:          "nodeKey4",
+					InstanceHash: hash.Int(2),
+					TaskKey:      "-",
+				}),
+				Edges: append(edges,
+					Edge{Src: "nodeKey1", Dst: "nodeKey2"},
+					Edge{Src: "nodeKey3", Dst: "nodeKey4"},
+				),
 			},
 		}, err: "workflow should be a connected graph"},
 		{w: &Workflow{
-			Hash:    hash.Int(1),
-			Key:     "multiple-parent-graph",
-			Trigger: trigger,
-			Nodes: append(nodes, Node{
-				Key:          "nodeKey3",
-				InstanceHash: hash.Int(2),
-				TaskKey:      "-",
-			}, Node{
-				Key:          "nodeKey4",
-				InstanceHash: hash.Int(2),
-				TaskKey:      "-",
-			}),
-			Edges: []Edge{
-				{Src: "nodeKey1", Dst: "nodeKey2"},
-				{Src: "nodeKey1", Dst: "nodeKey3"},
-				{Src: "nodeKey2", Dst: "nodeKey4"},
-				{Src: "nodeKey3", Dst: "nodeKey4"},
+			Hash: hash.Int(1),
+			Key:  "multiple-parent-graph",
+			Graph: Graph{
+				Nodes: append(nodes, Task{
+					Key:          "nodeKey3",
+					InstanceHash: hash.Int(2),
+					TaskKey:      "-",
+				}, Task{
+					Key:          "nodeKey4",
+					InstanceHash: hash.Int(2),
+					TaskKey:      "-",
+				}),
+				Edges: append(edges,
+					Edge{Src: "nodeKey1", Dst: "nodeKey2"},
+					Edge{Src: "nodeKey1", Dst: "nodeKey3"},
+					Edge{Src: "nodeKey2", Dst: "nodeKey4"},
+					Edge{Src: "nodeKey3", Dst: "nodeKey4"},
+				),
 			},
 		}, err: "workflow should contain nodes with one parent maximum"},
 		{w: &Workflow{
-			Hash:    hash.Int(1),
-			Key:     "multiple-parent-graph",
-			Trigger: trigger,
-			Nodes: append(nodes, Node{
-				Key:          "nodeKey3",
-				InstanceHash: hash.Int(2),
-				TaskKey:      "-",
-			}, Node{
-				Key:          "nodeKey4",
-				InstanceHash: hash.Int(2),
-				TaskKey:      "-",
-			}, Node{
-				Key:          "nodeKey5",
-				InstanceHash: hash.Int(2),
-				TaskKey:      "-",
-			}, Node{
-				Key:          "nodeKey6",
-				InstanceHash: hash.Int(2),
-				TaskKey:      "-",
-			}, Node{
-				Key:          "nodeKey7",
-				InstanceHash: hash.Int(2),
-				TaskKey:      "-",
-			}),
-			Edges: []Edge{
-				{Src: "nodeKey1", Dst: "nodeKey2"},
-				{Src: "nodeKey2", Dst: "nodeKey3"},
-				{Src: "nodeKey2", Dst: "nodeKey4"},
-				{Src: "nodeKey3", Dst: "nodeKey5"},
-				{Src: "nodeKey4", Dst: "nodeKey6"},
-				{Src: "nodeKey4", Dst: "nodeKey7"},
+			Hash: hash.Int(1),
+			Key:  "multiple-parent-graph",
+			Graph: Graph{
+				Nodes: append(nodes, Task{
+					Key:          "nodeKey3",
+					InstanceHash: hash.Int(2),
+					TaskKey:      "-",
+				}, Task{
+					Key:          "nodeKey4",
+					InstanceHash: hash.Int(2),
+					TaskKey:      "-",
+				}, Task{
+					Key:          "nodeKey5",
+					InstanceHash: hash.Int(2),
+					TaskKey:      "-",
+				}, Task{
+					Key:          "nodeKey6",
+					InstanceHash: hash.Int(2),
+					TaskKey:      "-",
+				}, Task{
+					Key:          "nodeKey7",
+					InstanceHash: hash.Int(2),
+					TaskKey:      "-",
+				}),
+				Edges: append(edges,
+					Edge{Src: "nodeKey1", Dst: "nodeKey2"},
+					Edge{Src: "nodeKey2", Dst: "nodeKey3"},
+					Edge{Src: "nodeKey2", Dst: "nodeKey4"},
+					Edge{Src: "nodeKey3", Dst: "nodeKey5"},
+					Edge{Src: "nodeKey4", Dst: "nodeKey6"},
+					Edge{Src: "nodeKey4", Dst: "nodeKey7"},
+				),
 			},
 		}, valid: true},
 		{w: &Workflow{
-			Hash:    hash.Int(1),
-			Key:     "inputs-with-invalid-node",
-			Trigger: trigger,
-			Nodes:   nodes,
-			Edges: []Edge{
-				{Src: "nodeKey1", Dst: "nodeKey2", Inputs: []*Input{
-					{Key: "-", Ref: &InputReference{Key: "-", NodeKey: "invalid"}},
-				}},
+			Hash: hash.Int(1),
+			Key:  "inputs-with-invalid-node",
+			Graph: Graph{
+				Nodes: append(nodes, Mapping{
+					Key: "mapping",
+					Inputs: []Input{
+						{Key: "-", Ref: InputReference{Key: "-", NodeKey: "invalid"}},
+					},
+				}),
 			},
 		}, err: "node \"invalid\" not found"},
 		{w: &Workflow{
-			Hash:    hash.Int(1),
-			Key:     "inputs-with-valid-ref",
-			Trigger: trigger,
-			Nodes:   nodes,
-			Edges: []Edge{
-				{Src: "nodeKey1", Dst: "nodeKey2", Inputs: []*Input{
-					{Key: "-", Ref: &InputReference{Key: "-", NodeKey: "nodeKey1"}},
-				}},
+			Hash: hash.Int(1),
+			Key:  "inputs-with-valid-ref",
+			Graph: Graph{
+				Nodes: append(nodes, Mapping{
+					Key: "mapping",
+					Inputs: []Input{
+						{Key: "-", Ref: InputReference{Key: "-", NodeKey: "nodeKey1"}},
+					},
+				}),
+				Edges: append(edges,
+					Edge{Src: "nodeKey1", Dst: "mapping"},
+					Edge{Src: "mapping", Dst: "nodeKey2"},
+				),
 			},
 		}, valid: true},
 	}

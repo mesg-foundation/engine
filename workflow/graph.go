@@ -39,14 +39,29 @@ func (g Graph) ParentIDs(nodeID string) []string {
 	return nodeIDs
 }
 
-// FindNode returns the node matching the key in parameter or an error if not found
-func (g Graph) FindNode(id string) (Node, error) {
+// FindNodes returns a list of nodes matching a specific filter
+func (g Graph) FindNodes(filter func(n Node) bool) []Node {
+	nodes := make([]Node, 0)
 	for _, node := range g.Nodes {
-		if node.ID() == id {
-			return node, nil
+		if filter(node) {
+			nodes = append(nodes, node)
 		}
 	}
-	return nil, fmt.Errorf("node %q not found", id)
+	return nodes
+}
+
+// FindNode return a specific node in a graph identifies by its ID. Returns an error if there is no match or multiple matches
+func (g Graph) FindNode(id string) (Node, error) {
+	nodes := g.FindNodes(func(n Node) bool {
+		return n.ID() == id
+	})
+	if len(nodes) == 0 {
+		return nil, fmt.Errorf("node %q not found", id)
+	}
+	if len(nodes) > 1 {
+		return nil, fmt.Errorf("multiple nodes with the id %q", id)
+	}
+	return nodes[0], nil
 }
 
 // EdgesFrom return all the edges that has a common source
@@ -146,6 +161,18 @@ func (g Graph) shouldBeDirectedTree() error {
 	}
 	if g.maximumParents() > 1 {
 		return fmt.Errorf("workflow should contain nodes with one parent maximum")
+	}
+	return nil
+}
+
+func (g Graph) validate() error {
+	for _, edge := range g.Edges {
+		if _, err := g.FindNode(edge.Src); err != nil {
+			return err
+		}
+		if _, err := g.FindNode(edge.Dst); err != nil {
+			return err
+		}
 	}
 	return nil
 }
