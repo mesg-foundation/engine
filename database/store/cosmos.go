@@ -26,8 +26,15 @@ func (s *CosmosStore) Has(key []byte) (bool, error) {
 	return s.store.Has(key), nil
 }
 
-// Get gets the value for the given key. It returns nil if the store does not contains the key.
+// Get retrives service from store. It returns ErrNotFound if the store does not contains the key.
 func (s *CosmosStore) Get(key []byte) ([]byte, error) {
+	has, err := s.Has(key)
+	if err != nil {
+		return nil, err
+	}
+	if !has {
+		return nil, ErrNotFound
+	}
 	return s.store.Get(key), nil
 }
 
@@ -60,7 +67,7 @@ func NewCosmosIterator(iter types.Iterator) *CosmosIterator {
 	}
 }
 
-// Next moves the iterator to the next sequential key in the database.
+// Next moves the iterator to the next sequential key in the store.
 func (i *CosmosIterator) Next() bool {
 	if i.iter.Valid() {
 		i.iter.Next()
