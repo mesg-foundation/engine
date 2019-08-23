@@ -2,7 +2,6 @@ package store
 
 import (
 	"github.com/syndtr/goleveldb/leveldb"
-	"github.com/syndtr/goleveldb/leveldb/iterator"
 )
 
 // LevelDBStore
@@ -21,7 +20,7 @@ func NewLevelDBStore(path string) (*LevelDBStore, error) {
 }
 
 func (s *LevelDBStore) NewIterator() Iterator {
-	return NewLevelDBIterator(s.db.NewIterator(nil, nil))
+	return s.db.NewIterator(nil, nil)
 }
 
 func (s *LevelDBStore) Has(key []byte) (bool, error) {
@@ -48,35 +47,4 @@ func (s *LevelDBStore) Put(key []byte, value []byte) error {
 
 func (s *LevelDBStore) Close() error {
 	return s.db.Close()
-}
-
-// LevelDBIterator
-type LevelDBIterator struct {
-	iter iterator.Iterator
-}
-
-func NewLevelDBIterator(iter iterator.Iterator) *LevelDBIterator {
-	return &LevelDBIterator{
-		iter: iter,
-	}
-}
-
-func (i *LevelDBIterator) Next() bool {
-	return i.iter.Next()
-}
-
-func (i *LevelDBIterator) Key() []byte {
-	return i.iter.Key()
-}
-
-func (i *LevelDBIterator) Value() []byte {
-	return i.iter.Value()
-}
-
-func (i *LevelDBIterator) Release() {
-	i.iter.Release()
-}
-
-func (i *LevelDBIterator) Error() error {
-	return i.iter.Error()
 }
