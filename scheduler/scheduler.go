@@ -5,6 +5,7 @@ import (
 
 	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/execution"
+	"github.com/mesg-foundation/engine/hash"
 	eventsdk "github.com/mesg-foundation/engine/sdk/event"
 	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
 	workflowsdk "github.com/mesg-foundation/engine/sdk/workflow"
@@ -121,14 +122,48 @@ func (s *Scheduler) processExecution(exec *execution.Execution) {
 		s.ErrC <- err
 		return
 	}
-	for _, nextStepID := range wf.ChildrenIDs(exec.StepID) {
-		nextStep, err := wf.FindNode(nextStepID)
+	for _, edge := range wf.EdgesFrom(exec.StepID) {
+		inputs, err := s.mapInputs(wf.Hash, exec, edge)
+		if err != nil {
+			s.ErrC <- err
+			return
+		}
+		nextStep, err := wf.FindNode(edge.Dst)
 		if err != nil {
 			s.ErrC <- err
 			continue
 		}
-		if _, err := s.execution.Execute(wf.Hash, nextStep.InstanceHash, nil, exec.Hash, nextStepID, nextStep.TaskKey, exec.Outputs, []string{}); err != nil {
+		if _, err := s.execution.Execute(wf.Hash, nextStep.InstanceHash, nil, exec.Hash, edge.Dst, nextStep.TaskKey, inputs, []string{}); err != nil {
 			s.ErrC <- err
 		}
 	}
+}
+
+func (s *Scheduler) mapInputs(wfHash hash.Hash, prevExec *execution.Execution, edge workflow.Edge) (map[string]interface{}, error) {
+	if len(edge.Inputs) == 0 {
+		return prevExec.Outputs, nil
+	}
+	inputs := make(map[string]interface{})
+	for _, input := range edge.Inputs {
+		value, err := s.resolveInput(wfHash, prevExec, input.Ref.NodeKey, input.Ref.Key)
+		if err != nil {
+			return nil, err
+		}
+		inputs[input.Key] = value
+	}
+	return inputs, nil
+}
+
+func (s *Scheduler) resolveInput(wfHash hash.Hash, exec *execution.Execution, nodeKey string, outputKey string) (interface{}, error) {
+	if !wfHash.Equal(exec.WorkflowHash) {
+		return nil, fmt.Errorf("reference's nodeKey not found")
+	}
+	if exec.StepID != nodeKey {
+		parent, err := s.execution.Get(exec.ParentHash)
+		if err != nil {
+			return nil, err
+		}
+		return s.resolveInput(wfHash, parent, nodeKey, outputKey)
+	}
+	return exec.Outputs[outputKey], nil
 }
