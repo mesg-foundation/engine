@@ -17,8 +17,7 @@ import (
 // App is a Cosmos application that inherit from BaseApp.
 type App struct {
 	*baseapp.BaseApp
-	cdc *codec.Codec
-
+	cdc                *codec.Codec
 	modulesBasic       []module.AppModuleBasic
 	modules            []module.AppModule
 	storeKeys          map[string]*sdk.KVStoreKey
