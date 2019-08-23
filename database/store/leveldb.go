@@ -27,15 +27,15 @@ func (s *LevelDBStore) NewIterator() Iterator {
 
 // Has returns true if the key is set in the store.
 func (s *LevelDBStore) Has(key []byte) (bool, error) {
-	value, err := s.Get(key)
-	return value != nil, err
+	_, err := s.Get(key)
+	return err != ErrNotFound, err
 }
 
-// Get gets the value for the given key. It returns nil if the store does not contains the key.
+// Get retrives service from store. It returns ErrNotFound if the store does not contains the key.
 func (s *LevelDBStore) Get(key []byte) ([]byte, error) {
 	value, err := s.db.Get(key, nil)
 	if err == leveldb.ErrNotFound {
-		return nil, nil
+		return nil, ErrNotFound
 	}
 	if err != nil {
 		return nil, err

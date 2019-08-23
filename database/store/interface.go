@@ -1,8 +1,10 @@
 package store
 
+import "errors"
+
 // Store describes the public API of a store.
 type Store interface {
-	// Get gets the value for the given key. It returns nil if the store does not contains the key.
+	// Get retrives service from store. It returns ErrNotFound if the store does not contains the key.
 	Get(key []byte) ([]byte, error)
 
 	// Has returns true if the key is set in the store.
@@ -23,7 +25,7 @@ type Store interface {
 
 // Iterator describes the public API of an iterator.
 type Iterator interface {
-	// Next moves the iterator to the next sequential key in the database.
+	// Next moves the iterator to the next sequential key in the store.
 	Next() bool
 
 	// Key returns the key of the cursor.
@@ -38,3 +40,6 @@ type Iterator interface {
 	// Error returns any accumulated error.
 	Error() error
 }
+
+// ErrNotFound is throw when getting a non-existing key.
+var ErrNotFound = errors.New("store: not found")
