@@ -17,6 +17,9 @@ var (
 
 // ServiceDB describes the API of database package.
 type ServiceDB interface {
+	// Exist check if service with given hash exist.
+	Exist(hash hash.Hash) (bool, error)
+
 	// Save saves a service to database.
 	Save(s *service.Service) error
 
@@ -61,6 +64,11 @@ func (d *LevelDBServiceDB) unmarshal(hash hash.Hash, value []byte) (*service.Ser
 	return &s, nil
 }
 
+// Exist check if service with given hash exist.
+func (d *LevelDBServiceDB) Exist(hash hash.Hash) (bool, error) {
+	return d.db.Has(hash, nil)
+}
+
 // All returns every service in database.
 func (d *LevelDBServiceDB) All() ([]*service.Service, error) {
 	var (
@@ -90,9 +98,6 @@ func (d *LevelDBServiceDB) Delete(hash hash.Hash) error {
 	}
 	if _, err := tx.Get(hash, nil); err != nil {
 		tx.Discard()
-		if err == leveldb.ErrNotFound {
-			return &ErrNotFound{resource: "service", hash: hash}
-		}
 		return err
 	}
 	if err := tx.Delete(hash, nil); err != nil {
@@ -107,9 +112,6 @@ func (d *LevelDBServiceDB) Delete(hash hash.Hash) error {
 func (d *LevelDBServiceDB) Get(hash hash.Hash) (*service.Service, error) {
 	b, err := d.db.Get(hash, nil)
 	if err != nil {
-		if err == leveldb.ErrNotFound {
-			return nil, &ErrNotFound{resource: "service", hash: hash}
-		}
 		return nil, err
 	}
 	return d.unmarshal(hash, b)
@@ -132,20 +134,4 @@ func (d *LevelDBServiceDB) Save(s *service.Service) error {
 // Close closes database.
 func (d *LevelDBServiceDB) Close() error {
 	return d.db.Close()
-}
-
-// ErrNotFound is an not found error.
-type ErrNotFound struct {
-	hash     hash.Hash
-	resource string
-}
-
-func (e *ErrNotFound) Error() string {
-	return fmt.Sprintf("database: %s %q not found", e.resource, e.hash)
-}
-
-// IsErrNotFound returns true if err is type of ErrNotFound, false otherwise.
-func IsErrNotFound(err error) bool {
-	_, ok := err.(*ErrNotFound)
-	return ok
 }
