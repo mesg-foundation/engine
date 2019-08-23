@@ -22,11 +22,11 @@ type Service struct {
 	ps *pubsub.PubSub
 
 	container container.Container
-	serviceDB database.ServiceDB
+	serviceDB *database.ServiceDB
 }
 
 // New creates a new Service SDK with given options.
-func New(c container.Container, serviceDB database.ServiceDB) *Service {
+func New(c container.Container, serviceDB *database.ServiceDB) *Service {
 	return &Service{
 		ps:        pubsub.New(0),
 		container: c,

@@ -5,10 +5,8 @@ import "fmt"
 // ChildrenIDs returns the list of node IDs with a dependency to the current node
 func (w Workflow) ChildrenIDs(nodeKey string) []string {
 	nodeKeys := make([]string, 0)
-	for _, edge := range w.Edges {
-		if edge.Src == nodeKey {
-			nodeKeys = append(nodeKeys, edge.Dst)
-		}
+	for _, edge := range w.EdgesFrom(nodeKey) {
+		nodeKeys = append(nodeKeys, edge.Dst)
 	}
 	return nodeKeys
 }
@@ -32,6 +30,17 @@ func (w Workflow) FindNode(key string) (Node, error) {
 		}
 	}
 	return Node{}, fmt.Errorf("node %q not found", key)
+}
+
+// EdgesFrom return all the edges that has a common source
+func (w Workflow) EdgesFrom(src string) []Edge {
+	edges := make([]Edge, 0)
+	for _, edge := range w.Edges {
+		if edge.Src == src {
+			edges = append(edges, edge)
+		}
+	}
+	return edges
 }
 
 // A null graph is a graph that contains no nodes
