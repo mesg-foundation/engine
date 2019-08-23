@@ -150,6 +150,11 @@ func main() {
 			logrus.WithField("module", "main").Fatalln(err)
 		}
 		app := cosmos.NewApp(logger.TendermintLogger(), db)
+		cosmos.InitDefaultAppModules(app)
+		err = app.Load()
+		if err != nil {
+			logrus.WithField("module", "main").Fatalln(err)
+		}
 
 		// create tendermint node
 		node, err := cosmos.NewNode(app, cfg.Tendermint.Config, &cfg.Cosmos)
