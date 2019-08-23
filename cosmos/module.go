@@ -18,13 +18,30 @@ var (
 	_ module.AppModuleBasic = AppModuleBasic{}
 )
 
-// TODO: is it really needed to split AppModule and AppModuleBasic
+// AppModuleBasic is a basic element of an cosmos app.
+type AppModuleBasic struct {
+	name string
+}
+
+// AppModule is a main element of an cosmos app.
+type AppModule struct {
+	AppModuleBasic
+	handler sdk.Handler
+	querier Querier
+	cdc     *codec.Codec
+}
+
+// Querier is responsible to answer to ABCI queries.
+type Querier func(request sdk.Request, path []string, req abci.RequestQuery) (res interface{}, err error)
+
+// NewAppModuleBasic inits an AppModuleBasic using a name.
 func NewAppModuleBasic(name string) AppModuleBasic {
 	return AppModuleBasic{
 		name: name,
 	}
 }
 
+// NewAppModule inits an AppModule using an AppModuleBasic, Codec, Handler and Querier.
 func NewAppModule(moduleBasic AppModuleBasic, cdc *codec.Codec, handler sdk.Handler, querier Querier) AppModule {
 	return AppModule{
 		AppModuleBasic: moduleBasic,
@@ -34,22 +51,25 @@ func NewAppModule(moduleBasic AppModuleBasic, cdc *codec.Codec, handler sdk.Hand
 	}
 }
 
-type AppModuleBasic struct {
-	name string
-}
+// ----------------------------------------------
+// AppModuleBasic
+// ----------------------------------------------
 
+// Name returns the name of the module.
 func (m AppModuleBasic) Name() string {
 	return m.name
 }
 
+// RegisterCodec registers the module's structs in the codec.
 func (AppModuleBasic) RegisterCodec(cdc *codec.Codec) {
 }
 
+// DefaultGenesis returns the default genesis of the module.
 func (AppModuleBasic) DefaultGenesis() json.RawMessage {
 	return []byte("{}")
 }
 
-// ValidateGenesis checks the Genesis
+// ValidateGenesis checks a Genesis.
 func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 	return nil
 }
@@ -67,28 +87,29 @@ func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
 	return nil
 }
 
-type Querier func(request sdk.Request, path []string, req abci.RequestQuery) (res interface{}, err error)
+// ----------------------------------------------
+// AppModule
+// ----------------------------------------------
 
-type AppModule struct {
-	AppModuleBasic
-	handler sdk.Handler
-	querier Querier
-	cdc     *codec.Codec
-}
-
+// RegisterInvariants registers invariants to the registry.
 func (m AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {}
 
+// Route returns the route prefix for transaction of the module.
 func (m AppModule) Route() string {
 	return m.name
 }
 
+// NewHandler returns the handler used to apply transactions.
 func (m AppModule) NewHandler() sdk.Handler {
 	return m.handler
 }
+
+// QuerierRoute the route prefix for query of the module.
 func (m AppModule) QuerierRoute() string {
 	return m.name
 }
 
+// NewQuerierHandler returns the handler used to reply ABCI query.
 func (m AppModule) NewQuerierHandler() sdk.Querier {
 	return func(request sdk.Request, path []string, req abci.RequestQuery) ([]byte, sdk.Error) {
 		data, err := m.querier(request, path, req)
@@ -103,16 +124,20 @@ func (m AppModule) NewQuerierHandler() sdk.Querier {
 	}
 }
 
+// BeginBlock is called at the beginning of the process of a new block.
 func (m AppModule) BeginBlock(_ sdk.Request, _ abci.RequestBeginBlock) {}
 
+// EndBlock is called at the end of the process of a new block.
 func (m AppModule) EndBlock(sdk.Request, abci.RequestEndBlock) []abci.ValidatorUpdate {
 	return []abci.ValidatorUpdate{}
 }
 
+// InitGenesis initializes the genesis from a request and data.
 func (m AppModule) InitGenesis(request sdk.Request, data json.RawMessage) []abci.ValidatorUpdate {
 	return []abci.ValidatorUpdate{}
 }
 
+// ExportGenesis exports the current state of the app.
 func (m AppModule) ExportGenesis(request sdk.Request) json.RawMessage {
 	return []byte("{}")
 }
