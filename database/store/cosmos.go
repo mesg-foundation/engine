@@ -2,6 +2,7 @@ package store
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/types"
 )
@@ -24,12 +25,30 @@ func (s *CosmosStore) NewIterator() Iterator {
 }
 
 // Has returns true if the key is set in the store.
-func (s *CosmosStore) Has(key []byte) (bool, error) {
-	return s.store.Has(key), nil
+func (s *CosmosStore) Has(key []byte) (has bool, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			var ok bool
+			if err, ok = r.(error); !ok {
+				err = fmt.Errorf("store: %s", r)
+			}
+		}
+	}()
+	has = s.store.Has(key)
+	return
 }
 
 // Get retrives service from store. It returns an error if the store does not contains the key.
-func (s *CosmosStore) Get(key []byte) ([]byte, error) {
+func (s *CosmosStore) Get(key []byte) (out []byte, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			var ok bool
+			if err, ok = r.(error); !ok {
+				err = fmt.Errorf("store: %s", r)
+			}
+		}
+	}()
+
 	has, err := s.Has(key)
 	if err != nil {
 		return nil, err
@@ -37,19 +56,36 @@ func (s *CosmosStore) Get(key []byte) ([]byte, error) {
 	if !has {
 		return nil, errors.New("not found")
 	}
-	return s.store.Get(key), nil
+	out = s.store.Get(key)
+	return
 }
 
 // Delete deletes the value for the given key. Delete will not returns error if key doesn't exist.
-func (s *CosmosStore) Delete(key []byte) error {
+func (s *CosmosStore) Delete(key []byte) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			var ok bool
+			if err, ok = r.(error); !ok {
+				err = fmt.Errorf("store: %s", r)
+			}
+		}
+	}()
 	s.store.Delete(key)
-	return nil
+	return
 }
 
 // Put sets the value for the given key. It overwrites any previous value.
-func (s *CosmosStore) Put(key []byte, value []byte) error {
+func (s *CosmosStore) Put(key []byte, value []byte) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			var ok bool
+			if err, ok = r.(error); !ok {
+				err = fmt.Errorf("store: %s", r)
+			}
+		}
+	}()
 	s.store.Set(key, value)
-	return nil
+	return
 }
 
 // Close closes the store.
@@ -60,6 +96,7 @@ func (s *CosmosStore) Close() error {
 // CosmosIterator is a Cosmos KVStore's iterator implementation of Iterator.
 type CosmosIterator struct {
 	iter types.Iterator
+	err  error
 }
 
 // NewCosmosIterator returns a new Cosmos KVStore Iterator wrapper.
@@ -71,29 +108,43 @@ func NewCosmosIterator(iter types.Iterator) *CosmosIterator {
 
 // Next moves the iterator to the next sequential key in the store.
 func (i *CosmosIterator) Next() bool {
-	if i.iter.Valid() {
+	defer i.handleError()
+	valid := i.iter.Valid()
+	if valid {
 		i.iter.Next()
-		return true
 	}
-	return false
+	return valid
 }
 
 // Key returns the key of the cursor.
 func (i *CosmosIterator) Key() []byte {
+	defer i.handleError()
 	return i.iter.Key()
 }
 
 // Value returns the value of the cursor.
 func (i *CosmosIterator) Value() []byte {
+	defer i.handleError()
 	return i.iter.Value()
 }
 
 // Release releases the Iterator.
 func (i *CosmosIterator) Release() {
+	defer i.handleError()
 	i.iter.Close()
 }
 
 // Error returns any accumulated error.
 func (i *CosmosIterator) Error() error {
-	return nil
+	return i.err
+}
+
+// returns any accumulated error.
+func (i *CosmosIterator) handleError() {
+	if r := recover(); r != nil {
+		var ok bool
+		if i.err, ok = r.(error); !ok {
+			i.err = fmt.Errorf("store iterator: %s", r)
+		}
+	}
 }
