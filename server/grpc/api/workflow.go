@@ -152,21 +152,21 @@ func toProtoWorkflowNodes(nodes []workflow.Node) []*types.Workflow_Node {
 	for i, node := range nodes {
 		protoNode := types.Workflow_Node{}
 		switch n := node.(type) {
-		case workflow.Result:
+		case *workflow.Result:
 			protoNode.Type = &types.Workflow_Node_Result{
 				Result: &types.Workflow_Result{
 					InstanceHash: n.InstanceHash.String(),
 					TaskKey:      n.TaskKey,
 				},
 			}
-		case workflow.Event:
+		case *workflow.Event:
 			protoNode.Type = &types.Workflow_Node_Event{
 				Event: &types.Workflow_Event{
 					InstanceHash: n.InstanceHash.String(),
 					EventKey:     n.EventKey,
 				},
 			}
-		case workflow.Task:
+		case *workflow.Task:
 			protoNode.Type = &types.Workflow_Node_Task{
 				Task: &types.Workflow_Task{
 					Key:          n.Key,
@@ -174,7 +174,7 @@ func toProtoWorkflowNodes(nodes []workflow.Node) []*types.Workflow_Node {
 					TaskKey:      n.TaskKey,
 				},
 			}
-		case workflow.Mapping:
+		case *workflow.Mapping:
 			outputs := make([]*types.Workflow_Mapping_Output, len(n.Outputs))
 			for j, output := range n.Outputs {
 				out := &types.Workflow_Mapping_Output{Key: output.Key}
