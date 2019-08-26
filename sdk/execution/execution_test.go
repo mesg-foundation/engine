@@ -49,7 +49,7 @@ func newTesting(t *testing.T) (*Execution, *apiTesting) {
 	serviceStore, err := store.NewLevelDBStore(servicedbname)
 	require.NoError(t, err)
 	db := database.NewServiceDB(serviceStore)
-	service := servicesdk.New(container, db)
+	service := servicesdk.NewDeprecated(container, db)
 
 	instDB, err := database.NewInstanceDB(instdbname)
 	require.NoError(t, err)

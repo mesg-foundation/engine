@@ -14,7 +14,7 @@ import (
 
 // SDK exposes all functionalities of MESG Engine.
 type SDK struct {
-	Service   *servicesdk.Service
+	Service   servicesdk.Service
 	Instance  *instancesdk.Instance
 	Execution *executionsdk.Execution
 	Event     *eventsdk.Event
@@ -25,7 +25,7 @@ type SDK struct {
 func New(app *cosmos.App, c container.Container, serviceDB *database.ServiceDB, instanceDB database.InstanceDB, execDB database.ExecutionDB, workflowDB database.WorkflowDB, engineName, port string) (*SDK, error) {
 	ps := pubsub.New(0)
 	initDefaultAppModules(app)
-	serviceSDK := servicesdk.New(c, serviceDB)
+	serviceSDK := servicesdk.NewDeprecated(c, serviceDB)
 	instanceSDK := instancesdk.New(c, serviceSDK, instanceDB, engineName, port)
 	workflowSDK := workflowsdk.New(instanceSDK, workflowDB)
 	executionSDK := executionsdk.New(ps, serviceSDK, instanceSDK, workflowSDK, execDB)
@@ -46,7 +46,7 @@ func New(app *cosmos.App, c container.Container, serviceDB *database.ServiceDB, 
 // NewDeprecated creates a new SDK with given options.
 func NewDeprecated(c container.Container, serviceDB *database.ServiceDB, instanceDB database.InstanceDB, execDB database.ExecutionDB, workflowDB database.WorkflowDB, engineName, port string) *SDK {
 	ps := pubsub.New(0)
-	serviceSDK := servicesdk.New(c, serviceDB)
+	serviceSDK := servicesdk.NewDeprecated(c, serviceDB)
 	instanceSDK := instancesdk.New(c, serviceSDK, instanceDB, engineName, port)
 	workflowSDK := workflowsdk.New(instanceSDK, workflowDB)
 	executionSDK := executionsdk.New(ps, serviceSDK, instanceSDK, workflowSDK, execDB)
