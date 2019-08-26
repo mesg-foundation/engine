@@ -17,7 +17,7 @@ func (t Task) MarshalJSON() ([]byte, error) {
 	})
 }
 
-// MarshalJSON for the task
+// MarshalJSON for the result
 func (r Result) MarshalJSON() ([]byte, error) {
 	return json.Marshal(map[string]interface{}{
 		"type":         "result",
@@ -27,7 +27,7 @@ func (r Result) MarshalJSON() ([]byte, error) {
 	})
 }
 
-// MarshalJSON for the task
+// MarshalJSON for the event
 func (e Event) MarshalJSON() ([]byte, error) {
 	return json.Marshal(map[string]interface{}{
 		"type":         "event",
@@ -37,16 +37,21 @@ func (e Event) MarshalJSON() ([]byte, error) {
 	})
 }
 
-// MarshalJSON for the task
+// MarshalJSON for the mapping
 func (m Map) MarshalJSON() ([]byte, error) {
-	// outputs, err := json.Marshal(m.Outputs)
-	// if err != nil {
-	// 	return nil, err
-	// }
 	return json.Marshal(map[string]interface{}{
 		"type":    "map",
 		"key":     m.Key,
 		"outputs": m.Outputs,
+	})
+}
+
+// MarshalJSON for the task
+func (f Filter) MarshalJSON() ([]byte, error) {
+	return json.Marshal(map[string]interface{}{
+		"type":       "filter",
+		"key":        f.Key,
+		"conditions": f.Filter.Conditions,
 	})
 }
 
@@ -116,6 +121,12 @@ func (w *Workflow) UnmarshalJSON(b []byte) error {
 			w.Graph.Nodes[i] = &node
 		case "map":
 			var node Map
+			if err := json.Unmarshal(marshalData, &node); err != nil {
+				return err
+			}
+			w.Graph.Nodes[i] = &node
+		case "filter":
+			var node Filter
 			if err := json.Unmarshal(marshalData, &node); err != nil {
 				return err
 			}
