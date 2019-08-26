@@ -23,7 +23,7 @@ func TestMarshal(t *testing.T) {
 				}},
 			},
 			Edges: []Edge{
-				Edge{Src: "1", Dst: "2"},
+				{Src: "1", Dst: "2"},
 			},
 		},
 	}
