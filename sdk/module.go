@@ -1,4 +1,4 @@
-package cosmos
+package sdk
 
 import (
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
@@ -11,10 +11,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/supply"
+	"github.com/mesg-foundation/engine/cosmos"
 )
 
-// InitDefaultAppModules initializes the default cosmos modules.
-func InitDefaultAppModules(app *App) {
+func initDefaultAppModules(app *cosmos.App) {
 	// init cosmos stores
 	paramsStoreKey := cosmostypes.NewKVStoreKey(params.StoreKey)
 	app.RegisterStoreKey(paramsStoreKey)
