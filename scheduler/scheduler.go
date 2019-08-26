@@ -10,6 +10,7 @@ import (
 	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
 	workflowsdk "github.com/mesg-foundation/engine/sdk/workflow"
 	"github.com/mesg-foundation/engine/workflow"
+	"github.com/sirupsen/logrus"
 )
 
 // Scheduler manages the executions based on the definition of the workflows
@@ -47,10 +48,10 @@ func (s *Scheduler) Start() error {
 	for {
 		select {
 		case event := <-s.eventStream.C:
-			go s.processTriggerFromEvent(event)
+			go s.process(s.eventFilter(event), nil, event, event.Data)
 		case execution := <-s.executionStream.C:
-			go s.processTriggerFromResult(execution)
-			go s.processExecution(execution)
+			go s.process(s.resultFilter(execution), execution, nil, execution.Outputs)
+			go s.process(s.dependencyFilter(execution), execution, nil, execution.Outputs)
 		}
 	}
 }
@@ -92,60 +93,72 @@ func (s *Scheduler) dependencyFilter(exec *execution.Execution) func(wf *workflo
 		return parents[0] == exec.StepID, nil
 	}
 }
-	if err != nil {
-		s.ErrC <- err
-		return
-	}
-	for _, wf := range workflows {
-		nextStep, err := wf.FindNode(wf.Trigger.NodeKey)
-		if err != nil {
-			s.ErrC <- err
-			continue
-		}
-		if _, err := s.execution.Execute(wf.Hash, nextStep.InstanceHash, nil, result.Hash, wf.Trigger.NodeKey, nextStep.TaskKey, result.Outputs, []string{}); err != nil {
-			s.ErrC <- err
-		}
-	}
-}
 
-func (s *Scheduler) workflowsMatchingFilter(filter func(wf *workflow.Workflow) bool) ([]*workflow.Workflow, error) {
+func (s *Scheduler) process(filter func(wf *workflow.Workflow, node workflow.Node) (bool, error), exec *execution.Execution, event *event.Event, data map[string]interface{}) {
 	workflows, err := s.workflow.List()
 	if err != nil {
-		return nil, err
-	}
-	wfs := make([]*workflow.Workflow, 0)
-	for _, wf := range workflows {
-		if filter(wf) {
-			wfs = append(wfs, wf)
-		}
-	}
-	return wfs, nil
-}
-
-func (s *Scheduler) processExecution(exec *execution.Execution) {
-	if exec.WorkflowHash.IsZero() {
-		return
-	}
-	wf, err := s.workflow.Get(exec.WorkflowHash)
-	if err != nil {
 		s.ErrC <- err
 		return
 	}
-	for _, edge := range wf.EdgesFrom(exec.StepID) {
-		inputs, err := s.mapInputs(wf.Hash, exec, edge)
+	for _, wf := range workflows {
+		nodes := wf.FindNodes(func(n workflow.Node) bool {
+			res, err := filter(wf, n)
 		if err != nil {
 			s.ErrC <- err
-			return
 		}
-		nextStep, err := wf.FindNode(edge.Dst)
-		if err != nil {
-			s.ErrC <- err
-			continue
-		}
-		if _, err := s.execution.Execute(wf.Hash, nextStep.InstanceHash, nil, exec.Hash, edge.Dst, nextStep.TaskKey, inputs, []string{}); err != nil {
+			return res
+		})
+		for _, node := range nodes {
+			if err := s.processNode(wf, node, exec, event, data); err != nil {
 			s.ErrC <- err
 		}
 	}
+}
+}
+
+func (s *Scheduler) processNode(wf *workflow.Workflow, n workflow.Node, exec *execution.Execution, event *event.Event, data map[string]interface{}) error {
+	logrus.WithField("module", "orchestrator").WithField("nodeID", n.ID()).WithField("type", fmt.Sprintf("%T", n)).Debug("process workflow")
+	switch node := n.(type) {
+	case *workflow.Mapping:
+		var err error
+		data, err = s.processMapping(node, wf, exec, data)
+	if err != nil {
+			return err
+	}
+	case *workflow.Task:
+		if err := s.processTask(node, wf, exec, event, data); err != nil {
+			return err
+		}
+	}
+	if s.canProcessChildren(n) {
+		for _, childrenID := range wf.ChildrenIDs(n.ID()) {
+			children, err := wf.FindNode(childrenID)
+	if err != nil {
+				// does not return an error to continue to process other tasks if needed
+		s.ErrC <- err
+				continue
+	}
+			if err := s.processNode(wf, children, exec, event, data); err != nil {
+				// does not return an error to continue to process other tasks if needed
+			s.ErrC <- err
+			}
+		}
+		}
+	return nil
+		}
+
+func (s *Scheduler) canProcessChildren(node workflow.Node) bool {
+	switch node.(type) {
+	case *workflow.Event:
+		return true
+	case *workflow.Result:
+		return true
+	case *workflow.Mapping:
+		return true
+	case *workflow.Task:
+		return false
+	}
+	return false
 }
 
 func (s *Scheduler) mapInputs(wfHash hash.Hash, prevExec *execution.Execution, edge workflow.Edge) (map[string]interface{}, error) {
