@@ -55,34 +55,43 @@ func (s *Scheduler) Start() error {
 	}
 }
 
-func (s *Scheduler) processTriggerFromEvent(event *event.Event) {
-	workflows, err := s.workflowsMatchingFilter(func(wf *workflow.Workflow) bool {
-		return wf.Trigger.InstanceHash.Equal(event.InstanceHash) &&
-			wf.Trigger.EventKey == event.Key &&
-			wf.Trigger.Filters.Match(event.Data)
-	})
-	if err != nil {
-		s.ErrC <- err
-		return
+func (s *Scheduler) eventFilter(event *event.Event) func(wf *workflow.Workflow, node workflow.Node) (bool, error) {
+	return func(wf *workflow.Workflow, node workflow.Node) (bool, error) {
+		switch n := node.(type) {
+		case *workflow.Event:
+			return n.InstanceHash.Equal(event.InstanceHash) && n.EventKey == event.Key, nil
+		default:
+			return false, nil
 	}
-	for _, wf := range workflows {
-		nextStep, err := wf.FindNode(wf.Trigger.NodeKey)
-		if err != nil {
-			s.ErrC <- err
-			continue
 		}
-		if _, err := s.execution.Execute(wf.Hash, nextStep.InstanceHash, event.Hash, nil, wf.Trigger.NodeKey, nextStep.TaskKey, event.Data, []string{}); err != nil {
-			s.ErrC <- err
 		}
+
+func (s *Scheduler) resultFilter(exec *execution.Execution) func(wf *workflow.Workflow, node workflow.Node) (bool, error) {
+	return func(wf *workflow.Workflow, node workflow.Node) (bool, error) {
+		switch n := node.(type) {
+		case *workflow.Result:
+			return n.InstanceHash.Equal(exec.InstanceHash) && n.TaskKey == exec.TaskKey, nil
+		default:
+			return false, nil
 	}
 }
+}
 
-func (s *Scheduler) processTriggerFromResult(result *execution.Execution) {
-	workflows, err := s.workflowsMatchingFilter(func(wf *workflow.Workflow) bool {
-		return wf.Trigger.InstanceHash.Equal(result.InstanceHash) &&
-			wf.Trigger.TaskKey == result.TaskKey &&
-			wf.Trigger.Filters.Match(result.Outputs)
-	})
+func (s *Scheduler) dependencyFilter(exec *execution.Execution) func(wf *workflow.Workflow, node workflow.Node) (bool, error) {
+	return func(wf *workflow.Workflow, node workflow.Node) (bool, error) {
+		if !exec.WorkflowHash.Equal(wf.Hash) {
+			return false, nil
+		}
+		parents := wf.ParentIDs(node.ID())
+		if len(parents) == 0 {
+			return false, nil
+		}
+		if len(parents) > 1 {
+			return false, fmt.Errorf("multi parents not supported")
+		}
+		return parents[0] == exec.StepID, nil
+	}
+}
 	if err != nil {
 		s.ErrC <- err
 		return
