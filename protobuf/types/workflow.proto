@@ -3,22 +3,6 @@ syntax = "proto3";
 package types;
 option go_package = "github.com/mesg-foundation/engine/protobuf/types";
 
-
-// // Filter is applied on the data of the event/result.
-// message Filter {
-
-//   // Type of condition available to compare the values.
-//   enum Predicate {
-//     Unknown = 0;  // Predicate not defined.
-//     EQ = 1;       // Equal
-//   }
-
-//   string key = 1;           // Key to check.
-//   Predicate predicate = 2;  // Type of condition to apply.
-//   string value = 3;         // Value of the filter
-// }
-
-
 // A workflow is a configuration to trigger a specific task when certains conditions of a trigger are valid.
 message Workflow {
   // Node of the workflow
@@ -56,11 +40,29 @@ message Workflow {
       string key = 1;               // Key of the mapping.
       repeated Output outputs = 2;  // Outputs of the mapping.
     }
+
+    message Filter {
+      message Condition {
+        // Type of condition available to compare the values.
+        enum Predicate {
+          Unknown = 0;  // Predicate not defined.
+          EQ = 1;       // Equal
+        }
+
+        string key = 1;           // Key to check.
+        Predicate predicate = 2;  // Type of condition to apply.
+        string value = 3;         // Value of the filter. 
+      }
+      string key = 1;                     // Key for the filter
+      repeated Condition conditions = 2;  // List of condition to apply for this filter
+    }
+
     oneof type {
       Result result = 1;  // Result is a trigger that listens for a specific result.
       Event event = 2;    // Event is a trigger that listens for a specific event.
       Task task = 3;      // Task is a command to execute a specific task.
       Map map = 4;        // Map is a set of instructions to convert data.
+      Filter filter = 5;  // Filter is a list of condition to apply on data.
     }
   }
   
