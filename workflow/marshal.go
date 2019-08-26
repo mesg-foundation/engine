@@ -95,47 +95,54 @@ func (w *Workflow) UnmarshalJSON(b []byte) error {
 		if err != nil {
 			return err
 		}
-		marshalData, err := json.Marshal(data)
+		node, err := w.unmarshalNode(nodeInfo["type"].(string), data)
 		if err != nil {
 			return err
 		}
-		nodeType := nodeInfo["type"]
-		switch nodeType {
-		case "task":
-			var node Task
-			if err := json.Unmarshal(marshalData, &node); err != nil {
-				return err
-			}
-			w.Graph.Nodes[i] = &node
-		case "event":
-			var node Event
-			if err := json.Unmarshal(marshalData, &node); err != nil {
-				return err
-			}
-			w.Graph.Nodes[i] = &node
-		case "result":
-			var node Result
-			if err := json.Unmarshal(marshalData, &node); err != nil {
-				return err
-			}
-			w.Graph.Nodes[i] = &node
-		case "map":
-			var node Map
-			if err := json.Unmarshal(marshalData, &node); err != nil {
-				return err
-			}
-			w.Graph.Nodes[i] = &node
-		case "filter":
-			var node Filter
-			if err := json.Unmarshal(marshalData, &node); err != nil {
-				return err
-			}
-			w.Graph.Nodes[i] = &node
-		default:
-			return fmt.Errorf("type %q not supported", nodeType)
-		}
+		w.Graph.Nodes[i] = node
 	}
 	return nil
+}
+
+func (w *Workflow) unmarshalNode(nodeType string, data map[string]interface{}) (Node, error) {
+	marshalData, err := json.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
+	switch nodeType {
+	case "task":
+		var node Task
+		if err := json.Unmarshal(marshalData, &node); err != nil {
+			return nil, err
+		}
+		return &node, nil
+	case "event":
+		var node Event
+		if err := json.Unmarshal(marshalData, &node); err != nil {
+			return nil, err
+		}
+		return &node, nil
+	case "result":
+		var node Result
+		if err := json.Unmarshal(marshalData, &node); err != nil {
+			return nil, err
+		}
+		return &node, nil
+	case "map":
+		var node Map
+		if err := json.Unmarshal(marshalData, &node); err != nil {
+			return nil, err
+		}
+		return &node, nil
+	case "filter":
+		var node Filter
+		if err := json.Unmarshal(marshalData, &node); err != nil {
+			return nil, err
+		}
+		return &node, nil
+	default:
+		return nil, fmt.Errorf("type %q not supported", nodeType)
+	}
 }
 
 func (w *Workflow) preprocessUnmashalNode(nodeInfo map[string]interface{}) (map[string]interface{}, error) {
