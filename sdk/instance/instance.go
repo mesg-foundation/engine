@@ -20,7 +20,7 @@ import (
 // Instance exposes service instance APIs of MESG.
 type Instance struct {
 	container  container.Container
-	service    *servicesdk.Service
+	service    servicesdk.Service
 	instanceDB database.InstanceDB
 
 	endpoint   string
@@ -28,7 +28,7 @@ type Instance struct {
 }
 
 // New creates a new Instance SDK with given options.
-func New(c container.Container, service *servicesdk.Service, instanceDB database.InstanceDB, engineName, port string) *Instance {
+func New(c container.Container, service servicesdk.Service, instanceDB database.InstanceDB, engineName, port string) *Instance {
 	return &Instance{
 		container:  c,
 		service:    service,
@@ -102,7 +102,6 @@ func (i *Instance) Create(serviceHash hash.Hash, env []string) (*instance.Instan
 	if err != nil {
 		return nil, err
 	}
-
 	// calculate the final env vars by overwriting user defined one's with defaults.
 	instanceEnv := xos.EnvMergeMaps(xos.EnvSliceToMap(srv.Configuration.Env), xos.EnvSliceToMap(env))
 
@@ -113,12 +112,10 @@ func (i *Instance) Create(serviceHash hash.Hash, env []string) (*instance.Instan
 	instanceHash := h.Sum(nil)
 
 	// check if instance already exists
-	_, err = i.instanceDB.Get(instanceHash)
-	if err == nil {
-		return nil, &AlreadyExistsError{Hash: instanceHash}
-	}
-	if !database.IsErrNotFound(err) {
+	if exist, err := i.instanceDB.Exist(instanceHash); err != nil {
 		return nil, err
+	} else if exist {
+		return nil, &AlreadyExistsError{Hash: instanceHash}
 	}
 
 	// save & start instance.

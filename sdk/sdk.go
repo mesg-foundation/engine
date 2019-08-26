@@ -3,6 +3,7 @@ package sdk
 import (
 	"github.com/cskr/pubsub"
 	"github.com/mesg-foundation/engine/container"
+	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/database"
 	eventsdk "github.com/mesg-foundation/engine/sdk/event"
 	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
@@ -13,7 +14,7 @@ import (
 
 // SDK exposes all functionalities of MESG Engine.
 type SDK struct {
-	Service   *servicesdk.Service
+	Service   servicesdk.Service
 	Instance  *instancesdk.Instance
 	Execution *executionsdk.Execution
 	Event     *eventsdk.Event
@@ -21,9 +22,31 @@ type SDK struct {
 }
 
 // New creates a new SDK with given options.
-func New(c container.Container, serviceDB database.ServiceDB, instanceDB database.InstanceDB, execDB database.ExecutionDB, workflowDB database.WorkflowDB, engineName, port string) *SDK {
+func New(app *cosmos.App, c container.Container, serviceDB *database.ServiceDB, instanceDB database.InstanceDB, execDB database.ExecutionDB, workflowDB database.WorkflowDB, engineName, port string) (*SDK, error) {
 	ps := pubsub.New(0)
-	serviceSDK := servicesdk.New(c, serviceDB)
+	initDefaultAppModules(app)
+	serviceSDK := servicesdk.NewDeprecated(c, serviceDB)
+	instanceSDK := instancesdk.New(c, serviceSDK, instanceDB, engineName, port)
+	workflowSDK := workflowsdk.New(instanceSDK, workflowDB)
+	executionSDK := executionsdk.New(ps, serviceSDK, instanceSDK, workflowSDK, execDB)
+	eventSDK := eventsdk.New(ps, serviceSDK, instanceSDK)
+	// TODO: is it the best place to load the app?
+	if err := app.Load(); err != nil {
+		return nil, err
+	}
+	return &SDK{
+		Service:   serviceSDK,
+		Instance:  instanceSDK,
+		Execution: executionSDK,
+		Event:     eventSDK,
+		Workflow:  workflowSDK,
+	}, nil
+}
+
+// NewDeprecated creates a new SDK with given options.
+func NewDeprecated(c container.Container, serviceDB *database.ServiceDB, instanceDB database.InstanceDB, execDB database.ExecutionDB, workflowDB database.WorkflowDB, engineName, port string) *SDK {
+	ps := pubsub.New(0)
+	serviceSDK := servicesdk.NewDeprecated(c, serviceDB)
 	instanceSDK := instancesdk.New(c, serviceSDK, instanceDB, engineName, port)
 	workflowSDK := workflowsdk.New(instanceSDK, workflowDB)
 	executionSDK := executionsdk.New(ps, serviceSDK, instanceSDK, workflowSDK, execDB)
