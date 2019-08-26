@@ -94,6 +94,16 @@ func (s *Scheduler) dependencyFilter(exec *execution.Execution) func(wf *workflo
 	}
 }
 
+func (s *Scheduler) findNodes(wf *workflow.Workflow, filter func(wf *workflow.Workflow, n workflow.Node) (bool, error)) []workflow.Node {
+	return wf.FindNodes(func(n workflow.Node) bool {
+		res, err := filter(wf, n)
+		if err != nil {
+			s.ErrC <- err
+		}
+		return res
+	})
+}
+
 func (s *Scheduler) process(filter func(wf *workflow.Workflow, node workflow.Node) (bool, error), exec *execution.Execution, event *event.Event, data map[string]interface{}) {
 	workflows, err := s.workflow.List()
 	if err != nil {
@@ -101,14 +111,7 @@ func (s *Scheduler) process(filter func(wf *workflow.Workflow, node workflow.Nod
 		return
 	}
 	for _, wf := range workflows {
-		nodes := wf.FindNodes(func(n workflow.Node) bool {
-			res, err := filter(wf, n)
-			if err != nil {
-				s.ErrC <- err
-			}
-			return res
-		})
-		for _, node := range nodes {
+		for _, node := range s.findNodes(wf, filter) {
 			if err := s.processNode(wf, node, exec, event, data); err != nil {
 				s.ErrC <- err
 			}
