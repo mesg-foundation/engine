@@ -118,7 +118,7 @@ func fromProtoWorkflowNodes(nodes []*types.Workflow_Node) ([]workflow.Node, erro
 	return res, nil
 }
 
-func fromProtoWorkflowEdges(edges []*types.Workflow_Edge) ([]workflow.Edge, error) {
+func fromProtoWorkflowEdges(edges []*types.Workflow_Edge) []workflow.Edge {
 	res := make([]workflow.Edge, len(edges))
 	for i, edge := range edges {
 		res[i] = workflow.Edge{
@@ -126,7 +126,7 @@ func fromProtoWorkflowEdges(edges []*types.Workflow_Edge) ([]workflow.Edge, erro
 			Dst: edge.Dst,
 		}
 	}
-	return res, nil
+	return res
 }
 
 func fromProtoWorkflow(wf *types.Workflow) (*workflow.Workflow, error) {
@@ -134,15 +134,11 @@ func fromProtoWorkflow(wf *types.Workflow) (*workflow.Workflow, error) {
 	if err != nil {
 		return nil, err
 	}
-	edges, err := fromProtoWorkflowEdges(wf.Edges)
-	if err != nil {
-		return nil, err
-	}
 	return &workflow.Workflow{
 		Key: wf.Key,
 		Graph: workflow.Graph{
 			Nodes: nodes,
-			Edges: edges,
+			Edges: fromProtoWorkflowEdges(wf.Edges),
 		},
 	}, nil
 }
