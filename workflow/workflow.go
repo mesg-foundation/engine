@@ -38,8 +38,8 @@ func (w *Workflow) Validate() error {
 		return err
 	}
 	for _, node := range w.Graph.Nodes {
-		switch n := node.(type) {
-		case Mapping:
+		n, isMapping := node.(Mapping)
+		if isMapping {
 			for _, output := range n.Outputs {
 				if _, err := w.FindNode(output.Ref.NodeKey); err != nil {
 					return err
