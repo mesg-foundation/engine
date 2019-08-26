@@ -84,26 +84,15 @@ func (w *Workflow) UnmarshalJSON(b []byte) error {
 		if err != nil {
 			return err
 		}
-		nodeType := nodeInfo["type"]
-		data := make(map[string]interface{})
-		for key, value := range nodeInfo {
-			if key == "type" {
-				continue
-			}
-			if key == "instanceHash" {
-				instanceHash, err := hash.Decode(value.(string))
-				if err != nil {
-					return err
-				}
-				data[key] = instanceHash
-			} else {
-				data[key] = value
-			}
+		data, err := w.preprocessUnmashalNode(nodeInfo)
+		if err != nil {
+			return err
 		}
 		marshalData, err := json.Marshal(data)
 		if err != nil {
 			return err
 		}
+		nodeType := nodeInfo["type"]
 		switch nodeType {
 		case "task":
 			var node Task
@@ -134,4 +123,23 @@ func (w *Workflow) UnmarshalJSON(b []byte) error {
 		}
 	}
 	return nil
+}
+
+func (w *Workflow) preprocessUnmashalNode(nodeInfo map[string]interface{}) (map[string]interface{}, error) {
+	data := make(map[string]interface{})
+	for key, value := range nodeInfo {
+		if key == "type" {
+			continue
+		}
+		if key == "instanceHash" {
+			instanceHash, err := hash.Decode(value.(string))
+			if err != nil {
+				return nil, err
+			}
+			data[key] = instanceHash
+		} else {
+			data[key] = value
+		}
+	}
+	return data, nil
 }
