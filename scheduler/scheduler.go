@@ -189,3 +189,15 @@ func (s *Scheduler) resolveInput(wfHash hash.Hash, exec *execution.Execution, no
 	}
 	return exec.Outputs[outputKey], nil
 }
+
+func (s *Scheduler) processTask(task *workflow.Task, wf *workflow.Workflow, exec *execution.Execution, event *event.Event, data map[string]interface{}) error {
+	var eventHash, execHash hash.Hash
+	if event != nil {
+		eventHash = event.Hash
+	}
+	if exec != nil {
+		execHash = exec.Hash
+	}
+	_, err := s.execution.Execute(wf.Hash, task.InstanceHash, eventHash, execHash, task.ID(), task.TaskKey, data, []string{})
+	return err
+}
