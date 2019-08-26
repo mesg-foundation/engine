@@ -63,9 +63,9 @@ func (s *Scheduler) eventFilter(event *event.Event) func(wf *workflow.Workflow, 
 			return n.InstanceHash.Equal(event.InstanceHash) && n.EventKey == event.Key, nil
 		default:
 			return false, nil
+		}
 	}
-		}
-		}
+}
 
 func (s *Scheduler) resultFilter(exec *execution.Execution) func(wf *workflow.Workflow, node workflow.Node) (bool, error) {
 	return func(wf *workflow.Workflow, node workflow.Node) (bool, error) {
@@ -74,8 +74,8 @@ func (s *Scheduler) resultFilter(exec *execution.Execution) func(wf *workflow.Wo
 			return n.InstanceHash.Equal(exec.InstanceHash) && n.TaskKey == exec.TaskKey, nil
 		default:
 			return false, nil
+		}
 	}
-}
 }
 
 func (s *Scheduler) dependencyFilter(exec *execution.Execution) func(wf *workflow.Workflow, node workflow.Node) (bool, error) {
@@ -103,17 +103,17 @@ func (s *Scheduler) process(filter func(wf *workflow.Workflow, node workflow.Nod
 	for _, wf := range workflows {
 		nodes := wf.FindNodes(func(n workflow.Node) bool {
 			res, err := filter(wf, n)
-		if err != nil {
-			s.ErrC <- err
-		}
+			if err != nil {
+				s.ErrC <- err
+			}
 			return res
 		})
 		for _, node := range nodes {
 			if err := s.processNode(wf, node, exec, event, data); err != nil {
-			s.ErrC <- err
+				s.ErrC <- err
+			}
 		}
 	}
-}
 }
 
 func (s *Scheduler) processNode(wf *workflow.Workflow, n workflow.Node, exec *execution.Execution, event *event.Event, data map[string]interface{}) error {
@@ -122,9 +122,9 @@ func (s *Scheduler) processNode(wf *workflow.Workflow, n workflow.Node, exec *ex
 	case *workflow.Mapping:
 		var err error
 		data, err = s.processMapping(node, wf, exec, data)
-	if err != nil {
+		if err != nil {
 			return err
-	}
+		}
 	case *workflow.Task:
 		if err := s.processTask(node, wf, exec, event, data); err != nil {
 			return err
@@ -133,19 +133,19 @@ func (s *Scheduler) processNode(wf *workflow.Workflow, n workflow.Node, exec *ex
 	if s.canProcessChildren(n) {
 		for _, childrenID := range wf.ChildrenIDs(n.ID()) {
 			children, err := wf.FindNode(childrenID)
-	if err != nil {
+			if err != nil {
 				// does not return an error to continue to process other tasks if needed
-		s.ErrC <- err
+				s.ErrC <- err
 				continue
-	}
+			}
 			if err := s.processNode(wf, children, exec, event, data); err != nil {
 				// does not return an error to continue to process other tasks if needed
-			s.ErrC <- err
+				s.ErrC <- err
 			}
 		}
-		}
+	}
 	return nil
-		}
+}
 
 func (s *Scheduler) canProcessChildren(node workflow.Node) bool {
 	switch node.(type) {
@@ -161,19 +161,25 @@ func (s *Scheduler) canProcessChildren(node workflow.Node) bool {
 	return false
 }
 
-func (s *Scheduler) mapInputs(wfHash hash.Hash, prevExec *execution.Execution, edge workflow.Edge) (map[string]interface{}, error) {
-	if len(edge.Inputs) == 0 {
-		return prevExec.Outputs, nil
-	}
-	inputs := make(map[string]interface{})
-	for _, input := range edge.Inputs {
-		value, err := s.resolveInput(wfHash, prevExec, input.Ref.NodeKey, input.Ref.Key)
+func (s *Scheduler) processMapping(mapping *workflow.Mapping, wf *workflow.Workflow, exec *execution.Execution, data map[string]interface{}) (map[string]interface{}, error) {
+	result := make(map[string]interface{})
+	for _, output := range mapping.Outputs {
+		node, err := wf.FindNode(output.Ref.NodeKey)
 		if err != nil {
 			return nil, err
 		}
-		inputs[input.Key] = value
+		_, isTask := node.(*workflow.Task)
+		if isTask {
+			value, err := s.resolveInput(wf.Hash, exec, output.Ref.NodeKey, output.Ref.Key)
+			if err != nil {
+				return nil, err
+			}
+			result[output.Key] = value
+		} else {
+			result[output.Key] = data[output.Ref.Key]
+		}
 	}
-	return inputs, nil
+	return result, nil
 }
 
 func (s *Scheduler) resolveInput(wfHash hash.Hash, exec *execution.Execution, nodeKey string, outputKey string) (interface{}, error) {
