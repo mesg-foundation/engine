@@ -4,6 +4,7 @@ import (
 	"fmt"
 )
 
+// MainServiceKey is key for main service.
 const MainServiceKey = "service"
 
 // GetDependency returns dependency dependencyKey or a not found error.
