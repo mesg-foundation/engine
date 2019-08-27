@@ -43,9 +43,9 @@ func (i *Instance) start(inst *instance.Instance, imageHash string, env []string
 				"mesg.dependency": d.Key,
 			},
 			Image:   d.Image,
-			Args:    d.Args,
-			Command: d.Command,
-			Env:     d.Env,
+			Args:    d.Configuration.Args,
+			Command: d.Configuration.Command,
+			Env:     d.Configuration.Env,
 			Mounts:  append(volumes, volumesFrom...),
 			Ports:   extractPorts(d.Configuration),
 			Networks: []container.Network{
