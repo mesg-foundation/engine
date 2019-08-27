@@ -127,6 +127,7 @@ func (g Graph) dfs(node string, fn func(node string)) {
 	}
 }
 
+// getRoot get the root of the tree graph
 func (g Graph) getRoot(node string) string {
 	parents := g.ParentIDs(node)
 	if len(parents) == 0 {
