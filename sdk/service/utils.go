@@ -16,9 +16,6 @@ import (
 )
 
 func create(container container.Container, db *database.ServiceDB, srv *service.Service) (*service.Service, error) {
-	if srv.Configuration == nil {
-		srv.Configuration = &service.Configuration{}
-	}
 	// download and untar service context into path.
 	path, err := ioutil.TempDir("", "mesg")
 	if err != nil {

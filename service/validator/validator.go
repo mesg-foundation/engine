@@ -75,7 +75,7 @@ func validateServiceData(s *service.Service) error {
 
 	// validate dependencies volumes
 	for _, dep := range s.Dependencies {
-		for _, depVolumeKey := range dep.VolumesFrom {
+		for _, depVolumeKey := range dep.Configuration.VolumesFrom {
 			found := false
 			for _, s := range s.Dependencies {
 				if s.Key == depVolumeKey {

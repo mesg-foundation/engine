@@ -4,8 +4,10 @@ import (
 	"fmt"
 )
 
+const MainServiceKey = "service"
+
 // GetDependency returns dependency dependencyKey or a not found error.
-func (s *Service) GetDependency(dependencyKey string) (*Dependency, error) {
+func (s *Service) GetDependency(dependencyKey string) (*Service_Dependency, error) {
 	for _, dep := range s.Dependencies {
 		if dep.Key == dependencyKey {
 			return dep, nil
@@ -15,7 +17,7 @@ func (s *Service) GetDependency(dependencyKey string) (*Dependency, error) {
 }
 
 // GetTask returns task taskKey of service.
-func (s *Service) GetTask(taskKey string) (*Task, error) {
+func (s *Service) GetTask(taskKey string) (*Service_Task, error) {
 	for _, task := range s.Tasks {
 		if task.Key == taskKey {
 			return task, nil
@@ -28,7 +30,7 @@ func (s *Service) GetTask(taskKey string) (*Task, error) {
 }
 
 // GetEvent returns event eventKey of service.
-func (s *Service) GetEvent(eventKey string) (*Event, error) {
+func (s *Service) GetEvent(eventKey string) (*Service_Event, error) {
 	for _, event := range s.Events {
 		if event.Key == eventKey {
 			return event, nil

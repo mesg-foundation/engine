@@ -77,10 +77,10 @@ var testService = &service.Service{
 	Name: "1",
 	Sid:  "2",
 	Hash: hash.Int(1),
-	Tasks: []*service.Task{
+	Tasks: []*service.Service_Task{
 		{Key: "4"},
 	},
-	Dependencies: []*service.Dependency{
+	Dependencies: []*service.Service_Dependency{
 		{Key: "5"},
 	},
 }
