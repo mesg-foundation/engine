@@ -22,10 +22,12 @@ type SDK struct {
 }
 
 // New creates a new SDK with given options.
-func New(app *cosmos.App, c container.Container, serviceDB *database.ServiceDB, instanceDB database.InstanceDB, execDB database.ExecutionDB, workflowDB database.WorkflowDB, engineName, port string) (*SDK, error) {
+func New(app *cosmos.App, c container.Container, instanceDB database.InstanceDB, execDB database.ExecutionDB, workflowDB database.WorkflowDB, engineName, port string) (*SDK, error) {
+	initDefaultAppModules(app)
 	ps := pubsub.New(0)
 	initDefaultAppModules(app)
-	serviceSDK := servicesdk.NewDeprecated(c, serviceDB)
+	serviceSDK := servicesdk.NewSDK(app)
+	servicesdk.NewModule(app, c)
 	instanceSDK := instancesdk.New(c, serviceSDK, instanceDB, engineName, port)
 	workflowSDK := workflowsdk.New(instanceSDK, workflowDB)
 	executionSDK := executionsdk.New(ps, serviceSDK, instanceSDK, workflowSDK, execDB)
