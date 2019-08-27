@@ -155,7 +155,7 @@ func main() {
 		app := cosmos.NewApp(logger.TendermintLogger(), db)
 
 		// init sdk.
-		sdk, err = enginesdk.New(app, c, serviceDB, instanceDB, executionDB, workflowDB, cfg.Name, strconv.Itoa(port))
+		sdk, err = enginesdk.New(app, c, instanceDB, executionDB, workflowDB, cfg.Name, strconv.Itoa(port))
 		if err != nil {
 			logrus.WithField("module", "main").Fatalln(err)
 		}
@@ -173,11 +173,11 @@ func main() {
 		}
 	} else {
 		sdk = enginesdk.NewDeprecated(c, serviceDB, instanceDB, executionDB, workflowDB, cfg.Name, strconv.Itoa(port))
-	}
 
-	// init system services.
-	if err := deployCoreServices(cfg, sdk); err != nil {
-		logrus.WithField("module", "main").Fatalln(err)
+		// init system services.
+		if err := deployCoreServices(cfg, sdk); err != nil {
+			logrus.WithField("module", "main").Fatalln(err)
+		}
 	}
 
 	// init gRPC server.
