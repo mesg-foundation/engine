@@ -152,16 +152,11 @@ func (s *Scheduler) processNode(wf *workflow.Workflow, n workflow.Node, exec *ex
 
 func (s *Scheduler) canProcessChildren(node workflow.Node) bool {
 	switch node.(type) {
-	case *workflow.Event:
+	case *workflow.Event, *workflow.Result, *workflow.Mapping:
 		return true
-	case *workflow.Result:
-		return true
-	case *workflow.Mapping:
-		return true
-	case *workflow.Task:
+	default:
 		return false
 	}
-	return false
 }
 
 func (s *Scheduler) processMapping(mapping *workflow.Mapping, wf *workflow.Workflow, exec *execution.Execution, data map[string]interface{}) (map[string]interface{}, error) {
@@ -207,6 +202,6 @@ func (s *Scheduler) processTask(task *workflow.Task, wf *workflow.Workflow, exec
 	if exec != nil {
 		execHash = exec.Hash
 	}
-	_, err := s.execution.Execute(wf.Hash, task.InstanceHash, eventHash, execHash, task.ID(), task.TaskKey, data, []string{})
+	_, err := s.execution.Execute(wf.Hash, task.InstanceHash, eventHash, execHash, task.ID(), task.TaskKey, data, nil)
 	return err
 }
