@@ -19,9 +19,9 @@ func dependencyNamespace(instanceNamespace string, dependencyKey string) string 
 	return hash.Dump(instanceNamespace + dependencyKey).String()
 }
 
-func extractPorts(d service.Service_Configuration) []container.Port {
-	ports := make([]container.Port, len(d.Ports))
-	for i, p := range d.Ports {
+func convertPorts(dPorts []string) []container.Port {
+	ports := make([]container.Port, len(dPorts))
+	for i, p := range dPorts {
 		split := strings.Split(p, ":")
 		from, _ := strconv.ParseUint(split[0], 10, 64)
 		to := from
@@ -37,9 +37,9 @@ func extractPorts(d service.Service_Configuration) []container.Port {
 }
 
 // TODO: add test and hack for MkDir in CircleCI
-func extractVolumes(s *service.Service, d service.Service_Configuration, key string) []container.Mount {
+func convertVolumes(s *service.Service, dVolumes []string, key string) []container.Mount {
 	volumes := make([]container.Mount, 0)
-	for _, volume := range d.Volumes {
+	for _, volume := range dVolumes {
 		volumes = append(volumes, container.Mount{
 			Source: volumeKey(s, key, volume),
 			Target: volume,
@@ -48,9 +48,9 @@ func extractVolumes(s *service.Service, d service.Service_Configuration, key str
 	return volumes
 }
 
-func extractVolumesFrom(s *service.Service, d service.Service_Configuration) ([]container.Mount, error) {
+func convertVolumesFrom(s *service.Service, dVolumesFrom []string) ([]container.Mount, error) {
 	volumesFrom := make([]container.Mount, 0)
-	for _, depName := range d.VolumesFrom {
+	for _, depName := range dVolumesFrom {
 		var depVolumes []string
 		if depName == service.MainServiceKey {
 			depVolumes = s.Configuration.Volumes
@@ -59,7 +59,7 @@ func extractVolumesFrom(s *service.Service, d service.Service_Configuration) ([]
 			if err != nil {
 				return nil, err
 			}
-			depVolumes = dep.Configuration.Volumes
+			depVolumes = dep.Volumes
 		}
 		for _, volume := range depVolumes {
 			volumesFrom = append(volumesFrom, container.Mount{

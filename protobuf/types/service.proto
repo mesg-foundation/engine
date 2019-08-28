@@ -145,9 +145,34 @@ message Service {
       (gogoproto.moretags) = 'hash:"name:2" validate:"printascii"'
     ];
 
-    // Configuration of the container.
-    Configuration configuration = 3 [
-      (gogoproto.nullable) = false
+    // List of volumes.
+    repeated string volumes = 2 [
+      (gogoproto.moretags) = 'hash:"name:3" validate:"unique,dive,printascii"'
+    ];
+
+    // List of volumes mounted from other dependencies.
+    repeated string volumesFrom = 3 [
+      (gogoproto.moretags) = 'hash:"name:4" validate:"unique,dive,printascii"'
+    ];
+
+    // List of ports the container exposes.
+    repeated string ports = 4 [
+      (gogoproto.moretags) = 'hash:"name:5" validate:"unique,dive,portmap"'
+    ];
+
+    // Args to pass to the container.
+    repeated string args = 5 [
+      (gogoproto.moretags) = 'hash:"name:6" validate:"dive,printascii"'
+    ];
+
+    // Command to run the container.
+    string command = 6 [
+      (gogoproto.moretags) = 'hash:"name:7" validate:"printascii"'
+    ];
+
+    // Default env vars to apply to service's instance on runtime.
+    repeated string env = 7 [
+      (gogoproto.moretags) = 'hash:"name:8" validate:"unique,dive,env"'
     ];
   }
 
