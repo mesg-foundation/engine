@@ -121,42 +121,31 @@ func (s *Scheduler) process(filter func(wf *workflow.Workflow, node workflow.Nod
 
 func (s *Scheduler) processNode(wf *workflow.Workflow, n workflow.Node, exec *execution.Execution, event *event.Event, data map[string]interface{}) error {
 	logrus.WithField("module", "orchestrator").WithField("nodeID", n.ID()).WithField("type", fmt.Sprintf("%T", n)).Debug("process workflow")
-	switch node := n.(type) {
-	case *workflow.Map:
+	if node, ok := n.(*workflow.Task); ok {
+		// This returns directly because a task cannot process its children.
+		// Children will be processed only when the execution is done and the dependencies are resolved
+		return s.processTask(node, wf, exec, event, data)
+	}
+	if node, ok := n.(*workflow.Map); ok {
 		var err error
 		data, err = s.processMap(node, wf, exec, data)
 		if err != nil {
 			return err
 		}
-	case *workflow.Task:
-		if err := s.processTask(node, wf, exec, event, data); err != nil {
-			return err
-		}
 	}
-	if s.canProcessChildren(n) {
-		for _, childrenID := range wf.ChildrenIDs(n.ID()) {
-			children, err := wf.FindNode(childrenID)
-			if err != nil {
-				// does not return an error to continue to process other tasks if needed
-				s.ErrC <- err
-				continue
-			}
-			if err := s.processNode(wf, children, exec, event, data); err != nil {
-				// does not return an error to continue to process other tasks if needed
-				s.ErrC <- err
-			}
+	for _, childrenID := range wf.ChildrenIDs(n.ID()) {
+		children, err := wf.FindNode(childrenID)
+		if err != nil {
+			// does not return an error to continue to process other tasks if needed
+			s.ErrC <- err
+			continue
+		}
+		if err := s.processNode(wf, children, exec, event, data); err != nil {
+			// does not return an error to continue to process other tasks if needed
+			s.ErrC <- err
 		}
 	}
 	return nil
-}
-
-func (s *Scheduler) canProcessChildren(node workflow.Node) bool {
-	switch node.(type) {
-	case *workflow.Event, *workflow.Result, *workflow.Map:
-		return true
-	default:
-		return false
-	}
 }
 
 func (s *Scheduler) processMap(mapping *workflow.Map, wf *workflow.Workflow, exec *execution.Execution, data map[string]interface{}) (map[string]interface{}, error) {
