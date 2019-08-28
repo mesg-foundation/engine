@@ -10,7 +10,7 @@ func TestGetEvent(t *testing.T) {
 	var (
 		eventKey = "1"
 		s        = &Service{
-			Events: []*Event{
+			Events: []*Service_Event{
 				{Key: eventKey},
 			},
 		}
@@ -27,7 +27,7 @@ func TestGetEventNonExistent(t *testing.T) {
 		eventKey    = "2"
 		s           = &Service{
 			Name: serviceName,
-			Events: []*Event{
+			Events: []*Service_Event{
 				{Key: "3"},
 			},
 		}
@@ -54,10 +54,10 @@ func TestEventValidateAndRequireData(t *testing.T) {
 		}
 		s = &Service{
 			Name: serviceName,
-			Events: []*Event{
+			Events: []*Service_Event{
 				{
 					Key: eventKey,
-					Data: []*Parameter{
+					Data: []*Service_Parameter{
 						{
 							Key:  paramKey,
 							Type: "String",
