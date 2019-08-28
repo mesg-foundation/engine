@@ -119,7 +119,7 @@ message Service {
 
     // Args to pass to the container.
     repeated string args = 4 [
-      (gogoproto.moretags) = 'hash:"name:5" validate:"printascii"'
+      (gogoproto.moretags) = 'hash:"name:5" validate:"dive,printascii"'
     ];
 
     // Command to run the container.
