@@ -8,7 +8,7 @@ import (
 type ParameterWarning struct {
 	Key       string
 	Warning   string
-	Parameter *Parameter
+	Parameter *Service_Parameter
 }
 
 func (p *ParameterWarning) String() string {
@@ -18,7 +18,7 @@ func (p *ParameterWarning) String() string {
 // ValidateParametersSchema validates data to see if it matches with parameters schema.
 // TODO(ilgooz) add this as a method to Service type when create custom types for Event, Task etc.
 // TODO(ilgooz) remove pointer from *Parameter.
-func validateParametersSchema(parameters []*Parameter, data map[string]interface{}) []*ParameterWarning {
+func validateParametersSchema(parameters []*Service_Parameter, data map[string]interface{}) []*ParameterWarning {
 	warningResults := make([]*ParameterWarning, 0, len(parameters))
 
 	for _, param := range parameters {
@@ -31,10 +31,10 @@ func validateParametersSchema(parameters []*Parameter, data map[string]interface
 
 // parameterValidator provides functionalities to check data against its parameter schema.
 type parameterValidator struct {
-	parameter *Parameter
+	parameter *Service_Parameter
 }
 
-func newParameterValidator(parameter *Parameter) *parameterValidator {
+func newParameterValidator(parameter *Service_Parameter) *parameterValidator {
 	return &parameterValidator{parameter}
 }
 

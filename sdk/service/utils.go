@@ -16,9 +16,6 @@ import (
 )
 
 func create(container container.Container, db *database.ServiceDB, srv *service.Service) (*service.Service, error) {
-	if srv.Configuration == nil {
-		srv.Configuration = &service.Configuration{}
-	}
 	// download and untar service context into path.
 	path, err := ioutil.TempDir("", "mesg")
 	if err != nil {
@@ -45,11 +42,12 @@ func create(container container.Container, db *database.ServiceDB, srv *service.
 	if err != nil {
 		return nil, err
 	}
-	srv.Hash = hash.Hash(h)
+	hsh := hash.Hash(h)
+	srv.Hash = hsh.String()
 
 	// check if service already exists.
-	if _, err := db.Get(srv.Hash); err == nil {
-		return nil, &AlreadyExistsError{Hash: srv.Hash}
+	if _, err := db.Get(hsh); err == nil {
+		return nil, &AlreadyExistsError{Hash: hsh}
 	}
 
 	// build service's Docker image.
@@ -60,7 +58,7 @@ func create(container container.Container, db *database.ServiceDB, srv *service.
 	// TODO: the following test should be moved in New function
 	if srv.Sid == "" {
 		// make sure that sid doesn't have the same length with id.
-		srv.Sid = "_" + srv.Hash.String()
+		srv.Sid = "_" + hsh.String()
 	}
 
 	if err := validator.ValidateService(srv); err != nil {
