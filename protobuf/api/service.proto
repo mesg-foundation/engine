@@ -59,13 +59,13 @@ message CreateServiceRequest {
 // The response's data for the `Create` API.
 message CreateServiceResponse {
   // The service's hash created.
-  string hash = 1;
+  bytes hash = 1;
 }
 
 // The request's data for the `Delete` API.
 message DeleteServiceRequest {
   // The service's hash to delete.
-  string hash = 1;
+  bytes hash = 1;
 }
 
 // The response's data for the `Delete` API, doesn't contain anything.
@@ -75,7 +75,7 @@ message DeleteServiceResponse {
 // The request's data for the `Get` API.
 message GetServiceRequest {
   // The service's hash to fetch.
-  string hash = 1;
+  bytes hash = 1;
 }
 
 // The request's data for the `List` API.

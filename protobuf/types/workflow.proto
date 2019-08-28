@@ -22,7 +22,7 @@ message Workflow {
       string value = 3;         // Value of the filter
     }
 
-    string instanceHash = 1;      // Hash of the instance that triggers the workflow.
+    bytes instanceHash = 1;      // Hash of the instance that triggers the workflow.
     // Workflow can be trigger by either an Event or a Task (not both).
     oneof key {
       string taskKey = 2;         // Key of the task that triggers the workflow.
@@ -35,7 +35,7 @@ message Workflow {
   // Definition of the node to execute when the workflow is triggered.
   message Node {
     string key = 1;           // Key that identifies the node.
-    string instanceHash = 2;  // Hash of the instance to execute.
+    bytes instanceHash = 2;  // Hash of the instance to execute.
     string taskKey = 3;       // Task of the instance to execute.
   }
 
@@ -56,7 +56,7 @@ message Workflow {
     repeated Input inputs = 3;  // Inputs for the destination task.
   }
 
-  string hash = 1;          // Workflow's hash    
+  bytes hash = 1;          // Workflow's hash    
   string key = 2;           // Workflow's key
   Trigger trigger = 3;      // Trigger for the workflow.
   repeated Node nodes = 4;  // Nodes with information related to the execution to trigger.

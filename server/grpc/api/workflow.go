@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/sdk"
@@ -36,26 +35,17 @@ func (s *WorkflowServer) Create(ctx context.Context, req *api.CreateWorkflowRequ
 	if err != nil {
 		return nil, err
 	}
-	return &api.CreateWorkflowResponse{Hash: wf.Hash.String()}, nil
+	return &api.CreateWorkflowResponse{Hash: wf.Hash}, nil
 }
 
 // Delete deletes service by hash or sid.
 func (s *WorkflowServer) Delete(ctx context.Context, request *api.DeleteWorkflowRequest) (*api.DeleteWorkflowResponse, error) {
-	hash, err := hash.Decode(request.Hash)
-	if err != nil {
-		return nil, err
-	}
-	return &api.DeleteWorkflowResponse{}, s.sdk.Workflow.Delete(hash)
+	return &api.DeleteWorkflowResponse{}, s.sdk.Workflow.Delete(request.Hash)
 }
 
 // Get returns service from given hash.
 func (s *WorkflowServer) Get(ctx context.Context, req *api.GetWorkflowRequest) (*types.Workflow, error) {
-	hash, err := hash.Decode(req.Hash)
-	if err != nil {
-		return nil, err
-	}
-
-	wf, err := s.sdk.Workflow.Get(hash)
+	wf, err := s.sdk.Workflow.Get(req.Hash)
 	if err != nil {
 		return nil, err
 	}
@@ -91,20 +81,16 @@ func fromProtoFilters(filters []*types.Workflow_Trigger_Filter) []*workflow.Trig
 	return fs
 }
 
-func fromProtoWorkflowNodes(nodes []*types.Workflow_Node) ([]workflow.Node, error) {
+func fromProtoWorkflowNodes(nodes []*types.Workflow_Node) []workflow.Node {
 	res := make([]workflow.Node, len(nodes))
 	for i, node := range nodes {
-		instanceHash, err := hash.Decode(node.InstanceHash)
-		if err != nil {
-			return nil, err
-		}
 		res[i] = workflow.Node{
 			Key:          node.Key,
-			InstanceHash: instanceHash,
+			InstanceHash: node.InstanceHash,
 			TaskKey:      node.TaskKey,
 		}
 	}
-	return res, nil
+	return res
 }
 
 func fromProtoWorkflowEdges(edges []*types.Workflow_Edge) ([]workflow.Edge, error) {
@@ -134,20 +120,13 @@ func fromProtoWorkflowEdges(edges []*types.Workflow_Edge) ([]workflow.Edge, erro
 }
 
 func fromProtoWorkflow(wf *types.Workflow) (*workflow.Workflow, error) {
-	instanceHash, err := hash.Decode(wf.Trigger.InstanceHash)
-	if err != nil {
-		return nil, err
-	}
-	nodes, err := fromProtoWorkflowNodes(wf.Nodes)
-	if err != nil {
-		return nil, err
-	}
+	nodes := fromProtoWorkflowNodes(wf.Nodes)
 	edges, err := fromProtoWorkflowEdges(wf.Edges)
 	if err != nil {
 		return nil, err
 	}
 	trigger := workflow.Trigger{
-		InstanceHash: instanceHash,
+		InstanceHash: wf.Trigger.InstanceHash,
 		NodeKey:      wf.Trigger.NodeKey,
 		Filters:      fromProtoFilters(wf.Trigger.Filters),
 	}
@@ -189,7 +168,7 @@ func toProtoWorkflowNodes(nodes []workflow.Node) []*types.Workflow_Node {
 	for i, node := range nodes {
 		res[i] = &types.Workflow_Node{
 			Key:          node.Key,
-			InstanceHash: node.InstanceHash.String(),
+			InstanceHash: node.InstanceHash,
 			TaskKey:      node.TaskKey,
 		}
 	}
@@ -223,7 +202,7 @@ func toProtoWorkflowEdges(edges []workflow.Edge) []*types.Workflow_Edge {
 
 func toProtoWorkflow(wf *workflow.Workflow) *types.Workflow {
 	trigger := &types.Workflow_Trigger{
-		InstanceHash: wf.Trigger.InstanceHash.String(),
+		InstanceHash: wf.Trigger.InstanceHash,
 		Filters:      toProtoFilters(wf.Trigger.Filters),
 		NodeKey:      wf.Trigger.NodeKey,
 	}
@@ -234,7 +213,7 @@ func toProtoWorkflow(wf *workflow.Workflow) *types.Workflow {
 		trigger.Key = &types.Workflow_Trigger_EventKey{EventKey: wf.Trigger.EventKey}
 	}
 	return &types.Workflow{
-		Hash:    wf.Hash.String(),
+		Hash:    wf.Hash,
 		Key:     wf.Key,
 		Trigger: trigger,
 		Nodes:   toProtoWorkflowNodes(wf.Nodes),

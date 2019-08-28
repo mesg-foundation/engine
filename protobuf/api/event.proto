@@ -24,10 +24,10 @@ message StreamEventRequest {
   // Filter contains filtering criteria.
   message Filter {
     // hash to filter events.
-    string hash = 1;
+    bytes hash = 1;
 
     // instance's hash to filter events.
-    string instanceHash = 2;
+    bytes instanceHash = 2;
 
     // key is the key of the event.
     string key = 3;
@@ -40,7 +40,7 @@ message StreamEventRequest {
 // CreateEventRequest defines request for execution update.
 message CreateEventRequest {
   // instanceHash is hash of instance that can proceed an execution.
-  string instanceHash = 1;
+  bytes instanceHash = 1;
 
   // key is the key of the event.
   string key = 2;
@@ -52,5 +52,5 @@ message CreateEventRequest {
 // CreateEventResponse defines response for execution update.
 message CreateEventResponse {
   // Hash represents event.
-  string hash = 1;
+  bytes hash = 1;
 }

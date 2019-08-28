@@ -29,7 +29,7 @@ func TestGet(t *testing.T) {
 	sdk := sdk.NewDeprecated(nil, nil, nil, db, nil, "", "")
 	s := NewExecutionServer(sdk)
 
-	got, err := s.Get(context.Background(), &api.GetExecutionRequest{Hash: exec.Hash.String()})
+	got, err := s.Get(context.Background(), &api.GetExecutionRequest{Hash: exec.Hash})
 	require.NoError(t, err)
 	require.Equal(t, got, want)
 }
@@ -46,6 +46,6 @@ func TestUpdate(t *testing.T) {
 	sdk := sdk.NewDeprecated(nil, nil, nil, db, nil, "", "")
 	s := NewExecutionServer(sdk)
 
-	_, err = s.Update(context.Background(), &api.UpdateExecutionRequest{Hash: exec.Hash.String()})
+	_, err = s.Update(context.Background(), &api.UpdateExecutionRequest{Hash: exec.Hash})
 	require.Equal(t, ErrNoOutput, err)
 }

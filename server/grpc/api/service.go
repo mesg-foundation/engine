@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/mesg-foundation/engine/hash"
 	protobuf_api "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/sdk"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
@@ -43,29 +42,20 @@ func (s *ServiceServer) Create(ctx context.Context, req *protobuf_api.CreateServ
 
 // Delete deletes service by hash or sid.
 func (s *ServiceServer) Delete(ctx context.Context, request *protobuf_api.DeleteServiceRequest) (*protobuf_api.DeleteServiceResponse, error) {
-	hash, err := hash.Decode(request.Hash)
-	if err != nil {
-		return nil, err
-	}
 	// first, check if service has any running instances.
-	instances, err := s.sdk.Instance.List(&instancesdk.Filter{ServiceHash: hash})
+	instances, err := s.sdk.Instance.List(&instancesdk.Filter{ServiceHash: request.Hash})
 	if err != nil {
 		return nil, err
 	}
 	if len(instances) > 0 {
 		return nil, errors.New("service has running instances. in order to delete the service, stop its instances first")
 	}
-	return &protobuf_api.DeleteServiceResponse{}, s.sdk.Service.Delete(hash)
+	return &protobuf_api.DeleteServiceResponse{}, s.sdk.Service.Delete(request.Hash)
 }
 
 // Get returns service from given hash.
 func (s *ServiceServer) Get(ctx context.Context, req *protobuf_api.GetServiceRequest) (*service.Service, error) {
-	hash, err := hash.Decode(req.Hash)
-	if err != nil {
-		return nil, err
-	}
-
-	service, err := s.sdk.Service.Get(hash)
+	service, err := s.sdk.Service.Get(req.Hash)
 	if err != nil {
 		return nil, err
 	}

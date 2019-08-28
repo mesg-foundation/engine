@@ -37,13 +37,13 @@ message CreateWorkflowRequest {
 // The response's data for the `Create` API.
 message CreateWorkflowResponse {
   // The workflow's hash created.
-  string hash = 1;
+  bytes hash = 1;
 }
 
 // The request's data for the `Delete` API.
 message DeleteWorkflowRequest {
   // The workflow's hash to delete.
-  string hash = 1;
+  bytes hash = 1;
 }
 
 // The response's data for the `Delete` API, doesn't contain anything.
@@ -53,7 +53,7 @@ message DeleteWorkflowResponse {
 // The request's data for the `Get` API.
 message GetWorkflowRequest {
   // The workflow's hash to fetch.
-  string hash = 1;
+  bytes hash = 1;
 }
 
 // The request's data for the `List` API.

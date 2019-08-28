@@ -177,7 +177,7 @@ message Service {
   }
 
   // Service's hash.
-  string hash = 10 [
+  bytes hash = 10 [
     (gogoproto.moretags) = 'validate:"required"'
   ];
 

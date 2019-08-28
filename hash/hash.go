@@ -18,7 +18,6 @@ var DefaultHash = sha256.New
 
 // size is a default size for hashing algorithm.
 var size = DefaultHash().Size()
-var base58size = len(Dump(0).String())
 
 // Digest represents the partial evaluation of a checksum.
 type Digest struct {
@@ -36,7 +35,7 @@ func (d *Digest) WriteObject(v interface{}) (int, error) {
 	return d.Write(structhash.Dump(v, 0))
 }
 
-// A Hash is a type for representing hash with base58 encode and decode functions.
+// A Hash is a type for representing common hash.
 type Hash []byte
 
 // New returns new hash from a given integer.
@@ -76,25 +75,12 @@ func Random() (Hash, error) {
 	return hash, nil
 }
 
-// Decode decodes the base58 encoded hash. It returns error
-// when a hash isn't base58,encoded or hash length is invalid.
-func Decode(h string) (Hash, error) {
-	hash, err := base58.Decode(h)
-	if err != nil {
-		return nil, fmt.Errorf("hash: %s", err)
-	}
-	if len(hash) != size {
-		return nil, fmt.Errorf("hash: invalid length string")
-	}
-	return Hash(hash), nil
-}
-
 // IsZero reports whethere h represents empty hash.
 func (h Hash) IsZero() bool {
 	return len(h) == 0
 }
 
-// String returns the base58 hash representation.
+// String returns the hash hex representation.
 func (h Hash) String() string {
 	return base58.Encode(h)
 }
@@ -104,18 +90,14 @@ func (h Hash) Equal(h1 Hash) bool {
 	return bytes.Equal(h, h1)
 }
 
-// Marshal marshals hash into slice of base58 bytes. It's used by protobuf.
+// Marshal marshals hash into slice of bytes. It's used by protobuf.
 func (h Hash) Marshal() ([]byte, error) {
-	return []byte(base58.Encode(h)), nil
+	return h, nil
 }
 
-// Unmarshal unmarshals slice of base58 bytes into hash. It's used by protobuf.
+// Unmarshal unmarshals slice of bytes into hash. It's used by protobuf.
 func (h *Hash) Unmarshal(data []byte) error {
-	h1, err := Decode(string(data))
-	if err != nil {
-		return err
-	}
-	*h = h1
+	*h = data
 	return nil
 }
 
@@ -124,29 +106,15 @@ func (h Hash) Size() int {
 	if len(h) == 0 {
 		return 0
 	}
-	return base58size
+	return size
 }
 
-// MarshalJSON mashals hash into base58 encoded json string.
+// MarshalJSON mashals hash into encoded json string.
 func (h Hash) MarshalJSON() ([]byte, error) {
-	return json.Marshal(base58.Encode(h))
+	return json.Marshal([]byte(h))
 }
 
-// UnmarshalJSON unmashals base58 encoded json string into hash.
+// UnmarshalJSON unmashals hex encoded json string into hash.
 func (h *Hash) UnmarshalJSON(data []byte) error {
-	var str string
-	if err := json.Unmarshal(data, &str); err != nil {
-		return err
-	}
-
-	if str == "" {
-		return nil
-	}
-
-	h1, err := Decode(str)
-	if err != nil {
-		return err
-	}
-	*h = h1
-	return nil
+	return json.Unmarshal(data, (*[]byte)(h))
 }
