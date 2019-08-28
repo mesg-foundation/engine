@@ -18,23 +18,25 @@ type Task struct {
 
 // Result is a type of node that listen for an result
 type Result struct {
-	InstanceHash hash.Hash `hash:"name:1" validate:"required"`
-	TaskKey      string    `hash:"name:2" validate:"printascii,required"`
+	Key          string    `hash:"name:1" validate:"required"`
+	InstanceHash hash.Hash `hash:"name:2" validate:"required"`
+	TaskKey      string    `hash:"name:3" validate:"printascii,required"`
 }
 
 // Event is a type of node that listen for an event
 type Event struct {
-	InstanceHash hash.Hash `hash:"name:1" validate:"required"`
+	Key          string    `hash:"name:1" validate:"required"`
+	InstanceHash hash.Hash `hash:"name:2" validate:"required"`
 	EventKey     string    `hash:"name:3" validate:"printascii,required"`
 }
 
-// Mapping is a type of Node that transform data
-type Mapping struct {
+// Map is a type of Node that transform data
+type Map struct {
 	Key     string   `hash:"name:1" validate:"required"`
 	Outputs []Output `hash:"name:2" validate:"dive,required"`
 }
 
-// Output as defined in a mapping node
+// Output as defined in a map node
 type Output struct {
 	Key string           `hash:"name:1" validate:"required"`
 	Ref *OutputReference `hash:"name:2" validate:"required"`

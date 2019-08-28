@@ -122,9 +122,9 @@ func (s *Scheduler) process(filter func(wf *workflow.Workflow, node workflow.Nod
 func (s *Scheduler) processNode(wf *workflow.Workflow, n workflow.Node, exec *execution.Execution, event *event.Event, data map[string]interface{}) error {
 	logrus.WithField("module", "orchestrator").WithField("nodeID", n.ID()).WithField("type", fmt.Sprintf("%T", n)).Debug("process workflow")
 	switch node := n.(type) {
-	case *workflow.Mapping:
+	case *workflow.Map:
 		var err error
-		data, err = s.processMapping(node, wf, exec, data)
+		data, err = s.processMap(node, wf, exec, data)
 		if err != nil {
 			return err
 		}
@@ -152,14 +152,14 @@ func (s *Scheduler) processNode(wf *workflow.Workflow, n workflow.Node, exec *ex
 
 func (s *Scheduler) canProcessChildren(node workflow.Node) bool {
 	switch node.(type) {
-	case *workflow.Event, *workflow.Result, *workflow.Mapping:
+	case *workflow.Event, *workflow.Result, *workflow.Map:
 		return true
 	default:
 		return false
 	}
 }
 
-func (s *Scheduler) processMapping(mapping *workflow.Mapping, wf *workflow.Workflow, exec *execution.Execution, data map[string]interface{}) (map[string]interface{}, error) {
+func (s *Scheduler) processMap(mapping *workflow.Map, wf *workflow.Workflow, exec *execution.Execution, data map[string]interface{}) (map[string]interface{}, error) {
 	result := make(map[string]interface{})
 	for _, output := range mapping.Outputs {
 		node, err := wf.FindNode(output.Ref.NodeKey)

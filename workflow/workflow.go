@@ -8,12 +8,12 @@ import (
 
 // ID is the ID of the Result's node
 func (r Result) ID() string {
-	return "trigger:result"
+	return r.Key
 }
 
 // ID is the ID of the Event's node
-func (r Event) ID() string {
-	return "trigger:event"
+func (e Event) ID() string {
+	return e.Key
 }
 
 // ID is the ID of the Task's node
@@ -21,8 +21,8 @@ func (m Task) ID() string {
 	return m.Key
 }
 
-// ID is the ID of the Mapping's node
-func (m Mapping) ID() string {
+// ID is the ID of the Map's node
+func (m Map) ID() string {
 	return m.Key
 }
 
@@ -38,8 +38,8 @@ func (w *Workflow) Validate() error {
 		return err
 	}
 	for _, node := range w.Graph.Nodes {
-		n, isMapping := node.(Mapping)
-		if isMapping {
+		n, isMap := node.(Map)
+		if isMap {
 			for _, output := range n.Outputs {
 				if _, err := w.FindNode(output.Ref.NodeKey); err != nil {
 					return err
