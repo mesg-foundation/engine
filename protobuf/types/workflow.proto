@@ -21,45 +21,46 @@ option go_package = "github.com/mesg-foundation/engine/protobuf/types";
 
 // A workflow is a configuration to trigger a specific task when certains conditions of a trigger are valid.
 message Workflow {
-  message Result {
-    string instanceHash = 1;  // Hash of the instance that triggers the workflow.
-    string taskKey = 2;       // Key of the task that triggers the workflow.
-  }
-  
-  message Event {
-    string instanceHash = 1;  // Hash of the instance that triggers the workflow.
-    string eventKey = 2;      // Key of the event that triggers the workflow.
-  }
-
-  message Task {
-    string key = 1;           // Key that identifies the node.
-    string instanceHash = 2;  // Hash of the instance to execute.
-    string taskKey = 3;       // Task of the instance to execute.
-  }
-  
-  message Mapping {
-    message Output {
-      message Reference {
-        string nodeKey = 1; // Key of the node in the graph. If empty, will be using the src of the edge.
-        string key = 2;     // Key of a specific parameter of the referenced node's output data.
-      }
-  
-      string key = 1;       // Key of the output.
-      oneof value {
-        Reference ref = 2;  // Input defined as reference.
-      }
-    }
-    string key = 1;               // Key of the mapping.
-    repeated Output outputs = 2;  // Outputs of the mapping.
-  }
-
   // Node of the workflow
   message Node {
+    message Result {
+      string key = 1;           // Key that identifies the node.
+      string instanceHash = 2;  // Hash of the instance that triggers the workflow.
+      string taskKey = 3;       // Key of the task that triggers the workflow.
+    }
+    
+    message Event {
+      string key = 1;           // Key that identifies the node.
+      string instanceHash = 2;  // Hash of the instance that triggers the workflow.
+      string eventKey = 3;      // Key of the event that triggers the workflow.
+    }
+
+    message Task {
+      string key = 1;           // Key that identifies the node.
+      string instanceHash = 2;  // Hash of the instance to execute.
+      string taskKey = 3;       // Task of the instance to execute.
+    }
+    
+    message Map {
+      message Output {
+        message Reference {
+          string nodeKey = 1; // Key of the node in the graph. If empty, will be using the src of the edge.
+          string key = 2;     // Key of a specific parameter of the referenced node's output data.
+        }
+    
+        string key = 1;       // Key of the output.
+        oneof value {
+          Reference ref = 2;  // Input defined as reference.
+        }
+      }
+      string key = 1;               // Key of the mapping.
+      repeated Output outputs = 2;  // Outputs of the mapping.
+    }
     oneof type {
-      Result result = 1;    // Result is a trigger that listens for a specific result.
-      Event event = 2;      // Event is a trigger that listens for a specific event.
-      Task task = 3;        // Task is a command to execute a specific task.
-      Mapping mapping = 4;  // Mapping is a set of instructions to convert data.
+      Result result = 1;  // Result is a trigger that listens for a specific result.
+      Event event = 2;    // Event is a trigger that listens for a specific event.
+      Task task = 3;      // Task is a command to execute a specific task.
+      Map map = 4;        // Map is a set of instructions to convert data.
     }
   }
   

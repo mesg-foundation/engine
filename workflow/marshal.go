@@ -21,6 +21,7 @@ func (t Task) MarshalJSON() ([]byte, error) {
 func (r Result) MarshalJSON() ([]byte, error) {
 	return json.Marshal(map[string]interface{}{
 		"type":         "result",
+		"key":          r.Key,
 		"instanceHash": r.InstanceHash.String(),
 		"taskKey":      r.TaskKey,
 	})
@@ -30,19 +31,20 @@ func (r Result) MarshalJSON() ([]byte, error) {
 func (e Event) MarshalJSON() ([]byte, error) {
 	return json.Marshal(map[string]interface{}{
 		"type":         "event",
+		"key":          e.Key,
 		"instanceHash": e.InstanceHash.String(),
 		"eventKey":     e.EventKey,
 	})
 }
 
 // MarshalJSON for the task
-func (m Mapping) MarshalJSON() ([]byte, error) {
+func (m Map) MarshalJSON() ([]byte, error) {
 	// outputs, err := json.Marshal(m.Outputs)
 	// if err != nil {
 	// 	return nil, err
 	// }
 	return json.Marshal(map[string]interface{}{
-		"type":    "mapping",
+		"type":    "map",
 		"key":     m.Key,
 		"outputs": m.Outputs,
 	})
@@ -112,8 +114,8 @@ func (w *Workflow) UnmarshalJSON(b []byte) error {
 				return err
 			}
 			w.Graph.Nodes[i] = &node
-		case "mapping":
-			var node Mapping
+		case "map":
+			var node Map
 			if err := json.Unmarshal(marshalData, &node); err != nil {
 				return err
 			}

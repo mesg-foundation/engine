@@ -10,6 +10,7 @@ import (
 func TestValidateWorkflow(t *testing.T) {
 
 	trigger := Result{
+		Key:          "trigger:result",
 		InstanceHash: hash.Int(2),
 		TaskKey:      "-",
 	}
@@ -158,7 +159,7 @@ func TestValidateWorkflow(t *testing.T) {
 			Hash: hash.Int(1),
 			Key:  "inputs-with-invalid-node",
 			Graph: Graph{
-				Nodes: append(nodes, Mapping{
+				Nodes: append(nodes, Map{
 					Key: "mapping",
 					Outputs: []Output{
 						{Key: "-", Ref: &OutputReference{Key: "-", NodeKey: "invalid"}},
@@ -170,7 +171,7 @@ func TestValidateWorkflow(t *testing.T) {
 			Hash: hash.Int(1),
 			Key:  "inputs-with-valid-ref",
 			Graph: Graph{
-				Nodes: append(nodes, Mapping{
+				Nodes: append(nodes, Map{
 					Key: "mapping",
 					Outputs: []Output{
 						{Key: "-", Ref: &OutputReference{Key: "-", NodeKey: "nodeKey1"}},
