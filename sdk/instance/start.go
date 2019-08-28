@@ -38,7 +38,7 @@ func (i *Instance) start(inst *instance.Instance, imageHash string, env []string
 			Labels: map[string]string{
 				"mesg.engine":     i.engineName,
 				"mesg.sid":        srv.Sid,
-				"mesg.service":    srv.Hash.String(),
+				"mesg.service":    srv.Hash,
 				"mesg.instance":   inst.Hash.String(),
 				"mesg.dependency": d.Key,
 			},
@@ -66,7 +66,7 @@ func (i *Instance) start(inst *instance.Instance, imageHash string, env []string
 		Labels: map[string]string{
 			"mesg.engine":     i.engineName,
 			"mesg.sid":        srv.Sid,
-			"mesg.service":    srv.Hash.String(),
+			"mesg.service":    srv.Hash,
 			"mesg.instance":   inst.Hash.String(),
 			"mesg.dependency": service.MainServiceKey,
 		},

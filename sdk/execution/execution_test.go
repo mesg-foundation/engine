@@ -73,10 +73,12 @@ func newTesting(t *testing.T) (*Execution, *apiTesting) {
 	}
 }
 
+var hs1 = hash.Int(1)
+
 var testService = &service.Service{
 	Name: "1",
 	Sid:  "2",
-	Hash: hash.Int(1),
+	Hash: hs1.String(),
 	Tasks: []*service.Service_Task{
 		{Key: "4"},
 	},
@@ -87,7 +89,7 @@ var testService = &service.Service{
 
 var testInstance = &instance.Instance{
 	Hash:        hash.Int(2),
-	ServiceHash: testService.Hash,
+	ServiceHash: hs1,
 }
 
 func TestGet(t *testing.T) {
@@ -139,7 +141,7 @@ func TestExecuteInvalidTaskKey(t *testing.T) {
 
 	require.NoError(t, at.serviceDB.Save(testService))
 
-	_, err := sdk.Execute(nil, testService.Hash, hash.Int(1), nil, "", "-", map[string]interface{}{}, nil)
+	_, err := sdk.Execute(nil, hs1, hash.Int(1), nil, "", "-", map[string]interface{}{}, nil)
 	require.Error(t, err)
 }
 
