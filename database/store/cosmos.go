@@ -95,25 +95,27 @@ func (s *CosmosStore) Close() error {
 
 // CosmosIterator is a Cosmos KVStore's iterator implementation of Iterator.
 type CosmosIterator struct {
-	iter types.Iterator
-	err  error
+	iter  types.Iterator
+	err   error
+	valid bool // HACK for next function. Iterator of cosmos already contains the first element at its creation.
 }
 
 // NewCosmosIterator returns a new Cosmos KVStore Iterator wrapper.
 func NewCosmosIterator(iter types.Iterator) *CosmosIterator {
 	return &CosmosIterator{
-		iter: iter,
+		iter:  iter,
+		valid: false,
 	}
 }
 
 // Next moves the iterator to the next sequential key in the store.
 func (i *CosmosIterator) Next() bool {
 	defer i.handleError()
-	valid := i.iter.Valid()
-	if valid {
+	if i.valid {
 		i.iter.Next()
 	}
-	return valid
+	i.valid = i.iter.Valid()
+	return i.valid
 }
 
 // Key returns the key of the cursor.
