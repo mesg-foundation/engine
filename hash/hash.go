@@ -18,6 +18,7 @@ var DefaultHash = sha256.New
 
 // size is a default size for hashing algorithm.
 var size = DefaultHash().Size()
+var base58size = len(Dump(0).String())
 
 // Digest represents the partial evaluation of a checksum.
 type Digest struct {
@@ -123,7 +124,7 @@ func (h Hash) Size() int {
 	if len(h) == 0 {
 		return 0
 	}
-	return size
+	return base58size
 }
 
 // MarshalJSON mashals hash into base58 encoded json string.

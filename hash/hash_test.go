@@ -94,7 +94,7 @@ func TestUnmarshal(t *testing.T) {
 
 func TestSize(t *testing.T) {
 	assert.Equal(t, 0, Hash(nil).Size())
-	assert.Equal(t, size, zero.Size())
+	assert.Equal(t, base58size, zero.Size())
 }
 
 func TestMarshalJSON(t *testing.T) {
