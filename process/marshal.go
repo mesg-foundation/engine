@@ -1,4 +1,4 @@
-package workflow
+package process
 
 import (
 	"encoding/json"
@@ -55,25 +55,25 @@ func (f Filter) MarshalJSON() ([]byte, error) {
 	})
 }
 
-// UnmarshalJSON unmashals a workflow
-func (w *Workflow) UnmarshalJSON(b []byte) error {
+// UnmarshalJSON unmashals a process
+func (p *Process) UnmarshalJSON(b []byte) error {
 	var objMap map[string]*json.RawMessage
 	err := json.Unmarshal(b, &objMap)
 	if err != nil {
 		return err
 	}
 
-	err = json.Unmarshal(*objMap["Hash"], &w.Hash)
+	err = json.Unmarshal(*objMap["Hash"], &p.Hash)
 	if err != nil {
 		return err
 	}
 
-	err = json.Unmarshal(*objMap["Key"], &w.Key)
+	err = json.Unmarshal(*objMap["Key"], &p.Key)
 	if err != nil {
 		return err
 	}
 
-	err = json.Unmarshal(*objMap["Edges"], &w.Edges)
+	err = json.Unmarshal(*objMap["Edges"], &p.Edges)
 	if err != nil {
 		return err
 	}
@@ -84,27 +84,27 @@ func (w *Workflow) UnmarshalJSON(b []byte) error {
 		return err
 	}
 
-	w.Graph.Nodes = make([]Node, len(rawNodes))
+	p.Graph.Nodes = make([]Node, len(rawNodes))
 	for i, rawNode := range rawNodes {
 		var nodeInfo map[string]interface{}
 		err = json.Unmarshal(*rawNode, &nodeInfo)
 		if err != nil {
 			return err
 		}
-		data, err := w.preprocessUnmashalNode(nodeInfo)
+		data, err := p.preprocessUnmashalNode(nodeInfo)
 		if err != nil {
 			return err
 		}
-		node, err := w.unmarshalNode(nodeInfo["type"].(string), data)
+		node, err := p.unmarshalNode(nodeInfo["type"].(string), data)
 		if err != nil {
 			return err
 		}
-		w.Graph.Nodes[i] = node
+		p.Graph.Nodes[i] = node
 	}
 	return nil
 }
 
-func (w *Workflow) unmarshalNode(nodeType string, data map[string]interface{}) (Node, error) {
+func (p *Process) unmarshalNode(nodeType string, data map[string]interface{}) (Node, error) {
 	marshalData, err := json.Marshal(data)
 	if err != nil {
 		return nil, err
@@ -145,7 +145,7 @@ func (w *Workflow) unmarshalNode(nodeType string, data map[string]interface{}) (
 	}
 }
 
-func (w *Workflow) preprocessUnmashalNode(nodeInfo map[string]interface{}) (map[string]interface{}, error) {
+func (p *Process) preprocessUnmashalNode(nodeInfo map[string]interface{}) (map[string]interface{}, error) {
 	data := make(map[string]interface{})
 	for key, value := range nodeInfo {
 		if key == "type" {

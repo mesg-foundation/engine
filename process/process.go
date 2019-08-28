@@ -1,4 +1,4 @@
-package workflow
+package process
 
 import (
 	"fmt"
@@ -31,36 +31,36 @@ func (f Filter) ID() string {
 	return f.Key
 }
 
-// Validate returns an error if the workflow is invalid for whatever reason
-func (w *Workflow) Validate() error {
-	if err := validator.New().Struct(w); err != nil {
+// Validate returns an error if the process is invalid for whatever reason
+func (p *Process) Validate() error {
+	if err := validator.New().Struct(p); err != nil {
 		return err
 	}
-	if err := w.Graph.validate(); err != nil {
+	if err := p.Graph.validate(); err != nil {
 		return err
 	}
-	if _, err := w.Trigger(); err != nil {
+	if _, err := p.Trigger(); err != nil {
 		return err
 	}
-	for _, node := range w.Graph.Nodes {
+	for _, node := range p.Graph.Nodes {
 		n, isMap := node.(Map)
 		if isMap {
 			for _, output := range n.Outputs {
-				if _, err := w.FindNode(output.Ref.NodeKey); err != nil {
+				if _, err := p.FindNode(output.Ref.NodeKey); err != nil {
 					return err
 				}
 			}
 		}
 	}
-	if err := w.shouldBeDirectedTree(); err != nil {
+	if err := p.shouldBeDirectedTree(); err != nil {
 		return err
 	}
 	return nil
 }
 
-// Trigger returns the trigger of the workflow
-func (w *Workflow) Trigger() (Node, error) {
-	triggers := w.Graph.FindNodes(func(n Node) bool {
+// Trigger returns the trigger of the process
+func (p *Process) Trigger() (Node, error) {
+	triggers := p.Graph.FindNodes(func(n Node) bool {
 		_, isResult := n.(Result)
 		_, isEvent := n.(Event)
 		return isResult || isEvent

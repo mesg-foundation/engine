@@ -15,7 +15,7 @@ const (
 	servicedbname  = "service.db.test"
 	instancedbname = "instance.db.test"
 	execdbname     = "exec.db.test"
-	workflowdbname = "workflow.db.test"
+	processdbname  = "process.db.test"
 )
 
 func newServerWithContainer(t *testing.T, c container.Container) (*Server, func()) {
@@ -29,10 +29,10 @@ func newServerWithContainer(t *testing.T, c container.Container) (*Server, func(
 	execDB, err := database.NewExecutionDB(execdbname)
 	require.NoError(t, err)
 
-	workflowDB, err := database.NewWorkflowDB(workflowdbname)
+	processDB, err := database.NewProcessDB(processdbname)
 	require.NoError(t, err)
 
-	a := sdk.NewDeprecated(c, db, instanceDB, execDB, workflowDB, "", "")
+	a := sdk.NewDeprecated(c, db, instanceDB, execDB, processDB, "", "")
 
 	server := NewServer(a)
 
@@ -40,11 +40,11 @@ func newServerWithContainer(t *testing.T, c container.Container) (*Server, func(
 		db.Close()
 		instanceDB.Close()
 		execDB.Close()
-		workflowDB.Close()
+		processDB.Close()
 		os.RemoveAll(servicedbname)
 		os.RemoveAll(instancedbname)
 		os.RemoveAll(execdbname)
-		os.RemoveAll(workflowdbname)
+		os.RemoveAll(processdbname)
 	}
 	return server, closer
 }

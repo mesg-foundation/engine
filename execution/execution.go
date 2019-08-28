@@ -35,7 +35,7 @@ func (s Status) String() (r string) {
 // Execution stores all information about executions.
 type Execution struct {
 	Hash         hash.Hash              `hash:"-"`
-	WorkflowHash hash.Hash              `hash:"name:workflowHash"`
+	ProcessHash  hash.Hash              `hash:"name:processHash"`
 	ParentHash   hash.Hash              `hash:"name:parentHash"`
 	EventHash    hash.Hash              `hash:"name:eventHash"`
 	Status       Status                 `hash:"-"`
@@ -49,9 +49,9 @@ type Execution struct {
 }
 
 // New returns a new execution. It returns an error if inputs are invalid.
-func New(workflowHash, instanceHash, parentHash, eventHash hash.Hash, stepID string, taskKey string, inputs map[string]interface{}, tags []string) *Execution {
+func New(processHash, instanceHash, parentHash, eventHash hash.Hash, stepID string, taskKey string, inputs map[string]interface{}, tags []string) *Execution {
 	exec := &Execution{
-		WorkflowHash: workflowHash,
+		ProcessHash:  processHash,
 		EventHash:    eventHash,
 		InstanceHash: instanceHash,
 		ParentHash:   parentHash,

@@ -1,4 +1,4 @@
-package workflow
+package process
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestValidateWorkflow(t *testing.T) {
+func TestValidateProcess(t *testing.T) {
 
 	trigger := Result{
 		Key:          "trigger:result",
@@ -34,22 +34,22 @@ func TestValidateWorkflow(t *testing.T) {
 	}
 
 	var tests = []struct {
-		w     *Workflow
+		p     *Process
 		valid bool
 		err   string
 	}{
-		{w: &Workflow{
+		{p: &Process{
 			Hash: hash.Int(1),
 			Key:  "invalid-struct",
 		}, err: "should contain exactly one trigger"},
-		{w: &Workflow{
+		{p: &Process{
 			Graph: Graph{
 				Nodes: []Node{Result{InstanceHash: hash.Int(1)}},
 			},
 			Hash: hash.Int(1),
 			Key:  "missing-key",
 		}, err: "Error:Field validation for 'TaskKey' failed on the 'required' tag"},
-		{w: &Workflow{
+		{p: &Process{
 			Hash: hash.Int(1),
 			Key:  "edge-src-missing-node",
 			Graph: Graph{
@@ -59,7 +59,7 @@ func TestValidateWorkflow(t *testing.T) {
 				),
 			},
 		}, err: "node \"-\" not found"},
-		{w: &Workflow{
+		{p: &Process{
 			Hash: hash.Int(1),
 			Key:  "edge-dst-missing-node",
 			Graph: Graph{
@@ -69,7 +69,7 @@ func TestValidateWorkflow(t *testing.T) {
 				),
 			},
 		}, err: "node \"-\" not found"},
-		{w: &Workflow{
+		{p: &Process{
 			Hash: hash.Int(1),
 			Key:  "cyclic-graph",
 			Graph: Graph{
@@ -79,8 +79,8 @@ func TestValidateWorkflow(t *testing.T) {
 					Edge{Src: "nodeKey2", Dst: "nodeKey1"},
 				),
 			},
-		}, err: "workflow should not contain any cycles"},
-		{w: &Workflow{
+		}, err: "process should not contain any cycles"},
+		{p: &Process{
 			Hash: hash.Int(1),
 			Key:  "non-connected-graph",
 			Graph: Graph{
@@ -98,8 +98,8 @@ func TestValidateWorkflow(t *testing.T) {
 					Edge{Src: "nodeKey3", Dst: "nodeKey4"},
 				),
 			},
-		}, err: "workflow should be a connected graph"},
-		{w: &Workflow{
+		}, err: "process should be a connected graph"},
+		{p: &Process{
 			Hash: hash.Int(1),
 			Key:  "multiple-parent-graph",
 			Graph: Graph{
@@ -119,8 +119,8 @@ func TestValidateWorkflow(t *testing.T) {
 					Edge{Src: "nodeKey3", Dst: "nodeKey4"},
 				),
 			},
-		}, err: "workflow should contain nodes with one parent maximum"},
-		{w: &Workflow{
+		}, err: "process should contain nodes with one parent maximum"},
+		{p: &Process{
 			Hash: hash.Int(1),
 			Key:  "multiple-parent-graph",
 			Graph: Graph{
@@ -155,7 +155,7 @@ func TestValidateWorkflow(t *testing.T) {
 				),
 			},
 		}, valid: true},
-		{w: &Workflow{
+		{p: &Process{
 			Hash: hash.Int(1),
 			Key:  "inputs-with-invalid-node",
 			Graph: Graph{
@@ -167,7 +167,7 @@ func TestValidateWorkflow(t *testing.T) {
 				}),
 			},
 		}, err: "node \"invalid\" not found"},
-		{w: &Workflow{
+		{p: &Process{
 			Hash: hash.Int(1),
 			Key:  "inputs-with-valid-ref",
 			Graph: Graph{
@@ -185,11 +185,11 @@ func TestValidateWorkflow(t *testing.T) {
 		}, valid: true},
 	}
 	for _, test := range tests {
-		err := test.w.Validate()
+		err := test.p.Validate()
 		if test.valid {
-			assert.Nil(t, err, test.w.Key)
+			assert.Nil(t, err, test.p.Key)
 		} else {
-			assert.Contains(t, test.w.Validate().Error(), test.err, test.w.Key)
+			assert.Contains(t, test.p.Validate().Error(), test.err, test.p.Key)
 		}
 	}
 }

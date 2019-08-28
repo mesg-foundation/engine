@@ -12,17 +12,17 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/instance"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
+	processsdk "github.com/mesg-foundation/engine/sdk/process"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
-	workflowsdk "github.com/mesg-foundation/engine/sdk/workflow"
 	"github.com/mesg-foundation/engine/service"
 	"github.com/stretchr/testify/require"
 )
 
 const (
-	servicedbname  = "service.db.test"
-	instdbname     = "instance.db.test"
-	execdbname     = "exec.db.test"
-	workflowdbname = "workflow.db.test"
+	servicedbname = "service.db.test"
+	instdbname    = "instance.db.test"
+	execdbname    = "exec.db.test"
+	processdbname = "process.db.test"
 )
 
 type apiTesting struct {
@@ -30,18 +30,18 @@ type apiTesting struct {
 	serviceDB   *database.ServiceDB
 	executionDB *database.LevelDBExecutionDB
 	instanceDB  *database.LevelDBInstanceDB
-	workflowDB  *database.LevelDBWorkflowDB
+	processDB   *database.LevelDBProcessDB
 }
 
 func (t *apiTesting) close() {
 	require.NoError(t, t.serviceDB.Close())
 	require.NoError(t, t.executionDB.Close())
 	require.NoError(t, t.instanceDB.Close())
-	require.NoError(t, t.workflowDB.Close())
+	require.NoError(t, t.processDB.Close())
 	require.NoError(t, os.RemoveAll(servicedbname))
 	require.NoError(t, os.RemoveAll(execdbname))
 	require.NoError(t, os.RemoveAll(instdbname))
-	require.NoError(t, os.RemoveAll(workflowdbname))
+	require.NoError(t, os.RemoveAll(processdbname))
 }
 
 func newTesting(t *testing.T) (*Execution, *apiTesting) {
@@ -58,18 +58,18 @@ func newTesting(t *testing.T) (*Execution, *apiTesting) {
 	execDB, err := database.NewExecutionDB(execdbname)
 	require.NoError(t, err)
 
-	workflowDB, err := database.NewWorkflowDB(workflowdbname)
+	processDB, err := database.NewProcessDB(processdbname)
 	require.NoError(t, err)
-	workflow := workflowsdk.New(instance, workflowDB)
+	process := processsdk.New(instance, processDB)
 
-	sdk := New(pubsub.New(0), service, instance, workflow, execDB)
+	sdk := New(pubsub.New(0), service, instance, process, execDB)
 
 	return sdk, &apiTesting{
 		T:           t,
 		serviceDB:   db,
 		executionDB: execDB,
 		instanceDB:  instDB,
-		workflowDB:  workflowDB,
+		processDB:   processDB,
 	}
 }
 

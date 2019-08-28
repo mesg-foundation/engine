@@ -1,4 +1,4 @@
-package workflow
+package process
 
 import "fmt"
 
@@ -152,16 +152,16 @@ func (g Graph) maximumParents() int {
 
 func (g Graph) shouldBeDirectedTree() error {
 	if !g.hasNodes() {
-		return fmt.Errorf("workflow needs to have at least one node")
+		return fmt.Errorf("process needs to have at least one node")
 	}
 	if !g.isAcyclic() {
-		return fmt.Errorf("workflow should not contain any cycles")
+		return fmt.Errorf("process should not contain any cycles")
 	}
 	if !g.isConnected() {
-		return fmt.Errorf("workflow should be a connected graph")
+		return fmt.Errorf("process should be a connected graph")
 	}
 	if g.maximumParents() > 1 {
-		return fmt.Errorf("workflow should contain nodes with one parent maximum")
+		return fmt.Errorf("process should contain nodes with one parent maximum")
 	}
 	return nil
 }

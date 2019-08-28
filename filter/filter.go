@@ -1,9 +1,9 @@
 package filter
 
-// Predicate is the type of conditions that can be applied in a filter of a workflow trigger
+// Predicate is the type of conditions that can be applied in a filter of a process trigger
 type Predicate uint
 
-// List of possible conditions for workflow's filter
+// List of possible conditions for process's filter
 const (
 	EQ Predicate = iota + 1
 )
