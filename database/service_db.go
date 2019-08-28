@@ -84,14 +84,21 @@ func (d *ServiceDB) Get(hash hash.Hash) (*service.Service, error) {
 // Save stores service in database.
 // If there is an another service that uses the same sid, it'll be deleted.
 func (d *ServiceDB) Save(s *service.Service) error {
-	if s.Hash.IsZero() {
+	if s.Hash == "" {
+		return errCannotSaveWithoutHash
+	}
+	h, err := hash.Decode(s.Hash)
+	if err != nil {
+		return err
+	}
+	if h.IsZero() {
 		return errCannotSaveWithoutHash
 	}
 	b, err := d.marshal(s)
 	if err != nil {
 		return err
 	}
-	return d.s.Put(s.Hash, b)
+	return d.s.Put(h, b)
 }
 
 // Close closes database.
