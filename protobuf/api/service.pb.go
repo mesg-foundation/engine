@@ -7,7 +7,7 @@ import (
 	context "context"
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
-	types "github.com/mesg-foundation/engine/protobuf/types"
+	service "github.com/mesg-foundation/engine/service"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -34,13 +34,13 @@ type CreateServiceRequest struct {
 	// Service's description.
 	Description string `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
 	// Configurations related to the service
-	Configuration *types.Service_Configuration `protobuf:"bytes,4,opt,name=configuration,proto3" json:"configuration,omitempty"`
+	Configuration *service.Service_Configuration `protobuf:"bytes,4,opt,name=configuration,proto3" json:"configuration,omitempty"`
 	// The list of tasks this service can execute.
-	Tasks []*types.Service_Task `protobuf:"bytes,5,rep,name=tasks,proto3" json:"tasks,omitempty"`
+	Tasks []*service.Service_Task `protobuf:"bytes,5,rep,name=tasks,proto3" json:"tasks,omitempty"`
 	// The list of events this service can emit.
-	Events []*types.Service_Event `protobuf:"bytes,6,rep,name=events,proto3" json:"events,omitempty"`
+	Events []*service.Service_Event `protobuf:"bytes,6,rep,name=events,proto3" json:"events,omitempty"`
 	// The container dependencies this service requires.
-	Dependencies []*types.Service_Dependency `protobuf:"bytes,7,rep,name=dependencies,proto3" json:"dependencies,omitempty"`
+	Dependencies []*service.Service_Dependency `protobuf:"bytes,7,rep,name=dependencies,proto3" json:"dependencies,omitempty"`
 	// Service's repository url.
 	Repository string `protobuf:"bytes,8,opt,name=repository,proto3" json:"repository,omitempty"`
 	// The hash id of service's source code on IPFS.
@@ -96,28 +96,28 @@ func (m *CreateServiceRequest) GetDescription() string {
 	return ""
 }
 
-func (m *CreateServiceRequest) GetConfiguration() *types.Service_Configuration {
+func (m *CreateServiceRequest) GetConfiguration() *service.Service_Configuration {
 	if m != nil {
 		return m.Configuration
 	}
 	return nil
 }
 
-func (m *CreateServiceRequest) GetTasks() []*types.Service_Task {
+func (m *CreateServiceRequest) GetTasks() []*service.Service_Task {
 	if m != nil {
 		return m.Tasks
 	}
 	return nil
 }
 
-func (m *CreateServiceRequest) GetEvents() []*types.Service_Event {
+func (m *CreateServiceRequest) GetEvents() []*service.Service_Event {
 	if m != nil {
 		return m.Events
 	}
 	return nil
 }
 
-func (m *CreateServiceRequest) GetDependencies() []*types.Service_Dependency {
+func (m *CreateServiceRequest) GetDependencies() []*service.Service_Dependency {
 	if m != nil {
 		return m.Dependencies
 	}
@@ -328,10 +328,10 @@ var xxx_messageInfo_ListServiceRequest proto.InternalMessageInfo
 // The response's data for the `List` API.
 type ListServiceResponse struct {
 	// List of services that match the request's filters.
-	Services             []*types.Service `protobuf:"bytes,1,rep,name=services,proto3" json:"services,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
-	XXX_unrecognized     []byte           `json:"-"`
-	XXX_sizecache        int32            `json:"-"`
+	Services             []*service.Service `protobuf:"bytes,1,rep,name=services,proto3" json:"services,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}           `json:"-"`
+	XXX_unrecognized     []byte             `json:"-"`
+	XXX_sizecache        int32              `json:"-"`
 }
 
 func (m *ListServiceResponse) Reset()         { *m = ListServiceResponse{} }
@@ -359,7 +359,7 @@ func (m *ListServiceResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ListServiceResponse proto.InternalMessageInfo
 
-func (m *ListServiceResponse) GetServices() []*types.Service {
+func (m *ListServiceResponse) GetServices() []*service.Service {
 	if m != nil {
 		return m.Services
 	}
@@ -428,7 +428,7 @@ type ServiceClient interface {
 	// An error is returned if one or more Instances of the Service are running.
 	Delete(ctx context.Context, in *DeleteServiceRequest, opts ...grpc.CallOption) (*DeleteServiceResponse, error)
 	// Get returns a Service matching the criteria of the request.
-	Get(ctx context.Context, in *GetServiceRequest, opts ...grpc.CallOption) (*types.Service, error)
+	Get(ctx context.Context, in *GetServiceRequest, opts ...grpc.CallOption) (*service.Service, error)
 	// List returns services specified in a request.
 	List(ctx context.Context, in *ListServiceRequest, opts ...grpc.CallOption) (*ListServiceResponse, error)
 }
@@ -459,8 +459,8 @@ func (c *serviceClient) Delete(ctx context.Context, in *DeleteServiceRequest, op
 	return out, nil
 }
 
-func (c *serviceClient) Get(ctx context.Context, in *GetServiceRequest, opts ...grpc.CallOption) (*types.Service, error) {
-	out := new(types.Service)
+func (c *serviceClient) Get(ctx context.Context, in *GetServiceRequest, opts ...grpc.CallOption) (*service.Service, error) {
+	out := new(service.Service)
 	err := c.cc.Invoke(ctx, "/api.Service/Get", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -486,7 +486,7 @@ type ServiceServer interface {
 	// An error is returned if one or more Instances of the Service are running.
 	Delete(context.Context, *DeleteServiceRequest) (*DeleteServiceResponse, error)
 	// Get returns a Service matching the criteria of the request.
-	Get(context.Context, *GetServiceRequest) (*types.Service, error)
+	Get(context.Context, *GetServiceRequest) (*service.Service, error)
 	// List returns services specified in a request.
 	List(context.Context, *ListServiceRequest) (*ListServiceResponse, error)
 }
@@ -501,7 +501,7 @@ func (*UnimplementedServiceServer) Create(ctx context.Context, req *CreateServic
 func (*UnimplementedServiceServer) Delete(ctx context.Context, req *DeleteServiceRequest) (*DeleteServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (*UnimplementedServiceServer) Get(ctx context.Context, req *GetServiceRequest) (*types.Service, error) {
+func (*UnimplementedServiceServer) Get(ctx context.Context, req *GetServiceRequest) (*service.Service, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
 func (*UnimplementedServiceServer) List(ctx context.Context, req *ListServiceRequest) (*ListServiceResponse, error) {

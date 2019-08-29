@@ -107,7 +107,11 @@ func (i *Instance) Create(serviceHash hash.Hash, env []string) (*instance.Instan
 
 	// calculate instance's hash.
 	h := hash.New()
-	h.Write(srv.Hash)
+	hsh, err := hash.Decode(srv.Hash)
+	if err != nil {
+		return nil, err
+	}
+	h.Write(hsh)
 	h.Write([]byte(xos.EnvMapToString(instanceEnv)))
 	instanceHash := h.Sum(nil)
 
@@ -121,7 +125,7 @@ func (i *Instance) Create(serviceHash hash.Hash, env []string) (*instance.Instan
 	// save & start instance.
 	inst := &instance.Instance{
 		Hash:        instanceHash,
-		ServiceHash: srv.Hash,
+		ServiceHash: hsh,
 	}
 	if err := i.instanceDB.Save(inst); err != nil {
 		return nil, err

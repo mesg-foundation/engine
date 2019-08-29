@@ -8,6 +8,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+var (
+	zero       = Int(0)
+	one        = Int(1)
+	oneStr     = "4uQeVj5tqViQh7yWWGStvkEG1Zmhx6uasJtWCJziofM"
+	oneJSONStr = "\"" + oneStr + "\""
+)
+
 func TestDigest(t *testing.T) {
 	d := New()
 	d.Write([]byte{0})
@@ -24,7 +31,7 @@ func TestDump(t *testing.T) {
 }
 
 func TestInt(t *testing.T) {
-	assert.Len(t, Int(1), size)
+	assert.Equal(t, uint8(1), Int(1)[0])
 }
 
 func TestRandom(t *testing.T) {
@@ -49,9 +56,9 @@ func TestRandom(t *testing.T) {
 }
 
 func TestDecode(t *testing.T) {
-	hash, err := Decode("4uQeVj5tqViQh7yWWGStvkEG1Zmhx6uasJtWCJziofM")
+	hash, err := Decode(oneStr)
 	assert.NoError(t, err)
-	assert.Equal(t, hash, Int(1))
+	assert.Equal(t, hash, one)
 
 	_, err = Decode("0")
 	assert.Equal(t, "hash: invalid base58 digit ('0')", err.Error())
@@ -65,10 +72,39 @@ func TestIsZero(t *testing.T) {
 }
 
 func TestString(t *testing.T) {
-	assert.Equal(t, Int(1).String(), "4uQeVj5tqViQh7yWWGStvkEG1Zmhx6uasJtWCJziofM")
+	assert.Equal(t, one.String(), oneStr)
 }
 
 func TestEqual(t *testing.T) {
-	assert.True(t, Int(0).Equal(Int(0)))
-	assert.False(t, Int(0).Equal(Int(1)))
+	assert.True(t, zero.Equal(zero))
+	assert.False(t, zero.Equal(one))
+}
+
+func TestMarshal(t *testing.T) {
+	b, err := one.Marshal()
+	assert.NoError(t, err)
+	assert.Equal(t, oneStr, string(b))
+}
+
+func TestUnmarshal(t *testing.T) {
+	var h Hash
+	assert.NoError(t, h.Unmarshal([]byte(oneStr)))
+	assert.Equal(t, one, h)
+}
+
+func TestSize(t *testing.T) {
+	assert.Equal(t, 0, Hash(nil).Size())
+	assert.Equal(t, base58size, zero.Size())
+}
+
+func TestMarshalJSON(t *testing.T) {
+	b, err := one.MarshalJSON()
+	assert.NoError(t, err)
+	assert.Equal(t, oneJSONStr, string(b))
+}
+
+func TestUnmarshalJSON(t *testing.T) {
+	var h Hash
+	assert.NoError(t, h.UnmarshalJSON([]byte(oneJSONStr)))
+	assert.Equal(t, one, h)
 }

@@ -21,6 +21,7 @@ require (
 	github.com/go-kit/kit v0.9.0 // indirect
 	github.com/go-playground/locales v0.12.1
 	github.com/go-playground/universal-translator v0.16.0
+	github.com/gogo/protobuf v1.2.1
 	github.com/golang/mock v1.3.1 // indirect
 	github.com/golang/protobuf v1.3.2
 	github.com/google/go-cmp v0.3.1 // indirect
@@ -37,8 +38,6 @@ require (
 	github.com/magiconair/properties v1.8.1 // indirect
 	github.com/mattn/go-isatty v0.0.8 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
-	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/mr-tron/base58 v1.1.1
 	github.com/mwitkow/go-proto-validators v0.0.0-20190212092829-1f388280e944 // indirect
 	github.com/onsi/ginkgo v1.8.0 // indirect
