@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/binary"
+	"encoding/json"
 	"fmt"
 	"hash"
 
@@ -17,6 +18,7 @@ var DefaultHash = sha256.New
 
 // size is a default size for hashing algorithm.
 var size = DefaultHash().Size()
+var base58size = len(Dump(0).String())
 
 // Digest represents the partial evaluation of a checksum.
 type Digest struct {
@@ -100,4 +102,51 @@ func (h Hash) String() string {
 // Equal returns a boolean reporting whether h and h1 are the same hashes.
 func (h Hash) Equal(h1 Hash) bool {
 	return bytes.Equal(h, h1)
+}
+
+// Marshal marshals hash into slice of base58 bytes. It's used by protobuf.
+func (h Hash) Marshal() ([]byte, error) {
+	return []byte(base58.Encode(h)), nil
+}
+
+// Unmarshal unmarshals slice of base58 bytes into hash. It's used by protobuf.
+func (h *Hash) Unmarshal(data []byte) error {
+	h1, err := Decode(string(data))
+	if err != nil {
+		return err
+	}
+	*h = h1
+	return nil
+}
+
+// Size retruns size of hash. It's used by protobuf.
+func (h Hash) Size() int {
+	if len(h) == 0 {
+		return 0
+	}
+	return base58size
+}
+
+// MarshalJSON mashals hash into base58 encoded json string.
+func (h Hash) MarshalJSON() ([]byte, error) {
+	return json.Marshal(base58.Encode(h))
+}
+
+// UnmarshalJSON unmashals base58 encoded json string into hash.
+func (h *Hash) UnmarshalJSON(data []byte) error {
+	var str string
+	if err := json.Unmarshal(data, &str); err != nil {
+		return err
+	}
+
+	if str == "" {
+		return nil
+	}
+
+	h1, err := Decode(str)
+	if err != nil {
+		return err
+	}
+	*h = h1
+	return nil
 }

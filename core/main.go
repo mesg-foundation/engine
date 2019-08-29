@@ -74,7 +74,11 @@ func deployCoreServices(cfg *config.Config, sdk *enginesdk.SDK) error {
 			}
 		}
 		logrus.WithField("module", "main").Infof("Service %q deployed with hash %q", srv.Sid, srv.Hash)
-		instance, err := sdk.Instance.Create(srv.Hash, xos.EnvMapToSlice(serviceConfig.Env))
+		hsh, err := hash.Decode(srv.Hash)
+		if err != nil {
+			return err
+		}
+		instance, err := sdk.Instance.Create(hsh, xos.EnvMapToSlice(serviceConfig.Env))
 		if err != nil {
 			existsError, ok := err.(*instancesdk.AlreadyExistsError)
 			if ok {
@@ -155,7 +159,7 @@ func main() {
 		app := cosmos.NewApp(logger.TendermintLogger(), db)
 
 		// init sdk.
-		sdk, err = enginesdk.New(app, c, serviceDB, instanceDB, executionDB, workflowDB, cfg.Name, strconv.Itoa(port))
+		sdk, err = enginesdk.New(app, c, instanceDB, executionDB, workflowDB, cfg.Name, strconv.Itoa(port))
 		if err != nil {
 			logrus.WithField("module", "main").Fatalln(err)
 		}
@@ -173,11 +177,11 @@ func main() {
 		}
 	} else {
 		sdk = enginesdk.NewDeprecated(c, serviceDB, instanceDB, executionDB, workflowDB, cfg.Name, strconv.Itoa(port))
-	}
 
-	// init system services.
-	if err := deployCoreServices(cfg, sdk); err != nil {
-		logrus.WithField("module", "main").Fatalln(err)
+		// init system services.
+		if err := deployCoreServices(cfg, sdk); err != nil {
+			logrus.WithField("module", "main").Fatalln(err)
+		}
 	}
 
 	// init gRPC server.
