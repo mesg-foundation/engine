@@ -5,7 +5,6 @@ import (
 	"github.com/mesg-foundation/engine/instance"
 	"github.com/mesg-foundation/engine/service"
 	"github.com/mesg-foundation/engine/x/xos"
-	"github.com/mr-tron/base58"
 )
 
 // Start starts the service.
@@ -39,7 +38,7 @@ func (i *Instance) start(inst *instance.Instance, imageHash string, env []string
 			Labels: map[string]string{
 				"mesg.engine":     i.engineName,
 				"mesg.sid":        srv.Sid,
-				"mesg.service":    base58.Encode(srv.Hash), // TODO: change to srv.Hash.String() after set custom type in proto
+				"mesg.service":    srv.Hash.String(),
 				"mesg.instance":   inst.Hash.String(),
 				"mesg.dependency": d.Key,
 			},
@@ -67,7 +66,7 @@ func (i *Instance) start(inst *instance.Instance, imageHash string, env []string
 		Labels: map[string]string{
 			"mesg.engine":     i.engineName,
 			"mesg.sid":        srv.Sid,
-			"mesg.service":    base58.Encode(srv.Hash), // TODO: change to srv.Hash.String() after set custom type in proto
+			"mesg.service":    srv.Hash.String(),
 			"mesg.instance":   inst.Hash.String(),
 			"mesg.dependency": service.MainServiceKey,
 		},
