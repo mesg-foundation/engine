@@ -4,13 +4,11 @@ import (
 	"context"
 	"errors"
 
-	structpb "github.com/golang/protobuf/ptypes/struct"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/convert"
-	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/sdk"
 	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
 )
@@ -49,7 +47,7 @@ func (s *ExecutionServer) Create(ctx context.Context, req *api.CreateExecutionRe
 }
 
 // Get returns execution from given hash.
-func (s *ExecutionServer) Get(ctx context.Context, req *api.GetExecutionRequest) (*types.Execution, error) {
+func (s *ExecutionServer) Get(ctx context.Context, req *api.GetExecutionRequest) (*execution.Execution, error) {
 	exec, err := s.sdk.Execution.Get(req.Hash)
 	if err != nil {
 		return nil, err
@@ -119,31 +117,4 @@ func (s *ExecutionServer) Update(ctx context.Context, req *api.UpdateExecutionRe
 	}
 	return &api.UpdateExecutionResponse{}, nil
 
-}
-
-func toProtoExecution(exec *execution.Execution) (*types.Execution, error) {
-	inputs := &structpb.Struct{}
-	if err := convert.Unmarshal(exec.Inputs, inputs); err != nil {
-		return nil, err
-	}
-
-	outputs := &structpb.Struct{}
-	if err := convert.Unmarshal(exec.Outputs, outputs); err != nil {
-		return nil, err
-	}
-
-	return &types.Execution{
-		Hash:         exec.Hash,
-		WorkflowHash: exec.WorkflowHash,
-		ParentHash:   exec.ParentHash,
-		EventHash:    exec.EventHash,
-		Status:       types.Status(exec.Status),
-		InstanceHash: exec.InstanceHash,
-		TaskKey:      exec.TaskKey,
-		Inputs:       inputs,
-		Outputs:      outputs,
-		Tags:         exec.Tags,
-		Error:        exec.Error,
-		StepID:       exec.StepID,
-	}, nil
 }

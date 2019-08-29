@@ -7,10 +7,21 @@ PROJECT=/project
 GRPC=$PROJECT/protobuf
 GRPC_PLUGIN="--go_out=plugins=grpc,paths=source_relative:."
 
-protoc $GRPC_PLUGIN --proto_path=$PROJECT $GRPC/types/event.proto
-protoc $GRPC_PLUGIN --proto_path=$PROJECT $GRPC/types/execution.proto
-protoc $GRPC_PLUGIN --proto_path=$PROJECT $GRPC/types/instance.proto
-protoc $GRPC_PLUGIN --proto_path=$PROJECT $GRPC/types/workflow.proto
+protoc --gogofaster_out=plugins=grpc,paths=source_relative:./event/ \
+       --proto_path=/project/protobuf/types \
+       event.proto
+
+protoc --gogofaster_out=plugins=grpc,paths=source_relative:./execution/ \
+       --proto_path=/project/protobuf/types \
+       execution.proto
+
+protoc --gogofaster_out=plugins=grpc,paths=source_relative:./instance/ \
+       --proto_path=/project/protobuf/types \
+       instance.proto
+
+protoc --gogofaster_out=plugins=grpc,paths=source_relative:./workflow/ \
+       --proto_path=/project/protobuf/types \
+       workflow.proto
 
 protoc --gogofaster_out=plugins=grpc,paths=source_relative:./service/ \
        --proto_path=/project/protobuf/types \

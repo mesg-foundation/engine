@@ -23,18 +23,18 @@ func (w Workflow) ParentIDs(nodeKey string) []string {
 }
 
 // FindNode returns the node matching the key in parameter or an error if not found
-func (w Workflow) FindNode(key string) (Node, error) {
+func (w Workflow) FindNode(key string) (*Workflow_Node, error) {
 	for _, node := range w.Nodes {
 		if node.Key == key {
 			return node, nil
 		}
 	}
-	return Node{}, fmt.Errorf("node %q not found", key)
+	return nil, fmt.Errorf("node %q not found", key)
 }
 
 // EdgesFrom return all the edges that has a common source
-func (w Workflow) EdgesFrom(src string) []Edge {
-	edges := make([]Edge, 0)
+func (w Workflow) EdgesFrom(src string) []*Workflow_Edge {
+	edges := make([]*Workflow_Edge, 0)
 	for _, edge := range w.Edges {
 		if edge.Src == src {
 			edges = append(edges, edge)

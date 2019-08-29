@@ -9,21 +9,21 @@ import (
 
 func TestMatch(t *testing.T) {
 	var tests = []struct {
-		filters TriggerFilters
+		filters []*Workflow_Trigger_Filter
 		data    map[string]interface{}
 		match   bool
 	}{
 		{ // not matching filter
-			filters: []*TriggerFilter{
-				{Key: "foo", Predicate: EQ, Value: "xx"},
+			filters: []*Workflow_Trigger_Filter{
+				{Key: "foo", Predicate: Workflow_Trigger_Filter_EQ, Value: "xx"},
 			},
 			data:  map[string]interface{}{"foo": "bar"},
 			match: false,
 		},
 		{ // matching multiple filters
-			filters: []*TriggerFilter{
-				{Key: "foo", Predicate: EQ, Value: "bar"},
-				{Key: "xxx", Predicate: EQ, Value: "yyy"},
+			filters: []*Workflow_Trigger_Filter{
+				{Key: "foo", Predicate: Workflow_Trigger_Filter_EQ, Value: "bar"},
+				{Key: "xxx", Predicate: Workflow_Trigger_Filter_EQ, Value: "yyy"},
 			},
 			data: map[string]interface{}{
 				"foo": "bar",
@@ -33,9 +33,9 @@ func TestMatch(t *testing.T) {
 			match: true,
 		},
 		{ // non matching multiple filters
-			filters: []*TriggerFilter{
-				{Key: "foo", Predicate: EQ, Value: "bar"},
-				{Key: "xxx", Predicate: EQ, Value: "aaa"},
+			filters: []*Workflow_Trigger_Filter{
+				{Key: "foo", Predicate: Workflow_Trigger_Filter_EQ, Value: "bar"},
+				{Key: "xxx", Predicate: Workflow_Trigger_Filter_EQ, Value: "aaa"},
 			},
 			data: map[string]interface{}{
 				"foo": "bar",
@@ -46,20 +46,27 @@ func TestMatch(t *testing.T) {
 		},
 	}
 	for i, test := range tests {
-		match := test.filters.Match(test.data)
+		match := true
+		for _, f := range test.filters {
+			if !f.Match(test.data) {
+				match = false
+				break
+			}
+		}
 		assert.Equal(t, test.match, match, i)
 	}
 }
 
 func TestValidateWorkflow(t *testing.T) {
-
-	trigger := Trigger{
+	trigger := Workflow_Trigger{
 		InstanceHash: hash.Int(2),
-		TaskKey:      "-",
-		NodeKey:      "nodeKey1",
+		Key: &Workflow_Trigger_TaskKey{
+			TaskKey: "-",
+		},
+		NodeKey: "nodeKey1",
 	}
 
-	nodes := []Node{
+	nodes := []*Workflow_Node{
 		{
 			Key:          "nodeKey1",
 			InstanceHash: hash.Int(2),
@@ -82,7 +89,7 @@ func TestValidateWorkflow(t *testing.T) {
 			Key:  "invalid-struct",
 		}, err: "Error:Field validation"},
 		{w: &Workflow{
-			Trigger: Trigger{InstanceHash: hash.Int(1), NodeKey: "-"},
+			Trigger: Workflow_Trigger{InstanceHash: hash.Int(1), NodeKey: "-"},
 			Hash:    hash.Int(1),
 			Key:     "missing-key",
 		}, err: "Key: 'Workflow.Trigger.TaskKey' Error:Field validation for 'TaskKey' failed on the 'required_without' tag"},
@@ -96,7 +103,7 @@ func TestValidateWorkflow(t *testing.T) {
 			Key:     "edge-src-missing-node",
 			Trigger: trigger,
 			Nodes:   nodes,
-			Edges: []Edge{
+			Edges: []*Workflow_Edge{
 				{Src: "-", Dst: "nodeKey2"},
 			},
 		}, err: "node \"-\" not found"},
@@ -105,7 +112,7 @@ func TestValidateWorkflow(t *testing.T) {
 			Key:     "edge-dst-missing-node",
 			Trigger: trigger,
 			Nodes:   nodes,
-			Edges: []Edge{
+			Edges: []*Workflow_Edge{
 				{Src: "nodeKey1", Dst: "-"},
 			},
 		}, err: "node \"-\" not found"},
@@ -114,7 +121,7 @@ func TestValidateWorkflow(t *testing.T) {
 			Key:     "cyclic-graph",
 			Trigger: trigger,
 			Nodes:   nodes,
-			Edges: []Edge{
+			Edges: []*Workflow_Edge{
 				{Src: "nodeKey1", Dst: "nodeKey2"},
 				{Src: "nodeKey2", Dst: "nodeKey1"},
 			},
@@ -123,16 +130,16 @@ func TestValidateWorkflow(t *testing.T) {
 			Hash:    hash.Int(1),
 			Key:     "non-connected-graph",
 			Trigger: trigger,
-			Nodes: append(nodes, Node{
+			Nodes: append(nodes, &Workflow_Node{
 				Key:          "nodeKey3",
 				InstanceHash: hash.Int(2),
 				TaskKey:      "-",
-			}, Node{
+			}, &Workflow_Node{
 				Key:          "nodeKey4",
 				InstanceHash: hash.Int(2),
 				TaskKey:      "-",
 			}),
-			Edges: []Edge{
+			Edges: []*Workflow_Edge{
 				{Src: "nodeKey1", Dst: "nodeKey2"},
 				{Src: "nodeKey3", Dst: "nodeKey4"},
 			},
@@ -141,16 +148,16 @@ func TestValidateWorkflow(t *testing.T) {
 			Hash:    hash.Int(1),
 			Key:     "multiple-parent-graph",
 			Trigger: trigger,
-			Nodes: append(nodes, Node{
+			Nodes: append(nodes, &Workflow_Node{
 				Key:          "nodeKey3",
 				InstanceHash: hash.Int(2),
 				TaskKey:      "-",
-			}, Node{
+			}, &Workflow_Node{
 				Key:          "nodeKey4",
 				InstanceHash: hash.Int(2),
 				TaskKey:      "-",
 			}),
-			Edges: []Edge{
+			Edges: []*Workflow_Edge{
 				{Src: "nodeKey1", Dst: "nodeKey2"},
 				{Src: "nodeKey1", Dst: "nodeKey3"},
 				{Src: "nodeKey2", Dst: "nodeKey4"},
@@ -161,28 +168,28 @@ func TestValidateWorkflow(t *testing.T) {
 			Hash:    hash.Int(1),
 			Key:     "multiple-parent-graph",
 			Trigger: trigger,
-			Nodes: append(nodes, Node{
+			Nodes: append(nodes, &Workflow_Node{
 				Key:          "nodeKey3",
 				InstanceHash: hash.Int(2),
 				TaskKey:      "-",
-			}, Node{
+			}, &Workflow_Node{
 				Key:          "nodeKey4",
 				InstanceHash: hash.Int(2),
 				TaskKey:      "-",
-			}, Node{
+			}, &Workflow_Node{
 				Key:          "nodeKey5",
 				InstanceHash: hash.Int(2),
 				TaskKey:      "-",
-			}, Node{
+			}, &Workflow_Node{
 				Key:          "nodeKey6",
 				InstanceHash: hash.Int(2),
 				TaskKey:      "-",
-			}, Node{
+			}, &Workflow_Node{
 				Key:          "nodeKey7",
 				InstanceHash: hash.Int(2),
 				TaskKey:      "-",
 			}),
-			Edges: []Edge{
+			Edges: []*Workflow_Edge{
 				{Src: "nodeKey1", Dst: "nodeKey2"},
 				{Src: "nodeKey2", Dst: "nodeKey3"},
 				{Src: "nodeKey2", Dst: "nodeKey4"},
@@ -196,10 +203,20 @@ func TestValidateWorkflow(t *testing.T) {
 			Key:     "inputs-with-invalid-node",
 			Trigger: trigger,
 			Nodes:   nodes,
-			Edges: []Edge{
-				{Src: "nodeKey1", Dst: "nodeKey2", Inputs: []*Input{
-					{Key: "-", Ref: &InputReference{Key: "-", NodeKey: "invalid"}},
-				}},
+			Edges: []*Workflow_Edge{
+				{
+					Src: "nodeKey1",
+					Dst: "nodeKey2",
+					Inputs: []*Workflow_Edge_Input{
+						{
+							Key: "-",
+							Value: &Workflow_Edge_Input_Ref{
+								Ref: &Workflow_Edge_Input_Reference{
+									Key:     "-",
+									NodeKey: "invalid"},
+							},
+						},
+					}},
 			},
 		}, err: "node \"invalid\" not found"},
 		{w: &Workflow{
@@ -207,10 +224,20 @@ func TestValidateWorkflow(t *testing.T) {
 			Key:     "inputs-with-valid-ref",
 			Trigger: trigger,
 			Nodes:   nodes,
-			Edges: []Edge{
-				{Src: "nodeKey1", Dst: "nodeKey2", Inputs: []*Input{
-					{Key: "-", Ref: &InputReference{Key: "-", NodeKey: "nodeKey1"}},
-				}},
+			Edges: []*Workflow_Edge{
+				{
+					Src: "nodeKey1",
+					Dst: "nodeKey2",
+					Inputs: []*Workflow_Edge_Input{
+						{
+							Key: "-",
+							Value: &Workflow_Edge_Input_Ref{
+								Ref: &Workflow_Edge_Input_Reference{
+									Key:     "-",
+									NodeKey: "nodeKey1"},
+							},
+						},
+					}},
 			},
 		}, valid: true},
 	}

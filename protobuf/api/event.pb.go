@@ -8,7 +8,7 @@ import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
 	_struct "github.com/golang/protobuf/ptypes/struct"
-	types "github.com/mesg-foundation/engine/protobuf/types"
+	event "github.com/mesg-foundation/engine/event"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -310,7 +310,7 @@ func (c *eventClient) Stream(ctx context.Context, in *StreamEventRequest, opts .
 }
 
 type Event_StreamClient interface {
-	Recv() (*types.Event, error)
+	Recv() (*event.Event, error)
 	grpc.ClientStream
 }
 
@@ -318,8 +318,8 @@ type eventStreamClient struct {
 	grpc.ClientStream
 }
 
-func (x *eventStreamClient) Recv() (*types.Event, error) {
-	m := new(types.Event)
+func (x *eventStreamClient) Recv() (*event.Event, error) {
+	m := new(event.Event)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -377,7 +377,7 @@ func _Event_Stream_Handler(srv interface{}, stream grpc.ServerStream) error {
 }
 
 type Event_StreamServer interface {
-	Send(*types.Event) error
+	Send(*event.Event) error
 	grpc.ServerStream
 }
 
@@ -385,7 +385,7 @@ type eventStreamServer struct {
 	grpc.ServerStream
 }
 
-func (x *eventStreamServer) Send(m *types.Event) error {
+func (x *eventStreamServer) Send(m *event.Event) error {
 	return x.ServerStream.SendMsg(m)
 }
 

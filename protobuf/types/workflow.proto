@@ -1,7 +1,11 @@
 syntax = "proto3";
 
+import "gogo/protobuf/gogoproto/gogo.proto";
+
 package types;
-option go_package = "github.com/mesg-foundation/engine/protobuf/types";
+option go_package = "github.com/mesg-foundation/engine/workflow";
+
+option (gogoproto.goproto_getters_all) = false;
 
 // A workflow is a configuration to trigger a specific task when certains conditions of a trigger are valid.
 message Workflow {
@@ -13,52 +17,149 @@ message Workflow {
 
       // Type of condition available to compare the values.
       enum Predicate {
-        Unknown = 0;  // Predicate not defined.
-        EQ = 1;       // Equal
+        // Predicate not defined.
+        Unknown = 0;
+
+        // Equal
+        EQ = 1;
       }
 
-      string key = 1;           // Key to check.
-      Predicate predicate = 2;  // Type of condition to apply.
-      string value = 3;         // Value of the filter
+      // Key to check.
+      string key = 1 [
+        (gogoproto.moretags) = 'hash:"name:1" validate:"printascii,required"'
+      ];
+
+      // Type of condition to apply.
+      Predicate predicate = 2 [
+        (gogoproto.moretags) = 'hash:"name:2" validate:"required"'
+      ];
+
+      // Value of the filter.
+      string value = 3 [
+        (gogoproto.moretags) = 'hash:"name:3" validate:"required"'
+      ];
     }
 
-    bytes instanceHash = 1;      // Hash of the instance that triggers the workflow.
+    // Hash of the instance that triggers the workflow.
+    bytes instanceHash = 1 [
+      (gogoproto.moretags) = 'hash:"name:1" validate:"required"',
+      (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+      (gogoproto.nullable) = false
+    ];
+
     // Workflow can be trigger by either an Event or a Task (not both).
     oneof key {
-      string taskKey = 2;         // Key of the task that triggers the workflow.
-      string eventKey = 3;        // Key of the event that triggers the workflow.
+      // Key of the task that triggers the workflow.
+      string taskKey = 2 [
+        (gogoproto.moretags) = 'hash:"name:1" validate:"printascii,dive,required_without=EventKey"'
+      ];
+
+      // Key of the event that triggers the workflow.
+      string eventKey = 3 [
+        (gogoproto.moretags) = 'hash:"name:3" validate:"printascii,dive,required_without=TaskKey"'
+      ];
     }
-    repeated Filter filters = 4;  // List of filters to apply on the data of the event/result.
-    string nodeKey = 5;           // First node to trigger when the workflow starts.
+
+    // List of filters to apply on the data of the event/result.
+    repeated Filter filters = 4 [
+      (gogoproto.moretags) = 'hash:"name:4" validate:"dive,required"'
+    ];
+
+    // First node to trigger when the workflow starts.
+    string nodeKey = 5 [
+      (gogoproto.moretags) = 'hash:"name:5" validate:"required"'
+    ];
   }
 
   // Definition of the node to execute when the workflow is triggered.
   message Node {
-    string key = 1;           // Key that identifies the node.
-    bytes instanceHash = 2;  // Hash of the instance to execute.
-    string taskKey = 3;       // Task of the instance to execute.
+
+    // Key that identifies the node.
+    string key = 1 [
+      (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
+    ];
+
+    // Hash of the instance to execute.
+    bytes instanceHash = 2 [
+      (gogoproto.moretags) = 'hash:"name:2" validate:"required"',
+      (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+      (gogoproto.nullable) = false
+    ];
+
+    // Task of the instance to execute.
+    string taskKey = 3 [
+      (gogoproto.moretags) = 'hash:"name:3" validate:"required,printascii"'
+    ];
   }
 
   message Edge {
     message Input {
       message Reference {
-        string nodeKey = 1; // Key of the node in the graph. If empty, will be using the src of the edge.
-        string key = 2;     // Key of a specific parameter of the referenced node's output data.
+        // Key of the node in the graph. If empty, will be using the src of the edge.
+        string nodeKey = 1 [
+          (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
+        ];
+
+        // Key of a specific parameter of the referenced node's output data.
+        string key = 2 [
+          (gogoproto.moretags) = 'hash:"name:2" validate:"required"'
+        ];
       }
 
-      string key = 1;       // Key of the input (as defined in the the service's task definition).
+      // Key of the input (as defined in the the service's task definition).
+      string key = 1 [
+        (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
+      ];
+
       oneof value {
-        Reference ref = 2;  // Input defined as reference.
+        // Input defined as reference.
+        Reference ref = 2 [
+          (gogoproto.moretags) = 'hash:"name:2" validate:"required"'
+        ];
       }
     }
-    string src = 1;             // Source of the edge.
-    string dst = 2;             // Destination of the edge.
-    repeated Input inputs = 3;  // Inputs for the destination task.
+
+    // Source of the edge.
+    string src = 1 [
+      (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
+    ];
+
+    // Destination of the edge.
+    string dst = 2 [
+      (gogoproto.moretags) = 'hash:"name:2" validate:"required"'
+    ];
+
+    // Inputs for the destination task.
+    repeated Input inputs = 3 [
+      (gogoproto.moretags) = 'hash:"name:3" validate:"dive,required"'
+    ];
   }
 
-  bytes hash = 1;          // Workflow's hash    
-  string key = 2;           // Workflow's key
-  Trigger trigger = 3;      // Trigger for the workflow.
-  repeated Node nodes = 4;  // Nodes with information related to the execution to trigger.
-  repeated Edge edges = 5;  // Edges to create the link between the nodes.
+  // Workflow's hash    
+  bytes hash = 1 [
+    (gogoproto.moretags) = 'hash:"-" validate:"required"',
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
+
+  // Workflow's key
+  string key = 2 [
+    (gogoproto.moretags) = 'hash:"name:2" validate:"required"'
+  ];
+
+  // Trigger for the workflow.
+  Trigger trigger = 3 [
+    (gogoproto.moretags) = 'hash:"name:3" validate:"required"',
+    (gogoproto.nullable) = false
+  ];
+
+  // Nodes with information related to the execution to trigger.
+  repeated Node nodes = 4 [
+    (gogoproto.moretags) = 'hash:"name:4" validate:"dive,required"'
+  ];
+
+  // Edges to create the link between the nodes.
+  repeated Edge edges = 5 [
+    (gogoproto.moretags) = 'hash:"name:5" validate:"dive,required"'
+  ];
 }

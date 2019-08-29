@@ -2,6 +2,7 @@ package eventsdk
 
 import (
 	"github.com/cskr/pubsub"
+	_struct "github.com/golang/protobuf/ptypes/struct"
 	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/hash"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
@@ -30,7 +31,7 @@ func New(ps *pubsub.PubSub, service servicesdk.Service, instance *instancesdk.In
 }
 
 // Create a MESG event eventKey with eventData for service token.
-func (e *Event) Create(instanceHash hash.Hash, eventKey string, eventData map[string]interface{}) (*event.Event, error) {
+func (e *Event) Create(instanceHash hash.Hash, eventKey string, eventData *_struct.Struct) (*event.Event, error) {
 	event := event.Create(instanceHash, eventKey, eventData)
 
 	instance, err := e.instance.Get(event.InstanceHash)

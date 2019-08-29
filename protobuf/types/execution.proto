@@ -1,9 +1,12 @@
 syntax = "proto3";
 
 import "google/protobuf/struct.proto";
+import "gogo/protobuf/gogoproto/gogo.proto";
 
 package types;
-option go_package = "github.com/mesg-foundation/engine/protobuf/types";
+option go_package = "github.com/mesg-foundation/engine/execution";
+
+option (gogoproto.goproto_getters_all) = false;
 
 // Status represents the status of a single execution.
 // Note that a valid execution must have only one status
@@ -28,38 +31,78 @@ enum Status {
 // Execution represents a single execution run in engine.
 message Execution {
   // Hash is a unique hash to identify execution.
-  bytes hash = 1;
+  bytes hash = 1 [
+    (gogoproto.moretags) = 'hash:"-"',
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
 
-  // parentHash is the unique hash of parent execution. if execution is triggered by another one, dependency execution considered as the parent.
-  bytes parentHash = 2;
+  // parentHash is the unique hash of parent execution.
+  // If execution is triggered by another one, 
+  // dependency execution considered as the parent.
+  bytes parentHash = 2 [
+    (gogoproto.moretags) = 'hash:"name:2"',
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+
+  ];
 
   // eventHash is unique event hash.
-  bytes eventHash = 3;
+  bytes eventHash = 3 [
+    (gogoproto.moretags) = 'hash:"name:3"',
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+
+  ];
 
   // Status is the current status of execution.
-  Status status = 4;
+  Status status = 4 [
+    (gogoproto.moretags) = 'hash:"-"'
+  ];
 
   // instanceHash is hash of the instance that can proceed an execution
-  bytes instanceHash = 5;
+  bytes instanceHash = 5 [
+    (gogoproto.moretags) = 'hash:"name:5"',
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+
+  ];
 
   // taskKey is the key of the task of this execution.
-  string taskKey = 6;
+  string taskKey = 6 [
+    (gogoproto.moretags) = 'hash:"name:6"'
+  ];
 
   // inputs data of the execution.
-  google.protobuf.Struct inputs = 7;
+  google.protobuf.Struct inputs = 7 [
+    (gogoproto.moretags) = 'hash:"name:7"'
+  ];
 
   // outputs are the returned data of successful execution.
-  google.protobuf.Struct outputs = 8;
+  google.protobuf.Struct outputs = 8 [
+    (gogoproto.moretags) = 'hash:"-"'
+  ];
 
   // error message of a failed execution.
-  string error = 9;
+  string error = 9 [
+    (gogoproto.moretags) = 'hash:"-"'
+  ];
 
   // tags are optionally associated with execution by the user.
-  repeated string tags = 10;
+  repeated string tags = 10 [
+    (gogoproto.moretags) = 'hash:"name:10"'
+  ];
 
   // workflowHash is the unique hash of the workflow associated to this execution.
-  bytes workflowHash = 11;
+  bytes workflowHash = 11 [
+    (gogoproto.moretags) = 'hash:"-"',
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+
+  ];
 
   // step of the workflow.
-  string stepID = 12;
+  string stepID = 12 [
+    (gogoproto.moretags) = 'hash:"name:12"'
+  ];
 }

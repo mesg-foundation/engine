@@ -7,7 +7,7 @@ import (
 	context "context"
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
-	types "github.com/mesg-foundation/engine/protobuf/types"
+	instance "github.com/mesg-foundation/engine/instance"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -109,10 +109,10 @@ func (m *ListInstancesRequest) GetServiceHash() []byte {
 // The response's data for the `List` API.
 type ListInstancesResponse struct {
 	// List of instances that match the request's filters.
-	Instances            []*types.Instance `protobuf:"bytes,1,rep,name=instances,proto3" json:"instances,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
-	XXX_unrecognized     []byte            `json:"-"`
-	XXX_sizecache        int32             `json:"-"`
+	Instances            []*instance.Instance `protobuf:"bytes,1,rep,name=instances,proto3" json:"instances,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
+	XXX_unrecognized     []byte               `json:"-"`
+	XXX_sizecache        int32                `json:"-"`
 }
 
 func (m *ListInstancesResponse) Reset()         { *m = ListInstancesResponse{} }
@@ -140,7 +140,7 @@ func (m *ListInstancesResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ListInstancesResponse proto.InternalMessageInfo
 
-func (m *ListInstancesResponse) GetInstances() []*types.Instance {
+func (m *ListInstancesResponse) GetInstances() []*instance.Instance {
 	if m != nil {
 		return m.Instances
 	}
@@ -369,7 +369,7 @@ const _ = grpc.SupportPackageIsVersion4
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type InstanceClient interface {
 	// Get returns an Instance matching the criteria of the request.
-	Get(ctx context.Context, in *GetInstanceRequest, opts ...grpc.CallOption) (*types.Instance, error)
+	Get(ctx context.Context, in *GetInstanceRequest, opts ...grpc.CallOption) (*instance.Instance, error)
 	// List returns all Instances matching the criteria of the request.
 	List(ctx context.Context, in *ListInstancesRequest, opts ...grpc.CallOption) (*ListInstancesResponse, error)
 	// Create an Instance from a Service's hash and custom environmental variables.
@@ -387,8 +387,8 @@ func NewInstanceClient(cc *grpc.ClientConn) InstanceClient {
 	return &instanceClient{cc}
 }
 
-func (c *instanceClient) Get(ctx context.Context, in *GetInstanceRequest, opts ...grpc.CallOption) (*types.Instance, error) {
-	out := new(types.Instance)
+func (c *instanceClient) Get(ctx context.Context, in *GetInstanceRequest, opts ...grpc.CallOption) (*instance.Instance, error) {
+	out := new(instance.Instance)
 	err := c.cc.Invoke(ctx, "/api.Instance/Get", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -426,7 +426,7 @@ func (c *instanceClient) Delete(ctx context.Context, in *DeleteInstanceRequest, 
 // InstanceServer is the server API for Instance service.
 type InstanceServer interface {
 	// Get returns an Instance matching the criteria of the request.
-	Get(context.Context, *GetInstanceRequest) (*types.Instance, error)
+	Get(context.Context, *GetInstanceRequest) (*instance.Instance, error)
 	// List returns all Instances matching the criteria of the request.
 	List(context.Context, *ListInstancesRequest) (*ListInstancesResponse, error)
 	// Create an Instance from a Service's hash and custom environmental variables.
@@ -440,7 +440,7 @@ type InstanceServer interface {
 type UnimplementedInstanceServer struct {
 }
 
-func (*UnimplementedInstanceServer) Get(ctx context.Context, req *GetInstanceRequest) (*types.Instance, error) {
+func (*UnimplementedInstanceServer) Get(ctx context.Context, req *GetInstanceRequest) (*instance.Instance, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
 func (*UnimplementedInstanceServer) List(ctx context.Context, req *ListInstancesRequest) (*ListInstancesResponse, error) {

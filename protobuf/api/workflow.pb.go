@@ -7,7 +7,7 @@ import (
 	context "context"
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
-	types "github.com/mesg-foundation/engine/protobuf/types"
+	workflow "github.com/mesg-foundation/engine/workflow"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -27,13 +27,13 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 // The request's data for the `Create` API.
 type CreateWorkflowRequest struct {
-	Key                  string                  `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
-	Trigger              *types.Workflow_Trigger `protobuf:"bytes,3,opt,name=trigger,proto3" json:"trigger,omitempty"`
-	Nodes                []*types.Workflow_Node  `protobuf:"bytes,4,rep,name=nodes,proto3" json:"nodes,omitempty"`
-	Edges                []*types.Workflow_Edge  `protobuf:"bytes,5,rep,name=edges,proto3" json:"edges,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}                `json:"-"`
-	XXX_unrecognized     []byte                  `json:"-"`
-	XXX_sizecache        int32                   `json:"-"`
+	Key                  string                     `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
+	Trigger              *workflow.Workflow_Trigger `protobuf:"bytes,3,opt,name=trigger,proto3" json:"trigger,omitempty"`
+	Nodes                []*workflow.Workflow_Node  `protobuf:"bytes,4,rep,name=nodes,proto3" json:"nodes,omitempty"`
+	Edges                []*workflow.Workflow_Edge  `protobuf:"bytes,5,rep,name=edges,proto3" json:"edges,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                   `json:"-"`
+	XXX_unrecognized     []byte                     `json:"-"`
+	XXX_sizecache        int32                      `json:"-"`
 }
 
 func (m *CreateWorkflowRequest) Reset()         { *m = CreateWorkflowRequest{} }
@@ -68,21 +68,21 @@ func (m *CreateWorkflowRequest) GetKey() string {
 	return ""
 }
 
-func (m *CreateWorkflowRequest) GetTrigger() *types.Workflow_Trigger {
+func (m *CreateWorkflowRequest) GetTrigger() *workflow.Workflow_Trigger {
 	if m != nil {
 		return m.Trigger
 	}
 	return nil
 }
 
-func (m *CreateWorkflowRequest) GetNodes() []*types.Workflow_Node {
+func (m *CreateWorkflowRequest) GetNodes() []*workflow.Workflow_Node {
 	if m != nil {
 		return m.Nodes
 	}
 	return nil
 }
 
-func (m *CreateWorkflowRequest) GetEdges() []*types.Workflow_Edge {
+func (m *CreateWorkflowRequest) GetEdges() []*workflow.Workflow_Edge {
 	if m != nil {
 		return m.Edges
 	}
@@ -279,10 +279,10 @@ var xxx_messageInfo_ListWorkflowRequest proto.InternalMessageInfo
 // The response's data for the `List` API.
 type ListWorkflowResponse struct {
 	// List of workflows that match the request's filters.
-	Workflows            []*types.Workflow `protobuf:"bytes,1,rep,name=workflows,proto3" json:"workflows,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
-	XXX_unrecognized     []byte            `json:"-"`
-	XXX_sizecache        int32             `json:"-"`
+	Workflows            []*workflow.Workflow `protobuf:"bytes,1,rep,name=workflows,proto3" json:"workflows,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
+	XXX_unrecognized     []byte               `json:"-"`
+	XXX_sizecache        int32                `json:"-"`
 }
 
 func (m *ListWorkflowResponse) Reset()         { *m = ListWorkflowResponse{} }
@@ -310,7 +310,7 @@ func (m *ListWorkflowResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ListWorkflowResponse proto.InternalMessageInfo
 
-func (m *ListWorkflowResponse) GetWorkflows() []*types.Workflow {
+func (m *ListWorkflowResponse) GetWorkflows() []*workflow.Workflow {
 	if m != nil {
 		return m.Workflows
 	}
@@ -374,7 +374,7 @@ type WorkflowClient interface {
 	// An error is returned if one or more Instances of the workflow are running.
 	Delete(ctx context.Context, in *DeleteWorkflowRequest, opts ...grpc.CallOption) (*DeleteWorkflowResponse, error)
 	// Get returns a workflow matching the criteria of the request.
-	Get(ctx context.Context, in *GetWorkflowRequest, opts ...grpc.CallOption) (*types.Workflow, error)
+	Get(ctx context.Context, in *GetWorkflowRequest, opts ...grpc.CallOption) (*workflow.Workflow, error)
 	// List returns workflows specified in a request.
 	List(ctx context.Context, in *ListWorkflowRequest, opts ...grpc.CallOption) (*ListWorkflowResponse, error)
 }
@@ -405,8 +405,8 @@ func (c *workflowClient) Delete(ctx context.Context, in *DeleteWorkflowRequest, 
 	return out, nil
 }
 
-func (c *workflowClient) Get(ctx context.Context, in *GetWorkflowRequest, opts ...grpc.CallOption) (*types.Workflow, error) {
-	out := new(types.Workflow)
+func (c *workflowClient) Get(ctx context.Context, in *GetWorkflowRequest, opts ...grpc.CallOption) (*workflow.Workflow, error) {
+	out := new(workflow.Workflow)
 	err := c.cc.Invoke(ctx, "/api.Workflow/Get", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -432,7 +432,7 @@ type WorkflowServer interface {
 	// An error is returned if one or more Instances of the workflow are running.
 	Delete(context.Context, *DeleteWorkflowRequest) (*DeleteWorkflowResponse, error)
 	// Get returns a workflow matching the criteria of the request.
-	Get(context.Context, *GetWorkflowRequest) (*types.Workflow, error)
+	Get(context.Context, *GetWorkflowRequest) (*workflow.Workflow, error)
 	// List returns workflows specified in a request.
 	List(context.Context, *ListWorkflowRequest) (*ListWorkflowResponse, error)
 }
@@ -447,7 +447,7 @@ func (*UnimplementedWorkflowServer) Create(ctx context.Context, req *CreateWorkf
 func (*UnimplementedWorkflowServer) Delete(ctx context.Context, req *DeleteWorkflowRequest) (*DeleteWorkflowResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (*UnimplementedWorkflowServer) Get(ctx context.Context, req *GetWorkflowRequest) (*types.Workflow, error) {
+func (*UnimplementedWorkflowServer) Get(ctx context.Context, req *GetWorkflowRequest) (*workflow.Workflow, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
 func (*UnimplementedWorkflowServer) List(ctx context.Context, req *ListWorkflowRequest) (*ListWorkflowResponse, error) {

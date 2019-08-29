@@ -11,9 +11,11 @@ func (w *Workflow) Validate() error {
 	if err := validator.New().Struct(w); err != nil {
 		return err
 	}
-	if w.Trigger.TaskKey != "" && w.Trigger.EventKey != "" {
+
+	if w.Trigger.Key == nil {
 		return fmt.Errorf("cannot set TaskKey and EventKey at the same time")
 	}
+
 	// Check that the initial trigger connects to an existing node.
 	if _, err := w.FindNode(w.Trigger.NodeKey); err != nil {
 		return err
@@ -27,11 +29,10 @@ func (w *Workflow) Validate() error {
 			return err
 		}
 		for _, input := range edge.Inputs {
-			if input.Ref.NodeKey == "" {
-				continue
-			}
-			if _, err := w.FindNode(input.Ref.NodeKey); err != nil {
-				return err
+			if ref := input.GetRef(); ref != nil {
+				if _, err := w.FindNode(ref.NodeKey); err != nil {
+					return err
+				}
 			}
 		}
 	}
@@ -41,22 +42,10 @@ func (w *Workflow) Validate() error {
 	return nil
 }
 
-// Match returns true if the data match the current list of filters
-func (f TriggerFilters) Match(data map[string]interface{}) bool {
-	filters := []*TriggerFilter(f)
-	for _, filter := range filters {
-		if !filter.Match(data) {
-			return false
-		}
-	}
-
-	return true
-}
-
-// Match returns true the current filter matches the given data
-func (f *TriggerFilter) Match(inputs map[string]interface{}) bool {
+// Match returns true the current filter matches the given data.
+func (f *Workflow_Trigger_Filter) Match(inputs map[string]interface{}) bool {
 	switch f.Predicate {
-	case EQ:
+	case Workflow_Trigger_Filter_EQ:
 		return inputs[f.Key] == f.Value
 	default:
 		return false

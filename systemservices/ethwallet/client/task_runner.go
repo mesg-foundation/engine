@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	structpb "github.com/golang/protobuf/ptypes/struct"
+	"github.com/mesg-foundation/engine/execution"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/convert"
-	"github.com/mesg-foundation/engine/protobuf/types"
 )
 
 // TaskFn is a task function handler prototype.
@@ -28,7 +28,7 @@ func (r *TaskRunner) Add(name string, fn TaskFn) {
 func (r *TaskRunner) Run() error {
 	stream, err := r.client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{
 		Filter: &pb.StreamExecutionRequest_Filter{
-			Statuses:     []types.Status{types.Status_InProgress},
+			Statuses:     []execution.Status{execution.Status_InProgress},
 			InstanceHash: r.client.InstanceHash,
 		},
 	})
