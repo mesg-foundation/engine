@@ -27,12 +27,20 @@ func New(instance *instancesdk.Instance, workflowDB database.WorkflowDB) *Workfl
 func (w *Workflow) Create(wf *workflow.Workflow) (*workflow.Workflow, error) {
 	wf.Hash = hash.Dump(wf)
 
-	if _, err := w.instance.Get(wf.Trigger.InstanceHash); err != nil {
-		return nil, err
-	}
 	for _, node := range wf.Nodes {
-		if _, err := w.instance.Get(node.InstanceHash); err != nil {
-			return nil, err
+		switch n := node.(type) {
+		case workflow.Result:
+			if _, err := w.instance.Get(n.InstanceHash); err != nil {
+				return nil, err
+			}
+		case workflow.Event:
+			if _, err := w.instance.Get(n.InstanceHash); err != nil {
+				return nil, err
+			}
+		case workflow.Task:
+			if _, err := w.instance.Get(n.InstanceHash); err != nil {
+				return nil, err
+			}
 		}
 	}
 
