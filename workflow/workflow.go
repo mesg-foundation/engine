@@ -6,32 +6,44 @@ import (
 	validator "gopkg.in/go-playground/validator.v9"
 )
 
+// ID is the ID of the Result's node
+func (r Result) ID() string {
+	return r.Key
+}
+
+// ID is the ID of the Event's node
+func (e Event) ID() string {
+	return e.Key
+}
+
+// ID is the ID of the Task's node
+func (m Task) ID() string {
+	return m.Key
+}
+
+// ID is the ID of the Map's node
+func (m Map) ID() string {
+	return m.Key
+}
+
 // Validate returns an error if the workflow is invalid for whatever reason
 func (w *Workflow) Validate() error {
 	if err := validator.New().Struct(w); err != nil {
 		return err
 	}
-	if w.Trigger.TaskKey != "" && w.Trigger.EventKey != "" {
-		return fmt.Errorf("cannot set TaskKey and EventKey at the same time")
-	}
-	// Check that the initial trigger connects to an existing node.
-	if _, err := w.FindNode(w.Trigger.NodeKey); err != nil {
+	if err := w.Graph.validate(); err != nil {
 		return err
 	}
-	// Check that all edges are associated to an existing node.
-	for _, edge := range w.Edges {
-		if _, err := w.FindNode(edge.Src); err != nil {
-			return err
-		}
-		if _, err := w.FindNode(edge.Dst); err != nil {
-			return err
-		}
-		for _, input := range edge.Inputs {
-			if input.Ref.NodeKey == "" {
-				continue
-			}
-			if _, err := w.FindNode(input.Ref.NodeKey); err != nil {
-				return err
+	if _, err := w.Trigger(); err != nil {
+		return err
+	}
+	for _, node := range w.Graph.Nodes {
+		n, isMap := node.(Map)
+		if isMap {
+			for _, output := range n.Outputs {
+				if _, err := w.FindNode(output.Ref.NodeKey); err != nil {
+					return err
+				}
 			}
 		}
 	}
@@ -41,24 +53,15 @@ func (w *Workflow) Validate() error {
 	return nil
 }
 
-// Match returns true if the data match the current list of filters
-func (f TriggerFilters) Match(data map[string]interface{}) bool {
-	filters := []*TriggerFilter(f)
-	for _, filter := range filters {
-		if !filter.Match(data) {
-			return false
-		}
+// Trigger returns the trigger of the workflow
+func (w *Workflow) Trigger() (Node, error) {
+	triggers := w.Graph.FindNodes(func(n Node) bool {
+		_, isResult := n.(Result)
+		_, isEvent := n.(Event)
+		return isResult || isEvent
+	})
+	if len(triggers) != 1 {
+		return nil, fmt.Errorf("should contain exactly one trigger (result or event)")
 	}
-
-	return true
-}
-
-// Match returns true the current filter matches the given data
-func (f *TriggerFilter) Match(inputs map[string]interface{}) bool {
-	switch f.Predicate {
-	case EQ:
-		return inputs[f.Key] == f.Value
-	default:
-		return false
-	}
+	return triggers[0], nil
 }
