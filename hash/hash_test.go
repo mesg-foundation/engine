@@ -1,6 +1,7 @@
 package hash
 
 import (
+	"encoding/json"
 	"testing"
 	"testing/quick"
 
@@ -66,4 +67,16 @@ func TestEqual(t *testing.T) {
 func TestSize(t *testing.T) {
 	assert.Equal(t, 0, Hash(nil).Size())
 	assert.Equal(t, size, zero.Size())
+}
+
+func TestMarshalJSON(t *testing.T) {
+	b, err := json.Marshal(Int(1))
+	assert.NoError(t, err)
+	assert.Equal(t, "\"4uQeVj5tqViQh7yWWGStvkEG1Zmhx6uasJtWCJziofM\"", string(b))
+}
+
+func TestUnmarshalJSON(t *testing.T) {
+	var h Hash
+	assert.NoError(t, json.Unmarshal([]byte("\"4uQeVj5tqViQh7yWWGStvkEG1Zmhx6uasJtWCJziofM\""), &h))
+	assert.Equal(t, Int(1), h)
 }

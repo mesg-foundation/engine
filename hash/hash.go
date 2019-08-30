@@ -116,10 +116,21 @@ func (h Hash) Size() int {
 
 // MarshalJSON mashals hash into encoded json string.
 func (h Hash) MarshalJSON() ([]byte, error) {
-	return json.Marshal([]byte(h))
+	return json.Marshal(base58.Encode(h))
 }
 
 // UnmarshalJSON unmashals hex encoded json string into hash.
 func (h *Hash) UnmarshalJSON(data []byte) error {
-	return json.Unmarshal(data, (*[]byte)(h))
+	var str string
+	if err := json.Unmarshal(data, &str); err != nil {
+		return err
+	}
+
+	h1, err := base58.Decode(str)
+	if err != nil {
+		return err
+	}
+
+	*h = Hash(h1)
+	return nil
 }
