@@ -1,4 +1,4 @@
-package workflow
+package process
 
 import (
 	"encoding/json"
@@ -50,8 +50,8 @@ func (m Map) MarshalJSON() ([]byte, error) {
 	})
 }
 
-// UnmarshalJSON unmashals a workflow
-func (w *Workflow) UnmarshalJSON(b []byte) error {
+// UnmarshalJSON unmashals a process
+func (w *Process) UnmarshalJSON(b []byte) error {
 	var objMap map[string]*json.RawMessage
 	err := json.Unmarshal(b, &objMap)
 	if err != nil {
@@ -127,7 +127,7 @@ func (w *Workflow) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (w *Workflow) preprocessUnmashalNode(nodeInfo map[string]interface{}) (map[string]interface{}, error) {
+func (w *Process) preprocessUnmashalNode(nodeInfo map[string]interface{}) (map[string]interface{}, error) {
 	data := make(map[string]interface{})
 	for key, value := range nodeInfo {
 		if key == "type" {

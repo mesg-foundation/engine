@@ -67,7 +67,7 @@ func (s *Server) register() {
 	protobuf_api.RegisterExecutionServer(s.instance, api.NewExecutionServer(s.sdk))
 	protobuf_api.RegisterInstanceServer(s.instance, api.NewInstanceServer(s.sdk))
 	protobuf_api.RegisterServiceServer(s.instance, api.NewServiceServer(s.sdk))
-	protobuf_api.RegisterWorkflowServer(s.instance, api.NewWorkflowServer(s.sdk))
+	protobuf_api.RegisterProcessServer(s.instance, api.NewProcessServer(s.sdk))
 
 	reflection.Register(s.instance)
 }

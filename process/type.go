@@ -1,12 +1,12 @@
-package workflow
+package process
 
 import (
 	"github.com/mesg-foundation/engine/filter"
 	"github.com/mesg-foundation/engine/hash"
 )
 
-// Workflow describes a workflow of a service
-type Workflow struct {
+// Process describes a process of a service
+type Process struct {
 	Graph
 	Hash hash.Hash `hash:"-" validate:"required"`
 	Key  string    `hash:"name:1" validate:"required"`
