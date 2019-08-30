@@ -8,8 +8,8 @@ import (
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
-	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	processsdk "github.com/mesg-foundation/engine/sdk/process"
+	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 )
 
 const (
@@ -23,7 +23,7 @@ type Execution struct {
 	ps       *pubsub.PubSub
 	service  servicesdk.Service
 	instance *instancesdk.Instance
-	process *processsdk.Process
+	process  *processsdk.Process
 	execDB   database.ExecutionDB
 }
 
@@ -33,7 +33,7 @@ func New(ps *pubsub.PubSub, service servicesdk.Service, instance *instancesdk.In
 		ps:       ps,
 		service:  service,
 		instance: instance,
-		process: process,
+		process:  process,
 		execDB:   execDB,
 	}
 }

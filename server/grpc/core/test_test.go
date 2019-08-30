@@ -15,7 +15,7 @@ const (
 	servicedbname  = "service.db.test"
 	instancedbname = "instance.db.test"
 	execdbname     = "exec.db.test"
-	processdbname = "process.db.test"
+	processdbname  = "process.db.test"
 )
 
 func newServerWithContainer(t *testing.T, c container.Container) (*Server, func()) {

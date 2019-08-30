@@ -1,4 +1,4 @@
-package scheduler
+package orchestrator
 
 import (
 	"fmt"
@@ -6,15 +6,15 @@ import (
 	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/process"
 	eventsdk "github.com/mesg-foundation/engine/sdk/event"
 	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
 	processsdk "github.com/mesg-foundation/engine/sdk/process"
-	"github.com/mesg-foundation/engine/process"
 	"github.com/sirupsen/logrus"
 )
 
-// Scheduler manages the executions based on the definition of the processs
-type Scheduler struct {
+// Orchestrator manages the executions based on the definition of the processs
+type Orchestrator struct {
 	event       *eventsdk.Event
 	eventStream *eventsdk.Listener
 
@@ -27,19 +27,19 @@ type Scheduler struct {
 }
 
 // New creates a new Process instance
-func New(event *eventsdk.Event, execution *executionsdk.Execution, process *processsdk.Process) *Scheduler {
-	return &Scheduler{
+func New(event *eventsdk.Event, execution *executionsdk.Execution, process *processsdk.Process) *Orchestrator {
+	return &Orchestrator{
 		event:     event,
 		execution: execution,
-		process:  process,
+		process:   process,
 		ErrC:      make(chan error),
 	}
 }
 
 // Start the process engine
-func (s *Scheduler) Start() error {
+func (s *Orchestrator) Start() error {
 	if s.eventStream != nil || s.executionStream != nil {
-		return fmt.Errorf("process scheduler already running")
+		return fmt.Errorf("process orchestrator already running")
 	}
 	s.eventStream = s.event.GetStream(nil)
 	s.executionStream = s.execution.GetStream(&executionsdk.Filter{
@@ -56,7 +56,7 @@ func (s *Scheduler) Start() error {
 	}
 }
 
-func (s *Scheduler) eventFilter(event *event.Event) func(wf *process.Process, node process.Node) (bool, error) {
+func (s *Orchestrator) eventFilter(event *event.Event) func(wf *process.Process, node process.Node) (bool, error) {
 	return func(wf *process.Process, node process.Node) (bool, error) {
 		switch n := node.(type) {
 		case *process.Event:
@@ -67,7 +67,7 @@ func (s *Scheduler) eventFilter(event *event.Event) func(wf *process.Process, no
 	}
 }
 
-func (s *Scheduler) resultFilter(exec *execution.Execution) func(wf *process.Process, node process.Node) (bool, error) {
+func (s *Orchestrator) resultFilter(exec *execution.Execution) func(wf *process.Process, node process.Node) (bool, error) {
 	return func(wf *process.Process, node process.Node) (bool, error) {
 		switch n := node.(type) {
 		case *process.Result:
@@ -78,7 +78,7 @@ func (s *Scheduler) resultFilter(exec *execution.Execution) func(wf *process.Pro
 	}
 }
 
-func (s *Scheduler) dependencyFilter(exec *execution.Execution) func(wf *process.Process, node process.Node) (bool, error) {
+func (s *Orchestrator) dependencyFilter(exec *execution.Execution) func(wf *process.Process, node process.Node) (bool, error) {
 	return func(wf *process.Process, node process.Node) (bool, error) {
 		if !exec.ProcessHash.Equal(wf.Hash) {
 			return false, nil
@@ -94,7 +94,7 @@ func (s *Scheduler) dependencyFilter(exec *execution.Execution) func(wf *process
 	}
 }
 
-func (s *Scheduler) findNodes(wf *process.Process, filter func(wf *process.Process, n process.Node) (bool, error)) []process.Node {
+func (s *Orchestrator) findNodes(wf *process.Process, filter func(wf *process.Process, n process.Node) (bool, error)) []process.Node {
 	return wf.FindNodes(func(n process.Node) bool {
 		res, err := filter(wf, n)
 		if err != nil {
@@ -104,7 +104,7 @@ func (s *Scheduler) findNodes(wf *process.Process, filter func(wf *process.Proce
 	})
 }
 
-func (s *Scheduler) process(filter func(wf *process.Process, node process.Node) (bool, error), exec *execution.Execution, event *event.Event, data map[string]interface{}) {
+func (s *Orchestrator) process(filter func(wf *process.Process, node process.Node) (bool, error), exec *execution.Execution, event *event.Event, data map[string]interface{}) {
 	processs, err := s.process.List()
 	if err != nil {
 		s.ErrC <- err
@@ -119,7 +119,7 @@ func (s *Scheduler) process(filter func(wf *process.Process, node process.Node) 
 	}
 }
 
-func (s *Scheduler) processNode(wf *process.Process, n process.Node, exec *execution.Execution, event *event.Event, data map[string]interface{}) error {
+func (s *Orchestrator) processNode(wf *process.Process, n process.Node, exec *execution.Execution, event *event.Event, data map[string]interface{}) error {
 	logrus.WithField("module", "orchestrator").WithField("nodeID", n.ID()).WithField("type", fmt.Sprintf("%T", n)).Debug("process process")
 	if node, ok := n.(*process.Task); ok {
 		// This returns directly because a task cannot process its children.
@@ -153,7 +153,7 @@ func (s *Scheduler) processNode(wf *process.Process, n process.Node, exec *execu
 	return nil
 }
 
-func (s *Scheduler) processMap(mapping *process.Map, wf *process.Process, exec *execution.Execution, data map[string]interface{}) (map[string]interface{}, error) {
+func (s *Orchestrator) processMap(mapping *process.Map, wf *process.Process, exec *execution.Execution, data map[string]interface{}) (map[string]interface{}, error) {
 	result := make(map[string]interface{})
 	for _, output := range mapping.Outputs {
 		node, err := wf.FindNode(output.Ref.NodeKey)
@@ -174,7 +174,7 @@ func (s *Scheduler) processMap(mapping *process.Map, wf *process.Process, exec *
 	return result, nil
 }
 
-func (s *Scheduler) resolveInput(wfHash hash.Hash, exec *execution.Execution, nodeKey string, outputKey string) (interface{}, error) {
+func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution, nodeKey string, outputKey string) (interface{}, error) {
 	if !wfHash.Equal(exec.ProcessHash) {
 		return nil, fmt.Errorf("reference's nodeKey not found")
 	}
@@ -188,7 +188,7 @@ func (s *Scheduler) resolveInput(wfHash hash.Hash, exec *execution.Execution, no
 	return exec.Outputs[outputKey], nil
 }
 
-func (s *Scheduler) processTask(task *process.Task, wf *process.Process, exec *execution.Execution, event *event.Event, data map[string]interface{}) error {
+func (s *Orchestrator) processTask(task *process.Task, wf *process.Process, exec *execution.Execution, event *event.Event, data map[string]interface{}) error {
 	var eventHash, execHash hash.Hash
 	if event != nil {
 		eventHash = event.Hash

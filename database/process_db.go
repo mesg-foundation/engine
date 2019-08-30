@@ -60,7 +60,7 @@ func (d *LevelDBProcessDB) unmarshal(hash hash.Hash, value []byte) (*process.Pro
 func (d *LevelDBProcessDB) All() ([]*process.Process, error) {
 	var (
 		processs []*process.Process
-		iter      = d.db.NewIterator(nil, nil)
+		iter     = d.db.NewIterator(nil, nil)
 	)
 	for iter.Next() {
 		hash := hash.Hash(iter.Key())

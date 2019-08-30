@@ -13,7 +13,7 @@ import (
 	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/logger"
-	"github.com/mesg-foundation/engine/scheduler"
+	"github.com/mesg-foundation/engine/orchestrator"
 	enginesdk "github.com/mesg-foundation/engine/sdk"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
@@ -192,7 +192,7 @@ func main() {
 	}()
 
 	logrus.WithField("module", "main").Info("starting process engine")
-	s := scheduler.New(sdk.Event, sdk.Execution, sdk.Process)
+	s := orchestrator.New(sdk.Event, sdk.Execution, sdk.Process)
 	go func() {
 		if err := s.Start(); err != nil {
 			logrus.WithField("module", "main").Fatalln(err)

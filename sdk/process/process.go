@@ -5,21 +5,21 @@ import (
 
 	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/hash"
-	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	"github.com/mesg-foundation/engine/process"
+	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 )
 
 // Process exposes process APIs of MESG.
 type Process struct {
 	processDB database.ProcessDB
-	instance   *instancesdk.Instance
+	instance  *instancesdk.Instance
 }
 
 // New creates a new Process SDK with given options.
 func New(instance *instancesdk.Instance, processDB database.ProcessDB) *Process {
 	return &Process{
 		processDB: processDB,
-		instance:   instance,
+		instance:  instance,
 	}
 }
 

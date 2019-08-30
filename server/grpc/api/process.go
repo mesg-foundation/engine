@@ -5,10 +5,10 @@ import (
 	"fmt"
 
 	"github.com/mesg-foundation/engine/filter"
+	"github.com/mesg-foundation/engine/process"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/sdk"
-	"github.com/mesg-foundation/engine/process"
 )
 
 // ProcessServer is the type to aggregate all Service APIs.

@@ -8,8 +8,8 @@ import (
 	eventsdk "github.com/mesg-foundation/engine/sdk/event"
 	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
-	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	processsdk "github.com/mesg-foundation/engine/sdk/process"
+	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 )
 
 // SDK exposes all functionalities of MESG Engine.
@@ -18,7 +18,7 @@ type SDK struct {
 	Instance  *instancesdk.Instance
 	Execution *executionsdk.Execution
 	Event     *eventsdk.Event
-	Process  *processsdk.Process
+	Process   *processsdk.Process
 }
 
 // New creates a new SDK with given options.
@@ -41,7 +41,7 @@ func New(app *cosmos.App, c container.Container, instanceDB database.InstanceDB,
 		Instance:  instanceSDK,
 		Execution: executionSDK,
 		Event:     eventSDK,
-		Process:  processSDK,
+		Process:   processSDK,
 	}, nil
 }
 
@@ -58,6 +58,6 @@ func NewDeprecated(c container.Container, serviceDB *database.ServiceDB, instanc
 		Instance:  instanceSDK,
 		Execution: executionSDK,
 		Event:     eventSDK,
-		Process:  processSDK,
+		Process:   processSDK,
 	}
 }

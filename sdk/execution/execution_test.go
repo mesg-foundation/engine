@@ -12,16 +12,16 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/instance"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
-	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	processsdk "github.com/mesg-foundation/engine/sdk/process"
+	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	"github.com/mesg-foundation/engine/service"
 	"github.com/stretchr/testify/require"
 )
 
 const (
-	servicedbname  = "service.db.test"
-	instdbname     = "instance.db.test"
-	execdbname     = "exec.db.test"
+	servicedbname = "service.db.test"
+	instdbname    = "instance.db.test"
+	execdbname    = "exec.db.test"
 	processdbname = "process.db.test"
 )
 
@@ -30,7 +30,7 @@ type apiTesting struct {
 	serviceDB   *database.ServiceDB
 	executionDB *database.LevelDBExecutionDB
 	instanceDB  *database.LevelDBInstanceDB
-	processDB  *database.LevelDBProcessDB
+	processDB   *database.LevelDBProcessDB
 }
 
 func (t *apiTesting) close() {
@@ -69,7 +69,7 @@ func newTesting(t *testing.T) (*Execution, *apiTesting) {
 		serviceDB:   db,
 		executionDB: execDB,
 		instanceDB:  instDB,
-		processDB:  processDB,
+		processDB:   processDB,
 	}
 }
 

@@ -134,7 +134,7 @@ func toProtoExecution(exec *execution.Execution) (*types.Execution, error) {
 
 	return &types.Execution{
 		Hash:         exec.Hash,
-		ProcessHash: exec.ProcessHash,
+		ProcessHash:  exec.ProcessHash,
 		ParentHash:   exec.ParentHash,
 		EventHash:    exec.EventHash,
 		Status:       types.Status(exec.Status),
