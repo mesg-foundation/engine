@@ -29,7 +29,6 @@ service Workflow {
 // The request's data for the `Create` API.
 message CreateWorkflowRequest {
   string key = 2;           // Workflow's key
-  types.Workflow.Trigger trigger = 3;      // Trigger for the workflow.
   repeated types.Workflow.Node nodes = 4;  // List of nodes of the workflow.
   repeated types.Workflow.Edge edges = 5;  // List of edges of the workflow.
 }
