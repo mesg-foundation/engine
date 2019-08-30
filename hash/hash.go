@@ -75,6 +75,19 @@ func Random() (Hash, error) {
 	return hash, nil
 }
 
+// Decode decodes the base58 encoded hash. It returns error
+// when a hash isn't base58,encoded or hash length is invalid.
+func Decode(h string) (Hash, error) {
+	hash, err := base58.Decode(h)
+	if err != nil {
+		return nil, fmt.Errorf("hash: %s", err)
+	}
+	if len(hash) != size {
+		return nil, fmt.Errorf("hash: invalid length string")
+	}
+	return Hash(hash), nil
+}
+
 // IsZero reports whethere h represents empty hash.
 func (h Hash) IsZero() bool {
 	return len(h) == 0
@@ -124,6 +137,10 @@ func (h *Hash) UnmarshalJSON(data []byte) error {
 	var str string
 	if err := json.Unmarshal(data, &str); err != nil {
 		return err
+	}
+
+	if str == "" {
+		return nil
 	}
 
 	h1, err := base58.Decode(str)

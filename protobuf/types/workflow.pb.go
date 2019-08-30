@@ -20,42 +20,15 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
-// Type of condition available to compare the values.
-type Workflow_Trigger_Filter_Predicate int32
-
-const (
-	Workflow_Trigger_Filter_Unknown Workflow_Trigger_Filter_Predicate = 0
-	Workflow_Trigger_Filter_EQ      Workflow_Trigger_Filter_Predicate = 1
-)
-
-var Workflow_Trigger_Filter_Predicate_name = map[int32]string{
-	0: "Unknown",
-	1: "EQ",
-}
-
-var Workflow_Trigger_Filter_Predicate_value = map[string]int32{
-	"Unknown": 0,
-	"EQ":      1,
-}
-
-func (x Workflow_Trigger_Filter_Predicate) String() string {
-	return proto.EnumName(Workflow_Trigger_Filter_Predicate_name, int32(x))
-}
-
-func (Workflow_Trigger_Filter_Predicate) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_980f671c228050a1, []int{0, 0, 0, 0}
-}
-
 // A workflow is a configuration to trigger a specific task when certains conditions of a trigger are valid.
 type Workflow struct {
-	Hash                 []byte            `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
-	Key                  string            `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
-	Trigger              *Workflow_Trigger `protobuf:"bytes,3,opt,name=trigger,proto3" json:"trigger,omitempty"`
-	Nodes                []*Workflow_Node  `protobuf:"bytes,4,rep,name=nodes,proto3" json:"nodes,omitempty"`
-	Edges                []*Workflow_Edge  `protobuf:"bytes,5,rep,name=edges,proto3" json:"edges,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
-	XXX_unrecognized     []byte            `json:"-"`
-	XXX_sizecache        int32             `json:"-"`
+	Hash                 []byte           `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
+	Key                  string           `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
+	Nodes                []*Workflow_Node `protobuf:"bytes,4,rep,name=nodes,proto3" json:"nodes,omitempty"`
+	Edges                []*Workflow_Edge `protobuf:"bytes,5,rep,name=edges,proto3" json:"edges,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
+	XXX_unrecognized     []byte           `json:"-"`
+	XXX_sizecache        int32            `json:"-"`
 }
 
 func (m *Workflow) Reset()         { *m = Workflow{} }
@@ -97,13 +70,6 @@ func (m *Workflow) GetKey() string {
 	return ""
 }
 
-func (m *Workflow) GetTrigger() *Workflow_Trigger {
-	if m != nil {
-		return m.Trigger
-	}
-	return nil
-}
-
 func (m *Workflow) GetNodes() []*Workflow_Node {
 	if m != nil {
 		return m.Nodes
@@ -118,184 +84,24 @@ func (m *Workflow) GetEdges() []*Workflow_Edge {
 	return nil
 }
 
-// Trigger is the configuration that will trigger a workflow.
-type Workflow_Trigger struct {
-	InstanceHash []byte `protobuf:"bytes,1,opt,name=instanceHash,proto3" json:"instanceHash,omitempty"`
-	// Workflow can be trigger by either an Event or a Task (not both).
-	//
-	// Types that are valid to be assigned to Key:
-	//	*Workflow_Trigger_TaskKey
-	//	*Workflow_Trigger_EventKey
-	Key                  isWorkflow_Trigger_Key     `protobuf_oneof:"key"`
-	Filters              []*Workflow_Trigger_Filter `protobuf:"bytes,4,rep,name=filters,proto3" json:"filters,omitempty"`
-	NodeKey              string                     `protobuf:"bytes,5,opt,name=nodeKey,proto3" json:"nodeKey,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}                   `json:"-"`
-	XXX_unrecognized     []byte                     `json:"-"`
-	XXX_sizecache        int32                      `json:"-"`
-}
-
-func (m *Workflow_Trigger) Reset()         { *m = Workflow_Trigger{} }
-func (m *Workflow_Trigger) String() string { return proto.CompactTextString(m) }
-func (*Workflow_Trigger) ProtoMessage()    {}
-func (*Workflow_Trigger) Descriptor() ([]byte, []int) {
-	return fileDescriptor_980f671c228050a1, []int{0, 0}
-}
-
-func (m *Workflow_Trigger) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_Workflow_Trigger.Unmarshal(m, b)
-}
-func (m *Workflow_Trigger) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_Workflow_Trigger.Marshal(b, m, deterministic)
-}
-func (m *Workflow_Trigger) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Workflow_Trigger.Merge(m, src)
-}
-func (m *Workflow_Trigger) XXX_Size() int {
-	return xxx_messageInfo_Workflow_Trigger.Size(m)
-}
-func (m *Workflow_Trigger) XXX_DiscardUnknown() {
-	xxx_messageInfo_Workflow_Trigger.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_Workflow_Trigger proto.InternalMessageInfo
-
-func (m *Workflow_Trigger) GetInstanceHash() []byte {
-	if m != nil {
-		return m.InstanceHash
-	}
-	return nil
-}
-
-type isWorkflow_Trigger_Key interface {
-	isWorkflow_Trigger_Key()
-}
-
-type Workflow_Trigger_TaskKey struct {
-	TaskKey string `protobuf:"bytes,2,opt,name=taskKey,proto3,oneof"`
-}
-
-type Workflow_Trigger_EventKey struct {
-	EventKey string `protobuf:"bytes,3,opt,name=eventKey,proto3,oneof"`
-}
-
-func (*Workflow_Trigger_TaskKey) isWorkflow_Trigger_Key() {}
-
-func (*Workflow_Trigger_EventKey) isWorkflow_Trigger_Key() {}
-
-func (m *Workflow_Trigger) GetKey() isWorkflow_Trigger_Key {
-	if m != nil {
-		return m.Key
-	}
-	return nil
-}
-
-func (m *Workflow_Trigger) GetTaskKey() string {
-	if x, ok := m.GetKey().(*Workflow_Trigger_TaskKey); ok {
-		return x.TaskKey
-	}
-	return ""
-}
-
-func (m *Workflow_Trigger) GetEventKey() string {
-	if x, ok := m.GetKey().(*Workflow_Trigger_EventKey); ok {
-		return x.EventKey
-	}
-	return ""
-}
-
-func (m *Workflow_Trigger) GetFilters() []*Workflow_Trigger_Filter {
-	if m != nil {
-		return m.Filters
-	}
-	return nil
-}
-
-func (m *Workflow_Trigger) GetNodeKey() string {
-	if m != nil {
-		return m.NodeKey
-	}
-	return ""
-}
-
-// XXX_OneofWrappers is for the internal use of the proto package.
-func (*Workflow_Trigger) XXX_OneofWrappers() []interface{} {
-	return []interface{}{
-		(*Workflow_Trigger_TaskKey)(nil),
-		(*Workflow_Trigger_EventKey)(nil),
-	}
-}
-
-// Filter is applied on the data of the event/result.
-type Workflow_Trigger_Filter struct {
-	Key                  string                            `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
-	Predicate            Workflow_Trigger_Filter_Predicate `protobuf:"varint,2,opt,name=predicate,proto3,enum=types.Workflow_Trigger_Filter_Predicate" json:"predicate,omitempty"`
-	Value                string                            `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}                          `json:"-"`
-	XXX_unrecognized     []byte                            `json:"-"`
-	XXX_sizecache        int32                             `json:"-"`
-}
-
-func (m *Workflow_Trigger_Filter) Reset()         { *m = Workflow_Trigger_Filter{} }
-func (m *Workflow_Trigger_Filter) String() string { return proto.CompactTextString(m) }
-func (*Workflow_Trigger_Filter) ProtoMessage()    {}
-func (*Workflow_Trigger_Filter) Descriptor() ([]byte, []int) {
-	return fileDescriptor_980f671c228050a1, []int{0, 0, 0}
-}
-
-func (m *Workflow_Trigger_Filter) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_Workflow_Trigger_Filter.Unmarshal(m, b)
-}
-func (m *Workflow_Trigger_Filter) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_Workflow_Trigger_Filter.Marshal(b, m, deterministic)
-}
-func (m *Workflow_Trigger_Filter) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Workflow_Trigger_Filter.Merge(m, src)
-}
-func (m *Workflow_Trigger_Filter) XXX_Size() int {
-	return xxx_messageInfo_Workflow_Trigger_Filter.Size(m)
-}
-func (m *Workflow_Trigger_Filter) XXX_DiscardUnknown() {
-	xxx_messageInfo_Workflow_Trigger_Filter.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_Workflow_Trigger_Filter proto.InternalMessageInfo
-
-func (m *Workflow_Trigger_Filter) GetKey() string {
-	if m != nil {
-		return m.Key
-	}
-	return ""
-}
-
-func (m *Workflow_Trigger_Filter) GetPredicate() Workflow_Trigger_Filter_Predicate {
-	if m != nil {
-		return m.Predicate
-	}
-	return Workflow_Trigger_Filter_Unknown
-}
-
-func (m *Workflow_Trigger_Filter) GetValue() string {
-	if m != nil {
-		return m.Value
-	}
-	return ""
-}
-
-// Definition of the node to execute when the workflow is triggered.
+// Node of the workflow
 type Workflow_Node struct {
-	Key                  string   `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
-	InstanceHash         []byte   `protobuf:"bytes,2,opt,name=instanceHash,proto3" json:"instanceHash,omitempty"`
-	TaskKey              string   `protobuf:"bytes,3,opt,name=taskKey,proto3" json:"taskKey,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+	// Types that are valid to be assigned to Type:
+	//	*Workflow_Node_Result_
+	//	*Workflow_Node_Event_
+	//	*Workflow_Node_Task_
+	//	*Workflow_Node_Map_
+	Type                 isWorkflow_Node_Type `protobuf_oneof:"type"`
+	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
+	XXX_unrecognized     []byte               `json:"-"`
+	XXX_sizecache        int32                `json:"-"`
 }
 
 func (m *Workflow_Node) Reset()         { *m = Workflow_Node{} }
 func (m *Workflow_Node) String() string { return proto.CompactTextString(m) }
 func (*Workflow_Node) ProtoMessage()    {}
 func (*Workflow_Node) Descriptor() ([]byte, []int) {
-	return fileDescriptor_980f671c228050a1, []int{0, 1}
+	return fileDescriptor_980f671c228050a1, []int{0, 0}
 }
 
 func (m *Workflow_Node) XXX_Unmarshal(b []byte) error {
@@ -316,41 +122,424 @@ func (m *Workflow_Node) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_Workflow_Node proto.InternalMessageInfo
 
-func (m *Workflow_Node) GetKey() string {
+type isWorkflow_Node_Type interface {
+	isWorkflow_Node_Type()
+}
+
+type Workflow_Node_Result_ struct {
+	Result *Workflow_Node_Result `protobuf:"bytes,1,opt,name=result,proto3,oneof"`
+}
+
+type Workflow_Node_Event_ struct {
+	Event *Workflow_Node_Event `protobuf:"bytes,2,opt,name=event,proto3,oneof"`
+}
+
+type Workflow_Node_Task_ struct {
+	Task *Workflow_Node_Task `protobuf:"bytes,3,opt,name=task,proto3,oneof"`
+}
+
+type Workflow_Node_Map_ struct {
+	Map *Workflow_Node_Map `protobuf:"bytes,4,opt,name=map,proto3,oneof"`
+}
+
+func (*Workflow_Node_Result_) isWorkflow_Node_Type() {}
+
+func (*Workflow_Node_Event_) isWorkflow_Node_Type() {}
+
+func (*Workflow_Node_Task_) isWorkflow_Node_Type() {}
+
+func (*Workflow_Node_Map_) isWorkflow_Node_Type() {}
+
+func (m *Workflow_Node) GetType() isWorkflow_Node_Type {
+	if m != nil {
+		return m.Type
+	}
+	return nil
+}
+
+func (m *Workflow_Node) GetResult() *Workflow_Node_Result {
+	if x, ok := m.GetType().(*Workflow_Node_Result_); ok {
+		return x.Result
+	}
+	return nil
+}
+
+func (m *Workflow_Node) GetEvent() *Workflow_Node_Event {
+	if x, ok := m.GetType().(*Workflow_Node_Event_); ok {
+		return x.Event
+	}
+	return nil
+}
+
+func (m *Workflow_Node) GetTask() *Workflow_Node_Task {
+	if x, ok := m.GetType().(*Workflow_Node_Task_); ok {
+		return x.Task
+	}
+	return nil
+}
+
+func (m *Workflow_Node) GetMap() *Workflow_Node_Map {
+	if x, ok := m.GetType().(*Workflow_Node_Map_); ok {
+		return x.Map
+	}
+	return nil
+}
+
+// XXX_OneofWrappers is for the internal use of the proto package.
+func (*Workflow_Node) XXX_OneofWrappers() []interface{} {
+	return []interface{}{
+		(*Workflow_Node_Result_)(nil),
+		(*Workflow_Node_Event_)(nil),
+		(*Workflow_Node_Task_)(nil),
+		(*Workflow_Node_Map_)(nil),
+	}
+}
+
+type Workflow_Node_Result struct {
+	Key                  string   `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	InstanceHash         []byte   `protobuf:"bytes,2,opt,name=instanceHash,proto3" json:"instanceHash,omitempty"`
+	TaskKey              string   `protobuf:"bytes,3,opt,name=taskKey,proto3" json:"taskKey,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *Workflow_Node_Result) Reset()         { *m = Workflow_Node_Result{} }
+func (m *Workflow_Node_Result) String() string { return proto.CompactTextString(m) }
+func (*Workflow_Node_Result) ProtoMessage()    {}
+func (*Workflow_Node_Result) Descriptor() ([]byte, []int) {
+	return fileDescriptor_980f671c228050a1, []int{0, 0, 0}
+}
+
+func (m *Workflow_Node_Result) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Workflow_Node_Result.Unmarshal(m, b)
+}
+func (m *Workflow_Node_Result) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Workflow_Node_Result.Marshal(b, m, deterministic)
+}
+func (m *Workflow_Node_Result) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Workflow_Node_Result.Merge(m, src)
+}
+func (m *Workflow_Node_Result) XXX_Size() int {
+	return xxx_messageInfo_Workflow_Node_Result.Size(m)
+}
+func (m *Workflow_Node_Result) XXX_DiscardUnknown() {
+	xxx_messageInfo_Workflow_Node_Result.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Workflow_Node_Result proto.InternalMessageInfo
+
+func (m *Workflow_Node_Result) GetKey() string {
 	if m != nil {
 		return m.Key
 	}
 	return ""
 }
 
-func (m *Workflow_Node) GetInstanceHash() []byte {
+func (m *Workflow_Node_Result) GetInstanceHash() []byte {
 	if m != nil {
 		return m.InstanceHash
 	}
 	return nil
 }
 
-func (m *Workflow_Node) GetTaskKey() string {
+func (m *Workflow_Node_Result) GetTaskKey() string {
 	if m != nil {
 		return m.TaskKey
 	}
 	return ""
 }
 
+type Workflow_Node_Event struct {
+	Key                  string   `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	InstanceHash         []byte   `protobuf:"bytes,2,opt,name=instanceHash,proto3" json:"instanceHash,omitempty"`
+	EventKey             string   `protobuf:"bytes,3,opt,name=eventKey,proto3" json:"eventKey,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *Workflow_Node_Event) Reset()         { *m = Workflow_Node_Event{} }
+func (m *Workflow_Node_Event) String() string { return proto.CompactTextString(m) }
+func (*Workflow_Node_Event) ProtoMessage()    {}
+func (*Workflow_Node_Event) Descriptor() ([]byte, []int) {
+	return fileDescriptor_980f671c228050a1, []int{0, 0, 1}
+}
+
+func (m *Workflow_Node_Event) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Workflow_Node_Event.Unmarshal(m, b)
+}
+func (m *Workflow_Node_Event) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Workflow_Node_Event.Marshal(b, m, deterministic)
+}
+func (m *Workflow_Node_Event) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Workflow_Node_Event.Merge(m, src)
+}
+func (m *Workflow_Node_Event) XXX_Size() int {
+	return xxx_messageInfo_Workflow_Node_Event.Size(m)
+}
+func (m *Workflow_Node_Event) XXX_DiscardUnknown() {
+	xxx_messageInfo_Workflow_Node_Event.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Workflow_Node_Event proto.InternalMessageInfo
+
+func (m *Workflow_Node_Event) GetKey() string {
+	if m != nil {
+		return m.Key
+	}
+	return ""
+}
+
+func (m *Workflow_Node_Event) GetInstanceHash() []byte {
+	if m != nil {
+		return m.InstanceHash
+	}
+	return nil
+}
+
+func (m *Workflow_Node_Event) GetEventKey() string {
+	if m != nil {
+		return m.EventKey
+	}
+	return ""
+}
+
+type Workflow_Node_Task struct {
+	Key                  string   `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	InstanceHash         []byte   `protobuf:"bytes,2,opt,name=instanceHash,proto3" json:"instanceHash,omitempty"`
+	TaskKey              string   `protobuf:"bytes,3,opt,name=taskKey,proto3" json:"taskKey,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *Workflow_Node_Task) Reset()         { *m = Workflow_Node_Task{} }
+func (m *Workflow_Node_Task) String() string { return proto.CompactTextString(m) }
+func (*Workflow_Node_Task) ProtoMessage()    {}
+func (*Workflow_Node_Task) Descriptor() ([]byte, []int) {
+	return fileDescriptor_980f671c228050a1, []int{0, 0, 2}
+}
+
+func (m *Workflow_Node_Task) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Workflow_Node_Task.Unmarshal(m, b)
+}
+func (m *Workflow_Node_Task) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Workflow_Node_Task.Marshal(b, m, deterministic)
+}
+func (m *Workflow_Node_Task) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Workflow_Node_Task.Merge(m, src)
+}
+func (m *Workflow_Node_Task) XXX_Size() int {
+	return xxx_messageInfo_Workflow_Node_Task.Size(m)
+}
+func (m *Workflow_Node_Task) XXX_DiscardUnknown() {
+	xxx_messageInfo_Workflow_Node_Task.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Workflow_Node_Task proto.InternalMessageInfo
+
+func (m *Workflow_Node_Task) GetKey() string {
+	if m != nil {
+		return m.Key
+	}
+	return ""
+}
+
+func (m *Workflow_Node_Task) GetInstanceHash() []byte {
+	if m != nil {
+		return m.InstanceHash
+	}
+	return nil
+}
+
+func (m *Workflow_Node_Task) GetTaskKey() string {
+	if m != nil {
+		return m.TaskKey
+	}
+	return ""
+}
+
+type Workflow_Node_Map struct {
+	Key                  string                      `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	Outputs              []*Workflow_Node_Map_Output `protobuf:"bytes,2,rep,name=outputs,proto3" json:"outputs,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                    `json:"-"`
+	XXX_unrecognized     []byte                      `json:"-"`
+	XXX_sizecache        int32                       `json:"-"`
+}
+
+func (m *Workflow_Node_Map) Reset()         { *m = Workflow_Node_Map{} }
+func (m *Workflow_Node_Map) String() string { return proto.CompactTextString(m) }
+func (*Workflow_Node_Map) ProtoMessage()    {}
+func (*Workflow_Node_Map) Descriptor() ([]byte, []int) {
+	return fileDescriptor_980f671c228050a1, []int{0, 0, 3}
+}
+
+func (m *Workflow_Node_Map) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Workflow_Node_Map.Unmarshal(m, b)
+}
+func (m *Workflow_Node_Map) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Workflow_Node_Map.Marshal(b, m, deterministic)
+}
+func (m *Workflow_Node_Map) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Workflow_Node_Map.Merge(m, src)
+}
+func (m *Workflow_Node_Map) XXX_Size() int {
+	return xxx_messageInfo_Workflow_Node_Map.Size(m)
+}
+func (m *Workflow_Node_Map) XXX_DiscardUnknown() {
+	xxx_messageInfo_Workflow_Node_Map.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Workflow_Node_Map proto.InternalMessageInfo
+
+func (m *Workflow_Node_Map) GetKey() string {
+	if m != nil {
+		return m.Key
+	}
+	return ""
+}
+
+func (m *Workflow_Node_Map) GetOutputs() []*Workflow_Node_Map_Output {
+	if m != nil {
+		return m.Outputs
+	}
+	return nil
+}
+
+type Workflow_Node_Map_Output struct {
+	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	// Types that are valid to be assigned to Value:
+	//	*Workflow_Node_Map_Output_Ref
+	Value                isWorkflow_Node_Map_Output_Value `protobuf_oneof:"value"`
+	XXX_NoUnkeyedLiteral struct{}                         `json:"-"`
+	XXX_unrecognized     []byte                           `json:"-"`
+	XXX_sizecache        int32                            `json:"-"`
+}
+
+func (m *Workflow_Node_Map_Output) Reset()         { *m = Workflow_Node_Map_Output{} }
+func (m *Workflow_Node_Map_Output) String() string { return proto.CompactTextString(m) }
+func (*Workflow_Node_Map_Output) ProtoMessage()    {}
+func (*Workflow_Node_Map_Output) Descriptor() ([]byte, []int) {
+	return fileDescriptor_980f671c228050a1, []int{0, 0, 3, 0}
+}
+
+func (m *Workflow_Node_Map_Output) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Workflow_Node_Map_Output.Unmarshal(m, b)
+}
+func (m *Workflow_Node_Map_Output) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Workflow_Node_Map_Output.Marshal(b, m, deterministic)
+}
+func (m *Workflow_Node_Map_Output) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Workflow_Node_Map_Output.Merge(m, src)
+}
+func (m *Workflow_Node_Map_Output) XXX_Size() int {
+	return xxx_messageInfo_Workflow_Node_Map_Output.Size(m)
+}
+func (m *Workflow_Node_Map_Output) XXX_DiscardUnknown() {
+	xxx_messageInfo_Workflow_Node_Map_Output.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Workflow_Node_Map_Output proto.InternalMessageInfo
+
+func (m *Workflow_Node_Map_Output) GetKey() string {
+	if m != nil {
+		return m.Key
+	}
+	return ""
+}
+
+type isWorkflow_Node_Map_Output_Value interface {
+	isWorkflow_Node_Map_Output_Value()
+}
+
+type Workflow_Node_Map_Output_Ref struct {
+	Ref *Workflow_Node_Map_Output_Reference `protobuf:"bytes,2,opt,name=ref,proto3,oneof"`
+}
+
+func (*Workflow_Node_Map_Output_Ref) isWorkflow_Node_Map_Output_Value() {}
+
+func (m *Workflow_Node_Map_Output) GetValue() isWorkflow_Node_Map_Output_Value {
+	if m != nil {
+		return m.Value
+	}
+	return nil
+}
+
+func (m *Workflow_Node_Map_Output) GetRef() *Workflow_Node_Map_Output_Reference {
+	if x, ok := m.GetValue().(*Workflow_Node_Map_Output_Ref); ok {
+		return x.Ref
+	}
+	return nil
+}
+
+// XXX_OneofWrappers is for the internal use of the proto package.
+func (*Workflow_Node_Map_Output) XXX_OneofWrappers() []interface{} {
+	return []interface{}{
+		(*Workflow_Node_Map_Output_Ref)(nil),
+	}
+}
+
+type Workflow_Node_Map_Output_Reference struct {
+	NodeKey              string   `protobuf:"bytes,1,opt,name=nodeKey,proto3" json:"nodeKey,omitempty"`
+	Key                  string   `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *Workflow_Node_Map_Output_Reference) Reset()         { *m = Workflow_Node_Map_Output_Reference{} }
+func (m *Workflow_Node_Map_Output_Reference) String() string { return proto.CompactTextString(m) }
+func (*Workflow_Node_Map_Output_Reference) ProtoMessage()    {}
+func (*Workflow_Node_Map_Output_Reference) Descriptor() ([]byte, []int) {
+	return fileDescriptor_980f671c228050a1, []int{0, 0, 3, 0, 0}
+}
+
+func (m *Workflow_Node_Map_Output_Reference) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Workflow_Node_Map_Output_Reference.Unmarshal(m, b)
+}
+func (m *Workflow_Node_Map_Output_Reference) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Workflow_Node_Map_Output_Reference.Marshal(b, m, deterministic)
+}
+func (m *Workflow_Node_Map_Output_Reference) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Workflow_Node_Map_Output_Reference.Merge(m, src)
+}
+func (m *Workflow_Node_Map_Output_Reference) XXX_Size() int {
+	return xxx_messageInfo_Workflow_Node_Map_Output_Reference.Size(m)
+}
+func (m *Workflow_Node_Map_Output_Reference) XXX_DiscardUnknown() {
+	xxx_messageInfo_Workflow_Node_Map_Output_Reference.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Workflow_Node_Map_Output_Reference proto.InternalMessageInfo
+
+func (m *Workflow_Node_Map_Output_Reference) GetNodeKey() string {
+	if m != nil {
+		return m.NodeKey
+	}
+	return ""
+}
+
+func (m *Workflow_Node_Map_Output_Reference) GetKey() string {
+	if m != nil {
+		return m.Key
+	}
+	return ""
+}
+
 type Workflow_Edge struct {
-	Src                  string                 `protobuf:"bytes,1,opt,name=src,proto3" json:"src,omitempty"`
-	Dst                  string                 `protobuf:"bytes,2,opt,name=dst,proto3" json:"dst,omitempty"`
-	Inputs               []*Workflow_Edge_Input `protobuf:"bytes,3,rep,name=inputs,proto3" json:"inputs,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}               `json:"-"`
-	XXX_unrecognized     []byte                 `json:"-"`
-	XXX_sizecache        int32                  `json:"-"`
+	Src                  string   `protobuf:"bytes,1,opt,name=src,proto3" json:"src,omitempty"`
+	Dst                  string   `protobuf:"bytes,2,opt,name=dst,proto3" json:"dst,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *Workflow_Edge) Reset()         { *m = Workflow_Edge{} }
 func (m *Workflow_Edge) String() string { return proto.CompactTextString(m) }
 func (*Workflow_Edge) ProtoMessage()    {}
 func (*Workflow_Edge) Descriptor() ([]byte, []int) {
-	return fileDescriptor_980f671c228050a1, []int{0, 2}
+	return fileDescriptor_980f671c228050a1, []int{0, 1}
 }
 
 func (m *Workflow_Edge) XXX_Unmarshal(b []byte) error {
@@ -385,177 +574,50 @@ func (m *Workflow_Edge) GetDst() string {
 	return ""
 }
 
-func (m *Workflow_Edge) GetInputs() []*Workflow_Edge_Input {
-	if m != nil {
-		return m.Inputs
-	}
-	return nil
-}
-
-type Workflow_Edge_Input struct {
-	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
-	// Types that are valid to be assigned to Value:
-	//	*Workflow_Edge_Input_Ref
-	Value                isWorkflow_Edge_Input_Value `protobuf_oneof:"value"`
-	XXX_NoUnkeyedLiteral struct{}                    `json:"-"`
-	XXX_unrecognized     []byte                      `json:"-"`
-	XXX_sizecache        int32                       `json:"-"`
-}
-
-func (m *Workflow_Edge_Input) Reset()         { *m = Workflow_Edge_Input{} }
-func (m *Workflow_Edge_Input) String() string { return proto.CompactTextString(m) }
-func (*Workflow_Edge_Input) ProtoMessage()    {}
-func (*Workflow_Edge_Input) Descriptor() ([]byte, []int) {
-	return fileDescriptor_980f671c228050a1, []int{0, 2, 0}
-}
-
-func (m *Workflow_Edge_Input) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_Workflow_Edge_Input.Unmarshal(m, b)
-}
-func (m *Workflow_Edge_Input) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_Workflow_Edge_Input.Marshal(b, m, deterministic)
-}
-func (m *Workflow_Edge_Input) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Workflow_Edge_Input.Merge(m, src)
-}
-func (m *Workflow_Edge_Input) XXX_Size() int {
-	return xxx_messageInfo_Workflow_Edge_Input.Size(m)
-}
-func (m *Workflow_Edge_Input) XXX_DiscardUnknown() {
-	xxx_messageInfo_Workflow_Edge_Input.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_Workflow_Edge_Input proto.InternalMessageInfo
-
-func (m *Workflow_Edge_Input) GetKey() string {
-	if m != nil {
-		return m.Key
-	}
-	return ""
-}
-
-type isWorkflow_Edge_Input_Value interface {
-	isWorkflow_Edge_Input_Value()
-}
-
-type Workflow_Edge_Input_Ref struct {
-	Ref *Workflow_Edge_Input_Reference `protobuf:"bytes,2,opt,name=ref,proto3,oneof"`
-}
-
-func (*Workflow_Edge_Input_Ref) isWorkflow_Edge_Input_Value() {}
-
-func (m *Workflow_Edge_Input) GetValue() isWorkflow_Edge_Input_Value {
-	if m != nil {
-		return m.Value
-	}
-	return nil
-}
-
-func (m *Workflow_Edge_Input) GetRef() *Workflow_Edge_Input_Reference {
-	if x, ok := m.GetValue().(*Workflow_Edge_Input_Ref); ok {
-		return x.Ref
-	}
-	return nil
-}
-
-// XXX_OneofWrappers is for the internal use of the proto package.
-func (*Workflow_Edge_Input) XXX_OneofWrappers() []interface{} {
-	return []interface{}{
-		(*Workflow_Edge_Input_Ref)(nil),
-	}
-}
-
-type Workflow_Edge_Input_Reference struct {
-	NodeKey              string   `protobuf:"bytes,1,opt,name=nodeKey,proto3" json:"nodeKey,omitempty"`
-	Key                  string   `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *Workflow_Edge_Input_Reference) Reset()         { *m = Workflow_Edge_Input_Reference{} }
-func (m *Workflow_Edge_Input_Reference) String() string { return proto.CompactTextString(m) }
-func (*Workflow_Edge_Input_Reference) ProtoMessage()    {}
-func (*Workflow_Edge_Input_Reference) Descriptor() ([]byte, []int) {
-	return fileDescriptor_980f671c228050a1, []int{0, 2, 0, 0}
-}
-
-func (m *Workflow_Edge_Input_Reference) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_Workflow_Edge_Input_Reference.Unmarshal(m, b)
-}
-func (m *Workflow_Edge_Input_Reference) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_Workflow_Edge_Input_Reference.Marshal(b, m, deterministic)
-}
-func (m *Workflow_Edge_Input_Reference) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Workflow_Edge_Input_Reference.Merge(m, src)
-}
-func (m *Workflow_Edge_Input_Reference) XXX_Size() int {
-	return xxx_messageInfo_Workflow_Edge_Input_Reference.Size(m)
-}
-func (m *Workflow_Edge_Input_Reference) XXX_DiscardUnknown() {
-	xxx_messageInfo_Workflow_Edge_Input_Reference.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_Workflow_Edge_Input_Reference proto.InternalMessageInfo
-
-func (m *Workflow_Edge_Input_Reference) GetNodeKey() string {
-	if m != nil {
-		return m.NodeKey
-	}
-	return ""
-}
-
-func (m *Workflow_Edge_Input_Reference) GetKey() string {
-	if m != nil {
-		return m.Key
-	}
-	return ""
-}
-
 func init() {
-	proto.RegisterEnum("types.Workflow_Trigger_Filter_Predicate", Workflow_Trigger_Filter_Predicate_name, Workflow_Trigger_Filter_Predicate_value)
 	proto.RegisterType((*Workflow)(nil), "types.Workflow")
-	proto.RegisterType((*Workflow_Trigger)(nil), "types.Workflow.Trigger")
-	proto.RegisterType((*Workflow_Trigger_Filter)(nil), "types.Workflow.Trigger.Filter")
 	proto.RegisterType((*Workflow_Node)(nil), "types.Workflow.Node")
+	proto.RegisterType((*Workflow_Node_Result)(nil), "types.Workflow.Node.Result")
+	proto.RegisterType((*Workflow_Node_Event)(nil), "types.Workflow.Node.Event")
+	proto.RegisterType((*Workflow_Node_Task)(nil), "types.Workflow.Node.Task")
+	proto.RegisterType((*Workflow_Node_Map)(nil), "types.Workflow.Node.Map")
+	proto.RegisterType((*Workflow_Node_Map_Output)(nil), "types.Workflow.Node.Map.Output")
+	proto.RegisterType((*Workflow_Node_Map_Output_Reference)(nil), "types.Workflow.Node.Map.Output.Reference")
 	proto.RegisterType((*Workflow_Edge)(nil), "types.Workflow.Edge")
-	proto.RegisterType((*Workflow_Edge_Input)(nil), "types.Workflow.Edge.Input")
-	proto.RegisterType((*Workflow_Edge_Input_Reference)(nil), "types.Workflow.Edge.Input.Reference")
 }
 
 func init() { proto.RegisterFile("protobuf/types/workflow.proto", fileDescriptor_980f671c228050a1) }
 
 var fileDescriptor_980f671c228050a1 = []byte{
-	// 487 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x7c, 0x53, 0x4d, 0x8b, 0xdb, 0x30,
-	0x10, 0x8d, 0xe2, 0x38, 0xde, 0x4c, 0x96, 0x12, 0xc4, 0x42, 0x8d, 0x69, 0x4b, 0x08, 0x3d, 0x84,
-	0x42, 0x9d, 0xd6, 0x3d, 0x74, 0xcf, 0x81, 0x5d, 0xb6, 0x14, 0x4a, 0x2b, 0xfa, 0x01, 0xbd, 0x39,
-	0xf1, 0xd8, 0x31, 0xc9, 0x4a, 0x41, 0x92, 0x37, 0xec, 0x0f, 0xe9, 0xa5, 0x7f, 0xae, 0xff, 0xa0,
-	0xc7, 0x9e, 0x8b, 0x64, 0x2b, 0x69, 0xb6, 0xde, 0xbd, 0x69, 0xde, 0x3c, 0xcd, 0xcc, 0x7b, 0x23,
-	0xc1, 0xd3, 0xad, 0x14, 0x5a, 0x2c, 0xaa, 0x7c, 0xa6, 0x6f, 0xb7, 0xa8, 0x66, 0x3b, 0x21, 0xd7,
-	0xf9, 0x46, 0xec, 0x62, 0x8b, 0x53, 0xdf, 0xa2, 0x93, 0xdf, 0x7d, 0x38, 0xf9, 0xd6, 0x64, 0x28,
-	0x85, 0xde, 0x2a, 0x55, 0xab, 0x90, 0x8c, 0xc9, 0xf4, 0x94, 0xd9, 0x33, 0x1d, 0x81, 0xb7, 0xc6,
-	0xdb, 0xb0, 0x3b, 0x26, 0xd3, 0x01, 0x33, 0x47, 0xfa, 0x1a, 0x02, 0x2d, 0xcb, 0xa2, 0x40, 0x19,
-	0x7a, 0x63, 0x32, 0x1d, 0x26, 0x8f, 0x63, 0x5b, 0x2b, 0x76, 0x75, 0xe2, 0xcf, 0x75, 0x9a, 0x39,
-	0x1e, 0x7d, 0x01, 0x3e, 0x17, 0x19, 0xaa, 0xb0, 0x37, 0xf6, 0xa6, 0xc3, 0xe4, 0xec, 0xee, 0x85,
-	0x0f, 0x22, 0x43, 0x56, 0x53, 0x0c, 0x17, 0xb3, 0x02, 0x55, 0xe8, 0xb7, 0x73, 0x2f, 0xb2, 0x02,
-	0x59, 0x4d, 0x89, 0x7e, 0x75, 0x21, 0x68, 0x9a, 0xd1, 0x09, 0x9c, 0x96, 0x5c, 0xe9, 0x94, 0x2f,
-	0xf1, 0xea, 0x20, 0xe2, 0x08, 0xa3, 0x11, 0x04, 0x3a, 0x55, 0xeb, 0xf7, 0x4e, 0xd0, 0x55, 0x87,
-	0x39, 0x80, 0x3e, 0x81, 0x13, 0xbc, 0x41, 0xae, 0x4d, 0xd2, 0x6b, 0x92, 0x7b, 0x84, 0x9e, 0x43,
-	0x90, 0x97, 0x1b, 0x8d, 0xd2, 0x69, 0x78, 0x76, 0x8f, 0xe8, 0xf8, 0xd2, 0xd2, 0x98, 0xa3, 0xd3,
-	0x10, 0x02, 0x23, 0xcc, 0x94, 0xf5, 0xad, 0x89, 0x2e, 0x8c, 0x7e, 0x12, 0xe8, 0xd7, 0x6c, 0xe7,
-	0x32, 0x39, 0xb8, 0x7c, 0x09, 0x83, 0xad, 0xc4, 0xac, 0x5c, 0xa6, 0x1a, 0xed, 0xb0, 0x8f, 0x92,
-	0xe9, 0xc3, 0x2d, 0xe3, 0x8f, 0x8e, 0xcf, 0x0e, 0x57, 0xe9, 0x19, 0xf8, 0x37, 0xe9, 0xa6, 0xc2,
-	0x5a, 0x13, 0xab, 0x83, 0xc9, 0x18, 0x06, 0x7b, 0x36, 0x1d, 0x42, 0xf0, 0x85, 0xaf, 0xb9, 0xd8,
-	0xf1, 0x51, 0x87, 0xf6, 0xa1, 0x7b, 0xf1, 0x69, 0x44, 0xe6, 0xbe, 0x9d, 0x28, 0xfa, 0x0a, 0x3d,
-	0xb3, 0x9c, 0x96, 0x01, 0xef, 0xfa, 0xdd, 0x6d, 0xf1, 0x3b, 0x3c, 0xf8, 0x5d, 0xb7, 0x77, 0x61,
-	0xf4, 0x87, 0x40, 0xcf, 0x6c, 0xd2, 0x14, 0x56, 0x72, 0xe9, 0x0a, 0x2b, 0xb9, 0x34, 0x48, 0xa6,
-	0xb4, 0x7b, 0x71, 0x99, 0xd2, 0x34, 0x81, 0x7e, 0xc9, 0xb7, 0x95, 0x56, 0xa1, 0x67, 0xbd, 0x8f,
-	0xda, 0xde, 0x44, 0xfc, 0xce, 0x50, 0x58, 0xc3, 0x8c, 0x7e, 0x10, 0xf0, 0x2d, 0xd2, 0x32, 0xfa,
-	0x39, 0x78, 0x12, 0x73, 0xdb, 0x61, 0x98, 0x3c, 0xbf, 0xbf, 0x58, 0xcc, 0x30, 0x47, 0x89, 0x46,
-	0x4d, 0x87, 0x99, 0x2b, 0xd1, 0x5b, 0x18, 0xec, 0xb1, 0x7f, 0x37, 0x4b, 0x8e, 0x36, 0xfb, 0xff,
-	0xa7, 0x99, 0x07, 0xcd, 0x1a, 0xe6, 0xc9, 0xf7, 0x57, 0x45, 0xa9, 0x57, 0xd5, 0x22, 0x5e, 0x8a,
-	0xeb, 0xd9, 0x35, 0xaa, 0xe2, 0x65, 0x2e, 0x2a, 0x9e, 0xa5, 0xba, 0x14, 0x7c, 0x86, 0xbc, 0x28,
-	0x39, 0xce, 0x8e, 0xbf, 0xee, 0xa2, 0x6f, 0xe3, 0x37, 0x7f, 0x03, 0x00, 0x00, 0xff, 0xff, 0x36,
-	0xd7, 0x3a, 0x33, 0xd3, 0x03, 0x00, 0x00,
+	// 465 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x93, 0xdd, 0x8a, 0xd3, 0x40,
+	0x14, 0xc7, 0x93, 0xe6, 0xa3, 0xdb, 0xd3, 0xbd, 0x90, 0xc1, 0x8b, 0x71, 0x44, 0x2c, 0x7b, 0x55,
+	0x17, 0x4d, 0x24, 0x22, 0xe2, 0x85, 0x37, 0x85, 0x85, 0xc0, 0xb2, 0x0a, 0x83, 0xf8, 0x75, 0x37,
+	0x6d, 0x4e, 0xd2, 0x92, 0x36, 0x13, 0x32, 0x93, 0x5d, 0xfa, 0x14, 0x3e, 0x80, 0x2f, 0xe6, 0x63,
+	0xf8, 0x08, 0x32, 0x93, 0xa6, 0xcb, 0x62, 0x44, 0x90, 0xbd, 0xcb, 0x39, 0xf9, 0x9d, 0xff, 0x39,
+	0xe7, 0xcf, 0x19, 0x78, 0x52, 0x37, 0x52, 0xcb, 0x65, 0x9b, 0xc7, 0x7a, 0x5f, 0xa3, 0x8a, 0x6f,
+	0x64, 0x53, 0xe6, 0x5b, 0x79, 0x13, 0xd9, 0x3c, 0x09, 0x6c, 0xf6, 0xec, 0xfb, 0x18, 0x4e, 0x3e,
+	0x1f, 0xfe, 0x10, 0x02, 0xfe, 0x5a, 0xa8, 0x35, 0x75, 0x67, 0xee, 0xfc, 0x94, 0xdb, 0x6f, 0xf2,
+	0x00, 0xbc, 0x12, 0xf7, 0x74, 0x34, 0x73, 0xe7, 0x13, 0x6e, 0x3e, 0xc9, 0x39, 0x04, 0x95, 0xcc,
+	0x50, 0x51, 0x7f, 0xe6, 0xcd, 0xa7, 0xc9, 0xc3, 0xc8, 0x2a, 0x45, 0xbd, 0x4a, 0xf4, 0x5e, 0x66,
+	0xc8, 0x3b, 0xc4, 0xb0, 0x98, 0x15, 0xa8, 0x68, 0x30, 0xcc, 0x5e, 0x64, 0x05, 0xf2, 0x0e, 0x61,
+	0x3f, 0x03, 0xf0, 0x4d, 0x2d, 0x79, 0x0d, 0x61, 0x83, 0xaa, 0xdd, 0x6a, 0x3b, 0xc8, 0x34, 0x79,
+	0x3c, 0xd4, 0x21, 0xe2, 0x16, 0x49, 0x1d, 0x7e, 0x80, 0x49, 0x02, 0x01, 0x5e, 0x63, 0xa5, 0xed,
+	0xac, 0xd3, 0x84, 0x0d, 0x56, 0x5d, 0x18, 0x22, 0x75, 0x78, 0x87, 0x92, 0x18, 0x7c, 0x2d, 0x54,
+	0x49, 0x3d, 0x5b, 0xf2, 0x68, 0xb0, 0xe4, 0xa3, 0x50, 0x65, 0xea, 0x70, 0x0b, 0x92, 0xe7, 0xe0,
+	0xed, 0x44, 0x4d, 0x7d, 0xcb, 0xd3, 0x41, 0xfe, 0x4a, 0xd4, 0xa9, 0xc3, 0x0d, 0xc6, 0xbe, 0x40,
+	0xd8, 0x8d, 0xd9, 0xdb, 0xe8, 0xde, 0xda, 0x78, 0x06, 0xa7, 0x9b, 0x4a, 0x69, 0x51, 0xad, 0x30,
+	0x35, 0xa6, 0x8f, 0xac, 0xe9, 0x77, 0x72, 0x84, 0xc2, 0xd8, 0x74, 0xbd, 0xc4, 0xbd, 0x9d, 0x70,
+	0xc2, 0xfb, 0x90, 0x7d, 0x85, 0xc0, 0xae, 0xf2, 0x9f, 0xc2, 0x0c, 0x4e, 0xac, 0x01, 0xb7, 0xca,
+	0xc7, 0x98, 0x7d, 0x02, 0xdf, 0xac, 0x7c, 0xef, 0x23, 0xff, 0x72, 0xc1, 0xbb, 0x12, 0xf5, 0x80,
+	0xee, 0x5b, 0x18, 0xcb, 0x56, 0xd7, 0xad, 0x56, 0x74, 0x64, 0xef, 0xe4, 0xe9, 0xdf, 0x8c, 0x8d,
+	0x3e, 0x58, 0x8e, 0xf7, 0x3c, 0xfb, 0xe1, 0x42, 0xd8, 0xe5, 0x06, 0x74, 0xdf, 0x81, 0xd7, 0x60,
+	0x7e, 0xb8, 0x87, 0x67, 0xff, 0xd0, 0x8c, 0x38, 0xe6, 0xd8, 0xa0, 0xd9, 0xc3, 0xe1, 0xa6, 0x8e,
+	0xbd, 0x81, 0xc9, 0x31, 0x67, 0xf6, 0x32, 0x27, 0x7d, 0x79, 0xec, 0xd0, 0x87, 0x7f, 0xbe, 0x90,
+	0xc5, 0x18, 0x82, 0x6b, 0xb1, 0x6d, 0x71, 0x11, 0x82, 0x6f, 0x9a, 0xb2, 0x73, 0xf0, 0xcd, 0xa5,
+	0x1b, 0x54, 0x35, 0xab, 0x7e, 0x44, 0xd5, 0xac, 0x4c, 0x26, 0x53, 0xba, 0x2f, 0xce, 0x94, 0x5e,
+	0x24, 0xdf, 0x5e, 0x16, 0x1b, 0xbd, 0x6e, 0x97, 0xd1, 0x4a, 0xee, 0xe2, 0x1d, 0xaa, 0xe2, 0x45,
+	0x2e, 0xdb, 0x2a, 0x13, 0x7a, 0x23, 0xab, 0x18, 0xab, 0x62, 0x53, 0x61, 0x7c, 0xf7, 0x6d, 0x2f,
+	0x43, 0x1b, 0xbf, 0xfa, 0x1d, 0x00, 0x00, 0xff, 0xff, 0x5d, 0x34, 0x42, 0x10, 0xf4, 0x03, 0x00,
+	0x00,
 }

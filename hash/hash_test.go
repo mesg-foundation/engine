@@ -51,6 +51,18 @@ func TestRandom(t *testing.T) {
 	require.NoError(t, quick.Check(f, nil))
 }
 
+func TestDecode(t *testing.T) {
+	hash, err := Decode("4uQeVj5tqViQh7yWWGStvkEG1Zmhx6uasJtWCJziofM")
+	assert.NoError(t, err)
+	assert.Equal(t, hash, one)
+
+	_, err = Decode("0")
+	assert.Equal(t, "hash: invalid base58 digit ('0')", err.Error())
+
+	_, err = Decode("1")
+	assert.Equal(t, "hash: invalid length string", err.Error())
+}
+
 func TestIsZero(t *testing.T) {
 	assert.True(t, Hash{}.IsZero())
 }
