@@ -23,7 +23,6 @@ import (
 	"github.com/mesg-foundation/engine/x/xnet"
 	"github.com/mesg-foundation/engine/x/xos"
 	"github.com/mesg-foundation/engine/x/xsignal"
-	"github.com/mr-tron/base58"
 	"github.com/sirupsen/logrus"
 	db "github.com/tendermint/tm-db"
 )
@@ -74,7 +73,7 @@ func deployCoreServices(cfg *config.Config, sdk *enginesdk.SDK) error {
 				return err
 			}
 		}
-		logrus.WithField("module", "main").Infof("Service %q deployed with hash %q", srv.Sid, base58.Encode(srv.Hash))
+		logrus.WithField("module", "main").Infof("Service %q deployed with hash %q", srv.Sid, srv.Hash.String())
 		instance, err := sdk.Instance.Create(srv.Hash, xos.EnvMapToSlice(serviceConfig.Env))
 		if err != nil {
 			existsError, ok := err.(*instancesdk.AlreadyExistsError)
