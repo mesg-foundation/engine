@@ -6,16 +6,22 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func defaultGraph() *Workflow {
-	return &Workflow{
+type NodeTest struct {
+	Key string
+}
+
+func (n NodeTest) ID() string { return n.Key }
+
+func defaultGraph() *Graph {
+	return &Graph{
 		Nodes: []Node{
-			{Key: "nodeKey1"},
-			{Key: "nodeKey2"},
-			{Key: "nodeKey3"},
-			{Key: "nodeKey4"},
-			{Key: "nodeKey5"},
-			{Key: "nodeKey6"},
-			{Key: "nodeKey7"}},
+			NodeTest{Key: "nodeKey1"},
+			NodeTest{Key: "nodeKey2"},
+			NodeTest{Key: "nodeKey3"},
+			NodeTest{Key: "nodeKey4"},
+			NodeTest{Key: "nodeKey5"},
+			NodeTest{Key: "nodeKey6"},
+			NodeTest{Key: "nodeKey7"}},
 		Edges: []Edge{
 			{Src: "nodeKey1", Dst: "nodeKey2"},
 			{Src: "nodeKey2", Dst: "nodeKey3"},
@@ -29,7 +35,7 @@ func defaultGraph() *Workflow {
 
 func TestChildrenIDs(t *testing.T) {
 	var tests = []struct {
-		graph    *Workflow
+		graph    *Graph
 		node     string
 		children []string
 	}{
@@ -48,7 +54,7 @@ func TestChildrenIDs(t *testing.T) {
 
 func TestParentIDs(t *testing.T) {
 	var tests = []struct {
-		graph   *Workflow
+		graph   *Graph
 		node    string
 		parents []string
 	}{
@@ -67,7 +73,7 @@ func TestParentIDs(t *testing.T) {
 
 func TestFindNode(t *testing.T) {
 	var tests = []struct {
-		graph   *Workflow
+		graph   *Graph
 		node    string
 		present bool
 	}{
@@ -84,7 +90,7 @@ func TestFindNode(t *testing.T) {
 		node, err := test.graph.FindNode(test.node)
 		if test.present {
 			assert.NoError(t, err)
-			assert.Equal(t, node.Key, test.node)
+			assert.Equal(t, node.ID(), test.node)
 		} else {
 			assert.Error(t, err)
 		}
@@ -93,11 +99,11 @@ func TestFindNode(t *testing.T) {
 
 func TestHasNodes(t *testing.T) {
 	var tests = []struct {
-		graph    *Workflow
+		graph    *Graph
 		hasNodes bool
 	}{
 		{graph: defaultGraph(), hasNodes: true},
-		{graph: &Workflow{}, hasNodes: false},
+		{graph: &Graph{}, hasNodes: false},
 	}
 	for _, test := range tests {
 		assert.Equal(t, test.graph.hasNodes(), test.hasNodes)
@@ -106,25 +112,25 @@ func TestHasNodes(t *testing.T) {
 
 func TestIsAcyclic(t *testing.T) {
 	var tests = []struct {
-		graph   *Workflow
+		graph   *Graph
 		acyclic bool
 	}{
 		{graph: defaultGraph(), acyclic: true},
-		{graph: &Workflow{
+		{graph: &Graph{
 			Nodes: []Node{
-				{Key: "nodeKey1"},
-				{Key: "nodeKey2"},
+				NodeTest{Key: "nodeKey1"},
+				NodeTest{Key: "nodeKey2"},
 			},
 			Edges: []Edge{
 				{Src: "nodeKey1", Dst: "nodeKey2"},
 				{Src: "nodeKey2", Dst: "nodeKey1"},
 			},
 		}, acyclic: false},
-		{graph: &Workflow{
+		{graph: &Graph{
 			Nodes: []Node{
-				{Key: "nodeKey1"},
-				{Key: "nodeKey2"},
-				{Key: "nodeKey3"},
+				NodeTest{Key: "nodeKey1"},
+				NodeTest{Key: "nodeKey2"},
+				NodeTest{Key: "nodeKey3"},
 			},
 			Edges: []Edge{
 				{Src: "nodeKey1", Dst: "nodeKey2"},
@@ -132,11 +138,11 @@ func TestIsAcyclic(t *testing.T) {
 				{Src: "nodeKey3", Dst: "nodeKey1"},
 			},
 		}, acyclic: false},
-		{graph: &Workflow{
+		{graph: &Graph{
 			Nodes: []Node{
-				{Key: "nodeKey1"},
-				{Key: "nodeKey2"},
-				{Key: "nodeKey3"},
+				NodeTest{Key: "nodeKey1"},
+				NodeTest{Key: "nodeKey2"},
+				NodeTest{Key: "nodeKey3"},
 			},
 			Edges: []Edge{
 				{Src: "nodeKey1", Dst: "nodeKey2"},
@@ -144,12 +150,12 @@ func TestIsAcyclic(t *testing.T) {
 				{Src: "nodeKey3", Dst: "nodeKey2"},
 			},
 		}, acyclic: false},
-		{graph: &Workflow{
+		{graph: &Graph{
 			Nodes: []Node{
-				{Key: "nodeKey1"},
-				{Key: "nodeKey2"},
-				{Key: "nodeKey3"},
-				{Key: "nodeKey4"},
+				NodeTest{Key: "nodeKey1"},
+				NodeTest{Key: "nodeKey2"},
+				NodeTest{Key: "nodeKey3"},
+				NodeTest{Key: "nodeKey4"},
 			},
 			Edges: []Edge{
 				{Src: "nodeKey1", Dst: "nodeKey2"},
@@ -166,17 +172,17 @@ func TestIsAcyclic(t *testing.T) {
 
 func TestIsConnected(t *testing.T) {
 	var tests = []struct {
-		graph     *Workflow
+		graph     *Graph
 		node      string
 		connected bool
 	}{
 		{graph: defaultGraph(), connected: true},
-		{graph: &Workflow{
+		{graph: &Graph{
 			Nodes: []Node{
-				{Key: "nodeKey1"},
-				{Key: "nodeKey2"},
-				{Key: "nodeKey3"},
-				{Key: "nodeKey4"},
+				NodeTest{Key: "nodeKey1"},
+				NodeTest{Key: "nodeKey2"},
+				NodeTest{Key: "nodeKey3"},
+				NodeTest{Key: "nodeKey4"},
 			},
 			Edges: []Edge{
 				{Src: "nodeKey1", Dst: "nodeKey2"},
@@ -191,7 +197,7 @@ func TestIsConnected(t *testing.T) {
 
 func TestVisitChildren(t *testing.T) {
 	var tests = []struct {
-		graph    *Workflow
+		graph    *Graph
 		node     string
 		children []string
 	}{
@@ -216,7 +222,7 @@ func TestVisitChildren(t *testing.T) {
 
 func TestGetRoot(t *testing.T) {
 	var tests = []struct {
-		graph *Workflow
+		graph *Graph
 		node  string
 		root  string
 	}{
@@ -232,27 +238,27 @@ func TestGetRoot(t *testing.T) {
 
 func TestIsMonoParental(t *testing.T) {
 	var tests = []struct {
-		graph *Workflow
+		graph *Graph
 		max   int
 	}{
 		{graph: defaultGraph(), max: 1},
-		{graph: &Workflow{
+		{graph: &Graph{
 			Nodes: []Node{
-				{Key: "nodeKey1"},
-				{Key: "nodeKey2"},
-				{Key: "nodeKey3"},
+				NodeTest{Key: "nodeKey1"},
+				NodeTest{Key: "nodeKey2"},
+				NodeTest{Key: "nodeKey3"},
 			},
 			Edges: []Edge{
 				{Src: "nodeKey1", Dst: "nodeKey3"},
 				{Src: "nodeKey2", Dst: "nodeKey3"},
 			},
 		}, max: 2},
-		{graph: &Workflow{
+		{graph: &Graph{
 			Nodes: []Node{
-				{Key: "nodeKey1"},
-				{Key: "nodeKey2"},
-				{Key: "nodeKey3"},
-				{Key: "nodeKey4"},
+				NodeTest{Key: "nodeKey1"},
+				NodeTest{Key: "nodeKey2"},
+				NodeTest{Key: "nodeKey3"},
+				NodeTest{Key: "nodeKey4"},
 			},
 			Edges: []Edge{
 				{Src: "nodeKey1", Dst: "nodeKey2"},
@@ -261,12 +267,12 @@ func TestIsMonoParental(t *testing.T) {
 				{Src: "nodeKey3", Dst: "nodeKey4"},
 			},
 		}, max: 2},
-		{graph: &Workflow{
+		{graph: &Graph{
 			Nodes: []Node{
-				{Key: "nodeKey1"},
-				{Key: "nodeKey2"},
-				{Key: "nodeKey3"},
-				{Key: "nodeKey4"},
+				NodeTest{Key: "nodeKey1"},
+				NodeTest{Key: "nodeKey2"},
+				NodeTest{Key: "nodeKey3"},
+				NodeTest{Key: "nodeKey4"},
 			},
 			Edges: []Edge{
 				{Src: "nodeKey1", Dst: "nodeKey4"},

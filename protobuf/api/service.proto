@@ -20,7 +20,7 @@ service Service {
   rpc Delete (DeleteServiceRequest) returns (DeleteServiceResponse) {}
 
   // Get returns a Service matching the criteria of the request.
-  rpc Get(GetServiceRequest) returns (service.Service) {}
+  rpc Get(GetServiceRequest) returns (types.Service) {}
 
   // List returns services specified in a request.
   rpc List(ListServiceRequest) returns (ListServiceResponse) {}
@@ -38,16 +38,16 @@ message CreateServiceRequest {
   string description = 3;
 
   // Configurations related to the service
-  service.Service.Configuration configuration = 4;
+  types.Service.Configuration configuration = 4;
 
   // The list of tasks this service can execute.
-  repeated service.Service.Task tasks = 5;
+  repeated types.Service.Task tasks = 5;
 
   // The list of events this service can emit.
-  repeated service.Service.Event events = 6;
+  repeated types.Service.Event events = 6;
 
   // The container dependencies this service requires.
-  repeated service.Service.Dependency dependencies = 7;
+  repeated types.Service.Dependency dependencies = 7;
 
   // Service's repository url.
   string repository = 8;
@@ -84,5 +84,5 @@ message ListServiceRequest {}
 // The response's data for the `List` API.
 message ListServiceResponse {
   // List of services that match the request's filters.
-  repeated service.Service services = 1;
+  repeated types.Service services = 1;
 }

@@ -2,64 +2,48 @@ package workflow
 
 import "github.com/mesg-foundation/engine/hash"
 
-// Predicate is the type of conditions that can be applied in a filter of a workflow trigger
-type Predicate uint
-
-// List of possible conditions for workflow's filter
-const (
-	EQ Predicate = iota + 1
-)
-
 // Workflow describes a workflow of a service
 type Workflow struct {
-	Hash    hash.Hash `hash:"-" validate:"required"`
-	Key     string    `hash:"name:1" validate:"required"`
-	Trigger Trigger   `hash:"name:2" validate:"required"`
-	Nodes   []Node    `hash:"name:3" validate:"dive,required"`
-	Edges   []Edge    `hash:"name:4" validate:"dive,required"`
+	Graph
+	Hash hash.Hash `hash:"-" validate:"required"`
+	Key  string    `hash:"name:1" validate:"required"`
 }
 
-// Node describes the instructions for the workflow to execute a task
-type Node struct {
+// Task is a type of node that triggers an execution
+type Task struct {
 	Key          string    `hash:"name:1" validate:"required"`
 	InstanceHash hash.Hash `hash:"name:2" validate:"required"`
 	TaskKey      string    `hash:"name:3" validate:"required,printascii"`
 }
 
-// InputReference reference the value of another value
-type InputReference struct {
+// Result is a type of node that listen for an result
+type Result struct {
+	Key          string    `hash:"name:1" validate:"required"`
+	InstanceHash hash.Hash `hash:"name:2" validate:"required"`
+	TaskKey      string    `hash:"name:3" validate:"printascii,required"`
+}
+
+// Event is a type of node that listen for an event
+type Event struct {
+	Key          string    `hash:"name:1" validate:"required"`
+	InstanceHash hash.Hash `hash:"name:2" validate:"required"`
+	EventKey     string    `hash:"name:3" validate:"printascii,required"`
+}
+
+// Map is a type of Node that transform data
+type Map struct {
+	Key     string   `hash:"name:1" validate:"required"`
+	Outputs []Output `hash:"name:2" validate:"dive,required"`
+}
+
+// Output as defined in a map node
+type Output struct {
+	Key string           `hash:"name:1" validate:"required"`
+	Ref *OutputReference `hash:"name:2" validate:"required"`
+}
+
+// OutputReference of a output value to define an output
+type OutputReference struct {
 	NodeKey string `hash:"name:1" validate:"required"`
 	Key     string `hash:"name:2" validate:"required"`
-}
-
-// Input is the representation of an input for a task
-type Input struct {
-	Key string          `hash:"name:1" validate:"required"`
-	Ref *InputReference `hash:"name:2" validate:"required"`
-}
-
-// Edge describes the instructions for the workflow to execute a task
-type Edge struct {
-	Src    string   `hash:"name:1" validate:"required"`
-	Dst    string   `hash:"name:2" validate:"required"`
-	Inputs []*Input `hash:"name:3" validate:"dive,required"`
-}
-
-// Trigger is an event that triggers a workflow
-type Trigger struct {
-	InstanceHash hash.Hash      `hash:"name:1" validate:"required"`
-	TaskKey      string         `hash:"name:2" validate:"printascii,required_without=EventKey"`
-	EventKey     string         `hash:"name:3" validate:"printascii,required_without=TaskKey"`
-	Filters      TriggerFilters `hash:"name:4" validate:"dive,required"`
-	NodeKey      string         `hash:"name:5" validate:"required"`
-}
-
-// TriggerFilters is a list of filters to apply
-type TriggerFilters []*TriggerFilter
-
-// TriggerFilter is the filter definition that can be applied to a workflow trigger
-type TriggerFilter struct {
-	Key       string      `hash:"name:1" validate:"required,printascii"`
-	Predicate Predicate   `hash:"name:2" validate:"required"`
-	Value     interface{} `hash:"name:3"`
 }
