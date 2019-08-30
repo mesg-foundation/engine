@@ -12,7 +12,7 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/instance"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
-	processsdk "github.com/mesg-foundation/engine/sdk/process"
+	processesdk "github.com/mesg-foundation/engine/sdk/process"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	"github.com/mesg-foundation/engine/service"
 	"github.com/stretchr/testify/require"
@@ -60,7 +60,7 @@ func newTesting(t *testing.T) (*Execution, *apiTesting) {
 
 	processDB, err := database.NewProcessDB(processdbname)
 	require.NoError(t, err)
-	process := processsdk.New(instance, processDB)
+	process := processesdk.New(instance, processDB)
 
 	sdk := New(pubsub.New(0), service, instance, process, execDB)
 

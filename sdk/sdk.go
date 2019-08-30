@@ -8,7 +8,7 @@ import (
 	eventsdk "github.com/mesg-foundation/engine/sdk/event"
 	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
-	processsdk "github.com/mesg-foundation/engine/sdk/process"
+	processesdk "github.com/mesg-foundation/engine/sdk/process"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 )
 
@@ -18,7 +18,7 @@ type SDK struct {
 	Instance  *instancesdk.Instance
 	Execution *executionsdk.Execution
 	Event     *eventsdk.Event
-	Process   *processsdk.Process
+	Process   *processesdk.Process
 }
 
 // New creates a new SDK with given options.
@@ -29,7 +29,7 @@ func New(app *cosmos.App, c container.Container, instanceDB database.InstanceDB,
 	serviceSDK := servicesdk.NewSDK(app)
 	servicesdk.NewModule(app, c)
 	instanceSDK := instancesdk.New(c, serviceSDK, instanceDB, engineName, port)
-	processSDK := processsdk.New(instanceSDK, processDB)
+	processSDK := processesdk.New(instanceSDK, processDB)
 	executionSDK := executionsdk.New(ps, serviceSDK, instanceSDK, processSDK, execDB)
 	eventSDK := eventsdk.New(ps, serviceSDK, instanceSDK)
 	// TODO: is it the best place to load the app?
@@ -50,7 +50,7 @@ func NewDeprecated(c container.Container, serviceDB *database.ServiceDB, instanc
 	ps := pubsub.New(0)
 	serviceSDK := servicesdk.NewDeprecated(c, serviceDB)
 	instanceSDK := instancesdk.New(c, serviceSDK, instanceDB, engineName, port)
-	processSDK := processsdk.New(instanceSDK, processDB)
+	processSDK := processesdk.New(instanceSDK, processDB)
 	executionSDK := executionsdk.New(ps, serviceSDK, instanceSDK, processSDK, execDB)
 	eventSDK := eventsdk.New(ps, serviceSDK, instanceSDK)
 	return &SDK{

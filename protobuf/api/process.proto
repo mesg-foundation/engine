@@ -4,7 +4,7 @@ import "protobuf/types/process.proto";
 
 package api;
 
-// This is the API to interact with the Processs.
+// This is the API to interact with the Processes.
 //
 // This API is a [gRPC](https://grpc.io/) API.
 //
@@ -22,7 +22,7 @@ service Process {
   // Get returns a process matching the criteria of the request.
   rpc Get(GetProcessRequest) returns (types.Process) {}
 
-  // List returns processs specified in a request.
+  // List returns processes specified in a request.
   rpc List(ListProcessRequest) returns (ListProcessResponse) {}
 }
 
@@ -60,6 +60,6 @@ message ListProcessRequest {}
 
 // The response's data for the `List` API.
 message ListProcessResponse {
-  // List of processs that match the request's filters.
-  repeated types.Process processs = 1;
+  // List of processes that match the request's filters.
+  repeated types.Process processes = 1;
 }

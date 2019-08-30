@@ -95,7 +95,7 @@ func New() (*Config, error) {
 	c.Database.ServiceRelativePath = filepath.Join("database", "services", serviceDBVersion)
 	c.Database.InstanceRelativePath = filepath.Join("database", "instance", instanceDBVersion)
 	c.Database.ExecutionRelativePath = filepath.Join("database", "executions", executionDBVersion)
-	c.Database.ProcessRelativePath = filepath.Join("database", "processs", processDBVersion)
+	c.Database.ProcessRelativePath = filepath.Join("database", "processes", processDBVersion)
 
 	c.Tendermint.Config = tmconfig.DefaultConfig()
 	c.Tendermint.Config.P2P.AddrBookStrict = false

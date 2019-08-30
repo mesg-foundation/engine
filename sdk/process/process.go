@@ -1,4 +1,4 @@
-package processsdk
+package processesdk
 
 import (
 	"fmt"
@@ -65,7 +65,7 @@ func (w *Process) Get(hash hash.Hash) (*process.Process, error) {
 	return w.processDB.Get(hash)
 }
 
-// List returns all processs.
+// List returns all processes.
 func (w *Process) List() ([]*process.Process, error) {
 	return w.processDB.All()
 }

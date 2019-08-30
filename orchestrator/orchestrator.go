@@ -9,11 +9,11 @@ import (
 	"github.com/mesg-foundation/engine/process"
 	eventsdk "github.com/mesg-foundation/engine/sdk/event"
 	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
-	processsdk "github.com/mesg-foundation/engine/sdk/process"
+	processesdk "github.com/mesg-foundation/engine/sdk/process"
 	"github.com/sirupsen/logrus"
 )
 
-// Orchestrator manages the executions based on the definition of the processs
+// Orchestrator manages the executions based on the definition of the processes
 type Orchestrator struct {
 	event       *eventsdk.Event
 	eventStream *eventsdk.Listener
@@ -21,13 +21,13 @@ type Orchestrator struct {
 	execution       *executionsdk.Execution
 	executionStream *executionsdk.Listener
 
-	process *processsdk.Process
+	process *processesdk.Process
 
 	ErrC chan error
 }
 
 // New creates a new Process instance
-func New(event *eventsdk.Event, execution *executionsdk.Execution, process *processsdk.Process) *Orchestrator {
+func New(event *eventsdk.Event, execution *executionsdk.Execution, process *processesdk.Process) *Orchestrator {
 	return &Orchestrator{
 		event:     event,
 		execution: execution,
@@ -105,12 +105,12 @@ func (s *Orchestrator) findNodes(wf *process.Process, filter func(wf *process.Pr
 }
 
 func (s *Orchestrator) execute(filter func(wf *process.Process, node process.Node) (bool, error), exec *execution.Execution, event *event.Event, data map[string]interface{}) {
-	processs, err := s.process.List()
+	processes, err := s.process.List()
 	if err != nil {
 		s.ErrC <- err
 		return
 	}
-	for _, wf := range processs {
+	for _, wf := range processes {
 		for _, node := range s.findNodes(wf, filter) {
 			if err := s.executeNode(wf, node, exec, event, data); err != nil {
 				s.ErrC <- err

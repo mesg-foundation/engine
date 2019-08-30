@@ -52,15 +52,15 @@ func (s *ProcessServer) Get(ctx context.Context, req *api.GetProcessRequest) (*t
 	return toProtoProcess(wf), nil
 }
 
-// List returns all processs.
+// List returns all processes.
 func (s *ProcessServer) List(ctx context.Context, req *api.ListProcessRequest) (*api.ListProcessResponse, error) {
-	processs, err := s.sdk.Process.List()
+	processes, err := s.sdk.Process.List()
 	if err != nil {
 		return nil, err
 	}
-	wfs := toProtoProcesss(processs)
+	wfs := toProtoProcesses(processes)
 	return &api.ListProcessResponse{
-		Processs: wfs,
+		Processes: wfs,
 	}, nil
 }
 
@@ -227,9 +227,9 @@ func toProtoProcess(wf *process.Process) *types.Process {
 	}
 }
 
-func toProtoProcesss(processs []*process.Process) []*types.Process {
-	wfs := make([]*types.Process, len(processs))
-	for i, wf := range processs {
+func toProtoProcesses(processes []*process.Process) []*types.Process {
+	wfs := make([]*types.Process, len(processes))
+	for i, wf := range processes {
 		wfs[i] = toProtoProcess(wf)
 	}
 	return wfs

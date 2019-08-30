@@ -21,14 +21,14 @@ type ProcessDB interface {
 	// Delete deletes a process from database by its unique hash.
 	Delete(hash hash.Hash) error
 
-	// All returns all processs from database.
+	// All returns all processes from database.
 	All() ([]*process.Process, error)
 
 	// Close closes underlying database connection.
 	Close() error
 }
 
-// LevelDBProcessDB is a database for storing processs definition.
+// LevelDBProcessDB is a database for storing processes definition.
 type LevelDBProcessDB struct {
 	db *leveldb.DB
 }
@@ -59,7 +59,7 @@ func (d *LevelDBProcessDB) unmarshal(hash hash.Hash, value []byte) (*process.Pro
 // All returns every process in database.
 func (d *LevelDBProcessDB) All() ([]*process.Process, error) {
 	var (
-		processs []*process.Process
+		processes []*process.Process
 		iter     = d.db.NewIterator(nil, nil)
 	)
 	for iter.Next() {
@@ -71,10 +71,10 @@ func (d *LevelDBProcessDB) All() ([]*process.Process, error) {
 			logrus.WithField("process", hash.String()).Warning(err.Error())
 			continue
 		}
-		processs = append(processs, s)
+		processes = append(processes, s)
 	}
 	iter.Release()
-	return processs, iter.Error()
+	return processes, iter.Error()
 }
 
 // Delete deletes process from database.
