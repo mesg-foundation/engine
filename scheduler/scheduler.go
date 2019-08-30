@@ -133,6 +133,11 @@ func (s *Scheduler) processNode(wf *workflow.Workflow, n workflow.Node, exec *ex
 			return err
 		}
 	}
+	if node, ok := n.(*workflow.Filter); ok {
+		if !node.Filter.Match(data) {
+			return nil
+		}
+	}
 	for _, childrenID := range wf.ChildrenIDs(n.ID()) {
 		children, err := wf.FindNode(childrenID)
 		if err != nil {

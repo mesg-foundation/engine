@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/mesg-foundation/engine/filter"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/sdk"
@@ -89,6 +90,19 @@ func fromProtoWorkflowNodes(nodes []*types.Workflow_Node) ([]workflow.Node, erro
 				outputs[j] = out
 			}
 			res[i] = workflow.Map{Key: n.Map.Key, Outputs: outputs}
+		case *types.Workflow_Node_Filter_:
+			conditions := make([]filter.Condition, len(n.Filter.Conditions))
+			for j, condition := range n.Filter.Conditions {
+				cond := filter.Condition{Key: condition.Key, Value: condition.Value}
+				switch condition.Predicate {
+				case types.Workflow_Node_Filter_Condition_EQ:
+					cond.Predicate = filter.EQ
+				default:
+					return nil, fmt.Errorf("predicate %q not supported", condition.Predicate)
+				}
+				conditions[j] = cond
+			}
+			res[i] = workflow.Filter{Key: n.Filter.Key, Filter: filter.Filter{Conditions: conditions}}
 		default:
 			return nil, fmt.Errorf("node has unexpected type %T", n)
 		}
@@ -169,6 +183,22 @@ func toProtoWorkflowNodes(nodes []workflow.Node) []*types.Workflow_Node {
 				Map: &types.Workflow_Node_Map{
 					Key:     n.Key,
 					Outputs: outputs,
+				},
+			}
+		case *workflow.Filter:
+			conditions := make([]*types.Workflow_Node_Filter_Condition, len(n.Conditions))
+			for j, condition := range n.Conditions {
+				cond := &types.Workflow_Node_Filter_Condition{Key: condition.Key, Value: condition.Value}
+				if condition.Predicate == filter.EQ {
+					cond.Predicate = types.Workflow_Node_Filter_Condition_EQ
+				}
+				conditions[j] = cond
+			}
+
+			protoNode.Type = &types.Workflow_Node_Filter_{
+				Filter: &types.Workflow_Node_Filter{
+					Key:        n.Key,
+					Conditions: conditions,
 				},
 			}
 		}
