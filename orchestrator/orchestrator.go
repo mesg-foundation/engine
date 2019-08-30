@@ -48,10 +48,10 @@ func (s *Orchestrator) Start() error {
 	for {
 		select {
 		case event := <-s.eventStream.C:
-			go s.process(s.eventFilter(event), nil, event, event.Data)
+			go s.execute(s.eventFilter(event), nil, event, event.Data)
 		case execution := <-s.executionStream.C:
-			go s.process(s.resultFilter(execution), execution, nil, execution.Outputs)
-			go s.process(s.dependencyFilter(execution), execution, nil, execution.Outputs)
+			go s.execute(s.resultFilter(execution), execution, nil, execution.Outputs)
+			go s.execute(s.dependencyFilter(execution), execution, nil, execution.Outputs)
 		}
 	}
 }
@@ -104,7 +104,7 @@ func (s *Orchestrator) findNodes(wf *process.Process, filter func(wf *process.Pr
 	})
 }
 
-func (s *Orchestrator) process(filter func(wf *process.Process, node process.Node) (bool, error), exec *execution.Execution, event *event.Event, data map[string]interface{}) {
+func (s *Orchestrator) execute(filter func(wf *process.Process, node process.Node) (bool, error), exec *execution.Execution, event *event.Event, data map[string]interface{}) {
 	processs, err := s.process.List()
 	if err != nil {
 		s.ErrC <- err
@@ -112,14 +112,14 @@ func (s *Orchestrator) process(filter func(wf *process.Process, node process.Nod
 	}
 	for _, wf := range processs {
 		for _, node := range s.findNodes(wf, filter) {
-			if err := s.processNode(wf, node, exec, event, data); err != nil {
+			if err := s.executeNode(wf, node, exec, event, data); err != nil {
 				s.ErrC <- err
 			}
 		}
 	}
 }
 
-func (s *Orchestrator) processNode(wf *process.Process, n process.Node, exec *execution.Execution, event *event.Event, data map[string]interface{}) error {
+func (s *Orchestrator) executeNode(wf *process.Process, n process.Node, exec *execution.Execution, event *event.Event, data map[string]interface{}) error {
 	logrus.WithField("module", "orchestrator").WithField("nodeID", n.ID()).WithField("type", fmt.Sprintf("%T", n)).Debug("process process")
 	if node, ok := n.(*process.Task); ok {
 		// This returns directly because a task cannot process its children.
@@ -145,7 +145,7 @@ func (s *Orchestrator) processNode(wf *process.Process, n process.Node, exec *ex
 			s.ErrC <- err
 			continue
 		}
-		if err := s.processNode(wf, children, exec, event, data); err != nil {
+		if err := s.executeNode(wf, children, exec, event, data); err != nil {
 			// does not return an error to continue to process other tasks if needed
 			s.ErrC <- err
 		}
