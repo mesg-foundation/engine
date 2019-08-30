@@ -26,6 +26,11 @@ func (m Map) ID() string {
 	return m.Key
 }
 
+// ID is the ID of the Filter's node
+func (f Filter) ID() string {
+	return f.Key
+}
+
 // Validate returns an error if the workflow is invalid for whatever reason
 func (w *Workflow) Validate() error {
 	if err := validator.New().Struct(w); err != nil {

@@ -1,6 +1,9 @@
 package workflow
 
-import "github.com/mesg-foundation/engine/hash"
+import (
+	"github.com/mesg-foundation/engine/filter"
+	"github.com/mesg-foundation/engine/hash"
+)
 
 // Workflow describes a workflow of a service
 type Workflow struct {
@@ -46,4 +49,10 @@ type Output struct {
 type OutputReference struct {
 	NodeKey string `hash:"name:1" validate:"required"`
 	Key     string `hash:"name:2" validate:"required"`
+}
+
+// Filter contains a list of conditions to apply
+type Filter struct {
+	filter.Filter `hash:"name:1" validate:"required"`
+	Key           string `hash:"name:2" validate:"required"`
 }
