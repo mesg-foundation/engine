@@ -3,20 +3,20 @@ syntax = "proto3";
 package types;
 option go_package = "github.com/mesg-foundation/engine/protobuf/types";
 
-// A workflow is a configuration to trigger a specific task when certains conditions of a trigger are valid.
-message Workflow {
-  // Node of the workflow
+// A process is a configuration to trigger a specific task when certains conditions of a trigger are valid.
+message Process {
+  // Node of the process
   message Node {
     message Result {
       string key = 1;           // Key that identifies the node.
-      bytes instanceHash = 2;  // Hash of the instance that triggers the workflow.
-      string taskKey = 3;       // Key of the task that triggers the workflow.
+      bytes instanceHash = 2;  // Hash of the instance that triggers the process.
+      string taskKey = 3;       // Key of the task that triggers the process.
     }
 
     message Event {
       string key = 1;           // Key that identifies the node.
-      bytes instanceHash = 2;  // Hash of the instance that triggers the workflow.
-      string eventKey = 3;      // Key of the event that triggers the workflow.
+      bytes instanceHash = 2;  // Hash of the instance that triggers the process.
+      string eventKey = 3;      // Key of the event that triggers the process.
     }
 
     message Task {
@@ -70,8 +70,8 @@ message Workflow {
     string dst = 2;   // Destination of the edge.
   }
 
-  bytes hash = 1;          // Workflow's hash
-  string key = 2;           // Workflow's key
+  bytes hash = 1;          // Process's hash
+  string key = 2;           // Process's key
   repeated Node nodes = 4;  // Nodes with information related to the execution to trigger.
   repeated Edge edges = 5;  // Edges to create the link between the nodes.
 }

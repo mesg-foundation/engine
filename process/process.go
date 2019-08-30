@@ -1,4 +1,4 @@
-package workflow
+package process
 
 import (
 	"fmt"
@@ -31,8 +31,8 @@ func (f Filter) ID() string {
 	return f.Key
 }
 
-// Validate returns an error if the workflow is invalid for whatever reason
-func (w *Workflow) Validate() error {
+// Validate returns an error if the process is invalid for whatever reason
+func (w *Process) Validate() error {
 	if err := validator.New().Struct(w); err != nil {
 		return err
 	}
@@ -58,8 +58,8 @@ func (w *Workflow) Validate() error {
 	return nil
 }
 
-// Trigger returns the trigger of the workflow
-func (w *Workflow) Trigger() (Node, error) {
+// Trigger returns the trigger of the process
+func (w *Process) Trigger() (Node, error) {
 	triggers := w.Graph.FindNodes(func(n Node) bool {
 		_, isResult := n.(Result)
 		_, isEvent := n.(Event)

@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+import "protobuf/types/process.proto";
+
+package api;
+
+// This is the API to interact with the Processes.
+//
+// This API is a [gRPC](https://grpc.io/) API.
+//
+// The source file of this API is hosted on [GitHub](https://github.com/mesg-foundation/engine/blob/master/protobuf/api/process.proto).
+service Process {
+
+  // Create a Process from a Process Definition.
+  // It will return an unique identifier which is used to interact with the Process.
+  rpc Create (CreateProcessRequest) returns (CreateProcessResponse) {}
+
+  // Delete a process.
+  // An error is returned if one or more Instances of the process are running.
+  rpc Delete (DeleteProcessRequest) returns (DeleteProcessResponse) {}
+
+  // Get returns a process matching the criteria of the request.
+  rpc Get(GetProcessRequest) returns (types.Process) {}
+
+  // List returns processes specified in a request.
+  rpc List(ListProcessRequest) returns (ListProcessResponse) {}
+}
+
+// The request's data for the `Create` API.
+message CreateProcessRequest {
+  string key = 2;           // Process's key
+  repeated types.Process.Node nodes = 4;  // List of nodes of the process.
+  repeated types.Process.Edge edges = 5;  // List of edges of the process.
+}
+
+// The response's data for the `Create` API.
+message CreateProcessResponse {
+  // The process's hash created.
+  bytes hash = 1;
+}
+
+// The request's data for the `Delete` API.
+message DeleteProcessRequest {
+  // The process's hash to delete.
+  bytes hash = 1;
+}
+
+// The response's data for the `Delete` API, doesn't contain anything.
+message DeleteProcessResponse {
+}
+
+// The request's data for the `Get` API.
+message GetProcessRequest {
+  // The process's hash to fetch.
+  bytes hash = 1;
+}
+
+// The request's data for the `List` API.
+message ListProcessRequest {}
+
+// The response's data for the `List` API.
+message ListProcessResponse {
+  // List of processes that match the request's filters.
+  repeated types.Process processes = 1;
+}

@@ -1,4 +1,4 @@
-package workflow
+package process
 
 import (
 	"encoding/json"
@@ -10,7 +10,7 @@ import (
 )
 
 func TestMarshal(t *testing.T) {
-	w := Workflow{
+	w := Process{
 		Hash: hash.Int(0),
 		Key:  "test",
 		Graph: Graph{
@@ -30,7 +30,7 @@ func TestMarshal(t *testing.T) {
 	val, err := json.Marshal(w)
 	assert.NoError(t, err)
 	assert.Equal(t, "{\"Nodes\":[{\"instanceHash\":\"4uQeVj5tqViQh7yWWGStvkEG1Zmhx6uasJtWCJziofM\",\"key\":\"1\",\"taskKey\":\"1\",\"type\":\"task\"},{\"instanceHash\":\"8opHzTAnfzRpPEx21XtnrVTX28YQuCpAjcn1PczScKh\",\"key\":\"2\",\"taskKey\":\"2\",\"type\":\"result\"},{\"eventKey\":\"3\",\"instanceHash\":\"CiDwVBFgWV9E5MvXWoLgnEgn2hK7rJikbvfWavzAQz3\",\"key\":\"3\",\"type\":\"event\"},{\"key\":\"4\",\"outputs\":[{\"Key\":\"5\",\"Ref\":{\"NodeKey\":\"5\",\"Key\":\"5\"}}],\"type\":\"map\"}],\"Edges\":[{\"Src\":\"1\",\"Dst\":\"2\"}],\"Hash\":\"11111111111111111111111111111111\",\"Key\":\"test\"}", string(val))
-	var w2 Workflow
+	var w2 Process
 	err = json.Unmarshal(val, &w2)
 	assert.NoError(t, err)
 	assert.Equal(t, w2.Hash, hash.Int(0))
