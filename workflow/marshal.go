@@ -134,11 +134,11 @@ func (w *Workflow) preprocessUnmashalNode(nodeInfo map[string]interface{}) (map[
 			continue
 		}
 		if key == "instanceHash" {
-			instanceHash, err := hash.Decode(value.(string))
+			h, err := hash.Decode(value.(string))
 			if err != nil {
 				return nil, err
 			}
-			data[key] = instanceHash
+			data[key] = h
 		} else {
 			data[key] = value
 		}

@@ -32,7 +32,7 @@ func TestServiceDBSave(t *testing.T) {
 	db, closer := openServiceDB(t)
 	defer closer()
 
-	s1 := &service.Service{Hash: hash.Int(1).String()}
+	s1 := &service.Service{Hash: hash.Int(1)}
 	require.NoError(t, db.Save(s1))
 
 	// save same service. should replace
@@ -41,7 +41,7 @@ func TestServiceDBSave(t *testing.T) {
 	require.Len(t, ss, 1)
 
 	// different hash, different sid. should not replace anything.
-	s3 := &service.Service{Hash: hash.Int(2).String()}
+	s3 := &service.Service{Hash: hash.Int(2)}
 	require.NoError(t, db.Save(s3))
 	ss, _ = db.All()
 	require.Len(t, ss, 2)
@@ -56,7 +56,7 @@ func TestServiceDBGet(t *testing.T) {
 
 	hs1 := hash.Int(1)
 
-	want := &service.Service{Hash: hs1.String()}
+	want := &service.Service{Hash: hs1}
 	require.NoError(t, db.Save(want))
 	defer db.Delete(hs1)
 
@@ -77,7 +77,7 @@ func TestServiceDBDelete(t *testing.T) {
 	hs1 := hash.Int(1)
 
 	// hash.
-	s := &service.Service{Hash: hs1.String()}
+	s := &service.Service{Hash: hs1}
 	require.NoError(t, db.Save(s))
 	require.NoError(t, db.Delete(hs1))
 	_, err := db.Get(hs1)
@@ -92,7 +92,7 @@ func TestServiceDBDeleteConcurrency(t *testing.T) {
 	defer closer()
 
 	hs1 := hash.Int(1)
-	s := &service.Service{Hash: hs1.String()}
+	s := &service.Service{Hash: hs1}
 	db.Save(s)
 
 	var wg sync.WaitGroup
@@ -126,8 +126,8 @@ func TestServiceDBAll(t *testing.T) {
 	hs1 := hash.Int(1)
 	hs2 := hash.Int(2)
 
-	s1 := &service.Service{Hash: hs1.String()}
-	s2 := &service.Service{Hash: hs2.String()}
+	s1 := &service.Service{Hash: hs1}
+	s2 := &service.Service{Hash: hs2}
 
 	require.NoError(t, db.Save(s1))
 	require.NoError(t, db.Save(s2))

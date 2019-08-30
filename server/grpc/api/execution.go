@@ -30,11 +30,6 @@ func NewExecutionServer(sdk *sdk.SDK) *ExecutionServer {
 
 // Create creates an execution.
 func (s *ExecutionServer) Create(ctx context.Context, req *api.CreateExecutionRequest) (*api.CreateExecutionResponse, error) {
-	instanceHash, err := hash.Decode(req.InstanceHash)
-	if err != nil {
-		return nil, err
-	}
-
 	inputs := make(map[string]interface{})
 	if err := convert.Marshal(req.Inputs, &inputs); err != nil {
 		return nil, err
@@ -43,24 +38,19 @@ func (s *ExecutionServer) Create(ctx context.Context, req *api.CreateExecutionRe
 	if err != nil {
 		return nil, err
 	}
-	executionHash, err := s.sdk.Execution.Execute(nil, instanceHash, eventHash, nil, "", req.TaskKey, inputs, req.Tags)
+	executionHash, err := s.sdk.Execution.Execute(nil, req.InstanceHash, eventHash, nil, "", req.TaskKey, inputs, req.Tags)
 	if err != nil {
 		return nil, err
 	}
 
 	return &api.CreateExecutionResponse{
-		Hash: executionHash.String(),
+		Hash: executionHash,
 	}, nil
 }
 
 // Get returns execution from given hash.
 func (s *ExecutionServer) Get(ctx context.Context, req *api.GetExecutionRequest) (*types.Execution, error) {
-	hash, err := hash.Decode(req.Hash)
-	if err != nil {
-		return nil, err
-	}
-
-	exec, err := s.sdk.Execution.Get(hash)
+	exec, err := s.sdk.Execution.Get(req.Hash)
 	if err != nil {
 		return nil, err
 	}
@@ -72,18 +62,13 @@ func (s *ExecutionServer) Stream(req *api.StreamExecutionRequest, resp api.Execu
 	var f *executionsdk.Filter
 
 	if req.Filter != nil {
-		instanceHash, err := hash.Decode(req.Filter.InstanceHash)
-		if req.Filter.InstanceHash != "" && err != nil {
-			return err
-		}
-
 		var statuses []execution.Status
 		for _, status := range req.Filter.Statuses {
 			statuses = append(statuses, execution.Status(status))
 		}
 
 		f = &executionsdk.Filter{
-			InstanceHash: instanceHash,
+			InstanceHash: req.Filter.InstanceHash,
 			Statuses:     statuses,
 			Tags:         req.Filter.Tags,
 			TaskKey:      req.Filter.TaskKey,
@@ -114,10 +99,7 @@ func (s *ExecutionServer) Stream(req *api.StreamExecutionRequest, resp api.Execu
 
 // Update updates execution from given hash.
 func (s *ExecutionServer) Update(ctx context.Context, req *api.UpdateExecutionRequest) (*api.UpdateExecutionResponse, error) {
-	hash, err := hash.Decode(req.Hash)
-	if err != nil {
-		return nil, err
-	}
+	var err error
 	switch res := req.Result.(type) {
 	case *api.UpdateExecutionRequest_Outputs:
 		outputs := make(map[string]interface{})
@@ -125,9 +107,9 @@ func (s *ExecutionServer) Update(ctx context.Context, req *api.UpdateExecutionRe
 			return nil, err
 		}
 
-		err = s.sdk.Execution.Update(hash, outputs, nil)
+		err = s.sdk.Execution.Update(req.Hash, outputs, nil)
 	case *api.UpdateExecutionRequest_Error:
-		err = s.sdk.Execution.Update(hash, nil, errors.New(res.Error))
+		err = s.sdk.Execution.Update(req.Hash, nil, errors.New(res.Error))
 	default:
 		err = ErrNoOutput
 	}
@@ -151,12 +133,12 @@ func toProtoExecution(exec *execution.Execution) (*types.Execution, error) {
 	}
 
 	return &types.Execution{
-		Hash:         exec.Hash.String(),
-		WorkflowHash: exec.WorkflowHash.String(),
-		ParentHash:   exec.ParentHash.String(),
-		EventHash:    exec.EventHash.String(),
+		Hash:         exec.Hash,
+		WorkflowHash: exec.WorkflowHash,
+		ParentHash:   exec.ParentHash,
+		EventHash:    exec.EventHash,
 		Status:       types.Status(exec.Status),
-		InstanceHash: exec.InstanceHash.String(),
+		InstanceHash: exec.InstanceHash,
 		TaskKey:      exec.TaskKey,
 		Inputs:       inputs,
 		Outputs:      outputs,

@@ -73,12 +73,8 @@ func deployCoreServices(cfg *config.Config, sdk *enginesdk.SDK) error {
 				return err
 			}
 		}
-		logrus.WithField("module", "main").Infof("Service %q deployed with hash %q", srv.Sid, srv.Hash)
-		hsh, err := hash.Decode(srv.Hash)
-		if err != nil {
-			return err
-		}
-		instance, err := sdk.Instance.Create(hsh, xos.EnvMapToSlice(serviceConfig.Env))
+		logrus.WithField("module", "main").Infof("Service %q deployed with hash %q", srv.Sid, srv.Hash.String())
+		instance, err := sdk.Instance.Create(srv.Hash, xos.EnvMapToSlice(serviceConfig.Env))
 		if err != nil {
 			existsError, ok := err.(*instancesdk.AlreadyExistsError)
 			if ok {

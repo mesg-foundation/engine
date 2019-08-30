@@ -27,13 +27,13 @@ service Instance {
 
 // The request's data for the `Get` API.
 message GetInstanceRequest {
-  string hash = 1;
+  bytes hash = 1;
 }
 
 // The request's data for the `List` API.
 message ListInstancesRequest {
   // Filter by Services' hash.
-  string serviceHash = 1;
+  bytes serviceHash = 1;
 }
 
 // The response's data for the `List` API.
@@ -45,7 +45,7 @@ message ListInstancesResponse {
 // The request's data for the `Create` API.
 message CreateInstanceRequest {
   // Service's hash.
-  string serviceHash = 1;
+  bytes serviceHash = 1;
 
   // Environmental variables to apply to the Instance.
   repeated string env = 2;
@@ -54,13 +54,13 @@ message CreateInstanceRequest {
 // The response's data for the `Create` API.
 message CreateInstanceResponse {
   // The instance's hash created.
-  string hash = 1;
+  bytes hash = 1;
 }
 
 // The request's data for the `Delete` API.
 message DeleteInstanceRequest {
   // Instance's hash
-  string hash = 1;
+  bytes hash = 1;
 
   // If true, any persistent data (volumes) that belongs to the instance and its dependencies will also be deleted.
   bool deleteData = 2;

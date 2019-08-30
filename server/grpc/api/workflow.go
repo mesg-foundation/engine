@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/sdk"
@@ -35,26 +34,17 @@ func (s *WorkflowServer) Create(ctx context.Context, req *api.CreateWorkflowRequ
 	if err != nil {
 		return nil, err
 	}
-	return &api.CreateWorkflowResponse{Hash: wf.Hash.String()}, nil
+	return &api.CreateWorkflowResponse{Hash: wf.Hash}, nil
 }
 
 // Delete deletes service by hash or sid.
 func (s *WorkflowServer) Delete(ctx context.Context, request *api.DeleteWorkflowRequest) (*api.DeleteWorkflowResponse, error) {
-	hash, err := hash.Decode(request.Hash)
-	if err != nil {
-		return nil, err
-	}
-	return &api.DeleteWorkflowResponse{}, s.sdk.Workflow.Delete(hash)
+	return &api.DeleteWorkflowResponse{}, s.sdk.Workflow.Delete(request.Hash)
 }
 
 // Get returns service from given hash.
 func (s *WorkflowServer) Get(ctx context.Context, req *api.GetWorkflowRequest) (*types.Workflow, error) {
-	hash, err := hash.Decode(req.Hash)
-	if err != nil {
-		return nil, err
-	}
-
-	wf, err := s.sdk.Workflow.Get(hash)
+	wf, err := s.sdk.Workflow.Get(req.Hash)
 	if err != nil {
 		return nil, err
 	}
@@ -78,23 +68,11 @@ func fromProtoWorkflowNodes(nodes []*types.Workflow_Node) ([]workflow.Node, erro
 	for i, node := range nodes {
 		switch n := node.Type.(type) {
 		case *types.Workflow_Node_Event_:
-			hash, err := hash.Decode(n.Event.InstanceHash)
-			if err != nil {
-				return nil, err
-			}
-			res[i] = workflow.Event{Key: n.Event.Key, InstanceHash: hash, EventKey: n.Event.EventKey}
+			res[i] = workflow.Event{Key: n.Event.Key, InstanceHash: n.Event.InstanceHash, EventKey: n.Event.EventKey}
 		case *types.Workflow_Node_Result_:
-			hash, err := hash.Decode(n.Result.InstanceHash)
-			if err != nil {
-				return nil, err
-			}
-			res[i] = workflow.Result{Key: n.Result.Key, InstanceHash: hash, TaskKey: n.Result.TaskKey}
+			res[i] = workflow.Result{Key: n.Result.Key, InstanceHash: n.Result.InstanceHash, TaskKey: n.Result.TaskKey}
 		case *types.Workflow_Node_Task_:
-			hash, err := hash.Decode(n.Task.InstanceHash)
-			if err != nil {
-				return nil, err
-			}
-			res[i] = workflow.Task{InstanceHash: hash, TaskKey: n.Task.TaskKey, Key: n.Task.Key}
+			res[i] = workflow.Task{InstanceHash: n.Task.InstanceHash, TaskKey: n.Task.TaskKey, Key: n.Task.Key}
 		case *types.Workflow_Node_Map_:
 			outputs := make([]workflow.Output, len(n.Map.Outputs))
 			for j, output := range n.Map.Outputs {
@@ -152,7 +130,7 @@ func toProtoWorkflowNodes(nodes []workflow.Node) []*types.Workflow_Node {
 			protoNode.Type = &types.Workflow_Node_Result_{
 				Result: &types.Workflow_Node_Result{
 					Key:          n.Key,
-					InstanceHash: n.InstanceHash.String(),
+					InstanceHash: n.InstanceHash,
 					TaskKey:      n.TaskKey,
 				},
 			}
@@ -160,7 +138,7 @@ func toProtoWorkflowNodes(nodes []workflow.Node) []*types.Workflow_Node {
 			protoNode.Type = &types.Workflow_Node_Event_{
 				Event: &types.Workflow_Node_Event{
 					Key:          n.Key,
-					InstanceHash: n.InstanceHash.String(),
+					InstanceHash: n.InstanceHash,
 					EventKey:     n.EventKey,
 				},
 			}
@@ -168,7 +146,7 @@ func toProtoWorkflowNodes(nodes []workflow.Node) []*types.Workflow_Node {
 			protoNode.Type = &types.Workflow_Node_Task_{
 				Task: &types.Workflow_Node_Task{
 					Key:          n.Key,
-					InstanceHash: n.InstanceHash.String(),
+					InstanceHash: n.InstanceHash,
 					TaskKey:      n.TaskKey,
 				},
 			}
@@ -212,7 +190,7 @@ func toProtoWorkflowEdges(edges []workflow.Edge) []*types.Workflow_Edge {
 
 func toProtoWorkflow(wf *workflow.Workflow) *types.Workflow {
 	return &types.Workflow{
-		Hash:  wf.Hash.String(),
+		Hash:  wf.Hash,
 		Key:   wf.Key,
 		Nodes: toProtoWorkflowNodes(wf.Nodes),
 		Edges: toProtoWorkflowEdges(wf.Edges),

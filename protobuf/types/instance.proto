@@ -5,6 +5,6 @@ option go_package = "github.com/mesg-foundation/engine/protobuf/types";
 
 // Instance represents service's instance.
 message Instance {
-  string hash = 1;
-  string serviceHash = 2;
+  bytes hash = 1;
+  bytes serviceHash = 2;
 }

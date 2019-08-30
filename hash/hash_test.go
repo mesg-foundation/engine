@@ -1,6 +1,7 @@
 package hash
 
 import (
+	"encoding/json"
 	"testing"
 	"testing/quick"
 
@@ -9,10 +10,8 @@ import (
 )
 
 var (
-	zero       = Int(0)
-	one        = Int(1)
-	oneStr     = "4uQeVj5tqViQh7yWWGStvkEG1Zmhx6uasJtWCJziofM"
-	oneJSONStr = "\"" + oneStr + "\""
+	zero = Int(0)
+	one  = Int(1)
 )
 
 func TestDigest(t *testing.T) {
@@ -21,9 +20,6 @@ func TestDigest(t *testing.T) {
 
 	hash := d.Sum(nil)
 	assert.Equal(t, hash.String(), "8RBsoeyoRwajj86MZfZE6gMDJQVYGYcdSfx1zxqxNHbr")
-
-	_, err := Decode(hash.String())
-	assert.NoError(t, err)
 }
 
 func TestDump(t *testing.T) {
@@ -56,7 +52,7 @@ func TestRandom(t *testing.T) {
 }
 
 func TestDecode(t *testing.T) {
-	hash, err := Decode(oneStr)
+	hash, err := Decode("4uQeVj5tqViQh7yWWGStvkEG1Zmhx6uasJtWCJziofM")
 	assert.NoError(t, err)
 	assert.Equal(t, hash, one)
 
@@ -72,7 +68,7 @@ func TestIsZero(t *testing.T) {
 }
 
 func TestString(t *testing.T) {
-	assert.Equal(t, one.String(), oneStr)
+	assert.Equal(t, one.String(), "4uQeVj5tqViQh7yWWGStvkEG1Zmhx6uasJtWCJziofM")
 }
 
 func TestEqual(t *testing.T) {
@@ -80,31 +76,19 @@ func TestEqual(t *testing.T) {
 	assert.False(t, zero.Equal(one))
 }
 
-func TestMarshal(t *testing.T) {
-	b, err := one.Marshal()
-	assert.NoError(t, err)
-	assert.Equal(t, oneStr, string(b))
-}
-
-func TestUnmarshal(t *testing.T) {
-	var h Hash
-	assert.NoError(t, h.Unmarshal([]byte(oneStr)))
-	assert.Equal(t, one, h)
-}
-
 func TestSize(t *testing.T) {
 	assert.Equal(t, 0, Hash(nil).Size())
-	assert.Equal(t, base58size, zero.Size())
+	assert.Equal(t, size, zero.Size())
 }
 
 func TestMarshalJSON(t *testing.T) {
-	b, err := one.MarshalJSON()
+	b, err := json.Marshal(Int(1))
 	assert.NoError(t, err)
-	assert.Equal(t, oneJSONStr, string(b))
+	assert.Equal(t, "\"4uQeVj5tqViQh7yWWGStvkEG1Zmhx6uasJtWCJziofM\"", string(b))
 }
 
 func TestUnmarshalJSON(t *testing.T) {
 	var h Hash
-	assert.NoError(t, h.UnmarshalJSON([]byte(oneJSONStr)))
-	assert.Equal(t, one, h)
+	assert.NoError(t, json.Unmarshal([]byte("\"4uQeVj5tqViQh7yWWGStvkEG1Zmhx6uasJtWCJziofM\""), &h))
+	assert.Equal(t, Int(1), h)
 }

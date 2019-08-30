@@ -28,7 +28,7 @@ service Execution {
 
 // CreateExecutionRequest defines request to create a single execution.
 message CreateExecutionRequest {
-  string instanceHash = 1;
+  bytes instanceHash = 1;
   string taskKey = 2;
   google.protobuf.Struct inputs = 3;
   repeated string tags = 4;
@@ -37,13 +37,13 @@ message CreateExecutionRequest {
 // CreateExecutionResponse defines response for execution creation.
 message CreateExecutionResponse {
   // Execution's hash.
-  string hash = 1;
+  bytes hash = 1;
 }
 
 // GetExecutionRequest defines request to retrieve a single execution.
 message GetExecutionRequest {
   // Execution's hash to fetch.
-  string hash = 1;
+  bytes hash = 1;
 }
 
 // StreamExecutionRequest defines request to retrieve a stream of executions.
@@ -54,7 +54,7 @@ message StreamExecutionRequest{
     repeated types.Status statuses = 1;
 
     // Instance's hash to filter executions.
-    string instanceHash = 2;
+    bytes instanceHash = 2;
 
     // taskKey to filter executions.
     string taskKey = 3;
@@ -70,7 +70,7 @@ message StreamExecutionRequest{
 // UpdateExecutionRequest defines request for execution update.
 message UpdateExecutionRequest {
   // Hash represents execution.
-  string hash = 1;
+  bytes hash = 1;
 
   // result pass to execution
   oneof result {

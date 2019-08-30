@@ -13,6 +13,7 @@ import (
 	"github.com/mesg-foundation/engine/hash/dirhash"
 	"github.com/mesg-foundation/engine/service"
 	"github.com/mesg-foundation/engine/service/validator"
+	"github.com/mr-tron/base58"
 )
 
 func create(container container.Container, db *database.ServiceDB, srv *service.Service) (*service.Service, error) {
@@ -38,16 +39,14 @@ func create(container container.Container, db *database.ServiceDB, srv *service.
 
 	// calculate and apply hash to service.
 	dh := dirhash.New(path)
-	h, err := dh.Sum(hash.Dump(srv))
+	srv.Hash, err = dh.Sum(hash.Dump(srv))
 	if err != nil {
 		return nil, err
 	}
-	hsh := hash.Hash(h)
-	srv.Hash = hsh.String()
 
 	// check if service already exists.
-	if _, err := db.Get(hsh); err == nil {
-		return nil, &AlreadyExistsError{Hash: hsh}
+	if _, err := db.Get(srv.Hash); err == nil {
+		return nil, &AlreadyExistsError{Hash: srv.Hash}
 	}
 
 	// build service's Docker image.
@@ -58,7 +57,7 @@ func create(container container.Container, db *database.ServiceDB, srv *service.
 	// TODO: the following test should be moved in New function
 	if srv.Sid == "" {
 		// make sure that sid doesn't have the same length with id.
-		srv.Sid = "_" + hsh.String()
+		srv.Sid = "_" + base58.Encode(srv.Hash) // TODO: use string method after change type to hash.Hash
 	}
 
 	if err := validator.ValidateService(srv); err != nil {

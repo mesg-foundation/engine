@@ -28,19 +28,19 @@ enum Status {
 // Execution represents a single execution run in engine.
 message Execution {
   // Hash is a unique hash to identify execution.
-  string hash = 1;
+  bytes hash = 1;
 
   // parentHash is the unique hash of parent execution. if execution is triggered by another one, dependency execution considered as the parent.
-  string parentHash = 2;
+  bytes parentHash = 2;
 
   // eventHash is unique event hash.
-  string eventHash = 3;
+  bytes eventHash = 3;
 
   // Status is the current status of execution.
   Status status = 4;
 
   // instanceHash is hash of the instance that can proceed an execution
-  string instanceHash = 5;
+  bytes instanceHash = 5;
 
   // taskKey is the key of the task of this execution.
   string taskKey = 6;
@@ -58,7 +58,7 @@ message Execution {
   repeated string tags = 10;
 
   // workflowHash is the unique hash of the workflow associated to this execution.
-  string workflowHash = 11;
+  bytes workflowHash = 11;
 
   // step of the workflow.
   string stepID = 12;

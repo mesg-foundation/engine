@@ -78,7 +78,7 @@ var hs1 = hash.Int(1)
 var testService = &service.Service{
 	Name: "1",
 	Sid:  "2",
-	Hash: hs1.String(),
+	Hash: hs1,
 	Tasks: []*service.Service_Task{
 		{Key: "4"},
 	},
