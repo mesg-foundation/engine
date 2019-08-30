@@ -95,7 +95,7 @@ func (h Hash) Marshal() ([]byte, error) {
 	return h, nil
 }
 
-// MarshalTO marshals hash into slice of bytes. It's used by protobuf.
+// MarshalTo marshals hash into slice of bytes. It's used by protobuf.
 func (h Hash) MarshalTo(data []byte) (int, error) {
 	return copy(data, h), nil
 }
