@@ -10,7 +10,7 @@ APIS_PATH=/project/protobuf/api/
 CORE_APIS_PATH=/project/protobuf/coreapi/
 
 # generate types into protobuf/types dir
-for t in "${TYPES_PATH}"/service.proto
+for t in "${TYPES_PATH}"/{instance,service}.proto
 do
   file="$(basename ${t})"
   dir="${file%.*}"
@@ -20,7 +20,7 @@ do
 done
 
 # generate types to specific dir
-for t in "${TYPES_PATH}"/{event,execution,instance,process}.proto
+for t in "${TYPES_PATH}"/{event,execution,process}.proto
 do
   file="$(basename ${t})"
   dir="${file%.*}"
