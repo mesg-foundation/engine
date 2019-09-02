@@ -24,7 +24,7 @@ message InfoRequest {}
 message InfoReply {
   message CoreService {
     string sid = 1;   // sid of the service
-    string hash = 2;  // hash of the service
+    bytes  hash = 2;  // hash of the service
     string url = 3;   // url used to deploy the service
     string key = 4;   // key to identify the core service
   }
