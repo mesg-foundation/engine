@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "google/protobuf/struct.proto";
+import "gogo/protobuf/gogoproto/gogo.proto";
 import "protobuf/types/event.proto";
 
 package api;
@@ -24,10 +25,16 @@ message StreamEventRequest {
   // Filter contains filtering criteria.
   message Filter {
     // hash to filter events.
-    bytes hash = 1;
+    bytes hash = 1 [
+      (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+      (gogoproto.nullable) = false
+    ];
 
     // instance's hash to filter events.
-    bytes instanceHash = 2;
+    bytes instanceHash = 2 [
+      (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+      (gogoproto.nullable) = false
+    ];
 
     // key is the key of the event.
     string key = 3;
@@ -40,7 +47,10 @@ message StreamEventRequest {
 // CreateEventRequest defines request for execution update.
 message CreateEventRequest {
   // instanceHash is hash of instance that can proceed an execution.
-  bytes instanceHash = 1;
+  bytes instanceHash = 1 [
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
 
   // key is the key of the event.
   string key = 2;
@@ -52,5 +62,8 @@ message CreateEventRequest {
 // CreateEventResponse defines response for execution update.
 message CreateEventResponse {
   // Hash represents event.
-  bytes hash = 1;
+  bytes hash = 1 [
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
 }
