@@ -9,7 +9,7 @@ import (
 	_ "github.com/gogo/protobuf/gogoproto"
 	proto "github.com/gogo/protobuf/proto"
 	github_com_mesg_foundation_engine_hash "github.com/mesg-foundation/engine/hash"
-	types "github.com/mesg-foundation/engine/protobuf/types"
+	process "github.com/mesg-foundation/engine/process"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -29,12 +29,12 @@ const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
 
 // The request's data for the `Create` API.
 type CreateProcessRequest struct {
-	Key                  string                `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
-	Nodes                []*types.Process_Node `protobuf:"bytes,4,rep,name=nodes,proto3" json:"nodes,omitempty"`
-	Edges                []*types.Process_Edge `protobuf:"bytes,5,rep,name=edges,proto3" json:"edges,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
-	XXX_unrecognized     []byte                `json:"-"`
-	XXX_sizecache        int32                 `json:"-"`
+	Key                  string                  `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
+	Nodes                []*process.Process_Node `protobuf:"bytes,4,rep,name=nodes,proto3" json:"nodes,omitempty"`
+	Edges                []*process.Process_Edge `protobuf:"bytes,5,rep,name=edges,proto3" json:"edges,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                `json:"-"`
+	XXX_unrecognized     []byte                  `json:"-"`
+	XXX_sizecache        int32                   `json:"-"`
 }
 
 func (m *CreateProcessRequest) Reset()         { *m = CreateProcessRequest{} }
@@ -68,14 +68,14 @@ func (m *CreateProcessRequest) GetKey() string {
 	return ""
 }
 
-func (m *CreateProcessRequest) GetNodes() []*types.Process_Node {
+func (m *CreateProcessRequest) GetNodes() []*process.Process_Node {
 	if m != nil {
 		return m.Nodes
 	}
 	return nil
 }
 
-func (m *CreateProcessRequest) GetEdges() []*types.Process_Edge {
+func (m *CreateProcessRequest) GetEdges() []*process.Process_Edge {
 	if m != nil {
 		return m.Edges
 	}
@@ -246,10 +246,10 @@ var xxx_messageInfo_ListProcessRequest proto.InternalMessageInfo
 // The response's data for the `List` API.
 type ListProcessResponse struct {
 	// List of processes that match the request's filters.
-	Processes            []*types.Process `protobuf:"bytes,1,rep,name=processes,proto3" json:"processes,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
-	XXX_unrecognized     []byte           `json:"-"`
-	XXX_sizecache        int32            `json:"-"`
+	Processes            []*process.Process `protobuf:"bytes,1,rep,name=processes,proto3" json:"processes,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}           `json:"-"`
+	XXX_unrecognized     []byte             `json:"-"`
+	XXX_sizecache        int32              `json:"-"`
 }
 
 func (m *ListProcessResponse) Reset()         { *m = ListProcessResponse{} }
@@ -276,7 +276,7 @@ func (m *ListProcessResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ListProcessResponse proto.InternalMessageInfo
 
-func (m *ListProcessResponse) GetProcesses() []*types.Process {
+func (m *ListProcessResponse) GetProcesses() []*process.Process {
 	if m != nil {
 		return m.Processes
 	}
@@ -342,7 +342,7 @@ type ProcessClient interface {
 	// An error is returned if one or more Instances of the process are running.
 	Delete(ctx context.Context, in *DeleteProcessRequest, opts ...grpc.CallOption) (*DeleteProcessResponse, error)
 	// Get returns a process matching the criteria of the request.
-	Get(ctx context.Context, in *GetProcessRequest, opts ...grpc.CallOption) (*types.Process, error)
+	Get(ctx context.Context, in *GetProcessRequest, opts ...grpc.CallOption) (*process.Process, error)
 	// List returns processes specified in a request.
 	List(ctx context.Context, in *ListProcessRequest, opts ...grpc.CallOption) (*ListProcessResponse, error)
 }
@@ -373,8 +373,8 @@ func (c *processClient) Delete(ctx context.Context, in *DeleteProcessRequest, op
 	return out, nil
 }
 
-func (c *processClient) Get(ctx context.Context, in *GetProcessRequest, opts ...grpc.CallOption) (*types.Process, error) {
-	out := new(types.Process)
+func (c *processClient) Get(ctx context.Context, in *GetProcessRequest, opts ...grpc.CallOption) (*process.Process, error) {
+	out := new(process.Process)
 	err := c.cc.Invoke(ctx, "/api.Process/Get", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -400,7 +400,7 @@ type ProcessServer interface {
 	// An error is returned if one or more Instances of the process are running.
 	Delete(context.Context, *DeleteProcessRequest) (*DeleteProcessResponse, error)
 	// Get returns a process matching the criteria of the request.
-	Get(context.Context, *GetProcessRequest) (*types.Process, error)
+	Get(context.Context, *GetProcessRequest) (*process.Process, error)
 	// List returns processes specified in a request.
 	List(context.Context, *ListProcessRequest) (*ListProcessResponse, error)
 }
@@ -415,7 +415,7 @@ func (*UnimplementedProcessServer) Create(ctx context.Context, req *CreateProces
 func (*UnimplementedProcessServer) Delete(ctx context.Context, req *DeleteProcessRequest) (*DeleteProcessResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (*UnimplementedProcessServer) Get(ctx context.Context, req *GetProcessRequest) (*types.Process, error) {
+func (*UnimplementedProcessServer) Get(ctx context.Context, req *GetProcessRequest) (*process.Process, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
 func (*UnimplementedProcessServer) List(ctx context.Context, req *ListProcessRequest) (*ListProcessResponse, error) {
