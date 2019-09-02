@@ -1,21 +1,36 @@
 syntax = "proto3";
 
 import "google/protobuf/struct.proto";
+import "gogo/protobuf/gogoproto/gogo.proto";
 
 package types;
-option go_package = "github.com/mesg-foundation/engine/protobuf/types";
+option go_package = "github.com/mesg-foundation/engine/event";
+
+option (gogoproto.goproto_getters_all) = false;
 
 // Event represents a single event run in engine.
 message Event {
   // Hash is a unique hash to identify event.
-  bytes hash = 1;
+  bytes hash = 1 [
+    (gogoproto.moretags) = 'hash:"-"',
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
 
   // instanceHash is hash of instance that can proceed an execution.
-  bytes instanceHash = 2;
+  bytes instanceHash = 2 [
+    (gogoproto.moretags) = 'hash:"name:2"',
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
 
   // key is the key of the event.
-  string key = 3;
+  string key = 3 [
+    (gogoproto.moretags) = 'hash:"name:3"'
+  ];
 
   // data is the data for the event.
-  google.protobuf.Struct data = 4;
+  google.protobuf.Struct data = 4 [
+    (gogoproto.moretags) = 'hash:"name:4"'
+  ];
 }

@@ -2,6 +2,9 @@ package service
 
 import (
 	"fmt"
+
+	"github.com/gogo/protobuf/types"
+	"github.com/mesg-foundation/engine/protobuf/convert"
 )
 
 // MainServiceKey is key for main service.
@@ -71,8 +74,12 @@ func (s *Service) ValidateEventData(eventKey string, eventData map[string]interf
 }
 
 // RequireTaskInputs requires task inputs to match with parameter schemas.
-func (s *Service) RequireTaskInputs(taskKey string, taskInputs map[string]interface{}) error {
-	warnings, err := s.ValidateTaskInputs(taskKey, taskInputs)
+func (s *Service) RequireTaskInputs(taskKey string, taskInputs *types.Struct) error {
+	in := make(map[string]interface{})
+	if err := convert.Marshal(taskInputs, &in); err != nil {
+		return err
+	}
+	warnings, err := s.ValidateTaskInputs(taskKey, in)
 	if err != nil {
 		return err
 	}
@@ -87,8 +94,13 @@ func (s *Service) RequireTaskInputs(taskKey string, taskInputs map[string]interf
 }
 
 // RequireTaskOutputs requires task outputs to match with parameter schemas.
-func (s *Service) RequireTaskOutputs(taskKey string, taskOutputs map[string]interface{}) error {
-	warnings, err := s.ValidateTaskOutputs(taskKey, taskOutputs)
+func (s *Service) RequireTaskOutputs(taskKey string, taskOutputs *types.Struct) error {
+	out := make(map[string]interface{})
+	if err := convert.Marshal(taskOutputs, &out); err != nil {
+		return err
+	}
+
+	warnings, err := s.ValidateTaskOutputs(taskKey, out)
 	if err != nil {
 		return err
 	}
@@ -103,8 +115,13 @@ func (s *Service) RequireTaskOutputs(taskKey string, taskOutputs map[string]inte
 }
 
 // RequireEventData requires event datas to be matched with parameter schemas.
-func (s *Service) RequireEventData(eventKey string, eventData map[string]interface{}) error {
-	warnings, err := s.ValidateEventData(eventKey, eventData)
+func (s *Service) RequireEventData(eventKey string, eventData *types.Struct) error {
+	data := make(map[string]interface{})
+	if err := convert.Marshal(eventData, &data); err != nil {
+		return err
+	}
+
+	warnings, err := s.ValidateEventData(eventKey, data)
 	if err != nil {
 		return err
 	}

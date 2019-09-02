@@ -5,6 +5,7 @@ import (
 	"testing"
 	"testing/quick"
 
+	"github.com/gogo/protobuf/types"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/stretchr/testify/require"
 )
@@ -26,24 +27,24 @@ func TestNewFromService(t *testing.T) {
 	require.Equal(t, taskKey, execution.TaskKey)
 	require.Equal(t, map[string]interface{}(nil), execution.Inputs)
 	require.Equal(t, tags, execution.Tags)
-	require.Equal(t, Created, execution.Status)
+	require.Equal(t, Status_Created, execution.Status)
 }
 
 func TestExecute(t *testing.T) {
 	e := New(nil, nil, nil, nil, "", "", nil, nil)
 	require.NoError(t, e.Execute())
-	require.Equal(t, InProgress, e.Status)
+	require.Equal(t, Status_InProgress, e.Status)
 	require.Error(t, e.Execute())
 }
 
 func TestComplete(t *testing.T) {
-	output := map[string]interface{}{"foo": "bar"}
+	var output types.Struct
 	e := New(nil, nil, nil, nil, "", "", nil, nil)
 
 	e.Execute()
-	require.NoError(t, e.Complete(output))
-	require.Equal(t, Completed, e.Status)
-	require.Equal(t, output, e.Outputs)
+	require.NoError(t, e.Complete(&output))
+	require.Equal(t, Status_Completed, e.Status)
+	require.Equal(t, &output, e.Outputs)
 	require.Error(t, e.Complete(nil))
 }
 
@@ -52,23 +53,16 @@ func TestFailed(t *testing.T) {
 	e := New(nil, nil, nil, nil, "", "", nil, nil)
 	e.Execute()
 	require.NoError(t, e.Failed(err))
-	require.Equal(t, Failed, e.Status)
+	require.Equal(t, Status_Failed, e.Status)
 	require.Equal(t, err.Error(), e.Error)
 	require.Error(t, e.Failed(err))
-}
-
-func TestStatus(t *testing.T) {
-	require.Equal(t, "created", Created.String())
-	require.Equal(t, "in progress", InProgress.String())
-	require.Equal(t, "completed", Completed.String())
-	require.Equal(t, "failed", Failed.String())
 }
 
 func TestExecutionHash(t *testing.T) {
 	ids := make(map[string]bool)
 
-	f := func(instanceHash, parentHash, eventID []byte, taskKey, input string, tags []string) bool {
-		e := New(nil, instanceHash, parentHash, eventID, "", taskKey, map[string]interface{}{"input": input}, tags)
+	f := func(instanceHash, parentHash, eventID []byte, taskKey string, tags []string) bool {
+		e := New(nil, instanceHash, parentHash, eventID, "", taskKey, nil, tags)
 		if ids[string(e.Hash)] {
 			return false
 		}

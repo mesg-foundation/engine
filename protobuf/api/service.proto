@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "protobuf/types/service.proto";
+import "gogo/protobuf/gogoproto/gogo.proto";
 
 package api;
 
@@ -38,7 +39,9 @@ message CreateServiceRequest {
   string description = 3;
 
   // Configurations related to the service
-  types.Service.Configuration configuration = 4;
+  types.Service.Configuration configuration = 4 [
+    (gogoproto.nullable) = false
+  ];
 
   // The list of tasks this service can execute.
   repeated types.Service.Task tasks = 5;
@@ -59,13 +62,19 @@ message CreateServiceRequest {
 // The response's data for the `Create` API.
 message CreateServiceResponse {
   // The service's hash created.
-  bytes hash = 1;
+  bytes hash = 1 [
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // The request's data for the `Delete` API.
 message DeleteServiceRequest {
   // The service's hash to delete.
-  bytes hash = 1;
+  bytes hash = 1 [
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // The response's data for the `Delete` API, doesn't contain anything.
@@ -75,7 +84,10 @@ message DeleteServiceResponse {
 // The request's data for the `Get` API.
 message GetServiceRequest {
   // The service's hash to fetch.
-  bytes hash = 1;
+  bytes hash = 1 [
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // The request's data for the `List` API.

@@ -5,7 +5,6 @@ import (
 
 	"github.com/mesg-foundation/engine/instance"
 	protobuf_api "github.com/mesg-foundation/engine/protobuf/api"
-	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/sdk"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 )
@@ -26,7 +25,7 @@ func (s *InstanceServer) List(ctx context.Context, request *protobuf_api.ListIns
 	if err != nil {
 		return nil, err
 	}
-	return &protobuf_api.ListInstancesResponse{Instances: toProtoInstances(instances)}, nil
+	return &protobuf_api.ListInstancesResponse{Instances: instances}, nil
 }
 
 // Create creates a new instance from service.
@@ -39,12 +38,8 @@ func (s *InstanceServer) Create(ctx context.Context, request *protobuf_api.Creat
 }
 
 // Get retrives instance.
-func (s *InstanceServer) Get(ctx context.Context, request *protobuf_api.GetInstanceRequest) (*types.Instance, error) {
-	i, err := s.sdk.Instance.Get(request.Hash)
-	if err != nil {
-		return nil, err
-	}
-	return toProtoInstance(i), nil
+func (s *InstanceServer) Get(ctx context.Context, request *protobuf_api.GetInstanceRequest) (*instance.Instance, error) {
+	return s.sdk.Instance.Get(request.Hash)
 }
 
 // Delete an instance
@@ -53,19 +48,4 @@ func (s *InstanceServer) Delete(ctx context.Context, request *protobuf_api.Delet
 		return nil, err
 	}
 	return &protobuf_api.DeleteInstanceResponse{}, nil
-}
-
-func toProtoInstances(instances []*instance.Instance) []*types.Instance {
-	inst := make([]*types.Instance, len(instances))
-	for i, instance := range instances {
-		inst[i] = toProtoInstance(instance)
-	}
-	return inst
-}
-
-func toProtoInstance(i *instance.Instance) *types.Instance {
-	return &types.Instance{
-		Hash:        i.Hash,
-		ServiceHash: i.ServiceHash,
-	}
 }

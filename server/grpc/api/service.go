@@ -26,7 +26,7 @@ func (s *ServiceServer) Create(ctx context.Context, req *protobuf_api.CreateServ
 		Sid:           req.Sid,
 		Name:          req.Name,
 		Description:   req.Description,
-		Configuration: *req.Configuration,
+		Configuration: req.Configuration,
 		Tasks:         req.Tasks,
 		Events:        req.Events,
 		Dependencies:  req.Dependencies,
