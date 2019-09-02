@@ -39,7 +39,9 @@ message CreateServiceRequest {
   string description = 3;
 
   // Configurations related to the service
-  types.Service.Configuration configuration = 4;
+  types.Service.Configuration configuration = 4 [
+    (gogoproto.nullable) = false
+  ];
 
   // The list of tasks this service can execute.
   repeated types.Service.Task tasks = 5;
