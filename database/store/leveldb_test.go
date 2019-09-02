@@ -70,6 +70,7 @@ func TestLevelDBStoreIterate(t *testing.T) {
 		require.Equal(t, data[i].value, iter.Value())
 		i--
 	}
+	require.Equal(t, -1, i)
 	iter.Release()
 	require.NoError(t, iter.Error())
 }
