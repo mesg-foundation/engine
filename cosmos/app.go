@@ -27,7 +27,7 @@ func NewApp(factory *AppFactory) (*App, error) {
 	a := &App{
 		BaseApp:      factory.baseApp,
 		basicManager: basicManager,
-		cdc:          factory.cdc,
+		cdc:          factory.Cdc(),
 	}
 
 	// Load creates the module manager, registers the modules to it, mounts the stores and finally load the app itself.
@@ -44,7 +44,7 @@ func NewApp(factory *AppFactory) (*App, error) {
 	// The initChainer handles translating the genesis.json file into initial state for the network
 	a.SetInitChainer(func(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 		var genesisData map[string]json.RawMessage
-		if err := factory.Cdc().UnmarshalJSON(req.AppStateBytes, &genesisData); err != nil {
+		if err := a.cdc.UnmarshalJSON(req.AppStateBytes, &genesisData); err != nil {
 			panic(err)
 		}
 		return mm.InitGenesis(ctx, genesisData)
