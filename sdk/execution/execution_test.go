@@ -48,7 +48,7 @@ func newTesting(t *testing.T) (*Execution, *apiTesting) {
 	container := &mocks.Container{}
 	serviceStore, err := store.NewLevelDBStore(servicedbname)
 	require.NoError(t, err)
-	db := database.NewServiceDB(serviceStore)
+	db := database.NewServiceDBDeprecated(serviceStore)
 	service := servicesdk.NewDeprecated(container, db)
 
 	instDB, err := database.NewInstanceDB(instdbname)

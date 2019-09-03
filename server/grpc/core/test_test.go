@@ -21,7 +21,7 @@ const (
 func newServerWithContainer(t *testing.T, c container.Container) (*Server, func()) {
 	serviceStore, err := store.NewLevelDBStore(servicedbname)
 	require.NoError(t, err)
-	db := database.NewServiceDB(serviceStore)
+	db := database.NewServiceDBDeprecated(serviceStore)
 
 	instanceDB, err := database.NewInstanceDB(instancedbname)
 	require.NoError(t, err)

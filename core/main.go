@@ -35,7 +35,7 @@ func initDatabases(cfg *config.Config) (*database.ServiceDB, *database.LevelDBIn
 	if err != nil {
 		return nil, nil, nil, nil, err
 	}
-	serviceDB := database.NewServiceDB(serviceStore)
+	serviceDB := database.NewServiceDBDeprecated(serviceStore)
 
 	// init instance db.
 	instanceDB, err := database.NewInstanceDB(filepath.Join(cfg.Path, cfg.Database.InstanceRelativePath))

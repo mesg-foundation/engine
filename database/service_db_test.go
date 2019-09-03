@@ -17,7 +17,7 @@ func openServiceDB(t *testing.T) (*ServiceDB, func()) {
 	deleteDBs(t)
 	store, err := store.NewLevelDBStore(testdbname)
 	require.NoError(t, err)
-	db := NewServiceDB(store)
+	db := NewServiceDBDeprecated(store)
 	return db, func() {
 		require.NoError(t, db.Close())
 		deleteDBs(t)
