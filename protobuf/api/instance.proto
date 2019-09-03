@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "protobuf/types/instance.proto";
+import "gogo/protobuf/gogoproto/gogo.proto";
 
 package api;
 
@@ -27,13 +28,19 @@ service Instance {
 
 // The request's data for the `Get` API.
 message GetInstanceRequest {
-  bytes hash = 1;
+  bytes hash = 1 [
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // The request's data for the `List` API.
 message ListInstancesRequest {
   // Filter by Services' hash.
-  bytes serviceHash = 1;
+  bytes serviceHash = 1 [
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // The response's data for the `List` API.
@@ -45,7 +52,10 @@ message ListInstancesResponse {
 // The request's data for the `Create` API.
 message CreateInstanceRequest {
   // Service's hash.
-  bytes serviceHash = 1;
+  bytes serviceHash = 1 [
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
 
   // Environmental variables to apply to the Instance.
   repeated string env = 2;
@@ -54,13 +64,19 @@ message CreateInstanceRequest {
 // The response's data for the `Create` API.
 message CreateInstanceResponse {
   // The instance's hash created.
-  bytes hash = 1;
+  bytes hash = 1 [
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // The request's data for the `Delete` API.
 message DeleteInstanceRequest {
   // Instance's hash
-  bytes hash = 1;
+  bytes hash = 1 [
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
 
   // If true, any persistent data (volumes) that belongs to the instance and its dependencies will also be deleted.
   bool deleteData = 2;

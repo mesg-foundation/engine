@@ -1,5 +1,6 @@
 syntax = "proto3";
 
+import "gogo/protobuf/gogoproto/gogo.proto";
 import "protobuf/types/process.proto";
 
 package api;
@@ -36,13 +37,19 @@ message CreateProcessRequest {
 // The response's data for the `Create` API.
 message CreateProcessResponse {
   // The process's hash created.
-  bytes hash = 1;
+  bytes hash = 1 [
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // The request's data for the `Delete` API.
 message DeleteProcessRequest {
   // The process's hash to delete.
-  bytes hash = 1;
+  bytes hash = 1 [
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // The response's data for the `Delete` API, doesn't contain anything.
@@ -52,7 +59,10 @@ message DeleteProcessResponse {
 // The request's data for the `Get` API.
 message GetProcessRequest {
   // The process's hash to fetch.
-  bytes hash = 1;
+  bytes hash = 1 [
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // The request's data for the `List` API.

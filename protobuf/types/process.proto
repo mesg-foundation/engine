@@ -1,7 +1,10 @@
 syntax = "proto3";
 
+import "gogo/protobuf/gogoproto/gogo.proto";
+
 package types;
 option go_package = "github.com/mesg-foundation/engine/protobuf/types";
+
 
 // A process is a configuration to trigger a specific task when certains conditions of a trigger are valid.
 message Process {
@@ -9,19 +12,32 @@ message Process {
   message Node {
     message Result {
       string key = 1;           // Key that identifies the node.
-      bytes instanceHash = 2;  // Hash of the instance that triggers the process.
+
+      // Hash of the instance that triggers the process.
+      bytes instanceHash = 2 [
+        (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+        (gogoproto.nullable) = false
+      ];
       string taskKey = 3;       // Key of the task that triggers the process.
     }
 
     message Event {
       string key = 1;           // Key that identifies the node.
-      bytes instanceHash = 2;  // Hash of the instance that triggers the process.
+      // Hash of the instance that triggers the process.
+      bytes instanceHash = 2 [
+        (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+        (gogoproto.nullable) = false
+      ];
       string eventKey = 3;      // Key of the event that triggers the process.
     }
 
     message Task {
       string key = 1;           // Key that identifies the node.
-      bytes instanceHash = 2;  // Hash of the instance to execute.
+      // Hash of the instance to execute.
+      bytes instanceHash = 2 [
+        (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+        (gogoproto.nullable) = false
+      ];
       string taskKey = 3;       // Task of the instance to execute.
     }
 
@@ -70,7 +86,11 @@ message Process {
     string dst = 2;   // Destination of the edge.
   }
 
-  bytes hash = 1;          // Process's hash
+  // Process's hash
+  bytes hash = 1 [
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
   string key = 2;           // Process's key
   repeated Node nodes = 4;  // Nodes with information related to the execution to trigger.
   repeated Edge edges = 5;  // Edges to create the link between the nodes.
