@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	structpb "github.com/golang/protobuf/ptypes/struct"
+	structpb "github.com/gogo/protobuf/types"
 	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	"github.com/mesg-foundation/engine/protobuf/api"

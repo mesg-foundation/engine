@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	structpb "github.com/golang/protobuf/ptypes/struct"
+	structpb "github.com/gogo/protobuf/types"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
