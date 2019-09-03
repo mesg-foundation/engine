@@ -7,28 +7,23 @@ import (
 )
 
 // ID is the ID of the Result's node
-func (r Result) ID() string {
-	return r.Key
-}
-
-// ID is the ID of the Event's node
-func (e Event) ID() string {
-	return e.Key
-}
-
-// ID is the ID of the Task's node
-func (m Task) ID() string {
-	return m.Key
-}
-
-// ID is the ID of the Map's node
-func (m Map) ID() string {
-	return m.Key
-}
-
-// ID is the ID of the Filter's node
-func (f Filter) ID() string {
-	return f.Key
+func (r *Process_Node) ID() string {
+	if event := r.GetEvent(); event != nil {
+		return event.Key
+	}
+	if filter := r.GetFilter(); filter != nil {
+		return filter.Key
+	}
+	if mapping := r.GetMap(); mapping != nil {
+		return mapping.Key
+	}
+	if result := r.GetResult(); result != nil {
+		return result.Key
+	}
+	if task := r.GetTask(); task != nil {
+		return task.Key
+	}
+	panic("not implemented")
 }
 
 // Validate returns an error if the process is invalid for whatever reason
@@ -36,18 +31,20 @@ func (w *Process) Validate() error {
 	if err := validator.New().Struct(w); err != nil {
 		return err
 	}
-	if err := w.Graph.validate(); err != nil {
+	if err := w.validate(); err != nil {
 		return err
 	}
 	if _, err := w.Trigger(); err != nil {
 		return err
 	}
-	for _, node := range w.Graph.Nodes {
-		n, isMap := node.(Map)
-		if isMap {
-			for _, output := range n.Outputs {
-				if _, err := w.FindNode(output.Ref.NodeKey); err != nil {
-					return err
+	for _, node := range w.Nodes {
+		mapNode := node.GetMap()
+		if mapNode != nil {
+			for _, output := range mapNode.Outputs {
+				if ref := output.GetRef(); ref != nil {
+					if _, err := w.FindNode(ref.NodeKey); err != nil {
+						return err
+					}
 				}
 			}
 		}
@@ -60,10 +57,8 @@ func (w *Process) Validate() error {
 
 // Trigger returns the trigger of the process
 func (w *Process) Trigger() (Node, error) {
-	triggers := w.Graph.FindNodes(func(n Node) bool {
-		_, isResult := n.(Result)
-		_, isEvent := n.(Event)
-		return isResult || isEvent
+	triggers := w.FindNodes(func(n Node) bool {
+		return n.(*Process_Node).GetResult() != nil || n.(*Process_Node).GetEvent() != nil
 	})
 	if len(triggers) != 1 {
 		return nil, fmt.Errorf("should contain exactly one trigger (result or event)")

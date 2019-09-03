@@ -10,7 +10,7 @@ APIS_PATH=/project/protobuf/api/
 CORE_APIS_PATH=/project/protobuf/coreapi/
 
 # generate type
-for t in "${TYPES_PATH}"/{event,execution,instance,service}.proto
+for t in "${TYPES_PATH}"/{event,execution,instance,service,process}.proto
 do
   file="$(basename ${t})"
   dir="${file%.*}"
@@ -18,10 +18,6 @@ do
     --proto_path=/project/protobuf/types \
     "${file}"
 done
-
-protoc --gogo_out=Mgoogle/protobuf/struct.proto=github.com/gogo/protobuf/types,plugins=grpc,paths=source_relative:./protobuf/types \
-  --proto_path=/project/protobuf/types \
-  "${TYPES_PATH}"/process.proto
 
 # generate services
 for t in "${APIS_PATH}"/{event,execution,instance,service,process}.proto

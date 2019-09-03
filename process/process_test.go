@@ -9,27 +9,35 @@ import (
 
 func TestValidateProcess(t *testing.T) {
 
-	trigger := Result{
-		Key:          "trigger:result",
-		InstanceHash: hash.Int(2),
-		TaskKey:      "-",
+	trigger := &Process_Node{
+		Type: &Process_Node_Result_{
+			Result: &Process_Node_Result{
+				Key:          "trigger:result",
+				InstanceHash: hash.Int(2),
+				TaskKey:      "-",
+			},
+		},
 	}
 
-	nodes := []Node{
+	nodes := []*Process_Node{
 		trigger,
-		Task{
-			Key:          "nodeKey1",
-			InstanceHash: hash.Int(2),
-			TaskKey:      "-",
+		&Process_Node{
+			Type: &Process_Node_Task_{&Process_Node_Task{
+				Key:          "nodeKey1",
+				InstanceHash: hash.Int(2),
+				TaskKey:      "-",
+			}},
 		},
-		Task{
-			Key:          "nodeKey2",
-			InstanceHash: hash.Int(3),
-			TaskKey:      "-",
+		&Process_Node{
+			Type: &Process_Node_Task_{&Process_Node_Task{
+				Key:          "nodeKey2",
+				InstanceHash: hash.Int(3),
+				TaskKey:      "-",
+			}},
 		},
 	}
 
-	edges := []Edge{
+	edges := []*Process_Edge{
 		{Src: trigger.ID(), Dst: "nodeKey1"},
 	}
 
@@ -43,145 +51,159 @@ func TestValidateProcess(t *testing.T) {
 			Key:  "invalid-struct",
 		}, err: "should contain exactly one trigger"},
 		{w: &Process{
-			Graph: Graph{
-				Nodes: []Node{Result{InstanceHash: hash.Int(1)}},
+			Nodes: []*Process_Node{
+				&Process_Node{
+					Type: &Process_Node_Result_{&Process_Node_Result{InstanceHash: hash.Int(1)}},
+				},
 			},
 			Hash: hash.Int(1),
 			Key:  "missing-key",
 		}, err: "Error:Field validation for 'TaskKey' failed on the 'required' tag"},
 		{w: &Process{
-			Hash: hash.Int(1),
-			Key:  "edge-src-missing-node",
-			Graph: Graph{
-				Nodes: nodes,
-				Edges: append(edges,
-					Edge{Src: "-", Dst: "nodeKey2"},
-				),
-			},
+			Hash:  hash.Int(1),
+			Key:   "edge-src-missing-node",
+			Nodes: nodes,
+			Edges: append(edges, &Process_Edge{Src: "-", Dst: "nodeKey2"}),
 		}, err: "node \"-\" not found"},
 		{w: &Process{
-			Hash: hash.Int(1),
-			Key:  "edge-dst-missing-node",
-			Graph: Graph{
-				Nodes: nodes,
-				Edges: append(edges,
-					Edge{Src: "nodeKey1", Dst: "-"},
-				),
-			},
+			Hash:  hash.Int(1),
+			Key:   "edge-dst-missing-node",
+			Nodes: nodes,
+			Edges: append(edges, &Process_Edge{Src: "nodeKey1", Dst: "-"}),
 		}, err: "node \"-\" not found"},
 		{w: &Process{
-			Hash: hash.Int(1),
-			Key:  "cyclic-graph",
-			Graph: Graph{
-				Nodes: nodes,
-				Edges: append(edges,
-					Edge{Src: "nodeKey1", Dst: "nodeKey2"},
-					Edge{Src: "nodeKey2", Dst: "nodeKey1"},
-				),
-			},
+			Hash:  hash.Int(1),
+			Key:   "cyclic-graph",
+			Nodes: nodes,
+			Edges: append(edges,
+				&Process_Edge{Src: "nodeKey1", Dst: "nodeKey2"},
+				&Process_Edge{Src: "nodeKey2", Dst: "nodeKey1"},
+			),
 		}, err: "process should not contain any cycles"},
 		{w: &Process{
 			Hash: hash.Int(1),
 			Key:  "non-connected-graph",
-			Graph: Graph{
-				Nodes: append(nodes, Task{
+			Nodes: append(nodes, &Process_Node{
+				Type: &Process_Node_Task_{&Process_Node_Task{
 					Key:          "nodeKey3",
 					InstanceHash: hash.Int(2),
 					TaskKey:      "-",
-				}, Task{
+				}},
+			}, &Process_Node{
+				Type: &Process_Node_Task_{&Process_Node_Task{
 					Key:          "nodeKey4",
 					InstanceHash: hash.Int(2),
 					TaskKey:      "-",
-				}),
-				Edges: append(edges,
-					Edge{Src: "nodeKey1", Dst: "nodeKey2"},
-					Edge{Src: "nodeKey3", Dst: "nodeKey4"},
-				),
-			},
+				}},
+			}),
+			Edges: append(edges,
+				&Process_Edge{Src: "nodeKey1", Dst: "nodeKey2"},
+				&Process_Edge{Src: "nodeKey3", Dst: "nodeKey4"},
+			),
 		}, err: "process should be a connected graph"},
 		{w: &Process{
 			Hash: hash.Int(1),
 			Key:  "multiple-parent-graph",
-			Graph: Graph{
-				Nodes: append(nodes, Task{
+			Nodes: append(nodes, &Process_Node{
+				Type: &Process_Node_Task_{&Process_Node_Task{
 					Key:          "nodeKey3",
 					InstanceHash: hash.Int(2),
 					TaskKey:      "-",
-				}, Task{
+				}},
+			}, &Process_Node{
+				Type: &Process_Node_Task_{&Process_Node_Task{
 					Key:          "nodeKey4",
 					InstanceHash: hash.Int(2),
 					TaskKey:      "-",
-				}),
-				Edges: append(edges,
-					Edge{Src: "nodeKey1", Dst: "nodeKey2"},
-					Edge{Src: "nodeKey1", Dst: "nodeKey3"},
-					Edge{Src: "nodeKey2", Dst: "nodeKey4"},
-					Edge{Src: "nodeKey3", Dst: "nodeKey4"},
-				),
-			},
+				}},
+			}),
+			Edges: append(edges,
+				&Process_Edge{Src: "nodeKey1", Dst: "nodeKey2"},
+				&Process_Edge{Src: "nodeKey1", Dst: "nodeKey3"},
+				&Process_Edge{Src: "nodeKey2", Dst: "nodeKey4"},
+				&Process_Edge{Src: "nodeKey3", Dst: "nodeKey4"},
+			),
 		}, err: "process should contain nodes with one parent maximum"},
 		{w: &Process{
 			Hash: hash.Int(1),
 			Key:  "multiple-parent-graph",
-			Graph: Graph{
-				Nodes: append(nodes, Task{
+			Nodes: append(nodes, &Process_Node{
+				Type: &Process_Node_Task_{&Process_Node_Task{
 					Key:          "nodeKey3",
 					InstanceHash: hash.Int(2),
 					TaskKey:      "-",
-				}, Task{
+				}},
+			}, &Process_Node{
+				Type: &Process_Node_Task_{&Process_Node_Task{
 					Key:          "nodeKey4",
 					InstanceHash: hash.Int(2),
 					TaskKey:      "-",
-				}, Task{
+				}},
+			}, &Process_Node{
+				Type: &Process_Node_Task_{&Process_Node_Task{
 					Key:          "nodeKey5",
 					InstanceHash: hash.Int(2),
 					TaskKey:      "-",
-				}, Task{
+				}},
+			}, &Process_Node{
+				Type: &Process_Node_Task_{&Process_Node_Task{
 					Key:          "nodeKey6",
 					InstanceHash: hash.Int(2),
 					TaskKey:      "-",
-				}, Task{
+				}},
+			}, &Process_Node{
+				Type: &Process_Node_Task_{&Process_Node_Task{
 					Key:          "nodeKey7",
 					InstanceHash: hash.Int(2),
 					TaskKey:      "-",
-				}),
-				Edges: append(edges,
-					Edge{Src: "nodeKey1", Dst: "nodeKey2"},
-					Edge{Src: "nodeKey2", Dst: "nodeKey3"},
-					Edge{Src: "nodeKey2", Dst: "nodeKey4"},
-					Edge{Src: "nodeKey3", Dst: "nodeKey5"},
-					Edge{Src: "nodeKey4", Dst: "nodeKey6"},
-					Edge{Src: "nodeKey4", Dst: "nodeKey7"},
-				),
-			},
+				}},
+			}),
+			Edges: append(edges,
+				&Process_Edge{Src: "nodeKey1", Dst: "nodeKey2"},
+				&Process_Edge{Src: "nodeKey2", Dst: "nodeKey3"},
+				&Process_Edge{Src: "nodeKey2", Dst: "nodeKey4"},
+				&Process_Edge{Src: "nodeKey3", Dst: "nodeKey5"},
+				&Process_Edge{Src: "nodeKey4", Dst: "nodeKey6"},
+				&Process_Edge{Src: "nodeKey4", Dst: "nodeKey7"},
+			),
 		}, valid: true},
 		{w: &Process{
 			Hash: hash.Int(1),
 			Key:  "inputs-with-invalid-node",
-			Graph: Graph{
-				Nodes: append(nodes, Map{
+			Nodes: append(nodes, &Process_Node{
+				Type: &Process_Node_Map_{&Process_Node_Map{
 					Key: "mapping",
-					Outputs: []Output{
-						{Key: "-", Ref: &OutputReference{Key: "-", NodeKey: "invalid"}},
+					Outputs: []*Process_Node_Map_Output{
+						&Process_Node_Map_Output{
+							Key: "-",
+							Value: &Process_Node_Map_Output_Ref{
+								Ref: &Process_Node_Map_Output_Reference{Key: "-", NodeKey: "invalid"},
+							},
+						},
 					},
-				}),
-			},
+				}},
+			}),
 		}, err: "node \"invalid\" not found"},
 		{w: &Process{
 			Hash: hash.Int(1),
 			Key:  "inputs-with-valid-ref",
-			Graph: Graph{
-				Nodes: append(nodes, Map{
+			Nodes: append(nodes, &Process_Node{
+				Type: &Process_Node_Map_{&Process_Node_Map{
 					Key: "mapping",
-					Outputs: []Output{
-						{Key: "-", Ref: &OutputReference{Key: "-", NodeKey: "nodeKey1"}},
+					Outputs: []*Process_Node_Map_Output{
+						&Process_Node_Map_Output{
+							Key: "-",
+							Value: &Process_Node_Map_Output_Ref{
+								Ref: &Process_Node_Map_Output_Reference{Key: "-", NodeKey: "nodeKey1"},
+							},
+						},
 					},
-				}),
-				Edges: append(edges,
-					Edge{Src: "nodeKey1", Dst: "mapping"},
-					Edge{Src: "mapping", Dst: "nodeKey2"},
-				),
-			},
+				}},
+			}),
+			Edges: append(edges,
+				&Process_Edge{Src: "nodeKey1", Dst: "mapping"},
+				&Process_Edge{Src: "mapping", Dst: "nodeKey2"},
+			),
 		}, valid: true},
 	}
 	for _, test := range tests {

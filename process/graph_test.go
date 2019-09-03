@@ -12,17 +12,17 @@ type NodeTest struct {
 
 func (n NodeTest) ID() string { return n.Key }
 
-func defaultGraph() *Graph {
-	return &Graph{
-		Nodes: []Node{
-			NodeTest{Key: "nodeKey1"},
-			NodeTest{Key: "nodeKey2"},
-			NodeTest{Key: "nodeKey3"},
-			NodeTest{Key: "nodeKey4"},
-			NodeTest{Key: "nodeKey5"},
-			NodeTest{Key: "nodeKey6"},
-			NodeTest{Key: "nodeKey7"}},
-		Edges: []Edge{
+func defaultProcess() *Process {
+	return &Process{
+		Nodes: []*Process_Node{
+			&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey1"}}},
+			&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey2"}}},
+			&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey3"}}},
+			&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey4"}}},
+			&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey5"}}},
+			&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey6"}}},
+			&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey7"}}}},
+		Edges: []*Process_Edge{
 			{Src: "nodeKey1", Dst: "nodeKey2"},
 			{Src: "nodeKey2", Dst: "nodeKey3"},
 			{Src: "nodeKey2", Dst: "nodeKey4"},
@@ -35,17 +35,17 @@ func defaultGraph() *Graph {
 
 func TestChildrenIDs(t *testing.T) {
 	var tests = []struct {
-		graph    *Graph
+		graph    *Process
 		node     string
 		children []string
 	}{
-		{graph: defaultGraph(), node: "nodeKey1", children: []string{"nodeKey2"}},
-		{graph: defaultGraph(), node: "nodeKey2", children: []string{"nodeKey3", "nodeKey4"}},
-		{graph: defaultGraph(), node: "nodeKey3", children: []string{"nodeKey5"}},
-		{graph: defaultGraph(), node: "nodeKey4", children: []string{"nodeKey6", "nodeKey7"}},
-		{graph: defaultGraph(), node: "nodeKey5", children: []string{}},
-		{graph: defaultGraph(), node: "nodeKey6", children: []string{}},
-		{graph: defaultGraph(), node: "nodeKey7", children: []string{}},
+		{graph: defaultProcess(), node: "nodeKey1", children: []string{"nodeKey2"}},
+		{graph: defaultProcess(), node: "nodeKey2", children: []string{"nodeKey3", "nodeKey4"}},
+		{graph: defaultProcess(), node: "nodeKey3", children: []string{"nodeKey5"}},
+		{graph: defaultProcess(), node: "nodeKey4", children: []string{"nodeKey6", "nodeKey7"}},
+		{graph: defaultProcess(), node: "nodeKey5", children: []string{}},
+		{graph: defaultProcess(), node: "nodeKey6", children: []string{}},
+		{graph: defaultProcess(), node: "nodeKey7", children: []string{}},
 	}
 	for _, test := range tests {
 		assert.Equal(t, test.graph.ChildrenIDs(test.node), test.children)
@@ -54,17 +54,17 @@ func TestChildrenIDs(t *testing.T) {
 
 func TestParentIDs(t *testing.T) {
 	var tests = []struct {
-		graph   *Graph
+		graph   *Process
 		node    string
 		parents []string
 	}{
-		{graph: defaultGraph(), node: "nodeKey1", parents: []string{}},
-		{graph: defaultGraph(), node: "nodeKey2", parents: []string{"nodeKey1"}},
-		{graph: defaultGraph(), node: "nodeKey3", parents: []string{"nodeKey2"}},
-		{graph: defaultGraph(), node: "nodeKey4", parents: []string{"nodeKey2"}},
-		{graph: defaultGraph(), node: "nodeKey5", parents: []string{"nodeKey3"}},
-		{graph: defaultGraph(), node: "nodeKey6", parents: []string{"nodeKey4"}},
-		{graph: defaultGraph(), node: "nodeKey7", parents: []string{"nodeKey4"}},
+		{graph: defaultProcess(), node: "nodeKey1", parents: []string{}},
+		{graph: defaultProcess(), node: "nodeKey2", parents: []string{"nodeKey1"}},
+		{graph: defaultProcess(), node: "nodeKey3", parents: []string{"nodeKey2"}},
+		{graph: defaultProcess(), node: "nodeKey4", parents: []string{"nodeKey2"}},
+		{graph: defaultProcess(), node: "nodeKey5", parents: []string{"nodeKey3"}},
+		{graph: defaultProcess(), node: "nodeKey6", parents: []string{"nodeKey4"}},
+		{graph: defaultProcess(), node: "nodeKey7", parents: []string{"nodeKey4"}},
 	}
 	for _, test := range tests {
 		assert.Equal(t, test.graph.ParentIDs(test.node), test.parents)
@@ -73,18 +73,18 @@ func TestParentIDs(t *testing.T) {
 
 func TestFindNode(t *testing.T) {
 	var tests = []struct {
-		graph   *Graph
+		graph   *Process
 		node    string
 		present bool
 	}{
-		{graph: defaultGraph(), node: "nodeKey1", present: true},
-		{graph: defaultGraph(), node: "nodeKey2", present: true},
-		{graph: defaultGraph(), node: "nodeKey3", present: true},
-		{graph: defaultGraph(), node: "nodeKey4", present: true},
-		{graph: defaultGraph(), node: "nodeKey5", present: true},
-		{graph: defaultGraph(), node: "nodeKey6", present: true},
-		{graph: defaultGraph(), node: "nodeKey7", present: true},
-		{graph: defaultGraph(), node: "nodeKey8", present: false},
+		{graph: defaultProcess(), node: "nodeKey1", present: true},
+		{graph: defaultProcess(), node: "nodeKey2", present: true},
+		{graph: defaultProcess(), node: "nodeKey3", present: true},
+		{graph: defaultProcess(), node: "nodeKey4", present: true},
+		{graph: defaultProcess(), node: "nodeKey5", present: true},
+		{graph: defaultProcess(), node: "nodeKey6", present: true},
+		{graph: defaultProcess(), node: "nodeKey7", present: true},
+		{graph: defaultProcess(), node: "nodeKey8", present: false},
 	}
 	for _, test := range tests {
 		node, err := test.graph.FindNode(test.node)
@@ -99,11 +99,11 @@ func TestFindNode(t *testing.T) {
 
 func TestHasNodes(t *testing.T) {
 	var tests = []struct {
-		graph    *Graph
+		graph    *Process
 		hasNodes bool
 	}{
-		{graph: defaultGraph(), hasNodes: true},
-		{graph: &Graph{}, hasNodes: false},
+		{graph: defaultProcess(), hasNodes: true},
+		{graph: &Process{}, hasNodes: false},
 	}
 	for _, test := range tests {
 		assert.Equal(t, test.graph.hasNodes(), test.hasNodes)
@@ -112,52 +112,52 @@ func TestHasNodes(t *testing.T) {
 
 func TestIsAcyclic(t *testing.T) {
 	var tests = []struct {
-		graph   *Graph
+		graph   *Process
 		acyclic bool
 	}{
-		{graph: defaultGraph(), acyclic: true},
-		{graph: &Graph{
-			Nodes: []Node{
-				NodeTest{Key: "nodeKey1"},
-				NodeTest{Key: "nodeKey2"},
+		{graph: defaultProcess(), acyclic: true},
+		{graph: &Process{
+			Nodes: []*Process_Node{
+				&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey1"}}},
+				&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey2"}}},
 			},
-			Edges: []Edge{
+			Edges: []*Process_Edge{
 				{Src: "nodeKey1", Dst: "nodeKey2"},
 				{Src: "nodeKey2", Dst: "nodeKey1"},
 			},
 		}, acyclic: false},
-		{graph: &Graph{
-			Nodes: []Node{
-				NodeTest{Key: "nodeKey1"},
-				NodeTest{Key: "nodeKey2"},
-				NodeTest{Key: "nodeKey3"},
+		{graph: &Process{
+			Nodes: []*Process_Node{
+				&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey1"}}},
+				&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey2"}}},
+				&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey3"}}},
 			},
-			Edges: []Edge{
+			Edges: []*Process_Edge{
 				{Src: "nodeKey1", Dst: "nodeKey2"},
 				{Src: "nodeKey2", Dst: "nodeKey3"},
 				{Src: "nodeKey3", Dst: "nodeKey1"},
 			},
 		}, acyclic: false},
-		{graph: &Graph{
-			Nodes: []Node{
-				NodeTest{Key: "nodeKey1"},
-				NodeTest{Key: "nodeKey2"},
-				NodeTest{Key: "nodeKey3"},
+		{graph: &Process{
+			Nodes: []*Process_Node{
+				&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey1"}}},
+				&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey2"}}},
+				&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey3"}}},
 			},
-			Edges: []Edge{
+			Edges: []*Process_Edge{
 				{Src: "nodeKey1", Dst: "nodeKey2"},
 				{Src: "nodeKey2", Dst: "nodeKey3"},
 				{Src: "nodeKey3", Dst: "nodeKey2"},
 			},
 		}, acyclic: false},
-		{graph: &Graph{
-			Nodes: []Node{
-				NodeTest{Key: "nodeKey1"},
-				NodeTest{Key: "nodeKey2"},
-				NodeTest{Key: "nodeKey3"},
-				NodeTest{Key: "nodeKey4"},
+		{graph: &Process{
+			Nodes: []*Process_Node{
+				&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey1"}}},
+				&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey2"}}},
+				&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey3"}}},
+				&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey4"}}},
 			},
-			Edges: []Edge{
+			Edges: []*Process_Edge{
 				{Src: "nodeKey1", Dst: "nodeKey2"},
 				{Src: "nodeKey1", Dst: "nodeKey3"},
 				{Src: "nodeKey2", Dst: "nodeKey4"},
@@ -172,19 +172,19 @@ func TestIsAcyclic(t *testing.T) {
 
 func TestIsConnected(t *testing.T) {
 	var tests = []struct {
-		graph     *Graph
+		graph     *Process
 		node      string
 		connected bool
 	}{
-		{graph: defaultGraph(), connected: true},
-		{graph: &Graph{
-			Nodes: []Node{
-				NodeTest{Key: "nodeKey1"},
-				NodeTest{Key: "nodeKey2"},
-				NodeTest{Key: "nodeKey3"},
-				NodeTest{Key: "nodeKey4"},
+		{graph: defaultProcess(), connected: true},
+		{graph: &Process{
+			Nodes: []*Process_Node{
+				&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey1"}}},
+				&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey2"}}},
+				&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey3"}}},
+				&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey4"}}},
 			},
-			Edges: []Edge{
+			Edges: []*Process_Edge{
 				{Src: "nodeKey1", Dst: "nodeKey2"},
 				{Src: "nodeKey3", Dst: "nodeKey4"},
 			},
@@ -197,17 +197,17 @@ func TestIsConnected(t *testing.T) {
 
 func TestVisitChildren(t *testing.T) {
 	var tests = []struct {
-		graph    *Graph
+		graph    *Process
 		node     string
 		children []string
 	}{
-		{graph: defaultGraph(), node: "nodeKey1", children: []string{"nodeKey2", "nodeKey3", "nodeKey4", "nodeKey5", "nodeKey6", "nodeKey7"}},
-		{graph: defaultGraph(), node: "nodeKey2", children: []string{"nodeKey3", "nodeKey4", "nodeKey5", "nodeKey6", "nodeKey7"}},
-		{graph: defaultGraph(), node: "nodeKey3", children: []string{"nodeKey5"}},
-		{graph: defaultGraph(), node: "nodeKey4", children: []string{"nodeKey6", "nodeKey7"}},
-		{graph: defaultGraph(), node: "nodeKey5", children: []string{}},
-		{graph: defaultGraph(), node: "nodeKey6", children: []string{}},
-		{graph: defaultGraph(), node: "nodeKe7", children: []string{}},
+		{graph: defaultProcess(), node: "nodeKey1", children: []string{"nodeKey2", "nodeKey3", "nodeKey4", "nodeKey5", "nodeKey6", "nodeKey7"}},
+		{graph: defaultProcess(), node: "nodeKey2", children: []string{"nodeKey3", "nodeKey4", "nodeKey5", "nodeKey6", "nodeKey7"}},
+		{graph: defaultProcess(), node: "nodeKey3", children: []string{"nodeKey5"}},
+		{graph: defaultProcess(), node: "nodeKey4", children: []string{"nodeKey6", "nodeKey7"}},
+		{graph: defaultProcess(), node: "nodeKey5", children: []string{}},
+		{graph: defaultProcess(), node: "nodeKey6", children: []string{}},
+		{graph: defaultProcess(), node: "nodeKe7", children: []string{}},
 	}
 	for _, test := range tests {
 		visit := make(map[string]bool)
@@ -222,14 +222,14 @@ func TestVisitChildren(t *testing.T) {
 
 func TestGetRoot(t *testing.T) {
 	var tests = []struct {
-		graph *Graph
+		graph *Process
 		node  string
 		root  string
 	}{
-		{graph: defaultGraph(), node: "nodeKey1", root: "nodeKey1"},
-		{graph: defaultGraph(), node: "nodeKey5", root: "nodeKey1"},
-		{graph: defaultGraph(), node: "nodeKey6", root: "nodeKey1"},
-		{graph: defaultGraph(), node: "nodeKey4", root: "nodeKey1"},
+		{graph: defaultProcess(), node: "nodeKey1", root: "nodeKey1"},
+		{graph: defaultProcess(), node: "nodeKey5", root: "nodeKey1"},
+		{graph: defaultProcess(), node: "nodeKey6", root: "nodeKey1"},
+		{graph: defaultProcess(), node: "nodeKey4", root: "nodeKey1"},
 	}
 	for _, test := range tests {
 		assert.Equal(t, test.graph.getRoot(test.node), test.root)
@@ -238,43 +238,43 @@ func TestGetRoot(t *testing.T) {
 
 func TestIsMonoParental(t *testing.T) {
 	var tests = []struct {
-		graph *Graph
+		graph *Process
 		max   int
 	}{
-		{graph: defaultGraph(), max: 1},
-		{graph: &Graph{
-			Nodes: []Node{
-				NodeTest{Key: "nodeKey1"},
-				NodeTest{Key: "nodeKey2"},
-				NodeTest{Key: "nodeKey3"},
+		{graph: defaultProcess(), max: 1},
+		{graph: &Process{
+			Nodes: []*Process_Node{
+				&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey1"}}},
+				&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey2"}}},
+				&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey3"}}},
 			},
-			Edges: []Edge{
+			Edges: []*Process_Edge{
 				{Src: "nodeKey1", Dst: "nodeKey3"},
 				{Src: "nodeKey2", Dst: "nodeKey3"},
 			},
 		}, max: 2},
-		{graph: &Graph{
-			Nodes: []Node{
-				NodeTest{Key: "nodeKey1"},
-				NodeTest{Key: "nodeKey2"},
-				NodeTest{Key: "nodeKey3"},
-				NodeTest{Key: "nodeKey4"},
+		{graph: &Process{
+			Nodes: []*Process_Node{
+				&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey1"}}},
+				&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey2"}}},
+				&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey3"}}},
+				&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey4"}}},
 			},
-			Edges: []Edge{
+			Edges: []*Process_Edge{
 				{Src: "nodeKey1", Dst: "nodeKey2"},
 				{Src: "nodeKey1", Dst: "nodeKey3"},
 				{Src: "nodeKey2", Dst: "nodeKey4"},
 				{Src: "nodeKey3", Dst: "nodeKey4"},
 			},
 		}, max: 2},
-		{graph: &Graph{
-			Nodes: []Node{
-				NodeTest{Key: "nodeKey1"},
-				NodeTest{Key: "nodeKey2"},
-				NodeTest{Key: "nodeKey3"},
-				NodeTest{Key: "nodeKey4"},
+		{graph: &Process{
+			Nodes: []*Process_Node{
+				&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey1"}}},
+				&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey2"}}},
+				&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey3"}}},
+				&Process_Node{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey4"}}},
 			},
-			Edges: []Edge{
+			Edges: []*Process_Edge{
 				{Src: "nodeKey1", Dst: "nodeKey4"},
 				{Src: "nodeKey2", Dst: "nodeKey4"},
 				{Src: "nodeKey3", Dst: "nodeKey4"},

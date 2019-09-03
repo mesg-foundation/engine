@@ -7,53 +7,6 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 )
 
-// MarshalJSON for the task
-func (t Task) MarshalJSON() ([]byte, error) {
-	return json.Marshal(map[string]interface{}{
-		"type":         "task",
-		"key":          t.Key,
-		"instanceHash": t.InstanceHash.String(),
-		"taskKey":      t.TaskKey,
-	})
-}
-
-// MarshalJSON for the result
-func (r Result) MarshalJSON() ([]byte, error) {
-	return json.Marshal(map[string]interface{}{
-		"type":         "result",
-		"key":          r.Key,
-		"instanceHash": r.InstanceHash.String(),
-		"taskKey":      r.TaskKey,
-	})
-}
-
-// MarshalJSON for the event
-func (e Event) MarshalJSON() ([]byte, error) {
-	return json.Marshal(map[string]interface{}{
-		"type":         "event",
-		"key":          e.Key,
-		"instanceHash": e.InstanceHash.String(),
-		"eventKey":     e.EventKey,
-	})
-}
-
-// MarshalJSON for the map
-func (m Map) MarshalJSON() ([]byte, error) {
-	return json.Marshal(map[string]interface{}{
-		"type":    "map",
-		"key":     m.Key,
-		"outputs": m.Outputs,
-	})
-}
-
-// MarshalJSON for the filter
-func (f Filter) MarshalJSON() ([]byte, error) {
-	return json.Marshal(map[string]interface{}{
-		"type":       "filter",
-		"key":        f.Key,
-		"conditions": f.Conditions,
-	})
-}
 
 // UnmarshalJSON unmashals a process
 func (w *Process) UnmarshalJSON(b []byte) error {
@@ -63,102 +16,79 @@ func (w *Process) UnmarshalJSON(b []byte) error {
 		return err
 	}
 
-	err = json.Unmarshal(*objMap["Hash"], &w.Hash)
+	err = json.Unmarshal(*objMap["hash"], &w.Hash)
 	if err != nil {
 		return err
 	}
 
-	err = json.Unmarshal(*objMap["Key"], &w.Key)
+	err = json.Unmarshal(*objMap["key"], &w.Key)
 	if err != nil {
 		return err
 	}
 
-	err = json.Unmarshal(*objMap["Edges"], &w.Edges)
+	err = json.Unmarshal(*objMap["edges"], &w.Edges)
 	if err != nil {
 		return err
 	}
 
 	var rawNodes []*json.RawMessage
-	err = json.Unmarshal(*objMap["Nodes"], &rawNodes)
+	err = json.Unmarshal(*objMap["nodes"], &rawNodes)
 	if err != nil {
 		return err
 	}
 
-	w.Graph.Nodes = make([]Node, len(rawNodes))
+	w.Nodes = make([]*Process_Node, len(rawNodes))
 	for i, rawNode := range rawNodes {
 		var nodeInfo map[string]interface{}
 		err = json.Unmarshal(*rawNode, &nodeInfo)
 		if err != nil {
 			return err
 		}
-		data, err := w.preprocessUnmashalNode(nodeInfo)
-		if err != nil {
-			return err
-		}
-		marshalData, err := json.Marshal(data)
-		if err != nil {
-			return err
-		}
-		w.Graph.Nodes[i], err = w.unmarshalNode(nodeInfo["type"].(string), marshalData)
-		if err != nil {
-			return err
+
+		for nodeType, data := range nodeInfo["Type"].(map[string]interface{}) {
+			marshalData, err := json.Marshal(data)
+			if err != nil {
+				return err
+			}
+			w.Nodes[i], err = w.unmarshalNode(nodeType, marshalData)
 		}
 	}
 	return nil
 }
 
-func (w *Process) unmarshalNode(nodeType string, marshalData []byte) (Node, error) {
+func (w *Process) unmarshalNode(nodeType string, marshalData []byte) (*Process_Node, error) {
 	switch nodeType {
-	case "task":
-		var node Task
+	case "Task":
+		var node Process_Node_Task
 		if err := json.Unmarshal(marshalData, &node); err != nil {
 			return nil, err
 		}
-		return &node, nil
-	case "event":
-		var node Event
+		return &Process_Node{Type: &Process_Node_Task_{Task: &node}}, nil
+	case "Event":
+		var node Process_Node_Event
 		if err := json.Unmarshal(marshalData, &node); err != nil {
 			return nil, err
 		}
-		return &node, nil
-	case "result":
-		var node Result
+		return &Process_Node{Type: &Process_Node_Event_{Event: &node}}, nil
+	case "Result":
+		var node Process_Node_Result
 		if err := json.Unmarshal(marshalData, &node); err != nil {
 			return nil, err
 		}
-		return &node, nil
-	case "map":
-		var node Map
+		return &Process_Node{Type: &Process_Node_Result_{Result: &node}}, nil
+	case "Map":
+		var node Process_Node_Map
 		if err := json.Unmarshal(marshalData, &node); err != nil {
 			return nil, err
 		}
-		return &node, nil
-	case "filter":
-		var node Filter
+		return &Process_Node{Type: &Process_Node_Map_{Map: &node}}, nil
+	case "Filter":
+		var node Process_Node_Filter
 		if err := json.Unmarshal(marshalData, &node); err != nil {
 			return nil, err
 		}
-		return &node, nil
+		return &Process_Node{Type: &Process_Node_Filter_{Filter: &node}}, nil
 	default:
 		return nil, fmt.Errorf("type %q not supported", nodeType)
 	}
-}
-
-func (w *Process) preprocessUnmashalNode(nodeInfo map[string]interface{}) (map[string]interface{}, error) {
-	data := make(map[string]interface{})
-	for key, value := range nodeInfo {
-		if key == "type" {
-			continue
-		}
-		if key == "instanceHash" {
-			h, err := hash.Decode(value.(string))
-			if err != nil {
-				return nil, err
-			}
-			data[key] = h
-		} else {
-			data[key] = value
-		}
-	}
-	return data, nil
 }
