@@ -3,20 +3,16 @@ package servicesdk
 import (
 	"fmt"
 
-	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/service"
 )
 
 type sdk struct {
-	app *cosmos.App
 }
 
 // NewSDK returns the service sdk.
-func NewSDK(app *cosmos.App) Service {
-	sdk := &sdk{
-		app: app,
-	}
+func NewSDK() Service {
+	sdk := &sdk{}
 	return sdk
 }
 
