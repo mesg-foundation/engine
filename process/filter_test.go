@@ -1,4 +1,4 @@
-package filter
+package process
 
 import (
 	"testing"
@@ -8,21 +8,21 @@ import (
 
 func TestMatch(t *testing.T) {
 	var tests = []struct {
-		filter Filter
+		filter Process_Node_Filter
 		data   map[string]interface{}
 		match  bool
 	}{
 		{ // not matching filter
-			filter: Filter{Conditions: []Condition{
-				{Key: "foo", Predicate: EQ, Value: "xx"},
+			filter: Process_Node_Filter{Conditions: []Process_Node_Filter_Condition{
+				{Key: "foo", Predicate: Process_Node_Filter_Condition_EQ, Value: "xx"},
 			}},
 			data:  map[string]interface{}{"foo": "bar"},
 			match: false,
 		},
 		{ // matching multiple conditions
-			filter: Filter{Conditions: []Condition{
-				{Key: "foo", Predicate: EQ, Value: "bar"},
-				{Key: "xxx", Predicate: EQ, Value: "yyy"},
+			filter: Process_Node_Filter{Conditions: []Process_Node_Filter_Condition{
+				{Key: "foo", Predicate: Process_Node_Filter_Condition_EQ, Value: "bar"},
+				{Key: "xxx", Predicate: Process_Node_Filter_Condition_EQ, Value: "yyy"},
 			}},
 			data: map[string]interface{}{
 				"foo": "bar",
@@ -32,9 +32,9 @@ func TestMatch(t *testing.T) {
 			match: true,
 		},
 		{ // non matching multiple conditions
-			filter: Filter{Conditions: []Condition{
-				{Key: "foo", Predicate: EQ, Value: "bar"},
-				{Key: "xxx", Predicate: EQ, Value: "aaa"},
+			filter: Process_Node_Filter{Conditions: []Process_Node_Filter_Condition{
+				{Key: "foo", Predicate: Process_Node_Filter_Condition_EQ, Value: "bar"},
+				{Key: "xxx", Predicate: Process_Node_Filter_Condition_EQ, Value: "aaa"},
 			}},
 			data: map[string]interface{}{
 				"foo": "bar",

@@ -28,17 +28,17 @@ func (w *Process) Create(wf *process.Process) (*process.Process, error) {
 	wf.Hash = hash.Dump(wf)
 
 	for _, node := range wf.Nodes {
-		switch n := node.(type) {
-		case process.Result:
-			if _, err := w.instance.Get(n.InstanceHash); err != nil {
+		switch n := node.Type.(type) {
+		case *process.Process_Node_Result_:
+			if _, err := w.instance.Get(n.Result.InstanceHash); err != nil {
 				return nil, err
 			}
-		case process.Event:
-			if _, err := w.instance.Get(n.InstanceHash); err != nil {
+		case *process.Process_Node_Event_:
+			if _, err := w.instance.Get(n.Event.InstanceHash); err != nil {
 				return nil, err
 			}
-		case process.Task:
-			if _, err := w.instance.Get(n.InstanceHash); err != nil {
+		case *process.Process_Node_Task_:
+			if _, err := w.instance.Get(n.Task.InstanceHash); err != nil {
 				return nil, err
 			}
 		}
