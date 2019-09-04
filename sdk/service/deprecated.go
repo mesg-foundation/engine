@@ -4,6 +4,7 @@ import (
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/service"
 )
 
@@ -22,8 +23,8 @@ func NewDeprecated(c container.Container, serviceDB *database.ServiceDB) Service
 }
 
 // Create creates a new service from definition.
-func (s *deprecated) Create(srv *service.Service) (*service.Service, error) {
-	return create(s.container, s.serviceDB, srv)
+func (s *deprecated) Create(req *api.CreateServiceRequest) (*service.Service, error) {
+	return create(s.container, s.serviceDB, req)
 }
 
 // Delete deletes the service by hash.
