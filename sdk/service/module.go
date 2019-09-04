@@ -37,7 +37,7 @@ func NewModule(app *cosmos.AppFactory, c container.Container) *Module {
 }
 
 func (s *Module) db(request cosmostypes.Request) *database.ServiceDB {
-	return database.NewServiceDB(store.NewCosmosStore(request.KVStore(s.storeKey)))
+	return database.NewServiceDB(store.NewCosmosStore(request.KVStore(s.storeKey)), s.cdc)
 }
 
 func (s *Module) handler(request cosmostypes.Request, msg cosmostypes.Msg) cosmostypes.Result {

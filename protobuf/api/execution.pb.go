@@ -9,8 +9,8 @@ import (
 	_ "github.com/gogo/protobuf/gogoproto"
 	proto "github.com/gogo/protobuf/proto"
 	types "github.com/gogo/protobuf/types"
+	execution "github.com/mesg-foundation/engine/execution"
 	github_com_mesg_foundation_engine_hash "github.com/mesg-foundation/engine/hash"
-	types1 "github.com/mesg-foundation/engine/protobuf/types"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -193,7 +193,7 @@ func (m *StreamExecutionRequest) GetFilter() *StreamExecutionRequest_Filter {
 // Filter contains filtering criteria.
 type StreamExecutionRequest_Filter struct {
 	// Statuses to filter executions. One status needs to be present in the execution.
-	Statuses []types1.Status `protobuf:"varint,1,rep,packed,name=statuses,proto3,enum=types.Status" json:"statuses,omitempty"`
+	Statuses []execution.Status `protobuf:"varint,1,rep,packed,name=statuses,proto3,enum=types.Status" json:"statuses,omitempty"`
 	// Instance's hash to filter executions.
 	InstanceHash github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,2,opt,name=instanceHash,proto3,customtype=github.com/mesg-foundation/engine/hash.Hash" json:"instanceHash"`
 	// taskKey to filter executions.
@@ -229,7 +229,7 @@ func (m *StreamExecutionRequest_Filter) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_StreamExecutionRequest_Filter proto.InternalMessageInfo
 
-func (m *StreamExecutionRequest_Filter) GetStatuses() []types1.Status {
+func (m *StreamExecutionRequest_Filter) GetStatuses() []execution.Status {
 	if m != nil {
 		return m.Statuses
 	}
@@ -488,7 +488,7 @@ type ExecutionClient interface {
 	// Create creates a single Execution specified in a request.
 	Create(ctx context.Context, in *CreateExecutionRequest, opts ...grpc.CallOption) (*CreateExecutionResponse, error)
 	// Get returns a single Execution specified in a request.
-	Get(ctx context.Context, in *GetExecutionRequest, opts ...grpc.CallOption) (*types1.Execution, error)
+	Get(ctx context.Context, in *GetExecutionRequest, opts ...grpc.CallOption) (*execution.Execution, error)
 	// Stream returns a stream of executions that satisfy criteria
 	// specified in a request.
 	Stream(ctx context.Context, in *StreamExecutionRequest, opts ...grpc.CallOption) (Execution_StreamClient, error)
@@ -513,8 +513,8 @@ func (c *executionClient) Create(ctx context.Context, in *CreateExecutionRequest
 	return out, nil
 }
 
-func (c *executionClient) Get(ctx context.Context, in *GetExecutionRequest, opts ...grpc.CallOption) (*types1.Execution, error) {
-	out := new(types1.Execution)
+func (c *executionClient) Get(ctx context.Context, in *GetExecutionRequest, opts ...grpc.CallOption) (*execution.Execution, error) {
+	out := new(execution.Execution)
 	err := c.cc.Invoke(ctx, "/api.Execution/Get", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -538,7 +538,7 @@ func (c *executionClient) Stream(ctx context.Context, in *StreamExecutionRequest
 }
 
 type Execution_StreamClient interface {
-	Recv() (*types1.Execution, error)
+	Recv() (*execution.Execution, error)
 	grpc.ClientStream
 }
 
@@ -546,8 +546,8 @@ type executionStreamClient struct {
 	grpc.ClientStream
 }
 
-func (x *executionStreamClient) Recv() (*types1.Execution, error) {
-	m := new(types1.Execution)
+func (x *executionStreamClient) Recv() (*execution.Execution, error) {
+	m := new(execution.Execution)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -568,7 +568,7 @@ type ExecutionServer interface {
 	// Create creates a single Execution specified in a request.
 	Create(context.Context, *CreateExecutionRequest) (*CreateExecutionResponse, error)
 	// Get returns a single Execution specified in a request.
-	Get(context.Context, *GetExecutionRequest) (*types1.Execution, error)
+	Get(context.Context, *GetExecutionRequest) (*execution.Execution, error)
 	// Stream returns a stream of executions that satisfy criteria
 	// specified in a request.
 	Stream(*StreamExecutionRequest, Execution_StreamServer) error
@@ -583,7 +583,7 @@ type UnimplementedExecutionServer struct {
 func (*UnimplementedExecutionServer) Create(ctx context.Context, req *CreateExecutionRequest) (*CreateExecutionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
-func (*UnimplementedExecutionServer) Get(ctx context.Context, req *GetExecutionRequest) (*types1.Execution, error) {
+func (*UnimplementedExecutionServer) Get(ctx context.Context, req *GetExecutionRequest) (*execution.Execution, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
 func (*UnimplementedExecutionServer) Stream(req *StreamExecutionRequest, srv Execution_StreamServer) error {
@@ -642,7 +642,7 @@ func _Execution_Stream_Handler(srv interface{}, stream grpc.ServerStream) error 
 }
 
 type Execution_StreamServer interface {
-	Send(*types1.Execution) error
+	Send(*execution.Execution) error
 	grpc.ServerStream
 }
 
@@ -650,7 +650,7 @@ type executionStreamServer struct {
 	grpc.ServerStream
 }
 
-func (x *executionStreamServer) Send(m *types1.Execution) error {
+func (x *executionStreamServer) Send(m *execution.Execution) error {
 	return x.ServerStream.SendMsg(m)
 }
 

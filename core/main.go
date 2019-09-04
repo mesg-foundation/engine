@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"sync"
 
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/cosmos"
@@ -35,7 +36,7 @@ func initDatabases(cfg *config.Config) (*database.ServiceDB, *database.LevelDBIn
 	if err != nil {
 		return nil, nil, nil, nil, err
 	}
-	serviceDB := database.NewServiceDB(serviceStore)
+	serviceDB := database.NewServiceDB(serviceStore, codec.New())
 
 	// init instance db.
 	instanceDB, err := database.NewInstanceDB(filepath.Join(cfg.Path, cfg.Database.InstanceRelativePath))
@@ -163,8 +164,14 @@ func main() {
 			logrus.WithField("module", "main").Fatalln(err)
 		}
 
+		// init key manager
+		kb, err := cosmos.NewKeybase(cfg.Cosmos.Path)
+		if err != nil {
+			logrus.WithField("module", "main").Fatalln(err)
+		}
+
 		// create cosmos node
-		node, err := cosmos.NewNode(app, cfg.Tendermint.Config, &cfg.Cosmos)
+		node, err := cosmos.NewNode(app, kb, cfg.Tendermint.Config, &cfg.Cosmos)
 		if err != nil {
 			logrus.WithField("module", "main").Fatalln(err)
 		}
