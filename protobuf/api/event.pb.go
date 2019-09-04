@@ -9,8 +9,8 @@ import (
 	_ "github.com/gogo/protobuf/gogoproto"
 	proto "github.com/gogo/protobuf/proto"
 	types "github.com/gogo/protobuf/types"
+	event "github.com/mesg-foundation/engine/event"
 	github_com_mesg_foundation_engine_hash "github.com/mesg-foundation/engine/hash"
-	types1 "github.com/mesg-foundation/engine/protobuf/types"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -284,7 +284,7 @@ func (c *eventClient) Stream(ctx context.Context, in *StreamEventRequest, opts .
 }
 
 type Event_StreamClient interface {
-	Recv() (*types1.Event, error)
+	Recv() (*event.Event, error)
 	grpc.ClientStream
 }
 
@@ -292,8 +292,8 @@ type eventStreamClient struct {
 	grpc.ClientStream
 }
 
-func (x *eventStreamClient) Recv() (*types1.Event, error) {
-	m := new(types1.Event)
+func (x *eventStreamClient) Recv() (*event.Event, error) {
+	m := new(event.Event)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -351,7 +351,7 @@ func _Event_Stream_Handler(srv interface{}, stream grpc.ServerStream) error {
 }
 
 type Event_StreamServer interface {
-	Send(*types1.Event) error
+	Send(*event.Event) error
 	grpc.ServerStream
 }
 
@@ -359,7 +359,7 @@ type eventStreamServer struct {
 	grpc.ServerStream
 }
 
-func (x *eventStreamServer) Send(m *types1.Event) error {
+func (x *eventStreamServer) Send(m *event.Event) error {
 	return x.ServerStream.SendMsg(m)
 }
 

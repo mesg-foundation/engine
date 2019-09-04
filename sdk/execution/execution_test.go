@@ -107,7 +107,7 @@ func TestGetStream(t *testing.T) {
 	defer at.close()
 
 	exec := execution.New(nil, nil, nil, nil, "", "", nil, nil)
-	exec.Status = execution.InProgress
+	exec.Status = execution.Status_InProgress
 
 	require.NoError(t, sdk.execDB.Save(exec))
 
@@ -115,7 +115,7 @@ func TestGetStream(t *testing.T) {
 	defer stream.Close()
 
 	go sdk.ps.Pub(exec, streamTopic)
-	exec.Status = execution.Failed
+	exec.Status = execution.Status_Failed
 	exec.Error = "exec-error"
 	require.Equal(t, exec, <-stream.C)
 }
@@ -127,11 +127,11 @@ func TestExecute(t *testing.T) {
 	require.NoError(t, at.serviceDB.Save(testService))
 	require.NoError(t, at.instanceDB.Save(testInstance))
 
-	_, err := sdk.Execute(nil, testInstance.Hash, hash.Int(1), nil, "", testService.Tasks[0].Key, map[string]interface{}{}, nil)
+	_, err := sdk.Execute(nil, testInstance.Hash, hash.Int(1), nil, "", testService.Tasks[0].Key, nil, nil)
 	require.NoError(t, err)
 
 	// not existing instance
-	_, err = sdk.Execute(nil, hash.Int(3), hash.Int(1), nil, "", testService.Tasks[0].Key, map[string]interface{}{}, nil)
+	_, err = sdk.Execute(nil, hash.Int(3), hash.Int(1), nil, "", testService.Tasks[0].Key, nil, nil)
 	require.Error(t, err)
 }
 
@@ -141,7 +141,7 @@ func TestExecuteInvalidTaskKey(t *testing.T) {
 
 	require.NoError(t, at.serviceDB.Save(testService))
 
-	_, err := sdk.Execute(nil, hs1, hash.Int(1), nil, "", "-", map[string]interface{}{}, nil)
+	_, err := sdk.Execute(nil, hs1, hash.Int(1), nil, "", "-", nil, nil)
 	require.Error(t, err)
 }
 
