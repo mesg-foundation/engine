@@ -161,11 +161,21 @@ func main() {
 			logrus.WithField("module", "main").Fatalln(err)
 		}
 
-		// create tendermint node
-		node, err := cosmos.NewNode(app, cfg.Tendermint.Config, &cfg.Cosmos)
+		// init key manager
+		kb, err := cosmos.NewKeybase(cfg.Cosmos.Path)
 		if err != nil {
 			logrus.WithField("module", "main").Fatalln(err)
 		}
+
+		// create cosmos node
+		node, err := cosmos.NewNode(app, kb, cfg.Tendermint.Config, &cfg.Cosmos)
+		if err != nil {
+			logrus.WithField("module", "main").Fatalln(err)
+		}
+
+		// create cosmos client
+		// TODO: not needed for now, but will be for next PR :)
+		// client := cosmos.NewClient(node, app.Cdc(), kb, cfg.Cosmos.ChainID)
 
 		// start tendermint node
 		logrus.WithField("module", "main").WithField("seeds", cfg.Tendermint.P2P.Seeds).Info("starting tendermint node")

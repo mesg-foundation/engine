@@ -22,14 +22,8 @@ import (
 )
 
 // NewNode creates a new Tendermint node from an App.
-func NewNode(app *App, cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error) {
+func NewNode(app *App, kb *Keybase, cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error) {
 	cdc := app.Cdc()
-
-	// create user database
-	kb, err := NewKeybase(ccfg.Path)
-	if err != nil {
-		return nil, err
-	}
 
 	// generate first user
 	account, err := kb.GenerateAccount(ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Mnemonic, ccfg.GenesisAccount.Password)
