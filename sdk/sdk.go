@@ -3,7 +3,6 @@ package sdk
 import (
 	"github.com/cskr/pubsub"
 	"github.com/mesg-foundation/engine/container"
-	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/database"
 	eventsdk "github.com/mesg-foundation/engine/sdk/event"
 	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
@@ -22,20 +21,13 @@ type SDK struct {
 }
 
 // New creates a new SDK with given options.
-func New(app *cosmos.App, c container.Container, instanceDB database.InstanceDB, execDB database.ExecutionDB, processDB database.ProcessDB, engineName, port string) (*SDK, error) {
-	initDefaultAppModules(app)
+func New(c container.Container, instanceDB database.InstanceDB, execDB database.ExecutionDB, processDB database.ProcessDB, engineName, port string) (*SDK, error) {
 	ps := pubsub.New(0)
-	initDefaultAppModules(app)
-	serviceSDK := servicesdk.NewSDK(app)
-	servicesdk.NewModule(app, c)
+	serviceSDK := servicesdk.NewSDK()
 	instanceSDK := instancesdk.New(c, serviceSDK, instanceDB, engineName, port)
 	processSDK := processesdk.New(instanceSDK, processDB)
 	executionSDK := executionsdk.New(ps, serviceSDK, instanceSDK, processSDK, execDB)
 	eventSDK := eventsdk.New(ps, serviceSDK, instanceSDK)
-	// TODO: is it the best place to load the app?
-	if err := app.Load(); err != nil {
-		return nil, err
-	}
 	return &SDK{
 		Service:   serviceSDK,
 		Instance:  instanceSDK,
