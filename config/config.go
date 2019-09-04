@@ -19,10 +19,10 @@ import (
 const (
 	envPrefix = "mesg"
 
-	serviceDBVersion   = "v3"
-	executionDBVersion = "v2"
-	instanceDBVersion  = "v1"
-	processDBVersion   = "v1"
+	serviceDBVersion   = "v4"
+	executionDBVersion = "v3"
+	instanceDBVersion  = "v2"
+	processDBVersion   = "v2"
 )
 
 var (
