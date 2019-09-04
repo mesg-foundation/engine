@@ -4,12 +4,13 @@ import (
 	"fmt"
 
 	"github.com/cskr/pubsub"
+	"github.com/gogo/protobuf/types"
 	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
+	processesdk "github.com/mesg-foundation/engine/sdk/process"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
-	workflowsdk "github.com/mesg-foundation/engine/sdk/workflow"
 )
 
 const (
@@ -23,17 +24,17 @@ type Execution struct {
 	ps       *pubsub.PubSub
 	service  servicesdk.Service
 	instance *instancesdk.Instance
-	workflow *workflowsdk.Workflow
+	process  *processesdk.Process
 	execDB   database.ExecutionDB
 }
 
 // New creates a new Execution SDK with given options.
-func New(ps *pubsub.PubSub, service servicesdk.Service, instance *instancesdk.Instance, workflow *workflowsdk.Workflow, execDB database.ExecutionDB) *Execution {
+func New(ps *pubsub.PubSub, service servicesdk.Service, instance *instancesdk.Instance, process *processesdk.Process, execDB database.ExecutionDB) *Execution {
 	return &Execution{
 		ps:       ps,
 		service:  service,
 		instance: instance,
-		workflow: workflow,
+		process:  process,
 		execDB:   execDB,
 	}
 }
@@ -51,7 +52,7 @@ func (e *Execution) GetStream(f *Filter) *Listener {
 }
 
 // Update updates execution that matches given hash.
-func (e *Execution) Update(executionHash hash.Hash, outputs map[string]interface{}, reterr error) error {
+func (e *Execution) Update(executionHash hash.Hash, outputs *types.Struct, reterr error) error {
 	exec, err := e.processExecution(executionHash, outputs, reterr)
 	if err != nil {
 		return err
@@ -63,7 +64,7 @@ func (e *Execution) Update(executionHash hash.Hash, outputs map[string]interface
 }
 
 // processExecution processes execution and marks it as complated or failed.
-func (e *Execution) processExecution(executionHash hash.Hash, outputs map[string]interface{}, reterr error) (*execution.Execution, error) {
+func (e *Execution) processExecution(executionHash hash.Hash, outputs *types.Struct, reterr error) (*execution.Execution, error) {
 	tx, err := e.execDB.OpenTransaction()
 	if err != nil {
 		return nil, err
@@ -106,7 +107,7 @@ func (e *Execution) processExecution(executionHash hash.Hash, outputs map[string
 	return exec, nil
 }
 
-func (e *Execution) validateExecutionOutput(instanceHash hash.Hash, taskKey string, outputs map[string]interface{}) error {
+func (e *Execution) validateExecutionOutput(instanceHash hash.Hash, taskKey string, outputs *types.Struct) error {
 	i, err := e.instance.Get(instanceHash)
 	if err != nil {
 		return err
@@ -121,7 +122,7 @@ func (e *Execution) validateExecutionOutput(instanceHash hash.Hash, taskKey stri
 }
 
 // Execute executes a task tasKey with inputData and tags for service serviceID.
-func (e *Execution) Execute(workflowHash, instanceHash, eventHash, parentHash hash.Hash, stepID string, taskKey string, inputData map[string]interface{}, tags []string) (executionHash hash.Hash, err error) {
+func (e *Execution) Execute(processHash, instanceHash, eventHash, parentHash hash.Hash, stepID string, taskKey string, inputData *types.Struct, tags []string) (executionHash hash.Hash, err error) {
 	if parentHash != nil && eventHash != nil {
 		return nil, fmt.Errorf("cannot have both parent and event hash")
 	}
@@ -139,8 +140,8 @@ func (e *Execution) Execute(workflowHash, instanceHash, eventHash, parentHash ha
 		return nil, err
 	}
 
-	if !workflowHash.IsZero() {
-		_, err := e.workflow.Get(workflowHash)
+	if !processHash.IsZero() {
+		_, err := e.process.Get(processHash)
 		if err != nil {
 			return nil, err
 		}
@@ -150,7 +151,7 @@ func (e *Execution) Execute(workflowHash, instanceHash, eventHash, parentHash ha
 		return nil, err
 	}
 
-	exec := execution.New(workflowHash, instance.Hash, parentHash, eventHash, stepID, taskKey, inputData, tags)
+	exec := execution.New(processHash, instance.Hash, parentHash, eventHash, stepID, taskKey, inputData, tags)
 	if err := exec.Execute(); err != nil {
 		return nil, err
 	}

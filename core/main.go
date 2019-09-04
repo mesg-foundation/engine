@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"sync"
 
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/cosmos"
@@ -13,7 +14,7 @@ import (
 	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/logger"
-	"github.com/mesg-foundation/engine/scheduler"
+	"github.com/mesg-foundation/engine/orchestrator"
 	enginesdk "github.com/mesg-foundation/engine/sdk"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
@@ -29,13 +30,13 @@ import (
 
 var network = flag.Bool("experimental-network", false, "start the engine with the network")
 
-func initDatabases(cfg *config.Config) (*database.ServiceDB, *database.LevelDBInstanceDB, *database.LevelDBExecutionDB, *database.LevelDBWorkflowDB, error) {
+func initDatabases(cfg *config.Config) (*database.ServiceDB, *database.LevelDBInstanceDB, *database.LevelDBExecutionDB, *database.LevelDBProcessDB, error) {
 	// init services db.
 	serviceStore, err := store.NewLevelDBStore(filepath.Join(cfg.Path, cfg.Database.ServiceRelativePath))
 	if err != nil {
 		return nil, nil, nil, nil, err
 	}
-	serviceDB := database.NewServiceDB(serviceStore)
+	serviceDB := database.NewServiceDB(serviceStore, codec.New())
 
 	// init instance db.
 	instanceDB, err := database.NewInstanceDB(filepath.Join(cfg.Path, cfg.Database.InstanceRelativePath))
@@ -49,13 +50,13 @@ func initDatabases(cfg *config.Config) (*database.ServiceDB, *database.LevelDBIn
 		return nil, nil, nil, nil, err
 	}
 
-	// init workflow db.
-	workflowDB, err := database.NewWorkflowDB(filepath.Join(cfg.Path, cfg.Database.WorkflowRelativePath))
+	// init process db.
+	processDB, err := database.NewProcessDB(filepath.Join(cfg.Path, cfg.Database.ProcessRelativePath))
 	if err != nil {
 		return nil, nil, nil, nil, err
 	}
 
-	return serviceDB, instanceDB, executionDB, workflowDB, nil
+	return serviceDB, instanceDB, executionDB, processDB, nil
 }
 
 func deployCoreServices(cfg *config.Config, sdk *enginesdk.SDK) error {
@@ -73,7 +74,7 @@ func deployCoreServices(cfg *config.Config, sdk *enginesdk.SDK) error {
 				return err
 			}
 		}
-		logrus.WithField("module", "main").Infof("Service %q deployed with hash %q", srv.Sid, srv.Hash)
+		logrus.WithField("module", "main").Infof("Service %q deployed with hash %q", srv.Sid, srv.Hash.String())
 		instance, err := sdk.Instance.Create(srv.Hash, xos.EnvMapToSlice(serviceConfig.Env))
 		if err != nil {
 			existsError, ok := err.(*instancesdk.AlreadyExistsError)
@@ -132,7 +133,7 @@ func main() {
 	logger.Init(cfg.Log.Format, cfg.Log.Level, cfg.Log.ForceColors)
 
 	// init databases
-	serviceDB, instanceDB, executionDB, workflowDB, err := initDatabases(cfg)
+	serviceDB, instanceDB, executionDB, processDB, err := initDatabases(cfg)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
@@ -147,21 +148,36 @@ func main() {
 
 	var sdk *enginesdk.SDK
 	if *network {
-		// init cosmos app
+		// init app factory
 		db, err := db.NewGoLevelDB("app", cfg.Cosmos.Path)
 		if err != nil {
 			logrus.WithField("module", "main").Fatalln(err)
 		}
-		app := cosmos.NewApp(logger.TendermintLogger(), db)
+		appFactory := cosmos.NewAppFactory(logger.TendermintLogger(), db)
 
-		// init sdk.
-		sdk, err = enginesdk.New(app, c, serviceDB, instanceDB, executionDB, workflowDB, cfg.Name, strconv.Itoa(port))
+		// register the backend modules to the app factory.
+		enginesdk.NewBackend(appFactory, c)
+
+		// init cosmos app
+		app, err := cosmos.NewApp(appFactory)
 		if err != nil {
 			logrus.WithField("module", "main").Fatalln(err)
 		}
 
-		// create tendermint node
-		node, err := cosmos.NewNode(app, cfg.Tendermint.Config, &cfg.Cosmos)
+		// init key manager
+		kb, err := cosmos.NewKeybase(cfg.Cosmos.Path)
+		if err != nil {
+			logrus.WithField("module", "main").Fatalln(err)
+		}
+
+		// create cosmos node
+		node, err := cosmos.NewNode(app, kb, cfg.Tendermint.Config, &cfg.Cosmos)
+		if err != nil {
+			logrus.WithField("module", "main").Fatalln(err)
+		}
+
+		// init sdk
+		sdk, err = enginesdk.New(c, instanceDB, executionDB, processDB, cfg.Name, strconv.Itoa(port))
 		if err != nil {
 			logrus.WithField("module", "main").Fatalln(err)
 		}
@@ -172,12 +188,12 @@ func main() {
 			logrus.WithField("module", "main").Fatalln(err)
 		}
 	} else {
-		sdk = enginesdk.NewDeprecated(c, serviceDB, instanceDB, executionDB, workflowDB, cfg.Name, strconv.Itoa(port))
-	}
+		sdk = enginesdk.NewDeprecated(c, serviceDB, instanceDB, executionDB, processDB, cfg.Name, strconv.Itoa(port))
 
-	// init system services.
-	if err := deployCoreServices(cfg, sdk); err != nil {
-		logrus.WithField("module", "main").Fatalln(err)
+		// init system services.
+		if err := deployCoreServices(cfg, sdk); err != nil {
+			logrus.WithField("module", "main").Fatalln(err)
+		}
 	}
 
 	// init gRPC server.
@@ -191,8 +207,8 @@ func main() {
 		}
 	}()
 
-	logrus.WithField("module", "main").Info("starting workflow engine")
-	s := scheduler.New(sdk.Event, sdk.Execution, sdk.Workflow)
+	logrus.WithField("module", "main").Info("starting process engine")
+	s := orchestrator.New(sdk.Event, sdk.Execution, sdk.Process)
 	go func() {
 		if err := s.Start(); err != nil {
 			logrus.WithField("module", "main").Fatalln(err)

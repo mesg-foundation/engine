@@ -1,10 +1,10 @@
 package database
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/service"
@@ -17,25 +17,22 @@ var (
 
 // ServiceDB is a database for storing service definition.
 type ServiceDB struct {
-	s store.Store
+	s   store.Store
+	cdc *codec.Codec
 }
 
 // NewServiceDB returns the database which is located under given path.
-func NewServiceDB(s store.Store) *ServiceDB {
+func NewServiceDB(s store.Store, cdc *codec.Codec) *ServiceDB {
 	return &ServiceDB{
-		s: s,
+		s:   s,
+		cdc: cdc,
 	}
 }
 
-// marshal returns the byte slice from service.
-func (d *ServiceDB) marshal(s *service.Service) ([]byte, error) {
-	return json.Marshal(s)
-}
-
 // unmarshal returns the service from byte slice.
-func (d *ServiceDB) unmarshal(hash hash.Hash, value []byte) (*service.Service, error) {
+func (d *ServiceDB) unmarshalService(hash hash.Hash, value []byte) (*service.Service, error) {
 	var s service.Service
-	if err := json.Unmarshal(value, &s); err != nil {
+	if err := d.cdc.UnmarshalBinaryBare(value, &s); err != nil {
 		return nil, fmt.Errorf("database: could not decode service %q: %s", hash, err)
 	}
 	return &s, nil
@@ -54,7 +51,7 @@ func (d *ServiceDB) All() ([]*service.Service, error) {
 	)
 	for iter.Next() {
 		hash := hash.Hash(iter.Key())
-		s, err := d.unmarshal(hash, iter.Value())
+		s, err := d.unmarshalService(hash, iter.Value())
 		if err != nil {
 			// NOTE: Ignore all decode errors (possibly due to a service
 			// structure change or database corruption)
@@ -78,16 +75,16 @@ func (d *ServiceDB) Get(hash hash.Hash) (*service.Service, error) {
 	if err != nil {
 		return nil, err
 	}
-	return d.unmarshal(hash, b)
+	return d.unmarshalService(hash, b)
 }
 
 // Save stores service in database.
 // If there is an another service that uses the same sid, it'll be deleted.
 func (d *ServiceDB) Save(s *service.Service) error {
-	if s.Hash.IsZero() {
+	if len(s.Hash) == 0 {
 		return errCannotSaveWithoutHash
 	}
-	b, err := d.marshal(s)
+	b, err := d.cdc.MarshalBinaryBare(s)
 	if err != nil {
 		return err
 	}

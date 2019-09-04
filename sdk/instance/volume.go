@@ -26,9 +26,9 @@ func (i *Instance) deleteData(inst *instance.Instance) error {
 	)
 
 	for _, d := range s.Dependencies {
-		volumes = append(volumes, extractVolumes(s, d.Configuration, d.Key)...)
+		volumes = append(volumes, convertVolumes(s, d.Volumes, d.Key)...)
 	}
-	volumes = append(volumes, extractVolumes(s, s.Configuration, service.MainServiceKey)...)
+	volumes = append(volumes, convertVolumes(s, s.Configuration.Volumes, service.MainServiceKey)...)
 
 	for _, volume := range volumes {
 		// TODO: is it actually necessary to remvoe in parallel? I worry that some volume will be deleted at the same time and create side effect

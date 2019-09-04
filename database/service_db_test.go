@@ -5,6 +5,7 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/service"
@@ -17,7 +18,7 @@ func openServiceDB(t *testing.T) (*ServiceDB, func()) {
 	deleteDBs(t)
 	store, err := store.NewLevelDBStore(testdbname)
 	require.NoError(t, err)
-	db := NewServiceDB(store)
+	db := NewServiceDB(store, codec.New())
 	return db, func() {
 		require.NoError(t, db.Close())
 		deleteDBs(t)
@@ -54,12 +55,14 @@ func TestServiceDBGet(t *testing.T) {
 	db, closer := openServiceDB(t)
 	defer closer()
 
-	want := &service.Service{Hash: hash.Int(1)}
+	hs1 := hash.Int(1)
+
+	want := &service.Service{Hash: hs1}
 	require.NoError(t, db.Save(want))
-	defer db.Delete(want.Hash)
+	defer db.Delete(hs1)
 
 	// hash.
-	got, err := db.Get(want.Hash)
+	got, err := db.Get(hs1)
 	require.NoError(t, err)
 	require.Equal(t, want, got)
 
@@ -72,11 +75,13 @@ func TestServiceDBDelete(t *testing.T) {
 	db, closer := openServiceDB(t)
 	defer closer()
 
+	hs1 := hash.Int(1)
+
 	// hash.
-	s := &service.Service{Hash: hash.Int(1)}
+	s := &service.Service{Hash: hs1}
 	require.NoError(t, db.Save(s))
-	require.NoError(t, db.Delete(s.Hash))
-	_, err := db.Get(s.Hash)
+	require.NoError(t, db.Delete(hs1))
+	_, err := db.Get(hs1)
 	require.Error(t, err)
 }
 
@@ -87,7 +92,8 @@ func TestServiceDBDeleteConcurrency(t *testing.T) {
 	db, closer := openServiceDB(t)
 	defer closer()
 
-	s := &service.Service{Hash: hash.Int(1)}
+	hs1 := hash.Int(1)
+	s := &service.Service{Hash: hs1}
 	db.Save(s)
 
 	var wg sync.WaitGroup
@@ -99,7 +105,7 @@ func TestServiceDBDeleteConcurrency(t *testing.T) {
 	for i := 0; i < n; i++ {
 		go func() {
 			defer wg.Done()
-			if err := db.Delete(s.Hash); err != nil {
+			if err := db.Delete(hs1); err != nil {
 				errsM.Lock()
 				errs = append(errs, err)
 				errsM.Unlock()
@@ -118,13 +124,16 @@ func TestServiceDBAll(t *testing.T) {
 	db, closer := openServiceDB(t)
 	defer closer()
 
-	s1 := &service.Service{Hash: hash.Int(1)}
-	s2 := &service.Service{Hash: hash.Int(2)}
+	hs1 := hash.Int(1)
+	hs2 := hash.Int(2)
+
+	s1 := &service.Service{Hash: hs1}
+	s2 := &service.Service{Hash: hs2}
 
 	require.NoError(t, db.Save(s1))
 	require.NoError(t, db.Save(s2))
-	defer db.Delete(s1.Hash)
-	defer db.Delete(s2.Hash)
+	defer db.Delete(hs1)
+	defer db.Delete(hs2)
 
 	services, err := db.All()
 	require.NoError(t, err)

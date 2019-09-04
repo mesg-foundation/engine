@@ -28,8 +28,8 @@ func (i *Instance) start(inst *instance.Instance, imageHash string, env []string
 
 	// Create dependency container configs
 	for _, d := range srv.Dependencies {
-		volumes := extractVolumes(srv, d.Configuration, d.Key)
-		volumesFrom, err := extractVolumesFrom(srv, d.Configuration)
+		volumes := convertVolumes(srv, d.Volumes, d.Key)
+		volumesFrom, err := convertVolumesFrom(srv, d.VolumesFrom)
 		if err != nil {
 			return nil, err
 		}
@@ -47,7 +47,7 @@ func (i *Instance) start(inst *instance.Instance, imageHash string, env []string
 			Command: d.Command,
 			Env:     d.Env,
 			Mounts:  append(volumes, volumesFrom...),
-			Ports:   extractPorts(d.Configuration),
+			Ports:   convertPorts(d.Ports),
 			Networks: []container.Network{
 				{ID: networkID, Alias: d.Key},
 				{ID: sharedNetworkID}, // TODO: to remove
@@ -56,8 +56,8 @@ func (i *Instance) start(inst *instance.Instance, imageHash string, env []string
 	}
 
 	// Create configuration container config
-	volumes := extractVolumes(srv, srv.Configuration, service.MainServiceKey)
-	volumesFrom, err := extractVolumesFrom(srv, srv.Configuration)
+	volumes := convertVolumes(srv, srv.Configuration.Volumes, service.MainServiceKey)
+	volumesFrom, err := convertVolumesFrom(srv, srv.Configuration.VolumesFrom)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func (i *Instance) start(inst *instance.Instance, imageHash string, env []string
 			"MESG_ENDPOINT_TCP=" + i.endpoint,
 		}),
 		Mounts: append(volumes, volumesFrom...),
-		Ports:  extractPorts(srv.Configuration),
+		Ports:  convertPorts(srv.Configuration.Ports),
 		Networks: []container.Network{
 			{ID: networkID, Alias: service.MainServiceKey},
 			{ID: sharedNetworkID},

@@ -1,11 +1,17 @@
 package hash
 
 import (
+	"encoding/json"
 	"testing"
 	"testing/quick"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+)
+
+var (
+	zero = Int(0)
+	one  = Int(1)
 )
 
 func TestDigest(t *testing.T) {
@@ -14,9 +20,6 @@ func TestDigest(t *testing.T) {
 
 	hash := d.Sum(nil)
 	assert.Equal(t, hash.String(), "8RBsoeyoRwajj86MZfZE6gMDJQVYGYcdSfx1zxqxNHbr")
-
-	_, err := Decode(hash.String())
-	assert.NoError(t, err)
 }
 
 func TestDump(t *testing.T) {
@@ -24,7 +27,7 @@ func TestDump(t *testing.T) {
 }
 
 func TestInt(t *testing.T) {
-	assert.Len(t, Int(1), size)
+	assert.Equal(t, uint8(1), Int(1)[0])
 }
 
 func TestRandom(t *testing.T) {
@@ -51,7 +54,7 @@ func TestRandom(t *testing.T) {
 func TestDecode(t *testing.T) {
 	hash, err := Decode("4uQeVj5tqViQh7yWWGStvkEG1Zmhx6uasJtWCJziofM")
 	assert.NoError(t, err)
-	assert.Equal(t, hash, Int(1))
+	assert.Equal(t, hash, one)
 
 	_, err = Decode("0")
 	assert.Equal(t, "hash: invalid base58 digit ('0')", err.Error())
@@ -65,10 +68,27 @@ func TestIsZero(t *testing.T) {
 }
 
 func TestString(t *testing.T) {
-	assert.Equal(t, Int(1).String(), "4uQeVj5tqViQh7yWWGStvkEG1Zmhx6uasJtWCJziofM")
+	assert.Equal(t, one.String(), "4uQeVj5tqViQh7yWWGStvkEG1Zmhx6uasJtWCJziofM")
 }
 
 func TestEqual(t *testing.T) {
-	assert.True(t, Int(0).Equal(Int(0)))
-	assert.False(t, Int(0).Equal(Int(1)))
+	assert.True(t, zero.Equal(zero))
+	assert.False(t, zero.Equal(one))
+}
+
+func TestSize(t *testing.T) {
+	assert.Equal(t, 0, Hash(nil).Size())
+	assert.Equal(t, size, zero.Size())
+}
+
+func TestMarshalJSON(t *testing.T) {
+	b, err := json.Marshal(Int(1))
+	assert.NoError(t, err)
+	assert.Equal(t, "\"4uQeVj5tqViQh7yWWGStvkEG1Zmhx6uasJtWCJziofM\"", string(b))
+}
+
+func TestUnmarshalJSON(t *testing.T) {
+	var h Hash
+	assert.NoError(t, json.Unmarshal([]byte("\"4uQeVj5tqViQh7yWWGStvkEG1Zmhx6uasJtWCJziofM\""), &h))
+	assert.Equal(t, Int(1), h)
 }

@@ -2,10 +2,16 @@ package service
 
 import (
 	"fmt"
+
+	"github.com/gogo/protobuf/types"
+	"github.com/mesg-foundation/engine/protobuf/convert"
 )
 
+// MainServiceKey is key for main service.
+const MainServiceKey = "service"
+
 // GetDependency returns dependency dependencyKey or a not found error.
-func (s *Service) GetDependency(dependencyKey string) (*Dependency, error) {
+func (s *Service) GetDependency(dependencyKey string) (*Service_Dependency, error) {
 	for _, dep := range s.Dependencies {
 		if dep.Key == dependencyKey {
 			return dep, nil
@@ -15,7 +21,7 @@ func (s *Service) GetDependency(dependencyKey string) (*Dependency, error) {
 }
 
 // GetTask returns task taskKey of service.
-func (s *Service) GetTask(taskKey string) (*Task, error) {
+func (s *Service) GetTask(taskKey string) (*Service_Task, error) {
 	for _, task := range s.Tasks {
 		if task.Key == taskKey {
 			return task, nil
@@ -28,7 +34,7 @@ func (s *Service) GetTask(taskKey string) (*Task, error) {
 }
 
 // GetEvent returns event eventKey of service.
-func (s *Service) GetEvent(eventKey string) (*Event, error) {
+func (s *Service) GetEvent(eventKey string) (*Service_Event, error) {
 	for _, event := range s.Events {
 		if event.Key == eventKey {
 			return event, nil
@@ -68,8 +74,14 @@ func (s *Service) ValidateEventData(eventKey string, eventData map[string]interf
 }
 
 // RequireTaskInputs requires task inputs to match with parameter schemas.
-func (s *Service) RequireTaskInputs(taskKey string, taskInputs map[string]interface{}) error {
-	warnings, err := s.ValidateTaskInputs(taskKey, taskInputs)
+func (s *Service) RequireTaskInputs(taskKey string, taskInputs *types.Struct) error {
+	in := make(map[string]interface{})
+	if taskInputs != nil {
+		if err := convert.Marshal(taskInputs, &in); err != nil {
+			return err
+		}
+	}
+	warnings, err := s.ValidateTaskInputs(taskKey, in)
 	if err != nil {
 		return err
 	}
@@ -84,8 +96,15 @@ func (s *Service) RequireTaskInputs(taskKey string, taskInputs map[string]interf
 }
 
 // RequireTaskOutputs requires task outputs to match with parameter schemas.
-func (s *Service) RequireTaskOutputs(taskKey string, taskOutputs map[string]interface{}) error {
-	warnings, err := s.ValidateTaskOutputs(taskKey, taskOutputs)
+func (s *Service) RequireTaskOutputs(taskKey string, taskOutputs *types.Struct) error {
+	out := make(map[string]interface{})
+	if taskOutputs != nil {
+		if err := convert.Marshal(taskOutputs, &out); err != nil {
+			return err
+		}
+	}
+
+	warnings, err := s.ValidateTaskOutputs(taskKey, out)
 	if err != nil {
 		return err
 	}
@@ -100,8 +119,15 @@ func (s *Service) RequireTaskOutputs(taskKey string, taskOutputs map[string]inte
 }
 
 // RequireEventData requires event datas to be matched with parameter schemas.
-func (s *Service) RequireEventData(eventKey string, eventData map[string]interface{}) error {
-	warnings, err := s.ValidateEventData(eventKey, eventData)
+func (s *Service) RequireEventData(eventKey string, eventData *types.Struct) error {
+	data := make(map[string]interface{})
+	if eventData != nil {
+		if err := convert.Marshal(eventData, &data); err != nil {
+			return err
+		}
+	}
+
+	warnings, err := s.ValidateEventData(eventKey, data)
 	if err != nil {
 		return err
 	}

@@ -30,7 +30,7 @@ func (s *Server) Info(ctx context.Context, request *coreapi.InfoRequest) (*corea
 	for i, s := range servicesFromConfig {
 		services[i] = &coreapi.InfoReply_CoreService{
 			Sid:  s.Definition.Sid,
-			Hash: s.Instance.Hash.String(),
+			Hash: s.Instance.Hash,
 			Url:  s.Definition.Source,
 			Key:  s.Key,
 		}
