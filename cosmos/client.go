@@ -1,4 +1,4 @@
-package client
+package cosmos
 
 import (
 	"context"
@@ -8,34 +8,28 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
-	"github.com/cosmos/cosmos-sdk/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	"github.com/mesg-foundation/engine/cosmos"
 	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/tendermint/tendermint/node"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
+	tenderminttypes "github.com/tendermint/tendermint/types"
 )
 
 // Client is a tendermint client with helper functions.
 type Client struct {
 	rpcclient.Client
-	cdc         *codec.Codec
-	kb          keys.Keybase
-	chainID     string
-	address     types.AccAddress
-	accName     string
-	accPassword string
+	cdc     *codec.Codec
+	kb      keys.Keybase
+	chainID string
 }
 
 // New returns a rpc tendermint client.
-func New(c rpcclient.Client, cdc *codec.Codec, kb keys.Keybase, chainID string, address types.AccAddress, accName, accPassword string) *Client {
+func NewClient(node *node.Node, cdc *codec.Codec, kb keys.Keybase, chainID string) *Client {
 	return &Client{
-		Client:      c,
-		cdc:         cdc,
-		kb:          kb,
-		chainID:     chainID,
-		address:     address,
-		accName:     accName,
-		accPassword: accPassword,
+		Client:  rpcclient.NewLocal(node),
+		cdc:     cdc,
+		kb:      kb,
+		chainID: chainID,
 	}
 }
 
@@ -54,25 +48,25 @@ func (c *Client) QueryWithData(path string, data []byte) ([]byte, int64, error) 
 }
 
 // BuildAndBroadcastMsg builds and signs message and broadcast it to node.
-func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg, accNumber, accSeq uint64) error {
-	txBuilder := cosmos.NewTxBuilder(c.cdc, accNumber, accSeq, c.kb, c.chainID)
-	signedTx, err := txBuilder.BuildAndSignStdTx(msg, c.accName, c.accPassword)
+func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg, accName, accPassword string, accNumber, accSeq uint64) (*tenderminttypes.TxResult, error) {
+	txBuilder := NewTxBuilder(c.cdc, accNumber, accSeq, c.kb, c.chainID)
+	signedTx, err := txBuilder.BuildAndSignStdTx(msg, accName, accPassword)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	encodedTx, err := txBuilder.Encode(signedTx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	txres, err := c.BroadcastTxSync(encodedTx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if txres.Code != abci.CodeTypeOK {
-		return fmt.Errorf("transaction returned with invalid code %d", txres.Code)
+		return nil, fmt.Errorf("transaction returned with invalid code %d", txres.Code)
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
@@ -80,13 +74,17 @@ func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg, accNumber, accSeq uint64
 
 	out, err := c.Subscribe(ctx, "", "tx.hash='"+txres.Hash.String()+"'")
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	select {
-	case <-out:
-		return nil
+	case result := <-out:
+		data, ok := result.Data.(tenderminttypes.EventDataTx)
+		if !ok {
+			return nil, errors.New("result data is not the right type")
+		}
+		return &data.TxResult, nil
 	case <-ctx.Done():
-		return errors.New("i/o timeout")
+		return nil, errors.New("i/o timeout")
 	}
 }
