@@ -148,15 +148,18 @@ func main() {
 
 	var sdk *enginesdk.SDK
 	if *network {
-		// init cosmos app
+		// init app factory
 		db, err := db.NewGoLevelDB("app", cfg.Cosmos.Path)
 		if err != nil {
 			logrus.WithField("module", "main").Fatalln(err)
 		}
-		app := cosmos.NewApp(logger.TendermintLogger(), db)
+		appFactory := cosmos.NewAppFactory(logger.TendermintLogger(), db)
 
-		// init sdk.
-		sdk, err = enginesdk.New(app, c, instanceDB, executionDB, processDB, cfg.Name, strconv.Itoa(port))
+		// register the backend modules to the app factory.
+		enginesdk.NewBackend(appFactory, c)
+
+		// init cosmos app
+		app, err := cosmos.NewApp(appFactory)
 		if err != nil {
 			logrus.WithField("module", "main").Fatalln(err)
 		}
@@ -173,9 +176,11 @@ func main() {
 			logrus.WithField("module", "main").Fatalln(err)
 		}
 
-		// create cosmos client
-		// TODO: not needed for now, but will be for next PR :)
-		// client := cosmos.NewClient(node, app.Cdc(), kb, cfg.Cosmos.ChainID)
+		// init sdk
+		sdk, err = enginesdk.New(c, instanceDB, executionDB, processDB, cfg.Name, strconv.Itoa(port))
+		if err != nil {
+			logrus.WithField("module", "main").Fatalln(err)
+		}
 
 		// start tendermint node
 		logrus.WithField("module", "main").WithField("seeds", cfg.Tendermint.P2P.Seeds).Info("starting tendermint node")
