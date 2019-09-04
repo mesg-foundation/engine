@@ -4,6 +4,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cskr/pubsub"
 	"github.com/mesg-foundation/engine/container/mocks"
 	"github.com/mesg-foundation/engine/database"
@@ -48,7 +49,7 @@ func newTesting(t *testing.T) (*Execution, *apiTesting) {
 	container := &mocks.Container{}
 	serviceStore, err := store.NewLevelDBStore(servicedbname)
 	require.NoError(t, err)
-	db := database.NewServiceDBDeprecated(serviceStore)
+	db := database.NewServiceDB(serviceStore, codec.New())
 	service := servicesdk.NewDeprecated(container, db)
 
 	instDB, err := database.NewInstanceDB(instdbname)

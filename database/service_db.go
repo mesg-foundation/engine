@@ -1,7 +1,6 @@
 package database
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -18,33 +17,22 @@ var (
 
 // ServiceDB is a database for storing service definition.
 type ServiceDB struct {
-	s         store.Store
-	marshal   func(interface{}) ([]byte, error)
-	unmarshal func([]byte, interface{}) error
+	s   store.Store
+	cdc *codec.Codec
 }
 
 // NewServiceDB returns the database which is located under given path.
 func NewServiceDB(s store.Store, cdc *codec.Codec) *ServiceDB {
 	return &ServiceDB{
-		s:         s,
-		marshal:   cdc.MarshalBinaryBare,
-		unmarshal: cdc.UnmarshalBinaryBare,
-	}
-}
-
-// NewServiceDBDeprecated returns the database which is located under given path.
-func NewServiceDBDeprecated(s store.Store) *ServiceDB {
-	return &ServiceDB{
-		s:         s,
-		marshal:   json.Marshal,
-		unmarshal: json.Unmarshal,
+		s:   s,
+		cdc: cdc,
 	}
 }
 
 // unmarshal returns the service from byte slice.
 func (d *ServiceDB) unmarshalService(hash hash.Hash, value []byte) (*service.Service, error) {
 	var s service.Service
-	if err := d.unmarshal(value, &s); err != nil {
+	if err := d.cdc.UnmarshalBinaryBare(value, &s); err != nil {
 		return nil, fmt.Errorf("database: could not decode service %q: %s", hash, err)
 	}
 	return &s, nil
@@ -96,7 +84,7 @@ func (d *ServiceDB) Save(s *service.Service) error {
 	if len(s.Hash) == 0 {
 		return errCannotSaveWithoutHash
 	}
-	b, err := d.marshal(s)
+	b, err := d.cdc.MarshalBinaryBare(s)
 	if err != nil {
 		return err
 	}

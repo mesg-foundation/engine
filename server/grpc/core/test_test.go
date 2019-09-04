@@ -4,6 +4,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/database/store"
@@ -21,7 +22,7 @@ const (
 func newServerWithContainer(t *testing.T, c container.Container) (*Server, func()) {
 	serviceStore, err := store.NewLevelDBStore(servicedbname)
 	require.NoError(t, err)
-	db := database.NewServiceDBDeprecated(serviceStore)
+	db := database.NewServiceDB(serviceStore, codec.New())
 
 	instanceDB, err := database.NewInstanceDB(instancedbname)
 	require.NoError(t, err)
