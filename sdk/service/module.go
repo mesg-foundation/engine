@@ -21,7 +21,7 @@ type Module struct {
 }
 
 // NewModule returns the module of the service sdk.
-func NewModule(app *cosmos.App, c container.Container) *Module {
+func NewModule(app *cosmos.AppFactory, c container.Container) *Module {
 	name := "service"
 	module := &Module{
 		container: c,
