@@ -14,22 +14,22 @@ message Service {
   message Event {
     // Event's key.
     string key = 4 [
-      (gogoproto.moretags) = 'hash:"name:1" validate:"printascii"'
+      (gogoproto.moretags) = 'hash:"name:4" validate:"printascii"'
     ];
 
     // Event's name.
     string name = 1 [
-      (gogoproto.moretags) = 'hash:"name:2" validate:"printascii"'
+      (gogoproto.moretags) = 'hash:"name:1" validate:"printascii"'
     ];
 
     // Event's description.
     string description = 2 [
-      (gogoproto.moretags) = 'hash:"name:3" validate:"printascii"'
+      (gogoproto.moretags) = 'hash:"name:2" validate:"printascii"'
     ];
 
     // List of data of this event.
     repeated Parameter data = 3 [
-      (gogoproto.moretags) = 'hash:"name:4" validate:"dive,required"'
+      (gogoproto.moretags) = 'hash:"name:3" validate:"dive,required"'
     ];
   }
 
@@ -37,27 +37,27 @@ message Service {
   message Task {
     // Task's key.
     string key = 8 [
-      (gogoproto.moretags) = 'hash:"name:1" validate:"printascii"'
+      (gogoproto.moretags) = 'hash:"name:8" validate:"printascii"'
     ];
 
     // Task's name.
     string name = 1 [
-      (gogoproto.moretags) = 'hash:"name:2" validate:"printascii"'
+      (gogoproto.moretags) = 'hash:"name:1" validate:"printascii"'
     ];
 
     // Task's description.
     string description = 2 [
-      (gogoproto.moretags) = 'hash:"name:3" validate:"printascii"'
+      (gogoproto.moretags) = 'hash:"name:2" validate:"printascii"'
     ];
 
     // List inputs of this task.
     repeated Parameter inputs = 6 [
-      (gogoproto.moretags) = 'hash:"name:4" validate:"dive,required"'
+      (gogoproto.moretags) = 'hash:"name:6" validate:"dive,required"'
     ];
 
     // List of tasks outputs.
     repeated Parameter outputs = 7 [
-      (gogoproto.moretags) = 'hash:"name:5" validate:"dive,required"'
+      (gogoproto.moretags) = 'hash:"name:7" validate:"dive,required"'
     ];
   }
 
@@ -66,37 +66,37 @@ message Service {
 
     // Parameter's key.
     string key = 8 [
-      (gogoproto.moretags) = 'hash:"name:1" validate:"printascii"'
+      (gogoproto.moretags) = 'hash:"name:8" validate:"printascii"'
     ];
 
     // Parameter's name.
     string name = 1 [
-      (gogoproto.moretags) = 'hash:"name:2" validate:"printascii"'
+      (gogoproto.moretags) = 'hash:"name:1" validate:"printascii"'
     ];
 
     // Parameter's description.
     string description = 2 [
-      (gogoproto.moretags) = 'hash:"name:3" validate:"printascii"'
+      (gogoproto.moretags) = 'hash:"name:2" validate:"printascii"'
     ];
 
     // Parameter's type: `String`, `Number`, `Boolean`, `Object` or `Any`.
     string type = 3 [
-      (gogoproto.moretags) = 'hash:"name:4" validate:"required,printascii,oneof=String Number Boolean Object Any"'
+      (gogoproto.moretags) = 'hash:"name:3" validate:"required,printascii,oneof=String Number Boolean Object Any"'
     ];
 
     // Set the parameter as optional.
     bool optional = 4 [
-      (gogoproto.moretags) = 'hash:"name:5"'
+      (gogoproto.moretags) = 'hash:"name:4"'
     ];
 
     // Mark a parameter as an array of the defined type.
     bool repeated = 9 [
-      (gogoproto.moretags) = 'hash:"name:7"'
+      (gogoproto.moretags) = 'hash:"name:9"'
     ];
 
     // Optional object structure type when type is set to `Object`.
     repeated Parameter object = 10 [
-      (gogoproto.moretags) = 'hash:"name:7" validate:"unique,dive,required"'
+      (gogoproto.moretags) = 'hash:"name:10" validate:"unique,dive,required"'
     ];
   }
 
@@ -137,27 +137,27 @@ message Service {
   message Dependency {
     // Dependency's key.
     string key = 8 [
-      (gogoproto.moretags) = 'hash:"name:1" validate:"printascii"'
+      (gogoproto.moretags) = 'hash:"name:8" validate:"printascii"'
     ];
 
     // Image's name of the container.
     string image = 1 [
-      (gogoproto.moretags) = 'hash:"name:2" validate:"printascii"'
+      (gogoproto.moretags) = 'hash:"name:1" validate:"printascii"'
     ];
 
     // List of volumes.
     repeated string volumes = 2 [
-      (gogoproto.moretags) = 'hash:"name:3" validate:"unique,dive,printascii"'
+      (gogoproto.moretags) = 'hash:"name:2" validate:"unique,dive,printascii"'
     ];
 
     // List of volumes mounted from other dependencies.
     repeated string volumesFrom = 3 [
-      (gogoproto.moretags) = 'hash:"name:4" validate:"unique,dive,printascii"'
+      (gogoproto.moretags) = 'hash:"name:3" validate:"unique,dive,printascii"'
     ];
 
     // List of ports the container exposes.
     repeated string ports = 4 [
-      (gogoproto.moretags) = 'hash:"name:5" validate:"unique,dive,portmap"'
+      (gogoproto.moretags) = 'hash:"name:4" validate:"unique,dive,portmap"'
     ];
 
     // Args to pass to the container.
@@ -167,35 +167,35 @@ message Service {
 
     // Command to run the container.
     string command = 5 [
-      (gogoproto.moretags) = 'hash:"name:7" validate:"printascii"'
+      (gogoproto.moretags) = 'hash:"name:5" validate:"printascii"'
     ];
 
     // Default env vars to apply to service's instance on runtime.
     repeated string env = 9 [
-      (gogoproto.moretags) = 'hash:"name:8" validate:"unique,dive,env"'
+      (gogoproto.moretags) = 'hash:"name:9" validate:"unique,dive,env"'
     ];
   }
 
   // Service's hash.
   bytes hash = 10 [
-    (gogoproto.moretags) = 'validate:"required"',
+    (gogoproto.moretags) = 'hash:"-" validate:"required"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
 
   // Service's sid.
   string sid = 12  [
-    (gogoproto.moretags) = 'validate:"required,printascii,max=63,domain"'
+    (gogoproto.moretags) = 'hash:"name:12" validate:"required,printascii,max=63,domain"'
   ];
 
   // Service's name.
   string name = 1 [
-    (gogoproto.moretags) = 'hash:"name:2" validate:"required,printascii"'
+    (gogoproto.moretags) = 'hash:"name:1" validate:"required,printascii"'
   ];
 
   // Service's description.
   string description = 2 [
-    (gogoproto.moretags) = 'hash:"name:3" validate:"printascii"'
+    (gogoproto.moretags) = 'hash:"name:2" validate:"printascii"'
   ];
 
   // Configurations related to the service
@@ -206,26 +206,26 @@ message Service {
 
   // The list of tasks this service can execute.
   repeated Task tasks = 5 [
-    (gogoproto.moretags) = 'hash:"name:4" validate:"dive,required"'
+    (gogoproto.moretags) = 'hash:"name:5" validate:"dive,required"'
   ];
 
   // The list of events this service can emit.
   repeated Event events = 6 [
-    (gogoproto.moretags) = 'hash:"name:5" validate:"dive,required"'
+    (gogoproto.moretags) = 'hash:"name:6" validate:"dive,required"'
   ];
 
   // The container dependencies this service requires.
   repeated Dependency dependencies = 7 [
-    (gogoproto.moretags) = 'hash:"name:6" validate:"dive,required"'
+    (gogoproto.moretags) = 'hash:"name:7" validate:"dive,required"'
   ];
 
   // Service's repository url.
   string repository = 9 [
-    (gogoproto.moretags) = 'hash:"name:7" validate:"omitempty,uri"'
+    (gogoproto.moretags) = 'hash:"name:9" validate:"omitempty,uri"'
   ];
 
   // The hash id of service's source code on IPFS.
   string source = 13 [
-    (gogoproto.moretags) = 'hash:"name:9" validate:"required,printascii"'
+    (gogoproto.moretags) = 'hash:"name:13" validate:"required,printascii"'
   ];
 }

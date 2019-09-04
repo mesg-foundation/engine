@@ -4,7 +4,7 @@ import "google/protobuf/struct.proto";
 import "gogo/protobuf/gogoproto/gogo.proto";
 
 package types;
-option go_package = "github.com/mesg-foundation/engine/protobuf/types";
+option go_package = "github.com/mesg-foundation/engine/execution";
 
 option (gogoproto.goproto_getters_all) = false;
 
@@ -92,7 +92,7 @@ message Execution {
 
   // processHash is the unique hash of the process associated to this execution.
   bytes processHash = 11 [
-    (gogoproto.moretags) = 'hash:"-"',
+    (gogoproto.moretags) = 'hash:"name:11"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
