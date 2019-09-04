@@ -20,12 +20,12 @@ var bufPool = sync.Pool{
 	},
 }
 
-// Sha1 takes a data structure and returns its md5 hash as string.
+// Sha1 takes a data structure and returns its sha1 hash as string.
 func Sha1(v interface{}) [sha1.Size]byte {
 	return sha1.Sum(serialize(v))
 }
 
-// Sha1 takes a data structure and returns its md5 hash as string.
+// Sha3 takes a data structure and returns its sha3 hash as string.
 func Sha3(v interface{}) [64]byte {
 	return sha3.Sum512(serialize(v))
 }
