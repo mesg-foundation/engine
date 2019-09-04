@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"hash"
 
-	"github.com/cnf/structhash"
+	"github.com/mesg-foundation/engine/hash/structhash"
 	"github.com/mr-tron/base58"
 )
 
@@ -32,7 +32,7 @@ func (d *Digest) Sum(b []byte) Hash {
 // WriteObject  adds an interface data to the running hash.
 // It never retruns an error.
 func (d *Digest) WriteObject(v interface{}) (int, error) {
-	return d.Write(structhash.Dump(v, 0))
+	return d.Write(structhash.Dump(v))
 }
 
 // A Hash is a type for representing common hash.

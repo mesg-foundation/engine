@@ -9,25 +9,14 @@ TYPES_PATH=/project/protobuf/types/
 APIS_PATH=/project/protobuf/api/
 CORE_APIS_PATH=/project/protobuf/coreapi/
 
-# generate types into protobuf/types dir
-for t in "${TYPES_PATH}"/{instance,service}.proto
+# generate type
+for t in "${TYPES_PATH}"/{event,execution,instance,service,process}.proto
 do
   file="$(basename ${t})"
   dir="${file%.*}"
   protoc --gogo_out=Mgoogle/protobuf/struct.proto=github.com/gogo/protobuf/types,plugins=grpc,paths=source_relative:./"${dir}"/ \
     --proto_path=/project/protobuf/types \
     "${file}"
-done
-
-# generate types to specific dir
-for t in "${TYPES_PATH}"/{event,execution,process}.proto
-do
-  file="$(basename ${t})"
-  dir="${file%.*}"
-
-  protoc --gogo_out=Mgoogle/protobuf/struct.proto=github.com/gogo/protobuf/types,plugins=grpc,paths=source_relative:. \
-    --proto_path=${PROJECT_PATH} \
-    ${t}
 done
 
 # generate services
