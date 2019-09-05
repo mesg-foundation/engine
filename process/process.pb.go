@@ -20,7 +20,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // Type of condition available to compare the values.
 type Process_Node_Filter_Condition_Predicate int32
@@ -132,19 +132,19 @@ type isProcess_Node_Type interface {
 }
 
 type Process_Node_Result_ struct {
-	Result *Process_Node_Result `protobuf:"bytes,1,opt,name=result,proto3,oneof"`
+	Result *Process_Node_Result `protobuf:"bytes,1,opt,name=result,proto3,oneof" json:"result,omitempty"`
 }
 type Process_Node_Event_ struct {
-	Event *Process_Node_Event `protobuf:"bytes,2,opt,name=event,proto3,oneof"`
+	Event *Process_Node_Event `protobuf:"bytes,2,opt,name=event,proto3,oneof" json:"event,omitempty"`
 }
 type Process_Node_Task_ struct {
-	Task *Process_Node_Task `protobuf:"bytes,3,opt,name=task,proto3,oneof"`
+	Task *Process_Node_Task `protobuf:"bytes,3,opt,name=task,proto3,oneof" json:"task,omitempty"`
 }
 type Process_Node_Map_ struct {
-	Map *Process_Node_Map `protobuf:"bytes,4,opt,name=map,proto3,oneof"`
+	Map *Process_Node_Map `protobuf:"bytes,4,opt,name=map,proto3,oneof" json:"map,omitempty"`
 }
 type Process_Node_Filter_ struct {
-	Filter *Process_Node_Filter `protobuf:"bytes,5,opt,name=filter,proto3,oneof"`
+	Filter *Process_Node_Filter `protobuf:"bytes,5,opt,name=filter,proto3,oneof" json:"filter,omitempty"`
 }
 
 func (*Process_Node_Result_) isProcess_Node_Type() {}
@@ -195,135 +195,15 @@ func (m *Process_Node) GetFilter() *Process_Node_Filter {
 	return nil
 }
 
-// XXX_OneofFuncs is for the internal use of the proto package.
-func (*Process_Node) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
-	return _Process_Node_OneofMarshaler, _Process_Node_OneofUnmarshaler, _Process_Node_OneofSizer, []interface{}{
+// XXX_OneofWrappers is for the internal use of the proto package.
+func (*Process_Node) XXX_OneofWrappers() []interface{} {
+	return []interface{}{
 		(*Process_Node_Result_)(nil),
 		(*Process_Node_Event_)(nil),
 		(*Process_Node_Task_)(nil),
 		(*Process_Node_Map_)(nil),
 		(*Process_Node_Filter_)(nil),
 	}
-}
-
-func _Process_Node_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
-	m := msg.(*Process_Node)
-	// type
-	switch x := m.Type.(type) {
-	case *Process_Node_Result_:
-		_ = b.EncodeVarint(1<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.Result); err != nil {
-			return err
-		}
-	case *Process_Node_Event_:
-		_ = b.EncodeVarint(2<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.Event); err != nil {
-			return err
-		}
-	case *Process_Node_Task_:
-		_ = b.EncodeVarint(3<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.Task); err != nil {
-			return err
-		}
-	case *Process_Node_Map_:
-		_ = b.EncodeVarint(4<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.Map); err != nil {
-			return err
-		}
-	case *Process_Node_Filter_:
-		_ = b.EncodeVarint(5<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.Filter); err != nil {
-			return err
-		}
-	case nil:
-	default:
-		return fmt.Errorf("Process_Node.Type has unexpected type %T", x)
-	}
-	return nil
-}
-
-func _Process_Node_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
-	m := msg.(*Process_Node)
-	switch tag {
-	case 1: // type.result
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(Process_Node_Result)
-		err := b.DecodeMessage(msg)
-		m.Type = &Process_Node_Result_{msg}
-		return true, err
-	case 2: // type.event
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(Process_Node_Event)
-		err := b.DecodeMessage(msg)
-		m.Type = &Process_Node_Event_{msg}
-		return true, err
-	case 3: // type.task
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(Process_Node_Task)
-		err := b.DecodeMessage(msg)
-		m.Type = &Process_Node_Task_{msg}
-		return true, err
-	case 4: // type.map
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(Process_Node_Map)
-		err := b.DecodeMessage(msg)
-		m.Type = &Process_Node_Map_{msg}
-		return true, err
-	case 5: // type.filter
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(Process_Node_Filter)
-		err := b.DecodeMessage(msg)
-		m.Type = &Process_Node_Filter_{msg}
-		return true, err
-	default:
-		return false, nil
-	}
-}
-
-func _Process_Node_OneofSizer(msg proto.Message) (n int) {
-	m := msg.(*Process_Node)
-	// type
-	switch x := m.Type.(type) {
-	case *Process_Node_Result_:
-		s := proto.Size(x.Result)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Process_Node_Event_:
-		s := proto.Size(x.Event)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Process_Node_Task_:
-		s := proto.Size(x.Task)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Process_Node_Map_:
-		s := proto.Size(x.Map)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Process_Node_Filter_:
-		s := proto.Size(x.Filter)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case nil:
-	default:
-		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
-	}
-	return n
 }
 
 type Process_Node_Result struct {
@@ -508,7 +388,7 @@ type isProcess_Node_Map_Output_Value interface {
 }
 
 type Process_Node_Map_Output_Ref struct {
-	Ref *Process_Node_Map_Output_Reference ` hash:"name:2" validate:"required"`
+	Ref *Process_Node_Map_Output_Reference `protobuf:"bytes,2,opt,name=ref,proto3,oneof" json:"ref,omitempty" hash:"name:2" validate:"required"`
 }
 
 func (*Process_Node_Map_Output_Ref) isProcess_Node_Map_Output_Value() {}
@@ -527,59 +407,11 @@ func (m *Process_Node_Map_Output) GetRef() *Process_Node_Map_Output_Reference {
 	return nil
 }
 
-// XXX_OneofFuncs is for the internal use of the proto package.
-func (*Process_Node_Map_Output) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
-	return _Process_Node_Map_Output_OneofMarshaler, _Process_Node_Map_Output_OneofUnmarshaler, _Process_Node_Map_Output_OneofSizer, []interface{}{
+// XXX_OneofWrappers is for the internal use of the proto package.
+func (*Process_Node_Map_Output) XXX_OneofWrappers() []interface{} {
+	return []interface{}{
 		(*Process_Node_Map_Output_Ref)(nil),
 	}
-}
-
-func _Process_Node_Map_Output_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
-	m := msg.(*Process_Node_Map_Output)
-	// value
-	switch x := m.Value.(type) {
-	case *Process_Node_Map_Output_Ref:
-		_ = b.EncodeVarint(2<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.Ref); err != nil {
-			return err
-		}
-	case nil:
-	default:
-		return fmt.Errorf("Process_Node_Map_Output.Value has unexpected type %T", x)
-	}
-	return nil
-}
-
-func _Process_Node_Map_Output_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
-	m := msg.(*Process_Node_Map_Output)
-	switch tag {
-	case 2: // value.ref
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(Process_Node_Map_Output_Reference)
-		err := b.DecodeMessage(msg)
-		m.Value = &Process_Node_Map_Output_Ref{msg}
-		return true, err
-	default:
-		return false, nil
-	}
-}
-
-func _Process_Node_Map_Output_OneofSizer(msg proto.Message) (n int) {
-	m := msg.(*Process_Node_Map_Output)
-	// value
-	switch x := m.Value.(type) {
-	case *Process_Node_Map_Output_Ref:
-		s := proto.Size(x.Ref)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case nil:
-	default:
-		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
-	}
-	return n
 }
 
 type Process_Node_Map_Output_Reference struct {
