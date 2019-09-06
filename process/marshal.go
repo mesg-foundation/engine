@@ -58,25 +58,25 @@ func (w *Process) UnmarshalJSON(b []byte) error {
 
 func (w *Process) unmarshalNode(nodeType string, marshalData []byte) (*Process_Node, error) {
 	switch nodeType {
-	case "Task":
+	case "task":
 		var node Process_Node_Task
 		if err := json.Unmarshal(marshalData, &node); err != nil {
 			return nil, err
 		}
 		return &Process_Node{Type: &Process_Node_Task_{Task: &node}}, nil
-	case "Event":
+	case "event":
 		var node Process_Node_Event
 		if err := json.Unmarshal(marshalData, &node); err != nil {
 			return nil, err
 		}
 		return &Process_Node{Type: &Process_Node_Event_{Event: &node}}, nil
-	case "Result":
+	case "result":
 		var node Process_Node_Result
 		if err := json.Unmarshal(marshalData, &node); err != nil {
 			return nil, err
 		}
 		return &Process_Node{Type: &Process_Node_Result_{Result: &node}}, nil
-	case "Map":
+	case "map":
 		var node = Process_Node_Map{
 			Outputs: []*Process_Node_Map_Output{
 				{Value: &Process_Node_Map_Output_Ref{}},
@@ -86,7 +86,7 @@ func (w *Process) unmarshalNode(nodeType string, marshalData []byte) (*Process_N
 			return nil, err
 		}
 		return &Process_Node{Type: &Process_Node_Map_{Map: &node}}, nil
-	case "Filter":
+	case "filter":
 		var node Process_Node_Filter
 		if err := json.Unmarshal(marshalData, &node); err != nil {
 			return nil, err
