@@ -16,10 +16,10 @@ type parameterTest struct {
 	Error string
 }
 
-func (tests parameterTests) parameterTestsToSliceParameters() []*Parameter {
-	params := make([]*Parameter, len(tests))
+func (tests parameterTests) parameterTestsToSliceParameters() []*Service_Parameter {
+	params := make([]*Service_Parameter, len(tests))
 	for i, test := range tests {
-		params[i] = &Parameter{
+		params[i] = &Service_Parameter{
 			Key:  test.Key,
 			Type: test.Type,
 		}

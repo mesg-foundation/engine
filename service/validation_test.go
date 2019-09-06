@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var eventDataSchema = []*Parameter{
+var eventDataSchema = []*Service_Parameter{
 	{
 		Key:      "optional",
 		Type:     "String",
@@ -32,7 +32,7 @@ var eventDataSchema = []*Parameter{
 	{
 		Key:  "fullobject",
 		Type: "Object",
-		Object: []*Parameter{
+		Object: []*Service_Parameter{
 			{Key: "foo", Type: "String"},
 			{Key: "bar", Type: "String"},
 		},

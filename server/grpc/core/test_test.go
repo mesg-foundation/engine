@@ -4,8 +4,10 @@ import (
 	"os"
 	"testing"
 
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/database"
+	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/sdk"
 	"github.com/stretchr/testify/require"
 )
@@ -14,12 +16,13 @@ const (
 	servicedbname  = "service.db.test"
 	instancedbname = "instance.db.test"
 	execdbname     = "exec.db.test"
-	workflowdbname = "workflow.db.test"
+	processdbname  = "process.db.test"
 )
 
 func newServerWithContainer(t *testing.T, c container.Container) (*Server, func()) {
-	db, err := database.NewServiceDB(servicedbname)
+	serviceStore, err := store.NewLevelDBStore(servicedbname)
 	require.NoError(t, err)
+	db := database.NewServiceDB(serviceStore, codec.New())
 
 	instanceDB, err := database.NewInstanceDB(instancedbname)
 	require.NoError(t, err)
@@ -27,19 +30,22 @@ func newServerWithContainer(t *testing.T, c container.Container) (*Server, func(
 	execDB, err := database.NewExecutionDB(execdbname)
 	require.NoError(t, err)
 
-	workflowDB, err := database.NewWorkflowDB(workflowdbname)
+	processDB, err := database.NewProcessDB(processdbname)
 	require.NoError(t, err)
 
-	a := sdk.New(c, db, instanceDB, execDB, workflowDB, "", "")
+	a := sdk.NewDeprecated(c, db, instanceDB, execDB, processDB, "", "")
 
 	server := NewServer(a)
 
 	closer := func() {
 		db.Close()
+		instanceDB.Close()
 		execDB.Close()
+		processDB.Close()
 		os.RemoveAll(servicedbname)
 		os.RemoveAll(instancedbname)
 		os.RemoveAll(execdbname)
+		os.RemoveAll(processdbname)
 	}
 	return server, closer
 }

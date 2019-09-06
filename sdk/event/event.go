@@ -2,6 +2,7 @@ package eventsdk
 
 import (
 	"github.com/cskr/pubsub"
+	"github.com/gogo/protobuf/types"
 	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/hash"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
@@ -17,11 +18,11 @@ const (
 type Event struct {
 	ps       *pubsub.PubSub
 	instance *instancesdk.Instance
-	service  *servicesdk.Service
+	service  servicesdk.Service
 }
 
 // New creates a new Event SDK with given options.
-func New(ps *pubsub.PubSub, service *servicesdk.Service, instance *instancesdk.Instance) *Event {
+func New(ps *pubsub.PubSub, service servicesdk.Service, instance *instancesdk.Instance) *Event {
 	return &Event{
 		ps:       ps,
 		service:  service,
@@ -30,7 +31,7 @@ func New(ps *pubsub.PubSub, service *servicesdk.Service, instance *instancesdk.I
 }
 
 // Create a MESG event eventKey with eventData for service token.
-func (e *Event) Create(instanceHash hash.Hash, eventKey string, eventData map[string]interface{}) (*event.Event, error) {
+func (e *Event) Create(instanceHash hash.Hash, eventKey string, eventData *types.Struct) (*event.Event, error) {
 	event := event.Create(instanceHash, eventKey, eventData)
 
 	instance, err := e.instance.Get(event.InstanceHash)

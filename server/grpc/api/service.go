@@ -4,11 +4,10 @@ import (
 	"context"
 	"errors"
 
-	"github.com/mesg-foundation/engine/hash"
 	protobuf_api "github.com/mesg-foundation/engine/protobuf/api"
-	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/sdk"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
+	"github.com/mesg-foundation/engine/service"
 )
 
 // ServiceServer is the type to aggregate all Service APIs.
@@ -23,7 +22,7 @@ func NewServiceServer(sdk *sdk.SDK) *ServiceServer {
 
 // Create creates a new service from definition.
 func (s *ServiceServer) Create(ctx context.Context, req *protobuf_api.CreateServiceRequest) (*protobuf_api.CreateServiceResponse, error) {
-	definition := fromProtoService(&types.Service{
+	definition := &service.Service{
 		Sid:           req.Sid,
 		Name:          req.Name,
 		Description:   req.Description,
@@ -33,48 +32,34 @@ func (s *ServiceServer) Create(ctx context.Context, req *protobuf_api.CreateServ
 		Dependencies:  req.Dependencies,
 		Repository:    req.Repository,
 		Source:        req.Source,
-	})
+	}
 	srv, err := s.sdk.Service.Create(definition)
 	if err != nil {
 		return nil, err
 	}
-	return &protobuf_api.CreateServiceResponse{Hash: srv.Hash.String()}, nil
+	return &protobuf_api.CreateServiceResponse{Hash: srv.Hash}, nil
 }
 
 // Delete deletes service by hash or sid.
 func (s *ServiceServer) Delete(ctx context.Context, request *protobuf_api.DeleteServiceRequest) (*protobuf_api.DeleteServiceResponse, error) {
-	hash, err := hash.Decode(request.Hash)
-	if err != nil {
-		return nil, err
-	}
-
-	srv, err := s.sdk.Service.Get(hash)
-	if err != nil {
-		return nil, err
-	}
 	// first, check if service has any running instances.
-	instances, err := s.sdk.Instance.List(&instancesdk.Filter{ServiceHash: srv.Hash})
+	instances, err := s.sdk.Instance.List(&instancesdk.Filter{ServiceHash: request.Hash})
 	if err != nil {
 		return nil, err
 	}
 	if len(instances) > 0 {
 		return nil, errors.New("service has running instances. in order to delete the service, stop its instances first")
 	}
-	return &protobuf_api.DeleteServiceResponse{}, s.sdk.Service.Delete(hash)
+	return &protobuf_api.DeleteServiceResponse{}, s.sdk.Service.Delete(request.Hash)
 }
 
 // Get returns service from given hash.
-func (s *ServiceServer) Get(ctx context.Context, req *protobuf_api.GetServiceRequest) (*types.Service, error) {
-	hash, err := hash.Decode(req.Hash)
+func (s *ServiceServer) Get(ctx context.Context, req *protobuf_api.GetServiceRequest) (*service.Service, error) {
+	service, err := s.sdk.Service.Get(req.Hash)
 	if err != nil {
 		return nil, err
 	}
-
-	service, err := s.sdk.Service.Get(hash)
-	if err != nil {
-		return nil, err
-	}
-	return toProtoService(service), nil
+	return service, nil
 }
 
 // List returns all services.
@@ -84,10 +69,5 @@ func (s *ServiceServer) List(ctx context.Context, req *protobuf_api.ListServiceR
 		return nil, err
 	}
 
-	resp := &protobuf_api.ListServiceResponse{}
-	for _, service := range services {
-		resp.Services = append(resp.Services, toProtoService(service))
-	}
-
-	return resp, nil
+	return &protobuf_api.ListServiceResponse{Services: services}, nil
 }

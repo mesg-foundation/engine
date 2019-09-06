@@ -5,10 +5,11 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/binary"
+	"encoding/json"
 	"fmt"
 	"hash"
 
-	"github.com/cnf/structhash"
+	"github.com/mesg-foundation/engine/hash/structhash"
 	"github.com/mr-tron/base58"
 )
 
@@ -31,10 +32,10 @@ func (d *Digest) Sum(b []byte) Hash {
 // WriteObject  adds an interface data to the running hash.
 // It never retruns an error.
 func (d *Digest) WriteObject(v interface{}) (int, error) {
-	return d.Write(structhash.Dump(v, 0))
+	return d.Write(structhash.Dump(v))
 }
 
-// A Hash is a type for representing hash with base58 encode and decode functions.
+// A Hash is a type for representing common hash.
 type Hash []byte
 
 // New returns new hash from a given integer.
@@ -92,7 +93,7 @@ func (h Hash) IsZero() bool {
 	return len(h) == 0
 }
 
-// String returns the base58 hash representation.
+// String returns the hash hex representation.
 func (h Hash) String() string {
 	return base58.Encode(h)
 }
@@ -100,4 +101,53 @@ func (h Hash) String() string {
 // Equal returns a boolean reporting whether h and h1 are the same hashes.
 func (h Hash) Equal(h1 Hash) bool {
 	return bytes.Equal(h, h1)
+}
+
+// Marshal marshals hash into slice of bytes. It's used by protobuf.
+func (h Hash) Marshal() ([]byte, error) {
+	return h, nil
+}
+
+// MarshalTo marshals hash into slice of bytes. It's used by protobuf.
+func (h Hash) MarshalTo(data []byte) (int, error) {
+	return copy(data, h), nil
+}
+
+// Unmarshal unmarshals slice of bytes into hash. It's used by protobuf.
+func (h *Hash) Unmarshal(data []byte) error {
+	*h = data
+	return nil
+}
+
+// Size retruns size of hash. It's used by protobuf.
+func (h Hash) Size() int {
+	if len(h) == 0 {
+		return 0
+	}
+	return size
+}
+
+// MarshalJSON mashals hash into encoded json string.
+func (h Hash) MarshalJSON() ([]byte, error) {
+	return json.Marshal(base58.Encode(h))
+}
+
+// UnmarshalJSON unmashals hex encoded json string into hash.
+func (h *Hash) UnmarshalJSON(data []byte) error {
+	var str string
+	if err := json.Unmarshal(data, &str); err != nil {
+		return err
+	}
+
+	if str == "" {
+		return nil
+	}
+
+	h1, err := base58.Decode(str)
+	if err != nil {
+		return err
+	}
+
+	*h = Hash(h1)
+	return nil
 }

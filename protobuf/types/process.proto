@@ -1,0 +1,196 @@
+syntax = "proto3";
+
+import "gogo/protobuf/gogoproto/gogo.proto";
+
+package types;
+option go_package = "github.com/mesg-foundation/engine/process";
+
+option (gogoproto.goproto_getters_all) = false;
+option (gogoproto.equal_all) = true;
+
+// A process is a configuration to trigger a specific task when certains conditions of a trigger are valid.
+message Process {
+  // Node of the process
+  message Node {
+    message Result {
+      // Key that identifies the node.
+      string key = 1 [
+        (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
+      ];
+
+      // Hash of the instance that triggers the process.
+      bytes instanceHash = 2 [
+        (gogoproto.moretags) = 'hash:"name:2" validate:"required"',
+        (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+        (gogoproto.nullable) = false
+      ];
+
+      // Key of the task that triggers the process.
+      string taskKey = 3 [
+        (gogoproto.moretags) = 'hash:"name:3" validate:"printascii,required"'
+      ];
+    }
+
+    message Event {
+      // Key that identifies the node.
+      string key = 1 [
+        (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
+      ];
+
+      // Hash of the instance that triggers the process.
+      bytes instanceHash = 2 [
+        (gogoproto.moretags) = 'hash:"name:2" validate:"required"',
+        (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+        (gogoproto.nullable) = false
+      ];
+
+      // Key of the event that triggers the process.
+      string eventKey = 3 [
+        (gogoproto.moretags) = 'hash:"name:3" validate:"printascii,required"'
+      ];
+    }
+
+    message Task {
+      // Key that identifies the node.
+      string key = 1 [
+        (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
+      ];
+
+      // Hash of the instance to execute.
+      bytes instanceHash = 2 [
+        (gogoproto.moretags) = 'hash:"name:2" validate:"required"',
+        (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+        (gogoproto.nullable) = false
+      ];
+
+      // Task of the instance to execute.
+      string taskKey = 3 [
+        (gogoproto.moretags) = 'hash:"name:3" validate:"printascii,required"'
+      ];
+    }
+
+    message Map {
+      message Output {
+        message Reference {
+          // Key of the node in the graph. If empty, will be using the src of the edge.
+          string nodeKey = 1 [
+            (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
+          ];
+
+          // Key of a specific parameter of the referenced node's output data.
+          string key = 2 [
+            (gogoproto.moretags) = 'hash:"name:2" validate:"required"'
+          ];
+        }
+
+        // Key of the output.
+        string key = 1 [
+          (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
+        ];
+
+        oneof value {
+          // Input defined as reference.
+          Reference ref = 2 [
+            (gogoproto.moretags) = 'hash:"name:2" validate:"required"'
+          ];
+        }
+      }
+
+      // Key of the mapping.
+      string key = 1 [
+        (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
+      ];
+
+      // Outputs of the mapping.
+      repeated Output outputs = 2 [
+        (gogoproto.moretags) = 'hash:"name:2" validate:"dive,required"'
+      ];
+    }
+
+    message Filter {
+      message Condition {
+        // Type of condition available to compare the values.
+        enum Predicate {
+          // Predicate not defined.
+          Unknown = 0;
+
+          // Equal
+          EQ = 1;
+        }
+
+        // Key to check.
+        string key = 1 [
+          (gogoproto.moretags) = 'hash:"name:1" validate:"required,printascii"'
+        ];
+
+        // Type of condition to apply.
+        Predicate predicate = 2 [
+          (gogoproto.moretags) = 'hash:"name:2" validate:"required"'
+        ];
+
+        // Value of the filter.
+        string value = 3 [
+          (gogoproto.moretags) = 'hash:"name:3"'
+        ];
+      }
+
+      // Key for the filter
+      string key = 1 [
+        (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
+      ];
+
+      // List of condition to apply for this filter
+      repeated Condition conditions = 2 [
+        (gogoproto.moretags) = 'hash:"name:2"',
+        (gogoproto.nullable) = false
+      ];
+    }
+
+    oneof type {
+      // Result is a trigger that listens for a specific result.
+      Result result = 1;
+      // Event is a trigger that listens for a specific event.
+      Event event = 2;
+      // Task is a command to execute a specific task.
+      Task task = 3;
+      // Map is a set of instructions to convert data.
+      Map map = 4;
+      // Filter is a list of condition to apply on data.
+      Filter filter = 5;
+    }
+  }
+
+  message Edge {
+    // Source of the edge.
+    string src = 1 [
+      (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
+    ];
+
+    // Destination of the edge.
+    string dst = 2 [
+      (gogoproto.moretags) = 'hash:"name:2" validate:"required"'
+    ];
+  }
+
+  // Process's hash
+  bytes hash = 1 [
+    (gogoproto.moretags) = 'hash:"-" validate:"required"',
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
+
+  // Process's key
+  string key = 2 [
+    (gogoproto.moretags) = 'hash:"name:2" validate:"required"'
+  ];
+
+  // Nodes with information related to the execution to trigger.
+  repeated Node nodes = 4 [
+    (gogoproto.moretags) = 'hash:"name:4" validate:"dive,required"'
+  ];
+
+  // Edges to create the link between the nodes.
+  repeated Edge edges = 5 [
+    (gogoproto.moretags) = 'hash:"name:5" validate:"dive,required"'
+  ];
+}

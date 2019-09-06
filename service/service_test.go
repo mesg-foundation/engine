@@ -3,6 +3,8 @@ package service
 import (
 	"testing"
 
+	"github.com/gogo/protobuf/types"
+	"github.com/mesg-foundation/engine/protobuf/convert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -10,7 +12,7 @@ func TestGetEvent(t *testing.T) {
 	var (
 		eventKey = "1"
 		s        = &Service{
-			Events: []*Event{
+			Events: []*Service_Event{
 				{Key: eventKey},
 			},
 		}
@@ -27,7 +29,7 @@ func TestGetEventNonExistent(t *testing.T) {
 		eventKey    = "2"
 		s           = &Service{
 			Name: serviceName,
-			Events: []*Event{
+			Events: []*Service_Event{
 				{Key: "3"},
 			},
 		}
@@ -54,10 +56,10 @@ func TestEventValidateAndRequireData(t *testing.T) {
 		}
 		s = &Service{
 			Name: serviceName,
-			Events: []*Event{
+			Events: []*Service_Event{
 				{
 					Key: eventKey,
-					Data: []*Parameter{
+					Data: []*Service_Parameter{
 						{
 							Key:  paramKey,
 							Type: "String",
@@ -72,7 +74,11 @@ func TestEventValidateAndRequireData(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, warnings, 0)
 
-	err = s.RequireEventData(eventKey, validEventData)
+	data := &types.Struct{}
+	convert.Unmarshal(validEventData, data)
+	require.NoError(t, err)
+
+	err = s.RequireEventData(eventKey, data)
 	require.NoError(t, err)
 
 	warnings, err = s.ValidateEventData(eventKey, inValidEventData)
@@ -80,7 +86,10 @@ func TestEventValidateAndRequireData(t *testing.T) {
 	require.Len(t, warnings, 1)
 	require.Equal(t, paramKey, warnings[0].Key)
 
-	err = s.RequireEventData(eventKey, inValidEventData)
+	convert.Unmarshal(inValidEventData, data)
+	require.NoError(t, err)
+
+	err = s.RequireEventData(eventKey, data)
 	require.Equal(t, &InvalidEventDataError{
 		EventKey:    eventKey,
 		ServiceName: serviceName,

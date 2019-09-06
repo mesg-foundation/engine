@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/mesg-foundation/engine/hash"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
@@ -26,7 +27,7 @@ type Client struct {
 	pb.ServiceClient
 
 	// instance hash that could be used in api calls.
-	InstanceHash string
+	InstanceHash []byte
 }
 
 // New creates a new client from env variables supplied by mesg engine.
@@ -36,9 +37,9 @@ func New() (*Client, error) {
 		return nil, fmt.Errorf("client: mesg server address env(%s) is empty", envMesgEndpoint)
 	}
 
-	instanceHash := os.Getenv(envMesgInstanceHash)
-	if instanceHash == "" {
-		return nil, fmt.Errorf("client: mesg instance hash env(%s) is empty", envMesgInstanceHash)
+	instanceHash, err := hash.Decode(os.Getenv(envMesgInstanceHash))
+	if err != nil {
+		return nil, fmt.Errorf("client: error with mesg's instance hash env(%s): %s", envMesgInstanceHash, err.Error())
 	}
 
 	conn, err := grpc.DialContext(context.Background(), endpoint, dialoptions()...)
