@@ -6,6 +6,7 @@ package types;
 option go_package = "github.com/mesg-foundation/engine/process";
 
 option (gogoproto.goproto_getters_all) = false;
+option (gogoproto.equal_all) = true;
 
 // A process is a configuration to trigger a specific task when certains conditions of a trigger are valid.
 message Process {
