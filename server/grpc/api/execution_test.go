@@ -28,7 +28,7 @@ func TestGet(t *testing.T) {
 
 	got, err := s.Get(context.Background(), &api.GetExecutionRequest{Hash: exec.Hash})
 	require.NoError(t, err)
-	require.Equal(t, got, exec)
+	require.True(t, got.Equal(exec))
 }
 
 func TestUpdate(t *testing.T) {

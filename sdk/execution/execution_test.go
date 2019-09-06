@@ -100,7 +100,7 @@ func TestGet(t *testing.T) {
 	require.NoError(t, sdk.execDB.Save(exec))
 	got, err := sdk.Get(exec.Hash)
 	require.NoError(t, err)
-	require.Equal(t, exec, got)
+	require.True(t, exec.Equal(got))
 }
 
 func TestGetStream(t *testing.T) {

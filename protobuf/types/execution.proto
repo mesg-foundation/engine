@@ -7,6 +7,7 @@ package types;
 option go_package = "github.com/mesg-foundation/engine/execution";
 
 option (gogoproto.goproto_getters_all) = false;
+option (gogoproto.equal_all) = true;
 
 // Status represents the status of a single execution.
 // Note that a valid execution must have only one status
