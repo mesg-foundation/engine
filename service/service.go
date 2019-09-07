@@ -36,7 +36,7 @@ func (s *Service) GetEvent(eventKey string) (*Service_Event, error) {
 			return event, nil
 		}
 	}
-	return nil, fmt.Errorf("servcie %q - event %q not found", s.Name, eventKey)
+	return nil, fmt.Errorf("service %q - event %q not found", s.Name, eventKey)
 }
 
 // RequireTaskInputs requires task inputs to match with parameter schemas.

@@ -7,7 +7,7 @@ import (
 	"github.com/mesg-foundation/engine/x/xerrors"
 )
 
-// ValidateParametersSchema validates data to see if it matches with parameters schema.
+// validateServiceParameters validates data to see if it matches with parameters schema.
 func validateServiceParameters(parameters []*Service_Parameter, data *types.Struct) error {
 	var errs xerrors.Errors
 
