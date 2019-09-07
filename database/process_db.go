@@ -1,9 +1,9 @@
 package database
 
 import (
-	"encoding/json"
 	"fmt"
 
+	"github.com/gogo/protobuf/proto"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
 	"github.com/sirupsen/logrus"
@@ -43,14 +43,14 @@ func NewProcessDB(path string) (*LevelDBProcessDB, error) {
 }
 
 // marshal returns the byte slice from process.
-func (d *LevelDBProcessDB) marshal(s *process.Process) ([]byte, error) {
-	return json.Marshal(s)
+func (d *LevelDBProcessDB) marshal(s proto.Message) ([]byte, error) {
+	return proto.Marshal(s)
 }
 
 // unmarshal returns the process from byte slice.
 func (d *LevelDBProcessDB) unmarshal(hash hash.Hash, value []byte) (*process.Process, error) {
 	var s process.Process
-	if err := json.Unmarshal(value, &s); err != nil {
+	if err := proto.Unmarshal(value, &s); err != nil {
 		return nil, fmt.Errorf("database: could not decode process %q: %s", hash, err)
 	}
 	return &s, nil
