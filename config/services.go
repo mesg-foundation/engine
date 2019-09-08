@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/mesg-foundation/engine/instance"
-	"github.com/mesg-foundation/engine/service"
+	"github.com/mesg-foundation/engine/protobuf/api"
 )
 
 // Default compiled version of the service. These compiled versions are overritten by the build
@@ -30,7 +30,7 @@ var (
 type ServiceConfig struct {
 	Key        string
 	Env        map[string]string
-	Definition *service.Service
+	Definition *api.CreateServiceRequest
 	Instance   *instance.Instance
 }
 
@@ -58,13 +58,13 @@ func (c *Config) setupServices() error {
 }
 
 func (c *Config) createServiceConfig(key string, compilatedJSON string, env map[string]string) (*ServiceConfig, error) {
-	var srv service.Service
-	if err := json.Unmarshal([]byte(compilatedJSON), &srv); err != nil {
+	var req api.CreateServiceRequest
+	if err := json.Unmarshal([]byte(compilatedJSON), &req); err != nil {
 		return nil, err
 	}
 	return &ServiceConfig{
 		Key:        key,
-		Definition: &srv,
+		Definition: &req,
 		Env:        env,
 	}, nil
 }

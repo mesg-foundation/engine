@@ -2,8 +2,8 @@
 
 MILESTONE="$1"
 
-LABELS=("breaking change" "add" "change" "fix" "remove" "experimental")
-CATEGORIES=("Breaking Changes" "Added" "Changed" "Fixed" "Removed" "Experimental")
+LABELS=("experimental" "breaking change" "release:add" "release:change" "release:fix" "release:remove")
+CATEGORIES=("Experimental" "Breaking Changes" "Added" "Changed" "Fixed" "Removed")
 
 PR=$(hub pr list -s merged -f "%Mt %L|- ([%i](%U)) %t.%n" --sort-ascending | grep $MILESTONE)
 
