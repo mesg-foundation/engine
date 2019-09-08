@@ -26,7 +26,7 @@ func NewNode(app *App, kb *Keybase, cfg *tmconfig.Config, ccfg *config.CosmosCon
 	cdc := app.Cdc()
 
 	// generate first user
-	account, err := kb.GenerateAccount(ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Mnemonic, ccfg.GenesisAccount.Password)
+	account, err := kb.CreateAccount(ccfg.GenesisAccount.Name, ccfg.GenesisAccount.Mnemonic, "", ccfg.GenesisAccount.Password, 0, 0)
 	if err != nil {
 		return nil, err
 	}
