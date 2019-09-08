@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/service"
 )
 
@@ -17,7 +18,7 @@ func NewSDK() Service {
 }
 
 // Create creates a new service from definition.
-func (s *sdk) Create(srv *service.Service) (*service.Service, error) {
+func (s *sdk) Create(req *api.CreateServiceRequest) (*service.Service, error) {
 	return nil, fmt.Errorf("create not implemented")
 }
 

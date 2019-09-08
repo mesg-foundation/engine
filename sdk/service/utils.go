@@ -11,12 +11,13 @@ import (
 	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/hash/dirhash"
+	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/service"
 	"github.com/mesg-foundation/engine/service/validator"
 	"github.com/mr-tron/base58"
 )
 
-func create(container container.Container, db *database.ServiceDB, srv *service.Service) (*service.Service, error) {
+func create(container container.Container, db *database.ServiceDB, req *api.CreateServiceRequest) (*service.Service, error) {
 	// download and untar service context into path.
 	path, err := ioutil.TempDir("", "mesg")
 	if err != nil {
@@ -24,7 +25,7 @@ func create(container container.Container, db *database.ServiceDB, srv *service.
 	}
 	defer os.RemoveAll(path)
 
-	resp, err := http.Get("http://ipfs.app.mesg.com:8080/ipfs/" + srv.Source)
+	resp, err := http.Get("http://ipfs.app.mesg.com:8080/ipfs/" + req.Source)
 	if err != nil {
 		return nil, err
 	}
@@ -35,6 +36,19 @@ func create(container container.Container, db *database.ServiceDB, srv *service.
 
 	if err := archive.Untar(resp.Body, path, nil); err != nil {
 		return nil, err
+	}
+
+	// create service
+	srv := &service.Service{
+		Sid:           req.Sid,
+		Name:          req.Name,
+		Description:   req.Description,
+		Configuration: req.Configuration,
+		Tasks:         req.Tasks,
+		Events:        req.Events,
+		Dependencies:  req.Dependencies,
+		Repository:    req.Repository,
+		Source:        req.Source,
 	}
 
 	// calculate and apply hash to service.

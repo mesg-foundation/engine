@@ -8,6 +8,7 @@ import (
 	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/service"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -78,8 +79,8 @@ func (s *Module) querier(request cosmostypes.Request, path []string, req abci.Re
 }
 
 // Create creates a new service from definition.
-func (s *Module) Create(request cosmostypes.Request, srv *service.Service) (*service.Service, error) {
-	return create(s.container, s.db(request), srv)
+func (s *Module) Create(request cosmostypes.Request, req *api.CreateServiceRequest) (*service.Service, error) {
+	return create(s.container, s.db(request), req)
 }
 
 // Delete deletes the service by hash.
