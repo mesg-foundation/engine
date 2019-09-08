@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+import "gogo/protobuf/gogoproto/gogo.proto";
+
+package types;
+option go_package = "github.com/mesg-foundation/engine/account";
+
+option (gogoproto.goproto_getters_all) = false;
+
+// Account represents service's account.
+message Account {
+  string name = 1;
+  string address = 2;
+}
