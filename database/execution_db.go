@@ -1,10 +1,10 @@
 package database
 
 import (
-	"encoding/json"
 	"errors"
 	"io"
 
+	"github.com/gogo/protobuf/proto"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/syndtr/goleveldb/leveldb"
@@ -100,7 +100,7 @@ func executionFind(db leveldbTxDB, executionHash hash.Hash) (*execution.Executio
 		return nil, err
 	}
 	var execution execution.Execution
-	if err := json.Unmarshal(data, &execution); err != nil {
+	if err := proto.Unmarshal(data, &execution); err != nil {
 		return nil, err
 	}
 	return &execution, nil
@@ -112,7 +112,7 @@ func executionSave(db leveldbTxDB, execution *execution.Execution) error {
 	if len(execution.Hash) == 0 {
 		return errors.New("database: can't save execution without hash")
 	}
-	data, err := json.Marshal(execution)
+	data, err := proto.Marshal(execution)
 	if err != nil {
 		return err
 	}

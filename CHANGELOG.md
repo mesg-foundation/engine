@@ -9,6 +9,58 @@
 #### Removed
 #### Experimental
 
+## [v0.14.0](https://github.com/mesg-foundation/engine/releases/tag/v0.14.0)
+
+#### Breaking Changes
+
+- ([#1258](https://github.com/mesg-foundation/engine/pull/1258)) Pure graph implementation for the orchestration system.
+- ([#1278](https://github.com/mesg-foundation/engine/pull/1278)) Rename workflow to process.
+- ([#1290](https://github.com/mesg-foundation/engine/pull/1290)) Use gogo protobuf.
+- ([#1292](https://github.com/mesg-foundation/engine/pull/1292)) Set nullabe to false for service configuration.
+- ([#1301](https://github.com/mesg-foundation/engine/pull/1301)) Update database path to ensure no issue on startup.
+
+#### Added
+
+- ([#1241](https://github.com/mesg-foundation/engine/pull/1241)) Process input resolution.
+
+#### Changed
+
+- ([#1254](https://github.com/mesg-foundation/engine/pull/1254)) Remove database ErrNotFound. Introduce Database Exist function.
+- ([#1260](https://github.com/mesg-foundation/engine/pull/1260)) Keep only one Service struct (the one generated from protobuf definition).
+- ([#1264](https://github.com/mesg-foundation/engine/pull/1264)) Refactor/remove custom service type no custom type hash.
+- ([#1269](https://github.com/mesg-foundation/engine/pull/1269)) Change service.proto package back to types.
+- ([#1270](https://github.com/mesg-foundation/engine/pull/1270)) Change proto hash type from string to bytes.
+- ([#1285](https://github.com/mesg-foundation/engine/pull/1285)) Bump github.com/gogo/protobuf from 1.2.1 to 1.3.0.
+- ([#1286](https://github.com/mesg-foundation/engine/pull/1286)) Fix marshal issue with process filter.
+- ([#1287](https://github.com/mesg-foundation/engine/pull/1287)) Update system services to work with latest gRPC API.
+- ([#1288](https://github.com/mesg-foundation/engine/pull/1288)) Fix that hash of info API were still in string instead of bytes.
+- ([#1291](https://github.com/mesg-foundation/engine/pull/1291)) Customize protobuf messages .
+- ([#1293](https://github.com/mesg-foundation/engine/pull/1293)) Replace instance struct with protobuf.
+- ([#1295](https://github.com/mesg-foundation/engine/pull/1295)) Remove old generated instance struct.
+- ([#1296](https://github.com/mesg-foundation/engine/pull/1296)) Remove and refactor rest protobuf types.
+- ([#1298](https://github.com/mesg-foundation/engine/pull/1298)) Replace cnf structhash with custom one.
+- ([#1310](https://github.com/mesg-foundation/engine/pull/1310)) Update gogo protobuf with fixed json and custom tags generation.
+- ([#1311](https://github.com/mesg-foundation/engine/pull/1311)) Use protobuf marshal/unmarshal in process database.
+- ([#1312](https://github.com/mesg-foundation/engine/pull/1312)) Use protobuf marshal/unmarshal in execution database.
+
+#### Experimental
+
+- ([#1243](https://github.com/mesg-foundation/engine/pull/1243)) Add store package.
+- ([#1244](https://github.com/mesg-foundation/engine/pull/1244)) Update service db to use store.
+- ([#1245](https://github.com/mesg-foundation/engine/pull/1245)) Bump github.com/cosmos/cosmos-sdk from 0.36.0 to 0.37.0.
+- ([#1248](https://github.com/mesg-foundation/engine/pull/1248)) Add Cosmos helpers.
+- ([#1249](https://github.com/mesg-foundation/engine/pull/1249)) SDK loads the App modules.
+- ([#1250](https://github.com/mesg-foundation/engine/pull/1250)) Transform service sdk to accept cosmos service step 1.
+- ([#1252](https://github.com/mesg-foundation/engine/pull/1252)) Add service sdk cosmos version step 2.
+- ([#1255](https://github.com/mesg-foundation/engine/pull/1255)) Create tendermint client.
+- ([#1257](https://github.com/mesg-foundation/engine/pull/1257)) Recover from panic in cosmos store.
+- ([#1268](https://github.com/mesg-foundation/engine/pull/1268)) Make cosmos store iterator works the same way as goleveldb iterator.
+- ([#1271](https://github.com/mesg-foundation/engine/pull/1271)) Bump github.com/tendermint/tendermint from 0.32.2 to 0.32.3.
+- ([#1284](https://github.com/mesg-foundation/engine/pull/1284)) Add test for both cosmos store and leveldb store.
+- ([#1297](https://github.com/mesg-foundation/engine/pull/1297)) Add explicit marshal and unmarshal function to service db.
+- ([#1299](https://github.com/mesg-foundation/engine/pull/1299)) Create a cosmos app factory struct.
+- ([#1300](https://github.com/mesg-foundation/engine/pull/1300)) Prepare cosmos client.
+
 ## [v0.13.0](https://github.com/mesg-foundation/engine/releases/tag/v0.13.0)
 
 #### Added

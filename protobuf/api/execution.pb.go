@@ -26,7 +26,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // CreateExecutionRequest defines request to create a single execution.
 type CreateExecutionRequest struct {
@@ -294,10 +294,10 @@ type isUpdateExecutionRequest_Result interface {
 }
 
 type UpdateExecutionRequest_Outputs struct {
-	Outputs *types.Struct `protobuf:"bytes,2,opt,name=outputs,proto3,oneof"`
+	Outputs *types.Struct `protobuf:"bytes,2,opt,name=outputs,proto3,oneof" json:"outputs,omitempty"`
 }
 type UpdateExecutionRequest_Error struct {
-	Error string `protobuf:"bytes,3,opt,name=error,proto3,oneof"`
+	Error string `protobuf:"bytes,3,opt,name=error,proto3,oneof" json:"error,omitempty"`
 }
 
 func (*UpdateExecutionRequest_Outputs) isUpdateExecutionRequest_Result() {}
@@ -324,74 +324,12 @@ func (m *UpdateExecutionRequest) GetError() string {
 	return ""
 }
 
-// XXX_OneofFuncs is for the internal use of the proto package.
-func (*UpdateExecutionRequest) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
-	return _UpdateExecutionRequest_OneofMarshaler, _UpdateExecutionRequest_OneofUnmarshaler, _UpdateExecutionRequest_OneofSizer, []interface{}{
+// XXX_OneofWrappers is for the internal use of the proto package.
+func (*UpdateExecutionRequest) XXX_OneofWrappers() []interface{} {
+	return []interface{}{
 		(*UpdateExecutionRequest_Outputs)(nil),
 		(*UpdateExecutionRequest_Error)(nil),
 	}
-}
-
-func _UpdateExecutionRequest_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
-	m := msg.(*UpdateExecutionRequest)
-	// result
-	switch x := m.Result.(type) {
-	case *UpdateExecutionRequest_Outputs:
-		_ = b.EncodeVarint(2<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.Outputs); err != nil {
-			return err
-		}
-	case *UpdateExecutionRequest_Error:
-		_ = b.EncodeVarint(3<<3 | proto.WireBytes)
-		_ = b.EncodeStringBytes(x.Error)
-	case nil:
-	default:
-		return fmt.Errorf("UpdateExecutionRequest.Result has unexpected type %T", x)
-	}
-	return nil
-}
-
-func _UpdateExecutionRequest_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
-	m := msg.(*UpdateExecutionRequest)
-	switch tag {
-	case 2: // result.outputs
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(types.Struct)
-		err := b.DecodeMessage(msg)
-		m.Result = &UpdateExecutionRequest_Outputs{msg}
-		return true, err
-	case 3: // result.error
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		x, err := b.DecodeStringBytes()
-		m.Result = &UpdateExecutionRequest_Error{x}
-		return true, err
-	default:
-		return false, nil
-	}
-}
-
-func _UpdateExecutionRequest_OneofSizer(msg proto.Message) (n int) {
-	m := msg.(*UpdateExecutionRequest)
-	// result
-	switch x := m.Result.(type) {
-	case *UpdateExecutionRequest_Outputs:
-		s := proto.Size(x.Outputs)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *UpdateExecutionRequest_Error:
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(len(x.Error)))
-		n += len(x.Error)
-	case nil:
-	default:
-		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
-	}
-	return n
 }
 
 // UpdateExecutionResponse defines response for execution update.
