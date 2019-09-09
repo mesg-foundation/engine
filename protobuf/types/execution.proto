@@ -1,7 +1,7 @@
 syntax = "proto3";
 
-import "google/protobuf/struct.proto";
 import "gogo/protobuf/gogoproto/gogo.proto";
+import "protobuf/types/struct.proto";
 
 package types;
 option go_package = "github.com/mesg-foundation/engine/execution";
@@ -72,12 +72,12 @@ message Execution {
   ];
 
   // inputs data of the execution.
-  google.protobuf.Struct inputs = 7 [
+  mesg.protobuf.Struct inputs = 7 [
     (gogoproto.moretags) = 'hash:"name:7"'
   ];
 
   // outputs are the returned data of successful execution.
-  google.protobuf.Struct outputs = 8 [
+  mesg.protobuf.Struct outputs = 8 [
     (gogoproto.moretags) = 'hash:"-"'
   ];
 
