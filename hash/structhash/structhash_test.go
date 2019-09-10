@@ -53,6 +53,12 @@ func TestDump(t *testing.T) {
 		{struct{}{}, "{}"},
 		{
 			struct {
+				a int
+			}{1},
+			"{}",
+		},
+		{
+			struct {
 				a chan int `hash:"name:a"`
 			}{},
 			"{}",
@@ -82,6 +88,46 @@ func TestDump(t *testing.T) {
 				},
 			},
 			"{a:{b:(\"c\":1)}}",
+		},
+		{
+			struct{ a interface{} }{
+				a: struct{ b int }{
+					b: 1,
+				},
+			},
+			"{}",
+		},
+		{
+			struct {
+				a interface{} `hash:"name:a"`
+			}{
+				a: struct{ b int }{
+					b: 1,
+				},
+			},
+			"{a:{}}",
+		},
+		{
+			struct {
+				a interface{} `hash:"-"`
+			}{
+				a: struct{ b int }{
+					b: 1,
+				},
+			},
+			"{}",
+		},
+		{
+			struct {
+				a interface{}
+			}{
+				struct {
+					b interface{} `hash:"name:b"`
+				}{
+					b: 1,
+				},
+			},
+			"{a:{b:1}}",
 		},
 		// NOTE: structhash will allow to process all interface types.
 		// gogo/protobuf is not able to set tags for directly oneof interface.

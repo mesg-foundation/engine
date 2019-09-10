@@ -102,7 +102,9 @@ func write(buf *bytes.Buffer, v reflect.Value) *bytes.Buffer {
 			// NOTE: structhash will allow to process all interface types.
 			// gogo/protobuf is not able to set tags for directly oneof interface.
 			// see: https://github.com/gogo/protobuf/issues/623
-			if to.name == "" && reflect.Zero(sf.Type).Kind() == reflect.Interface {
+			isInterface := reflect.Zero(sf.Type).Kind() == reflect.Interface
+			isNameEmpty := to.name == ""
+			if isNameEmpty && isInterface {
 				to.skip = false
 				to.name = sf.Name
 			}
@@ -114,7 +116,7 @@ func write(buf *bytes.Buffer, v reflect.Value) *bytes.Buffer {
 			str := valueToString(v.Field(i))
 			// if field string == "" then it is chan,func or invalid type
 			// and skip it
-			if str == "" {
+			if str == "" || isNameEmpty && isInterface && str == "{}" {
 				continue
 			}
 			items = append(items, to.name+":"+str)
