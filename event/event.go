@@ -1,8 +1,8 @@
 package event
 
 import (
-	"github.com/gogo/protobuf/types"
 	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/protobuf/types"
 )
 
 // Create creates an event eventKey with eventData for service s.

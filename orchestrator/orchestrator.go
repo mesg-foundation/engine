@@ -3,12 +3,12 @@ package orchestrator
 import (
 	"fmt"
 
-	"github.com/gogo/protobuf/types"
 	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
 	"github.com/mesg-foundation/engine/protobuf/convert"
+	"github.com/mesg-foundation/engine/protobuf/types"
 	eventsdk "github.com/mesg-foundation/engine/sdk/event"
 	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
 	processesdk "github.com/mesg-foundation/engine/sdk/process"

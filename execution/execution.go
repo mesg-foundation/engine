@@ -1,8 +1,8 @@
 package execution
 
 import (
-	"github.com/gogo/protobuf/types"
 	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/protobuf/types"
 )
 
 // New returns a new execution. It returns an error if inputs are invalid.

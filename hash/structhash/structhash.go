@@ -91,15 +91,22 @@ func write(buf *bytes.Buffer, v reflect.Value) *bytes.Buffer {
 			buf.WriteString("nil")
 			return buf
 		}
-		if v.CanInterface() {
-			write(buf, v.Elem())
-		}
+		write(buf, v.Elem())
 	case reflect.Struct:
 		vt := v.Type()
 		items := make([]string, 0)
 		for i := 0; i < v.NumField(); i++ {
 			sf := vt.Field(i)
 			to := parseTag(sf)
+
+			// NOTE: structhash will allow to process all interface types.
+			// gogo/protobuf is not able to set tags for directly oneof interface.
+			// see: https://github.com/gogo/protobuf/issues/623
+			if to.name == "" && reflect.Zero(sf.Type).Kind() == reflect.Interface {
+				to.skip = false
+				to.name = sf.Name
+			}
+
 			if to.skip || to.omitempty && isEmptyValue(v.Field(i)) {
 				continue
 			}
@@ -186,8 +193,14 @@ type tagOptions struct {
 // comma-separated options.
 func parseTag(f reflect.StructField) tagOptions {
 	tag := f.Tag.Get("hash")
-	if tag == "" || tag == "-" {
+	if tag == "" {
+		// NOTE: skip - interface with no tags can still be serialzied
 		return tagOptions{skip: true}
+	}
+
+	if tag == "-" {
+		// force skip - set name for "-"
+		return tagOptions{name: "-", skip: true}
 	}
 
 	var to tagOptions
