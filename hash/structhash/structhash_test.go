@@ -22,6 +22,7 @@ func TestMd5(t *testing.T) {
 
 //nolint:megacheck
 func TestDump(t *testing.T) {
+	int1 := int(1)
 	tests := []struct {
 		v interface{}
 		s string
@@ -166,6 +167,20 @@ func TestDump(t *testing.T) {
 				},
 			},
 			"{a:{b:1,c:2}}",
+		},
+		{
+			struct {
+				a interface{}
+			}{
+				&struct {
+					b *int
+					c interface{}
+				}{
+					b: &int1,
+					c: &int1,
+				},
+			},
+			"{a:{}}",
 		},
 	}
 
