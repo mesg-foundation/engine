@@ -3,12 +3,11 @@ package orchestrator
 import (
 	"fmt"
 
-	"github.com/gogo/protobuf/types"
 	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
-	"github.com/mesg-foundation/engine/protobuf/convert"
+	"github.com/mesg-foundation/engine/protobuf/types"
 	eventsdk "github.com/mesg-foundation/engine/sdk/event"
 	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
 	processesdk "github.com/mesg-foundation/engine/sdk/process"
@@ -50,21 +49,10 @@ func (s *Orchestrator) Start() error {
 	for {
 		select {
 		case event := <-s.eventStream.C:
-			data := make(map[string]interface{})
-			if err := convert.Marshal(event.Data, &data); err != nil {
-				s.ErrC <- err
-				continue
-			}
-
-			go s.execute(s.eventFilter(event), nil, event, data)
+			go s.execute(s.eventFilter(event), nil, event, event.Data)
 		case execution := <-s.executionStream.C:
-			outputs := make(map[string]interface{})
-			if err := convert.Marshal(execution.Outputs, &outputs); err != nil {
-				s.ErrC <- err
-				continue
-			}
-			go s.execute(s.resultFilter(execution), execution, nil, outputs)
-			go s.execute(s.dependencyFilter(execution), execution, nil, outputs)
+			go s.execute(s.resultFilter(execution), execution, nil, execution.Outputs)
+			go s.execute(s.dependencyFilter(execution), execution, nil, execution.Outputs)
 		}
 	}
 }
@@ -113,7 +101,7 @@ func (s *Orchestrator) findNodes(wf *process.Process, filter func(wf *process.Pr
 	})
 }
 
-func (s *Orchestrator) execute(filter func(wf *process.Process, node *process.Process_Node) (bool, error), exec *execution.Execution, event *event.Event, data map[string]interface{}) {
+func (s *Orchestrator) execute(filter func(wf *process.Process, node *process.Process_Node) (bool, error), exec *execution.Execution, event *event.Event, data *types.Struct) {
 	processes, err := s.process.List()
 	if err != nil {
 		s.ErrC <- err
@@ -128,7 +116,7 @@ func (s *Orchestrator) execute(filter func(wf *process.Process, node *process.Pr
 	}
 }
 
-func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node, exec *execution.Execution, event *event.Event, data map[string]interface{}) error {
+func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node, exec *execution.Execution, event *event.Event, data *types.Struct) error {
 	logrus.WithField("module", "orchestrator").
 		WithField("nodeID", n.ID()).
 		WithField("type", fmt.Sprintf("%T", n)).Debug("process process")
@@ -163,8 +151,8 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 	return nil
 }
 
-func (s *Orchestrator) processMap(mapping *process.Process_Node_Map, wf *process.Process, exec *execution.Execution, data map[string]interface{}) (map[string]interface{}, error) {
-	result := make(map[string]interface{})
+func (s *Orchestrator) processMap(mapping *process.Process_Node_Map, wf *process.Process, exec *execution.Execution, data *types.Struct) (*types.Struct, error) {
+	result := &types.Struct{}
 	for _, output := range mapping.Outputs {
 		ref := output.GetRef()
 		if ref == nil {
@@ -181,15 +169,15 @@ func (s *Orchestrator) processMap(mapping *process.Process_Node_Map, wf *process
 			if err != nil {
 				return nil, err
 			}
-			result[output.Key] = value
+			result.Fields[output.Key] = value
 		} else {
-			result[output.Key] = data[ref.Key]
+			result.Fields[output.Key] = data.Fields[ref.Key]
 		}
 	}
 	return result, nil
 }
 
-func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution, nodeKey string, outputKey string) (interface{}, error) {
+func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution, nodeKey string, outputKey string) (*types.Value, error) {
 	if !wfHash.Equal(exec.ProcessHash) {
 		return nil, fmt.Errorf("reference's nodeKey not found")
 	}
@@ -201,16 +189,12 @@ func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution,
 		return s.resolveInput(wfHash, parent, nodeKey, outputKey)
 	}
 
-	outputs := make(map[string]interface{})
-	if err := convert.Marshal(exec.Outputs, &outputs); err != nil {
-		return nil, err
-	}
-
-	return outputs[outputKey], nil
+	return exec.Outputs.Fields[outputKey], nil
 }
 
-func (s *Orchestrator) processTask(task *process.Process_Node_Task, wf *process.Process, exec *execution.Execution, event *event.Event, data map[string]interface{}) error {
+func (s *Orchestrator) processTask(task *process.Process_Node_Task, wf *process.Process, exec *execution.Execution, event *event.Event, data *types.Struct) error {
 	var eventHash, execHash hash.Hash
+
 	if event != nil {
 		eventHash = event.Hash
 	}
@@ -218,11 +202,6 @@ func (s *Orchestrator) processTask(task *process.Process_Node_Task, wf *process.
 		execHash = exec.Hash
 	}
 
-	execData := &types.Struct{}
-	if err := convert.Unmarshal(data, execData); err != nil {
-		return err
-	}
-
-	_, err := s.execution.Execute(wf.Hash, task.InstanceHash, eventHash, execHash, task.Key, task.TaskKey, execData, nil)
+	_, err := s.execution.Execute(wf.Hash, task.InstanceHash, eventHash, execHash, task.Key, task.TaskKey, data, nil)
 	return err
 }

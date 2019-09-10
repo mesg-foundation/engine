@@ -1,7 +1,7 @@
 syntax = "proto3";
 
-import "google/protobuf/struct.proto";
 import "gogo/protobuf/gogoproto/gogo.proto";
+import "protobuf/types/struct.proto";
 import "protobuf/types/event.proto";
 
 package api;
@@ -56,7 +56,7 @@ message CreateEventRequest {
   string key = 2;
 
   // data is the data for the event.
-  google.protobuf.Struct data = 3;
+  mesg.protobuf.Struct data = 3;
 }
 
 // CreateEventResponse defines response for execution update.
