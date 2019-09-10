@@ -2,35 +2,29 @@ package ethwallet
 
 import (
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/mesg-foundation/engine/systemservices/ethwallet/client"
+	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/systemservices/ethwallet/x/xgo-ethereum/xaccounts"
 )
 
-type deleteInputs struct {
-	Address    common.Address `json:"address"`
-	Passphrase string         `json:"passphrase"`
-}
-
-type deleteOutputSuccess struct {
-	Address common.Address `json:"address"`
-}
-
-func (s *Ethwallet) delete(input map[string]interface{}) (map[string]interface{}, error) {
-	var inputs deleteInputs
-	if err := client.Unmarshal(input, &inputs); err != nil {
-		return nil, err
-	}
-
-	account, err := xaccounts.GetAccount(s.keystore, inputs.Address)
+func (s *Ethwallet) delete(inputs *types.Struct) (*types.Struct, error) {
+	address := common.HexToAddress(inputs.Fields["address"].GetStringValue())
+	account, err := xaccounts.GetAccount(s.keystore, address)
 	if err != nil {
 		return nil, errAccountNotFound
 	}
 
-	if err := s.keystore.Delete(account, inputs.Passphrase); err != nil {
+	err = s.keystore.Delete(account, inputs.Fields["passphrase"].GetStringValue())
+	if err != nil {
 		return nil, err
 	}
 
-	return client.Marshal(deleteOutputSuccess{
-		Address: account.Address,
-	})
+	return &types.Struct{
+		Fields: map[string]*types.Value{
+			"address": {
+				Kind: &types.Value_StringValue{
+					StringValue: account.Address.String(),
+				},
+			},
+		},
+	}, nil
 }

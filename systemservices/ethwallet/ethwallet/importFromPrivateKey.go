@@ -3,37 +3,28 @@ package ethwallet
 import (
 	"errors"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/mesg-foundation/engine/systemservices/ethwallet/client"
+	"github.com/mesg-foundation/engine/protobuf/types"
 )
 
-type importFromPrivateKeyInputs struct {
-	PrivateKey string `json:"privateKey"`
-	Passphrase string `json:"passphrase"`
-}
-
-type importFromPrivateKeyOutputSuccess struct {
-	Address common.Address `json:"address"`
-}
-
-func (s *Ethwallet) importFromPrivateKey(input map[string]interface{}) (map[string]interface{}, error) {
-	var inputs importFromPrivateKeyInputs
-	if err := client.Unmarshal(input, &inputs); err != nil {
-		return nil, err
-	}
-
-	privateKey, err := crypto.HexToECDSA(inputs.PrivateKey)
+func (s *Ethwallet) importFromPrivateKey(inputs *types.Struct) (*types.Struct, error) {
+	privateKey, err := crypto.HexToECDSA(inputs.Fields["privateKey"].GetStringValue())
 	if err != nil {
 		return nil, errors.New("cannot parse private key")
 	}
 
-	account, err := s.keystore.ImportECDSA(privateKey, inputs.Passphrase)
+	account, err := s.keystore.ImportECDSA(privateKey, inputs.Fields["passphrase"].GetStringValue())
 	if err != nil {
 		return nil, err
 	}
 
-	return client.Marshal(importOutputSuccess{
-		Address: account.Address,
-	})
+	return &types.Struct{
+		Fields: map[string]*types.Value{
+			"address": {
+				Kind: &types.Value_StringValue{
+					StringValue: account.Address.String(),
+				},
+			},
+		},
+	}, nil
 }

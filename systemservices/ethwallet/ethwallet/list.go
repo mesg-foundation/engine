@@ -1,21 +1,28 @@
 package ethwallet
 
 import (
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/mesg-foundation/engine/systemservices/ethwallet/client"
+	"github.com/mesg-foundation/engine/protobuf/types"
 )
 
-type listOutputSuccess struct {
-	Addresses []common.Address `json:"addresses"`
-}
-
-func (s *Ethwallet) list(input map[string]interface{}) (map[string]interface{}, error) {
-	addresses := make([]common.Address, 0)
+func (s *Ethwallet) list(inputs *types.Struct) (*types.Struct, error) {
+	var addresses []*types.Value
 	for _, account := range s.keystore.Accounts() {
-		addresses = append(addresses, account.Address)
+		addresses = append(addresses, &types.Value{
+			Kind: &types.Value_StringValue{
+				StringValue: account.Address.String(),
+			},
+		})
 	}
 
-	return client.Marshal(listOutputSuccess{
-		Addresses: addresses,
-	})
+	return &types.Struct{
+		Fields: map[string]*types.Value{
+			"addresses": {
+				Kind: &types.Value_ListValue{
+					ListValue: &types.ListValue{
+						Values: addresses,
+					},
+				},
+			},
+		},
+	}, nil
 }

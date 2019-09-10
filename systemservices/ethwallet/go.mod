@@ -8,6 +8,7 @@ require (
 	github.com/anmitsu/go-shlex v0.0.0-20161002113705-648efa622239 // indirect
 	github.com/aristanetworks/goarista v0.0.0-20190628180533-8e7d5b18fe7a // indirect
 	github.com/cespare/cp v1.1.1 // indirect
+	github.com/cnf/structhash v0.0.0-20180104161610-62a607eb0224 // indirect
 	github.com/deckarep/golang-set v1.7.1 // indirect
 	github.com/emirpasic/gods v1.12.0 // indirect
 	github.com/ethereum/go-ethereum v1.8.27
@@ -16,7 +17,7 @@ require (
 	github.com/golang/protobuf v1.3.2
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/kevinburke/ssh_config v0.0.0-20180830205328-81db2a75821e // indirect
-	github.com/mesg-foundation/engine v0.5.1-0.20190830132122-7f4f7dd94c4f
+	github.com/mesg-foundation/engine v0.14.1-0.20190910092453-616f6a747f6a
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/pborman/uuid v1.2.0 // indirect
 	github.com/pelletier/go-buffruneio v0.2.0 // indirect

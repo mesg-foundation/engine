@@ -2,13 +2,14 @@ package ethwallet
 
 import (
 	"bytes"
+	"encoding/hex"
 	"fmt"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/mesg-foundation/engine/systemservices/ethwallet/client"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/systemservices/ethwallet/x/xgo-ethereum/xaccounts"
 )
 
@@ -32,39 +33,61 @@ type signOutputSuccess struct {
 	SignedTransaction string `json:"signedTransaction"`
 }
 
-func (s *Ethwallet) sign(input map[string]interface{}) (map[string]interface{}, error) {
-	var inputs signInputs
-	if err := client.Unmarshal(input, &inputs); err != nil {
-		return nil, err
-	}
+func (s *Ethwallet) sign(inputs *types.Struct) (*types.Struct, error) {
+	address := common.HexToAddress(inputs.Fields["address"].GetStringValue())
+	passphrase := inputs.Fields["passphrase"].GetStringValue()
+	tx := inputs.Fields["transaction"].GetStructValue()
 
-	account, err := xaccounts.GetAccount(s.keystore, inputs.Address)
+	account, err := xaccounts.GetAccount(s.keystore, address)
 	if err != nil {
 		return nil, errAccountNotFound
 	}
 
 	value := new(big.Int)
-	if _, ok := value.SetString(inputs.Transaction.Value, 0); !ok {
+	if _, ok := value.SetString(tx.Fields["value"].GetStringValue(), 0); !ok {
 		return nil, errCannotParseValue
 	}
 
 	gasPrice := new(big.Int)
-	if _, ok := gasPrice.SetString(inputs.Transaction.GasPrice, 0); !ok {
+	if _, ok := gasPrice.SetString(tx.Fields["gasPrice"].GetStringValue(), 0); !ok {
 		return nil, errCannotParseGasPrice
 	}
 
-	transaction := types.NewTransaction(inputs.Transaction.Nonce, inputs.Transaction.To, value, inputs.Transaction.Gas, gasPrice, inputs.Transaction.Data)
-
-	signedTransaction, err := s.keystore.SignTxWithPassphrase(account, inputs.Passphrase, transaction, big.NewInt(inputs.Transaction.ChainID))
+	data, err := hex.DecodeString(tx.Fields["data"].GetStringValue())
 	if err != nil {
 		return nil, err
 	}
 
-	var buff bytes.Buffer
-	signedTransaction.EncodeRLP(&buff)
-	rawTx := fmt.Sprintf("0x%x", buff.Bytes())
+	transaction := ethtypes.NewTransaction(
+		uint64(tx.Fields["nonce"].GetNumberValue()),
+		common.HexToAddress(tx.Fields["to"].GetStringValue()),
+		value,
+		uint64(tx.Fields["gas"].GetNumberValue()),
+		gasPrice,
+		data,
+	)
 
-	return client.Marshal(signOutputSuccess{
-		SignedTransaction: rawTx,
-	})
+	signedTransaction, err := s.keystore.SignTxWithPassphrase(
+		account,
+		passphrase,
+		transaction,
+		big.NewInt(int64(tx.Fields["chainID"].GetNumberValue())),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	var buf bytes.Buffer
+	signedTransaction.EncodeRLP(&buf)
+	rawTx := fmt.Sprintf("0x%x", buf.Bytes())
+
+	return &types.Struct{
+		Fields: map[string]*types.Value{
+			"signedTransaction": {
+				Kind: &types.Value_StringValue{
+					StringValue: rawTx,
+				},
+			},
+		},
+	}, nil
 }
