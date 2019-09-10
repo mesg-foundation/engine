@@ -6,7 +6,7 @@ run_on_machine: &run_on_machine
 
 run_on_docker: &run_on_docker
   docker:
-    - image: circleci/golang:1.11.4
+    - image: circleci/golang:1.13.0
 
 restore_go_mod_cache: &restore_go_mod_cache
   - restore_cache:
