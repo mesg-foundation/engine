@@ -182,6 +182,26 @@ func TestDump(t *testing.T) {
 			},
 			"{a:{}}",
 		},
+		{
+			struct {
+				a interface{}
+			}{
+				&struct {
+					b *int
+					c interface{}
+				}{
+					b: nil,
+					c: nil,
+				},
+			},
+			"{a:{}}",
+		},
+		{
+			struct {
+				a interface{}
+			}{nil},
+			"{}",
+		},
 	}
 
 	for _, tt := range tests {
