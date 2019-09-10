@@ -139,6 +139,34 @@ func TestDump(t *testing.T) {
 			}{b: false}},
 			"{a:{b:false}}",
 		},
+		{
+			struct {
+				a interface{}
+			}{
+				struct {
+					b int
+					c interface{}
+				}{
+					b: 1,
+					c: 2,
+				},
+			},
+			"{a:{}}",
+		},
+		{
+			struct {
+				a interface{}
+			}{
+				&struct {
+					b int         `hash:"name:b"`
+					c interface{} `hash:"name:c"`
+				}{
+					b: 1,
+					c: 2,
+				},
+			},
+			"{a:{b:1,c:2}}",
+		},
 	}
 
 	for _, tt := range tests {
