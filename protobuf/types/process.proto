@@ -1,7 +1,7 @@
 syntax = "proto3";
 
-import "google/protobuf/struct.proto";
 import "gogo/protobuf/gogoproto/gogo.proto";
+import "protobuf/types/struct.proto";
 
 package types;
 option go_package = "github.com/mesg-foundation/engine/process";
@@ -94,7 +94,7 @@ message Process {
           Reference ref = 2 [
             (gogoproto.moretags) = 'hash:"name:2" validate:"required_without=Constant"'
           ];
-          google.protobuf.Value constant = 3 [
+          mesg.protobuf.Value constant = 3 [
             (gogoproto.moretags) = 'hash:"name:3" validate:"required_without=Ref"'
           ];
         }
