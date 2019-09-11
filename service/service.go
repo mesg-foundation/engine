@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/gogo/protobuf/types"
-	"github.com/mesg-foundation/engine/protobuf/convert"
 )
 
 // MainServiceKey is key for main service.
@@ -17,7 +16,7 @@ func (s *Service) GetDependency(dependencyKey string) (*Service_Dependency, erro
 			return dep, nil
 		}
 	}
-	return nil, fmt.Errorf("dependency %s do not exist", dependencyKey)
+	return nil, fmt.Errorf("service %q - dependency %s does not exist", s.Name, dependencyKey)
 }
 
 // GetTask returns task taskKey of service.
@@ -27,10 +26,7 @@ func (s *Service) GetTask(taskKey string) (*Service_Task, error) {
 			return task, nil
 		}
 	}
-	return nil, &TaskNotFoundError{
-		TaskKey:     taskKey,
-		ServiceName: s.Name,
-	}
+	return nil, fmt.Errorf("service %q - task %q not found", s.Name, taskKey)
 }
 
 // GetEvent returns event eventKey of service.
@@ -40,103 +36,41 @@ func (s *Service) GetEvent(eventKey string) (*Service_Event, error) {
 			return event, nil
 		}
 	}
-	return nil, &EventNotFoundError{
-		EventKey:    eventKey,
-		ServiceName: s.Name,
-	}
-}
-
-// ValidateTaskInputs produces warnings for task inputs that doesn't satisfy their parameter schemas.
-func (s *Service) ValidateTaskInputs(taskKey string, taskInputs map[string]interface{}) ([]*ParameterWarning, error) {
-	t, err := s.GetTask(taskKey)
-	if err != nil {
-		return nil, err
-	}
-	return validateParametersSchema(t.Inputs, taskInputs), nil
-}
-
-// ValidateTaskOutputs produces warnings for task outputs that doesn't satisfy their parameter schemas.
-func (s *Service) ValidateTaskOutputs(taskKey string, taskOutputs map[string]interface{}) ([]*ParameterWarning, error) {
-	t, err := s.GetTask(taskKey)
-	if err != nil {
-		return nil, err
-	}
-	return validateParametersSchema(t.Outputs, taskOutputs), nil
-}
-
-// ValidateEventData produces warnings for event datas that doesn't satisfy their parameter schemas.
-func (s *Service) ValidateEventData(eventKey string, eventData map[string]interface{}) ([]*ParameterWarning, error) {
-	e, err := s.GetEvent(eventKey)
-	if err != nil {
-		return nil, err
-	}
-	return validateParametersSchema(e.Data, eventData), nil
+	return nil, fmt.Errorf("service %q - event %q not found", s.Name, eventKey)
 }
 
 // RequireTaskInputs requires task inputs to match with parameter schemas.
-func (s *Service) RequireTaskInputs(taskKey string, taskInputs *types.Struct) error {
-	in := make(map[string]interface{})
-	if taskInputs != nil {
-		if err := convert.Marshal(taskInputs, &in); err != nil {
-			return err
-		}
-	}
-	warnings, err := s.ValidateTaskInputs(taskKey, in)
+func (s *Service) RequireTaskInputs(taskKey string, inputs *types.Struct) error {
+	t, err := s.GetTask(taskKey)
 	if err != nil {
 		return err
 	}
-	if len(warnings) > 0 {
-		return &InvalidTaskInputError{
-			TaskKey:     taskKey,
-			ServiceName: s.Name,
-			Warnings:    warnings,
-		}
+	if err := validateServiceParameters(t.Inputs, inputs); err != nil {
+		return fmt.Errorf("service %q - inputs of task %q are invalid: %s", s.Name, taskKey, err)
 	}
 	return nil
 }
 
 // RequireTaskOutputs requires task outputs to match with parameter schemas.
-func (s *Service) RequireTaskOutputs(taskKey string, taskOutputs *types.Struct) error {
-	out := make(map[string]interface{})
-	if taskOutputs != nil {
-		if err := convert.Marshal(taskOutputs, &out); err != nil {
-			return err
-		}
-	}
-
-	warnings, err := s.ValidateTaskOutputs(taskKey, out)
+func (s *Service) RequireTaskOutputs(taskKey string, outputs *types.Struct) error {
+	t, err := s.GetTask(taskKey)
 	if err != nil {
 		return err
 	}
-	if len(warnings) > 0 {
-		return &InvalidTaskOutputError{
-			TaskKey:     taskKey,
-			ServiceName: s.Name,
-			Warnings:    warnings,
-		}
+	if err := validateServiceParameters(t.Outputs, outputs); err != nil {
+		return fmt.Errorf("service %q - outputs of task %q are invalid: %s", s.Name, taskKey, err)
 	}
 	return nil
 }
 
 // RequireEventData requires event datas to be matched with parameter schemas.
-func (s *Service) RequireEventData(eventKey string, eventData *types.Struct) error {
-	data := make(map[string]interface{})
-	if eventData != nil {
-		if err := convert.Marshal(eventData, &data); err != nil {
-			return err
-		}
-	}
-
-	warnings, err := s.ValidateEventData(eventKey, data)
+func (s *Service) RequireEventData(eventKey string, data *types.Struct) error {
+	e, err := s.GetEvent(eventKey)
 	if err != nil {
 		return err
 	}
-	if len(warnings) > 0 {
-		return &InvalidEventDataError{
-			EventKey:    eventKey,
-			ServiceName: s.Name,
-			Warnings:    warnings,
-		}
+	if err := validateServiceParameters(e.Data, data); err != nil {
+		return fmt.Errorf("service %q - data of event %q are invalid: %s", s.Name, eventKey, err)
 	}
 	return nil
 }
