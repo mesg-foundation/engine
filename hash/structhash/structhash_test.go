@@ -71,6 +71,37 @@ func TestDump(t *testing.T) {
 		},
 		{
 			struct {
+				a interface{} `hash:"name:a"`
+			}{
+				struct {
+					b map[string]int `hash:"name:b"`
+				}{
+					map[string]int{
+						"c": 1,
+					},
+				},
+			},
+			"{a:{b:(\"c\":1)}}",
+		},
+		// NOTE: structhash will allow to process all interface types.
+		// gogo/protobuf is not able to set tags for directly oneof interface.
+		// see: https://github.com/gogo/protobuf/issues/623
+		{
+			struct {
+				a interface{}
+			}{
+				struct {
+					b map[string]int `hash:"name:b"`
+				}{
+					map[string]int{
+						"c": 1,
+					},
+				},
+			},
+			"{a:{b:(\"c\":1)}}",
+		},
+		{
+			struct {
 				A interface{} `hash:"name:A"`
 			}{0},
 			"{A:0}",
@@ -112,7 +143,7 @@ func TestDump(t *testing.T) {
 
 	for _, tt := range tests {
 		s := Dump(tt.v)
-		assert.Equalf(t, []byte(tt.s), s, "type %s: %v", reflect.TypeOf(tt.v), tt.v)
+		assert.Equalf(t, tt.s, string(s), "type %s: %v", reflect.TypeOf(tt.v), tt.v)
 	}
 }
 
@@ -185,7 +216,7 @@ func TestTag(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		assert.Equalf(t, []byte(tt.s), serialize(tt.v), "type %s: %v", reflect.TypeOf(tt.v), tt.v)
+		assert.Equalf(t, tt.s, string(serialize(tt.v)), "type %s: %v", reflect.TypeOf(tt.v), tt.v)
 	}
 }
 

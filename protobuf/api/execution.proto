@@ -1,7 +1,7 @@
 syntax = "proto3";
 
-import "google/protobuf/struct.proto";
 import "gogo/protobuf/gogoproto/gogo.proto";
+import "protobuf/types/struct.proto";
 import "protobuf/types/execution.proto";
 
 package api;
@@ -34,7 +34,7 @@ message CreateExecutionRequest {
     (gogoproto.nullable) = false
   ];
   string taskKey = 2;
-  google.protobuf.Struct inputs = 3;
+  mesg.protobuf.Struct inputs = 3;
   repeated string tags = 4;
 }
 
@@ -91,7 +91,7 @@ message UpdateExecutionRequest {
   // result pass to execution
   oneof result {
     // outputs is a success result.
-    google.protobuf.Struct outputs = 2;
+    mesg.protobuf.Struct outputs = 2;
 
     // error is an error result.
     string error = 3;

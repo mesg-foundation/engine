@@ -4,10 +4,10 @@ import (
 	"fmt"
 
 	"github.com/cskr/pubsub"
-	"github.com/gogo/protobuf/types"
 	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/protobuf/types"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	processesdk "github.com/mesg-foundation/engine/sdk/process"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
