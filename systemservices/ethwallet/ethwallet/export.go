@@ -9,13 +9,13 @@ import (
 )
 
 func (s *Ethwallet) export(inputs *types.Struct) (*types.Struct, error) {
-	address := common.HexToAddress(inputs.Fields["address"].GetStringValue())
+	address := common.HexToAddress(inputs.GetStringValue("address"))
 	account, err := xaccounts.GetAccount(s.keystore, address)
 	if err != nil {
 		return nil, errAccountNotFound
 	}
 
-	passphrase := inputs.Fields["passphrase"].GetStringValue()
+	passphrase := inputs.GetStringValue("passphrase")
 	keyJSON, err := s.keystore.Export(account, passphrase, passphrase)
 	if err != nil {
 		return nil, err
@@ -26,73 +26,23 @@ func (s *Ethwallet) export(inputs *types.Struct) (*types.Struct, error) {
 		return nil, err
 	}
 
-	// type CryptoJSON struct {
-	// 	Cipher       string                 `json:"cipher"`
-	// 	CipherText   string                 `json:"ciphertext"`
-	// 	CipherParams cipherparamsJSON       `json:"cipherparams"`
-	// 	KDF          string                 `json:"kdf"`
-	// 	KDFParams    map[string]interface{} `json:"kdfparams"`
-	// 	MAC          string                 `json:"mac"`
-	// }
-
-	return &types.Struct{
-		Fields: map[string]*types.Value{
-			"address": {
-				Kind: &types.Value_StringValue{
-					StringValue: accountJSON.Address,
-				},
-			},
-			"crypto": {
-				Kind: &types.Value_StructValue{
-					StructValue: &types.Struct{
-						Fields: map[string]*types.Value{
-							"cipher": {
-								Kind: &types.Value_StringValue{
-									StringValue: accountJSON.Crypto.Cipher,
-								},
-							},
-							"ciphertext": {
-								Kind: &types.Value_StringValue{
-									StringValue: accountJSON.Crypto.CipherText,
-								},
-							},
-							"cipherparams": {
-								Kind: &types.Value_StructValue{
-									StructValue: &types.Struct{
-										Fields: map[string]*types.Value{
-											"iv": {
-												Kind: &types.Value_StringValue{
-													StringValue: accountJSON.Crypto.CipherParams.IV,
-												},
-											},
-										},
-									},
-								},
-							},
-							"kdf": {
-								Kind: &types.Value_StringValue{
-									StringValue: accountJSON.Crypto.KDF,
-								},
-							},
-							"mac": {
-								Kind: &types.Value_StringValue{
-									StringValue: accountJSON.Crypto.MAC,
-								},
-							},
-						},
+	return types.NewStruct(map[string]*types.Value{
+		"address": types.NewValueFrom(accountJSON.Address),
+		"version": types.NewValueFrom(accountJSON.Version),
+		"id":      types.NewValueFrom(accountJSON.ID),
+		"crypto": types.NewValueFrom(types.NewStruct(
+			map[string]*types.Value{
+				"cipher":     types.NewValueFrom(accountJSON.Crypto.Cipher),
+				"ciphertext": types.NewValueFrom(accountJSON.Crypto.CipherText),
+				"cipherparams": types.NewValueFrom(types.NewStruct(
+					map[string]*types.Value{
+						"iv": types.NewValueFrom(accountJSON.Crypto.CipherParams.IV),
 					},
-				},
+				)),
+				"kdfparams": types.NewValueFrom(accountJSON.Crypto.KDFParams),
+				"kdf":       types.NewValueFrom(accountJSON.Crypto.KDF),
+				"mac":       types.NewValueFrom(accountJSON.Crypto.MAC),
 			},
-			"id": {
-				Kind: &types.Value_StringValue{
-					StringValue: accountJSON.ID,
-				},
-			},
-			"version": {
-				Kind: &types.Value_NumberValue{
-					NumberValue: float64(accountJSON.Version),
-				},
-			},
-		},
-	}, nil
+		)),
+	}), nil
 }

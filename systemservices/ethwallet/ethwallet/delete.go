@@ -7,24 +7,18 @@ import (
 )
 
 func (s *Ethwallet) delete(inputs *types.Struct) (*types.Struct, error) {
-	address := common.HexToAddress(inputs.Fields["address"].GetStringValue())
+	address := common.HexToAddress(inputs.GetStringValue("address"))
 	account, err := xaccounts.GetAccount(s.keystore, address)
 	if err != nil {
 		return nil, errAccountNotFound
 	}
 
-	err = s.keystore.Delete(account, inputs.Fields["passphrase"].GetStringValue())
+	err = s.keystore.Delete(account, inputs.GetStringValue("passphrase"))
 	if err != nil {
 		return nil, err
 	}
 
-	return &types.Struct{
-		Fields: map[string]*types.Value{
-			"address": {
-				Kind: &types.Value_StringValue{
-					StringValue: account.Address.String(),
-				},
-			},
-		},
-	}, nil
+	return types.NewStruct(map[string]*types.Value{
+		"address": types.NewValueFrom(account.Address.String()),
+	}), nil
 }

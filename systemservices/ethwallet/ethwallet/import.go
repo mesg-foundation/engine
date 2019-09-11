@@ -8,25 +8,19 @@ import (
 )
 
 func (s *Ethwallet) importA(inputs *types.Struct) (*types.Struct, error) {
-	account := common.HexToAddress(inputs.Fields["account"].GetStringValue())
+	account := common.HexToAddress(inputs.GetStringValue("account"))
 	accountJSON, err := json.Marshal(account)
 	if err != nil {
 		return nil, err
 	}
 
-	passphrase := inputs.Fields["passphrase"].GetStringValue()
+	passphrase := inputs.GetStringValue("passphrase")
 	importedAccount, err := s.keystore.Import(accountJSON, passphrase, passphrase)
 	if err != nil {
 		return nil, err
 	}
 
-	return &types.Struct{
-		Fields: map[string]*types.Value{
-			"address": {
-				Kind: &types.Value_StringValue{
-					StringValue: importedAccount.Address.String(),
-				},
-			},
-		},
-	}, nil
+	return types.NewStruct(map[string]*types.Value{
+		"address": types.NewValueFrom(importedAccount.Address.String()),
+	}), nil
 }

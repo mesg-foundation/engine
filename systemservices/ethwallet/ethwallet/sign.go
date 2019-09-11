@@ -13,12 +13,6 @@ import (
 	"github.com/mesg-foundation/engine/systemservices/ethwallet/x/xgo-ethereum/xaccounts"
 )
 
-type signInputs struct {
-	Address     common.Address `json:"address"`
-	Passphrase  string         `json:"passphrase"`
-	Transaction *transaction   `json:"transaction"`
-}
-
 type transaction struct {
 	ChainID  int64          `json:"chainID"`
 	Nonce    uint64         `json:"nonce"`
@@ -29,14 +23,10 @@ type transaction struct {
 	Data     hexutil.Bytes  `json:"data"`
 }
 
-type signOutputSuccess struct {
-	SignedTransaction string `json:"signedTransaction"`
-}
-
 func (s *Ethwallet) sign(inputs *types.Struct) (*types.Struct, error) {
-	address := common.HexToAddress(inputs.Fields["address"].GetStringValue())
-	passphrase := inputs.Fields["passphrase"].GetStringValue()
-	tx := inputs.Fields["transaction"].GetStructValue()
+	address := common.HexToAddress(inputs.GetStringValue("address"))
+	passphrase := inputs.GetStringValue("passphrase")
+	tx := inputs.GetStructValue("transaction")
 
 	account, err := xaccounts.GetAccount(s.keystore, address)
 	if err != nil {
@@ -44,25 +34,25 @@ func (s *Ethwallet) sign(inputs *types.Struct) (*types.Struct, error) {
 	}
 
 	value := new(big.Int)
-	if _, ok := value.SetString(tx.Fields["value"].GetStringValue(), 0); !ok {
+	if _, ok := value.SetString(tx.GetStringValue("value"), 0); !ok {
 		return nil, errCannotParseValue
 	}
 
 	gasPrice := new(big.Int)
-	if _, ok := gasPrice.SetString(tx.Fields["gasPrice"].GetStringValue(), 0); !ok {
+	if _, ok := gasPrice.SetString(tx.GetStringValue("gasPrice"), 0); !ok {
 		return nil, errCannotParseGasPrice
 	}
 
-	data, err := hex.DecodeString(tx.Fields["data"].GetStringValue())
+	data, err := hex.DecodeString(tx.GetStringValue("data"))
 	if err != nil {
 		return nil, err
 	}
 
 	transaction := ethtypes.NewTransaction(
-		uint64(tx.Fields["nonce"].GetNumberValue()),
-		common.HexToAddress(tx.Fields["to"].GetStringValue()),
+		uint64(tx.GetNumberValue("nonce")),
+		common.HexToAddress(tx.GetStringValue("to")),
 		value,
-		uint64(tx.Fields["gas"].GetNumberValue()),
+		uint64(tx.GetNumberValue("gas")),
 		gasPrice,
 		data,
 	)
@@ -71,7 +61,7 @@ func (s *Ethwallet) sign(inputs *types.Struct) (*types.Struct, error) {
 		account,
 		passphrase,
 		transaction,
-		big.NewInt(int64(tx.Fields["chainID"].GetNumberValue())),
+		big.NewInt(int64(tx.GetNumberValue("chainID"))),
 	)
 	if err != nil {
 		return nil, err
@@ -81,13 +71,7 @@ func (s *Ethwallet) sign(inputs *types.Struct) (*types.Struct, error) {
 	signedTransaction.EncodeRLP(&buf)
 	rawTx := fmt.Sprintf("0x%x", buf.Bytes())
 
-	return &types.Struct{
-		Fields: map[string]*types.Value{
-			"signedTransaction": {
-				Kind: &types.Value_StringValue{
-					StringValue: rawTx,
-				},
-			},
-		},
-	}, nil
+	return types.NewStruct(map[string]*types.Value{
+		"signedTransaction": types.NewValueFrom(rawTx),
+	}), nil
 }

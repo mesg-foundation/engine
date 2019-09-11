@@ -5,18 +5,12 @@ import (
 )
 
 func (s *Ethwallet) create(inputs *types.Struct) (*types.Struct, error) {
-	account, err := s.keystore.NewAccount(inputs.Fields["passphrase"].GetStringValue())
+	account, err := s.keystore.NewAccount(inputs.GetStringValue("passphrase"))
 	if err != nil {
 		return nil, err
 	}
 
-	return &types.Struct{
-		Fields: map[string]*types.Value{
-			"address": {
-				Kind: &types.Value_StringValue{
-					StringValue: account.Address.String(),
-				},
-			},
-		},
-	}, nil
+	return types.NewStruct(map[string]*types.Value{
+		"address": types.NewValueFrom(account.Address.String()),
+	}), nil
 }

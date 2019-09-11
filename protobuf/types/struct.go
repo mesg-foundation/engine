@@ -1,5 +1,7 @@
 package types
 
+import "github.com/davecgh/go-spew/spew"
+
 // NewStruct creates a new struct with given fields.
 func NewStruct(fields map[string]*Value) *Struct {
 	return &Struct{Fields: fields}
@@ -60,6 +62,10 @@ func NewValueFrom(val interface{}) *Value {
 		return &Value{
 			Kind: &Value_NullValue{},
 		}
+	case *Struct:
+		return &Value{
+			Kind: &Value_StructValue{val},
+		}
 	case *Value:
 		return val
 	case []*Value:
@@ -81,6 +87,14 @@ func NewValueFrom(val interface{}) *Value {
 	case *bool:
 		return &Value{
 			Kind: &Value_BoolValue{*val},
+		}
+	case int:
+		return &Value{
+			Kind: &Value_NumberValue{float64(val)},
+		}
+	case uint:
+		return &Value{
+			Kind: &Value_NumberValue{float64(val)},
 		}
 	case int8:
 		return &Value{
@@ -179,5 +193,5 @@ func NewValueFrom(val interface{}) *Value {
 		}
 		return &Value{Kind: &Value_StructValue{s}}
 	}
-	panic("not supported")
+	panic(spew.Sdump(val) + "\nnot supported")
 }
