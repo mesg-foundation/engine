@@ -14,7 +14,7 @@
 #### Fixed
 
 - ([#1318](https://github.com/mesg-foundation/engine/pull/1318)) Fix hash calculation based on proto.Struct.
-- ([#1320](https://github.com/mesg-foundation/engine/pull/1320)) Use proto.Struct in the orchestrator.
+- ([#1320](https://github.com/mesg-foundation/engine/pull/1320)) Use proto.Struct in the orchestrator. ([#1327](https://github.com/mesg-foundation/engine/pull/1327)).
 
 #### Changed
 
