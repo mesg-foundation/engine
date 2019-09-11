@@ -3,7 +3,7 @@ package service
 import (
 	"fmt"
 
-	"github.com/gogo/protobuf/types"
+	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/x/xerrors"
 )
 

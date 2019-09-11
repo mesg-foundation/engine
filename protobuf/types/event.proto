@@ -1,7 +1,7 @@
 syntax = "proto3";
 
-import "google/protobuf/struct.proto";
 import "gogo/protobuf/gogoproto/gogo.proto";
+import "protobuf/types/struct.proto";
 
 package types;
 option go_package = "github.com/mesg-foundation/engine/event";
@@ -30,7 +30,7 @@ message Event {
   ];
 
   // data is the data for the event.
-  google.protobuf.Struct data = 4 [
+  mesg.protobuf.Struct data = 4 [
     (gogoproto.moretags) = 'hash:"name:4"'
   ];
 }
