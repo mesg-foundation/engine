@@ -152,7 +152,9 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 }
 
 func (s *Orchestrator) processMap(mapping *process.Process_Node_Map, wf *process.Process, exec *execution.Execution, data *types.Struct) (*types.Struct, error) {
-	result := &types.Struct{}
+	result := &types.Struct{
+		Fields: make(map[string]*types.Value),
+	}
 	for _, output := range mapping.Outputs {
 		ref := output.GetRef()
 		if ref == nil {

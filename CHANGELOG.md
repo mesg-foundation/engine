@@ -9,6 +9,19 @@
 #### Removed
 #### Experimental
 
+## [v0.14.1](https://github.com/mesg-foundation/engine/releases/tag/v0.14.1)
+
+#### Fixed
+
+- ([#1318](https://github.com/mesg-foundation/engine/pull/1318)) Fix hash calculation based on proto.Struct.
+- ([#1320](https://github.com/mesg-foundation/engine/pull/1320)) Use proto.Struct in the orchestrator. ([#1327](https://github.com/mesg-foundation/engine/pull/1327)).
+
+#### Changed
+
+- ([#1309](https://github.com/mesg-foundation/engine/pull/1309)) Do not convert proto.Struct to map in order to Validate it.
+
+#### Removed
+
 ## [v0.14.0](https://github.com/mesg-foundation/engine/releases/tag/v0.14.0)
 
 #### Breaking Changes
