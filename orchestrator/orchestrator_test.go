@@ -19,17 +19,17 @@ func TestFilter(t *testing.T) {
 	p := process.Process{
 		Hash: hash.Int(1),
 		Nodes: []*process.Process_Node{
-			&process.Process_Node{Type: &process.Process_Node_Event_{Event: &process.Process_Node_Event{
+			{Type: &process.Process_Node_Event_{Event: &process.Process_Node_Event{
 				Key:          "1",
 				InstanceHash: hash.Int(1),
 				EventKey:     "1",
 			}}},
-			&process.Process_Node{Type: &process.Process_Node_Task_{Task: &process.Process_Node_Task{
+			{Type: &process.Process_Node_Task_{Task: &process.Process_Node_Task{
 				InstanceHash: hash.Int(2),
 				Key:          "2",
 				TaskKey:      "2",
 			}}},
-			&process.Process_Node{Type: &process.Process_Node_Task_{Task: &process.Process_Node_Task{
+			{Type: &process.Process_Node_Task_{Task: &process.Process_Node_Task{
 				InstanceHash: hash.Int(3),
 				Key:          "3",
 				TaskKey:      "3",
@@ -148,7 +148,7 @@ func TestFindNode(t *testing.T) {
 	data := &process.Process{
 		Hash: hash.Int(1),
 		Nodes: []*process.Process_Node{
-			&process.Process_Node{
+			{
 				Type: &process.Process_Node_Event_{
 					Event: &process.Process_Node_Event{
 						Key: "1",
@@ -197,7 +197,7 @@ func TestResolveInput(t *testing.T) {
 		ParentHash:  hash.Int(3),
 		Outputs: &types.Struct{
 			Fields: map[string]*types.Value{
-				"xxx": &types.Value{
+				"xxx": {
 					Kind: &types.Value_StringValue{StringValue: "str"},
 				},
 			},
@@ -220,7 +220,7 @@ func TestResolveInput(t *testing.T) {
 		ProcessHash: hash.Int(2),
 		Outputs: &types.Struct{
 			Fields: map[string]*types.Value{
-				"yyy": &types.Value{
+				"yyy": {
 					Kind: &types.Value_StringValue{StringValue: "str2"},
 				},
 			},
