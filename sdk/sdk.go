@@ -1,8 +1,10 @@
 package sdk
 
 import (
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cskr/pubsub"
 	"github.com/mesg-foundation/engine/container"
+	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/database"
 	eventsdk "github.com/mesg-foundation/engine/sdk/event"
 	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
@@ -21,9 +23,9 @@ type SDK struct {
 }
 
 // New creates a new SDK with given options.
-func New(c container.Container, instanceDB database.InstanceDB, execDB database.ExecutionDB, processDB database.ProcessDB, engineName, port string) (*SDK, error) {
+func New(client *cosmos.Client, cdc *codec.Codec, c container.Container, instanceDB database.InstanceDB, execDB database.ExecutionDB, processDB database.ProcessDB, engineName, port string) (*SDK, error) {
 	ps := pubsub.New(0)
-	serviceSDK := servicesdk.NewSDK()
+	serviceSDK := servicesdk.NewSDK(cdc, client)
 	instanceSDK := instancesdk.New(c, serviceSDK, instanceDB, engineName, port)
 	processSDK := processesdk.New(instanceSDK, processDB)
 	executionSDK := executionsdk.New(ps, serviceSDK, instanceSDK, processSDK, execDB)

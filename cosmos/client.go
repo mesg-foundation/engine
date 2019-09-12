@@ -33,23 +33,22 @@ func NewClient(node *node.Node, cdc *codec.Codec, kb keys.Keybase, chainID strin
 	}
 }
 
-// QueryWithData is abci.query wraper with errors check.
-// It retruns slice of bytes, height and an error.
-func (c *Client) QueryWithData(path string, data []byte) ([]byte, int64, error) {
-	result, err := c.ABCIQuery(path, data)
+// Query is abci.query wrapper with errors check and decode data.
+func (c *Client) Query(path string, ptr interface{}) error {
+	result, err := c.ABCIQuery(path, nil)
 	if err != nil {
-		return nil, 0, err
+		return err
 	}
-	resp := result.Response
-	if !resp.IsOK() {
-		return nil, 0, errors.New(resp.Log)
+	if !result.Response.IsOK() {
+		return errors.New(result.Response.Log)
 	}
-	return resp.Value, resp.Height, nil
+	return c.cdc.UnmarshalJSON(result.Response.Value, ptr)
 }
 
 // BuildAndBroadcastMsg builds and signs message and broadcast it to node.
-func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg, accName, accPassword string, accNumber, accSeq uint64) (*tenderminttypes.TxResult, error) {
+func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg, accName, accPassword string, accNumber, accSeq uint64) (*abci.ResponseDeliverTx, error) {
 	txBuilder := NewTxBuilder(c.cdc, accNumber, accSeq, c.kb, c.chainID)
+	// TODO: cannot sign 2 tx at the same time. Maybe keybase cannot be access at the same time. Add a lock?
 	signedTx, err := txBuilder.BuildAndSignStdTx(msg, accName, accPassword)
 	if err != nil {
 		return nil, err
@@ -72,10 +71,13 @@ func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg, accName, accPassword str
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 
-	out, err := c.Subscribe(ctx, "", "tx.hash='"+txres.Hash.String()+"'")
+	subscriber := "engine"
+	query := tenderminttypes.EventQueryTxFor(encodedTx).String()
+	out, err := c.Subscribe(ctx, subscriber, query)
 	if err != nil {
 		return nil, err
 	}
+	defer c.Unsubscribe(ctx, subscriber, query)
 
 	select {
 	case result := <-out:
@@ -83,7 +85,10 @@ func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg, accName, accPassword str
 		if !ok {
 			return nil, errors.New("result data is not the right type")
 		}
-		return &data.TxResult, nil
+		if data.TxResult.Result.IsErr() {
+			return nil, errors.New("an error occurred in transaction")
+		}
+		return &data.TxResult.Result, nil
 	case <-ctx.Done():
 		return nil, errors.New("i/o timeout")
 	}
