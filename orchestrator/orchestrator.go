@@ -157,10 +157,6 @@ func (s *Orchestrator) processMap(mapping *process.Process_Node_Map, wf *process
 	}
 	for _, output := range mapping.Outputs {
 		if ref := output.GetRef(); ref != nil {
-			if ref == nil {
-				continue
-			}
-
 			node, err := wf.FindNode(ref.NodeKey)
 			if err != nil {
 				return nil, err
