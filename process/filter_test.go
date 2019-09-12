@@ -3,49 +3,119 @@ package process
 import (
 	"testing"
 
+	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/stretchr/testify/require"
 )
 
 func TestMatch(t *testing.T) {
 	var tests = []struct {
+		name   string
 		filter Process_Node_Filter
-		data   map[string]interface{}
+		data   *types.Struct
 		match  bool
 	}{
-		{ // not matching filter
-			filter: Process_Node_Filter{Conditions: []Process_Node_Filter_Condition{
-				{Key: "foo", Predicate: Process_Node_Filter_Condition_EQ, Value: "xx"},
-			}},
-			data:  map[string]interface{}{"foo": "bar"},
+		{
+			name: "not matching filter",
+			filter: Process_Node_Filter{
+				Conditions: []Process_Node_Filter_Condition{
+					{
+						Key:       "foo",
+						Predicate: Process_Node_Filter_Condition_EQ,
+						Value:     "xx",
+					},
+				},
+			},
+			data: &types.Struct{
+				Fields: map[string]*types.Value{
+					"foo": {
+						Kind: &types.Value_StringValue{
+							StringValue: "bar",
+						},
+					},
+				},
+			},
 			match: false,
 		},
-		{ // matching multiple conditions
-			filter: Process_Node_Filter{Conditions: []Process_Node_Filter_Condition{
-				{Key: "foo", Predicate: Process_Node_Filter_Condition_EQ, Value: "bar"},
-				{Key: "xxx", Predicate: Process_Node_Filter_Condition_EQ, Value: "yyy"},
-			}},
-			data: map[string]interface{}{
-				"foo": "bar",
-				"xxx": "yyy",
-				"aaa": "bbb",
+		{
+			name: "matching multiple conditions",
+			filter: Process_Node_Filter{
+				Conditions: []Process_Node_Filter_Condition{
+					{
+						Key:       "foo",
+						Predicate: Process_Node_Filter_Condition_EQ,
+						Value:     "bar",
+					},
+					{
+						Key:       "xxx",
+						Predicate: Process_Node_Filter_Condition_EQ,
+						Value:     "yyy",
+					},
+				},
+			},
+			data: &types.Struct{
+				Fields: map[string]*types.Value{
+					"foo": {
+						Kind: &types.Value_StringValue{
+							StringValue: "bar",
+						},
+					},
+					"xxx": {
+						Kind: &types.Value_StringValue{
+							StringValue: "yyy",
+						},
+					},
+					"aaa": {
+						Kind: &types.Value_StringValue{
+							StringValue: "bbb",
+						},
+					},
+				},
 			},
 			match: true,
 		},
-		{ // non matching multiple conditions
-			filter: Process_Node_Filter{Conditions: []Process_Node_Filter_Condition{
-				{Key: "foo", Predicate: Process_Node_Filter_Condition_EQ, Value: "bar"},
-				{Key: "xxx", Predicate: Process_Node_Filter_Condition_EQ, Value: "aaa"},
-			}},
-			data: map[string]interface{}{
-				"foo": "bar",
-				"xxx": "yyy",
-				"aaa": "bbb",
+		{
+			name: "non matching multiple conditions",
+			filter: Process_Node_Filter{
+				Conditions: []Process_Node_Filter_Condition{
+					{
+						Key:       "foo",
+						Predicate: Process_Node_Filter_Condition_EQ,
+						Value:     "bar",
+					},
+					{
+						Key:       "xxx",
+						Predicate: Process_Node_Filter_Condition_EQ,
+						Value:     "aaa",
+					},
+				},
+			},
+			data: &types.Struct{
+				Fields: map[string]*types.Value{
+					"foo": {
+						Kind: &types.Value_StringValue{
+							StringValue: "bar",
+						},
+					},
+					"xxx": {
+						Kind: &types.Value_StringValue{
+							StringValue: "yyy",
+						},
+					},
+					"aaa": {
+						Kind: &types.Value_StringValue{
+							StringValue: "bbb",
+						},
+					},
+				},
 			},
 			match: false,
 		},
 	}
-	for i, test := range tests {
-		match := test.filter.Match(test.data)
-		require.Equal(t, test.match, match, i)
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			require.Equal(t, tt.match, tt.filter.Match(tt.data))
+		})
 	}
 }

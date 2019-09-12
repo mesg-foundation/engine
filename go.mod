@@ -73,3 +73,5 @@ require (
 	gopkg.in/go-playground/validator.v9 v9.29.1
 	gotest.tools v2.2.0+incompatible // indirect
 )
+
+go 1.13

@@ -6,7 +6,7 @@ run_on_machine: &run_on_machine
 
 run_on_docker: &run_on_docker
   docker:
-    - image: circleci/golang:1.11.4
+    - image: circleci/golang:1.13.0
 
 restore_go_mod_cache: &restore_go_mod_cache
   - restore_cache:
@@ -69,7 +69,7 @@ jobs:
 
   "lint":
     docker:
-      - image: golangci/golangci-lint:v1.12
+      - image: golangci/golangci-lint:v1.18
     environment:
       - GOCACHE: *go_cache_dir
     steps:
