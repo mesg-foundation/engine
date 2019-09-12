@@ -19,12 +19,12 @@ func NewAccountServer(sdk *sdk.SDK) *AccountServer {
 }
 
 // List accounts.
-func (s *AccountServer) List(ctx context.Context, request *protobuf_api.ListAccountsRequest) (*protobuf_api.ListAccountsResponse, error) {
+func (s *AccountServer) List(ctx context.Context, request *protobuf_api.ListAccountRequest) (*protobuf_api.ListAccountResponse, error) {
 	accounts, err := s.sdk.Account.List()
 	if err != nil {
 		return nil, err
 	}
-	return &protobuf_api.ListAccountsResponse{Accounts: accounts}, nil
+	return &protobuf_api.ListAccountResponse{Accounts: accounts}, nil
 }
 
 // Create creates a new account from service.

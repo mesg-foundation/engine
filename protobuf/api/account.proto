@@ -16,7 +16,7 @@ service Account {
   rpc Get (GetAccountRequest) returns (types.Account) {}
 
   // List returns all Accounts matching the criteria of the request.
-  rpc List (ListAccountsRequest) returns (ListAccountsResponse) {}
+  rpc List (ListAccountRequest) returns (ListAccountResponse) {}
 
   // Create an Account with a name and password.
   rpc Create (CreateAccountRequest) returns (CreateAccountResponse) {}
@@ -31,11 +31,11 @@ message GetAccountRequest {
 }
 
 // The request's data for the `List` API.
-message ListAccountsRequest {
+message ListAccountRequest {
 }
 
 // The response's data for the `List` API.
-message ListAccountsResponse {
+message ListAccountResponse {
   repeated types.Account accounts = 1;
 }
 

@@ -66,69 +66,69 @@ func (m *GetAccountRequest) GetName() string {
 }
 
 // The request's data for the `List` API.
-type ListAccountsRequest struct {
+type ListAccountRequest struct {
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ListAccountsRequest) Reset()         { *m = ListAccountsRequest{} }
-func (m *ListAccountsRequest) String() string { return proto.CompactTextString(m) }
-func (*ListAccountsRequest) ProtoMessage()    {}
-func (*ListAccountsRequest) Descriptor() ([]byte, []int) {
+func (m *ListAccountRequest) Reset()         { *m = ListAccountRequest{} }
+func (m *ListAccountRequest) String() string { return proto.CompactTextString(m) }
+func (*ListAccountRequest) ProtoMessage()    {}
+func (*ListAccountRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_3259f8b8a943c47e, []int{1}
 }
-func (m *ListAccountsRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ListAccountsRequest.Unmarshal(m, b)
+func (m *ListAccountRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ListAccountRequest.Unmarshal(m, b)
 }
-func (m *ListAccountsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ListAccountsRequest.Marshal(b, m, deterministic)
+func (m *ListAccountRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ListAccountRequest.Marshal(b, m, deterministic)
 }
-func (m *ListAccountsRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ListAccountsRequest.Merge(m, src)
+func (m *ListAccountRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListAccountRequest.Merge(m, src)
 }
-func (m *ListAccountsRequest) XXX_Size() int {
-	return xxx_messageInfo_ListAccountsRequest.Size(m)
+func (m *ListAccountRequest) XXX_Size() int {
+	return xxx_messageInfo_ListAccountRequest.Size(m)
 }
-func (m *ListAccountsRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_ListAccountsRequest.DiscardUnknown(m)
+func (m *ListAccountRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListAccountRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_ListAccountsRequest proto.InternalMessageInfo
+var xxx_messageInfo_ListAccountRequest proto.InternalMessageInfo
 
 // The response's data for the `List` API.
-type ListAccountsResponse struct {
+type ListAccountResponse struct {
 	Accounts             []*account.Account `protobuf:"bytes,1,rep,name=accounts,proto3" json:"accounts,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}           `json:"-"`
 	XXX_unrecognized     []byte             `json:"-"`
 	XXX_sizecache        int32              `json:"-"`
 }
 
-func (m *ListAccountsResponse) Reset()         { *m = ListAccountsResponse{} }
-func (m *ListAccountsResponse) String() string { return proto.CompactTextString(m) }
-func (*ListAccountsResponse) ProtoMessage()    {}
-func (*ListAccountsResponse) Descriptor() ([]byte, []int) {
+func (m *ListAccountResponse) Reset()         { *m = ListAccountResponse{} }
+func (m *ListAccountResponse) String() string { return proto.CompactTextString(m) }
+func (*ListAccountResponse) ProtoMessage()    {}
+func (*ListAccountResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_3259f8b8a943c47e, []int{2}
 }
-func (m *ListAccountsResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ListAccountsResponse.Unmarshal(m, b)
+func (m *ListAccountResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ListAccountResponse.Unmarshal(m, b)
 }
-func (m *ListAccountsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ListAccountsResponse.Marshal(b, m, deterministic)
+func (m *ListAccountResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ListAccountResponse.Marshal(b, m, deterministic)
 }
-func (m *ListAccountsResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ListAccountsResponse.Merge(m, src)
+func (m *ListAccountResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListAccountResponse.Merge(m, src)
 }
-func (m *ListAccountsResponse) XXX_Size() int {
-	return xxx_messageInfo_ListAccountsResponse.Size(m)
+func (m *ListAccountResponse) XXX_Size() int {
+	return xxx_messageInfo_ListAccountResponse.Size(m)
 }
-func (m *ListAccountsResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_ListAccountsResponse.DiscardUnknown(m)
+func (m *ListAccountResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListAccountResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_ListAccountsResponse proto.InternalMessageInfo
+var xxx_messageInfo_ListAccountResponse proto.InternalMessageInfo
 
-func (m *ListAccountsResponse) GetAccounts() []*account.Account {
+func (m *ListAccountResponse) GetAccounts() []*account.Account {
 	if m != nil {
 		return m.Accounts
 	}
@@ -309,8 +309,8 @@ var xxx_messageInfo_DeleteAccountResponse proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*GetAccountRequest)(nil), "api.GetAccountRequest")
-	proto.RegisterType((*ListAccountsRequest)(nil), "api.ListAccountsRequest")
-	proto.RegisterType((*ListAccountsResponse)(nil), "api.ListAccountsResponse")
+	proto.RegisterType((*ListAccountRequest)(nil), "api.ListAccountRequest")
+	proto.RegisterType((*ListAccountResponse)(nil), "api.ListAccountResponse")
 	proto.RegisterType((*CreateAccountRequest)(nil), "api.CreateAccountRequest")
 	proto.RegisterType((*CreateAccountResponse)(nil), "api.CreateAccountResponse")
 	proto.RegisterType((*DeleteAccountRequest)(nil), "api.DeleteAccountRequest")
@@ -320,27 +320,27 @@ func init() {
 func init() { proto.RegisterFile("protobuf/api/account.proto", fileDescriptor_3259f8b8a943c47e) }
 
 var fileDescriptor_3259f8b8a943c47e = []byte{
-	// 317 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x52, 0x31, 0x4f, 0xf3, 0x30,
-	0x10, 0x6d, 0xbe, 0x54, 0x6d, 0xbf, 0x43, 0x42, 0xc2, 0x34, 0x10, 0x2c, 0x86, 0xca, 0x0b, 0x15,
-	0x43, 0x22, 0x95, 0x99, 0xa1, 0x80, 0xe8, 0x02, 0x4b, 0xff, 0x81, 0x9b, 0x1c, 0x55, 0x24, 0x12,
-	0x9b, 0xd8, 0x11, 0xe2, 0xd7, 0x83, 0x62, 0x3b, 0x11, 0x0d, 0x96, 0x18, 0xd8, 0xfc, 0xee, 0x9e,
-	0x9f, 0xdf, 0xbd, 0x33, 0x50, 0x59, 0x0b, 0x2d, 0x76, 0xcd, 0x4b, 0xca, 0x65, 0x91, 0xf2, 0x2c,
-	0x13, 0x4d, 0xa5, 0x13, 0x53, 0x24, 0x21, 0x97, 0x05, 0xbd, 0xec, 0x09, 0xfa, 0x43, 0xa2, 0x3a,
-	0xa4, 0x50, 0xb6, 0x17, 0x7b, 0x91, 0xf6, 0x94, 0x16, 0x19, 0x60, 0x4e, 0x96, 0xc3, 0xae, 0xe0,
-	0x64, 0x83, 0x7a, 0x6d, 0xef, 0x6d, 0xf1, 0xad, 0x41, 0xa5, 0x09, 0x81, 0x71, 0xc5, 0x4b, 0x8c,
-	0x83, 0x45, 0xb0, 0xfc, 0xbf, 0x35, 0x67, 0x16, 0xc1, 0xe9, 0x53, 0xa1, 0x3a, 0xa6, 0x72, 0x54,
-	0x76, 0x07, 0xf3, 0xc3, 0xb2, 0x92, 0xa2, 0x52, 0x48, 0xae, 0x61, 0xe6, 0xcc, 0xa8, 0x38, 0x58,
-	0x84, 0xcb, 0xa3, 0xd5, 0x71, 0x62, 0x3c, 0x26, 0xdd, 0x5b, 0x7d, 0x9f, 0x3d, 0xc2, 0xfc, 0xbe,
-	0x46, 0xae, 0xf1, 0x77, 0x1b, 0x84, 0xc2, 0x4c, 0x72, 0xa5, 0xde, 0x45, 0x9d, 0xc7, 0xff, 0x4c,
-	0xbd, 0xc7, 0xec, 0x19, 0xa2, 0x81, 0x8e, 0x33, 0x13, 0xc3, 0x94, 0xe7, 0x79, 0x8d, 0x4a, 0x39,
-	0xad, 0x0e, 0xb6, 0x72, 0x65, 0x85, 0xa5, 0xa8, 0x8a, 0xac, 0x93, 0xeb, 0x70, 0x6b, 0xeb, 0x01,
-	0x5f, 0xf1, 0xcf, 0xb6, 0xce, 0x21, 0x1a, 0xe8, 0x58, 0x5b, 0xab, 0xcf, 0x00, 0xa6, 0xae, 0x46,
-	0x52, 0x08, 0x37, 0xa8, 0xc9, 0x59, 0xc2, 0x65, 0x91, 0xfc, 0xd8, 0x08, 0x1d, 0x84, 0xc7, 0x46,
-	0xe4, 0x16, 0xc6, 0x6d, 0xf0, 0x24, 0x36, 0x37, 0x3c, 0xab, 0xa1, 0x17, 0x9e, 0x8e, 0x7d, 0x99,
-	0x8d, 0xc8, 0x1a, 0x26, 0x36, 0x2b, 0x62, 0x69, 0xbe, 0x05, 0x50, 0xea, 0x6b, 0x7d, 0x97, 0xb0,
-	0x73, 0x39, 0x09, 0x5f, 0x58, 0x4e, 0xc2, 0x3b, 0x3f, 0x1b, 0xed, 0x26, 0xe6, 0x13, 0xde, 0x7c,
-	0x05, 0x00, 0x00, 0xff, 0xff, 0x20, 0x64, 0x41, 0xb7, 0xe9, 0x02, 0x00, 0x00,
+	// 315 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x52, 0x41, 0x4b, 0xc3, 0x30,
+	0x18, 0x5d, 0xdd, 0xd8, 0xe6, 0x27, 0x08, 0x7e, 0x6e, 0xae, 0x06, 0x0f, 0x23, 0x17, 0x87, 0x87,
+	0x16, 0xe6, 0xd1, 0xd3, 0x50, 0xdc, 0x45, 0x2f, 0xfb, 0x07, 0xd9, 0xf6, 0x39, 0x0a, 0xb6, 0x89,
+	0x4d, 0x8a, 0xf8, 0xe3, 0x05, 0x69, 0x92, 0x16, 0xd7, 0x16, 0x3c, 0x78, 0xcb, 0x7b, 0xdf, 0xcb,
+	0xeb, 0xcb, 0xfb, 0x0a, 0x4c, 0xe5, 0xd2, 0xc8, 0x6d, 0xf1, 0x16, 0x0b, 0x95, 0xc4, 0x62, 0xb7,
+	0x93, 0x45, 0x66, 0x22, 0x4b, 0x62, 0x5f, 0xa8, 0x84, 0xdd, 0xd4, 0x02, 0xf3, 0xa5, 0x48, 0x1f,
+	0x4b, 0x18, 0x3f, 0xc8, 0x83, 0x8c, 0x6b, 0x49, 0x89, 0x2c, 0xb0, 0x27, 0xa7, 0xe1, 0xb7, 0x70,
+	0xb1, 0x26, 0xb3, 0x72, 0xf7, 0x36, 0xf4, 0x51, 0x90, 0x36, 0x88, 0x30, 0xc8, 0x44, 0x4a, 0x61,
+	0x30, 0x0f, 0x16, 0xa7, 0x1b, 0x7b, 0xe6, 0x13, 0xc0, 0x97, 0x44, 0x37, 0x94, 0x7c, 0x05, 0x97,
+	0x47, 0xac, 0x56, 0x32, 0xd3, 0x84, 0x77, 0x30, 0xf6, 0x51, 0x74, 0x18, 0xcc, 0xfb, 0x8b, 0xb3,
+	0xe5, 0x79, 0x64, 0x13, 0x46, 0x95, 0xb2, 0x9e, 0xf3, 0x67, 0x98, 0x3c, 0xe6, 0x24, 0x0c, 0xfd,
+	0x1d, 0x02, 0x19, 0x8c, 0x95, 0xd0, 0xfa, 0x53, 0xe6, 0xfb, 0xf0, 0xc4, 0xf2, 0x35, 0xe6, 0xaf,
+	0x30, 0x6d, 0xf8, 0xf8, 0x30, 0x21, 0x8c, 0xc4, 0x7e, 0x9f, 0x93, 0xd6, 0xde, 0xab, 0x82, 0xa5,
+	0x5d, 0x9a, 0x51, 0x2a, 0xb3, 0x64, 0x57, 0xd9, 0x55, 0xb8, 0x8c, 0xf5, 0x44, 0xef, 0xf4, 0xef,
+	0x58, 0x33, 0x98, 0x36, 0x7c, 0x5c, 0xac, 0xe5, 0x77, 0x00, 0x23, 0xcf, 0x61, 0x0c, 0xfd, 0x35,
+	0x19, 0xbc, 0x8a, 0x84, 0x4a, 0xa2, 0xd6, 0x3e, 0x58, 0xa3, 0x3c, 0xde, 0xc3, 0x07, 0x18, 0x94,
+	0xbd, 0xe3, 0xcc, 0xde, 0x68, 0x2f, 0x86, 0x85, 0xed, 0x81, 0xfb, 0x2e, 0xef, 0xe1, 0x0a, 0x86,
+	0xae, 0x29, 0xbc, 0xb6, 0xaa, 0xae, 0xfa, 0x19, 0xeb, 0x1a, 0xfd, 0xb6, 0x70, 0xaf, 0xf2, 0x16,
+	0x5d, 0x55, 0x79, 0x8b, 0xce, 0xd7, 0xf3, 0xde, 0x76, 0x68, 0x7f, 0xc0, 0xfb, 0x9f, 0x00, 0x00,
+	0x00, 0xff, 0xff, 0xb4, 0x78, 0x07, 0x6d, 0xe5, 0x02, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -358,7 +358,7 @@ type AccountClient interface {
 	// Get returns an Account matching the criteria of the request.
 	Get(ctx context.Context, in *GetAccountRequest, opts ...grpc.CallOption) (*account.Account, error)
 	// List returns all Accounts matching the criteria of the request.
-	List(ctx context.Context, in *ListAccountsRequest, opts ...grpc.CallOption) (*ListAccountsResponse, error)
+	List(ctx context.Context, in *ListAccountRequest, opts ...grpc.CallOption) (*ListAccountResponse, error)
 	// Create an Account with a name and password.
 	Create(ctx context.Context, in *CreateAccountRequest, opts ...grpc.CallOption) (*CreateAccountResponse, error)
 	// Delete an Account.
@@ -382,8 +382,8 @@ func (c *accountClient) Get(ctx context.Context, in *GetAccountRequest, opts ...
 	return out, nil
 }
 
-func (c *accountClient) List(ctx context.Context, in *ListAccountsRequest, opts ...grpc.CallOption) (*ListAccountsResponse, error) {
-	out := new(ListAccountsResponse)
+func (c *accountClient) List(ctx context.Context, in *ListAccountRequest, opts ...grpc.CallOption) (*ListAccountResponse, error) {
+	out := new(ListAccountResponse)
 	err := c.cc.Invoke(ctx, "/api.Account/List", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -414,7 +414,7 @@ type AccountServer interface {
 	// Get returns an Account matching the criteria of the request.
 	Get(context.Context, *GetAccountRequest) (*account.Account, error)
 	// List returns all Accounts matching the criteria of the request.
-	List(context.Context, *ListAccountsRequest) (*ListAccountsResponse, error)
+	List(context.Context, *ListAccountRequest) (*ListAccountResponse, error)
 	// Create an Account with a name and password.
 	Create(context.Context, *CreateAccountRequest) (*CreateAccountResponse, error)
 	// Delete an Account.
@@ -428,7 +428,7 @@ type UnimplementedAccountServer struct {
 func (*UnimplementedAccountServer) Get(ctx context.Context, req *GetAccountRequest) (*account.Account, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
-func (*UnimplementedAccountServer) List(ctx context.Context, req *ListAccountsRequest) (*ListAccountsResponse, error) {
+func (*UnimplementedAccountServer) List(ctx context.Context, req *ListAccountRequest) (*ListAccountResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
 func (*UnimplementedAccountServer) Create(ctx context.Context, req *CreateAccountRequest) (*CreateAccountResponse, error) {
@@ -461,7 +461,7 @@ func _Account_Get_Handler(srv interface{}, ctx context.Context, dec func(interfa
 }
 
 func _Account_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListAccountsRequest)
+	in := new(ListAccountRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -473,7 +473,7 @@ func _Account_List_Handler(srv interface{}, ctx context.Context, dec func(interf
 		FullMethod: "/api.Account/List",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AccountServer).List(ctx, req.(*ListAccountsRequest))
+		return srv.(AccountServer).List(ctx, req.(*ListAccountRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
