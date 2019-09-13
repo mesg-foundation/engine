@@ -92,3 +92,18 @@ func TestUnmarshalJSON(t *testing.T) {
 	assert.NoError(t, json.Unmarshal([]byte("\"4uQeVj5tqViQh7yWWGStvkEG1Zmhx6uasJtWCJziofM\""), &h))
 	assert.Equal(t, Int(1), h)
 }
+
+func TestUnmarshal(t *testing.T) {
+	var hashes []Hash
+	hashSameAddr := Int(1)
+	for i := 0; i < 10; i++ {
+		copy(hashSameAddr, Int(i))
+		var hash = Hash{}
+		assert.NoError(t, hash.Unmarshal(hashSameAddr))
+		assert.Equal(t, Int(i), hash)
+		hashes = append(hashes, hash)
+	}
+	for i := 0; i < 10; i++ {
+		assert.Equal(t, Int(i), hashes[i])
+	}
+}
