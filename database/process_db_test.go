@@ -72,13 +72,15 @@ func TestMultipleInsert(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
+	h1, _ := hash.Int(1).Marshal()
 	p1 := &process.Process{
-		Hash: hash.Int(1),
+		Hash: h1,
 		Key:  "1",
 	}
 
+	h2, _ := hash.Int(2).Marshal()
 	p2 := &process.Process{
-		Hash: hash.Int(2),
+		Hash: h2,
 		Key:  "2",
 	}
 

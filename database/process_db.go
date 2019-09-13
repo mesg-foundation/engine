@@ -107,7 +107,7 @@ func (d *LevelDBProcessDB) Get(hash hash.Hash) (*process.Process, error) {
 // Save stores process in database.
 // If there is an another process that uses the same sid, it'll be deleted.
 func (d *LevelDBProcessDB) Save(s *process.Process) error {
-	if s.Hash.IsZero() {
+	if len(s.Hash) == 0 {
 		return errCannotSaveWithoutHash
 	}
 
