@@ -3,7 +3,8 @@ syntax = "proto3";
 import "gogo/protobuf/gogoproto/gogo.proto";
 import "protobuf/types/service.proto";
 
-package api;
+package mesg.api;
+option go_package = "api";
 
 // This is the API to interact with the Services.
 //
