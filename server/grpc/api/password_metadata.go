@@ -8,7 +8,8 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func GetAccountFromContext(ctx context.Context) (string, string, error) {
+// GetAccountInfoFromContext retrives account name nad passwrod from request metadata.
+func GetAccountInfoFromContext(ctx context.Context) (string, string, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return "", "", status.Errorf(codes.InvalidArgument, "missing metadata")
@@ -16,12 +17,12 @@ func GetAccountFromContext(ctx context.Context) (string, string, error) {
 
 	accountNameMd := md["account_name"]
 	if len(accountNameMd) == 0 {
-		return "", "", status.Errorf(codes.Unauthenticated, "invalid account name")
+		return "", "", status.Errorf(codes.Unauthenticated, "missing account name")
 	}
 
 	accountPasswordMd := md["account_password"]
 	if len(accountPasswordMd) == 0 {
-		return "", "", status.Errorf(codes.Unauthenticated, "invalid account password")
+		return "", "", status.Errorf(codes.Unauthenticated, "missing account password")
 	}
 
 	return accountNameMd[0], accountPasswordMd[0], nil

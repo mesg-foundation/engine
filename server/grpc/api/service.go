@@ -22,7 +22,7 @@ func NewServiceServer(sdk *sdk.SDK) *ServiceServer {
 
 // Create creates a new service from definition.
 func (s *ServiceServer) Create(ctx context.Context, req *protobuf_api.CreateServiceRequest) (*protobuf_api.CreateServiceResponse, error) {
-	accname, accpassword, err := GetAccountFromContext(ctx)
+	accname, accpassword, err := GetAccountInfoFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +36,7 @@ func (s *ServiceServer) Create(ctx context.Context, req *protobuf_api.CreateServ
 
 // Delete deletes service by hash or sid.
 func (s *ServiceServer) Delete(ctx context.Context, req *protobuf_api.DeleteServiceRequest) (*protobuf_api.DeleteServiceResponse, error) {
-	accname, accpassword, err := GetAccountFromContext(ctx)
+	accname, accpassword, err := GetAccountInfoFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}

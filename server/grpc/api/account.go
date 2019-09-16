@@ -29,12 +29,12 @@ func (s *AccountServer) List(ctx context.Context, request *protobuf_api.ListAcco
 
 // Create creates a new account from service.
 func (s *AccountServer) Create(ctx context.Context, request *protobuf_api.CreateAccountRequest) (*protobuf_api.CreateAccountResponse, error) {
-	address, mnemonic, err := s.sdk.Account.Create(request.Name, request.Password)
+	account, mnemonic, err := s.sdk.Account.Create(request.Name, request.Password)
 	if err != nil {
 		return nil, err
 	}
 	return &protobuf_api.CreateAccountResponse{
-		Address:  address,
+		Address:  account.Address,
 		Mnemonic: mnemonic,
 	}, nil
 }

@@ -19,17 +19,20 @@ func NewSDK(kb *cosmos.Keybase) *SDK {
 }
 
 // Create generates a new mnemonic and its associated account from a name and password.
-func (s *SDK) Create(name, password string) (address, mnemonic string, err error) {
+func (s *SDK) Create(name, password string) (address *account.Account, mnemonic string, err error) {
 	// TODO: should throw error if name already exist
 	mnemonic, err = s.kb.NewMnemonic()
 	if err != nil {
-		return "", "", err
+		return nil, "", err
 	}
 	acct, err := s.kb.CreateAccount(name, mnemonic, "", password, 0, 0)
 	if err != nil {
-		return "", "", err
+		return nil, "", err
 	}
-	return acct.GetAddress().String(), mnemonic, nil
+	return &account.Account{
+		Name:    acct.GetName(),
+		Address: acct.GetAddress().String(),
+	}, mnemonic, nil
 }
 
 // Delete removes the account corresponding the name and password.
