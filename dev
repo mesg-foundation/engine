@@ -4,8 +4,10 @@ set -e
 
 DIR=$(pwd)
 
-# network to connect multiple engine instances
-TENDERMINT_NETWORK="mesg-tendermint"
+# Flags
+if [[ $* == *--exp* ]]; then
+  EXPERIMENTAL_FLAGS+=" --experimental-network"
+fi
 
 # mesg config variables
 MESG_NAME=${MESG_NAME:-"engine"}
@@ -15,6 +17,8 @@ MESG_LOG_FORCECOLORS=${MESG_LOG_FORCECOLORS:-"false"}
 MESG_LOG_LEVEL=${MESG_LOG_LEVEL:-"debug"}
 MESG_SERVER_PORT=${MESG_SERVER_PORT:-"50052"}
 
+ # network to connect multiple engine instances
+TENDERMINT_NETWORK="mesg-tendermint"
 TENDERMINT_HOME_CONFIG="$MESG_PATH/tendermint"
 TENDERMINT_NETWORK_ALIAS=${TENDERMINT_NETWORK_ALIAS:-$MESG_NAME}
 TENDERMINT_VALIDATOR_NAME=${TENDERMINT_VALIDATOR_NAME:-"validator"}
@@ -155,6 +159,6 @@ docker service create \
   --network name=$TENDERMINT_NETWORK,alias=$TENDERMINT_NETWORK_ALIAS \
   --publish $MESG_SERVER_PORT:50052 \
   $TENDERMINT_VALIDATOR_PORT_PUBLISH \
-  mesg/engine:$VERSION ./engine --experimental-network
+  mesg/engine:$VERSION ./engine $EXPERIMENTAL_FLAGS
 
 docker service logs --follow --raw $MESG_NAME

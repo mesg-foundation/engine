@@ -34,3 +34,4 @@ linters:
     - gosec
     - lll
     - prealloc
+    - funlen

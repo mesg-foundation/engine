@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "gogo/protobuf/gogoproto/gogo.proto";
+import "protobuf/types/struct.proto";
 
 package types;
 option go_package = "github.com/mesg-foundation/engine/process";
@@ -91,7 +92,10 @@ message Process {
         oneof value {
           // Input defined as reference.
           Reference ref = 2 [
-            (gogoproto.moretags) = 'hash:"name:2" validate:"required"'
+            (gogoproto.moretags) = 'hash:"name:2" validate:"required_without=Constant"'
+          ];
+          mesg.protobuf.Value constant = 3 [
+            (gogoproto.moretags) = 'hash:"name:3" validate:"required_without=Ref"'
           ];
         }
       }
@@ -148,15 +152,25 @@ message Process {
 
     oneof type {
       // Result is a trigger that listens for a specific result.
-      Result result = 1;
+      Result result = 1 [
+        (gogoproto.moretags) = 'hash:"name:1"'
+      ];
       // Event is a trigger that listens for a specific event.
-      Event event = 2;
+      Event event = 2 [
+        (gogoproto.moretags) = 'hash:"name:2"'
+      ];
       // Task is a command to execute a specific task.
-      Task task = 3;
+      Task task = 3 [
+        (gogoproto.moretags) = 'hash:"name:3"'
+      ];
       // Map is a set of instructions to convert data.
-      Map map = 4;
+      Map map = 4 [
+        (gogoproto.moretags) = 'hash:"name:4"'
+      ];
       // Filter is a list of condition to apply on data.
-      Filter filter = 5;
+      Filter filter = 5 [
+        (gogoproto.moretags) = 'hash:"name:5"'
+      ];
     }
   }
 
