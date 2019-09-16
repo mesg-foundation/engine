@@ -9,6 +9,12 @@
 #### Removed
 #### Experimental
 
+## [v0.14.2](https://github.com/mesg-foundation/engine/releases/tag/v0.14.2)
+
+#### Fixed
+
+- ([#1339](https://github.com/mesg-foundation/engine/pull/1339)) Fix hash.Unmarshal when using proto.Unmarshal.
+
 ## [v0.14.1](https://github.com/mesg-foundation/engine/releases/tag/v0.14.1)
 
 #### Fixed
