@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package api;
+package mesg.api;
 option go_package = "coreapi";
 
 // This is the primary API to interact with MESG Engine functionalities.

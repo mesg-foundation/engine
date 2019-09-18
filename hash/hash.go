@@ -115,7 +115,8 @@ func (h Hash) MarshalTo(data []byte) (int, error) {
 
 // Unmarshal unmarshals slice of bytes into hash. It's used by protobuf.
 func (h *Hash) Unmarshal(data []byte) error {
-	*h = data
+	*h = make([]byte, len(data))
+	copy(*h, data)
 	return nil
 }
 
