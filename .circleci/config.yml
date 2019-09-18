@@ -91,9 +91,10 @@ jobs:
     <<: *run_on_machine
     steps:
       - checkout
-      - run: docker build -t mesg/engine:$CIRCLE_TAG -t mesg/engine:latest --build-arg version=$CIRCLE_TAG .
+      - run: docker build -t mesg/engine:$CIRCLE_TAG -t mesg/engine:latest -t `echo mesg/engine:$CIRCLE_TAG | cut -d'.' -f1-2` --build-arg version=$CIRCLE_TAG .
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
       - run: docker push mesg/engine:$CIRCLE_TAG
+      - run: docker push `echo mesg/engine:$CIRCLE_TAG | cut -d'.' -f1-2`
       - run: docker push mesg/engine:latest
 
 workflows:
