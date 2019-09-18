@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+import "protobuf/types/account.proto";
+import "gogo/protobuf/gogoproto/gogo.proto";
+
+package mesg.api;
+option go_package = "api";
+
+// This is the API to interact with the Accounts.
+//
+// This API is a [gRPC](https://grpc.io/) API.
+//
+// The source file of this API is hosted on [GitHub](https://github.com/mesg-foundation/engine/blob/master/protobuf/api/account.proto).
+service Account {
+
+  // Get returns an Account matching the criteria of the request.
+  rpc Get (GetAccountRequest) returns (types.Account) {}
+
+  // List returns all Accounts matching the criteria of the request.
+  rpc List (ListAccountRequest) returns (ListAccountResponse) {}
+
+  // Create an Account with a name and password.
+  rpc Create (CreateAccountRequest) returns (CreateAccountResponse) {}
+
+  // Delete an Account.
+  rpc Delete (DeleteAccountRequest) returns (DeleteAccountResponse) {}
+}
+
+// The request's data for the `Get` API.
+message GetAccountRequest {
+  string name = 1;
+}
+
+// The request's data for the `List` API.
+message ListAccountRequest {
+}
+
+// The response's data for the `List` API.
+message ListAccountResponse {
+  repeated types.Account accounts = 1;
+}
+
+// The request's data for the `Create` API.
+message CreateAccountRequest {
+  string name = 1;
+  string password = 2;
+}
+
+// The response's data for the `Create` API.
+message CreateAccountResponse {
+  string address = 1;
+  string mnemonic = 2;
+}
+
+// The request's data for the `Delete` API.
+message DeleteAccountRequest {
+  string name = 1;
+  string password = 2;
+}
+
+// The response's data for the `Delete` API.
+message DeleteAccountResponse {}
