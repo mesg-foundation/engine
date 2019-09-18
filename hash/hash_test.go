@@ -92,3 +92,12 @@ func TestUnmarshalJSON(t *testing.T) {
 	assert.NoError(t, json.Unmarshal([]byte("\"4uQeVj5tqViQh7yWWGStvkEG1Zmhx6uasJtWCJziofM\""), &h))
 	assert.Equal(t, Int(1), h)
 }
+
+func TestUnmarshal(t *testing.T) {
+	var hash Hash
+	data := []byte(Int(1))
+	hash.Unmarshal(data)
+	// check if unmarshal copy the data
+	// test if two slises do not share the same address
+	assert.True(t, &hash[cap(hash)-1] != &data[cap(data)-1])
+}
