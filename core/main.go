@@ -180,7 +180,7 @@ func main() {
 		client := cosmos.NewClient(node, app.Cdc(), kb, cfg.Cosmos.ChainID)
 
 		// init sdk
-		sdk, err = enginesdk.New(client, app.Cdc(), c, instanceDB, executionDB, processDB, cfg.Name, strconv.Itoa(port))
+		sdk, err = enginesdk.New(client, app.Cdc(), kb, c, instanceDB, executionDB, processDB, cfg.Name, strconv.Itoa(port))
 		if err != nil {
 			logrus.WithField("module", "main").Fatalln(err)
 		}
