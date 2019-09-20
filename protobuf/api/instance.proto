@@ -3,7 +3,8 @@ syntax = "proto3";
 import "gogo/protobuf/gogoproto/gogo.proto";
 import "protobuf/types/instance.proto";
 
-package api;
+package mesg.api;
+option go_package = "api";
 
 // This is the API to interact with the Instances.
 //
@@ -16,7 +17,7 @@ service Instance {
   rpc Get (GetInstanceRequest) returns (types.Instance) {}
 
   // List returns all Instances matching the criteria of the request.
-  rpc List (ListInstancesRequest) returns (ListInstancesResponse) {}
+  rpc List (ListInstanceRequest) returns (ListInstanceResponse) {}
 
   // Create an Instance from a Service's hash and custom environmental variables.
   // It will return an unique identifier which is used to interact with the Instance.
@@ -35,7 +36,7 @@ message GetInstanceRequest {
 }
 
 // The request's data for the `List` API.
-message ListInstancesRequest {
+message ListInstanceRequest {
   // Filter by Services' hash.
   bytes serviceHash = 1 [
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
@@ -44,7 +45,7 @@ message ListInstancesRequest {
 }
 
 // The response's data for the `List` API.
-message ListInstancesResponse {
+message ListInstanceResponse {
   // List of instances that match the request's filters.
   repeated types.Instance instances = 1;
 }

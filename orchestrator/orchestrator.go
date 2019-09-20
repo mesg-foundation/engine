@@ -141,24 +141,23 @@ func (s *Orchestrator) processMap(mapping *process.Process_Node_Map, wf *process
 		Fields: make(map[string]*types.Value),
 	}
 	for _, output := range mapping.Outputs {
-		ref := output.GetRef()
-		if ref == nil {
-			continue
-		}
-
-		node, err := wf.FindNode(ref.NodeKey)
-		if err != nil {
-			return nil, err
-		}
-
-		if node.GetTask() != nil {
-			value, err := s.resolveInput(wf.Hash, exec, ref.NodeKey, ref.Key)
+		if ref := output.GetRef(); ref != nil {
+			node, err := wf.FindNode(ref.NodeKey)
 			if err != nil {
 				return nil, err
 			}
-			result.Fields[output.Key] = value
-		} else {
-			result.Fields[output.Key] = data.Fields[ref.Key]
+
+			if node.GetTask() != nil {
+				value, err := s.resolveInput(wf.Hash, exec, ref.NodeKey, ref.Key)
+				if err != nil {
+					return nil, err
+				}
+				result.Fields[output.Key] = value
+			} else {
+				result.Fields[output.Key] = data.Fields[ref.Key]
+			}
+		} else if constant := output.GetConstant(); constant != nil {
+			result.Fields[output.Key] = constant
 		}
 	}
 	return result, nil

@@ -22,6 +22,7 @@ func TestMd5(t *testing.T) {
 
 //nolint:megacheck
 func TestDump(t *testing.T) {
+	int1 := int(1)
 	tests := []struct {
 		v interface{}
 		s string
@@ -138,6 +139,68 @@ func TestDump(t *testing.T) {
 				b bool `hash:"name:b"`
 			}{b: false}},
 			"{a:{b:false}}",
+		},
+		{
+			struct {
+				a interface{}
+			}{
+				struct {
+					b int
+					c interface{}
+				}{
+					b: 1,
+					c: 2,
+				},
+			},
+			"{a:{}}",
+		},
+		{
+			struct {
+				a interface{}
+			}{
+				&struct {
+					b int         `hash:"name:b"`
+					c interface{} `hash:"name:c"`
+				}{
+					b: 1,
+					c: 2,
+				},
+			},
+			"{a:{b:1,c:2}}",
+		},
+		{
+			struct {
+				a interface{}
+			}{
+				&struct {
+					b *int
+					c interface{}
+				}{
+					b: &int1,
+					c: &int1,
+				},
+			},
+			"{a:{}}",
+		},
+		{
+			struct {
+				a interface{}
+			}{
+				&struct {
+					b *int
+					c interface{}
+				}{
+					b: nil,
+					c: nil,
+				},
+			},
+			"{a:{}}",
+		},
+		{
+			struct {
+				a interface{}
+			}{nil},
+			"{}",
 		},
 	}
 

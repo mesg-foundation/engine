@@ -1,5 +1,5 @@
 # base Go image version.
-FROM golang:1.11.4-stretch AS build
+FROM golang:1.13.0-stretch AS build
 
 RUN apt-get update && \
       apt-get install -y jq && \
