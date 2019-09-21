@@ -2,7 +2,7 @@ package ethwallet
 
 import (
 	"bytes"
-	"encoding/hex"
+	"errors"
 	"fmt"
 	"math/big"
 
@@ -12,16 +12,6 @@ import (
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/systemservices/ethwallet/x/xgo-ethereum/xaccounts"
 )
-
-type transaction struct {
-	ChainID  int64          `json:"chainID"`
-	Nonce    uint64         `json:"nonce"`
-	To       common.Address `json:"to"`
-	Value    string         `json:"value"`
-	Gas      uint64         `json:"gas"`
-	GasPrice string         `json:"gasPrice"`
-	Data     hexutil.Bytes  `json:"data"`
-}
 
 func (s *Ethwallet) sign(inputs *types.Struct) (*types.Struct, error) {
 	address := common.HexToAddress(inputs.GetStringValue("address"))
@@ -35,17 +25,17 @@ func (s *Ethwallet) sign(inputs *types.Struct) (*types.Struct, error) {
 
 	value := new(big.Int)
 	if _, ok := value.SetString(tx.GetStringValue("value"), 0); !ok {
-		return nil, errCannotParseValue
+		return nil, errors.New("cannot parse value")
 	}
 
 	gasPrice := new(big.Int)
 	if _, ok := gasPrice.SetString(tx.GetStringValue("gasPrice"), 0); !ok {
-		return nil, errCannotParseGasPrice
+		return nil, errors.New("cannot parse gasPrice")
 	}
 
-	data, err := hex.DecodeString(tx.GetStringValue("data"))
+	data, err := hexutil.Decode(tx.GetStringValue("data"))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cannot parse data: %w", err)
 	}
 
 	transaction := ethtypes.NewTransaction(
