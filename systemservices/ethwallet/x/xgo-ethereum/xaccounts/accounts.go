@@ -15,5 +15,5 @@ func GetAccount(keystore *keystore.KeyStore, address common.Address) (accounts.A
 			return account, nil
 		}
 	}
-	return accounts.Account{}, fmt.Errorf("Account not found")
+	return accounts.Account{}, fmt.Errorf("account not found")
 }

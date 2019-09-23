@@ -43,29 +43,16 @@ tasks:
     inputs:
       address: *address
       passphrase: *passphrase
-    outputs: &account
-      address: *address
-      id:
-        name: "ID"
-        description: "The id of the account."
+    outputs:
+      account: &account
+        name: "Account"
+        description: "The JSON encoded account."
         type: String
-      version:
-        name: "Version"
-        description: "The version used to export the account."
-        type: Number
-      crypto:
-        name: "Crypto"
-        description: "The encrypted account."
-        type: Object
   import:
     name: "Import an account"
     description: "Import an account. The account have to respect the Web3 Secret Storage specification. See https://github.com/ethereum/wiki/wiki/Web3-Secret-Storage-Definition for more information."
     inputs:
-      account:
-        name: "Account"
-        description: "The JSON encoded account."
-        type: Object
-        object: *account
+      account: *account
       passphrase: *passphrase
     outputs:
       address: *address
