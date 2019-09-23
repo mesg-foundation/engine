@@ -4,12 +4,13 @@ import (
 	"fmt"
 
 	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/service"
 )
 
 // Service is the interface of this sdk
 type Service interface {
-	Create(srv *service.Service) (*service.Service, error)
+	Create(*api.CreateServiceRequest) (*service.Service, error)
 	Delete(hash hash.Hash) error
 	Get(hash hash.Hash) (*service.Service, error)
 	List() ([]*service.Service, error)

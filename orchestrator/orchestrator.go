@@ -8,27 +8,12 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
 	"github.com/mesg-foundation/engine/protobuf/types"
-	eventsdk "github.com/mesg-foundation/engine/sdk/event"
 	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
-	processesdk "github.com/mesg-foundation/engine/sdk/process"
 	"github.com/sirupsen/logrus"
 )
 
-// Orchestrator manages the executions based on the definition of the processes
-type Orchestrator struct {
-	event       *eventsdk.Event
-	eventStream *eventsdk.Listener
-
-	execution       *executionsdk.Execution
-	executionStream *executionsdk.Listener
-
-	process *processesdk.Process
-
-	ErrC chan error
-}
-
 // New creates a new Process instance
-func New(event *eventsdk.Event, execution *executionsdk.Execution, process *processesdk.Process) *Orchestrator {
+func New(event EventSDK, execution ExecutionSDK, process ProcessSDK) *Orchestrator {
 	return &Orchestrator{
 		event:     event,
 		execution: execution,
@@ -156,24 +141,23 @@ func (s *Orchestrator) processMap(mapping *process.Process_Node_Map, wf *process
 		Fields: make(map[string]*types.Value),
 	}
 	for _, output := range mapping.Outputs {
-		ref := output.GetRef()
-		if ref == nil {
-			continue
-		}
-
-		node, err := wf.FindNode(ref.NodeKey)
-		if err != nil {
-			return nil, err
-		}
-
-		if node.GetTask() != nil {
-			value, err := s.resolveInput(wf.Hash, exec, ref.NodeKey, ref.Key)
+		if ref := output.GetRef(); ref != nil {
+			node, err := wf.FindNode(ref.NodeKey)
 			if err != nil {
 				return nil, err
 			}
-			result.Fields[output.Key] = value
-		} else {
-			result.Fields[output.Key] = data.Fields[ref.Key]
+
+			if node.GetTask() != nil {
+				value, err := s.resolveInput(wf.Hash, exec, ref.NodeKey, ref.Key)
+				if err != nil {
+					return nil, err
+				}
+				result.Fields[output.Key] = value
+			} else {
+				result.Fields[output.Key] = data.Fields[ref.Key]
+			}
+		} else if constant := output.GetConstant(); constant != nil {
+			result.Fields[output.Key] = constant
 		}
 	}
 	return result, nil

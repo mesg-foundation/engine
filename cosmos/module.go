@@ -114,6 +114,9 @@ func (m AppModule) NewQuerierHandler() sdk.Querier {
 	return func(request sdk.Request, path []string, req abci.RequestQuery) ([]byte, sdk.Error) {
 		data, err := m.querier(request, path, req)
 		if err != nil {
+			if errsdk, ok := err.(sdk.Error); ok {
+				return nil, errsdk
+			}
 			return nil, sdk.ErrInternal(err.Error())
 		}
 		res, err := m.cdc.MarshalJSON(data)

@@ -4,7 +4,8 @@ import "gogo/protobuf/gogoproto/gogo.proto";
 import "protobuf/types/struct.proto";
 import "protobuf/types/execution.proto";
 
-package api;
+package mesg.api;
+option go_package = "api";
 
 // This is the API to interact with the Executions.
 //

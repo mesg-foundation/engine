@@ -25,3 +25,6 @@ tmp-systemservices
 
 # tendermint
 .tendermint-validator/
+
+# gogo extension
+gogo/

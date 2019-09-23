@@ -18,13 +18,13 @@ import (
 
 // Backend handles all the backend functions.
 type Backend struct {
-	Service *servicesdk.Module
+	Service *servicesdk.Backend
 }
 
 // NewBackend creates a new backend and init the sub-backend modules.
 func NewBackend(appFactory *cosmos.AppFactory, c container.Container) *Backend {
 	initDefaultCosmosModules(appFactory)
-	service := servicesdk.NewModule(appFactory, c)
+	service := servicesdk.NewBackend(appFactory, c)
 	return &Backend{
 		Service: service,
 	}

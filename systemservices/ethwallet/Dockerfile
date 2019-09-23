@@ -1,4 +1,4 @@
-FROM golang:1.11.4
+FROM golang:1.13
 WORKDIR /project
 COPY go.mod go.sum ./
 ENV GOPROXY=https://proxy.golang.org

@@ -1,37 +1,26 @@
 package ethwallet
 
 import (
-	"encoding/json"
-
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/mesg-foundation/engine/systemservices/ethwallet/client"
+	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/systemservices/ethwallet/x/xgo-ethereum/xaccounts"
 )
 
-type exportInputs struct {
-	Address    common.Address `json:"address"`
-	Passphrase string         `json:"passphrase"`
-}
+func (s *Ethwallet) export(inputs *types.Struct) (*types.Struct, error) {
+	address := common.HexToAddress(inputs.Fields["address"].GetStringValue())
+	passphrase := inputs.Fields["passphrase"].GetStringValue()
 
-func (s *Ethwallet) export(input map[string]interface{}) (map[string]interface{}, error) {
-	var inputs exportInputs
-	if err := client.Unmarshal(input, &inputs); err != nil {
-		return nil, err
-	}
-
-	account, err := xaccounts.GetAccount(s.keystore, inputs.Address)
-	if err != nil {
-		return nil, errAccountNotFound
-	}
-
-	keyJSON, err := s.keystore.Export(account, inputs.Passphrase, inputs.Passphrase)
+	account, err := xaccounts.GetAccount(s.keystore, address)
 	if err != nil {
 		return nil, err
 	}
 
-	var accountJSON encryptedKeyJSONV3
-	if err = json.Unmarshal(keyJSON, &accountJSON); err != nil {
+	accountJSON, err := s.keystore.Export(account, passphrase, passphrase)
+	if err != nil {
 		return nil, err
 	}
-	return client.Marshal(accountJSON)
+
+	return &types.Struct{Fields: map[string]*types.Value{
+		"account": &types.Value{Kind: &types.Value_StringValue{string(accountJSON)}},
+	}}, nil
 }

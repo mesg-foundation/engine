@@ -9,6 +9,35 @@
 #### Removed
 #### Experimental
 
+## [v0.15.0](https://github.com/mesg-foundation/engine/releases/tag/v0.15.0)
+
+#### Breaking Changes
+
+- ([#1329](https://github.com/mesg-foundation/engine/pull/1329)) Calculate process hash based on the nodes.
+- ([#1335](https://github.com/mesg-foundation/engine/pull/1335)) Remove plural form from instance list proto service.
+- ([#1337](https://github.com/mesg-foundation/engine/pull/1337)) Namespace protobuf types and api.
+
+#### Experimental
+
+- ([#1267](https://github.com/mesg-foundation/engine/pull/1267)) Implement service SDK with Cosmos.
+- ([#1308](https://github.com/mesg-foundation/engine/pull/1308)) Simplify cosmos keybase by just creating a NewMnemonic helper.
+- ([#1331](https://github.com/mesg-foundation/engine/pull/1331)) Add --exp to dev command.
+- ([#1343](https://github.com/mesg-foundation/engine/pull/1343)) Add account sdk and its api.
+
+#### Added
+
+- ([#1316](https://github.com/mesg-foundation/engine/pull/1316)) Add constant to process map.
+- ([#1317](https://github.com/mesg-foundation/engine/pull/1317)) Add tests for orchestrator.
+- ([#1342](https://github.com/mesg-foundation/engine/pull/1342)) Build and publish docker image with minor-only tag.
+
+#### Changed
+
+- ([#1305](https://github.com/mesg-foundation/engine/pull/1305)) Use protobuf struct in create function of service SDK.
+- ([#1321](https://github.com/mesg-foundation/engine/pull/1321)) Only force hash calculation on interface containing struct.
+- ([#1322](https://github.com/mesg-foundation/engine/pull/1322)) Update golang to 1.13.
+- ([#1323](https://github.com/mesg-foundation/engine/pull/1323)) Remove unused docker api mocks.
+- ([#1347](https://github.com/mesg-foundation/engine/pull/1347)) Update marketplace system service with latest mesg-js.
+
 ## [v0.14.2](https://github.com/mesg-foundation/engine/releases/tag/v0.14.2)
 
 #### Fixed

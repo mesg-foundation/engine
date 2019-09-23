@@ -22,19 +22,12 @@ func NewKeybase(dir string) (*Keybase, error) {
 	return &Keybase{kb}, nil
 }
 
-// GenerateAccount creates an account.
-func (kb *Keybase) GenerateAccount(name, mnemonic, password string) (keys.Info, error) {
+// NewMnemonic returns a new mnemonic phrase.
+func (kn *Keybase) NewMnemonic() (string, error) {
 	// read entropy seed straight from crypto.Rand and convert to mnemonic
 	entropySeed, err := bip39.NewEntropy(mnemonicEntropySize)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-
-	if mnemonic == "" {
-		mnemonic, err = bip39.NewMnemonic(entropySeed)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return kb.CreateAccount(name, mnemonic, "", password, 0, 0)
+	return bip39.NewMnemonic(entropySeed)
 }

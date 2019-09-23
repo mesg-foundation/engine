@@ -20,12 +20,12 @@ func NewInstanceServer(sdk *sdk.SDK) *InstanceServer {
 }
 
 // List instances.
-func (s *InstanceServer) List(ctx context.Context, request *protobuf_api.ListInstancesRequest) (*protobuf_api.ListInstancesResponse, error) {
+func (s *InstanceServer) List(ctx context.Context, request *protobuf_api.ListInstanceRequest) (*protobuf_api.ListInstanceResponse, error) {
 	instances, err := s.sdk.Instance.List(&instancesdk.Filter{ServiceHash: request.ServiceHash})
 	if err != nil {
 		return nil, err
 	}
-	return &protobuf_api.ListInstancesResponse{Instances: instances}, nil
+	return &protobuf_api.ListInstanceResponse{Instances: instances}, nil
 }
 
 // Create creates a new instance from service.

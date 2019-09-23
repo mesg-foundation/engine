@@ -176,8 +176,11 @@ func main() {
 			logrus.WithField("module", "main").Fatalln(err)
 		}
 
+		// create cosmos client
+		client := cosmos.NewClient(node, app.Cdc(), kb, cfg.Cosmos.ChainID)
+
 		// init sdk
-		sdk, err = enginesdk.New(c, instanceDB, executionDB, processDB, cfg.Name, strconv.Itoa(port))
+		sdk, err = enginesdk.New(client, app.Cdc(), kb, c, instanceDB, executionDB, processDB, cfg.Name, strconv.Itoa(port))
 		if err != nil {
 			logrus.WithField("module", "main").Fatalln(err)
 		}
