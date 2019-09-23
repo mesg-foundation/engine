@@ -8,17 +8,17 @@ import (
 )
 
 func (s *Ethwallet) importFromPrivateKey(inputs *types.Struct) (*types.Struct, error) {
-	privateKey, err := crypto.HexToECDSA(inputs.GetStringValue("privateKey"))
+	privateKey, err := crypto.HexToECDSA(inputs.Fields["privateKey"].GetStringValue())
 	if err != nil {
 		return nil, errors.New("cannot parse private key")
 	}
 
-	account, err := s.keystore.ImportECDSA(privateKey, inputs.GetStringValue("passphrase"))
+	account, err := s.keystore.ImportECDSA(privateKey, inputs.Fields["passphrase"].GetStringValue())
 	if err != nil {
 		return nil, err
 	}
 
-	return types.NewStruct(map[string]*types.Value{
-		"address": types.NewValueFrom(account.Address.String()),
-	}), nil
+	return &types.Struct{Fields: map[string]*types.Value{
+		"address": &types.Value{Kind: &types.Value_StringValue{account.Address.String()}},
+	}}, nil
 }

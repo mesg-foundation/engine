@@ -1,26 +1,24 @@
 package ethwallet
 
 import (
-	"fmt"
-
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/systemservices/ethwallet/x/xgo-ethereum/xaccounts"
 )
 
 func (s *Ethwallet) delete(inputs *types.Struct) (*types.Struct, error) {
-	address := common.HexToAddress(inputs.GetStringValue("address"))
+	address := common.HexToAddress(inputs.Fields["address"].GetStringValue())
 	account, err := xaccounts.GetAccount(s.keystore, address)
-	if err != nil {
-		return nil, fmt.Errorf("account %q not found", address.String())
-	}
-
-	err = s.keystore.Delete(account, inputs.GetStringValue("passphrase"))
 	if err != nil {
 		return nil, err
 	}
 
-	return types.NewStruct(map[string]*types.Value{
-		"address": types.NewValueFrom(account.Address.String()),
-	}), nil
+	err = s.keystore.Delete(account, inputs.Fields["passphrase"].GetStringValue())
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.Struct{Fields: map[string]*types.Value{
+		"address": &types.Value{Kind: &types.Value_StringValue{account.Address.String()}},
+	}}, nil
 }

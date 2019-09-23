@@ -7,10 +7,10 @@ import (
 func (s *Ethwallet) list(inputs *types.Struct) (*types.Struct, error) {
 	var addresses []*types.Value
 	for _, account := range s.keystore.Accounts() {
-		addresses = append(addresses, types.NewValueFrom(account.Address.String()))
+		addresses = append(addresses, &types.Value{Kind: &types.Value_StringValue{account.Address.String()}})
 	}
 
-	return types.NewStruct(map[string]*types.Value{
-		"addresses": types.NewValueFrom(addresses),
-	}), nil
+	return &types.Struct{Fields: map[string]*types.Value{
+		"addresses": &types.Value{Kind: &types.Value_ListValue{&types.ListValue{Values: addresses}}},
+	}}, nil
 }
