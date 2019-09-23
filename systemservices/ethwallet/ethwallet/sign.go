@@ -20,7 +20,7 @@ func (s *Ethwallet) sign(inputs *types.Struct) (*types.Struct, error) {
 
 	account, err := xaccounts.GetAccount(s.keystore, address)
 	if err != nil {
-		return nil, fmt.Errorf("account %q not found", address)
+		return nil, fmt.Errorf("account %q not found", address.String())
 	}
 
 	value := new(big.Int)

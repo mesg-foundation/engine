@@ -14,7 +14,7 @@ func (s *Ethwallet) export(inputs *types.Struct) (*types.Struct, error) {
 
 	account, err := xaccounts.GetAccount(s.keystore, address)
 	if err != nil {
-		return nil, fmt.Errorf("account %q not found", address)
+		return nil, fmt.Errorf("account %q not found", address.String())
 	}
 
 	accountJSON, err := s.keystore.Export(account, passphrase, passphrase)

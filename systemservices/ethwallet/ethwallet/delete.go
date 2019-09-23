@@ -12,7 +12,7 @@ func (s *Ethwallet) delete(inputs *types.Struct) (*types.Struct, error) {
 	address := common.HexToAddress(inputs.GetStringValue("address"))
 	account, err := xaccounts.GetAccount(s.keystore, address)
 	if err != nil {
-		return nil, fmt.Errorf("account %q not found", address)
+		return nil, fmt.Errorf("account %q not found", address.String())
 	}
 
 	err = s.keystore.Delete(account, inputs.GetStringValue("passphrase"))
