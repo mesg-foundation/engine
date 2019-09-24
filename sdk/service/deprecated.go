@@ -23,12 +23,12 @@ func NewDeprecated(c container.Container, serviceDB *database.ServiceDB) Service
 }
 
 // Create creates a new service from definition.
-func (s *deprecated) Create(req *api.CreateServiceRequest) (*service.Service, error) {
+func (s *deprecated) Create(req *api.CreateServiceRequest, accountName, accountPassword string) (*service.Service, error) {
 	return create(s.container, s.serviceDB, req)
 }
 
 // Delete deletes the service by hash.
-func (s *deprecated) Delete(hash hash.Hash) error {
+func (s *deprecated) Delete(hash hash.Hash, accountName, accountPassword string) error {
 	return s.serviceDB.Delete(hash)
 }
 

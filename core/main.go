@@ -62,7 +62,7 @@ func initDatabases(cfg *config.Config) (*database.ServiceDB, *database.LevelDBIn
 func deployCoreServices(cfg *config.Config, sdk *enginesdk.SDK) error {
 	for _, serviceConfig := range cfg.SystemServices {
 		logrus.WithField("module", "main").Infof("Deploying service %q", serviceConfig.Definition.Sid)
-		srv, err := sdk.Service.Create(serviceConfig.Definition)
+		srv, err := sdk.Service.Create(serviceConfig.Definition, "", "")
 		if err != nil {
 			existsError, ok := err.(*servicesdk.AlreadyExistsError)
 			if ok {

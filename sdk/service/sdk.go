@@ -24,9 +24,8 @@ func NewSDK(cdc *codec.Codec, client *cosmos.Client) Service {
 }
 
 // Create creates a new service from definition.
-func (s *SDK) Create(req *api.CreateServiceRequest) (*service.Service, error) {
+func (s *SDK) Create(req *api.CreateServiceRequest, accountName, accountPassword string) (*service.Service, error) {
 	// TODO: pass account by parameters
-	accountName, accountPassword := "bob", "pass"
 	accNumber, accSeq := uint64(0), uint64(0)
 	msg := newMsgCreateService(s.cdc, req)
 	tx, err := s.client.BuildAndBroadcastMsg(msg, accountName, accountPassword, accNumber, accSeq)
@@ -37,9 +36,8 @@ func (s *SDK) Create(req *api.CreateServiceRequest) (*service.Service, error) {
 }
 
 // Delete deletes the service by hash.
-func (s *SDK) Delete(hash hash.Hash) error {
+func (s *SDK) Delete(hash hash.Hash, accountName, accountPassword string) error {
 	// TODO: pass account by parameters
-	accountName, accountPassword := "bob", "pass"
 	accNumber, accSeq := uint64(0), uint64(0)
 	msg := newMsgDeleteService(s.cdc, hash)
 	_, err := s.client.BuildAndBroadcastMsg(msg, accountName, accountPassword, accNumber, accSeq)
