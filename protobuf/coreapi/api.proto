@@ -22,12 +22,5 @@ message InfoRequest {}
 
 // Information concerning the Core from the `info` API.
 message InfoReply {
-  message CoreService {
-    string sid = 1;   // sid of the service
-    bytes  hash = 2;  // hash of the service
-    string url = 3;   // url used to deploy the service
-    string key = 4;   // key to identify the core service
-  }
-  repeated CoreService services = 1; // List of services that the core is running as core service
   string version = 4; // Version of the core
 }

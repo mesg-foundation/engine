@@ -61,7 +61,7 @@ func (s *Server) Close() {
 
 // register all server
 func (s *Server) register() {
-	coreapi.RegisterCoreServer(s.instance, core.NewServer(s.sdk))
+	coreapi.RegisterCoreServer(s.instance, core.NewServer())
 
 	protobuf_api.RegisterEventServer(s.instance, api.NewEventServer(s.sdk))
 	protobuf_api.RegisterExecutionServer(s.instance, api.NewExecutionServer(s.sdk))

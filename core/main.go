@@ -14,12 +14,10 @@ import (
 	"github.com/mesg-foundation/engine/orchestrator"
 	enginesdk "github.com/mesg-foundation/engine/sdk"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
-	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	"github.com/mesg-foundation/engine/server/grpc"
 	"github.com/mesg-foundation/engine/version"
 	"github.com/mesg-foundation/engine/x/xerrors"
 	"github.com/mesg-foundation/engine/x/xnet"
-	"github.com/mesg-foundation/engine/x/xos"
 	"github.com/mesg-foundation/engine/x/xsignal"
 	"github.com/sirupsen/logrus"
 	db "github.com/tendermint/tm-db"
@@ -45,40 +43,6 @@ func initDatabases(cfg *config.Config) (*database.LevelDBInstanceDB, *database.L
 	}
 
 	return instanceDB, executionDB, processDB, nil
-}
-
-func deployCoreServices(cfg *config.Config, sdk *enginesdk.SDK) error {
-	for _, serviceConfig := range cfg.SystemServices {
-		logrus.WithField("module", "main").Infof("Deploying service %q", serviceConfig.Definition.Sid)
-		srv, err := sdk.Service.Create(serviceConfig.Definition, "", "")
-		if err != nil {
-			existsError, ok := err.(*servicesdk.AlreadyExistsError)
-			if ok {
-				srv, err = sdk.Service.Get(existsError.Hash)
-				if err != nil {
-					return err
-				}
-			} else {
-				return err
-			}
-		}
-		logrus.WithField("module", "main").Infof("Service %q deployed with hash %q", srv.Sid, srv.Hash.String())
-		instance, err := sdk.Instance.Create(srv.Hash, xos.EnvMapToSlice(serviceConfig.Env))
-		if err != nil {
-			existsError, ok := err.(*instancesdk.AlreadyExistsError)
-			if ok {
-				instance, err = sdk.Instance.Get(existsError.Hash)
-				if err != nil {
-					return err
-				}
-			} else {
-				return err
-			}
-		}
-		serviceConfig.Instance = instance
-		logrus.WithField("module", "main").Infof("Instance started with hash %q", instance.Hash)
-	}
-	return nil
 }
 
 func stopRunningServices(sdk *enginesdk.SDK) error {
@@ -170,10 +134,6 @@ func main() {
 	// start tendermint node
 	logrus.WithField("module", "main").WithField("seeds", cfg.Tendermint.P2P.Seeds).Info("starting tendermint node")
 	if err := node.Start(); err != nil {
-		logrus.WithField("module", "main").Fatalln(err)
-	}
-	// init system services.
-	if err := deployCoreServices(cfg, sdk); err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 

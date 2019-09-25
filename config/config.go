@@ -58,8 +58,6 @@ type Config struct {
 	}
 
 	Cosmos CosmosConfig
-
-	SystemServices []*ServiceConfig
 }
 
 // CosmosConfig is the struct to hold cosmos related configs.
@@ -102,7 +100,7 @@ func New() (*Config, error) {
 	c.Tendermint.Config.P2P.AllowDuplicateIP = true
 	c.Tendermint.Config.Consensus.TimeoutCommit = 10 * time.Second
 
-	return &c, c.setupServices()
+	return &c, nil
 }
 
 // Global returns a singleton of a Config after loaded ENV and validate the values.
