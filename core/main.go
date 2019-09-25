@@ -75,7 +75,7 @@ func stopRunningServices(sdk *enginesdk.SDK) error {
 }
 
 func main() {
-	cfg, err := config.Global()
+	cfg, err := config.New()
 	if err != nil {
 		logrus.Fatalln(err)
 	}
