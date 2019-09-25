@@ -46,7 +46,11 @@ func (s *AccountServer) Get(ctx context.Context, request *protobuf_api.GetAccoun
 
 // Delete an account
 func (s *AccountServer) Delete(ctx context.Context, request *protobuf_api.DeleteAccountRequest) (*protobuf_api.DeleteAccountResponse, error) {
-	if err := s.sdk.Account.Delete(request.Name, request.Password); err != nil {
+	credname, credpassword, err := GetCredentialFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if err := s.sdk.Account.Delete(credname, credpassword); err != nil {
 		return nil, err
 	}
 	return &protobuf_api.DeleteAccountResponse{}, nil
