@@ -6,7 +6,7 @@ DIR=$(pwd)
 
 # Flags
 if [[ $* == *--exp* ]]; then
-  EXPERIMENTAL_FLAGS+=" --experimental-network"
+  EXPERIMENTAL_FLAGS+=" --experimental"
 fi
 
 # mesg config variables

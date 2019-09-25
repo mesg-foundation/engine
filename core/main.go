@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"path/filepath"
 	"strconv"
 	"sync"
@@ -112,7 +111,6 @@ func stopRunningServices(sdk *enginesdk.SDK) error {
 }
 
 func main() {
-	flag.Parse()
 	cfg, err := config.Global()
 	if err != nil {
 		logrus.Fatalln(err)
