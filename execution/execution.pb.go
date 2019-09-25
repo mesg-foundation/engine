@@ -92,7 +92,7 @@ type Execution struct {
 	Tags []string `protobuf:"bytes,10,rep,name=tags,proto3" json:"tags,omitempty" hash:"name:10"`
 	// processHash is the unique hash of the process associated to this execution.
 	ProcessHash github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,11,opt,name=processHash,proto3,customtype=github.com/mesg-foundation/engine/hash.Hash" json:"processHash" hash:"name:11"`
-	// step of the workflow.
+	// step of the process.
 	StepID               string   `protobuf:"bytes,12,opt,name=stepID,proto3" json:"stepID,omitempty" hash:"name:12"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`

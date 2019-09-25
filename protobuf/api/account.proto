@@ -53,10 +53,7 @@ message CreateAccountResponse {
 }
 
 // The request's data for the `Delete` API.
-message DeleteAccountRequest {
-  string name = 1;
-  string password = 2;
-}
+message DeleteAccountRequest {}
 
 // The response's data for the `Delete` API.
 message DeleteAccountResponse {}
