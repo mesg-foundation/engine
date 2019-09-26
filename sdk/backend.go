@@ -13,8 +13,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/cosmos"
-	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	ownershipsdk "github.com/mesg-foundation/engine/sdk/ownership"
+	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 )
 
 // Backend handles all the backend functions.
