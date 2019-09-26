@@ -7,10 +7,8 @@ import (
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	protobuf_api "github.com/mesg-foundation/engine/protobuf/api"
-	"github.com/mesg-foundation/engine/protobuf/coreapi"
 	"github.com/mesg-foundation/engine/sdk"
 	"github.com/mesg-foundation/engine/server/grpc/api"
-	"github.com/mesg-foundation/engine/server/grpc/core"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
@@ -61,8 +59,6 @@ func (s *Server) Close() {
 
 // register all server
 func (s *Server) register() {
-	coreapi.RegisterCoreServer(s.instance, core.NewServer())
-
 	protobuf_api.RegisterEventServer(s.instance, api.NewEventServer(s.sdk))
 	protobuf_api.RegisterExecutionServer(s.instance, api.NewExecutionServer(s.sdk))
 	protobuf_api.RegisterInstanceServer(s.instance, api.NewInstanceServer(s.sdk))
