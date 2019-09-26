@@ -29,7 +29,7 @@ type SDK struct {
 // New creates a new SDK with given options.
 func New(client *cosmos.Client, cdc *codec.Codec, kb *cosmos.Keybase, c container.Container, instanceDB database.InstanceDB, execDB database.ExecutionDB, processDB database.ProcessDB, engineName, port string) *SDK {
 	ps := pubsub.New(0)
-	serviceSDK := servicesdk.New(cdc, client)
+	serviceSDK := servicesdk.New(cdc, client, accountSDK)
 	ownershipSDK := ownershipsdk.New(cdc, client)
 	instanceSDK := instancesdk.New(c, serviceSDK, instanceDB, engineName, port)
 	processSDK := processesdk.New(instanceSDK, processDB)

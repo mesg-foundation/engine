@@ -6,18 +6,20 @@ import (
 	"net/http"
 	"os"
 
+	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/hash/dirhash"
 	"github.com/mesg-foundation/engine/protobuf/api"
+	ownershipsdk "github.com/mesg-foundation/engine/sdk/ownership"
 	"github.com/mesg-foundation/engine/service"
 	"github.com/mesg-foundation/engine/service/validator"
 	"github.com/mr-tron/base58"
 )
 
-func create(container container.Container, db *database.ServiceDB, req *api.CreateServiceRequest) (*service.Service, error) {
+func create(container container.Container, db *database.ServiceDB, req *api.CreateServiceRequest, owner cosmostypes.AccAddress, ownerships *ownershipsdk.Backend, request cosmostypes.Request) (*service.Service, error) {
 	// download and untar service context into path.
 	path, err := ioutil.TempDir("", "mesg")
 	if err != nil {
@@ -77,5 +79,10 @@ func create(container container.Container, db *database.ServiceDB, req *api.Crea
 	if err := validator.ValidateService(srv); err != nil {
 		return nil, err
 	}
+
+	if _, err := ownerships.CreateServiceOwnership(request, srv.Hash, owner); err != nil {
+		return nil, err
+	}
+
 	return srv, db.Save(srv)
 }

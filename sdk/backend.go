@@ -25,8 +25,8 @@ type Backend struct {
 // NewBackend creates a new backend and init the sub-backend modules.
 func NewBackend(appFactory *cosmos.AppFactory, c container.Container) *Backend {
 	initDefaultCosmosModules(appFactory)
-	service := servicesdk.NewBackend(appFactory, c)
 	ownership := ownershipsdk.NewBackend(appFactory)
+	service := servicesdk.NewBackend(appFactory, c, ownership)
 	return &Backend{
 		Service: service,
 	}
