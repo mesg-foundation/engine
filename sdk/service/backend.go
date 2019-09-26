@@ -11,8 +11,8 @@ import (
 	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/hash"
-	"github.com/mesg-foundation/engine/service"
 	ownershipsdk "github.com/mesg-foundation/engine/sdk/ownership"
+	"github.com/mesg-foundation/engine/service"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -20,18 +20,18 @@ const backendName = "service"
 
 // Backend is the service backend.
 type Backend struct {
-	container container.Container
-	cdc       *codec.Codec
-	storeKey  *cosmostypes.KVStoreKey
+	container  container.Container
+	cdc        *codec.Codec
+	storeKey   *cosmostypes.KVStoreKey
 	ownerships *ownershipsdk.Backend
 }
 
 // NewBackend returns the backend of the service sdk.
 func NewBackend(appFactory *cosmos.AppFactory, c container.Container, ownerships *ownershipsdk.Backend) *Backend {
 	backend := &Backend{
-		container: c,
-		cdc:       appFactory.Cdc(),
-		storeKey:  cosmostypes.NewKVStoreKey(backendName),
+		container:  c,
+		cdc:        appFactory.Cdc(),
+		storeKey:   cosmostypes.NewKVStoreKey(backendName),
 		ownerships: ownerships,
 	}
 	appBackendBasic := cosmos.NewAppModuleBasic(backendName)

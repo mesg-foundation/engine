@@ -62,10 +62,7 @@ func (s *Backend) CreateServiceOwnership(request cosmostypes.Request, serviceHas
 	if err != nil {
 		return nil, err
 	}
-	ownshpSrv, err := ownershipsOfService(allOwnshp, serviceHash)
-	if err != nil {
-		return nil, err
-	}
+	ownshpSrv := ownershipsOfService(allOwnshp, serviceHash)
 	// check if service already have an owner.
 	if len(ownshpSrv) > 0 {
 		return nil, fmt.Errorf("service %q has already an owner", serviceHash.String())
@@ -86,7 +83,7 @@ func (s *Backend) List(request cosmostypes.Request) ([]*ownership.Ownership, err
 }
 
 // ownershipsOfService only returns the ownership concerning the specify service.
-func ownershipsOfService(allOwnshp []*ownership.Ownership, serviceHash hash.Hash) ([]*ownership.Ownership, error) {
+func ownershipsOfService(allOwnshp []*ownership.Ownership, serviceHash hash.Hash) []*ownership.Ownership {
 	ownshpSrv := make([]*ownership.Ownership, 0)
 	for _, o := range allOwnshp {
 		switch x := o.Resource.(type) {
@@ -98,5 +95,5 @@ func ownershipsOfService(allOwnshp []*ownership.Ownership, serviceHash hash.Hash
 			continue
 		}
 	}
-	return ownshpSrv, nil
+	return ownshpSrv
 }

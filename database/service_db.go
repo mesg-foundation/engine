@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	errCannotSaveWithoutHash = errors.New("database: can't save service without hash")
+	errCannotSaveServiceWithoutHash = errors.New("database: can't save service without hash")
 )
 
 // ServiceDB is a database for storing service definition.
@@ -33,7 +33,7 @@ func NewServiceDB(s store.Store, cdc *codec.Codec) *ServiceDB {
 func (d *ServiceDB) unmarshalService(hash hash.Hash, value []byte) (*service.Service, error) {
 	var s service.Service
 	if err := d.cdc.UnmarshalBinaryBare(value, &s); err != nil {
-		return nil, fmt.Errorf("database: could not decode service %q: %s", hash, err)
+		return nil, fmt.Errorf("database: could not decode service %q: %w", hash.String(), err)
 	}
 	return &s, nil
 }
@@ -82,7 +82,7 @@ func (d *ServiceDB) Get(hash hash.Hash) (*service.Service, error) {
 // If there is an another service that uses the same sid, it'll be deleted.
 func (d *ServiceDB) Save(s *service.Service) error {
 	if len(s.Hash) == 0 {
-		return errCannotSaveWithoutHash
+		return errCannotSaveServiceWithoutHash
 	}
 	b, err := d.cdc.MarshalBinaryBare(s)
 	if err != nil {
