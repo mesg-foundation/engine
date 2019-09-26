@@ -14,6 +14,7 @@ import (
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/cosmos"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
+	ownershipsdk "github.com/mesg-foundation/engine/sdk/ownership"
 )
 
 // Backend handles all the backend functions.
@@ -25,6 +26,7 @@ type Backend struct {
 func NewBackend(appFactory *cosmos.AppFactory, c container.Container) *Backend {
 	initDefaultCosmosModules(appFactory)
 	service := servicesdk.NewBackend(appFactory, c)
+	ownership := ownershipsdk.NewBackend(appFactory)
 	return &Backend{
 		Service: service,
 	}

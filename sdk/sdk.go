@@ -10,6 +10,7 @@ import (
 	eventsdk "github.com/mesg-foundation/engine/sdk/event"
 	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
+	ownershipsdk "github.com/mesg-foundation/engine/sdk/ownership"
 	processesdk "github.com/mesg-foundation/engine/sdk/process"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 )
@@ -22,12 +23,14 @@ type SDK struct {
 	Event     *eventsdk.Event
 	Process   *processesdk.Process
 	Account   *accountsdk.SDK
+	Ownership *ownershipsdk.SDK
 }
 
 // New creates a new SDK with given options.
 func New(client *cosmos.Client, cdc *codec.Codec, kb *cosmos.Keybase, c container.Container, instanceDB database.InstanceDB, execDB database.ExecutionDB, processDB database.ProcessDB, engineName, port string) *SDK {
 	ps := pubsub.New(0)
 	serviceSDK := servicesdk.New(cdc, client)
+	ownershipSDK := ownershipsdk.New(cdc, client)
 	instanceSDK := instancesdk.New(c, serviceSDK, instanceDB, engineName, port)
 	processSDK := processesdk.New(instanceSDK, processDB)
 	executionSDK := executionsdk.New(ps, serviceSDK, instanceSDK, processSDK, execDB)
@@ -40,5 +43,6 @@ func New(client *cosmos.Client, cdc *codec.Codec, kb *cosmos.Keybase, c containe
 		Event:     eventSDK,
 		Process:   processSDK,
 		Account:   accountSDK,
+		Ownership: ownershipSDK,
 	}
 }

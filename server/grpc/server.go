@@ -69,6 +69,7 @@ func (s *Server) register() {
 	protobuf_api.RegisterServiceServer(s.instance, api.NewServiceServer(s.sdk))
 	protobuf_api.RegisterProcessServer(s.instance, api.NewProcessServer(s.sdk))
 	protobuf_api.RegisterAccountServer(s.instance, api.NewAccountServer(s.sdk))
+	protobuf_api.RegisterOwnershipServer(s.instance, api.NewOwnershipServer(s.sdk))
 
 	reflection.Register(s.instance)
 }
