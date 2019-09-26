@@ -7,6 +7,10 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/codec"
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/mesg-foundation/engine/x/xstrings"
 	homedir "github.com/mitchellh/go-homedir"
@@ -60,11 +64,7 @@ type CosmosConfig struct {
 	ChainID     string
 	GenesisTime time.Time
 
-	GenesisAccount struct {
-		Name     string
-		Password string
-		Mnemonic string
-	}
+	GenesisValidatorTx StdTx
 
 	ValidatorPubKey PubKeyEd25519
 }
@@ -175,5 +175,21 @@ func (key *PubKeyEd25519) Decode(value string) error {
 	}
 
 	copy(key[:], dec)
+	return nil
+}
+
+// StdTx is type used to parse cosmos tx value provided by envconfig.
+type StdTx authtypes.StdTx
+
+// Decode parses string value as hex ed25519 key.
+func (tx *StdTx) Decode(value string) error {
+	cdc := codec.New()
+	codec.RegisterCrypto(cdc)
+	sdktypes.RegisterCodec(cdc)
+	stakingtypes.RegisterCodec(cdc)
+
+	if err := cdc.UnmarshalJSON([]byte(value), tx); err != nil {
+		return fmt.Errorf("unmarshal genesis validator error: %s", err)
+	}
 	return nil
 }
