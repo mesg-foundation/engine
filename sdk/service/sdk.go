@@ -15,7 +15,7 @@ type SDK struct {
 }
 
 // NewSDK returns the service sdk.
-func NewSDK(cdc *codec.Codec, client *cosmos.Client) Service {
+func New(cdc *codec.Codec, client *cosmos.Client) Service {
 	sdk := &SDK{
 		cdc:    cdc,
 		client: client,

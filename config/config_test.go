@@ -12,7 +12,7 @@ import (
 
 func TestDefaultValue(t *testing.T) {
 	home, _ := homedir.Dir()
-	c, err := New()
+	c, err := Default()
 	require.NoError(t, err)
 	require.Equal(t, ":50052", c.Server.Address)
 	require.Equal(t, "text", c.Log.Format)
@@ -24,8 +24,8 @@ func TestDefaultValue(t *testing.T) {
 	require.Equal(t, "engine", c.Name)
 }
 
-func TestGlobal(t *testing.T) {
-	c, err := Global()
+func TestNew(t *testing.T) {
+	c, err := New()
 	require.NoError(t, err)
 	require.NotNil(t, c)
 }
@@ -55,7 +55,7 @@ func TestLoad(t *testing.T) {
 	os.Setenv("MESG_TENDERMINT_P2P_PERSISTENTPEERS", "localhost")
 	os.Setenv("MESG_COSMOS_VALIDATORPUBKEY", "0000000000000000000000000000000000000000000000000000000000000001")
 
-	c, _ := New()
+	c, _ := Default()
 	c.Load()
 	require.Equal(t, "test_server_address", c.Server.Address)
 	require.Equal(t, "test_log_format", c.Log.Format)
@@ -66,14 +66,14 @@ func TestLoad(t *testing.T) {
 }
 
 func TestValidate(t *testing.T) {
-	c, _ := New()
+	c, _ := Default()
 	require.NoError(t, c.Validate())
 
-	c, _ = New()
+	c, _ = Default()
 	c.Log.Format = "wrongValue"
 	require.Error(t, c.Validate())
 
-	c, _ = New()
+	c, _ = Default()
 	c.Log.Level = "wrongValue"
 	require.Error(t, c.Validate())
 }

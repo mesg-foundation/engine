@@ -25,9 +25,9 @@ type SDK struct {
 }
 
 // New creates a new SDK with given options.
-func New(client *cosmos.Client, cdc *codec.Codec, kb *cosmos.Keybase, c container.Container, instanceDB database.InstanceDB, execDB database.ExecutionDB, processDB database.ProcessDB, engineName, port string) (*SDK, error) {
+func New(client *cosmos.Client, cdc *codec.Codec, kb *cosmos.Keybase, c container.Container, instanceDB database.InstanceDB, execDB database.ExecutionDB, processDB database.ProcessDB, engineName, port string) *SDK {
 	ps := pubsub.New(0)
-	serviceSDK := servicesdk.NewSDK(cdc, client)
+	serviceSDK := servicesdk.New(cdc, client)
 	instanceSDK := instancesdk.New(c, serviceSDK, instanceDB, engineName, port)
 	processSDK := processesdk.New(instanceSDK, processDB)
 	executionSDK := executionsdk.New(ps, serviceSDK, instanceSDK, processSDK, execDB)
@@ -40,22 +40,5 @@ func New(client *cosmos.Client, cdc *codec.Codec, kb *cosmos.Keybase, c containe
 		Event:     eventSDK,
 		Process:   processSDK,
 		Account:   accountSDK,
-	}, nil
-}
-
-// NewDeprecated creates a new SDK with given options.
-func NewDeprecated(c container.Container, serviceDB *database.ServiceDB, instanceDB database.InstanceDB, execDB database.ExecutionDB, processDB database.ProcessDB, engineName, port string) *SDK {
-	ps := pubsub.New(0)
-	serviceSDK := servicesdk.NewDeprecated(c, serviceDB)
-	instanceSDK := instancesdk.New(c, serviceSDK, instanceDB, engineName, port)
-	processSDK := processesdk.New(instanceSDK, processDB)
-	executionSDK := executionsdk.New(ps, serviceSDK, instanceSDK, processSDK, execDB)
-	eventSDK := eventsdk.New(ps, serviceSDK, instanceSDK)
-	return &SDK{
-		Service:   serviceSDK,
-		Instance:  instanceSDK,
-		Execution: executionSDK,
-		Event:     eventSDK,
-		Process:   processSDK,
 	}
 }

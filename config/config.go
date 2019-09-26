@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"sync"
 	"time"
 
 	"github.com/kelseyhightower/envconfig"
@@ -23,11 +22,6 @@ const (
 	executionDBVersion = "v3"
 	instanceDBVersion  = "v2"
 	processDBVersion   = "v2"
-)
-
-var (
-	_instance *Config
-	once      sync.Once
 )
 
 // Config contains all the configuration needed.
@@ -58,8 +52,6 @@ type Config struct {
 	}
 
 	Cosmos CosmosConfig
-
-	SystemServices []*ServiceConfig
 }
 
 // CosmosConfig is the struct to hold cosmos related configs.
@@ -78,7 +70,7 @@ type CosmosConfig struct {
 }
 
 // New creates a new config with default values.
-func New() (*Config, error) {
+func Default() (*Config, error) {
 	home, err := homedir.Dir()
 	if err != nil {
 		return nil, err
@@ -102,31 +94,25 @@ func New() (*Config, error) {
 	c.Tendermint.Config.P2P.AllowDuplicateIP = true
 	c.Tendermint.Config.Consensus.TimeoutCommit = 10 * time.Second
 
-	return &c, c.setupServices()
+	return &c, nil
 }
 
-// Global returns a singleton of a Config after loaded ENV and validate the values.
-func Global() (*Config, error) {
-	var err error
-	once.Do(func() {
-		_instance, err = New()
-		if err != nil {
-			return
-		}
-		if err = _instance.Load(); err != nil {
-			return
-		}
-		if err = _instance.Prepare(); err != nil {
-			return
-		}
-	})
+// New returns a Config after loaded ENV and validate the values.
+func New() (*Config, error) {
+	c, err := Default()
 	if err != nil {
 		return nil, err
 	}
-	if err := _instance.Validate(); err != nil {
+	if err := c.Load(); err != nil {
 		return nil, err
 	}
-	return _instance, nil
+	if err := c.Prepare(); err != nil {
+		return nil, err
+	}
+	if err := c.Validate(); err != nil {
+		return nil, err
+	}
+	return c, nil
 }
 
 // Load reads config from environmental variables.

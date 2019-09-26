@@ -6,7 +6,7 @@ DIR=$(pwd)
 
 # Flags
 if [[ $* == *--exp* ]]; then
-  EXPERIMENTAL_FLAGS+=" --experimental-network"
+  EXPERIMENTAL_FLAGS+=" --experimental"
 fi
 
 # mesg config variables
@@ -48,10 +48,6 @@ fi
 
 VERSION=local
 LDFLAGS="-X 'github.com/mesg-foundation/engine/version.Version=$VERSION'"
-LDFLAGS+=" -X 'github.com/mesg-foundation/engine/config.EnvMarketplaceEndpoint=https://ropsten.infura.io/v3/6115ae2531f64c04a9a392cf500e5fbe'"
-LDFLAGS+=" -X 'github.com/mesg-foundation/engine/config.EnvMarketplaceAddress=0xeCC1A867F871323350A1A89FcAf69629a2d5085e'"
-LDFLAGS+=" -X 'github.com/mesg-foundation/engine/config.EnvMarketplaceToken=0x5861b3dc52339d4f976b7fa5d80db6cd6f477f1b'"
-
 
 function onexit {
   set +e
@@ -79,15 +75,6 @@ function docker_network_remove {
   echo -ne "remove docker network: "
   docker network remove "$1"
 }
-
-for s in systemservices/* ; do
-  if [ -d "$s" ]; then
-    pushd $s > /dev/null
-    name=$(basename "$s")
-    LDFLAGS+=" -X 'github.com/mesg-foundation/engine/config.${name}Compiled=$(cat compiled.json)'"
-    popd > /dev/null
-  fi
-done
 
 echo "compile engine"
 GOOS=linux GOARCH=amd64 go build -o ./bin/engine -ldflags="$LDFLAGS" core/main.go
