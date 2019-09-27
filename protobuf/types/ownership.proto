@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+import "gogo/protobuf/gogoproto/gogo.proto";
+
+package mesg.types;
+option go_package = "github.com/mesg-foundation/engine/ownership";
+
+option (gogoproto.goproto_getters_all) = false;
+option (gogoproto.equal_all) = true;
+
+// Ownership is a ownership relation between one owner and a resource.
+message Ownership {
+
+  // Service's hash.
+  bytes hash = 1 [
+    (gogoproto.moretags) = 'hash:"-" validate:"required"',
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
+
+  // The owner of the resource.
+  string owner = 2 [
+    (gogoproto.moretags) = 'hash:"name:2" validate:"required"'
+  ];
+
+  // Resource's hash.
+  oneof resource {
+    bytes serviceHash = 3 [
+      (gogoproto.moretags) = 'hash:"name:3"',
+      (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash"
+    ];
+  }
+}
