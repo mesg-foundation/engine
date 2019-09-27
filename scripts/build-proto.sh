@@ -5,7 +5,6 @@ source $(dirname $0)/require-mesg-tools.sh
 
 TYPES_PATH=protobuf/types
 APIS_PATH=protobuf/api
-CORE_APIS_PATH=protobuf/coreapi
 
 # generate type
 for file in "${TYPES_PATH}"/{account,event,execution,instance,service,process,ownership}.proto
@@ -24,5 +23,3 @@ for file in "${APIS_PATH}"/{account,event,execution,instance,service,process,own
 do
   protoc --gogo_out=plugins=grpc:. --proto_path . "${file}"
 done
-
-protoc --go_out=plugins=grpc:. "${CORE_APIS_PATH}"/api.proto
