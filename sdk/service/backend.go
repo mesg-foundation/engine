@@ -11,6 +11,7 @@ import (
 	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/hash"
+	ownershipsdk "github.com/mesg-foundation/engine/sdk/ownership"
 	"github.com/mesg-foundation/engine/service"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -19,17 +20,19 @@ const backendName = "service"
 
 // Backend is the service backend.
 type Backend struct {
-	container container.Container
-	cdc       *codec.Codec
-	storeKey  *cosmostypes.KVStoreKey
+	container  container.Container
+	cdc        *codec.Codec
+	storeKey   *cosmostypes.KVStoreKey
+	ownerships *ownershipsdk.Backend
 }
 
 // NewBackend returns the backend of the service sdk.
-func NewBackend(appFactory *cosmos.AppFactory, c container.Container) *Backend {
+func NewBackend(appFactory *cosmos.AppFactory, c container.Container, ownerships *ownershipsdk.Backend) *Backend {
 	backend := &Backend{
-		container: c,
-		cdc:       appFactory.Cdc(),
-		storeKey:  cosmostypes.NewKVStoreKey(backendName),
+		container:  c,
+		cdc:        appFactory.Cdc(),
+		storeKey:   cosmostypes.NewKVStoreKey(backendName),
+		ownerships: ownerships,
 	}
 	appBackendBasic := cosmos.NewAppModuleBasic(backendName)
 	appBackend := cosmos.NewAppModule(appBackendBasic, backend.cdc, backend.handler, backend.querier)
@@ -85,7 +88,7 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 
 // Create creates a new service from definition.
 func (s *Backend) Create(request cosmostypes.Request, msg *msgCreateService) (*service.Service, error) {
-	return create(s.container, s.db(request), msg.Request)
+	return create(s.container, s.db(request), msg.Request, msg.Owner, s.ownerships, request)
 }
 
 // Delete deletes the service by hash.

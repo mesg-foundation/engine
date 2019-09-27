@@ -3,10 +3,6 @@ FROM golang:1.13.0-stretch
 
 WORKDIR /project
 
-# install dependencies
-COPY go.mod go.sum ./
-RUN go mod download
-
 VOLUME /project
 
 # install some dependencies from apt-get.
@@ -37,6 +33,10 @@ RUN cd /tmp/ && \
 RUN mkdir -p /usr/local/include/gogo/protobuf/ && \
     wget -qO- https://github.com/gogo/protobuf/archive/v${gogoprotobuf}.tar.gz | tar -xzf - protobuf-${gogoprotobuf}/gogoproto/gogo.proto && \
     mv protobuf-${gogoprotobuf}/gogoproto /usr/local/include/gogo/protobuf/
+
+# install dependencies
+COPY go.mod go.sum ./
+RUN go mod download
 
 RUN go install github.com/go-bindata/go-bindata/go-bindata
 RUN go install github.com/golang/protobuf/protoc-gen-go

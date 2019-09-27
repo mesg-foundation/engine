@@ -48,7 +48,7 @@ func TestServiceDBSave(t *testing.T) {
 	require.Len(t, ss, 2)
 
 	// test service without hash.
-	require.EqualError(t, db.Save(&service.Service{}), errCannotSaveWithoutHash.Error())
+	require.EqualError(t, db.Save(&service.Service{}), errCannotSaveServiceWithoutHash.Error())
 }
 
 func TestServiceDBGet(t *testing.T) {
