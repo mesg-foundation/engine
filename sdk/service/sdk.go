@@ -2,32 +2,44 @@ package servicesdk
 
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
+	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/api"
+	accountsdk "github.com/mesg-foundation/engine/sdk/account"
 	"github.com/mesg-foundation/engine/service"
 )
 
 // SDK is the service sdk.
 type SDK struct {
-	cdc    *codec.Codec
-	client *cosmos.Client
+	cdc        *codec.Codec
+	accountSDK *accountsdk.SDK
+	client     *cosmos.Client
 }
 
 // NewSDK returns the service sdk.
-func New(cdc *codec.Codec, client *cosmos.Client) Service {
+func New(cdc *codec.Codec, client *cosmos.Client, accountSDK *accountsdk.SDK) Service {
 	sdk := &SDK{
-		cdc:    cdc,
-		client: client,
+		cdc:        cdc,
+		accountSDK: accountSDK,
+		client:     client,
 	}
 	return sdk
 }
 
 // Create creates a new service from definition.
 func (s *SDK) Create(req *api.CreateServiceRequest, accountName, accountPassword string) (*service.Service, error) {
+	account, err := s.accountSDK.Get(accountName)
+	if err != nil {
+		return nil, err
+	}
 	// TODO: pass account by parameters
 	accNumber, accSeq := uint64(0), uint64(0)
-	msg := newMsgCreateService(s.cdc, req)
+	owner, err := cosmostypes.AccAddressFromBech32(account.Address)
+	if err != nil {
+		return nil, err
+	}
+	msg := newMsgCreateService(s.cdc, req, owner)
 	tx, err := s.client.BuildAndBroadcastMsg(msg, accountName, accountPassword, accNumber, accSeq)
 	if err != nil {
 		return nil, err

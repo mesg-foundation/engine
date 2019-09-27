@@ -10,16 +10,16 @@ import (
 // msgCreateService defines a state transition to create a service.
 type msgCreateService struct {
 	Request *api.CreateServiceRequest `json:"request"`
-	// Owner   cosmostypes.AccAddress   `json:"owner"`
-	cdc *codec.Codec
+	Owner   cosmostypes.AccAddress    `json:"owner"`
+	cdc     *codec.Codec
 }
 
 // newMsgCreateService is a constructor function for msgCreateService.
-func newMsgCreateService(cdc *codec.Codec, req *api.CreateServiceRequest) *msgCreateService {
+func newMsgCreateService(cdc *codec.Codec, req *api.CreateServiceRequest, owner cosmostypes.AccAddress) *msgCreateService {
 	return &msgCreateService{
 		Request: req,
-		// Owner:   owner,
-		cdc: cdc,
+		Owner:   owner,
+		cdc:     cdc,
 	}
 }
 
@@ -35,9 +35,9 @@ func (msg msgCreateService) Type() string {
 
 // ValidateBasic runs stateless checks on the message.
 func (msg msgCreateService) ValidateBasic() cosmostypes.Error {
-	// if msg.Owner.Empty() {
-	// 	return cosmostypes.ErrInvalidAddress(msg.Owner.String())
-	// }
+	if msg.Owner.Empty() {
+		return cosmostypes.ErrInvalidAddress("owner is missing")
+	}
 	return nil
 }
 
@@ -48,8 +48,7 @@ func (msg msgCreateService) GetSignBytes() []byte {
 
 // GetSigners defines whose signature is required.
 func (msg msgCreateService) GetSigners() []cosmostypes.AccAddress {
-	return []cosmostypes.AccAddress{}
-	// return []cosmostypes.AccAddress{msg.Owner}
+	return []cosmostypes.AccAddress{msg.Owner}
 }
 
 // --------------------------------------------------------
