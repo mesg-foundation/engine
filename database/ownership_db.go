@@ -31,7 +31,7 @@ func NewOwnershipDB(s store.Store, cdc *codec.Codec) *OwnershipDB {
 // unmarshal returns the ownership from byte slice.
 func (d *OwnershipDB) unmarshalOwnership(hash hash.Hash, value []byte) (*ownership.Ownership, error) {
 	var s ownership.Ownership
-	if err := d.cdc.UnmarshalJSON(value, &s); err != nil {
+	if err := d.cdc.UnmarshalBinaryBare(value, &s); err != nil {
 		return nil, fmt.Errorf("database: could not decode ownership %q: %w", hash.String(), err)
 	}
 	return &s, nil
@@ -61,7 +61,7 @@ func (d *OwnershipDB) Save(o *ownership.Ownership) error {
 	if o.Hash.IsZero() {
 		return errCannotSaveOwnershipWithoutHash
 	}
-	b, err := d.cdc.MarshalJSON(o)
+	b, err := d.cdc.MarshalBinaryBare(o)
 	if err != nil {
 		return err
 	}
