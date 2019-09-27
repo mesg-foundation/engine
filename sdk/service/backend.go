@@ -14,7 +14,6 @@ import (
 	ownershipsdk "github.com/mesg-foundation/engine/sdk/ownership"
 	"github.com/mesg-foundation/engine/service"
 	"github.com/mesg-foundation/engine/service/validator"
-	"github.com/mr-tron/base58"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -131,7 +130,7 @@ func create(db *database.ServiceDB, req *api.CreateServiceRequest, owner cosmost
 	// TODO: the following test should be moved in New function
 	if srv.Sid == "" {
 		// make sure that sid doesn't have the same length with id.
-		srv.Sid = "_" + base58.Encode(srv.Hash) // TODO: use string method after change type to hash.Hash
+		srv.Sid = "_" + srv.Hash.String()
 	}
 
 	if err := validator.ValidateService(srv); err != nil {
