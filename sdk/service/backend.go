@@ -6,13 +6,15 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
-	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/protobuf/api"
 	ownershipsdk "github.com/mesg-foundation/engine/sdk/ownership"
 	"github.com/mesg-foundation/engine/service"
+	"github.com/mesg-foundation/engine/service/validator"
+	"github.com/mr-tron/base58"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -20,16 +22,14 @@ const backendName = "service"
 
 // Backend is the service backend.
 type Backend struct {
-	container  container.Container
 	cdc        *codec.Codec
 	storeKey   *cosmostypes.KVStoreKey
 	ownerships *ownershipsdk.Backend
 }
 
 // NewBackend returns the backend of the service sdk.
-func NewBackend(appFactory *cosmos.AppFactory, c container.Container, ownerships *ownershipsdk.Backend) *Backend {
+func NewBackend(appFactory *cosmos.AppFactory, ownerships *ownershipsdk.Backend) *Backend {
 	backend := &Backend{
-		container:  c,
 		cdc:        appFactory.Cdc(),
 		storeKey:   cosmostypes.NewKVStoreKey(backendName),
 		ownerships: ownerships,
@@ -88,7 +88,7 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 
 // Create creates a new service from definition.
 func (s *Backend) Create(request cosmostypes.Request, msg *msgCreateService) (*service.Service, error) {
-	return create(s.container, s.db(request), msg.Request, msg.Owner, s.ownerships, request)
+	return create(s.db(request), msg.Request, msg.Owner, s.ownerships, request)
 }
 
 // Delete deletes the service by hash.
@@ -104,4 +104,46 @@ func (s *Backend) Get(request cosmostypes.Request, hash hash.Hash) (*service.Ser
 // List returns all services.
 func (s *Backend) List(request cosmostypes.Request) ([]*service.Service, error) {
 	return s.db(request).All()
+}
+
+func create(db *database.ServiceDB, req *api.CreateServiceRequest, owner cosmostypes.AccAddress, ownerships *ownershipsdk.Backend, request cosmostypes.Request) (*service.Service, error) {
+	// create service
+	srv := &service.Service{
+		Sid:           req.Sid,
+		Name:          req.Name,
+		Description:   req.Description,
+		Configuration: req.Configuration,
+		Tasks:         req.Tasks,
+		Events:        req.Events,
+		Dependencies:  req.Dependencies,
+		Repository:    req.Repository,
+		Source:        req.Source,
+	}
+
+	// calculate and apply hash to service.
+	srv.Hash = hash.Dump(srv)
+
+	// check if service already exists.
+	if _, err := db.Get(srv.Hash); err == nil {
+		return nil, &AlreadyExistsError{Hash: srv.Hash}
+	}
+
+	// TODO: the following test should be moved in New function
+	if srv.Sid == "" {
+		// make sure that sid doesn't have the same length with id.
+		srv.Sid = "_" + base58.Encode(srv.Hash) // TODO: use string method after change type to hash.Hash
+	}
+
+	if err := validator.ValidateService(srv); err != nil {
+		return nil, err
+	}
+
+	if _, err := ownerships.CreateServiceOwnership(request, srv.Hash, owner); err != nil {
+		return nil, err
+	}
+
+	if err := db.Save(srv); err != nil {
+		return nil, err
+	}
+	return srv, nil
 }
