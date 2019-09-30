@@ -3,11 +3,13 @@ package servicesdk
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/gogo/protobuf/proto"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	accountsdk "github.com/mesg-foundation/engine/sdk/account"
 	"github.com/mesg-foundation/engine/service"
+	cmn "github.com/tendermint/tendermint/libs/common"
 )
 
 // SDK is the service sdk.
@@ -72,4 +74,17 @@ func (s *SDK) List() ([]*service.Service, error) {
 		return nil, err
 	}
 	return services, nil
+}
+
+// Exists returns if a service already exists.
+func (s *SDK) Exists(req *api.CreateServiceRequest) (bool, error) {
+	var exists bool
+	b, err := proto.Marshal(req)
+	if err != nil {
+		return false, err
+	}
+	if err := s.client.Query("custom/"+backendName+"/exists", cmn.HexBytes(b), &exists); err != nil {
+		return false, err
+	}
+	return exists, nil
 }

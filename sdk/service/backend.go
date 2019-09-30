@@ -6,6 +6,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/gogo/protobuf/proto"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/database/store"
@@ -80,6 +81,12 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 		return s.Get(request, hash)
 	case "list":
 		return s.List(request)
+	case "exists":
+		var createServiceRequest api.CreateServiceRequest
+		if err := proto.Unmarshal(req.Data, &createServiceRequest); err != nil {
+			return nil, err
+		}
+		return s.Exists(request, &createServiceRequest)
 	default:
 		return nil, errors.New("unknown service query endpoint" + path[0])
 	}
@@ -100,6 +107,11 @@ func (s *Backend) Get(request cosmostypes.Request, hash hash.Hash) (*service.Ser
 	return s.db(request).Get(hash)
 }
 
+// Exists returns true if a specific set of data exists in the database, false otherwise
+func (s *Backend) Exists(request cosmostypes.Request, req *api.CreateServiceRequest) (bool, error) {
+	return s.db(request).Exist(initializeService(req).Hash)
+}
+
 // List returns all services.
 func (s *Backend) List(request cosmostypes.Request) ([]*service.Service, error) {
 	return s.db(request).All()
@@ -107,20 +119,7 @@ func (s *Backend) List(request cosmostypes.Request) ([]*service.Service, error) 
 
 func create(db *database.ServiceDB, req *api.CreateServiceRequest, owner cosmostypes.AccAddress, ownerships *ownershipsdk.Backend, request cosmostypes.Request) (*service.Service, error) {
 	// create service
-	srv := &service.Service{
-		Sid:           req.Sid,
-		Name:          req.Name,
-		Description:   req.Description,
-		Configuration: req.Configuration,
-		Tasks:         req.Tasks,
-		Events:        req.Events,
-		Dependencies:  req.Dependencies,
-		Repository:    req.Repository,
-		Source:        req.Source,
-	}
-
-	// calculate and apply hash to service.
-	srv.Hash = hash.Dump(srv)
+	srv := initializeService(req)
 
 	// check if service already exists.
 	if _, err := db.Get(srv.Hash); err == nil {
@@ -145,4 +144,23 @@ func create(db *database.ServiceDB, req *api.CreateServiceRequest, owner cosmost
 		return nil, err
 	}
 	return srv, nil
+}
+
+func initializeService(req *api.CreateServiceRequest) *service.Service {
+	// create service
+	srv := &service.Service{
+		Sid:           req.Sid,
+		Name:          req.Name,
+		Description:   req.Description,
+		Configuration: req.Configuration,
+		Tasks:         req.Tasks,
+		Events:        req.Events,
+		Dependencies:  req.Dependencies,
+		Repository:    req.Repository,
+		Source:        req.Source,
+	}
+
+	// calculate and apply hash to service.
+	srv.Hash = hash.Dump(srv)
+	return srv
 }

@@ -26,6 +26,9 @@ service Service {
 
   // List returns services specified in a request.
   rpc List(ListServiceRequest) returns (ListServiceResponse) {}
+
+  // Exists return if a service already exists.
+  rpc Exists(CreateServiceRequest) returns (ExistsServiceResponse) {}
 }
 
 // The request's data for the `Create` API.
@@ -98,4 +101,10 @@ message ListServiceRequest {}
 message ListServiceResponse {
   // List of services that match the request's filters.
   repeated types.Service services = 1;
+}
+
+// The response's data for the `Exists` API.
+message ExistsServiceResponse {
+  // True if a service already exists, false otherwise.
+  bool exists = 1;
 }
