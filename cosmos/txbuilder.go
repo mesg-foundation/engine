@@ -34,8 +34,8 @@ func NewTxBuilder(cdc *codec.Codec, accNumber, accSeq uint64, kb keys.Keybase, c
 }
 
 // BuildAndSignStdTx a signed transaction from a message.
-func (b TxBuilder) BuildAndSignStdTx(msg sdktypes.Msg, accountName, accountPassword string) (authtypes.StdTx, error) {
-	signedMsg, err := b.BuildSignMsg([]sdktypes.Msg{msg})
+func (b TxBuilder) BuildAndSignStdTx(msg []sdktypes.Msg, accountName, accountPassword string) (authtypes.StdTx, error) {
+	signedMsg, err := b.BuildSignMsg(msg)
 	if err != nil {
 		return authtypes.StdTx{}, err
 	}

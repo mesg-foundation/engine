@@ -37,6 +37,15 @@ func main() {
 
 	// if account exists do not create it
 	if info, _ := kb.Get(*name); info != nil {
+		fmt.Printf(`MESG_COSMOS_ACCOUNT_PUBKEY=%X
+MESG_COSMOS_ACCOUNT_ADDRESS=%s
+MESG_COSMOS_ACCOUNT_MNEMONIC="%s"
+`,
+			info.GetPubKey().Address()[:],
+			info.GetAddress(),
+			// TODO: How can we restore mnemonic?
+			"",
+		)
 		return
 	}
 

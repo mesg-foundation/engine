@@ -76,12 +76,39 @@ func main() {
 		sdktypes.NewInt(1),
 	)
 
+	msgs := []sdktypes.Msg{msg}
+	accounts, err := kb.List()
+	if err != nil {
+		log.Fatal("list account error:", err)
+	}
+
+	for _, acc := range accounts {
+		if acc.GetName() == *name {
+			continue
+		}
+		msgs = append(msgs, stakingtypes.NewMsgCreateValidator(
+			sdktypes.ValAddress(acc.GetAddress()),
+			validatorPubKey,
+			sdktypes.NewCoin(sdktypes.DefaultBondDenom, sdktypes.TokensFromConsensusPower(100)),
+			stakingtypes.Description{
+				Moniker: acc.GetName(),
+				Details: "init-validator",
+			},
+			stakingtypes.NewCommissionRates(
+				sdktypes.ZeroDec(),
+				sdktypes.ZeroDec(),
+				sdktypes.ZeroDec(),
+			),
+			sdktypes.NewInt(1),
+		))
+	}
+
 	cdc := codec.New()
 	codec.RegisterCrypto(cdc)
 	sdktypes.RegisterCodec(cdc)
 	stakingtypes.RegisterCodec(cdc)
 
-	tx, err := cosmos.NewTxBuilder(cdc, 0, 0, kb, *chainid).BuildAndSignStdTx(msg, *name, *password)
+	tx, err := cosmos.NewTxBuilder(cdc, 0, 0, kb, *chainid).BuildAndSignStdTx(msgs, *name, *password)
 	if err != nil {
 		log.Fatalln("sign msg create validator error:", err)
 	}
