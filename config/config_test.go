@@ -37,7 +37,8 @@ func TestLoad(t *testing.T) {
 		"MESG_LOG_LEVEL":                      "",
 		"MESG_LOG_FORCECOLORS":                "",
 		"MESG_TENDERMINT_P2P_PERSISTENTPEERS": "",
-		"MESG_COSMOS_VALIDATOR_PUB_KEY":       "",
+		"MESG_COSMOS_VALIDATORPUBKEY":         "",
+		"MESG_COSMOS_GENESISVALIDATORTX":      "",
 	}
 	for key := range snapsnot {
 		snapsnot[key] = os.Getenv(key)
@@ -79,4 +80,9 @@ func TestValidate(t *testing.T) {
 	c, _ = Default()
 	c.Log.Level = "wrongValue"
 	require.Error(t, c.Validate())
+}
+
+func TestStdTXDecodeNoSignersError(t *testing.T) {
+	var tx StdTx
+	require.Error(t, tx.Decode(`{"msg":[{"type":"cosmos-sdk/MsgCreateValidator","value":{"description":{"identity":"","website":"","details":"create-first-validator"},"pubkey":"cosmosvalconspub1zcjduepqq0a87y3pur6vvzyp99t92me2zyxywz46kyq5vt7x2n4g987acmxszqey9p","value":{"denom":"stake","amount":"100000000"}}}],"fee":{"amount":[],"gas":"200000"}}`))
 }

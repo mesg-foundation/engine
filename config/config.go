@@ -17,6 +17,7 @@ import (
 	"github.com/sirupsen/logrus"
 	tmconfig "github.com/tendermint/tendermint/config"
 	"github.com/tendermint/tendermint/crypto/ed25519"
+	"gopkg.in/go-playground/validator.v9"
 )
 
 const (
@@ -30,24 +31,24 @@ const (
 
 // Config contains all the configuration needed.
 type Config struct {
-	Name string
-	Path string
+	Name string `validate:"required"`
+	Path string `validate:"required"`
 
 	Server struct {
-		Address string
+		Address string `validate:"required"`
 	}
 
 	Log struct {
-		Format      string
+		Format      string `validate:"required"`
 		ForceColors bool
-		Level       string
+		Level       string `validate:"required"`
 	}
 
 	Database struct {
-		ServiceRelativePath   string
-		InstanceRelativePath  string
-		ExecutionRelativePath string
-		ProcessRelativePath   string
+		ServiceRelativePath   string `validate:"required"`
+		InstanceRelativePath  string `validate:"required"`
+		ExecutionRelativePath string `validate:"required"`
+		ProcessRelativePath   string `validate:"required"`
 	}
 
 	Tendermint struct {
@@ -153,7 +154,7 @@ func (c *Config) Validate() error {
 	if _, err := logrus.ParseLevel(c.Log.Level); err != nil {
 		return err
 	}
-	return nil
+	return validator.New().Struct(c)
 }
 
 // PubKeyEd25519 is type used to parse value provided by envconfig.
@@ -183,6 +184,10 @@ type StdTx authtypes.StdTx
 
 // Decode parses string value as hex ed25519 key.
 func (tx *StdTx) Decode(value string) error {
+	if value == "" {
+		return nil
+	}
+
 	cdc := codec.New()
 	codec.RegisterCrypto(cdc)
 	sdktypes.RegisterCodec(cdc)
@@ -190,6 +195,10 @@ func (tx *StdTx) Decode(value string) error {
 
 	if err := cdc.UnmarshalJSON([]byte(value), tx); err != nil {
 		return fmt.Errorf("unmarshal genesis validator error: %s", err)
+	}
+	signers := authtypes.StdTx(*tx).GetSigners()
+	if l := len(signers); l == 0 || signers[l-1] == nil {
+		return fmt.Errorf("genesis validator error: no signer address")
 	}
 	return nil
 }
