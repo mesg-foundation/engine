@@ -88,7 +88,7 @@ func main() {
 		}
 		msgs = append(msgs, stakingtypes.NewMsgCreateValidator(
 			sdktypes.ValAddress(acc.GetAddress()),
-			validatorPubKey,
+			acc.GetPubKey(),
 			sdktypes.NewCoin(sdktypes.DefaultBondDenom, sdktypes.TokensFromConsensusPower(100)),
 			stakingtypes.Description{
 				Moniker: acc.GetName(),

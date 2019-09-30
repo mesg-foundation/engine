@@ -35,6 +35,11 @@ MESG_COSMOS_GENESISTIME=${MESG_COSMOS_GENESISTIME:-"2019-01-01T00:00:00Z"}
 # Init and read validator identity
 eval $(go run internal/tools/gen_cosmos_account/main.go -name=$MESG_COSMOS_GENESISACCOUNT_NAME -password=$MESG_COSMOS_GENESISACCOUNT_PASSWORD -kbpath=$MESG_COSMOS_KEYBASE_PATH)
 echo "Created genenis account mnemonic (if created): $MESG_COSMOS_ACCOUNT_MNEMONIC"
+go run internal/tools/gen_cosmos_account/main.go -name=alice -password=pass -kbpath=$MESG_COSMOS_KEYBASE_PATH
+go run internal/tools/gen_cosmos_account/main.go -name=acc1 -password=acc1 -kbpath=$MESG_COSMOS_KEYBASE_PATH
+go run internal/tools/gen_cosmos_account/main.go -name=acc2 -password=acc2 -kbpath=$MESG_COSMOS_KEYBASE_PATH
+go run internal/tools/gen_cosmos_account/main.go -name=acc3 -password=acc3 -kbpath=$MESG_COSMOS_KEYBASE_PATH
+go run internal/tools/gen_cosmos_account/main.go -name=acc4 -password=acc4 -kbpath=$MESG_COSMOS_KEYBASE_PATH
 
 eval $(go run internal/tools/gen_tm_identity/main.go -name=$TENDERMINT_VALIDATOR_NAME -port=$TENDERMINT_VALIDATOR_PORT -path=$TENDERMINT_VALIDATOR_PATH)
 MESG_COSMOS_VALIDATORPUBKEY=${MESG_COSMOS_VALIDATORPUBKEY:-$VALIDATOR_PUBKEY}
