@@ -120,7 +120,7 @@ func main() {
 	}
 
 	// create cosmos node
-	node, err := cosmos.NewNode(app, kb, cfg.Tendermint.Config, &cfg.Cosmos)
+	node, err := cosmos.NewNode(app, cfg.Tendermint.Config, &cfg.Cosmos)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
