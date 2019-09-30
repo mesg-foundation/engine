@@ -105,7 +105,7 @@ func main() {
 	appFactory := cosmos.NewAppFactory(logger.TendermintLogger(), db)
 
 	// register the backend modules to the app factory.
-	enginesdk.NewBackend(appFactory, c)
+	enginesdk.NewBackend(appFactory)
 
 	// init cosmos app
 	app, err := cosmos.NewApp(appFactory)
