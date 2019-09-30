@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	bip39 "github.com/cosmos/go-bip39"
+	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/tendermint/tendermint/crypto/secp256k1"
 )
 
@@ -15,6 +15,7 @@ const mnemonicEntropySize = 256
 func main() {
 	name := flag.String("name", "", "")
 	password := flag.String("password", "", "")
+	kbpath := flag.String("kbpath", "", "")
 	flag.Parse()
 
 	if *name == "" {
@@ -23,6 +24,20 @@ func main() {
 
 	if *password == "" {
 		log.Fatalln("password required")
+	}
+
+	if *kbpath == "" {
+		log.Fatalln("kbpath required")
+	}
+
+	kb, err := cosmos.NewKeybase(*kbpath)
+	if err != nil {
+		log.Fatalln("creating keybase error:", err)
+	}
+
+	// if account exists do not create it
+	if info, _ := kb.Get(*name); info != nil {
+		return
 	}
 
 	// read entropy seed straight from crypto.Rand and convert to mnemonic
@@ -36,7 +51,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	acc, err := keys.NewInMemory().CreateAccount(*name, mnemonic, "", *password, 0, 0)
+	acc, err := kb.CreateAccount(*name, mnemonic, "", *password, 0, 0)
 	if err != nil {
 		log.Fatalln(err)
 	}
