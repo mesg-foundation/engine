@@ -59,7 +59,7 @@ func (s *SDK) Delete(hash hash.Hash, accountName, accountPassword string) error 
 // Get returns the service that matches given hash.
 func (s *SDK) Get(hash hash.Hash) (*service.Service, error) {
 	var service service.Service
-	if err := s.client.Query("custom/"+backendName+"/get/"+hash.String(), &service); err != nil {
+	if err := s.client.Query("custom/"+backendName+"/get/"+hash.String(), nil, &service); err != nil {
 		return nil, err
 	}
 	return &service, nil
@@ -68,7 +68,7 @@ func (s *SDK) Get(hash hash.Hash) (*service.Service, error) {
 // List returns all services.
 func (s *SDK) List() ([]*service.Service, error) {
 	var services []*service.Service
-	if err := s.client.Query("custom/"+backendName+"/list", &services); err != nil {
+	if err := s.client.Query("custom/"+backendName+"/list", nil, &services); err != nil {
 		return nil, err
 	}
 	return services, nil
