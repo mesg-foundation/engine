@@ -24,12 +24,6 @@ func TestDefaultValue(t *testing.T) {
 	require.Equal(t, "engine", c.Name)
 }
 
-func TestNew(t *testing.T) {
-	c, err := New()
-	require.NoError(t, err)
-	require.NotNil(t, c)
-}
-
 func TestLoad(t *testing.T) {
 	snapsnot := map[string]string{
 		"MESG_SERVER_ADDRESS":                 "",
@@ -71,14 +65,7 @@ func TestLoad(t *testing.T) {
 
 func TestValidate(t *testing.T) {
 	c, _ := Default()
-	require.NoError(t, c.Validate())
-
-	c, _ = Default()
-	c.Log.Format = "wrongValue"
-	require.Error(t, c.Validate())
-
-	c, _ = Default()
-	c.Log.Level = "wrongValue"
+	c.Load()
 	require.Error(t, c.Validate())
 }
 

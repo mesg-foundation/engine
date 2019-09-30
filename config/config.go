@@ -52,8 +52,8 @@ type Config struct {
 	}
 
 	Tendermint struct {
-		*tmconfig.Config
-		Path string
+		*tmconfig.Config `validate:"required"`
+		Path             string `validate:"required"`
 	}
 
 	Cosmos CosmosConfig
@@ -61,16 +61,14 @@ type Config struct {
 
 // CosmosConfig is the struct to hold cosmos related configs.
 type CosmosConfig struct {
-	Path        string
-	ChainID     string
-	GenesisTime time.Time
-
-	GenesisValidatorTx StdTx
-
-	ValidatorPubKey PubKeyEd25519
+	Path               string        `validate:"required"`
+	ChainID            string        `validate:"required"`
+	GenesisTime        time.Time     `validate:"required"`
+	GenesisValidatorTx StdTx         `validate:"required"`
+	ValidatorPubKey    PubKeyEd25519 `validate:"required"`
 }
 
-// New creates a new config with default values.
+// Default creates a new config with default values.
 func Default() (*Config, error) {
 	home, err := homedir.Dir()
 	if err != nil {
@@ -149,10 +147,13 @@ func (c *Config) Prepare() error {
 // Validate checks values and return an error if any validation failed.
 func (c *Config) Validate() error {
 	if !xstrings.SliceContains([]string{"text", "json"}, c.Log.Format) {
-		return fmt.Errorf("value %q is not an allowed", c.Log.Format)
+		return fmt.Errorf("config.Log.Format value %q is not an allowed", c.Log.Format)
 	}
 	if _, err := logrus.ParseLevel(c.Log.Level); err != nil {
-		return err
+		return fmt.Errorf("config.Log.Level error: %w", err)
+	}
+	if err := authtypes.StdTx(c.Cosmos.GenesisValidatorTx).ValidateBasic(); err != nil {
+		return fmt.Errorf("config.Cosmos.GenesisValidatorTx error: %w", err.Stacktrace())
 	}
 	return validator.New().Struct(c)
 }
@@ -187,18 +188,15 @@ func (tx *StdTx) Decode(value string) error {
 	if value == "" {
 		return nil
 	}
-
 	cdc := codec.New()
 	codec.RegisterCrypto(cdc)
 	sdktypes.RegisterCodec(cdc)
 	stakingtypes.RegisterCodec(cdc)
-
 	if err := cdc.UnmarshalJSON([]byte(value), tx); err != nil {
 		return fmt.Errorf("unmarshal genesis validator error: %s", err)
 	}
-	signers := authtypes.StdTx(*tx).GetSigners()
-	if l := len(signers); l == 0 || signers[l-1] == nil {
-		return fmt.Errorf("genesis validator error: no signer address")
+	if err := authtypes.StdTx(*tx).ValidateBasic(); err != nil {
+		return err.Stacktrace()
 	}
 	return nil
 }
