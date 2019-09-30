@@ -11,7 +11,6 @@ import (
 // Service is the interface of this sdk
 type Service interface {
 	Create(req *api.CreateServiceRequest, accountName string, accountPassword string) (*service.Service, error)
-	Delete(hash hash.Hash, accountName string, accountPassword string) error
 	Get(hash hash.Hash) (*service.Service, error)
 	List() ([]*service.Service, error)
 }
