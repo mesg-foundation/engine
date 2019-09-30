@@ -108,8 +108,19 @@ func (s *Backend) Get(request cosmostypes.Request, hash hash.Hash) (*service.Ser
 }
 
 // Exists returns true if a specific set of data exists in the database, false otherwise
-func (s *Backend) Exists(request cosmostypes.Request, req *api.CreateServiceRequest) (bool, error) {
-	return s.db(request).Exist(initializeService(req).Hash)
+func (s *Backend) Exists(request cosmostypes.Request, req *api.CreateServiceRequest) (*api.ExistsServiceResponse, error) {
+	h := initializeService(req).Hash
+	exists, err := s.db(request).Exist(h)
+	if err != nil {
+		return nil, err
+	}
+	response := &api.ExistsServiceResponse{
+		Exists: exists,
+	}
+	if response.Exists {
+		response.Hash = h
+	}
+	return response, nil
 }
 
 // List returns all services.

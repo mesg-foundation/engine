@@ -107,4 +107,9 @@ message ListServiceResponse {
 message ExistsServiceResponse {
   // True if a service already exists, false otherwise.
   bool exists = 1;
+  // The service's hash of the existing service. This hash is nil if exists is fals.
+  bytes hash = 2 [
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
 }

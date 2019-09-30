@@ -77,14 +77,14 @@ func (s *SDK) List() ([]*service.Service, error) {
 }
 
 // Exists returns if a service already exists.
-func (s *SDK) Exists(req *api.CreateServiceRequest) (bool, error) {
-	var exists bool
+func (s *SDK) Exists(req *api.CreateServiceRequest) (*api.ExistsServiceResponse, error) {
+	var response api.ExistsServiceResponse
 	b, err := proto.Marshal(req)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
-	if err := s.client.Query("custom/"+backendName+"/exists", cmn.HexBytes(b), &exists); err != nil {
-		return false, err
+	if err := s.client.Query("custom/"+backendName+"/exists", cmn.HexBytes(b), &response); err != nil {
+		return nil, err
 	}
-	return exists, nil
+	return &response, nil
 }

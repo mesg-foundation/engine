@@ -71,10 +71,5 @@ func (s *ServiceServer) List(ctx context.Context, req *protobuf_api.ListServiceR
 
 // Exists returns if a service already exists.
 func (s *ServiceServer) Exists(ctx context.Context, req *protobuf_api.CreateServiceRequest) (*protobuf_api.ExistsServiceResponse, error) {
-	exists, err := s.sdk.Service.Exists(req)
-	if err != nil {
-		return nil, err
-	}
-
-	return &protobuf_api.ExistsServiceResponse{Exists: exists}, nil
+	return s.sdk.Service.Exists(req)
 }

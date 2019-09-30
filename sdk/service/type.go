@@ -14,7 +14,7 @@ type Service interface {
 	Delete(hash hash.Hash, accountName string, accountPassword string) error
 	Get(hash hash.Hash) (*service.Service, error)
 	List() ([]*service.Service, error)
-	Exists(req *api.CreateServiceRequest) (bool, error)
+	Exists(req *api.CreateServiceRequest) (*api.ExistsServiceResponse, error)
 }
 
 // AlreadyExistsError is an not found error.
