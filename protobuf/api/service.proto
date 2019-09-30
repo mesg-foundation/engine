@@ -17,10 +17,6 @@ service Service {
   // It will return an unique identifier which is used to interact with the Service.
   rpc Create (CreateServiceRequest) returns (CreateServiceResponse) {}
 
-  // Delete a Service.
-  // An error is returned if one or more Instances of the Service are running.
-  rpc Delete (DeleteServiceRequest) returns (DeleteServiceResponse) {}
-
   // Get returns a Service matching the criteria of the request.
   rpc Get(GetServiceRequest) returns (types.Service) {}
 
@@ -67,19 +63,6 @@ message CreateServiceResponse {
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
-}
-
-// The request's data for the `Delete` API.
-message DeleteServiceRequest {
-  // The service's hash to delete.
-  bytes hash = 1 [
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
-    (gogoproto.nullable) = false
-  ];
-}
-
-// The response's data for the `Delete` API, doesn't contain anything.
-message DeleteServiceResponse {
 }
 
 // The request's data for the `Get` API.
