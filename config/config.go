@@ -17,6 +17,7 @@ import (
 	"github.com/sirupsen/logrus"
 	tmconfig "github.com/tendermint/tendermint/config"
 	"github.com/tendermint/tendermint/crypto/ed25519"
+	"gopkg.in/go-playground/validator.v9"
 )
 
 const (
@@ -30,29 +31,29 @@ const (
 
 // Config contains all the configuration needed.
 type Config struct {
-	Name string
-	Path string
+	Name string `validate:"required"`
+	Path string `validate:"required"`
 
 	Server struct {
-		Address string
+		Address string `validate:"required"`
 	}
 
 	Log struct {
-		Format      string
+		Format      string `validate:"required"`
 		ForceColors bool
-		Level       string
+		Level       string `validate:"required"`
 	}
 
 	Database struct {
-		ServiceRelativePath   string
-		InstanceRelativePath  string
-		ExecutionRelativePath string
-		ProcessRelativePath   string
+		ServiceRelativePath   string `validate:"required"`
+		InstanceRelativePath  string `validate:"required"`
+		ExecutionRelativePath string `validate:"required"`
+		ProcessRelativePath   string `validate:"required"`
 	}
 
 	Tendermint struct {
-		*tmconfig.Config
-		Path string
+		*tmconfig.Config `validate:"required"`
+		Path             string `validate:"required"`
 	}
 
 	Cosmos CosmosConfig
@@ -60,16 +61,14 @@ type Config struct {
 
 // CosmosConfig is the struct to hold cosmos related configs.
 type CosmosConfig struct {
-	Path        string
-	ChainID     string
-	GenesisTime time.Time
-
-	GenesisValidatorTx StdTx
-
-	ValidatorPubKey PubKeyEd25519
+	Path               string        `validate:"required"`
+	ChainID            string        `validate:"required"`
+	GenesisTime        time.Time     `validate:"required"`
+	GenesisValidatorTx StdTx         `validate:"required"`
+	ValidatorPubKey    PubKeyEd25519 `validate:"required"`
 }
 
-// New creates a new config with default values.
+// Default creates a new config with default values.
 func Default() (*Config, error) {
 	home, err := homedir.Dir()
 	if err != nil {
@@ -148,12 +147,15 @@ func (c *Config) Prepare() error {
 // Validate checks values and return an error if any validation failed.
 func (c *Config) Validate() error {
 	if !xstrings.SliceContains([]string{"text", "json"}, c.Log.Format) {
-		return fmt.Errorf("value %q is not an allowed", c.Log.Format)
+		return fmt.Errorf("config.Log.Format value %q is not an allowed", c.Log.Format)
 	}
 	if _, err := logrus.ParseLevel(c.Log.Level); err != nil {
-		return err
+		return fmt.Errorf("config.Log.Level error: %w", err)
 	}
-	return nil
+	if err := authtypes.StdTx(c.Cosmos.GenesisValidatorTx).ValidateBasic(); err != nil {
+		return fmt.Errorf("config.Cosmos.GenesisValidatorTx error: %w", err.Stacktrace())
+	}
+	return validator.New().Struct(c)
 }
 
 // PubKeyEd25519 is type used to parse value provided by envconfig.
@@ -183,13 +185,18 @@ type StdTx authtypes.StdTx
 
 // Decode parses string value as hex ed25519 key.
 func (tx *StdTx) Decode(value string) error {
+	if value == "" {
+		return nil
+	}
 	cdc := codec.New()
 	codec.RegisterCrypto(cdc)
 	sdktypes.RegisterCodec(cdc)
 	stakingtypes.RegisterCodec(cdc)
-
 	if err := cdc.UnmarshalJSON([]byte(value), tx); err != nil {
 		return fmt.Errorf("unmarshal genesis validator error: %s", err)
+	}
+	if err := authtypes.StdTx(*tx).ValidateBasic(); err != nil {
+		return err.Stacktrace()
 	}
 	return nil
 }
