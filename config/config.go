@@ -1,7 +1,6 @@
 package config
 
 import (
-	"encoding/hex"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -17,7 +16,6 @@ import (
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
 	tmconfig "github.com/tendermint/tendermint/config"
-	"github.com/tendermint/tendermint/crypto/ed25519"
 	"gopkg.in/yaml.v2"
 )
 
@@ -67,8 +65,6 @@ type CosmosConfig struct {
 	GenesisTime time.Time
 
 	GenesisValidatorTx StdTx
-
-	ValidatorPubKey PubKeyEd25519
 }
 
 // New creates a new config with default values.
@@ -174,28 +170,6 @@ func (c *Config) Validate() error {
 	if _, err := logrus.ParseLevel(c.Log.Level); err != nil {
 		return err
 	}
-	return nil
-}
-
-// PubKeyEd25519 is type used to parse value provided by envconfig.
-type PubKeyEd25519 ed25519.PubKeyEd25519
-
-// Decode parses string value as hex ed25519 key.
-func (key *PubKeyEd25519) Decode(value string) error {
-	if value == "" {
-		return fmt.Errorf("validator public key is empty")
-	}
-
-	dec, err := hex.DecodeString(value)
-	if err != nil {
-		return fmt.Errorf("validator public key decode error: %s", err)
-	}
-
-	if len(dec) != ed25519.PubKeyEd25519Size {
-		return fmt.Errorf("validator public key %s has invalid size", value)
-	}
-
-	copy(key[:], dec)
 	return nil
 }
 

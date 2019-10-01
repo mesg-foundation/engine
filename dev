@@ -2,13 +2,6 @@
 
 set -e
 
-DIR=$(pwd)
-
-# Flags
-if [[ $* == *--exp* ]]; then
-  EXPERIMENTAL_FLAGS+=" --experimental"
-fi
-
 # mesg config variables
 MESG_NAME=${MESG_NAME:-"engine"}
 MESG_PATH=${MESG_PATH:-"$HOME/.mesg"}
@@ -27,40 +20,16 @@ TENDERMINT_VALIDATOR_PATH=${TENDERMINT_VALIDATOR_PATH:-".tendermint-validator"}
 
 MESG_COSMOS_HOME_CONFIG="$MESG_PATH/cosmos"
 MESG_COSMOS_CHAINID=${MESG_COSMOS_CHAINID:-"mesg-chain"}
-MESG_COSMOS_GENESISACCOUNT_NAME=${MESG_COSMOS_GENESISACCOUNT_NAME:-"bob"}
-MESG_COSMOS_GENESISACCOUNT_PASSWORD=${MESG_COSMOS_GENESISACCOUNT_PASSWORD:-"pass"}
 MESG_COSMOS_KEYBASE_PATH=${MESG_COSMOS_KEYBASE_PATH:-".cosmos-keybase"}
 MESG_COSMOS_GENESISTIME=${MESG_COSMOS_GENESISTIME:-"2019-01-01T00:00:00Z"}
 
-# # Init and read validator identity
-# eval $(go run internal/tools/gen_cosmos_account/main.go -name=$MESG_COSMOS_GENESISACCOUNT_NAME -password=$MESG_COSMOS_GENESISACCOUNT_PASSWORD -kbpath=$MESG_COSMOS_KEYBASE_PATH)
-# echo "Created genenis account mnemonic (if created): $MESG_COSMOS_ACCOUNT_MNEMONIC"
-# go run internal/tools/gen_cosmos_account/main.go -name=alice -password=pass -kbpath=$MESG_COSMOS_KEYBASE_PATH
-# go run internal/tools/gen_cosmos_account/main.go -name=acc1 -password=acc1 -kbpath=$MESG_COSMOS_KEYBASE_PATH
-# go run internal/tools/gen_cosmos_account/main.go -name=acc2 -password=acc2 -kbpath=$MESG_COSMOS_KEYBASE_PATH
-# go run internal/tools/gen_cosmos_account/main.go -name=acc3 -password=acc3 -kbpath=$MESG_COSMOS_KEYBASE_PATH
-# go run internal/tools/gen_cosmos_account/main.go -name=acc4 -password=acc4 -kbpath=$MESG_COSMOS_KEYBASE_PATH
-
-# eval $(go run internal/tools/gen_tm_identity/main.go -name=$TENDERMINT_VALIDATOR_NAME -port=$TENDERMINT_VALIDATOR_PORT -path=$TENDERMINT_VALIDATOR_PATH)
-
-# eval $(go run internal/tools/gen_genesis_validator/main.go -name=$MESG_COSMOS_GENESISACCOUNT_NAME -password=$MESG_COSMOS_GENESISACCOUNT_PASSWORD -kbpath=$MESG_COSMOS_KEYBASE_PATH --chain-id $MESG_COSMOS_CHAINID --pubkey $MESG_COSMOS_VALIDATORPUBKEY)
-
-MESG_COSMOS_ACCOUNT_PUBKEY=02EAF7858AA3190E7D9DFCAB67742A4C7522837933370B9965AC2C731842ADF30A
-MESG_COSMOS_ACCOUNT_ADDRESS=cosmos169slhhcr4jadpkk5qx3gw6zu470eky4jt4uzcd
-MESG_COSMOS_ACCOUNT_MNEMONIC="pioneer muffin aerobic thrive display equip right section behind plastic order lunch bachelor aim tortoise never tiny diagram gate level ensure follow fury original"
-NODE_PUBKEY=fe7bd21d8cecf19aa1b711de3c80305983832a45@localhost:26656
-VALIDATOR_PUBKEY=3AB88DC8EE63A38C43D790A6B570039A6D450DDD04B5E8D5FD54FF75FDE03BF6
-MESG_COSMOS_GENESISVALIDATORTX='{"msg":[{"type":"cosmos-sdk/MsgCreateValidator","value":{"description":{"moniker":"a","identity":"","website":"","details":"init-validator"},"commission":{"rate":"0.000000000000000000","max_rate":"0.000000000000000000","max_change_rate":"0.000000000000000000"},"min_self_delegation":"1","delegator_address":"cosmos169slhhcr4jadpkk5qx3gw6zu470eky4jt4uzcd","validator_address":"cosmosvaloper169slhhcr4jadpkk5qx3gw6zu470eky4jwpgh57","pubkey":"cosmosvalconspub1zcjduepq82ugmj8wvw3ccs7hjznt2uqrnfk52rwaqj67340a2nlhtl0q80mqzulfs8","value":{"denom":"stake","amount":"100000000"}}},{"type":"cosmos-sdk/MsgCreateValidator","value":{"description":{"moniker":"b","identity":"","website":"","details":"init-validator"},"commission":{"rate":"0.000000000000000000","max_rate":"0.000000000000000000","max_change_rate":"0.000000000000000000"},"min_self_delegation":"1","delegator_address":"cosmos1swn28qef4uqdwlnk0ppwmm0f8k05gl4n6djd87","validator_address":"cosmosvaloper1swn28qef4uqdwlnk0ppwmm0f8k05gl4nlexctd","pubkey":"cosmosvalconspub1zcjduepq5j6y4w9akaadezkw09lvz4g9xf676pkq5vm4ftgsr2h6m47peusqu4zzd2","value":{"denom":"stake","amount":"100000000"}}}],"fee":{"amount":[],"gas":"200000"},"signatures":[{"pub_key":{"type":"tendermint/PubKeySecp256k1","value":"Aur3hYqjGQ59nfyrZ3QqTHUig3kzNwuZZawscxhCrfMK"},"signature":"VPdqQeeWXE3DgMDfRswst+BOkH3GU+hUgJ963re3Y4A3e5CVSwfNfR5OfhDOWhkl4zE11ZX1zaU7FcyjiioHMQ=="},{"pub_key":{"type":"tendermint/PubKeySecp256k1","value":"Ap0uAsNLTI6T1a7rnsfZOxdR5ScPMbOtc2/XMXmAmGrd"},"signature":"Fpnj+4npPFvf1gaYtnLwB+USBhrSUoLTYUXuYliZ0bRslKKjcguySo7ck2jlm1a11s4lC7KsUviex8zX5EEWFw=="}],"memo":""}'
-
-MESG_COSMOS_VALIDATORPUBKEY=${MESG_COSMOS_VALIDATORPUBKEY:-$VALIDATOR_PUBKEY}
-MESG_TENDERMINT_P2P_PERSISTENTPEERS=${MESG_TENDERMINT_P2P_PERSISTENTPEERS:-$NODE_PUBKEY}
-
+eval $(go run internal/tools/genconfig/main.go --co-kbpath $MESG_COSMOS_KEYBASE_PATH --tm-path $TENDERMINT_VALIDATOR_PATH)
 
 # Setup the validator private keys
 if [[ $* == *--validator* ]]; then
   echo "Validator flag passed. Copy validator private keys to $TENDERMINT_HOME_CONFIG"
   mkdir -p $TENDERMINT_HOME_CONFIG
-  rsync -a $TENDERMINT_VALIDATOR_PATH/ $TENDERMINT_HOME_CONFIG
+  rsync -a $TENDERMINT_VALIDATOR_PATH/$MESG_COSMOS_ACCOUNT_NAME $TENDERMINT_HOME_CONFIG
   TENDERMINT_NETWORK_ALIAS=$TENDERMINT_VALIDATOR_NAME
   TENDERMINT_VALIDATOR_PORT_PUBLISH="--publish $TENDERMINT_VALIDATOR_PORT:$TENDERMINT_VALIDATOR_PORT"
 fi
@@ -162,7 +131,6 @@ docker service create \
   --env MESG_TENDERMINT_P2P_PERSISTENTPEERS=$MESG_TENDERMINT_P2P_PERSISTENTPEERS \
   --env MESG_TENDERMINT_P2P_EXTERNALADDRESS=$MESG_TENDERMINT_P2P_EXTERNALADDRESS \
   --env MESG_COSMOS_CHAINID=$MESG_COSMOS_CHAINID \
-  --env MESG_COSMOS_VALIDATORPUBKEY=$MESG_COSMOS_VALIDATORPUBKEY \
   --env MESG_COSMOS_GENESISVALIDATORTX=$MESG_COSMOS_GENESISVALIDATORTX \
   --env MESG_COSMOS_GENESISTIME=$MESG_COSMOS_GENESISTIME \
   --mount type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock \

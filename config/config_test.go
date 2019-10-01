@@ -7,7 +7,6 @@ import (
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/tendermint/crypto/ed25519"
 )
 
 func TestDefaultValue(t *testing.T) {
@@ -30,14 +29,13 @@ func TestNew(t *testing.T) {
 	require.NotNil(t, c)
 }
 
-func TestLoad(t *testing.T) {
+func TestLoadEnv(t *testing.T) {
 	snapsnot := map[string]string{
 		"MESG_SERVER_ADDRESS":                 "",
 		"MESG_LOG_FORMAT":                     "",
 		"MESG_LOG_LEVEL":                      "",
 		"MESG_LOG_FORCECOLORS":                "",
 		"MESG_TENDERMINT_P2P_PERSISTENTPEERS": "",
-		"MESG_COSMOS_VALIDATOR_PUB_KEY":       "",
 	}
 	for key := range snapsnot {
 		snapsnot[key] = os.Getenv(key)
@@ -53,17 +51,15 @@ func TestLoad(t *testing.T) {
 	os.Setenv("MESG_LOG_LEVEL", "test_log_level")
 	os.Setenv("MESG_LOG_FORCECOLORS", "true")
 	os.Setenv("MESG_TENDERMINT_P2P_PERSISTENTPEERS", "localhost")
-	os.Setenv("MESG_COSMOS_VALIDATORPUBKEY", "0000000000000000000000000000000000000000000000000000000000000001")
 	os.Setenv("MESG_COSMOS_GENESISVALIDATORTX", `{"msg":[{"type":"cosmos-sdk/MsgCreateValidator","value":{"description":{"moniker":"bob","identity":"","website":"","details":"create-first-validator"},"commission":{"rate":"0.000000000000000000","max_rate":"0.000000000000000000","max_change_rate":"0.000000000000000000"},"min_self_delegation":"1","delegator_address":"cosmos1eav92wlgjjwkutl0s0u7nvdgc4m06zxtzdgwc0","validator_address":"cosmosvaloper1eav92wlgjjwkutl0s0u7nvdgc4m06zxt8eum5u","pubkey":"cosmosvalconspub1zcjduepqq0a87y3pur6vvzyp99t92me2zyxywz46kyq5vt7x2n4g987acmxszqey9p","value":{"denom":"stake","amount":"100000000"}}}],"fee":{"amount":[],"gas":"200000"},"signatures":[{"pub_key":{"type":"tendermint/PubKeySecp256k1","value":"A/p/EiHg9MYIgSlWVW8qEQxHCrqxAUYvxlTqgp/dxs3c"},"signature":"ehLZyLIARYDfYSolk9GtFb48g/5Mp33yHoIVuZZ2p78UkVABIKnFkfteaTqR0R06dTfbtcl2uTMhku0eT35Org=="}],"memo":"memo"}`)
 
 	c, _ := Default()
-	c.Load()
+	c.LoadEnv()
 	require.Equal(t, "test_server_address", c.Server.Address)
 	require.Equal(t, "test_log_format", c.Log.Format)
 	require.Equal(t, "test_log_level", c.Log.Level)
 	require.Equal(t, true, c.Log.ForceColors)
 	require.Equal(t, "localhost", c.Tendermint.P2P.PersistentPeers)
-	require.Equal(t, "PubKeyEd25519{0000000000000000000000000000000000000000000000000000000000000001}", ed25519.PubKeyEd25519(c.Cosmos.ValidatorPubKey).String())
 	require.Equal(t, "memo", c.Cosmos.GenesisValidatorTx.Memo)
 	require.Equal(t, uint64(200000), c.Cosmos.GenesisValidatorTx.Fee.Gas)
 }
