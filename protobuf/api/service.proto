@@ -92,7 +92,7 @@ message ListServiceResponse {
 // The request's data for the `List` API.
 message ExistsServiceRequest {
   // The service's hash of the existing service. This hash is nil if exists is fals.
-  bytes hash = 2 [
+  bytes hash = 1 [
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
@@ -107,7 +107,7 @@ message ExistsServiceResponse {
 // The request's data for the `Hash` API.
 message HashServiceResponse {
   // Hash of the service calculated.
-  bytes hash = 2 [
+  bytes hash = 1 [
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
