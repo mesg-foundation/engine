@@ -19,7 +19,7 @@ type SDK struct {
 	client     *cosmos.Client
 }
 
-// NewSDK returns the service sdk.
+// New returns the service sdk.
 func New(cdc *codec.Codec, client *cosmos.Client, accountSDK *accountsdk.SDK) Service {
 	sdk := &SDK{
 		cdc:        cdc,
@@ -77,14 +77,23 @@ func (s *SDK) List() ([]*service.Service, error) {
 }
 
 // Exists returns if a service already exists.
-func (s *SDK) Exists(req *api.CreateServiceRequest) (*api.ExistsServiceResponse, error) {
-	var response api.ExistsServiceResponse
+func (s *SDK) Exists(hash hash.Hash) (bool, error) {
+	var exists bool
+	if err := s.client.Query("custom/"+backendName+"/exists/"+hash.String(), nil, &exists); err != nil {
+		return false, err
+	}
+	return exists, nil
+}
+
+// Hash returns the calculate hash of a service.
+func (s *SDK) Hash(req *api.CreateServiceRequest) (hash.Hash, error) {
+	var h hash.Hash
 	b, err := proto.Marshal(req)
 	if err != nil {
 		return nil, err
 	}
-	if err := s.client.Query("custom/"+backendName+"/exists", cmn.HexBytes(b), &response); err != nil {
+	if err := s.client.Query("custom/"+backendName+"/hash", cmn.HexBytes(b), &h); err != nil {
 		return nil, err
 	}
-	return &response, nil
+	return h, nil
 }

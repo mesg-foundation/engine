@@ -81,12 +81,19 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 		return s.Get(request, hash)
 	case "list":
 		return s.List(request)
-	case "exists":
+	case "hash":
 		var createServiceRequest api.CreateServiceRequest
 		if err := proto.Unmarshal(req.Data, &createServiceRequest); err != nil {
 			return nil, err
 		}
-		return s.Exists(request, &createServiceRequest)
+		return s.Hash(&createServiceRequest), nil
+	case "exists":
+		hash, err := hash.Decode(path[1])
+		if err != nil {
+			return nil, err
+		}
+		return s.Exists(request, hash)
+
 	default:
 		return nil, errors.New("unknown service query endpoint" + path[0])
 	}
@@ -108,19 +115,13 @@ func (s *Backend) Get(request cosmostypes.Request, hash hash.Hash) (*service.Ser
 }
 
 // Exists returns true if a specific set of data exists in the database, false otherwise
-func (s *Backend) Exists(request cosmostypes.Request, req *api.CreateServiceRequest) (*api.ExistsServiceResponse, error) {
-	h := initializeService(req).Hash
-	exists, err := s.db(request).Exist(h)
-	if err != nil {
-		return nil, err
-	}
-	response := &api.ExistsServiceResponse{
-		Exists: exists,
-	}
-	if response.Exists {
-		response.Hash = h
-	}
-	return response, nil
+func (s *Backend) Exists(request cosmostypes.Request, hash hash.Hash) (bool, error) {
+	return s.db(request).Exist(hash)
+}
+
+// Hash returns the hash of a service request.
+func (s *Backend) Hash(serviceRequest *api.CreateServiceRequest) hash.Hash {
+	return initializeService(serviceRequest).Hash
 }
 
 // List returns all services.

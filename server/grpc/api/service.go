@@ -70,6 +70,23 @@ func (s *ServiceServer) List(ctx context.Context, req *protobuf_api.ListServiceR
 }
 
 // Exists returns if a service already exists.
-func (s *ServiceServer) Exists(ctx context.Context, req *protobuf_api.CreateServiceRequest) (*protobuf_api.ExistsServiceResponse, error) {
-	return s.sdk.Service.Exists(req)
+func (s *ServiceServer) Exists(ctx context.Context, req *protobuf_api.ExistsServiceRequest) (*protobuf_api.ExistsServiceResponse, error) {
+	exists, err := s.sdk.Service.Exists(req.Hash)
+	if err != nil {
+		return nil, err
+	}
+	return &protobuf_api.ExistsServiceResponse{
+		Exists: exists,
+	}, nil
+}
+
+// Hash returns the calculated hash of a service request.
+func (s *ServiceServer) Hash(ctx context.Context, req *protobuf_api.CreateServiceRequest) (*protobuf_api.HashServiceResponse, error) {
+	h, err := s.sdk.Service.Hash(req)
+	if err != nil {
+		return nil, err
+	}
+	return &protobuf_api.HashServiceResponse{
+		Hash: h,
+	}, nil
 }
