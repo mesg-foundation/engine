@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/hex"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"time"
@@ -17,6 +18,7 @@ import (
 	"github.com/sirupsen/logrus"
 	tmconfig "github.com/tendermint/tendermint/config"
 	"github.com/tendermint/tendermint/crypto/ed25519"
+	"gopkg.in/yaml.v2"
 )
 
 const (
@@ -103,7 +105,7 @@ func New() (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := c.Load(); err != nil {
+	if err := c.LoadEnv(); err != nil {
 		return nil, err
 	}
 	if err := c.Prepare(); err != nil {
@@ -115,12 +117,31 @@ func New() (*Config, error) {
 	return c, nil
 }
 
-// Load reads config from environmental variables.
-func (c *Config) Load() error {
+// LoadYaml loads config from env variables.
+func (c *Config) LoadEnv() error {
 	if err := envconfig.Process(envPrefix, c); err != nil {
 		return err
 	}
 
+	return c.load()
+}
+
+// LoadYaml loads config from yaml file.
+func (c *Config) LoadYaml(file string) error {
+	in, err := ioutil.ReadFile(file)
+	if err != nil {
+		return err
+	}
+
+	if err := yaml.Unmarshal(in, c); err != nil {
+		return err
+	}
+
+	return c.load()
+}
+
+// Load reads config from environmental variables.
+func (c *Config) load() error {
 	c.Tendermint.Path = filepath.Join(c.Path, "tendermint")
 	c.Cosmos.Path = filepath.Join(c.Path, "cosmos")
 

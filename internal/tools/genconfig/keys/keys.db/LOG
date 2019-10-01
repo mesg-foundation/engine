@@ -1,0 +1,43 @@
+=============== Oct 1, 2019 (CEST) ===============
+10:57:08.828093 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+10:57:08.830341 db@open opening
+10:57:08.830856 version@stat F·[] S·0B[] Sc·[]
+10:57:08.831953 db@janitor F·2 G·0
+10:57:08.831966 db@open done T·1.612636ms
+10:57:09.107074 db@close closing
+10:57:09.107179 db@close done T·102.392µs
+=============== Oct 1, 2019 (CEST) ===============
+10:57:09.109721 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+10:57:09.109829 version@stat F·[] S·0B[] Sc·[]
+10:57:09.109842 db@open opening
+10:57:09.109871 journal@recovery F·1
+10:57:09.109948 journal@recovery recovering @1
+10:57:09.110875 memdb@flush created L0@2 N·2 S·463B "a.info,v1":"cos..ess,v2"
+10:57:09.111235 version@stat F·[1] S·463B[463B] Sc·[0.25]
+10:57:09.114253 db@janitor F·3 G·0
+10:57:09.114276 db@open done T·4.429332ms
+10:57:09.386785 db@close closing
+10:57:09.386940 db@close done T·151.626µs
+=============== Oct 1, 2019 (CEST) ===============
+10:57:09.389692 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+10:57:09.389848 version@stat F·[1] S·463B[463B] Sc·[0.25]
+10:57:09.389871 db@open opening
+10:57:09.389907 journal@recovery F·1
+10:57:09.390766 journal@recovery recovering @3
+10:57:09.391834 memdb@flush created L0@5 N·2 S·463B "b.info,v4":"cos..ess,v5"
+10:57:09.392772 version@stat F·[2] S·926B[926B] Sc·[0.50]
+10:57:09.395271 db@janitor F·4 G·0
+10:57:09.395294 db@open done T·5.417716ms
+10:57:09.659283 db@close closing
+10:57:09.659377 db@close done T·92.814µs
+=============== Oct 1, 2019 (CEST) ===============
+10:57:09.659796 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+10:57:09.659954 version@stat F·[2] S·926B[926B] Sc·[0.50]
+10:57:09.659979 db@open opening
+10:57:09.660016 journal@recovery F·1
+10:57:09.660327 journal@recovery recovering @6
+10:57:09.660508 version@stat F·[2] S·926B[926B] Sc·[0.50]
+10:57:09.664841 db@janitor F·4 G·0
+10:57:09.664864 db@open done T·4.880704ms
+10:57:09.929279 db@close closing
+10:57:09.929593 db@close done T·311.134µs

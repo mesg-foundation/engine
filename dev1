@@ -10,19 +10,19 @@ if [[ $* == *--exp* ]]; then
 fi
 
 # mesg config variables
-MESG_NAME=${MESG_NAME:-"engine"}
-MESG_PATH=${MESG_PATH:-"$HOME/.mesg"}
+MESG_NAME=${MESG_NAME:-"engine-1"}
+MESG_PATH=${MESG_PATH:-"$HOME/.mesg-1"}
 MESG_LOG_FORMAT=${MESG_LOG_FORMAT:-"text"}
 MESG_LOG_FORCECOLORS=${MESG_LOG_FORCECOLORS:-"false"}
 MESG_LOG_LEVEL=${MESG_LOG_LEVEL:-"debug"}
-MESG_SERVER_PORT=${MESG_SERVER_PORT:-"50052"}
+MESG_SERVER_PORT=${MESG_SERVER_PORT:-"50053"}
 
  # network to connect multiple engine instances
 TENDERMINT_NETWORK="mesg-tendermint"
 TENDERMINT_HOME_CONFIG="$MESG_PATH/tendermint"
 TENDERMINT_NETWORK_ALIAS=${TENDERMINT_NETWORK_ALIAS:-$MESG_NAME}
-TENDERMINT_VALIDATOR_NAME=${TENDERMINT_VALIDATOR_NAME:-"validator"}
-TENDERMINT_VALIDATOR_PORT=${TENDERMINT_VALIDATOR_PORT:-"26656"}
+TENDERMINT_VALIDATOR_NAME=${TENDERMINT_VALIDATOR_NAME:-"validator1"}
+TENDERMINT_VALIDATOR_PORT=${TENDERMINT_VALIDATOR_PORT:-"26657"}
 TENDERMINT_VALIDATOR_PATH=${TENDERMINT_VALIDATOR_PATH:-".tendermint-validator"}
 
 MESG_COSMOS_HOME_CONFIG="$MESG_PATH/cosmos"
@@ -45,12 +45,13 @@ MESG_COSMOS_GENESISTIME=${MESG_COSMOS_GENESISTIME:-"2019-01-01T00:00:00Z"}
 
 # eval $(go run internal/tools/gen_genesis_validator/main.go -name=$MESG_COSMOS_GENESISACCOUNT_NAME -password=$MESG_COSMOS_GENESISACCOUNT_PASSWORD -kbpath=$MESG_COSMOS_KEYBASE_PATH --chain-id $MESG_COSMOS_CHAINID --pubkey $MESG_COSMOS_VALIDATORPUBKEY)
 
-MESG_COSMOS_ACCOUNT_PUBKEY=02EAF7858AA3190E7D9DFCAB67742A4C7522837933370B9965AC2C731842ADF30A
-MESG_COSMOS_ACCOUNT_ADDRESS=cosmos169slhhcr4jadpkk5qx3gw6zu470eky4jt4uzcd
-MESG_COSMOS_ACCOUNT_MNEMONIC="pioneer muffin aerobic thrive display equip right section behind plastic order lunch bachelor aim tortoise never tiny diagram gate level ensure follow fury original"
-NODE_PUBKEY=fe7bd21d8cecf19aa1b711de3c80305983832a45@localhost:26656
-VALIDATOR_PUBKEY=3AB88DC8EE63A38C43D790A6B570039A6D450DDD04B5E8D5FD54FF75FDE03BF6
+MESG_COSMOS_ACCOUNT_PUBKEY=029D2E02C34B4C8E93D5AEEB9EC7D93B1751E5270F31B3AD736FD7317980986ADD
+MESG_COSMOS_ACCOUNT_ADDRESS=cosmos1swn28qef4uqdwlnk0ppwmm0f8k05gl4n6djd87
+MESG_COSMOS_ACCOUNT_MNEMONIC="crime people culture enforce report tooth phone oppose allow pepper noodle color walk major tissue pond fiction fatigue where embody settle mom child people"
+NODE_PUBKEY=8b30dd61a0dc6ccf95fc8a12b26923bfa56715f4@localhost:26656
+VALIDATOR_PUBKEY=A4B44AB8BDB77ADC8ACE797EC155053275ED06C0A33754AD101AAFADD7C1CF20
 MESG_COSMOS_GENESISVALIDATORTX='{"msg":[{"type":"cosmos-sdk/MsgCreateValidator","value":{"description":{"moniker":"a","identity":"","website":"","details":"init-validator"},"commission":{"rate":"0.000000000000000000","max_rate":"0.000000000000000000","max_change_rate":"0.000000000000000000"},"min_self_delegation":"1","delegator_address":"cosmos169slhhcr4jadpkk5qx3gw6zu470eky4jt4uzcd","validator_address":"cosmosvaloper169slhhcr4jadpkk5qx3gw6zu470eky4jwpgh57","pubkey":"cosmosvalconspub1zcjduepq82ugmj8wvw3ccs7hjznt2uqrnfk52rwaqj67340a2nlhtl0q80mqzulfs8","value":{"denom":"stake","amount":"100000000"}}},{"type":"cosmos-sdk/MsgCreateValidator","value":{"description":{"moniker":"b","identity":"","website":"","details":"init-validator"},"commission":{"rate":"0.000000000000000000","max_rate":"0.000000000000000000","max_change_rate":"0.000000000000000000"},"min_self_delegation":"1","delegator_address":"cosmos1swn28qef4uqdwlnk0ppwmm0f8k05gl4n6djd87","validator_address":"cosmosvaloper1swn28qef4uqdwlnk0ppwmm0f8k05gl4nlexctd","pubkey":"cosmosvalconspub1zcjduepq5j6y4w9akaadezkw09lvz4g9xf676pkq5vm4ftgsr2h6m47peusqu4zzd2","value":{"denom":"stake","amount":"100000000"}}}],"fee":{"amount":[],"gas":"200000"},"signatures":[{"pub_key":{"type":"tendermint/PubKeySecp256k1","value":"Aur3hYqjGQ59nfyrZ3QqTHUig3kzNwuZZawscxhCrfMK"},"signature":"VPdqQeeWXE3DgMDfRswst+BOkH3GU+hUgJ963re3Y4A3e5CVSwfNfR5OfhDOWhkl4zE11ZX1zaU7FcyjiioHMQ=="},{"pub_key":{"type":"tendermint/PubKeySecp256k1","value":"Ap0uAsNLTI6T1a7rnsfZOxdR5ScPMbOtc2/XMXmAmGrd"},"signature":"Fpnj+4npPFvf1gaYtnLwB+USBhrSUoLTYUXuYliZ0bRslKKjcguySo7ck2jlm1a11s4lC7KsUviex8zX5EEWFw=="}],"memo":""}'
+
 
 MESG_COSMOS_VALIDATORPUBKEY=${MESG_COSMOS_VALIDATORPUBKEY:-$VALIDATOR_PUBKEY}
 MESG_TENDERMINT_P2P_PERSISTENTPEERS=${MESG_TENDERMINT_P2P_PERSISTENTPEERS:-$NODE_PUBKEY}
