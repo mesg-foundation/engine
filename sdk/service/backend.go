@@ -40,7 +40,6 @@ func NewBackend(appFactory *cosmos.AppFactory, ownerships *ownershipsdk.Backend)
 	appFactory.RegisterStoreKey(backend.storeKey)
 
 	backend.cdc.RegisterConcrete(msgCreateService{}, "service/create", nil)
-	backend.cdc.RegisterConcrete(msgDeleteService{}, "service/delete", nil)
 
 	return backend
 }
@@ -59,12 +58,6 @@ func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) cosm
 		return cosmostypes.Result{
 			Data: srv.Hash,
 		}
-	case msgDeleteService:
-		err := s.Delete(request, msg.Hash)
-		if err != nil {
-			return cosmostypes.ErrInternal(err.Error()).Result()
-		}
-		return cosmostypes.Result{}
 	default:
 		errmsg := fmt.Sprintf("Unrecognized service Msg type: %v", msg.Type())
 		return cosmostypes.ErrUnknownRequest(errmsg).Result()
@@ -102,11 +95,6 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 // Create creates a new service from definition.
 func (s *Backend) Create(request cosmostypes.Request, msg *msgCreateService) (*service.Service, error) {
 	return create(s.db(request), msg.Request, msg.Owner, s.ownerships, request)
-}
-
-// Delete deletes the service by hash.
-func (s *Backend) Delete(request cosmostypes.Request, hash hash.Hash) error {
-	return s.db(request).Delete(hash)
 }
 
 // Get returns the service that matches given hash.

@@ -49,15 +49,6 @@ func (s *SDK) Create(req *api.CreateServiceRequest, accountName, accountPassword
 	return s.Get(tx.Data)
 }
 
-// Delete deletes the service by hash.
-func (s *SDK) Delete(hash hash.Hash, accountName, accountPassword string) error {
-	// TODO: pass account by parameters
-	accNumber, accSeq := uint64(0), uint64(0)
-	msg := newMsgDeleteService(s.cdc, hash)
-	_, err := s.client.BuildAndBroadcastMsg(msg, accountName, accountPassword, accNumber, accSeq)
-	return err
-}
-
 // Get returns the service that matches given hash.
 func (s *SDK) Get(hash hash.Hash) (*service.Service, error) {
 	var service service.Service

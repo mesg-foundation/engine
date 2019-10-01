@@ -172,70 +172,6 @@ func (m *CreateServiceResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_CreateServiceResponse proto.InternalMessageInfo
 
-// The request's data for the `Delete` API.
-type DeleteServiceRequest struct {
-	// The service's hash to delete.
-	Hash                 github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,1,opt,name=hash,proto3,customtype=github.com/mesg-foundation/engine/hash.Hash" json:"hash"`
-	XXX_NoUnkeyedLiteral struct{}                                    `json:"-"`
-	XXX_unrecognized     []byte                                      `json:"-"`
-	XXX_sizecache        int32                                       `json:"-"`
-}
-
-func (m *DeleteServiceRequest) Reset()         { *m = DeleteServiceRequest{} }
-func (m *DeleteServiceRequest) String() string { return proto.CompactTextString(m) }
-func (*DeleteServiceRequest) ProtoMessage()    {}
-func (*DeleteServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_0615fe53b372bcb1, []int{2}
-}
-func (m *DeleteServiceRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_DeleteServiceRequest.Unmarshal(m, b)
-}
-func (m *DeleteServiceRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_DeleteServiceRequest.Marshal(b, m, deterministic)
-}
-func (m *DeleteServiceRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DeleteServiceRequest.Merge(m, src)
-}
-func (m *DeleteServiceRequest) XXX_Size() int {
-	return xxx_messageInfo_DeleteServiceRequest.Size(m)
-}
-func (m *DeleteServiceRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_DeleteServiceRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_DeleteServiceRequest proto.InternalMessageInfo
-
-// The response's data for the `Delete` API, doesn't contain anything.
-type DeleteServiceResponse struct {
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *DeleteServiceResponse) Reset()         { *m = DeleteServiceResponse{} }
-func (m *DeleteServiceResponse) String() string { return proto.CompactTextString(m) }
-func (*DeleteServiceResponse) ProtoMessage()    {}
-func (*DeleteServiceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_0615fe53b372bcb1, []int{3}
-}
-func (m *DeleteServiceResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_DeleteServiceResponse.Unmarshal(m, b)
-}
-func (m *DeleteServiceResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_DeleteServiceResponse.Marshal(b, m, deterministic)
-}
-func (m *DeleteServiceResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DeleteServiceResponse.Merge(m, src)
-}
-func (m *DeleteServiceResponse) XXX_Size() int {
-	return xxx_messageInfo_DeleteServiceResponse.Size(m)
-}
-func (m *DeleteServiceResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_DeleteServiceResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_DeleteServiceResponse proto.InternalMessageInfo
-
 // The request's data for the `Get` API.
 type GetServiceRequest struct {
 	// The service's hash to fetch.
@@ -249,7 +185,7 @@ func (m *GetServiceRequest) Reset()         { *m = GetServiceRequest{} }
 func (m *GetServiceRequest) String() string { return proto.CompactTextString(m) }
 func (*GetServiceRequest) ProtoMessage()    {}
 func (*GetServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_0615fe53b372bcb1, []int{4}
+	return fileDescriptor_0615fe53b372bcb1, []int{2}
 }
 func (m *GetServiceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetServiceRequest.Unmarshal(m, b)
@@ -280,7 +216,7 @@ func (m *ListServiceRequest) Reset()         { *m = ListServiceRequest{} }
 func (m *ListServiceRequest) String() string { return proto.CompactTextString(m) }
 func (*ListServiceRequest) ProtoMessage()    {}
 func (*ListServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_0615fe53b372bcb1, []int{5}
+	return fileDescriptor_0615fe53b372bcb1, []int{3}
 }
 func (m *ListServiceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListServiceRequest.Unmarshal(m, b)
@@ -313,7 +249,7 @@ func (m *ListServiceResponse) Reset()         { *m = ListServiceResponse{} }
 func (m *ListServiceResponse) String() string { return proto.CompactTextString(m) }
 func (*ListServiceResponse) ProtoMessage()    {}
 func (*ListServiceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_0615fe53b372bcb1, []int{6}
+	return fileDescriptor_0615fe53b372bcb1, []int{4}
 }
 func (m *ListServiceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListServiceResponse.Unmarshal(m, b)
@@ -449,8 +385,6 @@ var xxx_messageInfo_HashServiceResponse proto.InternalMessageInfo
 func init() {
 	proto.RegisterType((*CreateServiceRequest)(nil), "mesg.api.CreateServiceRequest")
 	proto.RegisterType((*CreateServiceResponse)(nil), "mesg.api.CreateServiceResponse")
-	proto.RegisterType((*DeleteServiceRequest)(nil), "mesg.api.DeleteServiceRequest")
-	proto.RegisterType((*DeleteServiceResponse)(nil), "mesg.api.DeleteServiceResponse")
 	proto.RegisterType((*GetServiceRequest)(nil), "mesg.api.GetServiceRequest")
 	proto.RegisterType((*ListServiceRequest)(nil), "mesg.api.ListServiceRequest")
 	proto.RegisterType((*ListServiceResponse)(nil), "mesg.api.ListServiceResponse")
@@ -517,9 +451,6 @@ type ServiceClient interface {
 	// Create a Service from a Service Definition.
 	// It will return an unique identifier which is used to interact with the Service.
 	Create(ctx context.Context, in *CreateServiceRequest, opts ...grpc.CallOption) (*CreateServiceResponse, error)
-	// Delete a Service.
-	// An error is returned if one or more Instances of the Service are running.
-	Delete(ctx context.Context, in *DeleteServiceRequest, opts ...grpc.CallOption) (*DeleteServiceResponse, error)
 	// Get returns a Service matching the criteria of the request.
 	Get(ctx context.Context, in *GetServiceRequest, opts ...grpc.CallOption) (*service.Service, error)
 	// List returns services specified in a request.
@@ -541,15 +472,6 @@ func NewServiceClient(cc *grpc.ClientConn) ServiceClient {
 func (c *serviceClient) Create(ctx context.Context, in *CreateServiceRequest, opts ...grpc.CallOption) (*CreateServiceResponse, error) {
 	out := new(CreateServiceResponse)
 	err := c.cc.Invoke(ctx, "/mesg.api.Service/Create", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *serviceClient) Delete(ctx context.Context, in *DeleteServiceRequest, opts ...grpc.CallOption) (*DeleteServiceResponse, error) {
-	out := new(DeleteServiceResponse)
-	err := c.cc.Invoke(ctx, "/mesg.api.Service/Delete", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -597,9 +519,6 @@ type ServiceServer interface {
 	// Create a Service from a Service Definition.
 	// It will return an unique identifier which is used to interact with the Service.
 	Create(context.Context, *CreateServiceRequest) (*CreateServiceResponse, error)
-	// Delete a Service.
-	// An error is returned if one or more Instances of the Service are running.
-	Delete(context.Context, *DeleteServiceRequest) (*DeleteServiceResponse, error)
 	// Get returns a Service matching the criteria of the request.
 	Get(context.Context, *GetServiceRequest) (*service.Service, error)
 	// List returns services specified in a request.
@@ -616,9 +535,6 @@ type UnimplementedServiceServer struct {
 
 func (*UnimplementedServiceServer) Create(ctx context.Context, req *CreateServiceRequest) (*CreateServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
-}
-func (*UnimplementedServiceServer) Delete(ctx context.Context, req *DeleteServiceRequest) (*DeleteServiceResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
 func (*UnimplementedServiceServer) Get(ctx context.Context, req *GetServiceRequest) (*service.Service, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
@@ -651,24 +567,6 @@ func _Service_Create_Handler(srv interface{}, ctx context.Context, dec func(inte
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ServiceServer).Create(ctx, req.(*CreateServiceRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Service_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteServiceRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ServiceServer).Delete(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/mesg.api.Service/Delete",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).Delete(ctx, req.(*DeleteServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -752,10 +650,6 @@ var _Service_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Create",
 			Handler:    _Service_Create_Handler,
-		},
-		{
-			MethodName: "Delete",
-			Handler:    _Service_Delete_Handler,
 		},
 		{
 			MethodName: "Get",
