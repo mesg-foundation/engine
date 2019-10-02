@@ -45,10 +45,6 @@ var names = [...]string{
 	"knuth",
 }
 
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
-
 func randompassword() string {
 	b := make([]byte, 16)
 	for i := range b {
@@ -67,6 +63,7 @@ var (
 )
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
 	flag.Parse()
 
 	passwords := make([]string, *vno)
