@@ -60,10 +60,9 @@ type Config struct {
 
 // CosmosConfig is the struct to hold cosmos related configs.
 type CosmosConfig struct {
-	Path        string
-	ChainID     string
-	GenesisTime time.Time
-
+	Path               string
+	ChainID            string
+	GenesisTime        time.Time
 	GenesisValidatorTx StdTx
 }
 
@@ -113,7 +112,7 @@ func New() (*Config, error) {
 	return c, nil
 }
 
-// LoadYaml loads config from env variables.
+// LoadEnv loads config from env variables.
 func (c *Config) LoadEnv() error {
 	if err := envconfig.Process(envPrefix, c); err != nil {
 		return err
