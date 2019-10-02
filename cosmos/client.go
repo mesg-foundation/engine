@@ -49,7 +49,7 @@ func (c *Client) Query(path string, ptr interface{}) error {
 func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg, accName, accPassword string, accNumber, accSeq uint64) (*abci.ResponseDeliverTx, error) {
 	txBuilder := NewTxBuilder(c.cdc, accNumber, accSeq, c.kb, c.chainID)
 	// TODO: cannot sign 2 tx at the same time. Maybe keybase cannot be access at the same time. Add a lock?
-	signedTx, err := txBuilder.BuildAndSignStdTx([]sdktypes.Msg{msg}, accName, accPassword)
+	signedTx, err := txBuilder.BuildAndSignStdTx(msg, accName, accPassword)
 	if err != nil {
 		return nil, err
 	}
