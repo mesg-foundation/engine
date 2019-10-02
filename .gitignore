@@ -23,9 +23,8 @@ node_modules
 vendor
 tmp-systemservices
 
-# tendermint/cosmos
-.tendermint-validator/
-.cosmos-keybase/
+# genesis
+.genesis
 
 # gogo extension
 gogo/
