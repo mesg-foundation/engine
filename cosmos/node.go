@@ -48,15 +48,18 @@ func NewNode(app *App, cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.N
 }
 
 func createAppState(defaultGenesisŚtate map[string]json.RawMessage, cdc *codec.Codec, signedStdTx authtypes.StdTx) (map[string]json.RawMessage, error) {
-	signers := signedStdTx.GetSigners()
-	address := signers[len(signers)-1]
-	stakes := sdktypes.NewCoin(sdktypes.DefaultBondDenom, sdktypes.NewInt(100000000))
-	genAcc := genaccounts.NewGenesisAccountRaw(address, sdktypes.NewCoins(stakes), sdktypes.NewCoins(), 0, 0, "", "")
-	if err := genAcc.Validate(); err != nil {
-		return nil, err
+	genAccs := []genaccounts.GenesisAccount{}
+
+	for _, signer := range signedStdTx.GetSigners() {
+		stakes := sdktypes.NewCoin(sdktypes.DefaultBondDenom, sdktypes.NewInt(100000000))
+		genAcc := genaccounts.NewGenesisAccountRaw(signer, sdktypes.NewCoins(stakes), sdktypes.NewCoins(), 0, 0, "", "")
+		if err := genAcc.Validate(); err != nil {
+			return nil, err
+		}
+		genAccs = append(genAccs, genAcc)
 	}
 
-	genstate, err := cdc.MarshalJSON(genaccounts.GenesisState([]genaccounts.GenesisAccount{genAcc}))
+	genstate, err := cdc.MarshalJSON(genaccounts.GenesisState(genAccs))
 	if err != nil {
 		return nil, err
 	}
