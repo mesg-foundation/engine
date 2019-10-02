@@ -3,14 +3,15 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"math/rand"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/keyerror"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -57,10 +58,12 @@ func randompassword() string {
 }
 
 var (
-	vno     = flag.Int("vno", 1, "validator numbers")
-	chainid = flag.String("chain-id", "mesg-chain", "chain id")
-	kbpath  = flag.String("co-kbpath", ".", "cosmos key base path")
-	tmpath  = flag.String("tm-path", ".", "tendermint config path")
+	vno           = flag.Int("vno", 1, "validator numbers")
+	chainid       = flag.String("chain-id", "mesg-chain", "chain id")
+	kbpath        = flag.String("co-kbpath", ".", "cosmos key base path")
+	tmpath        = flag.String("tm-path", ".", "tendermint config path")
+	gentxfilepath = flag.String("gentx-filepath", "genesistx.json", "genesis transaction file path")
+	peersfilepath = flag.String("peers-filepath", "peers", "peers file path")
 )
 
 func main() {
@@ -76,13 +79,13 @@ func main() {
 		log.Fatalln("creating keybase error:", err)
 	}
 
-	// if account exists do not create it
 	cdc := codec.New()
 	codec.RegisterCrypto(cdc)
 	sdktypes.RegisterCodec(cdc)
 	stakingtypes.RegisterCodec(cdc)
 
 	msgs := []sdktypes.Msg{}
+	peers := []string{}
 	for i := 0; i < *vno; i++ {
 		// read entropy seed straight from crypto.Rand and convert to mnemonic
 		entropySeed, err := bip39.NewEntropy(mnemonicEntropySize)
@@ -92,17 +95,12 @@ func main() {
 
 		mnemonic, err := bip39.NewMnemonic(entropySeed)
 		if err != nil {
-			log.Fatalln("new menmonic error:", err)
+			log.Fatalln("new mnemonic error:", err)
 		}
 
-		acc, err := kb.Get(names[i])
-		if keyerror.IsErrKeyNotFound(err) { // TODO: cannot use this script in determistic way
-			acc, err = kb.CreateAccount(names[i], mnemonic, "", passwords[i], 0, 0)
-			if err != nil {
-				log.Fatalln("create account error:", err)
-			}
-		} else if err != nil {
-			log.Fatalln("Get account error:", err)
+		acc, err := kb.CreateAccount(names[i], mnemonic, "", passwords[i], 0, 0)
+		if err != nil {
+			log.Fatalln("create account error:", err)
 		}
 
 		if err := os.MkdirAll(filepath.Join(*tmpath, names[i], "config"), 0755); err != nil {
@@ -121,19 +119,8 @@ func main() {
 			log.Fatalln("load/gen node key error:", err)
 		}
 
-		fmt.Printf(`MESG_COSMOS_ACCOUNT_NAME=%s
-MESG_COSMOS_ACCOUNT_PASSWORD=%s
-MESG_COSMOS_ACCOUNT_ADDRESS=%s
-MESG_COSMOS_ACCOUNT_MNEMONIC="%s"
-MESG_TENDERMINT_P2P_PERSISTENTPEERS=%s@%s:26656
-`,
-			names[i],
-			passwords[i],
-			acc.GetAddress(),
-			mnemonic,
-			nodeKey.ID(),
-			names[i],
-		)
+		fmt.Printf("Validator #%d:\nNode ID: %s\nName: %s\nPassword: %s\nAddress: %s\nMnemonic: %s\nPeer address: %s@%s:26656\n\n", i+1, nodeKey.ID(), names[i], passwords[i], acc.GetAddress(), mnemonic, nodeKey.ID(), names[i])
+		peers = append(peers, fmt.Sprintf("%s@%s:26656", nodeKey.ID(), names[i]))
 
 		me := privval.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile())
 		msgs = append(msgs, stakingtypes.NewMsgCreateValidator(
@@ -153,12 +140,13 @@ MESG_TENDERMINT_P2P_PERSISTENTPEERS=%s@%s:26656
 		))
 	}
 
+	// generate genesis transaction
 	b := cosmos.NewTxBuilder(cdc, 0, 0, kb, *chainid)
 	signedMsg, err := b.BuildSignMsg(msgs)
 	if err != nil {
 		log.Fatalln("build sign msg error:", err)
 	}
-
+	// test to sign with only 1 validator
 	stdTx := authtypes.NewStdTx(signedMsg.Msgs, signedMsg.Fee, []authtypes.StdSignature{}, signedMsg.Memo)
 	for i := 0; i < *vno; i++ {
 		stdTx, err = b.SignStdTx(names[i], passwords[i], stdTx, true)
@@ -166,6 +154,13 @@ MESG_TENDERMINT_P2P_PERSISTENTPEERS=%s@%s:26656
 			log.Fatalln("sign msg create validator error:", err)
 		}
 	}
+	validatorTx := string(cdc.MustMarshalJSON(stdTx))
+	if err := ioutil.WriteFile(*gentxfilepath, []byte(validatorTx), 0644); err != nil {
+		log.Fatalln("error during writing genesis tx file:", err)
+	}
 
-	fmt.Printf("MESG_COSMOS_GENESISVALIDATORTX='%s'\n", string(cdc.MustMarshalJSON(stdTx)))
+	// peers file
+	if err := ioutil.WriteFile(*peersfilepath, []byte(strings.Join(peers, ",")), 0644); err != nil {
+		log.Fatalln("error during writing peers file:", err)
+	}
 }

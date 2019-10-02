@@ -2,19 +2,6 @@
 
 set -e
 
-
-while getopts "f:" OPTION
-do
-	case $OPTION in
-		f)
-			echo "The value of -f is $OPTARG"
-			MYOPTF=$OPTARG
-			echo $MYOPTF
-			exit
-			;;
-	esac
-done
-
 # mesg config variables
 MESG_NAME=${MESG_NAME:-"bob"}
 MESG_PATH=${MESG_PATH:-"$HOME/.mesg"}
@@ -22,6 +9,8 @@ MESG_LOG_FORMAT=${MESG_LOG_FORMAT:-"text"}
 MESG_LOG_FORCECOLORS=${MESG_LOG_FORCECOLORS:-"false"}
 MESG_LOG_LEVEL=${MESG_LOG_LEVEL:-"debug"}
 MESG_SERVER_PORT=${MESG_SERVER_PORT:-"50052"}
+
+VALIDATOR_NUMBER=${VALIDATOR_NUMBER:-"1"}
 
  # network to connect multiple engine instances
 TENDERMINT_NETWORK="mesg-tendermint"
@@ -35,8 +24,17 @@ MESG_COSMOS_HOME_CONFIG="$MESG_PATH/cosmos"
 MESG_COSMOS_CHAINID=${MESG_COSMOS_CHAINID:-"mesg-chain"}
 MESG_COSMOS_KEYBASE_PATH=${MESG_COSMOS_KEYBASE_PATH:-".cosmos-keybase"}
 MESG_COSMOS_GENESISTIME=${MESG_COSMOS_GENESISTIME:-"2019-01-01T00:00:00Z"}
+MESG_COSMSOS_GENESISTXFILEPATH=${MESG_COSMSOS_GENESISTXFILEPATH:-"genesistx.json"}
+MESG_COSMSOS_PEERSFILEPATH=${MESG_COSMSOS_PEERSFILEPATH:-"peers"}
 
-eval $(go run internal/tools/genconfig/main.go --co-kbpath $MESG_COSMOS_KEYBASE_PATH --tm-path $TENDERMINT_VALIDATOR_PATH --chain-id $MESG_COSMOS_CHAINID --vno 1)
+if [[ $* == *--gen-genesis* ]]; then
+  echo "Generating new genesis..."
+  go run internal/tools/genconfig/main.go --co-kbpath $MESG_COSMOS_KEYBASE_PATH --tm-path $TENDERMINT_VALIDATOR_PATH --chain-id $MESG_COSMOS_CHAINID --gentx-filepath $MESG_COSMSOS_GENESISTXFILEPATH --peers-filepath $MESG_COSMSOS_PEERSFILEPATH --vno $VALIDATOR_NUMBER
+  exit
+fi
+
+MESG_COSMOS_GENESISVALIDATORTX=$(cat $MESG_COSMSOS_GENESISTXFILEPATH)
+MESG_TENDERMINT_P2P_PERSISTENTPEERS=$(cat $MESG_COSMSOS_PEERSFILEPATH)
 
 # Setup the validator private keys
 if [[ $* == *--validator* ]]; then
