@@ -10,13 +10,13 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/keyerror"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	bip39 "github.com/cosmos/go-bip39"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/tendermint/tendermint/config"
-	"github.com/tendermint/tendermint/crypto/secp256k1"
 	"github.com/tendermint/tendermint/p2p"
 	"github.com/tendermint/tendermint/privval"
 )
@@ -95,11 +95,15 @@ func main() {
 			log.Fatalln("new menmonic error:", err)
 		}
 
-		acc, err := kb.CreateAccount(names[i], mnemonic, "", passwords[i], 0, 0)
-		if err != nil {
-			log.Fatalln("create account error:", err)
+		acc, err := kb.Get(names[i])
+		if keyerror.IsErrKeyNotFound(err) { // TODO: cannot use this script in determistic way
+			acc, err = kb.CreateAccount(names[i], mnemonic, "", passwords[i], 0, 0)
+			if err != nil {
+				log.Fatalln("create account error:", err)
+			}
+		} else if err != nil {
+			log.Fatalln("Get account error:", err)
 		}
-		pubkey := acc.GetPubKey().(secp256k1.PubKeySecp256k1)
 
 		if err := os.MkdirAll(filepath.Join(*tmpath, names[i], "config"), 0755); err != nil {
 			log.Fatalln("mkdir tm config error:", err)
@@ -119,17 +123,16 @@ func main() {
 
 		fmt.Printf(`MESG_COSMOS_ACCOUNT_NAME=%s
 MESG_COSMOS_ACCOUNT_PASSWORD=%s
-MESG_COSMOS_ACCOUNT_PUBKEY=%X
 MESG_COSMOS_ACCOUNT_ADDRESS=%s
 MESG_COSMOS_ACCOUNT_MNEMONIC="%s"
-MESG_TENDERMINT_P2P_PERSISTENTPEERS=%s@localhost:26656
+MESG_TENDERMINT_P2P_PERSISTENTPEERS=%s@%s:26656
 `,
 			names[i],
 			passwords[i],
-			pubkey[:],
 			acc.GetAddress(),
 			mnemonic,
 			nodeKey.ID(),
+			names[i],
 		)
 
 		me := privval.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile())

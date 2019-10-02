@@ -2,8 +2,21 @@
 
 set -e
 
+
+while getopts "f:" OPTION
+do
+	case $OPTION in
+		f)
+			echo "The value of -f is $OPTARG"
+			MYOPTF=$OPTARG
+			echo $MYOPTF
+			exit
+			;;
+	esac
+done
+
 # mesg config variables
-MESG_NAME=${MESG_NAME:-"engine"}
+MESG_NAME=${MESG_NAME:-"bob"}
 MESG_PATH=${MESG_PATH:-"$HOME/.mesg"}
 MESG_LOG_FORMAT=${MESG_LOG_FORMAT:-"text"}
 MESG_LOG_FORCECOLORS=${MESG_LOG_FORCECOLORS:-"false"}
@@ -13,9 +26,9 @@ MESG_SERVER_PORT=${MESG_SERVER_PORT:-"50052"}
  # network to connect multiple engine instances
 TENDERMINT_NETWORK="mesg-tendermint"
 TENDERMINT_HOME_CONFIG="$MESG_PATH/tendermint"
-TENDERMINT_NETWORK_ALIAS=${TENDERMINT_NETWORK_ALIAS:-$MESG_NAME}
-TENDERMINT_VALIDATOR_NAME=${TENDERMINT_VALIDATOR_NAME:-"validator"}
-TENDERMINT_VALIDATOR_PORT=${TENDERMINT_VALIDATOR_PORT:-"26656"}
+# TENDERMINT_NETWORK_ALIAS=${TENDERMINT_NETWORK_ALIAS:-$MESG_NAME}
+# TENDERMINT_VALIDATOR_NAME=${TENDERMINT_VALIDATOR_NAME:-"validator"} # to replace by MESG_NAME for simplification
+# TENDERMINT_VALIDATOR_PORT=${TENDERMINT_VALIDATOR_PORT:-"26656"} # to delete or should be passed to engine config to start multiple port at the same time maybe
 TENDERMINT_VALIDATOR_PATH=${TENDERMINT_VALIDATOR_PATH:-".tendermint-validator"}
 
 MESG_COSMOS_HOME_CONFIG="$MESG_PATH/cosmos"
@@ -23,15 +36,15 @@ MESG_COSMOS_CHAINID=${MESG_COSMOS_CHAINID:-"mesg-chain"}
 MESG_COSMOS_KEYBASE_PATH=${MESG_COSMOS_KEYBASE_PATH:-".cosmos-keybase"}
 MESG_COSMOS_GENESISTIME=${MESG_COSMOS_GENESISTIME:-"2019-01-01T00:00:00Z"}
 
-eval $(go run internal/tools/genconfig/main.go --co-kbpath $MESG_COSMOS_KEYBASE_PATH --tm-path $TENDERMINT_VALIDATOR_PATH)
+eval $(go run internal/tools/genconfig/main.go --co-kbpath $MESG_COSMOS_KEYBASE_PATH --tm-path $TENDERMINT_VALIDATOR_PATH --chain-id $MESG_COSMOS_CHAINID --vno 1)
 
 # Setup the validator private keys
 if [[ $* == *--validator* ]]; then
   echo "Validator flag passed. Copy validator private keys to $TENDERMINT_HOME_CONFIG"
   mkdir -p $TENDERMINT_HOME_CONFIG
-  rsync -a $TENDERMINT_VALIDATOR_PATH/$MESG_COSMOS_ACCOUNT_NAME/ $TENDERMINT_HOME_CONFIG
-  TENDERMINT_NETWORK_ALIAS=$TENDERMINT_VALIDATOR_NAME
-  TENDERMINT_VALIDATOR_PORT_PUBLISH="--publish $TENDERMINT_VALIDATOR_PORT:$TENDERMINT_VALIDATOR_PORT"
+  rsync -a $TENDERMINT_VALIDATOR_PATH/$MESG_NAME/ $TENDERMINT_HOME_CONFIG
+  # TENDERMINT_NETWORK_ALIAS=$TENDERMINT_VALIDATOR_NAME
+  # TENDERMINT_VALIDATOR_PORT_PUBLISH="--publish $TENDERMINT_VALIDATOR_PORT:$TENDERMINT_VALIDATOR_PORT"
 fi
 
 if [[ $* == *--genesis_validator ]]; then
@@ -136,9 +149,12 @@ docker service create \
   --mount type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock \
   --mount type=bind,source=$MESG_PATH,destination=/root/.mesg \
   --network $MESG_NAME \
-  --network name=$TENDERMINT_NETWORK,alias=$TENDERMINT_NETWORK_ALIAS \
+  --network name=$TENDERMINT_NETWORK \
   --publish $MESG_SERVER_PORT:50052 \
-  $TENDERMINT_VALIDATOR_PORT_PUBLISH \
   mesg/engine:$VERSION ./engine $EXPERIMENTAL_FLAGS
+
+# not sure if MESG_TENDERMINT_P2P_EXTERNALADDRESS is needed
+# ,alias=$TENDERMINT_NETWORK_ALIAS
+# $TENDERMINT_VALIDATOR_PORT_PUBLISH \
 
 docker service logs --follow --raw $MESG_NAME
