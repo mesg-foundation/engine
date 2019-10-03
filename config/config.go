@@ -89,6 +89,8 @@ func Default() (*Config, error) {
 	c.Tendermint.Config.P2P.AddrBookStrict = false
 	c.Tendermint.Config.P2P.AllowDuplicateIP = true
 	c.Tendermint.Config.Consensus.TimeoutCommit = 10 * time.Second
+	c.Tendermint.Instrumentation.Prometheus = true
+	c.Tendermint.Instrumentation.PrometheusListenAddr = "0.0.0.0:26660"
 
 	return &c, nil
 }
