@@ -86,6 +86,7 @@ func Default() (*Config, error) {
 	c.Database.ProcessRelativePath = filepath.Join("database", "processes", processDBVersion)
 
 	c.Tendermint.Config = tmconfig.DefaultConfig()
+	c.Tendermint.Config.RPC.ListenAddress = "tcp://0.0.0.0:26657"
 	c.Tendermint.Config.P2P.AddrBookStrict = false
 	c.Tendermint.Config.P2P.AllowDuplicateIP = true
 	c.Tendermint.Config.Consensus.TimeoutCommit = 10 * time.Second
