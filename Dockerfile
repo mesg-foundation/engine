@@ -16,6 +16,7 @@ COPY . .
 ARG version
 ENV version=${version}
 RUN ./scripts/build-engine.sh
+RUN ./scripts/build-tools.sh
 
 FROM ubuntu:18.04
 RUN apt-get update && \
@@ -24,4 +25,5 @@ RUN apt-get update && \
       rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY --from=build /project/engine .
+COPY --from=build /project/gen-genesis .
 CMD ["./engine"]
