@@ -26,25 +26,6 @@ const mnemonicEntropySize = 256
 
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-var names = [...]string{
-	"bob",
-	"alice",
-	"eve",
-	"bell",
-	"brown",
-	"beethoven",
-	"curie",
-	"copernicus",
-	"chopin",
-	"euler",
-	"gauss",
-	"postel",
-	"liskov",
-	"boole",
-	"dijkstra",
-	"knuth",
-}
-
 func randompassword() string {
 	b := make([]byte, 16)
 	for i := range b {
@@ -54,7 +35,7 @@ func randompassword() string {
 }
 
 var (
-	vno           = flag.Int("vno", 1, "validator numbers")
+	validators    = flag.String("validators", "alice", "list of validator names separated with a comma")
 	chainid       = flag.String("chain-id", "mesg-chain", "chain id")
 	kbpath        = flag.String("co-kbpath", ".", "cosmos key base path")
 	tmpath        = flag.String("tm-path", ".", "tendermint config path")
@@ -66,8 +47,11 @@ func main() {
 	rand.Seed(time.Now().UnixNano())
 	flag.Parse()
 
-	passwords := make([]string, *vno)
-	for i := 0; i < *vno; i++ {
+	validatorNames := strings.Split(*validators, ",")
+	validatorNumber := len(validatorNames)
+
+	passwords := make([]string, validatorNumber)
+	for i := 0; i < validatorNumber; i++ {
 		passwords[i] = randompassword()
 	}
 
@@ -83,7 +67,7 @@ func main() {
 
 	msgs := []sdktypes.Msg{}
 	peers := []string{}
-	for i := 0; i < *vno; i++ {
+	for i, valName := range validatorNames {
 		// read entropy seed straight from crypto.Rand and convert to mnemonic
 		entropySeed, err := bip39.NewEntropy(mnemonicEntropySize)
 		if err != nil {
@@ -95,29 +79,29 @@ func main() {
 			log.Fatalln("new mnemonic error:", err)
 		}
 
-		acc, err := kb.CreateAccount(names[i], mnemonic, "", passwords[i], 0, 0)
+		acc, err := kb.CreateAccount(valName, mnemonic, "", passwords[i], 0, 0)
 		if err != nil {
 			log.Fatalln("create account error:", err)
 		}
 
-		if err := os.MkdirAll(filepath.Join(*tmpath, names[i], "config"), 0755); err != nil {
+		if err := os.MkdirAll(filepath.Join(*tmpath, valName, "config"), 0755); err != nil {
 			log.Fatalln("mkdir tm config error:", err)
 		}
 
-		if err := os.MkdirAll(filepath.Join(*tmpath, names[i], "data"), 0755); err != nil {
+		if err := os.MkdirAll(filepath.Join(*tmpath, valName, "data"), 0755); err != nil {
 			log.Fatalln("mkdir tm data error:", err)
 		}
 
 		cfg := config.DefaultConfig()
-		cfg.SetRoot(filepath.Join(*tmpath, names[i]))
+		cfg.SetRoot(filepath.Join(*tmpath, valName))
 
 		nodeKey, err := p2p.LoadOrGenNodeKey(cfg.NodeKeyFile())
 		if err != nil {
 			log.Fatalln("load/gen node key error:", err)
 		}
 
-		fmt.Printf("Validator #%d:\nNode ID: %s\nName: %s\nPassword: %s\nAddress: %s\nMnemonic: %s\nPeer address: %s@%s:26656\n\n", i+1, nodeKey.ID(), names[i], passwords[i], acc.GetAddress(), mnemonic, nodeKey.ID(), names[i])
-		peers = append(peers, fmt.Sprintf("%s@%s:26656", nodeKey.ID(), names[i]))
+		fmt.Printf("Validator #%d:\nNode ID: %s\nName: %s\nPassword: %s\nAddress: %s\nMnemonic: %s\nPeer address: %s@%s:26656\n\n", i+1, nodeKey.ID(), valName, passwords[i], acc.GetAddress(), mnemonic, nodeKey.ID(), valName)
+		peers = append(peers, fmt.Sprintf("%s@%s:26656", nodeKey.ID(), valName))
 
 		me := privval.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile())
 		msgs = append(msgs, stakingtypes.NewMsgCreateValidator(
@@ -145,8 +129,8 @@ func main() {
 	}
 	// test to sign with only 1 validator
 	stdTx := authtypes.NewStdTx(signedMsg.Msgs, signedMsg.Fee, []authtypes.StdSignature{}, signedMsg.Memo)
-	for i := 0; i < *vno; i++ {
-		stdTx, err = b.SignStdTx(names[i], passwords[i], stdTx, true)
+	for i, valName := range validatorNames {
+		stdTx, err = b.SignStdTx(valName, passwords[i], stdTx, true)
 		if err != nil {
 			log.Fatalln("sign msg create validator error:", err)
 		}
