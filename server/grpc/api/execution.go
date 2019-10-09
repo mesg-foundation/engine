@@ -92,5 +92,4 @@ func (s *ExecutionServer) Update(ctx context.Context, req *api.UpdateExecutionRe
 		return nil, err
 	}
 	return &api.UpdateExecutionResponse{}, nil
-
 }
