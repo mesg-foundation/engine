@@ -123,7 +123,7 @@ message Service {
     ];
 
     // Command to run the container.
-    string command = 5 [
+    repeated string command = 5 [
       (gogoproto.moretags) = 'hash:"name:4"'
     ];
 
@@ -166,7 +166,7 @@ message Service {
     ];
 
     // Command to run the container.
-    string command = 5 [
+    repeated string command = 5 [
       (gogoproto.moretags) = 'hash:"name:5"'
     ];
 
