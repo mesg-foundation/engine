@@ -48,9 +48,6 @@ if [[ $* == *--genesis_account ]]; then
   rsync -a $MESG_COSMOS_KEYBASE_PATH/ $MESG_COSMOS_HOME_CONFIG
 fi
 
-VERSION=local
-LDFLAGS="-X 'github.com/mesg-foundation/engine/version.Version=$VERSION'"
-
 function onexit {
   set +e
   echo -e "\nshutting down, please wait..."
@@ -78,42 +75,6 @@ function docker_network_remove {
   docker network remove "$1"
 }
 
-echo "compile engine"
-GOOS=linux GOARCH=amd64 go build -o ./bin/engine -ldflags="$LDFLAGS" core/main.go
-
-ENGINE_SUM_PATH="./bin/.engine.sum"
-touch "$ENGINE_SUM_PATH"
-
-DOCKER_SUM_PATH="./bin/.Dockerfile.dev.sum"
-touch "$DOCKER_SUM_PATH"
-
-# check if engine bin was cached
-ENGINE_SUM="$(openssl md5 ./bin/engine)"
-ENGINE_SUM_PREV="$(cat $ENGINE_SUM_PATH)"
-if [[ "$ENGINE_SUM" == "$ENGINE_SUM_PREV" ]]; then
-  BINCACHED=true
-else
-  echo "$ENGINE_SUM" > "$ENGINE_SUM_PATH"
-fi
-
-# check if dockerfile was cached
-DOCKER_SUM="$(openssl md5 ./Dockerfile.dev)"
-DOCKER_SUM_PREV="$(cat $DOCKER_SUM_PATH)"
-if [[ "$DOCKER_SUM" == "$DOCKER_SUM_PREV" ]]; then
-  DOCKERCACHED=true
-else
-  echo "$DOCKER_SUM" > "$DOCKER_SUM_PATH"
-fi
-
-# create mesg data folder on host machine
-mkdir -p $MESG_PATH
-
-if [[ ! $BINCACHED ]] || [[ ! $DOCKERCACHED ]]; then
-  echo "build mesg/engine image"
-  docker build -f Dockerfile.dev -t "mesg/engine:$VERSION" .
-fi
-
-
 trap onexit EXIT
 
 if ! docker_network_exist "$MESG_NAME"; then
@@ -124,14 +85,12 @@ if ! docker_network_exist "$MESG_TENDERMINT_NETWORK"; then
   docker_network_create "$MESG_TENDERMINT_NETWORK"
 fi
 
-
-
 echo "create docker service: "
 docker service create \
   --name $MESG_NAME \
   --tty \
   --label com.docker.stack.namespace=$MESG_NAME \
-  --label com.docker.stack.image=mesg/engine:$VERSION \
+  --label com.docker.stack.image=mesg/engine:dev \
   --env MESG_NAME=$MESG_NAME \
   --env MESG_LOG_FORMAT=$MESG_LOG_FORMAT \
   --env MESG_LOG_FORCECOLORS=$MESG_LOG_FORCECOLORS \
@@ -147,7 +106,6 @@ docker service create \
   --network name=$MESG_TENDERMINT_NETWORK \
   --publish $MESG_SERVER_PORT:50052 \
   $MESG_TENDERMINT_VALIDATOR_PORT_PUBLISH \
-  mesg/engine:$VERSION ./engine $EXPERIMENTAL_FLAGS
-
+  mesg/engine:dev
 
 docker service logs --follow --raw $MESG_NAME
