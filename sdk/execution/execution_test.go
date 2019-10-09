@@ -6,7 +6,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cskr/pubsub"
-	"github.com/mesg-foundation/engine/container/mocks"
 	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/execution"
@@ -44,14 +43,13 @@ func (t *apiTesting) close() {
 }
 
 func newTesting(t *testing.T) (*Execution, *apiTesting) {
-	container := &mocks.Container{}
 	serviceStore, err := store.NewLevelDBStore(servicedbname)
 	require.NoError(t, err)
 	db := database.NewServiceDB(serviceStore, codec.New())
 
 	instDB, err := database.NewInstanceDB(instdbname)
 	require.NoError(t, err)
-	instance := instancesdk.New(container, nil, instDB, "", "")
+	instance := instancesdk.New(nil, nil, instDB, "", "")
 
 	execDB, err := database.NewExecutionDB(execdbname)
 	require.NoError(t, err)

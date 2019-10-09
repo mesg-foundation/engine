@@ -1,273 +1,177 @@
 package container
 
 import (
-	"errors"
+	"context"
+	"strings"
 	"testing"
 
 	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/filters"
-	"github.com/docker/docker/api/types/swarm"
-
-	"github.com/mesg-foundation/engine/container/dockertest"
-	"github.com/mesg-foundation/engine/utils/docker/mocks"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
 const nstestprefix = "enginetest"
 
-func newTesting(t *testing.T) (*DockerContainer, *mocks.CommonAPIClient) {
-	m := &mocks.CommonAPIClient{}
-	mockNew(m)
-
-	c, err := New(nstestprefix, ClientOption(m))
+func TestBuild(t *testing.T) {
+	c, err := New(nstestprefix)
 	require.NoError(t, err)
-	require.NotZero(t, c)
-
-	return c, m
+	tag, err := c.Build("testdata/test-image")
+	require.NoError(t, err)
+	require.NotEmpty(t, tag)
 }
 
-func mockNew(m *mocks.CommonAPIClient) {
-	var (
-		infoResponse = types.Info{
-			Swarm: swarm.Info{
-				NodeID: "1",
+func TestNetwork(t *testing.T) {
+	const netname = "test-net"
+
+	c, err := New(nstestprefix)
+	require.NoError(t, err)
+	defer c.Cleanup()
+
+	t.Run("shared-network", func(t *testing.T) {
+		// check if is set after New
+		require.NotEmpty(t, c.SharedNetworkID())
+
+		// create 2nd time - 1st time is created with New
+		require.NoError(t, c.createSharedNetwork())
+	})
+
+	t.Run("create", func(t *testing.T) {
+		nid, err := c.CreateNetwork(netname)
+		require.NoError(t, err)
+		require.NotEmpty(t, nid)
+	})
+
+	t.Run("delete", func(t *testing.T) {
+		require.NoError(t, c.DeleteNetwork(netname))
+		_, err := c.client.NetworkInspect(context.Background(), c.namespace(netname), types.NetworkInspectOptions{})
+		require.Error(t, err)
+	})
+}
+
+func TestService(t *testing.T) {
+	const servicename = "test-service"
+
+	c, err := New(nstestprefix)
+	require.NoError(t, err)
+	defer c.Cleanup()
+
+	t.Run("start", func(t *testing.T) {
+		id, err := c.StartService(ServiceOptions{
+			Image:     "busybox",
+			Namespace: servicename,
+			Ports: []Port{
+				{
+					Target:    50053,
+					Published: 50053,
+				},
+				{
+					Target:    50054,
+					Published: 50054,
+				},
 			},
-		}
-		networkInspectArguments = []interface{}{
-			mock.Anything,
-			nstestprefix,
-			types.NetworkInspectOptions{},
-		}
-		networkInspectResponse = types.NetworkResource{
-			ID: "1",
-		}
-	)
-	m.On("NegotiateAPIVersion", mock.Anything).Once().Return()
-	m.On("Info", mock.Anything).Once().Return(infoResponse, nil)
-	m.On("NetworkInspect", networkInspectArguments...).Once().Return(networkInspectResponse, nil)
-}
-
-// TODO: support all status types.
-// mockStatus mocks Status() to fake return wantedStatus for namespace.
-func mockStatus(t *testing.T, m *mocks.CommonAPIClient, namespace string, wantedStatus StatusType) {
-	var (
-		containerID            = "1"
-		containerListArguments = []interface{}{
-			mock.AnythingOfType("*context.timerCtx"),
-			types.ContainerListOptions{
-				Filters: filters.NewArgs(filters.KeyValuePair{
-					Key:   "label",
-					Value: "com.docker.stack.namespace=" + namespace,
-				}),
-				Limit: 1,
+			Mounts: []Mount{
+				{
+					Source: "testdata",
+					Target: "/testdata",
+				},
 			},
-		}
-		containerListResponse     = []types.Container{{ID: "1"}}
-		containerInspectArguments = []interface{}{
-			mock.AnythingOfType("*context.timerCtx"),
-			containerID,
-		}
-		serviceInspectArguments = []interface{}{
-			mock.Anything,
-			namespace,
-			types.ServiceInspectOptions{},
-		}
-	)
+			Env:     []string{"foo=bar"},
+			Args:    []string{"hello"},
+			Command: "echo",
+			Networks: []Network{
+				{
+					ID:    c.SharedNetworkID(),
+					Alias: "test-net",
+				},
+			},
+			Labels: map[string]string{"label": "test"},
+		})
+		require.NoError(t, err)
 
-	m.On("ContainerList", containerListArguments...).Once().Return(containerListResponse, nil)
+		resp, _, err := c.client.ServiceInspectWithRaw(context.Background(), id, types.ServiceInspectOptions{})
+		require.NoError(t, err)
 
-	containerInspect := m.On("ContainerInspect", containerInspectArguments...).Once()
-	serviceInspect := m.On("ServiceInspectWithRaw", serviceInspectArguments...).Once()
+		require.Equal(t, "test", resp.Spec.Labels["label"])
+		require.Equal(t, c.namespace(servicename), resp.Spec.Labels["com.docker.stack.namespace"])
+		require.Equal(t, "busybox", resp.Spec.Labels["com.docker.stack.image"])
+		require.Len(t, resp.Spec.EndpointSpec.Ports, 2)
+		require.Equal(t, resp.Spec.EndpointSpec.Ports[0].TargetPort, uint32(50053))
+		require.Equal(t, resp.Spec.EndpointSpec.Ports[0].PublishedPort, uint32(50053))
+		require.Equal(t, resp.Spec.EndpointSpec.Ports[1].TargetPort, uint32(50054))
+		require.Equal(t, resp.Spec.EndpointSpec.Ports[1].PublishedPort, uint32(50054))
+		require.Len(t, resp.Spec.TaskTemplate.Networks, 1)
+		require.Equal(t, resp.Spec.TaskTemplate.Networks[0].Aliases, []string{"test-net"})
+		require.Len(t, resp.Spec.TaskTemplate.ContainerSpec.Mounts, 1)
+		require.Equal(t, resp.Spec.TaskTemplate.ContainerSpec.Mounts[0].Target, "/testdata")
+		require.Equal(t, resp.Spec.TaskTemplate.ContainerSpec.Mounts[0].Source, "testdata")
+		require.Equal(t, resp.Spec.TaskTemplate.ContainerSpec.Command, []string{"echo"})
+		require.Equal(t, resp.Spec.TaskTemplate.ContainerSpec.Args, []string{"hello"})
+		require.Equal(t, resp.Spec.TaskTemplate.ContainerSpec.Env, []string{"foo=bar"})
+	})
 
-	switch wantedStatus {
-	case RUNNING:
-		containerInspect.
-			Return(types.ContainerJSON{}, nil)
-		serviceInspect.
-			Return(swarm.Service{}, nil, nil)
-
-	case STOPPED:
-		containerInspect.
-			Return(types.ContainerJSON{}, dockertest.NotFoundErr{})
-		serviceInspect.
-			Return(swarm.Service{}, nil, dockertest.NotFoundErr{})
-
-	default:
-		t.Errorf("unhandled status %v", wantedStatus)
-	}
+	t.Run("stop", func(t *testing.T) {
+		require.NoError(t, c.StopService(servicename))
+	})
 }
 
-func TestNew(t *testing.T) {
-	dt := dockertest.New()
-	c, err := New(nstestprefix, ClientOption(dt.Client()))
+func TestNamespace(t *testing.T) {
+	c, _ := New("engine")
+	require.Equal(t, c.namespace("foo"), "engine-foo")
+}
+
+func TestReadDockerIgnoreFile(t *testing.T) {
+	// non existing .dockerignore file
+	files, err := readDockerIgnoreFile("testdata/test-image")
 	require.NoError(t, err)
-	require.NotNil(t, c)
+	require.Empty(t, files)
 
-	select {
-	case <-dt.LastNegotiateAPIVersion():
-	default:
-		t.Fatal("should negotiate api version")
-	}
-
-	select {
-	case <-dt.LastInfo():
-	default:
-		t.Error("should fetch info")
-	}
-
-	ln := <-dt.LastNetworkCreate()
-	require.Equal(t, nstestprefix, ln.Name)
-	require.Equal(t, types.NetworkCreate{
-		CheckDuplicate: true,
-		Driver:         "overlay",
-		Labels: map[string]string{
-			"com.docker.stack.namespace": ln.Name,
-		},
-	}, ln.Options)
-}
-
-func TestNewSwarmError(t *testing.T) {
-	dt := dockertest.New()
-	dt.ProvideInfo(types.Info{Swarm: swarm.Info{NodeID: ""}}, nil)
-
-	_, err := New(nstestprefix, ClientOption(dt.Client()))
-	require.Equal(t, err, errSwarmNotInit)
-}
-
-func TestFindContainerNonExistent(t *testing.T) {
-	namespace := "namespace"
-
-	dt := dockertest.New()
-	c, _ := New(nstestprefix, ClientOption(dt.Client()))
-
-	dt.ProvideContainerList(nil, dockertest.NotFoundErr{})
-
-	_, err := c.FindContainer(namespace)
-	require.Equal(t, dockertest.NotFoundErr{}, err)
-
-	require.Equal(t, types.ContainerListOptions{
-		Filters: filters.NewArgs(filters.KeyValuePair{
-			Key:   "label",
-			Value: "com.docker.stack.namespace=" + c.Namespace(namespace),
-		}),
-		Limit: 1,
-	}, (<-dt.LastContainerList()).Options)
-}
-
-func TestFindContainer(t *testing.T) {
-	namespace := "namespace"
-	containerID := "1"
-	containerData := []types.Container{
-		{ID: containerID},
-	}
-	containerJSONData := types.ContainerJSON{
-		ContainerJSONBase: &types.ContainerJSONBase{
-			ID: containerID,
-		},
-	}
-
-	dt := dockertest.New()
-	c, _ := New(nstestprefix, ClientOption(dt.Client()))
-
-	dt.ProvideContainerList(containerData, nil)
-	dt.ProvideContainerInspect(containerJSONData, nil)
-
-	container, err := c.FindContainer(namespace)
+	// existing .dockerignore file
+	files, err = readDockerIgnoreFile("testdata/test-image-with-ignore")
 	require.NoError(t, err)
-	require.Equal(t, containerJSONData.ID, container.ID)
-
-	require.Equal(t, types.ContainerListOptions{
-		Filters: filters.NewArgs(filters.KeyValuePair{
-			Key:   "label",
-			Value: "com.docker.stack.namespace=" + c.Namespace(namespace),
-		}),
-		Limit: 1,
-	}, (<-dt.LastContainerList()).Options)
-
-	require.Equal(t, containerID, (<-dt.LastContainerInspect()).Container)
+	require.Equal(t, []string{"file.txt"}, files)
 }
 
-func TestNonExistentContainerStatus(t *testing.T) {
-	namespace := "namespace"
-
-	dt := dockertest.New()
-	c, _ := New(nstestprefix, ClientOption(dt.Client()))
-
-	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, dockertest.NotFoundErr{})
-	dt.ProvideContainerInspect(types.ContainerJSON{}, dockertest.NotFoundErr{})
-
-	status, err := c.Status(namespace)
-	require.NoError(t, err)
-	require.Equal(t, STOPPED, status)
-
-	resp := <-dt.LastServiceInspectWithRaw()
-	require.Equal(t, c.Namespace(namespace), resp.ServiceID)
-	require.Equal(t, types.ServiceInspectOptions{InsertDefaults: false}, resp.Options)
-}
-
-func TestExistentContainerStatus(t *testing.T) {
-	namespace := "namespace"
-	containerID := "1"
-	containerData := []types.Container{
-		{ID: containerID},
-	}
-	containerJSONData := types.ContainerJSON{
-		ContainerJSONBase: &types.ContainerJSONBase{
-			ID:    containerID,
-			State: &types.ContainerState{Running: true},
-		},
-	}
-
-	dt := dockertest.New()
-	c, _ := New(nstestprefix, ClientOption(dt.Client()))
-
-	dt.ProvideServiceInspectWithRaw(swarm.Service{}, nil, nil)
-	dt.ProvideContainerList(containerData, nil)
-	dt.ProvideContainerInspect(containerJSONData, nil)
-
-	status, err := c.Status(namespace)
-	require.NoError(t, err)
-	require.Equal(t, RUNNING, status)
-}
-
-func TestExistentContainerRunningStatus(t *testing.T) {
-	namespace := "namespace"
-	containerID := "1"
-	containerData := []types.Container{
-		{ID: containerID},
-	}
-	containerJSONData := types.ContainerJSON{
-		ContainerJSONBase: &types.ContainerJSONBase{
-			ID:    containerID,
-			State: &types.ContainerState{Running: true},
-		},
-	}
-
-	dt := dockertest.New()
-	c, _ := New(nstestprefix, ClientOption(dt.Client()))
-
-	dt.ProvideContainerList(containerData, nil)
-	dt.ProvideContainerInspect(containerJSONData, nil)
-
-	status, err := c.Status(namespace)
-	require.NoError(t, err)
-	require.Equal(t, RUNNING, status)
-}
-
-func TestPresenceHandling(t *testing.T) {
-	tests := []struct {
-		param    error
-		presence bool
-		err      error
+func TestTagFromResponse(t *testing.T) {
+	var tests = []struct {
+		name string
+		resp string
+		tag  string
+		err  bool
 	}{
-		{param: nil, presence: true, err: nil},
-		{param: dockertest.NotFoundErr{}, presence: false, err: nil},
-		{param: errors.New("test"), presence: false, err: errors.New("test")},
+		{
+			"ok",
+			`{"stream":"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}`,
+			"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+			false,
+		},
+		{
+			"empty response",
+			"",
+			"",
+			true,
+		},
+		{
+			"invalid json",
+			`-`,
+			"",
+			true,
+		},
+		{
+			"no sha256 prefix",
+			`{"stream":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}`,
+			"",
+			true,
+		},
 	}
-	for _, test := range tests {
-		presence, err := presenceHandling(test.param)
-		require.Equal(t, test.presence, presence)
-		require.Equal(t, test.err, err)
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			tag, err := tagFromResponse(strings.NewReader(tt.resp))
+			if tt.err && err == nil {
+				t.Errorf("want error")
+			}
+			if tt.tag != tag {
+				t.Errorf("invalid tag: want %s, got %s", tt.tag, tag)
+			}
+		})
 	}
 }
