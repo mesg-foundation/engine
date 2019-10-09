@@ -76,7 +76,7 @@ func TestService(t *testing.T) {
 			},
 			Env:     []string{"foo=bar"},
 			Args:    []string{"hello"},
-			Command: "echo",
+			Command: []string{"echo"},
 			Networks: []Network{
 				{
 					ID:    c.SharedNetworkID(),

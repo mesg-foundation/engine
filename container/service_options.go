@@ -1,7 +1,6 @@
 package container
 
 import (
-	"strings"
 	"time"
 
 	"github.com/docker/docker/api/types/mount"
@@ -16,7 +15,7 @@ type ServiceOptions struct {
 	Mounts          []Mount
 	Env             []string
 	Args            []string
-	Command         string
+	Command         []string
 	Networks        []Network
 	Labels          map[string]string
 	StopGracePeriod *time.Duration
@@ -63,7 +62,7 @@ func (options *ServiceOptions) toSwarmServiceSpec(c *DockerContainer) swarm.Serv
 				},
 				Env:             options.Env,
 				Args:            options.Args,
-				Command:         strings.Fields(options.Command),
+				Command:         options.Command,
 				Mounts:          options.swarmMounts(),
 				StopGracePeriod: options.StopGracePeriod,
 			},
