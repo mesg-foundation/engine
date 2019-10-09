@@ -97,7 +97,6 @@ func (d *LevelDBProcessDB) Delete(hash hash.Hash) error {
 		return err
 	}
 	return tx.Commit()
-
 }
 
 // Get retrives process from database.
