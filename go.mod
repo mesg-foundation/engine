@@ -14,6 +14,7 @@ require (
 	github.com/cosmos/cosmos-sdk v0.37.1
 	github.com/cosmos/go-bip39 v0.0.0-20180819234021-555e2067c45d
 	github.com/cskr/pubsub v1.0.2
+	github.com/docker/cli v0.0.0-20191011045415-5d85cdacd257
 	github.com/docker/distribution v2.7.1+incompatible // indirect
 	github.com/docker/docker v1.4.2-0.20191006173954-0abbb9e4ebf1
 	github.com/docker/go-connections v0.4.0 // indirect
