@@ -1,16 +1,32 @@
 Dockerfile
-Dockerfile-dev
-.circleci
-.vscode
+
+# repo files
+README.md
+CHANGELOG.md
+CONTRIBUTING.md
+schema1.svg
+.github
+
+/scripts
 /examples
-/test
-dev
-mesg-dev
-.git
+
+# test & debug files
+**/*_test.go
 **/*.test
 **/debug
 **/node_modules
-bin/cli
-docs/
-docker-images/
-.tendermint-validator/
+/docker-images
+/test
+/vendor
+
+# configuration & repo files
+Makefile
+.circleci
+.codacy.yml
+.codeclimate.yml
+.codecov.yml
+.git
+.gitignore
+.golangci.yml
+.genesis
+.vscode
