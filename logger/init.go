@@ -2,6 +2,8 @@ package logger
 
 import (
 	"fmt"
+	"path"
+	"runtime"
 
 	"github.com/sirupsen/logrus"
 )
@@ -12,6 +14,10 @@ func Init(format, level string, forceColors bool) {
 	case "text":
 		logrus.SetFormatter(&logrus.TextFormatter{
 			ForceColors: forceColors,
+			CallerPrettyfier: func(f *runtime.Frame) (string, string) {
+				filename := path.Base(f.File)
+				return fmt.Sprintf("%s()", f.Function), fmt.Sprintf("%s:%d", filename, f.Line)
+			},
 		})
 	case "json":
 		logrus.SetFormatter(&logrus.JSONFormatter{})

@@ -1,7 +1,6 @@
-package main
+package core
 
 import (
-	"path/filepath"
 	"strconv"
 	"sync"
 
@@ -18,26 +17,25 @@ import (
 	"github.com/mesg-foundation/engine/version"
 	"github.com/mesg-foundation/engine/x/xerrors"
 	"github.com/mesg-foundation/engine/x/xnet"
-	"github.com/mesg-foundation/engine/x/xsignal"
 	"github.com/sirupsen/logrus"
 	db "github.com/tendermint/tm-db"
 )
 
 func initDatabases(cfg *config.Config) (*database.LevelDBInstanceDB, *database.LevelDBExecutionDB, *database.LevelDBProcessDB, error) {
 	// init instance db.
-	instanceDB, err := database.NewInstanceDB(filepath.Join(cfg.Path, cfg.Database.InstanceRelativePath))
+	instanceDB, err := database.NewInstanceDB(cfg.Database.InstanceRelativePath)
 	if err != nil {
 		return nil, nil, nil, err
 	}
 
 	// init execution db.
-	executionDB, err := database.NewExecutionDB(filepath.Join(cfg.Path, cfg.Database.ExecutionRelativePath))
+	executionDB, err := database.NewExecutionDB(cfg.Database.ExecutionRelativePath)
 	if err != nil {
 		return nil, nil, nil, err
 	}
 
 	// init process db.
-	processDB, err := database.NewProcessDB(filepath.Join(cfg.Path, cfg.Database.ProcessRelativePath))
+	processDB, err := database.NewProcessDB(cfg.Database.ProcessRelativePath)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -74,8 +72,8 @@ func stopRunningServices(sdk *enginesdk.SDK) error {
 	return errs.ErrorOrNil()
 }
 
-func main() {
-	cfg, err := config.New()
+func Start(configpath string) (*cosmos.Keybase, func()) {
+	cfg, err := config.New(configpath)
 	if err != nil {
 		logrus.Fatalln(err)
 	}
@@ -161,9 +159,10 @@ func main() {
 		}
 	}()
 
-	<-xsignal.WaitForInterrupt()
-	if err := stopRunningServices(sdk); err != nil {
-		logrus.WithField("module", "main").Fatalln(err)
+	return kb, func() {
+		if err := stopRunningServices(sdk); err != nil {
+			logrus.WithField("module", "main").Fatalln(err)
+		}
+		server.Close()
 	}
-	server.Close()
 }

@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"time"
@@ -10,18 +11,17 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/kelseyhightower/envconfig"
 	"github.com/mesg-foundation/engine/x/xstrings"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
 	tmconfig "github.com/tendermint/tendermint/config"
 	"gopkg.in/go-playground/validator.v9"
+	"gopkg.in/yaml.v2"
 )
 
 const (
 	envPrefix = "mesg"
 
-	serviceDBVersion   = "v4"
 	executionDBVersion = "v3"
 	instanceDBVersion  = "v2"
 	processDBVersion   = "v2"
@@ -43,7 +43,6 @@ type Config struct {
 	}
 
 	Database struct {
-		ServiceRelativePath   string `validate:"required"`
 		InstanceRelativePath  string `validate:"required"`
 		ExecutionRelativePath string `validate:"required"`
 		ProcessRelativePath   string `validate:"required"`
@@ -59,10 +58,11 @@ type Config struct {
 
 // CosmosConfig is the struct to hold cosmos related configs.
 type CosmosConfig struct {
-	Path               string    `validate:"required"`
-	ChainID            string    `validate:"required"`
-	GenesisTime        time.Time `validate:"required"`
-	GenesisValidatorTx StdTx     `validate:"required"`
+	Path               string          `validate:"required"`
+	ChainID            string          `validate:"required"`
+	GenesisTxPath      string          `validate:"required"`
+	GenesisTime        time.Time       `validate:"required"`
+	GenesisValidatorTx authtypes.StdTx `validate:"required" yaml:"-"`
 }
 
 // Default creates a new config with default values.
@@ -73,17 +73,14 @@ func Default() (*Config, error) {
 	}
 
 	var c Config
-	c.Server.Address = ":50052"
+	c.Name = "testuser"
 	c.Log.Format = "text"
 	c.Log.Level = "info"
-	c.Log.ForceColors = false
-	c.Name = "engine"
-	c.Path = filepath.Join(home, ".mesg")
+	c.Server.Address = ":50052"
+	c.Path = filepath.Join(home, ".mesg", c.Name)
 
-	c.Database.ServiceRelativePath = filepath.Join("database", "services", serviceDBVersion)
-	c.Database.InstanceRelativePath = filepath.Join("database", "instance", instanceDBVersion)
-	c.Database.ExecutionRelativePath = filepath.Join("database", "executions", executionDBVersion)
-	c.Database.ProcessRelativePath = filepath.Join("database", "processes", processDBVersion)
+	c.Cosmos.ChainID = "mesg-testnet"
+	c.Cosmos.GenesisTime = time.Date(2019, time.January, 1, 0, 0, 0, 0, time.UTC)
 
 	c.Tendermint.Config = tmconfig.DefaultConfig()
 	c.Tendermint.Config.RPC.ListenAddress = "tcp://0.0.0.0:26657"
@@ -92,17 +89,17 @@ func Default() (*Config, error) {
 	c.Tendermint.Config.Consensus.TimeoutCommit = 10 * time.Second
 	c.Tendermint.Instrumentation.Prometheus = true
 	c.Tendermint.Instrumentation.PrometheusListenAddr = "0.0.0.0:26660"
-
 	return &c, nil
 }
 
-// New returns a Config after loaded ENV and validate the values.
-func New() (*Config, error) {
+// New returns a Config after loaded yaml config and validate the values.
+func New(filename string) (*Config, error) {
 	c, err := Default()
 	if err != nil {
 		return nil, err
 	}
-	if err := c.Load(); err != nil {
+
+	if err := c.Load(filename); err != nil {
 		return nil, err
 	}
 	if err := c.Prepare(); err != nil {
@@ -115,15 +112,26 @@ func New() (*Config, error) {
 }
 
 // Load reads config from environmental variables.
-func (c *Config) Load() error {
-	if err := envconfig.Process(envPrefix, c); err != nil {
-		return err
+func (c *Config) Load(filename string) error {
+	if filename != "" {
+		b, err := ioutil.ReadFile(filename)
+		if err != nil {
+			return err
+		}
+
+		if err := yaml.Unmarshal(b, c); err != nil {
+			return err
+		}
 	}
 
-	c.Tendermint.Path = filepath.Join(c.Path, "tendermint")
 	c.Cosmos.Path = filepath.Join(c.Path, "cosmos")
-
+	c.Cosmos.GenesisTxPath = filepath.Join(c.Path, "genesis-tx.json")
+	c.Tendermint.Path = filepath.Join(c.Path, "tendermint")
 	c.Tendermint.SetRoot(c.Tendermint.Path)
+	c.Database.InstanceRelativePath = filepath.Join(c.Path, "database", "instance", instanceDBVersion)
+	c.Database.ExecutionRelativePath = filepath.Join(c.Path, "database", "execution", executionDBVersion)
+	c.Database.ProcessRelativePath = filepath.Join(c.Path, "database", "process", processDBVersion)
+
 	return nil
 }
 
@@ -141,6 +149,18 @@ func (c *Config) Prepare() error {
 	if err := os.MkdirAll(c.Cosmos.Path, os.FileMode(0755)); err != nil {
 		return err
 	}
+
+	b, err := ioutil.ReadFile(c.Cosmos.GenesisTxPath)
+	if err != nil {
+		return err
+	}
+
+	tx, err := decodeAuthStdTx(b)
+	if err != nil {
+		return err
+	}
+
+	c.Cosmos.GenesisValidatorTx = tx
 	return nil
 }
 
@@ -152,29 +172,26 @@ func (c *Config) Validate() error {
 	if _, err := logrus.ParseLevel(c.Log.Level); err != nil {
 		return fmt.Errorf("config.Log.Level error: %w", err)
 	}
-	if err := authtypes.StdTx(c.Cosmos.GenesisValidatorTx).ValidateBasic(); err != nil {
+	if err := c.Cosmos.GenesisValidatorTx.ValidateBasic(); err != nil {
 		return fmt.Errorf("config.Cosmos.GenesisValidatorTx error: %w", err.Stacktrace())
 	}
 	return validator.New().Struct(c)
 }
 
-// StdTx is type used to parse cosmos tx value provided by envconfig.
-type StdTx authtypes.StdTx
-
-// Decode parses string value as hex ed25519 key.
-func (tx *StdTx) Decode(value string) error {
-	if value == "" {
-		return nil
+// decodeAuthStdTx parses string value as hex ed25519 key.
+func decodeAuthStdTx(value []byte) (authtypes.StdTx, error) {
+	if len(value) == 0 {
+		return authtypes.StdTx{}, nil
 	}
+
 	cdc := codec.New()
 	codec.RegisterCrypto(cdc)
 	sdktypes.RegisterCodec(cdc)
 	stakingtypes.RegisterCodec(cdc)
-	if err := cdc.UnmarshalJSON([]byte(value), tx); err != nil {
-		return fmt.Errorf("unmarshal genesis validator error: %s", err)
+
+	var tx authtypes.StdTx
+	if err := cdc.UnmarshalJSON(value, &tx); err != nil {
+		return authtypes.StdTx{}, fmt.Errorf("unmarshal genesis validator error: %s", err)
 	}
-	if err := authtypes.StdTx(*tx).ValidateBasic(); err != nil {
-		return err.Stacktrace()
-	}
-	return nil
+	return tx, nil
 }

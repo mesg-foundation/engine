@@ -27,6 +27,7 @@ const mnemonicEntropySize = 256
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 var names = [...]string{
+	"testuser",
 	"bob",
 	"alice",
 	"eve",
@@ -55,10 +56,10 @@ func randompassword() string {
 
 var (
 	vno           = flag.Int("vno", 1, "validator numbers")
-	chainid       = flag.String("chain-id", "mesg-chain", "chain id")
+	chainid       = flag.String("chain-id", "mesg-testnet", "chain id")
 	kbpath        = flag.String("co-kbpath", ".", "cosmos key base path")
 	tmpath        = flag.String("tm-path", ".", "tendermint config path")
-	gentxfilepath = flag.String("gentx-filepath", "genesistx.json", "genesis transaction file path")
+	gentxfilepath = flag.String("gentx-filepath", "genesis-tx.json", "genesis transaction file path")
 	peersfilepath = flag.String("peers-filepath", "peers", "peers file path")
 )
 

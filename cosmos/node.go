@@ -24,7 +24,7 @@ func NewNode(app *App, cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.N
 	cdc := app.Cdc()
 
 	// initialize app state with first validator
-	appState, err := createAppState(app.DefaultGenesis(), cdc, authtypes.StdTx(ccfg.GenesisValidatorTx))
+	appState, err := createAppState(app.DefaultGenesis(), cdc, ccfg.GenesisValidatorTx)
 	if err != nil {
 		return nil, err
 	}
