@@ -1,0 +1,3 @@
+path: ./testdata/config/testuser
+log:
+  level: warn
