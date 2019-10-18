@@ -1,3 +1,0 @@
-path: ./e2e/testdata/config/testuser
-log:
-  level: debug

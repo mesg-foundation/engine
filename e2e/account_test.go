@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"os"
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/types"
@@ -13,7 +14,10 @@ import (
 )
 
 func TestAccount(t *testing.T) {
-	kb, closer := core.Start("./testdata/config/testuser/e2e-config.yml")
+	genTestData(t)
+	defer os.RemoveAll("testdata")
+
+	kb, closer := core.Start("./testdata/testuser-0/config.yml")
 	defer closer()
 	conn, err := grpc.DialContext(context.Background(), "localhost:50052", grpc.WithInsecure())
 	require.NoError(t, err)
