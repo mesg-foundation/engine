@@ -15,9 +15,9 @@ import (
 
 func TestAccount(t *testing.T) {
 	genTestData(t)
-	defer os.RemoveAll("testdata")
+	defer os.RemoveAll("test")
 
-	kb, closer := core.Start("./testdata/testuser-0/config.yml")
+	kb, closer := core.Start("./test/testuser-0/config.yml")
 	defer closer()
 	conn, err := grpc.DialContext(context.Background(), "localhost:50052", grpc.WithInsecure())
 	require.NoError(t, err)

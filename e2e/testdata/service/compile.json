@@ -1,0 +1,66 @@
+{
+  "name": "test-service",
+  "configuration": {},
+  "dependencies": [],
+  "tasks": [
+    {
+      "key": "ping",
+      "inputs": [
+        {
+          "key": "msg",
+          "type": "String",
+          "object": []
+        }
+      ],
+      "outputs": [
+        {
+          "key": "pong",
+          "type": "String",
+          "object": []
+        }
+      ]
+    },
+    {
+      "key": "add",
+      "inputs": [
+        {
+          "key": "n",
+          "type": "Number",
+          "object": []
+        },
+        {
+          "key": "m",
+          "type": "Number",
+          "object": []
+        }
+      ],
+      "outputs": [
+        {
+          "key": "res",
+          "type": "Number",
+          "object": []
+        }
+      ]
+    },
+    {
+      "key": "error",
+      "inputs": [],
+      "outputs": []
+    }
+  ],
+  "events": [
+    {
+      "key": "ping_ok",
+      "data": []
+    },
+    {
+      "key": "add_ok",
+      "data": []
+    },
+    {
+      "key": "error_ok",
+      "data": []
+    }
+  ],
+  "source": "QmdunT9bd2UwhY8A3q6ZMeXj2cb2dHDRdj47KxYEjHX8Tt"
+}

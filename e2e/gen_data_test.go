@@ -24,7 +24,7 @@ const mnemonicEntropySize = 256
 
 const (
 	vno        = 1
-	testdir    = "testdata"
+	testdir    = "test"
 	nameprefix = "testuser"
 	chainid    = "mesg-testnet"
 )
@@ -136,9 +136,9 @@ func genTestData(t *testing.T) {
 		if err != nil {
 			t.Fatal("default config error:", err)
 		}
-
 		c.Path = filepath.Join(testdir, namepass)
 		c.Log.Level = "fatal"
+
 		out, err := yaml.Marshal(c)
 		if err != nil {
 			t.Fatal("yaml unmarshal error:", err)
@@ -149,5 +149,4 @@ func genTestData(t *testing.T) {
 			t.Fatal("error during writing config file:", err)
 		}
 	}
-
 }
