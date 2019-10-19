@@ -29,7 +29,7 @@ func (s *Orchestrator) Start() error {
 	}
 	s.eventStream = s.event.GetStream(nil)
 	s.executionStream = s.execution.GetStream(&executionsdk.Filter{
-		Statuses: []execution.Status{execution.Status_Completed},
+		Statuses: []execution.Status{execution.Status_STATUS_COMPLETED},
 	})
 	for {
 		select {
@@ -72,7 +72,7 @@ func (s *Orchestrator) dependencyFilter(exec *execution.Execution) func(wf *proc
 		if len(parents) > 1 {
 			return false, fmt.Errorf("multi parents not supported")
 		}
-		return parents[0] == exec.StepID, nil
+		return parents[0] == exec.StepId, nil
 	}
 }
 
@@ -167,7 +167,7 @@ func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution,
 	if !wfHash.Equal(exec.ProcessHash) {
 		return nil, fmt.Errorf("reference's nodeKey not found")
 	}
-	if exec.StepID != nodeKey {
+	if exec.StepId != nodeKey {
 		parent, err := s.execution.Get(exec.ParentHash)
 		if err != nil {
 			return nil, err

@@ -75,7 +75,7 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 	case "list":
 		return s.List(request)
 	case "hash":
-		var createServiceRequest api.CreateServiceRequest
+		var createServiceRequest api.ServiceServiceHashRequest
 		if err := proto.Unmarshal(req.Data, &createServiceRequest); err != nil {
 			return nil, err
 		}
@@ -108,8 +108,18 @@ func (s *Backend) Exists(request cosmostypes.Request, hash hash.Hash) (bool, err
 }
 
 // Hash returns the hash of a service request.
-func (s *Backend) Hash(serviceRequest *api.CreateServiceRequest) hash.Hash {
-	return initializeService(serviceRequest).Hash
+func (s *Backend) Hash(serviceRequest *api.ServiceServiceHashRequest) hash.Hash {
+	return initializeService(&api.ServiceServiceCreateRequest{
+		Sid:           serviceRequest.Sid,
+		Name:          serviceRequest.Name,
+		Description:   serviceRequest.Description,
+		Configuration: serviceRequest.Configuration,
+		Tasks:         serviceRequest.Tasks,
+		Events:        serviceRequest.Events,
+		Dependencies:  serviceRequest.Dependencies,
+		Repository:    serviceRequest.Repository,
+		Source:        serviceRequest.Source,
+	}).Hash
 }
 
 // List returns all services.
@@ -117,7 +127,7 @@ func (s *Backend) List(request cosmostypes.Request) ([]*service.Service, error) 
 	return s.db(request).All()
 }
 
-func create(db *database.ServiceDB, req *api.CreateServiceRequest, owner cosmostypes.AccAddress, ownerships *ownershipsdk.Backend, request cosmostypes.Request) (*service.Service, error) {
+func create(db *database.ServiceDB, req *api.ServiceServiceCreateRequest, owner cosmostypes.AccAddress, ownerships *ownershipsdk.Backend, request cosmostypes.Request) (*service.Service, error) {
 	// create service
 	srv := initializeService(req)
 
@@ -146,7 +156,7 @@ func create(db *database.ServiceDB, req *api.CreateServiceRequest, owner cosmost
 	return srv, nil
 }
 
-func initializeService(req *api.CreateServiceRequest) *service.Service {
+func initializeService(req *api.ServiceServiceCreateRequest) *service.Service {
 	// create service
 	srv := &service.Service{
 		Sid:           req.Sid,

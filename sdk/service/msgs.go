@@ -8,13 +8,13 @@ import (
 
 // msgCreateService defines a state transition to create a service.
 type msgCreateService struct {
-	Request *api.CreateServiceRequest `json:"request"`
-	Owner   cosmostypes.AccAddress    `json:"owner"`
+	Request *api.ServiceServiceCreateRequest `json:"request"`
+	Owner   cosmostypes.AccAddress           `json:"owner"`
 	cdc     *codec.Codec
 }
 
 // newMsgCreateService is a constructor function for msgCreateService.
-func newMsgCreateService(cdc *codec.Codec, req *api.CreateServiceRequest, owner cosmostypes.AccAddress) *msgCreateService {
+func newMsgCreateService(cdc *codec.Codec, req *api.ServiceServiceCreateRequest, owner cosmostypes.AccAddress) *msgCreateService {
 	return &msgCreateService{
 		Request: req,
 		Owner:   owner,

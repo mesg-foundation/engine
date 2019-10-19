@@ -30,7 +30,7 @@ func New(cdc *codec.Codec, client *cosmos.Client, accountSDK *accountsdk.SDK) Se
 }
 
 // Create creates a new service from definition.
-func (s *SDK) Create(req *api.CreateServiceRequest, accountName, accountPassword string) (*service.Service, error) {
+func (s *SDK) Create(req *api.ServiceServiceCreateRequest, accountName, accountPassword string) (*service.Service, error) {
 	account, err := s.accountSDK.Get(accountName)
 	if err != nil {
 		return nil, err
@@ -77,7 +77,7 @@ func (s *SDK) Exists(hash hash.Hash) (bool, error) {
 }
 
 // Hash returns the calculate hash of a service.
-func (s *SDK) Hash(req *api.CreateServiceRequest) (hash.Hash, error) {
+func (s *SDK) Hash(req *api.ServiceServiceHashRequest) (hash.Hash, error) {
 	var h hash.Hash
 	b, err := proto.Marshal(req)
 	if err != nil {

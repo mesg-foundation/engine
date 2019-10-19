@@ -14,9 +14,9 @@ func New(processHash, instanceHash, parentHash, eventHash hash.Hash, stepID stri
 		ParentHash:   parentHash,
 		Inputs:       inputs,
 		TaskKey:      taskKey,
-		StepID:       stepID,
+		StepId:       stepID,
 		Tags:         tags,
-		Status:       Status_Created,
+		Status:       Status_STATUS_CREATED,
 	}
 	exec.Hash = hash.Dump(exec)
 	return exec
@@ -25,42 +25,42 @@ func New(processHash, instanceHash, parentHash, eventHash hash.Hash, stepID stri
 // Execute changes executions status to in progres and update its execute time.
 // It returns an error if the status is different then Created.
 func (execution *Execution) Execute() error {
-	if execution.Status != Status_Created {
+	if execution.Status != Status_STATUS_CREATED {
 		return StatusError{
-			ExpectedStatus: Status_Created,
+			ExpectedStatus: Status_STATUS_CREATED,
 			ActualStatus:   execution.Status,
 		}
 	}
-	execution.Status = Status_InProgress
+	execution.Status = Status_STATUS_IN_PROGRESS
 	return nil
 }
 
 // Complete changes execution status to completed. It verifies the output.
 // It returns an error if the status is different then InProgress or verification fails.
 func (execution *Execution) Complete(outputs *types.Struct) error {
-	if execution.Status != Status_InProgress {
+	if execution.Status != Status_STATUS_IN_PROGRESS {
 		return StatusError{
-			ExpectedStatus: Status_InProgress,
+			ExpectedStatus: Status_STATUS_IN_PROGRESS,
 			ActualStatus:   execution.Status,
 		}
 	}
 
 	execution.Outputs = outputs
-	execution.Status = Status_Completed
+	execution.Status = Status_STATUS_COMPLETED
 	return nil
 }
 
 // Failed changes execution status to failed and puts error information to execution.
 // It returns an error if the status is different then InProgress.
 func (execution *Execution) Failed(err error) error {
-	if execution.Status != Status_InProgress {
+	if execution.Status != Status_STATUS_IN_PROGRESS {
 		return StatusError{
-			ExpectedStatus: Status_InProgress,
+			ExpectedStatus: Status_STATUS_IN_PROGRESS,
 			ActualStatus:   execution.Status,
 		}
 	}
 
 	execution.Error = err.Error()
-	execution.Status = Status_Failed
+	execution.Status = Status_STATUS_FAILED
 	return nil
 }
