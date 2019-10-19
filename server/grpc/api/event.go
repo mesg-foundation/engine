@@ -22,7 +22,7 @@ func NewEventServer(sdk *sdk.SDK) *EventServer {
 }
 
 // Create creates a new event.
-func (s *EventServer) Create(ctx context.Context, req *api.CreateEventRequest) (*api.CreateEventResponse, error) {
+func (s *EventServer) Create(ctx context.Context, req *api.EventServiceCreateRequest) (*api.EventServiceCreateResponse, error) {
 	if req.Key == "" {
 		return nil, errors.New("create event: key missing")
 	}
@@ -32,11 +32,11 @@ func (s *EventServer) Create(ctx context.Context, req *api.CreateEventRequest) (
 		return nil, fmt.Errorf("create event: data %s", err)
 	}
 
-	return &api.CreateEventResponse{Hash: event.Hash}, nil
+	return &api.EventServiceCreateResponse{Hash: event.Hash}, nil
 }
 
 // Stream returns stream of events.
-func (s *EventServer) Stream(req *api.StreamEventRequest, resp api.Event_StreamServer) error {
+func (s *EventServer) Stream(req *api.EventServiceStreamRequest, resp api.EventService_StreamServer) error {
 	var f *eventsdk.Filter
 	if req.Filter != nil {
 		f = &eventsdk.Filter{
@@ -54,7 +54,7 @@ func (s *EventServer) Stream(req *api.StreamEventRequest, resp api.Event_StreamS
 	}
 
 	for event := range stream.C {
-		if err := resp.Send(event); err != nil {
+		if err := resp.Send(&api.EventServiceStreamResponse{Event: event}); err != nil {
 			return err
 		}
 	}

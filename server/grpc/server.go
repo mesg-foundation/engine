@@ -59,13 +59,13 @@ func (s *Server) Close() {
 
 // register all server
 func (s *Server) register() {
-	protobuf_api.RegisterEventServer(s.instance, api.NewEventServer(s.sdk))
-	protobuf_api.RegisterExecutionServer(s.instance, api.NewExecutionServer(s.sdk))
-	protobuf_api.RegisterInstanceServer(s.instance, api.NewInstanceServer(s.sdk))
-	protobuf_api.RegisterServiceServer(s.instance, api.NewServiceServer(s.sdk))
-	protobuf_api.RegisterProcessServer(s.instance, api.NewProcessServer(s.sdk))
-	protobuf_api.RegisterAccountServer(s.instance, api.NewAccountServer(s.sdk))
-	protobuf_api.RegisterOwnershipServer(s.instance, api.NewOwnershipServer(s.sdk))
+	protobuf_api.RegisterEventServiceServer(s.instance, api.NewEventServer(s.sdk))
+	protobuf_api.RegisterExecutionServiceServer(s.instance, api.NewExecutionServer(s.sdk))
+	protobuf_api.RegisterInstanceServiceServer(s.instance, api.NewInstanceServer(s.sdk))
+	protobuf_api.RegisterServiceServiceServer(s.instance, api.NewServiceServer(s.sdk))
+	protobuf_api.RegisterProcessServiceServer(s.instance, api.NewProcessServer(s.sdk))
+	protobuf_api.RegisterAccountServiceServer(s.instance, api.NewAccountServer(s.sdk))
+	protobuf_api.RegisterOwnershipServiceServer(s.instance, api.NewOwnershipServer(s.sdk))
 
 	reflection.Register(s.instance)
 }

@@ -18,11 +18,11 @@ func NewOwnershipServer(sdk *sdk.SDK) *OwnershipServer {
 }
 
 // List returns all ownerships.
-func (s *OwnershipServer) List(ctx context.Context, req *protobuf_api.ListOwnershipRequest) (*protobuf_api.ListOwnershipResponse, error) {
+func (s *OwnershipServer) List(ctx context.Context, req *protobuf_api.OwnershipServiceListRequest) (*protobuf_api.OwnershipServiceListResponse, error) {
 	ownerships, err := s.sdk.Ownership.List()
 	if err != nil {
 		return nil, err
 	}
 
-	return &protobuf_api.ListOwnershipResponse{Ownerships: ownerships}, nil
+	return &protobuf_api.OwnershipServiceListResponse{Ownerships: ownerships}, nil
 }

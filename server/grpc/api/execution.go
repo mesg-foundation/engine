@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	"github.com/mesg-foundation/engine/protobuf/api"
@@ -26,7 +25,7 @@ func NewExecutionServer(sdk *sdk.SDK) *ExecutionServer {
 }
 
 // Create creates an execution.
-func (s *ExecutionServer) Create(ctx context.Context, req *api.CreateExecutionRequest) (*api.CreateExecutionResponse, error) {
+func (s *ExecutionServer) Create(ctx context.Context, req *api.ExecutionServiceCreateRequest) (*api.ExecutionServiceCreateResponse, error) {
 	eventHash, err := hash.Random()
 	if err != nil {
 		return nil, err
@@ -36,18 +35,22 @@ func (s *ExecutionServer) Create(ctx context.Context, req *api.CreateExecutionRe
 		return nil, err
 	}
 
-	return &api.CreateExecutionResponse{
+	return &api.ExecutionServiceCreateResponse{
 		Hash: executionHash,
 	}, nil
 }
 
 // Get returns execution from given hash.
-func (s *ExecutionServer) Get(ctx context.Context, req *api.GetExecutionRequest) (*execution.Execution, error) {
-	return s.sdk.Execution.Get(req.Hash)
+func (s *ExecutionServer) Get(ctx context.Context, req *api.ExecutionServiceGetRequest) (*api.ExecutionServiceGetResponse, error) {
+	exec, err := s.sdk.Execution.Get(req.Hash)
+	if err != nil {
+		return nil, err
+	}
+	return &api.ExecutionServiceGetResponse{Execution: exec}, nil
 }
 
 // Stream returns stream of executions.
-func (s *ExecutionServer) Stream(req *api.StreamExecutionRequest, resp api.Execution_StreamServer) error {
+func (s *ExecutionServer) Stream(req *api.ExecutionServiceStreamRequest, resp api.ExecutionService_StreamServer) error {
 	var f *executionsdk.Filter
 
 	if req.Filter != nil {
@@ -68,7 +71,7 @@ func (s *ExecutionServer) Stream(req *api.StreamExecutionRequest, resp api.Execu
 	}
 
 	for exec := range stream.C {
-		if err := resp.Send(exec); err != nil {
+		if err := resp.Send(&api.ExecutionServiceStreamResponse{Execution: exec}); err != nil {
 			return err
 		}
 	}
@@ -77,12 +80,12 @@ func (s *ExecutionServer) Stream(req *api.StreamExecutionRequest, resp api.Execu
 }
 
 // Update updates execution from given hash.
-func (s *ExecutionServer) Update(ctx context.Context, req *api.UpdateExecutionRequest) (*api.UpdateExecutionResponse, error) {
+func (s *ExecutionServer) Update(ctx context.Context, req *api.ExecutionServiceUpdateRequest) (*api.ExecutionServiceUpdateResponse, error) {
 	var err error
 	switch res := req.Result.(type) {
-	case *api.UpdateExecutionRequest_Outputs:
+	case *api.ExecutionServiceUpdateRequest_Outputs:
 		err = s.sdk.Execution.Update(req.Hash, res.Outputs, nil)
-	case *api.UpdateExecutionRequest_Error:
+	case *api.ExecutionServiceUpdateRequest_Error:
 		err = s.sdk.Execution.Update(req.Hash, nil, errors.New(res.Error))
 	default:
 		err = ErrNoOutput
@@ -91,6 +94,6 @@ func (s *ExecutionServer) Update(ctx context.Context, req *api.UpdateExecutionRe
 	if err != nil {
 		return nil, err
 	}
-	return &api.UpdateExecutionResponse{}, nil
+	return &api.ExecutionServiceUpdateResponse{}, nil
 
 }
