@@ -27,108 +27,146 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // The request's data for the `Get` API.
-type GetAccountRequest struct {
+type AccountServiceGetRequest struct {
 	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *GetAccountRequest) Reset()         { *m = GetAccountRequest{} }
-func (m *GetAccountRequest) String() string { return proto.CompactTextString(m) }
-func (*GetAccountRequest) ProtoMessage()    {}
-func (*GetAccountRequest) Descriptor() ([]byte, []int) {
+func (m *AccountServiceGetRequest) Reset()         { *m = AccountServiceGetRequest{} }
+func (m *AccountServiceGetRequest) String() string { return proto.CompactTextString(m) }
+func (*AccountServiceGetRequest) ProtoMessage()    {}
+func (*AccountServiceGetRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_3259f8b8a943c47e, []int{0}
 }
-func (m *GetAccountRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_GetAccountRequest.Unmarshal(m, b)
+func (m *AccountServiceGetRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AccountServiceGetRequest.Unmarshal(m, b)
 }
-func (m *GetAccountRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_GetAccountRequest.Marshal(b, m, deterministic)
+func (m *AccountServiceGetRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AccountServiceGetRequest.Marshal(b, m, deterministic)
 }
-func (m *GetAccountRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetAccountRequest.Merge(m, src)
+func (m *AccountServiceGetRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AccountServiceGetRequest.Merge(m, src)
 }
-func (m *GetAccountRequest) XXX_Size() int {
-	return xxx_messageInfo_GetAccountRequest.Size(m)
+func (m *AccountServiceGetRequest) XXX_Size() int {
+	return xxx_messageInfo_AccountServiceGetRequest.Size(m)
 }
-func (m *GetAccountRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_GetAccountRequest.DiscardUnknown(m)
+func (m *AccountServiceGetRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_AccountServiceGetRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_GetAccountRequest proto.InternalMessageInfo
+var xxx_messageInfo_AccountServiceGetRequest proto.InternalMessageInfo
 
-func (m *GetAccountRequest) GetName() string {
+func (m *AccountServiceGetRequest) GetName() string {
 	if m != nil {
 		return m.Name
 	}
 	return ""
 }
 
+type AccountServiceGetResponse struct {
+	Account              *account.Account `protobuf:"bytes,1,opt,name=account,proto3" json:"account,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
+	XXX_unrecognized     []byte           `json:"-"`
+	XXX_sizecache        int32            `json:"-"`
+}
+
+func (m *AccountServiceGetResponse) Reset()         { *m = AccountServiceGetResponse{} }
+func (m *AccountServiceGetResponse) String() string { return proto.CompactTextString(m) }
+func (*AccountServiceGetResponse) ProtoMessage()    {}
+func (*AccountServiceGetResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_3259f8b8a943c47e, []int{1}
+}
+func (m *AccountServiceGetResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AccountServiceGetResponse.Unmarshal(m, b)
+}
+func (m *AccountServiceGetResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AccountServiceGetResponse.Marshal(b, m, deterministic)
+}
+func (m *AccountServiceGetResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AccountServiceGetResponse.Merge(m, src)
+}
+func (m *AccountServiceGetResponse) XXX_Size() int {
+	return xxx_messageInfo_AccountServiceGetResponse.Size(m)
+}
+func (m *AccountServiceGetResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_AccountServiceGetResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AccountServiceGetResponse proto.InternalMessageInfo
+
+func (m *AccountServiceGetResponse) GetAccount() *account.Account {
+	if m != nil {
+		return m.Account
+	}
+	return nil
+}
+
 // The request's data for the `List` API.
-type ListAccountRequest struct {
+type AccountServiceListRequest struct {
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ListAccountRequest) Reset()         { *m = ListAccountRequest{} }
-func (m *ListAccountRequest) String() string { return proto.CompactTextString(m) }
-func (*ListAccountRequest) ProtoMessage()    {}
-func (*ListAccountRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_3259f8b8a943c47e, []int{1}
+func (m *AccountServiceListRequest) Reset()         { *m = AccountServiceListRequest{} }
+func (m *AccountServiceListRequest) String() string { return proto.CompactTextString(m) }
+func (*AccountServiceListRequest) ProtoMessage()    {}
+func (*AccountServiceListRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_3259f8b8a943c47e, []int{2}
 }
-func (m *ListAccountRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ListAccountRequest.Unmarshal(m, b)
+func (m *AccountServiceListRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AccountServiceListRequest.Unmarshal(m, b)
 }
-func (m *ListAccountRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ListAccountRequest.Marshal(b, m, deterministic)
+func (m *AccountServiceListRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AccountServiceListRequest.Marshal(b, m, deterministic)
 }
-func (m *ListAccountRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ListAccountRequest.Merge(m, src)
+func (m *AccountServiceListRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AccountServiceListRequest.Merge(m, src)
 }
-func (m *ListAccountRequest) XXX_Size() int {
-	return xxx_messageInfo_ListAccountRequest.Size(m)
+func (m *AccountServiceListRequest) XXX_Size() int {
+	return xxx_messageInfo_AccountServiceListRequest.Size(m)
 }
-func (m *ListAccountRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_ListAccountRequest.DiscardUnknown(m)
+func (m *AccountServiceListRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_AccountServiceListRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_ListAccountRequest proto.InternalMessageInfo
+var xxx_messageInfo_AccountServiceListRequest proto.InternalMessageInfo
 
 // The response's data for the `List` API.
-type ListAccountResponse struct {
+type AccountServiceListResponse struct {
 	Accounts             []*account.Account `protobuf:"bytes,1,rep,name=accounts,proto3" json:"accounts,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}           `json:"-"`
 	XXX_unrecognized     []byte             `json:"-"`
 	XXX_sizecache        int32              `json:"-"`
 }
 
-func (m *ListAccountResponse) Reset()         { *m = ListAccountResponse{} }
-func (m *ListAccountResponse) String() string { return proto.CompactTextString(m) }
-func (*ListAccountResponse) ProtoMessage()    {}
-func (*ListAccountResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_3259f8b8a943c47e, []int{2}
+func (m *AccountServiceListResponse) Reset()         { *m = AccountServiceListResponse{} }
+func (m *AccountServiceListResponse) String() string { return proto.CompactTextString(m) }
+func (*AccountServiceListResponse) ProtoMessage()    {}
+func (*AccountServiceListResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_3259f8b8a943c47e, []int{3}
 }
-func (m *ListAccountResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ListAccountResponse.Unmarshal(m, b)
+func (m *AccountServiceListResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AccountServiceListResponse.Unmarshal(m, b)
 }
-func (m *ListAccountResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ListAccountResponse.Marshal(b, m, deterministic)
+func (m *AccountServiceListResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AccountServiceListResponse.Marshal(b, m, deterministic)
 }
-func (m *ListAccountResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ListAccountResponse.Merge(m, src)
+func (m *AccountServiceListResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AccountServiceListResponse.Merge(m, src)
 }
-func (m *ListAccountResponse) XXX_Size() int {
-	return xxx_messageInfo_ListAccountResponse.Size(m)
+func (m *AccountServiceListResponse) XXX_Size() int {
+	return xxx_messageInfo_AccountServiceListResponse.Size(m)
 }
-func (m *ListAccountResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_ListAccountResponse.DiscardUnknown(m)
+func (m *AccountServiceListResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_AccountServiceListResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_ListAccountResponse proto.InternalMessageInfo
+var xxx_messageInfo_AccountServiceListResponse proto.InternalMessageInfo
 
-func (m *ListAccountResponse) GetAccounts() []*account.Account {
+func (m *AccountServiceListResponse) GetAccounts() []*account.Account {
 	if m != nil {
 		return m.Accounts
 	}
@@ -136,7 +174,7 @@ func (m *ListAccountResponse) GetAccounts() []*account.Account {
 }
 
 // The request's data for the `Create` API.
-type CreateAccountRequest struct {
+type AccountServiceCreateRequest struct {
 	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	Password             string   `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -144,38 +182,38 @@ type CreateAccountRequest struct {
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *CreateAccountRequest) Reset()         { *m = CreateAccountRequest{} }
-func (m *CreateAccountRequest) String() string { return proto.CompactTextString(m) }
-func (*CreateAccountRequest) ProtoMessage()    {}
-func (*CreateAccountRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_3259f8b8a943c47e, []int{3}
+func (m *AccountServiceCreateRequest) Reset()         { *m = AccountServiceCreateRequest{} }
+func (m *AccountServiceCreateRequest) String() string { return proto.CompactTextString(m) }
+func (*AccountServiceCreateRequest) ProtoMessage()    {}
+func (*AccountServiceCreateRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_3259f8b8a943c47e, []int{4}
 }
-func (m *CreateAccountRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_CreateAccountRequest.Unmarshal(m, b)
+func (m *AccountServiceCreateRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AccountServiceCreateRequest.Unmarshal(m, b)
 }
-func (m *CreateAccountRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_CreateAccountRequest.Marshal(b, m, deterministic)
+func (m *AccountServiceCreateRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AccountServiceCreateRequest.Marshal(b, m, deterministic)
 }
-func (m *CreateAccountRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CreateAccountRequest.Merge(m, src)
+func (m *AccountServiceCreateRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AccountServiceCreateRequest.Merge(m, src)
 }
-func (m *CreateAccountRequest) XXX_Size() int {
-	return xxx_messageInfo_CreateAccountRequest.Size(m)
+func (m *AccountServiceCreateRequest) XXX_Size() int {
+	return xxx_messageInfo_AccountServiceCreateRequest.Size(m)
 }
-func (m *CreateAccountRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_CreateAccountRequest.DiscardUnknown(m)
+func (m *AccountServiceCreateRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_AccountServiceCreateRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_CreateAccountRequest proto.InternalMessageInfo
+var xxx_messageInfo_AccountServiceCreateRequest proto.InternalMessageInfo
 
-func (m *CreateAccountRequest) GetName() string {
+func (m *AccountServiceCreateRequest) GetName() string {
 	if m != nil {
 		return m.Name
 	}
 	return ""
 }
 
-func (m *CreateAccountRequest) GetPassword() string {
+func (m *AccountServiceCreateRequest) GetPassword() string {
 	if m != nil {
 		return m.Password
 	}
@@ -183,7 +221,7 @@ func (m *CreateAccountRequest) GetPassword() string {
 }
 
 // The response's data for the `Create` API.
-type CreateAccountResponse struct {
+type AccountServiceCreateResponse struct {
 	Address              string   `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 	Mnemonic             string   `protobuf:"bytes,2,opt,name=mnemonic,proto3" json:"mnemonic,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -191,38 +229,38 @@ type CreateAccountResponse struct {
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *CreateAccountResponse) Reset()         { *m = CreateAccountResponse{} }
-func (m *CreateAccountResponse) String() string { return proto.CompactTextString(m) }
-func (*CreateAccountResponse) ProtoMessage()    {}
-func (*CreateAccountResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_3259f8b8a943c47e, []int{4}
+func (m *AccountServiceCreateResponse) Reset()         { *m = AccountServiceCreateResponse{} }
+func (m *AccountServiceCreateResponse) String() string { return proto.CompactTextString(m) }
+func (*AccountServiceCreateResponse) ProtoMessage()    {}
+func (*AccountServiceCreateResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_3259f8b8a943c47e, []int{5}
 }
-func (m *CreateAccountResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_CreateAccountResponse.Unmarshal(m, b)
+func (m *AccountServiceCreateResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AccountServiceCreateResponse.Unmarshal(m, b)
 }
-func (m *CreateAccountResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_CreateAccountResponse.Marshal(b, m, deterministic)
+func (m *AccountServiceCreateResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AccountServiceCreateResponse.Marshal(b, m, deterministic)
 }
-func (m *CreateAccountResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CreateAccountResponse.Merge(m, src)
+func (m *AccountServiceCreateResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AccountServiceCreateResponse.Merge(m, src)
 }
-func (m *CreateAccountResponse) XXX_Size() int {
-	return xxx_messageInfo_CreateAccountResponse.Size(m)
+func (m *AccountServiceCreateResponse) XXX_Size() int {
+	return xxx_messageInfo_AccountServiceCreateResponse.Size(m)
 }
-func (m *CreateAccountResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_CreateAccountResponse.DiscardUnknown(m)
+func (m *AccountServiceCreateResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_AccountServiceCreateResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_CreateAccountResponse proto.InternalMessageInfo
+var xxx_messageInfo_AccountServiceCreateResponse proto.InternalMessageInfo
 
-func (m *CreateAccountResponse) GetAddress() string {
+func (m *AccountServiceCreateResponse) GetAddress() string {
 	if m != nil {
 		return m.Address
 	}
 	return ""
 }
 
-func (m *CreateAccountResponse) GetMnemonic() string {
+func (m *AccountServiceCreateResponse) GetMnemonic() string {
 	if m != nil {
 		return m.Mnemonic
 	}
@@ -230,102 +268,105 @@ func (m *CreateAccountResponse) GetMnemonic() string {
 }
 
 // The request's data for the `Delete` API.
-type DeleteAccountRequest struct {
+type AccountServiceDeleteRequest struct {
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *DeleteAccountRequest) Reset()         { *m = DeleteAccountRequest{} }
-func (m *DeleteAccountRequest) String() string { return proto.CompactTextString(m) }
-func (*DeleteAccountRequest) ProtoMessage()    {}
-func (*DeleteAccountRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_3259f8b8a943c47e, []int{5}
-}
-func (m *DeleteAccountRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_DeleteAccountRequest.Unmarshal(m, b)
-}
-func (m *DeleteAccountRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_DeleteAccountRequest.Marshal(b, m, deterministic)
-}
-func (m *DeleteAccountRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DeleteAccountRequest.Merge(m, src)
-}
-func (m *DeleteAccountRequest) XXX_Size() int {
-	return xxx_messageInfo_DeleteAccountRequest.Size(m)
-}
-func (m *DeleteAccountRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_DeleteAccountRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_DeleteAccountRequest proto.InternalMessageInfo
-
-// The response's data for the `Delete` API.
-type DeleteAccountResponse struct {
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *DeleteAccountResponse) Reset()         { *m = DeleteAccountResponse{} }
-func (m *DeleteAccountResponse) String() string { return proto.CompactTextString(m) }
-func (*DeleteAccountResponse) ProtoMessage()    {}
-func (*DeleteAccountResponse) Descriptor() ([]byte, []int) {
+func (m *AccountServiceDeleteRequest) Reset()         { *m = AccountServiceDeleteRequest{} }
+func (m *AccountServiceDeleteRequest) String() string { return proto.CompactTextString(m) }
+func (*AccountServiceDeleteRequest) ProtoMessage()    {}
+func (*AccountServiceDeleteRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_3259f8b8a943c47e, []int{6}
 }
-func (m *DeleteAccountResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_DeleteAccountResponse.Unmarshal(m, b)
+func (m *AccountServiceDeleteRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AccountServiceDeleteRequest.Unmarshal(m, b)
 }
-func (m *DeleteAccountResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_DeleteAccountResponse.Marshal(b, m, deterministic)
+func (m *AccountServiceDeleteRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AccountServiceDeleteRequest.Marshal(b, m, deterministic)
 }
-func (m *DeleteAccountResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DeleteAccountResponse.Merge(m, src)
+func (m *AccountServiceDeleteRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AccountServiceDeleteRequest.Merge(m, src)
 }
-func (m *DeleteAccountResponse) XXX_Size() int {
-	return xxx_messageInfo_DeleteAccountResponse.Size(m)
+func (m *AccountServiceDeleteRequest) XXX_Size() int {
+	return xxx_messageInfo_AccountServiceDeleteRequest.Size(m)
 }
-func (m *DeleteAccountResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_DeleteAccountResponse.DiscardUnknown(m)
+func (m *AccountServiceDeleteRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_AccountServiceDeleteRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_DeleteAccountResponse proto.InternalMessageInfo
+var xxx_messageInfo_AccountServiceDeleteRequest proto.InternalMessageInfo
+
+// The response's data for the `Delete` API.
+type AccountServiceDeleteResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *AccountServiceDeleteResponse) Reset()         { *m = AccountServiceDeleteResponse{} }
+func (m *AccountServiceDeleteResponse) String() string { return proto.CompactTextString(m) }
+func (*AccountServiceDeleteResponse) ProtoMessage()    {}
+func (*AccountServiceDeleteResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_3259f8b8a943c47e, []int{7}
+}
+func (m *AccountServiceDeleteResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AccountServiceDeleteResponse.Unmarshal(m, b)
+}
+func (m *AccountServiceDeleteResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AccountServiceDeleteResponse.Marshal(b, m, deterministic)
+}
+func (m *AccountServiceDeleteResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AccountServiceDeleteResponse.Merge(m, src)
+}
+func (m *AccountServiceDeleteResponse) XXX_Size() int {
+	return xxx_messageInfo_AccountServiceDeleteResponse.Size(m)
+}
+func (m *AccountServiceDeleteResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_AccountServiceDeleteResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AccountServiceDeleteResponse proto.InternalMessageInfo
 
 func init() {
-	proto.RegisterType((*GetAccountRequest)(nil), "mesg.api.GetAccountRequest")
-	proto.RegisterType((*ListAccountRequest)(nil), "mesg.api.ListAccountRequest")
-	proto.RegisterType((*ListAccountResponse)(nil), "mesg.api.ListAccountResponse")
-	proto.RegisterType((*CreateAccountRequest)(nil), "mesg.api.CreateAccountRequest")
-	proto.RegisterType((*CreateAccountResponse)(nil), "mesg.api.CreateAccountResponse")
-	proto.RegisterType((*DeleteAccountRequest)(nil), "mesg.api.DeleteAccountRequest")
-	proto.RegisterType((*DeleteAccountResponse)(nil), "mesg.api.DeleteAccountResponse")
+	proto.RegisterType((*AccountServiceGetRequest)(nil), "mesg.api.v1.AccountServiceGetRequest")
+	proto.RegisterType((*AccountServiceGetResponse)(nil), "mesg.api.v1.AccountServiceGetResponse")
+	proto.RegisterType((*AccountServiceListRequest)(nil), "mesg.api.v1.AccountServiceListRequest")
+	proto.RegisterType((*AccountServiceListResponse)(nil), "mesg.api.v1.AccountServiceListResponse")
+	proto.RegisterType((*AccountServiceCreateRequest)(nil), "mesg.api.v1.AccountServiceCreateRequest")
+	proto.RegisterType((*AccountServiceCreateResponse)(nil), "mesg.api.v1.AccountServiceCreateResponse")
+	proto.RegisterType((*AccountServiceDeleteRequest)(nil), "mesg.api.v1.AccountServiceDeleteRequest")
+	proto.RegisterType((*AccountServiceDeleteResponse)(nil), "mesg.api.v1.AccountServiceDeleteResponse")
 }
 
 func init() { proto.RegisterFile("protobuf/api/account.proto", fileDescriptor_3259f8b8a943c47e) }
 
 var fileDescriptor_3259f8b8a943c47e = []byte{
-	// 328 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x52, 0x4d, 0x4f, 0xc2, 0x40,
-	0x10, 0xe5, 0x4b, 0xc0, 0xf1, 0xe4, 0x00, 0xda, 0xac, 0xa8, 0x64, 0x2f, 0x72, 0x6a, 0x13, 0x3c,
-	0x79, 0xf4, 0x0b, 0x0e, 0xea, 0x85, 0xa3, 0xb7, 0x05, 0x46, 0xd2, 0xc4, 0x76, 0xd7, 0xee, 0x12,
-	0xe3, 0x0f, 0xf2, 0x7f, 0x1a, 0x76, 0xdb, 0x02, 0xa5, 0xc4, 0xdb, 0xbc, 0x37, 0x6f, 0x5e, 0x5f,
-	0x5f, 0x0b, 0x4c, 0x25, 0xd2, 0xc8, 0xd9, 0xea, 0x23, 0x10, 0x2a, 0x0c, 0xc4, 0x7c, 0x2e, 0x57,
-	0xb1, 0xf1, 0x2d, 0x89, 0xed, 0x88, 0xf4, 0xd2, 0x17, 0x2a, 0x64, 0xfd, 0x5c, 0x65, 0x7e, 0x14,
-	0xe9, 0x5d, 0x1d, 0xe3, 0x4b, 0xb9, 0x94, 0x41, 0x2e, 0x59, 0x23, 0x0b, 0xec, 0xe4, 0x34, 0xfc,
-	0x06, 0x4e, 0x27, 0x64, 0xee, 0xdd, 0xdd, 0x94, 0xbe, 0x56, 0xa4, 0x0d, 0x22, 0x34, 0x62, 0x11,
-	0x91, 0x57, 0x1d, 0x54, 0x87, 0xc7, 0x53, 0x3b, 0xf3, 0x2e, 0xe0, 0x6b, 0xa8, 0x0b, 0x4a, 0x3e,
-	0x86, 0xce, 0x0e, 0xab, 0x95, 0x8c, 0x35, 0x61, 0x00, 0xed, 0x34, 0x8a, 0xf6, 0xaa, 0x83, 0xfa,
-	0xf0, 0x64, 0xd4, 0xf1, 0x6d, 0x68, 0x1b, 0xd3, 0xcf, 0xe4, 0xb9, 0x88, 0x8f, 0xa1, 0xfb, 0x98,
-	0x90, 0x30, 0xf4, 0x7f, 0x12, 0x64, 0xd0, 0x56, 0x42, 0xeb, 0x6f, 0x99, 0x2c, 0xbc, 0x9a, 0xe5,
-	0x73, 0xcc, 0xdf, 0xa0, 0x57, 0xf0, 0x49, 0x13, 0x79, 0xd0, 0x12, 0x8b, 0x45, 0x42, 0x5a, 0xa7,
-	0x5e, 0x19, 0x5c, 0xdb, 0x45, 0x31, 0x45, 0x32, 0x0e, 0xe7, 0x99, 0x5d, 0x86, 0xf9, 0x19, 0x74,
-	0x9f, 0xe8, 0x93, 0x8a, 0xb1, 0xf8, 0x39, 0xf4, 0x0a, 0xbc, 0x7b, 0xcc, 0xe8, 0xb7, 0x06, 0xad,
-	0x94, 0xc3, 0x3b, 0xa8, 0x4f, 0xc8, 0xe0, 0x85, 0x9f, 0x7d, 0x2e, 0x7f, 0xaf, 0x69, 0x56, 0x56,
-	0x0b, 0xaf, 0xe0, 0x33, 0x34, 0xd6, 0xb5, 0x62, 0x7f, 0x73, 0xbb, 0x5f, 0x3e, 0xbb, 0x3c, 0xb0,
-	0x75, 0x59, 0x78, 0x05, 0x5f, 0xa0, 0xe9, 0xda, 0xc0, 0xab, 0x8d, 0xb4, 0xac, 0x67, 0x76, 0x7d,
-	0x70, 0xbf, 0x6d, 0xe6, 0xde, 0x79, 0xdb, 0xac, 0xac, 0x9d, 0x6d, 0xb3, 0xd2, 0x96, 0x78, 0xe5,
-	0xe1, 0xe8, 0xbd, 0x2e, 0x54, 0x38, 0x6b, 0xda, 0x9f, 0xf0, 0xf6, 0x2f, 0x00, 0x00, 0xff, 0xff,
-	0xce, 0x5c, 0x67, 0x59, 0xee, 0x02, 0x00, 0x00,
+	// 367 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x93, 0x4d, 0x4f, 0x3a, 0x31,
+	0x10, 0xc6, 0xe1, 0xbf, 0xfc, 0x01, 0x87, 0xc4, 0x43, 0x0f, 0x66, 0x2d, 0x68, 0x48, 0x13, 0x15,
+	0x2f, 0x45, 0xf0, 0x13, 0xf8, 0x92, 0x70, 0x91, 0xc4, 0xa0, 0x31, 0xd1, 0x8b, 0x29, 0xcb, 0x48,
+	0x36, 0x71, 0xb7, 0x75, 0x5b, 0x30, 0x7e, 0x00, 0xbf, 0xb7, 0xa1, 0xfb, 0x12, 0x96, 0x60, 0xf1,
+	0xd6, 0x69, 0x7f, 0xf3, 0x3c, 0x0f, 0x33, 0x2c, 0x50, 0x95, 0x48, 0x23, 0xa7, 0x8b, 0xb7, 0xbe,
+	0x50, 0x61, 0x5f, 0x04, 0x81, 0x5c, 0xc4, 0x86, 0xdb, 0x4b, 0xd2, 0x8a, 0x50, 0xcf, 0xb9, 0x50,
+	0x21, 0x5f, 0x0e, 0x68, 0xa7, 0x00, 0xcd, 0x97, 0x42, 0x5d, 0x46, 0x29, 0x9b, 0xcb, 0xb9, 0xec,
+	0x17, 0xc8, 0xaa, 0xb2, 0x85, 0x3d, 0xa5, 0x0c, 0xe3, 0xe0, 0x5f, 0xa5, 0x4d, 0x0f, 0x98, 0x2c,
+	0xc3, 0x00, 0x47, 0x68, 0x26, 0xf8, 0xb1, 0x40, 0x6d, 0x08, 0x81, 0x5a, 0x2c, 0x22, 0xf4, 0xab,
+	0xdd, 0x6a, 0x6f, 0x6f, 0x62, 0xcf, 0x6c, 0x0c, 0x87, 0x5b, 0x78, 0xad, 0x64, 0xac, 0x91, 0x5c,
+	0x40, 0x23, 0x4b, 0x60, 0x7b, 0x5a, 0xc3, 0x03, 0x6e, 0xd3, 0xda, 0x70, 0x7c, 0x39, 0xe0, 0x59,
+	0xeb, 0x24, 0xc7, 0x58, 0x7b, 0x53, 0xee, 0x2e, 0xd4, 0xb9, 0x3f, 0xbb, 0x07, 0xba, 0xed, 0x31,
+	0x33, 0x1b, 0x42, 0x33, 0x53, 0xd1, 0x7e, 0xb5, 0xeb, 0x39, 0xdc, 0x0a, 0x8e, 0x8d, 0xa1, 0x5d,
+	0x56, 0xbc, 0x49, 0x50, 0x18, 0x74, 0xfc, 0x60, 0x42, 0xa1, 0xa9, 0x84, 0xd6, 0x9f, 0x32, 0x99,
+	0xf9, 0xff, 0xec, 0x7d, 0x51, 0xb3, 0x47, 0xe8, 0x6c, 0x97, 0xcb, 0x22, 0xfa, 0xd0, 0x10, 0xb3,
+	0x59, 0x82, 0x5a, 0x67, 0x92, 0x79, 0xb9, 0x52, 0x8d, 0x62, 0x8c, 0x64, 0x1c, 0x06, 0xb9, 0x6a,
+	0x5e, 0xb3, 0xa3, 0xcd, 0x90, 0xb7, 0xf8, 0x8e, 0x45, 0x48, 0x76, 0xbc, 0x69, 0x9a, 0x3f, 0xa7,
+	0xa6, 0xc3, 0x6f, 0x0f, 0xf6, 0xcb, 0x00, 0x79, 0x02, 0x6f, 0x84, 0x86, 0x9c, 0xf0, 0xb5, 0xff,
+	0x0e, 0xff, 0x6d, 0xed, 0xf4, 0x74, 0x17, 0x96, 0x1a, 0xb1, 0x0a, 0x79, 0x86, 0xda, 0x6a, 0x25,
+	0xc4, 0xd5, 0xb1, 0xb6, 0x50, 0x7a, 0xb6, 0x93, 0x2b, 0xa4, 0x5f, 0xa1, 0x9e, 0x0e, 0x93, 0xf4,
+	0x1c, 0x4d, 0xa5, 0xf5, 0xd1, 0xf3, 0x3f, 0x90, 0xeb, 0x06, 0xe9, 0xe0, 0x9c, 0x06, 0xa5, 0xd1,
+	0x3b, 0x0d, 0xca, 0x5b, 0x60, 0x95, 0xeb, 0xff, 0x2f, 0x9e, 0x50, 0xe1, 0xb4, 0x6e, 0xbf, 0xb3,
+	0xcb, 0x9f, 0x00, 0x00, 0x00, 0xff, 0xff, 0x77, 0xc2, 0x42, 0xc0, 0xd4, 0x03, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -336,188 +377,188 @@ var _ grpc.ClientConn
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion4
 
-// AccountClient is the client API for Account service.
+// AccountServiceClient is the client API for AccountService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
-type AccountClient interface {
+type AccountServiceClient interface {
 	// Get returns an Account matching the criteria of the request.
-	Get(ctx context.Context, in *GetAccountRequest, opts ...grpc.CallOption) (*account.Account, error)
+	Get(ctx context.Context, in *AccountServiceGetRequest, opts ...grpc.CallOption) (*AccountServiceGetResponse, error)
 	// List returns all Accounts matching the criteria of the request.
-	List(ctx context.Context, in *ListAccountRequest, opts ...grpc.CallOption) (*ListAccountResponse, error)
+	List(ctx context.Context, in *AccountServiceListRequest, opts ...grpc.CallOption) (*AccountServiceListResponse, error)
 	// Create an Account with a name and password.
-	Create(ctx context.Context, in *CreateAccountRequest, opts ...grpc.CallOption) (*CreateAccountResponse, error)
+	Create(ctx context.Context, in *AccountServiceCreateRequest, opts ...grpc.CallOption) (*AccountServiceCreateResponse, error)
 	// Delete an Account.
-	Delete(ctx context.Context, in *DeleteAccountRequest, opts ...grpc.CallOption) (*DeleteAccountResponse, error)
+	Delete(ctx context.Context, in *AccountServiceDeleteRequest, opts ...grpc.CallOption) (*AccountServiceDeleteResponse, error)
 }
 
-type accountClient struct {
+type accountServiceClient struct {
 	cc *grpc.ClientConn
 }
 
-func NewAccountClient(cc *grpc.ClientConn) AccountClient {
-	return &accountClient{cc}
+func NewAccountServiceClient(cc *grpc.ClientConn) AccountServiceClient {
+	return &accountServiceClient{cc}
 }
 
-func (c *accountClient) Get(ctx context.Context, in *GetAccountRequest, opts ...grpc.CallOption) (*account.Account, error) {
-	out := new(account.Account)
-	err := c.cc.Invoke(ctx, "/mesg.api.Account/Get", in, out, opts...)
+func (c *accountServiceClient) Get(ctx context.Context, in *AccountServiceGetRequest, opts ...grpc.CallOption) (*AccountServiceGetResponse, error) {
+	out := new(AccountServiceGetResponse)
+	err := c.cc.Invoke(ctx, "/mesg.api.v1.AccountService/Get", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *accountClient) List(ctx context.Context, in *ListAccountRequest, opts ...grpc.CallOption) (*ListAccountResponse, error) {
-	out := new(ListAccountResponse)
-	err := c.cc.Invoke(ctx, "/mesg.api.Account/List", in, out, opts...)
+func (c *accountServiceClient) List(ctx context.Context, in *AccountServiceListRequest, opts ...grpc.CallOption) (*AccountServiceListResponse, error) {
+	out := new(AccountServiceListResponse)
+	err := c.cc.Invoke(ctx, "/mesg.api.v1.AccountService/List", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *accountClient) Create(ctx context.Context, in *CreateAccountRequest, opts ...grpc.CallOption) (*CreateAccountResponse, error) {
-	out := new(CreateAccountResponse)
-	err := c.cc.Invoke(ctx, "/mesg.api.Account/Create", in, out, opts...)
+func (c *accountServiceClient) Create(ctx context.Context, in *AccountServiceCreateRequest, opts ...grpc.CallOption) (*AccountServiceCreateResponse, error) {
+	out := new(AccountServiceCreateResponse)
+	err := c.cc.Invoke(ctx, "/mesg.api.v1.AccountService/Create", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *accountClient) Delete(ctx context.Context, in *DeleteAccountRequest, opts ...grpc.CallOption) (*DeleteAccountResponse, error) {
-	out := new(DeleteAccountResponse)
-	err := c.cc.Invoke(ctx, "/mesg.api.Account/Delete", in, out, opts...)
+func (c *accountServiceClient) Delete(ctx context.Context, in *AccountServiceDeleteRequest, opts ...grpc.CallOption) (*AccountServiceDeleteResponse, error) {
+	out := new(AccountServiceDeleteResponse)
+	err := c.cc.Invoke(ctx, "/mesg.api.v1.AccountService/Delete", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// AccountServer is the server API for Account service.
-type AccountServer interface {
+// AccountServiceServer is the server API for AccountService service.
+type AccountServiceServer interface {
 	// Get returns an Account matching the criteria of the request.
-	Get(context.Context, *GetAccountRequest) (*account.Account, error)
+	Get(context.Context, *AccountServiceGetRequest) (*AccountServiceGetResponse, error)
 	// List returns all Accounts matching the criteria of the request.
-	List(context.Context, *ListAccountRequest) (*ListAccountResponse, error)
+	List(context.Context, *AccountServiceListRequest) (*AccountServiceListResponse, error)
 	// Create an Account with a name and password.
-	Create(context.Context, *CreateAccountRequest) (*CreateAccountResponse, error)
+	Create(context.Context, *AccountServiceCreateRequest) (*AccountServiceCreateResponse, error)
 	// Delete an Account.
-	Delete(context.Context, *DeleteAccountRequest) (*DeleteAccountResponse, error)
+	Delete(context.Context, *AccountServiceDeleteRequest) (*AccountServiceDeleteResponse, error)
 }
 
-// UnimplementedAccountServer can be embedded to have forward compatible implementations.
-type UnimplementedAccountServer struct {
+// UnimplementedAccountServiceServer can be embedded to have forward compatible implementations.
+type UnimplementedAccountServiceServer struct {
 }
 
-func (*UnimplementedAccountServer) Get(ctx context.Context, req *GetAccountRequest) (*account.Account, error) {
+func (*UnimplementedAccountServiceServer) Get(ctx context.Context, req *AccountServiceGetRequest) (*AccountServiceGetResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
-func (*UnimplementedAccountServer) List(ctx context.Context, req *ListAccountRequest) (*ListAccountResponse, error) {
+func (*UnimplementedAccountServiceServer) List(ctx context.Context, req *AccountServiceListRequest) (*AccountServiceListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
-func (*UnimplementedAccountServer) Create(ctx context.Context, req *CreateAccountRequest) (*CreateAccountResponse, error) {
+func (*UnimplementedAccountServiceServer) Create(ctx context.Context, req *AccountServiceCreateRequest) (*AccountServiceCreateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
-func (*UnimplementedAccountServer) Delete(ctx context.Context, req *DeleteAccountRequest) (*DeleteAccountResponse, error) {
+func (*UnimplementedAccountServiceServer) Delete(ctx context.Context, req *AccountServiceDeleteRequest) (*AccountServiceDeleteResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
 
-func RegisterAccountServer(s *grpc.Server, srv AccountServer) {
-	s.RegisterService(&_Account_serviceDesc, srv)
+func RegisterAccountServiceServer(s *grpc.Server, srv AccountServiceServer) {
+	s.RegisterService(&_AccountService_serviceDesc, srv)
 }
 
-func _Account_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetAccountRequest)
+func _AccountService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AccountServiceGetRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AccountServer).Get(ctx, in)
+		return srv.(AccountServiceServer).Get(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mesg.api.Account/Get",
+		FullMethod: "/mesg.api.v1.AccountService/Get",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AccountServer).Get(ctx, req.(*GetAccountRequest))
+		return srv.(AccountServiceServer).Get(ctx, req.(*AccountServiceGetRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Account_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListAccountRequest)
+func _AccountService_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AccountServiceListRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AccountServer).List(ctx, in)
+		return srv.(AccountServiceServer).List(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mesg.api.Account/List",
+		FullMethod: "/mesg.api.v1.AccountService/List",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AccountServer).List(ctx, req.(*ListAccountRequest))
+		return srv.(AccountServiceServer).List(ctx, req.(*AccountServiceListRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Account_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateAccountRequest)
+func _AccountService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AccountServiceCreateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AccountServer).Create(ctx, in)
+		return srv.(AccountServiceServer).Create(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mesg.api.Account/Create",
+		FullMethod: "/mesg.api.v1.AccountService/Create",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AccountServer).Create(ctx, req.(*CreateAccountRequest))
+		return srv.(AccountServiceServer).Create(ctx, req.(*AccountServiceCreateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Account_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteAccountRequest)
+func _AccountService_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AccountServiceDeleteRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AccountServer).Delete(ctx, in)
+		return srv.(AccountServiceServer).Delete(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mesg.api.Account/Delete",
+		FullMethod: "/mesg.api.v1.AccountService/Delete",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AccountServer).Delete(ctx, req.(*DeleteAccountRequest))
+		return srv.(AccountServiceServer).Delete(ctx, req.(*AccountServiceDeleteRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-var _Account_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "mesg.api.Account",
-	HandlerType: (*AccountServer)(nil),
+var _AccountService_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "mesg.api.v1.AccountService",
+	HandlerType: (*AccountServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Get",
-			Handler:    _Account_Get_Handler,
+			Handler:    _AccountService_Get_Handler,
 		},
 		{
 			MethodName: "List",
-			Handler:    _Account_List_Handler,
+			Handler:    _AccountService_List_Handler,
 		},
 		{
 			MethodName: "Create",
-			Handler:    _Account_Create_Handler,
+			Handler:    _AccountService_Create_Handler,
 		},
 		{
 			MethodName: "Delete",
-			Handler:    _Account_Delete_Handler,
+			Handler:    _AccountService_Delete_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

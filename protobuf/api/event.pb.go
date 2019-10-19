@@ -28,40 +28,40 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// StreamEventRequest defines request to retrieve a stream of events.
-type StreamEventRequest struct {
+// EventStreamRequest defines request to retrieve a stream of events.
+type EventServiceStreamRequest struct {
 	// Filter used to filter a stream of events.
-	Filter               *StreamEventRequest_Filter `protobuf:"bytes,1,opt,name=filter,proto3" json:"filter,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}                   `json:"-"`
-	XXX_unrecognized     []byte                     `json:"-"`
-	XXX_sizecache        int32                      `json:"-"`
+	Filter               *EventServiceStreamRequest_Filter `protobuf:"bytes,1,opt,name=filter,proto3" json:"filter,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                          `json:"-"`
+	XXX_unrecognized     []byte                            `json:"-"`
+	XXX_sizecache        int32                             `json:"-"`
 }
 
-func (m *StreamEventRequest) Reset()         { *m = StreamEventRequest{} }
-func (m *StreamEventRequest) String() string { return proto.CompactTextString(m) }
-func (*StreamEventRequest) ProtoMessage()    {}
-func (*StreamEventRequest) Descriptor() ([]byte, []int) {
+func (m *EventServiceStreamRequest) Reset()         { *m = EventServiceStreamRequest{} }
+func (m *EventServiceStreamRequest) String() string { return proto.CompactTextString(m) }
+func (*EventServiceStreamRequest) ProtoMessage()    {}
+func (*EventServiceStreamRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_c0ad091fa003d2ac, []int{0}
 }
-func (m *StreamEventRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_StreamEventRequest.Unmarshal(m, b)
+func (m *EventServiceStreamRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_EventServiceStreamRequest.Unmarshal(m, b)
 }
-func (m *StreamEventRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_StreamEventRequest.Marshal(b, m, deterministic)
+func (m *EventServiceStreamRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_EventServiceStreamRequest.Marshal(b, m, deterministic)
 }
-func (m *StreamEventRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_StreamEventRequest.Merge(m, src)
+func (m *EventServiceStreamRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventServiceStreamRequest.Merge(m, src)
 }
-func (m *StreamEventRequest) XXX_Size() int {
-	return xxx_messageInfo_StreamEventRequest.Size(m)
+func (m *EventServiceStreamRequest) XXX_Size() int {
+	return xxx_messageInfo_EventServiceStreamRequest.Size(m)
 }
-func (m *StreamEventRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_StreamEventRequest.DiscardUnknown(m)
+func (m *EventServiceStreamRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventServiceStreamRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_StreamEventRequest proto.InternalMessageInfo
+var xxx_messageInfo_EventServiceStreamRequest proto.InternalMessageInfo
 
-func (m *StreamEventRequest) GetFilter() *StreamEventRequest_Filter {
+func (m *EventServiceStreamRequest) GetFilter() *EventServiceStreamRequest_Filter {
 	if m != nil {
 		return m.Filter
 	}
@@ -69,11 +69,11 @@ func (m *StreamEventRequest) GetFilter() *StreamEventRequest_Filter {
 }
 
 // Filter contains filtering criteria.
-type StreamEventRequest_Filter struct {
+type EventServiceStreamRequest_Filter struct {
 	// hash to filter events.
 	Hash github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,1,opt,name=hash,proto3,customtype=github.com/mesg-foundation/engine/hash.Hash" json:"hash"`
 	// instance's hash to filter events.
-	InstanceHash github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,2,opt,name=instanceHash,proto3,customtype=github.com/mesg-foundation/engine/hash.Hash" json:"instanceHash"`
+	InstanceHash github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,2,opt,name=instance_hash,json=instanceHash,proto3,customtype=github.com/mesg-foundation/engine/hash.Hash" json:"instance_hash"`
 	// key is the key of the event.
 	Key                  string   `protobuf:"bytes,3,opt,name=key,proto3" json:"key,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -81,41 +81,79 @@ type StreamEventRequest_Filter struct {
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *StreamEventRequest_Filter) Reset()         { *m = StreamEventRequest_Filter{} }
-func (m *StreamEventRequest_Filter) String() string { return proto.CompactTextString(m) }
-func (*StreamEventRequest_Filter) ProtoMessage()    {}
-func (*StreamEventRequest_Filter) Descriptor() ([]byte, []int) {
+func (m *EventServiceStreamRequest_Filter) Reset()         { *m = EventServiceStreamRequest_Filter{} }
+func (m *EventServiceStreamRequest_Filter) String() string { return proto.CompactTextString(m) }
+func (*EventServiceStreamRequest_Filter) ProtoMessage()    {}
+func (*EventServiceStreamRequest_Filter) Descriptor() ([]byte, []int) {
 	return fileDescriptor_c0ad091fa003d2ac, []int{0, 0}
 }
-func (m *StreamEventRequest_Filter) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_StreamEventRequest_Filter.Unmarshal(m, b)
+func (m *EventServiceStreamRequest_Filter) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_EventServiceStreamRequest_Filter.Unmarshal(m, b)
 }
-func (m *StreamEventRequest_Filter) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_StreamEventRequest_Filter.Marshal(b, m, deterministic)
+func (m *EventServiceStreamRequest_Filter) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_EventServiceStreamRequest_Filter.Marshal(b, m, deterministic)
 }
-func (m *StreamEventRequest_Filter) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_StreamEventRequest_Filter.Merge(m, src)
+func (m *EventServiceStreamRequest_Filter) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventServiceStreamRequest_Filter.Merge(m, src)
 }
-func (m *StreamEventRequest_Filter) XXX_Size() int {
-	return xxx_messageInfo_StreamEventRequest_Filter.Size(m)
+func (m *EventServiceStreamRequest_Filter) XXX_Size() int {
+	return xxx_messageInfo_EventServiceStreamRequest_Filter.Size(m)
 }
-func (m *StreamEventRequest_Filter) XXX_DiscardUnknown() {
-	xxx_messageInfo_StreamEventRequest_Filter.DiscardUnknown(m)
+func (m *EventServiceStreamRequest_Filter) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventServiceStreamRequest_Filter.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_StreamEventRequest_Filter proto.InternalMessageInfo
+var xxx_messageInfo_EventServiceStreamRequest_Filter proto.InternalMessageInfo
 
-func (m *StreamEventRequest_Filter) GetKey() string {
+func (m *EventServiceStreamRequest_Filter) GetKey() string {
 	if m != nil {
 		return m.Key
 	}
 	return ""
 }
 
-// CreateEventRequest defines request for execution update.
-type CreateEventRequest struct {
+type EventServiceStreamResponse struct {
+	Event                *event.Event `protobuf:"bytes,1,opt,name=event,proto3" json:"event,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
+	XXX_unrecognized     []byte       `json:"-"`
+	XXX_sizecache        int32        `json:"-"`
+}
+
+func (m *EventServiceStreamResponse) Reset()         { *m = EventServiceStreamResponse{} }
+func (m *EventServiceStreamResponse) String() string { return proto.CompactTextString(m) }
+func (*EventServiceStreamResponse) ProtoMessage()    {}
+func (*EventServiceStreamResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c0ad091fa003d2ac, []int{1}
+}
+func (m *EventServiceStreamResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_EventServiceStreamResponse.Unmarshal(m, b)
+}
+func (m *EventServiceStreamResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_EventServiceStreamResponse.Marshal(b, m, deterministic)
+}
+func (m *EventServiceStreamResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventServiceStreamResponse.Merge(m, src)
+}
+func (m *EventServiceStreamResponse) XXX_Size() int {
+	return xxx_messageInfo_EventServiceStreamResponse.Size(m)
+}
+func (m *EventServiceStreamResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventServiceStreamResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EventServiceStreamResponse proto.InternalMessageInfo
+
+func (m *EventServiceStreamResponse) GetEvent() *event.Event {
+	if m != nil {
+		return m.Event
+	}
+	return nil
+}
+
+// EventCreateRequest defines request for execution update.
+type EventServiceCreateRequest struct {
 	// instanceHash is hash of instance that can proceed an execution.
-	InstanceHash github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,1,opt,name=instanceHash,proto3,customtype=github.com/mesg-foundation/engine/hash.Hash" json:"instanceHash"`
+	InstanceHash github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,1,opt,name=instance_hash,json=instanceHash,proto3,customtype=github.com/mesg-foundation/engine/hash.Hash" json:"instance_hash"`
 	// key is the key of the event.
 	Key string `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
 	// data is the data for the event.
@@ -125,46 +163,46 @@ type CreateEventRequest struct {
 	XXX_sizecache        int32         `json:"-"`
 }
 
-func (m *CreateEventRequest) Reset()         { *m = CreateEventRequest{} }
-func (m *CreateEventRequest) String() string { return proto.CompactTextString(m) }
-func (*CreateEventRequest) ProtoMessage()    {}
-func (*CreateEventRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c0ad091fa003d2ac, []int{1}
+func (m *EventServiceCreateRequest) Reset()         { *m = EventServiceCreateRequest{} }
+func (m *EventServiceCreateRequest) String() string { return proto.CompactTextString(m) }
+func (*EventServiceCreateRequest) ProtoMessage()    {}
+func (*EventServiceCreateRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c0ad091fa003d2ac, []int{2}
 }
-func (m *CreateEventRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_CreateEventRequest.Unmarshal(m, b)
+func (m *EventServiceCreateRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_EventServiceCreateRequest.Unmarshal(m, b)
 }
-func (m *CreateEventRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_CreateEventRequest.Marshal(b, m, deterministic)
+func (m *EventServiceCreateRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_EventServiceCreateRequest.Marshal(b, m, deterministic)
 }
-func (m *CreateEventRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CreateEventRequest.Merge(m, src)
+func (m *EventServiceCreateRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventServiceCreateRequest.Merge(m, src)
 }
-func (m *CreateEventRequest) XXX_Size() int {
-	return xxx_messageInfo_CreateEventRequest.Size(m)
+func (m *EventServiceCreateRequest) XXX_Size() int {
+	return xxx_messageInfo_EventServiceCreateRequest.Size(m)
 }
-func (m *CreateEventRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_CreateEventRequest.DiscardUnknown(m)
+func (m *EventServiceCreateRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventServiceCreateRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_CreateEventRequest proto.InternalMessageInfo
+var xxx_messageInfo_EventServiceCreateRequest proto.InternalMessageInfo
 
-func (m *CreateEventRequest) GetKey() string {
+func (m *EventServiceCreateRequest) GetKey() string {
 	if m != nil {
 		return m.Key
 	}
 	return ""
 }
 
-func (m *CreateEventRequest) GetData() *types.Struct {
+func (m *EventServiceCreateRequest) GetData() *types.Struct {
 	if m != nil {
 		return m.Data
 	}
 	return nil
 }
 
-// CreateEventResponse defines response for execution update.
-type CreateEventResponse struct {
+// EventCreateResponse defines response for execution update.
+type EventServiceCreateResponse struct {
 	// Hash represents event.
 	Hash                 github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,1,opt,name=hash,proto3,customtype=github.com/mesg-foundation/engine/hash.Hash" json:"hash"`
 	XXX_NoUnkeyedLiteral struct{}                                    `json:"-"`
@@ -172,65 +210,68 @@ type CreateEventResponse struct {
 	XXX_sizecache        int32                                       `json:"-"`
 }
 
-func (m *CreateEventResponse) Reset()         { *m = CreateEventResponse{} }
-func (m *CreateEventResponse) String() string { return proto.CompactTextString(m) }
-func (*CreateEventResponse) ProtoMessage()    {}
-func (*CreateEventResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c0ad091fa003d2ac, []int{2}
+func (m *EventServiceCreateResponse) Reset()         { *m = EventServiceCreateResponse{} }
+func (m *EventServiceCreateResponse) String() string { return proto.CompactTextString(m) }
+func (*EventServiceCreateResponse) ProtoMessage()    {}
+func (*EventServiceCreateResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c0ad091fa003d2ac, []int{3}
 }
-func (m *CreateEventResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_CreateEventResponse.Unmarshal(m, b)
+func (m *EventServiceCreateResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_EventServiceCreateResponse.Unmarshal(m, b)
 }
-func (m *CreateEventResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_CreateEventResponse.Marshal(b, m, deterministic)
+func (m *EventServiceCreateResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_EventServiceCreateResponse.Marshal(b, m, deterministic)
 }
-func (m *CreateEventResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CreateEventResponse.Merge(m, src)
+func (m *EventServiceCreateResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventServiceCreateResponse.Merge(m, src)
 }
-func (m *CreateEventResponse) XXX_Size() int {
-	return xxx_messageInfo_CreateEventResponse.Size(m)
+func (m *EventServiceCreateResponse) XXX_Size() int {
+	return xxx_messageInfo_EventServiceCreateResponse.Size(m)
 }
-func (m *CreateEventResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_CreateEventResponse.DiscardUnknown(m)
+func (m *EventServiceCreateResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventServiceCreateResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_CreateEventResponse proto.InternalMessageInfo
+var xxx_messageInfo_EventServiceCreateResponse proto.InternalMessageInfo
 
 func init() {
-	proto.RegisterType((*StreamEventRequest)(nil), "mesg.api.StreamEventRequest")
-	proto.RegisterType((*StreamEventRequest_Filter)(nil), "mesg.api.StreamEventRequest.Filter")
-	proto.RegisterType((*CreateEventRequest)(nil), "mesg.api.CreateEventRequest")
-	proto.RegisterType((*CreateEventResponse)(nil), "mesg.api.CreateEventResponse")
+	proto.RegisterType((*EventServiceStreamRequest)(nil), "mesg.api.v1.EventServiceStreamRequest")
+	proto.RegisterType((*EventServiceStreamRequest_Filter)(nil), "mesg.api.v1.EventServiceStreamRequest.Filter")
+	proto.RegisterType((*EventServiceStreamResponse)(nil), "mesg.api.v1.EventServiceStreamResponse")
+	proto.RegisterType((*EventServiceCreateRequest)(nil), "mesg.api.v1.EventServiceCreateRequest")
+	proto.RegisterType((*EventServiceCreateResponse)(nil), "mesg.api.v1.EventServiceCreateResponse")
 }
 
 func init() { proto.RegisterFile("protobuf/api/event.proto", fileDescriptor_c0ad091fa003d2ac) }
 
 var fileDescriptor_c0ad091fa003d2ac = []byte{
-	// 376 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x52, 0x4d, 0x4e, 0xeb, 0x30,
-	0x18, 0xac, 0xfb, 0x13, 0xbd, 0xe7, 0x76, 0xf1, 0x9e, 0x11, 0x52, 0x14, 0x40, 0xad, 0xc2, 0xa6,
-	0x08, 0xe1, 0xa0, 0x76, 0x89, 0xd8, 0x14, 0x41, 0x59, 0x87, 0x05, 0x12, 0x0b, 0x24, 0x37, 0xfd,
-	0x9a, 0x58, 0x50, 0x3b, 0xc4, 0x0e, 0x52, 0x4f, 0x01, 0xe7, 0xe0, 0x0c, 0x1c, 0x80, 0x33, 0xb0,
-	0xe8, 0x59, 0x50, 0xec, 0xb6, 0xf4, 0x47, 0x6c, 0x50, 0x77, 0xf6, 0x37, 0xe3, 0xf1, 0x68, 0xbe,
-	0xc1, 0x6e, 0x9a, 0x49, 0x2d, 0x07, 0xf9, 0x28, 0x60, 0x29, 0x0f, 0xe0, 0x19, 0x84, 0xa6, 0x66,
-	0x44, 0xfe, 0x8c, 0x41, 0xc5, 0x94, 0xa5, 0xdc, 0xf3, 0x63, 0x19, 0xcb, 0x60, 0x41, 0x2c, 0x6e,
-	0xe6, 0x62, 0x4e, 0x96, 0xed, 0xed, 0x2d, 0x60, 0x3d, 0x49, 0x41, 0x05, 0x4a, 0x67, 0x79, 0x34,
-	0x93, 0xf2, 0xbc, 0x35, 0x70, 0xe9, 0x1b, 0xff, 0xb5, 0x8c, 0xc9, 0x8d, 0xce, 0x80, 0x8d, 0x2f,
-	0x8b, 0x69, 0x08, 0x4f, 0x39, 0x28, 0x4d, 0xce, 0xb0, 0x33, 0xe2, 0x8f, 0x1a, 0x32, 0x17, 0xb5,
-	0x50, 0xbb, 0xde, 0x39, 0xa4, 0x73, 0x3b, 0x74, 0x93, 0x4d, 0xaf, 0x0c, 0x35, 0x9c, 0x3d, 0xf1,
-	0xde, 0x11, 0x76, 0xec, 0x88, 0xf4, 0x71, 0x35, 0x61, 0x2a, 0x31, 0x2a, 0x8d, 0x5e, 0xf7, 0x63,
-	0xda, 0x2c, 0x7d, 0x4e, 0x9b, 0xc7, 0x31, 0xd7, 0x49, 0x3e, 0xa0, 0x91, 0x1c, 0x07, 0x85, 0xee,
-	0xc9, 0x48, 0xe6, 0x62, 0xc8, 0x34, 0x97, 0x22, 0x00, 0x11, 0x73, 0x01, 0x41, 0xf1, 0x8a, 0x5e,
-	0x33, 0x95, 0x84, 0x46, 0x80, 0xdc, 0xe2, 0x06, 0x17, 0x4a, 0x33, 0x11, 0x41, 0x31, 0x75, 0xcb,
-	0xbf, 0x17, 0x5c, 0x11, 0x22, 0xff, 0x70, 0xe5, 0x01, 0x26, 0x6e, 0xa5, 0x85, 0xda, 0x7f, 0xc3,
-	0xe2, 0xe8, 0xbf, 0x21, 0x4c, 0x2e, 0x32, 0x60, 0x1a, 0x56, 0x22, 0x59, 0x77, 0x80, 0xb6, 0xec,
-	0xa0, 0xbc, 0x70, 0x40, 0x8e, 0x70, 0x75, 0xc8, 0x34, 0x33, 0xa6, 0xea, 0x9d, 0x5d, 0x9b, 0xfd,
-	0x7c, 0x89, 0xc5, 0x02, 0xf2, 0x48, 0x87, 0x86, 0xe2, 0xdf, 0xe3, 0x9d, 0x15, 0xaf, 0x2a, 0x95,
-	0x42, 0xc1, 0xd6, 0x72, 0xef, 0xbc, 0x20, 0x5c, 0x33, 0xd2, 0xa4, 0x8f, 0x1d, 0xfb, 0x13, 0xd9,
-	0xff, 0x2e, 0xc3, 0x66, 0x4e, 0xde, 0xc1, 0x0f, 0xa8, 0x75, 0xe6, 0x97, 0xc8, 0x39, 0x76, 0x6c,
-	0x87, 0x96, 0x85, 0x36, 0x5b, 0xe5, 0xfd, 0xb7, 0xa8, 0xe9, 0x2c, 0x35, 0x88, 0x5f, 0x3a, 0x45,
-	0xbd, 0xda, 0x5d, 0x85, 0xa5, 0x7c, 0xe0, 0x98, 0x3c, 0xba, 0x5f, 0x01, 0x00, 0x00, 0xff, 0xff,
-	0xea, 0x67, 0xd1, 0x98, 0x42, 0x03, 0x00, 0x00,
+	// 411 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x52, 0xcb, 0x8e, 0xd3, 0x30,
+	0x14, 0xad, 0xfb, 0x88, 0x84, 0x5b, 0x24, 0x64, 0x81, 0x54, 0xc2, 0xa2, 0x55, 0x16, 0x50, 0x40,
+	0x75, 0xa0, 0xfd, 0x83, 0xa2, 0x42, 0xd7, 0xe9, 0x06, 0x81, 0x10, 0x72, 0xd3, 0xdb, 0xc4, 0x82,
+	0xda, 0x21, 0x76, 0x2a, 0xf5, 0x77, 0xf8, 0x04, 0xf6, 0xec, 0x11, 0x9f, 0x30, 0x8b, 0x7e, 0xcb,
+	0x28, 0x76, 0x12, 0x35, 0x33, 0xd3, 0x8e, 0x34, 0xea, 0xce, 0xd7, 0xbe, 0xe7, 0xdc, 0x7b, 0x8e,
+	0x0f, 0xee, 0x27, 0xa9, 0xd4, 0x72, 0x95, 0x6d, 0x7c, 0x96, 0x70, 0x1f, 0x76, 0x20, 0x34, 0x35,
+	0x57, 0xa4, 0xbb, 0x05, 0x15, 0x51, 0x96, 0x70, 0xba, 0x7b, 0xef, 0x7a, 0x91, 0x8c, 0xa4, 0x5f,
+	0xf5, 0xe6, 0x95, 0x29, 0xcc, 0xc9, 0x02, 0xdc, 0x17, 0xd5, 0xb3, 0xde, 0x27, 0xa0, 0x7c, 0xa5,
+	0xd3, 0x2c, 0x2c, 0xd8, 0x5c, 0xf7, 0xc6, 0xe3, 0xd1, 0x24, 0xef, 0x77, 0x13, 0x3f, 0x9f, 0xe7,
+	0xf5, 0x12, 0xd2, 0x1d, 0x0f, 0x61, 0xa9, 0x53, 0x60, 0xdb, 0x00, 0x7e, 0x65, 0xa0, 0x34, 0x99,
+	0x63, 0x67, 0xc3, 0x7f, 0x6a, 0x48, 0xfb, 0x68, 0x88, 0x46, 0xdd, 0xc9, 0x98, 0x1e, 0x2d, 0x46,
+	0x4f, 0xe2, 0xe8, 0x47, 0x03, 0x0a, 0x0a, 0xb0, 0xfb, 0x17, 0x61, 0xc7, 0x5e, 0x91, 0x4f, 0xb8,
+	0x1d, 0x33, 0x15, 0x1b, 0xbe, 0xde, 0x6c, 0xfa, 0xef, 0x30, 0x68, 0x5c, 0x1d, 0x06, 0x6f, 0x23,
+	0xae, 0xe3, 0x6c, 0x45, 0x43, 0xb9, 0xf5, 0xf3, 0x09, 0xe3, 0x8d, 0xcc, 0xc4, 0x9a, 0x69, 0x2e,
+	0x85, 0x0f, 0x22, 0xe2, 0x02, 0xfc, 0x1c, 0x45, 0x17, 0x4c, 0xc5, 0x81, 0x21, 0x20, 0x9f, 0xf1,
+	0x63, 0x2e, 0x94, 0x66, 0x22, 0x84, 0xef, 0x86, 0xb1, 0xf9, 0x70, 0xc6, 0x5e, 0xc9, 0x94, 0x57,
+	0xe4, 0x09, 0x6e, 0xfd, 0x80, 0x7d, 0xbf, 0x35, 0x44, 0xa3, 0x47, 0x41, 0x7e, 0xf4, 0x16, 0xd8,
+	0xbd, 0x4b, 0xab, 0x4a, 0xa4, 0x50, 0x40, 0xde, 0xe0, 0x8e, 0x71, 0xb4, 0xf0, 0xe8, 0xa9, 0xf5,
+	0xc8, 0x58, 0x5d, 0xb9, 0x14, 0xd8, 0x16, 0xef, 0x0f, 0xaa, 0xdb, 0xfd, 0x21, 0x05, 0xa6, 0xa1,
+	0xb4, 0xfb, 0x96, 0x26, 0x74, 0x61, 0x4d, 0xcd, 0x4a, 0x13, 0x79, 0x8d, 0xdb, 0x6b, 0xa6, 0x99,
+	0x91, 0xd9, 0x9d, 0x3c, 0xb3, 0x4b, 0x97, 0x41, 0xa1, 0x4b, 0x93, 0x9f, 0xc0, 0xb4, 0x78, 0x50,
+	0x97, 0x5f, 0xee, 0x5c, 0xc8, 0xbf, 0xd4, 0x8f, 0x4e, 0xfe, 0x23, 0xdc, 0x3b, 0x9e, 0x43, 0xbe,
+	0x62, 0xc7, 0xce, 0x22, 0x2f, 0x4f, 0xe6, 0xae, 0x66, 0xa0, 0xfb, 0xea, 0xde, 0x3e, 0xbb, 0xb4,
+	0xd7, 0x20, 0xdf, 0xb0, 0x63, 0xff, 0xf1, 0x0c, 0x79, 0x2d, 0xd4, 0x67, 0xc8, 0xeb, 0x81, 0xf0,
+	0x1a, 0xef, 0xd0, 0xac, 0xf3, 0xa5, 0xc5, 0x12, 0xbe, 0x72, 0x8c, 0xa3, 0xd3, 0xeb, 0x00, 0x00,
+	0x00, 0xff, 0xff, 0x44, 0xb0, 0xc1, 0x23, 0xeb, 0x03, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -241,40 +282,40 @@ var _ grpc.ClientConn
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion4
 
-// EventClient is the client API for Event service.
+// EventServiceClient is the client API for EventService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
-type EventClient interface {
+type EventServiceClient interface {
 	// Create creates event with data.
-	Create(ctx context.Context, in *CreateEventRequest, opts ...grpc.CallOption) (*CreateEventResponse, error)
+	Create(ctx context.Context, in *EventServiceCreateRequest, opts ...grpc.CallOption) (*EventServiceCreateResponse, error)
 	// Stream returns a stream of events that satisfy criteria
 	// specified in a request.
-	Stream(ctx context.Context, in *StreamEventRequest, opts ...grpc.CallOption) (Event_StreamClient, error)
+	Stream(ctx context.Context, in *EventServiceStreamRequest, opts ...grpc.CallOption) (EventService_StreamClient, error)
 }
 
-type eventClient struct {
+type eventServiceClient struct {
 	cc *grpc.ClientConn
 }
 
-func NewEventClient(cc *grpc.ClientConn) EventClient {
-	return &eventClient{cc}
+func NewEventServiceClient(cc *grpc.ClientConn) EventServiceClient {
+	return &eventServiceClient{cc}
 }
 
-func (c *eventClient) Create(ctx context.Context, in *CreateEventRequest, opts ...grpc.CallOption) (*CreateEventResponse, error) {
-	out := new(CreateEventResponse)
-	err := c.cc.Invoke(ctx, "/mesg.api.Event/Create", in, out, opts...)
+func (c *eventServiceClient) Create(ctx context.Context, in *EventServiceCreateRequest, opts ...grpc.CallOption) (*EventServiceCreateResponse, error) {
+	out := new(EventServiceCreateResponse)
+	err := c.cc.Invoke(ctx, "/mesg.api.v1.EventService/Create", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *eventClient) Stream(ctx context.Context, in *StreamEventRequest, opts ...grpc.CallOption) (Event_StreamClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_Event_serviceDesc.Streams[0], "/mesg.api.Event/Stream", opts...)
+func (c *eventServiceClient) Stream(ctx context.Context, in *EventServiceStreamRequest, opts ...grpc.CallOption) (EventService_StreamClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_EventService_serviceDesc.Streams[0], "/mesg.api.v1.EventService/Stream", opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &eventStreamClient{stream}
+	x := &eventServiceStreamClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -284,99 +325,99 @@ func (c *eventClient) Stream(ctx context.Context, in *StreamEventRequest, opts .
 	return x, nil
 }
 
-type Event_StreamClient interface {
-	Recv() (*event.Event, error)
+type EventService_StreamClient interface {
+	Recv() (*EventServiceStreamResponse, error)
 	grpc.ClientStream
 }
 
-type eventStreamClient struct {
+type eventServiceStreamClient struct {
 	grpc.ClientStream
 }
 
-func (x *eventStreamClient) Recv() (*event.Event, error) {
-	m := new(event.Event)
+func (x *eventServiceStreamClient) Recv() (*EventServiceStreamResponse, error) {
+	m := new(EventServiceStreamResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-// EventServer is the server API for Event service.
-type EventServer interface {
+// EventServiceServer is the server API for EventService service.
+type EventServiceServer interface {
 	// Create creates event with data.
-	Create(context.Context, *CreateEventRequest) (*CreateEventResponse, error)
+	Create(context.Context, *EventServiceCreateRequest) (*EventServiceCreateResponse, error)
 	// Stream returns a stream of events that satisfy criteria
 	// specified in a request.
-	Stream(*StreamEventRequest, Event_StreamServer) error
+	Stream(*EventServiceStreamRequest, EventService_StreamServer) error
 }
 
-// UnimplementedEventServer can be embedded to have forward compatible implementations.
-type UnimplementedEventServer struct {
+// UnimplementedEventServiceServer can be embedded to have forward compatible implementations.
+type UnimplementedEventServiceServer struct {
 }
 
-func (*UnimplementedEventServer) Create(ctx context.Context, req *CreateEventRequest) (*CreateEventResponse, error) {
+func (*UnimplementedEventServiceServer) Create(ctx context.Context, req *EventServiceCreateRequest) (*EventServiceCreateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
-func (*UnimplementedEventServer) Stream(req *StreamEventRequest, srv Event_StreamServer) error {
+func (*UnimplementedEventServiceServer) Stream(req *EventServiceStreamRequest, srv EventService_StreamServer) error {
 	return status.Errorf(codes.Unimplemented, "method Stream not implemented")
 }
 
-func RegisterEventServer(s *grpc.Server, srv EventServer) {
-	s.RegisterService(&_Event_serviceDesc, srv)
+func RegisterEventServiceServer(s *grpc.Server, srv EventServiceServer) {
+	s.RegisterService(&_EventService_serviceDesc, srv)
 }
 
-func _Event_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateEventRequest)
+func _EventService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EventServiceCreateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(EventServer).Create(ctx, in)
+		return srv.(EventServiceServer).Create(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mesg.api.Event/Create",
+		FullMethod: "/mesg.api.v1.EventService/Create",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(EventServer).Create(ctx, req.(*CreateEventRequest))
+		return srv.(EventServiceServer).Create(ctx, req.(*EventServiceCreateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Event_Stream_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(StreamEventRequest)
+func _EventService_Stream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(EventServiceStreamRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(EventServer).Stream(m, &eventStreamServer{stream})
+	return srv.(EventServiceServer).Stream(m, &eventServiceStreamServer{stream})
 }
 
-type Event_StreamServer interface {
-	Send(*event.Event) error
+type EventService_StreamServer interface {
+	Send(*EventServiceStreamResponse) error
 	grpc.ServerStream
 }
 
-type eventStreamServer struct {
+type eventServiceStreamServer struct {
 	grpc.ServerStream
 }
 
-func (x *eventStreamServer) Send(m *event.Event) error {
+func (x *eventServiceStreamServer) Send(m *EventServiceStreamResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-var _Event_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "mesg.api.Event",
-	HandlerType: (*EventServer)(nil),
+var _EventService_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "mesg.api.v1.EventService",
+	HandlerType: (*EventServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Create",
-			Handler:    _Event_Create_Handler,
+			Handler:    _EventService_Create_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "Stream",
-			Handler:       _Event_Stream_Handler,
+			Handler:       _EventService_Stream_Handler,
 			ServerStreams: true,
 		},
 	},

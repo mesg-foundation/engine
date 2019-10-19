@@ -28,7 +28,7 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // The request's data for the `Create` API.
-type CreateProcessRequest struct {
+type ProcessServiceCreateRequest struct {
 	Key                  string                  `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
 	Nodes                []*process.Process_Node `protobuf:"bytes,4,rep,name=nodes,proto3" json:"nodes,omitempty"`
 	Edges                []*process.Process_Edge `protobuf:"bytes,5,rep,name=edges,proto3" json:"edges,omitempty"`
@@ -37,45 +37,45 @@ type CreateProcessRequest struct {
 	XXX_sizecache        int32                   `json:"-"`
 }
 
-func (m *CreateProcessRequest) Reset()         { *m = CreateProcessRequest{} }
-func (m *CreateProcessRequest) String() string { return proto.CompactTextString(m) }
-func (*CreateProcessRequest) ProtoMessage()    {}
-func (*CreateProcessRequest) Descriptor() ([]byte, []int) {
+func (m *ProcessServiceCreateRequest) Reset()         { *m = ProcessServiceCreateRequest{} }
+func (m *ProcessServiceCreateRequest) String() string { return proto.CompactTextString(m) }
+func (*ProcessServiceCreateRequest) ProtoMessage()    {}
+func (*ProcessServiceCreateRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_e79ddb1ea8859998, []int{0}
 }
-func (m *CreateProcessRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_CreateProcessRequest.Unmarshal(m, b)
+func (m *ProcessServiceCreateRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ProcessServiceCreateRequest.Unmarshal(m, b)
 }
-func (m *CreateProcessRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_CreateProcessRequest.Marshal(b, m, deterministic)
+func (m *ProcessServiceCreateRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ProcessServiceCreateRequest.Marshal(b, m, deterministic)
 }
-func (m *CreateProcessRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CreateProcessRequest.Merge(m, src)
+func (m *ProcessServiceCreateRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ProcessServiceCreateRequest.Merge(m, src)
 }
-func (m *CreateProcessRequest) XXX_Size() int {
-	return xxx_messageInfo_CreateProcessRequest.Size(m)
+func (m *ProcessServiceCreateRequest) XXX_Size() int {
+	return xxx_messageInfo_ProcessServiceCreateRequest.Size(m)
 }
-func (m *CreateProcessRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_CreateProcessRequest.DiscardUnknown(m)
+func (m *ProcessServiceCreateRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ProcessServiceCreateRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_CreateProcessRequest proto.InternalMessageInfo
+var xxx_messageInfo_ProcessServiceCreateRequest proto.InternalMessageInfo
 
-func (m *CreateProcessRequest) GetKey() string {
+func (m *ProcessServiceCreateRequest) GetKey() string {
 	if m != nil {
 		return m.Key
 	}
 	return ""
 }
 
-func (m *CreateProcessRequest) GetNodes() []*process.Process_Node {
+func (m *ProcessServiceCreateRequest) GetNodes() []*process.Process_Node {
 	if m != nil {
 		return m.Nodes
 	}
 	return nil
 }
 
-func (m *CreateProcessRequest) GetEdges() []*process.Process_Edge {
+func (m *ProcessServiceCreateRequest) GetEdges() []*process.Process_Edge {
 	if m != nil {
 		return m.Edges
 	}
@@ -83,7 +83,7 @@ func (m *CreateProcessRequest) GetEdges() []*process.Process_Edge {
 }
 
 // The response's data for the `Create` API.
-type CreateProcessResponse struct {
+type ProcessServiceCreateResponse struct {
 	// The process's hash created.
 	Hash                 github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,1,opt,name=hash,proto3,customtype=github.com/mesg-foundation/engine/hash.Hash" json:"hash"`
 	XXX_NoUnkeyedLiteral struct{}                                    `json:"-"`
@@ -91,32 +91,32 @@ type CreateProcessResponse struct {
 	XXX_sizecache        int32                                       `json:"-"`
 }
 
-func (m *CreateProcessResponse) Reset()         { *m = CreateProcessResponse{} }
-func (m *CreateProcessResponse) String() string { return proto.CompactTextString(m) }
-func (*CreateProcessResponse) ProtoMessage()    {}
-func (*CreateProcessResponse) Descriptor() ([]byte, []int) {
+func (m *ProcessServiceCreateResponse) Reset()         { *m = ProcessServiceCreateResponse{} }
+func (m *ProcessServiceCreateResponse) String() string { return proto.CompactTextString(m) }
+func (*ProcessServiceCreateResponse) ProtoMessage()    {}
+func (*ProcessServiceCreateResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_e79ddb1ea8859998, []int{1}
 }
-func (m *CreateProcessResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_CreateProcessResponse.Unmarshal(m, b)
+func (m *ProcessServiceCreateResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ProcessServiceCreateResponse.Unmarshal(m, b)
 }
-func (m *CreateProcessResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_CreateProcessResponse.Marshal(b, m, deterministic)
+func (m *ProcessServiceCreateResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ProcessServiceCreateResponse.Marshal(b, m, deterministic)
 }
-func (m *CreateProcessResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CreateProcessResponse.Merge(m, src)
+func (m *ProcessServiceCreateResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ProcessServiceCreateResponse.Merge(m, src)
 }
-func (m *CreateProcessResponse) XXX_Size() int {
-	return xxx_messageInfo_CreateProcessResponse.Size(m)
+func (m *ProcessServiceCreateResponse) XXX_Size() int {
+	return xxx_messageInfo_ProcessServiceCreateResponse.Size(m)
 }
-func (m *CreateProcessResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_CreateProcessResponse.DiscardUnknown(m)
+func (m *ProcessServiceCreateResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ProcessServiceCreateResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_CreateProcessResponse proto.InternalMessageInfo
+var xxx_messageInfo_ProcessServiceCreateResponse proto.InternalMessageInfo
 
 // The request's data for the `Delete` API.
-type DeleteProcessRequest struct {
+type ProcessServiceDeleteRequest struct {
 	// The process's hash to delete.
 	Hash                 github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,1,opt,name=hash,proto3,customtype=github.com/mesg-foundation/engine/hash.Hash" json:"hash"`
 	XXX_NoUnkeyedLiteral struct{}                                    `json:"-"`
@@ -124,63 +124,63 @@ type DeleteProcessRequest struct {
 	XXX_sizecache        int32                                       `json:"-"`
 }
 
-func (m *DeleteProcessRequest) Reset()         { *m = DeleteProcessRequest{} }
-func (m *DeleteProcessRequest) String() string { return proto.CompactTextString(m) }
-func (*DeleteProcessRequest) ProtoMessage()    {}
-func (*DeleteProcessRequest) Descriptor() ([]byte, []int) {
+func (m *ProcessServiceDeleteRequest) Reset()         { *m = ProcessServiceDeleteRequest{} }
+func (m *ProcessServiceDeleteRequest) String() string { return proto.CompactTextString(m) }
+func (*ProcessServiceDeleteRequest) ProtoMessage()    {}
+func (*ProcessServiceDeleteRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_e79ddb1ea8859998, []int{2}
 }
-func (m *DeleteProcessRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_DeleteProcessRequest.Unmarshal(m, b)
+func (m *ProcessServiceDeleteRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ProcessServiceDeleteRequest.Unmarshal(m, b)
 }
-func (m *DeleteProcessRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_DeleteProcessRequest.Marshal(b, m, deterministic)
+func (m *ProcessServiceDeleteRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ProcessServiceDeleteRequest.Marshal(b, m, deterministic)
 }
-func (m *DeleteProcessRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DeleteProcessRequest.Merge(m, src)
+func (m *ProcessServiceDeleteRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ProcessServiceDeleteRequest.Merge(m, src)
 }
-func (m *DeleteProcessRequest) XXX_Size() int {
-	return xxx_messageInfo_DeleteProcessRequest.Size(m)
+func (m *ProcessServiceDeleteRequest) XXX_Size() int {
+	return xxx_messageInfo_ProcessServiceDeleteRequest.Size(m)
 }
-func (m *DeleteProcessRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_DeleteProcessRequest.DiscardUnknown(m)
+func (m *ProcessServiceDeleteRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ProcessServiceDeleteRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_DeleteProcessRequest proto.InternalMessageInfo
+var xxx_messageInfo_ProcessServiceDeleteRequest proto.InternalMessageInfo
 
 // The response's data for the `Delete` API, doesn't contain anything.
-type DeleteProcessResponse struct {
+type ProcessServiceDeleteResponse struct {
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *DeleteProcessResponse) Reset()         { *m = DeleteProcessResponse{} }
-func (m *DeleteProcessResponse) String() string { return proto.CompactTextString(m) }
-func (*DeleteProcessResponse) ProtoMessage()    {}
-func (*DeleteProcessResponse) Descriptor() ([]byte, []int) {
+func (m *ProcessServiceDeleteResponse) Reset()         { *m = ProcessServiceDeleteResponse{} }
+func (m *ProcessServiceDeleteResponse) String() string { return proto.CompactTextString(m) }
+func (*ProcessServiceDeleteResponse) ProtoMessage()    {}
+func (*ProcessServiceDeleteResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_e79ddb1ea8859998, []int{3}
 }
-func (m *DeleteProcessResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_DeleteProcessResponse.Unmarshal(m, b)
+func (m *ProcessServiceDeleteResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ProcessServiceDeleteResponse.Unmarshal(m, b)
 }
-func (m *DeleteProcessResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_DeleteProcessResponse.Marshal(b, m, deterministic)
+func (m *ProcessServiceDeleteResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ProcessServiceDeleteResponse.Marshal(b, m, deterministic)
 }
-func (m *DeleteProcessResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DeleteProcessResponse.Merge(m, src)
+func (m *ProcessServiceDeleteResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ProcessServiceDeleteResponse.Merge(m, src)
 }
-func (m *DeleteProcessResponse) XXX_Size() int {
-	return xxx_messageInfo_DeleteProcessResponse.Size(m)
+func (m *ProcessServiceDeleteResponse) XXX_Size() int {
+	return xxx_messageInfo_ProcessServiceDeleteResponse.Size(m)
 }
-func (m *DeleteProcessResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_DeleteProcessResponse.DiscardUnknown(m)
+func (m *ProcessServiceDeleteResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ProcessServiceDeleteResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_DeleteProcessResponse proto.InternalMessageInfo
+var xxx_messageInfo_ProcessServiceDeleteResponse proto.InternalMessageInfo
 
 // The request's data for the `Get` API.
-type GetProcessRequest struct {
+type ProcessServiceGetRequest struct {
 	// The process's hash to fetch.
 	Hash                 github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,1,opt,name=hash,proto3,customtype=github.com/mesg-foundation/engine/hash.Hash" json:"hash"`
 	XXX_NoUnkeyedLiteral struct{}                                    `json:"-"`
@@ -188,63 +188,101 @@ type GetProcessRequest struct {
 	XXX_sizecache        int32                                       `json:"-"`
 }
 
-func (m *GetProcessRequest) Reset()         { *m = GetProcessRequest{} }
-func (m *GetProcessRequest) String() string { return proto.CompactTextString(m) }
-func (*GetProcessRequest) ProtoMessage()    {}
-func (*GetProcessRequest) Descriptor() ([]byte, []int) {
+func (m *ProcessServiceGetRequest) Reset()         { *m = ProcessServiceGetRequest{} }
+func (m *ProcessServiceGetRequest) String() string { return proto.CompactTextString(m) }
+func (*ProcessServiceGetRequest) ProtoMessage()    {}
+func (*ProcessServiceGetRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_e79ddb1ea8859998, []int{4}
 }
-func (m *GetProcessRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_GetProcessRequest.Unmarshal(m, b)
+func (m *ProcessServiceGetRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ProcessServiceGetRequest.Unmarshal(m, b)
 }
-func (m *GetProcessRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_GetProcessRequest.Marshal(b, m, deterministic)
+func (m *ProcessServiceGetRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ProcessServiceGetRequest.Marshal(b, m, deterministic)
 }
-func (m *GetProcessRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetProcessRequest.Merge(m, src)
+func (m *ProcessServiceGetRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ProcessServiceGetRequest.Merge(m, src)
 }
-func (m *GetProcessRequest) XXX_Size() int {
-	return xxx_messageInfo_GetProcessRequest.Size(m)
+func (m *ProcessServiceGetRequest) XXX_Size() int {
+	return xxx_messageInfo_ProcessServiceGetRequest.Size(m)
 }
-func (m *GetProcessRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_GetProcessRequest.DiscardUnknown(m)
+func (m *ProcessServiceGetRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ProcessServiceGetRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_GetProcessRequest proto.InternalMessageInfo
+var xxx_messageInfo_ProcessServiceGetRequest proto.InternalMessageInfo
+
+type ProcessServiceGetResponse struct {
+	Process              *process.Process `protobuf:"bytes,1,opt,name=process,proto3" json:"process,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
+	XXX_unrecognized     []byte           `json:"-"`
+	XXX_sizecache        int32            `json:"-"`
+}
+
+func (m *ProcessServiceGetResponse) Reset()         { *m = ProcessServiceGetResponse{} }
+func (m *ProcessServiceGetResponse) String() string { return proto.CompactTextString(m) }
+func (*ProcessServiceGetResponse) ProtoMessage()    {}
+func (*ProcessServiceGetResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_e79ddb1ea8859998, []int{5}
+}
+func (m *ProcessServiceGetResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ProcessServiceGetResponse.Unmarshal(m, b)
+}
+func (m *ProcessServiceGetResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ProcessServiceGetResponse.Marshal(b, m, deterministic)
+}
+func (m *ProcessServiceGetResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ProcessServiceGetResponse.Merge(m, src)
+}
+func (m *ProcessServiceGetResponse) XXX_Size() int {
+	return xxx_messageInfo_ProcessServiceGetResponse.Size(m)
+}
+func (m *ProcessServiceGetResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ProcessServiceGetResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ProcessServiceGetResponse proto.InternalMessageInfo
+
+func (m *ProcessServiceGetResponse) GetProcess() *process.Process {
+	if m != nil {
+		return m.Process
+	}
+	return nil
+}
 
 // The request's data for the `List` API.
-type ListProcessRequest struct {
+type ProcessServiceListRequest struct {
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ListProcessRequest) Reset()         { *m = ListProcessRequest{} }
-func (m *ListProcessRequest) String() string { return proto.CompactTextString(m) }
-func (*ListProcessRequest) ProtoMessage()    {}
-func (*ListProcessRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e79ddb1ea8859998, []int{5}
+func (m *ProcessServiceListRequest) Reset()         { *m = ProcessServiceListRequest{} }
+func (m *ProcessServiceListRequest) String() string { return proto.CompactTextString(m) }
+func (*ProcessServiceListRequest) ProtoMessage()    {}
+func (*ProcessServiceListRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_e79ddb1ea8859998, []int{6}
 }
-func (m *ListProcessRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ListProcessRequest.Unmarshal(m, b)
+func (m *ProcessServiceListRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ProcessServiceListRequest.Unmarshal(m, b)
 }
-func (m *ListProcessRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ListProcessRequest.Marshal(b, m, deterministic)
+func (m *ProcessServiceListRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ProcessServiceListRequest.Marshal(b, m, deterministic)
 }
-func (m *ListProcessRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ListProcessRequest.Merge(m, src)
+func (m *ProcessServiceListRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ProcessServiceListRequest.Merge(m, src)
 }
-func (m *ListProcessRequest) XXX_Size() int {
-	return xxx_messageInfo_ListProcessRequest.Size(m)
+func (m *ProcessServiceListRequest) XXX_Size() int {
+	return xxx_messageInfo_ProcessServiceListRequest.Size(m)
 }
-func (m *ListProcessRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_ListProcessRequest.DiscardUnknown(m)
+func (m *ProcessServiceListRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ProcessServiceListRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_ListProcessRequest proto.InternalMessageInfo
+var xxx_messageInfo_ProcessServiceListRequest proto.InternalMessageInfo
 
 // The response's data for the `List` API.
-type ListProcessResponse struct {
+type ProcessServiceListResponse struct {
 	// List of processes that match the request's filters.
 	Processes            []*process.Process `protobuf:"bytes,1,rep,name=processes,proto3" json:"processes,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}           `json:"-"`
@@ -252,31 +290,31 @@ type ListProcessResponse struct {
 	XXX_sizecache        int32              `json:"-"`
 }
 
-func (m *ListProcessResponse) Reset()         { *m = ListProcessResponse{} }
-func (m *ListProcessResponse) String() string { return proto.CompactTextString(m) }
-func (*ListProcessResponse) ProtoMessage()    {}
-func (*ListProcessResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e79ddb1ea8859998, []int{6}
+func (m *ProcessServiceListResponse) Reset()         { *m = ProcessServiceListResponse{} }
+func (m *ProcessServiceListResponse) String() string { return proto.CompactTextString(m) }
+func (*ProcessServiceListResponse) ProtoMessage()    {}
+func (*ProcessServiceListResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_e79ddb1ea8859998, []int{7}
 }
-func (m *ListProcessResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ListProcessResponse.Unmarshal(m, b)
+func (m *ProcessServiceListResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ProcessServiceListResponse.Unmarshal(m, b)
 }
-func (m *ListProcessResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ListProcessResponse.Marshal(b, m, deterministic)
+func (m *ProcessServiceListResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ProcessServiceListResponse.Marshal(b, m, deterministic)
 }
-func (m *ListProcessResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ListProcessResponse.Merge(m, src)
+func (m *ProcessServiceListResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ProcessServiceListResponse.Merge(m, src)
 }
-func (m *ListProcessResponse) XXX_Size() int {
-	return xxx_messageInfo_ListProcessResponse.Size(m)
+func (m *ProcessServiceListResponse) XXX_Size() int {
+	return xxx_messageInfo_ProcessServiceListResponse.Size(m)
 }
-func (m *ListProcessResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_ListProcessResponse.DiscardUnknown(m)
+func (m *ProcessServiceListResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ProcessServiceListResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_ListProcessResponse proto.InternalMessageInfo
+var xxx_messageInfo_ProcessServiceListResponse proto.InternalMessageInfo
 
-func (m *ListProcessResponse) GetProcesses() []*process.Process {
+func (m *ProcessServiceListResponse) GetProcesses() []*process.Process {
 	if m != nil {
 		return m.Processes
 	}
@@ -284,45 +322,48 @@ func (m *ListProcessResponse) GetProcesses() []*process.Process {
 }
 
 func init() {
-	proto.RegisterType((*CreateProcessRequest)(nil), "mesg.api.CreateProcessRequest")
-	proto.RegisterType((*CreateProcessResponse)(nil), "mesg.api.CreateProcessResponse")
-	proto.RegisterType((*DeleteProcessRequest)(nil), "mesg.api.DeleteProcessRequest")
-	proto.RegisterType((*DeleteProcessResponse)(nil), "mesg.api.DeleteProcessResponse")
-	proto.RegisterType((*GetProcessRequest)(nil), "mesg.api.GetProcessRequest")
-	proto.RegisterType((*ListProcessRequest)(nil), "mesg.api.ListProcessRequest")
-	proto.RegisterType((*ListProcessResponse)(nil), "mesg.api.ListProcessResponse")
+	proto.RegisterType((*ProcessServiceCreateRequest)(nil), "mesg.api.v1.ProcessServiceCreateRequest")
+	proto.RegisterType((*ProcessServiceCreateResponse)(nil), "mesg.api.v1.ProcessServiceCreateResponse")
+	proto.RegisterType((*ProcessServiceDeleteRequest)(nil), "mesg.api.v1.ProcessServiceDeleteRequest")
+	proto.RegisterType((*ProcessServiceDeleteResponse)(nil), "mesg.api.v1.ProcessServiceDeleteResponse")
+	proto.RegisterType((*ProcessServiceGetRequest)(nil), "mesg.api.v1.ProcessServiceGetRequest")
+	proto.RegisterType((*ProcessServiceGetResponse)(nil), "mesg.api.v1.ProcessServiceGetResponse")
+	proto.RegisterType((*ProcessServiceListRequest)(nil), "mesg.api.v1.ProcessServiceListRequest")
+	proto.RegisterType((*ProcessServiceListResponse)(nil), "mesg.api.v1.ProcessServiceListResponse")
 }
 
 func init() { proto.RegisterFile("protobuf/api/process.proto", fileDescriptor_e79ddb1ea8859998) }
 
 var fileDescriptor_e79ddb1ea8859998 = []byte{
-	// 402 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x53, 0xcd, 0x6e, 0xe2, 0x40,
-	0x0c, 0x4e, 0x08, 0xb0, 0x8b, 0x77, 0x0f, 0xbb, 0x03, 0x68, 0xa3, 0x2c, 0x2d, 0x28, 0x27, 0xa4,
-	0xaa, 0x13, 0x15, 0x4e, 0xbd, 0xd2, 0x22, 0x90, 0x5a, 0x55, 0x55, 0x8e, 0x55, 0xa5, 0x36, 0x10,
-	0x93, 0x44, 0x2d, 0x99, 0x94, 0x99, 0x1c, 0x78, 0x83, 0xbe, 0x48, 0xdf, 0xa5, 0xcf, 0xd0, 0x03,
-	0xcf, 0x52, 0x65, 0x12, 0xfe, 0xc3, 0xad, 0xbd, 0x8d, 0xed, 0xcf, 0x9f, 0xed, 0xcf, 0x1e, 0x30,
-	0xa2, 0x19, 0x13, 0x6c, 0x14, 0x4f, 0x2c, 0x27, 0x0a, 0xac, 0x68, 0xc6, 0xc6, 0xc8, 0x39, 0x95,
-	0x4e, 0xf2, 0x73, 0x8a, 0xdc, 0xa3, 0x4e, 0x14, 0x18, 0xa6, 0xc7, 0x3c, 0x66, 0xad, 0xa0, 0x89,
-	0x25, 0x0d, 0xf9, 0x4a, 0xd1, 0x46, 0x63, 0x15, 0x16, 0xf3, 0x08, 0xf9, 0x36, 0x97, 0xf9, 0xaa,
-	0x42, 0xed, 0x62, 0x86, 0x8e, 0xc0, 0xdb, 0xd4, 0x6f, 0xe3, 0x4b, 0x8c, 0x5c, 0x90, 0x3f, 0xa0,
-	0x3d, 0xe1, 0x5c, 0x2f, 0xb4, 0xd4, 0x76, 0xc5, 0x4e, 0x9e, 0x84, 0x42, 0x29, 0x64, 0x2e, 0x72,
-	0xbd, 0xd8, 0xd2, 0xda, 0xbf, 0x3a, 0x3a, 0x95, 0x6d, 0x48, 0x52, 0x9a, 0x25, 0xd3, 0x1b, 0xe6,
-	0xa2, 0x9d, 0xc2, 0x12, 0x3c, 0xba, 0x1e, 0x72, 0xbd, 0x74, 0x18, 0xdf, 0x77, 0x3d, 0xb4, 0x53,
-	0x98, 0xf9, 0x08, 0xf5, 0x9d, 0x4e, 0x78, 0xc4, 0x42, 0x8e, 0x64, 0x00, 0x45, 0xdf, 0xe1, 0xbe,
-	0xae, 0xb6, 0xd4, 0xf6, 0xef, 0x5e, 0xf7, 0x7d, 0xd1, 0x54, 0x3e, 0x16, 0xcd, 0x13, 0x2f, 0x10,
-	0x7e, 0x3c, 0xa2, 0x63, 0x36, 0xb5, 0x12, 0xe6, 0xd3, 0x09, 0x8b, 0x43, 0xd7, 0x11, 0x01, 0x0b,
-	0x2d, 0x0c, 0xbd, 0x20, 0x44, 0x2b, 0xc9, 0xa2, 0x43, 0x87, 0xfb, 0xb6, 0x24, 0x30, 0x1f, 0xa0,
-	0x76, 0x89, 0xcf, 0xb8, 0x37, 0xeb, 0x97, 0x15, 0xf8, 0x07, 0xf5, 0x9d, 0x02, 0xe9, 0x08, 0xe6,
-	0x3d, 0xfc, 0x1d, 0xa0, 0xf8, 0xae, 0xb2, 0x35, 0x20, 0xd7, 0x01, 0xdf, 0xa1, 0x37, 0x87, 0x50,
-	0xdd, 0xf2, 0x66, 0x6a, 0x9e, 0x41, 0x25, 0x3b, 0x01, 0xe4, 0xba, 0x2a, 0x57, 0x53, 0xcd, 0x59,
-	0x8d, 0xbd, 0x46, 0x75, 0xde, 0x0a, 0xf0, 0x23, 0x73, 0x93, 0x2b, 0x28, 0xa7, 0x5b, 0x22, 0xc7,
-	0x74, 0x79, 0x87, 0x34, 0xef, 0x82, 0x8c, 0xe6, 0xc1, 0x78, 0x26, 0x8a, 0x92, 0x90, 0xa5, 0x7a,
-	0x6d, 0x92, 0xe5, 0xad, 0x68, 0x93, 0x2c, 0x5f, 0x61, 0x85, 0x9c, 0x83, 0x36, 0x40, 0x41, 0xfe,
-	0xaf, 0x91, 0x7b, 0x92, 0x1b, 0x79, 0x93, 0x9a, 0x0a, 0xe9, 0x43, 0x31, 0x91, 0x8a, 0x34, 0xd6,
-	0xb9, 0xfb, 0x82, 0x1a, 0x47, 0x07, 0xa2, 0xcb, 0x0e, 0x7a, 0xa5, 0x3b, 0xcd, 0x89, 0x82, 0x51,
-	0x59, 0x7e, 0xad, 0xee, 0x67, 0x00, 0x00, 0x00, 0xff, 0xff, 0xa9, 0x20, 0x62, 0x36, 0xc4, 0x03,
-	0x00, 0x00,
+	// 437 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x94, 0x5f, 0xae, 0x93, 0x40,
+	0x14, 0xc6, 0x8b, 0xb4, 0xd7, 0xdc, 0xa9, 0x31, 0x66, 0x1e, 0x0c, 0xd2, 0x1b, 0xdb, 0x90, 0xa8,
+	0x18, 0xe3, 0x60, 0x5b, 0x57, 0x50, 0x35, 0xf5, 0x41, 0x8d, 0xc1, 0xc4, 0x44, 0x5f, 0x0c, 0x85,
+	0xd3, 0x61, 0xa2, 0x65, 0x90, 0x19, 0x9a, 0x74, 0x01, 0x2e, 0xc1, 0x3d, 0xb9, 0x06, 0x1f, 0xba,
+	0x16, 0x33, 0x03, 0xb4, 0x85, 0x10, 0xea, 0x43, 0xdf, 0xe6, 0xcf, 0x77, 0xbe, 0xdf, 0x39, 0x73,
+	0x0e, 0x20, 0x3b, 0xcd, 0xb8, 0xe4, 0xab, 0x7c, 0xed, 0x05, 0x29, 0xf3, 0xd2, 0x8c, 0x87, 0x20,
+	0x04, 0xd1, 0x87, 0x78, 0xb8, 0x01, 0x41, 0x49, 0x90, 0x32, 0xb2, 0x9d, 0xda, 0x0e, 0xe5, 0x94,
+	0x7b, 0x07, 0xb5, 0xda, 0xe9, 0x8d, 0x5e, 0x15, 0x01, 0xf6, 0xcd, 0xe1, 0x5a, 0xee, 0x52, 0x10,
+	0x75, 0x3b, 0xe7, 0xb7, 0x81, 0x46, 0x1f, 0x8b, 0x93, 0x4f, 0x90, 0x6d, 0x59, 0x08, 0xaf, 0x32,
+	0x08, 0x24, 0xf8, 0xf0, 0x33, 0x07, 0x21, 0xf1, 0x3d, 0x64, 0x7e, 0x87, 0x9d, 0x75, 0x6b, 0x62,
+	0xb8, 0xd7, 0xbe, 0x5a, 0xe2, 0x29, 0x1a, 0x24, 0x3c, 0x02, 0x61, 0xf5, 0x27, 0xa6, 0x3b, 0x9c,
+	0x8d, 0x88, 0x4e, 0x48, 0x7b, 0x93, 0xed, 0x94, 0x94, 0x66, 0xe4, 0x03, 0x8f, 0xc0, 0x2f, 0x94,
+	0x2a, 0x04, 0x22, 0x0a, 0xc2, 0x1a, 0x74, 0x86, 0xbc, 0x89, 0x28, 0xf8, 0x85, 0xd2, 0xa1, 0xe8,
+	0xa6, 0x3d, 0x2d, 0x91, 0xf2, 0x44, 0x00, 0x5e, 0xa2, 0x7e, 0x1c, 0x88, 0xd8, 0x32, 0x26, 0x86,
+	0x7b, 0x67, 0x31, 0xff, 0xb3, 0x1f, 0xf7, 0xfe, 0xee, 0xc7, 0xcf, 0x28, 0x93, 0x71, 0xbe, 0x22,
+	0x21, 0xdf, 0x78, 0x8a, 0xf1, 0x7c, 0xcd, 0xf3, 0x24, 0x0a, 0x24, 0xe3, 0x89, 0x07, 0x09, 0x65,
+	0x09, 0x78, 0x2a, 0x8a, 0xbc, 0x0d, 0x44, 0xec, 0x6b, 0x03, 0x67, 0xdd, 0xac, 0xff, 0x35, 0xfc,
+	0x80, 0x63, 0xfd, 0x17, 0xe3, 0x3c, 0x6c, 0x16, 0x54, 0x71, 0x8a, 0x82, 0x9c, 0x10, 0x59, 0xf5,
+	0xfb, 0x25, 0xc8, 0x8b, 0x27, 0xf1, 0x1e, 0x3d, 0x68, 0x81, 0x94, 0x4f, 0xfa, 0x02, 0xdd, 0x2e,
+	0x67, 0x43, 0x83, 0x86, 0xb3, 0xfb, 0xed, 0x7d, 0xf2, 0x2b, 0x99, 0x33, 0x6a, 0xda, 0xbd, 0x63,
+	0xa2, 0x4a, 0xda, 0xf1, 0x91, 0xdd, 0x76, 0x59, 0xc2, 0x5e, 0xa2, 0xeb, 0xd2, 0x05, 0x14, 0xce,
+	0xec, 0xc0, 0x1d, 0x85, 0xb3, 0x5f, 0x26, 0xba, 0x5b, 0x37, 0xc5, 0xdf, 0xd0, 0x55, 0x31, 0x1a,
+	0xd8, 0x25, 0x27, 0x9f, 0x06, 0xe9, 0x18, 0x6a, 0xfb, 0xe9, 0x7f, 0x28, 0xcb, 0xb6, 0xf4, 0x14,
+	0xa0, 0x68, 0x55, 0x27, 0xa0, 0x36, 0x35, 0x9d, 0x80, 0x46, 0xdf, 0x7b, 0xf8, 0x33, 0x32, 0x97,
+	0x20, 0xf1, 0xa3, 0x8e, 0x98, 0xe3, 0x2c, 0xd8, 0x8f, 0xcf, 0xc9, 0x0e, 0xbe, 0x5f, 0x50, 0x5f,
+	0x3d, 0x39, 0xee, 0x8a, 0x38, 0x69, 0x98, 0xfd, 0xe4, 0xac, 0xae, 0xb2, 0x5e, 0x0c, 0xbe, 0x9a,
+	0x41, 0xca, 0x56, 0x57, 0xfa, 0x1f, 0x32, 0xff, 0x17, 0x00, 0x00, 0xff, 0xff, 0x45, 0xe9, 0x00,
+	0xc4, 0xb0, 0x04, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -333,192 +374,192 @@ var _ grpc.ClientConn
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion4
 
-// ProcessClient is the client API for Process service.
+// ProcessServiceClient is the client API for ProcessService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
-type ProcessClient interface {
+type ProcessServiceClient interface {
 	// Create a Process from a Process Definition.
 	// It will return an unique identifier which is used to interact with the Process.
-	Create(ctx context.Context, in *CreateProcessRequest, opts ...grpc.CallOption) (*CreateProcessResponse, error)
+	Create(ctx context.Context, in *ProcessServiceCreateRequest, opts ...grpc.CallOption) (*ProcessServiceCreateResponse, error)
 	// Delete a process.
 	// An error is returned if one or more Instances of the process are running.
-	Delete(ctx context.Context, in *DeleteProcessRequest, opts ...grpc.CallOption) (*DeleteProcessResponse, error)
+	Delete(ctx context.Context, in *ProcessServiceDeleteRequest, opts ...grpc.CallOption) (*ProcessServiceDeleteResponse, error)
 	// Get returns a process matching the criteria of the request.
-	Get(ctx context.Context, in *GetProcessRequest, opts ...grpc.CallOption) (*process.Process, error)
+	Get(ctx context.Context, in *ProcessServiceGetRequest, opts ...grpc.CallOption) (*ProcessServiceGetResponse, error)
 	// List returns processes specified in a request.
-	List(ctx context.Context, in *ListProcessRequest, opts ...grpc.CallOption) (*ListProcessResponse, error)
+	List(ctx context.Context, in *ProcessServiceListRequest, opts ...grpc.CallOption) (*ProcessServiceListResponse, error)
 }
 
-type processClient struct {
+type processServiceClient struct {
 	cc *grpc.ClientConn
 }
 
-func NewProcessClient(cc *grpc.ClientConn) ProcessClient {
-	return &processClient{cc}
+func NewProcessServiceClient(cc *grpc.ClientConn) ProcessServiceClient {
+	return &processServiceClient{cc}
 }
 
-func (c *processClient) Create(ctx context.Context, in *CreateProcessRequest, opts ...grpc.CallOption) (*CreateProcessResponse, error) {
-	out := new(CreateProcessResponse)
-	err := c.cc.Invoke(ctx, "/mesg.api.Process/Create", in, out, opts...)
+func (c *processServiceClient) Create(ctx context.Context, in *ProcessServiceCreateRequest, opts ...grpc.CallOption) (*ProcessServiceCreateResponse, error) {
+	out := new(ProcessServiceCreateResponse)
+	err := c.cc.Invoke(ctx, "/mesg.api.v1.ProcessService/Create", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *processClient) Delete(ctx context.Context, in *DeleteProcessRequest, opts ...grpc.CallOption) (*DeleteProcessResponse, error) {
-	out := new(DeleteProcessResponse)
-	err := c.cc.Invoke(ctx, "/mesg.api.Process/Delete", in, out, opts...)
+func (c *processServiceClient) Delete(ctx context.Context, in *ProcessServiceDeleteRequest, opts ...grpc.CallOption) (*ProcessServiceDeleteResponse, error) {
+	out := new(ProcessServiceDeleteResponse)
+	err := c.cc.Invoke(ctx, "/mesg.api.v1.ProcessService/Delete", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *processClient) Get(ctx context.Context, in *GetProcessRequest, opts ...grpc.CallOption) (*process.Process, error) {
-	out := new(process.Process)
-	err := c.cc.Invoke(ctx, "/mesg.api.Process/Get", in, out, opts...)
+func (c *processServiceClient) Get(ctx context.Context, in *ProcessServiceGetRequest, opts ...grpc.CallOption) (*ProcessServiceGetResponse, error) {
+	out := new(ProcessServiceGetResponse)
+	err := c.cc.Invoke(ctx, "/mesg.api.v1.ProcessService/Get", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *processClient) List(ctx context.Context, in *ListProcessRequest, opts ...grpc.CallOption) (*ListProcessResponse, error) {
-	out := new(ListProcessResponse)
-	err := c.cc.Invoke(ctx, "/mesg.api.Process/List", in, out, opts...)
+func (c *processServiceClient) List(ctx context.Context, in *ProcessServiceListRequest, opts ...grpc.CallOption) (*ProcessServiceListResponse, error) {
+	out := new(ProcessServiceListResponse)
+	err := c.cc.Invoke(ctx, "/mesg.api.v1.ProcessService/List", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// ProcessServer is the server API for Process service.
-type ProcessServer interface {
+// ProcessServiceServer is the server API for ProcessService service.
+type ProcessServiceServer interface {
 	// Create a Process from a Process Definition.
 	// It will return an unique identifier which is used to interact with the Process.
-	Create(context.Context, *CreateProcessRequest) (*CreateProcessResponse, error)
+	Create(context.Context, *ProcessServiceCreateRequest) (*ProcessServiceCreateResponse, error)
 	// Delete a process.
 	// An error is returned if one or more Instances of the process are running.
-	Delete(context.Context, *DeleteProcessRequest) (*DeleteProcessResponse, error)
+	Delete(context.Context, *ProcessServiceDeleteRequest) (*ProcessServiceDeleteResponse, error)
 	// Get returns a process matching the criteria of the request.
-	Get(context.Context, *GetProcessRequest) (*process.Process, error)
+	Get(context.Context, *ProcessServiceGetRequest) (*ProcessServiceGetResponse, error)
 	// List returns processes specified in a request.
-	List(context.Context, *ListProcessRequest) (*ListProcessResponse, error)
+	List(context.Context, *ProcessServiceListRequest) (*ProcessServiceListResponse, error)
 }
 
-// UnimplementedProcessServer can be embedded to have forward compatible implementations.
-type UnimplementedProcessServer struct {
+// UnimplementedProcessServiceServer can be embedded to have forward compatible implementations.
+type UnimplementedProcessServiceServer struct {
 }
 
-func (*UnimplementedProcessServer) Create(ctx context.Context, req *CreateProcessRequest) (*CreateProcessResponse, error) {
+func (*UnimplementedProcessServiceServer) Create(ctx context.Context, req *ProcessServiceCreateRequest) (*ProcessServiceCreateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
-func (*UnimplementedProcessServer) Delete(ctx context.Context, req *DeleteProcessRequest) (*DeleteProcessResponse, error) {
+func (*UnimplementedProcessServiceServer) Delete(ctx context.Context, req *ProcessServiceDeleteRequest) (*ProcessServiceDeleteResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (*UnimplementedProcessServer) Get(ctx context.Context, req *GetProcessRequest) (*process.Process, error) {
+func (*UnimplementedProcessServiceServer) Get(ctx context.Context, req *ProcessServiceGetRequest) (*ProcessServiceGetResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
-func (*UnimplementedProcessServer) List(ctx context.Context, req *ListProcessRequest) (*ListProcessResponse, error) {
+func (*UnimplementedProcessServiceServer) List(ctx context.Context, req *ProcessServiceListRequest) (*ProcessServiceListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
 
-func RegisterProcessServer(s *grpc.Server, srv ProcessServer) {
-	s.RegisterService(&_Process_serviceDesc, srv)
+func RegisterProcessServiceServer(s *grpc.Server, srv ProcessServiceServer) {
+	s.RegisterService(&_ProcessService_serviceDesc, srv)
 }
 
-func _Process_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateProcessRequest)
+func _ProcessService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProcessServiceCreateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ProcessServer).Create(ctx, in)
+		return srv.(ProcessServiceServer).Create(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mesg.api.Process/Create",
+		FullMethod: "/mesg.api.v1.ProcessService/Create",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProcessServer).Create(ctx, req.(*CreateProcessRequest))
+		return srv.(ProcessServiceServer).Create(ctx, req.(*ProcessServiceCreateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Process_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteProcessRequest)
+func _ProcessService_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProcessServiceDeleteRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ProcessServer).Delete(ctx, in)
+		return srv.(ProcessServiceServer).Delete(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mesg.api.Process/Delete",
+		FullMethod: "/mesg.api.v1.ProcessService/Delete",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProcessServer).Delete(ctx, req.(*DeleteProcessRequest))
+		return srv.(ProcessServiceServer).Delete(ctx, req.(*ProcessServiceDeleteRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Process_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetProcessRequest)
+func _ProcessService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProcessServiceGetRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ProcessServer).Get(ctx, in)
+		return srv.(ProcessServiceServer).Get(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mesg.api.Process/Get",
+		FullMethod: "/mesg.api.v1.ProcessService/Get",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProcessServer).Get(ctx, req.(*GetProcessRequest))
+		return srv.(ProcessServiceServer).Get(ctx, req.(*ProcessServiceGetRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Process_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListProcessRequest)
+func _ProcessService_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProcessServiceListRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ProcessServer).List(ctx, in)
+		return srv.(ProcessServiceServer).List(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mesg.api.Process/List",
+		FullMethod: "/mesg.api.v1.ProcessService/List",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProcessServer).List(ctx, req.(*ListProcessRequest))
+		return srv.(ProcessServiceServer).List(ctx, req.(*ProcessServiceListRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-var _Process_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "mesg.api.Process",
-	HandlerType: (*ProcessServer)(nil),
+var _ProcessService_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "mesg.api.v1.ProcessService",
+	HandlerType: (*ProcessServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Create",
-			Handler:    _Process_Create_Handler,
+			Handler:    _ProcessService_Create_Handler,
 		},
 		{
 			MethodName: "Delete",
-			Handler:    _Process_Delete_Handler,
+			Handler:    _ProcessService_Delete_Handler,
 		},
 		{
 			MethodName: "Get",
-			Handler:    _Process_Get_Handler,
+			Handler:    _ProcessService_Get_Handler,
 		},
 		{
 			MethodName: "List",
-			Handler:    _Process_List_Handler,
+			Handler:    _ProcessService_List_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
