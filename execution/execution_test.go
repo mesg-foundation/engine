@@ -27,13 +27,13 @@ func TestNewFromService(t *testing.T) {
 	require.Equal(t, taskKey, execution.TaskKey)
 	require.Equal(t, (*types.Struct)(nil), execution.Inputs)
 	require.Equal(t, tags, execution.Tags)
-	require.Equal(t, Status_Created, execution.Status)
+	require.Equal(t, Status_STATUS_CREATED, execution.Status)
 }
 
 func TestExecute(t *testing.T) {
 	e := New(nil, nil, nil, nil, "", "", nil, nil)
 	require.NoError(t, e.Execute())
-	require.Equal(t, Status_InProgress, e.Status)
+	require.Equal(t, Status_STATUS_IN_PROGRESS, e.Status)
 	require.Error(t, e.Execute())
 }
 
@@ -43,7 +43,7 @@ func TestComplete(t *testing.T) {
 
 	e.Execute()
 	require.NoError(t, e.Complete(&output))
-	require.Equal(t, Status_Completed, e.Status)
+	require.Equal(t, Status_STATUS_COMPLETED, e.Status)
 	require.Equal(t, &output, e.Outputs)
 	require.Error(t, e.Complete(nil))
 }
@@ -53,7 +53,7 @@ func TestFailed(t *testing.T) {
 	e := New(nil, nil, nil, nil, "", "", nil, nil)
 	e.Execute()
 	require.NoError(t, e.Failed(err))
-	require.Equal(t, Status_Failed, e.Status)
+	require.Equal(t, Status_STATUS_FAILED, e.Status)
 	require.Equal(t, err.Error(), e.Error)
 	require.Error(t, e.Failed(err))
 }

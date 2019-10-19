@@ -105,28 +105,28 @@ func TestFilter(t *testing.T) {
 			err:    nil,
 		},
 		{
-			filter: o.dependencyFilter(&execution.Execution{InstanceHash: hash.Int(3), TaskKey: "2", ProcessHash: hash.Int(1), StepID: "2"}),
+			filter: o.dependencyFilter(&execution.Execution{InstanceHash: hash.Int(3), TaskKey: "2", ProcessHash: hash.Int(1), StepId: "2"}),
 			p:      &p,
 			n:      p.Nodes[2],
 			res:    true,
 			err:    nil,
 		},
 		{
-			filter: o.dependencyFilter(&execution.Execution{InstanceHash: hash.Int(3), TaskKey: "2", ProcessHash: hash.Int(2), StepID: "2"}),
+			filter: o.dependencyFilter(&execution.Execution{InstanceHash: hash.Int(3), TaskKey: "2", ProcessHash: hash.Int(2), StepId: "2"}),
 			p:      &p,
 			n:      p.Nodes[2],
 			res:    false,
 			err:    nil,
 		},
 		{
-			filter: o.dependencyFilter(&execution.Execution{InstanceHash: hash.Int(3), TaskKey: "2", ProcessHash: hash.Int(1), StepID: "1"}),
+			filter: o.dependencyFilter(&execution.Execution{InstanceHash: hash.Int(3), TaskKey: "2", ProcessHash: hash.Int(1), StepId: "1"}),
 			p:      &p,
 			n:      p.Nodes[2],
 			res:    false,
 			err:    nil,
 		},
 		{
-			filter: o.dependencyFilter(&execution.Execution{InstanceHash: hash.Int(3), TaskKey: "2", ProcessHash: hash.Int(1), StepID: "2"}),
+			filter: o.dependencyFilter(&execution.Execution{InstanceHash: hash.Int(3), TaskKey: "2", ProcessHash: hash.Int(1), StepId: "2"}),
 			p:      &p,
 			n:      p.Nodes[0],
 			res:    false,
@@ -173,7 +173,7 @@ func TestFindNode(t *testing.T) {
 // 	o := New(&mocks.EventSDK{}, e, &mocks.ProcessSDK{})
 // 	exec := &execution.Execution{
 // 		ProcessHash: hash.Int(1),
-// 		StepID:      "1",
+// 		StepId:      "1",
 // 		ParentHash:  hash.Int(2),
 // 		Outputs: &types.Struct{
 // 			Fields: map[string]*types.Value{
@@ -193,7 +193,7 @@ func TestResolveInput(t *testing.T) {
 	o := New(&mocks.EventSDK{}, e, &mocks.ProcessSDK{})
 	exec := &execution.Execution{
 		ProcessHash: hash.Int(2),
-		StepID:      "2",
+		StepId:      "2",
 		ParentHash:  hash.Int(3),
 		Outputs: &types.Struct{
 			Fields: map[string]*types.Value{
@@ -216,7 +216,7 @@ func TestResolveInput(t *testing.T) {
 	require.Error(t, err)
 	// Output from a previous exec
 	execMock := &execution.Execution{
-		StepID:      "3",
+		StepId:      "3",
 		ProcessHash: hash.Int(2),
 		Outputs: &types.Struct{
 			Fields: map[string]*types.Value{

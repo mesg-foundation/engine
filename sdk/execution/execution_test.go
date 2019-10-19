@@ -100,7 +100,7 @@ func TestGetStream(t *testing.T) {
 	defer at.close()
 
 	exec := execution.New(nil, nil, nil, nil, "", "", nil, nil)
-	exec.Status = execution.Status_InProgress
+	exec.Status = execution.Status_STATUS_IN_PROGRESS
 
 	require.NoError(t, sdk.execDB.Save(exec))
 
@@ -108,7 +108,7 @@ func TestGetStream(t *testing.T) {
 	defer stream.Close()
 
 	go sdk.ps.Pub(exec, streamTopic)
-	exec.Status = execution.Status_Failed
+	exec.Status = execution.Status_STATUS_FAILED
 	exec.Error = "exec-error"
 	require.Equal(t, exec, <-stream.C)
 }

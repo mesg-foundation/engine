@@ -20,7 +20,7 @@ func TestMatch(t *testing.T) {
 				Conditions: []Process_Node_Filter_Condition{
 					{
 						Key:       "foo",
-						Predicate: Process_Node_Filter_Condition_EQ,
+						Predicate: Process_Node_Filter_Condition_PREDICATE_EQ,
 						Value:     "xx",
 					},
 				},
@@ -42,12 +42,12 @@ func TestMatch(t *testing.T) {
 				Conditions: []Process_Node_Filter_Condition{
 					{
 						Key:       "foo",
-						Predicate: Process_Node_Filter_Condition_EQ,
+						Predicate: Process_Node_Filter_Condition_PREDICATE_EQ,
 						Value:     "bar",
 					},
 					{
 						Key:       "xxx",
-						Predicate: Process_Node_Filter_Condition_EQ,
+						Predicate: Process_Node_Filter_Condition_PREDICATE_EQ,
 						Value:     "yyy",
 					},
 				},
@@ -79,12 +79,12 @@ func TestMatch(t *testing.T) {
 				Conditions: []Process_Node_Filter_Condition{
 					{
 						Key:       "foo",
-						Predicate: Process_Node_Filter_Condition_EQ,
+						Predicate: Process_Node_Filter_Condition_PREDICATE_EQ,
 						Value:     "bar",
 					},
 					{
 						Key:       "xxx",
-						Predicate: Process_Node_Filter_Condition_EQ,
+						Predicate: Process_Node_Filter_Condition_PREDICATE_EQ,
 						Value:     "aaa",
 					},
 				},

@@ -36,13 +36,13 @@ func TestFilter(t *testing.T) {
 			false,
 		},
 		{
-			&Filter{Statuses: []execution.Status{execution.Status_Created}},
-			&execution.Execution{Status: execution.Status_Created},
+			&Filter{Statuses: []execution.Status{execution.Status_STATUS_CREATED}},
+			&execution.Execution{Status: execution.Status_STATUS_CREATED},
 			true,
 		},
 		{
-			&Filter{Statuses: []execution.Status{execution.Status_Created}},
-			&execution.Execution{Status: execution.Status_InProgress},
+			&Filter{Statuses: []execution.Status{execution.Status_STATUS_CREATED}},
+			&execution.Execution{Status: execution.Status_STATUS_IN_PROGRESS},
 			false,
 		},
 		{
