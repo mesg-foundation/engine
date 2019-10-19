@@ -3,7 +3,7 @@ syntax = "proto3";
 import "protobuf/types/account.proto";
 import "gogo/protobuf/gogoproto/gogo.proto";
 
-package mesg.api;
+package mesg.api.v1;
 option go_package = "api";
 
 // This is the API to interact with the Accounts.
@@ -11,49 +11,53 @@ option go_package = "api";
 // This API is a [gRPC](https://grpc.io/) API.
 //
 // The source file of this API is hosted on [GitHub](https://github.com/mesg-foundation/engine/blob/master/protobuf/api/account.proto).
-service Account {
+service AccountService {
 
   // Get returns an Account matching the criteria of the request.
-  rpc Get (GetAccountRequest) returns (types.Account) {}
+  rpc Get (AccountServiceGetRequest) returns (AccountServiceGetResponse) {}
 
   // List returns all Accounts matching the criteria of the request.
-  rpc List (ListAccountRequest) returns (ListAccountResponse) {}
+  rpc List (AccountServiceListRequest) returns (AccountServiceListResponse) {}
 
   // Create an Account with a name and password.
-  rpc Create (CreateAccountRequest) returns (CreateAccountResponse) {}
+  rpc Create (AccountServiceCreateRequest) returns (AccountServiceCreateResponse) {}
 
   // Delete an Account.
-  rpc Delete (DeleteAccountRequest) returns (DeleteAccountResponse) {}
+  rpc Delete (AccountServiceDeleteRequest) returns (AccountServiceDeleteResponse) {}
 }
 
 // The request's data for the `Get` API.
-message GetAccountRequest {
+message AccountServiceGetRequest {
   string name = 1;
 }
 
+message AccountServiceGetResponse {
+  types.v1.Account account = 1;
+}
+
 // The request's data for the `List` API.
-message ListAccountRequest {
+message AccountServiceListRequest {
 }
 
 // The response's data for the `List` API.
-message ListAccountResponse {
-  repeated types.Account accounts = 1;
+message AccountServiceListResponse {
+  repeated types.v1.Account accounts = 1;
 }
 
 // The request's data for the `Create` API.
-message CreateAccountRequest {
+message AccountServiceCreateRequest {
   string name = 1;
   string password = 2;
 }
 
 // The response's data for the `Create` API.
-message CreateAccountResponse {
+message AccountServiceCreateResponse {
   string address = 1;
   string mnemonic = 2;
 }
 
 // The request's data for the `Delete` API.
-message DeleteAccountRequest {}
+message AccountServiceDeleteRequest {}
 
 // The response's data for the `Delete` API.
-message DeleteAccountResponse {}
+message AccountServiceDeleteResponse {}

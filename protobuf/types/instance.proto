@@ -2,7 +2,7 @@ syntax = "proto3";
 
 import "gogo/protobuf/gogoproto/gogo.proto";
 
-package mesg.types;
+package mesg.types.v1;
 option go_package = "github.com/mesg-foundation/engine/instance";
 
 option (gogoproto.goproto_getters_all) = false;
@@ -14,7 +14,7 @@ message Instance {
     (gogoproto.nullable) = false
   ];
 
-  bytes serviceHash = 2 [
+  bytes service_hash = 2 [
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];

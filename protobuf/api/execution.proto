@@ -4,7 +4,7 @@ import "gogo/protobuf/gogoproto/gogo.proto";
 import "protobuf/types/struct.proto";
 import "protobuf/types/execution.proto";
 
-package mesg.api;
+package mesg.api.v1;
 option go_package = "api";
 
 // This is the API to interact with the Executions.
@@ -13,34 +13,34 @@ option go_package = "api";
 //
 // The source file of this API is hosted on [GitHub](https://github.com/mesg-foundation/engine/blob/master/protobuf/api/execution.proto).
 
-service Execution {
+service ExecutionService {
   // Create creates a single Execution specified in a request.
-  rpc Create(CreateExecutionRequest) returns (CreateExecutionResponse) {}
+  rpc Create(ExecutionServiceCreateRequest) returns (ExecutionServiceCreateResponse) {}
 
   // Get returns a single Execution specified in a request.
-  rpc Get(GetExecutionRequest) returns (types.Execution) {}
+  rpc Get(ExecutionServiceGetRequest) returns (ExecutionServiceGetResponse) {}
 
   // Stream returns a stream of executions that satisfy criteria
   // specified in a request.
-  rpc Stream(StreamExecutionRequest) returns (stream types.Execution) {}
+  rpc Stream(ExecutionServiceStreamRequest) returns (stream ExecutionServiceStreamResponse) {}
 
   // Update updates execution with outputs or an error.
-  rpc Update(UpdateExecutionRequest) returns (UpdateExecutionResponse) {}
+  rpc Update(ExecutionServiceUpdateRequest) returns (ExecutionServiceUpdateResponse) {}
 }
 
-// CreateExecutionRequest defines request to create a single execution.
-message CreateExecutionRequest {
-  bytes instanceHash = 1 [
+// ExecutionCreateRequest defines request to create a single execution.
+message ExecutionServiceCreateRequest {
+  bytes instance_hash = 1 [
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
-  string taskKey = 2;
+  string task_key = 2;
   mesg.protobuf.Struct inputs = 3;
   repeated string tags = 4;
 }
 
-// CreateExecutionResponse defines response for execution creation.
-message CreateExecutionResponse {
+// ExecutionCreateResponse defines response for execution creation.
+message ExecutionServiceCreateResponse {
   // Execution's hash.
   bytes hash = 1 [
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
@@ -48,8 +48,8 @@ message CreateExecutionResponse {
   ];
 }
 
-// GetExecutionRequest defines request to retrieve a single execution.
-message GetExecutionRequest {
+// ExecutionGetRequest defines request to retrieve a single execution.
+message ExecutionServiceGetRequest {
   // Execution's hash to fetch.
   bytes hash = 1 [
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
@@ -57,21 +57,25 @@ message GetExecutionRequest {
   ];
 }
 
-// StreamExecutionRequest defines request to retrieve a stream of executions.
-message StreamExecutionRequest{
+message ExecutionServiceGetResponse {
+  types.v1.Execution execution = 1;
+}
+
+// ExecutionStreamRequest defines request to retrieve a stream of executions.
+message ExecutionServiceStreamRequest{
   // Filter contains filtering criteria.
   message Filter {
     // Statuses to filter executions. One status needs to be present in the execution.
-    repeated types.Status statuses = 1;
+    repeated types.v1.Status statuses = 1;
 
     // Instance's hash to filter executions.
-    bytes instanceHash = 2 [
+    bytes instance_hash = 2 [
       (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
       (gogoproto.nullable) = false
     ];
 
     // taskKey to filter executions.
-    string taskKey = 3;
+    string task_key = 3;
 
     // tags to filter executions. All tags needs to be present in the execution.
     repeated string tags = 4;
@@ -81,8 +85,12 @@ message StreamExecutionRequest{
   Filter filter = 1;
 }
 
-// UpdateExecutionRequest defines request for execution update.
-message UpdateExecutionRequest {
+message ExecutionServiceStreamResponse {
+  types.v1.Execution execution = 1;
+}
+
+// ExecutionUpdateRequest defines request for execution update.
+message ExecutionServiceUpdateRequest {
   // Hash represents execution.
   bytes hash = 1 [
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
@@ -99,5 +107,5 @@ message UpdateExecutionRequest {
   }
 }
 
-// UpdateExecutionResponse defines response for execution update.
-message UpdateExecutionResponse {}
+// ExecutionUpdateResponse defines response for execution update.
+message ExecutionServiceUpdateResponse {}

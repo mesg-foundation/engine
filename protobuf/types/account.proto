@@ -2,7 +2,7 @@ syntax = "proto3";
 
 import "gogo/protobuf/gogoproto/gogo.proto";
 
-package mesg.types;
+package mesg.types.v1;
 option go_package = "github.com/mesg-foundation/engine/account";
 
 option (gogoproto.goproto_getters_all) = false;

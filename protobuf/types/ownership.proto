@@ -2,7 +2,7 @@ syntax = "proto3";
 
 import "gogo/protobuf/gogoproto/gogo.proto";
 
-package mesg.types;
+package mesg.types.v1;
 option go_package = "github.com/mesg-foundation/engine/ownership";
 
 option (gogoproto.goproto_getters_all) = false;
@@ -25,7 +25,7 @@ message Ownership {
 
   // Resource's hash.
   oneof resource {
-    bytes serviceHash = 3 [
+    bytes service_hash = 3 [
       (gogoproto.moretags) = 'hash:"name:3"',
       (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash"
     ];

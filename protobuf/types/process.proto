@@ -3,7 +3,7 @@ syntax = "proto3";
 import "gogo/protobuf/gogoproto/gogo.proto";
 import "protobuf/types/struct.proto";
 
-package mesg.types;
+package mesg.types.v1;
 option go_package = "github.com/mesg-foundation/engine/process";
 
 option (gogoproto.goproto_getters_all) = false;
@@ -20,14 +20,14 @@ message Process {
       ];
 
       // Hash of the instance that triggers the process.
-      bytes instanceHash = 2 [
+      bytes instance_hash = 2 [
         (gogoproto.moretags) = 'hash:"name:2" validate:"required"',
         (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
         (gogoproto.nullable) = false
       ];
 
       // Key of the task that triggers the process.
-      string taskKey = 3 [
+      string task_key = 3 [
         (gogoproto.moretags) = 'hash:"name:3" validate:"printascii,required"'
       ];
     }
@@ -39,14 +39,14 @@ message Process {
       ];
 
       // Hash of the instance that triggers the process.
-      bytes instanceHash = 2 [
+      bytes instance_hash = 2 [
         (gogoproto.moretags) = 'hash:"name:2" validate:"required"',
         (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
         (gogoproto.nullable) = false
       ];
 
       // Key of the event that triggers the process.
-      string eventKey = 3 [
+      string event_key = 3 [
         (gogoproto.moretags) = 'hash:"name:3" validate:"printascii,required"'
       ];
     }
@@ -58,14 +58,14 @@ message Process {
       ];
 
       // Hash of the instance to execute.
-      bytes instanceHash = 2 [
+      bytes instance_hash = 2 [
         (gogoproto.moretags) = 'hash:"name:2" validate:"required"',
         (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
         (gogoproto.nullable) = false
       ];
 
       // Task of the instance to execute.
-      string taskKey = 3 [
+      string task_key = 3 [
         (gogoproto.moretags) = 'hash:"name:3" validate:"printascii,required"'
       ];
     }
@@ -74,7 +74,7 @@ message Process {
       message Output {
         message Reference {
           // Key of the node in the graph. If empty, will be using the src of the edge.
-          string nodeKey = 1 [
+          string node_key = 1 [
             (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
           ];
 
@@ -116,10 +116,10 @@ message Process {
         // Type of condition available to compare the values.
         enum Predicate {
           // Predicate not defined.
-          Unknown = 0;
+          PREDICATE_UNSPECIFIED = 0;
 
           // Equal
-          EQ = 1;
+          PREDICATE_EQ = 1;
         }
 
         // Key to check.

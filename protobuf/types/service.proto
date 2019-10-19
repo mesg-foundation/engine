@@ -2,7 +2,7 @@ syntax = "proto3";
 
 import "gogo/protobuf/gogoproto/gogo.proto";
 
-package mesg.types;
+package mesg.types.v1;
 option go_package = "github.com/mesg-foundation/engine/service";
 
 option (gogoproto.goproto_getters_all) = false;
@@ -108,7 +108,7 @@ message Service {
     ];
 
     // List of volumes mounted from other dependencies.
-    repeated string volumesFrom = 2 [
+    repeated string volumes_from = 2 [
       (gogoproto.moretags) = 'hash:"name:2" validate:"unique,dive,printascii"'
     ];
 
@@ -151,7 +151,7 @@ message Service {
     ];
 
     // List of volumes mounted from other dependencies.
-    repeated string volumesFrom = 3 [
+    repeated string volumes_from = 3 [
       (gogoproto.moretags) = 'hash:"name:3" validate:"unique,dive,printascii"'
     ];
 

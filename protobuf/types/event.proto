@@ -3,7 +3,7 @@ syntax = "proto3";
 import "gogo/protobuf/gogoproto/gogo.proto";
 import "protobuf/types/struct.proto";
 
-package mesg.types;
+package mesg.types.v1;
 option go_package = "github.com/mesg-foundation/engine/event";
 
 option (gogoproto.goproto_getters_all) = false;
@@ -18,7 +18,7 @@ message Event {
   ];
 
   // instanceHash is hash of instance that can proceed an execution.
-  bytes instanceHash = 2 [
+  bytes instance_hash = 2 [
     (gogoproto.moretags) = 'hash:"name:2"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false

@@ -3,7 +3,7 @@ syntax = "proto3";
 import "gogo/protobuf/gogoproto/gogo.proto";
 import "protobuf/types/service.proto";
 
-package mesg.api;
+package mesg.api.v1;
 option go_package = "api";
 
 // This is the API to interact with the Services.
@@ -11,27 +11,27 @@ option go_package = "api";
 // This API is a [gRPC](https://grpc.io/) API.
 //
 // The source file of this API is hosted on [GitHub](https://github.com/mesg-foundation/engine/blob/master/protobuf/api/service.proto).
-service Service {
+service ServiceService {
 
   // Create a Service from a Service Definition.
   // It will return an unique identifier which is used to interact with the Service.
-  rpc Create (CreateServiceRequest) returns (CreateServiceResponse) {}
+  rpc Create (ServiceServiceCreateRequest) returns (ServiceServiceCreateResponse) {}
 
   // Get returns a Service matching the criteria of the request.
-  rpc Get(GetServiceRequest) returns (types.Service) {}
+  rpc Get(ServiceServiceGetRequest) returns (ServiceServiceGetResponse) {}
 
   // List returns services specified in a request.
-  rpc List(ListServiceRequest) returns (ListServiceResponse) {}
+  rpc List(ServiceServiceListRequest) returns (ServiceServiceListResponse) {}
 
   // Exists return if a service already exists.
-  rpc Exists(ExistsServiceRequest) returns (ExistsServiceResponse) {}
+  rpc Exists(ServiceServiceExistsRequest) returns (ServiceServiceExistsResponse) {}
 
   // Hash return the hash of a service
-  rpc Hash(CreateServiceRequest) returns (HashServiceResponse) {}
+  rpc Hash(ServiceServiceHashRequest) returns (ServiceServiceHashResponse) {}
 }
 
 // The request's data for the `Create` API.
-message CreateServiceRequest {
+message ServiceServiceCreateRequest {
   // Service's sid.
   string sid = 1;
 
@@ -42,18 +42,18 @@ message CreateServiceRequest {
   string description = 3;
 
   // Configurations related to the service
-  types.Service.Configuration configuration = 4 [
+  types.v1.Service.Configuration configuration = 4 [
     (gogoproto.nullable) = false
   ];
 
   // The list of tasks this service can execute.
-  repeated types.Service.Task tasks = 5;
+  repeated types.v1.Service.Task tasks = 5;
 
   // The list of events this service can emit.
-  repeated types.Service.Event events = 6;
+  repeated types.v1.Service.Event events = 6;
 
   // The container dependencies this service requires.
-  repeated types.Service.Dependency dependencies = 7;
+  repeated types.v1.Service.Dependency dependencies = 7;
 
   // Service's repository url.
   string repository = 8;
@@ -63,7 +63,7 @@ message CreateServiceRequest {
 }
 
 // The response's data for the `Create` API.
-message CreateServiceResponse {
+message ServiceServiceCreateResponse {
   // The service's hash created.
   bytes hash = 1 [
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
@@ -72,7 +72,7 @@ message CreateServiceResponse {
 }
 
 // The request's data for the `Get` API.
-message GetServiceRequest {
+message ServiceServiceGetRequest {
   // The service's hash to fetch.
   bytes hash = 1 [
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
@@ -80,17 +80,21 @@ message GetServiceRequest {
   ];
 }
 
-// The request's data for the `List` API.
-message ListServiceRequest {}
-
-// The response's data for the `List` API.
-message ListServiceResponse {
-  // List of services that match the request's filters.
-  repeated types.Service services = 1;
+message ServiceServiceGetResponse {
+  types.v1.Service service = 1;
 }
 
 // The request's data for the `List` API.
-message ExistsServiceRequest {
+message ServiceServiceListRequest {}
+
+// The response's data for the `List` API.
+message ServiceServiceListResponse {
+  // List of services that match the request's filters.
+  repeated types.v1.Service services = 1;
+}
+
+// The request's data for the `List` API.
+message ServiceServiceExistsRequest {
   // The service's hash of the existing service. This hash is nil if exists is fals.
   bytes hash = 1 [
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
@@ -99,13 +103,44 @@ message ExistsServiceRequest {
 }
 
 // The response's data for the `Exists` API.
-message ExistsServiceResponse {
+message ServiceServiceExistsResponse {
   // True if a service already exists, false otherwise.
   bool exists = 1;
 }
 
+message ServiceServiceHashRequest {
+  // Service's sid.
+  string sid = 1;
+
+  // Service's name.
+  string name = 2;
+
+  // Service's description.
+  string description = 3;
+
+  // Configurations related to the service
+  types.v1.Service.Configuration configuration = 4 [
+    (gogoproto.nullable) = false
+  ];
+
+  // The list of tasks this service can execute.
+  repeated types.v1.Service.Task tasks = 5;
+
+  // The list of events this service can emit.
+  repeated types.v1.Service.Event events = 6;
+
+  // The container dependencies this service requires.
+  repeated types.v1.Service.Dependency dependencies = 7;
+
+  // Service's repository url.
+  string repository = 8;
+
+  // The hash id of service's source code on IPFS.
+  string source = 9;
+}
+
 // The request's data for the `Hash` API.
-message HashServiceResponse {
+message ServiceServiceHashResponse {
   // Hash of the service calculated.
   bytes hash = 1 [
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",

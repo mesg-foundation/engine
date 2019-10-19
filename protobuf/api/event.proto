@@ -4,7 +4,7 @@ import "gogo/protobuf/gogoproto/gogo.proto";
 import "protobuf/types/struct.proto";
 import "protobuf/types/event.proto";
 
-package mesg.api;
+package mesg.api.v1;
 option go_package = "api";
 
 // This is the API to interact with the Events.
@@ -12,17 +12,17 @@ option go_package = "api";
 // This API is a [gRPC](https://grpc.io/) API.
 //
 // The source file of this API is hosted on [GitHub](https://github.com/mesg-foundation/engine/blob/master/protobuf/api/event.proto).
-service Event {
+service EventService {
   // Create creates event with data.
-  rpc Create(CreateEventRequest) returns (CreateEventResponse) {}
+  rpc Create(EventServiceCreateRequest) returns (EventServiceCreateResponse) {}
 
   // Stream returns a stream of events that satisfy criteria
   // specified in a request.
-  rpc Stream(StreamEventRequest) returns (stream types.Event) {}
+  rpc Stream(EventServiceStreamRequest) returns (stream EventServiceStreamResponse) {}
 }
 
-// StreamEventRequest defines request to retrieve a stream of events.
-message StreamEventRequest {
+// EventStreamRequest defines request to retrieve a stream of events.
+message EventServiceStreamRequest {
   // Filter contains filtering criteria.
   message Filter {
     // hash to filter events.
@@ -32,7 +32,7 @@ message StreamEventRequest {
     ];
 
     // instance's hash to filter events.
-    bytes instanceHash = 2 [
+    bytes instance_hash = 2 [
       (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
       (gogoproto.nullable) = false
     ];
@@ -45,10 +45,14 @@ message StreamEventRequest {
   Filter filter = 1;
 }
 
-// CreateEventRequest defines request for execution update.
-message CreateEventRequest {
+message EventServiceStreamResponse {
+  types.v1.Event event = 1;
+}
+
+// EventCreateRequest defines request for execution update.
+message EventServiceCreateRequest {
   // instanceHash is hash of instance that can proceed an execution.
-  bytes instanceHash = 1 [
+  bytes instance_hash = 1 [
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
@@ -60,8 +64,8 @@ message CreateEventRequest {
   mesg.protobuf.Struct data = 3;
 }
 
-// CreateEventResponse defines response for execution update.
-message CreateEventResponse {
+// EventCreateResponse defines response for execution update.
+message EventServiceCreateResponse {
   // Hash represents event.
   bytes hash = 1 [
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",

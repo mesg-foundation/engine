@@ -3,7 +3,7 @@ syntax = "proto3";
 import "gogo/protobuf/gogoproto/gogo.proto";
 import "protobuf/types/process.proto";
 
-package mesg.api;
+package mesg.api.v1;
 option go_package = "api";
 
 // This is the API to interact with the Processes.
@@ -11,32 +11,32 @@ option go_package = "api";
 // This API is a [gRPC](https://grpc.io/) API.
 //
 // The source file of this API is hosted on [GitHub](https://github.com/mesg-foundation/engine/blob/master/protobuf/api/process.proto).
-service Process {
+service ProcessService {
 
   // Create a Process from a Process Definition.
   // It will return an unique identifier which is used to interact with the Process.
-  rpc Create (CreateProcessRequest) returns (CreateProcessResponse) {}
+  rpc Create (ProcessServiceCreateRequest) returns (ProcessServiceCreateResponse) {}
 
   // Delete a process.
   // An error is returned if one or more Instances of the process are running.
-  rpc Delete (DeleteProcessRequest) returns (DeleteProcessResponse) {}
+  rpc Delete (ProcessServiceDeleteRequest) returns (ProcessServiceDeleteResponse) {}
 
   // Get returns a process matching the criteria of the request.
-  rpc Get(GetProcessRequest) returns (types.Process) {}
+  rpc Get(ProcessServiceGetRequest) returns (ProcessServiceGetResponse) {}
 
   // List returns processes specified in a request.
-  rpc List(ListProcessRequest) returns (ListProcessResponse) {}
+  rpc List(ProcessServiceListRequest) returns (ProcessServiceListResponse) {}
 }
 
 // The request's data for the `Create` API.
-message CreateProcessRequest {
+message ProcessServiceCreateRequest {
   string key = 2;           // Process's key
-  repeated types.Process.Node nodes = 4;  // List of nodes of the process.
-  repeated types.Process.Edge edges = 5;  // List of edges of the process.
+  repeated types.v1.Process.Node nodes = 4;  // List of nodes of the process.
+  repeated types.v1.Process.Edge edges = 5;  // List of edges of the process.
 }
 
 // The response's data for the `Create` API.
-message CreateProcessResponse {
+message ProcessServiceCreateResponse {
   // The process's hash created.
   bytes hash = 1 [
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
@@ -45,7 +45,7 @@ message CreateProcessResponse {
 }
 
 // The request's data for the `Delete` API.
-message DeleteProcessRequest {
+message ProcessServiceDeleteRequest {
   // The process's hash to delete.
   bytes hash = 1 [
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
@@ -54,11 +54,11 @@ message DeleteProcessRequest {
 }
 
 // The response's data for the `Delete` API, doesn't contain anything.
-message DeleteProcessResponse {
+message ProcessServiceDeleteResponse {
 }
 
 // The request's data for the `Get` API.
-message GetProcessRequest {
+message ProcessServiceGetRequest {
   // The process's hash to fetch.
   bytes hash = 1 [
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
@@ -66,11 +66,15 @@ message GetProcessRequest {
   ];
 }
 
+message ProcessServiceGetResponse {
+  types.v1.Process process = 1;
+}
+
 // The request's data for the `List` API.
-message ListProcessRequest {}
+message ProcessServiceListRequest {}
 
 // The response's data for the `List` API.
-message ListProcessResponse {
+message ProcessServiceListResponse {
   // List of processes that match the request's filters.
-  repeated types.Process processes = 1;
+  repeated types.v1.Process processes = 1;
 }
