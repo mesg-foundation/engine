@@ -8,7 +8,6 @@ import (
 )
 
 func TestValidateProcess(t *testing.T) {
-
 	trigger := &Process_Node{
 		Type: &Process_Node_Result_{
 			Result: &Process_Node_Result{
