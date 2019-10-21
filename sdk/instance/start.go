@@ -18,10 +18,7 @@ func (i *Instance) start(inst *instance.Instance, imageHash string, env []string
 	if err != nil {
 		return nil, err
 	}
-	sharedNetworkID, err := i.container.SharedNetworkID()
-	if err != nil {
-		return nil, err
-	}
+	sharedNetworkID := i.container.SharedNetworkID()
 	// BUG: https://github.com/mesg-foundation/engine/issues/382
 	// After solving this by docker, switch back to deploy in parallel
 	configs := make([]container.ServiceOptions, 0)

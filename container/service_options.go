@@ -1,8 +1,6 @@
 package container
 
 import (
-	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -16,7 +14,7 @@ type ServiceOptions struct {
 	Namespace       string
 	Ports           []Port
 	Mounts          []Mount
-	Env             []string // TODO: should be transform to  map[string]string and use the func mapToEnv
+	Env             []string
 	Args            []string
 	Command         string
 	Networks        []Network
@@ -48,11 +46,11 @@ type Mount struct {
 }
 
 func (options *ServiceOptions) toSwarmServiceSpec(c *DockerContainer) swarm.ServiceSpec {
-	namespace := c.Namespace(options.Namespace)
+	namespace := c.namespace(options.Namespace)
 	return swarm.ServiceSpec{
 		Annotations: swarm.Annotations{
 			Name: namespace,
-			Labels: mergeLabels(options.Labels, map[string]string{
+			Labels: mergeStringMaps(options.Labels, map[string]string{
 				"com.docker.stack.namespace": namespace,
 				"com.docker.stack.image":     options.Image,
 			}),
@@ -66,7 +64,7 @@ func (options *ServiceOptions) toSwarmServiceSpec(c *DockerContainer) swarm.Serv
 				Env:             options.Env,
 				Args:            options.Args,
 				Command:         strings.Fields(options.Command),
-				Mounts:          options.swarmMounts(false),
+				Mounts:          options.swarmMounts(),
 				StopGracePeriod: options.StopGracePeriod,
 			},
 			Networks: options.swarmNetworks(),
@@ -90,12 +88,7 @@ func (options *ServiceOptions) swarmPorts() []swarm.PortConfig {
 	return ports
 }
 
-func (options *ServiceOptions) swarmMounts(force bool) []mount.Mount {
-	// TOFIX: hack to prevent mount when in CircleCI (Mount in CircleCI doesn't work). Should use CircleCi with machine to fix this.
-	circleCI, errCircle := strconv.ParseBool(os.Getenv("CIRCLECI"))
-	if !force && errCircle == nil && circleCI {
-		return nil
-	}
+func (options *ServiceOptions) swarmMounts() []mount.Mount {
 	mounts := make([]mount.Mount, len(options.Mounts))
 	for i, m := range options.Mounts {
 		mountType := mount.TypeVolume
@@ -115,8 +108,8 @@ func (options *ServiceOptions) swarmMounts(force bool) []mount.Mount {
 // each network will be attached based on their networkID and an alias can be used to
 // identify service in the network.
 // aliases will make services accessible from other containers inside the same network.
-func (options *ServiceOptions) swarmNetworks() (networks []swarm.NetworkAttachmentConfig) {
-	networks = make([]swarm.NetworkAttachmentConfig, len(options.Networks))
+func (options *ServiceOptions) swarmNetworks() []swarm.NetworkAttachmentConfig {
+	networks := make([]swarm.NetworkAttachmentConfig, len(options.Networks))
 	for i, network := range options.Networks {
 		cfg := swarm.NetworkAttachmentConfig{
 			Target: network.ID,
@@ -129,12 +122,13 @@ func (options *ServiceOptions) swarmNetworks() (networks []swarm.NetworkAttachme
 	return networks
 }
 
-func mergeLabels(l1 map[string]string, l2 map[string]string) map[string]string {
-	if l1 == nil {
-		l1 = make(map[string]string)
+func mergeStringMaps(m ...map[string]string) map[string]string {
+	out := make(map[string]string)
+
+	for i := range m {
+		for k, v := range m[i] {
+			out[k] = v
+		}
 	}
-	for k, v := range l2 {
-		l1[k] = v
-	}
-	return l1
+	return out
 }

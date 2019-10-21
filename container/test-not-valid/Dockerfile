@@ -1,2 +1,0 @@
-FROM notExistingImage
-ENTRYPOINT [ "ls" ]

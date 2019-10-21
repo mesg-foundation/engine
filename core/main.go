@@ -165,5 +165,9 @@ func main() {
 	if err := stopRunningServices(sdk); err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
+
+	if err := c.Cleanup(); err != nil {
+		logrus.WithField("module", "main").Fatalln(err)
+	}
 	server.Close()
 }
