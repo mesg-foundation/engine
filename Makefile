@@ -27,7 +27,7 @@ protobuf: docker-tools
 	docker run --rm -v $(PWD):/project mesg/tools:local	./scripts/build-proto.sh
 
 changelog:
-	./scripts/changelog.sh
+	./scripts/changelog.sh $(milestone)
 
 clean:
 	- rm -rf bin/*
