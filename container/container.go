@@ -19,9 +19,6 @@ import (
 	"github.com/docker/docker/pkg/archive"
 )
 
-// clientHTTPTimeout is the time limit for requests made by docker HTTP client.
-const clientHTTPTimeout = 10 * time.Second
-
 // defaultStopGracePeriod is the timeout value between stopping a container and killing it.
 const defaultStopGracePeriod = 10 * time.Second
 
@@ -81,7 +78,7 @@ type DockerContainer struct {
 
 // New creates a new Container with given options.
 func New(nsprefix string) (*DockerContainer, error) {
-	client, err := client.NewClientWithOpts(client.FromEnv, client.WithTimeout(clientHTTPTimeout))
+	client, err := client.NewClientWithOpts(client.FromEnv)
 	if err != nil {
 		return nil, err
 	}
