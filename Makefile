@@ -15,7 +15,7 @@ dep:
 	go mod download
 
 build: dep
-	go build -mod=readonly -o ./bin/engine -ldflags="-X 'github.com/mesg-foundation/engine/version.Version=$(PATCH_VERSION)'" core/main.go
+	go build -mod=readonly -o ./bin/engine -ldflags="-X 'github.com/mesg-foundation/engine/version.Version=dev'" core/main.go
 
 test:
 	go test ./...
