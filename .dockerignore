@@ -18,6 +18,7 @@ schema1.svg
 /docker-images
 /test
 /vendor
+coverage.txt
 
 # configuration & repo files
 Makefile
