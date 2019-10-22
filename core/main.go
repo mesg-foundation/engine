@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"path/filepath"
 	"strconv"
 	"sync"
@@ -102,9 +103,11 @@ func main() {
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
+	// TODO: rename NewAppFactory to something else
 	appFactory := cosmos.NewAppFactory(logger.TendermintLogger(), db)
 
 	// register the backend modules to the app factory.
+	// TODO: this is a mandatory call so it should return a new types required by cosmos.NewApp
 	enginesdk.NewBackend(appFactory)
 
 	// init cosmos app
@@ -119,14 +122,37 @@ func main() {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 
+	genesis, err := cosmos.LoadGenesis(cfg.Tendermint.GenesisFile())
+	// generate genesis if it doesn't exist
+	if os.IsNotExist(err) {
+		logrus.WithField("module", "main").Warn("Genesis file not found. Will generate an unsecured developer one.")
+		validator, err := cosmos.NewGenesisValidator(kb,
+			cfg.DevGenesis.AccountName,
+			cfg.DevGenesis.AccountPassword,
+			cfg.Tendermint.PrivValidatorKeyFile(),
+			cfg.Tendermint.PrivValidatorStateFile(),
+			cfg.Tendermint.NodeKeyFile(),
+		)
+		if err != nil {
+			logrus.WithField("module", "main").Fatalln(err)
+		}
+		genesis, err = cosmos.GenGenesis(app, kb, cfg.DevGenesis.ChainID, cfg.Tendermint.GenesisFile(), []cosmos.GenesisValidator{validator})
+		if err != nil {
+			logrus.WithField("module", "main").Fatalln(err)
+		}
+		logrus.WithFields(validator.Map()).Infoln("Validator")
+	} else if err != nil {
+		logrus.WithField("module", "main").Fatalln(err)
+	}
+
 	// create cosmos node
-	node, err := cosmos.NewNode(app, cfg.Tendermint.Config, &cfg.Cosmos)
+	node, err := cosmos.NewNode(app, cfg.Tendermint.Config, genesis)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 
 	// create cosmos client
-	client := cosmos.NewClient(node, app.Cdc(), kb, cfg.Cosmos.ChainID)
+	client := cosmos.NewClient(node, app.Cdc(), kb, genesis.ChainID)
 
 	// init sdk
 	sdk := enginesdk.New(client, app.Cdc(), kb, c, instanceDB, executionDB, processDB, cfg.Name, strconv.Itoa(port))
