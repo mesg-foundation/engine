@@ -65,19 +65,14 @@ jobs:
     steps:
       - checkout
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
-      - run: make docker-dev version="dev build `echo $CIRCLE_SHA1 | cut -c1-7`" .
-      - run: docker push mesg/engine:dev
+      - run: make docker-publish-dev version=`echo $CIRCLE_SHA1 | cut -c1-7`
 
   "publish_docker_prod":
     <<: *run_on_machine
     steps:
       - checkout
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
-      - run: make docker version=$CIRCLE_TAG .
-      - run: docker push mesg/engine:$CIRCLE_TAG
-      - run: docker push `echo mesg/engine:$CIRCLE_TAG | cut -d'.' -f1-2`
-      - run: docker push `echo mesg/engine:$CIRCLE_TAG | cut -d'.' -f1`
-      - run: docker push mesg/engine:latest
+      - run: make docker-publish version=$CIRCLE_TAG
 
 workflows:
   version: 2
