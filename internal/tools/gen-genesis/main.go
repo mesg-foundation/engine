@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -11,39 +10,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/codec"
-	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	bip39 "github.com/cosmos/go-bip39"
 	"github.com/mesg-foundation/engine/cosmos"
+	"github.com/mesg-foundation/engine/logger"
+	enginesdk "github.com/mesg-foundation/engine/sdk"
+	"github.com/sirupsen/logrus"
 	"github.com/tendermint/tendermint/config"
-	"github.com/tendermint/tendermint/p2p"
-	"github.com/tendermint/tendermint/privval"
+	db "github.com/tendermint/tm-db"
 )
 
-const mnemonicEntropySize = 256
-
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-
-var names = [...]string{
-	"bob",
-	"alice",
-	"eve",
-	"bell",
-	"brown",
-	"beethoven",
-	"curie",
-	"copernicus",
-	"chopin",
-	"euler",
-	"gauss",
-	"postel",
-	"liskov",
-	"boole",
-	"dijkstra",
-	"knuth",
-}
 
 func randompassword() string {
 	b := make([]byte, 16)
@@ -54,110 +29,85 @@ func randompassword() string {
 }
 
 var (
-	vno           = flag.Int("vno", 1, "validator numbers")
-	chainid       = flag.String("chain-id", "mesg-chain", "chain id")
-	kbpath        = flag.String("co-kbpath", ".", "cosmos key base path")
-	tmpath        = flag.String("tm-path", ".", "tendermint config path")
-	gentxfilepath = flag.String("gentx-filepath", "genesistx.json", "genesis transaction file path")
-	peersfilepath = flag.String("peers-filepath", "peers", "peers file path")
+	validators = flag.String("validators", "engine", "list of validator names separated with a comma")
+	chainid    = flag.String("chain-id", "mesg-chain", "chain id")
+	path       = flag.String("path", ".genesis/", "genesis folder path")
+)
+
+const (
+	tendermintPath = "tendermint"
+	cosmosPath     = "cosmos"
 )
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
 	flag.Parse()
 
-	passwords := make([]string, *vno)
-	for i := 0; i < *vno; i++ {
+	validatorNames := strings.Split(*validators, ",")
+	passwords := make([]string, len(validatorNames))
+	for i := 0; i < len(validatorNames); i++ {
 		passwords[i] = randompassword()
 	}
 
-	kb, err := cosmos.NewKeybase(*kbpath)
+	// init app factory
+	db, err := db.NewGoLevelDB("app", filepath.Join(*path, cosmosPath))
 	if err != nil {
-		log.Fatalln("creating keybase error:", err)
+		logrus.Fatalln(err)
+	}
+	appFactory := cosmos.NewAppFactory(logger.TendermintLogger(), db)
+
+	// register the backend modules to the app factory.
+	enginesdk.NewBackend(appFactory)
+
+	// init cosmos app
+	app, err := cosmos.NewApp(appFactory)
+	if err != nil {
+		logrus.Fatalln(err)
 	}
 
-	cdc := codec.New()
-	codec.RegisterCrypto(cdc)
-	sdktypes.RegisterCodec(cdc)
-	stakingtypes.RegisterCodec(cdc)
+	// init keybase
+	kb, err := cosmos.NewKeybase(filepath.Join(*path, cosmosPath))
+	if err != nil {
+		logrus.Fatalln(err)
+	}
 
-	msgs := []sdktypes.Msg{}
+	// create validators
+	vals := []cosmos.GenesisValidator{}
 	peers := []string{}
-	for i := 0; i < *vno; i++ {
-		// read entropy seed straight from crypto.Rand and convert to mnemonic
-		entropySeed, err := bip39.NewEntropy(mnemonicEntropySize)
-		if err != nil {
-			log.Fatalln("new entropy error:", err)
+	for i, valName := range validatorNames {
+		if err := os.MkdirAll(filepath.Join(filepath.Join(*path, tendermintPath), valName, "config"), 0755); err != nil {
+			logrus.Fatalln(err)
 		}
-
-		mnemonic, err := bip39.NewMnemonic(entropySeed)
-		if err != nil {
-			log.Fatalln("new mnemonic error:", err)
+		if err := os.MkdirAll(filepath.Join(filepath.Join(*path, tendermintPath), valName, "data"), 0755); err != nil {
+			logrus.Fatalln(err)
 		}
-
-		acc, err := kb.CreateAccount(names[i], mnemonic, "", passwords[i], 0, 0)
-		if err != nil {
-			log.Fatalln("create account error:", err)
-		}
-
-		if err := os.MkdirAll(filepath.Join(*tmpath, names[i], "config"), 0755); err != nil {
-			log.Fatalln("mkdir tm config error:", err)
-		}
-
-		if err := os.MkdirAll(filepath.Join(*tmpath, names[i], "data"), 0755); err != nil {
-			log.Fatalln("mkdir tm data error:", err)
-		}
-
 		cfg := config.DefaultConfig()
-		cfg.SetRoot(filepath.Join(*tmpath, names[i]))
-
-		nodeKey, err := p2p.LoadOrGenNodeKey(cfg.NodeKeyFile())
+		cfg.SetRoot(filepath.Join(filepath.Join(*path, tendermintPath), valName))
+		genVal, err := cosmos.NewGenesisValidator(kb,
+			valName,
+			passwords[i],
+			cfg.PrivValidatorKeyFile(),
+			cfg.PrivValidatorStateFile(),
+			cfg.NodeKeyFile(),
+		)
 		if err != nil {
-			log.Fatalln("load/gen node key error:", err)
+			logrus.Fatalln(err)
 		}
-
-		fmt.Printf("Validator #%d:\nNode ID: %s\nName: %s\nPassword: %s\nAddress: %s\nMnemonic: %s\nPeer address: %s@%s:26656\n\n", i+1, nodeKey.ID(), names[i], passwords[i], acc.GetAddress(), mnemonic, nodeKey.ID(), names[i])
-		peers = append(peers, fmt.Sprintf("%s@%s:26656", nodeKey.ID(), names[i]))
-
-		me := privval.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile())
-		msgs = append(msgs, stakingtypes.NewMsgCreateValidator(
-			sdktypes.ValAddress(acc.GetAddress()),
-			me.GetPubKey(),
-			sdktypes.NewCoin(sdktypes.DefaultBondDenom, sdktypes.TokensFromConsensusPower(100)),
-			stakingtypes.Description{
-				Moniker: acc.GetName(),
-				Details: "init-validator",
-			},
-			stakingtypes.NewCommissionRates(
-				sdktypes.ZeroDec(),
-				sdktypes.ZeroDec(),
-				sdktypes.ZeroDec(),
-			),
-			sdktypes.NewInt(1),
-		))
+		vals = append(vals, genVal)
+		logrus.WithFields(genVal.Map()).Infof("Validator #%d\n", i+1)
+		peers = append(peers, genVal.Map()["peer"].(string))
 	}
 
-	// generate genesis transaction
-	b := cosmos.NewTxBuilder(cdc, 0, 0, kb, *chainid)
-	signedMsg, err := b.BuildSignMsg(msgs)
+	// generate and save genesis
+	_, err = cosmos.GenGenesis(app, kb, *chainid, filepath.Join(*path, "genesis.json"), vals)
 	if err != nil {
-		log.Fatalln("build sign msg error:", err)
-	}
-	// test to sign with only 1 validator
-	stdTx := authtypes.NewStdTx(signedMsg.Msgs, signedMsg.Fee, []authtypes.StdSignature{}, signedMsg.Memo)
-	for i := 0; i < *vno; i++ {
-		stdTx, err = b.SignStdTx(names[i], passwords[i], stdTx, true)
-		if err != nil {
-			log.Fatalln("sign msg create validator error:", err)
-		}
-	}
-	validatorTx := string(cdc.MustMarshalJSON(stdTx))
-	if err := ioutil.WriteFile(*gentxfilepath, []byte(validatorTx), 0644); err != nil {
-		log.Fatalln("error during writing genesis tx file:", err)
+		logrus.Fatalln(err)
 	}
 
-	// peers file
-	if err := ioutil.WriteFile(*peersfilepath, []byte(strings.Join(peers, ",")), 0644); err != nil {
+	// save peers list
+	if err := ioutil.WriteFile(filepath.Join(*path, "peers.txt"), []byte(strings.Join(peers, ",")), 0644); err != nil {
 		log.Fatalln("error during writing peers file:", err)
 	}
+
+	logrus.Infof("genesis created with success in folder %q\n", *path)
 }
