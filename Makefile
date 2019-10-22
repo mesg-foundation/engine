@@ -1,38 +1,28 @@
-.PHONY: all check-env docker docker-dev docker-tools dev lint dep build test mock protobuf changelog clean 
+.PHONY: all check-env docker-build docker-dev docker-tools dev lint dep build test mock protobuf changelog clean 
 
-all: clean test build docker
-
-MAJOR_VERSION := $(shell echo $(version) | cut -d . -f 1)
-MINOR_VERSION := $(shell echo $(version) | cut -d . -f 1-2)
-PATCH_VERSION := $(version)
+all: clean test build docker-build
 
 check-env:
 ifndef version
 	$(error version is undefined)
 endif
 
-docker: check-env
-	docker build \
-		--build-arg version=$(PATCH_VERSION) \
-		-t mesg/engine:$(MAJOR_VERSION) \
-		-t mesg/engine:$(MINOR_VERSION) \
-		-t mesg/engine:$(PATCH_VERSION) \
-		-t mesg/engine:latest \
-		.
+docker-build: check-env
+	docker build -t mesg/engine:$(version) --build-arg version=$(version) .
 
 docker-dev:
-	docker build -t mesg/engine:dev --build-arg version=$(version) .
+	docker build -t mesg/engine:dev --build-arg version=dev .
 
 docker-tools:
 	docker build -t mesg/tools:local -f Dockerfile.tools .
 
 dev: docker-dev
-	- ./scripts/dev.sh
+	./scripts/dev.sh
 
 dep:
 	go mod download
 
-build: dep
+build: check-env dep
 	go build -mod=readonly -o ./bin/engine -ldflags="-X 'github.com/mesg-foundation/engine/version.Version=$(version)'" core/main.go
 
 test: dep
@@ -53,9 +43,6 @@ changelog:
 clean:
 	- rm -rf bin/*
 	- docker image rm \
-			mesg/engine:$(MAJOR_VERSION) \
-			mesg/engine:$(MINOR_VERSION) \
-			mesg/engine:$(PATCH_VERSION) \
 			mesg/engine:$(version) \
 			mesg/engine:latest \
 			mesg/engine:dev 2>/dev/null
