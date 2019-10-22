@@ -13,11 +13,11 @@ endif
 
 docker-publish: check-version
 	- docker build \
-		--build-arg version=$(PATCH_VERSION) \	
-		-t mesg/engine:$(MAJOR_VERSION) \	
-		-t mesg/engine:$(MINOR_VERSION) \	
-		-t mesg/engine:$(PATCH_VERSION) \	
-		-t mesg/engine:latest \	
+		--build-arg version=$(PATCH_VERSION) \
+		-t mesg/engine:$(MAJOR_VERSION) \
+		-t mesg/engine:$(MINOR_VERSION) \
+		-t mesg/engine:$(PATCH_VERSION) \
+		-t mesg/engine:latest \
 		.
 	- docker push mesg/engine:$(MAJOR_VERSION)
 	- docker push mesg/engine:$(MINOR_VERSION)
