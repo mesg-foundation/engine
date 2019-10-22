@@ -1,5 +1,7 @@
 #!/bin/bash
 
+[ -z "$1" ] && echo "milestone required" && exit
+
 MILESTONE="$1"
 
 LABELS=("breaking change" "experimental" "release:add" "release:change" "release:fix" "release:remove")

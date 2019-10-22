@@ -1,8 +1,5 @@
 #!/bin/bash -e
 
-# make sure script is running inside mesg/tools container.
-source $(dirname $0)/require-mesg-tools.sh
-
 # generate mocks
 mockery -name ExecutionSDK -dir ./orchestrator -output ./orchestrator/mocks
 mockery -name EventSDK -dir ./orchestrator -output ./orchestrator/mocks

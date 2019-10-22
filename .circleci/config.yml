@@ -43,12 +43,10 @@ jobs:
       - checkout
       - setup_remote_docker
       - run: docker swarm init
-      - <<: *restore_go_mod_cache
-      - run: go mod download
-      - <<: *save_go_mod_cache
-      - run: mkdir -p ~/.mesg
       - <<: *restore_go_cache
-      - run: go test -v -timeout 300s -coverprofile=coverage.txt ./...
+      - <<: *restore_go_mod_cache
+      - run: make test
+      - <<: *save_go_mod_cache
       - <<: *save_go_cache
       - run: bash <(curl -s https://codecov.io/bash)
 
@@ -60,26 +58,21 @@ jobs:
     steps:
       - checkout
       - <<: *restore_go_mod_cache
-      - run: go mod download
-      - run: golangci-lint run
+      - run: make lint
 
   "publish_docker_dev":
     <<: *run_on_machine
     steps:
       - checkout
-      - run: docker build -t mesg/engine:dev --build-arg version="dev build `echo $CIRCLE_SHA1 | cut -c1-7`" .
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
-      - run: docker push mesg/engine:dev
+      - run: make docker-publish-dev version=`echo $CIRCLE_SHA1 | cut -c1-7`
 
   "publish_docker_prod":
     <<: *run_on_machine
     steps:
       - checkout
-      - run: docker build -t mesg/engine:$CIRCLE_TAG -t mesg/engine:latest -t `echo mesg/engine:$CIRCLE_TAG | cut -d'.' -f1-2` --build-arg version=$CIRCLE_TAG .
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
-      - run: docker push mesg/engine:$CIRCLE_TAG
-      - run: docker push `echo mesg/engine:$CIRCLE_TAG | cut -d'.' -f1-2`
-      - run: docker push mesg/engine:latest
+      - run: make docker-publish version=$CIRCLE_TAG
 
 workflows:
   version: 2
