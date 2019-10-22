@@ -15,7 +15,6 @@ schema1.svg
 **/*.test
 **/debug
 **/node_modules
-/bin
 /docker-images
 /test
 /vendor
