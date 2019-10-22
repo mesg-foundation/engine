@@ -1,28 +1,44 @@
-.PHONY: all check-env docker-build docker-dev docker-tools dev lint dep build test mock protobuf changelog clean 
+.PHONY: all check-version docker-publish docker-publish-dev docker-tools dev lint dep build test mock protobuf changelog clean 
 
-all: clean test build docker-build
+MAJOR_VERSION := $(shell echo $(version) | cut -d . -f 1)	
+MINOR_VERSION := $(shell echo $(version) | cut -d . -f 1-2)
+PATCH_VERSION := $(version)
 
-check-env:
+all: clean test dev
+
+check-version:
 ifndef version
 	$(error version is undefined)
 endif
 
-docker-build: check-env
-	docker build -t mesg/engine:$(version) --build-arg version=$(version) .
+docker-publish: check-version
+	- docker build \
+		--build-arg version=$(PATCH_VERSION) \	
+		-t mesg/engine:$(MAJOR_VERSION) \	
+		-t mesg/engine:$(MINOR_VERSION) \	
+		-t mesg/engine:$(PATCH_VERSION) \	
+		-t mesg/engine:latest \	
+		.
+	- docker push mesg/engine:$(MAJOR_VERSION)
+	- docker push mesg/engine:$(MINOR_VERSION)
+	- docker push mesg/engine:$(PATCH_VERSION)
+	- docker push mesg/engine:latest
 
-docker-dev:
-	docker build -t mesg/engine:dev --build-arg version=dev .
+docker-publish-dev: check-version
+	- docker build -t mesg/engine:dev --build-arg version=$(version) .
+	- docker push mesg/engine:dev
 
 docker-tools:
 	docker build -t mesg/tools:local -f Dockerfile.tools .
 
-dev: docker-dev
-	./scripts/dev.sh
+dev:
+	- docker build -t mesg/engine:local --build-arg version=local .
+	- ./scripts/dev.sh
 
 dep:
 	go mod download
 
-build: check-env dep
+build: check-version dep
 	go build -mod=readonly -o ./bin/engine -ldflags="-X 'github.com/mesg-foundation/engine/version.Version=$(version)'" core/main.go
 
 test: dep

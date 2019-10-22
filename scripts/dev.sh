@@ -90,7 +90,7 @@ docker service create \
   --name $MESG_NAME \
   --tty \
   --label com.docker.stack.namespace=$MESG_NAME \
-  --label com.docker.stack.image=mesg/engine:dev \
+  --label com.docker.stack.image=mesg/engine:local \
   --env MESG_NAME=$MESG_NAME \
   --env MESG_LOG_FORMAT=$MESG_LOG_FORMAT \
   --env MESG_LOG_FORCECOLORS=$MESG_LOG_FORCECOLORS \
@@ -106,6 +106,6 @@ docker service create \
   --network name=$MESG_TENDERMINT_NETWORK \
   --publish $MESG_SERVER_PORT:50052 \
   $MESG_TENDERMINT_VALIDATOR_PORT_PUBLISH \
-  mesg/engine:dev
+  mesg/engine:local
 
 docker service logs --follow --raw $MESG_NAME
