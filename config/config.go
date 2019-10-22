@@ -6,10 +6,6 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/codec"
-	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/mesg-foundation/engine/x/xstrings"
 	homedir "github.com/mitchellh/go-homedir"
@@ -21,7 +17,6 @@ import (
 const (
 	envPrefix = "mesg"
 
-	serviceDBVersion   = "v4"
 	executionDBVersion = "v3"
 	instanceDBVersion  = "v2"
 	processDBVersion   = "v2"
@@ -43,7 +38,6 @@ type Config struct {
 	}
 
 	Database struct {
-		ServiceRelativePath   string `validate:"required"`
 		InstanceRelativePath  string `validate:"required"`
 		ExecutionRelativePath string `validate:"required"`
 		ProcessRelativePath   string `validate:"required"`
@@ -54,15 +48,15 @@ type Config struct {
 		Path             string `validate:"required"`
 	}
 
-	Cosmos CosmosConfig
-}
+	Cosmos struct {
+		Path string `validate:"required"`
+	}
 
-// CosmosConfig is the struct to hold cosmos related configs.
-type CosmosConfig struct {
-	Path               string    `validate:"required"`
-	ChainID            string    `validate:"required"`
-	GenesisTime        time.Time `validate:"required"`
-	GenesisValidatorTx StdTx     `validate:"required"`
+	DevGenesis struct {
+		AccountName     string `validate:"required"`
+		AccountPassword string `validate:"required"`
+		ChainID         string `validate:"required"`
+	}
 }
 
 // Default creates a new config with default values.
@@ -80,7 +74,6 @@ func Default() (*Config, error) {
 	c.Name = "engine"
 	c.Path = filepath.Join(home, ".mesg")
 
-	c.Database.ServiceRelativePath = filepath.Join("database", "services", serviceDBVersion)
 	c.Database.InstanceRelativePath = filepath.Join("database", "instance", instanceDBVersion)
 	c.Database.ExecutionRelativePath = filepath.Join("database", "executions", executionDBVersion)
 	c.Database.ProcessRelativePath = filepath.Join("database", "processes", processDBVersion)
@@ -92,6 +85,10 @@ func Default() (*Config, error) {
 	c.Tendermint.Config.Consensus.TimeoutCommit = 10 * time.Second
 	c.Tendermint.Instrumentation.Prometheus = true
 	c.Tendermint.Instrumentation.PrometheusListenAddr = "0.0.0.0:26660"
+
+	c.DevGenesis.AccountName = "engine"
+	c.DevGenesis.AccountPassword = "password"
+	c.DevGenesis.ChainID = "mesg-dev-chain"
 
 	return &c, nil
 }
@@ -132,6 +129,7 @@ func (c *Config) Prepare() error {
 	if err := os.MkdirAll(c.Path, os.FileMode(0755)); err != nil {
 		return err
 	}
+	// TODO: find a way to not hardcode "config" and "data" folder from tendermint
 	if err := os.MkdirAll(filepath.Join(c.Tendermint.Path, "config"), os.FileMode(0755)); err != nil {
 		return err
 	}
@@ -152,29 +150,5 @@ func (c *Config) Validate() error {
 	if _, err := logrus.ParseLevel(c.Log.Level); err != nil {
 		return fmt.Errorf("config.Log.Level error: %w", err)
 	}
-	if err := authtypes.StdTx(c.Cosmos.GenesisValidatorTx).ValidateBasic(); err != nil {
-		return fmt.Errorf("config.Cosmos.GenesisValidatorTx error: %w", err.Stacktrace())
-	}
 	return validator.New().Struct(c)
-}
-
-// StdTx is type used to parse cosmos tx value provided by envconfig.
-type StdTx authtypes.StdTx
-
-// Decode parses string value as hex ed25519 key.
-func (tx *StdTx) Decode(value string) error {
-	if value == "" {
-		return nil
-	}
-	cdc := codec.New()
-	codec.RegisterCrypto(cdc)
-	sdktypes.RegisterCodec(cdc)
-	stakingtypes.RegisterCodec(cdc)
-	if err := cdc.UnmarshalJSON([]byte(value), tx); err != nil {
-		return fmt.Errorf("unmarshal genesis validator error: %s", err)
-	}
-	if err := authtypes.StdTx(*tx).ValidateBasic(); err != nil {
-		return err.Stacktrace()
-	}
-	return nil
 }
