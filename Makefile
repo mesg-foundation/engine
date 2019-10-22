@@ -11,28 +11,30 @@ ifndef version
 	$(error version is undefined)
 endif
 
-docker-publish: check-version
-	- docker build \
+docker-build: check-version
+	docker build \
 		--build-arg version=$(PATCH_VERSION) \
 		-t mesg/engine:$(MAJOR_VERSION) \
 		-t mesg/engine:$(MINOR_VERSION) \
 		-t mesg/engine:$(PATCH_VERSION) \
 		-t mesg/engine:latest \
 		.
-	- docker push mesg/engine:$(MAJOR_VERSION)
-	- docker push mesg/engine:$(MINOR_VERSION)
-	- docker push mesg/engine:$(PATCH_VERSION)
-	- docker push mesg/engine:latest
+
+docker-publish: docker-build
+	docker push mesg/engine:$(MAJOR_VERSION)
+	docker push mesg/engine:$(MINOR_VERSION)
+	docker push mesg/engine:$(PATCH_VERSION)
+	docker push mesg/engine:latest
 
 docker-publish-dev: check-version
-	- docker build -t mesg/engine:dev --build-arg version=$(version) .
-	- docker push mesg/engine:dev
+	docker build -t mesg/engine:dev --build-arg version=$(version) .
+	docker push mesg/engine:dev
 
 docker-tools:
 	docker build -t mesg/tools:local -f Dockerfile.tools .
 
 dev:
-	- docker build -t mesg/engine:local --build-arg version=local .
+	docker build -t mesg/engine:local --build-arg version=local .
 	- ./scripts/dev.sh
 
 dep:
