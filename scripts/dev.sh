@@ -85,6 +85,8 @@ if ! docker_network_exist "$MESG_TENDERMINT_NETWORK"; then
   docker_network_create "$MESG_TENDERMINT_NETWORK"
 fi
 
+mkdir -p $MESG_PATH
+
 echo "create docker service: "
 docker service create \
   --name $MESG_NAME \

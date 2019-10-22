@@ -4,7 +4,7 @@ MAJOR_VERSION := $(shell echo $(version) | cut -d . -f 1)
 MINOR_VERSION := $(shell echo $(version) | cut -d . -f 1-2)
 PATCH_VERSION := $(version)
 
-all: clean test dev
+all: clean lint test build
 
 check-version:
 ifndef version
@@ -20,6 +20,10 @@ docker-build: check-version
 		-t mesg/engine:latest \
 		.
 
+docker-dev:
+	./scripts/build-engine.sh
+
+
 docker-publish: docker-build
 	docker push mesg/engine:$(MAJOR_VERSION)
 	docker push mesg/engine:$(MINOR_VERSION)
@@ -33,8 +37,8 @@ docker-publish-dev: check-version
 docker-tools:
 	docker build -t mesg/tools:local -f Dockerfile.tools .
 
-dev:
-	docker build -t mesg/engine:local --build-arg version=local .
+
+dev: docker-dev
 	- ./scripts/dev.sh
 
 dep:
