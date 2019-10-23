@@ -87,7 +87,7 @@ func Default() (*Config, error) {
 	c.Tendermint.Instrumentation.PrometheusListenAddr = "0.0.0.0:26660"
 
 	c.DevGenesis.AccountName = "engine"
-	c.DevGenesis.AccountPassword = "password"
+	c.DevGenesis.AccountPassword = "pass"
 	c.DevGenesis.ChainID = "mesg-dev-chain"
 
 	return &c, nil
