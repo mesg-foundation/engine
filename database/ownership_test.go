@@ -17,7 +17,7 @@ func TestOwnershipDB(t *testing.T) {
 	ownership.RegisterCodec(cdc)
 
 	dir, _ := ioutil.TempDir("", "ownership.db.test")
-	defer os.Remove(dir)
+	defer os.RemoveAll(dir)
 
 	store, err := store.NewLevelDBStore(dir)
 	require.NoError(t, err)

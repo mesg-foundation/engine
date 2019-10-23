@@ -12,7 +12,7 @@ import (
 
 func TestProcessDB(t *testing.T) {
 	dir, _ := ioutil.TempDir("", "process.db.test")
-	defer os.Remove(dir)
+	defer os.RemoveAll(dir)
 
 	db, err := NewProcessDB(dir)
 	require.NoError(t, err)
@@ -66,7 +66,7 @@ func TestProcessDB(t *testing.T) {
 
 func TestHashIsDifferent(t *testing.T) {
 	dir, _ := ioutil.TempDir("", "process.db.test")
-	defer os.Remove(dir)
+	defer os.RemoveAll(dir)
 
 	db, err := NewProcessDB(dir)
 	require.NoError(t, err)
