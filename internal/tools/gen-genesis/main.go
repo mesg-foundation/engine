@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -94,8 +95,16 @@ func main() {
 			logrus.Fatalln(err)
 		}
 		vals = append(vals, genVal)
-		logrus.WithFields(genVal.Map()).Infof("Validator #%d\n", i+1)
-		peers = append(peers, genVal.Map()["peer"].(string))
+		peer := fmt.Sprintf("%s@%s:26656", genVal.NodeID, genVal.Name)
+		logrus.WithFields(map[string]interface{}{
+			"name":     genVal.Name,
+			"address":  genVal.Address,
+			"password": genVal.Password,
+			"mnemonic": genVal.Mnemonic,
+			"nodeID":   genVal.NodeID,
+			"peer":     peer,
+		}).Infof("Validator #%d\n", i+1)
+		peers = append(peers, peer)
 	}
 
 	// generate and save genesis

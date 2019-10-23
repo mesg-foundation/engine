@@ -2,7 +2,6 @@ package cosmos
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"time"
 
@@ -53,18 +52,6 @@ func NewGenesisValidator(kb *Keybase, name, password, privValidatorKeyFile, priv
 		ValPubKey: val.GetPubKey(),
 		NodeID:    nodeKey.ID(),
 	}, nil
-}
-
-// Map exports the info of GenesisValidator in a nice way for logrus.
-func (validator GenesisValidator) Map() map[string]interface{} {
-	return map[string]interface{}{
-		"name":     validator.Name,
-		"address":  validator.Address,
-		"password": validator.Password,
-		"mnemonic": validator.Mnemonic,
-		"nodeID":   validator.NodeID,
-		"peer":     fmt.Sprintf("%s@%s:26656", validator.NodeID, validator.Name),
-	}
 }
 
 // GenesisExist returns true if the genesis file already exist.

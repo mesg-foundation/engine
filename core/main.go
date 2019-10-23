@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"path/filepath"
 	"strconv"
 	"sync"
@@ -91,7 +92,14 @@ func loadOrGenDevGenesis(app *cosmos.App, kb *cosmos.Keybase, cfg *config.Config
 	if err != nil {
 		return nil, err
 	}
-	logrus.WithFields(validator.Map()).Warnln("Dev validator")
+	logrus.WithFields(map[string]interface{}{
+		"name":     validator.Name,
+		"address":  validator.Address,
+		"password": validator.Password,
+		"mnemonic": validator.Mnemonic,
+		"nodeID":   validator.NodeID,
+		"peer":     fmt.Sprintf("%s@%s:26656", validator.NodeID, validator.Name),
+	}).Warnln("Dev validator")
 	return cosmos.GenGenesis(app, kb, cfg.DevGenesis.ChainID, cfg.Tendermint.GenesisFile(), []cosmos.GenesisValidator{validator})
 }
 
