@@ -45,11 +45,11 @@ type Config struct {
 
 	Tendermint struct {
 		*tmconfig.Config `validate:"required"`
-		Path             string `validate:"required"`
+		RelativePath     string `validate:"required"`
 	}
 
 	Cosmos struct {
-		Path string `validate:"required"`
+		RelativePath string `validate:"required"`
 	}
 
 	DevGenesis struct {
@@ -78,6 +78,7 @@ func Default() (*Config, error) {
 	c.Database.ExecutionRelativePath = filepath.Join("database", "executions", executionDBVersion)
 	c.Database.ProcessRelativePath = filepath.Join("database", "processes", processDBVersion)
 
+	c.Tendermint.RelativePath = "tendermint"
 	c.Tendermint.Config = tmconfig.DefaultConfig()
 	c.Tendermint.Config.RPC.ListenAddress = "tcp://0.0.0.0:26657"
 	c.Tendermint.Config.P2P.AddrBookStrict = false
@@ -85,6 +86,8 @@ func Default() (*Config, error) {
 	c.Tendermint.Config.Consensus.TimeoutCommit = 10 * time.Second
 	c.Tendermint.Instrumentation.Prometheus = true
 	c.Tendermint.Instrumentation.PrometheusListenAddr = "0.0.0.0:26660"
+
+	c.Cosmos.RelativePath = "cosmos"
 
 	c.DevGenesis.AccountName = "engine"
 	c.DevGenesis.AccountPassword = "pass"
@@ -116,11 +119,7 @@ func (c *Config) Load() error {
 	if err := envconfig.Process(envPrefix, c); err != nil {
 		return err
 	}
-
-	c.Tendermint.Path = filepath.Join(c.Path, "tendermint")
-	c.Cosmos.Path = filepath.Join(c.Path, "cosmos")
-
-	c.Tendermint.SetRoot(c.Tendermint.Path)
+	c.Tendermint.SetRoot(filepath.Join(c.Path, c.Tendermint.RelativePath))
 	return nil
 }
 
@@ -129,14 +128,13 @@ func (c *Config) Prepare() error {
 	if err := os.MkdirAll(c.Path, os.FileMode(0755)); err != nil {
 		return err
 	}
-	// TODO: find a way to not hardcode "config" and "data" folder from tendermint
-	if err := os.MkdirAll(filepath.Join(c.Tendermint.Path, "config"), os.FileMode(0755)); err != nil {
+	if err := os.MkdirAll(filepath.Dir(c.Tendermint.GenesisFile()), os.FileMode(0755)); err != nil {
 		return err
 	}
-	if err := os.MkdirAll(filepath.Join(c.Tendermint.Path, "data"), os.FileMode(0755)); err != nil {
+	if err := os.MkdirAll(c.Tendermint.Config.DBDir(), os.FileMode(0755)); err != nil {
 		return err
 	}
-	if err := os.MkdirAll(c.Cosmos.Path, os.FileMode(0755)); err != nil {
+	if err := os.MkdirAll(filepath.Join(c.Path, c.Cosmos.RelativePath), os.FileMode(0755)); err != nil {
 		return err
 	}
 	return nil
@@ -149,6 +147,9 @@ func (c *Config) Validate() error {
 	}
 	if _, err := logrus.ParseLevel(c.Log.Level); err != nil {
 		return fmt.Errorf("config.Log.Level error: %w", err)
+	}
+	if err := c.Tendermint.Config.ValidateBasic(); err != nil {
+		return fmt.Errorf("config.Tendermint error: %w", err)
 	}
 	return validator.New().Struct(c)
 }

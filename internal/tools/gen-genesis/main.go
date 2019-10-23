@@ -75,14 +75,14 @@ func main() {
 	vals := []cosmos.GenesisValidator{}
 	peers := []string{}
 	for i, valName := range validatorNames {
-		if err := os.MkdirAll(filepath.Join(filepath.Join(*path, tendermintPath), valName, "config"), 0755); err != nil {
-			logrus.Fatalln(err)
-		}
-		if err := os.MkdirAll(filepath.Join(filepath.Join(*path, tendermintPath), valName, "data"), 0755); err != nil {
-			logrus.Fatalln(err)
-		}
 		cfg := config.DefaultConfig()
 		cfg.SetRoot(filepath.Join(filepath.Join(*path, tendermintPath), valName))
+		if err := os.MkdirAll(filepath.Dir(cfg.GenesisFile()), 0755); err != nil {
+			logrus.Fatalln(err)
+		}
+		if err := os.MkdirAll(filepath.Join(cfg.DBDir()), 0755); err != nil {
+			logrus.Fatalln(err)
+		}
 		genVal, err := cosmos.NewGenesisValidator(kb,
 			valName,
 			passwords[i],

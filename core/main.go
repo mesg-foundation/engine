@@ -119,7 +119,7 @@ func main() {
 	_, port, _ := xnet.SplitHostPort(cfg.Server.Address)
 
 	// init app factory
-	db, err := db.NewGoLevelDB("app", cfg.Cosmos.Path)
+	db, err := db.NewGoLevelDB("app", filepath.Join(cfg.Path, cfg.Cosmos.RelativePath))
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
@@ -137,7 +137,7 @@ func main() {
 	}
 
 	// init key manager
-	kb, err := cosmos.NewKeybase(cfg.Cosmos.Path)
+	kb, err := cosmos.NewKeybase(filepath.Join(cfg.Path, cfg.Cosmos.RelativePath))
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
