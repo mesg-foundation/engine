@@ -1,0 +1,25 @@
+name: test-service
+tasks:
+  ping:
+    inputs:
+      msg:
+        type: String
+    outputs:
+      pong:
+        type: String
+  add:
+    inputs:
+      n:
+        type: Number
+      m:
+        type: Number
+    outputs:
+      res:
+        type: Number
+  error:
+
+events:
+  ping_ok:
+  add_ok:
+  error_ok:
+
