@@ -9,6 +9,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestNew(t *testing.T) {
+	_, err := New()
+	require.NoError(t, err)
+}
+
 func TestDefaultValue(t *testing.T) {
 	home, _ := homedir.Dir()
 	c, err := Default()
@@ -20,12 +25,6 @@ func TestDefaultValue(t *testing.T) {
 	require.Equal(t, filepath.Join(home, ".mesg"), c.Path)
 	require.Equal(t, filepath.Join("database", "executions", executionDBVersion), c.Database.ExecutionRelativePath)
 	require.Equal(t, "engine", c.Name)
-}
-
-func TestValidate(t *testing.T) {
-	c, _ := Default()
-	c.Load()
-	require.NoError(t, c.Validate())
 }
 
 func TestLoad(t *testing.T) {
