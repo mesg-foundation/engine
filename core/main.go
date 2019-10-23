@@ -1,7 +1,6 @@
 package main
 
 import (
-	"os"
 	"path/filepath"
 	"strconv"
 	"sync"
@@ -21,6 +20,7 @@ import (
 	"github.com/mesg-foundation/engine/x/xnet"
 	"github.com/mesg-foundation/engine/x/xsignal"
 	"github.com/sirupsen/logrus"
+	tmtypes "github.com/tendermint/tendermint/types"
 	db "github.com/tendermint/tm-db"
 )
 
@@ -75,6 +75,26 @@ func stopRunningServices(sdk *enginesdk.SDK) error {
 	return errs.ErrorOrNil()
 }
 
+func loadOrGenDevGenesis(app *cosmos.App, kb *cosmos.Keybase, cfg *config.Config) (*tmtypes.GenesisDoc, error) {
+	if cosmos.GenesisExist(cfg.Tendermint.GenesisFile()) {
+		return cosmos.LoadGenesis(cfg.Tendermint.GenesisFile())
+	}
+	// generate dev genesis
+	logrus.WithField("module", "main").Warn("Genesis file not found. Will generate an unsecured developer one.")
+	validator, err := cosmos.NewGenesisValidator(kb,
+		cfg.DevGenesis.AccountName,
+		cfg.DevGenesis.AccountPassword,
+		cfg.Tendermint.PrivValidatorKeyFile(),
+		cfg.Tendermint.PrivValidatorStateFile(),
+		cfg.Tendermint.NodeKeyFile(),
+	)
+	if err != nil {
+		return nil, err
+	}
+	logrus.WithFields(validator.Map()).Warnln("Dev validator")
+	return cosmos.GenGenesis(app, kb, cfg.DevGenesis.ChainID, cfg.Tendermint.GenesisFile(), []cosmos.GenesisValidator{validator})
+}
+
 func main() {
 	cfg, err := config.New()
 	if err != nil {
@@ -122,26 +142,9 @@ func main() {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 
-	genesis, err := cosmos.LoadGenesis(cfg.Tendermint.GenesisFile())
-	// generate genesis if it doesn't exist
-	if os.IsNotExist(err) {
-		logrus.WithField("module", "main").Warn("Genesis file not found. Will generate an unsecured developer one.")
-		validator, err := cosmos.NewGenesisValidator(kb,
-			cfg.DevGenesis.AccountName,
-			cfg.DevGenesis.AccountPassword,
-			cfg.Tendermint.PrivValidatorKeyFile(),
-			cfg.Tendermint.PrivValidatorStateFile(),
-			cfg.Tendermint.NodeKeyFile(),
-		)
-		if err != nil {
-			logrus.WithField("module", "main").Fatalln(err)
-		}
-		genesis, err = cosmos.GenGenesis(app, kb, cfg.DevGenesis.ChainID, cfg.Tendermint.GenesisFile(), []cosmos.GenesisValidator{validator})
-		if err != nil {
-			logrus.WithField("module", "main").Fatalln(err)
-		}
-		logrus.WithFields(validator.Map()).Infoln("Validator")
-	} else if err != nil {
+	// load or gen genesis
+	genesis, err := loadOrGenDevGenesis(app, kb, cfg)
+	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 

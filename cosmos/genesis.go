@@ -16,6 +16,7 @@ import (
 	"github.com/tendermint/tendermint/p2p"
 	"github.com/tendermint/tendermint/privval"
 	"github.com/tendermint/tendermint/types"
+	tmtypes "github.com/tendermint/tendermint/types"
 )
 
 // GenesisValidator holds the info of a specific validator to use to generate a genesis.
@@ -66,16 +67,19 @@ func (validator GenesisValidator) Map() map[string]interface{} {
 	}
 }
 
+// GenesisExist returns true if the genesis file already exist.
+func GenesisExist(genesisFile string) bool {
+	_, err := os.Stat(genesisFile)
+	return !os.IsNotExist(err)
+}
+
 // LoadGenesis loads a genesis from a file.
-func LoadGenesis(genesisFile string) (*types.GenesisDoc, error) {
-	if _, err := os.Stat(genesisFile); err != nil {
-		return nil, err
-	}
-	return types.GenesisDocFromFile(genesisFile)
+func LoadGenesis(genesisFile string) (*tmtypes.GenesisDoc, error) {
+	return tmtypes.GenesisDocFromFile(genesisFile)
 }
 
 // GenGenesis generates a new genesis and save it.
-func GenGenesis(app *App, kb *Keybase, chainID string, genesisFile string, validators []GenesisValidator) (*types.GenesisDoc, error) {
+func GenGenesis(app *App, kb *Keybase, chainID string, genesisFile string, validators []GenesisValidator) (*tmtypes.GenesisDoc, error) {
 	msgs := []sdktypes.Msg{}
 	for _, validator := range validators {
 		// generate msg to add this validator
@@ -111,7 +115,7 @@ func GenGenesis(app *App, kb *Keybase, chainID string, genesisFile string, valid
 	return genesis, nil
 }
 
-func genGenesisDoc(cdc *codec.Codec, appState map[string]json.RawMessage, chainID string, genesisTime time.Time) (*types.GenesisDoc, error) {
+func genGenesisDoc(cdc *codec.Codec, appState map[string]json.RawMessage, chainID string, genesisTime time.Time) (*tmtypes.GenesisDoc, error) {
 	appStateEncoded, err := cdc.MarshalJSON(appState)
 	if err != nil {
 		return nil, err
