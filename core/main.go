@@ -92,7 +92,7 @@ func loadOrGenDevGenesis(app *cosmos.App, kb *cosmos.Keybase, cfg *config.Config
 	if err != nil {
 		return nil, err
 	}
-	logrus.WithFields(map[string]interface{}{
+	logrus.WithField("module", "main").WithFields(map[string]interface{}{
 		"name":     validator.Name,
 		"address":  validator.Address,
 		"password": validator.Password,
@@ -106,7 +106,7 @@ func loadOrGenDevGenesis(app *cosmos.App, kb *cosmos.Keybase, cfg *config.Config
 func main() {
 	cfg, err := config.New()
 	if err != nil {
-		logrus.Fatalln(err)
+		logrus.WithField("module", "main").Fatalln(err)
 	}
 
 	// init logger.
