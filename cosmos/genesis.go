@@ -98,7 +98,6 @@ func GenGenesis(app *App, kb *Keybase, chainID string, genesisFile string, valid
 			return nil, err
 		}
 	}
-
 	// generate genesis
 	appState, err := genGenesisAppState(app.DefaultGenesis(), app.Cdc(), validatorTx)
 	if err != nil {
@@ -131,7 +130,6 @@ func genGenesisDoc(cdc *codec.Codec, appState map[string]json.RawMessage, chainI
 
 func genGenesisAppState(defaultGenesisŚtate map[string]json.RawMessage, cdc *codec.Codec, signedStdTx authtypes.StdTx) (map[string]json.RawMessage, error) {
 	genAccs := []genaccounts.GenesisAccount{}
-
 	for _, signer := range signedStdTx.GetSigners() {
 		stakes := sdktypes.NewCoin(sdktypes.DefaultBondDenom, sdktypes.NewInt(100000000))
 		genAcc := genaccounts.NewGenesisAccountRaw(signer, sdktypes.NewCoins(stakes), sdktypes.NewCoins(), 0, 0, "", "")
@@ -140,13 +138,11 @@ func genGenesisAppState(defaultGenesisŚtate map[string]json.RawMessage, cdc *co
 		}
 		genAccs = append(genAccs, genAcc)
 	}
-
 	genstate, err := cdc.MarshalJSON(genaccounts.GenesisState(genAccs))
 	if err != nil {
 		return nil, err
 	}
 	defaultGenesisŚtate[genaccounts.ModuleName] = genstate
-
 	return genutil.SetGenTxsInAppGenesisState(cdc, defaultGenesisŚtate, []authtypes.StdTx{signedStdTx})
 }
 
