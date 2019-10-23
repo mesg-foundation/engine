@@ -22,6 +22,12 @@ func TestDefaultValue(t *testing.T) {
 	require.Equal(t, "engine", c.Name)
 }
 
+func TestValidate(t *testing.T) {
+	c, _ := Default()
+	c.Load()
+	require.NoError(t, c.Validate())
+}
+
 func TestLoad(t *testing.T) {
 	snapsnot := map[string]string{
 		"MESG_SERVER_ADDRESS":                 "",
@@ -52,10 +58,4 @@ func TestLoad(t *testing.T) {
 	require.Equal(t, "test_log_level", c.Log.Level)
 	require.Equal(t, true, c.Log.ForceColors)
 	require.Equal(t, "localhost", c.Tendermint.P2P.PersistentPeers)
-}
-
-func TestValidate(t *testing.T) {
-	c, _ := Default()
-	c.Load()
-	require.Error(t, c.Validate())
 }
