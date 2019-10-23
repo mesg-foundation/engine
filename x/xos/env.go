@@ -1,19 +1,9 @@
 package xos
 
 import (
-	"os"
 	"sort"
 	"strings"
 )
-
-// GetenvDefault retrieves the value of the environment variable named by the key.
-// It returns the value, which will be set to fallback if the variable is empty.
-func GetenvDefault(key, fallback string) string {
-	if val := os.Getenv(key); val != "" {
-		return val
-	}
-	return fallback
-}
 
 // EnvMapToSlice transform a map of key value to a slice of env in the form "key=value".
 // Env vars are sorted by names to get an accurate order while testing.
