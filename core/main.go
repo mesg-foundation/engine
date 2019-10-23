@@ -100,7 +100,7 @@ func loadOrGenDevGenesis(app *cosmos.App, kb *cosmos.Keybase, cfg *config.Config
 		"nodeID":   validator.NodeID,
 		"peer":     fmt.Sprintf("%s@%s:26656", validator.NodeID, validator.Name),
 	}).Warnln("Dev validator")
-	return cosmos.GenGenesis(app, kb, cfg.DevGenesis.ChainID, cfg.Tendermint.GenesisFile(), []cosmos.GenesisValidator{validator})
+	return cosmos.GenGenesis(app.Cdc(), kb, app.DefaultGenesis(), cfg.DevGenesis.ChainID, cfg.Tendermint.GenesisFile(), []cosmos.GenesisValidator{validator})
 }
 
 func main() {

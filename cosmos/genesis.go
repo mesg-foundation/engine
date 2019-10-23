@@ -66,14 +66,14 @@ func LoadGenesis(genesisFile string) (*tmtypes.GenesisDoc, error) {
 }
 
 // GenGenesis generates a new genesis and save it.
-func GenGenesis(app *App, kb *Keybase, chainID string, genesisFile string, validators []GenesisValidator) (*tmtypes.GenesisDoc, error) {
+func GenGenesis(cdc *codec.Codec, kb *Keybase, defaultGenesisŚtate map[string]json.RawMessage, chainID string, genesisFile string, validators []GenesisValidator) (*tmtypes.GenesisDoc, error) {
 	msgs := []sdktypes.Msg{}
 	for _, validator := range validators {
 		// generate msg to add this validator
 		msgs = append(msgs, genCreateValidatorMsg(validator.Address, validator.Name, validator.ValPubKey))
 	}
 	// generate genesis transaction
-	b := NewTxBuilder(app.Cdc(), 0, 0, kb, chainID)
+	b := NewTxBuilder(cdc, 0, 0, kb, chainID)
 	signedMsg, err := b.BuildSignMsg(msgs)
 	if err != nil {
 		return nil, err
@@ -86,11 +86,11 @@ func GenGenesis(app *App, kb *Keybase, chainID string, genesisFile string, valid
 		}
 	}
 	// generate genesis
-	appState, err := genGenesisAppState(app.DefaultGenesis(), app.Cdc(), validatorTx)
+	appState, err := genGenesisAppState(defaultGenesisŚtate, cdc, validatorTx)
 	if err != nil {
 		return nil, err
 	}
-	genesis, err := genGenesisDoc(app.Cdc(), appState, chainID, time.Now())
+	genesis, err := genGenesisDoc(cdc, appState, chainID, time.Now())
 	if err != nil {
 		return nil, err
 	}
