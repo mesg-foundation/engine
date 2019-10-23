@@ -2,7 +2,7 @@ version: 2
 
 run_on_machine: &run_on_machine
   machine:
-    docker_layer_caching: true
+    docker_layer_caching: false
 
 run_on_docker: &run_on_docker
   docker:
