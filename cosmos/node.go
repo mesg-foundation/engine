@@ -1,15 +1,6 @@
 package cosmos
 
 import (
-	"encoding/json"
-	"time"
-
-	"github.com/cosmos/cosmos-sdk/codec"
-	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/cosmos/cosmos-sdk/x/genaccounts"
-	"github.com/cosmos/cosmos-sdk/x/genutil"
-	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/logger"
 	tmconfig "github.com/tendermint/tendermint/config"
 	"github.com/tendermint/tendermint/node"
@@ -20,15 +11,7 @@ import (
 )
 
 // NewNode creates a new Tendermint node from an App.
-func NewNode(app *App, cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.Node, error) {
-	cdc := app.Cdc()
-
-	// initialize app state with first validator
-	appState, err := createAppState(app.DefaultGenesis(), cdc, authtypes.StdTx(ccfg.GenesisValidatorTx))
-	if err != nil {
-		return nil, err
-	}
-
+func NewNode(app *App, cfg *tmconfig.Config, genesis *types.GenesisDoc) (*node.Node, error) {
 	nodeKey, err := p2p.LoadOrGenNodeKey(cfg.NodeKeyFile())
 	if err != nil {
 		return nil, err
@@ -40,49 +23,9 @@ func NewNode(app *App, cfg *tmconfig.Config, ccfg *config.CosmosConfig) (*node.N
 		privval.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile()),
 		nodeKey,
 		proxy.NewLocalClientCreator(app),
-		genesisLoader(cdc, appState, ccfg.ChainID, ccfg.GenesisTime),
+		func() (*types.GenesisDoc, error) { return genesis, nil },
 		node.DefaultDBProvider,
 		node.DefaultMetricsProvider(cfg.Instrumentation),
 		logger.TendermintLogger(),
 	)
-}
-
-func createAppState(defaultGenesisŚtate map[string]json.RawMessage, cdc *codec.Codec, signedStdTx authtypes.StdTx) (map[string]json.RawMessage, error) {
-	genAccs := []genaccounts.GenesisAccount{}
-
-	for _, signer := range signedStdTx.GetSigners() {
-		stakes := sdktypes.NewCoin(sdktypes.DefaultBondDenom, sdktypes.NewInt(100000000))
-		genAcc := genaccounts.NewGenesisAccountRaw(signer, sdktypes.NewCoins(stakes), sdktypes.NewCoins(), 0, 0, "", "")
-		if err := genAcc.Validate(); err != nil {
-			return nil, err
-		}
-		genAccs = append(genAccs, genAcc)
-	}
-
-	genstate, err := cdc.MarshalJSON(genaccounts.GenesisState(genAccs))
-	if err != nil {
-		return nil, err
-	}
-	defaultGenesisŚtate[genaccounts.ModuleName] = genstate
-
-	return genutil.SetGenTxsInAppGenesisState(cdc, defaultGenesisŚtate, []authtypes.StdTx{signedStdTx})
-}
-
-func genesisLoader(cdc *codec.Codec, appState map[string]json.RawMessage, chainID string, genesisTime time.Time) func() (*types.GenesisDoc, error) {
-	return func() (*types.GenesisDoc, error) {
-		appStateEncoded, err := cdc.MarshalJSON(appState)
-		if err != nil {
-			return nil, err
-		}
-		genesis := &types.GenesisDoc{
-			GenesisTime:     genesisTime,
-			ChainID:         chainID,
-			ConsensusParams: types.DefaultConsensusParams(),
-			AppState:        appStateEncoded,
-		}
-		if err := genesis.ValidateAndComplete(); err != nil {
-			return nil, err
-		}
-		return genesis, nil
-	}
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"path/filepath"
 	"strconv"
 	"sync"
@@ -20,6 +21,7 @@ import (
 	"github.com/mesg-foundation/engine/x/xnet"
 	"github.com/mesg-foundation/engine/x/xsignal"
 	"github.com/sirupsen/logrus"
+	tmtypes "github.com/tendermint/tendermint/types"
 	db "github.com/tendermint/tm-db"
 )
 
@@ -74,10 +76,37 @@ func stopRunningServices(sdk *enginesdk.SDK) error {
 	return errs.ErrorOrNil()
 }
 
+func loadOrGenDevGenesis(app *cosmos.App, kb *cosmos.Keybase, cfg *config.Config) (*tmtypes.GenesisDoc, error) {
+	if cosmos.GenesisExist(cfg.Tendermint.GenesisFile()) {
+		return cosmos.LoadGenesis(cfg.Tendermint.GenesisFile())
+	}
+	// generate dev genesis
+	logrus.WithField("module", "main").Warn("Genesis file not found. Will generate an unsecured developer one.")
+	validator, err := cosmos.NewGenesisValidator(kb,
+		cfg.DevGenesis.AccountName,
+		cfg.DevGenesis.AccountPassword,
+		cfg.Tendermint.PrivValidatorKeyFile(),
+		cfg.Tendermint.PrivValidatorStateFile(),
+		cfg.Tendermint.NodeKeyFile(),
+	)
+	if err != nil {
+		return nil, err
+	}
+	logrus.WithField("module", "main").WithFields(map[string]interface{}{
+		"name":     validator.Name,
+		"address":  validator.Address,
+		"password": validator.Password,
+		"mnemonic": validator.Mnemonic,
+		"nodeID":   validator.NodeID,
+		"peer":     fmt.Sprintf("%s@%s:26656", validator.NodeID, validator.Name),
+	}).Warnln("Dev validator")
+	return cosmos.GenGenesis(app.Cdc(), kb, app.DefaultGenesis(), cfg.DevGenesis.ChainID, cfg.Tendermint.GenesisFile(), []cosmos.GenesisValidator{validator})
+}
+
 func main() {
 	cfg, err := config.New()
 	if err != nil {
-		logrus.Fatalln(err)
+		logrus.WithField("module", "main").Fatalln(err)
 	}
 
 	// init logger.
@@ -98,13 +127,15 @@ func main() {
 	_, port, _ := xnet.SplitHostPort(cfg.Server.Address)
 
 	// init app factory
-	db, err := db.NewGoLevelDB("app", cfg.Cosmos.Path)
+	db, err := db.NewGoLevelDB("app", filepath.Join(cfg.Path, cfg.Cosmos.RelativePath))
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
+	// TODO: rename NewAppFactory to something else
 	appFactory := cosmos.NewAppFactory(logger.TendermintLogger(), db)
 
 	// register the backend modules to the app factory.
+	// TODO: this is a mandatory call so it should return a new types required by cosmos.NewApp
 	enginesdk.NewBackend(appFactory)
 
 	// init cosmos app
@@ -114,19 +145,25 @@ func main() {
 	}
 
 	// init key manager
-	kb, err := cosmos.NewKeybase(cfg.Cosmos.Path)
+	kb, err := cosmos.NewKeybase(filepath.Join(cfg.Path, cfg.Cosmos.RelativePath))
+	if err != nil {
+		logrus.WithField("module", "main").Fatalln(err)
+	}
+
+	// load or gen genesis
+	genesis, err := loadOrGenDevGenesis(app, kb, cfg)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 
 	// create cosmos node
-	node, err := cosmos.NewNode(app, cfg.Tendermint.Config, &cfg.Cosmos)
+	node, err := cosmos.NewNode(app, cfg.Tendermint.Config, genesis)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 
 	// create cosmos client
-	client := cosmos.NewClient(node, app.Cdc(), kb, cfg.Cosmos.ChainID)
+	client := cosmos.NewClient(node, app.Cdc(), kb, genesis.ChainID)
 
 	// init sdk
 	sdk := enginesdk.New(client, app.Cdc(), kb, c, instanceDB, executionDB, processDB, cfg.Name, strconv.Itoa(port))

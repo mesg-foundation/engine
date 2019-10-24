@@ -1,4 +1,4 @@
-.PHONY: all check-version docker-publish docker-publish-dev docker-tools dev lint dep build test mock protobuf changelog clean 
+.PHONY: all check-version docker-publish docker-publish-dev docker-tools dev lint dep build test mock protobuf changelog clean genesis
 
 MAJOR_VERSION := $(shell echo $(version) | cut -d . -f 1)	
 MINOR_VERSION := $(shell echo $(version) | cut -d . -f 1-2)
@@ -23,7 +23,6 @@ docker-build: check-version
 docker-dev:
 	./scripts/build-engine.sh
 
-
 docker-publish: docker-build
 	docker push mesg/engine:$(MAJOR_VERSION)
 	docker push mesg/engine:$(MINOR_VERSION)
@@ -36,7 +35,6 @@ docker-publish-dev: check-version
 
 docker-tools:
 	docker build -t mesg/tools:local -f Dockerfile.tools .
-
 
 dev: docker-dev
 	- ./scripts/dev.sh
@@ -68,3 +66,6 @@ clean:
 			mesg/engine:$(version) \
 			mesg/engine:latest \
 			mesg/engine:dev 2>/dev/null
+
+genesis:
+	go run internal/tools/gen-genesis/main.go --path $(path)  --chain-id $(chain-id) --validators $(validators)
