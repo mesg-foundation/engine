@@ -5,11 +5,9 @@ set -e
 # mesg config variables
 MESG_NAME=${MESG_NAME:-"engine"}
 MESG_PATH=${MESG_PATH:-"$HOME/.mesg"}
-MESG_LOG_FORMAT=${MESG_LOG_FORMAT:-"text"}
-MESG_LOG_FORCECOLORS=${MESG_LOG_FORCECOLORS:-"false"}
-MESG_LOG_LEVEL=${MESG_LOG_LEVEL:-"debug"}
-MESG_SERVER_PORT=${MESG_SERVER_PORT:-"50052"}
+
 MESG_TENDERMINT_NETWORK="mesg-tendermint"
+MESG_SERVER_PORT=${MESG_SERVER_PORT:-"50052"}
 MESG_TENDERMINT_PORT=${MESG_TENDERMINT_PORT:-"26656"}
 
 function onexit {
@@ -58,10 +56,6 @@ docker service create \
   --label com.docker.stack.namespace=$MESG_NAME \
   --label com.docker.stack.image=mesg/engine:local \
   --env MESG_NAME=$MESG_NAME \
-  --env MESG_LOG_FORMAT=$MESG_LOG_FORMAT \
-  --env MESG_LOG_FORCECOLORS=$MESG_LOG_FORCECOLORS \
-  --env MESG_LOG_LEVEL=$MESG_LOG_LEVEL \
-  --env MESG_TENDERMINT_P2P_PERSISTENTPEERS=$MESG_TENDERMINT_P2P_PERSISTENTPEERS \
   --mount type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock \
   --mount type=bind,source=$MESG_PATH,destination=/root/.mesg \
   --network $MESG_NAME \
