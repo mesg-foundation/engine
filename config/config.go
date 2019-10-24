@@ -59,8 +59,8 @@ type Config struct {
 	}
 }
 
-// Default creates a new config with default values.
-func Default() (*Config, error) {
+// defaultConfig creates a new config with default values.
+func defaultConfig() (*Config, error) {
 	home, err := homedir.Dir()
 	if err != nil {
 		return nil, err
@@ -98,33 +98,33 @@ func Default() (*Config, error) {
 
 // New returns a Config after loaded ENV and validate the values.
 func New() (*Config, error) {
-	c, err := Default()
+	c, err := defaultConfig()
 	if err != nil {
 		return nil, err
 	}
-	if err := c.Load(); err != nil {
+	if err := c.load(); err != nil {
 		return nil, err
 	}
-	if err := c.Prepare(); err != nil {
+	if err := c.prepare(); err != nil {
 		return nil, err
 	}
-	if err := c.Validate(); err != nil {
+	if err := c.validate(); err != nil {
 		return nil, err
 	}
 	return c, nil
 }
 
-// Load reads config from environmental variables.
-func (c *Config) Load() error {
 	if err := envconfig.Process(envPrefix, c); err != nil {
 		return err
+// load reads config from environmental variables.
+func (c *Config) load() error {
 	}
 	c.Tendermint.Config.SetRoot(filepath.Join(c.Path, c.Tendermint.RelativePath))
 	return nil
 }
 
-// Prepare setups local directories or any other required thing based on config
-func (c *Config) Prepare() error {
+// prepare setups local directories or any other required thing based on config
+func (c *Config) prepare() error {
 	if err := os.MkdirAll(c.Path, os.FileMode(0755)); err != nil {
 		return err
 	}
@@ -140,8 +140,8 @@ func (c *Config) Prepare() error {
 	return nil
 }
 
-// Validate checks values and return an error if any validation failed.
-func (c *Config) Validate() error {
+// validate checks values and return an error if any validation failed.
+func (c *Config) validate() error {
 	if !xstrings.SliceContains([]string{"text", "json"}, c.Log.Format) {
 		return fmt.Errorf("config.Log.Format value %q is not an allowed", c.Log.Format)
 	}

@@ -14,9 +14,9 @@ func TestNew(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestDefaultValue(t *testing.T) {
+func TestDefaultConfig(t *testing.T) {
 	home, _ := homedir.Dir()
-	c, err := Default()
+	c, err := New()
 	require.NoError(t, err)
 	require.Equal(t, ":50052", c.Server.Address)
 	require.Equal(t, "text", c.Log.Format)
@@ -48,11 +48,11 @@ func TestLoad(t *testing.T) {
 	os.Setenv("MESG_LOG_LEVEL", "test_log_level")
 	os.Setenv("MESG_LOG_FORCECOLORS", "true")
 
-	c, _ := Default()
-	c.Load()
 	require.Equal(t, "test_server_address", c.Server.Address)
 	require.Equal(t, "test_log_format", c.Log.Format)
 	require.Equal(t, "test_log_level", c.Log.Level)
 	require.Equal(t, true, c.Log.ForceColors)
 	require.Equal(t, "localhost", c.Tendermint.P2P.PersistentPeers)
+	// load
+	c, err := New()
 }
