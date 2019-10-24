@@ -94,7 +94,7 @@ func defaultConfig() (*Config, error) {
 
 	c.Cosmos.RelativePath = "cosmos"
 
-	c.DevGenesis.AccountName = "engine"
+	c.DevGenesis.AccountName = "dev"
 	c.DevGenesis.AccountPassword = "pass"
 	c.DevGenesis.ChainID = "mesg-dev-chain"
 
