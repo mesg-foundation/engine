@@ -31,34 +31,34 @@ type Config struct {
 	Path string `validate:"required" yaml:"-"`
 
 	Server struct {
-		Address string `validate:"required" yaml:"address,omitempty"`
+		Address string `validate:"required"`
 	}
 
 	Log struct {
-		Format      string `validate:"required" yaml:"format,omitempty"`
-		ForceColors bool   `yaml:"forceColors,omitempty"`
-		Level       string `validate:"required" yaml:"level,omitempty"`
+		Format      string `validate:"required"`
+		ForceColors bool
+		Level       string `validate:"required"`
 	}
 
 	Database struct {
-		InstanceRelativePath  string `validate:"required" yaml:"instanceRelativePath,omitempty"`
-		ExecutionRelativePath string `validate:"required" yaml:"executionRelativePath,omitempty"`
-		ProcessRelativePath   string `validate:"required" yaml:"processRelativePath,omitempty"`
+		InstanceRelativePath  string `validate:"required"`
+		ExecutionRelativePath string `validate:"required"`
+		ProcessRelativePath   string `validate:"required"`
 	}
 
 	Tendermint struct {
-		Config       *tmconfig.Config `validate:"required" yaml:"config,omitempty"`
-		RelativePath string           `validate:"required" yaml:"relativePath,omitempty"`
+		Config       *tmconfig.Config `validate:"required"`
+		RelativePath string           `validate:"required"`
 	}
 
 	Cosmos struct {
-		RelativePath string `validate:"required" yaml:"relativePath,omitempty"`
+		RelativePath string `validate:"required"`
 	}
 
 	DevGenesis struct {
-		AccountName     string `validate:"required" yaml:"accountName,omitempty"`
-		AccountPassword string `validate:"required" yaml:"accountPassword,omitempty"`
-		ChainID         string `validate:"required" yaml:"chainID,omitempty"`
+		AccountName     string `validate:"required"`
+		AccountPassword string `validate:"required"`
+		ChainID         string `validate:"required"`
 	}
 }
 
@@ -133,7 +133,7 @@ func (c *Config) load() error {
 		if err != nil {
 			return err
 		}
-		if err := yaml.Unmarshal(b, c); err != nil {
+		if err := yaml.UnmarshalStrict(b, c); err != nil {
 			return err
 		}
 	}

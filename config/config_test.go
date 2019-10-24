@@ -40,26 +40,34 @@ func TestEnv(t *testing.T) {
 }
 
 func TestLoadFromFile(t *testing.T) {
-	tempPath, _ := ioutil.TempDir("", "TestConfigLoad")
+	tempPath, _ := ioutil.TempDir("", "TestLoadFromFile")
 	defer os.RemoveAll(tempPath)
 	os.Setenv(envPathKey, tempPath)
 	defer os.Unsetenv(envPathKey)
-	ioutil.WriteFile(filepath.Join(tempPath, defaultConfigFileName), []byte(`name: shouldNotReadThis
-path: shouldNotReadThis
-server:
+
+	t.Run("key does not exist", func(t *testing.T) {
+		ioutil.WriteFile(filepath.Join(tempPath, defaultConfigFileName), []byte(`foo: bar`), 0644)
+		_, err := New()
+		require.Error(t, err)
+	})
+	t.Run("load", func(t *testing.T) {
+		ioutil.WriteFile(filepath.Join(tempPath, defaultConfigFileName), []byte(`server:
   address: :50050
+log:
+  forcecolors: true
 tendermint:
   config:
     consensus:
       timeoutcommit: 1m6s
 `), 0644)
 
-	// load
-	c, err := New()
-	require.NoError(t, err)
-	require.Equal(t, ":50050", c.Server.Address)
-	require.Equal(t, 66*time.Second, c.Tendermint.Config.Consensus.TimeoutCommit)
-	require.Equal(t, "tcp://0.0.0.0:26657", c.Tendermint.Config.RPC.ListenAddress)
-	require.Equal(t, tempPath, c.Path)
-	require.Equal(t, "engine", c.Name)
+		// load
+		c, err := New()
+		require.NoError(t, err)
+		require.Equal(t, ":50050", c.Server.Address)
+		require.Equal(t, 66*time.Second, c.Tendermint.Config.Consensus.TimeoutCommit)
+		require.Equal(t, "tcp://0.0.0.0:26657", c.Tendermint.Config.RPC.ListenAddress)
+		require.Equal(t, tempPath, c.Path)
+		require.Equal(t, "engine", c.Name)
+	})
 }
