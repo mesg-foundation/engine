@@ -2,20 +2,23 @@ package config
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"time"
 
-	"github.com/kelseyhightower/envconfig"
 	"github.com/mesg-foundation/engine/x/xstrings"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
 	tmconfig "github.com/tendermint/tendermint/config"
 	"gopkg.in/go-playground/validator.v9"
+	"gopkg.in/yaml.v2"
 )
 
 const (
-	envPrefix = "mesg"
+	defaultConfigFileName = "config.yml"
+	envPathKey            = "MESG_PATH"
+	envNameKey            = "MESG_NAME"
 
 	executionDBVersion = "v3"
 	instanceDBVersion  = "v2"
@@ -24,38 +27,38 @@ const (
 
 // Config contains all the configuration needed.
 type Config struct {
-	Name string `validate:"required"`
-	Path string `validate:"required"`
+	Name string `validate:"required" yaml:"-"`
+	Path string `validate:"required" yaml:"-"`
 
 	Server struct {
-		Address string `validate:"required"`
+		Address string `validate:"required" yaml:"address,omitempty"`
 	}
 
 	Log struct {
-		Format      string `validate:"required"`
-		ForceColors bool
-		Level       string `validate:"required"`
+		Format      string `validate:"required" yaml:"format,omitempty"`
+		ForceColors bool   `yaml:"forceColors,omitempty"`
+		Level       string `validate:"required" yaml:"level,omitempty"`
 	}
 
 	Database struct {
-		InstanceRelativePath  string `validate:"required"`
-		ExecutionRelativePath string `validate:"required"`
-		ProcessRelativePath   string `validate:"required"`
+		InstanceRelativePath  string `validate:"required" yaml:"instanceRelativePath,omitempty"`
+		ExecutionRelativePath string `validate:"required" yaml:"executionRelativePath,omitempty"`
+		ProcessRelativePath   string `validate:"required" yaml:"processRelativePath,omitempty"`
 	}
 
 	Tendermint struct {
-		RelativePath     string `validate:"required"`
-		Config       *tmconfig.Config `validate:"required"`
+		Config       *tmconfig.Config `validate:"required" yaml:"config,omitempty"`
+		RelativePath string           `validate:"required" yaml:"relativePath,omitempty"`
 	}
 
 	Cosmos struct {
-		RelativePath string `validate:"required"`
+		RelativePath string `validate:"required" yaml:"relativePath,omitempty"`
 	}
 
 	DevGenesis struct {
-		AccountName     string `validate:"required"`
-		AccountPassword string `validate:"required"`
-		ChainID         string `validate:"required"`
+		AccountName     string `validate:"required" yaml:"accountName,omitempty"`
+		AccountPassword string `validate:"required" yaml:"accountPassword,omitempty"`
+		ChainID         string `validate:"required" yaml:"chainID,omitempty"`
 	}
 }
 
@@ -67,12 +70,14 @@ func defaultConfig() (*Config, error) {
 	}
 
 	var c Config
+
+	c.Name = "engine"
+	c.Path = filepath.Join(home, ".mesg")
+
 	c.Server.Address = ":50052"
 	c.Log.Format = "text"
 	c.Log.Level = "info"
 	c.Log.ForceColors = false
-	c.Name = "engine"
-	c.Path = filepath.Join(home, ".mesg")
 
 	c.Database.InstanceRelativePath = filepath.Join("database", "instance", instanceDBVersion)
 	c.Database.ExecutionRelativePath = filepath.Join("database", "executions", executionDBVersion)
@@ -114,10 +119,23 @@ func New() (*Config, error) {
 	return c, nil
 }
 
-	if err := envconfig.Process(envPrefix, c); err != nil {
-		return err
 // load reads config from environmental variables.
 func (c *Config) load() error {
+	if envName, ok := os.LookupEnv(envNameKey); ok {
+		c.Name = envName
+	}
+	if envPath, ok := os.LookupEnv(envPathKey); ok {
+		c.Path = envPath
+	}
+	configFilePath := filepath.Join(c.Path, defaultConfigFileName)
+	if _, err := os.Stat(configFilePath); !os.IsNotExist(err) {
+		b, err := ioutil.ReadFile(configFilePath)
+		if err != nil {
+			return err
+		}
+		if err := yaml.Unmarshal(b, c); err != nil {
+			return err
+		}
 	}
 	c.Tendermint.Config.SetRoot(filepath.Join(c.Path, c.Tendermint.RelativePath))
 	return nil
