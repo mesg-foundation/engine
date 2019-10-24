@@ -14,17 +14,17 @@ option go_package = "api";
 service Instance {
 
   // Get returns an Instance matching the criteria of the request.
-  rpc Get (GetInstanceRequest) returns (types.Instance) {}
+  rpc Get(GetInstanceRequest) returns (types.Instance) {}
 
   // List returns all Instances matching the criteria of the request.
-  rpc List (ListInstanceRequest) returns (ListInstanceResponse) {}
+  rpc List(ListInstanceRequest) returns (ListInstanceResponse) {}
 
   // Create an Instance from a Service's hash and custom environmental variables.
   // It will return an unique identifier which is used to interact with the Instance.
-  rpc Create (CreateInstanceRequest) returns (CreateInstanceResponse) {}
+  rpc Create(CreateInstanceRequest) returns (CreateInstanceResponse) {}
 
   // Delete an Instance.
-  rpc Delete (DeleteInstanceRequest) returns (DeleteInstanceResponse) {}
+  rpc Delete(DeleteInstanceRequest) returns (DeleteInstanceResponse) {}
 }
 
 // The request's data for the `Get` API.

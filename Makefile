@@ -4,7 +4,7 @@ MAJOR_VERSION := $(shell echo $(version) | cut -d . -f 1)
 MINOR_VERSION := $(shell echo $(version) | cut -d . -f 1-2)
 PATCH_VERSION := $(version)
 
-all: clean lint test build
+all: clean lint test build e2e
 
 check-version:
 ifndef version
@@ -33,6 +33,9 @@ docker-publish-dev: check-version
 	docker build -t mesg/engine:dev --build-arg version=$(version) .
 	docker push mesg/engine:dev
 
+docker-test:
+	docker build -t mesg/test:local -f Dockerfile.test .
+
 docker-tools:
 	docker build -t mesg/tools:local -f Dockerfile.tools .
 
@@ -43,7 +46,13 @@ dep:
 	go mod download
 
 build: check-version dep
-	go build -mod=readonly -o ./bin/engine -ldflags="-X 'github.com/mesg-foundation/engine/version.Version=$(version)'" core/main.go
+	go build -mod=readonly -o ./bin/engine -ldflags="-X 'github.com/mesg-foundation/engine/version.Version=$(version)'" main.go
+
+e2e: docker-test
+	docker run \
+		--mount type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock \
+		mesg/test:local
+
 
 test: dep
 	go test -mod=readonly -v -coverprofile=coverage.txt ./...

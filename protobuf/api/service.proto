@@ -15,7 +15,7 @@ service Service {
 
   // Create a Service from a Service Definition.
   // It will return an unique identifier which is used to interact with the Service.
-  rpc Create (CreateServiceRequest) returns (CreateServiceResponse) {}
+  rpc Create(CreateServiceRequest) returns (CreateServiceResponse) {}
 
   // Get returns a Service matching the criteria of the request.
   rpc Get(GetServiceRequest) returns (types.Service) {}
