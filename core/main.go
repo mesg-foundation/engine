@@ -77,17 +77,17 @@ func stopRunningServices(sdk *enginesdk.SDK) error {
 }
 
 func loadOrGenDevGenesis(app *cosmos.App, kb *cosmos.Keybase, cfg *config.Config) (*tmtypes.GenesisDoc, error) {
-	if cosmos.GenesisExist(cfg.Tendermint.GenesisFile()) {
-		return cosmos.LoadGenesis(cfg.Tendermint.GenesisFile())
+	if cosmos.GenesisExist(cfg.Tendermint.Config.GenesisFile()) {
+		return cosmos.LoadGenesis(cfg.Tendermint.Config.GenesisFile())
 	}
 	// generate dev genesis
 	logrus.WithField("module", "main").Warn("Genesis file not found. Will generate an unsecured developer one.")
 	validator, err := cosmos.NewGenesisValidator(kb,
 		cfg.DevGenesis.AccountName,
 		cfg.DevGenesis.AccountPassword,
-		cfg.Tendermint.PrivValidatorKeyFile(),
-		cfg.Tendermint.PrivValidatorStateFile(),
-		cfg.Tendermint.NodeKeyFile(),
+		cfg.Tendermint.Config.PrivValidatorKeyFile(),
+		cfg.Tendermint.Config.PrivValidatorStateFile(),
+		cfg.Tendermint.Config.NodeKeyFile(),
 	)
 	if err != nil {
 		return nil, err
@@ -100,7 +100,7 @@ func loadOrGenDevGenesis(app *cosmos.App, kb *cosmos.Keybase, cfg *config.Config
 		"nodeID":   validator.NodeID,
 		"peer":     fmt.Sprintf("%s@%s:26656", validator.NodeID, validator.Name),
 	}).Warnln("Dev validator")
-	return cosmos.GenGenesis(app.Cdc(), kb, app.DefaultGenesis(), cfg.DevGenesis.ChainID, cfg.Tendermint.GenesisFile(), []cosmos.GenesisValidator{validator})
+	return cosmos.GenGenesis(app.Cdc(), kb, app.DefaultGenesis(), cfg.DevGenesis.ChainID, cfg.Tendermint.Config.GenesisFile(), []cosmos.GenesisValidator{validator})
 }
 
 func main() {
@@ -169,7 +169,7 @@ func main() {
 	sdk := enginesdk.New(client, app.Cdc(), kb, c, instanceDB, executionDB, processDB, cfg.Name, strconv.Itoa(port))
 
 	// start tendermint node
-	logrus.WithField("module", "main").WithField("seeds", cfg.Tendermint.P2P.Seeds).Info("starting tendermint node")
+	logrus.WithField("module", "main").WithField("seeds", cfg.Tendermint.Config.P2P.Seeds).Info("starting tendermint node")
 	if err := node.Start(); err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
