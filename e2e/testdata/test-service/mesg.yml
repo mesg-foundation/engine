@@ -1,4 +1,5 @@
 name: test-service
+sid: test-service
 tasks:
   ping:
     inputs:
@@ -17,9 +18,16 @@ tasks:
       res:
         type: Number
   error:
-
 events:
   ping_ok:
+    data:
+      msg:
+        type: String
   add_ok:
+    data:
+      msg:
+        type: String
   error_ok:
-
+    data:
+      msg:
+        type: String

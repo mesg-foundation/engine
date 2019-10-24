@@ -60,6 +60,7 @@ func New() (*Client, error) {
 
 	return &Client{
 		ExecutionClient: pb.NewExecutionClient(conn),
+		EventClient:     pb.NewEventClient(conn),
 		InstanceHash:    instanceHash,
 	}, nil
 }
@@ -101,7 +102,7 @@ func main() {
 					Fields: map[string]*types.Value{
 						"pong": &types.Value{
 							Kind: &types.Value_StringValue{
-								StringValue: exec.Inputs.Fields["pong"].GetStringValue(),
+								StringValue: exec.Inputs.Fields["msg"].GetStringValue(),
 							},
 						},
 					},
@@ -130,6 +131,15 @@ func main() {
 		if _, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
 			InstanceHash: exec.InstanceHash,
 			Key:          exec.TaskKey + "_ok",
+			Data: &types.Struct{
+				Fields: map[string]*types.Value{
+					"msg": &types.Value{
+						Kind: &types.Value_StringValue{
+							StringValue: "bar",
+						},
+					},
+				},
+			},
 		}); err != nil {
 			log.Fatal(err)
 		}
