@@ -10,16 +10,10 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-func TestService(t *testing.T) {
-	const serviceHash = "AtmujzHsstgr2dRRLULwfRrH6uBngJ2p3ghvfXpH7fCQ"
+func testService(t *testing.T) {
+	const serviceHash = "4F1Nst7TeKVbWXa3So9WZRmQEcqwwF8PEVkBLXyCAAqa"
 
-	var h hash.Hash
-
-	resp, err := client.ServiceClient.List(context.Background(), &pb.ListServiceRequest{})
-	require.NoError(t, err)
-	initLen := len(resp.Services)
-
-	req := readCreateServiceRequest("testdata/nop-service/compile.json")
+	req := readCreateServiceRequest("testdata/test-service/compile.json")
 
 	t.Run("create", func(t *testing.T) {
 		ctx := metadata.NewOutgoingContext(context.Background(), passmd)
@@ -27,13 +21,13 @@ func TestService(t *testing.T) {
 		resp, err := client.ServiceClient.Create(ctx, req)
 		require.NoError(t, err)
 		require.Equal(t, serviceHash, resp.Hash.String())
-		h = resp.Hash
+		testServiceHash = resp.Hash
 	})
 
 	t.Run("get", func(t *testing.T) {
 		ctx := metadata.NewOutgoingContext(context.Background(), passmd)
 
-		service, err := client.ServiceClient.Get(ctx, &pb.GetServiceRequest{Hash: h})
+		service, err := client.ServiceClient.Get(ctx, &pb.GetServiceRequest{Hash: testServiceHash})
 		require.NoError(t, err)
 		require.Equal(t, serviceHash, service.Hash.String())
 	})
@@ -41,11 +35,11 @@ func TestService(t *testing.T) {
 	t.Run("list", func(t *testing.T) {
 		resp, err := client.ServiceClient.List(context.Background(), &pb.ListServiceRequest{})
 		require.NoError(t, err)
-		require.Len(t, resp.Services, initLen+1)
+		require.Len(t, resp.Services, 1)
 	})
 
 	t.Run("exists", func(t *testing.T) {
-		resp, err := client.ServiceClient.Exists(context.Background(), &pb.ExistsServiceRequest{Hash: h})
+		resp, err := client.ServiceClient.Exists(context.Background(), &pb.ExistsServiceRequest{Hash: testServiceHash})
 		require.NoError(t, err)
 		require.True(t, resp.Exists)
 
@@ -57,6 +51,6 @@ func TestService(t *testing.T) {
 	t.Run("hash", func(t *testing.T) {
 		resp, err := client.ServiceClient.Hash(context.Background(), req)
 		require.NoError(t, err)
-		require.Equal(t, h, resp.Hash)
+		require.Equal(t, testServiceHash, resp.Hash)
 	})
 }

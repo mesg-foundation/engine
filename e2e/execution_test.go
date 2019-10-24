@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	pb "github.com/mesg-foundation/engine/protobuf/api"
@@ -11,18 +10,11 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-func TestExecution(t *testing.T) {
+func testExecution(t *testing.T) {
 	stream, err := client.EventClient.Stream(context.Background(), &pb.StreamEventRequest{
 		Filter: &pb.StreamEventRequest_Filter{},
 	})
 	require.NoError(t, err)
-	go func() {
-		fmt.Println("RECIVE EVENT ")
-		event, err := stream.Recv()
-		fmt.Println("RECIVE EVENT ")
-		require.NoError(t, err)
-		require.Equal(t, "ping_ok", event.Key)
-	}()
 
 	t.Run("create", func(t *testing.T) {
 		ctx := metadata.NewOutgoingContext(context.Background(), passmd)
@@ -40,6 +32,10 @@ func TestExecution(t *testing.T) {
 			},
 		})
 		require.NoError(t, err)
+
+		event, err := stream.Recv()
+		require.NoError(t, err)
+		require.Equal(t, "ping_ok", event.Key)
 	})
 
 	t.Run("get", func(t *testing.T) {

@@ -11,7 +11,7 @@ ENGINE_SUM_PATH="./bin/.engine.sum"
 DOCKER_SUM_PATH="./bin/.Dockerfile.dev.sum"
 
 echo "compile engine"
-GOOS=linux GOARCH=amd64 go build -o ./bin/engine main.go
+GOOS=linux GOARCH=amd64 go build -o ./bin/engine core/main.go
 
 touch "$ENGINE_SUM_PATH" "$DOCKER_SUM_PATH"
 

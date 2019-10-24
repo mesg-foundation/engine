@@ -9,7 +9,7 @@ RUN go mod download
 
 COPY . .
 ARG version
-RUN go build -mod=readonly -o ./bin/engine -ldflags="-X 'github.com/mesg-foundation/engine/version.Version=$version'" main.go
+RUN go build -mod=readonly -o ./bin/engine -ldflags="-X 'github.com/mesg-foundation/engine/version.Version=$version'" core/main.go
 
 FROM ubuntu:18.04
 RUN apt-get update && \

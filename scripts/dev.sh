@@ -6,8 +6,8 @@ set -e
 MESG_NAME=${MESG_NAME:-"engine"}
 MESG_PATH=${MESG_PATH:-"$HOME/.mesg"}
 
-MESG_TENDERMINT_NETWORK="mesg-tendermint"
 MESG_SERVER_PORT=${MESG_SERVER_PORT:-"50052"}
+MESG_TENDERMINT_NETWORK="mesg-tendermint"
 MESG_TENDERMINT_PORT=${MESG_TENDERMINT_PORT:-"26656"}
 
 function onexit {
@@ -37,31 +37,67 @@ function docker_network_remove {
   docker network remove "$1"
 }
 
-trap onexit EXIT
+function start_engine {
+  if ! docker_network_exist "$MESG_NAME"; then
+    docker_network_create "$MESG_NAME"
+  fi
+  
+  if ! docker_network_exist "$MESG_TENDERMINT_NETWORK"; then
+    docker_network_create "$MESG_TENDERMINT_NETWORK"
+  fi
+  
+  mkdir -p $MESG_PATH
+  
+  echo "create docker service: "
+  docker service create \
+    --name $MESG_NAME \
+    --tty \
+    --label com.docker.stack.namespace=$MESG_NAME \
+    --label com.docker.stack.image=mesg/engine:local \
+    --env MESG_NAME=$MESG_NAME \
+    --mount type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock \
+    --mount type=bind,source=$MESG_PATH,destination=/root/.mesg \
+    --network $MESG_NAME \
+    --network name=$MESG_TENDERMINT_NETWORK \
+    --publish $MESG_SERVER_PORT:50052 \
+    --publish $MESG_TENDERMINT_PORT:26656 \
+    mesg/engine:local
+}
 
-if ! docker_network_exist "$MESG_NAME"; then
-  docker_network_create "$MESG_NAME"
-fi
+function stop_engine {
+  onexit
+}
 
-if ! docker_network_exist "$MESG_TENDERMINT_NETWORK"; then
-  docker_network_create "$MESG_TENDERMINT_NETWORK"
-fi
+quiet=false
 
-mkdir -p $MESG_PATH
+while getopts "q" o; do 
+  case $o in 
+    q)
+      quiet=true
+      ;;
+    *)
+      echo "unknown flag $0"
+      exit 1
+      ;;
+  esac
+done
+shift $((OPTIND-1))
 
-echo "create docker service: "
-docker service create \
-  --name $MESG_NAME \
-  --tty \
-  --label com.docker.stack.namespace=$MESG_NAME \
-  --label com.docker.stack.image=mesg/engine:local \
-  --env MESG_NAME=$MESG_NAME \
-  --mount type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock \
-  --mount type=bind,source=$MESG_PATH,destination=/root/.mesg \
-  --network $MESG_NAME \
-  --network name=$MESG_TENDERMINT_NETWORK \
-  --publish $MESG_SERVER_PORT:50052 \
-  --publish $MESG_TENDERMINT_PORT:26656 \
-  mesg/engine:local
+cmd=${1:-"start"}
 
-docker service logs --follow --raw $MESG_NAME
+case $cmd in
+  start)
+    start_engine
+    if ! $quiet; then 
+      trap onexit EXIT
+      docker service logs --follow --raw $MESG_NAME
+    fi
+    ;;
+  stop)
+    stop_engine
+    ;;
+  *)
+    echo "unknown command $cmd"
+    exit 1
+esac
+
