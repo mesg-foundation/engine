@@ -51,6 +51,10 @@ var (
 )
 
 func TestAPI(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
+
 	conn, err := grpc.DialContext(context.Background(), "localhost:50052", grpc.WithInsecure())
 	require.NoError(t, err)
 

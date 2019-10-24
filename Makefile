@@ -54,11 +54,11 @@ build: check-version dep
 e2e: export MESG_PATH = $(PWD)/e2e.test/mesg
 e2e: clean-e2e 
 	@$(MAKE) dev-start 
-	- go test -v ./e2e/...
+	- go test -mod=readonly -v ./e2e/...
 	@$(MAKE) dev-stop
 
 test: dep
-	go test -mod=readonly -v -coverprofile=coverage.txt ./...
+	go test -short -mod=readonly -v -coverprofile=coverage.txt ./...
 
 lint: dep
 	golangci-lint run
