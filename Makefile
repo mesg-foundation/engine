@@ -34,7 +34,7 @@ docker-publish-dev: check-version
 	docker push mesg/engine:dev
 
 docker-test:
-	docker build -t mesg/test:local -f Dockerfile.test .
+	docker build -t mesg/test:local -f Dockerfile.e2e .
 
 docker-tools:
 	docker build -t mesg/tools:local -f Dockerfile.tools .

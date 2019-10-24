@@ -65,6 +65,8 @@ func New() (*Client, error) {
 }
 
 func main() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
 	client, err := New()
 	if err != nil {
 		log.Fatal(err)

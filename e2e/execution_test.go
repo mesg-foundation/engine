@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"testing"
-	"time"
 
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
@@ -41,7 +40,6 @@ func TestExecution(t *testing.T) {
 			},
 		})
 		require.NoError(t, err)
-		time.Sleep(5 * time.Minute)
 	})
 
 	t.Run("get", func(t *testing.T) {

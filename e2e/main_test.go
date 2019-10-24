@@ -72,7 +72,7 @@ var (
 )
 
 func TestMain(m *testing.M) {
-	os.Setenv("MESG_LOG_LEVEL", "fatal")
+	//os.Setenv("MESG_LOG_LEVEL", "fatal")
 
 	kb, cleanup := core.Start()
 	testkb = kb
