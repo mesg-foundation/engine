@@ -33,7 +33,6 @@ func TestLoad(t *testing.T) {
 		"MESG_LOG_FORMAT":                     "",
 		"MESG_LOG_LEVEL":                      "",
 		"MESG_LOG_FORCECOLORS":                "",
-		"MESG_TENDERMINT_P2P_PERSISTENTPEERS": "",
 	}
 	for key := range snapsnot {
 		snapsnot[key] = os.Getenv(key)
@@ -48,7 +47,6 @@ func TestLoad(t *testing.T) {
 	os.Setenv("MESG_LOG_FORMAT", "test_log_format")
 	os.Setenv("MESG_LOG_LEVEL", "test_log_level")
 	os.Setenv("MESG_LOG_FORCECOLORS", "true")
-	os.Setenv("MESG_TENDERMINT_P2P_PERSISTENTPEERS", "localhost")
 
 	c, _ := Default()
 	c.Load()

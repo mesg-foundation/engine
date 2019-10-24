@@ -44,8 +44,8 @@ type Config struct {
 	}
 
 	Tendermint struct {
-		*tmconfig.Config `validate:"required"`
 		RelativePath     string `validate:"required"`
+		Config       *tmconfig.Config `validate:"required"`
 	}
 
 	Cosmos struct {
@@ -84,8 +84,8 @@ func Default() (*Config, error) {
 	c.Tendermint.Config.P2P.AddrBookStrict = false
 	c.Tendermint.Config.P2P.AllowDuplicateIP = true
 	c.Tendermint.Config.Consensus.TimeoutCommit = 10 * time.Second
-	c.Tendermint.Instrumentation.Prometheus = true
-	c.Tendermint.Instrumentation.PrometheusListenAddr = "0.0.0.0:26660"
+	c.Tendermint.Config.Instrumentation.Prometheus = true
+	c.Tendermint.Config.Instrumentation.PrometheusListenAddr = "0.0.0.0:26660"
 
 	c.Cosmos.RelativePath = "cosmos"
 
@@ -119,7 +119,7 @@ func (c *Config) Load() error {
 	if err := envconfig.Process(envPrefix, c); err != nil {
 		return err
 	}
-	c.Tendermint.SetRoot(filepath.Join(c.Path, c.Tendermint.RelativePath))
+	c.Tendermint.Config.SetRoot(filepath.Join(c.Path, c.Tendermint.RelativePath))
 	return nil
 }
 
@@ -128,7 +128,7 @@ func (c *Config) Prepare() error {
 	if err := os.MkdirAll(c.Path, os.FileMode(0755)); err != nil {
 		return err
 	}
-	if err := os.MkdirAll(filepath.Dir(c.Tendermint.GenesisFile()), os.FileMode(0755)); err != nil {
+	if err := os.MkdirAll(filepath.Dir(c.Tendermint.Config.GenesisFile()), os.FileMode(0755)); err != nil {
 		return err
 	}
 	if err := os.MkdirAll(c.Tendermint.Config.DBDir(), os.FileMode(0755)); err != nil {
