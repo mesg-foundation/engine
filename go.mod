@@ -19,7 +19,7 @@ require (
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/go-bindata/go-bindata v0.0.0-20181025070752-41975c0ccc30
-	github.com/go-playground/locales v0.12.1
+	github.com/go-playground/locales v0.13.0
 	github.com/go-playground/universal-translator v0.16.0
 	github.com/gogo/protobuf v1.3.0
 	github.com/golang/mock v1.3.1 // indirect
