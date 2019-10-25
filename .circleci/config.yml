@@ -45,7 +45,7 @@ jobs:
       - run: docker swarm init
       - <<: *restore_go_cache
       - <<: *restore_go_mod_cache
-      - run: make test
+      - run: make test e2e
       - <<: *save_go_mod_cache
       - <<: *save_go_cache
       - run: bash <(curl -s https://codecov.io/bash)
