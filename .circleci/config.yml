@@ -41,7 +41,6 @@ jobs:
       - GOCACHE: *go_cache_dir
     steps:
       - checkout
-      - setup_remote_docker
       - run: docker swarm init
       - <<: *restore_go_cache
       - <<: *restore_go_mod_cache
