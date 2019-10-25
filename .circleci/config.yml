@@ -36,7 +36,7 @@ save_go_cache: &save_go_cache
 
 jobs:
   "test":
-    <<: *run_on_docker
+    <<: *run_on_machine
     environment:
       - GOCACHE: *go_cache_dir
     steps:
