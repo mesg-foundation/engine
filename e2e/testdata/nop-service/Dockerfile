@@ -6,4 +6,4 @@ COPY . .
 
 RUN go build -o "mesg-test"
 
-CMD [ "mesg-test" ]
+CMD [ "./mesg-test" ]
