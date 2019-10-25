@@ -88,7 +88,7 @@ func defaultConfig() (*Config, error) {
 	c.Tendermint.Config.RPC.ListenAddress = "tcp://0.0.0.0:26657"
 	c.Tendermint.Config.P2P.AddrBookStrict = false
 	c.Tendermint.Config.P2P.AllowDuplicateIP = true
-	c.Tendermint.Config.Consensus.TimeoutCommit = 10 * time.Second
+	c.Tendermint.Config.Consensus.TimeoutCommit = 1 * time.Second
 	c.Tendermint.Config.Instrumentation.Prometheus = true
 	c.Tendermint.Config.Instrumentation.PrometheusListenAddr = "0.0.0.0:26660"
 
