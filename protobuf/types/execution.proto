@@ -98,7 +98,7 @@ message Execution {
     (gogoproto.nullable) = false
   ];
 
-  // step of the workflow.
+  // step of the process.
   string stepID = 12 [
     (gogoproto.moretags) = 'hash:"name:12"'
   ];

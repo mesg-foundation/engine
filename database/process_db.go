@@ -1,6 +1,7 @@
 package database
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/gogo/protobuf/proto"
@@ -8,6 +9,10 @@ import (
 	"github.com/mesg-foundation/engine/process"
 	"github.com/sirupsen/logrus"
 	"github.com/syndtr/goleveldb/leveldb"
+)
+
+var (
+	errCannotSaveProcessWithoutHash = errors.New("database: can't save process without hash")
 )
 
 // ProcessDB describes the API of database package.
@@ -92,7 +97,6 @@ func (d *LevelDBProcessDB) Delete(hash hash.Hash) error {
 		return err
 	}
 	return tx.Commit()
-
 }
 
 // Get retrives process from database.
@@ -108,7 +112,7 @@ func (d *LevelDBProcessDB) Get(hash hash.Hash) (*process.Process, error) {
 // If there is an another process that uses the same sid, it'll be deleted.
 func (d *LevelDBProcessDB) Save(s *process.Process) error {
 	if s.Hash.IsZero() {
-		return errCannotSaveWithoutHash
+		return errCannotSaveProcessWithoutHash
 	}
 
 	b, err := d.marshal(s)

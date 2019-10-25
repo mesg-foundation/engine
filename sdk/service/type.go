@@ -10,10 +10,11 @@ import (
 
 // Service is the interface of this sdk
 type Service interface {
-	Create(*api.CreateServiceRequest) (*service.Service, error)
-	Delete(hash hash.Hash) error
+	Create(req *api.CreateServiceRequest, accountName string, accountPassword string) (*service.Service, error)
 	Get(hash hash.Hash) (*service.Service, error)
 	List() ([]*service.Service, error)
+	Exists(hash hash.Hash) (bool, error)
+	Hash(req *api.CreateServiceRequest) (hash.Hash, error)
 }
 
 // AlreadyExistsError is an not found error.

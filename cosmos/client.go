@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
+	cmn "github.com/tendermint/tendermint/libs/common"
 	"github.com/tendermint/tendermint/node"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
 	tenderminttypes "github.com/tendermint/tendermint/types"
@@ -23,7 +24,7 @@ type Client struct {
 	chainID string
 }
 
-// New returns a rpc tendermint client.
+// NewClient returns a rpc tendermint client.
 func NewClient(node *node.Node, cdc *codec.Codec, kb keys.Keybase, chainID string) *Client {
 	return &Client{
 		Client:  rpcclient.NewLocal(node),
@@ -34,8 +35,8 @@ func NewClient(node *node.Node, cdc *codec.Codec, kb keys.Keybase, chainID strin
 }
 
 // Query is abci.query wrapper with errors check and decode data.
-func (c *Client) Query(path string, ptr interface{}) error {
-	result, err := c.ABCIQuery(path, nil)
+func (c *Client) Query(path string, data cmn.HexBytes, ptr interface{}) error {
+	result, err := c.ABCIQuery(path, data)
 	if err != nil {
 		return err
 	}

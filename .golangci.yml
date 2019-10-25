@@ -1,11 +1,7 @@
 run:
   tests: true
-  build-tags:
-    - integration
-  skip-dirs:
-    - commands/provider/assets/
-    - protobuf/
-    - service/importer/assets/
+  skip-files:
+    - ".*.pb.go$"
 
 linters-settings:
   govet:

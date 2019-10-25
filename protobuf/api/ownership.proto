@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+import "gogo/protobuf/gogoproto/gogo.proto";
+import "protobuf/types/ownership.proto";
+
+package mesg.api;
+option go_package = "api";
+
+// This is the API to interact with the Ownerships.
+//
+// This API is a [gRPC](https://grpc.io/) API.
+//
+// The source file of this API is hosted on [GitHub](https://github.com/mesg-foundation/engine/blob/master/protobuf/api/ownership.proto).
+service Ownership {
+
+  // List returns ownerships specified in a request.
+  rpc List(ListOwnershipRequest) returns (ListOwnershipResponse) {}
+}
+
+// The request's data for the `List` API.
+message ListOwnershipRequest {}
+
+// The response's data for the `List` API.
+message ListOwnershipResponse {
+  // List of ownerships that match the request's filters.
+  repeated types.Ownership ownerships = 1;
+}

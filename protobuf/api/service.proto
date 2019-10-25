@@ -17,15 +17,17 @@ service Service {
   // It will return an unique identifier which is used to interact with the Service.
   rpc Create (CreateServiceRequest) returns (CreateServiceResponse) {}
 
-  // Delete a Service.
-  // An error is returned if one or more Instances of the Service are running.
-  rpc Delete (DeleteServiceRequest) returns (DeleteServiceResponse) {}
-
   // Get returns a Service matching the criteria of the request.
   rpc Get(GetServiceRequest) returns (types.Service) {}
 
   // List returns services specified in a request.
   rpc List(ListServiceRequest) returns (ListServiceResponse) {}
+
+  // Exists return if a service already exists.
+  rpc Exists(ExistsServiceRequest) returns (ExistsServiceResponse) {}
+
+  // Hash return the hash of a service
+  rpc Hash(CreateServiceRequest) returns (HashServiceResponse) {}
 }
 
 // The request's data for the `Create` API.
@@ -69,19 +71,6 @@ message CreateServiceResponse {
   ];
 }
 
-// The request's data for the `Delete` API.
-message DeleteServiceRequest {
-  // The service's hash to delete.
-  bytes hash = 1 [
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
-    (gogoproto.nullable) = false
-  ];
-}
-
-// The response's data for the `Delete` API, doesn't contain anything.
-message DeleteServiceResponse {
-}
-
 // The request's data for the `Get` API.
 message GetServiceRequest {
   // The service's hash to fetch.
@@ -98,4 +87,28 @@ message ListServiceRequest {}
 message ListServiceResponse {
   // List of services that match the request's filters.
   repeated types.Service services = 1;
+}
+
+// The request's data for the `List` API.
+message ExistsServiceRequest {
+  // The service's hash of the existing service. This hash is nil if exists is fals.
+  bytes hash = 1 [
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// The response's data for the `Exists` API.
+message ExistsServiceResponse {
+  // True if a service already exists, false otherwise.
+  bool exists = 1;
+}
+
+// The request's data for the `Hash` API.
+message HashServiceResponse {
+  // Hash of the service calculated.
+  bytes hash = 1 [
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
 }

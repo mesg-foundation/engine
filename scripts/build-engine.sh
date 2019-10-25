@@ -1,17 +1,39 @@
-#!/bin/bash -e
+#!/bin/bash
 
-LDFLAGS="-X 'github.com/mesg-foundation/engine/version.Version=$version'"
-LDFLAGS+=" -X 'github.com/mesg-foundation/engine/config.EnvMarketplaceEndpoint=https://mainnet.infura.io/v3/7690bc6d35e140d2be4e771a1237f636'"
-LDFLAGS+=" -X 'github.com/mesg-foundation/engine/config.EnvMarketplaceAddress=0x0C6e8d0eC4770fDa8A56CD912392d2ff14822952'"
-LDFLAGS+=" -X 'github.com/mesg-foundation/engine/config.EnvMarketplaceToken=0x420167d87d35c3a249b32ef6225872fbd9ab85d2'"
+# script is use to use local go cache to speed up build
+# docker dosen't allow to mount volume during build, 
+# so it always rebuild whole project. Use go build cache to 
+# make docker build faster.
 
-for s in systemservices/* ; do
-  if [ -d "$s" ]; then
-    pushd $s > /dev/null
-    name=$(basename "$s")
-    LDFLAGS+=" -X 'github.com/mesg-foundation/engine/config.${name}Compiled=$(cat compiled.json)'"
-    popd > /dev/null
-  fi
-done
+set -e
 
-go build -o engine -ldflags="$LDFLAGS" core/main.go
+ENGINE_SUM_PATH="./bin/.engine.sum"
+DOCKER_SUM_PATH="./bin/.Dockerfile.dev.sum"
+
+echo "compile engine"
+GOOS=linux GOARCH=amd64 go build -o ./bin/engine core/main.go
+
+touch "$ENGINE_SUM_PATH" "$DOCKER_SUM_PATH"
+
+# check if engine bin was cached
+ENGINE_SUM="$(openssl md5 ./bin/engine)"
+ENGINE_SUM_PREV="$(cat $ENGINE_SUM_PATH)"
+if [[ "$ENGINE_SUM" == "$ENGINE_SUM_PREV" ]]; then
+  BINCACHED=true
+else
+  echo "$ENGINE_SUM" > "$ENGINE_SUM_PATH"
+fi
+
+# check if dockerfile was cached
+DOCKER_SUM="$(openssl md5 ./Dockerfile.dev)"
+DOCKER_SUM_PREV="$(cat $DOCKER_SUM_PATH)"
+if [[ "$DOCKER_SUM" == "$DOCKER_SUM_PREV" ]]; then
+  DOCKERCACHED=true
+else
+  echo "$DOCKER_SUM" > "$DOCKER_SUM_PATH"
+fi
+
+if [[ ! $BINCACHED ]] || [[ ! $DOCKERCACHED ]]; then
+  echo "build mesg/engine image"
+  docker build -f Dockerfile.dev -t "mesg/engine:local" .
+fi
