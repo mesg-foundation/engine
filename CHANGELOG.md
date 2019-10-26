@@ -1,13 +1,43 @@
 # Changelog
 
-## [Unreleased](https://github.com/mesg-foundation/engine/compare/master...dev)
+## [v0.16.0](https://github.com/mesg-foundation/engine/releases/tag/v0.16.0)
 
 #### Breaking Changes
+
+- ([#1361](https://github.com/mesg-foundation/engine/pull/1361)) Remove system services and deprecated service sdk.
+- ([#1364](https://github.com/mesg-foundation/engine/pull/1364)) Remove core api.
+- ([#1375](https://github.com/mesg-foundation/engine/pull/1375)) Simplify service hash calculation.
+- ([#1381](https://github.com/mesg-foundation/engine/pull/1381)) Remove service deletion function.
+- ([#1416](https://github.com/mesg-foundation/engine/pull/1416)) Read config from file instead of env.
+
 #### Added
+
+- ([#1355](https://github.com/mesg-foundation/engine/pull/1355)) Add credential using grpc metadata.
+- ([#1368](https://github.com/mesg-foundation/engine/pull/1368)) Add ownership SDK and API.
+- ([#1380](https://github.com/mesg-foundation/engine/pull/1380)) Add configuration validation.
+- ([#1384](https://github.com/mesg-foundation/engine/pull/1384)) Add service exists api.
+
 #### Changed
+
+- ([#1357](https://github.com/mesg-foundation/engine/pull/1357)) Update dependencies.
+- ([#1371](https://github.com/mesg-foundation/engine/pull/1371)) Remove shared private info of the genesis account to generate the genesis.
+- ([#1391](https://github.com/mesg-foundation/engine/pull/1391)) Improve generate genesis script.
+- ([#1400](https://github.com/mesg-foundation/engine/pull/1400)) Container package refactor.
+- ([#1402](https://github.com/mesg-foundation/engine/pull/1402)) Run scripts from Makefile.
+- ([#1412](https://github.com/mesg-foundation/engine/pull/1412)) Load genesis from file and generate it if it doesn't exist.
+- ([#1430](https://github.com/mesg-foundation/engine/pull/1430)) Set block creation time to 1s instead of 10s.
+- ([#1431](https://github.com/mesg-foundation/engine/pull/1431)) Update dependencies.
+
 #### Fixed
+
+- ([#1360](https://github.com/mesg-foundation/engine/pull/1360)) Fix copy of folder in dev script.
+
 #### Removed
-#### Experimental
+
+- ([#1370](https://github.com/mesg-foundation/engine/pull/1370)) Remove system service sources.
+- ([#1373](https://github.com/mesg-foundation/engine/pull/1373)) Remove not used service-test.
+- ([#1414](https://github.com/mesg-foundation/engine/pull/1414)) Remove not used functions from xos package.
+- ([#1428](https://github.com/mesg-foundation/engine/pull/1428)) Remove deprecated `MESG_ENDPOINT_TCP` from service env.
 
 ## [v0.15.0](https://github.com/mesg-foundation/engine/releases/tag/v0.15.0)
 
