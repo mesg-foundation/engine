@@ -48,4 +48,5 @@ func TestAPI(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("account", testAccount)
+	t.Run("service", testService)
 }
