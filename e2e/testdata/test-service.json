@@ -51,6 +51,10 @@
   ],
   "events": [
     {
+      "key": "test_service_ready",
+      "data": []
+    },
+    {
       "key": "ping_ok",
       "data": [
         {
@@ -81,5 +85,5 @@
       ]
     }
   ],
-  "source": "QmRgSkCjEpSGAznw7sPkJ9imT6DvQ1d79mFjizDbjQ6dKK"
+  "source": "QmNhfbBnYYTYJVFeBBPMgBtCMGKe2xXjiSdAFgDQQ3JaMz"
 }

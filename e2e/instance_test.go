@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/metadata"
@@ -14,10 +15,22 @@ var testInstanceHash hash.Hash
 
 func testInstance(t *testing.T) {
 	t.Run("create", func(t *testing.T) {
+		stream, err := client.EventClient.Stream(context.Background(), &pb.StreamEventRequest{
+			Filter: &pb.StreamEventRequest_Filter{
+				Key: "test_service_ready",
+			},
+		})
+		require.NoError(t, err)
+		acknowledgement.WaitForStreamToBeReady(stream)
+
 		ctx := metadata.NewOutgoingContext(context.Background(), passmd)
 		resp, err := client.InstanceClient.Create(ctx, &pb.CreateInstanceRequest{ServiceHash: testServiceHash})
 		require.NoError(t, err)
 		testInstanceHash = resp.Hash
+
+		// wait for service to be ready
+		_, err = stream.Recv()
+		require.NoError(t, err)
 	})
 
 	t.Run("get", func(t *testing.T) {

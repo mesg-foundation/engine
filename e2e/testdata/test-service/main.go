@@ -85,6 +85,13 @@ func main() {
 	}
 	log.Printf("create a stream\n")
 
+	if _, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
+		InstanceHash: client.InstanceHash,
+		Key:          "test_service_ready",
+	}); err != nil {
+		log.Fatal(err)
+	}
+
 	for {
 		exec, err := stream.Recv()
 		if err != nil {
