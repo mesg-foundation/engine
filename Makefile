@@ -20,7 +20,7 @@ docker-build: check-version
 		-t mesg/engine:latest \
 		.
 
-docker-dev:
+docker-dev: dep
 	./scripts/build-engine.sh
 
 docker-publish: docker-build
@@ -48,7 +48,7 @@ build: check-version dep
 test: dep
 	go test -mod=readonly -v -coverprofile=coverage.txt ./...
 
-lint: dep
+lint:
 	golangci-lint run
 
 mock: docker-tools
