@@ -57,5 +57,6 @@ func TestAPI(t *testing.T) {
 	t.Run("service", testService)
 	t.Run("ownership", testOwnership)
 	t.Run("instance", testInstance)
+	t.Run("event", testEvent)
 	t.Run("instance/delete", testDeleteInstance)
 }
