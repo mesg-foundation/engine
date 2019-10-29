@@ -10,7 +10,7 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-var testInstanceHas hash.Hash
+var testInstanceHash hash.Hash
 
 func testInstance(t *testing.T) {
 	t.Run("create", func(t *testing.T) {
