@@ -1,0 +1,7 @@
+log:
+  level: fatal
+
+tendermint:
+  config:
+    consensus:
+      timeoutcommit: 100ms

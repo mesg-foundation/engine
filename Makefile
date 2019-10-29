@@ -53,6 +53,10 @@ build: check-version dep
 
 e2e: export MESG_PATH = $(PWD)/e2e.test/mesg
 e2e: clean-e2e
+	# setup - copy config to MESG_PATH
+	mkdir -p $(MESG_PATH)
+	cp $(PWD)/e2e/testdata/e2e.config.yml $(MESG_PATH)/config.yml
+
 	@$(MAKE) dev-start
 	- go test -mod=readonly -v ./e2e/...
 	@$(MAKE) dev-stop
