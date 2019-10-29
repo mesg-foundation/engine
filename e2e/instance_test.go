@@ -28,11 +28,17 @@ func testInstance(t *testing.T) {
 		resp, err := client.InstanceClient.List(context.Background(), &pb.ListInstanceRequest{ServiceHash: testServiceHash})
 		require.NoError(t, err)
 		require.Len(t, resp.Instances, 1)
+		require.Equal(t, testServiceHash, resp.Instances[0].ServiceHash)
+		require.Equal(t, testInstanceHash, resp.Instances[0].Hash)
 	})
+}
 
-	// t.Run("delete", func(t *testing.T) {
-	// 	ctx := metadata.NewOutgoingContext(context.Background(), passmd)
-	// 	_, err := client.InstanceClient.Delete(ctx, &pb.DeleteInstanceRequest{Hash: instanceHash})
-	// 	require.NoError(t, err)
-	// })
+func testDeleteInstance(t *testing.T) {
+	ctx := metadata.NewOutgoingContext(context.Background(), passmd)
+	_, err := client.InstanceClient.Delete(ctx, &pb.DeleteInstanceRequest{Hash: testInstanceHash})
+	require.NoError(t, err)
+
+	resp, err := client.InstanceClient.List(context.Background(), &pb.ListInstanceRequest{ServiceHash: testServiceHash})
+	require.NoError(t, err)
+	require.Len(t, resp.Instances, 0)
 }
