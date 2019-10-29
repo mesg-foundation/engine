@@ -22,7 +22,7 @@ func testEvent(t *testing.T) {
 		Key:          "ping_ok",
 		Data: &types.Struct{
 			Fields: map[string]*types.Value{
-				"msg": &types.Value{
+				"msg": {
 					Kind: &types.Value_StringValue{
 						StringValue: "foo",
 					},
