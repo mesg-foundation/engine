@@ -4,10 +4,13 @@ import (
 	"context"
 	"testing"
 
+	"github.com/mesg-foundation/engine/hash"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/metadata"
 )
+
+var testInstanceHas hash.Hash
 
 func testInstance(t *testing.T) {
 	t.Run("create", func(t *testing.T) {
