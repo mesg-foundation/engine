@@ -14,12 +14,11 @@ import (
 )
 
 var (
-	testServiceHash  hash.Hash
-	testInstanceHash hash.Hash
+	testServiceHash hash.Hash
 )
 
 func testService(t *testing.T) {
-	req := readCreateServiceRequest("testdata/test-service/test-service.json")
+	req := readCreateServiceRequest("testdata/test-service.json")
 
 	t.Run("create", func(t *testing.T) {
 		ctx := metadata.NewOutgoingContext(context.Background(), passmd)
