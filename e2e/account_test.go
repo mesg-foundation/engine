@@ -33,6 +33,8 @@ func testAccount(t *testing.T) {
 		require.NoError(t, err)
 
 		require.Equal(t, len(resp.Accounts), 2)
+		require.Equal(t, resp.Accounts[0].Name, "dev")
+		require.Equal(t, resp.Accounts[1].Name, "user")
 	})
 
 	t.Run("delete", func(t *testing.T) {
@@ -42,5 +44,11 @@ func testAccount(t *testing.T) {
 		))
 		_, err := client.AccountClient.Delete(ctx, &pb.DeleteAccountRequest{})
 		require.NoError(t, err)
+
+		resp, err := client.AccountClient.List(context.Background(), &pb.ListAccountRequest{})
+		require.NoError(t, err)
+
+		require.Equal(t, len(resp.Accounts), 1)
+		require.Equal(t, resp.Accounts[0].Name, "dev")
 	})
 }

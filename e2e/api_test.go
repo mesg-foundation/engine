@@ -8,12 +8,6 @@ import (
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
-)
-
-var passmd = metadata.Pairs(
-	"credential_username", "dev",
-	"credential_passphrase", "pass",
 )
 
 type apiclient struct {
@@ -46,7 +40,7 @@ func TestAPI(t *testing.T) {
 		pb.NewOwnershipClient(conn),
 	}
 
-	// wait for the first
+	// wait for the first block
 	time.Sleep(100 * time.Millisecond)
 
 	// ping server to test connection
