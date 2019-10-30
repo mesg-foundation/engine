@@ -55,4 +55,5 @@ func TestAPI(t *testing.T) {
 
 	t.Run("account", testAccount)
 	t.Run("service", testService)
+	t.Run("ownership", testOwnership)
 }
