@@ -35,7 +35,7 @@ type Config struct {
 	}
 
 	Log struct {
-		Format      string `validate:"required"`
+		Format      string `validate:"required,oneof=json text"`
 		ForceColors bool
 		Level       string `validate:"required"`
 	}
