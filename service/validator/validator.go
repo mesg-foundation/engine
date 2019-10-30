@@ -109,21 +109,11 @@ func isServiceKeysUnique(s *service.Service) error {
 			errs = append(errs, fmt.Errorf("tasks[%s] already exist", task.Key))
 		}
 		exist[task.Key] = true
-
-		existparam := make(map[string]bool)
-		for _, param := range task.Inputs {
-			if existparam[param.Key] {
-				errs = append(errs, fmt.Errorf("tasks[%s].inputs[%s] already exist", task.Key, param.Key))
-			}
-			existparam[param.Key] = true
+		if err := isServiceParamsUnique(task.Inputs, fmt.Sprintf("tasks[%s].inputs", task.Key)); err != nil {
+			errs = append(errs, err)
 		}
-
-		existparam = make(map[string]bool)
-		for _, param := range task.Outputs {
-			if existparam[param.Key] {
-				errs = append(errs, fmt.Errorf("tasks[%s].outputs[%s] already exist", task.Key, param.Key))
-			}
-			existparam[param.Key] = true
+		if err := isServiceParamsUnique(task.Outputs, fmt.Sprintf("tasks[%s].outputs", task.Key)); err != nil {
+			errs = append(errs, err)
 		}
 	}
 
@@ -134,12 +124,29 @@ func isServiceKeysUnique(s *service.Service) error {
 		}
 		exist[event.Key] = true
 
-		existparam := make(map[string]bool)
-		for _, param := range event.Data {
-			if existparam[param.Key] {
-				errs = append(errs, fmt.Errorf("events[%s].data[%s] already exist", event.Key, param.Key))
-			}
-			existparam[param.Key] = true
+		if err := isServiceParamsUnique(event.Data, fmt.Sprintf("events[%s].data", event.Key)); err != nil {
+			errs = append(errs, err)
+		}
+	}
+	return errs.ErrorOrNil()
+}
+
+// isServiceParamsUnique checks uniqueness of service params.
+func isServiceParamsUnique(ps []*service.Service_Parameter, errprefix string) error {
+	if len(ps) == 0 {
+		return nil
+	}
+
+	var errs xerrors.Errors
+	existparam := make(map[string]bool)
+	for _, p := range ps {
+		if existparam[p.Key] {
+			errs = append(errs, fmt.Errorf("%s[%s] already exist", errprefix, p.Key))
+		}
+		existparam[p.Key] = true
+
+		if err := isServiceParamsUnique(p.Object, fmt.Sprintf("%s[%s].object", errprefix, p.Key)); err != nil {
+			errs = append(errs, err)
 		}
 	}
 	return errs.ErrorOrNil()
