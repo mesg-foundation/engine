@@ -19,6 +19,7 @@ tasks:
         type: Number
   error:
 events:
+  test_service_ready:
   ping_ok:
     data:
       msg:
