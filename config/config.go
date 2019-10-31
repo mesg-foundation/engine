@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/mesg-foundation/engine/x/xstrings"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
 	tmconfig "github.com/tendermint/tendermint/config"
@@ -35,7 +34,7 @@ type Config struct {
 	}
 
 	Log struct {
-		Format      string `validate:"required"`
+		Format      string `validate:"required,oneof=json text"`
 		ForceColors bool
 		Level       string `validate:"required"`
 	}
@@ -160,9 +159,6 @@ func (c *Config) prepare() error {
 
 // validate checks values and return an error if any validation failed.
 func (c *Config) validate() error {
-	if !xstrings.SliceContains([]string{"text", "json"}, c.Log.Format) {
-		return fmt.Errorf("config.Log.Format value %q is not an allowed", c.Log.Format)
-	}
 	if _, err := logrus.ParseLevel(c.Log.Level); err != nil {
 		return fmt.Errorf("config.Log.Level error: %w", err)
 	}

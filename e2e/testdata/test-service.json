@@ -1,7 +1,13 @@
 {
   "sid": "test-service",
   "name": "test-service",
-  "configuration": {},
+  "configuration": {
+    "env": [
+      "FOO=1",
+      "BAR=2",
+      "REQUIRED"
+    ]
+  },
   "dependencies": [],
   "tasks": [
     {
@@ -85,5 +91,5 @@
       ]
     }
   ],
-  "source": "QmNhfbBnYYTYJVFeBBPMgBtCMGKe2xXjiSdAFgDQQ3JaMz"
+  "source": "QmPG1Ze96pH1EgVMWsGKM33jXoG63rigMncSEqZXP7oncq"
 }
