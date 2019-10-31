@@ -104,7 +104,7 @@ func (i *Instance) Create(serviceHash hash.Hash, env []string) (*instance.Instan
 	}
 
 	// calculate the final env vars by overwriting user defined one's with defaults.
-	instanceEnv := xos.EnvMergeMaps(xos.EnvSliceToMap(srv.Configuration.Env), xos.EnvSliceToMap(env))
+	instanceEnv := xos.EnvMergeSlices(srv.Configuration.Env, env)
 
 	// calculate instance's hash.
 	inst := &instance.Instance{
@@ -125,7 +125,7 @@ func (i *Instance) Create(serviceHash hash.Hash, env []string) (*instance.Instan
 		return nil, err
 	}
 
-	_, err = i.start(inst, imageHash, xos.EnvMapToSlice(instanceEnv))
+	_, err = i.start(inst, imageHash, instanceEnv)
 	return inst, err
 }
 
