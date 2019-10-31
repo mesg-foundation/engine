@@ -41,7 +41,7 @@ func testInstance(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, testInstanceHash, resp.Hash)
 		require.Equal(t, testServiceHash, resp.ServiceHash)
-		require.Equal(t, hash.Dump([]string{"BAR=2", "FOO=1", "REQUIRED", "BAR=3", "REQUIRED=4"}), resp.EnvHash)
+		require.Equal(t, hash.Dump([]string{"BAR=3", "FOO=1", "REQUIRED=4"}), resp.EnvHash)
 	})
 
 	t.Run("list", func(t *testing.T) {
