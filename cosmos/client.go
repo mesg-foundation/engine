@@ -87,7 +87,7 @@ func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg, accName, accPassword str
 			return nil, errors.New("result data is not the right type")
 		}
 		if data.TxResult.Result.IsErr() {
-			return nil, errors.New("an error occurred in transaction")
+			return nil, fmt.Errorf("an error occurred in transaction: %s", data.TxResult.Result.Log)
 		}
 		return &data.TxResult.Result, nil
 	case <-ctx.Done():
