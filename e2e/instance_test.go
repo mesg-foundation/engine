@@ -24,7 +24,10 @@ func testInstance(t *testing.T) {
 		acknowledgement.WaitForStreamToBeReady(stream)
 
 		ctx := metadata.NewOutgoingContext(context.Background(), passmd)
-		resp, err := client.InstanceClient.Create(ctx, &pb.CreateInstanceRequest{ServiceHash: testServiceHash})
+		resp, err := client.InstanceClient.Create(ctx, &pb.CreateInstanceRequest{
+			ServiceHash: testServiceHash,
+			Env:         []string{"BAR=3", "REQUIRED=4"},
+		})
 		require.NoError(t, err)
 		testInstanceHash = resp.Hash
 
@@ -38,6 +41,7 @@ func testInstance(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, testInstanceHash, resp.Hash)
 		require.Equal(t, testServiceHash, resp.ServiceHash)
+		require.Equal(t, hash.Dump([]string{"BAR=2", "FOO=1", "REQUIRED", "BAR=3", "REQUIRED=4"}), resp.EnvHash)
 	})
 
 	t.Run("list", func(t *testing.T) {
