@@ -72,6 +72,7 @@ func (i *Instance) start(inst *instance.Instance, imageHash string, env []string
 		Command: srv.Configuration.Command,
 		Env: xos.EnvMergeSlices(env, []string{
 			"MESG_TOKEN=" + inst.Hash.String(),
+			"MESG_INSTANCE_HASH=" + inst.Hash.String(),
 			"MESG_ENDPOINT=" + i.endpoint,
 		}),
 		Mounts: append(volumes, volumesFrom...),
