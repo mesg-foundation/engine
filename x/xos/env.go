@@ -53,6 +53,9 @@ func EnvMergeMaps(values ...map[string]string) map[string]string {
 func EnvMergeSlices(values ...[]string) []string {
 	env := make([]string, 0)
 	for _, v := range values {
+		// Make sure envs are sorted to give repeatable output
+		// It is important for hash instance calculation
+		sort.Stable(sort.StringSlice(v))
 		env = append(env, v...)
 	}
 	return env

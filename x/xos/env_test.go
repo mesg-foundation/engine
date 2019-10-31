@@ -59,7 +59,7 @@ func TestEnvMergeMaps(t *testing.T) {
 func TestEnvMergeSlices(t *testing.T) {
 	values := [][]string{
 		{"a=1", "b=2"},
-		{"a=2", "c=3"},
+		{"c=3", "a=2"},
 	}
 	env := EnvMergeSlices(values...)
 	for i, v := range []string{"a=1", "b=2", "a=2", "c=3"} {
