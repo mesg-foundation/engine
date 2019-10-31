@@ -18,7 +18,7 @@ import (
 const (
 	// env variables for configure mesg client.
 	envMesgEndpoint     = "MESG_ENDPOINT"
-	envMesgInstanceHash = "MESG_TOKEN"
+	envMesgInstanceHash = "MESG_INSTANCE_HASH"
 )
 
 // Client is a client to connect to all mesg exposed API.
