@@ -102,32 +102,30 @@ func (i *Instance) Create(serviceHash hash.Hash, env []string) (*instance.Instan
 	if err != nil {
 		return nil, err
 	}
+
 	// calculate the final env vars by overwriting user defined one's with defaults.
-	instanceEnv := xos.EnvMergeMaps(xos.EnvSliceToMap(srv.Configuration.Env), xos.EnvSliceToMap(env))
+	instanceEnv := xos.EnvMergeSlices(srv.Configuration.Env, env)
 
 	// calculate instance's hash.
-	h := hash.New()
-	h.Write(srv.Hash)
-	h.Write([]byte(xos.EnvMapToString(instanceEnv)))
-	instanceHash := h.Sum(nil)
+	inst := &instance.Instance{
+		ServiceHash: srv.Hash,
+		EnvHash:     hash.Dump(instanceEnv),
+	}
+	inst.Hash = hash.Dump(inst)
 
 	// check if instance already exists
-	if exist, err := i.instanceDB.Exist(instanceHash); err != nil {
+	if exist, err := i.instanceDB.Exist(inst.Hash); err != nil {
 		return nil, err
 	} else if exist {
-		return nil, &AlreadyExistsError{Hash: instanceHash}
+		return nil, &AlreadyExistsError{Hash: inst.Hash}
 	}
 
 	// save & start instance.
-	inst := &instance.Instance{
-		Hash:        instanceHash,
-		ServiceHash: srv.Hash,
-	}
 	if err := i.instanceDB.Save(inst); err != nil {
 		return nil, err
 	}
 
-	_, err = i.start(inst, imageHash, xos.EnvMapToSlice(instanceEnv))
+	_, err = i.start(inst, imageHash, instanceEnv)
 	return inst, err
 }
 

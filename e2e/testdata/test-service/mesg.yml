@@ -1,5 +1,12 @@
 name: test-service
 sid: test-service
+
+configuration:
+  env:
+    - FOO=1
+    - BAR=2
+    - REQUIRED
+
 tasks:
   ping:
     inputs:

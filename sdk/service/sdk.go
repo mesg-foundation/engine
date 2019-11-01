@@ -1,6 +1,8 @@
 package servicesdk
 
 import (
+	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/gogo/protobuf/proto"
@@ -10,6 +12,7 @@ import (
 	accountsdk "github.com/mesg-foundation/engine/sdk/account"
 	"github.com/mesg-foundation/engine/service"
 	cmn "github.com/tendermint/tendermint/libs/common"
+	"github.com/tendermint/tendermint/mempool"
 )
 
 // SDK is the service sdk.
@@ -44,6 +47,9 @@ func (s *SDK) Create(req *api.CreateServiceRequest, accountName, accountPassword
 	msg := newMsgCreateService(s.cdc, req, owner)
 	tx, err := s.client.BuildAndBroadcastMsg(msg, accountName, accountPassword, accNumber, accSeq)
 	if err != nil {
+		if err == mempool.ErrTxInCache {
+			return nil, fmt.Errorf("service already exists: %w", err)
+		}
 		return nil, err
 	}
 	return s.Get(tx.Data)

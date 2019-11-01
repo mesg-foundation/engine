@@ -41,7 +41,11 @@ func IsPortMapping(fl validator.FieldLevel) bool {
 }
 
 // IsEnv validates if given field is valid env variable declaration.
+// The valid formats are:
+// - ENV
+// - ENV=
+// - ENV=value
 func IsEnv(fl validator.FieldLevel) bool {
 	e := strings.Split(fl.Field().String(), envSeparator)
-	return len(e) == 2 && envNameRegexp.MatchString(e[0])
+	return (len(e) == 1 || len(e) == 2) && envNameRegexp.MatchString(e[0])
 }
