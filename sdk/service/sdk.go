@@ -39,13 +39,13 @@ func (s *SDK) Create(req *api.CreateServiceRequest, accountName, accountPassword
 		return nil, err
 	}
 	// TODO: pass account by parameters
-	accNumber, accSeq := uint64(0), uint64(0)
+	accNumber := uint64(0)
 	owner, err := cosmostypes.AccAddressFromBech32(account.Address)
 	if err != nil {
 		return nil, err
 	}
 	msg := newMsgCreateService(s.cdc, req, owner)
-	tx, err := s.client.BuildAndBroadcastMsg(msg, accountName, accountPassword, accNumber, accSeq)
+	tx, err := s.client.BuildAndBroadcastMsg(msg, accountName, accountPassword, accNumber)
 	if err != nil {
 		if err == mempool.ErrTxInCache {
 			return nil, fmt.Errorf("service already exists: %w", err)

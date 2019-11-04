@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync/atomic"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -23,6 +24,10 @@ type Client struct {
 	kb      keys.Keybase
 	chainID string
 }
+
+// AccSeq is a sequence number that could be used to build the transaction.
+// It should be increased after every usage.
+var AccSeq uint64
 
 // NewClient returns a rpc tendermint client.
 func NewClient(node *node.Node, cdc *codec.Codec, kb keys.Keybase, chainID string) *Client {
@@ -47,8 +52,8 @@ func (c *Client) Query(path string, data cmn.HexBytes, ptr interface{}) error {
 }
 
 // BuildAndBroadcastMsg builds and signs message and broadcast it to node.
-func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg, accName, accPassword string, accNumber, accSeq uint64) (*abci.ResponseDeliverTx, error) {
-	txBuilder := NewTxBuilder(c.cdc, accNumber, accSeq, c.kb, c.chainID)
+func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg, accName, accPassword string, accNumber uint64) (*abci.ResponseDeliverTx, error) {
+	txBuilder := NewTxBuilder(c.cdc, accNumber, atomic.AddUint64(&AccSeq, 1), c.kb, c.chainID)
 	// TODO: cannot sign 2 tx at the same time. Maybe keybase cannot be access at the same time. Add a lock?
 	signedTx, err := txBuilder.BuildAndSignStdTx(msg, accName, accPassword)
 	if err != nil {
