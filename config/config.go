@@ -55,9 +55,12 @@ type Config struct {
 	}
 
 	DevGenesis struct {
-		AccountName     string `validate:"required"`
-		AccountPassword string `validate:"required"`
-		ChainID         string `validate:"required"`
+		ChainID string `validate:"required"`
+	}
+
+	Account struct {
+		Name     string `validate:"required"`
+		Password string `validate:"required"`
 	}
 }
 
@@ -92,10 +95,11 @@ func defaultConfig() (*Config, error) {
 	c.Tendermint.Config.Instrumentation.PrometheusListenAddr = "0.0.0.0:26660"
 
 	c.Cosmos.RelativePath = "cosmos"
-
-	c.DevGenesis.AccountName = "dev"
-	c.DevGenesis.AccountPassword = "pass"
+	
 	c.DevGenesis.ChainID = "mesg-dev-chain"
+	
+	c.Account.Name = "engine"
+	c.Account.Password = "pass"
 
 	return &c, nil
 }

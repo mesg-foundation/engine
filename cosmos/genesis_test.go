@@ -37,6 +37,9 @@ func TestGenesis(t *testing.T) {
 		validators             = []GenesisValidator{}
 		defaultGenesisState    = map[string]json.RawMessage{}
 	)
+	// init account
+	mnemonic, _ := kb.NewMnemonic()
+	kb.CreateAccount(name, mnemonic, "", password, 0, 0)
 	// start tests
 	t.Run("generate validator", func(t *testing.T) {
 		v, err := NewGenesisValidator(kb, name, password, privValidatorKeyFile, privValidatorStateFile, nodeKeyFile)
@@ -44,16 +47,11 @@ func TestGenesis(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, name, v.Name)
 		require.Equal(t, password, v.Password)
-		require.NotEmpty(t, v.Address)
-		require.NotEmpty(t, v.Mnemonic)
 		require.NotEmpty(t, v.ValPubKey)
 		require.NotEmpty(t, v.NodeID)
 		require.FileExists(t, privValidatorKeyFile)
 		require.FileExists(t, privValidatorStateFile)
 		require.FileExists(t, nodeKeyFile)
-		acc, err := kb.GetByAddress(v.Address)
-		require.NoError(t, err)
-		require.Equal(t, name, acc.GetName())
 	})
 	t.Run("genesis doesn't exist", func(t *testing.T) {
 		require.False(t, GenesisExist(genesisPath))
