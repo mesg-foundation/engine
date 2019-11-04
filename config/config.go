@@ -95,9 +95,9 @@ func defaultConfig() (*Config, error) {
 	c.Tendermint.Config.Instrumentation.PrometheusListenAddr = "0.0.0.0:26660"
 
 	c.Cosmos.RelativePath = "cosmos"
-	
+
 	c.DevGenesis.ChainID = "mesg-dev-chain"
-	
+
 	c.Account.Name = "engine"
 	c.Account.Password = "pass"
 

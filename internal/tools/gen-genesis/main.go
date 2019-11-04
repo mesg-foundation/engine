@@ -89,6 +89,9 @@ func main() {
 			logrus.Fatalln(err)
 		}
 		acc, err := kb.CreateAccount(valName, mnemonic, "", passwords[i], 0, 0)
+		if err != nil {
+			logrus.Fatalln(err)
+		}
 		genVal, err := cosmos.NewGenesisValidator(kb,
 			valName,
 			passwords[i],
