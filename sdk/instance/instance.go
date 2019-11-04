@@ -1,14 +1,8 @@
 package instancesdk
 
 import (
-	"errors"
 	"fmt"
-	"io/ioutil"
-	"net"
-	"net/http"
-	"os"
 
-	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/hash"
@@ -23,7 +17,7 @@ type Instance struct {
 	service    servicesdk.Service
 	instanceDB database.InstanceDB
 
-	endpoint   string
+	port       string
 	engineName string
 }
 
@@ -33,7 +27,7 @@ func New(c container.Container, service servicesdk.Service, instanceDB database.
 		container:  c,
 		service:    service,
 		instanceDB: instanceDB,
-		endpoint:   net.JoinHostPort(engineName, port),
+		port:       port,
 		engineName: engineName,
 	}
 }
@@ -77,28 +71,8 @@ func (i *Instance) Create(serviceHash hash.Hash, env []string) (*instance.Instan
 		return nil, err
 	}
 
-	// download and untar service context into path.
-	path, err := ioutil.TempDir("", "mesg")
-	if err != nil {
-		return nil, err
-	}
-	defer os.RemoveAll(path)
-
-	resp, err := http.Get("http://ipfs.app.mesg.com:8080/ipfs/" + srv.Source)
-	if err != nil {
-		return nil, err
-	}
-	if resp.StatusCode != 200 {
-		return nil, errors.New("service's source code is not reachable")
-	}
-	defer resp.Body.Close()
-
-	if err := archive.Untar(resp.Body, path, nil); err != nil {
-		return nil, err
-	}
-
 	// build service's Docker image and apply to service.
-	imageHash, err := i.container.Build(path)
+	imageHash, err := build(i.container, srv)
 	if err != nil {
 		return nil, err
 	}
@@ -125,26 +99,31 @@ func (i *Instance) Create(serviceHash hash.Hash, env []string) (*instance.Instan
 		return nil, err
 	}
 
-	_, err = i.start(inst, imageHash, instanceEnv)
+	_, err = start(i.container, srv, inst.Hash, imageHash, instanceEnv, i.engineName, i.port)
 	return inst, err
 }
 
 // Delete deletes an instance.
-// if deleteData is enabled, any persistent data that belongs to
+// if shouldDeleteData is true, any persistent data that belongs to
 // the instance and to its dependencies will also be deleted.
-func (i *Instance) Delete(hash hash.Hash, deleteData bool) error {
+func (i *Instance) Delete(hash hash.Hash, shouldDeleteData bool) error {
 	inst, err := i.instanceDB.Get(hash)
 	if err != nil {
 		return err
 	}
-	if err := i.stop(inst); err != nil {
+	// get the service from service db.
+	srv, err := i.service.Get(inst.ServiceHash)
+	if err != nil {
+		return err
+	}
+	if err := stop(i.container, hash, srv.Dependencies); err != nil {
 		return err
 	}
 	// delete volumes first before the instance. this way if
 	// deleting volumes fails, process can be retried by the user again
 	// because instance still will be in the db.
-	if deleteData {
-		if err := i.deleteData(inst); err != nil {
+	if shouldDeleteData {
+		if err := deleteData(i.container, srv); err != nil {
 			return err
 		}
 	}
