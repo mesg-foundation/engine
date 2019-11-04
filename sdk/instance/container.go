@@ -20,7 +20,7 @@ import (
 )
 
 // Build the imge of the container
-func build(cont container.Container, srv *service.Service) (string, error) {
+func build(cont container.Container, srv *service.Service, ipfsEndpoint string) (string, error) {
 	// download and untar service context into path.
 	path, err := ioutil.TempDir("", "mesg")
 	if err != nil {
@@ -29,7 +29,7 @@ func build(cont container.Container, srv *service.Service) (string, error) {
 	defer os.RemoveAll(path)
 
 	// TODO: the ipfs url should be in config
-	resp, err := http.Get("http://ipfs.app.mesg.com:8080/ipfs/" + srv.Source)
+	resp, err := http.Get(ipfsEndpoint + srv.Source)
 	if err != nil {
 		return "", err
 	}

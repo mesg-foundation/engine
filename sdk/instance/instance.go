@@ -17,18 +17,20 @@ type Instance struct {
 	service    servicesdk.Service
 	instanceDB database.InstanceDB
 
-	port       string
-	engineName string
+	port         string
+	engineName   string
+	ipfsEndpoint string
 }
 
 // New creates a new Instance SDK with given options.
-func New(c container.Container, service servicesdk.Service, instanceDB database.InstanceDB, engineName, port string) *Instance {
+func New(c container.Container, service servicesdk.Service, instanceDB database.InstanceDB, engineName, port, ipfsEndpoint string) *Instance {
 	return &Instance{
-		container:  c,
-		service:    service,
-		instanceDB: instanceDB,
-		port:       port,
-		engineName: engineName,
+		container:    c,
+		service:      service,
+		instanceDB:   instanceDB,
+		port:         port,
+		engineName:   engineName,
+		ipfsEndpoint: ipfsEndpoint,
 	}
 }
 
@@ -72,7 +74,7 @@ func (i *Instance) Create(serviceHash hash.Hash, env []string) (*instance.Instan
 	}
 
 	// build service's Docker image and apply to service.
-	imageHash, err := build(i.container, srv)
+	imageHash, err := build(i.container, srv, i.ipfsEndpoint)
 	if err != nil {
 		return nil, err
 	}

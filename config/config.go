@@ -29,6 +29,8 @@ type Config struct {
 	Name string `validate:"required" yaml:"-"`
 	Path string `validate:"required" yaml:"-"`
 
+	IpfsEndpoint string `validate:"required"`
+
 	Server struct {
 		Address string `validate:"required"`
 	}
@@ -72,6 +74,8 @@ func defaultConfig() (*Config, error) {
 
 	c.Name = "engine"
 	c.Path = filepath.Join(home, ".mesg")
+
+	c.IpfsEndpoint = "http://ipfs.app.mesg.com:8080/ipfs/"
 
 	c.Server.Address = ":50052"
 	c.Log.Format = "text"
