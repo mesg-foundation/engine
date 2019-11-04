@@ -195,7 +195,7 @@ func main() {
 	}
 
 	// init gRPC server.
-	server := grpc.New(sdk)
+	server := grpc.New(sdk, cfg)
 
 	logrus.WithField("module", "main").Infof("starting MESG Engine version %s", version.Version)
 

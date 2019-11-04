@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 
+	"github.com/mesg-foundation/engine/config"
 	protobuf_api "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/sdk"
 	"github.com/mesg-foundation/engine/service"
@@ -11,19 +12,21 @@ import (
 // ServiceServer is the type to aggregate all Service APIs.
 type ServiceServer struct {
 	sdk *sdk.SDK
+	cfg *config.Config
 }
 
 // NewServiceServer creates a new ServiceServer.
-func NewServiceServer(sdk *sdk.SDK) *ServiceServer {
-	return &ServiceServer{sdk: sdk}
+func NewServiceServer(sdk *sdk.SDK, cfg *config.Config) *ServiceServer {
+	return &ServiceServer{sdk: sdk, cfg: cfg}
 }
 
 // Create creates a new service from definition.
 func (s *ServiceServer) Create(ctx context.Context, req *protobuf_api.CreateServiceRequest) (*protobuf_api.CreateServiceResponse, error) {
-	credUsername, credPassphrase, err := GetCredentialFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
+	// credUsername, credPassphrase, err := GetCredentialFromContext(ctx)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	credUsername, credPassphrase := s.cfg.Account.Name, s.cfg.Account.Password
 
 	srv, err := s.sdk.Service.Create(req, credUsername, credPassphrase)
 	if err != nil {

@@ -6,6 +6,7 @@ import (
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
+	"github.com/mesg-foundation/engine/config"
 	protobuf_api "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/sdk"
 	"github.com/mesg-foundation/engine/server/grpc/api"
@@ -19,11 +20,12 @@ import (
 type Server struct {
 	instance *grpc.Server
 	sdk      *sdk.SDK
+	cfg      *config.Config
 }
 
 // New returns a new gRPC server.
-func New(sdk *sdk.SDK) *Server {
-	return &Server{sdk: sdk}
+func New(sdk *sdk.SDK, cfg *config.Config) *Server {
+	return &Server{sdk: sdk, cfg: cfg}
 }
 
 // Serve listens for connections.
@@ -62,7 +64,7 @@ func (s *Server) register() {
 	protobuf_api.RegisterEventServer(s.instance, api.NewEventServer(s.sdk))
 	protobuf_api.RegisterExecutionServer(s.instance, api.NewExecutionServer(s.sdk))
 	protobuf_api.RegisterInstanceServer(s.instance, api.NewInstanceServer(s.sdk))
-	protobuf_api.RegisterServiceServer(s.instance, api.NewServiceServer(s.sdk))
+	protobuf_api.RegisterServiceServer(s.instance, api.NewServiceServer(s.sdk, s.cfg))
 	protobuf_api.RegisterProcessServer(s.instance, api.NewProcessServer(s.sdk))
 	protobuf_api.RegisterAccountServer(s.instance, api.NewAccountServer(s.sdk))
 	protobuf_api.RegisterOwnershipServer(s.instance, api.NewOwnershipServer(s.sdk))
