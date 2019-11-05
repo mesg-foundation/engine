@@ -109,7 +109,7 @@ func (s *Backend) Create(request cosmostypes.Request, msg *msgCreateRunner) (*ru
 	if exist, err := db.Exist(run.Hash); err != nil {
 		return nil, err
 	} else if exist {
-		return nil, &AlreadyExistsError{Hash: run.Hash}
+		return nil, errors.New("runner %q already exists" + run.Hash.String())
 	}
 
 	// save runner
