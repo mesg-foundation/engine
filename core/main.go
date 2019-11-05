@@ -14,8 +14,8 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/logger"
 	"github.com/mesg-foundation/engine/orchestrator"
+	"github.com/mesg-foundation/engine/protobuf/api"
 	enginesdk "github.com/mesg-foundation/engine/sdk"
-	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	"github.com/mesg-foundation/engine/server/grpc"
 	"github.com/mesg-foundation/engine/version"
 	"github.com/mesg-foundation/engine/x/xerrors"
@@ -40,21 +40,26 @@ func initDatabases(cfg *config.Config) (*database.LevelDBExecutionDB, *database.
 	return executionDB, processDB, nil
 }
 
-func stopRunningServices(sdk *enginesdk.SDK) error {
-	instances, err := sdk.Instance.List(&instancesdk.Filter{})
+func stopRunningServices(sdk *enginesdk.SDK, cfg *config.Config, address string) error {
+	// TODO: should use address to filter runners
+	fmt.Println("address", address)
+	runners, err := sdk.Runner.List()
 	if err != nil {
 		return err
 	}
 	var (
-		instancesLen = len(instances)
-		errC         = make(chan error, instancesLen)
-		wg           sync.WaitGroup
+		runnersLen = len(runners)
+		errC       = make(chan error, runnersLen)
+		wg         sync.WaitGroup
 	)
-	wg.Add(instancesLen)
-	for _, instance := range instances {
+	wg.Add(runnersLen)
+	for _, instance := range runners {
 		go func(hash hash.Hash) {
 			defer wg.Done()
-			err := sdk.Instance.Delete(hash, false)
+			err := sdk.Runner.Delete(&api.DeleteRunnerRequest{
+				Hash:       hash,
+				DeleteData: false,
+			}, cfg.Account.Name, cfg.Account.Password)
 			if err != nil {
 				errC <- err
 			}
@@ -158,7 +163,7 @@ func main() {
 	}
 
 	// gen config account
-	_, err = loadOrGenConfigAccount(kb, cfg)
+	acc, err := loadOrGenConfigAccount(kb, cfg)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
@@ -212,7 +217,7 @@ func main() {
 	}()
 
 	<-xsignal.WaitForInterrupt()
-	if err := stopRunningServices(sdk); err != nil {
+	if err := stopRunningServices(sdk, cfg, acc.GetAddress().String()); err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 
