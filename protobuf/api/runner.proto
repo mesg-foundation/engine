@@ -32,7 +32,8 @@ message GetRunnerRequest {
   bytes hash = 1 [
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
-  ];}
+  ];
+}
 
 // The request's data for the `List` API.
 message ListRunnerRequest {
