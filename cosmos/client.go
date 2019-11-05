@@ -4,12 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"sync/atomic"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/auth"
 	abci "github.com/tendermint/tendermint/abci/types"
 	cmn "github.com/tendermint/tendermint/libs/common"
 	"github.com/tendermint/tendermint/node"
@@ -53,7 +53,18 @@ func (c *Client) Query(path string, data cmn.HexBytes, ptr interface{}) error {
 
 // BuildAndBroadcastMsg builds and signs message and broadcast it to node.
 func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg, accName, accPassword string, accNumber uint64) (*abci.ResponseDeliverTx, error) {
-	txBuilder := NewTxBuilder(c.cdc, accNumber, atomic.AddUint64(&AccSeq, 1), c.kb, c.chainID)
+	info, err := c.kb.Get(accName)
+	if err != nil {
+		return nil, err
+	}
+
+	acc, err := auth.NewAccountRetriever(c).GetAccount(info.GetAddress())
+	if err != nil {
+		return nil, err
+	}
+
+	txBuilder := NewTxBuilder(c.cdc, acc.GetAccountNumber(), acc.GetSequence(), c.kb, c.chainID)
+
 	// TODO: cannot sign 2 tx at the same time. Maybe keybase cannot be access at the same time. Add a lock?
 	signedTx, err := txBuilder.BuildAndSignStdTx(msg, accName, accPassword)
 	if err != nil {
@@ -98,4 +109,30 @@ func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg, accName, accPassword str
 	case <-ctx.Done():
 		return nil, errors.New("i/o timeout")
 	}
+}
+
+// QueryWithData performs a query to a Tendermint node with the provided path
+// and a data payload. It returns the result and height of the query upon success
+// or an error if the query fails.
+func (c *Client) QueryWithData(path string, data []byte) ([]byte, int64, error) {
+	return c.query(path, data)
+}
+
+// query performs a query to a Tendermint node with the provided store name
+// and path. It returns the result and height of the query upon success
+// or an error if the query fails. In addition, it will verify the returned
+// proof if TrustNode is disabled. If proof verification fails or the query
+// height is invalid, an error will be returned.
+func (c *Client) query(path string, key cmn.HexBytes) (res []byte, height int64, err error) {
+	result, err := c.ABCIQuery(path, key)
+	if err != nil {
+		return res, height, err
+	}
+
+	resp := result.Response
+	if !resp.IsOK() {
+		return res, resp.Height, errors.New(resp.Log)
+	}
+
+	return resp.Value, resp.Height, nil
 }
