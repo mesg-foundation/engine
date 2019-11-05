@@ -1,7 +1,7 @@
 package processesdk
 
 import (
-	"fmt"
+	"errors"
 
 	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/hash"
@@ -46,7 +46,7 @@ func (w *Process) Create(wf *process.Process) (*process.Process, error) {
 
 	// check if process already exists.
 	if _, err := w.processDB.Get(wf.Hash); err == nil {
-		return nil, &AlreadyExistsError{Hash: wf.Hash}
+		return nil, errors.New("process %q already exists" + wf.Hash.String())
 	}
 
 	if err := wf.Validate(); err != nil {
@@ -68,13 +68,4 @@ func (w *Process) Get(hash hash.Hash) (*process.Process, error) {
 // List returns all processes.
 func (w *Process) List() ([]*process.Process, error) {
 	return w.processDB.All()
-}
-
-// AlreadyExistsError is an not found error.
-type AlreadyExistsError struct {
-	Hash hash.Hash
-}
-
-func (e *AlreadyExistsError) Error() string {
-	return fmt.Sprintf("process %q already exists", e.Hash.String())
 }

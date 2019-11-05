@@ -22,7 +22,7 @@ import (
 type SDK struct {
 	cdc          *codec.Codec
 	accountSDK   *accountsdk.SDK
-	serviceSDK   servicesdk.Service
+	serviceSDK   *servicesdk.SDK
 	instanceSDK  *instancesdk.SDK
 	client       *cosmos.Client
 	container    container.Container
@@ -32,7 +32,7 @@ type SDK struct {
 }
 
 // New returns the runner sdk.
-func New(cdc *codec.Codec, client *cosmos.Client, accountSDK *accountsdk.SDK, serviceSDK servicesdk.Service, instanceSDK *instancesdk.SDK, container container.Container, engineName, port, ipfsEndpoint string) *SDK {
+func New(cdc *codec.Codec, client *cosmos.Client, accountSDK *accountsdk.SDK, serviceSDK *servicesdk.SDK, instanceSDK *instancesdk.SDK, container container.Container, engineName, port, ipfsEndpoint string) *SDK {
 	sdk := &SDK{
 		cdc:          cdc,
 		container:    container,

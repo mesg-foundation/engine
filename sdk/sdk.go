@@ -18,7 +18,7 @@ import (
 
 // SDK exposes all functionalities of MESG Engine.
 type SDK struct {
-	Service   servicesdk.Service
+	Service   *servicesdk.SDK
 	Instance  *instancesdk.SDK
 	Execution *executionsdk.Execution
 	Event     *eventsdk.Event
