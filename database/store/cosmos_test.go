@@ -70,3 +70,24 @@ func TestCosmosStoreIterate(t *testing.T) {
 	iter.Release()
 	require.NoError(t, iter.Error())
 }
+
+func TestCosmosStoreAll(t *testing.T) {
+	store, closer := newCosmosStore(t)
+	defer closer()
+
+	data := []struct {
+		key   []byte
+		value []byte
+	}{
+		{key: []byte("hello"), value: []byte("world")},
+		{key: []byte("foo"), value: []byte("bar")},
+	}
+	for _, d := range data {
+		store.Put(d.key, d.value)
+	}
+	out, err := store.All()
+	require.NoError(t, err)
+	require.Len(t, out, 2)
+	require.Equal(t, data[1].value, out[0])
+	require.Equal(t, data[0].value, out[1])
+}
