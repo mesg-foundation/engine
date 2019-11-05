@@ -85,6 +85,11 @@ func loadOrGenConfigAccount(kb *cosmos.Keybase, cfg *config.Config) (keys.Info, 
 	if err != nil {
 		return nil, err
 	}
+	logrus.WithField("module", "main").WithFields(map[string]interface{}{
+		"name":     cfg.Account.Name,
+		"password": cfg.Account.Password,
+		"mnemonic": mnemonic,
+	}).Warn("Account")
 	return kb.CreateAccount(cfg.Account.Name, mnemonic, "", cfg.Account.Password, 0, 0)
 }
 
@@ -105,11 +110,9 @@ func loadOrGenDevGenesis(app *cosmos.App, kb *cosmos.Keybase, cfg *config.Config
 		return nil, err
 	}
 	logrus.WithField("module", "main").WithFields(map[string]interface{}{
-		"name":     validator.Name,
-		"password": validator.Password,
-		"nodeID":   validator.NodeID,
-		"peer":     fmt.Sprintf("%s@%s:26656", validator.NodeID, validator.Name),
-	}).Warnln("Dev validator")
+		"nodeID": validator.NodeID,
+		"peer":   fmt.Sprintf("%s@%s:26656", validator.NodeID, validator.Name),
+	}).Warnln("Validator")
 	return cosmos.GenGenesis(app.Cdc(), kb, app.DefaultGenesis(), cfg.DevGenesis.ChainID, cfg.Tendermint.Config.GenesisFile(), []cosmos.GenesisValidator{validator})
 }
 
