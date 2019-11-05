@@ -26,25 +26,18 @@ import (
 	db "github.com/tendermint/tm-db"
 )
 
-func initDatabases(cfg *config.Config) (*database.LevelDBInstanceDB, *database.LevelDBExecutionDB, *database.LevelDBProcessDB, error) {
-	// init instance db.
-	instanceDB, err := database.NewInstanceDB(filepath.Join(cfg.Path, cfg.Database.InstanceRelativePath))
-	if err != nil {
-		return nil, nil, nil, err
-	}
-
+func initDatabases(cfg *config.Config) (*database.LevelDBExecutionDB, *database.LevelDBProcessDB, error) {
 	// init execution db.
 	executionDB, err := database.NewExecutionDB(filepath.Join(cfg.Path, cfg.Database.ExecutionRelativePath))
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
 	// init process db.
 	processDB, err := database.NewProcessDB(filepath.Join(cfg.Path, cfg.Database.ProcessRelativePath))
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
-
-	return instanceDB, executionDB, processDB, nil
+	return executionDB, processDB, nil
 }
 
 func stopRunningServices(sdk *enginesdk.SDK) error {
@@ -127,13 +120,13 @@ func main() {
 	logger.Init(cfg.Log.Format, cfg.Log.Level, cfg.Log.ForceColors)
 
 	// init databases
-	instanceDB, executionDB, processDB, err := initDatabases(cfg)
+	executionDB, processDB, err := initDatabases(cfg)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 
 	// init container.
-	c, err := container.New(cfg.Name)
+	container, err := container.New(cfg.Name)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
@@ -186,7 +179,7 @@ func main() {
 	client := cosmos.NewClient(node, app.Cdc(), kb, genesis.ChainID)
 
 	// init sdk
-	sdk := enginesdk.New(client, app.Cdc(), kb, c, instanceDB, executionDB, processDB, cfg.Name, strconv.Itoa(port), cfg.IpfsEndpoint)
+	sdk := enginesdk.New(client, app.Cdc(), kb, executionDB, processDB, container, cfg.Name, strconv.Itoa(port), cfg.IpfsEndpoint)
 
 	// start tendermint node
 	logrus.WithField("module", "main").WithField("seeds", cfg.Tendermint.Config.P2P.Seeds).Info("starting tendermint node")
@@ -223,7 +216,7 @@ func main() {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 
-	if err := c.Cleanup(); err != nil {
+	if err := container.Cleanup(); err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 	server.Close()

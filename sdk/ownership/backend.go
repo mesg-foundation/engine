@@ -54,7 +54,7 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 	}
 }
 
-// CreateServiceOwnership creates a new ownership from definition.
+// CreateServiceOwnership creates a new ownership.
 func (s *Backend) CreateServiceOwnership(request cosmostypes.Request, serviceHash hash.Hash, owner cosmostypes.AccAddress) (*ownership.Ownership, error) {
 	db := s.db(request)
 	// check if owner is authorized to create the ownership

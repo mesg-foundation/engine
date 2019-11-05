@@ -6,6 +6,7 @@ package mesg.types;
 option go_package = "github.com/mesg-foundation/engine/instance";
 
 option (gogoproto.goproto_getters_all) = false;
+option (gogoproto.equal_all) = true;
 
 // Instance represents service's instance.
 message Instance {

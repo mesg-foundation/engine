@@ -23,13 +23,13 @@ const (
 type Execution struct {
 	ps       *pubsub.PubSub
 	service  servicesdk.Service
-	instance *instancesdk.Instance
+	instance *instancesdk.SDK
 	process  *processesdk.Process
 	execDB   database.ExecutionDB
 }
 
 // New creates a new Execution SDK with given options.
-func New(ps *pubsub.PubSub, service servicesdk.Service, instance *instancesdk.Instance, process *processesdk.Process, execDB database.ExecutionDB) *Execution {
+func New(ps *pubsub.PubSub, service servicesdk.Service, instance *instancesdk.SDK, process *processesdk.Process, execDB database.ExecutionDB) *Execution {
 	return &Execution{
 		ps:       ps,
 		service:  service,

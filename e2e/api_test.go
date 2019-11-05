@@ -59,5 +59,4 @@ func TestAPI(t *testing.T) {
 	t.Run("instance", testInstance)
 	t.Run("event", testEvent)
 	t.Run("execution", testExecution)
-	t.Run("instance/delete", testDeleteInstance)
 }

@@ -23,7 +23,7 @@ func TestGet(t *testing.T) {
 	exec := execution.New(nil, nil, nil, nil, "", "", nil, nil)
 	require.NoError(t, db.Save(exec))
 
-	sdk := sdk.New(nil, nil, nil, nil, nil, db, nil, "", "", "")
+	sdk := sdk.New(nil, nil, nil, db, nil, nil, "", "", "")
 	s := NewExecutionServer(sdk)
 
 	got, err := s.Get(context.Background(), &api.GetExecutionRequest{Hash: exec.Hash})
@@ -40,7 +40,7 @@ func TestUpdate(t *testing.T) {
 	exec := execution.New(nil, nil, nil, nil, "", "", nil, nil)
 	require.NoError(t, db.Save(exec))
 
-	sdk := sdk.New(nil, nil, nil, nil, nil, db, nil, "", "", "")
+	sdk := sdk.New(nil, nil, nil, db, nil, nil, "", "", "")
 	s := NewExecutionServer(sdk)
 
 	_, err = s.Update(context.Background(), &api.UpdateExecutionRequest{Hash: exec.Hash})

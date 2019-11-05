@@ -92,7 +92,7 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 	}
 }
 
-// Create creates a new service from definition.
+// Create creates a new service.
 func (s *Backend) Create(request cosmostypes.Request, msg *msgCreateService) (*service.Service, error) {
 	return create(s.db(request), msg.Request, msg.Owner, s.ownerships, request)
 }
