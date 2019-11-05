@@ -52,8 +52,8 @@ func (s *Server) Serve(address string) error {
 			func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 				// inject credentials from config
 				ctx = metadata.NewIncomingContext(ctx, map[string][]string{
-					"credential_username":   []string{s.cfg.Account.Name},
-					"credential_passphrase": []string{s.cfg.Account.Password},
+					"credential_username":   {s.cfg.Account.Name},
+					"credential_passphrase": {s.cfg.Account.Password},
 				})
 				return handler(ctx, req)
 			},
