@@ -36,11 +36,20 @@ message GetRunnerRequest {
 
 // The request's data for the `List` API.
 message ListRunnerRequest {
-  // Filter by Instance hash.
-  bytes instanceHash = 1 [
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
-    (gogoproto.nullable) = false
-  ];
+  // Filter contains filtering criteria.
+  message Filter {
+    // Filter by instance hash.
+    bytes instanceHash = 1 [
+      (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+      (gogoproto.nullable) = false
+    ];
+
+    // Filter by address
+    string address = 2;
+  }
+
+  // Filter used to filter runners.
+  Filter filter = 1;
 }
 
 // The response's data for the `List` API.

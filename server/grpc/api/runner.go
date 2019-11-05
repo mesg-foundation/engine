@@ -56,7 +56,7 @@ func (s *RunnerServer) Get(ctx context.Context, req *protobuf_api.GetRunnerReque
 
 // List returns all runners.
 func (s *RunnerServer) List(ctx context.Context, req *protobuf_api.ListRunnerRequest) (*protobuf_api.ListRunnerResponse, error) {
-	runners, err := s.sdk.Runner.List()
+	runners, err := s.sdk.Runner.List(req.Filter)
 	if err != nil {
 		return nil, err
 	}

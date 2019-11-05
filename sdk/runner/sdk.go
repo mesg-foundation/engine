@@ -162,13 +162,24 @@ func (s *SDK) Get(hash hash.Hash) (*runner.Runner, error) {
 }
 
 // List returns all runners.
-func (s *SDK) List() ([]*runner.Runner, error) {
-	// TODO: implement the filter
+func (s *SDK) List(f *api.ListRunnerRequest_Filter) ([]*runner.Runner, error) {
 	var runners []*runner.Runner
 	if err := s.client.Query("custom/"+backendName+"/list", nil, &runners); err != nil {
 		return nil, err
 	}
-	return runners, nil
+	// no filter, returns
+	if f == nil {
+		return runners, nil
+	}
+	// filter results
+	ret := make([]*runner.Runner, 0)
+	for _, runner := range runners {
+		if (f.Address == "" || runner.Address == f.Address) &&
+			(f.InstanceHash.IsZero() || runner.Hash.Equal(f.InstanceHash)) {
+			ret = append(ret, runner)
+		}
+	}
+	return ret, nil
 }
 
 // Exists returns if a runner already exists.

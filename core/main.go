@@ -41,9 +41,7 @@ func initDatabases(cfg *config.Config) (*database.LevelDBExecutionDB, *database.
 }
 
 func stopRunningServices(sdk *enginesdk.SDK, cfg *config.Config, address string) error {
-	// TODO: should use address to filter runners
-	fmt.Println("address", address)
-	runners, err := sdk.Runner.List()
+	runners, err := sdk.Runner.List(&api.ListRunnerRequest_Filter{Address: address})
 	if err != nil {
 		return err
 	}
@@ -80,7 +78,7 @@ func loadOrGenConfigAccount(kb *cosmos.Keybase, cfg *config.Config) (keys.Info, 
 		return nil, err
 	}
 	if exist {
-		return nil, nil
+		return kb.Get(cfg.Account.Name)
 	}
 	logrus.WithField("module", "main").Warn("Config account not found. Generating one for development...")
 	mnemonic, err := kb.NewMnemonic()
