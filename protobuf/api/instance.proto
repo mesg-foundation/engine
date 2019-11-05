@@ -37,11 +37,17 @@ message GetInstanceRequest {
 
 // The request's data for the `List` API.
 message ListInstanceRequest {
-  // Filter by Services' hash.
-  bytes serviceHash = 1 [
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
-    (gogoproto.nullable) = false
-  ];
+  // Filter contains filtering criteria.
+  message Filter {
+    // Service hash to filter executions.
+    bytes serviceHash = 1 [
+      (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+      (gogoproto.nullable) = false
+    ];
+  }
+
+  // Filter used to filter a list of instance.
+  Filter filter = 1;
 }
 
 // The response's data for the `List` API.
