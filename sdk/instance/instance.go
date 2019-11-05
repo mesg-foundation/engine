@@ -14,7 +14,7 @@ import (
 // Instance exposes service instance APIs of MESG.
 type Instance struct {
 	container  container.Container
-	service    servicesdk.Service
+	service    *servicesdk.SDK
 	instanceDB database.InstanceDB
 
 	port         string
@@ -23,7 +23,7 @@ type Instance struct {
 }
 
 // New creates a new Instance SDK with given options.
-func New(c container.Container, service servicesdk.Service, instanceDB database.InstanceDB, engineName, port, ipfsEndpoint string) *Instance {
+func New(c container.Container, service *servicesdk.SDK, instanceDB database.InstanceDB, engineName, port, ipfsEndpoint string) *Instance {
 	return &Instance{
 		container:    c,
 		service:      service,

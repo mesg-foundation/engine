@@ -123,7 +123,7 @@ func create(db *database.ServiceDB, req *api.CreateServiceRequest, owner cosmost
 
 	// check if service already exists.
 	if _, err := db.Get(srv.Hash); err == nil {
-		return nil, &AlreadyExistsError{Hash: srv.Hash}
+		return nil, errors.New("service %q already exists" + srv.Hash.String())
 	}
 
 	// TODO: the following test should be moved in New function
