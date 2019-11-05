@@ -21,6 +21,7 @@ func TestDefaultConfig(t *testing.T) {
 	c, err := New()
 	require.NoError(t, err)
 	require.Equal(t, ":50052", c.Server.Address)
+	require.Equal(t, "http://ipfs.app.mesg.com:8080/ipfs/", c.IpfsEndpoint)
 	require.Equal(t, "text", c.Log.Format)
 	require.Equal(t, "info", c.Log.Level)
 	require.Equal(t, false, c.Log.ForceColors)
