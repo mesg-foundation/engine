@@ -44,7 +44,7 @@ func testRunner(t *testing.T) {
 	})
 
 	t.Run("list", func(t *testing.T) {
-		resp, err := client.RunnerClient.List(context.Background(), &pb.ListRunnerRequest{InstanceHash: testInstanceHash})
+		resp, err := client.RunnerClient.List(context.Background(), &pb.ListRunnerRequest{})
 		require.NoError(t, err)
 		require.Len(t, resp.Runners, 1)
 		require.Equal(t, testInstanceHash, resp.Runners[0].InstanceHash)
@@ -57,7 +57,7 @@ func testDeleteRunner(t *testing.T) {
 	_, err := client.RunnerClient.Delete(ctx, &pb.DeleteRunnerRequest{Hash: testRunnerHash})
 	require.NoError(t, err)
 
-	resp, err := client.RunnerClient.List(context.Background(), &pb.ListRunnerRequest{InstanceHash: testInstanceHash})
+	resp, err := client.RunnerClient.List(context.Background(), &pb.ListRunnerRequest{})
 	require.NoError(t, err)
 	require.Len(t, resp.Runners, 0)
 }
