@@ -25,10 +25,6 @@ type Client struct {
 	chainID string
 }
 
-// AccSeq is a sequence number that could be used to build the transaction.
-// It should be increased after every usage.
-var AccSeq uint64
-
 // NewClient returns a rpc tendermint client.
 func NewClient(node *node.Node, cdc *codec.Codec, kb keys.Keybase, chainID string) *Client {
 	return &Client{
