@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"sync"
 
+	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/cosmos"
@@ -13,8 +14,9 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/logger"
 	"github.com/mesg-foundation/engine/orchestrator"
+	"github.com/mesg-foundation/engine/protobuf/api"
 	enginesdk "github.com/mesg-foundation/engine/sdk"
-	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
+	runnersdk "github.com/mesg-foundation/engine/sdk/runner"
 	"github.com/mesg-foundation/engine/server/grpc"
 	"github.com/mesg-foundation/engine/version"
 	"github.com/mesg-foundation/engine/x/xerrors"
@@ -25,43 +27,38 @@ import (
 	db "github.com/tendermint/tm-db"
 )
 
-func initDatabases(cfg *config.Config) (*database.LevelDBInstanceDB, *database.LevelDBExecutionDB, *database.LevelDBProcessDB, error) {
-	// init instance db.
-	instanceDB, err := database.NewInstanceDB(filepath.Join(cfg.Path, cfg.Database.InstanceRelativePath))
-	if err != nil {
-		return nil, nil, nil, err
-	}
-
+func initDatabases(cfg *config.Config) (*database.LevelDBExecutionDB, *database.LevelDBProcessDB, error) {
 	// init execution db.
 	executionDB, err := database.NewExecutionDB(filepath.Join(cfg.Path, cfg.Database.ExecutionRelativePath))
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
-
 	// init process db.
 	processDB, err := database.NewProcessDB(filepath.Join(cfg.Path, cfg.Database.ProcessRelativePath))
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
-
-	return instanceDB, executionDB, processDB, nil
+	return executionDB, processDB, nil
 }
 
-func stopRunningServices(sdk *enginesdk.SDK) error {
-	instances, err := sdk.Instance.List(&instancesdk.Filter{})
+func stopRunningServices(sdk *enginesdk.SDK, cfg *config.Config, address string) error {
+	runners, err := sdk.Runner.List(&runnersdk.Filter{Address: address})
 	if err != nil {
 		return err
 	}
 	var (
-		instancesLen = len(instances)
-		errC         = make(chan error, instancesLen)
-		wg           sync.WaitGroup
+		runnersLen = len(runners)
+		errC       = make(chan error, runnersLen)
+		wg         sync.WaitGroup
 	)
-	wg.Add(instancesLen)
-	for _, instance := range instances {
+	wg.Add(runnersLen)
+	for _, instance := range runners {
 		go func(hash hash.Hash) {
 			defer wg.Done()
-			err := sdk.Instance.Delete(hash, false)
+			err := sdk.Runner.Delete(&api.DeleteRunnerRequest{
+				Hash:       hash,
+				DeleteData: false,
+			}, cfg.Account.Name, cfg.Account.Password)
 			if err != nil {
 				errC <- err
 			}
@@ -76,15 +73,36 @@ func stopRunningServices(sdk *enginesdk.SDK) error {
 	return errs.ErrorOrNil()
 }
 
+func loadOrGenConfigAccount(kb *cosmos.Keybase, cfg *config.Config) (keys.Info, error) {
+	exist, err := kb.Exist(cfg.Account.Name)
+	if err != nil {
+		return nil, err
+	}
+	if exist {
+		return kb.Get(cfg.Account.Name)
+	}
+	logrus.WithField("module", "main").Warn("Config account not found. Generating one for development...")
+	mnemonic, err := kb.NewMnemonic()
+	if err != nil {
+		return nil, err
+	}
+	logrus.WithField("module", "main").WithFields(map[string]interface{}{
+		"name":     cfg.Account.Name,
+		"password": cfg.Account.Password,
+		"mnemonic": mnemonic,
+	}).Warn("Account")
+	return kb.CreateAccount(cfg.Account.Name, mnemonic, "", cfg.Account.Password, 0, 0)
+}
+
 func loadOrGenDevGenesis(app *cosmos.App, kb *cosmos.Keybase, cfg *config.Config) (*tmtypes.GenesisDoc, error) {
 	if cosmos.GenesisExist(cfg.Tendermint.Config.GenesisFile()) {
 		return cosmos.LoadGenesis(cfg.Tendermint.Config.GenesisFile())
 	}
 	// generate dev genesis
-	logrus.WithField("module", "main").Warn("Genesis file not found. Will generate an unsecured developer one.")
+	logrus.WithField("module", "main").Warn("Genesis file not found. Generating one for development...")
 	validator, err := cosmos.NewGenesisValidator(kb,
-		cfg.DevGenesis.AccountName,
-		cfg.DevGenesis.AccountPassword,
+		cfg.Account.Name,
+		cfg.Account.Password,
 		cfg.Tendermint.Config.PrivValidatorKeyFile(),
 		cfg.Tendermint.Config.PrivValidatorStateFile(),
 		cfg.Tendermint.Config.NodeKeyFile(),
@@ -93,13 +111,9 @@ func loadOrGenDevGenesis(app *cosmos.App, kb *cosmos.Keybase, cfg *config.Config
 		return nil, err
 	}
 	logrus.WithField("module", "main").WithFields(map[string]interface{}{
-		"name":     validator.Name,
-		"address":  validator.Address,
-		"password": validator.Password,
-		"mnemonic": validator.Mnemonic,
-		"nodeID":   validator.NodeID,
-		"peer":     fmt.Sprintf("%s@%s:26656", validator.NodeID, validator.Name),
-	}).Warnln("Dev validator")
+		"nodeID": validator.NodeID,
+		"peer":   fmt.Sprintf("%s@%s:26656", validator.NodeID, validator.Name),
+	}).Warnln("Validator")
 	return cosmos.GenGenesis(app.Cdc(), kb, app.DefaultGenesis(), cfg.DevGenesis.ChainID, cfg.Tendermint.Config.GenesisFile(), []cosmos.GenesisValidator{validator})
 }
 
@@ -113,13 +127,13 @@ func main() {
 	logger.Init(cfg.Log.Format, cfg.Log.Level, cfg.Log.ForceColors)
 
 	// init databases
-	instanceDB, executionDB, processDB, err := initDatabases(cfg)
+	executionDB, processDB, err := initDatabases(cfg)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 
 	// init container.
-	c, err := container.New(cfg.Name)
+	container, err := container.New(cfg.Name)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
@@ -150,6 +164,12 @@ func main() {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 
+	// gen config account
+	acc, err := loadOrGenConfigAccount(kb, cfg)
+	if err != nil {
+		logrus.WithField("module", "main").Fatalln(err)
+	}
+
 	// load or gen genesis
 	genesis, err := loadOrGenDevGenesis(app, kb, cfg)
 	if err != nil {
@@ -166,7 +186,7 @@ func main() {
 	client := cosmos.NewClient(node, app.Cdc(), kb, genesis.ChainID)
 
 	// init sdk
-	sdk := enginesdk.New(client, app.Cdc(), kb, c, instanceDB, executionDB, processDB, cfg.Name, strconv.Itoa(port), cfg.IpfsEndpoint)
+	sdk := enginesdk.New(client, app.Cdc(), kb, executionDB, processDB, container, cfg.Name, strconv.Itoa(port), cfg.IpfsEndpoint)
 
 	// start tendermint node
 	logrus.WithField("module", "main").WithField("seeds", cfg.Tendermint.Config.P2P.Seeds).Info("starting tendermint node")
@@ -175,7 +195,7 @@ func main() {
 	}
 
 	// init gRPC server.
-	server := grpc.New(sdk)
+	server := grpc.New(sdk, cfg)
 
 	logrus.WithField("module", "main").Infof("starting MESG Engine version %s", version.Version)
 
@@ -199,11 +219,11 @@ func main() {
 	}()
 
 	<-xsignal.WaitForInterrupt()
-	if err := stopRunningServices(sdk); err != nil {
+	if err := stopRunningServices(sdk, cfg, acc.GetAddress().String()); err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 
-	if err := c.Cleanup(); err != nil {
+	if err := container.Cleanup(); err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 	server.Close()

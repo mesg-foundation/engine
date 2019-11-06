@@ -21,24 +21,13 @@ import (
 // GenesisValidator holds the info of a specific validator to use to generate a genesis.
 type GenesisValidator struct {
 	Name      string
-	Address   sdktypes.AccAddress
 	Password  string
-	Mnemonic  string
 	ValPubKey crypto.PubKey
 	NodeID    p2p.ID
 }
 
 // NewGenesisValidator creates a new validator with an cosmos account, validator and node identity.
 func NewGenesisValidator(kb *Keybase, name, password, privValidatorKeyFile, privValidatorStateFile, nodeKeyFile string) (GenesisValidator, error) {
-	// create validator account
-	mnemonic, err := kb.NewMnemonic()
-	if err != nil {
-		return GenesisValidator{}, err
-	}
-	acc, err := kb.CreateAccount(name, mnemonic, "", password, 0, 0)
-	if err != nil {
-		return GenesisValidator{}, err
-	}
 	val := privval.LoadOrGenFilePV(privValidatorKeyFile, privValidatorStateFile)
 	nodeKey, err := p2p.LoadOrGenNodeKey(nodeKeyFile)
 	if err != nil {
@@ -47,8 +36,6 @@ func NewGenesisValidator(kb *Keybase, name, password, privValidatorKeyFile, priv
 	return GenesisValidator{
 		Name:      name,
 		Password:  password,
-		Mnemonic:  mnemonic,
-		Address:   acc.GetAddress(),
 		ValPubKey: val.GetPubKey(),
 		NodeID:    nodeKey.ID(),
 	}, nil
@@ -69,8 +56,13 @@ func LoadGenesis(genesisFile string) (*tmtypes.GenesisDoc, error) {
 func GenGenesis(cdc *codec.Codec, kb *Keybase, defaultGenesisŚtate map[string]json.RawMessage, chainID string, genesisFile string, validators []GenesisValidator) (*tmtypes.GenesisDoc, error) {
 	msgs := []sdktypes.Msg{}
 	for _, validator := range validators {
+		// get account
+		acc, err := kb.Get(validator.Name)
+		if err != nil {
+			return nil, err
+		}
 		// generate msg to add this validator
-		msgs = append(msgs, genCreateValidatorMsg(validator.Address, validator.Name, validator.ValPubKey))
+		msgs = append(msgs, genCreateValidatorMsg(acc.GetAddress(), validator.Name, validator.ValPubKey))
 	}
 	// generate genesis transaction
 	b := NewTxBuilder(cdc, 0, 0, kb, chainID)

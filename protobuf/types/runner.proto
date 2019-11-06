@@ -1,27 +1,29 @@
 syntax = "proto3";
-
+  
 import "gogo/protobuf/gogoproto/gogo.proto";
 
 package mesg.types;
-option go_package = "github.com/mesg-foundation/engine/instance";
+option go_package = "github.com/mesg-foundation/engine/runner";
 
 option (gogoproto.goproto_getters_all) = false;
 option (gogoproto.equal_all) = true;
 
-// Instance represents service's instance.
-message Instance {
+// Runner represents one node service's instance.
+message Runner {
+  // Runner's hash
   bytes hash = 1 [
+    (gogoproto.moretags) = 'hash:"-"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
 
-  bytes serviceHash = 2 [
-    (gogoproto.moretags) = 'hash:"name:2"',
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
-    (gogoproto.nullable) = false
+  // address of the engine of this runner
+  string address = 2 [
+    (gogoproto.moretags) = 'hash:"name:2"'
   ];
 
-  bytes envHash = 3 [
+  // instanceHash is hash of the instance that runner will handle
+  bytes instanceHash = 3 [
     (gogoproto.moretags) = 'hash:"name:3"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
