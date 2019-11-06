@@ -4,6 +4,9 @@ set -e
 
 export MESG_PATH="$(pwd)"/e2e.test/mesg
 
+# first run non existing test to detect compilation error quickly
+go test -mod=readonly -v ./e2e/... -run=__NONE__
+
 function onexit {
   set +e
   ./scripts/dev.sh stop
