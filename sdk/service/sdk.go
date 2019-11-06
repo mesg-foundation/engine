@@ -3,7 +3,6 @@ package servicesdk
 import (
 	"fmt"
 
-	"github.com/cosmos/cosmos-sdk/codec"
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/gogo/protobuf/proto"
 	"github.com/mesg-foundation/engine/cosmos"
@@ -17,15 +16,13 @@ import (
 
 // SDK is the service sdk.
 type SDK struct {
-	cdc        *codec.Codec
 	accountSDK *accountsdk.SDK
 	client     *cosmos.Client
 }
 
 // New returns the service sdk.
-func New(cdc *codec.Codec, client *cosmos.Client, accountSDK *accountsdk.SDK) *SDK {
+func New(client *cosmos.Client, accountSDK *accountsdk.SDK) *SDK {
 	sdk := &SDK{
-		cdc:        cdc,
 		accountSDK: accountSDK,
 		client:     client,
 	}
@@ -43,7 +40,7 @@ func (s *SDK) Create(req *api.CreateServiceRequest, accountName, accountPassword
 	if err != nil {
 		return nil, err
 	}
-	msg := newMsgCreateService(s.cdc, req, owner)
+	msg := newMsgCreateService(req, owner)
 	tx, err := s.client.BuildAndBroadcastMsg(msg, accountName, accountPassword)
 	if err != nil {
 		if err == mempool.ErrTxInCache {

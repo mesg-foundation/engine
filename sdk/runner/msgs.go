@@ -1,7 +1,6 @@
 package runnersdk
 
 import (
-	"github.com/cosmos/cosmos-sdk/codec"
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/hash"
 )
@@ -11,16 +10,14 @@ type msgCreateRunner struct {
 	Address     cosmostypes.AccAddress `json:"address"`
 	ServiceHash hash.Hash              `json:"serviceHash"`
 	EnvHash     hash.Hash              `json:"envHash"`
-	cdc         *codec.Codec
 }
 
 // newMsgCreateRunner is a constructor function for msgCreateRunner.
-func newMsgCreateRunner(cdc *codec.Codec, address cosmostypes.AccAddress, serviceHash hash.Hash, envHash hash.Hash) *msgCreateRunner {
+func newMsgCreateRunner(address cosmostypes.AccAddress, serviceHash hash.Hash, envHash hash.Hash) *msgCreateRunner {
 	return &msgCreateRunner{
 		Address:     address,
 		ServiceHash: serviceHash,
 		EnvHash:     envHash,
-		cdc:         cdc,
 	}
 }
 
@@ -50,7 +47,7 @@ func (msg msgCreateRunner) ValidateBasic() cosmostypes.Error {
 
 // GetSignBytes encodes the message for signing.
 func (msg msgCreateRunner) GetSignBytes() []byte {
-	return cosmostypes.MustSortJSON(msg.cdc.MustMarshalJSON(msg))
+	return cosmostypes.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners defines whose signature is required.
@@ -62,15 +59,13 @@ func (msg msgCreateRunner) GetSigners() []cosmostypes.AccAddress {
 type msgDeleteRunner struct {
 	Address    cosmostypes.AccAddress `json:"address"`
 	RunnerHash hash.Hash              `json:"runnerHash"`
-	cdc        *codec.Codec
 }
 
 // newMsgDeleteRunner is a constructor function for msgDeleteRunner.
-func newMsgDeleteRunner(cdc *codec.Codec, address cosmostypes.AccAddress, runnerHash hash.Hash) *msgDeleteRunner {
+func newMsgDeleteRunner(address cosmostypes.AccAddress, runnerHash hash.Hash) *msgDeleteRunner {
 	return &msgDeleteRunner{
 		Address:    address,
 		RunnerHash: runnerHash,
-		cdc:        cdc,
 	}
 }
 
@@ -97,7 +92,7 @@ func (msg msgDeleteRunner) ValidateBasic() cosmostypes.Error {
 
 // GetSignBytes encodes the message for signing.
 func (msg msgDeleteRunner) GetSignBytes() []byte {
-	return cosmostypes.MustSortJSON(msg.cdc.MustMarshalJSON(msg))
+	return cosmostypes.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners defines whose signature is required.

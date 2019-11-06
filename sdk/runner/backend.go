@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/cosmos/cosmos-sdk/codec"
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/database"
@@ -19,7 +18,6 @@ const backendName = "runner"
 
 // Backend is the runner backend.
 type Backend struct {
-	cdc          *codec.Codec
 	storeKey     *cosmostypes.KVStoreKey
 	instanceBack *instancesdk.Backend
 }
@@ -27,23 +25,19 @@ type Backend struct {
 // NewBackend returns the backend of the runner sdk.
 func NewBackend(appFactory *cosmos.AppFactory, instanceBack *instancesdk.Backend) *Backend {
 	backend := &Backend{
-		cdc:          appFactory.Cdc(),
 		storeKey:     cosmostypes.NewKVStoreKey(backendName),
 		instanceBack: instanceBack,
 	}
 	appBackendBasic := cosmos.NewAppModuleBasic(backendName)
-	appBackend := cosmos.NewAppModule(appBackendBasic, backend.cdc, backend.handler, backend.querier)
+	appBackend := cosmos.NewAppModule(appBackendBasic, ModuleCdc, backend.handler, backend.querier)
 	appFactory.RegisterModule(appBackend)
 	appFactory.RegisterStoreKey(backend.storeKey)
-
-	backend.cdc.RegisterConcrete(msgCreateRunner{}, "runner/create", nil)
-	backend.cdc.RegisterConcrete(msgDeleteRunner{}, "runner/delete", nil)
 
 	return backend
 }
 
 func (s *Backend) db(request cosmostypes.Request) *database.RunnerDB {
-	return database.NewRunnerDB(store.NewCosmosStore(request.KVStore(s.storeKey)), s.cdc)
+	return database.NewRunnerDB(store.NewCosmosStore(request.KVStore(s.storeKey)), ModuleCdc)
 }
 
 func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) cosmostypes.Result {

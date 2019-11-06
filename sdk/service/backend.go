@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/cosmos/cosmos-sdk/codec"
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/gogo/protobuf/proto"
 	"github.com/mesg-foundation/engine/cosmos"
@@ -22,7 +21,6 @@ const backendName = "service"
 
 // Backend is the service backend.
 type Backend struct {
-	cdc        *codec.Codec
 	storeKey   *cosmostypes.KVStoreKey
 	ownerships *ownershipsdk.Backend
 }
@@ -30,22 +28,21 @@ type Backend struct {
 // NewBackend returns the backend of the service sdk.
 func NewBackend(appFactory *cosmos.AppFactory, ownerships *ownershipsdk.Backend) *Backend {
 	backend := &Backend{
-		cdc:        appFactory.Cdc(),
 		storeKey:   cosmostypes.NewKVStoreKey(backendName),
 		ownerships: ownerships,
 	}
 	appBackendBasic := cosmos.NewAppModuleBasic(backendName)
-	appBackend := cosmos.NewAppModule(appBackendBasic, backend.cdc, backend.handler, backend.querier)
+	appBackend := cosmos.NewAppModule(appBackendBasic, ModuleCdc, backend.handler, backend.querier)
 	appFactory.RegisterModule(appBackend)
 	appFactory.RegisterStoreKey(backend.storeKey)
 
-	backend.cdc.RegisterConcrete(msgCreateService{}, "service/create", nil)
+	RegisterCodec(appFactory.Cdc())
 
 	return backend
 }
 
 func (s *Backend) db(request cosmostypes.Request) *database.ServiceDB {
-	return database.NewServiceDB(store.NewCosmosStore(request.KVStore(s.storeKey)), s.cdc)
+	return database.NewServiceDB(store.NewCosmosStore(request.KVStore(s.storeKey)), ModuleCdc)
 }
 
 func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) cosmostypes.Result {

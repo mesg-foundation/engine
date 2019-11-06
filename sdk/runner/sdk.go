@@ -3,7 +3,6 @@ package runnersdk
 import (
 	"fmt"
 
-	"github.com/cosmos/cosmos-sdk/codec"
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/cosmos"
@@ -20,7 +19,6 @@ import (
 
 // SDK is the runner sdk.
 type SDK struct {
-	cdc          *codec.Codec
 	accountSDK   *accountsdk.SDK
 	serviceSDK   *servicesdk.SDK
 	instanceSDK  *instancesdk.SDK
@@ -38,9 +36,8 @@ type Filter struct {
 }
 
 // New returns the runner sdk.
-func New(cdc *codec.Codec, client *cosmos.Client, accountSDK *accountsdk.SDK, serviceSDK *servicesdk.SDK, instanceSDK *instancesdk.SDK, container container.Container, engineName, port, ipfsEndpoint string) *SDK {
+func New(client *cosmos.Client, accountSDK *accountsdk.SDK, serviceSDK *servicesdk.SDK, instanceSDK *instancesdk.SDK, container container.Container, engineName, port, ipfsEndpoint string) *SDK {
 	sdk := &SDK{
-		cdc:          cdc,
 		container:    container,
 		accountSDK:   accountSDK,
 		serviceSDK:   serviceSDK,
@@ -92,7 +89,7 @@ func (s *SDK) Create(req *api.CreateRunnerRequest, accountName, accountPassword 
 		stop(s.container, instanceHash, srv.Dependencies)
 	}
 
-	msg := newMsgCreateRunner(s.cdc, user, req.ServiceHash, envHash)
+	msg := newMsgCreateRunner(user, req.ServiceHash, envHash)
 	tx, err := s.client.BuildAndBroadcastMsg(msg, accountName, accountPassword)
 	if err != nil {
 		defer onError()
@@ -122,7 +119,7 @@ func (s *SDK) Delete(req *api.DeleteRunnerRequest, accountName, accountPassword 
 		return err
 	}
 
-	msg := newMsgDeleteRunner(s.cdc, user, req.Hash)
+	msg := newMsgDeleteRunner(user, req.Hash)
 	_, err = s.client.BuildAndBroadcastMsg(msg, accountName, accountPassword)
 	if err != nil {
 		if err == mempool.ErrTxInCache {

@@ -32,10 +32,10 @@ type SDK struct {
 func New(client *cosmos.Client, cdc *codec.Codec, kb *cosmos.Keybase, execDB database.ExecutionDB, processDB database.ProcessDB, container container.Container, engineName, port string, ipfsEndpoint string) *SDK {
 	ps := pubsub.New(0)
 	accountSDK := accountsdk.NewSDK(kb)
-	serviceSDK := servicesdk.New(cdc, client, accountSDK)
-	ownershipSDK := ownershipsdk.New(cdc, client)
+	serviceSDK := servicesdk.New(client, accountSDK)
+	ownershipSDK := ownershipsdk.New(client)
 	instanceSDK := instancesdk.New(client)
-	runnerSDK := runnersdk.New(cdc, client, accountSDK, serviceSDK, instanceSDK, container, engineName, port, ipfsEndpoint)
+	runnerSDK := runnersdk.New(client, accountSDK, serviceSDK, instanceSDK, container, engineName, port, ipfsEndpoint)
 	processSDK := processesdk.New(instanceSDK, processDB)
 	executionSDK := executionsdk.New(ps, serviceSDK, instanceSDK, processSDK, execDB)
 	eventSDK := eventsdk.New(ps, serviceSDK, instanceSDK)
