@@ -48,7 +48,7 @@ func (c *Client) Query(path string, data cmn.HexBytes, ptr interface{}) error {
 }
 
 // BuildAndBroadcastMsg builds and signs message and broadcast it to node.
-func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg, accName, accPassword string, accNumber uint64) (*abci.ResponseDeliverTx, error) {
+func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg, accName, accPassword string) (*abci.ResponseDeliverTx, error) {
 	info, err := c.kb.Get(accName)
 	if err != nil {
 		return nil, err

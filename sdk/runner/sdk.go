@@ -60,7 +60,6 @@ func (s *SDK) Create(req *api.CreateRunnerRequest, accountName, accountPassword 
 		return nil, err
 	}
 	// TODO: pass account by parameters
-	accNumber, accSeq := uint64(0), uint64(0)
 	user, err := cosmostypes.AccAddressFromBech32(account.Address)
 	if err != nil {
 		return nil, err
@@ -94,7 +93,7 @@ func (s *SDK) Create(req *api.CreateRunnerRequest, accountName, accountPassword 
 	}
 
 	msg := newMsgCreateRunner(s.cdc, user, req.ServiceHash, envHash)
-	tx, err := s.client.BuildAndBroadcastMsg(msg, accountName, accountPassword, accNumber, accSeq)
+	tx, err := s.client.BuildAndBroadcastMsg(msg, accountName, accountPassword)
 	if err != nil {
 		defer onError()
 		if err == mempool.ErrTxInCache {
@@ -112,7 +111,6 @@ func (s *SDK) Delete(req *api.DeleteRunnerRequest, accountName, accountPassword 
 		return err
 	}
 	// TODO: pass account by parameters
-	accNumber, accSeq := uint64(0), uint64(0)
 	user, err := cosmostypes.AccAddressFromBech32(account.Address)
 	if err != nil {
 		return err
@@ -125,7 +123,7 @@ func (s *SDK) Delete(req *api.DeleteRunnerRequest, accountName, accountPassword 
 	}
 
 	msg := newMsgDeleteRunner(s.cdc, user, req.Hash)
-	_, err = s.client.BuildAndBroadcastMsg(msg, accountName, accountPassword, accNumber, accSeq)
+	_, err = s.client.BuildAndBroadcastMsg(msg, accountName, accountPassword)
 	if err != nil {
 		if err == mempool.ErrTxInCache {
 			return fmt.Errorf("runner already deleted: %w", err)
