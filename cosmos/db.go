@@ -27,15 +27,15 @@ func wrapRecoverError(err *error) {
 
 // DB is a cosmos store with error and encoding.
 type DB struct {
-	store  types.KVStore
-	cdc *codec.Codec
+	store types.KVStore
+	cdc   *codec.Codec
 }
 
 // NewDB returns a new Cosmos store wrapper.
 func NewDB(store types.KVStore, cdc *codec.Codec) *DB {
 	return &DB{
-		store:  store,
-		cdc: cdc,
+		store: store,
+		cdc:   cdc,
 	}
 }
 

@@ -116,8 +116,8 @@ func (s *Backend) Create(request cosmostypes.Request, msg *msgCreateRunner) (*ru
 // Delete deletes a runner.
 func (s *Backend) Delete(request cosmostypes.Request, msg *msgDeleteRunner) error {
 	store := cosmos.NewDB(request.KVStore(s.storeKey), s.cdc)
-	var runner *runner.Runner
-	if err := store.Get(msg.RunnerHash, runner); err != nil {
+	runner := runner.Runner{}
+	if err := store.Get(msg.RunnerHash, &runner); err != nil {
 		return err
 	}
 	if runner.Address != msg.Address.String() {
@@ -128,11 +128,11 @@ func (s *Backend) Delete(request cosmostypes.Request, msg *msgDeleteRunner) erro
 
 // Get returns the runner that matches given hash.
 func (s *Backend) Get(request cosmostypes.Request, hash hash.Hash) (*runner.Runner, error) {
-	var runner *runner.Runner
-	if err := cosmos.NewDB(request.KVStore(s.storeKey), s.cdc).Get(hash, runner); err != nil {
+	runner := runner.Runner{}
+	if err := cosmos.NewDB(request.KVStore(s.storeKey), s.cdc).Get(hash, &runner); err != nil {
 		return nil, err
 	}
-	return runner, nil
+	return &runner, nil
 }
 
 // Exists returns true if a specific set of data exists in the database, false otherwise

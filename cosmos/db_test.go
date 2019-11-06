@@ -19,7 +19,7 @@ type TestDBData struct {
 func TestCosmosDbTyped(t *testing.T) {
 	cdc := codec.New()
 	db := NewDB(transient.NewStore(), cdc)
-	cdc.RegisterConcrete(&TestDBData{}, "TestDBData", nil)
+	cdc.RegisterConcrete(&TestDBData{}, "testDBData", nil)
 	var (
 		key  = hash.Int(1)
 		data = TestDBData{
@@ -81,38 +81,34 @@ type TestStorePanic struct {
 }
 
 func (s *TestStorePanic) Get(key []byte) []byte {
-	panic(errors.New("TestStorePanicGet"))
+	panic(errors.New("testStorePanicGet"))
 }
 func (s *TestStorePanic) Has(key []byte) bool {
-	panic(errors.New("TestStorePanicHas"))
+	panic(errors.New("testStorePanicHas"))
 }
 func (s *TestStorePanic) Set(key, value []byte) {
-	panic(errors.New("TestStorePanicSet"))
+	panic(errors.New("testStorePanicSet"))
 }
 func (s *TestStorePanic) Delete(key []byte) {
-	panic("TestStorePanicDelete")
+	panic("testStorePanicDelete")
 }
 
 func TestCosmosDbTypedPanic(t *testing.T) {
 	cdc := codec.New()
 	db := NewDB(&TestStorePanic{*transient.NewStore()}, cdc)
-	cdc.RegisterConcrete(&TestDBData{}, "db: TestDBData", nil)
+	cdc.RegisterConcrete(&TestDBData{}, "db: testDBData", nil)
 	t.Run("Save", func(t *testing.T) {
-		require.EqualError(t, db.Save(nil, TestDBData{A: "test"}), "db: TestStorePanicSet")
+		require.EqualError(t, db.Save(nil, TestDBData{A: "test"}), "db: testStorePanicSet")
 	})
 	t.Run("Delete", func(t *testing.T) {
-		require.EqualError(t, db.Delete(nil), "db: TestStorePanicDelete")
+		require.EqualError(t, db.Delete(nil), "db: testStorePanicDelete")
 	})
 	t.Run("Has", func(t *testing.T) {
 		_, err := db.Has(nil)
-		require.EqualError(t, err, "db: TestStorePanicHas")
+		require.EqualError(t, err, "db: testStorePanicHas")
 	})
 	t.Run("Get", func(t *testing.T) {
-		require.EqualError(t, db.Get(nil, nil), "db: TestStorePanicHas")
-	})
-	t.Run("Iterator", func(t *testing.T) {
-		// require.Error(t, db.NewIterator())
-		// require.EqualError(t, db.Get(nil, nil), "db: TestStorePanicHas")
+		require.EqualError(t, db.Get(nil, nil), "db: testStorePanicHas")
 	})
 }
 
@@ -121,19 +117,19 @@ type TestIteratorPanic struct {
 }
 
 func (i *TestIteratorPanic) Valid() bool {
-	panic(errors.New("TestIteratorPanicValid"))
+	panic(errors.New("testIteratorPanicValid"))
 }
 func (i *TestIteratorPanic) Next() {
-	panic(errors.New("TestIteratorPanicNext"))
+	panic(errors.New("testIteratorPanicNext"))
 }
 func (i *TestIteratorPanic) Key() []byte {
-	panic(errors.New("TestIteratorPanicKey"))
+	panic(errors.New("testIteratorPanicKey"))
 }
 func (i *TestIteratorPanic) Value() []byte {
-	panic(errors.New("TestIteratorPanicValue"))
+	panic(errors.New("testIteratorPanicValue"))
 }
 func (i *TestIteratorPanic) Close() {
-	panic("TestIteratorPanicClose")
+	panic("testIteratorPanicClose")
 }
 
 func TestDBIteratorPanic(t *testing.T) {
@@ -145,18 +141,18 @@ func TestDBIteratorPanic(t *testing.T) {
 	}
 	t.Run("Next", func(t *testing.T) {
 		require.False(t, iter.Next())
-		require.EqualError(t, iter.Error(), "db iterator: TestIteratorPanicNext")
+		require.EqualError(t, iter.Error(), "db iterator: testIteratorPanicNext")
 	})
 	t.Run("Key", func(t *testing.T) {
 		require.Nil(t, iter.Key())
-		require.EqualError(t, iter.Error(), "db iterator: TestIteratorPanicKey")
+		require.EqualError(t, iter.Error(), "db iterator: testIteratorPanicKey")
 	})
 	t.Run("Data", func(t *testing.T) {
 		require.NoError(t, iter.Value(nil))
-		require.EqualError(t, iter.Error(), "db iterator: TestIteratorPanicValue")
+		require.EqualError(t, iter.Error(), "db iterator: testIteratorPanicValue")
 	})
 	t.Run("Release", func(t *testing.T) {
 		iter.Release()
-		require.EqualError(t, iter.Error(), "db iterator: TestIteratorPanicClose")
+		require.EqualError(t, iter.Error(), "db iterator: testIteratorPanicClose")
 	})
 }
