@@ -39,7 +39,7 @@ func testAccount(t *testing.T) {
 
 	t.Run("delete", func(t *testing.T) {
 		ctx := metadata.NewOutgoingContext(context.Background(), metadata.Pairs(
-			"credential_username", "user",
+			"credential_username", "engine",
 			"credential_passphrase", "pass",
 		))
 		_, err := client.AccountClient.Delete(ctx, &pb.DeleteAccountRequest{})
@@ -49,6 +49,14 @@ func testAccount(t *testing.T) {
 		require.NoError(t, err)
 
 		require.Equal(t, len(resp.Accounts), 1)
-		require.Equal(t, resp.Accounts[0].Name, "engine")
+		require.Equal(t, resp.Accounts[0].Name, "user")
+
+		// recreate engine account to make sure rest of tests are working.
+		// to delete when proper account management is done.
+		_, err = client.AccountClient.Create(context.Background(), &pb.CreateAccountRequest{
+			Name:     "engine",
+			Password: "pass",
+		})
+		require.NoError(t, err)
 	})
 }

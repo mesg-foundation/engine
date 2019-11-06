@@ -14,8 +14,9 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/logger"
 	"github.com/mesg-foundation/engine/orchestrator"
+	"github.com/mesg-foundation/engine/protobuf/api"
 	enginesdk "github.com/mesg-foundation/engine/sdk"
-	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
+	runnersdk "github.com/mesg-foundation/engine/sdk/runner"
 	"github.com/mesg-foundation/engine/server/grpc"
 	"github.com/mesg-foundation/engine/version"
 	"github.com/mesg-foundation/engine/x/xerrors"
@@ -26,42 +27,38 @@ import (
 	db "github.com/tendermint/tm-db"
 )
 
-func initDatabases(cfg *config.Config) (*database.LevelDBInstanceDB, *database.LevelDBExecutionDB, *database.LevelDBProcessDB, error) {
-	// init instance db.
-	instanceDB, err := database.NewInstanceDB(filepath.Join(cfg.Path, cfg.Database.InstanceRelativePath))
-	if err != nil {
-		return nil, nil, nil, err
-	}
-
+func initDatabases(cfg *config.Config) (*database.LevelDBExecutionDB, *database.LevelDBProcessDB, error) {
 	// init execution db.
 	executionDB, err := database.NewExecutionDB(filepath.Join(cfg.Path, cfg.Database.ExecutionRelativePath))
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
 	// init process db.
 	processDB, err := database.NewProcessDB(filepath.Join(cfg.Path, cfg.Database.ProcessRelativePath))
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
-
-	return instanceDB, executionDB, processDB, nil
+	return executionDB, processDB, nil
 }
 
-func stopRunningServices(sdk *enginesdk.SDK) error {
-	instances, err := sdk.Instance.List(&instancesdk.Filter{})
+func stopRunningServices(sdk *enginesdk.SDK, cfg *config.Config, address string) error {
+	runners, err := sdk.Runner.List(&runnersdk.Filter{Address: address})
 	if err != nil {
 		return err
 	}
 	var (
-		instancesLen = len(instances)
-		errC         = make(chan error, instancesLen)
-		wg           sync.WaitGroup
+		runnersLen = len(runners)
+		errC       = make(chan error, runnersLen)
+		wg         sync.WaitGroup
 	)
-	wg.Add(instancesLen)
-	for _, instance := range instances {
+	wg.Add(runnersLen)
+	for _, instance := range runners {
 		go func(hash hash.Hash) {
 			defer wg.Done()
-			err := sdk.Instance.Delete(hash, false)
+			err := sdk.Runner.Delete(&api.DeleteRunnerRequest{
+				Hash:       hash,
+				DeleteData: false,
+			}, cfg.Account.Name, cfg.Account.Password)
 			if err != nil {
 				errC <- err
 			}
@@ -82,7 +79,7 @@ func loadOrGenConfigAccount(kb *cosmos.Keybase, cfg *config.Config) (keys.Info, 
 		return nil, err
 	}
 	if exist {
-		return nil, nil
+		return kb.Get(cfg.Account.Name)
 	}
 	logrus.WithField("module", "main").Warn("Config account not found. Generating one for development...")
 	mnemonic, err := kb.NewMnemonic()
@@ -130,13 +127,13 @@ func main() {
 	logger.Init(cfg.Log.Format, cfg.Log.Level, cfg.Log.ForceColors)
 
 	// init databases
-	instanceDB, executionDB, processDB, err := initDatabases(cfg)
+	executionDB, processDB, err := initDatabases(cfg)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 
 	// init container.
-	c, err := container.New(cfg.Name)
+	container, err := container.New(cfg.Name)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
@@ -168,7 +165,7 @@ func main() {
 	}
 
 	// gen config account
-	_, err = loadOrGenConfigAccount(kb, cfg)
+	acc, err := loadOrGenConfigAccount(kb, cfg)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
@@ -189,7 +186,7 @@ func main() {
 	client := cosmos.NewClient(node, app.Cdc(), kb, genesis.ChainID)
 
 	// init sdk
-	sdk := enginesdk.New(client, app.Cdc(), kb, c, instanceDB, executionDB, processDB, cfg.Name, strconv.Itoa(port), cfg.IpfsEndpoint)
+	sdk := enginesdk.New(client, app.Cdc(), kb, executionDB, processDB, container, cfg.Name, strconv.Itoa(port), cfg.IpfsEndpoint)
 
 	// start tendermint node
 	logrus.WithField("module", "main").WithField("seeds", cfg.Tendermint.Config.P2P.Seeds).Info("starting tendermint node")
@@ -222,11 +219,11 @@ func main() {
 	}()
 
 	<-xsignal.WaitForInterrupt()
-	if err := stopRunningServices(sdk); err != nil {
+	if err := stopRunningServices(sdk, cfg, acc.GetAddress().String()); err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 
-	if err := c.Cleanup(); err != nil {
+	if err := container.Cleanup(); err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 	server.Close()

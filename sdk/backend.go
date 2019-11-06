@@ -12,13 +12,18 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	"github.com/mesg-foundation/engine/cosmos"
+	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	ownershipsdk "github.com/mesg-foundation/engine/sdk/ownership"
+	runnersdk "github.com/mesg-foundation/engine/sdk/runner"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 )
 
 // Backend handles all the backend functions.
 type Backend struct {
-	Service *servicesdk.Backend
+	Service   *servicesdk.Backend
+	Ownership *ownershipsdk.Backend
+	Instance  *instancesdk.Backend
+	Runner    *runnersdk.Backend
 }
 
 // NewBackend creates a new backend and init the sub-backend modules.
@@ -26,8 +31,13 @@ func NewBackend(appFactory *cosmos.AppFactory) *Backend {
 	initDefaultCosmosModules(appFactory)
 	ownership := ownershipsdk.NewBackend(appFactory)
 	service := servicesdk.NewBackend(appFactory, ownership)
+	instance := instancesdk.NewBackend(appFactory)
+	runner := runnersdk.NewBackend(appFactory, instance)
 	return &Backend{
-		Service: service,
+		Service:   service,
+		Ownership: ownership,
+		Instance:  instance,
+		Runner:    runner,
 	}
 }
 

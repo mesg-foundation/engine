@@ -1,4 +1,4 @@
-package instancesdk
+package runnersdk
 
 import (
 	"errors"

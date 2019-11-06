@@ -1,0 +1,97 @@
+syntax = "proto3";
+  
+import "gogo/protobuf/gogoproto/gogo.proto";
+import "protobuf/types/runner.proto";
+
+package mesg.api;
+option go_package = "api";
+
+// This is the API to interact with the Runner.
+//
+// This API is a [gRPC](https://grpc.io/) API.
+//
+// The source file of this API is hosted on [GitHub](https://github.com/mesg-foundation/engine/blob/master/protobuf/api/runner.proto).
+service Runner {
+
+  // Get returns an Runner matching the criteria of the request.
+  rpc Get(GetRunnerRequest) returns (types.Runner) {}
+
+  // List returns all Runners matching the criteria of the request.
+  rpc List(ListRunnerRequest) returns (ListRunnerResponse) {}
+
+  // Create an Runner from a Service's hash and custom environmental variables.
+  // It will return an unique identifier to identify the runner.
+  rpc Create(CreateRunnerRequest) returns (CreateRunnerResponse) {}
+
+  // Delete an Runner.
+  rpc Delete(DeleteRunnerRequest) returns (DeleteRunnerResponse) {}
+}
+
+// The request's data for the `Get` API.
+message GetRunnerRequest {
+  bytes hash = 1 [
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// The request's data for the `List` API.
+message ListRunnerRequest {
+  // Filter contains filtering criteria.
+  message Filter {
+    // Filter by instance hash.
+    bytes instanceHash = 1 [
+      (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+      (gogoproto.nullable) = false
+    ];
+
+    // Filter by address
+    string address = 2;
+  }
+
+  // Filter used to filter runners.
+  Filter filter = 1;
+}
+
+// The response's data for the `List` API.
+message ListRunnerResponse {
+  // List of runners that match the request's filters.
+  repeated types.Runner runners = 1;
+}
+
+// The request's data for the `Create` API.
+message CreateRunnerRequest {
+  // Service's hash to start the runner with.
+  bytes serviceHash = 1 [
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
+
+  // Environmental variables to start the runner with.
+  repeated string env = 2;
+}
+
+// The response's data for the `Create` API.
+message CreateRunnerResponse {
+  // The runner's hash created.
+  bytes hash = 1 [
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// The request's data for the `Delete` API.
+message DeleteRunnerRequest {
+  // Runner's hash
+  bytes hash = 1 [
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
+
+  // If true, any persistent data (volumes) that belongs to the runner's container and its dependencies will also be deleted.
+  bool deleteData = 2;
+}
+
+// The response's data for the `Delete` API.
+message DeleteRunnerResponse {}
+
