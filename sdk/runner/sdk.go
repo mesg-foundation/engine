@@ -1,8 +1,6 @@
 package runnersdk
 
 import (
-	"fmt"
-
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/cosmos"
@@ -14,7 +12,6 @@ import (
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	"github.com/mesg-foundation/engine/x/xos"
-	"github.com/tendermint/tendermint/mempool"
 )
 
 // SDK is the runner sdk.
@@ -93,9 +90,6 @@ func (s *SDK) Create(req *api.CreateRunnerRequest, accountName, accountPassword 
 	tx, err := s.client.BuildAndBroadcastMsg(msg, accountName, accountPassword)
 	if err != nil {
 		defer onError()
-		if err == mempool.ErrTxInCache {
-			return nil, fmt.Errorf("runner already exists: %w", err)
-		}
 		return nil, err
 	}
 	return s.Get(tx.Data)
@@ -122,9 +116,6 @@ func (s *SDK) Delete(req *api.DeleteRunnerRequest, accountName, accountPassword 
 	msg := newMsgDeleteRunner(user, req.Hash)
 	_, err = s.client.BuildAndBroadcastMsg(msg, accountName, accountPassword)
 	if err != nil {
-		if err == mempool.ErrTxInCache {
-			return fmt.Errorf("runner already deleted: %w", err)
-		}
 		return err
 	}
 
