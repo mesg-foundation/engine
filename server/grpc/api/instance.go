@@ -21,7 +21,7 @@ func NewInstanceServer(sdk *sdk.SDK) *InstanceServer {
 
 // List instances.
 func (s *InstanceServer) List(ctx context.Context, request *protobuf_api.ListInstanceRequest) (*protobuf_api.ListInstanceResponse, error) {
-	instances, err := s.sdk.Instance.List(&instancesdk.Filter{ServiceHash: request.ServiceHash})
+	instances, err := s.sdk.Instance.List(&instancesdk.Filter{ServiceHash: request.Filter.ServiceHash})
 	if err != nil {
 		return nil, err
 	}
