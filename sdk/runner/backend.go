@@ -33,6 +33,8 @@ func NewBackend(appFactory *cosmos.AppFactory, instanceBack *instancesdk.Backend
 	appFactory.RegisterModule(appBackend)
 	appFactory.RegisterStoreKey(backend.storeKey)
 
+	RegisterCodec(appFactory.Cdc())
+
 	return backend
 }
 
