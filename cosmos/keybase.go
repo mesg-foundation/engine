@@ -3,6 +3,7 @@ package cosmos
 import (
 	clientkey "github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/keyerror"
 	bip39 "github.com/cosmos/go-bip39"
 )
 
@@ -23,11 +24,23 @@ func NewKeybase(dir string) (*Keybase, error) {
 }
 
 // NewMnemonic returns a new mnemonic phrase.
-func (kn *Keybase) NewMnemonic() (string, error) {
+func (kb *Keybase) NewMnemonic() (string, error) {
 	// read entropy seed straight from crypto.Rand and convert to mnemonic
 	entropySeed, err := bip39.NewEntropy(mnemonicEntropySize)
 	if err != nil {
 		return "", err
 	}
 	return bip39.NewMnemonic(entropySeed)
+}
+
+// Exist checks if the account exists.
+func (kb *Keybase) Exist(name string) (bool, error) {
+	_, err := kb.Get(name)
+	if keyerror.IsErrKeyNotFound(err) {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }

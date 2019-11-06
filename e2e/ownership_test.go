@@ -17,7 +17,7 @@ func testOwnership(t *testing.T) {
 		ownerships, err := client.OwnershipClient.List(ctx, &pb.ListOwnershipRequest{})
 		require.NoError(t, err)
 
-		acc, err := client.AccountClient.Get(context.Background(), &pb.GetAccountRequest{Name: "dev"})
+		acc, err := client.AccountClient.Get(context.Background(), &pb.GetAccountRequest{Name: "engine"})
 		require.NoError(t, err)
 
 		require.Len(t, ownerships.Ownerships, 1)

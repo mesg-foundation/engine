@@ -24,7 +24,6 @@ func (s *ServiceServer) Create(ctx context.Context, req *protobuf_api.CreateServ
 	if err != nil {
 		return nil, err
 	}
-
 	srv, err := s.sdk.Service.Create(req, credUsername, credPassphrase)
 	if err != nil {
 		return nil, err
