@@ -6,6 +6,7 @@ import (
 	protobuf_api "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/runner"
 	"github.com/mesg-foundation/engine/sdk"
+	runnersdk "github.com/mesg-foundation/engine/sdk/runner"
 )
 
 // RunnerServer is the type to aggregate all Runner APIs.
@@ -50,7 +51,14 @@ func (s *RunnerServer) Get(ctx context.Context, req *protobuf_api.GetRunnerReque
 
 // List returns all runners.
 func (s *RunnerServer) List(ctx context.Context, req *protobuf_api.ListRunnerRequest) (*protobuf_api.ListRunnerResponse, error) {
-	runners, err := s.sdk.Runner.List(req.Filter)
+	var filter *runnersdk.Filter
+	if req.Filter != nil {
+		filter = &runnersdk.Filter{
+			Address:      req.Filter.Address,
+			InstanceHash: req.Filter.InstanceHash,
+		}
+	}
+	runners, err := s.sdk.Runner.List(filter)
 	if err != nil {
 		return nil, err
 	}
