@@ -33,7 +33,7 @@ func testAccount(t *testing.T) {
 		require.NoError(t, err)
 
 		require.Equal(t, len(resp.Accounts), 2)
-		require.Equal(t, resp.Accounts[0].Name, "dev")
+		require.Equal(t, resp.Accounts[0].Name, "engine")
 		require.Equal(t, resp.Accounts[1].Name, "user")
 	})
 
@@ -49,6 +49,6 @@ func testAccount(t *testing.T) {
 		require.NoError(t, err)
 
 		require.Equal(t, len(resp.Accounts), 1)
-		require.Equal(t, resp.Accounts[0].Name, "dev")
+		require.Equal(t, resp.Accounts[0].Name, "engine")
 	})
 }
