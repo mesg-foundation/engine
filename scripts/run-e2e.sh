@@ -10,7 +10,7 @@ go test -mod=readonly -v ./e2e/... -run=__NONE__
 function onexit {
   set +e
   ./scripts/dev.sh stop
-  rm -r "${MESG_PATH}"
+  rm -rf "${MESG_PATH}"
 }
 
 trap onexit EXIT
