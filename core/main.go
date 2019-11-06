@@ -16,6 +16,7 @@ import (
 	"github.com/mesg-foundation/engine/orchestrator"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	enginesdk "github.com/mesg-foundation/engine/sdk"
+	runnersdk "github.com/mesg-foundation/engine/sdk/runner"
 	"github.com/mesg-foundation/engine/server/grpc"
 	"github.com/mesg-foundation/engine/version"
 	"github.com/mesg-foundation/engine/x/xerrors"
@@ -41,7 +42,7 @@ func initDatabases(cfg *config.Config) (*database.LevelDBExecutionDB, *database.
 }
 
 func stopRunningServices(sdk *enginesdk.SDK, cfg *config.Config, address string) error {
-	runners, err := sdk.Runner.List(&api.ListRunnerRequest_Filter{Address: address})
+	runners, err := sdk.Runner.List(&runnersdk.Filter{Address: address})
 	if err != nil {
 		return err
 	}

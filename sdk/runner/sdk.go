@@ -31,6 +31,12 @@ type SDK struct {
 	ipfsEndpoint string
 }
 
+// Filter to apply while listing runners.
+type Filter struct {
+	Address      string
+	InstanceHash hash.Hash
+}
+
 // New returns the runner sdk.
 func New(cdc *codec.Codec, client *cosmos.Client, accountSDK *accountsdk.SDK, serviceSDK *servicesdk.SDK, instanceSDK *instancesdk.SDK, container container.Container, engineName, port, ipfsEndpoint string) *SDK {
 	sdk := &SDK{
@@ -162,7 +168,7 @@ func (s *SDK) Get(hash hash.Hash) (*runner.Runner, error) {
 }
 
 // List returns all runners.
-func (s *SDK) List(f *api.ListRunnerRequest_Filter) ([]*runner.Runner, error) {
+func (s *SDK) List(f *Filter) ([]*runner.Runner, error) {
 	var runners []*runner.Runner
 	if err := s.client.Query("custom/"+backendName+"/list", nil, &runners); err != nil {
 		return nil, err

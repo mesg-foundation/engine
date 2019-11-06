@@ -1,4 +1,4 @@
-.PHONY: all e2e check-version docker-publish docker-publish-dev docker-tools dev dev-stop dev-start lint dep build test mock protobuf changelog clean genesis clean-build clean-docker clean-e2e
+.PHONY: all e2e check-version docker-publish docker-publish-dev docker-tools dev dev-stop dev-start lint dep build test mock protobuf changelog clean genesis clean-build clean-docker
 
 MAJOR_VERSION := $(shell echo $(version) | cut -d . -f 1)	
 MINOR_VERSION := $(shell echo $(version) | cut -d . -f 1-2)
@@ -51,15 +51,8 @@ dep:
 build: check-version dep
 	go build -mod=readonly -o ./bin/engine -ldflags="-X 'github.com/mesg-foundation/engine/version.Version=$(version)'" core/main.go
 
-e2e: export MESG_PATH = $(PWD)/e2e.test/mesg
-e2e: clean-e2e
-	# setup - copy config to MESG_PATH
-	mkdir -p $(MESG_PATH)
-	cp $(PWD)/e2e/testdata/e2e.config.yml $(MESG_PATH)/config.yml
-
-	@$(MAKE) dev-start
-	- go test -mod=readonly -v ./e2e/...
-	@$(MAKE) dev-stop
+e2e: docker-dev
+	./scripts/run-e2e.sh
 
 test: dep
 	go test -short -mod=readonly -v -coverprofile=coverage.txt ./...
@@ -76,9 +69,6 @@ protobuf: docker-tools
 changelog:
 	./scripts/changelog.sh $(milestone)
 
-clean-e2e:
-	- rm -rf $(PWD)/e2e.test/mesg
-
 clean-build:
 	- rm -rf bin/*
 
@@ -88,7 +78,7 @@ clean-docker:
 			mesg/engine:latest \
 			mesg/engine:dev 2>/dev/null
 
-clean: clean-e2e clean-build clean-docker
+clean: clean-build clean-docker
 
 genesis:
 	go run internal/tools/gen-genesis/main.go --path $(path) --chain-id $(chain-id) --validators $(validators)
