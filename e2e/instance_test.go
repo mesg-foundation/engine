@@ -21,7 +21,11 @@ func testInstance(t *testing.T) {
 	})
 
 	t.Run("list", func(t *testing.T) {
-		resp, err := client.InstanceClient.List(context.Background(), &pb.ListInstanceRequest{ServiceHash: testServiceHash})
+		resp, err := client.InstanceClient.List(context.Background(), &pb.ListInstanceRequest{
+			Filter: &pb.ListInstanceRequest_Filter{
+				ServiceHash: testServiceHash,
+			},
+		})
 		require.NoError(t, err)
 		require.Len(t, resp.Instances, 1)
 		require.Equal(t, testServiceHash, resp.Instances[0].ServiceHash)
