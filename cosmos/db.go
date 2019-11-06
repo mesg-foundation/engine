@@ -11,18 +11,9 @@ import (
 
 // wrapRecoverError recover error from panic and wrap it into a db error.
 func wrapRecoverError(err *error) {
-	if *err != nil {
-		return
+	if r := recover(); *err == nil && r != nil {
+		*err = fmt.Errorf("db: %s", r)
 	}
-	r := recover()
-	if r == nil {
-		return
-	}
-	errR, ok := r.(error)
-	if !ok {
-		errR = fmt.Errorf("%s", r)
-	}
-	*err = fmt.Errorf("db: %w", errR)
 }
 
 // DB is a cosmos store with error and encoding.
@@ -42,28 +33,24 @@ func NewDB(store types.KVStore, cdc *codec.Codec) *DB {
 // Has returns true if the key is set in the db.
 func (db *DB) Has(key hash.Hash) (has bool, err error) {
 	defer wrapRecoverError(&err)
-	has = db.store.Has(key)
-	return
+	return db.store.Has(key), nil
 }
 
 // Get retrives the value from db. It returns an error if the db does not contains the key.
 func (db *DB) Get(key hash.Hash, ptr interface{}) (err error) {
 	defer wrapRecoverError(&err)
-	has, err := db.Has(key)
-	if err != nil {
-		return err
-	}
-	if !has {
+	value := db.store.Get(key)
+	if value == nil {
 		return errors.New("db: not found")
 	}
-	return db.cdc.UnmarshalBinaryBare(db.store.Get(key), ptr)
+	return db.cdc.UnmarshalBinaryBare(value, ptr)
 }
 
 // Delete deletes the value for the given key. Delete will not returns error if key doesn't exist.
 func (db *DB) Delete(key hash.Hash) (err error) {
 	defer wrapRecoverError(&err)
 	db.store.Delete(key)
-	return
+	return nil
 }
 
 // Save sets the value for the given key. It overwrites any previous value.
@@ -74,7 +61,7 @@ func (db *DB) Save(key hash.Hash, data interface{}) (err error) {
 		return err
 	}
 	db.store.Set(key, value)
-	return
+	return nil
 }
 
 // NewIterator returns a new iterator.

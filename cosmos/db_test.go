@@ -11,22 +11,21 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type TestDBData struct {
+type testdata struct {
 	A string
-	B string
 }
 
 func TestCosmosDbTyped(t *testing.T) {
 	cdc := codec.New()
 	db := NewDB(transient.NewStore(), cdc)
-	cdc.RegisterConcrete(&TestDBData{}, "testDBData", nil)
+	cdc.RegisterConcrete(&testdata{}, "test/data", nil)
 	var (
 		key  = hash.Int(1)
-		data = TestDBData{
+		data = testdata{
 			A: "test",
 		}
 		key2  = hash.Int(2)
-		data2 = TestDBData{
+		data2 = testdata{
 			A: "foo",
 		}
 	)
@@ -35,7 +34,7 @@ func TestCosmosDbTyped(t *testing.T) {
 		require.NoError(t, db.Save(key2, data2))
 	})
 	t.Run("Get", func(t *testing.T) {
-		var d TestDBData
+		var d testdata
 		require.NoError(t, db.Get(key, &d))
 		require.Equal(t, data, d)
 	})
@@ -45,7 +44,7 @@ func TestCosmosDbTyped(t *testing.T) {
 		require.True(t, has)
 	})
 	t.Run("Iterator", func(t *testing.T) {
-		var d TestDBData
+		var d testdata
 		iter := db.NewIterator()
 
 		require.True(t, iter.Next())
@@ -65,7 +64,7 @@ func TestCosmosDbTyped(t *testing.T) {
 	t.Run("Delete", func(t *testing.T) {
 		require.NoError(t, db.Delete(key))
 		t.Run("Get", func(t *testing.T) {
-			var d TestDBData
+			var d testdata
 			require.Error(t, db.Get(key, &d))
 		})
 		t.Run("Has", func(t *testing.T) {
@@ -94,11 +93,9 @@ func (s *TestStorePanic) Delete(key []byte) {
 }
 
 func TestCosmosDbTypedPanic(t *testing.T) {
-	cdc := codec.New()
-	db := NewDB(&TestStorePanic{*transient.NewStore()}, cdc)
-	cdc.RegisterConcrete(&TestDBData{}, "db: testDBData", nil)
+	db := NewDB(&TestStorePanic{*transient.NewStore()}, codec.New())
 	t.Run("Save", func(t *testing.T) {
-		require.EqualError(t, db.Save(nil, TestDBData{A: "test"}), "db: testStorePanicSet")
+		require.EqualError(t, db.Save(nil, 0), "db: testStorePanicSet")
 	})
 	t.Run("Delete", func(t *testing.T) {
 		require.EqualError(t, db.Delete(nil), "db: testStorePanicDelete")
@@ -108,7 +105,7 @@ func TestCosmosDbTypedPanic(t *testing.T) {
 		require.EqualError(t, err, "db: testStorePanicHas")
 	})
 	t.Run("Get", func(t *testing.T) {
-		require.EqualError(t, db.Get(nil, nil), "db: testStorePanicHas")
+		require.EqualError(t, db.Get(nil, nil), "db: testStorePanicGet")
 	})
 }
 
