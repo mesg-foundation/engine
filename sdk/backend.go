@@ -133,6 +133,8 @@ func initDefaultCosmosModules(app *cosmos.AppFactory) {
 	app.RegisterOrderBeginBlocks(distribution.ModuleName, slashing.ModuleName)
 	app.RegisterOrderEndBlocks(staking.ModuleName)
 
+	app.SetAnteHandler(auth.NewAnteHandler(accountKeeper, supplyKeeper, auth.DefaultSigVerificationGasConsumer))
+
 	app.RegisterOrderInitGenesis(
 		genaccounts.ModuleName,
 		distribution.ModuleName,
