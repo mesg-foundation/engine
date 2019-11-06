@@ -8,35 +8,35 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/hash"
-	"github.com/mesg-foundation/engine/instance"
+	"github.com/mesg-foundation/engine/runner"
 	"github.com/stretchr/testify/require"
 )
 
-func TestInstanceDB(t *testing.T) {
+func TestRunnerDB(t *testing.T) {
 	cdc := codec.New()
 
-	dir, _ := ioutil.TempDir("", "instance.db.test")
+	dir, _ := ioutil.TempDir("", "runner.db.test")
 	defer os.RemoveAll(dir)
 
 	store, err := store.NewLevelDBStore(dir)
 	require.NoError(t, err)
-	db := NewInstanceDB(store, cdc)
+	db := NewRunnerDB(store, cdc)
 	defer db.Close()
 
-	p := &instance.Instance{
-		Hash:        hash.Int(1),
-		EnvHash:     hash.Int(11),
-		ServiceHash: hash.Int(111),
+	p := &runner.Runner{
+		Hash:         hash.Int(1),
+		Address:      "alice",
+		InstanceHash: hash.Int(11),
 	}
 
-	p2 := &instance.Instance{
-		Hash:        hash.Int(2),
-		EnvHash:     hash.Int(22),
-		ServiceHash: hash.Int(222),
+	p2 := &runner.Runner{
+		Hash:         hash.Int(2),
+		Address:      "bob",
+		InstanceHash: hash.Int(22),
 	}
 
 	t.Run("save", func(t *testing.T) {
-		require.Error(t, db.Save(&instance.Instance{}))
+		require.Error(t, db.Save(&runner.Runner{}))
 		require.NoError(t, db.Save(p))
 		require.NoError(t, db.Save(p2))
 	})

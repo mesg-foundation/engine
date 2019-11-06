@@ -12,18 +12,18 @@ import (
 // Process exposes process APIs of MESG.
 type Process struct {
 	processDB database.ProcessDB
-	instance  *instancesdk.Instance
+	instance  *instancesdk.SDK
 }
 
 // New creates a new Process SDK with given options.
-func New(instance *instancesdk.Instance, processDB database.ProcessDB) *Process {
+func New(instance *instancesdk.SDK, processDB database.ProcessDB) *Process {
 	return &Process{
 		processDB: processDB,
 		instance:  instance,
 	}
 }
 
-// Create creates a new service from definition.
+// Create creates a new process.
 func (w *Process) Create(wf *process.Process) (*process.Process, error) {
 	wf.Hash = hash.Dump(wf)
 

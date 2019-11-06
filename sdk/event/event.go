@@ -17,12 +17,12 @@ const (
 // Event exposes event APIs of MESG.
 type Event struct {
 	ps       *pubsub.PubSub
-	instance *instancesdk.Instance
+	instance *instancesdk.SDK
 	service  *servicesdk.SDK
 }
 
 // New creates a new Event SDK with given options.
-func New(ps *pubsub.PubSub, service *servicesdk.SDK, instance *instancesdk.Instance) *Event {
+func New(ps *pubsub.PubSub, service *servicesdk.SDK, instance *instancesdk.SDK) *Event {
 	return &Event{
 		ps:       ps,
 		service:  service,

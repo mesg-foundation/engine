@@ -24,6 +24,7 @@ type apiclient struct {
 	pb.ProcessClient
 	pb.InstanceClient
 	pb.OwnershipClient
+	pb.RunnerClient
 }
 
 var client apiclient
@@ -44,6 +45,7 @@ func TestAPI(t *testing.T) {
 		pb.NewProcessClient(conn),
 		pb.NewInstanceClient(conn),
 		pb.NewOwnershipClient(conn),
+		pb.NewRunnerClient(conn),
 	}
 
 	// wait for the first block
@@ -56,8 +58,9 @@ func TestAPI(t *testing.T) {
 	t.Run("account", testAccount)
 	t.Run("service", testService)
 	t.Run("ownership", testOwnership)
+	t.Run("runner", testRunner)
 	t.Run("instance", testInstance)
 	t.Run("event", testEvent)
 	t.Run("execution", testExecution)
-	t.Run("instance/delete", testDeleteInstance)
+	t.Run("runner/delete", testDeleteRunner)
 }

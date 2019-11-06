@@ -6,8 +6,6 @@ package api
 import (
 	context "context"
 	fmt "fmt"
-	math "math"
-
 	_ "github.com/gogo/protobuf/gogoproto"
 	proto "github.com/gogo/protobuf/proto"
 	github_com_mesg_foundation_engine_hash "github.com/mesg-foundation/engine/hash"
@@ -15,6 +13,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	math "math"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -62,7 +61,7 @@ var xxx_messageInfo_GetInstanceRequest proto.InternalMessageInfo
 
 // The request's data for the `List` API.
 type ListInstanceRequest struct {
-	// Filter used to filter a stream of executions.
+	// Filter used to filter a list of instance.
 	Filter               *ListInstanceRequest_Filter `protobuf:"bytes,1,opt,name=filter,proto3" json:"filter,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}                    `json:"-"`
 	XXX_unrecognized     []byte                      `json:"-"`
@@ -173,196 +172,38 @@ func (m *ListInstanceResponse) GetInstances() []*instance.Instance {
 	return nil
 }
 
-// The request's data for the `Create` API.
-type CreateInstanceRequest struct {
-	// Service's hash.
-	ServiceHash github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,1,opt,name=serviceHash,proto3,customtype=github.com/mesg-foundation/engine/hash.Hash" json:"serviceHash"`
-	// Environmental variables to apply to the Instance.
-	Env                  []string `protobuf:"bytes,2,rep,name=env,proto3" json:"env,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *CreateInstanceRequest) Reset()         { *m = CreateInstanceRequest{} }
-func (m *CreateInstanceRequest) String() string { return proto.CompactTextString(m) }
-func (*CreateInstanceRequest) ProtoMessage()    {}
-func (*CreateInstanceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_71d44b8f4a870f63, []int{3}
-}
-func (m *CreateInstanceRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_CreateInstanceRequest.Unmarshal(m, b)
-}
-func (m *CreateInstanceRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_CreateInstanceRequest.Marshal(b, m, deterministic)
-}
-func (m *CreateInstanceRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CreateInstanceRequest.Merge(m, src)
-}
-func (m *CreateInstanceRequest) XXX_Size() int {
-	return xxx_messageInfo_CreateInstanceRequest.Size(m)
-}
-func (m *CreateInstanceRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_CreateInstanceRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_CreateInstanceRequest proto.InternalMessageInfo
-
-func (m *CreateInstanceRequest) GetEnv() []string {
-	if m != nil {
-		return m.Env
-	}
-	return nil
-}
-
-// The response's data for the `Create` API.
-type CreateInstanceResponse struct {
-	// The instance's hash created.
-	Hash                 github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,1,opt,name=hash,proto3,customtype=github.com/mesg-foundation/engine/hash.Hash" json:"hash"`
-	XXX_NoUnkeyedLiteral struct{}                                    `json:"-"`
-	XXX_unrecognized     []byte                                      `json:"-"`
-	XXX_sizecache        int32                                       `json:"-"`
-}
-
-func (m *CreateInstanceResponse) Reset()         { *m = CreateInstanceResponse{} }
-func (m *CreateInstanceResponse) String() string { return proto.CompactTextString(m) }
-func (*CreateInstanceResponse) ProtoMessage()    {}
-func (*CreateInstanceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_71d44b8f4a870f63, []int{4}
-}
-func (m *CreateInstanceResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_CreateInstanceResponse.Unmarshal(m, b)
-}
-func (m *CreateInstanceResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_CreateInstanceResponse.Marshal(b, m, deterministic)
-}
-func (m *CreateInstanceResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CreateInstanceResponse.Merge(m, src)
-}
-func (m *CreateInstanceResponse) XXX_Size() int {
-	return xxx_messageInfo_CreateInstanceResponse.Size(m)
-}
-func (m *CreateInstanceResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_CreateInstanceResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_CreateInstanceResponse proto.InternalMessageInfo
-
-// The request's data for the `Delete` API.
-type DeleteInstanceRequest struct {
-	// Instance's hash
-	Hash github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,1,opt,name=hash,proto3,customtype=github.com/mesg-foundation/engine/hash.Hash" json:"hash"`
-	// If true, any persistent data (volumes) that belongs to the instance and its dependencies will also be deleted.
-	DeleteData           bool     `protobuf:"varint,2,opt,name=deleteData,proto3" json:"deleteData,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *DeleteInstanceRequest) Reset()         { *m = DeleteInstanceRequest{} }
-func (m *DeleteInstanceRequest) String() string { return proto.CompactTextString(m) }
-func (*DeleteInstanceRequest) ProtoMessage()    {}
-func (*DeleteInstanceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_71d44b8f4a870f63, []int{5}
-}
-func (m *DeleteInstanceRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_DeleteInstanceRequest.Unmarshal(m, b)
-}
-func (m *DeleteInstanceRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_DeleteInstanceRequest.Marshal(b, m, deterministic)
-}
-func (m *DeleteInstanceRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DeleteInstanceRequest.Merge(m, src)
-}
-func (m *DeleteInstanceRequest) XXX_Size() int {
-	return xxx_messageInfo_DeleteInstanceRequest.Size(m)
-}
-func (m *DeleteInstanceRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_DeleteInstanceRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_DeleteInstanceRequest proto.InternalMessageInfo
-
-func (m *DeleteInstanceRequest) GetDeleteData() bool {
-	if m != nil {
-		return m.DeleteData
-	}
-	return false
-}
-
-// The response's data for the `Delete` API.
-type DeleteInstanceResponse struct {
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *DeleteInstanceResponse) Reset()         { *m = DeleteInstanceResponse{} }
-func (m *DeleteInstanceResponse) String() string { return proto.CompactTextString(m) }
-func (*DeleteInstanceResponse) ProtoMessage()    {}
-func (*DeleteInstanceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_71d44b8f4a870f63, []int{6}
-}
-func (m *DeleteInstanceResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_DeleteInstanceResponse.Unmarshal(m, b)
-}
-func (m *DeleteInstanceResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_DeleteInstanceResponse.Marshal(b, m, deterministic)
-}
-func (m *DeleteInstanceResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DeleteInstanceResponse.Merge(m, src)
-}
-func (m *DeleteInstanceResponse) XXX_Size() int {
-	return xxx_messageInfo_DeleteInstanceResponse.Size(m)
-}
-func (m *DeleteInstanceResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_DeleteInstanceResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_DeleteInstanceResponse proto.InternalMessageInfo
-
 func init() {
 	proto.RegisterType((*GetInstanceRequest)(nil), "mesg.api.GetInstanceRequest")
 	proto.RegisterType((*ListInstanceRequest)(nil), "mesg.api.ListInstanceRequest")
 	proto.RegisterType((*ListInstanceRequest_Filter)(nil), "mesg.api.ListInstanceRequest.Filter")
 	proto.RegisterType((*ListInstanceResponse)(nil), "mesg.api.ListInstanceResponse")
-	proto.RegisterType((*CreateInstanceRequest)(nil), "mesg.api.CreateInstanceRequest")
-	proto.RegisterType((*CreateInstanceResponse)(nil), "mesg.api.CreateInstanceResponse")
-	proto.RegisterType((*DeleteInstanceRequest)(nil), "mesg.api.DeleteInstanceRequest")
-	proto.RegisterType((*DeleteInstanceResponse)(nil), "mesg.api.DeleteInstanceResponse")
 }
 
 func init() { proto.RegisterFile("protobuf/api/instance.proto", fileDescriptor_71d44b8f4a870f63) }
 
 var fileDescriptor_71d44b8f4a870f63 = []byte{
-	// 432 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x54, 0xcd, 0x6e, 0xd4, 0x30,
-	0x10, 0x4e, 0x36, 0x10, 0x6d, 0x67, 0x39, 0x20, 0x53, 0xaa, 0x28, 0xd0, 0x6e, 0x64, 0x71, 0x88,
-	0x84, 0x70, 0xa4, 0xf4, 0x08, 0xa7, 0x52, 0xb1, 0x05, 0xc1, 0x25, 0x12, 0x17, 0x24, 0x84, 0xbc,
-	0xdb, 0xd9, 0xc4, 0x52, 0x6b, 0x87, 0xd8, 0xa9, 0xc4, 0x8d, 0x27, 0xe2, 0xc4, 0x43, 0xf0, 0x0c,
-	0x1c, 0xfa, 0x2c, 0x28, 0xce, 0xfe, 0x84, 0x6c, 0xca, 0x85, 0xf6, 0x66, 0x8f, 0xbf, 0xf9, 0xe6,
-	0xfb, 0x66, 0x26, 0x81, 0x27, 0x65, 0xa5, 0x8c, 0x9a, 0xd7, 0xcb, 0x84, 0x97, 0x22, 0x11, 0x52,
-	0x1b, 0x2e, 0x17, 0xc8, 0x6c, 0x94, 0x8c, 0x2f, 0x51, 0xe7, 0x8c, 0x97, 0x22, 0xa4, 0xb9, 0xca,
-	0x55, 0xb2, 0xc1, 0x36, 0x37, 0x7b, 0xb1, 0xa7, 0x16, 0x1d, 0x1e, 0x6e, 0x9e, 0xcd, 0xb7, 0x12,
-	0x75, 0x8f, 0x8c, 0x7e, 0x06, 0x32, 0x43, 0xf3, 0x76, 0x15, 0xcc, 0xf0, 0x6b, 0x8d, 0xda, 0x90,
-	0x19, 0xdc, 0x2b, 0xb8, 0x2e, 0x02, 0x37, 0x72, 0xe3, 0x07, 0x27, 0xc7, 0xbf, 0xae, 0xa7, 0xce,
-	0xef, 0xeb, 0xe9, 0xf3, 0x5c, 0x98, 0xa2, 0x9e, 0xb3, 0x85, 0xba, 0x4c, 0x1a, 0x0d, 0x2f, 0x96,
-	0xaa, 0x96, 0xe7, 0xdc, 0x08, 0x25, 0x13, 0x94, 0xb9, 0x90, 0x98, 0x34, 0x59, 0xec, 0x8c, 0xeb,
-	0x22, 0xb3, 0x04, 0xf4, 0xa7, 0x0b, 0x8f, 0xde, 0x0b, 0xbd, 0x53, 0xe0, 0x15, 0xf8, 0x4b, 0x71,
-	0x61, 0xb0, 0xb2, 0x25, 0x26, 0xe9, 0x33, 0xb6, 0x36, 0xc5, 0x06, 0xe0, 0xec, 0x8d, 0xc5, 0x66,
-	0xab, 0x9c, 0xf0, 0x0b, 0xf8, 0x6d, 0x84, 0x7c, 0x84, 0x89, 0xc6, 0xea, 0x4a, 0x2c, 0xf0, 0xec,
-	0x3f, 0xf5, 0x76, 0x79, 0xe8, 0x3b, 0xd8, 0xff, 0x5b, 0x86, 0x2e, 0x95, 0xd4, 0x48, 0x52, 0xd8,
-	0x5b, 0xf7, 0x4f, 0x07, 0x6e, 0xe4, 0xc5, 0x93, 0x74, 0xbf, 0x55, 0x6e, 0x9b, 0xcb, 0x36, 0x09,
-	0x5b, 0x18, 0xfd, 0xee, 0xc2, 0xe3, 0xd7, 0x15, 0x72, 0x83, 0xfd, 0x26, 0xdc, 0x8d, 0x78, 0xf2,
-	0x10, 0x3c, 0x94, 0x57, 0xc1, 0x28, 0xf2, 0xe2, 0xbd, 0xac, 0x39, 0x52, 0x0e, 0x07, 0x7d, 0x05,
-	0x2b, 0x43, 0xb7, 0x36, 0xe8, 0xc6, 0xe5, 0x29, 0x5e, 0xe0, 0xae, 0xcb, 0xdb, 0x2a, 0x41, 0x8e,
-	0x00, 0xce, 0x6d, 0x85, 0x53, 0x6e, 0x78, 0x30, 0x8a, 0xdc, 0x78, 0x9c, 0x75, 0x22, 0x34, 0x80,
-	0x83, 0xbe, 0x82, 0xd6, 0x65, 0xfa, 0x63, 0x04, 0xe3, 0x75, 0x90, 0xbc, 0x04, 0x6f, 0x86, 0x86,
-	0x3c, 0xdd, 0x6e, 0xdc, 0xee, 0x07, 0x10, 0x0e, 0x4e, 0x95, 0x3a, 0x8d, 0x99, 0x66, 0x31, 0xc8,
-	0xe1, 0x3f, 0xf7, 0x35, 0x3c, 0xba, 0xe9, 0xb9, 0x15, 0x44, 0x1d, 0xf2, 0x01, 0xfc, 0x76, 0x24,
-	0x64, 0xba, 0xc5, 0x0e, 0xae, 0x49, 0x18, 0xdd, 0x0c, 0xe8, 0xd2, 0xb5, 0xde, 0xbb, 0x74, 0x83,
-	0xf3, 0xe8, 0xd2, 0x0d, 0xb7, 0x8b, 0x3a, 0x27, 0xf7, 0x3f, 0x79, 0xbc, 0x14, 0x73, 0xdf, 0xfe,
-	0x23, 0x8e, 0xff, 0x04, 0x00, 0x00, 0xff, 0xff, 0x91, 0xfe, 0x6f, 0x14, 0x8f, 0x04, 0x00, 0x00,
+	// 325 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x52, 0xb1, 0x4e, 0xeb, 0x30,
+	0x14, 0x6d, 0xd4, 0xf7, 0xaa, 0xe2, 0x32, 0x99, 0x0e, 0x55, 0xa0, 0xb4, 0xb2, 0x18, 0x2a, 0x21,
+	0x6c, 0x29, 0x1d, 0x61, 0xea, 0x40, 0x0b, 0x62, 0xaa, 0xc4, 0x82, 0x84, 0x90, 0x13, 0x6e, 0x12,
+	0x4b, 0xd4, 0x36, 0xb1, 0x83, 0xc4, 0x5f, 0xf0, 0x31, 0x7c, 0x04, 0xdf, 0xc0, 0xd0, 0x6f, 0x41,
+	0x71, 0x9a, 0x14, 0x68, 0x61, 0x61, 0xcb, 0x3d, 0xf7, 0xdc, 0x73, 0xcf, 0x3d, 0x31, 0xda, 0xd7,
+	0x99, 0xb2, 0x2a, 0xcc, 0x63, 0xc6, 0xb5, 0x60, 0x42, 0x1a, 0xcb, 0x65, 0x04, 0xd4, 0xa1, 0xb8,
+	0xbd, 0x00, 0x93, 0x50, 0xae, 0x85, 0x4f, 0x12, 0x95, 0x28, 0x56, 0x73, 0x8b, 0xca, 0x15, 0xee,
+	0xab, 0x64, 0xfb, 0xfd, 0xba, 0x6d, 0x9f, 0x35, 0x98, 0x6f, 0x62, 0xe4, 0x16, 0xe1, 0x29, 0xd8,
+	0x8b, 0x15, 0x38, 0x87, 0xc7, 0x1c, 0x8c, 0xc5, 0x53, 0xf4, 0x2f, 0xe5, 0x26, 0xed, 0x79, 0x43,
+	0x6f, 0xb4, 0x3b, 0x19, 0xbf, 0x2d, 0x07, 0x8d, 0xf7, 0xe5, 0xe0, 0x38, 0x11, 0x36, 0xcd, 0x43,
+	0x1a, 0xa9, 0x05, 0x2b, 0x3c, 0x9c, 0xc4, 0x2a, 0x97, 0xf7, 0xdc, 0x0a, 0x25, 0x19, 0xc8, 0x44,
+	0x48, 0x60, 0xc5, 0x14, 0x9d, 0x71, 0x93, 0xce, 0x9d, 0x00, 0x79, 0xf5, 0xd0, 0xde, 0x95, 0x30,
+	0x1b, 0x0b, 0xce, 0x50, 0x2b, 0x16, 0x0f, 0x16, 0x32, 0xb7, 0xa2, 0x13, 0x1c, 0xd1, 0xea, 0x28,
+	0xba, 0x85, 0x4e, 0xcf, 0x1d, 0x77, 0xbe, 0x9a, 0xf1, 0xef, 0x50, 0xab, 0x44, 0xf0, 0x35, 0xea,
+	0x18, 0xc8, 0x9e, 0x44, 0x04, 0xb3, 0x3f, 0xfa, 0xfd, 0xac, 0x43, 0x2e, 0x51, 0xf7, 0xab, 0x0d,
+	0xa3, 0x95, 0x34, 0x80, 0x03, 0xb4, 0x53, 0xe5, 0x67, 0x7a, 0xde, 0xb0, 0x39, 0xea, 0x04, 0xdd,
+	0xd2, 0xb9, 0x0b, 0x97, 0xd6, 0x03, 0x6b, 0x5a, 0xf0, 0xe2, 0xa1, 0x76, 0x85, 0xe3, 0x53, 0xd4,
+	0x9c, 0x82, 0xc5, 0x07, 0xeb, 0x73, 0x37, 0xd3, 0xf7, 0xb7, 0x4a, 0x92, 0x46, 0xf1, 0x57, 0x0a,
+	0x57, 0xb8, 0xff, 0x6b, 0x58, 0xfe, 0xe1, 0x4f, 0xed, 0xf2, 0x08, 0xd2, 0x98, 0xfc, 0xbf, 0x69,
+	0x72, 0x2d, 0xc2, 0x96, 0x7b, 0x02, 0xe3, 0x8f, 0x00, 0x00, 0x00, 0xff, 0xff, 0x20, 0x1a, 0xa8,
+	0xef, 0x6e, 0x02, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -381,11 +222,6 @@ type InstanceClient interface {
 	Get(ctx context.Context, in *GetInstanceRequest, opts ...grpc.CallOption) (*instance.Instance, error)
 	// List returns all Instances matching the criteria of the request.
 	List(ctx context.Context, in *ListInstanceRequest, opts ...grpc.CallOption) (*ListInstanceResponse, error)
-	// Create an Instance from a Service's hash and custom environmental variables.
-	// It will return an unique identifier which is used to interact with the Instance.
-	Create(ctx context.Context, in *CreateInstanceRequest, opts ...grpc.CallOption) (*CreateInstanceResponse, error)
-	// Delete an Instance.
-	Delete(ctx context.Context, in *DeleteInstanceRequest, opts ...grpc.CallOption) (*DeleteInstanceResponse, error)
 }
 
 type instanceClient struct {
@@ -414,35 +250,12 @@ func (c *instanceClient) List(ctx context.Context, in *ListInstanceRequest, opts
 	return out, nil
 }
 
-func (c *instanceClient) Create(ctx context.Context, in *CreateInstanceRequest, opts ...grpc.CallOption) (*CreateInstanceResponse, error) {
-	out := new(CreateInstanceResponse)
-	err := c.cc.Invoke(ctx, "/mesg.api.Instance/Create", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *instanceClient) Delete(ctx context.Context, in *DeleteInstanceRequest, opts ...grpc.CallOption) (*DeleteInstanceResponse, error) {
-	out := new(DeleteInstanceResponse)
-	err := c.cc.Invoke(ctx, "/mesg.api.Instance/Delete", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // InstanceServer is the server API for Instance service.
 type InstanceServer interface {
 	// Get returns an Instance matching the criteria of the request.
 	Get(context.Context, *GetInstanceRequest) (*instance.Instance, error)
 	// List returns all Instances matching the criteria of the request.
 	List(context.Context, *ListInstanceRequest) (*ListInstanceResponse, error)
-	// Create an Instance from a Service's hash and custom environmental variables.
-	// It will return an unique identifier which is used to interact with the Instance.
-	Create(context.Context, *CreateInstanceRequest) (*CreateInstanceResponse, error)
-	// Delete an Instance.
-	Delete(context.Context, *DeleteInstanceRequest) (*DeleteInstanceResponse, error)
 }
 
 // UnimplementedInstanceServer can be embedded to have forward compatible implementations.
@@ -454,12 +267,6 @@ func (*UnimplementedInstanceServer) Get(ctx context.Context, req *GetInstanceReq
 }
 func (*UnimplementedInstanceServer) List(ctx context.Context, req *ListInstanceRequest) (*ListInstanceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
-}
-func (*UnimplementedInstanceServer) Create(ctx context.Context, req *CreateInstanceRequest) (*CreateInstanceResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
-}
-func (*UnimplementedInstanceServer) Delete(ctx context.Context, req *DeleteInstanceRequest) (*DeleteInstanceResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
 
 func RegisterInstanceServer(s *grpc.Server, srv InstanceServer) {
@@ -502,42 +309,6 @@ func _Instance_List_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Instance_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateInstanceRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InstanceServer).Create(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/mesg.api.Instance/Create",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InstanceServer).Create(ctx, req.(*CreateInstanceRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Instance_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteInstanceRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InstanceServer).Delete(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/mesg.api.Instance/Delete",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InstanceServer).Delete(ctx, req.(*DeleteInstanceRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 var _Instance_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "mesg.api.Instance",
 	HandlerType: (*InstanceServer)(nil),
@@ -549,14 +320,6 @@ var _Instance_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "List",
 			Handler:    _Instance_List_Handler,
-		},
-		{
-			MethodName: "Create",
-			Handler:    _Instance_Create_Handler,
-		},
-		{
-			MethodName: "Delete",
-			Handler:    _Instance_Delete_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
