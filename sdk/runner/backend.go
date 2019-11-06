@@ -7,8 +7,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/cosmos"
-	"github.com/mesg-foundation/engine/database"
-	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/runner"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
@@ -40,10 +38,6 @@ func NewBackend(appFactory *cosmos.AppFactory, instanceBack *instancesdk.Backend
 	backend.cdc.RegisterConcrete(msgDeleteRunner{}, "runner/delete", nil)
 
 	return backend
-}
-
-func (s *Backend) db(request cosmostypes.Request) *database.RunnerDB {
-	return database.NewRunnerDB(store.NewCosmosStore(request.KVStore(s.storeKey)), s.cdc)
 }
 
 func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) cosmostypes.Result {
@@ -90,7 +84,7 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 
 // Create creates a new runner.
 func (s *Backend) Create(request cosmostypes.Request, msg *msgCreateRunner) (*runner.Runner, error) {
-	db := s.db(request)
+	store := cosmos.NewDB(request.KVStore(s.storeKey), s.cdc)
 
 	// get instance and create it if needed
 	inst, err := s.instanceBack.FetchOrCreate(request, msg.ServiceHash, msg.EnvHash)
@@ -106,14 +100,14 @@ func (s *Backend) Create(request cosmostypes.Request, msg *msgCreateRunner) (*ru
 	run.Hash = hash.Dump(run)
 
 	// check if runner already exists.
-	if exist, err := db.Exist(run.Hash); err != nil {
+	if exist, err := store.Has(run.Hash); err != nil {
 		return nil, err
 	} else if exist {
 		return nil, errors.New("runner %q already exists" + run.Hash.String())
 	}
 
 	// save runner
-	if err := db.Save(run); err != nil {
+	if err := store.Save(run.Hash, run); err != nil {
 		return nil, err
 	}
 	return run, nil
@@ -121,28 +115,44 @@ func (s *Backend) Create(request cosmostypes.Request, msg *msgCreateRunner) (*ru
 
 // Delete deletes a runner.
 func (s *Backend) Delete(request cosmostypes.Request, msg *msgDeleteRunner) error {
-	db := s.db(request)
-	runner, err := db.Get(msg.RunnerHash)
-	if err != nil {
+	store := cosmos.NewDB(request.KVStore(s.storeKey), s.cdc)
+	var runner *runner.Runner
+	if err := store.Get(msg.RunnerHash, runner); err != nil {
 		return err
 	}
 	if runner.Address != msg.Address.String() {
 		return errors.New("only the runner owner can remove itself")
 	}
-	return db.Delete(msg.RunnerHash)
+	return store.Delete(msg.RunnerHash)
 }
 
 // Get returns the runner that matches given hash.
 func (s *Backend) Get(request cosmostypes.Request, hash hash.Hash) (*runner.Runner, error) {
-	return s.db(request).Get(hash)
+	var runner *runner.Runner
+	if err := cosmos.NewDB(request.KVStore(s.storeKey), s.cdc).Get(hash, runner); err != nil {
+		return nil, err
+	}
+	return runner, nil
 }
 
 // Exists returns true if a specific set of data exists in the database, false otherwise
 func (s *Backend) Exists(request cosmostypes.Request, hash hash.Hash) (bool, error) {
-	return s.db(request).Exist(hash)
+	return cosmos.NewDB(request.KVStore(s.storeKey), s.cdc).Has(hash)
 }
 
 // List returns all runners.
 func (s *Backend) List(request cosmostypes.Request) ([]*runner.Runner, error) {
-	return s.db(request).All()
+	var (
+		runners []*runner.Runner
+		runner  *runner.Runner
+		iter    = cosmos.NewDB(request.KVStore(s.storeKey), s.cdc).NewIterator()
+	)
+	for iter.Next() {
+		if err := iter.Value(runner); err != nil {
+			return nil, err
+		}
+		runners = append(runners, runner)
+	}
+	iter.Release()
+	return runners, iter.Error()
 }
