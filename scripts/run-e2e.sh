@@ -2,7 +2,7 @@
 
 set -e
 
-MESG_PATH="$(pwd)"/e2e.test/mesg
+export MESG_PATH="$(pwd)"/e2e.test/mesg
 
 function onexit {
   set +e
