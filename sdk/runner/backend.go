@@ -89,7 +89,7 @@ func (s *Backend) Create(request cosmostypes.Request, msg *msgCreateRunner) (*ru
 	}
 	run.Hash = hash.Dump(run)
 	if store.Has(run.Hash) {
-		return nil, fmt.Errorf("runner %q already exists", run.Hash.String())
+		return nil, fmt.Errorf("runner %q already exists", run.Hash)
 	}
 	value, err := s.cdc.MarshalBinaryBare(run)
 	if err != nil {
