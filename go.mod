@@ -35,8 +35,6 @@ require (
 	github.com/lyft/protoc-gen-validate v0.1.0 // indirect
 	github.com/mattn/go-isatty v0.0.8 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
-	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/mr-tron/base58 v1.1.1
 	github.com/mwitkow/go-proto-validators v0.0.0-20190212092829-1f388280e944 // indirect
@@ -58,6 +56,7 @@ require (
 	github.com/stretchr/objx v0.2.0 // indirect
 	github.com/stretchr/testify v1.4.0
 	github.com/syndtr/goleveldb v1.0.1-0.20190318030020-c3a204f8e965
+	github.com/tendermint/go-amino v0.15.0
 	github.com/tendermint/tendermint v0.32.6
 	github.com/tendermint/tm-db v0.2.0
 	github.com/vektra/mockery v0.0.0-20181123154057-e78b021dcbb5
@@ -65,7 +64,6 @@ require (
 	golang.org/x/net v0.0.0-20190813141303-74dc4d7220e7 // indirect
 	golang.org/x/sys v0.0.0-20190813064441-fde4db37ae7a // indirect
 	golang.org/x/tools v0.0.0-20190813142322-97f12d73768f // indirect
-	google.golang.org/appengine v1.4.0 // indirect
 	google.golang.org/grpc v1.24.0
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.30.0
