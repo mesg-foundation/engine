@@ -3,6 +3,7 @@ package runnersdk
 import (
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/codec"
+	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/hash"
 )
 
@@ -35,10 +36,10 @@ func (msg msgCreateRunner) Type() string {
 // ValidateBasic runs stateless checks on the message.
 func (msg msgCreateRunner) ValidateBasic() cosmostypes.Error {
 	if msg.ServiceHash.IsZero() {
-		return cosmostypes.ErrInternal("serviceHash is missing")
+		return cosmos.NewMesgErrorf(cosmos.CodeMesgValidation, "serviceHash is missing")
 	}
 	if msg.EnvHash.IsZero() {
-		return cosmostypes.ErrInternal("envHash is missing")
+		return cosmos.NewMesgErrorf(cosmos.CodeMesgValidation, "envHash is missing")
 	}
 	if msg.Address.Empty() {
 		return cosmostypes.ErrInvalidAddress("address is missing")
@@ -83,7 +84,7 @@ func (msg msgDeleteRunner) Type() string {
 // ValidateBasic runs stateless checks on the message.
 func (msg msgDeleteRunner) ValidateBasic() cosmostypes.Error {
 	if msg.RunnerHash.IsZero() {
-		return cosmostypes.ErrInternal("runnerHash is missing")
+		return cosmos.NewMesgErrorf(cosmos.CodeMesgValidation, "runnerHash is missing")
 	}
 	if msg.Address.Empty() {
 		return cosmostypes.ErrInvalidAddress("address is missing")

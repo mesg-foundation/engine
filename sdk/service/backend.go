@@ -42,11 +42,9 @@ func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) cosm
 	case msgCreateService:
 		srv, err := s.Create(request, &msg)
 		if err != nil {
-			return cosmostypes.ErrInternal(err.Error()).Result()
+			return cosmos.NewMesgWrapError(cosmos.CodeMesgInternal, err).Result()
 		}
-		return cosmostypes.Result{
-			Data: srv.Hash,
-		}
+		return cosmostypes.Result{Data: srv.Hash}
 	default:
 		errmsg := fmt.Sprintf("Unrecognized service Msg type: %v", msg.Type())
 		return cosmostypes.ErrUnknownRequest(errmsg).Result()
