@@ -38,26 +38,7 @@ func (s *CosmosStore) Has(key []byte) (has bool, err error) {
 	return
 }
 
-// All returns every value from the store.
-func (s *CosmosStore) All() (out [][]byte, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			var ok bool
-			if err, ok = r.(error); !ok {
-				err = fmt.Errorf("store: %s", r)
-			}
-		}
-	}()
-	iter := s.NewIterator()
-	for iter.Next() {
-		out = append(out, iter.Value())
-	}
-	iter.Release()
-	err = iter.Error()
-	return
-}
-
-// Get retrives the value from store. It returns an error if the store does not contains the key.
+// Get retrives service from store. It returns an error if the store does not contains the key.
 func (s *CosmosStore) Get(key []byte) (out []byte, err error) {
 	defer func() {
 		if r := recover(); r != nil {
