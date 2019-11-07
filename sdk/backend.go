@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"github.com/mesg-foundation/engine/codec"
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
@@ -12,6 +11,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/supply"
+	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/cosmos"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	ownershipsdk "github.com/mesg-foundation/engine/sdk/ownership"

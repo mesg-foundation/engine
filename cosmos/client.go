@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/mesg-foundation/engine/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/mesg-foundation/engine/codec"
 	abci "github.com/tendermint/tendermint/abci/types"
 	cmn "github.com/tendermint/tendermint/libs/common"
 	"github.com/tendermint/tendermint/node"

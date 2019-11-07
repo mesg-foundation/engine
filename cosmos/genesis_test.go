@@ -7,10 +7,10 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/mesg-foundation/engine/codec"
 	cosmoscodec "github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/mesg-foundation/engine/codec"
 	"github.com/stretchr/testify/require"
 )
 

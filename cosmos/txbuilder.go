@@ -2,11 +2,11 @@ package cosmos
 
 import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/mesg-foundation/engine/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	authutils "github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/mesg-foundation/engine/codec"
 	"github.com/tendermint/tendermint/types"
 )
 
