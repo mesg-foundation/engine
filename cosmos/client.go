@@ -54,9 +54,14 @@ func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg, accName, accPassword str
 		return nil, err
 	}
 
-	accNumber, accSeq, err := auth.NewAccountRetriever(c).GetAccountNumberSequence(info.GetAddress())
-	if err != nil {
-		return nil, err
+	accRetriever := auth.NewAccountRetriever(c)
+	accNumber, accSeq := uint64(0), uint64(0)
+	err = accRetriever.EnsureExists(info.GetAddress())
+	if err == nil {
+		accNumber, accSeq, err = accRetriever.GetAccountNumberSequence(info.GetAddress())
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	txBuilder := NewTxBuilder(c.cdc, accNumber, accSeq, c.kb, c.chainID)
