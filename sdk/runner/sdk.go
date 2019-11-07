@@ -173,12 +173,3 @@ func (s *SDK) List(f *Filter) ([]*runner.Runner, error) {
 	}
 	return ret, nil
 }
-
-// Exists returns if a runner already exists.
-func (s *SDK) Exists(hash hash.Hash) (bool, error) {
-	var exists bool
-	if err := s.client.Query("custom/"+backendName+"/exists/"+hash.String(), nil, &exists); err != nil {
-		return false, err
-	}
-	return exists, nil
-}
