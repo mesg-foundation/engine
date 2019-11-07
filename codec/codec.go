@@ -32,10 +32,10 @@ func UnmarshalJSON(bz []byte, ptr interface{}) error {
 
 // UnmarshalBinaryBare https://godoc.org/github.com/tendermint/go-amino#Codec.UnmarshalBinaryBare
 func UnmarshalBinaryBare(bz []byte, ptr interface{}) error {
-	return UnmarshalBinaryBare(bz, ptr)
+	return Codec.UnmarshalBinaryBare(bz, ptr)
 }
 
 // MarshalBinaryBare https://godoc.org/github.com/tendermint/go-amino#Codec.MarshalBinaryBare
 func MarshalBinaryBare(o interface{}) ([]byte, error) {
-	return MarshalBinaryBare(o)
+	return Codec.MarshalBinaryBare(o)
 }
