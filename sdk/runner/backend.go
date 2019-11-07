@@ -71,12 +71,6 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 		return s.Get(request, hash)
 	case "list":
 		return s.List(request)
-	case "exists":
-		hash, err := hash.Decode(path[1])
-		if err != nil {
-			return nil, err
-		}
-		return s.Exists(request, hash)
 	default:
 		return nil, errors.New("unknown runner query endpoint" + path[0])
 	}
@@ -84,75 +78,64 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 
 // Create creates a new runner.
 func (s *Backend) Create(request cosmostypes.Request, msg *msgCreateRunner) (*runner.Runner, error) {
-	store := cosmos.NewDB(request.KVStore(s.storeKey), s.cdc)
-
-	// get instance and create it if needed
+	store := request.KVStore(s.storeKey)
 	inst, err := s.instanceBack.FetchOrCreate(request, msg.ServiceHash, msg.EnvHash)
 	if err != nil {
 		return nil, err
 	}
-
-	// create runner
 	run := &runner.Runner{
 		Address:      msg.Address.String(),
 		InstanceHash: inst.Hash,
 	}
 	run.Hash = hash.Dump(run)
-
-	// check if runner already exists.
-	if exist, err := store.Has(run.Hash); err != nil {
-		return nil, err
-	} else if exist {
+	if store.Has(run.Hash) {
 		return nil, errors.New("runner %q already exists" + run.Hash.String())
 	}
-
-	// save runner
-	if err := store.Save(run.Hash, run); err != nil {
+	value, err := s.cdc.MarshalBinaryBare(run)
+	if err != nil {
 		return nil, err
 	}
+	store.Set(run.Hash, value)
 	return run, nil
 }
 
 // Delete deletes a runner.
 func (s *Backend) Delete(request cosmostypes.Request, msg *msgDeleteRunner) error {
-	store := cosmos.NewDB(request.KVStore(s.storeKey), s.cdc)
-	runner := runner.Runner{}
-	if err := store.Get(msg.RunnerHash, &runner); err != nil {
+	store := request.KVStore(s.storeKey)
+	run := runner.Runner{}
+	value := store.Get(msg.RunnerHash)
+	if err := s.cdc.UnmarshalBinaryBare(value, &run); err != nil {
 		return err
 	}
-	if runner.Address != msg.Address.String() {
+	if run.Address != msg.Address.String() {
 		return errors.New("only the runner owner can remove itself")
 	}
-	return store.Delete(msg.RunnerHash)
+	store.Delete(msg.RunnerHash)
+	return nil
 }
 
 // Get returns the runner that matches given hash.
 func (s *Backend) Get(request cosmostypes.Request, hash hash.Hash) (*runner.Runner, error) {
-	runner := runner.Runner{}
-	if err := cosmos.NewDB(request.KVStore(s.storeKey), s.cdc).Get(hash, &runner); err != nil {
-		return nil, err
-	}
-	return &runner, nil
-}
-
-// Exists returns true if a specific set of data exists in the database, false otherwise
-func (s *Backend) Exists(request cosmostypes.Request, hash hash.Hash) (bool, error) {
-	return cosmos.NewDB(request.KVStore(s.storeKey), s.cdc).Has(hash)
+	var run *runner.Runner
+	value := request.KVStore(s.storeKey).Get(hash)
+	return run, s.cdc.UnmarshalBinaryBare(value, run)
 }
 
 // List returns all runners.
 func (s *Backend) List(request cosmostypes.Request) ([]*runner.Runner, error) {
 	var (
 		runners []*runner.Runner
-		runner  *runner.Runner
-		iter    = cosmos.NewDB(request.KVStore(s.storeKey), s.cdc).NewIterator()
+		iter    = request.KVStore(s.storeKey).Iterator(nil, nil)
 	)
-	for iter.Next() {
-		if err := iter.Value(runner); err != nil {
+	for iter.Valid() {
+		var run *runner.Runner
+		value := iter.Value()
+		if err := s.cdc.UnmarshalBinaryBare(value, run); err != nil {
 			return nil, err
 		}
-		runners = append(runners, runner)
+		runners = append(runners, run)
+		iter.Next()
 	}
-	iter.Release()
-	return runners, iter.Error()
+	iter.Close()
+	return runners, nil
 }
