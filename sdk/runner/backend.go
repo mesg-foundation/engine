@@ -89,7 +89,7 @@ func (s *Backend) Create(request cosmostypes.Request, msg *msgCreateRunner) (*ru
 	}
 	run.Hash = hash.Dump(run)
 	if store.Has(run.Hash) {
-		return nil, errors.New("runner %q already exists" + run.Hash.String())
+		return nil, fmt.Errorf("runner %q already exists", run.Hash.String())
 	}
 	value, err := s.cdc.MarshalBinaryBare(run)
 	if err != nil {
@@ -118,7 +118,7 @@ func (s *Backend) Delete(request cosmostypes.Request, msg *msgDeleteRunner) erro
 func (s *Backend) Get(request cosmostypes.Request, hash hash.Hash) (*runner.Runner, error) {
 	var run *runner.Runner
 	value := request.KVStore(s.storeKey).Get(hash)
-	return run, s.cdc.UnmarshalBinaryBare(value, run)
+	return run, s.cdc.UnmarshalBinaryBare(value, &run)
 }
 
 // List returns all runners.
@@ -130,7 +130,7 @@ func (s *Backend) List(request cosmostypes.Request) ([]*runner.Runner, error) {
 	for iter.Valid() {
 		var run *runner.Runner
 		value := iter.Value()
-		if err := s.cdc.UnmarshalBinaryBare(value, run); err != nil {
+		if err := s.cdc.UnmarshalBinaryBare(value, &run); err != nil {
 			return nil, err
 		}
 		runners = append(runners, run)
