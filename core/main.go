@@ -74,6 +74,10 @@ func stopRunningServices(sdk *enginesdk.SDK, cfg *config.Config, address string)
 }
 
 func loadOrGenConfigAccount(kb *cosmos.Keybase, cfg *config.Config) (keys.Info, error) {
+	if cfg.Account.Mnemonic != "" {
+		return kb.CreateAccount(cfg.Account.Name, cfg.Account.Mnemonic, "", cfg.Account.Password, 0, 0)
+	}
+
 	exist, err := kb.Exist(cfg.Account.Name)
 	if err != nil {
 		return nil, err
