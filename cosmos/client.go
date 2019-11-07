@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/mesg-foundation/engine/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -20,16 +20,14 @@ import (
 // Client is a tendermint client with helper functions.
 type Client struct {
 	rpcclient.Client
-	cdc     *codec.Codec
 	kb      keys.Keybase
 	chainID string
 }
 
 // NewClient returns a rpc tendermint client.
-func NewClient(node *node.Node, cdc *codec.Codec, kb keys.Keybase, chainID string) *Client {
+func NewClient(node *node.Node, kb keys.Keybase, chainID string) *Client {
 	return &Client{
 		Client:  rpcclient.NewLocal(node),
-		cdc:     cdc,
 		kb:      kb,
 		chainID: chainID,
 	}
@@ -44,7 +42,7 @@ func (c *Client) Query(path string, data cmn.HexBytes, ptr interface{}) error {
 	if !result.Response.IsOK() {
 		return errors.New(result.Response.Log)
 	}
-	return c.cdc.UnmarshalJSON(result.Response.Value, ptr)
+	return codec.UnmarshalJSON(result.Response.Value, ptr)
 }
 
 // BuildAndBroadcastMsg builds and signs message and broadcast it to node.
@@ -64,7 +62,7 @@ func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg, accName, accPassword str
 		}
 	}
 
-	txBuilder := NewTxBuilder(c.cdc, accNumber, accSeq, c.kb, c.chainID)
+	txBuilder := NewTxBuilder(accNumber, accSeq, c.kb, c.chainID)
 
 	// TODO: cannot sign 2 tx at the same time. Maybe keybase cannot be access at the same time. Add a lock?
 	signedTx, err := txBuilder.BuildAndSignStdTx(msg, accName, accPassword)

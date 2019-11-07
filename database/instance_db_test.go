@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/instance"
@@ -13,14 +13,12 @@ import (
 )
 
 func TestInstanceDB(t *testing.T) {
-	cdc := codec.New()
-
 	dir, _ := ioutil.TempDir("", "instance.db.test")
 	defer os.RemoveAll(dir)
 
 	store, err := store.NewLevelDBStore(dir)
 	require.NoError(t, err)
-	db := NewInstanceDB(store, cdc)
+	db := NewInstanceDB(store, codec.Codec)
 	defer db.Close()
 
 	p := &instance.Instance{

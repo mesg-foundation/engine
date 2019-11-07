@@ -1,6 +1,7 @@
 package sdk
 
 import (
+	"github.com/mesg-foundation/engine/codec"
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
@@ -60,13 +61,13 @@ func initDefaultCosmosModules(app *cosmos.AppFactory) {
 
 	// init cosmos keepers
 	paramsKeeper := params.NewKeeper(
-		app.Cdc(),
+		codec.Codec,
 		paramsStoreKey,
 		paramsTStoreKey,
 		params.DefaultCodespace,
 	)
 	accountKeeper := auth.NewAccountKeeper(
-		app.Cdc(),
+		codec.Codec,
 		paramsStoreKey,
 		paramsKeeper.Subspace(auth.DefaultParamspace),
 		auth.ProtoBaseAccount,
@@ -78,7 +79,7 @@ func initDefaultCosmosModules(app *cosmos.AppFactory) {
 		nil,
 	)
 	supplyKeeper := supply.NewKeeper(
-		app.Cdc(),
+		codec.Codec,
 		supplyStoreKey,
 		accountKeeper,
 		bankKeeper,
@@ -90,7 +91,7 @@ func initDefaultCosmosModules(app *cosmos.AppFactory) {
 		},
 	)
 	stakingKeeper := staking.NewKeeper(
-		app.Cdc(),
+		codec.Codec,
 		stakingStoreKey,
 		stakingTStoreKey,
 		supplyKeeper,
@@ -98,7 +99,7 @@ func initDefaultCosmosModules(app *cosmos.AppFactory) {
 		staking.DefaultCodespace,
 	)
 	distrKeeper := distribution.NewKeeper(
-		app.Cdc(),
+		codec.Codec,
 		distrStoreKey,
 		paramsKeeper.Subspace(distribution.DefaultParamspace),
 		&stakingKeeper,
@@ -108,7 +109,7 @@ func initDefaultCosmosModules(app *cosmos.AppFactory) {
 		nil,
 	)
 	slashingKeeper := slashing.NewKeeper(
-		app.Cdc(),
+		codec.Codec,
 		slashingStoreKey,
 		&stakingKeeper,
 		paramsKeeper.Subspace(slashing.DefaultParamspace),

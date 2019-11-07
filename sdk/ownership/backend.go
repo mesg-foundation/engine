@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/database/store"
@@ -26,16 +27,14 @@ func NewBackend(appFactory *cosmos.AppFactory) *Backend {
 		storeKey: cosmostypes.NewKVStoreKey(backendName),
 	}
 	appBackendBasic := cosmos.NewAppModuleBasic(backendName)
-	appBackend := cosmos.NewAppModule(appBackendBasic, ModuleCdc, backend.handler, backend.querier)
+	appBackend := cosmos.NewAppModule(appBackendBasic, backend.handler, backend.querier)
 	appFactory.RegisterModule(appBackend)
 	appFactory.RegisterStoreKey(backend.storeKey)
-	ownership.RegisterCodec(ModuleCdc)
-	ownership.RegisterCodec(appFactory.Cdc())
 	return backend
 }
 
 func (s *Backend) db(request cosmostypes.Request) *database.OwnershipDB {
-	return database.NewOwnershipDB(store.NewCosmosStore(request.KVStore(s.storeKey)), ModuleCdc)
+	return database.NewOwnershipDB(store.NewCosmosStore(request.KVStore(s.storeKey)), codec.Codec)
 }
 
 func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) cosmostypes.Result {

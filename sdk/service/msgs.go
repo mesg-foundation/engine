@@ -2,6 +2,7 @@ package servicesdk
 
 import (
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/protobuf/api"
 )
 
@@ -39,7 +40,7 @@ func (msg msgCreateService) ValidateBasic() cosmostypes.Error {
 
 // GetSignBytes encodes the message for signing.
 func (msg msgCreateService) GetSignBytes() []byte {
-	return cosmostypes.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+	return cosmostypes.MustSortJSON(codec.MustMarshalJSON(msg))
 }
 
 // GetSigners defines whose signature is required.

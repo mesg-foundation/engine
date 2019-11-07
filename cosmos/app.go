@@ -5,9 +5,9 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	"github.com/mesg-foundation/engine/codec"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -15,19 +15,17 @@ import (
 type App struct {
 	*baseapp.BaseApp
 
-	cdc          *codec.Codec
 	basicManager module.BasicManager
 }
 
 // NewApp initializes a new App.
 func NewApp(factory *AppFactory) (*App, error) {
 	basicManager := module.NewBasicManager(factory.modulesBasic...)
-	basicManager.RegisterCodec(factory.Cdc())
+	basicManager.RegisterCodec(codec.Codec)
 
 	a := &App{
 		BaseApp:      factory.baseApp,
 		basicManager: basicManager,
-		cdc:          factory.Cdc(),
 	}
 
 	// Load creates the module manager, registers the modules to it, mounts the stores and finally load the app itself.
@@ -44,7 +42,7 @@ func NewApp(factory *AppFactory) (*App, error) {
 	// The initChainer handles translating the genesis.json file into initial state for the network
 	a.SetInitChainer(func(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 		var genesisData map[string]json.RawMessage
-		if err := a.cdc.UnmarshalJSON(req.AppStateBytes, &genesisData); err != nil {
+		if err := codec.UnmarshalJSON(req.AppStateBytes, &genesisData); err != nil {
 			panic(err)
 		}
 		return mm.InitGenesis(ctx, genesisData)
@@ -69,9 +67,4 @@ func NewApp(factory *AppFactory) (*App, error) {
 // DefaultGenesis returns the default genesis from the basic manager.
 func (a *App) DefaultGenesis() map[string]json.RawMessage {
 	return a.basicManager.DefaultGenesis()
-}
-
-// Cdc returns the codec of the app.
-func (a *App) Cdc() *codec.Codec {
-	return a.cdc
 }

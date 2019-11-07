@@ -7,7 +7,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/mesg-foundation/engine/codec"
+	cosmoscodec "github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/stretchr/testify/require"
@@ -21,10 +22,9 @@ func TestGenesis(t *testing.T) {
 	kb, err := NewKeybase(filepath.Join(path, "kb"))
 	require.NoError(t, err)
 	// codec
-	cdc := codec.New()
-	sdk.RegisterCodec(cdc)
-	codec.RegisterCrypto(cdc)
-	stakingtypes.RegisterCodec(cdc)
+	sdk.RegisterCodec(codec.Codec)
+	cosmoscodec.RegisterCrypto(codec.Codec)
+	stakingtypes.RegisterCodec(codec.Codec)
 	// variables
 	var (
 		chainID                = "test-chainID"
@@ -57,7 +57,7 @@ func TestGenesis(t *testing.T) {
 		require.False(t, GenesisExist(genesisPath))
 	})
 	t.Run("generate genesis", func(t *testing.T) {
-		genesis, err := GenGenesis(cdc, kb, defaultGenesisState, chainID, genesisPath, validators)
+		genesis, err := GenGenesis(kb, defaultGenesisState, chainID, genesisPath, validators)
 		require.NoError(t, err)
 		require.NotEmpty(t, genesis)
 	})

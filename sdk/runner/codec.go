@@ -1,18 +1,8 @@
 package runnersdk
 
-import (
-	"github.com/cosmos/cosmos-sdk/codec"
-)
-
-// ModuleCdc is the codec for the module
-var ModuleCdc = codec.New()
+import "github.com/mesg-foundation/engine/codec"
 
 func init() {
-	RegisterCodec(ModuleCdc)
-}
-
-// RegisterCodec registers concrete types on the Amino codec
-func RegisterCodec(cdc *codec.Codec) {
-	cdc.RegisterConcrete(msgCreateRunner{}, "runner/create", nil)
-	cdc.RegisterConcrete(msgDeleteRunner{}, "runner/delete", nil)
+	codec.RegisterConcrete(msgCreateRunner{}, "runner/create", nil)
+	codec.RegisterConcrete(msgDeleteRunner{}, "runner/delete", nil)
 }

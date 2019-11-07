@@ -2,6 +2,7 @@ package runnersdk
 
 import (
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/hash"
 )
 
@@ -47,7 +48,7 @@ func (msg msgCreateRunner) ValidateBasic() cosmostypes.Error {
 
 // GetSignBytes encodes the message for signing.
 func (msg msgCreateRunner) GetSignBytes() []byte {
-	return cosmostypes.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+	return cosmostypes.MustSortJSON(codec.MustMarshalJSON(msg))
 }
 
 // GetSigners defines whose signature is required.
@@ -92,7 +93,7 @@ func (msg msgDeleteRunner) ValidateBasic() cosmostypes.Error {
 
 // GetSignBytes encodes the message for signing.
 func (msg msgDeleteRunner) GetSignBytes() []byte {
-	return cosmostypes.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+	return cosmostypes.MustSortJSON(codec.MustMarshalJSON(msg))
 }
 
 // GetSigners defines whose signature is required.

@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/ownership"
@@ -13,15 +13,12 @@ import (
 )
 
 func TestOwnershipDB(t *testing.T) {
-	cdc := codec.New()
-	ownership.RegisterCodec(cdc)
-
 	dir, _ := ioutil.TempDir("", "ownership.db.test")
 	defer os.RemoveAll(dir)
 
 	store, err := store.NewLevelDBStore(dir)
 	require.NoError(t, err)
-	db := NewOwnershipDB(store, cdc)
+	db := NewOwnershipDB(store, codec.Codec)
 	defer db.Close()
 
 	p := &ownership.Ownership{
