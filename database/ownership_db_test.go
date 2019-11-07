@@ -5,7 +5,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/ownership"
@@ -18,7 +17,7 @@ func TestOwnershipDB(t *testing.T) {
 
 	store, err := store.NewLevelDBStore(dir)
 	require.NoError(t, err)
-	db := NewOwnershipDB(store, codec.Codec)
+	db := NewOwnershipDB(store)
 	defer db.Close()
 
 	p := &ownership.Ownership{

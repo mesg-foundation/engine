@@ -5,7 +5,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/runner"
@@ -13,14 +12,12 @@ import (
 )
 
 func TestRunnerDB(t *testing.T) {
-	cdc := codec.New()
-
 	dir, _ := ioutil.TempDir("", "runner.db.test")
 	defer os.RemoveAll(dir)
 
 	store, err := store.NewLevelDBStore(dir)
 	require.NoError(t, err)
-	db := NewRunnerDB(store, cdc)
+	db := NewRunnerDB(store)
 	defer db.Close()
 
 	p := &runner.Runner{

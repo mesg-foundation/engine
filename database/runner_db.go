@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/runner"
@@ -16,22 +16,20 @@ var (
 
 // RunnerDB is a database for storing runner definition.
 type RunnerDB struct {
-	s   store.Store
-	cdc *codec.Codec
+	s store.Store
 }
 
 // NewRunnerDB returns the database which is located under given path.
-func NewRunnerDB(s store.Store, cdc *codec.Codec) *RunnerDB {
+func NewRunnerDB(s store.Store) *RunnerDB {
 	return &RunnerDB{
-		s:   s,
-		cdc: cdc,
+		s: s,
 	}
 }
 
 // unmarshal returns the runner from byte slice.
 func (d *RunnerDB) unmarshalRunner(hash hash.Hash, value []byte) (*runner.Runner, error) {
 	var s runner.Runner
-	if err := d.cdc.UnmarshalBinaryBare(value, &s); err != nil {
+	if err := codec.UnmarshalBinaryBare(value, &s); err != nil {
 		return nil, fmt.Errorf("database: could not decode runner %q: %w", hash.String(), err)
 	}
 	return &s, nil
@@ -61,7 +59,7 @@ func (d *RunnerDB) Save(r *runner.Runner) error {
 	if r.Hash.IsZero() {
 		return errCannotSaveRunnerWithoutHash
 	}
-	b, err := d.cdc.MarshalBinaryBare(r)
+	b, err := codec.MarshalBinaryBare(r)
 	if err != nil {
 		return err
 	}

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/instance"
@@ -16,22 +16,20 @@ var (
 
 // InstanceDB is a database for storing instance definition.
 type InstanceDB struct {
-	s   store.Store
-	cdc *codec.Codec
+	s store.Store
 }
 
 // NewInstanceDB returns the database which is located under given path.
-func NewInstanceDB(s store.Store, cdc *codec.Codec) *InstanceDB {
+func NewInstanceDB(s store.Store) *InstanceDB {
 	return &InstanceDB{
-		s:   s,
-		cdc: cdc,
+		s: s,
 	}
 }
 
 // unmarshal returns the instance from byte slice.
 func (d *InstanceDB) unmarshalInstance(hash hash.Hash, value []byte) (*instance.Instance, error) {
 	var s instance.Instance
-	if err := d.cdc.UnmarshalBinaryBare(value, &s); err != nil {
+	if err := codec.UnmarshalBinaryBare(value, &s); err != nil {
 		return nil, fmt.Errorf("database: could not decode instance %q: %w", hash.String(), err)
 	}
 	return &s, nil
@@ -61,7 +59,7 @@ func (d *InstanceDB) Save(r *instance.Instance) error {
 	if r.Hash.IsZero() {
 		return errCannotSaveInstanceWithoutHash
 	}
-	b, err := d.cdc.MarshalBinaryBare(r)
+	b, err := codec.MarshalBinaryBare(r)
 	if err != nil {
 		return err
 	}

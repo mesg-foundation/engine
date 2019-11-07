@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/cskr/pubsub"
-	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/execution"
@@ -44,11 +43,11 @@ func (t *apiTesting) close() {
 func newTesting(t *testing.T) (*Execution, *apiTesting) {
 	serviceStore, err := store.NewLevelDBStore(servicedbname)
 	require.NoError(t, err)
-	db := database.NewServiceDB(serviceStore, codec.Codec)
+	db := database.NewServiceDB(serviceStore)
 
 	instanceStore, err := store.NewLevelDBStore(instdbname)
 	require.NoError(t, err)
-	instDB := database.NewInstanceDB(instanceStore, codec.Codec)
+	instDB := database.NewInstanceDB(instanceStore)
 	instance := instancesdk.New(nil)
 
 	execDB, err := database.NewExecutionDB(execdbname)

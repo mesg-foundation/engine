@@ -6,7 +6,6 @@ import (
 
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/gogo/protobuf/proto"
-	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/database/store"
@@ -41,7 +40,7 @@ func NewBackend(appFactory *cosmos.AppFactory, ownerships *ownershipsdk.Backend)
 }
 
 func (s *Backend) db(request cosmostypes.Request) *database.ServiceDB {
-	return database.NewServiceDB(store.NewCosmosStore(request.KVStore(s.storeKey)), codec.Codec)
+	return database.NewServiceDB(store.NewCosmosStore(request.KVStore(s.storeKey)))
 }
 
 func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) cosmostypes.Result {

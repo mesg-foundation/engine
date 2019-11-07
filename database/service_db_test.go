@@ -5,7 +5,6 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/service"
@@ -18,7 +17,7 @@ func openServiceDB(t *testing.T) (*ServiceDB, func()) {
 	deleteDBs(t)
 	store, err := store.NewLevelDBStore(testdbname)
 	require.NoError(t, err)
-	db := NewServiceDB(store, codec.New())
+	db := NewServiceDB(store)
 	return db, func() {
 		require.NoError(t, db.Close())
 		deleteDBs(t)

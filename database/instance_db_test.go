@@ -5,7 +5,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/instance"
@@ -18,7 +17,7 @@ func TestInstanceDB(t *testing.T) {
 
 	store, err := store.NewLevelDBStore(dir)
 	require.NoError(t, err)
-	db := NewInstanceDB(store, codec.Codec)
+	db := NewInstanceDB(store)
 	defer db.Close()
 
 	p := &instance.Instance{

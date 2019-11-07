@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/service"
@@ -17,22 +17,20 @@ var (
 
 // ServiceDB is a database for storing service definition.
 type ServiceDB struct {
-	s   store.Store
-	cdc *codec.Codec
+	s store.Store
 }
 
 // NewServiceDB returns the database which is located under given path.
-func NewServiceDB(s store.Store, cdc *codec.Codec) *ServiceDB {
+func NewServiceDB(s store.Store) *ServiceDB {
 	return &ServiceDB{
-		s:   s,
-		cdc: cdc,
+		s: s,
 	}
 }
 
 // unmarshal returns the service from byte slice.
 func (d *ServiceDB) unmarshalService(hash hash.Hash, value []byte) (*service.Service, error) {
 	var s service.Service
-	if err := d.cdc.UnmarshalBinaryBare(value, &s); err != nil {
+	if err := codec.UnmarshalBinaryBare(value, &s); err != nil {
 		return nil, fmt.Errorf("database: could not decode service %q: %w", hash.String(), err)
 	}
 	return &s, nil
@@ -84,7 +82,7 @@ func (d *ServiceDB) Save(s *service.Service) error {
 	if len(s.Hash) == 0 {
 		return errCannotSaveServiceWithoutHash
 	}
-	b, err := d.cdc.MarshalBinaryBare(s)
+	b, err := codec.MarshalBinaryBare(s)
 	if err != nil {
 		return err
 	}

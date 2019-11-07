@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/ownership"
@@ -16,22 +16,20 @@ var (
 
 // OwnershipDB is a database for storing ownership definition.
 type OwnershipDB struct {
-	s   store.Store
-	cdc *codec.Codec
+	s store.Store
 }
 
 // NewOwnershipDB returns the database which is located under given path.
-func NewOwnershipDB(s store.Store, cdc *codec.Codec) *OwnershipDB {
+func NewOwnershipDB(s store.Store) *OwnershipDB {
 	return &OwnershipDB{
-		s:   s,
-		cdc: cdc,
+		s: s,
 	}
 }
 
 // unmarshal returns the ownership from byte slice.
 func (d *OwnershipDB) unmarshalOwnership(hash hash.Hash, value []byte) (*ownership.Ownership, error) {
 	var s ownership.Ownership
-	if err := d.cdc.UnmarshalBinaryBare(value, &s); err != nil {
+	if err := codec.UnmarshalBinaryBare(value, &s); err != nil {
 		return nil, fmt.Errorf("database: could not decode ownership %q: %w", hash.String(), err)
 	}
 	return &s, nil
@@ -61,7 +59,7 @@ func (d *OwnershipDB) Save(o *ownership.Ownership) error {
 	if o.Hash.IsZero() {
 		return errCannotSaveOwnershipWithoutHash
 	}
-	b, err := d.cdc.MarshalBinaryBare(o)
+	b, err := codec.MarshalBinaryBare(o)
 	if err != nil {
 		return err
 	}
