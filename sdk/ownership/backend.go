@@ -6,8 +6,6 @@ import (
 
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/cosmos"
-	"github.com/mesg-foundation/engine/database"
-	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/ownership"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -32,10 +30,6 @@ func NewBackend(appFactory *cosmos.AppFactory) *Backend {
 	return backend
 }
 
-func (s *Backend) db(request cosmostypes.Request) *database.OwnershipDB {
-	return database.NewOwnershipDB(store.NewCosmosStore(request.KVStore(s.storeKey)))
-}
-
 func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) cosmostypes.Result {
 	errmsg := fmt.Sprintf("Unrecognized ownership Msg type: %v", msg.Type())
 	return cosmostypes.ErrUnknownRequest(errmsg).Result()
@@ -52,9 +46,9 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 
 // CreateServiceOwnership creates a new ownership.
 func (s *Backend) CreateServiceOwnership(request cosmostypes.Request, serviceHash hash.Hash, owner cosmostypes.AccAddress) (*ownership.Ownership, error) {
-	db := s.db(request)
+	store := request.KVStore(s.storeKey)
 	// check if owner is authorized to create the ownership
-	allOwnshp, err := db.All()
+	allOwnshp, err := s.List(request)
 	if err != nil {
 		return nil, err
 	}
@@ -70,12 +64,27 @@ func (s *Backend) CreateServiceOwnership(request cosmostypes.Request, serviceHas
 		},
 	}
 	ownership.Hash = hash.Dump(ownership)
-	return ownership, db.Save(ownership)
+	store.Set(ownership.Hash, codec.MustMarshalBinaryBare(ownership))
+	return ownership, nil
 }
 
 // List returns all ownerships.
 func (s *Backend) List(request cosmostypes.Request) ([]*ownership.Ownership, error) {
-	return s.db(request).All()
+	var (
+		ownerships []*ownership.Ownership
+		iter       = request.KVStore(s.storeKey).Iterator(nil, nil)
+	)
+
+	for iter.Valid() {
+		var o *ownership.Ownership
+		if err := codec.UnmarshalBinaryBare(iter.Value(), &o); err != nil {
+			return nil, err
+		}
+		ownerships = append(ownerships, o)
+		iter.Next()
+	}
+	iter.Close()
+	return ownerships, nil
 }
 
 // ownershipsOfService only returns the ownership concerning the specify service.
