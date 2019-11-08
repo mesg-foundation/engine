@@ -22,7 +22,7 @@ func NewTxBuilder(accNumber, accSeq uint64, kb keys.Keybase, chainID string) TxB
 			authutils.GetTxEncoder(codec.Codec),
 			accNumber,
 			accSeq,
-			flags.DefaultGasLimit,
+			1000000,
 			flags.DefaultGasAdjustment,
 			true,
 			chainID,
