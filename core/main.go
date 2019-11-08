@@ -75,6 +75,7 @@ func stopRunningServices(sdk *enginesdk.SDK, cfg *config.Config, address string)
 
 func loadOrGenConfigAccount(kb *cosmos.Keybase, cfg *config.Config) (keys.Info, error) {
 	if cfg.Account.Mnemonic != "" {
+		logrus.WithField("module", "main").Warn("Config account mnemonic presents. Generating account with it...")
 		return kb.CreateAccount(cfg.Account.Name, cfg.Account.Mnemonic, "", cfg.Account.Password, 0, 0)
 	}
 
