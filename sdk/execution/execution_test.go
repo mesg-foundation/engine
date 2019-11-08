@@ -12,11 +12,11 @@ import (
 // func newTesting(t *testing.T) (*Execution, *apiTesting) {
 // 	serviceStore, err := store.NewLevelDBStore(servicedbname)
 // 	require.NoError(t, err)
-// 	db := database.NewServiceDB(serviceStore, codec.New())
+// 	db := database.NewServiceDB(serviceStore)
 
 // 	instanceStore, err := store.NewLevelDBStore(instdbname)
 // 	require.NoError(t, err)
-// 	instDB := database.NewInstanceDB(instanceStore, codec.New())
+// 	instDB := database.NewInstanceDB(instanceStore)
 // 	instance := instancesdk.New(nil)
 
 // 	execDB, err := database.NewExecutionDB(execdbname)

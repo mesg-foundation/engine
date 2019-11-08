@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/cosmos/cosmos-sdk/codec"
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/ownership"
@@ -16,21 +16,18 @@ const backendName = "ownership"
 
 // Backend is the ownership backend.
 type Backend struct {
-	cdc      *codec.Codec
 	storeKey *cosmostypes.KVStoreKey
 }
 
 // NewBackend returns the backend of the ownership sdk.
 func NewBackend(appFactory *cosmos.AppFactory) *Backend {
 	backend := &Backend{
-		cdc:      appFactory.Cdc(),
 		storeKey: cosmostypes.NewKVStoreKey(backendName),
 	}
 	appBackendBasic := cosmos.NewAppModuleBasic(backendName)
-	appBackend := cosmos.NewAppModule(appBackendBasic, backend.cdc, backend.handler, backend.querier)
+	appBackend := cosmos.NewAppModule(appBackendBasic, backend.handler, backend.querier)
 	appFactory.RegisterModule(appBackend)
 	appFactory.RegisterStoreKey(backend.storeKey)
-	ownership.RegisterCodec(backend.cdc)
 	return backend
 }
 
@@ -68,7 +65,11 @@ func (s *Backend) CreateServiceOwnership(request cosmostypes.Request, serviceHas
 		},
 	}
 	ownership.Hash = hash.Dump(ownership)
-	store.Set(ownership.Hash, s.cdc.MustMarshalBinaryBare(ownership))
+	value, err := codec.MarshalBinaryBare(ownership)
+	if err != nil {
+		return nil, err
+	}
+	store.Set(ownership.Hash, value)
 	return ownership, nil
 }
 
@@ -81,7 +82,7 @@ func (s *Backend) List(request cosmostypes.Request) ([]*ownership.Ownership, err
 
 	for iter.Valid() {
 		var o *ownership.Ownership
-		if err := s.cdc.UnmarshalBinaryBare(iter.Value(), &o); err != nil {
+		if err := codec.UnmarshalBinaryBare(iter.Value(), &o); err != nil {
 			return nil, err
 		}
 		ownerships = append(ownerships, o)

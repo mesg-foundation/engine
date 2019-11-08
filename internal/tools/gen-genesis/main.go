@@ -116,7 +116,7 @@ func main() {
 	}
 
 	// generate and save genesis
-	_, err = cosmos.GenGenesis(app.Cdc(), kb, app.DefaultGenesis(), *chainid, filepath.Join(*path, "genesis.json"), vals)
+	_, err = cosmos.GenGenesis(kb, app.DefaultGenesis(), *chainid, filepath.Join(*path, "genesis.json"), vals)
 	if err != nil {
 		logrus.Fatalln(err)
 	}
