@@ -56,6 +56,7 @@ require (
 	github.com/stretchr/objx v0.2.0 // indirect
 	github.com/stretchr/testify v1.4.0
 	github.com/syndtr/goleveldb v1.0.1-0.20190318030020-c3a204f8e965
+	github.com/tendermint/go-amino v0.15.0
 	github.com/tendermint/tendermint v0.32.6
 	github.com/tendermint/tm-db v0.2.0
 	github.com/vektra/mockery v0.0.0-20181123154057-e78b021dcbb5

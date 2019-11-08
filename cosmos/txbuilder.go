@@ -2,11 +2,11 @@ package cosmos
 
 import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	authutils "github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/mesg-foundation/engine/codec"
 	"github.com/tendermint/tendermint/types"
 )
 
@@ -16,10 +16,10 @@ type TxBuilder struct {
 }
 
 // NewTxBuilder returns a new initialized TxBuilder.
-func NewTxBuilder(cdc *codec.Codec, accNumber, accSeq uint64, kb keys.Keybase, chainID string) TxBuilder {
+func NewTxBuilder(accNumber, accSeq uint64, kb keys.Keybase, chainID string) TxBuilder {
 	return TxBuilder{
 		authtypes.NewTxBuilder(
-			authutils.GetTxEncoder(cdc),
+			authutils.GetTxEncoder(codec.Codec),
 			accNumber,
 			accSeq,
 			flags.DefaultGasLimit,

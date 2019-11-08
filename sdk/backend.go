@@ -11,6 +11,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/supply"
+	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/cosmos"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	ownershipsdk "github.com/mesg-foundation/engine/sdk/ownership"
@@ -60,13 +61,13 @@ func initDefaultCosmosModules(app *cosmos.AppFactory) {
 
 	// init cosmos keepers
 	paramsKeeper := params.NewKeeper(
-		app.Cdc(),
+		codec.Codec,
 		paramsStoreKey,
 		paramsTStoreKey,
 		params.DefaultCodespace,
 	)
 	accountKeeper := auth.NewAccountKeeper(
-		app.Cdc(),
+		codec.Codec,
 		paramsStoreKey,
 		paramsKeeper.Subspace(auth.DefaultParamspace),
 		auth.ProtoBaseAccount,
@@ -78,7 +79,7 @@ func initDefaultCosmosModules(app *cosmos.AppFactory) {
 		nil,
 	)
 	supplyKeeper := supply.NewKeeper(
-		app.Cdc(),
+		codec.Codec,
 		supplyStoreKey,
 		accountKeeper,
 		bankKeeper,
@@ -90,7 +91,7 @@ func initDefaultCosmosModules(app *cosmos.AppFactory) {
 		},
 	)
 	stakingKeeper := staking.NewKeeper(
-		app.Cdc(),
+		codec.Codec,
 		stakingStoreKey,
 		stakingTStoreKey,
 		supplyKeeper,
@@ -98,7 +99,7 @@ func initDefaultCosmosModules(app *cosmos.AppFactory) {
 		staking.DefaultCodespace,
 	)
 	distrKeeper := distribution.NewKeeper(
-		app.Cdc(),
+		codec.Codec,
 		distrStoreKey,
 		paramsKeeper.Subspace(distribution.DefaultParamspace),
 		&stakingKeeper,
@@ -108,7 +109,7 @@ func initDefaultCosmosModules(app *cosmos.AppFactory) {
 		nil,
 	)
 	slashingKeeper := slashing.NewKeeper(
-		app.Cdc(),
+		codec.Codec,
 		slashingStoreKey,
 		&stakingKeeper,
 		paramsKeeper.Subspace(slashing.DefaultParamspace),
@@ -132,6 +133,8 @@ func initDefaultCosmosModules(app *cosmos.AppFactory) {
 
 	app.RegisterOrderBeginBlocks(distribution.ModuleName, slashing.ModuleName)
 	app.RegisterOrderEndBlocks(staking.ModuleName)
+
+	app.SetAnteHandler(auth.NewAnteHandler(accountKeeper, supplyKeeper, auth.DefaultSigVerificationGasConsumer))
 
 	app.RegisterOrderInitGenesis(
 		genaccounts.ModuleName,

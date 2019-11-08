@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/cosmos/cosmos-sdk/codec"
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/runner"
@@ -17,7 +17,6 @@ const backendName = "runner"
 
 // Backend is the runner backend.
 type Backend struct {
-	cdc          *codec.Codec
 	storeKey     *cosmostypes.KVStoreKey
 	instanceBack *instancesdk.Backend
 }
@@ -25,17 +24,13 @@ type Backend struct {
 // NewBackend returns the backend of the runner sdk.
 func NewBackend(appFactory *cosmos.AppFactory, instanceBack *instancesdk.Backend) *Backend {
 	backend := &Backend{
-		cdc:          appFactory.Cdc(),
 		storeKey:     cosmostypes.NewKVStoreKey(backendName),
 		instanceBack: instanceBack,
 	}
 	appBackendBasic := cosmos.NewAppModuleBasic(backendName)
-	appBackend := cosmos.NewAppModule(appBackendBasic, backend.cdc, backend.handler, backend.querier)
+	appBackend := cosmos.NewAppModule(appBackendBasic, backend.handler, backend.querier)
 	appFactory.RegisterModule(appBackend)
 	appFactory.RegisterStoreKey(backend.storeKey)
-
-	backend.cdc.RegisterConcrete(msgCreateRunner{}, "runner/create", nil)
-	backend.cdc.RegisterConcrete(msgDeleteRunner{}, "runner/delete", nil)
 
 	return backend
 }
@@ -91,7 +86,7 @@ func (s *Backend) Create(request cosmostypes.Request, msg *msgCreateRunner) (*ru
 	if store.Has(run.Hash) {
 		return nil, fmt.Errorf("runner %q already exists", run.Hash)
 	}
-	value, err := s.cdc.MarshalBinaryBare(run)
+	value, err := codec.MarshalBinaryBare(run)
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +99,7 @@ func (s *Backend) Delete(request cosmostypes.Request, msg *msgDeleteRunner) erro
 	store := request.KVStore(s.storeKey)
 	run := runner.Runner{}
 	value := store.Get(msg.RunnerHash)
-	if err := s.cdc.UnmarshalBinaryBare(value, &run); err != nil {
+	if err := codec.UnmarshalBinaryBare(value, &run); err != nil {
 		return err
 	}
 	if run.Address != msg.Address.String() {
@@ -118,7 +113,7 @@ func (s *Backend) Delete(request cosmostypes.Request, msg *msgDeleteRunner) erro
 func (s *Backend) Get(request cosmostypes.Request, hash hash.Hash) (*runner.Runner, error) {
 	var run *runner.Runner
 	value := request.KVStore(s.storeKey).Get(hash)
-	return run, s.cdc.UnmarshalBinaryBare(value, &run)
+	return run, codec.UnmarshalBinaryBare(value, &run)
 }
 
 // List returns all runners.
@@ -130,7 +125,7 @@ func (s *Backend) List(request cosmostypes.Request) ([]*runner.Runner, error) {
 	for iter.Valid() {
 		var run *runner.Runner
 		value := iter.Value()
-		if err := s.cdc.UnmarshalBinaryBare(value, &run); err != nil {
+		if err := codec.UnmarshalBinaryBare(value, &run); err != nil {
 			return nil, err
 		}
 		runners = append(runners, run)

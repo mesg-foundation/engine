@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
-	"github.com/cosmos/cosmos-sdk/codec"
+	cosmoscodec "github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/gorilla/mux"
+	"github.com/mesg-foundation/engine/codec"
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -28,7 +29,6 @@ type AppModule struct {
 	AppModuleBasic
 	handler sdk.Handler
 	querier Querier
-	cdc     *codec.Codec
 }
 
 // Querier is responsible to answer to ABCI queries.
@@ -41,13 +41,12 @@ func NewAppModuleBasic(name string) AppModuleBasic {
 	}
 }
 
-// NewAppModule inits an AppModule using an AppModuleBasic, Codec, Handler and Querier.
-func NewAppModule(moduleBasic AppModuleBasic, cdc *codec.Codec, handler sdk.Handler, querier Querier) AppModule {
+// NewAppModule inits an AppModule using an AppModuleBasic, Handler and Querier.
+func NewAppModule(moduleBasic AppModuleBasic, handler sdk.Handler, querier Querier) AppModule {
 	return AppModule{
 		AppModuleBasic: moduleBasic,
 		handler:        handler,
 		querier:        querier,
-		cdc:            cdc,
 	}
 }
 
@@ -61,7 +60,7 @@ func (m AppModuleBasic) Name() string {
 }
 
 // RegisterCodec registers the module's structs in the codec.
-func (AppModuleBasic) RegisterCodec(cdc *codec.Codec) {
+func (AppModuleBasic) RegisterCodec(cdc *cosmoscodec.Codec) {
 }
 
 // DefaultGenesis returns the default genesis of the module.
@@ -78,12 +77,12 @@ func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router) {}
 
 // GetQueryCmd returns the root query command of this module
-func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
+func (AppModuleBasic) GetQueryCmd(cdc *cosmoscodec.Codec) *cobra.Command {
 	return nil
 }
 
 // GetTxCmd returns the root tx command of this module
-func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
+func (AppModuleBasic) GetTxCmd(cdc *cosmoscodec.Codec) *cobra.Command {
 	return nil
 }
 
@@ -119,7 +118,7 @@ func (m AppModule) NewQuerierHandler() sdk.Querier {
 			}
 			return nil, sdk.ErrInternal(err.Error())
 		}
-		res, err := m.cdc.MarshalJSON(data)
+		res, err := codec.MarshalJSON(data)
 		if err != nil {
 			return nil, sdk.ErrInternal(err.Error())
 		}

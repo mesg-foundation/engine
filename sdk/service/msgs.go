@@ -1,8 +1,8 @@
 package servicesdk
 
 import (
-	"github.com/cosmos/cosmos-sdk/codec"
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/protobuf/api"
 )
 
@@ -10,15 +10,13 @@ import (
 type msgCreateService struct {
 	Request *api.CreateServiceRequest `json:"request"`
 	Owner   cosmostypes.AccAddress    `json:"owner"`
-	cdc     *codec.Codec
 }
 
 // newMsgCreateService is a constructor function for msgCreateService.
-func newMsgCreateService(cdc *codec.Codec, req *api.CreateServiceRequest, owner cosmostypes.AccAddress) *msgCreateService {
+func newMsgCreateService(req *api.CreateServiceRequest, owner cosmostypes.AccAddress) *msgCreateService {
 	return &msgCreateService{
 		Request: req,
 		Owner:   owner,
-		cdc:     cdc,
 	}
 }
 
@@ -42,7 +40,7 @@ func (msg msgCreateService) ValidateBasic() cosmostypes.Error {
 
 // GetSignBytes encodes the message for signing.
 func (msg msgCreateService) GetSignBytes() []byte {
-	return cosmostypes.MustSortJSON(msg.cdc.MustMarshalJSON(msg))
+	return cosmostypes.MustSortJSON(codec.MustMarshalJSON(msg))
 }
 
 // GetSigners defines whose signature is required.

@@ -36,3 +36,4 @@ linters:
     - prealloc
     - stylecheck
     - wsl
+    - gochecknoinits

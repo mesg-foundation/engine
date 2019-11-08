@@ -74,6 +74,11 @@ func stopRunningServices(sdk *enginesdk.SDK, cfg *config.Config, address string)
 }
 
 func loadOrGenConfigAccount(kb *cosmos.Keybase, cfg *config.Config) (keys.Info, error) {
+	if cfg.Account.Mnemonic != "" {
+		logrus.WithField("module", "main").Warn("Config account mnemonic presents. Generating account with it...")
+		return kb.CreateAccount(cfg.Account.Name, cfg.Account.Mnemonic, "", cfg.Account.Password, 0, 0)
+	}
+
 	exist, err := kb.Exist(cfg.Account.Name)
 	if err != nil {
 		return nil, err
@@ -114,7 +119,7 @@ func loadOrGenDevGenesis(app *cosmos.App, kb *cosmos.Keybase, cfg *config.Config
 		"nodeID": validator.NodeID,
 		"peer":   fmt.Sprintf("%s@%s:26656", validator.NodeID, validator.Name),
 	}).Warnln("Validator")
-	return cosmos.GenGenesis(app.Cdc(), kb, app.DefaultGenesis(), cfg.DevGenesis.ChainID, cfg.Tendermint.Config.GenesisFile(), []cosmos.GenesisValidator{validator})
+	return cosmos.GenGenesis(kb, app.DefaultGenesis(), cfg.DevGenesis.ChainID, cfg.Tendermint.Config.GenesisFile(), []cosmos.GenesisValidator{validator})
 }
 
 func main() {
@@ -183,10 +188,10 @@ func main() {
 	}
 
 	// create cosmos client
-	client := cosmos.NewClient(node, app.Cdc(), kb, genesis.ChainID)
+	client := cosmos.NewClient(node, kb, genesis.ChainID)
 
 	// init sdk
-	sdk := enginesdk.New(client, app.Cdc(), kb, executionDB, processDB, container, cfg.Name, strconv.Itoa(port), cfg.IpfsEndpoint)
+	sdk := enginesdk.New(client, kb, executionDB, processDB, container, cfg.Name, strconv.Itoa(port), cfg.IpfsEndpoint)
 
 	// start tendermint node
 	logrus.WithField("module", "main").WithField("seeds", cfg.Tendermint.Config.P2P.Seeds).Info("starting tendermint node")
