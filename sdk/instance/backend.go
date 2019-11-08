@@ -9,6 +9,7 @@ import (
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/instance"
+	"github.com/mesg-foundation/engine/protobuf/api"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -46,7 +47,12 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 		}
 		return s.Get(request, hash)
 	case "list":
-		return s.List(request)
+		var f api.ListInstanceRequest_Filter
+		if err := codec.UnmarshalJSON(req.Data, &f); err != nil {
+			return nil, err
+		}
+
+		return s.List(request, &f)
 	case "exists":
 		hash, err := hash.Decode(path[1])
 		if err != nil {
@@ -91,18 +97,21 @@ func (s *Backend) Exists(request cosmostypes.Request, hash hash.Hash) (bool, err
 }
 
 // List returns all instances.
-func (s *Backend) List(request cosmostypes.Request) ([]*instance.Instance, error) {
+func (s *Backend) List(request cosmostypes.Request, f *api.ListInstanceRequest_Filter) ([]*instance.Instance, error) {
 	var (
 		instances []*instance.Instance
 		iter      = request.KVStore(s.storeKey).Iterator(nil, nil)
 	)
 
+	// filter results
 	for iter.Valid() {
 		var i *instance.Instance
 		if err := codec.UnmarshalBinaryBare(iter.Value(), &i); err != nil {
 			return nil, err
 		}
-		instances = append(instances, i)
+		if f == nil || (f != nil && (f.ServiceHash.IsZero() || i.ServiceHash.Equal(f.ServiceHash))) {
+			instances = append(instances, i)
+		}
 		iter.Next()
 	}
 	iter.Close()

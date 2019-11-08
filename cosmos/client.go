@@ -34,8 +34,8 @@ func NewClient(node *node.Node, kb keys.Keybase, chainID string) *Client {
 }
 
 // Query is abci.query wrapper with errors check and decode data.
-func (c *Client) Query(path string, data cmn.HexBytes, ptr interface{}) error {
-	result, err := c.ABCIQuery(path, data)
+func (c *Client) Query(path string, data, ptr interface{}) error {
+	result, err := c.ABCIQuery(path, codec.MustMarshalJSON(data))
 	if err != nil {
 		return err
 	}
