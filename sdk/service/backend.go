@@ -90,7 +90,7 @@ func (s *Backend) Create(request cosmostypes.Request, msg *msgCreateService) (*s
 
 	// check if service already exists.
 	if store.Has(srv.Hash) {
-		return nil, errors.New("service %q already exists" + srv.Hash.String())
+		return nil, fmt.Errorf("service %q already exists", srv.Hash)
 	}
 
 	// TODO: the following test should be moved in New function
