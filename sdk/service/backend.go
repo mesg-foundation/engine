@@ -6,6 +6,7 @@ import (
 
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/gogo/protobuf/proto"
+	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/api"
@@ -106,7 +107,11 @@ func (s *Backend) Create(request cosmostypes.Request, msg *msgCreateService) (*s
 		return nil, err
 	}
 
-	store.Set(srv.Hash, codec.MustMarshalBinaryBare(srv))
+	value, err := codec.MarshalBinaryBare(srv)
+	if err != nil {
+		return nil, err
+	}
+	store.Set(srv.Hash, value)
 	return srv, nil
 }
 

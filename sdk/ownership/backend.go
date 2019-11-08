@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/ownership"
@@ -64,7 +65,11 @@ func (s *Backend) CreateServiceOwnership(request cosmostypes.Request, serviceHas
 		},
 	}
 	ownership.Hash = hash.Dump(ownership)
-	store.Set(ownership.Hash, codec.MustMarshalBinaryBare(ownership))
+	value, err := codec.MarshalBinaryBare(ownership)
+	if err != nil {
+		return nil, err
+	}
+	store.Set(ownership.Hash, value)
 	return ownership, nil
 }
 

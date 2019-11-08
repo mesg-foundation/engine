@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/instance"
@@ -67,7 +68,11 @@ func (s *Backend) FetchOrCreate(request cosmostypes.Request, serviceHash hash.Ha
 	inst.Hash = hash.Dump(inst)
 
 	if store := request.KVStore(s.storeKey); !store.Has(inst.Hash) {
-		store.Set(inst.Hash, codec.MustMarshalBinaryBare(inst))
+		value, err := codec.MarshalBinaryBare(inst)
+		if err != nil {
+			return nil, err
+		}
+		store.Set(inst.Hash, value)
 	}
 
 	return inst, nil
