@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/cosmos/go-bip39"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
 	tmconfig "github.com/tendermint/tendermint/config"
@@ -63,6 +64,7 @@ type Config struct {
 	Account struct {
 		Name     string `validate:"required"`
 		Password string `validate:"required"`
+		Mnemonic string
 	}
 }
 
@@ -170,8 +172,12 @@ func (c *Config) validate() error {
 	if _, err := logrus.ParseLevel(c.Log.Level); err != nil {
 		return fmt.Errorf("config.Log.Level error: %w", err)
 	}
+	if c.Account.Mnemonic != "" && !bip39.IsMnemonicValid(c.Account.Mnemonic) {
+		return fmt.Errorf("config.Account.Mnemonic error: mnemonic is not valid")
+	}
 	if err := c.Tendermint.Config.ValidateBasic(); err != nil {
 		return fmt.Errorf("config.Tendermint error: %w", err)
 	}
+
 	return validator.New().Struct(c)
 }

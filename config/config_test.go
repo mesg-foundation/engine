@@ -28,7 +28,10 @@ func TestDefaultConfig(t *testing.T) {
 	require.Equal(t, filepath.Join(home, ".mesg"), c.Path)
 	require.Equal(t, filepath.Join("database", "executions", executionDBVersion), c.Database.ExecutionRelativePath)
 	require.Equal(t, "engine", c.Name)
+	require.Equal(t, "engine", c.Account.Name)
+	require.Equal(t, "pass", c.Account.Password)
 }
+
 func TestEnv(t *testing.T) {
 	os.Setenv(envPathKey, "tempPath")
 	defer os.Unsetenv(envPathKey)
@@ -56,6 +59,8 @@ func TestLoadFromFile(t *testing.T) {
   address: :50050
 log:
   forcecolors: true
+account:
+  mnemonic: glimpse upon body vast economy give taxi yellow rabbit come click ranch chronic hammer sport near rotate charge lumber chicken cloud base thing forum
 tendermint:
   config:
     consensus:
