@@ -7,8 +7,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/cosmos"
-	"github.com/mesg-foundation/engine/database"
-	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/instance"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -34,10 +32,6 @@ func NewBackend(appFactory *cosmos.AppFactory) *Backend {
 	appFactory.RegisterStoreKey(backend.storeKey)
 
 	return backend
-}
-
-func (s *Backend) db(request cosmostypes.Request) *database.InstanceDB {
-	return database.NewInstanceDB(store.NewCosmosStore(request.KVStore(s.storeKey)), s.cdc)
 }
 
 func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) cosmostypes.Result {
@@ -69,22 +63,14 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 
 // FetchOrCreate creates a new instance if needed.
 func (s *Backend) FetchOrCreate(request cosmostypes.Request, serviceHash hash.Hash, envHash hash.Hash) (*instance.Instance, error) {
-	db := s.db(request)
-
-	// create instance hash
 	inst := &instance.Instance{
 		ServiceHash: serviceHash,
 		EnvHash:     envHash,
 	}
 	inst.Hash = hash.Dump(inst)
 
-	// create instance if needed
-	if exists, err := db.Exist(inst.Hash); err != nil {
-		return nil, err
-	} else if !exists {
-		if err := db.Save(inst); err != nil {
-			return nil, err
-		}
+	if store := request.KVStore(s.storeKey); !store.Has(inst.Hash) {
+		store.Set(inst.Hash, s.cdc.MustMarshalBinaryBare(inst))
 	}
 
 	return inst, nil
@@ -92,15 +78,31 @@ func (s *Backend) FetchOrCreate(request cosmostypes.Request, serviceHash hash.Ha
 
 // Get returns the instance that matches given hash.
 func (s *Backend) Get(request cosmostypes.Request, hash hash.Hash) (*instance.Instance, error) {
-	return s.db(request).Get(hash)
+	var i *instance.Instance
+	value := request.KVStore(s.storeKey).Get(hash)
+	return i, s.cdc.UnmarshalBinaryBare(value, &i)
 }
 
 // Exists returns true if a specific set of data exists in the database, false otherwise
 func (s *Backend) Exists(request cosmostypes.Request, hash hash.Hash) (bool, error) {
-	return s.db(request).Exist(hash)
+	return request.KVStore(s.storeKey).Has(hash), nil
 }
 
 // List returns all instances.
 func (s *Backend) List(request cosmostypes.Request) ([]*instance.Instance, error) {
-	return s.db(request).All()
+	var (
+		instances []*instance.Instance
+		iter      = request.KVStore(s.storeKey).Iterator(nil, nil)
+	)
+
+	for iter.Valid() {
+		var i *instance.Instance
+		if err := s.cdc.UnmarshalBinaryBare(iter.Value(), &i); err != nil {
+			return nil, err
+		}
+		instances = append(instances, i)
+		iter.Next()
+	}
+	iter.Close()
+	return instances, nil
 }

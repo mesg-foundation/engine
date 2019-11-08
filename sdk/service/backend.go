@@ -8,8 +8,6 @@ import (
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/gogo/protobuf/proto"
 	"github.com/mesg-foundation/engine/cosmos"
-	"github.com/mesg-foundation/engine/database"
-	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	ownershipsdk "github.com/mesg-foundation/engine/sdk/ownership"
@@ -42,10 +40,6 @@ func NewBackend(appFactory *cosmos.AppFactory, ownerships *ownershipsdk.Backend)
 	backend.cdc.RegisterConcrete(msgCreateService{}, "service/create", nil)
 
 	return backend
-}
-
-func (s *Backend) db(request cosmostypes.Request) *database.ServiceDB {
-	return database.NewServiceDB(store.NewCosmosStore(request.KVStore(s.storeKey)), s.cdc)
 }
 
 func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) cosmostypes.Result {
@@ -94,35 +88,12 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 
 // Create creates a new service.
 func (s *Backend) Create(request cosmostypes.Request, msg *msgCreateService) (*service.Service, error) {
-	return create(s.db(request), msg.Request, msg.Owner, s.ownerships, request)
-}
-
-// Get returns the service that matches given hash.
-func (s *Backend) Get(request cosmostypes.Request, hash hash.Hash) (*service.Service, error) {
-	return s.db(request).Get(hash)
-}
-
-// Exists returns true if a specific set of data exists in the database, false otherwise
-func (s *Backend) Exists(request cosmostypes.Request, hash hash.Hash) (bool, error) {
-	return s.db(request).Exist(hash)
-}
-
-// Hash returns the hash of a service request.
-func (s *Backend) Hash(serviceRequest *api.CreateServiceRequest) hash.Hash {
-	return initializeService(serviceRequest).Hash
-}
-
-// List returns all services.
-func (s *Backend) List(request cosmostypes.Request) ([]*service.Service, error) {
-	return s.db(request).All()
-}
-
-func create(db *database.ServiceDB, req *api.CreateServiceRequest, owner cosmostypes.AccAddress, ownerships *ownershipsdk.Backend, request cosmostypes.Request) (*service.Service, error) {
+	store := request.KVStore(s.storeKey)
 	// create service
-	srv := initializeService(req)
+	srv := initializeService(msg.Request)
 
 	// check if service already exists.
-	if _, err := db.Get(srv.Hash); err == nil {
+	if store.Has(srv.Hash) {
 		return nil, errors.New("service %q already exists" + srv.Hash.String())
 	}
 
@@ -136,14 +107,48 @@ func create(db *database.ServiceDB, req *api.CreateServiceRequest, owner cosmost
 		return nil, err
 	}
 
-	if _, err := ownerships.CreateServiceOwnership(request, srv.Hash, owner); err != nil {
+	if _, err := s.ownerships.CreateServiceOwnership(request, srv.Hash, msg.Owner); err != nil {
 		return nil, err
 	}
 
-	if err := db.Save(srv); err != nil {
-		return nil, err
-	}
+	store.Set(srv.Hash, s.cdc.MustMarshalBinaryBare(srv))
 	return srv, nil
+}
+
+// Get returns the service that matches given hash.
+func (s *Backend) Get(request cosmostypes.Request, hash hash.Hash) (*service.Service, error) {
+	var sv *service.Service
+	value := request.KVStore(s.storeKey).Get(hash)
+	return sv, s.cdc.UnmarshalBinaryBare(value, &sv)
+}
+
+// Exists returns true if a specific set of data exists in the database, false otherwise
+func (s *Backend) Exists(request cosmostypes.Request, hash hash.Hash) (bool, error) {
+	return request.KVStore(s.storeKey).Has(hash), nil
+}
+
+// Hash returns the hash of a service request.
+func (s *Backend) Hash(serviceRequest *api.CreateServiceRequest) hash.Hash {
+	return initializeService(serviceRequest).Hash
+}
+
+// List returns all services.
+func (s *Backend) List(request cosmostypes.Request) ([]*service.Service, error) {
+	var (
+		services []*service.Service
+		iter     = request.KVStore(s.storeKey).Iterator(nil, nil)
+	)
+
+	for iter.Valid() {
+		var sv *service.Service
+		if err := s.cdc.UnmarshalBinaryBare(iter.Value(), &sv); err != nil {
+			return nil, err
+		}
+		services = append(services, sv)
+		iter.Next()
+	}
+	iter.Close()
+	return services, nil
 }
 
 func initializeService(req *api.CreateServiceRequest) *service.Service {
