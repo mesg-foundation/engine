@@ -9,46 +9,25 @@ import (
 
 func TestServiceHash(t *testing.T) {
 	hashes := make(map[string]bool)
-
-	structs := []Struct{
+	structs := []*Value{
 		{
-			Fields: map[string]*Value{},
+			Kind: &Value_NullValue{},
 		},
 		{
-			Fields: map[string]*Value{
-				"v": {Kind: &Value_NullValue{}},
-			},
+			Kind: &Value_NumberValue{},
 		},
 		{
-			Fields: map[string]*Value{
-				"v": {Kind: &Value_NumberValue{}},
-			},
+			Kind: &Value_StringValue{},
 		},
 		{
-			Fields: map[string]*Value{
-				"v": {Kind: &Value_StringValue{}},
-			},
+			Kind: &Value_BoolValue{},
 		},
 		{
-			Fields: map[string]*Value{
-				"v": {Kind: &Value_BoolValue{}},
-			},
-		},
-		{
-			Fields: map[string]*Value{
-				"v": {Kind: &Value_StructValue{}},
-			},
-		},
-		{
-			Fields: map[string]*Value{
-				"v": {Kind: &Value_ListValue{}},
-			},
+			Kind: &Value_ListValue{},
 		},
 	}
-
 	for _, s := range structs {
 		hashes[string(structhash.Dump(s))] = true
 	}
-
 	assert.Equal(t, len(hashes), len(structs))
 }

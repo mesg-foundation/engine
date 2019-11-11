@@ -16,11 +16,9 @@ func TestRequire(t *testing.T) {
 		},
 	}
 
-	invalid := &types.Struct{
-		Fields: map[string]*types.Value{
-			"key": {
-				Kind: &types.Value_StringValue{},
-			},
+	invalid := []*types.Value{
+		{
+			Kind: &types.Value_StringValue{},
 		},
 	}
 

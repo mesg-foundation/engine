@@ -25,7 +25,7 @@ func TestNewFromService(t *testing.T) {
 	require.Equal(t, parentHash, execution.ParentHash)
 	require.Equal(t, eventHash, execution.EventHash)
 	require.Equal(t, taskKey, execution.TaskKey)
-	require.Equal(t, (*types.Struct)(nil), execution.Inputs)
+	require.Equal(t, ([]*types.Value)(nil), execution.Inputs)
 	require.Equal(t, tags, execution.Tags)
 	require.Equal(t, Status_Created, execution.Status)
 }
@@ -38,13 +38,12 @@ func TestExecute(t *testing.T) {
 }
 
 func TestComplete(t *testing.T) {
-	var output types.Struct
+	var output []*types.Value
 	e := New(nil, nil, nil, nil, "", "", nil, nil)
-
 	e.Execute()
-	require.NoError(t, e.Complete(&output))
+	require.NoError(t, e.Complete(output))
 	require.Equal(t, Status_Completed, e.Status)
-	require.Equal(t, &output, e.Outputs)
+	require.Equal(t, output, e.Outputs)
 	require.Error(t, e.Complete(nil))
 }
 

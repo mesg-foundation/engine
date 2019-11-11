@@ -11,7 +11,7 @@ func TestValidate(t *testing.T) {
 	var tests = []struct {
 		name      string
 		params    []*Service_Parameter
-		data      *types.Struct
+		data      []*types.Value
 		expecterr bool
 	}{
 		{
@@ -41,17 +41,15 @@ func TestValidate(t *testing.T) {
 					Type: "Boolean",
 				},
 			},
-			data: &types.Struct{
-				Fields: map[string]*types.Value{
-					"string": {
-						Kind: &types.Value_StringValue{},
-					},
-					"number": {
-						Kind: &types.Value_NumberValue{},
-					},
-					"boolean": {
-						Kind: &types.Value_BoolValue{},
-					},
+			data: []*types.Value{
+				{
+					Kind: &types.Value_StringValue{},
+				},
+				{
+					Kind: &types.Value_NumberValue{},
+				},
+				{
+					Kind: &types.Value_BoolValue{},
 				},
 			},
 		},
@@ -63,11 +61,9 @@ func TestValidate(t *testing.T) {
 					Type: "Any",
 				},
 			},
-			data: &types.Struct{
-				Fields: map[string]*types.Value{
-					"key": {
-						Kind: &types.Value_ListValue{},
-					},
+			data: []*types.Value{
+				{
+					Kind: &types.Value_ListValue{},
 				},
 			},
 		},
@@ -80,45 +76,13 @@ func TestValidate(t *testing.T) {
 					Repeated: true,
 				},
 			},
-			data: &types.Struct{
-				Fields: map[string]*types.Value{
-					"key": {
-						Kind: &types.Value_ListValue{
-							ListValue: &types.ListValue{
-								Values: []*types.Value{
-									{
-										Kind: &types.Value_NumberValue{},
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-		{
-			name: "object type",
-			params: []*Service_Parameter{
+			data: []*types.Value{
 				{
-					Key:  "key",
-					Type: "Object",
-					Object: []*Service_Parameter{
-						{
-							Key:  "string",
-							Type: "String",
-						},
-					},
-				},
-			},
-			data: &types.Struct{
-				Fields: map[string]*types.Value{
-					"key": {
-						Kind: &types.Value_StructValue{
-							StructValue: &types.Struct{
-								Fields: map[string]*types.Value{
-									"string": {
-										Kind: &types.Value_StringValue{},
-									},
+					Kind: &types.Value_ListValue{
+						ListValue: &types.ListValue{
+							Values: []*types.Value{
+								{
+									Kind: &types.Value_NumberValue{},
 								},
 							},
 						},
@@ -143,11 +107,9 @@ func TestValidate(t *testing.T) {
 					Type: "-",
 				},
 			},
-			data: &types.Struct{
-				Fields: map[string]*types.Value{
-					"key": {
-						Kind: &types.Value_NullValue{},
-					},
+			data: []*types.Value{
+				{
+					Kind: &types.Value_NullValue{},
 				},
 			},
 			expecterr: true,
@@ -160,11 +122,9 @@ func TestValidate(t *testing.T) {
 					Type: "String",
 				},
 			},
-			data: &types.Struct{
-				Fields: map[string]*types.Value{
-					"key": {
-						Kind: &types.Value_NullValue{},
-					},
+			data: []*types.Value{
+				{
+					Kind: &types.Value_NullValue{},
 				},
 			},
 			expecterr: true,
@@ -177,11 +137,9 @@ func TestValidate(t *testing.T) {
 					Type: "Number",
 				},
 			},
-			data: &types.Struct{
-				Fields: map[string]*types.Value{
-					"key": {
-						Kind: &types.Value_NullValue{},
-					},
+			data: []*types.Value{
+				{
+					Kind: &types.Value_NullValue{},
 				},
 			},
 			expecterr: true,
@@ -194,11 +152,9 @@ func TestValidate(t *testing.T) {
 					Type: "Boolean",
 				},
 			},
-			data: &types.Struct{
-				Fields: map[string]*types.Value{
-					"key": {
-						Kind: &types.Value_NullValue{},
-					},
+			data: []*types.Value{
+				{
+					Kind: &types.Value_NullValue{},
 				},
 			},
 			expecterr: true,
@@ -212,11 +168,9 @@ func TestValidate(t *testing.T) {
 					Type:     "String",
 				},
 			},
-			data: &types.Struct{
-				Fields: map[string]*types.Value{
-					"key": {
-						Kind: &types.Value_NullValue{},
-					},
+			data: []*types.Value{
+				{
+					Kind: &types.Value_NullValue{},
 				},
 			},
 			expecterr: true,
@@ -229,11 +183,9 @@ func TestValidate(t *testing.T) {
 					Type: "Object",
 				},
 			},
-			data: &types.Struct{
-				Fields: map[string]*types.Value{
-					"key": {
-						Kind: &types.Value_NullValue{},
-					},
+			data: []*types.Value{
+				{
+					Kind: &types.Value_NullValue{},
 				},
 			},
 			expecterr: true,

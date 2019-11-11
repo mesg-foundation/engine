@@ -20,12 +20,10 @@ func testEvent(t *testing.T) {
 	resp, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
 		InstanceHash: testInstanceHash,
 		Key:          "ping_ok",
-		Data: &types.Struct{
-			Fields: map[string]*types.Value{
-				"msg": {
-					Kind: &types.Value_StringValue{
-						StringValue: "foo",
-					},
+		Data: []*types.Value{
+			{
+				Kind: &types.Value_StringValue{
+					StringValue: "foo",
 				},
 			},
 		},
@@ -38,5 +36,5 @@ func testEvent(t *testing.T) {
 	require.Equal(t, resp.Hash, event.Hash)
 	require.Equal(t, testInstanceHash, event.InstanceHash)
 	require.Equal(t, "ping_ok", event.Key)
-	require.Equal(t, "foo", event.Data.Fields["msg"].GetStringValue())
+	require.Equal(t, "foo", event.Data[0].GetStringValue())
 }

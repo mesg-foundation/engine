@@ -175,11 +175,9 @@ func TestFindNode(t *testing.T) {
 // 		ProcessHash: hash.Int(1),
 // 		StepID:      "1",
 // 		ParentHash:  hash.Int(2),
-// 		Outputs: &types.Struct{
-// 			Fields: map[string]*types.Value{
-// 				"xxx": &types.Value{
-// 					Kind: &types.Value_StringValue{StringValue: "str"},
-// 				},
+// 		Outputs: []*types.Value{
+//			&types.Value{
+// 				Kind: &types.Value_StringValue{StringValue: "str"},
 // 			},
 // 		},
 // 	}
@@ -195,41 +193,37 @@ func TestResolveInput(t *testing.T) {
 		ProcessHash: hash.Int(2),
 		StepID:      "2",
 		ParentHash:  hash.Int(3),
-		Outputs: &types.Struct{
-			Fields: map[string]*types.Value{
-				"xxx": {
-					Kind: &types.Value_StringValue{StringValue: "str"},
-				},
+		Outputs: []*types.Value{
+			{
+				Kind: &types.Value_StringValue{StringValue: "str"},
 			},
 		},
 	}
 	// Different processes
-	_, err := o.resolveInput(hash.Int(1), exec, "2", "xxx")
+	_, err := o.resolveInput(hash.Int(1), exec, "2", 0)
 	require.Error(t, err)
 	// Different steps, should return the value of the data
-	val, err := o.resolveInput(hash.Int(2), exec, "2", "xxx")
+	val, err := o.resolveInput(hash.Int(2), exec, "2", 0)
 	require.NoError(t, err)
-	require.Equal(t, val, exec.Outputs.Fields["xxx"])
+	require.Equal(t, val, exec.Outputs[0])
 	// Invalid execution parent hash
 	e.On("Get", mock.Anything).Once().Return(nil, fmt.Errorf("err"))
-	_, err = o.resolveInput(hash.Int(2), exec, "-", "xxx")
+	_, err = o.resolveInput(hash.Int(2), exec, "-", 0)
 	require.Error(t, err)
 	// Output from a previous exec
 	execMock := &execution.Execution{
 		StepID:      "3",
 		ProcessHash: hash.Int(2),
-		Outputs: &types.Struct{
-			Fields: map[string]*types.Value{
-				"yyy": {
-					Kind: &types.Value_StringValue{StringValue: "str2"},
-				},
+		Outputs: []*types.Value{
+			{
+				Kind: &types.Value_StringValue{StringValue: "str2"},
 			},
 		},
 	}
 	e.On("Get", mock.Anything).Once().Return(execMock, nil)
-	val, err = o.resolveInput(hash.Int(2), exec, "3", "yyy")
+	val, err = o.resolveInput(hash.Int(2), exec, "3", 0)
 	require.NoError(t, err)
-	require.Equal(t, val, execMock.Outputs.Fields["yyy"])
+	require.Equal(t, val, execMock.Outputs[0])
 }
 
 func TestProcessTask(t *testing.T) {
@@ -244,9 +238,7 @@ func TestProcessTask(t *testing.T) {
 		Hash: hash.Int(2),
 	}, &execution.Execution{
 		Hash: hash.Int(3),
-	}, nil, &types.Struct{
-		Fields: map[string]*types.Value{},
-	})
+	}, nil, []*types.Value{})
 	require.NoError(t, err)
 	e.On("Execute", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Once().Return(nil, fmt.Errorf("error"))
 	err = o.processTask(&process.Process_Node_Task{
@@ -257,9 +249,7 @@ func TestProcessTask(t *testing.T) {
 		Hash: hash.Int(2),
 	}, nil, &event.Event{
 		Hash: hash.Int(3),
-	}, &types.Struct{
-		Fields: map[string]*types.Value{},
-	})
+	}, []*types.Value{})
 	require.Error(t, err)
 }
 

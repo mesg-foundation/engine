@@ -25,12 +25,10 @@ func testExecution(t *testing.T) {
 	resp, err := client.ExecutionClient.Create(ctx, &pb.CreateExecutionRequest{
 		InstanceHash: testInstanceHash,
 		TaskKey:      "ping",
-		Inputs: &types.Struct{
-			Fields: map[string]*types.Value{
-				"msg": {
-					Kind: &types.Value_StringValue{
-						StringValue: "test",
-					},
+		Inputs: []*types.Value{
+			{
+				Kind: &types.Value_StringValue{
+					StringValue: "test",
 				},
 			},
 		},

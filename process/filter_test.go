@@ -11,7 +11,7 @@ func TestMatch(t *testing.T) {
 	var tests = []struct {
 		name   string
 		filter Process_Node_Filter
-		data   *types.Struct
+		data   []*types.Value
 		match  bool
 	}{
 		{
@@ -19,18 +19,16 @@ func TestMatch(t *testing.T) {
 			filter: Process_Node_Filter{
 				Conditions: []Process_Node_Filter_Condition{
 					{
-						Key:       "foo",
+						Index:     0,
 						Predicate: Process_Node_Filter_Condition_EQ,
 						Value:     "xx",
 					},
 				},
 			},
-			data: &types.Struct{
-				Fields: map[string]*types.Value{
-					"foo": {
-						Kind: &types.Value_StringValue{
-							StringValue: "bar",
-						},
+			data: []*types.Value{
+				{
+					Kind: &types.Value_StringValue{
+						StringValue: "bar",
 					},
 				},
 			},
@@ -41,33 +39,31 @@ func TestMatch(t *testing.T) {
 			filter: Process_Node_Filter{
 				Conditions: []Process_Node_Filter_Condition{
 					{
-						Key:       "foo",
+						Index:     0,
 						Predicate: Process_Node_Filter_Condition_EQ,
 						Value:     "bar",
 					},
 					{
-						Key:       "xxx",
+						Index:     1,
 						Predicate: Process_Node_Filter_Condition_EQ,
 						Value:     "yyy",
 					},
 				},
 			},
-			data: &types.Struct{
-				Fields: map[string]*types.Value{
-					"foo": {
-						Kind: &types.Value_StringValue{
-							StringValue: "bar",
-						},
+			data: []*types.Value{
+				{
+					Kind: &types.Value_StringValue{
+						StringValue: "bar",
 					},
-					"xxx": {
-						Kind: &types.Value_StringValue{
-							StringValue: "yyy",
-						},
+				},
+				{
+					Kind: &types.Value_StringValue{
+						StringValue: "yyy",
 					},
-					"aaa": {
-						Kind: &types.Value_StringValue{
-							StringValue: "bbb",
-						},
+				},
+				{
+					Kind: &types.Value_StringValue{
+						StringValue: "bbb",
 					},
 				},
 			},
@@ -78,33 +74,31 @@ func TestMatch(t *testing.T) {
 			filter: Process_Node_Filter{
 				Conditions: []Process_Node_Filter_Condition{
 					{
-						Key:       "foo",
+						Index:     0,
 						Predicate: Process_Node_Filter_Condition_EQ,
 						Value:     "bar",
 					},
 					{
-						Key:       "xxx",
+						Index:     1,
 						Predicate: Process_Node_Filter_Condition_EQ,
 						Value:     "aaa",
 					},
 				},
 			},
-			data: &types.Struct{
-				Fields: map[string]*types.Value{
-					"foo": {
-						Kind: &types.Value_StringValue{
-							StringValue: "bar",
-						},
+			data: []*types.Value{
+				{
+					Kind: &types.Value_StringValue{
+						StringValue: "bar",
 					},
-					"xxx": {
-						Kind: &types.Value_StringValue{
-							StringValue: "yyy",
-						},
+				},
+				{
+					Kind: &types.Value_StringValue{
+						StringValue: "yyy",
 					},
-					"aaa": {
-						Kind: &types.Value_StringValue{
-							StringValue: "bbb",
-						},
+				},
+				{
+					Kind: &types.Value_StringValue{
+						StringValue: "bbb",
 					},
 				},
 			},

@@ -174,9 +174,8 @@ func TestValidateProcess(t *testing.T) {
 					Key: "mapping",
 					Outputs: []*Process_Node_Map_Output{
 						{
-							Key: "-",
 							Value: &Process_Node_Map_Output_Ref{
-								Ref: &Process_Node_Map_Output_Reference{Key: "-", NodeKey: "invalid"},
+								Ref: &Process_Node_Map_Output_Reference{OutputIndex: 0, NodeKey: "invalid"},
 							},
 						},
 					},
@@ -191,9 +190,8 @@ func TestValidateProcess(t *testing.T) {
 					Key: "mapping",
 					Outputs: []*Process_Node_Map_Output{
 						{
-							Key: "-",
 							Value: &Process_Node_Map_Output_Ref{
-								Ref: &Process_Node_Map_Output_Reference{Key: "-", NodeKey: "nodeKey1"},
+								Ref: &Process_Node_Map_Output_Reference{OutputIndex: 0, NodeKey: "nodeKey1"},
 							},
 						},
 					},
