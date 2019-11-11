@@ -57,7 +57,7 @@ message CreateEventRequest {
   string key = 2;
 
   // data is the data for the event.
-  mesg.protobuf.Struct data = 3;
+  repeated mesg.protobuf.Value data = 3;
 }
 
 // CreateEventResponse defines response for execution update.

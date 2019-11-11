@@ -30,7 +30,7 @@ message Event {
   ];
 
   // data is the data for the event.
-  mesg.protobuf.Struct data = 4 [
+  repeated mesg.protobuf.Value data = 4 [
     (gogoproto.moretags) = 'hash:"name:4"'
   ];
 }

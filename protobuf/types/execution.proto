@@ -72,12 +72,12 @@ message Execution {
   ];
 
   // inputs data of the execution.
-  mesg.protobuf.Struct inputs = 7 [
+  repeated mesg.protobuf.Value inputs = 7 [
     (gogoproto.moretags) = 'hash:"name:7"'
   ];
 
   // outputs are the returned data of successful execution.
-  mesg.protobuf.Struct outputs = 8 [
+  repeated mesg.protobuf.Value outputs = 8 [
     (gogoproto.moretags) = 'hash:"-"'
   ];
 

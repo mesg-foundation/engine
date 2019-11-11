@@ -35,7 +35,7 @@ message CreateExecutionRequest {
     (gogoproto.nullable) = false
   ];
   string taskKey = 2;
-  mesg.protobuf.Struct inputs = 3;
+  repeated mesg.protobuf.Value inputs = 3;
   repeated string tags = 4;
 }
 
@@ -92,7 +92,7 @@ message UpdateExecutionRequest {
   // result pass to execution
   oneof result {
     // outputs is a success result.
-    mesg.protobuf.Struct outputs = 2;
+    mesg.protobuf.ListValue outputs = 2;
 
     // error is an error result.
     string error = 3;

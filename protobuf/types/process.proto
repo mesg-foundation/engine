@@ -78,16 +78,11 @@ message Process {
             (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
           ];
 
-          // Key of a specific parameter of the referenced node's output data.
-          string key = 2 [
-            (gogoproto.moretags) = 'hash:"name:2" validate:"required"'
+          // Index of a specific parameter of the referenced node's output data.
+          uint32 outputIndex = 2 [
+            (gogoproto.moretags) = 'hash:"name:2"'
           ];
         }
-
-        // Key of the output.
-        string key = 1 [
-          (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
-        ];
 
         oneof value {
           // Input defined as reference.
@@ -100,7 +95,7 @@ message Process {
         }
       }
 
-      // Key of the mapping.
+      // Key of this mapping node.
       string key = 1 [
         (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
       ];
@@ -122,9 +117,9 @@ message Process {
           EQ = 1;
         }
 
-        // Key to check.
-        string key = 1 [
-          (gogoproto.moretags) = 'hash:"name:1" validate:"required,printascii"'
+        // Index of a specific parameter of the previous node's output data.
+        uint32 index = 1 [
+          (gogoproto.moretags) = 'hash:"name:1"'
         ];
 
         // Type of condition to apply.
