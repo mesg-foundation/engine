@@ -97,7 +97,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		log.Printf("recive exeuction %s %s\n", exec.TaskKey, exec.Hash)
+		log.Printf("receive execution %s %s\n", exec.TaskKey, exec.Hash)
 
 		req := &pb.UpdateExecutionRequest{
 			Hash: exec.Hash,
@@ -105,11 +105,11 @@ func main() {
 
 		if exec.TaskKey == "ping" {
 			req.Result = &pb.UpdateExecutionRequest_Outputs{
-				Outputs: &types.Struct{
-					Fields: map[string]*types.Value{
-						"pong": &types.Value{
+				Outputs: &types.ListValue{
+					Values: []*types.Value{
+						{
 							Kind: &types.Value_StringValue{
-								StringValue: exec.Inputs.Fields["msg"].GetStringValue(),
+								StringValue: exec.Inputs[0].GetStringValue(),
 							},
 						},
 					},
@@ -117,11 +117,11 @@ func main() {
 			}
 		} else if exec.TaskKey == "add" {
 			req.Result = &pb.UpdateExecutionRequest_Outputs{
-				Outputs: &types.Struct{
-					Fields: map[string]*types.Value{
-						"res": &types.Value{
+				Outputs: &types.ListValue{
+					Values: []*types.Value{
+						{
 							Kind: &types.Value_NumberValue{
-								NumberValue: exec.Inputs.Fields["n"].GetNumberValue() + exec.Inputs.Fields["m"].GetNumberValue(),
+								NumberValue: exec.Inputs[0].GetNumberValue() + exec.Inputs[1].GetNumberValue(),
 							},
 						},
 					},
@@ -138,12 +138,10 @@ func main() {
 		if _, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
 			InstanceHash: exec.InstanceHash,
 			Key:          exec.TaskKey + "_ok",
-			Data: &types.Struct{
-				Fields: map[string]*types.Value{
-					"msg": &types.Value{
-						Kind: &types.Value_StringValue{
-							StringValue: exec.TaskKey,
-						},
+			Data: []*types.Value{
+				{
+					Kind: &types.Value_StringValue{
+						StringValue: exec.TaskKey,
 					},
 				},
 			},
