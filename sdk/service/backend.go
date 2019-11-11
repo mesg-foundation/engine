@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
-	"github.com/gogo/protobuf/proto"
 	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/hash"
@@ -66,7 +65,7 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 		return s.List(request)
 	case "hash":
 		var createServiceRequest api.CreateServiceRequest
-		if err := proto.Unmarshal(req.Data, &createServiceRequest); err != nil {
+		if err := codec.UnmarshalJSON(req.Data, &createServiceRequest); err != nil {
 			return nil, err
 		}
 		return s.Hash(&createServiceRequest), nil
