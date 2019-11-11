@@ -6,7 +6,7 @@ import (
 )
 
 // New returns a new execution. It returns an error if inputs are invalid.
-func New(processHash, instanceHash, parentHash, eventHash hash.Hash, stepID string, taskKey string, inputs *types.Struct, tags []string) *Execution {
+func New(processHash, instanceHash, parentHash, eventHash hash.Hash, stepID string, taskKey string, inputs []*types.Value, tags []string) *Execution {
 	exec := &Execution{
 		ProcessHash:  processHash,
 		EventHash:    eventHash,
@@ -37,7 +37,7 @@ func (execution *Execution) Execute() error {
 
 // Complete changes execution status to completed. It verifies the output.
 // It returns an error if the status is different then InProgress or verification fails.
-func (execution *Execution) Complete(outputs *types.Struct) error {
+func (execution *Execution) Complete(outputs []*types.Value) error {
 	if execution.Status != Status_InProgress {
 		return StatusError{
 			ExpectedStatus: Status_InProgress,

@@ -6,7 +6,7 @@ import (
 )
 
 // Create creates an event eventKey with eventData for service s.
-func Create(instanceHash hash.Hash, eventKey string, eventData *types.Struct) *Event {
+func Create(instanceHash hash.Hash, eventKey string, eventData []*types.Value) *Event {
 	e := &Event{
 		InstanceHash: instanceHash,
 		Key:          eventKey,

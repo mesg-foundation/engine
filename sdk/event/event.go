@@ -31,7 +31,7 @@ func New(ps *pubsub.PubSub, service *servicesdk.SDK, instance *instancesdk.SDK) 
 }
 
 // Create a MESG event eventKey with eventData for service token.
-func (e *Event) Create(instanceHash hash.Hash, eventKey string, eventData *types.Struct) (*event.Event, error) {
+func (e *Event) Create(instanceHash hash.Hash, eventKey string, eventData []*types.Value) (*event.Event, error) {
 	event := event.Create(instanceHash, eventKey, eventData)
 
 	instance, err := e.instance.Get(event.InstanceHash)

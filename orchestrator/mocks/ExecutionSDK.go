@@ -15,11 +15,11 @@ type ExecutionSDK struct {
 }
 
 // Execute provides a mock function with given fields: processHash, instanceHash, eventHash, parentHash, stepID, taskKey, inputData, tags
-func (_m *ExecutionSDK) Execute(processHash hash.Hash, instanceHash hash.Hash, eventHash hash.Hash, parentHash hash.Hash, stepID string, taskKey string, inputData *types.Struct, tags []string) (hash.Hash, error) {
+func (_m *ExecutionSDK) Execute(processHash hash.Hash, instanceHash hash.Hash, eventHash hash.Hash, parentHash hash.Hash, stepID string, taskKey string, inputData []*types.Value, tags []string) (hash.Hash, error) {
 	ret := _m.Called(processHash, instanceHash, eventHash, parentHash, stepID, taskKey, inputData, tags)
 
 	var r0 hash.Hash
-	if rf, ok := ret.Get(0).(func(hash.Hash, hash.Hash, hash.Hash, hash.Hash, string, string, *types.Struct, []string) hash.Hash); ok {
+	if rf, ok := ret.Get(0).(func(hash.Hash, hash.Hash, hash.Hash, hash.Hash, string, string, []*types.Value, []string) hash.Hash); ok {
 		r0 = rf(processHash, instanceHash, eventHash, parentHash, stepID, taskKey, inputData, tags)
 	} else {
 		if ret.Get(0) != nil {
@@ -28,7 +28,7 @@ func (_m *ExecutionSDK) Execute(processHash hash.Hash, instanceHash hash.Hash, e
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(hash.Hash, hash.Hash, hash.Hash, hash.Hash, string, string, *types.Struct, []string) error); ok {
+	if rf, ok := ret.Get(1).(func(hash.Hash, hash.Hash, hash.Hash, hash.Hash, string, string, []*types.Value, []string) error); ok {
 		r1 = rf(processHash, instanceHash, eventHash, parentHash, stepID, taskKey, inputData, tags)
 	} else {
 		r1 = ret.Error(1)

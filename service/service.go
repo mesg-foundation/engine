@@ -40,7 +40,7 @@ func (s *Service) GetEvent(eventKey string) (*Service_Event, error) {
 }
 
 // RequireTaskInputs requires task inputs to match with parameter schemas.
-func (s *Service) RequireTaskInputs(taskKey string, inputs *types.Struct) error {
+func (s *Service) RequireTaskInputs(taskKey string, inputs []*types.Value) error {
 	t, err := s.GetTask(taskKey)
 	if err != nil {
 		return err
@@ -52,7 +52,7 @@ func (s *Service) RequireTaskInputs(taskKey string, inputs *types.Struct) error 
 }
 
 // RequireTaskOutputs requires task outputs to match with parameter schemas.
-func (s *Service) RequireTaskOutputs(taskKey string, outputs *types.Struct) error {
+func (s *Service) RequireTaskOutputs(taskKey string, outputs []*types.Value) error {
 	t, err := s.GetTask(taskKey)
 	if err != nil {
 		return err
@@ -64,7 +64,7 @@ func (s *Service) RequireTaskOutputs(taskKey string, outputs *types.Struct) erro
 }
 
 // RequireEventData requires event datas to be matched with parameter schemas.
-func (s *Service) RequireEventData(eventKey string, data *types.Struct) error {
+func (s *Service) RequireEventData(eventKey string, data []*types.Value) error {
 	e, err := s.GetEvent(eventKey)
 	if err != nil {
 		return err

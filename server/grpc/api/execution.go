@@ -81,7 +81,7 @@ func (s *ExecutionServer) Update(ctx context.Context, req *api.UpdateExecutionRe
 	var err error
 	switch res := req.Result.(type) {
 	case *api.UpdateExecutionRequest_Outputs:
-		err = s.sdk.Execution.Update(req.Hash, res.Outputs, nil)
+		err = s.sdk.Execution.Update(req.Hash, res.Outputs.Values, nil)
 	case *api.UpdateExecutionRequest_Error:
 		err = s.sdk.Execution.Update(req.Hash, nil, errors.New(res.Error))
 	default:

@@ -8,25 +8,29 @@ import (
 )
 
 // validateServiceParameters validates data to see if it matches with parameters schema.
-func validateServiceParameters(parameters []*Service_Parameter, data *types.Struct) error {
+func validateServiceParameters(parameters []*Service_Parameter, data []*types.Value) error {
 	var errs xerrors.Errors
-
-	for _, p := range parameters {
+	for i, p := range parameters {
 		var value *types.Value
-		if data != nil && data.Fields != nil {
-			value = data.Fields[p.Key]
+		if data != nil && i < len(data) {
+			value = data[i]
 		}
 		if err := p.Validate(value); err != nil {
 			errs = append(errs, err)
 		}
 	}
-
 	return errs.ErrorOrNil()
 }
 
 // Validate checks if service parameter hash proper types for arrays and objects.
 func (p *Service_Parameter) Validate(value *types.Value) error {
+	isNilOrNullValue := false
 	if value == nil {
+		isNilOrNullValue = true
+	} else {
+		_, isNilOrNullValue = value.GetKind().(*types.Value_NullValue)
+	}
+	if isNilOrNullValue {
 		if p.Optional {
 			return nil
 		}
@@ -65,11 +69,13 @@ func (p *Service_Parameter) validateType(value *types.Value) error {
 			return fmt.Errorf("value of %q is not a boolean", p.Key)
 		}
 	case "Object":
-		obj, ok := value.GetKind().(*types.Value_StructValue)
+		_, ok := value.GetKind().(*types.Value_ListValue)
 		if !ok {
 			return fmt.Errorf("value of %q is not an object", p.Key)
 		}
-		return validateServiceParameters(p.Object, obj.StructValue)
+		// TODO: to fix
+		// return validateServiceParameters(p.Object, obj.ListValue)
+		return nil
 	case "Any":
 		return nil
 	default:

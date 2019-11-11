@@ -86,7 +86,7 @@ func (s *Orchestrator) findNodes(wf *process.Process, filter func(wf *process.Pr
 	})
 }
 
-func (s *Orchestrator) execute(filter func(wf *process.Process, node *process.Process_Node) (bool, error), exec *execution.Execution, event *event.Event, data *types.Struct) {
+func (s *Orchestrator) execute(filter func(wf *process.Process, node *process.Process_Node) (bool, error), exec *execution.Execution, event *event.Event, data []*types.Value) {
 	processes, err := s.process.List()
 	if err != nil {
 		s.ErrC <- err
@@ -101,7 +101,7 @@ func (s *Orchestrator) execute(filter func(wf *process.Process, node *process.Pr
 	}
 }
 
-func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node, exec *execution.Execution, event *event.Event, data *types.Struct) error {
+func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node, exec *execution.Execution, event *event.Event, data []*types.Value) error {
 	logrus.WithField("module", "orchestrator").
 		WithField("nodeID", n.ID()).
 		WithField("type", fmt.Sprintf("%T", n)).Debug("process process")
@@ -136,34 +136,31 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 	return nil
 }
 
-func (s *Orchestrator) processMap(mapping *process.Process_Node_Map, wf *process.Process, exec *execution.Execution, data *types.Struct) (*types.Struct, error) {
-	result := &types.Struct{
-		Fields: make(map[string]*types.Value),
-	}
+func (s *Orchestrator) processMap(mapping *process.Process_Node_Map, wf *process.Process, exec *execution.Execution, data []*types.Value) ([]*types.Value, error) {
+	result := make([]*types.Value, 0)
 	for _, output := range mapping.Outputs {
 		if ref := output.GetRef(); ref != nil {
 			node, err := wf.FindNode(ref.NodeKey)
 			if err != nil {
 				return nil, err
 			}
-
 			if node.GetTask() != nil {
-				value, err := s.resolveInput(wf.Hash, exec, ref.NodeKey, ref.Key)
+				value, err := s.resolveInput(wf.Hash, exec, ref.NodeKey, ref.OutputIndex)
 				if err != nil {
 					return nil, err
 				}
-				result.Fields[output.Key] = value
+				result = append(result, value)
 			} else {
-				result.Fields[output.Key] = data.Fields[ref.Key]
+				result = append(result, data[ref.OutputIndex])
 			}
 		} else if constant := output.GetConstant(); constant != nil {
-			result.Fields[output.Key] = constant
+			result = append(result, constant)
 		}
 	}
 	return result, nil
 }
 
-func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution, nodeKey string, outputKey string) (*types.Value, error) {
+func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution, nodeKey string, outputIndex uint32) (*types.Value, error) {
 	if !wfHash.Equal(exec.ProcessHash) {
 		return nil, fmt.Errorf("reference's nodeKey not found")
 	}
@@ -172,22 +169,19 @@ func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution,
 		if err != nil {
 			return nil, err
 		}
-		return s.resolveInput(wfHash, parent, nodeKey, outputKey)
+		return s.resolveInput(wfHash, parent, nodeKey, outputIndex)
 	}
-
-	return exec.Outputs.Fields[outputKey], nil
+	return exec.Outputs[outputIndex], nil
 }
 
-func (s *Orchestrator) processTask(task *process.Process_Node_Task, wf *process.Process, exec *execution.Execution, event *event.Event, data *types.Struct) error {
+func (s *Orchestrator) processTask(task *process.Process_Node_Task, wf *process.Process, exec *execution.Execution, event *event.Event, data []*types.Value) error {
 	var eventHash, execHash hash.Hash
-
 	if event != nil {
 		eventHash = event.Hash
 	}
 	if exec != nil {
 		execHash = exec.Hash
 	}
-
 	_, err := s.execution.Execute(wf.Hash, task.InstanceHash, eventHash, execHash, task.Key, task.TaskKey, data, nil)
 	return err
 }

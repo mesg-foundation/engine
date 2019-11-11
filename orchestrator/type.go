@@ -13,7 +13,7 @@ import (
 type ExecutionSDK interface {
 	GetStream(f *executionsdk.Filter) *executionsdk.Listener
 	Get(hash hash.Hash) (*execution.Execution, error)
-	Execute(processHash, instanceHash, eventHash, parentHash hash.Hash, stepID string, taskKey string, inputData *types.Struct, tags []string) (executionHash hash.Hash, err error)
+	Execute(processHash, instanceHash, eventHash, parentHash hash.Hash, stepID string, taskKey string, inputData []*types.Value, tags []string) (executionHash hash.Hash, err error)
 }
 
 // EventSDK event interface needed for the orchestrator

@@ -52,7 +52,7 @@ func (e *Execution) GetStream(f *Filter) *Listener {
 }
 
 // Update updates execution that matches given hash.
-func (e *Execution) Update(executionHash hash.Hash, outputs *types.Struct, reterr error) error {
+func (e *Execution) Update(executionHash hash.Hash, outputs []*types.Value, reterr error) error {
 	exec, err := e.processExecution(executionHash, outputs, reterr)
 	if err != nil {
 		return err
@@ -64,7 +64,7 @@ func (e *Execution) Update(executionHash hash.Hash, outputs *types.Struct, reter
 }
 
 // processExecution processes execution and marks it as complated or failed.
-func (e *Execution) processExecution(executionHash hash.Hash, outputs *types.Struct, reterr error) (*execution.Execution, error) {
+func (e *Execution) processExecution(executionHash hash.Hash, outputs []*types.Value, reterr error) (*execution.Execution, error) {
 	tx, err := e.execDB.OpenTransaction()
 	if err != nil {
 		return nil, err
@@ -107,7 +107,7 @@ func (e *Execution) processExecution(executionHash hash.Hash, outputs *types.Str
 	return exec, nil
 }
 
-func (e *Execution) validateExecutionOutput(instanceHash hash.Hash, taskKey string, outputs *types.Struct) error {
+func (e *Execution) validateExecutionOutput(instanceHash hash.Hash, taskKey string, outputs []*types.Value) error {
 	i, err := e.instance.Get(instanceHash)
 	if err != nil {
 		return err
@@ -122,7 +122,7 @@ func (e *Execution) validateExecutionOutput(instanceHash hash.Hash, taskKey stri
 }
 
 // Execute executes a task tasKey with inputData and tags for service serviceID.
-func (e *Execution) Execute(processHash, instanceHash, eventHash, parentHash hash.Hash, stepID string, taskKey string, inputData *types.Struct, tags []string) (executionHash hash.Hash, err error) {
+func (e *Execution) Execute(processHash, instanceHash, eventHash, parentHash hash.Hash, stepID string, taskKey string, inputData []*types.Value, tags []string) (executionHash hash.Hash, err error) {
 	if parentHash != nil && eventHash != nil {
 		return nil, fmt.Errorf("cannot have both parent and event hash")
 	}
