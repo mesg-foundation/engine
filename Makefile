@@ -70,7 +70,7 @@ changelog:
 	./scripts/changelog.sh $(milestone)
 
 clean-build:
-	- rm -rf bin/*
+	- rm -rf bin
 
 clean-docker:
 	- docker image rm \
