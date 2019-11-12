@@ -79,7 +79,7 @@ func TestValidate(t *testing.T) {
 			data: []*types.Value{
 				{
 					Kind: &types.Value_ListValue{
-						ListValue: &types.ListValue{
+						ListValue: &types.Value_List{
 							Values: []*types.Value{
 								{
 									Kind: &types.Value_NumberValue{},
