@@ -81,7 +81,11 @@ func (s *ExecutionServer) Update(ctx context.Context, req *api.UpdateExecutionRe
 	if err := req.GetError(); err != nil {
 		return nil, s.sdk.Execution.Update(req.Hash, nil, errors.New(err.GetMessage()))
 	}
-	err := s.sdk.Execution.Update(req.Hash, req.GetOutputs(), nil)
+	outputs := req.GetOutputs()
+	if outputs == nil {
+		return nil, ErrNoOutput
+	}
+	err := s.sdk.Execution.Update(req.Hash, outputs, nil)
 	if err != nil {
 		return nil, err
 	}
