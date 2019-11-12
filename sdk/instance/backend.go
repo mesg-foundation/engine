@@ -109,7 +109,7 @@ func (s *Backend) List(request cosmostypes.Request, f *api.ListInstanceRequest_F
 		if err := codec.UnmarshalBinaryBare(iter.Value(), &i); err != nil {
 			return nil, err
 		}
-		if f == nil || (f != nil && (f.ServiceHash.IsZero() || i.ServiceHash.Equal(f.ServiceHash))) {
+		if f == nil || f.ServiceHash.IsZero() || i.ServiceHash.Equal(f.ServiceHash) {
 			instances = append(instances, i)
 		}
 		iter.Next()
