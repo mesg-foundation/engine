@@ -33,16 +33,20 @@ func NewClient(node *node.Node, kb keys.Keybase, chainID string) *Client {
 }
 
 // Query is abci.query wrapper with errors check and decode data.
-func (c *Client) Query(path string, data, ptr interface{}) error {
-	b, err := codec.MarshalJSON(data)
-	if err != nil {
-		return nil
+func (c *Client) Query(path string, qdata, ptr interface{}) error {
+	var data []byte
+	if qdata != nil {
+		b, err := codec.MarshalBinaryBare(qdata)
+		if err != nil {
+			return err
+		}
+		data = b
 	}
-	result, _, err := c.QueryWithData(path, b)
+	result, _, err := c.QueryWithData(path, data)
 	if err != nil {
 		return err
 	}
-	return codec.UnmarshalJSON(result, ptr)
+	return codec.UnmarshalBinaryBare(result, ptr)
 }
 
 // QueryWithData performs a query to a Tendermint node with the provided path

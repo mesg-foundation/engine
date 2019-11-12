@@ -65,7 +65,7 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 		return s.List(request)
 	case "hash":
 		var createServiceRequest api.CreateServiceRequest
-		if err := codec.UnmarshalJSON(req.Data, &createServiceRequest); err != nil {
+		if err := codec.UnmarshalBinaryBare(req.Data, &createServiceRequest); err != nil {
 			return nil, err
 		}
 		return s.Hash(&createServiceRequest), nil

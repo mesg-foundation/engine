@@ -29,7 +29,6 @@ func NewBackend(appFactory *cosmos.AppFactory) *Backend {
 	appBackend := cosmos.NewAppModule(appBackendBasic, backend.handler, backend.querier)
 	appFactory.RegisterModule(appBackend)
 	appFactory.RegisterStoreKey(backend.storeKey)
-
 	return backend
 }
 
@@ -48,7 +47,7 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 		return s.Get(request, hash)
 	case "list":
 		var f api.ListInstanceRequest_Filter
-		if err := codec.UnmarshalJSON(req.Data, &f); err != nil {
+		if err := codec.UnmarshalBinaryBare(req.Data, &f); err != nil {
 			return nil, err
 		}
 
