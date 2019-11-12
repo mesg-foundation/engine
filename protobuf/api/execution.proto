@@ -83,20 +83,21 @@ message StreamExecutionRequest{
 
 // UpdateExecutionRequest defines request for execution update.
 message UpdateExecutionRequest {
+  message Error {
+    string message = 1;
+  }
+
   // Hash represents execution.
   bytes hash = 1 [
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
 
-  // result pass to execution
-  oneof result {
-    // outputs is a success result.
-    mesg.protobuf.ListValue outputs = 2;
-
-    // error is an error result.
-    string error = 3;
-  }
+  // outputs is a success result.
+  repeated mesg.protobuf.Value outputs = 2;
+  
+  // error is an error result.
+  Error error = 3;
 }
 
 // UpdateExecutionResponse defines response for execution update.
