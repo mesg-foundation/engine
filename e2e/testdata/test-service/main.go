@@ -104,31 +104,23 @@ func main() {
 		}
 
 		if exec.TaskKey == "ping" {
-			req.Result = &pb.UpdateExecutionRequest_Outputs{
-				Outputs: &types.ListValue{
-					Values: []*types.Value{
-						{
-							Kind: &types.Value_StringValue{
-								StringValue: exec.Inputs[0].GetStringValue(),
-							},
-						},
+			req.Outputs = []*types.Value{
+				{
+					Kind: &types.Value_StringValue{
+						StringValue: exec.Inputs[0].GetStringValue(),
 					},
 				},
 			}
 		} else if exec.TaskKey == "add" {
-			req.Result = &pb.UpdateExecutionRequest_Outputs{
-				Outputs: &types.ListValue{
-					Values: []*types.Value{
-						{
-							Kind: &types.Value_NumberValue{
-								NumberValue: exec.Inputs[0].GetNumberValue() + exec.Inputs[1].GetNumberValue(),
-							},
-						},
+			req.Outputs = []*types.Value{
+				{
+					Kind: &types.Value_NumberValue{
+						NumberValue: exec.Inputs[0].GetNumberValue() + exec.Inputs[1].GetNumberValue(),
 					},
 				},
 			}
 		} else if exec.TaskKey == "error" {
-			req.Result = &pb.UpdateExecutionRequest_Error{Error: "error"}
+			req.Error = &pb.UpdateExecutionRequest_Error{Message: "error"}
 		}
 
 		if _, err := client.ExecutionClient.Update(context.Background(), req); err != nil {

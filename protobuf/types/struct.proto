@@ -45,10 +45,29 @@ option (gogoproto.equal_all) = true;
 //
 // The JSON representation for `Value` is JSON value.
 message Value {
+  // `Null` is a singleton enumeration to represent the null value for the
+  // `Value` type union.
+  //
+  //  The JSON representation for `Null` is JSON `null`.
+  enum Null {
+    // Null value.
+    NULL_VALUE = 0;
+  }
+
+  // `List` is a wrapper around a repeated field of values.
+  //
+  // The JSON representation for `List` is JSON array.
+  message List {
+    // Repeated field of dynamically typed values.
+    repeated Value values = 1 [
+      (gogoproto.moretags) = 'hash:"name:1"'
+    ];
+  }
+
   // The kind of value.
   oneof kind {
     // Represents a null value.
-    NullValue null_value = 1 [
+    Null null_value = 1 [
       (gogoproto.moretags) = 'hash:"name:1"'
     ];
     // Represents a double value.
@@ -64,27 +83,8 @@ message Value {
       (gogoproto.moretags) = 'hash:"name:4"'
     ];
     // Represents a repeated `Value`.
-    ListValue list_value = 6 [
+    List list_value = 6 [
       (gogoproto.moretags) = 'hash:"name:6"'
     ];
   }
-}
-
-// `NullValue` is a singleton enumeration to represent the null value for the
-// `Value` type union.
-//
-//  The JSON representation for `NullValue` is JSON `null`.
-enum NullValue {
-  // Null value.
-  NULL_VALUE = 0;
-}
-
-// `ListValue` is a wrapper around a repeated field of values.
-//
-// The JSON representation for `ListValue` is JSON array.
-message ListValue {
-  // Repeated field of dynamically typed values.
-  repeated Value values = 1 [
-    (gogoproto.moretags) = 'hash:"name:1"'
-  ];
 }

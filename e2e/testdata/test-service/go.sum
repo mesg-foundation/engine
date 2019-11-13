@@ -146,6 +146,8 @@ github.com/mattn/go-isatty v0.0.8/go.mod h1:Iq45c/XA43vh69/j3iqttzPXn0bhXyGjM0Hd
 github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5Ld7szi9bcBfOoFv/3dc6xSMkL2PC0=
 github.com/mesg-foundation/engine v0.15.1-0.20191111114401-bc8476528ea0 h1:v2ZOxPYBky3BN2Rk7Y202ig7braP3mJxhmUbU+RTBG8=
 github.com/mesg-foundation/engine v0.15.1-0.20191111114401-bc8476528ea0/go.mod h1:PKdZsf3GqJrgX5+E4/+DII3fVu/SrQDOaJmESl4jfWQ=
+github.com/mesg-foundation/engine v0.15.1-0.20191112090725-01d665f90198 h1:2qcAOnrHkblJHGq3tmvOm949ZchTfmU8NYKWy4ROG6c=
+github.com/mesg-foundation/engine v0.15.1-0.20191112090725-01d665f90198/go.mod h1:PKdZsf3GqJrgX5+E4/+DII3fVu/SrQDOaJmESl4jfWQ=
 github.com/mitchellh/go-homedir v1.1.0/go.mod h1:SfyaCUpYCn1Vlf4IUYiD9fPX4A5wJrkLzIz1N1q0pr0=
 github.com/mitchellh/mapstructure v1.1.2/go.mod h1:FVVH3fgwuzCH5S8UJGiWEs2h04kUh9fWfEaFds41c1Y=
 github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421/go.mod h1:6dJC0mAP4ikYIbvyc7fijjWJddQyLn8Ig3JB5CqoB9Q=

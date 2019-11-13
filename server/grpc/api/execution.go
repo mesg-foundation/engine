@@ -78,16 +78,14 @@ func (s *ExecutionServer) Stream(req *api.StreamExecutionRequest, resp api.Execu
 
 // Update updates execution from given hash.
 func (s *ExecutionServer) Update(ctx context.Context, req *api.UpdateExecutionRequest) (*api.UpdateExecutionResponse, error) {
-	var err error
-	switch res := req.Result.(type) {
-	case *api.UpdateExecutionRequest_Outputs:
-		err = s.sdk.Execution.Update(req.Hash, res.Outputs.Values, nil)
-	case *api.UpdateExecutionRequest_Error:
-		err = s.sdk.Execution.Update(req.Hash, nil, errors.New(res.Error))
-	default:
-		err = ErrNoOutput
+	if err := req.GetError(); err != nil {
+		return nil, s.sdk.Execution.Update(req.Hash, nil, errors.New(err.GetMessage()))
 	}
-
+	outputs := req.GetOutputs()
+	if outputs == nil {
+		return nil, ErrNoOutput
+	}
+	err := s.sdk.Execution.Update(req.Hash, outputs, nil)
 	if err != nil {
 		return nil, err
 	}
