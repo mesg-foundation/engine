@@ -1,0 +1,32 @@
+name: test-complex-service
+sid: test-complex-service
+
+configuration:
+  env:
+    - FOO
+  volumesFrom:
+    - busybox
+
+dependencies:
+  busybox:
+    image: busybox
+    volumes:
+      - /tmp
+
+tasks:
+  foo:
+    inputs:
+      o:
+        type: Object
+        object:
+          msg:
+            type: String
+
+events:
+  foo:
+    data:
+      o:
+        type: Object
+        object:
+          msg:
+            type: String

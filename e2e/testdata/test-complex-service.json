@@ -1,0 +1,59 @@
+{
+  "sid": "test-complex-service",
+  "name": "test-complex-service",
+  "configuration": {
+    "env": [
+      "FOO"
+    ],
+    "volumesFrom": [
+      "busybox"
+    ]
+  },
+  "dependencies": [
+    {
+      "image": "busybox",
+      "volumes": [
+        "/tmp"
+      ],
+      "key": "busybox"
+    }
+  ],
+  "tasks": [
+    {
+      "key": "foo",
+      "inputs": [
+        {
+          "key": "o",
+          "type": "Object",
+          "object": [
+            {
+              "key": "msg",
+              "type": "String",
+              "object": []
+            }
+          ]
+        }
+      ],
+      "outputs": []
+    }
+  ],
+  "events": [
+    {
+      "key": "foo",
+      "data": [
+        {
+          "key": "o",
+          "type": "Object",
+          "object": [
+            {
+              "key": "msg",
+              "type": "String",
+              "object": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "source": "QmRarLspkiAUL7nQiTfA2DGTusVpY7JUB33Qm9poq56ris"
+}
