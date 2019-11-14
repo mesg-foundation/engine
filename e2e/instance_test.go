@@ -21,14 +21,30 @@ func testInstance(t *testing.T) {
 	})
 
 	t.Run("list", func(t *testing.T) {
-		resp, err := client.InstanceClient.List(context.Background(), &pb.ListInstanceRequest{
-			Filter: &pb.ListInstanceRequest_Filter{
-				ServiceHash: testServiceHash,
-			},
+		t.Run("with nil filter", func(t *testing.T) {
+			resp, err := client.InstanceClient.List(context.Background(), &pb.ListInstanceRequest{})
+			require.NoError(t, err)
+			require.Len(t, resp.Instances, 1)
 		})
-		require.NoError(t, err)
-		require.Len(t, resp.Instances, 1)
-		require.Equal(t, testServiceHash, resp.Instances[0].ServiceHash)
-		require.Equal(t, testInstanceHash, resp.Instances[0].Hash)
+		t.Run("do not match service", func(t *testing.T) {
+			resp, err := client.InstanceClient.List(context.Background(), &pb.ListInstanceRequest{
+				Filter: &pb.ListInstanceRequest_Filter{
+					ServiceHash: hash.Int(1),
+				},
+			})
+			require.NoError(t, err)
+			require.Len(t, resp.Instances, 0)
+		})
+		t.Run("match service", func(t *testing.T) {
+			resp, err := client.InstanceClient.List(context.Background(), &pb.ListInstanceRequest{
+				Filter: &pb.ListInstanceRequest_Filter{
+					ServiceHash: testServiceHash,
+				},
+			})
+			require.NoError(t, err)
+			require.Len(t, resp.Instances, 1)
+			require.Equal(t, testServiceHash, resp.Instances[0].ServiceHash)
+			require.Equal(t, testInstanceHash, resp.Instances[0].Hash)
+		})
 	})
 }

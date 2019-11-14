@@ -33,7 +33,8 @@ else
   echo "$DOCKER_SUM" > "$DOCKER_SUM_PATH"
 fi
 
-if [[ ! $BINCACHED ]] || [[ ! $DOCKERCACHED ]]; then
+IMAGE_EXIST="$(docker image ls mesg/engine:local -q)"
+if [[ ! $BINCACHED ]] || [[ ! $DOCKERCACHED ]] || [[ $IMAGE_EXIST == "" ]]; then
   echo "build mesg/engine image"
   docker build -f Dockerfile.dev -t "mesg/engine:local" .
 fi

@@ -118,7 +118,7 @@ func (m AppModule) NewQuerierHandler() sdk.Querier {
 			}
 			return nil, sdk.ErrInternal(err.Error())
 		}
-		res, err := codec.MarshalJSON(data)
+		res, err := codec.MarshalBinaryBare(data)
 		if err != nil {
 			return nil, sdk.ErrInternal(err.Error())
 		}

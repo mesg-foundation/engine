@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"testing"
-	"time"
 
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/stretchr/testify/require"
@@ -47,9 +46,6 @@ func TestAPI(t *testing.T) {
 		pb.NewOwnershipClient(conn),
 		pb.NewRunnerClient(conn),
 	}
-
-	// wait for the first block
-	time.Sleep(100 * time.Millisecond)
 
 	// ping server to test connection
 	_, err = client.ServiceClient.List(context.Background(), &pb.ListServiceRequest{})

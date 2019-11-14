@@ -2,13 +2,11 @@ package servicesdk
 
 import (
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
-	"github.com/gogo/protobuf/proto"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	accountsdk "github.com/mesg-foundation/engine/sdk/account"
 	"github.com/mesg-foundation/engine/service"
-	cmn "github.com/tendermint/tendermint/libs/common"
 )
 
 // SDK is the service sdk.
@@ -75,11 +73,7 @@ func (s *SDK) Exists(hash hash.Hash) (bool, error) {
 // Hash returns the calculate hash of a service.
 func (s *SDK) Hash(req *api.CreateServiceRequest) (hash.Hash, error) {
 	var h hash.Hash
-	b, err := proto.Marshal(req)
-	if err != nil {
-		return nil, err
-	}
-	if err := s.client.Query("custom/"+backendName+"/hash", cmn.HexBytes(b), &h); err != nil {
+	if err := s.client.Query("custom/"+backendName+"/hash", req, &h); err != nil {
 		return nil, err
 	}
 	return h, nil

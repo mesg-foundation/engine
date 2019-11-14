@@ -4,17 +4,12 @@ import (
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/instance"
+	"github.com/mesg-foundation/engine/protobuf/api"
 )
 
 // SDK is the instance sdk.
 type SDK struct {
 	client *cosmos.Client
-}
-
-// Filter to apply while listing instances.
-type Filter struct {
-	ServiceHash  hash.Hash
-	InstanceHash hash.Hash
 }
 
 // New returns the instance sdk.
@@ -35,26 +30,12 @@ func (s *SDK) Get(hash hash.Hash) (*instance.Instance, error) {
 }
 
 // List returns all instances.
-func (s *SDK) List(f *Filter) ([]*instance.Instance, error) {
+func (s *SDK) List(f *api.ListInstanceRequest_Filter) ([]*instance.Instance, error) {
 	var instances []*instance.Instance
-	if err := s.client.Query("custom/"+backendName+"/list", nil, &instances); err != nil {
+	if err := s.client.Query("custom/"+backendName+"/list", f, &instances); err != nil {
 		return nil, err
 	}
-
-	// no filter, returns
-	if f == nil {
-		return instances, nil
-	}
-
-	// filter results
-	ret := make([]*instance.Instance, 0)
-	for _, instance := range instances {
-		if (f.ServiceHash.IsZero() || instance.ServiceHash.Equal(f.ServiceHash)) &&
-			(f.InstanceHash.IsZero() || instance.Hash.Equal(f.InstanceHash)) {
-			ret = append(ret, instance)
-		}
-	}
-	return ret, nil
+	return instances, nil
 }
 
 // Exists returns if a instance already exists.

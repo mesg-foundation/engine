@@ -10,8 +10,8 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/mesg-foundation/engine/codec"
+	"github.com/mesg-foundation/engine/x/xreflect"
 	abci "github.com/tendermint/tendermint/abci/types"
-	cmn "github.com/tendermint/tendermint/libs/common"
 	"github.com/tendermint/tendermint/node"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
 	tenderminttypes "github.com/tendermint/tendermint/types"
@@ -34,15 +34,35 @@ func NewClient(node *node.Node, kb keys.Keybase, chainID string) *Client {
 }
 
 // Query is abci.query wrapper with errors check and decode data.
-func (c *Client) Query(path string, data cmn.HexBytes, ptr interface{}) error {
-	result, err := c.ABCIQuery(path, data)
+func (c *Client) Query(path string, qdata, ptr interface{}) error {
+	var data []byte
+	if !xreflect.IsNil(qdata) {
+		b, err := codec.MarshalBinaryBare(qdata)
+		if err != nil {
+			return err
+		}
+		data = b
+	}
+	result, _, err := c.QueryWithData(path, data)
 	if err != nil {
 		return err
 	}
-	if !result.Response.IsOK() {
-		return errors.New(result.Response.Log)
+	return codec.UnmarshalBinaryBare(result, ptr)
+}
+
+// QueryWithData performs a query to a Tendermint node with the provided path
+// and a data payload. It returns the result and height of the query upon success
+// or an error if the query fails.
+func (c *Client) QueryWithData(path string, data []byte) ([]byte, int64, error) {
+	result, err := c.ABCIQuery(path, data)
+	if err != nil {
+		return nil, 0, err
 	}
-	return codec.UnmarshalJSON(result.Response.Value, ptr)
+	resp := result.Response
+	if !resp.IsOK() {
+		return nil, resp.Height, errors.New(resp.Log)
+	}
+	return resp.Value, resp.Height, nil
 }
 
 // BuildAndBroadcastMsg builds and signs message and broadcast it to node.
@@ -108,30 +128,4 @@ func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg, accName, accPassword str
 	case <-ctx.Done():
 		return nil, errors.New("i/o timeout")
 	}
-}
-
-// QueryWithData performs a query to a Tendermint node with the provided path
-// and a data payload. It returns the result and height of the query upon success
-// or an error if the query fails.
-func (c *Client) QueryWithData(path string, data []byte) ([]byte, int64, error) {
-	return c.query(path, data)
-}
-
-// query performs a query to a Tendermint node with the provided store name
-// and path. It returns the result and height of the query upon success
-// or an error if the query fails. In addition, it will verify the returned
-// proof if TrustNode is disabled. If proof verification fails or the query
-// height is invalid, an error will be returned.
-func (c *Client) query(path string, key cmn.HexBytes) (res []byte, height int64, err error) {
-	result, err := c.ABCIQuery(path, key)
-	if err != nil {
-		return res, height, err
-	}
-
-	resp := result.Response
-	if !resp.IsOK() {
-		return res, resp.Height, errors.New(resp.Log)
-	}
-
-	return resp.Value, resp.Height, nil
 }
