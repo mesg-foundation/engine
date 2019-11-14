@@ -1,0 +1,10 @@
+key: test-process
+steps:
+  - type: trigger
+    # test-service
+    instanceHash: 3d7rS1hyPp7DtV8e8BeNyNpWpvqY6S3dk41JbD7KyQcu
+    eventKey: test_service_ready
+
+  - type: task
+    instanceHash: 3d7rS1hyPp7DtV8e8BeNyNpWpvqY6S3dk41JbD7KyQcu
+    taskKey: error
