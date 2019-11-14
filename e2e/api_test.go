@@ -51,6 +51,7 @@ func TestAPI(t *testing.T) {
 	_, err = client.ServiceClient.List(context.Background(), &pb.ListServiceRequest{})
 	require.NoError(t, err)
 
+	// basic tests
 	t.Run("account", testAccount)
 	t.Run("service", testService)
 	t.Run("ownership", testOwnership)
@@ -59,4 +60,7 @@ func TestAPI(t *testing.T) {
 	t.Run("event", testEvent)
 	t.Run("execution", testExecution)
 	t.Run("runner/delete", testDeleteRunner)
+
+	// complex tests
+	t.Run("complex-service", testComplexService)
 }
