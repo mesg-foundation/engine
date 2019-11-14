@@ -10,6 +10,7 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/mesg-foundation/engine/codec"
+	"github.com/mesg-foundation/engine/x/xreflect"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/node"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
@@ -35,7 +36,7 @@ func NewClient(node *node.Node, kb keys.Keybase, chainID string) *Client {
 // Query is abci.query wrapper with errors check and decode data.
 func (c *Client) Query(path string, qdata, ptr interface{}) error {
 	var data []byte
-	if qdata != nil {
+	if !xreflect.IsNil(qdata) {
 		b, err := codec.MarshalBinaryBare(qdata)
 		if err != nil {
 			return err

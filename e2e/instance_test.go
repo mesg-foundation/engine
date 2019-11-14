@@ -21,6 +21,11 @@ func testInstance(t *testing.T) {
 	})
 
 	t.Run("list", func(t *testing.T) {
+		t.Run("with nil filter", func(t *testing.T) {
+			resp, err := client.InstanceClient.List(context.Background(), &pb.ListInstanceRequest{})
+			require.NoError(t, err)
+			require.Len(t, resp.Instances, 1)
+		})
 		resp, err := client.InstanceClient.List(context.Background(), &pb.ListInstanceRequest{
 			Filter: &pb.ListInstanceRequest_Filter{
 				ServiceHash: testServiceHash,
