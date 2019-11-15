@@ -16,7 +16,7 @@ func testComplexService(t *testing.T) {
 		testRunnerHash  hash.Hash
 	)
 
-	req := readCreateServiceRequest("testdata/test-complex-service.json")
+	req := newTestComplexCreateServiceRequest()
 
 	t.Run("create", func(t *testing.T) {
 		ctx := metadata.NewOutgoingContext(context.Background(), passmd)
@@ -33,8 +33,6 @@ func testComplexService(t *testing.T) {
 		service, err := client.ServiceClient.Get(ctx, &pb.GetServiceRequest{Hash: testServiceHash})
 		require.NoError(t, err)
 		want := pb.TransformCreateReqToService(req)
-		// TODO: check why the hashes are different
-		want.Hash = service.Hash
 		require.True(t, service.Equal(want))
 	})
 

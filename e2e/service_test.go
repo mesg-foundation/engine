@@ -2,9 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
-	"io/ioutil"
-	"log"
 	"testing"
 
 	"github.com/mesg-foundation/engine/hash"
@@ -13,12 +10,10 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-var (
-	testServiceHash hash.Hash
-)
+var testServiceHash hash.Hash
 
 func testService(t *testing.T) {
-	req := readCreateServiceRequest("testdata/test-service.json")
+	req := newTestCreateServiceRequest()
 
 	t.Run("create", func(t *testing.T) {
 		ctx := metadata.NewOutgoingContext(context.Background(), passmd)
@@ -58,17 +53,4 @@ func testService(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, testServiceHash, resp.Hash)
 	})
-}
-
-func readCreateServiceRequest(filename string) *pb.CreateServiceRequest {
-	b, err := ioutil.ReadFile(filename)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var req pb.CreateServiceRequest
-	if err = json.Unmarshal(b, &req); err != nil {
-		log.Fatal(err)
-	}
-	return &req
 }
