@@ -60,7 +60,7 @@ func TestDecode(t *testing.T) {
 	assert.Equal(t, "hash: invalid base58 digit ('0')", err.Error())
 
 	_, err = Decode("1")
-	assert.Equal(t, "hash: invalid length string", err.Error())
+	assert.Equal(t, "hash: invalid length", err.Error())
 }
 
 func TestIsZero(t *testing.T) {
@@ -79,6 +79,7 @@ func TestEqual(t *testing.T) {
 func TestSize(t *testing.T) {
 	assert.Equal(t, 0, Hash(nil).Size())
 	assert.Equal(t, size, zero.Size())
+	assert.Equal(t, 5, Hash([]byte("hello")).Size())
 }
 
 func TestMarshalJSON(t *testing.T) {
@@ -100,4 +101,20 @@ func TestUnmarshal(t *testing.T) {
 	// check if unmarshal copy the data
 	// test if two slises do not share the same address
 	assert.True(t, &hash[cap(hash)-1] != &data[cap(data)-1])
+}
+
+func TestWrongLength(t *testing.T) {
+	var h Hash
+	wrongLenByte := []byte("hello")
+	t.Run("Marshal", func(t *testing.T) {
+		_, err := Hash(wrongLenByte).Marshal()
+		require.EqualError(t, err, "hash: invalid length")
+	})
+	t.Run("MarshalTo", func(t *testing.T) {
+		_, err := h.MarshalTo(wrongLenByte)
+		require.EqualError(t, err, "hash: invalid length")
+	})
+	t.Run("Unmarshal", func(t *testing.T) {
+		require.EqualError(t, h.Unmarshal(wrongLenByte), "hash: invalid length")
+	})
 }
