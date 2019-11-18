@@ -129,7 +129,7 @@ func (s *Backend) Exists(request cosmostypes.Request, hash hash.Hash) (bool, err
 
 // Hash returns the hash of a service request.
 func (s *Backend) Hash(serviceRequest *api.CreateServiceRequest) hash.Hash {
-	return api.TransformCreateReqToService(serviceRequest).Hash
+	return hash.Dump(api.TransformCreateReqToService(serviceRequest))
 }
 
 // List returns all services.

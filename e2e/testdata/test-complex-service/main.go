@@ -4,13 +4,12 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net"
 	"os"
 	"time"
 
-	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
-	types "github.com/mesg-foundation/engine/protobuf/types"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 )
@@ -20,24 +19,6 @@ const (
 	envMesgEndpoint     = "MESG_ENDPOINT"
 	envMesgInstanceHash = "MESG_INSTANCE_HASH"
 )
-
-var response = &types.Struct{
-	Fields: map[string]*types.Value{
-		"o": &types.Value{
-			Kind: &types.Value_StructValue{
-				StructValue: &types.Struct{
-					Fields: map[string]*types.Value{
-						"msg": &types.Value{
-							Kind: &types.Value_StringValue{
-								StringValue: "bar",
-							},
-						},
-					},
-				},
-			},
-		},
-	},
-}
 
 // Client is a client to connect to all mesg exposed API.
 type Client struct {
@@ -83,6 +64,15 @@ func New() (*Client, error) {
 	}, nil
 }
 
+func (c *Client) SendEvent(key string) {
+	if _, err := c.EventClient.Create(context.Background(), &pb.CreateEventRequest{
+		InstanceHash: c.InstanceHash,
+		Key:          key,
+	}); err != nil {
+		log.Fatal(err)
+	}
+}
+
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
@@ -92,48 +82,23 @@ func main() {
 	}
 	log.Printf("connect to %s\n", os.Getenv(envMesgEndpoint))
 
-	stream, err := client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{
-		Filter: &pb.StreamExecutionRequest_Filter{
-			Statuses:     []execution.Status{execution.Status_InProgress},
-			InstanceHash: client.InstanceHash,
-		},
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("create a stream\n")
+	client.SendEvent("test_service_ready")
 
-	if _, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
-		InstanceHash: client.InstanceHash,
-		Key:          "test_service_ready",
-	}); err != nil {
-		log.Fatal(err)
+	if os.Getenv("FOO") == "bar" {
+		client.SendEvent("read_env_ok")
+	} else {
+		client.SendEvent("read_env_error")
 	}
 
-	for {
-		exec, err := stream.Recv()
-		if err != nil {
-			log.Fatal(err)
-		}
-		log.Printf("recieve exeuction %s %s\n", exec.TaskKey, exec.Hash)
+	if _, err := os.Stat("/volume-test"); err == nil {
+		client.SendEvent("access_volumes_from_ok")
+	} else {
+		client.SendEvent("access_volumes_from_error")
+	}
 
-		req := &pb.UpdateExecutionRequest{
-			Hash: exec.Hash,
-			Result: &pb.UpdateExecutionRequest_Outputs{
-				Outputs: response,
-			},
-		}
-
-		if _, err := client.ExecutionClient.Update(context.Background(), req); err != nil {
-			log.Fatal(err)
-		}
-
-		if _, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
-			InstanceHash: exec.InstanceHash,
-			Key:          exec.TaskKey,
-			Data:         response,
-		}); err != nil {
-			log.Fatal(err)
-		}
+	if _, err := net.LookupHost("busybox"); err == nil {
+		client.SendEvent("ping_dependencie_ok")
+	} else {
+		client.SendEvent("ping_dependencie_error")
 	}
 }

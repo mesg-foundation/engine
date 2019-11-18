@@ -96,47 +96,22 @@ func newTestComplexCreateServiceRequest() *pb.CreateServiceRequest {
 			{
 				Key:     "busybox",
 				Image:   "busybox",
-				Volumes: []string{"/tmp"},
+				Volumes: []string{"/volume-test"},
 			},
 		},
 		Configuration: service.Service_Configuration{
 			VolumesFrom: []string{"busybox"},
 			Env:         []string{"FOO"},
 		},
-		Tasks: []*service.Service_Task{
-			{
-				Key: "foo",
-				Inputs: []*service.Service_Parameter{
-					{
-						Key:  "o",
-						Type: "Object",
-						Object: []*service.Service_Parameter{
-							{
-								Key:  "msg",
-								Type: "String",
-							},
-						},
-					},
-				},
-			},
-		},
 		Events: []*service.Service_Event{
-			{
-				Key: "foo",
-				Data: []*service.Service_Parameter{
-					{
-						Key:  "o",
-						Type: "Object",
-						Object: []*service.Service_Parameter{
-							{
-								Key:  "msg",
-								Type: "String",
-							},
-						},
-					},
-				},
-			},
+			{Key: "test_service_ready"},
+			{Key: "read_env_ok"},
+			{Key: "read_env_error"},
+			{Key: "access_volumes_from_ok"},
+			{Key: "access_volumes_from_error"},
+			{Key: "ping_dependencie_ok"},
+			{Key: "ping_dependencie_error"},
 		},
-		Source: "QmRarLspkiAUL7nQiTfA2DGTusVpY7JUB33Qm9poq56ris",
+		Source: "QmfVR9mrKrhwxJ2uUtGPCKVv6rdrYrRLRMJnEXpYEDDRC4",
 	}
 }

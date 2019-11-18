@@ -11,22 +11,16 @@ dependencies:
   busybox:
     image: busybox
     volumes:
-      - /tmp
-
-tasks:
-  foo:
-    inputs:
-      o:
-        type: Object
-        object:
-          msg:
-            type: String
+      - /volume-test
 
 events:
-  foo:
-    data:
-      o:
-        type: Object
-        object:
-          msg:
-            type: String
+  test_service_ready:
+
+  read_env_ok:
+  read_env_error:
+
+  access_volumes_from_ok:
+  access_volumes_from_error:
+
+  ping_dependencie_ok:
+  ping_dependencie_error:
