@@ -17,27 +17,16 @@ func testComplexService(t *testing.T) {
 	)
 
 	req := newTestComplexCreateServiceRequest()
+	ctx := metadata.NewOutgoingContext(context.Background(), passmd)
 
 	t.Run("create", func(t *testing.T) {
-		ctx := metadata.NewOutgoingContext(context.Background(), passmd)
-
 		resp, err := client.ServiceClient.Create(ctx, req)
 		require.NoError(t, err)
 
 		testServiceHash = resp.Hash
 	})
 
-	t.Run("get", func(t *testing.T) {
-		ctx := metadata.NewOutgoingContext(context.Background(), passmd)
-
-		service, err := client.ServiceClient.Get(ctx, &pb.GetServiceRequest{Hash: testServiceHash})
-		require.NoError(t, err)
-		want := pb.TransformCreateReqToService(req)
-		require.True(t, service.Equal(want))
-	})
-
 	t.Run("run", func(t *testing.T) {
-		ctx := metadata.NewOutgoingContext(context.Background(), passmd)
 		resp, err := client.RunnerClient.Create(ctx, &pb.CreateRunnerRequest{
 			ServiceHash: testServiceHash,
 			Env:         []string{"FOO=1"},
@@ -45,8 +34,8 @@ func testComplexService(t *testing.T) {
 		require.NoError(t, err)
 		testRunnerHash = resp.Hash
 	})
+
 	t.Run("delete", func(t *testing.T) {
-		ctx := metadata.NewOutgoingContext(context.Background(), passmd)
 		_, err := client.RunnerClient.Delete(ctx, &pb.DeleteRunnerRequest{Hash: testRunnerHash})
 		require.NoError(t, err)
 	})

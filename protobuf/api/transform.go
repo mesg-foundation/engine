@@ -1,7 +1,6 @@
 package api
 
 import (
-	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/service"
 )
 
@@ -18,7 +17,5 @@ func TransformCreateReqToService(req *CreateServiceRequest) *service.Service {
 		Repository:    req.Repository,
 		Source:        req.Source,
 	}
-
-	srv.Hash = hash.Dump(srv)
 	return srv
 }

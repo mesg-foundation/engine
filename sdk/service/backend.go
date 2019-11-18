@@ -86,6 +86,7 @@ func (s *Backend) Create(request cosmostypes.Request, msg *msgCreateService) (*s
 	store := request.KVStore(s.storeKey)
 	// create service
 	srv := api.TransformCreateReqToService(msg.Request)
+	srv.Hash = hash.Dump(srv)
 
 	// check if service already exists.
 	if store.Has(srv.Hash) {

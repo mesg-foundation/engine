@@ -115,7 +115,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		log.Printf("recive exeuction %s %s\n", exec.TaskKey, exec.Hash)
+		log.Printf("recieve exeuction %s %s\n", exec.TaskKey, exec.Hash)
 
 		req := &pb.UpdateExecutionRequest{
 			Hash: exec.Hash,
