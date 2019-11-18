@@ -41,6 +41,7 @@ func TestDump(t *testing.T) {
 		{map[int]int{}, "()"},
 		{map[int]int{0: 0}, "(0:0)"},
 		{map[int]int{0: 0, 1: 1}, "(0:0,1:1)"},
+		{map[int]int{1: 1, 0: 0}, "(0:0,1:1)"},
 		{[]int(nil), "[]nil"},
 		{[]*int{nil}, "[nil]"},
 		{[]int{}, "[]"},
@@ -83,6 +84,26 @@ func TestDump(t *testing.T) {
 				},
 			},
 			"{a:{b:(\"c\":1)}}",
+		},
+		{
+			struct {
+				a interface{} `hash:"name:a"`
+			}{
+				struct {
+					c map[string]int `hash:"name:c"`
+					b map[string]int `hash:"name:b"`
+				}{
+					c: map[string]int{
+						"100": 1,
+						"1":   1,
+					},
+					b: map[string]int{
+						"100": 1,
+						"1":   1,
+					},
+				},
+			},
+			"{a:{b:(\"1\":1,\"100\":1),c:(\"1\":1,\"100\":1)}}",
 		},
 		// NOTE: structhash will allow to process all interface types.
 		// gogo/protobuf is not able to set tags for directly oneof interface.

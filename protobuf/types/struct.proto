@@ -75,7 +75,7 @@ message Value {
     ];
     // Represents a double value.
     double number_value = 2 [
-      (gogoproto.moretags) = 'hash:"name:2"'
+      (gogoproto.moretags) = 'hash:"name:2" amino:"unsafe"'
     ];
     // Represents a string value.
     string string_value = 3 [
