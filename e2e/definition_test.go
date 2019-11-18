@@ -109,9 +109,9 @@ func newTestComplexCreateServiceRequest() *pb.CreateServiceRequest {
 			{Key: "read_env_error"},
 			{Key: "access_volumes_from_ok"},
 			{Key: "access_volumes_from_error"},
-			{Key: "ping_dependencie_ok"},
-			{Key: "ping_dependencie_error"},
+			{Key: "resolve_dependence_ok"},
+			{Key: "resolve_dependence_error"},
 		},
-		Source: "QmfVR9mrKrhwxJ2uUtGPCKVv6rdrYrRLRMJnEXpYEDDRC4",
+		Source: "QmP98j5p92QDFTb7h6EyuReA3HCL8jd5yGp6PNvoKYLdyM",
 	}
 }

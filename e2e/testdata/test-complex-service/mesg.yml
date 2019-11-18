@@ -22,5 +22,5 @@ events:
   access_volumes_from_ok:
   access_volumes_from_error:
 
-  ping_dependencie_ok:
-  ping_dependencie_error:
+  resolve_dependence_ok:
+  resolve_dependence_error:

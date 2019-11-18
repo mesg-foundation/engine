@@ -97,8 +97,8 @@ func main() {
 	}
 
 	if _, err := net.LookupHost("busybox"); err == nil {
-		client.SendEvent("ping_dependencie_ok")
+		client.SendEvent("resolve_dependence_ok")
 	} else {
-		client.SendEvent("ping_dependencie_error")
+		client.SendEvent("resolve_dependence_error")
 	}
 }

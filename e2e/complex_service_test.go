@@ -57,8 +57,8 @@ func testComplexService(t *testing.T) {
 
 			switch ev.Key {
 			case "test_service_ready", "read_env_ok",
-				"access_volumes_from_ok", "ping_dependencie_ok":
-				t.Logf("recieved event %s ", ev.Key)
+				"access_volumes_from_ok", "resolve_dependence_ok":
+				t.Logf("received event %s ", ev.Key)
 			default:
 				t.Fatalf("failed on event %s", ev.Key)
 			}
