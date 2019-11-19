@@ -5,7 +5,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 	cosmoscodec "github.com/cosmos/cosmos-sdk/codec"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/gorilla/mux"
 	"github.com/mesg-foundation/engine/codec"
@@ -32,7 +32,7 @@ type AppModule struct {
 }
 
 // Querier is responsible to answer to ABCI queries.
-type Querier func(request sdk.Request, path []string, req abci.RequestQuery) (res interface{}, err error)
+type Querier func(request cosmostypes.Request, path []string, req abci.RequestQuery) (res interface{}, err error)
 
 // NewAppModuleBasic inits an AppModuleBasic using a name.
 func NewAppModuleBasic(name string) AppModuleBasic {
@@ -91,7 +91,7 @@ func (AppModuleBasic) GetTxCmd(cdc *cosmoscodec.Codec) *cobra.Command {
 // ----------------------------------------------
 
 // RegisterInvariants registers invariants to the registry.
-func (m AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {}
+func (m AppModule) RegisterInvariants(ir cosmostypes.InvariantRegistry) {}
 
 // Route returns the route prefix for transaction of the module.
 func (m AppModule) Route() string {
@@ -99,8 +99,8 @@ func (m AppModule) Route() string {
 }
 
 // NewHandler returns the handler used to apply transactions.
-func (m AppModule) NewHandler() sdk.Handler {
 	return m.handler
+func (m AppModule) NewHandler() cosmostypes.Handler {
 }
 
 // QuerierRoute the route prefix for query of the module.
@@ -109,37 +109,37 @@ func (m AppModule) QuerierRoute() string {
 }
 
 // NewQuerierHandler returns the handler used to reply ABCI query.
-func (m AppModule) NewQuerierHandler() sdk.Querier {
-	return func(request sdk.Request, path []string, req abci.RequestQuery) ([]byte, sdk.Error) {
+func (m AppModule) NewQuerierHandler() cosmostypes.Querier {
+	return func(request cosmostypes.Request, path []string, req abci.RequestQuery) ([]byte, cosmostypes.Error) {
 		data, err := m.querier(request, path, req)
 		if err != nil {
-			if errsdk, ok := err.(sdk.Error); ok {
+			if errsdk, ok := err.(cosmostypes.Error); ok {
 				return nil, errsdk
 			}
-			return nil, sdk.ErrInternal(err.Error())
+			return nil, cosmostypes.ErrInternal(err.Error())
 		}
 		res, err := codec.MarshalBinaryBare(data)
 		if err != nil {
-			return nil, sdk.ErrInternal(err.Error())
+			return nil, cosmostypes.ErrInternal(err.Error())
 		}
 		return res, nil
 	}
 }
 
 // BeginBlock is called at the beginning of the process of a new block.
-func (m AppModule) BeginBlock(_ sdk.Request, _ abci.RequestBeginBlock) {}
+func (m AppModule) BeginBlock(_ cosmostypes.Request, _ abci.RequestBeginBlock) {}
 
 // EndBlock is called at the end of the process of a new block.
-func (m AppModule) EndBlock(sdk.Request, abci.RequestEndBlock) []abci.ValidatorUpdate {
+func (m AppModule) EndBlock(cosmostypes.Request, abci.RequestEndBlock) []abci.ValidatorUpdate {
 	return []abci.ValidatorUpdate{}
 }
 
 // InitGenesis initializes the genesis from a request and data.
-func (m AppModule) InitGenesis(request sdk.Request, data json.RawMessage) []abci.ValidatorUpdate {
+func (m AppModule) InitGenesis(request cosmostypes.Request, data json.RawMessage) []abci.ValidatorUpdate {
 	return []abci.ValidatorUpdate{}
 }
 
 // ExportGenesis exports the current state of the app.
-func (m AppModule) ExportGenesis(request sdk.Request) json.RawMessage {
+func (m AppModule) ExportGenesis(request cosmostypes.Request) json.RawMessage {
 	return []byte("{}")
 }
