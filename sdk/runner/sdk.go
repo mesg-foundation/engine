@@ -100,9 +100,11 @@ func (s *SDK) Create(req *api.CreateRunnerRequest, accountName, accountPassword 
 	}
 	run, err := s.Get(tx.Data)
 	if err != nil {
+		defer onError()
 		return nil, err
 	}
 	if !run.Hash.Equal(expRunnerHash) {
+		defer onError()
 		return nil, errors.New("calculated runner hash is not the same")
 	}
 	return run, nil
