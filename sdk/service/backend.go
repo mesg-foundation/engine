@@ -117,7 +117,11 @@ func (s *Backend) Create(request cosmostypes.Request, msg *msgCreateService) (*s
 // Get returns the service that matches given hash.
 func (s *Backend) Get(request cosmostypes.Request, hash hash.Hash) (*service.Service, error) {
 	var sv *service.Service
-	value := request.KVStore(s.storeKey).Get(hash)
+	store := request.KVStore(s.storeKey)
+	if !store.Has(hash) {
+		return nil, fmt.Errorf("service %q not found", hash)
+	}
+	value := store.Get(hash)
 	return sv, codec.UnmarshalBinaryBare(value, &sv)
 }
 
@@ -137,7 +141,6 @@ func (s *Backend) List(request cosmostypes.Request) ([]*service.Service, error) 
 		services []*service.Service
 		iter     = request.KVStore(s.storeKey).Iterator(nil, nil)
 	)
-
 	for iter.Valid() {
 		var sv *service.Service
 		if err := codec.UnmarshalBinaryBare(iter.Value(), &sv); err != nil {

@@ -86,7 +86,11 @@ func (s *Backend) FetchOrCreate(request cosmostypes.Request, serviceHash hash.Ha
 // Get returns the instance that matches given hash.
 func (s *Backend) Get(request cosmostypes.Request, hash hash.Hash) (*instance.Instance, error) {
 	var i *instance.Instance
-	value := request.KVStore(s.storeKey).Get(hash)
+	store := request.KVStore(s.storeKey)
+	if !store.Has(hash) {
+		return nil, fmt.Errorf("instance %q not found", hash)
+	}
+	value := store.Get(hash)
 	return i, codec.UnmarshalBinaryBare(value, &i)
 }
 
