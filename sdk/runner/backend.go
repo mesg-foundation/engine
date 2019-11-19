@@ -111,8 +111,12 @@ func (s *Backend) Delete(request cosmostypes.Request, msg *msgDeleteRunner) erro
 
 // Get returns the runner that matches given hash.
 func (s *Backend) Get(request cosmostypes.Request, hash hash.Hash) (*runner.Runner, error) {
+	store := request.KVStore(s.storeKey)
+	if !store.Has(hash) {
+		return nil, fmt.Errorf("runner %q not found", hash)
+	}
+	value := store.Get(hash)
 	var run *runner.Runner
-	value := request.KVStore(s.storeKey).Get(hash)
 	return run, codec.UnmarshalBinaryBare(value, &run)
 }
 
