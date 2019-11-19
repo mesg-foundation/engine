@@ -87,7 +87,7 @@ func main() {
 	stream, err := client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{
 		Filter: &pb.StreamExecutionRequest_Filter{
 			Statuses:     []execution.Status{execution.Status_InProgress},
-			InstanceHash: client.InstanceHash,
+			ExecutorHash: client.RunnerHash,
 		},
 	})
 	if err != nil {
