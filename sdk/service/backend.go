@@ -37,19 +37,17 @@ func NewBackend(appFactory *cosmos.AppFactory, ownerships *ownershipsdk.Backend)
 	return backend
 }
 
-func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) cosmostypes.Result {
+func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) (hash.Hash, error) {
 	switch msg := msg.(type) {
 	case msgCreateService:
 		srv, err := s.Create(request, &msg)
 		if err != nil {
-			return cosmostypes.ErrInternal(err.Error()).Result()
+			return nil, err
 		}
-		return cosmostypes.Result{
-			Data: srv.Hash,
-		}
+		return srv.Hash, nil
 	default:
 		errmsg := fmt.Sprintf("Unrecognized service Msg type: %v", msg.Type())
-		return cosmostypes.ErrUnknownRequest(errmsg).Result()
+		return nil, cosmostypes.ErrUnknownRequest(errmsg)
 	}
 }
 

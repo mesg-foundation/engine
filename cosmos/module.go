@@ -9,6 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/gorilla/mux"
 	"github.com/mesg-foundation/engine/codec"
+	"github.com/mesg-foundation/engine/hash"
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -27,9 +28,12 @@ type AppModuleBasic struct {
 // AppModule is a main element of an cosmos app.
 type AppModule struct {
 	AppModuleBasic
-	handler sdk.Handler
+	handler Handler
 	querier Querier
 }
+
+// Handler defines the core of the state transition function of an application.
+type Handler func(request cosmostypes.Request, msg cosmostypes.Msg) (hash.Hash, error)
 
 // Querier is responsible to answer to ABCI queries.
 type Querier func(request cosmostypes.Request, path []string, req abci.RequestQuery) (res interface{}, err error)
@@ -42,7 +46,7 @@ func NewAppModuleBasic(name string) AppModuleBasic {
 }
 
 // NewAppModule inits an AppModule using an AppModuleBasic, Handler and Querier.
-func NewAppModule(moduleBasic AppModuleBasic, handler sdk.Handler, querier Querier) AppModule {
+func NewAppModule(moduleBasic AppModuleBasic, handler Handler, querier Querier) AppModule {
 	return AppModule{
 		AppModuleBasic: moduleBasic,
 		handler:        handler,
@@ -99,8 +103,27 @@ func (m AppModule) Route() string {
 }
 
 // NewHandler returns the handler used to apply transactions.
-	return m.handler
 func (m AppModule) NewHandler() cosmostypes.Handler {
+	return func(request cosmostypes.Request, msg cosmostypes.Msg) cosmostypes.Result {
+		hash, err := m.handler(request, msg)
+		if err != nil {
+			if errsdk, ok := err.(cosmostypes.Error); ok {
+				return errsdk.Result()
+			}
+			return cosmostypes.ErrInternal(err.Error()).Result()
+		}
+		events := request.EventManager().Events()
+		if hash != nil {
+			events = events.AppendEvents([]cosmostypes.Event{
+				cosmostypes.NewEvent(cosmostypes.EventTypeMessage, cosmostypes.NewAttribute(cosmostypes.AttributeKeyModule, m.name)),
+				cosmostypes.NewEvent(cosmostypes.EventTypeMessage, cosmostypes.NewAttribute(eventHashAttr, hash.String())),
+			})
+		}
+		return cosmostypes.Result{
+			Data:   hash,
+			Events: events,
+		}
+	}
 }
 
 // QuerierRoute the route prefix for query of the module.
