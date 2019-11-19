@@ -35,16 +35,19 @@ func NewBackend(appFactory *cosmos.AppFactory, instanceBack *instancesdk.Backend
 	return backend
 }
 
-func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) (hash.Hash, error) {
+func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) (hash.Hash, cosmostypes.Error) {
 	switch msg := msg.(type) {
 	case msgCreateRunner:
 		run, err := s.Create(request, &msg)
 		if err != nil {
-			return nil, err
+			return run.Hash, cosmostypes.ErrInternal(err.Error())
 		}
 		return run.Hash, nil
 	case msgDeleteRunner:
-		return nil, s.Delete(request, &msg)
+		if err := s.Delete(request, &msg); err != nil {
+			return nil, cosmostypes.ErrInternal(err.Error())
+		}
+		return nil, nil
 	default:
 		errmsg := fmt.Sprintf("Unrecognized runner Msg type: %v", msg.Type())
 		return nil, cosmostypes.ErrUnknownRequest(errmsg)

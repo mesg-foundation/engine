@@ -33,7 +33,7 @@ type AppModule struct {
 }
 
 // Handler defines the core of the state transition function of an application.
-type Handler func(request cosmostypes.Request, msg cosmostypes.Msg) (hash.Hash, error)
+type Handler func(request cosmostypes.Request, msg cosmostypes.Msg) (hash.Hash, cosmostypes.Error)
 
 // Querier is responsible to answer to ABCI queries.
 type Querier func(request cosmostypes.Request, path []string, req abci.RequestQuery) (res interface{}, err error)
@@ -107,17 +107,24 @@ func (m AppModule) NewHandler() cosmostypes.Handler {
 	return func(request cosmostypes.Request, msg cosmostypes.Msg) cosmostypes.Result {
 		hash, err := m.handler(request, msg)
 		if err != nil {
-			if errsdk, ok := err.(cosmostypes.Error); ok {
-				return errsdk.Result()
-			}
-			return cosmostypes.ErrInternal(err.Error()).Result()
+			return err.Result()
 		}
+
 		events := request.EventManager().Events()
+		events = events.AppendEvent(
+			cosmostypes.NewEvent(
+				cosmostypes.EventTypeMessage,
+				cosmostypes.NewAttribute(cosmostypes.AttributeKeyModule, m.name),
+			),
+		)
+
 		if hash != nil {
-			events = events.AppendEvents([]cosmostypes.Event{
-				cosmostypes.NewEvent(cosmostypes.EventTypeMessage, cosmostypes.NewAttribute(cosmostypes.AttributeKeyModule, m.name)),
-				cosmostypes.NewEvent(cosmostypes.EventTypeMessage, cosmostypes.NewAttribute(eventHashAttr, hash.String())),
-			})
+			events = events.AppendEvent(
+				cosmostypes.NewEvent(
+					cosmostypes.EventTypeMessage,
+					cosmostypes.NewAttribute(AttributeKeyHash, hash.String()),
+				),
+			)
 		}
 		return cosmostypes.Result{
 			Data:   hash,

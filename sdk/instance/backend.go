@@ -32,7 +32,7 @@ func NewBackend(appFactory *cosmos.AppFactory) *Backend {
 	return backend
 }
 
-func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) (hash.Hash, error) {
+func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) (hash.Hash, cosmostypes.Error) {
 	errmsg := fmt.Sprintf("Unrecognized instance Msg type: %v", msg.Type())
 	return nil, cosmostypes.ErrUnknownRequest(errmsg)
 }

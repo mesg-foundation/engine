@@ -2,19 +2,18 @@ package cosmos
 
 import (
 	"fmt"
-	"strings"
 
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 )
 
+// common attribute keys.
 const (
-	eventHashAttr = "hash"
+	AttributeKeyHash = "hash"
 )
 
-func eventHashKey() string {
-	return strings.Join([]string{cosmostypes.EventTypeMessage, eventHashAttr}, ".")
-}
+// EventHashType
+var EventHashType = cosmostypes.EventTypeMessage + "." + AttributeKeyHash
 
 func EventActionQuery(msgType string) string {
 	return fmt.Sprintf("%s.%s='%s'", sdktypes.EventTypeMessage, sdktypes.AttributeKeyAction, msgType)

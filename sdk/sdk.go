@@ -36,7 +36,7 @@ func New(client *cosmos.Client, kb *cosmos.Keybase, processDB database.ProcessDB
 	instanceSDK := instancesdk.New(client)
 	runnerSDK := runnersdk.New(client, accountSDK, serviceSDK, instanceSDK, container, engineName, port, ipfsEndpoint)
 	processSDK := processesdk.New(instanceSDK, processDB)
-	executionSDK := executionsdk.New(client, accountSDK, serviceSDK, instanceSDK, runnerSDK)
+	executionSDK := executionsdk.New(client, kb, serviceSDK, instanceSDK, runnerSDK)
 	eventSDK := eventsdk.New(ps, serviceSDK, instanceSDK)
 	return &SDK{
 		Service:   serviceSDK,

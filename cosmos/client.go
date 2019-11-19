@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"math/rand"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
@@ -13,6 +12,7 @@ import (
 	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/x/xreflect"
+	"github.com/mesg-foundation/engine/x/xstrings"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/node"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
@@ -133,56 +133,32 @@ func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg, accName, accPassword str
 }
 
 // Stream subscribes to the provided query and returns the hash of the matching ressources.
-func (c *Client) Stream(query string) (<-chan hash.Hash, func() error, error) {
-	ctx, cancel := context.WithCancel(context.Background())
-	// TODO: randStringRunes seems to complicated for this random string
-	subscriber := randStringRunes(8) // generates a new subscriber each time to be able to subscribe to the same query multiple time
-	eventStream, err := c.Subscribe(ctx, subscriber, query)
+func (c *Client) Stream(query string) (chan hash.Hash, error) {
+	subscriber := xstrings.RandAsciiLetters(8)
+	eventStream, err := c.Subscribe(context.Background(), subscriber, query)
 	if err != nil {
-		return nil, func() error {
-			cancel()
-			return nil
-		}, err
+		return nil, err
 	}
-	closer := func() error {
-		err := c.Unsubscribe(ctx, subscriber, query)
-		if err != nil {
-			return err
-		}
-		cancel()
-		return nil
-	}
-	hashChan := make(chan hash.Hash)
+
+	hashC := make(chan hash.Hash)
 	go func() {
-		defer close(hashChan)
 		for event := range eventStream {
-			ressHashes := event.Events[eventHashKey()]
+			ressHashes := event.Events[EventHashType]
 			if len(ressHashes) != 1 {
-				// TODO: remove panic
-				panic(errors.New("there is no or more than one " + eventHashKey()))
+				// or panic(err) - grpc api do not support
+				// return the errors on the stream for now
+				// so besieds logging the error, it not
+				// much we can do here. same belove
+				continue
 			}
+
 			hash, err := hash.Decode(ressHashes[0])
 			if err != nil {
-				// TODO: remove panic
-				panic(err)
+				continue
 			}
-			hashChan <- hash
+			hashC <- hash
 		}
+		c.Unsubscribe(context.Background(), subscriber, query)
 	}()
-	return hashChan, closer, nil
-}
-
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
-
-var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-
-func randStringRunes(n int) string {
-	b := make([]rune, n)
-	nbr := len(letterRunes)
-	for i := range b {
-		b[i] = letterRunes[rand.Intn(nbr)]
-	}
-	return string(b)
+	return hashC, nil
 }

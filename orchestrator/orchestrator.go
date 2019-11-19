@@ -33,15 +33,12 @@ func (s *Orchestrator) Start() error {
 		return fmt.Errorf("process orchestrator already running")
 	}
 	s.eventStream = s.event.GetStream(nil)
-	executionStream, closer, err := s.execution.Stream(&api.StreamExecutionRequest{
+	executionStream, err := s.execution.Stream(&api.StreamExecutionRequest{
 		Filter: &api.StreamExecutionRequest_Filter{
 			Statuses: []execution.Status{execution.Status_Completed},
 		},
 	})
 	if err != nil {
-		if err := closer(); err != nil {
-			panic(err)
-		}
 		return err
 	}
 	s.executionStream = executionStream
@@ -54,7 +51,8 @@ func (s *Orchestrator) Start() error {
 			go s.execute(s.dependencyFilter(execution), execution, nil, execution.Outputs)
 		}
 	}
-	// TODO: manage closer
+	close(executionStream)
+	return nil
 }
 
 func (s *Orchestrator) eventFilter(event *event.Event) func(wf *process.Process, node *process.Process_Node) (bool, error) {

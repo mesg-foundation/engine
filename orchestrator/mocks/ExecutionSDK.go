@@ -59,33 +59,24 @@ func (_m *ExecutionSDK) Get(_a0 hash.Hash) (*execution.Execution, error) {
 }
 
 // Stream provides a mock function with given fields: req
-func (_m *ExecutionSDK) Stream(req *api.StreamExecutionRequest) (<-chan *execution.Execution, func() error, error) {
+func (_m *ExecutionSDK) Stream(req *api.StreamExecutionRequest) (chan *execution.Execution, error) {
 	ret := _m.Called(req)
 
-	var r0 <-chan *execution.Execution
-	if rf, ok := ret.Get(0).(func(*api.StreamExecutionRequest) <-chan *execution.Execution); ok {
+	var r0 chan *execution.Execution
+	if rf, ok := ret.Get(0).(func(*api.StreamExecutionRequest) chan *execution.Execution); ok {
 		r0 = rf(req)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(<-chan *execution.Execution)
+			r0 = ret.Get(0).(chan *execution.Execution)
 		}
 	}
 
-	var r1 func() error
-	if rf, ok := ret.Get(1).(func(*api.StreamExecutionRequest) func() error); ok {
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*api.StreamExecutionRequest) error); ok {
 		r1 = rf(req)
 	} else {
-		if ret.Get(1) != nil {
-			r1 = ret.Get(1).(func() error)
-		}
+		r1 = ret.Error(1)
 	}
 
-	var r2 error
-	if rf, ok := ret.Get(2).(func(*api.StreamExecutionRequest) error); ok {
-		r2 = rf(req)
-	} else {
-		r2 = ret.Error(2)
-	}
-
-	return r0, r1, r2
+	return r0, r1
 }

@@ -42,20 +42,22 @@ func (s *ExecutionServer) Get(ctx context.Context, req *api.GetExecutionRequest)
 
 // Stream returns stream of executions.
 func (s *ExecutionServer) Stream(req *api.StreamExecutionRequest, resp api.Execution_StreamServer) error {
-	stream, closer, err := s.sdk.Execution.Stream(req)
-	defer func() {
-		err := closer()
-		if err != nil {
-			// TODO: remove panic
-			panic(err)
-		}
-	}()
+	stream, err := s.sdk.Execution.Stream(req)
 	if err != nil {
 		return err
 	}
+	defer close(stream)
+
 	if err := acknowledgement.SetStreamReady(resp); err != nil {
 		return err
 	}
+
+	// TODO:
+	// There is possible deadlock. If the client close the connection,
+	// but there will be no messages in the stream, then this for will
+	// wait and consume resources forever. Some ACK mechnizm needs to be
+	// implemented on server/client side to get notify if the conneciton
+	// wasn't closed.
 	for exec := range stream {
 		if err := resp.Send(exec); err != nil {
 			return err

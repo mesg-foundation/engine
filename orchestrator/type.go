@@ -12,7 +12,7 @@ import (
 
 // ExecutionSDK execution interface needed for the orchestrator
 type ExecutionSDK interface {
-	Stream(req *api.StreamExecutionRequest) (<-chan *execution.Execution, func() error, error)
+	Stream(req *api.StreamExecutionRequest) (chan *execution.Execution, error)
 	Get(hash hash.Hash) (*execution.Execution, error)
 	Create(req *api.CreateExecutionRequest, accountName, accountPassword string) (*execution.Execution, error)
 }

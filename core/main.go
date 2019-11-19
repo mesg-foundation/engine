@@ -21,6 +21,7 @@ import (
 	"github.com/mesg-foundation/engine/version"
 	"github.com/mesg-foundation/engine/x/xerrors"
 	"github.com/mesg-foundation/engine/x/xnet"
+	"github.com/mesg-foundation/engine/x/xrand"
 	"github.com/mesg-foundation/engine/x/xsignal"
 	"github.com/sirupsen/logrus"
 	tmtypes "github.com/tendermint/tendermint/types"
@@ -114,6 +115,8 @@ func loadOrGenDevGenesis(app *cosmos.App, kb *cosmos.Keybase, cfg *config.Config
 }
 
 func main() {
+	xrand.SeedInit()
+
 	cfg, err := config.New()
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
