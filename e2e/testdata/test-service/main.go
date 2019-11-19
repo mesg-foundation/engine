@@ -19,6 +19,7 @@ const (
 	// env variables for configure mesg client.
 	envMesgEndpoint     = "MESG_ENDPOINT"
 	envMesgInstanceHash = "MESG_INSTANCE_HASH"
+	envMesgRunnerHash   = "MESG_RUNNER_HASH"
 )
 
 // Client is a client to connect to all mesg exposed API.
@@ -29,6 +30,9 @@ type Client struct {
 
 	// instance hash that could be used in api calls.
 	InstanceHash hash.Hash
+
+	// runner hash that could be used in api calls.
+	RunnerHash hash.Hash
 }
 
 // New creates a new client from env variables supplied by mesg engine.
@@ -41,6 +45,11 @@ func New() (*Client, error) {
 	instanceHash, err := hash.Decode(os.Getenv(envMesgInstanceHash))
 	if err != nil {
 		return nil, fmt.Errorf("client: error with mesg's instance hash env(%s): %s", envMesgInstanceHash, err.Error())
+	}
+
+	runnerHash, err := hash.Decode(os.Getenv(envMesgRunnerHash))
+	if err != nil {
+		return nil, fmt.Errorf("client: error with mesg's runner hash env(%s): %s", envMesgRunnerHash, err.Error())
 	}
 
 	dialoptions := []grpc.DialOption{
@@ -62,6 +71,7 @@ func New() (*Client, error) {
 		ExecutionClient: pb.NewExecutionClient(conn),
 		EventClient:     pb.NewEventClient(conn),
 		InstanceHash:    instanceHash,
+		RunnerHash:      runnerHash,
 	}, nil
 }
 
@@ -72,7 +82,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("connect to %s\n", os.Getenv(envMesgEndpoint))
+	log.Printf("connected to %s\n", os.Getenv(envMesgEndpoint))
 
 	stream, err := client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{
 		Filter: &pb.StreamExecutionRequest_Filter{
@@ -83,7 +93,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("create a stream\n")
+	log.Printf("create execution stream\n")
 
 	if _, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
 		InstanceHash: client.InstanceHash,
@@ -91,13 +101,14 @@ func main() {
 	}); err != nil {
 		log.Fatal(err)
 	}
+	log.Printf("emit test_service_ready event\n")
 
 	for {
 		exec, err := stream.Recv()
 		if err != nil {
 			log.Fatal(err)
 		}
-		log.Printf("recive exeuction %s %s\n", exec.TaskKey, exec.Hash)
+		log.Printf("receive execution %s %s\n", exec.TaskKey, exec.Hash)
 
 		req := &pb.UpdateExecutionRequest{
 			Hash: exec.Hash,
@@ -136,7 +147,7 @@ func main() {
 		}
 
 		if _, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
-			InstanceHash: exec.InstanceHash,
+			InstanceHash: client.InstanceHash,
 			Key:          exec.TaskKey + "_ok",
 			Data: &types.Struct{
 				Fields: map[string]*types.Value{
@@ -150,5 +161,6 @@ func main() {
 		}); err != nil {
 			log.Fatal(err)
 		}
+		log.Printf("emit " + exec.TaskKey + "_ok event\n")
 	}
 }
