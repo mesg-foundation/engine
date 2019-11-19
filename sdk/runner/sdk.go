@@ -95,16 +95,16 @@ func (s *SDK) Create(req *api.CreateRunnerRequest, accountName, accountPassword 
 	msg := newMsgCreateRunner(user, req.ServiceHash, envHash)
 	tx, err := s.client.BuildAndBroadcastMsg(msg, accountName, accountPassword)
 	if err != nil {
-		defer onError()
+		onError()
 		return nil, err
 	}
 	run, err := s.Get(tx.Data)
 	if err != nil {
-		defer onError()
+		onError()
 		return nil, err
 	}
 	if !run.Hash.Equal(expRunnerHash) {
-		defer onError()
+		onError()
 		return nil, errors.New("calculated runner hash is not the same")
 	}
 	return run, nil
