@@ -4,12 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math/rand"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/mesg-foundation/engine/codec"
+	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/x/xreflect"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/node"
@@ -128,4 +130,59 @@ func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg, accName, accPassword str
 	case <-ctx.Done():
 		return nil, errors.New("i/o timeout")
 	}
+}
+
+// Stream subscribes to the provided query and returns the hash of the matching ressources.
+func (c *Client) Stream(query string) (<-chan hash.Hash, func() error, error) {
+	ctx, cancel := context.WithCancel(context.Background())
+	// TODO: randStringRunes seems to complicated for this random string
+	subscriber := randStringRunes(8) // generates a new subscriber each time to be able to subscribe to the same query multiple time
+	eventStream, err := c.Subscribe(ctx, subscriber, query)
+	if err != nil {
+		return nil, func() error {
+			cancel()
+			return nil
+		}, err
+	}
+	closer := func() error {
+		err := c.Unsubscribe(ctx, subscriber, query)
+		if err != nil {
+			return err
+		}
+		cancel()
+		return nil
+	}
+	hashChan := make(chan hash.Hash)
+	go func() {
+		defer close(hashChan)
+		for event := range eventStream {
+			ressHashes := event.Events[eventHashKey()]
+			if len(ressHashes) != 1 {
+				// TODO: remove panic
+				panic(errors.New("there is no or more than one " + eventHashKey()))
+			}
+			hash, err := hash.Decode(ressHashes[0])
+			if err != nil {
+				// TODO: remove panic
+				panic(err)
+			}
+			hashChan <- hash
+		}
+	}()
+	return hashChan, closer, nil
+}
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
+
+var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+func randStringRunes(n int) string {
+	b := make([]rune, n)
+	nbr := len(letterRunes)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(nbr)]
+	}
+	return string(b)
 }
