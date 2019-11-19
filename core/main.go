@@ -27,18 +27,9 @@ import (
 	db "github.com/tendermint/tm-db"
 )
 
-func initDatabases(cfg *config.Config) (*database.LevelDBExecutionDB, *database.LevelDBProcessDB, error) {
-	// init execution db.
-	executionDB, err := database.NewExecutionDB(filepath.Join(cfg.Path, cfg.Database.ExecutionRelativePath))
-	if err != nil {
-		return nil, nil, err
-	}
+func initDatabases(cfg *config.Config) (*database.LevelDBProcessDB, error) {
 	// init process db.
-	processDB, err := database.NewProcessDB(filepath.Join(cfg.Path, cfg.Database.ProcessRelativePath))
-	if err != nil {
-		return nil, nil, err
-	}
-	return executionDB, processDB, nil
+	return database.NewProcessDB(filepath.Join(cfg.Path, cfg.Database.ProcessRelativePath))
 }
 
 func stopRunningServices(sdk *enginesdk.SDK, cfg *config.Config, address string) error {
@@ -132,7 +123,7 @@ func main() {
 	logger.Init(cfg.Log.Format, cfg.Log.Level, cfg.Log.ForceColors)
 
 	// init databases
-	executionDB, processDB, err := initDatabases(cfg)
+	processDB, err := initDatabases(cfg)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
@@ -155,7 +146,7 @@ func main() {
 
 	// register the backend modules to the app factory.
 	// TODO: this is a mandatory call so it should return a new types required by cosmos.NewApp
-	enginesdk.NewBackend(appFactory)
+	backend := enginesdk.NewBackend(appFactory)
 
 	// init cosmos app
 	app, err := cosmos.NewApp(appFactory)
@@ -191,7 +182,9 @@ func main() {
 	client := cosmos.NewClient(node, kb, genesis.ChainID)
 
 	// init sdk
-	sdk := enginesdk.New(client, kb, executionDB, processDB, container, cfg.Name, strconv.Itoa(port), cfg.IpfsEndpoint)
+	sdk := enginesdk.New(client, kb, processDB, container, cfg.Name, strconv.Itoa(port), cfg.IpfsEndpoint)
+	// TODO: this is a hack and will be remove when process sdk is running on cosmos
+	backend.Execution.SetProcessSDK(sdk.Process)
 
 	// start tendermint node
 	logrus.WithField("module", "main").WithField("seeds", cfg.Tendermint.Config.P2P.Seeds).Info("starting tendermint node")
@@ -211,7 +204,7 @@ func main() {
 	}()
 
 	logrus.WithField("module", "main").Info("starting process engine")
-	s := orchestrator.New(sdk.Event, sdk.Execution, sdk.Process)
+	s := orchestrator.New(sdk.Event, sdk.Execution, sdk.Process, sdk.Runner, cfg.Account.Name, cfg.Account.Password)
 	go func() {
 		if err := s.Start(); err != nil {
 			logrus.WithField("module", "main").Fatalln(err)

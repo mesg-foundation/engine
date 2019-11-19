@@ -19,7 +19,7 @@ import (
 type SDK struct {
 	Service   *servicesdk.SDK
 	Instance  *instancesdk.SDK
-	Execution *executionsdk.Execution
+	Execution *executionsdk.SDK
 	Event     *eventsdk.Event
 	Process   *processesdk.Process
 	Account   *accountsdk.SDK
@@ -28,7 +28,7 @@ type SDK struct {
 }
 
 // New creates a new SDK with given options.
-func New(client *cosmos.Client, kb *cosmos.Keybase, execDB database.ExecutionDB, processDB database.ProcessDB, container container.Container, engineName, port string, ipfsEndpoint string) *SDK {
+func New(client *cosmos.Client, kb *cosmos.Keybase, processDB database.ProcessDB, container container.Container, engineName, port string, ipfsEndpoint string) *SDK {
 	ps := pubsub.New(0)
 	accountSDK := accountsdk.NewSDK(kb)
 	serviceSDK := servicesdk.New(client, accountSDK)
@@ -36,7 +36,7 @@ func New(client *cosmos.Client, kb *cosmos.Keybase, execDB database.ExecutionDB,
 	instanceSDK := instancesdk.New(client)
 	runnerSDK := runnersdk.New(client, accountSDK, serviceSDK, instanceSDK, container, engineName, port, ipfsEndpoint)
 	processSDK := processesdk.New(instanceSDK, processDB)
-	executionSDK := executionsdk.New(ps, serviceSDK, instanceSDK, processSDK, execDB)
+	executionSDK := executionsdk.New(client, accountSDK, serviceSDK, instanceSDK, runnerSDK)
 	eventSDK := eventsdk.New(ps, serviceSDK, instanceSDK)
 	return &SDK{
 		Service:   serviceSDK,

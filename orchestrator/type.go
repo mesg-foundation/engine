@@ -4,16 +4,17 @@ import (
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
-	"github.com/mesg-foundation/engine/protobuf/types"
+	"github.com/mesg-foundation/engine/protobuf/api"
+	"github.com/mesg-foundation/engine/runner"
 	eventsdk "github.com/mesg-foundation/engine/sdk/event"
-	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
+	runnersdk "github.com/mesg-foundation/engine/sdk/runner"
 )
 
 // ExecutionSDK execution interface needed for the orchestrator
 type ExecutionSDK interface {
-	GetStream(f *executionsdk.Filter) *executionsdk.Listener
+	Stream(req *api.StreamExecutionRequest) (<-chan *execution.Execution, func() error, error)
 	Get(hash hash.Hash) (*execution.Execution, error)
-	Execute(processHash, instanceHash, eventHash, parentHash hash.Hash, stepID string, taskKey string, inputData *types.Struct, tags []string) (executionHash hash.Hash, err error)
+	Create(req *api.CreateExecutionRequest, accountName, accountPassword string) (*execution.Execution, error)
 }
 
 // EventSDK event interface needed for the orchestrator
@@ -26,15 +27,25 @@ type ProcessSDK interface {
 	List() ([]*process.Process, error)
 }
 
+// RunnerSDK is the interface of the runner sdk needed for the orchestrator
+type RunnerSDK interface {
+	List(f *runnersdk.Filter) ([]*runner.Runner, error)
+}
+
 // Orchestrator manages the executions based on the definition of the processes
 type Orchestrator struct {
 	event       EventSDK
 	eventStream *eventsdk.Listener
 
 	execution       ExecutionSDK
-	executionStream *executionsdk.Listener
+	executionStream <-chan *execution.Execution
 
 	process ProcessSDK
 
+	runner RunnerSDK
+
 	ErrC chan error
+
+	accountName     string
+	accountPassword string
 }
