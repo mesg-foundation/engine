@@ -20,13 +20,13 @@ func validateServiceParameters(parameters []*Service_Parameter, data *types.Stru
 			errs = append(errs, err)
 		}
 	}
-
 	return errs.ErrorOrNil()
 }
 
 // Validate checks if service parameter hash proper types for arrays and objects.
 func (p *Service_Parameter) Validate(value *types.Value) error {
-	if value == nil {
+	_, isNull := value.GetKind().(*types.Value_NullValue)
+	if value == nil || isNull {
 		if p.Optional {
 			return nil
 		}
