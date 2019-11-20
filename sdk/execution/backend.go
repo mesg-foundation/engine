@@ -14,6 +14,7 @@ import (
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	processsdk "github.com/mesg-foundation/engine/sdk/process"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
+	runnersdk "github.com/mesg-foundation/engine/sdk/runner"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -24,15 +25,17 @@ type Backend struct {
 	storeKey     *cosmostypes.KVStoreKey
 	serviceBack  *servicesdk.Backend
 	instanceBack *instancesdk.Backend
+	runnerBack   *runnersdk.Backend
 	processSDK   *processsdk.Process // TODO: to replace by process backend when process sdk is running on cosmos.
 }
 
 // NewBackend returns the backend of the execution sdk.
-func NewBackend(appFactory *cosmos.AppFactory, serviceBack *servicesdk.Backend, instanceBack *instancesdk.Backend) *Backend {
+func NewBackend(appFactory *cosmos.AppFactory, serviceBack *servicesdk.Backend, instanceBack *instancesdk.Backend, runnerBack *runnersdk.Backend) *Backend {
 	backend := &Backend{
 		storeKey:     cosmostypes.NewKVStoreKey(backendName),
 		serviceBack:  serviceBack,
 		instanceBack: instanceBack,
+		runnerBack:   runnerBack,
 	}
 	appBackendBasic := cosmos.NewAppModuleBasic(backendName)
 	appBackend := cosmos.NewAppModule(appBackendBasic, backend.handler, backend.querier)
@@ -85,7 +88,11 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 
 // Create creates a new execution from definition.
 func (s *Backend) Create(request cosmostypes.Request, msg msgCreateExecution) (*execution.Execution, error) {
-	inst, err := s.instanceBack.Get(request, msg.Request.InstanceHash)
+	run, err := s.runnerBack.Get(request, msg.Request.ExecutorHash)
+	if err != nil {
+		return nil, err
+	}
+	inst, err := s.instanceBack.Get(request, run.InstanceHash)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +110,7 @@ func (s *Backend) Create(request cosmostypes.Request, msg msgCreateExecution) (*
 	}
 	exec := execution.New(
 		msg.Request.ProcessHash,
-		msg.Request.InstanceHash,
+		run.InstanceHash,
 		msg.Request.ParentHash,
 		msg.Request.EventHash,
 		msg.Request.StepID,

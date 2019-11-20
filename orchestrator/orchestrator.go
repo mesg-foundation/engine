@@ -208,7 +208,6 @@ func (s *Orchestrator) processTask(task *process.Process_Node_Task, wf *process.
 	executor := executors[rand.Intn(len(executors))]
 	_, err = s.execution.Create(&api.CreateExecutionRequest{
 		ProcessHash:  wf.Hash,
-		InstanceHash: task.InstanceHash,
 		EventHash:    eventHash,
 		ParentHash:   execHash,
 		StepID:       task.Key,

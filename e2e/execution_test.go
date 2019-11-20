@@ -59,7 +59,6 @@ func testExecution(t *testing.T) {
 			require.NoError(t, err)
 			acknowledgement.WaitForStreamToBeReady(stream)
 			resp, err := client.ExecutionClient.Create(ctx, &pb.CreateExecutionRequest{
-				InstanceHash: testInstanceHash,
 				TaskKey:      "ping",
 				EventHash:    hash.Int(1),
 				ExecutorHash: testRunnerHash,
