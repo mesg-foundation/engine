@@ -85,8 +85,7 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 func (s *Backend) Create(request cosmostypes.Request, msg *msgCreateService) (*service.Service, error) {
 	store := request.KVStore(s.storeKey)
 	// create service
-	srv := api.TransformCreateReqToService(msg.Request)
-	srv.Hash = hash.Dump(srv)
+	srv := initializeService(msg.Request)
 
 	// check if service already exists.
 	if store.Has(srv.Hash) {
@@ -133,7 +132,7 @@ func (s *Backend) Exists(request cosmostypes.Request, hash hash.Hash) (bool, err
 
 // Hash returns the hash of a service request.
 func (s *Backend) Hash(serviceRequest *api.CreateServiceRequest) hash.Hash {
-	return hash.Dump(api.TransformCreateReqToService(serviceRequest))
+	return initializeService(serviceRequest).Hash
 }
 
 // List returns all services.
@@ -152,4 +151,23 @@ func (s *Backend) List(request cosmostypes.Request) ([]*service.Service, error) 
 	}
 	iter.Close()
 	return services, nil
+}
+
+func initializeService(req *api.CreateServiceRequest) *service.Service {
+	// create service
+	srv := &service.Service{
+		Sid:           req.Sid,
+		Name:          req.Name,
+		Description:   req.Description,
+		Configuration: req.Configuration,
+		Tasks:         req.Tasks,
+		Events:        req.Events,
+		Dependencies:  req.Dependencies,
+		Repository:    req.Repository,
+		Source:        req.Source,
+	}
+
+	// calculate and apply hash to service.
+	srv.Hash = hash.Dump(srv)
+	return srv
 }
