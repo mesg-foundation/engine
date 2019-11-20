@@ -36,10 +36,10 @@ func (msg msgCreateRunner) Type() string {
 // ValidateBasic runs stateless checks on the message.
 func (msg msgCreateRunner) ValidateBasic() cosmostypes.Error {
 	if msg.ServiceHash.IsZero() {
-		return cosmos.NewMesgErrorf(cosmos.CodeMesgValidation, "serviceHash is missing")
+		return cosmos.NewMesgErrorf(cosmos.CodeValidation, "serviceHash is missing")
 	}
 	if msg.EnvHash.IsZero() {
-		return cosmos.NewMesgErrorf(cosmos.CodeMesgValidation, "envHash is missing")
+		return cosmos.NewMesgErrorf(cosmos.CodeValidation, "envHash is missing")
 	}
 	if msg.Address.Empty() {
 		return cosmostypes.ErrInvalidAddress("address is missing")
@@ -84,7 +84,7 @@ func (msg msgDeleteRunner) Type() string {
 // ValidateBasic runs stateless checks on the message.
 func (msg msgDeleteRunner) ValidateBasic() cosmostypes.Error {
 	if msg.RunnerHash.IsZero() {
-		return cosmos.NewMesgErrorf(cosmos.CodeMesgValidation, "runnerHash is missing")
+		return cosmos.NewMesgErrorf(cosmos.CodeValidation, "runnerHash is missing")
 	}
 	if msg.Address.Empty() {
 		return cosmostypes.ErrInvalidAddress("address is missing")

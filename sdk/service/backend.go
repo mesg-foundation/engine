@@ -42,7 +42,7 @@ func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) cosm
 	case msgCreateService:
 		srv, err := s.Create(request, &msg)
 		if err != nil {
-			return cosmos.NewMesgWrapError(cosmos.CodeMesgInternal, err).Result()
+			return cosmos.NewMesgWrapError(cosmos.CodeInternal, err).Result()
 		}
 		return cosmostypes.Result{Data: srv.Hash}
 	default:
