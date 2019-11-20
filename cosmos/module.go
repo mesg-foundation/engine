@@ -116,11 +116,11 @@ func (m AppModule) NewQuerierHandler() sdk.Querier {
 			if errsdk, ok := err.(sdk.Error); ok {
 				return nil, errsdk
 			}
-			return nil, sdk.ErrInternal(err.Error())
+			return nil, NewMesgWrapError(CodeMesgInternal, err)
 		}
 		res, err := codec.MarshalBinaryBare(data)
 		if err != nil {
-			return nil, sdk.ErrInternal(err.Error())
+			return nil, NewMesgWrapError(CodeMesgInternal, err)
 		}
 		return res, nil
 	}
