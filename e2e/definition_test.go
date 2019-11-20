@@ -94,24 +94,32 @@ func newTestComplexCreateServiceRequest() *pb.CreateServiceRequest {
 		Name: "test-complex-service",
 		Dependencies: []*service.Service_Dependency{
 			{
-				Key:     "busybox",
-				Image:   "busybox",
-				Volumes: []string{"/volume-test"},
+				Key:     "nginx",
+				Image:   "nginx",
+				Volumes: []string{"/etc/nginx"},
 			},
 		},
 		Configuration: service.Service_Configuration{
-			VolumesFrom: []string{"busybox"},
-			Env:         []string{"FOO"},
+			Env: []string{
+				"ENVA=do_not_override",
+				"ENVB=override",
+			},
+			Volumes:     []string{"/volume/test/"},
+			VolumesFrom: []string{"nginx"},
 		},
 		Events: []*service.Service_Event{
 			{Key: "test_service_ready"},
 			{Key: "read_env_ok"},
 			{Key: "read_env_error"},
+			{Key: "read_env_override_ok"},
+			{Key: "read_env_override_error"},
+			{Key: "access_volumes_ok"},
+			{Key: "access_volumes_error"},
 			{Key: "access_volumes_from_ok"},
 			{Key: "access_volumes_from_error"},
 			{Key: "resolve_dependence_ok"},
 			{Key: "resolve_dependence_error"},
 		},
-		Source: "QmP98j5p92QDFTb7h6EyuReA3HCL8jd5yGp6PNvoKYLdyM",
+		Source: "QmXrYtcrs5UZjAZXsfGuBNjyawvdPV7pA44XdodP9gPjtt",
 	}
 }

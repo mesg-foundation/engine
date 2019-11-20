@@ -3,13 +3,15 @@ package main
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"log"
-	"net"
+	"net/http"
 	"os"
 	"time"
 
 	"github.com/mesg-foundation/engine/hash"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
+	"github.com/mesg-foundation/engine/x/xsignal"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 )
@@ -82,23 +84,42 @@ func main() {
 	}
 	log.Printf("connect to %s\n", os.Getenv(envMesgEndpoint))
 
+	// give some time to nginx to start
+	time.Sleep(10 * time.Second)
+
 	client.SendEvent("test_service_ready")
 
-	if os.Getenv("FOO") == "bar" {
+	// check env default value
+	if os.Getenv("ENVA") == "do_not_override" {
 		client.SendEvent("read_env_ok")
 	} else {
 		client.SendEvent("read_env_error")
 	}
 
-	if _, err := os.Stat("/volume-test"); err == nil {
+	// check env override value
+	if os.Getenv("ENVB") == "is_override" {
+		client.SendEvent("read_env_override_ok")
+	} else {
+		client.SendEvent("read_env_override_error")
+	}
+
+	if err := ioutil.WriteFile("/volume/test/test.txt", []byte("foo"), 0644); err == nil {
+		client.SendEvent("access_volumes_ok")
+	} else {
+		client.SendEvent("access_volumes_error")
+	}
+
+	if _, err := http.Get("http://nginx:80/"); err == nil {
+		client.SendEvent("resolve_dependence_ok")
+	} else {
+		client.SendEvent("resolve_dependence_error")
+	}
+
+	if content, err := ioutil.ReadFile("/etc/nginx/nginx.conf"); len(content) > 0 && err == nil {
 		client.SendEvent("access_volumes_from_ok")
 	} else {
 		client.SendEvent("access_volumes_from_error")
 	}
 
-	if _, err := net.LookupHost("busybox"); err == nil {
-		client.SendEvent("resolve_dependence_ok")
-	} else {
-		client.SendEvent("resolve_dependence_error")
-	}
+	<-xsignal.WaitForInterrupt()
 }
