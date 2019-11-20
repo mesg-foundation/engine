@@ -238,6 +238,24 @@ func TestValidate(t *testing.T) {
 			},
 			expecterr: true,
 		},
+		{
+			name: "optional null",
+			params: []*Service_Parameter{
+				{
+					Key:      "key",
+					Type:     "Object",
+					Optional: true,
+				},
+			},
+			data: &types.Struct{
+				Fields: map[string]*types.Value{
+					"key": {
+						Kind: &types.Value_NullValue{},
+					},
+				},
+			},
+			expecterr: false,
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
