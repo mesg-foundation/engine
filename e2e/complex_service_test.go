@@ -8,7 +8,6 @@ import (
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc/metadata"
 )
 
 func testComplexService(t *testing.T) {
@@ -19,12 +18,10 @@ func testComplexService(t *testing.T) {
 	)
 
 	req := newTestComplexCreateServiceRequest()
-	ctx := metadata.NewOutgoingContext(context.Background(), passmd)
 
 	t.Run("create", func(t *testing.T) {
-		resp, err := client.ServiceClient.Create(ctx, req)
+		resp, err := client.ServiceClient.Create(context.Background(), req)
 		require.NoError(t, err)
-
 		testServiceHash = resp.Hash
 	})
 
@@ -33,7 +30,7 @@ func testComplexService(t *testing.T) {
 	acknowledgement.WaitForStreamToBeReady(stream)
 
 	t.Run("run", func(t *testing.T) {
-		resp, err := client.RunnerClient.Create(ctx, &pb.CreateRunnerRequest{
+		resp, err := client.RunnerClient.Create(context.Background(), &pb.CreateRunnerRequest{
 			ServiceHash: testServiceHash,
 			Env:         []string{"FOO=bar"},
 		})
@@ -66,7 +63,7 @@ func testComplexService(t *testing.T) {
 	})
 
 	t.Run("delete", func(t *testing.T) {
-		_, err := client.RunnerClient.Delete(ctx, &pb.DeleteRunnerRequest{Hash: testRunnerHash})
+		_, err := client.RunnerClient.Delete(context.Background(), &pb.DeleteRunnerRequest{Hash: testRunnerHashC})
 		require.NoError(t, err)
 	})
 }
