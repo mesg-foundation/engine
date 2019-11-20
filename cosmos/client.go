@@ -133,32 +133,39 @@ func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg, accName, accPassword str
 }
 
 // Stream subscribes to the provided query and returns the hash of the matching ressources.
-func (c *Client) Stream(query string) (chan hash.Hash, error) {
-	subscriber := xstrings.RandAsciiLetters(8)
+func (c *Client) Stream(ctx context.Context, query string) (chan hash.Hash, chan error, error) {
+	subscriber := xstrings.RandASCIILetters(8)
 	eventStream, err := c.Subscribe(context.Background(), subscriber, query)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	hashC := make(chan hash.Hash)
+	errC := make(chan error)
 	go func() {
-		for event := range eventStream {
-			ressHashes := event.Events[EventHashType]
-			if len(ressHashes) != 1 {
-				// or panic(err) - grpc api do not support
-				// return the errors on the stream for now
-				// so besieds logging the error, it not
-				// much we can do here. same belove
-				continue
-			}
+	loop:
+		for {
+			select {
+			case event := <-eventStream:
+				tags := event.Events[EventHashType]
+				if len(tags) != 1 {
+					errC <- fmt.Errorf("event %s has %d tag(s), but only 1 is expected", EventHashType, len(tags))
+					break
+				}
 
-			hash, err := hash.Decode(ressHashes[0])
-			if err != nil {
-				continue
+				hash, err := hash.Decode(tags[0])
+				if err != nil {
+					errC <- err
+				} else {
+					hashC <- hash
+				}
+			case <-ctx.Done():
+				break loop
 			}
-			hashC <- hash
 		}
+		close(errC)
+		close(hashC)
 		c.Unsubscribe(context.Background(), subscriber, query)
 	}()
-	return hashC, nil
+	return hashC, errC, nil
 }

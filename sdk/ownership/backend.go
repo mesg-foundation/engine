@@ -31,7 +31,7 @@ func NewBackend(appFactory *cosmos.AppFactory) *Backend {
 	return backend
 }
 
-func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) (hash.Hash, cosmostypes.Error) {
+func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) (hash.Hash, error) {
 	errmsg := fmt.Sprintf("Unrecognized ownership Msg type: %v", msg.Type())
 	return nil, cosmostypes.ErrUnknownRequest(errmsg)
 }

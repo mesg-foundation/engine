@@ -35,7 +35,7 @@ func NewBackend(appFactory *cosmos.AppFactory, instanceBack *instancesdk.Backend
 	return backend
 }
 
-func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) (hash.Hash, cosmostypes.Error) {
+func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) (hash.Hash, error) {
 	switch msg := msg.(type) {
 	case msgCreateRunner:
 		run, err := s.Create(request, &msg)
@@ -45,7 +45,7 @@ func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) (has
 		return run.Hash, nil
 	case msgDeleteRunner:
 		if err := s.Delete(request, &msg); err != nil {
-			return nil, cosmostypes.ErrInternal(err.Error())
+			return nil, err
 		}
 		return nil, nil
 	default:

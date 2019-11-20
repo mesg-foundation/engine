@@ -13,8 +13,8 @@ import (
 	"github.com/mesg-foundation/engine/protobuf/types"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	processsdk "github.com/mesg-foundation/engine/sdk/process"
-	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	runnersdk "github.com/mesg-foundation/engine/sdk/runner"
+	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -51,18 +51,18 @@ func (s *Backend) SetProcessSDK(processSDK *processsdk.Process) {
 	s.processSDK = processSDK
 }
 
-func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) (hash.Hash, cosmostypes.Error) {
+func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) (hash.Hash, error) {
 	switch msg := msg.(type) {
 	case msgCreateExecution:
 		exec, err := s.Create(request, msg)
 		if err != nil {
-			return nil, cosmostypes.ErrInternal(err.Error())
+			return nil, err
 		}
 		return exec.Hash, nil
 	case msgUpdateExecution:
 		exec, err := s.Update(request, msg)
 		if err != nil {
-			return nil, cosmostypes.ErrInternal(err.Error())
+			return nil, err
 		}
 		return exec.Hash, nil
 	default:

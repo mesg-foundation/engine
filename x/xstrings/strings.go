@@ -35,8 +35,8 @@ func SliceIndex(a []string, e string) int {
 
 var asciiletters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-// RandAsciiLetters generates random string from ascii letters.
-func RandAsciiLetters(n int) string {
+// RandASCIILetters generates random string from ascii letters.
+func RandASCIILetters(n int) string {
 	b := make([]byte, n)
 	for i := range b {
 		b[i] = asciiletters[rand.Intn(len(asciiletters))]

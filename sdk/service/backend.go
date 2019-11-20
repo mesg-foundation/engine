@@ -37,12 +37,12 @@ func NewBackend(appFactory *cosmos.AppFactory, ownerships *ownershipsdk.Backend)
 	return backend
 }
 
-func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) (hash.Hash, cosmostypes.Error) {
+func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) (hash.Hash, error) {
 	switch msg := msg.(type) {
 	case msgCreateService:
 		srv, err := s.Create(request, &msg)
 		if err != nil {
-			return nil, cosmostypes.ErrInternal(err.Error())
+			return nil, err
 		}
 		return srv.Hash, nil
 	default:

@@ -1,6 +1,7 @@
 package executionsdk
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/mesg-foundation/engine/cosmos"
@@ -89,32 +90,38 @@ func (s *SDK) List() ([]*execution.Execution, error) {
 }
 
 // Stream returns execution that matches given hash.
-func (s *SDK) Stream(req *api.StreamExecutionRequest) (chan *execution.Execution, error) {
+func (s *SDK) Stream(ctx context.Context, req *api.StreamExecutionRequest) (chan *execution.Execution, chan error, error) {
 	if err := req.Filter.Validate(); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	stream, err := s.client.Stream(cosmos.EventModuleQuery(backendName))
+	stream, serrC, err := s.client.Stream(ctx, cosmos.EventModuleQuery(backendName))
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	execC := make(chan *execution.Execution)
+	errC := make(chan error)
 	go func() {
-		for hash := range stream {
-			exec, err := s.Get(hash)
-			if err != nil {
-				// or panic(err) - grpc api do not support
-				// return the errors on the stream for now
-				// so besieds logging the error, it not
-				// much we can do here.
-				continue
-			}
-			if req.Filter.Match(exec) {
-				execC <- exec
+	loop:
+		for {
+			select {
+			case hash := <-stream:
+				exec, err := s.Get(hash)
+				if err != nil {
+					errC <- err
+				}
+				if req.Filter.Match(exec) {
+					execC <- exec
+				}
+			case err := <-serrC:
+				errC <- err
+			case <-ctx.Done():
+				break loop
 			}
 		}
+		close(errC)
 		close(execC)
 	}()
-	return execC, nil
+	return execC, errC, nil
 }

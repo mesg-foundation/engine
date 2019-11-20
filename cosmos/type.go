@@ -3,7 +3,6 @@ package cosmos
 import (
 	"fmt"
 
-	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -12,8 +11,8 @@ const (
 	AttributeKeyHash = "hash"
 )
 
-// EventHashType
-var EventHashType = cosmostypes.EventTypeMessage + "." + AttributeKeyHash
+// EventHashType is a message with resource hash
+var EventHashType = sdktypes.EventTypeMessage + "." + AttributeKeyHash
 
 func EventActionQuery(msgType string) string {
 	return fmt.Sprintf("%s.%s='%s'", sdktypes.EventTypeMessage, sdktypes.AttributeKeyAction, msgType)

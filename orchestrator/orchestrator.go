@@ -1,6 +1,7 @@
 package orchestrator
 
 import (
+	"context"
 	"fmt"
 	"math/rand"
 
@@ -32,8 +33,12 @@ func (s *Orchestrator) Start() error {
 	if s.eventStream != nil || s.executionStream != nil {
 		return fmt.Errorf("process orchestrator already running")
 	}
+
 	s.eventStream = s.event.GetStream(nil)
-	executionStream, err := s.execution.Stream(&api.StreamExecutionRequest{
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	executionStream, errC, err := s.execution.Stream(ctx, &api.StreamExecutionRequest{
 		Filter: &api.StreamExecutionRequest_Filter{
 			Statuses: []execution.Status{execution.Status_Completed},
 		},
@@ -49,10 +54,10 @@ func (s *Orchestrator) Start() error {
 		case execution := <-s.executionStream:
 			go s.execute(s.resultFilter(execution), execution, nil, execution.Outputs)
 			go s.execute(s.dependencyFilter(execution), execution, nil, execution.Outputs)
+		case err := <-errC:
+			s.ErrC <- err
 		}
 	}
-	close(executionStream)
-	return nil
 }
 
 func (s *Orchestrator) eventFilter(event *event.Event) func(wf *process.Process, node *process.Process_Node) (bool, error) {

@@ -33,7 +33,7 @@ type AppModule struct {
 }
 
 // Handler defines the core of the state transition function of an application.
-type Handler func(request cosmostypes.Request, msg cosmostypes.Msg) (hash.Hash, cosmostypes.Error)
+type Handler func(request cosmostypes.Request, msg cosmostypes.Msg) (hash.Hash, error)
 
 // Querier is responsible to answer to ABCI queries.
 type Querier func(request cosmostypes.Request, path []string, req abci.RequestQuery) (res interface{}, err error)
@@ -107,7 +107,10 @@ func (m AppModule) NewHandler() cosmostypes.Handler {
 	return func(request cosmostypes.Request, msg cosmostypes.Msg) cosmostypes.Result {
 		hash, err := m.handler(request, msg)
 		if err != nil {
-			return err.Result()
+			if errsdk, ok := err.(cosmostypes.Error); ok {
+				return errsdk.Result()
+			}
+			return cosmostypes.ErrInternal(err.Error()).Result()
 		}
 
 		events := request.EventManager().Events()

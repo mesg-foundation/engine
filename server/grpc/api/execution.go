@@ -42,11 +42,13 @@ func (s *ExecutionServer) Get(ctx context.Context, req *api.GetExecutionRequest)
 
 // Stream returns stream of executions.
 func (s *ExecutionServer) Stream(req *api.StreamExecutionRequest, resp api.Execution_StreamServer) error {
-	stream, err := s.sdk.Execution.Stream(req)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	stream, errC, err := s.sdk.Execution.Stream(ctx, req)
 	if err != nil {
 		return err
 	}
-	defer close(stream)
 
 	if err := acknowledgement.SetStreamReady(resp); err != nil {
 		return err
@@ -58,6 +60,8 @@ func (s *ExecutionServer) Stream(req *api.StreamExecutionRequest, resp api.Execu
 			if err := resp.Send(exec); err != nil {
 				return err
 			}
+		case err := <-errC:
+			return err
 		case <-resp.Context().Done():
 			return resp.Context().Err()
 		}

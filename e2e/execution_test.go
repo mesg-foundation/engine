@@ -15,15 +15,16 @@ import (
 
 func testExecution(t *testing.T) {
 	var executionHash hash.Hash
-	var execPingCompleted *execution.Execution
+	var execPing *execution.Execution
+
 	ctx := metadata.NewOutgoingContext(context.Background(), passmd)
 	t.Run("stream", func(t *testing.T) {
-		t.Run("with nil filter", func(t *testing.T) {
+		t.Run("nil filter", func(t *testing.T) {
 			_, err := client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{})
 			require.NoError(t, err)
 		})
 		// TODO: no error are returned but it supposed to...
-		// t.Run("with not valid filter", func(t *testing.T) {
+		// t.Run("not valid filter", func(t *testing.T) {
 		// 	t.Run("not found executor", func(t *testing.T) {
 		// 		_, err := client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{
 		// 			Filter: &pb.StreamExecutionRequest_Filter{
@@ -50,7 +51,7 @@ func testExecution(t *testing.T) {
 		// 		require.EqualError(t, err, "service \"test-service\" - task \"do-not-exist\" not found")
 		// 	})
 		// })
-		t.Run("working", func(t *testing.T) {
+		t.Run("good", func(t *testing.T) {
 			stream, err := client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{
 				Filter: &pb.StreamExecutionRequest_Filter{
 					ExecutorHash: testRunnerHash,
@@ -58,6 +59,7 @@ func testExecution(t *testing.T) {
 			})
 			require.NoError(t, err)
 			acknowledgement.WaitForStreamToBeReady(stream)
+
 			resp, err := client.ExecutionClient.Create(ctx, &pb.CreateExecutionRequest{
 				TaskKey:      "ping",
 				EventHash:    hash.Int(1),
@@ -82,24 +84,24 @@ func testExecution(t *testing.T) {
 				require.Equal(t, execution.Status_InProgress, execPingInProgress.Status)
 			})
 			t.Run("receive completed execution", func(t *testing.T) {
-				execPingCompleted, err = stream.Recv()
+				execPing, err = stream.Recv()
 				require.NoError(t, err)
-				require.Equal(t, resp.Hash, execPingCompleted.Hash)
-				require.Equal(t, "ping", execPingCompleted.TaskKey)
-				require.Equal(t, execution.Status_Completed, execPingCompleted.Status)
+				require.Equal(t, resp.Hash, execPing.Hash)
+				require.Equal(t, "ping", execPing.TaskKey)
+				require.Equal(t, execution.Status_Completed, execPing.Status)
 			})
 		})
 	})
 
 	t.Run("get", func(t *testing.T) {
-		execGet, err := client.ExecutionClient.Get(ctx, &pb.GetExecutionRequest{Hash: executionHash})
+		exec, err := client.ExecutionClient.Get(ctx, &pb.GetExecutionRequest{Hash: executionHash})
 		require.NoError(t, err)
-		require.True(t, execGet.Equal(execPingCompleted))
+		require.True(t, exec.Equal(execPing))
 	})
 
-	// t.Run("list", func(t *testing.T) {
-	// 	execList, err := client.ExecutionClient.List(ctx, &pb.GetExecutionRequest{Hash: executionHash})
-	// 	require.NoError(t, err)
-	// 	require.True(t, execGet.Equal(execPingCompleted))
-	// })
+	t.Run("list", func(t *testing.T) {
+		resp, err := client.ExecutionClient.List(ctx, &pb.ListExecutionRequest{})
+		require.NoError(t, err)
+		require.Len(t, resp.Executions, 1)
+	})
 }

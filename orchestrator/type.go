@@ -1,6 +1,8 @@
 package orchestrator
 
 import (
+	"context"
+
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
@@ -12,7 +14,7 @@ import (
 
 // ExecutionSDK execution interface needed for the orchestrator
 type ExecutionSDK interface {
-	Stream(req *api.StreamExecutionRequest) (chan *execution.Execution, error)
+	Stream(ctx context.Context, req *api.StreamExecutionRequest) (chan *execution.Execution, chan error, error)
 	Get(hash hash.Hash) (*execution.Execution, error)
 	Create(req *api.CreateExecutionRequest, accountName, accountPassword string) (*execution.Execution, error)
 }
