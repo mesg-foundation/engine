@@ -52,18 +52,16 @@ func (s *ExecutionServer) Stream(req *api.StreamExecutionRequest, resp api.Execu
 		return err
 	}
 
-	// TODO:
-	// There is possible deadlock. If the client close the connection,
-	// but there will be no messages in the stream, then this for will
-	// wait and consume resources forever. Some ACK mechnizm needs to be
-	// implemented on server/client side to get notify if the conneciton
-	// wasn't closed.
-	for exec := range stream {
-		if err := resp.Send(exec); err != nil {
-			return err
+	for {
+		select {
+		case exec := <-stream:
+			if err := resp.Send(exec); err != nil {
+				return err
+			}
+		case <-resp.Context().Done():
+			return resp.Context().Err()
 		}
 	}
-	return nil
 }
 
 // Update updates execution from given hash.
