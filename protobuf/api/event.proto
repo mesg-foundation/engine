@@ -27,18 +27,22 @@ message StreamEventRequest {
   message Filter {
     // hash to filter events.
     bytes hash = 1 [
+      (gogoproto.moretags) = 'validate:"omitempty,hash"',
       (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
       (gogoproto.nullable) = false
     ];
 
     // instance's hash to filter events.
     bytes instanceHash = 2 [
+      (gogoproto.moretags) = 'validate:"omitempty,hash"',
       (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
       (gogoproto.nullable) = false
     ];
 
     // key is the key of the event.
-    string key = 3;
+    string key = 3 [
+      (gogoproto.moretags) = 'validate:"printascii"'
+    ];
   }
 
   // Filter used to filter a stream of events.
@@ -54,7 +58,9 @@ message CreateEventRequest {
   ];
 
   // key is the key of the event.
-  string key = 2;
+  string key = 2 [
+    (gogoproto.moretags) = 'validate:"printascii"'
+  ];
 
   // data is the data for the event.
   mesg.protobuf.Struct data = 3;

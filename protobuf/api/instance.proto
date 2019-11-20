@@ -23,6 +23,7 @@ service Instance {
 // The request's data for the `Get` API.
 message GetInstanceRequest {
   bytes hash = 1 [
+    (gogoproto.moretags) = 'validate:"hash"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
@@ -34,6 +35,7 @@ message ListInstanceRequest {
   message Filter {
     // Service hash to filter executions.
     bytes serviceHash = 1 [
+      (gogoproto.moretags) = 'validate:"omitempty,hash"',
       (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
       (gogoproto.nullable) = false
     ];

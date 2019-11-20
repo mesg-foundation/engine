@@ -29,8 +29,11 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // The request's data for the `Create` API.
 type CreateProcessRequest struct {
-	Key                  string                  `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
-	Nodes                []*process.Process_Node `protobuf:"bytes,4,rep,name=nodes,proto3" json:"nodes,omitempty"`
+	// Process's key
+	Key string `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
+	// List of nodes of the process.
+	Nodes []*process.Process_Node `protobuf:"bytes,4,rep,name=nodes,proto3" json:"nodes,omitempty"`
+	// List of edges of the process.
 	Edges                []*process.Process_Edge `protobuf:"bytes,5,rep,name=edges,proto3" json:"edges,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}                `json:"-"`
 	XXX_unrecognized     []byte                  `json:"-"`

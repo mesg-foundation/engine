@@ -30,9 +30,14 @@ service Process {
 
 // The request's data for the `Create` API.
 message CreateProcessRequest {
-  string key = 2;           // Process's key
-  repeated types.Process.Node nodes = 4;  // List of nodes of the process.
-  repeated types.Process.Edge edges = 5;  // List of edges of the process.
+  // Process's key
+  string key = 2;
+
+  // List of nodes of the process.
+  repeated types.Process.Node nodes = 4;
+
+  // List of edges of the process.
+  repeated types.Process.Edge edges = 5;
 }
 
 // The response's data for the `Create` API.

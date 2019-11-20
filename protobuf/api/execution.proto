@@ -31,12 +31,22 @@ service Execution {
 // CreateExecutionRequest defines request to create a single execution.
 message CreateExecutionRequest {
   bytes instanceHash = 1 [
+    (gogoproto.moretags) = 'validate:"hash"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
-  string taskKey = 2;
+
+    // taskKey to filter executions.
+  string taskKey = 2 [
+    (gogoproto.moretags) = 'validate:"printascii"'
+  ];
+
   mesg.protobuf.Struct inputs = 3;
-  repeated string tags = 4;
+
+  // tags to executions.
+  repeated string tags = 4 [
+    (gogoproto.moretags) = 'validate:"dive,printascii"'
+  ];
 }
 
 // CreateExecutionResponse defines response for execution creation.
@@ -52,6 +62,7 @@ message CreateExecutionResponse {
 message GetExecutionRequest {
   // Execution's hash to fetch.
   bytes hash = 1 [
+    (gogoproto.moretags) = 'validate:"hash"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
@@ -66,15 +77,20 @@ message StreamExecutionRequest{
 
     // Instance's hash to filter executions.
     bytes instanceHash = 2 [
+      (gogoproto.moretags) = 'validate:"omitempty,hash"',
       (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
       (gogoproto.nullable) = false
     ];
 
     // taskKey to filter executions.
-    string taskKey = 3;
+    string taskKey = 3 [
+      (gogoproto.moretags) = 'validate:"printascii"'
+    ];
 
     // tags to filter executions. All tags needs to be present in the execution.
-    repeated string tags = 4;
+    repeated string tags = 4 [
+      (gogoproto.moretags) = 'validate:"dive,printascii"'
+    ];
   }
 
   // Filter used to filter a stream of executions.
@@ -85,6 +101,7 @@ message StreamExecutionRequest{
 message UpdateExecutionRequest {
   // Hash represents execution.
   bytes hash = 1 [
+    (gogoproto.moretags) = 'validate:"hash"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
