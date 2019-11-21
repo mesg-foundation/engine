@@ -80,6 +80,10 @@ func (s *SDK) Create(req *api.CreateRunnerRequest, accountName, accountPassword 
 		InstanceHash: instanceHash,
 	})
 
+	if runExisting, _ := s.Get(expRunnerHash); runExisting != nil {
+		return nil, fmt.Errorf("runner %q already exists", runExisting.Hash)
+	}
+
 	// start the container
 	imageHash, err := build(s.container, srv, s.ipfsEndpoint)
 	if err != nil {
