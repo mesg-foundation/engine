@@ -41,7 +41,7 @@ func NewGenesisValidator(kb *Keybase, name, password, privValidatorKeyFile, priv
 	}, nil
 }
 
-// GenesisExist returns true if the genesis file already exist.
+// GenesisExist returns true if the genesis file already exists.
 func GenesisExist(genesisFile string) bool {
 	_, err := os.Stat(genesisFile)
 	return !os.IsNotExist(err)
