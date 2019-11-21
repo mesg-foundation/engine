@@ -23,34 +23,6 @@ func testExecution(t *testing.T) {
 			_, err := client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{})
 			require.NoError(t, err)
 		})
-		// TODO: no error are returned but it supposed to...
-		// t.Run("not valid filter", func(t *testing.T) {
-		// 	t.Run("not found executor", func(t *testing.T) {
-		// 		_, err := client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{
-		// 			Filter: &pb.StreamExecutionRequest_Filter{
-		// 				ExecutorHash: hash.Int(1),
-		// 			},
-		// 		})
-		// 		require.EqualError(t, err, "dwdw")
-		// 	})
-		// 	t.Run("not found instance", func(t *testing.T) {
-		// 		_, err := client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{
-		// 			Filter: &pb.StreamExecutionRequest_Filter{
-		// 				InstanceHash: hash.Int(1),
-		// 			},
-		// 		})
-		// 		require.EqualError(t, err, "dwdw")
-		// 	})
-		// 	t.Run("not found task key", func(t *testing.T) {
-		// 		_, err := client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{
-		// 			Filter: &pb.StreamExecutionRequest_Filter{
-		// 				ExecutorHash: testRunnerHash,
-		// 				TaskKey:      "do-not-exist",
-		// 			},
-		// 		})
-		// 		require.EqualError(t, err, "service \"test-service\" - task \"do-not-exist\" not found")
-		// 	})
-		// })
 		t.Run("good", func(t *testing.T) {
 			stream, err := client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{
 				Filter: &pb.StreamExecutionRequest_Filter{
