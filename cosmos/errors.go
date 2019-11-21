@@ -12,7 +12,7 @@ const (
 const (
 	// Base mesg codes.
 	CodeInternal   types.CodeType = 1000
-	CodeValidation                = 2000
+	CodeValidation types.CodeType = 2000
 )
 
 // NewMesgErrorf creates error with given code type and mesg codespace.
