@@ -2,6 +2,7 @@ package runnersdk
 
 import (
 	"errors"
+	"fmt"
 
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/container"
@@ -182,7 +183,7 @@ func (s *SDK) List(f *Filter) ([]*runner.Runner, error) {
 	ret := make([]*runner.Runner, 0)
 	for _, runner := range runners {
 		if (f.Address == "" || runner.Address == f.Address) &&
-			(f.InstanceHash.IsZero() || runner.Hash.Equal(f.InstanceHash)) {
+			(f.InstanceHash.IsZero() || runner.InstanceHash.Equal(f.InstanceHash)) {
 			ret = append(ret, runner)
 		}
 	}
