@@ -112,10 +112,13 @@ func (s *Backend) Create(request cosmostypes.Request, msg msgCreateExecution) (*
 		msg.Request.Tags,
 		msg.Request.ExecutorHash,
 	)
+	store := request.KVStore(s.storeKey)
+	if store.Has(exec.Hash) {
+		return nil, fmt.Errorf("execution %q already exists", exec.Hash)
+	}
 	if err := exec.Execute(); err != nil {
 		return nil, err
 	}
-	store := request.KVStore(s.storeKey)
 	value, err := codec.MarshalBinaryBare(exec)
 	if err != nil {
 		return nil, err
