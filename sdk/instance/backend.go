@@ -50,7 +50,6 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 		if err := codec.UnmarshalBinaryBare(req.Data, &f); err != nil {
 			return nil, err
 		}
-
 		return s.List(request, &f)
 	case "exists":
 		hash, err := hash.Decode(path[1])
@@ -58,7 +57,6 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 			return nil, err
 		}
 		return s.Exists(request, hash)
-
 	default:
 		return nil, errors.New("unknown instance query endpoint" + path[0])
 	}

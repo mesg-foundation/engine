@@ -40,7 +40,7 @@ func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) (has
 	case msgCreateRunner:
 		run, err := s.Create(request, &msg)
 		if err != nil {
-			return run.Hash, cosmostypes.ErrInternal(err.Error())
+			return nil, cosmostypes.ErrInternal(err.Error())
 		}
 		return run.Hash, nil
 	case msgDeleteRunner:
