@@ -118,7 +118,7 @@ func main() {
 			req.Result = &pb.UpdateExecutionRequest_Outputs{
 				Outputs: &types.Struct{
 					Fields: map[string]*types.Value{
-						"pong": &types.Value{
+						"pong": {
 							Kind: &types.Value_StringValue{
 								StringValue: exec.Inputs.Fields["msg"].GetStringValue(),
 							},
@@ -130,7 +130,7 @@ func main() {
 			req.Result = &pb.UpdateExecutionRequest_Outputs{
 				Outputs: &types.Struct{
 					Fields: map[string]*types.Value{
-						"res": &types.Value{
+						"res": {
 							Kind: &types.Value_NumberValue{
 								NumberValue: exec.Inputs.Fields["n"].GetNumberValue() + exec.Inputs.Fields["m"].GetNumberValue(),
 							},
@@ -151,7 +151,7 @@ func main() {
 			Key:          exec.TaskKey + "_ok",
 			Data: &types.Struct{
 				Fields: map[string]*types.Value{
-					"msg": &types.Value{
+					"msg": {
 						Kind: &types.Value_StringValue{
 							StringValue: exec.TaskKey,
 						},

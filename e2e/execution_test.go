@@ -15,7 +15,7 @@ import (
 func testExecution(t *testing.T) {
 	var executionHash hash.Hash
 	var execPing *execution.Execution
-	
+
 	t.Run("stream", func(t *testing.T) {
 		t.Run("nil filter", func(t *testing.T) {
 			_, err := client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{})
