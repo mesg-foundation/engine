@@ -43,6 +43,7 @@ func testRunner(t *testing.T) {
 		testInstanceHash = resp.InstanceHash
 	})
 
+	// TODO: need to test the filters
 	t.Run("list", func(t *testing.T) {
 		resp, err := client.RunnerClient.List(context.Background(), &pb.ListRunnerRequest{})
 		require.NoError(t, err)

@@ -219,7 +219,7 @@ func main() {
 	}()
 	go func() {
 		for err := range s.ErrC {
-			logrus.WithField("module", "main").Warn(err)
+			logrus.WithField("module", "orchestrator").Warn(err)
 		}
 	}()
 
