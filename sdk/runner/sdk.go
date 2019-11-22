@@ -2,6 +2,7 @@ package runnersdk
 
 import (
 	"errors"
+	"fmt"
 
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/container"
@@ -78,6 +79,11 @@ func (s *SDK) Create(req *api.CreateRunnerRequest, accountName, accountPassword 
 		Address:      user.String(),
 		InstanceHash: instanceHash,
 	})
+
+	// check runner already exists
+	if existingRun, _ := s.Get(expRunnerHash); existingRun != nil {
+		return nil, fmt.Errorf("runner %q already exists", existingRun.Hash)
+	}
 
 	// start the container
 	imageHash, err := build(s.container, srv, s.ipfsEndpoint)
