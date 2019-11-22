@@ -10,14 +10,12 @@ import (
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc/metadata"
 )
 
 func testExecution(t *testing.T) {
 	var executionHash hash.Hash
 	var execPing *execution.Execution
-
-	ctx := metadata.NewOutgoingContext(context.Background(), passmd)
+	
 	t.Run("stream", func(t *testing.T) {
 		t.Run("nil filter", func(t *testing.T) {
 			_, err := client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{})
@@ -32,7 +30,7 @@ func testExecution(t *testing.T) {
 			require.NoError(t, err)
 			acknowledgement.WaitForStreamToBeReady(stream)
 
-			resp, err := client.ExecutionClient.Create(ctx, &pb.CreateExecutionRequest{
+			resp, err := client.ExecutionClient.Create(context.Background(), &pb.CreateExecutionRequest{
 				TaskKey:      "ping",
 				EventHash:    hash.Int(1),
 				ExecutorHash: testRunnerHash,
@@ -66,13 +64,13 @@ func testExecution(t *testing.T) {
 	})
 
 	t.Run("get", func(t *testing.T) {
-		exec, err := client.ExecutionClient.Get(ctx, &pb.GetExecutionRequest{Hash: executionHash})
+		exec, err := client.ExecutionClient.Get(context.Background(), &pb.GetExecutionRequest{Hash: executionHash})
 		require.NoError(t, err)
 		require.True(t, exec.Equal(execPing))
 	})
 
 	t.Run("list", func(t *testing.T) {
-		resp, err := client.ExecutionClient.List(ctx, &pb.ListExecutionRequest{})
+		resp, err := client.ExecutionClient.List(context.Background(), &pb.ListExecutionRequest{})
 		require.NoError(t, err)
 		require.Len(t, resp.Executions, 1)
 	})

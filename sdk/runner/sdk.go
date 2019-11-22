@@ -80,9 +80,8 @@ func (s *SDK) Create(req *api.CreateRunnerRequest, accountName, accountPassword 
 		InstanceHash: instanceHash,
 	})
 
-	// check runner already exists
-	if existingRun, _ := s.Get(expRunnerHash); existingRun != nil {
-		return nil, fmt.Errorf("runner %q already exists", existingRun.Hash)
+	if runExisting, _ := s.Get(expRunnerHash); runExisting != nil {
+		return nil, fmt.Errorf("runner %q already exists", runExisting.Hash)
 	}
 
 	// start the container
@@ -188,7 +187,7 @@ func (s *SDK) List(f *Filter) ([]*runner.Runner, error) {
 	ret := make([]*runner.Runner, 0)
 	for _, runner := range runners {
 		if (f.Address == "" || runner.Address == f.Address) &&
-			(f.InstanceHash.IsZero() || runner.Hash.Equal(f.InstanceHash)) {
+			(f.InstanceHash.IsZero() || runner.InstanceHash.Equal(f.InstanceHash)) {
 			ret = append(ret, runner)
 		}
 	}
