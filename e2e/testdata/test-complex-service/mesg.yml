@@ -1,0 +1,35 @@
+name: test-complex-service
+sid: test-complex-service
+
+configuration:
+  env:
+    - ENVA=do_not_override
+    - ENVB=override
+  volumes:
+    - /volume/test/
+  volumesFrom:
+    - nginx
+
+dependencies:
+  nginx:
+    image: nginx
+    volumes:
+      - /etc/nginx
+
+events:
+  test_service_ready:
+
+  read_env_ok:
+  read_env_error:
+
+  read_env_override_ok:
+  read_env_override_error:
+
+  access_volumes_ok:
+  access_volumes_error:
+
+  access_volumes_from_ok:
+  access_volumes_from_error:
+
+  resolve_dependence_ok:
+  resolve_dependence_error:

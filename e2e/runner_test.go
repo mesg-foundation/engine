@@ -8,7 +8,6 @@ import (
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc/metadata"
 )
 
 var testRunnerHash hash.Hash
@@ -23,8 +22,7 @@ func testRunner(t *testing.T) {
 		require.NoError(t, err)
 		acknowledgement.WaitForStreamToBeReady(stream)
 
-		ctx := metadata.NewOutgoingContext(context.Background(), passmd)
-		resp, err := client.RunnerClient.Create(ctx, &pb.CreateRunnerRequest{
+		resp, err := client.RunnerClient.Create(context.Background(), &pb.CreateRunnerRequest{
 			ServiceHash: testServiceHash,
 			Env:         []string{"BAR=3", "REQUIRED=4"},
 		})
@@ -54,8 +52,7 @@ func testRunner(t *testing.T) {
 }
 
 func testDeleteRunner(t *testing.T) {
-	ctx := metadata.NewOutgoingContext(context.Background(), passmd)
-	_, err := client.RunnerClient.Delete(ctx, &pb.DeleteRunnerRequest{Hash: testRunnerHash})
+	_, err := client.RunnerClient.Delete(context.Background(), &pb.DeleteRunnerRequest{Hash: testRunnerHash})
 	require.NoError(t, err)
 
 	resp, err := client.RunnerClient.List(context.Background(), &pb.ListRunnerRequest{})

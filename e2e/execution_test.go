@@ -9,7 +9,6 @@ import (
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc/metadata"
 )
 
 func testExecution(t *testing.T) {
@@ -21,8 +20,7 @@ func testExecution(t *testing.T) {
 	require.NoError(t, err)
 	acknowledgement.WaitForStreamToBeReady(stream)
 
-	ctx := metadata.NewOutgoingContext(context.Background(), passmd)
-	resp, err := client.ExecutionClient.Create(ctx, &pb.CreateExecutionRequest{
+	resp, err := client.ExecutionClient.Create(context.Background(), &pb.CreateExecutionRequest{
 		InstanceHash: testInstanceHash,
 		TaskKey:      "ping",
 		Inputs: &types.Struct{
@@ -51,7 +49,7 @@ func testExecution(t *testing.T) {
 	require.Equal(t, "ping", exec.TaskKey)
 	require.Equal(t, execution.Status_Completed, exec.Status)
 
-	exec, err = client.ExecutionClient.Get(ctx, &pb.GetExecutionRequest{Hash: resp.Hash})
+	exec, err = client.ExecutionClient.Get(context.Background(), &pb.GetExecutionRequest{Hash: resp.Hash})
 	require.NoError(t, err)
 	require.Equal(t, resp.Hash, exec.Hash)
 	require.Equal(t, "ping", exec.TaskKey)

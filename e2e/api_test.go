@@ -7,12 +7,6 @@ import (
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
-)
-
-var passmd = metadata.Pairs(
-	"credential_username", "engine",
-	"credential_passphrase", "pass",
 )
 
 type apiclient struct {
@@ -51,6 +45,7 @@ func TestAPI(t *testing.T) {
 	_, err = client.ServiceClient.List(context.Background(), &pb.ListServiceRequest{})
 	require.NoError(t, err)
 
+	// basic tests
 	t.Run("account", testAccount)
 	t.Run("service", testService)
 	t.Run("ownership", testOwnership)
@@ -59,4 +54,7 @@ func TestAPI(t *testing.T) {
 	t.Run("event", testEvent)
 	t.Run("execution", testExecution)
 	t.Run("runner/delete", testDeleteRunner)
+
+	// complex tests
+	t.Run("complex-service", testComplexService)
 }
