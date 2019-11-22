@@ -12,7 +12,6 @@ import (
 	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
-	processsdk "github.com/mesg-foundation/engine/sdk/process"
 	runnersdk "github.com/mesg-foundation/engine/sdk/runner"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -26,7 +25,6 @@ type Backend struct {
 	serviceBack  *servicesdk.Backend
 	instanceBack *instancesdk.Backend
 	runnerBack   *runnersdk.Backend
-	processSDK   *processsdk.Process // TODO: to replace by process backend when process sdk is running on cosmos.
 }
 
 // NewBackend returns the backend of the execution sdk.
@@ -43,12 +41,6 @@ func NewBackend(appFactory *cosmos.AppFactory, serviceBack *servicesdk.Backend, 
 	appFactory.RegisterStoreKey(backend.storeKey)
 
 	return backend
-}
-
-// SetProcessSDK sets the process sdk.
-// TODO: this is a hack and will be remove when process sdk is running on cosmos
-func (s *Backend) SetProcessSDK(processSDK *processsdk.Process) {
-	s.processSDK = processSDK
 }
 
 func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) (hash.Hash, error) {
@@ -100,11 +92,12 @@ func (s *Backend) Create(request cosmostypes.Request, msg msgCreateExecution) (*
 	if err != nil {
 		return nil, err
 	}
-	if !msg.Request.ProcessHash.IsZero() {
-		if _, err := s.processSDK.Get(msg.Request.ProcessHash); err != nil {
-			return nil, err
-		}
-	}
+	// TODO: to re-implement when process is on cosmos
+	// if !msg.Request.ProcessHash.IsZero() {
+	// 	if _, err := s.processSDK.Get(msg.Request.ProcessHash); err != nil {
+	// 		return nil, err
+	// 	}
+	// }
 	if err := srv.RequireTaskInputs(msg.Request.TaskKey, msg.Request.Inputs); err != nil {
 		return nil, err
 	}

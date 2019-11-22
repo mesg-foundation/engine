@@ -149,7 +149,7 @@ func main() {
 
 	// register the backend modules to the app factory.
 	// TODO: this is a mandatory call so it should return a new types required by cosmos.NewApp
-	backend := enginesdk.NewBackend(appFactory)
+	enginesdk.NewBackend(appFactory)
 
 	// init cosmos app
 	app, err := cosmos.NewApp(appFactory)
@@ -186,8 +186,6 @@ func main() {
 
 	// init sdk
 	sdk := enginesdk.New(client, kb, processDB, container, cfg.Name, strconv.Itoa(port), cfg.IpfsEndpoint)
-	// TODO: this is a hack and will be remove when process sdk is running on cosmos
-	backend.Execution.SetProcessSDK(sdk.Process)
 
 	// start tendermint node
 	logrus.WithField("module", "main").WithField("seeds", cfg.Tendermint.Config.P2P.Seeds).Info("starting tendermint node")
