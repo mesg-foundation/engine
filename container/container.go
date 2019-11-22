@@ -354,7 +354,7 @@ func (c *DockerContainer) waitForStatus(namespace string, status Status) error {
 }
 
 func (c *DockerContainer) createSharedNetwork() error {
-	// check if already exist
+	// check if already exists
 	network, err := c.client.NetworkInspect(context.Background(), c.nsprefix, types.NetworkInspectOptions{})
 	if network.ID != "" {
 		c.sharedNetworkID = network.ID

@@ -37,14 +37,14 @@ func testExecution(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	// recive in progress status
+	// receive in progress status
 	exec, err := stream.Recv()
 	require.NoError(t, err)
 	require.Equal(t, resp.Hash, exec.Hash)
 	require.Equal(t, "ping", exec.TaskKey)
 	require.Equal(t, execution.Status_InProgress, exec.Status)
 
-	// recive completed status
+	// receive completed status
 	exec, err = stream.Recv()
 	require.NoError(t, err)
 	require.Equal(t, resp.Hash, exec.Hash)
