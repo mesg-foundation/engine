@@ -10,12 +10,13 @@ import (
 	"github.com/mesg-foundation/engine/orchestrator/mocks"
 	"github.com/mesg-foundation/engine/process"
 	"github.com/mesg-foundation/engine/protobuf/types"
+	"github.com/mesg-foundation/engine/runner"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
 func TestFilter(t *testing.T) {
-	o := New(&mocks.EventSDK{}, &mocks.ExecutionSDK{}, &mocks.ProcessSDK{})
+	o := New(&mocks.EventSDK{}, &mocks.ExecutionSDK{}, &mocks.ProcessSDK{}, &mocks.RunnerSDK{}, "", "")
 	p := process.Process{
 		Hash: hash.Int(1),
 		Nodes: []*process.Process_Node{
@@ -144,7 +145,7 @@ func TestFilter(t *testing.T) {
 }
 
 func TestFindNode(t *testing.T) {
-	o := New(&mocks.EventSDK{}, &mocks.ExecutionSDK{}, &mocks.ProcessSDK{})
+	o := New(&mocks.EventSDK{}, &mocks.ExecutionSDK{}, &mocks.ProcessSDK{}, &mocks.RunnerSDK{}, "", "")
 	data := &process.Process{
 		Hash: hash.Int(1),
 		Nodes: []*process.Process_Node{
@@ -190,7 +191,7 @@ func TestFindNode(t *testing.T) {
 
 func TestResolveInput(t *testing.T) {
 	e := &mocks.ExecutionSDK{}
-	o := New(&mocks.EventSDK{}, e, &mocks.ProcessSDK{})
+	o := New(&mocks.EventSDK{}, e, &mocks.ProcessSDK{}, &mocks.RunnerSDK{}, "", "")
 	exec := &execution.Execution{
 		ProcessHash: hash.Int(2),
 		StepID:      "2",
@@ -234,8 +235,10 @@ func TestResolveInput(t *testing.T) {
 
 func TestProcessTask(t *testing.T) {
 	e := &mocks.ExecutionSDK{}
-	e.On("Execute", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Once().Return(nil, nil)
-	o := New(&mocks.EventSDK{}, e, &mocks.ProcessSDK{})
+	e.On("Create", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Once().Return(nil, nil)
+	r := &mocks.RunnerSDK{}
+	r.On("List", mock.Anything).Once().Return([]*runner.Runner{{Hash: hash.Int(1)}}, nil)
+	o := New(&mocks.EventSDK{}, e, &mocks.ProcessSDK{}, r, "", "")
 	err := o.processTask(&process.Process_Node_Task{
 		InstanceHash: hash.Int(1),
 		Key:          "-",
@@ -248,7 +251,8 @@ func TestProcessTask(t *testing.T) {
 		Fields: map[string]*types.Value{},
 	})
 	require.NoError(t, err)
-	e.On("Execute", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Once().Return(nil, fmt.Errorf("error"))
+	e.On("Create", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Once().Return(nil, fmt.Errorf("error"))
+	r.On("List", mock.Anything).Once().Return([]*runner.Runner{{Hash: hash.Int(1)}}, nil)
 	err = o.processTask(&process.Process_Node_Task{
 		InstanceHash: hash.Int(1),
 		Key:          "-",
