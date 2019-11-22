@@ -2,7 +2,6 @@ package executionsdk
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/execution"
@@ -11,7 +10,6 @@ import (
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	runnersdk "github.com/mesg-foundation/engine/sdk/runner"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
-	"github.com/tendermint/tendermint/mempool"
 )
 
 // SDK is the execution sdk.
@@ -46,9 +44,6 @@ func (s *SDK) Create(req *api.CreateExecutionRequest, accountName, accountPasswo
 	msg := newMsgCreateExecution(req, acc.GetAddress())
 	tx, err := s.client.BuildAndBroadcastMsg(msg, accountName, accountPassword)
 	if err != nil {
-		if err == mempool.ErrTxInCache {
-			return nil, fmt.Errorf("execution already exists: %w", err)
-		}
 		return nil, err
 	}
 	return s.Get(tx.Data)
@@ -63,9 +58,6 @@ func (s *SDK) Update(req *api.UpdateExecutionRequest, accountName, accountPasswo
 	msg := newMsgUpdateExecution(req, acc.GetAddress())
 	tx, err := s.client.BuildAndBroadcastMsg(msg, accountName, accountPassword)
 	if err != nil {
-		if err == mempool.ErrTxInCache {
-			return nil, fmt.Errorf("execution already exists: %w", err)
-		}
 		return nil, err
 	}
 	return s.Get(tx.Data)
