@@ -4,6 +4,7 @@ import (
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/x/xvalidator"
 )
 
 // msgCreateRunner defines a state transition to create a runner.
@@ -34,6 +35,9 @@ func (msg msgCreateRunner) Type() string {
 
 // ValidateBasic runs stateless checks on the message.
 func (msg msgCreateRunner) ValidateBasic() cosmostypes.Error {
+	if err := xvalidator.Validate.Struct(msg); err != nil {
+		return cosmostypes.ErrInternal(err.Error())
+	}
 	if msg.ServiceHash.IsZero() {
 		return cosmostypes.ErrInternal("serviceHash is missing")
 	}

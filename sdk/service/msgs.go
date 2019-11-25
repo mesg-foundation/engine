@@ -4,6 +4,7 @@ import (
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/protobuf/api"
+	"github.com/mesg-foundation/engine/x/xvalidator"
 )
 
 // msgCreateService defines a state transition to create a service.
@@ -32,6 +33,9 @@ func (msg msgCreateService) Type() string {
 
 // ValidateBasic runs stateless checks on the message.
 func (msg msgCreateService) ValidateBasic() cosmostypes.Error {
+	if err := xvalidator.Validate.Struct(msg); err != nil {
+		return cosmostypes.ErrInternal(err.Error())
+	}
 	if msg.Owner.Empty() {
 		return cosmostypes.ErrInvalidAddress("owner is missing")
 	}
