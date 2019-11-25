@@ -34,7 +34,7 @@ service Service {
 message CreateServiceRequest {
   // Service's sid.
   string sid = 1 [
-    (gogoproto.moretags) = 'validate:"required,printascii,max=63,domain"'
+    (gogoproto.moretags) = 'validate:"printascii,max=63,domain"'
   ];
 
   // Service's name.
@@ -92,6 +92,7 @@ message CreateServiceResponse {
 message GetServiceRequest {
   // The service's hash to fetch.
   bytes hash = 1 [
+    (gogoproto.moretags) = 'validate:"required,hash"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
@@ -110,7 +111,7 @@ message ListServiceResponse {
 message ExistsServiceRequest {
   // The service's hash of the existing service. This hash is nil if exists is fals.
   bytes hash = 1 [
-    (gogoproto.moretags) = 'validate:"hash"',
+    (gogoproto.moretags) = 'validate:"required,hash"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];

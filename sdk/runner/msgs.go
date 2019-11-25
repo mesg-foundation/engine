@@ -8,8 +8,8 @@ import (
 
 // msgCreateRunner defines a state transition to create a runner.
 type msgCreateRunner struct {
-	Address     cosmostypes.AccAddress `json:"address" validate:"accaddress"`
-	ServiceHash hash.Hash              `json:"serviceHash" validate:"hash"`
+	Address     cosmostypes.AccAddress `json:"address" validate:"required,accaddress"`
+	ServiceHash hash.Hash              `json:"serviceHash" validate:"required,hash"`
 	EnvHash     hash.Hash              `json:"envHash" validate:"omitempty,hash"`
 }
 
@@ -58,8 +58,8 @@ func (msg msgCreateRunner) GetSigners() []cosmostypes.AccAddress {
 
 // msgDeleteRunner defines a state transition to delete a runner.
 type msgDeleteRunner struct {
-	Address    cosmostypes.AccAddress `json:"address" validate:"accaddress"`
-	RunnerHash hash.Hash              `json:"runnerHash" validate:"hash"`
+	Address    cosmostypes.AccAddress `json:"address" validate:"required,accaddress"`
+	RunnerHash hash.Hash              `json:"runnerHash" validate:"required,hash"`
 }
 
 // newMsgDeleteRunner is a constructor function for msgDeleteRunner.

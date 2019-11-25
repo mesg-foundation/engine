@@ -8,8 +8,8 @@ import (
 
 // msgCreateService defines a state transition to create a service.
 type msgCreateService struct {
-	Request *api.CreateServiceRequest `json:"request"`
-	Owner   cosmostypes.AccAddress    `json:"owner" validate:"accaddress"`
+	Request *api.CreateServiceRequest `json:"request" validate:"required"`
+	Owner   cosmostypes.AccAddress    `json:"owner" validate:"required,accaddress"`
 }
 
 // newMsgCreateService is a constructor function for msgCreateService.

@@ -93,7 +93,7 @@ func Decode(h string) (Hash, error) {
 // It returns empty hash on nil slice of bytes.
 func DecodeFromBytes(data []byte) (Hash, error) {
 	if len(data) != size {
-		return nil, fmt.Errorf("hash: invalid length")
+		return nil, errInvalidLen
 	}
 	return Hash(data), nil
 }
