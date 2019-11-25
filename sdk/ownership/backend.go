@@ -59,10 +59,9 @@ func (s *Backend) CreateServiceOwnership(request cosmostypes.Request, serviceHas
 		return nil, fmt.Errorf("service %q has already an owner", serviceHash.String())
 	}
 	ownership := &ownership.Ownership{
-		Owner: owner.String(),
-		Resource: &ownership.Ownership_ServiceHash{
-			ServiceHash: serviceHash,
-		},
+		Owner:        owner.String(),
+		Resource:     ownership.Ownership_Service,
+		ResourceHash: serviceHash,
 	}
 	ownership.Hash = hash.Dump(ownership)
 	value, err := codec.MarshalBinaryBare(ownership)
@@ -96,9 +95,9 @@ func (s *Backend) List(request cosmostypes.Request) ([]*ownership.Ownership, err
 func ownershipsOfService(allOwnshp []*ownership.Ownership, serviceHash hash.Hash) []*ownership.Ownership {
 	ownshpSrv := make([]*ownership.Ownership, 0)
 	for _, o := range allOwnshp {
-		switch x := o.Resource.(type) {
-		case *ownership.Ownership_ServiceHash:
-			if x.ServiceHash.Equal(serviceHash) {
+		switch o.Resource {
+		case ownership.Ownership_Service:
+			if o.ResourceHash.Equal(serviceHash) {
 				ownshpSrv = append(ownshpSrv, o)
 			}
 		default:

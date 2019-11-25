@@ -8,6 +8,7 @@ option go_package = "github.com/mesg-foundation/engine/ownership";
 option (gogoproto.goproto_getters_all) = false;
 option (gogoproto.equal_all) = true;
 
+
 // Ownership is a ownership relation between one owner and a resource.
 message Ownership {
 
@@ -24,10 +25,18 @@ message Ownership {
   ];
 
   // Resource's hash.
-  oneof resource {
-    bytes serviceHash = 3 [
-      (gogoproto.moretags) = 'hash:"name:3"',
-      (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash"
-    ];
+  bytes resourceHash = 3 [
+    (gogoproto.moretags) = 'hash:"name:3"',
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
+
+  enum Resource {
+    None = 0;
+    Service = 1;
+    Process = 2;
   }
+
+  // Resource's type.
+  Resource resource = 4;
 }

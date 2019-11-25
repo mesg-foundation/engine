@@ -21,10 +21,9 @@ func testOwnership(t *testing.T) {
 		require.Len(t, ownerships.Ownerships, 1)
 		require.Equal(t,
 			hash.Dump(&ownership.Ownership{
-				Owner: acc.Address,
-				Resource: &ownership.Ownership_ServiceHash{
-					ServiceHash: testServiceHash,
-				},
+				Owner:        acc.Address,
+				Resource:     ownership.Ownership_Service,
+				ResourceHash: testServiceHash,
 			}),
 			ownerships.Ownerships[0].Hash,
 		)
