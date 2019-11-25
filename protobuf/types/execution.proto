@@ -102,4 +102,11 @@ message Execution {
   string stepID = 12 [
     (gogoproto.moretags) = 'hash:"name:12"'
   ];
+
+  // runner that should execute this execution.
+  bytes executorHash = 13 [
+    (gogoproto.moretags) = 'hash:"name:13"',
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
 }

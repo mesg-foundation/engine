@@ -95,7 +95,7 @@ func isServiceKeysUnique(s *service.Service) error {
 	exist := make(map[string]bool)
 	for _, dep := range s.Dependencies {
 		if exist[dep.Key] {
-			errs = append(errs, fmt.Errorf("dependencies[%s] already exist", dep.Key))
+			errs = append(errs, fmt.Errorf("dependencies[%s] already exists", dep.Key))
 		}
 		exist[dep.Key] = true
 	}
@@ -103,7 +103,7 @@ func isServiceKeysUnique(s *service.Service) error {
 	exist = make(map[string]bool)
 	for _, task := range s.Tasks {
 		if exist[task.Key] {
-			errs = append(errs, fmt.Errorf("tasks[%s] already exist", task.Key))
+			errs = append(errs, fmt.Errorf("tasks[%s] already exists", task.Key))
 		}
 		exist[task.Key] = true
 		if err := isServiceParamsUnique(task.Inputs, fmt.Sprintf("tasks[%s].inputs", task.Key)); err != nil {
@@ -117,7 +117,7 @@ func isServiceKeysUnique(s *service.Service) error {
 	exist = make(map[string]bool)
 	for _, event := range s.Events {
 		if exist[event.Key] {
-			errs = append(errs, fmt.Errorf("events[%s] already exist", event.Key))
+			errs = append(errs, fmt.Errorf("events[%s] already exists", event.Key))
 		}
 		exist[event.Key] = true
 
@@ -138,7 +138,7 @@ func isServiceParamsUnique(ps []*service.Service_Parameter, errprefix string) er
 	existparam := make(map[string]bool)
 	for _, p := range ps {
 		if existparam[p.Key] {
-			errs = append(errs, fmt.Errorf("%s[%s] already exist", errprefix, p.Key))
+			errs = append(errs, fmt.Errorf("%s[%s] already exists", errprefix, p.Key))
 		}
 		existparam[p.Key] = true
 

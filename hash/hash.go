@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/binary"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"hash"
 
@@ -19,12 +20,7 @@ var DefaultHash = sha256.New
 // size is a default size for hashing algorithm.
 var size = DefaultHash().Size()
 
-func checkLen(data []byte) error {
-	if len(data) != size {
-		return fmt.Errorf("hash: invalid length")
-	}
-	return nil
-}
+var errInvalidLen = errors.New("hash: invalid length")
 
 // Digest represents the partial evaluation of a checksum.
 type Digest struct {
@@ -87,8 +83,8 @@ func Decode(h string) (Hash, error) {
 	if err != nil {
 		return nil, fmt.Errorf("hash: %s", err)
 	}
-	if err := checkLen(hash); err != nil {
-		return nil, err
+	if len(hash) != size {
+		return nil, errInvalidLen
 	}
 	return Hash(hash), nil
 }
@@ -119,18 +115,24 @@ func (h Hash) Equal(h1 Hash) bool {
 
 // Marshal marshals hash into slice of bytes. It's used by protobuf.
 func (h Hash) Marshal() ([]byte, error) {
-	return h, checkLen(h)
+	if len(h) != size {
+		return nil, errInvalidLen
+	}
+	return h, nil
 }
 
 // MarshalTo marshals hash into slice of bytes. It's used by protobuf.
 func (h Hash) MarshalTo(data []byte) (int, error) {
-	return copy(data, h), checkLen(h)
+	if len(h) != size {
+		return 0, errInvalidLen
+	}
+	return copy(data, h), nil
 }
 
 // Unmarshal unmarshals slice of bytes into hash. It's used by protobuf.
 func (h *Hash) Unmarshal(data []byte) error {
-	if err := checkLen(data); err != nil {
-		return err
+	if len(data) != size {
+		return errInvalidLen
 	}
 	*h = make([]byte, len(data))
 	copy(*h, data)
@@ -140,6 +142,12 @@ func (h *Hash) Unmarshal(data []byte) error {
 // Size retruns size of hash. It's used by protobuf.
 func (h Hash) Size() int {
 	return len(h)
+}
+
+// Valid checks if service hash length is valid.
+// It treats empty hash as valid one.
+func (h Hash) Valid() bool {
+	return len(h) == 0 || len(h) == size
 }
 
 // MarshalJSON mashals hash into encoded json string.

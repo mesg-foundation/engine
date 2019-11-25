@@ -32,9 +32,9 @@ func NewBackend(appFactory *cosmos.AppFactory) *Backend {
 	return backend
 }
 
-func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) cosmostypes.Result {
+func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) (hash.Hash, error) {
 	errmsg := fmt.Sprintf("Unrecognized instance Msg type: %v", msg.Type())
-	return cosmostypes.ErrUnknownRequest(errmsg).Result()
+	return nil, cosmostypes.ErrUnknownRequest(errmsg)
 }
 
 func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.RequestQuery) (interface{}, error) {
@@ -50,7 +50,6 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 		if err := codec.UnmarshalBinaryBare(req.Data, &f); err != nil {
 			return nil, err
 		}
-
 		return s.List(request, &f)
 	case "exists":
 		hash, err := hash.Decode(path[1])
@@ -58,7 +57,6 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 			return nil, err
 		}
 		return s.Exists(request, hash)
-
 	default:
 		return nil, errors.New("unknown instance query endpoint" + path[0])
 	}

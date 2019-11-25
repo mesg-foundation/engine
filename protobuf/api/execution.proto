@@ -20,6 +20,9 @@ service Execution {
   // Get returns a single Execution specified in a request.
   rpc Get(GetExecutionRequest) returns (types.Execution) {}
 
+  // List returns all Executions matching the criteria of the request.
+  rpc List(ListExecutionRequest) returns (ListExecutionResponse) {}
+
   // Stream returns a stream of executions that satisfy criteria
   // specified in a request.
   rpc Stream(StreamExecutionRequest) returns (stream types.Execution) {}
@@ -36,16 +39,42 @@ message CreateExecutionRequest {
     (gogoproto.nullable) = false
   ];
 
-    // taskKey to filter executions.
+  // taskKey to filter executions.
   string taskKey = 2 [
     (gogoproto.moretags) = 'validate:"printascii"'
   ];
 
   mesg.protobuf.Struct inputs = 3;
 
-  // tags to executions.
+  // tags the execution.
   repeated string tags = 4 [
     (gogoproto.moretags) = 'validate:"dive,printascii"'
+  ];
+
+  bytes parentHash = 5 [
+    (gogoproto.moretags) = 'validate:"hash"',
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
+
+  bytes eventHash = 6 [
+    (gogoproto.moretags) = 'validate:"hash"',
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
+
+  bytes processHash = 7 [
+    (gogoproto.moretags) = 'validate:"hash"',
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
+
+  string stepID = 8;
+
+  bytes executorHash = 9 [
+    (gogoproto.moretags) = 'validate:"hash"',
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
   ];
 }
 
@@ -91,6 +120,12 @@ message StreamExecutionRequest{
     repeated string tags = 4 [
       (gogoproto.moretags) = 'validate:"dive,printascii"'
     ];
+    
+    // Executor's hash to filter executions.
+    bytes executorHash = 5 [
+      (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+      (gogoproto.nullable) = false
+    ];
   }
 
   // Filter used to filter a stream of executions.
@@ -118,3 +153,12 @@ message UpdateExecutionRequest {
 
 // UpdateExecutionResponse defines response for execution update.
 message UpdateExecutionResponse {}
+
+// The request's data for the `List` API.
+message ListExecutionRequest {}
+
+// The response's data for the `List` API.
+message ListExecutionResponse {
+  // List of executions that match the request's filters.
+  repeated types.Execution executions = 1;
+}
