@@ -13,6 +13,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/cosmos"
+	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	ownershipsdk "github.com/mesg-foundation/engine/sdk/ownership"
 	runnersdk "github.com/mesg-foundation/engine/sdk/runner"
@@ -22,6 +23,7 @@ import (
 // Backend handles all the backend functions.
 type Backend struct {
 	Service   *servicesdk.Backend
+	Execution *executionsdk.Backend
 	Ownership *ownershipsdk.Backend
 	Instance  *instancesdk.Backend
 	Runner    *runnersdk.Backend
@@ -34,11 +36,13 @@ func NewBackend(appFactory *cosmos.AppFactory) *Backend {
 	service := servicesdk.NewBackend(appFactory, ownership)
 	instance := instancesdk.NewBackend(appFactory)
 	runner := runnersdk.NewBackend(appFactory, instance)
+	execution := executionsdk.NewBackend(appFactory, service, instance, runner)
 	return &Backend{
 		Service:   service,
 		Ownership: ownership,
 		Instance:  instance,
 		Runner:    runner,
+		Execution: execution,
 	}
 }
 

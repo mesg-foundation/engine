@@ -8,13 +8,11 @@ import (
 	"github.com/mesg-foundation/engine/ownership"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc/metadata"
 )
 
 func testOwnership(t *testing.T) {
 	t.Run("list", func(t *testing.T) {
-		ctx := metadata.NewOutgoingContext(context.Background(), passmd)
-		ownerships, err := client.OwnershipClient.List(ctx, &pb.ListOwnershipRequest{})
+		ownerships, err := client.OwnershipClient.List(context.Background(), &pb.ListOwnershipRequest{})
 		require.NoError(t, err)
 
 		acc, err := client.AccountClient.Get(context.Background(), &pb.GetAccountRequest{Name: "engine"})
