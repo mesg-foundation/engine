@@ -4,12 +4,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/cosmos/cosmos-sdk/codec"
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
-	"github.com/gogo/protobuf/proto"
+	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/cosmos"
-	"github.com/mesg-foundation/engine/database"
-	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	ownershipsdk "github.com/mesg-foundation/engine/sdk/ownership"
@@ -22,7 +19,6 @@ const backendName = "service"
 
 // Backend is the service backend.
 type Backend struct {
-	cdc        *codec.Codec
 	storeKey   *cosmostypes.KVStoreKey
 	ownerships *ownershipsdk.Backend
 }
@@ -30,37 +26,28 @@ type Backend struct {
 // NewBackend returns the backend of the service sdk.
 func NewBackend(appFactory *cosmos.AppFactory, ownerships *ownershipsdk.Backend) *Backend {
 	backend := &Backend{
-		cdc:        appFactory.Cdc(),
 		storeKey:   cosmostypes.NewKVStoreKey(backendName),
 		ownerships: ownerships,
 	}
 	appBackendBasic := cosmos.NewAppModuleBasic(backendName)
-	appBackend := cosmos.NewAppModule(appBackendBasic, backend.cdc, backend.handler, backend.querier)
+	appBackend := cosmos.NewAppModule(appBackendBasic, backend.handler, backend.querier)
 	appFactory.RegisterModule(appBackend)
 	appFactory.RegisterStoreKey(backend.storeKey)
-
-	backend.cdc.RegisterConcrete(msgCreateService{}, "service/create", nil)
 
 	return backend
 }
 
-func (s *Backend) db(request cosmostypes.Request) *database.ServiceDB {
-	return database.NewServiceDB(store.NewCosmosStore(request.KVStore(s.storeKey)), s.cdc)
-}
-
-func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) cosmostypes.Result {
+func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) (hash.Hash, error) {
 	switch msg := msg.(type) {
 	case msgCreateService:
 		srv, err := s.Create(request, &msg)
 		if err != nil {
-			return cosmostypes.ErrInternal(err.Error()).Result()
+			return nil, err
 		}
-		return cosmostypes.Result{
-			Data: srv.Hash,
-		}
+		return srv.Hash, nil
 	default:
 		errmsg := fmt.Sprintf("Unrecognized service Msg type: %v", msg.Type())
-		return cosmostypes.ErrUnknownRequest(errmsg).Result()
+		return nil, cosmostypes.ErrUnknownRequest(errmsg)
 	}
 }
 
@@ -76,7 +63,7 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 		return s.List(request)
 	case "hash":
 		var createServiceRequest api.CreateServiceRequest
-		if err := proto.Unmarshal(req.Data, &createServiceRequest); err != nil {
+		if err := codec.UnmarshalBinaryBare(req.Data, &createServiceRequest); err != nil {
 			return nil, err
 		}
 		return s.Hash(&createServiceRequest), nil
@@ -92,38 +79,15 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 	}
 }
 
-// Create creates a new service from definition.
+// Create creates a new service.
 func (s *Backend) Create(request cosmostypes.Request, msg *msgCreateService) (*service.Service, error) {
-	return create(s.db(request), msg.Request, msg.Owner, s.ownerships, request)
-}
-
-// Get returns the service that matches given hash.
-func (s *Backend) Get(request cosmostypes.Request, hash hash.Hash) (*service.Service, error) {
-	return s.db(request).Get(hash)
-}
-
-// Exists returns true if a specific set of data exists in the database, false otherwise
-func (s *Backend) Exists(request cosmostypes.Request, hash hash.Hash) (bool, error) {
-	return s.db(request).Exist(hash)
-}
-
-// Hash returns the hash of a service request.
-func (s *Backend) Hash(serviceRequest *api.CreateServiceRequest) hash.Hash {
-	return initializeService(serviceRequest).Hash
-}
-
-// List returns all services.
-func (s *Backend) List(request cosmostypes.Request) ([]*service.Service, error) {
-	return s.db(request).All()
-}
-
-func create(db *database.ServiceDB, req *api.CreateServiceRequest, owner cosmostypes.AccAddress, ownerships *ownershipsdk.Backend, request cosmostypes.Request) (*service.Service, error) {
+	store := request.KVStore(s.storeKey)
 	// create service
-	srv := initializeService(req)
+	srv := initializeService(msg.Request)
 
 	// check if service already exists.
-	if _, err := db.Get(srv.Hash); err == nil {
-		return nil, &AlreadyExistsError{Hash: srv.Hash}
+	if store.Has(srv.Hash) {
+		return nil, fmt.Errorf("service %q already exists", srv.Hash)
 	}
 
 	// TODO: the following test should be moved in New function
@@ -136,14 +100,55 @@ func create(db *database.ServiceDB, req *api.CreateServiceRequest, owner cosmost
 		return nil, err
 	}
 
-	if _, err := ownerships.CreateServiceOwnership(request, srv.Hash, owner); err != nil {
+	if _, err := s.ownerships.CreateServiceOwnership(request, srv.Hash, msg.Owner); err != nil {
 		return nil, err
 	}
 
-	if err := db.Save(srv); err != nil {
+	value, err := codec.MarshalBinaryBare(srv)
+	if err != nil {
 		return nil, err
 	}
+	store.Set(srv.Hash, value)
 	return srv, nil
+}
+
+// Get returns the service that matches given hash.
+func (s *Backend) Get(request cosmostypes.Request, hash hash.Hash) (*service.Service, error) {
+	var sv *service.Service
+	store := request.KVStore(s.storeKey)
+	if !store.Has(hash) {
+		return nil, fmt.Errorf("service %q not found", hash)
+	}
+	value := store.Get(hash)
+	return sv, codec.UnmarshalBinaryBare(value, &sv)
+}
+
+// Exists returns true if a specific set of data exists in the database, false otherwise
+func (s *Backend) Exists(request cosmostypes.Request, hash hash.Hash) (bool, error) {
+	return request.KVStore(s.storeKey).Has(hash), nil
+}
+
+// Hash returns the hash of a service request.
+func (s *Backend) Hash(serviceRequest *api.CreateServiceRequest) hash.Hash {
+	return initializeService(serviceRequest).Hash
+}
+
+// List returns all services.
+func (s *Backend) List(request cosmostypes.Request) ([]*service.Service, error) {
+	var (
+		services []*service.Service
+		iter     = request.KVStore(s.storeKey).Iterator(nil, nil)
+	)
+	for iter.Valid() {
+		var sv *service.Service
+		if err := codec.UnmarshalBinaryBare(iter.Value(), &sv); err != nil {
+			return nil, err
+		}
+		services = append(services, sv)
+		iter.Next()
+	}
+	iter.Close()
+	return services, nil
 }
 
 func initializeService(req *api.CreateServiceRequest) *service.Service {

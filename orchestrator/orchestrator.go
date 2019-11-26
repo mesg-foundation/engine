@@ -1,24 +1,30 @@
 package orchestrator
 
 import (
+	"context"
 	"fmt"
+	"math/rand"
 
 	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
+	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
-	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
+	runnersdk "github.com/mesg-foundation/engine/sdk/runner"
 	"github.com/sirupsen/logrus"
 )
 
 // New creates a new Process instance
-func New(event EventSDK, execution ExecutionSDK, process ProcessSDK) *Orchestrator {
+func New(event EventSDK, execution ExecutionSDK, process ProcessSDK, runner RunnerSDK, accountName, accountPassword string) *Orchestrator {
 	return &Orchestrator{
-		event:     event,
-		execution: execution,
-		process:   process,
-		ErrC:      make(chan error),
+		event:           event,
+		execution:       execution,
+		process:         process,
+		runner:          runner,
+		ErrC:            make(chan error),
+		accountName:     accountName,
+		accountPassword: accountPassword,
 	}
 }
 
@@ -27,17 +33,29 @@ func (s *Orchestrator) Start() error {
 	if s.eventStream != nil || s.executionStream != nil {
 		return fmt.Errorf("process orchestrator already running")
 	}
+
 	s.eventStream = s.event.GetStream(nil)
-	s.executionStream = s.execution.GetStream(&executionsdk.Filter{
-		Statuses: []execution.Status{execution.Status_Completed},
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	executionStream, errC, err := s.execution.Stream(ctx, &api.StreamExecutionRequest{
+		Filter: &api.StreamExecutionRequest_Filter{
+			Statuses: []execution.Status{execution.Status_Completed},
+		},
 	})
+	if err != nil {
+		return err
+	}
+	s.executionStream = executionStream
 	for {
 		select {
 		case event := <-s.eventStream.C:
 			go s.execute(s.eventFilter(event), nil, event, event.Data)
-		case execution := <-s.executionStream.C:
+		case execution := <-s.executionStream:
 			go s.execute(s.resultFilter(execution), execution, nil, execution.Outputs)
 			go s.execute(s.dependencyFilter(execution), execution, nil, execution.Outputs)
+		case err := <-errC:
+			s.ErrC <- err
 		}
 	}
 }
@@ -105,7 +123,6 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 	logrus.WithField("module", "orchestrator").
 		WithField("nodeID", n.ID()).
 		WithField("type", fmt.Sprintf("%T", n)).Debug("process process")
-
 	if task := n.GetTask(); task != nil {
 		// This returns directly because a task cannot process its children.
 		// Children will be processed only when the execution is done and the dependencies are resolved
@@ -146,7 +163,6 @@ func (s *Orchestrator) processMap(mapping *process.Process_Node_Map, wf *process
 			if err != nil {
 				return nil, err
 			}
-
 			if node.GetTask() != nil {
 				value, err := s.resolveInput(wf.Hash, exec, ref.NodeKey, ref.Key)
 				if err != nil {
@@ -174,20 +190,36 @@ func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution,
 		}
 		return s.resolveInput(wfHash, parent, nodeKey, outputKey)
 	}
-
 	return exec.Outputs.Fields[outputKey], nil
 }
 
 func (s *Orchestrator) processTask(task *process.Process_Node_Task, wf *process.Process, exec *execution.Execution, event *event.Event, data *types.Struct) error {
 	var eventHash, execHash hash.Hash
-
 	if event != nil {
 		eventHash = event.Hash
 	}
 	if exec != nil {
 		execHash = exec.Hash
 	}
-
-	_, err := s.execution.Execute(wf.Hash, task.InstanceHash, eventHash, execHash, task.Key, task.TaskKey, data, nil)
+	executors, err := s.runner.List(&runnersdk.Filter{
+		InstanceHash: task.InstanceHash,
+	})
+	if err != nil {
+		return err
+	}
+	if len(executors) == 0 {
+		return fmt.Errorf("no runner is running instance %q", task.InstanceHash)
+	}
+	executor := executors[rand.Intn(len(executors))]
+	_, err = s.execution.Create(&api.CreateExecutionRequest{
+		ProcessHash:  wf.Hash,
+		EventHash:    eventHash,
+		ParentHash:   execHash,
+		StepID:       task.Key,
+		TaskKey:      task.TaskKey,
+		Inputs:       data,
+		ExecutorHash: executor.Hash,
+		Tags:         nil,
+	}, s.accountName, s.accountPassword)
 	return err
 }

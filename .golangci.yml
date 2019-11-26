@@ -25,9 +25,15 @@ linters:
     - depguard
     - dupl
     - errcheck
+    - funlen
     - gochecknoglobals
+    - gocognit
     - goconst
+    - godox
     - gosec
+    - interfacer
     - lll
     - prealloc
-    - funlen
+    - stylecheck
+    - wsl
+    - gochecknoinits

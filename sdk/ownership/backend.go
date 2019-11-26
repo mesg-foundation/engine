@@ -4,11 +4,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/cosmos/cosmos-sdk/codec"
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/cosmos"
-	"github.com/mesg-foundation/engine/database"
-	"github.com/mesg-foundation/engine/database/store"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/ownership"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -18,31 +16,24 @@ const backendName = "ownership"
 
 // Backend is the ownership backend.
 type Backend struct {
-	cdc      *codec.Codec
 	storeKey *cosmostypes.KVStoreKey
 }
 
 // NewBackend returns the backend of the ownership sdk.
 func NewBackend(appFactory *cosmos.AppFactory) *Backend {
 	backend := &Backend{
-		cdc:      appFactory.Cdc(),
 		storeKey: cosmostypes.NewKVStoreKey(backendName),
 	}
 	appBackendBasic := cosmos.NewAppModuleBasic(backendName)
-	appBackend := cosmos.NewAppModule(appBackendBasic, backend.cdc, backend.handler, backend.querier)
+	appBackend := cosmos.NewAppModule(appBackendBasic, backend.handler, backend.querier)
 	appFactory.RegisterModule(appBackend)
 	appFactory.RegisterStoreKey(backend.storeKey)
-	ownership.RegisterCodec(backend.cdc)
 	return backend
 }
 
-func (s *Backend) db(request cosmostypes.Request) *database.OwnershipDB {
-	return database.NewOwnershipDB(store.NewCosmosStore(request.KVStore(s.storeKey)), s.cdc)
-}
-
-func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) cosmostypes.Result {
+func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) (hash.Hash, error) {
 	errmsg := fmt.Sprintf("Unrecognized ownership Msg type: %v", msg.Type())
-	return cosmostypes.ErrUnknownRequest(errmsg).Result()
+	return nil, cosmostypes.ErrUnknownRequest(errmsg)
 }
 
 func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.RequestQuery) (interface{}, error) {
@@ -54,11 +45,11 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 	}
 }
 
-// CreateServiceOwnership creates a new ownership from definition.
+// CreateServiceOwnership creates a new ownership.
 func (s *Backend) CreateServiceOwnership(request cosmostypes.Request, serviceHash hash.Hash, owner cosmostypes.AccAddress) (*ownership.Ownership, error) {
-	db := s.db(request)
+	store := request.KVStore(s.storeKey)
 	// check if owner is authorized to create the ownership
-	allOwnshp, err := db.All()
+	allOwnshp, err := s.List(request)
 	if err != nil {
 		return nil, err
 	}
@@ -74,12 +65,31 @@ func (s *Backend) CreateServiceOwnership(request cosmostypes.Request, serviceHas
 		},
 	}
 	ownership.Hash = hash.Dump(ownership)
-	return ownership, db.Save(ownership)
+	value, err := codec.MarshalBinaryBare(ownership)
+	if err != nil {
+		return nil, err
+	}
+	store.Set(ownership.Hash, value)
+	return ownership, nil
 }
 
 // List returns all ownerships.
 func (s *Backend) List(request cosmostypes.Request) ([]*ownership.Ownership, error) {
-	return s.db(request).All()
+	var (
+		ownerships []*ownership.Ownership
+		iter       = request.KVStore(s.storeKey).Iterator(nil, nil)
+	)
+
+	for iter.Valid() {
+		var o *ownership.Ownership
+		if err := codec.UnmarshalBinaryBare(iter.Value(), &o); err != nil {
+			return nil, err
+		}
+		ownerships = append(ownerships, o)
+		iter.Next()
+	}
+	iter.Close()
+	return ownerships, nil
 }
 
 // ownershipsOfService only returns the ownership concerning the specify service.

@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/mesg-foundation/engine/x/xstrings"
+	"github.com/cosmos/go-bip39"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
 	tmconfig "github.com/tendermint/tendermint/config"
@@ -30,12 +30,14 @@ type Config struct {
 	Name string `validate:"required" yaml:"-"`
 	Path string `validate:"required" yaml:"-"`
 
+	IpfsEndpoint string `validate:"required"`
+
 	Server struct {
 		Address string `validate:"required"`
 	}
 
 	Log struct {
-		Format      string `validate:"required"`
+		Format      string `validate:"required,oneof=json text"`
 		ForceColors bool
 		Level       string `validate:"required"`
 	}
@@ -56,9 +58,13 @@ type Config struct {
 	}
 
 	DevGenesis struct {
-		AccountName     string `validate:"required"`
-		AccountPassword string `validate:"required"`
-		ChainID         string `validate:"required"`
+		ChainID string `validate:"required"`
+	}
+
+	Account struct {
+		Name     string `validate:"required"`
+		Password string `validate:"required"`
+		Mnemonic string
 	}
 }
 
@@ -73,6 +79,8 @@ func defaultConfig() (*Config, error) {
 
 	c.Name = "engine"
 	c.Path = filepath.Join(home, ".mesg")
+
+	c.IpfsEndpoint = "http://ipfs.app.mesg.com:8080/ipfs/"
 
 	c.Server.Address = ":50052"
 	c.Log.Format = "text"
@@ -94,9 +102,10 @@ func defaultConfig() (*Config, error) {
 
 	c.Cosmos.RelativePath = "cosmos"
 
-	c.DevGenesis.AccountName = "dev"
-	c.DevGenesis.AccountPassword = "pass"
 	c.DevGenesis.ChainID = "mesg-dev-chain"
+
+	c.Account.Name = "engine"
+	c.Account.Password = "pass"
 
 	return &c, nil
 }
@@ -160,14 +169,15 @@ func (c *Config) prepare() error {
 
 // validate checks values and return an error if any validation failed.
 func (c *Config) validate() error {
-	if !xstrings.SliceContains([]string{"text", "json"}, c.Log.Format) {
-		return fmt.Errorf("config.Log.Format value %q is not an allowed", c.Log.Format)
-	}
 	if _, err := logrus.ParseLevel(c.Log.Level); err != nil {
 		return fmt.Errorf("config.Log.Level error: %w", err)
+	}
+	if c.Account.Mnemonic != "" && !bip39.IsMnemonicValid(c.Account.Mnemonic) {
+		return fmt.Errorf("config.Account.Mnemonic error: mnemonic is not valid")
 	}
 	if err := c.Tendermint.Config.ValidateBasic(); err != nil {
 		return fmt.Errorf("config.Tendermint error: %w", err)
 	}
+
 	return validator.New().Struct(c)
 }

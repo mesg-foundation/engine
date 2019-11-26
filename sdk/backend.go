@@ -11,14 +11,22 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/supply"
+	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/cosmos"
+	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
+	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	ownershipsdk "github.com/mesg-foundation/engine/sdk/ownership"
+	runnersdk "github.com/mesg-foundation/engine/sdk/runner"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 )
 
 // Backend handles all the backend functions.
 type Backend struct {
-	Service *servicesdk.Backend
+	Service   *servicesdk.Backend
+	Execution *executionsdk.Backend
+	Ownership *ownershipsdk.Backend
+	Instance  *instancesdk.Backend
+	Runner    *runnersdk.Backend
 }
 
 // NewBackend creates a new backend and init the sub-backend modules.
@@ -26,8 +34,15 @@ func NewBackend(appFactory *cosmos.AppFactory) *Backend {
 	initDefaultCosmosModules(appFactory)
 	ownership := ownershipsdk.NewBackend(appFactory)
 	service := servicesdk.NewBackend(appFactory, ownership)
+	instance := instancesdk.NewBackend(appFactory)
+	runner := runnersdk.NewBackend(appFactory, instance)
+	execution := executionsdk.NewBackend(appFactory, service, instance, runner)
 	return &Backend{
-		Service: service,
+		Service:   service,
+		Ownership: ownership,
+		Instance:  instance,
+		Runner:    runner,
+		Execution: execution,
 	}
 }
 
@@ -50,13 +65,13 @@ func initDefaultCosmosModules(app *cosmos.AppFactory) {
 
 	// init cosmos keepers
 	paramsKeeper := params.NewKeeper(
-		app.Cdc(),
+		codec.Codec,
 		paramsStoreKey,
 		paramsTStoreKey,
 		params.DefaultCodespace,
 	)
 	accountKeeper := auth.NewAccountKeeper(
-		app.Cdc(),
+		codec.Codec,
 		paramsStoreKey,
 		paramsKeeper.Subspace(auth.DefaultParamspace),
 		auth.ProtoBaseAccount,
@@ -68,7 +83,7 @@ func initDefaultCosmosModules(app *cosmos.AppFactory) {
 		nil,
 	)
 	supplyKeeper := supply.NewKeeper(
-		app.Cdc(),
+		codec.Codec,
 		supplyStoreKey,
 		accountKeeper,
 		bankKeeper,
@@ -80,7 +95,7 @@ func initDefaultCosmosModules(app *cosmos.AppFactory) {
 		},
 	)
 	stakingKeeper := staking.NewKeeper(
-		app.Cdc(),
+		codec.Codec,
 		stakingStoreKey,
 		stakingTStoreKey,
 		supplyKeeper,
@@ -88,7 +103,7 @@ func initDefaultCosmosModules(app *cosmos.AppFactory) {
 		staking.DefaultCodespace,
 	)
 	distrKeeper := distribution.NewKeeper(
-		app.Cdc(),
+		codec.Codec,
 		distrStoreKey,
 		paramsKeeper.Subspace(distribution.DefaultParamspace),
 		&stakingKeeper,
@@ -98,7 +113,7 @@ func initDefaultCosmosModules(app *cosmos.AppFactory) {
 		nil,
 	)
 	slashingKeeper := slashing.NewKeeper(
-		app.Cdc(),
+		codec.Codec,
 		slashingStoreKey,
 		&stakingKeeper,
 		paramsKeeper.Subspace(slashing.DefaultParamspace),
@@ -122,6 +137,8 @@ func initDefaultCosmosModules(app *cosmos.AppFactory) {
 
 	app.RegisterOrderBeginBlocks(distribution.ModuleName, slashing.ModuleName)
 	app.RegisterOrderEndBlocks(staking.ModuleName)
+
+	app.SetAnteHandler(auth.NewAnteHandler(accountKeeper, supplyKeeper, auth.DefaultSigVerificationGasConsumer))
 
 	app.RegisterOrderInitGenesis(
 		genaccounts.ModuleName,

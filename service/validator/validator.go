@@ -98,7 +98,7 @@ func isServiceKeysUnique(s *service.Service) error {
 	exist := make(map[string]bool)
 	for _, dep := range s.Dependencies {
 		if exist[dep.Key] {
-			errs = append(errs, fmt.Errorf("dependencies[%s] already exist", dep.Key))
+			errs = append(errs, fmt.Errorf("dependencies[%s] already exists", dep.Key))
 		}
 		exist[dep.Key] = true
 	}
@@ -106,40 +106,47 @@ func isServiceKeysUnique(s *service.Service) error {
 	exist = make(map[string]bool)
 	for _, task := range s.Tasks {
 		if exist[task.Key] {
-			errs = append(errs, fmt.Errorf("tasks[%s] already exist", task.Key))
+			errs = append(errs, fmt.Errorf("tasks[%s] already exists", task.Key))
 		}
 		exist[task.Key] = true
-
-		existparam := make(map[string]bool)
-		for _, param := range task.Inputs {
-			if existparam[param.Key] {
-				errs = append(errs, fmt.Errorf("tasks[%s].inputs[%s] already exist", task.Key, param.Key))
-			}
-			existparam[param.Key] = true
+		if err := isServiceParamsUnique(task.Inputs, fmt.Sprintf("tasks[%s].inputs", task.Key)); err != nil {
+			errs = append(errs, err)
 		}
-
-		existparam = make(map[string]bool)
-		for _, param := range task.Outputs {
-			if existparam[param.Key] {
-				errs = append(errs, fmt.Errorf("tasks[%s].outputs[%s] already exist", task.Key, param.Key))
-			}
-			existparam[param.Key] = true
+		if err := isServiceParamsUnique(task.Outputs, fmt.Sprintf("tasks[%s].outputs", task.Key)); err != nil {
+			errs = append(errs, err)
 		}
 	}
 
 	exist = make(map[string]bool)
 	for _, event := range s.Events {
 		if exist[event.Key] {
-			errs = append(errs, fmt.Errorf("events[%s] already exist", event.Key))
+			errs = append(errs, fmt.Errorf("events[%s] already exists", event.Key))
 		}
 		exist[event.Key] = true
 
-		existparam := make(map[string]bool)
-		for _, param := range event.Data {
-			if existparam[param.Key] {
-				errs = append(errs, fmt.Errorf("events[%s].data[%s] already exist", event.Key, param.Key))
-			}
-			existparam[param.Key] = true
+		if err := isServiceParamsUnique(event.Data, fmt.Sprintf("events[%s].data", event.Key)); err != nil {
+			errs = append(errs, err)
+		}
+	}
+	return errs.ErrorOrNil()
+}
+
+// isServiceParamsUnique checks uniqueness of service params.
+func isServiceParamsUnique(ps []*service.Service_Parameter, errprefix string) error {
+	if len(ps) == 0 {
+		return nil
+	}
+
+	var errs xerrors.Errors
+	existparam := make(map[string]bool)
+	for _, p := range ps {
+		if existparam[p.Key] {
+			errs = append(errs, fmt.Errorf("%s[%s] already exists", errprefix, p.Key))
+		}
+		existparam[p.Key] = true
+
+		if err := isServiceParamsUnique(p.Object, fmt.Sprintf("%s[%s].object", errprefix, p.Key)); err != nil {
+			errs = append(errs, err)
 		}
 	}
 	return errs.ErrorOrNil()

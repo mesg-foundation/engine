@@ -1,0 +1,41 @@
+name: test-service
+sid: test-service
+
+configuration:
+  env:
+    - FOO=1
+    - BAR=2
+    - REQUIRED
+
+tasks:
+  ping:
+    inputs:
+      msg:
+        type: String
+    outputs:
+      pong:
+        type: String
+  add:
+    inputs:
+      n:
+        type: Number
+      m:
+        type: Number
+    outputs:
+      res:
+        type: Number
+  error:
+events:
+  test_service_ready:
+  ping_ok:
+    data:
+      msg:
+        type: String
+  add_ok:
+    data:
+      msg:
+        type: String
+  error_ok:
+    data:
+      msg:
+        type: String

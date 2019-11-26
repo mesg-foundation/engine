@@ -84,6 +84,14 @@ func main() {
 		if err := os.MkdirAll(filepath.Join(cfg.DBDir()), 0755); err != nil {
 			logrus.Fatalln(err)
 		}
+		mnemonic, err := kb.NewMnemonic()
+		if err != nil {
+			logrus.Fatalln(err)
+		}
+		acc, err := kb.CreateAccount(valName, mnemonic, "", passwords[i], 0, 0)
+		if err != nil {
+			logrus.Fatalln(err)
+		}
 		genVal, err := cosmos.NewGenesisValidator(kb,
 			valName,
 			passwords[i],
@@ -98,9 +106,9 @@ func main() {
 		peer := fmt.Sprintf("%s@%s:26656", genVal.NodeID, genVal.Name)
 		logrus.WithFields(map[string]interface{}{
 			"name":     genVal.Name,
-			"address":  genVal.Address,
+			"address":  acc.GetAddress().String,
 			"password": genVal.Password,
-			"mnemonic": genVal.Mnemonic,
+			"mnemonic": mnemonic,
 			"nodeID":   genVal.NodeID,
 			"peer":     peer,
 		}).Infof("Validator #%d\n", i+1)
@@ -108,7 +116,7 @@ func main() {
 	}
 
 	// generate and save genesis
-	_, err = cosmos.GenGenesis(app.Cdc(), kb, app.DefaultGenesis(), *chainid, filepath.Join(*path, "genesis.json"), vals)
+	_, err = cosmos.GenGenesis(kb, app.DefaultGenesis(), *chainid, filepath.Join(*path, "genesis.json"), vals)
 	if err != nil {
 		logrus.Fatalln(err)
 	}

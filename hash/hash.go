@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/binary"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"hash"
 
@@ -18,6 +19,8 @@ var DefaultHash = sha256.New
 
 // size is a default size for hashing algorithm.
 var size = DefaultHash().Size()
+
+var errInvalidLen = errors.New("hash: invalid length")
 
 // Digest represents the partial evaluation of a checksum.
 type Digest struct {
@@ -67,11 +70,9 @@ func Random() (Hash, error) {
 	if err != nil {
 		return nil, fmt.Errorf("hash generate random error: %s", err)
 	}
-
 	if n != size {
 		return nil, fmt.Errorf("hash generate random error: invalid hash length")
 	}
-
 	return hash, nil
 }
 
@@ -83,7 +84,7 @@ func Decode(h string) (Hash, error) {
 		return nil, fmt.Errorf("hash: %s", err)
 	}
 	if len(hash) != size {
-		return nil, fmt.Errorf("hash: invalid length string")
+		return nil, errInvalidLen
 	}
 	return Hash(hash), nil
 }
@@ -105,16 +106,25 @@ func (h Hash) Equal(h1 Hash) bool {
 
 // Marshal marshals hash into slice of bytes. It's used by protobuf.
 func (h Hash) Marshal() ([]byte, error) {
+	if len(h) != size {
+		return nil, errInvalidLen
+	}
 	return h, nil
 }
 
 // MarshalTo marshals hash into slice of bytes. It's used by protobuf.
 func (h Hash) MarshalTo(data []byte) (int, error) {
+	if len(h) != size {
+		return 0, errInvalidLen
+	}
 	return copy(data, h), nil
 }
 
 // Unmarshal unmarshals slice of bytes into hash. It's used by protobuf.
 func (h *Hash) Unmarshal(data []byte) error {
+	if len(data) != size {
+		return errInvalidLen
+	}
 	*h = make([]byte, len(data))
 	copy(*h, data)
 	return nil
@@ -122,10 +132,13 @@ func (h *Hash) Unmarshal(data []byte) error {
 
 // Size retruns size of hash. It's used by protobuf.
 func (h Hash) Size() int {
-	if len(h) == 0 {
-		return 0
-	}
-	return size
+	return len(h)
+}
+
+// Valid checks if service hash length is valid.
+// It treats empty hash as valid one.
+func (h Hash) Valid() bool {
+	return len(h) == 0 || len(h) == size
 }
 
 // MarshalJSON mashals hash into encoded json string.
@@ -139,16 +152,13 @@ func (h *Hash) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &str); err != nil {
 		return err
 	}
-
 	if str == "" {
 		return nil
 	}
-
 	h1, err := base58.Decode(str)
 	if err != nil {
 		return err
 	}
-
 	*h = Hash(h1)
 	return nil
 }

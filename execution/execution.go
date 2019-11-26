@@ -6,7 +6,7 @@ import (
 )
 
 // New returns a new execution. It returns an error if inputs are invalid.
-func New(processHash, instanceHash, parentHash, eventHash hash.Hash, stepID string, taskKey string, inputs *types.Struct, tags []string) *Execution {
+func New(processHash, instanceHash, parentHash, eventHash hash.Hash, stepID string, taskKey string, inputs *types.Struct, tags []string, executorHash hash.Hash) *Execution {
 	exec := &Execution{
 		ProcessHash:  processHash,
 		EventHash:    eventHash,
@@ -17,6 +17,7 @@ func New(processHash, instanceHash, parentHash, eventHash hash.Hash, stepID stri
 		StepID:       stepID,
 		Tags:         tags,
 		Status:       Status_Created,
+		ExecutorHash: executorHash,
 	}
 	exec.Hash = hash.Dump(exec)
 	return exec

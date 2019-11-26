@@ -7,9 +7,10 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/codec"
+	cosmoscodec "github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/mesg-foundation/engine/codec"
 	"github.com/stretchr/testify/require"
 )
 
@@ -21,10 +22,9 @@ func TestGenesis(t *testing.T) {
 	kb, err := NewKeybase(filepath.Join(path, "kb"))
 	require.NoError(t, err)
 	// codec
-	cdc := codec.New()
-	sdk.RegisterCodec(cdc)
-	codec.RegisterCrypto(cdc)
-	stakingtypes.RegisterCodec(cdc)
+	sdk.RegisterCodec(codec.Codec)
+	cosmoscodec.RegisterCrypto(codec.Codec)
+	stakingtypes.RegisterCodec(codec.Codec)
 	// variables
 	var (
 		chainID                = "test-chainID"
@@ -37,6 +37,9 @@ func TestGenesis(t *testing.T) {
 		validators             = []GenesisValidator{}
 		defaultGenesisState    = map[string]json.RawMessage{}
 	)
+	// init account
+	mnemonic, _ := kb.NewMnemonic()
+	kb.CreateAccount(name, mnemonic, "", password, 0, 0)
 	// start tests
 	t.Run("generate validator", func(t *testing.T) {
 		v, err := NewGenesisValidator(kb, name, password, privValidatorKeyFile, privValidatorStateFile, nodeKeyFile)
@@ -44,22 +47,17 @@ func TestGenesis(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, name, v.Name)
 		require.Equal(t, password, v.Password)
-		require.NotEmpty(t, v.Address)
-		require.NotEmpty(t, v.Mnemonic)
 		require.NotEmpty(t, v.ValPubKey)
 		require.NotEmpty(t, v.NodeID)
 		require.FileExists(t, privValidatorKeyFile)
 		require.FileExists(t, privValidatorStateFile)
 		require.FileExists(t, nodeKeyFile)
-		acc, err := kb.GetByAddress(v.Address)
-		require.NoError(t, err)
-		require.Equal(t, name, acc.GetName())
 	})
 	t.Run("genesis doesn't exist", func(t *testing.T) {
 		require.False(t, GenesisExist(genesisPath))
 	})
 	t.Run("generate genesis", func(t *testing.T) {
-		genesis, err := GenGenesis(cdc, kb, defaultGenesisState, chainID, genesisPath, validators)
+		genesis, err := GenGenesis(kb, defaultGenesisState, chainID, genesisPath, validators)
 		require.NoError(t, err)
 		require.NotEmpty(t, genesis)
 	})

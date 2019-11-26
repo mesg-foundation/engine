@@ -12,18 +12,18 @@ import (
 // Process exposes process APIs of MESG.
 type Process struct {
 	processDB database.ProcessDB
-	instance  *instancesdk.Instance
+	instance  *instancesdk.SDK
 }
 
 // New creates a new Process SDK with given options.
-func New(instance *instancesdk.Instance, processDB database.ProcessDB) *Process {
+func New(instance *instancesdk.SDK, processDB database.ProcessDB) *Process {
 	return &Process{
 		processDB: processDB,
 		instance:  instance,
 	}
 }
 
-// Create creates a new service from definition.
+// Create creates a new process.
 func (w *Process) Create(wf *process.Process) (*process.Process, error) {
 	wf.Hash = hash.Dump(wf)
 
@@ -46,7 +46,7 @@ func (w *Process) Create(wf *process.Process) (*process.Process, error) {
 
 	// check if process already exists.
 	if _, err := w.processDB.Get(wf.Hash); err == nil {
-		return nil, &AlreadyExistsError{Hash: wf.Hash}
+		return nil, fmt.Errorf("process %q already exists", wf.Hash)
 	}
 
 	if err := wf.Validate(); err != nil {
@@ -68,13 +68,4 @@ func (w *Process) Get(hash hash.Hash) (*process.Process, error) {
 // List returns all processes.
 func (w *Process) List() ([]*process.Process, error) {
 	return w.processDB.All()
-}
-
-// AlreadyExistsError is an not found error.
-type AlreadyExistsError struct {
-	Hash hash.Hash
-}
-
-func (e *AlreadyExistsError) Error() string {
-	return fmt.Sprintf("process %q already exists", e.Hash.String())
 }

@@ -5,12 +5,12 @@ import (
 	"os"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/codec"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/genaccounts"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/mesg-foundation/engine/codec"
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/p2p"
 	"github.com/tendermint/tendermint/privval"
@@ -21,24 +21,13 @@ import (
 // GenesisValidator holds the info of a specific validator to use to generate a genesis.
 type GenesisValidator struct {
 	Name      string
-	Address   sdktypes.AccAddress
 	Password  string
-	Mnemonic  string
 	ValPubKey crypto.PubKey
 	NodeID    p2p.ID
 }
 
 // NewGenesisValidator creates a new validator with an cosmos account, validator and node identity.
 func NewGenesisValidator(kb *Keybase, name, password, privValidatorKeyFile, privValidatorStateFile, nodeKeyFile string) (GenesisValidator, error) {
-	// create validator account
-	mnemonic, err := kb.NewMnemonic()
-	if err != nil {
-		return GenesisValidator{}, err
-	}
-	acc, err := kb.CreateAccount(name, mnemonic, "", password, 0, 0)
-	if err != nil {
-		return GenesisValidator{}, err
-	}
 	val := privval.LoadOrGenFilePV(privValidatorKeyFile, privValidatorStateFile)
 	nodeKey, err := p2p.LoadOrGenNodeKey(nodeKeyFile)
 	if err != nil {
@@ -47,14 +36,12 @@ func NewGenesisValidator(kb *Keybase, name, password, privValidatorKeyFile, priv
 	return GenesisValidator{
 		Name:      name,
 		Password:  password,
-		Mnemonic:  mnemonic,
-		Address:   acc.GetAddress(),
 		ValPubKey: val.GetPubKey(),
 		NodeID:    nodeKey.ID(),
 	}, nil
 }
 
-// GenesisExist returns true if the genesis file already exist.
+// GenesisExist returns true if the genesis file already exists.
 func GenesisExist(genesisFile string) bool {
 	_, err := os.Stat(genesisFile)
 	return !os.IsNotExist(err)
@@ -66,14 +53,19 @@ func LoadGenesis(genesisFile string) (*tmtypes.GenesisDoc, error) {
 }
 
 // GenGenesis generates a new genesis and save it.
-func GenGenesis(cdc *codec.Codec, kb *Keybase, defaultGenesisŚtate map[string]json.RawMessage, chainID string, genesisFile string, validators []GenesisValidator) (*tmtypes.GenesisDoc, error) {
+func GenGenesis(kb *Keybase, defaultGenesisŚtate map[string]json.RawMessage, chainID string, genesisFile string, validators []GenesisValidator) (*tmtypes.GenesisDoc, error) {
 	msgs := []sdktypes.Msg{}
 	for _, validator := range validators {
+		// get account
+		acc, err := kb.Get(validator.Name)
+		if err != nil {
+			return nil, err
+		}
 		// generate msg to add this validator
-		msgs = append(msgs, genCreateValidatorMsg(validator.Address, validator.Name, validator.ValPubKey))
+		msgs = append(msgs, genCreateValidatorMsg(acc.GetAddress(), validator.Name, validator.ValPubKey))
 	}
 	// generate genesis transaction
-	b := NewTxBuilder(cdc, 0, 0, kb, chainID)
+	b := NewTxBuilder(0, 0, kb, chainID)
 	signedMsg, err := b.BuildSignMsg(msgs)
 	if err != nil {
 		return nil, err
@@ -86,11 +78,11 @@ func GenGenesis(cdc *codec.Codec, kb *Keybase, defaultGenesisŚtate map[string]j
 		}
 	}
 	// generate genesis
-	appState, err := genGenesisAppState(defaultGenesisŚtate, cdc, validatorTx)
+	appState, err := genGenesisAppState(defaultGenesisŚtate, validatorTx)
 	if err != nil {
 		return nil, err
 	}
-	genesis, err := genGenesisDoc(cdc, appState, chainID, time.Now())
+	genesis, err := genGenesisDoc(appState, chainID, time.Now())
 	if err != nil {
 		return nil, err
 	}
@@ -101,8 +93,8 @@ func GenGenesis(cdc *codec.Codec, kb *Keybase, defaultGenesisŚtate map[string]j
 	return genesis, nil
 }
 
-func genGenesisDoc(cdc *codec.Codec, appState map[string]json.RawMessage, chainID string, genesisTime time.Time) (*tmtypes.GenesisDoc, error) {
-	appStateEncoded, err := cdc.MarshalJSON(appState)
+func genGenesisDoc(appState map[string]json.RawMessage, chainID string, genesisTime time.Time) (*tmtypes.GenesisDoc, error) {
+	appStateEncoded, err := codec.MarshalJSON(appState)
 	if err != nil {
 		return nil, err
 	}
@@ -115,7 +107,7 @@ func genGenesisDoc(cdc *codec.Codec, appState map[string]json.RawMessage, chainI
 	return genesis, genesis.ValidateAndComplete()
 }
 
-func genGenesisAppState(defaultGenesisŚtate map[string]json.RawMessage, cdc *codec.Codec, signedStdTx authtypes.StdTx) (map[string]json.RawMessage, error) {
+func genGenesisAppState(defaultGenesisŚtate map[string]json.RawMessage, signedStdTx authtypes.StdTx) (map[string]json.RawMessage, error) {
 	genAccs := []genaccounts.GenesisAccount{}
 	for _, signer := range signedStdTx.GetSigners() {
 		stakes := sdktypes.NewCoin(sdktypes.DefaultBondDenom, sdktypes.NewInt(100000000))
@@ -125,12 +117,12 @@ func genGenesisAppState(defaultGenesisŚtate map[string]json.RawMessage, cdc *co
 		}
 		genAccs = append(genAccs, genAcc)
 	}
-	genstate, err := cdc.MarshalJSON(genaccounts.GenesisState(genAccs))
+	genstate, err := codec.MarshalJSON(genaccounts.GenesisState(genAccs))
 	if err != nil {
 		return nil, err
 	}
 	defaultGenesisŚtate[genaccounts.ModuleName] = genstate
-	return genutil.SetGenTxsInAppGenesisState(cdc, defaultGenesisŚtate, []authtypes.StdTx{signedStdTx})
+	return genutil.SetGenTxsInAppGenesisState(codec.Codec, defaultGenesisŚtate, []authtypes.StdTx{signedStdTx})
 }
 
 func genCreateValidatorMsg(accAddress sdktypes.AccAddress, accName string, valPubKey crypto.PubKey) stakingtypes.MsgCreateValidator {

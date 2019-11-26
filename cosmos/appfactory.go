@@ -3,10 +3,11 @@ package cosmos
 import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/codec"
+	cosmoscodec "github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/mesg-foundation/engine/codec"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
@@ -15,7 +16,6 @@ import (
 // AppFactory is a Cosmos application factory.
 type AppFactory struct {
 	baseApp            *baseapp.BaseApp
-	cdc                *codec.Codec
 	modulesBasic       []module.AppModuleBasic
 	modules            []module.AppModule
 	storeKeys          map[string]*sdk.KVStoreKey
@@ -28,14 +28,12 @@ type AppFactory struct {
 
 // NewAppFactory returns a new AppFactory.
 func NewAppFactory(logger log.Logger, db dbm.DB) *AppFactory {
-	cdc := codec.New()
-	sdk.RegisterCodec(cdc)
-	codec.RegisterCrypto(cdc)
+	sdk.RegisterCodec(codec.Codec)
+	cosmoscodec.RegisterCrypto(codec.Codec)
 
 	return &AppFactory{
-		baseApp: bam.NewBaseApp("engine", logger, db, auth.DefaultTxDecoder(cdc)),
+		baseApp: bam.NewBaseApp("engine", logger, db, auth.DefaultTxDecoder(codec.Codec)),
 		modules: []module.AppModule{},
-		cdc:     cdc,
 		storeKeys: map[string]*sdk.KVStoreKey{
 			bam.MainStoreKey: sdk.NewKVStoreKey(bam.MainStoreKey),
 		},
@@ -77,11 +75,6 @@ func (a *AppFactory) RegisterTransientStoreKey(transientStoreKey *sdk.TransientS
 // SetAnteHandler registers the authentication handler to the app.
 func (a *AppFactory) SetAnteHandler(anteHandler sdk.AnteHandler) {
 	a.anteHandler = anteHandler
-}
-
-// Cdc returns the codec of the app.
-func (a *AppFactory) Cdc() *codec.Codec {
-	return a.cdc
 }
 
 // DeliverTx implement baseApp.DeliverTx

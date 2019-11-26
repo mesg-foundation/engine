@@ -1,11 +1,8 @@
 package ownership
 
-import (
-	"github.com/cosmos/cosmos-sdk/codec"
-)
+import "github.com/mesg-foundation/engine/codec"
 
-// RegisterCodec registers the ownership types to codec.
-func RegisterCodec(cdc *codec.Codec) {
-	cdc.RegisterInterface((*isOwnership_Resource)(nil), nil)
-	cdc.RegisterConcrete(&Ownership_ServiceHash{}, "mesg.types.Ownership.Ownership_ServiceHash", nil)
+func init() {
+	codec.RegisterInterface((*isOwnership_Resource)(nil), nil)
+	codec.RegisterConcrete(&Ownership_ServiceHash{}, "mesg.types.Ownership.Ownership_ServiceHash", nil)
 }
