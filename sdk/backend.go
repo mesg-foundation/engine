@@ -16,6 +16,7 @@ import (
 	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	ownershipsdk "github.com/mesg-foundation/engine/sdk/ownership"
+	processsdk "github.com/mesg-foundation/engine/sdk/process"
 	runnersdk "github.com/mesg-foundation/engine/sdk/runner"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 )
@@ -24,6 +25,7 @@ import (
 type Backend struct {
 	Service   *servicesdk.Backend
 	Execution *executionsdk.Backend
+	Process   *processsdk.Backend
 	Ownership *ownershipsdk.Backend
 	Instance  *instancesdk.Backend
 	Runner    *runnersdk.Backend
@@ -35,11 +37,13 @@ func NewBackend(appFactory *cosmos.AppFactory) *Backend {
 	ownership := ownershipsdk.NewBackend(appFactory)
 	service := servicesdk.NewBackend(appFactory, ownership)
 	instance := instancesdk.NewBackend(appFactory)
+	process := processsdk.NewBackend(appFactory, ownership, instance)
 	runner := runnersdk.NewBackend(appFactory, instance)
 	execution := executionsdk.NewBackend(appFactory, service, instance, runner)
 	return &Backend{
 		Service:   service,
 		Ownership: ownership,
+		Process:   process,
 		Instance:  instance,
 		Runner:    runner,
 		Execution: execution,
