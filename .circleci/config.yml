@@ -177,9 +177,19 @@ workflows:
             branches:
               ignore: /.*/
       - "test_e2e":
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
           requires:
             - "test"
             - "lint"
       - "publish_docker_prod":
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
           requires:
             - "test_e2e"
