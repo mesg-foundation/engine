@@ -5,7 +5,6 @@ import (
 	"net"
 	"time"
 
-	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	"github.com/mesg-foundation/engine/config"
@@ -14,11 +13,9 @@ import (
 	"github.com/mesg-foundation/engine/server/grpc/api"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/reflection"
-	"google.golang.org/grpc/status"
 )
 
 // Server contains the server config.
@@ -49,7 +46,6 @@ func (s *Server) Serve(address string) error {
 		keepaliveOpt,
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			grpc_logrus.StreamServerInterceptor(logrus.StandardLogger().WithField("module", "grpc")),
-			streamCosmosErrorInterceptor,
 		)),
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			grpc_logrus.UnaryServerInterceptor(logrus.StandardLogger().WithField("module", "grpc")),
@@ -61,7 +57,6 @@ func (s *Server) Serve(address string) error {
 				})
 				return handler(ctx, req)
 			},
-			unaryCosmosErrorInterceptor,
 		)),
 	)
 	s.register()
@@ -86,20 +81,4 @@ func (s *Server) register() {
 	protobuf_api.RegisterRunnerServer(s.instance, api.NewRunnerServer(s.sdk))
 
 	reflection.Register(s.instance)
-}
-
-func streamCosmosErrorInterceptor(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-	err := handler(srv, stream)
-	if cerr, ok := err.(cosmostypes.Error); ok {
-		err = status.Error(codes.Code(cerr.Code()), cerr.Error())
-	}
-	return err
-}
-
-func unaryCosmosErrorInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-	resp, err := handler(ctx, req)
-	if cerr, ok := err.(cosmostypes.Error); ok {
-		err = status.Error(codes.Code(cerr.Code()), cerr.Error())
-	}
-	return resp, err
 }
