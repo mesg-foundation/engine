@@ -1,5 +1,64 @@
 # Changelog
 
+## [v0.17.0](https://github.com/mesg-foundation/engine/releases/tag/v0.17.0)
+
+#### Breaking Changes
+
+- ([#1456](https://github.com/mesg-foundation/engine/pull/1456)) Update Instance SDK and create Runner SDK.
+- ([#1459](https://github.com/mesg-foundation/engine/pull/1459)) Single cosmos account.
+- ([#1463](https://github.com/mesg-foundation/engine/pull/1463)) Execution SDK on Cosmos.
+- ([#1473](https://github.com/mesg-foundation/engine/pull/1473)) Use filter in list instance api.
+- ([#1499](https://github.com/mesg-foundation/engine/pull/1499)) Improve use of proto Value and remove one of on UpdateExecutionRequest.
+- ([#1513](https://github.com/mesg-foundation/engine/pull/1513)) Remove service env MESG_TOKEN.
+- ([#1514](https://github.com/mesg-foundation/engine/pull/1514)) Remove service env MESG_TOKEN.
+
+#### Added
+
+- ([#1435](https://github.com/mesg-foundation/engine/pull/1435)) Prepare setup for running e2e tests.
+- ([#1439](https://github.com/mesg-foundation/engine/pull/1439)) Setup up account test in E2E.
+- ([#1448](https://github.com/mesg-foundation/engine/pull/1448)) Inject env MESG_INSTANCE_HASH in services.
+- ([#1449](https://github.com/mesg-foundation/engine/pull/1449)) Add config log format validation.
+- ([#1450](https://github.com/mesg-foundation/engine/pull/1450)) Add more explicit error on service create.
+- ([#1451](https://github.com/mesg-foundation/engine/pull/1451)) Validate service nested object params.
+- ([#1489](https://github.com/mesg-foundation/engine/pull/1489)) Add account mnemonic in config.
+- ([#1500](https://github.com/mesg-foundation/engine/pull/1500)) Add e2e tests of a complex service.
+- ([#1502](https://github.com/mesg-foundation/engine/pull/1502)) Add amino encoding functionality to proto Struct.
+- ([#1503](https://github.com/mesg-foundation/engine/pull/1503)) Add small test to make sure hashstruct is sorting the map and struct keys.
+- ([#1512](https://github.com/mesg-foundation/engine/pull/1512)) Inject runner hash in docker services.
+
+#### Changed
+
+- ([#1432](https://github.com/mesg-foundation/engine/pull/1432)) Bump gopkg.in/yaml.v2 from 2.2.2 to 2.2.4.
+- ([#1437](https://github.com/mesg-foundation/engine/pull/1437)) Remove dep from lint and add dep in docker-dev in makefile.
+- ([#1452](https://github.com/mesg-foundation/engine/pull/1452)) Add EnvHash to instance and calculate the hash based on it.
+- ([#1461](https://github.com/mesg-foundation/engine/pull/1461)) Refactor instance sdk containers function.
+- ([#1474](https://github.com/mesg-foundation/engine/pull/1474)) Update golangci-lint to 1.21.0.
+- ([#1485](https://github.com/mesg-foundation/engine/pull/1485)) Increase gas limit tx.
+- ([#1488](https://github.com/mesg-foundation/engine/pull/1488)) Refactor database.
+- ([#1491](https://github.com/mesg-foundation/engine/pull/1491)) Filter instances on backend side.
+
+#### Fixed
+
+- ([#1462](https://github.com/mesg-foundation/engine/pull/1462)) Use sequence number from cosmos auth module.
+- ([#1479](https://github.com/mesg-foundation/engine/pull/1479)) Return proper error code on e2e fail.
+- ([#1480](https://github.com/mesg-foundation/engine/pull/1480)) Use a single cosmos codec.
+- ([#1481](https://github.com/mesg-foundation/engine/pull/1481)) export MESG_PATH for e2e tests.
+- ([#1483](https://github.com/mesg-foundation/engine/pull/1483)) Disable go test cache for e2e test.
+- ([#1486](https://github.com/mesg-foundation/engine/pull/1486)) Fix 2 error messages.
+- ([#1504](https://github.com/mesg-foundation/engine/pull/1504)) Fix hash length.
+- ([#1510](https://github.com/mesg-foundation/engine/pull/1510)) Return not found error in backend get functions when resource doesn't exist.
+- ([#1511](https://github.com/mesg-foundation/engine/pull/1511)) Fix bug when Value_NullValue is not taking into account.
+- ([#1521](https://github.com/mesg-foundation/engine/pull/1521)) Fix filter in runner sdk and check if runner exists.
+- ([#1522](https://github.com/mesg-foundation/engine/pull/1522)) Fix typos.
+
+#### Removed
+
+- ([#1468](https://github.com/mesg-foundation/engine/pull/1468)) Remove public error AlreadyExistsError from SDKs.
+- ([#1469](https://github.com/mesg-foundation/engine/pull/1469)) Remove servicesdk interface.
+- ([#1482](https://github.com/mesg-foundation/engine/pull/1482)) Remove runner db to use directly cosmos kvstore in runner sdk.
+- ([#1508](https://github.com/mesg-foundation/engine/pull/1508)) Remove deprecated database files.
+- ([#1516](https://github.com/mesg-foundation/engine/pull/1516)) Remove database/store package.
+
 ## [v0.16.0](https://github.com/mesg-foundation/engine/releases/tag/v0.16.0)
 
 #### Breaking Changes
