@@ -19,6 +19,12 @@ issues:
   exclude:
     - "ineffective break statement. Did you mean to break out of the outer loop"
 
+  exclude-rules:
+    - path: x/xvalidator/validator.go
+      linters:
+        - golint
+      text: "exported var Translator should have its own declaration"
+
 linters:
   enable-all: true
   disable:
