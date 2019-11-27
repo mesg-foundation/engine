@@ -3,14 +3,16 @@ package runnersdk
 import (
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/codec"
+	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/x/xvalidator"
 )
 
 // msgCreateRunner defines a state transition to create a runner.
 type msgCreateRunner struct {
-	Address     cosmostypes.AccAddress `json:"address"`
-	ServiceHash hash.Hash              `json:"serviceHash"`
-	EnvHash     hash.Hash              `json:"envHash"`
+	Address     cosmostypes.AccAddress `json:"address" validate:"required,accaddress"`
+	ServiceHash hash.Hash              `json:"serviceHash" validate:"required,hash"`
+	EnvHash     hash.Hash              `json:"envHash" validate:"omitempty,hash"`
 }
 
 // newMsgCreateRunner is a constructor function for msgCreateRunner.
@@ -34,11 +36,14 @@ func (msg msgCreateRunner) Type() string {
 
 // ValidateBasic runs stateless checks on the message.
 func (msg msgCreateRunner) ValidateBasic() cosmostypes.Error {
+	if err := xvalidator.Validate.Struct(msg); err != nil {
+		return cosmostypes.ErrInternal(err.Error())
+	}
 	if msg.ServiceHash.IsZero() {
-		return cosmostypes.ErrInternal("serviceHash is missing")
+		return cosmos.NewMesgErrorf(cosmos.CodeValidation, "serviceHash is missing")
 	}
 	if msg.EnvHash.IsZero() {
-		return cosmostypes.ErrInternal("envHash is missing")
+		return cosmos.NewMesgErrorf(cosmos.CodeValidation, "envHash is missing")
 	}
 	if msg.Address.Empty() {
 		return cosmostypes.ErrInvalidAddress("address is missing")
@@ -58,8 +63,8 @@ func (msg msgCreateRunner) GetSigners() []cosmostypes.AccAddress {
 
 // msgDeleteRunner defines a state transition to delete a runner.
 type msgDeleteRunner struct {
-	Address    cosmostypes.AccAddress `json:"address"`
-	RunnerHash hash.Hash              `json:"runnerHash"`
+	Address    cosmostypes.AccAddress `json:"address" validate:"required,accaddress"`
+	RunnerHash hash.Hash              `json:"runnerHash" validate:"required,hash"`
 }
 
 // newMsgDeleteRunner is a constructor function for msgDeleteRunner.
@@ -82,8 +87,11 @@ func (msg msgDeleteRunner) Type() string {
 
 // ValidateBasic runs stateless checks on the message.
 func (msg msgDeleteRunner) ValidateBasic() cosmostypes.Error {
+	if err := xvalidator.Validate.Struct(msg); err != nil {
+		return cosmostypes.ErrInternal(err.Error())
+	}
 	if msg.RunnerHash.IsZero() {
-		return cosmostypes.ErrInternal("runnerHash is missing")
+		return cosmos.NewMesgErrorf(cosmos.CodeValidation, "runnerHash is missing")
 	}
 	if msg.Address.Empty() {
 		return cosmostypes.ErrInvalidAddress("address is missing")

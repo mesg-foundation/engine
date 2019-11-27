@@ -149,11 +149,11 @@ func (m AppModule) NewQuerierHandler() cosmostypes.Querier {
 			if errsdk, ok := err.(cosmostypes.Error); ok {
 				return nil, errsdk
 			}
-			return nil, cosmostypes.ErrInternal(err.Error())
+			return nil, NewMesgWrapError(CodeInternal, err)
 		}
 		res, err := codec.MarshalBinaryBare(data)
 		if err != nil {
-			return nil, cosmostypes.ErrInternal(err.Error())
+			return nil, NewMesgWrapError(CodeInternal, err)
 		}
 		return res, nil
 	}

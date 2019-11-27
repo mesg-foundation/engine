@@ -11,6 +11,7 @@ import (
 	protobuf_api "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/sdk"
 	"github.com/mesg-foundation/engine/server/grpc/api"
+	"github.com/mesg-foundation/engine/x/xvalidator"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
@@ -49,6 +50,7 @@ func (s *Server) Serve(address string) error {
 		)),
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			grpc_logrus.UnaryServerInterceptor(logrus.StandardLogger().WithField("module", "grpc")),
+			validateInterceptor,
 			func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 				// inject credentials from config
 				ctx = metadata.NewIncomingContext(ctx, map[string][]string{
@@ -67,6 +69,13 @@ func (s *Server) Serve(address string) error {
 // Close gracefully closes the server.
 func (s *Server) Close() {
 	s.instance.GracefulStop()
+}
+
+func validateInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	if err := xvalidator.Validate.Struct(req); err != nil {
+		return nil, err
+	}
+	return handler(ctx, req)
 }
 
 // register all server
