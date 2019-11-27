@@ -32,7 +32,6 @@ func testExecution(t *testing.T) {
 
 			resp, err := client.ExecutionClient.Create(context.Background(), &pb.CreateExecutionRequest{
 				TaskKey:      "ping",
-				InstanceHash: testInstanceHash,
 				EventHash:    hash.Int(1),
 				ExecutorHash: testRunnerHash,
 				Inputs: &types.Struct{

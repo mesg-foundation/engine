@@ -86,6 +86,9 @@ func (msg msgDeleteRunner) Type() string {
 
 // ValidateBasic runs stateless checks on the message.
 func (msg msgDeleteRunner) ValidateBasic() cosmostypes.Error {
+	if err := xvalidator.Validate.Struct(msg); err != nil {
+		return cosmostypes.ErrInternal(err.Error())
+	}
 	if msg.RunnerHash.IsZero() {
 		return cosmostypes.ErrInternal("runnerHash is missing")
 	}

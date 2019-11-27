@@ -33,12 +33,6 @@ service Execution {
 
 // CreateExecutionRequest defines request to create a single execution.
 message CreateExecutionRequest {
-  bytes instanceHash = 1 [
-    (gogoproto.moretags) = 'validate:"required,hash"',
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
-    (gogoproto.nullable) = false
-  ];
-
   // taskKey to filter executions.
   string taskKey = 2 [
     (gogoproto.moretags) = 'validate:"required,printascii"'
