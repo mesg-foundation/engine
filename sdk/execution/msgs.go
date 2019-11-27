@@ -4,6 +4,7 @@ import (
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/protobuf/api"
+	"github.com/mesg-foundation/engine/x/xvalidator"
 )
 
 // msgCreateExecution defines a state transition to create a execution.
@@ -35,6 +36,9 @@ func (msg msgCreateExecution) Type() string {
 
 // ValidateBasic runs stateless checks on the message.
 func (msg msgCreateExecution) ValidateBasic() cosmostypes.Error {
+	if err := xvalidator.Validate.Struct(msg); err != nil {
+		return cosmostypes.ErrInternal(err.Error())
+	}
 	if !msg.Request.ParentHash.IsZero() && !msg.Request.EventHash.IsZero() {
 		return cosmostypes.ErrInternal("cannot have both parent and event hash")
 	}

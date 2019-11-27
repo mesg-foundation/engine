@@ -4,18 +4,15 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/go-playground/locales/en"
-	ut "github.com/go-playground/universal-translator"
 	"github.com/mesg-foundation/engine/service"
 	"github.com/mesg-foundation/engine/x/xerrors"
 	"github.com/mesg-foundation/engine/x/xvalidator"
 	validator "gopkg.in/go-playground/validator.v9"
-	en_translations "gopkg.in/go-playground/validator.v9/translations/en"
 )
 
 const namespacePrefix = "service."
 
-var validate, translator = newValidator()
+var validate, translator = xvalidator.NewWithPrefix(namespacePrefix)
 
 // ValidateService validates if service contains proper data.
 func ValidateService(s *service.Service) error {
@@ -150,36 +147,4 @@ func isServiceParamsUnique(ps []*service.Service_Parameter, errprefix string) er
 		}
 	}
 	return errs.ErrorOrNil()
-}
-
-func newValidator() (*validator.Validate, ut.Translator) {
-	en := en.New()
-	uni := ut.New(en, en)
-	trans, _ := uni.GetTranslator("en")
-	validate := validator.New()
-
-	validate.RegisterValidation("env", xvalidator.IsEnv)
-	validate.RegisterTranslation("env", trans, func(ut ut.Translator) error {
-		return ut.Add("env", "{0} must be a valid env variable name", false)
-	}, func(ut ut.Translator, fe validator.FieldError) string {
-		t, _ := ut.T("env", fe.Field(), namespacePrefix)
-		return t
-	})
-
-	validate.RegisterValidation("portmap", xvalidator.IsPortMapping)
-	validate.RegisterTranslation("portmap", trans, func(ut ut.Translator) error {
-		return ut.Add("portmap", "{0} must be a valid port mapping. Eg: 80 or 80:80", false)
-	}, func(ut ut.Translator, fe validator.FieldError) string {
-		t, _ := ut.T("portmap", fe.Field(), namespacePrefix)
-		return t
-	})
-	validate.RegisterValidation("domain", xvalidator.IsDomainName)
-	validate.RegisterTranslation("domain", trans, func(ut ut.Translator) error {
-		return ut.Add("domain", "{0} must respect domain-style notation. Eg: author.name", false)
-	}, func(ut ut.Translator, fe validator.FieldError) string {
-		t, _ := ut.T("domain", fe.Field())
-		return t
-	})
-	en_translations.RegisterDefaultTranslations(validate, trans)
-	return validate, trans
 }
