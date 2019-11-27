@@ -67,7 +67,7 @@ require (
 	google.golang.org/grpc v1.24.0
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.30.0
-	gopkg.in/yaml.v2 v2.2.4
+	gopkg.in/yaml.v2 v2.2.7
 	gotest.tools v2.2.0+incompatible
 )
 
