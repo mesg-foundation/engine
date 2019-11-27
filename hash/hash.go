@@ -89,6 +89,15 @@ func Decode(h string) (Hash, error) {
 	return Hash(hash), nil
 }
 
+// DecodeFromBytes decodes hash and checks it length.
+// It returns empty hash on nil slice of bytes.
+func DecodeFromBytes(data []byte) (Hash, error) {
+	if len(data) != size {
+		return nil, errInvalidLen
+	}
+	return Hash(data), nil
+}
+
 // IsZero reports whethere h represents empty hash.
 func (h Hash) IsZero() bool {
 	return len(h) == 0

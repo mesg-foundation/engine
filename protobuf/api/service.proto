@@ -33,33 +33,50 @@ service Service {
 // The request's data for the `Create` API.
 message CreateServiceRequest {
   // Service's sid.
-  string sid = 1;
+  string sid = 1 [
+    (gogoproto.moretags) = 'validate:"printascii,max=63,domain"'
+  ];
 
   // Service's name.
-  string name = 2;
+  string name = 2 [
+    (gogoproto.moretags) = 'validate:"required,printascii"'
+  ];
 
   // Service's description.
-  string description = 3;
+  string description = 3 [
+    (gogoproto.moretags) = 'validate:"printascii"'
+  ];
 
   // Configurations related to the service
   types.Service.Configuration configuration = 4 [
+    (gogoproto.moretags) = 'validate:"required"',
     (gogoproto.nullable) = false
   ];
 
   // The list of tasks this service can execute.
-  repeated types.Service.Task tasks = 5;
+  repeated types.Service.Task tasks = 5 [
+    (gogoproto.moretags) = 'validate:"dive,required"'
+  ];
 
   // The list of events this service can emit.
-  repeated types.Service.Event events = 6;
+  repeated types.Service.Event events = 6 [
+    (gogoproto.moretags) = 'validate:"dive,required"'
+  ];
 
   // The container dependencies this service requires.
-  repeated types.Service.Dependency dependencies = 7;
+  repeated types.Service.Dependency dependencies = 7 [
+    (gogoproto.moretags) = 'validate:"dive,required"'
+  ];
 
   // Service's repository url.
-  string repository = 8;
+  string repository = 8 [
+    (gogoproto.moretags) = 'validate:"omitempty,uri"'
+  ];
 
   // The hash id of service's source code on IPFS.
-  string source = 9;
+  string source = 9 [
+    (gogoproto.moretags) = 'validate:"required,printascii"'
+  ];
 }
 
 // The response's data for the `Create` API.
@@ -75,6 +92,7 @@ message CreateServiceResponse {
 message GetServiceRequest {
   // The service's hash to fetch.
   bytes hash = 1 [
+    (gogoproto.moretags) = 'validate:"required,hash"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
@@ -93,6 +111,7 @@ message ListServiceResponse {
 message ExistsServiceRequest {
   // The service's hash of the existing service. This hash is nil if exists is fals.
   bytes hash = 1 [
+    (gogoproto.moretags) = 'validate:"required,hash"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
