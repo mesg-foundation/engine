@@ -84,7 +84,7 @@ func newTestCreateServiceRequest() *pb.CreateServiceRequest {
 				},
 			},
 		},
-		Source: "QmPG1Ze96pH1EgVMWsGKM33jXoG63rigMncSEqZXP7oncq",
+		Source: "QmPkjHLWUwTVjJsy7ioFkxPL9yh7URYK2AUYYkTzJTmhJQ",
 	}
 }
 
@@ -94,49 +94,32 @@ func newTestComplexCreateServiceRequest() *pb.CreateServiceRequest {
 		Name: "test-complex-service",
 		Dependencies: []*service.Service_Dependency{
 			{
-				Key:     "busybox",
-				Image:   "busybox",
-				Volumes: []string{"/tmp"},
+				Key:     "nginx",
+				Image:   "nginx",
+				Volumes: []string{"/etc/nginx"},
 			},
 		},
 		Configuration: service.Service_Configuration{
-			VolumesFrom: []string{"busybox"},
-			Env:         []string{"FOO"},
-		},
-		Tasks: []*service.Service_Task{
-			{
-				Key: "foo",
-				Inputs: []*service.Service_Parameter{
-					{
-						Key:  "o",
-						Type: "Object",
-						Object: []*service.Service_Parameter{
-							{
-								Key:  "msg",
-								Type: "String",
-							},
-						},
-					},
-				},
+			Env: []string{
+				"ENVA=do_not_override",
+				"ENVB=override",
 			},
+			Volumes:     []string{"/volume/test/"},
+			VolumesFrom: []string{"nginx"},
 		},
 		Events: []*service.Service_Event{
-			{
-				Key: "foo",
-				Data: []*service.Service_Parameter{
-					{
-						Key:  "o",
-						Type: "Object",
-						Object: []*service.Service_Parameter{
-							{
-								Key:  "msg",
-								Type: "String",
-							},
-						},
-					},
-				},
-			},
+			{Key: "test_service_ready"},
+			{Key: "read_env_ok"},
+			{Key: "read_env_error"},
+			{Key: "read_env_override_ok"},
+			{Key: "read_env_override_error"},
+			{Key: "access_volumes_ok"},
+			{Key: "access_volumes_error"},
+			{Key: "access_volumes_from_ok"},
+			{Key: "access_volumes_from_error"},
+			{Key: "resolve_dependence_ok"},
+			{Key: "resolve_dependence_error"},
 		},
-		Source: "QmRarLspkiAUL7nQiTfA2DGTusVpY7JUB33Qm9poq56ris",
+		Source: "Qmb22Ln4bNfkQ3LLbaumYGXUbjBmB1xxrNq8jardaeruoP",
 	}
 }

@@ -10,7 +10,9 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/mesg-foundation/engine/codec"
+	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/x/xreflect"
+	"github.com/mesg-foundation/engine/x/xstrings"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/node"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
@@ -128,4 +130,42 @@ func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg, accName, accPassword str
 	case <-ctx.Done():
 		return nil, errors.New("i/o timeout")
 	}
+}
+
+// Stream subscribes to the provided query and returns the hash of the matching ressources.
+func (c *Client) Stream(ctx context.Context, query string) (chan hash.Hash, chan error, error) {
+	subscriber := xstrings.RandASCIILetters(8)
+	eventStream, err := c.Subscribe(context.Background(), subscriber, query)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	hashC := make(chan hash.Hash)
+	errC := make(chan error)
+	go func() {
+	loop:
+		for {
+			select {
+			case event := <-eventStream:
+				tags := event.Events[EventHashType]
+				if len(tags) != 1 {
+					errC <- fmt.Errorf("event %s has %d tag(s), but only 1 is expected", EventHashType, len(tags))
+					break
+				}
+
+				hash, err := hash.Decode(tags[0])
+				if err != nil {
+					errC <- err
+				} else {
+					hashC <- hash
+				}
+			case <-ctx.Done():
+				break loop
+			}
+		}
+		close(errC)
+		close(hashC)
+		c.Unsubscribe(context.Background(), subscriber, query)
+	}()
+	return hashC, errC, nil
 }

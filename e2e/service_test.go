@@ -7,7 +7,6 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc/metadata"
 )
 
 var testServiceHash hash.Hash
@@ -16,18 +15,13 @@ func testService(t *testing.T) {
 	req := newTestCreateServiceRequest()
 
 	t.Run("create", func(t *testing.T) {
-		ctx := metadata.NewOutgoingContext(context.Background(), passmd)
-
-		resp, err := client.ServiceClient.Create(ctx, req)
+		resp, err := client.ServiceClient.Create(context.Background(), req)
 		require.NoError(t, err)
-
 		testServiceHash = resp.Hash
 	})
 
 	t.Run("get", func(t *testing.T) {
-		ctx := metadata.NewOutgoingContext(context.Background(), passmd)
-
-		service, err := client.ServiceClient.Get(ctx, &pb.GetServiceRequest{Hash: testServiceHash})
+		service, err := client.ServiceClient.Get(context.Background(), &pb.GetServiceRequest{Hash: testServiceHash})
 		require.NoError(t, err)
 		require.Equal(t, testServiceHash, service.Hash)
 	})

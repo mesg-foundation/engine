@@ -1,6 +1,9 @@
 package runnersdk
 
 import (
+	"errors"
+	"fmt"
+
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/cosmos"
@@ -67,32 +70,49 @@ func (s *SDK) Create(req *api.CreateRunnerRequest, accountName, accountPassword 
 	}
 	instanceEnv := xos.EnvMergeSlices(srv.Configuration.Env, req.Env)
 	envHash := hash.Dump(instanceEnv)
-	// TODO: should be done by instance
+	// TODO: should be done by instance or runner
 	instanceHash := hash.Dump(&instance.Instance{
 		ServiceHash: srv.Hash,
 		EnvHash:     envHash,
 	})
+	expRunnerHash := hash.Dump(&runner.Runner{
+		Address:      user.String(),
+		InstanceHash: instanceHash,
+	})
+
+	if runExisting, _ := s.Get(expRunnerHash); runExisting != nil {
+		return nil, fmt.Errorf("runner %q already exists", runExisting.Hash)
+	}
 
 	// start the container
 	imageHash, err := build(s.container, srv, s.ipfsEndpoint)
 	if err != nil {
 		return nil, err
 	}
-	_, err = start(s.container, srv, instanceHash, imageHash, instanceEnv, s.engineName, s.port)
+	_, err = start(s.container, srv, instanceHash, expRunnerHash, imageHash, instanceEnv, s.engineName, s.port)
 	if err != nil {
 		return nil, err
 	}
 	onError := func() {
-		stop(s.container, instanceHash, srv.Dependencies)
+		stop(s.container, expRunnerHash, srv.Dependencies)
 	}
 
 	msg := newMsgCreateRunner(user, req.ServiceHash, envHash)
 	tx, err := s.client.BuildAndBroadcastMsg(msg, accountName, accountPassword)
 	if err != nil {
-		defer onError()
+		onError()
 		return nil, err
 	}
-	return s.Get(tx.Data)
+	run, err := s.Get(tx.Data)
+	if err != nil {
+		onError()
+		return nil, err
+	}
+	if !run.Hash.Equal(expRunnerHash) {
+		onError()
+		return nil, errors.New("calculated runner hash is not the same")
+	}
+	return run, nil
 }
 
 // Delete deletes an existing runner.
@@ -130,7 +150,7 @@ func (s *SDK) Delete(req *api.DeleteRunnerRequest, accountName, accountPassword 
 	}
 
 	// stop the local running service
-	if err := stop(s.container, inst.Hash, srv.Dependencies); err != nil {
+	if err := stop(s.container, runner.Hash, srv.Dependencies); err != nil {
 		return err
 	}
 
@@ -167,7 +187,7 @@ func (s *SDK) List(f *Filter) ([]*runner.Runner, error) {
 	ret := make([]*runner.Runner, 0)
 	for _, runner := range runners {
 		if (f.Address == "" || runner.Address == f.Address) &&
-			(f.InstanceHash.IsZero() || runner.Hash.Equal(f.InstanceHash)) {
+			(f.InstanceHash.IsZero() || runner.InstanceHash.Equal(f.InstanceHash)) {
 			ret = append(ret, runner)
 		}
 	}

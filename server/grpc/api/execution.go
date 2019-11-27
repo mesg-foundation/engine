@@ -2,18 +2,12 @@ package api
 
 import (
 	"context"
-	"errors"
 
 	"github.com/mesg-foundation/engine/execution"
-	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/sdk"
-	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
 )
-
-// ErrNoOutput is an error when there is no output for updating execution.
-var ErrNoOutput = errors.New("output not supplied")
 
 // ExecutionServer serve execution functions.
 type ExecutionServer struct {
@@ -27,17 +21,17 @@ func NewExecutionServer(sdk *sdk.SDK) *ExecutionServer {
 
 // Create creates an execution.
 func (s *ExecutionServer) Create(ctx context.Context, req *api.CreateExecutionRequest) (*api.CreateExecutionResponse, error) {
-	eventHash, err := hash.Random()
+	credUsername, credPassphrase, err := GetCredentialFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
-	executionHash, err := s.sdk.Execution.Execute(nil, req.InstanceHash, eventHash, nil, "", req.TaskKey, req.Inputs, req.Tags)
+	exec, err := s.sdk.Execution.Create(req, credUsername, credPassphrase)
 	if err != nil {
 		return nil, err
 	}
 
 	return &api.CreateExecutionResponse{
-		Hash: executionHash,
+		Hash: exec.Hash,
 	}, nil
 }
 
@@ -48,48 +42,49 @@ func (s *ExecutionServer) Get(ctx context.Context, req *api.GetExecutionRequest)
 
 // Stream returns stream of executions.
 func (s *ExecutionServer) Stream(req *api.StreamExecutionRequest, resp api.Execution_StreamServer) error {
-	var f *executionsdk.Filter
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-	if req.Filter != nil {
-		f = &executionsdk.Filter{
-			InstanceHash: req.Filter.InstanceHash,
-			Statuses:     req.Filter.Statuses,
-			Tags:         req.Filter.Tags,
-			TaskKey:      req.Filter.TaskKey,
-		}
+	stream, errC, err := s.sdk.Execution.Stream(ctx, req)
+	if err != nil {
+		return err
 	}
 
-	stream := s.sdk.Execution.GetStream(f)
-	defer stream.Close()
-
-	// send header to notify client that the stream is ready.
 	if err := acknowledgement.SetStreamReady(resp); err != nil {
 		return err
 	}
 
-	for exec := range stream.C {
-		if err := resp.Send(exec); err != nil {
+	for {
+		select {
+		case exec := <-stream:
+			if err := resp.Send(exec); err != nil {
+				return err
+			}
+		case err := <-errC:
 			return err
+		case <-resp.Context().Done():
+			return resp.Context().Err()
 		}
 	}
-
-	return nil
 }
 
 // Update updates execution from given hash.
 func (s *ExecutionServer) Update(ctx context.Context, req *api.UpdateExecutionRequest) (*api.UpdateExecutionResponse, error) {
-	var err error
-	switch res := req.Result.(type) {
-	case *api.UpdateExecutionRequest_Outputs:
-		err = s.sdk.Execution.Update(req.Hash, res.Outputs, nil)
-	case *api.UpdateExecutionRequest_Error:
-		err = s.sdk.Execution.Update(req.Hash, nil, errors.New(res.Error))
-	default:
-		err = ErrNoOutput
-	}
-
+	credUsername, credPassphrase, err := GetCredentialFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	if _, err := s.sdk.Execution.Update(req, credUsername, credPassphrase); err != nil {
+		return nil, err
+	}
 	return &api.UpdateExecutionResponse{}, nil
+}
+
+// List returns all executions.
+func (s *ExecutionServer) List(ctx context.Context, req *api.ListExecutionRequest) (*api.ListExecutionResponse, error) {
+	executions, err := s.sdk.Execution.List()
+	if err != nil {
+		return nil, err
+	}
+	return &api.ListExecutionResponse{Executions: executions}, nil
 }

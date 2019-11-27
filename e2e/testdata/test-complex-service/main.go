@@ -3,14 +3,15 @@ package main
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"time"
 
-	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
-	types "github.com/mesg-foundation/engine/protobuf/types"
+	"github.com/mesg-foundation/engine/x/xsignal"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 )
@@ -20,24 +21,6 @@ const (
 	envMesgEndpoint     = "MESG_ENDPOINT"
 	envMesgInstanceHash = "MESG_INSTANCE_HASH"
 )
-
-var response = &types.Struct{
-	Fields: map[string]*types.Value{
-		"o": &types.Value{
-			Kind: &types.Value_StructValue{
-				StructValue: &types.Struct{
-					Fields: map[string]*types.Value{
-						"msg": &types.Value{
-							Kind: &types.Value_StringValue{
-								StringValue: "bar",
-							},
-						},
-					},
-				},
-			},
-		},
-	},
-}
 
 // Client is a client to connect to all mesg exposed API.
 type Client struct {
@@ -83,6 +66,16 @@ func New() (*Client, error) {
 	}, nil
 }
 
+// SendEvent creates a new event.
+func (c *Client) SendEvent(key string) {
+	if _, err := c.EventClient.Create(context.Background(), &pb.CreateEventRequest{
+		InstanceHash: c.InstanceHash,
+		Key:          key,
+	}); err != nil {
+		log.Fatal(err)
+	}
+}
+
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
@@ -92,48 +85,42 @@ func main() {
 	}
 	log.Printf("connect to %s\n", os.Getenv(envMesgEndpoint))
 
-	stream, err := client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{
-		Filter: &pb.StreamExecutionRequest_Filter{
-			Statuses:     []execution.Status{execution.Status_InProgress},
-			InstanceHash: client.InstanceHash,
-		},
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("create a stream\n")
+	// give some time to nginx to start
+	time.Sleep(10 * time.Second)
 
-	if _, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
-		InstanceHash: client.InstanceHash,
-		Key:          "test_service_ready",
-	}); err != nil {
-		log.Fatal(err)
+	client.SendEvent("test_service_ready")
+
+	// check env default value
+	if os.Getenv("ENVA") == "do_not_override" {
+		client.SendEvent("read_env_ok")
+	} else {
+		client.SendEvent("read_env_error")
 	}
 
-	for {
-		exec, err := stream.Recv()
-		if err != nil {
-			log.Fatal(err)
-		}
-		log.Printf("recive exeuction %s %s\n", exec.TaskKey, exec.Hash)
-
-		req := &pb.UpdateExecutionRequest{
-			Hash: exec.Hash,
-			Result: &pb.UpdateExecutionRequest_Outputs{
-				Outputs: response,
-			},
-		}
-
-		if _, err := client.ExecutionClient.Update(context.Background(), req); err != nil {
-			log.Fatal(err)
-		}
-
-		if _, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
-			InstanceHash: exec.InstanceHash,
-			Key:          exec.TaskKey,
-			Data:         response,
-		}); err != nil {
-			log.Fatal(err)
-		}
+	// check env override value
+	if os.Getenv("ENVB") == "is_override" {
+		client.SendEvent("read_env_override_ok")
+	} else {
+		client.SendEvent("read_env_override_error")
 	}
+
+	if err := ioutil.WriteFile("/volume/test/test.txt", []byte("foo"), 0644); err == nil {
+		client.SendEvent("access_volumes_ok")
+	} else {
+		client.SendEvent("access_volumes_error")
+	}
+
+	if _, err := http.Get("http://nginx:80/"); err == nil {
+		client.SendEvent("resolve_dependence_ok")
+	} else {
+		client.SendEvent("resolve_dependence_error")
+	}
+
+	if content, err := ioutil.ReadFile("/etc/nginx/nginx.conf"); len(content) > 0 && err == nil {
+		client.SendEvent("access_volumes_from_ok")
+	} else {
+		client.SendEvent("access_volumes_from_error")
+	}
+
+	<-xsignal.WaitForInterrupt()
 }

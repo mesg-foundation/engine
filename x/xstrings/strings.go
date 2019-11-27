@@ -1,5 +1,7 @@
 package xstrings
 
+import "math/rand"
+
 // SliceContains returns true if slice a contains e element, false otherwise.
 func SliceContains(a []string, e string) bool {
 	for _, s := range a {
@@ -29,4 +31,15 @@ func SliceIndex(a []string, e string) int {
 		}
 	}
 	return -1
+}
+
+var asciiletters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+// RandASCIILetters generates random string from ascii letters.
+func RandASCIILetters(n int) string {
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = asciiletters[rand.Intn(len(asciiletters))]
+	}
+	return string(b)
 }

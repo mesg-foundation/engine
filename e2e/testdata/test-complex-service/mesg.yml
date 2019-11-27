@@ -3,30 +3,33 @@ sid: test-complex-service
 
 configuration:
   env:
-    - FOO
+    - ENVA=do_not_override
+    - ENVB=override
+  volumes:
+    - /volume/test/
   volumesFrom:
-    - busybox
+    - nginx
 
 dependencies:
-  busybox:
-    image: busybox
+  nginx:
+    image: nginx
     volumes:
-      - /tmp
-
-tasks:
-  foo:
-    inputs:
-      o:
-        type: Object
-        object:
-          msg:
-            type: String
+      - /etc/nginx
 
 events:
-  foo:
-    data:
-      o:
-        type: Object
-        object:
-          msg:
-            type: String
+  test_service_ready:
+
+  read_env_ok:
+  read_env_error:
+
+  read_env_override_ok:
+  read_env_override_error:
+
+  access_volumes_ok:
+  access_volumes_error:
+
+  access_volumes_from_ok:
+  access_volumes_from_error:
+
+  resolve_dependence_ok:
+  resolve_dependence_error:

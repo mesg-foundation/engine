@@ -37,19 +37,17 @@ func NewBackend(appFactory *cosmos.AppFactory, ownerships *ownershipsdk.Backend)
 	return backend
 }
 
-func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) cosmostypes.Result {
+func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) (hash.Hash, error) {
 	switch msg := msg.(type) {
 	case msgCreateService:
 		srv, err := s.Create(request, &msg)
 		if err != nil {
-			return cosmostypes.ErrInternal(err.Error()).Result()
+			return nil, err
 		}
-		return cosmostypes.Result{
-			Data: srv.Hash,
-		}
+		return srv.Hash, nil
 	default:
 		errmsg := fmt.Sprintf("Unrecognized service Msg type: %v", msg.Type())
-		return cosmostypes.ErrUnknownRequest(errmsg).Result()
+		return nil, cosmostypes.ErrUnknownRequest(errmsg)
 	}
 }
 
@@ -85,7 +83,7 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 func (s *Backend) Create(request cosmostypes.Request, msg *msgCreateService) (*service.Service, error) {
 	store := request.KVStore(s.storeKey)
 	// create service
-	srv := api.TransformCreateReqToService(msg.Request)
+	srv := initializeService(msg.Request)
 
 	// check if service already exists.
 	if store.Has(srv.Hash) {
@@ -117,7 +115,11 @@ func (s *Backend) Create(request cosmostypes.Request, msg *msgCreateService) (*s
 // Get returns the service that matches given hash.
 func (s *Backend) Get(request cosmostypes.Request, hash hash.Hash) (*service.Service, error) {
 	var sv *service.Service
-	value := request.KVStore(s.storeKey).Get(hash)
+	store := request.KVStore(s.storeKey)
+	if !store.Has(hash) {
+		return nil, fmt.Errorf("service %q not found", hash)
+	}
+	value := store.Get(hash)
 	return sv, codec.UnmarshalBinaryBare(value, &sv)
 }
 
@@ -128,7 +130,7 @@ func (s *Backend) Exists(request cosmostypes.Request, hash hash.Hash) (bool, err
 
 // Hash returns the hash of a service request.
 func (s *Backend) Hash(serviceRequest *api.CreateServiceRequest) hash.Hash {
-	return api.TransformCreateReqToService(serviceRequest).Hash
+	return initializeService(serviceRequest).Hash
 }
 
 // List returns all services.
@@ -137,7 +139,6 @@ func (s *Backend) List(request cosmostypes.Request) ([]*service.Service, error) 
 		services []*service.Service
 		iter     = request.KVStore(s.storeKey).Iterator(nil, nil)
 	)
-
 	for iter.Valid() {
 		var sv *service.Service
 		if err := codec.UnmarshalBinaryBare(iter.Value(), &sv); err != nil {
@@ -148,4 +149,23 @@ func (s *Backend) List(request cosmostypes.Request) ([]*service.Service, error) 
 	}
 	iter.Close()
 	return services, nil
+}
+
+func initializeService(req *api.CreateServiceRequest) *service.Service {
+	// create service
+	srv := &service.Service{
+		Sid:           req.Sid,
+		Name:          req.Name,
+		Description:   req.Description,
+		Configuration: req.Configuration,
+		Tasks:         req.Tasks,
+		Events:        req.Events,
+		Dependencies:  req.Dependencies,
+		Repository:    req.Repository,
+		Source:        req.Source,
+	}
+
+	// calculate and apply hash to service.
+	srv.Hash = hash.Dump(srv)
+	return srv
 }

@@ -20,7 +20,7 @@ func NewSDK(kb *cosmos.Keybase) *SDK {
 
 // Create generates a new mnemonic and its associated account from a name and password.
 func (s *SDK) Create(name, password string) (address *account.Account, mnemonic string, err error) {
-	// TODO: should throw error if name already exist
+	// TODO: should throw error if name already exists
 	// acc, err := kb.Get(name)
 	// if keyerror.IsErrKeyNotFound(err) {
 	mnemonic, err = s.kb.NewMnemonic()

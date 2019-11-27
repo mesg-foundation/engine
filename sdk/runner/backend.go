@@ -35,24 +35,22 @@ func NewBackend(appFactory *cosmos.AppFactory, instanceBack *instancesdk.Backend
 	return backend
 }
 
-func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) cosmostypes.Result {
+func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) (hash.Hash, error) {
 	switch msg := msg.(type) {
 	case msgCreateRunner:
 		run, err := s.Create(request, &msg)
 		if err != nil {
-			return cosmostypes.ErrInternal(err.Error()).Result()
+			return nil, cosmostypes.ErrInternal(err.Error())
 		}
-		return cosmostypes.Result{
-			Data: run.Hash,
-		}
+		return run.Hash, nil
 	case msgDeleteRunner:
 		if err := s.Delete(request, &msg); err != nil {
-			return cosmostypes.ErrInternal(err.Error()).Result()
+			return nil, err
 		}
-		return cosmostypes.Result{}
+		return nil, nil
 	default:
 		errmsg := fmt.Sprintf("Unrecognized runner Msg type: %v", msg.Type())
-		return cosmostypes.ErrUnknownRequest(errmsg).Result()
+		return nil, cosmostypes.ErrUnknownRequest(errmsg)
 	}
 }
 
@@ -111,8 +109,12 @@ func (s *Backend) Delete(request cosmostypes.Request, msg *msgDeleteRunner) erro
 
 // Get returns the runner that matches given hash.
 func (s *Backend) Get(request cosmostypes.Request, hash hash.Hash) (*runner.Runner, error) {
+	store := request.KVStore(s.storeKey)
+	if !store.Has(hash) {
+		return nil, fmt.Errorf("runner %q not found", hash)
+	}
+	value := store.Get(hash)
 	var run *runner.Runner
-	value := request.KVStore(s.storeKey).Get(hash)
 	return run, codec.UnmarshalBinaryBare(value, &run)
 }
 

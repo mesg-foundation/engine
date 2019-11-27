@@ -28,13 +28,12 @@ func build(cont container.Container, srv *service.Service, ipfsEndpoint string) 
 	}
 	defer os.RemoveAll(path)
 
-	// TODO: the ipfs url should be in config
 	resp, err := http.Get(ipfsEndpoint + srv.Source)
 	if err != nil {
 		return "", err
 	}
 	if resp.StatusCode != 200 {
-		return "", errors.New("service's source code is not reachable")
+		return "", errors.New("service's source code is not reachable, status: " + resp.Status + ", url: " + ipfsEndpoint + srv.Source)
 	}
 	defer resp.Body.Close()
 
@@ -52,10 +51,10 @@ func build(cont container.Container, srv *service.Service, ipfsEndpoint string) 
 }
 
 // Start starts the service.
-func start(cont container.Container, srv *service.Service, instanceHash hash.Hash, imageHash string, env []string, engineName, port string) (serviceIDs []string, err error) {
+func start(cont container.Container, srv *service.Service, instanceHash hash.Hash, runnerHash hash.Hash, imageHash string, env []string, engineName, port string) (serviceIDs []string, err error) {
 	endpoint := net.JoinHostPort(engineName, port)
-	instNamespace := instanceNamespace(instanceHash)
-	networkID, err := cont.CreateNetwork(instNamespace)
+	namespace := namespace(runnerHash)
+	networkID, err := cont.CreateNetwork(namespace)
 	if err != nil {
 		return nil, err
 	}
@@ -72,12 +71,13 @@ func start(cont container.Container, srv *service.Service, instanceHash hash.Has
 			return nil, err
 		}
 		configs = append(configs, container.ServiceOptions{
-			Namespace: dependencyNamespace(instNamespace, d.Key),
+			Namespace: dependencyNamespace(namespace, d.Key),
 			Labels: map[string]string{
 				"mesg.engine":     engineName,
 				"mesg.sid":        srv.Sid,
 				"mesg.service":    srv.Hash.String(),
 				"mesg.instance":   instanceHash.String(),
+				"mesg.runner":     runnerHash.String(),
 				"mesg.dependency": d.Key,
 			},
 			Image:   d.Image,
@@ -100,20 +100,21 @@ func start(cont container.Container, srv *service.Service, instanceHash hash.Has
 		return nil, err
 	}
 	configs = append(configs, container.ServiceOptions{
-		Namespace: dependencyNamespace(instNamespace, service.MainServiceKey),
+		Namespace: dependencyNamespace(namespace, service.MainServiceKey),
 		Labels: map[string]string{
 			"mesg.engine":     engineName,
 			"mesg.sid":        srv.Sid,
 			"mesg.service":    srv.Hash.String(),
 			"mesg.instance":   instanceHash.String(),
+			"mesg.runner":     runnerHash.String(),
 			"mesg.dependency": service.MainServiceKey,
 		},
 		Image:   imageHash,
 		Args:    srv.Configuration.Args,
 		Command: srv.Configuration.Command,
 		Env: xos.EnvMergeSlices(env, []string{
-			"MESG_TOKEN=" + instanceHash.String(),
 			"MESG_INSTANCE_HASH=" + instanceHash.String(),
+			"MESG_RUNNER_HASH=" + runnerHash.String(),
 			"MESG_ENDPOINT=" + endpoint,
 		}),
 		Mounts: append(volumes, volumesFrom...),
@@ -129,7 +130,7 @@ func start(cont container.Container, srv *service.Service, instanceHash hash.Has
 	for _, c := range configs {
 		serviceID, err := cont.StartService(c)
 		if err != nil {
-			stop(cont, instanceHash, srv.Dependencies)
+			stop(cont, runnerHash, srv.Dependencies)
 			return nil, err
 		}
 		serviceIDs = append(serviceIDs, serviceID)
@@ -139,18 +140,18 @@ func start(cont container.Container, srv *service.Service, instanceHash hash.Has
 }
 
 // Stop stops an instance.
-func stop(cont container.Container, instanceHash hash.Hash, dependencies []*service.Service_Dependency) error {
+func stop(cont container.Container, runnerHash hash.Hash, dependencies []*service.Service_Dependency) error {
 	var (
 		wg         sync.WaitGroup
 		errs       xerrors.SyncErrors
-		sNamespace = instanceNamespace(instanceHash)
+		namespace  = namespace(runnerHash)
 		namespaces = make([]string, 0)
 	)
 
 	for _, d := range dependencies {
-		namespaces = append(namespaces, dependencyNamespace(sNamespace, d.Key))
+		namespaces = append(namespaces, dependencyNamespace(namespace, d.Key))
 	}
-	namespaces = append(namespaces, dependencyNamespace(sNamespace, service.MainServiceKey))
+	namespaces = append(namespaces, dependencyNamespace(namespace, service.MainServiceKey))
 
 	for _, namespace := range namespaces {
 		wg.Add(1)
@@ -166,7 +167,7 @@ func stop(cont container.Container, instanceHash hash.Hash, dependencies []*serv
 		return err
 	}
 
-	return cont.DeleteNetwork(sNamespace)
+	return cont.DeleteNetwork(namespace)
 }
 
 // deleteData deletes the data volumes of instance and its dependencies.
@@ -201,14 +202,14 @@ func deleteData(cont container.Container, s *service.Service) error {
 	return errs.ErrorOrNil()
 }
 
-// instanceNamespace returns the namespace of the service.
-func instanceNamespace(hash hash.Hash) string {
+// namespace returns the namespace of the service.
+func namespace(hash hash.Hash) string {
 	return hash.String()
 }
 
 // dependencyNamespace builds the namespace of a dependency.
-func dependencyNamespace(instanceNamespace string, dependencyKey string) string {
-	return hash.Dump(instanceNamespace + dependencyKey).String()
+func dependencyNamespace(namespace string, dependencyKey string) string {
+	return hash.Dump(namespace + dependencyKey).String()
 }
 
 func convertPorts(dPorts []string) []container.Port {
