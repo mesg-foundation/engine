@@ -58,7 +58,7 @@ require (
 	github.com/syndtr/goleveldb v1.0.1-0.20190318030020-c3a204f8e965
 	github.com/tendermint/go-amino v0.15.0
 	github.com/tendermint/tendermint v0.32.6
-	github.com/tendermint/tm-db v0.2.0
+	github.com/tendermint/tm-db v0.3.0
 	github.com/vektra/mockery v0.0.0-20181123154057-e78b021dcbb5
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
 	golang.org/x/net v0.0.0-20190813141303-74dc4d7220e7 // indirect
