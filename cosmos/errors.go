@@ -9,8 +9,8 @@ const (
 	CodespaceMesg types.CodespaceType = "mesg"
 )
 
+// Base mesg codes.
 const (
-	// Base mesg codes.
 	CodeInternal   types.CodeType = 1000
 	CodeValidation types.CodeType = 2000
 )
