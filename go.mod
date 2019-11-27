@@ -36,7 +36,7 @@ require (
 	github.com/mattn/go-isatty v0.0.8 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/morikuni/aec v1.0.0 // indirect
-	github.com/mr-tron/base58 v1.1.1
+	github.com/mr-tron/base58 v1.1.3
 	github.com/mwitkow/go-proto-validators v0.0.0-20190212092829-1f388280e944 // indirect
 	github.com/onsi/ginkgo v1.8.0 // indirect
 	github.com/onsi/gomega v1.5.0 // indirect
@@ -67,7 +67,7 @@ require (
 	google.golang.org/grpc v1.24.0
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.30.0
-	gopkg.in/yaml.v2 v2.2.4
+	gopkg.in/yaml.v2 v2.2.7
 	gotest.tools v2.2.0+incompatible
 )
 
