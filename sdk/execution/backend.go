@@ -21,24 +21,27 @@ const backendName = "execution"
 
 // Backend is the execution backend.
 type Backend struct {
-	storeKey     *cosmostypes.KVStoreKey
-	serviceBack  *servicesdk.Backend
-	instanceBack *instancesdk.Backend
-	runnerBack   *runnersdk.Backend
+	requestStoreKey *cosmostypes.KVStoreKey
+	resultStoreKey  *cosmostypes.KVStoreKey
+	serviceBack     *servicesdk.Backend
+	instanceBack    *instancesdk.Backend
+	runnerBack      *runnersdk.Backend
 }
 
 // NewBackend returns the backend of the execution sdk.
 func NewBackend(appFactory *cosmos.AppFactory, serviceBack *servicesdk.Backend, instanceBack *instancesdk.Backend, runnerBack *runnersdk.Backend) *Backend {
 	backend := &Backend{
-		storeKey:     cosmostypes.NewKVStoreKey(backendName),
-		serviceBack:  serviceBack,
-		instanceBack: instanceBack,
-		runnerBack:   runnerBack,
+		requestStoreKey: cosmostypes.NewKVStoreKey(backendName + ".request"),
+		resultStoreKey:  cosmostypes.NewKVStoreKey(backendName + ".result"),
+		serviceBack:     serviceBack,
+		instanceBack:    instanceBack,
+		runnerBack:      runnerBack,
 	}
 	appBackendBasic := cosmos.NewAppModuleBasic(backendName)
 	appBackend := cosmos.NewAppModule(appBackendBasic, backend.handler, backend.querier)
 	appFactory.RegisterModule(appBackend)
-	appFactory.RegisterStoreKey(backend.storeKey)
+	appFactory.RegisterStoreKey(backend.requestStoreKey)
+	appFactory.RegisterStoreKey(backend.resultStoreKey)
 
 	return backend
 }
@@ -101,7 +104,7 @@ func (s *Backend) Create(request cosmostypes.Request, msg msgCreateExecution) (*
 	if err := srv.RequireTaskInputs(msg.Request.TaskKey, msg.Request.Inputs); err != nil {
 		return nil, err
 	}
-	exec := execution.New(
+	execReq := execution.NewRequest(
 		msg.Request.ProcessHash,
 		run.InstanceHash,
 		msg.Request.ParentHash,
@@ -112,53 +115,59 @@ func (s *Backend) Create(request cosmostypes.Request, msg msgCreateExecution) (*
 		msg.Request.Tags,
 		msg.Request.ExecutorHash,
 	)
-	store := request.KVStore(s.storeKey)
-	if store.Has(exec.Hash) {
-		return nil, fmt.Errorf("execution %q already exists", exec.Hash)
+	reqStore := request.KVStore(s.requestStoreKey)
+	if reqStore.Has(execReq.Hash) {
+		return nil, fmt.Errorf("execution request %q already exists", execReq.Hash)
 	}
-	if err := exec.Execute(); err != nil {
-		return nil, err
-	}
-	value, err := codec.MarshalBinaryBare(exec)
+	value, err := codec.MarshalBinaryBare(execReq)
 	if err != nil {
 		return nil, err
 	}
-	store.Set(exec.Hash, value)
-	return exec, nil
+	reqStore.Set(execReq.Hash, value)
+	return execution.ToExecution(execReq, nil), nil
 }
 
 // Update updates a new execution from definition.
 func (s *Backend) Update(request cosmostypes.Request, msg msgUpdateExecution) (*execution.Execution, error) {
-	store := request.KVStore(s.storeKey)
-	if !store.Has(msg.Request.Hash) {
-		return nil, fmt.Errorf("execution %q doesn't exist", msg.Request.Hash)
+	reqStore := request.KVStore(s.requestStoreKey)
+	if !reqStore.Has(msg.Request.Hash) {
+		return nil, fmt.Errorf("execution request %q doesn't exist", msg.Request.Hash)
 	}
-	var exec *execution.Execution
-	if err := codec.UnmarshalBinaryBare(store.Get(msg.Request.Hash), &exec); err != nil {
+	execRes, err := s.getExecutionResult(request.KVStore(s.resultStoreKey), msg.Request.Hash)
+	if err != nil {
+		return nil, err
+	}
+	if execRes != nil {
+		return nil, fmt.Errorf("execution request %q has already a result", msg.Request.Hash)
+	}
+
+	var execReq *execution.ExecutionRequest
+	if err := codec.UnmarshalBinaryBare(reqStore.Get(msg.Request.Hash), &execReq); err != nil {
 		return nil, err
 	}
 	switch res := msg.Request.Result.(type) {
 	case *api.UpdateExecutionRequest_Outputs:
-		if err := s.validateExecutionOutput(request, exec.InstanceHash, exec.TaskKey, res.Outputs); err != nil {
-			if err1 := exec.Failed(err); err1 != nil {
-				return nil, err1
-			}
-		} else if err := exec.Complete(res.Outputs); err != nil {
-			return nil, err
+		if err := s.validateExecutionOutput(request, execReq.InstanceHash, execReq.TaskKey, res.Outputs); err != nil {
+			execRes = execution.NewResultWithError(execReq.Hash, err.Error())
+		} else {
+			execRes = execution.NewResultWithOutputs(execReq.Hash, res.Outputs)
 		}
 	case *api.UpdateExecutionRequest_Error:
-		if err := exec.Failed(errors.New(res.Error)); err != nil {
-			return nil, err
-		}
+		execRes = execution.NewResultWithError(execReq.Hash, res.Error)
 	default:
-		return nil, errors.New("no execution result supplied")
+		return nil, errors.New("no execution result outputs or error supplied")
 	}
-	value, err := codec.MarshalBinaryBare(exec)
+
+	value, err := codec.MarshalBinaryBare(execRes)
 	if err != nil {
 		return nil, err
 	}
-	store.Set(exec.Hash, value)
-	return exec, nil
+	resStore := request.KVStore(s.resultStoreKey)
+	if resStore.Has(execRes.Hash) {
+		return nil, fmt.Errorf("execution result %q already exists", execRes.Hash)
+	}
+	resStore.Set(execRes.Hash, value)
+	return execution.ToExecution(execReq, execRes), nil
 }
 
 func (s *Backend) validateExecutionOutput(request cosmostypes.Request, instanceHash hash.Hash, taskKey string, outputs *types.Struct) error {
@@ -175,29 +184,59 @@ func (s *Backend) validateExecutionOutput(request cosmostypes.Request, instanceH
 
 // Get returns the execution that matches given hash.
 func (s *Backend) Get(request cosmostypes.Request, hash hash.Hash) (*execution.Execution, error) {
-	var exec *execution.Execution
-	store := request.KVStore(s.storeKey)
-	if !store.Has(hash) {
-		return nil, fmt.Errorf("execution %q not found", hash)
+	reqStore := request.KVStore(s.requestStoreKey)
+	var execReq *execution.ExecutionRequest
+	if !reqStore.Has(hash) {
+		return nil, fmt.Errorf("execution request %q not found", hash)
 	}
-	return exec, codec.UnmarshalBinaryBare(store.Get(hash), &exec)
+	if err := codec.UnmarshalBinaryBare(reqStore.Get(hash), &execReq); err != nil {
+		return nil, err
+	}
+	execRes, err := s.getExecutionResult(request.KVStore(s.resultStoreKey), execReq.Hash)
+	if err != nil {
+		return nil, err
+	}
+	return execution.ToExecution(execReq, execRes), nil
 }
 
 // List returns all executions.
 func (s *Backend) List(request cosmostypes.Request) ([]*execution.Execution, error) {
 	var (
-		execs []*execution.Execution
-		iter  = request.KVStore(s.storeKey).Iterator(nil, nil)
+		execs    []*execution.Execution
+		iter     = request.KVStore(s.requestStoreKey).Iterator(nil, nil)
+		resStore = request.KVStore(s.resultStoreKey)
 	)
 	for iter.Valid() {
-		var exec *execution.Execution
+		var execReq *execution.ExecutionRequest
 		value := iter.Value()
-		if err := codec.UnmarshalBinaryBare(value, &exec); err != nil {
+		if err := codec.UnmarshalBinaryBare(value, &execReq); err != nil {
 			return nil, err
 		}
-		execs = append(execs, exec)
+		execRes, err := s.getExecutionResult(resStore, execReq.Hash)
+		if err != nil {
+			return nil, err
+		}
+		execs = append(execs, execution.ToExecution(execReq, execRes))
 		iter.Next()
 	}
 	iter.Close()
 	return execs, nil
+}
+
+func (s *Backend) getExecutionResult(resStore cosmostypes.KVStore, requestHash hash.Hash) (*execution.ExecutionResult, error) {
+	iter := resStore.Iterator(nil, nil)
+	for iter.Valid() {
+		var execRes *execution.ExecutionResult
+		value := iter.Value()
+		if err := codec.UnmarshalBinaryBare(value, &execRes); err != nil {
+			return nil, err
+		}
+		if execRes.RequestHash.Equal(requestHash) {
+			iter.Close()
+			return execRes, nil
+		}
+		iter.Next()
+	}
+	iter.Close()
+	return nil, nil
 }

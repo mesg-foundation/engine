@@ -5,9 +5,9 @@ import (
 	"github.com/mesg-foundation/engine/protobuf/types"
 )
 
-// New returns a new execution. It returns an error if inputs are invalid.
-func New(processHash, instanceHash, parentHash, eventHash hash.Hash, stepID string, taskKey string, inputs *types.Struct, tags []string, executorHash hash.Hash) *Execution {
-	exec := &Execution{
+// NewRequest returns a new execution request
+func NewRequest(processHash, instanceHash, parentHash, eventHash hash.Hash, stepID string, taskKey string, inputs *types.Struct, tags []string, executorHash hash.Hash) *ExecutionRequest {
+	exec := &ExecutionRequest{
 		ProcessHash:  processHash,
 		EventHash:    eventHash,
 		InstanceHash: instanceHash,
@@ -16,52 +16,54 @@ func New(processHash, instanceHash, parentHash, eventHash hash.Hash, stepID stri
 		TaskKey:      taskKey,
 		StepID:       stepID,
 		Tags:         tags,
-		Status:       Status_Created,
 		ExecutorHash: executorHash,
 	}
 	exec.Hash = hash.Dump(exec)
 	return exec
 }
 
-// Execute changes executions status to in progres and update its execute time.
-// It returns an error if the status is different then Created.
-func (execution *Execution) Execute() error {
-	if execution.Status != Status_Created {
-		return StatusError{
-			ExpectedStatus: Status_Created,
-			ActualStatus:   execution.Status,
-		}
+// NewResultWithOutputs returns a new execution result
+func NewResultWithOutputs(requestHash hash.Hash, outputs *types.Struct) *ExecutionResult {
+	execResult := &ExecutionResult{
+		RequestHash: requestHash,
+		Result:      &ExecutionResult_Outputs{outputs},
 	}
-	execution.Status = Status_InProgress
-	return nil
+	execResult.Hash = hash.Dump(execResult)
+	return execResult
 }
 
-// Complete changes execution status to completed. It verifies the output.
-// It returns an error if the status is different then InProgress or verification fails.
-func (execution *Execution) Complete(outputs *types.Struct) error {
-	if execution.Status != Status_InProgress {
-		return StatusError{
-			ExpectedStatus: Status_InProgress,
-			ActualStatus:   execution.Status,
-		}
+// NewResultWithError returns a new execution result
+func NewResultWithError(requestHash hash.Hash, err string) *ExecutionResult {
+	execResult := &ExecutionResult{
+		RequestHash: requestHash,
+		Result:      &ExecutionResult_Error{err},
 	}
-
-	execution.Outputs = outputs
-	execution.Status = Status_Completed
-	return nil
+	execResult.Hash = hash.Dump(execResult)
+	return execResult
 }
 
-// Failed changes execution status to failed and puts error information to execution.
-// It returns an error if the status is different then InProgress.
-func (execution *Execution) Failed(err error) error {
-	if execution.Status != Status_InProgress {
-		return StatusError{
-			ExpectedStatus: Status_InProgress,
-			ActualStatus:   execution.Status,
+func ToExecution(request *ExecutionRequest, result *ExecutionResult) *Execution {
+	status := Status_InProgress
+	exec := &Execution{
+		ProcessHash:  request.ProcessHash,
+		EventHash:    request.EventHash,
+		InstanceHash: request.InstanceHash,
+		ParentHash:   request.ParentHash,
+		Inputs:       request.Inputs,
+		TaskKey:      request.TaskKey,
+		StepID:       request.StepID,
+		Tags:         request.Tags,
+		ExecutorHash: request.ExecutorHash,
+	}
+	if result != nil {
+		status = Status_Completed
+		exec.Outputs = result.GetOutputs()
+		exec.Error = result.GetError()
+		if _, ok := result.GetResult().(*ExecutionResult_Error); ok {
+			status = Status_Failed
 		}
 	}
-
-	execution.Error = err.Error()
-	execution.Status = Status_Failed
-	return nil
+	exec.Status = status
+	exec.Hash = hash.Dump(exec)
+	return exec
 }
