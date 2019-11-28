@@ -21,7 +21,7 @@ func TestNew(t *testing.T) {
 		tags         = []string{"tag"}
 		inputs       = &types.Struct{
 			Fields: map[string]*types.Value{
-				"test": &types.Value{Kind: &types.Value_StringValue{StringValue: "hello"}},
+				"test": {Kind: &types.Value_StringValue{StringValue: "hello"}},
 			},
 		}
 		execReq    *ExecutionRequest
@@ -45,7 +45,7 @@ func TestNew(t *testing.T) {
 	t.Run("NewResultWithOutputs", func(t *testing.T) {
 		execRes = NewResultWithOutputs(execReq.Hash, &types.Struct{
 			Fields: map[string]*types.Value{
-				"test": &types.Value{Kind: &types.Value_StringValue{StringValue: "hello"}},
+				"test": {Kind: &types.Value_StringValue{StringValue: "hello"}},
 			},
 		})
 		require.True(t, execRes.Hash.Valid())
