@@ -14,21 +14,21 @@ var testProcessHash hash.Hash
 
 func testProcess(t *testing.T) {
 	req := &pb.CreateProcessRequest{
-		Key: "test-process",
+		Name: "test-process",
 		Nodes: []*process.Process_Node{
 			{
+				Key: "n0",
 				Type: &process.Process_Node_Event_{
 					Event: &process.Process_Node_Event{
-						Key:          "n0",
 						InstanceHash: testInstanceHash,
 						EventKey:     "test_service_ready",
 					},
 				},
 			},
 			{
+				Key: "n1",
 				Type: &process.Process_Node_Task_{
 					Task: &process.Process_Node_Task{
-						Key:          "n1",
 						InstanceHash: testInstanceHash,
 						TaskKey:      "test_service_ready",
 					},
@@ -53,7 +53,7 @@ func testProcess(t *testing.T) {
 		require.NoError(t, err)
 		require.True(t, p.Equal(&process.Process{
 			Hash:  p.Hash,
-			Key:   req.Key,
+			Name:  req.Name,
 			Nodes: req.Nodes,
 			Edges: req.Edges,
 		}))

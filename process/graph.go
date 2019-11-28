@@ -3,19 +3,19 @@ package process
 import "fmt"
 
 // ChildrenIDs returns the list of node IDs with a dependency to the current node
-func (g Process) ChildrenIDs(nodeID string) []string {
-	nodeIDs := make([]string, 0)
-	for _, edge := range g.EdgesFrom(nodeID) {
-		nodeIDs = append(nodeIDs, edge.Dst)
+func (g Process) ChildrenKeys(nodeKey string) []string {
+	nodeKeys := make([]string, 0)
+	for _, edge := range g.EdgesFrom(nodeKey) {
+		nodeKeys = append(nodeKeys, edge.Dst)
 	}
-	return nodeIDs
+	return nodeKeys
 }
 
 // ParentIDs returns the list of node IDs with the current node as child
-func (g Process) ParentIDs(nodeID string) []string {
+func (g Process) ParentKeys(nodeKey string) []string {
 	nodeIDs := make([]string, 0)
 	for _, edge := range g.Edges {
-		if edge.Dst == nodeID {
+		if edge.Dst == nodeKey {
 			nodeIDs = append(nodeIDs, edge.Src)
 		}
 	}
@@ -34,15 +34,15 @@ func (g Process) FindNodes(filter func(n *Process_Node) bool) []*Process_Node {
 }
 
 // FindNode return a specific node in a graph identifies by its ID. Returns an error if there is no match or multiple matches
-func (g Process) FindNode(id string) (*Process_Node, error) {
+func (g Process) FindNode(nodeKey string) (*Process_Node, error) {
 	nodes := g.FindNodes(func(n *Process_Node) bool {
-		return n.ID() == id
+		return n.Key == nodeKey
 	})
 	if len(nodes) == 0 {
-		return nil, fmt.Errorf("node %q not found", id)
+		return nil, fmt.Errorf("node %q not found", nodeKey)
 	}
 	if len(nodes) > 1 {
-		return nil, fmt.Errorf("multiple nodes with the id %q", id)
+		return nil, fmt.Errorf("multiple nodes with the id %q", nodeKey)
 	}
 	return nodes[0], nil
 }
@@ -68,7 +68,7 @@ func (g Process) isAcyclic() bool {
 	visited := make(map[string]bool)
 	recursive := make(map[string]bool)
 	for _, node := range g.Nodes {
-		if g.hasCycle(node.ID(), visited, recursive) {
+		if g.hasCycle(node.Key, visited, recursive) {
 			return false
 		}
 	}
@@ -79,7 +79,7 @@ func (g Process) isAcyclic() bool {
 func (g Process) hasCycle(node string, visited map[string]bool, recursive map[string]bool) bool {
 	visited[node] = true
 	recursive[node] = true
-	for _, child := range g.ChildrenIDs(node) {
+	for _, child := range g.ChildrenKeys(node) {
 		if !visited[child] && g.hasCycle(child, visited, recursive) {
 			return true
 		}
@@ -94,7 +94,7 @@ func (g Process) hasCycle(node string, visited map[string]bool, recursive map[st
 // A connected graph is a graph where all the nodes are connected with each other through edges.
 // Warning: this function will have a stack overflow if the graph is not acyclic.
 func (g Process) isConnected() bool {
-	root := g.getRoot(g.Nodes[0].ID())
+	root := g.getRoot(g.Nodes[0].Key)
 	visited := make(map[string]bool)
 	g.dfs(root, func(node string) {
 		visited[node] = true
@@ -105,14 +105,14 @@ func (g Process) isConnected() bool {
 // walk through all the children of a node and populate a map of visited children.
 func (g Process) dfs(node string, fn func(node string)) {
 	fn(node)
-	for _, n := range g.ChildrenIDs(node) {
+	for _, n := range g.ChildrenKeys(node) {
 		g.dfs(n, fn)
 	}
 }
 
 // getRoot get the root of the tree graph
 func (g Process) getRoot(node string) string {
-	parents := g.ParentIDs(node)
+	parents := g.ParentKeys(node)
 	if len(parents) == 0 {
 		return node
 	}
@@ -126,7 +126,7 @@ func (g Process) getRoot(node string) string {
 func (g Process) maximumParents() int {
 	max := 0
 	for _, node := range g.Nodes {
-		if l := len(g.ParentIDs(node.ID())); max < l {
+		if l := len(g.ParentKeys(node.Key)); max < l {
 			max = l
 		}
 	}

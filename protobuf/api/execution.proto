@@ -63,7 +63,7 @@ message CreateExecutionRequest {
     (gogoproto.nullable) = false
   ];
 
-  string stepID = 8;
+  string nodeKey = 8;
 
   bytes executorHash = 9 [
     (gogoproto.moretags) = 'validate:"omitempty,hash"',

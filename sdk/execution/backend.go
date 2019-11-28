@@ -106,7 +106,7 @@ func (s *Backend) Create(request cosmostypes.Request, msg msgCreateExecution) (*
 		run.InstanceHash,
 		msg.Request.ParentHash,
 		msg.Request.EventHash,
-		msg.Request.StepID,
+		msg.Request.NodeKey,
 		msg.Request.TaskKey,
 		msg.Request.Inputs,
 		msg.Request.Tags,

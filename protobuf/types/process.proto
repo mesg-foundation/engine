@@ -14,11 +14,6 @@ message Process {
   // Node of the process
   message Node {
     message Result {
-      // Key that identifies the node.
-      string key = 1 [
-        (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
-      ];
-
       // Hash of the instance that triggers the process.
       bytes instanceHash = 2 [
         (gogoproto.moretags) = 'hash:"name:2" validate:"required"',
@@ -33,11 +28,6 @@ message Process {
     }
 
     message Event {
-      // Key that identifies the node.
-      string key = 1 [
-        (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
-      ];
-
       // Hash of the instance that triggers the process.
       bytes instanceHash = 2 [
         (gogoproto.moretags) = 'hash:"name:2" validate:"required"',
@@ -52,11 +42,6 @@ message Process {
     }
 
     message Task {
-      // Key that identifies the node.
-      string key = 1 [
-        (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
-      ];
-
       // Hash of the instance to execute.
       bytes instanceHash = 2 [
         (gogoproto.moretags) = 'hash:"name:2" validate:"required"',
@@ -100,11 +85,6 @@ message Process {
         }
       }
 
-      // Key of the mapping.
-      string key = 1 [
-        (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
-      ];
-
       // Outputs of the mapping.
       repeated Output outputs = 2 [
         (gogoproto.moretags) = 'hash:"name:2" validate:"dive,required"'
@@ -138,11 +118,6 @@ message Process {
         ];
       }
 
-      // Key for the filter
-      string key = 1 [
-        (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
-      ];
-
       // List of condition to apply for this filter
       repeated Condition conditions = 2 [
         (gogoproto.moretags) = 'hash:"name:2"',
@@ -150,25 +125,30 @@ message Process {
       ];
     }
 
+    // Key that identifies the node.
+    string key = 1 [
+      (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
+    ];
+
     oneof type {
       // Result is a trigger that listens for a specific result.
-      Result result = 1 [
+      Result result = 2 [
         (gogoproto.moretags) = 'hash:"name:1"'
       ];
       // Event is a trigger that listens for a specific event.
-      Event event = 2 [
+      Event event = 3 [
         (gogoproto.moretags) = 'hash:"name:2"'
       ];
       // Task is a command to execute a specific task.
-      Task task = 3 [
+      Task task = 4 [
         (gogoproto.moretags) = 'hash:"name:3"'
       ];
       // Map is a set of instructions to convert data.
-      Map map = 4 [
+      Map map = 5 [
         (gogoproto.moretags) = 'hash:"name:4"'
       ];
       // Filter is a list of condition to apply on data.
-      Filter filter = 5 [
+      Filter filter = 6 [
         (gogoproto.moretags) = 'hash:"name:5"'
       ];
     }
@@ -193,8 +173,8 @@ message Process {
     (gogoproto.nullable) = false
   ];
 
-  // Process's key
-  string key = 2 [
+  // Process's name
+  string name = 2 [
     (gogoproto.moretags) = 'hash:"name:2" validate:"required"'
   ];
 
