@@ -5,6 +5,9 @@ import (
 )
 
 func init() {
+	codec.RegisterInterface((*isProcess_Node_Map_Output_Value)(nil), nil)
+	codec.RegisterConcrete(&Process_Node_Map_Output_Ref{}, "mesg.types.Process_Node_Map_Output_Ref", nil)
+	codec.RegisterConcrete(&Process_Node_Map_Output_Constant{}, "mesg.types.Process_Node_Map_Output_Constant", nil)
 	codec.RegisterInterface((*isProcess_Node_Type)(nil), nil)
 	codec.RegisterConcrete(&Process_Node_Result_{}, "mesg.types.Process_Node_Result_", nil)
 	codec.RegisterConcrete(&Process_Node_Result{}, "mesg.types.Process_Node_Result", nil)

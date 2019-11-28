@@ -47,11 +47,7 @@ func (s *Backend) handler(req cosmostypes.Request, msg cosmostypes.Msg) (hash.Ha
 		}
 		return p.Hash, nil
 	case msgDeleteProcess:
-		if err := s.ownership.Delete(req, msg.Owner, msg.Request.Hash); err != nil {
-			return nil, err
-		}
-		req.KVStore(s.storeKey).Delete(msg.Request.Hash)
-		return nil, nil
+		return nil, s.Delete(req, &msg)
 	default:
 		errmsg := fmt.Sprintf("unrecognized process msg type: %v", msg.Type())
 		return nil, cosmostypes.ErrUnknownRequest(errmsg)
@@ -114,6 +110,15 @@ func (s *Backend) Create(req cosmostypes.Request, msg *msgCreateProcess) (*proce
 
 	store.Set(p.Hash, value)
 	return p, nil
+}
+
+// Delete deletes a process and realated ownership.
+func (s *Backend) Delete(req cosmostypes.Request, msg *msgDeleteProcess) error {
+	if err := s.ownership.Delete(req, msg.Owner, msg.Request.Hash); err != nil {
+		return err
+	}
+	req.KVStore(s.storeKey).Delete(msg.Request.Hash)
+	return nil
 }
 
 // Get returns the service that matches given hash.

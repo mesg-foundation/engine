@@ -3,6 +3,7 @@ package processsdk
 import (
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/codec"
+	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/x/xvalidator"
@@ -45,6 +46,7 @@ func (msg msgCreateProcess) ValidateBasic() cosmostypes.Error {
 		Nodes: msg.Request.Nodes,
 		Edges: msg.Request.Edges,
 	}
+	p.Hash = hash.Dump(p)
 	if err := p.Validate(); err != nil {
 		return cosmostypes.ErrInternal(err.Error())
 	}
