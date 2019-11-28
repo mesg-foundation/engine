@@ -14,8 +14,6 @@ import (
 
 const backendName = "ownership"
 
-const storeIndexRessourceKey = backendName + ".index.resourceHash"
-
 // Backend is the ownership backend.
 type Backend struct {
 	storeKey               *cosmostypes.KVStoreKey
@@ -26,7 +24,7 @@ type Backend struct {
 func NewBackend(appFactory *cosmos.AppFactory) *Backend {
 	backend := &Backend{
 		storeKey:               cosmostypes.NewKVStoreKey(backendName),
-		storeIndexRessourceKey: cosmostypes.NewKVStoreKey(storeIndexRessourceKey),
+		storeIndexRessourceKey: cosmostypes.NewKVStoreKey(backendName + ".index.resourceHash"),
 	}
 	appBackendBasic := cosmos.NewAppModuleBasic(backendName)
 	appBackend := cosmos.NewAppModule(appBackendBasic, backend.handler, backend.querier)
