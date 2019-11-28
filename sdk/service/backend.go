@@ -8,6 +8,7 @@ import (
 	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/ownership"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	ownershipsdk "github.com/mesg-foundation/engine/sdk/ownership"
 	"github.com/mesg-foundation/engine/service"
@@ -100,7 +101,7 @@ func (s *Backend) Create(request cosmostypes.Request, msg *msgCreateService) (*s
 		return nil, err
 	}
 
-	if _, err := s.ownerships.CreateServiceOwnership(request, srv.Hash, msg.Owner); err != nil {
+	if _, err := s.ownerships.Create(request, msg.Owner, srv.Hash, ownership.Ownership_Service); err != nil {
 		return nil, err
 	}
 
