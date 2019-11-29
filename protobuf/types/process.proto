@@ -57,6 +57,21 @@ message Process {
 
     message Map {
       message Output {
+
+        // ListOutput is a list of output as message, so it can be used in oneof.
+        message ListOutput {
+          repeated Output outputs = 1 [
+            (gogoproto.moretags) = 'hash:"name:1" validate:"dive,required"'
+          ];
+        }
+
+        // ListOutput is a list of output as message, so it can be used in oneof.
+        message MapOutput {
+          map<string, Output> outputs = 1 [
+            (gogoproto.moretags) = 'hash:"name:1" validate:"dive,required"'
+          ];
+        }
+
         message Reference {
           // Key of the node in the graph. If empty, will be using the src of the edge.
           string nodeKey = 1 [
@@ -69,25 +84,31 @@ message Process {
           ];
         }
 
-        // Key of the output.
-        string key = 1 [
-          (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
-        ];
-
         oneof value {
           // Input defined as reference.
-          Reference ref = 2 [
-            (gogoproto.moretags) = 'hash:"name:2" validate:"required_without=Constant"'
+          Reference ref = 1 [
+            (gogoproto.moretags) = 'hash:"name:1" validate:"required_without=Constant List Map"'
           ];
-          mesg.protobuf.Value constant = 3 [
-            (gogoproto.moretags) = 'hash:"name:3" validate:"required_without=Ref"'
+
+          mesg.protobuf.Value constant = 2 [
+            (gogoproto.moretags) = 'hash:"name:2" validate:"required_without=Ref List Map"'
+          ];
+
+          // Outputs represent array.
+          ListOutput list = 3 [
+            (gogoproto.moretags) = 'hash:"name:3" validate:"required_without=Ref Constant Map"'
+          ];
+
+          // Outputs represent a field.
+          MapOutput map = 4 [
+            (gogoproto.moretags) = 'hash:"name:4" validate:"required_without=Ref Constant List"'
           ];
         }
       }
 
       // Outputs of the mapping.
-      repeated Output outputs = 2 [
-        (gogoproto.moretags) = 'hash:"name:2" validate:"dive,required"'
+      map<string, Output> outputs = 1 [
+        (gogoproto.moretags) = 'hash:"name:1" validate:"dive,required"'
       ];
     }
 

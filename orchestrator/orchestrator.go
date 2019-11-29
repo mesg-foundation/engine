@@ -2,6 +2,7 @@ package orchestrator
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math/rand"
 
@@ -129,7 +130,7 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 		return s.processTask(n.Key, task, wf, exec, event, data)
 	} else if m := n.GetMap(); m != nil {
 		var err error
-		data, err = s.processMap(m, wf, exec, data)
+		data, err = s.processMap(m.Outputs, wf, exec, data)
 		if err != nil {
 			return err
 		}
@@ -153,30 +154,60 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 	return nil
 }
 
-func (s *Orchestrator) processMap(mapping *process.Process_Node_Map, wf *process.Process, exec *execution.Execution, data *types.Struct) (*types.Struct, error) {
+func (s *Orchestrator) processMap(outputs map[string]*process.Process_Node_Map_Output, wf *process.Process, exec *execution.Execution, data *types.Struct) (*types.Struct, error) {
 	result := &types.Struct{
 		Fields: make(map[string]*types.Value),
 	}
-	for _, output := range mapping.Outputs {
-		if ref := output.GetRef(); ref != nil {
-			node, err := wf.FindNode(ref.NodeKey)
+	for key, output := range outputs {
+		value, err := s.outputToValue(output, wf, exec, data)
+		if err != nil {
+			return nil, err
+		}
+		result.Fields[key] = value
+	}
+	return result, nil
+}
+
+func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, wf *process.Process, exec *execution.Execution, data *types.Struct) (*types.Value, error) {
+	if ref := output.GetRef(); ref != nil {
+		node, err := wf.FindNode(ref.NodeKey)
+		if err != nil {
+			return nil, err
+		}
+		if node.GetTask() != nil {
+			return s.resolveInput(wf.Hash, exec, ref.NodeKey, ref.Key)
+		}
+		return data.Fields[ref.Key], nil
+	}
+	if constant := output.GetConstant(); constant != nil {
+		return constant, nil
+	}
+	if list := output.GetList(); list != nil {
+		var values []*types.Value
+		for i := range list.Outputs {
+			value, err := s.outputToValue(list.Outputs[i], wf, exec, data)
 			if err != nil {
 				return nil, err
 			}
-			if node.GetTask() != nil {
-				value, err := s.resolveInput(wf.Hash, exec, ref.NodeKey, ref.Key)
-				if err != nil {
-					return nil, err
-				}
-				result.Fields[output.Key] = value
-			} else {
-				result.Fields[output.Key] = data.Fields[ref.Key]
-			}
-		} else if constant := output.GetConstant(); constant != nil {
-			result.Fields[output.Key] = constant
+
+			values = append(values, value)
 		}
+		return &types.Value{
+			Kind: &types.Value_ListValue{
+				ListValue: &types.ListValue{
+					Values: values,
+				},
+			},
+		}, nil
 	}
-	return result, nil
+	if m := output.GetMap(); m != nil {
+		out, err := s.processMap(m.Outputs, wf, exec, data)
+		if err != nil {
+			return nil, err
+		}
+		return &types.Value{Kind: &types.Value_StructValue{StructValue: out}}, nil
+	}
+	return nil, errors.New("unknown output")
 }
 
 func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution, nodeKey string, outputKey string) (*types.Value, error) {
