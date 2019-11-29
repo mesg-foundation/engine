@@ -16,21 +16,18 @@ const backendName = "ownership"
 
 // Backend is the ownership backend.
 type Backend struct {
-	storeKey               *cosmostypes.KVStoreKey
-	storeIndexRessourceKey *cosmostypes.KVStoreKey
+	storeKey *cosmostypes.KVStoreKey
 }
 
 // NewBackend returns the backend of the ownership sdk.
 func NewBackend(appFactory *cosmos.AppFactory) *Backend {
 	backend := &Backend{
-		storeKey:               cosmostypes.NewKVStoreKey(backendName),
-		storeIndexRessourceKey: cosmostypes.NewKVStoreKey(backendName + ".index.resourceHash"),
+		storeKey: cosmostypes.NewKVStoreKey(backendName),
 	}
 	appBackendBasic := cosmos.NewAppModuleBasic(backendName)
 	appBackend := cosmos.NewAppModule(appBackendBasic, backend.handler, backend.querier)
 	appFactory.RegisterModule(appBackend)
 	appFactory.RegisterStoreKey(backend.storeKey)
-	appFactory.RegisterStoreKey(backend.storeIndexRessourceKey)
 	return backend
 }
 
@@ -51,9 +48,9 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 // Create creates a new ownership.
 func (s *Backend) Create(req cosmostypes.Request, owner cosmostypes.AccAddress, resourceHash hash.Hash, resource ownership.Ownership_Resource) (*ownership.Ownership, error) {
 	store := req.KVStore(s.storeKey)
-	storeHash := req.KVStore(s.storeIndexRessourceKey)
 
-	if storeHash.Has(resourceHash) {
+	hashes := s.findOwnerships(store, resourceHash)
+	if len(hashes) > 0 {
 		return nil, fmt.Errorf("resource %s:%q already has an owner", resource, resourceHash)
 	}
 	ownership := &ownership.Ownership{
@@ -68,31 +65,31 @@ func (s *Backend) Create(req cosmostypes.Request, owner cosmostypes.AccAddress, 
 		return nil, err
 	}
 	store.Set(ownership.Hash, value)
-	storeHash.Set(resourceHash, ownership.Hash)
 	return ownership, nil
 }
 
 // Delete deletes a ownership.
 func (s *Backend) Delete(req cosmostypes.Request, owner cosmostypes.AccAddress, resourceHash hash.Hash) error {
 	store := req.KVStore(s.storeKey)
-	storeHash := req.KVStore(s.storeIndexRessourceKey)
 
-	if !storeHash.Has(resourceHash) {
-		return fmt.Errorf("resource %q do not exist", resourceHash)
+	hashes := s.findOwnerships(store, resourceHash)
+	if len(hashes) == 0 {
+		return fmt.Errorf("resource %q do not have any ownership", resourceHash)
 	}
 
-	ownershipHash := storeHash.Get(resourceHash)
-	store.Delete(ownershipHash)
-	storeHash.Delete(resourceHash)
+	for _, hash := range hashes {
+		store.Delete(hash)
+	}
 	return nil
 }
 
 // List returns all ownerships.
-func (s *Backend) List(request cosmostypes.Request) ([]*ownership.Ownership, error) {
+func (s *Backend) List(req cosmostypes.Request) ([]*ownership.Ownership, error) {
 	var (
 		ownerships []*ownership.Ownership
-		iter       = request.KVStore(s.storeKey).Iterator(nil, nil)
+		iter       = req.KVStore(s.storeKey).Iterator(nil, nil)
 	)
+	defer iter.Close()
 
 	for iter.Valid() {
 		var o *ownership.Ownership
@@ -102,6 +99,25 @@ func (s *Backend) List(request cosmostypes.Request) ([]*ownership.Ownership, err
 		ownerships = append(ownerships, o)
 		iter.Next()
 	}
-	iter.Close()
 	return ownerships, nil
+}
+
+// hasOwner checks if given resource has owner. Returns all ownership hash and true if has one
+// nil and false otherwise.
+func (s *Backend) findOwnerships(store cosmostypes.KVStore, resourceHash hash.Hash) []hash.Hash {
+	var ownerships []hash.Hash
+	iter := store.Iterator(nil, nil)
+
+	for iter.Valid() {
+		var o *ownership.Ownership
+		if err := codec.UnmarshalBinaryBare(iter.Value(), &o); err == nil {
+			if o.ResourceHash.Equal(resourceHash) {
+				ownerships = append(ownerships, o.Hash)
+			}
+		}
+		iter.Next()
+	}
+
+	iter.Close()
+	return ownerships
 }
