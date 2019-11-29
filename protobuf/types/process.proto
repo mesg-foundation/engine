@@ -1,7 +1,6 @@
 syntax = "proto3";
 
 import "gogo/protobuf/gogoproto/gogo.proto";
-import "protobuf/types/struct.proto";
 
 package mesg.types;
 option go_package = "github.com/mesg-foundation/engine/process";
@@ -57,6 +56,24 @@ message Process {
 
     message Map {
       message Output {
+        enum Null {
+          NULL_VALUE = 0;
+        }
+
+        // ListOutput is a list of output as message, so it can be used in oneof.
+        message List {
+          repeated Output outputs = 1 [
+            (gogoproto.moretags) = 'hash:"name:1" validate:"dive,required"'
+          ];
+        }
+
+        // ListOutput is a list of output as message, so it can be used in oneof.
+        message Map {
+          map<string, Output> outputs = 1 [
+            (gogoproto.moretags) = 'hash:"name:1" validate:"dive,required"'
+          ];
+        }
+
         message Reference {
           // Key of the node in the graph. If empty, will be using the src of the edge.
           string nodeKey = 1 [
@@ -69,25 +86,43 @@ message Process {
           ];
         }
 
-        // Key of the output.
-        string key = 1 [
-          (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
-        ];
-
         oneof value {
-          // Input defined as reference.
-          Reference ref = 2 [
-            (gogoproto.moretags) = 'hash:"name:2" validate:"required_without=Constant"'
+          Null null = 1 [
+            (gogoproto.moretags) = 'hash:"name:1" validate:"required_without=Ref Constant List Map"'
           ];
-          mesg.protobuf.Value constant = 3 [
-            (gogoproto.moretags) = 'hash:"name:3" validate:"required_without=Ref"'
+
+          string string_const = 2 [
+            (gogoproto.moretags) = 'hash:"name:2"'
+          ];
+
+          double double_const = 3 [
+            (gogoproto.moretags) = 'hash:"name:3"'
+          ];
+
+          bool bool_const = 4 [
+            (gogoproto.moretags) = 'hash:"name:4"'
+          ];
+
+          // Input defined as reference.
+          Reference ref = 5 [
+            (gogoproto.moretags) = 'hash:"name:5" validate:"required_without=Null Constant List Map"'
+          ];
+
+          // Outputs represent array.
+          List list = 6 [
+            (gogoproto.moretags) = 'hash:"name:6" validate:"required_without=Null Ref Constant Map"'
+          ];
+
+          // Outputs represent a field.
+          Map map = 7 [
+            (gogoproto.moretags) = 'hash:"name:6" validate:"required_without=Null Ref Constant List"'
           ];
         }
       }
 
       // Outputs of the mapping.
-      repeated Output outputs = 2 [
-        (gogoproto.moretags) = 'hash:"name:2" validate:"dive,required"'
+      map<string, Output> outputs = 1 [
+        (gogoproto.moretags) = 'hash:"name:1" validate:"dive,required"'
       ];
     }
 
