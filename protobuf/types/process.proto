@@ -133,23 +133,23 @@ message Process {
     oneof type {
       // Result is a trigger that listens for a specific result.
       Result result = 2 [
-        (gogoproto.moretags) = 'hash:"name:1"'
+        (gogoproto.moretags) = 'hash:"name:2"'
       ];
       // Event is a trigger that listens for a specific event.
       Event event = 3 [
-        (gogoproto.moretags) = 'hash:"name:2"'
+        (gogoproto.moretags) = 'hash:"name:3"'
       ];
       // Task is a command to execute a specific task.
       Task task = 4 [
-        (gogoproto.moretags) = 'hash:"name:3"'
+        (gogoproto.moretags) = 'hash:"name:4"'
       ];
       // Map is a set of instructions to convert data.
       Map map = 5 [
-        (gogoproto.moretags) = 'hash:"name:4"'
+        (gogoproto.moretags) = 'hash:"name:5"'
       ];
       // Filter is a list of condition to apply on data.
       Filter filter = 6 [
-        (gogoproto.moretags) = 'hash:"name:5"'
+        (gogoproto.moretags) = 'hash:"name:6"'
       ];
     }
   }
