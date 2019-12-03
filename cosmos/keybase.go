@@ -16,7 +16,7 @@ const mnemonicEntropySize = 256
 
 // Keybase is a standard cosmos keybase.
 type Keybase struct {
-	keys.Keybase
+	kb keys.Keybase
 
 	mx sync.Mutex
 }
@@ -27,7 +27,7 @@ func NewKeybase(dir string) (*Keybase, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Keybase{Keybase: kb}, nil
+	return &Keybase{kb: kb}, nil
 }
 
 // NewMnemonic returns a new mnemonic phrase.
@@ -56,131 +56,138 @@ func (kb *Keybase) Exist(name string) (bool, error) {
 func (kb *Keybase) List() ([]keys.Info, error) {
 	kb.mx.Lock()
 	defer kb.mx.Unlock()
-	return kb.Keybase.List()
+	return kb.kb.List()
 }
 
 // Get is a lock protected version of keys.Get
 func (kb *Keybase) Get(name string) (keys.Info, error) {
 	kb.mx.Lock()
 	defer kb.mx.Unlock()
-	return kb.Keybase.Get(name)
+	return kb.kb.Get(name)
 }
 
 // GetByAddress is a lock protected version of keys.GetByAddress
 func (kb *Keybase) GetByAddress(address types.AccAddress) (keys.Info, error) {
 	kb.mx.Lock()
 	defer kb.mx.Unlock()
-	return kb.Keybase.GetByAddress(address)
+	return kb.kb.GetByAddress(address)
 }
 
 // Delete is a lock protected version of keys.Delete
 func (kb *Keybase) Delete(name, passphrase string, skipPass bool) error {
 	kb.mx.Lock()
 	defer kb.mx.Unlock()
-	return kb.Keybase.Delete(name, passphrase, skipPass)
+	return kb.kb.Delete(name, passphrase, skipPass)
 }
 
 // Sign is a lock protected version of keys.Sign
 func (kb *Keybase) Sign(name, passphrase string, msg []byte) ([]byte, crypto.PubKey, error) {
 	kb.mx.Lock()
 	defer kb.mx.Unlock()
-	return kb.Keybase.Sign(name, passphrase, msg)
+	return kb.kb.Sign(name, passphrase, msg)
 }
 
 // CreateMnemonic is a lock protected version of keys.CreateMnemonic
 func (kb *Keybase) CreateMnemonic(name string, language keys.Language, passwd string, algo keys.SigningAlgo) (keys.Info, string, error) {
 	kb.mx.Lock()
 	defer kb.mx.Unlock()
-	return kb.Keybase.CreateMnemonic(name, language, passwd, algo)
+	return kb.kb.CreateMnemonic(name, language, passwd, algo)
 }
 
 // CreateAccount is a lock protected version of keys.CreateAccount
 func (kb *Keybase) CreateAccount(name, mnemonic, bip39Passwd, encryptPasswd string, account, index uint32) (keys.Info, error) {
 	kb.mx.Lock()
 	defer kb.mx.Unlock()
-	return kb.Keybase.CreateAccount(name, mnemonic, bip39Passwd, encryptPasswd, account, index)
+	return kb.kb.CreateAccount(name, mnemonic, bip39Passwd, encryptPasswd, account, index)
 }
 
 // Derive is a lock protected version of keys.Derive
 func (kb *Keybase) Derive(name, mnemonic, bip39Passwd, encryptPasswd string, params hd.BIP44Params) (keys.Info, error) {
 	kb.mx.Lock()
 	defer kb.mx.Unlock()
-	return kb.Keybase.Derive(name, mnemonic, bip39Passwd, encryptPasswd, params)
+	return kb.kb.Derive(name, mnemonic, bip39Passwd, encryptPasswd, params)
 }
 
 // CreateLedger is a lock protected version of keys.CreateLedger
 func (kb *Keybase) CreateLedger(name string, algo keys.SigningAlgo, hrp string, account, index uint32) (keys.Info, error) {
 	kb.mx.Lock()
 	defer kb.mx.Unlock()
-	return kb.Keybase.CreateLedger(name, algo, hrp, account, index)
+	return kb.kb.CreateLedger(name, algo, hrp, account, index)
 }
 
 // CreateOffline is a lock protected version of keys.CreateOffline
 func (kb *Keybase) CreateOffline(name string, pubkey crypto.PubKey) (keys.Info, error) {
 	kb.mx.Lock()
 	defer kb.mx.Unlock()
-	return kb.Keybase.CreateOffline(name, pubkey)
+	return kb.kb.CreateOffline(name, pubkey)
 }
 
 // CreateMulti is a lock protected version of keys.CreateMulti
 func (kb *Keybase) CreateMulti(name string, pubkey crypto.PubKey) (keys.Info, error) {
 	kb.mx.Lock()
 	defer kb.mx.Unlock()
-	return kb.Keybase.CreateMulti(name, pubkey)
+	return kb.kb.CreateMulti(name, pubkey)
 }
 
 // Update is a lock protected version of keys.Update
 func (kb *Keybase) Update(name, oldpass string, getNewpass func() (string, error)) error {
 	kb.mx.Lock()
 	defer kb.mx.Unlock()
-	return kb.Keybase.Update(name, oldpass, getNewpass)
+	return kb.kb.Update(name, oldpass, getNewpass)
 }
 
 // Import is a lock protected version of keys.Import
 func (kb *Keybase) Import(name, armor string) error {
 	kb.mx.Lock()
 	defer kb.mx.Unlock()
-	return kb.Keybase.Import(name, armor)
+	return kb.kb.Import(name, armor)
 }
 
 // ImportPrivKey is a lock protected version of keys.ImportPrivKey
 func (kb *Keybase) ImportPrivKey(name, armor, passphrase string) error {
 	kb.mx.Lock()
 	defer kb.mx.Unlock()
-	return kb.Keybase.ImportPrivKey(name, armor, passphrase)
+	return kb.kb.ImportPrivKey(name, armor, passphrase)
 }
 
 // ImportPubKey is a lock protected version of keys.ImportPubKey
 func (kb *Keybase) ImportPubKey(name, armor string) (err error) {
 	kb.mx.Lock()
 	defer kb.mx.Unlock()
-	return kb.Keybase.ImportPubKey(name, armor)
+	return kb.kb.ImportPubKey(name, armor)
 }
 
 // Export is a lock protected version of keys.Export
 func (kb *Keybase) Export(name string) (armor string, err error) {
 	kb.mx.Lock()
 	defer kb.mx.Unlock()
-	return kb.Keybase.Export(name)
+	return kb.kb.Export(name)
 }
 
 // ExportPubKey is a lock protected version of keys.ExportPubKey
 func (kb *Keybase) ExportPubKey(name string) (armor string, err error) {
 	kb.mx.Lock()
 	defer kb.mx.Unlock()
-	return kb.Keybase.ExportPubKey(name)
+	return kb.kb.ExportPubKey(name)
 }
 
 // ExportPrivKey is a lock protected version of keys.ExportPrivKey
 func (kb *Keybase) ExportPrivKey(name, decryptPassphrase, encryptPassphrase string) (armor string, err error) {
 	kb.mx.Lock()
 	defer kb.mx.Unlock()
-	return kb.Keybase.ExportPrivKey(name, decryptPassphrase, encryptPassphrase)
+	return kb.kb.ExportPrivKey(name, decryptPassphrase, encryptPassphrase)
 }
 
 // ExportPrivateKeyObject is a lock protected version of keys.ExportPrivateKeyObject
 func (kb *Keybase) ExportPrivateKeyObject(name string, passphrase string) (crypto.PrivKey, error) {
 	kb.mx.Lock()
 	defer kb.mx.Unlock()
-	return kb.Keybase.ExportPrivateKeyObject(name, passphrase)
+	return kb.kb.ExportPrivateKeyObject(name, passphrase)
+}
+
+// CloseDB is a lock protected version of keys.CloseDB
+func (kb *Keybase) CloseDB() {
+	kb.mx.Lock()
+	defer kb.mx.Unlock()
+	kb.kb.CloseDB()
 }
