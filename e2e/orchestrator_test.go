@@ -47,7 +47,7 @@ func testOrchestrator(t *testing.T) {
 	})
 
 	// running orchestrator tests
-	t.Run("1 event 1 task", testOrchestrator1Event1Task(executionStream, runnerHash, instanceHash))
+	t.Run("1 event 1 task", testOrchestrator1Event1Task(executionStream, instanceHash))
 	t.Run("1 result 1 task", testOrchestrator1Result1Task(executionStream, runnerHash, instanceHash))
 
 	t.Run("cleanup", func(t *testing.T) {
