@@ -93,7 +93,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("create execution stream\n")
+	log.Printf("created execution stream\n")
 
 	if _, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
 		InstanceHash: client.InstanceHash,
@@ -101,14 +101,14 @@ func main() {
 	}); err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("emit test_service_ready event\n")
+	log.Printf("emitted test_service_ready event\n")
 
 	for {
 		exec, err := stream.Recv()
 		if err != nil {
 			log.Fatal(err)
 		}
-		log.Printf("receive execution %s %s\n", exec.TaskKey, exec.Hash)
+		log.Printf("received execution %s %s\n", exec.TaskKey, exec.Hash)
 
 		req := &pb.UpdateExecutionRequest{
 			Hash: exec.Hash,
@@ -145,6 +145,7 @@ func main() {
 		if _, err := client.ExecutionClient.Update(context.Background(), req); err != nil {
 			log.Fatal(err)
 		}
+		log.Printf("execution result submitted\n")
 
 		if _, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
 			InstanceHash: client.InstanceHash,
@@ -161,6 +162,6 @@ func main() {
 		}); err != nil {
 			log.Fatal(err)
 		}
-		log.Printf("emit " + exec.TaskKey + "_ok event\n")
+		log.Printf("emitted " + exec.TaskKey + "_ok event\n")
 	}
 }
